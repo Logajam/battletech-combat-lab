@@ -109,6 +109,7 @@ import combat  # noqa: E402
 import INTEGRATION__weapon_selection as weapon_selection  # noqa: E402
 import INTEGRATION__heat as heat  # noqa: E402
 import INTEGRATION__equipment_systems as equip  # noqa: E402
+import INTEGRATION__ammo as ammo  # noqa: E402
 from INTEGRATION__attack_resolution import tn_adjuster, aimed_shot_location, firing_conditions, \
     prone_target_modifier, arc_unavailable  # noqa: E402
 
@@ -230,8 +231,8 @@ def evaluate_going_second(
 
     mover_cond = firing_conditions(mover)          # mover is standing here; sensors still count
     defender_cond = firing_conditions(defender)
-    mover_blocked = mover_cond[1] if mover_cond else frozenset()
-    defender_blocked = defender_cond[1] if defender_cond else frozenset()
+    mover_blocked = (mover_cond[1] if mover_cond else frozenset()) | ammo.unavailable_weapons(mover)
+    defender_blocked = (defender_cond[1] if defender_cond else frozenset()) | ammo.unavailable_weapons(defender)
     mover_adjust = tn_adjuster(mover, defender, aimed_shot_location(defender))
     defender_adjust = tn_adjuster(defender, mover)
     # One scorer per (rear arc?) case - which weapons can bear differs (p.60).

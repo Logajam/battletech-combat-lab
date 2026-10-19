@@ -181,6 +181,37 @@ def rear_mounted_weapons():
     assert len(attack_resolution.arc_unavailable(m, True)) == len(attack_resolution.get_weapons(m)) - 1
 
 
+@check
+def ammunition():
+    """pp.72-73, 95-96, 180, 182: shots per ton per bin, one shot per firing
+    from that weapon's own ammo, empty bins can't fire or explode, explosion
+    = shots x damage capped at 20, one-shots and rocket launchers fire once."""
+    import INTEGRATION__ammo as ammo
+    m = fresh()
+    ws = {w.name: w for w in attack_resolution.get_weapons(m)}
+    lrm, ac5, lbx = ws["ISLRM15"], ws["ISAC5"], ws["ISLBXAC10"]
+    bins = ammo.bins_for(m, lrm)
+    assert [b.shots_left for b in bins] == [8, 8] and all(b.explosion_damage == 20 for b in bins)
+    ac5_bin = ammo.bins_for(m, ac5)[0]
+    assert ac5_bin.shots_left == 20 and ammo.bins_for(m, lbx) == []           # no LB-X ammo aboard
+    assert id(lbx) in ammo.unavailable_weapons(m) and id(ac5) not in ammo.unavailable_weapons(m)
+    ac5_bin.shots_left = 3
+    ammo._update_explosion(ac5_bin)
+    assert ac5_bin.explosion_damage == 15                                     # 3 shots x 5
+    for _ in range(3):
+        ammo.spend(m, ac5)
+    assert ac5_bin.shots_left == 0 and not ac5_bin.is_explosive
+    assert id(ac5) in ammo.unavailable_weapons(m)
+    ammo.spend(m, lrm)
+    assert sorted(b.shots_left for b in bins) == [7, 8]                       # one bin drains first
+    ammo.spend(m, lrm)
+    assert sorted(b.shots_left for b in bins) == [6, 8]
+
+    one_shot = SimpleNamespace(name="LRM 15 (OS)", damage_type="Missile", rack_size=15, damage_per_shot=1)
+    rl = SimpleNamespace(name="RL10", damage_type="Missile", rack_size=10, damage_per_shot=1)
+    assert ammo.is_one_shot(one_shot) and ammo.is_one_shot(rl) and not ammo.is_one_shot(lrm)
+
+
 def run_all():
     failed = 0
     for fn in CHECKS:

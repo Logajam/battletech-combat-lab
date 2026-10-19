@@ -26,8 +26,8 @@ MECH SELECTION
   [Movement] Blue: 1316 N -> 0809 NW, Run (13 MP, 9 hexes, 2 heat; budget walk 5 / run 13 / jump 0)
   [Movement] Red: 0505 S -> 0709 N, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
   [Ranged] Blue -> Red: range 1, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['ISSRM6', 'ISLRM10', 'ISMediumLaser', 'ISPPC'] (weapon heat 21 of budget 42 = max 30 + sink 10 - current 0 - movement 2 - other -4; expected dmg 3.89)
-    ISSRM6: needs 9 (range mod +0), rolled 7 -> miss
-    ISLRM10: needs 15 (range mod +6), rolled 6 -> miss
+    ISSRM6: needs 9 (range mod +0), rolled 7 -> miss [ISSRM6 Ammo: 14 shots left]
+    ISLRM10: needs 15 (range mod +6), rolled 6 -> miss [ISLRM10 Ammo: 11 shots left]
     ISMediumLaser: needs 9 (range mod +0), rolled 9 -> HIT
     ISPPC: needs 12 (range mod +3), rolled 4 -> miss
   [Ranged] Red -> Blue: range 1, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 49 = max 30 + sink 22 - current 0 - movement 3 - other 0; expected dmg 12.50)
@@ -72,8 +72,8 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
   [Movement] Blue: 0809 NW -> 0712 SW, Walk (6 MP, 3 hexes, 1 heat; budget walk 6 / run 9 / jump 0)
   [Movement] Red: 0709 N -> 0710 S, Run (4 MP, 1 hexes, 2 heat; budget walk 3 / run 4 / jump 5)
   [Ranged] Blue -> Red: range 2, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 1); firing ['ISSRM6', 'ISLRM10', 'ISMediumLaser', 'ISPPC'] (weapon heat 21 of budget 28 = max 30 + sink 14 - current 9 - movement 1 - other 6; expected dmg 14.08)
-    ISSRM6: needs 6 (range mod +0), rolled 7 -> HIT
-    ISLRM10: needs 11 (range mod +5), rolled 6 -> miss
+    ISSRM6: needs 6 (range mod +0), rolled 7 -> HIT [ISSRM6 Ammo: 13 shots left]
+    ISLRM10: needs 11 (range mod +5), rolled 6 -> miss [ISLRM10 Ammo: 10 shots left]
     ISMediumLaser: needs 6 (range mod +0), rolled 8 -> HIT
     ISPPC: needs 8 (range mod +2), rolled 7 -> miss
   [Ranged] Red -> Blue: range 2, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 49 = max 30 + sink 22 - current 1 - movement 2 - other 0; expected dmg 25.00)
@@ -144,8 +144,8 @@ Attack Phase consciousness check (gunner, 1 pilot hits): needs 3. Rolled 10.
   [Movement] Blue: 0712 SW -> 0712 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 6 / run 15 / jump 0)
   [Movement] Red: 0710 S -> 0710 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
   [Ranged] Blue -> Red: range 2, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 1); firing ['ISSRM6', 'ISLRM10', 'ISMediumLaser', 'ISPPC'] (weapon heat 21 of budget 43 = max 30 + sink 14 - current 9 - movement 0 - other -8; expected dmg 17.72)
-    ISSRM6: needs 5 (range mod +0), rolled 8 -> HIT
-    ISLRM10: needs 10 (range mod +5), rolled 9 -> miss
+    ISSRM6: needs 5 (range mod +0), rolled 8 -> HIT [ISSRM6 Ammo: 12 shots left]
+    ISLRM10: needs 10 (range mod +5), rolled 9 -> miss [ISLRM10 Ammo: 9 shots left]
     ISMediumLaser: needs 5 (range mod +0), rolled 10 -> HIT
     ISPPC: needs 7 (range mod +2), rolled 7 -> HIT
   [Ranged] Red -> Blue: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 51 = max 30 + sink 22 - current 1 - movement 0 - other 0; expected dmg 30.00)
@@ -298,8 +298,8 @@ Movement Phase PSR (running mode, Hip/leg destroyed while running): needs 6 (Pil
   [Movement] Blue: 0410 NW -> 0413 SW, Run (4 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0; stood up with 4 MP left)
   [Ranged] Red: Blue is in its rear arc and it has no rear-mounted weapons - can't fire.
   [Ranged] Blue -> Red: range 3, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['ISSRM6', 'ISLRM10', 'ISMediumLaser', 'ISPPC'] (weapon heat 21 of budget 42 = max 30 + sink 11 - current 2 - movement 2 - other -5; expected dmg 16.27)
-    ISSRM6: needs 6 (range mod +0), rolled 5 -> miss
-    ISLRM10: needs 10 (range mod +4), rolled 4 -> miss
+    ISSRM6: needs 6 (range mod +0), rolled 5 -> miss [ISSRM6 Ammo: 11 shots left]
+    ISLRM10: needs 10 (range mod +4), rolled 4 -> miss [ISLRM10 Ammo: 8 shots left]
     ISMediumLaser: needs 6 (range mod +0), rolled 12 -> HIT
     ISPPC: needs 7 (range mod +1), rolled 7 -> HIT
     ISMediumLaser hit for 5:
@@ -330,8 +330,8 @@ Movement Phase PSR (running mode, Hip/leg destroyed while running): needs 6 (Pil
     ISMediumPulseLaser: needs 3 (range mod +0, modifiers -2), rolled 10 -> HIT
     ISMediumPulseLaser: needs 3 (range mod +0, modifiers -2), rolled 9 -> HIT
   [Ranged] Blue -> Red: range 2, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 1); firing ['ISSRM6', 'ISLRM10', 'ISMediumLaser', 'ISPPC'] (weapon heat 21 of budget 29 = max 30 + sink 14 - current 9 - movement 0 - other 6; expected dmg 17.72)
-    ISSRM6: needs 5 (range mod +0), rolled 4 -> miss
-    ISLRM10: needs 10 (range mod +5), rolled 7 -> miss
+    ISSRM6: needs 5 (range mod +0), rolled 4 -> miss [ISSRM6 Ammo: 10 shots left]
+    ISLRM10: needs 10 (range mod +5), rolled 7 -> miss [ISLRM10 Ammo: 7 shots left]
     ISMediumLaser: needs 5 (range mod +0), rolled 6 -> HIT
     ISPPC: needs 7 (range mod +2), rolled 8 -> HIT
     ISMediumPulseLaser hit for 6:
@@ -491,7 +491,6 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
 !! RESULTS PRODUCED WITH STUBS ACTIVE - NOT RULES-COMPLETE
 !! Stubs that ran:
 !!   movement_selection                  13 runs, in 1/1 battle(s)
-!!   ammo                                10 runs, in 1/1 battle(s)
 !!   physical_combat                      7 runs, in 1/1 battle(s)
 !!   deployment                           2 runs, in 1/1 battle(s)
 !! Known missing rules with no runtime flag:
@@ -522,7 +521,6 @@ BATCH SUMMARY - 1 battle(s): Red = Asymptote II iJ Mpulse, Blue = TEST Heat Gear
 !! RESULTS PRODUCED WITH STUBS ACTIVE - NOT RULES-COMPLETE
 !! Stubs that ran:
 !!   movement_selection                  13 runs, in 1/1 battle(s)
-!!   ammo                                10 runs, in 1/1 battle(s)
 !!   physical_combat                      7 runs, in 1/1 battle(s)
 !!   deployment                           2 runs, in 1/1 battle(s)
 !! Known missing rules with no runtime flag:
@@ -541,31 +539,21 @@ STUB: deployment - Red placed at fixed CONFIG hex 0505 facing S (edge entry not 
 STUB: deployment - Blue placed at fixed CONFIG hex 1316 facing N (edge entry not built)
 STUB: movement_selection - Blue picked 0809 NW Run (policy=max_dealt, 2213 LOS candidates, exp. dealt 16.32 / recv 2.50)
 STUB: movement_selection - Red picked 0709 N Jump (policy=max_dealt, 491 LOS candidates, exp. dealt 12.50 / recv 3.89)
-STUB: ammo - Blue's ISSRM6 fired with unlimited ammo
-STUB: ammo - Blue's ISLRM10 fired with unlimited ammo
 STUB: physical_combat - turn 1: phase skipped (not built)
 STUB: movement_selection - Blue picked 0712 SW Walk (policy=max_dealt, 1461 LOS candidates, exp. dealt 16.27 / recv 0.00)
 STUB: movement_selection - Red picked 0710 S Run (policy=max_dealt, 588 LOS candidates, exp. dealt 25.00 / recv 14.08)
-STUB: ammo - Blue's ISSRM6 fired with unlimited ammo
-STUB: ammo - Blue's ISLRM10 fired with unlimited ammo
 STUB: physical_combat - turn 2: phase skipped (not built)
 STUB: movement_selection - Blue picked 0712 SW Stand Still (policy=max_dealt, 7153 LOS candidates, exp. dealt 17.72 / recv 30.00)
 STUB: movement_selection - Red picked 0710 S Stand Still (policy=max_dealt, 601 LOS candidates, exp. dealt 30.00 / recv 17.72)
-STUB: ammo - Blue's ISSRM6 fired with unlimited ammo
-STUB: ammo - Blue's ISLRM10 fired with unlimited ammo
 STUB: physical_combat - turn 3: phase skipped (not built)
 STUB: movement_selection - Blue picked 0410 NW Run (policy=max_dealt, 110 LOS candidates, exp. dealt 12.28 / recv 21.67)
 STUB: movement_selection - Red picked 0511 SW Walk (policy=max_dealt, 601 LOS candidates, exp. dealt 27.50 / recv 0.00)
 STUB: physical_combat - turn 4: phase skipped (not built)
 STUB: movement_selection - Red picked 0511 N Run (policy=max_dealt, 550 LOS candidates, exp. dealt 30.00 / recv 0.00)
 STUB: movement_selection - Blue picked 0413 SW Run (policy=max_dealt, 237 LOS candidates, exp. dealt 16.27 / recv 0.00)
-STUB: ammo - Blue's ISSRM6 fired with unlimited ammo
-STUB: ammo - Blue's ISLRM10 fired with unlimited ammo
 STUB: physical_combat - turn 5: phase skipped (not built)
 STUB: movement_selection - Red picked 0411 SW Walk (policy=max_dealt, 558 LOS candidates, exp. dealt 29.17 / recv 17.72)
 STUB: movement_selection - Blue picked 0413 SW Stand Still (policy=max_dealt, 810 LOS candidates, exp. dealt 17.72 / recv 29.17)
-STUB: ammo - Blue's ISSRM6 fired with unlimited ammo
-STUB: ammo - Blue's ISLRM10 fired with unlimited ammo
 STUB: physical_combat - turn 6: phase skipped (not built)
 STUB: movement_selection - Red picked 0513 SE Run (policy=max_dealt, 501 LOS candidates, exp. dealt 30.00 / recv 0.00)
 STUB: physical_combat - turn 7: phase skipped (not built)

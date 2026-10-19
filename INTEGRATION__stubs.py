@@ -21,7 +21,6 @@ When a stub gets replaced by real logic, delete its function and its CONFIG
 knobs, and add a Change Record line in INTEGRATION__PROJECT_MAP.md.
 """
 
-import re
 import sys
 from collections import Counter
 
@@ -158,34 +157,12 @@ def stub_unconfirmed_weapon_data(mech_name, weapons):
             _warn("unconfirmed_weapon_data", f"{mech_name}'s {w.name} can't fire - null {', '.join(missing)}")
 
 
-def stub_ammo(mech_name, weapon):
-    """Ammo is unlimited: shots_per_ton is null in equipment.json and bins
-    aren't linked to weapons. Warns each time a non-energy weapon fires.
-    No knob. (Ammo bins still explode on a crit - that part is real.)
-    TODO: shot counts + bin linkage (MegaMek Mounted.getLinked(),
-    AmmoType shots - names from memory)."""
-    _warn("ammo", f"{mech_name}'s {weapon.name} fired with unlimited ammo")
-
-
-# One-shot launcher names in equipment.json: "LRM 5 (OS)", "CLLRM10 (OS)",
-# "ISSRM2OS", "CLOSStreakLRM5", "CLIOSStreakLRM5", "CLNarcBeacon (OS)".
-# A name pattern, not a rule; checked against every weapon entry 2026-10-19
-# (45 matches, all one-shots).
-_ONE_SHOT_NAME = re.compile(r"\(I?-?OS\)|OS$|^CLI?OS")
-
-
-def is_one_shot(weapon):
-    return bool(_ONE_SHOT_NAME.search(weapon.name or ""))
-
-
-def stub_one_shot(mech_name, weapon):
-    """One-shot (OS/I-OS) launchers have their base launcher's damage/range
-    (Daniel, 2026-10-19) but may only fire once per battle. That limit is
-    not enforced yet - they fire every turn. Warns each time one fires.
-    No knob.
-    TODO: track "already fired" per weapon instance (reset per battle by
-    clone_mech), then drop it from select_weapons_to_fire's candidates."""
-    _warn("one_shot", f"{mech_name}'s {weapon.name} fired again - fire-once limit not enforced")
+def stub_ammo_data(mech_name, weapon):
+    """This weapon's shots per ton isn't in equipment.json (not in the Core
+    Rulebook tables - e.g. HVACs, Improved ACs), so its ammo is unlimited.
+    Warns each time it fires. No knob.
+    TODO: shots_per_ton for these rows from Tactical Operations' tables."""
+    _warn("ammo_data", f"{mech_name}'s {weapon.name} fired with unlimited ammo (no shots-per-ton data)")
 
 
 # =============================================================================
@@ -201,22 +178,20 @@ def stub_heat_explosion_bin(mech_name, tied, damage_value, unknown_names):
     """Which ammo bin explodes from heat (Core Rulebook p.107): the most
     destructive ammo per shot first, then the bin with the most shots left,
     then the controller's choice. INTEGRATION__heat.choose_exploding_bin
-    applies the first step; this stub covers what it can't:
-      - shots left: not tracked (ammo is unlimited - see stub_ammo), so
-        that tie-break is skipped;
-      - controller's choice: a seeded random pick among the tied bins;
+    applies the first two steps; this stub covers what it can't:
+      - controller's choice: a seeded random pick among the still-tied bins;
       - a bin whose weapon/damage isn't in equipment.json counts as
         damage value 0 (named in the warning).
     `tied`: [(location, bin)] sharing the top damage value. Returns one.
     No knob.
-    TODO: shot counts per bin (same data stub_ammo needs), and a real
-    controller policy (e.g. prefer a bin behind CASE) - pile-4 decision."""
+    TODO: a real controller policy (e.g. prefer a bin behind CASE) - pile-4
+    decision."""
     pick = tied[config.pick_number(len(tied), prompt="Pick exploding ammo bin") - 1]
     notes = []
     if unknown_names:
         notes.append(f"unknown damage value for {sorted(set(unknown_names))} (counted as 0)")
     if len(tied) > 1:
-        notes.append(f"{len(tied)} bins tie at damage value {damage_value}; shots-left tie-break skipped "
-                     f"(not tracked), controller's choice made at random")
+        notes.append(f"{len(tied)} bins tie at damage value {damage_value} and shots left; "
+                     f"controller's choice made at random")
     _warn("heat_explosion_bin", f"{mech_name}: {'; '.join(notes)} -> {pick[1].name} in {pick[0]}")
     return pick

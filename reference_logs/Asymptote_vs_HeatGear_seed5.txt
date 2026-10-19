@@ -32,8 +32,8 @@ MECH SELECTION
     ISMediumPulseLaser: needs 12 (range mod +2, modifiers -1), rolled 3 -> miss
     ISMediumPulseLaser: needs 12 (range mod +2, modifiers -1), rolled 12 -> HIT
   [Ranged] Blue -> Red: range 3, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['ISSRM6', 'ISLRM10', 'ISMediumLaser', 'ISPPC'] (weapon heat 21 of budget 21 = max 9 + sink 10 - current 0 - movement 2 - other -4; expected dmg 5.28)
-    ISSRM6: needs 9 (range mod +0), rolled 2 -> miss
-    ISLRM10: needs 13 (range mod +4), rolled 7 -> miss
+    ISSRM6: needs 9 (range mod +0), rolled 2 -> miss [ISSRM6 Ammo: 14 shots left]
+    ISLRM10: needs 13 (range mod +4), rolled 7 -> miss [ISLRM10 Ammo: 11 shots left]
     ISMediumLaser: needs 9 (range mod +0), rolled 4 -> miss
     ISPPC: needs 10 (range mod +1), rolled 5 -> miss
     ISMediumPulseLaser hit for 6:
@@ -53,7 +53,7 @@ MECH SELECTION
   [Movement] Blue: 1009 NW -> 1009 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 6 / run 9 / jump 0)
   [Movement] Red: 0709 SE -> 1010 SE, Walk (3 MP, 3 hexes, 1 heat; budget walk 3 / run 4 / jump 5)
   [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 1 + LOS 0 + heat 1); firing ['ISSRM6', 'ISMediumLaser'] (weapon heat 7 of budget 8 = max 9 + sink 14 - current 9 - movement 0 - other 6; expected dmg 9.39)
-    ISSRM6: needs 6 (range mod +0), rolled 2 -> miss
+    ISSRM6: needs 6 (range mod +0), rolled 2 -> miss [ISSRM6 Ammo: 13 shots left]
     ISMediumLaser: needs 6 (range mod +0), rolled 5 -> miss
   [Ranged] Red -> Blue: range 1, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 24 = max 4 + sink 22 - current 1 - movement 1 - other 0; expected dmg 29.17)
     ISMediumPulseLaser: needs 3 (range mod +0, modifiers -2), rolled 12 -> HIT
@@ -97,8 +97,8 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
   [Movement] Blue: 1009 NW -> 0808 N, Walk (3 MP, 2 hexes, 1 heat; budget walk 4 / run 10 / jump 0)
   [Movement] Red: 1010 SE -> 1009 N, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 4 / jump 5)
   [Ranged] Blue -> Red: range 2, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 1); firing ['ISSRM6', 'ISLRM10', 'ISMediumLaser', 'ISPPC'] (weapon heat 21 of budget 22 = max 9 + sink 14 - current 8 - movement 1 - other -8; expected dmg 14.08)
-    ISSRM6: needs 6 (range mod +0), rolled 10 -> HIT
-    ISLRM10: needs 11 (range mod +5), rolled 4 -> miss
+    ISSRM6: needs 6 (range mod +0), rolled 10 -> HIT [ISSRM6 Ammo: 12 shots left]
+    ISLRM10: needs 11 (range mod +5), rolled 4 -> miss [ISLRM10 Ammo: 10 shots left]
     ISMediumLaser: needs 6 (range mod +0), rolled 6 -> HIT
     ISPPC: needs 8 (range mod +2), rolled 6 -> miss
   [Ranged] Red -> Blue: range 2, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 25 = max 4 + sink 22 - current 0 - movement 1 - other 0; expected dmg 29.17)
@@ -455,7 +455,6 @@ Movement Phase consciousness check (pilot, 4 pilot hits): needs 10. Rolled 5.
 !! Stubs that ran:
 !!   movement_selection                  10 runs, in 1/1 battle(s)
 !!   physical_combat                      6 runs, in 1/1 battle(s)
-!!   ammo                                 5 runs, in 1/1 battle(s)
 !!   deployment                           2 runs, in 1/1 battle(s)
 !! Known missing rules with no runtime flag:
 !!   - Per-mount firing arcs (only PATHFINDER's 60-degree rear-arc block applies)
@@ -486,7 +485,6 @@ BATCH SUMMARY - 1 battle(s): Red = Asymptote II iJ Mpulse, Blue = TEST Heat Gear
 !! Stubs that ran:
 !!   movement_selection                  10 runs, in 1/1 battle(s)
 !!   physical_combat                      6 runs, in 1/1 battle(s)
-!!   ammo                                 5 runs, in 1/1 battle(s)
 !!   deployment                           2 runs, in 1/1 battle(s)
 !! Known missing rules with no runtime flag:
 !!   - Per-mount firing arcs (only PATHFINDER's 60-degree rear-arc block applies)
@@ -504,17 +502,12 @@ STUB: deployment - Red placed at fixed CONFIG hex 0505 facing S (edge entry not 
 STUB: deployment - Blue placed at fixed CONFIG hex 1316 facing N (edge entry not built)
 STUB: movement_selection - Red picked 0709 SE Jump (policy=max_dealt, 197 LOS candidates, exp. dealt 0.00 / recv 1.36)
 STUB: movement_selection - Blue picked 1009 NW Run (policy=max_dealt, 2171 LOS candidates, exp. dealt 5.28 / recv 0.83)
-STUB: ammo - Blue's ISSRM6 fired with unlimited ammo
-STUB: ammo - Blue's ISLRM10 fired with unlimited ammo
 STUB: physical_combat - turn 1: phase skipped (not built)
 STUB: movement_selection - Blue picked 1009 NW Stand Still (policy=max_dealt, 1463 LOS candidates, exp. dealt 10.83 / recv 25.00)
 STUB: movement_selection - Red picked 1010 SE Walk (policy=max_dealt, 594 LOS candidates, exp. dealt 29.17 / recv 9.39)
-STUB: ammo - Blue's ISSRM6 fired with unlimited ammo
 STUB: physical_combat - turn 2: phase skipped (not built)
 STUB: movement_selection - Blue picked 0808 N Walk (policy=max_dealt, 2160 LOS candidates, exp. dealt 16.27 / recv 0.00)
 STUB: movement_selection - Red picked 1009 N Walk (policy=max_dealt, 600 LOS candidates, exp. dealt 29.17 / recv 14.08)
-STUB: ammo - Blue's ISSRM6 fired with unlimited ammo
-STUB: ammo - Blue's ISLRM10 fired with unlimited ammo
 STUB: physical_combat - turn 3: phase skipped (not built)
 STUB: movement_selection - Blue picked 1010 SE Run (policy=max_dealt, 252 LOS candidates, exp. dealt 7.58 / recv 0.00)
 STUB: movement_selection - Red picked 0910 SW Walk (policy=max_dealt, 577 LOS candidates, exp. dealt 27.50 / recv 0.00)

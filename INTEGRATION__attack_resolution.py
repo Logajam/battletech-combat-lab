@@ -91,6 +91,7 @@ import INTEGRATION__weapon_selection as weapon_selection
 import INTEGRATION__heat as heat
 import INTEGRATION__equipment_systems as equip
 import INTEGRATION__weapon_rules as weapon_rules
+import INTEGRATION__ammo as ammo
 from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capability, \
     mark_consciousness_check_pending, compute_heat_dissipation
 import armor_rules
@@ -366,7 +367,7 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
         config.log(f"  [Ranged] {a_name}: can't make ranged attacks (sensors destroyed, or prone with no arm to prop on).")
         return
     cond_mod, unavailable, cond_note = conditions
-    unavailable = unavailable | arc_blocked
+    unavailable = unavailable | arc_blocked | ammo.unavailable_weapons(attacker)
     prone_mod = prone_target_modifier(target, distance)
     other_mod = cond_mod + prone_mod
     pre_tn = attacker.gunnery + amm + tmm + los.modifier + heat_mod + stealth_mod + other_mod
@@ -400,10 +401,8 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
 
     report.weapon_heat += weapon_heat + surcharge
     for w in weapons:
-        if stubs.is_one_shot(w):
-            stubs.stub_one_shot(a_name, w)  # no ammo bin - its own limit instead
-        elif w.damage_type != "Energy" and (w.damage_per_shot or 0) > 0:
-            stubs.stub_ammo(a_name, w)
+        # Ammo is marked off at declaration - except Streaks, only on a hit (p.72, p.187).
+        ammo_note = "" if weapon_rules.is_streak(w) else ammo.spend(attacker, w)
         range_mod = weapon_selection._weapon_range_mod(w, distance)
         extra = adjust(w, weapon_selection.range_bracket(w, distance))
         w_aim = aim if aim and not is_cluster_weapon(w) else None
@@ -412,10 +411,15 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
         hit = roll >= tn
         config.log(f"    {w.name}: needs {tn} (range mod +{range_mod}"
                    f"{f', modifiers {extra:+d}' if extra else ''}){f' aimed at {w_aim}' if w_aim else ''}, "
-                   f"rolled {roll} -> {'HIT' if hit else 'miss'}")
-        if not hit and weapon_rules.is_streak(w):
-            report.weapon_heat -= w.heat or 0        # a Streak that misses doesn't fire (p.187)
-            config.log(f"      Streak missed - launcher doesn't fire: no heat.")
+                   f"rolled {roll} -> {'HIT' if hit else 'miss'}{f' [{ammo_note}]' if ammo_note else ''}")
+        if weapon_rules.is_streak(w):
+            if hit:
+                note = ammo.spend(attacker, w)
+                if note:
+                    config.log(f"      [{note}]")
+            else:
+                report.weapon_heat -= w.heat or 0    # a Streak that misses doesn't fire (p.187)
+                config.log(f"      Streak missed - launcher doesn't fire: no heat, no ammo.")
         report.attacks += 1
         report.attacks_list.append(DeclaredAttack(weapon=w, tn=tn, roll=roll, hit=hit, side=side,
                                                   aimed_at=w_aim, cover=cover > 0))

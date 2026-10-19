@@ -54,6 +54,11 @@
     "coolant_pod_fix": {
       "date": "2026-10-19",
       "note": "coolantpod: category ammo -> misc, explosion_damage 2 (Core p.208). Not mirrored in build_equipment_db.py."
+    },
+    "shots_per_ton_fill": {
+      "date": "2026-10-19",
+      "source": "Core Rulebook Weapons and Equipment Tables pp.248-254 (Inner Sphere / Clan weapons)",
+      "note": "shots_per_ton filled on weapon entries (null only) by name + tech-base match; 'OS' = one-shot. Bins are 1 ton, so a bin holds this many shots. Not mirrored in build_equipment_db.py."
     }
   },
   "entries": {
@@ -1585,7 +1590,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Energy",
-      "shots_per_ton": null,
+      "shots_per_ton": 10,
       "damage_per_shot": null,
       "heat": 5,
       "range": {
@@ -1615,7 +1620,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Energy",
-      "shots_per_ton": null,
+      "shots_per_ton": 10,
       "damage_per_shot": 4,
       "heat": 5,
       "range": {
@@ -1710,7 +1715,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 45,
       "damage_per_shot": 2,
       "heat": 1,
       "range": {
@@ -1753,7 +1758,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 20,
       "damage_per_shot": 5,
       "heat": 1,
       "range": {
@@ -1796,7 +1801,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 10,
       "damage_per_shot": 10,
       "heat": 3,
       "range": {
@@ -1837,7 +1842,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 5,
       "damage_per_shot": 20,
       "heat": 7,
       "range": {
@@ -1867,7 +1872,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 40,
       "damage_per_shot": 2,
       "heat": 1,
       "range": {
@@ -1896,7 +1901,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 20,
       "damage_per_shot": 4,
       "heat": 1,
       "range": {
@@ -1925,7 +1930,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 10,
       "damage_per_shot": 8,
       "heat": 2,
       "range": {
@@ -1988,7 +1993,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 45,
       "damage_per_shot": 2,
       "heat": 1,
       "range": {
@@ -2021,7 +2026,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 20,
       "damage_per_shot": 5,
       "heat": 1,
       "range": {
@@ -2051,7 +2056,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 10,
       "damage_per_shot": 10,
       "heat": 4,
       "range": {
@@ -2081,7 +2086,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 5,
       "damage_per_shot": 20,
       "heat": 8,
       "range": {
@@ -2113,7 +2118,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 45,
       "damage_per_shot": 2,
       "heat": 1,
       "range": {
@@ -2142,7 +2147,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 20,
       "damage_per_shot": 5,
       "heat": 1,
       "range": {
@@ -2173,7 +2178,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 10,
       "damage_per_shot": 10,
       "heat": 3,
       "range": {
@@ -2204,7 +2209,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 5,
       "damage_per_shot": 20,
       "heat": 7,
       "range": {
@@ -2233,7 +2238,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 45,
       "damage_per_shot": 2,
       "heat": 1,
       "range": {
@@ -2262,7 +2267,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 20,
       "damage_per_shot": 5,
       "heat": 1,
       "range": {
@@ -2294,7 +2299,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 10,
       "damage_per_shot": 10,
       "heat": 2,
       "range": {
@@ -2323,7 +2328,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 5,
       "damage_per_shot": 20,
       "heat": 6,
       "range": {
@@ -2354,7 +2359,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 45,
       "damage_per_shot": 2,
       "heat": 1,
       "range": {
@@ -2385,7 +2390,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 20,
       "damage_per_shot": 5,
       "heat": 1,
       "range": {
@@ -2414,7 +2419,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 10,
       "damage_per_shot": 10,
       "heat": 2,
       "range": {
@@ -2445,7 +2450,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 5,
       "damage_per_shot": 20,
       "heat": 6,
       "range": {
@@ -2475,7 +2480,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 45,
       "damage_per_shot": 2,
       "heat": 1,
       "range": {
@@ -2506,7 +2511,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 20,
       "damage_per_shot": 5,
       "heat": 1,
       "range": {
@@ -2539,7 +2544,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 45,
       "damage_per_shot": 2,
       "heat": 1,
       "range": {
@@ -2572,7 +2577,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 20,
       "damage_per_shot": 5,
       "heat": 1,
       "range": {
@@ -2701,7 +2706,7 @@
       "explosive": true,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 8,
       "damage_per_shot": 15,
       "heat": 1,
       "range": {
@@ -2732,7 +2737,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 8,
       "damage_per_shot": 15,
       "heat": 1,
       "range": {
@@ -2761,7 +2766,7 @@
       "explosive": true,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 8,
       "damage_per_shot": 15,
       "heat": 1,
       "range": {
@@ -2791,7 +2796,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 16,
       "damage_per_shot": 8,
       "heat": 1,
       "range": {
@@ -2821,7 +2826,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 4,
       "damage_per_shot": null,
       "heat": 2,
       "range": {
@@ -2851,7 +2856,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 4,
       "damage_per_shot": 22,
       "heat": 2,
       "range": {
@@ -2880,7 +2885,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 6,
       "damage_per_shot": null,
       "heat": null,
       "range": null,
@@ -2904,7 +2909,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 4,
       "damage_per_shot": null,
       "heat": null,
       "range": null,
@@ -2928,7 +2933,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 3,
       "damage_per_shot": null,
       "heat": null,
       "range": null,
@@ -2952,7 +2957,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 40,
       "damage_per_shot": 3,
       "heat": 1,
       "range": {
@@ -2983,7 +2988,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 200,
       "damage_per_shot": 1,
       "heat": 0,
       "range": {
@@ -3014,7 +3019,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 100,
       "damage_per_shot": 3,
       "heat": 0,
       "range": {
@@ -3102,7 +3107,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 200,
       "damage_per_shot": 2,
       "heat": 0,
       "range": {
@@ -3132,7 +3137,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 200,
       "damage_per_shot": 1,
       "heat": 0,
       "range": {
@@ -3161,7 +3166,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 100,
       "damage_per_shot": 3,
       "heat": 0,
       "range": {
@@ -3285,7 +3290,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 24,
       "damage_per_shot": 1,
       "heat": 2,
       "range": {
@@ -3328,7 +3333,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 12,
       "damage_per_shot": 1,
       "heat": 4,
       "range": {
@@ -3371,7 +3376,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 8,
       "damage_per_shot": 1,
       "heat": 5,
       "range": {
@@ -3414,7 +3419,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 6,
       "damage_per_shot": 1,
       "heat": 6,
       "range": {
@@ -3639,7 +3644,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 24,
       "damage_per_shot": 1,
       "heat": 2,
       "range": {
@@ -3670,7 +3675,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 12,
       "damage_per_shot": 1,
       "heat": 4,
       "range": {
@@ -3701,7 +3706,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 8,
       "damage_per_shot": 1,
       "heat": 5,
       "range": {
@@ -3732,7 +3737,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 6,
       "damage_per_shot": 1,
       "heat": 6,
       "range": {
@@ -3905,7 +3910,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 24,
       "damage_per_shot": 1,
       "heat": 2,
       "range": {
@@ -3936,7 +3941,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 12,
       "damage_per_shot": 1,
       "heat": 4,
       "range": {
@@ -3967,7 +3972,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 8,
       "damage_per_shot": 1,
       "heat": 5,
       "range": {
@@ -3998,7 +4003,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 6,
       "damage_per_shot": 1,
       "heat": 6,
       "range": {
@@ -4159,7 +4164,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 18,
       "damage_per_shot": 1,
       "heat": 3,
       "range": {
@@ -4192,7 +4197,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 9,
       "damage_per_shot": 1,
       "heat": 6,
       "range": {
@@ -4225,7 +4230,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 6,
       "damage_per_shot": 1,
       "heat": 8,
       "range": {
@@ -4258,7 +4263,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 4,
       "damage_per_shot": 1,
       "heat": 10,
       "range": {
@@ -4288,7 +4293,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 24,
       "damage_per_shot": 1,
       "heat": 2,
       "range": {
@@ -4318,7 +4323,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 12,
       "damage_per_shot": 1,
       "heat": 4,
       "range": {
@@ -4348,7 +4353,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 8,
       "damage_per_shot": 1,
       "heat": 5,
       "range": {
@@ -4378,7 +4383,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 6,
       "damage_per_shot": 1,
       "heat": 6,
       "range": {
@@ -4420,7 +4425,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 50,
       "damage_per_shot": 2,
       "heat": 2,
       "range": {
@@ -4462,7 +4467,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 25,
       "damage_per_shot": 2,
       "heat": 3,
       "range": {
@@ -4504,7 +4509,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 15,
       "damage_per_shot": 2,
       "heat": 4,
       "range": {
@@ -4680,7 +4685,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 50,
       "damage_per_shot": 2,
       "heat": 2,
       "range": {
@@ -4715,7 +4720,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 25,
       "damage_per_shot": 2,
       "heat": 3,
       "range": {
@@ -4750,7 +4755,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 15,
       "damage_per_shot": 2,
       "heat": 4,
       "range": {
@@ -4918,7 +4923,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 50,
       "damage_per_shot": 2,
       "heat": 2,
       "range": {
@@ -4949,7 +4954,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 25,
       "damage_per_shot": 2,
       "heat": 3,
       "range": {
@@ -4980,7 +4985,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 15,
       "damage_per_shot": 2,
       "heat": 4,
       "range": {
@@ -5121,7 +5126,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 50,
       "damage_per_shot": 2,
       "heat": 2,
       "range": {
@@ -5154,7 +5159,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 25,
       "damage_per_shot": 2,
       "heat": 3,
       "range": {
@@ -5187,7 +5192,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 15,
       "damage_per_shot": 2,
       "heat": 4,
       "range": {
@@ -5480,7 +5485,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": "OS",
       "damage_per_shot": 1,
       "heat": 3,
       "range": {
@@ -5516,7 +5521,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": "OS",
       "damage_per_shot": 1,
       "heat": 4,
       "range": {
@@ -5552,7 +5557,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": "OS",
       "damage_per_shot": 1,
       "heat": 5,
       "range": {
@@ -5582,7 +5587,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 20,
       "damage_per_shot": null,
       "heat": null,
       "range": null,
@@ -5606,7 +5611,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 10,
       "damage_per_shot": null,
       "heat": null,
       "range": null,
@@ -5630,7 +5635,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 7,
       "damage_per_shot": null,
       "heat": null,
       "range": null,
@@ -5654,7 +5659,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 5,
       "damage_per_shot": null,
       "heat": null,
       "range": null,
@@ -5805,7 +5810,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 24,
       "damage_per_shot": 1,
       "heat": 4,
       "range": {
@@ -5837,7 +5842,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 12,
       "damage_per_shot": 1,
       "heat": 6,
       "range": {
@@ -5869,7 +5874,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 8,
       "damage_per_shot": 1,
       "heat": 10,
       "range": {
@@ -5901,7 +5906,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 6,
       "damage_per_shot": 1,
       "heat": 12,
       "range": {
@@ -6083,7 +6088,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 6,
       "damage_per_shot": null,
       "heat": 0,
       "range": {
@@ -6149,7 +6154,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 6,
       "damage_per_shot": null,
       "heat": 0,
       "range": {
@@ -6215,7 +6220,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 4,
       "damage_per_shot": null,
       "heat": 0,
       "range": {
@@ -6276,7 +6281,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 12,
       "damage_per_shot": 2,
       "heat": 1,
       "range": {
@@ -6339,7 +6344,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 24,
       "damage_per_shot": 2,
       "heat": 1,
       "range": {
@@ -6771,7 +6776,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 5,
       "damage_per_shot": null,
       "heat": null,
       "range": null,
@@ -6799,7 +6804,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 5,
       "damage_per_shot": null,
       "heat": 20,
       "range": {
@@ -6832,7 +6837,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 20,
       "damage_per_shot": null,
       "heat": 5,
       "range": {
@@ -6865,7 +6870,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 10,
       "damage_per_shot": null,
       "heat": 10,
       "range": {
@@ -6895,7 +6900,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 45,
       "damage_per_shot": 2,
       "heat": 1,
       "range": {
@@ -6925,7 +6930,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 20,
       "damage_per_shot": 5,
       "heat": 1,
       "range": {
@@ -7066,7 +7071,7 @@
       "explosive": true,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 50,
       "damage_per_shot": null,
       "heat": null,
       "range": null,
@@ -7090,7 +7095,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": "OS",
       "damage_per_shot": null,
       "heat": null,
       "range": null,
@@ -7117,7 +7122,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": "OS",
       "damage_per_shot": null,
       "heat": null,
       "range": null,
@@ -7144,7 +7149,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 12,
       "damage_per_shot": 5,
       "heat": 3,
       "range": {
@@ -7177,7 +7182,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 6,
       "damage_per_shot": 10,
       "heat": 5,
       "range": {
@@ -7210,7 +7215,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 4,
       "damage_per_shot": 15,
       "heat": 7,
       "range": {
@@ -7243,7 +7248,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 3,
       "damage_per_shot": 20,
       "heat": 8,
       "range": {
@@ -8054,7 +8059,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 10,
       "damage_per_shot": null,
       "heat": null,
       "range": null,
@@ -8077,7 +8082,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 10,
       "damage_per_shot": null,
       "heat": null,
       "range": null,

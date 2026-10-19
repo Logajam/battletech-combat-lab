@@ -96,6 +96,7 @@ import math
 import INTEGRATION__config as config
 import INTEGRATION__stubs as stubs
 import INTEGRATION__equipment_systems as equip
+import INTEGRATION__ammo as ammo
 from mech_state import compute_heat_dissipation, is_destroyed, pilot_unconscious, \
     mark_consciousness_check_pending, active_heat_sinks, working_heat_sinks, heat_sink_rate, \
     compute_walk_mp, compute_running_mp, compute_jump_mp
@@ -445,8 +446,8 @@ def is_inferno_bin(bin_):
 
 def live_ammo_bins(mech, inferno=None):
     """[(location, bin)] for every explosive ammo bin that hasn't exploded or
-    been destroyed. Ammo is unlimited (stubs.stub_ammo), so no bin is ever
-    empty. Only ammo bins: explosive components such as Gauss rifles, and
+    been destroyed; an empty bin isn't explosive (INTEGRATION__ammo). Only
+    ammo bins: explosive components such as Gauss rifles, and
     one-shot weapons, never explode from heat (p.107). inferno=True/False
     keeps only inferno / non-inferno bins; None keeps both."""
     destroyed_ids = {info["instance_id"] for info in mech.destroyed_slot_info.values()
@@ -463,34 +464,18 @@ def live_ammo_bins(mech, inferno=None):
     return bins
 
 
-def _weapon_entry_for_ammo(bin_name):
-    """equipment.json entry of the weapon a bin feeds, found by name: drop a
-    " - Variant" suffix and the word "Ammo" ("ISLRM15 Ammo" -> "ISLRM15").
-    None if the name doesn't resolve to a weapon."""
-    base = bin_name.split(" - ")[0]
-    base = " ".join(w for w in base.split() if w.lower() not in ("ammo", "inferno"))
-    entry = lookup_equipment(base)
-    return entry if entry is not None and entry.get("category") == "weapon" else None
-
-
 def ammo_bin_damage_value(bin_):
     """Damage Value of one turn's worth of shots from this bin (p.107): a
     missile launcher's rack size x damage per missile (LRM 15 -> 15, SRM 6
     -> 12), otherwise the weapon's damage (AC/5 -> 5; Rapid-Fire weapons
     count one shot). None if the bin's weapon or its damage is unknown."""
-    entry = _weapon_entry_for_ammo(bin_.name)
-    if entry is None or entry.get("damage_per_shot") is None:
-        return None
-    if entry.get("damage_type") == "Missile" and entry.get("rack_size"):
-        return entry["damage_per_shot"] * entry["rack_size"]
-    return entry["damage_per_shot"]
+    return ammo.damage_per_shot(ammo.weapon_entry_for_ammo(bin_.name))
 
 
 def choose_exploding_bin(mech, bins):
-    """The bin with the most destructive ammo per shot explodes (p.107).
-    Ties on that go to the bin with the most shots left, then the
-    controller's choice - neither is available here (shot counts aren't
-    tracked), so stubs.stub_heat_explosion_bin picks among the tie."""
+    """The bin with the most destructive ammo per shot explodes (p.107);
+    ties go to the bin with the most shots left (INTEGRATION__ammo), then
+    the controller's choice (stubs.stub_heat_explosion_bin)."""
     scored = []
     unknown = []
     for location, b in bins:
@@ -498,11 +483,12 @@ def choose_exploding_bin(mech, bins):
         if dv is None:
             unknown.append(b.name)
             dv = 0
-        scored.append((dv, location, b))
-    best = max(dv for dv, _, _ in scored)
-    tied = [(location, b) for dv, location, b in scored if dv == best]
+        shots = getattr(b, "shots_left", None)
+        scored.append((dv, float("inf") if shots is None else shots, location, b))
+    best = max((dv, shots) for dv, shots, _, _ in scored)
+    tied = [(location, b) for dv, shots, location, b in scored if (dv, shots) == best]
     if unknown or len(tied) > 1:
-        return stubs.stub_heat_explosion_bin(mech.side_name, tied, best, unknown)
+        return stubs.stub_heat_explosion_bin(mech.side_name, tied, best[0], unknown)
     return tied[0]
 
 
@@ -531,11 +517,10 @@ def _check_ammo_explosion(mech, inferno):
     apply_explosion(mech, bin_, location)
     if not inferno:
         return False
-    # 2 heat per missile left in the bin, max 30 (p.192). Bins are never
-    # empty (unlimited ammo), and a full SRM bin always holds 50+ missiles,
-    # so this is always the 30 cap.
-    mech.current_heat += INFERNO_MAX_HEAT
-    config.log(f"  [Heat] {name}: inferno ammo burns - +{INFERNO_MAX_HEAT} heat at once -> {mech.current_heat}.")
+    # 2 heat per missile left in the bin, max 30 (p.192).
+    burn = ammo.inferno_heat(bin_)
+    mech.current_heat += burn
+    config.log(f"  [Heat] {name}: inferno ammo burns - +{burn} heat at once -> {mech.current_heat}.")
     return True
 
 
@@ -589,7 +574,9 @@ def max_movement_heat(mech):
 
 
 def max_weapon_heat(mech):
-    return sum(w.heat for w in get_weapons(mech) if w.heat)
+    """Heat of every weapon that could fire next turn (ammo permitting)."""
+    out = ammo.unavailable_weapons(mech)
+    return sum(w.heat for w in get_weapons(mech) if w.heat and id(w) not in out)
 
 
 def choose_heat_sink_deactivation(mech, next_turn):
