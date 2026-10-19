@@ -36,5 +36,5 @@ After a change, from the repo root:
 Anything not yet a real rule is a loud **stub**: it prints `STUB: ...` to
 stderr and appears in the summary banner.
 
-Project status, open items and decisions: `INTEGRATION__PROJECT_MAP.md`.
+Project status, open items and decisions: `INTEGRATION__PROJECT_MAP.md` (torso twists and firing arcs: its Section 4a).
 Import structure: `INTEGRATION__CALL_GRAPH.md`.
