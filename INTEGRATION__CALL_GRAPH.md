@@ -19,12 +19,12 @@ edited).
 - `main.py` → `orchestrator`
 - `orchestrator.py` → `config` (imported first; self-registers as bare
   `config`), MECHSIM `mech_state` (is_destroyed, is_crippled, clone_mech,
-  compute_*_mp, compute_heat_dissipation, all_crew_unconscious),
+  compute_*_mp, all_crew_unconscious, is_immobile),
   `piloting_rolls`; PATHFINDER `board_parser`, `hex_geometry`,
   `pathfinder.build_movement_table`, `combat` (build_jump_states,
   classify_movement_mode); INTEGRATION `rng`, `weapon_selection`, `heat`,
   `ranged_combat`, `stubs`, `attack_resolution`, `results`
-- `attack_resolution.py` (NEW) → `config`, `stubs`, `weapon_selection`;
+- `attack_resolution.py` (NEW) → `config`, `stubs`, `weapon_selection`, `heat`;
   MECHSIM `mech_state`, `armor_rules`, `hit_location`, `damage_resolution`
   (apply_damage, check_critical, cluster_hits_count, get_weapons),
   `piloting_rolls`; PATHFINDER `hex_geometry`, `combat` (fc_to_tmm,
@@ -34,10 +34,14 @@ edited).
   stub_select_movement)
 - `results.py` (NEW) → stdlib only. Leaf.
 - `ranged_combat.py` → `config` (registration only), MECHSIM `mech_state`
-  (compute_*_mp, compute_heat_dissipation); PATHFINDER `hex_geometry`,
+  (compute_*_mp, compute_heat_dissipation, is_immobile); PATHFINDER `hex_geometry`,
   `pathfinder`, `los`, `combat`; `weapon_selection` (select_weapons_to_fire),
   `heat`. (No longer imports `damage_resolution` directly.)
-- `heat.py` (NEW 2026-10-18) → MECHSIM `mech_state.compute_heat_dissipation`
+- `heat.py` (NEW 2026-10-18) → `config`, `stubs`; MECHSIM `mech_state`
+  (compute_heat_dissipation, is_destroyed, pilot_unconscious,
+  mark_consciousness_check_pending), `equipment` (Equipment,
+  lookup_equipment), `damage_resolution.apply_explosion`, `piloting_rolls`
+  (2026-10-19, Heat Phase)
 - `weapon_selection.py` → `config` (registration only), `expected_damage`,
   MECHSIM `damage_resolution.get_weapons`, PATHFINDER `combat.hit_probability`.
   **Purge/reload dance removed 2026-10-18** — plain imports now.
@@ -84,10 +88,10 @@ main.py
    ├─ board_parser, hex_geometry, pathfinder ── terrain_rules, combat ── los
    ├─ rng.py
    ├─ weapon_selection.py ── expected_damage.py
-   ├─ heat.py
+   ├─ heat.py ── stubs.py, damage_resolution, piloting_rolls
    ├─ ranged_combat.py ── heat.py
    ├─ stubs.py
-   ├─ attack_resolution.py
+   ├─ attack_resolution.py ── heat.py
    └─ results.py
 ```
 

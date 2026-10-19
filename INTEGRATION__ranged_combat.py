@@ -47,13 +47,18 @@ Now: each direction's expected damage is exactly what
 weapon_selection.select_weapons_to_fire() - the same selector the Ranged
 Combat phase uses - would actually fire from there:
   - dealt: mover's own budget for THIS candidate = max_heat + dissipation
-    - current heat - this candidate's own movement heat
+    - current heat - this candidate's own movement heat - engine heat
     (INTEGRATION__heat.movement_heat: Walk 1 / Run 2 / Jump max(3, hexes)
     or max(3, ceil(hexes/2)) with Improved JJ). So a 3-heat jump that would
     cost the mech a laser is scored with that laser missing.
   - received: defender's return fire under ITS budget, using the movement
     heat implied by defender_state (Stand Still / 0 for a defender that
     hasn't moved yet this turn).
+Heat Scale effects (2026-10-19, INTEGRATION__heat): each side's own heat
+to-hit modifier is in its pre_tn; Walking/Running MP already carry the
+heat penalty (mech_state.compute_walk_mp). An immobile defender (shut down
+or crew unconscious) is scored at the -4 immobile TMM the combat phase
+uses, and a shut-down defender returns no fire.
 Results are memoized within one call on (distance, pre_tn, movement heat)
 - the knapsack inputs - so thousands of candidates cost a few hundred
 selector calls, not thousands.
@@ -83,7 +88,8 @@ if MECHSIM_DIR not in sys.path:
     sys.path.insert(0, MECHSIM_DIR)
 
 import INTEGRATION__config  # noqa: E402,F401 - registers bare "config" before any MECHSIM import
-from mech_state import compute_walk_mp, compute_running_mp, compute_jump_mp, compute_heat_dissipation  # noqa: E402
+from mech_state import compute_walk_mp, compute_running_mp, compute_jump_mp, compute_heat_dissipation, \
+    is_immobile  # noqa: E402
 
 if PATHFINDER_DIR not in sys.path:
     sys.path.insert(0, PATHFINDER_DIR)
@@ -95,6 +101,8 @@ import combat  # noqa: E402
 
 import INTEGRATION__weapon_selection as weapon_selection  # noqa: E402
 import INTEGRATION__heat as heat  # noqa: E402
+
+IMMOBILE_TMM = -4  # same convention as INTEGRATION__attack_resolution.IMMOBILE_TMM
 
 
 @dataclass
@@ -124,8 +132,10 @@ def _clamp_pre_tn(pre_tn: int) -> int:
 def _make_heat_limited_scorer(mech):
     """Returns score(distance, pre_tn, move_heat) -> expected damage of the
     weapons select_weapons_to_fire() would actually fire, memoized for this
-    call. Dissipation is read once (it can't change mid-movement)."""
+    call. Dissipation and engine heat are read once (they can't change
+    mid-movement)."""
     dissipation = compute_heat_dissipation(mech)
+    eng_heat = heat.engine_heat(mech)
     memo: Dict[tuple, float] = {}
 
     def score(distance: int, pre_tn: int, move_heat: int) -> float:
@@ -134,7 +144,7 @@ def _make_heat_limited_scorer(mech):
         if cached is None:
             _, cached, _ = weapon_selection.select_weapons_to_fire(
                 mech, distance, pre_tn, mech.min_heat, mech.max_heat,
-                dissipation=dissipation, movement_heat=move_heat)
+                dissipation=dissipation, movement_heat=move_heat, engine_heat=eng_heat)
             memo[key] = cached
         return cached
 
@@ -176,10 +186,13 @@ def evaluate_going_second(
     def_x, def_y = hex_geometry.parse_hex_label(defender.hex)
     def_hex = (def_x, def_y)
     def_facing = hex_geometry.compass_to_facing(defender.facing)
-    defender_tmm = combat.fc_to_tmm(def_fc, jumped=(def_mode == "Jump"))
+    if is_immobile(defender):
+        defender_tmm = IMMOBILE_TMM
+        def_move_heat = 0
+    else:
+        defender_tmm = combat.fc_to_tmm(def_fc, jumped=(def_mode == "Jump"))
+        def_move_heat = heat.movement_heat(defender, def_mode, def_fc)
     def_amm = combat.MODE_TO_AMM[def_mode]
-    def_move_heat = heat.movement_heat(def_mode, def_fc, heat.improved_jump_jets(defender))
-    mover_ijj = heat.improved_jump_jets(mover)
 
     mover_score = _make_heat_limited_scorer(mover)
     defender_score = _make_heat_limited_scorer(defender)
@@ -206,19 +219,21 @@ def evaluate_going_second(
 
         distance = hex_distance(atk_hex, def_hex)
         amm = combat.MODE_TO_AMM[mode]
-        move_heat = heat.movement_heat(mode, fc, mover_ijj)
+        move_heat = heat.movement_heat(mover, mode, fc)
 
         if combat.in_rear_arc(atk_hex, facing, def_hex):
             dealt = 0.0
         else:
-            pre_tn = _clamp_pre_tn(mover.gunnery + amm + defender_tmm + atk_to_def.modifier)
+            pre_tn = _clamp_pre_tn(mover.gunnery + amm + defender_tmm + atk_to_def.modifier
+                                   + mover.heat_fire_modifier)
             dealt = mover_score(distance, pre_tn, move_heat)
 
-        if combat.in_rear_arc(def_hex, def_facing, atk_hex):
+        if defender.shutdown or combat.in_rear_arc(def_hex, def_facing, atk_hex):
             received = 0.0
         else:
             attacker_tmm = combat.fc_to_tmm(fc, jumped=(mode == "Jump"))
-            pre_tn2 = _clamp_pre_tn(defender.gunnery + def_amm + attacker_tmm + def_to_atk.modifier)
+            pre_tn2 = _clamp_pre_tn(defender.gunnery + def_amm + attacker_tmm + def_to_atk.modifier
+                                    + defender.heat_fire_modifier)
             received = defender_score(distance, pre_tn2, def_move_heat)
 
         results.append(MovementCandidate(

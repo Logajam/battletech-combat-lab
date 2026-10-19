@@ -27,8 +27,8 @@ sim_runner.py itself is not imported.
   2. DECLARE both sides' attacks from the pre-damage state: LOS, rear-arc
      firing block, to-hit number, weapon selection (heat-constrained
      knapsack, INTEGRATION__weapon_selection - budget = max_heat +
-     dissipation - current heat - this turn's movement heat, Daniel
-     2026-10-18), and the to-hit roll for each
+     dissipation - current heat - this turn's movement heat - engine
+     heat, Daniel 2026-10-18), and the to-hit roll for each
      chosen weapon. Because both declare before any damage lands, a mech
      destroyed this phase still gets its shots off (simultaneous).
   3. APPLY: loser's hits land first, then winner's (only matters for log
@@ -39,14 +39,19 @@ sim_runner.py itself is not imported.
 TN = gunnery + AMM(attacker's actual movement mode)
               + TMM(target's actual hexes moved; +1 if it jumped)
               + LOS modifier (woods/partial cover) + range bracket
-All pieces are Daniel-confirmed PATHFINDER rules. TMM uses ACTUAL hexes
+              + attacker's heat modifier (2026-10-19, Heat Scale: +1 at 8,
+                +2 at 13, +3 at 17, +4 at 24 - INTEGRATION__heat)
+All pieces but heat are Daniel-confirmed PATHFINDER rules; heat is Core
+Rulebook p.104. TMM uses ACTUAL hexes
 moved (combat.fc_to_tmm), per Daniel 2026-10-18 - MECHSIM's
 compute_tmm() (max available MP) is NOT used here.
-Exception: a target whose whole crew is unconscious uses MECHSIM's
-existing "TMM -4" convention (piloting_rolls.resolve_movement_phase).
+Exception: an immobile target (whole crew unconscious, or shut down -
+mech_state.is_immobile) uses MECHSIM's existing "TMM -4" convention
+(piloting_rolls.resolve_movement_phase).
+A shut-down attacker makes no attacks (Core Rulebook p.104).
 The range term includes the minimum-range penalty (2026-10-19,
 weapon_selection._weapon_range_mod).
-Anything else (prone, sensor hits, heat...) is not applied
+Anything else (prone, sensor hits, arm actuators...) is not applied
 - stubs.stub_to_hit_modifiers_not_applied() says so out loud.
 
 For weapon SELECTION the pre-range TN is clamped into
@@ -60,7 +65,8 @@ from typing import List, Optional
 import INTEGRATION__config as config
 import INTEGRATION__stubs as stubs
 import INTEGRATION__weapon_selection as weapon_selection
-from mech_state import DamageType, ArmorType, all_crew_unconscious, snapshot_round_capability, \
+import INTEGRATION__heat as heat
+from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capability, \
     mark_consciousness_check_pending, compute_heat_dissipation
 import armor_rules
 from hit_location import resolve_hit_location
@@ -79,7 +85,7 @@ DAMAGE_TYPE_BY_NAME = {
     "Missile": DamageType.MISSILE,
 }
 
-IMMOBILE_TMM = -4  # MECHSIM piloting_rolls.resolve_movement_phase convention (all crew unconscious)
+IMMOBILE_TMM = -4  # MECHSIM piloting_rolls.resolve_movement_phase convention (immobile target)
 
 
 @dataclass
@@ -118,7 +124,7 @@ def _with_piloting(mech, fn, *args, **kwargs):
 
 
 def _target_tmm(target):
-    if all_crew_unconscious(target):
+    if is_immobile(target):
         return IMMOBILE_TMM
     return combat.fc_to_tmm(target.move_fc, jumped=(target.move_mode == "Jump"))
 
@@ -127,6 +133,9 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     """Step 2 above for one attacker. Rolls to-hit for every selected
     weapon; returns nothing (fills report)."""
     a_name, t_name = attacker.side_name, target.side_name
+    if attacker.shutdown:
+        config.log(f"  [Ranged] {a_name}: shut down - no attacks.")
+        return
     a_hex = hex_geometry.parse_hex_label(attacker.hex)
     t_hex = hex_geometry.parse_hex_label(target.hex)
     if a_hex == t_hex:
@@ -146,24 +155,26 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     distance = hex_distance(a_hex, t_hex)
     amm = combat.MODE_TO_AMM[attacker.move_mode]
     tmm = _target_tmm(target)
-    pre_tn = attacker.gunnery + amm + tmm + los.modifier
+    heat_mod = attacker.heat_fire_modifier
+    pre_tn = attacker.gunnery + amm + tmm + los.modifier + heat_mod
     stubs.stub_to_hit_modifiers_not_applied(attacker, target, a_name, t_name)
 
     sel_pre_tn = max(weapon_selection.PRE_TN_MIN, min(weapon_selection.PRE_TN_MAX, pre_tn))
     dissipation = compute_heat_dissipation(attacker)
-    weapons, exp_dmg, heat = weapon_selection.select_weapons_to_fire(
+    eng_heat = heat.engine_heat(attacker)
+    weapons, exp_dmg, weapon_heat = weapon_selection.select_weapons_to_fire(
         attacker, distance, sel_pre_tn, attacker.min_heat, attacker.max_heat,
-        dissipation=dissipation, movement_heat=attacker.movement_heat)
-    budget = max(0, attacker.max_heat + dissipation - attacker.current_heat - attacker.movement_heat)
+        dissipation=dissipation, movement_heat=attacker.movement_heat, engine_heat=eng_heat)
+    budget = heat.weapon_heat_budget(attacker, attacker.movement_heat)
 
     config.log(f"  [Ranged] {a_name} -> {t_name}: range {distance}, base TN {pre_tn} "
                f"(gunnery {attacker.gunnery} + AMM {amm} [{attacker.move_mode}] + TMM {tmm} "
-               f"+ LOS {los.modifier}); firing {[w.name for w in weapons] or 'nothing'} "
-               f"(weapon heat {heat} of budget {budget} = max {attacker.max_heat} + sink {dissipation} "
-               f"- current {attacker.current_heat} - movement {attacker.movement_heat}; "
+               f"+ LOS {los.modifier} + heat {heat_mod}); firing {[w.name for w in weapons] or 'nothing'} "
+               f"(weapon heat {weapon_heat} of budget {budget} = max {attacker.max_heat} + sink {dissipation} "
+               f"- current {attacker.current_heat} - movement {attacker.movement_heat} - engine {eng_heat}; "
                f"expected dmg {exp_dmg:.2f})")
 
-    report.weapon_heat += heat
+    report.weapon_heat += weapon_heat
     for w in weapons:
         if stubs.is_one_shot(w):
             stubs.stub_one_shot(a_name, w)  # no ammo bin - its own limit instead

@@ -487,9 +487,12 @@ def resolve_attack_phase_psr(mech):
     # automatically fail" once every crew member is unconscious - no roll,
     # straight to resolve_fall at the same accumulated modifier a normal
     # roll would have used.
-    if all_crew_unconscious(mech):
-        config.log(f"All crew unconscious - Attack Phase PSR auto-fails (accumulated modifier {modifier:+d}).")
-        resolve_fall(mech, seatbelt_modifier=modifier, cause="auto-fail (all crew unconscious)")
+    # Shutdown (2026-10-19, Core Rulebook p.105): "Any PSR required of a
+    # standing shutdown 'Mech fails automatically" - same auto-fail path.
+    if all_crew_unconscious(mech) or mech.shutdown:
+        why = "shut down" if mech.shutdown else "all crew unconscious"
+        config.log(f"{why.capitalize()} - Attack Phase PSR auto-fails (accumulated modifier {modifier:+d}).")
+        resolve_fall(mech, seatbelt_modifier=modifier, cause=f"auto-fail ({why})")
         return
 
     needed = config.PILOTING + modifier

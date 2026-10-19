@@ -181,7 +181,8 @@ def build_expected_damage_table(mech):
     return table
 
 
-def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipation, movement_heat):
+def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipation, movement_heat,
+                           engine_heat=0):
     """min_heat/max_heat are passed explicitly (the orchestrator reads them
     off the mech's attached scenario config - mech.min_heat/mech.max_heat),
     while current_heat lives on the MECHSIM BattleMech object (mech).
@@ -194,6 +195,10 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
         current_heat + movement_heat + weapon_heat - dissipation <= max_heat
     i.e. weapon heat budget = max_heat + dissipation - current_heat - movement_heat
     (floored at 0). Was: max_heat - current_heat.
+    2026-10-19: engine_heat (heat from engine critical hits this turn,
+    INTEGRATION__heat.engine_heat) comes out of the budget too - the mech
+    generates it whatever it fires, so max_heat still caps the end-of-turn
+    level.
     Not addressed (bot logic, later - Daniel): deciding when to hold fire to
     cool back down to zero. As written, a mech that reaches max_heat stays
     there, firing only what it can sink each turn.
@@ -231,7 +236,7 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
     """
     weapons = get_weapons(mech)
     table = build_expected_damage_table(mech)
-    heat_budget = max(0, max_heat + dissipation - mech.current_heat - movement_heat)
+    heat_budget = max(0, max_heat + dissipation - mech.current_heat - movement_heat - engine_heat)
 
     # Only weapons actually in range at this distance, with confirmed heat data.
     candidates = []

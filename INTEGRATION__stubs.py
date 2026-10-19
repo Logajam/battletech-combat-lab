@@ -294,8 +294,9 @@ def stub_to_hit_modifiers_not_applied(attacker, target, attacker_name, target_na
     one is applied, not listed here. No knob.
     TODO: MegaMek to-hit assembly (ComputeToHit / WeaponAttackAction.toHit()
     - names from memory): prone target/attacker, sensor hits, arm actuator
-    damage, heat. (Minimum range IS applied since 2026-10-19 - part of the
-    range modifier in weapon_selection._weapon_range_mod.)"""
+    damage. (Minimum range IS applied since 2026-10-19 - part of the
+    range modifier in weapon_selection._weapon_range_mod. Heat IS applied
+    since 2026-10-19 - INTEGRATION__heat, mech.heat_fire_modifier.)"""
     missing = []
     if target.prone and not all_crew_unconscious(target):
         missing.append("target prone")
@@ -308,8 +309,6 @@ def stub_to_hit_modifiers_not_applied(attacker, target, attacker_name, target_na
                                                     "Hand Actuator")]
     if arm_act:
         missing.append("attacker arm actuator damage")
-    if attacker.current_heat > 0:
-        missing.append(f"attacker heat {attacker.current_heat}")
     if missing:
         _warn("to_hit_modifiers_not_applied", f"{attacker_name} -> {target_name}: {', '.join(missing)}")
 
@@ -323,20 +322,26 @@ def stub_physical_combat(turn_number):
     _warn("physical_combat", f"turn {turn_number}: phase skipped (not built)")
 
 
-def stub_heat_effects(mech_name, mech):
-    """Heat ACCUMULATION is real as of 2026-10-18 (orchestrator._phase_heat:
-    heat carries over; movement + weapon heat - dissipation). What's still
-    missing is what heat DOES. Runs whenever a mech ends the Heat Phase
-    carrying heat or with engine hits. No knob.
-    TODO: Heat Scale from Daniel (to-hit and MP penalties, shutdown and
-    ammo-explosion avoidance rolls); engine-hit heat (not confirmed for
-    this project - not applied). MegaMek heat resolution in the game manager
-    (resolveHeat - name from memory). Deciding when to hold fire to cool
-    down is bot logic (Daniel: later), not part of this stub."""
-    missing = []
-    if mech.current_heat > 0:
-        missing.append(f"heat {mech.current_heat}: no Heat Scale effects applied")
-    if mech.engine_hits > 0:
-        missing.append(f"{mech.engine_hits} engine hit(s): no engine heat added")
-    if missing:
-        _warn("heat_effects", f"{mech_name}: {'; '.join(missing)}")
+def stub_heat_explosion_bin(mech_name, tied, damage_value, unknown_names):
+    """Which ammo bin explodes from heat (Core Rulebook p.107): the most
+    destructive ammo per shot first, then the bin with the most shots left,
+    then the controller's choice. INTEGRATION__heat.choose_exploding_bin
+    applies the first step; this stub covers what it can't:
+      - shots left: not tracked (ammo is unlimited - see stub_ammo), so
+        that tie-break is skipped;
+      - controller's choice: a seeded random pick among the tied bins;
+      - a bin whose weapon/damage isn't in equipment.json counts as
+        damage value 0 (named in the warning).
+    `tied`: [(location, bin)] sharing the top damage value. Returns one.
+    No knob.
+    TODO: shot counts per bin (same data stub_ammo needs), and a real
+    controller policy (e.g. prefer a bin behind CASE) - pile-4 decision."""
+    pick = tied[config.pick_number(len(tied), prompt="Pick exploding ammo bin") - 1]
+    notes = []
+    if unknown_names:
+        notes.append(f"unknown damage value for {sorted(set(unknown_names))} (counted as 0)")
+    if len(tied) > 1:
+        notes.append(f"{len(tied)} bins tie at damage value {damage_value}; shots-left tie-break skipped "
+                     f"(not tracked), controller's choice made at random")
+    _warn("heat_explosion_bin", f"{mech_name}: {'; '.join(notes)} -> {pick[1].name} in {pick[0]}")
+    return pick

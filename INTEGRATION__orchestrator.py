@@ -21,7 +21,8 @@ INTEGRATION__stubs.py (knobs in INTEGRATION__config.py's STUB SETTINGS).
                  (spot scoring is heat-aware since 2026-10-18: each spot's expected
                   dealt/received uses the real heat-limited weapon pick, including
                   that spot's own movement heat)
-                 all crew unconscious -> skip, immobile (TMM -4)      REAL (MECHSIM convention)
+                 immobile (all crew unconscious, or shut down)
+                   -> skip, TMM -4                                    REAL (MECHSIM convention; shutdown p.104)
                  prone -> piloting_rolls.resolve_stand_up()           REAL
                    ...leftover MP after standing                      STUB post_standup_movement
                  envelope + expected dealt/received per spot
@@ -30,15 +31,17 @@ INTEGRATION__stubs.py (knobs in INTEGRATION__config.py's STUB SETTINGS).
                  movement PSR (check_movement_psr, Run/Jump)          REAL
                    ...Walk/Stand Still                                STUB walk_movement_psr
                  consciousness checks                                 REAL
-  Ranged       INTEGRATION__attack_resolution.run_ranged_combat_phase REAL dice, LOS, TN, weapon
-               selection, hit location, damage, crits, explosions, PSRs, consciousness.
+  Ranged       INTEGRATION__attack_resolution.run_ranged_combat_phase REAL dice, LOS, TN (incl. heat
+               to-hit modifier), weapon selection, hit location, damage, crits, explosions, PSRs,
+               consciousness. Shut-down mechs don't fire.
                Stubs inside: attack_direction, cluster_grouping, unknown_damage_type,
                unconfirmed_weapon_data, ammo, to_hit_modifiers_not_applied
   Physical     stub_physical_combat                                   STUB (deferred by scope call)
-  Heat         _phase_heat(): heat carries over turn to turn,         REAL (Daniel 2026-10-18)
-               movement heat (Walk 1 / Run 2 / Jump max(3, hexes, or ceil(hexes/2) w/ Improved JJ))
-               + weapon heat - dissipation
-                 Heat Scale effects / engine-hit heat                 STUB heat_effects
+  Heat         _phase_heat() -> INTEGRATION__heat.resolve_heat_phase  REAL (Core Rulebook pp.102-107,
+               heat carries over turn to turn; + movement heat          2026-10-19)
+               (Walk 1 / Run 2 / Jump, XXL / super-cooled myomer) + weapon heat + engine-hit heat
+               - dissipation; then shutdown or restart, ammo explosion, life-support pilot hits,
+               and next turn's MP / to-hit penalties
   End          resolve_end_phase_wakeup, crippled check, destruction  REAL
   Deployment   stub_deployment (fixed CONFIG hexes, not edge entry)   STUB
 
@@ -88,8 +91,8 @@ from mech_state import (  # noqa: E402 - MECHSIM, resolved via MECHSIM_DIR
     compute_walk_mp,
     compute_running_mp,
     compute_jump_mp,
-    compute_heat_dissipation,
     all_crew_unconscious,
+    is_immobile,
 )
 import piloting_rolls  # noqa: E402 - MECHSIM
 
@@ -155,7 +158,9 @@ def _attach_mech_config(mech, cfg, side_name):
     mech.min_heat = cfg["min_heat"]
     mech.max_heat = cfg["max_heat"]
     mech.current_heat = 0
-    mech.has_improved_jump_jets = heat.has_improved_jump_jets(mech)
+    mech.shutdown = False
+    heat.apply_heat_effects(mech)
+    heat.attach_heat_traits(mech)
     _reset_movement_state(mech)
 
 
@@ -262,8 +267,9 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng):
     name = mover.side_name
     _reset_movement_state(mover)
 
-    if all_crew_unconscious(mover):
-        config.log(f"  [Movement] {name}: all crew unconscious - skips movement (immobile).")
+    if is_immobile(mover):
+        why = "shut down" if mover.shutdown else "all crew unconscious"
+        config.log(f"  [Movement] {name}: {why} - skips movement (immobile).")
         return
 
     if mover.prone:
@@ -272,6 +278,7 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng):
             config.log(f"  [Movement] {name}: still prone at {mover.hex}.")
         else:
             mover.move_mode, mover.move_fc = stubs.stub_post_standup_movement(name, remaining)
+        mover.movement_heat = heat.movement_heat(mover, mover.move_mode, mover.move_fc)
         piloting_rolls.resolve_consciousness_checks(mover, "Movement Phase")
         return
 
@@ -287,10 +294,13 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng):
         start = f"{mover.hex} {mover.facing}"
         mover.hex, mover.facing = pick["hex"], pick["facing"]
         mover.move_mode, mover.move_fc, mover.mp_spent = pick["mode"], pick["fc"], pick["mp_spent"]
-        mover.movement_heat = heat.movement_heat(mover.move_mode, mover.move_fc, mover.has_improved_jump_jets)
+        mover.movement_heat = heat.movement_heat(mover, mover.move_mode, mover.move_fc)
         config.log(f"  [Movement] {name}: {start} -> {mover.hex} {mover.facing}, {mover.move_mode} "
                    f"({mover.mp_spent} MP, {mover.move_fc} hexes, {mover.movement_heat} heat; budget "
                    f"walk {mp['walk']} / run {mp['run']} / jump {mp['jump']})")
+    else:
+        # stays put: Stand Still, which still generates heat with an XXL engine (p.102)
+        mover.movement_heat = heat.movement_heat(mover, mover.move_mode, mover.move_fc)
 
     psr_mode = _MODE_TO_PSR.get(mover.move_mode)
     if psr_mode is None and _has_leg_or_gyro_damage(mover):
@@ -307,19 +317,16 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng):
 # ==========================  OTHER PHASES  ===================================
 # =============================================================================
 def _phase_heat(mech_red, mech_blue, reports):
-    """Heat bookkeeping (Daniel, 2026-10-18 - heat is saved state):
-        current_heat = max(0, current_heat + movement heat + weapon heat - dissipation)
-    Dissipation is MECHSIM compute_heat_dissipation (accounts for destroyed
-    sinks). Heat Scale EFFECTS are still not applied - stub_heat_effects
-    says so whenever a mech is carrying heat or has engine hits."""
+    """Heat Phase for both mechs (Core Rulebook pp.102-107): heat is saved
+    state (Daniel, 2026-10-18); INTEGRATION__heat.resolve_heat_phase adds
+    this turn's movement/weapon/engine heat, subtracts dissipation, then
+    resolves shutdown/restart, ammo explosion and life-support hits, and
+    sets next turn's MP/to-hit penalties. A mech already destroyed this
+    turn is skipped."""
     for m in (mech_red, mech_blue):
-        weapon_heat = reports[m.side_name].weapon_heat
-        dissipation = compute_heat_dissipation(m)
-        before = m.current_heat
-        m.current_heat = max(0, before + m.movement_heat + weapon_heat - dissipation)
-        config.log(f"  [Heat] {m.side_name}: {before} + movement {m.movement_heat} + weapons {weapon_heat} "
-                   f"- sinks {dissipation} -> {m.current_heat}")
-        stubs.stub_heat_effects(m.side_name, m)
+        if is_destroyed(m):
+            continue
+        heat.resolve_heat_phase(m, reports[m.side_name].weapon_heat)
 
 
 def _phase_end(mech_red, mech_blue, turn_number, stats):
@@ -335,6 +342,8 @@ def _phase_end(mech_red, mech_blue, turn_number, stats):
 
 def _status_line(m):
     flags = []
+    if m.shutdown:
+        flags.append("SHUT DOWN")
     if m.prone:
         flags.append("PRONE")
     if all_crew_unconscious(m):

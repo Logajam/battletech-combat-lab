@@ -284,15 +284,29 @@ class BattleMech:
         self.base_heat_sinks = 0
         self.heat_sink_type = "Single"
 
-        # Accumulated heat right now (2026-08-05, INTEGRATION). Plain running
-        # counter only - a real Heat Phase (weapon-heat generation each turn,
-        # dissipation via compute_heat_dissipation, overheat penalties,
-        # shutdown/ammo-explosion risk at high heat) is still deferred per
-        # Section 2's wiring table. This field exists so pile-4 weapon
-        # selection has a current-heat number to read; nothing here applies
-        # heat-based to-hit/movement effects yet - Daniel: "will have to give
-        # you the heat scale effects later."
+        # Accumulated heat right now (2026-08-05, INTEGRATION) - the Heat
+        # Scale level. Updated once per turn by INTEGRATION__heat.
+        # resolve_heat_phase, which also applies the Heat Scale effects
+        # below (2026-10-19, Core Rulebook pp.103-107). Can exceed 30
+        # (Overflow).
         self.current_heat = 0
+
+        # HELP(heat_scale.effects)
+        # Heat Scale effects in force for the CURRENT turn, set at the end of
+        # the previous Heat Phase (Core Rulebook p.103: effects other than
+        # ammo explosions "begin at the start of the following turn") by
+        # INTEGRATION__heat.apply_heat_effects - the thresholds live there.
+        #   heat_mp_penalty: Walking MP lost (read by compute_walk_mp below)
+        #   heat_fire_modifier: + to ranged to-hit numbers
+        #   shutdown: power plant shut down (immobile, can't attack, standing
+        #     PSRs fail automatically - pp.104-105). Heat sinks still work.
+        self.heat_mp_penalty = 0
+        self.heat_fire_modifier = 0
+        self.shutdown = False
+
+        # .mtf "Myomer:" header text (2026-10-19). Only read for super-cooled
+        # myomer's movement heat (INTEGRATION__heat.movement_heat).
+        self.myomer = "Standard"
 
         # id(equipment_instance) -> units, for heat-sink Equipment instances
         # that have had at least one crit slot destroyed (Daniel,
@@ -559,6 +573,14 @@ def all_crew_unconscious(mech):
     return all(state["unconscious"] for state in mech.crew.values())
 
 
+def is_immobile(mech):
+    """Immobile in the Core Rulebook's sense (p.49/p.64): shut down, or no
+    conscious crew. Skips the Movement Phase and gives attackers the -4
+    immobile modifier. (0 MP from damage - both legs destroyed - is already
+    a kill in this sim; 0 MP from heat is NOT immobile, p.49.)"""
+    return mech.shutdown or all_crew_unconscious(mech)
+
+
 def pilot_unconscious(mech):
     """Specifically the 'pilot' role (as opposed to 'gunner') - drives the
     +3 piloting-roll modifier (Daniel: "Pilot: If unconscious +3 modifier
@@ -698,7 +720,16 @@ def compute_walk_mp(mech):
     - Floor of 1 always (Daniel, 2026-07-12: confirmed as the deliberate
       choice, not a RAW deviation worth correcting - "functionally the same
       for our purposes").
+    - Heat (2026-10-19): mech.heat_mp_penalty (Heat Scale, set by
+      INTEGRATION__heat) comes off AFTER the damage floor, and can take
+      Walking MP to 0 - Core Rulebook p.104: "A 'Mech can be reduced to 0
+      ground movement MP in this fashion". Jumping MP is unaffected.
     """
+    return max(0, _damage_walk_mp(mech) - mech.heat_mp_penalty)
+
+
+def _damage_walk_mp(mech):
+    """compute_walk_mp before heat: leg damage only, floor 1."""
     destroyed_legs = [loc for loc in mech.leg_locations if mech.locations[loc]["destroyed"]]
     is_quad = mech.mech_type in ("quad", "quadvee")
     effective_destroyed = max(0, len(destroyed_legs) - (1 if is_quad else 0))
@@ -734,7 +765,9 @@ def compute_running_mp(mech):
     damage_resolution.compute_tmm)."""
     running_mp = math.ceil(compute_walk_mp(mech) * 1.5)
 
-    if any(mech.armor_type.get(loc) == ArmorType.HARDENED for loc in mech.leg_locations):
+    # running_mp > 0 guard (2026-10-19): heat can take Walking MP to 0, and
+    # the Hardened floor of 1 must not hand that mech a Running MP back.
+    if running_mp > 0 and any(mech.armor_type.get(loc) == ArmorType.HARDENED for loc in mech.leg_locations):
         running_mp = max(1, running_mp - 1)
 
     return running_mp
@@ -785,11 +818,15 @@ def compute_heat_dissipation(mech):
     Radical Heat Sink System is never included here - excluded entirely by
     is_heat_sink() (Daniel, 2026-08-04: it's activatable risk-bearing
     equipment, not a passive dissipation source, and is not wired in at
-    all yet)."""
+    all yet).
+
+    Partial Wing (2026-10-19, Core Rulebook p.103): a working Partial Wing
+    dissipates 3 more heat points per turn, whether or not the mech jumped."""
     rate = 2 if any(word in mech.heat_sink_type.replace(" ", "").upper()
                      for word in ("DOUBLE", "LASER")) else 1
     destroyed_units = sum(mech.destroyed_heat_sinks.values())
-    return max(0, (mech.base_heat_sinks - destroyed_units) * rate)
+    sinks = max(0, (mech.base_heat_sinks - destroyed_units) * rate)
+    return sinks + (3 if mech.partial_wing_active else 0)
 
 
 # HELP(mechanical_jump_booster.all_or_nothing_flag)

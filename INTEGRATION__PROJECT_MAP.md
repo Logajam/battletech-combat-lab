@@ -43,12 +43,16 @@ and standing still has the best AMM). Asymptote vs Asymptote now runs ~22
 turns: with 22 points of dissipation the Asymptote can alpha all five
 Medium Pulse Lasers every turn under the 2026-10-18 heat budget.
 
+**Heat is fully wired (2026-10-19)** from the Core Rulebook Heat chapter
+(pp.102-107): engine-hit heat, Heat Scale MP and to-hit penalties,
+shutdown/restart, heat ammo explosions, life-support pilot hits. See
+`INTEGRATION__heat.py`'s docstring for the rule list with page cites.
+
 **The biggest stubs to replace, in rough order of impact on results:**
 1. `movement_selection` — which spot to move to (scoring formula is Daniel's call).
 2. `attack_direction` — which hit table a shot uses (needs attacker-vs-target-facing geometry).
-3. `heat_effects` — heat accumulates for real but does nothing (no Heat Scale).
-4. `cluster_grouping` — missile damage grouping sizes.
-5. `ammo` — unlimited ammo.
+3. `cluster_grouping` — missile damage grouping sizes.
+4. `ammo` — unlimited ammo (also blocks the heat-explosion "most shots left" tie-break).
 
 ---
 
@@ -78,7 +82,7 @@ does both, with stubs where rules are missing.**
 4. **Ranged Combat** — loser fires first, winner second; effects resolve
    simultaneously.
 5. **Physical Combat** — if eligible. *(deferred — see Section 4)*
-6. **Heat** — heat effects applied. *(deferred — see Section 4)*
+6. **Heat** — heat effects applied (Core Rulebook pp.102-107, 2026-10-19).
 7. **End Phase** — cleanup. *(scoped to unconscious-pilot recovery roll only
    — see Section 4)*
 
@@ -86,10 +90,10 @@ does both, with stubs where rules are missing.**
 |---|---|---|
 | Deployment | `stubs.stub_deployment()` | **STUB** — fixed CONFIG hexes; edge entry not built. |
 | Initiative | `orchestrator.roll_initiative()` | **REAL**, Daniel-confirmed 2026-08-31. |
-| Movement | `orchestrator._phase_movement()` | **REAL:** damage-aware MP, full Walk/Run/Jump envelope with expected dealt/received per spot (`INTEGRATION__ranged_combat.evaluate_going_second`), unconscious-skip, stand-up (`resolve_stand_up`), movement PSR for Run/Jump (`check_movement_psr`), consciousness checks. **STUBS:** `movement_selection` (the pick), `walk_movement_psr`, `post_standup_movement`. |
-| Ranged Combat | `INTEGRATION__attack_resolution.py` | **REAL:** LOS, rear-arc firing block, TN = gunnery + AMM + TMM(actual hexes moved) + LOS + range, heat-constrained weapon selection, real to-hit rolls, cluster table, hit location, damage, crits, explosions, floating TAC, head hits, Attack Phase PSR, consciousness. Both sides declare before damage lands (simultaneous). **STUBS:** `attack_direction`, `cluster_grouping`, `unknown_damage_type`, `unconfirmed_weapon_data`, `ammo`, `to_hit_modifiers_not_applied`. |
+| Movement | `orchestrator._phase_movement()` | **REAL:** damage- and heat-aware MP, immobile (shut down / unconscious) skip, full Walk/Run/Jump envelope with expected dealt/received per spot (`INTEGRATION__ranged_combat.evaluate_going_second`), unconscious-skip, stand-up (`resolve_stand_up`), movement PSR for Run/Jump (`check_movement_psr`), consciousness checks. **STUBS:** `movement_selection` (the pick), `walk_movement_psr`, `post_standup_movement`. |
+| Ranged Combat | `INTEGRATION__attack_resolution.py` | **REAL:** LOS, rear-arc firing block, TN = gunnery + AMM + TMM(actual hexes moved; -4 if immobile) + LOS + range + heat, shut-down mechs don't fire, heat-constrained weapon selection, real to-hit rolls, cluster table, hit location, damage, crits, explosions, floating TAC, head hits, Attack Phase PSR, consciousness. Both sides declare before damage lands (simultaneous). **STUBS:** `attack_direction`, `cluster_grouping`, `unknown_damage_type`, `unconfirmed_weapon_data`, `ammo`, `to_hit_modifiers_not_applied`. |
 | Physical Combat | `stubs.stub_physical_combat()` | **STUB** (deferred by scope call). |
-| Heat | `orchestrator._phase_heat()` | **REAL (2026-10-18):** heat carries over; += movement heat (Walk 1 / Run 2 / Jump max(3, hexes) or max(3, ceil(hexes/2)) with Improved JJ) + weapon heat − dissipation. **STUB:** `heat_effects` (no Heat Scale, no engine-hit heat). |
+| Heat | `orchestrator._phase_heat()` → `INTEGRATION__heat.resolve_heat_phase()` | **REAL (2026-10-19, Core Rulebook pp.102-107):** heat carries over; += movement heat (Walk 1 / Run 2 / Jump, Improved JJ, XXL, super-cooled myomer) + weapon heat + engine-hit heat (5/10) − dissipation (+3 Partial Wing); then shutdown roll or restart, ammo-explosion roll, life-support pilot hits, and next turn's MP / to-hit penalties. **STUB:** `heat_explosion_bin` (bin tie-break needs shot counts). |
 | End | `orchestrator._phase_end()` | **REAL:** wake-up rolls, crippled tracking, destruction check. |
 
 Resolved 2026-10-18 (Daniel): TMM uses **actual hexes moved**
@@ -136,15 +140,19 @@ TODOs are from memory — grep before relying on them).
 | `ammo` | Unlimited ammo (bins still explode on crits) | shots_per_ton data + bin linkage |
 | `one_shot` | OS/I-OS launchers fire every turn | Per-instance "fired" flag, drop from weapon selection |
 | `rear_mounted_weapons` | "(R)" stripped by parser → fire forward | Parser change (MECHSIM, Daniel's call) or INTEGRATION mount table |
-| `to_hit_modifiers_not_applied` | Warns: prone target/attacker, sensor hits, arm actuators, heat | The modifiers themselves |
+| `to_hit_modifiers_not_applied` | Warns: prone target/attacker, sensor hits, arm actuators | The modifiers themselves |
 | `physical_combat` | Skipped | Whole phase |
-| `heat_effects` | Heat accumulates but has no effect; engine hits add no heat | Heat Scale (Daniel); engine-hit heat rule |
+| `heat_explosion_bin` | Heat ammo explosion: tied bins (same damage value) picked at random; unknown-damage bins count as 0 | Shot counts per bin (the `ammo` stub's data); a controller policy (pile 4) |
 
 **Rules gaps with no runtime flag** (also printed in every summary):
 per-mount firing arcs; LB-X/Ultra/Rotary multi-shot
-math; Artemis/HAG/ammo variants; Heat Scale effects; cooldown decisions; physical
-combat; tripod leg sub-roll uses Python `random` (seeded from SEED, not the
-BattleRNG stream).
+math; Artemis/HAG/ammo variants; heat sources/sinks with no terrain or
+equipment model yet (water, snow, fire, extreme temperatures, stealth
+systems, coolant pods, radical heat sinks, inferno ammo's extra rolls,
+TSM, torso-mounted cockpit life support); heat decisions (cooldown,
+voluntary shutdown, heat-sink deactivation); aimed shots at immobile
+targets; physical combat; tripod leg sub-roll uses Python `random`
+(seeded from SEED, not the BattleRNG stream).
 
 **TODO noted in code:** a failed movement PSR drops the mech in its END hex;
 in tabletop play it falls where the check was failed
@@ -186,9 +194,10 @@ a live import test). Removed. Both directories now go on `sys.path` once.
 No PATHFINDER module used by the battle loop imports `config`.
 
 **Deferred by explicit scope call, not gaps:**
-- Physical Combat phase, Heat phase (stubbed, see above).
+- Physical Combat phase (stubbed, see above).
 - Radical Heat Sink Systems (activatable, risk-bearing — not passive; not wired).
-- End Phase beyond unconscious-pilot recovery (shutdown-mech restart tied to Heat).
+- End Phase beyond unconscious-pilot recovery (heat restarts happen in the
+  Heat Phase, p.105; voluntary End Phase shutdown is a bot decision, not built).
 
 **Source-project backlog** (not integration-blocking, real but unwired):
 - MECHSIM: Clan free CASE auto-injection at parse time; Reactive Armor's
@@ -273,6 +282,7 @@ No PATHFINDER module used by the battle loop imports `config`.
 | Movement selection | `INTEGRATION__stubs.stub_select_movement` | **STUB.** Which reachable spot to end movement in. Its inputs (expected dealt/received per spot) are heat-aware since 2026-10-18. |
 | No-LOS movement fallback | `INTEGRATION__stubs.stub_select_movement` | **STUB.** Where to go when nothing has LOS. |
 | Heat-constrained weapon selection | `INTEGRATION__weapon_selection.py` | Which weapons fire this turn, built and wired |
+| Heat ammo explosion bin (controller's choice) | `INTEGRATION__stubs.stub_heat_explosion_bin` | **STUB.** Which of several equally destructive bins explodes (random). |
 | Candidate reduction | `PATHFINDER__combat_turn.py` (reference) / `orchestrator._reachable_states` | Max-FC per (hex, facing, mode) — used for the no-LOS fallback pool |
 | Best-reply selection | `PATHFINDER__combat_turn.py` | Not wired (reference) |
 | `compute_score()` | `PATHFINDER__combat.py` | Not wired (reference; built on flat HP/weapon dicts) |
@@ -459,3 +469,45 @@ No PATHFINDER module used by the battle loop imports `config`.
   banner; Synthetic battle now ends turn 7 (its LRM 15 takes +1 at range 6
   and is dropped for a laser at range 1; UAC/5 and AC/5 take +2/+3 at range
   1). Both reference logs regenerated.
+- **2026-10-19 (Daniel):** "Get heat fully wired in", from his rules index
+  (`Battletech Rule Reference Index`, Core Rulebook Heat chapter pp.102-107;
+  errata v0.1 has no heat entries).
+- **2026-10-19 (Claude):** Heat Scale wired; `stub_heat_effects` removed.
+  - `INTEGRATION__heat.py`: Heat Data Table (p.103), engine-hit heat
+    (+5 / +10 total, none while shut down), XXL and super-cooled-myomer
+    movement heat (p.102), and `resolve_heat_phase()` in the book's order:
+    adjust scale (Overflow kept) → shutdown roll (14: 4+ … 26: 10+,
+    automatic at 30, no override with an unconscious MechWarrior) or, for a
+    mech already shut down, restart (automatic below 14, roll otherwise,
+    never at 30+) → ammo-explosion roll at 19/23/28 (4+/6+/8+; bin with the
+    highest damage value per turn of shots explodes, Gauss/one-shots never)
+    → life-support MechWarrior hits (1 at 10-19, 2 at 20+) → next turn's
+    MP penalty (5/10/15/20/25) and ranged to-hit modifier (8/13/17/24).
+  - Shut-down mechs: skip movement, don't fire, give attackers the -4
+    immobile modifier, auto-fail standing PSRs (`piloting_rolls`), no engine
+    or weapon heat; sinks keep working.
+  - MECHSIM edits: `mech_state` gains `shutdown`/`heat_mp_penalty`/
+    `heat_fire_modifier`/`myomer` and `is_immobile()`; `compute_walk_mp`
+    subtracts the heat penalty after the damage floor (may reach 0, p.104);
+    Hardened running floor skipped at 0 MP; `compute_heat_dissipation` adds
+    +3 for a working Partial Wing (p.103). `mtf_parser` reads `Myomer:`.
+  - **Claude's reading, for Daniel to confirm:** engine-hit heat comes out
+    of the weapon heat budget (`select_weapons_to_fire(engine_heat=...)`),
+    so max_heat still caps the end-of-turn level. Shutdown override /
+    restart use the "pilot" crew role's consciousness (multi-crew mechs).
+  - Side effect of the immobile rule: movement scoring
+    (`ranged_combat.evaluate_going_second`) now scores an unconscious
+    defender at the -4 immobile TMM, matching the combat phase (it used
+    actual hexes moved before).
+  - New `stub_heat_explosion_bin` (shots-left tie-break needs shot counts;
+    controller's choice is random). New `tests/test_heat.py` (14 checks,
+    scripted dice; fails when a threshold or the shut-down engine-heat rule
+    is broken). New reference battle
+    `Asymptote_vs_Synthetic_maxheat30_seed2.txt` (shutdown, heat ammo
+    explosion, auto-failed PSR while shut down, automatic restart).
+  - Effect: Asymptote mirror diverges at turn 8, right after Blue's first
+    engine hit (+5 heat a turn, later +10, cutting its fire and giving it
+    -1 MP / +1 to-hit at times); now 18 turns (was 22), Red still wins.
+    Synthetic (max_heat 8) diverges at turn 2 (heat 5 after turn 1 -> -1
+    Walking MP; at 8 it fires at +1); now ends turn 8 (was 7). Both
+    regenerated. 300 quiet battles at max_heat 30: no crashes.

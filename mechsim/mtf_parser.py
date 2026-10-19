@@ -461,6 +461,7 @@ def parse_mtf(filepath):
     model = bare_names[1] if len(bare_names) >= 2 else ""
 
     mass, engine_line = None, ""
+    myomer_line = "Standard"
     walk_mp, jump_mp = None, None
     heat_sink_count, heat_sink_type = None, None
     front_armor, rear_armor = {}, {}
@@ -500,6 +501,10 @@ def parse_mtf(filepath):
                     pass
             elif key == "engine":
                 engine_line = value
+            elif key == "myomer":
+                # 2026-10-19: only read for super-cooled myomer's movement
+                # heat (INTEGRATION__heat.movement_heat).
+                myomer_line = value or myomer_line
             elif key == "walk mp":
                 try:
                     walk_mp = int(value)
@@ -574,6 +579,7 @@ def parse_mtf(filepath):
 
     mech = BattleMech(mech_type=mech_type)
     mech.chassis, mech.model, mech.mass, mech.engine_desc = chassis, model, mass, engine_line
+    mech.myomer = myomer_line
     mech.structure_type = structure_type
 
     if walk_mp is None:

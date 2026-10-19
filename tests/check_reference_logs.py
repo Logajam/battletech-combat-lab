@@ -36,6 +36,15 @@ SCENARIOS = {
         'config.MECH_RED_CONFIG["max_heat"] = 8',
         'config.MECH_BLUE_CONFIG["max_heat"] = 8',
     ],
+    # Added 2026-10-19 for the Heat Scale: max_heat 30 lets the synthetic
+    # mech overheat - shutdown, a heat ammo explosion, an auto-failed PSR
+    # while shut down, and an automatic restart all happen in this battle.
+    "Asymptote_vs_Synthetic_maxheat30_seed2.txt": [
+        'config.MECH_BLUE_MTF = "TEST_Synthetic_Loadout.mtf"',
+        "config.SEED = 2",
+        'config.MECH_RED_CONFIG["max_heat"] = 30',
+        'config.MECH_BLUE_CONFIG["max_heat"] = 30',
+    ],
 }
 
 
