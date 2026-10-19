@@ -169,19 +169,9 @@ STITCH_GRID_ROWS = 3
 # they are stand-ins until the real rule/decision exists. Defaults confirmed
 # by Daniel 2026-10-18 ("go for it").
 #
-# Movement selection - how a mover picks one spot from the real reachable-
-# and-LOS candidate list (INTEGRATION__ranged_combat.evaluate_going_second):
-#   "max_dealt"                - highest expected damage dealt; ties go to the
-#                                spot closest to the enemy, then lowest expected
-#                                damage received, then a seeded random pick.
-#   "max_dealt_minus_received" - highest (dealt - received), same tie-breaks.
-#   "random"                   - uniform random candidate.
-STUB_MOVEMENT_POLICY = "max_dealt"
-# When NO reachable spot has LOS to the enemy:
-#   "closest_to_enemy" - reachable spot nearest the enemy (keeps battles closing)
-#   "stay"             - don't move
-#   "random_reachable" - any reachable spot
-STUB_NO_LOS_FALLBACK = "closest_to_enemy"
+# (STUB_MOVEMENT_POLICY / STUB_NO_LOS_FALLBACK removed 2026-10-19: movement
+# selection is real - INTEGRATION__movement_selection; knobs are in the
+# MOVEMENT SETTINGS block below.)
 # (STUB_WALK_PSR_AS removed 2026-10-19: walking never forces a PSR - Core p.111.)
 # (STUB_POST_STANDUP removed 2026-10-19: a mech that stands moves on with its
 # remaining MP, any facing - Core p.51, orchestrator._phase_movement.)
@@ -196,6 +186,31 @@ STUB_UNKNOWN_DAMAGE_TYPE = "BALLISTIC"
 # Equipment.rear_mounted; those weapons fire only into the rear arc - Core p.60.)
 # (STUB_HEAT_MODE removed 2026-10-18: heat now always carries over turn to
 # turn - Daniel. See orchestrator._phase_heat.)
+
+# =============================================================================
+# ==========================  MOVEMENT SETTINGS  ==============================
+# =============================================================================
+# INTEGRATION__movement_selection (Daniel, 2026-10-19). Not BattleTech rules:
+# the scoring and search policy for where a mech ends its movement.
+#   score = dealt / (received + PSR cost + MOVEMENT_RATIO_EPSILON)
+# The first mover scores each spot by the second mover's modeled reply (two-ply).
+MOVEMENT_TWO_PLY = True          # False: the first mover scores against the enemy standing still
+MOVEMENT_RATIO_EPSILON = 0.001   # added to the denominator so no-return-fire spots don't divide by zero
+# Armor-exposure weighting: damage that lands on thin armor counts for more,
+# in both directions (what this mech deals and what it receives). A shot from
+# the front counts 1.0; other sides are scaled by how much more of a location's
+# durability a point of damage uses there, clamped to [MIN, MAX]. See the
+# movement_selection docstring.
+MOVEMENT_EXPOSURE_WEIGHTING = True
+MOVEMENT_EXPOSURE_MIN = 0.5
+MOVEMENT_EXPOSURE_MAX = 3.0
+# Add the expected fall damage of the Movement Phase PSR a Run/Jump would force
+# (only a damaged mech has one) to the damage received.
+MOVEMENT_PSR_COST = True
+# Internal-structure damage counts for more than armor damage (Daniel, 2026-10-19):
+# per weapon, the part of a hit that gets past a location's armor and into its
+# structure counts this many times. 1.0 = off. See INTEGRATION__structure_weight.
+MOVEMENT_STRUCTURE_WEIGHT = 2.0
 
 # =============================================================================
 # ==========================  VISUALIZATION (NOT WIRED)  =====================

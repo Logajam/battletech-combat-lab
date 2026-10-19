@@ -26,8 +26,10 @@ INTEGRATION__stubs.py (knobs in INTEGRATION__config.py's STUB SETTINGS).
                  prone -> piloting_rolls.resolve_stand_up()           REAL
                    ...leftover MP after standing                      STUB post_standup_movement
                  envelope + expected dealt/received per spot
-                   (INTEGRATION__ranged_combat.evaluate_going_second) REAL
-                 picking one spot                                     STUB movement_selection
+                   (INTEGRATION__ranged_combat.MoveEvaluator)         REAL
+                 picking one spot (INTEGRATION__movement_selection:
+                   dealt / (received + PSR cost + 0.001), two-ply
+                   for the first mover, exposure-weighted)           REAL (Daniel, 2026-10-19)
                  movement PSR (check_movement_psr, Run 1+ hex / Jump) REAL (Core p.111: none for Walk)
                  consciousness checks                                 REAL
   Ranged       INTEGRATION__attack_resolution.run_ranged_combat_phase REAL dice, LOS, TN (incl. heat
@@ -73,8 +75,9 @@ here, not with sys.modules purging.
   - sim_runner: _resolve_hit / resolve_weapon_attack are now absorbed
     (INTEGRATION__attack_resolution). Its summarize/record-sheet printing
     is not; nothing here needs it.
-  - combat_turn: the two-ply look-ahead and closing-fallback logic are NOT
-    absorbed - movement selection is a stub instead.
+  - combat_turn: the two-ply look-ahead and closing-fallback logic are
+    absorbed into INTEGRATION__movement_selection (2026-10-19); combat_turn.py
+    itself is still reference only.
 """
 
 import os
@@ -112,7 +115,7 @@ import INTEGRATION__heat as heat  # noqa: E402
 import INTEGRATION__equipment_systems as equip  # noqa: E402
 import INTEGRATION__ammo as ammo  # noqa: E402
 import INTEGRATION__physical as physical  # noqa: E402
-import INTEGRATION__ranged_combat as ranged_combat  # noqa: E402
+import INTEGRATION__movement_selection as movement_selection  # noqa: E402
 import INTEGRATION__stubs as stubs  # noqa: E402
 import INTEGRATION__attack_resolution as attack_resolution  # noqa: E402
 from INTEGRATION__attack_resolution import _with_piloting, total_hp  # noqa: E402
@@ -218,41 +221,18 @@ def _compute_available_mp(mech):
     }
 
 
-def _reachable_states(mover, other, terrain_map, standup_mp=None, entry_edge=None):
-    """Every reachable end state as plain dicts {hex, facing, mode, fc,
-    mp_spent}, one per (hex, facing, mode) keeping the highest fc (Section
-    5c's dominance argument - higher fc never hurts at a fixed hex/facing/
-    mode). Excludes the other mech's hex. Only used as the no-LOS fallback
-    pool for stubs.stub_select_movement(). Same envelope as movement
-    scoring (ranged_combat.movement_options)."""
-    best = {}
-    for x, y, facing, fc, mode, mp_spent in ranged_combat.movement_options(mover, terrain_map, standup_mp,
-                                                                          entry_edge):
-        try:
-            label = hex_geometry.hex_label(x, y)
-        except ValueError:
-            continue
-        if label == other.hex:
-            continue
-        key = (label, facing, mode)
-        cur = best.get(key)
-        if cur is None or fc > cur["fc"] or (fc == cur["fc"] and mp_spent < cur["mp_spent"]):
-            best[key] = {"hex": label, "facing": hex_geometry.facing_to_compass(facing),
-                         "mode": mode, "fc": fc, "mp_spent": mp_spent}
-    return list(best.values())
-
-
 # =============================================================================
 # ==========================  MOVEMENT PHASE  =================================
 # =============================================================================
 _MODE_TO_PSR = {"Run": "running", "Jump": "jump"}
 
 
-def _phase_movement(mover, other, terrain_map, turn_number, battle_rng):
+def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_first):
     """One mech's movement. See the module docstring table for which parts
     are real and which are stubs. `other` is the opponent: for the first
     mover it hasn't moved yet this turn (its current hex is a projection);
-    for the second mover it has (its real end position)."""
+    for the second mover it has (its real end position). `moves_first` tells
+    INTEGRATION__movement_selection which of the two this mech is."""
     name = mover.side_name
     _reset_movement_state(mover)
 
@@ -282,26 +262,14 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng):
         booster_failures = equip.resolve_movement_boosters(mover)   # MASC / supercharger (p.204)
     mp = _compute_available_mp(mover)
     entry_edge = mover.home_edge if mover.hex is None else None   # entering the battlefield (p.37)
-    if other.hex is None:
-        # The enemy hasn't entered yet: nothing to shoot, so head for its home edge.
-        los_candidates = []
-        target_hex = other.home_edge[len(other.home_edge) // 2]
-    else:
-        los_candidates = ranged_combat.evaluate_going_second(
-            mover, other, terrain_map,
-            defender_state={"fc": other.move_fc, "mode": other.move_mode},
-            standup_mp=standup_mp, entry_edge=entry_edge,
-        )
-        target_hex = other.hex
-    reachable = [] if los_candidates else _reachable_states(mover, other, terrain_map, standup_mp, entry_edge)
-    pick = stubs.stub_select_movement(name, los_candidates, reachable, target_hex, battle_rng)
+    pick, why = movement_selection.choose(mover, other, terrain_map, battle_rng, moves_first,
+                                          standup_mp=standup_mp, entry_edge=entry_edge)
     if pick is None and entry_edge is not None:
-        if not reachable:
-            # "A unit must move onto the battlefield ... If it cannot, it is destroyed." (p.37)
-            mover.destroyed, mover.cause_of_death = True, "Could Not Enter Battlefield"
-            config.log(f"  [Movement] {name}: can't enter the battlefield - destroyed.")
-            return
-        pick = reachable[0]   # must enter even under the "stay" fallback
+        # "A unit must move onto the battlefield ... If it cannot, it is destroyed." (p.37)
+        mover.destroyed, mover.cause_of_death = True, "Could Not Enter Battlefield"
+        config.log(f"  [Movement] {name}: can't enter the battlefield - destroyed.")
+        return
+    config.log(f"  [Movement select] {name}: {why}")
 
     if pick is not None:
         start = "off the board" if entry_edge is not None else f"{mover.hex} {mover.facing}"
@@ -458,8 +426,8 @@ def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,
 
         for m in (mech_red, mech_blue):
             _reset_movement_state(m)
-        _phase_movement(mover_first, mover_second, terrain_map, turn, battle_rng)
-        _phase_movement(mover_second, mover_first, terrain_map, turn, battle_rng)
+        _phase_movement(mover_first, mover_second, terrain_map, turn, battle_rng, moves_first=True)
+        _phase_movement(mover_second, mover_first, terrain_map, turn, battle_rng, moves_first=False)
 
         reports = attack_resolution.run_ranged_combat_phase(mover_first, mover_second, terrain_map, battle_rng)
         for side, rep in reports.items():

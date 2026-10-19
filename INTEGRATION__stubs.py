@@ -1,5 +1,5 @@
 """
-INTEGRATION__stubs.py  (NEW 2026-10-18, Claude - Pile 1, plus Pile 4 for movement selection)
+INTEGRATION__stubs.py  (NEW 2026-10-18, Claude - Pile 1; movement selection moved out 2026-10-19)
 
 Every placeholder the end-to-end battle loop needs, one clearly named
 function each. Rules for everything in this file (Daniel, 2026-10-18):
@@ -52,76 +52,8 @@ def _warn(name, msg):
 # =============================================================================
 # ==========================  DEPLOYMENT  ====================================
 # =============================================================================
-# =============================================================================
-# ==========================  MOVEMENT  ======================================
-# =============================================================================
-def _dist_to_enemy(cand, enemy_xy, hex_geometry, hex_distance):
-    return hex_distance(hex_geometry.parse_hex_label(cand["hex"]), enemy_xy)
-
-
-def stub_select_movement(mover_name, los_candidates, reachable_states, enemy_hex, battle_rng):
-    """Picks the mover's end-of-movement state.
-
-    los_candidates: MovementCandidate list from
-        INTEGRATION__ranged_combat.evaluate_going_second() - REAL reachable
-        states with REAL expected dealt/received against the enemy's current
-        position (projection for the first mover, actual for the second).
-    reachable_states: every reachable state as dicts {hex, facing, mode, fc,
-        mp_spent} - used only when no candidate has LOS.
-
-    The CHOICE is the placeholder: which spot a real bot should pick (what
-    scoring formula) is Daniel's open decision (PROJECT_MAP Section 4/6).
-    Knobs: STUB_MOVEMENT_POLICY, STUB_NO_LOS_FALLBACK.
-    TODO: real scoring formula (PATHFINDER combat.compute_score exists but
-    is built on flat HP/weapon dicts); the two-ply look-ahead in
-    PATHFINDER__combat_turn.py is not ported. Reference only, not a rule:
-    MegaMek's Princess bot path ranking (BasicPathRanker - name from memory).
-    """
-    import hex_geometry
-    from los import hex_distance
-    enemy_xy = hex_geometry.parse_hex_label(enemy_hex)
-
-    def tiebreak_pick(pool, primary):
-        best = max(primary(c) for c in pool)
-        pool = [c for c in pool if primary(c) == best]
-        nearest = min(_dist_to_enemy(c, enemy_xy, hex_geometry, hex_distance) for c in pool)
-        pool = [c for c in pool if _dist_to_enemy(c, enemy_xy, hex_geometry, hex_distance) == nearest]
-        least_recv = min(c.get("received", 0.0) for c in pool)
-        pool = [c for c in pool if c.get("received", 0.0) == least_recv]
-        return pool[battle_rng.pick_number(len(pool)) - 1]
-
-    if los_candidates:
-        cands = [vars(c) for c in los_candidates]
-        policy = config.STUB_MOVEMENT_POLICY
-        if policy == "random":
-            pick = cands[battle_rng.pick_number(len(cands)) - 1]
-        elif policy == "max_dealt_minus_received":
-            pick = tiebreak_pick(cands, lambda c: round(c["dealt"] - c["received"], 9))
-        elif policy == "max_dealt":
-            pick = tiebreak_pick(cands, lambda c: round(c["dealt"], 9))
-        else:
-            raise ValueError(f"Unknown STUB_MOVEMENT_POLICY {policy!r}")
-        _warn("movement_selection", f"{mover_name} picked {pick['hex']} {pick['facing']} {pick['mode']} "
-              f"(policy={policy}, {len(cands)} LOS candidates, exp. dealt {pick['dealt']:.2f} / "
-              f"recv {pick['received']:.2f})")
-        return pick
-
-    fallback = config.STUB_NO_LOS_FALLBACK
-    if fallback == "stay" or not reachable_states:
-        _warn("movement_selection", f"{mover_name} has no reachable spot with LOS - stays put "
-              f"(fallback={fallback})")
-        return None
-    if fallback == "random_reachable":
-        pick = reachable_states[battle_rng.pick_number(len(reachable_states)) - 1]
-    elif fallback == "closest_to_enemy":
-        pick = tiebreak_pick(reachable_states,
-                             lambda c: -_dist_to_enemy(c, enemy_xy, hex_geometry, hex_distance))
-    else:
-        raise ValueError(f"Unknown STUB_NO_LOS_FALLBACK {fallback!r}")
-    _warn("movement_selection", f"{mover_name} has no reachable spot with LOS - moved to "
-          f"{pick['hex']} {pick['facing']} {pick['mode']} (fallback={fallback})")
-    return pick
-
+# (Movement selection was the stub `stub_select_movement` here until 2026-10-19;
+# it is now INTEGRATION__movement_selection - a real decision, not a placeholder.)
 
 # =============================================================================
 # ==========================  RANGED COMBAT  =================================

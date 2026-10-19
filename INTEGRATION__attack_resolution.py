@@ -91,6 +91,7 @@ import INTEGRATION__weapon_selection as weapon_selection
 import INTEGRATION__heat as heat
 import INTEGRATION__equipment_systems as equip
 import INTEGRATION__weapon_rules as weapon_rules
+import INTEGRATION__arcs as arcs
 import INTEGRATION__ammo as ammo
 from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capability, \
     mark_consciousness_check_pending, compute_heat_dissipation
@@ -284,13 +285,11 @@ def prone_fire(mech):
     return PRONE_FIRE_MODIFIER, frozenset(in_loc(legs | {prop}))
 
 
-def arc_unavailable(attacker, target_in_rear_arc):
-    """Weapons that can't bear on a target (Core p.60): only rear-mounted
-    weapons fire into the rear arc, and they fire nowhere else. The rear arc
-    is PATHFINDER's confirmed 60-degree rule (combat.in_rear_arc). Side-arc
-    limits on torso weapons aren't applied - see PROJECT_MAP open items."""
-    return frozenset(id(w) for w in get_weapons(attacker)
-                     if getattr(w, "rear_mounted", False) != target_in_rear_arc)
+def arc_unavailable(attacker, torso_arc, legs_forward=True):
+    """Ids of weapons that can't bear on a target in `torso_arc` of the
+    attacker's (possibly twisted) torso, `legs_forward` = the legs see it in
+    their forward arc (Core p.60; INTEGRATION__arcs has the rules)."""
+    return arcs.unavailable(attacker, get_weapons(attacker), weapon_locations(attacker), torso_arc, legs_forward)
 
 
 def firing_conditions(attacker):
@@ -336,6 +335,7 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     """Step 2 above for one attacker. Rolls to-hit for every selected
     weapon; returns nothing (fills report)."""
     a_name, t_name = attacker.side_name, target.side_name
+    attacker.torso_twist = 0                      # reset each Ranged phase; set below if it twists (p.62)
     if attacker.shutdown:
         config.log(f"  [Ranged] {a_name}: shut down - no attacks.")
         return
@@ -351,10 +351,15 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     if not los.los:
         config.log(f"  [Ranged] {a_name}: no LOS to {t_name} - holds fire.")
         return
-    in_rear = combat.in_rear_arc(a_hex, hex_geometry.compass_to_facing(attacker.facing), t_hex)
-    arc_blocked = arc_unavailable(attacker, in_rear)
-    if in_rear and len(arc_blocked) == len(get_weapons(attacker)):
-        config.log(f"  [Ranged] {a_name}: {t_name} is in its rear arc and it has no rear-mounted weapons - can't fire.")
+    a_facing = hex_geometry.compass_to_facing(attacker.facing)
+    pair_arcs = arcs.arcs_between(a_hex, t_hex)
+    twist_choices = arcs.arc_keys(pair_arcs, a_facing, arcs.twist_options(attacker))
+    twists_by_key = {}
+    for twist in arcs.twist_options(attacker):
+        twists_by_key.setdefault((pair_arcs[(a_facing + twist) % 6], pair_arcs[a_facing] == arcs.FORWARD), twist)
+    if all(len(arc_unavailable(attacker, torso, legs)) == len(get_weapons(attacker)) for torso, legs in twist_choices):
+        config.log(f"  [Ranged] {a_name}: no weapon can bear on {t_name} "
+                   f"({arcs.ARC_NAMES[pair_arcs[a_facing]]} arc) - can't fire.")
         return
 
     distance = hex_distance(a_hex, t_hex)
@@ -367,7 +372,7 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
         config.log(f"  [Ranged] {a_name}: can't make ranged attacks (sensors destroyed, or prone with no arm to prop on).")
         return
     cond_mod, unavailable, cond_note = conditions
-    unavailable = unavailable | arc_blocked | ammo.unavailable_weapons(attacker)
+    unavailable = unavailable | ammo.unavailable_weapons(attacker)
     prone_mod = prone_target_modifier(target, distance)
     other_mod = cond_mod + prone_mod
     pre_tn = attacker.gunnery + amm + tmm + los.modifier + heat_mod + stealth_mod + other_mod
@@ -383,10 +388,21 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     sel_pre_tn = max(weapon_selection.PRE_TN_MIN, min(weapon_selection.PRE_TN_MAX, pre_tn))
     dissipation = compute_heat_dissipation(attacker)
     other = heat.other_heat(attacker)
-    weapons, exp_dmg, weapon_heat = weapon_selection.select_weapons_to_fire(
-        attacker, distance, sel_pre_tn, attacker.min_heat, attacker.max_heat,
-        dissipation=dissipation, movement_heat=attacker.movement_heat, other_heat=other, tn_adjust=adjust,
-        unavailable=unavailable)
+    # Torso twist (p.62): declared with the attacks, so try each one the mech may make
+    # (none, left, right) and keep the one with the most expected damage; no twist wins ties.
+    best = None
+    for key in twist_choices:
+        picked = weapon_selection.select_weapons_to_fire(
+            attacker, distance, sel_pre_tn, attacker.min_heat, attacker.max_heat,
+            dissipation=dissipation, movement_heat=attacker.movement_heat, other_heat=other, tn_adjust=adjust,
+            unavailable=unavailable | arc_unavailable(attacker, *key))
+        if best is None or picked[1] > best[0][1] + 1e-12:
+            best = (picked, key)
+    (weapons, exp_dmg, weapon_heat), chosen_key = best
+    attacker.torso_twist = twists_by_key[chosen_key]
+    if attacker.torso_twist:
+        config.log(f"  [Ranged] {a_name} twists its torso {'right' if attacker.torso_twist > 0 else 'left'} "
+                   f"({t_name} is in its {arcs.ARC_NAMES[chosen_key[0]]} arc after the twist).")
     budget = heat.weapon_heat_budget(attacker, attacker.movement_heat)
     surcharge = heat.weapon_fire_surcharge(attacker) if weapons else 0
 

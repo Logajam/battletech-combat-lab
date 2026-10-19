@@ -23,7 +23,7 @@ edited).
   `piloting_rolls`; PATHFINDER `board_parser`, `hex_geometry`,
   `pathfinder.build_movement_table`, `combat` (build_jump_states,
   classify_movement_mode); INTEGRATION `rng`, `weapon_selection`, `heat`,
-  `ranged_combat`, `stubs`, `attack_resolution`, `results`, `equipment_systems`,
+  `ranged_combat`, `movement_selection`, `stubs`, `attack_resolution`, `results`, `equipment_systems`,
   `ammo` (attach_ammo), `physical` (run_physical_phase) (2026-10-19)
 - `attack_resolution.py` (NEW) → `config`, `stubs`, `weapon_selection`, `heat`, `equipment_systems`,
   `weapon_rules`, `ammo` (2026-10-19);
@@ -42,9 +42,16 @@ edited).
   `hex_geometry`, `combat`, `los` (has_los, hex_distance)
 - `stubs.py` (NEW) → `config`; MECHSIM `mech_state`, `hit_location`
   (FACING_CHOICES); PATHFINDER `hex_geometry`, `los` (local imports inside
-  stub_select_movement)
+  stub_select_movement - removed 2026-10-19)
 - `results.py` (NEW) → stdlib only. Leaf.
-- `ranged_combat.py` → `config` (registration only), MECHSIM `mech_state`
+- `movement_selection.py` (NEW 2026-10-19) → `config`, `ranged_combat`
+  (MoveEvaluator, prepare_options), `los_cache`; MECHSIM `mech_state`,
+  `damage_resolution`, `hit_location`, `piloting_rolls`; PATHFINDER
+  `hex_geometry`, `combat`, `los`
+- `arcs.py` (NEW 2026-10-19) → stdlib only (functools, math). Used by `los_cache`, `attack_resolution`, `ranged_combat`.
+- `structure_weight.py` (NEW 2026-10-19) → `config`, `expected_damage`, `weapon_rules`; MECHSIM `damage_resolution` (TRANSFER_MAP), `hit_location`. Used by `ranged_combat` and `movement_selection`.
+- `los_cache.py` (NEW 2026-10-19) → `arcs`; PATHFINDER `combat`, `los`.
+- `ranged_combat.py` → `los_cache` (2026-10-19), `config` (registration only), MECHSIM `mech_state`
   (compute_*_mp, compute_heat_dissipation, is_immobile); PATHFINDER `hex_geometry`,
   `pathfinder`, `los`, `combat`; `weapon_selection` (select_weapons_to_fire),
   `heat`, `equipment_systems`, `ammo`, `terrain_rules`, `attack_resolution` (tn_adjuster,
@@ -105,7 +112,9 @@ main.py
    ├─ ammo.py ── weapon_rules.py, stubs.py
    ├─ heat.py ── stubs.py, equipment_systems.py, ammo.py, damage_resolution, piloting_rolls
    ├─ equipment_systems.py ── damage_resolution
-   ├─ ranged_combat.py ── heat.py
+   ├─ los_cache.py
+   ├─ ranged_combat.py ── heat.py, los_cache.py
+   ├─ movement_selection.py ── ranged_combat.py, los_cache.py, piloting_rolls, hit_location, damage_resolution
    ├─ stubs.py
    ├─ attack_resolution.py ── heat.py, weapon_rules.py, ammo.py
    ├─ physical.py ── attack_resolution.py, hit_location, piloting_rolls

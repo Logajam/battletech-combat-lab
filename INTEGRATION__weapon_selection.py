@@ -198,7 +198,7 @@ def build_expected_damage_table(mech):
 
 
 def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipation, movement_heat,
-                           other_heat=0, tn_adjust=None, unavailable=frozenset()):
+                           other_heat=0, tn_adjust=None, unavailable=frozenset(), value_scale=None):
     """min_heat/max_heat are passed explicitly (the orchestrator reads them
     off the mech's attached scenario config - mech.min_heat/mech.max_heat),
     while current_heat lives on the MECHSIM BattleMech object (mech).
@@ -257,6 +257,12 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
 
     pre_tn must be inside [PRE_TN_MIN, PRE_TN_MAX] - callers clamp first.
 
+    value_scale (2026-10-19, movement scoring only): optional {id(weapon):
+    multiplier} applied to each weapon's expected damage before the choice -
+    INTEGRATION__structure_weight's "structure damage is worth more". The
+    returned total is then WORTH, not raw expected damage. None (the attack
+    phase, always) leaves every number unchanged.
+
     Returns (selected_weapons: list[Equipment], total_expected_damage: float,
     total_heat: int).
     """
@@ -278,7 +284,7 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
         tn = pre_tn
         if tn_adjust is not None:
             tn = max(PRE_TN_MIN, min(PRE_TN_MAX, pre_tn + tn_adjust(w, range_bracket(w, distance))))
-        candidates.append((w, row[tn]))
+        candidates.append((w, row[tn] if value_scale is None else row[tn] * value_scale.get(id(w), 1.0)))
 
     # --- Phase 1: 0/1 knapsack, weight = heat, value = expected damage. ---
     # dp[h] = (best total expected damage achievable with exactly heat budget h used,

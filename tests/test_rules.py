@@ -24,6 +24,7 @@ import INTEGRATION__orchestrator as orchestrator  # noqa: E402
 import INTEGRATION__attack_resolution as attack_resolution  # noqa: E402
 import INTEGRATION__ranged_combat as ranged_combat  # noqa: E402
 import INTEGRATION__weapon_rules as weapon_rules  # noqa: E402
+import INTEGRATION__arcs as arcs  # noqa: E402
 import INTEGRATION__expected_damage as expected_damage  # noqa: E402
 import hex_geometry  # noqa: E402
 from mtf_parser import parse_mtf  # noqa: E402
@@ -176,9 +177,14 @@ def rear_mounted_weapons():
     rear = {w.name for w in attack_resolution.get_weapons(m) if w.rear_mounted}
     assert rear == {"ISMediumPulseLaser"}
     names = lambda ids: {w.name for w in attack_resolution.get_weapons(m) if id(w) in ids}   # noqa: E731
-    assert names(attack_resolution.arc_unavailable(m, False)) == {"ISMediumPulseLaser"}
-    assert "ISMediumPulseLaser" not in names(attack_resolution.arc_unavailable(m, True))
-    assert len(attack_resolution.arc_unavailable(m, True)) == len(attack_resolution.get_weapons(m)) - 1
+    fwd, rear_arc = arcs.FORWARD, arcs.REAR
+    assert names(attack_resolution.arc_unavailable(m, fwd)) == {"ISMediumPulseLaser"}
+    assert "ISMediumPulseLaser" not in names(attack_resolution.arc_unavailable(m, rear_arc))
+    assert len(attack_resolution.arc_unavailable(m, rear_arc)) == len(attack_resolution.get_weapons(m)) - 1
+    # side arcs (p.60): only that side's arm weapons (and not the rear-mounted laser)
+    assert names(attack_resolution.arc_unavailable(m, arcs.LEFT)) == {"ISMediumPulseLaser", "ISLRM15", "ISSRM6", "ISAC5"}
+    assert names(attack_resolution.arc_unavailable(m, arcs.RIGHT)) == {"ISMediumPulseLaser", "ISLRM15", "ISSRM6",
+                                                                      "ISLBXAC10", "ISUltraAC5"}
 
 
 @check

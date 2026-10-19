@@ -18,7 +18,8 @@ from typing import Dict, List, Optional
 # deferred phase that IS stubbed elsewhere, or a gap that can't be detected
 # per-attack). Printed with every summary.
 KNOWN_MISSING_RULES = [
-    "Side firing arcs for torso weapons and torso twists (rear arc and rear-mounted weapons are applied)",
+    "Reversing arms, tripod leg arcs / any-hexside tripod twists, turrets; a torso twist is not carried into "
+    "the Physical Attack Phase (firing arcs and one-hexside torso twists are applied)",
     "LB-X / Ultra / Rotary AC multi-shot math (fire as flat single hits; LB-X fires slug only, no cluster mode)",
     "Artemis, HAG range damage, ammo variants",
     "Heat sources/sinks with no terrain model yet: water, snow, fire, extreme temperatures; "
