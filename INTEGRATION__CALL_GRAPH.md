@@ -23,12 +23,23 @@ edited).
   `piloting_rolls`; PATHFINDER `board_parser`, `hex_geometry`,
   `pathfinder.build_movement_table`, `combat` (build_jump_states,
   classify_movement_mode); INTEGRATION `rng`, `weapon_selection`, `heat`,
-  `ranged_combat`, `stubs`, `attack_resolution`, `results`
-- `attack_resolution.py` (NEW) → `config`, `stubs`, `weapon_selection`, `heat`, `equipment_systems`;
+  `ranged_combat`, `stubs`, `attack_resolution`, `results`, `equipment_systems`,
+  `ammo` (attach_ammo), `physical` (run_physical_phase) (2026-10-19)
+- `attack_resolution.py` (NEW) → `config`, `stubs`, `weapon_selection`, `heat`, `equipment_systems`,
+  `weapon_rules`, `ammo` (2026-10-19);
   MECHSIM `mech_state`, `armor_rules`, `hit_location`, `damage_resolution`
   (apply_damage, check_critical, cluster_hits_count, get_weapons),
   `piloting_rolls`; PATHFINDER `hex_geometry`, `combat` (fc_to_tmm,
-  MODE_TO_AMM, in_rear_arc), `los` (has_los, hex_distance)
+  MODE_TO_AMM, in_rear_arc), `los` (has_los, hex_distance, trace_los_path)
+- `weapon_rules.py` (NEW 2026-10-19) → MECHSIM `equipment.lookup_equipment`
+  (local import). Otherwise a leaf: cluster/Streak/MRM/grouping and per-weapon
+  to-hit modifiers.
+- `ammo.py` (NEW 2026-10-19) → `config`, `stubs`, `weapon_rules`; MECHSIM
+  `equipment` (Equipment, lookup_equipment), `damage_resolution.get_weapons`
+- `physical.py` (NEW 2026-10-19) → `config`, `attack_resolution`; MECHSIM
+  `mech_state`, `equipment`, `damage_resolution.apply_damage`,
+  `hit_location.resolve_hit_location`, `piloting_rolls`; PATHFINDER
+  `hex_geometry`, `combat`, `los` (has_los, hex_distance)
 - `stubs.py` (NEW) → `config`; MECHSIM `mech_state`, `hit_location`
   (FACING_CHOICES); PATHFINDER `hex_geometry`, `los` (local imports inside
   stub_select_movement)
@@ -36,20 +47,20 @@ edited).
 - `ranged_combat.py` → `config` (registration only), MECHSIM `mech_state`
   (compute_*_mp, compute_heat_dissipation, is_immobile); PATHFINDER `hex_geometry`,
   `pathfinder`, `los`, `combat`; `weapon_selection` (select_weapons_to_fire),
-  `heat`, `equipment_systems`, `attack_resolution` (tn_adjuster,
-  aimed_shot_location). (No longer imports `damage_resolution` directly.)
+  `heat`, `equipment_systems`, `ammo`, `terrain_rules`, `attack_resolution` (tn_adjuster,
+  aimed_shot_location, firing_conditions, ...). (No longer imports `damage_resolution` directly.)
 - `equipment_systems.py` (NEW 2026-10-19) → `config`; MECHSIM `equipment`
   (Equipment, is_crit_target), `damage_resolution.resolve_slot_hit`
-- `heat.py` (NEW 2026-10-18) → `config`, `stubs`, `equipment_systems`; MECHSIM `mech_state`
+- `heat.py` (NEW 2026-10-18) → `config`, `stubs`, `equipment_systems`, `ammo` (2026-10-19); MECHSIM `mech_state`
   (compute_heat_dissipation, is_destroyed, pilot_unconscious,
   mark_consciousness_check_pending), `equipment` (Equipment,
-  lookup_equipment), `damage_resolution.apply_explosion`, `piloting_rolls`
+  lookup_equipment), `damage_resolution` (apply_explosion, get_weapons), `piloting_rolls`
   (2026-10-19, Heat Phase)
 - `weapon_selection.py` → `config` (registration only), `expected_damage`,
   MECHSIM `damage_resolution.get_weapons`, PATHFINDER `combat.hit_probability`.
   **Purge/reload dance removed 2026-10-18** — plain imports now.
 - `expected_damage.py` → bare `config` (= INTEGRATION__config via its
-  self-registration)
+  self-registration), `weapon_rules` (2026-10-19)
 - `config.py` → `file_picker` (INTEGRATION__file_picker), MECHSIM `mtf_parser`
 - `rng.py` → `numpy` only
 - `file_picker.py` → stdlib/`tkinter` only. Leaf. Only used when
@@ -90,12 +101,14 @@ main.py
    ├─ mech_state, piloting_rolls ── hit_location, damage_resolution
    ├─ board_parser, hex_geometry, pathfinder ── terrain_rules, combat ── los
    ├─ rng.py
-   ├─ weapon_selection.py ── expected_damage.py
-   ├─ heat.py ── stubs.py, equipment_systems.py, damage_resolution, piloting_rolls
+   ├─ weapon_selection.py ── expected_damage.py ── weapon_rules.py
+   ├─ ammo.py ── weapon_rules.py, stubs.py
+   ├─ heat.py ── stubs.py, equipment_systems.py, ammo.py, damage_resolution, piloting_rolls
    ├─ equipment_systems.py ── damage_resolution
    ├─ ranged_combat.py ── heat.py
    ├─ stubs.py
-   ├─ attack_resolution.py ── heat.py
+   ├─ attack_resolution.py ── heat.py, weapon_rules.py, ammo.py
+   ├─ physical.py ── attack_resolution.py, hit_location, piloting_rolls
    └─ results.py
 ```
 

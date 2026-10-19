@@ -502,12 +502,12 @@ Attack Phase PSR: needs 8 (Piloting 5 + +3). Rolled 10.
 !! Stubs that ran:
 !!   movement_selection                  12 runs, in 1/1 battle(s)
 !! Known missing rules with no runtime flag:
-!!   - Per-mount firing arcs (only PATHFINDER's 60-degree rear-arc block applies)
+!!   - Side firing arcs for torso weapons and torso twists (rear arc and rear-mounted weapons are applied)
 !!   - LB-X / Ultra / Rotary AC multi-shot math (fire as flat single hits; LB-X fires slug only, no cluster mode)
 !!   - Artemis, HAG range damage, ammo variants
-!!   - Heat sources/sinks with no terrain model yet: water, snow, fire, extreme temperatures; inferno missiles' heat on targets (launchers fire standard ammo)
+!!   - Heat sources/sinks with no terrain model yet: water, snow, fire, extreme temperatures; inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
-!!   - Stealth armor / Void-Signature 'as if in hostile ECM' side effects; torso-mounted cockpit PSR/sensor rules; TSM physical-attack doubling (no physical combat)
+!!   - Stealth armor / Void-Signature 'as if in hostile ECM' side effects; torso-mounted cockpit PSR rules
 !!   - Physical attacks: charges, death-from-above, pushes and clubs (punches, kicks and physical weapons are built)
 !!   - Tripod leg sub-roll uses Python's random module (seeded from SEED, not the BattleRNG stream)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -530,12 +530,12 @@ BATCH SUMMARY - 1 battle(s): Red = Asymptote II iJ Mpulse, Blue = TEST Heat Gear
 !! Stubs that ran:
 !!   movement_selection                  12 runs, in 1/1 battle(s)
 !! Known missing rules with no runtime flag:
-!!   - Per-mount firing arcs (only PATHFINDER's 60-degree rear-arc block applies)
+!!   - Side firing arcs for torso weapons and torso twists (rear arc and rear-mounted weapons are applied)
 !!   - LB-X / Ultra / Rotary AC multi-shot math (fire as flat single hits; LB-X fires slug only, no cluster mode)
 !!   - Artemis, HAG range damage, ammo variants
-!!   - Heat sources/sinks with no terrain model yet: water, snow, fire, extreme temperatures; inferno missiles' heat on targets (launchers fire standard ammo)
+!!   - Heat sources/sinks with no terrain model yet: water, snow, fire, extreme temperatures; inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
-!!   - Stealth armor / Void-Signature 'as if in hostile ECM' side effects; torso-mounted cockpit PSR/sensor rules; TSM physical-attack doubling (no physical combat)
+!!   - Stealth armor / Void-Signature 'as if in hostile ECM' side effects; torso-mounted cockpit PSR rules
 !!   - Physical attacks: charges, death-from-above, pushes and clubs (punches, kicks and physical weapons are built)
 !!   - Tripod leg sub-roll uses Python's random module (seeded from SEED, not the BattleRNG stream)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

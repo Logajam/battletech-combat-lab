@@ -13,7 +13,7 @@ source project's file overwrite the other's same-named file.
 
 ---
 
-## 0. WHERE WE ARE (2026-10-18) — read this first
+## 0. WHERE WE ARE (2026-10-19) — read this first
 
 **It runs end to end.** `.mtf` in → turn-by-turn battle on a real board →
 batch summary out. Every phase does something. Everything that isn't a real
@@ -35,13 +35,12 @@ loop imports (un-prefixed names), `data/` holds `.board` and `.mtf` files,
 file name gives the matchup and settings).
 Settings (mech files, board, seed, batch size, every stub knob) are all in
 `INTEGRATION__config.py`. Default: Asymptote II vs Asymptote II on
-16x17 Grassland, seed 12345, 1 battle, verbose.
+16x17 Grassland, seed 12345, 1 battle, verbose, home-edge deployment.
 
-**What a battle looks like right now:** both mechs close, then mostly stand
-still and trade fire (the movement stub maximizes expected damage dealt,
-and standing still has the best AMM). Asymptote vs Asymptote now runs ~22
-turns: with 22 points of dissipation the Asymptote can alpha all five
-Medium Pulse Lasers every turn under the 2026-10-18 heat budget.
+**What a battle looks like right now:** both mechs enter from opposite
+home edges, close, then mostly stand still and trade fire (the movement
+stub maximizes expected damage dealt, and standing still has the best
+AMM); adjacent mechs punch or kick in the Physical Attack Phase.
 
 **Heat is fully wired (2026-10-19)** from the Core Rulebook Heat chapter
 (pp.102-107): engine-hit heat, Heat Scale MP and to-hit penalties,
@@ -53,11 +52,14 @@ MASC, superchargers, End Phase heat-sink switching and aimed shots at
 immobile targets - `INTEGRATION__equipment_systems.py`, with Daniel's
 default player choices (Section 5).
 
-**The biggest stubs to replace, in rough order of impact on results:**
+**Stubs with rule answers were replaced 2026-10-19** (attack direction,
+cluster groupings, post-stand-up movement, walking PSRs, to-hit modifiers,
+rear-mounted weapons, ammunition and one-shots, deployment, punches/kicks/
+physical weapons). What's left is bot decisions and data gaps:
 1. `movement_selection` — which spot to move to (scoring formula is Daniel's call).
-2. `attack_direction` — which hit table a shot uses (needs attacker-vs-target-facing geometry).
-3. `cluster_grouping` — missile damage grouping sizes.
-4. `ammo` — unlimited ammo (also blocks the heat-explosion "most shots left" tie-break).
+2. `ammo_data` / `unconfirmed_weapon_data` / `unknown_damage_type` — weapons
+   whose stats aren't in the Core tables.
+3. `heat_explosion_bin` — the controller's choice among tied bins.
 
 ---
 
@@ -93,11 +95,11 @@ does both, with stubs where rules are missing.**
 
 | Phase | Where | Status (2026-10-18) |
 |---|---|---|
-| Deployment | `stubs.stub_deployment()` | **STUB** — fixed CONFIG hexes; edge entry not built. |
+| Deployment | `orchestrator._deploy_home_edges()` | **REAL (Core p.37):** deployment roll, loser picks a home edge (`config.HOME_EDGE_CHOICE`), winner opposite; mechs enter along it on turn 1. `config.DEPLOYMENT = "fixed_hexes"` keeps fixed starts. |
 | Initiative | `orchestrator.roll_initiative()` | **REAL**, Daniel-confirmed 2026-08-31. |
-| Movement | `orchestrator._phase_movement()` | **REAL:** damage- and heat-aware MP (TSM, MASC/supercharger), immobile (shut down / unconscious) skip, full Walk/Run/Jump envelope with expected dealt/received per spot (`INTEGRATION__ranged_combat.evaluate_going_second`), unconscious-skip, stand-up (`resolve_stand_up`), movement PSR for Run/Jump (`check_movement_psr`), consciousness checks. **STUBS:** `movement_selection` (the pick), `walk_movement_psr`, `post_standup_movement`. |
-| Ranged Combat | `INTEGRATION__attack_resolution.py` | **REAL:** LOS, rear-arc firing block, TN = gunnery + AMM + TMM(actual hexes moved; -4 if immobile) + LOS + range + heat, shut-down mechs don't fire, heat-constrained weapon selection, real to-hit rolls, cluster table, hit location, damage, crits, explosions, floating TAC, head hits, Attack Phase PSR, consciousness. Both sides declare before damage lands (simultaneous). **STUBS:** `attack_direction`, `cluster_grouping`, `unknown_damage_type`, `unconfirmed_weapon_data`, `ammo`, `to_hit_modifiers_not_applied`. |
-| Physical Combat | `stubs.stub_physical_combat()` | **STUB** (deferred by scope call). |
+| Movement | `orchestrator._phase_movement()` | **REAL:** damage- and heat-aware MP (TSM, MASC/supercharger), immobile (shut down / unconscious) skip, full Walk/Run/Jump envelope with expected dealt/received per spot (`INTEGRATION__ranged_combat.evaluate_going_second`), unconscious-skip, stand-up (`resolve_stand_up`) then move on with the remaining MP (p.51), movement PSR for Run 1+ hex / Jump (`check_movement_psr`; none for Walk, p.111), consciousness checks. **STUB:** `movement_selection` (the pick). |
+| Ranged Combat | `INTEGRATION__attack_resolution.py` | **REAL:** LOS, rear arc (only rear-mounted weapons fire into it), TN = gunnery + AMM + TMM(actual hexes moved; -4 if immobile) + LOS + range + heat + weapon / targeting computer / arm-crit / sensor / prone modifiers, shut-down mechs don't fire, heat- and ammo-constrained weapon selection, real to-hit rolls, attack direction from geometry, cluster table with Core groupings (Streak, MRM), hit location, damage, crits, explosions, floating TAC, head hits, aimed shots, ammo use, Attack Phase PSR, consciousness. Both sides declare before damage lands (simultaneous). **STUBS:** `unknown_damage_type`, `unconfirmed_weapon_data`, `ammo_data`. |
+| Physical Combat | `INTEGRATION__physical.run_physical_phase()` | **REAL (Core pp.76-83):** punches, kicks, physical weapons; bot picks the most expected damage. Charges, DFA, pushes, clubs not built. |
 | Heat | `orchestrator._phase_heat()` → `INTEGRATION__heat.resolve_heat_phase()` | **REAL (2026-10-19, Core Rulebook pp.102-107):** heat carries over; += movement heat (Walk 1 / Run 2 / Jump, Improved JJ, XXL, super-cooled myomer) + weapon heat + engine-hit heat (5/10) + stealth heat − dissipation (+3 Partial Wing, radical heat sinks, coolant pods); then shutdown roll or restart, ammo and inferno explosion rolls (re-rolled after inferno heat), life-support pilot hits, and next turn's MP / to-hit / TSM effects. End Phase: heat sinks switched off to hold min_heat. **STUB:** `heat_explosion_bin` (bin tie-break needs shot counts). |
 | End | `orchestrator._phase_end()` | **REAL:** wake-up rolls, crippled tracking, destruction check. |
 
@@ -134,30 +136,40 @@ TODOs are from memory — grep before relying on them).
 
 | Stub | What it does instead | Needs |
 |---|---|---|
-| `deployment` | Fixed start hexes | Daniel's edge-entry procedure |
-| `movement_selection` | `max_dealt` (ties → closest to enemy → least received → seeded random); no-LOS → closest reachable spot to enemy | Real scoring formula (Daniel); two-ply look-ahead from `combat_turn.py` not ported |
-| `walk_movement_psr` | No PSR for Walk/Stand Still (or check as running) | Rule: does walking with gyro/hip/leg damage need a PSR? |
-| `post_standup_movement` | Stays in hex, Stand Still AMM/TMM | Rule: movement after standing |
-| `attack_direction` | MECHSIM 3:1:1:1 random front/left/right/rear | Attacker-position-vs-target-facing side table |
-| `cluster_grouping` | All connected damage as one group (or per missile) | Group size per weapon family (Daniel), then into equipment.json |
-| `unknown_damage_type` | null damage_type → BALLISTIC | equipment.json curation |
-| `unconfirmed_weapon_data` | Loud warning; weapon never fires | equipment.json curation (e.g. ISLBXAC10) |
-| `ammo` | Unlimited ammo (bins still explode on crits) | shots_per_ton data + bin linkage |
-| `one_shot` | OS/I-OS launchers fire every turn | Per-instance "fired" flag, drop from weapon selection |
-| `rear_mounted_weapons` | "(R)" stripped by parser → fire forward | Parser change (MECHSIM, Daniel's call) or INTEGRATION mount table |
-| `to_hit_modifiers_not_applied` | Warns: prone target/attacker, sensor hits, arm actuators | The modifiers themselves |
-| `physical_combat` | Skipped | Whole phase |
-| `heat_explosion_bin` | Heat ammo explosion: tied bins (same damage value) picked at random; unknown-damage bins count as 0 | Shot counts per bin (the `ammo` stub's data); a controller policy (pile 4) |
+| `movement_selection` | `max_dealt` (ties → closest to enemy → least received → seeded random); no-LOS → closest reachable spot to enemy (or the enemy's home edge before it has entered) | Real scoring formula (Daniel); two-ply look-ahead from `combat_turn.py` not ported |
+| `unknown_damage_type` | null damage_type → BALLISTIC | equipment.json curation (weapons not in the Core tables) |
+| `unconfirmed_weapon_data` | Loud warning; weapon never fires | equipment.json curation - special-rules weapons (MG arrays, TAG, AMS, SRTs, HAG damage, MML modes, plasma, VSP damage...) |
+| `ammo_data` | Unlimited ammo for a weapon with no shots_per_ton (HVAC, Improved AC - not in the Core tables) | shots_per_ton from Tactical Operations tables |
+| `heat_explosion_bin` | Heat ammo explosion: bins still tied on damage value AND shots left picked at random; unknown-damage bins count as 0 | A controller policy (pile 4) |
+
+Replaced by Core Rulebook rules 2026-10-19 (Change Record): `attack_direction`
+(p.73), `cluster_grouping` (pp.87, 181), `post_standup_movement` (p.51),
+`walk_movement_psr` (p.111), `to_hit_modifiers_not_applied` (pp.66-67, 97-98,
+184-200), `rear_mounted_weapons` (p.60), `ammo` / `one_shot` (pp.72-73, 95,
+180-182), `deployment` (p.37), `physical_combat` (pp.76-83, partly).
 
 **Rules gaps with no runtime flag** (also printed in every summary):
-per-mount firing arcs; LB-X/Ultra/Rotary multi-shot
-math; Artemis/HAG/ammo variants; heat sources with no terrain model yet
-(water, snow, fire, extreme temperatures) and inferno missiles' heat on
-targets (launchers fire standard ammo); heat decisions (cooldown,
-voluntary shutdown); stealth armor / Void-Signature hostile-ECM side
-effects; torso-mounted cockpit PSR/sensor rules; TSM physical doubling;
-physical combat; tripod leg sub-roll uses Python `random` (seeded from
-SEED, not the BattleRNG stream).
+side firing arcs for torso weapons and torso twists (needs the p.60 Firing
+Arcs Diagram - not in the rules rip); LB-X/Ultra/Rotary multi-shot math;
+Artemis/HAG/ammo variants; heat sources with no terrain model yet (water,
+snow, fire, extreme temperatures) and inferno missiles (bins aren't fired
+from); heat decisions (cooldown, voluntary shutdown); stealth armor /
+Void-Signature hostile-ECM side effects; torso-mounted cockpit PSR/sensor
+rules; charges, DFA, pushes, clubs; jumping onto the board at deployment;
+tripod leg sub-roll uses Python `random` (seeded from SEED, not the
+BattleRNG stream).
+
+**Core Rulebook vs existing MECHSIM rules - Daniel to decide** (found
+2026-10-19 while replacing stubs; MECHSIM left unchanged because these are
+confirmed project rules, not stubs):
+- Standing up (p.51, PSR table p.111): each attempt is a PSR at -1;
+  `resolve_stand_up` uses no -1.
+- Tripod with no leg destroyed: -1 to PSRs (p.111); MECHSIM uses -2.
+- Preexisting leg destroyed: +4 (p.111, "jumped with leg destroyed +4");
+  MECHSIM uses +5.
+- Quads only need a PSR to stand if a leg is destroyed (p.231).
+- Rear arc: the project's confirmed rule is one hexside (60 degrees); the
+  Core diagram's wedge sizes can't be read from the rip, so not checked.
 
 **TODO noted in code:** a failed movement PSR drops the mech in its END hex;
 in tabletop play it falls where the check was failed
@@ -301,7 +313,11 @@ No PATHFINDER module used by the battle loop imports `config`.
 | Movement selection | `INTEGRATION__stubs.stub_select_movement` | **STUB.** Which reachable spot to end movement in. Its inputs (expected dealt/received per spot) are heat-aware since 2026-10-18. |
 | No-LOS movement fallback | `INTEGRATION__stubs.stub_select_movement` | **STUB.** Where to go when nothing has LOS. |
 | Heat-constrained weapon selection | `INTEGRATION__weapon_selection.py` | Which weapons fire this turn, built and wired |
-| Heat ammo explosion bin (controller's choice) | `INTEGRATION__stubs.stub_heat_explosion_bin` | **STUB.** Which of several equally destructive bins explodes (random). |
+| Heat ammo explosion bin (controller's choice) | `INTEGRATION__stubs.stub_heat_explosion_bin` | **STUB.** Which of several equally destructive, equally full bins explodes (random). |
+| Ammo bin to draw from | `INTEGRATION__ammo.spend` | The bin with the fewest shots left (empties bins sooner) |
+| Prop arm when firing prone | `INTEGRATION__attack_resolution.prone_fire` | The arm whose weapons matter least |
+| Physical attack type | `INTEGRATION__physical.choose_attack` | Punch / kick / physical weapon with the most expected damage |
+| Home edge | `config.HOME_EDGE_CHOICE` | Which edge the deployment-roll loser picks (default random) |
 | Escalating Failure use (radical heat sinks, MASC, supercharger) | `INTEGRATION__equipment_systems.cycle_on` | 1-turn-on / 1-turn-off cycle (Daniel's default) |
 | Coolant pod trigger | `INTEGRATION__heat._extra_cooling` | One pod when heat would stay above min_heat, not on a radical turn |
 | Heat-sink switching | `INTEGRATION__heat.choose_heat_sink_deactivation` | End Phase: how many sinks stay on so min_heat can be reached |
@@ -588,3 +604,44 @@ No PATHFINDER module used by the battle loop imports `config`.
     maxheat30 battle now has aimed shots at the shut-down synthetic mech
     (ends turn 7, was 8). 300 quiet gear-mech battles: no crashes; failed
     escalating rolls ~1 in 36 as the 3+ table predicts.
+- **2026-10-19 (Daniel):** Engine-hit heat confirmed. "Search for stubs
+  that have answers in the rules and correct them." Keep files up to date
+  (commit to main as I go).
+- **2026-10-19 (Claude):** Every stub with a rules answer replaced, from
+  the Core Rulebook (one commit per batch on main):
+  - Attack direction (p.73): hexside the LOS enters, read against the
+    target's facing (`attack_resolution.attack_side`).
+  - Cluster groupings (pp.87, 181): SRM 2, LRM/MRM 5, ATM 6, default 5;
+    Streaks hit with every missile, no heat or ammo on a miss (p.187); MRM
+    cluster rolls -1 (p.186). New `INTEGRATION__weapon_rules.py`.
+  - Standing up (p.51): free facing, remaining MP spent normally (Run).
+  - Walking never forces a PSR; running only after 1+ hex (p.111).
+  - To-hit (pp.66-67, 97-98, 184-200): per-weapon modifiers (pulse -2,
+    ER pulse -1, X-pulse -2, VSP, heavy +1, re-engineered -1, silver bullet
+    -1, RL +1, M-pod -1), targeting computer -1, shoulder +4 / upper arm +1,
+    sensors (+2 / no fire; torso cockpit +2/+4/none), prone target -2/+1,
+    prone attacker +2 with a prop arm (tripod/quad p.231).
+  - Rear-mounted weapons (p.60): parser keeps "(R)"; only they fire into
+    the rear arc, and only there. Side arcs NOT applied (diagram needed).
+  - Ammunition (pp.72-73, 95-96, 180-182): shots_per_ton from the Core
+    tables (107 weapons; 125 heat values cross-checked, all agree), bins
+    linked by exact ammo type, one shot per firing, fewest-shots bin first,
+    empty bins don't fire or explode, explosion = shots x damage capped 20,
+    one-shots and rocket launchers fire once, heat-explosion tie-break on
+    shots left, real inferno heat. Inferno bins aren't fired from. New
+    `INTEGRATION__ammo.py`.
+  - Weapon data (pp.248-254): 62 null fields filled (types, ATM stats,
+    heat/range); 209/279 weapons can fire (was 204).
+  - Deployment (p.37): deployment roll, home edges, entry on turn 1.
+  - Physical attacks (pp.76-83): punches, kicks, physical weapons, TSM and
+    talons; kick PSRs via `resolve_attack_phase_psr(forced_triggers=...)`.
+    New `INTEGRATION__physical.py`.
+  - New `tests/test_rules.py` (11 checks). All five reference battles
+    regenerated after each batch (results change: real attack direction,
+    pulse -2, ammo limits, home-edge starts, punches).
+  - Effects worth knowing: the synthetic test mech carries no LB-X or Ultra
+    AC ammo, so those never fire now; the IS Machine Gun has no
+    equipment.json entry at all (only Light/Heavy/Clan MGs).
+  - Open for Daniel: Core-vs-MECHSIM PSR differences and the firing-arc
+    diagram (Section 4).
+
