@@ -30,6 +30,7 @@ import INTEGRATION__attack_resolution as attack_resolution  # noqa: E402
 import INTEGRATION__ranged_combat as ranged_combat  # noqa: E402
 import INTEGRATION__movement_selection as ms  # noqa: E402
 import INTEGRATION__los_cache as geo_cache  # noqa: E402
+import INTEGRATION__arcs as arcs  # noqa: E402
 from INTEGRATION__rng import BattleRNG  # noqa: E402
 import hex_geometry  # noqa: E402
 import combat  # noqa: E402
@@ -81,7 +82,7 @@ def full_scores(mover, other, standup_mp=None):
 @check
 def geometry_cache_matches_the_game_code():
     """los_cache must give exactly what los.has_los, attack_resolution.attack_side
-    and combat.in_rear_arc give - it only remembers their answers."""
+    and arcs.arcs_between give - it only remembers their answers."""
     geo_cache.reset()
     rng = random.Random(7)
     labels = rng.sample(sorted(TERRAIN["hexes"]), 40)
@@ -102,8 +103,8 @@ def geometry_cache_matches_the_game_code():
             res, entry_dir, dist, a_to_t = geo_cache.pair_info(ah, th, TERRAIN)
             assert (res.los, res.modifier, res.distance) == (want.los, want.modifier, want.distance), (a, t)
             assert dist == los.hex_distance(ah, th)
+            assert a_to_t == arcs.arcs_between(ah, th), (a, t)
             for f in range(6):
-                assert geo_cache.in_rear_arc(a_to_t, f) == combat.in_rear_arc(ah, f, th), (a, t, f)
                 if want.los:
                     relative = (entry_dir - f) % 6
                     assert attack_resolution._SIDE_BY_RELATIVE_HEXSIDE[relative] == \
@@ -112,6 +113,82 @@ def geometry_cache_matches_the_game_code():
             assert again is geo_cache.pair_info(ah, th, TERRAIN)         # remembered, not recomputed
             n += 1
     assert n > 1000, n
+
+
+@check
+def firing_arcs_match_the_diagram():
+    """Every hex labelled on the Core p.60 Firing Arcs Diagram (mech on 0704
+    facing north), including the hexes sitting exactly on a boundary line, and
+    mirror symmetry / rotation for the other facings."""
+    centre = xy("0704")
+    diagram = {"0702": arcs.FORWARD, "0602": arcs.FORWARD, "0802": arcs.FORWARD, "0503": arcs.FORWARD,
+               "0903": arcs.FORWARD, "0504": arcs.LEFT, "0604": arcs.LEFT, "0505": arcs.LEFT,
+               "0904": arcs.RIGHT, "0804": arcs.RIGHT, "0905": arcs.RIGHT,
+               "0705": arcs.REAR, "0605": arcs.REAR, "0805": arcs.REAR, "0706": arcs.REAR}
+    for label, arc in diagram.items():
+        assert arcs.arcs_between(centre, xy(label))[0] == arc, (label, arcs.ARC_NAMES[arc])
+    # turning the mech one facing clockwise turns each arc with it
+    for label in TERRAIN["hexes"]:
+        t = xy(label)
+        if t == centre:
+            continue
+        a = arcs.arcs_between(centre, t)
+        swap = {arcs.LEFT: arcs.RIGHT, arcs.RIGHT: arcs.LEFT}
+        mirrored = arcs.arcs_between(centre, (2 * centre[0] - t[0], t[1]))      # mirror across the column
+        assert [swap.get(v, v) for v in a] == [mirrored[(-f) % 6] for f in range(6)], label
+        counts = {k: sum(1 for v in a if v == k) for k in (arcs.FORWARD, arcs.LEFT, arcs.RIGHT, arcs.REAR)}
+        assert counts[arcs.FORWARD] in (2, 3) and sum(counts.values()) == 6, (label, a)
+
+
+@check
+def weapons_bear_by_arc_and_twist():
+    """p.60-62 on the Synthetic mech (rear laser CT, LRM15 LT, SRM6 RT, LB-X10 +
+    UAC5 left arm, AC5 right arm): left-arm guns reach the left side arc, a
+    twist left brings a left-side target into the torso's forward arc (all
+    non-rear weapons bear), leg weapons never follow a twist, prone / quad can't twist."""
+    synthetic = parse_mtf(config.data_path("TEST_Synthetic_Loadout.mtf"))
+    m = fresh("0808", "N", template=synthetic)
+    name = lambda ids: {w.name for w in ms.get_weapons(m) if id(w) in ids}              # noqa: E731
+    assert name(attack_resolution.arc_unavailable(m, arcs.LEFT)) == {"ISMediumPulseLaser", "ISLRM15", "ISSRM6", "ISAC5"}
+    here = xy("0808")
+    behind = next(xy(l) for l in sorted(TERRAIN["hexes"]) if arcs.arcs_between(here, xy(l))[0] == arcs.REAR)
+    pair = arcs.arcs_between(here, behind)
+    keys = arcs.arc_keys(pair, 0, arcs.twist_options(m))
+    assert (arcs.REAR, False) in keys and len(keys) >= 2                              # twisting moves the torso's arc, not the legs'
+    side_target = next(xy(l) for l in sorted(TERRAIN["hexes"])                         # a left-side-arc hex a left twist makes forward
+                       if arcs.arcs_between(here, xy(l))[0] == arcs.LEFT and arcs.arcs_between(here, xy(l))[5] == arcs.FORWARD)
+    pair = arcs.arcs_between(here, side_target)
+    assert (arcs.FORWARD, False) in arcs.arc_keys(pair, 0, (0, -1, 1))
+    assert arcs.twist_options(m) == (0, -1, 1)
+    m.prone = True
+    assert arcs.twist_options(m) == (0,)
+    m.prone = False
+    quad = fresh("0808", "N")
+    quad.mech_type = "quad"
+    assert arcs.twist_options(quad) == (0,)
+
+
+@check
+def twisting_never_lowers_expected_damage_and_helps_somewhere():
+    """The evaluator lets each side take its best twist, so with twisting
+    allowed, dealt is never below the no-twist value, and is higher for a spot
+    that has the enemy in a side arc of the mover's arm weapons' blind side."""
+    synthetic = parse_mtf(config.data_path("TEST_Synthetic_Loadout.mtf"))
+    mover, other = fresh("0808", "N", template=synthetic), fresh("0611", "N")
+    with_twist = {(c.hex, c.facing, c.mode, c.fc): c.dealt
+                  for c in ranged_combat.evaluate_going_second(mover, other, TERRAIN)}
+    real = arcs.twist_options
+    arcs.twist_options = lambda mech: (0,)
+    try:
+        ev = ranged_combat.MoveEvaluator(mover, other, TERRAIN)
+        no_twist = {(c.hex, c.facing, c.mode, c.fc): c.dealt
+                    for c in ev.evaluate(other.hex, other.facing, 0, "Stand Still", 0,
+                                         ev.prepare(ranged_combat.movement_options(mover, TERRAIN)))}
+    finally:
+        arcs.twist_options = real
+    assert no_twist.keys() == with_twist.keys()
+    assert all(with_twist[k] >= no_twist[k] - TOL for k in no_twist)
+    assert any(with_twist[k] > no_twist[k] + 1e-6 for k in no_twist), "twisting never helped anywhere"
 
 
 @check

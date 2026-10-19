@@ -31,10 +31,11 @@ envelope PATHFINDER__combat.py's own evaluate_combat_hexes() builds):
      docstring) - computed here once per candidate, not per weapon, since
      it's weapon-independent (range is the one GATOR term that varies by
      weapon and that's already baked into the table's own distance axis).
-  3. Rear arc (PATHFINDER__combat.in_rear_arc, the confirmed 60-degree rule):
-     only rear-mounted weapons fire into it, and they fire nowhere else
-     (Core p.60, 2026-10-19) - checked independently for mover's own fire
-     and defender's return fire. (Was: rear arc = no fire at all.)
+  3. Firing arcs and torso twists (INTEGRATION__arcs, Core pp.60-62, 2026-10-19):
+     which weapons can bear depends on the arc the target is in (forward /
+     side / rear); each side may also twist its torso one hexside and keeps
+     the best twist - checked independently for the mover's own fire and the
+     defender's return fire.
   4. Expected damage in each direction - HEAT-AWARE as of 2026-10-18 (see
      below).
 
@@ -126,6 +127,7 @@ import INTEGRATION__heat as heat  # noqa: E402
 import INTEGRATION__equipment_systems as equip  # noqa: E402
 import INTEGRATION__ammo as ammo  # noqa: E402
 import INTEGRATION__structure_weight as structure_weight  # noqa: E402
+import INTEGRATION__arcs as arcs  # noqa: E402
 import INTEGRATION__los_cache as geo_cache  # noqa: E402
 from INTEGRATION__attack_resolution import tn_adjuster, aimed_shot_location, firing_conditions, \
     prone_target_modifier, arc_unavailable, _SIDE_BY_RELATIVE_HEXSIDE  # noqa: E402
@@ -290,19 +292,27 @@ class MoveEvaluator:
             | ammo.unavailable_weapons(defender)
         mover_adjust = tn_adjuster(mover, defender, aimed_shot_location(defender))
         defender_adjust = tn_adjuster(defender, mover)
-        # One scorer per (rear arc?) case - which weapons can bear differs (p.60).
         # Structure weighting (INTEGRATION__structure_weight): off at k = 1.0, which leaves
         # every number exactly as it was.
         weighting = config.MOVEMENT_STRUCTURE_WEIGHT != 1.0
         mover_scale = (lambda side: structure_weight.multipliers(get_weapons(mover), defender, side)) if weighting else None
         defender_scale = (lambda side: structure_weight.multipliers(get_weapons(defender), mover, side)) if weighting else None
-        self.mover_score = {rear: _make_heat_limited_scorer(mover, mover_adjust, mover_blocked | arc_unavailable(mover, rear),
-                                                            mover_scale)
-                            for rear in (False, True)}
-        self.defender_score = {rear: _make_heat_limited_scorer(defender, defender_adjust,
-                                                               defender_blocked | arc_unavailable(defender, rear),
-                                                               defender_scale)
-                               for rear in (False, True)}
+        # One scorer per (torso arc, legs see it forward?) case - which weapons can bear differs
+        # (p.60), built the first time it's needed.
+        mover_scorers: Dict[tuple, object] = {}
+        defender_scorers: Dict[tuple, object] = {}
+
+        def scorer_getter(who, adjust, blocked, scale, cache):
+            def get(key):
+                scorer = cache.get(key)
+                if scorer is None:
+                    scorer = cache[key] = _make_heat_limited_scorer(who, adjust, blocked | arc_unavailable(who, *key), scale)
+                return scorer
+            return get
+        self.mover_scorer = scorer_getter(mover, mover_adjust, mover_blocked, mover_scale, mover_scorers)
+        self.defender_scorer = scorer_getter(defender, defender_adjust, defender_blocked, defender_scale, defender_scorers)
+        self.mover_twists = arcs.twist_options(mover)          # torso twists each side may declare (p.62)
+        self.defender_twists = arcs.twist_options(defender)
         self.mover_own = equip.own_attack_modifier(mover)
         self.defender_own = equip.own_attack_modifier(defender)
 
@@ -328,7 +338,9 @@ class MoveEvaluator:
         def_amm = combat.MODE_TO_AMM[def_mode]
         dealt_stealth = equip.void_signature_modifier(defender, def_fc, def_mp_spent) + self.mover_own
         mover_cond, defender_cond = self.mover_cond, self.defender_cond
-        mover_score, defender_score = self.mover_score, self.defender_score
+        mover_scorer, defender_scorer = self.mover_scorer, self.defender_scorer
+        mover_twists, defender_twists = self.mover_twists, self.defender_twists
+        arc_keys = arcs.arc_keys
         no_return_fire = defender.shutdown or defender_cond is None
 
         results: List[MovementCandidate] = []
@@ -339,7 +351,6 @@ class MoveEvaluator:
         row_into = board.to.setdefault(def_hex, {})
         row_out_of = board.frm.setdefault(def_hex, {})
         pair_info = geo_cache.pair_info
-        in_rear_arc = geo_cache.in_rear_arc
         pre_min, pre_max = weapon_selection.PRE_TN_MIN, weapon_selection.PRE_TN_MAX
         prone_def = defender.prone
         for o in prepared:
@@ -363,7 +374,8 @@ class MoveEvaluator:
                           + mover.heat_fire_modifier + dealt_stealth + mover_cond[0]
                           + (prone_target_modifier(defender, distance) if prone_def else 0))
                 pre_tn = pre_max if pre_tn > pre_max else (pre_min if pre_tn < pre_min else pre_tn)
-                dealt = mover_score[in_rear_arc(a_to_d, o.facing)](distance, pre_tn, o.move_heat, side_on_def)
+                dealt = max(mover_scorer(key)(distance, pre_tn, o.move_heat, side_on_def)
+                            for key in arc_keys(a_to_d, o.facing, mover_twists))
 
             if no_return_fire:
                 received = 0.0
@@ -372,7 +384,8 @@ class MoveEvaluator:
                            + defender.heat_fire_modifier + self.defender_own + defender_cond[0]
                            + o.void_mod)
                 pre_tn2 = pre_max if pre_tn2 > pre_max else (pre_min if pre_tn2 < pre_min else pre_tn2)
-                received = defender_score[in_rear_arc(d_to_a, def_facing)](distance, pre_tn2, def_move_heat, side_on_mover)
+                received = max(defender_scorer(key)(distance, pre_tn2, def_move_heat, side_on_mover)
+                               for key in arc_keys(d_to_a, def_facing, defender_twists))
 
             results.append(MovementCandidate(
                 hex=o.label, facing=o.facing_compass, mode=o.mode,

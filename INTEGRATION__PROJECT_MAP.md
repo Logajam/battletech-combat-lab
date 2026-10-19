@@ -163,8 +163,9 @@ Replaced by Core Rulebook rules 2026-10-19 (Change Record): `attack_direction`
 180-182), `deployment` (p.37), `physical_combat` (pp.76-83, partly).
 
 **Rules gaps with no runtime flag** (also printed in every summary):
-side firing arcs for torso weapons and torso twists (needs the p.60 Firing
-Arcs Diagram - not in the rules rip); LB-X/Ultra/Rotary multi-shot math;
+reversing arms, tripod leg arcs / any-hexside tripod twists, turrets, and
+carrying a torso twist into the Physical Attack Phase (firing arcs and
+one-hexside twists were built 2026-10-19); LB-X/Ultra/Rotary multi-shot math;
 Artemis/HAG/ammo variants; heat sources with no terrain model yet (water,
 snow, fire, extreme temperatures) and inferno missiles (bins aren't fired
 from); heat decisions (cooldown, voluntary shutdown); stealth armor /
@@ -182,8 +183,10 @@ confirmed project rules, not stubs):
 - Preexisting leg destroyed: +4 (p.111, "jumped with leg destroyed +4");
   MECHSIM uses +5.
 - Quads only need a PSR to stand if a leg is destroyed (p.231).
-- Rear arc: the project's confirmed rule is one hexside (60 degrees); the
-  Core diagram's wedge sizes can't be read from the rip, so not checked.
+- Rear arc: Daniel's 2026-07-20 rule was one hexside (60 degrees); the p.60
+  Firing Arcs Diagram (screenshot, 2026-10-19) shows 120 degrees, and
+  `INTEGRATION__arcs.py` now follows the diagram (agrees at range 1).
+  PATHFINDER's `combat.in_rear_arc` (not wired) still has the old rule.
 
 **TODO noted in code:** a failed movement PSR drops the mech in its END hex;
 in tabletop play it falls where the check was failed
@@ -379,6 +382,23 @@ No PATHFINDER module used by the battle loop imports `config`.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-19 (Claude):** Firing arcs and torso twists (Core pp.60-62), from
+  Daniel's Firing Arcs Diagram screenshot. New `INTEGRATION__arcs.py`: the arc
+  a target is in = angle of the centre-to-centre line from the attacker's
+  facing (forward within 60 deg, side 60-120, rear beyond 120; boundary hexes
+  go to the non-rear arc - all 15 hexes labelled on the diagram reproduce).
+  **The rear arc is now 120 deg, replacing the 60-deg single-hexside rule of
+  2026-07-20** (identical at range 1). Weapons by arc: forward = all but
+  rear-mounted; side = that side's arm weapons (split torso/arm weapons are
+  forward-only); rear = rear-mounted only. Torso twist (one hexside, none for
+  prone/quad): shifts head/torso/arm weapon arcs, not legs, facing or how the
+  mech is hit; the attack phase picks the twist with the most expected damage
+  (`attacker.torso_twist`), and movement scoring takes each side's best twist.
+  `los_cache` now caches the 6-facing arcs tuple (was a direction facing);
+  `arc_unavailable(attacker, torso_arc, legs_forward)` replaces the rear-arc
+  boolean. Not modeled: reversing arms, tripod leg arcs and any-hexside tripod
+  twists, turrets, twist -> Physical Attack Phase. Reference logs differ again.
+  Cost: roughly 1.5-2x per turn (~1.1 s) from scoring up to 3 twists per side.
 - **2026-10-19 (Claude):** Structure-damage weighting for movement scoring
   (Daniel's design: per weapon x hit-location table, no chaining). New
   `INTEGRATION__structure_weight.py`: for each weapon (cluster weapons per
@@ -681,7 +701,8 @@ No PATHFINDER module used by the battle loop imports `config`.
     sensors (+2 / no fire; torso cockpit +2/+4/none), prone target -2/+1,
     prone attacker +2 with a prop arm (tripod/quad p.231).
   - Rear-mounted weapons (p.60): parser keeps "(R)"; only they fire into
-    the rear arc, and only there. Side arcs NOT applied (diagram needed).
+    the rear arc, and only there. Side arcs and torso twists: see Change Record
+    2026-10-19 (`INTEGRATION__arcs.py`).
   - Ammunition (pp.72-73, 95-96, 180-182): shots_per_ton from the Core
     tables (107 weapons; 125 heat values cross-checked, all agree), bins
     linked by exact ammo type, one shot per firing, fewest-shots bin first,

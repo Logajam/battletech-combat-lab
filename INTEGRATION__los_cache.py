@@ -7,19 +7,17 @@ every first-mover spot against every reply spot, so the same hex pair gets
 asked about hundreds of thousands of times per turn. None of the answers
 change while a board is loaded, so each is worked out once and remembered.
 
-  pair_info(a, t, terrain_map) -> (LOSResult, entry_dir, distance, a_to_t)
+  pair_info(a, t, terrain_map) -> (LOSResult, entry_dir, distance, arcs)
       for a line from hex a to hex t. entry_dir is the absolute facing (0-5)
       from t toward the hex the line enters t's hex from - the number attack
       direction (Core p.73) is read from. distance is the hex distance.
-      a_to_t is the absolute facing from a toward t, which is all the rear-arc
-      test needs (see in_rear_arc below). (INTEGRATION__attack_resolution.
-      attack_side does the same trace per attack; tests/test_movement_
-      selection.py checks the two agree.) Raises ValueError for an off-board
+      arcs is INTEGRATION__arcs.arcs_between(a, t): the firing arc t is in for
+      each of a's 6 facings (Core p.60). (INTEGRATION__attack_resolution.
+      attack_side does the entry-direction trace per attack; tests/test_
+      movement_selection.py checks the two agree.) Raises ValueError for an off-board
       line, same as los.has_los - and remembers that it did, so it isn't
       retried.
   los(a, t, terrain_map)       -> LOSResult
-  in_rear_arc(a_to_t, a_facing) -> bool: the same answer as
-      combat.in_rear_arc(a_hex, a_facing, t_hex), from the cached a_to_t.
   board(terrain_map) -> the per-map cache object. Hot loops fetch its rows
       once per call (board.to[t] = {a: info}, board.frm[a] = {t: info}) and
       do plain dict lookups, falling back to pair_info() on a miss.
@@ -37,13 +35,10 @@ if PATHFINDER_DIR not in sys.path:
     sys.path.insert(0, PATHFINDER_DIR)
 
 import combat  # noqa: E402 - PATHFINDER
+import INTEGRATION__arcs as arcs  # noqa: E402
 from los import trace_los_path, hex_distance  # noqa: E402 - PATHFINDER
 
 MAX_ENTRIES = 250_000
-
-# combat.in_rear_arc says "direction is (facing + offset) % 6 for an offset in
-# REAR_ARC_OFFSETS", i.e. (direction - facing) % 6 is one of the offsets.
-_REAR_RELATIVE = frozenset(offset % 6 for offset in combat.REAR_ARC_OFFSETS)
 
 
 class _Board:
@@ -101,8 +96,7 @@ def pair_info(a_hex, t_hex, terrain_map):
         # The hex the line crosses into the target's hex from (steps[-2]);
         # a line of length 0 has none (callers never ask - same hex).
         entry_dir = combat._direction_facing(t_hex, steps[-2].hex) if len(steps) >= 2 else 0
-        a_to_t = combat._direction_facing(a_hex, t_hex) if a_hex != t_hex else 0
-        hit = (trace.result, entry_dir, hex_distance(a_hex, t_hex), a_to_t)
+        hit = (trace.result, entry_dir, hex_distance(a_hex, t_hex), arcs.arcs_between(a_hex, t_hex))
     b.to.setdefault(t_hex, {})[a_hex] = hit
     b.frm.setdefault(a_hex, {})[t_hex] = hit
     b.count += 1
@@ -114,6 +108,3 @@ def pair_info(a_hex, t_hex, terrain_map):
 def los(a_hex, t_hex, terrain_map):
     return pair_info(a_hex, t_hex, terrain_map)[0]
 
-
-def in_rear_arc(a_to_t, a_facing) -> bool:
-    return (a_to_t - a_facing) % 6 in _REAR_RELATIVE
