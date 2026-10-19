@@ -337,6 +337,9 @@ No PATHFINDER module used by the battle loop imports `config`.
   on genuine scope ambiguity.
 - State test scope up front; one pass; don't iterate unless asked.
 - Never hardcode a BT numeric rule from memory — confirm with Daniel first.
+- The rules library is `rules/Battletech_Rule_Reference_Index.zip` (Core
+  Rulebook base layer in `base/core-rules/*.md`). Unzip it outside the repo
+  and check rules against it; cite the page in the code.
 - Keep source-project file prefixes; never let one overwrite the other.
 - Name which pile new code belongs to; if it doesn't fit, say so.
 - New pile-4 decision points get a Section 6 row.
@@ -644,4 +647,5 @@ No PATHFINDER module used by the battle loop imports `config`.
     equipment.json entry at all (only Light/Heavy/Clan MGs).
   - Open for Daniel: Core-vs-MECHSIM PSR differences and the firing-arc
     diagram (Section 4).
-
+- **2026-10-19 (Claude):** Added the rules library zip to the repo as
+  `rules/Battletech_Rule_Reference_Index.zip` so later sessions can read it.
