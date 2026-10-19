@@ -331,9 +331,29 @@ def tn_adjuster(attacker, target, aim=None, cover_modifier=0):
     return adjust
 
 
+def _physical_planner(attacker, target, terrain_map):
+    """f(ArcAction) -> physical.plans for an attack on the adjacent target
+    later this turn (nothing fired yet), or None if the attacker can't make
+    one (prone, immobile)."""
+    import INTEGRATION__physical as physical      # physical imports this module
+    if attacker.prone or is_immobile(attacker):
+        return None
+    base = physical._base_tn(attacker, target, terrain_map)
+    a_hex, t_hex = hex_geometry.parse_hex_label(attacker.hex), hex_geometry.parse_hex_label(target.hex)
+    a_facing = hex_geometry.compass_to_facing(attacker.facing)
+    a_level, t_level = terrain_map["hexes"][attacker.hex]["level"], terrain_map["hexes"][target.hex]["level"]
+
+    planner = physical.Planner(attacker)
+
+    def plans_for(action):
+        return planner.plans(a_hex, a_facing, a_level, t_hex, t_level, target.prone, action, base) or [(0.0, (), [])]
+    return plans_for
+
+
 def declare_attacks(attacker, target, terrain_map, report: SideReport):
     """Step 2 above for one attacker. Rolls to-hit for every selected
     weapon; returns nothing (fills report)."""
+    import INTEGRATION__physical as physical      # physical imports this module
     a_name, t_name = attacker.side_name, target.side_name
     if attacker.shutdown:
         config.log(f"  [Ranged] {a_name}: shut down - no attacks.")
@@ -386,21 +406,38 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     other = heat.other_heat(attacker)
     # Torso twist / arm flip / turret (pp.61-62): declared with the attacks, so try each
     # one the mech may make and keep the one with the most expected damage; no change wins ties.
+    # Next to the target the choice also counts the physical attack that can follow (pp.76, 82):
+    # the twist stands for the Physical phase, and a limb that punches or kicks can't have
+    # fired - so each (action, physical plan) is scored as ranged + physical expected damage.
+    plans_for = _physical_planner(attacker, target, terrain_map) if distance == 1 else None
+    actions = arcs.arc_options(attacker) if plans_for else tuple(a for _, a in arc_choices)
+    legs = arcs.leg_offsets(attacker)
+    picked_cache = {}
     best = None
-    for key, action in arc_choices:
-        picked = weapon_selection.select_weapons_to_fire(
-            attacker, distance, sel_pre_tn, attacker.min_heat, attacker.max_heat,
-            dissipation=dissipation, movement_heat=attacker.movement_heat, other_heat=other, tn_adjust=adjust,
-            unavailable=unavailable | arc_unavailable(attacker, key))
-        if best is None or picked[1] > best[0][1] + 1e-12:
-            best = (picked, key, action)
-    (weapons, exp_dmg, weapon_heat), chosen_key, chosen = best
+    for action in actions:
+        key = arcs.key_for(pair_arcs, a_facing, action, legs)
+        for phys_value, limbs, phys_picks in (plans_for(action) if plans_for else ((0.0, (), []),)):
+            held = physical.limb_weapon_ids(attacker, limbs) if limbs else frozenset()
+            picked = picked_cache.get((key, held))
+            if picked is None:
+                picked = picked_cache[(key, held)] = weapon_selection.select_weapons_to_fire(
+                    attacker, distance, sel_pre_tn, attacker.min_heat, attacker.max_heat,
+                    dissipation=dissipation, movement_heat=attacker.movement_heat, other_heat=other,
+                    tn_adjust=adjust, unavailable=unavailable | arc_unavailable(attacker, key) | held)
+            total = picked[1] + phys_value
+            if best is None or total > best[0] + 1e-12:
+                best = (total, picked, key, action, phys_picks, phys_value, held)
+    _, (weapons, exp_dmg, weapon_heat), chosen_key, chosen, phys_picks, phys_value, held = best
     if not weapons:
         chosen = arcs.current_action(attacker)._replace(turret=chosen.turret)   # nothing fires: declare no change
     arcs.declare(attacker, chosen)
     if arcs.describe(chosen) and weapons:
         config.log(f"  [Ranged] {a_name} {arcs.describe(chosen)} "
                    f"({t_name} is in its torso's {arcs.ARC_NAMES[chosen_key.torso_arc]} arc after that).")
+    held_names = sorted({w.name for w in get_weapons(attacker) if id(w) in held - unavailable})
+    if phys_picks and held_names:
+        config.log(f"  [Ranged] {a_name} holds {held_names} back for the Physical phase "
+                   f"(plans {', '.join(o['name'] for o in phys_picks)}, expected {phys_value:.2f}).")
     budget = heat.weapon_heat_budget(attacker, attacker.movement_heat)
     surcharge = heat.weapon_fire_surcharge(attacker) if weapons else 0
 

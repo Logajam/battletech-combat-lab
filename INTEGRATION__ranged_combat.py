@@ -38,6 +38,13 @@ envelope PATHFINDER__combat.py's own evaluate_combat_hexes() builds):
      checked independently for the mover's own fire and the defender's
      return fire. The twist is declared at attack declaration, after
      movement (p.61), so taking the best one per spot is the real rule.
+  3a. Physical attacks (2026-10-19): at range 1 each side's number is the
+     best over arc actions and physical plans (INTEGRATION__physical.Planner)
+     of ranged fire without the attacking limbs' weapons + the plan's
+     expected damage - the twist stands for both phases, and a limb that
+     punches or kicks can't have fired (pp.62, 76, 82). Physical damage is
+     not structure-weighted, and kick / missed-kick PSRs are not priced
+     (Daniel's rule: only Movement-phase PSRs count).
   4. Expected damage in each direction - HEAT-AWARE as of 2026-10-18 (see
      below).
 
@@ -133,6 +140,7 @@ import INTEGRATION__arcs as arcs  # noqa: E402
 import INTEGRATION__los_cache as geo_cache  # noqa: E402
 from INTEGRATION__attack_resolution import tn_adjuster, aimed_shot_location, firing_conditions, \
     prone_target_modifier, arc_unavailable, _SIDE_BY_RELATIVE_HEXSIDE  # noqa: E402
+import INTEGRATION__physical as physical  # noqa: E402
 
 IMMOBILE_TMM = -4  # same convention as INTEGRATION__attack_resolution.IMMOBILE_TMM
 
@@ -276,6 +284,30 @@ def prepare_options(mover, options) -> List[_Option]:
     return prepared
 
 
+def _with_physical(ranged_best, planner, actions, legs, pair_arcs, a_hex, facing, a_level, t_hex, t_level,
+                   target_prone, base, ranged_for):
+    """Best expected damage from a spot next to the enemy counting the
+    Physical phase too: for every arc action and physical plan, the ranged
+    fire without the weapons in the attacking limbs (pp.76, 82) plus the
+    plan's expected damage. ranged_for(key, held) gives the ranged part
+    (None: no ranged fire possible); ranged_best is the no-physical value."""
+    best = ranged_best
+    for action in actions:
+        key = None
+        for value, limbs, _ in planner.plans(a_hex, facing, a_level, t_hex, t_level, target_prone, action, base):
+            if not limbs or value <= 0:
+                continue
+            if ranged_for is None:
+                total = value
+            else:
+                if key is None:
+                    key = arcs.key_for(pair_arcs, facing, action, legs)
+                total = ranged_for(key, planner.held(limbs)) + value
+            if total > best:
+                best = total
+    return best
+
+
 class MoveEvaluator:
     """Scores a mover's end states against a defender pinned at any hex.
 
@@ -305,16 +337,22 @@ class MoveEvaluator:
         defender_scorers: Dict[tuple, object] = {}
 
         def scorer_getter(who, adjust, blocked, scale, cache):
-            def get(key):
-                scorer = cache.get(key)
+            def get(key, held=frozenset()):
+                # held: weapons kept back because their limb attacks in the Physical phase
+                scorer = cache.get((key, held))
                 if scorer is None:
-                    scorer = cache[key] = _make_heat_limited_scorer(who, adjust, blocked | arc_unavailable(who, key), scale)
+                    scorer = cache[(key, held)] = _make_heat_limited_scorer(
+                        who, adjust, blocked | arc_unavailable(who, key) | held, scale)
                 return scorer
             return get
         self.mover_scorer = scorer_getter(mover, mover_adjust, mover_blocked, mover_scale, mover_scorers)
         self.defender_scorer = scorer_getter(defender, defender_adjust, defender_blocked, defender_scale, defender_scorers)
         self.mover_arcs = (arcs.arc_options(mover), arcs.leg_offsets(mover))   # twists / flips / turret (pp.61-62)
         self.defender_arcs = (arcs.arc_options(defender), arcs.leg_offsets(defender))
+        # Physical attacks (pp.76-83) from / against a spot next to the enemy.
+        self.mover_physical = not (mover.shutdown or is_immobile(mover))
+        self.defender_physical = not (defender.shutdown or defender.prone or self.defender_immobile)
+        self.mover_planner, self.defender_planner = physical.Planner(mover), physical.Planner(defender)
         self.mover_own = equip.own_attack_modifier(mover)
         self.defender_own = equip.own_attack_modifier(defender)
 
@@ -388,6 +426,25 @@ class MoveEvaluator:
                 pre_tn2 = pre_max if pre_tn2 > pre_max else (pre_min if pre_tn2 < pre_min else pre_tn2)
                 received = max(defender_scorer(key)(distance, pre_tn2, def_move_heat, side_on_mover)
                                for key, _ in arc_keys(d_to_a, def_facing, defender_actions, defender_legs))
+
+            if distance == 1:
+                levels = terrain_map["hexes"]
+                a_level, d_level = levels[o.label]["level"], levels[def_hex_label]["level"]
+                if self.mover_physical:
+                    base = physical.base_tn(mover, o.amm, defender_tmm, atk_to_def.modifier,
+                                            prone_target_modifier(defender, 1))
+                    dealt = _with_physical(
+                        dealt, self.mover_planner, mover_actions, mover_legs, a_to_d, atk_hex, o.facing, a_level,
+                        def_hex, d_level, prone_def, base,
+                        (lambda key, held: mover_scorer(key, held)(distance, pre_tn, o.move_heat, side_on_def))
+                        if mover_cond is not None else None)
+                if self.defender_physical:
+                    base = physical.base_tn(defender, def_amm, o.tmm, def_to_atk.modifier, 0)
+                    received = _with_physical(
+                        received, self.defender_planner, defender_actions, defender_legs, d_to_a, def_hex,
+                        def_facing, d_level, atk_hex, a_level, False, base,
+                        (lambda key, held: defender_scorer(key, held)(distance, pre_tn2, def_move_heat, side_on_mover))
+                        if not no_return_fire else None)
 
             results.append(MovementCandidate(
                 hex=o.label, facing=o.facing_compass, mode=o.mode,

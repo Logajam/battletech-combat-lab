@@ -10,9 +10,13 @@ where, for a candidate spot,
   dealt     expected damage this mech deals from there (the same heat-, ammo-,
             arc- and to-hit-aware number Ranged Combat will actually fire -
             INTEGRATION__ranged_combat.MoveEvaluator), times the target's
-            EXPOSURE FACTOR for the side the shots land on;
-  received  expected damage the enemy's return fire deals, times THIS mech's
-            exposure factor for the side those shots land on;
+            EXPOSURE FACTOR for the side the shots land on. From a spot
+            next to the enemy it also counts the Physical phase (2026-10-19):
+            the best twist + ranged fire + punch / kick / physical weapon,
+            with the weapons in an attacking limb held back (pp.76, 82);
+  received  expected damage the enemy's return fire deals (physical attacks
+            included the same way), times THIS mech's exposure factor for
+            the side those shots land on;
   PSR cost  expected fall damage from the Movement Phase piloting roll the
             move would force (see below), added to received;
   0.001     keeps a spot with no return fire from dividing by zero

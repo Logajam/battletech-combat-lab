@@ -206,17 +206,22 @@ def simple_key(mech, torso_arc, legs_forward=True):
     return ArcKey(torso_arc, frozenset(mech.leg_locations) if legs_forward else frozenset(), False, None)
 
 
+def key_for(arcs, facing, action, legs):
+    """The ArcKey a target with arcs-tuple `arcs` presents to a mech facing
+    `facing` that declared `action`, `legs` = leg_offsets(mech)."""
+    return ArcKey(arcs[(facing + action.twist) % 6],
+                  frozenset(leg for leg, off in legs if arcs[(facing + off) % 6] == FORWARD), action.flip,
+                  None if action.turret is None else arcs[(facing + action.turret) % 6] == FORWARD)
+
+
 @functools.lru_cache(maxsize=None)
 def arc_keys(arcs, facing, actions, legs):
     """((ArcKey, first ArcAction giving it), ...) for a target whose
     arcs-tuple is `arcs`, one per distinct key among `actions`
     (arc_options), `legs` = leg_offsets(mech)."""
-    legs_fwd = frozenset(leg for leg, off in legs if arcs[(facing + off) % 6] == FORWARD)
     out = {}
     for a in actions:
-        key = ArcKey(arcs[(facing + a.twist) % 6], legs_fwd, a.flip,
-                     None if a.turret is None else arcs[(facing + a.turret) % 6] == FORWARD)
-        out.setdefault(key, a)
+        out.setdefault(key_for(arcs, facing, a, legs), a)
     return tuple(out.items())
 
 
