@@ -207,6 +207,10 @@ MOVEMENT_EXPOSURE_MAX = 3.0
 # Add the expected fall damage of the Movement Phase PSR a Run/Jump would force
 # (only a damaged mech has one) to the damage received.
 MOVEMENT_PSR_COST = True
+# Internal-structure damage counts for more than armor damage (Daniel, 2026-10-19):
+# per weapon, the part of a hit that gets past a location's armor and into its
+# structure counts this many times. 1.0 = off. See INTEGRATION__structure_weight.
+MOVEMENT_STRUCTURE_WEIGHT = 2.0
 
 # =============================================================================
 # ==========================  VISUALIZATION (NOT WIRED)  =====================

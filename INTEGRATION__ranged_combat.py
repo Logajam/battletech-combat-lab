@@ -107,6 +107,8 @@ if MECHSIM_DIR not in sys.path:
     sys.path.insert(0, MECHSIM_DIR)
 
 import INTEGRATION__config  # noqa: E402,F401 - registers bare "config" before any MECHSIM import
+import INTEGRATION__config as config  # noqa: E402
+from damage_resolution import get_weapons  # noqa: E402
 from mech_state import compute_walk_mp, compute_running_mp, compute_jump_mp, compute_heat_dissipation, \
     is_immobile  # noqa: E402
 
@@ -123,6 +125,7 @@ import INTEGRATION__weapon_selection as weapon_selection  # noqa: E402
 import INTEGRATION__heat as heat  # noqa: E402
 import INTEGRATION__equipment_systems as equip  # noqa: E402
 import INTEGRATION__ammo as ammo  # noqa: E402
+import INTEGRATION__structure_weight as structure_weight  # noqa: E402
 import INTEGRATION__los_cache as geo_cache  # noqa: E402
 from INTEGRATION__attack_resolution import tn_adjuster, aimed_shot_location, firing_conditions, \
     prone_target_modifier, arc_unavailable, _SIDE_BY_RELATIVE_HEXSIDE  # noqa: E402
@@ -147,24 +150,35 @@ class MovementCandidate:
     side_on_mover: str = ""     # hit table the mover is shot on when the defender fires back
 
 
-def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset()):
+def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_for_side=None):
     """Returns score(distance, pre_tn, move_heat) -> expected damage of the
     weapons select_weapons_to_fire() would actually fire, memoized for this
     call. Dissipation and other heat are read once (they can't change
     mid-movement); tn_adjust is the per-weapon stealth/aim change against
-    this scorer's target."""
+    this scorer's target.
+
+    scale_for_side (2026-10-19): optional f(side) -> {id(weapon): multiplier}
+    (INTEGRATION__structure_weight, built per target); when given, score() takes
+    the attack side too and returns WORTH - expected damage with structure
+    damage counted for more - and the memo is keyed by side as well."""
     dissipation = compute_heat_dissipation(mech)
+    scales: Dict[str, dict] = {}
     other = heat.other_heat(mech)
     memo: Dict[tuple, float] = {}
 
-    def score(distance: int, pre_tn: int, move_heat: int) -> float:
-        key = (distance, pre_tn, move_heat)
+    def score(distance: int, pre_tn: int, move_heat: int, side: str = "") -> float:
+        key = (distance, pre_tn, move_heat, side)
         cached = memo.get(key)
         if cached is None:
+            scale = None
+            if scale_for_side is not None:
+                scale = scales.get(side)
+                if scale is None:
+                    scale = scales[side] = scale_for_side(side)
             _, cached, _ = weapon_selection.select_weapons_to_fire(
                 mech, distance, pre_tn, mech.min_heat, mech.max_heat,
                 dissipation=dissipation, movement_heat=move_heat, other_heat=other, tn_adjust=tn_adjust,
-                unavailable=unavailable)
+                unavailable=unavailable, value_scale=scale)
             memo[key] = cached
         return cached
 
@@ -277,10 +291,17 @@ class MoveEvaluator:
         mover_adjust = tn_adjuster(mover, defender, aimed_shot_location(defender))
         defender_adjust = tn_adjuster(defender, mover)
         # One scorer per (rear arc?) case - which weapons can bear differs (p.60).
-        self.mover_score = {rear: _make_heat_limited_scorer(mover, mover_adjust, mover_blocked | arc_unavailable(mover, rear))
+        # Structure weighting (INTEGRATION__structure_weight): off at k = 1.0, which leaves
+        # every number exactly as it was.
+        weighting = config.MOVEMENT_STRUCTURE_WEIGHT != 1.0
+        mover_scale = (lambda side: structure_weight.multipliers(get_weapons(mover), defender, side)) if weighting else None
+        defender_scale = (lambda side: structure_weight.multipliers(get_weapons(defender), mover, side)) if weighting else None
+        self.mover_score = {rear: _make_heat_limited_scorer(mover, mover_adjust, mover_blocked | arc_unavailable(mover, rear),
+                                                            mover_scale)
                             for rear in (False, True)}
         self.defender_score = {rear: _make_heat_limited_scorer(defender, defender_adjust,
-                                                               defender_blocked | arc_unavailable(defender, rear))
+                                                               defender_blocked | arc_unavailable(defender, rear),
+                                                               defender_scale)
                                for rear in (False, True)}
         self.mover_own = equip.own_attack_modifier(mover)
         self.defender_own = equip.own_attack_modifier(defender)
@@ -332,6 +353,8 @@ class MoveEvaluator:
                 continue  # off-board LOS line - not a usable candidate
             if not atk_to_def.los:
                 continue  # no shot possible from here at all
+            side_on_def = _SIDE_BY_RELATIVE_HEXSIDE[(entry_at_def - def_facing) % 6]
+            side_on_mover = _SIDE_BY_RELATIVE_HEXSIDE[(entry_at_atk - o.facing) % 6]
 
             if mover_cond is None:
                 dealt = 0.0
@@ -340,7 +363,7 @@ class MoveEvaluator:
                           + mover.heat_fire_modifier + dealt_stealth + mover_cond[0]
                           + (prone_target_modifier(defender, distance) if prone_def else 0))
                 pre_tn = pre_max if pre_tn > pre_max else (pre_min if pre_tn < pre_min else pre_tn)
-                dealt = mover_score[in_rear_arc(a_to_d, o.facing)](distance, pre_tn, o.move_heat)
+                dealt = mover_score[in_rear_arc(a_to_d, o.facing)](distance, pre_tn, o.move_heat, side_on_def)
 
             if no_return_fire:
                 received = 0.0
@@ -349,14 +372,13 @@ class MoveEvaluator:
                            + defender.heat_fire_modifier + self.defender_own + defender_cond[0]
                            + o.void_mod)
                 pre_tn2 = pre_max if pre_tn2 > pre_max else (pre_min if pre_tn2 < pre_min else pre_tn2)
-                received = defender_score[in_rear_arc(d_to_a, def_facing)](distance, pre_tn2, def_move_heat)
+                received = defender_score[in_rear_arc(d_to_a, def_facing)](distance, pre_tn2, def_move_heat, side_on_mover)
 
             results.append(MovementCandidate(
                 hex=o.label, facing=o.facing_compass, mode=o.mode,
                 fc=o.fc, mp_spent=o.mp_spent, distance=distance, dealt=dealt, received=received,
                 movement_heat=o.move_heat,
-                side_on_defender=_SIDE_BY_RELATIVE_HEXSIDE[(entry_at_def - def_facing) % 6],
-                side_on_mover=_SIDE_BY_RELATIVE_HEXSIDE[(entry_at_atk - o.facing) % 6],
+                side_on_defender=side_on_def, side_on_mover=side_on_mover,
             ))
         return results
 

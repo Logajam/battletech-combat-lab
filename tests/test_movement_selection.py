@@ -155,6 +155,50 @@ def reduction_keeps_the_best_spot():
 
 
 @check
+def structure_damage_counts_for_more():
+    """worth(): armor 1.0, structure k, transfer overflow 1.0. A hand case: a
+    10-point hit on a location with 4 armor and 3 structure left is
+    4 + 2*3 + 3 = 13 at k = 2. A weapon's multiplier is the hit-table average of
+    that, over its damage; full armor everywhere is exactly 1.0; stripping a
+    side raises it; k = 1 is exactly 1.0 and leaves dealt/received unchanged."""
+    sw = ms.structure_weight
+    assert sw.worth(10, 4, 3, 2.0) == 13 and sw.worth(3, 4, 3, 2.0) == 3 and sw.worth(5, 0, 9, 2.0) == 10
+    assert sw.worth(10, 4, 3, 1.0) == 10
+    other, target = fresh("0812", "S"), fresh("0808", "N")
+    weapons = ms.get_weapons(other)
+    full = sw.multipliers(weapons, target, "left")
+    assert all(abs(v - 1.0) < TOL for v in full.values()), full
+    for loc in ("Left Arm", "Left Torso", "Left Leg", "Center Torso", "Right Arm"):
+        target.locations[loc]["armor"] = 0
+    stripped = sw.multipliers(weapons, target, "left")
+    assert all(v >= 1.0 for v in stripped.values()) and max(stripped.values()) > 1.0, stripped
+    # recompute one weapon by hand from the hit table
+    w = weapons[0]
+    groups = sw.weapon_groups(w)
+    want = sum(p * sw.worth(d, st[ak], st["structure"], config.MOVEMENT_STRUCTURE_WEIGHT)
+               for d in groups for p, st, ak in sw.hit_spread(target, "left")) / sum(groups)
+    want += 1.0 - sum(p for p, _, _ in sw.hit_spread(target, "left"))
+    assert abs(stripped[id(w)] - want) < TOL, (stripped[id(w)], want)
+
+    # the evaluator: stripped target -> dealt rises vs k = 1; k = 1 equals the unweighted numbers
+    mover = fresh("0808", "N")
+    def dealt_at(k):
+        old = config.MOVEMENT_STRUCTURE_WEIGHT
+        config.MOVEMENT_STRUCTURE_WEIGHT = k
+        try:
+            return {(c.hex, c.facing, c.mode, c.fc): c.dealt
+                    for c in ranged_combat.evaluate_going_second(mover, target_enemy, TERRAIN)}
+        finally:
+            config.MOVEMENT_STRUCTURE_WEIGHT = old
+    target_enemy = fresh("0811", "S")
+    for loc in ("Left Arm", "Left Torso", "Left Leg", "Center Torso", "Right Arm", "Right Torso", "Right Leg"):
+        target_enemy.locations[loc]["armor"] = 0
+    d1, d2 = dealt_at(1.0), dealt_at(2.0)
+    assert d1.keys() == d2.keys() and all(d2[k] >= d1[k] - TOL for k in d1)
+    assert any(d2[k] > d1[k] + 1e-6 for k in d1), "structure weighting changed nothing against a stripped target"
+
+
+@check
 def void_signature_mech_keeps_every_movement_variant():
     """A live Void-Signature System's bonus falls as hexes moved rise, so the
     reduction (which keeps the most hexes) is skipped for it: it keeps several

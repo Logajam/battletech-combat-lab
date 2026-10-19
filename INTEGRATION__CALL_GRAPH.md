@@ -48,6 +48,7 @@ edited).
   (MoveEvaluator, prepare_options), `los_cache`; MECHSIM `mech_state`,
   `damage_resolution`, `hit_location`, `piloting_rolls`; PATHFINDER
   `hex_geometry`, `combat`, `los`
+- `structure_weight.py` (NEW 2026-10-19) → `config`, `expected_damage`, `weapon_rules`; MECHSIM `damage_resolution` (TRANSFER_MAP), `hit_location`. Used by `ranged_combat` and `movement_selection`.
 - `los_cache.py` (NEW 2026-10-19) → PATHFINDER `combat`, `los`. Leaf otherwise.
 - `ranged_combat.py` → `los_cache` (2026-10-19), `config` (registration only), MECHSIM `mech_state`
   (compute_*_mp, compute_heat_dissipation, is_immobile); PATHFINDER `hex_geometry`,

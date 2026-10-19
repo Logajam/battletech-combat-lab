@@ -122,6 +122,7 @@ import combat  # noqa: E402
 from los import hex_distance  # noqa: E402
 
 import INTEGRATION__ranged_combat as ranged_combat  # noqa: E402
+import INTEGRATION__structure_weight as structure_weight  # noqa: E402
 import INTEGRATION__los_cache as geo_cache  # noqa: E402
 import INTEGRATION__equipment_systems as equipment_systems  # noqa: E402
 
@@ -134,27 +135,10 @@ _P_2D6 = {roll: (6 - abs(roll - 7)) / 36 for roll in range(2, 13)}
 # =============================================================================
 def _vulnerability(mech, side):
     """sum over hit-table rolls of P(roll) / durability(location) for shots
-    landing on `side` of `mech`, from its current armor and structure."""
-    if side == "left":
-        table = hit_location.HIT_TABLE_LEFT_SIDE
-    elif side == "right":
-        table = hit_location.HIT_TABLE_RIGHT_SIDE
-    else:
-        table = hit_location.HIT_TABLE_FRONT_REAR
-    total = 0.0
-    for roll, p in _P_2D6.items():
-        # resolve_hit_location also translates quad leg names; its tripod leg
-        # sub-roll draws Python's random, which a lookahead must not touch, so
-        # a tripod reads the raw table (its Left/Right Leg rows).
-        loc = table[roll] if mech.mech_type == "tripod" else hit_location.resolve_hit_location(roll, mech, side)
-        while loc is not None and mech.locations.get(loc, {}).get("destroyed"):
-            loc = TRANSFER_MAP.get(loc)          # damage moves inward past a destroyed location
-        state = mech.locations.get(loc) if loc is not None else None
-        if state is None:
-            continue                              # transfers off the mech: the shot costs nothing
-        armor_key = "rear_armor" if side == "rear" and "rear_armor" in state else "armor"
-        total += p / max(1, state[armor_key] + state["structure"])
-    return total
+    landing on `side` of `mech`, from its current armor and structure
+    (structure_weight.hit_spread does the table walk)."""
+    return sum(p / max(1, state[armor_key] + state["structure"])
+               for p, state, armor_key in structure_weight.hit_spread(mech, side))
 
 
 def exposure_factors(mech) -> Dict[str, float]:

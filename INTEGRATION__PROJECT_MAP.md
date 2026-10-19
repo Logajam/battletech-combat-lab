@@ -141,8 +141,9 @@ mid-phase? (Current build: no — both declare first, then both resolve.)
 **Movement-selection follow-ups (Daniel, 2026-10-19):**
 - Terrain that forces a piloting roll on entry, and mine fields: add expected
   damage to the spot's cost (denominator), as the movement PSR already does.
-- Count internal-structure damage for more than armor damage (Daniel: maybe
-  2x, value to be picked) in both dealt and received.
+- (Built 2026-10-19: internal-structure weighting, see Change Record.) Still
+  open there: aimed shots at immobile targets, and using the same weighting in
+  the real Ranged Combat weapon choice (movement scoring only for now).
 
 **Stubs (all in `INTEGRATION__stubs.py`, knobs in `INTEGRATION__config.py` STUB SETTINGS).**
 Each docstring carries a TODO naming what to check (MegaMek names in those
@@ -378,6 +379,18 @@ No PATHFINDER module used by the battle loop imports `config`.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-19 (Claude):** Structure-damage weighting for movement scoring
+  (Daniel's design: per weapon x hit-location table, no chaining). New
+  `INTEGRATION__structure_weight.py`: for each weapon (cluster weapons per
+  grouping), each hit-table roll on the attack side counts the part of a hit
+  that gets past armor into structure at `config.MOVEMENT_STRUCTURE_WEIGHT`
+  (default 2.0; 1.0 = off, identical to before) and anything transferred past
+  a destroyed location at 1.0. `weapon_selection.select_weapons_to_fire` takes
+  an optional `value_scale` (used by movement scoring only; the attack phase is
+  untouched); `MoveEvaluator` builds per-side multipliers for both mechs, so
+  `dealt`/`received` are now WORTH. `_vulnerability` (exposure) shares the
+  table walk (`hit_spread`). Exposure and structure weighting overlap a
+  little (thin armor raises both); both stay on. 16 tests; ~16 s per battle.
 - **2026-10-19 (Claude):** Void-Signature fix to movement selection: its TN
   bonus falls as hexes moved rise (+3 / +2 / +1 / 0), so the Section 5c
   reduction (keep max hexes moved) is unsafe for it. `reduced_options` now
