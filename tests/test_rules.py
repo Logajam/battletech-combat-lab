@@ -106,6 +106,69 @@ def standing_up_then_moving():
     assert {mode for *_, mode, _ in normal} >= {"Stand Still", "Walk", "Run"}
 
 
+@check
+def weapon_and_equipment_modifiers():
+    """Weapon entries pp.184-189 and targeting computer p.200."""
+    from equipment import Equipment
+    cases = {"ISMediumPulseLaser": -2, "CLERMediumPulseLaser": -1, "ISMediumXPulseLaser": -2,
+             "CLHeavyMediumLaser": 1, "CLImprovedHeavyMediumLaser": 0, "ISMediumReengineeredLaser": -1,
+             "ISSBGR": -1, "RL10": 1, "ISMediumLaser": 0, "ISAC5": 0}
+    for name, want in cases.items():
+        assert weapon_rules.weapon_tn_modifier(weapon(name, damage_type="Energy"), "short") == want, name
+    m, t = fresh(), fresh(hex_="0812")
+    mpl = next(w for w in attack_resolution.get_weapons(m) if "Pulse" in w.name)
+    lrm = next(w for w in attack_resolution.get_weapons(m) if "LRM" in w.name)
+    assert attack_resolution.tn_adjuster(m, t)(mpl, "short") == -2
+    m.crits["Left Torso"][-1] = Equipment("ISTargeting Computer", category="misc")
+    adjust = attack_resolution.tn_adjuster(m, t)
+    assert adjust(mpl, "short") == -3 and adjust(lrm, "short") == 0        # cluster: no TC
+
+
+@check
+def sensors_and_arm_crits():
+    """p.98: sensors +2 then no fire (torso cockpit p.203: +2, +4, none);
+    shoulder +4 / upper arm +1 for that arm's weapons."""
+    m = fresh()
+    assert attack_resolution.sensor_modifier(m) == 0
+    m.destroyed_slot_info[("Head", 1)] = {"name": "Sensors", "instance_id": None}
+    assert attack_resolution.sensor_modifier(m) == 2
+    m.destroyed_slot_info[("Head", 4)] = {"name": "Sensors", "instance_id": None}
+    assert attack_resolution.sensor_modifier(m) is None and attack_resolution.firing_conditions(m) is None
+    m.torso_cockpit = True
+    assert attack_resolution.sensor_modifier(m) == 4
+
+    m = fresh()
+    ac5 = next(w for w in attack_resolution.get_weapons(m) if w.name == "ISAC5")    # Right Arm
+    locs = attack_resolution.weapon_locations(m)[id(ac5)]
+    m.destroyed_slot_info[("Right Arm", 1)] = {"name": "Upper Arm Actuator", "instance_id": None}
+    assert attack_resolution.arm_actuator_modifier(m, locs) == 1
+    m.destroyed_slot_info[("Right Arm", 0)] = {"name": "Shoulder", "instance_id": None}
+    assert attack_resolution.arm_actuator_modifier(m, locs) == 4
+    assert attack_resolution.arm_actuator_modifier(m, {"Left Torso"}) == 0
+
+
+@check
+def prone_attacker_and_target():
+    """p.66: prone target -2 adjacent / +1 farther. p.67: firing prone +2,
+    prop arm (least damage) and legs can't fire. p.231: intact tripod +1,
+    only leg weapons lost."""
+    m = fresh()
+    m.prone = True
+    assert attack_resolution.prone_target_modifier(m, 1) == -2
+    assert attack_resolution.prone_target_modifier(m, 2) == 1
+    mod, out = attack_resolution.prone_fire(m)
+    names = {w.name for w in attack_resolution.get_weapons(m) if id(w) in out}
+    assert mod == 2 and names == {"ISAC5"}          # right arm (AC/5) props: less damage than LB-X + UAC
+    m.locations["Left Arm"]["destroyed"] = m.locations["Right Arm"]["destroyed"] = True
+    assert attack_resolution.prone_fire(m) is None   # no arm to prop on
+
+    tripod = fresh(parse_mtf(config.data_path("Asymptote II iJ Mpulse.mtf")))
+    tripod.prone = True
+    mod, out = attack_resolution.prone_fire(tripod)
+    assert mod == 1 and not out                       # its lasers are in the torsos and head
+    assert attack_resolution.prone_fire(fresh()) == (0, frozenset())
+
+
 def run_all():
     failed = 0
     for fn in CHECKS:

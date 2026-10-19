@@ -50,8 +50,19 @@ mech_state.is_immobile) uses MECHSIM's existing "TMM -4" convention
 A shut-down attacker makes no attacks (Core Rulebook p.104).
 The range term includes the minimum-range penalty (2026-10-19,
 weapon_selection._weapon_range_mod).
-Anything else (prone, sensor hits, arm actuators...) is not applied
-- stubs.stub_to_hit_modifiers_not_applied() says so out loud.
+Also (2026-10-19, replacing stub_to_hit_modifiers_not_applied):
+  - each weapon's own modifier (INTEGRATION__weapon_rules: pulse -2, ER pulse
+    -1, heavy laser +1, rocket launcher +1, ...) and a targeting computer's
+    -1 for eligible weapons (p.200);
+  - arm critical hits (p.97-98): shoulder +4 for that arm's weapons
+    (overriding its other arm crits), upper arm actuator +1;
+  - sensor hits (p.98): one +2, two = no ranged attacks (torso-mounted
+    cockpit p.203: +2, +4, then none);
+  - prone target (p.66): -2 from an adjacent hex, +1 otherwise;
+  - firing while prone (p.67): +2, propped on the arm whose weapons matter
+    least - nothing fires from that arm or the legs; no arm left = no fire.
+    Tripods with no leg / hip damage +1 and only lose leg weapons; quads with
+    none fire as if standing, damaged quads prop on a leg (p.231).
 
 Stealth (2026-10-19, INTEGRATION__equipment_systems, Core pp.202, 209):
 a target's active LPS / Null-Signature / stealth armor add +1 at medium and
@@ -185,17 +196,128 @@ def aimed_tn_adjust(aim, cover_modifier):
     return -cover_modifier + (AIMED_HEAD_ADJUST if aim == "Head" else 0)
 
 
+# --- Attacker / target conditions (2026-10-19) --------------------------------
+ARM_LOCATIONS = ("Left Arm", "Right Arm")
+SENSOR_MODIFIER_BY_HITS = {0: 0, 1: 2}                    # p.98; 2+ hits: no ranged attacks
+TORSO_COCKPIT_SENSOR_MODIFIER_BY_HITS = {0: 0, 1: 2, 2: 4}  # p.203; 3+ hits: none
+PRONE_FIRE_MODIFIER = 2                                   # p.67
+TRIPOD_PRONE_FIRE_MODIFIER = 1                            # p.231
+PRONE_TARGET_ADJACENT = -2                                # p.66
+PRONE_TARGET_FAR = 1
+
+
+def weapon_locations(mech):
+    """{id(weapon): set of locations its slots sit in} - live and destroyed slots."""
+    locs = {}
+    for location, slots in mech.crits.items():
+        for slot in slots:
+            if getattr(slot, "category", None) == "weapon":
+                locs.setdefault(id(slot), set()).add(location)
+    for (location, _), info in mech.destroyed_slot_info.items():
+        if info["instance_id"] is not None:
+            locs.setdefault(info["instance_id"], set()).add(location)
+    return locs
+
+
+def _destroyed_names(mech, location=None):
+    return [info["name"] for (loc, _), info in mech.destroyed_slot_info.items()
+            if location is None or loc == location]
+
+
+def sensor_modifier(mech):
+    """Ranged-attack TN modifier from sensor hits, or None if they can't fire."""
+    hits = _destroyed_names(mech).count("Sensors")
+    table = TORSO_COCKPIT_SENSOR_MODIFIER_BY_HITS if getattr(mech, "torso_cockpit", False) \
+        else SENSOR_MODIFIER_BY_HITS
+    return table.get(hits)
+
+
+def arm_actuator_modifier(mech, locations):
+    """+4 for a weapon in an arm with a destroyed shoulder (overrides that
+    arm's other crits), else +1 for a destroyed upper arm actuator."""
+    worst = 0
+    for arm in set(locations) & set(ARM_LOCATIONS):
+        lost = _destroyed_names(mech, arm)
+        worst = max(worst, 4 if "Shoulder" in lost else (1 if "Upper Arm Actuator" in lost else 0))
+    return worst
+
+
+def has_targeting_computer(mech):
+    dead = {info["instance_id"] for info in mech.destroyed_slot_info.values()}
+    return any(getattr(s, "name", "").replace(" ", "").upper().endswith("TARGETINGCOMPUTER") and id(s) not in dead
+               for slots in mech.crits.values() for s in slots)
+
+
+def prone_target_modifier(target, distance):
+    if not target.prone:
+        return 0
+    return PRONE_TARGET_ADJACENT if distance <= 1 else PRONE_TARGET_FAR
+
+
+def _weapon_value(weapon):
+    return (weapon.damage_per_shot or 0) * (weapon.rack_size or 1)
+
+
+def prone_fire(mech):
+    """(TN modifier, ids of weapons that can't fire), or None if a prone mech
+    can't fire at all (p.67, p.231). (0, empty) when standing."""
+    if not mech.prone:
+        return 0, frozenset()
+    locs = weapon_locations(mech)
+    weapons = get_weapons(mech)
+    in_loc = lambda place: {id(w) for w in weapons if place & locs.get(id(w), set())}   # noqa: E731
+    legs = set(mech.leg_locations)
+    legs_ok = not mech.destroyed_hip_locations and not any(mech.locations[l]["destroyed"] for l in legs)
+    if mech.mech_type in ("quad", "quadvee"):
+        if legs_ok:
+            return 0, frozenset()
+        usable = [l for l in legs if not mech.locations[l]["destroyed"]]
+        prop = min(usable, key=lambda l: sum(_weapon_value(w) for w in weapons if id(w) in in_loc({l})))
+        return PRONE_FIRE_MODIFIER, frozenset(in_loc({prop}))
+    if mech.mech_type == "tripod" and legs_ok:
+        return TRIPOD_PRONE_FIRE_MODIFIER, frozenset(in_loc(legs))
+    arms = [a for a in ARM_LOCATIONS if a in mech.locations and not mech.locations[a]["destroyed"]]
+    if not arms:
+        return None
+    prop = min(arms, key=lambda a: sum(_weapon_value(w) for w in weapons if id(w) in in_loc({a})))
+    return PRONE_FIRE_MODIFIER, frozenset(in_loc(legs | {prop}))
+
+
+def firing_conditions(attacker):
+    """Attacker-side ranged conditions: (TN modifier, unavailable weapon ids,
+    note), or None if it can't make ranged attacks this turn."""
+    sensors = sensor_modifier(attacker)
+    prone = prone_fire(attacker)
+    if sensors is None or prone is None:
+        return None
+    note = []
+    if sensors:
+        note.append(f"sensors +{sensors}")
+    if prone[0] or prone[1]:
+        note.append(f"prone +{prone[0]}")
+    return sensors + prone[0], prone[1], ", ".join(note)
+
+
 def tn_adjuster(attacker, target, aim=None, cover_modifier=0):
     """f(weapon, bracket) -> per-weapon TN change for select_weapons_to_fire:
-    the target's range-stealth bonus, plus the aimed-shot change for weapons
-    that can aim."""
+    the weapon's own modifier, targeting computer, arm crits, the target's
+    range-stealth bonus, and the aimed-shot change for weapons that can aim."""
     stealth = equip.range_stealth_bonus(target)
     aim_adjust = aimed_tn_adjust(aim, cover_modifier) if aim else 0
+    tc = has_targeting_computer(attacker)
+    locs = weapon_locations(attacker)
 
     def adjust(weapon, bracket):
         tn = stealth.get(bracket, 0) if bracket else 0
-        if aim and not is_cluster_weapon(weapon):
+        tn += weapon_rules.weapon_tn_modifier(weapon, bracket)
+        tn += arm_actuator_modifier(attacker, locs.get(id(weapon), ()))
+        aiming = aim and not is_cluster_weapon(weapon)
+        if aiming:
             tn += aim_adjust
+        # TC -1 (p.200): not on head shots, nor on a pulse weapon's aimed shot.
+        if tc and weapon_rules.targeting_computer_eligible(weapon) and not (
+                aiming and (aim == "Head" or weapon_rules.is_pulse(weapon))):
+            tn -= 1
         return tn
     return adjust
 
@@ -228,8 +350,14 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     tmm = _target_tmm(target)
     heat_mod = attacker.heat_fire_modifier
     stealth_mod = equip.void_signature_modifier(target) + equip.own_attack_modifier(attacker)
-    pre_tn = attacker.gunnery + amm + tmm + los.modifier + heat_mod + stealth_mod
-    stubs.stub_to_hit_modifiers_not_applied(attacker, target, a_name, t_name)
+    conditions = firing_conditions(attacker)
+    if conditions is None:
+        config.log(f"  [Ranged] {a_name}: can't make ranged attacks (sensors destroyed, or prone with no arm to prop on).")
+        return
+    cond_mod, unavailable, cond_note = conditions
+    prone_mod = prone_target_modifier(target, distance)
+    other_mod = cond_mod + prone_mod
+    pre_tn = attacker.gunnery + amm + tmm + los.modifier + heat_mod + stealth_mod + other_mod
 
     cover = 0
     aim = None
@@ -244,13 +372,15 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     other = heat.other_heat(attacker)
     weapons, exp_dmg, weapon_heat = weapon_selection.select_weapons_to_fire(
         attacker, distance, sel_pre_tn, attacker.min_heat, attacker.max_heat,
-        dissipation=dissipation, movement_heat=attacker.movement_heat, other_heat=other, tn_adjust=adjust)
+        dissipation=dissipation, movement_heat=attacker.movement_heat, other_heat=other, tn_adjust=adjust,
+        unavailable=unavailable)
     budget = heat.weapon_heat_budget(attacker, attacker.movement_heat)
     surcharge = heat.weapon_fire_surcharge(attacker) if weapons else 0
 
     config.log(f"  [Ranged] {a_name} -> {t_name}: range {distance}, base TN {pre_tn} "
                f"(gunnery {attacker.gunnery} + AMM {amm} [{attacker.move_mode}] + TMM {tmm} "
-               f"+ LOS {los.modifier} + heat {heat_mod}{f' + stealth {stealth_mod}' if stealth_mod else ''}); "
+               f"+ LOS {los.modifier} + heat {heat_mod}{f' + stealth {stealth_mod}' if stealth_mod else ''}"
+               f"{f' + {cond_note}' if cond_note else ''}{f' + prone target {prone_mod}' if prone_mod else ''}); "
                f"firing {[w.name for w in weapons] or 'nothing'}{f' (aimed at {aim})' if aim else ''} "
                f"(weapon heat {weapon_heat}{f' +{surcharge} damaged radical' if surcharge else ''} of budget "
                f"{budget} = max {attacker.max_heat} + sink {dissipation} - current {attacker.current_heat} "
@@ -269,7 +399,7 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
         roll = config.roll_2d6(prompt=f"To-hit roll ({w.name})")
         hit = roll >= tn
         config.log(f"    {w.name}: needs {tn} (range mod +{range_mod}"
-                   f"{f', stealth/aim {extra:+d}' if extra else ''}){f' aimed at {w_aim}' if w_aim else ''}, "
+                   f"{f', modifiers {extra:+d}' if extra else ''}){f' aimed at {w_aim}' if w_aim else ''}, "
                    f"rolled {roll} -> {'HIT' if hit else 'miss'}")
         if not hit and weapon_rules.is_streak(w):
             report.weapon_heat -= w.heat or 0        # a Streak that misses doesn't fire (p.187)

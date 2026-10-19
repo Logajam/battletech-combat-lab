@@ -63,7 +63,9 @@ Equipment (2026-10-19): stealth TN bonuses (range bracket, Void-Signature
 by hexes moved - the candidate's own fc for the mover), aimed shots at an
 immobile defender, and other heat (engine, stealth, planned radical
 cooling) all go in exactly as attack_resolution applies them, except that
-partial cover is not taken off aimed shots here.
+partial cover is not taken off aimed shots here. To-hit conditions
+(weapon / targeting computer / arm crits / sensors / prone attacker and
+target) come from attack_resolution too.
 Results are memoized within one call on (distance, pre_tn, movement heat)
 - the knapsack inputs - so thousands of candidates cost a few hundred
 selector calls, not thousands.
@@ -107,7 +109,8 @@ import combat  # noqa: E402
 import INTEGRATION__weapon_selection as weapon_selection  # noqa: E402
 import INTEGRATION__heat as heat  # noqa: E402
 import INTEGRATION__equipment_systems as equip  # noqa: E402
-from INTEGRATION__attack_resolution import tn_adjuster, aimed_shot_location  # noqa: E402
+from INTEGRATION__attack_resolution import tn_adjuster, aimed_shot_location, firing_conditions, \
+    prone_target_modifier  # noqa: E402
 
 IMMOBILE_TMM = -4  # same convention as INTEGRATION__attack_resolution.IMMOBILE_TMM
 
@@ -136,7 +139,7 @@ def _clamp_pre_tn(pre_tn: int) -> int:
     return max(weapon_selection.PRE_TN_MIN, min(weapon_selection.PRE_TN_MAX, pre_tn))
 
 
-def _make_heat_limited_scorer(mech, tn_adjust):
+def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset()):
     """Returns score(distance, pre_tn, move_heat) -> expected damage of the
     weapons select_weapons_to_fire() would actually fire, memoized for this
     call. Dissipation and other heat are read once (they can't change
@@ -152,7 +155,8 @@ def _make_heat_limited_scorer(mech, tn_adjust):
         if cached is None:
             _, cached, _ = weapon_selection.select_weapons_to_fire(
                 mech, distance, pre_tn, mech.min_heat, mech.max_heat,
-                dissipation=dissipation, movement_heat=move_heat, other_heat=other, tn_adjust=tn_adjust)
+                dissipation=dissipation, movement_heat=move_heat, other_heat=other, tn_adjust=tn_adjust,
+                unavailable=unavailable)
             memo[key] = cached
         return cached
 
@@ -224,8 +228,12 @@ def evaluate_going_second(
         def_move_heat = heat.movement_heat(defender, def_mode, def_fc)
     def_amm = combat.MODE_TO_AMM[def_mode]
 
-    mover_score = _make_heat_limited_scorer(mover, tn_adjuster(mover, defender, aimed_shot_location(defender)))
-    defender_score = _make_heat_limited_scorer(defender, tn_adjuster(defender, mover))
+    mover_cond = firing_conditions(mover)          # mover is standing here; sensors still count
+    defender_cond = firing_conditions(defender)
+    mover_score = _make_heat_limited_scorer(mover, tn_adjuster(mover, defender, aimed_shot_location(defender)),
+                                            mover_cond[1] if mover_cond else frozenset())
+    defender_score = _make_heat_limited_scorer(defender, tn_adjuster(defender, mover),
+                                               defender_cond[1] if defender_cond else frozenset())
     dealt_stealth = equip.void_signature_modifier(defender, def_fc, defender.mp_spent) \
         + equip.own_attack_modifier(mover)
     defender_own = equip.own_attack_modifier(defender)
@@ -254,19 +262,20 @@ def evaluate_going_second(
         amm = combat.MODE_TO_AMM[mode]
         move_heat = heat.movement_heat(mover, mode, fc)
 
-        if combat.in_rear_arc(atk_hex, facing, def_hex):
+        if mover_cond is None or combat.in_rear_arc(atk_hex, facing, def_hex):
             dealt = 0.0
         else:
             pre_tn = _clamp_pre_tn(mover.gunnery + amm + defender_tmm + atk_to_def.modifier
-                                   + mover.heat_fire_modifier + dealt_stealth)
+                                   + mover.heat_fire_modifier + dealt_stealth + mover_cond[0]
+                                   + prone_target_modifier(defender, distance))
             dealt = mover_score(distance, pre_tn, move_heat)
 
-        if defender.shutdown or combat.in_rear_arc(def_hex, def_facing, atk_hex):
+        if defender.shutdown or defender_cond is None or combat.in_rear_arc(def_hex, def_facing, atk_hex):
             received = 0.0
         else:
             attacker_tmm = combat.fc_to_tmm(fc, jumped=(mode == "Jump"))
             pre_tn2 = _clamp_pre_tn(defender.gunnery + def_amm + attacker_tmm + def_to_atk.modifier
-                                    + defender.heat_fire_modifier + defender_own
+                                    + defender.heat_fire_modifier + defender_own + defender_cond[0]
                                     + equip.void_signature_modifier(mover, fc, mp_spent))
             received = defender_score(distance, pre_tn2, def_move_heat)
 

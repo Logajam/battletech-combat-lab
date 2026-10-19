@@ -198,7 +198,7 @@ def build_expected_damage_table(mech):
 
 
 def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipation, movement_heat,
-                           other_heat=0, tn_adjust=None):
+                           other_heat=0, tn_adjust=None, unavailable=frozenset()):
     """min_heat/max_heat are passed explicitly (the orchestrator reads them
     off the mech's attached scenario config - mech.min_heat/mech.max_heat),
     while current_heat lives on the MECHSIM BattleMech object (mech).
@@ -226,8 +226,10 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
     Was: weapon heat generated this turn >= min_heat.
 
     tn_adjust (2026-10-19): optional f(weapon, bracket) -> int added to that
-    weapon's to-hit number - stealth systems' range bonus and aimed-shot
-    changes, which differ per weapon.
+    weapon's to-hit number - weapon / targeting computer / arm-crit /
+    stealth / aimed-shot modifiers, which differ per weapon.
+    unavailable (2026-10-19): ids of weapons that can't fire this turn (a
+    prone mech's prop arm and legs).
 
     Two-phase heat-constrained selection (Daniel, 2026-08-05):
 
@@ -266,6 +268,8 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
     # Only weapons actually in range at this distance, with confirmed heat data.
     candidates = []
     for w in weapons:
+        if id(w) in unavailable:
+            continue
         row = table.get(id(w), {}).get(distance)
         if row is None:
             continue  # out of range, or no confirmed damage_per_shot

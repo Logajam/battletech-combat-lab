@@ -28,8 +28,7 @@ INTEGRATION__stubs.py (knobs in INTEGRATION__config.py's STUB SETTINGS).
                  envelope + expected dealt/received per spot
                    (INTEGRATION__ranged_combat.evaluate_going_second) REAL
                  picking one spot                                     STUB movement_selection
-                 movement PSR (check_movement_psr, Run/Jump)          REAL
-                   ...Walk/Stand Still                                STUB walk_movement_psr
+                 movement PSR (check_movement_psr, Run 1+ hex / Jump) REAL (Core p.111: none for Walk)
                  consciousness checks                                 REAL
   Ranged       INTEGRATION__attack_resolution.run_ranged_combat_phase REAL dice, LOS, TN (incl. heat
                to-hit modifier), weapon selection, hit location, damage, crits, explosions, PSRs,
@@ -242,11 +241,6 @@ def _reachable_states(mover, other, terrain_map, standup_mp=None):
 _MODE_TO_PSR = {"Run": "running", "Jump": "jump"}
 
 
-def _has_leg_or_gyro_damage(mech):
-    return (mech.gyro_hits > 0 or mech.destroyed_hip_locations
-            or any(mech.locations[l]["destroyed"] for l in mech.leg_locations))
-
-
 def _phase_movement(mover, other, terrain_map, turn_number, battle_rng):
     """One mech's movement. See the module docstring table for which parts
     are real and which are stubs. `other` is the opponent: for the first
@@ -307,9 +301,12 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng):
         piloting_rolls.resolve_consciousness_checks(mover, "Movement Phase")
         return
 
+    # Movement-mode PSRs (Core p.111): running at least one hex, or jumping,
+    # with the damage check_movement_psr looks for. Walking and standing
+    # still never force one.
     psr_mode = _MODE_TO_PSR.get(mover.move_mode)
-    if psr_mode is None and _has_leg_or_gyro_damage(mover):
-        psr_mode = stubs.stub_walk_movement_psr(name, mover.move_mode)
+    if psr_mode == "running" and mover.move_fc < 1:
+        psr_mode = None
     if psr_mode is not None:
         # TODO (rule check): a failed PSR currently drops the mech in its
         # END hex - in tabletop play it falls where the check was failed.

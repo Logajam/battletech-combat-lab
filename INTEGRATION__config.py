@@ -174,10 +174,7 @@ STUB_MOVEMENT_POLICY = "max_dealt"
 #   "stay"             - don't move
 #   "random_reachable" - any reachable spot
 STUB_NO_LOS_FALLBACK = "closest_to_enemy"
-# Walk / Stand Still movement PSR: MECHSIM only defines running/jump triggers.
-#   None      - no movement PSR for Walk/Stand Still
-#   "running" - check Walk/Stand Still against the running-mode triggers
-STUB_WALK_PSR_AS = None
+# (STUB_WALK_PSR_AS removed 2026-10-19: walking never forces a PSR - Core p.111.)
 # (STUB_POST_STANDUP removed 2026-10-19: a mech that stands moves on with its
 # remaining MP, any facing - Core p.51, orchestrator._phase_movement.)
 # (STUB_HIT_TABLE_SIDE removed 2026-10-19: attack direction now comes from

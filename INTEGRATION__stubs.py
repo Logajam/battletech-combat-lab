@@ -136,21 +136,6 @@ def stub_select_movement(mover_name, los_candidates, reachable_states, enemy_hex
     return pick
 
 
-def stub_walk_movement_psr(mech_name, mode):
-    """MECHSIM's check_movement_psr only defines triggers for running and
-    jumping (Daniel 2026-07-16). Returns the mode string to check a
-    Walk/Stand Still move against, or None for no movement PSR.
-    Knob: STUB_WALK_PSR_AS. Only called (and only warns) when the mech
-    actually has gyro/hip/leg damage that WOULD trigger under running rules.
-    TODO: whether walking with gyro/hip/leg damage requires a PSR. MegaMek
-    reference: movement-phase PSR checks in the movement processing code
-    (PilotingRollData usages - name from memory)."""
-    choice = config.STUB_WALK_PSR_AS
-    _warn("walk_movement_psr", f"{mech_name} moved '{mode}' with leg/gyro damage - "
-          f"{'no movement PSR made' if choice is None else 'checked as ' + choice}")
-    return choice
-
-
 # =============================================================================
 # ==========================  RANGED COMBAT  =================================
 # =============================================================================
@@ -231,32 +216,6 @@ def stub_rear_mounted_weapons(mech_name, rear_lines):
     if rear_lines:
         _warn("rear_mounted_weapons", f"{mech_name} has rear-mounted crit lines {sorted(set(rear_lines))} "
               f"- policy {config.STUB_REAR_MOUNTED}")
-
-
-def stub_to_hit_modifiers_not_applied(attacker, target, attacker_name, target_name):
-    """Warns when a condition is present whose to-hit modifier is NOT
-    applied (TN = gunnery + AMM + TMM + LOS + range only). Immobile
-    targets (all crew unconscious) DO get MECHSIM's existing -4 TMM - that
-    one is applied, not listed here. No knob.
-    TODO: MegaMek to-hit assembly (ComputeToHit / WeaponAttackAction.toHit()
-    - names from memory): prone target/attacker, sensor hits, arm actuator
-    damage. (Minimum range IS applied since 2026-10-19 - part of the
-    range modifier in weapon_selection._weapon_range_mod. Heat IS applied
-    since 2026-10-19 - INTEGRATION__heat, mech.heat_fire_modifier.)"""
-    missing = []
-    if target.prone and not all_crew_unconscious(target):
-        missing.append("target prone")
-    if attacker.prone:
-        missing.append("attacker prone")
-    destroyed_names = [info["name"] for info in attacker.destroyed_slot_info.values()]
-    if "Sensors" in destroyed_names:
-        missing.append("attacker sensor hit")
-    arm_act = [n for n in destroyed_names if n in ("Shoulder", "Upper Arm Actuator", "Lower Arm Actuator",
-                                                    "Hand Actuator")]
-    if arm_act:
-        missing.append("attacker arm actuator damage")
-    if missing:
-        _warn("to_hit_modifiers_not_applied", f"{attacker_name} -> {target_name}: {', '.join(missing)}")
 
 
 # =============================================================================
