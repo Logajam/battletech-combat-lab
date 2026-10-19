@@ -1,6 +1,6 @@
 # stdout
 
-Loading map: /home/claude/run/data/16x17_Grassland_1.board
+Loading map: ./data/16x17_Grassland_1.board
   Map loaded: 16x17, 272 hexes.
 ============================================================
 MECH SELECTION
@@ -31,7 +31,7 @@ MECH SELECTION
   NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
   NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
   NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  Loaded: Asymptote II iJ Mpulse  (/home/claude/run/data/Asymptote II iJ Mpulse.mtf)
+  Loaded: Asymptote II iJ Mpulse  (./data/Asymptote II iJ Mpulse.mtf)
 
 -- Mech BLUE --
   NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
@@ -58,7 +58,7 @@ MECH SELECTION
   NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
   NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
   NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  Loaded: Asymptote II iJ Mpulse  (/home/claude/run/data/Asymptote II iJ Mpulse.mtf)
+  Loaded: Asymptote II iJ Mpulse  (./data/Asymptote II iJ Mpulse.mtf)
 ============================================================
 
 ======================================================================

@@ -28,10 +28,11 @@ git clone https://github.com/Logajam/battletech-monte-carlo-sim
 cd battletech-monte-carlo-sim
 python INTEGRATION__main.py
 ```
-Needs Python 3 and NumPy. Layout: `INTEGRATION__*.py` at the top,
+Needs Python 3 and NumPy (`pip install -r requirements.txt`). Layout: `INTEGRATION__*.py` at the top,
 `mechsim/` and `pathfinder/` hold the source-project modules the battle
 loop imports (un-prefixed names), `data/` holds `.board` and `.mtf` files,
-`reference_logs/` holds same-seed sample logs to diff against.
+`reference_logs/` holds same-seed sample logs to diff against (the
+file name gives the matchup and settings).
 Settings (mech files, board, seed, batch size, every stub knob) are all in
 `INTEGRATION__config.py`. Default: Asymptote II vs Asymptote II on
 16x17 Grassland, seed 12345, 1 battle, verbose.
@@ -375,5 +376,12 @@ No PATHFINDER module used by the battle loop imports `config`.
   record-sheet printing (output/visual helpers, for a future GUI shell),
   `PATHFINDER__validation.py` (test suite for the pathfinder modules;
   imports an absent `simulate`). Verified: a run from the repo
-  matches `reference_logs/sample_battle_log_Asymptote_vs_Asymptote.txt`
+  matches `reference_logs/Asymptote_vs_Asymptote_seed12345.txt`
   except for file paths, stdout and stderr both.
+- **2026-10-19 (Claude):** From Daniel's `battletech-monte-carlo.zip`
+  (a parallel repo package, all code identical to this repo): added
+  `data/BigBlank.board` (50x50, parses), `requirements.txt`, its
+  `.gitignore`, and its sample logs, which use repo-relative paths and name
+  the settings (`Asymptote_vs_Synthetic_maxheat8_seed777.txt` = Asymptote vs
+  TEST_Synthetic_Loadout, max_heat 8, seed 777). Its README, docs and
+  `make_run_dir.py` not taken.
