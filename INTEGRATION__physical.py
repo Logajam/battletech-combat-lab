@@ -41,7 +41,11 @@ built (see results.KNOWN_MISSING_RULES).
     phase, joined to the phase's damage PSR (piloting_rolls).
 
 Bot choice (pile 4): the twist and attack type with the most expected
-damage; ties keep the torso where it is.
+damage; ties keep the torso where it is. The plan is first made in the
+Ranged phase (attack_resolution.declare_attacks scores ranged fire + the
+physical attack that can follow, holding back the weapons of a limb that
+will punch or kick) and in movement scoring (Planner); this phase then
+re-picks with what actually happened (fired weapons, falls, damage).
 """
 
 import math
@@ -116,9 +120,8 @@ def _limb_fired(mech, loc, fired_ids):
 class Reach:
     """Where an adjacent target sits for this attacker's physical attacks."""
 
-    def __init__(self, mech, a_hex, t_hex, action):
+    def __init__(self, mech, a_hex, facing, t_hex, action):
         pair = arcs.arcs_between(a_hex, t_hex)
-        facing = hex_geometry.compass_to_facing(mech.facing)
         self.torso_arc = pair[(facing + action.twist) % 6]
         self.tripod = mech.mech_type == "tripod"
         self.flipped = action.flip
@@ -131,6 +134,10 @@ class Reach:
         if self.tripod:
             return self.torso_arc == arcs.FORWARD
         return self.torso_arc in (arcs.FORWARD, ARM_SIDE_ARC[arm])
+
+    def signature(self):
+        """Everything about the geometry the attack options depend on."""
+        return (self.arm_ok("Left Arm"), self.arm_ok("Right Arm"), self.kick_ok)
 
 
 def _strength(mech, per_tons, plus=0):
@@ -157,7 +164,7 @@ def _punch_options(m, rel, fired, table):
                 mod += 2
                 halves += 1
         out.append(dict(name=f"{'claw' if claw else 'punch'} ({arm})", mod=mod, damage=dmg // (2 ** halves),
-                        table="punch" if table is None else table))
+                        table="punch" if table is None else table, limb=arm))
     return out
 
 
@@ -183,7 +190,7 @@ def _kick_options(m, rel, fired, table):
         if any(_norm(getattr(s, "name", "")) == "TALONS" for s in m.crits[leg]):
             dmg = round(dmg * 1.5)
         out.append(dict(name=f"kick ({leg})", mod=mod, damage=dmg, table="kick" if table is None else table,
-                        kick=True))
+                        kick=True, limb=leg))
     return out
 
 
@@ -203,7 +210,7 @@ def _weapon_options(m, rel, fired, table, target_prone):
             mod = tn_mod + sum(2 for part in ("Lower Arm Actuator", "Upper Arm Actuator")
                                if (part == "Lower Arm Actuator" and not _has_part(m, arm, part)) or _lost(m, arm, part))
             out.append(dict(name=f"{slot.name} ({arm})", mod=mod, damage=_strength(m, per, plus),
-                            table="standard" if table is None else table))
+                            table="standard" if table is None else table, limb=arm))
     return out
 
 
@@ -213,18 +220,29 @@ def attack_options(attacker, target, terrain_map, action=None):
     then chosen. Empty when no physical attack is possible."""
     if attacker.prone or is_immobile(attacker) or is_destroyed(attacker) or is_destroyed(target):
         return {}
-    a_hex, t_hex = hex_geometry.parse_hex_label(attacker.hex), hex_geometry.parse_hex_label(target.hex)
+    return options_at(attacker, hex_geometry.parse_hex_label(attacker.hex),
+                      hex_geometry.compass_to_facing(attacker.facing), terrain_map["hexes"][attacker.hex]["level"],
+                      hex_geometry.parse_hex_label(target.hex), terrain_map["hexes"][target.hex]["level"],
+                      target.prone, getattr(attacker, "weapons_fired_this_turn", frozenset()),
+                      arcs.current_action(attacker) if action is None else action)
+
+
+def options_at(attacker, a_hex, a_facing, a_level, t_hex, t_level, target_prone, fired, action):
+    """attack_options for an attacker standing on a_hex facing a_facing (0-5)
+    against a target on t_hex - positions given, so movement scoring can ask
+    about a spot neither mech stands on yet. The attacker is taken to be able
+    to attack (standing, powered, conscious)."""
     if hex_distance(a_hex, t_hex) != 1:
         return {}
-    a_level = terrain_map["hexes"][attacker.hex]["level"]
-    t_level = terrain_map["hexes"][target.hex]["level"]
     diff = t_level - a_level
     if abs(diff) > 1:
         return {}
-    rel = Reach(attacker, a_hex, t_hex, arcs.current_action(attacker) if action is None else action)
-    fired = getattr(attacker, "weapons_fired_this_turn", frozenset())
+    return _options(attacker, Reach(attacker, a_hex, a_facing, t_hex, action), diff, target_prone, fired)
+
+
+def _options(attacker, rel, diff, target_prone, fired):
     opts = {}
-    if target.prone:
+    if target_prone:
         if diff == 0:
             opts["kick"] = _kick_options(attacker, rel, fired, "standard")
             opts["weapon"] = _weapon_options(attacker, rel, fired, None, True)
@@ -244,10 +262,81 @@ def attack_options(attacker, target, terrain_map, action=None):
     return {k: v for k, v in opts.items() if v}
 
 
+class Planner:
+    """Physical plans for one mech before anything has fired this turn, for
+    positions that don't exist yet (movement scoring, the Ranged phase's
+    look-ahead). The options only depend on Reach.signature(), the level
+    difference and whether the target is prone, so they're built once per
+    case. Build a new one when the mech's state changes (damage, TSM)."""
+
+    def __init__(self, mech):
+        self.mech = mech
+        self._options = {}
+        self._plans = {}
+        self._held = {}
+
+    def plans(self, a_hex, a_facing, a_level, t_hex, t_level, target_prone, action, base):
+        """plans() for the attack, or [] when the target is out of reach."""
+        diff = t_level - a_level
+        if abs(diff) > 1 or hex_distance(a_hex, t_hex) != 1:
+            return []
+        rel = Reach(self.mech, a_hex, a_facing, t_hex, action)
+        case = (rel.signature(), diff, target_prone)
+        got = self._plans.get((case, base))
+        if got is None:
+            options = self._options.get(case)
+            if options is None:
+                options = self._options[case] = _options(self.mech, rel, diff, target_prone, frozenset())
+            got = self._plans[(case, base)] = plans(options, base)
+        return got
+
+    def held(self, limbs):
+        got = self._held.get(limbs)
+        if got is None:
+            got = self._held[limbs] = limb_weapon_ids(self.mech, limbs)
+        return got
+
+
+def base_tn(attacker, amm, target_tmm, los_modifier, target_prone_modifier):
+    """p.76: Piloting + AMM + TMM + terrain + prone / immobile target; never
+    heat or sensors."""
+    return attacker.piloting + amm + target_tmm + los_modifier + target_prone_modifier
+
+
 def _base_tn(attacker, target, terrain_map):
     a_hex, t_hex = hex_geometry.parse_hex_label(attacker.hex), hex_geometry.parse_hex_label(target.hex)
-    return (attacker.piloting + combat.MODE_TO_AMM[attacker.move_mode] + attack_resolution._target_tmm(target)
-            + has_los(a_hex, t_hex, terrain_map).modifier + attack_resolution.prone_target_modifier(target, 1))
+    return base_tn(attacker, combat.MODE_TO_AMM[attacker.move_mode], attack_resolution._target_tmm(target),
+                   has_los(a_hex, t_hex, terrain_map).modifier, attack_resolution.prone_target_modifier(target, 1))
+
+
+def expected_damage(base, picks):
+    return sum(combat.hit_probability(base + o["mod"]) * o["damage"] for o in picks)
+
+
+def limb_weapon_ids(mech, limbs):
+    """Weapons that may not fire if `limbs` make physical attacks this turn
+    (a split torso/arm weapon counts as in the arm, p.76)."""
+    locs = attack_resolution.weapon_locations(mech)
+    return frozenset(wid for wid, where in locs.items() if set(where) & set(limbs))
+
+
+def plans(options, base):
+    """Every physical attack the mech could plan with these options, as
+    (expected damage, limbs it uses, picks), best first; the empty plan is
+    always included (0.0, (), []). Punches: either arm or both (p.82);
+    kicks and physical weapons: one (p.76)."""
+    out = [(0.0, (), [])]
+    for kind, opts in options.items():
+        if kind == "punch":
+            groups = [[o] for o in opts] + ([list(opts)] if len(opts) > 1 else [])
+        else:
+            groups = [[o] for o in opts]
+        for g in groups:
+            v = expected_damage(base, g)
+            if v > 0:
+                out.append((v, tuple(o["limb"] for o in g), g))
+    out.sort(key=lambda p: -p[0])
+    return out
 
 
 def choose_attack(attacker, target, terrain_map):
@@ -257,7 +346,7 @@ def choose_attack(attacker, target, terrain_map):
     turret = arcs.current_action(attacker).turret
     actions = tuple(dict.fromkeys(a._replace(turret=turret) for a in arcs.arc_options(attacker, phase="physical")))
     base = None
-    value = lambda opts: sum(combat.hit_probability(base + o["mod"]) * o["damage"] for o in opts)  # noqa: E731
+    value = lambda opts: expected_damage(base, opts)  # noqa: E731
     best = None
     for action in actions:
         options = attack_options(attacker, target, terrain_map, action)

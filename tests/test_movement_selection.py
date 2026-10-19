@@ -193,6 +193,65 @@ def twisting_never_lowers_expected_damage_and_helps_somewhere():
 
 
 @check
+def adjacent_spots_count_physical_attacks():
+    """Spots next to the enemy add the expected punch / kick damage (pp.76-83)
+    both ways; every other spot is unchanged, and none scores lower."""
+    import INTEGRATION__physical as physical
+    mover, other = fresh("0808", "N", template=parse_mtf(config.data_path("TEST_Synthetic_Loadout.mtf"))), \
+        fresh("0611", "N")
+
+    def scores():
+        ev = ranged_combat.MoveEvaluator(mover, other, TERRAIN)
+        return {(c.hex, c.facing, c.mode, c.fc): (c.distance, c.dealt, c.received)
+                for c in ev.evaluate(other.hex, other.facing, 0, "Stand Still", 0,
+                                     ev.prepare(ranged_combat.movement_options(mover, TERRAIN)))}
+    with_physical = scores()
+    real = physical.Planner.plans
+    physical.Planner.plans = lambda self, *a, **k: []
+    try:
+        without = scores()
+    finally:
+        physical.Planner.plans = real
+    assert with_physical.keys() == without.keys()
+    for k, (dist, dealt, received) in with_physical.items():
+        d0, r0 = without[k][1], without[k][2]
+        if dist != 1:
+            assert (dealt, received) == (d0, r0), k
+        assert dealt >= d0 - TOL and received >= r0 - TOL, k
+    assert any(v[1] > without[k][1] + 1e-6 for k, v in with_physical.items() if v[0] == 1)
+    assert any(v[2] > without[k][2] + 1e-6 for k, v in with_physical.items() if v[0] == 1)
+
+
+@check
+def ranged_fire_holds_an_arm_for_a_better_punch():
+    """Next to the target, the Ranged phase scores fire + the physical attack
+    that can follow (pp.76, 82). With kicks ruled out (a hip hit), the
+    synthetic mech's right-arm AC5 inside its minimum range (TN 7 for 5,
+    2.9 expected) is worth less than that arm's punch (TN 4 for 5, 4.6), so
+    it holds the AC5 and punches with both arms; with a hopeless pilot (TN 11
+    punches) the AC5 fires instead. A free kick (no leg weapons) is planned
+    without holding anything back."""
+    import INTEGRATION__physical as physical
+    from INTEGRATION__attack_resolution import SideReport
+    from test_heat import ScriptedDice
+    synthetic = parse_mtf(config.data_path("TEST_Synthetic_Loadout.mtf"))
+    for piloting, hip_hit, holds in ((5, True, True), (12, True, False), (5, False, False)):
+        m, t = fresh("0808", "N", template=synthetic, max_heat=30), fresh("0807", "S")
+        m.piloting = piloting
+        if hip_hit:
+            m.destroyed_hip_locations.add("Left Leg")
+        rep = SideReport()
+        with ScriptedDice([], default=12):
+            attack_resolution.declare_attacks(m, t, TERRAIN, rep)
+        fired = {x.weapon.name for x in rep.attacks_list}
+        assert {"ISLRM15", "ISSRM6"} <= fired
+        assert ("ISAC5" not in fired) == holds, (piloting, hip_hit, fired)
+        if holds:
+            m.weapons_fired_this_turn = frozenset(id(x.weapon) for x in rep.attacks_list)
+            assert len(physical.choose_attack(m, t, TERRAIN)[1]) == 2                 # both arms punch
+
+
+@check
 def candidate_sides_match_attack_side():
     """The side the evaluator reports for each candidate is attack_side's answer
     for the actual attacker / target / target facing."""

@@ -81,9 +81,14 @@ any-hexside twist and torso-only physical arcs change every default battle.
 
 **Still waiting on Daniel (Section 4):** the Core-vs-MECHSIM piloting-roll questions.
 
+**Physical attacks are in movement scoring (2026-10-19):** spots next to the
+enemy count punches / kicks both ways, and the Ranged phase picks its twist and
+fire together with the physical attack that follows (Section 4a "Who picks").
+
 **Other open follow-ups:** terrain that forces a PSR on entry and mine fields
 should add expected damage to a spot's cost; structure weighting for aimed
-shots and in the real Ranged weapon choice; `compute_score()`-style HP
+shots, physical attacks and the real Ranged weapon choice; the falls kicks
+cause (kick-hit / missed-kick PSRs) are not priced; `compute_score()`-style HP
 awareness (the ratio ignores damage state, so tiny-damage / no-return-fire
 spots can dominate through the .001 epsilon); seatbelt / prone aftermath of a
 fall isn't scored; prone and immobile enemies are modeled as staying put;
@@ -344,13 +349,19 @@ forward arc, kicks included, never into a side arc.
 **Who picks (bot choices, pile 4):**
 - Ranged: `attack_resolution.declare_attacks` tries every legal action and keeps
   the one with the most expected damage; no change wins ties; if nothing fires,
-  nothing is declared (so the Physical phase may still twist).
-- Physical: `physical.choose_attack` tries every twist still allowed and keeps
-  the twist + attack type with the most expected damage. The Ranged choice
-  doesn't look ahead to the Physical phase (greedy).
+  nothing is declared (so the Physical phase may still twist). Next to the
+  target (2026-10-19) it scores each action together with each physical plan
+  that can follow: ranged fire without the weapons in the punching / kicking
+  limbs + the plan's expected damage, since the twist stands for both phases
+  and a limb that attacks physically can't have fired (pp.62, 76, 82). The log
+  says when weapons are held back for a punch.
+- Physical: `physical.choose_attack` re-picks with what actually happened (fired
+  weapons, falls): every twist still allowed x attack type, most expected damage.
 - Movement scoring (`ranged_combat.MoveEvaluator`) takes each side's best
-  action per spot. That is the real rule: twists are declared at attack
-  declaration, after movement (p.61).
+  action per spot, physical plans included for spots next to the enemy (both
+  ways). That is the real rule: twists are declared at attack declaration,
+  after movement (p.61). `physical.Planner` caches the options per reach case
+  (cost: about 2.5 s a turn on the default battle, was ~1.9).
 
 **Not modeled / not reachable:**
 - TAG designation (p.53) uses up the turn's twist/flip, but TAG never fires
@@ -514,6 +525,19 @@ forward arc, kicks included, never into a side arc.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-19 (Claude):** Physical attacks in the movement picker and the
+  Ranged-phase twist (Daniel: "add physical attacks to the location picker,
+  which may affect the ranged phase twist"). Spots next to the enemy now
+  score the best arc action x physical plan (punch with one / both arms,
+  kick, physical weapon) as ranged fire without that limb's weapons + the
+  plan's expected damage, for both the mover and the enemy's reply
+  (`ranged_combat._with_physical`, `physical.Planner`). The Ranged phase makes
+  the same joint choice, so it twists for a punch and holds back an arm
+  weapon worth less than that arm's punch; the Physical phase re-picks after.
+  `physical.options_at` / `base_tn` / `plans` take explicit positions.
+  Not counted: structure weighting of physical damage, kick PSR falls,
+  charges / DFA / pushes / clubs (not built). Reference logs regenerated.
 
 - **2026-10-19 (Claude):** Reference logs regenerated (`--update`, Daniel's
   go-ahead) - they now reflect movement selection, firing arcs and arc actions.
