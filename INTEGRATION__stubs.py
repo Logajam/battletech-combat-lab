@@ -21,6 +21,7 @@ When a stub gets replaced by real logic, delete its function and its CONFIG
 knobs, and add a Change Record line in INTEGRATION__PROJECT_MAP.md.
 """
 
+import re
 import sys
 from collections import Counter
 
@@ -235,6 +236,27 @@ def stub_ammo(mech_name, weapon):
     _warn("ammo", f"{mech_name}'s {weapon.name} fired with unlimited ammo")
 
 
+# One-shot launcher names in equipment.json: "LRM 5 (OS)", "CLLRM10 (OS)",
+# "ISSRM2OS", "CLOSStreakLRM5", "CLIOSStreakLRM5", "CLNarcBeacon (OS)".
+# A name pattern, not a rule; checked against every weapon entry 2026-10-19
+# (45 matches, all one-shots).
+_ONE_SHOT_NAME = re.compile(r"\(I?-?OS\)|OS$|^CLI?OS")
+
+
+def is_one_shot(weapon):
+    return bool(_ONE_SHOT_NAME.search(weapon.name or ""))
+
+
+def stub_one_shot(mech_name, weapon):
+    """One-shot (OS/I-OS) launchers have their base launcher's damage/range
+    (Daniel, 2026-10-19) but may only fire once per battle. That limit is
+    not enforced yet - they fire every turn. Warns each time one fires.
+    No knob.
+    TODO: track "already fired" per weapon instance (reset per battle by
+    clone_mech), then drop it from select_weapons_to_fire's candidates."""
+    _warn("one_shot", f"{mech_name}'s {weapon.name} fired again - fire-once limit not enforced")
+
+
 def detect_rear_mounted(mtf_path):
     """Not a stub itself - scans the raw .mtf text for '(R)' crit lines
     (mtf_parser strips the tag, so the parsed mech can't tell). Returns a
@@ -272,7 +294,8 @@ def stub_to_hit_modifiers_not_applied(attacker, target, attacker_name, target_na
     one is applied, not listed here. No knob.
     TODO: MegaMek to-hit assembly (ComputeToHit / WeaponAttackAction.toHit()
     - names from memory): prone target/attacker, sensor hits, arm actuator
-    damage, heat, minimum range (also needs data)."""
+    damage, heat. (Minimum range IS applied since 2026-10-19 - part of the
+    range modifier in weapon_selection._weapon_range_mod.)"""
     missing = []
     if target.prone and not all_crew_unconscious(target):
         missing.append("target prone")

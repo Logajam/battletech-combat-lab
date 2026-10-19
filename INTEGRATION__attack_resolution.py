@@ -44,7 +44,9 @@ moved (combat.fc_to_tmm), per Daniel 2026-10-18 - MECHSIM's
 compute_tmm() (max available MP) is NOT used here.
 Exception: a target whose whole crew is unconscious uses MECHSIM's
 existing "TMM -4" convention (piloting_rolls.resolve_movement_phase).
-Anything else (prone, sensor hits, heat, minimum range...) is not applied
+The range term includes the minimum-range penalty (2026-10-19,
+weapon_selection._weapon_range_mod).
+Anything else (prone, sensor hits, heat...) is not applied
 - stubs.stub_to_hit_modifiers_not_applied() says so out loud.
 
 For weapon SELECTION the pre-range TN is clamped into
@@ -163,7 +165,9 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
 
     report.weapon_heat += heat
     for w in weapons:
-        if w.damage_type != "Energy" and (w.damage_per_shot or 0) > 0:
+        if stubs.is_one_shot(w):
+            stubs.stub_one_shot(a_name, w)  # no ammo bin - its own limit instead
+        elif w.damage_type != "Energy" and (w.damage_per_shot or 0) > 0:
             stubs.stub_ammo(a_name, w)
         range_mod = weapon_selection._weapon_range_mod(w, distance)
         tn = pre_tn + range_mod

@@ -46,6 +46,10 @@
       "source": "Daniel's Weapon_Rules_Tables rip: Total Warfare pp. 303-306, Tactical Operations: AUE pp. 216-230, Interstellar Operations pp. 217-226",
       "note": "Filled only fields that were null (210 fields across 104 weapon entries); never overwrote an existing value except the Extended LRM range correction. Matching validated first against already-filled entries: 368/372 values agreed, the 4 disagreements were the Extended LRM ranges (corrected). Skipped: special-rules weapons (ATM/iATM, HAG, MML, VSP, Heavy Gauss, Snub-Nose PPC, artillery, Narc, mortars, plasma, TSEMP, AMS, pods, MG arrays, Silver Bullet Gauss), damage cells carrying footnotes (flamers, Nail/Rivet Gun), one-shot (OS/IOS) launchers (no table rows; need a ruling), and items with no table row. Each filled entry's notes field names the table row used. verified flags unchanged. shots_per_ton and minimum range not filled.",
       "min_range": "range.min added to 161 weapons whose short/medium/long match their rulebook row exactly (7 from a dash cell, read as 0 = no minimum). Weapons without a matching row have no range.min - treat as unknown, not 0. A second pass matched 7 more by word order, accepting a row only if its short/medium/long equal the entry's."
+    },
+    "one_shot_fill": {
+      "date": "2026-10-19",
+      "note": "One-shot (OS/I-OS) launchers given their base launcher's damage_type/damage/heat/range/rack_size where theirs were null (Daniel: same range and damage stats as the primary). The fire-once limit is not enforced - INTEGRATION__stubs.stub_one_shot warns each time one fires."
     }
   },
   "entries": {
@@ -3452,17 +3456,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 1,
+      "heat": 2,
+      "range": {
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "min": 6
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'LRM 5' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 5
     },
     "lrm10(os)": {
       "canonical_name": "LRM 10 (OS)",
@@ -3495,17 +3505,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 1,
+      "heat": 4,
+      "range": {
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "min": 6
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'LRM 10' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 10
     },
     "lrm15(os)": {
       "canonical_name": "LRM 15 (OS)",
@@ -3538,17 +3554,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 1,
+      "heat": 5,
+      "range": {
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "min": 6
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'LRM 15' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 15
     },
     "lrm20(os)": {
       "canonical_name": "LRM 20 (OS)",
@@ -3581,17 +3603,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 1,
+      "heat": 6,
+      "range": {
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "min": 6
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'LRM 20' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 20
     },
     "cllrm5": {
       "canonical_name": "CLLRM5",
@@ -3736,21 +3764,22 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
       "damage_per_shot": 1,
       "heat": 2,
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 0
       },
       "battle_value": 11,
       "tonnage": 1.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/oneShot/CLLRM5OS.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=5; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher)",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/oneShot/CLLRM5OS.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=5; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type, range.min copied from base launcher 'CLLRM5' (Daniel: OS weapons have the same range and damage stats as their primary).",
       "rack_size": 5
     },
     "cllrm10(os)": {
@@ -3770,17 +3799,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 1,
+      "heat": 4,
+      "range": {
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLLRM10' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 10
     },
     "cllrm15(os)": {
       "canonical_name": "CLLRM15 (OS)",
@@ -3799,17 +3834,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 1,
+      "heat": 5,
+      "range": {
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLLRM15' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 15
     },
     "cllrm20(os)": {
       "canonical_name": "CLLRM20 (OS)",
@@ -3828,17 +3869,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 1,
+      "heat": 6,
+      "range": {
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLLRM20' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 20
     },
     "clstreaklrm5": {
       "canonical_name": "CLStreakLRM5",
@@ -3978,17 +4025,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 1,
+      "heat": 2,
+      "range": {
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakLRM5' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 5
     },
     "closstreaklrm10": {
       "canonical_name": "CLOSStreakLRM10",
@@ -4004,17 +4057,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 1,
+      "heat": 4,
+      "range": {
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakLRM10' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 10
     },
     "closstreaklrm15": {
       "canonical_name": "CLOSStreakLRM15",
@@ -4030,17 +4089,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 1,
+      "heat": 5,
+      "range": {
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakLRM15' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 15
     },
     "closstreaklrm20": {
       "canonical_name": "CLOSStreakLRM20",
@@ -4056,17 +4121,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 1,
+      "heat": 6,
+      "range": {
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakLRM20' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 20
     },
     "extendedlrm5": {
       "canonical_name": "Extended LRM 5",
@@ -4475,21 +4546,22 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
       "damage_per_shot": 2,
       "heat": 2,
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 4,
       "tonnage": 1.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek srms/innerSphere/oneShot/ISSRM2OS.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=2",
+      "notes": "Not confirmed | Stats sourced from MegaMek srms/innerSphere/oneShot/ISSRM2OS.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=2 | 2026-10-19: damage_type, range.min copied from base launcher 'SRM 2' (Daniel: OS weapons have the same range and damage stats as their primary).",
       "rack_size": 2
     },
     "issrm4os": {
@@ -4521,21 +4593,22 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
       "damage_per_shot": 2,
       "heat": 3,
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 8,
       "tonnage": 2.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek srms/innerSphere/oneShot/ISSRM4OS.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=4",
+      "notes": "Not confirmed | Stats sourced from MegaMek srms/innerSphere/oneShot/ISSRM4OS.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=4 | 2026-10-19: damage_type, range.min copied from base launcher 'SRM 4' (Daniel: OS weapons have the same range and damage stats as their primary).",
       "rack_size": 4
     },
     "issrm6os": {
@@ -4567,21 +4640,22 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
       "damage_per_shot": 2,
       "heat": 4,
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 12,
       "tonnage": 3.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek srms/innerSphere/oneShot/ISSRM6OS.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=6",
+      "notes": "Not confirmed | Stats sourced from MegaMek srms/innerSphere/oneShot/ISSRM6OS.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=6 | 2026-10-19: damage_type, range.min copied from base launcher 'SRM 6' (Daniel: OS weapons have the same range and damage stats as their primary).",
       "rack_size": 6
     },
     "clsrm2": {
@@ -4718,21 +4792,22 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
       "damage_per_shot": 2,
       "heat": 2,
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 4,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek srms/clan/oneShot/CLSRM2OS.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=2",
+      "notes": "Not confirmed | Stats sourced from MegaMek srms/clan/oneShot/CLSRM2OS.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=2 | 2026-10-19: damage_type, range.min copied from base launcher 'CLSRM2' (Daniel: OS weapons have the same range and damage stats as their primary).",
       "rack_size": 2
     },
     "clsrm4(os)": {
@@ -4762,17 +4837,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 2,
+      "heat": 3,
+      "range": {
+        "short": 3,
+        "medium": 6,
+        "long": 9,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLSRM4' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 4
     },
     "clsrm6(os)": {
       "canonical_name": "CLSRM6 (OS)",
@@ -4801,17 +4882,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 2,
+      "heat": 4,
+      "range": {
+        "short": 3,
+        "medium": 6,
+        "long": 9,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLSRM6' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 6
     },
     "isstreaksrm2": {
       "canonical_name": "ISStreakSRM2",
@@ -4925,21 +5012,22 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
       "damage_per_shot": 2,
       "heat": 2,
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 6,
       "tonnage": 2.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek srms/innerSphere/streak/oneShot/ISStreakSRM2OS.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=2",
+      "notes": "Not confirmed | Stats sourced from MegaMek srms/innerSphere/streak/oneShot/ISStreakSRM2OS.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=2 | 2026-10-19: damage_type, range.min copied from base launcher 'ISStreakSRM2' (Daniel: OS weapons have the same range and damage stats as their primary).",
       "rack_size": 2
     },
     "isstreaksrm4os": {
@@ -4961,21 +5049,22 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
       "damage_per_shot": 2,
       "heat": 3,
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 12,
       "tonnage": 3.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek srms/innerSphere/streak/oneShot/ISStreakSRM4OS.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=4",
+      "notes": "Not confirmed | Stats sourced from MegaMek srms/innerSphere/streak/oneShot/ISStreakSRM4OS.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=4 | 2026-10-19: damage_type, range.min copied from base launcher 'ISStreakSRM4' (Daniel: OS weapons have the same range and damage stats as their primary).",
       "rack_size": 4
     },
     "isstreaksrm6os": {
@@ -4996,21 +5085,22 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
       "damage_per_shot": 2,
       "heat": 4,
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 18,
       "tonnage": 5.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek srms/innerSphere/streak/oneShot/ISStreakSRM6OS.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=6",
+      "notes": "Not confirmed | Stats sourced from MegaMek srms/innerSphere/streak/oneShot/ISStreakSRM6OS.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=6 | 2026-10-19: damage_type, range.min copied from base launcher 'ISStreakSRM6' (Daniel: OS weapons have the same range and damage stats as their primary).",
       "rack_size": 6
     },
     "clstreaksrm2": {
@@ -5127,17 +5217,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 2,
+      "heat": 2,
+      "range": {
+        "short": 4,
+        "medium": 8,
+        "long": 12,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakSRM2' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 2
     },
     "clstreaksrm4(os)": {
       "canonical_name": "CLStreakSRM4 (OS)",
@@ -5156,17 +5252,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 2,
+      "heat": 3,
+      "range": {
+        "short": 4,
+        "medium": 8,
+        "long": 12,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakSRM4' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 4
     },
     "clstreaksrm6(os)": {
       "canonical_name": "CLStreakSRM6 (OS)",
@@ -5184,17 +5286,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 2,
+      "heat": 4,
+      "range": {
+        "short": 4,
+        "medium": 8,
+        "long": 12,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakSRM6' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 6
     },
     "clsrt1": {
       "canonical_name": "CLSRT1",
@@ -5287,7 +5395,7 @@
       "explosion_damage": null,
       "damage_type": null,
       "shots_per_ton": null,
-      "damage_per_shot": null,
+      "damage_per_shot": 2,
       "heat": null,
       "range": null,
       "battle_value": null,
@@ -5295,7 +5403,8 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_per_shot, rack_size copied from base launcher 'CLSRT1' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 1
     },
     "clsrt3os": {
       "canonical_name": "CLSRT3OS",
@@ -5824,17 +5933,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 1,
+      "heat": 4,
+      "range": {
+        "short": 3,
+        "medium": 8,
+        "long": 15,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'MRM 10' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 10
     },
     "mrm20(os)": {
       "canonical_name": "MRM 20 (OS)",
@@ -5855,17 +5970,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 1,
+      "heat": 6,
+      "range": {
+        "short": 3,
+        "medium": 8,
+        "long": 15,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'MRM 20' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 20
     },
     "mrm30(os)": {
       "canonical_name": "MRM 30 (OS)",
@@ -5886,17 +6007,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 1,
+      "heat": 10,
+      "range": {
+        "short": 3,
+        "medium": 8,
+        "long": 15,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'MRM 30' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 30
     },
     "mrm40(os)": {
       "canonical_name": "MRM 40 (OS)",
@@ -5917,17 +6044,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 1,
+      "heat": 12,
+      "range": {
+        "short": 3,
+        "medium": 8,
+        "long": 15,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'MRM 40' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 40
     },
     "isnarcbeacon": {
       "canonical_name": "ISNarcBeacon",
@@ -5987,14 +6120,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 6,
       "tonnage": 3.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISNarcOS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISNarcOS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min copied from base launcher 'ISNarcBeacon' (Daniel: OS weapons have the same range and damage stats as their primary).",
       "rack_size": 1
     },
     "clnarcbeacon": {
@@ -6052,14 +6186,15 @@
       "range": {
         "short": 4,
         "medium": 8,
-        "long": 12
+        "long": 12,
+        "min": 0
       },
       "battle_value": 6,
       "tonnage": 2.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek other/clan/CLNarcOS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek other/clan/CLNarcOS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min copied from base launcher 'CLNarcBeacon' (Daniel: OS weapons have the same range and damage stats as their primary).",
       "rack_size": 1
     },
     "isimprovednarc": {
@@ -7140,17 +7275,22 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 5,
+      "heat": 3,
+      "range": {
+        "short": 6,
+        "medium": 12,
+        "long": 18,
+        "min": 5
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range copied from base launcher 'Thunderbolt 5' (Daniel: OS weapons have the same range and damage stats as their primary)."
     },
     "thunderbolt10(os)": {
       "canonical_name": "Thunderbolt 10 (OS)",
@@ -7173,17 +7313,22 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 10,
+      "heat": 5,
+      "range": {
+        "short": 6,
+        "medium": 12,
+        "long": 18,
+        "min": 5
+      },
       "battle_value": 25,
       "tonnage": 7.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/oneShot/ISThunderbolt10OS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/oneShot/ISThunderbolt10OS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range copied from base launcher 'Thunderbolt 10' (Daniel: OS weapons have the same range and damage stats as their primary).",
       "rack_size": null
     },
     "thunderbolt15(os)": {
@@ -7207,17 +7352,22 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 15,
+      "heat": 7,
+      "range": {
+        "short": 6,
+        "medium": 12,
+        "long": 18,
+        "min": 5
+      },
       "battle_value": 46,
       "tonnage": 11.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/oneShot/ISThunderbolt15OS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/oneShot/ISThunderbolt15OS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range copied from base launcher 'Thunderbolt 15' (Daniel: OS weapons have the same range and damage stats as their primary).",
       "rack_size": null
     },
     "thunderbolt20(os)": {
@@ -7241,17 +7391,22 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 20,
+      "heat": 8,
+      "range": {
+        "short": 6,
+        "medium": 12,
+        "long": 18,
+        "min": 5
+      },
       "battle_value": 61,
       "tonnage": 15.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/oneShot/ISThunderbolt20OS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/oneShot/ISThunderbolt20OS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range copied from base launcher 'Thunderbolt 20' (Daniel: OS weapons have the same range and damage stats as their primary).",
       "rack_size": null
     },
     "nail/rivetgun": {
@@ -8391,17 +8546,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 1,
+      "heat": 2,
+      "range": {
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakLRM5' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 5
     },
     "cliosstreaklrm10": {
       "canonical_name": "CLIOSStreakLRM10",
@@ -8417,17 +8578,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 1,
+      "heat": 4,
+      "range": {
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakLRM10' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 10
     },
     "cliosstreaklrm15": {
       "canonical_name": "CLIOSStreakLRM15",
@@ -8443,17 +8610,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 1,
+      "heat": 5,
+      "range": {
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakLRM15' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 15
     },
     "cliosstreaklrm20": {
       "canonical_name": "CLIOSStreakLRM20",
@@ -8469,17 +8642,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Missile",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 1,
+      "heat": 6,
+      "range": {
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakLRM20' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "rack_size": 20
     },
     "smallre-engineeredlaser": {
       "canonical_name": "Small Re-engineered Laser",

@@ -13,9 +13,9 @@ TN axis. And returns the expected damage."
 
 table[weapon_id][distance][pre_tn] -> expected damage for that ONE weapon
 fired alone at that distance/pre_tn, or None if distance is outside that
-weapon's range envelope (beyond Long, or - once equipment.json carries
-minimum-range data, which it does not yet, see INTEGRATION__expected_damage's
-KNOWN GAP note - inside Minimum). pre_tn is "GATOR minus this weapon's own
+weapon's range envelope (beyond Long). Inside minimum range is NOT out of
+range: the weapon can still fire, with the minimum-range penalty folded
+into its range modifier (2026-10-19, see _weapon_range_mod). pre_tn is "GATOR minus this weapon's own
 Range term" - Gunnery + AMM + TMM + Other - matching PATHFINDER__combat.py's
 existing `tn = gunnery + amm + target_tmm + los_modifier + range_mod` shape,
 just with range_mod split out per weapon instead of folded in ahead of time.
@@ -94,23 +94,36 @@ def reset_table_cache():
     _TABLE_CACHE.clear()
 
 
+def _min_range_penalty(minimum, distance):
+    """Minimum-range to-hit penalty (Daniel, 2026-10-19): +1 for each hex
+    the target is inside the weapon's minimum range, i.e.
+    (minimum - distance) + 1 when distance <= minimum, else 0. A weapon
+    with no listed minimum range has minimum 0 (Daniel), so no penalty at
+    any distance >= 1.
+    Example: LRM (minimum 6) at range 4 -> +3; at range 6 -> +1; at 7 -> 0."""
+    if minimum and distance <= minimum:
+        return minimum - distance + 1
+    return 0
+
+
 def _weapon_range_mod(weapon, distance):
-    """Short/Medium/Long TN modifier for firing `weapon` at `distance`, or
-    None if out of range. No minimum-range penalty applied yet -
-    equipment.json doesn't carry that data (see INTEGRATION__expected_damage
-    module docstring, KNOWN GAP) - this returns the plain bracket modifier
-    only. The moment minimum-range data exists, this is the one place that
-    needs to grow a floor check."""
+    """Range TN modifier for firing `weapon` at `distance`: the Short/Medium/
+    Long bracket modifier plus the minimum-range penalty (2026-10-19), or
+    None if out of range. equipment.json carries minimum range as
+    range["min"]; missing means 0 (Daniel: "If a weapon doesn't list a
+    minimum range it is zero")."""
     wr = weapon.weapon_range
     if wr is None or wr.get("short") is None:
         return None  # unconfirmed range data - can't place this weapon on the table at all
     if distance <= wr["short"]:
-        return RANGE_MOD_SHORT
-    if distance <= wr["medium"]:
-        return RANGE_MOD_MEDIUM
-    if distance <= wr["long"]:
-        return RANGE_MOD_LONG
-    return None  # beyond Long - can't fire
+        bracket = RANGE_MOD_SHORT
+    elif distance <= wr["medium"]:
+        bracket = RANGE_MOD_MEDIUM
+    elif distance <= wr["long"]:
+        bracket = RANGE_MOD_LONG
+    else:
+        return None  # beyond Long - can't fire
+    return bracket + _min_range_penalty(wr.get("min") or 0, distance)
 
 
 def _cache_key(mech):

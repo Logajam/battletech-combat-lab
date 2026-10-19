@@ -18,9 +18,8 @@ from typing import Dict, List, Optional
 # deferred phase that IS stubbed elsewhere, or a gap that can't be detected
 # per-attack). Printed with every summary.
 KNOWN_MISSING_RULES = [
-    "Minimum range penalties (no data in equipment.json)",
     "Per-mount firing arcs (only PATHFINDER's 60-degree rear-arc block applies)",
-    "LB-X / Ultra / Rotary AC multi-shot math (fire as flat single hits; LB-X has no data and never fires)",
+    "LB-X / Ultra / Rotary AC multi-shot math (fire as flat single hits; LB-X fires slug only, no cluster mode)",
     "Artemis, HAG range damage, ammo variants",
     "Heat Scale effects and engine-hit heat (heat accumulates, but does nothing)",
     "Cooldown decisions: a mech at max_heat stays there (bot logic, later)",

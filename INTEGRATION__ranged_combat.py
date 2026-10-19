@@ -65,7 +65,7 @@ selector calls, not thousands.
   stub.
 - No scoring/ranking formula is applied - this hands back (dealt, received)
   per candidate, not a single "best" pick.
-- LB-X / Ultra AC / HAG / Artemis / minimum-range gaps are unchanged from
+- LB-X / Ultra AC / HAG / Artemis gaps are unchanged from
   INTEGRATION__expected_damage.py's own documented scope - a weapon with
   unconfirmed damage_per_shot/heat/range is never selectable, so it adds
   nothing here either.
