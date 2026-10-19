@@ -395,7 +395,7 @@ def resolve_movement_phase(mech):
 
 
 # HELP(piloting_skill_rolls.resolve_attack_phase_psr)
-def resolve_attack_phase_psr(mech):
+def resolve_attack_phase_psr(mech, forced_triggers=()):
     """Called once per turn, AFTER the attack loop finishes. Skips entirely
     if the mech is already destroyed (nothing to resolve for a dead mech -
     also the guard that makes the gyro-destroyed automatic-fall branch
@@ -415,7 +415,12 @@ def resolve_attack_phase_psr(mech):
     tracked crew member is unconscious (mech_state.all_crew_unconscious),
     the roll itself is skipped - auto-fail straight to resolve_fall, same
     accumulated modifier. See resolve_consciousness_checks/
-    resolve_end_phase_wakeup below for where crew go unconscious/wake up."""
+    resolve_end_phase_wakeup below for where crew go unconscious/wake up.
+
+    forced_triggers (2026-10-19, INTEGRATION__physical): extra (reason,
+    modifier) PSR triggers from this phase that aren't damage - kicked,
+    missed a kick (Core p.111, both +0). They join the same one accumulated
+    roll as the damage triggers above."""
     if is_destroyed(mech) or mech.prone:
         return
 
@@ -471,6 +476,11 @@ def resolve_attack_phase_psr(mech):
             modifier += new_gyro_hits * GYRO_HIT_MODIFIER
             triggered = True
             config.log(f"PSR trigger: Gyro hit this phase -> {new_gyro_hits * GYRO_HIT_MODIFIER:+d}.")
+
+    for reason, mod in forced_triggers:
+        modifier += mod
+        triggered = True
+        config.log(f"PSR trigger: {reason} -> {mod:+d}.")
 
     if not (triggered or automatic_fall):
         return

@@ -233,6 +233,39 @@ def home_edge_deployment():
     assert max(fc for _, _, _, fc, _, _ in opts) <= 6 and all(mode in ("Walk", "Run") for *_, mode, _ in opts)
 
 
+@check
+def physical_attacks():
+    """pp.76-83: adjacent only; punch 1/10 tons, kick 1/5 tons; actuator
+    effects; fired arm weapons stop that arm punching; arcs; TSM doubles."""
+    import INTEGRATION__physical as physical
+    a = fresh(hex_="0808", facing="N")                         # 50-ton synthetic biped
+    t = fresh(hex_="0807", facing="S")                         # directly in front
+    opts = physical.attack_options(a, t, TERRAIN)
+    assert {o["damage"] for o in opts["punch"]} == {5} and {o["damage"] for o in opts["kick"]} == {10}
+    assert all(o["mod"] == -1 for o in opts["kick"])
+    assert not physical.attack_options(a, fresh(hex_="0806"), TERRAIN)        # not adjacent
+
+    a.weapons_fired_this_turn = frozenset(id(w) for w in attack_resolution.get_weapons(a) if w.name == "ISAC5")
+    assert [o["name"] for o in physical.attack_options(a, t, TERRAIN)["punch"]] == ["punch (Left Arm)"]
+    a.weapons_fired_this_turn = frozenset()
+
+    a.destroyed_slot_info[("Left Arm", 2)] = {"name": "Lower Arm Actuator", "instance_id": None}
+    left = next(o for o in physical.attack_options(a, t, TERRAIN)["punch"] if "Left" in o["name"])
+    assert left["mod"] == -1 + 2 and left["damage"] == 2                      # +2, half damage (5 // 2)
+    a.destroyed_slot_info[("Left Leg", 0)] = {"name": "Hip", "instance_id": None}
+    a.destroyed_hip_locations.add("Left Leg")
+    assert "kick" not in physical.attack_options(a, t, TERRAIN)               # a hip hit: no kicks
+
+    b = fresh(hex_="0808", facing="N")
+    behind = fresh(hex_="0809", facing="N")                                   # rear hexside
+    assert not physical.attack_options(b, behind, TERRAIN)
+    right_rear = fresh(hex_="0909", facing="N")                               # right-rear hexside: side arc
+    side_opts = physical.attack_options(b, right_rear, TERRAIN)
+    assert [o["name"] for o in side_opts["punch"]] == ["punch (Right Arm)"] and "kick" not in side_opts
+    b.tsm_active = True
+    assert {o["damage"] for o in physical.attack_options(b, t, TERRAIN)["kick"]} == {20}
+
+
 def run_all():
     failed = 0
     for fn in CHECKS:

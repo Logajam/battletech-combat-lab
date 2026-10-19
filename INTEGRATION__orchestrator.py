@@ -35,7 +35,8 @@ INTEGRATION__stubs.py (knobs in INTEGRATION__config.py's STUB SETTINGS).
                consciousness. Shut-down mechs don't fire.
                Stubs inside: unknown_damage_type,
                unconfirmed_weapon_data, ammo_data (weapons with no shots-per-ton data)
-  Physical     stub_physical_combat                                   STUB (deferred by scope call)
+  Physical     INTEGRATION__physical.run_physical_phase               REAL punch / kick / physical weapons
+               (Core pp.76-83); charge, DFA, push, club not built
   Heat         _phase_heat() -> INTEGRATION__heat.resolve_heat_phase  REAL (Core Rulebook pp.102-107,
                heat carries over turn to turn; + movement heat          2026-10-19)
                (Walk 1 / Run 2 / Jump, XXL / super-cooled myomer) + weapon heat + engine-hit heat
@@ -110,6 +111,7 @@ import INTEGRATION__weapon_selection as weapon_selection  # noqa: E402
 import INTEGRATION__heat as heat  # noqa: E402
 import INTEGRATION__equipment_systems as equip  # noqa: E402
 import INTEGRATION__ammo as ammo  # noqa: E402
+import INTEGRATION__physical as physical  # noqa: E402
 import INTEGRATION__ranged_combat as ranged_combat  # noqa: E402
 import INTEGRATION__stubs as stubs  # noqa: E402
 import INTEGRATION__attack_resolution as attack_resolution  # noqa: E402
@@ -465,7 +467,7 @@ def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,
             stats[side].hits += rep.hits
             stats[side].damage_dealt += rep.damage_dealt
 
-        stubs.stub_physical_combat(turn)
+        physical.run_physical_phase(mover_first, mover_second, terrain_map, reports)
         _phase_heat(mech_red, mech_blue, reports)
         _phase_end(mech_red, mech_blue, turn, stats)
 

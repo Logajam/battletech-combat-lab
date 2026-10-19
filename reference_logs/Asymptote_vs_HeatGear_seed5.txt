@@ -501,7 +501,6 @@ Attack Phase PSR: needs 8 (Piloting 5 + +3). Rolled 10.
 !! RESULTS PRODUCED WITH STUBS ACTIVE - NOT RULES-COMPLETE
 !! Stubs that ran:
 !!   movement_selection                  12 runs, in 1/1 battle(s)
-!!   physical_combat                      6 runs, in 1/1 battle(s)
 !! Known missing rules with no runtime flag:
 !!   - Per-mount firing arcs (only PATHFINDER's 60-degree rear-arc block applies)
 !!   - LB-X / Ultra / Rotary AC multi-shot math (fire as flat single hits; LB-X fires slug only, no cluster mode)
@@ -509,7 +508,7 @@ Attack Phase PSR: needs 8 (Piloting 5 + +3). Rolled 10.
 !!   - Heat sources/sinks with no terrain model yet: water, snow, fire, extreme temperatures; inferno missiles' heat on targets (launchers fire standard ammo)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Stealth armor / Void-Signature 'as if in hostile ECM' side effects; torso-mounted cockpit PSR/sensor rules; TSM physical-attack doubling (no physical combat)
-!!   - Physical combat
+!!   - Physical attacks: charges, death-from-above, pushes and clubs (punches, kicks and physical weapons are built)
 !!   - Tripod leg sub-roll uses Python's random module (seeded from SEED, not the BattleRNG stream)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -530,7 +529,6 @@ BATCH SUMMARY - 1 battle(s): Red = Asymptote II iJ Mpulse, Blue = TEST Heat Gear
 !! RESULTS PRODUCED WITH STUBS ACTIVE - NOT RULES-COMPLETE
 !! Stubs that ran:
 !!   movement_selection                  12 runs, in 1/1 battle(s)
-!!   physical_combat                      6 runs, in 1/1 battle(s)
 !! Known missing rules with no runtime flag:
 !!   - Per-mount firing arcs (only PATHFINDER's 60-degree rear-arc block applies)
 !!   - LB-X / Ultra / Rotary AC multi-shot math (fire as flat single hits; LB-X fires slug only, no cluster mode)
@@ -538,26 +536,20 @@ BATCH SUMMARY - 1 battle(s): Red = Asymptote II iJ Mpulse, Blue = TEST Heat Gear
 !!   - Heat sources/sinks with no terrain model yet: water, snow, fire, extreme temperatures; inferno missiles' heat on targets (launchers fire standard ammo)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Stealth armor / Void-Signature 'as if in hostile ECM' side effects; torso-mounted cockpit PSR/sensor rules; TSM physical-attack doubling (no physical combat)
-!!   - Physical combat
+!!   - Physical attacks: charges, death-from-above, pushes and clubs (punches, kicks and physical weapons are built)
 !!   - Tripod leg sub-roll uses Python's random module (seeded from SEED, not the BattleRNG stream)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 # stderr (stub warnings)
 STUB: movement_selection - Red has no reachable spot with LOS - moved to 1307 SW Run (fallback=closest_to_enemy)
 STUB: movement_selection - Blue picked 1204 SE Run (policy=max_dealt, 13582 LOS candidates, exp. dealt 12.28 / recv 2.50)
-STUB: physical_combat - turn 1: phase skipped (not built)
 STUB: movement_selection - Red picked 1206 NW Walk (policy=max_dealt, 444 LOS candidates, exp. dealt 29.17 / recv 10.83)
 STUB: movement_selection - Blue picked 1204 SE Stand Still (policy=max_dealt, 1193 LOS candidates, exp. dealt 10.83 / recv 29.17)
-STUB: physical_combat - turn 2: phase skipped (not built)
 STUB: movement_selection - Blue picked 1204 SE Stand Still (policy=max_dealt, 1692 LOS candidates, exp. dealt 17.72 / recv 30.00)
 STUB: movement_selection - Red picked 1206 NW Stand Still (policy=max_dealt, 476 LOS candidates, exp. dealt 30.00 / recv 17.72)
-STUB: physical_combat - turn 3: phase skipped (not built)
 STUB: movement_selection - Red picked 1206 NW Stand Still (policy=max_dealt, 476 LOS candidates, exp. dealt 30.00 / recv 11.92)
 STUB: movement_selection - Blue picked 1204 SE Stand Still (policy=max_dealt, 253 LOS candidates, exp. dealt 11.92 / recv 30.00)
-STUB: physical_combat - turn 4: phase skipped (not built)
 STUB: movement_selection - Red picked 1206 NW Stand Still (policy=max_dealt, 476 LOS candidates, exp. dealt 30.00 / recv 13.67)
 STUB: movement_selection - Blue picked 1204 SE Stand Still (policy=max_dealt, 3629 LOS candidates, exp. dealt 13.67 / recv 30.00)
-STUB: physical_combat - turn 5: phase skipped (not built)
 STUB: movement_selection - Blue picked 1204 SE Stand Still (policy=max_dealt, 778 LOS candidates, exp. dealt 6.67 / recv 30.00)
 STUB: movement_selection - Red picked 1206 NW Stand Still (policy=max_dealt, 476 LOS candidates, exp. dealt 30.00 / recv 6.67)
-STUB: physical_combat - turn 6: phase skipped (not built)

@@ -156,12 +156,6 @@ def stub_ammo_data(mech_name, weapon):
 # =============================================================================
 # ==========================  OTHER PHASES  ==================================
 # =============================================================================
-def stub_physical_combat(turn_number):
-    """Physical Combat phase - deferred by Daniel's scope call. No-op.
-    TODO: whole phase (kicks/punches/charges/DFA)."""
-    _warn("physical_combat", f"turn {turn_number}: phase skipped (not built)")
-
-
 def stub_heat_explosion_bin(mech_name, tied, damage_value, unknown_names):
     """Which ammo bin explodes from heat (Core Rulebook p.107): the most
     destructive ammo per shot first, then the bin with the most shots left,
