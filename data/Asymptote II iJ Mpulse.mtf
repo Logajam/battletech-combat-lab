@@ -1,0 +1,170 @@
+Version:1.1
+Asymptote II
+iJ Mpulse
+
+Config:Tripod Omnimech
+TechBase:Inner Sphere
+Era:3145
+Rules Level:4
+
+Mass:100
+Engine:300 Light Engine(IS)
+Structure:IS Endo Steel
+Myomer:Standard
+Cockpit:Tripod Cockpit
+Gyro:Standard Gyro
+
+Heat Sinks:11 Double
+Base Chassis Heat Sinks:10
+Walk MP:3
+Jump MP:5
+
+Armor:Hardened(Inner Sphere)
+LA Armor:34
+RA Armor:34
+LT Armor:32
+RT Armor:32
+CT Armor:47
+HD Armor:9
+LL Armor:35
+RL Armor:35
+CL Armor:35
+RTL Armor:10
+RTR Armor:10
+RTC Armor:15
+
+Weapons:6
+Medium Pulse Laser, Left Torso
+Medium Pulse Laser, Left Torso
+Medium Pulse Laser, Right Torso
+Medium Pulse Laser, Right Torso
+Medium Pulse Laser, Head
+TAG, Left Torso
+
+Left Arm:
+Shoulder
+Upper Arm Actuator
+Lower Arm Actuator
+Hand Actuator
+IS Endo Steel
+IS Endo Steel
+IS Endo Steel
+IS Endo Steel
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+
+Right Arm:
+Shoulder
+Upper Arm Actuator
+Lower Arm Actuator
+Hand Actuator
+IS Endo Steel
+IS Endo Steel
+IS Endo Steel
+IS Endo Steel
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+
+Left Torso:
+Fusion Engine
+Fusion Engine
+ISMediumPulseLaser (omnipod)
+ISMediumPulseLaser (omnipod)
+IS Improved Jump Jet (omnipod)
+IS Improved Jump Jet (omnipod)
+IS Improved Jump Jet (omnipod)
+IS Improved Jump Jet (omnipod)
+ISTAG (omnipod)
+-Empty-
+-Empty-
+-Empty-
+
+Right Torso:
+Fusion Engine
+Fusion Engine
+ISMediumPulseLaser (omnipod)
+ISMediumPulseLaser (omnipod)
+IS Improved Jump Jet (omnipod)
+IS Improved Jump Jet (omnipod)
+IS Improved Jump Jet (omnipod)
+IS Improved Jump Jet (omnipod)
+ISDoubleHeatSink (omnipod)
+ISDoubleHeatSink (omnipod)
+ISDoubleHeatSink (omnipod)
+-Empty-
+
+Center Torso:
+Fusion Engine
+Fusion Engine
+Fusion Engine
+Gyro
+Gyro
+Gyro
+Gyro
+Fusion Engine
+Fusion Engine
+Fusion Engine
+IS Improved Jump Jet (omnipod)
+IS Improved Jump Jet (omnipod)
+
+Head:
+Life Support
+Sensors
+Cockpit
+ISMediumPulseLaser (omnipod)
+Sensors
+Life Support
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+
+Left Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator
+IS Endo Steel
+IS Endo Steel
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+
+Right Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator
+IS Endo Steel
+IS Endo Steel
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+
+Center Leg:
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator
+IS Endo Steel
+IS Endo Steel
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+-Empty-
+
+

@@ -33,7 +33,6 @@ edited).
   (FACING_CHOICES); PATHFINDER `hex_geometry`, `los` (local imports inside
   stub_select_movement)
 - `results.py` (NEW) → stdlib only. Leaf.
-- `make_run_dir.py` (NEW) → stdlib only. Standalone tool, not imported.
 - `ranged_combat.py` → `config` (registration only), MECHSIM `mech_state`
   (compute_*_mp, compute_heat_dissipation); PATHFINDER `hex_geometry`,
   `pathfinder`, `los`, `combat`; `weapon_selection` (select_weapons_to_fire),
@@ -92,15 +91,15 @@ main.py
    └─ results.py
 ```
 
-**Reachable:** every INTEGRATION file except `make_run_dir.py`; MECHSIM
+**Reachable:** every INTEGRATION file; MECHSIM
 `config`(=INTEGRATION), `equipment`, `mech_state`, `damage_resolution`,
 `armor_rules`, `hit_location`, `piloting_rolls`, `mtf_parser`; PATHFINDER
 `board_parser`, `hex_geometry`, `terrain_rules`, `pathfinder`, `los`, `combat`.
 
-**Not reachable (reference only):** `MECHSIM__sim_runner.py`,
-`PATHFINDER__combat_turn.py`, `report.py`, `validation.py`,
-`terrain_colors.py`. `make_run_dir.py` skips the first four when building a
-run folder (two of them import files that aren't in the Project).
+**Not reachable (reference only):** `PATHFINDER__combat_turn.py` (two-ply
+look-ahead / closing fallback, to be kept as reference). Retired
+2026-10-19 and not in the repo: `MECHSIM__sim_runner.py`, `report.py`,
+`validation.py`, `terrain_colors.py`.
 
 ---
 

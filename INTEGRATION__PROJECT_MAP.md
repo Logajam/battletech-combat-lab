@@ -21,12 +21,17 @@ rule yet is a **loud, counted stub** (`INTEGRATION__stubs.py`): it prints
 `STUB: <name> - ...` to stderr every time it runs, and the batch summary
 opens and closes with a banner listing which stubs ran and how often.
 
-**How to run:**
+**How to run** (the GitHub repo is already laid out as a run folder,
+since 2026-10-19):
 ```
-python INTEGRATION__make_run_dir.py <folder with prefixed project files> <out folder>
-cd <out folder>
+git clone https://github.com/Logajam/battletech-monte-carlo-sim
+cd battletech-monte-carlo-sim
 python INTEGRATION__main.py
 ```
+Needs Python 3 and NumPy. Layout: `INTEGRATION__*.py` at the top,
+`mechsim/` and `pathfinder/` hold the source-project modules the battle
+loop imports (un-prefixed names), `data/` holds `.board` and `.mtf` files,
+`reference_logs/` holds same-seed sample logs to diff against.
 Settings (mech files, board, seed, batch size, every stub knob) are all in
 `INTEGRATION__config.py`. Default: Asymptote II vs Asymptote II on
 16x17 Grassland, seed 12345, 1 battle, verbose.
@@ -356,3 +361,18 @@ No PATHFINDER module used by the battle loop imports `config`.
   (opponent's position final) the pick's expected damage equals what the
   combat phase then fires — 22/22 turns mirror, 7/7 synthetic; a 3-heat
   jump under a 19-heat budget scores 4 lasers (14.00) instead of 5 (17.50).
+- **2026-10-19 (Daniel):** Moved the project to GitHub
+  (`Logajam/battletech-monte-carlo-sim`). Retire the prefixed
+  PATHFINDER/MECHSIM source files except ones that still hold context for
+  useful features.
+- **2026-10-19 (Claude):** Repo laid out as the run folder (the one
+  `make_run_dir.py` used to build). `INTEGRATION__make_run_dir.py` removed:
+  nothing left to convert. Prefixed `MECHSIM__*`/`PATHFINDER__*` copies
+  retired; the live modules are `mechsim/` and `pathfinder/`. Not carried
+  over: `MECHSIM__sim_runner.py` (its hit/attack resolution already absorbed
+  into `INTEGRATION__attack_resolution`), `PATHFINDER__report.py`,
+  `validation.py`, `terrain_colors.py`. Still wanted as reference, not yet
+  in the repo: `PATHFINDER__combat_turn.py` (two-ply look-ahead and
+  closing fallback, not yet absorbed). Verified: a run from the repo
+  matches `reference_logs/sample_battle_log_Asymptote_vs_Asymptote.txt`
+  except for file paths, stdout and stderr both.
