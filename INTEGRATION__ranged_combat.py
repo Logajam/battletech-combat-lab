@@ -159,8 +159,38 @@ def _make_heat_limited_scorer(mech, tn_adjust):
     return score
 
 
+def movement_options(mover, terrain_map, standup_mp=None):
+    """Every end state the mover can reach this turn, as (x, y, facing, fc,
+    mode, mp_spent), deduplicated. Normally: Walk/Run from its hex and facing
+    (pathfinder.build_movement_table at Running MP) plus jumps.
+    standup_mp (2026-10-19, Core p.51): the mover just stood up with that
+    much running MP left - it may take any facing for free, then spend the
+    rest as normal in its declared mode (Run - MECHSIM stands with running
+    MP); a mech that began prone can't jump."""
+    sx, sy, start_facing = hex_geometry.state_from_label(mover.hex, mover.facing)
+    if standup_mp is None:
+        walk = compute_walk_mp(mover)
+        starts, run_budget, jump_mp = [start_facing], compute_running_mp(mover), compute_jump_mp(mover)
+        mode_for = lambda spent: combat.classify_movement_mode(spent, walk)  # noqa: E731
+    else:
+        starts, run_budget, jump_mp = range(6), standup_mp, 0
+        mode_for = lambda spent: "Run"  # noqa: E731
+    seen = set()
+    for f0 in starts:
+        for (x, y, facing), col in build_movement_table(sx, sy, f0, run_budget, terrain_map=terrain_map).items():
+            for mp_spent, fc in col.items():
+                key = (x, y, facing, fc, mode_for(mp_spent), mp_spent)
+                if key not in seen:
+                    seen.add(key)
+                    yield key
+    if jump_mp > 0:
+        for (x, y, facing), fc in combat.build_jump_states(sx, sy, jump_mp, terrain_map).items():
+            yield (x, y, facing, fc, "Jump", jump_mp)
+
+
 def evaluate_going_second(
     mover, defender, terrain_map: Dict[str, object], defender_state: Optional[Dict[str, object]] = None,
+    standup_mp: Optional[int] = None,
 ) -> List[MovementCandidate]:
     """
     mover/defender: BattleMech instances with .hex (CCRR str), .facing
@@ -173,6 +203,8 @@ def evaluate_going_second(
     heat (for its return-fire heat budget). Default (None) is
     fc=0/"Stand Still".
 
+    standup_mp: see movement_options (movement after standing up).
+
     Returns every (hex, facing, mode) candidate mover can reach with LOS
     to the defender - intentionally UNREDUCED and UNRANKED.
     """
@@ -180,16 +212,6 @@ def evaluate_going_second(
         defender_state = {"fc": 0, "mode": "Stand Still"}
     def_fc = defender_state["fc"]
     def_mode = defender_state["mode"]
-
-    mp = {
-        "walk": compute_walk_mp(mover),
-        "run": compute_running_mp(mover),
-        "jump": compute_jump_mp(mover),
-    }
-
-    start_x, start_y, start_facing = hex_geometry.state_from_label(mover.hex, mover.facing)
-    wr_table = build_movement_table(start_x, start_y, start_facing, mp["run"], terrain_map=terrain_map)
-    jump_states = combat.build_jump_states(start_x, start_y, mp["jump"], terrain_map)
 
     def_x, def_y = hex_geometry.parse_hex_label(defender.hex)
     def_hex = (def_x, def_y)
@@ -254,12 +276,7 @@ def evaluate_going_second(
             movement_heat=move_heat,
         ))
 
-    for (x, y, facing), col in wr_table.items():
-        for mp_spent, fc in col.items():
-            mode = combat.classify_movement_mode(mp_spent, mp["walk"])
-            _evaluate_one(x, y, facing, fc, mode, mp_spent)
-
-    for (x, y, facing), fc in jump_states.items():
-        _evaluate_one(x, y, facing, fc, "Jump", mp["jump"])
+    for x, y, facing, fc, mode, mp_spent in movement_options(mover, terrain_map, standup_mp):
+        _evaluate_one(x, y, facing, fc, mode, mp_spent)
 
     return results

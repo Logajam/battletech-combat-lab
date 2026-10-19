@@ -27,7 +27,6 @@ from collections import Counter
 
 import INTEGRATION__config as config
 from mech_state import DamageType, all_crew_unconscious
-from hit_location import FACING_CHOICES
 
 # =============================================================================
 # ==========================  REGISTRY  ======================================
@@ -152,62 +151,9 @@ def stub_walk_movement_psr(mech_name, mode):
     return choice
 
 
-def stub_post_standup_movement(mech_name, remaining_mp):
-    """A mech that stood up from prone (MECHSIM resolve_stand_up, real)
-    has leftover running MP. What it may do with it, and which AMM/TMM it
-    gets, isn't decided. Knob: STUB_POST_STANDUP. Returns (mode, fc).
-    TODO: movement after standing (MegaMek get-up handling in movement
-    processing, Mek.checkGetUp - name from memory)."""
-    _warn("post_standup_movement", f"{mech_name} stood up with {remaining_mp} MP left - stays in hex, "
-          f"treated as Stand Still for AMM/TMM (policy={config.STUB_POST_STANDUP})")
-    return "Stand Still", 0
-
-
 # =============================================================================
 # ==========================  RANGED COMBAT  =================================
 # =============================================================================
-def stub_attack_direction(attacker_name, target_name, battle_rng):
-    """Which hit-location table (front/left/right/rear) a shot uses. Should
-    come from the attacker's position relative to the target's facing; no
-    function for that exists yet. Knob: STUB_HIT_TABLE_SIDE.
-    TODO: MegaMek Entity.sideTable(...) / ToHitData.SIDE_* (names from
-    memory); also how this relates to PATHFINDER's confirmed 60-degree
-    rear-arc rule (which currently only decides whether a mech can FIRE)."""
-    mode = config.STUB_HIT_TABLE_SIDE
-    if mode == "front":
-        side = "front"
-    elif mode == "mechsim_random":
-        side = FACING_CHOICES[battle_rng.pick_number(len(FACING_CHOICES)) - 1]
-    else:
-        raise ValueError(f"Unknown STUB_HIT_TABLE_SIDE {mode!r}")
-    _warn("attack_direction", f"{attacker_name} -> {target_name}: '{side}' hit table ({mode})")
-    return side
-
-
-def stub_cluster_grouping(weapon, total_damage):
-    """How connected cluster damage is split into separate hit-location
-    rolls. equipment.json has no group-size field. Knob:
-    STUB_CLUSTER_GROUPING. Returns a list of damage groups.
-    TODO: group size per weapon family - Daniel to confirm; MegaMek missile
-    weapon handlers (MissileWeaponHandler / LRMHandler / SRMHandler - names
-    from memory). Once known, put it in equipment.json, not here."""
-    mode = config.STUB_CLUSTER_GROUPING
-    if total_damage <= 0:
-        groups = []
-    elif mode == "single_group":
-        groups = [total_damage]
-    elif mode == "per_missile":
-        per = weapon.damage_per_shot or 1
-        groups = [per] * int(total_damage // per)
-        rem = total_damage - per * len(groups)
-        if rem > 0:
-            groups.append(rem)
-    else:
-        raise ValueError(f"Unknown STUB_CLUSTER_GROUPING {mode!r}")
-    _warn("cluster_grouping", f"{weapon.name}: {total_damage} connected damage -> groups {groups} ({mode})")
-    return groups
-
-
 def stub_unknown_damage_type(weapon):
     """equipment.json damage_type is null for this weapon. Only matters for
     special armor types (armor_rules dispatch). Knob: STUB_UNKNOWN_DAMAGE_TYPE.

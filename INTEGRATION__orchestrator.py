@@ -34,7 +34,7 @@ INTEGRATION__stubs.py (knobs in INTEGRATION__config.py's STUB SETTINGS).
   Ranged       INTEGRATION__attack_resolution.run_ranged_combat_phase REAL dice, LOS, TN (incl. heat
                to-hit modifier), weapon selection, hit location, damage, crits, explosions, PSRs,
                consciousness. Shut-down mechs don't fire.
-               Stubs inside: attack_direction, cluster_grouping, unknown_damage_type,
+               Stubs inside: unknown_damage_type,
                unconfirmed_weapon_data, ammo, to_hit_modifiers_not_applied
   Physical     stub_physical_combat                                   STUB (deferred by scope call)
   Heat         _phase_heat() -> INTEGRATION__heat.resolve_heat_phase  REAL (Core Rulebook pp.102-107,
@@ -104,7 +104,6 @@ if PATHFINDER_DIR not in sys.path:
     sys.path.insert(0, PATHFINDER_DIR)
 import board_parser  # noqa: E402 - PATHFINDER
 import hex_geometry  # noqa: E402 - PATHFINDER
-from pathfinder import build_movement_table  # noqa: E402 - PATHFINDER
 import combat  # noqa: E402 - PATHFINDER; build_jump_states/classify_movement_mode/fc_to_tmm/MODE_TO_AMM
 
 from INTEGRATION__rng import BattleRNG  # noqa: E402
@@ -214,46 +213,26 @@ def _compute_available_mp(mech):
     }
 
 
-def _build_movement_envelope(mover, mp, terrain_map):
-    """Raw Walk/Run table (pathfinder.build_movement_table at Run MP) and
-    jump states (combat.build_jump_states) from the mover's live position."""
-    x0, y0, facing0 = hex_geometry.state_from_label(mover.hex, mover.facing)
-    wr_table = build_movement_table(x0, y0, facing0, mp["run"], terrain_map=terrain_map)
-    jump_states = combat.build_jump_states(x0, y0, mp["jump"], terrain_map)
-    return wr_table, jump_states
-
-
-def _reachable_states(mover, other, mp, terrain_map):
+def _reachable_states(mover, other, terrain_map, standup_mp=None):
     """Every reachable end state as plain dicts {hex, facing, mode, fc,
     mp_spent}, one per (hex, facing, mode) keeping the highest fc (Section
     5c's dominance argument - higher fc never hurts at a fixed hex/facing/
     mode). Excludes the other mech's hex. Only used as the no-LOS fallback
-    pool for stubs.stub_select_movement()."""
-    wr_table, jump_states = _build_movement_envelope(mover, mp, terrain_map)
+    pool for stubs.stub_select_movement(). Same envelope as movement
+    scoring (ranged_combat.movement_options)."""
     best = {}
-    for (x, y, facing), col in wr_table.items():
+    for x, y, facing, fc, mode, mp_spent in ranged_combat.movement_options(mover, terrain_map, standup_mp):
         try:
             label = hex_geometry.hex_label(x, y)
         except ValueError:
             continue
         if label == other.hex:
             continue
-        for mp_spent, fc in col.items():
-            mode = combat.classify_movement_mode(mp_spent, mp["walk"])
-            key = (label, facing, mode)
-            cur = best.get(key)
-            if cur is None or fc > cur["fc"] or (fc == cur["fc"] and mp_spent < cur["mp_spent"]):
-                best[key] = {"hex": label, "facing": hex_geometry.facing_to_compass(facing),
-                             "mode": mode, "fc": fc, "mp_spent": mp_spent}
-    for (x, y, facing), fc in jump_states.items():
-        try:
-            label = hex_geometry.hex_label(x, y)
-        except ValueError:
-            continue
-        if label == other.hex:
-            continue
-        best[(label, facing, "Jump")] = {"hex": label, "facing": hex_geometry.facing_to_compass(facing),
-                                         "mode": "Jump", "fc": fc, "mp_spent": mp["jump"]}
+        key = (label, facing, mode)
+        cur = best.get(key)
+        if cur is None or fc > cur["fc"] or (fc == cur["fc"] and mp_spent < cur["mp_spent"]):
+            best[key] = {"hex": label, "facing": hex_geometry.facing_to_compass(facing),
+                         "mode": mode, "fc": fc, "mp_spent": mp_spent}
     return list(best.values())
 
 
@@ -281,23 +260,32 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng):
         config.log(f"  [Movement] {name}: {why} - skips movement (immobile).")
         return
 
+    standup_mp = None
+    booster_failures = []
     if mover.prone:
+        # A prone mech declares its mode, then tries to stand (Core p.51).
+        # MECHSIM stands with running MP, so the declared mode is Run - it
+        # costs Run heat and AMM even if the mech stays down.
+        tries = mover.pilot_hits < 5 and compute_running_mp(mover) > 0   # resolve_stand_up's own gates
         remaining = _with_piloting(mover, piloting_rolls.resolve_stand_up)
+        if tries:
+            mover.move_mode = "Run"
         if mover.prone or is_destroyed(mover):
             config.log(f"  [Movement] {name}: still prone at {mover.hex}.")
-        else:
-            mover.move_mode, mover.move_fc = stubs.stub_post_standup_movement(name, remaining)
-        mover.movement_heat = heat.movement_heat(mover, mover.move_mode, mover.move_fc)
-        piloting_rolls.resolve_consciousness_checks(mover, "Movement Phase")
-        return
-
-    booster_failures = equip.resolve_movement_boosters(mover)   # MASC / supercharger (p.204)
+            mover.movement_heat = heat.movement_heat(mover, mover.move_mode, mover.move_fc)
+            piloting_rolls.resolve_consciousness_checks(mover, "Movement Phase")
+            return
+        # Stood up: any facing for free, then the remaining MP as normal (p.51).
+        standup_mp = remaining
+    else:
+        booster_failures = equip.resolve_movement_boosters(mover)   # MASC / supercharger (p.204)
     mp = _compute_available_mp(mover)
     los_candidates = ranged_combat.evaluate_going_second(
         mover, other, terrain_map,
         defender_state={"fc": other.move_fc, "mode": other.move_mode},
+        standup_mp=standup_mp,
     )
-    reachable = [] if los_candidates else _reachable_states(mover, other, mp, terrain_map)
+    reachable = [] if los_candidates else _reachable_states(mover, other, terrain_map, standup_mp)
     pick = stubs.stub_select_movement(name, los_candidates, reachable, other.hex, battle_rng)
 
     if pick is not None:
@@ -307,10 +295,17 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng):
         mover.movement_heat = heat.movement_heat(mover, mover.move_mode, mover.move_fc)
         config.log(f"  [Movement] {name}: {start} -> {mover.hex} {mover.facing}, {mover.move_mode} "
                    f"({mover.mp_spent} MP, {mover.move_fc} hexes, {mover.movement_heat} heat; budget "
-                   f"walk {mp['walk']} / run {mp['run']} / jump {mp['jump']})")
+                   f"walk {mp['walk']} / run {mp['run']} / jump {mp['jump']}"
+                   f"{f'; stood up with {standup_mp} MP left' if standup_mp is not None else ''})")
     else:
         # stays put: Stand Still, which still generates heat with an XXL engine (p.102)
         mover.movement_heat = heat.movement_heat(mover, mover.move_mode, mover.move_fc)
+
+    if standup_mp is not None:
+        # resolve_stand_up already made the running-mode PSR for moving on
+        # after standing ("fell again after standing").
+        piloting_rolls.resolve_consciousness_checks(mover, "Movement Phase")
+        return
 
     psr_mode = _MODE_TO_PSR.get(mover.move_mode)
     if psr_mode is None and _has_leg_or_gyro_damage(mover):

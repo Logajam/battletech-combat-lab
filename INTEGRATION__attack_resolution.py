@@ -10,10 +10,9 @@ Cannibalized from MECHSIM__sim_runner.py (per the 2026-08-30 Pile 1
 reconciliation decision):
   - _resolve_hit()           -> _resolve_hit() here, unchanged logic, except
                                 the hit-table side comes from
-                                stubs.stub_attack_direction() instead of
-                                config.FACING (the TAC re-roll uses the same
-                                side as the original hit - sim_runner's own
-                                non-"random" branch).
+                                attack_side() (Core p.73 attack direction)
+                                instead of config.FACING (the TAC re-roll
+                                uses the same side as the original hit).
   - resolve_weapon_attack()  -> _resolve_one_attack() here. To-hit number now
                                 comes from real geometry instead of
                                 config.GUNNERY + to_hit_modifier + tmm; weapon
@@ -80,6 +79,7 @@ import INTEGRATION__stubs as stubs
 import INTEGRATION__weapon_selection as weapon_selection
 import INTEGRATION__heat as heat
 import INTEGRATION__equipment_systems as equip
+import INTEGRATION__weapon_rules as weapon_rules
 from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capability, \
     mark_consciousness_check_pending, compute_heat_dissipation
 import armor_rules
@@ -110,6 +110,7 @@ class DeclaredAttack:
     tn: int
     roll: int
     hit: bool
+    side: str = "front"              # hit table: attack direction (attack_side)
     aimed_at: Optional[str] = None   # aimed-shot location (immobile target)
     cover: bool = False              # target in partial cover (aimed-shot leg rerolls)
 
@@ -147,9 +148,24 @@ def _target_tmm(target):
     return combat.fc_to_tmm(target.move_fc, jumped=(target.move_mode == "Jump"))
 
 
+_SIDE_BY_RELATIVE_HEXSIDE = {0: "front", 1: "right", 2: "right", 3: "rear", 4: "left", 5: "left"}
+
+
+def attack_side(a_hex, t_hex, target_facing, terrain_map):
+    """Attack direction (Core p.73): the hexside of the target's hex that
+    the line of sight crosses, read against the target's facing (a prone
+    mech uses the same facing). Front and rear hit zones are one hexside
+    each, the sides two each (Attack Direction Diagram). A line exactly on
+    a border uses the hex the LOS rules chose (los.trace_los_path)."""
+    steps = trace_los_path(a_hex, t_hex, terrain_map).steps
+    entry = steps[-2].hex                      # the hex the line enters the target's hex from
+    relative = (combat._direction_facing(t_hex, entry) - target_facing) % 6
+    return _SIDE_BY_RELATIVE_HEXSIDE[relative]
+
+
 def is_cluster_weapon(weapon):
-    """Rolls on the Cluster Hits Table - same test as INTEGRATION__expected_damage."""
-    return weapon.damage_type == "Missile" and weapon.rack_size is not None
+    """Rolls on the Cluster Hits Table (INTEGRATION__weapon_rules)."""
+    return weapon_rules.is_cluster(weapon)
 
 
 def aimed_shot_location(target, partial_cover=False):
@@ -221,6 +237,7 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
         cover = trace_los_path(a_hex, t_hex, terrain_map).steps[-1].partial_cover
         aim = aimed_shot_location(target, partial_cover=cover > 0)
     adjust = tn_adjuster(attacker, target, aim, cover)
+    side = attack_side(a_hex, t_hex, hex_geometry.compass_to_facing(target.facing), terrain_map)
 
     sel_pre_tn = max(weapon_selection.PRE_TN_MIN, min(weapon_selection.PRE_TN_MAX, pre_tn))
     dissipation = compute_heat_dissipation(attacker)
@@ -254,8 +271,11 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
         config.log(f"    {w.name}: needs {tn} (range mod +{range_mod}"
                    f"{f', stealth/aim {extra:+d}' if extra else ''}){f' aimed at {w_aim}' if w_aim else ''}, "
                    f"rolled {roll} -> {'HIT' if hit else 'miss'}")
+        if not hit and weapon_rules.is_streak(w):
+            report.weapon_heat -= w.heat or 0        # a Streak that misses doesn't fire (p.187)
+            config.log(f"      Streak missed - launcher doesn't fire: no heat.")
         report.attacks += 1
-        report.attacks_list.append(DeclaredAttack(weapon=w, tn=tn, roll=roll, hit=hit,
+        report.attacks_list.append(DeclaredAttack(weapon=w, tn=tn, roll=roll, hit=hit, side=side,
                                                   aimed_at=w_aim, cover=cover > 0))
 
 
@@ -267,8 +287,8 @@ def _damage_type_for(weapon):
 def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False):
     """Cannibalized from MECHSIM__sim_runner._resolve_hit() - same logic:
     hit-location roll, head-hit pilot damage, floating TAC on a 2, then
-    apply_damage(). Only change: `side` is passed in (stub_attack_direction)
-    rather than read from config.FACING."""
+    apply_damage(). Only change: `side` is passed in (attack_side) rather
+    than read from config.FACING."""
     armor_field = "rear_armor" if side == "rear" else "armor"
     loc_roll = config.roll_2d6(prompt=f"{tag}Hit location roll")
     loc = resolve_hit_location(loc_roll, target, side)
@@ -315,7 +335,7 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng):
     if not w.damage_per_shot:
         config.log(f"    {w.name} hit - zero damage weapon, no damage resolution.")
         return
-    side = stubs.stub_attack_direction(attacker.side_name, target.side_name, battle_rng)
+    side = attack.side
     dtype = _damage_type_for(w)
     if attack.aimed_at:
         _resolve_aimed_hit(target, w, dtype, side, attack)
@@ -324,12 +344,18 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng):
         config.log(f"    {w.name} hit for {w.damage_per_shot}:")
         _resolve_hit(target, w.damage_per_shot, dtype, side)
         return
-    cluster_roll = config.roll_2d6(prompt=f"Cluster hits roll ({w.name})")
-    hits = cluster_hits_count(w.rack_size, cluster_roll)
+    if weapon_rules.is_streak(w):
+        hits = w.rack_size                    # Streak: Cluster result is automatically 12 (p.187)
+        config.log(f"    {w.name} hit: Streak - all {hits} missiles hit ({hits * w.damage_per_shot} dmg).")
+    else:
+        raw = config.roll_2d6(prompt=f"Cluster hits roll ({w.name})")
+        mod = weapon_rules.cluster_roll_modifier(w)
+        cluster_roll = max(2, min(12, raw + mod))     # p.74: results clamp to 2-12
+        hits = cluster_hits_count(w.rack_size, cluster_roll)
+        config.log(f"    {w.name} hit: cluster roll {raw}{f' {mod:+d}' if mod else ''} on the "
+                   f"{w.rack_size}-column table -> {hits} connect ({hits * w.damage_per_shot} dmg).")
     total = hits * w.damage_per_shot
-    config.log(f"    {w.name} hit: cluster roll {cluster_roll} on the {w.rack_size}-column table -> "
-               f"{hits} connect ({total} dmg).")
-    groups = stubs.stub_cluster_grouping(w, total)
+    groups = weapon_rules.damage_groupings(w, total)
     for i, dmg in enumerate(groups, start=1):
         _resolve_hit(target, dmg, dtype, side, tag=f"Group {i}/{len(groups)}: ")
 

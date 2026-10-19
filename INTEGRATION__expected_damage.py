@@ -64,6 +64,7 @@ if MECHSIM_DIR not in sys.path:
     sys.path.insert(0, MECHSIM_DIR)
 
 import config  # this is MECHSIM's config.py, resolved via MECHSIM_DIR above
+import INTEGRATION__weapon_rules as weapon_rules
 
 
 # --- Standard 2d6 EXACT probability per sum (not cumulative - MECHSIM's
@@ -137,8 +138,9 @@ def expected_damage_per_hit(weapon, cluster_hit_modifier=0):
             f"can't compute expected damage. Fix the data rather than guessing here."
         )
 
-    is_cluster = weapon.damage_type == "Missile" and weapon.rack_size is not None
-    if not is_cluster:
+    if not weapon_rules.is_cluster(weapon):
         return weapon.damage_per_shot
-
-    return weapon.damage_per_shot * expected_cluster_hits(weapon.rack_size, cluster_hit_modifier)
+    if weapon_rules.is_streak(weapon):
+        return weapon.damage_per_shot * weapon.rack_size    # every missile hits (p.187)
+    modifier = cluster_hit_modifier + weapon_rules.cluster_roll_modifier(weapon)
+    return weapon.damage_per_shot * expected_cluster_hits(weapon.rack_size, modifier)

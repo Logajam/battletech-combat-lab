@@ -178,17 +178,12 @@ STUB_NO_LOS_FALLBACK = "closest_to_enemy"
 #   None      - no movement PSR for Walk/Stand Still
 #   "running" - check Walk/Stand Still against the running-mode triggers
 STUB_WALK_PSR_AS = None
-# What a mech that stood up from prone does with its leftover MP:
-#   "stay_in_hex" - nothing; it stays in its hex this turn (Stand Still AMM/TMM)
-STUB_POST_STANDUP = "stay_in_hex"
-# Which hit-location table an incoming shot uses:
-#   "mechsim_random" - MECHSIM hit_location.FACING_CHOICES 3:1:1:1 front/left/right/rear
-#   "front"          - always front table
-STUB_HIT_TABLE_SIDE = "mechsim_random"
-# How connected cluster-weapon damage is split into hit-location groups:
-#   "single_group" - all connected damage as one hit
-#   "per_missile"  - one hit per connected missile (damage_per_shot each)
-STUB_CLUSTER_GROUPING = "single_group"
+# (STUB_POST_STANDUP removed 2026-10-19: a mech that stands moves on with its
+# remaining MP, any facing - Core p.51, orchestrator._phase_movement.)
+# (STUB_HIT_TABLE_SIDE removed 2026-10-19: attack direction now comes from
+# geometry - INTEGRATION__attack_resolution.attack_side, Core p.73.)
+# (STUB_CLUSTER_GROUPING removed 2026-10-19: cluster damage groupings come
+# from the Core rules - INTEGRATION__weapon_rules, SRM 2 / LRM, MRM 5 / ATM 6.)
 # Damage type used when equipment.json has damage_type null (only matters for
 # special armor types in armor_rules): "BALLISTIC" / "ENERGY" / "MISSILE"
 STUB_UNKNOWN_DAMAGE_TYPE = "BALLISTIC"
