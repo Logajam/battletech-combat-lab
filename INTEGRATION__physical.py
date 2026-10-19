@@ -10,10 +10,16 @@ built (see results.KNOWN_MISSING_RULES).
   - Who (p.76-77): an adjacent target; a standing, powered, conscious
     attacker; one attack type per turn (both arms may punch). Prone mechs
     can't make physical attacks.
-  - Arcs: for an adjacent target the arcs are the hexsides - forward = the
-    front hexside and the two beside it, the rear-side hexsides are the side
-    arcs, the back hexside is the rear (consistent with the rear-arc rule).
-    Kicks: forward only. Punches / arm weapons: forward or that arm's side.
+  - Arcs (INTEGRATION__arcs, p.60): for an adjacent target that is the
+    front hexside and the two beside it = forward, the rear-side hexsides =
+    the side arcs, the back hexside = rear. Kicks: the legs' forward arc
+    (actual facing, twists ignored, p.81). Punches / arm weapons: forward or
+    that arm's side arc of the TWISTED torso (p.62). Reversed arms: no
+    punches or arm weapons (p.62). Tripods (p.236): every physical attack,
+    kicks included, only into the twisted torso's forward arc.
+  - Torso twist (pp.62, 76): a twist or flip declared in the Ranged phase
+    stands; a mech that declared neither may twist now, at the start of its
+    physical declaration (one hexside, a tripod any, never prone / quads).
   - Weapons fired this turn from an arm (or the kicking leg) stop that limb
     attacking (pp.79, 81-82).
   - To-hit (p.76): Piloting + attack modifier (punch / kick -1, weapons per
@@ -34,13 +40,15 @@ built (see results.KNOWN_MISSING_RULES).
     mech, and one that missed a kick, makes a PSR (+0) at the end of the
     phase, joined to the phase's damage PSR (piloting_rolls).
 
-Bot choice (pile 4): the attack type with the most expected damage.
+Bot choice (pile 4): the twist and attack type with the most expected
+damage; ties keep the torso where it is.
 """
 
 import math
 
 import INTEGRATION__config as config
 import INTEGRATION__attack_resolution as attack_resolution
+import INTEGRATION__arcs as arcs
 from mech_state import DamageType, is_destroyed, is_immobile, mark_consciousness_check_pending
 from equipment import Equipment
 from damage_resolution import apply_damage
@@ -51,8 +59,7 @@ import combat
 from los import has_los, hex_distance
 
 ARMS = ("Left Arm", "Right Arm")
-FORWARD_HEXSIDES = {5, 0, 1}
-SIDE_ARC_HEXSIDE = {"Right Arm": 2, "Left Arm": 4}
+ARM_SIDE_ARC = {"Left Arm": arcs.LEFT, "Right Arm": arcs.RIGHT}
 PUNCH_MOD = -1
 KICK_MOD = -1
 
@@ -106,12 +113,24 @@ def _limb_fired(mech, loc, fired_ids):
     return any(loc in locs.get(wid, ()) for wid in fired_ids)
 
 
-def _relative_hexside(a_hex, a_facing, t_hex):
-    return (combat._direction_facing(a_hex, t_hex) - hex_geometry.compass_to_facing(a_facing)) % 6
+class Reach:
+    """Where an adjacent target sits for this attacker's physical attacks."""
 
+    def __init__(self, mech, a_hex, t_hex, action):
+        pair = arcs.arcs_between(a_hex, t_hex)
+        facing = hex_geometry.compass_to_facing(mech.facing)
+        self.torso_arc = pair[(facing + action.twist) % 6]
+        self.tripod = mech.mech_type == "tripod"
+        self.flipped = action.flip
+        # Kicks use the legs (p.81) - except a tripod's, which follow the torso (p.236).
+        self.kick_ok = (self.torso_arc if self.tripod else pair[facing]) == arcs.FORWARD
 
-def _arm_can_reach(arm, rel):
-    return rel in FORWARD_HEXSIDES or rel == SIDE_ARC_HEXSIDE[arm]
+    def arm_ok(self, arm):
+        if self.flipped:
+            return False
+        if self.tripod:
+            return self.torso_arc == arcs.FORWARD
+        return self.torso_arc in (arcs.FORWARD, ARM_SIDE_ARC[arm])
 
 
 def _strength(mech, per_tons, plus=0):
@@ -125,7 +144,7 @@ def _strength(mech, per_tons, plus=0):
 def _punch_options(m, rel, fired, table):
     out = []
     for arm in ARMS:
-        if arm not in m.locations or m.locations[arm]["destroyed"] or not _arm_can_reach(arm, rel):
+        if arm not in m.locations or m.locations[arm]["destroyed"] or not rel.arm_ok(arm):
             continue
         if _lost(m, arm, "Shoulder") or _limb_fired(m, arm, fired):
             continue
@@ -143,7 +162,7 @@ def _punch_options(m, rel, fired, table):
 
 
 def _kick_options(m, rel, fired, table):
-    if rel not in FORWARD_HEXSIDES or m.destroyed_hip_locations:
+    if not rel.kick_ok or m.destroyed_hip_locations:
         return []
     legs = [l for l in m.leg_locations if not m.locations[l]["destroyed"]]
     if len(legs) < len(m.leg_locations):
@@ -171,7 +190,7 @@ def _kick_options(m, rel, fired, table):
 def _weapon_options(m, rel, fired, table, target_prone):
     out = []
     for arm in ARMS:
-        if arm not in m.locations or m.locations[arm]["destroyed"] or not _arm_can_reach(arm, rel):
+        if arm not in m.locations or m.locations[arm]["destroyed"] or not rel.arm_ok(arm):
             continue
         if _lost(m, arm, "Shoulder") or _limb_fired(m, arm, fired):
             continue
@@ -188,9 +207,10 @@ def _weapon_options(m, rel, fired, table, target_prone):
     return out
 
 
-def attack_options(attacker, target, terrain_map):
-    """{"type": [option, ...]} the attacker could make this phase (one type
-    is then chosen). Empty when no physical attack is possible."""
+def attack_options(attacker, target, terrain_map, action=None):
+    """{"type": [option, ...]} the attacker could make this phase with arc
+    action `action` (default: what it has declared this turn); one type is
+    then chosen. Empty when no physical attack is possible."""
     if attacker.prone or is_immobile(attacker) or is_destroyed(attacker) or is_destroyed(target):
         return {}
     a_hex, t_hex = hex_geometry.parse_hex_label(attacker.hex), hex_geometry.parse_hex_label(target.hex)
@@ -201,7 +221,7 @@ def attack_options(attacker, target, terrain_map):
     diff = t_level - a_level
     if abs(diff) > 1:
         return {}
-    rel = _relative_hexside(a_hex, attacker.facing, t_hex)
+    rel = Reach(attacker, a_hex, t_hex, arcs.current_action(attacker) if action is None else action)
     fired = getattr(attacker, "weapons_fired_this_turn", frozenset())
     opts = {}
     if target.prone:
@@ -231,16 +251,26 @@ def _base_tn(attacker, target, terrain_map):
 
 
 def choose_attack(attacker, target, terrain_map):
-    """Pile 4: the attack type (all of its options - e.g. both punches) with
-    the most expected damage. Returns (base TN, [options]) or None."""
-    options = attack_options(attacker, target, terrain_map)
-    if not options:
-        return None
-    base = _base_tn(attacker, target, terrain_map)
+    """Pile 4: the arc action (twist, if it may still declare one - p.76) and
+    attack type (all of its options - e.g. both punches) with the most
+    expected damage. Returns (base TN, [options], ArcAction) or None."""
+    turret = arcs.current_action(attacker).turret
+    actions = tuple(dict.fromkeys(a._replace(turret=turret) for a in arcs.arc_options(attacker, phase="physical")))
+    base = None
     value = lambda opts: sum(combat.hit_probability(base + o["mod"]) * o["damage"] for o in opts)  # noqa: E731
-    kind = max(options, key=lambda k: value(options[k] if k == "punch" else [max(options[k], key=lambda o: value([o]))]))
-    picks = options[kind] if kind == "punch" else [max(options[kind], key=lambda o: value([o]))]
-    return (base, picks) if value(picks) > 0 else None
+    best = None
+    for action in actions:
+        options = attack_options(attacker, target, terrain_map, action)
+        if not options:
+            continue
+        if base is None:
+            base = _base_tn(attacker, target, terrain_map)
+        pick = lambda k: options[k] if k == "punch" else [max(options[k], key=lambda o: value([o]))]  # noqa: E731
+        kind = max(options, key=lambda k: value(pick(k)))
+        picks = pick(kind)
+        if value(picks) > 0 and (best is None or value(picks) > value(best[1]) + 1e-12):
+            best = (base, picks, action)
+    return best
 
 
 # =============================================================================
@@ -274,7 +304,10 @@ def run_physical_phase(mech_a, mech_b, terrain_map, reports):
         choice = choose_attack(attacker, target, terrain_map)
         if choice is None:
             continue
-        base, picks = choice
+        base, picks, action = choice
+        if action != arcs.current_action(attacker):
+            arcs.declare(attacker, action)
+            config.log(f"  [Physical] {attacker.side_name} {arcs.describe(action)} to reach {target.side_name}.")
         side = attack_resolution.attack_side(hex_geometry.parse_hex_label(attacker.hex),
                                              hex_geometry.parse_hex_label(target.hex),
                                              hex_geometry.compass_to_facing(target.facing), terrain_map)

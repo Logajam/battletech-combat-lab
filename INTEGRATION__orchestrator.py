@@ -118,6 +118,7 @@ import INTEGRATION__physical as physical  # noqa: E402
 import INTEGRATION__movement_selection as movement_selection  # noqa: E402
 import INTEGRATION__stubs as stubs  # noqa: E402
 import INTEGRATION__attack_resolution as attack_resolution  # noqa: E402
+import INTEGRATION__arcs as arcs  # noqa: E402
 from INTEGRATION__attack_resolution import _with_piloting, total_hp  # noqa: E402
 from INTEGRATION__results import BattleResult, SideStats, summarize  # noqa: E402
 
@@ -333,6 +334,7 @@ def _phase_end(mech_red, mech_blue, turn_number, stats):
         piloting_rolls.resolve_end_phase_wakeup(m)
         heat.choose_heat_sink_deactivation(m, next_turn=turn_number + 1)
         equip.end_turn(m)
+        arcs.end_turn(m)                     # torso forward, arms back (Core pp.40, 62)
         s = stats[m.side_name]
         if s.crippled_at is None and not is_destroyed(m) and is_crippled(m):
             s.crippled_at = turn_number

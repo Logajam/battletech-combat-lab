@@ -36,7 +36,7 @@ edited).
   to-hit modifiers.
 - `ammo.py` (NEW 2026-10-19) → `config`, `stubs`, `weapon_rules`; MECHSIM
   `equipment` (Equipment, lookup_equipment), `damage_resolution.get_weapons`
-- `physical.py` (NEW 2026-10-19) → `config`, `attack_resolution`; MECHSIM
+- `physical.py` (NEW 2026-10-19) → `config`, `attack_resolution`, `arcs`; MECHSIM
   `mech_state`, `equipment`, `damage_resolution.apply_damage`,
   `hit_location.resolve_hit_location`, `piloting_rolls`; PATHFINDER
   `hex_geometry`, `combat`, `los` (has_los, hex_distance)
@@ -48,7 +48,7 @@ edited).
   (MoveEvaluator, prepare_options), `los_cache`; MECHSIM `mech_state`,
   `damage_resolution`, `hit_location`, `piloting_rolls`; PATHFINDER
   `hex_geometry`, `combat`, `los`
-- `arcs.py` (NEW 2026-10-19) → stdlib only (functools, math). Used by `los_cache`, `attack_resolution`, `ranged_combat`.
+- `arcs.py` (NEW 2026-10-19) → stdlib only (functools, math, typing). Used by `los_cache`, `attack_resolution`, `ranged_combat`, `physical`, `orchestrator` (End Phase reset).
 - `structure_weight.py` (NEW 2026-10-19) → `config`, `expected_damage`, `weapon_rules`; MECHSIM `damage_resolution` (TRANSFER_MAP), `hit_location`. Used by `ranged_combat` and `movement_selection`.
 - `los_cache.py` (NEW 2026-10-19) → `arcs`; PATHFINDER `combat`, `los`.
 - `ranged_combat.py` → `los_cache` (2026-10-19), `config` (registration only), MECHSIM `mech_state`
@@ -117,7 +117,7 @@ main.py
    ├─ movement_selection.py ── ranged_combat.py, los_cache.py, piloting_rolls, hit_location, damage_resolution
    ├─ stubs.py
    ├─ attack_resolution.py ── heat.py, weapon_rules.py, ammo.py
-   ├─ physical.py ── attack_resolution.py, hit_location, piloting_rolls
+   ├─ physical.py ── attack_resolution.py, arcs.py, hit_location, piloting_rolls
    └─ results.py
 ```
 

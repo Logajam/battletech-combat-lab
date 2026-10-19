@@ -149,16 +149,17 @@ def weapons_bear_by_arc_and_twist():
     synthetic = parse_mtf(config.data_path("TEST_Synthetic_Loadout.mtf"))
     m = fresh("0808", "N", template=synthetic)
     name = lambda ids: {w.name for w in ms.get_weapons(m) if id(w) in ids}              # noqa: E731
-    assert name(attack_resolution.arc_unavailable(m, arcs.LEFT)) == {"ISMediumPulseLaser", "ISLRM15", "ISSRM6", "ISAC5"}
+    assert name(attack_resolution.arc_unavailable(m, arcs.simple_key(m, arcs.LEFT))) == {"ISMediumPulseLaser", "ISLRM15", "ISSRM6", "ISAC5"}
     here = xy("0808")
     behind = next(xy(l) for l in sorted(TERRAIN["hexes"]) if arcs.arcs_between(here, xy(l))[0] == arcs.REAR)
     pair = arcs.arcs_between(here, behind)
-    keys = arcs.arc_keys(pair, 0, arcs.twist_options(m))
-    assert (arcs.REAR, False) in keys and len(keys) >= 2                              # twisting moves the torso's arc, not the legs'
+    keys = [k for k, _ in arcs.arc_keys(pair, 0, arcs.arc_options(m), arcs.leg_offsets(m))]
+    assert any(k.torso_arc == arcs.REAR and not k.legs_forward for k in keys) and len(keys) >= 2  # torso turns, legs don't
     side_target = next(xy(l) for l in sorted(TERRAIN["hexes"])                         # a left-side-arc hex a left twist makes forward
                        if arcs.arcs_between(here, xy(l))[0] == arcs.LEFT and arcs.arcs_between(here, xy(l))[5] == arcs.FORWARD)
     pair = arcs.arcs_between(here, side_target)
-    assert (arcs.FORWARD, False) in arcs.arc_keys(pair, 0, (0, -1, 1))
+    assert any(k.torso_arc == arcs.FORWARD and not k.legs_forward
+               for k, _ in arcs.arc_keys(pair, 0, arcs.arc_options(m), arcs.leg_offsets(m)))
     assert arcs.twist_options(m) == (0, -1, 1)
     m.prone = True
     assert arcs.twist_options(m) == (0,)
@@ -177,15 +178,15 @@ def twisting_never_lowers_expected_damage_and_helps_somewhere():
     mover, other = fresh("0808", "N", template=synthetic), fresh("0611", "N")
     with_twist = {(c.hex, c.facing, c.mode, c.fc): c.dealt
                   for c in ranged_combat.evaluate_going_second(mover, other, TERRAIN)}
-    real = arcs.twist_options
-    arcs.twist_options = lambda mech: (0,)
+    real = arcs.arc_options
+    arcs.arc_options = lambda mech, phase="ranged": (arcs.NO_ACTION,)
     try:
         ev = ranged_combat.MoveEvaluator(mover, other, TERRAIN)
         no_twist = {(c.hex, c.facing, c.mode, c.fc): c.dealt
                     for c in ev.evaluate(other.hex, other.facing, 0, "Stand Still", 0,
                                          ev.prepare(ranged_combat.movement_options(mover, TERRAIN)))}
     finally:
-        arcs.twist_options = real
+        arcs.arc_options = real
     assert no_twist.keys() == with_twist.keys()
     assert all(with_twist[k] >= no_twist[k] - TOL for k in no_twist)
     assert any(with_twist[k] > no_twist[k] + 1e-6 for k in no_twist), "twisting never helped anywhere"

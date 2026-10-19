@@ -68,14 +68,16 @@ facing + mode) by damage dealt / (damage received + movement-PSR cost +
 .001), two-ply (the first mover scores a spot by the second mover's modeled
 reply), with armor-exposure weights by hit side, internal-structure damage
 counted k = 2x (`INTEGRATION__structure_weight`), and the ported closing
-fallback when nothing deals damage. Firing arcs and one-hexside torso twists
-are in (`INTEGRATION__arcs`, Core pp.60-62; Section 4a). Decisions and reasons: Section 5
+fallback when nothing deals damage. Firing arcs, torso twists (both attack
+phases), tripod twists and leg arcs, reversing arms and Quad Turrets are in
+(`INTEGRATION__arcs`, Core pp.60-62, 236-238; Section 4a). Decisions and reasons: Section 5
 "Movement selection"; knobs: `INTEGRATION__config.py` MOVEMENT SETTINGS; every
 change and its limits: Change Record, 2026-10-19 entries (newest on top).
 Tests: `tests/test_movement_selection.py` (19 checks, brute-force comparisons).
 
-**Next up - torso twist details (Daniel expects Claude Code to finish these):**
-the to-do list, rules and gotchas are all in Section 4a "Torso twisting".
+**Torso twist details: done 2026-10-19** (Section 4a; tests in
+`tests/test_arcs.py`). The default Asymptote II is a tripod, so its
+any-hexside twist and torso-only physical arcs change every default battle.
 
 **Still waiting on Daniel (Section 4):** the Core-vs-MECHSIM piloting-roll questions.
 
@@ -187,8 +189,8 @@ Replaced by Core Rulebook rules 2026-10-19 (Change Record): `attack_direction`
 180-182), `deployment` (p.37), `physical_combat` (pp.76-83, partly).
 
 **Rules gaps with no runtime flag** (also printed in every summary):
-reversing arms, tripod leg arcs / any-hexside tripod twists, turrets, and
-carrying a torso twist into the Physical Attack Phase (Section 4a); LB-X/Ultra/Rotary multi-shot math;
+shoulder / head turrets (not Core) and the twist / flip a TAG designation
+uses up (TAG doesn't fire yet) - Section 4a; LB-X/Ultra/Rotary multi-shot math;
 Artemis/HAG/ammo variants; heat sources with no terrain model yet (water,
 snow, fire, extreme temperatures) and inferno missiles (bins aren't fired
 from); heat decisions (cooldown, voluntary shutdown); stealth armor /
@@ -291,50 +293,77 @@ No PATHFINDER module used by the battle loop imports `config`.
 
 ## 4a. TORSO TWISTING (and firing arcs)
 
-*Everything about torso twists in one place (consolidated 2026-10-19 from the
-`movement-selection` branch). Code: `INTEGRATION__arcs.py` (its docstring is
-the rule summary with page cites); rules text: `rules/Battletech_Rule_Reference_Index.zip`,
-combat-part1 entries CR-CMB1-FIRING-ARCS, ARCS-TORSO-TWIST, TORSO-TWIST.*
+*Everything about torso twists and arc changes in one place. Code:
+`INTEGRATION__arcs.py` (its docstring is the rule summary with page cites);
+rules text: `rules/Battletech_Rule_Reference_Index.zip`, combat-part1 entries
+CR-CMB1-FIRING-ARCS, ARCS-TORSO-TWIST, TORSO-TWIST, REVERSING ARMS; appendices-a-c
+(tripods, quads). Tests: `tests/test_arcs.py` (10 checks) plus the arc checks in
+`tests/test_movement_selection.py`.*
 
-**The rule as built (Core pp.60-62, Daniel's p.60 Firing Arcs Diagram):**
-- Arcs: the angle of the centre-to-centre line from the attacker's facing.
+**Firing arcs (p.60, Daniel's diagram):**
+- The angle of the centre-to-centre line from the attacker's facing.
   Forward within 60 deg (120 wide), left/right side 60-120 deg (60 wide each),
   rear beyond 120 deg (120 wide). A hex on a boundary goes to the forward arc
   (vs a side arc) or the side arc (vs the rear arc). All 15 labelled hexes on
   the diagram are reproduced by `tests/test_movement_selection.py`.
-- Weapons by arc (p.60): forward = everything but rear-mounted; left/right
-  side = that side's arm weapons (a weapon split torso/arm is forward-only);
-  rear = rear-mounted only. Prone doesn't change arcs.
-- Torso twist (p.62): once per turn, one hexside left (-1) or right (+1).
-  Head, torso and arm weapon arcs shift with it; leg weapons keep the legs'
-  forward arc; facing and how the mech is hit do NOT change. Prone mechs and
-  quads cannot twist (`arcs.twist_options`).
-- Who picks the twist: in the Ranged Attack Phase
-  `attack_resolution.declare_attacks` tries every legal twist and keeps the
-  one with the most expected damage, stored as `attacker.torso_twist`
-  (-1 / 0 / +1). Movement scoring (`ranged_combat.MoveEvaluator`) assumes each
-  side takes its best twist after moving. Cost: up to 3 twists scored per side,
-  roughly 1.5-2x per turn (~1.1 s).
-- Caching: `INTEGRATION__los_cache.py` caches the 6-facing arcs tuple per
-  board; `arc_unavailable(attacker, torso_arc, legs_forward)` replaces the old
-  rear-arc boolean.
+- Weapons by arc: forward = everything but rear-mounted; left/right side =
+  that side's arm weapons (a weapon split torso/arm is forward-only); rear =
+  rear-mounted only. Prone doesn't change arcs.
+- Leg weapons use the legs' forward arc (the facing). Tripods (p.236): the
+  left / right leg arcs start two hexsides left / right of the front, the
+  centre leg's at the front.
 
-**To do (Daniel expects Claude Code to finish these):**
-1. Carry the twist into the Physical Attack Phase: nothing reads
-   `attacker.torso_twist` after the Ranged phase. `INTEGRATION__physical.py`
-   still classifies arcs with the old nearest-hexside method
-   (`_relative_hexside`, `FORWARD_HEXSIDES`) - move it to
-   `INTEGRATION__arcs.arcs_between` with the twist applied to punches, arm
-   physical weapons and clubs (not kicks). Core p.62: one twist OR arm reversal
-   per turn, in either phase; a twist may be declared in the Physical phase if
-   none was made in Ranged (needs a decision on when it's worth twisting then).
-2. Reversing (flipping) arms, p.62: arms use the rear arc; needs no hand/lower
-   arm actuators in both arms and no split torso/arm weapons. Not modeled.
-3. Tripods: twist to any hexside and the p.236-237 leg arcs. Not modeled
-   (`arcs.twist_options` treats a tripod as a biped). Turrets (p.61): not modeled.
-4. Twist and TAG: a twist declared for TAG (p.53) forbids another that turn.
-5. Movement scoring assumes the twist is chosen after moving; if the real
-   twist rule ever needs it declared earlier, revisit `MoveEvaluator`.
+**Arc actions - what a mech declares at the start of attack declaration,
+Ranged or Physical phase (p.61):** `arcs.ArcAction(twist, flip, turret)`.
+- **Torso twist (p.62):** one hexside left or right; a **tripod any hexside**
+  (p.236). Shifts head, torso and arm weapons, punches, clubs and physical
+  weapons; never leg weapons, kicks, the facing, or how the mech is hit (p.73).
+  Prone mechs and quads can't twist.
+- **Reversing (flipping) arms (p.62):** only a design with neither hand nor
+  lower arm actuators in BOTH arms and no torso/arm split weapon (all or
+  nothing, FAQ p.243; losing actuators to damage doesn't qualify; losing an arm
+  doesn't disqualify the other). Arm weapons then fire only into the rear arc;
+  no punches or arm physical weapons. Not while prone.
+- **Quad Turret (pp.61, 205):** weapons marked "(T)" on the crit line (now kept
+  by `mtf_parser` as `Equipment.turret_mounted`) fire into the turret's forward
+  arc, turned any number of hexsides at each declaration; this is separate from
+  the once-a-turn twist/flip. A crit on the turret slot locks it at the
+  direction it last had (`turret_last_offset`).
+- **Once a turn:** a twist OR a flip, not both; once declared it stands for the
+  rest of the turn (`arc_action_locked`). A mech that declared neither in the
+  Ranged phase may twist in the Physical phase (p.76). End Phase: torso
+  forward, arms back (`arcs.end_turn`, called from `orchestrator._phase_end`).
+
+**Physical Attack Phase (`INTEGRATION__physical.py`, pp.76-83, 237):** arcs come
+from `arcs.arcs_between` (the old nearest-hexside code is gone). Punches and arm
+physical weapons use the twisted torso's forward / that arm's side arc; kicks the
+legs' forward arc. Tripods attack physically only into the twisted torso's
+forward arc, kicks included, never into a side arc.
+
+**Who picks (bot choices, pile 4):**
+- Ranged: `attack_resolution.declare_attacks` tries every legal action and keeps
+  the one with the most expected damage; no change wins ties; if nothing fires,
+  nothing is declared (so the Physical phase may still twist).
+- Physical: `physical.choose_attack` tries every twist still allowed and keeps
+  the twist + attack type with the most expected damage. The Ranged choice
+  doesn't look ahead to the Physical phase (greedy).
+- Movement scoring (`ranged_combat.MoveEvaluator`) takes each side's best
+  action per spot. That is the real rule: twists are declared at attack
+  declaration, after movement (p.61).
+
+**Not modeled / not reachable:**
+- TAG designation (p.53) uses up the turn's twist/flip, but TAG never fires
+  yet (`stubs.unconfirmed_weapon_data`); `arcs.declare` is the hook if it does.
+- Shoulder / head turrets are Tactical Operations equipment, not Core: their
+  "(T)" weapons are treated as fixed forward.
+- Primary target in the forward arc (p.64) and hidden-unit point-blank shots
+  (p.230) need more than one enemy / hidden units - the sim has neither.
+- Push (p.83) ignores twists - pushes aren't built.
+
+**Claude's calls (not settled by the rules - Daniel may overrule):**
+- A rear-mounted weapon in a flipped arm still fires only to the rear.
+- The Physical phase never chooses to flip (it only takes punches away).
+- Turrets: the locked direction is the last one declared before the crit.
 
 **Gotchas:**
 - The rear arc is now 120 deg. Daniel's 2026-07-20 one-hexside (60 deg) rule
@@ -343,7 +372,8 @@ combat-part1 entries CR-CMB1-FIRING-ARCS, ARCS-TORSO-TWIST, TORSO-TWIST.*
   under Section 4 "Core Rulebook vs existing MECHSIM rules".
 - Attack DIRECTION (front/left/right/rear hit tables, p.73) is a different
   thing from firing arcs and is unaffected by twists.
-- History: Change Record, 2026-10-19 "Firing arcs and torso twists" entry.
+- History: Change Record, 2026-10-19 entries "Firing arcs and torso twists"
+  and "Arc actions".
 
 ---
 
@@ -483,6 +513,21 @@ combat-part1 entries CR-CMB1-FIRING-ARCS, ARCS-TORSO-TWIST, TORSO-TWIST.*
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-19 (Claude):** Arc actions - the rest of the torso-twist rules
+  (Core pp.61-62, 76, 205, 236-238). `INTEGRATION__arcs.ArcAction(twist, flip,
+  turret)` replaces the bare twist: tripods twist to any hexside and their leg
+  weapons use the p.236 leg arcs; arms reverse for designs with no hand / lower
+  arm actuators in both arms and no split arm weapon; Quad Turret "(T)" weapons
+  turn freely, a turret crit locks it; one twist OR flip a turn, kept for the
+  rest of the turn and reset in the End Phase. The Physical Attack Phase now
+  uses `arcs.arcs_between` with the twist (punches / arm weapons follow it,
+  kicks don't, tripods only attack into the torso's forward arc, reversed arms
+  can't punch) and may twist there if the Ranged phase didn't.
+  `arc_unavailable(attacker, key)` now takes an `arcs.ArcKey`;
+  `arc_keys(arcs, facing, actions, legs)` returns (key, action) pairs.
+  New `tests/test_arcs.py` (10 checks). Reference logs differ again (the
+  default tripods now twist further).
 
 - **2026-10-19 (Claude):** Firing arcs and torso twists (Core pp.60-62), from
   Daniel's Firing Arcs Diagram screenshot. New `INTEGRATION__arcs.py`: the arc
