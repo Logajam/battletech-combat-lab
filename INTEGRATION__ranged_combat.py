@@ -33,9 +33,11 @@ envelope PATHFINDER__combat.py's own evaluate_combat_hexes() builds):
      weapon and that's already baked into the table's own distance axis).
   3. Firing arcs and torso twists (INTEGRATION__arcs, Core pp.60-62, 2026-10-19):
      which weapons can bear depends on the arc the target is in (forward /
-     side / rear); each side may also twist its torso one hexside and keeps
-     the best twist - checked independently for the mover's own fire and the
-     defender's return fire.
+     side / rear); each side may also twist its torso (one hexside, a
+     tripod any), flip its arms or turn a turret, and keeps the best -
+     checked independently for the mover's own fire and the defender's
+     return fire. The twist is declared at attack declaration, after
+     movement (p.61), so taking the best one per spot is the real rule.
   4. Expected damage in each direction - HEAT-AWARE as of 2026-10-18 (see
      below).
 
@@ -306,13 +308,13 @@ class MoveEvaluator:
             def get(key):
                 scorer = cache.get(key)
                 if scorer is None:
-                    scorer = cache[key] = _make_heat_limited_scorer(who, adjust, blocked | arc_unavailable(who, *key), scale)
+                    scorer = cache[key] = _make_heat_limited_scorer(who, adjust, blocked | arc_unavailable(who, key), scale)
                 return scorer
             return get
         self.mover_scorer = scorer_getter(mover, mover_adjust, mover_blocked, mover_scale, mover_scorers)
         self.defender_scorer = scorer_getter(defender, defender_adjust, defender_blocked, defender_scale, defender_scorers)
-        self.mover_twists = arcs.twist_options(mover)          # torso twists each side may declare (p.62)
-        self.defender_twists = arcs.twist_options(defender)
+        self.mover_arcs = (arcs.arc_options(mover), arcs.leg_offsets(mover))   # twists / flips / turret (pp.61-62)
+        self.defender_arcs = (arcs.arc_options(defender), arcs.leg_offsets(defender))
         self.mover_own = equip.own_attack_modifier(mover)
         self.defender_own = equip.own_attack_modifier(defender)
 
@@ -339,7 +341,7 @@ class MoveEvaluator:
         dealt_stealth = equip.void_signature_modifier(defender, def_fc, def_mp_spent) + self.mover_own
         mover_cond, defender_cond = self.mover_cond, self.defender_cond
         mover_scorer, defender_scorer = self.mover_scorer, self.defender_scorer
-        mover_twists, defender_twists = self.mover_twists, self.defender_twists
+        (mover_actions, mover_legs), (defender_actions, defender_legs) = self.mover_arcs, self.defender_arcs
         arc_keys = arcs.arc_keys
         no_return_fire = defender.shutdown or defender_cond is None
 
@@ -375,7 +377,7 @@ class MoveEvaluator:
                           + (prone_target_modifier(defender, distance) if prone_def else 0))
                 pre_tn = pre_max if pre_tn > pre_max else (pre_min if pre_tn < pre_min else pre_tn)
                 dealt = max(mover_scorer(key)(distance, pre_tn, o.move_heat, side_on_def)
-                            for key in arc_keys(a_to_d, o.facing, mover_twists))
+                            for key, _ in arc_keys(a_to_d, o.facing, mover_actions, mover_legs))
 
             if no_return_fire:
                 received = 0.0
@@ -385,7 +387,7 @@ class MoveEvaluator:
                            + o.void_mod)
                 pre_tn2 = pre_max if pre_tn2 > pre_max else (pre_min if pre_tn2 < pre_min else pre_tn2)
                 received = max(defender_scorer(key)(distance, pre_tn2, def_move_heat, side_on_mover)
-                               for key in arc_keys(d_to_a, def_facing, defender_twists))
+                               for key, _ in arc_keys(d_to_a, def_facing, defender_actions, defender_legs))
 
             results.append(MovementCandidate(
                 hex=o.label, facing=o.facing_compass, mode=o.mode,

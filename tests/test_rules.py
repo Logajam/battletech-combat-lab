@@ -178,12 +178,12 @@ def rear_mounted_weapons():
     assert rear == {"ISMediumPulseLaser"}
     names = lambda ids: {w.name for w in attack_resolution.get_weapons(m) if id(w) in ids}   # noqa: E731
     fwd, rear_arc = arcs.FORWARD, arcs.REAR
-    assert names(attack_resolution.arc_unavailable(m, fwd)) == {"ISMediumPulseLaser"}
-    assert "ISMediumPulseLaser" not in names(attack_resolution.arc_unavailable(m, rear_arc))
-    assert len(attack_resolution.arc_unavailable(m, rear_arc)) == len(attack_resolution.get_weapons(m)) - 1
+    assert names(attack_resolution.arc_unavailable(m, arcs.simple_key(m, fwd))) == {"ISMediumPulseLaser"}
+    assert "ISMediumPulseLaser" not in names(attack_resolution.arc_unavailable(m, arcs.simple_key(m, rear_arc)))
+    assert len(attack_resolution.arc_unavailable(m, arcs.simple_key(m, rear_arc))) == len(attack_resolution.get_weapons(m)) - 1
     # side arcs (p.60): only that side's arm weapons (and not the rear-mounted laser)
-    assert names(attack_resolution.arc_unavailable(m, arcs.LEFT)) == {"ISMediumPulseLaser", "ISLRM15", "ISSRM6", "ISAC5"}
-    assert names(attack_resolution.arc_unavailable(m, arcs.RIGHT)) == {"ISMediumPulseLaser", "ISLRM15", "ISSRM6",
+    assert names(attack_resolution.arc_unavailable(m, arcs.simple_key(m, arcs.LEFT))) == {"ISMediumPulseLaser", "ISLRM15", "ISSRM6", "ISAC5"}
+    assert names(attack_resolution.arc_unavailable(m, arcs.simple_key(m, arcs.RIGHT))) == {"ISMediumPulseLaser", "ISLRM15", "ISSRM6",
                                                                       "ISLBXAC10", "ISUltraAC5"}
 
 

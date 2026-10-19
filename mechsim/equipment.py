@@ -78,6 +78,7 @@ class Equipment:
         # 2026-10-19: mounted facing the rear - "(R)" on its .mtf crit line
         # (Core p.60: fires only into the rear arc). Set by mtf_parser.
         self.rear_mounted = False
+        self.turret_mounted = False   # 2026-10-19: "(T)" on its .mtf crit line (Core p.61)
 
     def __repr__(self):
         return f"<{self.name}>"
