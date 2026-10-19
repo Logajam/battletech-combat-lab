@@ -212,6 +212,26 @@ def ammunition():
     assert ammo.is_one_shot(one_shot) and ammo.is_one_shot(rl) and not ammo.is_one_shot(lrm)
 
 
+@check
+def home_edge_deployment():
+    """p.37: deployment-roll loser picks an edge, winner gets the opposite;
+    a mech enters into any edge hex, any facing, MP counted from that hex."""
+    assert orchestrator._edge_hexes(TERRAIN, "N") == [f"{c:02d}01" for c in range(1, 17)]
+    assert orchestrator._edge_hexes(TERRAIN, "W") == [f"01{r:02d}" for r in range(1, 18)]
+    a, b = fresh(), fresh()
+    a.side_name, b.side_name = "Red", "Blue"
+    from INTEGRATION__rng import BattleRNG
+    orchestrator._deploy_home_edges(a, b, TERRAIN, BattleRNG(seed=1))
+    edges = {a.home_edge[0][2:] == a.home_edge[-1][2:], b.home_edge[0][2:] == b.home_edge[-1][2:]}
+    assert a.hex is None and b.hex is None and len(edges) == 1          # both N/S or both E/W
+    assert set(a.home_edge).isdisjoint(b.home_edge)
+    m = fresh()
+    opts = list(ranged_combat.movement_options(m, TERRAIN, entry_edge=["0801"]))
+    first = [o for o in opts if (o[0], o[1]) == hex_geometry.parse_hex_label("0801")]
+    assert first and all(fc == 1 for _, _, _, fc, _, _ in first)        # the entry hex counts as moved
+    assert max(fc for _, _, _, fc, _, _ in opts) <= 6 and all(mode in ("Walk", "Run") for *_, mode, _ in opts)
+
+
 def run_all():
     failed = 0
     for fn in CHECKS:

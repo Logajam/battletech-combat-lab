@@ -42,7 +42,7 @@ INTEGRATION__stubs.py (knobs in INTEGRATION__config.py's STUB SETTINGS).
                - dissipation; then shutdown or restart, ammo explosion, life-support pilot hits,
                and next turn's MP / to-hit penalties
   End          resolve_end_phase_wakeup, crippled check, destruction  REAL
-  Deployment   stub_deployment (fixed CONFIG hexes, not edge entry)   STUB
+  Deployment   home edges (Core p.37) or fixed CONFIG hexes           REAL (config.DEPLOYMENT)
 
 TMM everywhere comes from ACTUAL hexes moved this turn (combat.fc_to_tmm)
 - Daniel 2026-10-18. MECHSIM's compute_tmm()/resolve_movement_phase()
@@ -149,10 +149,12 @@ def _attach_mech_config(mech, cfg, side_name):
     instance as plain attributes. None of these come out of
     mtf_parser.parse_mtf(); per Section 5, gunnery/piloting are config-level
     input. Called fresh on each sim's cloned mech so nothing leaks between
-    Monte Carlo iterations. Starting hex/facing go through
-    stubs.stub_deployment()."""
+    Monte Carlo iterations. The config hex/facing is the starting position
+    when config.DEPLOYMENT is "fixed_hexes"; with "home_edge" run_battle
+    takes the mech off the board again (_deploy_home_edges)."""
     mech.side_name = side_name
-    mech.hex, mech.facing = stubs.stub_deployment(cfg, side_name)
+    mech.hex, mech.facing = cfg["hex"], cfg["facing"]
+    mech.home_edge = None
     mech.gunnery = cfg["gunnery"]
     mech.piloting = cfg["piloting"]
     mech.min_heat = cfg["min_heat"]
@@ -214,7 +216,7 @@ def _compute_available_mp(mech):
     }
 
 
-def _reachable_states(mover, other, terrain_map, standup_mp=None):
+def _reachable_states(mover, other, terrain_map, standup_mp=None, entry_edge=None):
     """Every reachable end state as plain dicts {hex, facing, mode, fc,
     mp_spent}, one per (hex, facing, mode) keeping the highest fc (Section
     5c's dominance argument - higher fc never hurts at a fixed hex/facing/
@@ -222,7 +224,8 @@ def _reachable_states(mover, other, terrain_map, standup_mp=None):
     pool for stubs.stub_select_movement(). Same envelope as movement
     scoring (ranged_combat.movement_options)."""
     best = {}
-    for x, y, facing, fc, mode, mp_spent in ranged_combat.movement_options(mover, terrain_map, standup_mp):
+    for x, y, facing, fc, mode, mp_spent in ranged_combat.movement_options(mover, terrain_map, standup_mp,
+                                                                          entry_edge):
         try:
             label = hex_geometry.hex_label(x, y)
         except ValueError:
@@ -276,16 +279,30 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng):
     else:
         booster_failures = equip.resolve_movement_boosters(mover)   # MASC / supercharger (p.204)
     mp = _compute_available_mp(mover)
-    los_candidates = ranged_combat.evaluate_going_second(
-        mover, other, terrain_map,
-        defender_state={"fc": other.move_fc, "mode": other.move_mode},
-        standup_mp=standup_mp,
-    )
-    reachable = [] if los_candidates else _reachable_states(mover, other, terrain_map, standup_mp)
-    pick = stubs.stub_select_movement(name, los_candidates, reachable, other.hex, battle_rng)
+    entry_edge = mover.home_edge if mover.hex is None else None   # entering the battlefield (p.37)
+    if other.hex is None:
+        # The enemy hasn't entered yet: nothing to shoot, so head for its home edge.
+        los_candidates = []
+        target_hex = other.home_edge[len(other.home_edge) // 2]
+    else:
+        los_candidates = ranged_combat.evaluate_going_second(
+            mover, other, terrain_map,
+            defender_state={"fc": other.move_fc, "mode": other.move_mode},
+            standup_mp=standup_mp, entry_edge=entry_edge,
+        )
+        target_hex = other.hex
+    reachable = [] if los_candidates else _reachable_states(mover, other, terrain_map, standup_mp, entry_edge)
+    pick = stubs.stub_select_movement(name, los_candidates, reachable, target_hex, battle_rng)
+    if pick is None and entry_edge is not None:
+        if not reachable:
+            # "A unit must move onto the battlefield ... If it cannot, it is destroyed." (p.37)
+            mover.destroyed, mover.cause_of_death = True, "Could Not Enter Battlefield"
+            config.log(f"  [Movement] {name}: can't enter the battlefield - destroyed.")
+            return
+        pick = reachable[0]   # must enter even under the "stay" fallback
 
     if pick is not None:
-        start = f"{mover.hex} {mover.facing}"
+        start = "off the board" if entry_edge is not None else f"{mover.hex} {mover.facing}"
         mover.hex, mover.facing = pick["hex"], pick["facing"]
         mover.move_mode, mover.move_fc, mover.mp_spent = pick["mode"], pick["fc"], pick["mp_spent"]
         mover.movement_heat = heat.movement_heat(mover, mover.move_mode, mover.move_fc)
@@ -370,6 +387,46 @@ def _status_line(m):
 # =============================================================================
 # ==========================  ONE BATTLE  =====================================
 # =============================================================================
+EDGE_NAMES = ("N", "E", "S", "W")
+OPPOSITE_EDGE = {"N": "S", "S": "N", "E": "W", "W": "E"}
+
+
+def _edge_hexes(terrain_map, edge):
+    """Hex labels along one edge of the board (CCRR: column 1-width, row 1-height)."""
+    w, h = terrain_map["width"], terrain_map["height"]
+    if edge in ("N", "S"):
+        row = 1 if edge == "N" else h
+        labels = [f"{c:02d}{row:02d}" for c in range(1, w + 1)]
+    else:
+        col = 1 if edge == "W" else w
+        labels = [f"{col:02d}{r:02d}" for r in range(1, h + 1)]
+    return [lab for lab in labels if lab in terrain_map["hexes"]]
+
+
+def _deploy_home_edges(mech_red, mech_blue, terrain_map, battle_rng):
+    """Default deployment (Core p.37): both sides roll 2D6 (rerolling ties);
+    the loser chooses a home edge, the winner takes the one opposite. Each
+    mech starts off the board and enters along its home edge in its first
+    Movement Phase. Which edge the loser picks is a bot choice
+    (config.HOME_EDGE_CHOICE)."""
+    while True:
+        red, blue = battle_rng.roll_2d6(), battle_rng.roll_2d6()
+        if red != blue:
+            break
+    loser, winner = (mech_red, mech_blue) if red < blue else (mech_blue, mech_red)
+    if config.HOME_EDGE_CHOICE == "random":
+        edge = EDGE_NAMES[battle_rng.pick_number(len(EDGE_NAMES)) - 1]
+    elif config.HOME_EDGE_CHOICE in EDGE_NAMES:
+        edge = config.HOME_EDGE_CHOICE
+    else:
+        raise ValueError(f"Unknown HOME_EDGE_CHOICE {config.HOME_EDGE_CHOICE!r}")
+    for mech, e in ((loser, edge), (winner, OPPOSITE_EDGE[edge])):
+        mech.home_edge = _edge_hexes(terrain_map, e)
+        mech.hex, mech.facing = None, "N"
+        config.log(f"  Deployment: {mech.side_name} home edge {e} ({mech.home_edge[0]}-{mech.home_edge[-1]}).")
+    config.log(f"  Deployment roll: Red {red}, Blue {blue} - {loser.side_name} chose its edge.")
+
+
 def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,
                max_turns: Optional[int] = None) -> BattleResult:
     """Section 2's turn structure for up to max_turns turns, or until a mech
@@ -381,6 +438,10 @@ def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,
         "Blue": SideStats(name=f"Blue ({mech_blue.chassis} {mech_blue.model})", max_hp=total_hp(mech_blue)),
     }
     by_name = {"Red": mech_red, "Blue": mech_blue}
+    if config.DEPLOYMENT == "home_edge":
+        _deploy_home_edges(mech_red, mech_blue, terrain_map, battle_rng)
+    elif config.DEPLOYMENT != "fixed_hexes":
+        raise ValueError(f"Unknown DEPLOYMENT {config.DEPLOYMENT!r}")
 
     for turn in range(1, max_turns + 1):
         config.log(f"\n=== TURN {turn} ===")

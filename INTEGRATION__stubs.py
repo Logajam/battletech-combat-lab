@@ -52,18 +52,6 @@ def _warn(name, msg):
 # =============================================================================
 # ==========================  DEPLOYMENT  ====================================
 # =============================================================================
-def stub_deployment(mech_cfg, side_name):
-    """Starting hex/facing. Section 2's build target is: turn 1, initiative
-    loser enters from their map edge, winner from the opposite edge. Not
-    built - fixed hexes from MECH_*_CONFIG instead.
-    TODO: Daniel's Section 2 edge-entry procedure (which edge, how entry MP
-    is spent). MegaMek reference for deployment zones: Board deployment-zone
-    logic (e.g. Board.isLegalDeployment - name from memory)."""
-    _warn("deployment", f"{side_name} placed at fixed CONFIG hex {mech_cfg['hex']} facing "
-          f"{mech_cfg['facing']} (edge entry not built)")
-    return mech_cfg["hex"], mech_cfg["facing"]
-
-
 # =============================================================================
 # ==========================  MOVEMENT  ======================================
 # =============================================================================

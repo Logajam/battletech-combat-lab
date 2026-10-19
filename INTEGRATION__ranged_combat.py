@@ -103,6 +103,7 @@ if PATHFINDER_DIR not in sys.path:
 
 import hex_geometry  # noqa: E402
 from pathfinder import build_movement_table  # noqa: E402
+import terrain_rules  # noqa: E402
 from los import has_los, hex_distance  # noqa: E402
 import combat  # noqa: E402
 
@@ -164,14 +165,21 @@ def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset()):
     return score
 
 
-def movement_options(mover, terrain_map, standup_mp=None):
+def movement_options(mover, terrain_map, standup_mp=None, entry_edge=None):
     """Every end state the mover can reach this turn, as (x, y, facing, fc,
     mode, mp_spent), deduplicated. Normally: Walk/Run from its hex and facing
     (pathfinder.build_movement_table at Running MP) plus jumps.
     standup_mp (2026-10-19, Core p.51): the mover just stood up with that
     much running MP left - it may take any facing for free, then spend the
     rest as normal in its declared mode (Run - MECHSIM stands with running
-    MP); a mech that began prone can't jump."""
+    MP); a mech that began prone can't jump.
+    entry_edge (2026-10-19, Core p.37): the mover is entering the battlefield
+    - it moves into any hex of its home edge (the labels given) with any
+    facing, its MP counted from that first hex (whose entry cost it pays,
+    and which counts as a hex moved). Jumping onto the board isn't modeled."""
+    if entry_edge is not None:
+        yield from _entry_options(mover, terrain_map, entry_edge)
+        return
     sx, sy, start_facing = hex_geometry.state_from_label(mover.hex, mover.facing)
     if standup_mp is None:
         walk = compute_walk_mp(mover)
@@ -193,9 +201,30 @@ def movement_options(mover, terrain_map, standup_mp=None):
             yield (x, y, facing, fc, "Jump", jump_mp)
 
 
+def _entry_options(mover, terrain_map, edge_labels):
+    walk, run = compute_walk_mp(mover), compute_running_mp(mover)
+    seen = set()
+    for label in edge_labels:
+        info = terrain_map["hexes"].get(label)
+        if info is None or info["impassable"]:
+            continue
+        cost = terrain_rules.transition_cost(info["level"], info["level"], info["features"])
+        if cost > run:
+            continue
+        ex, ey = hex_geometry.parse_hex_label(label)
+        for f0 in range(6):
+            for (x, y, facing), col in build_movement_table(ex, ey, f0, run - cost, terrain_map=terrain_map).items():
+                for spent, fc in col.items():
+                    total = spent + cost
+                    key = (x, y, facing, fc + 1, combat.classify_movement_mode(total, walk), total)
+                    if key not in seen:
+                        seen.add(key)
+                        yield key
+
+
 def evaluate_going_second(
     mover, defender, terrain_map: Dict[str, object], defender_state: Optional[Dict[str, object]] = None,
-    standup_mp: Optional[int] = None,
+    standup_mp: Optional[int] = None, entry_edge: Optional[List[str]] = None,
 ) -> List[MovementCandidate]:
     """
     mover/defender: BattleMech instances with .hex (CCRR str), .facing
@@ -208,7 +237,8 @@ def evaluate_going_second(
     heat (for its return-fire heat budget). Default (None) is
     fc=0/"Stand Still".
 
-    standup_mp: see movement_options (movement after standing up).
+    standup_mp / entry_edge: see movement_options (after standing up /
+    entering the battlefield).
 
     Returns every (hex, facing, mode) candidate mover can reach with LOS
     to the defender - intentionally UNREDUCED and UNRANKED.
@@ -292,7 +322,7 @@ def evaluate_going_second(
             movement_heat=move_heat,
         ))
 
-    for x, y, facing, fc, mode, mp_spent in movement_options(mover, terrain_map, standup_mp):
+    for x, y, facing, fc, mode, mp_spent in movement_options(mover, terrain_map, standup_mp, entry_edge):
         _evaluate_one(x, y, facing, fc, mode, mp_spent)
 
     return results

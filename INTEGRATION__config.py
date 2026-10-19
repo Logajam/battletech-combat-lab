@@ -86,8 +86,8 @@ PILOTING = 5
 # e.g. max_heat 8 from cold: fire until 8 more heat than the sinks can shed.
 # min_heat: Phase 2 pads weapon heat generated this turn up to this value.
 #
-# hex/facing are the STARTING position - see stubs.stub_deployment() (Section
-# 2's edge-entry rule isn't built; these fixed hexes stand in for it).
+# hex/facing are the STARTING position only with DEPLOYMENT = "fixed_hexes"
+# (see DEPLOYMENT below).
 #
 # DROPPED vs the old TEAM_RED/TEAM_BLUE shape (superseded, not carried
 # forward): "weapons" list (real weapons now come from
@@ -110,6 +110,14 @@ MECH_BLUE_CONFIG = {
     "min_heat": 0,
     "max_heat": 4,
 }
+
+# Deployment (2026-10-19, Core p.37):
+#   "home_edge"   - deployment roll; the loser picks a home edge, the winner
+#                   gets the opposite one; mechs enter along it on turn 1
+#   "fixed_hexes" - start at MECH_*_CONFIG hex/facing (a set scenario)
+DEPLOYMENT = "home_edge"
+# Which edge the deployment-roll loser picks: "random", or "N"/"E"/"S"/"W".
+HOME_EDGE_CHOICE = "random"
 
 # .mtf files for a headless run (2026-10-18). None = open the tkinter picker.
 MECH_RED_MTF = "Asymptote II iJ Mpulse.mtf"
