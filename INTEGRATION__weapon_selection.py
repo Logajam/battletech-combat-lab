@@ -1,0 +1,272 @@
+"""
+INTEGRATION__weapon_selection.py
+
+Pile 4 (bot decision-making): given a mech's live weapon list, its heat state,
+and a firing solution's (range, pre-range TN) from Pathfinder, decide which
+weapons to fire to maximize expected damage within the mech's heat window.
+
+=== TABLE SHAPE (Daniel, 2026-08-05) ===
+"You probably want to use the actual range, not just the bracket. It lets you
+skip a translation step (Range to bracket) and also accounts for minimum
+range. Turns the search space into a nice 3D array. Weapons, range, Starting
+TN axis. And returns the expected damage."
+
+table[weapon_id][distance][pre_tn] -> expected damage for that ONE weapon
+fired alone at that distance/pre_tn, or None if distance is outside that
+weapon's range envelope (beyond Long, or - once equipment.json carries
+minimum-range data, which it does not yet, see INTEGRATION__expected_damage's
+KNOWN GAP note - inside Minimum). pre_tn is "GATOR minus this weapon's own
+Range term" - Gunnery + AMM + TMM + Other - matching PATHFINDER__combat.py's
+existing `tn = gunnery + amm + target_tmm + los_modifier + range_mod` shape,
+just with range_mod split out per weapon instead of folded in ahead of time.
+
+=== CACHING / RECOMPUTE POLICY (Daniel, 2026-08-05) ===
+"I'd only recompute if the Mech state says something has changed since last
+turn which requires a recompute. A non-zero heat which is not the same as
+last turn counts, but so does actuator damage for weapons in that location.
+If heat is zero, and no critical damage has happened... may as well not do
+the math again."
+
+Implemented as memoization keyed on (current_heat, frozenset of live weapon
+instance ids from damage_resolution.get_weapons()) rather than tracking heat
+and crit-damage as two separate signals: the weapon-id-set already changes
+the instant a weapon is destroyed (get_weapons() drops it - see its
+partial-destruction handling), so it's a strict superset of "did
+weapon-affecting critical damage happen" without needing a second check.
+Heat value being unchanged from a previously-seen state (including 0, which
+just means it was memoized once and reused ever after) reuses that entry.
+Cache lives for the process's lifetime - call reset_table_cache() between
+separate battle runs. The orchestrator does this at the start of every
+battle (2026-10-18): the cache is keyed on id(mech), and Python reuses ids
+of garbage-collected clones, so a stale table from a previous battle's
+mech could otherwise be picked up.
+
+=== IMPORTS - CHANGED 2026-10-18 (Claude) ===
+The old load-MECHSIM-then-purge-sys.modules-then-load-PATHFINDER dance is
+REMOVED. It was written against an earlier PATHFINDER combat.py that did
+`import config`; that file no longer does (orchestrator docstring,
+CORRECTED 2026-09-01). Worse, the purge popped the bare "config" entry -
+i.e. INTEGRATION__config's own self-registration - so the very next
+`import config` (inside INTEGRATION__expected_damage) failed with
+ModuleNotFoundError. Confirmed by a live import test 2026-10-18, not just
+by reading. It also purged MECHSIM's cached modules, which risks a second
+copy of equipment.py loading and isinstance(slot, Equipment) silently
+failing across the two copies. Now: both directories go on sys.path once
+and modules import normally. If a real same-name collision ever comes
+back, solve it at the orchestrator level, not by purging here.
+"""
+
+import os
+import sys
+
+MECHSIM_DIR = os.environ.get("MECHSIM_DIR", os.path.join(os.path.dirname(os.path.abspath(__file__)), "mechsim"))
+PATHFINDER_DIR = os.environ.get("PATHFINDER_DIR", os.path.join(os.path.dirname(os.path.abspath(__file__)), "pathfinder"))
+
+for _d in (MECHSIM_DIR, PATHFINDER_DIR):
+    if _d not in sys.path:
+        sys.path.insert(0, _d)
+
+import INTEGRATION__config  # noqa: E402,F401 - ensures bare "config" is registered before MECHSIM imports
+import INTEGRATION__expected_damage as expected_damage  # noqa: E402
+from damage_resolution import get_weapons  # noqa: E402 - MECHSIM
+from combat import hit_probability  # noqa: E402 - PATHFINDER; reuse the confirmed P(2d6>=tn) table, don't reimplement it
+
+# --- Range-bracket TN modifiers - same values PATHFINDER__combat.py uses
+# (RANGE_MOD_SHORT/MEDIUM/LONG), duplicated here rather than imported since
+# they're plain BT constants, not logic - avoids a second cross-project
+# import just for three integers.
+RANGE_MOD_SHORT = 0
+RANGE_MOD_MEDIUM = 2
+RANGE_MOD_LONG = 4
+
+# Bounded pre-TN axis for the table. Gunnery (0-8ish) + AMM (0-3) + TMM (0-6)
+# + Other (roughly -2 to +4) covers this range in practice; hit_probability()
+# already returns 0.0 for tn > 12 regardless, so a generously wide bound here
+# costs a little extra table space, not correctness.
+PRE_TN_MIN = 0
+PRE_TN_MAX = 16
+
+_TABLE_CACHE = {}  # (mech id, cache key) -> table dict
+
+
+def reset_table_cache():
+    """Clear all memoized tables - see module docstring's caching note."""
+    _TABLE_CACHE.clear()
+
+
+def _weapon_range_mod(weapon, distance):
+    """Short/Medium/Long TN modifier for firing `weapon` at `distance`, or
+    None if out of range. No minimum-range penalty applied yet -
+    equipment.json doesn't carry that data (see INTEGRATION__expected_damage
+    module docstring, KNOWN GAP) - this returns the plain bracket modifier
+    only. The moment minimum-range data exists, this is the one place that
+    needs to grow a floor check."""
+    wr = weapon.weapon_range
+    if wr is None or wr.get("short") is None:
+        return None  # unconfirmed range data - can't place this weapon on the table at all
+    if distance <= wr["short"]:
+        return RANGE_MOD_SHORT
+    if distance <= wr["medium"]:
+        return RANGE_MOD_MEDIUM
+    if distance <= wr["long"]:
+        return RANGE_MOD_LONG
+    return None  # beyond Long - can't fire
+
+
+def _cache_key(mech):
+    """(current_heat, frozenset of live weapon instance ids) - see module
+    docstring's caching policy."""
+    return (mech.current_heat, frozenset(id(w) for w in get_weapons(mech)))
+
+
+def build_expected_damage_table(mech):
+    """table[id(weapon)][distance][pre_tn] -> expected damage (float), or the
+    distance key simply absent if every weapon is out of range there. Reuses
+    a cached table when (current_heat, live-weapon-set) hasn't changed since
+    the last call for this mech - see module docstring."""
+    key = _cache_key(mech)
+    per_mech_cache = _TABLE_CACHE.setdefault(id(mech), {})
+    cached = per_mech_cache.get(key)
+    if cached is not None:
+        return cached
+
+    weapons = get_weapons(mech)
+    max_distance = 0
+    for w in weapons:
+        if w.weapon_range and w.weapon_range.get("long") is not None:
+            max_distance = max(max_distance, w.weapon_range["long"])
+
+    table = {}
+    for w in weapons:
+        wid = id(w)
+        table[wid] = {}
+        # damage_per_shot missing (unconfirmed equipment.json row) - skip this
+        # weapon on the table entirely rather than raising mid-battle; it's
+        # simply never selectable until its data is fixed.
+        # (2026-10-18: the orchestrator makes this loud every turn via
+        # stubs.stub_unconfirmed_weapon_data().)
+        if w.damage_per_shot is None:
+            continue
+        ed_per_hit = expected_damage.expected_damage_per_hit(w)
+        for distance in range(0, max_distance + 1):
+            range_mod = _weapon_range_mod(w, distance)
+            if range_mod is None:
+                continue  # out of range at this distance - no entry
+            row = {}
+            for pre_tn in range(PRE_TN_MIN, PRE_TN_MAX + 1):
+                tn = pre_tn + range_mod
+                row[pre_tn] = ed_per_hit * hit_probability(tn)
+            table[wid][distance] = row
+
+    # Cap the number of cached (heat, weapon-set) states kept per mech - a
+    # mech's heat only takes a handful of distinct values across a real
+    # battle (it climbs/cools in small steps), so this is a generous safety
+    # valve against unbounded growth, not a real constraint in practice.
+    if len(per_mech_cache) > 64:
+        per_mech_cache.clear()
+    per_mech_cache[key] = table
+    return table
+
+
+def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipation, movement_heat):
+    """min_heat/max_heat are passed explicitly (the orchestrator reads them
+    off the mech's attached scenario config - mech.min_heat/mech.max_heat),
+    while current_heat lives on the MECHSIM BattleMech object (mech).
+
+    HEAT BUDGET - CHANGED 2026-10-18 (Daniel): "Max heat is dissipation +
+    the set value. So a max heat of 8 will fire weapons until it reaches 8
+    more heat than it can dissipate." Movement heat counts against it, and
+    heat carries over turn to turn (mech.current_heat). So max_heat is the
+    ceiling on the mech's heat level at the END of the turn:
+        current_heat + movement_heat + weapon_heat - dissipation <= max_heat
+    i.e. weapon heat budget = max_heat + dissipation - current_heat - movement_heat
+    (floored at 0). Was: max_heat - current_heat.
+    Not addressed (bot logic, later - Daniel): deciding when to hold fire to
+    cool back down to zero. As written, a mech that reaches max_heat stays
+    there, firing only what it can sink each turn.
+    min_heat is unchanged: Phase 2 pads WEAPON heat generated this turn up to
+    min_heat (not the end-of-turn heat level).
+
+    Two-phase heat-constrained selection (Daniel, 2026-08-05):
+
+    Phase 1: choose the subset of ALL in-range weapons (energy and ammo-fed
+    alike) that maximizes total expected damage, subject to total heat
+    generated staying within the mech's heat budget this turn
+    (see HEAT BUDGET above). Solved as an exact 0/1 knapsack
+    - weapon counts per mech are small enough (a handful of hardpoints) that
+    this is cheap without needing an approximation.
+
+    Phase 2: if Phase 1's picks land under min_heat, keep adding remaining
+    unfired ENERGY weapons (damage_type == "Energy" only - ammo-fed weapons
+    excluded per Daniel: "they'll need their own logic suite on if its worth
+    using up limited ammo, later") - even zero-expected-damage ones - highest
+    expected-damage-first, until total heat reaches min_heat or no eligible
+    energy weapons remain. Still hard-capped at the same heat budget; never
+    exceeds max_heat even to chase the floor.
+
+    Weapons with damage_type == None (unverified equipment.json rows) are
+    treated as NOT eligible for Phase 2's forced-fire - can't confirm they're
+    ammo-free, so the safer default is to leave them out of "burn heat
+    regardless of hit chance" rather than risk wasting an unidentified ammo
+    weapon's shots. See INTEGRATION__expected_damage module docstring for the
+    matching data-gap reasoning.
+
+    pre_tn must be inside [PRE_TN_MIN, PRE_TN_MAX] - callers clamp first.
+
+    Returns (selected_weapons: list[Equipment], total_expected_damage: float,
+    total_heat: int).
+    """
+    weapons = get_weapons(mech)
+    table = build_expected_damage_table(mech)
+    heat_budget = max(0, max_heat + dissipation - mech.current_heat - movement_heat)
+
+    # Only weapons actually in range at this distance, with confirmed heat data.
+    candidates = []
+    for w in weapons:
+        row = table.get(id(w), {}).get(distance)
+        if row is None:
+            continue  # out of range, or no confirmed damage_per_shot
+        if w.heat is None:
+            continue  # unconfirmed heat cost - can't budget it, skip rather than guess
+        candidates.append((w, row[pre_tn]))
+
+    # --- Phase 1: 0/1 knapsack, weight = heat, value = expected damage. ---
+    # dp[h] = (best total expected damage achievable with exactly heat budget h used,
+    #          set of weapon ids used to achieve it)
+    dp = {0: (0.0, frozenset())}
+    for w, ed in candidates:
+        heat_cost = w.heat
+        for used_heat in sorted(list(dp.keys()), reverse=True):
+            new_heat = used_heat + heat_cost
+            if new_heat > heat_budget:
+                continue
+            new_value = dp[used_heat][0] + ed
+            existing = dp.get(new_heat)
+            if existing is None or new_value > existing[0]:
+                dp[new_heat] = (new_value, dp[used_heat][1] | {id(w)})
+
+    best_heat_used = max(dp, key=lambda h: dp[h][0])
+    best_value, best_ids = dp[best_heat_used]
+    selected_ids = set(best_ids)
+    total_heat = best_heat_used
+    total_ed = best_value
+
+    # --- Phase 2: pad toward min_heat with unfired energy weapons. ---
+    if total_heat < min_heat:
+        remaining_budget = heat_budget - total_heat
+        energy_leftovers = [
+            (w, ed) for w, ed in candidates
+            if id(w) not in selected_ids and w.damage_type == "Energy" and w.heat <= remaining_budget
+        ]
+        energy_leftovers.sort(key=lambda pair: pair[1], reverse=True)
+        for w, ed in energy_leftovers:
+            if total_heat >= min_heat:
+                break
+            if w.heat > heat_budget - total_heat:
+                continue
+            selected_ids.add(id(w))
+            total_heat += w.heat
+            total_ed += ed
+
+    selected_weapons = [w for w in weapons if id(w) in selected_ids]
+    return selected_weapons, total_ed, total_heat
