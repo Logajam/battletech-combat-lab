@@ -61,6 +61,13 @@ physical weapons). What's left is bot decisions and data gaps:
    whose stats aren't in the Core tables.
 3. `heat_explosion_bin` — the controller's choice among tied bins.
 
+**Picking up from here (2026-10-19):** nothing is half-done; `main` passes
+every test in `tests/` and matches the reference logs. Next work is
+waiting on Daniel: the Core-vs-MECHSIM PSR questions and the firing-arc
+diagram (Section 4), and the movement scoring formula. Rules are checked
+against `rules/Battletech_Rule_Reference_Index.zip` (Section 7). Most
+recent work and its page cites: Change Record, last entries.
+
 ---
 
 ## 1. SCOPE
@@ -190,18 +197,19 @@ in tabletop play it falls where the check was failed
   Narc, mortars, plasma, TSEMP, AMS, pods, MG arrays, Silver Bullet Gauss),
   footnoted damage cells (flamers, Nail/Rivet Gun), one-shot launchers
   (stats copied from base launchers 2026-10-19 - see Change Record),
-  and items with no table row. `shots_per_ton` is in the tables but not filled (ammo deferred).
+  and items with no table row. `shots_per_ton` filled 2026-10-19 (107 weapons; ammo is tracked).
 - ~~Minimum range not applied~~ RESOLVED 2026-10-19: penalty applied in
   `weapon_selection._weapon_range_mod` (+1 per hex inside minimum; missing
   `range.min` = 0). One-shot launchers carry their base launcher's stats;
-  the fire-once limit is NOT enforced (`stub_one_shot`).
+  the fire-once limit is enforced since 2026-10-19 (`INTEGRATION__ammo`).
 - Pile 1 reconciliation: `sim_runner._resolve_hit`/`resolve_weapon_attack`
   are absorbed (`INTEGRATION__attack_resolution`). `combat_turn`'s two-ply
   search and closing-fallback are NOT — don't delete `combat_turn.py` until
   movement selection replaces them or Daniel decides they're not wanted.
 
-**Weapon data model gaps** (unchanged): LB-X/Ultra/Rotary cluster math,
-HAG range damage, Artemis, ammo variants, one-shot fire-once limit.
+**Weapon data model gaps:** LB-X/Ultra/Rotary cluster math,
+HAG range damage, Artemis, ammo variants (inferno effect on targets). The
+one-shot fire-once limit is enforced since 2026-10-19.
 
 **Cross-cutting hazard — RESOLVED 2026-10-18:** the
 load-MECHSIM-then-purge-then-load-PATHFINDER workaround in
@@ -211,7 +219,8 @@ a live import test). Removed. Both directories now go on `sys.path` once.
 No PATHFINDER module used by the battle loop imports `config`.
 
 **Deferred by explicit scope call, not gaps:**
-- Physical Combat phase (stubbed, see above).
+- Physical attacks beyond punches/kicks/physical weapons: charges, DFA,
+  pushes, clubs (built 2026-10-19: `INTEGRATION__physical.py`).
 - End Phase beyond unconscious-pilot recovery (heat restarts happen in the
   Heat Phase, p.105; voluntary End Phase shutdown is a bot decision, not built).
 
