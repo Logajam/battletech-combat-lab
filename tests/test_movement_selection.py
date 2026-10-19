@@ -155,6 +155,33 @@ def reduction_keeps_the_best_spot():
 
 
 @check
+def void_signature_mech_keeps_every_movement_variant():
+    """A live Void-Signature System's bonus falls as hexes moved rise, so the
+    reduction (which keeps the most hexes) is skipped for it: it keeps several
+    forward counts per (hex, facing, mode), and the best reduced objective
+    still equals the best over the full list."""
+    from INTEGRATION__equipment_systems import active_stealth
+    from equipment import Equipment
+    heat_gear = parse_mtf(config.data_path("TEST_Heat_Gear.mtf"))
+    mover = fresh("0808", "N", template=heat_gear)
+    other = fresh("0812", "S")
+    mover.equipment_systems["void_signature"] = [Equipment("Void Signature System", category="misc")]
+    assert "void_signature" in active_stealth(mover)
+    reduced = ms.reduced_options(mover, TERRAIN, exclude_hex=other.hex)
+    per_spot = {}
+    for x, y, facing, fc, mode, mp in reduced:
+        per_spot.setdefault((x, y, facing, mode), set()).add(fc)
+    assert any(len(v) > 1 for v in per_spot.values()), "reduction was applied to a Void-Signature mech"
+    plain = fresh("0808", "N", template=heat_gear)
+    assert len(ms.reduced_options(plain, TERRAIN, exclude_hex=other.hex)) < len(reduced)
+    me, them, full = full_scores(mover, other)
+    best_full = max(objective_of(c, me, them) for c in full)
+    ev = ranged_combat.MoveEvaluator(mover, other, TERRAIN)
+    red = ev.evaluate(other.hex, other.facing, 0, "Stand Still", 0, ev.prepare(reduced))
+    assert abs(best_full - max(objective_of(c, me, them) for c in red)) < TOL
+
+
+@check
 def second_mover_takes_the_best_scoring_spot():
     """With the enemy's position final (second mover), choose() returns a spot
     scoring the maximum objective over the full unreduced list."""

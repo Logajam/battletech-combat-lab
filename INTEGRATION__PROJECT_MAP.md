@@ -138,6 +138,12 @@ mid-phase? (Current build: no — both declare first, then both resolve.)
 
 ## 4. OPEN ITEMS
 
+**Movement-selection follow-ups (Daniel, 2026-10-19):**
+- Terrain that forces a piloting roll on entry, and mine fields: add expected
+  damage to the spot's cost (denominator), as the movement PSR already does.
+- Count internal-structure damage for more than armor damage (Daniel: maybe
+  2x, value to be picked) in both dealt and received.
+
 **Stubs (all in `INTEGRATION__stubs.py`, knobs in `INTEGRATION__config.py` STUB SETTINGS).**
 Each docstring carries a TODO naming what to check (MegaMek names in those
 TODOs are from memory — grep before relying on them).
@@ -372,6 +378,15 @@ No PATHFINDER module used by the battle loop imports `config`.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-19 (Claude):** Void-Signature fix to movement selection: its TN
+  bonus falls as hexes moved rise (+3 / +2 / +1 / 0), so the Section 5c
+  reduction (keep max hexes moved) is unsafe for it. `reduced_options` now
+  keeps every (forward count, MP) variant for a mech with a live Void-
+  Signature System (Daniel's call); new test. Logged as open (Daniel, not yet
+  built): (1) terrain that forces a PSR on entry and mine fields should add
+  expected damage to the movement cost like the movement PSR does; (2)
+  internal-structure damage should count for more than armor damage in the
+  objective (Daniel suggested ~2x, value to be picked).
 - **2026-10-19 (Claude):** Movement selection built (replaces
   `stub_select_movement`). New `INTEGRATION__movement_selection.py` and
   `INTEGRATION__los_cache.py` (compute-once LOS / entry-direction / distance

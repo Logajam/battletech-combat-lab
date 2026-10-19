@@ -72,9 +72,10 @@ For a given (hex, facing, mode), only the highest forward count is kept
 (lowest MP on a tie): a higher forward count never hurts - accuracy depends on
 mode, TMM only rises. Kept SEPARATE: forward count 0 vs 1+ (running 1+ hex is
 what triggers the PSR). Jumps already carry one count per (hex, facing). The
-one place this is not strictly safe is a Void-Signature System, whose bonus
-depends on hexes moved and MP spent; tests/test_movement_selection.py checks
-the reduction against the full list for the standard case.
+one place this is not safe is a Void-Signature System, whose TN bonus falls as
+hexes moved rise: reduced_options skips the reduction for a mech with one live
+(Daniel, 2026-10-19). tests/test_movement_selection.py checks the reduction
+against the full list, for a standard mech and for a Void-Signature mech.
 
 === CLOSING FALLBACK (ported as-is from PATHFINDER__combat_turn.py, Daniel
     2026-10-19: "Port as is. Working system first.") ===
@@ -122,6 +123,7 @@ from los import hex_distance  # noqa: E402
 
 import INTEGRATION__ranged_combat as ranged_combat  # noqa: E402
 import INTEGRATION__los_cache as geo_cache  # noqa: E402
+import INTEGRATION__equipment_systems as equipment_systems  # noqa: E402
 
 SIDES = ("front", "left", "right", "rear")
 _P_2D6 = {roll: (6 - abs(roll - 7)) / 36 for roll in range(2, 13)}
@@ -213,11 +215,15 @@ def reduced_options(mover, terrain_map, exclude_hex=None, standup_mp=None, entry
     (x, y, facing, fc, mode, mp_spent) tuples in a stable order. exclude_hex
     (a label or None) is a hex that is occupied and can't be ended in."""
     exclude_xy = hex_geometry.parse_hex_label(exclude_hex) if exclude_hex else None
+    void = "void_signature" in equipment_systems.active_stealth(mover)
     best: Dict[tuple, tuple] = {}
     for x, y, facing, fc, mode, mp_spent in ranged_combat.movement_options(mover, terrain_map, standup_mp, entry_edge):
         if (x, y) == exclude_xy:
             continue
-        key = (x, y, facing, mode, fc > 0)
+        # A live Void-Signature System's TN bonus FALLS as hexes moved rise
+        # (0 hexes +3 ... 6+ hexes 0), so for it more movement is not
+        # "never worse" (Daniel, 2026-10-19): keep every (fc, MP) variant.
+        key = (x, y, facing, mode, fc, mp_spent) if void else (x, y, facing, mode, fc > 0)
         cur = best.get(key)
         if cur is None or fc > cur[3] or (fc == cur[3] and mp_spent < cur[5]):
             best[key] = (x, y, facing, fc, mode, mp_spent)
