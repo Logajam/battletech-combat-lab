@@ -21,10 +21,10 @@ MECH SELECTION
   Initiative: Blue lost the roll, moves first.
   [Movement] Blue: 1316 N -> 0914 NW, Run (6 MP, 4 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
   [Movement] Red: 0505 S -> 0609 NE, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
-  [Ranged] Blue -> Red: range 6, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0); firing ['ISMediumPulseLaser', 'ISLRM15', 'ISSRM6', 'ISUltraAC5', 'ISAC5'] (weapon heat 15 of budget 16 = max 8 + sink 10 - current 0 - movement 2; expected dmg 6.08)
-    ISMediumPulseLaser: needs 13 (range mod +4), rolled 7 -> miss
+  [Ranged] Blue -> Red: range 6, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0); firing ['ISLRM15', 'ISSRM6', 'ISLBXAC10', 'ISUltraAC5', 'ISAC5'] (weapon heat 13 of budget 16 = max 8 + sink 10 - current 0 - movement 2; expected dmg 8.86)
     ISLRM15: needs 9 (range mod +0), rolled 7 -> miss
-    ISSRM6: needs 11 (range mod +2), rolled 2 -> miss
+    ISSRM6: needs 11 (range mod +2), rolled 7 -> miss
+    ISLBXAC10: needs 9 (range mod +0), rolled 2 -> miss
     ISUltraAC5: needs 9 (range mod +0), rolled 10 -> HIT
     ISAC5: needs 9 (range mod +0), rolled 4 -> miss
   [Ranged] Red -> Blue: range 6, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 27 = max 8 + sink 22 - current 0 - movement 3; expected dmg 0.83)
@@ -43,408 +43,203 @@ MECH SELECTION
 6 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (20 -> 14 remaining).
   [Heat] Red: 0 + movement 3 + weapons 20 - sinks 22 -> 1
-  [Heat] Blue: 0 + movement 2 + weapons 15 - sinks 10 -> 7
+  [Heat] Blue: 0 + movement 2 + weapons 13 - sinks 10 -> 5
   -- end of turn 1: Red @ 0609 NE: HP 498.5, pilot hits 0, engine 0, gyro 0, heat 1
-  -- end of turn 1: Blue @ 0914 NW: HP 242, pilot hits 0, engine 0, gyro 0, heat 7
+  -- end of turn 1: Blue @ 0914 NW: HP 242, pilot hits 0, engine 0, gyro 0, heat 5
 
 === TURN 2 ===
   Initiative: Blue lost the roll, moves first.
   [Movement] Blue: 0914 NW -> 0914 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Movement] Red: 0609 NE -> 0813 SE, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
-  [Ranged] Blue -> Red: range 1, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 3 + LOS 0); firing ['ISLRM15', 'ISSRM6', 'ISUltraAC5', 'ISAC5'] (weapon heat 11 of budget 11 = max 8 + sink 10 - current 7 - movement 0; expected dmg 16.04)
+  [Ranged] Blue -> Red: range 1, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 3 + LOS 0); firing ['ISLRM15', 'ISSRM6', 'ISLBXAC10', 'ISUltraAC5', 'ISAC5'] (weapon heat 13 of budget 13 = max 8 + sink 10 - current 5 - movement 0; expected dmg 21.88)
     ISLRM15: needs 7 (range mod +0), rolled 9 -> HIT
     ISSRM6: needs 7 (range mod +0), rolled 7 -> HIT
-    ISUltraAC5: needs 7 (range mod +0), rolled 2 -> miss
-    ISAC5: needs 7 (range mod +0), rolled 8 -> HIT
+    ISLBXAC10: needs 7 (range mod +0), rolled 2 -> miss
+    ISUltraAC5: needs 7 (range mod +0), rolled 8 -> HIT
+    ISAC5: needs 7 (range mod +0), rolled 10 -> HIT
   [Ranged] Red -> Blue: range 1, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 8 + sink 22 - current 1 - movement 3; expected dmg 17.50)
-    ISMediumPulseLaser: needs 7 (range mod +0), rolled 10 -> HIT
     ISMediumPulseLaser: needs 7 (range mod +0), rolled 6 -> miss
     ISMediumPulseLaser: needs 7 (range mod +0), rolled 8 -> HIT
     ISMediumPulseLaser: needs 7 (range mod +0), rolled 4 -> miss
     ISMediumPulseLaser: needs 7 (range mod +0), rolled 8 -> HIT
-    ISLRM15 hit: cluster roll 7 on the 15-column table -> 9 connect (9 dmg).
-      Group 1/1: Hit location roll 10 (front table): Left Arm.
-9 damage (MISSILE) incoming to Left Arm (armor).
-  [HARDENED/MISSILE] 4.5 armor pts destroyed at armor (34 -> 29.5 remaining).
-    ISSRM6 hit: cluster roll 9 on the 6-column table -> 5 connect (10 dmg).
-      Group 1/1: Hit location roll 7 (front table): Center Torso.
-10 damage (MISSILE) incoming to Center Torso (armor).
-  [HARDENED/MISSILE] 5 armor pts destroyed at armor (47 -> 42 remaining).
+    ISMediumPulseLaser: needs 7 (range mod +0), rolled 7 -> HIT
+    ISLRM15 hit: cluster roll 10 on the 15-column table -> 12 connect (12 dmg).
+  Tripod leg sub-roll (front): base 4 -> 4 -> Center Leg
+      Group 1/1: Hit location roll 9 (front table): Center Leg.
+12 damage (MISSILE) incoming to Center Leg (armor).
+  [HARDENED/MISSILE] 6 armor pts destroyed at armor (35 -> 29 remaining).
+    ISSRM6 hit: cluster roll 7 on the 6-column table -> 4 connect (8 dmg).
+      Group 1/1: Hit location roll 11 (front table): Left Arm.
+8 damage (MISSILE) incoming to Left Arm (armor).
+  [HARDENED/MISSILE] 4 armor pts destroyed at armor (34 -> 30 remaining).
+    ISUltraAC5 hit for 5:
+      Hit location roll 8 (front table): Left Torso.
+5 damage (BALLISTIC) incoming to Left Torso (armor).
+  [HARDENED/BALLISTIC] 2.5 armor pts destroyed at armor (32 -> 29.5 remaining).
     ISAC5 hit for 5:
-      Hit location roll 11 (front table): Left Arm.
-5 damage (BALLISTIC) incoming to Left Arm (armor).
-  [HARDENED/BALLISTIC] 2.5 armor pts destroyed at armor (29.5 -> 27 remaining).
+      Hit location roll 7 (rear table): Center Torso.
+5 damage (BALLISTIC) incoming to Center Torso (rear_armor).
+  [HARDENED/BALLISTIC] 2.5 armor pts destroyed at rear_armor (15 -> 12.5 remaining).
     ISMediumPulseLaser hit for 6:
-      Hit location roll 8 (rear table): Left Torso.
-6 damage (ENERGY) incoming to Left Torso (rear_armor).
-  [STANDARD/ENERGY] 6 armor pts destroyed at rear_armor (6 -> 0 remaining).
+      Hit location roll 3 (front table): Right Arm.
+6 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (16 -> 10 remaining).
     ISMediumPulseLaser hit for 6:
       Hit location roll 7 (front table): Center Torso.
 6 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (24 -> 18 remaining).
     ISMediumPulseLaser hit for 6:
-      Hit location roll 3 (front table): Right Arm.
-6 damage (ENERGY) incoming to Right Arm (armor).
-  [STANDARD/ENERGY] 6 armor pts destroyed at armor (16 -> 10 remaining).
+      Hit location roll 9 (right table): Left Torso.
+6 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (20 -> 14 remaining).
   [Heat] Red: 1 + movement 3 + weapons 20 - sinks 22 -> 2
-  [Heat] Blue: 7 + movement 0 + weapons 11 - sinks 10 -> 8
-  -- end of turn 2: Red @ 0813 SE: HP 486.5, pilot hits 0, engine 0, gyro 0, heat 2
+  [Heat] Blue: 5 + movement 0 + weapons 13 - sinks 10 -> 8
+  -- end of turn 2: Red @ 0813 SE: HP 483.5, pilot hits 0, engine 0, gyro 0, heat 2
   -- end of turn 2: Blue @ 0914 NW: HP 224, pilot hits 0, engine 0, gyro 0, heat 8
 
 === TURN 3 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement] Red: 0813 SE -> 0813 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Movement] Blue: 0914 NW -> 0914 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
-  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 28 = max 8 + sink 22 - current 2 - movement 0; expected dmg 27.50)
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 5 -> HIT
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 5 -> HIT
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 6 -> HIT
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
-  [Ranged] Blue -> Red: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISSRM6', 'ISUltraAC5', 'ISAC5'] (weapon heat 10 of budget 10 = max 8 + sink 10 - current 8 - movement 0; expected dmg 22.00)
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 8 -> HIT
-    ISSRM6: needs 4 (range mod +0), rolled 5 -> HIT
-    ISUltraAC5: needs 4 (range mod +0), rolled 8 -> HIT
-    ISAC5: needs 4 (range mod +0), rolled 5 -> HIT
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 11 (right table): Left Leg.
-6 damage (ENERGY) incoming to Left Leg (armor).
-  [STANDARD/ENERGY] 6 armor pts destroyed at armor (20 -> 14 remaining).
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 3 (left table): Left Leg.
-6 damage (ENERGY) incoming to Left Leg (armor).
-  [STANDARD/ENERGY] 6 armor pts destroyed at armor (14 -> 8 remaining).
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 9 (rear table): Left Leg.
-6 damage (ENERGY) incoming to Left Leg (rear_armor).
-  [STANDARD/ENERGY] 6 armor pts destroyed at armor (8 -> 2 remaining).
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 3 (front table): Right Arm.
-6 damage (ENERGY) incoming to Right Arm (armor).
-  [STANDARD/ENERGY] 6 armor pts destroyed at armor (10 -> 4 remaining).
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 10 (right table): Left Arm.
-6 damage (ENERGY) incoming to Left Arm (armor).
-  [STANDARD/ENERGY] 6 armor pts destroyed at armor (16 -> 10 remaining).
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 10 (left table): Right Arm.
-6 damage (ENERGY) incoming to Right Arm (armor).
-  [HARDENED/ENERGY] 3 armor pts destroyed at armor (34 -> 31 remaining).
-    ISSRM6 hit: cluster roll 8 on the 6-column table -> 4 connect (8 dmg).
-      Group 1/1: Hit location roll 7 (rear table): Center Torso.
-8 damage (MISSILE) incoming to Center Torso (rear_armor).
-  [HARDENED/MISSILE] 4 armor pts destroyed at rear_armor (15 -> 11 remaining).
-    ISUltraAC5 hit for 5:
-  Tripod leg sub-roll (left): base 4 -> 5 -> Left Leg
-      Hit location roll 6 (left table): Left Leg.
-5 damage (BALLISTIC) incoming to Left Leg (armor).
-  [HARDENED/BALLISTIC] 2.5 armor pts destroyed at armor (35 -> 32.5 remaining).
-    ISAC5 hit for 5:
-      Hit location roll 7 (front table): Center Torso.
-5 damage (BALLISTIC) incoming to Center Torso (armor).
-  [HARDENED/BALLISTIC] 2.5 armor pts destroyed at armor (42 -> 39.5 remaining).
-PSR trigger: 30 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
-  Succeeded - remains standing.
-  [Heat] Red: 2 + movement 0 + weapons 20 - sinks 22 -> 0
-  [Heat] Blue: 8 + movement 0 + weapons 10 - sinks 10 -> 8
-  -- end of turn 3: Red @ 0813 SE: HP 474.5, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 3: Blue @ 0914 NW: HP 194, pilot hits 0, engine 0, gyro 0, heat 8
-
-=== TURN 4 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement] Red: 0813 SE -> 0813 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Movement] Blue: 0914 NW -> 0914 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
-  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 30 = max 8 + sink 22 - current 0 - movement 0; expected dmg 27.50)
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 10 -> HIT
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 6 -> HIT
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 11 -> HIT
-  [Ranged] Blue -> Red: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISSRM6', 'ISUltraAC5', 'ISAC5'] (weapon heat 10 of budget 10 = max 8 + sink 10 - current 8 - movement 0; expected dmg 22.00)
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
-    ISSRM6: needs 4 (range mod +0), rolled 3 -> miss
-    ISUltraAC5: needs 4 (range mod +0), rolled 9 -> HIT
-    ISAC5: needs 4 (range mod +0), rolled 5 -> HIT
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 4 (rear table): Right Arm.
-6 damage (ENERGY) incoming to Right Arm (rear_armor).
-  [STANDARD/ENERGY] 4 armor pts destroyed at armor (4 -> 0 remaining). 2 damage applied to structure [STANDARD] (8 -> 6/8 remaining).
-  Check for possible critical. Roll a 5.
-    No critical hit.
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 6 (right table): Right Leg.
-6 damage (ENERGY) incoming to Right Leg (armor).
-  [STANDARD/ENERGY] 6 armor pts destroyed at armor (20 -> 14 remaining).
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 5 (right table): Right Arm.
-6 damage (ENERGY) incoming to Right Arm (armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 6 damage applied to structure [STANDARD] (6 -> 0/8 remaining).
-  Check for possible critical. Roll a 12.
-    3 critical hit(s).
-    1/3 Criticals: ISAC5 Ammo slot hit.
-      Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', 'ISAC5', 'ISAC5', 'ISAC5', 'ISAC5', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-']
-    ISAC5 Ammo destroyed at Right Arm - EXPLOSION (20 dmg)! Pilot takes 1 hit (1/6).
-    Explosion reaches Right Arm. No CASE present - full 20 damage applied.
-    0 structure damage taken (0/8 remaining).
-    Right Arm DESTROYED! (explosion)
-  All critical slots in Right Arm marked DESTROYED.
-    20 explosion damage remains, transfers to Right Torso.
-    Explosion reaches Right Torso. No CASE present - full 20 damage applied.
-    12 structure damage taken (0/12 remaining).
-  Check for possible critical. Roll a 3.
-    No critical hit.
-    Right Torso DESTROYED! (explosion)
-  All critical slots in Right Torso marked DESTROYED.
-  Right Arm also destroyed (side torso rule).
-  All critical slots in Right Arm marked DESTROYED.
-    8 explosion damage remains, transfers to Center Torso.
-    Explosion reaches Center Torso. No CASE present - full 8 damage applied.
-    8 structure damage taken (8/16 remaining).
-  Check for possible critical. Roll a 7.
-    No critical hit.
-    2/3 Criticals: no live explosive component available - discarded.
-    3/3 Criticals: no live explosive component available - discarded.
-  Right Arm DESTROYED!
-  All critical slots in Right Arm marked DESTROYED.
-  0 damage remains, transfers to Right Torso.
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 6 (rear table): Right Torso.
-6 damage (ENERGY) incoming to Right Torso (rear_armor).
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/ENERGY] 6 armor pts destroyed at armor (18 -> 12 remaining).
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 11 (front table): Left Arm.
-6 damage (ENERGY) incoming to Left Arm (armor).
-  [STANDARD/ENERGY] 6 armor pts destroyed at armor (10 -> 4 remaining).
-    ISMediumPulseLaser hit for 6:
-  Tripod leg sub-roll (front): base 4 -> 4 -> Center Leg
-      Hit location roll 5 (front table): Center Leg.
-6 damage (ENERGY) incoming to Center Leg (armor).
-  [HARDENED/ENERGY] 3 armor pts destroyed at armor (35 -> 32 remaining).
-    ISUltraAC5 hit for 5:
-  Tripod leg sub-roll (front): base 3 -> 3 -> Center Leg
-      Hit location roll 5 (front table): Center Leg.
-5 damage (BALLISTIC) incoming to Center Leg (armor).
-  [HARDENED/BALLISTIC] 2.5 armor pts destroyed at armor (32 -> 29.5 remaining).
-    ISAC5 hit for 5:
-      Hit location roll 9 (left table): Right Torso.
-5 damage (BALLISTIC) incoming to Right Torso (armor).
-  [HARDENED/BALLISTIC] 2.5 armor pts destroyed at armor (32 -> 29.5 remaining).
-PSR trigger: 50 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
-  Succeeded - remains standing.
-Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
-  Pilot stays conscious.
-  [Heat] Red: 0 + movement 0 + weapons 20 - sinks 22 -> 0
-  [Heat] Blue: 8 + movement 0 + weapons 10 - sinks 10 -> 8
-  [End] Blue is now CRIPPLED (BattleMech Manual definition).
-  -- end of turn 4: Red @ 0813 SE: HP 466.5, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 4: Blue @ 0914 NW: HP 144, pilot hits 1, engine 0, gyro 0, heat 8
-
-=== TURN 5 ===
   Initiative: Blue lost the roll, moves first.
   [Movement] Blue: 0914 NW -> 0914 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Movement] Red: 0813 SE -> 0813 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Ranged] Blue -> Red: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISLRM15', 'ISUltraAC5'] (weapon heat 10 of budget 10 = max 8 + sink 10 - current 8 - movement 0; expected dmg 18.79)
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
-    ISLRM15: needs 4 (range mod +0), rolled 8 -> HIT
-    ISUltraAC5: needs 4 (range mod +0), rolled 5 -> HIT
-  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 30 = max 8 + sink 22 - current 0 - movement 0; expected dmg 27.50)
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 6 -> HIT
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 6 -> HIT
+  [Ranged] Blue -> Red: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISLRM15', 'ISLBXAC10', 'ISUltraAC5', 'ISAC5'] (weapon heat 9 of budget 10 = max 8 + sink 10 - current 8 - movement 0; expected dmg 27.04)
+    ISLRM15: needs 4 (range mod +0), rolled 5 -> HIT
+    ISLBXAC10: needs 4 (range mod +0), rolled 6 -> HIT
+    ISUltraAC5: needs 4 (range mod +0), rolled 7 -> HIT
+    ISAC5: needs 4 (range mod +0), rolled 8 -> HIT
+  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 28 = max 8 + sink 22 - current 2 - movement 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 5 -> HIT
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
+    ISMediumPulseLaser: needs 4 (range mod +0), rolled 8 -> HIT
+    ISMediumPulseLaser: needs 4 (range mod +0), rolled 5 -> HIT
+    ISMediumPulseLaser: needs 4 (range mod +0), rolled 11 -> HIT
+    ISMediumPulseLaser: needs 4 (range mod +0), rolled 3 -> miss
+    ISLRM15 hit: cluster roll 9 on the 15-column table -> 12 connect (12 dmg).
+  Tripod leg sub-roll (left): base 4 -> 5 -> Left Leg
+      Group 1/1: Hit location roll 3 (left table): Left Leg.
+12 damage (MISSILE) incoming to Left Leg (armor).
+  [HARDENED/MISSILE] 6 armor pts destroyed at armor (35 -> 29 remaining).
+    ISLBXAC10 hit for 10:
+      Hit location roll 10 (rear table): Left Arm.
+10 damage (BALLISTIC) incoming to Left Arm (rear_armor).
+  [HARDENED/BALLISTIC] 5 armor pts destroyed at armor (30 -> 25 remaining).
+    ISUltraAC5 hit for 5:
+      Hit location roll 10 (front table): Left Arm.
+5 damage (BALLISTIC) incoming to Left Arm (armor).
+  [HARDENED/BALLISTIC] 2.5 armor pts destroyed at armor (25 -> 22.5 remaining).
+    ISAC5 hit for 5:
+      Hit location roll 8 (right table): Center Torso.
+5 damage (BALLISTIC) incoming to Center Torso (armor).
+  [HARDENED/BALLISTIC] 2.5 armor pts destroyed at armor (47 -> 44.5 remaining).
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 7 (left table): Left Torso.
+6 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (14 -> 8 remaining).
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 6 (rear table): Right Torso.
+6 damage (ENERGY) incoming to Right Torso (rear_armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at rear_armor (6 -> 0 remaining).
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 7 (left table): Left Torso.
+6 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (8 -> 2 remaining).
     ISMediumPulseLaser hit for 6:
       Hit location roll 7 (front table): Center Torso.
 6 damage (ENERGY) incoming to Center Torso (armor).
-  [HARDENED/ENERGY] 3 armor pts destroyed at armor (39.5 -> 36.5 remaining).
-    ISLRM15 hit: cluster roll 11 on the 15-column table -> 15 connect (15 dmg).
-      Group 1/1: Hit location roll 5 (left table): Left Arm.
-15 damage (MISSILE) incoming to Left Arm (armor).
-  [HARDENED/MISSILE] 7.5 armor pts destroyed at armor (27 -> 19.5 remaining).
-    ISUltraAC5 hit for 5:
-      Hit location roll 10 (left table): Right Arm.
-5 damage (BALLISTIC) incoming to Right Arm (armor).
-  [HARDENED/BALLISTIC] 2.5 armor pts destroyed at armor (31 -> 28.5 remaining).
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 5 (rear table): Right Leg.
-6 damage (ENERGY) incoming to Right Leg (rear_armor).
-  [STANDARD/ENERGY] 6 armor pts destroyed at armor (14 -> 8 remaining).
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 10 (rear table): Left Arm.
-6 damage (ENERGY) incoming to Left Arm (rear_armor).
-  [STANDARD/ENERGY] 4 armor pts destroyed at armor (4 -> 0 remaining). 2 damage applied to structure [STANDARD] (8 -> 6/8 remaining).
-  Check for possible critical. Roll a 6.
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (18 -> 12 remaining).
+PSR trigger: 24 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 3.
+  Failed - falls.
+FALL (failed Attack Phase PSR): TEST Synthetic Loadout Probe takes 5 falling damage (front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 8 -> Left Torso
+5 damage (PHYSICAL) incoming to Left Torso (armor).
+  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (2 -> 0 remaining). 3 damage applied to structure [STANDARD] (12 -> 9/12 remaining).
+  Check for possible critical. Roll a 10.
+    2 critical hit(s).
+  Critical hit pool at Left Torso:
+    1: ISLRM15 (slot 1)
+    2: ISLRM15 (slot 2)
+    3: ISLRM15 (slot 3)
+    4: ISLRM15 Ammo (slot 4)
+    5: ISLRM15 Ammo (slot 5)
+    1/2 Criticals: ISLRM15 Ammo slot hit.
+      Current crit slots in Left Torso: ['ISLRM15', 'ISLRM15', 'ISLRM15', 'ISLRM15 Ammo', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+    ISLRM15 Ammo destroyed at Left Torso - EXPLOSION (20 dmg)! Pilot takes 1 hit (1/6).
+    Explosion reaches Left Torso. No CASE present - full 20 damage applied.
+    9 structure damage taken (0/12 remaining).
+  Check for possible critical. Roll a 7.
     No critical hit.
+    Left Torso DESTROYED! (explosion)
+  All critical slots in Left Torso marked DESTROYED.
+  Left Arm also destroyed (side torso rule).
+  All critical slots in Left Arm marked DESTROYED.
+    11 explosion damage remains, transfers to Center Torso.
+    Explosion reaches Center Torso. No CASE present - full 11 damage applied.
+    11 structure damage taken (5/16 remaining).
+  Check for possible critical. Roll a 7.
+    No critical hit.
+    2/2 Criticals: Left Torso critical slots exhausted during this round - discarded (no transfer).
+  Seatbelt check: needs 6 (Piloting 5 + +1). Rolled 6. Pilot unharmed.
+Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 11.
+  Pilot stays conscious.
+  [Heat] Red: 2 + movement 0 + weapons 20 - sinks 22 -> 0
+  [Heat] Blue: 8 + movement 0 + weapons 9 - sinks 10 -> 7
+  [End] Blue is now CRIPPLED (BattleMech Manual definition).
+  -- end of turn 3: Red @ 0813 SE: HP 467.5, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 3: Blue @ 0914 NW: HP 167, pilot hits 1, engine 0, gyro 0, heat 7 [PRONE]
+
+=== TURN 4 ===
+  Initiative: Blue lost the roll, moves first.
+Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 9.
+  Success - TEST Synthetic Loadout Probe is standing (remaining running MP 4).
+  [Movement] Red: 0813 SE -> 0813 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
+  [Ranged] Blue -> Red: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISSRM6', 'ISAC5'] (weapon heat 9 of budget 11 = max 8 + sink 10 - current 7 - movement 0; expected dmg 17.42)
+    ISMediumPulseLaser: needs 4 (range mod +0), rolled 5 -> HIT
+    ISSRM6: needs 4 (range mod +0), rolled 4 -> HIT
+    ISAC5: needs 4 (range mod +0), rolled 5 -> HIT
+  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 30 = max 8 + sink 22 - current 0 - movement 0; expected dmg 27.50)
+    ISMediumPulseLaser: needs 4 (range mod +0), rolled 6 -> HIT
+    ISMediumPulseLaser: needs 4 (range mod +0), rolled 5 -> HIT
+    ISMediumPulseLaser: needs 4 (range mod +0), rolled 12 -> HIT
+    ISMediumPulseLaser: needs 4 (range mod +0), rolled 3 -> miss
+    ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
     ISMediumPulseLaser hit for 6:
-      Hit location roll 8 (front table): Left Torso.
-6 damage (ENERGY) incoming to Left Torso (armor).
+  Tripod leg sub-roll (right): base 3 -> 2 -> Right Leg
+      Hit location roll 6 (right table): Right Leg.
+6 damage (ENERGY) incoming to Right Leg (armor).
+  [HARDENED/ENERGY] 3 armor pts destroyed at armor (32.5 -> 29.5 remaining).
+    ISSRM6 hit: cluster roll 11 on the 6-column table -> 6 connect (12 dmg).
+      Group 1/1: Hit location roll 5 (right table): Right Arm.
+12 damage (MISSILE) incoming to Right Arm (armor).
+  [HARDENED/MISSILE] 6 armor pts destroyed at armor (34 -> 28 remaining).
+    ISAC5 hit for 5:
+  Tripod leg sub-roll (rear): base 5 -> 5 -> Left Leg
+      Hit location roll 5 (rear table): Left Leg.
+5 damage (BALLISTIC) incoming to Left Leg (rear_armor).
+  [HARDENED/BALLISTIC] 2.5 armor pts destroyed at armor (29 -> 26.5 remaining).
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 9 (front table): Left Leg.
+6 damage (ENERGY) incoming to Left Leg (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (20 -> 14 remaining).
     ISMediumPulseLaser hit for 6:
-      Hit location roll 8 (right table): Center Torso.
-6 damage (ENERGY) incoming to Center Torso (armor).
+      Hit location roll 11 (front table): Left Arm.
+6 damage (ENERGY) incoming to Left Arm (armor).
+  Left Arm already destroyed - damage transfers to Left Torso.
+  Left Torso already destroyed - damage transfers to Center Torso.
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (12 -> 6 remaining).
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 5 (front table): Right Leg.
-6 damage (ENERGY) incoming to Right Leg (armor).
-  [STANDARD/ENERGY] 6 armor pts destroyed at armor (8 -> 2 remaining).
-PSR trigger: 30 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
-  Succeeded - remains standing.
-  [Heat] Red: 0 + movement 0 + weapons 20 - sinks 22 -> 0
-  [Heat] Blue: 8 + movement 0 + weapons 10 - sinks 10 -> 8
-  -- end of turn 5: Red @ 0813 SE: HP 453.5, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 5: Blue @ 0914 NW: HP 114, pilot hits 1, engine 0, gyro 0, heat 8
-
-=== TURN 6 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement] Red: 0813 SE -> 0813 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Movement] Blue: 0914 NW -> 0914 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
-  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 30 = max 8 + sink 22 - current 0 - movement 0; expected dmg 27.50)
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 3 -> miss
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 8 -> HIT
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 8 -> HIT
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
-  [Ranged] Blue -> Red: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISLRM15', 'ISUltraAC5'] (weapon heat 10 of budget 10 = max 8 + sink 10 - current 8 - movement 0; expected dmg 18.79)
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 3 -> miss
-    ISLRM15: needs 4 (range mod +0), rolled 10 -> HIT
-    ISUltraAC5: needs 4 (range mod +0), rolled 10 -> HIT
     ISMediumPulseLaser hit for 6:
       Hit location roll 7 (front table): Center Torso.
 6 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (6 -> 0 remaining).
     ISMediumPulseLaser hit for 6:
-      Hit location roll 9 (rear table): Left Leg.
-6 damage (ENERGY) incoming to Left Leg (rear_armor).
-  [STANDARD/ENERGY] 2 armor pts destroyed at armor (2 -> 0 remaining). 4 damage applied to structure [STANDARD] (12 -> 8/12 remaining).
-  Check for possible critical. Roll a 8.
-    1 critical hit(s).
-  Critical hit pool at Left Leg:
-    1: Hip (slot 1)
-    2: Upper Leg Actuator (slot 2)
-    3: Lower Leg Actuator (slot 3)
-    4: Foot Actuator (slot 4)
-    1/1 Criticals: Foot Actuator hit.
-      Current crit slots in Left Leg: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'DESTROYED', '-Empty-', '-Empty-']
-      Leg actuator hit at Left Leg (1 destroyed there) - walk MP now 3.
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 7 (rear table): Center Torso.
-6 damage (ENERGY) incoming to Center Torso (rear_armor).
-  [STANDARD/ENERGY] 6 armor pts destroyed at rear_armor (8 -> 2 remaining).
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 10 (left table): Right Arm.
-6 damage (ENERGY) incoming to Right Arm (armor).
-  Right Arm already destroyed - damage transfers to Right Torso.
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 6 damage applied to structure [STANDARD] (8 -> 2/16 remaining).
-  Check for possible critical. Roll a 5.
-    No critical hit.
-    ISLRM15 hit: cluster roll 9 on the 15-column table -> 12 connect (12 dmg).
-      Group 1/1: Hit location roll 7 (front table): Center Torso.
-12 damage (MISSILE) incoming to Center Torso (armor).
-  [HARDENED/MISSILE] 6 armor pts destroyed at armor (36.5 -> 30.5 remaining).
-    ISUltraAC5 hit for 5:
-      Hit location roll 7 (front table): Center Torso.
-5 damage (BALLISTIC) incoming to Center Torso (armor).
-  [HARDENED/BALLISTIC] 2.5 armor pts destroyed at armor (30.5 -> 28 remaining).
+      Hit location roll 9 (left table): Right Torso.
+6 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (14 -> 8 remaining).
 PSR trigger: 24 armor+structure lost this phase (>=20) -> +1.
-PSR trigger: 1 leg actuator(s) destroyed at Left Leg this phase -> +1.
-Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 7.
-  Succeeded - remains standing.
-  [Heat] Red: 0 + movement 0 + weapons 20 - sinks 22 -> 0
-  [Heat] Blue: 8 + movement 0 + weapons 10 - sinks 10 -> 8
-  -- end of turn 6: Red @ 0813 SE: HP 445, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 6: Blue @ 0914 NW: HP 90, pilot hits 1, engine 0, gyro 0, heat 8
-
-=== TURN 7 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement] Blue: 0914 NW -> 0914 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Movement] Red: 0813 SE -> 0813 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Ranged] Blue -> Red: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISLRM15', 'ISUltraAC5'] (weapon heat 10 of budget 10 = max 8 + sink 10 - current 8 - movement 0; expected dmg 18.79)
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 4 -> HIT
-    ISLRM15: needs 4 (range mod +0), rolled 7 -> HIT
-    ISUltraAC5: needs 4 (range mod +0), rolled 9 -> HIT
-  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 30 = max 8 + sink 22 - current 0 - movement 0; expected dmg 27.50)
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 10 -> HIT
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 8 -> HIT
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 3 -> miss
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 8 -> HIT
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 10 -> HIT
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 11 (front table): Left Arm.
-6 damage (ENERGY) incoming to Left Arm (armor).
-  [HARDENED/ENERGY] 3 armor pts destroyed at armor (19.5 -> 16.5 remaining).
-    ISLRM15 hit: cluster roll 7 on the 15-column table -> 9 connect (9 dmg).
-      Group 1/1: Hit location roll 5 (left table): Left Arm.
-9 damage (MISSILE) incoming to Left Arm (armor).
-  [HARDENED/MISSILE] 4.5 armor pts destroyed at armor (16.5 -> 12 remaining).
-    ISUltraAC5 hit for 5:
-      Hit location roll 12 (front table): Head.
-      Head hit - pilot takes 1 hit (1/6), regardless of armor.
-5 damage (BALLISTIC) incoming to Head (armor).
-  [HARDENED/BALLISTIC] 2.5 armor pts destroyed at armor (9 -> 6.5 remaining).
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 3 (left table): Left Leg.
-6 damage (ENERGY) incoming to Left Leg (armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 6 damage applied to structure [STANDARD] (8 -> 2/12 remaining).
-  Check for possible critical. Roll a 7.
-    No critical hit.
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 6 (left table): Left Leg.
-6 damage (ENERGY) incoming to Left Leg (armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (2 -> 0/12 remaining).
-  Left Leg destroyed with no live explosive components - no critical roll.
-  Left Leg DESTROYED!
-    Hip specifically destroyed at Left Leg from Left Leg destruction.
-  All critical slots in Left Leg marked DESTROYED.
-  4 damage remains, transfers to Left Torso.
-  [STANDARD/ENERGY] 4 armor pts destroyed at armor (14 -> 10 remaining).
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 10 (right table): Left Arm.
-6 damage (ENERGY) incoming to Left Arm (armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 6 damage applied to structure [STANDARD] (6 -> 0/8 remaining).
-  Left Arm destroyed with no live explosive components - no critical roll.
-  Left Arm DESTROYED!
-  All critical slots in Left Arm marked DESTROYED.
-  0 damage remains, transfers to Left Torso.
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 6 (right table): Right Leg.
-6 damage (ENERGY) incoming to Right Leg (armor).
-  [STANDARD/ENERGY] 2 armor pts destroyed at armor (2 -> 0 remaining). 4 damage applied to structure [STANDARD] (12 -> 8/12 remaining).
-  Check for possible critical. Roll a 7.
-    No critical hit.
-PSR trigger: 24 armor+structure lost this phase (>=20) -> +1.
-PSR trigger: Left Leg destroyed this phase -> automatic fall (seatbelt +5).
-Automatic fall this phase - seatbelt check only (accumulated modifier +7).
-FALL (automatic fall): TEST Synthetic Loadout Probe takes 5 falling damage (front table, 5-pt clusters).
-  Fall cluster (5 dmg): rolled 9 -> Left Leg
-5 damage (PHYSICAL) incoming to Left Leg (armor).
-  Left Leg already destroyed - damage transfers to Left Torso.
-  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (10 -> 5 remaining).
-  Seatbelt check: needs 12 (Piloting 5 + +7). Rolled 11. FAILED - pilot takes 1 hit (2/6).
-Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 8.
-  Pilot stays conscious.
-Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 10.
-  Pilot stays conscious.
-Attack Phase consciousness check (gunner, 1 pilot hits): needs 3. Rolled 3.
-  Gunner stays conscious.
-  [Heat] Red: 0 + movement 0 + weapons 20 - sinks 22 -> 0
-  [Heat] Blue: 8 + movement 0 + weapons 10 - sinks 10 -> 8
-  -- end of turn 7: Red @ 0813 SE: HP 435, pilot hits 1, engine 0, gyro 0, heat 0
-  -- end of turn 7: Blue @ 0914 NW: HP 61, pilot hits 2, engine 0, gyro 0, heat 8 [PRONE]
-
-=== TURN 8 ===
-  Initiative: Blue lost the roll, moves first.
-Stand attempt 1: needs 10 (Piloting 5 + +5). Rolled 2.
-  Failed to stand.
-FALL (failed to stand): TEST Synthetic Loadout Probe takes 5 falling damage (front table, 5-pt clusters).
-  Fall cluster (5 dmg): rolled 6 -> Right Torso
-5 damage (PHYSICAL) incoming to Right Torso (armor).
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (2 -> 0/16 remaining).
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 4.
+  Failed - falls.
+FALL (failed Attack Phase PSR): TEST Synthetic Loadout Probe takes 5 falling damage (front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 7 -> Center Torso
+5 damage (PHYSICAL) incoming to Center Torso (armor).
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (5 -> 0/16 remaining).
   Center Torso destroyed with no live explosive components - no critical roll.
   Center Torso DESTROYED!
     Engine hit (1/3) from Center Torso destruction.
@@ -458,100 +253,26 @@ FALL (failed to stand): TEST Synthetic Loadout Probe takes 5 falling damage (fro
     Engine hit (5/3) from Center Torso destruction.
     Engine hit (6/3) from Center Torso destruction.
   All critical slots in Center Torso marked DESTROYED.
-  3 damage remains, transfers to nowhere (attack finished).
-  [Movement] Blue: still prone at 0914.
-  [Movement] Red: 0813 SE -> 0813 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Ranged] Blue -> Red: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISLRM15'] (weapon heat 5 of budget 10 = max 8 + sink 10 - current 8 - movement 0; expected dmg 8.71)
-    ISLRM15: needs 4 (range mod +0), rolled 6 -> HIT
-  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 30 = max 8 + sink 22 - current 0 - movement 0; expected dmg 27.50)
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 9 -> HIT
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 5 -> HIT
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 9 -> HIT
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 2 -> miss
-    ISMediumPulseLaser: needs 4 (range mod +0), rolled 6 -> HIT
-    ISLRM15 hit: cluster roll 7 on the 15-column table -> 9 connect (9 dmg).
-      Group 1/1: Hit location roll 5 (right table): Right Arm.
-9 damage (MISSILE) incoming to Right Arm (armor).
-  [HARDENED/MISSILE] 4.5 armor pts destroyed at armor (28.5 -> 24 remaining).
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 10 (front table): Left Arm.
-6 damage (ENERGY) incoming to Left Arm (armor).
-  Left Arm already destroyed - damage transfers to Left Torso.
-  [STANDARD/ENERGY] 5 armor pts destroyed at armor (5 -> 0 remaining). 1 damage applied to structure [STANDARD] (12 -> 11/12 remaining).
-  Check for possible critical. Roll a 10.
-    2 critical hit(s).
-  Critical hit pool at Left Torso:
-    1: ISLRM15 (slot 1)
-    2: ISLRM15 (slot 2)
-    3: ISLRM15 (slot 3)
-    4: ISLRM15 Ammo (slot 4)
-    5: ISLRM15 Ammo (slot 5)
-    1/2 Criticals: ISLRM15 slot hit.
-      Current crit slots in Left Torso: ['DESTROYED', 'ISLRM15', 'ISLRM15', 'ISLRM15 Ammo', 'ISLRM15 Ammo', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-  Critical hit pool at Left Torso:
-    1: ISLRM15 (slot 2)
-    2: ISLRM15 (slot 3)
-    3: ISLRM15 Ammo (slot 4)
-    4: ISLRM15 Ammo (slot 5)
-    2/2 Criticals: ISLRM15 Ammo slot hit.
-      Current crit slots in Left Torso: ['DESTROYED', 'ISLRM15', 'ISLRM15', 'ISLRM15 Ammo', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-    ISLRM15 Ammo destroyed at Left Torso - EXPLOSION (20 dmg)! Pilot takes 1 hit (3/6).
-    Explosion reaches Left Torso. No CASE present - full 20 damage applied.
-    11 structure damage taken (0/12 remaining).
-  Check for possible critical. Roll a 8.
-    1 critical hit(s).
-    1/1 Criticals: ISLRM15 Ammo slot hit.
-      Current crit slots in Left Torso: ['DESTROYED', 'ISLRM15', 'ISLRM15', 'DESTROYED', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-    ISLRM15 Ammo destroyed at Left Torso - EXPLOSION (20 dmg)! Pilot takes 1 hit (4/6).
-    Explosion reaches Left Torso. No CASE present - full 20 damage applied.
-    0 structure damage taken (0/12 remaining).
-    Left Torso DESTROYED! (explosion)
-  All critical slots in Left Torso marked DESTROYED.
-  Left Arm also destroyed (side torso rule).
-  All critical slots in Left Arm marked DESTROYED.
-    20 explosion damage remains, transfers to Center Torso.
-    Left Torso DESTROYED! (explosion)
-  All critical slots in Left Torso marked DESTROYED.
-  Left Arm also destroyed (side torso rule).
-  All critical slots in Left Arm marked DESTROYED.
-    9 explosion damage remains, transfers to Center Torso.
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 5 (left table): Left Arm.
-6 damage (ENERGY) incoming to Left Arm (armor).
-  Left Arm already destroyed - damage transfers to Left Torso.
-  Left Torso already destroyed - damage transfers to Center Torso.
-  Center Torso already destroyed - damage transfers to nowhere (attack finished).
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 9 (left table): Right Torso.
-6 damage (ENERGY) incoming to Right Torso (armor).
-  Right Torso already destroyed - damage transfers to Center Torso.
-  Center Torso already destroyed - damage transfers to nowhere (attack finished).
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 9 (front table): Left Leg.
-6 damage (ENERGY) incoming to Left Leg (armor).
-  Left Leg already destroyed - damage transfers to Left Torso.
-  Left Torso already destroyed - damage transfers to Center Torso.
-  Center Torso already destroyed - damage transfers to nowhere (attack finished).
+  0 damage remains, transfers to nowhere (attack finished).
   [Heat] Red: 0 + movement 0 + weapons 20 - sinks 22 -> 0
-  [Heat] Blue: 8 + movement 0 + weapons 5 - sinks 10 -> 3
-  -- end of turn 8: Red @ 0813 SE: HP 430.5, pilot hits 1, engine 0, gyro 0, heat 0
-  -- end of turn 8: Blue @ 0914 NW: HP 42, pilot hits 4, engine 6, gyro 4, heat 3 [PRONE, DESTROYED (Center Torso Destroyed)]
+  [Heat] Blue: 7 + movement 0 + weapons 9 - sinks 10 -> 6
+  -- end of turn 4: Red @ 0813 SE: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 4: Blue @ 0914 NW: HP 138, pilot hits 1, engine 6, gyro 4, heat 6 [PRONE, DESTROYED (Center Torso Destroyed)]
 
->>> Battle over on turn 8: Blue destroyed. <<<
+>>> Battle over on turn 4: Blue destroyed. <<<
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! RESULTS PRODUCED WITH STUBS ACTIVE - NOT RULES-COMPLETE
 !! Stubs that ran:
-!!   attack_direction                    51 runs, in 1/1 battle(s)
-!!   ammo                                21 runs, in 1/1 battle(s)
-!!   movement_selection                  15 runs, in 1/1 battle(s)
-!!   heat_effects                        10 runs, in 1/1 battle(s)
-!!   to_hit_modifiers_not_applied        10 runs, in 1/1 battle(s)
-!!   physical_combat                      8 runs, in 1/1 battle(s)
-!!   cluster_grouping                     7 runs, in 1/1 battle(s)
-!!   unconfirmed_weapon_data              7 runs, in 1/1 battle(s)
-!!   unknown_damage_type                  6 runs, in 1/1 battle(s)
+!!   attack_direction                    24 runs, in 1/1 battle(s)
+!!   ammo                                16 runs, in 1/1 battle(s)
+!!   movement_selection                   7 runs, in 1/1 battle(s)
+!!   heat_effects                         6 runs, in 1/1 battle(s)
+!!   to_hit_modifiers_not_applied         5 runs, in 1/1 battle(s)
+!!   cluster_grouping                     4 runs, in 1/1 battle(s)
+!!   physical_combat                      4 runs, in 1/1 battle(s)
 !!   deployment                           2 runs, in 1/1 battle(s)
+!!   post_standup_movement                1 runs, in 1/1 battle(s)
 !!   rear_mounted_weapons                 1 runs, in 1/1 battle(s)
 !! Known missing rules with no runtime flag:
 !!   - Minimum range penalties (no data in equipment.json)
@@ -568,28 +289,27 @@ FALL (failed to stand): TEST Synthetic Loadout Probe takes 5 falling damage (fro
 BATCH SUMMARY - 1 battle(s): Red = Asymptote II iJ Mpulse, Blue = TEST Synthetic Loadout Probe
 ######################################################################
   Wins:  Red 1   Blue 0   Draw 0
-  Average turns: 8.0 (decisive battles only: 8.0)
-  Average attacks fired by the winner before the kill: 40.0
-  Average remaining HP (armor+structure): Red 86%   Blue 17%
-  Hit rate: Red 78%   Blue 74%
+  Average turns: 4.0 (decisive battles only: 4.0)
+  Average attacks fired by the winner before the kill: 20.0
+  Average remaining HP (armor+structure): Red 91%   Blue 56%
+  Hit rate: Red 60%   Blue 71%
   Causes of death:
     Blue (TEST Synthetic Loadout Probe): Center Torso Destroyed: 1
   Per battle:
-    #1: 8 turns, winner Red; Red 430.5/501 HP (31/40 hits, 199 dealt); Blue 42/248 HP (20/27 hits, 70.5 dealt) DESTROYED: Center Torso Destroyed
+    #1: 4 turns, winner Red; Red 456/501 HP (12/20 hits, 72 dealt); Blue 138/248 HP (12/17 hits, 45 dealt) DESTROYED: Center Torso Destroyed
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! RESULTS PRODUCED WITH STUBS ACTIVE - NOT RULES-COMPLETE
 !! Stubs that ran:
-!!   attack_direction                    51 runs, in 1/1 battle(s)
-!!   ammo                                21 runs, in 1/1 battle(s)
-!!   movement_selection                  15 runs, in 1/1 battle(s)
-!!   heat_effects                        10 runs, in 1/1 battle(s)
-!!   to_hit_modifiers_not_applied        10 runs, in 1/1 battle(s)
-!!   physical_combat                      8 runs, in 1/1 battle(s)
-!!   cluster_grouping                     7 runs, in 1/1 battle(s)
-!!   unconfirmed_weapon_data              7 runs, in 1/1 battle(s)
-!!   unknown_damage_type                  6 runs, in 1/1 battle(s)
+!!   attack_direction                    24 runs, in 1/1 battle(s)
+!!   ammo                                16 runs, in 1/1 battle(s)
+!!   movement_selection                   7 runs, in 1/1 battle(s)
+!!   heat_effects                         6 runs, in 1/1 battle(s)
+!!   to_hit_modifiers_not_applied         5 runs, in 1/1 battle(s)
+!!   cluster_grouping                     4 runs, in 1/1 battle(s)
+!!   physical_combat                      4 runs, in 1/1 battle(s)
 !!   deployment                           2 runs, in 1/1 battle(s)
+!!   post_standup_movement                1 runs, in 1/1 battle(s)
 !!   rear_mounted_weapons                 1 runs, in 1/1 battle(s)
 !! Known missing rules with no runtime flag:
 !!   - Minimum range penalties (no data in equipment.json)
@@ -606,138 +326,70 @@ BATCH SUMMARY - 1 battle(s): Red = Asymptote II iJ Mpulse, Blue = TEST Synthetic
 STUB: deployment - Red placed at fixed CONFIG hex 0505 facing S (edge entry not built)
 STUB: deployment - Blue placed at fixed CONFIG hex 1316 facing N (edge entry not built)
 STUB: rear_mounted_weapons - Blue has rear-mounted crit lines ['ISMediumPulseLaser (R)'] - policy treat_as_front
-STUB: movement_selection - Blue picked 0914 NW Run (policy=max_dealt, 129 LOS candidates, exp. dealt 8.12 / recv 0.00)
-STUB: movement_selection - Red picked 0609 NE Jump (policy=max_dealt, 457 LOS candidates, exp. dealt 0.83 / recv 6.08)
-STUB: unconfirmed_weapon_data - Blue's ISLBXAC10 can't fire - null damage_per_shot, heat, weapon_range
+STUB: movement_selection - Blue picked 0914 NW Run (policy=max_dealt, 129 LOS candidates, exp. dealt 12.29 / recv 0.00)
+STUB: movement_selection - Red picked 0609 NE Jump (policy=max_dealt, 457 LOS candidates, exp. dealt 0.83 / recv 8.86)
 STUB: ammo - Blue's ISLRM15 fired with unlimited ammo
 STUB: ammo - Blue's ISSRM6 fired with unlimited ammo
+STUB: ammo - Blue's ISLBXAC10 fired with unlimited ammo
 STUB: ammo - Blue's ISUltraAC5 fired with unlimited ammo
 STUB: ammo - Blue's ISAC5 fired with unlimited ammo
 STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
-STUB: unknown_damage_type - ISUltraAC5 has damage_type null - treated as BALLISTIC
 STUB: attack_direction - Red -> Blue: 'right' hit table (mechsim_random)
 STUB: physical_combat - turn 1: phase skipped (not built)
 STUB: heat_effects - Red: heat 1: no Heat Scale effects applied
-STUB: heat_effects - Blue: heat 7: no Heat Scale effects applied
-STUB: movement_selection - Blue picked 0914 NW Stand Still (policy=max_dealt, 184 LOS candidates, exp. dealt 23.65 / recv 12.50)
-STUB: movement_selection - Red picked 0813 SE Jump (policy=max_dealt, 528 LOS candidates, exp. dealt 17.50 / recv 16.04)
-STUB: unconfirmed_weapon_data - Blue's ISLBXAC10 can't fire - null damage_per_shot, heat, weapon_range
-STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker heat 7
+STUB: heat_effects - Blue: heat 5: no Heat Scale effects applied
+STUB: movement_selection - Blue picked 0914 NW Stand Still (policy=max_dealt, 184 LOS candidates, exp. dealt 32.82 / recv 12.50)
+STUB: movement_selection - Red picked 0813 SE Jump (policy=max_dealt, 528 LOS candidates, exp. dealt 17.50 / recv 21.88)
+STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker heat 5
 STUB: ammo - Blue's ISLRM15 fired with unlimited ammo
 STUB: ammo - Blue's ISSRM6 fired with unlimited ammo
+STUB: ammo - Blue's ISLBXAC10 fired with unlimited ammo
 STUB: ammo - Blue's ISUltraAC5 fired with unlimited ammo
 STUB: ammo - Blue's ISAC5 fired with unlimited ammo
 STUB: to_hit_modifiers_not_applied - Red -> Blue: attacker heat 1
 STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
-STUB: cluster_grouping - ISLRM15: 9 connected damage -> groups [9] (single_group)
+STUB: cluster_grouping - ISLRM15: 12 connected damage -> groups [12] (single_group)
 STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
-STUB: cluster_grouping - ISSRM6: 10 connected damage -> groups [10] (single_group)
+STUB: cluster_grouping - ISSRM6: 8 connected damage -> groups [8] (single_group)
 STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
+STUB: attack_direction - Blue -> Red: 'rear' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
+STUB: attack_direction - Red -> Blue: 'right' hit table (mechsim_random)
 STUB: physical_combat - turn 2: phase skipped (not built)
 STUB: heat_effects - Red: heat 2: no Heat Scale effects applied
 STUB: heat_effects - Blue: heat 8: no Heat Scale effects applied
-STUB: movement_selection - Red picked 0813 SE Stand Still (policy=max_dealt, 530 LOS candidates, exp. dealt 27.50 / recv 22.00)
-STUB: movement_selection - Blue picked 0914 NW Stand Still (policy=max_dealt, 184 LOS candidates, exp. dealt 22.00 / recv 27.50)
+STUB: movement_selection - Blue picked 0914 NW Stand Still (policy=max_dealt, 184 LOS candidates, exp. dealt 27.04 / recv 27.50)
+STUB: movement_selection - Red picked 0813 SE Stand Still (policy=max_dealt, 530 LOS candidates, exp. dealt 27.50 / recv 27.04)
+STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker heat 8
+STUB: ammo - Blue's ISLRM15 fired with unlimited ammo
+STUB: ammo - Blue's ISLBXAC10 fired with unlimited ammo
+STUB: ammo - Blue's ISUltraAC5 fired with unlimited ammo
+STUB: ammo - Blue's ISAC5 fired with unlimited ammo
 STUB: to_hit_modifiers_not_applied - Red -> Blue: attacker heat 2
-STUB: unconfirmed_weapon_data - Blue's ISLBXAC10 can't fire - null damage_per_shot, heat, weapon_range
-STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker heat 8
-STUB: ammo - Blue's ISSRM6 fired with unlimited ammo
-STUB: ammo - Blue's ISUltraAC5 fired with unlimited ammo
-STUB: ammo - Blue's ISAC5 fired with unlimited ammo
-STUB: attack_direction - Red -> Blue: 'right' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'left' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'right' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'left' hit table (mechsim_random)
-STUB: attack_direction - Blue -> Red: 'rear' hit table (mechsim_random)
-STUB: cluster_grouping - ISSRM6: 8 connected damage -> groups [8] (single_group)
-STUB: attack_direction - Blue -> Red: 'left' hit table (mechsim_random)
-STUB: unknown_damage_type - ISUltraAC5 has damage_type null - treated as BALLISTIC
-STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
-STUB: physical_combat - turn 3: phase skipped (not built)
-STUB: heat_effects - Blue: heat 8: no Heat Scale effects applied
-STUB: movement_selection - Red picked 0813 SE Stand Still (policy=max_dealt, 530 LOS candidates, exp. dealt 27.50 / recv 22.00)
-STUB: movement_selection - Blue picked 0914 NW Stand Still (policy=max_dealt, 184 LOS candidates, exp. dealt 22.00 / recv 27.50)
-STUB: unconfirmed_weapon_data - Blue's ISLBXAC10 can't fire - null damage_per_shot, heat, weapon_range
-STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker heat 8
-STUB: ammo - Blue's ISSRM6 fired with unlimited ammo
-STUB: ammo - Blue's ISUltraAC5 fired with unlimited ammo
-STUB: ammo - Blue's ISAC5 fired with unlimited ammo
-STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'right' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'right' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
-STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
-STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
-STUB: unknown_damage_type - ISUltraAC5 has damage_type null - treated as BALLISTIC
-STUB: attack_direction - Blue -> Red: 'left' hit table (mechsim_random)
-STUB: physical_combat - turn 4: phase skipped (not built)
-STUB: heat_effects - Blue: heat 8: no Heat Scale effects applied
-STUB: movement_selection - Blue picked 0914 NW Stand Still (policy=max_dealt, 184 LOS candidates, exp. dealt 18.79 / recv 27.50)
-STUB: movement_selection - Red picked 0813 SE Stand Still (policy=max_dealt, 530 LOS candidates, exp. dealt 27.50 / recv 18.79)
-STUB: unconfirmed_weapon_data - Blue's ISLBXAC10 can't fire - null damage_per_shot, heat, weapon_range
-STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker arm actuator damage, attacker heat 8
-STUB: ammo - Blue's ISLRM15 fired with unlimited ammo
-STUB: ammo - Blue's ISUltraAC5 fired with unlimited ammo
-STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
-STUB: attack_direction - Blue -> Red: 'left' hit table (mechsim_random)
-STUB: cluster_grouping - ISLRM15: 15 connected damage -> groups [15] (single_group)
-STUB: attack_direction - Blue -> Red: 'left' hit table (mechsim_random)
-STUB: unknown_damage_type - ISUltraAC5 has damage_type null - treated as BALLISTIC
-STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'right' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
-STUB: physical_combat - turn 5: phase skipped (not built)
-STUB: heat_effects - Blue: heat 8: no Heat Scale effects applied
-STUB: movement_selection - Red picked 0813 SE Stand Still (policy=max_dealt, 530 LOS candidates, exp. dealt 27.50 / recv 18.79)
-STUB: movement_selection - Blue picked 0914 NW Stand Still (policy=max_dealt, 184 LOS candidates, exp. dealt 18.79 / recv 27.50)
-STUB: unconfirmed_weapon_data - Blue's ISLBXAC10 can't fire - null damage_per_shot, heat, weapon_range
-STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker arm actuator damage, attacker heat 8
-STUB: ammo - Blue's ISLRM15 fired with unlimited ammo
-STUB: ammo - Blue's ISUltraAC5 fired with unlimited ammo
-STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'left' hit table (mechsim_random)
-STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
 STUB: cluster_grouping - ISLRM15: 12 connected damage -> groups [12] (single_group)
+STUB: attack_direction - Blue -> Red: 'rear' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
-STUB: unknown_damage_type - ISUltraAC5 has damage_type null - treated as BALLISTIC
-STUB: physical_combat - turn 6: phase skipped (not built)
-STUB: heat_effects - Blue: heat 8: no Heat Scale effects applied
-STUB: movement_selection - Blue picked 0914 NW Stand Still (policy=max_dealt, 85 LOS candidates, exp. dealt 18.79 / recv 27.50)
-STUB: movement_selection - Red picked 0813 SE Stand Still (policy=max_dealt, 530 LOS candidates, exp. dealt 27.50 / recv 18.79)
-STUB: unconfirmed_weapon_data - Blue's ISLBXAC10 can't fire - null damage_per_shot, heat, weapon_range
-STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker arm actuator damage, attacker heat 8
-STUB: ammo - Blue's ISLRM15 fired with unlimited ammo
-STUB: ammo - Blue's ISUltraAC5 fired with unlimited ammo
-STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
-STUB: attack_direction - Blue -> Red: 'left' hit table (mechsim_random)
-STUB: cluster_grouping - ISLRM15: 9 connected damage -> groups [9] (single_group)
-STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
-STUB: unknown_damage_type - ISUltraAC5 has damage_type null - treated as BALLISTIC
-STUB: attack_direction - Red -> Blue: 'left' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'left' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'right' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'right' hit table (mechsim_random)
-STUB: physical_combat - turn 7: phase skipped (not built)
-STUB: heat_effects - Blue: heat 8: no Heat Scale effects applied
-STUB: movement_selection - Red picked 0813 SE Stand Still (policy=max_dealt, 530 LOS candidates, exp. dealt 27.50 / recv 8.71)
-STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker prone, attacker arm actuator damage, attacker heat 8
-STUB: ammo - Blue's ISLRM15 fired with unlimited ammo
-STUB: to_hit_modifiers_not_applied - Red -> Blue: target prone
 STUB: attack_direction - Blue -> Red: 'right' hit table (mechsim_random)
-STUB: cluster_grouping - ISLRM15: 9 connected damage -> groups [9] (single_group)
+STUB: attack_direction - Red -> Blue: 'left' hit table (mechsim_random)
+STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
+STUB: attack_direction - Red -> Blue: 'left' hit table (mechsim_random)
+STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
+STUB: physical_combat - turn 3: phase skipped (not built)
+STUB: heat_effects - Blue: heat 7: no Heat Scale effects applied
+STUB: post_standup_movement - Blue stood up with 4 MP left - stays in hex, treated as Stand Still for AMM/TMM (policy=stay_in_hex)
+STUB: movement_selection - Red picked 0813 SE Stand Still (policy=max_dealt, 530 LOS candidates, exp. dealt 27.50 / recv 17.42)
+STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker arm actuator damage, attacker heat 7
+STUB: ammo - Blue's ISSRM6 fired with unlimited ammo
+STUB: ammo - Blue's ISAC5 fired with unlimited ammo
+STUB: attack_direction - Blue -> Red: 'right' hit table (mechsim_random)
+STUB: attack_direction - Blue -> Red: 'right' hit table (mechsim_random)
+STUB: cluster_grouping - ISSRM6: 12 connected damage -> groups [12] (single_group)
+STUB: attack_direction - Blue -> Red: 'rear' hit table (mechsim_random)
+STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
+STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'left' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'left' hit table (mechsim_random)
-STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
-STUB: physical_combat - turn 8: phase skipped (not built)
-STUB: heat_effects - Blue: heat 3: no Heat Scale effects applied; 6 engine hit(s): no engine heat added
+STUB: physical_combat - turn 4: phase skipped (not built)
+STUB: heat_effects - Blue: heat 6: no Heat Scale effects applied; 6 engine hit(s): no engine heat added

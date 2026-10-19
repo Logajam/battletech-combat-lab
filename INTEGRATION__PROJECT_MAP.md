@@ -156,8 +156,16 @@ in tabletop play it falls where the check was failed
   mini)~~ RESOLVED 2026-10-19: the full DB is now `mechsim/equipment.json`
   (689 entries, 166 verified; 279 weapons, 144 with damage stats). Improved
   Jump Jets and Endo Steel are recognized; jump-jet crits now reduce jump MP.
-  Still null in the full DB: ISLBXAC10 (never fires). Its `_meta.entry_count`
-  says 1086 - stale, the file holds 689.
+  Its `_meta.entry_count` says 1086 - stale, the file holds 689.
+- 2026-10-19 rulebook fill pass (see Change Record): 176/279 weapons now have
+  damage + heat + range (was 144). ISLBXAC10 fires (as a flat slug - LB-X
+  cluster mode still not modeled). Still unfilled, by design: special-rules
+  weapons (ATM/iATM, HAG, MML, VSP, Heavy Gauss, Snub-Nose PPC, artillery,
+  Narc, mortars, plasma, TSEMP, AMS, pods, MG arrays, Silver Bullet Gauss),
+  footnoted damage cells (flamers, Nail/Rivet Gun), one-shot launchers
+  (no table rows - OPEN QUESTION for Daniel: copy the base launcher's stats?),
+  and items with no table row. `shots_per_ton` and minimum range are in the
+  tables but not filled (ammo deferred; schema has no min-range field yet).
 - Pile 1 reconciliation: `sim_runner._resolve_hit`/`resolve_weapon_attack`
   are absorbed (`INTEGRATION__attack_resolution`). `combat_turn`'s two-ply
   search and closing-fallback are NOT — don't delete `combat_turn.py` until
@@ -404,3 +412,18 @@ No PATHFINDER module used by the battle loop imports `config`.
   regenerated. Added `tests/check_reference_logs.py` (re-runs both
   reference battles and compares; `--update` rewrites them) so the check
   works on Windows without diff tools.
+- **2026-10-19 (Daniel):** Fill the equipment DB's missing weapon stats from
+  his rulebook table rips (Total Warfare, Tactical Operations: AUE,
+  Interstellar Operations).
+- **2026-10-19 (Claude):** Rulebook fill pass on `mechsim/equipment.json`.
+  Parsed all three tables; matched entries by canonical name/aliases + tech
+  base; validated against already-filled entries first (368/372 values
+  agree). Filled only null fields: 210 fields across 103 weapons
+  (damage_type 95, damage 38, range 38, heat 36, rack_size 7); every
+  changed entry's `notes` names the table row. One correction: Extended LRM
+  5/10/15/20 range 7/14/21 -> 12/22/38 (the old value was inherited from the
+  LRM base class and marked "Not confirmed"; TO:AUE says 12/22/38). Clan
+  Heavy MG range set 1/2/2, following the IS Heavy MG entry's existing
+  long = medium convention for "no long range". `verified` flags unchanged.
+  Effect: Asymptote mirror unchanged; Synthetic battle now fires its LB
+  10-X AC and ends turn 4 (was 8); its reference log regenerated.
