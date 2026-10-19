@@ -140,7 +140,7 @@ TODOs are from memory — grep before relying on them).
 | `heat_effects` | Heat accumulates but has no effect; engine hits add no heat | Heat Scale (Daniel); engine-hit heat rule |
 
 **Rules gaps with no runtime flag** (also printed in every summary):
-minimum range (no data); per-mount firing arcs; LB-X/Ultra/Rotary multi-shot
+minimum range (data now in equipment.json `range.min`, penalty NOT applied - needs Daniel's rule, see Section 4); per-mount firing arcs; LB-X/Ultra/Rotary multi-shot
 math; Artemis/HAG/ammo variants; Heat Scale effects; cooldown decisions; physical
 combat; tripod leg sub-roll uses Python `random` (seeded from SEED, not the
 BattleRNG stream).
@@ -163,16 +163,21 @@ in tabletop play it falls where the check was failed
   weapons (ATM/iATM, HAG, MML, VSP, Heavy Gauss, Snub-Nose PPC, artillery,
   Narc, mortars, plasma, TSEMP, AMS, pods, MG arrays, Silver Bullet Gauss),
   footnoted damage cells (flamers, Nail/Rivet Gun), one-shot launchers
-  (no table rows - OPEN QUESTION for Daniel: copy the base launcher's stats?),
-  and items with no table row. `shots_per_ton` and minimum range are in the
-  tables but not filled (ammo deferred; schema has no min-range field yet).
+  (no table rows; deferred by Daniel 2026-10-19 - "someday"),
+  and items with no table row. `shots_per_ton` is in the tables but not filled (ammo deferred).
+- **Minimum range (Daniel 2026-10-19: needs to be corrected):** data added as
+  `range.min` for 170 weapons (151 of the 176 that can fire); the to-hit
+  penalty is NOT applied yet. OPEN: Daniel to confirm the penalty rule, and
+  what to do for a weapon with no `range.min` (25 firing weapons: MG arrays,
+  OS launchers, AMS, C3, a few with no table row). Wiring point is the single
+  function `INTEGRATION__weapon_selection._weapon_range_mod`.
 - Pile 1 reconciliation: `sim_runner._resolve_hit`/`resolve_weapon_attack`
   are absorbed (`INTEGRATION__attack_resolution`). `combat_turn`'s two-ply
   search and closing-fallback are NOT — don't delete `combat_turn.py` until
   movement selection replaces them or Daniel decides they're not wanted.
 
 **Weapon data model gaps** (unchanged): LB-X/Ultra/Rotary cluster math,
-HAG range damage, Artemis, ammo variants, minimum range.
+HAG range damage, Artemis, ammo variants, minimum-range penalty (data present, not applied).
 
 **Cross-cutting hazard — RESOLVED 2026-10-18:** the
 load-MECHSIM-then-purge-then-load-PATHFINDER workaround in
@@ -427,3 +432,12 @@ No PATHFINDER module used by the battle loop imports `config`.
   long = medium convention for "no long range". `verified` flags unchanged.
   Effect: Asymptote mirror unchanged; Synthetic battle now fires its LB
   10-X AC and ends turn 4 (was 8); its reference log regenerated.
+- **2026-10-19 (Daniel):** One-shot launchers: thought removed from the JSON
+  (they aren't - 41 OS/IOS entries are present); add their stats someday.
+  Missing minimum range is a problem that needs to be corrected.
+- **2026-10-19 (Claude):** Added `range.min` to 170 weapon entries from the
+  rulebook tables: 161 by name match whose short/medium/long equal the
+  table row exactly, 7 more by word-order match under the same equal-range
+  check, plus both Heavy MGs (row has no long range; min cell 0). A dash in
+  the min cell (7 rows) is stored as 0. No other field changed; battles are
+  unchanged because nothing reads `range.min` yet.

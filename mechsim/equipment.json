@@ -44,7 +44,8 @@
     "rulebook_table_fill_pass": {
       "date": "2026-10-19",
       "source": "Daniel's Weapon_Rules_Tables rip: Total Warfare pp. 303-306, Tactical Operations: AUE pp. 216-230, Interstellar Operations pp. 217-226",
-      "note": "Filled only fields that were null (210 fields across 104 weapon entries); never overwrote an existing value except the Extended LRM range correction. Matching validated first against already-filled entries: 368/372 values agreed, the 4 disagreements were the Extended LRM ranges (corrected). Skipped: special-rules weapons (ATM/iATM, HAG, MML, VSP, Heavy Gauss, Snub-Nose PPC, artillery, Narc, mortars, plasma, TSEMP, AMS, pods, MG arrays, Silver Bullet Gauss), damage cells carrying footnotes (flamers, Nail/Rivet Gun), one-shot (OS/IOS) launchers (no table rows; need a ruling), and items with no table row. Each filled entry's notes field names the table row used. verified flags unchanged. shots_per_ton and minimum range not filled."
+      "note": "Filled only fields that were null (210 fields across 104 weapon entries); never overwrote an existing value except the Extended LRM range correction. Matching validated first against already-filled entries: 368/372 values agreed, the 4 disagreements were the Extended LRM ranges (corrected). Skipped: special-rules weapons (ATM/iATM, HAG, MML, VSP, Heavy Gauss, Snub-Nose PPC, artillery, Narc, mortars, plasma, TSEMP, AMS, pods, MG arrays, Silver Bullet Gauss), damage cells carrying footnotes (flamers, Nail/Rivet Gun), one-shot (OS/IOS) launchers (no table rows; need a ruling), and items with no table row. Each filled entry's notes field names the table row used. verified flags unchanged. shots_per_ton and minimum range not filled.",
+      "min_range": "range.min added to 161 weapons whose short/medium/long match their rulebook row exactly (7 from a dash cell, read as 0 = no minimum). Weapons without a matching row have no range.min - treat as unknown, not 0. A second pass matched 7 more by word order, accepting a row only if its short/medium/long equal the entry's."
     }
   },
   "entries": {
@@ -72,14 +73,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 46,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek lasers/innerSphere/medium/ISLaserMedium.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek lasers/innerSphere/medium/ISLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'Medium Laser'.",
       "rack_size": null
     },
     "largelaser": {
@@ -106,14 +108,15 @@
       "range": {
         "short": 5,
         "medium": 10,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 123,
       "tonnage": 5.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek lasers/innerSphere/large/ISLaserLarge.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek lasers/innerSphere/large/ISLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'Large Laser'.",
       "rack_size": null
     },
     "smalllaser": {
@@ -143,14 +146,15 @@
       "range": {
         "short": 1,
         "medium": 2,
-        "long": 3
+        "long": 3,
+        "min": 0
       },
       "battle_value": 9,
       "tonnage": 0.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek lasers/innerSphere/small/ISLaserSmall.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek lasers/innerSphere/small/ISLaserSmall.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'Small Laser'.",
       "rack_size": null
     },
     "islargepulselaser": {
@@ -177,14 +181,15 @@
       "range": {
         "short": 3,
         "medium": 7,
-        "long": 10
+        "long": 10,
+        "min": 0
       },
       "battle_value": 119,
       "tonnage": 7.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek lasers/innerSphere/large/ISPulseLaserLarge.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek lasers/innerSphere/large/ISPulseLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'Large Pulse Laser'.",
       "rack_size": null
     },
     "islargexpulselaser": {
@@ -207,14 +212,15 @@
       "range": {
         "short": 5,
         "medium": 10,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 178,
       "tonnage": 7.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/large/ISXPulseLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'X-Pulse Laser, Large' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/large/ISXPulseLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'X-Pulse Laser, Large' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'X-Pulse Laser, Large'.",
       "rack_size": null
     },
     "iserlargelaser": {
@@ -239,14 +245,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 19
+        "long": 19,
+        "min": 0
       },
       "battle_value": 163,
       "tonnage": 5.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek lasers/innerSphere/large/ISERLaserLarge.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek lasers/innerSphere/large/ISERLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'ER Large Laser'.",
       "rack_size": null
     },
     "isermediumlaser": {
@@ -268,14 +275,15 @@
       "range": {
         "short": 4,
         "medium": 8,
-        "long": 12
+        "long": 12,
+        "min": 0
       },
       "battle_value": 62,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek lasers/innerSphere/medium/ISERLaserMedium.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek lasers/innerSphere/medium/ISERLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'ER Medium Laser'.",
       "rack_size": null
     },
     "ismediumpulselaser": {
@@ -302,14 +310,15 @@
       "range": {
         "short": 2,
         "medium": 4,
-        "long": 6
+        "long": 6,
+        "min": 0
       },
       "battle_value": 48,
       "tonnage": 2.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek lasers/innerSphere/medium/ISPulseLaserMedium.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek lasers/innerSphere/medium/ISPulseLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'Medium Pulse Laser'.",
       "rack_size": null
     },
     "ismediumpulselaserrecovered": {
@@ -361,14 +370,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 71,
       "tonnage": 2.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/medium/ISXPulseLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'X-Pulse Laser, Medium' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/medium/ISXPulseLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'X-Pulse Laser, Medium' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'X-Pulse Laser, Medium'.",
       "rack_size": null
     },
     "issmallpulselaser": {
@@ -395,14 +405,15 @@
       "range": {
         "short": 1,
         "medium": 2,
-        "long": 3
+        "long": 3,
+        "min": 0
       },
       "battle_value": 12,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek lasers/innerSphere/small/ISPulseLaserSmall.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek lasers/innerSphere/small/ISPulseLaserSmall.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'Small Pulse Laser'.",
       "rack_size": null
     },
     "issmallxpulselaser": {
@@ -425,14 +436,15 @@
       "range": {
         "short": 2,
         "medium": 4,
-        "long": 5
+        "long": 5,
+        "min": 0
       },
       "battle_value": 21,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/small/ISXPulseLaserSmall.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'X-Pulse Laser, Small' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/small/ISXPulseLaserSmall.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'X-Pulse Laser, Small' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'X-Pulse Laser, Small'.",
       "rack_size": null
     },
     "isersmalllaser": {
@@ -454,14 +466,15 @@
       "range": {
         "short": 2,
         "medium": 4,
-        "long": 5
+        "long": 5,
+        "min": 0
       },
       "battle_value": 17,
       "tonnage": 0.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek lasers/innerSphere/small/ISERLaserSmall.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek lasers/innerSphere/small/ISERLaserSmall.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'ER Small Laser'.",
       "rack_size": null
     },
     "ismediumvsplaser": {
@@ -485,14 +498,15 @@
       "range": {
         "short": 2,
         "medium": 5,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 56,
       "tonnage": 4.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/medium/ISVariableSpeedPulseLaserMedium.java (main branch, fetched 2026-07-14). MegaMek damage field is non-literal (DAMAGE_VARIABLE) - range/ammo-variable, left null PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/medium/ISVariableSpeedPulseLaserMedium.java (main branch, fetched 2026-07-14). MegaMek damage field is non-literal (DAMAGE_VARIABLE) - range/ammo-variable, left null PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Variable Speed Laser, Medium'.",
       "rack_size": null
     },
     "issmallvsplaser": {
@@ -516,14 +530,15 @@
       "range": {
         "short": 2,
         "medium": 4,
-        "long": 6
+        "long": 6,
+        "min": 0
       },
       "battle_value": 22,
       "tonnage": 2.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/small/ISVariableSpeedPulseLaserSmall.java (main branch, fetched 2026-07-14). MegaMek damage field is non-literal (WeaponType.DAMAGE_VARIABLE) - range/ammo-variable, left null PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/small/ISVariableSpeedPulseLaserSmall.java (main branch, fetched 2026-07-14). MegaMek damage field is non-literal (WeaponType.DAMAGE_VARIABLE) - range/ammo-variable, left null PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Variable Speed Laser, Small'.",
       "rack_size": null
     },
     "islargevsplaser": {
@@ -547,14 +562,15 @@
       "range": {
         "short": 4,
         "medium": 8,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 123,
       "tonnage": 9.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/large/ISVariableSpeedPulseLaserLarge.java (main branch, fetched 2026-07-14). MegaMek damage field is non-literal (WeaponType.DAMAGE_VARIABLE) - range/ammo-variable, left null PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/large/ISVariableSpeedPulseLaserLarge.java (main branch, fetched 2026-07-14). MegaMek damage field is non-literal (WeaponType.DAMAGE_VARIABLE) - range/ammo-variable, left null PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Variable Speed Laser, Large'.",
       "rack_size": null
     },
     "binarylaser(blazer)cannon": {
@@ -580,14 +596,15 @@
       "range": {
         "short": 5,
         "medium": 10,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 222,
       "tonnage": 9.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/ISBinaryLaserCannon.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Binary Laser (Blazer) Cannon' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/ISBinaryLaserCannon.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Binary Laser (Blazer) Cannon' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Binary Laser (Blazer) Cannon'.",
       "rack_size": null
     },
     "lightblazer": {
@@ -638,14 +655,15 @@
       "range": {
         "short": 8,
         "medium": 15,
-        "long": 25
+        "long": 25,
+        "min": 0
       },
       "battle_value": 248,
       "tonnage": 4.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek lasers/clan/large/CLERLaserLarge.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek lasers/clan/large/CLERLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'ER Large Laser'.",
       "rack_size": null
     },
     "clheavylargelaser": {
@@ -667,14 +685,15 @@
       "range": {
         "short": 5,
         "medium": 10,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 244,
       "tonnage": 4.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLHeavyLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Heavy Large Laser' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLHeavyLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Heavy Large Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Heavy Large Laser'.",
       "rack_size": null
     },
     "cllargepulselaser": {
@@ -697,14 +716,15 @@
       "range": {
         "short": 6,
         "medium": 14,
-        "long": 20
+        "long": 20,
+        "min": 0
       },
       "battle_value": 265,
       "tonnage": 6.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek lasers/clan/large/CLPulseLaserLarge.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek lasers/clan/large/CLPulseLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'Large Pulse Laser'.",
       "rack_size": null
     },
     "clerlargepulselaser": {
@@ -727,14 +747,15 @@
       "range": {
         "short": 7,
         "medium": 15,
-        "long": 23
+        "long": 23,
+        "min": 0
       },
       "battle_value": 272,
       "tonnage": 6.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLERPulseLaserLarge.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLERPulseLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'ER Pulse Laser, Large' (word-order match; row's short/medium/long equal this entry's).",
       "rack_size": null
     },
     "clermediumlaser": {
@@ -758,14 +779,15 @@
       "range": {
         "short": 5,
         "medium": 10,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 108,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek lasers/clan/medium/CLERLaserMedium.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek lasers/clan/medium/CLERLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'ER Medium Laser'.",
       "rack_size": null
     },
     "clheavymediumlaser": {
@@ -787,14 +809,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 76,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/medium/CLHeavyLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Heavy Medium Laser' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/medium/CLHeavyLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Heavy Medium Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Heavy Medium Laser'.",
       "rack_size": null
     },
     "clmediumpulselaser": {
@@ -817,14 +840,15 @@
       "range": {
         "short": 4,
         "medium": 8,
-        "long": 12
+        "long": 12,
+        "min": 0
       },
       "battle_value": 111,
       "tonnage": 2.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek lasers/clan/medium/CLPulseLaserMedium.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek lasers/clan/medium/CLPulseLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'Medium Pulse Laser'.",
       "rack_size": null
     },
     "clermediumpulselaser": {
@@ -847,14 +871,15 @@
       "range": {
         "short": 5,
         "medium": 9,
-        "long": 14
+        "long": 14,
+        "min": 0
       },
       "battle_value": 117,
       "tonnage": 2.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/medium/CLERPulseLaserMedium.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/medium/CLERPulseLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'ER Pulse Laser, Medium' (word-order match; row's short/medium/long equal this entry's).",
       "rack_size": null
     },
     "clersmalllaser": {
@@ -878,14 +903,15 @@
       "range": {
         "short": 2,
         "medium": 4,
-        "long": 6
+        "long": 6,
+        "min": 0
       },
       "battle_value": 31,
       "tonnage": 0.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek lasers/clan/small/CLERLaserSmall.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek lasers/clan/small/CLERLaserSmall.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'ER Small Laser'.",
       "rack_size": null
     },
     "clsmallpulselaser": {
@@ -908,14 +934,15 @@
       "range": {
         "short": 2,
         "medium": 4,
-        "long": 6
+        "long": 6,
+        "min": 0
       },
       "battle_value": 24,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek lasers/clan/small/CLPulseLaserSmall.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek lasers/clan/small/CLPulseLaserSmall.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'Small Pulse Laser'.",
       "rack_size": null
     },
     "clersmallpulselaser": {
@@ -939,14 +966,15 @@
       "range": {
         "short": 2,
         "medium": 4,
-        "long": 6
+        "long": 6,
+        "min": 0
       },
       "battle_value": 36,
       "tonnage": 1.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/small/CLERPulseLaserSmall.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/small/CLERPulseLaserSmall.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'ER Pulse Laser, Small' (word-order match; row's short/medium/long equal this entry's).",
       "rack_size": null
     },
     "clheavysmalllaser": {
@@ -968,14 +996,15 @@
       "range": {
         "short": 1,
         "medium": 2,
-        "long": 3
+        "long": 3,
+        "min": 0
       },
       "battle_value": 15,
       "tonnage": 0.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/small/CLHeavyLaserSmall.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Heavy Small Laser' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/small/CLHeavyLaserSmall.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Heavy Small Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Heavy Small Laser'.",
       "rack_size": null
     },
     "clermicrolaser": {
@@ -997,14 +1026,15 @@
       "range": {
         "short": 1,
         "medium": 2,
-        "long": 4
+        "long": 4,
+        "min": 0
       },
       "battle_value": 7,
       "tonnage": 0.25,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/CLERLaserMicro.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'ER Micro Laser' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/CLERLaserMicro.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'ER Micro Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'ER Micro Laser'.",
       "rack_size": null
     },
     "clmicropulselaser": {
@@ -1026,14 +1056,15 @@
       "range": {
         "short": 1,
         "medium": 2,
-        "long": 3
+        "long": 3,
+        "min": 0
       },
       "battle_value": 12,
       "tonnage": 0.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/CLPulseLaserMicro.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Micro Pulse Laser' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/CLPulseLaserMicro.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Micro Pulse Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Micro Pulse Laser'.",
       "rack_size": null
     },
     "climprovedheavylargelaser": {
@@ -1055,14 +1086,15 @@
       "range": {
         "short": 5,
         "medium": 10,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 296,
       "tonnage": 4.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLImprovedHeavyLaserLarge.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLImprovedHeavyLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Improved Heavy Laser, Large' (word-order match; row's short/medium/long equal this entry's).",
       "rack_size": null
     },
     "climprovedmediumheavylaser": {
@@ -1085,14 +1117,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 93,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/medium/CLImprovedHeavyLaserMedium.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/medium/CLImprovedHeavyLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Improved Heavy Laser, Medium' (word-order match; row's short/medium/long equal this entry's).",
       "rack_size": null
     },
     "climprovedsmallheavylaser": {
@@ -1115,14 +1148,15 @@
       "range": {
         "short": 1,
         "medium": 2,
-        "long": 3
+        "long": 3,
+        "min": 0
       },
       "battle_value": 19,
       "tonnage": 0.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/small/CLImprovedHeavyLaserSmall.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/small/CLImprovedHeavyLaserSmall.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Improved Heavy Laser, Small' (word-order match; row's short/medium/long equal this entry's).",
       "rack_size": null
     },
     "cllargechemicallaser": {
@@ -1145,14 +1179,15 @@
       "range": {
         "short": 5,
         "medium": 10,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 99,
       "tonnage": 5.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLChemicalLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Chemical Laser, Large' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLChemicalLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Chemical Laser, Large' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Chemical Laser, Large'.",
       "rack_size": 1
     },
     "clmediumchemicallaser": {
@@ -1175,14 +1210,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 37,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/medium/CLChemicalLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Chemical Laser, Medium' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/medium/CLChemicalLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Chemical Laser, Medium' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Chemical Laser, Medium'.",
       "rack_size": 5
     },
     "clsmallchemicallaser": {
@@ -1205,14 +1241,15 @@
       "range": {
         "short": 1,
         "medium": 2,
-        "long": 3
+        "long": 3,
+        "min": 0
       },
       "battle_value": 7,
       "tonnage": 0.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/small/CLChemicalLaserSmall.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Chemical Laser, Small' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/small/CLChemicalLaserSmall.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Chemical Laser, Small' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Chemical Laser, Small'.",
       "rack_size": 3
     },
     "ppc": {
@@ -1241,14 +1278,15 @@
       "range": {
         "short": 6,
         "medium": 12,
-        "long": 18
+        "long": 18,
+        "min": 3
       },
       "battle_value": 176,
       "tonnage": 7.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek ppc/innerSphere/ISPPC.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek ppc/innerSphere/ISPPC.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=3 from Total Warfare row 'PPC'.",
       "rack_size": null
     },
     "iserppc": {
@@ -1270,14 +1308,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 23
+        "long": 23,
+        "min": 0
       },
       "battle_value": 229,
       "tonnage": 7.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek ppc/innerSphere/ISERPPC.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek ppc/innerSphere/ISERPPC.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'ER PPC'.",
       "rack_size": null
     },
     "clerppc": {
@@ -1299,14 +1338,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 23
+        "long": 23,
+        "min": 0
       },
       "battle_value": 412,
       "tonnage": 6.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek ppc/clan/CLERPPC.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek ppc/clan/CLERPPC.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'ER PPC'.",
       "rack_size": null
     },
     "issnppc": {
@@ -1358,14 +1398,15 @@
       "range": {
         "short": 6,
         "medium": 12,
-        "long": 18
+        "long": 18,
+        "min": 3
       },
       "battle_value": 88,
       "tonnage": 3.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek ppc/innerSphere/ISLightPPC.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek ppc/innerSphere/ISLightPPC.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=3 from Total Warfare row 'Light PPC'.",
       "rack_size": null
     },
     "heavyppc": {
@@ -1388,14 +1429,15 @@
       "range": {
         "short": 6,
         "medium": 12,
-        "long": 18
+        "long": 18,
+        "min": 3
       },
       "battle_value": 317,
       "tonnage": 10.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek ppc/innerSphere/ISHeavyPPC.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek ppc/innerSphere/ISHeavyPPC.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=3 from Total Warfare row 'Heavy PPC'.",
       "rack_size": null
     },
     "iskinherppc": {
@@ -1446,14 +1488,15 @@
       "range": {
         "short": 1,
         "medium": 2,
-        "long": 3
+        "long": 3,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "2026-10-19: heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Flamer' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "2026-10-19: heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Flamer' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Flamer'."
     },
     "flamer": {
       "canonical_name": "Flamer",
@@ -1475,14 +1518,15 @@
       "range": {
         "short": 1,
         "medium": 2,
-        "long": 3
+        "long": 3,
+        "min": 0
       },
       "battle_value": 6,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek flamers/innerSphere/ISFlamer.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek flamers/innerSphere/ISFlamer.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'Flamer'.",
       "rack_size": null
     },
     "flamer(vehicle)": {
@@ -1508,14 +1552,15 @@
       "range": {
         "short": 1,
         "medium": 2,
-        "long": 3
+        "long": 3,
+        "min": 0
       },
       "battle_value": 5,
       "tonnage": 0.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek flamers/innerSphere/ISVehicleFlamer.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Flamer (Vehicle)' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek flamers/innerSphere/ISVehicleFlamer.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Flamer (Vehicle)' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Flamer (Vehicle)'.",
       "rack_size": 2
     },
     "clheavyflamer": {
@@ -1538,14 +1583,15 @@
       "range": {
         "short": 2,
         "medium": 3,
-        "long": 4
+        "long": 4,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Heavy Flamer' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Heavy Flamer' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Heavy Flamer'."
     },
     "heavyflamer": {
       "canonical_name": "Heavy Flamer",
@@ -1567,14 +1613,15 @@
       "range": {
         "short": 2,
         "medium": 3,
-        "long": 4
+        "long": 4,
+        "min": 0
       },
       "battle_value": 15,
       "tonnage": 1.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek flamers/innerSphere/ISHeavyFlamer.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Heavy Flamer' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek flamers/innerSphere/ISHeavyFlamer.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Heavy Flamer' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Heavy Flamer'.",
       "rack_size": 2
     },
     "erflamer": {
@@ -1597,14 +1644,15 @@
       "range": {
         "short": 3,
         "medium": 5,
-        "long": 7
+        "long": 7,
+        "min": 0
       },
       "battle_value": 16,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek flamers/innerSphere/ISERFlamer.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'ER Flamer' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek flamers/innerSphere/ISERFlamer.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'ER Flamer' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'ER Flamer'.",
       "rack_size": null
     },
     "clerflamer": {
@@ -1626,14 +1674,15 @@
       "range": {
         "short": 3,
         "medium": 5,
-        "long": 7
+        "long": 7,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'ER Flamer' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'ER Flamer' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'ER Flamer'."
     },
     "autocannon/2": {
       "canonical_name": "Autocannon/2",
@@ -1659,14 +1708,15 @@
       "range": {
         "short": 8,
         "medium": 16,
-        "long": 24
+        "long": 24,
+        "min": 4
       },
       "battle_value": 37,
       "tonnage": 6.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek autoCannons/innerSphere/ISAC2.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek autoCannons/innerSphere/ISAC2.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=4 from Total Warfare row 'Autocannon/2'.",
       "rack_size": 2
     },
     "autocannon/5": {
@@ -1701,14 +1751,15 @@
       "range": {
         "short": 6,
         "medium": 12,
-        "long": 18
+        "long": 18,
+        "min": 3
       },
       "battle_value": 70,
       "tonnage": 8.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek autoCannons/innerSphere/ISAC5.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek autoCannons/innerSphere/ISAC5.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=3 from Total Warfare row 'Autocannon/5'.",
       "rack_size": 5
     },
     "autocannon/10": {
@@ -1743,14 +1794,15 @@
       "range": {
         "short": 5,
         "medium": 10,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 123,
       "tonnage": 12.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek autoCannons/innerSphere/ISAC10.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek autoCannons/innerSphere/ISAC10.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'Autocannon/10'.",
       "rack_size": 10
     },
     "autocannon/20": {
@@ -1783,14 +1835,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 178,
       "tonnage": 14.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek autoCannons/innerSphere/ISAC20.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek autoCannons/innerSphere/ISAC20.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'Autocannon/20'.",
       "rack_size": 20
     },
     "clprotomechac2": {
@@ -1812,14 +1865,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 20
+        "long": 20,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'ProtoMech AC/2' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'ProtoMech AC/2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'ProtoMech AC/2' (table shows a dash = no minimum)."
     },
     "clprotomechac4": {
       "canonical_name": "CLProtoMechAC4",
@@ -1840,14 +1894,15 @@
       "range": {
         "short": 5,
         "medium": 10,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'ProtoMech AC/4' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'ProtoMech AC/4' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'ProtoMech AC/4' (table shows a dash = no minimum)."
     },
     "clprotomechac8": {
       "canonical_name": "CLProtoMechAC8",
@@ -1868,14 +1923,15 @@
       "range": {
         "short": 3,
         "medium": 7,
-        "long": 10
+        "long": 10,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'ProtoMech AC/8' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'ProtoMech AC/8' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'ProtoMech AC/8' (table shows a dash = no minimum)."
     },
     "autocannon/2p": {
       "canonical_name": "Autocannon/2p",
@@ -1930,14 +1986,15 @@
       "range": {
         "short": 8,
         "medium": 17,
-        "long": 25
+        "long": 25,
+        "min": 3
       },
       "battle_value": 56,
       "tonnage": 7.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISUAC2.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/2' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISUAC2.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Total Warfare row 'Ultra AC/2'.",
       "rack_size": 2
     },
     "isultraac5": {
@@ -1962,14 +2019,15 @@
       "range": {
         "short": 6,
         "medium": 13,
-        "long": 20
+        "long": 20,
+        "min": 2
       },
       "battle_value": 112,
       "tonnage": 9.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISUAC5.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/5' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISUAC5.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=2 from Total Warfare row 'Ultra AC/5'.",
       "rack_size": 5
     },
     "isultraac10": {
@@ -1991,14 +2049,15 @@
       "range": {
         "short": 6,
         "medium": 12,
-        "long": 18
+        "long": 18,
+        "min": 0
       },
       "battle_value": 210,
       "tonnage": 13.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISUAC10.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/10' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISUAC10.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Ultra AC/10'.",
       "rack_size": 10
     },
     "isultraac20": {
@@ -2020,14 +2079,15 @@
       "range": {
         "short": 3,
         "medium": 7,
-        "long": 10
+        "long": 10,
+        "min": 0
       },
       "battle_value": 281,
       "tonnage": 15.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISUAC20.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/20' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISUAC20.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Ultra AC/20'.",
       "rack_size": 20
     },
     "clultraac2": {
@@ -2051,14 +2111,15 @@
       "range": {
         "short": 9,
         "medium": 18,
-        "long": 27
+        "long": 27,
+        "min": 2
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/2' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=2 from Total Warfare row 'Ultra AC/2'."
     },
     "clultraac5": {
       "canonical_name": "CLUltraAC5",
@@ -2079,14 +2140,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/5' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Ultra AC/5'."
     },
     "clultraac10": {
       "canonical_name": "CLUltraAC10",
@@ -2109,14 +2171,15 @@
       "range": {
         "short": 6,
         "medium": 12,
-        "long": 18
+        "long": 18,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/10' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Ultra AC/10'."
     },
     "clultraac20": {
       "canonical_name": "CLUltraAC20",
@@ -2139,14 +2202,15 @@
       "range": {
         "short": 4,
         "medium": 8,
-        "long": 12
+        "long": 12,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/20' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Ultra AC/20'."
     },
     "islbxac2": {
       "canonical_name": "ISLBXAC2",
@@ -2167,14 +2231,15 @@
       "range": {
         "short": 9,
         "medium": 18,
-        "long": 27
+        "long": 27,
+        "min": 4
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 2-X AC' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 2-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=4 from Total Warfare row 'LB 2-X AC'."
     },
     "islbxac5": {
       "canonical_name": "ISLBXAC5",
@@ -2195,14 +2260,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 3
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 5-X AC' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 5-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Total Warfare row 'LB 5-X AC'."
     },
     "islbxac10": {
       "canonical_name": "ISLBXAC10",
@@ -2226,14 +2292,15 @@
       "range": {
         "short": 6,
         "medium": 12,
-        "long": 18
+        "long": 18,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 10-X AC' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 10-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LB 10-X AC'."
     },
     "islbxac20": {
       "canonical_name": "ISLBXAC20",
@@ -2254,14 +2321,15 @@
       "range": {
         "short": 4,
         "medium": 8,
-        "long": 12
+        "long": 12,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 20-X AC' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 20-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LB 20-X AC'."
     },
     "cllbxac2": {
       "canonical_name": "CLLBXAC2",
@@ -2284,14 +2352,15 @@
       "range": {
         "short": 10,
         "medium": 20,
-        "long": 30
+        "long": 30,
+        "min": 4
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 2-X AC' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 2-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=4 from Total Warfare row 'LB 2-X AC'."
     },
     "cllbxac5": {
       "canonical_name": "CLLBXAC5",
@@ -2314,14 +2383,15 @@
       "range": {
         "short": 8,
         "medium": 15,
-        "long": 24
+        "long": 24,
+        "min": 3
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 5-X AC' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 5-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Total Warfare row 'LB 5-X AC'."
     },
     "cllbxac10": {
       "canonical_name": "CLLBXAC10",
@@ -2342,14 +2412,15 @@
       "range": {
         "short": 6,
         "medium": 12,
-        "long": 18
+        "long": 18,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 10-X AC' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 10-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LB 10-X AC'."
     },
     "cllbxac20": {
       "canonical_name": "CLLBXAC20",
@@ -2372,14 +2443,15 @@
       "range": {
         "short": 4,
         "medium": 8,
-        "long": 12
+        "long": 12,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 20-X AC' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 20-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LB 20-X AC'."
     },
     "isrotaryac2": {
       "canonical_name": "ISRotaryAC2",
@@ -2401,14 +2473,15 @@
       "range": {
         "short": 6,
         "medium": 12,
-        "long": 18
+        "long": 18,
+        "min": 0
       },
       "battle_value": 118,
       "tonnage": 8.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISRAC2.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Rotary AC/2' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISRAC2.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Rotary AC/2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Rotary AC/2'.",
       "rack_size": 2
     },
     "isrotaryac5": {
@@ -2431,14 +2504,15 @@
       "range": {
         "short": 5,
         "medium": 10,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 247,
       "tonnage": 10.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISRAC5.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Rotary AC/5' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISRAC5.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Rotary AC/5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Rotary AC/5'.",
       "rack_size": 5
     },
     "lightautocannon/2": {
@@ -2463,14 +2537,15 @@
       "range": {
         "short": 6,
         "medium": 12,
-        "long": 18
+        "long": 18,
+        "min": 0
       },
       "battle_value": 30,
       "tonnage": 4.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISLAC2.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Light AC/2' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISLAC2.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Light AC/2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Light AC/2'.",
       "rack_size": 2
     },
     "lightautocannon/5": {
@@ -2495,14 +2570,15 @@
       "range": {
         "short": 5,
         "medium": 10,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 62,
       "tonnage": 5.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISLAC5.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Light AC/5' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISLAC5.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Light AC/5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Light AC/5'.",
       "rack_size": 5
     },
     "hypervelocityautocannon/2": {
@@ -2526,14 +2602,15 @@
       "range": {
         "short": 10,
         "medium": 20,
-        "long": 35
+        "long": 35,
+        "min": 3
       },
       "battle_value": 53,
       "tonnage": 8.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISHVAC2.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Hyper-Velocity AC/2' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISHVAC2.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Hyper-Velocity AC/2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Tactical Operations: AUE row 'Hyper-Velocity AC/2'.",
       "rack_size": 2
     },
     "hypervelocityautocannon/5": {
@@ -2557,14 +2634,15 @@
       "range": {
         "short": 8,
         "medium": 16,
-        "long": 28
+        "long": 28,
+        "min": 0
       },
       "battle_value": 109,
       "tonnage": 12.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISHVAC5.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Hyper-Velocity AC/5' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISHVAC5.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Hyper-Velocity AC/5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Hyper-Velocity AC/5' (table shows a dash = no minimum).",
       "rack_size": 5
     },
     "hypervelocityautocannon/10": {
@@ -2588,14 +2666,15 @@
       "range": {
         "short": 6,
         "medium": 12,
-        "long": 20
+        "long": 20,
+        "min": 0
       },
       "battle_value": 158,
       "tonnage": 14.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISHVAC10.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Hyper-Velocity AC/10' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISHVAC10.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Hyper-Velocity AC/10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Hyper-Velocity AC/10' (table shows a dash = no minimum).",
       "rack_size": 10
     },
     "isgaussrifle": {
@@ -2620,14 +2699,15 @@
       "range": {
         "short": 7,
         "medium": 15,
-        "long": 22
+        "long": 22,
+        "min": 2
       },
       "battle_value": 320,
       "tonnage": 15.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek gaussRifles/innerSphere/ISGaussRifle.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek gaussRifles/innerSphere/ISGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=2 from Total Warfare row 'Gauss Rifle'.",
       "rack_size": null
     },
     "issbgr": {
@@ -2679,14 +2759,15 @@
       "range": {
         "short": 7,
         "medium": 15,
-        "long": 22
+        "long": 22,
+        "min": 2
       },
       "battle_value": 320,
       "tonnage": 12.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek gaussRifles/clan/CLGaussRifle.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek gaussRifles/clan/CLGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=2 from Total Warfare row 'Gauss Rifle'.",
       "rack_size": null
     },
     "islightgaussrifle": {
@@ -2708,14 +2789,15 @@
       "range": {
         "short": 8,
         "medium": 17,
-        "long": 25
+        "long": 25,
+        "min": 3
       },
       "battle_value": 159,
       "tonnage": 12.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/innerSphere/ISLGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Light Gauss Rifle' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/innerSphere/ISLGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Light Gauss Rifle' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Total Warfare row 'Light Gauss Rifle'.",
       "rack_size": null
     },
     "isheavygaussrifle": {
@@ -2737,14 +2819,15 @@
       "range": {
         "short": 6,
         "medium": 13,
-        "long": 20
+        "long": 20,
+        "min": 4
       },
       "battle_value": 346,
       "tonnage": 18.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/innerSphere/ISHGaussRifle.java (main branch, fetched 2026-07-14). MegaMek damage field is non-literal (DAMAGE_VARIABLE) - range/ammo-variable, left null PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/innerSphere/ISHGaussRifle.java (main branch, fetched 2026-07-14). MegaMek damage field is non-literal (DAMAGE_VARIABLE) - range/ammo-variable, left null PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=4 from Total Warfare row 'Heavy Gauss Rifle'.",
       "rack_size": null
     },
     "isimprovedheavygaussrifle": {
@@ -2867,14 +2950,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 21,
       "tonnage": 0.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/clan/CLAPGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'AP Gauss Rifle' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/clan/CLAPGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'AP Gauss Rifle' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'AP Gauss Rifle'.",
       "rack_size": null
     },
     "lightmachinegun": {
@@ -2897,14 +2981,15 @@
       "range": {
         "short": 2,
         "medium": 4,
-        "long": 6
+        "long": 6,
+        "min": 0
       },
       "battle_value": 5,
       "tonnage": 0.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek mgs/innerSphere/ISLightMG.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Light Machine Gun' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek mgs/innerSphere/ISLightMG.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Light Machine Gun' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Light Machine Gun'.",
       "rack_size": 1
     },
     "heavymachinegun": {
@@ -2927,14 +3012,15 @@
       "range": {
         "short": 1,
         "medium": 2,
-        "long": 2
+        "long": 2,
+        "min": 0
       },
       "battle_value": 6,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek mgs/innerSphere/ISHeavyMG.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Heavy Machine Gun' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek mgs/innerSphere/ISHeavyMG.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Heavy Machine Gun' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Heavy Machine Gun' (row has no long range, so the range-equality check could not be used; min cell is 0).",
       "rack_size": 3
     },
     "islightmachinegunarray": {
@@ -3014,14 +3100,15 @@
       "range": {
         "short": 1,
         "medium": 2,
-        "long": 3
+        "long": 3,
+        "min": 0
       },
       "battle_value": 5,
       "tonnage": 0.25,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek mgs/clan/CLMG.java (main branch, fetched 2026-07-14).",
+      "notes": "Stats sourced from MegaMek mgs/clan/CLMG.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'Machine Gun'.",
       "rack_size": 2
     },
     "cllightmg": {
@@ -3043,14 +3130,15 @@
       "range": {
         "short": 2,
         "medium": 4,
-        "long": 6
+        "long": 6,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Light Machine Gun' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Light Machine Gun' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Light Machine Gun'."
     },
     "clheavymg": {
       "canonical_name": "CLHeavyMG",
@@ -3071,14 +3159,15 @@
       "range": {
         "short": 1,
         "medium": 2,
-        "long": 2
+        "long": 2,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat filled from Total Warfare pp. 303-306 weapons table, row 'Heavy Machine Gun' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range filled from Total Warfare Clan table (1/2/no long range), long set = medium to match the existing IS Heavy Machine Gun entry's convention."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat filled from Total Warfare pp. 303-306 weapons table, row 'Heavy Machine Gun' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range filled from Total Warfare Clan table (1/2/no long range), long set = medium to match the existing IS Heavy Machine Gun entry's convention. | 2026-10-19: range.min=0 from Total Warfare row 'Heavy Machine Gun' (row has no long range, so the range-equality check could not be used; min cell is 0)."
     },
     "clanmachinegunarray": {
       "canonical_name": "Clan Machine Gun Array",
@@ -3194,14 +3283,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 6
       },
       "battle_value": 45,
       "tonnage": 2.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek lrms/innerSphere/ISLRM5.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=5; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher)",
+      "notes": "Stats sourced from MegaMek lrms/innerSphere/ISLRM5.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=5; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: range.min=6 from Total Warfare row 'LRM 5'.",
       "rack_size": 5
     },
     "lrm10": {
@@ -3236,14 +3326,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 6
       },
       "battle_value": 90,
       "tonnage": 5.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek lrms/innerSphere/ISLRM10.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=10; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher)",
+      "notes": "Stats sourced from MegaMek lrms/innerSphere/ISLRM10.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=10; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: range.min=6 from Total Warfare row 'LRM 10'.",
       "rack_size": 10
     },
     "lrm15": {
@@ -3278,14 +3369,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 6
       },
       "battle_value": 136,
       "tonnage": 7.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek lrms/innerSphere/ISLRM15.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=15; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher)",
+      "notes": "Stats sourced from MegaMek lrms/innerSphere/ISLRM15.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=15; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: range.min=6 from Total Warfare row 'LRM 15'.",
       "rack_size": 15
     },
     "lrm20": {
@@ -3320,14 +3412,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 6
       },
       "battle_value": 181,
       "tonnage": 10.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek lrms/innerSphere/ISLRM20.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=20; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher)",
+      "notes": "Stats sourced from MegaMek lrms/innerSphere/ISLRM20.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=20; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: range.min=6 from Total Warfare row 'LRM 20'.",
       "rack_size": 20
     },
     "lrm5(os)": {
@@ -3520,14 +3613,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'LRM 5' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'LRM 5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LRM 5'.",
       "rack_size": 5
     },
     "cllrm10": {
@@ -3550,14 +3644,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'LRM 10' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'LRM 10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LRM 10'.",
       "rack_size": 10
     },
     "cllrm15": {
@@ -3580,14 +3675,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'LRM 15' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'LRM 15' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LRM 15'.",
       "rack_size": 15
     },
     "cllrm20": {
@@ -3610,14 +3706,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'LRM 20' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'LRM 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LRM 20'.",
       "rack_size": 20
     },
     "cllrm5(os)": {
@@ -3763,14 +3860,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 0
       },
       "battle_value": 86,
       "tonnage": 2.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/streak/CLStreakLRM5.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=5 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Streak LRM 5' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/streak/CLStreakLRM5.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=5 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Streak LRM 5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Streak LRM 5'.",
       "rack_size": 5
     },
     "clstreaklrm10": {
@@ -3793,14 +3891,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 0
       },
       "battle_value": 173,
       "tonnage": 5.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/streak/CLStreakLRM10.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=10 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Streak LRM 10' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/streak/CLStreakLRM10.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=10 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Streak LRM 10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Streak LRM 10'.",
       "rack_size": 10
     },
     "clstreaklrm15": {
@@ -3823,14 +3922,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 0
       },
       "battle_value": 259,
       "tonnage": 7.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/streak/CLStreakLRM15.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=15 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Streak LRM 15' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/streak/CLStreakLRM15.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=15 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Streak LRM 15' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Streak LRM 15'.",
       "rack_size": 15
     },
     "clstreaklrm20": {
@@ -3853,14 +3953,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 0
       },
       "battle_value": 345,
       "tonnage": 10.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/streak/CLStreakLRM20.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=20 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Streak LRM 20' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/streak/CLStreakLRM20.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=20 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Streak LRM 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Streak LRM 20'.",
       "rack_size": 20
     },
     "closstreaklrm5": {
@@ -3989,14 +4090,15 @@
       "range": {
         "short": 12,
         "medium": 22,
-        "long": 38
+        "long": 38,
+        "min": 10
       },
       "battle_value": 67,
       "tonnage": 6.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISExtendedLRM5.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=5; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Extended LRM 5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range CORRECTED 7/14/21 -> 12/22/38 per Tactical Operations: AUE weapons table (the 7/14/21 was inherited from the LRM base class, never confirmed).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISExtendedLRM5.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=5; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Extended LRM 5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range CORRECTED 7/14/21 -> 12/22/38 per Tactical Operations: AUE weapons table (the 7/14/21 was inherited from the LRM base class, never confirmed). | 2026-10-19: range.min=10 from Tactical Operations: AUE row 'Extended LRM 5'.",
       "rack_size": 5
     },
     "extendedlrm10": {
@@ -4021,14 +4123,15 @@
       "range": {
         "short": 12,
         "medium": 22,
-        "long": 38
+        "long": 38,
+        "min": 10
       },
       "battle_value": 133,
       "tonnage": 8.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISExtendedLRM10.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=10; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Extended LRM 10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range CORRECTED 7/14/21 -> 12/22/38 per Tactical Operations: AUE weapons table (the 7/14/21 was inherited from the LRM base class, never confirmed).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISExtendedLRM10.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=10; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Extended LRM 10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range CORRECTED 7/14/21 -> 12/22/38 per Tactical Operations: AUE weapons table (the 7/14/21 was inherited from the LRM base class, never confirmed). | 2026-10-19: range.min=10 from Tactical Operations: AUE row 'Extended LRM 10'.",
       "rack_size": 10
     },
     "extendedlrm15": {
@@ -4053,14 +4156,15 @@
       "range": {
         "short": 12,
         "medium": 22,
-        "long": 38
+        "long": 38,
+        "min": 10
       },
       "battle_value": 200,
       "tonnage": 12.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISExtendedLRM15.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=15; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Extended LRM 15' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range CORRECTED 7/14/21 -> 12/22/38 per Tactical Operations: AUE weapons table (the 7/14/21 was inherited from the LRM base class, never confirmed).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISExtendedLRM15.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=15; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Extended LRM 15' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range CORRECTED 7/14/21 -> 12/22/38 per Tactical Operations: AUE weapons table (the 7/14/21 was inherited from the LRM base class, never confirmed). | 2026-10-19: range.min=10 from Tactical Operations: AUE row 'Extended LRM 15'.",
       "rack_size": 15
     },
     "extendedlrm20": {
@@ -4085,14 +4189,15 @@
       "range": {
         "short": 12,
         "medium": 22,
-        "long": 38
+        "long": 38,
+        "min": 10
       },
       "battle_value": 268,
       "tonnage": 18.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISExtendedLRM20.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=20; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Extended LRM 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range CORRECTED 7/14/21 -> 12/22/38 per Tactical Operations: AUE weapons table (the 7/14/21 was inherited from the LRM base class, never confirmed).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISExtendedLRM20.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=20; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Extended LRM 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range CORRECTED 7/14/21 -> 12/22/38 per Tactical Operations: AUE weapons table (the 7/14/21 was inherited from the LRM base class, never confirmed). | 2026-10-19: range.min=10 from Tactical Operations: AUE row 'Extended LRM 20'.",
       "rack_size": 20
     },
     "enhancedlrm5": {
@@ -4114,14 +4219,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 3
       },
       "battle_value": 52,
       "tonnage": 3.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISEnhancedLRM5.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=5 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Enhanced LRM 5' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISEnhancedLRM5.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=5 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Enhanced LRM 5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Tactical Operations: AUE row 'Enhanced LRM 5'.",
       "rack_size": 5
     },
     "enhancedlrm10": {
@@ -4143,14 +4249,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 3
       },
       "battle_value": 104,
       "tonnage": 6.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISEnhancedLRM10.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=10 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Enhanced LRM 10' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISEnhancedLRM10.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=10 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Enhanced LRM 10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Tactical Operations: AUE row 'Enhanced LRM 10'.",
       "rack_size": 10
     },
     "enhancedlrm15": {
@@ -4172,14 +4279,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 3
       },
       "battle_value": 157,
       "tonnage": 9.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISEnhancedLRM15.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=15 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Enhanced LRM 15' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISEnhancedLRM15.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=15 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Enhanced LRM 15' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Tactical Operations: AUE row 'Enhanced LRM 15'.",
       "rack_size": 15
     },
     "enhancedlrm20": {
@@ -4201,14 +4309,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 3
       },
       "battle_value": 210,
       "tonnage": 12.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISEnhancedLRM20.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=20 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Enhanced LRM 20' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISEnhancedLRM20.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=20 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Enhanced LRM 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Tactical Operations: AUE row 'Enhanced LRM 20'.",
       "rack_size": 20
     },
     "srm2": {
@@ -4242,14 +4351,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 21,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek srms/innerSphere/ISSRM2.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=2",
+      "notes": "Stats sourced from MegaMek srms/innerSphere/ISSRM2.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=2 | 2026-10-19: range.min=0 from Total Warfare row 'SRM 2'.",
       "rack_size": 2
     },
     "srm4": {
@@ -4283,14 +4393,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 39,
       "tonnage": 2.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek srms/innerSphere/ISSRM4.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=4",
+      "notes": "Stats sourced from MegaMek srms/innerSphere/ISSRM4.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=4 | 2026-10-19: range.min=0 from Total Warfare row 'SRM 4'.",
       "rack_size": 4
     },
     "srm6": {
@@ -4324,14 +4435,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 59,
       "tonnage": 3.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek srms/innerSphere/ISSRM6.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=6",
+      "notes": "Stats sourced from MegaMek srms/innerSphere/ISSRM6.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=6 | 2026-10-19: range.min=0 from Total Warfare row 'SRM 6'.",
       "rack_size": 6
     },
     "issrm2os": {
@@ -4496,14 +4608,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'SRM 2' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'SRM 2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'SRM 2'.",
       "rack_size": 2
     },
     "clsrm4": {
@@ -4530,14 +4643,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'SRM 4' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'SRM 4' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'SRM 4'.",
       "rack_size": 4
     },
     "clsrm6": {
@@ -4564,14 +4678,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'SRM 6' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'SRM 6' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'SRM 6'.",
       "rack_size": 6
     },
     "clsrm2(os)": {
@@ -4718,14 +4833,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 30,
       "tonnage": 1.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek srms/innerSphere/streak/ISStreakSRM2.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=2",
+      "notes": "Stats sourced from MegaMek srms/innerSphere/streak/ISStreakSRM2.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=2 | 2026-10-19: range.min=0 from Total Warfare row 'Streak SRM 2'.",
       "rack_size": 2
     },
     "isstreaksrm4": {
@@ -4748,14 +4864,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 59,
       "tonnage": 3.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek srms/innerSphere/streak/ISStreakSRM4.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=4",
+      "notes": "Stats sourced from MegaMek srms/innerSphere/streak/ISStreakSRM4.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=4 | 2026-10-19: range.min=0 from Total Warfare row 'Streak SRM 4'.",
       "rack_size": 4
     },
     "isstreaksrm6": {
@@ -4778,14 +4895,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 89,
       "tonnage": 4.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek srms/innerSphere/streak/ISStreakSRM6.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=6",
+      "notes": "Stats sourced from MegaMek srms/innerSphere/streak/ISStreakSRM6.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=6 | 2026-10-19: range.min=0 from Total Warfare row 'Streak SRM 6'.",
       "rack_size": 6
     },
     "isstreaksrm2os": {
@@ -4915,14 +5033,15 @@
       "range": {
         "short": 4,
         "medium": 8,
-        "long": 12
+        "long": 12,
+        "min": 0
       },
       "battle_value": 40,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek srms/clan/streak/CLStreakSRM2.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=2",
+      "notes": "Stats sourced from MegaMek srms/clan/streak/CLStreakSRM2.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=2 | 2026-10-19: range.min=0 from Total Warfare row 'Streak SRM 2'.",
       "rack_size": 2
     },
     "clstreaksrm4": {
@@ -4947,14 +5066,15 @@
       "range": {
         "short": 4,
         "medium": 8,
-        "long": 12
+        "long": 12,
+        "min": 0
       },
       "battle_value": 79,
       "tonnage": 2.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek srms/clan/streak/CLStreakSRM4.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=4",
+      "notes": "Stats sourced from MegaMek srms/clan/streak/CLStreakSRM4.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=4 | 2026-10-19: range.min=0 from Total Warfare row 'Streak SRM 4'.",
       "rack_size": 4
     },
     "clstreaksrm6": {
@@ -4979,14 +5099,15 @@
       "range": {
         "short": 4,
         "medium": 8,
-        "long": 12
+        "long": 12,
+        "min": 0
       },
       "battle_value": 118,
       "tonnage": 3.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek srms/clan/streak/CLStreakSRM6.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=6",
+      "notes": "Stats sourced from MegaMek srms/clan/streak/CLStreakSRM6.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=6 | 2026-10-19: range.min=0 from Total Warfare row 'Streak SRM 6'.",
       "rack_size": 6
     },
     "clstreaksrm2(os)": {
@@ -5252,14 +5373,15 @@
       "range": {
         "short": 5,
         "medium": 11,
-        "long": 18
+        "long": 18,
+        "min": 0
       },
       "battle_value": 18,
       "tonnage": 0.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/rocketLauncher/RocketLauncher10.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'Rocket Launcher 10' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/rocketLauncher/RocketLauncher10.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'Rocket Launcher 10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Rocket Launcher 10'.",
       "rack_size": 10
     },
     "rl15": {
@@ -5287,14 +5409,15 @@
       "range": {
         "short": 4,
         "medium": 9,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 23,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/rocketLauncher/RocketLauncher15.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'Rocket Launcher 15' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/rocketLauncher/RocketLauncher15.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'Rocket Launcher 15' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Rocket Launcher 15'.",
       "rack_size": 15
     },
     "rl20": {
@@ -5322,14 +5445,15 @@
       "range": {
         "short": 3,
         "medium": 7,
-        "long": 12
+        "long": 12,
+        "min": 0
       },
       "battle_value": 24,
       "tonnage": 1.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/rocketLauncher/RocketLauncher20.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'Rocket Launcher 20' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/rocketLauncher/RocketLauncher20.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'Rocket Launcher 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Rocket Launcher 20'.",
       "rack_size": 20
     },
     "clatm3": {
@@ -5574,14 +5698,15 @@
       "range": {
         "short": 3,
         "medium": 8,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 56,
       "tonnage": 3.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mrm/ISMRM10.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'MRM 10' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mrm/ISMRM10.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'MRM 10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'MRM 10'.",
       "rack_size": 10
     },
     "mrm20": {
@@ -5605,14 +5730,15 @@
       "range": {
         "short": 3,
         "medium": 8,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 112,
       "tonnage": 7.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mrm/ISMRM20.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'MRM 20' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mrm/ISMRM20.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'MRM 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'MRM 20'.",
       "rack_size": 20
     },
     "mrm30": {
@@ -5636,14 +5762,15 @@
       "range": {
         "short": 3,
         "medium": 8,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 168,
       "tonnage": 10.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mrm/ISMRM30.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'MRM 30' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mrm/ISMRM30.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'MRM 30' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'MRM 30'.",
       "rack_size": 30
     },
     "mrm40": {
@@ -5667,14 +5794,15 @@
       "range": {
         "short": 3,
         "medium": 8,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 224,
       "tonnage": 12.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mrm/ISMRM40.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'MRM 40' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mrm/ISMRM40.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'MRM 40' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'MRM 40'.",
       "rack_size": 40
     },
     "mrm10(os)": {
@@ -5824,14 +5952,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 30,
       "tonnage": 3.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISNarc.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISNarc.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=0 from Total Warfare row 'Narc Missile Beacon'.",
       "rack_size": 1
     },
     "isnarcbeacon(os)": {
@@ -5888,14 +6017,15 @@
       "range": {
         "short": 4,
         "medium": 8,
-        "long": 12
+        "long": 12,
+        "min": 0
       },
       "battle_value": 30,
       "tonnage": 2.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek other/clan/CLNarc.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek other/clan/CLNarc.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=0 from Total Warfare row 'Narc Missile Beacon'.",
       "rack_size": 1
     },
     "clnarcbeacon(os)": {
@@ -6138,14 +6268,15 @@
       "range": {
         "short": 5,
         "medium": 9,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 0,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek tag/ISTAG.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek tag/ISTAG.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'TAG'.",
       "rack_size": null
     },
     "isc3masterunit": {
@@ -6231,14 +6362,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 0,
       "tonnage": 0.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek tag/CLLightTAG.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek tag/CLLightTAG.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'Light TAG'.",
       "rack_size": null
     },
     "cltag": {
@@ -6261,14 +6393,15 @@
       "range": {
         "short": 5,
         "medium": 9,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 0,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek tag/CLTAG.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek tag/CLTAG.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'TAG'.",
       "rack_size": null
     },
     "ismml3": {
@@ -6629,14 +6762,15 @@
       "range": {
         "short": 8,
         "medium": 17,
-        "long": 25
+        "long": 25,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Rotary AC/2 (Clan)' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Rotary AC/2 (Clan)' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Rotary AC/2 (Clan)' (table shows a dash = no minimum)."
     },
     "clrotaryac5": {
       "canonical_name": "CLRotaryAC5",
@@ -6658,14 +6792,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Rotary AC/5 (Clan)' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Rotary AC/5 (Clan)' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Rotary AC/5 (Clan)' (table shows a dash = no minimum)."
     },
     "israilgun": {
       "canonical_name": "ISRailGun",
@@ -6710,14 +6845,15 @@
       "range": {
         "short": 1,
         "medium": 2,
-        "long": 3
+        "long": 3,
+        "min": 0
       },
       "battle_value": 6,
       "tonnage": 2.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISFluidGun.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISFluidGun.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Fluid Gun'.",
       "rack_size": 1
     },
     "clanfluidgun": {
@@ -6739,14 +6875,15 @@
       "range": {
         "short": 1,
         "medium": 2,
-        "long": 3
+        "long": 3,
+        "min": 0
       },
       "battle_value": 6,
       "tonnage": 2.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek other/clan/CLFluidGun.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek other/clan/CLFluidGun.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Fluid Gun'.",
       "rack_size": 1
     },
     "centurionweaponsystem": {
@@ -6767,14 +6904,15 @@
       "range": {
         "short": 6,
         "medium": 12,
-        "long": 18
+        "long": 18,
+        "min": 0
       },
       "battle_value": 190,
       "tonnage": 5.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISCenturionWeaponSystem.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISCenturionWeaponSystem.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Interstellar Operations row 'Centurion Weapon System'.",
       "rack_size": null
     },
     "ismagshotgr": {
@@ -6873,14 +7011,15 @@
       "range": {
         "short": 6,
         "medium": 12,
-        "long": 18
+        "long": 18,
+        "min": 5
       },
       "battle_value": 64,
       "tonnage": 3.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/ISThunderbolt5.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Thunderbolt-5' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/ISThunderbolt5.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Thunderbolt-5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=5 from Tactical Operations: AUE row 'Thunderbolt-5'.",
       "rack_size": null
     },
     "thunderbolt10": {
@@ -6905,14 +7044,15 @@
       "range": {
         "short": 6,
         "medium": 12,
-        "long": 18
+        "long": 18,
+        "min": 5
       },
       "battle_value": 127,
       "tonnage": 7.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/ISThunderbolt10.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Thunderbolt\u201310' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/ISThunderbolt10.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Thunderbolt\u201310' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=5 from Tactical Operations: AUE row 'Thunderbolt\u201310'.",
       "rack_size": null
     },
     "thunderbolt15": {
@@ -6937,14 +7077,15 @@
       "range": {
         "short": 6,
         "medium": 12,
-        "long": 18
+        "long": 18,
+        "min": 5
       },
       "battle_value": 229,
       "tonnage": 11.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/ISThunderbolt15.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Thunderbolt\u201315' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/ISThunderbolt15.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Thunderbolt\u201315' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=5 from Tactical Operations: AUE row 'Thunderbolt\u201315'.",
       "rack_size": null
     },
     "thunderbolt20": {
@@ -6969,14 +7110,15 @@
       "range": {
         "short": 6,
         "medium": 12,
-        "long": 18
+        "long": 18,
+        "min": 5
       },
       "battle_value": 305,
       "tonnage": 15.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/ISThunderbolt20.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Thunderbolt\u201320' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/ISThunderbolt20.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Thunderbolt\u201320' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=5 from Tactical Operations: AUE row 'Thunderbolt\u201320'.",
       "rack_size": null
     },
     "thunderbolt5(os)": {
@@ -7172,14 +7314,15 @@
       "range": {
         "short": 5,
         "medium": 10,
-        "long": 15
+        "long": 15,
+        "min": 1
       },
       "battle_value": 51,
       "tonnage": 5.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISRifleMedium.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISRifleMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=1 from Tactical Operations: AUE row 'Medium Rifle' (word-order match; row's short/medium/long equal this entry's).",
       "rack_size": 6
     },
     "isvehiculargrenadelauncher": {
@@ -7225,14 +7368,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 30,
       "tonnage": 4.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek c3/ISC3RemoteSensorLauncher.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type, heat filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'C3 Remote Sensor Launcher' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek c3/ISC3RemoteSensorLauncher.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type, heat filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'C3 Remote Sensor Launcher' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'C3 Remote Sensor Launcher'.",
       "rack_size": 1
     },
     "improvedautocannon/2": {
@@ -7254,14 +7398,15 @@
       "range": {
         "short": 8,
         "medium": 16,
-        "long": 24
+        "long": 24,
+        "min": 4
       },
       "battle_value": 37,
       "tonnage": 5.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/clan/CLImprovedAC2.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Autocannon/2' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/clan/CLImprovedAC2.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Autocannon/2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=4 from Interstellar Operations row 'Improved Autocannon/2'.",
       "rack_size": 2
     },
     "improvedautocannon/5": {
@@ -7283,14 +7428,15 @@
       "range": {
         "short": 6,
         "medium": 12,
-        "long": 18
+        "long": 18,
+        "min": 3
       },
       "battle_value": 70,
       "tonnage": 7.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/clan/CLImprovedAC5.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Autocannon/5' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/clan/CLImprovedAC5.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Autocannon/5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Interstellar Operations row 'Improved Autocannon/5'.",
       "rack_size": 5
     },
     "improvedautocannon/10": {
@@ -7312,14 +7458,15 @@
       "range": {
         "short": 5,
         "medium": 10,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 123,
       "tonnage": 11.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/clan/CLImprovedAC10.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Autocannon/10' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/clan/CLImprovedAC10.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Autocannon/10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Improved Autocannon/10'.",
       "rack_size": 10
     },
     "improvedautocannon/20": {
@@ -7341,14 +7488,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 178,
       "tonnage": 13.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/clan/CLImprovedAC20.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Autocannon/20' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/clan/CLImprovedAC20.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Autocannon/20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Improved Autocannon/20'.",
       "rack_size": 20
     },
     "improvedsrm2": {
@@ -7370,14 +7518,15 @@
       "range": {
         "short": 4,
         "medium": 8,
-        "long": 12
+        "long": 12,
+        "min": 0
       },
       "battle_value": 28,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek srms/clan/improvedSRM/CLImprovedSRM2.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=2 | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved SRM 2' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek srms/clan/improvedSRM/CLImprovedSRM2.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=2 | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved SRM 2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Improved SRM 2'.",
       "rack_size": 2
     },
     "improvedsrm4": {
@@ -7399,14 +7548,15 @@
       "range": {
         "short": 4,
         "medium": 8,
-        "long": 12
+        "long": 12,
+        "min": 0
       },
       "battle_value": 39,
       "tonnage": 2.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek srms/clan/improvedSRM/CLImprovedSRM4.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=4 | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved SRM 4' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek srms/clan/improvedSRM/CLImprovedSRM4.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=4 | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved SRM 4' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Improved SRM 4'.",
       "rack_size": 4
     },
     "improvedsrm6": {
@@ -7428,14 +7578,15 @@
       "range": {
         "short": 4,
         "medium": 8,
-        "long": 12
+        "long": 12,
+        "min": 0
       },
       "battle_value": 79,
       "tonnage": 3.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek srms/clan/improvedSRM/CLImprovedSRM6.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=6 | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved SRM 6' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek srms/clan/improvedSRM/CLImprovedSRM6.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=6 | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved SRM 6' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Improved SRM 6'.",
       "rack_size": 6
     },
     "improvedlrm5": {
@@ -7458,14 +7609,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 6
       },
       "battle_value": 45,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/improvedLRM/CLImprovedLRM5.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=5; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved LRM 5' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/improvedLRM/CLImprovedLRM5.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=5; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved LRM 5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=6 from Interstellar Operations row 'Improved LRM 5'.",
       "rack_size": 5
     },
     "improvedlrm10": {
@@ -7488,14 +7640,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 6
       },
       "battle_value": 90,
       "tonnage": 2.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/improvedLRM/CLImprovedLRM10.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=10; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved LRM 10' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/improvedLRM/CLImprovedLRM10.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=10; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved LRM 10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=6 from Interstellar Operations row 'Improved LRM 10'.",
       "rack_size": 10
     },
     "improvedlrm15": {
@@ -7518,14 +7671,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 6
       },
       "battle_value": 136,
       "tonnage": 3.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/improvedLRM/CLImprovedLRM15.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=15; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved LRM 15' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/improvedLRM/CLImprovedLRM15.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=15; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved LRM 15' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=6 from Interstellar Operations row 'Improved LRM 15'.",
       "rack_size": 15
     },
     "improvedlrm20": {
@@ -7548,14 +7702,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 6
       },
       "battle_value": 181,
       "tonnage": 5.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/improvedLRM/CLImprovedLRM20.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=20; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved LRM 20' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/improvedLRM/CLImprovedLRM20.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=20; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved LRM 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=6 from Interstellar Operations row 'Improved LRM 20'.",
       "rack_size": 20
     },
     "improvedgaussrifle": {
@@ -7577,14 +7732,15 @@
       "range": {
         "short": 7,
         "medium": 15,
-        "long": 22
+        "long": 22,
+        "min": 2
       },
       "battle_value": 320,
       "tonnage": 13.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/clan/CLImprovedGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Gauss Rifle' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/clan/CLImprovedGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Gauss Rifle' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=2 from Interstellar Operations row 'Improved Gauss Rifle'.",
       "rack_size": null
     },
     "improvedlargelaser": {
@@ -7606,14 +7762,15 @@
       "range": {
         "short": 5,
         "medium": 10,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 123,
       "tonnage": 4.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLImprovedLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Large Laser' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLImprovedLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Large Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Improved Large Laser'.",
       "rack_size": null
     },
     "improvedlargepulselaser": {
@@ -7636,14 +7793,15 @@
       "range": {
         "short": 3,
         "medium": 7,
-        "long": 10
+        "long": 10,
+        "min": 0
       },
       "battle_value": 119,
       "tonnage": 6.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLImprovedPulseLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Large Pulse Laser' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLImprovedPulseLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Large Pulse Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Improved Large Pulse Laser'.",
       "rack_size": null
     },
     "improvedppc": {
@@ -7666,14 +7824,15 @@
       "range": {
         "short": 6,
         "medium": 12,
-        "long": 18
+        "long": 18,
+        "min": 3
       },
       "battle_value": 176,
       "tonnage": 6.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek ppc/clan/CLImprovedPPC.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved PPC' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek ppc/clan/CLImprovedPPC.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved PPC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Interstellar Operations row 'Improved PPC'.",
       "rack_size": null
     },
     "isfireextinguisher": {
@@ -7790,14 +7949,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 6
       },
       "battle_value": 10,
       "tonnage": 2.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek mortars/innerSphere/ISMekMortar1.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek mortars/innerSphere/ISMekMortar1.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=6 from Tactical Operations: AUE row '\u2019Mech Mortar/1 (IS)'.",
       "rack_size": 1
     },
     "ismechmortar-2": {
@@ -7820,14 +7980,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 6
       },
       "battle_value": 14,
       "tonnage": 5.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek mortars/innerSphere/ISMekMortar2.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek mortars/innerSphere/ISMekMortar2.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=6 from Tactical Operations: AUE row '\u2019Mech Mortar/2 (IS)'.",
       "rack_size": 2
     },
     "ismechmortar-4": {
@@ -7850,14 +8011,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 6
       },
       "battle_value": 26,
       "tonnage": 7.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek mortars/innerSphere/ISMekMortar4.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek mortars/innerSphere/ISMekMortar4.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=6 from Tactical Operations: AUE row '\u2019Mech Mortar/4 (IS)'.",
       "rack_size": 4
     },
     "ismechmortar-8": {
@@ -7880,14 +8042,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 6
       },
       "battle_value": 50,
       "tonnage": 10.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek mortars/innerSphere/ISMekMortar8.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek mortars/innerSphere/ISMekMortar8.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=6 from Tactical Operations: AUE row '\u2019Mech Mortar/8 (IS)'.",
       "rack_size": 8
     },
     "clanmechmortar-1": {
@@ -7910,14 +8073,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 6
       },
       "battle_value": 10,
       "tonnage": 1.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek mortars/clan/CLMekMortar1.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek mortars/clan/CLMekMortar1.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=6 from Tactical Operations: AUE row '\u2019Mech Mortar/1 (Clan)'.",
       "rack_size": 1
     },
     "clanmechmortar-2": {
@@ -7940,14 +8104,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 6
       },
       "battle_value": 14,
       "tonnage": 2.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek mortars/clan/CLMekMortar2.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek mortars/clan/CLMekMortar2.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=6 from Tactical Operations: AUE row '\u2019Mech Mortar/2 (Clan)'.",
       "rack_size": 2
     },
     "clanmechmortar-4": {
@@ -7970,14 +8135,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 6
       },
       "battle_value": 26,
       "tonnage": 3.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek mortars/clan/CLMekMortar4.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek mortars/clan/CLMekMortar4.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=6 from Tactical Operations: AUE row '\u2019Mech Mortar/4 (Clan)'.",
       "rack_size": 4
     },
     "clanmechmortar-8": {
@@ -8000,14 +8166,15 @@
       "range": {
         "short": 7,
         "medium": 14,
-        "long": 21
+        "long": 21,
+        "min": 6
       },
       "battle_value": 50,
       "tonnage": 5.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek mortars/clan/CLMekMortar8.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek mortars/clan/CLMekMortar8.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=6 from Tactical Operations: AUE row '\u2019Mech Mortar/8 (Clan)'.",
       "rack_size": 8
     },
     "cladvancedsrm2": {
@@ -8334,14 +8501,15 @@
       "range": {
         "short": 1,
         "medium": 2,
-        "long": 3
+        "long": 3,
+        "min": 0
       },
       "battle_value": 14,
       "tonnage": 1.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/small/ISReengineeredLaserSmall.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Small Re-Engineered Laser' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/small/ISReengineeredLaserSmall.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Small Re-Engineered Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Small Re-Engineered Laser'.",
       "rack_size": null
     },
     "mediumre-engineeredlaser": {
@@ -8364,14 +8532,15 @@
       "range": {
         "short": 3,
         "medium": 6,
-        "long": 9
+        "long": 9,
+        "min": 0
       },
       "battle_value": 65,
       "tonnage": 2.5,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/medium/ISReengineeredLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Medium Re-Engineered Laser' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/medium/ISReengineeredLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Medium Re-Engineered Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Medium Re-Engineered Laser'.",
       "rack_size": null
     },
     "largere-engineeredlaser": {
@@ -8394,14 +8563,15 @@
       "range": {
         "short": 5,
         "medium": 10,
-        "long": 15
+        "long": 15,
+        "min": 0
       },
       "battle_value": 161,
       "tonnage": 8.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/large/ISReengineeredLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Large Re-Engineered Laser' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/large/ISReengineeredLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Large Re-Engineered Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Large Re-Engineered Laser'.",
       "rack_size": null
     },
     "tsempcannon": {
@@ -8520,14 +8690,15 @@
       "range": {
         "short": 8,
         "medium": 15,
-        "long": 25
+        "long": 25,
+        "min": 0
       },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Interstellar Operations pp. 217-226 alternate-era table, row 'RISC Hyper Laser' (Daniel's Weapon_Rules_Tables rip)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Interstellar Operations pp. 217-226 alternate-era table, row 'RISC Hyper Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'RISC Hyper Laser'."
     },
     "isvehicleflamerammo": {
       "canonical_name": "IS Vehicle Flamer Ammo",
