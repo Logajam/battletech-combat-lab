@@ -152,10 +152,12 @@ in tabletop play it falls where the check was failed
 **Other open items:**
 - `config.PROMPT_FOR_MAP` picker not built — always loads `DEFAULT_BOARD_PATH`.
 - `STITCH_MAPS` raises NotImplementedError (stitch_boards itself is ready).
-- Full `MECHSIM__equipment.json` is not in this Project (only the 14-entry
-  mini). With the mini DB, the Asymptote's Improved Jump Jets and Endo
-  Steel parse as inert padding (jump MP still comes from the header line,
-  but jump-jet crits don't reduce it).
+- ~~Full `MECHSIM__equipment.json` not available (only the 14-entry
+  mini)~~ RESOLVED 2026-10-19: the full DB is now `mechsim/equipment.json`
+  (689 entries, 166 verified; 279 weapons, 144 with damage stats). Improved
+  Jump Jets and Endo Steel are recognized; jump-jet crits now reduce jump MP.
+  Still null in the full DB: ISLBXAC10 (never fires). Its `_meta.entry_count`
+  says 1086 - stale, the file holds 689.
 - Pile 1 reconciliation: `sim_runner._resolve_hit`/`resolve_weapon_attack`
   are absorbed (`INTEGRATION__attack_resolution`). `combat_turn`'s two-ply
   search and closing-fallback are NOT — don't delete `combat_turn.py` until
@@ -180,7 +182,7 @@ No PATHFINDER module used by the battle loop imports `config`.
 - MECHSIM: Clan free CASE auto-injection at parse time; Reactive Armor's
   full secondary crit roll (only flat halving is wired); Modular Armor;
   Shields (no spec); Superheavy/Compact engine 2-hit exception; LAM/exotic
-  Config types; `equipment.json` curation (~80/3758 entries verified,
+  Config types; `equipment.json` curation (166/689 entries verified,
   rest generic padding); PSR special cases (quad-all-legs, AES-in-legs,
   Tripod, small/torso cockpit) specified but not implemented, cockpit-type/AES
   not parsed.
@@ -391,3 +393,14 @@ No PATHFINDER module used by the battle loop imports `config`.
   needed the absent `simulate.py`, whose import blocked every test); runs
   all tests and exits non-zero on any failure. Result: 8/8 pass. Sanity
   check: setting heavy-woods cost to 3 in a scratch copy fails test 7.
+- **2026-10-19 (Daniel):** Full equipment DB goes in the repo, replacing the
+  14-entry mini.
+- **2026-10-19 (Claude):** `mechsim/equipment.json` replaced with the full DB.
+  The mini's 14 entries have identical stats in it (only alias lists grew).
+  Effect on the reference battles: Asymptote mirror now records jump-jet
+  crits as "jump MP reduced (now 4)" and Endo Steel crit slots as real
+  components - still 22 turns, Red wins; Synthetic battle unchanged except
+  the "unrecognized component" notes are gone. Both reference logs
+  regenerated. Added `tests/check_reference_logs.py` (re-runs both
+  reference battles and compares; `--update` rewrites them) so the check
+  works on Windows without diff tools.

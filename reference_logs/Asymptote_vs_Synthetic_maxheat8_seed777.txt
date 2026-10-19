@@ -7,30 +7,6 @@ MECH SELECTION
 ============================================================
 
 -- Mech RED --
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
   Loaded: Asymptote II iJ Mpulse  (./data/Asymptote II iJ Mpulse.mtf)
 
 -- Mech BLUE --

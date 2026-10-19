@@ -7,57 +7,9 @@ MECH SELECTION
 ============================================================
 
 -- Mech RED --
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
   Loaded: Asymptote II iJ Mpulse  (./data/Asymptote II iJ Mpulse.mtf)
 
 -- Mech BLUE --
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Improved Jump Jet' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
-  NOTE: unrecognized component 'IS Endo Steel' - treating as a plain 1-slot component with no special effect. Add it to equipment.json if it needs real properties.
   Loaded: Asymptote II iJ Mpulse  (./data/Asymptote II iJ Mpulse.mtf)
 ============================================================
 
@@ -230,8 +182,9 @@ MECH SELECTION
     7: IS Improved Jump Jet (slot 7)
     8: IS Improved Jump Jet (slot 8)
     9: ISTAG (slot 9)
-    1/1 Criticals: IS Improved Jump Jet hit.
+    1/1 Criticals: IS Improved Jump Jet slot hit.
       Current crit slots in Left Torso: ['Engine', 'Engine', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'IS Improved Jump Jet', 'DESTROYED', 'IS Improved Jump Jet', 'IS Improved Jump Jet', 'ISTAG', '-Empty-', '-Empty-', '-Empty-']
+      Jump jet destroyed (IS Improved Jump Jet) - jump MP reduced (now 4).
     ISMediumPulseLaser hit for 6:
       Hit location roll 8 (left table): Center Torso.
 6 damage (ENERGY) incoming to Center Torso (armor).
@@ -263,7 +216,7 @@ MECH SELECTION
 
 === TURN 5 ===
   Initiative: Red lost the roll, moves first.
-  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
+  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
   [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
   [Ranged] Red -> Blue: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 4 + sink 22 - current 0 - movement 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 8 -> HIT
@@ -323,7 +276,7 @@ MECH SELECTION
 
 === TURN 6 ===
   Initiative: Red lost the roll, moves first.
-  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
+  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
   [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
   [Ranged] Red -> Blue: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 4 + sink 22 - current 0 - movement 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 8 -> HIT
@@ -380,7 +333,7 @@ MECH SELECTION
 === TURN 7 ===
   Initiative: Blue lost the roll, moves first.
   [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
+  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
   [Ranged] Blue -> Red: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 4 + sink 22 - current 0 - movement 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 4 -> HIT
@@ -440,7 +393,7 @@ MECH SELECTION
 
 === TURN 8 ===
   Initiative: Red lost the roll, moves first.
-  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
+  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
   [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
   [Ranged] Red -> Blue: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 4 + sink 22 - current 0 - movement 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
@@ -499,8 +452,9 @@ MECH SELECTION
     6: IS Improved Jump Jet (slot 7)
     7: IS Improved Jump Jet (slot 8)
     8: ISTAG (slot 9)
-    2/2 Criticals: IS Improved Jump Jet hit.
+    2/2 Criticals: IS Improved Jump Jet slot hit.
       Current crit slots in Left Torso: ['Engine', 'DESTROYED', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'IS Improved Jump Jet', 'DESTROYED', 'IS Improved Jump Jet', 'IS Improved Jump Jet', 'ISTAG', '-Empty-', '-Empty-', '-Empty-']
+      Jump jet destroyed (IS Improved Jump Jet) - jump MP reduced (now 4).
     ISMediumPulseLaser hit for 6:
       Hit location roll 7 (rear table): Center Torso.
 6 damage (ENERGY) incoming to Center Torso (rear_armor).
@@ -527,8 +481,8 @@ MECH SELECTION
 
 === TURN 9 ===
   Initiative: Red lost the roll, moves first.
-  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
+  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
+  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
   [Ranged] Red -> Blue: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 4 + sink 22 - current 0 - movement 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 5 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 11 -> HIT
@@ -563,12 +517,8 @@ MECH SELECTION
     2: Upper Arm Actuator (slot 2)
     3: Lower Arm Actuator (slot 3)
     4: Hand Actuator (slot 4)
-    5: IS Endo Steel (slot 5)
-    6: IS Endo Steel (slot 6)
-    7: IS Endo Steel (slot 7)
-    8: IS Endo Steel (slot 8)
-    1/1 Criticals: IS Endo Steel hit.
-      Current crit slots in Left Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', 'DESTROYED', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+    1/1 Criticals: Lower Arm Actuator hit.
+      Current crit slots in Left Arm: ['Shoulder', 'Upper Arm Actuator', 'DESTROYED', 'Hand Actuator', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
     ISMediumPulseLaser hit for 6:
   Tripod leg sub-roll (right): base 6 -> 5 -> Left Leg
       Hit location roll 6 (right table): Left Leg.
@@ -606,8 +556,8 @@ MECH SELECTION
 
 === TURN 10 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
+  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
+  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
   [Ranged] Blue -> Red: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 4 + sink 22 - current 0 - movement 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 4 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 5 -> HIT
@@ -665,8 +615,8 @@ MECH SELECTION
 
 === TURN 11 ===
   Initiative: Red lost the roll, moves first.
-  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
+  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
+  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
   [Ranged] Red -> Blue: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 4 + sink 22 - current 0 - movement 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 9 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 9 -> HIT
@@ -727,8 +677,8 @@ MECH SELECTION
 
 === TURN 12 ===
   Initiative: Red lost the roll, moves first.
-  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
+  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
+  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
   [Ranged] Red -> Blue: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 4 + sink 22 - current 0 - movement 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 10 -> HIT
@@ -790,8 +740,8 @@ MECH SELECTION
 
 === TURN 13 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
+  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
+  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
   [Ranged] Blue -> Red: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 4 + sink 22 - current 0 - movement 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 8 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 8 -> HIT
@@ -849,8 +799,8 @@ MECH SELECTION
 
 === TURN 14 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
+  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
+  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
   [Ranged] Blue -> Red: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 4 + sink 22 - current 0 - movement 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 8 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 2 -> miss
@@ -917,8 +867,8 @@ MECH SELECTION
 
 === TURN 15 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
+  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
+  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
   [Ranged] Blue -> Red: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 4 + sink 22 - current 0 - movement 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 2 -> miss
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 8 -> HIT
@@ -980,8 +930,8 @@ MECH SELECTION
 
 === TURN 16 ===
   Initiative: Red lost the roll, moves first.
-  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
+  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
+  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
   [Ranged] Red -> Blue: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 4 + sink 22 - current 0 - movement 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 3 -> miss
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 8 -> HIT
@@ -1044,8 +994,8 @@ MECH SELECTION
 
 === TURN 17 ===
   Initiative: Red lost the roll, moves first.
-  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
+  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
+  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
   [Ranged] Red -> Blue: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 4 + sink 22 - current 0 - movement 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 3 -> miss
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 9 -> HIT
@@ -1106,12 +1056,8 @@ MECH SELECTION
     2: Upper Arm Actuator (slot 2)
     3: Lower Arm Actuator (slot 3)
     4: Hand Actuator (slot 4)
-    5: IS Endo Steel (slot 5)
-    6: IS Endo Steel (slot 6)
-    7: IS Endo Steel (slot 7)
-    8: IS Endo Steel (slot 8)
-    1/1 Criticals: IS Endo Steel hit.
-      Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+    1/1 Criticals: Hand Actuator hit.
+      Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'DESTROYED', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel', 'IS Endo Steel', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   [Heat] Red: 0 + movement 0 + weapons 20 - sinks 22 -> 0
   [Heat] Blue: 0 + movement 0 + weapons 20 - sinks 22 -> 0
   -- end of turn 17: Red @ 0709 SW: HP 283, pilot hits 0, engine 0, gyro 0, heat 0
@@ -1119,8 +1065,8 @@ MECH SELECTION
 
 === TURN 18 ===
   Initiative: Red lost the roll, moves first.
-  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
+  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
+  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
   [Ranged] Red -> Blue: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 4 + sink 22 - current 0 - movement 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 6 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 3 -> miss
@@ -1186,8 +1132,8 @@ MECH SELECTION
 
 === TURN 19 ===
   Initiative: Red lost the roll, moves first.
-  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
+  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
+  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
   [Ranged] Red -> Blue: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 4 + sink 22 - current 0 - movement 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 10 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
@@ -1261,8 +1207,8 @@ MECH SELECTION
 
 === TURN 20 ===
   Initiative: Red lost the roll, moves first.
-  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
+  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
+  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
   [Ranged] Red -> Blue: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 4 + sink 22 - current 0 - movement 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 4 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
@@ -1318,8 +1264,8 @@ MECH SELECTION
 
 === TURN 21 ===
   Initiative: Red lost the roll, moves first.
-  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
+  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
+  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
   [Ranged] Red -> Blue: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 4 + sink 22 - current 0 - movement 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 5 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 8 -> HIT
@@ -1380,8 +1326,8 @@ MECH SELECTION
 
 === TURN 22 ===
   Initiative: Red lost the roll, moves first.
-  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
+  [Movement] Red: 0709 SW -> 0709 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
+  [Movement] Blue: 0910 NW -> 0910 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 4)
   [Ranged] Red -> Blue: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 4 + sink 22 - current 0 - movement 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 12 -> HIT
@@ -1411,6 +1357,7 @@ MECH SELECTION
   Left Torso destroyed with no live explosive components - no critical roll.
   Left Torso DESTROYED!
     Engine hit (2/3) from Left Torso destruction.
+    Jump jet destroyed (IS Improved Jump Jet) from Left Torso destruction - jump MP reduced (now 3).
   All critical slots in Left Torso marked DESTROYED.
   Left Arm also destroyed (side torso rule).
   All critical slots in Left Arm marked DESTROYED.
@@ -1429,6 +1376,8 @@ MECH SELECTION
   Right Torso DESTROYED!
     Engine hit (3/3) from Right Torso destruction.
     Engine hit (4/3) from Right Torso destruction.
+    Jump jet destroyed (IS Improved Jump Jet) from Right Torso destruction - jump MP reduced (now 2).
+    Jump jet destroyed (IS Improved Jump Jet) from Right Torso destruction - jump MP reduced (now 1).
     Heat sink destroyed (ISDoubleHeatSink) from Right Torso destruction - heat dissipation reduced (now 18).
     Heat sink destroyed (ISDoubleHeatSink) from Right Torso destruction - heat dissipation reduced (now 16).
   All critical slots in Right Torso marked DESTROYED.
@@ -1477,8 +1426,8 @@ MECH SELECTION
 !!   attack_direction                   187 runs, in 1/1 battle(s)
 !!   movement_selection                  44 runs, in 1/1 battle(s)
 !!   physical_combat                     22 runs, in 1/1 battle(s)
+!!   to_hit_modifiers_not_applied        18 runs, in 1/1 battle(s)
 !!   heat_effects                        15 runs, in 1/1 battle(s)
-!!   to_hit_modifiers_not_applied         4 runs, in 1/1 battle(s)
 !!   deployment                           2 runs, in 1/1 battle(s)
 !! Known missing rules with no runtime flag:
 !!   - Minimum range penalties (no data in equipment.json)
@@ -1510,8 +1459,8 @@ BATCH SUMMARY - 1 battle(s): Red = Asymptote II iJ Mpulse, Blue = Asymptote II i
 !!   attack_direction                   187 runs, in 1/1 battle(s)
 !!   movement_selection                  44 runs, in 1/1 battle(s)
 !!   physical_combat                     22 runs, in 1/1 battle(s)
+!!   to_hit_modifiers_not_applied        18 runs, in 1/1 battle(s)
 !!   heat_effects                        15 runs, in 1/1 battle(s)
-!!   to_hit_modifiers_not_applied         4 runs, in 1/1 battle(s)
 !!   deployment                           2 runs, in 1/1 battle(s)
 !! Known missing rules with no runtime flag:
 !!   - Minimum range penalties (no data in equipment.json)
@@ -1564,7 +1513,7 @@ STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'left' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
 STUB: physical_combat - turn 4: phase skipped (not built)
-STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 593 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 425 LOS candidates, exp. dealt 27.50 / recv 27.50)
 STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 595 LOS candidates, exp. dealt 27.50 / recv 27.50)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
@@ -1576,7 +1525,7 @@ STUB: attack_direction - Blue -> Red: 'right' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'rear' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'rear' hit table (mechsim_random)
 STUB: physical_combat - turn 5: phase skipped (not built)
-STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 593 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 425 LOS candidates, exp. dealt 27.50 / recv 27.50)
 STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 595 LOS candidates, exp. dealt 27.50 / recv 27.50)
 STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
@@ -1588,7 +1537,7 @@ STUB: attack_direction - Blue -> Red: 'right' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'right' hit table (mechsim_random)
 STUB: physical_combat - turn 6: phase skipped (not built)
 STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 595 LOS candidates, exp. dealt 27.50 / recv 27.50)
-STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 593 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 425 LOS candidates, exp. dealt 27.50 / recv 27.50)
 STUB: attack_direction - Blue -> Red: 'rear' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'rear' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'right' hit table (mechsim_random)
@@ -1599,7 +1548,7 @@ STUB: attack_direction - Red -> Blue: 'left' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'right' hit table (mechsim_random)
 STUB: physical_combat - turn 7: phase skipped (not built)
-STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 593 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 425 LOS candidates, exp. dealt 27.50 / recv 27.50)
 STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 595 LOS candidates, exp. dealt 27.50 / recv 27.50)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
@@ -1612,8 +1561,8 @@ STUB: attack_direction - Blue -> Red: 'right' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'rear' hit table (mechsim_random)
 STUB: physical_combat - turn 8: phase skipped (not built)
 STUB: heat_effects - Blue: 1 engine hit(s): no engine heat added
-STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 593 LOS candidates, exp. dealt 27.50 / recv 27.50)
-STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 595 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 425 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 421 LOS candidates, exp. dealt 27.50 / recv 27.50)
 STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
@@ -1626,8 +1575,9 @@ STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'left' hit table (mechsim_random)
 STUB: physical_combat - turn 9: phase skipped (not built)
 STUB: heat_effects - Blue: 1 engine hit(s): no engine heat added
-STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 595 LOS candidates, exp. dealt 27.50 / recv 27.50)
-STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 593 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 421 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 425 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker arm actuator damage
 STUB: attack_direction - Blue -> Red: 'right' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'left' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
@@ -1639,8 +1589,9 @@ STUB: attack_direction - Red -> Blue: 'right' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
 STUB: physical_combat - turn 10: phase skipped (not built)
 STUB: heat_effects - Blue: 1 engine hit(s): no engine heat added
-STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 593 LOS candidates, exp. dealt 27.50 / recv 27.50)
-STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 595 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 425 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 421 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker arm actuator damage
 STUB: attack_direction - Red -> Blue: 'left' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
@@ -1653,8 +1604,9 @@ STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
 STUB: physical_combat - turn 11: phase skipped (not built)
 STUB: heat_effects - Blue: 1 engine hit(s): no engine heat added
-STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 593 LOS candidates, exp. dealt 27.50 / recv 27.50)
-STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 595 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 425 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 421 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker arm actuator damage
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'left' hit table (mechsim_random)
@@ -1667,8 +1619,9 @@ STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'rear' hit table (mechsim_random)
 STUB: physical_combat - turn 12: phase skipped (not built)
 STUB: heat_effects - Blue: 1 engine hit(s): no engine heat added
-STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 595 LOS candidates, exp. dealt 27.50 / recv 27.50)
-STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 593 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 421 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 425 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker arm actuator damage
 STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
@@ -1680,8 +1633,9 @@ STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'left' hit table (mechsim_random)
 STUB: physical_combat - turn 13: phase skipped (not built)
 STUB: heat_effects - Blue: 1 engine hit(s): no engine heat added
-STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 595 LOS candidates, exp. dealt 27.50 / recv 27.50)
-STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 593 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 421 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 425 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker arm actuator damage
 STUB: attack_direction - Blue -> Red: 'rear' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'right' hit table (mechsim_random)
@@ -1693,8 +1647,9 @@ STUB: attack_direction - Red -> Blue: 'left' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
 STUB: physical_combat - turn 14: phase skipped (not built)
 STUB: heat_effects - Blue: 1 engine hit(s): no engine heat added
-STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 595 LOS candidates, exp. dealt 27.50 / recv 27.50)
-STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 593 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 421 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 425 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker arm actuator damage
 STUB: attack_direction - Blue -> Red: 'right' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'left' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'rear' hit table (mechsim_random)
@@ -1706,8 +1661,9 @@ STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
 STUB: physical_combat - turn 15: phase skipped (not built)
 STUB: heat_effects - Blue: 1 engine hit(s): no engine heat added
-STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 593 LOS candidates, exp. dealt 27.50 / recv 27.50)
-STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 595 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 425 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 421 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker arm actuator damage
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
@@ -1719,8 +1675,9 @@ STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'left' hit table (mechsim_random)
 STUB: physical_combat - turn 16: phase skipped (not built)
 STUB: heat_effects - Blue: 1 engine hit(s): no engine heat added
-STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 593 LOS candidates, exp. dealt 27.50 / recv 27.50)
-STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 595 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 425 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 421 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker arm actuator damage
 STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
@@ -1732,8 +1689,10 @@ STUB: attack_direction - Blue -> Red: 'rear' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'right' hit table (mechsim_random)
 STUB: physical_combat - turn 17: phase skipped (not built)
 STUB: heat_effects - Blue: 1 engine hit(s): no engine heat added
-STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 593 LOS candidates, exp. dealt 27.50 / recv 27.50)
-STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 595 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 425 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 421 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: to_hit_modifiers_not_applied - Red -> Blue: attacker arm actuator damage
+STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker arm actuator damage
 STUB: attack_direction - Red -> Blue: 'right' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
@@ -1745,9 +1704,10 @@ STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
 STUB: physical_combat - turn 18: phase skipped (not built)
 STUB: heat_effects - Blue: 1 engine hit(s): no engine heat added
-STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 593 LOS candidates, exp. dealt 27.50 / recv 27.50)
-STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 595 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 425 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 421 LOS candidates, exp. dealt 27.50 / recv 27.50)
 STUB: to_hit_modifiers_not_applied - Red -> Blue: attacker arm actuator damage
+STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker arm actuator damage
 STUB: attack_direction - Red -> Blue: 'left' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
@@ -1758,9 +1718,10 @@ STUB: attack_direction - Blue -> Red: 'rear' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
 STUB: physical_combat - turn 19: phase skipped (not built)
 STUB: heat_effects - Blue: 1 engine hit(s): no engine heat added
-STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 593 LOS candidates, exp. dealt 27.50 / recv 27.50)
-STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 595 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 425 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 421 LOS candidates, exp. dealt 27.50 / recv 27.50)
 STUB: to_hit_modifiers_not_applied - Red -> Blue: attacker arm actuator damage
+STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker arm actuator damage
 STUB: attack_direction - Red -> Blue: 'left' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'left' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
@@ -1770,9 +1731,10 @@ STUB: attack_direction - Blue -> Red: 'right' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'left' hit table (mechsim_random)
 STUB: physical_combat - turn 20: phase skipped (not built)
 STUB: heat_effects - Blue: 1 engine hit(s): no engine heat added
-STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 593 LOS candidates, exp. dealt 27.50 / recv 27.50)
-STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 595 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 425 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 421 LOS candidates, exp. dealt 27.50 / recv 27.50)
 STUB: to_hit_modifiers_not_applied - Red -> Blue: attacker arm actuator damage
+STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker arm actuator damage
 STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
@@ -1784,9 +1746,10 @@ STUB: attack_direction - Blue -> Red: 'right' hit table (mechsim_random)
 STUB: attack_direction - Blue -> Red: 'front' hit table (mechsim_random)
 STUB: physical_combat - turn 21: phase skipped (not built)
 STUB: heat_effects - Blue: 1 engine hit(s): no engine heat added
-STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 593 LOS candidates, exp. dealt 27.50 / recv 27.50)
-STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 595 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Red picked 0709 SW Stand Still (policy=max_dealt, 425 LOS candidates, exp. dealt 27.50 / recv 27.50)
+STUB: movement_selection - Blue picked 0910 NW Stand Still (policy=max_dealt, 421 LOS candidates, exp. dealt 27.50 / recv 27.50)
 STUB: to_hit_modifiers_not_applied - Red -> Blue: attacker arm actuator damage
+STUB: to_hit_modifiers_not_applied - Blue -> Red: attacker arm actuator damage
 STUB: attack_direction - Red -> Blue: 'left' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'front' hit table (mechsim_random)
 STUB: attack_direction - Red -> Blue: 'rear' hit table (mechsim_random)
