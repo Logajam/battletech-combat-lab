@@ -50,6 +50,10 @@
     "one_shot_fill": {
       "date": "2026-10-19",
       "note": "One-shot (OS/I-OS) launchers given their base launcher's damage_type/damage/heat/range/rack_size where theirs were null (Daniel: same range and damage stats as the primary). The fire-once limit is not enforced - INTEGRATION__stubs.stub_one_shot warns each time one fires."
+    },
+    "coolant_pod_fix": {
+      "date": "2026-10-19",
+      "note": "coolantpod: category ammo -> misc, explosion_damage 2 (Core p.208). Not mirrored in build_equipment_db.py."
     }
   },
   "entries": {
@@ -12007,14 +12011,15 @@
       "aliases": [
         "Clan Coolant Pod",
         "Coolant Pod",
-        "IS Coolant Pod"
+        "IS Coolant Pod",
+        "ISCoolantPod"
       ],
-      "category": "ammo",
+      "category": "misc",
       "tech_base": "IS",
       "slots": 1,
       "crit_eligible": true,
       "explosive": true,
-      "explosion_damage": null,
+      "explosion_damage": 2,
       "damage_type": null,
       "shots_per_ton": null,
       "damage_per_shot": null,
@@ -12023,9 +12028,9 @@
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
-      "special_rules_ref": null,
-      "verified": false,
-      "notes": "Not confirmed"
+      "special_rules_ref": "Core Rulebook p.208",
+      "verified": true,
+      "notes": "2026-10-19 (Claude), Core Rulebook p.208: was category 'ammo' (made pods heat-explosion candidates with the 20-point ammo default). Now misc: once per game, +1 cooling per active heat sink; a critical hit on an UNUSED pod is a 2-point component explosion (INTEGRATION__equipment_systems clears explosive once the pod is used)."
     },
     "ism-podammo": {
       "canonical_name": "IS M-Pod Ammo",

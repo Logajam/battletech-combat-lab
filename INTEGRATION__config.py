@@ -116,6 +116,30 @@ MECH_RED_MTF = "Asymptote II iJ Mpulse.mtf"
 MECH_BLUE_MTF = "Asymptote II iJ Mpulse.mtf"
 
 # =============================================================================
+# ==========================  EQUIPMENT SETTINGS (2026-10-19)  ===============
+# =============================================================================
+# Player choices for heat/movement equipment (Daniel, 2026-10-19: "for the
+# moment we'll assume default on"). Rules are in INTEGRATION__equipment_systems
+# and INTEGRATION__heat; these are the bot's settings.
+#
+# Stealth systems (Chameleon LPS, Null-/Void-Signature, stealth armor): always
+# active. Coolant pods: one triggered in any Heat Phase where heat would still
+# be above min_heat after normal dissipation (not on a radical heat sink turn).
+#
+# Radical heat sinks, MASC, supercharger: Escalating Failure systems, used on a
+# 1-turn-on / 1-turn-off cycle (Daniel). True = "on" turns are the odd turns
+# (1, 3, 5...); False = even turns.
+ESCALATING_CYCLE_ON_ODD_TURNS = True
+# Triple-strength myomer is driven by min_heat (Daniel): a TSM mech's min_heat
+# is raised to at least this (TSM works at 9+ heat), and its max_heat to at
+# least its min_heat.
+TSM_MIN_HEAT = 9
+# Aimed shots at immobile targets (shut down / crew unconscious, Core p.70):
+# the location every eligible weapon aims at, or None for no aimed shots.
+# "Head" uses +3 instead of the -4 immobile modifier.
+AIMED_SHOT_LOCATION = "Center Torso"
+
+# =============================================================================
 # ==========================  MAP LOADING  ===================================
 # =============================================================================
 # Ported from PATHFINDER__config.py. orchestrator._load_map() uses

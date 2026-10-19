@@ -47,6 +47,11 @@ Medium Pulse Lasers every turn under the 2026-10-18 heat budget.
 (pp.102-107): engine-hit heat, Heat Scale MP and to-hit penalties,
 shutdown/restart, heat ammo explosions, life-support pilot hits. See
 `INTEGRATION__heat.py`'s docstring for the rule list with page cites.
+**Heat equipment too (2026-10-19):** stealth systems, coolant pods, radical
+heat sinks, inferno ammo rolls, TSM, torso-mounted cockpit life support,
+MASC, superchargers, End Phase heat-sink switching and aimed shots at
+immobile targets - `INTEGRATION__equipment_systems.py`, with Daniel's
+default player choices (Section 5).
 
 **The biggest stubs to replace, in rough order of impact on results:**
 1. `movement_selection` — which spot to move to (scoring formula is Daniel's call).
@@ -90,10 +95,10 @@ does both, with stubs where rules are missing.**
 |---|---|---|
 | Deployment | `stubs.stub_deployment()` | **STUB** — fixed CONFIG hexes; edge entry not built. |
 | Initiative | `orchestrator.roll_initiative()` | **REAL**, Daniel-confirmed 2026-08-31. |
-| Movement | `orchestrator._phase_movement()` | **REAL:** damage- and heat-aware MP, immobile (shut down / unconscious) skip, full Walk/Run/Jump envelope with expected dealt/received per spot (`INTEGRATION__ranged_combat.evaluate_going_second`), unconscious-skip, stand-up (`resolve_stand_up`), movement PSR for Run/Jump (`check_movement_psr`), consciousness checks. **STUBS:** `movement_selection` (the pick), `walk_movement_psr`, `post_standup_movement`. |
+| Movement | `orchestrator._phase_movement()` | **REAL:** damage- and heat-aware MP (TSM, MASC/supercharger), immobile (shut down / unconscious) skip, full Walk/Run/Jump envelope with expected dealt/received per spot (`INTEGRATION__ranged_combat.evaluate_going_second`), unconscious-skip, stand-up (`resolve_stand_up`), movement PSR for Run/Jump (`check_movement_psr`), consciousness checks. **STUBS:** `movement_selection` (the pick), `walk_movement_psr`, `post_standup_movement`. |
 | Ranged Combat | `INTEGRATION__attack_resolution.py` | **REAL:** LOS, rear-arc firing block, TN = gunnery + AMM + TMM(actual hexes moved; -4 if immobile) + LOS + range + heat, shut-down mechs don't fire, heat-constrained weapon selection, real to-hit rolls, cluster table, hit location, damage, crits, explosions, floating TAC, head hits, Attack Phase PSR, consciousness. Both sides declare before damage lands (simultaneous). **STUBS:** `attack_direction`, `cluster_grouping`, `unknown_damage_type`, `unconfirmed_weapon_data`, `ammo`, `to_hit_modifiers_not_applied`. |
 | Physical Combat | `stubs.stub_physical_combat()` | **STUB** (deferred by scope call). |
-| Heat | `orchestrator._phase_heat()` → `INTEGRATION__heat.resolve_heat_phase()` | **REAL (2026-10-19, Core Rulebook pp.102-107):** heat carries over; += movement heat (Walk 1 / Run 2 / Jump, Improved JJ, XXL, super-cooled myomer) + weapon heat + engine-hit heat (5/10) − dissipation (+3 Partial Wing); then shutdown roll or restart, ammo-explosion roll, life-support pilot hits, and next turn's MP / to-hit penalties. **STUB:** `heat_explosion_bin` (bin tie-break needs shot counts). |
+| Heat | `orchestrator._phase_heat()` → `INTEGRATION__heat.resolve_heat_phase()` | **REAL (2026-10-19, Core Rulebook pp.102-107):** heat carries over; += movement heat (Walk 1 / Run 2 / Jump, Improved JJ, XXL, super-cooled myomer) + weapon heat + engine-hit heat (5/10) + stealth heat − dissipation (+3 Partial Wing, radical heat sinks, coolant pods); then shutdown roll or restart, ammo and inferno explosion rolls (re-rolled after inferno heat), life-support pilot hits, and next turn's MP / to-hit / TSM effects. End Phase: heat sinks switched off to hold min_heat. **STUB:** `heat_explosion_bin` (bin tie-break needs shot counts). |
 | End | `orchestrator._phase_end()` | **REAL:** wake-up rolls, crippled tracking, destruction check. |
 
 Resolved 2026-10-18 (Daniel): TMM uses **actual hexes moved**
@@ -146,13 +151,13 @@ TODOs are from memory — grep before relying on them).
 
 **Rules gaps with no runtime flag** (also printed in every summary):
 per-mount firing arcs; LB-X/Ultra/Rotary multi-shot
-math; Artemis/HAG/ammo variants; heat sources/sinks with no terrain or
-equipment model yet (water, snow, fire, extreme temperatures, stealth
-systems, coolant pods, radical heat sinks, inferno ammo's extra rolls,
-TSM, torso-mounted cockpit life support); heat decisions (cooldown,
-voluntary shutdown, heat-sink deactivation); aimed shots at immobile
-targets; physical combat; tripod leg sub-roll uses Python `random`
-(seeded from SEED, not the BattleRNG stream).
+math; Artemis/HAG/ammo variants; heat sources with no terrain model yet
+(water, snow, fire, extreme temperatures) and inferno missiles' heat on
+targets (launchers fire standard ammo); heat decisions (cooldown,
+voluntary shutdown); stealth armor / Void-Signature hostile-ECM side
+effects; torso-mounted cockpit PSR/sensor rules; TSM physical doubling;
+physical combat; tripod leg sub-roll uses Python `random` (seeded from
+SEED, not the BattleRNG stream).
 
 **TODO noted in code:** a failed movement PSR drops the mech in its END hex;
 in tabletop play it falls where the check was failed
@@ -195,7 +200,6 @@ No PATHFINDER module used by the battle loop imports `config`.
 
 **Deferred by explicit scope call, not gaps:**
 - Physical Combat phase (stubbed, see above).
-- Radical Heat Sink Systems (activatable, risk-bearing — not passive; not wired).
 - End Phase beyond unconscious-pilot recovery (heat restarts happen in the
   Heat Phase, p.105; voluntary End Phase shutdown is a bot decision, not built).
 
@@ -268,6 +272,21 @@ No PATHFINDER module used by the battle loop imports `config`.
   i.e. (min - range) + 1; a weapon with no listed minimum has minimum 0.
 - **One-shot launchers (2026-10-19):** same range and damage stats as their
   primary launcher; they may only fire once (not enforced yet).
+- **Engine-hit heat (2026-10-19, confirmed):** a hit taken this turn adds
+  its heat in that turn's Heat Phase; after that the 5 (or 10) comes out of
+  the weapon heat budget every turn.
+- **Heat equipment defaults (2026-10-19):** player choices are "default on"
+  for now - stealth systems always active, coolant pods used (Claude's
+  reading of "on": when heat would stay above min_heat). Radical heat sinks,
+  MASC and superchargers run a 1-turn-on / 1-turn-off cycle
+  (`config.ESCALATING_CYCLE_ON_ODD_TURNS`). TSM is controlled by min_heat =
+  9 (`config.TSM_MIN_HEAT`; Claude also raises max_heat to at least
+  min_heat). Heat sinks are switched off in the End Phase from the mech's
+  most possible heat (weapons + movement + damage) so min_heat can be
+  reached.
+- **min_heat (2026-10-19):** the floor on end-of-Heat-Phase heat (the mech
+  "wants to sit at a minimum of" it), mirror of max_heat. Was: minimum
+  weapon heat generated per turn.
 - **Stub conventions (2026-10-18):** every placeholder is its own function in
   `INTEGRATION__stubs.py`, warns loudly every run, is counted into the
   results, keeps its knobs in config. Defaults: movement `max_dealt`, hit
@@ -283,6 +302,10 @@ No PATHFINDER module used by the battle loop imports `config`.
 | No-LOS movement fallback | `INTEGRATION__stubs.stub_select_movement` | **STUB.** Where to go when nothing has LOS. |
 | Heat-constrained weapon selection | `INTEGRATION__weapon_selection.py` | Which weapons fire this turn, built and wired |
 | Heat ammo explosion bin (controller's choice) | `INTEGRATION__stubs.stub_heat_explosion_bin` | **STUB.** Which of several equally destructive bins explodes (random). |
+| Escalating Failure use (radical heat sinks, MASC, supercharger) | `INTEGRATION__equipment_systems.cycle_on` | 1-turn-on / 1-turn-off cycle (Daniel's default) |
+| Coolant pod trigger | `INTEGRATION__heat._extra_cooling` | One pod when heat would stay above min_heat, not on a radical turn |
+| Heat-sink switching | `INTEGRATION__heat.choose_heat_sink_deactivation` | End Phase: how many sinks stay on so min_heat can be reached |
+| Aimed shot location | `config.AIMED_SHOT_LOCATION` | Where shots at immobile targets aim (default Center Torso) |
 | Candidate reduction | `PATHFINDER__combat_turn.py` (reference) / `orchestrator._reachable_states` | Max-FC per (hex, facing, mode) — used for the no-LOS fallback pool |
 | Best-reply selection | `PATHFINDER__combat_turn.py` | Not wired (reference) |
 | `compute_score()` | `PATHFINDER__combat.py` | Not wired (reference; built on flat HP/weapon dicts) |
@@ -511,3 +534,57 @@ No PATHFINDER module used by the battle loop imports `config`.
     Synthetic (max_heat 8) diverges at turn 2 (heat 5 after turn 1 -> -1
     Walking MP; at 8 it fires at +1); now ends turn 8 (was 7). Both
     regenerated. 300 quiet battles at max_heat 30: no crashes.
+- **2026-10-19 (Daniel):** Engine-hit heat confirmed (charged in the Heat
+  Phase of the turn the hit lands, then budgeted). Heat work goes straight
+  to `main` - QC later, once he starts playing with it. Add stealth, coolant
+  pods, radical heat sinks, inferno extra rolls, TSM, torso-mounted cockpit
+  life support, aimed shots at shut-down mechs, MASC, superchargers, and
+  End Phase heat-sink switching; player choices default on (radical/MASC/
+  supercharger: 1 turn on, 1 off); TSM via min_heat 9.
+- **2026-10-19 (Claude):** Heat equipment wired.
+  - New `INTEGRATION__equipment_systems.py`: equipment detection by crit
+    name, Escalating Failure (p.180, consecutive-turn count steps back on an
+    unused turn), the on/off cycle, stealth systems (heat, +1/+2 medium/long,
+    Void-Signature by hexes moved and +1 to its own attacks, ECM needed for
+    stealth armor and Void), coolant pods (used pods stop being explosive),
+    radical heat sink state, MASC/supercharger (Running MP x2 / x2.5,
+    failure crits after moving: MASC to one random leg via the Kick table,
+    never transferring; supercharger to the top centre-torso Engine slots,
+    and destroyed), TSM activation.
+  - `INTEGRATION__heat.py`: stealth heat; extra cooling at the start of the
+    Heat Phase (radical on cycle turns, else a coolant pod); destroyed
+    radical +1 movement / +1 firing heat; inferno bins roll the p.192 table
+    separately and an inferno explosion's +30 heat re-triggers any newly
+    crossed shutdown / ammo / inferno rolls; torso-cockpit life support
+    (1-14: 1 hit, 15+: 2); TSM effect; `choose_heat_sink_deactivation`
+    (End Phase, also at deployment). Weapon budget uses `other_heat` =
+    engine + stealth + radical surcharge - planned radical cooling.
+  - `weapon_selection`: `other_heat` replaces `engine_heat`; per-weapon
+    `tn_adjust` (stealth range bonus, aimed shots); `range_bracket()`;
+    min_heat is now the end-of-turn floor (no padding when it's 0).
+  - `attack_resolution`: stealth TN terms, aimed shots (p.70: no cluster
+    weapons; head +7 vs the -4; partial cover not applied and legs behind it
+    rerolled; 1D6 4+), radical weapon surcharge. `ranged_combat` scores
+    moves with the same terms.
+  - MECHSIM: `mech_state` gains `tsm_active`, `deactivated_heat_sinks`,
+    `run_mp_multiplier`, `heat_sink_rate()`/`working_heat_sinks()`/
+    `active_heat_sinks()`; `mtf_parser` keeps the Cockpit:/Armor: header
+    text and maps "Stealth" armor to Standard (no damage-math change).
+  - `equipment.json`: `coolantpod` was category "ammo" (so it would have
+    been a heat-explosion candidate with the 20-point ammo default) - now
+    misc, 2-point explosion (p.208).
+  - **Claude's readings, for Daniel to confirm:** the p.192 inferno text says
+    rolls "at 19, 23, and 28" but its table starts at 10 - the table is
+    used. Inferno heat is always the 30 cap (bins are never empty).
+    Coolant pods / radical heat sinks don't work while shut down (p.104's
+    "activated equipment" rule). Radical cooling on an on-turn is counted
+    in the weapon budget; coolant pods aren't (used only when needed).
+    ECM suites, like MASC, are one system however many slots they parse to.
+  - New `data/TEST_Heat_Gear.mtf` (every new system on one mech), new
+    `tests/test_equipment.py` (12 checks, scripted dice; catches broken
+    escalating / TSM / inferno / Void / MASC values), two new reference
+    battles (`Asymptote_vs_HeatGear_seed5`, `..._maxheat30_seed2`). The three
+    older reference battles: log wording changed ("other" heat), and the
+    maxheat30 battle now has aimed shots at the shut-down synthetic mech
+    (ends turn 7, was 8). 300 quiet gear-mech battles: no crashes; failed
+    escalating rolls ~1 in 36 as the 3+ table predicts.

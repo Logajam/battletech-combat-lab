@@ -110,6 +110,7 @@ import combat  # noqa: E402 - PATHFINDER; build_jump_states/classify_movement_mo
 from INTEGRATION__rng import BattleRNG  # noqa: E402
 import INTEGRATION__weapon_selection as weapon_selection  # noqa: E402
 import INTEGRATION__heat as heat  # noqa: E402
+import INTEGRATION__equipment_systems as equip  # noqa: E402
 import INTEGRATION__ranged_combat as ranged_combat  # noqa: E402
 import INTEGRATION__stubs as stubs  # noqa: E402
 import INTEGRATION__attack_resolution as attack_resolution  # noqa: E402
@@ -159,12 +160,20 @@ def _attach_mech_config(mech, cfg, side_name):
     mech.max_heat = cfg["max_heat"]
     mech.current_heat = 0
     mech.shutdown = False
-    heat.apply_heat_effects(mech)
+    mech.deactivated_heat_sinks = 0
     heat.attach_heat_traits(mech)
+    if mech.has_tsm:
+        # TSM is driven by min_heat (Daniel, 2026-10-19); max_heat must allow it.
+        mech.min_heat = max(mech.min_heat, config.TSM_MIN_HEAT)
+        mech.max_heat = max(mech.max_heat, mech.min_heat)
+        config.log(f"  {side_name}: triple-strength myomer - min_heat {mech.min_heat}, max_heat {mech.max_heat}.")
+    heat.apply_heat_effects(mech)
     _reset_movement_state(mech)
+    heat.choose_heat_sink_deactivation(mech, next_turn=1)  # may start the game with sinks off (p.103)
 
 
 def _reset_movement_state(mech):
+    equip.reset_movement_boost(mech)
     mech.move_mode = "Stand Still"
     mech.move_fc = 0
     mech.mp_spent = 0
@@ -282,6 +291,7 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng):
         piloting_rolls.resolve_consciousness_checks(mover, "Movement Phase")
         return
 
+    booster_failures = equip.resolve_movement_boosters(mover)   # MASC / supercharger (p.204)
     mp = _compute_available_mp(mover)
     los_candidates = ranged_combat.evaluate_going_second(
         mover, other, terrain_map,
@@ -310,6 +320,12 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng):
         # END hex - in tabletop play it falls where the check was failed.
         # Check MegaMek movement processing for where the fall happens.
         _with_piloting(mover, piloting_rolls.check_movement_psr, psr_mode)
+    if booster_failures and not is_destroyed(mover):
+        # Failed MASC / supercharger: damage, then any PSR it forces, at the
+        # end of movement (p.204) - the PSR uses the damage-this-phase triggers.
+        piloting_rolls.snapshot_pre_attack_phase(mover)
+        equip.apply_booster_failures(mover, booster_failures)
+        _with_piloting(mover, piloting_rolls.resolve_attack_phase_psr)
     piloting_rolls.resolve_consciousness_checks(mover, "Movement Phase")
 
 
@@ -334,6 +350,8 @@ def _phase_end(mech_red, mech_blue, turn_number, stats):
     first turn each mech meets MECHSIM's is_crippled()."""
     for m in (mech_red, mech_blue):
         piloting_rolls.resolve_end_phase_wakeup(m)
+        heat.choose_heat_sink_deactivation(m, next_turn=turn_number + 1)
+        equip.end_turn(m)
         s = stats[m.side_name]
         if s.crippled_at is None and not is_destroyed(m) and is_crippled(m):
             s.crippled_at = turn_number
@@ -374,6 +392,7 @@ def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,
         config.log(f"\n=== TURN {turn} ===")
         for m in (mech_red, mech_blue):
             piloting_rolls.snapshot_preexisting_damage(m)
+            equip.start_turn(m, turn)
 
         loser_name = roll_initiative(battle_rng)
         winner_name = "Blue" if loser_name == "Red" else "Red"

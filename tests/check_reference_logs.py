@@ -45,6 +45,21 @@ SCENARIOS = {
         'config.MECH_RED_CONFIG["max_heat"] = 30',
         'config.MECH_BLUE_CONFIG["max_heat"] = 30',
     ],
+    # Added 2026-10-19 for heat equipment: TEST_Heat_Gear carries TSM (so
+    # min_heat 9), MASC, a supercharger, a radical heat sink system, coolant
+    # pods, a Chameleon LPS, inferno ammo and a torso-mounted cockpit.
+    # Default heat settings: TSM pins it at 9 heat, sinks switch on and off.
+    "Asymptote_vs_HeatGear_seed5.txt": [
+        'config.MECH_BLUE_MTF = "TEST_Heat_Gear.mtf"',
+        "config.SEED = 5",
+    ],
+    # max_heat 30: coolant pods, shutdown, and an inferno ammo explosion.
+    "Asymptote_vs_HeatGear_maxheat30_seed2.txt": [
+        'config.MECH_BLUE_MTF = "TEST_Heat_Gear.mtf"',
+        "config.SEED = 2",
+        'config.MECH_RED_CONFIG["max_heat"] = 30',
+        'config.MECH_BLUE_CONFIG["max_heat"] = 30',
+    ],
 }
 
 

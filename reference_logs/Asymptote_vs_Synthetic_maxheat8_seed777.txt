@@ -21,13 +21,13 @@ MECH SELECTION
   Initiative: Blue lost the roll, moves first.
   [Movement] Blue: 1316 N -> 0914 NW, Run (6 MP, 4 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
   [Movement] Red: 0505 S -> 0609 NE, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
-  [Ranged] Blue -> Red: range 6, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['ISLRM15', 'ISSRM6', 'ISLBXAC10', 'ISUltraAC5', 'ISAC5'] (weapon heat 13 of budget 16 = max 8 + sink 10 - current 0 - movement 2 - engine 0; expected dmg 7.81)
+  [Ranged] Blue -> Red: range 6, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['ISLRM15', 'ISSRM6', 'ISLBXAC10', 'ISUltraAC5', 'ISAC5'] (weapon heat 13 of budget 16 = max 8 + sink 10 - current 0 - movement 2 - other 0; expected dmg 7.81)
     ISLRM15: needs 10 (range mod +1), rolled 7 -> miss
     ISSRM6: needs 11 (range mod +2), rolled 7 -> miss
     ISLBXAC10: needs 9 (range mod +0), rolled 2 -> miss
     ISUltraAC5: needs 9 (range mod +0), rolled 10 -> HIT
     ISAC5: needs 9 (range mod +0), rolled 4 -> miss
-  [Ranged] Red -> Blue: range 6, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 27 = max 8 + sink 22 - current 0 - movement 3 - engine 0; expected dmg 0.83)
+  [Ranged] Red -> Blue: range 6, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 27 = max 8 + sink 22 - current 0 - movement 3 - other 0; expected dmg 0.83)
     ISMediumPulseLaser: needs 12 (range mod +4), rolled 12 -> HIT
     ISMediumPulseLaser: needs 12 (range mod +4), rolled 8 -> miss
     ISMediumPulseLaser: needs 12 (range mod +4), rolled 3 -> miss
@@ -52,13 +52,13 @@ MECH SELECTION
   Initiative: Blue lost the roll, moves first.
   [Movement] Blue: 0914 NW -> 0914 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement] Red: 0609 NE -> 0813 SE, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
-  [Ranged] Blue -> Red: range 1, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 3 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISSRM6', 'ISLBXAC10', 'ISUltraAC5', 'ISAC5'] (weapon heat 12 of budget 13 = max 8 + sink 10 - current 5 - movement 0 - engine 0; expected dmg 16.22)
+  [Ranged] Blue -> Red: range 1, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 3 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISSRM6', 'ISLBXAC10', 'ISUltraAC5', 'ISAC5'] (weapon heat 12 of budget 13 = max 8 + sink 10 - current 5 - movement 0 - other 0; expected dmg 16.22)
     ISMediumPulseLaser: needs 7 (range mod +0), rolled 9 -> HIT
     ISSRM6: needs 7 (range mod +0), rolled 7 -> HIT
     ISLBXAC10: needs 7 (range mod +0), rolled 2 -> miss
     ISUltraAC5: needs 9 (range mod +2), rolled 8 -> miss
     ISAC5: needs 10 (range mod +3), rolled 10 -> HIT
-  [Ranged] Red -> Blue: range 1, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 8 + sink 22 - current 1 - movement 3 - engine 0; expected dmg 17.50)
+  [Ranged] Red -> Blue: range 1, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 8 + sink 22 - current 1 - movement 3 - other 0; expected dmg 17.50)
     ISMediumPulseLaser: needs 7 (range mod +0), rolled 6 -> miss
     ISMediumPulseLaser: needs 7 (range mod +0), rolled 8 -> HIT
     ISMediumPulseLaser: needs 7 (range mod +0), rolled 4 -> miss
@@ -98,13 +98,13 @@ MECH SELECTION
   Initiative: Red lost the roll, moves first.
   [Movement] Red: 0813 SE -> 0813 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
   [Movement] Blue: 0914 NW -> 0914 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 28 = max 8 + sink 22 - current 2 - movement 0 - engine 0; expected dmg 27.50)
+  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 28 = max 8 + sink 22 - current 2 - movement 0 - other 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 5 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 5 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 6 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
-  [Ranged] Blue -> Red: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISSRM6', 'ISLBXAC10', 'ISUltraAC5'] (weapon heat 11 of budget 11 = max 8 + sink 10 - current 7 - movement 0 - engine 0; expected dmg 25.61)
+  [Ranged] Blue -> Red: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISSRM6', 'ISLBXAC10', 'ISUltraAC5'] (weapon heat 11 of budget 11 = max 8 + sink 10 - current 7 - movement 0 - other 0; expected dmg 25.61)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 8 -> HIT
     ISSRM6: needs 4 (range mod +0), rolled 5 -> HIT
     ISLBXAC10: needs 4 (range mod +0), rolled 8 -> HIT
@@ -155,12 +155,12 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
   Initiative: Blue lost the roll, moves first.
   [Movement] Blue: 0914 NW -> 0914 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement] Red: 0813 SE -> 0813 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Ranged] Blue -> Red: range 1, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 1); firing ['ISSRM6', 'ISLBXAC10', 'ISUltraAC5', 'ISAC5'] (weapon heat 8 of budget 10 = max 8 + sink 10 - current 8 - movement 0 - engine 0; expected dmg 20.00)
+  [Ranged] Blue -> Red: range 1, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 1); firing ['ISSRM6', 'ISLBXAC10', 'ISUltraAC5', 'ISAC5'] (weapon heat 8 of budget 10 = max 8 + sink 10 - current 8 - movement 0 - other 0; expected dmg 20.00)
     ISSRM6: needs 5 (range mod +0), rolled 8 -> HIT
     ISLBXAC10: needs 5 (range mod +0), rolled 10 -> HIT
     ISUltraAC5: needs 7 (range mod +2), rolled 7 -> HIT
     ISAC5: needs 8 (range mod +3), rolled 7 -> miss
-  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 30 = max 8 + sink 22 - current 0 - movement 0 - engine 0; expected dmg 27.50)
+  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 30 = max 8 + sink 22 - current 0 - movement 0 - other 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 6 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 11 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
@@ -213,13 +213,13 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
   Initiative: Red lost the roll, moves first.
   [Movement] Red: 0813 SE -> 0813 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
   [Movement] Blue: 0914 NW -> 0914 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 30 = max 8 + sink 22 - current 0 - movement 0 - engine 0; expected dmg 27.50)
+  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 30 = max 8 + sink 22 - current 0 - movement 0 - other 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 9 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 4 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 8 -> HIT
-  [Ranged] Blue -> Red: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISSRM6', 'ISLBXAC10', 'ISUltraAC5'] (weapon heat 11 of budget 12 = max 8 + sink 10 - current 6 - movement 0 - engine 0; expected dmg 25.61)
+  [Ranged] Blue -> Red: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISSRM6', 'ISLBXAC10', 'ISUltraAC5'] (weapon heat 11 of budget 12 = max 8 + sink 10 - current 6 - movement 0 - other 0; expected dmg 25.61)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 5 -> HIT
     ISSRM6: needs 4 (range mod +0), rolled 6 -> HIT
     ISLBXAC10: needs 4 (range mod +0), rolled 6 -> HIT
@@ -269,12 +269,12 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
   Initiative: Blue lost the roll, moves first.
   [Movement] Blue: 0914 NW -> 0914 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement] Red: 0813 SE -> 0813 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Ranged] Blue -> Red: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISSRM6', 'ISLBXAC10', 'ISUltraAC5'] (weapon heat 11 of budget 11 = max 8 + sink 10 - current 7 - movement 0 - engine 0; expected dmg 25.61)
+  [Ranged] Blue -> Red: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISSRM6', 'ISLBXAC10', 'ISUltraAC5'] (weapon heat 11 of budget 11 = max 8 + sink 10 - current 7 - movement 0 - other 0; expected dmg 25.61)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
     ISSRM6: needs 4 (range mod +0), rolled 10 -> HIT
     ISLBXAC10: needs 4 (range mod +0), rolled 10 -> HIT
     ISUltraAC5: needs 6 (range mod +2), rolled 3 -> miss
-  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 30 = max 8 + sink 22 - current 0 - movement 0 - engine 0; expected dmg 27.50)
+  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 30 = max 8 + sink 22 - current 0 - movement 0 - other 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 9 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 3 -> miss
@@ -326,11 +326,11 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   Initiative: Blue lost the roll, moves first.
   [Movement] Blue: 0914 NW -> 0914 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement] Red: 0813 SE -> 0813 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Ranged] Blue -> Red: range 1, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 1); firing ['ISMediumPulseLaser', 'ISSRM6', 'ISLBXAC10'] (weapon heat 10 of budget 10 = max 8 + sink 10 - current 8 - movement 0 - engine 0; expected dmg 20.00)
+  [Ranged] Blue -> Red: range 1, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 1); firing ['ISMediumPulseLaser', 'ISSRM6', 'ISLBXAC10'] (weapon heat 10 of budget 10 = max 8 + sink 10 - current 8 - movement 0 - other 0; expected dmg 20.00)
     ISMediumPulseLaser: needs 5 (range mod +0), rolled 5 -> HIT
     ISSRM6: needs 5 (range mod +0), rolled 4 -> miss
     ISLBXAC10: needs 5 (range mod +0), rolled 7 -> HIT
-  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 30 = max 8 + sink 22 - current 0 - movement 0 - engine 0; expected dmg 27.50)
+  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 30 = max 8 + sink 22 - current 0 - movement 0 - other 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 9 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 10 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 8 -> HIT
@@ -423,8 +423,8 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 8.
 No running MP available - cannot attempt to stand (minimum movement rule). Remains prone.
   [Movement] Blue: still prone at 0914.
   [Movement] Red: 0813 SE -> 0813 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 2); firing nothing (weapon heat 0 of budget 0 = max 8 + sink 10 - current 13 - movement 0 - engine 5; expected dmg 0.00)
-  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 30 = max 8 + sink 22 - current 0 - movement 0 - engine 0; expected dmg 27.50)
+  [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 2); firing nothing (weapon heat 0 of budget 0 = max 8 + sink 10 - current 13 - movement 0 - other 5; expected dmg 0.00)
+  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 30 = max 8 + sink 22 - current 0 - movement 0 - other 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 11 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 11 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0), rolled 7 -> HIT
@@ -501,9 +501,9 @@ No running MP available - cannot attempt to stand (minimum movement rule). Remai
 !!   - Per-mount firing arcs (only PATHFINDER's 60-degree rear-arc block applies)
 !!   - LB-X / Ultra / Rotary AC multi-shot math (fire as flat single hits; LB-X fires slug only, no cluster mode)
 !!   - Artemis, HAG range damage, ammo variants
-!!   - Heat sources/sinks with no terrain or equipment model yet: water, snow, fire, extreme temperatures, stealth systems, coolant pods, radical heat sinks, inferno ammo's extra avoid rolls, triple-strength myomer, torso-mounted cockpit life support
-!!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown, deactivating heat sinks
-!!   - Aimed shots at immobile (shut-down or unconscious) targets
+!!   - Heat sources/sinks with no terrain model yet: water, snow, fire, extreme temperatures; inferno missiles' heat on targets (launchers fire standard ammo)
+!!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
+!!   - Stealth armor / Void-Signature 'as if in hostile ECM' side effects; torso-mounted cockpit PSR/sensor rules; TSM physical-attack doubling (no physical combat)
 !!   - Physical combat
 !!   - Tripod leg sub-roll uses Python's random module (seeded from SEED, not the BattleRNG stream)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -536,9 +536,9 @@ BATCH SUMMARY - 1 battle(s): Red = Asymptote II iJ Mpulse, Blue = TEST Synthetic
 !!   - Per-mount firing arcs (only PATHFINDER's 60-degree rear-arc block applies)
 !!   - LB-X / Ultra / Rotary AC multi-shot math (fire as flat single hits; LB-X fires slug only, no cluster mode)
 !!   - Artemis, HAG range damage, ammo variants
-!!   - Heat sources/sinks with no terrain or equipment model yet: water, snow, fire, extreme temperatures, stealth systems, coolant pods, radical heat sinks, inferno ammo's extra avoid rolls, triple-strength myomer, torso-mounted cockpit life support
-!!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown, deactivating heat sinks
-!!   - Aimed shots at immobile (shut-down or unconscious) targets
+!!   - Heat sources/sinks with no terrain model yet: water, snow, fire, extreme temperatures; inferno missiles' heat on targets (launchers fire standard ammo)
+!!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
+!!   - Stealth armor / Void-Signature 'as if in hostile ECM' side effects; torso-mounted cockpit PSR/sensor rules; TSM physical-attack doubling (no physical combat)
 !!   - Physical combat
 !!   - Tripod leg sub-roll uses Python's random module (seeded from SEED, not the BattleRNG stream)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -303,6 +303,16 @@ class BattleMech:
         self.heat_mp_penalty = 0
         self.heat_fire_modifier = 0
         self.shutdown = False
+        # Triple-strength myomer active this turn (heat 9+ at the end of the
+        # last Heat Phase, Core p.205): +2 Walking MP, read by compute_walk_mp.
+        self.tsm_active = False
+        # Heat sinks switched off in the End Phase (Core p.103), in heat-sink
+        # units - they dissipate nothing. Read by compute_heat_dissipation.
+        self.deactivated_heat_sinks = 0
+        # Running MP = Walking MP x this (1.5 normally; 2 with MASC or a
+        # supercharger, 2.5 with both - Core p.204). Set per turn by
+        # INTEGRATION__equipment_systems; read by compute_running_mp.
+        self.run_mp_multiplier = 1.5
 
         # .mtf "Myomer:" header text (2026-10-19). Only read for super-cooled
         # myomer's movement heat (INTEGRATION__heat.movement_heat).
@@ -724,8 +734,10 @@ def compute_walk_mp(mech):
       INTEGRATION__heat) comes off AFTER the damage floor, and can take
       Walking MP to 0 - Core Rulebook p.104: "A 'Mech can be reduced to 0
       ground movement MP in this fashion". Jumping MP is unaffected.
+    TSM (2026-10-19, Core p.205): +2 Walking MP while mech.tsm_active,
+    added before the heat penalty comes off.
     """
-    return max(0, _damage_walk_mp(mech) - mech.heat_mp_penalty)
+    return max(0, _damage_walk_mp(mech) + (2 if mech.tsm_active else 0) - mech.heat_mp_penalty)
 
 
 def _damage_walk_mp(mech):
@@ -763,7 +775,7 @@ def compute_running_mp(mech):
     leg actuator damage over the course of a fight. Not stored on the mech
     object; called fresh wherever running MP is needed (currently only
     damage_resolution.compute_tmm)."""
-    running_mp = math.ceil(compute_walk_mp(mech) * 1.5)
+    running_mp = math.ceil(compute_walk_mp(mech) * mech.run_mp_multiplier)  # 1.5 unless MASC/supercharger
 
     # running_mp > 0 guard (2026-10-19): heat can take Walking MP to 0, and
     # the Hardened floor of 1 must not hand that mech a Running MP back.
@@ -821,12 +833,27 @@ def compute_heat_dissipation(mech):
     all yet).
 
     Partial Wing (2026-10-19, Core Rulebook p.103): a working Partial Wing
-    dissipates 3 more heat points per turn, whether or not the mech jumped."""
-    rate = 2 if any(word in mech.heat_sink_type.replace(" ", "").upper()
-                     for word in ("DOUBLE", "LASER")) else 1
-    destroyed_units = sum(mech.destroyed_heat_sinks.values())
-    sinks = max(0, (mech.base_heat_sinks - destroyed_units) * rate)
+    dissipates 3 more heat points per turn, whether or not the mech jumped.
+    Deactivated heat sinks (2026-10-19, Core p.103) dissipate nothing."""
+    sinks = active_heat_sinks(mech) * heat_sink_rate(mech)
     return sinks + (3 if mech.partial_wing_active else 0)
+
+
+def heat_sink_rate(mech):
+    """Heat points one sink dissipates: 2 for Double/Laser, 1 otherwise."""
+    return 2 if any(word in mech.heat_sink_type.replace(" ", "").upper()
+                    for word in ("DOUBLE", "LASER")) else 1
+
+
+def working_heat_sinks(mech):
+    """Heat sinks not destroyed (switched on or off)."""
+    return max(0, mech.base_heat_sinks - sum(mech.destroyed_heat_sinks.values()))
+
+
+def active_heat_sinks(mech):
+    """Heat sinks not destroyed and not deactivated - the ones coolant pods
+    and radical heat sinks boost by 1 each (Core p.208)."""
+    return max(0, working_heat_sinks(mech) - mech.deactivated_heat_sinks)
 
 
 # HELP(mechanical_jump_booster.all_or_nothing_flag)

@@ -21,12 +21,13 @@ KNOWN_MISSING_RULES = [
     "Per-mount firing arcs (only PATHFINDER's 60-degree rear-arc block applies)",
     "LB-X / Ultra / Rotary AC multi-shot math (fire as flat single hits; LB-X fires slug only, no cluster mode)",
     "Artemis, HAG range damage, ammo variants",
-    "Heat sources/sinks with no terrain or equipment model yet: water, snow, fire, extreme "
-    "temperatures, stealth systems, coolant pods, radical heat sinks, inferno ammo's extra "
-    "avoid rolls, triple-strength myomer, torso-mounted cockpit life support",
+    "Heat sources/sinks with no terrain model yet: water, snow, fire, extreme temperatures; "
+    "inferno missiles' heat on targets (launchers fire standard ammo)",
     "Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary "
-    "shutdown, deactivating heat sinks",
-    "Aimed shots at immobile (shut-down or unconscious) targets",
+    "shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/"
+    "supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)",
+    "Stealth armor / Void-Signature 'as if in hostile ECM' side effects; torso-mounted cockpit "
+    "PSR/sensor rules; TSM physical-attack doubling (no physical combat)",
     "Physical combat",
     "Tripod leg sub-roll uses Python's random module (seeded from SEED, not the BattleRNG stream)",
 ]

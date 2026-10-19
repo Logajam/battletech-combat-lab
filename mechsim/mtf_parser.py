@@ -65,6 +65,10 @@ ARMOR_TYPE_NAME_MAP = {
     "ferrolamellor": ArmorType.FERRO_LAMELLOR,
     "ballisticreinforced": ArmorType.BALLISTIC_REINFORCED,
     "heatdissipating": ArmorType.HEAT_DISSIPATING,
+    # Stealth armor (2026-10-19): no damage-math difference (Core p.202) -
+    # its stealth effects and heat come from INTEGRATION__equipment_systems,
+    # which reads mech.armor_desc.
+    "stealth": ArmorType.STANDARD,
 }
 
 # HELP(structure_type.endo_aliases)
@@ -580,6 +584,10 @@ def parse_mtf(filepath):
     mech = BattleMech(mech_type=mech_type)
     mech.chassis, mech.model, mech.mass, mech.engine_desc = chassis, model, mass, engine_line
     mech.myomer = myomer_line
+    # 2026-10-19: header text kept for INTEGRATION__equipment_systems (torso-
+    # mounted cockpit life support, stealth armor detection).
+    mech.cockpit_type = cockpit_str
+    mech.armor_desc = global_armor_text or ""
     mech.structure_type = structure_type
 
     if walk_mp is None:

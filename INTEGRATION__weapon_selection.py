@@ -106,6 +106,22 @@ def _min_range_penalty(minimum, distance):
     return 0
 
 
+def range_bracket(weapon, distance):
+    """"short" / "medium" / "long" for firing `weapon` at `distance`, or None
+    if out of range or the range data is unconfirmed (2026-10-19 - stealth
+    systems' TN bonus depends on the bracket)."""
+    wr = weapon.weapon_range
+    if wr is None or wr.get("short") is None:
+        return None
+    if distance <= wr["short"]:
+        return "short"
+    if distance <= wr["medium"]:
+        return "medium"
+    if distance <= wr["long"]:
+        return "long"
+    return None
+
+
 def _weapon_range_mod(weapon, distance):
     """Range TN modifier for firing `weapon` at `distance`: the Short/Medium/
     Long bracket modifier plus the minimum-range penalty (2026-10-19), or
@@ -182,7 +198,7 @@ def build_expected_damage_table(mech):
 
 
 def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipation, movement_heat,
-                           engine_heat=0):
+                           other_heat=0, tn_adjust=None):
     """min_heat/max_heat are passed explicitly (the orchestrator reads them
     off the mech's attached scenario config - mech.min_heat/mech.max_heat),
     while current_heat lives on the MECHSIM BattleMech object (mech).
@@ -195,15 +211,23 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
         current_heat + movement_heat + weapon_heat - dissipation <= max_heat
     i.e. weapon heat budget = max_heat + dissipation - current_heat - movement_heat
     (floored at 0). Was: max_heat - current_heat.
-    2026-10-19: engine_heat (heat from engine critical hits this turn,
-    INTEGRATION__heat.engine_heat) comes out of the budget too - the mech
-    generates it whatever it fires, so max_heat still caps the end-of-turn
-    level.
+    2026-10-19: other_heat (INTEGRATION__heat.other_heat - engine hits,
+    stealth systems, minus planned radical cooling) comes out of the budget
+    too - the mech generates it whatever it fires, so max_heat still caps
+    the end-of-turn level.
     Not addressed (bot logic, later - Daniel): deciding when to hold fire to
     cool back down to zero. As written, a mech that reaches max_heat stays
     there, firing only what it can sink each turn.
-    min_heat is unchanged: Phase 2 pads WEAPON heat generated this turn up to
-    min_heat (not the end-of-turn heat level).
+    MIN HEAT - CHANGED 2026-10-19 (Daniel: "the mech wants to sit at a
+    minimum of [min_heat] remaining heat at the end of the heat phase"):
+    min_heat is now the FLOOR on the end-of-turn heat level, the mirror of
+    max_heat. Phase 2 pads until
+        current_heat + movement_heat + other_heat + weapon_heat - dissipation >= min_heat
+    Was: weapon heat generated this turn >= min_heat.
+
+    tn_adjust (2026-10-19): optional f(weapon, bracket) -> int added to that
+    weapon's to-hit number - stealth systems' range bonus and aimed-shot
+    changes, which differ per weapon.
 
     Two-phase heat-constrained selection (Daniel, 2026-08-05):
 
@@ -214,11 +238,11 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
     - weapon counts per mech are small enough (a handful of hardpoints) that
     this is cheap without needing an approximation.
 
-    Phase 2: if Phase 1's picks land under min_heat, keep adding remaining
+    Phase 2: if Phase 1's picks leave the turn ending under min_heat, keep adding remaining
     unfired ENERGY weapons (damage_type == "Energy" only - ammo-fed weapons
     excluded per Daniel: "they'll need their own logic suite on if its worth
     using up limited ammo, later") - even zero-expected-damage ones - highest
-    expected-damage-first, until total heat reaches min_heat or no eligible
+    expected-damage-first, until the turn would end at min_heat or no eligible
     energy weapons remain. Still hard-capped at the same heat budget; never
     exceeds max_heat even to chase the floor.
 
@@ -236,7 +260,8 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
     """
     weapons = get_weapons(mech)
     table = build_expected_damage_table(mech)
-    heat_budget = max(0, max_heat + dissipation - mech.current_heat - movement_heat - engine_heat)
+    heat_budget = max(0, max_heat + dissipation - mech.current_heat - movement_heat - other_heat)
+    min_weapon_heat = min_heat + dissipation - mech.current_heat - movement_heat - other_heat
 
     # Only weapons actually in range at this distance, with confirmed heat data.
     candidates = []
@@ -246,7 +271,10 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
             continue  # out of range, or no confirmed damage_per_shot
         if w.heat is None:
             continue  # unconfirmed heat cost - can't budget it, skip rather than guess
-        candidates.append((w, row[pre_tn]))
+        tn = pre_tn
+        if tn_adjust is not None:
+            tn = max(PRE_TN_MIN, min(PRE_TN_MAX, pre_tn + tn_adjust(w, range_bracket(w, distance))))
+        candidates.append((w, row[tn]))
 
     # --- Phase 1: 0/1 knapsack, weight = heat, value = expected damage. ---
     # dp[h] = (best total expected damage achievable with exactly heat budget h used,
@@ -269,8 +297,8 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
     total_heat = best_heat_used
     total_ed = best_value
 
-    # --- Phase 2: pad toward min_heat with unfired energy weapons. ---
-    if total_heat < min_heat:
+    # --- Phase 2: pad toward the min_heat floor with unfired energy weapons. ---
+    if min_heat > 0 and total_heat < min_weapon_heat:   # heat can't end below 0, so a 0 floor needs nothing
         remaining_budget = heat_budget - total_heat
         energy_leftovers = [
             (w, ed) for w, ed in candidates
@@ -278,7 +306,7 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
         ]
         energy_leftovers.sort(key=lambda pair: pair[1], reverse=True)
         for w, ed in energy_leftovers:
-            if total_heat >= min_heat:
+            if total_heat >= min_weapon_heat:
                 break
             if w.heat > heat_budget - total_heat:
                 continue

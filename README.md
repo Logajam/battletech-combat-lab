@@ -20,7 +20,7 @@ board, seed, number of battles, stub knobs) are in `INTEGRATION__config.py`.
 | `mechsim/` | Mech state, damage, crits, piloting rolls, `.mtf` parser, `equipment.json` (full equipment database) |
 | `pathfinder/` | Hex geometry, board parser, movement, LOS, to-hit pieces |
 | `data/` | `.board` maps (16x17 Grassland, 50x50 BigBlank) and `.mtf` mechs |
-| `tests/` | `check_reference_logs.py` (same-seed battles vs saved logs), `test_pathfinder.py` (hex geometry, movement, board parsing, terrain costs), `test_weapon_range.py` (range modifiers), `test_heat.py` (Heat Scale) |
+| `tests/` | `check_reference_logs.py` (same-seed battles vs saved logs), `test_pathfinder.py` (hex geometry, movement, board parsing, terrain costs), `test_weapon_range.py` (range modifiers), `test_heat.py` (Heat Scale), `test_equipment.py` (heat equipment) |
 | `reference_logs/` | Same-seed sample logs (matchup and settings in the file name), for checking that a change didn't alter results |
 
 After a change, from the repo root:
@@ -28,6 +28,7 @@ After a change, from the repo root:
 - `python tests/test_pathfinder.py`: checks the movement/map code
 - `python tests/test_weapon_range.py`: checks range brackets and the minimum-range penalty
 - `python tests/test_heat.py`: checks the Heat Scale rules (Core Rulebook pp.102-107) with scripted dice
+- `python tests/test_equipment.py`: checks the heat/movement equipment (stealth, coolant pods, radical heat sinks, inferno, TSM, MASC, supercharger, aimed shots)
 
 Anything not yet a real rule is a loud **stub**: it prints `STUB: ...` to
 stderr and appears in the summary banner.
