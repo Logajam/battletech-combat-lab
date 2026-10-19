@@ -88,9 +88,10 @@ awareness (the ratio ignores damage state, so tiny-damage / no-return-fire
 spots can dominate through the .001 epsilon); seatbelt / prone aftermath of a
 fall isn't scored; prone and immobile enemies are modeled as staying put;
 Void-Signature mechs skip the candidate reduction (slower picks).
-**Housekeeping:** the 5 reference logs in `reference_logs/` are stale by
-design (movement and arcs changed every battle) - Daniel reviews fresh logs,
-then `python tests/check_reference_logs.py --update`. Speed: about 1.1 s per
+**Housekeeping:** the 5 reference logs in `reference_logs/` were regenerated
+2026-10-19 (Daniel's go-ahead) after the arc-action work and match the code;
+`python tests/check_reference_logs.py` should pass after any change that isn't
+meant to alter results. Speed: about 1.1 s per
 turn; the LOS/arc cache is per board (`INTEGRATION__los_cache.py`). Rules are
 checked against `rules/Battletech_Rule_Reference_Index.zip` (Section 7). Most
 recent work and its page cites: Change Record, last entries.
@@ -513,6 +514,9 @@ forward arc, kicks included, never into a side arc.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-19 (Claude):** Reference logs regenerated (`--update`, Daniel's
+  go-ahead) - they now reflect movement selection, firing arcs and arc actions.
 
 - **2026-10-19 (Claude):** Arc actions - the rest of the torso-twist rules
   (Core pp.61-62, 76, 205, 236-238). `INTEGRATION__arcs.ArcAction(twist, flip,
