@@ -61,12 +61,56 @@ physical weapons). What's left is bot decisions and data gaps:
 2. `heat_explosion_bin` — the controller's choice among tied bins.
 (`movement_selection` stopped being a stub 2026-10-19.)
 
-**Picking up from here (2026-10-19):** movement selection is wired and
-passes `tests/test_movement_selection.py`. The reference logs now DIFFER from
-`main` on purpose (movement changed every battle) - Daniel reviews fresh
-logs, then `check_reference_logs.py --update`. Waiting on Daniel: the
-Core-vs-MECHSIM PSR questions and the firing-arc diagram (Section 4). Rules are checked
-against `rules/Battletech_Rule_Reference_Index.zip` (Section 7). Most
+**Movement picker, firing arcs and torso twists (2026-10-19, branch
+`movement-selection`, not yet merged to `main`).** What a unit does each turn:
+`INTEGRATION__movement_selection.choose` scores every reachable spot (hex +
+facing + mode) by damage dealt / (damage received + movement-PSR cost +
+.001), two-ply (the first mover scores a spot by the second mover's modeled
+reply), with armor-exposure weights by hit side, internal-structure damage
+counted k = 2x (`INTEGRATION__structure_weight`), and the ported closing
+fallback when nothing deals damage. Firing arcs and one-hexside torso twists
+are in (`INTEGRATION__arcs`, Core pp.60-62). Decisions and reasons: Section 5
+"Movement selection"; knobs: `INTEGRATION__config.py` MOVEMENT SETTINGS; every
+change and its limits: Change Record, 2026-10-19 entries (newest on top).
+Tests: `tests/test_movement_selection.py` (19 checks, brute-force comparisons).
+
+**Next up - torso twist details (Daniel expects Claude Code to finish these):**
+1. Carry the twist into the Physical Attack Phase: `attacker.torso_twist`
+   (-1 left / 0 / +1 right) is set every Ranged phase by
+   `attack_resolution.declare_attacks` but nothing reads it afterwards.
+   `INTEGRATION__physical.py` still classifies arcs with the old
+   nearest-hexside method (`_relative_hexside`, `FORWARD_HEXSIDES`) - move it to
+   `INTEGRATION__arcs.arcs_between` with the twist applied to punches, arm
+   physical weapons and clubs (not kicks). Core p.62: one twist OR arm reversal
+   per turn, in either phase; a twist declared in the Physical phase if none
+   was made in Ranged (needs a decision of when it's worth twisting then).
+2. Reversing (flipping) arms, p.62 (arms use the rear arc; needs no hand/lower
+   arm actuators in both arms, no split torso/arm weapons) - not modeled.
+3. Tripods: twist to any hexside and the p.236-237 leg arcs - not modeled
+   (`arcs.twist_options` treats a tripod as a biped). Turrets (p.61) - not modeled.
+4. Twist and TAG: a twist declared for TAG (p.53) forbids another that turn.
+5. Movement scoring assumes each side takes its best twist after moving
+   (`ranged_combat.MoveEvaluator`); if the real twist rule ever needs the
+   twist declared earlier, revisit.
+Gotchas: the rear arc is now 120 degrees (the 2026-07-20 one-hexside rule is
+superseded by the p.60 diagram, Section 4 Known Issues); attack DIRECTION
+(front/left/right/rear hit tables, p.73) is unrelated to firing arcs and is
+unaffected by twists.
+
+**Still waiting on Daniel (Section 4):** the Core-vs-MECHSIM piloting-roll questions.
+
+**Other open follow-ups:** terrain that forces a PSR on entry and mine fields
+should add expected damage to a spot's cost; structure weighting for aimed
+shots and in the real Ranged weapon choice; `compute_score()`-style HP
+awareness (the ratio ignores damage state, so tiny-damage / no-return-fire
+spots can dominate through the .001 epsilon); seatbelt / prone aftermath of a
+fall isn't scored; prone and immobile enemies are modeled as staying put;
+Void-Signature mechs skip the candidate reduction (slower picks).
+**Housekeeping:** the 5 reference logs in `reference_logs/` are stale by
+design (movement and arcs changed every battle) - Daniel reviews fresh logs,
+then `python tests/check_reference_logs.py --update`. Speed: about 1.1 s per
+turn; the LOS/arc cache is per board (`INTEGRATION__los_cache.py`). Rules are
+checked against `rules/Battletech_Rule_Reference_Index.zip` (Section 7). Most
 recent work and its page cites: Change Record, last entries.
 
 ---
@@ -320,8 +364,27 @@ No PATHFINDER module used by the battle loop imports `config`.
   weapon heat generated per turn.
 - **Stub conventions (2026-10-18):** every placeholder is its own function in
   `INTEGRATION__stubs.py`, warns loudly every run, is counted into the
-  results, keeps its knobs in config. Defaults: movement `max_dealt`, hit
-  table `mechsim_random`.
+  results, keeps its knobs in config. (The movement stub is gone since
+  2026-10-19.) Hit table default `mechsim_random`.
+- **Movement selection (Daniel, 2026-10-19):** objective = damage dealt /
+  (damage received + .001). Two-ply so both sides move intelligently. The old
+  `combat_turn` closing fallback ported as-is ("working system first, improve
+  later"). Armor-exposure weighting by the real hit direction (thin armor on
+  a side makes shots on it count more, both ways). Partial cover is already in
+  to-hit. Cooldown relies on max_heat. Expected damage from falling is added to
+  the denominator, ONLY for Movement-Phase PSRs (not PSRs caused by damage);
+  mines / lava / terrain PSRs are a future addition. Dropping `compute_score()`'s
+  HP-awareness is fine for now. Internal-structure damage counts k = 2x
+  armor damage, per weapon x hit-location table, no chaining
+  (`MOVEMENT_STRUCTURE_WEIGHT`). A Void-Signature mech's low-movement spots
+  get its TN bonus (it keeps every movement variant). Claude's choices inside
+  that: the opponent's modeled reply uses the same rule (greedy, not
+  searched); the PSR cost is P(fail) x ceil(mass/10) for Run (1+ hex) / Jump
+  when a trigger exists; exposure factors clamp to [0.5, 3.0].
+- **Firing arcs and torso twists (Daniel's p.60 diagram, 2026-10-19):** see
+  `INTEGRATION__arcs.py`'s docstring - 120-degree forward and rear arcs,
+  60-degree sides, boundary hexes to the non-rear arc; this supersedes the
+  2026-07-20 one-hexside rear arc. Each side takes its best twist.
 
 ---
 
@@ -353,11 +416,12 @@ No PATHFINDER module used by the battle loop imports `config`.
 
 ## 7. STANDING PROMPTS
 
-- Don't write/run code without explicit instruction. "Compile" (or a
-  clear equivalent — "go ahead," "do it") triggers execution; ask only
-  on genuine scope ambiguity.
-- State test scope up front; one pass; don't iterate unless asked.
-- Never hardcode a BT numeric rule from memory — confirm with Daniel first.
+- (Daniel, 2026-10-19: "nuke those standing instructions - Claude Code did
+  good work with little to go on." The old "don't run code until told
+  'compile'" and "one test pass" gates are retired: build, test and run freely;
+  ask only when a real rules/scope call is Daniel's.)
+- Never hardcode a BT numeric rule from memory — check the rules library
+  (below) and cite the page; if the library doesn't settle it, ask Daniel.
 - The rules library is `rules/Battletech_Rule_Reference_Index.zip` (Core
   Rulebook base layer in `base/core-rules/*.md`). Unzip it outside the repo
   and check rules against it; cite the page in the code.
