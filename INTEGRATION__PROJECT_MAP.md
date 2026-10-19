@@ -385,3 +385,9 @@ No PATHFINDER module used by the battle loop imports `config`.
   the settings (`Asymptote_vs_Synthetic_maxheat8_seed777.txt` = Asymptote vs
   TEST_Synthetic_Loadout, max_heat 8, seed 777). Its README, docs and
   `make_run_dir.py` not taken.
+- **2026-10-19 (Claude):** `PATHFINDER__validation.py` rebuilt as
+  `tests/test_pathfinder.py` (Daniel asked). Same tests and expected
+  values; paths point at `pathfinder/` and `data/`; old test 5 removed (it
+  needed the absent `simulate.py`, whose import blocked every test); runs
+  all tests and exits non-zero on any failure. Result: 8/8 pass. Sanity
+  check: setting heavy-woods cost to 3 in a scratch copy fails test 7.

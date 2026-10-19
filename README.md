@@ -20,7 +20,10 @@ board, seed, number of battles, stub knobs) are in `INTEGRATION__config.py`.
 | `mechsim/` | Mech state, damage, crits, piloting rolls, `.mtf` parser |
 | `pathfinder/` | Hex geometry, board parser, movement, LOS, to-hit pieces |
 | `data/` | `.board` maps (16x17 Grassland, 50x50 BigBlank) and `.mtf` mechs |
+| `tests/` | `test_pathfinder.py`: checks for hex geometry, movement, board parsing, terrain costs |
 | `reference_logs/` | Same-seed sample logs (matchup and settings in the file name), for checking that a change didn't alter results |
+
+To check the movement/map code after a change: `python tests/test_pathfinder.py`.
 
 Anything not yet a real rule is a loud **stub**: it prints `STUB: ...` to
 stderr and appears in the summary banner.
