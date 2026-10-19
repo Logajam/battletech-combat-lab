@@ -31,10 +31,10 @@ envelope PATHFINDER__combat.py's own evaluate_combat_hexes() builds):
      docstring) - computed here once per candidate, not per weapon, since
      it's weapon-independent (range is the one GATOR term that varies by
      weapon and that's already baked into the table's own distance axis).
-  3. Rear arc (PATHFINDER__combat.in_rear_arc, the confirmed 60-degree rule)
-     zeroes that direction's damage entirely, checked independently for
-     mover's own fire and defender's return fire - matches
-     PATHFINDER__combat.py's _evaluate_state() exactly.
+  3. Rear arc (PATHFINDER__combat.in_rear_arc, the confirmed 60-degree rule):
+     only rear-mounted weapons fire into it, and they fire nowhere else
+     (Core p.60, 2026-10-19) - checked independently for mover's own fire
+     and defender's return fire. (Was: rear arc = no fire at all.)
   4. Expected damage in each direction - HEAT-AWARE as of 2026-10-18 (see
      below).
 
@@ -110,7 +110,7 @@ import INTEGRATION__weapon_selection as weapon_selection  # noqa: E402
 import INTEGRATION__heat as heat  # noqa: E402
 import INTEGRATION__equipment_systems as equip  # noqa: E402
 from INTEGRATION__attack_resolution import tn_adjuster, aimed_shot_location, firing_conditions, \
-    prone_target_modifier  # noqa: E402
+    prone_target_modifier, arc_unavailable  # noqa: E402
 
 IMMOBILE_TMM = -4  # same convention as INTEGRATION__attack_resolution.IMMOBILE_TMM
 
@@ -230,10 +230,16 @@ def evaluate_going_second(
 
     mover_cond = firing_conditions(mover)          # mover is standing here; sensors still count
     defender_cond = firing_conditions(defender)
-    mover_score = _make_heat_limited_scorer(mover, tn_adjuster(mover, defender, aimed_shot_location(defender)),
-                                            mover_cond[1] if mover_cond else frozenset())
-    defender_score = _make_heat_limited_scorer(defender, tn_adjuster(defender, mover),
-                                               defender_cond[1] if defender_cond else frozenset())
+    mover_blocked = mover_cond[1] if mover_cond else frozenset()
+    defender_blocked = defender_cond[1] if defender_cond else frozenset()
+    mover_adjust = tn_adjuster(mover, defender, aimed_shot_location(defender))
+    defender_adjust = tn_adjuster(defender, mover)
+    # One scorer per (rear arc?) case - which weapons can bear differs (p.60).
+    mover_score = {rear: _make_heat_limited_scorer(mover, mover_adjust, mover_blocked | arc_unavailable(mover, rear))
+                   for rear in (False, True)}
+    defender_score = {rear: _make_heat_limited_scorer(defender, defender_adjust,
+                                                      defender_blocked | arc_unavailable(defender, rear))
+                      for rear in (False, True)}
     dealt_stealth = equip.void_signature_modifier(defender, def_fc, defender.mp_spent) \
         + equip.own_attack_modifier(mover)
     defender_own = equip.own_attack_modifier(defender)
@@ -262,22 +268,22 @@ def evaluate_going_second(
         amm = combat.MODE_TO_AMM[mode]
         move_heat = heat.movement_heat(mover, mode, fc)
 
-        if mover_cond is None or combat.in_rear_arc(atk_hex, facing, def_hex):
+        if mover_cond is None:
             dealt = 0.0
         else:
             pre_tn = _clamp_pre_tn(mover.gunnery + amm + defender_tmm + atk_to_def.modifier
                                    + mover.heat_fire_modifier + dealt_stealth + mover_cond[0]
                                    + prone_target_modifier(defender, distance))
-            dealt = mover_score(distance, pre_tn, move_heat)
+            dealt = mover_score[combat.in_rear_arc(atk_hex, facing, def_hex)](distance, pre_tn, move_heat)
 
-        if defender.shutdown or defender_cond is None or combat.in_rear_arc(def_hex, def_facing, atk_hex):
+        if defender.shutdown or defender_cond is None:
             received = 0.0
         else:
             attacker_tmm = combat.fc_to_tmm(fc, jumped=(mode == "Jump"))
             pre_tn2 = _clamp_pre_tn(defender.gunnery + def_amm + attacker_tmm + def_to_atk.modifier
                                     + defender.heat_fire_modifier + defender_own + defender_cond[0]
                                     + equip.void_signature_modifier(mover, fc, mp_spent))
-            received = defender_score(distance, pre_tn2, def_move_heat)
+            received = defender_score[combat.in_rear_arc(def_hex, def_facing, atk_hex)](distance, pre_tn2, def_move_heat)
 
         results.append(MovementCandidate(
             hex=label, facing=hex_geometry.facing_to_compass(facing), mode=mode,

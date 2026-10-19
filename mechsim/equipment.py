@@ -75,6 +75,9 @@ class Equipment:
         else:
             self.explosion_damage = 0
         self.exploded = False
+        # 2026-10-19: mounted facing the rear - "(R)" on its .mtf crit line
+        # (Core p.60: fires only into the rear arc). Set by mtf_parser.
+        self.rear_mounted = False
 
     def __repr__(self):
         return f"<{self.name}>"

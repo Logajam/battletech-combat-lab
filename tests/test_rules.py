@@ -169,6 +169,18 @@ def prone_attacker_and_target():
     assert attack_resolution.prone_fire(fresh()) == (0, frozenset())
 
 
+@check
+def rear_mounted_weapons():
+    """p.60: only (R) weapons fire into the rear arc, and only there."""
+    m = fresh()
+    rear = {w.name for w in attack_resolution.get_weapons(m) if w.rear_mounted}
+    assert rear == {"ISMediumPulseLaser"}
+    names = lambda ids: {w.name for w in attack_resolution.get_weapons(m) if id(w) in ids}   # noqa: E731
+    assert names(attack_resolution.arc_unavailable(m, False)) == {"ISMediumPulseLaser"}
+    assert "ISMediumPulseLaser" not in names(attack_resolution.arc_unavailable(m, True))
+    assert len(attack_resolution.arc_unavailable(m, True)) == len(attack_resolution.get_weapons(m)) - 1
+
+
 def run_all():
     failed = 0
     for fn in CHECKS:

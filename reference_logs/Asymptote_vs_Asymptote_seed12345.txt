@@ -1139,7 +1139,7 @@ Stand attempt 1: needs 7 (Piloting 5 + +2). Rolled 10.
   Initiative: Red lost the roll, moves first.
   [Movement] Red: 0709 S -> 0709 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 1 / jump 5)
   [Movement] Blue: 0910 NW -> 0708 SE, Jump (3 MP, 3 hexes, 3 heat; budget walk 1 / run 1 / jump 3)
-  [Ranged] Red: Blue is in its rear arc - can't fire (PATHFINDER rule).
+  [Ranged] Red: Blue is in its rear arc and it has no rear-mounted weapons - can't fire.
   [Ranged] Blue -> Red: range 1, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 2); firing nothing (weapon heat 0 of budget 0 = max 4 + sink 16 - current 13 - movement 3 - other 10; expected dmg 0.00)
   [Heat] Red: 0 + movement 0 + weapons 0 + engine 0 - sinks 22 -> 0
   [Heat] Blue: 13 + movement 3 + weapons 0 + engine 10 - sinks 16 -> 10
@@ -1151,8 +1151,8 @@ Stand attempt 1: needs 7 (Piloting 5 + +2). Rolled 10.
   Initiative: Red lost the roll, moves first.
   [Movement] Red: 0709 S -> 0709 SE, Walk (1 MP, 0 hexes, 1 heat; budget walk 1 / run 1 / jump 5)
   [Movement] Blue: 0708 SE -> 0608 NW, Jump (3 MP, 1 hexes, 3 heat; budget walk 1 / run 1 / jump 3)
-  [Ranged] Red: Blue is in its rear arc - can't fire (PATHFINDER rule).
-  [Ranged] Blue: Red is in its rear arc - can't fire (PATHFINDER rule).
+  [Ranged] Red: Blue is in its rear arc and it has no rear-mounted weapons - can't fire.
+  [Ranged] Blue: Red is in its rear arc and it has no rear-mounted weapons - can't fire.
   [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 22 -> 0
   [Heat] Blue: 10 + movement 3 + weapons 0 + engine 10 - sinks 16 -> 7
   [Heat] Blue: heat 7 -> next turn -1 Walking MP, +0 to ranged attacks.
@@ -1163,7 +1163,7 @@ Stand attempt 1: needs 7 (Piloting 5 + +2). Rolled 10.
   Initiative: Red lost the roll, moves first.
   [Movement] Red: 0709 SE -> 0709 NE, Walk (1 MP, 0 hexes, 1 heat; budget walk 1 / run 1 / jump 5)
   [Movement] Blue: 0608 NW -> 0609 SE, Jump (3 MP, 1 hexes, 3 heat; budget walk 2 / run 2 / jump 3)
-  [Ranged] Red: Blue is in its rear arc - can't fire (PATHFINDER rule).
+  [Ranged] Red: Blue is in its rear arc and it has no rear-mounted weapons - can't fire.
   [Ranged] Blue -> Red: range 1, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 0 = max 4 + sink 16 - current 7 - movement 3 - other 10; expected dmg 0.00)
   [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 22 -> 0
   [Heat] Blue: 7 + movement 3 + weapons 0 + engine 10 - sinks 16 -> 4

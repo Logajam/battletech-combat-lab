@@ -188,36 +188,6 @@ def stub_one_shot(mech_name, weapon):
     _warn("one_shot", f"{mech_name}'s {weapon.name} fired again - fire-once limit not enforced")
 
 
-def detect_rear_mounted(mtf_path):
-    """Not a stub itself - scans the raw .mtf text for '(R)' crit lines
-    (mtf_parser strips the tag, so the parsed mech can't tell). Returns a
-    list of raw names. Read-only; no MECHSIM edit."""
-    found = []
-    try:
-        with open(mtf_path, "r", encoding="utf-8", errors="replace") as f:
-            for line in f:
-                s = line.strip()
-                # crit-slot lines only: skip "key:value" headers and the
-                # "Weapons:" summary block ("Name, Location (R)")
-                if "(R)" in s.upper() and ":" not in s and "," not in s:
-                    found.append(s)
-    except OSError:
-        pass
-    return found
-
-
-def stub_rear_mounted_weapons(mech_name, rear_lines):
-    """Rear-mounted weapons fire forward because the parser drops the '(R)'
-    tag. Called once per battle per mech that has any.
-    Knob: STUB_REAR_MOUNTED.
-    TODO: rear arcs (MegaMek Mounted.isRearMounted(), Compute.isInArc() -
-    names from memory). Needs either a parser change (MECHSIM, Daniel's
-    call) or an INTEGRATION-side mount table."""
-    if rear_lines:
-        _warn("rear_mounted_weapons", f"{mech_name} has rear-mounted crit lines {sorted(set(rear_lines))} "
-              f"- policy {config.STUB_REAR_MOUNTED}")
-
-
 # =============================================================================
 # ==========================  OTHER PHASES  ==================================
 # =============================================================================

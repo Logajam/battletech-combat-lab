@@ -301,6 +301,7 @@ def build_crit_list(raw_lines, special_rules_seen=None):
                 battle_value=entry.get("battle_value"), tonnage=entry.get("tonnage"),
                 rack_size=entry.get("rack_size"),
             )
+            equip.rear_mounted = "(R)" in name.upper()   # 2026-10-19: Core p.60 rear-mounted weapons
             result.extend([equip] * actual_slots)
             if entry["special_rules"]:
                 special_rules_seen.add((entry["canonical_name"], entry["special_rules_ref"]))

@@ -456,8 +456,6 @@ def run_batch(num_simulations: Optional[int] = None, seed: Optional[int] = None,
 
     terrain_map = _load_map()
     template_red, template_blue, red_path, blue_path = config.load_two_mechs()
-    rear_red = stubs.detect_rear_mounted(red_path)
-    rear_blue = stubs.detect_rear_mounted(blue_path)
 
     results: List[BattleResult] = []
     for sim in range(1, num_simulations + 1):
@@ -472,8 +470,6 @@ def run_batch(num_simulations: Optional[int] = None, seed: Optional[int] = None,
         mech_blue = clone_mech(template_blue)
         _attach_mech_config(mech_red, config.MECH_RED_CONFIG, "Red")
         _attach_mech_config(mech_blue, config.MECH_BLUE_CONFIG, "Blue")
-        stubs.stub_rear_mounted_weapons("Red", rear_red)
-        stubs.stub_rear_mounted_weapons("Blue", rear_blue)
 
         result = run_battle(mech_red, mech_blue, terrain_map, battle_rng, max_turns)
         result.active_stubs = stubs.active_stubs()

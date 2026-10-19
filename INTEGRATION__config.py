@@ -184,11 +184,8 @@ STUB_NO_LOS_FALLBACK = "closest_to_enemy"
 # Damage type used when equipment.json has damage_type null (only matters for
 # special armor types in armor_rules): "BALLISTIC" / "ENERGY" / "MISSILE"
 STUB_UNKNOWN_DAMAGE_TYPE = "BALLISTIC"
-# Rear-mounted weapons ("(R)" is stripped by mtf_parser, so they look forward):
-#   "treat_as_front" - fire them forward like any other weapon (only option for
-#                      now: once the tag is stripped, a rear-mounted instance
-#                      can't be told apart from a front one of the same name)
-STUB_REAR_MOUNTED = "treat_as_front"
+# (STUB_REAR_MOUNTED removed 2026-10-19: mtf_parser keeps the "(R)" tag as
+# Equipment.rear_mounted; those weapons fire only into the rear arc - Core p.60.)
 # (STUB_HEAT_MODE removed 2026-10-18: heat now always carries over turn to
 # turn - Daniel. See orchestrator._phase_heat.)
 

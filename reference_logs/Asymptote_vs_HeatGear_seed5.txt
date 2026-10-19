@@ -163,7 +163,7 @@ Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 6.
   Success - TEST Heat Gear Equipment Probe is standing (remaining running MP 4).
   [Movement] Blue: 0808 N -> 1010 SE, Run (4 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0; stood up with 4 MP left)
   [Movement] Red: 1009 N -> 0910 SW, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 4 / jump 5)
-  [Ranged] Blue: Red is in its rear arc - can't fire (PATHFINDER rule).
+  [Ranged] Blue: Red is in its rear arc and it has no rear-mounted weapons - can't fire.
   [Ranged] Red -> Blue: range 1, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 25 = max 4 + sink 22 - current 0 - movement 1 - other 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +0, modifiers -2), rolled 7 -> HIT
     ISMediumPulseLaser: needs 4 (range mod +0, modifiers -2), rolled 8 -> HIT
@@ -304,7 +304,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
 Movement Phase consciousness check (pilot, 4 pilot hits): needs 10. Rolled 5.
   Pilot knocked unconscious.
   [Movement] Red: 0910 SW -> 0910 S, Walk (3 MP, 0 hexes, 1 heat; budget walk 3 / run 4 / jump 5)
-  [Ranged] Blue: Red is in its rear arc - can't fire (PATHFINDER rule).
+  [Ranged] Blue: Red is in its rear arc and it has no rear-mounted weapons - can't fire.
   [Ranged] Red -> Blue: range 1, base TN -1 (gunnery 4 + AMM 1 [Walk] + TMM -4 + LOS 0 + heat 0 + prone target -2); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (aimed at Center Torso) (weapon heat 20 of budget 25 = max 4 + sink 22 - current 0 - movement 1 - other 0; expected dmg 30.00)
     ISMediumPulseLaser: needs -3 (range mod +0, modifiers -2) aimed at Center Torso, rolled 4 -> HIT
     ISMediumPulseLaser: needs -3 (range mod +0, modifiers -2) aimed at Center Torso, rolled 8 -> HIT
@@ -376,7 +376,7 @@ Movement Phase consciousness check (pilot, 4 pilot hits): needs 10. Rolled 5.
   Initiative: Blue lost the roll, moves first.
   [Movement] Blue: all crew unconscious - skips movement (immobile).
   [Movement] Red: 0910 S -> 0910 S, Run (4 MP, 0 hexes, 2 heat; budget walk 3 / run 4 / jump 5)
-  [Ranged] Blue: Red is in its rear arc - can't fire (PATHFINDER rule).
+  [Ranged] Blue: Red is in its rear arc and it has no rear-mounted weapons - can't fire.
   [Ranged] Red -> Blue: range 1, base TN 0 (gunnery 4 + AMM 2 [Run] + TMM -4 + LOS 0 + heat 0 + prone target -2); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (aimed at Center Torso) (weapon heat 20 of budget 24 = max 4 + sink 22 - current 0 - movement 2 - other 0; expected dmg 30.00)
     ISMediumPulseLaser: needs -2 (range mod +0, modifiers -2) aimed at Center Torso, rolled 9 -> HIT
     ISMediumPulseLaser: needs -2 (range mod +0, modifiers -2) aimed at Center Torso, rolled 7 -> HIT

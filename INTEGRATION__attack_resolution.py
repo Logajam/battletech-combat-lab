@@ -283,6 +283,15 @@ def prone_fire(mech):
     return PRONE_FIRE_MODIFIER, frozenset(in_loc(legs | {prop}))
 
 
+def arc_unavailable(attacker, target_in_rear_arc):
+    """Weapons that can't bear on a target (Core p.60): only rear-mounted
+    weapons fire into the rear arc, and they fire nowhere else. The rear arc
+    is PATHFINDER's confirmed 60-degree rule (combat.in_rear_arc). Side-arc
+    limits on torso weapons aren't applied - see PROJECT_MAP open items."""
+    return frozenset(id(w) for w in get_weapons(attacker)
+                     if getattr(w, "rear_mounted", False) != target_in_rear_arc)
+
+
 def firing_conditions(attacker):
     """Attacker-side ranged conditions: (TN modifier, unavailable weapon ids,
     note), or None if it can't make ranged attacks this turn."""
@@ -341,8 +350,10 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     if not los.los:
         config.log(f"  [Ranged] {a_name}: no LOS to {t_name} - holds fire.")
         return
-    if combat.in_rear_arc(a_hex, hex_geometry.compass_to_facing(attacker.facing), t_hex):
-        config.log(f"  [Ranged] {a_name}: {t_name} is in its rear arc - can't fire (PATHFINDER rule).")
+    in_rear = combat.in_rear_arc(a_hex, hex_geometry.compass_to_facing(attacker.facing), t_hex)
+    arc_blocked = arc_unavailable(attacker, in_rear)
+    if in_rear and len(arc_blocked) == len(get_weapons(attacker)):
+        config.log(f"  [Ranged] {a_name}: {t_name} is in its rear arc and it has no rear-mounted weapons - can't fire.")
         return
 
     distance = hex_distance(a_hex, t_hex)
@@ -355,6 +366,7 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
         config.log(f"  [Ranged] {a_name}: can't make ranged attacks (sensors destroyed, or prone with no arm to prop on).")
         return
     cond_mod, unavailable, cond_note = conditions
+    unavailable = unavailable | arc_blocked
     prone_mod = prone_target_modifier(target, distance)
     other_mod = cond_mod + prone_mod
     pre_tn = attacker.gunnery + amm + tmm + los.modifier + heat_mod + stealth_mod + other_mod
