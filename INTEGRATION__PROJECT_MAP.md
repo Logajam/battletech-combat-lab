@@ -368,11 +368,12 @@ No PATHFINDER module used by the battle loop imports `config`.
 - **2026-10-19 (Claude):** Repo laid out as the run folder (the one
   `make_run_dir.py` used to build). `INTEGRATION__make_run_dir.py` removed:
   nothing left to convert. Prefixed `MECHSIM__*`/`PATHFINDER__*` copies
-  retired; the live modules are `mechsim/` and `pathfinder/`. Not carried
-  over: `MECHSIM__sim_runner.py` (its hit/attack resolution already absorbed
-  into `INTEGRATION__attack_resolution`), `PATHFINDER__report.py`,
-  `validation.py`, `terrain_colors.py`. Still wanted as reference, not yet
-  in the repo: `PATHFINDER__combat_turn.py` (two-ply look-ahead and
-  closing fallback, not yet absorbed). Verified: a run from the repo
+  retired; the live modules are `mechsim/` and `pathfinder/`. Reference
+  files stay in the claude.ai Project, not the repo (Daniel):
+  `PATHFINDER__combat_turn.py` (two-ply look-ahead, closing fallback),
+  `PATHFINDER__report.py` / `terrain_colors.py` / `MECHSIM__sim_runner.py`'s
+  record-sheet printing (output/visual helpers, for a future GUI shell),
+  `PATHFINDER__validation.py` (test suite for the pathfinder modules;
+  imports an absent `simulate`). Verified: a run from the repo
   matches `reference_logs/sample_battle_log_Asymptote_vs_Asymptote.txt`
   except for file paths, stdout and stderr both.

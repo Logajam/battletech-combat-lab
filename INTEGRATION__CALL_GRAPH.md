@@ -96,10 +96,9 @@ main.py
 `armor_rules`, `hit_location`, `piloting_rolls`, `mtf_parser`; PATHFINDER
 `board_parser`, `hex_geometry`, `terrain_rules`, `pathfinder`, `los`, `combat`.
 
-**Not reachable (reference only):** `PATHFINDER__combat_turn.py` (two-ply
-look-ahead / closing fallback, to be kept as reference). Retired
-2026-10-19 and not in the repo: `MECHSIM__sim_runner.py`, `report.py`,
-`validation.py`, `terrain_colors.py`.
+**Not reachable (reference only, kept in the claude.ai Project, not in
+the repo):** `MECHSIM__sim_runner.py`, `PATHFINDER__combat_turn.py`,
+`report.py`, `validation.py`, `terrain_colors.py`.
 
 ---
 
