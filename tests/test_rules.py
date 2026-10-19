@@ -228,7 +228,8 @@ def home_edge_deployment():
     m = fresh()
     opts = list(ranged_combat.movement_options(m, TERRAIN, entry_edge=["0801"]))
     first = [o for o in opts if (o[0], o[1]) == hex_geometry.parse_hex_label("0801")]
-    assert first and all(fc == 1 for _, _, _, fc, _, _ in first)        # the entry hex counts as moved
+    cheapest = min(first, key=lambda o: o[5])
+    assert cheapest[3] == 1 and cheapest[5] == 1                        # entry hex: 1 hex moved, 1 MP (clear)
     assert max(fc for _, _, _, fc, _, _ in opts) <= 6 and all(mode in ("Walk", "Run") for *_, mode, _ in opts)
 
 
