@@ -38,9 +38,9 @@ Settings (mech files, board, seed, batch size, every stub knob) are all in
 16x17 Grassland, seed 12345, 1 battle, verbose, home-edge deployment.
 
 **What a battle looks like right now:** both mechs enter from opposite
-home edges, close, then mostly stand still and trade fire (the movement
-stub maximizes expected damage dealt, and standing still has the best
-AMM); adjacent mechs punch or kick in the Physical Attack Phase.
+home edges and pick each turn's spot with `INTEGRATION__movement_selection`
+(2026-10-19: damage dealt / damage received, two-ply - see Section 5);
+adjacent mechs punch or kick in the Physical Attack Phase.
 
 **Heat is fully wired (2026-10-19)** from the Core Rulebook Heat chapter
 (pp.102-107): engine-hit heat, Heat Scale MP and to-hit penalties,
@@ -56,15 +56,16 @@ default player choices (Section 5).
 cluster groupings, post-stand-up movement, walking PSRs, to-hit modifiers,
 rear-mounted weapons, ammunition and one-shots, deployment, punches/kicks/
 physical weapons). What's left is bot decisions and data gaps:
-1. `movement_selection` — which spot to move to (scoring formula is Daniel's call).
-2. `ammo_data` / `unconfirmed_weapon_data` / `unknown_damage_type` — weapons
+1. `ammo_data` / `unconfirmed_weapon_data` / `unknown_damage_type` — weapons
    whose stats aren't in the Core tables.
-3. `heat_explosion_bin` — the controller's choice among tied bins.
+2. `heat_explosion_bin` — the controller's choice among tied bins.
+(`movement_selection` stopped being a stub 2026-10-19.)
 
-**Picking up from here (2026-10-19):** nothing is half-done; `main` passes
-every test in `tests/` and matches the reference logs. Next work is
-waiting on Daniel: the Core-vs-MECHSIM PSR questions and the firing-arc
-diagram (Section 4), and the movement scoring formula. Rules are checked
+**Picking up from here (2026-10-19):** movement selection is wired and
+passes `tests/test_movement_selection.py`. The reference logs now DIFFER from
+`main` on purpose (movement changed every battle) - Daniel reviews fresh
+logs, then `check_reference_logs.py --update`. Waiting on Daniel: the
+Core-vs-MECHSIM PSR questions and the firing-arc diagram (Section 4). Rules are checked
 against `rules/Battletech_Rule_Reference_Index.zip` (Section 7). Most
 recent work and its page cites: Change Record, last entries.
 
@@ -104,7 +105,7 @@ does both, with stubs where rules are missing.**
 |---|---|---|
 | Deployment | `orchestrator._deploy_home_edges()` | **REAL (Core p.37):** deployment roll, loser picks a home edge (`config.HOME_EDGE_CHOICE`), winner opposite; mechs enter along it on turn 1. `config.DEPLOYMENT = "fixed_hexes"` keeps fixed starts. |
 | Initiative | `orchestrator.roll_initiative()` | **REAL**, Daniel-confirmed 2026-08-31. |
-| Movement | `orchestrator._phase_movement()` | **REAL:** damage- and heat-aware MP (TSM, MASC/supercharger), immobile (shut down / unconscious) skip, full Walk/Run/Jump envelope with expected dealt/received per spot (`INTEGRATION__ranged_combat.evaluate_going_second`), unconscious-skip, stand-up (`resolve_stand_up`) then move on with the remaining MP (p.51), movement PSR for Run 1+ hex / Jump (`check_movement_psr`; none for Walk, p.111), consciousness checks. **STUB:** `movement_selection` (the pick). |
+| Movement | `orchestrator._phase_movement()` | **REAL:** damage- and heat-aware MP (TSM, MASC/supercharger), immobile (shut down / unconscious) skip, full Walk/Run/Jump envelope with expected dealt/received per spot (`INTEGRATION__ranged_combat.evaluate_going_second`), unconscious-skip, stand-up (`resolve_stand_up`) then move on with the remaining MP (p.51), movement PSR for Run 1+ hex / Jump (`check_movement_psr`; none for Walk, p.111), consciousness checks. The pick: `INTEGRATION__movement_selection.choose`. |
 | Ranged Combat | `INTEGRATION__attack_resolution.py` | **REAL:** LOS, rear arc (only rear-mounted weapons fire into it), TN = gunnery + AMM + TMM(actual hexes moved; -4 if immobile) + LOS + range + heat + weapon / targeting computer / arm-crit / sensor / prone modifiers, shut-down mechs don't fire, heat- and ammo-constrained weapon selection, real to-hit rolls, attack direction from geometry, cluster table with Core groupings (Streak, MRM), hit location, damage, crits, explosions, floating TAC, head hits, aimed shots, ammo use, Attack Phase PSR, consciousness. Both sides declare before damage lands (simultaneous). **STUBS:** `unknown_damage_type`, `unconfirmed_weapon_data`, `ammo_data`. |
 | Physical Combat | `INTEGRATION__physical.run_physical_phase()` | **REAL (Core pp.76-83):** punches, kicks, physical weapons; bot picks the most expected damage. Charges, DFA, pushes, clubs not built. |
 | Heat | `orchestrator._phase_heat()` → `INTEGRATION__heat.resolve_heat_phase()` | **REAL (2026-10-19, Core Rulebook pp.102-107):** heat carries over; += movement heat (Walk 1 / Run 2 / Jump, Improved JJ, XXL, super-cooled myomer) + weapon heat + engine-hit heat (5/10) + stealth heat − dissipation (+3 Partial Wing, radical heat sinks, coolant pods); then shutdown roll or restart, ammo and inferno explosion rolls (re-rolled after inferno heat), life-support pilot hits, and next turn's MP / to-hit / TSM effects. End Phase: heat sinks switched off to hold min_heat. **STUB:** `heat_explosion_bin` (bin tie-break needs shot counts). |
@@ -143,7 +144,6 @@ TODOs are from memory — grep before relying on them).
 
 | Stub | What it does instead | Needs |
 |---|---|---|
-| `movement_selection` | `max_dealt` (ties → closest to enemy → least received → seeded random); no-LOS → closest reachable spot to enemy (or the enemy's home edge before it has entered) | Real scoring formula (Daniel); two-ply look-ahead from `combat_turn.py` not ported |
 | `unknown_damage_type` | null damage_type → BALLISTIC | equipment.json curation (weapons not in the Core tables) |
 | `unconfirmed_weapon_data` | Loud warning; weapon never fires | equipment.json curation - special-rules weapons (MG arrays, TAG, AMS, SRTs, HAG damage, MML modes, plasma, VSP damage...) |
 | `ammo_data` | Unlimited ammo for a weapon with no shots_per_ton (HVAC, Improved AC - not in the Core tables) | shots_per_ton from Tactical Operations tables |
@@ -319,8 +319,10 @@ No PATHFINDER module used by the battle loop imports `config`.
 
 | Decision point | Lives in | Decides |
 |---|---|---|
-| Movement selection | `INTEGRATION__stubs.stub_select_movement` | **STUB.** Which reachable spot to end movement in. Its inputs (expected dealt/received per spot) are heat-aware since 2026-10-18. |
-| No-LOS movement fallback | `INTEGRATION__stubs.stub_select_movement` | **STUB.** Where to go when nothing has LOS. |
+| Movement selection | `INTEGRATION__movement_selection.choose` | Spot (hex + facing + mode) maximizing dealt×exposure / (received×exposure + movement-PSR cost + .001); first mover scores each spot by the second mover's modeled reply (two-ply). Knobs: config MOVEMENT SETTINGS. |
+| Movement-PSR cost | `movement_selection.psr_costs` | P(fail) × fall damage, only for Run / Jump with a Movement-Phase PSR trigger; damage-caused PSRs ignored (Daniel) |
+| Armor-exposure weighting | `movement_selection.exposure_factors` | Per-side vulnerability from current armor + structure (front = 1.0, clamped) |
+| No-LOS / out-of-range movement fallback | `movement_selection.closing_fallback` | Ported as-is from `combat_turn._closing_fallback` (cases A/B1/B2); nearest-to-enemy otherwise |
 | Heat-constrained weapon selection | `INTEGRATION__weapon_selection.py` | Which weapons fire this turn, built and wired |
 | Heat ammo explosion bin (controller's choice) | `INTEGRATION__stubs.stub_heat_explosion_bin` | **STUB.** Which of several equally destructive, equally full bins explodes (random). |
 | Ammo bin to draw from | `INTEGRATION__ammo.spend` | The bin with the fewest shots left (empties bins sooner) |
@@ -331,11 +333,11 @@ No PATHFINDER module used by the battle loop imports `config`.
 | Coolant pod trigger | `INTEGRATION__heat._extra_cooling` | One pod when heat would stay above min_heat, not on a radical turn |
 | Heat-sink switching | `INTEGRATION__heat.choose_heat_sink_deactivation` | End Phase: how many sinks stay on so min_heat can be reached |
 | Aimed shot location | `config.AIMED_SHOT_LOCATION` | Where shots at immobile targets aim (default Center Torso) |
-| Candidate reduction | `PATHFINDER__combat_turn.py` (reference) / `orchestrator._reachable_states` | Max-FC per (hex, facing, mode) — used for the no-LOS fallback pool |
-| Best-reply selection | `PATHFINDER__combat_turn.py` | Not wired (reference) |
+| Candidate reduction | `movement_selection.reduced_options` | Max FC (min MP) per (hex, facing, mode, fc>0); Void-Signature exempt |
+| Best-reply selection | `movement_selection._modeled_reply` | Wired (two-ply) |
 | `compute_score()` | `PATHFINDER__combat.py` | Not wired (reference; built on flat HP/weapon dicts) |
 | LOS rule-6 tie-break | `PATHFINDER__los.py` | Placeholder, see Known Issues #2 |
-| Closing-turn detection | `PATHFINDER__combat_turn.py` | Not wired |
+| Closing-turn detection | `movement_selection.closing_fallback` | Wired (ported) |
 
 ---
 
@@ -370,6 +372,23 @@ No PATHFINDER module used by the battle loop imports `config`.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-19 (Claude):** Movement selection built (replaces
+  `stub_select_movement`). New `INTEGRATION__movement_selection.py` and
+  `INTEGRATION__los_cache.py` (compute-once LOS / entry-direction / distance
+  cache); `ranged_combat` gained `MoveEvaluator` (pinned-position scoring that
+  reuses weapon scorers; `evaluate_going_second` is now a wrapper, output
+  byte-identical on 5 reference logs before wiring); `piloting_rolls` gained
+  `movement_psr_trigger`, `movement_psr_target_number`, `fall_damage`.
+  Daniel's decisions: objective = dealt / (received + .001); two-ply so both
+  sides move intelligently; closing fallback ported as-is; armor-exposure
+  weighting by actual hit direction; movement-phase PSR expected damage added
+  to the denominator (damage-caused PSRs ignored); dropping `compute_score`'s
+  HP-awareness is fine for now. Known limits: ratio ignores damage state
+  (epsilon dominance by tiny-damage/no-return-fire spots), seatbelt/prone PSR
+  aftermath unscored, tripod exposure uses the raw hit table, prone/immobile
+  enemy modeled as staying put, modeled replies greedy not adversarial.
+  New tests in `tests/test_movement_selection.py` (14 checks). ~15 s per
+  40-turn battle. Reference logs differ by design - NOT updated.
 - **2026-08-28 (Claude):** Consolidated `INTEGRATION__PROJECT_MAP.md` +
   both source projects' project maps/design notes/call graphs/change-record
   archives into this single doc. No code touched.

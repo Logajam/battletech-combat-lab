@@ -201,7 +201,7 @@ def resolve_fall(mech, seatbelt_modifier, cause=""):
     worked example: leg destroyed +5, gyro hit +2, 20+ dmg +1 -> seatbelt TN
     is also 5+5+2+1=13, not a separate/lower baseline)."""
     mech.prone = True
-    total_damage = math.ceil(mech.mass / 10)
+    total_damage = fall_damage(mech)
     config.log(f"FALL{f' ({cause})' if cause else ''}: {mech.chassis} {mech.model} "
                f"takes {total_damage} falling damage (front table, 5-pt clusters).")
 
@@ -227,6 +227,43 @@ def resolve_fall(mech, seatbelt_modifier, cause=""):
     else:
         config.log(f"  Seatbelt check: needs {needed}{mod_note}. Rolled {roll}. Pilot unharmed.")
     is_destroyed(mech)
+
+
+def movement_psr_trigger(mech, mode):
+    """Which Movement Phase PSR trigger applies to `mech` moving in `mode`
+    ("running" / "jump"), as the description check_movement_psr logs - or None
+    when no roll is forced. Split out of check_movement_psr (2026-10-19,
+    Claude) so movement selection can price a PSR before choosing a move;
+    the conditions are unchanged. Walking and standing still never reach
+    this (Core p.111) - callers gate those."""
+    if mech.gyro_hits > 0:
+        return "gyro hit"
+    if mode == "jump" and any(
+        mech.locations[loc]["destroyed"] or mech.destroyed_leg_actuators.get(loc, 0) > 0
+        for loc in mech.leg_locations
+    ):
+        return "leg actuator/leg destroyed while jumping"
+    if mode == "running" and any(
+        mech.locations[loc]["destroyed"] or loc in mech.destroyed_hip_locations
+        for loc in mech.leg_locations
+    ):
+        return "Hip/leg destroyed while running"
+    return None
+
+
+def movement_psr_target_number(mech, mode):
+    """Target number (2d6, roll under it fails) of the Movement Phase PSR this
+    mech would have to make moving in `mode`, or None if none is forced.
+    Same arithmetic check_movement_psr uses: the mech's own piloting skill +
+    preexisting-damage and special-case modifiers. Read-only."""
+    if movement_psr_trigger(mech, mode) is None:
+        return None
+    return mech.piloting + preexisting_modifier(mech) + special_case_modifier(mech)
+
+
+def fall_damage(mech):
+    """Falling damage in points: ceil(mass / 10) (see resolve_fall)."""
+    return math.ceil(mech.mass / 10)
 
 
 # HELP(piloting_skill_rolls.check_movement_psr)
@@ -260,19 +297,8 @@ def check_movement_psr(mech, mode, cause=None):
 
     Returns True if the mech remains standing (no trigger, or the roll
     succeeded), False if it fell (resolve_fall already ran)."""
-    if mech.gyro_hits > 0:
-        trigger_desc = "gyro hit"
-    elif mode == "jump" and any(
-        mech.locations[loc]["destroyed"] or mech.destroyed_leg_actuators.get(loc, 0) > 0
-        for loc in mech.leg_locations
-    ):
-        trigger_desc = "leg actuator/leg destroyed while jumping"
-    elif mode == "running" and any(
-        mech.locations[loc]["destroyed"] or loc in mech.destroyed_hip_locations
-        for loc in mech.leg_locations
-    ):
-        trigger_desc = "Hip/leg destroyed while running"
-    else:
+    trigger_desc = movement_psr_trigger(mech, mode)
+    if trigger_desc is None:
         return True  # no trigger condition met - no roll, remains standing
 
     modifier = preexisting_modifier(mech) + special_case_modifier(mech)

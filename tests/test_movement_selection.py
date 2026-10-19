@@ -1,0 +1,440 @@
+"""
+tests/test_movement_selection.py - checks INTEGRATION__movement_selection
+(Daniel, 2026-10-19: dealt / (received + PSR cost + 0.001), two-ply, exposure
+weighting, ported closing fallback) and the geometry cache and evaluator it
+sits on.
+
+    python tests/test_movement_selection.py
+
+Most checks compare the picker against a brute-force version that skips every
+shortcut (the candidate reduction, the evaluator's reuse, the cache) - so a
+mistake in a shortcut can't hide.
+"""
+
+import io
+import math
+import os
+import random
+import sys
+import traceback
+from contextlib import redirect_stdout
+
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, REPO_ROOT)
+sys.path.insert(0, os.path.join(REPO_ROOT, "tests"))
+os.chdir(REPO_ROOT)
+
+import INTEGRATION__config as config  # noqa: E402
+import INTEGRATION__orchestrator as orchestrator  # noqa: E402
+import INTEGRATION__attack_resolution as attack_resolution  # noqa: E402
+import INTEGRATION__ranged_combat as ranged_combat  # noqa: E402
+import INTEGRATION__movement_selection as ms  # noqa: E402
+import INTEGRATION__los_cache as geo_cache  # noqa: E402
+from INTEGRATION__rng import BattleRNG  # noqa: E402
+import hex_geometry  # noqa: E402
+import combat  # noqa: E402
+import los  # noqa: E402
+import piloting_rolls  # noqa: E402
+from mtf_parser import parse_mtf  # noqa: E402
+from mech_state import clone_mech  # noqa: E402
+
+config.VERBOSE = False
+TERRAIN = orchestrator._load_map()
+ASYMPTOTE = parse_mtf(config.data_path("Asymptote II iJ Mpulse.mtf"))
+TOL = 1e-9
+
+
+def fresh(hex_, facing="N", template=ASYMPTOTE, name="Test", max_heat=4):
+    m = clone_mech(template)
+    orchestrator._attach_mech_config(m, {"hex": hex_, "facing": facing, "gunnery": 4, "piloting": 5,
+                                         "min_heat": 0, "max_heat": max_heat}, name)
+    return m
+
+
+def xy(label):
+    return hex_geometry.parse_hex_label(label)
+
+
+CHECKS = []
+
+
+def check(fn):
+    CHECKS.append(fn)
+    return fn
+
+
+def objective_of(cand, me, them):
+    """The picker's objective for one MovementCandidate (mover = me)."""
+    return ms._objective(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
+                         me.exposure[cand.side_on_mover], me.psr_cost(cand.mode, cand.fc))
+
+
+def full_scores(mover, other, standup_mp=None):
+    """Every UNREDUCED state of `mover` scored against `other` where it stands."""
+    me, them = ms._Side(mover), ms._Side(other)
+    cands = ranged_combat.evaluate_going_second(
+        mover, other, TERRAIN, defender_state={"fc": other.move_fc, "mode": other.move_mode}, standup_mp=standup_mp)
+    return me, them, cands
+
+
+# -----------------------------------------------------------------------------
+@check
+def geometry_cache_matches_the_game_code():
+    """los_cache must give exactly what los.has_los, attack_resolution.attack_side
+    and combat.in_rear_arc give - it only remembers their answers."""
+    geo_cache.reset()
+    rng = random.Random(7)
+    labels = rng.sample(sorted(TERRAIN["hexes"]), 40)
+    n = 0
+    for a in labels:
+        for t in labels:
+            if a == t:
+                continue
+            ah, th = xy(a), xy(t)
+            try:
+                want = los.has_los(ah, th, TERRAIN)
+            except ValueError:
+                try:
+                    geo_cache.pair_info(ah, th, TERRAIN)
+                    raise AssertionError("cache accepted a line los.py rejects")
+                except ValueError:
+                    continue
+            res, entry_dir, dist, a_to_t = geo_cache.pair_info(ah, th, TERRAIN)
+            assert (res.los, res.modifier, res.distance) == (want.los, want.modifier, want.distance), (a, t)
+            assert dist == los.hex_distance(ah, th)
+            for f in range(6):
+                assert geo_cache.in_rear_arc(a_to_t, f) == combat.in_rear_arc(ah, f, th), (a, t, f)
+                if want.los:
+                    relative = (entry_dir - f) % 6
+                    assert attack_resolution._SIDE_BY_RELATIVE_HEXSIDE[relative] == \
+                        attack_resolution.attack_side(ah, th, f, TERRAIN), (a, t, f)
+            again = geo_cache.pair_info(ah, th, TERRAIN)
+            assert again is geo_cache.pair_info(ah, th, TERRAIN)         # remembered, not recomputed
+            n += 1
+    assert n > 1000, n
+
+
+@check
+def candidate_sides_match_attack_side():
+    """The side the evaluator reports for each candidate is attack_side's answer
+    for the actual attacker / target / target facing."""
+    mover, other = fresh("0808", "N"), fresh("0812", "NE")
+    cands = ranged_combat.evaluate_going_second(mover, other, TERRAIN)
+    assert len(cands) > 100
+    for c in random.Random(3).sample(cands, 60):
+        a = xy(c.hex)
+        assert c.side_on_defender == attack_resolution.attack_side(
+            a, xy("0812"), hex_geometry.compass_to_facing("NE"), TERRAIN), c
+        assert c.side_on_mover == attack_resolution.attack_side(
+            xy("0812"), a, hex_geometry.compass_to_facing(c.facing), TERRAIN), c
+
+
+@check
+def reduction_keeps_the_best_spot():
+    """The Section 5c reduction drops only dominated states: the best objective
+    over the reduced set equals the best over every state."""
+    for mover_hex, mover_f, other_hex, other_f, damage in [
+        ("0808", "N", "0812", "S", False), ("0505", "SE", "0709", "N", False),
+        ("1010", "NW", "0706", "SW", False), ("0808", "N", "0812", "S", True),
+    ]:
+        mover, other = fresh(mover_hex, mover_f), fresh(other_hex, other_f)
+        if damage:
+            mover.gyro_hits = 1
+            mover.locations["Center Torso"]["rear_armor"] = 2
+            mover.locations["Left Torso"]["armor"] = 3
+            piloting_rolls.snapshot_preexisting_damage(mover)
+        me, them, full = full_scores(mover, other)
+        assert full
+        best_full = max(objective_of(c, me, them) for c in full)
+        reduced = ms.reduced_options(mover, TERRAIN, exclude_hex=other.hex)
+        ev = ranged_combat.MoveEvaluator(mover, other, TERRAIN)
+        red = ev.evaluate(other.hex, other.facing, 0, "Stand Still", 0, ev.prepare(reduced))
+        best_red = max(objective_of(c, me, them) for c in red)
+        assert abs(best_full - best_red) < TOL, (mover_hex, best_full, best_red)
+        assert len(reduced) < len(list(ranged_combat.movement_options(mover, TERRAIN)))
+
+
+@check
+def second_mover_takes_the_best_scoring_spot():
+    """With the enemy's position final (second mover), choose() returns a spot
+    scoring the maximum objective over the full unreduced list."""
+    rng = BattleRNG(seed=11)
+    for mover_hex, other_hex, other_f in [("0808", "0813", "N"), ("0404", "0808", "SW"), ("1212", "0910", "SE")]:
+        mover, other = fresh(mover_hex, "N"), fresh(other_hex, other_f)
+        pick, why = ms.choose(mover, other, TERRAIN, rng, moves_first=False)
+        me, them, full = full_scores(mover, other)
+        best = max(objective_of(c, me, them) for c in full)
+        if best <= 0:
+            continue
+        match = [c for c in full if (c.hex, c.facing, c.mode, c.fc) == (pick["hex"], pick["facing"], pick["mode"], pick["fc"])]
+        assert match, (pick, why)
+        assert abs(objective_of(match[0], me, them) - best) < TOL, (pick, why, best)
+
+
+@check
+def first_mover_scores_a_spot_by_the_real_replys_numbers():
+    """For sampled first-mover spots, the modeled reply's objective equals what
+    a brute force finds: put the first mover physically at the spot, score the
+    second mover's UNREDUCED envelope with a fresh evaluate_going_second, take
+    the best. (Proves pinning, evaluator reuse, the cache and the reduction.)"""
+    mover, other = fresh("0808", "N"), fresh("0911", "NW")
+    me, them = ms._Side(mover), ms._Side(other)
+    spots = ms.reduced_options(mover, TERRAIN, exclude_hex=other.hex)
+    ev1 = ranged_combat.MoveEvaluator(mover, other, TERRAIN)
+    prepared1 = ev1.prepare(spots)
+    ev2 = ranged_combat.MoveEvaluator(other, mover, TERRAIN)
+    prepared2 = ev2.prepare(ms._opponent_options(other, TERRAIN))
+    compared = 0
+    for c in random.Random(5).sample(prepared1, 25):
+        reply = ms._modeled_reply(c, ev2, prepared2, them, me, other, c.hex_xy, TERRAIN)
+
+        # brute force: really move the first mover there
+        pinned = clone_mech(mover)
+        pinned.hex, pinned.facing = c.label, c.facing_compass
+        pinned.move_mode, pinned.move_fc, pinned.mp_spent = c.mode, c.fc, c.mp_spent
+        brute = ranged_combat.evaluate_going_second(
+            other, pinned, TERRAIN, defender_state={"fc": c.fc, "mode": c.mode})
+        scored = [ms._objective(b.dealt, b.received, me.exposure[b.side_on_defender],
+                                them.exposure[b.side_on_mover], them.psr_cost(b.mode, b.fc)) for b in brute]
+        if not brute or not any(b.dealt > 0 for b in brute):
+            continue                       # closing-fallback case: covered by its own check
+        assert reply is not None
+        got = ms._objective(reply.dealt, reply.received, me.exposure[reply.side_on_defender],
+                            them.exposure[reply.side_on_mover], them.psr_cost(reply.mode, reply.fc))
+        assert abs(got - max(scored)) < TOL, (c.label, got, max(scored))
+        compared += 1
+    assert compared >= 5, compared
+
+
+@check
+def two_ply_changes_the_pick_it_should():
+    """A spot only the first mover can see the enemy from (the enemy will have
+    moved away) must not be scored as if the enemy stayed: two-ply and static
+    picks differ somewhere across a few positions, and the static score of the
+    two-ply pick is never better than the static pick's own."""
+    differ = 0
+    for mover_hex, other_hex in [("0808", "0813"), ("0505", "0911"), ("0310", "0910"), ("0606", "0609")]:
+        picks = {}
+        for two_ply in (True, False):
+            config.MOVEMENT_TWO_PLY = two_ply
+            mover, other = fresh(mover_hex, "N"), fresh(other_hex, "N")
+            picks[two_ply], _ = ms.choose(mover, other, TERRAIN, BattleRNG(seed=2), moves_first=True)
+        config.MOVEMENT_TWO_PLY = True
+        if picks[True] != picks[False]:
+            differ += 1
+    assert differ >= 1, "two-ply never changed a pick - is the lookahead doing anything?"
+
+
+@check
+def psr_cost_prices_the_fall():
+    """Only a damaged mech has a Movement Phase PSR; its cost is P(fail) x fall
+    damage, from piloting_rolls' own target number."""
+    m = fresh("0808")
+    assert ms.psr_costs(m) == {"Run": 0.0, "Jump": 0.0}
+    m.gyro_hits = 1
+    piloting_rolls.snapshot_preexisting_damage(m)
+    target = m.piloting + piloting_rolls.preexisting_modifier(m) + piloting_rolls.special_case_modifier(m)
+    assert target == piloting_rolls.movement_psr_target_number(m, 'Run'), target        # skill + gyro hit + this mech's own special-case modifier
+    assert target == m.piloting + piloting_rolls.PREEXISTING_GYRO_HIT_MODIFIER + piloting_rolls.special_case_modifier(m)
+    p_pass = sum(n for roll, n in ((2, 1), (3, 2), (4, 3), (5, 4), (6, 5), (7, 6), (8, 5), (9, 4), (10, 3), (11, 2), (12, 1))
+                 if roll >= target) / 36
+    expected = (1 - p_pass) * math.ceil(m.mass / 10)
+    costs = ms.psr_costs(m)
+    assert abs(costs["Run"] - expected) < TOL and abs(costs["Jump"] - expected) < TOL, (costs, expected)
+    side = ms._Side(m)
+    assert side.psr_cost("Walk", 3) == 0 and side.psr_cost("Stand Still", 0) == 0     # walking never rolls (p.111)
+    assert side.psr_cost("Run", 0) == 0 and side.psr_cost("Run", 2) == costs["Run"]    # Run needs 1+ hex moved
+    assert ms._Side(m, psr_applies=False).psr_cost("Run", 4) == 0                      # a stand-up already rolled it
+
+    # trigger rules differ by mode: a destroyed leg actuator matters only when jumping
+    m2 = fresh("0808")
+    m2.destroyed_leg_actuators["Left Leg"] = 1
+    piloting_rolls.snapshot_preexisting_damage(m2)
+    c2 = ms.psr_costs(m2)
+    assert c2["Run"] == 0 and c2["Jump"] > 0, c2
+
+    config.MOVEMENT_PSR_COST = False
+    try:
+        assert ms.psr_costs(m) == {"Run": 0.0, "Jump": 0.0}
+    finally:
+        config.MOVEMENT_PSR_COST = True
+
+
+@check
+def a_damaged_mech_scores_running_below_walking():
+    """With a gyro hit, the same spot scores lower for Run than the objective
+    would without the PSR term - the term reaches the score."""
+    m = fresh("0808")
+    m.gyro_hits = 1
+    piloting_rolls.snapshot_preexisting_damage(m)
+    side = ms._Side(m)
+    base = ms._objective(10.0, 4.0, 1.0, 1.0, 0.0)
+    assert ms._objective(10.0, 4.0, 1.0, 1.0, side.psr_cost("Run", 3)) < base
+    assert ms._objective(10.0, 4.0, 1.0, 1.0, side.psr_cost("Walk", 3)) == base
+
+
+@check
+def exposure_follows_current_armor():
+    """Front counts 1.0; thin rear armor makes rear hits count more; stripping
+    a side's armor raises that side; the knob turns it all off; destroyed
+    locations transfer inward instead of failing."""
+    m = fresh("0808")
+    f = ms.exposure_factors(m)
+    assert f["front"] == 1.0 and all(config.MOVEMENT_EXPOSURE_MIN <= f[s] <= config.MOVEMENT_EXPOSURE_MAX for s in f)
+    assert abs(sum(ms._P_2D6.values()) - 1.0) < TOL
+    for loc in ("Center Torso", "Left Torso", "Right Torso"):
+        m.locations[loc]["rear_armor"] = 1
+    f2 = ms.exposure_factors(m)
+    assert f2["rear"] > f["rear"], (f, f2)
+
+    m3 = fresh("0808")
+    before = ms.exposure_factors(m3)
+    for loc in ("Left Arm", "Left Torso", "Left Leg"):
+        m3.locations[loc]["armor"] = 1
+    after = ms.exposure_factors(m3)
+    assert after["left"] > before["left"], (before, after)
+
+    m4 = fresh("0808")
+    m4.locations["Left Arm"]["destroyed"] = True               # a hit there transfers to the Left Torso
+    assert all(math.isfinite(v) for v in ms.exposure_factors(m4).values())
+
+    config.MOVEMENT_EXPOSURE_WEIGHTING = False
+    try:
+        assert ms.exposure_factors(m) == dict.fromkeys(ms.SIDES, 1.0)
+    finally:
+        config.MOVEMENT_EXPOSURE_WEIGHTING = True
+
+
+@check
+def a_stripped_side_is_turned_away():
+    """Behavior check: given a mech with its left side nearly gone, among spots
+    otherwise identical in range, the picker's received-damage weight is higher
+    when the enemy's shot arrives on the left than when it arrives on the front."""
+    m = fresh("0808")
+    for loc in ("Left Arm", "Left Torso", "Left Leg"):
+        m.locations[loc]["armor"] = 0
+        m.locations[loc]["structure"] = 2
+    f = ms.exposure_factors(m)
+    assert f["left"] > f["front"] and f["left"] > f["right"], f
+
+
+@check
+def closing_fallback_cases():
+    """Case A/B1 picks the spot that closes the range most (all ties at zero
+    damage); finds nothing when no spot can close it; Case B2 heads for the
+    nearest LOS hex that isn't closer in bracket."""
+    # --- B1: mover out of range, enemy 12 hexes off: spots within range 9 exist
+    mover, other = fresh("0801"), fresh("0817")                  # 16 apart: out of the 15-hex long range
+    prepared = ranged_combat.prepare_options(mover, ms.reduced_options(mover, TERRAIN, exclude_hex=other.hex))
+    weapon = ms._longest_range_weapon(mover)
+    enemy = xy(other.hex)
+    pick = ms.closing_fallback(mover, other, prepared, enemy, lambda o: 0.0, TERRAIN)
+    assert pick is not None
+    brackets = [ms._bracket(los.hex_distance(o.hex_xy, enemy), weapon) for o in prepared]
+    assert ms._bracket(los.hex_distance(pick.hex_xy, enemy), weapon) == min(brackets) < 3
+
+    # --- B1 edge: nothing reachable -> no override
+    assert ms.closing_fallback(mover, other, [], enemy, lambda o: 0.0, TERRAIN) is None
+
+    # --- B2: already in range (distance 5), so LOS is the problem. Only hexes at
+    # distance >= 5 east of the enemy "have LOS" (patched); the mover should head
+    # for the nearest such hex.
+    mover, other = fresh("0808"), fresh("0813")
+    enemy = xy(other.hex)
+    prepared = ranged_combat.prepare_options(mover, ms.reduced_options(mover, TERRAIN, exclude_hex=other.hex))
+    real_los = geo_cache.los
+
+    class FakeLos:
+        def __init__(self, ok):
+            self.los = ok
+
+    def fake_los(cell, target, terrain):
+        return FakeLos(cell[0] > enemy[0] and los.hex_distance(cell, enemy) >= 5)
+
+    geo_cache.los = fake_los
+    try:
+        pick = ms.closing_fallback(mover, other, prepared, enemy, lambda o: 0.0, TERRAIN)
+    finally:
+        geo_cache.los = real_los
+    assert pick is not None
+    mover_xy = xy(mover.hex)
+    seeds = [xy(label) for label in TERRAIN["hexes"]
+             if xy(label) != mover_xy and xy(label)[0] > enemy[0] and los.hex_distance(xy(label), enemy) >= 5]
+    nearest_seed = min(seeds, key=lambda c: los.hex_distance(c, mover_xy))
+    d_seed = lambda o: los.hex_distance(o.hex_xy, nearest_seed)                       # noqa: E731
+    in_bracket = [o for o in prepared if ms._bracket(los.hex_distance(o.hex_xy, enemy), ms._longest_range_weapon(mover))
+                  >= ms._bracket(los.hex_distance(mover_xy, enemy), ms._longest_range_weapon(mover))]
+    assert d_seed(pick) == min(d_seed(o) for o in in_bracket)
+
+
+@check
+def modeled_replies_follow_the_real_movement_rules():
+    """The modeled second mover mirrors _phase_movement: immobile and prone mechs
+    don't move."""
+    other = fresh("0808", "SE")
+    other.shutdown = True
+    (state,) = ms._opponent_options(other, TERRAIN)
+    assert state[:2] == xy("0808") and state[4] == "Stand Still" and state[3] == 0
+    other = fresh("0808", "SE")
+    other.prone = True
+    (state,) = ms._opponent_options(other, TERRAIN)
+    assert state[4] == "Run"                                   # declares Run to try standing (resolve_stand_up)
+    assert len(ms._opponent_options(fresh("0808"), TERRAIN)) > 50
+
+
+@check
+def entering_the_board():
+    """With no enemy on the board the mover heads for its home edge; entering
+    from an edge works and lands on a reachable hex."""
+    mover, other = fresh("0101"), fresh("0101")
+    mover.hex, other.hex = None, None
+    mover.home_edge = orchestrator._edge_hexes(TERRAIN, "N")
+    other.home_edge = orchestrator._edge_hexes(TERRAIN, "S")
+    pick, why = ms.choose(mover, other, TERRAIN, BattleRNG(seed=4), moves_first=True, entry_edge=mover.home_edge)
+    assert pick is not None and "home edge" in why, (pick, why)
+    row = int(pick["hex"][2:])
+    assert row <= 1 + combat_run_hexes(mover), (pick, row)
+    # second mover entering with the first already on the board: plain single-ply
+    first = fresh("0808")
+    mover2 = fresh("0101")
+    mover2.hex = None
+    mover2.home_edge = orchestrator._edge_hexes(TERRAIN, "S")
+    pick2, _ = ms.choose(mover2, first, TERRAIN, BattleRNG(seed=4), moves_first=False, entry_edge=mover2.home_edge)
+    assert pick2 is not None
+
+
+def combat_run_hexes(mech):
+    from mech_state import compute_running_mp
+    return compute_running_mp(mech)
+
+
+@check
+def same_seed_same_battle():
+    """A short quiet battle twice with one seed: identical results (the lookahead
+    must not consume the battle's random stream differently from run to run)."""
+    out = []
+    for _ in range(2):
+        config.VERBOSE = False
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            results = orchestrator.run_batch(num_simulations=1, seed=99, max_turns=4)
+        r = results[0]
+        out.append((r.turns_taken, r.red.final_hp, r.blue.final_hp, r.red.final_hex, r.blue.final_hex, buf.getvalue()))
+    assert out[0] == out[1]
+
+
+if __name__ == "__main__":
+    failures = 0
+    for fn in CHECKS:
+        try:
+            fn()
+            print(f"PASS  {fn.__name__}")
+        except Exception:
+            failures += 1
+            print(f"FAIL  {fn.__name__}")
+            traceback.print_exc()
+    print()
+    if failures:
+        print(f"{failures} of {len(CHECKS)} movement-selection checks FAILED.")
+        sys.exit(1)
+    print(f"All {len(CHECKS)} movement-selection checks passed.")

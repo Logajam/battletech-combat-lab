@@ -73,10 +73,22 @@ selector calls, not thousands.
 === WHAT THIS DELIBERATELY DOES NOT DO ===
 - No candidate reduction (PATHFINDER__combat_turn.py's Section 5c dominance
   argument). Returns the FULL raw candidate list, unreduced - the picker
-  that consumes this (INTEGRATION__stubs.stub_select_movement) is still a
-  stub.
+  that consumes this (INTEGRATION__movement_selection, 2026-10-19) does its
+  own reduction.
 - No scoring/ranking formula is applied - this hands back (dealt, received)
   per candidate, not a single "best" pick.
+
+=== MoveEvaluator (2026-10-19) ===
+The per-call setup (firing conditions, the four heat-limited weapon scorers
+and their memo tables) is split out of the per-position work into
+MoveEvaluator, so INTEGRATION__movement_selection's two-ply search can build
+it ONCE per (mover, defender) pair and then score the mover's whole envelope
+against a defender pinned at each of hundreds of different positions. The
+scorers' memo (keyed on distance, pre_tn, movement heat) carries over between
+positions - none of those inputs depend on where the defender is pinned.
+evaluate_going_second() is now a thin wrapper and returns exactly what it
+did before. LOS, distance, entry hexside and rear-arc answers come from
+INTEGRATION__los_cache.
 - LB-X / Ultra AC / HAG / Artemis gaps are unchanged from
   INTEGRATION__expected_damage.py's own documented scope - a weapon with
   unconfirmed damage_per_shot/heat/range is never selectable, so it adds
@@ -111,8 +123,9 @@ import INTEGRATION__weapon_selection as weapon_selection  # noqa: E402
 import INTEGRATION__heat as heat  # noqa: E402
 import INTEGRATION__equipment_systems as equip  # noqa: E402
 import INTEGRATION__ammo as ammo  # noqa: E402
+import INTEGRATION__los_cache as geo_cache  # noqa: E402
 from INTEGRATION__attack_resolution import tn_adjuster, aimed_shot_location, firing_conditions, \
-    prone_target_modifier, arc_unavailable  # noqa: E402
+    prone_target_modifier, arc_unavailable, _SIDE_BY_RELATIVE_HEXSIDE  # noqa: E402
 
 IMMOBILE_TMM = -4  # same convention as INTEGRATION__attack_resolution.IMMOBILE_TMM
 
@@ -130,15 +143,8 @@ class MovementCandidate:
     dealt: float       # expected damage mover deals to defender from here (heat-limited)
     received: float     # expected damage defender deals back to mover from here (heat-limited)
     movement_heat: int = 0  # heat this candidate's own movement generates
-
-
-def _clamp_pre_tn(pre_tn: int) -> int:
-    """weapon_selection's table only populates pre_tn in [PRE_TN_MIN,
-    PRE_TN_MAX] (0-16). Clamped rather than KeyError'ing on a pathological
-    (very high AMM+TMM+LOS) case; clamping to the ceiling can only make an
-    extreme candidate look slightly better than it truly is (it UNDERSTATES
-    how hard the shot is), never inflate an ordinary one."""
-    return max(weapon_selection.PRE_TN_MIN, min(weapon_selection.PRE_TN_MAX, pre_tn))
+    side_on_defender: str = ""  # hit table the defender is shot on from here (Core p.73): front/left/right/rear
+    side_on_mover: str = ""     # hit table the mover is shot on when the defender fires back
 
 
 def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset()):
@@ -222,6 +228,139 @@ def _entry_options(mover, terrain_map, edge_labels):
                         yield key
 
 
+class _Option:
+    """One mover end state with everything about it that doesn't depend on
+    where the defender is (computed once by MoveEvaluator.prepare)."""
+    __slots__ = ("x", "y", "hex_xy", "facing", "label", "facing_compass", "fc", "mode", "mp_spent",
+                 "amm", "move_heat", "tmm", "void_mod")
+
+
+def prepare_options(mover, options) -> List[_Option]:
+    """options: (x, y, facing, fc, mode, mp_spent) tuples (movement_options
+    output, or a reduction of it) -> _Option objects carrying what depends only
+    on the mover's own state (label, AMM, movement heat, TMM, Void-Signature
+    bonus). Drops states with no labeled hex."""
+    prepared = []
+    for x, y, facing, fc, mode, mp_spent in options:
+        try:
+            label = hex_geometry.hex_label(x, y)
+        except ValueError:
+            continue  # off-convention coordinate, not a real labeled hex
+        o = _Option()
+        o.x, o.y, o.hex_xy, o.facing, o.label = x, y, (x, y), facing, label
+        o.facing_compass = hex_geometry.facing_to_compass(facing)
+        o.fc, o.mode, o.mp_spent = fc, mode, mp_spent
+        o.amm = combat.MODE_TO_AMM[mode]
+        o.move_heat = heat.movement_heat(mover, mode, fc)
+        o.tmm = combat.fc_to_tmm(fc, jumped=(mode == "Jump"))
+        o.void_mod = equip.void_signature_modifier(mover, fc, mp_spent)
+        prepared.append(o)
+    return prepared
+
+
+class MoveEvaluator:
+    """Scores a mover's end states against a defender pinned at any hex.
+
+    Build once per (mover, defender): the heat-limited scorers keep their memo
+    tables for as long as the evaluator lives. Nothing about the two mechs may
+    change between calls (damage, heat, ammo) - build a new one if it does.
+    """
+
+    def __init__(self, mover, defender, terrain_map: Dict[str, object]):
+        self.mover, self.defender, self.terrain_map = mover, defender, terrain_map
+        self.defender_immobile = is_immobile(defender)
+        self.mover_cond = firing_conditions(mover)          # mover is standing here; sensors still count
+        self.defender_cond = firing_conditions(defender)
+        mover_blocked = (self.mover_cond[1] if self.mover_cond else frozenset()) | ammo.unavailable_weapons(mover)
+        defender_blocked = (self.defender_cond[1] if self.defender_cond else frozenset()) \
+            | ammo.unavailable_weapons(defender)
+        mover_adjust = tn_adjuster(mover, defender, aimed_shot_location(defender))
+        defender_adjust = tn_adjuster(defender, mover)
+        # One scorer per (rear arc?) case - which weapons can bear differs (p.60).
+        self.mover_score = {rear: _make_heat_limited_scorer(mover, mover_adjust, mover_blocked | arc_unavailable(mover, rear))
+                            for rear in (False, True)}
+        self.defender_score = {rear: _make_heat_limited_scorer(defender, defender_adjust,
+                                                               defender_blocked | arc_unavailable(defender, rear))
+                               for rear in (False, True)}
+        self.mover_own = equip.own_attack_modifier(mover)
+        self.defender_own = equip.own_attack_modifier(defender)
+
+    def prepare(self, options) -> List[_Option]:
+        """See prepare_options (this evaluator's mover)."""
+        return prepare_options(self.mover, options)
+
+    def evaluate(self, def_hex_label: str, def_facing_compass: str, def_fc: int, def_mode: str,
+                 def_mp_spent: int, prepared: List[_Option]) -> List[MovementCandidate]:
+        """Every prepared state with LOS to a defender standing at
+        (def_hex_label, def_facing_compass) having moved def_mode / def_fc
+        hexes / def_mp_spent MP. Same output the pre-2026-10-19
+        evaluate_going_second produced, plus the two hit-table sides."""
+        mover, defender, terrain_map = self.mover, self.defender, self.terrain_map
+        def_hex = hex_geometry.parse_hex_label(def_hex_label)
+        def_facing = hex_geometry.compass_to_facing(def_facing_compass)
+        if self.defender_immobile:
+            defender_tmm = IMMOBILE_TMM
+            def_move_heat = 0
+        else:
+            defender_tmm = combat.fc_to_tmm(def_fc, jumped=(def_mode == "Jump"))
+            def_move_heat = heat.movement_heat(defender, def_mode, def_fc)
+        def_amm = combat.MODE_TO_AMM[def_mode]
+        dealt_stealth = equip.void_signature_modifier(defender, def_fc, def_mp_spent) + self.mover_own
+        mover_cond, defender_cond = self.mover_cond, self.defender_cond
+        mover_score, defender_score = self.mover_score, self.defender_score
+        no_return_fire = defender.shutdown or defender_cond is None
+
+        results: List[MovementCandidate] = []
+        # Rows pinned on the defender's hex: lines INTO it (mover -> defender) and
+        # OUT of it (defender -> mover), keyed by the mover's hex - plain dict gets
+        # in the loop below; a miss falls back to pair_info (which fills the rows).
+        board = geo_cache.board(terrain_map)
+        row_into = board.to.setdefault(def_hex, {})
+        row_out_of = board.frm.setdefault(def_hex, {})
+        pair_info = geo_cache.pair_info
+        in_rear_arc = geo_cache.in_rear_arc
+        pre_min, pre_max = weapon_selection.PRE_TN_MIN, weapon_selection.PRE_TN_MAX
+        prone_def = defender.prone
+        for o in prepared:
+            atk_hex = o.hex_xy
+            if atk_hex == def_hex:
+                continue  # occupying the defender's hex is undefined, same as combat.py
+            try:
+                atk_to_def, entry_at_def, distance, a_to_d = row_into.get(atk_hex) or pair_info(atk_hex, def_hex, terrain_map)
+                def_to_atk, entry_at_atk, _, d_to_a = row_out_of.get(atk_hex) or pair_info(def_hex, atk_hex, terrain_map)
+            except ValueError:
+                continue  # off-board LOS line - not a usable candidate
+            if not atk_to_def.los:
+                continue  # no shot possible from here at all
+
+            if mover_cond is None:
+                dealt = 0.0
+            else:
+                pre_tn = (mover.gunnery + o.amm + defender_tmm + atk_to_def.modifier
+                          + mover.heat_fire_modifier + dealt_stealth + mover_cond[0]
+                          + (prone_target_modifier(defender, distance) if prone_def else 0))
+                pre_tn = pre_max if pre_tn > pre_max else (pre_min if pre_tn < pre_min else pre_tn)
+                dealt = mover_score[in_rear_arc(a_to_d, o.facing)](distance, pre_tn, o.move_heat)
+
+            if no_return_fire:
+                received = 0.0
+            else:
+                pre_tn2 = (defender.gunnery + def_amm + o.tmm + def_to_atk.modifier
+                           + defender.heat_fire_modifier + self.defender_own + defender_cond[0]
+                           + o.void_mod)
+                pre_tn2 = pre_max if pre_tn2 > pre_max else (pre_min if pre_tn2 < pre_min else pre_tn2)
+                received = defender_score[in_rear_arc(d_to_a, def_facing)](distance, pre_tn2, def_move_heat)
+
+            results.append(MovementCandidate(
+                hex=o.label, facing=o.facing_compass, mode=o.mode,
+                fc=o.fc, mp_spent=o.mp_spent, distance=distance, dealt=dealt, received=received,
+                movement_heat=o.move_heat,
+                side_on_defender=_SIDE_BY_RELATIVE_HEXSIDE[(entry_at_def - def_facing) % 6],
+                side_on_mover=_SIDE_BY_RELATIVE_HEXSIDE[(entry_at_atk - o.facing) % 6],
+            ))
+        return results
+
+
 def evaluate_going_second(
     mover, defender, terrain_map: Dict[str, object], defender_state: Optional[Dict[str, object]] = None,
     standup_mp: Optional[int] = None, entry_edge: Optional[List[str]] = None,
@@ -241,88 +380,12 @@ def evaluate_going_second(
     entering the battlefield).
 
     Returns every (hex, facing, mode) candidate mover can reach with LOS
-    to the defender - intentionally UNREDUCED and UNRANKED.
+    to the defender - intentionally UNREDUCED and UNRANKED. A thin wrapper
+    over MoveEvaluator since 2026-10-19; the result is unchanged.
     """
     if defender_state is None:
         defender_state = {"fc": 0, "mode": "Stand Still"}
-    def_fc = defender_state["fc"]
-    def_mode = defender_state["mode"]
-
-    def_x, def_y = hex_geometry.parse_hex_label(defender.hex)
-    def_hex = (def_x, def_y)
-    def_facing = hex_geometry.compass_to_facing(defender.facing)
-    if is_immobile(defender):
-        defender_tmm = IMMOBILE_TMM
-        def_move_heat = 0
-    else:
-        defender_tmm = combat.fc_to_tmm(def_fc, jumped=(def_mode == "Jump"))
-        def_move_heat = heat.movement_heat(defender, def_mode, def_fc)
-    def_amm = combat.MODE_TO_AMM[def_mode]
-
-    mover_cond = firing_conditions(mover)          # mover is standing here; sensors still count
-    defender_cond = firing_conditions(defender)
-    mover_blocked = (mover_cond[1] if mover_cond else frozenset()) | ammo.unavailable_weapons(mover)
-    defender_blocked = (defender_cond[1] if defender_cond else frozenset()) | ammo.unavailable_weapons(defender)
-    mover_adjust = tn_adjuster(mover, defender, aimed_shot_location(defender))
-    defender_adjust = tn_adjuster(defender, mover)
-    # One scorer per (rear arc?) case - which weapons can bear differs (p.60).
-    mover_score = {rear: _make_heat_limited_scorer(mover, mover_adjust, mover_blocked | arc_unavailable(mover, rear))
-                   for rear in (False, True)}
-    defender_score = {rear: _make_heat_limited_scorer(defender, defender_adjust,
-                                                      defender_blocked | arc_unavailable(defender, rear))
-                      for rear in (False, True)}
-    dealt_stealth = equip.void_signature_modifier(defender, def_fc, defender.mp_spent) \
-        + equip.own_attack_modifier(mover)
-    defender_own = equip.own_attack_modifier(defender)
-
-    results: List[MovementCandidate] = []
-
-    def _evaluate_one(x, y, facing, fc, mode, mp_spent):
-        atk_hex = (x, y)
-        if atk_hex == def_hex:
-            return  # occupying the defender's hex is undefined, same as combat.py
-
-        try:
-            label = hex_geometry.hex_label(x, y)
-        except ValueError:
-            return  # off-convention coordinate, not a real labeled hex
-
-        try:
-            atk_to_def = has_los(atk_hex, def_hex, terrain_map)
-            def_to_atk = has_los(def_hex, atk_hex, terrain_map)
-        except ValueError:
-            return  # off-board LOS line - not a usable candidate
-        if not atk_to_def.los:
-            return  # no shot possible from here at all
-
-        distance = hex_distance(atk_hex, def_hex)
-        amm = combat.MODE_TO_AMM[mode]
-        move_heat = heat.movement_heat(mover, mode, fc)
-
-        if mover_cond is None:
-            dealt = 0.0
-        else:
-            pre_tn = _clamp_pre_tn(mover.gunnery + amm + defender_tmm + atk_to_def.modifier
-                                   + mover.heat_fire_modifier + dealt_stealth + mover_cond[0]
-                                   + prone_target_modifier(defender, distance))
-            dealt = mover_score[combat.in_rear_arc(atk_hex, facing, def_hex)](distance, pre_tn, move_heat)
-
-        if defender.shutdown or defender_cond is None:
-            received = 0.0
-        else:
-            attacker_tmm = combat.fc_to_tmm(fc, jumped=(mode == "Jump"))
-            pre_tn2 = _clamp_pre_tn(defender.gunnery + def_amm + attacker_tmm + def_to_atk.modifier
-                                    + defender.heat_fire_modifier + defender_own + defender_cond[0]
-                                    + equip.void_signature_modifier(mover, fc, mp_spent))
-            received = defender_score[combat.in_rear_arc(def_hex, def_facing, atk_hex)](distance, pre_tn2, def_move_heat)
-
-        results.append(MovementCandidate(
-            hex=label, facing=hex_geometry.facing_to_compass(facing), mode=mode,
-            fc=fc, mp_spent=mp_spent, distance=distance, dealt=dealt, received=received,
-            movement_heat=move_heat,
-        ))
-
-    for x, y, facing, fc, mode, mp_spent in movement_options(mover, terrain_map, standup_mp, entry_edge):
-        _evaluate_one(x, y, facing, fc, mode, mp_spent)
-
-    return results
+    evaluator = MoveEvaluator(mover, defender, terrain_map)
+    prepared = evaluator.prepare(movement_options(mover, terrain_map, standup_mp, entry_edge))
+    return evaluator.evaluate(defender.hex, defender.facing, defender_state["fc"], defender_state["mode"],
+                              defender.mp_spent, prepared)
