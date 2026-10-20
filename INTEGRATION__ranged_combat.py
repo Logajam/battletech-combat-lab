@@ -137,6 +137,7 @@ import INTEGRATION__equipment_systems as equip  # noqa: E402
 import INTEGRATION__ammo as ammo  # noqa: E402
 import INTEGRATION__structure_weight as structure_weight  # noqa: E402
 import INTEGRATION__arcs as arcs  # noqa: E402
+import INTEGRATION__ams as ams  # noqa: E402
 import INTEGRATION__los_cache as geo_cache  # noqa: E402
 from INTEGRATION__attack_resolution import tn_adjuster, aimed_shot_location, firing_conditions, \
     prone_target_modifier, arc_unavailable, _SIDE_BY_RELATIVE_HEXSIDE  # noqa: E402
@@ -355,6 +356,11 @@ class MoveEvaluator:
     Build once per (mover, defender): the heat-limited scorers keep their memo
     tables for as long as the evaluator lives. Nothing about the two mechs may
     change between calls (damage, heat, ammo) - build a new one if it does.
+
+    AMS (2026-10-20, INTEGRATION__ams): each side's missile damage is scaled
+    by the engagements the other side's AMS can make from that spot (its
+    arcs, untwisted); the scorers and best-twist memos are keyed by that count
+    too. Mechs without AMS always see 0 - the numbers are unchanged.
     """
 
     def __init__(self, mover, defender, terrain_map: Dict[str, object]):
@@ -381,18 +387,24 @@ class MoveEvaluator:
             # Scorers are shared by every (key, held) that leaves the same weapons
             # unable to fire (2026-10-20, speed only): many twists / arcs block the
             # same set, and a shared scorer shares its memo.
-            by_unavailable: Dict[frozenset, object] = {}
+            by_unavailable: Dict[tuple, object] = {}
+            usable = [w for w in get_weapons(who) if id(w) not in blocked]
 
-            def get(key, held=frozenset()):
+            def get(key, held=frozenset(), ams_k=0):
                 # held: weapons kept back because their limb attacks in the Physical phase
-                scorer = cache.get((key, held))
+                # ams_k: attacks the target's AMS can engage from here (INTEGRATION__ams, p.206)
+                scorer = cache.get((key, held, ams_k))
                 if scorer is None:
                     unavailable = blocked | arc_unavailable(who, key) | held
-                    scorer = by_unavailable.get(unavailable)
+                    scorer = by_unavailable.get((unavailable, ams_k))
                     if scorer is None:
-                        scorer = by_unavailable[unavailable] = _make_heat_limited_scorer(
-                            who, adjust, unavailable, scale)
-                    cache[(key, held)] = scorer
+                        side_scale = scale
+                        factors = ams.damage_factors(usable, ams_k) if ams_k else None
+                        if factors:
+                            side_scale = lambda side: ams.combine(scale(side) if scale else None, factors)  # noqa: E731
+                        scorer = by_unavailable[(unavailable, ams_k)] = _make_heat_limited_scorer(
+                            who, adjust, unavailable, side_scale)
+                    cache[(key, held, ams_k)] = scorer
                 return scorer
             return get
         self.mover_scorer = scorer_getter(mover, mover_adjust, mover_blocked, mover_scale, mover_scorers)
@@ -414,6 +426,9 @@ class MoveEvaluator:
         self._defender_classes = _ArcClasses(self.defender_arcs)
         self.mover_own = equip.own_attack_modifier(mover)
         self.defender_own = equip.own_attack_modifier(defender)
+        # Each side's AMS (p.206): how many of the other's missile attacks it can engage, by arc.
+        self.mover_ams = ams.Coverage(mover)
+        self.defender_ams = ams.Coverage(defender)
 
     def prepare(self, options) -> List[_Option]:
         """See prepare_options (this evaluator's mover)."""
@@ -459,6 +474,8 @@ class MoveEvaluator:
         pair_info = geo_cache.pair_info
         pre_min, pre_max = weapon_selection.PRE_TN_MIN, weapon_selection.PRE_TN_MAX
         prone_def = defender.prone
+        mover_ams = self.mover_ams.engagements if self.mover_ams.ams else None
+        defender_ams = self.defender_ams.engagements if self.defender_ams.ams else None
         for o in prepared:
             atk_hex = o.hex_xy
             if atk_hex == def_hex:
@@ -480,11 +497,12 @@ class MoveEvaluator:
                           + (prone_target_modifier(defender, distance) if prone_def else 0))
                 pre_tn = pre_max if pre_tn > pre_max else (pre_min if pre_tn < pre_min else pre_tn)
                 cls, keys = mover_class(a_to_d, o.facing)
-                memo_key = (cls, distance, pre_tn, o.move_heat, side_on_def)
+                k_def = defender_ams(d_to_a, def_facing) if defender_ams else 0
+                memo_key = (cls, distance, pre_tn, o.move_heat, side_on_def, k_def)
                 dealt = best_dealt.get(memo_key)
                 if dealt is None:
                     dealt = best_dealt[memo_key] = max(
-                        mover_scorer(key)(distance, pre_tn, o.move_heat, side_on_def) for key in keys)
+                        mover_scorer(key, ams_k=k_def)(distance, pre_tn, o.move_heat, side_on_def) for key in keys)
 
             if no_return_fire:
                 received = 0.0
@@ -492,11 +510,13 @@ class MoveEvaluator:
                 pre_tn2 = received_base + o.tmm + def_to_atk.modifier + o.void_mod
                 pre_tn2 = pre_max if pre_tn2 > pre_max else (pre_min if pre_tn2 < pre_min else pre_tn2)
                 cls, keys = defender_class(d_to_a, def_facing)
-                memo_key = (cls, distance, pre_tn2, def_move_heat, side_on_mover)
+                k_mov = mover_ams(a_to_d, o.facing) if mover_ams else 0
+                memo_key = (cls, distance, pre_tn2, def_move_heat, side_on_mover, k_mov)
                 received = best_received.get(memo_key)
                 if received is None:
                     received = best_received[memo_key] = max(
-                        defender_scorer(key)(distance, pre_tn2, def_move_heat, side_on_mover) for key in keys)
+                        defender_scorer(key, ams_k=k_mov)(distance, pre_tn2, def_move_heat, side_on_mover)
+                        for key in keys)
 
             if distance == 1:
                 levels = terrain_map["hexes"]
@@ -507,7 +527,7 @@ class MoveEvaluator:
                     dealt = _with_physical(
                         dealt, self.mover_planner, mover_actions, mover_legs, a_to_d, o.facing, d_level - a_level,
                         prone_def, base, side_on_def,
-                        (lambda key, held: mover_scorer(key, held)(distance, pre_tn, o.move_heat, side_on_def))
+                        (lambda key, held: mover_scorer(key, held, k_def)(distance, pre_tn, o.move_heat, side_on_def))
                         if mover_cond is not None else None,
                         self.mover_planner.push_plan(atk_hex, o.facing, a_level, defender, def_hex_label, d_level,
                                                      base, side_on_def, terrain_map))
@@ -516,7 +536,7 @@ class MoveEvaluator:
                     received = _with_physical(
                         received, self.defender_planner, defender_actions, defender_legs, d_to_a, def_facing,
                         a_level - d_level, False, base, side_on_mover,
-                        (lambda key, held: defender_scorer(key, held)(distance, pre_tn2, def_move_heat, side_on_mover))
+                        (lambda key, held: defender_scorer(key, held, k_mov)(distance, pre_tn2, def_move_heat, side_on_mover))
                         if not no_return_fire else None,
                         self.defender_planner.push_plan(def_hex, def_facing, d_level, mover, o.label, a_level,
                                                         base, side_on_mover, terrain_map))

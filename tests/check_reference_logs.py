@@ -60,6 +60,14 @@ SCENARIOS = {
         'config.MECH_RED_CONFIG["max_heat"] = 30',
         'config.MECH_BLUE_CONFIG["max_heat"] = 30',
     ],
+    # Added 2026-10-20 for Anti-Missile Systems (Core p.206): the Atlas AS7-K's
+    # left-arm AMS engages the Archer ARC-2R's LRM 20 hits (and can't when the
+    # Archer is outside its arc); both are real units from data/meks.zip.
+    "Atlas_AS7-K_vs_Archer_ARC-2R_seed2.txt": [
+        'config.MECH_RED_MTF = "Atlas AS7-K.mtf"',
+        'config.MECH_BLUE_MTF = "Archer ARC-2R.mtf"',
+        "config.SEED = 2",
+    ],
 }
 
 
