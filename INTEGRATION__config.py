@@ -70,6 +70,12 @@ SEED = 12345              # BattleRNG seed for a reproducible batch. None = fres
 # The output is identical either way - each battle has its own seed, and the
 # parent prints every battle's log in order. MANUAL_ROLLS always runs one at a time.
 WORKERS = 0
+# Battle replays (2026-10-20, INTEGRATION__replay): battles 1..REPLAY_BATTLES of
+# a run are each saved as a self-contained HTML page in REPLAY_DIR (relative =
+# under the repo root) - a hex map to step through, both mechs' damage and
+# heat, and the log of each step. 0 = none.
+REPLAY_BATTLES = 0
+REPLAY_DIR = "replays"
 
 if MANUAL_ROLLS:
     VERBOSE = True  # MANUAL_ROLLS is only useful if Daniel can see what's happening
@@ -349,9 +355,20 @@ def set_active_rng(battle_rng):
     _ACTIVE_RNG = battle_rng
 
 
+_log_sink = None   # INTEGRATION__replay's recorder while it records a battle
+
+
+def set_log_sink(fn):
+    """fn(msg) also receives every log line (VERBOSE or not); None = off."""
+    global _log_sink
+    _log_sink = fn
+
+
 def log(msg=""):
     if VERBOSE:
         print(msg)
+    if _log_sink is not None:
+        _log_sink(msg)
 
 
 def data_path(path):

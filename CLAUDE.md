@@ -37,6 +37,9 @@ GitHub logistics.
     Change Record.
   - Add `--bench` (the 10-turn benchmark) for anything on the hot path. A
     speed-only change must keep the results identical.
+- **Show Daniel battles as replays.** Set `REPLAY_BATTLES` in
+  `INTEGRATION__config.py`, run, and publish the page from `replays/` with the
+  Artifact tool; give him the link (he doesn't run the code himself).
 - **Optional rules** (where the rulebook offers a choice, or Daniel's rule
   differs from it) are switches in `INTEGRATION__config.py`'s OPTIONAL RULES
   section, with the rules-as-written version available.

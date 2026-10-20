@@ -1,0 +1,403 @@
+<title>Battle Replay</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<!--
+INTEGRATION__replay_viewer.html (NEW 2026-10-20, Claude) - the page
+INTEGRATION__replay.render() fills with one battle's data (the JSON in the
+"replay-data" script below). Plain HTML / CSS / JS, no libraries; works opened
+straight from disk or published as a link.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a mapsheet on the left (hex board, then the step's log), the two
+   record sheets on the right; one column on a phone. */
+:root {
+  --bg: #edf0ea;          /* page: pale mapsheet green-grey */
+  --panel: #f8f9f5;
+  --ink: #1c231e;
+  --muted: #5c675f;
+  --line: #c8cfc5;
+  --hex: #e2e7dc;
+  --hex-edge: #b9c2b4;
+  --woods-light: #bcd2a2;
+  --woods-heavy: #93b47c;
+  --water: #a8c6dc;
+  --red: #b33f2a;
+  --blue: #2c62a6;
+  --hit: #9a3412;
+  --good: #3f6b2a;
+  --armor: #6f7f5a;
+  --structure: #a8742c;
+  --font-display: "Saira Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131714; --panel: #1a1f1b; --ink: #e3e8e1; --muted: #98a49b; --line: #313a33;
+    --hex: #1f2620; --hex-edge: #36413a; --woods-light: #2f4627; --woods-heavy: #40602f; --water: #22405a;
+    --red: #e46a52; --blue: #5d95de; --hit: #f0915f; --good: #8fc26f; --armor: #9fb184; --structure: #d6a052;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131714; --panel: #1a1f1b; --ink: #e3e8e1; --muted: #98a49b; --line: #313a33;
+  --hex: #1f2620; --hex-edge: #36413a; --woods-light: #2f4627; --woods-heavy: #40602f; --water: #22405a;
+  --red: #e46a52; --blue: #5d95de; --hit: #f0915f; --good: #8fc26f; --armor: #9fb184; --structure: #d6a052;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 14px; line-height: 1.45;
+  padding-block: 20px 32px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1280px; margin: 0 auto; display: grid; gap: 16px; }
+
+header { display: grid; gap: 4px; }
+h1 {
+  font-family: var(--font-display); font-weight: 700; font-size: 2rem; line-height: 1.05;
+  margin: 0; text-wrap: balance; letter-spacing: 0.01em;
+}
+h1 .vs { color: var(--muted); font-weight: 500; padding: 0 0.25em; }
+h1 .red { color: var(--red); }
+h1 .blue { color: var(--blue); }
+.meta { color: var(--muted); margin: 0; }
+
+.controls {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px;
+}
+.controls .buttons { display: flex; gap: 4px; }
+button {
+  font: 500 13px var(--font-body); color: var(--ink); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px; cursor: pointer; min-width: 38px;
+}
+button:hover { border-color: var(--muted); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.step-label { display: grid; min-width: 0; }
+.step-label strong { font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; line-height: 1.1; }
+.step-label span { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+#scrub { flex: 1 1 220px; min-width: 0; accent-color: var(--ink); }
+.keys { color: var(--muted); font-size: 12px; }
+
+.main {
+  display: grid; gap: 16px;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  grid-template-areas: "map side" "log side";
+  align-items: start;
+}
+.map { grid-area: map; }
+.side { grid-area: side; display: grid; gap: 12px; }
+.log { grid-area: log; }
+@media (max-width: 860px) {
+  .main { grid-template-columns: minmax(0, 1fr); grid-template-areas: "map" "side" "log"; }
+}
+
+.map, .log, .sheet { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
+.map { padding: 8px; }
+.map svg { display: block; width: 100%; height: auto; max-height: 78vh; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; color: var(--muted); font-size: 12px; padding: 6px 4px 0; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: -2px; margin-right: 4px; border: 1px solid var(--hex-edge); }
+
+/* Record sheets */
+.sheet { padding: 12px; display: grid; gap: 8px; }
+.sheet-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.sheet-head .side-tag {
+  font: 700 11px var(--font-body); letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--panel); border-radius: 3px; padding: 2px 6px;
+}
+.sheet-head h2 { font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; margin: 0; line-height: 1.1; }
+.sheet-head .tons { color: var(--muted); font-size: 12px; }
+.chips { display: flex; gap: 4px; flex-wrap: wrap; margin-left: auto; }
+.chip { font: 600 11px var(--font-body); letter-spacing: 0.06em; text-transform: uppercase; border-radius: 3px; padding: 2px 6px; border: 1px solid currentColor; }
+.chip.dead { color: var(--hit); }
+.chip.warn { color: var(--structure); }
+.stats { display: flex; flex-wrap: wrap; gap: 4px 14px; font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; }
+.stats b { color: var(--ink); font-weight: 600; }
+.hpbar { height: 6px; background: var(--hex); border-radius: 3px; overflow: hidden; }
+.hpbar > div { height: 100%; }
+
+table.locs { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 12.5px; }
+table.locs th { text-align: left; font: 600 10.5px var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 2px 4px; }
+table.locs td { padding: 3px 4px; border-top: 1px solid var(--line); vertical-align: middle; }
+table.locs td.loc { font-weight: 600; width: 2.6em; }
+table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
+.cell { display: grid; grid-template-columns: minmax(28px, 1fr) auto; gap: 6px; align-items: center; }
+.bar { height: 6px; background: var(--hex); border-radius: 3px; overflow: hidden; }
+.bar > div { height: 100%; }
+.num { white-space: nowrap; }
+.delta { color: var(--hit); font-weight: 600; margin-left: 3px; }
+
+/* Log */
+.log { padding: 10px 12px; min-width: 0; }
+.log h3 { font: 600 11px var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+.log pre {
+  margin: 0; font: 12px/1.5 var(--font-mono); white-space: pre-wrap; overflow-wrap: anywhere;
+  max-height: 60vh; overflow: auto;
+}
+.log .tag { font-weight: 500; color: var(--muted); }
+.log .hit { color: var(--hit); font-weight: 500; }
+.log .big { color: var(--hit); font-weight: 600; }
+.log .r { color: var(--red); font-weight: 500; }
+.log .b { color: var(--blue); font-weight: 500; }
+.empty { color: var(--muted); font-style: italic; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1 id="title">Battle replay</h1>
+    <p class="meta" id="meta"></p>
+  </header>
+
+  <div class="controls" role="group" aria-label="Replay controls">
+    <div class="buttons">
+      <button id="prevTurn" title="Previous turn (Shift+Left)">&#x23EE;</button>
+      <button id="prev" title="Previous step (Left)">&#x25C0;</button>
+      <button id="play" title="Play / pause (Space)">Play</button>
+      <button id="next" title="Next step (Right)">&#x25B6;</button>
+      <button id="nextTurn" title="Next turn (Shift+Right)">&#x23ED;</button>
+    </div>
+    <div class="step-label"><strong id="stepTitle"></strong><span id="stepCount"></span></div>
+    <input type="range" id="scrub" min="0" value="0" aria-label="Step">
+    <span class="keys">Left / Right: step &middot; Shift: turn &middot; Space: play</span>
+  </div>
+
+  <div class="main">
+    <section class="map" aria-label="Map">
+      <svg id="board" role="img" aria-label="Hex map with both mechs"></svg>
+      <div class="legend" id="legend"></div>
+    </section>
+    <aside class="side" id="sheets"></aside>
+    <section class="log">
+      <h3>Log for this step</h3>
+      <pre id="log"></pre>
+    </section>
+  </div>
+</div>
+
+<script id="replay-data" type="application/json">__REPLAY_JSON__</script>
+<script>
+(function () {
+  "use strict";
+  var data = JSON.parse(document.getElementById("replay-data").textContent);
+  var steps = data.steps;
+  var SIDES = ["Red", "Blue"];
+  var COMPASS = { N: 0, NE: 1, SE: 2, S: 3, SW: 4, NW: 5 };
+  var R = 24, SQ3 = Math.sqrt(3);
+  var idx = 0, timer = null;
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function sideVar(side) { return side === "Red" ? "var(--red)" : "var(--blue)"; }
+
+  // ---- header ----
+  var red = data.mechs.Red.name, blue = data.mechs.Blue.name;
+  $("title").innerHTML = '<span class="red">' + esc(red) + '</span><span class="vs">vs</span><span class="blue">' + esc(blue) + "</span>";
+  document.title = red + " vs " + blue;
+  var res = data.result || {};
+  var outcome = res.winner === "Draw" ? "Draw after " + res.turns + " turns"
+    : (res.winner === "Red" ? red : blue) + " won on turn " + res.turns;
+  var loser = res.winner === "Red" ? "Blue" : res.winner === "Blue" ? "Red" : null;
+  if (loser && res.causes && res.causes[loser]) outcome += " (" + data.mechs[loser].name + ": " + res.causes[loser] + ")";
+  $("meta").textContent = "Battle " + data.sim + " · seed " + data.seed + " · " + outcome;
+
+  // ---- board geometry: MegaMek flat-topped hexes, even columns half a hex lower; N is up ----
+  function centre(label) {
+    var c = parseInt(label.slice(0, 2), 10), r = parseInt(label.slice(2), 10);
+    return [R + (c - 1) * 1.5 * R, (SQ3 / 2) * R + (r - 1) * SQ3 * R + (c % 2 === 0 ? (SQ3 / 2) * R : 0)];
+  }
+  function hexPoints(cx, cy) {
+    var pts = [];
+    for (var i = 0; i < 6; i++) {
+      var a = Math.PI / 3 * i;
+      pts.push((cx + R * Math.cos(a)).toFixed(1) + "," + (cy + R * Math.sin(a)).toFixed(1));
+    }
+    return pts.join(" ");
+  }
+  var W = data.board.width, H = data.board.height;
+  var vbW = R * 2 + (W - 1) * 1.5 * R, vbH = SQ3 * R * H + (SQ3 / 2) * R;
+  var svg = $("board");
+  svg.setAttribute("viewBox", "-2 -2 " + (vbW + 4).toFixed(0) + " " + (vbH + 4).toFixed(0));
+
+  var NS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, parent) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  var terrain = el("g", {}, svg);
+  var seen = { woods1: false, woods2: false, water: false, level: false, other: {} };
+  Object.keys(data.board.hexes).sort().forEach(function (label) {
+    var h = data.board.hexes[label], p = centre(label), f = h.f || {};
+    var fill = "var(--hex)";
+    if (f.woods) { fill = String(f.woods) === "1" ? "var(--woods-light)" : "var(--woods-heavy)"; seen["woods" + (String(f.woods) === "1" ? 1 : 2)] = true; }
+    if (f.water) { fill = "var(--water)"; seen.water = true; }
+    el("polygon", { points: hexPoints(p[0], p[1]), fill: fill, stroke: "var(--hex-edge)", "stroke-width": h.l ? 1.6 : 0.8 }, terrain);
+    var t = el("text", { x: p[0], y: p[1] - R * 0.55, "text-anchor": "middle", "font-size": 6.5, fill: "var(--muted)", "font-family": "IBM Plex Mono, monospace" }, terrain);
+    t.textContent = label;
+    if (h.l) {
+      seen.level = true;
+      var lv = el("text", { x: p[0], y: p[1] + R * 0.72, "text-anchor": "middle", "font-size": 7.5, "font-weight": 600, fill: "var(--ink)" }, terrain);
+      lv.textContent = "L" + h.l;
+    }
+    Object.keys(f).forEach(function (k) { if (k !== "woods" && k !== "water") seen.other[k] = true; });
+  });
+  var legend = [];
+  if (seen.woods1) legend.push('<span><i style="background:var(--woods-light)"></i>Light woods</span>');
+  if (seen.woods2) legend.push('<span><i style="background:var(--woods-heavy)"></i>Heavy woods</span>');
+  if (seen.water) legend.push('<span><i style="background:var(--water)"></i>Water</span>');
+  if (seen.level) legend.push("<span>L1, L2... = level</span>");
+  SIDES.forEach(function (s) {
+    legend.push('<span><i style="background:' + sideVar(s) + ';border-color:' + sideVar(s) + '"></i>' + s + ": " + esc(data.mechs[s].name) + "</span>");
+  });
+  legend.push("<span>Wedge = facing, line = torso twist, dashed = moved this step</span>");
+  $("legend").innerHTML = legend.join("");
+  var trails = el("g", {}, svg), units = el("g", {}, svg);
+
+  function point(cx, cy, dir, dist) {
+    var a = dir * Math.PI / 3 - Math.PI / 2;   // facing 0 (N) points up, clockwise
+    return [cx + dist * Math.cos(a), cy + dist * Math.sin(a)];
+  }
+
+  function drawUnits() {
+    trails.innerHTML = ""; units.innerHTML = "";
+    var st = steps[idx].state, prev = idx > 0 ? steps[idx - 1].state : null;
+    var same = st.Red.hex && st.Red.hex === st.Blue.hex;
+    SIDES.forEach(function (side, n) {
+      var m = st[side];
+      if (!m.hex) return;
+      var p = centre(m.hex);
+      if (same) p = [p[0] + (n ? 6 : -6), p[1]];
+      var colour = m.destroyed ? "var(--muted)" : sideVar(side);
+      if (prev && prev[side].hex && prev[side].hex !== m.hex) {
+        var q = centre(prev[side].hex);
+        el("line", { x1: q[0], y1: q[1], x2: p[0], y2: p[1], stroke: colour, "stroke-width": 2, "stroke-dasharray": "4 3", opacity: 0.8 }, trails);
+        el("circle", { cx: q[0], cy: q[1], r: 3, fill: colour, opacity: 0.8 }, trails);
+      }
+      var g = el("g", {}, units);
+      var f = COMPASS[m.facing] || 0;
+      var tip = point(p[0], p[1], f, 21), l = point(p[0], p[1], f - 0.45, 12), r = point(p[0], p[1], f + 0.45, 12);
+      el("polygon", { points: tip.join(",") + " " + l.join(",") + " " + r.join(","), fill: colour }, g);
+      el("circle", { cx: p[0], cy: p[1], r: 12.5, fill: colour, stroke: "var(--panel)", "stroke-width": 2,
+        "stroke-dasharray": m.prone ? "3 2" : "none", opacity: m.prone ? 0.75 : 1 }, g);
+      if (m.twist) {
+        var tw = point(p[0], p[1], f + m.twist, 11);
+        el("line", { x1: p[0], y1: p[1], x2: tw[0], y2: tw[1], stroke: "var(--panel)", "stroke-width": 2.5, "stroke-linecap": "round" }, g);
+      }
+      var t = el("text", { x: p[0], y: p[1] + 4, "text-anchor": "middle", "font-size": 11, "font-weight": 700, fill: "var(--panel)", "font-family": "Saira Condensed, sans-serif" }, g);
+      t.textContent = m.destroyed ? "✕" : data.mechs[side].name.charAt(0);
+      var title = el("title", {}, g);
+      title.textContent = side + " " + data.mechs[side].name + " at " + m.hex + " facing " + m.facing + (m.prone ? ", prone" : "") + (m.destroyed ? ", destroyed" : "");
+    });
+  }
+
+  // ---- record sheets ----
+  function short(loc) {
+    return loc.split(" ").map(function (w) { return w.charAt(0); }).join("");
+  }
+  function bar(v, max, colour) {
+    var pct = max ? Math.max(0, Math.min(100, 100 * v / max)) : 0;
+    return '<div class="bar"><div style="width:' + pct.toFixed(0) + "%;background:" + colour + '"></div></div>';
+  }
+  function fmt(n) { return Math.round(n * 10) / 10; }
+  function deltaTxt(now, before) {
+    if (before === undefined || before === null) return "";
+    var d = fmt(now - before);
+    return d < 0 ? '<span class="delta">' + d + "</span>" : "";
+  }
+
+  function drawSheets() {
+    var st = steps[idx].state, prev = idx > 0 ? steps[idx - 1].state : null;
+    $("sheets").innerHTML = SIDES.map(function (side) {
+      var h = data.mechs[side], m = st[side], pm = prev ? prev[side] : null;
+      var chips = [];
+      if (m.destroyed) chips.push('<span class="chip dead">Destroyed</span>');
+      if (m.prone) chips.push('<span class="chip warn">Prone</span>');
+      if (m.shutdown) chips.push('<span class="chip warn">Shut down</span>');
+      var hpPct = h.max_hp ? 100 * m.hp / h.max_hp : 0;
+      var rows = h.locations.map(function (loc) {
+        var max = h.max[loc], v = m.locs[loc], pv = pm ? pm.locs[loc] : null;
+        var rear = max[1] ? '<div class="cell">' + bar(v[1], max[1], "var(--armor)") + '<span class="num">' + fmt(v[1]) + "/" + max[1] + deltaTxt(v[1], pv && pv[1]) + "</span></div>" : "";
+        return "<tr" + (v[3] ? ' class="gone"' : "") + '><td class="loc" title="' + esc(loc) + '">' + short(loc) + "</td>" +
+          '<td><div class="cell">' + bar(v[0], max[0], "var(--armor)") + '<span class="num">' + fmt(v[0]) + "/" + max[0] + deltaTxt(v[0], pv && pv[0]) + "</span></div></td>" +
+          "<td>" + rear + "</td>" +
+          '<td><div class="cell">' + bar(v[2], max[2], "var(--structure)") + '<span class="num">' + fmt(v[2]) + "/" + max[2] + deltaTxt(v[2], pv && pv[2]) + "</span></div></td></tr>";
+      }).join("");
+      return '<section class="sheet" aria-label="' + side + ' record sheet">' +
+        '<div class="sheet-head"><span class="side-tag" style="background:' + sideVar(side) + '">' + side + "</span>" +
+        "<h2>" + esc(h.name) + '</h2><span class="tons">' + h.tons + " t</span>" +
+        '<div class="chips">' + chips.join("") + "</div></div>" +
+        '<div class="stats"><span>Hex <b>' + (m.hex || "off board") + "</b></span>" +
+        "<span>Facing <b>" + m.facing + "</b>" + (m.twist ? " (torso " + (m.twist > 0 ? "+" : "") + m.twist + ")" : "") + "</span>" +
+        "<span>Heat <b>" + m.heat + "</b></span>" +
+        (m.pilot_hits ? "<span>Pilot hits <b>" + m.pilot_hits + "</b></span>" : "") +
+        "<span>Armor + structure <b>" + fmt(m.hp) + "</b> / " + h.max_hp + deltaTxt(m.hp, pm && pm.hp) + "</span></div>" +
+        '<div class="hpbar"><div style="width:' + hpPct.toFixed(0) + "%;background:" + sideVar(side) + '"></div></div>' +
+        '<table class="locs"><thead><tr><th>Loc</th><th>Armor</th><th>Rear</th><th>Structure</th></tr></thead><tbody>' + rows + "</tbody></table>" +
+        "</section>";
+    }).join("");
+  }
+
+  // ---- log ----
+  function highlight(line) {
+    var s = esc(line);
+    s = s.replace(/^(\s*)(\[[^\]]+\])/, '$1<span class="tag">$2</span>');
+    s = s.replace(/\b(HIT)\b/g, '<span class="hit">$1</span>');
+    // A location or mech lost ("Center Torso DESTROYED!", "pushed off the battlefield - destroyed"),
+    // not "armor pts destroyed at armor".
+    s = s.replace(/(\bDESTROYED\b.*$|- destroyed\b.*$)/, '<span class="big">$1</span>');
+    s = s.replace(/\bRed\b/g, '<span class="r">Red</span>').replace(/\bBlue\b/g, '<span class="b">Blue</span>');
+    return s;
+  }
+  function drawLog() {
+    var lines = steps[idx].log.filter(function (l) { return l.trim() !== ""; });
+    $("log").innerHTML = lines.length ? lines.map(highlight).join("\n") : '<span class="empty">Nothing logged in this step.</span>';
+    $("log").scrollTop = 0;
+  }
+
+  // ---- stepping ----
+  function show(i) {
+    idx = Math.max(0, Math.min(steps.length - 1, i));
+    var s = steps[idx];
+    $("stepTitle").textContent = s.turn ? "Turn " + s.turn + " · " + s.phase : s.phase;
+    $("stepCount").textContent = "Step " + (idx + 1) + " of " + steps.length;
+    $("scrub").value = idx;
+    drawUnits(); drawSheets(); drawLog();
+  }
+  function turnStart(dir) {
+    var t = steps[idx].turn + dir, i;
+    if (dir < 0 && steps[idx].phase !== steps.find(function (s) { return s.turn === steps[idx].turn; }).phase) t = steps[idx].turn;
+    for (i = 0; i < steps.length; i++) if (steps[i].turn === t) return i;
+    return dir < 0 ? 0 : steps.length - 1;
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; $("play").textContent = "Play"; } }
+  function play() {
+    if (timer) return stop();
+    if (idx >= steps.length - 1) show(0);
+    $("play").textContent = "Pause";
+    timer = setInterval(function () { if (idx >= steps.length - 1) return stop(); show(idx + 1); }, 1100);
+  }
+  $("scrub").max = steps.length - 1;
+  $("scrub").addEventListener("input", function (e) { stop(); show(+e.target.value); });
+  $("prev").addEventListener("click", function () { stop(); show(idx - 1); });
+  $("next").addEventListener("click", function () { stop(); show(idx + 1); });
+  $("prevTurn").addEventListener("click", function () { stop(); show(turnStart(-1)); });
+  $("nextTurn").addEventListener("click", function () { stop(); show(turnStart(1)); });
+  $("play").addEventListener("click", play);
+  document.addEventListener("keydown", function (e) {
+    if (e.target && e.target.tagName === "INPUT" && e.target.type !== "range") return;
+    if (e.key === "ArrowRight") { stop(); show(e.shiftKey ? turnStart(1) : idx + 1); e.preventDefault(); }
+    else if (e.key === "ArrowLeft") { stop(); show(e.shiftKey ? turnStart(-1) : idx - 1); e.preventDefault(); }
+    else if (e.key === " " && e.target.tagName !== "BUTTON") { play(); e.preventDefault(); }
+  });
+  show(0);
+})();
+</script>
