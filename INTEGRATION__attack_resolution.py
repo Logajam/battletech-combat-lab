@@ -103,7 +103,7 @@ import piloting_rolls
 
 import hex_geometry
 import combat
-from los import has_los, hex_distance, trace_los_path
+from los import hex_distance, trace_los_path
 
 # equipment.json damage_type strings -> MECHSIM DamageType. A name mapping,
 # not a rule. Anything else (incl. null) goes through stub_unknown_damage_type.
@@ -126,7 +126,7 @@ class DeclaredAttack:
     hit: bool
     side: str = "front"              # hit table: attack direction (attack_side)
     aimed_at: Optional[str] = None   # aimed-shot location (immobile target)
-    cover: bool = False              # target in partial cover (aimed-shot leg rerolls)
+    cover: bool = False              # target in partial cover: leg hits strike the cover (p.66)
 
 
 @dataclass
@@ -374,7 +374,9 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
 
     stubs.stub_unconfirmed_weapon_data(a_name, get_weapons(attacker))
 
-    los = has_los(a_hex, t_hex, terrain_map)
+    trace = trace_los_path(a_hex, t_hex, terrain_map)
+    los = trace.result
+    cover = trace.steps[-1].partial_cover      # partial cover (p.66): leg hits strike the cover
     if not los.los:
         config.log(f"  [Ranged] {a_name}: no LOS to {t_name} - holds fire.")
         return
@@ -401,10 +403,8 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     other_mod = cond_mod + prone_mod
     pre_tn = attacker.gunnery + amm + tmm + los.modifier + heat_mod + stealth_mod + other_mod
 
-    cover = 0
     aim = None
     if is_immobile(target) and config.AIMED_SHOT_LOCATION:
-        cover = trace_los_path(a_hex, t_hex, terrain_map).steps[-1].partial_cover
         aim = aimed_shot_location(target, partial_cover=cover > 0)
     adjust = tn_adjuster(attacker, target, aim, cover)
     side = attack_side(a_hex, t_hex, hex_geometry.compass_to_facing(target.facing), terrain_map)
@@ -489,11 +489,14 @@ def _damage_type_for(weapon):
     return dt if dt is not None else stubs.stub_unknown_damage_type(weapon)
 
 
-def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False):
+def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False, cover=False):
     """Cannibalized from MECHSIM__sim_runner._resolve_hit() - same logic:
     hit-location roll, head-hit pilot damage, floating TAC on a 2, then
     apply_damage(). Only change: `side` is passed in (attack_side) rather
-    than read from config.FACING."""
+    than read from config.FACING.
+    cover (2026-10-20, Core pp.66, 73): the target is in partial cover - a hit
+    location roll that comes up a leg strikes the cover instead, no damage (the
+    floating TAC re-roll re-rolls legs instead, p.95)."""
     armor_field = "rear_armor" if side == "rear" else "armor"
     loc_roll = config.roll_2d6(prompt=f"{tag}Hit location roll")
     loc = resolve_hit_location(loc_roll, target, side)
@@ -502,6 +505,9 @@ def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False):
         loc_roll = config.roll_2d6(prompt=f"{tag}Hit location re-roll (legs in cover)")
         loc = resolve_hit_location(loc_roll, target, side)
         config.log(f"      {tag}Legs behind partial cover - re-rolled {loc_roll}: {loc}.")
+    if cover and loc in target.leg_locations:
+        config.log(f"      {tag}Leg hit strikes the partial cover - no damage (p.66).")
+        return
 
     if loc == "Head":
         target.pilot_hits += 1
@@ -515,6 +521,16 @@ def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False):
         tac_loc = resolve_hit_location(tac_loc_roll, target, tac_side)
         tac_armor_field = "rear_armor" if tac_side == "rear" else "armor"
         config.log(f"      Floating TAC re-roll: {tac_loc_roll} -> {tac_loc}")
+        while cover and tac_loc in target.leg_locations:     # p.95: legs in partial cover re-roll
+            tac_loc_roll = config.roll_2d6(prompt="  TAC location re-roll (legs in cover)")
+            tac_loc = resolve_hit_location(tac_loc_roll, target, tac_side)
+            config.log(f"      Legs behind partial cover - re-rolled {tac_loc_roll}: {tac_loc}.")
+        if tac_loc == "Head":
+            # Fixed 2026-10-20: a head hit always costs the MechWarrior 1 hit (p.117),
+            # including when the floating re-roll lands on the head.
+            target.pilot_hits += 1
+            mark_consciousness_check_pending(target)
+            config.log(f"      Head hit - pilot takes 1 hit ({target.pilot_hits}/6), regardless of armor.")
         apply_damage(target, tac_loc, damage, armor_field=tac_armor_field, damage_type=damage_type)
         config.log("      Additional critical hit due to TAC.")
         tac_loc_state = target.locations[tac_loc]
@@ -547,7 +563,7 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng):
         return
     if not is_cluster_weapon(w):
         config.log(f"    {w.name} hit for {w.damage_per_shot}:")
-        _resolve_hit(target, w.damage_per_shot, dtype, side)
+        _resolve_hit(target, w.damage_per_shot, dtype, side, cover=attack.cover)
         return
     if weapon_rules.is_streak(w):
         hits = w.rack_size                    # Streak: Cluster result is automatically 12 (p.187)
@@ -562,7 +578,7 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng):
     total = hits * w.damage_per_shot
     groups = weapon_rules.damage_groupings(w, total)
     for i, dmg in enumerate(groups, start=1):
-        _resolve_hit(target, dmg, dtype, side, tag=f"Group {i}/{len(groups)}: ")
+        _resolve_hit(target, dmg, dtype, side, tag=f"Group {i}/{len(groups)}: ", cover=attack.cover)
 
 
 def _resolve_aimed_hit(target, weapon, dtype, side, attack):

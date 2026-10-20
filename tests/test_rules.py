@@ -272,6 +272,65 @@ def physical_attacks():
     assert {o["damage"] for o in physical.attack_options(b, t, TERRAIN)["kick"]} == {20}
 
 
+def _open_board(**changes):
+    """A copy of the loaded board with every hex level 0 and clear, then the
+    given hexes changed: label=(level, features)."""
+    board = {k: v for k, v in TERRAIN.items() if k != "hexes"}
+    board["hexes"] = {label: {"level": 0, "features": {}, "impassable": False} for label in TERRAIN["hexes"]}
+    for label, (level, features) in changes.items():
+        board["hexes"][label] = {"level": level, "features": features, "impassable": False}
+    return board
+
+
+@check
+def target_in_woods_and_partial_cover():
+    """2026-10-20 rules review. p.66 / pp.68-69: +1 if the target is in light
+    woods, +2 heavy; the target's own hex never blocks LOS (p.57). p.66:
+    partial cover needs an intervening hex one level up next to the target -
+    never the attacker's own hex at range 1 - and the cover value is on the
+    trace's last step, where callers read it."""
+    from los import has_los, trace_los_path
+    a, t = hex_geometry.parse_hex_label("0805"), hex_geometry.parse_hex_label("0808")
+    assert has_los(a, t, _open_board()).modifier == 0
+    assert has_los(a, t, _open_board(**{"0808": (0, {"woods": ["1"]})})).modifier == 1
+    assert has_los(a, t, _open_board(**{"0808": (0, {"woods": ["2"]})})).modifier == 2
+    # Two light woods between (2 points, not a block) + heavy woods on the target: LOS, +4.
+    board = _open_board(**{"0806": (0, {"woods": ["1"]}), "0807": (0, {"woods": ["1"]}),
+                           "0808": (0, {"woods": ["2"]})})
+    los = has_los(a, t, board)
+    assert los.los and los.modifier == 4, los
+    # The attacker's own woods change nothing.
+    assert has_los(a, t, _open_board(**{"0805": (0, {"woods": ["2"]})})).modifier == 0
+    # Partial cover: a level-1 hex next to the target on the line.
+    trace = trace_los_path(a, t, _open_board(**{"0807": (1, {})}))
+    assert trace.result.modifier == 1 and trace.steps[-1].partial_cover == 1
+    # Range 1 with the attacker one level up: no partial cover from its own hex.
+    adj = hex_geometry.parse_hex_label("0807")
+    trace = trace_los_path(adj, t, _open_board(**{"0807": (1, {})}))
+    assert trace.result.modifier == 0 and trace.steps[-1].partial_cover == 0
+
+
+@check
+def leg_hits_in_partial_cover_and_floating_head_hit():
+    """2026-10-20 rules review. pp.66, 73: a leg hit on a target in partial
+    cover strikes the cover - no damage. p.95 / p.117: a floating-critical
+    re-roll that lands on the head still costs the MechWarrior a hit."""
+    m = fresh()
+    leg = m.locations["Right Leg"]["armor"]
+    with ScriptedDice([5]):                               # 5 on the front table: right leg
+        attack_resolution._resolve_hit(m, 5, attack_resolution.DamageType.ENERGY, "front", cover=True)
+    assert m.locations["Right Leg"]["armor"] == leg
+    with ScriptedDice([5]):
+        attack_resolution._resolve_hit(m, 5, attack_resolution.DamageType.ENERGY, "front")
+    assert m.locations["Right Leg"]["armor"] == leg - 5
+
+    m = fresh()
+    head = m.locations["Head"]["armor"]
+    with ScriptedDice([2, 12, 2]):                        # TAC, floating re-roll: head; crit check 2
+        attack_resolution._resolve_hit(m, 2, attack_resolution.DamageType.ENERGY, "front")
+    assert m.pilot_hits == 1 and m.locations["Head"]["armor"] == head - 2
+
+
 def run_all():
     failed = 0
     for fn in CHECKS:
