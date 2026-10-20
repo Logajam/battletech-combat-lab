@@ -138,6 +138,7 @@ import INTEGRATION__ammo as ammo  # noqa: E402
 import INTEGRATION__structure_weight as structure_weight  # noqa: E402
 import INTEGRATION__arcs as arcs  # noqa: E402
 import INTEGRATION__ams as ams  # noqa: E402
+import INTEGRATION__electronics as electronics  # noqa: E402
 import INTEGRATION__los_cache as geo_cache  # noqa: E402
 from INTEGRATION__attack_resolution import tn_adjuster, aimed_shot_location, firing_conditions, \
     prone_target_modifier, arc_unavailable, _SIDE_BY_RELATIVE_HEXSIDE  # noqa: E402
@@ -361,6 +362,10 @@ class MoveEvaluator:
     by the engagements the other side's AMS can make from that spot (its
     arcs, untwisted); the scorers and best-twist memos are keyed by that count
     too. Mechs without AMS always see 0 - the numbers are unchanged.
+    Artemis / Narc homing / Angel ECM (2026-10-20, INTEGRATION__electronics):
+    their to-hit change is in the tn_adjusters, their Cluster change in the
+    same damage factors. A Narc beacon's pod value isn't counted here (the
+    attack phase prices it).
     """
 
     def __init__(self, mover, defender, terrain_map: Dict[str, object]):
@@ -371,8 +376,11 @@ class MoveEvaluator:
         mover_blocked = (self.mover_cond[1] if self.mover_cond else frozenset()) | ammo.unavailable_weapons(mover)
         defender_blocked = (self.defender_cond[1] if self.defender_cond else frozenset()) \
             | ammo.unavailable_weapons(defender)
-        mover_adjust = tn_adjuster(mover, defender, aimed_shot_location(defender))
-        defender_adjust = tn_adjuster(defender, mover)
+        # Artemis / Narc / ECM (INTEGRATION__electronics, 2026-10-20): fixed while the mechs don't change.
+        mover_fire = electronics.fire_controls(mover, defender)
+        defender_fire = electronics.fire_controls(defender, mover)
+        mover_adjust = tn_adjuster(mover, defender, aimed_shot_location(defender), fire=mover_fire)
+        defender_adjust = tn_adjuster(defender, mover, fire=defender_fire)
         # Structure weighting (INTEGRATION__structure_weight): off at k = 1.0, which leaves
         # every number exactly as it was.
         weighting = config.MOVEMENT_STRUCTURE_WEIGHT != 1.0
@@ -383,7 +391,7 @@ class MoveEvaluator:
         mover_scorers: Dict[tuple, object] = {}
         defender_scorers: Dict[tuple, object] = {}
 
-        def scorer_getter(who, adjust, blocked, scale, cache):
+        def scorer_getter(who, adjust, blocked, scale, cache, fire):
             # Scorers are shared by every (key, held) that leaves the same weapons
             # unable to fire (2026-10-20, speed only): many twists / arcs block the
             # same set, and a shared scorer shares its memo.
@@ -399,7 +407,7 @@ class MoveEvaluator:
                     scorer = by_unavailable.get((unavailable, ams_k))
                     if scorer is None:
                         side_scale = scale
-                        factors = ams.damage_factors(usable, ams_k) if ams_k else None
+                        factors = ams.damage_factors(usable, ams_k, fire)
                         if factors:
                             side_scale = lambda side: ams.combine(scale(side) if scale else None, factors)  # noqa: E731
                         scorer = by_unavailable[(unavailable, ams_k)] = _make_heat_limited_scorer(
@@ -407,8 +415,9 @@ class MoveEvaluator:
                     cache[(key, held, ams_k)] = scorer
                 return scorer
             return get
-        self.mover_scorer = scorer_getter(mover, mover_adjust, mover_blocked, mover_scale, mover_scorers)
-        self.defender_scorer = scorer_getter(defender, defender_adjust, defender_blocked, defender_scale, defender_scorers)
+        self.mover_scorer = scorer_getter(mover, mover_adjust, mover_blocked, mover_scale, mover_scorers, mover_fire)
+        self.defender_scorer = scorer_getter(defender, defender_adjust, defender_blocked, defender_scale,
+                                             defender_scorers, defender_fire)
         self.mover_arcs = (arcs.arc_options(mover), arcs.leg_offsets(mover))   # twists / flips / turret (pp.61-62)
         self.defender_arcs = (arcs.arc_options(defender), arcs.leg_offsets(defender))
         # Physical attacks (pp.76-83) from / against a spot next to the enemy.

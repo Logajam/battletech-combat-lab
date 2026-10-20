@@ -6127,13 +6127,13 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
       "shots_per_ton": 6,
-      "damage_per_shot": null,
+      "damage_per_shot": 0,
       "heat": 0,
       "range": {
         "short": 3,
@@ -6146,7 +6146,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISNarc.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=0 from Total Warfare row 'Narc Missile Beacon'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISNarc.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=0 from Total Warfare row 'Narc Missile Beacon'. | 2026-10-20 (Claude): slots 1 -> 2 (Core Rulebook Weapons and Equipment Tables pp.250-254) | 2026-10-20 (Claude): damage_per_shot 0: a homing pod does no damage (table '**', p.188; explosive pods 4 / 6 are INTEGRATION__ammo)",
       "rack_size": 1
     },
     "isnarcbeacon(os)": {
@@ -6162,13 +6162,13 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
       "shots_per_ton": null,
-      "damage_per_shot": null,
+      "damage_per_shot": 0,
       "heat": 0,
       "range": {
         "short": 3,
@@ -6181,7 +6181,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISNarcOS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min copied from base launcher 'ISNarcBeacon' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISNarcOS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min copied from base launcher 'ISNarcBeacon' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 2 (Core Rulebook Weapons and Equipment Tables pp.250-254) | 2026-10-20 (Claude): damage_per_shot 0: a homing pod does no damage (table '**', p.188; explosive pods 4 / 6 are INTEGRATION__ammo)",
       "rack_size": 1
     },
     "clnarcbeacon": {
@@ -6199,7 +6199,7 @@
       "explosion_damage": null,
       "damage_type": "Missile",
       "shots_per_ton": 6,
-      "damage_per_shot": null,
+      "damage_per_shot": 0,
       "heat": 0,
       "range": {
         "short": 4,
@@ -6212,7 +6212,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek other/clan/CLNarc.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=0 from Total Warfare row 'Narc Missile Beacon'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek other/clan/CLNarc.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=0 from Total Warfare row 'Narc Missile Beacon'. | 2026-10-20 (Claude): damage_per_shot 0: a homing pod does no damage (table '**', p.188; explosive pods 4 / 6 are INTEGRATION__ammo)",
       "rack_size": 1
     },
     "clnarcbeacon(os)": {
@@ -6234,7 +6234,7 @@
       "explosion_damage": null,
       "damage_type": null,
       "shots_per_ton": null,
-      "damage_per_shot": null,
+      "damage_per_shot": 0,
       "heat": 0,
       "range": {
         "short": 4,
@@ -6247,7 +6247,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek other/clan/CLNarcOS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min copied from base launcher 'CLNarcBeacon' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | Stats sourced from MegaMek other/clan/CLNarcOS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min copied from base launcher 'CLNarcBeacon' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): damage_per_shot 0: a homing pod does no damage (table '**', p.188; explosive pods 4 / 6 are INTEGRATION__ammo)",
       "rack_size": 1
     },
     "isimprovednarc": {
@@ -6259,13 +6259,13 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
       "shots_per_ton": 4,
-      "damage_per_shot": null,
+      "damage_per_shot": 0,
       "heat": 0,
       "range": {
         "short": 4,
@@ -6277,7 +6277,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISImprovedNarc.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISImprovedNarc.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-20 (Claude): slots 1 -> 3 (Core Rulebook Weapons and Equipment Tables pp.250-254) | 2026-10-20 (Claude): damage_per_shot 0: a homing pod does no damage (table '**', p.188; explosive pods 4 / 6 are INTEGRATION__ammo)",
       "rack_size": 1
     },
     "isimprovednarc(os)": {
@@ -6289,13 +6289,13 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
       "shots_per_ton": null,
-      "damage_per_shot": null,
+      "damage_per_shot": 0,
       "heat": 0,
       "range": {
         "short": 4,
@@ -6307,7 +6307,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISImprovedNarcOS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISImprovedNarcOS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-20 (Claude): slots 1 -> 3 (Core Rulebook Weapons and Equipment Tables pp.250-254) | 2026-10-20 (Claude): damage_per_shot 0: a homing pod does no damage (table '**', p.188; explosive pods 4 / 6 are INTEGRATION__ammo)",
       "rack_size": 1
     },
     "isantimissilesystem": {
@@ -21255,7 +21255,7 @@
       ],
       "category": "misc",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -21269,7 +21269,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 2 (Core Rulebook Weapons and Equipment Tables pp.250-254)"
     },
     "clecmsuite": {
       "canonical_name": "CLECMSuite",
@@ -22264,7 +22264,7 @@
       ],
       "category": "misc",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -22278,7 +22278,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 2 (Core Rulebook Weapons and Equipment Tables pp.250-254)"
     },
     "isangelecmsuite": {
       "canonical_name": "ISAngelECMSuite",
@@ -22292,7 +22292,7 @@
       ],
       "category": "misc",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -22306,7 +22306,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 2 (Core Rulebook Weapons and Equipment Tables pp.250-254)"
     },
     "watchdogecmsuite": {
       "canonical_name": "WatchdogECMSuite",
@@ -22318,7 +22318,7 @@
       ],
       "category": "misc",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -22332,7 +22332,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 2 (Core Rulebook Weapons and Equipment Tables pp.250-254)"
     },
     "mace": {
       "canonical_name": "Mace",

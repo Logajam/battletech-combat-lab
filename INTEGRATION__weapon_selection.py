@@ -204,7 +204,7 @@ def build_expected_damage_table(mech):
 
 def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipation, movement_heat,
                            other_heat=0, tn_adjust=None, unavailable=frozenset(), value_scale=None,
-                           weapons=None, table=None):
+                           weapons=None, table=None, bonus_per_hit=None):
     """min_heat/max_heat are passed explicitly (the orchestrator reads them
     off the mech's attached scenario config - mech.min_heat/mech.max_heat),
     while current_heat lives on the MECHSIM BattleMech object (mech).
@@ -275,6 +275,11 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
     (INTEGRATION__ams.damage_factors, 2026-10-20) - None when it has no AMS
     covering the attacker.
 
+    bonus_per_hit (2026-10-20, attack phase): optional {id(weapon): worth of
+    one hit} added on top of the table - a Narc beacon's pod
+    (INTEGRATION__electronics.pod_value) or explosive pod, which the
+    damage-only table counts as 0.
+
     Returns (selected_weapons: list[Equipment], total_expected_damage: float,
     total_heat: int).
     """
@@ -298,7 +303,10 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
         tn = pre_tn
         if tn_adjust is not None:
             tn = max(PRE_TN_MIN, min(PRE_TN_MAX, pre_tn + tn_adjust(w, range_bracket(w, distance))))
-        candidates.append((w, row[tn] if value_scale is None else row[tn] * value_scale.get(id(w), 1.0)))
+        value = row[tn] if value_scale is None else row[tn] * value_scale.get(id(w), 1.0)
+        if bonus_per_hit and id(w) in bonus_per_hit:
+            value += hit_probability(tn + _weapon_range_mod(w, distance)) * bonus_per_hit[id(w)]
+        candidates.append((w, value))
 
     # --- Phase 1: 0/1 knapsack, weight = heat, value = expected damage. ---
     # dp[h] = (best total expected damage achievable with exactly heat budget h used,

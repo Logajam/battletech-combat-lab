@@ -56,6 +56,68 @@ def weapon_entry_for_ammo(bin_name):
     return entry if entry is not None and entry.get("category") == "weapon" else None
 
 
+# --- Bin names -> (weapon fed, munition)  (2026-10-20, Claude) ------------------
+# MegaMek writes a munition variant after the launcher's name ("IS Ammo LRM-20
+# Artemis-capable", "Clan Ammo SRM-6 (Clan) Narc-capable"), and many bins name
+# the weapon differently from its equipment.json row ("IS Gauss Ammo", "IS Ammo
+# AC/10"). Until 2026-10-20 none of those bins fed anything, so their weapons
+# never fired (1,541 of the units in data/meks.zip). Munitions (pp.191-193):
+#   standard, artemis4 / artemis5 (Artemis IV / V-equipped missiles),
+#   narc (Narc-equipped missiles), homing / explosive (Narc / iNarc pods).
+# Bins whose munition isn't modeled stay unlinked (their weapon can't fire from
+# them): LB-X cluster rounds, ATM ER / HE, MML LRM / SRM modes, Arrow IV, and
+# iNarc ECM / haywire / Nemesis pods (no unit in data/meks.zip carries those).
+_MUNITION_SUFFIXES = (
+    (re.compile(r"\s*Artemis V-capable", re.I), "artemis5"),
+    (re.compile(r"\s*Artemis-capable", re.I), "artemis4"),
+    (re.compile(r"\s*Narc-capable", re.I), "narc"),
+)
+_NOT_MODELED = re.compile(r"Cluster|\sCL Ammo|ATM-?\d+ (ER|HE)\b|MML|ArrowIV|ECM Pods|Haywire|Nemesis", re.I)
+NARC_POD_DAMAGE = {"ISNarcBeacon": 2, "CLNarcBeacon": 2, "ISImprovedNarc": 3}      # explosion per pod, p.193
+EXPLOSIVE_POD_DAMAGE = {"ISNarcBeacon": 4, "CLNarcBeacon": 4, "ISImprovedNarc": 6}  # hit / explosion, p.193
+
+
+def _strip_is(name):
+    return name[3:] if name.startswith("IS ") else name
+
+
+def _weapon_via_ammo_entry(name):
+    """The bin's own equipment.json ammo row, then each of its aliases read as
+    a weapon name - the same tech base only ("IS Gauss Ammo" -> alias
+    "ISGaussRifle Ammo" -> ISGaussRifle; "IS Ammo AC/10" -> "AC/10")."""
+    ammo_entry = _entry(name)
+    if ammo_entry is None or ammo_entry.get("category") != "ammo":
+        return None
+    for alias in [ammo_entry["canonical_name"]] + list(ammo_entry.get("aliases") or []):
+        for candidate in (alias, _strip_is(alias)):
+            w = weapon_entry_for_ammo(candidate)
+            if w is not None and w.get("tech_base") == ammo_entry.get("tech_base"):
+                return w
+    return None
+
+
+def parse_bin(bin_name):
+    """(equipment.json weapon entry the bin feeds, munition), or (None, None)."""
+    if _NOT_MODELED.search(bin_name or ""):
+        return None, None
+    name, munition = bin_name, "standard"
+    for pattern, kind in _MUNITION_SUFFIXES:
+        if pattern.search(name):
+            name, munition = pattern.sub("", name), kind
+            break
+    name = name.replace("(Clan)", "").strip()
+    u = _norm_name(name)
+    if "NARC" in u and ("POD" in u or u.endswith("NARC")):
+        weapon = "ISImprovedNarc" if "INARC" in u else ("CLNarcBeacon" if u.startswith("CL") else "ISNarcBeacon")
+        return _entry(weapon), ("explosive" if "EXPLOSIVE" in u else "homing")
+    entry = weapon_entry_for_ammo(name) or _weapon_via_ammo_entry(name)
+    return (entry, munition) if entry is not None else (None, None)
+
+
+def _norm_name(name):
+    return (name or "").replace(" ", "").replace("-", "").upper()
+
+
 def damage_per_shot(entry):
     """Damage Value of one shot (p.107): missiles x damage each, else damage."""
     if entry is None or entry.get("damage_per_shot") is None:
@@ -78,12 +140,19 @@ def attach_ammo(mech):
     for location, slots in mech.crits.items():
         for slot in slots:
             if isinstance(slot, Equipment) and slot.category == "ammo" and not hasattr(slot, "feeds"):
-                entry = weapon_entry_for_ammo(slot.name)
+                entry, munition = parse_bin(slot.name)
                 slot.feeds = entry["canonical_name"] if entry else None
+                slot.munition = munition
                 shots = entry.get("shots_per_ton") if entry else None
                 slot.shots_left = shots if isinstance(shots, int) else None     # None = unknown: unlimited
+                half = re.search(r"\((\d+)\)\s*$", slot.name)                   # "ISLightMG Ammo (100)": a half-ton bin
+                if half and entry is not None:
+                    slot.shots_left = int(half.group(1))
                 slot.missiles_per_shot = (entry.get("rack_size") or 1) if entry and entry.get("damage_type") == "Missile" else 1
                 slot.shot_damage = damage_per_shot(entry)
+                if munition in ("homing", "explosive"):          # pods: 2 / 3 per pod, explosive 4 / 6 (p.193)
+                    table = EXPLOSIVE_POD_DAMAGE if munition == "explosive" else NARC_POD_DAMAGE
+                    slot.missiles_per_shot, slot.shot_damage = 1, table[slot.feeds]
                 _update_explosion(slot)
     for w in get_weapons(mech):
         entry = _entry(w.name)
@@ -152,27 +221,35 @@ def unavailable_weapons(mech):
     return frozenset(out)
 
 
-def spend(mech, weapon):
+def spend(mech, weapon, munition=None):
     """One firing's ammo: marks a one-shot fired, or takes a shot from the
-    bin with the fewest shots left. Returns a log note."""
+    bin with the fewest shots left - among bins of `munition` first, when
+    given (INTEGRATION__electronics' choice). Returns a log note."""
+    return take(mech, weapon, munition)[0]
+
+
+def take(mech, weapon, munition=None):
+    """spend() that also returns the munition actually fired: (note, munition)."""
     if getattr(weapon, "one_shot", False):
         weapon.fired_once = True
-        return "one-shot: now spent"
+        return "one-shot: now spent", "standard"
     if getattr(weapon, "ammo_unknown", False):
         stubs.stub_ammo_data(mech.side_name, weapon)
-        return ""
+        return "", "standard"
     if not getattr(weapon, "needs_ammo", False):
-        return ""
+        return "", "standard"
     bins = bins_for(mech, weapon)
     if not bins:
-        return "no ammo"
+        return "no ammo", munition or "standard"
+    preferred = [b for b in bins if getattr(b, "munition", "standard") == munition]
+    bins = preferred or bins
     counted = [b for b in bins if b.shots_left is not None]
     if not counted:
-        return ""
+        return "", getattr(bins[0], "munition", "standard")
     b = min(counted, key=lambda b: b.shots_left)
     b.shots_left -= 1
     _update_explosion(b)
-    return f"{b.name}: {b.shots_left} shots left"
+    return f"{b.name}: {b.shots_left} shots left", getattr(b, "munition", "standard")
 
 
 def inferno_heat(bin_):

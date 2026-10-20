@@ -44,8 +44,11 @@ Claude's readings (flagged for Daniel in PROJECT_MAP Section 4):
 === BOT CHOICES (pile 4, Section 6) ===
   - Which hits to engage: the attacker's missile hits this phase, the ones
     whose expected damage the AMS cuts most first (the rule lets the defender
-    pick among them when there are more than its AMS can take). Zero-damage
-    missiles (Narc pods - their beacon effect isn't modeled) are never engaged.
+    pick among them when there are more than its AMS can take). A Narc pod's
+    "damage" is its worth to the attacker (INTEGRATION__electronics.pod_value,
+    Daniel 2026-10-20) - 0, so never engaged, once a pod is already on.
+    Artemis / Narc / Angel-ECM changes to the Cluster roll count in the cut
+    (2026-10-20).
   - Which AMS takes a hit: the one making the least heat first (standard AMS
     before laser AMS).
   - Heat: an engagement is skipped if it would leave the mech's projected
@@ -67,6 +70,7 @@ import INTEGRATION__expected_damage as expected_damage
 import INTEGRATION__arcs as arcs
 import INTEGRATION__ammo as ammo
 import INTEGRATION__heat as heat
+import INTEGRATION__electronics as electronics
 from damage_resolution import get_weapons
 from mech_state import all_crew_unconscious, compute_heat_dissipation
 import hex_geometry
@@ -82,7 +86,8 @@ _2D6_EXACT = expected_damage._2D6_EXACT
 # ==========================  WHAT AN AMS CAN ENGAGE  ========================
 # =============================================================================
 def engageable(weapon):
-    """A Type M weapon the bot would engage: one that does damage."""
+    """A Type M weapon that does damage (expected-damage pricing; a Narc
+    beacon's pod is priced by the engagement itself - damage_prevented)."""
     return weapon.damage_type == "Missile" and (weapon.damage_per_shot or 0) > 0
 
 
@@ -149,35 +154,56 @@ def _expected_cluster_hits_engaged(shots, modifier):
     return total
 
 
-def expected_damage_engaged(weapon):
-    """E[damage | hit] when an AMS engages the attack (rules above)."""
+def expected_damage_engaged(weapon, fc=electronics.PLAIN):
+    """E[damage | hit] when an AMS engages the attack (rules above), with the
+    shot's fire control (Artemis / Narc Cluster bonus, Angel-unlocked Streak)."""
     if not weapon_rules.is_cluster(weapon):
-        return weapon.damage_per_shot * (SINGLE_MISSILE_KILL - 1) / 6     # 1D6 1-3: it gets through
-    if weapon_rules.is_streak(weapon):
+        return (weapon.damage_per_shot or 0) * (SINGLE_MISSILE_KILL - 1) / 6     # 1D6 1-3: it gets through
+    if weapon_rules.is_streak(weapon) and fc.streak_lock:
         return weapon.damage_per_shot * config.CLUSTER_HITS_TABLE[STREAK_RESULT][weapon.rack_size]
     return weapon.damage_per_shot * _expected_cluster_hits_engaged(
-        weapon.rack_size, CLUSTER_MODIFIER + weapon_rules.cluster_roll_modifier(weapon))
+        weapon.rack_size, CLUSTER_MODIFIER + fc.cluster + weapon_rules.cluster_roll_modifier(weapon))
 
 
-def damage_prevented(weapon):
+def damage_prevented(weapon, fc=electronics.PLAIN):
     """Expected damage an engagement takes off one hit of `weapon`."""
-    return expected_damage.expected_damage_per_hit(weapon) - expected_damage_engaged(weapon)
+    return electronics.expected_hit(weapon, fc) - expected_damage_engaged(weapon, fc)
 
 
-def damage_factors(weapons, engagements):
-    """{id(weapon): multiplier} for an attacker's `weapons` against a target
-    that can engage `engagements` attacks from this direction (bot choice in
-    the module docstring), or None when the AMS changes nothing."""
+def attack_prevented(attack):
+    """What engaging this declared hit is worth: a Narc pod's worth (or an
+    explosive pod's damage) x the 1D6 4+ kill; otherwise damage_prevented."""
+    if electronics.is_narc(attack.weapon):
+        return electronics.SINGLE_MISSILE_KILL_CHANCE * (attack.pod_value or 0.0)
+    if not engageable(attack.weapon):
+        return 0.0
+    return damage_prevented(attack.weapon, attack.fire or electronics.PLAIN)
+
+
+def damage_factors(weapons, engagements, fire=None):
+    """{id(weapon): multiplier} on the plain expected-damage table for an
+    attacker's `weapons` against a target that can engage `engagements`
+    attacks from this direction (bot choice in the module docstring), with
+    `fire` = electronics.fire_controls (Artemis / Narc / Angel ECM), or None
+    when nothing changes the plain numbers."""
+    fire = fire or {}
     targets = [w for w in weapons if engageable(w)]
-    if engagements <= 0 or not targets:
+    share = min(1.0, engagements / len(targets)) if engagements > 0 and targets else 0.0
+    if share == 0.0 and not fire:
         return None
-    share = min(1.0, engagements / len(targets))
     out = {}
     for w in targets:
-        base = expected_damage.expected_damage_per_hit(w)
-        if base > 0:
-            out[id(w)] = 1.0 - share * (1.0 - expected_damage_engaged(w) / base)
-    return out
+        plain = expected_damage.expected_damage_per_hit(w)
+        fc = fire.get(id(w), electronics.PLAIN)
+        base = electronics.expected_hit(w, fc)
+        if plain <= 0:
+            continue
+        factor = base / plain
+        if share and base > 0:
+            factor *= 1.0 - share * (1.0 - expected_damage_engaged(w, fc) / base)
+        if factor != 1.0:
+            out[id(w)] = factor
+    return out or None
 
 
 def combine(scale, factors):
@@ -234,7 +260,7 @@ def engage(defender, attacker, attacks, defender_report):
     """Assign the defender's AMS to the attacker's declared hits (bot choice
     in the module docstring): sets attack.ams on each engaged attack, marks
     off the shot and adds the heat to defender_report.weapon_heat."""
-    hits = [a for a in attacks if a.hit and engageable(a.weapon)]
+    hits = [a for a in attacks if a.hit and attack_prevented(a) > 0]
     if not hits or not systems(defender):
         return
     name = defender.side_name
@@ -247,7 +273,7 @@ def engage(defender, attacker, attacks, defender_report):
         return
     limit = max(defender.max_heat, config.AMS_HEAT_LIMIT)
     used = {}
-    for attack in sorted(hits, key=lambda a: damage_prevented(a.weapon), reverse=True):
+    for attack in sorted(hits, key=attack_prevented, reverse=True):
         for w in ams_list:
             if used.get(id(w), 0) >= ENGAGEMENTS_PER_TURN or shots_left(defender, w) < 1:
                 continue
@@ -261,5 +287,5 @@ def engage(defender, attacker, attacks, defender_report):
             defender_report.weapon_heat += w.heat or 0
             attack.ams = w
             config.log(f"  [AMS] {name}'s {w.name} engages {attacker.side_name}'s {attack.weapon.name} "
-                       f"(+{w.heat or 0} heat{f'; {note}' if note else ''}).")
+                       f"(cuts {attack_prevented(attack):.2f} expected; +{w.heat or 0} heat{f'; {note}' if note else ''}).")
             break
