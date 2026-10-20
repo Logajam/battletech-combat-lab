@@ -9,7 +9,10 @@ The battle is INTEGRATION__config's defaults (Asymptote II vs Asymptote II,
 16x17 Grassland) at seed 12345. Prints turns, seconds and both final HP
 totals - the HP totals must not change for a pure speed change.
 Reference points (PROJECT_MAP Change Record): 31.7 s before the 2026-10-20
-speed pass, 11.8 s after it, ~14.5 s with all seven physical attacks.
+speed pass, 11.8 s after it, ~14.5 s with all seven physical attacks,
+about 25% less after the 2026-10-20 memo sharing (21.5 s -> 16.3 s on a
+slower machine). Parallel batches (config.WORKERS) don't show here - this is
+one battle.
 """
 
 import cProfile

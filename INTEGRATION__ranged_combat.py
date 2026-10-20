@@ -145,7 +145,7 @@ import INTEGRATION__physical as physical  # noqa: E402
 IMMOBILE_TMM = -4  # same convention as INTEGRATION__attack_resolution.IMMOBILE_TMM
 
 
-@dataclass
+@dataclass(slots=True)
 class MovementCandidate:
     """One (hex, facing, mode) state mover could reach this turn, with
     expected damage in both directions against the fixed defender."""
@@ -314,6 +314,31 @@ def _with_physical(ranged_best, planner, actions, legs, pair_arcs, facing, diff,
     return best
 
 
+class _ArcClasses:
+    """Sorts (target arcs-tuple, facing) pairs into classes: two pairs are in
+    the same class when they give the same set of ArcKeys (arcs.arc_keys) -
+    i.e. the same weapons can bear for every twist / flip / turret choice - so
+    the best-twist damage is the same for both. of() -> (class number, the
+    class's ArcKeys). Speed only (2026-10-20): MoveEvaluator's memos key on the
+    class instead of the exact geometry and hit far more often."""
+    __slots__ = ("actions", "legs", "_by_pair", "_by_keys")
+
+    def __init__(self, mech_arcs):
+        self.actions, self.legs = mech_arcs          # (arcs.arc_options(mech), arcs.leg_offsets(mech))
+        self._by_pair: Dict[tuple, tuple] = {}
+        self._by_keys: Dict[tuple, tuple] = {}
+
+    def of(self, target_arcs, facing):
+        hit = self._by_pair.get((target_arcs, facing))
+        if hit is None:
+            keys = tuple(key for key, _ in arcs.arc_keys(target_arcs, facing, self.actions, self.legs))
+            hit = self._by_keys.get(keys)
+            if hit is None:
+                hit = self._by_keys[keys] = (len(self._by_keys), keys)
+            self._by_pair[(target_arcs, facing)] = hit
+        return hit
+
+
 class MoveEvaluator:
     """Scores a mover's end states against a defender pinned at any hex.
 
@@ -343,12 +368,21 @@ class MoveEvaluator:
         defender_scorers: Dict[tuple, object] = {}
 
         def scorer_getter(who, adjust, blocked, scale, cache):
+            # Scorers are shared by every (key, held) that leaves the same weapons
+            # unable to fire (2026-10-20, speed only): many twists / arcs block the
+            # same set, and a shared scorer shares its memo.
+            by_unavailable: Dict[frozenset, object] = {}
+
             def get(key, held=frozenset()):
                 # held: weapons kept back because their limb attacks in the Physical phase
                 scorer = cache.get((key, held))
                 if scorer is None:
-                    scorer = cache[(key, held)] = _make_heat_limited_scorer(
-                        who, adjust, blocked | arc_unavailable(who, key) | held, scale)
+                    unavailable = blocked | arc_unavailable(who, key) | held
+                    scorer = by_unavailable.get(unavailable)
+                    if scorer is None:
+                        scorer = by_unavailable[unavailable] = _make_heat_limited_scorer(
+                            who, adjust, unavailable, scale)
+                    cache[(key, held)] = scorer
                 return scorer
             return get
         self.mover_scorer = scorer_getter(mover, mover_adjust, mover_blocked, mover_scale, mover_scorers)
@@ -362,8 +396,12 @@ class MoveEvaluator:
         # standard exposure factor is applied on top by movement_selection).
         self.mover_planner = physical.Planner(mover, physical.Worth(defender, relative=True))
         self.defender_planner = physical.Planner(defender, physical.Worth(mover, relative=True))
+        # Best-twist memos, keyed on the arc CLASS (below) rather than the exact
+        # geometry, so every spot that sees the target the same way shares one entry.
         self._best_dealt: Dict[tuple, float] = {}
         self._best_received: Dict[tuple, float] = {}
+        self._mover_classes = _ArcClasses(self.mover_arcs)
+        self._defender_classes = _ArcClasses(self.defender_arcs)
         self.mover_own = equip.own_attack_modifier(mover)
         self.defender_own = equip.own_attack_modifier(defender)
 
@@ -391,9 +429,15 @@ class MoveEvaluator:
         mover_cond, defender_cond = self.mover_cond, self.defender_cond
         mover_scorer, defender_scorer = self.mover_scorer, self.defender_scorer
         (mover_actions, mover_legs), (defender_actions, defender_legs) = self.mover_arcs, self.defender_arcs
-        arc_keys = arcs.arc_keys
         best_dealt, best_received = self._best_dealt, self._best_received   # best twist, memoized
+        mover_class, defender_class = self._mover_classes.of, self._defender_classes.of
         no_return_fire = defender.shutdown or defender_cond is None
+        # The parts of each side's pre_tn that don't depend on the mover's spot (all
+        # whole numbers, so adding them up front changes nothing - speed only).
+        dealt_base = 0 if mover_cond is None else (mover.gunnery + defender_tmm + mover.heat_fire_modifier
+                                                   + dealt_stealth + mover_cond[0])
+        received_base = 0 if no_return_fire else (defender.gunnery + def_amm + defender.heat_fire_modifier
+                                                  + self.defender_own + defender_cond[0])
 
         results: List[MovementCandidate] = []
         # Rows pinned on the defender's hex: lines INTO it (mover -> defender) and
@@ -422,30 +466,27 @@ class MoveEvaluator:
             if mover_cond is None:
                 dealt = 0.0
             else:
-                pre_tn = (mover.gunnery + o.amm + defender_tmm + atk_to_def.modifier
-                          + mover.heat_fire_modifier + dealt_stealth + mover_cond[0]
+                pre_tn = (dealt_base + o.amm + atk_to_def.modifier
                           + (prone_target_modifier(defender, distance) if prone_def else 0))
                 pre_tn = pre_max if pre_tn > pre_max else (pre_min if pre_tn < pre_min else pre_tn)
-                memo_key = (a_to_d, o.facing, distance, pre_tn, o.move_heat, side_on_def)
+                cls, keys = mover_class(a_to_d, o.facing)
+                memo_key = (cls, distance, pre_tn, o.move_heat, side_on_def)
                 dealt = best_dealt.get(memo_key)
                 if dealt is None:
                     dealt = best_dealt[memo_key] = max(
-                        mover_scorer(key)(distance, pre_tn, o.move_heat, side_on_def)
-                        for key, _ in arc_keys(a_to_d, o.facing, mover_actions, mover_legs))
+                        mover_scorer(key)(distance, pre_tn, o.move_heat, side_on_def) for key in keys)
 
             if no_return_fire:
                 received = 0.0
             else:
-                pre_tn2 = (defender.gunnery + def_amm + o.tmm + def_to_atk.modifier
-                           + defender.heat_fire_modifier + self.defender_own + defender_cond[0]
-                           + o.void_mod)
+                pre_tn2 = received_base + o.tmm + def_to_atk.modifier + o.void_mod
                 pre_tn2 = pre_max if pre_tn2 > pre_max else (pre_min if pre_tn2 < pre_min else pre_tn2)
-                memo_key = (d_to_a, def_facing, distance, pre_tn2, def_move_heat, side_on_mover)
+                cls, keys = defender_class(d_to_a, def_facing)
+                memo_key = (cls, distance, pre_tn2, def_move_heat, side_on_mover)
                 received = best_received.get(memo_key)
                 if received is None:
                     received = best_received[memo_key] = max(
-                        defender_scorer(key)(distance, pre_tn2, def_move_heat, side_on_mover)
-                        for key, _ in arc_keys(d_to_a, def_facing, defender_actions, defender_legs))
+                        defender_scorer(key)(distance, pre_tn2, def_move_heat, side_on_mover) for key in keys)
 
             if distance == 1:
                 levels = terrain_map["hexes"]

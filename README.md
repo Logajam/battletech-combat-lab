@@ -11,6 +11,8 @@ python INTEGRATION__main.py
 
 Needs Python 3 and NumPy (`pip install -r requirements.txt`). All settings (which mechs,
 board, seed, number of battles, stub knobs) are in `INTEGRATION__config.py`.
+A batch runs one battle per CPU core at once (`WORKERS`; set it to 1 to run them
+one after another) - the output is the same either way.
 
 ## Layout
 
@@ -21,7 +23,7 @@ board, seed, number of battles, stub knobs) are in `INTEGRATION__config.py`.
 | `pathfinder/` | Hex geometry, board parser, movement, LOS, to-hit pieces |
 | `data/` | `.board` maps (16x17 Grassland, 50x50 BigBlank) and `.mtf` mechs |
 | `data/meks.zip` | 4,227 MegaMek `.mtf` units by source book (4,162 parse; ultralights under 20 t, superheavies and LAMs don't). Unzip outside the repo and point `INTEGRATION__config.py` at a file to try a unit |
-| `tests/` | `check_reference_logs.py` (same-seed battles vs saved logs), `test_pathfinder.py` (hex geometry, movement, board parsing, terrain costs), `test_weapon_range.py` (range modifiers), `test_heat.py` (Heat Scale), `test_equipment.py` (heat equipment), `test_rules.py` (stub replacements), `test_movement_selection.py` (movement picker), `test_arcs.py` (twists, arm flips, turrets), `test_special_attacks.py` (charges, DFA, pushes, clubs) |
+| `tests/` | `check_reference_logs.py` (same-seed battles vs saved logs), `test_pathfinder.py` (hex geometry, movement, board parsing, terrain costs), `test_weapon_range.py` (range modifiers), `test_heat.py` (Heat Scale), `test_equipment.py` (heat equipment), `test_rules.py` (stub replacements), `test_movement_selection.py` (movement picker), `test_arcs.py` (twists, arm flips, turrets), `test_special_attacks.py` (charges, DFA, pushes, clubs), `test_parallel_batch.py` (parallel batches) |
 | `rules/` | `Battletech_Rule_Reference_Index.zip`: the rules library (Core Rulebook in `base/core-rules/*.md`) that page cites in the code refer to. Unzip somewhere outside the repo to read it |
 | `reference_logs/` | Same-seed sample logs (matchup and settings in the file name), for checking that a change didn't alter results |
 
@@ -34,6 +36,7 @@ After a change, from the repo root:
 - `python tests/test_movement_selection.py`: checks the movement picker against brute-force scoring (reduction, two-ply reply, PSR cost, exposure, structure weighting, Void Signature, closing fallback, firing arcs and torso twists, physical attacks next to the enemy, determinism)
 - `python tests/test_arcs.py`: checks torso twists (both attack phases, tripods), tripod leg arcs, reversing arms, Quad Turrets and the End Phase reset
 - `python tests/test_special_attacks.py`: checks charges and death from above (damage, reach, the decision gate, the first mover anticipating them, displacement, PSRs, cancellation), pushes (when possible, off the board / down a cliff, the threat in movement scoring), clubs (holding, picking up, attacking, dropping) and multi-level falls - uses units from `data/meks.zip`
+- `python tests/test_parallel_batch.py`: checks that a batch prints the same output whether its battles run one at a time or in parallel, and each battle's own seed
 - `python tests/benchmark_turns.py`: times the first 10 turns of the default battle (seed 12345) - for speed changes
 - `python tests/test_rules.py`: checks the rules that replaced stubs (attack direction, cluster groupings, to-hit modifiers, ammo, deployment, physical attacks)
 

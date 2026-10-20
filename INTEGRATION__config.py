@@ -63,6 +63,13 @@ USE_TMM = True            # Target Movement Modifier - adds compute_tmm(target)
 NUM_SIMULATIONS = 1       # Monte Carlo batch size.
 MAX_TURNS = 500           # hard cap on turns per simulated battle.
 SEED = 12345              # BattleRNG seed for a reproducible batch. None = fresh entropy.
+                          # Each battle gets its own seed made from this one
+                          # (orchestrator.battle_seed): battle 1 uses SEED itself.
+# Parallel batches (2026-10-20): how many battles run at once, one per CPU core.
+#   0 = one worker per core; 1 = one battle after another (no extra processes).
+# The output is identical either way - each battle has its own seed, and the
+# parent prints every battle's log in order. MANUAL_ROLLS always runs one at a time.
+WORKERS = 0
 
 if MANUAL_ROLLS:
     VERBOSE = True  # MANUAL_ROLLS is only useful if Daniel can see what's happening

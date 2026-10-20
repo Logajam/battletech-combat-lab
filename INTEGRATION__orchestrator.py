@@ -80,10 +80,17 @@ here, not with sys.modules purging.
     itself is still reference only.
 """
 
+import io
+import multiprocessing
 import os
+import pickle
 import random
 import sys
+from concurrent.futures import ProcessPoolExecutor
+from contextlib import redirect_stderr, redirect_stdout
 from typing import List, Optional
+
+import numpy as np
 
 # --- MECHSIM side (see CROSS-PROJECT IMPORTS above) ---
 import INTEGRATION__config as config  # noqa: E402 - self-registers as "config" for MECHSIM's internal imports
@@ -494,44 +501,137 @@ def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,
 # =============================================================================
 # ==========================  BATCH LOOP  =====================================
 # =============================================================================
-def run_batch(num_simulations: Optional[int] = None, seed: Optional[int] = None,
-              max_turns: Optional[int] = None) -> List[BattleResult]:
-    """Loads the map and both mechs ONCE, then runs num_simulations battles,
-    each on fresh clone_mech() copies (compute-once rule, Section 7). Prints
-    the batch summary (INTEGRATION__results.summarize) and returns the raw
-    List[BattleResult]."""
-    num_simulations = num_simulations if num_simulations is not None else config.NUM_SIMULATIONS
-    max_turns = max_turns if max_turns is not None else config.MAX_TURNS
-    seed = seed if seed is not None else config.SEED
+# Parallel batches (2026-10-20, Claude - Pile 1; speed only, no rule here).
+# Battles don't affect each other, so a batch can run several at once, one per
+# CPU core (config.WORKERS). Two things make the output the same whatever the
+# worker count:
+#   - Each battle has its OWN seed (battle_seed below), so its dice don't depend
+#     on which battles ran before it or where. Battle 1 uses SEED itself, so a
+#     one-battle run is the same as before this change; battles 2+ of a batch
+#     differ from the old single shared stream (statistically the same).
+#   - A worker captures its battle's printed log (stdout and the stderr stub
+#     lines) and the parent prints the logs in battle order.
+# Workers are started with "spawn" on every platform (Windows can't do anything
+# else), so each one re-imports the code: the parent hands each worker its
+# settings (config's UPPERCASE names - including any changed at run time), the
+# map and the two parsed mechs, so nothing is re-read from disk.
 
-    battle_rng = BattleRNG(seed=seed)
+def battle_seed(seed: Optional[int], sim: int) -> Optional[int]:
+    """The seed for battle number `sim` (1-based) of a batch seeded with `seed`.
+    Battle 1 uses `seed` itself; later battles get a number mixed from (seed,
+    sim) by numpy's SeedSequence, so batches with nearby seeds (5, 6, ...) don't
+    share battles. None (fresh entropy) stays None."""
+    if seed is None:
+        return None
+    if sim == 1:
+        return seed
+    return int(np.random.SeedSequence([seed, sim]).generate_state(1, np.uint64)[0] >> 1)
+
+
+def _run_one_battle(sim, num_simulations, seed, max_turns, template_red, template_blue, terrain_map):
+    """One battle of a batch with its own BattleRNG, fresh mech copies and
+    per-battle caches reset. Returns the BattleResult."""
+    config.log("\n" + "=" * 70)
+    config.log(f"=== SIMULATION {sim}/{num_simulations} ===")
+    config.log("=" * 70)
+
+    sim_seed = battle_seed(seed, sim)
+    battle_rng = BattleRNG(seed=sim_seed)
     config.set_active_rng(battle_rng)
-    if seed is not None:
+    if sim_seed is not None:
         # MECHSIM hit_location.py's tripod leg sub-roll uses Python's random
         # module directly. Seeding it keeps same-seed runs identical (it still
         # isn't drawn from the BattleRNG stream - noted in KNOWN_MISSING_RULES).
-        random.seed(seed)
+        random.seed(sim_seed)
+
+    stubs.reset_battle_stubs()
+    weapon_selection.reset_table_cache()
+
+    mech_red = clone_mech(template_red)
+    mech_blue = clone_mech(template_blue)
+    _attach_mech_config(mech_red, config.MECH_RED_CONFIG, "Red")
+    _attach_mech_config(mech_blue, config.MECH_BLUE_CONFIG, "Blue")
+
+    result = run_battle(mech_red, mech_blue, terrain_map, battle_rng, max_turns)
+    result.active_stubs = stubs.active_stubs()
+    result.seed = sim_seed
+    return result
+
+
+# What one worker process keeps between battles (set by _worker_init).
+_WORKER = {}
+
+
+def _config_snapshot():
+    """config's UPPERCASE settings that can be sent to a worker process."""
+    snap = {}
+    for name, value in vars(config).items():
+        if name.isupper():
+            try:
+                pickle.dumps(value)
+            except Exception:
+                continue        # e.g. a module or a function - not a setting
+            snap[name] = value
+    return snap
+
+
+def _worker_init(settings, template_red, template_blue, terrain_map):
+    for name, value in settings.items():
+        setattr(config, name, value)
+    _WORKER.update(red=template_red, blue=template_blue, terrain_map=terrain_map)
+
+
+def _worker_battle(args):
+    """Runs one battle in a worker; returns (result, its stdout, its stderr)."""
+    sim, num_simulations, seed, max_turns = args
+    out, err = io.StringIO(), io.StringIO()
+    with redirect_stdout(out), redirect_stderr(err):
+        result = _run_one_battle(sim, num_simulations, seed, max_turns,
+                                 _WORKER["red"], _WORKER["blue"], _WORKER["terrain_map"])
+    return result, out.getvalue(), err.getvalue()
+
+
+def worker_count(num_simulations: int) -> int:
+    """How many battles run at once: config.WORKERS (0 = one per CPU core),
+    never more than the batch size; 1 with MANUAL_ROLLS (it asks for input)."""
+    if config.MANUAL_ROLLS or num_simulations <= 1:
+        return 1
+    workers = config.WORKERS if config.WORKERS > 0 else (os.cpu_count() or 1)
+    return max(1, min(workers, num_simulations))
+
+
+def run_batch(num_simulations: Optional[int] = None, seed: Optional[int] = None,
+              max_turns: Optional[int] = None) -> List[BattleResult]:
+    """Loads the map and both mechs ONCE, then runs num_simulations battles,
+    each on fresh clone_mech() copies (compute-once rule, Section 7), in
+    parallel when worker_count() > 1. Prints the batch summary
+    (INTEGRATION__results.summarize) and returns the raw List[BattleResult]
+    in battle order."""
+    num_simulations = num_simulations if num_simulations is not None else config.NUM_SIMULATIONS
+    max_turns = max_turns if max_turns is not None else config.MAX_TURNS
+    seed = seed if seed is not None else config.SEED
 
     terrain_map = _load_map()
     template_red, template_blue, red_path, blue_path = config.load_two_mechs()
 
     results: List[BattleResult] = []
-    for sim in range(1, num_simulations + 1):
-        config.log("\n" + "=" * 70)
-        config.log(f"=== SIMULATION {sim}/{num_simulations} ===")
-        config.log("=" * 70)
-
-        stubs.reset_battle_stubs()
-        weapon_selection.reset_table_cache()
-
-        mech_red = clone_mech(template_red)
-        mech_blue = clone_mech(template_blue)
-        _attach_mech_config(mech_red, config.MECH_RED_CONFIG, "Red")
-        _attach_mech_config(mech_blue, config.MECH_BLUE_CONFIG, "Blue")
-
-        result = run_battle(mech_red, mech_blue, terrain_map, battle_rng, max_turns)
-        result.active_stubs = stubs.active_stubs()
-        results.append(result)
+    workers = worker_count(num_simulations)
+    if workers == 1:
+        for sim in range(1, num_simulations + 1):
+            results.append(_run_one_battle(sim, num_simulations, seed, max_turns,
+                                           template_red, template_blue, terrain_map))
+    else:
+        jobs = [(sim, num_simulations, seed, max_turns) for sim in range(1, num_simulations + 1)]
+        context = multiprocessing.get_context("spawn")
+        with ProcessPoolExecutor(max_workers=workers, mp_context=context, initializer=_worker_init,
+                                 initargs=(_config_snapshot(), template_red, template_blue, terrain_map)) as pool:
+            # map() hands results back in battle order, so the logs print in order.
+            for result, out, err in pool.map(_worker_battle, jobs):
+                sys.stdout.write(out)
+                sys.stdout.flush()
+                sys.stderr.write(err)
+                sys.stderr.flush()
+                results.append(result)
 
     summarize(results,
               f"{template_red.chassis} {template_red.model}",
