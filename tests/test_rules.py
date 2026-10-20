@@ -191,13 +191,14 @@ def rear_mounted_weapons():
 def ammunition():
     """pp.72-73, 95-96, 180, 182: shots per ton per bin, one shot per firing
     from that weapon's own ammo, empty bins can't fire or explode, explosion
-    = shots x damage capped at 20, one-shots and rocket launchers fire once."""
+    base damage = shots x damage (the caps are apply_explosion's since
+    2026-10-20), one-shots and rocket launchers fire once."""
     import INTEGRATION__ammo as ammo
     m = fresh()
     ws = {w.name: w for w in attack_resolution.get_weapons(m)}
     lrm, ac5, lbx = ws["ISLRM15"], ws["ISAC5"], ws["ISLBXAC10"]
     bins = ammo.bins_for(m, lrm)
-    assert [b.shots_left for b in bins] == [8, 8] and all(b.explosion_damage == 20 for b in bins)
+    assert [b.shots_left for b in bins] == [8, 8] and all(b.explosion_damage == 8 * 15 for b in bins)
     ac5_bin = ammo.bins_for(m, ac5)[0]
     assert ac5_bin.shots_left == 20 and ammo.bins_for(m, lbx) == []           # no LB-X ammo aboard
     assert id(lbx) in ammo.unavailable_weapons(m) and id(ac5) not in ammo.unavailable_weapons(m)
@@ -461,6 +462,54 @@ def turning_while_down():
         assert m.facing == "N" and m.mp_spent == 0
     finally:
         config.FIGHT_TO_THE_DEATH = saved
+
+
+@check
+def autocannon_first_critical():
+    """2026-10-20, Core p.183: an autocannon's first critical hit doesn't
+    destroy it (the slot is used up); a second crit to another of its slots
+    does. A one-slot autocannon takes two hits to that slot."""
+    import damage_resolution as dr
+    m = fresh()
+    ac5 = next(w for w in attack_resolution.get_weapons(m) if w.name == "ISAC5")
+    loc = next(l for l, slots in m.crits.items() if ac5 in slots)
+    first, second = [i for i, s in enumerate(m.crits[loc]) if s is ac5][:2]
+    dr.resolve_slot_hit(m, loc, first, ac5, 1, 1)
+    assert ac5 in attack_resolution.get_weapons(m) and m.crits[loc][first] == "DESTROYED"
+    dr.resolve_slot_hit(m, loc, second, ac5, 1, 1)
+    assert ac5 not in attack_resolution.get_weapons(m)
+    laser = next(w for w in attack_resolution.get_weapons(m) if "Laser" in w.name or "LRM" in w.name)
+    loc = next(l for l, slots in m.crits.items() if laser in slots)
+    i = m.crits[loc].index(laser)
+    dr.resolve_slot_hit(m, loc, i, laser, 1, 1)                 # anything else: destroyed at once
+    assert laser not in attack_resolution.get_weapons(m)
+
+
+@check
+def explosions_and_case():
+    """2026-10-20, Core p.96: no CASE - at most 20 structure damage, and when
+    the base damage was over 20 the location that took the 20th point loses
+    its (rear) armor; CASE - at most 10 structure, the excess (at most 10) to
+    the (rear) armor, no transfer; CASE II - 1 structure, excess to armor."""
+    import damage_resolution as dr
+    from types import SimpleNamespace as Bin
+    saved = dr.get_case_tier
+    try:
+        for tier, structure, rear_lost in ((None, 20, "all"), ("CASE", 10, 10), ("CASE II", 1, 10)):
+            dr.get_case_tier = lambda mech, loc, tier=tier: tier
+            m = fresh()
+            m.locations["Center Torso"]["structure"] = 40       # big enough to survive
+            m.max_structure["Center Torso"] = 40
+            rear = m.locations["Center Torso"]["rear_armor"]
+            front = m.locations["Center Torso"]["armor"]
+            with ScriptedDice([], default=2):                  # crit checks: no critical
+                dr.apply_explosion(m, Bin(name="Test Ammo", explosion_damage=60), "Center Torso")
+            loc = m.locations["Center Torso"]
+            assert loc["structure"] == 40 - structure, (tier, loc["structure"])
+            assert loc["rear_armor"] == (0 if rear_lost == "all" else max(0, rear - rear_lost)), (tier, loc)
+            assert loc["armor"] == front
+    finally:
+        dr.get_case_tier = saved
 
 
 @check

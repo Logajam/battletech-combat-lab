@@ -375,14 +375,14 @@ Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 9.
     1/2 Criticals: ISLRM15 Ammo slot hit.
       Current crit slots in Left Torso: ['ISLRM15', 'ISLRM15', 'ISLRM15', 'DESTROYED', 'ISLRM15 Ammo', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
     ISLRM15 Ammo destroyed at Left Torso - EXPLOSION (15 dmg)! Pilot takes 1 hit (1/6).
-    Explosion reaches Left Torso. No CASE present - full 15 damage applied.
+    Explosion reaches Left Torso. No CASE present - 15 damage to structure.
     0 structure damage taken (0/12 remaining).
     Left Torso DESTROYED! (explosion)
   All critical slots in Left Torso marked DESTROYED.
   Left Arm also destroyed (side torso rule).
   All critical slots in Left Arm marked DESTROYED.
     15 explosion damage remains, transfers to Center Torso.
-    Explosion reaches Center Torso. No CASE present - full 15 damage applied.
+    Explosion reaches Center Torso. No CASE present - 15 damage to structure.
     15 structure damage taken (1/16 remaining).
   Check for possible critical. Roll a 8.
     1 critical hit(s).
