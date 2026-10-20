@@ -13,7 +13,17 @@ source project's file overwrite the other's same-named file.
 
 ---
 
-## 0. WHERE WE ARE (2026-10-20, end of session 2) — read this first
+## 0. WHERE WE ARE (2026-10-20, end of session 3) — read this first
+
+**Session 3 in one paragraph (all merged to `main`, PRs #13-#16):** AMS;
+Artemis / Narc / ECM; weapon-use options (rapid fire, ammo kinds, Apollo)
+with the DECISIONS as loud stubs (Daniel: research); every Core weapon made
+to fire (variable damage, HAG, M-pods, MG arrays, bombast, rifles, heat
+weapons, Arrow IV, artillery cannons); optional rule `POOL_CLUSTER_DAMAGE`.
+Big data fixes on the way: ammo bins that fed nothing (1,541 units), weapon
+slot counts that duplicated or merged weapons (1,893 units), IS machine guns
+missing. Daniel closed the session with "Good pass" and asked for the two
+known issues below (Section 4, "Known issues to fix later") to be logged.
 
 **Hand-off for a new instance.** Daniel's goal: "beat the simulator into
 shape." He is not a GitHub person - **Claude runs the logistics** (Daniel,
@@ -111,11 +121,14 @@ cloud container, faster on Daniel's PC).
   supercharger / radical heat sinks).
 
 **Rules review:** `INTEGRATION__RULES_REVIEW.md` - first pass over the whole
-Core Rulebook done 2026-10-20: what was fixed (F1-F13), the gap list (G2-G16,
+Core Rulebook done 2026-10-20: what was fixed (F1-F20), the gap list (G2-G18,
 Claude's to build), and the Core-vs-project questions (D1-D7 decided, D8
 open). Read it before building rules.
 
 **Pick up here (open, roughly in priority order):**
+0. **Known issues Daniel asked to fix later** (Section 4, "Known issues to
+   fix later"): Arrow IV / artillery scatter must stay inside the firing arc;
+   machine gun array ammo per gun needs a check / test.
 1. **Research: how the bot should decide** rate of fire, MASC use and which
    ammunition (Daniel, 2026-10-20) - today stubs (`STUB_MUNITION_POLICY`,
    `STUB_RATE_OF_FIRE`, `STUB_UNJAM`, `STUB_ESCALATING_USE`); goes with the
@@ -310,17 +323,29 @@ confirmed project rules, not stubs):
   same location; linked in slot order there (a leftover FCS goes to a
   launcher with none).
 
+**Known issues to fix later (Daniel, 2026-10-20):**
+- **Scatter vs the firing arc.** Arrow IV (p.182) and artillery cannon
+  (p.183) misses "cannot scatter outside the launcher's firing arc: ... lands
+  in the last hex along its scatter path before it would". The code
+  (`attack_resolution._resolve_area_miss`) ignores the arc - Daniel: "Firing
+  arc is an issue."
+- **Machine gun array ammo.** Daniel: the array "should still track ammo for
+  each MG in the array being fired". The code takes one round from each gun's
+  bins (`declare_attacks`, `ammo.take` per gun in `weapon_profiles.mga_guns`)
+  - confirm it with a test (shared bins, a gun with no ammo left drops out of
+  the column) and fix anything that falls short.
+
 **Weapon-use readings (Claude, 2026-10-20, `INTEGRATION__fire_modes`):**
 - DECIDED (Daniel): an attack on a hex (Apollo saturation, Arrow IV) takes no
   target modifiers - no TMM, not even the immobile -4 - "so its usually gunnery
   + range + LOS blockers". MML LRM rounds group by 5 (the p.250 C7/C9 is a
   typo), SRM by 2. ATM ER / HE use the launcher's shots per ton.
-- Arrow IV (p.182): "Do not modify the Target Number for range, target
-  movement, or an immobile target" - read as: the attacker's own modifiers
-  (movement, heat, sensors) and LOS still apply; prone-target and target
-  stealth don't (hex attack). Area-effect damage on a 'Mech: 5-point
-  groupings (pp.87, 182). Scatter isn't held inside the firing arc.
-- Machine gun arrays: one round from each gun fired.
+- DECIDED (Daniel: "Arrow IV to hit sounds correct"): the attacker's own
+  modifiers (movement, heat, sensors) and LOS apply; range, target movement,
+  immobile, prone-target and target stealth don't (hex attack). Area-effect
+  damage on a 'Mech: 5-point groupings (pp.87, 182). Scatter / firing arc:
+  see "Known issues" above.
+- Machine gun arrays: one round from each gun fired (see "Known issues").
 - Heat on the target (flamers, plasma) is priced at `TARGET_HEAT_WORTH` (0.5
   damage a point) - a placeholder for Daniel; without it a plasma cannon (no
   damage) would never fire.
@@ -497,6 +522,29 @@ forward arc, kicks included, never into a side arc.
 ---
 
 ## 5. DECISIONS LOG (Daniel's calls — implementation may not override)
+
+- **Session 3 calls (Daniel, 2026-10-20):**
+  - Build order: AMS, then "Artemis and Narc. Since they both affect Missiles
+    and are affected by ECM in similar ways." A Narc pod's "damage value" (to
+    an AMS, and so to the bot) is the expected increase in damage from its
+    owner's missiles if it lands; none once one has landed.
+  - "Work on including the functionality of choice, but use a stub for the
+    actual decision": rate of fire, MASC use and which ammo (Apollo mode
+    included) are research - the stubs stay until the research is done.
+  - An attack on a hex takes no target modifiers (no TMM, not even immobile):
+    "usually gunnery + range + LOS blockers". Arrow IV to-hit as built is
+    correct.
+  - MML LRM mode groups by 5, SRM by 2 (table C7 / C9 is a typo); ATM ER / HE
+    use the launcher's shots per ton.
+  - Heavy Gauss 25 / 20 / 10; VSP damage S / M / L 5/4/3, 9/7/5, 11/9/7; HAG a
+    5-point cluster weapon, +2 Cluster roll at short, -2 at long.
+  - "All cluster damage of a specific size is added up and then applied" -
+    built as optional rule `POOL_CLUSTER_DAMAGE`, default True.
+  - "Fixing non functional weapons just became top priority" (done); specialty
+    ammo deferred.
+  - Later ideas: a best-solution lookup table per weapon by range and starting
+    TN; cluster weapons' value raised by their crit odds against the target's
+    armor (Section 0, "Pick up here" item 1).
 
 - **Rules review calls (Daniel, 2026-10-20):** "We've entered the realm of
   optional rules" - each becomes a config switch. Floating Criticals: a
@@ -736,12 +784,26 @@ turn's score, so a decision sees what it gives up.
   after; a change only for speed must leave every result identical.
 - Reference logs: regenerate (`--update`) only for changes meant to alter
   results, and say so in the Change Record.
+- (Daniel, 2026-10-20) A bot decision that is still research (rate of fire,
+  MASC, ammo kind...) is built as OPTIONS (the rules) plus a loud stub that
+  picks - don't invent a "real" policy for it without him.
+- (Daniel, 2026-10-20) Known issues he names go in Section 4's "Known issues
+  to fix later" list, not fixed on the spot unless he says so.
+- New weapons / equipment: check the item's equipment.json row against the
+  Core tables (pp.248-254) - slots, damage, range, heat, shots per ton - and
+  its ammo-bin names against `ammo.parse_bin`; the data had many gaps.
 
 ---
 
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-20 (Claude):** Session 3 wrap-up (Daniel: "Good pass. Clean
+  up."). Section 0 rewritten for the next instance; Section 4 "Known issues to
+  fix later" (scatter vs firing arc; MG array ammo check); Section 5 session-3
+  decisions; Section 7 three standing notes. Dead code removed
+  (`fire_modes.mml_size`, `weapon_rules.is_laser_ams`). No result changes.
 
 - **2026-10-20 (Claude):** Non-functional weapons (Daniel: "Fixing non
   functional weapons just became top priority"; review F18-F20). New

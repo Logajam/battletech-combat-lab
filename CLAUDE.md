@@ -41,7 +41,11 @@ GitHub logistics.
 - **Keep going.** Don't pause at natural checkpoints. Stop only for a rules or
   scope call that is Daniel's.
 - **Placeholders** are loud, counted stubs in `INTEGRATION__stubs.py`, never
-  silent defaults. New bot decisions get a Section 6 row.
+  silent defaults. New bot decisions get a Section 6 row. A decision Daniel
+  calls "research" (rate of fire, MASC, ammo kind...) is built as options
+  plus a stub that picks.
+- **Known issues** Daniel names go in PROJECT_MAP Section 4 ("Known issues to
+  fix later").
 - **Code style:** Daniel reads the code but doesn't write it. Keep it clean,
   explicit and commented to match the surrounding files, and sign changes in
   the Change Record.
