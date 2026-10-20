@@ -5,8 +5,10 @@ measured on the same battle every time (added 2026-10-20).
     python tests/benchmark_turns.py            # default battle, first 10 turns
     python tests/benchmark_turns.py 10 tottime # ... plus a cProfile table (slower)
 
-The battle is INTEGRATION__config's defaults (Asymptote II vs Asymptote II,
-16x17 Grassland) at seed 12345. Prints turns, seconds and both final HP
+The battle is Asymptote II vs Asymptote II on INTEGRATION__config's default
+board (16x17 Grassland) at seed 12345 - the old default matchup, pinned here
+(2026-10-20) so the timings stay comparable: the new default (Kontio vs
+Hammerhead) ends on turn 1 at this seed. Prints turns, seconds and both final HP
 totals - the HP totals must not change for a pure speed change.
 Reference points (PROJECT_MAP Change Record): 31.7 s before the 2026-10-20
 speed pass, 11.8 s after it, ~14.5 s with all seven physical attacks,
@@ -35,6 +37,7 @@ def main():
     turns = int(sys.argv[1]) if len(sys.argv) > 1 else 10
     sort = sys.argv[2] if len(sys.argv) > 2 else None
     config.VERBOSE = False
+    config.MECH_RED_MTF = config.MECH_BLUE_MTF = "Asymptote II iJ Mpulse.mtf"
     profile = cProfile.Profile()
     start = time.time()
     if sort:
