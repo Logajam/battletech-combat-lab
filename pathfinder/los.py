@@ -38,6 +38,9 @@ Applied to every intervening hex on the LOS path (endpoints excluded):
   5. Partial cover (does not block, adds modifier only): the hex
      adjacent-on-path to the target (second argument) with
      level == target's level + 1 adds +1.
+  5a. Target in woods (Core p.66, added 2026-10-20): +1 light / +2 heavy
+     to-hit if the TARGET's own hex has woods. Not a LOS rule - added after
+     the blocking check, never counts toward rule 3's woods block.
   6. Tie-break when the line runs exactly along a hex-grid edge (two
      candidate hexes for one step of the path): evaluate both
      candidates against rules 1-5 and keep whichever is worse for the
@@ -75,6 +78,10 @@ from hex_geometry import hex_label
 Hex = Tuple[int, int]  # (x, y) doubled coordinates, no facing
 
 _EPS = 1e-6
+
+# Target-hex woods to-hit modifier by woods density (Core p.66): light +1,
+# heavy +2. Recorded on the target's LOSStep as woods_contrib.
+TARGET_WOODS_MODIFIER = {"1": 1, "2": 2}
 
 
 @dataclass
@@ -310,9 +317,12 @@ def _evaluate(attacker_hex: Hex, target_hex: Hex, terrain_map: Dict[str, object]
         ))
 
     # Rule 5: partial cover, hex adjacent-on-path to the target only —
-    # only applies if LOS survived the whole intervening path.
-    if blocked_at is None:
-        cover = 0
+    # only applies if LOS survived the whole intervening path. Needs an
+    # intervening hex: at range 1 the hex before the target is the
+    # attacker's own, which is never intervening terrain (Core p.57;
+    # fixed 2026-10-20, Claude).
+    cover = 0
+    if blocked_at is None and total_distance >= 2:
         for c in path[total_distance - 1]:
             info = hex_info(c)
             if info is not None and info["level"] == b_level + 1:
@@ -322,11 +332,25 @@ def _evaluate(attacker_hex: Hex, target_hex: Hex, terrain_map: Dict[str, object]
             steps[-1].partial_cover = cover
             steps[-1].cumulative_modifier = modifier
 
+    # Target in woods (added 2026-10-20, Claude - Core p.66 and the Attack
+    # Modifiers Table pp.68-69): "+1 if target in light woods/jungle", "+2 if
+    # target in heavy woods/jungle". A to-hit modifier only: the target's own
+    # hex never affects LOS (p.57-58), so it is added after the blocking check
+    # and never counts toward the 3-point woods block.
+    target_woods = 0
+    if blocked_at is None:
+        woods = b_info["features"].get("woods")
+        density = woods[0] if woods else None
+        target_woods = TARGET_WOODS_MODIFIER.get(density, 0)
+        modifier += target_woods
+
     steps.append(LOSStep(
         index=total_distance,
         hex=target_hex,
         level=b_level,
         is_endpoint=True,
+        woods_contrib=target_woods,
+        partial_cover=cover,   # also here: callers read steps[-1] (2026-10-20 fix - it read 0 before)
         cumulative_modifier=modifier,
         after_block=blocked_at is not None,
     ))

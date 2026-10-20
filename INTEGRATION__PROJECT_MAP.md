@@ -77,6 +77,10 @@ its HP totals). Batches run several battles at once, one per CPU core
   in the Core tables) and `heat_explosion_bin` (a controller choice).
 
 **Pick up here (open, roughly in Daniel's priority order):**
+0. **Rules review** (`INTEGRATION__RULES_REVIEW.md`, started 2026-10-20):
+   its "Gaps" list is Claude's to build (backward walking first); its
+   "for Daniel" list needs his calls; chapters still to review are listed
+   at its top.
 1. **The bot's future-capability planning** - Section 6 "Memo" (Daniel,
    2026-10-20). Needed for clubs, MASC, Rotary ACs and similar.
 2. **Hanging back** (seen 2026-10-20): in Asymptote vs HeatGear sample
@@ -611,6 +615,21 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-20 (Claude):** Rules review, first pass - new
+  `INTEGRATION__RULES_REVIEW.md` (Core Rulebook vs code: fixed items, gaps,
+  and Core-vs-project-rule questions for Daniel, all page-cited). Fixed: the
+  target-in-woods to-hit modifier (+1 light / +2 heavy, Core p.66 / pp.68-69)
+  was missing - added to the LOS result in `pathfinder/los.py`, so every attack
+  and the movement scoring see it (DFA ignores terrain as before); partial
+  cover was stored one step before the trace's last step that aimed shots and
+  charges read (always 0); partial cover could come from the attacker's own
+  hex at range 1 (p.57); an ordinary leg hit on a target in partial cover now
+  strikes the cover (pp.66, 73); a floating-critical re-roll onto the Head now
+  costs the pilot a hit (p.117). Tests in `tests/test_rules.py`. RESULT
+  CHANGE: all five reference logs regenerated - the woods modifier changes
+  where mechs stand (the default board has 30 woods hexes). Benchmark battle
+  changed too (HP 458 / 466).
 
 - **2026-10-20 (Claude):** Speed pass 2 (Pile 1 batch loop + Pile 4 movement
   scoring; no rules touched). (1) **Parallel batches**: `run_batch` runs

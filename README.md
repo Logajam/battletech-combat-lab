@@ -46,4 +46,5 @@ stderr and appears in the summary banner.
 New to the project (or a new Claude session)? Start with `CLAUDE.md`, then Section 0 of `INTEGRATION__PROJECT_MAP.md`.
 
 Project status, open items and decisions: `INTEGRATION__PROJECT_MAP.md` (torso twists and firing arcs: its Section 4a).
+Core Rulebook vs code (fixed, gaps, questions for Daniel): `INTEGRATION__RULES_REVIEW.md`.
 Import structure: `INTEGRATION__CALL_GRAPH.md`.
