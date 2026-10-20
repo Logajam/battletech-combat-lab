@@ -44,7 +44,7 @@ unzip `rules/Battletech_Rule_Reference_Index.zip` OUTSIDE the repo (e.g.
 marker PRECEDES page N's text), condensed and page-cited in
 `summary/core-rules/*.yaml` (fast to read); unzip `data/meks.zip` outside the
 repo when wider unit testing is needed. Then run the checks below to confirm
-a clean baseline.
+a clean baseline (`python tests/run_checks.py --bench`, about 2 min).
 
 **It runs end to end.** `.mtf` in → turn-by-turn battle on a real board →
 batch summary out: `python INTEGRATION__main.py`. Settings (mech files,
@@ -56,14 +56,18 @@ verbose, home-edge deployment. Layout: `INTEGRATION__*.py` at the top;
 boards, test mechs and `meks.zip` (4,227 MegaMek units, 4,162 parse);
 `rules/` the rules library zip; `reference_logs/` same-seed sample battles.
 
-**After any change, from the repo root:** every `tests/test_*.py` (13 files,
-all must pass), `python tests/check_reference_logs.py` (must pass unless the
-change is MEANT to alter results - then look at a fresh battle and run
-`--update`, and say so in the Change Record; Daniel has OK'd regenerating
-them for intended changes), and for anything on the hot path
-`python tests/benchmark_turns.py` (10 turns of the default battle - a pure
-speed change must keep its HP totals, currently 458 / 466; ~17-20 s in the
-cloud container, faster on Daniel's PC).
+**After any change, from the repo root:** `python tests/run_checks.py` -
+one command, about 1.5 min in the cloud container: every `tests/test_*.py`
+(13 files) and every reference battle (12), side by side, one line each, all
+must pass. A reference log may differ only when the change is MEANT to alter
+results - then look at a fresh battle, run
+`python tests/check_reference_logs.py --update`, and say so in the Change
+Record (Daniel has OK'd regenerating them for intended changes). For anything
+on the hot path add `--bench` (10 turns of the default battle - a pure speed
+change must keep its HP totals, currently 458 / 466; ~17-20 s in the cloud
+container, faster on Daniel's PC). The slowest checks, for whoever trims
+them: the default Asymptote reference battle (~80 s, the floor),
+`test_parallel_batch` (~60 s), `test_movement_selection` (~25 s).
 
 **What's built (all Core Rulebook, page-cited in the code):**
 - Batches: `config.WORKERS` battles at once, one per CPU core (0 = all
@@ -780,6 +784,10 @@ turn's score, so a decision sees what it gives up.
   means more things to set up when configuring a run." Optional rules and
   Daniel-vs-Core differences become switches in `INTEGRATION__config.py`'s
   OPTIONAL RULES section (his default first, the rules as written available).
+- (Daniel, 2026-10-20: "probably need to establish a briefer way to get a
+  clean baseline") The baseline is one command, `python tests/run_checks.py`;
+  a new test file or reference battle joins it automatically - keep new
+  checks quick.
 - Measure speed on the fixed benchmark (`tests/benchmark_turns.py`) before and
   after; a change only for speed must leave every result identical.
 - Reference logs: regenerate (`--update`) only for changes meant to alter
@@ -798,6 +806,15 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-20 (Claude):** One-command baseline (Daniel: "probably need to
+  establish a briefer way to get a clean baseline. I sense that test bloat
+  has taken hold."). New `tests/run_checks.py`: every test file and every
+  reference battle run side by side (one per CPU core), one line each, a
+  one-line verdict, `--bench` adds the benchmark. `check_reference_logs.py`
+  runs its battles side by side too (its `compare` is shared). Cloud
+  container: ~5 min one at a time -> ~1.6 min. No checks removed, no result
+  changes (logs regenerate byte-identical; benchmark 458 / 466).
 
 - **2026-10-20 (Claude):** Session 3 wrap-up (Daniel: "Good pass. Clean
   up."). Section 0 rewritten for the next instance; Section 4 "Known issues to

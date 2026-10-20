@@ -30,10 +30,12 @@ GitHub logistics.
   once every test passes. Daniel doesn't use GitHub, so tell him in plain words
   what changed.
 - **After every change:**
-  - Run every `python tests/test_*.py`; all must pass.
-  - Run `python tests/check_reference_logs.py`. Use `--update` only for a change
-    meant to alter results, and record that in the Change Record.
-  - Run `python tests/benchmark_turns.py` for anything on the hot path. A
+  - Run `python tests/run_checks.py` (about 1.5 min): every `tests/test_*.py`
+    plus every reference battle, side by side, one line each. All must pass.
+  - A reference log that differs: if the change was meant to alter results, run
+    `python tests/check_reference_logs.py --update` and record that in the
+    Change Record.
+  - Add `--bench` (the 10-turn benchmark) for anything on the hot path. A
     speed-only change must keep the results identical.
 - **Optional rules** (where the rulebook offers a choice, or Daniel's rule
   differs from it) are switches in `INTEGRATION__config.py`'s OPTIONAL RULES
