@@ -65,6 +65,7 @@ class BattleResult:
     blue: SideStats = field(default_factory=SideStats)
     active_stubs: Dict[str, int] = field(default_factory=dict)
     seed: Optional[int] = None   # this battle's own seed: SEED = seed, NUM_SIMULATIONS = 1 replays it
+    replay: Optional[dict] = None  # INTEGRATION__replay data when config.REPLAY_BATTLES covered this battle
 
     # Old field names kept so anything written against the 2026-08-30
     # skeleton still reads.

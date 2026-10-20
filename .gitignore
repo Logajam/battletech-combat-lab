@@ -3,3 +3,4 @@ __pycache__/
 .file_picker_state.json
 run_stats/
 lethality_graphs/
+replays/

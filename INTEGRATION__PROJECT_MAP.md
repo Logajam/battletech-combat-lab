@@ -108,6 +108,15 @@ them: the Asymptote mirror reference battle (~80 s, the floor),
   arm / torso split ones) and physical attacks (club / push only with both
   arms); leg AES (all legs) -2 to every PSR and -1 to kicks and charges; a crit
   to any leg AES slot loses the leg effects, to an arm's only that arm's.
+- Battle replays (`INTEGRATION__replay`, 2026-10-20): `config.REPLAY_BATTLES`
+  = N saves battles 1-N of a run as self-contained HTML pages in
+  `config.REPLAY_DIR` (`replays/`, git-ignored): hex map stepped through
+  deployment / each movement / ranged / physical / heat-and-end, both record
+  sheets (armor, rear, structure per location with this step's damage), heat,
+  status, and each step's log. Recording changes nothing in the battle
+  (`tests/test_replay.py`). **Share battles with Daniel this way**: publish
+  the page with the Artifact tool and give him the link (he doesn't run
+  the code himself).
 - Heat (pp.102-107) and heat equipment; piloting rolls one per trigger
   (p.110); seatbelt checks (p.117); falls with the 1D6 side roll (p.115) and
   multiple levels; displacement; deployment from home edges.
@@ -137,6 +146,12 @@ Claude's to build), and the Core-vs-project questions (D1-D7 decided, D8
 open). Read it before building rules.
 
 **Pick up here (open, roughly in priority order):**
+0. **Waiting on Daniel: the movement objective can't see a lethal spot**
+   (Section 4, "Movement objective vs lethal spots", 2026-10-20). The ratio
+   dealt / received scores every spot where the mech deals nothing as 0, so a
+   spot where it deals a little and dies beats every safe one - the
+   Hammerhead walks onto the board edge to be pushed off. Options there;
+   build what Daniel picks.
 0. **Known issues Daniel asked to fix later** (Section 4, "Known issues to
    fix later"): Arrow IV / artillery scatter must stay inside the firing arc;
    machine gun array ammo per gun needs a check / test.
@@ -333,6 +348,22 @@ confirmed project rules, not stubs):
 - MegaMek says which launcher an FCS belongs to only by putting it in the
   same location; linked in slot order there (a leftover FCS goes to a
   launcher with none).
+
+**Movement objective vs lethal spots (Claude, 2026-10-20 - Daniel's call,
+Section 5 "Movement selection"):** Daniel asked why the Hammerhead stands on
+the board edge so much (37 of its 57 losses in a 100-battle batch were pushes
+or displacement off the board). Traced on seed 2167380083587462785, turn 4:
+the push IS priced (the Kontio's modeled reply pushes for 146 = the
+Hammerhead's whole remaining armor + structure), but the fast Kontio's
+modeled reply from 453 of the Hammerhead's 482 spots is a free shot from
+outside its arcs, so those spots score dealt 0 / received (0.4 to 23) = 0,
+while the 29 edge spots score 27.8 / 146 = 0.19 and win. dealt / received
+can't tell "take 0.4" from "die" once dealt is 0. Options for Daniel:
+(a) a lethal guard - a spot whose expected received reaches the mech's
+remaining HP (or a push off the board) ranks below every other spot;
+(b) a smoothed ratio (dealt + k) / (received + k), so received still counts
+when dealt is 0; (c) a difference, dealt - received. Replay of that battle:
+https://claude.ai/artifact/NJUknRiK1fcZzUv4A1fndX
 
 **Known issues to fix later (Daniel, 2026-10-20):**
 - **Scatter vs the firing arc.** Arrow IV (p.182) and artillery cannon
@@ -813,6 +844,20 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-20 (Claude):** Battle replays (Daniel: "build outputs both text
+  and visual you can share from battles you run so I can see whats going on
+  without me having to download the current version and run it myself").
+  New `INTEGRATION__replay.py` (recorder + page writer) and
+  `INTEGRATION__replay_viewer.html` (the page: hex map, record sheets, step
+  log; no libraries). `config.REPLAY_BATTLES` / `REPLAY_DIR`;
+  `config.set_log_sink` lets the recorder copy every log line, VERBOSE or
+  not; `orchestrator.run_battle` marks the steps; `BattleResult.replay` carries
+  the data back from parallel workers and `run_batch` writes the pages.
+  Seeds are stored as text (they pass JavaScript's exact-integer limit). New
+  `tests/test_replay.py` (recording changes nothing; step structure; page
+  data round-trips). Default off: no result changes, benchmark 458 / 466.
+  Also logged the movement-objective finding (Section 4, Pick up here 0).
 
 - **2026-10-20 (Claude):** Actuator Enhancement System, Core p.206 (Daniel:
   "if AES is the only thing not built in this test, lets get that fixed").
