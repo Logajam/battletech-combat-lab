@@ -56,7 +56,8 @@ import INTEGRATION__config as config
 import INTEGRATION__attack_resolution as attack_resolution
 import INTEGRATION__arcs as arcs
 import INTEGRATION__structure_weight as structure_weight
-from mech_state import DamageType, is_destroyed, is_immobile, mark_consciousness_check_pending
+from mech_state import (DamageType, is_destroyed, is_immobile, mark_consciousness_check_pending,
+                        arm_aes_working, leg_aes_working)
 from equipment import Equipment
 from damage_resolution import apply_damage
 from hit_location import resolve_hit_location
@@ -184,6 +185,24 @@ def _lost(mech, loc, part):
     return any(l == loc and info["name"] == part for (l, _), info in mech.destroyed_slot_info.items())
 
 
+# AES (Core p.206): -1 to physical attacks with an arm that has working AES
+# (a two-arm attack - club, push - only if both arms have it); -1 to kicks and
+# charges with AES in all legs. Added 2026-10-20.
+AES_PHYSICAL_MOD = -1
+
+
+def _arm_aes(mech, arm):
+    return AES_PHYSICAL_MOD if arm_aes_working(mech, arm) else 0
+
+
+def _both_arms_aes(mech):
+    return AES_PHYSICAL_MOD if all(arm_aes_working(mech, arm) for arm in ARMS) else 0
+
+
+def _leg_aes(mech):
+    return AES_PHYSICAL_MOD if leg_aes_working(mech) else 0
+
+
 def _limb_fired(mech, loc, fired_ids):
     locs = attack_resolution.weapon_locations(mech)
     return any(loc in locs.get(wid, ()) for wid in fired_ids)
@@ -240,6 +259,7 @@ def _punch_options(m, rel, fired, table):
             if (part == "Lower Arm Actuator" and not _has_part(m, arm, part)) or _lost(m, arm, part):
                 mod += 2
                 halves += 1
+        mod += _arm_aes(m, arm)
         out.append(dict(name=f"{'claw' if claw else 'punch'} ({arm})", mod=mod, damage=dmg // (2 ** halves),
                         table="punch" if table is None else table, limb=arm))
     return out
@@ -251,7 +271,7 @@ def _kick_options(m, rel, fired, table):
     legs = [l for l in m.leg_locations if not m.locations[l]["destroyed"]]
     if len(legs) < len(m.leg_locations):
         return []
-    mod, halves = KICK_MOD, 0
+    mod, halves = KICK_MOD + _leg_aes(m), 0
     for leg in m.leg_locations:                      # actuator effects from either leg apply (p.81)
         if _lost(m, leg, "Foot Actuator"):
             mod += 1
@@ -286,6 +306,7 @@ def _weapon_options(m, rel, fired, table, target_prone):
                 continue
             mod = tn_mod + sum(2 for part in ("Lower Arm Actuator", "Upper Arm Actuator")
                                if (part == "Lower Arm Actuator" and not _has_part(m, arm, part)) or _lost(m, arm, part))
+            mod += _arm_aes(m, arm)
             out.append(dict(name=f"{slot.name} ({arm})", mod=mod, damage=_strength(m, per, plus),
                             table="standard" if table is None else table, limb=arm))
     return out
@@ -365,6 +386,7 @@ def _club_options(m, rel, fired, table):
                                              if _lost(m, arm, part))
     if any(clubs._has_claw(m, arm) for arm in ARMS):
         mod += CLUB_CLAW_MOD
+    mod += _both_arms_aes(m)
     return [dict(name=f"{m.club} club", mod=mod, damage=_strength(m, 5), table=table, limb=ARMS, club=True)]
 
 
@@ -509,6 +531,7 @@ def push_option(attacker, a_xy, a_facing, a_level, target, t_label, t_level, ter
     if value <= 0:
         return None
     mod = PUSH_MOD + PUSH_SHOULDER_MOD * sum(1 for arm in ARMS if _lost(attacker, arm, "Shoulder"))
+    mod += _both_arms_aes(attacker)
     return dict(name="push", mod=mod, damage=value, table="displacement", limb=ARMS, push=True)
 
 

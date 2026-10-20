@@ -49,7 +49,7 @@ import INTEGRATION__attack_resolution as attack_resolution
 import INTEGRATION__movement_attacks as movement_attacks
 from INTEGRATION__movement_attacks import groupings, comparative_modifier, terrain_modifier
 from mech_state import (DamageType, is_destroyed, is_immobile, all_crew_unconscious,
-                        mark_consciousness_check_pending)
+                        mark_consciousness_check_pending, leg_aes_working)
 from damage_resolution import apply_damage
 from hit_location import resolve_hit_location
 import piloting_rolls
@@ -70,9 +70,15 @@ def attacker_damage(target):
     return math.ceil(target.mass / 10)
 
 
+def aes_modifier(attacker):
+    """-1 with AES in all legs (Core p.206, added 2026-10-20)."""
+    return -1 if leg_aes_working(attacker) else 0
+
+
 def to_hit(attacker, mode, target, a_xy, t_xy, terrain_map, target_tmm):
     return (attacker.piloting + combat.MODE_TO_AMM[mode] + target_tmm
-            + terrain_modifier(a_xy, t_xy, terrain_map) + comparative_modifier(attacker, target))
+            + terrain_modifier(a_xy, t_xy, terrain_map) + comparative_modifier(attacker, target)
+            + aes_modifier(attacker))
 
 
 def can_charge(mover, target, target_has_moved):
@@ -106,7 +112,8 @@ def declare(attacker, target, terrain_map):
     hit = roll >= tn
     config.log(f"  [Physical] {a_name} -> {t_name}: CHARGE needs {tn} (piloting {attacker.piloting} + AMM "
                f"{combat.MODE_TO_AMM[attacker.move_mode]} + TMM {attack_resolution._target_tmm(target)} + terrain "
-               f"{terrain_modifier(a_hex, t_hex, terrain_map)} + comparative {comparative_modifier(attacker, target):+d}), "
+               f"{terrain_modifier(a_hex, t_hex, terrain_map)} + comparative {comparative_modifier(attacker, target):+d}"
+               f"{f' + AES {aes_modifier(attacker)}' if aes_modifier(attacker) else ''}), "
                f"rolled {roll} -> {'HIT' if hit else 'miss'}")
     return tn, hit
 

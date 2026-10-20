@@ -32,8 +32,6 @@ KNOWN_MISSING_RULES = [
     "shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/"
     "supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)",
     "Torso-mounted cockpit PSR rules",
-    "Actuator Enhancement System (AES, p.206) is ignored: leg AES's -2 PSR and -1 kick / charge, arm AES's "
-    "-1 to that arm's weapons and physical attacks (Daniel's earlier 'skip special equipment for now')",
     "Physical attacks: all seven types are built; not priced in movement scoring: the PSRs a hit forces (only "
     "Movement-phase PSRs count), picking up a club as part of the plan; domino effects (no third mech)",
     "Tripod leg sub-roll uses Python's random module (seeded from SEED, not the BattleRNG stream)",

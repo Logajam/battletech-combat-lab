@@ -454,7 +454,6 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 6.
 !!   - Heat sources/sinks with no terrain model yet: water, snow, fire, extreme temperatures; inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules
-!!   - Actuator Enhancement System (AES, p.206) is ignored: leg AES's -2 PSR and -1 kick / charge, arm AES's -1 to that arm's weapons and physical attacks (Daniel's earlier 'skip special equipment for now')
 !!   - Physical attacks: all seven types are built; not priced in movement scoring: the PSRs a hit forces (only Movement-phase PSRs count), picking up a club as part of the plan; domino effects (no third mech)
 !!   - Tripod leg sub-roll uses Python's random module (seeded from SEED, not the BattleRNG stream)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -482,7 +481,6 @@ BATCH SUMMARY - 1 battle(s): Red = Asymptote II iJ Mpulse, Blue = TEST Synthetic
 !!   - Heat sources/sinks with no terrain model yet: water, snow, fire, extreme temperatures; inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules
-!!   - Actuator Enhancement System (AES, p.206) is ignored: leg AES's -2 PSR and -1 kick / charge, arm AES's -1 to that arm's weapons and physical attacks (Daniel's earlier 'skip special equipment for now')
 !!   - Physical attacks: all seven types are built; not priced in movement scoring: the PSRs a hit forces (only Movement-phase PSRs count), picking up a club as part of the plan; domino effects (no third mech)
 !!   - Tripod leg sub-roll uses Python's random module (seeded from SEED, not the BattleRNG stream)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -337,6 +337,91 @@ def aimed_shots():
     assert t.locations["Center Torso"]["armor"] < before       # (Hardened armor halves it)
 
 
+# =============================================================================
+# Actuator Enhancement System (Core p.206), added 2026-10-20: the Hammerhead
+# (data/) has AES in both legs; the Vindicator VND-3LD (Dao) (data/meks.zip)
+# in both arms, with an ER PPC in its right arm.
+# =============================================================================
+def _vindicator():
+    import io
+    import tempfile
+    import zipfile
+    from contextlib import redirect_stdout
+    with zipfile.ZipFile(os.path.join(REPO_ROOT, "data", "meks.zip")) as z:
+        path = z.extract("meks/XTRs/Liao/Vindicator VND-3LD (Dao).mtf", tempfile.mkdtemp())
+    with redirect_stdout(io.StringIO()):
+        return parse_mtf(path)
+
+
+HAMMERHEAD = parse_mtf(config.data_path("Hammerhead.mtf"))
+KONTIO = parse_mtf(config.data_path("Kontio.mtf"))
+VINDICATOR = _vindicator()
+
+
+def _hit_slot(m, loc, name):
+    """A critical hit on the first `name` slot in `loc`, the real way."""
+    from damage_resolution import resolve_slot_hit
+    i = next(i for i, s in enumerate(m.crits[loc]) if getattr(s, "name", s) == name)
+    resolve_slot_hit(m, loc, i, m.crits[loc][i], 1, 1)
+
+
+class _Reach:
+    """A Reach with every limb able to attack."""
+    kick_ok = True
+    tripod = flipped = False
+
+    def arm_ok(self, arm):
+        return True
+
+
+@check
+def aes_legs_psr_kick_and_charge():
+    import piloting_rolls
+    import INTEGRATION__physical as physical
+    import INTEGRATION__charge as charge
+    from mech_state import leg_aes_working
+    m, plain = clone_mech(HAMMERHEAD), clone_mech(KONTIO)
+    assert leg_aes_working(m) and not leg_aes_working(plain)
+    # p.206 -2 to every PSR, with the Hammerhead's hardened armor +1 (p.202).
+    assert piloting_rolls.special_case_modifier(m) == -1
+    kick = physical._kick_options(m, _Reach(), set(), None)[0]["mod"]
+    assert kick == physical.KICK_MOD - 1
+    assert physical._kick_options(plain, _Reach(), set(), None)[0]["mod"] == physical.KICK_MOD
+    assert charge.aes_modifier(m) == -1 and charge.aes_modifier(plain) == 0
+    # A crit on ANY leg AES slot loses all the leg modifiers.
+    _hit_slot(m, "Right Leg", "ISAES")
+    assert not leg_aes_working(m)
+    assert piloting_rolls.special_case_modifier(m) == 1
+    assert physical._kick_options(m, _Reach(), set(), None)[0]["mod"] == physical.KICK_MOD
+    assert charge.aes_modifier(m) == 0
+
+
+@check
+def aes_arms_ranged_and_physical():
+    import INTEGRATION__physical as physical
+    m = clone_mech(VINDICATOR)
+    ppc = next(w for w in attack_resolution.get_weapons(m) if "PPC" in w.name)
+    locs = attack_resolution.weapon_locations(m)[id(ppc)]
+    assert set(locs) == {"Right Arm"}
+    assert attack_resolution.arm_aes_modifier(m, locs) == -1
+    # Split between an arm and a torso: no bonus (p.206).
+    assert attack_resolution.arm_aes_modifier(m, {"Right Arm", "Right Torso"}) == 0
+    target = clone_mech(KONTIO)
+    orchestrator._attach_mech_config(target, {"hex": "0505", "facing": "N", "gunnery": 4, "piloting": 5,
+                                              "min_heat": 0, "max_heat": 30}, "Target")
+    before = attack_resolution.tn_adjuster(m, target)(ppc, "short")
+    punches = {o["limb"]: o["mod"] for o in physical._punch_options(m, _Reach(), set(), None)}
+    assert physical._both_arms_aes(m) == -1                 # push / club: both arms have AES
+    # The right arm's AES is hit: its bonuses go, the left arm keeps its own.
+    _hit_slot(m, "Right Arm", "ISAES")
+    assert attack_resolution.arm_aes_modifier(m, locs) == 0
+    assert attack_resolution.tn_adjuster(m, target)(ppc, "short") == before + 1
+    after = {o["limb"]: o["mod"] for o in physical._punch_options(m, _Reach(), set(), None)}
+    assert after["Right Arm"] == punches["Right Arm"] + 1
+    assert after["Left Arm"] == punches["Left Arm"]
+    assert physical._both_arms_aes(m) == 0
+
+
 def run_all():
     failed = 0
     for fn in CHECKS:
