@@ -129,6 +129,7 @@ import INTEGRATION__ranged_combat as ranged_combat  # noqa: E402
 import INTEGRATION__structure_weight as structure_weight  # noqa: E402
 import INTEGRATION__los_cache as geo_cache  # noqa: E402
 import INTEGRATION__equipment_systems as equipment_systems  # noqa: E402
+import INTEGRATION__charge as charge  # noqa: E402
 
 SIDES = ("front", "left", "right", "rear")
 _P_2D6 = {roll: (6 - abs(roll - 7)) / 36 for roll in range(2, 13)}
@@ -405,7 +406,57 @@ def choose(mover, other, terrain_map, battle_rng, moves_first, standup_mp=None, 
     mover / other: BattleMech instances (see orchestrator._attach_mech_config).
     `other` hasn't moved yet this turn if `moves_first`, else it has (its real
     position). Returns (pick, note): pick is {hex, facing, mode, fc, mp_spent}
-    or None (nothing reachable); note is a one-line log string."""
+    (plus "charge": True for a charge, INTEGRATION__charge) or None (nothing
+    reachable); note is a one-line log string."""
+    pick, note, score, ctx = _choose_normal(mover, other, terrain_map, battle_rng, moves_first,
+                                            standup_mp=standup_mp, entry_edge=entry_edge)
+    if ctx is not None and config.CHARGES and entry_edge is None \
+            and charge.can_charge(mover, other, target_has_moved=not moves_first):
+        charged = _charge_pick(mover, other, terrain_map, standup_mp, score, *ctx)
+        if charged is not None:
+            return charged
+    return pick, note
+
+
+def _charge_pick(mover, other, terrain_map, standup_mp, normal_score, ev1, me, them, static):
+    """INTEGRATION__charge's decision: gate each charge on beating the best
+    ordinary attack (ranged + physical) in the same movement mode, then score
+    the survivors like any spot and keep the best if it beats the normal pick."""
+    best_by_mode: Dict[str, float] = {}
+    for c in static:
+        value = c.dealt * them.exposure[c.side_on_defender]
+        best_by_mode[c.mode] = max(best_by_mode.get(c.mode, 0.0), value)
+    best = None
+    for state in charge.charge_states(mover, other, terrain_map, standup_mp=standup_mp):
+        dealt, p_hit, dmg, tn = charge.expected_dealt(mover, other, state, terrain_map)
+        if dealt <= best_by_mode.get(state["mode"], 0.0):
+            continue                      # the gate: no better than an ordinary attack in this mode
+        x, y = hex_geometry.parse_hex_label(state["hex"])
+        prepared = ev1.prepare([(x, y, hex_geometry.compass_to_facing(state["facing"]), state["fc"],
+                                 state["mode"], state["mp_spent"])])
+        cands = ev1.evaluate(other.hex, other.facing, other.move_fc, other.move_mode, other.mp_spent, prepared)
+        received = (cands[0].received * me.exposure[cands[0].side_on_mover]) if cands else 0.0
+        received += charge.self_damage_worth(mover, other, p_hit)
+        extras = me.psr_cost(state["mode"], state["fc"])
+        score = _objective(dealt, received, 1.0, 1.0, extras)
+        if best is None or score > best[0]:
+            best = (score, state, dealt, received, extras, p_hit, dmg, tn)
+    if best is None or (normal_score is not None and best[0] <= normal_score):
+        return None
+    score, state, dealt, received, extras, p_hit, dmg, tn = best
+    return state, (f"CHARGE {other.side_name}: score {score:.3f} = dealt {dealt:.2f} (TN {tn}, P {p_hit:.2f}, "
+                   f"{dmg} dmg) / (received {received:.2f} incl. self-damage + PSR {extras:.2f}) beats "
+                   f"{'nothing' if normal_score is None else f'{normal_score:.3f}'}")
+
+
+def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_mp=None, entry_edge=None):
+    """Pick the mover's end-of-movement state (no charges).
+
+    mover / other: BattleMech instances (see orchestrator._attach_mech_config).
+    `other` hasn't moved yet this turn if `moves_first`, else it has (its real
+    position). Returns (pick, note, score, ctx): score is the pick's objective
+    (None for a fallback pick), ctx = (ev1, me, them, static) for the charge
+    decision (None when there is no enemy on the board)."""
     me = _Side(mover, psr_applies=standup_mp is None)   # a stand-up already rolled its PSR (orchestrator)
     options = reduced_options(mover, terrain_map, exclude_hex=other.hex, standup_mp=standup_mp,
                               entry_edge=entry_edge)
@@ -416,11 +467,11 @@ def choose(mover, other, terrain_map, battle_rng, moves_first, standup_mp=None, 
         enemy_xy = hex_geometry.parse_hex_label(enemy_label)
         prepared = ranged_combat.prepare_options(mover, options)
         if not prepared:
-            return None, "no reachable spot"
+            return None, "no reachable spot", None, None
         fb = closing_fallback(mover, other, prepared, enemy_xy, lambda o: 0.0, terrain_map)
         pick = fb if fb is not None else _nearest_to(prepared, enemy_xy, battle_rng)
         return _pick_dict(pick), (f"no enemy on the board yet - heads for its home edge near {enemy_label}"
-                                  f"{' (closing fallback)' if fb is not None else ''}")
+                                  f"{' (closing fallback)' if fb is not None else ''}"), None, None
 
     them = _Side(other, psr_applies=True)
     enemy_xy = hex_geometry.parse_hex_label(other.hex)
@@ -431,23 +482,26 @@ def choose(mover, other, terrain_map, battle_rng, moves_first, standup_mp=None, 
     ev1 = ranged_combat.MoveEvaluator(mover, other, terrain_map)
     prepared1 = ev1.prepare(options)
     if not prepared1:
-        return None, "no reachable spot"
+        return None, "no reachable spot", None, None
     prepared_by_key = {(o.label, o.facing_compass, o.mode, o.fc): o for o in prepared1}
     static = ev1.evaluate(other.hex, other.facing, other.move_fc, other.move_mode, other.mp_spent, prepared1)
     static_dealt = {(c.hex, c.facing, c.mode, c.fc): c.dealt for c in static}
     dealt_for = lambda o: static_dealt.get((o.label, o.facing_compass, o.mode, o.fc), 0.0)  # noqa: E731
 
     two_ply = moves_first and config.MOVEMENT_TWO_PLY
+    ctx = (ev1, me, them, static)
 
     if not two_ply:
         scored = _static_scores(static, prepared_by_key, me, them)
         if scored and any(c.dealt > 0 for _, _, c in scored):
             o, cand = _best_by_score(scored, enemy_xy, battle_rng)
+            score = _objective(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
+                               me.exposure[cand.side_on_mover], me.psr_cost(cand.mode, cand.fc))
             return _pick_dict(o), _note(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
                                         me.exposure[cand.side_on_mover], me.psr_cost(cand.mode, cand.fc),
-                                        f"enemy held at {other.hex}; {len(scored)} spots with LOS")
-        return _fallback_pick(mover, other, prepared1, enemy_xy, dealt_for, terrain_map, battle_rng,
-                              "no spot deals damage")
+                                        f"enemy held at {other.hex}; {len(scored)} spots with LOS"), score, ctx
+        return (*_fallback_pick(mover, other, prepared1, enemy_xy, dealt_for, terrain_map, battle_rng,
+                                "no spot deals damage"), None, ctx)
 
     # --- two-ply: score every spot by the second mover's modeled reply ---
     ev2 = ranged_combat.MoveEvaluator(other, mover, terrain_map)
@@ -472,10 +526,11 @@ def choose(mover, other, terrain_map, battle_rng, moves_first, standup_mp=None, 
         o, (dealt, received, dm, rm, extras, reply) = _best_by_score(scored, enemy_xy, battle_rng)
         reply_txt = (f"; modeled reply {other.side_name} -> {reply.hex} {reply.facing} {reply.mode}"
                      if reply is not None else "; modeled reply: none with LOS")
-        return _pick_dict(o), _note(dealt, received, dm, rm, extras,
-                                    f"two-ply, {len(prepared1)} spots x {len(prepared2)} replies{reply_txt}")
-    return _fallback_pick(mover, other, prepared1, enemy_xy, dealt_for, terrain_map, battle_rng,
-                          f"no spot deals damage even before the reply (two-ply, {len(prepared1)} spots)")
+        return (_pick_dict(o), _note(dealt, received, dm, rm, extras,
+                                     f"two-ply, {len(prepared1)} spots x {len(prepared2)} replies{reply_txt}"),
+                _objective(dealt, received, dm, rm, extras), ctx)
+    return (*_fallback_pick(mover, other, prepared1, enemy_xy, dealt_for, terrain_map, battle_rng,
+                            f"no spot deals damage even before the reply (two-ply, {len(prepared1)} spots)"), None, ctx)
 
 
 def _fallback_pick(mover, other, prepared, enemy_xy, dealt_for, terrain_map, battle_rng, why):

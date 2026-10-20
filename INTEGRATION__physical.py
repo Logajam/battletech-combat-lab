@@ -4,7 +4,8 @@ INTEGRATION__physical.py  (NEW 2026-10-19, Claude - Pile 2 rules, Pile 4 choice)
 The Physical Attack Phase (Core Rulebook pp.76-83), replacing the
 physical_combat stub: punches, kicks and physical weapons (claws, hatchet,
 lance, mace, retractable blade, sword, vibroblades - treated as switched
-off, talons on kicks). Charges, death-from-above, pushes and clubs are not
+off, talons on kicks). Charges are INTEGRATION__charge (declared in the
+Movement Phase, resolved here). Death-from-above, pushes and clubs are not
 built (see results.KNOWN_MISSING_RULES).
 
   - Who (p.76-77): an adjacent target; a standing, powered, conscious
@@ -491,14 +492,22 @@ def _location(table, side, target):
 
 
 def run_physical_phase(mech_a, mech_b, terrain_map, reports):
-    """Both mechs declare and roll, then the damage lands, then PSRs and
-    consciousness checks (p.83)."""
+    """Both mechs declare and roll, then the damage lands, then charges'
+    damage and displacement, then PSRs and consciousness checks (p.83)."""
+    import INTEGRATION__charge as charge       # charge imports this module
     for m in (mech_a, mech_b):
         rep = reports.get(m.side_name)
         m.weapons_fired_this_turn = frozenset(id(x.weapon) for x in rep.attacks_list) if rep else frozenset()
         piloting_rolls.snapshot_pre_attack_phase(m)
     declared = []
+    charges = []
     for attacker, target in ((mech_a, mech_b), (mech_b, mech_a)):
+        if getattr(attacker, "charging", None) is not None:
+            outcome = charge.declare(attacker, target, terrain_map)
+            if outcome is not None:                      # going ahead, or a miss: no other physical attack
+                if outcome != "miss" and outcome[1]:
+                    charges.append((attacker, target))
+                continue
         choice = choose_attack(attacker, target, terrain_map)
         if choice is None:
             continue
@@ -531,6 +540,9 @@ def run_physical_phase(mech_a, mech_b, terrain_map, reports):
                 triggers[target.side_name].append(("kicked", 0))
         elif o.get("kick"):
             triggers[attacker.side_name].append(("missed a kick", 0))
+    for attacker, target in charges:                     # damage, then displacement (p.78, p.113)
+        for name, extra in charge.resolve_hit(attacker, target, terrain_map).items():
+            triggers[name].extend(extra)
     for m in (mech_a, mech_b):
         attack_resolution._with_piloting(m, piloting_rolls.resolve_attack_phase_psr,
                                          forced_triggers=tuple(triggers[m.side_name]))

@@ -30,7 +30,9 @@ KNOWN_MISSING_RULES = [
     "supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)",
     "Stealth armor / Void-Signature 'as if in hostile ECM' side effects; torso-mounted cockpit "
     "PSR rules",
-    "Physical attacks: charges, death-from-above, pushes and clubs (punches, kicks and physical weapons are built)",
+    "Physical attacks: death-from-above, pushes and clubs (punches, kicks, physical weapons and charges are built; "
+    "a charge's +2 PSRs and displacement aren't priced in movement scoring, and the first mover doesn't model "
+    "being charged)",
     "Tripod leg sub-roll uses Python's random module (seeded from SEED, not the BattleRNG stream)",
 ]
 

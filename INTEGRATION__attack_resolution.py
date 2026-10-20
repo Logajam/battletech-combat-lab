@@ -358,6 +358,9 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     if attacker.shutdown:
         config.log(f"  [Ranged] {a_name}: shut down - no attacks.")
         return
+    if getattr(attacker, "charging", None) is not None:
+        config.log(f"  [Ranged] {a_name}: charging {t_name} - no ranged attacks this turn (p.78).")
+        return
     a_hex = hex_geometry.parse_hex_label(attacker.hex)
     t_hex = hex_geometry.parse_hex_label(target.hex)
     if a_hex == t_hex:

@@ -84,6 +84,12 @@ any-hexside twist and torso-only physical arcs change every default battle.
 **Physical attacks are in movement scoring (2026-10-19):** spots next to the
 enemy count punches / kicks both ways, and the Ranged phase picks its twist and
 fire together with the physical attack that follows (Section 4a "Who picks").
+Since 2026-10-20 each physical attack is weighted by its own hit table (punch /
+kick table exposure + structure bonus, `physical.Worth`), and **charges** are in
+(`INTEGRATION__charge.py`, `tests/test_charge.py`): gated per movement mode on
+beating the best ordinary attack, then scored like any spot (Section 5
+"Charges"). Speed: ~1.2 s a turn on the default battle (was ~3.2; Change Record).
+Test units: `data/meks.zip` (4,227 MegaMek units, 4,162 parse).
 
 **Other open follow-ups:** terrain that forces a PSR on entry and mine fields
 should add expected damage to a spot's cost; structure weighting for aimed
@@ -139,7 +145,7 @@ does both, with stubs where rules are missing.**
 | Initiative | `orchestrator.roll_initiative()` | **REAL**, Daniel-confirmed 2026-08-31. |
 | Movement | `orchestrator._phase_movement()` | **REAL:** damage- and heat-aware MP (TSM, MASC/supercharger), immobile (shut down / unconscious) skip, full Walk/Run/Jump envelope with expected dealt/received per spot (`INTEGRATION__ranged_combat.evaluate_going_second`), unconscious-skip, stand-up (`resolve_stand_up`) then move on with the remaining MP (p.51), movement PSR for Run 1+ hex / Jump (`check_movement_psr`; none for Walk, p.111), consciousness checks. The pick: `INTEGRATION__movement_selection.choose`. |
 | Ranged Combat | `INTEGRATION__attack_resolution.py` | **REAL:** LOS, rear arc (only rear-mounted weapons fire into it), TN = gunnery + AMM + TMM(actual hexes moved; -4 if immobile) + LOS + range + heat + weapon / targeting computer / arm-crit / sensor / prone modifiers, shut-down mechs don't fire, heat- and ammo-constrained weapon selection, real to-hit rolls, attack direction from geometry, cluster table with Core groupings (Streak, MRM), hit location, damage, crits, explosions, floating TAC, head hits, aimed shots, ammo use, Attack Phase PSR, consciousness. Both sides declare before damage lands (simultaneous). **STUBS:** `unknown_damage_type`, `unconfirmed_weapon_data`, `ammo_data`. |
-| Physical Combat | `INTEGRATION__physical.run_physical_phase()` | **REAL (Core pp.76-83):** punches, kicks, physical weapons; bot picks the most expected damage. Charges, DFA, pushes, clubs not built. |
+| Physical Combat | `INTEGRATION__physical.run_physical_phase()` | **REAL (Core pp.76-83):** punches, kicks, physical weapons, charges (`INTEGRATION__charge`, declared in Movement); bot picks the most expected damage, weighted by hit table. DFA, pushes, clubs not built. |
 | Heat | `orchestrator._phase_heat()` → `INTEGRATION__heat.resolve_heat_phase()` | **REAL (2026-10-19, Core Rulebook pp.102-107):** heat carries over; += movement heat (Walk 1 / Run 2 / Jump, Improved JJ, XXL, super-cooled myomer) + weapon heat + engine-hit heat (5/10) + stealth heat − dissipation (+3 Partial Wing, radical heat sinks, coolant pods); then shutdown roll or restart, ammo and inferno explosion rolls (re-rolled after inferno heat), life-support pilot hits, and next turn's MP / to-hit / TSM effects. End Phase: heat sinks switched off to hold min_heat. **STUB:** `heat_explosion_bin` (bin tie-break needs shot counts). |
 | End | `orchestrator._phase_end()` | **REAL:** wake-up rolls, crippled tracking, destruction check. |
 
@@ -201,7 +207,7 @@ Artemis/HAG/ammo variants; heat sources with no terrain model yet (water,
 snow, fire, extreme temperatures) and inferno missiles (bins aren't fired
 from); heat decisions (cooldown, voluntary shutdown); stealth armor /
 Void-Signature hostile-ECM side effects; torso-mounted cockpit PSR/sensor
-rules; charges, DFA, pushes, clubs; jumping onto the board at deployment;
+rules; DFA, pushes, clubs; jumping onto the board at deployment;
 tripod leg sub-roll uses Python `random` (seeded from SEED, not the
 BattleRNG stream).
 
@@ -260,8 +266,9 @@ a live import test). Removed. Both directories now go on `sys.path` once.
 No PATHFINDER module used by the battle loop imports `config`.
 
 **Deferred by explicit scope call, not gaps:**
-- Physical attacks beyond punches/kicks/physical weapons: charges, DFA,
-  pushes, clubs (built 2026-10-19: `INTEGRATION__physical.py`).
+- Physical attacks beyond punches/kicks/physical weapons/charges: DFA,
+  pushes, clubs (built 2026-10-19: `INTEGRATION__physical.py`; charges
+  2026-10-20: `INTEGRATION__charge.py`).
 - End Phase beyond unconscious-pilot recovery (heat restarts happen in the
   Heat Phase, p.105; voluntary End Phase shutdown is a bot decision, not built).
 
@@ -460,6 +467,24 @@ forward arc, kicks included, never into a side arc.
   that: the opponent's modeled reply uses the same rule (greedy, not
   searched); the PSR cost is P(fail) x ceil(mass/10) for Run (1+ hex) / Jump
   when a trigger exists; exposure factors clamp to [0.5, 3.0].
+- **Charges (Daniel, 2026-10-20):** "gate that decision tree to ask if a
+  charge at this movement mode does more damage than normal attacks and
+  physicals before thinking about it." Implemented: per movement mode, a charge
+  is only scored if its expected worth beats the best ordinary (ranged +
+  physical) dealt any spot in that mode offers; survivors are scored by the
+  usual objective with the charger's return fire, the target's physical attacks
+  and its own expected self-damage as received, and taken only if they beat
+  the normal pick. Claude's calls: the attacker's self-damage lands on its
+  front; the bot always aborts a TN 13+ charge; the charge PSRs (+2 both) and
+  displacement aren't in the score. Note: the ratio objective punishes a
+  charge's guaranteed self-damage, so a charge wins mostly when every ordinary
+  spot takes return fire too (weak-gunned heavy chargers vs big targets).
+- **Physical attacks weighted by hit table (Daniel, 2026-10-20):** punches and
+  kicks "use different hit tables so would have different scoring modifiers".
+  `physical.Worth`: the table's own armor exposure and structure bonus, in
+  movement scoring and the Physical-phase choice; the Ranged-phase fire-or-punch
+  choice stays raw like its gun side. Not moved into the weapon list: profiling
+  showed no speed gain (Daniel's condition was "if it would speed up").
 - **Firing arcs and torso twists (Daniel's p.60 diagram, 2026-10-19):** see
   `INTEGRATION__arcs.py`'s docstring - 120-degree forward and rear arcs,
   60-degree sides, boundary hexes to the non-rear arc; this supersedes the
@@ -525,6 +550,36 @@ forward arc, kicks included, never into a side arc.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-20 (Claude):** Charge attacks (Core p.78; displacement pp.113-114;
+  falls p.115). New `INTEGRATION__charge.py`: who can be charged (standing,
+  finished moving or immobile - the second mover's option), the charge states
+  (adjacent, facing, MP left to enter; TMM counts the target's hex), the gate
+  and score in `movement_selection._charge_pick`, no ranged fire for the
+  charger, resolution in the Physical phase (comparative Piloting, partial
+  cover ignored, ceil(tons/5 x (TMM+1)) / ceil(target tons/10) in 5-point
+  groups, displacement - off board destroyed, 3+ up prohibited, 2+ down an
+  automatic fall - then +2 PSRs; cancelled if the target fell / was destroyed
+  or TN 13+, a miss if the charger fell). `piloting_rolls.resolve_fall` takes
+  `levels` (x(levels+1) damage). `config.CHARGES` switches it off. New
+  `tests/test_charge.py` (10 checks; a Charger CGR-1A1 vs Atlas AS7-D battle
+  charges). Not modeled: charge PSRs / displacement in the score, the first
+  mover anticipating a charge, domino effects, buildings, water, lance /
+  spikes / shields.
+- **2026-10-20 (Claude):** Physical attacks weighted by their hit table
+  (`physical.Worth`, `structure_weight.hit_spread(rolls=)`, `vulnerability`,
+  `spread_worth`): a kick at stripped legs or a punch at a thin upper body /
+  head counts for more, in movement scoring and the Physical phase.
+- **2026-10-20 (Claude):** Speed: 31.7 s -> 11.8 s for the default battle's
+  first 10 turns (seed 12345), identical results - the heat-limited scorer
+  passes its weapon list / damage table to select_weapons_to_fire, the
+  evaluator memoizes the best-twist ranged value, physical scoring collapses
+  identical arc actions and stops at the first plan that can't win.
+  Physical attacks were NOT folded into the weapon list: profiling showed the
+  physical layer at ~20% before / ~4% after these changes, and a combined
+  list would need a second to-hit axis (Piloting) in the weapon tables.
+- **2026-10-20 (Claude):** `data/meks.zip`: 4,227 MegaMek `.mtf` units (Daniel's
+  upload); 4,162 parse (ultralights < 20 t, superheavies, LAMs don't).
 
 - **2026-10-19 (Claude):** Physical attacks in the movement picker and the
   Ranged-phase twist (Daniel: "add physical attacks to the location picker,
