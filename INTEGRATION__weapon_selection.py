@@ -68,6 +68,7 @@ for _d in (MECHSIM_DIR, PATHFINDER_DIR):
 
 import INTEGRATION__config  # noqa: E402,F401 - ensures bare "config" is registered before MECHSIM imports
 import INTEGRATION__expected_damage as expected_damage  # noqa: E402
+import INTEGRATION__weapon_rules as weapon_rules  # noqa: E402
 from damage_resolution import get_weapons  # noqa: E402 - MECHSIM
 from combat import hit_probability  # noqa: E402 - PATHFINDER; reuse the confirmed P(2d6>=tn) table, don't reimplement it
 
@@ -176,6 +177,10 @@ def build_expected_damage_table(mech):
         # stubs.stub_unconfirmed_weapon_data().)
         if w.damage_per_shot is None:
             continue
+        # An AMS is never an attack (Core p.206) - it only engages incoming
+        # missiles (INTEGRATION__ams), so it's never selectable here.
+        if weapon_rules.is_ams(w):
+            continue
         ed_per_hit = expected_damage.expected_damage_per_hit(w)
         for distance in range(0, max_distance + 1):
             range_mod = _weapon_range_mod(w, distance)
@@ -265,8 +270,10 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
     value_scale (2026-10-19, movement scoring only): optional {id(weapon):
     multiplier} applied to each weapon's expected damage before the choice -
     INTEGRATION__structure_weight's "structure damage is worth more". The
-    returned total is then WORTH, not raw expected damage. None (the attack
-    phase, always) leaves every number unchanged.
+    returned total is then WORTH, not raw expected damage. None leaves every
+    number unchanged. The attack phase passes the target's AMS factors
+    (INTEGRATION__ams.damage_factors, 2026-10-20) - None when it has no AMS
+    covering the attacker.
 
     Returns (selected_weapons: list[Equipment], total_expected_damage: float,
     total_heat: int).

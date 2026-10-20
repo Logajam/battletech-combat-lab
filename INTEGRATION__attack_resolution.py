@@ -77,6 +77,13 @@ aimed shot, legs can't be aimed at behind it, and a missed aim that rolls
 a leg rerolls. A hit then rolls 1D6: 4+ strikes the aimed location,
 otherwise the normal hit-location roll.
 
+ANTI-MISSILE SYSTEMS (2026-10-20, Core p.206, rules in INTEGRATION__ams): once
+both sides have declared, each defender's AMS engage the missile hits against
+it (attack.ams); an engaged hit rolls its Cluster Hits roll at -4 (below 2: no
+damage), a Streak counts as a 7, a single missile dies on 1D6 4+. The AMS heat
+lands on the defender's weapon heat. Weapon choice prices the target's AMS in
+(ams.damage_factors as value_scale).
+
 For weapon SELECTION the pre-range TN is clamped into
 weapon_selection's table bounds (0-16); the actual to-hit ROLL uses the
 real, unclamped TN.
@@ -94,6 +101,7 @@ import INTEGRATION__weapon_rules as weapon_rules
 import INTEGRATION__arcs as arcs
 import INTEGRATION__clubs as clubs
 import INTEGRATION__ammo as ammo
+import INTEGRATION__ams as ams
 from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capability, \
     mark_consciousness_check_pending, compute_heat_dissipation
 import armor_rules
@@ -127,6 +135,7 @@ class DeclaredAttack:
     side: str = "front"              # hit table: attack direction (attack_side)
     aimed_at: Optional[str] = None   # aimed-shot location (immobile target)
     cover: bool = False              # target in partial cover: leg hits strike the cover (p.66)
+    ams: object = None               # the target's AMS engaging this hit (p.206, INTEGRATION__ams)
 
 
 @dataclass
@@ -258,6 +267,8 @@ def prone_target_modifier(target, distance):
 
 
 def _weapon_value(weapon):
+    if weapon_rules.is_ams(weapon):
+        return 0                     # never fires as a weapon (p.206)
     return (weapon.damage_per_shot or 0) * (weapon.rack_size or 1)
 
 
@@ -408,6 +419,11 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
         aim = aimed_shot_location(target, partial_cover=cover > 0)
     adjust = tn_adjuster(attacker, target, aim, cover)
     side = attack_side(a_hex, t_hex, hex_geometry.compass_to_facing(target.facing), terrain_map)
+    # The target's AMS (p.206) will cut its share of the missile damage - priced into the choice.
+    ams_factors = None
+    if ams.can_engage(target):
+        ams_factors = ams.damage_factors([w for w in get_weapons(attacker) if id(w) not in unavailable],
+                                         ams.engagement_capacity(target, ams.covering(target, a_hex)))
 
     sel_pre_tn = max(weapon_selection.PRE_TN_MIN, min(weapon_selection.PRE_TN_MAX, pre_tn))
     dissipation = compute_heat_dissipation(attacker)
@@ -431,7 +447,8 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
                 picked = picked_cache[(key, held)] = weapon_selection.select_weapons_to_fire(
                     attacker, distance, sel_pre_tn, attacker.min_heat, attacker.max_heat,
                     dissipation=dissipation, movement_heat=attacker.movement_heat, other_heat=other,
-                    tn_adjust=adjust, unavailable=unavailable | arc_unavailable(attacker, key) | held)
+                    tn_adjust=adjust, unavailable=unavailable | arc_unavailable(attacker, key) | held,
+                    value_scale=ams_factors)
             total = picked[1] + phys_value
             if best is None or total > best[0] + 1e-12:
                 best = (total, picked, key, action, phys_picks, phys_value, held)
@@ -442,7 +459,8 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     if arcs.describe(chosen) and weapons:
         config.log(f"  [Ranged] {a_name} {arcs.describe(chosen)} "
                    f"({t_name} is in its torso's {arcs.ARC_NAMES[chosen_key.torso_arc]} arc after that).")
-    held_names = sorted({w.name for w in get_weapons(attacker) if id(w) in held - unavailable})
+    held_names = sorted({w.name for w in get_weapons(attacker)
+                         if id(w) in held - unavailable and not weapon_rules.is_ams(w)})
     if phys_picks and held_names:
         config.log(f"  [Ranged] {a_name} holds {held_names} back for the Physical phase "
                    f"(plans {', '.join(o['name'] for o in phys_picks)}, expected {phys_value:.2f}).")
@@ -456,7 +474,8 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
                f"firing {[w.name for w in weapons] or 'nothing'}{f' (aimed at {aim})' if aim else ''} "
                f"(weapon heat {weapon_heat}{f' +{surcharge} damaged radical' if surcharge else ''} of budget "
                f"{budget} = max {attacker.max_heat} + sink {dissipation} - current {attacker.current_heat} "
-               f"- movement {attacker.movement_heat} - other {other}; expected dmg {exp_dmg:.2f})")
+               f"- movement {attacker.movement_heat} - other {other}; expected dmg {exp_dmg:.2f}"
+               f"{' after the target AMS' if ams_factors and any(id(w) in ams_factors for w in weapons) else ''})")
 
     report.weapon_heat += weapon_heat + surcharge
     for w in weapons:
@@ -579,6 +598,12 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng):
         return
     side = attack.side
     dtype = _damage_type_for(w)
+    if attack.ams is not None and not is_cluster_weapon(w):
+        die = config.pick_number(6, prompt="AMS 1D6 (single missile)")
+        if die >= ams.SINGLE_MISSILE_KILL:
+            config.log(f"    {w.name} hit - {attack.ams.name} rolls 1D6 {die}: missile destroyed, no damage (p.206).")
+            return
+        config.log(f"    {w.name} hit - {attack.ams.name} rolls 1D6 {die}: the missile gets through.")
     if attack.aimed_at:
         _resolve_aimed_hit(target, w, dtype, side, attack)
         return
@@ -586,9 +611,24 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng):
         config.log(f"    {w.name} hit for {w.damage_per_shot}:")
         _resolve_hit(target, w.damage_per_shot, dtype, side, cover=attack.cover)
         return
-    if weapon_rules.is_streak(w):
+    if weapon_rules.is_streak(w) and attack.ams is not None:
+        hits = cluster_hits_count(w.rack_size, ams.STREAK_RESULT)    # AMS: the Streak counts as a 7 (p.206)
+        config.log(f"    {w.name} hit: Streak engaged by {attack.ams.name} - result 7 on the "
+                   f"{w.rack_size}-column table -> {hits} connect ({hits * w.damage_per_shot} dmg).")
+    elif weapon_rules.is_streak(w):
         hits = w.rack_size                    # Streak: Cluster result is automatically 12 (p.187)
         config.log(f"    {w.name} hit: Streak - all {hits} missiles hit ({hits * w.damage_per_shot} dmg).")
+    elif attack.ams is not None:
+        # AMS (p.206): -4 more; below 2 every missile is destroyed (only the top clamps).
+        raw = config.roll_2d6(prompt=f"Cluster hits roll ({w.name})")
+        mod = weapon_rules.cluster_roll_modifier(w) + ams.CLUSTER_MODIFIER
+        if raw + mod < 2:
+            config.log(f"    {w.name} hit: cluster roll {raw} {mod:+d} (AMS {attack.ams.name}) = {raw + mod} "
+                       f"- below 2, every missile destroyed, no damage.")
+            return
+        hits = cluster_hits_count(w.rack_size, min(12, raw + mod))
+        config.log(f"    {w.name} hit: cluster roll {raw} {mod:+d} (AMS {attack.ams.name}) on the "
+                   f"{w.rack_size}-column table -> {hits} connect ({hits * w.damage_per_shot} dmg).")
     else:
         raw = config.roll_2d6(prompt=f"Cluster hits roll ({w.name})")
         mod = weapon_rules.cluster_roll_modifier(w)
@@ -635,6 +675,10 @@ def run_ranged_combat_phase(mover_first, mover_second, terrain_map, battle_rng):
         declare_attacks(attacker, target, terrain_map, reports[attacker.side_name])
         # Nothing to shoot this turn: maybe pick up a club instead (p.79, INTEGRATION__clubs).
         clubs.maybe_pick_up(attacker, terrain_map, fired_anything=bool(reports[attacker.side_name].attacks_list))
+
+    # AMS (p.206): engaged right after the attack rolls, before any damage lands.
+    for attacker, target in pairs:
+        ams.engage(target, attacker, reports[attacker.side_name].attacks_list, reports[target.side_name])
 
     for attacker, target in pairs:
         rep = reports[attacker.side_name]

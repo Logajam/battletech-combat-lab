@@ -130,6 +130,7 @@ import INTEGRATION__structure_weight as structure_weight  # noqa: E402
 import INTEGRATION__los_cache as geo_cache  # noqa: E402
 import INTEGRATION__equipment_systems as equipment_systems  # noqa: E402
 import INTEGRATION__movement_attacks as movement_attacks  # noqa: E402
+import INTEGRATION__weapon_rules as weapon_rules  # noqa: E402
 
 SIDES = ("front", "left", "right", "rear")
 _P_2D6 = {roll: (6 - abs(roll - 7)) / 36 for roll in range(2, 13)}
@@ -270,8 +271,9 @@ def _best_by_score(scored, enemy_xy, rng=None):
 # ===========================  CLOSING FALLBACK  ==============================
 # =============================================================================
 def _weapon_ranges(mech):
-    """Live weapons with confirmed range data."""
-    return [w for w in get_weapons(mech) if w.weapon_range and w.weapon_range.get("long") is not None]
+    """Live weapons with confirmed range data (not AMS - never an attack, p.206)."""
+    return [w for w in get_weapons(mech) if w.weapon_range and w.weapon_range.get("long") is not None
+            and not weapon_rules.is_ams(w)]
 
 
 def _max_range(mech) -> int:

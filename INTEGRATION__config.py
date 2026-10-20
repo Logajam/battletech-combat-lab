@@ -149,6 +149,12 @@ ESCALATING_CYCLE_ON_ODD_TURNS = True
 # is raised to at least this (TSM works at 9+ heat), and its max_heat to at
 # least its min_heat.
 TSM_MIN_HEAT = 9
+# Anti-Missile Systems (Core p.206, INTEGRATION__ams): an AMS engages the
+# incoming missile hits it can, unless that would leave the mech's projected
+# end-of-turn heat above max(its max_heat, AMS_HEAT_LIMIT). 13 = the last
+# heat level with no shutdown roll (p.104). Matters mostly for laser AMS
+# (7 heat IS / 5 Clan per engagement; a standard AMS makes 1).
+AMS_HEAT_LIMIT = 13
 # Aimed shots at immobile targets (shut down / crew unconscious, Core p.70):
 # the location every eligible weapon aims at, or None for no aimed shots.
 # "Head" uses +3 instead of the -4 immobile modifier.

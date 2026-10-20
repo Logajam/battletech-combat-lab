@@ -46,7 +46,7 @@ verbose, home-edge deployment. Layout: `INTEGRATION__*.py` at the top;
 boards, test mechs and `meks.zip` (4,227 MegaMek units, 4,162 parse);
 `rules/` the rules library zip; `reference_logs/` same-seed sample battles.
 
-**After any change, from the repo root:** every `tests/test_*.py` (9 files,
+**After any change, from the repo root:** every `tests/test_*.py` (10 files,
 all must pass), `python tests/check_reference_logs.py` (must pass unless the
 change is MEANT to alter results - then look at a fresh battle and run
 `--update`, and say so in the Change Record; Daniel has OK'd regenerating
@@ -77,6 +77,11 @@ cloud container, faster on Daniel's PC).
 - Damage: floating or standard TACs (option), autocannons survive their
   first crit (p.183), internal explosions with the 20 cap, armor loss and
   CASE / CASE II venting (p.96).
+- Anti-Missile Systems, standard and laser (p.206, `INTEGRATION__ams`,
+  2026-10-20): engage up to 2 missile hits a turn each from inside their
+  arc (Cluster roll -4, Streak as a 7, single missile 1D6 4+), with ammo
+  and heat; never fire as weapons; priced into weapon choice and movement
+  scoring.
 - Heat (pp.102-107) and heat equipment; piloting rolls one per trigger
   (p.110); seatbelt checks (p.117); falls with the 1D6 side roll (p.115) and
   multiple levels; displacement; deployment from home edges.
@@ -88,16 +93,17 @@ cloud container, faster on Daniel's PC).
   `heat_explosion_bin` (a controller choice).
 
 **Rules review:** `INTEGRATION__RULES_REVIEW.md` - first pass over the whole
-Core Rulebook done 2026-10-20: what was fixed (F1-F8), the gap list (G2-G15,
+Core Rulebook done 2026-10-20: what was fixed (F1-F9), the gap list (G2-G15,
 Claude's to build), and the Core-vs-project questions (D1-D7 decided, D8
 open). Read it before building rules.
 
 **Pick up here (open, roughly in priority order):**
 1. **Waiting on Daniel's go-ahead** (asked at the end of session 2): build
    next, by how many units each affects - (a) Ultra / Rotary autocannon rapid
-   fire and jams, LB-X cluster ammo (review G10, pp.183, 191-192); (b) AMS
-   (G13, p.206 - ~240 units carry one; also belongs in expected damage);
-   (c) Artemis IV/V (+2 cluster, cancelled by ECM - G10/G15).
+   fire and jams, LB-X cluster ammo (review G10, pp.183, 191-192);
+   (c) Artemis IV/V (+2 cluster, cancelled by ECM - G10/G15). (b) AMS was
+   built 2026-10-20 (Daniel: "AMS functionality will be implemented"); two
+   readings of p.206 wait on Daniel - Section 4, "AMS readings".
 2. **The bot's future-capability planning** - Section 6 "Memo" (Daniel,
    2026-10-20). Needed for clubs, MASC, Rotary ACs (jam risk) and similar.
 3. **Hanging back** (seen 2026-10-20): mechs spending turns at range 5-9 out
@@ -210,7 +216,7 @@ TODOs are from memory — grep before relying on them).
 | Stub | What it does instead | Needs |
 |---|---|---|
 | `unknown_damage_type` | null damage_type → BALLISTIC | equipment.json curation (weapons not in the Core tables) |
-| `unconfirmed_weapon_data` | Loud warning; weapon never fires | equipment.json curation - special-rules weapons (MG arrays, TAG, AMS, SRTs, HAG damage, MML modes, plasma, VSP damage...) |
+| `unconfirmed_weapon_data` | Loud warning; weapon never fires | equipment.json curation - special-rules weapons (MG arrays, TAG, SRTs, HAG damage, MML modes, plasma, VSP damage...) |
 | `ammo_data` | Unlimited ammo for a weapon with no shots_per_ton (HVAC, Improved AC - not in the Core tables) | shots_per_ton from Tactical Operations tables |
 | `heat_explosion_bin` | Heat ammo explosion: bins still tied on damage value AND shots left picked at random; unknown-damage bins count as 0 | A controller policy (pile 4) |
 
@@ -247,6 +253,17 @@ confirmed project rules, not stubs):
   Firing Arcs Diagram (screenshot, 2026-10-19) shows 120 degrees, and
   `INTEGRATION__arcs.py` now follows the diagram (agrees at range 1).
   PATHFINDER's `combat.in_rear_arc` (not wired) still has the old rule.
+
+**AMS readings - Daniel may overrule (Claude, 2026-10-20, `INTEGRATION__ams`):**
+- p.206 says an AMS covers "the attack direction covered by the firing arc of
+  the location in which the AMS is mounted". Read as: the attacker stands
+  inside the AMS's firing arc, worked out like a weapon in that location
+  (torso twist, flipped arms, rear-mounted "(R)" AMS). So a left-arm AMS
+  covers the forward and left side arcs, a rear-mounted one only the rear.
+- "Cannot be engaged if the MechWarrior controlling it is unconscious": read
+  as the whole crew (a tripod's gunner can still engage with the pilot out).
+  A shut-down mech can't engage either (p.104: activated equipment doesn't
+  work, no actions).
 
 **TODO noted in code:** a failed movement PSR drops the mech in its END hex;
 in tabletop play it falls where the check was failed
@@ -559,6 +576,7 @@ forward arc, kicks included, never into a side arc.
 | No-LOS / out-of-range movement fallback | `movement_selection.closing_fallback` | Ported as-is from `combat_turn._closing_fallback` (cases A/B1/B2); nearest-to-enemy otherwise |
 | Heat-constrained weapon selection | `INTEGRATION__weapon_selection.py` | Which weapons fire this turn, built and wired |
 | Heat ammo explosion bin (controller's choice) | `INTEGRATION__stubs.stub_heat_explosion_bin` | **STUB.** Which of several equally destructive, equally full bins explodes (random). |
+| AMS engagements | `INTEGRATION__ams.engage` | Which missile hits each AMS takes (the ones it cuts most first; never zero-damage Narc pods), cheapest-heat AMS first; skips an engagement that would end the turn above max(max_heat, `config.AMS_HEAT_LIMIT` = 13). Expected damage (weapon choice, movement) scales each missile weapon toward its engaged value by min(1, engagements / missile weapons) |
 | Ammo bin to draw from | `INTEGRATION__ammo.spend` | The bin with the fewest shots left (empties bins sooner) |
 | Prop arm when firing prone | `INTEGRATION__attack_resolution.prone_fire` | The arm whose weapons matter least |
 | Physical attack type | `INTEGRATION__physical.choose_attack` | Twist (if still allowed) + attack type (punch / kick / physical weapon / club / push) with the most expected worth, weighted by hit table (`physical.Worth`) |
@@ -654,6 +672,32 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-20 (Claude):** Anti-Missile Systems (Core p.206; review G13 ->
+  F9), Daniel: "AMS functionality will be implemented". New
+  `INTEGRATION__ams.py`: once both sides have declared, each defender's live
+  AMS engage the missile (Type M) hits on it from inside their location's
+  firing arc (INTEGRATION__arcs, with the declared twist / flip), at most 2
+  per AMS per turn, one AMS per attack; 1 ammo + 1 heat each (laser AMS: no
+  ammo, 7 heat IS / 5 Clan), the heat added to the defender's weapon heat;
+  not while shut down (p.104) or with the whole crew unconscious.
+  Resolution (`attack_resolution._resolve_one_attack`, `DeclaredAttack.ams`):
+  the Cluster roll takes -4 on top of the weapon's own modifier and a
+  result below 2 destroys every missile; an engaged Streak counts as a 7; a
+  single missile (Thunderbolt) is destroyed on 1D6 4+. An AMS no longer
+  fires as a 2-damage, range-1 weapon (`weapon_selection` leaves it off the
+  table; the closing fallback and the prone prop-arm choice ignore it).
+  Expected damage: `ams.damage_factors` (value_scale) in the Ranged-phase
+  weapon choice and in `ranged_combat.MoveEvaluator` (scorers and best-twist
+  memos keyed by the engagements the other side's AMS can make from that
+  spot - `ams.Coverage`). Bot choices in Section 6; readings for Daniel in
+  Section 4 ("AMS readings"); new knob `config.AMS_HEAT_LIMIT` (13). Data
+  fix: equipment.json IS laser AMS takes 2 critical slots (p.250), not 1 -
+  units with one had two separate laser AMS. New `tests/test_ams.py` (10
+  checks); new reference battle `Atlas_AS7-K_vs_Archer_ARC-2R_seed2.txt`
+  (both units copied from `data/meks.zip` into `data/`). The other reference
+  logs and the benchmark (458 / 466) are unchanged - none of those mechs
+  carries an AMS.
 
 - **2026-10-20 (Claude):** Rules review, first pass complete
   (`INTEGRATION__RULES_REVIEW.md`: Playing the Game, the rest of Combat,

@@ -117,3 +117,13 @@ def targeting_computer_eligible(weapon):
 
 def is_pulse(weapon):
     return "PULSE" in canonical_name(weapon)
+
+
+def is_ams(weapon):
+    """Anti-Missile System or laser AMS (p.206) - a defensive system, never an
+    attack (INTEGRATION__ams). APDS (Tactical Operations) is not Core."""
+    return "ANTIMISSILESYSTEM" in canonical_name(weapon)
+
+
+def is_laser_ams(weapon):
+    return is_ams(weapon) and "LASER" in canonical_name(weapon)
