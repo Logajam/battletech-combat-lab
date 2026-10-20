@@ -331,6 +331,161 @@ def leg_hits_in_partial_cover_and_floating_head_hit():
     assert m.pilot_hits == 1 and m.locations["Head"]["armor"] == head - 2
 
 
+class FallSide:
+    """Sets config.pick_number (the fall-side 1D6) to always give `die`."""
+    def __init__(self, die):
+        self.die = die
+
+    def __enter__(self):
+        self.saved = config.pick_number
+        config.pick_number = lambda n, prompt="": self.die
+
+    def __exit__(self, *exc):
+        config.pick_number = self.saved
+
+
+@check
+def falls_and_seatbelt_checks():
+    """2026-10-20, Daniel: rules as written. p.115: 1D6 for the side - 1 =
+    rear, else front. p.117: seatbelt check at Piloting + levels fallen only;
+    automatic hit when immobile or the target number is over 12."""
+    import piloting_rolls
+    config.PILOTING = 5
+    m = fresh()
+    dmg = piloting_rolls.fall_damage(m)                # ceil(tons / 10)
+    groups = -(-dmg // 5)
+    front, rear = m.locations["Center Torso"]["armor"], m.locations["Center Torso"]["rear_armor"]
+    assert dmg <= rear                                  # stays in the rear armor: no critical check
+    with ScriptedDice([7] * groups + [4]), FallSide(1):   # every group to the CT; seatbelt 4 < 5
+        piloting_rolls.resolve_fall(m)
+    assert m.locations["Center Torso"]["rear_armor"] == rear - dmg and m.pilot_hits == 1
+    assert m.locations["Center Torso"]["armor"] == front
+    m = fresh()
+    with ScriptedDice([7] * groups + [5]), FallSide(4):
+        piloting_rolls.resolve_fall(m)
+    assert m.locations["Center Torso"]["armor"] == front - dmg and m.pilot_hits == 0
+    m = fresh()
+    with ScriptedDice(([6, 8] * 3 * groups)[:3 * groups] + [7]), FallSide(4):   # 2 levels: x3 damage, spread over
+        piloting_rolls.resolve_fall(m, levels=2)                    # the side torsos; needs 5 + 2 = 7
+    assert m.pilot_hits == 0
+    m = fresh()
+    with ScriptedDice(([6, 8] * 3 * groups)[:3 * groups] + [6]), FallSide(4):
+        piloting_rolls.resolve_fall(m, levels=2)
+    assert m.pilot_hits == 1
+    m = fresh()
+    m.shutdown = True                                  # immobile: the hit is automatic, no roll
+    with ScriptedDice([7] * groups), FallSide(4):
+        piloting_rolls.resolve_fall(m)
+    assert m.pilot_hits == 1
+
+
+@check
+def one_psr_per_trigger():
+    """2026-10-20, Daniel: rules as written. p.110: one PSR per trigger, each
+    at the sum of all the phase's modifiers, stopping at the first failure;
+    one roll per leg however many actuators it lost. p.111: running with a
+    gyro hit and a destroyed hip = two rolls."""
+    import piloting_rolls
+    config.PILOTING = 5
+    m = fresh()
+    piloting_rolls.snapshot_preexisting_damage(m)
+    piloting_rolls.snapshot_pre_attack_phase(m)
+    m.locations["Center Torso"]["armor"] -= 20                    # 20+ damage: +1, one roll
+    m.destroyed_leg_actuators["Left Leg"] = 2                     # two actuators, one leg: +2, one roll
+    with ScriptedDice([8, 8]):                                     # both at 5 + 3 = 8: stands
+        piloting_rolls.resolve_attack_phase_psr(m)
+    assert not m.prone
+    m = fresh()
+    piloting_rolls.snapshot_preexisting_damage(m)
+    piloting_rolls.snapshot_pre_attack_phase(m)
+    m.locations["Center Torso"]["armor"] -= 20
+    m.destroyed_leg_actuators["Left Leg"] = 1
+    with ScriptedDice([6, 7, 7, 7]), FallSide(4):                 # first roll fails (needs 7): no second
+        piloting_rolls.resolve_attack_phase_psr(m)                # roll; 10 fall damage + seatbelt
+    assert m.prone
+
+    m = fresh()
+    m.gyro_hits = 1
+    m.destroyed_hip_locations = {"Left Leg"}
+    assert piloting_rolls.movement_psr_count(m, "running") == 2
+    assert piloting_rolls.movement_psr_count(fresh(), "running") == 0
+
+
+@check
+def fight_to_the_death():
+    """2026-10-20, Daniel's option. False (default): a destroyed gyro or both
+    legs destroyed is a kill. True, the rules as written: a destroyed gyro
+    can't stand but isn't destroyed (p.98); both legs gone = immobile (pp.49,
+    90); immobile with no ranged weapons = destroyed (p.99)."""
+    import piloting_rolls
+    from mech_state import is_destroyed, is_immobile
+    saved = config.FIGHT_TO_THE_DEATH
+    try:
+        for to_the_death in (False, True):
+            config.FIGHT_TO_THE_DEATH = to_the_death
+            m = fresh()
+            m.gyro_hits = 2
+            assert is_destroyed(m) == (not to_the_death)
+            assert not piloting_rolls.can_stand(m)
+            m = fresh()
+            m.locations["Left Leg"]["destroyed"] = m.locations["Right Leg"]["destroyed"] = True
+            assert is_immobile(m) and is_destroyed(m) == (not to_the_death)
+        m = fresh()
+        m.locations["Left Leg"]["destroyed"] = m.locations["Right Leg"]["destroyed"] = True
+        m.destroyed_slot_info = {i: {"name": w.name, "instance_id": id(w)}
+                                 for i, w in enumerate(attack_resolution.get_weapons(m))}
+        assert is_destroyed(m) and m.cause_of_death == "Immobile, No Ranged Weapons"
+        m = fresh()                                      # one leg and both arms gone: can't stand (p.51)
+        for loc in ("Left Leg", "Left Arm", "Right Arm"):
+            m.locations[loc]["destroyed"] = True
+        assert not piloting_rolls.can_stand(m)
+    finally:
+        config.FIGHT_TO_THE_DEATH = saved
+
+
+@check
+def turning_while_down():
+    """2026-10-20: a prone mech that can't stand turns toward the enemy on
+    the ground - one hexside per turn with a destroyed gyro (p.98)."""
+    saved = config.FIGHT_TO_THE_DEATH
+    try:
+        config.FIGHT_TO_THE_DEATH = True
+        m, enemy = fresh(hex_="0808", facing="N"), fresh(hex_="0811", facing="N")   # enemy straight behind
+        m.prone, m.gyro_hits = True, 2
+        orchestrator._turn_while_down(m, enemy)
+        assert m.facing in ("NE", "NW") and m.mp_spent == 1 and m.move_mode == "Walk", (m.facing, m.mp_spent)
+        m = fresh(hex_="0808", facing="N")             # enemy already in the forward arc: no turn
+        m.prone, m.gyro_hits = True, 2
+        m.move_mode, m.mp_spent = "Stand Still", 0
+        orchestrator._turn_while_down(m, fresh(hex_="0805", facing="S"))
+        assert m.facing == "N" and m.mp_spent == 0
+    finally:
+        config.FIGHT_TO_THE_DEATH = saved
+
+
+@check
+def standard_through_armor_critical():
+    """2026-10-20, Daniel's option. config.FLOATING_CRITICALS False (p.91): a
+    hit-location 2 hits the center torso as rolled, plus one critical-hit
+    check there. True (p.95, default): the location is re-rolled."""
+    saved = config.FLOATING_CRITICALS
+    try:
+        config.FLOATING_CRITICALS = False
+        m = fresh()
+        ct = m.locations["Center Torso"]["armor"]
+        with ScriptedDice([2, 7]):                        # location 2: CT; TAC check 7: no critical
+            attack_resolution._resolve_hit(m, 5, attack_resolution.DamageType.ENERGY, "front")
+        assert m.locations["Center Torso"]["armor"] == ct - 5
+        config.FLOATING_CRITICALS = True
+        m = fresh()
+        ra = m.locations["Right Arm"]["armor"]
+        with ScriptedDice([2, 3, 7]):                     # 2, re-roll 3: right arm; TAC check 7
+            attack_resolution._resolve_hit(m, 5, attack_resolution.DamageType.ENERGY, "front")
+        assert m.locations["Right Arm"]["armor"] == ra - 5
+    finally:
+        config.FLOATING_CRITICALS = saved
+
+
 def run_all():
     failed = 0
     for fn in CHECKS:

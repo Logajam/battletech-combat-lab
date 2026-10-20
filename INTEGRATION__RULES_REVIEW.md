@@ -58,20 +58,20 @@ the Game (sequence, initiative) - a quick pass.
 
 ---
 
-## Core Rulebook vs the project's rules — for Daniel
+## Core Rulebook vs the project's rules — for Daniel (D1-D7 decided 2026-10-20)
 
 These follow MECHSIM / PATHFINDER rules or earlier decisions. The code is
 consistent; the question is which version the simulator should use.
 
 | # | Topic | Core Rulebook | The code now | Effect |
 |---|---|---|---|---|
-| D1 | Gyro destroyed (2nd gyro hit) | Falls, prone for good, can't stand, but keeps fighting (prone fire, p.67) - **not destroyed** (p.98) | Mech destroyed | Ends battles early; a prone mech can still shoot. |
-| D2 | Both legs destroyed | Immobile, can still prop up and fire; destroyed only if it also has no ranged weapons (pp.90, 99) | Mech destroyed | Same. |
-| D3 | Several PSR triggers in one phase | One roll per trigger, every roll uses all the phase's modifiers; stop at the first failure (p.110) | One roll with all modifiers added | Core falls more often (e.g. 20+ damage plus a leg actuator = two rolls at +2). |
-| D4 | Seatbelt check after a fall | Piloting + 1 per level fallen, nothing else; automatic hit if immobile or TN over 12 (p.117) | Piloting + the fall's whole PSR modifier | The code hurts pilots of damaged mechs much more often. |
-| D5 | Which side a fall damages | 1D6: on a 1 the rear, otherwise the front (p.115) | Always the front | Rear armor never takes fall damage. |
-| D6 | Hit-location 2 (Through-Armor Critical) | Standard: a crit check on the torso location hit (p.91). Floating Criticals is an **optional** rule (p.95) | Floating Criticals (re-roll the location) | Confirm it's the intended optional rule. |
-| D7 | Running with damaged hips | One PSR per hip actuator destroyed, but never more than one per leg (pp.45, 110) | One PSR whatever the damage | Small. |
+| D1 | Gyro destroyed (2nd gyro hit) | Falls, prone for good, can't stand, but keeps fighting (prone fire, p.67) - **not destroyed** (p.98) | **Decided 2026-10-20:** option `config.FIGHT_TO_THE_DEATH`. False (default, Daniel's rule): the fight is over when a mech is rendered immobile for good - destroyed. True: the rule as written; it turns on the ground toward the enemy, one hexside a turn. | Crippled / forced withdrawal: a later option (with a bot movement override). |
+| D2 | Both legs destroyed | Immobile, can still prop up and fire; destroyed only if it also has no ranged weapons (pp.90, 99) | **Decided:** same option. True: immobile (-4 to be hit, no movement), fires propped up, destroyed when it has no ranged weapons left. | |
+| D3 | Several PSR triggers in one phase | One roll per trigger, every roll uses all the phase's modifiers; stop at the first failure (p.110) | **Decided: rules as written** - built 2026-10-20 (one roll per leg however many actuators; movement PSRs too - see D7). | |
+| D4 | Seatbelt check after a fall | Piloting + 1 per level fallen, nothing else; automatic hit if immobile or TN over 12 (p.117) | **Decided: rules as written** - built 2026-10-20. | |
+| D5 | Which side a fall damages | 1D6: on a 1 the rear, otherwise the front (p.115) | **Decided: rules as written** - built 2026-10-20 (a failed death from above still lands on its back, p.80). | |
+| D6 | Hit-location 2 (Through-Armor Critical) | Standard: a crit check on the torso location hit (p.91). Floating Criticals is an **optional** rule (p.95) | **Decided:** option `config.FLOATING_CRITICALS`, default True (floating); False = the standard rule, built 2026-10-20. | |
+| D7 | Running with damaged hips | One PSR per trigger (gyro hit, each leg with a destroyed hip or leg), never more than one per leg (pp.45, 110-111) | **Built with D3:** `piloting_rolls.movement_psr_count`; movement scoring prices all the rolls. | |
 | D8 | LOS model (Daniel's simplified rules, `pathfinder/los.py`) | Woods count as intervening if their top (hex + 2) reaches both mechs' LOS levels, so woods one level above the higher mech also count; partial cover is lost if the attacker is higher than the target, and a prone mech gets none (pp.57-58, 66) | Woods count only at exactly the higher mech's level; cover doesn't check either condition | Only matters with hills. Daniel's 2026-07-19 rules say don't change without asking. |
 | — | Already open in PROJECT_MAP Section 4 | Stand-up PSR -1; tripod -1; jumped with leg destroyed +4; quads standing | MECHSIM values | Unchanged, still waiting. |
 

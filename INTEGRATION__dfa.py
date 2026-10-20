@@ -121,7 +121,7 @@ def _displace(target, kind, label, drop, triggers, cause):
     config.log(f"    {target.side_name} is displaced {old} -> {label}.")
     if drop >= 2:
         config.log(f"    {target.side_name} is displaced {drop} levels down - automatic fall (p.114).")
-        piloting_rolls.resolve_fall(target, seatbelt_modifier=0, cause=cause, levels=drop)
+        piloting_rolls.resolve_fall(target, cause=cause, levels=drop)
         return True
     return False
 
@@ -167,6 +167,6 @@ def resolve(attacker, target, hit, terrain_map):
     _land(attacker, target_hex)
     if not attacker.prone and not is_destroyed(attacker):
         config.log(f"    {attacker.side_name} misses and falls {MISS_FALL_LEVELS} levels in {target_hex} (rear, p.80).")
-        piloting_rolls.resolve_fall(attacker, seatbelt_modifier=0, cause="failed DFA", levels=MISS_FALL_LEVELS,
+        piloting_rolls.resolve_fall(attacker, cause="failed DFA", levels=MISS_FALL_LEVELS,
                                     side="rear")
     return triggers

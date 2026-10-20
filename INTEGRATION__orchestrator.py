@@ -250,6 +250,38 @@ def _needs_backward_move(mover, pick, terrain_map, standup_mp, entry_edge):
     return state not in set(ranged_combat.movement_options(mover, terrain_map, backward=False))
 
 
+def _turn_while_down(mover, other):
+    """A prone mech that can't stand (config.FIGHT_TO_THE_DEATH: destroyed
+    gyro, or legs / arms lost - pp.51, 98) may still change facing: 1 MP per
+    hexside, and only one hexside per turn with a destroyed gyro (p.98).
+    Bot decision (2026-10-20, PROJECT_MAP Section 6): the fewest turns that
+    put the enemy in its forward arc, else in a side arc; no turn if nothing
+    improves (turning makes it a Walk: AMM +1 and 1 heat). Its ranged weapons
+    fire as if standing with that facing (p.67)."""
+    if other.hex is None or mover.hex is None:
+        return
+    walk = compute_walk_mp(mover)
+    max_turns = min(walk, 1 if mover.gyro_hits >= 2 else 3)
+    if max_turns < 1:
+        return
+    me, them = hex_geometry.parse_hex_label(mover.hex), hex_geometry.parse_hex_label(other.hex)
+    seen_as = arcs.arcs_between(me, them)           # the arc the enemy is in, per facing
+    facing = hex_geometry.compass_to_facing(mover.facing)
+    rank = lambda f: 0 if seen_as[f] == arcs.FORWARD else (1 if seen_as[f] != arcs.REAR else 2)   # noqa: E731
+    best, best_turns = facing, 0
+    for turns in range(1, max_turns + 1):
+        for f in ((facing + turns) % 6, (facing - turns) % 6):
+            if rank(f) < rank(best):
+                best, best_turns = f, turns
+    if best_turns == 0:
+        return
+    mover.facing = hex_geometry.facing_to_compass(best)
+    mover.move_mode, mover.mp_spent = "Walk", best_turns
+    config.log(f"  [Movement] {mover.side_name}: can't stand - turns {best_turns} hexside(s) on the ground to "
+               f"face {mover.facing} ({arcs.ARC_NAMES[seen_as[best]]} arc on {other.side_name}; Walk, "
+               f"{best_turns} MP).")
+
+
 def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_first):
     """One mech's movement. See the module docstring table for which parts
     are real and which are stubs. `other` is the opponent: for the first
@@ -260,7 +292,8 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_fi
     _reset_movement_state(mover)
 
     if is_immobile(mover):
-        why = "shut down" if mover.shutdown else "all crew unconscious"
+        why = ("shut down" if mover.shutdown else "all crew unconscious" if all_crew_unconscious(mover)
+               else "legs destroyed")
         config.log(f"  [Movement] {name}: {why} - skips movement (immobile).")
         return
 
@@ -270,10 +303,13 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_fi
         # A prone mech declares its mode, then tries to stand (Core p.51).
         # MECHSIM stands with running MP, so the declared mode is Run - it
         # costs Run heat and AMM even if the mech stays down.
-        tries = mover.pilot_hits < 5 and compute_running_mp(mover) > 0   # resolve_stand_up's own gates
+        tries = (piloting_rolls.can_stand(mover) and mover.pilot_hits < 5
+                 and compute_running_mp(mover) > 0)                     # resolve_stand_up's own gates
         remaining = _with_piloting(mover, piloting_rolls.resolve_stand_up)
         if tries:
             mover.move_mode = "Run"
+        if mover.prone and not is_destroyed(mover) and not piloting_rolls.can_stand(mover):
+            _turn_while_down(mover, other)
         if mover.prone or is_destroyed(mover):
             config.log(f"  [Movement] {name}: still prone at {mover.hex}.")
             mover.movement_heat = heat.movement_heat(mover, mover.move_mode, mover.move_fc)

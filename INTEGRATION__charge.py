@@ -151,7 +151,7 @@ def resolve_hit(attacker, target, terrain_map):
     config.log(f"    {target.side_name} is displaced {old} -> {new_label}; {attacker.side_name} advances into {old}.")
     if drop >= 2:
         config.log(f"    {target.side_name} is displaced {drop} levels down - automatic fall (p.114).")
-        piloting_rolls.resolve_fall(target, seatbelt_modifier=0, cause="displaced down", levels=drop)
+        piloting_rolls.resolve_fall(target, cause="displaced down", levels=drop)
     else:
         triggers[target.side_name].append(("charged", CHARGE_PSR_MODIFIER))
     return triggers

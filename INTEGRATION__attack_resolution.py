@@ -98,7 +98,7 @@ from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capabi
     mark_consciousness_check_pending, compute_heat_dissipation
 import armor_rules
 from hit_location import resolve_hit_location
-from damage_resolution import apply_damage, check_critical, cluster_hits_count, get_weapons
+from damage_resolution import apply_damage, check_critical, cluster_hits_count, get_weapons, TRANSFER_MAP
 import piloting_rolls
 
 import hex_geometry
@@ -514,7 +514,7 @@ def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False, c
         mark_consciousness_check_pending(target)
         config.log(f"      Head hit - pilot takes 1 hit ({target.pilot_hits}/6), regardless of armor.")
 
-    if loc_roll == 2 and not target.locations[loc]["destroyed"]:
+    if loc_roll == 2 and config.FLOATING_CRITICALS and not target.locations[loc]["destroyed"]:
         config.log("      Roll of 2 - Through-Armor Critical (floating) triggered.")
         tac_side = side
         tac_loc_roll = config.roll_2d6(prompt="  TAC (Through-Armor Critical) location roll")
@@ -533,16 +533,37 @@ def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False, c
             config.log(f"      Head hit - pilot takes 1 hit ({target.pilot_hits}/6), regardless of armor.")
         apply_damage(target, tac_loc, damage, armor_field=tac_armor_field, damage_type=damage_type)
         config.log("      Additional critical hit due to TAC.")
-        tac_loc_state = target.locations[tac_loc]
-        tac_armor_key = tac_armor_field if tac_armor_field in tac_loc_state else "armor"
-        tac_armor_type = ArmorType.STANDARD if damage_type == DamageType.REENGINEERED \
-            else target.armor_type.get(tac_loc, ArmorType.STANDARD)
-        modifier = armor_rules.crit_roll_modifier(
-            target.structure_type, tac_armor_type, armor_present=tac_loc_state[tac_armor_key] > 0)
-        check_critical(target, tac_loc, location_destroyed=False, modifier=modifier)
+        _tac_check(target, tac_loc, tac_armor_field, damage_type, location_destroyed=False)
         return
 
+    # Standard Through-Armor Critical (config.FLOATING_CRITICALS False, Core p.91):
+    # the damage lands where the 2 put it, plus one critical-hit check there. A TAC
+    # on a location already destroyed goes where its damage transfers (p.89).
+    tac_loc = None
+    if loc_roll == 2 and not config.FLOATING_CRITICALS and damage >= 1:
+        tac_loc = loc
+        while tac_loc is not None and target.locations[tac_loc]["destroyed"]:
+            tac_loc = TRANSFER_MAP.get(tac_loc)
+
     apply_damage(target, loc, damage, armor_field=armor_field, damage_type=damage_type)
+
+    if tac_loc is not None:
+        config.log(f"      Roll of 2 - Through-Armor Critical: extra critical-hit check at {tac_loc}.")
+        _tac_check(target, tac_loc, armor_field, damage_type,
+                   location_destroyed=target.locations[tac_loc]["destroyed"])
+
+
+def _tac_check(target, loc, armor_field, damage_type, location_destroyed):
+    """The Through-Armor Critical's own critical-hit check at `loc` (p.91),
+    with the armor-type modifier (armor_rules.crit_roll_modifier) read after
+    the hit, as the floating version always did."""
+    loc_state = target.locations[loc]
+    armor_key = armor_field if armor_field in loc_state else "armor"
+    armor_type = ArmorType.STANDARD if damage_type == DamageType.REENGINEERED \
+        else target.armor_type.get(loc, ArmorType.STANDARD)
+    modifier = armor_rules.crit_roll_modifier(
+        target.structure_type, armor_type, armor_present=loc_state[armor_key] > 0)
+    check_critical(target, loc, location_destroyed=location_destroyed, modifier=modifier)
 
 
 def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng):

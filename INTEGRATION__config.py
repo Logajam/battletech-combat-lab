@@ -232,6 +232,27 @@ DFA = True
 CLUB_PICKUP = False
 
 # =============================================================================
+# ==========================  OPTIONAL RULES  =================================
+# =============================================================================
+# Rules where the Core Rulebook offers a choice, or where Daniel's own rule
+# differs from it (Daniel, 2026-10-20).
+#
+# Floating Criticals (Core p.95, optional): a Hit Location roll of 2 re-rolls
+# where the shot lands and the critical-hit chance goes there. False = the
+# standard Through-Armor Critical (p.91): the damage stays on the torso the 2
+# hit, plus one extra critical-hit check there.
+FLOATING_CRITICALS = True
+#
+# Fight to the death (Daniel, 2026-10-20). False (default, Daniel's rule): the
+# fight is over when a mech is rendered immobile for good - a destroyed gyro or
+# both legs destroyed counts as destroyed. True (the rules as written): a
+# destroyed gyro means a fall and no standing up (p.98) but the mech fights on
+# from the ground; both legs destroyed makes it immobile (pp.49, 90) and it
+# fights on propped up (p.67); a mech is destroyed when immobile with no ranged
+# weapons left (p.99). (Crippled / forced withdrawal: a later option.)
+FIGHT_TO_THE_DEATH = False
+
+# =============================================================================
 # ==========================  VISUALIZATION (NOT WIRED)  =====================
 # =============================================================================
 # Ported from PATHFINDER__config.py / MECHSIM__config.py. Not called from
