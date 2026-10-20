@@ -27,8 +27,10 @@ above min_heat (see INTEGRATION__heat._extra_cooling).
         against it +3 / +2 / +1 / +0 when it moved 0 / 1-2 / 3-5 / 6+ hexes
         (0 hexes but some MP spent counts as 1); its own ranged attacks +1.
     Any destroyed slot destroys LPS / Null / Void (stealth armor isn't
-    destroyed by crits). The "as if in hostile ECM" side effects, C3 and
-    probes have nothing to act on in this sim.
+    destroyed by crits). The "as if in hostile ECM" side effects are in
+    INTEGRATION__electronics (2026-10-20: the mech's own Artemis is blocked,
+    and no stealth system but the LPS lets its ECM jam); C3 and probes have
+    nothing to act on in this sim.
   - Coolant pod (p.208): one per turn, at the start of the Heat Phase, +1
     cooling per active heat sink; each pod once per game. A critical hit on
     an UNUSED pod is a 2-point explosion (equipment.json), so a used pod
@@ -52,8 +54,8 @@ above min_heat (see INTEGRATION__heat._extra_cooling).
     and 15+ (2 hits) instead of 10-19 / 20+ (INTEGRATION__heat). Its PSR
     and sensor rules are not modeled.
 
-Not modeled: shutting a system off by choice, the hostile-ECM side effects
-of stealth armor / Void-Signature, MASC/supercharger crits taken mid-move.
+Not modeled: shutting a system off by choice, MASC/supercharger crits taken
+mid-move. (ECM itself - jamming Artemis and Narc - is INTEGRATION__electronics.)
 """
 
 import INTEGRATION__config as config

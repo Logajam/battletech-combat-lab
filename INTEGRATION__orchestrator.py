@@ -121,6 +121,7 @@ import INTEGRATION__weapon_selection as weapon_selection  # noqa: E402
 import INTEGRATION__heat as heat  # noqa: E402
 import INTEGRATION__equipment_systems as equip  # noqa: E402
 import INTEGRATION__ammo as ammo  # noqa: E402
+import INTEGRATION__electronics as electronics  # noqa: E402
 import INTEGRATION__physical as physical  # noqa: E402
 import INTEGRATION__movement_selection as movement_selection  # noqa: E402
 import INTEGRATION__ranged_combat as ranged_combat  # noqa: E402
@@ -179,6 +180,7 @@ def _attach_mech_config(mech, cfg, side_name):
     mech.deactivated_heat_sinks = 0
     heat.attach_heat_traits(mech)
     ammo.attach_ammo(mech)
+    electronics.attach(mech)          # Artemis links, ECM suites, Narc pods (2026-10-20)
     if mech.has_tsm:
         # TSM is driven by min_heat (Daniel, 2026-10-19); max_heat must allow it.
         mech.min_heat = max(mech.min_heat, config.TSM_MIN_HEAT)

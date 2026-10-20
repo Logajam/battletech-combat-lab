@@ -82,7 +82,8 @@ def check(fn):
 def detection_and_tsm_heat_settings():
     m = gear()
     counts = {k: len(v) for k, v in m.equipment_systems.items()}
-    assert counts == {"supercharger": 1, "coolant_pod": 2, "chameleon": 6, "tsm": 5, "ecm": 2,
+    # ecm: one 2-slot Guardian suite (equipment.json slots fixed to 2 on 2026-10-20; was 2 instances)
+    assert counts == {"supercharger": 1, "coolant_pod": 2, "chameleon": 6, "tsm": 5, "ecm": 1,
                       "masc": 3, "radical": 1}, counts
     assert m.has_tsm and m.torso_cockpit and not m.has_stealth_armor
     assert (m.min_heat, m.max_heat) == (9, 30)          # TSM raises min_heat to 9 (Daniel)

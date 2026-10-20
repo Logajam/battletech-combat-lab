@@ -68,6 +68,20 @@ SCENARIOS = {
         'config.MECH_BLUE_MTF = "Archer ARC-2R.mtf"',
         "config.SEED = 2",
     ],
+    # Added 2026-10-20 for Narc / Artemis / ECM (Core pp.188, 193, 197, 200):
+    # the Kintaro KTO-19 fires homing pods (Narc-capable SRMs and LRM) at the
+    # Atlas AS7-K, whose AMS shoots some down; then the Atlas AS7-S2's Guardian
+    # ECM blocks the Kintaro's pods while its own LRM 15 fires Artemis IV ammo.
+    "Kintaro_KTO-19_vs_Atlas_AS7-K_seed2.txt": [
+        'config.MECH_RED_MTF = "Kintaro KTO-19.mtf"',
+        'config.MECH_BLUE_MTF = "Atlas AS7-K.mtf"',
+        "config.SEED = 2",
+    ],
+    "Atlas_AS7-S2_vs_Kintaro_KTO-19_seed1.txt": [
+        'config.MECH_RED_MTF = "Atlas AS7-S2.mtf"',
+        'config.MECH_BLUE_MTF = "Kintaro KTO-19.mtf"',
+        "config.SEED = 1",
+    ],
 }
 
 

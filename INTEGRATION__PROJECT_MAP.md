@@ -46,7 +46,7 @@ verbose, home-edge deployment. Layout: `INTEGRATION__*.py` at the top;
 boards, test mechs and `meks.zip` (4,227 MegaMek units, 4,162 parse);
 `rules/` the rules library zip; `reference_logs/` same-seed sample battles.
 
-**After any change, from the repo root:** every `tests/test_*.py` (10 files,
+**After any change, from the repo root:** every `tests/test_*.py` (11 files,
 all must pass), `python tests/check_reference_logs.py` (must pass unless the
 change is MEANT to alter results - then look at a fresh battle and run
 `--update`, and say so in the Change Record; Daniel has OK'd regenerating
@@ -82,6 +82,11 @@ cloud container, faster on Daniel's PC).
   arc (Cluster roll -4, Streak as a 7, single missile 1D6 4+), with ammo
   and heat; never fire as weapons; priced into weapon choice and movement
   scoring.
+- Artemis IV / V, Narc / iNarc beacons and ECM (`INTEGRATION__electronics`,
+  2026-10-20): Cluster / to-hit bonuses, pods, ECM blocking, Angel vs
+  Streaks; the bot picks the munition per shot and fires a beacon for the
+  pod's worth. Ammo bins now feed their weapons whatever MegaMek calls them
+  (Gauss, AC/10, Artemis- / Narc-capable... - many never fired before).
 - Heat (pp.102-107) and heat equipment; piloting rolls one per trigger
   (p.110); seatbelt checks (p.117); falls with the 1D6 side roll (p.115) and
   multiple levels; displacement; deployment from home edges.
@@ -93,17 +98,16 @@ cloud container, faster on Daniel's PC).
   `heat_explosion_bin` (a controller choice).
 
 **Rules review:** `INTEGRATION__RULES_REVIEW.md` - first pass over the whole
-Core Rulebook done 2026-10-20: what was fixed (F1-F9), the gap list (G2-G15,
+Core Rulebook done 2026-10-20: what was fixed (F1-F13), the gap list (G2-G16,
 Claude's to build), and the Core-vs-project questions (D1-D7 decided, D8
 open). Read it before building rules.
 
 **Pick up here (open, roughly in priority order):**
-1. **Waiting on Daniel's go-ahead** (asked at the end of session 2): build
-   next, by how many units each affects - (a) Ultra / Rotary autocannon rapid
-   fire and jams, LB-X cluster ammo (review G10, pp.183, 191-192);
-   (c) Artemis IV/V (+2 cluster, cancelled by ECM - G10/G15). (b) AMS was
-   built 2026-10-20 (Daniel: "AMS functionality will be implemented"); two
-   readings of p.206 wait on Daniel - Section 4, "AMS readings".
+1. **Next big rules item:** Ultra / Rotary autocannon rapid fire and jams,
+   LB-X cluster ammo (review G10, pp.183, 191-192), then the special
+   munitions (G16). AMS, Artemis, Narc and ECM are built (2026-10-20);
+   readings that wait on Daniel are in Section 4 ("AMS readings",
+   "Artemis / Narc / ECM readings").
 2. **The bot's future-capability planning** - Section 6 "Memo" (Daniel,
    2026-10-20). Needed for clubs, MASC, Rotary ACs (jam risk) and similar.
 3. **Hanging back** (seen 2026-10-20): mechs spending turns at range 5-9 out
@@ -264,6 +268,23 @@ confirmed project rules, not stubs):
   as the whole crew (a tripod's gunner can still engage with the pilot out).
   A shut-down mech can't engage either (p.104: activated equipment doesn't
   work, no actions).
+
+**Artemis / Narc / ECM readings - Daniel may overrule (Claude, 2026-10-20, `INTEGRATION__electronics`):**
+- A Narc homing pod's worth (Daniel: "the expected increase in damage from its
+  opponents missile systems if it lands"): taken as ONE turn's gain, at this
+  turn's range and to-hit numbers, heat ignored. The pod lasts the battle, so
+  this undervalues it - a natural job for the future-capability Memo.
+- Stealth armor / Void-Signature "suffers effects as if in the radius of a
+  hostile ECM suite" (pp.202, 209): read as jamming the mech's OWN Artemis
+  (an attacker inside hostile ECM), not attacks on it nor pods on it - that
+  imaginary field is hostile to the stealthed mech, not to its enemy. And its
+  real ECM is off, so attacks on it keep their Artemis / Narc bonuses.
+- 31 units carry an Artemis FCS but only standard ammo (e.g. Longbow LGB-0W,
+  Hunchback HBK-5SS) - probably sloppy MegaMek files. Rules as written
+  (p.197): no bonus without Artemis-equipped missiles, so they get none.
+- MegaMek says which launcher an FCS belongs to only by putting it in the
+  same location; linked in slot order there (a leftover FCS goes to a
+  launcher with none).
 
 **TODO noted in code:** a failed movement PSR drops the mech in its END hex;
 in tabletop play it falls where the check was failed
@@ -576,7 +597,9 @@ forward arc, kicks included, never into a side arc.
 | No-LOS / out-of-range movement fallback | `movement_selection.closing_fallback` | Ported as-is from `combat_turn._closing_fallback` (cases A/B1/B2); nearest-to-enemy otherwise |
 | Heat-constrained weapon selection | `INTEGRATION__weapon_selection.py` | Which weapons fire this turn, built and wired |
 | Heat ammo explosion bin (controller's choice) | `INTEGRATION__stubs.stub_heat_explosion_bin` | **STUB.** Which of several equally destructive, equally full bins explodes (random). |
-| AMS engagements | `INTEGRATION__ams.engage` | Which missile hits each AMS takes (the ones it cuts most first; never zero-damage Narc pods), cheapest-heat AMS first; skips an engagement that would end the turn above max(max_heat, `config.AMS_HEAT_LIMIT` = 13). Expected damage (weapon choice, movement) scales each missile weapon toward its engaged value by min(1, engagements / missile weapons) |
+| AMS engagements | `INTEGRATION__ams.engage` | Which missile hits each AMS takes (the ones it cuts most first; a Narc pod counts half its worth - 1D6 4+ - and nothing once a pod is on), cheapest-heat AMS first; skips an engagement that would end the turn above max(max_heat, `config.AMS_HEAT_LIMIT` = 13). Expected damage (weapon choice, movement) scales each missile weapon toward its engaged value by min(1, engagements / missile weapons) |
+| Munition per shot | `INTEGRATION__electronics.best_control`, `ammo.take` | Artemis V, then Narc homing, then Artemis IV - whichever works now - else a standard bin, else any bin (special missiles fire as normal ones) |
+| Fire a Narc beacon / which pod | `electronics.pod_value`, `pod_munition`; `weapon_selection` `bonus_per_hit` | A homing pod is worth one turn of the owner's extra Narc-missile damage (Daniel) - 0 once a pod is on or the target has ECM; explosive pods (4 / 6) when homing is worthless; priced x P(hit) in the knapsack (0 heat). Not in movement scoring |
 | Ammo bin to draw from | `INTEGRATION__ammo.spend` | The bin with the fewest shots left (empties bins sooner) |
 | Prop arm when firing prone | `INTEGRATION__attack_resolution.prone_fire` | The arm whose weapons matter least |
 | Physical attack type | `INTEGRATION__physical.choose_attack` | Twist (if still allowed) + attack type (punch / kick / physical weapon / club / push) with the most expected worth, weighted by hit table (`physical.Worth`) |
@@ -672,6 +695,39 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-20 (Claude):** Artemis, Narc and ECM (Daniel: "Artemis and Narc.
+  Since they both affect Missiles and are affected by ECM in similar ways";
+  review F11-F13). New `INTEGRATION__electronics.py`: Artemis IV / V FCS
+  linked to launchers (p.197: +2 Cluster; V -1 to hit, +3; needs the
+  matching Artemis-equipped missiles; ATM built-in +2, p.186); Narc / iNarc
+  beacons (pp.188, 193: homing pods by location roll, working from the next
+  phase, -1 / +2 for Narc-capable missiles, lost with the location;
+  explosive pods 4 / 6); ECM (p.200: an enemy's working Guardian / Clan /
+  Angel / Watchdog blocks Artemis and the pods; Angel unlocks Streaks;
+  off when shut down or with a stealth system other than the LPS, p.209;
+  stealth armor / Void-Signature jam their own mech's Artemis, pp.202, 209).
+  `FireControl` per shot (`DeclaredAttack.fire`) carries the munition and
+  bonuses into to-hit (`tn_adjuster`), resolution, the AMS (`ams.
+  expected_damage_engaged` / `damage_factors` take it) and movement scoring
+  (`MoveEvaluator` - same factors). Pod value per Daniel (Section 6, readings
+  in Section 4); AMS engages pods for half of it. **Ammo-bin fix** (F10):
+  `ammo.parse_bin` reads the munition off the bin name and finds the weapon
+  via the bin's equipment.json ammo row - 1,541 units had bins that fed
+  nothing (Gauss, AC/x, Artemis- / Narc-capable, Narc pods), so those
+  weapons never fired; half-ton "(100)" bins hold their own count;
+  `ammo.take` draws a chosen munition. `weapon_selection` gains
+  `bonus_per_hit` (the beacon's worth). Data fixes (equipment.json):
+  Narc / iNarc beacons damage 0 (was null, so they never fired), IS Narc 2
+  slots, iNarc 3, Artemis V 2, Guardian / Angel / Watchdog 2 (p.250-254;
+  each 2-slot item had parsed as two). `tests/test_equipment.py` updated
+  (one Guardian instance, not two). New `tests/test_electronics.py` (10
+  checks); new reference battles `Kintaro_KTO-19_vs_Atlas_AS7-K_seed2.txt`
+  and `Atlas_AS7-S2_vs_Kintaro_KTO-19_seed1.txt` (units copied into
+  `data/`). Reference logs regenerated: the Atlas AS7-K battle changed for
+  real (its Gauss rifle fires now and it wins); the Asymptote logs only by
+  the summary banner's known-missing-rules text. Benchmark unchanged
+  (458 / 466).
 
 - **2026-10-20 (Claude):** Anti-Missile Systems (Core p.206; review G13 ->
   F9), Daniel: "AMS functionality will be implemented". New

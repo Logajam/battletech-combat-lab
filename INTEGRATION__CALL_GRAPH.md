@@ -24,11 +24,11 @@ edited).
   `pathfinder.build_movement_table`, `combat` (build_jump_states,
   classify_movement_mode); INTEGRATION `rng`, `weapon_selection`, `heat`,
   `ranged_combat`, `movement_selection`, `stubs`, `attack_resolution`, `results`, `equipment_systems`,
-  `ammo` (attach_ammo), `physical` (run_physical_phase) (2026-10-19); stdlib
+  `ammo` (attach_ammo), `physical` (run_physical_phase) (2026-10-19), `electronics` (attach, 2026-10-20); stdlib
   `multiprocessing` / `concurrent.futures` + numpy `SeedSequence` for parallel
   batches (`battle_seed`, `worker_count`, `_worker_battle`) (2026-10-20)
 - `attack_resolution.py` (NEW) → `config`, `stubs`, `weapon_selection`, `heat`, `equipment_systems`,
-  `weapon_rules`, `ammo` (2026-10-19), `ams` (2026-10-20);
+  `weapon_rules`, `ammo` (2026-10-19), `ams`, `electronics` (2026-10-20);
   MECHSIM `mech_state`, `armor_rules`, `hit_location`, `damage_resolution`
   (apply_damage, check_critical, cluster_hits_count, get_weapons),
   `piloting_rolls`; PATHFINDER `hex_geometry`, `combat` (fc_to_tmm,
@@ -38,7 +38,10 @@ edited).
   to-hit modifiers.
 - `ammo.py` (NEW 2026-10-19) → `config`, `stubs`, `weapon_rules`; MECHSIM
   `equipment` (Equipment, lookup_equipment), `damage_resolution.get_weapons`
-- `ams.py` (NEW 2026-10-20) → `config`, `weapon_rules`, `expected_damage`, `arcs`, `ammo`, `heat`,
+- `electronics.py` (NEW 2026-10-20) → `config`, `weapon_rules`, `expected_damage`, `equipment_systems`,
+  `ammo`, `weapon_selection` (lazy); MECHSIM `equipment`, `damage_resolution.get_weapons`; PATHFINDER
+  `combat.hit_probability` (lazy). Used by `attack_resolution`, `ams`, `ranged_combat`, `orchestrator` (attach).
+- `ams.py` (NEW 2026-10-20) → `config`, `weapon_rules`, `expected_damage`, `arcs`, `ammo`, `heat`, `electronics`,
   `attack_resolution` (weapon_locations, lazy); MECHSIM `damage_resolution.get_weapons`,
   `mech_state` (all_crew_unconscious, compute_heat_dissipation); PATHFINDER `hex_geometry`.
   Used by `attack_resolution` (engage, weapon-choice factors) and `ranged_combat` (Coverage).
@@ -64,7 +67,7 @@ edited).
 - `ranged_combat.py` → `los_cache` (2026-10-19), `config` (registration only), MECHSIM `mech_state`
   (compute_*_mp, compute_heat_dissipation, is_immobile); PATHFINDER `hex_geometry`,
   `pathfinder`, `los`, `combat`; `weapon_selection` (select_weapons_to_fire),
-  `heat`, `equipment_systems`, `ammo`, `ams` (2026-10-20), `terrain_rules`, `attack_resolution` (tn_adjuster,
+  `heat`, `equipment_systems`, `ammo`, `ams`, `electronics` (2026-10-20), `terrain_rules`, `attack_resolution` (tn_adjuster,
   aimed_shot_location, firing_conditions, ...). (No longer imports `damage_resolution` directly.)
 - `equipment_systems.py` (NEW 2026-10-19) → `config`; MECHSIM `equipment`
   (Equipment, is_crit_target), `damage_resolution.resolve_slot_hit`
@@ -126,7 +129,7 @@ main.py
    ├─ ranged_combat.py ── heat.py, los_cache.py
    ├─ movement_selection.py ── ranged_combat.py, los_cache.py, piloting_rolls, hit_location, damage_resolution
    ├─ stubs.py
-   ├─ attack_resolution.py ── heat.py, weapon_rules.py, ammo.py, ams.py ── arcs.py, expected_damage.py
+   ├─ attack_resolution.py ── heat.py, weapon_rules.py, ammo.py, ams.py ── arcs.py, expected_damage.py, electronics.py
    ├─ physical.py ── attack_resolution.py, arcs.py, charge.py, dfa.py, clubs.py, hit_location, piloting_rolls
    └─ results.py
 ```
