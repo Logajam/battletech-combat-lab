@@ -30,8 +30,16 @@ LOG_DIR = os.path.join(REPO_ROOT, "reference_logs")
 # file name -> config overrides (Python statements run after
 # `import INTEGRATION__config as config`, before the batch starts)
 SCENARIOS = {
-    "Asymptote_vs_Asymptote_seed12345.txt": [],
+    # The default matchup (Kontio vs Hammerhead since 2026-10-20).
+    "Kontio_vs_Hammerhead_seed12345.txt": [],
+    # The old default, kept for the tripod (torso twists to any hexside,
+    # tripod leg arcs) - named here since it's no longer the default.
+    "Asymptote_vs_Asymptote_seed12345.txt": [
+        'config.MECH_RED_MTF = "Asymptote II iJ Mpulse.mtf"',
+        'config.MECH_BLUE_MTF = "Asymptote II iJ Mpulse.mtf"',
+    ],
     "Asymptote_vs_Synthetic_maxheat8_seed777.txt": [
+        'config.MECH_RED_MTF = "Asymptote II iJ Mpulse.mtf"',
         'config.MECH_BLUE_MTF = "TEST_Synthetic_Loadout.mtf"',
         "config.SEED = 777",
         'config.MECH_RED_CONFIG["max_heat"] = 8',
@@ -41,6 +49,7 @@ SCENARIOS = {
     # mech overheat - shutdown, a heat ammo explosion, an auto-failed PSR
     # while shut down, and an automatic restart all happen in this battle.
     "Asymptote_vs_Synthetic_maxheat30_seed2.txt": [
+        'config.MECH_RED_MTF = "Asymptote II iJ Mpulse.mtf"',
         'config.MECH_BLUE_MTF = "TEST_Synthetic_Loadout.mtf"',
         "config.SEED = 2",
         'config.MECH_RED_CONFIG["max_heat"] = 30',
@@ -51,11 +60,13 @@ SCENARIOS = {
     # pods, a Chameleon LPS, inferno ammo and a torso-mounted cockpit.
     # Default heat settings: TSM pins it at 9 heat, sinks switch on and off.
     "Asymptote_vs_HeatGear_seed5.txt": [
+        'config.MECH_RED_MTF = "Asymptote II iJ Mpulse.mtf"',
         'config.MECH_BLUE_MTF = "TEST_Heat_Gear.mtf"',
         "config.SEED = 5",
     ],
     # max_heat 30: coolant pods, shutdown, and an inferno ammo explosion.
     "Asymptote_vs_HeatGear_maxheat30_seed2.txt": [
+        'config.MECH_RED_MTF = "Asymptote II iJ Mpulse.mtf"',
         'config.MECH_BLUE_MTF = "TEST_Heat_Gear.mtf"',
         "config.SEED = 2",
         'config.MECH_RED_CONFIG["max_heat"] = 30',

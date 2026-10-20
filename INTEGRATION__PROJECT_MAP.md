@@ -49,8 +49,10 @@ a clean baseline (`python tests/run_checks.py --bench`, about 2 min).
 **It runs end to end.** `.mtf` in → turn-by-turn battle on a real board →
 batch summary out: `python INTEGRATION__main.py`. Settings (mech files,
 board, seed, batch size, worker count, OPTIONAL RULES, every knob) are in
-`INTEGRATION__config.py`. Default: Asymptote II (a tripod) vs Asymptote II on
-16x17 Grassland (flat, level 0, 30 woods hexes), seed 12345, 1 battle,
+`INTEGRATION__config.py`. Default (Daniel, 2026-10-20): Kontio (Red, 40 t:
+TSM, claws, stealth armor + ECM, supercharger, lasers) vs Hammerhead (Blue,
+45 t: hardened armor, leg AES - not built, see Section 4 -, large pulse,
+Streak SRM 6), the starter set's example battle, on 16x17 Grassland (flat, level 0, 30 woods hexes), seed 12345, 1 battle,
 verbose, home-edge deployment. Layout: `INTEGRATION__*.py` at the top;
 `mechsim/` and `pathfinder/` hold the source-project modules; `data/` the
 boards, test mechs and `meks.zip` (4,227 MegaMek units, 4,162 parse);
@@ -63,10 +65,11 @@ must pass. A reference log may differ only when the change is MEANT to alter
 results - then look at a fresh battle, run
 `python tests/check_reference_logs.py --update`, and say so in the Change
 Record (Daniel has OK'd regenerating them for intended changes). For anything
-on the hot path add `--bench` (10 turns of the default battle - a pure speed
+on the hot path add `--bench` (10 turns of the Asymptote mirror, the old
+default, pinned so timings stay comparable - a pure speed
 change must keep its HP totals, currently 458 / 466; ~17-20 s in the cloud
 container, faster on Daniel's PC). The slowest checks, for whoever trims
-them: the default Asymptote reference battle (~80 s, the floor),
+them: the Asymptote mirror reference battle (~80 s, the floor),
 `test_parallel_batch` (~60 s), `test_movement_selection` (~25 s).
 
 **What's built (all Core Rulebook, page-cited in the code):**
@@ -338,6 +341,12 @@ confirmed project rules, not stubs):
   bins (`declare_attacks`, `ammo.take` per gun in `weapon_profiles.mga_guns`)
   - confirm it with a test (shared bins, a gun with no ammo left drops out of
   the column) and fix anything that falls short.
+- **Actuator Enhancement System (AES, p.206) isn't built** (Claude,
+  2026-10-20, found when the Hammerhead became the default): leg AES gives -2
+  to every PSR and -1 to kicks and charges; arm AES -1 to that arm's weapons
+  and physical attacks. Parked under Daniel's earlier "skip special equipment
+  for now" (`piloting_rolls.special_case_modifier`); now listed in the
+  battle report's known-missing rules. Daniel's call whether to build it.
 
 **Weapon-use readings (Claude, 2026-10-20, `INTEGRATION__fire_modes`):**
 - DECIDED (Daniel): an attack on a hex (Apollo saturation, Arrow IV) takes no
@@ -806,6 +815,19 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-20 (Claude):** New default matchup (Daniel: "Asymptote is an
+  uninteresting match"; "kontio vs hammerhead ... Because its the example in
+  the game's starter set"). `data/Kontio.mtf` and `data/Hammerhead.mtf`
+  (from `meks.zip`, RG21 / RG05 - the only version of each) are
+  `MECH_RED_MTF` / `MECH_BLUE_MTF`. Every gear item fires or applies except
+  the Hammerhead's leg AES (not built - Section 4, and a new line in the
+  report's known-missing rules). New reference battle
+  `Kontio_vs_Hammerhead_seed12345` (the Kontio runs behind the Hammerhead on
+  turn 1 and burns through its 5-point rear CT). The Asymptote reference
+  battles and the benchmark now name the Asymptote explicitly (four
+  scenarios had left Red to the default). Reference logs regenerated: the
+  only change to the old ones is the AES line. Benchmark unchanged (458 / 466).
 
 - **2026-10-20 (Claude):** One-command baseline (Daniel: "probably need to
   establish a briefer way to get a clean baseline. I sense that test bloat

@@ -127,8 +127,11 @@ DEPLOYMENT = "home_edge"
 HOME_EDGE_CHOICE = "random"
 
 # .mtf files for a headless run (2026-10-18). None = open the tkinter picker.
-MECH_RED_MTF = "Asymptote II iJ Mpulse.mtf"
-MECH_BLUE_MTF = "Asymptote II iJ Mpulse.mtf"
+# Default matchup (Daniel, 2026-10-20): the Kontio vs the Hammerhead, the
+# example battle in the game's starter set ("Asymptote is an uninteresting
+# match"). The Asymptote II tripod stays in data/ for the tests.
+MECH_RED_MTF = "Kontio.mtf"
+MECH_BLUE_MTF = "Hammerhead.mtf"
 
 # =============================================================================
 # ==========================  EQUIPMENT SETTINGS (2026-10-19)  ===============
