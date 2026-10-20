@@ -118,10 +118,6 @@ def max_shots(weapon):
     return 2 if is_ultra(weapon) else (6 if is_rotary(weapon) else 1)
 
 
-def mml_size(weapon):
-    return weapon.rack_size
-
-
 def has_profile(weapon):
     """Weapons whose damage / range / heat come from INTEGRATION__weapon_profiles
     or the ammunition fired (MML) rather than one equipment.json number."""
