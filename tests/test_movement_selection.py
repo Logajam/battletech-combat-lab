@@ -206,12 +206,12 @@ def adjacent_spots_count_physical_attacks():
                 for c in ev.evaluate(other.hex, other.facing, 0, "Stand Still", 0,
                                      ev.prepare(ranged_combat.movement_options(mover, TERRAIN)))}
     with_physical = scores()
-    real = physical.Planner.plans
-    physical.Planner.plans = lambda self, *a, **k: []
+    real = physical.Planner.plans_in_case
+    physical.Planner.plans_in_case = lambda self, *a, **k: []
     try:
         without = scores()
     finally:
-        physical.Planner.plans = real
+        physical.Planner.plans_in_case = real
     assert with_physical.keys() == without.keys()
     for k, (dist, dealt, received) in with_physical.items():
         d0, r0 = without[k][1], without[k][2]

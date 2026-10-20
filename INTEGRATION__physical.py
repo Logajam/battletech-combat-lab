@@ -120,8 +120,9 @@ def _limb_fired(mech, loc, fired_ids):
 class Reach:
     """Where an adjacent target sits for this attacker's physical attacks."""
 
-    def __init__(self, mech, a_hex, facing, t_hex, action):
-        pair = arcs.arcs_between(a_hex, t_hex)
+    def __init__(self, mech, a_hex, facing, t_hex, action, pair=None):
+        if pair is None:
+            pair = arcs.arcs_between(a_hex, t_hex)
         self.torso_arc = pair[(facing + action.twist) % 6]
         self.tripod = mech.mech_type == "tripod"
         self.flipped = action.flip
@@ -262,6 +263,17 @@ def _options(attacker, rel, diff, target_prone, fired):
     return {k: v for k, v in opts.items() if v}
 
 
+class _FixedReach:
+    """A Reach rebuilt from its signature (all the option builders read)."""
+
+    def __init__(self, signature):
+        self._arms = {"Left Arm": signature[0], "Right Arm": signature[1]}
+        self.kick_ok = signature[2]
+
+    def arm_ok(self, arm):
+        return self._arms[arm]
+
+
 class Planner:
     """Physical plans for one mech before anything has fired this turn, for
     positions that don't exist yet (movement scoring, the Ranged phase's
@@ -274,21 +286,41 @@ class Planner:
         self._options = {}
         self._plans = {}
         self._held = {}
+        self._cases = {}
 
     def plans(self, a_hex, a_facing, a_level, t_hex, t_level, target_prone, action, base):
         """plans() for the attack, or [] when the target is out of reach."""
         diff = t_level - a_level
         if abs(diff) > 1 or hex_distance(a_hex, t_hex) != 1:
             return []
-        rel = Reach(self.mech, a_hex, a_facing, t_hex, action)
-        case = (rel.signature(), diff, target_prone)
+        return self._plans_for(Reach(self.mech, a_hex, a_facing, t_hex, action).signature(), diff,
+                               target_prone, base)
+
+    def _plans_for(self, signature, diff, target_prone, base):
+        case = (signature, diff, target_prone)
         got = self._plans.get((case, base))
         if got is None:
             options = self._options.get(case)
             if options is None:
-                options = self._options[case] = _options(self.mech, rel, diff, target_prone, frozenset())
+                options = self._options[case] = _options(self.mech, _FixedReach(signature), diff, target_prone,
+                                                         frozenset())
             got = self._plans[(case, base)] = plans(options, base)
         return got
+
+    def cases(self, pair_arcs, facing, actions, legs):
+        """The distinct (ArcKey, reach signature) pairs `actions` give against
+        an adjacent target with arcs-tuple pair_arcs - two twists that look
+        the same to both the guns and the fists are scored once."""
+        k = (pair_arcs, facing, actions, legs)
+        got = self._cases.get(k)
+        if got is None:
+            got = self._cases[k] = tuple(dict.fromkeys(
+                (arcs.key_for(pair_arcs, facing, a, legs), Reach(self.mech, None, facing, None, a, pair_arcs).signature())
+                for a in actions))
+        return got
+
+    def plans_in_case(self, signature, diff, target_prone, base):
+        return self._plans_for(signature, diff, target_prone, base) if abs(diff) <= 1 else []
 
     def held(self, limbs):
         got = self._held.get(limbs)
