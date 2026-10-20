@@ -468,11 +468,21 @@ def who_can_hold_a_club():
 
 @check
 def picking_up_a_club():
-    """In woods, a mech with nothing to shoot uproots a tree instead of
-    firing; one that fired doesn't; a limb lying in a hex can be picked up
-    by another mech standing there later."""
+    """Off by default (config.CLUB_PICKUP). With it on: in woods, a mech with
+    nothing to shoot uproots a tree instead of firing; one that fired doesn't;
+    a limb lying in a hex can be picked up by another mech standing there
+    later."""
     clubs.reset_battle()
     m = fresh(ATLAS, WOODS)
+    assert not config.CLUB_PICKUP and clubs.maybe_pick_up(m, TERRAIN, fired_anything=False) is None
+    config.CLUB_PICKUP = True
+    try:
+        _picking_up(m)
+    finally:
+        config.CLUB_PICKUP = False
+
+
+def _picking_up(m):
     assert clubs.maybe_pick_up(m, TERRAIN, fired_anything=True) is None and not getattr(m, "club", None)
     assert clubs.maybe_pick_up(m, TERRAIN, fired_anything=False) == "tree" and m.club == "tree"
     loser = fresh(ATLAS, CLEAR)

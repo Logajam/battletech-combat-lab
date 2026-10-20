@@ -218,6 +218,11 @@ MOVEMENT_STRUCTURE_WEIGHT = 2.0
 CHARGES = True
 # Death from above (Core pp.79-80, INTEGRATION__dfa, 2026-10-20): same decision.
 DFA = True
+# Picking up clubs (Core p.79, INTEGRATION__clubs). OFF (Daniel, 2026-10-20: a
+# club is almost never worth what it costs - "I've never seen anyone use a tree
+# as a club"). The rules stay in; the decision waits for the bot's
+# future-capability planning (PROJECT_MAP Section 6, "Memo").
+CLUB_PICKUP = False
 
 # =============================================================================
 # ==========================  VISUALIZATION (NOT WIRED)  =====================
