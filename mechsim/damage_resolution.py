@@ -68,6 +68,8 @@ the corrected rule.
 
 import math
 
+import re
+
 import config
 import armor_rules
 from equipment import Equipment, is_crit_target
@@ -440,6 +442,8 @@ def resolve_critical(mech, location, explosive_only, idx, total):
 def resolve_slot_hit(mech, location, slot_idx, slot, idx, total):
     if isinstance(slot, Equipment):
         component = slot
+        if _autocannon_shrugs_off(mech, location, slot_idx, component, idx, total):
+            return
         # HELP(record_sheet.destroyed_slot_info)
         mech.destroyed_slot_info[(location, slot_idx)] = {"name": component.name, "instance_id": id(component)}
         mech.crits[location][slot_idx] = "DESTROYED"
@@ -490,6 +494,40 @@ def resolve_slot_hit(mech, location, slot_idx, slot, idx, total):
                 mech.destroyed_hip_locations.add(location)
                 config.log(f"      Hip specifically destroyed at {location} - "
                            f"running-mode Movement Phase PSR trigger now active.")
+
+
+# Autocannon names (2026-10-20): AC, LB-X, Ultra, Rotary, Light and ProtoMech
+# autocannons as MegaMek / equipment.json spell them ("ISAC5", "CLLBXAC10",
+# "ISUltraAC5", "ISRotaryAC2", "ISLAC2", "CLProtoMechAC4", "Autocannon/10").
+# Also the long forms some .mtf files use ("Clan LB 10-X AC", "Ultra AC/5").
+_AUTOCANNON_NAME = re.compile(r"^(IS|CL|CLAN)?((LBX|ULTRA|ROTARY|PROTOMECH|LIGHT|L)?AC|AUTOCANNON)\d+P?$"
+                              r"|^(IS|CL|CLAN)?LB\d+XAC$")
+
+
+def is_autocannon(component):
+    name = re.sub(r"\(.*?\)|[\s\-/]", "", component.name or "").upper()
+    return bool(_AUTOCANNON_NAME.match(name))
+
+
+def _autocannon_shrugs_off(mech, location, slot_idx, component, idx, total):
+    """Core p.183 (2026-10-20): the first critical hit to an autocannon of any
+    class does not destroy it - the slot is marked and can't take another crit,
+    and a second crit to any OTHER slot of the weapon disables it. A one-slot
+    autocannon needs two hits to that slot. Returns True if this crit was that
+    first, harmless one (nothing else happens)."""
+    if component.category != "weapon" or not is_autocannon(component):
+        return False
+    first_crits = mech.__dict__.setdefault("autocannon_crits", set())
+    if id(component) in first_crits:
+        return False                                  # second crit: destroyed as normal
+    first_crits.add(id(component))
+    if component.slots_occupied > 1:
+        # The slot is used up, but the weapon is not (instance_id None: get_weapons still counts it).
+        mech.destroyed_slot_info[(location, slot_idx)] = {"name": component.name, "instance_id": None}
+        mech.crits[location][slot_idx] = "DESTROYED"
+    config.log(f"    {idx}/{total} Criticals: {component.name} slot hit - an autocannon's first critical hit "
+               f"doesn't destroy it (p.183); it still fires.")
+    return True
 
 
 # HELP(jump_jet.hardcoded_name_match)
@@ -627,18 +665,39 @@ def get_case_tier(mech, location):
     return "CASE" if found_case else None
 
 
+EXPLOSION_IS_CAP = 20                              # Core p.96, no CASE
+CASE_IS_CAP = {"CASE": 10, "CASE II": 1}           # p.96
+CASE_ARMOR_CAP = 10                                # p.96: excess to (rear) armor, at most 10
+CASE_II_CRIT_MODIFIER = -1                         # p.96: crit checks from the explosion
+
+
 def apply_explosion(mech, component, location):
-    """Generalized explosion resolution: Ammo bins (flat 20, via explosion_damage
-    override) and explosive weapons like Gauss Rifles (2 dmg/slot) both funnel
-    through here and both respect CASE/CASE II caps the same way."""
+    """Internal explosion (Core pp.95-96, rewritten 2026-10-20): ammo bins
+    (base damage = shots left x Damage Value, INTEGRATION__ammo) and explosive
+    components (2 x slots) both come through here.
+
+    Without CASE: damage goes to internal structure, bypassing armor, and
+    transfers to the next location's structure; at most 20 structure damage in
+    all, the rest negated. If the base damage was over 20, the location that
+    took the 20th point, if it survived, loses all its armor (a torso: its rear
+    armor).
+    CASE / CASE II in the location the explosion starts in, or transfers into
+    (handled as if it started there): at most 10 / 1 structure damage; if the
+    damage reaching it is over that and the location survives, the excess goes
+    to its armor (a torso: rear armor), at most 10; the rest is negated and
+    nothing transfers. CASE II gives the explosion's crit checks -1.
+    The MechWarrior takes 1 hit (p.117) either way."""
     mech.explosions += 1
     mech.pilot_hits += 1
     mark_consciousness_check_pending(mech)
-    config.log(f"    {component.name} destroyed at {location} - EXPLOSION ({component.explosion_damage} dmg)! "
+    base = component.explosion_damage
+    config.log(f"    {component.name} destroyed at {location} - EXPLOSION ({base} dmg)! "
         f"Pilot takes 1 hit ({mech.pilot_hits}/6).")
 
-    remaining = component.explosion_damage
+    remaining = min(base, EXPLOSION_IS_CAP)     # structure damage still to place (no-CASE cap)
+    incoming = base                             # what reaches the current location (for CASE)
     current = location
+    last_hit = None                             # the location that took the last point
     while remaining > 0 and current is not None:
         if mech.locations[current]["destroyed"]:
             nxt = TRANSFER_MAP.get(current)
@@ -648,52 +707,80 @@ def apply_explosion(mech, component, location):
 
         loc = mech.locations[current]
         case_tier = get_case_tier(mech, current)
-        cap = {"CASE II": 1, "CASE": 10}.get(case_tier)
-        applied = remaining if cap is None else min(remaining, cap)
-
         if case_tier:
-            config.log(f"    Explosion reaches {current}. {case_tier} present - capped at {cap} damage. {applied} damage applied.")
-        else:
-            config.log(f"    Explosion reaches {current}. No CASE present - full {applied} damage applied.")
-
-        struct_dmg = min(applied, loc["structure"])
-        loc["structure"] -= struct_dmg
-        destroyed_this_hit = loc["structure"] <= 0
-        config.log(f"    {struct_dmg} structure damage taken ({loc['structure']}/{mech.max_structure[current]} remaining).")
-
-        if struct_dmg > 0:
-            # Structure-only modifier (blanket -1 if Reinforced). Armor
-            # component intentionally omitted: explosion damage bypasses
-            # armor entirely, so there's no "this hit's own armor
-            # consumption" to gate the -2 against the way apply_damage's
-            # own struct-damage path can - see armor_rules.crit_roll_modifier's
-            # docstring. Flagged, not silently assumed either way.
-            # HELP(crit_roll_modifier.explosion_omission)
-            modifier = armor_rules.crit_roll_modifier(mech.structure_type)
-            check_critical(mech, current, destroyed_this_hit, modifier=modifier)
-
-        if destroyed_this_hit:
-            loc["structure"] = 0
-            loc["destroyed"] = True
-            config.log(f"    {current} DESTROYED! (explosion)")
-            mark_all_crits_destroyed(mech, current)
-            child = mech.side_torso_child.get(current)
-            if child:
-                mech.locations[child]["destroyed"] = True
-                mech.locations[child]["structure"] = 0
-                config.log(f"  {child} also destroyed (side torso rule).")
-                mech.__dict__.setdefault("severed_limbs", []).append(child)   # falls off: a club (p.79)
-                mark_all_crits_destroyed(mech, child)
-
-        if case_tier:
-            config.log(f"    {case_tier} contains the explosion. No further transfer.")
+            _case_contains(mech, current, case_tier, incoming)
             return
 
+        config.log(f"    Explosion reaches {current}. No CASE present - {remaining} damage to structure.")
+        struct_dmg = min(remaining, loc["structure"])
+        destroyed_this_hit = _explosion_structure(mech, current, struct_dmg, crit_modifier=0)
+        if struct_dmg > 0:
+            last_hit = current
         remaining -= struct_dmg
-        if remaining > 0:
+        incoming = remaining
+        if is_destroyed(mech):
+            return
+        if remaining > 0 and destroyed_this_hit:
             nxt = TRANSFER_MAP.get(current)
             config.log(f"    {remaining} explosion damage remains, transfers to {nxt or 'nowhere'}.")
             current = nxt
 
-        if is_destroyed(mech):
-            return
+    if base > EXPLOSION_IS_CAP and remaining == 0 and last_hit is not None \
+            and not mech.locations[last_hit]["destroyed"]:
+        _strip_armor(mech, last_hit, None, "base damage over 20 (p.96)")
+
+
+def _case_contains(mech, location, case_tier, incoming):
+    """CASE / CASE II in `location` (p.96): see apply_explosion."""
+    loc = mech.locations[location]
+    is_cap = CASE_IS_CAP[case_tier]
+    struct_dmg = min(incoming, is_cap, loc["structure"])
+    config.log(f"    Explosion reaches {location}. {case_tier} present - at most {is_cap} structure damage.")
+    destroyed = _explosion_structure(mech, location, struct_dmg,
+                                     crit_modifier=CASE_II_CRIT_MODIFIER if case_tier == "CASE II" else 0)
+    excess = incoming - is_cap
+    if excess > 0 and not destroyed and not is_destroyed(mech):
+        _strip_armor(mech, location, min(excess, CASE_ARMOR_CAP), f"{case_tier} vents the excess")
+    config.log(f"    {case_tier} contains the explosion. No further transfer.")
+
+
+def _explosion_structure(mech, location, struct_dmg, crit_modifier):
+    """Explosion damage to `location`'s internal structure, its crit check
+    and destruction. Returns True if the location was destroyed."""
+    loc = mech.locations[location]
+    loc["structure"] -= struct_dmg
+    destroyed_this_hit = loc["structure"] <= 0
+    config.log(f"    {struct_dmg} structure damage taken ({loc['structure']}/{mech.max_structure[location]} remaining).")
+    if struct_dmg > 0:
+        # Structure-only modifier (blanket -1 if Reinforced). Armor
+        # component intentionally omitted: explosion damage bypasses
+        # armor entirely, so there's no "this hit's own armor
+        # consumption" to gate the -2 against the way apply_damage's
+        # own struct-damage path can - see armor_rules.crit_roll_modifier's
+        # docstring. Flagged, not silently assumed either way.
+        # HELP(crit_roll_modifier.explosion_omission)
+        modifier = armor_rules.crit_roll_modifier(mech.structure_type) + crit_modifier
+        check_critical(mech, location, destroyed_this_hit, modifier=modifier)
+    if destroyed_this_hit:
+        loc["structure"] = 0
+        loc["destroyed"] = True
+        config.log(f"    {location} DESTROYED! (explosion)")
+        mark_all_crits_destroyed(mech, location)
+        child = mech.side_torso_child.get(location)
+        if child:
+            mech.locations[child]["destroyed"] = True
+            mech.locations[child]["structure"] = 0
+            config.log(f"  {child} also destroyed (side torso rule).")
+            mech.__dict__.setdefault("severed_limbs", []).append(child)   # falls off: a club (p.79)
+            mark_all_crits_destroyed(mech, child)
+    return destroyed_this_hit
+
+
+def _strip_armor(mech, location, amount, why):
+    """Explosion damage to armor (p.96): a torso's REAR armor, otherwise its
+    armor. amount None = all of it."""
+    loc = mech.locations[location]
+    field = "rear_armor" if "rear_armor" in loc else "armor"
+    lost = loc[field] if amount is None else min(amount, loc[field])
+    loc[field] -= lost
+    config.log(f"    {why}: {location} loses {lost} {field.replace('_', ' ')} ({loc[field]} left).")

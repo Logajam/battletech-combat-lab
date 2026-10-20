@@ -77,10 +77,10 @@ its HP totals). Batches run several battles at once, one per CPU core
   in the Core tables) and `heat_explosion_bin` (a controller choice).
 
 **Pick up here (open, roughly in Daniel's priority order):**
-0. **Rules review** (`INTEGRATION__RULES_REVIEW.md`, started 2026-10-20):
-   its "Gaps" list is Claude's to build (backward walking done 2026-10-20); its
-   "for Daniel" list needs his calls; chapters still to review are listed
-   at its top.
+0. **Rules review** (`INTEGRATION__RULES_REVIEW.md`, first pass complete
+   2026-10-20): its "Gaps" list is Claude's to build (backward walking done;
+   next: AMS G13, multi-shot autocannons / LB-X / Artemis G10); D1-D7 decided
+   (Section 5); D8 (Daniel's LOS model vs Core) still open.
 1. **The bot's future-capability planning** - Section 6 "Memo" (Daniel,
    2026-10-20). Needed for clubs, MASC, Rotary ACs and similar.
 2. **Hanging back** (seen 2026-10-20): in Asymptote vs HeatGear sample
@@ -634,6 +634,22 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-20 (Claude):** Rules review, first pass complete
+  (`INTEGRATION__RULES_REVIEW.md`: Playing the Game, the rest of Combat,
+  Weapons and Equipment, The Battlefield). Fixed: an autocannon's first
+  critical hit no longer destroys it (Core p.183; `damage_resolution.
+  is_autocannon` / `_autocannon_shrugs_off` - the slot is used up, a second
+  crit to another slot destroys it); internal explosions (p.96) - ammo bins
+  now carry the UNCAPPED base damage (`INTEGRATION__ammo._update_explosion`,
+  shots x Damage Value), and `apply_explosion` applies the 20 cap, strips the
+  armor (torso: rear) of the location that took the 20th point when the base
+  was over 20, vents CASE / CASE II excess into the (rear) armor up to 10, and
+  gives CASE II's explosion crit checks -1. New gaps listed: AMS (G13),
+  armored components (G14), ECM (G15). Tests: `test_rules.py`
+  (autocannon_first_critical, explosions_and_case; ammunition updated).
+  Reference logs regenerated (explosion log wording and the uncapped base
+  damage in the log line; no battle outcome changed).
 
 - **2026-10-20 (Claude):** Daniel's calls on rules review D1-D7 (Section 5).
   New OPTIONAL RULES section in `INTEGRATION__config.py`:

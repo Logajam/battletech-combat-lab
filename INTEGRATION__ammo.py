@@ -34,7 +34,6 @@ import INTEGRATION__weapon_rules as weapon_rules
 from equipment import Equipment, lookup_equipment
 from damage_resolution import get_weapons
 
-EXPLOSION_CAP = 20   # p.96 (without CASE)
 
 # One-shot launcher names in equipment.json: "LRM 5 (OS)", "CLLRM10 (OS)",
 # "ISSRM2OS", "CLOSStreakLRM5", "CLIOSStreakLRM5", "CLNarcBeacon (OS)" - a
@@ -98,15 +97,17 @@ def attach_ammo(mech):
 
 
 def _update_explosion(bin_):
-    """Explosion damage = shots left x damage per shot, capped at 20 (p.96);
-    an empty bin isn't explosive (p.180). Unknown shots keep the 20 default."""
+    """Explosion BASE damage = shots left x damage per shot (p.95); an empty
+    bin isn't explosive (p.180). Unknown shots keep the 20 default. The caps
+    (20 without CASE, CASE / CASE II, p.96) are damage_resolution.apply_explosion's
+    (since 2026-10-20 - the base over 20 matters there: armor loss, CASE venting)."""
     if bin_.shots_left is None:
         return
     if bin_.shots_left <= 0:
         bin_.is_explosive = False
         bin_.explosion_damage = 0
     elif bin_.shot_damage is not None:
-        bin_.explosion_damage = min(EXPLOSION_CAP, bin_.shots_left * bin_.shot_damage)
+        bin_.explosion_damage = bin_.shots_left * bin_.shot_damage
 
 
 # =============================================================================

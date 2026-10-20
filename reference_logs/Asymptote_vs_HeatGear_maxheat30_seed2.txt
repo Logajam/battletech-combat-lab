@@ -204,22 +204,22 @@ MECH SELECTION
   [Heat] Blue: SHUT DOWN (heat 26, shutdown avoid roll needs 10, rolled 8).
   [Heat] Blue: ammo explosion avoid roll at heat 26: needs 6, rolled 6 - avoided.
   [Heat] Blue: inferno ammo explosion avoid roll at heat 26: needs 10, rolled 6 - ISSRM6 Ammo - Inferno in Left Torso EXPLODES.
-    ISSRM6 Ammo - Inferno destroyed at Left Torso - EXPLOSION (20 dmg)! Pilot takes 1 hit (1/6).
-    Explosion reaches Left Torso. No CASE present - full 20 damage applied.
+    ISSRM6 Ammo - Inferno destroyed at Left Torso - EXPLOSION (180 dmg)! Pilot takes 1 hit (1/6).
+    Explosion reaches Left Torso. No CASE present - 20 damage to structure.
     14 structure damage taken (0/14 remaining).
   Check for possible critical. Roll a 9.
     1 critical hit(s).
     1/1 Criticals: ISSRM6 Ammo slot hit.
       Current crit slots in Left Torso: ['ISSRM6', 'ISSRM6', 'DESTROYED', 'DESTROYED', 'ISCoolantPod', 'Chameleon Light Polarization Field', 'TSM', 'ISGuardianECMSuite', 'ISGuardianECMSuite', '-Empty-', '-Empty-', '-Empty-']
-    ISSRM6 Ammo destroyed at Left Torso - EXPLOSION (20 dmg)! Pilot takes 1 hit (2/6).
-    Explosion reaches Left Torso. No CASE present - full 20 damage applied.
+    ISSRM6 Ammo destroyed at Left Torso - EXPLOSION (108 dmg)! Pilot takes 1 hit (2/6).
+    Explosion reaches Left Torso. No CASE present - 20 damage to structure.
     0 structure damage taken (0/14 remaining).
     Left Torso DESTROYED! (explosion)
   All critical slots in Left Torso marked DESTROYED.
   Left Arm also destroyed (side torso rule).
   All critical slots in Left Arm marked DESTROYED.
     20 explosion damage remains, transfers to Center Torso.
-    Explosion reaches Center Torso. No CASE present - full 20 damage applied.
+    Explosion reaches Center Torso. No CASE present - 20 damage to structure.
     20 structure damage taken (0/20 remaining).
   Center Torso destroyed with no live explosive components - no critical roll.
     Center Torso DESTROYED! (explosion)
@@ -239,7 +239,6 @@ MECH SELECTION
   All critical slots in Left Torso marked DESTROYED.
   Left Arm also destroyed (side torso rule).
   All critical slots in Left Arm marked DESTROYED.
-    6 explosion damage remains, transfers to Center Torso.
   [Heat] Blue: inferno ammo burns - +30 heat at once -> 56.
   -- end of turn 6: Red @ 1211 N: HP 469, pilot hits 0, engine 0, gyro 0, heat 0
   -- end of turn 6: Blue @ 1515 NE: HP 227, pilot hits 2, engine 6, gyro 4, heat 56 [SHUT DOWN, DESTROYED (Center Torso Destroyed)]

@@ -14,15 +14,29 @@ in `summary/core-rules/*.yaml`). Every entry cites the page. Status words:
   today (the default 16x17 Grassland is all level 0, its only terrain is
   woods). Matters as soon as a board has hills, water or roads.
 
-Chapters covered so far: Movement (pp.42-53), Combat part 1 (LOS, arcs,
-to-hit, pp.54-69), the hit-location / TAC / critical-hit parts of Combat part
-2 and Damage (pp.73-99), Piloting Skill Rolls, falling and MechWarrior damage
-(pp.110-117). Already page-checked when built (2026-10-19/20, not repeated
-here): Heat (pp.102-107), physical attacks (pp.76-83), attack direction,
-cluster hits, ammo, firing arcs and torso twists.
-Still to do: the rest of Combat part 2 (aimed shots, indirect fire), Weapons
-and Equipment (pp.180-215), The Battlefield (terrain, pp.118-129), Playing
-the Game (sequence, initiative) - a quick pass.
+Chapters covered (first pass complete, 2026-10-20): Playing the Game
+(sequence of play, initiative, phases, pp.37-41), Movement (pp.42-53),
+Combat (LOS, arcs, to-hit, aimed shots, indirect fire, hit location, cluster
+hits, ammo, pp.54-83), Damage (pp.84-99), Piloting Skill Rolls, falling and
+MechWarrior damage (pp.110-117), Weapons and Equipment (pp.180-215, the
+weapons and equipment a 'Mech duel uses), The Battlefield (pp.118-129: woods
+only - conditions, fire, ice, mud, snow, swamp and underwater combat need
+terrain or options the simulator doesn't have yet). Already page-checked when
+built (2026-10-19/20, not repeated): Heat (pp.102-107), physical attacks
+(pp.76-83), attack direction, firing arcs and torso twists.
+Not applicable to a two-'Mech duel: indirect fire and spotting (needs a
+friendly spotter), C3, multiple targets, hidden units, missions, assets,
+artillery.
+
+Checked and matching (second batch): the sequence of play - both sides
+declare before damage lands, a 'Mech destroyed in a phase still makes its
+declared attacks, PSRs then consciousness at the end of each attack phase
+(pp.39-40, 76); initiative with ties re-rolled (p.39); automatic hit at TN 2
+or less, automatic miss over 12 (p.72); the whole Cluster Hits Table
+(p.74, checked cell by cell); ammo used at declaration, Streaks only on a
+hit (pp.72, 187); weapon to-hit modifiers (pulse, heavy, VSP, rocket
+launchers, MRM cluster -1, pp.185-187); Gauss rifle component explosion
+(2 x slots, pp.96, 184); aimed shots (p.70).
 
 ---
 
@@ -35,6 +49,8 @@ the Game (sequence, initiative) - a quick pass.
 | F3 | Partial cover never comes from the attacker's own hex | p.57 | At range 1 the code looked at the attacker's hex as the "hex next to the target". LATENT. |
 | F4 | A leg hit on a target in partial cover strikes the cover - no damage | pp.66, 73 | Only aimed shots handled cover (by re-rolling). Ordinary hits and missile groups now lose a leg hit to the cover; the floating-critical re-roll re-rolls legs (p.95). LATENT. |
 | F5 | A head hit always costs the MechWarrior 1 hit | p.117 | When a hit-location 2 (floating critical, p.95) re-rolled onto the Head, the pilot hit was skipped. |
+| F7 | An autocannon's first critical hit doesn't destroy it | p.183 | Any crit destroyed it. Now the first crit to an autocannon of any class (AC, LB-X, Ultra, Rotary, light, ProtoMech) uses up the slot but the gun still fires; a second crit to another of its slots destroys it (a one-slot autocannon takes two hits). |
+| F8 | Internal explosions: armor loss and CASE venting | p.96 | Ammo explosion damage was capped at 20 before it reached the explosion code, so: a base over 20 never stripped the armor of the location that took the 20th point (a torso: its rear armor); CASE dropped everything over 10 instead of venting up to 10 into the (rear) armor; CASE II applied 1 and dropped the rest instead of up to 10 into the armor, and its crit checks lacked the -1. Bins now carry the uncapped base damage (shots x Damage Value, p.95); `damage_resolution.apply_explosion` applies the caps. |
 | F6 | Backward walking (was G1) | pp.45-46, 63 | Built 2026-10-20: a walking mech may step into the hex directly behind it (facing kept); a turn with a backward step never spends more than Walking MP; the hex count for TMM restarts when the mech reverses direction. The battle log marks moves that use it ("includes a backward move"). Not yet offered: backward level changes and backward charges (G11, G12). |
 
 ---
@@ -54,6 +70,9 @@ the Game (sequence, initiative) - a quick pass.
 | G9 | Expected damage ignores leg hits lost to partial cover | p.66 | Movement scoring and weapon choice still count them. LATENT. |
 | G10 | Weapons with special Core rules: Ultra / Rotary rate of fire and jams, LB-X cluster ammo | pp.183-186 | Already known (summary banner). Big for mechs that carry them. |
 | G11 | Backward level change: one level up or down, a PSR each time (fall in the lower of the two hexes); not with a destroyed hip | pp.46-47, 115 | Backward steps are only offered into same-level hexes: the movement scoring can't price a PSR in the middle of a move yet. LATENT (flat board). |
+| G13 | Anti-Missile System (AMS / laser AMS) | p.206 | Not built at all - an AMS never fires. It should engage up to 2 missile attacks a turn from its arc: the Cluster Hits roll at -4 (below 2: every missile destroyed), a Streak treated as a 7, 1 ammo + 1 heat (laser AMS: no ammo, 7 heat IS / 5 Clan). ~240 of the 4,227 units in `data/meks.zip` carry one. Also belongs in the expected-damage numbers (movement scoring, weapon choice). |
+| G14 | Armored components | p.207 | Each armored slot absorbs one crit with no effect. Not parsed. ~37 units. |
+| G15 | ECM | p.199 | In a duel it matters by cancelling the target's Artemis bonus (G10) and similar; nothing to do until Artemis is built. |
 | G12 | Charging after a backward step | p.78 | The charge planner uses forward-only paths (the hex count restarts after a backward step and the planner adds the final forward step). Small. |
 
 ---

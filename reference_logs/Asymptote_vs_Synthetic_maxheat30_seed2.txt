@@ -378,15 +378,15 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 6.
     1 critical hit(s).
     1/1 Criticals: ISLRM15 Ammo slot hit.
       Current crit slots in Left Torso: ['ISLRM15', 'ISLRM15', 'ISLRM15', 'ISLRM15 Ammo', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-    ISLRM15 Ammo destroyed at Left Torso - EXPLOSION (20 dmg)! Pilot takes 1 hit (2/6).
-    Explosion reaches Left Torso. No CASE present - full 20 damage applied.
+    ISLRM15 Ammo destroyed at Left Torso - EXPLOSION (105 dmg)! Pilot takes 1 hit (2/6).
+    Explosion reaches Left Torso. No CASE present - 20 damage to structure.
     0 structure damage taken (0/12 remaining).
     Left Torso DESTROYED! (explosion)
   All critical slots in Left Torso marked DESTROYED.
   Left Arm also destroyed (side torso rule).
   All critical slots in Left Arm marked DESTROYED.
     20 explosion damage remains, transfers to Center Torso.
-    Explosion reaches Center Torso. No CASE present - full 20 damage applied.
+    Explosion reaches Center Torso. No CASE present - 20 damage to structure.
     16 structure damage taken (0/16 remaining).
   Center Torso destroyed with no live explosive components - no critical roll.
     Center Torso DESTROYED! (explosion)
@@ -401,7 +401,6 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 6.
     Engine hit (5/3) from Center Torso destruction.
     Engine hit (6/3) from Center Torso destruction.
   All critical slots in Center Torso marked DESTROYED.
-    4 explosion damage remains, transfers to nowhere.
   Left Torso DESTROYED!
   All critical slots in Left Torso marked DESTROYED.
   Left Arm also destroyed (side torso rule).
@@ -421,12 +420,11 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 6.
     1 critical hit(s).
     1/1 Criticals: ISAC5 Ammo slot hit.
       Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', 'ISAC5', 'ISAC5', 'ISAC5', 'ISAC5', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-']
-    ISAC5 Ammo destroyed at Right Arm - EXPLOSION (20 dmg)! Pilot takes 1 hit (3/6).
-    Explosion reaches Right Arm. No CASE present - full 20 damage applied.
+    ISAC5 Ammo destroyed at Right Arm - EXPLOSION (50 dmg)! Pilot takes 1 hit (3/6).
+    Explosion reaches Right Arm. No CASE present - 20 damage to structure.
     0 structure damage taken (0/8 remaining).
     Right Arm DESTROYED! (explosion)
   All critical slots in Right Arm marked DESTROYED.
-    20 explosion damage remains, transfers to Right Torso.
   Right Arm DESTROYED!
   All critical slots in Right Arm marked DESTROYED.
   0 damage remains, transfers to Right Torso.
