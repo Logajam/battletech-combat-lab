@@ -131,6 +131,7 @@ import INTEGRATION__los_cache as geo_cache  # noqa: E402
 import INTEGRATION__equipment_systems as equipment_systems  # noqa: E402
 import INTEGRATION__movement_attacks as movement_attacks  # noqa: E402
 import INTEGRATION__weapon_rules as weapon_rules  # noqa: E402
+import INTEGRATION__future_damage as future_damage  # noqa: E402
 
 SIDES = ("front", "left", "right", "rear")
 _P_2D6 = {roll: (6 - abs(roll - 7)) / 36 for roll in range(2, 13)}
@@ -184,12 +185,14 @@ def psr_costs(mech) -> Dict[str, float]:
 
 
 class _Side:
-    """One mech's per-pick scoring inputs: exposure table and PSR prices."""
+    """One mech's per-pick scoring inputs: exposure table and PSR prices, and
+    (after _link) the objective it scores its own spots with."""
 
     def __init__(self, mech, psr_applies=True):
         self.mech = mech
         self.exposure = exposure_factors(mech)
         self._psr = psr_costs(mech) if psr_applies else {"Run": 0.0, "Jump": 0.0}
+        self.objective = _RATIO
 
     def psr_cost(self, mode, fc):
         if mode == "Run":
@@ -246,6 +249,71 @@ def _pick_dict(o) -> Dict[str, object]:
 # =============================================================================
 def _objective(dealt, received, dealt_mult, received_mult, extras):
     return (dealt * dealt_mult) / (received * received_mult + extras + config.MOVEMENT_RATIO_EPSILON)
+
+
+# The objective is chosen by config.MOVEMENT_OBJECTIVE (Daniel, 2026-10-20: "Go for
+# it as an option"). Each side scores ITS OWN spots with its own objective - the
+# modeled second mover in the two-ply too - so an objective object belongs to a
+# side. Both are called objective(dealt, received, dealt_mult, received_mult,
+# extras), dealt / received in evaluator units times their exposure factors.
+class _Ratio:
+    """dealt / (received + PSR cost + epsilon) - Daniel, 2026-10-19."""
+
+    __call__ = staticmethod(_objective)
+
+    @staticmethod
+    def note(dealt, received, dealt_mult, received_mult, extras, how):
+        return _note(dealt, received, dealt_mult, received_mult, extras, how)
+
+
+_RATIO = _Ratio()
+
+
+def effective_hp(mech):
+    """Armor + rear armor + MOVEMENT_STRUCTURE_WEIGHT x structure: the mech's
+    HP in the units dealt / received are counted in (structure damage counts k
+    times there, INTEGRATION__structure_weight)."""
+    k = config.MOVEMENT_STRUCTURE_WEIGHT
+    return sum(v.get("armor", 0) + v.get("rear_armor", 0) + k * v.get("structure", 0)
+               for v in mech.locations.values() if not v.get("destroyed"))
+
+
+class _Lifetime:
+    """The damage this mech can expect to deal before it is destroyed
+    (Daniel, 2026-10-20):
+        dealt now + (HP left after this turn / the enemy's future damage per
+        turn) x my future damage per turn
+    Future damage per turn: INTEGRATION__future_damage (floored at
+    MOVEMENT_LIFETIME_FUTURE_FLOOR). HP left is effective_hp minus received
+    (with the PSR cost), never below 0 - a spot that gets the mech destroyed,
+    or pushed off the board (priced as its whole HP), keeps only its dealt.
+    Beating "deal nothing, take nothing" needs dealt / received above
+    my future / the enemy's future: this turn's trade must beat the trades it
+    can expect later."""
+
+    def __init__(self, me, them):
+        floor = config.MOVEMENT_LIFETIME_FUTURE_FLOOR
+        self.hp = effective_hp(me.mech)
+        self.mine = max(future_damage.future_damage(me.mech, them.mech), floor)
+        self.theirs = max(future_damage.future_damage(them.mech, me.mech), floor)
+
+    def __call__(self, dealt, received, dealt_mult, received_mult, extras):
+        left = self.hp - (received * received_mult + extras)
+        return dealt * dealt_mult + (left / self.theirs * self.mine if left > 0 else 0.0)
+
+    def note(self, dealt, received, dealt_mult, received_mult, extras, how):
+        score = self(dealt, received, dealt_mult, received_mult, extras)
+        return (f"score {score:.3f} = dealt {dealt:.2f} x{dealt_mult:.2f} + (HP {self.hp:.1f} - received "
+                f"{received:.2f} x{received_mult:.2f} - PSR {extras:.2f}) / enemy future {self.theirs:.2f} "
+                f"x my future {self.mine:.2f} [{how}]")
+
+
+def _link(me, them):
+    """Give both sides their objective for this pick (config.MOVEMENT_OBJECTIVE)."""
+    if config.MOVEMENT_OBJECTIVE == "lifetime":
+        me.objective, them.objective = _Lifetime(me, them), _Lifetime(them, me)
+    elif config.MOVEMENT_OBJECTIVE != "ratio":
+        raise ValueError(f"Unknown MOVEMENT_OBJECTIVE {config.MOVEMENT_OBJECTIVE!r} (\"ratio\" or \"lifetime\")")
 
 
 def _nearest_to(options, target_xy, rng=None):
@@ -367,8 +435,8 @@ def _static_scores(cands, prepared_by_key, me, them):
     out = []
     for cand in cands:
         o = prepared_by_key[(cand.hex, cand.facing, cand.mode, cand.fc)]
-        score = _objective(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
-                           me.exposure[cand.side_on_mover], me.psr_cost(cand.mode, cand.fc))
+        score = me.objective(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
+                             me.exposure[cand.side_on_mover], me.psr_cost(cand.mode, cand.fc))
         out.append((score, o, cand))
     return out
 
@@ -387,8 +455,8 @@ def _modeled_reply(c, ev2, prepared2, them, me, other, mover_xy_of_c, terrain_ma
     for cand in cands:
         if cand.dealt > 0:
             any_damage = True
-        score = _objective(cand.dealt, cand.received, me.exposure[cand.side_on_defender],
-                           them.exposure[cand.side_on_mover], them.psr_cost(cand.mode, cand.fc))
+        score = them.objective(cand.dealt, cand.received, me.exposure[cand.side_on_defender],
+                               them.exposure[cand.side_on_mover], them.psr_cost(cand.mode, cand.fc))
         key = round(score, 9)
         if best is None or key > best_score:
             best_score, best = key, cand
@@ -401,7 +469,7 @@ def _modeled_reply(c, ev2, prepared2, them, me, other, mover_xy_of_c, terrain_ma
         special = movement_attacks.scored_options(
             other, ev2.defender, movement_attacks.pose_at(c.label, c.facing_compass, c.fc, c.mode), index2, ev2,
             them.exposure, me.exposure, them.psr_cost, movement_attacks.best_by_mode(cands, me.exposure),
-            (c.label, c.facing_compass, c.fc, c.mode, c.mp_spent), _objective)
+            (c.label, c.facing_compass, c.fc, c.mode, c.mp_spent), them.objective)
         if special and (not any_damage or round(special[0][0], 9) > best_score):
             return special[0][1]
     if any_damage:
@@ -445,12 +513,17 @@ def _movement_attack_pick(mover, other, terrain_map, standup_mp, normal_score, e
     options = movement_attacks.scored_options(
         mover, other, movement_attacks.pose_of(other), index, ev1, me.exposure, them.exposure, me.psr_cost,
         movement_attacks.best_by_mode(static, them.exposure),
-        (other.hex, other.facing, other.move_fc, other.move_mode, other.mp_spent), _objective)
+        (other.hex, other.facing, other.move_fc, other.move_mode, other.mp_spent), me.objective)
     if not options:
         return None
     score, cand, state, what = options[0]
     if normal_score is not None and score <= normal_score:
         return None
+    if me.objective is not _RATIO:
+        return state, (f"{what} on {other.side_name}: " + me.objective.note(
+            cand.dealt, cand.received, them.exposure[cand.side_on_defender], me.exposure[cand.side_on_mover],
+            me.psr_cost(state['mode'], state['fc']), "incl. self-damage") +
+            f" beats {'nothing' if normal_score is None else f'{normal_score:.3f}'}")
     return state, (f"{what} on {other.side_name}: score {score:.3f} = dealt {cand.dealt:.2f} "
                    f"x{them.exposure[cand.side_on_defender]:.2f} / (received {cand.received:.2f} incl. self-damage "
                    f"x{me.exposure[cand.side_on_mover]:.2f} + PSR {me.psr_cost(state['mode'], state['fc']):.2f}) beats "
@@ -482,6 +555,7 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
                                   f"{' (closing fallback)' if fb is not None else ''}"), None, None
 
     them = _Side(other, psr_applies=True)
+    _link(me, them)
     enemy_xy = hex_geometry.parse_hex_label(other.hex)
 
     # Static evaluation: the enemy standing where it is now. Real for the second
@@ -503,10 +577,10 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
         scored = _static_scores(static, prepared_by_key, me, them)
         if scored and any(c.dealt > 0 for _, _, c in scored):
             o, cand = _best_by_score(scored, enemy_xy, battle_rng)
-            score = _objective(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
-                               me.exposure[cand.side_on_mover], me.psr_cost(cand.mode, cand.fc))
-            return _pick_dict(o), _note(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
-                                        me.exposure[cand.side_on_mover], me.psr_cost(cand.mode, cand.fc),
+            score = me.objective(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
+                                 me.exposure[cand.side_on_mover], me.psr_cost(cand.mode, cand.fc))
+            return _pick_dict(o), me.objective.note(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
+                                                    me.exposure[cand.side_on_mover], me.psr_cost(cand.mode, cand.fc),
                                         f"enemy held at {other.hex}; {len(scored)} spots with LOS"), score, ctx
         return (*_fallback_pick(mover, other, prepared1, enemy_xy, dealt_for, terrain_map, battle_rng,
                                 "no spot deals damage"), None, ctx)
@@ -531,16 +605,16 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
         if dealt > 0:
             any_dealt = True
         extras = me.psr_cost(c.mode, c.fc)
-        scored.append((_objective(dealt, received, dealt_mult, received_mult, extras), c,
+        scored.append((me.objective(dealt, received, dealt_mult, received_mult, extras), c,
                        (dealt, received, dealt_mult, received_mult, extras, reply)))
     if any_dealt:
         o, (dealt, received, dm, rm, extras, reply) = _best_by_score(scored, enemy_xy, battle_rng)
         reply_txt = (f"; modeled reply {other.side_name} -> {reply.hex} {reply.facing} {reply.mode}"
                      f"{f' ({reply.attack.upper()})' if reply.attack else ''}"
                      if reply is not None else "; modeled reply: none with LOS")
-        return (_pick_dict(o), _note(dealt, received, dm, rm, extras,
-                                     f"two-ply, {len(prepared1)} spots x {len(prepared2)} replies{reply_txt}"),
-                _objective(dealt, received, dm, rm, extras), ctx)
+        return (_pick_dict(o), me.objective.note(dealt, received, dm, rm, extras,
+                                                 f"two-ply, {len(prepared1)} spots x {len(prepared2)} replies{reply_txt}"),
+                me.objective(dealt, received, dm, rm, extras), ctx)
     return (*_fallback_pick(mover, other, prepared1, enemy_xy, dealt_for, terrain_map, battle_rng,
                             f"no spot deals damage even before the reply (two-ply, {len(prepared1)} spots)"), None, ctx)
 

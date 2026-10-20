@@ -654,6 +654,58 @@ def same_seed_same_battle():
     assert out[0] == out[1]
 
 
+@check
+def lifetime_objective_math():
+    """config.MOVEMENT_OBJECTIVE = "lifetime" (2026-10-20): dealt + (HP left /
+    enemy future) x my future. HP 100, my future 10, the enemy's 20."""
+    obj = object.__new__(ms._Lifetime)
+    obj.hp, obj.mine, obj.theirs = 100.0, 10.0, 20.0
+    hide = obj(0, 0, 1, 1, 0)
+    assert abs(hide - 50.0) < TOL                         # 100 / 20 x 10
+    assert obj(30, 120, 1, 1, 0) == 30                    # destroyed here: only what it deals now
+    # A fight beats deal-nothing-take-nothing when its trade beats mine / theirs = 0.5.
+    assert obj(6, 10, 1, 1, 0) > hide > obj(4, 10, 1, 1, 0)
+    # What it takes still counts when it deals nothing (the ratio scored both 0).
+    assert obj(0, 1, 1, 1, 0) > obj(0, 20, 1, 1, 0)
+    # Exposure and the PSR cost come off the HP like damage received.
+    assert abs(obj(0, 10, 1, 2, 5) - obj(0, 25, 1, 1, 0)) < TOL
+
+
+@check
+def future_damage_follows_evasion():
+    """INTEGRATION__future_damage: the target's best TMM sets the to-hit, so
+    the same gunfire is worth less against a faster mech; the estimate never
+    touches either mech."""
+    import INTEGRATION__future_damage as fd
+    kontio = fresh("0505", template=parse_mtf(config.data_path("Kontio.mtf")), max_heat=30)
+    hammer = fresh("0508", template=parse_mtf(config.data_path("Hammerhead.mtf")), max_heat=30)
+    assert fd.best_tmm(kontio) == 4 and fd.best_tmm(hammer) == 3      # Run 11 -> +4, Run 8 (hardened) -> +3
+    fast = fd.future_damage(hammer, kontio)
+    kontio.base_walk_mp = 2                                           # Walk 2 / Run 3: TMM +1
+    before = (kontio.movement_mode_this_turn if hasattr(kontio, "movement_mode_this_turn") else None, kontio.hex)
+    slow = fd.future_damage(hammer, kontio)
+    assert fd.best_tmm(kontio) == 1 and slow > fast > 0
+    after = (kontio.movement_mode_this_turn if hasattr(kontio, "movement_mode_this_turn") else None, kontio.hex)
+    assert before == after
+
+
+@check
+def lifetime_option_runs_and_is_deterministic():
+    """A short battle under the lifetime objective twice: identical results."""
+    saved = config.MOVEMENT_OBJECTIVE
+    config.MOVEMENT_OBJECTIVE = "lifetime"
+    try:
+        out = []
+        for _ in range(2):
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                r = orchestrator.run_batch(num_simulations=1, seed=7, max_turns=2)[0]
+            out.append((r.turns_taken, r.red.final_hp, r.blue.final_hp, buf.getvalue()))
+        assert out[0] == out[1]
+    finally:
+        config.MOVEMENT_OBJECTIVE = saved
+
+
 if __name__ == "__main__":
     failures = 0
     for fn in CHECKS:
