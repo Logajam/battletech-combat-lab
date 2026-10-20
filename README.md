@@ -20,6 +20,7 @@ board, seed, number of battles, stub knobs) are in `INTEGRATION__config.py`.
 | `mechsim/` | Mech state, damage, crits, piloting rolls, `.mtf` parser, `equipment.json` (full equipment database) |
 | `pathfinder/` | Hex geometry, board parser, movement, LOS, to-hit pieces |
 | `data/` | `.board` maps (16x17 Grassland, 50x50 BigBlank) and `.mtf` mechs |
+| `data/meks.zip` | 4,227 MegaMek `.mtf` units by source book (4,162 parse; ultralights under 20 t, superheavies and LAMs don't). Unzip outside the repo and point `INTEGRATION__config.py` at a file to try a unit |
 | `tests/` | `check_reference_logs.py` (same-seed battles vs saved logs), `test_pathfinder.py` (hex geometry, movement, board parsing, terrain costs), `test_weapon_range.py` (range modifiers), `test_heat.py` (Heat Scale), `test_equipment.py` (heat equipment), `test_rules.py` (stub replacements), `test_movement_selection.py` (movement picker), `test_arcs.py` (twists, arm flips, turrets) |
 | `rules/` | `Battletech_Rule_Reference_Index.zip`: the rules library (Core Rulebook in `base/core-rules/*.md`) that page cites in the code refer to. Unzip somewhere outside the repo to read it |
 | `reference_logs/` | Same-seed sample logs (matchup and settings in the file name), for checking that a change didn't alter results |
