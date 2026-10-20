@@ -92,6 +92,7 @@ import INTEGRATION__heat as heat
 import INTEGRATION__equipment_systems as equip
 import INTEGRATION__weapon_rules as weapon_rules
 import INTEGRATION__arcs as arcs
+import INTEGRATION__clubs as clubs
 import INTEGRATION__ammo as ammo
 from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capability, \
     mark_consciousness_check_pending, compute_heat_dissipation
@@ -345,8 +346,11 @@ def _physical_planner(attacker, target, terrain_map):
 
     planner = physical.Planner(attacker)
 
+    push = planner.push_plan(a_hex, a_facing, a_level, target, target.hex, t_level, base, "front", terrain_map)
+
     def plans_for(action):
-        return planner.plans(a_hex, a_facing, a_level, t_hex, t_level, target.prone, action, base) or [(0.0, (), [])]
+        got = planner.plans(a_hex, a_facing, a_level, t_hex, t_level, target.prone, action, base) or [(0.0, (), [])]
+        return got + push if push and not action.flip else got
     return plans_for
 
 
@@ -358,8 +362,9 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     if attacker.shutdown:
         config.log(f"  [Ranged] {a_name}: shut down - no attacks.")
         return
-    if getattr(attacker, "charging", None) is not None:
-        config.log(f"  [Ranged] {a_name}: charging {t_name} - no ranged attacks this turn (p.78).")
+    if getattr(attacker, "charging", None) is not None or getattr(attacker, "dfa", None) is not None:
+        what = "charging" if getattr(attacker, "charging", None) is not None else "in a death from above on"
+        config.log(f"  [Ranged] {a_name}: {what} {t_name} - no ranged attacks this turn (pp.78-79).")
         return
     a_hex = hex_geometry.parse_hex_label(attacker.hex)
     t_hex = hex_geometry.parse_hex_label(target.hex)
@@ -591,6 +596,8 @@ def run_ranged_combat_phase(mover_first, mover_second, terrain_map, battle_rng):
 
     for attacker, target in pairs:
         declare_attacks(attacker, target, terrain_map, reports[attacker.side_name])
+        # Nothing to shoot this turn: maybe pick up a club instead (p.79, INTEGRATION__clubs).
+        clubs.maybe_pick_up(attacker, terrain_map, fired_anything=bool(reports[attacker.side_name].attacks_list))
 
     for attacker, target in pairs:
         rep = reports[attacker.side_name]

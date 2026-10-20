@@ -86,9 +86,17 @@ enemy count punches / kicks both ways, and the Ranged phase picks its twist and
 fire together with the physical attack that follows (Section 4a "Who picks").
 Since 2026-10-20 each physical attack is weighted by its own hit table (punch /
 kick table exposure + structure bonus, `physical.Worth`), and **charges** are in
-(`INTEGRATION__charge.py`, `tests/test_charge.py`): gated per movement mode on
+(`INTEGRATION__charge.py`, `tests/test_special_attacks.py`): gated per movement mode on
 beating the best ordinary attack, then scored like any spot (Section 5
-"Charges"). Speed: ~1.2 s a turn on the default battle (was ~3.2; Change Record).
+"Charges"). **All seven physical attack types are in (2026-10-20):** death from
+above (`INTEGRATION__dfa.py`) shares the charge decision
+(`INTEGRATION__movement_attacks.py`), and the FIRST mover's two-ply now models
+the second mover's charges / DFAs against every spot it might take; pushes
+are valued by their displacement (off the board = the target's whole HP, 2+
+levels down = the fall; otherwise worth nothing), so their threat steers
+movement both ways; clubs (`INTEGRATION__clubs.py`) are picked up on a turn
+with nothing to shoot. Speed: ~1.45 s a turn on the default battle (was ~3.2
+before the 2026-10-20 speed pass; Change Record).
 Test units: `data/meks.zip` (4,227 MegaMek units, 4,162 parse).
 
 **Other open follow-ups:** terrain that forces a PSR on entry and mine fields
@@ -145,7 +153,7 @@ does both, with stubs where rules are missing.**
 | Initiative | `orchestrator.roll_initiative()` | **REAL**, Daniel-confirmed 2026-08-31. |
 | Movement | `orchestrator._phase_movement()` | **REAL:** damage- and heat-aware MP (TSM, MASC/supercharger), immobile (shut down / unconscious) skip, full Walk/Run/Jump envelope with expected dealt/received per spot (`INTEGRATION__ranged_combat.evaluate_going_second`), unconscious-skip, stand-up (`resolve_stand_up`) then move on with the remaining MP (p.51), movement PSR for Run 1+ hex / Jump (`check_movement_psr`; none for Walk, p.111), consciousness checks. The pick: `INTEGRATION__movement_selection.choose`. |
 | Ranged Combat | `INTEGRATION__attack_resolution.py` | **REAL:** LOS, rear arc (only rear-mounted weapons fire into it), TN = gunnery + AMM + TMM(actual hexes moved; -4 if immobile) + LOS + range + heat + weapon / targeting computer / arm-crit / sensor / prone modifiers, shut-down mechs don't fire, heat- and ammo-constrained weapon selection, real to-hit rolls, attack direction from geometry, cluster table with Core groupings (Streak, MRM), hit location, damage, crits, explosions, floating TAC, head hits, aimed shots, ammo use, Attack Phase PSR, consciousness. Both sides declare before damage lands (simultaneous). **STUBS:** `unknown_damage_type`, `unconfirmed_weapon_data`, `ammo_data`. |
-| Physical Combat | `INTEGRATION__physical.run_physical_phase()` | **REAL (Core pp.76-83):** punches, kicks, physical weapons, charges (`INTEGRATION__charge`, declared in Movement); bot picks the most expected damage, weighted by hit table. DFA, pushes, clubs not built. |
+| Physical Combat | `INTEGRATION__physical.run_physical_phase()` | **REAL (Core pp.76-83):** all seven attack types - punches, kicks, physical weapons, clubs (`INTEGRATION__clubs`), pushes, charges and death from above (`INTEGRATION__charge` / `INTEGRATION__dfa`, declared in Movement via `INTEGRATION__movement_attacks`); bot picks the most expected damage, weighted by hit table. |
 | Heat | `orchestrator._phase_heat()` → `INTEGRATION__heat.resolve_heat_phase()` | **REAL (2026-10-19, Core Rulebook pp.102-107):** heat carries over; += movement heat (Walk 1 / Run 2 / Jump, Improved JJ, XXL, super-cooled myomer) + weapon heat + engine-hit heat (5/10) + stealth heat − dissipation (+3 Partial Wing, radical heat sinks, coolant pods); then shutdown roll or restart, ammo and inferno explosion rolls (re-rolled after inferno heat), life-support pilot hits, and next turn's MP / to-hit / TSM effects. End Phase: heat sinks switched off to hold min_heat. **STUB:** `heat_explosion_bin` (bin tie-break needs shot counts). |
 | End | `orchestrator._phase_end()` | **REAL:** wake-up rolls, crippled tracking, destruction check. |
 
@@ -207,7 +215,7 @@ Artemis/HAG/ammo variants; heat sources with no terrain model yet (water,
 snow, fire, extreme temperatures) and inferno missiles (bins aren't fired
 from); heat decisions (cooldown, voluntary shutdown); stealth armor /
 Void-Signature hostile-ECM side effects; torso-mounted cockpit PSR/sensor
-rules; DFA, pushes, clubs; jumping onto the board at deployment;
+rules; domino effects (no third mech); jumping onto the board at deployment;
 tripod leg sub-roll uses Python `random` (seeded from SEED, not the
 BattleRNG stream).
 
@@ -266,9 +274,6 @@ a live import test). Removed. Both directories now go on `sys.path` once.
 No PATHFINDER module used by the battle loop imports `config`.
 
 **Deferred by explicit scope call, not gaps:**
-- Physical attacks beyond punches/kicks/physical weapons/charges: DFA,
-  pushes, clubs (built 2026-10-19: `INTEGRATION__physical.py`; charges
-  2026-10-20: `INTEGRATION__charge.py`).
 - End Phase beyond unconscious-pilot recovery (heat restarts happen in the
   Heat Phase, p.105; voluntary End Phase shutdown is a bot decision, not built).
 
@@ -467,6 +472,29 @@ forward arc, kicks included, never into a side arc.
   that: the opponent's modeled reply uses the same rule (greedy, not
   searched); the PSR cost is P(fail) x ceil(mass/10) for Run (1+ hex) / Jump
   when a trigger exists; exposure factors clamp to [0.5, 3.0].
+- **Movement attacks are anticipated (Daniel, 2026-10-20):** "First mover
+  needs to anticipate being charged, or any other incorporated attacks."
+  The two-ply modeled reply runs the same charge / DFA decision the real
+  second mover does (gate, score, beat its best ordinary reply) against each
+  first-mover spot; ranged fire and every physical attack (pushes included)
+  were already in the reply's numbers.
+- **Pushes (Daniel, 2026-10-20):** "It does no damage on its own, but can be
+  used to push a mech off a cliff causing falling damage, or push a mech off
+  the map, which should probably be evaluated as taking 100% damage. Its a
+  case of the threat of it affects choices, and it will almost never be
+  used." Implemented: value = P(hit) x (the target's remaining armor +
+  structure off the board; the fall's worth 2+ levels down; else 0), a
+  physical plan using both arms. The same displacement worth is added to
+  charges and DFAs that hit.
+- **Clubs (Claude's call, 2026-10-20):** picked up only on a turn the mech
+  fires nothing anyway (it costs the whole Ranged phase); limb / girder before
+  tree. Not planned for in movement (a mech doesn't walk into woods to fetch
+  one).
+- **Death from above (Claude's calls, 2026-10-20):** the jump must clear the
+  target's LOS level (hex + 2 standing / 1 prone) within the jump MP; a
+  DFA'er that fell in the Ranged phase lands without a second fall (the rule
+  says resolve a failed DFA instead of the fall); on a miss the target steps
+  to the open hex with the smallest drop.
 - **Charges (Daniel, 2026-10-20):** "gate that decision tree to ask if a
   charge at this movement mode does more damage than normal attacks and
   physicals before thinking about it." Implemented: per movement mode, a charge
@@ -551,6 +579,24 @@ forward arc, kicks included, never into a side arc.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-20 (Claude):** The remaining physical attacks and anticipation.
+  New `INTEGRATION__movement_attacks.py` (target poses, a once-per-decision
+  index of the mover's reachable states, charge / DFA options and values incl.
+  displacement worth, the gate and scoring - used by the second mover's pick
+  AND the first mover's two-ply reply), `INTEGRATION__dfa.py` (pp.79-80:
+  Punch-table hit, Kick-table self-damage, landing, p.80 displacement order,
+  a miss = 2-level rear fall), pushes in `INTEGRATION__physical.py` (p.83,
+  valued by displacement; mutual pushes; prohibited hexes),
+  `INTEGRATION__clubs.py` (p.79: trees in woods / jungle, girders in rubble,
+  severed limbs left in their hex - `damage_resolution` records
+  `severed_limbs`; holding needs both hands / shoulders; club attacks in
+  `physical._club_options`, a PSR for the target, a tree breaks after one
+  hit, dropped on hand / shoulder damage). `piloting_rolls.resolve_fall`
+  takes `side`. `MoveEvaluator.evaluate(physical_reply=False)` for a mech in
+  the air. `config.DFA` switches DFAs off. `tests/test_charge.py` became
+  `tests/test_special_attacks.py` (20 checks). Default battle ~1.45 s a turn.
+  Reference logs regenerated (pushes' threat moves mechs off board edges).
+
 - **2026-10-20 (Claude):** Charge attacks (Core p.78; displacement pp.113-114;
   falls p.115). New `INTEGRATION__charge.py`: who can be charged (standing,
   finished moving or immobile - the second mover's option), the charge states
@@ -562,7 +608,7 @@ forward arc, kicks included, never into a side arc.
   automatic fall - then +2 PSRs; cancelled if the target fell / was destroyed
   or TN 13+, a miss if the charger fell). `piloting_rolls.resolve_fall` takes
   `levels` (x(levels+1) damage). `config.CHARGES` switches it off. New
-  `tests/test_charge.py` (10 checks; a Charger CGR-1A1 vs Atlas AS7-D battle
+  `tests/test_special_attacks.py` (10 checks; a Charger CGR-1A1 vs Atlas AS7-D battle
   charges). Not modeled: charge PSRs / displacement in the score, the first
   mover anticipating a charge, domino effects, buildings, water, lance /
   spikes / shields.

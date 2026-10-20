@@ -119,6 +119,7 @@ import INTEGRATION__movement_selection as movement_selection  # noqa: E402
 import INTEGRATION__stubs as stubs  # noqa: E402
 import INTEGRATION__attack_resolution as attack_resolution  # noqa: E402
 import INTEGRATION__arcs as arcs  # noqa: E402
+import INTEGRATION__clubs as clubs  # noqa: E402
 from INTEGRATION__attack_resolution import _with_piloting, total_hp  # noqa: E402
 from INTEGRATION__results import BattleResult, SideStats, summarize  # noqa: E402
 
@@ -187,6 +188,7 @@ def _reset_movement_state(mech):
     mech.mp_spent = 0
     mech.movement_heat = 0
     mech.charging = None                 # the mech it declared a charge against (Core p.78)
+    mech.dfa = None                      # ... or a death from above against (pp.79-80)
 
 
 # Heat rules (movement heat, Improved-JJ detection, budget) live in
@@ -282,6 +284,10 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_fi
             mover.charging = other
             config.log(f"  [Movement] {name} declares a CHARGE against {other.side_name} "
                        f"(stops adjacent; {mover.move_fc} hexes counting the target's hex).")
+        if pick.get("dfa"):
+            mover.dfa = other
+            config.log(f"  [Movement] {name} declares DEATH FROM ABOVE on {other.side_name} "
+                       f"(in the air next to it; jumped {mover.move_fc} hexes).")
         config.log(f"  [Movement] {name}: {start} -> {mover.hex} {mover.facing}, {mover.move_mode} "
                    f"({mover.mp_spent} MP, {mover.move_fc} hexes, {mover.movement_heat} heat; budget "
                    f"walk {mp['walk']} / run {mp['run']} / jump {mp['jump']}"
@@ -404,6 +410,13 @@ def _deploy_home_edges(mech_red, mech_blue, terrain_map, battle_rng):
     config.log(f"  Deployment roll: Red {red}, Blue {blue} - {loser.side_name} chose its edge.")
 
 
+def _after_phase(*mechs):
+    """Severed limbs fall into their mech's hex; clubs that can't be held
+    any more are dropped (INTEGRATION__clubs, Core p.79)."""
+    for m in mechs:
+        clubs.after_phase(m)
+
+
 def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,
                max_turns: Optional[int] = None) -> BattleResult:
     """Section 2's turn structure for up to max_turns turns, or until a mech
@@ -415,6 +428,7 @@ def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,
         "Blue": SideStats(name=f"Blue ({mech_blue.chassis} {mech_blue.model})", max_hp=total_hp(mech_blue)),
     }
     by_name = {"Red": mech_red, "Blue": mech_blue}
+    clubs.reset_battle()
     if config.DEPLOYMENT == "home_edge":
         _deploy_home_edges(mech_red, mech_blue, terrain_map, battle_rng)
     elif config.DEPLOYMENT != "fixed_hexes":
@@ -436,14 +450,18 @@ def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,
         _phase_movement(mover_first, mover_second, terrain_map, turn, battle_rng, moves_first=True)
         _phase_movement(mover_second, mover_first, terrain_map, turn, battle_rng, moves_first=False)
 
+        _after_phase(mech_red, mech_blue)
         reports = attack_resolution.run_ranged_combat_phase(mover_first, mover_second, terrain_map, battle_rng)
+        _after_phase(mech_red, mech_blue)
         for side, rep in reports.items():
             stats[side].attacks += rep.attacks
             stats[side].hits += rep.hits
             stats[side].damage_dealt += rep.damage_dealt
 
         physical.run_physical_phase(mover_first, mover_second, terrain_map, reports)
+        _after_phase(mech_red, mech_blue)
         _phase_heat(mech_red, mech_blue, reports)
+        _after_phase(mech_red, mech_blue)
         _phase_end(mech_red, mech_blue, turn, stats)
 
         config.log(f"  -- end of turn {turn}: {_status_line(mech_red)}")

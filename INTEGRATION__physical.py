@@ -4,9 +4,10 @@ INTEGRATION__physical.py  (NEW 2026-10-19, Claude - Pile 2 rules, Pile 4 choice)
 The Physical Attack Phase (Core Rulebook pp.76-83), replacing the
 physical_combat stub: punches, kicks and physical weapons (claws, hatchet,
 lance, mace, retractable blade, sword, vibroblades - treated as switched
-off, talons on kicks). Charges are INTEGRATION__charge (declared in the
-Movement Phase, resolved here). Death-from-above, pushes and clubs are not
-built (see results.KNOWN_MISSING_RULES).
+off, talons on kicks), pushes (push_option / _resolve_pushes, p.83) and
+clubs (_club_options; finding one: INTEGRATION__clubs, p.79). Charges and
+death from above are declared in the Movement Phase (INTEGRATION__charge,
+INTEGRATION__dfa, INTEGRATION__movement_attacks) and resolved here.
 
   - Who (p.76-77): an adjacent target; a standing, powered, conscious
     attacker; one attack type per turn (both arms may punch). Prone mechs
@@ -151,6 +152,11 @@ class Worth:
                    min(config.MOVEMENT_EXPOSURE_MAX, structure_weight.vulnerability(spread) / self._front))
 
     def factor(self, table, side, damage):
+        if table == "displacement":
+            # a push's value is already a worth (the target's HP off the board, a fall's worth)
+            if not self.relative or side == "front":
+                return 1.0
+            return 1.0 / self._exposure(structure_weight.hit_spread(self.target, side))
         k = (table, side, damage)
         got = self._memo.get(k)
         if got is None:
@@ -202,9 +208,13 @@ class Reach:
             return self.torso_arc == arcs.FORWARD
         return self.torso_arc in (arcs.FORWARD, ARM_SIDE_ARC[arm])
 
+    def club_ok(self):
+        """Clubs: the (twisted) torso's forward arc (p.79); not with reversed arms."""
+        return not self.flipped and self.torso_arc == arcs.FORWARD
+
     def signature(self):
         """Everything about the geometry the attack options depend on."""
-        return (self.arm_ok("Left Arm"), self.arm_ok("Right Arm"), self.kick_ok)
+        return (self.arm_ok("Left Arm"), self.arm_ok("Right Arm"), self.kick_ok, self.club_ok())
 
 
 def _strength(mech, per_tons, plus=0):
@@ -287,11 +297,16 @@ def attack_options(attacker, target, terrain_map, action=None):
     then chosen. Empty when no physical attack is possible."""
     if attacker.prone or is_immobile(attacker) or is_destroyed(attacker) or is_destroyed(target):
         return {}
-    return options_at(attacker, hex_geometry.parse_hex_label(attacker.hex),
-                      hex_geometry.compass_to_facing(attacker.facing), terrain_map["hexes"][attacker.hex]["level"],
-                      hex_geometry.parse_hex_label(target.hex), terrain_map["hexes"][target.hex]["level"],
-                      target.prone, getattr(attacker, "weapons_fired_this_turn", frozenset()),
-                      arcs.current_action(attacker) if action is None else action)
+    a_xy, a_facing = hex_geometry.parse_hex_label(attacker.hex), hex_geometry.compass_to_facing(attacker.facing)
+    a_level, t_level = terrain_map["hexes"][attacker.hex]["level"], terrain_map["hexes"][target.hex]["level"]
+    fired = getattr(attacker, "weapons_fired_this_turn", frozenset())
+    opts = options_at(attacker, a_xy, a_facing, a_level, hex_geometry.parse_hex_label(target.hex), t_level,
+                      target.prone, fired, arcs.current_action(attacker) if action is None else action)
+    if not (action or arcs.current_action(attacker)).flip:          # reversed arms can't push either
+        push = push_option(attacker, a_xy, a_facing, a_level, target, target.hex, t_level, terrain_map, fired)
+        if push is not None:
+            opts["push"] = [push]
+    return opts
 
 
 def options_at(attacker, a_hex, a_facing, a_level, t_hex, t_level, target_prone, fired, action):
@@ -313,20 +328,44 @@ def _options(attacker, rel, diff, target_prone, fired):
         if diff == 0:
             opts["kick"] = _kick_options(attacker, rel, fired, "standard")
             opts["weapon"] = _weapon_options(attacker, rel, fired, None, True)
+            opts["club"] = _club_options(attacker, rel, fired, "standard")
         elif diff == 1:
             opts["punch"] = _punch_options(attacker, rel, fired, None)
             opts["weapon"] = _weapon_options(attacker, rel, fired, None, True)
+            opts["club"] = _club_options(attacker, rel, fired, "standard")
     elif diff == 0:
         opts["punch"] = _punch_options(attacker, rel, fired, None)
         opts["kick"] = _kick_options(attacker, rel, fired, None)
         opts["weapon"] = _weapon_options(attacker, rel, fired, None, False)
+        opts["club"] = _club_options(attacker, rel, fired, "standard")
     elif diff == 1:
         opts["punch"] = _punch_options(attacker, rel, fired, "kick")
         opts["weapon"] = _weapon_options(attacker, rel, fired, "kick", False)
+        opts["club"] = _club_options(attacker, rel, fired, "kick")
     else:
         opts["kick"] = _kick_options(attacker, rel, fired, "punch")
         opts["weapon"] = _weapon_options(attacker, rel, fired, "punch", False)
+        opts["club"] = _club_options(attacker, rel, fired, "punch")
     return {k: v for k, v in opts.items() if v}
+
+
+CLUB_MOD = -1                    # p.79: Piloting - 1
+CLUB_CLAW_MOD = 2
+CLUB_ACTUATOR_MOD = 2            # per damaged upper / lower arm actuator
+
+
+def _club_options(m, rel, fired, table):
+    """A club attack (p.79, INTEGRATION__clubs) if the mech holds one."""
+    import INTEGRATION__clubs as clubs                  # clubs is a leaf module; lazy for symmetry
+    if not getattr(m, "club", None) or not rel.club_ok() or not clubs.can_wield(m):
+        return []
+    if any(_limb_fired(m, arm, fired) for arm in ARMS):
+        return []
+    mod = CLUB_MOD + CLUB_ACTUATOR_MOD * sum(1 for arm in ARMS for part in ("Upper Arm Actuator", "Lower Arm Actuator")
+                                             if _lost(m, arm, part))
+    if any(clubs._has_claw(m, arm) for arm in ARMS):
+        mod += CLUB_CLAW_MOD
+    return [dict(name=f"{m.club} club", mod=mod, damage=_strength(m, 5), table=table, limb=ARMS, club=True)]
 
 
 class _FixedReach:
@@ -335,9 +374,13 @@ class _FixedReach:
     def __init__(self, signature):
         self._arms = {"Left Arm": signature[0], "Right Arm": signature[1]}
         self.kick_ok = signature[2]
+        self._club = signature[3]
 
     def arm_ok(self, arm):
         return self._arms[arm]
+
+    def club_ok(self):
+        return self._club
 
 
 class Planner:
@@ -354,6 +397,7 @@ class Planner:
         self._plans = {}
         self._held = {}
         self._cases = {}
+        self._push_target, self._push_values = None, {}
 
     def plans(self, a_hex, a_facing, a_level, t_hex, t_level, target_prone, action, base, side="front"):
         """plans() for the attack, or [] when the target is out of reach."""
@@ -390,6 +434,26 @@ class Planner:
     def plans_in_case(self, signature, diff, target_prone, base, side="front"):
         return self._plans_for(signature, diff, target_prone, base, side) if abs(diff) <= 1 else []
 
+    def push_plan(self, a_xy, a_facing, a_level, target, t_label, t_level, base, side, terrain_map):
+        """[(value, limbs, [option])] for the push from this spot, or []."""
+        if target is not self._push_target:
+            self._push_target, self._push_values = target, {}
+        values = self._push_values
+
+        def value_for(label, direction):
+            v = values.get((label, direction))
+            if v is None:
+                import INTEGRATION__movement_attacks as movement_attacks
+                v = values[(label, direction)] = movement_attacks.displacement_worth(target, label, direction,
+                                                                                     terrain_map)
+            return v
+        o = push_option(self.mech, a_xy, a_facing, a_level, target, t_label, t_level, terrain_map,
+                        value_for=value_for)
+        if o is None:
+            return []
+        v = expected_damage(base, [o], self.worth, side)
+        return [(v, ARMS, [o])] if v > 0 else []
+
     def held(self, limbs):
         got = self._held.get(limbs)
         if got is None:
@@ -417,6 +481,37 @@ def expected_damage(base, picks, worth=None, side="front"):
                for o in picks)
 
 
+PUSH_MOD = -1                    # p.83: Piloting - 1
+PUSH_SHOULDER_MOD = 2            # per destroyed shoulder
+
+
+def push_option(attacker, a_xy, a_facing, a_level, target, t_label, t_level, terrain_map, fired=frozenset(),
+                value_for=None):
+    """The push the attacker could make (p.83), as an option dict, or None:
+    both arms, no arm weapon fired, the target standing in the hex straight
+    ahead of the attacker's FEET (twists don't count) at the same level, and
+    not itself charging / in a DFA. A push does no damage: its value is what
+    the displacement does (INTEGRATION__movement_attacks.displacement_worth) -
+    and the bot only considers a push worth something (off the board, 2+
+    levels down)."""
+    import INTEGRATION__movement_attacks as movement_attacks       # it imports this module
+    if target.prone or t_level != a_level or getattr(target, "charging", None) or getattr(target, "dfa", None):
+        return None
+    t_xy = hex_geometry.parse_hex_label(t_label)
+    if hex_distance(a_xy, t_xy) != 1 or combat._direction_facing(a_xy, t_xy) != a_facing:
+        return None
+    if any(arm not in attacker.locations or attacker.locations[arm]["destroyed"] for arm in ARMS):
+        return None
+    if fired and any(_limb_fired(attacker, arm, fired) for arm in ARMS):
+        return None
+    value = (movement_attacks.displacement_worth(target, t_label, a_facing, terrain_map) if value_for is None
+             else value_for(t_label, a_facing))
+    if value <= 0:
+        return None
+    mod = PUSH_MOD + PUSH_SHOULDER_MOD * sum(1 for arm in ARMS if _lost(attacker, arm, "Shoulder"))
+    return dict(name="push", mod=mod, damage=value, table="displacement", limb=ARMS, push=True)
+
+
 def limb_weapon_ids(mech, limbs):
     """Weapons that may not fire if `limbs` make physical attacks this turn
     (a split torso/arm weapon counts as in the arm, p.76)."""
@@ -438,7 +533,10 @@ def plans(options, base, worth=None, side="front"):
         for g in groups:
             v = expected_damage(base, g, worth, side)
             if v > 0:
-                out.append((v, tuple(o["limb"] for o in g), g))
+                limbs = []
+                for o in g:
+                    limbs += list(o["limb"]) if isinstance(o["limb"], tuple) else [o["limb"]]
+                out.append((v, tuple(limbs), g))
     out.sort(key=lambda p: -p[0])
     return out
 
@@ -449,6 +547,8 @@ def choose_attack(attacker, target, terrain_map):
     expected damage, weighted by where each table lands (Worth: a kick at
     stripped legs or a punch at a thin head counts for more). Returns
     (base TN, [options], ArcAction) or None."""
+    if is_destroyed(attacker) or is_destroyed(target) or attacker.hex == target.hex:
+        return None
     turret = arcs.current_action(attacker).turret
     actions = tuple(dict.fromkeys(a._replace(turret=turret) for a in arcs.arc_options(attacker, phase="physical")))
     side = attack_resolution.attack_side(hex_geometry.parse_hex_label(attacker.hex),
@@ -491,16 +591,55 @@ def _location(table, side, target):
     return loc
 
 
+PUSH_PSR_MODIFIER = 0
+
+
+def _resolve_pushes(pushes, triggers, terrain_map):
+    """Successful pushes (p.83): the target moves one hex straight on, the
+    pusher into its hex, then the target makes a PSR (+0) - or falls
+    automatically 2+ levels down, or is destroyed off the board. A hex 3+
+    levels up: nobody moves, the PSR still happens. Two mechs that both push
+    each other successfully: nobody moves, both PSR."""
+    import INTEGRATION__movement_attacks as movement_attacks
+    if len(pushes) == 2:
+        config.log("    Both pushes succeed - neither mech moves; both must make a PSR (p.83).")
+        for _, target in pushes:
+            triggers[target.side_name].append(("pushed", PUSH_PSR_MODIFIER))
+        return
+    for attacker, target in pushes:
+        direction = hex_geometry.compass_to_facing(attacker.facing)
+        kind, label, drop = movement_attacks.displacement(target.hex, direction, terrain_map)
+        if kind == "off":
+            target.destroyed, target.cause_of_death = True, "Pushed off the battlefield"
+            config.log(f"    {target.side_name} is pushed off the battlefield - destroyed (p.83).")
+            attacker.hex = target.hex
+            continue
+        if kind == "blocked":
+            config.log(f"    The push into a hex 3+ levels up is prohibited - nobody moves (p.83).")
+            triggers[target.side_name].append(("pushed", PUSH_PSR_MODIFIER))
+            continue
+        old, target.hex, attacker.hex = target.hex, label, target.hex
+        config.log(f"    {target.side_name} is pushed {old} -> {label}; {attacker.side_name} follows into {old}.")
+        if drop >= 2:
+            config.log(f"    {target.side_name} is pushed {drop} levels down - automatic fall (p.83).")
+            piloting_rolls.resolve_fall(target, seatbelt_modifier=0, cause="pushed down", levels=drop)
+        else:
+            triggers[target.side_name].append(("pushed", PUSH_PSR_MODIFIER))
+
+
 def run_physical_phase(mech_a, mech_b, terrain_map, reports):
     """Both mechs declare and roll, then the damage lands, then charges'
     damage and displacement, then PSRs and consciousness checks (p.83)."""
-    import INTEGRATION__charge as charge       # charge imports this module
+    import INTEGRATION__charge as charge       # charge and dfa import this module
+    import INTEGRATION__dfa as dfa
+    import INTEGRATION__clubs as clubs
     for m in (mech_a, mech_b):
         rep = reports.get(m.side_name)
         m.weapons_fired_this_turn = frozenset(id(x.weapon) for x in rep.attacks_list) if rep else frozenset()
         piloting_rolls.snapshot_pre_attack_phase(m)
     declared = []
     charges = []
+    dfas = []
     for attacker, target in ((mech_a, mech_b), (mech_b, mech_a)):
         if getattr(attacker, "charging", None) is not None:
             outcome = charge.declare(attacker, target, terrain_map)
@@ -508,6 +647,13 @@ def run_physical_phase(mech_a, mech_b, terrain_map, reports):
                 if outcome != "miss" and outcome[1]:
                     charges.append((attacker, target))
                 continue
+        if getattr(attacker, "dfa", None) is not None:
+            outcome = dfa.declare(attacker, target, terrain_map)
+            if outcome is not None:                      # hit or miss, it lands: no other physical attack
+                dfas.append((attacker, target, outcome[1]))
+                continue
+        if getattr(target, "dfa", None) is not None and not is_destroyed(target):
+            continue                                     # the target is in the air (p.79)
         choice = choose_attack(attacker, target, terrain_map)
         if choice is None:
             continue
@@ -527,7 +673,12 @@ def run_physical_phase(mech_a, mech_b, terrain_map, reports):
                        f"rolled {roll} -> {'HIT' if hit else 'miss'} ({o['damage']} dmg, {side} side)")
             declared.append((attacker, target, o, hit, side))
     triggers = {mech_a.side_name: [], mech_b.side_name: []}
+    pushes = []
     for attacker, target, o, hit, side in declared:
+        if o.get("push"):
+            if hit:
+                pushes.append((attacker, target))
+            continue
         if hit:
             loc = _location(o["table"], side, target)
             config.log(f"    {o['name']} hits {target.side_name}'s {loc} for {o['damage']}.")
@@ -538,10 +689,17 @@ def run_physical_phase(mech_a, mech_b, terrain_map, reports):
                          damage_type=DamageType.PHYSICAL)
             if o.get("kick"):
                 triggers[target.side_name].append(("kicked", 0))
+            if o.get("club"):
+                triggers[target.side_name].append(("hit by a club", 0))     # p.79
+                clubs.used(attacker)
         elif o.get("kick"):
             triggers[attacker.side_name].append(("missed a kick", 0))
+    _resolve_pushes(pushes, triggers, terrain_map)
     for attacker, target in charges:                     # damage, then displacement (p.78, p.113)
         for name, extra in charge.resolve_hit(attacker, target, terrain_map).items():
+            triggers[name].extend(extra)
+    for attacker, target, hit in dfas:                   # damage, landing, displacement (p.80)
+        for name, extra in dfa.resolve(attacker, target, hit, terrain_map).items():
             triggers[name].extend(extra)
     for m in (mech_a, mech_b):
         attack_resolution._with_piloting(m, piloting_rolls.resolve_attack_phase_psr,

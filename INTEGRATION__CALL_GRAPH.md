@@ -36,8 +36,11 @@ edited).
   to-hit modifiers.
 - `ammo.py` (NEW 2026-10-19) → `config`, `stubs`, `weapon_rules`; MECHSIM
   `equipment` (Equipment, lookup_equipment), `damage_resolution.get_weapons`
-- `charge.py` (NEW 2026-10-20) → `config`, `attack_resolution`, `physical`, `ranged_combat` (lazily, for movement options); MECHSIM `mech_state`, `damage_resolution`, `hit_location`, `piloting_rolls`; PATHFINDER `hex_geometry`, `combat`, `terrain_rules`, `los`. Used by `movement_selection` (the decision) and `physical` (resolution, lazy import).
-- `physical.py` (NEW 2026-10-19) → `config`, `attack_resolution`, `arcs`, `structure_weight`, `charge` (lazy); MECHSIM
+- `movement_attacks.py` (NEW 2026-10-20) → `config`, `attack_resolution`, `physical`, `ranged_combat` (lazy), `charge` / `dfa` (lazy); MECHSIM `mech_state`; PATHFINDER `hex_geometry`, `combat`, `terrain_rules`, `los`. Used by `movement_selection` (charge / DFA decisions, both movers' two-ply), `charge`, `dfa`, `physical` (displacement for pushes, lazy).
+- `charge.py` (NEW 2026-10-20) → `config`, `attack_resolution`, `movement_attacks`; MECHSIM `mech_state`, `damage_resolution`, `hit_location`, `piloting_rolls`; PATHFINDER `hex_geometry`, `combat`. Used by `physical` (resolution, lazy import).
+- `dfa.py` (NEW 2026-10-20) → `config`, `movement_attacks`, `attack_resolution` (lazy); MECHSIM `mech_state`, `piloting_rolls`; PATHFINDER `hex_geometry`, `combat`. Used by `physical` (lazy).
+- `clubs.py` (NEW 2026-10-20) → `config` only. Used by `attack_resolution` (pick-up), `physical` (club attacks), `orchestrator` (battle reset, end-of-phase drops).
+- `physical.py` (NEW 2026-10-19) → `config`, `attack_resolution`, `arcs`, `structure_weight`, `charge` / `dfa` / `clubs` / `movement_attacks` (lazy); MECHSIM
   `mech_state`, `equipment`, `damage_resolution.apply_damage`,
   `hit_location.resolve_hit_location`, `piloting_rolls`; PATHFINDER
   `hex_geometry`, `combat`, `los` (has_los, hex_distance)
@@ -118,7 +121,7 @@ main.py
    ├─ movement_selection.py ── ranged_combat.py, los_cache.py, piloting_rolls, hit_location, damage_resolution
    ├─ stubs.py
    ├─ attack_resolution.py ── heat.py, weapon_rules.py, ammo.py
-   ├─ physical.py ── attack_resolution.py, arcs.py, charge.py, hit_location, piloting_rolls
+   ├─ physical.py ── attack_resolution.py, arcs.py, charge.py, dfa.py, clubs.py, hit_location, piloting_rolls
    └─ results.py
 ```
 
