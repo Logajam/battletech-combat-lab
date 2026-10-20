@@ -252,6 +252,29 @@ def ranged_fire_holds_an_arm_for_a_better_punch():
 
 
 @check
+def hit_tables_steer_punch_or_kick():
+    """A 50-ton mech's two punches and its kick have the same raw expected
+    damage (2 x 5 vs 10 at TN 4); the hit tables break the tie (p.81): a
+    target with stripped legs gets kicked, one with a stripped upper body
+    gets punched. The punch table's 1-in-6 head chance counts too."""
+    import INTEGRATION__physical as physical
+    synthetic = parse_mtf(config.data_path("TEST_Synthetic_Loadout.mtf"))
+    kinds = []
+    for stripped in (("Left Leg", "Right Leg"), ("Left Arm", "Right Arm", "Left Torso", "Right Torso", "Center Torso")):
+        m, t = fresh("0808", "N", template=synthetic), fresh("0807", "S", template=synthetic)
+        for loc in stripped:
+            t.locations[loc]["armor"] = 0
+        base, picks, _ = physical.choose_attack(m, t, TERRAIN)
+        kinds.append("kick" if picks[0].get("kick") else "punch")
+        w = physical.Worth(t)
+        assert (w.factor("kick", "front", 10) > w.factor("punch", "front", 5)) == (kinds[-1] == "kick")
+    assert kinds == ["kick", "punch"]
+    fresh_target = fresh("0807", "S", template=synthetic)
+    w = physical.Worth(fresh_target)
+    assert w.factor("punch", "front", 5) > w.factor("standard", "front", 5)       # the head is on the punch table
+
+
+@check
 def candidate_sides_match_attack_side():
     """The side the evaluator reports for each candidate is attack_side's answer
     for the actual attacker / target / target facing."""

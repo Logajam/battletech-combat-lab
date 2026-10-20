@@ -141,8 +141,7 @@ def _vulnerability(mech, side):
     """sum over hit-table rolls of P(roll) / durability(location) for shots
     landing on `side` of `mech`, from its current armor and structure
     (structure_weight.hit_spread does the table walk)."""
-    return sum(p / max(1, state[armor_key] + state["structure"])
-               for p, state, armor_key in structure_weight.hit_spread(mech, side))
+    return structure_weight.vulnerability(structure_weight.hit_spread(mech, side))
 
 
 def exposure_factors(mech) -> Dict[str, float]:

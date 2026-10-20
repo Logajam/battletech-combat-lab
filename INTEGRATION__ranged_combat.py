@@ -286,7 +286,8 @@ def prepare_options(mover, options) -> List[_Option]:
     return prepared
 
 
-def _with_physical(ranged_best, planner, actions, legs, pair_arcs, facing, diff, target_prone, base, ranged_for):
+def _with_physical(ranged_best, planner, actions, legs, pair_arcs, facing, diff, target_prone, base, side,
+                   ranged_for):
     """Best expected damage from a spot next to the enemy counting the
     Physical phase too: for every arc action and physical plan, the ranged
     fire without the weapons in the attacking limbs (pp.76, 82) plus the
@@ -296,7 +297,7 @@ def _with_physical(ranged_best, planner, actions, legs, pair_arcs, facing, diff,
     if abs(diff) > 1:
         return best
     for key, signature in planner.cases(pair_arcs, facing, actions, legs):
-        for value, limbs, _ in planner.plans_in_case(signature, diff, target_prone, base):
+        for value, limbs, _ in planner.plans_in_case(signature, diff, target_prone, base, side):
             if not limbs or value <= 0:
                 continue
             if value + ranged_best <= best:
@@ -351,7 +352,10 @@ class MoveEvaluator:
         # Physical attacks (pp.76-83) from / against a spot next to the enemy.
         self.mover_physical = not (mover.shutdown or is_immobile(mover))
         self.defender_physical = not (defender.shutdown or defender.prone or self.defender_immobile)
-        self.mover_planner, self.defender_planner = physical.Planner(mover), physical.Planner(defender)
+        # Physical damage is weighted by its own hit table (relative: the side's
+        # standard exposure factor is applied on top by movement_selection).
+        self.mover_planner = physical.Planner(mover, physical.Worth(defender, relative=True))
+        self.defender_planner = physical.Planner(defender, physical.Worth(mover, relative=True))
         self._best_dealt: Dict[tuple, float] = {}
         self._best_received: Dict[tuple, float] = {}
         self.mover_own = equip.own_attack_modifier(mover)
@@ -445,14 +449,14 @@ class MoveEvaluator:
                                             prone_target_modifier(defender, 1))
                     dealt = _with_physical(
                         dealt, self.mover_planner, mover_actions, mover_legs, a_to_d, o.facing, d_level - a_level,
-                        prone_def, base,
+                        prone_def, base, side_on_def,
                         (lambda key, held: mover_scorer(key, held)(distance, pre_tn, o.move_heat, side_on_def))
                         if mover_cond is not None else None)
                 if self.defender_physical:
                     base = physical.base_tn(defender, def_amm, o.tmm, def_to_atk.modifier, 0)
                     received = _with_physical(
                         received, self.defender_planner, defender_actions, defender_legs, d_to_a, def_facing,
-                        a_level - d_level, False, base,
+                        a_level - d_level, False, base, side_on_mover,
                         (lambda key, held: defender_scorer(key, held)(distance, pre_tn2, def_move_heat, side_on_mover))
                         if not no_return_fire else None)
 

@@ -53,6 +53,7 @@ import math
 import INTEGRATION__config as config
 import INTEGRATION__attack_resolution as attack_resolution
 import INTEGRATION__arcs as arcs
+import INTEGRATION__structure_weight as structure_weight
 from mech_state import DamageType, is_destroyed, is_immobile, mark_consciousness_check_pending
 from equipment import Equipment
 from damage_resolution import apply_damage
@@ -97,6 +98,70 @@ def _weapon_kind(slot):
         return None
     n = _norm(slot.name)
     return next((spec for frag, spec in PHYSICAL_WEAPONS if frag in n), None)
+
+
+_QUAD_NAMES = {"Left Arm": "Front Left Leg", "Right Arm": "Front Right Leg"}
+
+
+def _quad_location(loc, side):
+    """Punch / kick table names on a quad (arms are its front legs)."""
+    if loc in _QUAD_NAMES:
+        return _QUAD_NAMES[loc]
+    if loc in ("Left Leg", "Right Leg"):
+        return ("Rear " if side == "rear" else "Front ") + loc
+    return loc
+
+
+def table_rolls(table, side, target):
+    """[(probability, location)] of the Punch (1D6) or Kick (1D6: 1-3 / 4-6)
+    Location Table, p.81, for an attack on `side` of `target`; None for the
+    standard 2D6 table."""
+    if table == "punch":
+        rolls = [(1 / 6, loc) for loc in PUNCH_TABLE[side]]
+    elif table == "kick":
+        rolls = [(0.5, loc) for loc in KICK_TABLE[side]]
+    else:
+        return None
+    if target.mech_type in ("quad", "quadvee"):
+        rolls = [(p, _quad_location(loc, side)) for p, loc in rolls]
+    return rolls
+
+
+class Worth:
+    """How much a point of physical damage on each hit table counts against
+    `target` (Pile 4 scoring, 2026-10-20): the table's own armor exposure
+    (INTEGRATION__movement_selection's exposure factor, computed on the punch /
+    kick table instead of the standard one - a kick at stripped legs, a punch's
+    1-in-6 head chance) times the structure bonus for damage getting past
+    armor there (INTEGRATION__structure_weight, k = MOVEMENT_STRUCTURE_WEIGHT).
+    relative=True divides out the standard-table exposure for that side, for a
+    caller (movement scoring) that already multiplies by it."""
+
+    def __init__(self, target, relative=False):
+        self.target = target
+        self.relative = relative
+        self._memo = {}
+        self._front = structure_weight.vulnerability(structure_weight.hit_spread(target, "front"))
+
+    def _exposure(self, spread):
+        if not config.MOVEMENT_EXPOSURE_WEIGHTING or self._front <= 0:
+            return 1.0
+        return max(config.MOVEMENT_EXPOSURE_MIN,
+                   min(config.MOVEMENT_EXPOSURE_MAX, structure_weight.vulnerability(spread) / self._front))
+
+    def factor(self, table, side, damage):
+        k = (table, side, damage)
+        got = self._memo.get(k)
+        if got is None:
+            spread = structure_weight.hit_spread(self.target, side, table_rolls(table, side, self.target))
+            got = self._exposure(spread)
+            if self.relative:
+                standard = 1.0 if side == "front" else self._exposure(structure_weight.hit_spread(self.target, side))
+                got /= standard
+            if damage > 0:
+                got *= structure_weight.spread_worth(spread, damage, config.MOVEMENT_STRUCTURE_WEIGHT) / damage
+            self._memo[k] = got
+        return got
 
 
 # =============================================================================
@@ -281,30 +346,32 @@ class Planner:
     difference and whether the target is prone, so they're built once per
     case. Build a new one when the mech's state changes (damage, TSM)."""
 
-    def __init__(self, mech):
+    def __init__(self, mech, worth=None):
         self.mech = mech
+        self.worth = worth                 # a Worth for the target, or None for raw expected damage
         self._options = {}
         self._plans = {}
         self._held = {}
         self._cases = {}
 
-    def plans(self, a_hex, a_facing, a_level, t_hex, t_level, target_prone, action, base):
+    def plans(self, a_hex, a_facing, a_level, t_hex, t_level, target_prone, action, base, side="front"):
         """plans() for the attack, or [] when the target is out of reach."""
         diff = t_level - a_level
         if abs(diff) > 1 or hex_distance(a_hex, t_hex) != 1:
             return []
         return self._plans_for(Reach(self.mech, a_hex, a_facing, t_hex, action).signature(), diff,
-                               target_prone, base)
+                               target_prone, base, side)
 
-    def _plans_for(self, signature, diff, target_prone, base):
+    def _plans_for(self, signature, diff, target_prone, base, side="front"):
         case = (signature, diff, target_prone)
-        got = self._plans.get((case, base))
+        side = side if self.worth is not None else "front"
+        got = self._plans.get((case, base, side))
         if got is None:
             options = self._options.get(case)
             if options is None:
                 options = self._options[case] = _options(self.mech, _FixedReach(signature), diff, target_prone,
                                                          frozenset())
-            got = self._plans[(case, base)] = plans(options, base)
+            got = self._plans[(case, base, side)] = plans(options, base, self.worth, side)
         return got
 
     def cases(self, pair_arcs, facing, actions, legs):
@@ -319,8 +386,8 @@ class Planner:
                 for a in actions))
         return got
 
-    def plans_in_case(self, signature, diff, target_prone, base):
-        return self._plans_for(signature, diff, target_prone, base) if abs(diff) <= 1 else []
+    def plans_in_case(self, signature, diff, target_prone, base, side="front"):
+        return self._plans_for(signature, diff, target_prone, base, side) if abs(diff) <= 1 else []
 
     def held(self, limbs):
         got = self._held.get(limbs)
@@ -341,8 +408,12 @@ def _base_tn(attacker, target, terrain_map):
                    has_los(a_hex, t_hex, terrain_map).modifier, attack_resolution.prone_target_modifier(target, 1))
 
 
-def expected_damage(base, picks):
-    return sum(combat.hit_probability(base + o["mod"]) * o["damage"] for o in picks)
+def expected_damage(base, picks, worth=None, side="front"):
+    """Expected damage of the picks; with a Worth, their worth on `side`."""
+    if worth is None:
+        return sum(combat.hit_probability(base + o["mod"]) * o["damage"] for o in picks)
+    return sum(combat.hit_probability(base + o["mod"]) * o["damage"] * worth.factor(o["table"], side, o["damage"])
+               for o in picks)
 
 
 def limb_weapon_ids(mech, limbs):
@@ -352,7 +423,7 @@ def limb_weapon_ids(mech, limbs):
     return frozenset(wid for wid, where in locs.items() if set(where) & set(limbs))
 
 
-def plans(options, base):
+def plans(options, base, worth=None, side="front"):
     """Every physical attack the mech could plan with these options, as
     (expected damage, limbs it uses, picks), best first; the empty plan is
     always included (0.0, (), []). Punches: either arm or both (p.82);
@@ -364,7 +435,7 @@ def plans(options, base):
         else:
             groups = [[o] for o in opts]
         for g in groups:
-            v = expected_damage(base, g)
+            v = expected_damage(base, g, worth, side)
             if v > 0:
                 out.append((v, tuple(o["limb"] for o in g), g))
     out.sort(key=lambda p: -p[0])
@@ -374,11 +445,17 @@ def plans(options, base):
 def choose_attack(attacker, target, terrain_map):
     """Pile 4: the arc action (twist, if it may still declare one - p.76) and
     attack type (all of its options - e.g. both punches) with the most
-    expected damage. Returns (base TN, [options], ArcAction) or None."""
+    expected damage, weighted by where each table lands (Worth: a kick at
+    stripped legs or a punch at a thin head counts for more). Returns
+    (base TN, [options], ArcAction) or None."""
     turret = arcs.current_action(attacker).turret
     actions = tuple(dict.fromkeys(a._replace(turret=turret) for a in arcs.arc_options(attacker, phase="physical")))
+    side = attack_resolution.attack_side(hex_geometry.parse_hex_label(attacker.hex),
+                                         hex_geometry.parse_hex_label(target.hex),
+                                         hex_geometry.compass_to_facing(target.facing), terrain_map)
+    worth = Worth(target)
     base = None
-    value = lambda opts: expected_damage(base, opts)  # noqa: E731
+    value = lambda opts: expected_damage(base, opts, worth, side)  # noqa: E731
     best = None
     for action in actions:
         options = attack_options(attacker, target, terrain_map, action)
