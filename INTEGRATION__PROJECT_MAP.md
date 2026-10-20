@@ -66,7 +66,7 @@ results - then look at a fresh battle, run
 Record (Daniel has OK'd regenerating them for intended changes). For anything
 on the hot path add `--bench` (10 turns of the Asymptote mirror, the old
 default, pinned so timings stay comparable - a pure speed
-change must keep its HP totals, currently 458 / 466; ~17-20 s in the cloud
+change must keep its HP totals, currently 477 / 468 (since the 2026-10-20 LOS fix); ~17-20 s in the cloud
 container, faster on Daniel's PC). The slowest checks, for whoever trims
 them: the Asymptote mirror reference battle (~80 s, the floor),
 `test_parallel_batch` (~60 s), `test_movement_selection` (~25 s).
@@ -857,6 +857,23 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-20 (Claude):** LOS between two hexes (Core p.56: "If LOS falls
+  exactly on the line between two hexes, the target 'Mech's controller
+  chooses which hex LOS passes through"). Two bugs in `pathfinder/los.py`,
+  found when an A/B batch crashed (Atlas AS7-K vs Archer ARC-2R: "Intervening
+  LOS hex (5, 1) is not on the loaded board"): (1) the edge test rounded both
+  tied cube coordinates with Python's round-half-to-even, which often sent
+  both to the SAME hex, so the second hex of a hexside line was missed - its
+  woods / blocking terrain ignored (`_cube_round_candidates` now rounds the
+  point nudged a hair to each side); (2) along the board edge one of the two
+  hexes is off the board - the line now passes through the on-board one
+  (Claude's reading of p.56: there is no off-board hex to choose) instead of
+  raising. Every one of the 73,712 hex pairs on the 16x17 board now traces
+  (24,120 have a two-hex step). Before, movement scoring silently skipped the
+  spots that raised; a battle that reached one in the Ranged phase crashed.
+  Reference logs regenerated (intended: fewer "spots with LOS" where the
+  missed hex had woods); benchmark 458 / 466 -> 477 / 468.
 
 - **2026-10-20 (Claude):** Movement objective option "lifetime" (Daniel's
   design, Section 5 "Movement objective option"). New

@@ -77,8 +77,6 @@ from hex_geometry import hex_label
 
 Hex = Tuple[int, int]  # (x, y) doubled coordinates, no facing
 
-_EPS = 1e-6
-
 # Target-hex woods to-hit modifier by woods density (Core p.66): light +1,
 # heavy +2. Recorded on the target's LOSStep as woods_contrib.
 TARGET_WOODS_MODIFIER = {"1": 1, "2": 2}
@@ -151,34 +149,34 @@ def hex_distance(a: Hex, b: Hex) -> int:
     return round(max(abs(aq - bq), abs(ar - br), abs(as_ - bs)))
 
 
-def _cube_round_candidates(q: float, r: float, s: float) -> List[Tuple[int, int, int]]:
-    """
-    Round a fractional cube coordinate to its nearest hex, returning a
-    second candidate if the point sits exactly on a hex-grid edge (i.e.
-    two of the three axis roundings are tied for "most in need of
-    correction" to restore q+r+s=0). Ordinary (non-tied) points return a
-    single candidate.
-    """
+def _cube_round(q: float, r: float, s: float) -> Tuple[int, int, int]:
+    """The hex a fractional cube coordinate is in (standard cube rounding)."""
     rq, rr, rs = round(q), round(r), round(s)
     dq, dr, ds = abs(rq - q), abs(rr - r), abs(rs - s)
+    if dq > dr and dq > ds:
+        return (-rr - rs, rr, rs)
+    if dr > ds:
+        return (rq, -rq - rs, rs)
+    return (rq, rr, -rq - rr)
 
-    def fix(which: str) -> Tuple[int, int, int]:
-        if which == "q":
-            return (-rr - rs, rr, rs)
-        if which == "r":
-            return (rq, -rq - rs, rs)
-        return (rq, rr, -rq - rr)
 
-    diffs = {"q": dq, "r": dr, "s": ds}
-    max_diff = max(diffs.values())
-    tied = [k for k, v in diffs.items() if abs(v - max_diff) < _EPS]
+# A nudge off the line, far smaller than a hex and summing to 0 (cube coordinates).
+_NUDGE = (1e-6, 2e-6, -3e-6)
 
-    candidates = [fix(tied[0])]
-    if len(tied) > 1:
-        second = fix(tied[1])
-        if second != candidates[0]:
-            candidates.append(second)
-    return candidates
+
+def _cube_round_candidates(q: float, r: float, s: float) -> List[Tuple[int, int, int]]:
+    """
+    The hex a point on the line is in, or BOTH hexes when the point sits
+    exactly on the edge between two (p.56: LOS "exactly on the line between
+    two hexes"). Found by rounding the point nudged a hair to each side of the
+    edge. (2026-10-20, Claude: the old tie test rounded both tied coordinates
+    with Python's round-half-to-even, which often sent both to the SAME hex,
+    so the second hex was missed.)
+    """
+    nq, nr, ns = _NUDGE
+    first = _cube_round(q + nq, r + nr, s + ns)
+    second = _cube_round(q - nq, r - nr, s - ns)
+    return [first] if first == second else [first, second]
 
 
 def hex_line(a: Hex, b: Hex) -> List[List[Hex]]:
@@ -257,6 +255,15 @@ def _evaluate(attacker_hex: Hex, target_hex: Hex, terrain_map: Dict[str, object]
         adjacent_to_low_a = step_index == 1 and a_level == lowest_level
         adjacent_to_low_b = step_index == total_distance - 1 and b_level == lowest_level
         adjacent_to_low_endpoint = adjacent_to_low_a or adjacent_to_low_b
+
+        # A line exactly between two hexes (p.56: the target's controller picks
+        # which one) along the board edge: an off-board hex isn't there to pick,
+        # so the line passes through the on-board one (Claude, 2026-10-20 -
+        # found when an Atlas vs Archer battle crashed here).
+        if len(candidates) > 1:
+            on_board = [c for c in candidates if hex_info(c) is not None]
+            if on_board:
+                candidates = on_board
 
         evaluated = []
         for c in candidates:
