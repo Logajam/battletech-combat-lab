@@ -104,6 +104,7 @@ import INTEGRATION__ammo as ammo
 import INTEGRATION__ams as ams
 import INTEGRATION__electronics as electronics
 import INTEGRATION__fire_modes as fire_modes
+import INTEGRATION__weapon_profiles as weapon_profiles
 from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capability, \
     mark_consciousness_check_pending, compute_heat_dissipation
 import armor_rules
@@ -418,7 +419,8 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
         config.log(f"  [Ranged] {a_name}: can't make ranged attacks (sensors destroyed, or prone with no arm to prop on).")
         return
     cond_mod, unavailable, cond_note = conditions
-    unavailable = unavailable | ammo.unavailable_weapons(attacker) | fire_modes.jammed_ids(attacker)
+    unavailable = (unavailable | ammo.unavailable_weapons(attacker) | fire_modes.jammed_ids(attacker)
+                   | weapon_profiles.array_gun_ids(attacker))
     prone_mod = prone_target_modifier(target, distance)
     other_mod = cond_mod + prone_mod
     pre_tn = attacker.gunnery + amm + tmm + los.modifier + heat_mod + stealth_mod + other_mod
@@ -438,7 +440,10 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     if any(electronics.is_narc(w) for w in usable):
         worth = electronics.pod_value(attacker, target, distance, sel_pre_tn, adjust)
         pod_values = {id(w): worth for w in usable if electronics.is_narc(w)}
-    planner = fire_modes.Planner(attacker, target, adjust, fire_modes.ams_share(k, usable), pod_values)
+    # An attack on the target's hex (Apollo saturation, Arrow IV) takes none of the target's
+    # modifiers (Daniel 2026-10-20: no TMM, not even the immobile -4).
+    hex_offset = -(tmm + prone_mod + equip.void_signature_modifier(target))
+    planner = fire_modes.Planner(attacker, target, adjust, fire_modes.ams_share(k, usable), pod_values, hex_offset)
 
     dissipation = compute_heat_dissipation(attacker)
     other = heat.other_heat(attacker)
@@ -499,13 +504,21 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
         # from a bin of the chosen munition; if none is left the shot is what the bin fired.
         plan = plans.get(id(w), fire_modes.PLAIN)
         ammo_note = ""
-        if not weapon_rules.is_streak(w):
-            notes = [ammo.take(attacker, w, plan.munition, plan.kind if fire_modes.special(w) else None)
-                     for _ in range(plan.shots)]
+        if weapon_profiles.is_mga(w):         # an array: one round from each machine gun it fires
+            notes = [ammo.take(attacker, g, "standard", "")
+                     for g in weapon_profiles.mga_guns(attacker, w)[:plan.shots]] or [("", "standard")]
             ammo_note = notes[-1][0]
-        if fire_modes.special(w):
+        elif not weapon_rules.is_streak(w):
+            kind = None if not fire_modes.special(w) or plan.kind in weapon_profiles.BOMBAST \
+                or plan.kind in ("saturation", "artillery") else plan.kind
+            notes = [ammo.take(attacker, w, plan.munition, kind) for _ in range(plan.shots)]
+            ammo_note = notes[-1][0]
+        if fire_modes.special(w) and plan.hex_attack:
             range_mod = fire_modes.range_mod(w, plan, distance)
-            extra = adjust(w, fire_modes.bracket(w, plan, distance), plan) + plan.tn
+            extra = hex_offset + adjust(w, None, plan) + plan.tn
+        elif fire_modes.special(w):
+            range_mod = fire_modes.range_mod(w, plan, distance)
+            extra = adjust(w, fire_modes.bracket(w, plan, distance), plan) + plan.tn + fire_modes.area_immobile_fix(w, target)
         else:
             range_mod = weapon_selection._weapon_range_mod(w, distance)
             extra = adjust(w, weapon_selection.range_bracket(w, distance))
@@ -557,7 +570,7 @@ def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False, c
         config.log(f"      {tag}Legs behind partial cover - re-rolled {loc_roll}: {loc}.")
     if cover and loc in target.leg_locations:
         config.log(f"      {tag}Leg hit strikes the partial cover - no damage (p.66).")
-        return
+        return None
 
     if loc == "Head":
         target.pilot_hits += 1
@@ -584,7 +597,7 @@ def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False, c
         apply_damage(target, tac_loc, damage, armor_field=tac_armor_field, damage_type=damage_type)
         config.log("      Additional critical hit due to TAC.")
         _tac_check(target, tac_loc, tac_armor_field, damage_type, location_destroyed=False)
-        return
+        return tac_loc
 
     # Standard Through-Armor Critical (config.FLOATING_CRITICALS False, Core p.91):
     # the damage lands where the 2 put it, plus one critical-hit check there. A TAC
@@ -601,6 +614,7 @@ def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False, c
         config.log(f"      Roll of 2 - Through-Armor Critical: extra critical-hit check at {tac_loc}.")
         _tac_check(target, tac_loc, armor_field, damage_type,
                    location_destroyed=target.locations[tac_loc]["destroyed"])
+    return loc
 
 
 def _tac_check(target, loc, armor_field, damage_type, location_destroyed):
@@ -616,7 +630,20 @@ def _tac_check(target, loc, armor_field, damage_type, location_destroyed):
     check_critical(target, loc, location_destroyed=location_destroyed, modifier=modifier)
 
 
-def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng):
+def _d6(n):
+    return sum(config.pick_number(6, prompt="Heat 1D6") for _ in range(n))
+
+
+def _target_heat(target, weapon):
+    """A heat-causing weapon's hit (flamers, plasma - weapon_profiles): outside
+    heat on the target, applied (at most 15 a turn) in its Heat Phase."""
+    got = weapon_profiles.target_heat(weapon, _d6)
+    if got:
+        target.outside_heat = getattr(target, "outside_heat", 0) + got
+        config.log(f"      {weapon.name}: +{got} heat to {target.side_name} (outside heat, p.102).")
+
+
+def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng, pool=None):
     """Cannibalized from MECHSIM__sim_runner.resolve_weapon_attack() (the
     post-to-hit half): one hit for a flat weapon, or a Cluster Hits Table roll
     and one _resolve_hit per damage group. Since 2026-10-20 the shot plan
@@ -629,6 +656,12 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng):
         _resolve_pod(attacker, target, attack)
         return
     plan = attack.fire or fire_modes.PLAIN
+    _target_heat(target, w)
+    if plan.kind == "artillery" or weapon_profiles.is_art_cannon(w):
+        dmg = fire_modes.damage_per(w, plan)
+        config.log(f"    {w.name} hits {target.side_name}'s hex: {dmg} area-effect damage (pp.182-183).")
+        _resolve_area(target, dmg, attack.side, attack.cover)
+        return
     per = fire_modes.damage_per(w, plan)
     if not per:
         config.log(f"    {w.name} hit - zero damage weapon, no damage resolution.")
@@ -649,8 +682,11 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng):
         _resolve_aimed_hit(target, w, dtype, side, attack)
         return
     if col is None:
-        config.log(f"    {w.name} hit for {per}:")
+        config.log(f"    {w.name} hit for {per}{note}:")
         _resolve_hit(target, per, dtype, side, cover=attack.cover)
+        return
+    if col == 0:
+        config.log(f"    {w.name} hit - no guns left to fire.")
         return
     if streak and attack.ams is not None:
         hits = cluster_hits_count(col, ams.STREAK_RESULT)    # AMS: the Streak counts as a 7 (p.206)
@@ -676,11 +712,73 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng):
         hits = cluster_hits_count(col, cluster_roll)
         config.log(f"    {w.name} hit: cluster roll {raw}{f' {mod:+d}' if mod else ''}{note} on the "
                    f"{col}-column table -> {hits} connect ({hits * per} dmg).")
-    size = fire_modes.grouping(w, plan)
     total = hits * per
+    if weapon_profiles.is_mga(w):
+        # Machine gun array (p.185): one hit location roll, every hit there one at a time.
+        loc = _resolve_hit(target, per, dtype, side, tag="Array: ", cover=attack.cover)
+        for _ in range(hits - 1):
+            if loc is None or target.destroyed:
+                break
+            if loc == "Head":
+                target.pilot_hits += 1
+                mark_consciousness_check_pending(target)
+            apply_damage(target, loc, per, armor_field="rear_armor" if side == "rear" else "armor", damage_type=dtype)
+        return
+    if plan.kind == "saturation":
+        total = fire_modes.third(hits)
+        config.log(f"      Apollo saturation: {hits} missiles / 3 = {total} area-effect damage (p.197).")
+        _resolve_area(target, total, side, attack.cover)
+        return
+    size = fire_modes.grouping(w, plan)
+    if pool is not None:
+        # Optional rule (Daniel): every cluster hit's damage of one grouping size is added up
+        # and grouped together at the end of the attacker's resolution (run_ranged_combat_phase).
+        pool.setdefault((size, dtype, side, attack.cover), []).append((w.name, total))
+        return
+    _apply_groups(target, total, size, dtype, side, attack.cover)
+
+
+def _apply_groups(target, total, size, dtype, side, cover, label=""):
+    """`total` damage in `size`-point groupings, the remainder last (p.87)."""
     groups = [size] * int(total // size) + ([total - size * int(total // size)] if total % size else [])
     for i, dmg in enumerate(groups, start=1):
-        _resolve_hit(target, dmg, dtype, side, tag=f"Group {i}/{len(groups)}: ", cover=attack.cover)
+        _resolve_hit(target, dmg, dtype, side, tag=f"{label}Group {i}/{len(groups)}: ", cover=cover)
+
+
+def _resolve_area(target, damage, side, cover):
+    """Area-effect damage on a 'Mech in the hex: 5-point groupings, standard
+    hit location table, partial cover as normal (pp.87, 181-182)."""
+    _apply_groups(target, damage, weapon_profiles.AREA_GROUPING, DamageType.MISSILE, side, cover, "AE ")
+
+
+def _resolve_area_miss(attacker, target, attack, terrain_map):
+    """A missed Arrow IV / artillery cannon scatters (pp.182-183): 1D6
+    direction (1 = up the map, clockwise), MOF / 2 hexes rounding up. Landing
+    next to the target deals it the splash (Arrow IV and Long Tom 10, else
+    none); off the board, nothing. (The scatter isn't held inside the firing
+    arc - Claude's simplification; a duel has nothing else in the way.)"""
+    if not weapon_profiles.splash(attack.weapon):
+        config.log(f"    {attack.weapon.name} missed - the shell lands away from {target.side_name} (no splash).")
+        return
+    mof = attack.tn - attack.roll
+    dist = -(-mof // 2)
+    direction = config.pick_number(6, prompt="Arrow IV scatter direction 1D6") - 1
+    tx, ty = hex_geometry.parse_hex_label(target.hex)
+    dx, dy = hex_geometry.FACING_DELTAS[direction]
+    impact = (tx + dx * dist, ty + dy * dist)
+    try:
+        label = hex_geometry.hex_label(*impact)
+    except ValueError:
+        label = None
+    on_board = label is not None and label in terrain_map["hexes"]
+    config.log(f"    {attack.weapon.name} missed by {mof}: scatters {dist} hex{'es' if dist > 1 else ''} "
+               f"(direction {direction + 1}) to {label or 'off the board'}"
+               f"{'' if on_board else ' - off the board, no effect'}.")
+    if on_board and hex_distance(impact, (tx, ty)) == 1:
+        side = attack_side(impact, (tx, ty), hex_geometry.compass_to_facing(target.facing), terrain_map)
+        dmg = weapon_profiles.splash(attack.weapon)
+        config.log(f"      {target.side_name} is next to the impact: {dmg} area-effect damage.")
+        _resolve_area(target, dmg, side, False)
 
 
 def _resolve_pod(attacker, target, attack):
@@ -752,10 +850,21 @@ def run_ranged_combat_phase(mover_first, mover_second, terrain_map, battle_rng):
     for attacker, target in pairs:
         rep = reports[attacker.side_name]
         hp_before = total_hp(target)
+        pool = {} if config.POOL_CLUSTER_DAMAGE else None
         for attack in rep.attacks_list:
             if attack.hit:
                 rep.hits += 1
-                _resolve_one_attack(attacker, target, attack, battle_rng)
+                _resolve_one_attack(attacker, target, attack, battle_rng, pool)
+            elif (attack.fire is not None and attack.fire.kind == "artillery") or weapon_profiles.is_art_cannon(attack.weapon):
+                _resolve_area_miss(attacker, target, attack, terrain_map)
+        for (size, dtype, side, cover), parts in (pool or {}).items():
+            total = sum(d for _, d in parts)
+            if len(parts) > 1:
+                config.log(f"    Cluster damage pooled ({size}-point groupings): "
+                           f"{' + '.join(f'{n} {d}' for n, d in parts)} = {total}.")
+            else:
+                config.log(f"    {parts[0][0]}: {total} damage in {size}-point groupings.")
+            _apply_groups(target, total, size, dtype, side, cover)
         rep.damage_dealt += hp_before - total_hp(target)
 
     for m in (mover_first, mover_second):

@@ -139,6 +139,7 @@ import INTEGRATION__structure_weight as structure_weight  # noqa: E402
 import INTEGRATION__arcs as arcs  # noqa: E402
 import INTEGRATION__ams as ams  # noqa: E402
 import INTEGRATION__fire_modes as fire_modes  # noqa: E402
+import INTEGRATION__weapon_profiles as weapon_profiles  # noqa: E402
 import INTEGRATION__los_cache as geo_cache  # noqa: E402
 from INTEGRATION__attack_resolution import tn_adjuster, aimed_shot_location, firing_conditions, \
     prone_target_modifier, arc_unavailable, _SIDE_BY_RELATIVE_HEXSIDE  # noqa: E402
@@ -386,9 +387,9 @@ class MoveEvaluator:
         self.mover_cond = firing_conditions(mover)          # mover is standing here; sensors still count
         self.defender_cond = firing_conditions(defender)
         mover_blocked = (self.mover_cond[1] if self.mover_cond else frozenset()) | ammo.unavailable_weapons(mover) \
-            | fire_modes.jammed_ids(mover)
+            | fire_modes.jammed_ids(mover) | weapon_profiles.array_gun_ids(mover)
         defender_blocked = (self.defender_cond[1] if self.defender_cond else frozenset()) \
-            | ammo.unavailable_weapons(defender) | fire_modes.jammed_ids(defender)
+            | ammo.unavailable_weapons(defender) | fire_modes.jammed_ids(defender) | weapon_profiles.array_gun_ids(defender)
         mover_adjust = tn_adjuster(mover, defender, aimed_shot_location(defender))
         defender_adjust = tn_adjuster(defender, mover)
         # Structure weighting (INTEGRATION__structure_weight): off at k = 1.0, which leaves

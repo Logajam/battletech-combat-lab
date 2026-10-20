@@ -74,7 +74,7 @@ _MUNITION_SUFFIXES = (
     (re.compile(r"\s*Artemis-capable", re.I), "artemis4"),
     (re.compile(r"\s*Narc-capable", re.I), "narc"),
 )
-_NOT_MODELED = re.compile(r"ArrowIV|ECM Pods|Haywire|Nemesis", re.I)
+_NOT_MODELED = re.compile(r"ArrowIV ?(Homing|Cluster|Inferno|Smoke|Thunder)|ECM Pods|Haywire|Nemesis", re.I)
 _LBX_CLUSTER = re.compile(r"\s*Cluster|\sCL(?= Ammo)", re.I)
 _ATM_KIND = re.compile(r"(ATM-?\d+)\s+(ER|HE)\b", re.I)
 _MML = re.compile(r"MML-?(\d)\s*(LRM|SRM)", re.I)
@@ -116,7 +116,7 @@ def parse_bin(bin_name):
         if kind == "cluster":
             candidate = _LBX_CLUSTER.sub("", candidate)
         candidate = re.sub(r"\((\d+|1/2 ton)\)", "", candidate).strip()   # "(100)" shot counts, "(1/2 ton)"
-        for c in (candidate, _strip_is(candidate)):
+        for c in (candidate, _strip_is(candidate), re.sub(r"Ammo$", "", candidate)):    # "CLMediumChemLaserAmmo"
             entry = weapon_entry_for_ammo(c)
             if entry is not None and (own is None or entry.get("tech_base") == own.get("tech_base")):
                 return entry, munition, kind

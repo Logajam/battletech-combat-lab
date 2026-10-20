@@ -117,6 +117,7 @@ RESTART_MAX_HEAT = 29                                                   # must b
 AMMO_AVOID_BY_HEAT = ((28, 8), (23, 6), (19, 4))                        # 2D6 to avoid (p.107)
 LIFE_SUPPORT_HITS_BY_HEAT = ((20, 2), (10, 1))                          # MechWarrior hits (p.107)
 OVERFLOW_HEAT = 30                                                      # Heat Scale top (p.103)
+OUTSIDE_HEAT_CAP = 15                                                   # outside heat a turn (p.102)
 
 # Inferno Ammo Explosion Table, p.192 (also p.107). The p.192 text mentions
 # rolls "at 19, 23, and 28" but the table starts at 10 - the table is used.
@@ -305,12 +306,16 @@ def resolve_heat_phase(mech, weapon_heat):
     stealth = equip.stealth_heat(mech)
     dissipation = compute_heat_dissipation(mech)
     before = mech.current_heat
-    generated = mech.movement_heat + weapon_heat + eng + stealth
+    # Outside heat (2026-10-20, p.102): hits by heat-causing weapons this turn, at most 15.
+    outside = min(OUTSIDE_HEAT_CAP, getattr(mech, "outside_heat", 0))
+    mech.outside_heat = 0
+    generated = mech.movement_heat + weapon_heat + eng + stealth + outside
     extra, how = _extra_cooling(mech, before + generated - dissipation)
     mech.current_heat = max(0, before + generated - dissipation - extra)
     overflow = mech.current_heat - OVERFLOW_HEAT
     config.log(f"  [Heat] {name}: {before} + movement {mech.movement_heat} + weapons {weapon_heat} "
-               f"+ engine {eng}{f' + stealth {stealth}' if stealth else ''} - sinks {dissipation}"
+               f"+ engine {eng}{f' + stealth {stealth}' if stealth else ''}{f' + outside {outside}' if outside else ''}"
+               f" - sinks {dissipation}"
                f"{f' - {how} {extra}' if how else ''} -> {mech.current_heat}"
                f"{f' (overflow {overflow})' if overflow > 0 else ''}")
 
@@ -578,7 +583,9 @@ def max_weapon_heat(mech):
     Ultra / Rotary AC at its full rate of fire, 2026-10-20)."""
     import INTEGRATION__fire_modes as fire_modes      # fire_modes -> ams -> heat
     out = ammo.unavailable_weapons(mech)
-    return sum(w.heat * fire_modes.max_shots(w) for w in get_weapons(mech) if w.heat and id(w) not in out)
+    import INTEGRATION__weapon_profiles as wp
+    return sum((w.heat or 0) * fire_modes.max_shots(w) + (max(h for _, _, h in wp.BOMBAST.values()) if wp.is_bombast(w) else 0)
+               for w in get_weapons(mech) if id(w) not in out)
 
 
 def choose_heat_sink_deactivation(mech, next_turn):

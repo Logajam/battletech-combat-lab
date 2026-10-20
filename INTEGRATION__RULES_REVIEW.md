@@ -60,6 +60,9 @@ launchers, MRM cluster -1, pp.185-187); Gauss rifle component explosion
 | F15 | Ammunition kinds: LB-X cluster, ATM ER / HE, MML LRM / SRM; Apollo FCS (was G10 / G16) | pp.186, 192, 197; tables pp.250, 252 | Built 2026-10-20. Those bins fed nothing (the weapons fired slugs / standard rounds, MMLs never). Which kind fires is a stub. Apollo saturation mode waits on Daniel (attacks on a hex). |
 | F16 | Weapon slot counts | tables pp.248-254 | Fixed 2026-10-20: wrong counts made a multi-slot weapon several weapons (or merged two into one) - 1,893 units. Split weapons now one item. |
 | F17 | IS machine guns | p.248 | Fixed 2026-10-20: no equipment.json row, so they were inert; their "IS Ammo MG" bins had none either. |
+| F18 | Variable-damage weapons, HAG, M-pods, MG arrays, bombast lasers, rifles (was G17) | pp.184-190 | Built 2026-10-20 (`INTEGRATION__weapon_profiles`): they couldn't fire (no damage data), or rifles hit 'Mechs for full damage. |
+| F19 | Heat-causing weapons put heat on the target | pp.102, 183-184, 189 | Built 2026-10-20: flamers (damage as heat; ER 1), plasma rifle 1D6, plasma cannon 2D6 (Clan flamers and plasma couldn't fire before); outside heat capped at 15 a turn. |
+| F20 | Arrow IV and artillery cannons | pp.182-183 | Built 2026-10-20: area effect, hex attacks / no immobile -4, scatter, splash. Distant (18+) Arrow IV and special Arrow munitions not offered. |
 | F6 | Backward walking (was G1) | pp.45-46, 63 | Built 2026-10-20: a walking mech may step into the hex directly behind it (facing kept); a turn with a backward step never spends more than Walking MP; the hex count for TMM restarts when the mech reverses direction. The battle log marks moves that use it ("includes a backward move"). Not yet offered: backward level changes and backward charges (G11, G12). |
 
 ---
@@ -78,8 +81,9 @@ launchers, MRM cluster -1, pp.185-187); Gauss rifle component explosion
 | G8 | Minimum Movement (1 hex ahead with too few MP) | p.49 | Not offered. Rare (very damaged or heat-slowed mechs). |
 | G9 | Expected damage ignores leg hits lost to partial cover | p.66 | Movement scoring and weapon choice still count them. LATENT. |
 | G10 | ~~Ultra / Rotary rate of fire and jams, LB-X cluster ammo~~ | pp.183-186 | Built 2026-10-20 - F11, F14, F15. |
-| G16 | Special munitions left: AC armor-piercing / caseless / flak / precision rounds, iNarc ECM / haywire / Nemesis pods, Apollo saturation mode | pp.191-194, 197 | AC special rounds fire as standard; no unit in `data/meks.zip` carries those rounds or pods. Saturation: a question for Daniel. |
-| G17 | Variable-damage weapons: heavy Gauss (25 / 20 / 10 by range), HAG, VSP lasers | pp.184-185 | equipment.json has no damage for them, so they never fire (`unconfirmed_weapon_data` says so). |
+| G16 | Special munitions left (deferred, Daniel 2026-10-20): AC armor-piercing / caseless / flak / precision rounds, iNarc ECM / haywire / Nemesis pods, Arrow IV homing / inferno / smoke / thunder | pp.190-194 | AC special rounds fire as standard; no unit in `data/meks.zip` carries those rounds or pods. (Apollo saturation built 2026-10-20.) |
+| G17 | ~~Variable-damage weapons~~ | pp.184-185 | Built 2026-10-20 - F18. |
+| G18 | Bombast laser charging, PPC capacitors, HAG flak mode, distant Arrow IV fire | pp.182, 184-185, 188 | Choices not offered yet (capacitor: not modeled at all). |
 | G11 | Backward level change: one level up or down, a PSR each time (fall in the lower of the two hexes); not with a destroyed hip | pp.46-47, 115 | Backward steps are only offered into same-level hexes: the movement scoring can't price a PSR in the middle of a move yet. LATENT (flat board). |
 | G13 | ~~Anti-Missile System (AMS / laser AMS)~~ | p.206 | Built 2026-10-20 - see F9. 223 of the units that parse carry one. |
 | G14 | Armored components | p.207 | Each armored slot absorbs one crit with no effect. Not parsed. ~37 units. |

@@ -1191,7 +1191,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Energy",
-      "shots_per_ton": null,
+      "shots_per_ton": 10,
       "damage_per_shot": 8,
       "heat": 6,
       "range": {
@@ -1205,7 +1205,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLChemicalLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Chemical Laser, Large' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Chemical Laser, Large'. | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'Chemical Laser, Large' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLChemicalLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Chemical Laser, Large' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Chemical Laser, Large'. | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'Chemical Laser, Large' (a multi-slot weapon listed as fewer slots parsed as several weapons) | 2026-10-20 (Claude): shots_per_ton 10 (Clan weapons table p.252) - a chemical laser uses ammo (p.185).",
       "rack_size": 1
     },
     "clmediumchemicallaser": {
@@ -1222,7 +1222,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Energy",
-      "shots_per_ton": null,
+      "shots_per_ton": 30,
       "damage_per_shot": 5,
       "heat": 2,
       "range": {
@@ -1236,7 +1236,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/medium/CLChemicalLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Chemical Laser, Medium' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Chemical Laser, Medium'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/medium/CLChemicalLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Chemical Laser, Medium' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Chemical Laser, Medium'. | 2026-10-20 (Claude): shots_per_ton 30 (Clan weapons table p.252) - a chemical laser uses ammo (p.185).",
       "rack_size": 5
     },
     "clsmallchemicallaser": {
@@ -1253,7 +1253,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Energy",
-      "shots_per_ton": null,
+      "shots_per_ton": 60,
       "damage_per_shot": 3,
       "heat": 1,
       "range": {
@@ -1267,7 +1267,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/small/CLChemicalLaserSmall.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Chemical Laser, Small' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Chemical Laser, Small'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/small/CLChemicalLaserSmall.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Chemical Laser, Small' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Chemical Laser, Small'. | 2026-10-20 (Claude): shots_per_ton 60 (Clan weapons table p.252) - a chemical laser uses ammo (p.185).",
       "rack_size": 3
     },
     "ppc": {
@@ -1379,7 +1379,7 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Energy",
       "shots_per_ton": null,
       "damage_per_shot": null,
       "heat": 10,
@@ -1393,7 +1393,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek ppc/innerSphere/ISSnubNosePPC.java (main branch, fetched 2026-07-14). MegaMek damage field is non-literal (DAMAGE_VARIABLE) - range/ammo-variable, left null PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'Snub-Nose PPC' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
+      "notes": "Not confirmed | Stats sourced from MegaMek ppc/innerSphere/ISSnubNosePPC.java (main branch, fetched 2026-07-14). MegaMek damage field is non-literal (DAMAGE_VARIABLE) - range/ammo-variable, left null PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'Snub-Nose PPC' (a multi-slot weapon listed as fewer slots parsed as several weapons) | 2026-10-20 (Claude): damage_type Energy (DE, p.248 table); damage is variable 10/8/5 - INTEGRATION__weapon_profiles",
       "rack_size": null
     },
     "lightppc": {
@@ -1501,7 +1501,7 @@
       "explosion_damage": null,
       "damage_type": "Energy",
       "shots_per_ton": null,
-      "damage_per_shot": null,
+      "damage_per_shot": 2,
       "heat": 3,
       "range": {
         "short": 1,
@@ -1514,7 +1514,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "2026-10-19: heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Flamer' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Flamer'."
+      "notes": "2026-10-19: heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Flamer' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Flamer'. | 2026-10-20 (Claude): damage_per_shot 2 from the Clan weapons table p.252 (heat to the target: INTEGRATION__weapon_profiles)"
     },
     "flamer": {
       "canonical_name": "Flamer",
@@ -1596,7 +1596,7 @@
       "explosion_damage": null,
       "damage_type": "Energy",
       "shots_per_ton": 10,
-      "damage_per_shot": null,
+      "damage_per_shot": 4,
       "heat": 5,
       "range": {
         "short": 2,
@@ -1609,7 +1609,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Heavy Flamer' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Heavy Flamer'."
+      "notes": "Not confirmed | 2026-10-19: damage_type, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Heavy Flamer' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Heavy Flamer'. | 2026-10-20 (Claude): damage_per_shot 4 from the Clan weapons table p.252 (heat to the target: INTEGRATION__weapon_profiles)"
     },
     "heavyflamer": {
       "canonical_name": "Heavy Flamer",
@@ -1687,7 +1687,7 @@
       "explosion_damage": null,
       "damage_type": "Energy",
       "shots_per_ton": null,
-      "damage_per_shot": null,
+      "damage_per_shot": 2,
       "heat": 4,
       "range": {
         "short": 3,
@@ -1700,7 +1700,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'ER Flamer' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'ER Flamer'."
+      "notes": "Not confirmed | 2026-10-19: damage_type, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'ER Flamer' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'ER Flamer'. | 2026-10-20 (Claude): damage_per_shot 2 from the Clan weapons table p.252 (heat to the target: INTEGRATION__weapon_profiles)"
     },
     "autocannon/2": {
       "canonical_name": "Autocannon/2",
@@ -3068,7 +3068,7 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Ballistic",
       "shots_per_ton": null,
       "damage_per_shot": 1,
       "heat": 0,
@@ -3082,7 +3082,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek mgs/innerSphere/ISLightMGA.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek mgs/innerSphere/ISLightMGA.java (main branch, fetched 2026-07-14). | 2026-10-20 (Claude): damage_type Ballistic (DB machine guns)",
       "rack_size": 1
     },
     "ishmga": {
@@ -3097,7 +3097,7 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Ballistic",
       "shots_per_ton": null,
       "damage_per_shot": 3,
       "heat": 0,
@@ -3111,7 +3111,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek mgs/innerSphere/ISHeavyMGA.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek mgs/innerSphere/ISHeavyMGA.java (main branch, fetched 2026-07-14). | 2026-10-20 (Claude): damage_type Ballistic (DB machine guns)",
       "rack_size": 3
     },
     "clmg": {
@@ -3214,7 +3214,7 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Ballistic",
       "shots_per_ton": null,
       "damage_per_shot": 2,
       "heat": 0,
@@ -3228,7 +3228,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek mgs/clan/CLMGA.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek mgs/clan/CLMGA.java (main branch, fetched 2026-07-14). | 2026-10-20 (Claude): damage_type Ballistic (DB machine guns)",
       "rack_size": 2
     },
     "clanlightmachinegunarray": {
@@ -3243,7 +3243,7 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Ballistic",
       "shots_per_ton": null,
       "damage_per_shot": 1,
       "heat": 0,
@@ -3257,7 +3257,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek mgs/clan/CLLightMGA.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek mgs/clan/CLLightMGA.java (main branch, fetched 2026-07-14). | 2026-10-20 (Claude): damage_type Ballistic (DB machine guns)",
       "rack_size": 1
     },
     "clhmga": {
@@ -3272,17 +3272,22 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Ballistic",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 3,
+      "heat": 0,
+      "range": {
+        "short": 1,
+        "medium": 2,
+        "long": 2,
+        "min": 0
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-20 (Claude): damage_per_shot 3, heat 0, range 1 / 2 / - (the Clan heavy machine gun it fires, p.252), damage_type Ballistic"
     },
     "lrm5": {
       "canonical_name": "LRM 5",
@@ -6801,10 +6806,6 @@
         "Arrow IV System",
         "ArrowIV",
         "ArrowIVSystem",
-        "CLArrowIV",
-        "CLArrowIVSystem",
-        "Clan Arrow IV Missile System",
-        "Clan Arrow IV System",
         "IS Arrow IV Missile System",
         "IS Arrow IV System",
         "ISArrowIV",
@@ -6815,7 +6816,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 15,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -6829,7 +6830,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-20 (Claude): IS Arrow IV: slots 15 (p.250); the Clan launcher (12 slots, p.253) is its own row now, clarrowiv"
     },
     "islongtomcannon": {
       "canonical_name": "ISLongTomCannon",
@@ -6843,25 +6844,26 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 15,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Ballistic",
       "shots_per_ton": 5,
-      "damage_per_shot": null,
+      "damage_per_shot": 20,
       "heat": 20,
       "range": {
         "short": 6,
         "medium": 13,
-        "long": 20
+        "long": 20,
+        "min": 4
       },
       "battle_value": 329,
       "tonnage": 20.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek artillery/LongTomCannon.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek artillery/LongTomCannon.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-20 (Claude): damage 20, minimum range 4, 15 slots, damage_type Ballistic from the Core IS table p.248 row 'Artillery Cannon, Long Tom' (AE rules: INTEGRATION__weapon_profiles).",
       "rack_size": 20
     },
     "isthumpercannon": {
@@ -6876,25 +6878,26 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 7,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Ballistic",
       "shots_per_ton": 20,
-      "damage_per_shot": null,
+      "damage_per_shot": 5,
       "heat": 5,
       "range": {
         "short": 4,
         "medium": 9,
-        "long": 14
+        "long": 14,
+        "min": 3
       },
       "battle_value": 41,
       "tonnage": 10.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek artillery/ThumperCannon.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek artillery/ThumperCannon.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-20 (Claude): damage 5, minimum range 3, 7 slots, damage_type Ballistic from the Core IS table p.248 row 'Artillery Cannon, Thumper' (AE rules: INTEGRATION__weapon_profiles).",
       "rack_size": 5
     },
     "issnipercannon": {
@@ -6909,25 +6912,26 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 10,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Ballistic",
       "shots_per_ton": 10,
-      "damage_per_shot": null,
+      "damage_per_shot": 10,
       "heat": 10,
       "range": {
         "short": 4,
         "medium": 8,
-        "long": 12
+        "long": 12,
+        "min": 2
       },
       "battle_value": 77,
       "tonnage": 15.0,
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek artillery/SniperCannon.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek artillery/SniperCannon.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-20 (Claude): damage 10, minimum range 2, 10 slots, damage_type Ballistic from the Core IS table p.248 row 'Artillery Cannon, Sniper' (AE rules: INTEGRATION__weapon_profiles).",
       "rack_size": 10
     },
     "clrotaryac2": {
@@ -7143,9 +7147,9 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Ballistic",
       "shots_per_ton": "OS",
-      "damage_per_shot": null,
+      "damage_per_shot": 1,
       "heat": 0,
       "range": {
         "min": 0,
@@ -7158,7 +7162,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek defensivePods/ISMPod.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek defensivePods/ISMPod.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-20 (Claude): damage_per_shot 1, damage_type Ballistic: C1 groupings, weapon size 15/10/5 by range (p.189, table p.250; damage type is Claude's call) - INTEGRATION__weapon_profiles",
       "rack_size": null
     },
     "isbpod": {
@@ -7177,7 +7181,7 @@
       "explosion_damage": null,
       "damage_type": null,
       "shots_per_ton": "OS",
-      "damage_per_shot": null,
+      "damage_per_shot": 0,
       "heat": 0,
       "range": null,
       "battle_value": null,
@@ -7185,7 +7189,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek defensivePods/ISBPod.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek defensivePods/ISBPod.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-20 (Claude): damage_per_shot 0: B-pods only affect battle armor (p.189) - no effect in a 'Mech duel",
       "rack_size": null
     },
     "thunderbolt5": {
@@ -7504,44 +7508,6 @@
       "verified": false,
       "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISNailAndRivetGun.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, heat filled from Total Warfare pp. 303-306 weapons table, row 'Nail/Rivet Gun' (Daniel's Weapon_Rules_Tables rip).",
       "rack_size": null
-    },
-    "rifle(cannon": {
-      "canonical_name": "Rifle (Cannon",
-      "aliases": [
-        "Heavy)",
-        "IS Heavy Rifle",
-        "IS Light Rifle",
-        "IS Medium Rifle",
-        "ISHeavyRifle",
-        "ISLightRifle",
-        "ISMediumRifle",
-        "Light)",
-        "Medium)",
-        "Rifle (Cannon"
-      ],
-      "category": "weapon",
-      "tech_base": "IS",
-      "slots": 1,
-      "crit_eligible": true,
-      "explosive": false,
-      "explosion_damage": null,
-      "damage_type": null,
-      "shots_per_ton": null,
-      "damage_per_shot": 6,
-      "heat": 2,
-      "range": {
-        "short": 5,
-        "medium": 10,
-        "long": 15,
-        "min": 1
-      },
-      "battle_value": 51,
-      "tonnage": 5.0,
-      "special_rules": false,
-      "special_rules_ref": null,
-      "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISRifleMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=1 from Tactical Operations: AUE row 'Medium Rifle' (word-order match; row's short/medium/long equal this entry's).",
-      "rack_size": 6
     },
     "isvehiculargrenadelauncher": {
       "canonical_name": "ISVehicularGrenadeLauncher",
@@ -8114,7 +8080,7 @@
       "explosion_damage": null,
       "damage_type": "Energy",
       "shots_per_ton": 10,
-      "damage_per_shot": null,
+      "damage_per_shot": 10,
       "heat": 10,
       "range": {
         "min": 0,
@@ -8127,7 +8093,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Plasma Rifle' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Plasma Rifle' (a multi-slot weapon listed as fewer slots parsed as several weapons) | 2026-10-20 (Claude): damage_per_shot 10 (p.189; plus 1D6 heat to the target - INTEGRATION__weapon_profiles)"
     },
     "clplasmacannon": {
       "canonical_name": "CLPlasmaCannon",
@@ -8142,7 +8108,7 @@
       "explosion_damage": null,
       "damage_type": "Energy",
       "shots_per_ton": 10,
-      "damage_per_shot": null,
+      "damage_per_shot": 0,
       "heat": 7,
       "range": {
         "min": 0,
@@ -8155,7 +8121,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-20 (Claude): damage_per_shot 0 (p.189: no Damage Value, 2D6 heat to the target - INTEGRATION__weapon_profiles)"
     },
     "ismechmortar-1": {
       "canonical_name": "IS Mech Mortar-1",
@@ -20655,7 +20621,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Added 2026-10-20 (Claude): heavy rifle ammo (6 shots / ton, p.248)."
     },
     "isapdsammo": {
       "canonical_name": "ISAPDS Ammo",
@@ -25991,6 +25957,190 @@
       "verified": false,
       "notes": "Added 2026-10-20 (Claude) from the Core Rulebook IS weapons table, p.248 row 'Machine Gun' (heat 0, damage 2, 1 / 2 / 3, 0.5 t, 1 slot, 200 shots). The IS machine gun had no row, so its crit lines were inert padding and it never fired.",
       "rack_size": null
+    },
+    "clarrowiv": {
+      "canonical_name": "CLArrowIV",
+      "aliases": [
+        "CLArrowIV",
+        "CLArrowIVSystem",
+        "Clan Arrow IV Missile System",
+        "Clan Arrow IV System"
+      ],
+      "category": "weapon",
+      "tech_base": "Clan",
+      "slots": 12,
+      "crit_eligible": true,
+      "explosive": false,
+      "explosion_damage": null,
+      "damage_type": null,
+      "shots_per_ton": 5,
+      "damage_per_shot": null,
+      "heat": 10,
+      "range": null,
+      "battle_value": null,
+      "tonnage": 12.0,
+      "special_rules": false,
+      "special_rules_ref": null,
+      "verified": false,
+      "notes": "Added 2026-10-20 (Claude): Clan Arrow IV, 12 slots / 12 t (Clan weapons table p.253); split out of the shared ArrowIV row."
+    },
+    "ismga": {
+      "canonical_name": "ISMGA",
+      "aliases": [
+        "ISMGA",
+        "IS Machine Gun Array",
+        "Machine Gun Array"
+      ],
+      "category": "weapon",
+      "tech_base": "IS",
+      "slots": 1,
+      "crit_eligible": true,
+      "explosive": false,
+      "explosion_damage": null,
+      "damage_type": "Ballistic",
+      "shots_per_ton": null,
+      "damage_per_shot": 2,
+      "heat": 0,
+      "range": {
+        "short": 1,
+        "medium": 2,
+        "long": 3,
+        "min": 0
+      },
+      "battle_value": 0,
+      "tonnage": 0.25,
+      "special_rules": false,
+      "special_rules_ref": null,
+      "verified": true,
+      "notes": "Added 2026-10-20 (Claude): IS machine gun array (p.185; table p.251) - had no row, so it was inert.",
+      "rack_size": 2
+    },
+    "islightrifle": {
+      "canonical_name": "ISLightRifle",
+      "aliases": [
+        "ISLightRifle",
+        "IS Light Rifle",
+        "Light Rifle",
+        "Rifle (Cannon, Light)"
+      ],
+      "category": "weapon",
+      "tech_base": "IS",
+      "slots": 1,
+      "crit_eligible": true,
+      "explosive": false,
+      "explosion_damage": null,
+      "damage_type": "Ballistic",
+      "shots_per_ton": 18,
+      "damage_per_shot": 3,
+      "heat": 1,
+      "range": {
+        "min": 0,
+        "short": 4,
+        "medium": 8,
+        "long": 12
+      },
+      "battle_value": 51,
+      "tonnage": 3.0,
+      "special_rules": false,
+      "special_rules_ref": null,
+      "verified": true,
+      "notes": "Added 2026-10-20 (Claude) from the Core IS weapons table p.248, row 'Light Rifle (Cannon)'; -3 damage against 'Mechs (p.190) is INTEGRATION__weapon_profiles. Replaces the malformed 'Rifle (Cannon' row (a name cut at its comma).",
+      "rack_size": null
+    },
+    "ismediumrifle": {
+      "canonical_name": "ISMediumRifle",
+      "aliases": [
+        "ISMediumRifle",
+        "IS Medium Rifle",
+        "Medium Rifle",
+        "Rifle (Cannon, Medium)"
+      ],
+      "category": "weapon",
+      "tech_base": "IS",
+      "slots": 2,
+      "crit_eligible": true,
+      "explosive": false,
+      "explosion_damage": null,
+      "damage_type": "Ballistic",
+      "shots_per_ton": 9,
+      "damage_per_shot": 6,
+      "heat": 2,
+      "range": {
+        "min": 1,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "battle_value": 51,
+      "tonnage": 5.0,
+      "special_rules": false,
+      "special_rules_ref": null,
+      "verified": true,
+      "notes": "Added 2026-10-20 (Claude) from the Core IS weapons table p.248, row 'Medium Rifle (Cannon)'; -3 damage against 'Mechs (p.190) is INTEGRATION__weapon_profiles. Replaces the malformed 'Rifle (Cannon' row (a name cut at its comma).",
+      "rack_size": null
+    },
+    "isheavyrifle": {
+      "canonical_name": "ISHeavyRifle",
+      "aliases": [
+        "ISHeavyRifle",
+        "IS Heavy Rifle",
+        "Heavy Rifle",
+        "Rifle (Cannon, Heavy)"
+      ],
+      "category": "weapon",
+      "tech_base": "IS",
+      "slots": 3,
+      "crit_eligible": true,
+      "explosive": false,
+      "explosion_damage": null,
+      "damage_type": "Ballistic",
+      "shots_per_ton": 6,
+      "damage_per_shot": 9,
+      "heat": 4,
+      "range": {
+        "min": 2,
+        "short": 6,
+        "medium": 12,
+        "long": 18
+      },
+      "battle_value": 51,
+      "tonnage": 8.0,
+      "special_rules": false,
+      "special_rules_ref": null,
+      "verified": true,
+      "notes": "Added 2026-10-20 (Claude) from the Core IS weapons table p.248, row 'Heavy Rifle (Cannon)'; -3 damage against 'Mechs (p.190) is INTEGRATION__weapon_profiles. Replaces the malformed 'Rifle (Cannon' row (a name cut at its comma).",
+      "rack_size": null
+    },
+    "isbombastlaser": {
+      "canonical_name": "ISBombastLaser",
+      "aliases": [
+        "ISBombastLaser",
+        "Bombast Laser",
+        "IS Bombast Laser"
+      ],
+      "category": "weapon",
+      "tech_base": "IS",
+      "slots": 3,
+      "crit_eligible": true,
+      "explosive": false,
+      "explosion_damage": null,
+      "damage_type": "Energy",
+      "shots_per_ton": null,
+      "damage_per_shot": null,
+      "heat": null,
+      "range": {
+        "min": 0,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "battle_value": null,
+      "tonnage": 7.0,
+      "special_rules": false,
+      "special_rules_ref": null,
+      "verified": false,
+      "notes": "Added 2026-10-20 (Claude) from the Core IS weapons table p.248 (7 t, 3 slots, 1-5 / 6-10 / 11-15). Damage 8 / 12 / 16 at heat 6 / 9 / 12, TN +0 / +1 / +2 (p.185) - INTEGRATION__weapon_profiles.",
+      "rack_size": null
     }
   },
   "alias_map": {
@@ -26828,10 +26978,10 @@
     "arrowiv": "arrowiv",
     "arrowivmissilesystem": "arrowiv",
     "arrowivsystem": "arrowiv",
-    "clarrowiv": "arrowiv",
-    "clarrowivsystem": "arrowiv",
-    "clanarrowivmissilesystem": "arrowiv",
-    "clanarrowivsystem": "arrowiv",
+    "clarrowiv": "clarrowiv",
+    "clarrowivsystem": "clarrowiv",
+    "clanarrowivmissilesystem": "clarrowiv",
+    "clanarrowivsystem": "clarrowiv",
     "isarrowivmissilesystem": "arrowiv",
     "isarrowivsystem": "arrowiv",
     "isarrowiv": "arrowiv",
@@ -26921,13 +27071,6 @@
     "isnailrivetgun": "nail/rivetgun",
     "isrivetgun": "nail/rivetgun",
     "nailgun": "nail/rivetgun",
-    "rifle(cannon": "rifle(cannon",
-    "heavy)": "rifle(cannon",
-    "isheavyrifle": "rifle(cannon",
-    "islightrifle": "rifle(cannon",
-    "ismediumrifle": "rifle(cannon",
-    "light)": "rifle(cannon",
-    "medium)": "rifle(cannon",
     "isvehiculargrenadelauncher": "isvehiculargrenadelauncher",
     "isc3remotesensorlauncher": "isc3remotesensorlauncher",
     "c3remotesensorlauncher": "isc3remotesensorlauncher",
@@ -33837,6 +33980,20 @@
     "ismachinegunammo(1/2ton)": "ismachinegunammo-half",
     "ismachinegun": "ismachinegun",
     "machinegun": "ismachinegun",
-    "ismg": "ismachinegun"
+    "ismg": "ismachinegun",
+    "ismga": "ismga",
+    "ismachinegunarray": "ismga",
+    "machinegunarray": "ismga",
+    "islightrifle": "islightrifle",
+    "lightrifle": "islightrifle",
+    "rifle(cannon,light)": "islightrifle",
+    "ismediumrifle": "ismediumrifle",
+    "mediumrifle": "ismediumrifle",
+    "rifle(cannon,medium)": "ismediumrifle",
+    "isheavyrifle": "isheavyrifle",
+    "heavyrifle": "isheavyrifle",
+    "rifle(cannon,heavy)": "isheavyrifle",
+    "isbombastlaser": "isbombastlaser",
+    "bombastlaser": "isbombastlaser"
   }
 }

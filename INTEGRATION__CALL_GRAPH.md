@@ -38,7 +38,9 @@ edited).
   to-hit modifiers.
 - `ammo.py` (NEW 2026-10-19) → `config`, `stubs`, `weapon_rules`; MECHSIM
   `equipment` (Equipment, lookup_equipment), `damage_resolution.get_weapons`
-- `fire_modes.py` (NEW 2026-10-20) → `config`, `stubs`, `weapon_rules`, `expected_damage`, `electronics`, `ammo`,
+- `weapon_profiles.py` (NEW 2026-10-20) → `weapon_rules` (lazy); MECHSIM `equipment`, `damage_resolution` (lazy).
+  Used by `fire_modes`, `attack_resolution`, `ranged_combat`, `heat`.
+- `fire_modes.py` (NEW 2026-10-20) → `config`, `stubs`, `weapon_rules`, `expected_damage`, `electronics`, `ammo`, `weapon_profiles`,
   `ams` / `weapon_selection` (lazy); MECHSIM `equipment`, `damage_resolution.get_weapons`; PATHFINDER
   `combat.hit_probability` (lazy). Used by `attack_resolution`, `weapon_selection`, `ranged_combat`, `orchestrator`,
   `electronics` / `ammo` / `heat` / `stubs` (lazy).

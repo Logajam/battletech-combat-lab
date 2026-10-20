@@ -82,6 +82,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
     CLAPGaussRifle: needs 14 (range mod +4), rolled 7 -> miss [CLAPGaussRifle Ammo: 39 shots left]
     CLGaussRifle: needs 12 (range mod +2), rolled 3 -> miss [Clan Gauss Ammo: 6 shots left]
     CLATM6 hit: cluster roll 9 (ATM ER) on the 6-column table -> 5 connect (5 dmg).
+    CLATM6: 5 damage in 6-point groupings.
       Group 1/1: Hit location roll 8 (right table): Center Torso.
 5 damage (MISSILE) incoming to Center Torso (armor).
   [STANDARD/MISSILE] 5 armor pts destroyed at armor (43 -> 38 remaining).
@@ -117,6 +118,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
     CLAPGaussRifle: needs 9 (range mod +0), rolled 7 -> miss [CLAPGaussRifle Ammo: 34 shots left]
     CLGaussRifle: needs 9 (range mod +0), rolled 8 -> miss [Clan Gauss Ammo: 5 shots left]
     ISRotaryAC5 hit: cluster roll 5 (rapid fire x6) on the 6-column table -> 3 connect (15 dmg).
+    ISRotaryAC5: 15 damage in 5-point groupings.
       Group 1/3: Hit location roll 4 (left table): Left Arm.
 5 damage (BALLISTIC) incoming to Left Arm (armor).
   [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (28 -> 23 remaining).
@@ -127,28 +129,29 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 5 damage (BALLISTIC) incoming to Left Leg (armor).
   [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (35 -> 30 remaining).
     CLStreakSRM6 hit: Streak - all 6 missiles hit (12 dmg).
-      Group 1/6: Hit location roll 8 (left table): Center Torso.
-2 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (38 -> 36 remaining).
-      Group 2/6: Hit location roll 4 (left table): Left Arm.
+    CLAPGaussRifle hit for 3:
+      Hit location roll 8 (left table): Center Torso.
+3 damage (BALLISTIC) incoming to Center Torso (armor).
+  [STANDARD/BALLISTIC] 3 armor pts destroyed at armor (38 -> 35 remaining).
+    CLStreakSRM6: 12 damage in 2-point groupings.
+      Group 1/6: Hit location roll 4 (left table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (30 -> 28 remaining).
-      Group 3/6: Hit location roll 9 (left table): Right Torso.
+      Group 2/6: Hit location roll 9 (left table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (28 -> 26 remaining).
-      Group 4/6: Hit location roll 6 (left table): Left Leg.
+      Group 3/6: Hit location roll 6 (left table): Left Leg.
 2 damage (MISSILE) incoming to Left Leg (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (38 -> 36 remaining).
-      Group 5/6: Hit location roll 8 (left table): Center Torso.
+      Group 4/6: Hit location roll 8 (left table): Center Torso.
 2 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (36 -> 34 remaining).
-      Group 6/6: Hit location roll 7 (left table): Left Torso.
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (35 -> 33 remaining).
+      Group 5/6: Hit location roll 7 (left table): Left Torso.
 2 damage (MISSILE) incoming to Left Torso (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (28 -> 26 remaining).
-    CLAPGaussRifle hit for 3:
-      Hit location roll 10 (left table): Right Arm.
-3 damage (BALLISTIC) incoming to Right Arm (armor).
-  [STANDARD/BALLISTIC] 3 armor pts destroyed at armor (30 -> 27 remaining).
+      Group 6/6: Hit location roll 10 (left table): Right Arm.
+2 damage (MISSILE) incoming to Right Arm (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (30 -> 28 remaining).
   [Heat] Red: 0 + movement 2 + weapons 24 + engine 0 - sinks 22 -> 4
   [Heat] Blue: 3 + movement 1 + weapons 22 + engine 0 - sinks 22 -> 4
   -- end of turn 3: Red @ 1007 NE: HP 397, pilot hits 0, engine 0, gyro 0, heat 4
@@ -184,6 +187,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 6 damage (ENERGY) incoming to Right Leg (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (35 -> 29 remaining).
     ISMML9 hit: cluster roll 9 (MML SRM rounds) on the 9-column table -> 7 connect (14 dmg).
+    ISMML9: 14 damage in 2-point groupings.
       Group 1/7: Hit location roll 5 (front table): Right Leg.
 2 damage (MISSILE) incoming to Right Leg (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (29 -> 27 remaining).
@@ -206,35 +210,37 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 2 damage (MISSILE) incoming to Left Arm (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (17 -> 15 remaining).
     CLATM6 hit: cluster roll 7 (ATM HE) on the 6-column table -> 4 connect (12 dmg).
-      Group 1/2: Hit location roll 7 (front table): Center Torso.
-6 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 6 armor pts destroyed at armor (34 -> 28 remaining).
-      Group 2/2: Hit location roll 8 (front table): Left Torso.
+    CLStreakSRM6 hit: Streak - all 6 missiles hit (12 dmg).
+    CLGaussRifle hit for 15:
+      Hit location roll 7 (front table): Center Torso.
+15 damage (BALLISTIC) incoming to Center Torso (armor).
+  [STANDARD/BALLISTIC] 15 armor pts destroyed at armor (33 -> 18 remaining).
+    CLATM6: 12 damage in 6-point groupings.
+      Group 1/2: Hit location roll 8 (front table): Left Torso.
 6 damage (MISSILE) incoming to Left Torso (armor).
   [STANDARD/MISSILE] 6 armor pts destroyed at armor (26 -> 20 remaining).
-    CLStreakSRM6 hit: Streak - all 6 missiles hit (12 dmg).
+      Group 2/2: Hit location roll 6 (front table): Right Torso.
+6 damage (MISSILE) incoming to Right Torso (armor).
+  [STANDARD/MISSILE] 6 armor pts destroyed at armor (26 -> 20 remaining).
+    CLStreakSRM6: 12 damage in 2-point groupings.
       Group 1/6: Hit location roll 6 (front table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (26 -> 24 remaining).
-      Group 2/6: Hit location roll 6 (front table): Right Torso.
-2 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (24 -> 22 remaining).
-      Group 3/6: Hit location roll 5 (front table): Right Leg.
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (20 -> 18 remaining).
+      Group 2/6: Hit location roll 5 (front table): Right Leg.
 2 damage (MISSILE) incoming to Right Leg (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (38 -> 36 remaining).
-      Group 4/6: Hit location roll 9 (front table): Left Leg.
+      Group 3/6: Hit location roll 9 (front table): Left Leg.
 2 damage (MISSILE) incoming to Left Leg (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (36 -> 34 remaining).
-      Group 5/6: Hit location roll 8 (front table): Left Torso.
+      Group 4/6: Hit location roll 8 (front table): Left Torso.
 2 damage (MISSILE) incoming to Left Torso (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (20 -> 18 remaining).
-      Group 6/6: Hit location roll 11 (front table): Left Arm.
+      Group 5/6: Hit location roll 11 (front table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (28 -> 26 remaining).
-    CLGaussRifle hit for 15:
-      Hit location roll 5 (front table): Right Leg.
-15 damage (BALLISTIC) incoming to Right Leg (armor).
-  [STANDARD/BALLISTIC] 15 armor pts destroyed at armor (36 -> 21 remaining).
+      Group 6/6: Hit location roll 5 (front table): Right Leg.
+2 damage (MISSILE) incoming to Right Leg (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (36 -> 34 remaining).
 PSR trigger: 39 armor+structure lost this phase (>=20) -> +1.
 Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
   Succeeded - remains standing.
@@ -268,7 +274,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
     CLERMediumLaser hit for 7:
       Hit location roll 7 (front table): Center Torso.
 7 damage (ENERGY) incoming to Center Torso (armor).
-  [STANDARD/ENERGY] 7 armor pts destroyed at armor (28 -> 21 remaining).
+  [STANDARD/ENERGY] 7 armor pts destroyed at armor (18 -> 11 remaining).
   [Heat] Red: 3 + movement 2 + weapons 19 + engine 0 - sinks 22 -> 2
   [Heat] Blue: 4 + movement 3 + weapons 15 + engine 0 - sinks 22 -> 0
   -- end of turn 5: Red @ 1007 NE: HP 351, pilot hits 0, engine 0, gyro 0, heat 2
@@ -276,9 +282,9 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
 
 === TURN 6 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 1.926 = dealt 33.22 x1.00 / (received 17.24 x1.00 + PSR 0.00 + 0.001) [two-ply, 345 spots x 107 replies; modeled reply Red -> 1007 NE Stand Still]
+  [Movement select] Blue: score 1.953 = dealt 33.67 x1.00 / (received 17.24 x1.00 + PSR 0.00 + 0.001) [two-ply, 345 spots x 107 replies; modeled reply Red -> 1007 NE Stand Still]
   [Movement] Blue: 1405 SW -> 1405 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 3)
-  [Movement select] Red: score 0.519 = dealt 17.24 x1.00 / (received 33.22 x1.00 + PSR 0.00 + 0.001) [enemy held at 1405; 94 spots with LOS]
+  [Movement select] Red: score 0.512 = dealt 17.24 x1.00 / (received 33.67 x1.00 + PSR 0.00 + 0.001) [enemy held at 1405; 94 spots with LOS]
   [Movement] Red: 1007 NE -> 1007 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Ranged] Blue -> Red: range 4, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 3 + heat 0); firing ['CLERMediumLaser', 'CLATM6', 'CLATM6', 'CLATM6', 'CLStreakSRM6', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLGaussRifle'] (weapon heat 26 of budget 26 = max 4 + sink 22 - current 0 - movement 0 - other 0; expected dmg 33.17)
     CLERMediumLaser: needs 7 (range mod +0), rolled 7 -> HIT
@@ -304,222 +310,594 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
 7 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 7 armor pts destroyed at armor (26 -> 19 remaining).
     CLATM6 hit: cluster roll 8 on the 6-column table -> 4 connect (8 dmg).
-      Group 1/2: Hit location roll 6 (front table): Right Torso.
-6 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 6 armor pts destroyed at armor (22 -> 16 remaining).
-      Group 2/2: Hit location roll 5 (front table): Right Leg.
-2 damage (MISSILE) incoming to Right Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (21 -> 19 remaining).
-    CLATM6 hit: cluster roll 8 on the 6-column table -> 4 connect (8 dmg).
-      Group 1/2: Hit location roll 6 (front table): Right Torso.
-6 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 6 armor pts destroyed at armor (16 -> 10 remaining).
-      Group 2/2: Hit location roll 9 (front table): Left Leg.
-2 damage (MISSILE) incoming to Left Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (34 -> 32 remaining).
+    CLATM6 hit: cluster roll 6 on the 6-column table -> 4 connect (8 dmg).
     CLAPGaussRifle hit for 3:
-      Hit location roll 7 (front table): Center Torso.
-3 damage (BALLISTIC) incoming to Center Torso (armor).
-  [STANDARD/BALLISTIC] 3 armor pts destroyed at armor (21 -> 18 remaining).
-    ISRotaryAC5 hit: cluster roll 11 (rapid fire x6) on the 6-column table -> 6 connect (30 dmg).
-      Group 1/6: Hit location roll 9 (front table): Left Leg.
+      Hit location roll 5 (front table): Right Leg.
+3 damage (BALLISTIC) incoming to Right Leg (armor).
+  [STANDARD/BALLISTIC] 3 armor pts destroyed at armor (34 -> 31 remaining).
+    Cluster damage pooled (6-point groupings): CLATM6 8 + CLATM6 8 = 16.
+      Group 1/3: Hit location roll 8 (front table): Left Torso.
+6 damage (MISSILE) incoming to Left Torso (armor).
+  [STANDARD/MISSILE] 6 armor pts destroyed at armor (18 -> 12 remaining).
+      Group 2/3: Hit location roll 6 (front table): Right Torso.
+6 damage (MISSILE) incoming to Right Torso (armor).
+  [STANDARD/MISSILE] 6 armor pts destroyed at armor (18 -> 12 remaining).
+      Group 3/3: Hit location roll 9 (front table): Left Leg.
+4 damage (MISSILE) incoming to Left Leg (armor).
+  [STANDARD/MISSILE] 4 armor pts destroyed at armor (34 -> 30 remaining).
+    ISRotaryAC5 hit: cluster roll 7 (rapid fire x6) on the 6-column table -> 4 connect (20 dmg).
+    ISERMediumLaser hit for 5:
+      Hit location roll 11 (front table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (15 -> 10 remaining).
+    ISRotaryAC5: 20 damage in 5-point groupings.
+      Group 1/4: Hit location roll 9 (front table): Left Leg.
 5 damage (BALLISTIC) incoming to Left Leg (armor).
   [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (30 -> 25 remaining).
-      Group 2/6: Hit location roll 7 (front table): Center Torso.
+      Group 2/4: Hit location roll 7 (front table): Center Torso.
 5 damage (BALLISTIC) incoming to Center Torso (armor).
   [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (42 -> 37 remaining).
-      Group 3/6: Hit location roll 9 (front table): Left Leg.
+      Group 3/4: Hit location roll 9 (front table): Left Leg.
 5 damage (BALLISTIC) incoming to Left Leg (armor).
   [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (25 -> 20 remaining).
-      Group 4/6: Hit location roll 6 (front table): Right Torso.
+      Group 4/4: Hit location roll 6 (front table): Right Torso.
 5 damage (BALLISTIC) incoming to Right Torso (armor).
   [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (20 -> 15 remaining).
-      Group 5/6: Hit location roll 11 (front table): Left Arm.
-5 damage (BALLISTIC) incoming to Left Arm (armor).
-  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (15 -> 10 remaining).
-      Group 6/6: Hit location roll 9 (front table): Left Leg.
-5 damage (BALLISTIC) incoming to Left Leg (armor).
-  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (20 -> 15 remaining).
-    ISERMediumLaser hit for 5:
-      Hit location roll 5 (front table): Right Leg.
-5 damage (ENERGY) incoming to Right Leg (armor).
-  [STANDARD/ENERGY] 5 armor pts destroyed at armor (27 -> 22 remaining).
-PSR trigger: 35 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
+PSR trigger: 25 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
   Succeeded - remains standing.
 PSR trigger: 26 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
   Succeeded - remains standing.
   [Heat] Red: 2 + movement 0 + weapons 24 + engine 0 - sinks 22 -> 4
   [Heat] Blue: 0 + movement 0 + weapons 22 + engine 0 - sinks 22 -> 0
   -- end of turn 6: Red @ 1007 NE: HP 325, pilot hits 0, engine 0, gyro 0, heat 4
-  -- end of turn 6: Blue @ 1405 SW: HP 332, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 6: Blue @ 1405 SW: HP 342, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 7 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 2.140 = dealt 59.78 x1.00 / (received 27.94 x1.00 + PSR 0.00 + 0.001) [two-ply, 345 spots x 107 replies; modeled reply Red -> 1107 NE Walk]
-  [Movement] Blue: 1405 SW -> 1405 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 3)
-  [Movement select] Red: score 0.467 = dealt 27.94 x1.00 / (received 59.78 x1.00 + PSR 0.00 + 0.001) [enemy held at 1405; 94 spots with LOS]
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 0.462 = dealt 27.94 x1.00 / (received 60.45 x1.00 + PSR 0.00 + 0.001) [two-ply, 107 spots x 345 replies; modeled reply Blue -> 1405 SW Stand Still]
   [Movement] Red: 1007 NE -> 1107 NE, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Blue -> Red: range 3, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['CLERMediumLaser', 'CLATM6', 'CLATM6', 'CLATM6', 'CLStreakSRM6', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLGaussRifle'] (weapon heat 26 of budget 26 = max 4 + sink 22 - current 0 - movement 0 - other 0; expected dmg 59.22)
-    [Blue fire control] CLATM6: ATM HE
-    CLERMediumLaser: needs 6 (range mod +0), rolled 12 -> HIT
-    CLATM6: needs 6 (range mod +0), rolled 2 -> miss [Clan Ammo ATM-6 HE: 3 shots left]
-    CLATM6: needs 6 (range mod +0), rolled 2 -> miss [Clan Ammo ATM-6 HE: 2 shots left]
-    CLATM6: needs 6 (range mod +0), rolled 5 -> miss [Clan Ammo ATM-6 HE: 1 shots left]
-    CLStreakSRM6: needs 6 (range mod +0), rolled 7 -> HIT
-      [Clan Streak SRM 6 Ammo: 12 shots left]
-    CLAPGaussRifle: needs 6 (range mod +0), rolled 11 -> HIT [CLAPGaussRifle Ammo: 24 shots left]
-    CLAPGaussRifle: needs 6 (range mod +0), rolled 7 -> HIT [CLAPGaussRifle Ammo: 23 shots left]
-    CLAPGaussRifle: needs 6 (range mod +0), rolled 8 -> HIT [CLAPGaussRifle Ammo: 22 shots left]
-    CLAPGaussRifle: needs 6 (range mod +0), rolled 7 -> HIT [CLAPGaussRifle Ammo: 21 shots left]
-    CLGaussRifle: needs 6 (range mod +0), rolled 10 -> HIT [Clan Gauss Ammo: 1 shots left]
+  [Movement select] Blue: score 2.164 = dealt 60.45 x1.00 / (received 27.94 x1.00 + PSR 0.00 + 0.001) [enemy held at 1107; 338 spots with LOS]
+  [Movement] Blue: 1405 SW -> 1405 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 3)
   [Ranged] Red -> Blue: range 3, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0); firing ['ISMediumPulseLaser', 'ISMML9', 'ISMML9', 'ISRotaryAC5'] (weapon heat 20 of budget 21 = max 4 + sink 22 - current 4 - movement 1 - other 0; expected dmg 27.94)
     [Red fire control] ISMML9: MML SRM rounds; ISRotaryAC5: rapid fire x6
-    ISMediumPulseLaser: needs 7 (range mod +2, modifiers -2), rolled 9 -> HIT
-    ISMML9: needs 7 (range mod +0), rolled 5 -> miss [ISMML9 SRM Ammo: 5 shots left]
+    ISMediumPulseLaser: needs 7 (range mod +2, modifiers -2), rolled 8 -> HIT
+    ISMML9: needs 7 (range mod +0), rolled 8 -> HIT [ISMML9 SRM Ammo: 5 shots left]
     ISMML9: needs 7 (range mod +0), rolled 8 -> HIT [ISMML9 SRM Ammo: 4 shots left]
     ISRotaryAC5 x6: needs 7 (range mod +0), rolled 7 -> HIT [IS Rotary AC/5 Ammo: 4 shots left]
-    CLERMediumLaser hit for 7:
-      Hit location roll 6 (front table): Right Torso.
-7 damage (ENERGY) incoming to Right Torso (armor).
-  [STANDARD/ENERGY] 7 armor pts destroyed at armor (10 -> 3 remaining).
-    CLStreakSRM6 hit: Streak - all 6 missiles hit (12 dmg).
-      Group 1/6: Hit location roll 12 (front table): Head.
-      Head hit - pilot takes 1 hit (1/6), regardless of armor.
-2 damage (MISSILE) incoming to Head (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (9 -> 7 remaining).
-      Group 2/6: Hit location roll 9 (front table): Left Leg.
-2 damage (MISSILE) incoming to Left Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (32 -> 30 remaining).
-      Group 3/6: Hit location roll 11 (front table): Left Arm.
-2 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (19 -> 17 remaining).
-      Group 4/6: Hit location roll 6 (front table): Right Torso.
-2 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (3 -> 1 remaining).
-      Group 5/6: Hit location roll 11 (front table): Left Arm.
-2 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (17 -> 15 remaining).
-      Group 6/6: Hit location roll 3 (front table): Right Arm.
-2 damage (MISSILE) incoming to Right Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (27 -> 25 remaining).
-    CLAPGaussRifle hit for 3:
-      Hit location roll 5 (front table): Right Leg.
-3 damage (BALLISTIC) incoming to Right Leg (armor).
-  [STANDARD/BALLISTIC] 3 armor pts destroyed at armor (19 -> 16 remaining).
-    CLAPGaussRifle hit for 3:
-      Hit location roll 6 (front table): Right Torso.
-3 damage (BALLISTIC) incoming to Right Torso (armor).
-  [STANDARD/BALLISTIC] 1 armor pts destroyed at armor (1 -> 0 remaining). 2 damage applied to structure [STANDARD] (19 -> 17/19 remaining).
-  Check for possible critical. Roll a 5.
-    No critical hit.
-    CLAPGaussRifle hit for 3:
-      Hit location roll 9 (front table): Left Leg.
-3 damage (BALLISTIC) incoming to Left Leg (armor).
-  [STANDARD/BALLISTIC] 3 armor pts destroyed at armor (30 -> 27 remaining).
-    CLAPGaussRifle hit for 3:
-      Hit location roll 7 (front table): Center Torso.
-3 damage (BALLISTIC) incoming to Center Torso (armor).
-  [STANDARD/BALLISTIC] 3 armor pts destroyed at armor (18 -> 15 remaining).
-    CLGaussRifle hit for 15:
-      Hit location roll 12 (front table): Head.
-      Head hit - pilot takes 1 hit (2/6), regardless of armor.
-15 damage (BALLISTIC) incoming to Head (armor).
-  [STANDARD/BALLISTIC] 7 armor pts destroyed at armor (7 -> 0 remaining). 3 damage applied to structure [STANDARD] (3 -> 0/3 remaining).
-  Head destroyed with no live explosive components - no critical roll.
-  Head DESTROYED!
-    Cockpit destroyed from Head destruction.
-  All critical slots in Head marked DESTROYED.
-  5 damage remains, transfers to nowhere (attack finished).
+  [Ranged] Blue -> Red: range 3, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['CLERMediumLaser', 'CLATM6', 'CLATM6', 'CLATM6', 'CLStreakSRM6', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLGaussRifle'] (weapon heat 26 of budget 26 = max 4 + sink 22 - current 0 - movement 0 - other 0; expected dmg 59.22)
+    [Blue fire control] CLATM6: ATM HE
+    CLERMediumLaser: needs 6 (range mod +0), rolled 7 -> HIT
+    CLATM6: needs 6 (range mod +0), rolled 8 -> HIT [Clan Ammo ATM-6 HE: 3 shots left]
+    CLATM6: needs 6 (range mod +0), rolled 7 -> HIT [Clan Ammo ATM-6 HE: 2 shots left]
+    CLATM6: needs 6 (range mod +0), rolled 12 -> HIT [Clan Ammo ATM-6 HE: 1 shots left]
+    CLStreakSRM6: needs 6 (range mod +0), rolled 2 -> miss
+      Streak missed - launcher doesn't fire: no heat, no ammo.
+    CLAPGaussRifle: needs 6 (range mod +0), rolled 2 -> miss [CLAPGaussRifle Ammo: 24 shots left]
+    CLAPGaussRifle: needs 6 (range mod +0), rolled 5 -> miss [CLAPGaussRifle Ammo: 23 shots left]
+    CLAPGaussRifle: needs 6 (range mod +0), rolled 7 -> HIT [CLAPGaussRifle Ammo: 22 shots left]
+    CLAPGaussRifle: needs 6 (range mod +0), rolled 11 -> HIT [CLAPGaussRifle Ammo: 21 shots left]
+    CLGaussRifle: needs 6 (range mod +0), rolled 7 -> HIT [Clan Gauss Ammo: 1 shots left]
     ISMediumPulseLaser hit for 6:
       Hit location roll 8 (front table): Left Torso.
 6 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 6 armor pts destroyed at armor (29 -> 23 remaining).
-    ISMML9 hit: cluster roll 12 (MML SRM rounds) on the 9-column table -> 9 connect (18 dmg).
-      Group 1/9: Hit location roll 10 (front table): Left Arm.
-2 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (10 -> 8 remaining).
-      Group 2/9: Hit location roll 7 (front table): Center Torso.
+    ISMML9 hit: cluster roll 7 (MML SRM rounds) on the 9-column table -> 5 connect (10 dmg).
+    ISMML9 hit: cluster roll 10 (MML SRM rounds) on the 9-column table -> 7 connect (14 dmg).
+    ISRotaryAC5 hit: cluster roll 9 (rapid fire x6) on the 6-column table -> 5 connect (25 dmg).
+    Cluster damage pooled (2-point groupings): ISMML9 10 + ISMML9 14 = 24.
+      Group 1/12: Hit location roll 5 (front table): Right Leg.
+2 damage (MISSILE) incoming to Right Leg (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (27 -> 25 remaining).
+      Group 2/12: Hit location roll 8 (front table): Left Torso.
+2 damage (MISSILE) incoming to Left Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (23 -> 21 remaining).
+      Group 3/12: Hit location roll 7 (front table): Center Torso.
 2 damage (MISSILE) incoming to Center Torso (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (37 -> 35 remaining).
-      Group 3/9: Hit location roll 2 (front table): Center Torso.
-      Roll of 2 - Through-Armor Critical (floating) triggered.
-      Floating TAC re-roll: 11 -> Left Arm
+      Group 4/12: Hit location roll 6 (front table): Right Torso.
+2 damage (MISSILE) incoming to Right Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (15 -> 13 remaining).
+      Group 5/12: Hit location roll 12 (front table): Head.
+      Head hit - pilot takes 1 hit (1/6), regardless of armor.
+2 damage (MISSILE) incoming to Head (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (9 -> 7 remaining).
+      Group 6/12: Hit location roll 9 (front table): Left Leg.
+2 damage (MISSILE) incoming to Left Leg (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (20 -> 18 remaining).
+      Group 7/12: Hit location roll 11 (front table): Left Arm.
+2 damage (MISSILE) incoming to Left Arm (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (10 -> 8 remaining).
+      Group 8/12: Hit location roll 6 (front table): Right Torso.
+2 damage (MISSILE) incoming to Right Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (13 -> 11 remaining).
+      Group 9/12: Hit location roll 11 (front table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (8 -> 6 remaining).
+      Group 10/12: Hit location roll 3 (front table): Right Arm.
+2 damage (MISSILE) incoming to Right Arm (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (28 -> 26 remaining).
+      Group 11/12: Hit location roll 5 (front table): Right Leg.
+2 damage (MISSILE) incoming to Right Leg (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (25 -> 23 remaining).
+      Group 12/12: Hit location roll 6 (front table): Right Torso.
+2 damage (MISSILE) incoming to Right Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (11 -> 9 remaining).
+    ISRotaryAC5: 25 damage in 5-point groupings.
+      Group 1/5: Hit location roll 5 (front table): Right Leg.
+5 damage (BALLISTIC) incoming to Right Leg (armor).
+  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (23 -> 18 remaining).
+      Group 2/5: Hit location roll 9 (front table): Left Leg.
+5 damage (BALLISTIC) incoming to Left Leg (armor).
+  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (18 -> 13 remaining).
+      Group 3/5: Hit location roll 7 (front table): Center Torso.
+5 damage (BALLISTIC) incoming to Center Torso (armor).
+  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (35 -> 30 remaining).
+      Group 4/5: Hit location roll 12 (front table): Head.
+      Head hit - pilot takes 1 hit (2/6), regardless of armor.
+5 damage (BALLISTIC) incoming to Head (armor).
+  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (7 -> 2 remaining).
+      Group 5/5: Hit location roll 8 (front table): Left Torso.
+5 damage (BALLISTIC) incoming to Left Torso (armor).
+  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (21 -> 16 remaining).
+    CLERMediumLaser hit for 7:
+      Hit location roll 12 (front table): Head.
+      Head hit - pilot takes 1 hit (1/6), regardless of armor.
+7 damage (ENERGY) incoming to Head (armor).
+  [STANDARD/ENERGY] 7 armor pts destroyed at armor (9 -> 2 remaining).
+    CLATM6 hit: cluster roll 10 (ATM HE) on the 6-column table -> 5 connect (15 dmg).
+    CLATM6 hit: cluster roll 7 (ATM HE) on the 6-column table -> 4 connect (12 dmg).
+    CLATM6 hit: cluster roll 2 (ATM HE) on the 6-column table -> 2 connect (6 dmg).
+    CLAPGaussRifle hit for 3:
+      Hit location roll 11 (front table): Left Arm.
+3 damage (BALLISTIC) incoming to Left Arm (armor).
+  [STANDARD/BALLISTIC] 3 armor pts destroyed at armor (19 -> 16 remaining).
+    CLAPGaussRifle hit for 3:
+      Hit location roll 9 (front table): Left Leg.
+3 damage (BALLISTIC) incoming to Left Leg (armor).
+  [STANDARD/BALLISTIC] 3 armor pts destroyed at armor (30 -> 27 remaining).
+    CLGaussRifle hit for 15:
+      Hit location roll 5 (front table): Right Leg.
+15 damage (BALLISTIC) incoming to Right Leg (armor).
+  [STANDARD/BALLISTIC] 15 armor pts destroyed at armor (31 -> 16 remaining).
+    Cluster damage pooled (6-point groupings): CLATM6 15 + CLATM6 12 + CLATM6 6 = 33.
+      Group 1/6: Hit location roll 7 (front table): Center Torso.
+6 damage (MISSILE) incoming to Center Torso (armor).
+  [STANDARD/MISSILE] 6 armor pts destroyed at armor (11 -> 5 remaining).
+      Group 2/6: Hit location roll 7 (front table): Center Torso.
+6 damage (MISSILE) incoming to Center Torso (armor).
+  [STANDARD/MISSILE] 5 armor pts destroyed at armor (5 -> 0 remaining). 1 damage applied to structure [STANDARD] (29 -> 28/29 remaining).
+  Check for possible critical. Roll a 7.
+    No critical hit.
+      Group 3/6: Hit location roll 8 (front table): Left Torso.
+6 damage (MISSILE) incoming to Left Torso (armor).
+  [STANDARD/MISSILE] 6 armor pts destroyed at armor (12 -> 6 remaining).
+      Group 4/6: Hit location roll 8 (front table): Left Torso.
+6 damage (MISSILE) incoming to Left Torso (armor).
+  [STANDARD/MISSILE] 6 armor pts destroyed at armor (6 -> 0 remaining).
+      Group 5/6: Hit location roll 2 (front table): Center Torso.
+      Roll of 2 - Through-Armor Critical (floating) triggered.
+      Floating TAC re-roll: 10 -> Left Arm
+6 damage (MISSILE) incoming to Left Arm (armor).
+  [STANDARD/MISSILE] 6 armor pts destroyed at armor (16 -> 10 remaining).
       Additional critical hit due to TAC.
-  Check for possible critical. Roll a 9.
-    1 critical hit(s).
+  Check for possible critical. Roll a 11.
+    2 critical hit(s).
   Critical hit pool at Left Arm:
     1: Shoulder (slot 1)
     2: Upper Arm Actuator (slot 2)
     3: Lower Arm Actuator (slot 3)
-    4: Hand Actuator (slot 4)
-    5: CLStreakSRM6 (slot 5)
-    6: CLStreakSRM6 (slot 6)
-    7: CLAPGaussRifle (slot 7)
-    8: CLAPGaussRifle (slot 8)
-    9: CLAPGaussRifle (slot 9)
-    10: CLAPGaussRifle (slot 10)
-    11: CLAPGaussRifle (slot 11)
-    12: CLAPGaussRifle (slot 12)
-    1/1 Criticals: CLAPGaussRifle slot hit.
-      Current crit slots in Left Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', 'CLStreakSRM6', 'CLStreakSRM6', 'DESTROYED', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLAPGaussRifle']
-      Group 4/9: Hit location roll 5 (front table): Right Leg.
-2 damage (MISSILE) incoming to Right Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (22 -> 20 remaining).
-      Group 5/9: Hit location roll 7 (front table): Center Torso.
-2 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (35 -> 33 remaining).
-      Group 6/9: Hit location roll 7 (front table): Center Torso.
-2 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (33 -> 31 remaining).
-      Group 7/9: Hit location roll 7 (front table): Center Torso.
-2 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (31 -> 29 remaining).
-      Group 8/9: Hit location roll 8 (front table): Left Torso.
-2 damage (MISSILE) incoming to Left Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (23 -> 21 remaining).
-      Group 9/9: Hit location roll 8 (front table): Left Torso.
-2 damage (MISSILE) incoming to Left Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (21 -> 19 remaining).
-    ISRotaryAC5 hit: cluster roll 2 (rapid fire x6) on the 6-column table -> 2 connect (10 dmg).
-      Group 1/2: Hit location roll 10 (front table): Left Arm.
-5 damage (BALLISTIC) incoming to Left Arm (armor).
-  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (6 -> 1 remaining).
-      Group 2/2: Hit location roll 11 (front table): Left Arm.
-5 damage (BALLISTIC) incoming to Left Arm (armor).
-  [STANDARD/BALLISTIC] 1 armor pts destroyed at armor (1 -> 0 remaining). 4 damage applied to structure [STANDARD] (15 -> 11/15 remaining).
-  Check for possible critical. Roll a 5.
-    No critical hit.
-PSR trigger: 34 armor+structure lost this phase (>=20) -> +1.
+    4: ISHeavyPPC (slot 4)
+    5: ISHeavyPPC (slot 5)
+    6: ISHeavyPPC (slot 6)
+    7: ISHeavyPPC (slot 7)
+    8: ISMediumPulseLaser (slot 8)
+    9: Endo-Steel (slot 9)
+    10: Endo-Steel (slot 10)
+    11: Endo-Steel (slot 11)
+    12: Endo-Steel (slot 12)
+    1/2 Criticals: ISHeavyPPC slot hit.
+      Current crit slots in Left Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'ISHeavyPPC', 'ISHeavyPPC', 'ISHeavyPPC', 'DESTROYED', 'ISMediumPulseLaser', 'Endo-Steel', 'Endo-Steel', 'Endo-Steel', 'Endo-Steel']
+  Critical hit pool at Left Arm:
+    1: Shoulder (slot 1)
+    2: Upper Arm Actuator (slot 2)
+    3: Lower Arm Actuator (slot 3)
+    4: ISHeavyPPC (slot 4)
+    5: ISHeavyPPC (slot 5)
+    6: ISHeavyPPC (slot 6)
+    7: ISMediumPulseLaser (slot 8)
+    8: Endo-Steel (slot 9)
+    9: Endo-Steel (slot 10)
+    10: Endo-Steel (slot 11)
+    11: Endo-Steel (slot 12)
+    2/2 Criticals: ISHeavyPPC slot hit.
+      Current crit slots in Left Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'ISHeavyPPC', 'DESTROYED', 'ISHeavyPPC', 'DESTROYED', 'ISMediumPulseLaser', 'Endo-Steel', 'Endo-Steel', 'Endo-Steel', 'Endo-Steel']
+      Group 6/6: Hit location roll 5 (front table): Right Leg.
+3 damage (MISSILE) incoming to Right Leg (armor).
+  [STANDARD/MISSILE] 3 armor pts destroyed at armor (16 -> 13 remaining).
+PSR trigger: 61 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 5.
+  Failed - falls.
+FALL (failed Attack Phase PSR): Akuma AKU-2XK takes 9 falling damage (1D6 1: rear table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 6 -> Right Torso
+5 damage (PHYSICAL) incoming to Right Torso (rear_armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at rear_armor (10 -> 5 remaining).
+  Fall cluster (4 dmg): rolled 9 -> Left Leg
+4 damage (PHYSICAL) incoming to Left Leg (rear_armor).
+  [STANDARD/PHYSICAL] 4 armor pts destroyed at armor (27 -> 23 remaining).
+  Seatbelt check: needs 5. Rolled 2. FAILED - pilot takes 1 hit (2/6).
+Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 5.
+  Pilot stays conscious.
+PSR trigger: 55 armor+structure lost this phase (>=20) -> +1.
 Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 5.
   Failed - falls.
 FALL (failed Attack Phase PSR): Highlander IIC 2 takes 9 falling damage (1D6 3: front table, 5-pt clusters).
-  Fall cluster (5 dmg): rolled 6 -> Right Torso
-5 damage (PHYSICAL) incoming to Right Torso (armor).
-  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (15 -> 10 remaining).
-  Fall cluster (4 dmg): rolled 9 -> Left Leg
-4 damage (PHYSICAL) incoming to Left Leg (armor).
-  [STANDARD/PHYSICAL] 4 armor pts destroyed at armor (15 -> 11 remaining).
-  Seatbelt check: needs 5. Rolled 2. FAILED - pilot takes 1 hit (1/6).
-Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 5.
+  Fall cluster (5 dmg): rolled 7 -> Center Torso
+5 damage (PHYSICAL) incoming to Center Torso (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (30 -> 25 remaining).
+  Fall cluster (4 dmg): rolled 5 -> Right Leg
+4 damage (PHYSICAL) incoming to Right Leg (armor).
+  [STANDARD/PHYSICAL] 4 armor pts destroyed at armor (18 -> 14 remaining).
+  Seatbelt check: needs 5. Rolled 8. Pilot unharmed.
+Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 7.
   Pilot stays conscious.
-  [Heat] Blue: 0 + movement 0 + weapons 26 + engine 0 - sinks 22 -> 4
-  -- end of turn 7: Red @ 1107 NE: HP 284, pilot hits 2, engine 0, gyro 0, heat 4 [DESTROYED (Head Destroyed)]
-  -- end of turn 7: Blue @ 1405 SW: HP 289, pilot hits 1, engine 0, gyro 0, heat 4 [PRONE]
+  [Heat] Red: 4 + movement 1 + weapons 20 + engine 0 - sinks 22 -> 3
+  [Heat] Blue: 0 + movement 0 + weapons 22 + engine 0 - sinks 22 -> 0
+  -- end of turn 7: Red @ 1107 NE: HP 255, pilot hits 2, engine 0, gyro 0, heat 3 [PRONE]
+  -- end of turn 7: Blue @ 1405 SW: HP 278, pilot hits 2, engine 0, gyro 0, heat 0 [PRONE]
 
->>> Battle over on turn 7: Red destroyed. <<<
+=== TURN 8 ===
+  Initiative: Red lost the roll, moves first.
+Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 9.
+  Success - Akuma AKU-2XK is standing (remaining running MP 3).
+  [Movement select] Red: score 1.414 = dealt 5.11 x1.00 / (received 3.74 x0.97 + PSR 0.00 + 0.001) [two-ply, 40 spots x 1 replies; modeled reply Blue -> 1405 SW Run]
+  [Movement] Red: 1107 NE -> 1007 NW, Run (3 MP, 1 hexes, 2 heat; budget walk 3 / run 5 / jump 0; stood up with 3 MP left)
+Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 9.
+  Success - Highlander IIC 2 is standing (remaining running MP 3).
+  [Movement select] Blue: score 22.146 = dealt 19.24 x0.97 / (received 0.85 x0.99 + PSR 0.00 + 0.001) [enemy held at 1007; 33 spots with LOS]
+  [Movement] Blue: 1405 SW -> 1506 S, Run (2 MP, 1 hexes, 2 heat; budget walk 3 / run 5 / jump 3; stood up with 3 MP left)
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's right side arc after that).
+  [Ranged] Red -> Blue: range 5, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0); firing ['ISERMediumLaser'] (weapon heat 5 of budget 21 = max 4 + sink 22 - current 3 - movement 2 - other 0; expected dmg 0.83)
+    ISERMediumLaser: needs 10 (range mod +2), rolled 2 -> miss
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
+  [Ranged] Blue -> Red: range 5, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 3 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLATM6', 'CLATM6', 'CLATM6', 'CLAPGaussRifle', 'CLGaussRifle'] (weapon heat 24 of budget 24 = max 4 + sink 22 - current 0 - movement 2 - other 0; expected dmg 14.97)
+    CLERMediumLaser: needs 9 (range mod +0), rolled 8 -> miss
+    CLERMediumLaser: needs 9 (range mod +0), rolled 7 -> miss
+    CLATM6: needs 9 (range mod +0), rolled 9 -> HIT [Clan Ammo ATM-6: 5 shots left]
+    CLATM6: needs 9 (range mod +0), rolled 5 -> miss [Clan Ammo ATM-6: 4 shots left]
+    CLATM6: needs 9 (range mod +0), rolled 8 -> miss [Clan Ammo ATM-6: 3 shots left]
+    CLAPGaussRifle: needs 11 (range mod +2), rolled 12 -> HIT [CLAPGaussRifle Ammo: 20 shots left]
+    CLGaussRifle: needs 9 (range mod +0), rolled 7 -> miss [Clan Gauss Ammo: 0 shots left]
+    CLATM6 hit: cluster roll 8 on the 6-column table -> 4 connect (8 dmg).
+    CLAPGaussRifle hit for 3:
+      Hit location roll 6 (right table): Right Leg.
+3 damage (BALLISTIC) incoming to Right Leg (armor).
+  [STANDARD/BALLISTIC] 3 armor pts destroyed at armor (13 -> 10 remaining).
+    CLATM6: 8 damage in 6-point groupings.
+      Group 1/2: Hit location roll 2 (right table): Right Torso.
+      Roll of 2 - Through-Armor Critical (floating) triggered.
+      Floating TAC re-roll: 8 -> Center Torso
+6 damage (MISSILE) incoming to Center Torso (armor).
+  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 6 damage applied to structure [STANDARD] (28 -> 22/29 remaining).
+  Check for possible critical. Roll a 3.
+    No critical hit.
+      Additional critical hit due to TAC.
+  Check for possible critical. Roll a 9.
+    1 critical hit(s).
+  Critical hit pool at Center Torso:
+    1: Engine (slot 1)
+    2: Engine (slot 2)
+    3: Engine (slot 3)
+    4: Gyro (slot 4)
+    5: Gyro (slot 5)
+    6: Engine (slot 6)
+    7: Engine (slot 7)
+    8: Engine (slot 8)
+    9: ISDouble Heat Sink (slot 9)
+    10: ISDouble Heat Sink (slot 10)
+    11: ISDouble Heat Sink (slot 11)
+    12: ISMediumPulseLaser (slot 12)
+    1/1 Criticals: Engine hit.
+      Current crit slots in Center Torso: ['Engine', 'DESTROYED', 'Engine', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'ISDouble Heat Sink', 'ISDouble Heat Sink', 'ISDouble Heat Sink', 'ISMediumPulseLaser']
+      Engine hit (1/3).
+      Group 2/2: Hit location roll 9 (right table): Left Torso.
+2 damage (MISSILE) incoming to Left Torso (armor).
+  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (19 -> 17/19 remaining).
+  Check for possible critical. Roll a 10.
+    2 critical hit(s).
+  Critical hit pool at Left Torso:
+    1: ISMML9 (slot 1)
+    2: ISMML9 (slot 2)
+    3: ISMML9 (slot 3)
+    4: ISMML9 (slot 4)
+    5: ISMML9 (slot 5)
+    6: ISMML9 (slot 6)
+    7: ISMML9 (slot 7)
+    8: ISMML9 (slot 8)
+    9: ISMML9 (slot 9)
+    10: ISMML9 (slot 10)
+    11: ISGuardianECM (slot 11)
+    12: ISGuardianECM (slot 12)
+    1/2 Criticals: ISGuardianECM slot hit.
+      Current crit slots in Left Torso: ['ISMML9', 'ISMML9', 'ISMML9', 'ISMML9', 'ISMML9', 'ISMML9', 'ISMML9', 'ISMML9', 'ISMML9', 'ISMML9', 'DESTROYED', 'ISGuardianECM']
+  Critical hit pool at Left Torso:
+    1: ISMML9 (slot 1)
+    2: ISMML9 (slot 2)
+    3: ISMML9 (slot 3)
+    4: ISMML9 (slot 4)
+    5: ISMML9 (slot 5)
+    6: ISMML9 (slot 6)
+    7: ISMML9 (slot 7)
+    8: ISMML9 (slot 8)
+    9: ISMML9 (slot 9)
+    10: ISMML9 (slot 10)
+    11: ISGuardianECM (slot 12)
+    2/2 Criticals: ISMML9 slot hit.
+      Current crit slots in Left Torso: ['ISMML9', 'ISMML9', 'ISMML9', 'ISMML9', 'ISMML9', 'ISMML9', 'ISMML9', 'ISMML9', 'ISMML9', 'DESTROYED', 'DESTROYED', 'ISGuardianECM']
+  [Heat] Red: 3 + movement 2 + weapons 5 + engine 5 - sinks 22 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 24 + engine 0 - sinks 22 -> 4
+  [End] Red is now CRIPPLED (BattleMech Manual definition).
+  -- end of turn 8: Red @ 1007 NW: HP 244, pilot hits 2, engine 1, gyro 0, heat 0
+  -- end of turn 8: Blue @ 1506 S: HP 278, pilot hits 2, engine 0, gyro 0, heat 4
+
+=== TURN 9 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 3.392 = dealt 35.56 x0.96 / (received 10.15 x0.99 + PSR 0.00 + 0.001) [two-ply, 293 spots x 138 replies; modeled reply Red -> 1006 N Walk]
+  [Movement] Blue: 1506 S -> 1503 S, Walk (3 MP, 3 hexes, 1 heat; budget walk 3 / run 5 / jump 3) - includes a backward move
+  [Movement select] Red: score 0.295 = dealt 10.15 x0.99 / (received 35.56 x0.96 + PSR 0.00 + 0.001) [enemy held at 1503; 99 spots with LOS]
+  [Movement] Red: 1007 NW -> 1006 N, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
+  [Ranged] Blue -> Red: range 6, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0); firing ['CLATM6', 'CLATM6', 'CLATM6', 'CLStreakSRM6', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLGaussRifle'] (weapon heat 21 of budget 21 = max 4 + sink 22 - current 4 - movement 1 - other 0; expected dmg 27.36)
+    [Blue fire control] CLATM6: ATM Artemis, ATM HE
+    CLATM6: needs 9 (range mod +2), rolled 7 -> miss [Clan Ammo ATM-6 HE: 0 shots left]
+    CLATM6: needs 9 (range mod +2), rolled 12 -> HIT [no ammo]
+    CLATM6: needs 9 (range mod +2), rolled 2 -> miss [no ammo]
+    CLStreakSRM6: needs 9 (range mod +2), rolled 6 -> miss
+      Streak missed - launcher doesn't fire: no heat, no ammo.
+    CLAPGaussRifle: needs 9 (range mod +2), rolled 2 -> miss [CLAPGaussRifle Ammo: 19 shots left]
+    CLAPGaussRifle: needs 9 (range mod +2), rolled 3 -> miss [CLAPGaussRifle Ammo: 18 shots left]
+    CLAPGaussRifle: needs 9 (range mod +2), rolled 8 -> miss [CLAPGaussRifle Ammo: 17 shots left]
+    CLAPGaussRifle: needs 9 (range mod +2), rolled 6 -> miss [CLAPGaussRifle Ammo: 16 shots left]
+    CLGaussRifle: needs 7 (range mod +0), rolled 8 -> HIT [Clan Gauss Ammo: 7 shots left]
+  [Ranged] Red -> Blue: range 6, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 1 + heat 0); firing ['ISMediumPulseLaser', 'ISMML9', 'ISRotaryAC5', 'ISMediumPulseLaser'] (weapon heat 17 of budget 20 = max 4 + sink 22 - current 0 - movement 1 - other 5; expected dmg 10.04)
+    [Red fire control] ISMML9: MML SRM rounds; ISRotaryAC5: rapid fire x4
+    ISMediumPulseLaser: needs 9 (range mod +4, modifiers -2), rolled 8 -> miss
+    ISMML9: needs 9 (range mod +2), rolled 11 -> HIT [ISMML9 SRM Ammo: 3 shots left]
+    ISRotaryAC5 x4: needs 9 (range mod +2), rolled 7 -> miss [IS Rotary AC/5 Ammo: 0 shots left]
+    ISMediumPulseLaser: needs 9 (range mod +4, modifiers -2), rolled 3 -> miss
+    CLATM6 hit: cluster roll 7 +2 (ATM Artemis, ATM HE) on the 6-column table -> 5 connect (15 dmg).
+    CLGaussRifle hit for 15:
+      Hit location roll 10 (right table): Left Arm.
+15 damage (BALLISTIC) incoming to Left Arm (armor).
+  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (10 -> 0 remaining). 5 damage applied to structure [STANDARD] (15 -> 10/15 remaining).
+  Check for possible critical. Roll a 3.
+    No critical hit.
+    CLATM6: 15 damage in 6-point groupings.
+      Group 1/3: Hit location roll 6 (right table): Right Leg.
+6 damage (MISSILE) incoming to Right Leg (armor).
+  [STANDARD/MISSILE] 6 armor pts destroyed at armor (10 -> 4 remaining).
+      Group 2/3: Hit location roll 8 (right table): Center Torso.
+6 damage (MISSILE) incoming to Center Torso (armor).
+  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 6 damage applied to structure [STANDARD] (22 -> 16/29 remaining).
+  Check for possible critical. Roll a 6.
+    No critical hit.
+      Group 3/3: Hit location roll 8 (right table): Center Torso.
+3 damage (MISSILE) incoming to Center Torso (armor).
+  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (16 -> 13/29 remaining).
+  Check for possible critical. Roll a 5.
+    No critical hit.
+    ISMML9 hit: cluster roll 9 (MML SRM rounds) on the 9-column table -> 7 connect (14 dmg).
+    ISMML9: 14 damage in 2-point groupings.
+      Group 1/7: Hit location roll 9 (right table): Left Torso.
+2 damage (MISSILE) incoming to Left Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (16 -> 14 remaining).
+      Group 2/7: Hit location roll 9 (right table): Left Torso.
+2 damage (MISSILE) incoming to Left Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (14 -> 12 remaining).
+      Group 3/7: Hit location roll 4 (right table): Right Arm.
+2 damage (MISSILE) incoming to Right Arm (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (26 -> 24 remaining).
+      Group 4/7: Hit location roll 6 (right table): Right Leg.
+2 damage (MISSILE) incoming to Right Leg (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (14 -> 12 remaining).
+      Group 5/7: Hit location roll 6 (right table): Right Leg.
+2 damage (MISSILE) incoming to Right Leg (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (12 -> 10 remaining).
+      Group 6/7: Hit location roll 11 (right table): Left Leg.
+2 damage (MISSILE) incoming to Left Leg (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (13 -> 11 remaining).
+      Group 7/7: Hit location roll 6 (right table): Right Leg.
+2 damage (MISSILE) incoming to Right Leg (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (10 -> 8 remaining).
+PSR trigger: 30 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
+  Succeeded - remains standing.
+  [Heat] Red: 0 + movement 1 + weapons 17 + engine 5 - sinks 22 -> 1
+  [Heat] Blue: 4 + movement 1 + weapons 17 + engine 0 - sinks 22 -> 0
+  -- end of turn 9: Red @ 1006 N: HP 214, pilot hits 2, engine 1, gyro 0, heat 1
+  -- end of turn 9: Blue @ 1503 S: HP 264, pilot hits 2, engine 0, gyro 0, heat 0
+
+=== TURN 10 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 3.466 = dealt 63.72 x0.89 / (received 16.45 x1.00 + PSR 0.00 + 0.001) [two-ply, 288 spots x 132 replies; modeled reply Red -> 1003 N Walk]
+  [Movement] Blue: 1503 S -> 1501 SW, Walk (3 MP, 2 hexes, 1 heat; budget walk 3 / run 5 / jump 3) - includes a backward move
+  [Movement select] Red: score 0.288 = dealt 16.45 x1.00 / (received 63.72 x0.89 + PSR 0.00 + 0.001) [enemy held at 1501; 126 spots with LOS]
+  [Movement] Red: 1006 N -> 1003 N, Walk (3 MP, 3 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
+  [Ranged] Blue -> Red: range 5, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLATM6', 'CLATM6', 'CLATM6', 'CLStreakSRM6', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLGaussRifle'] (weapon heat 25 of budget 25 = max 4 + sink 22 - current 0 - movement 1 - other 0; expected dmg 45.34)
+    [Blue fire control] CLATM6: ATM Artemis
+    CLERMediumLaser: needs 6 (range mod +0), rolled 6 -> HIT
+    CLATM6: needs 6 (range mod +0), rolled 9 -> HIT [Clan Ammo ATM-6: 2 shots left]
+    CLATM6: needs 6 (range mod +0), rolled 8 -> HIT [Clan Ammo ATM-6: 1 shots left]
+    CLATM6: needs 6 (range mod +0), rolled 6 -> HIT [Clan Ammo ATM-6: 0 shots left]
+    CLStreakSRM6: needs 8 (range mod +2), rolled 5 -> miss
+      Streak missed - launcher doesn't fire: no heat, no ammo.
+    CLAPGaussRifle: needs 8 (range mod +2), rolled 7 -> miss [CLAPGaussRifle Ammo: 15 shots left]
+    CLAPGaussRifle: needs 8 (range mod +2), rolled 4 -> miss [CLAPGaussRifle Ammo: 14 shots left]
+    CLAPGaussRifle: needs 8 (range mod +2), rolled 8 -> HIT [CLAPGaussRifle Ammo: 13 shots left]
+    CLGaussRifle: needs 6 (range mod +0), rolled 6 -> HIT [Clan Gauss Ammo: 6 shots left]
+  [Ranged] Red -> Blue: range 5, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMML9', 'ISMediumPulseLaser', 'ISERMediumLaser'] (weapon heat 18 of budget 19 = max 4 + sink 22 - current 1 - movement 1 - other 5; expected dmg 16.30)
+    [Red fire control] ISMML9: MML SRM rounds
+    ISMediumPulseLaser: needs 7 (range mod +4, modifiers -2), rolled 8 -> HIT
+    ISMML9: needs 7 (range mod +2), rolled 3 -> miss [ISMML9 SRM Ammo: 2 shots left]
+    ISMediumPulseLaser: needs 7 (range mod +4, modifiers -2), rolled 5 -> miss
+    ISERMediumLaser: needs 7 (range mod +2), rolled 11 -> HIT
+    CLERMediumLaser hit for 7:
+      Hit location roll 4 (right table): Right Arm.
+7 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 7 armor pts destroyed at armor (28 -> 21 remaining).
+    CLATM6 hit: cluster roll 11 +2 (ATM Artemis) on the 6-column table -> 6 connect (12 dmg).
+    CLATM6 hit: cluster roll 8 +2 (ATM Artemis) on the 6-column table -> 5 connect (10 dmg).
+    CLATM6 hit: cluster roll 7 +2 (ATM Artemis) on the 6-column table -> 5 connect (10 dmg).
+    CLAPGaussRifle hit for 3:
+      Hit location roll 9 (right table): Left Torso.
+3 damage (BALLISTIC) incoming to Left Torso (armor).
+  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (17 -> 14/19 remaining).
+  Check for possible critical. Roll a 12.
+    Roll of 12 on torso: rolling 3 critical hits instead of destruction.
+    3 critical hit(s).
+  Critical hit pool at Left Torso:
+    1: ISMML9 (slot 1)
+    2: ISMML9 (slot 2)
+    3: ISMML9 (slot 3)
+    4: ISMML9 (slot 4)
+    5: ISMML9 (slot 5)
+    6: ISMML9 (slot 6)
+    7: ISMML9 (slot 7)
+    8: ISMML9 (slot 8)
+    9: ISMML9 (slot 9)
+    10: ISGuardianECM (slot 12)
+    1/3 Criticals: ISMML9 slot hit.
+      Current crit slots in Left Torso: ['ISMML9', 'DESTROYED', 'ISMML9', 'ISMML9', 'ISMML9', 'ISMML9', 'ISMML9', 'ISMML9', 'ISMML9', 'DESTROYED', 'DESTROYED', 'ISGuardianECM']
+  Critical hit pool at Left Torso:
+    1: ISMML9 (slot 1)
+    2: ISMML9 (slot 3)
+    3: ISMML9 (slot 4)
+    4: ISMML9 (slot 5)
+    5: ISMML9 (slot 6)
+    6: ISMML9 (slot 7)
+    7: ISMML9 (slot 8)
+    8: ISMML9 (slot 9)
+    9: ISGuardianECM (slot 12)
+    2/3 Criticals: ISMML9 slot hit.
+      Current crit slots in Left Torso: ['ISMML9', 'DESTROYED', 'ISMML9', 'ISMML9', 'DESTROYED', 'ISMML9', 'ISMML9', 'ISMML9', 'ISMML9', 'DESTROYED', 'DESTROYED', 'ISGuardianECM']
+  Critical hit pool at Left Torso:
+    1: ISMML9 (slot 1)
+    2: ISMML9 (slot 3)
+    3: ISMML9 (slot 4)
+    4: ISMML9 (slot 6)
+    5: ISMML9 (slot 7)
+    6: ISMML9 (slot 8)
+    7: ISMML9 (slot 9)
+    8: ISGuardianECM (slot 12)
+    3/3 Criticals: ISMML9 slot hit.
+      Current crit slots in Left Torso: ['ISMML9', 'DESTROYED', 'ISMML9', 'DESTROYED', 'DESTROYED', 'ISMML9', 'ISMML9', 'ISMML9', 'ISMML9', 'DESTROYED', 'DESTROYED', 'ISGuardianECM']
+    CLGaussRifle hit for 15:
+      Hit location roll 8 (right table): Center Torso.
+15 damage (BALLISTIC) incoming to Center Torso (armor).
+  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 13 damage applied to structure [STANDARD] (13 -> 0/29 remaining).
+  Center Torso destroyed with no live explosive components - no critical roll.
+  Center Torso DESTROYED!
+    Engine hit (2/3) from Center Torso destruction.
+    Engine hit (3/3) from Center Torso destruction.
+    Gyro hit (1/2) from Center Torso destruction.
+    Gyro hit (2/2) from Center Torso destruction.
+    Engine hit (4/3) from Center Torso destruction.
+    Engine hit (5/3) from Center Torso destruction.
+    Engine hit (6/3) from Center Torso destruction.
+    Heat sink destroyed (ISDouble Heat Sink) from Center Torso destruction - heat dissipation reduced (now 20).
+    Heat sink destroyed (ISDouble Heat Sink) from Center Torso destruction - heat dissipation reduced (now 18).
+    Heat sink destroyed (ISDouble Heat Sink) from Center Torso destruction - heat dissipation reduced (now 16).
+  All critical slots in Center Torso marked DESTROYED.
+  2 damage remains, transfers to nowhere (attack finished).
+    Cluster damage pooled (6-point groupings): CLATM6 12 + CLATM6 10 + CLATM6 10 = 32.
+      Group 1/6: Hit location roll 6 (right table): Right Leg.
+6 damage (MISSILE) incoming to Right Leg (armor).
+  [STANDARD/MISSILE] 4 armor pts destroyed at armor (4 -> 0 remaining). 2 damage applied to structure [STANDARD] (19 -> 17/19 remaining).
+  Check for possible critical. Roll a 7.
+    No critical hit.
+      Group 2/6: Hit location roll 10 (right table): Left Arm.
+6 damage (MISSILE) incoming to Left Arm (armor).
+  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 6 damage applied to structure [STANDARD] (10 -> 4/15 remaining).
+  Check for possible critical. Roll a 11.
+    2 critical hit(s).
+  Critical hit pool at Left Arm:
+    1: Shoulder (slot 1)
+    2: Upper Arm Actuator (slot 2)
+    3: Lower Arm Actuator (slot 3)
+    4: ISHeavyPPC (slot 4)
+    5: ISHeavyPPC (slot 6)
+    6: ISMediumPulseLaser (slot 8)
+    7: Endo-Steel (slot 9)
+    8: Endo-Steel (slot 10)
+    9: Endo-Steel (slot 11)
+    10: Endo-Steel (slot 12)
+    1/2 Criticals: Endo-Steel hit.
+      Current crit slots in Left Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'ISHeavyPPC', 'DESTROYED', 'ISHeavyPPC', 'DESTROYED', 'ISMediumPulseLaser', 'DESTROYED', 'Endo-Steel', 'Endo-Steel', 'Endo-Steel']
+  Critical hit pool at Left Arm:
+    1: Shoulder (slot 1)
+    2: Upper Arm Actuator (slot 2)
+    3: Lower Arm Actuator (slot 3)
+    4: ISHeavyPPC (slot 4)
+    5: ISHeavyPPC (slot 6)
+    6: ISMediumPulseLaser (slot 8)
+    7: Endo-Steel (slot 10)
+    8: Endo-Steel (slot 11)
+    9: Endo-Steel (slot 12)
+    2/2 Criticals: ISMediumPulseLaser slot hit.
+      Current crit slots in Left Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'ISHeavyPPC', 'DESTROYED', 'ISHeavyPPC', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'Endo-Steel', 'Endo-Steel', 'Endo-Steel']
+      Group 3/6: Hit location roll 11 (right table): Left Leg.
+6 damage (MISSILE) incoming to Left Leg (armor).
+  [STANDARD/MISSILE] 6 armor pts destroyed at armor (23 -> 17 remaining).
+      Group 4/6: Hit location roll 9 (right table): Left Torso.
+6 damage (MISSILE) incoming to Left Torso (armor).
+  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 6 damage applied to structure [STANDARD] (14 -> 8/19 remaining).
+  Check for possible critical. Roll a 8.
+    1 critical hit(s).
+  Critical hit pool at Left Torso:
+    1: ISMML9 (slot 1)
+    2: ISMML9 (slot 3)
+    3: ISMML9 (slot 6)
+    4: ISMML9 (slot 7)
+    5: ISMML9 (slot 8)
+    6: ISMML9 (slot 9)
+    7: ISGuardianECM (slot 12)
+    1/1 Criticals: ISMML9 slot hit.
+      Current crit slots in Left Torso: ['ISMML9', 'DESTROYED', 'ISMML9', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'ISMML9', 'ISMML9', 'ISMML9', 'DESTROYED', 'DESTROYED', 'ISGuardianECM']
+      Group 5/6: Hit location roll 12 (right table): Head.
+      Head hit - pilot takes 1 hit (3/6), regardless of armor.
+6 damage (MISSILE) incoming to Head (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (2 -> 0 remaining). 3 damage applied to structure [STANDARD] (3 -> 0/3 remaining).
+  Head destroyed with no live explosive components - no critical roll.
+  Head DESTROYED!
+    Cockpit destroyed from Head destruction.
+  All critical slots in Head marked DESTROYED.
+  1 damage remains, transfers to nowhere (attack finished).
+      Group 6/6: Hit location roll 12 (right table): Head.
+      Head hit - pilot takes 1 hit (4/6), regardless of armor.
+2 damage (MISSILE) incoming to Head (armor).
+  Head already destroyed - damage transfers to nowhere (attack finished).
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 9 (front table): Left Leg.
+6 damage (ENERGY) incoming to Left Leg (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (11 -> 5 remaining).
+    ISERMediumLaser hit for 5:
+      Hit location roll 9 (front table): Left Leg.
+5 damage (ENERGY) incoming to Left Leg (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (5 -> 0 remaining).
+  [Heat] Blue: 0 + movement 1 + weapons 21 + engine 0 - sinks 22 -> 0
+  -- end of turn 10: Red @ 1003 N: HP 162, pilot hits 4, engine 6, gyro 2, heat 1 [DESTROYED (Center Torso Destroyed)]
+  -- end of turn 10: Blue @ 1501 SW: HP 253, pilot hits 2, engine 0, gyro 0, heat 0
+
+>>> Battle over on turn 10: Red destroyed. <<<
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! RESULTS PRODUCED WITH STUBS ACTIVE - NOT RULES-COMPLETE
 !! Stubs that ran:
-!!   munition_choice                     26 runs, in 1/1 battle(s)
-!!   rate_of_fire                         6 runs, in 1/1 battle(s)
+!!   munition_choice                     37 runs, in 1/1 battle(s)
+!!   rate_of_fire                         7 runs, in 1/1 battle(s)
 !! Known missing rules with no runtime flag:
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
-!!   - Variable-damage weapons (heavy Gauss, HAG, VSP...) can't fire (no damage data); munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods; Apollo saturation mode; a Narc homing pod is valued for one turn and not in movement scoring
+!!   - Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH
 !!   - Heat sources/sinks with no terrain model yet: water, snow, fire, extreme temperatures; inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules
@@ -531,23 +909,23 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 5.
 BATCH SUMMARY - 1 battle(s): Red = Akuma AKU-2XK, Blue = Highlander IIC 2
 ######################################################################
   Wins:  Red 0   Blue 1   Draw 0
-  Average turns: 7.0 (decisive battles only: 7.0)
-  Average attacks fired by the winner before the kill: 57.0
-  Average remaining HP (armor+structure): Red 68%   Blue 72%
-  Hit rate: Red 33%   Blue 32%
+  Average turns: 10.0 (decisive battles only: 10.0)
+  Average attacks fired by the winner before the kill: 82.0
+  Average remaining HP (armor+structure): Red 39%   Blue 63%
+  Hit rate: Red 36%   Blue 34%
   Causes of death:
-    Red (Akuma AKU-2XK): Head Destroyed: 1
+    Red (Akuma AKU-2XK): Center Torso Destroyed: 1
   Per battle:
-    #1: 7 turns, winner Blue; Red 284/417 HP (8/24 hits, 104 dealt) DESTROYED: Head Destroyed; Blue 289/402 HP (18/57 hits, 133 dealt)
+    #1: 10 turns, winner Blue; Red 162/417 HP (12/33 hits, 140 dealt) DESTROYED: Center Torso Destroyed; Blue 253/402 HP (28/82 hits, 246 dealt)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! RESULTS PRODUCED WITH STUBS ACTIVE - NOT RULES-COMPLETE
 !! Stubs that ran:
-!!   munition_choice                     26 runs, in 1/1 battle(s)
-!!   rate_of_fire                         6 runs, in 1/1 battle(s)
+!!   munition_choice                     37 runs, in 1/1 battle(s)
+!!   rate_of_fire                         7 runs, in 1/1 battle(s)
 !! Known missing rules with no runtime flag:
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
-!!   - Variable-damage weapons (heavy Gauss, HAG, VSP...) can't fire (no damage data); munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods; Apollo saturation mode; a Narc homing pod is valued for one turn and not in movement scoring
+!!   - Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH
 !!   - Heat sources/sinks with no terrain model yet: water, snow, fire, extreme temperatures; inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules
@@ -582,9 +960,21 @@ STUB: munition_choice - Blue's CLATM6: standard 3.33, ATM ER 1.67, ATM HE 3.33 -
 STUB: munition_choice - Blue's CLATM6: standard 3.33, ATM ER 1.67, ATM HE 3.33 -> standard (policy greedy)
 STUB: munition_choice - Red's ISMML9: MML LRM rounds 0.46, MML SRM rounds 1.82 -> MML SRM rounds (policy greedy)
 STUB: rate_of_fire - Red's ISRotaryAC5: 6 rates possible -> 6 shots (policy max)
-STUB: munition_choice - Blue's CLATM6: standard 3.33, ATM ER 1.67, ATM HE 8.67 -> ATM HE (policy greedy)
-STUB: munition_choice - Blue's CLATM6: standard 3.33, ATM ER 1.67, ATM HE 8.67 -> ATM HE (policy greedy)
-STUB: munition_choice - Blue's CLATM6: standard 3.33, ATM ER 1.67, ATM HE 8.67 -> ATM HE (policy greedy)
 STUB: munition_choice - Red's ISMML9: MML LRM rounds 0.46, MML SRM rounds 6.38 -> MML SRM rounds (policy greedy)
 STUB: munition_choice - Red's ISMML9: MML LRM rounds 0.46, MML SRM rounds 6.38 -> MML SRM rounds (policy greedy)
 STUB: rate_of_fire - Red's ISRotaryAC5: 6 rates possible -> 6 shots (policy max)
+STUB: munition_choice - Blue's CLATM6: standard 3.33, ATM ER 1.67, ATM HE 8.67 -> ATM HE (policy greedy)
+STUB: munition_choice - Blue's CLATM6: standard 3.33, ATM ER 1.67, ATM HE 8.67 -> ATM HE (policy greedy)
+STUB: munition_choice - Blue's CLATM6: standard 3.33, ATM ER 1.67, ATM HE 8.67 -> ATM HE (policy greedy)
+STUB: munition_choice - Blue's CLATM6: standard 2.22, ATM ER 1.11, ATM HE 1.00 -> standard (policy greedy)
+STUB: munition_choice - Blue's CLATM6: standard 2.22, ATM ER 1.11, ATM HE 1.00 -> standard (policy greedy)
+STUB: munition_choice - Blue's CLATM6: standard 2.22, ATM ER 1.11, ATM HE 1.00 -> standard (policy greedy)
+STUB: munition_choice - Blue's CLATM6: ATM Artemis 2.65, ATM Artemis, ATM ER 2.79, ATM Artemis, ATM HE 3.98 -> ATM Artemis, ATM HE (policy greedy)
+STUB: munition_choice - Blue's CLATM6: ATM Artemis 2.65, ATM Artemis, ATM ER 2.79, ATM Artemis, ATM HE 3.98 -> ATM Artemis, ATM HE (policy greedy)
+STUB: munition_choice - Blue's CLATM6: ATM Artemis 2.65, ATM Artemis, ATM ER 2.79, ATM Artemis, ATM HE 3.98 -> ATM Artemis, ATM HE (policy greedy)
+STUB: munition_choice - Red's ISMML9: MML LRM rounds 2.28, MML SRM rounds 3.04 -> MML SRM rounds (policy greedy)
+STUB: rate_of_fire - Red's ISRotaryAC5: 4 rates possible -> 4 shots (policy max)
+STUB: munition_choice - Blue's CLATM6: ATM Artemis 6.90, ATM Artemis, ATM ER 3.45 -> ATM Artemis (policy greedy)
+STUB: munition_choice - Blue's CLATM6: ATM Artemis 6.90, ATM Artemis, ATM ER 3.45 -> ATM Artemis (policy greedy)
+STUB: munition_choice - Blue's CLATM6: ATM Artemis 6.90, ATM Artemis, ATM ER 3.45 -> ATM Artemis (policy greedy)
+STUB: munition_choice - Red's ISMML9: MML LRM rounds 3.19, MML SRM rounds 6.38 -> MML SRM rounds (policy greedy)
