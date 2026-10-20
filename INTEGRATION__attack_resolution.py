@@ -106,7 +106,7 @@ import INTEGRATION__electronics as electronics
 import INTEGRATION__fire_modes as fire_modes
 import INTEGRATION__weapon_profiles as weapon_profiles
 from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capability, \
-    mark_consciousness_check_pending, compute_heat_dissipation
+    mark_consciousness_check_pending, compute_heat_dissipation, arm_aes_working
 import armor_rules
 from hit_location import resolve_hit_location
 from damage_resolution import apply_damage, check_critical, cluster_hits_count, get_weapons, TRANSFER_MAP
@@ -259,6 +259,15 @@ def arm_actuator_modifier(mech, locations):
     return worst
 
 
+def arm_aes_modifier(mech, locations):
+    """-1 for a weapon mounted in an arm with working AES (Core p.206); a
+    weapon split between an arm and a torso gets no bonus."""
+    locations = set(locations)
+    if len(locations) == 1 and locations <= set(ARM_LOCATIONS) and arm_aes_working(mech, next(iter(locations))):
+        return -1
+    return 0
+
+
 def has_targeting_computer(mech):
     dead = {info["instance_id"] for info in mech.destroyed_slot_info.values()}
     return any(getattr(s, "name", "").replace(" ", "").upper().endswith("TARGETINGCOMPUTER") and id(s) not in dead
@@ -327,7 +336,7 @@ def firing_conditions(attacker):
 def tn_adjuster(attacker, target, aim=None, cover_modifier=0):
     """f(weapon, bracket, plan=None) -> per-weapon TN change for
     select_weapons_to_fire: the weapon's own modifier, targeting computer, arm
-    crits, the target's range-stealth bonus, and the aimed-shot change for
+    crits, arm AES (p.206), the target's range-stealth bonus, and the aimed-shot change for
     weapons that can aim. With a fire_modes.ShotPlan (2026-10-20), aiming and
     the targeting computer follow the plan (no aimed rapid fire or LB-X cluster
     shot, no TC for cluster rounds); the plan's own TN change (Artemis V, Narc,
@@ -341,6 +350,7 @@ def tn_adjuster(attacker, target, aim=None, cover_modifier=0):
         tn = stealth.get(bracket, 0) if bracket else 0
         tn += weapon_rules.weapon_tn_modifier(weapon, bracket)
         tn += arm_actuator_modifier(attacker, locs.get(id(weapon), ()))
+        tn += arm_aes_modifier(attacker, locs.get(id(weapon), ()))
         aiming = aim and (fire_modes.aimable(weapon, plan) if plan is not None else not is_cluster_weapon(weapon))
         if aiming:
             tn += aim_adjust

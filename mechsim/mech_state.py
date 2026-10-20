@@ -821,6 +821,55 @@ def compute_running_mp(mech):
     return running_mp
 
 
+# =============================================================================
+# Actuator Enhancement System (AES, Core p.206) - added 2026-10-20 (Claude).
+# Here so mechsim's piloting rolls and the INTEGRATION__ attack code read the
+# same answer. The rules themselves are applied where they act:
+#   - arms: -1 TN for ranged weapons mounted in that arm (not arm / torso split
+#     weapons) - INTEGRATION__attack_resolution.tn_adjuster; -1 TN for physical
+#     attacks with that arm, two-arm attacks (club, push) only if both arms have
+#     it - INTEGRATION__physical
+#   - legs (AES in ALL legs): a fixed -2 to every Piloting Skill Roll (not per
+#     leg) - piloting_rolls.special_case_modifier; -1 TN for kicks
+#     (INTEGRATION__physical) and charges (INTEGRATION__charge)
+#   - critical hit: ANY leg AES slot hit loses all the leg modifiers; an arm
+#     only loses its own when that arm's AES is hit.
+# =============================================================================
+def _is_aes(slot):
+    n = str(getattr(slot, "name", slot)).replace(" ", "").replace("-", "").upper()
+    return n.endswith("AES") or "ACTUATORENHANCEMENT" in n
+
+
+def _aes_by_location(mech):
+    """{location: True (working) / False (an AES slot there was hit)} for
+    every location that mounts AES. Cached on the mech, refreshed when a crit
+    slot is destroyed (this is read inside the to-hit and PSR hot paths)."""
+    destroyed = mech.destroyed_slot_info
+    cached = getattr(mech, "_aes_cache", None)
+    if cached is not None and cached[0] == len(destroyed):
+        return cached[1]
+    status = {}
+    for loc, slots in mech.crits.items():
+        if any(_is_aes(s) for s in slots):
+            status[loc] = True
+    for (loc, _), info in destroyed.items():
+        if _is_aes(info.get("name", "")):
+            status[loc] = False
+    mech._aes_cache = (len(destroyed), status)
+    return status
+
+
+def arm_aes_working(mech, arm):
+    """This arm mounts AES and it hasn't been hit."""
+    return _aes_by_location(mech).get(arm) is True
+
+
+def leg_aes_working(mech):
+    """AES in every leg and no leg AES slot hit."""
+    status = _aes_by_location(mech)
+    return all(status.get(leg) is True for leg in mech.leg_locations)
+
+
 def compute_jump_mp(mech):
     """Current effective jump MP: base_jump_mp minus 1 per DISTINCT jump-jet
     Equipment instance that's had at least one crit slot destroyed (tracked

@@ -69,16 +69,16 @@ notes tag above for the full list):
   turn returns tmm_from_mp(0) for the rest of that turn's TMM - same "fallen
   = 0" convention as the stood-up-then-fell-again path, not independently
   confirmed by Daniel.
-- Cockpit-type (small/torso-mounted, +1) and AES-in-legs (-2) special cases
-  are NOT implemented - Daniel: "skip special equipment for now" - neither
-  is parsed anywhere in mtf_parser.py yet.
+- Cockpit-type (small/torso-mounted, +1) special case is NOT implemented -
+  Daniel: "skip special equipment for now". AES-in-legs (-2) is, since
+  2026-10-20 (mech_state.leg_aes_working).
 """
 
 import math
 
 import config
 from hit_location import resolve_hit_location
-from mech_state import ArmorType, DamageType, is_destroyed, compute_running_mp, \
+from mech_state import ArmorType, DamageType, is_destroyed, compute_running_mp, leg_aes_working, \
     mark_consciousness_check_pending, all_crew_unconscious, pilot_unconscious, consciousness_target_number, \
     is_immobile
 from damage_resolution import apply_damage, tmm_from_mp, compute_tmm
@@ -162,9 +162,10 @@ def special_case_modifier(mech):
     tripod -2, quad -2, both confirmed values; quadvee shares the quad
     chassis so gets the same -2 - Daniel, 2026-07-17). Modifiers stack if
     more than one applies (e.g. a quad with Hardened Armor legs: -2 + 1 =
-    -1). AES-in-legs (-2) and cockpit-type (+1) still deferred - Daniel:
-    "skip special equipment for now" - neither is parsed anywhere in
-    mtf_parser.py yet.
+    -1). AES in all legs: a fixed -2 (Core p.206; added 2026-10-20, Daniel:
+    "if AES is the only thing not built in this test, lets get that fixed"),
+    lost if any leg AES slot is hit. Cockpit-type (+1) still deferred -
+    Daniel: "skip special equipment for now".
 
     Also includes the Pilot-role-unconscious +3 modifier (2026-07-17) - see
     pilot_consciousness.pilot_unconscious_modifier below."""
@@ -173,6 +174,8 @@ def special_case_modifier(mech):
         total += 1
     if mech.mech_type in ("tripod", "quad", "quadvee"):
         total -= 2
+    if leg_aes_working(mech):
+        total -= 2                                  # AES in all legs, p.206
     # HELP(pilot_consciousness.pilot_unconscious_modifier)
     # Daniel, 2026-07-17: "Pilot: If unconscious +3 modifier to piloting
     # skill rolls." Only matters when the mech ISN'T already fully immobile

@@ -51,8 +51,7 @@ batch summary out: `python INTEGRATION__main.py`. Settings (mech files,
 board, seed, batch size, worker count, OPTIONAL RULES, every knob) are in
 `INTEGRATION__config.py`. Default (Daniel, 2026-10-20): Kontio (Red, 40 t:
 TSM, claws, stealth armor + ECM, supercharger, lasers) vs Hammerhead (Blue,
-45 t: hardened armor, leg AES - not built, see Section 4 -, large pulse,
-Streak SRM 6), the starter set's example battle, on 16x17 Grassland (flat, level 0, 30 woods hexes), seed 12345, 1 battle,
+45 t: hardened armor, leg AES, large pulse, Streak SRM 6), the starter set's example battle, on 16x17 Grassland (flat, level 0, 30 woods hexes), seed 12345, 1 battle,
 verbose, home-edge deployment. Layout: `INTEGRATION__*.py` at the top;
 `mechsim/` and `pathfinder/` hold the source-project modules; `data/` the
 boards, test mechs and `meks.zip` (4,227 MegaMek units, 4,162 parse);
@@ -104,6 +103,11 @@ them: the Asymptote mirror reference battle (~80 s, the floor),
   Streaks; the bot picks the munition per shot and fires a beacon for the
   pod's worth. Ammo bins now feed their weapons whatever MegaMek calls them
   (Gauss, AC/10, Artemis- / Narc-capable... - many never fired before).
+- Actuator Enhancement System (p.206, `mech_state.arm_aes_working` /
+  `leg_aes_working`, 2026-10-20): arm AES -1 to that arm's weapons (not
+  arm / torso split ones) and physical attacks (club / push only with both
+  arms); leg AES (all legs) -2 to every PSR and -1 to kicks and charges; a crit
+  to any leg AES slot loses the leg effects, to an arm's only that arm's.
 - Heat (pp.102-107) and heat equipment; piloting rolls one per trigger
   (p.110); seatbelt checks (p.117); falls with the 1D6 side roll (p.115) and
   multiple levels; displacement; deployment from home edges.
@@ -341,12 +345,6 @@ confirmed project rules, not stubs):
   bins (`declare_attacks`, `ammo.take` per gun in `weapon_profiles.mga_guns`)
   - confirm it with a test (shared bins, a gun with no ammo left drops out of
   the column) and fix anything that falls short.
-- **Actuator Enhancement System (AES, p.206) isn't built** (Claude,
-  2026-10-20, found when the Hammerhead became the default): leg AES gives -2
-  to every PSR and -1 to kicks and charges; arm AES -1 to that arm's weapons
-  and physical attacks. Parked under Daniel's earlier "skip special equipment
-  for now" (`piloting_rolls.special_case_modifier`); now listed in the
-  battle report's known-missing rules. Daniel's call whether to build it.
 
 **Weapon-use readings (Claude, 2026-10-20, `INTEGRATION__fire_modes`):**
 - DECIDED (Daniel): an attack on a hex (Apollo saturation, Arrow IV) takes no
@@ -815,6 +813,24 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-20 (Claude):** Actuator Enhancement System, Core p.206 (Daniel:
+  "if AES is the only thing not built in this test, lets get that fixed").
+  `mech_state.arm_aes_working` / `leg_aes_working` (cached per mech, refreshed
+  on a crit): leg AES -2 in `piloting_rolls.special_case_modifier`, -1 to
+  kicks (`physical._kick_options`) and charges (`charge.to_hit`, shown in the
+  charge log line); arm AES -1 to that arm's ranged weapons
+  (`attack_resolution.arm_aes_modifier`, in `tn_adjuster`, so movement
+  scoring sees it too; split arm / torso weapons excluded) and its punches,
+  claws and physical weapons; clubs and pushes -1 only with AES in both arms.
+  Crits: any leg AES slot hit ends the leg effects; an arm only its own.
+  DFA isn't named by p.206, so no change there. Tests: two new checks in
+  `tests/test_equipment.py` (Hammerhead legs; Vindicator VND-3LD (Dao) arms).
+  Reference logs regenerated: only the known-missing-rules AES line goes
+  (the default battle ends on turn 1, before any PSR). Benchmark unchanged
+  (458 / 466). Hardened armor checked against p.202 at the same time - all
+  four effects were already built (2 points per pip, -2 TAC while armor
+  remains, +1 PSR, -1 Running MP).
 
 - **2026-10-20 (Claude):** New default matchup (Daniel: "Asymptote is an
   uninteresting match"; "kontio vs hammerhead ... Because its the example in
