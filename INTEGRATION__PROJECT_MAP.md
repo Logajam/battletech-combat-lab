@@ -13,105 +13,119 @@ source project's file overwrite the other's same-named file.
 
 ---
 
-## 0. WHERE WE ARE (2026-10-20) — read this first
+## 0. WHERE WE ARE (2026-10-20, end of session 2) — read this first
 
 **Hand-off for a new instance.** Daniel's goal: "beat the simulator into
 shape." He is not a GitHub person - **Claude runs the logistics** (Daniel,
 2026-10-20: "You're in charge of the logistics"): work on the session's
 `claude/...` branch, commit, push, open a PR to `main`, and merge it once the
-tests pass; tell Daniel in plain words what changed. Section 7 has the
-standing instructions; the Change Record (Section 8, newest first) has every
-change with page cites.
+tests pass (no CI is configured - the local tests are the gate); tell Daniel
+in plain words what changed. If the branch's last PR is already merged,
+restart the branch from `origin/main` before new work. Section 7 has the
+standing instructions; Section 5 Daniel's decisions; the Change Record
+(Section 8, newest first) every change with page cites.
+**Daniel expects Claude to keep working without pausing** at natural
+checkpoints (2026-10-20: "Core rulebook review was paused? Or were you
+waiting for a continue command?") - stop only for his calls (rules / scope).
+
+**Session setup (cloud container):** `pip install -r requirements.txt`;
+unzip `rules/Battletech_Rule_Reference_Index.zip` OUTSIDE the repo (e.g.
+`/home/user/rules_lib/`) - Core Rulebook in `base/core-rules/*.md` (a `[p.N]`
+marker PRECEDES page N's text), condensed and page-cited in
+`summary/core-rules/*.yaml` (fast to read); unzip `data/meks.zip` outside the
+repo when wider unit testing is needed. Then run the checks below to confirm
+a clean baseline.
 
 **It runs end to end.** `.mtf` in → turn-by-turn battle on a real board →
-batch summary out:
-```
-git clone https://github.com/Logajam/battletech-monte-carlo-sim
-cd battletech-monte-carlo-sim
-python INTEGRATION__main.py
-```
-Needs Python 3 and NumPy (`pip install -r requirements.txt`). Settings (mech
-files, board, seed, batch size, every knob) are in `INTEGRATION__config.py`.
-Default: Asymptote II (a tripod) vs Asymptote II on 16x17 Grassland, seed
-12345, 1 battle, verbose, home-edge deployment. Layout: `INTEGRATION__*.py`
-at the top; `mechsim/` and `pathfinder/` hold the source-project modules;
-`data/` the boards, test mechs and `meks.zip` (4,227 MegaMek units, 4,162
-parse - unzip outside the repo to use one); `rules/` the rules library zip;
-`reference_logs/` same-seed sample battles.
+batch summary out: `python INTEGRATION__main.py`. Settings (mech files,
+board, seed, batch size, worker count, OPTIONAL RULES, every knob) are in
+`INTEGRATION__config.py`. Default: Asymptote II (a tripod) vs Asymptote II on
+16x17 Grassland (flat, level 0, 30 woods hexes), seed 12345, 1 battle,
+verbose, home-edge deployment. Layout: `INTEGRATION__*.py` at the top;
+`mechsim/` and `pathfinder/` hold the source-project modules; `data/` the
+boards, test mechs and `meks.zip` (4,227 MegaMek units, 4,162 parse);
+`rules/` the rules library zip; `reference_logs/` same-seed sample battles.
 
 **After any change, from the repo root:** every `tests/test_*.py` (9 files,
 all must pass), `python tests/check_reference_logs.py` (must pass unless the
 change is MEANT to alter results - then look at a fresh battle and run
-`--update`; Daniel has OK'd regenerating them for intended changes), and for
-anything on the hot path `python tests/benchmark_turns.py` (10 turns of the
-default battle; ~11 s on Daniel's machine after the 2026-10-20 speed pass, an
-estimate from this container's 21.5 s → 16.3 s; a pure speed change must keep
-its HP totals). Batches run several battles at once, one per CPU core
-(`config.WORKERS`); the output is identical to running them one at a time.
+`--update`, and say so in the Change Record; Daniel has OK'd regenerating
+them for intended changes), and for anything on the hot path
+`python tests/benchmark_turns.py` (10 turns of the default battle - a pure
+speed change must keep its HP totals, currently 458 / 466; ~17-20 s in the
+cloud container, faster on Daniel's PC).
 
 **What's built (all Core Rulebook, page-cited in the code):**
+- Batches: `config.WORKERS` battles at once, one per CPU core (0 = all
+  cores); each battle has its own seed (`orchestrator.battle_seed`, battle 1
+  = SEED) and the output is identical for any worker count
+  (`tests/test_parallel_batch.py`). `BattleResult.seed` replays a battle.
 - Movement: `INTEGRATION__movement_selection.choose` scores every reachable
   spot by dealt / (received + movement-PSR cost + .001), exposure- and
-  structure-weighted, TWO-PLY for the first mover (it scores each spot by the
-  second mover's modeled reply). Closing fallback when nothing deals damage.
-- Arcs and arc actions (`INTEGRATION__arcs`, Section 4a): firing arcs, torso
-  twists in both attack phases, tripod any-hexside twists and leg arcs,
-  reversing arms, quad turrets.
-- Ranged combat: heat-limited weapon choice, to-hit modifiers, attack
-  direction, cluster groupings, ammo, rear-mounted weapons, aimed shots.
-  Next to the target the Ranged phase picks its twist and fire TOGETHER with
-  the physical attack that will follow (holding back an arm weapon worth less
-  than that arm's punch).
-- Physical: all seven attack types - punches, kicks, physical weapons, clubs
-  (`INTEGRATION__clubs`, pick-up OFF), pushes (valued by displacement: off the
-  board = the target's whole HP, 2+ levels down = the fall), charges and death
-  from above (`INTEGRATION__charge`, `INTEGRATION__dfa`, decided in movement by
-  `INTEGRATION__movement_attacks`: gated per movement mode on beating the best
-  ordinary attack, then scored like any spot; the first mover's two-ply
-  anticipates them). Each weighted by its own hit table (`physical.Worth`).
-- Heat (pp.102-107) and heat equipment (`INTEGRATION__heat`,
-  `INTEGRATION__equipment_systems`), piloting rolls, falls (multi-level),
-  displacement, deployment from home edges.
+  structure-weighted, TWO-PLY for the first mover. Closing fallback when
+  nothing deals damage. Backward walking (pp.45-46; same-level steps only).
+  Speed: `ranged_combat.MoveEvaluator` memos are shared by arc class and by
+  blocked-weapon set.
+- Arcs and arc actions (`INTEGRATION__arcs`, Section 4a).
+- Ranged combat: heat-limited weapon choice, to-hit modifiers incl. the
+  target-in-woods +1 / +2 (p.66, in `pathfinder/los.py`'s result), attack
+  direction, cluster groupings, ammo, rear-mounted weapons, aimed shots,
+  partial cover (leg hits strike the cover). Ranged fire and the following
+  physical attack are planned together.
+- Physical: all seven attack types (punch, kick, physical weapons, clubs -
+  pick-up OFF, pushes, charges, DFA), each weighted by its own hit table.
+- Damage: floating or standard TACs (option), autocannons survive their
+  first crit (p.183), internal explosions with the 20 cap, armor loss and
+  CASE / CASE II venting (p.96).
+- Heat (pp.102-107) and heat equipment; piloting rolls one per trigger
+  (p.110); seatbelt checks (p.117); falls with the 1D6 side roll (p.115) and
+  multiple levels; displacement; deployment from home edges.
+- OPTIONAL RULES (config, Daniel 2026-10-20): `FLOATING_CRITICALS` (default
+  True), `FIGHT_TO_THE_DEATH` (default False = a mech immobile for good -
+  destroyed gyro / both legs - is destroyed; True = rules as written).
 - Remaining loud stubs (`INTEGRATION__stubs.py`): weapon data gaps
-  (`ammo_data`, `unconfirmed_weapon_data`, `unknown_damage_type` - weapons not
-  in the Core tables) and `heat_explosion_bin` (a controller choice).
+  (`ammo_data`, `unconfirmed_weapon_data`, `unknown_damage_type`) and
+  `heat_explosion_bin` (a controller choice).
 
-**Pick up here (open, roughly in Daniel's priority order):**
-0. **Rules review** (`INTEGRATION__RULES_REVIEW.md`, first pass complete
-   2026-10-20): its "Gaps" list is Claude's to build (backward walking done;
-   next: AMS G13, multi-shot autocannons / LB-X / Artemis G10); D1-D7 decided
-   (Section 5); D8 (Daniel's LOS model vs Core) still open.
-1. **The bot's future-capability planning** - Section 6 "Memo" (Daniel,
-   2026-10-20). Needed for clubs, MASC, Rotary ACs and similar.
-2. **Hanging back** (seen 2026-10-20): in Asymptote vs HeatGear sample
-   battles the Asymptote spends turn after turn at range 5-9, outside its
-   medium pulse lasers' reach, firing nothing (one battle hits the 50-turn
-   cap). Daniel: "can wait" - other rules may fix it, or it goes with the bot
-   thinking work (item 1). Likely suspects: the dealt / received ratio and
-   the closing fallback.
-3. Attack-caused PSRs (kick, club, push, charge, DFA, 20+ damage) aren't
-   priced in movement scoring - Daniel's rule so far is "only Movement-phase
-   PSRs count". Pricing them would make kicks / charges / pushes worth more.
-4. Waiting on Daniel (Section 4): the Core-vs-MECHSIM piloting-roll
-   questions; does HOLDING a club stop arm / torso weapons firing (Core p.79
-   only bars arm weapons in the club-attack turn; check Total Warfare)?
-5. Other follow-ups: terrain PSRs / mines in a spot's cost; structure
-   weighting in the real Ranged weapon choice; HP awareness (the ratio ignores
-   damage state, so tiny-damage / no-return-fire spots can win through the
-   .001); domino effects (no third mech); turret crits lock at the last
-   declared direction; weapon data gaps (stubs above); `PROMPT_FOR_MAP` /
-   `STITCH_MAPS` not built.
-6. **Crippled / forced withdrawal** (Daniel, 2026-10-20): an option plus a
+**Rules review:** `INTEGRATION__RULES_REVIEW.md` - first pass over the whole
+Core Rulebook done 2026-10-20: what was fixed (F1-F8), the gap list (G2-G15,
+Claude's to build), and the Core-vs-project questions (D1-D7 decided, D8
+open). Read it before building rules.
+
+**Pick up here (open, roughly in priority order):**
+1. **Waiting on Daniel's go-ahead** (asked at the end of session 2): build
+   next, by how many units each affects - (a) Ultra / Rotary autocannon rapid
+   fire and jams, LB-X cluster ammo (review G10, pp.183, 191-192); (b) AMS
+   (G13, p.206 - ~240 units carry one; also belongs in expected damage);
+   (c) Artemis IV/V (+2 cluster, cancelled by ECM - G10/G15).
+2. **The bot's future-capability planning** - Section 6 "Memo" (Daniel,
+   2026-10-20). Needed for clubs, MASC, Rotary ACs (jam risk) and similar.
+3. **Hanging back** (seen 2026-10-20): mechs spending turns at range 5-9 out
+   of their weapons' reach. Daniel: "can wait". Re-check now that woods and
+   backward walking exist. Likely suspects: the dealt / received ratio and the
+   closing fallback.
+4. **Crippled / forced withdrawal** (Daniel, 2026-10-20): an option plus a
    bot movement-picker override - not started.
-7. Units for wider testing: `data/meks.zip`. LAMs, ultralights (< 20 t) and
-   superheavies don't parse.
+5. Attack-caused PSRs (kick, club, push, charge, DFA, 20+ damage) aren't
+   priced in movement scoring - Daniel's rule so far is "only Movement-phase
+   PSRs count".
+6. Waiting on Daniel (Section 4): stand-up PSR -1, tripod -1, jumped with leg
+   destroyed +4 (MECHSIM: +5), quads standing; D8 (LOS model); does HOLDING a
+   club stop arm / torso weapons firing?
+7. Rest of the review's gap list (mostly LATENT on the flat default board:
+   level-change limits, jump landing height, water / roads / rubble, prone LOS
+   height, backward level changes); other follow-ups: terrain PSRs / mines in
+   a spot's cost; structure weighting in the real Ranged weapon choice; HP
+   awareness; domino effects; `PROMPT_FOR_MAP` / `STITCH_MAPS`.
+8. Later (Daniel agreed 2026-10-20): GUI (battle replay viewer first, then a
+   setup shell); a compiled hot path (Cython / Rust for
+   `MoveEvaluator.evaluate`) once the rules settle - not a rewrite.
 
-**Housekeeping:** reference logs regenerated 2026-10-20 (physical attacks,
-then club pick-up off) and match the code. Speed history: 31.7 s → 11.8 s (speed pass) →
-~14.5 s (all seven physical attacks) → about 25% less (2026-10-20 memo
-sharing), plus parallel batches, for the 10-turn benchmark. Rules are
-checked against `rules/Battletech_Rule_Reference_Index.zip` (Section 7) - the
-`[p.N]` marker in its markdown PRECEDES page N's text.
+**Housekeeping:** reference logs regenerated 2026-10-20 (several intended
+rule changes, each in the Change Record) and match the code. Speed history
+(10-turn benchmark): 31.7 s → 11.8 s → ~14.5 s (all physical attacks) →
+~25% less (memo sharing); battles changed since (woods, backward walking), so
+compare only like with like.
 
 ---
 
@@ -624,6 +638,12 @@ turn's score, so a decision sees what it gives up.
   out goes FIRST in the decision tree ("gate that decision tree ... before
   thinking about it") - e.g. charges / DFAs only get scored if they beat the
   best ordinary attack in that movement mode.
+- (Daniel, 2026-10-20) Don't pause at natural checkpoints waiting for a
+  "continue" - keep working through the agreed list; stop only for his calls.
+- (Daniel, 2026-10-20) "We've entered the realm of optional rules. Which
+  means more things to set up when configuring a run." Optional rules and
+  Daniel-vs-Core differences become switches in `INTEGRATION__config.py`'s
+  OPTIONAL RULES section (his default first, the rules as written available).
 - Measure speed on the fixed benchmark (`tests/benchmark_turns.py`) before and
   after; a change only for speed must leave every result identical.
 - Reference logs: regenerate (`--update`) only for changes meant to alter
