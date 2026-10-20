@@ -56,10 +56,13 @@ _FACING = 0
 
 
 def best_tmm(mech):
-    """The highest TMM the mech can earn this turn (p.57): from its current
-    Running MP, or its Jumping MP + 1. Doesn't touch the mech (compute_tmm
-    records the movement mode for the PSR code, so it isn't used here)."""
-    tmm = tmm_from_mp(compute_running_mp(mech))
+    """The highest TMM the mech can earn (p.57): from its Running MP with any
+    working MASC / supercharger (equipment_systems.boost_multiplier), or its
+    Jumping MP + 1. Doesn't change the mech (compute_tmm records the movement
+    mode for the PSR code, so it isn't used here)."""
+    with equip.modeled_boost(mech, equip.boost_multiplier(mech, planned=False)):
+        run = compute_running_mp(mech)
+    tmm = tmm_from_mp(run)
     jump = compute_jump_mp(mech)
     if jump > 0:
         tmm = max(tmm, tmm_from_mp(jump) + 1)

@@ -858,6 +858,19 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-20 (Claude):** The two-ply look-ahead models MASC / supercharger
+  speed. The modeled second mover's moves were built before its booster roll
+  (Running MP x1.5), so a supercharged Kontio was predicted to run 9 and
+  really ran 12 to push the Hammerhead off the board (A/B seed
+  3486141480966086336, turn 3). New `equipment_systems.boost_multiplier`
+  (the bot's own use decision without the stub warning, the 3+ roll counted
+  as a success) and `modeled_boost`; `movement_selection._opponent_options`
+  builds the reply's moves at that speed (the rule Daniel set: the reply is
+  chosen "by the same rule the real second mover uses"), and
+  `future_damage.best_tmm` counts a working booster (BEST TMM). Affects both
+  objectives. Reference log `Asymptote_vs_HeatGear_seed5` regenerated (its
+  test mech has MASC + a supercharger); benchmark unchanged (477 / 468).
+
 - **2026-10-20 (Claude):** LOS between two hexes (Core p.56: "If LOS falls
   exactly on the line between two hexes, the target 'Mech's controller
   chooses which hex LOS passes through"). Two bugs in `pathfinder/los.py`,
