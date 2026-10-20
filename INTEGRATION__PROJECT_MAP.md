@@ -13,107 +13,95 @@ source project's file overwrite the other's same-named file.
 
 ---
 
-## 0. WHERE WE ARE (2026-10-19) — read this first
+## 0. WHERE WE ARE (2026-10-20) — read this first
+
+**Hand-off for a new instance.** Daniel's goal: "beat the simulator into
+shape." He is not a GitHub person - **Claude runs the logistics** (Daniel,
+2026-10-20: "You're in charge of the logistics"): work on the session's
+`claude/...` branch, commit, push, open a PR to `main`, and merge it once the
+tests pass; tell Daniel in plain words what changed. Section 7 has the
+standing instructions; the Change Record (Section 8, newest first) has every
+change with page cites.
 
 **It runs end to end.** `.mtf` in → turn-by-turn battle on a real board →
-batch summary out. Every phase does something. Everything that isn't a real
-rule yet is a **loud, counted stub** (`INTEGRATION__stubs.py`): it prints
-`STUB: <name> - ...` to stderr every time it runs, and the batch summary
-opens and closes with a banner listing which stubs ran and how often.
-
-**How to run** (the GitHub repo is already laid out as a run folder,
-since 2026-10-19):
+batch summary out:
 ```
 git clone https://github.com/Logajam/battletech-monte-carlo-sim
 cd battletech-monte-carlo-sim
 python INTEGRATION__main.py
 ```
-Needs Python 3 and NumPy (`pip install -r requirements.txt`). Layout: `INTEGRATION__*.py` at the top,
-`mechsim/` and `pathfinder/` hold the source-project modules the battle
-loop imports (un-prefixed names), `data/` holds `.board` and `.mtf` files,
-`reference_logs/` holds same-seed sample logs to diff against (the
-file name gives the matchup and settings).
-Settings (mech files, board, seed, batch size, every stub knob) are all in
-`INTEGRATION__config.py`. Default: Asymptote II vs Asymptote II on
-16x17 Grassland, seed 12345, 1 battle, verbose, home-edge deployment.
+Needs Python 3 and NumPy (`pip install -r requirements.txt`). Settings (mech
+files, board, seed, batch size, every knob) are in `INTEGRATION__config.py`.
+Default: Asymptote II (a tripod) vs Asymptote II on 16x17 Grassland, seed
+12345, 1 battle, verbose, home-edge deployment. Layout: `INTEGRATION__*.py`
+at the top; `mechsim/` and `pathfinder/` hold the source-project modules;
+`data/` the boards, test mechs and `meks.zip` (4,227 MegaMek units, 4,162
+parse - unzip outside the repo to use one); `rules/` the rules library zip;
+`reference_logs/` same-seed sample battles.
 
-**What a battle looks like right now:** both mechs enter from opposite
-home edges and pick each turn's spot with `INTEGRATION__movement_selection`
-(2026-10-19: damage dealt / damage received, two-ply - see Section 5);
-adjacent mechs punch or kick in the Physical Attack Phase.
+**After any change, from the repo root:** every `tests/test_*.py` (8 files,
+all must pass), `python tests/check_reference_logs.py` (must pass unless the
+change is MEANT to alter results - then look at a fresh battle and run
+`--update`; Daniel has OK'd regenerating them for intended changes), and for
+anything on the hot path `python tests/benchmark_turns.py` (10 turns of the
+default battle; ~14.5 s now; a pure speed change must keep its HP totals).
 
-**Heat is fully wired (2026-10-19)** from the Core Rulebook Heat chapter
-(pp.102-107): engine-hit heat, Heat Scale MP and to-hit penalties,
-shutdown/restart, heat ammo explosions, life-support pilot hits. See
-`INTEGRATION__heat.py`'s docstring for the rule list with page cites.
-**Heat equipment too (2026-10-19):** stealth systems, coolant pods, radical
-heat sinks, inferno ammo rolls, TSM, torso-mounted cockpit life support,
-MASC, superchargers, End Phase heat-sink switching and aimed shots at
-immobile targets - `INTEGRATION__equipment_systems.py`, with Daniel's
-default player choices (Section 5).
+**What's built (all Core Rulebook, page-cited in the code):**
+- Movement: `INTEGRATION__movement_selection.choose` scores every reachable
+  spot by dealt / (received + movement-PSR cost + .001), exposure- and
+  structure-weighted, TWO-PLY for the first mover (it scores each spot by the
+  second mover's modeled reply). Closing fallback when nothing deals damage.
+- Arcs and arc actions (`INTEGRATION__arcs`, Section 4a): firing arcs, torso
+  twists in both attack phases, tripod any-hexside twists and leg arcs,
+  reversing arms, quad turrets.
+- Ranged combat: heat-limited weapon choice, to-hit modifiers, attack
+  direction, cluster groupings, ammo, rear-mounted weapons, aimed shots.
+  Next to the target the Ranged phase picks its twist and fire TOGETHER with
+  the physical attack that will follow (holding back an arm weapon worth less
+  than that arm's punch).
+- Physical: all seven attack types - punches, kicks, physical weapons, clubs
+  (`INTEGRATION__clubs`, pick-up OFF), pushes (valued by displacement: off the
+  board = the target's whole HP, 2+ levels down = the fall), charges and death
+  from above (`INTEGRATION__charge`, `INTEGRATION__dfa`, decided in movement by
+  `INTEGRATION__movement_attacks`: gated per movement mode on beating the best
+  ordinary attack, then scored like any spot; the first mover's two-ply
+  anticipates them). Each weighted by its own hit table (`physical.Worth`).
+- Heat (pp.102-107) and heat equipment (`INTEGRATION__heat`,
+  `INTEGRATION__equipment_systems`), piloting rolls, falls (multi-level),
+  displacement, deployment from home edges.
+- Remaining loud stubs (`INTEGRATION__stubs.py`): weapon data gaps
+  (`ammo_data`, `unconfirmed_weapon_data`, `unknown_damage_type` - weapons not
+  in the Core tables) and `heat_explosion_bin` (a controller choice).
 
-**Stubs with rule answers were replaced 2026-10-19** (attack direction,
-cluster groupings, post-stand-up movement, walking PSRs, to-hit modifiers,
-rear-mounted weapons, ammunition and one-shots, deployment, punches/kicks/
-physical weapons). What's left is bot decisions and data gaps:
-1. `ammo_data` / `unconfirmed_weapon_data` / `unknown_damage_type` — weapons
-   whose stats aren't in the Core tables.
-2. `heat_explosion_bin` — the controller's choice among tied bins.
-(`movement_selection` stopped being a stub 2026-10-19.)
+**Pick up here (open, roughly in Daniel's priority order):**
+1. **The bot's future-capability planning** - Section 6 "Memo" (Daniel,
+   2026-10-20). Needed for clubs, MASC, Rotary ACs and similar.
+2. **Hanging back** (seen 2026-10-20): in Asymptote vs HeatGear sample
+   battles the Asymptote spends turn after turn at range 5-9, outside its
+   medium pulse lasers' reach, firing nothing (one battle hits the 50-turn
+   cap). Daniel: "can wait" - other rules may fix it, or it goes with the bot
+   thinking work (item 1). Likely suspects: the dealt / received ratio and
+   the closing fallback.
+3. Attack-caused PSRs (kick, club, push, charge, DFA, 20+ damage) aren't
+   priced in movement scoring - Daniel's rule so far is "only Movement-phase
+   PSRs count". Pricing them would make kicks / charges / pushes worth more.
+4. Waiting on Daniel (Section 4): the Core-vs-MECHSIM piloting-roll
+   questions; does HOLDING a club stop arm / torso weapons firing (Core p.79
+   only bars arm weapons in the club-attack turn; check Total Warfare)?
+5. Other follow-ups: terrain PSRs / mines in a spot's cost; structure
+   weighting in the real Ranged weapon choice; HP awareness (the ratio ignores
+   damage state, so tiny-damage / no-return-fire spots can win through the
+   .001); domino effects (no third mech); turret crits lock at the last
+   declared direction; weapon data gaps (stubs above); `PROMPT_FOR_MAP` /
+   `STITCH_MAPS` not built.
+6. Units for wider testing: `data/meks.zip`. LAMs, ultralights (< 20 t) and
+   superheavies don't parse.
 
-**Movement picker, firing arcs and torso twists (2026-10-19, merged to
-`main` from branch `movement-selection`).** What a unit does each turn:
-`INTEGRATION__movement_selection.choose` scores every reachable spot (hex +
-facing + mode) by damage dealt / (damage received + movement-PSR cost +
-.001), two-ply (the first mover scores a spot by the second mover's modeled
-reply), with armor-exposure weights by hit side, internal-structure damage
-counted k = 2x (`INTEGRATION__structure_weight`), and the ported closing
-fallback when nothing deals damage. Firing arcs, torso twists (both attack
-phases), tripod twists and leg arcs, reversing arms and Quad Turrets are in
-(`INTEGRATION__arcs`, Core pp.60-62, 236-238; Section 4a). Decisions and reasons: Section 5
-"Movement selection"; knobs: `INTEGRATION__config.py` MOVEMENT SETTINGS; every
-change and its limits: Change Record, 2026-10-19 entries (newest on top).
-Tests: `tests/test_movement_selection.py` (19 checks, brute-force comparisons).
-
-**Torso twist details: done 2026-10-19** (Section 4a; tests in
-`tests/test_arcs.py`). The default Asymptote II is a tripod, so its
-any-hexside twist and torso-only physical arcs change every default battle.
-
-**Still waiting on Daniel (Section 4):** the Core-vs-MECHSIM piloting-roll questions.
-
-**Physical attacks are in movement scoring (2026-10-19):** spots next to the
-enemy count punches / kicks both ways, and the Ranged phase picks its twist and
-fire together with the physical attack that follows (Section 4a "Who picks").
-Since 2026-10-20 each physical attack is weighted by its own hit table (punch /
-kick table exposure + structure bonus, `physical.Worth`), and **charges** are in
-(`INTEGRATION__charge.py`, `tests/test_special_attacks.py`): gated per movement mode on
-beating the best ordinary attack, then scored like any spot (Section 5
-"Charges"). **All seven physical attack types are in (2026-10-20):** death from
-above (`INTEGRATION__dfa.py`) shares the charge decision
-(`INTEGRATION__movement_attacks.py`), and the FIRST mover's two-ply now models
-the second mover's charges / DFAs against every spot it might take; pushes
-are valued by their displacement (off the board = the target's whole HP, 2+
-levels down = the fall; otherwise worth nothing), so their threat steers
-movement both ways; clubs (`INTEGRATION__clubs.py`) are picked up on a turn
-with nothing to shoot. Speed: ~1.45 s a turn on the default battle (was ~3.2
-before the 2026-10-20 speed pass; Change Record).
-Test units: `data/meks.zip` (4,227 MegaMek units, 4,162 parse).
-
-**Other open follow-ups:** terrain that forces a PSR on entry and mine fields
-should add expected damage to a spot's cost; structure weighting for aimed
-shots, physical attacks and the real Ranged weapon choice; the falls kicks
-cause (kick-hit / missed-kick PSRs) are not priced; `compute_score()`-style HP
-awareness (the ratio ignores damage state, so tiny-damage / no-return-fire
-spots can dominate through the .001 epsilon); seatbelt / prone aftermath of a
-fall isn't scored; prone and immobile enemies are modeled as staying put;
-Void-Signature mechs skip the candidate reduction (slower picks).
-**Housekeeping:** the 5 reference logs in `reference_logs/` were regenerated
-2026-10-19 (Daniel's go-ahead) after the arc-action work and match the code;
-`python tests/check_reference_logs.py` should pass after any change that isn't
-meant to alter results. Speed: about 1.1 s per
-turn; the LOS/arc cache is per board (`INTEGRATION__los_cache.py`). Rules are
-checked against `rules/Battletech_Rule_Reference_Index.zip` (Section 7). Most
-recent work and its page cites: Change Record, last entries.
+**Housekeeping:** reference logs regenerated 2026-10-20 (physical attacks,
+then club pick-up off) and match the code. Speed history: 31.7 s → 11.8 s (speed pass) →
+~14.5 s (all seven physical attacks) for the 10-turn benchmark. Rules are
+checked against `rules/Battletech_Rule_Reference_Index.zip` (Section 7) - the
+`[p.N]` marker in its markdown PRECEDES page N's text.
 
 ---
 
@@ -533,7 +521,13 @@ forward arc, kicks included, never into a side arc.
 | Heat ammo explosion bin (controller's choice) | `INTEGRATION__stubs.stub_heat_explosion_bin` | **STUB.** Which of several equally destructive, equally full bins explodes (random). |
 | Ammo bin to draw from | `INTEGRATION__ammo.spend` | The bin with the fewest shots left (empties bins sooner) |
 | Prop arm when firing prone | `INTEGRATION__attack_resolution.prone_fire` | The arm whose weapons matter least |
-| Physical attack type | `INTEGRATION__physical.choose_attack` | Punch / kick / physical weapon with the most expected damage |
+| Physical attack type | `INTEGRATION__physical.choose_attack` | Twist (if still allowed) + attack type (punch / kick / physical weapon / club / push) with the most expected worth, weighted by hit table (`physical.Worth`) |
+| Ranged fire vs the physical attack that follows | `attack_resolution.declare_attacks` (`_physical_planner`) | Next to the target: best (arc action, physical plan) by ranged expected damage without the attacking limbs' weapons + the plan's expected damage (raw on both sides) |
+| Torso twist / arm flip / turret | `declare_attacks`, `physical.choose_attack`, `ranged_combat.MoveEvaluator` | Most expected damage; no change wins ties (Section 4a) |
+| Charge / death from above | `movement_selection._movement_attack_pick`, `_modeled_reply`; `INTEGRATION__movement_attacks` | Gate per movement mode (beat the best ordinary attack), then the objective must beat the ordinary pick; both movers (two-ply) |
+| Push value | `physical.push_option`, `movement_attacks.displacement_worth` | P(hit) x (target HP off the board / fall worth 2+ levels down / else 0) |
+| Club pick-up | `INTEGRATION__clubs.maybe_pick_up` | OFF (`config.CLUB_PICKUP`); waits for the Memo below |
+| DFA miss: where the target steps | `INTEGRATION__dfa.resolve` | The open hex with the smallest drop |
 | Home edge | `config.HOME_EDGE_CHOICE` | Which edge the deployment-roll loser picks (default random) |
 | Escalating Failure use (radical heat sinks, MASC, supercharger) | `INTEGRATION__equipment_systems.cycle_on` | 1-turn-on / 1-turn-off cycle (Daniel's default) |
 | Coolant pod trigger | `INTEGRATION__heat._extra_cooling` | One pod when heat would stay above min_heat, not on a radical turn |
@@ -544,6 +538,29 @@ forward arc, kicks included, never into a side arc.
 | `compute_score()` | `PATHFINDER__combat.py` | Not wired (reference; built on flat HP/weapon dicts) |
 | LOS rule-6 tie-break | `PATHFINDER__los.py` | Placeholder, see Known Issues #2 |
 | Closing-turn detection | `movement_selection.closing_fallback` | Wired (ported) |
+
+### Memo: the bot must weigh how an action changes its FUTURE capabilities (Daniel, 2026-10-20)
+
+Every decision so far is greedy for the current turn. Several need the bot to
+ask what an action does to what it can do on later turns:
+- **Clubs.** Picking up a tree costs the Ranged phase and (Daniel, "IIRC")
+  the arm and front-torso weapons while it's held; "the question is if the
+  utility of having a club is greater than the weapons you're armed with. The
+  answer is almost always no - I've never seen anyone use a tree as a club."
+  Pick-up is OFF (`config.CLUB_PICKUP`) until this exists.
+- **MASC / superchargers.** Each use raises the failure target number and a
+  failure wrecks the legs / engine; using them is a trade between this turn's
+  MP and next turns' risk. Today: Daniel's 1-on / 1-off default cycle.
+- **Rotary autocannons** (and Ultras): more shots now vs jams that take the
+  weapon away later (multi-shot math isn't built yet either).
+- Likely the same shape: radical heat sinks, coolant pods, ammo spending
+  ("they'll need their own logic suite on if it's worth using up limited
+  ammo"), heat build-up vs a shutdown later, and possibly the hanging-back
+  movement problem (Section 0, "Pick up here" item 2).
+Not designed yet - Daniel: "when we get to figuring out how the bot should
+think." A natural shape is a value for the mech's state at the end of the
+turn (weapons usable, heat, jam / failure risk, a club in hand) added to the
+turn's score, so a decision sees what it gives up.
 
 ---
 
@@ -572,12 +589,32 @@ forward arc, kicks included, never into a side arc.
   a bug first. Sign work in the Change Record below.
 - Placeholders go in `INTEGRATION__stubs.py` as loud, counted stubs with
   config knobs — never as silent defaults.
+- (Daniel, 2026-10-20) **Claude runs the GitHub logistics**: develop on the
+  session branch, commit with clear messages, push, open a PR to `main` and
+  merge it once every test passes - Daniel doesn't use GitHub. Tell him in
+  plain words what changed; don't make him handle branches or PRs.
+- (Daniel, 2026-10-20) A decision with a cheap test that rules most cases
+  out goes FIRST in the decision tree ("gate that decision tree ... before
+  thinking about it") - e.g. charges / DFAs only get scored if they beat the
+  best ordinary attack in that movement mode.
+- Measure speed on the fixed benchmark (`tests/benchmark_turns.py`) before and
+  after; a change only for speed must leave every result identical.
+- Reference logs: regenerate (`--update`) only for changes meant to alter
+  results, and say so in the Change Record.
 
 ---
 
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-20 (Claude):** Club pick-up switched OFF (`config.CLUB_PICKUP =
+  False`, Daniel) - the rules stay; the decision waits for the
+  future-capability Memo (Section 6). Section 0 rewritten as a hand-off for a
+  new instance; `CLAUDE.md` added (points here); `tests/benchmark_turns.py`
+  added (the fixed 10-turn speed benchmark). Two reference logs regenerated
+  (Asymptote vs HeatGear seeds 2 and 5: the Asymptote had picked up a tree,
+  and holding it changed its later movement scores; it never clubbed).
 
 - **2026-10-20 (Claude):** The remaining physical attacks and anticipation.
   New `INTEGRATION__movement_attacks.py` (target poses, a once-per-decision

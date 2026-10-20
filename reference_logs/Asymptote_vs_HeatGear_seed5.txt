@@ -368,7 +368,6 @@ Attack Phase consciousness check (gunner, 1 pilot hits): needs 3. Rolled 9.
   [Ranged] Blue -> Red: range 5, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 1 + heat 0); firing ['ISSRM6'] (weapon heat 4 +1 damaged radical of budget 6 = max 9 + sink 14 - current 7 - movement 3 - other 7; expected dmg 0.22)
     ISSRM6: needs 12 (range mod +2), rolled 8 -> miss [ISSRM6 Ammo: 11 shots left]
   [Ranged] Red -> Blue: range 5, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 23 = max 4 + sink 22 - current 0 - movement 3 - other 0; expected dmg 0.00)
-  [Ranged] Red picks up a tree club in 0505 instead of firing (p.79).
   [Heat] Red: 0 + movement 3 + weapons 0 + engine 0 - sinks 22 -> 0
   [Heat] Blue: 7 + movement 3 + weapons 5 + engine 0 + stealth 6 - sinks 14 -> 7
   [Heat] Blue: heat 7 -> next turn -1 Walking MP, +0 to ranged attacks.
@@ -507,7 +506,7 @@ Attack Phase consciousness check (gunner, 1 pilot hits): needs 3. Rolled 9.
 
 === TURN 19 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 1.008 = dealt 56.93 x0.82 / (received 36.85 x1.26 + PSR 0.00 + 0.001) [two-ply, 374 spots x 401 replies; modeled reply Blue -> 1415 S Walk]
+  [Movement select] Red: score 0.913 = dealt 51.52 x0.82 / (received 36.85 x1.26 + PSR 0.00 + 0.001) [two-ply, 374 spots x 401 replies; modeled reply Blue -> 1415 S Walk]
   [Movement] Red: 1316 SW -> 1316 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
     Blue: MASC (turn 1 in a row) needs 3, rolled 6 - works.
     Blue: Supercharger (turn 1 in a row) needs 3, rolled 2 - FAILS.

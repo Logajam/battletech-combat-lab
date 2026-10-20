@@ -20,12 +20,19 @@ who can hold one, and when the bot picks one up.
     table against a mech a level up / down); the target makes a PSR. A tree
     breaks after one successful attack.
 
-=== THE BOT (pile 4, Claude's call) ===
-Picking up a club costs a whole Ranged phase, so the bot only does it on a
+=== THE BOT (pile 4) ===
+OFF by default (config.CLUB_PICKUP = False, Daniel 2026-10-20): a club is
+almost never worth giving up the arm / torso weapons for. Whether it is
+depends on what the mech will be able to do on LATER turns - a decision for
+the bot's future-capability planning (PROJECT_MAP Section 6, "Memo").
+With CLUB_PICKUP on, the rule is Claude's placeholder: pick one up only on a
 turn it fires nothing anyway (no line of sight, nothing in arc or in range),
-standing, not charging or in a DFA, with free hands. It prefers a limb or
-girder (they last) over a tree. Once held, the club is just another physical
-plan in movement scoring and the attack phases.
+standing, not charging or in a DFA, with free hands; a limb or girder (they
+last) before a tree. Once held, the club is just another physical plan in
+movement scoring and the attack phases.
+Open rules question (Daniel, 2026-10-20, "IIRC"): does HOLDING a club stop
+the arm / front-torso weapons firing? The rules library (Core p.79) only bars
+arm-mounted weapons in the turn of a club attack; check Total Warfare.
 
 Not modeled: rubble from destroyed buildings (no buildings yet - a board
 "rubble" feature is honoured), limbs carried off by displacement, wading
@@ -89,6 +96,8 @@ def found_here(mech, terrain_map):
 def maybe_pick_up(mech, terrain_map, fired_anything):
     """Ranged phase, after declarations: the bot's pick-up rule (module
     docstring). Returns the kind picked up, or None."""
+    if not config.CLUB_PICKUP:
+        return None                    # off by default (Daniel, 2026-10-20) - see config.CLUB_PICKUP
     if getattr(mech, "club", None) or fired_anything or mech.prone or mech.shutdown:
         return None
     if getattr(mech, "charging", None) is not None or getattr(mech, "dfa", None) is not None:

@@ -1,0 +1,41 @@
+# CLAUDE.md
+
+BattleTech Monte Carlo simulator: two mechs (`.mtf`) fight on a hex board under
+the Core Rulebook, many times over, and the results are summarized. Daniel owns
+the BattleTech rules and scope calls; Claude owns the implementation and the
+GitHub logistics.
+
+## Start here
+
+1. Read `INTEGRATION__PROJECT_MAP.md` **Section 0** ("read this first"): what's
+   built, how to run and test, and the "Pick up here" list of open work.
+2. Section 7 of the same file holds Daniel's standing instructions. Section 5
+   holds his decisions (implementation may not override them). Section 6 lists
+   every bot decision point and the future-capability Memo. Section 8 is the
+   Change Record, newest first.
+3. `INTEGRATION__CALL_GRAPH.md` shows the import structure, and `README.md` the
+   layout and test commands.
+
+## Working rules (details in PROJECT_MAP Section 7)
+
+- **Rules come from the library, never from memory.** Use
+  `rules/Battletech_Rule_Reference_Index.zip`, unzipped OUTSIDE the repo. The
+  Core Rulebook is in `base/core-rules/*.md`, and a `[p.N]` marker comes before
+  page N's text. Cite the page in the code. If the library doesn't settle a
+  rule, ask Daniel.
+- **Logistics are Claude's** (Daniel: "You're in charge of the logistics").
+  Work on the session branch, commit, push, open a PR to `main`, and merge it
+  once every test passes. Daniel doesn't use GitHub, so tell him in plain words
+  what changed.
+- **After every change:**
+  - Run every `python tests/test_*.py`; all must pass.
+  - Run `python tests/check_reference_logs.py`. Use `--update` only for a change
+    meant to alter results, and record that in the Change Record.
+  - Run `python tests/benchmark_turns.py` for anything on the hot path. A
+    speed-only change must keep the results identical.
+- **Placeholders** are loud, counted stubs in `INTEGRATION__stubs.py`, never
+  silent defaults. New bot decisions get a Section 6 row.
+- **Code style:** Daniel reads the code but doesn't write it. Keep it clean,
+  explicit and commented to match the surrounding files, and sign changes in
+  the Change Record.
+- **File names:** keep the `INTEGRATION__` / `mechsim/` / `pathfinder/` split.
