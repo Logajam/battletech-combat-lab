@@ -124,16 +124,20 @@ def expected_damage_numbers():
 
 @check
 def damage_factors_share():
-    """One AMS (2 engagements) vs the Archer's two LRM 20s: both fully scaled;
-    vs four missile weapons, half the cut each."""
-    archer = fresh(ARCHER)
+    """One AMS (2 engagements) vs the Archer's two LRM 20s: both fully cut;
+    vs four missile weapons, half the cut each (fire_modes.ams_share, priced
+    by fire_modes.Planner since 2026-10-20)."""
+    import INTEGRATION__fire_modes as fire_modes
+    archer, target = fresh(ARCHER), fresh(ATLAS_K, "0804", "S")
     lrms = [w for w in get_weapons(archer) if "LRM" in w.name]
+    assert fire_modes.ams_share(2, get_weapons(archer)) == 1.0
+    assert fire_modes.ams_share(2, lrms + lrms) == 0.5 and fire_modes.ams_share(0, lrms) == 0.0
     full = ams.expected_damage_engaged(lrms[0]) / expected_damage.expected_damage_per_hit(lrms[0])
-    f = ams.damage_factors(get_weapons(archer), 2)
-    assert set(f) == {id(w) for w in lrms} and all(abs(v - full) < 1e-12 for v in f.values())
-    f4 = ams.damage_factors(lrms + lrms, 2)
-    assert abs(f4[id(lrms[0])] - (1 - 0.5 * (1 - full))) < 1e-12
-    assert ams.damage_factors(get_weapons(archer), 0) is None
+    adjust = attack_resolution.tn_adjuster(archer, target)
+    plain = fire_modes.Planner(archer, target, adjust, 0.0)(lrms[0], 10, 6)[0]
+    for share in (1.0, 0.5):
+        got = fire_modes.Planner(archer, target, adjust, share)(lrms[0], 10, 6)[0]
+        assert abs(got / plain - (1 - share * (1 - full))) < 1e-12, share
 
 
 @check

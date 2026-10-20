@@ -138,7 +138,7 @@ import INTEGRATION__ammo as ammo  # noqa: E402
 import INTEGRATION__structure_weight as structure_weight  # noqa: E402
 import INTEGRATION__arcs as arcs  # noqa: E402
 import INTEGRATION__ams as ams  # noqa: E402
-import INTEGRATION__electronics as electronics  # noqa: E402
+import INTEGRATION__fire_modes as fire_modes  # noqa: E402
 import INTEGRATION__los_cache as geo_cache  # noqa: E402
 from INTEGRATION__attack_resolution import tn_adjuster, aimed_shot_location, firing_conditions, \
     prone_target_modifier, arc_unavailable, _SIDE_BY_RELATIVE_HEXSIDE  # noqa: E402
@@ -165,7 +165,7 @@ class MovementCandidate:
     attack: str = ""            # "charge" / "dfa" for an attack declared in movement (INTEGRATION__movement_attacks)
 
 
-def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_for_side=None):
+def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_for_side=None, planner=None):
     """Returns score(distance, pre_tn, move_heat) -> expected damage of the
     weapons select_weapons_to_fire() would actually fire, memoized for this
     call. Dissipation and other heat are read once (they can't change
@@ -175,7 +175,9 @@ def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_fo
     scale_for_side (2026-10-19): optional f(side) -> {id(weapon): multiplier}
     (INTEGRATION__structure_weight, built per target); when given, score() takes
     the attack side too and returns WORTH - expected damage with structure
-    damage counted for more - and the memo is keyed by side as well."""
+    damage counted for more - and the memo is keyed by side as well.
+    planner (2026-10-20): the fire_modes.Planner pricing this mech's special
+    weapons against this target (weapon_selection.select_weapons_to_fire)."""
     dissipation = compute_heat_dissipation(mech)
     weapons = get_weapons(mech)                                   # fixed for the scorer's life
     table = weapon_selection.build_expected_damage_table(mech)
@@ -195,7 +197,7 @@ def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_fo
             _, cached, _ = weapon_selection.select_weapons_to_fire(
                 mech, distance, pre_tn, mech.min_heat, mech.max_heat,
                 dissipation=dissipation, movement_heat=move_heat, other_heat=other, tn_adjust=tn_adjust,
-                unavailable=unavailable, value_scale=scale, weapons=weapons, table=table)
+                unavailable=unavailable, value_scale=scale, weapons=weapons, table=table, planner=planner)
             memo[key] = cached
         return cached
 
@@ -203,6 +205,16 @@ def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_fo
 
 
 def movement_options(mover, terrain_map, standup_mp=None, entry_edge=None, backward=True):
+    """_movement_options, except that a mech trying to unjam a Rotary AC this
+    turn may only stand still or walk (Core p.183; fire_modes.declare_unjams,
+    2026-10-20)."""
+    states = _movement_options(mover, terrain_map, standup_mp, entry_edge, backward)
+    if getattr(mover, "unjamming", None):
+        return (st for st in states if st[4] in ("Stand Still", "Walk"))
+    return states
+
+
+def _movement_options(mover, terrain_map, standup_mp=None, entry_edge=None, backward=True):
     """Every end state the mover can reach this turn, as (x, y, facing, fc,
     mode, mp_spent), deduplicated. Normally: Walk/Run from its hex and facing
     (pathfinder.build_movement_table at Running MP) plus jumps.
@@ -362,10 +374,10 @@ class MoveEvaluator:
     by the engagements the other side's AMS can make from that spot (its
     arcs, untwisted); the scorers and best-twist memos are keyed by that count
     too. Mechs without AMS always see 0 - the numbers are unchanged.
-    Artemis / Narc homing / Angel ECM (2026-10-20, INTEGRATION__electronics):
-    their to-hit change is in the tn_adjusters, their Cluster change in the
-    same damage factors. A Narc beacon's pod value isn't counted here (the
-    attack phase prices it).
+    Special weapons (2026-10-20, INTEGRATION__fire_modes.Planner): missiles,
+    rapid fire, LB-X, MML, ATM are priced with the ammunition / rate the stubs
+    would pick, Artemis / Narc / ECM and that AMS share. A Narc beacon's pod
+    value isn't counted here (the attack phase prices it).
     """
 
     def __init__(self, mover, defender, terrain_map: Dict[str, object]):
@@ -373,14 +385,12 @@ class MoveEvaluator:
         self.defender_immobile = is_immobile(defender)
         self.mover_cond = firing_conditions(mover)          # mover is standing here; sensors still count
         self.defender_cond = firing_conditions(defender)
-        mover_blocked = (self.mover_cond[1] if self.mover_cond else frozenset()) | ammo.unavailable_weapons(mover)
+        mover_blocked = (self.mover_cond[1] if self.mover_cond else frozenset()) | ammo.unavailable_weapons(mover) \
+            | fire_modes.jammed_ids(mover)
         defender_blocked = (self.defender_cond[1] if self.defender_cond else frozenset()) \
-            | ammo.unavailable_weapons(defender)
-        # Artemis / Narc / ECM (INTEGRATION__electronics, 2026-10-20): fixed while the mechs don't change.
-        mover_fire = electronics.fire_controls(mover, defender)
-        defender_fire = electronics.fire_controls(defender, mover)
-        mover_adjust = tn_adjuster(mover, defender, aimed_shot_location(defender), fire=mover_fire)
-        defender_adjust = tn_adjuster(defender, mover, fire=defender_fire)
+            | ammo.unavailable_weapons(defender) | fire_modes.jammed_ids(defender)
+        mover_adjust = tn_adjuster(mover, defender, aimed_shot_location(defender))
+        defender_adjust = tn_adjuster(defender, mover)
         # Structure weighting (INTEGRATION__structure_weight): off at k = 1.0, which leaves
         # every number exactly as it was.
         weighting = config.MOVEMENT_STRUCTURE_WEIGHT != 1.0
@@ -391,12 +401,13 @@ class MoveEvaluator:
         mover_scorers: Dict[tuple, object] = {}
         defender_scorers: Dict[tuple, object] = {}
 
-        def scorer_getter(who, adjust, blocked, scale, cache, fire):
+        def scorer_getter(who, target, adjust, blocked, scale, cache):
             # Scorers are shared by every (key, held) that leaves the same weapons
             # unable to fire (2026-10-20, speed only): many twists / arcs block the
             # same set, and a shared scorer shares its memo.
             by_unavailable: Dict[tuple, object] = {}
             usable = [w for w in get_weapons(who) if id(w) not in blocked]
+            planners: Dict[int, object] = {}       # fire_modes.Planner per AMS engagement count (shares its memo)
 
             def get(key, held=frozenset(), ams_k=0):
                 # held: weapons kept back because their limb attacks in the Physical phase
@@ -406,18 +417,18 @@ class MoveEvaluator:
                     unavailable = blocked | arc_unavailable(who, key) | held
                     scorer = by_unavailable.get((unavailable, ams_k))
                     if scorer is None:
-                        side_scale = scale
-                        factors = ams.damage_factors(usable, ams_k, fire)
-                        if factors:
-                            side_scale = lambda side: ams.combine(scale(side) if scale else None, factors)  # noqa: E731
+                        planner = planners.get(ams_k)
+                        if planner is None:
+                            planner = planners[ams_k] = fire_modes.Planner(
+                                who, target, adjust, fire_modes.ams_share(ams_k, usable))
                         scorer = by_unavailable[(unavailable, ams_k)] = _make_heat_limited_scorer(
-                            who, adjust, unavailable, side_scale)
+                            who, adjust, unavailable, scale, planner)
                     cache[(key, held, ams_k)] = scorer
                 return scorer
             return get
-        self.mover_scorer = scorer_getter(mover, mover_adjust, mover_blocked, mover_scale, mover_scorers, mover_fire)
-        self.defender_scorer = scorer_getter(defender, defender_adjust, defender_blocked, defender_scale,
-                                             defender_scorers, defender_fire)
+        self.mover_scorer = scorer_getter(mover, defender, mover_adjust, mover_blocked, mover_scale, mover_scorers)
+        self.defender_scorer = scorer_getter(defender, mover, defender_adjust, defender_blocked, defender_scale,
+                                             defender_scorers)
         self.mover_arcs = (arcs.arc_options(mover), arcs.leg_offsets(mover))   # twists / flips / turret (pp.61-62)
         self.defender_arcs = (arcs.arc_options(defender), arcs.leg_offsets(defender))
         # Physical attacks (pp.76-83) from / against a spot next to the enemy.

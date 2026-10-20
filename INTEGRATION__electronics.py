@@ -48,11 +48,10 @@ blocks both (Core Rulebook pp.186-188, 191-193, 197, 200, 202, 209).
   - ECM is always on (Daniel's default for activated systems, 2026-10-19).
 
 === BOT CHOICES (pile 4, PROJECT_MAP Section 6) ===
-  - Munition per shot (a launcher may have several kinds of bin): the one
-    with the biggest bonus that works now - Artemis V, then Narc, then
-    Artemis IV - else a standard bin, else any (special missiles fire as
-    normal ones). Narc beacons fire homing pods unless a homing pod is
-    already working (or ECM-blocked) and explosive pods are aboard.
+  - Munition per shot (a launcher may have several kinds of bin): a STUB
+    decision since 2026-10-20 (Daniel: which ammo to use is still research) -
+    INTEGRATION__fire_modes lists the options, stubs.stub_munition_choice
+    picks; special missiles fire as normal ones when their bonus is blocked.
   - A homing pod's worth (Daniel, 2026-10-20: "a NARC's 'Damage value' to an
     AMS should probably be considered the expected increase in damage from
     its opponents missile systems if it lands. If one has already landed no
@@ -69,7 +68,6 @@ from typing import NamedTuple
 
 import INTEGRATION__config as config
 import INTEGRATION__weapon_rules as weapon_rules
-import INTEGRATION__expected_damage as expected_damage
 import INTEGRATION__equipment_systems as equip
 import INTEGRATION__ammo as ammo
 from equipment import Equipment
@@ -256,85 +254,38 @@ def control_for(attacker, weapon, target, munition):
     return FireControl(munition, tn, cluster, lock, note)
 
 
-def _rank(fc):
-    return fc.cluster - 2 * fc.tn          # Artemis V (5) > Narc (4) > Artemis IV (2) > none (0)
-
-
-def best_control(attacker, weapon, target):
-    """The bot's munition choice for `weapon` at `target` (module docstring)."""
-    if weapon.damage_type != "Missile" or is_narc(weapon):
-        return control_for(attacker, weapon, target, "standard")
-    available = munitions(attacker, weapon)
-    if not available:
-        return control_for(attacker, weapon, target, "standard")
-    options = [control_for(attacker, weapon, target, m) for m in sorted(available)]
-    best = max(options, key=_rank)
-    if _rank(best) > 0:
-        return best
-    plain = "standard" if "standard" in available else sorted(available)[0]
-    return control_for(attacker, weapon, target, plain)
-
-
-def fire_controls(attacker, target):
-    """{id(weapon): FireControl} for every weapon whose shot differs from a
-    plain one (empty when nothing applies - the common case)."""
-    out = {}
-    for w in get_weapons(attacker):
-        if w.damage_type == "Missile" and not is_narc(w):
-            fc = best_control(attacker, w, target)
-            if fc.tn or fc.cluster or not fc.streak_lock:
-                out[id(w)] = fc
-    return out
-
-
-def pod_munition(attacker, weapon, target):
-    """Narc beacon: 'homing' or 'explosive' (module docstring)."""
-    available = munitions(attacker, weapon)
-    if "explosive" in available and ("homing" not in available or narc_blocked(target)
-                                     or _live_pods(target, attacker.side_name, False)):
-        return "explosive"
-    return "homing" if "homing" in available else ("explosive" if "explosive" in available else "homing")
-
-
 # =============================================================================
 # ==========================  EXPECTED DAMAGE  ================================
 # =============================================================================
-def expected_hit(weapon, fc=PLAIN):
-    """E[damage | hit] with this fire control."""
-    if not weapon_rules.is_cluster(weapon) or (weapon.damage_per_shot or 0) == 0:
-        return weapon.damage_per_shot or 0
-    if weapon_rules.is_streak(weapon) and fc.streak_lock:
-        return weapon.damage_per_shot * weapon.rack_size
-    return weapon.damage_per_shot * expected_damage.expected_cluster_hits(
-        weapon.rack_size, fc.cluster + weapon_rules.cluster_roll_modifier(weapon))
-
-
-def pod_value(owner, target, distance, pre_tn, adjust, fire=None):
+def pod_value(owner, target, distance, pre_tn, adjust):
     """A homing pod's worth to `owner` (module docstring): the one-turn gain
-    of its Narc-capable launchers. adjust(weapon, bracket) is the per-weapon
-    TN change (attack_resolution.tn_adjuster - it includes `fire`'s TN)."""
-    import INTEGRATION__weapon_selection as weapon_selection      # imports this module's callers
-    from combat import hit_probability
+    of its Narc-capable launchers - for each, the best Narc-homing shot it
+    could fire minus the best shot it fires now (INTEGRATION__fire_modes
+    prices both; adjust is attack_resolution.tn_adjuster's)."""
+    import INTEGRATION__fire_modes as fire_modes                 # fire_modes imports this module
     if narc_blocked(target) or _live_pods(target, owner.side_name, False):
         return 0.0
-    fire = fire_controls(owner, target) if fire is None else fire
-    blocked = ammo.unavailable_weapons(owner)
+    planner = fire_modes.Planner(owner, target, adjust)
+    blocked = ammo.unavailable_weapons(owner) | fire_modes.jammed_ids(owner)
     total = 0.0
     for w in get_weapons(owner):
-        if id(w) in blocked or w.damage_type != "Missile" or "narc" not in munitions(owner, w):
+        if id(w) in blocked or w.damage_type != "Missile" or is_narc(w):
             continue
-        range_mod = weapon_selection._weapon_range_mod(w, distance)
-        if range_mod is None:
+        plans = planner.kinds(w)
+        narc = [p for p in plans if p.munition == "narc"]
+        if not narc:
             continue
-        now = fire.get(id(w), PLAIN)
-        tn = pre_tn + range_mod + adjust(w, weapon_selection.range_bracket(w, distance)) - now.tn
-        homing = FireControl("narc", NARC_TN, NARC_CLUSTER if weapon_rules.is_cluster(w) else 0, now.streak_lock)
-        gain = hit_probability(tn + homing.tn) * expected_hit(w, homing) - hit_probability(tn + now.tn) * expected_hit(w, now)
-        total += max(0.0, gain)
+        now = max((v[0] for v in (planner.value(w, p, distance, pre_tn) for p in plans) if v), default=0.0)
+        homing = narc[0]._replace(guidance=FireControl(
+            "narc", NARC_TN, NARC_CLUSTER if weapon_rules.is_cluster(w) else 0, narc[0].guidance.streak_lock, "Narc homing"))
+        got = planner.value(w, homing, distance, pre_tn)
+        if got is not None:
+            total += max(0.0, got[0] - now)
     return total
 
 
-def log_controls(name, fire, weapons):
-    notes = sorted({f"{w.name}: {fire[id(w)].note}" for w in weapons if id(w) in fire and fire[id(w)].note})
+def log_controls(name, plans, weapons):
+    """One log line naming each fired weapon's shot plan, when it isn't plain."""
+    notes = sorted({f"{w.name}: {plans[id(w)].note}" for w in weapons if id(w) in plans and plans[id(w)].note})
     if notes:
         config.log(f"    [{name} fire control] {'; '.join(notes)}")

@@ -38,6 +38,10 @@ edited).
   to-hit modifiers.
 - `ammo.py` (NEW 2026-10-19) → `config`, `stubs`, `weapon_rules`; MECHSIM
   `equipment` (Equipment, lookup_equipment), `damage_resolution.get_weapons`
+- `fire_modes.py` (NEW 2026-10-20) → `config`, `stubs`, `weapon_rules`, `expected_damage`, `electronics`, `ammo`,
+  `ams` / `weapon_selection` (lazy); MECHSIM `equipment`, `damage_resolution.get_weapons`; PATHFINDER
+  `combat.hit_probability` (lazy). Used by `attack_resolution`, `weapon_selection`, `ranged_combat`, `orchestrator`,
+  `electronics` / `ammo` / `heat` / `stubs` (lazy).
 - `electronics.py` (NEW 2026-10-20) → `config`, `weapon_rules`, `expected_damage`, `equipment_systems`,
   `ammo`, `weapon_selection` (lazy); MECHSIM `equipment`, `damage_resolution.get_weapons`; PATHFINDER
   `combat.hit_probability` (lazy). Used by `attack_resolution`, `ams`, `ranged_combat`, `orchestrator` (attach).
@@ -129,7 +133,7 @@ main.py
    ├─ ranged_combat.py ── heat.py, los_cache.py
    ├─ movement_selection.py ── ranged_combat.py, los_cache.py, piloting_rolls, hit_location, damage_resolution
    ├─ stubs.py
-   ├─ attack_resolution.py ── heat.py, weapon_rules.py, ammo.py, ams.py ── arcs.py, expected_damage.py, electronics.py
+   ├─ attack_resolution.py ── heat.py, weapon_rules.py, ammo.py, ams.py ── arcs.py, expected_damage.py, electronics.py, fire_modes.py
    ├─ physical.py ── attack_resolution.py, arcs.py, charge.py, dfa.py, clubs.py, hit_location, piloting_rolls
    └─ results.py
 ```

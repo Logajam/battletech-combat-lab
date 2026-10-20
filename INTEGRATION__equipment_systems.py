@@ -286,9 +286,19 @@ def use_coolant_pod(mech):
     return pod
 
 
-def radical_planned(mech, turn_number=None):
+def use_escalating(mech, label, turn_number=None, warn=False):
+    """Whether the bot uses an Escalating Failure system this (or the given)
+    turn - a STUB decision since 2026-10-20 (stubs.stub_escalating_use; its
+    default is Daniel's cycle_on). warn=True only where the decision is made:
+    movement declaration (MASC / supercharger) and the Heat Phase (radical)."""
+    import INTEGRATION__stubs as stubs
+    return stubs.stub_escalating_use(mech.side_name, label, cycle_on(mech, turn_number), warn=warn)
+
+
+def radical_planned(mech, turn_number=None, warn=False):
     """The radical heat sink system will be engaged this (or the given) turn."""
-    return system_live(mech, "radical") and not mech.shutdown and cycle_on(mech, turn_number)
+    return (system_live(mech, "radical") and not mech.shutdown
+            and use_escalating(mech, "radical heat sink system", turn_number, warn))
 
 
 def radical_destroyed(mech):
@@ -308,7 +318,9 @@ def resolve_movement_boosters(mech):
     successes set the Running MP multiplier. Returns the systems that
     failed, for apply_booster_failures after the mech has moved."""
     reset_movement_boost(mech)
-    if not cycle_on(mech):
+    if not (system_live(mech, "masc") or system_live(mech, "supercharger")):
+        return []
+    if not use_escalating(mech, "MASC / supercharger", warn=True):
         return []
     worked, failed = 0, []
     for kind, label in (("masc", "MASC"), ("supercharger", "Supercharger")):

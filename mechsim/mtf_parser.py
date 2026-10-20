@@ -186,7 +186,8 @@ KNOWN_LOCATIONS = ["Left Arm", "Right Arm", "Left Torso", "Right Torso",
 
 def strip_cosmetic_suffixes(name):
     """Strip MegaMek's cosmetic mounting/variant tags - "(R)" (rear-mounted),
-    "(OMNIPOD)" (Omnimech pod-mounted), "(T)" (turret-mounted) - none of which
+    "(OMNIPOD)" (Omnimech pod-mounted), "(T)" (turret-mounted), "(Split)" (a
+    weapon split between locations - _join_split_items joins it) - none of which
     change the underlying item's slots/explosive/damage_type. Loops because
     tags can stack in either order ("Foo (T) (OMNIPOD)"). Used both to resolve
     a raw .mtf name against equipment.json AND to decide whether consecutive
@@ -202,11 +203,43 @@ def strip_cosmetic_suffixes(name):
     changed = True
     while changed:
         changed = False
-        for suffix in ("(R)", "(OMNIPOD)", "(T)"):
+        for suffix in ("(R)", "(OMNIPOD)", "(T)", "(SPLIT)"):     # "(Split)": a split weapon (2026-10-20)
             if name.upper().endswith(suffix):
                 name = name[:-len(suffix)].strip()
                 changed = True
     return name
+
+
+def _join_split_items(mech):
+    """(2026-10-20, Claude) A multi-slot item split between two locations comes
+    out of build_crit_list as two short instances (one per location). Join each
+    pair of same-named short parts whose slots add up to the item's size into
+    ONE instance (the first part's), so it counts as one weapon - its slots in
+    both locations, as INTEGRATION__attack_resolution.weapon_locations and the
+    firing-arc rules expect. Anything still short is a real data problem and
+    warns, as build_crit_list used to for every split item."""
+    parts = []
+    seen = set()
+    for loc, slots in mech.crits.items():
+        for s in slots:
+            if isinstance(s, Equipment) and id(s) not in seen:
+                seen.add(id(s))
+                if s.slots_occupied < getattr(s, "slots_needed", s.slots_occupied):
+                    parts.append(s)
+    used = set()
+    for a in parts:
+        if id(a) in used:
+            continue
+        partner = next((b for b in parts if b is not a and id(b) not in used and b.name == a.name
+                        and a.slots_occupied + b.slots_occupied == a.slots_needed), None)
+        if partner is None:
+            print(f"WARNING: expected {a.slots_needed} slots for {a.name} but only found "
+                  f"{a.slots_occupied} consecutive matching lines - treating as a {a.slots_occupied}-slot item.")
+            continue
+        used.update((id(a), id(partner)))
+        a.slots_occupied += partner.slots_occupied
+        for loc, slots in mech.crits.items():
+            mech.crits[loc] = [a if s is partner else s for s in slots]
 
 
 def build_crit_list(raw_lines, special_rules_seen=None):
@@ -272,10 +305,10 @@ def build_crit_list(raw_lines, special_rules_seen=None):
                 else:
                     break
             actual_slots = len(group)
-            if actual_slots < slots_needed:
-                # Real data-integrity issue, not benign fallback noise - stays visible.
-                print(f"WARNING: expected {slots_needed} slots for {base_name} but only found "
-                      f"{actual_slots} consecutive matching lines - treating as a {actual_slots}-slot item.")
+            # Fewer consecutive lines than the item's slots (2026-10-20, Claude): usually a
+            # weapon split between two locations (e.g. an
+            # LB 20-X AC across a side torso and its arm). parse_mtf's _join_split_items
+            # joins the two parts into one item afterward, and warns only if it can't.
 
             # Ammo's flat house-rule explosion default (20) only applies to ammo;
             # non-ammo explosive gear falls through to Equipment's own 2/slot default
@@ -301,6 +334,7 @@ def build_crit_list(raw_lines, special_rules_seen=None):
                 battle_value=entry.get("battle_value"), tonnage=entry.get("tonnage"),
                 rack_size=entry.get("rack_size"),
             )
+            equip.slots_needed = slots_needed
             equip.rear_mounted = "(R)" in name.upper()   # 2026-10-19: Core p.60 rear-mounted weapons
             equip.turret_mounted = "(T)" in name.upper()  # 2026-10-19: Core p.61 turret weapons
             result.extend([equip] * actual_slots)
@@ -633,6 +667,7 @@ def parse_mtf(filepath):
             mech.crits[loc] = build_crit_list(location_lines[loc], special_rules_seen)
         else:
             print(f"WARNING: no critical slot section found for {loc} in .mtf file.")
+    _join_split_items(mech)
 
     # HELP(partial_wing.detection)
     # Presence detection (Daniel, 2026-07-14): Partial Wing resolves through

@@ -29,6 +29,7 @@ import INTEGRATION__electronics as electronics  # noqa: E402
 import INTEGRATION__ams as ams  # noqa: E402
 import INTEGRATION__ammo as ammo  # noqa: E402
 import INTEGRATION__expected_damage as expected_damage  # noqa: E402
+import INTEGRATION__fire_modes as fire_modes  # noqa: E402
 from INTEGRATION__attack_resolution import DeclaredAttack, SideReport  # noqa: E402
 from mtf_parser import parse_mtf  # noqa: E402
 from mech_state import clone_mech  # noqa: E402
@@ -67,6 +68,17 @@ def weapon(mech, fragment):
     return next(w for w in get_weapons(mech) if fragment.upper() in w.name.upper().replace(" ", ""))
 
 
+def plan_of(attacker, weapon, target, distance=3, pre_tn=6):
+    """The shot plan the munition stub (default policy) picks."""
+    return fire_modes.Planner(attacker, target, attack_resolution.tn_adjuster(attacker, target))(
+        weapon, distance, pre_tn)[2]
+
+
+def guidance(attacker, weapon, target):
+    g = plan_of(attacker, weapon, target).guidance
+    return g.munition, g.tn, g.cluster
+
+
 def kill_slot(mech, slot):
     for loc, slots in mech.crits.items():
         for i, s in enumerate(slots):
@@ -100,10 +112,16 @@ def bin_names():
         "ISiNarc Explosive Pods": ("ISImprovedNarc", "explosive"),
     }
     for name, (weapon_name, munition) in cases.items():
-        entry, got = ammo.parse_bin(name)
-        assert entry is not None and (entry["canonical_name"], got) == (weapon_name, munition), (name, entry, got)
-    for name in ("IS LB 10-X Cluster Ammo", "ISLBXAC10 CL Ammo", "IS Ammo MML-7 LRM", "Clan Ammo ATM-6 ER"):
-        assert ammo.parse_bin(name) == (None, None), name
+        entry, got, kind = ammo.parse_bin(name)
+        assert entry is not None and (entry["canonical_name"], got, kind) == (weapon_name, munition, ""), (name, entry, got)
+    kinds = {"IS LB 10-X Cluster Ammo": ("ISLBXAC10", "cluster"), "ISLBXAC10 CL Ammo": ("ISLBXAC10", "cluster"),
+             "IS Ammo MML-7 LRM": ("ISMML7", "lrm"), "ISMML5 SRM Ammo": ("ISMML5", "srm"),
+             "Clan Ammo ATM-6 ER": ("CLATM6", "er"), "CLATM6 HE Ammo": ("CLATM6", "he"),
+             "IS Ammo MG - Full": ("ISMachine Gun", "")}
+    for name, (weapon_name, kind) in kinds.items():
+        entry, _, got = ammo.parse_bin(name)
+        assert entry is not None and (entry["canonical_name"], got) == (weapon_name, kind), (name, entry, got)
+    assert ammo.parse_bin("CLArrowIVAmmo") == (None, None, None)
 
 
 @check
@@ -121,27 +139,24 @@ def artemis_iv_link_ecm_and_crit():
     a, t = fresh(ATLAS_S2, name="Red"), fresh(ARCHER, "0804", "S", "Blue")
     lrm = weapon(a, "LRM15")
     assert electronics.artemis_kind(a, lrm) == 4 and "artemis4" in electronics.munitions(a, lrm)
-    fc = electronics.best_control(a, lrm, t)
-    assert (fc.munition, fc.tn, fc.cluster) == ("artemis4", 0, 2)
-    assert electronics.fire_controls(a, t) == {id(lrm): fc}
+    assert guidance(a, lrm, t) == ("artemis4", 0, 2)
     # The ECM-carrying Atlas shot at by its twin: blocked.
-    assert electronics.best_control(fresh(ATLAS_S2, name="Blue"), lrm, a).cluster == 0
+    assert guidance(fresh(ATLAS_S2, name="Blue"), lrm, a)[2] == 0
     assert electronics.hostile_field(a)
     a.has_stealth_armor = True                    # stealth armor on: its ECM stops and it is "as if" jammed
-    assert not electronics.hostile_field(a) and electronics.best_control(a, lrm, t).cluster == 0
+    assert not electronics.hostile_field(a) and guidance(a, lrm, t)[2] == 0
     a.has_stealth_armor = False
     kill_slot(a, lrm.artemis[0])
-    assert electronics.best_control(a, lrm, t).cluster == 0
+    assert guidance(a, lrm, t)[2] == 0
 
 
 @check
 def artemis_v():
     """Artemis V: -1 to hit and +3 Cluster."""
     a, t = fresh(VIKING, name="Red"), fresh(ARCHER, "0804", "S", "Blue")
-    fire = electronics.fire_controls(a, t)
-    assert fire and all((fc.munition, fc.tn, fc.cluster) == ("artemis5", -1, 3) for fc in fire.values())
-    lrm = next(w for w in get_weapons(a) if id(w) in fire)
-    assert attack_resolution.tn_adjuster(a, t)(lrm, "short") == -1
+    lrms = [w for w in get_weapons(a) if "LRM" in w.name.upper()]
+    assert lrms and all(guidance(a, w, t) == ("artemis5", -1, 3) for w in lrms)
+    assert plan_of(a, lrms[0], t).tn == -1
 
 
 @check
@@ -149,10 +164,10 @@ def angel_ecm_unlocks_streaks():
     """A Streak at a target with Angel ECM rolls on the Cluster Hits Table."""
     a, t = fresh(ATLAS_S, name="Red"), fresh(ONSLAUGHT, "0804", "S", "Blue")
     streak = weapon(a, "Streak")
-    fc = electronics.best_control(a, streak, t)
-    assert not fc.streak_lock
-    assert electronics.expected_hit(streak, fc) == 2 * expected_damage.expected_cluster_hits(2)
-    assert electronics.best_control(a, streak, fresh(ARCHER)).streak_lock
+    plan = plan_of(a, streak, t)
+    assert not plan.guidance.streak_lock
+    assert fire_modes.expected_hit(streak, plan) == 2 * expected_damage.expected_cluster_hits(2)
+    assert plan_of(a, streak, fresh(ARCHER)).guidance.streak_lock
 
 
 @check
@@ -163,20 +178,20 @@ def narc_pod_lifecycle():
     a, t = fresh(KINTARO, name="Red"), fresh(ARCHER, "0804", "S", "Blue")
     srm = weapon(a, "SRM6")
     beacon = next(w for w in get_weapons(a) if electronics.is_narc(w))
-    attack = DeclaredAttack(weapon=beacon, tn=7, roll=8, hit=True, fire=electronics.FireControl("homing"))
+    attack = DeclaredAttack(weapon=beacon, tn=7, roll=8, hit=True,
+                            fire=fire_modes.ShotPlan(electronics.FireControl("homing")))
     with ScriptedDice([7]):
         attack_resolution._resolve_one_attack(a, t, attack, None)
     assert t.narc_pods == [{"location": "Center Torso", "owner": "Red", "effective": False}]
-    assert electronics.best_control(a, srm, t).cluster == 0              # not until the next phase
+    assert guidance(a, srm, t)[2] == 0              # not until the next phase
     electronics.activate_pods(t)
-    fc = electronics.best_control(a, srm, t)
-    assert (fc.munition, fc.tn, fc.cluster) == ("narc", -1, 2)
+    assert guidance(a, srm, t) == ("narc", -1, 2)
     t.locations["Center Torso"]["destroyed"] = True
-    assert electronics.best_control(a, srm, t).cluster == 0
+    assert guidance(a, srm, t)[2] == 0
     jammer = fresh(ATLAS_S2, "0804", "S", "Blue")
     electronics.attach_pod(jammer, "Left Torso", "Red")
     electronics.activate_pods(jammer)
-    assert electronics.best_control(a, srm, jammer).cluster == 0
+    assert guidance(a, srm, jammer)[2] == 0
 
 
 @check
@@ -189,13 +204,13 @@ def pod_value_and_ams():
     assert value > 0
     beacon = next(w for w in get_weapons(a) if electronics.is_narc(w))
     attacks = [DeclaredAttack(weapon=beacon, tn=7, roll=9, hit=True, pod_value=value,
-                              fire=electronics.FireControl("homing"))]
+                              fire=fire_modes.ShotPlan(electronics.FireControl("homing")))]
     rep = SideReport()
     ams.engage(t, a, attacks, rep)
     assert attacks[0].ams is not None and abs(ams.attack_prevented(attacks[0]) - value / 2) < 1e-12
     electronics.attach_pod(t, "Left Torso", "Red")
     assert electronics.pod_value(a, t, 3, 7, adjust) == 0.0
-    assert electronics.pod_munition(a, beacon, t) == "homing"          # no explosive pods aboard
+    assert plan_of(a, beacon, t).munition == "homing"          # no explosive pods aboard
 
 
 @check
@@ -203,7 +218,7 @@ def resolution_applies_the_bonus():
     """An Artemis IV hit rolls Cluster +2 (7 -> 9); with AMS engaged, -4 too."""
     a, t = fresh(ATLAS_S2, name="Red"), fresh(ARCHER, "0804", "S", "Blue")
     lrm = weapon(a, "LRM15")
-    fc = electronics.best_control(a, lrm, t)
+    fc = plan_of(a, lrm, t)
     for ams_on, expect in ((False, TABLE[9][15]), (True, TABLE[5][15])):
         attack = DeclaredAttack(weapon=lrm, tn=7, roll=9, hit=True, fire=fc)
         attack.ams = ams.systems(fresh(ATLAS_K))[0] if ams_on else None

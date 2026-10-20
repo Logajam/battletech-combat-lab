@@ -2,7 +2,7 @@
   "_meta": {
     "source": "MegaMek equipment.txt export, regenerated via build_equipment_db.py",
     "schema_version": 1,
-    "entry_count": 1086,
+    "entry_count": 691,
     "alias_count": 8164,
     "note": "Entries with verified=false are generic-padding placeholders (1 slot, crit-eligible, non-explosive, no damage type). Confirm and correct as encountered - see notes field. Pruned SMG etc.",
     "weapon_stat_fill_pass1": {
@@ -219,7 +219,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -238,7 +238,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/large/ISXPulseLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'X-Pulse Laser, Large' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'X-Pulse Laser, Large'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/large/ISXPulseLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'X-Pulse Laser, Large' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'X-Pulse Laser, Large'. | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'Large X-Pulse Laser' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "iserlargelaser": {
@@ -505,7 +505,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -524,7 +524,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/medium/ISVariableSpeedPulseLaserMedium.java (main branch, fetched 2026-07-14). MegaMek damage field is non-literal (DAMAGE_VARIABLE) - range/ammo-variable, left null PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Variable Speed Laser, Medium'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/medium/ISVariableSpeedPulseLaserMedium.java (main branch, fetched 2026-07-14). MegaMek damage field is non-literal (DAMAGE_VARIABLE) - range/ammo-variable, left null PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Variable Speed Laser, Medium'. | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'Medium VSP Laser' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "issmallvsplaser": {
@@ -569,7 +569,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 4,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -588,7 +588,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/large/ISVariableSpeedPulseLaserLarge.java (main branch, fetched 2026-07-14). MegaMek damage field is non-literal (WeaponType.DAMAGE_VARIABLE) - range/ammo-variable, left null PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Variable Speed Laser, Large'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/large/ISVariableSpeedPulseLaserLarge.java (main branch, fetched 2026-07-14). MegaMek damage field is non-literal (WeaponType.DAMAGE_VARIABLE) - range/ammo-variable, left null PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Variable Speed Laser, Large'. | 2026-10-20 (Claude): slots 1 -> 4 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'Large VSP Laser' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "binarylaser(blazer)cannon": {
@@ -603,7 +603,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 4,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -622,7 +622,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/ISBinaryLaserCannon.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Binary Laser (Blazer) Cannon' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Binary Laser (Blazer) Cannon'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/ISBinaryLaserCannon.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Binary Laser (Blazer) Cannon' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Binary Laser (Blazer) Cannon'. | 2026-10-20 (Claude): slots 1 -> 4 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Binary (Blazer) Cannon' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "lightblazer": {
@@ -633,7 +633,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -651,7 +651,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/ISLBinaryLaserCannon.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/ISLBinaryLaserCannon.java (main branch, fetched 2026-07-14). | 2026-10-20 (Claude): slots 1 -> 2: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot)",
       "rack_size": null
     },
     "clerlargelaser": {
@@ -662,7 +662,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 2,
+      "slots": 1,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -681,7 +681,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek lasers/clan/large/CLERLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'ER Large Laser'.",
+      "notes": "Stats sourced from MegaMek lasers/clan/large/CLERLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'ER Large Laser'. | 2026-10-20 (Claude): slots 2 -> 1 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'ER Large Laser' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "clheavylargelaser": {
@@ -692,7 +692,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -711,7 +711,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLHeavyLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Heavy Large Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Heavy Large Laser'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLHeavyLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Heavy Large Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Heavy Large Laser'. | 2026-10-20 (Claude): slots 1 -> 3 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'Heavy Large Laser' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "cllargepulselaser": {
@@ -754,7 +754,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -773,7 +773,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLERPulseLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'ER Pulse Laser, Large' (word-order match; row's short/medium/long equal this entry's).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLERPulseLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'ER Pulse Laser, Large' (word-order match; row's short/medium/long equal this entry's). | 2026-10-20 (Claude): slots 1 -> 3 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'ER Pulse Large Laser' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "clermediumlaser": {
@@ -816,7 +816,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -835,7 +835,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/medium/CLHeavyLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Heavy Medium Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Heavy Medium Laser'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/medium/CLHeavyLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Heavy Medium Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Heavy Medium Laser'. | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'Heavy Medium Laser' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "clmediumpulselaser": {
@@ -878,7 +878,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -897,7 +897,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/medium/CLERPulseLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'ER Pulse Laser, Medium' (word-order match; row's short/medium/long equal this entry's).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/medium/CLERPulseLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'ER Pulse Laser, Medium' (word-order match; row's short/medium/long equal this entry's). | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'ER Pulse Medium Laser' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "clersmalllaser": {
@@ -1093,7 +1093,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -1112,7 +1112,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLImprovedHeavyLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Improved Heavy Laser, Large' (word-order match; row's short/medium/long equal this entry's).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLImprovedHeavyLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Improved Heavy Laser, Large' (word-order match; row's short/medium/long equal this entry's). | 2026-10-20 (Claude): slots 1 -> 3 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'Improved Heavy Large Laser' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "climprovedmediumheavylaser": {
@@ -1124,7 +1124,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -1143,7 +1143,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/medium/CLImprovedHeavyLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Improved Heavy Laser, Medium' (word-order match; row's short/medium/long equal this entry's).",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/medium/CLImprovedHeavyLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Improved Heavy Laser, Medium' (word-order match; row's short/medium/long equal this entry's). | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'Improved Heavy Medium Laser' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "climprovedsmallheavylaser": {
@@ -1186,7 +1186,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -1205,7 +1205,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLChemicalLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Chemical Laser, Large' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Chemical Laser, Large'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLChemicalLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Chemical Laser, Large' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Chemical Laser, Large'. | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'Chemical Laser, Large' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 1
     },
     "clmediumchemicallaser": {
@@ -1345,7 +1345,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 3,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -1364,7 +1364,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek ppc/clan/CLERPPC.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'ER PPC'.",
+      "notes": "Stats sourced from MegaMek ppc/clan/CLERPPC.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=0 from Total Warfare row 'ER PPC'. | 2026-10-20 (Claude): slots 3 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'ER PPC' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "issnppc": {
@@ -1375,7 +1375,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -1393,7 +1393,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek ppc/innerSphere/ISSnubNosePPC.java (main branch, fetched 2026-07-14). MegaMek damage field is non-literal (DAMAGE_VARIABLE) - range/ammo-variable, left null PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek ppc/innerSphere/ISSnubNosePPC.java (main branch, fetched 2026-07-14). MegaMek damage field is non-literal (DAMAGE_VARIABLE) - range/ammo-variable, left null PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'Snub-Nose PPC' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "lightppc": {
@@ -1436,7 +1436,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 3,
+      "slots": 4,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -1455,7 +1455,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Stats sourced from MegaMek ppc/innerSphere/ISHeavyPPC.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=3 from Total Warfare row 'Heavy PPC'.",
+      "notes": "Stats sourced from MegaMek ppc/innerSphere/ISHeavyPPC.java (main branch, fetched 2026-07-14). | 2026-10-19: range.min=3 from Total Warfare row 'Heavy PPC'. | 2026-10-20 (Claude): slots 3 -> 4 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'Heavy PPC' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "iskinherppc": {
@@ -1872,7 +1872,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -1891,7 +1891,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'ProtoMech AC/2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'ProtoMech AC/2' (table shows a dash = no minimum)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'ProtoMech AC/2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'ProtoMech AC/2' (table shows a dash = no minimum). | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'ProtoMech AC/2' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "clprotomechac4": {
       "canonical_name": "CLProtoMechAC4",
@@ -1901,7 +1901,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -1920,7 +1920,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'ProtoMech AC/4' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'ProtoMech AC/4' (table shows a dash = no minimum)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'ProtoMech AC/4' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'ProtoMech AC/4' (table shows a dash = no minimum). | 2026-10-20 (Claude): slots 1 -> 3 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'ProtoMech AC/4' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "clprotomechac8": {
       "canonical_name": "CLProtoMechAC8",
@@ -1930,7 +1930,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 4,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -1949,7 +1949,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'ProtoMech AC/8' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'ProtoMech AC/8' (table shows a dash = no minimum)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'ProtoMech AC/8' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'ProtoMech AC/8' (table shows a dash = no minimum). | 2026-10-20 (Claude): slots 1 -> 4 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'ProtoMech AC/8' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "autocannon/2p": {
       "canonical_name": "Autocannon/2p",
@@ -1993,7 +1993,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2012,7 +2012,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISUAC2.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Total Warfare row 'Ultra AC/2'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISUAC2.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Total Warfare row 'Ultra AC/2'. | 2026-10-20 (Claude): slots 1 -> 3 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Ultra AC/2' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 2
     },
     "isultraac5": {
@@ -2026,7 +2026,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 5,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2045,7 +2045,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISUAC5.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=2 from Total Warfare row 'Ultra AC/5'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISUAC5.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=2 from Total Warfare row 'Ultra AC/5'. | 2026-10-20 (Claude): slots 1 -> 5 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Ultra AC/5' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 5
     },
     "isultraac10": {
@@ -2056,7 +2056,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 7,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2075,7 +2075,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISUAC10.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Ultra AC/10'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISUAC10.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Ultra AC/10'. | 2026-10-20 (Claude): slots 1 -> 7 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Ultra AC/10' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 10
     },
     "isultraac20": {
@@ -2086,7 +2086,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 10,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2105,7 +2105,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISUAC20.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Ultra AC/20'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISUAC20.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Ultra AC/20'. | 2026-10-20 (Claude): slots 1 -> 10 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Ultra AC/20' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 20
     },
     "clultraac2": {
@@ -2118,7 +2118,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2137,7 +2137,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=2 from Total Warfare row 'Ultra AC/2'."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=2 from Total Warfare row 'Ultra AC/2'. | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'Ultra AC/2' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "clultraac5": {
       "canonical_name": "CLUltraAC5",
@@ -2147,7 +2147,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2166,7 +2166,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Ultra AC/5'."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Ultra AC/5'. | 2026-10-20 (Claude): slots 1 -> 3 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'Ultra AC/5' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "clultraac10": {
       "canonical_name": "CLUltraAC10",
@@ -2178,7 +2178,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 4,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2197,7 +2197,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Ultra AC/10'."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Ultra AC/10'. | 2026-10-20 (Claude): slots 1 -> 4 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'Ultra AC/10' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "clultraac20": {
       "canonical_name": "CLUltraAC20",
@@ -2209,7 +2209,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 8,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2228,7 +2228,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Ultra AC/20'."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'Ultra AC/20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Ultra AC/20'. | 2026-10-20 (Claude): slots 1 -> 8 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'Ultra AC/20' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "islbxac2": {
       "canonical_name": "ISLBXAC2",
@@ -2238,7 +2238,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 4,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2257,7 +2257,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 2-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=4 from Total Warfare row 'LB 2-X AC'."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 2-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=4 from Total Warfare row 'LB 2-X AC'. | 2026-10-20 (Claude): slots 1 -> 4 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'LB 2-X AC' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "islbxac5": {
       "canonical_name": "ISLBXAC5",
@@ -2267,7 +2267,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 5,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2286,7 +2286,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 5-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Total Warfare row 'LB 5-X AC'."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 5-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Total Warfare row 'LB 5-X AC'. | 2026-10-20 (Claude): slots 1 -> 5 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'LB 5-X AC' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "islbxac10": {
       "canonical_name": "ISLBXAC10",
@@ -2299,7 +2299,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 6,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2318,7 +2318,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 10-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LB 10-X AC'."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 10-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LB 10-X AC'. | 2026-10-20 (Claude): slots 1 -> 6 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'LB 10-X AC' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "islbxac20": {
       "canonical_name": "ISLBXAC20",
@@ -2328,7 +2328,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 11,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2347,7 +2347,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 20-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LB 20-X AC'."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 20-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LB 20-X AC'. | 2026-10-20 (Claude): slots 1 -> 11 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'LB 20-X AC' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "cllbxac2": {
       "canonical_name": "CLLBXAC2",
@@ -2359,7 +2359,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2378,7 +2378,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 2-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=4 from Total Warfare row 'LB 2-X AC'."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 2-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=4 from Total Warfare row 'LB 2-X AC'. | 2026-10-20 (Claude): slots 1 -> 3 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'LB 2-X AC' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "cllbxac5": {
       "canonical_name": "CLLBXAC5",
@@ -2390,7 +2390,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 4,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2409,7 +2409,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 5-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Total Warfare row 'LB 5-X AC'."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 5-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Total Warfare row 'LB 5-X AC'. | 2026-10-20 (Claude): slots 1 -> 4 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'LB 5-X AC' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "cllbxac10": {
       "canonical_name": "CLLBXAC10",
@@ -2419,7 +2419,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 5,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2438,7 +2438,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 10-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LB 10-X AC'."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 10-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LB 10-X AC'. | 2026-10-20 (Claude): slots 1 -> 5 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'LB 10-X AC' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "cllbxac20": {
       "canonical_name": "CLLBXAC20",
@@ -2450,7 +2450,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 9,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2469,7 +2469,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 20-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LB 20-X AC'."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Total Warfare pp. 303-306 weapons table, row 'LB 20-X AC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LB 20-X AC'. | 2026-10-20 (Claude): slots 1 -> 9 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'LB 20-X AC' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "isrotaryac2": {
       "canonical_name": "ISRotaryAC2",
@@ -2480,7 +2480,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2499,7 +2499,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISRAC2.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Rotary AC/2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Rotary AC/2'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISRAC2.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Rotary AC/2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Rotary AC/2'. | 2026-10-20 (Claude): slots 1 -> 3 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Rotary AC/2' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 2
     },
     "isrotaryac5": {
@@ -2511,7 +2511,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 6,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2530,7 +2530,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISRAC5.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Rotary AC/5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Rotary AC/5'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISRAC5.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Rotary AC/5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Rotary AC/5'. | 2026-10-20 (Claude): slots 1 -> 6 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Rotary AC/5' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 5
     },
     "lightautocannon/2": {
@@ -2577,7 +2577,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2596,7 +2596,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISLAC5.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Light AC/5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Light AC/5'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISLAC5.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Light AC/5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Light AC/5'. | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Light AC/5' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 5
     },
     "hypervelocityautocannon/2": {
@@ -2737,7 +2737,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 7,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2755,7 +2755,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/innerSphere/ISSilverBulletGauss.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/innerSphere/ISSilverBulletGauss.java (main branch, fetched 2026-07-14). | 2026-10-20 (Claude): slots 1 -> 7 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Silver Bullet Gauss' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 15
     },
     "clgaussrifle": {
@@ -2796,7 +2796,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 5,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2815,7 +2815,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/innerSphere/ISLGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Light Gauss Rifle' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Total Warfare row 'Light Gauss Rifle'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/innerSphere/ISLGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Light Gauss Rifle' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Total Warfare row 'Light Gauss Rifle'. | 2026-10-20 (Claude): slots 1 -> 5 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Light Gauss Rifle' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "isheavygaussrifle": {
@@ -2826,7 +2826,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 11,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2845,7 +2845,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/innerSphere/ISHGaussRifle.java (main branch, fetched 2026-07-14). MegaMek damage field is non-literal (DAMAGE_VARIABLE) - range/ammo-variable, left null PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=4 from Total Warfare row 'Heavy Gauss Rifle'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/innerSphere/ISHGaussRifle.java (main branch, fetched 2026-07-14). MegaMek damage field is non-literal (DAMAGE_VARIABLE) - range/ammo-variable, left null PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=4 from Total Warfare row 'Heavy Gauss Rifle'. | 2026-10-20 (Claude): slots 1 -> 11 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Heavy Gauss Rifle' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "isimprovedheavygaussrifle": {
@@ -2856,7 +2856,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 11,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2874,7 +2874,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/innerSphere/ISImpHGaussRifle.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/innerSphere/ISImpHGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-20 (Claude): slots 1 -> 11 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Improved Heavy Gauss' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "clhag20": {
@@ -2885,7 +2885,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 6,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2904,7 +2904,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 6 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'HAG 20' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "clhag30": {
       "canonical_name": "CLHAG30",
@@ -2914,7 +2914,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 8,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2933,7 +2933,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 8 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'HAG 30' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "clhag40": {
       "canonical_name": "CLHAG40",
@@ -2943,7 +2943,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 10,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -2962,7 +2962,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 10 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'HAG 40' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "clapgaussrifle": {
       "canonical_name": "CLAPGaussRifle",
@@ -3530,7 +3530,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -3549,7 +3549,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'LRM 10' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'LRM 10' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'LRM 10' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 10
     },
     "lrm15(os)": {
@@ -3579,7 +3579,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -3598,7 +3598,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'LRM 15' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'LRM 15' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 3 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'LRM 15' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 15
     },
     "lrm20(os)": {
@@ -3628,7 +3628,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 5,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -3647,7 +3647,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'LRM 20' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'LRM 20' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 5 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'LRM 20' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 20
     },
     "cllrm5": {
@@ -3690,7 +3690,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 2,
+      "slots": 1,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -3709,7 +3709,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'LRM 10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LRM 10'.",
+      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'LRM 10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LRM 10'. | 2026-10-20 (Claude): slots 2 -> 1 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'LRM 10' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 10
     },
     "cllrm15": {
@@ -3721,7 +3721,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 3,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -3740,7 +3740,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'LRM 15' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LRM 15'.",
+      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'LRM 15' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LRM 15'. | 2026-10-20 (Claude): slots 3 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'LRM 15' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 15
     },
     "cllrm20": {
@@ -3752,7 +3752,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 5,
+      "slots": 4,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -3771,7 +3771,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'LRM 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LRM 20'.",
+      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'LRM 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'LRM 20'. | 2026-10-20 (Claude): slots 5 -> 4 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'LRM 20' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 20
     },
     "cllrm5(os)": {
@@ -3859,7 +3859,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -3878,7 +3878,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLLRM15' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLLRM15' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'LRM 15' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 15
     },
     "cllrm20(os)": {
@@ -3894,7 +3894,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 4,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -3913,7 +3913,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLLRM20' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLLRM20' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 4 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'LRM 20' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 20
     },
     "clstreaklrm5": {
@@ -3956,7 +3956,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -3975,7 +3975,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/streak/CLStreakLRM10.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=10 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Streak LRM 10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Streak LRM 10'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/streak/CLStreakLRM10.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=10 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Streak LRM 10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Streak LRM 10'. | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'Streak LRM 10' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 10
     },
     "clstreaklrm15": {
@@ -3987,7 +3987,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -4006,7 +4006,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/streak/CLStreakLRM15.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=15 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Streak LRM 15' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Streak LRM 15'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/streak/CLStreakLRM15.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=15 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Streak LRM 15' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Streak LRM 15'. | 2026-10-20 (Claude): slots 1 -> 3 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'Streak LRM 15' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 15
     },
     "clstreaklrm20": {
@@ -4018,7 +4018,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 5,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -4037,7 +4037,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/streak/CLStreakLRM20.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=20 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Streak LRM 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Streak LRM 20'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/streak/CLStreakLRM20.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=20 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Streak LRM 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Streak LRM 20'. | 2026-10-20 (Claude): slots 1 -> 5 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'Streak LRM 20' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 20
     },
     "closstreaklrm5": {
@@ -4082,7 +4082,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -4101,7 +4101,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakLRM10' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakLRM10' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'Streak LRM 10' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 10
     },
     "closstreaklrm15": {
@@ -4114,7 +4114,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -4133,7 +4133,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakLRM15' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakLRM15' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 3 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'Streak LRM 15' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 15
     },
     "closstreaklrm20": {
@@ -4146,7 +4146,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 5,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -4165,7 +4165,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakLRM20' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakLRM20' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 5 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'Streak LRM 20' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 20
     },
     "extendedlrm5": {
@@ -4212,7 +4212,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 4,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -4231,7 +4231,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISExtendedLRM10.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=10; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Extended LRM 10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range CORRECTED 7/14/21 -> 12/22/38 per Tactical Operations: AUE weapons table (the 7/14/21 was inherited from the LRM base class, never confirmed). | 2026-10-19: range.min=10 from Tactical Operations: AUE row 'Extended LRM 10'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISExtendedLRM10.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=10; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Extended LRM 10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range CORRECTED 7/14/21 -> 12/22/38 per Tactical Operations: AUE weapons table (the 7/14/21 was inherited from the LRM base class, never confirmed). | 2026-10-19: range.min=10 from Tactical Operations: AUE row 'Extended LRM 10'. | 2026-10-20 (Claude): slots 1 -> 4 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'Extended LRM 10' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 10
     },
     "extendedlrm15": {
@@ -4245,7 +4245,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 6,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -4264,7 +4264,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISExtendedLRM15.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=15; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Extended LRM 15' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range CORRECTED 7/14/21 -> 12/22/38 per Tactical Operations: AUE weapons table (the 7/14/21 was inherited from the LRM base class, never confirmed). | 2026-10-19: range.min=10 from Tactical Operations: AUE row 'Extended LRM 15'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISExtendedLRM15.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=15; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Extended LRM 15' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range CORRECTED 7/14/21 -> 12/22/38 per Tactical Operations: AUE weapons table (the 7/14/21 was inherited from the LRM base class, never confirmed). | 2026-10-19: range.min=10 from Tactical Operations: AUE row 'Extended LRM 15'. | 2026-10-20 (Claude): slots 1 -> 6 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'Extended LRM 15' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 15
     },
     "extendedlrm20": {
@@ -4278,7 +4278,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 8,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -4297,7 +4297,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISExtendedLRM20.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=20; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Extended LRM 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range CORRECTED 7/14/21 -> 12/22/38 per Tactical Operations: AUE weapons table (the 7/14/21 was inherited from the LRM base class, never confirmed). | 2026-10-19: range.min=10 from Tactical Operations: AUE row 'Extended LRM 20'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISExtendedLRM20.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=20; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Extended LRM 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range CORRECTED 7/14/21 -> 12/22/38 per Tactical Operations: AUE weapons table (the 7/14/21 was inherited from the LRM base class, never confirmed). | 2026-10-19: range.min=10 from Tactical Operations: AUE row 'Extended LRM 20'. | 2026-10-20 (Claude): slots 1 -> 8 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'Extended LRM 20' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 20
     },
     "enhancedlrm5": {
@@ -4308,7 +4308,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -4327,7 +4327,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISEnhancedLRM5.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=5 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Enhanced LRM 5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Tactical Operations: AUE row 'Enhanced LRM 5'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISEnhancedLRM5.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=5 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Enhanced LRM 5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Tactical Operations: AUE row 'Enhanced LRM 5'. | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'Enhanced LRM 5' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 5
     },
     "enhancedlrm10": {
@@ -4338,7 +4338,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 4,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -4357,7 +4357,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISEnhancedLRM10.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=10 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Enhanced LRM 10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Tactical Operations: AUE row 'Enhanced LRM 10'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISEnhancedLRM10.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=10 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Enhanced LRM 10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Tactical Operations: AUE row 'Enhanced LRM 10'. | 2026-10-20 (Claude): slots 1 -> 4 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'Enhanced LRM 10' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 10
     },
     "enhancedlrm15": {
@@ -4368,7 +4368,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 6,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -4387,7 +4387,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISEnhancedLRM15.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=15 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Enhanced LRM 15' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Tactical Operations: AUE row 'Enhanced LRM 15'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISEnhancedLRM15.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=15 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Enhanced LRM 15' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Tactical Operations: AUE row 'Enhanced LRM 15'. | 2026-10-20 (Claude): slots 1 -> 6 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'Enhanced LRM 15' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 15
     },
     "enhancedlrm20": {
@@ -4398,7 +4398,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 9,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -4417,7 +4417,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISEnhancedLRM20.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=20 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Enhanced LRM 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Tactical Operations: AUE row 'Enhanced LRM 20'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/innerSphere/enhancedLRM/ISEnhancedLRM20.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=20 | 2026-10-19: damage_type filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Enhanced LRM 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Tactical Operations: AUE row 'Enhanced LRM 20'. | 2026-10-20 (Claude): slots 1 -> 9 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'Enhanced LRM 20' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 20
     },
     "srm2": {
@@ -4665,7 +4665,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -4684,7 +4684,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek srms/innerSphere/oneShot/ISSRM6OS.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=6 | 2026-10-19: damage_type, range.min copied from base launcher 'SRM 6' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | Stats sourced from MegaMek srms/innerSphere/oneShot/ISSRM6OS.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=6 | 2026-10-19: damage_type, range.min copied from base launcher 'SRM 6' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.250, IS row 'SRM 6' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 6
     },
     "clsrm2": {
@@ -4770,7 +4770,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 2,
+      "slots": 1,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -4789,7 +4789,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'SRM 6' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'SRM 6'.",
+      "notes": "2026-10-19: damage_per_shot, heat, range, rack_size filled from Total Warfare pp. 303-306 weapons table, row 'SRM 6' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'SRM 6'. | 2026-10-20 (Claude): slots 2 -> 1 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'SRM 6' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 6
     },
     "clsrm2(os)": {
@@ -5110,7 +5110,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -5129,7 +5129,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek srms/innerSphere/streak/oneShot/ISStreakSRM6OS.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=6 | 2026-10-19: damage_type, range.min copied from base launcher 'ISStreakSRM6' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | Stats sourced from MegaMek srms/innerSphere/streak/oneShot/ISStreakSRM6OS.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=6 | 2026-10-19: damage_type, range.min copied from base launcher 'ISStreakSRM6' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.250, IS row 'Streak SRM 6' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 6
     },
     "clstreaksrm2": {
@@ -5311,7 +5311,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -5330,7 +5330,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakSRM6' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakSRM6' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'Streak SRM 6' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 6
     },
     "clsrt1": {
@@ -5536,7 +5536,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -5555,7 +5555,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/rocketLauncher/RocketLauncher15.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'Rocket Launcher 15' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Rocket Launcher 15'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/rocketLauncher/RocketLauncher15.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'Rocket Launcher 15' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Rocket Launcher 15'. | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.250, IS row 'Rocket Launcher 15' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 15
     },
     "rl20": {
@@ -5572,7 +5572,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -5591,7 +5591,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/rocketLauncher/RocketLauncher20.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'Rocket Launcher 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Rocket Launcher 20'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/rocketLauncher/RocketLauncher20.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'Rocket Launcher 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'Rocket Launcher 20'. | 2026-10-20 (Claude): slots 1 -> 3 from the Core Rulebook Weapons and Equipment Tables, p.250, IS row 'Rocket Launcher 20' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 20
     },
     "clatm3": {
@@ -5602,7 +5602,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -5621,7 +5621,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed",
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'ATM 3' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 3
     },
     "clatm6": {
@@ -5632,7 +5632,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -5651,7 +5651,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed",
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 3 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'ATM 6' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 6
     },
     "clatm9": {
@@ -5662,7 +5662,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 4,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -5681,7 +5681,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed",
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 4 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'ATM 9' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 9
     },
     "clatm12": {
@@ -5692,7 +5692,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 5,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -5711,7 +5711,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed",
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 5 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'ATM 12' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 12
     },
     "cliatm3": {
@@ -5770,7 +5770,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 4,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -5784,7 +5784,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 4: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot)"
     },
     "cliatm12": {
       "canonical_name": "CLiATM12",
@@ -5794,7 +5794,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 5,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -5808,7 +5808,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 5: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot)"
     },
     "fusillade": {
       "canonical_name": "Fusillade",
@@ -5849,7 +5849,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -5868,7 +5868,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mrm/ISMRM10.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'MRM 10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'MRM 10'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mrm/ISMRM10.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'MRM 10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'MRM 10'. | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'MRM 10' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 10
     },
     "mrm20": {
@@ -5881,7 +5881,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -5900,7 +5900,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mrm/ISMRM20.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'MRM 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'MRM 20'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mrm/ISMRM20.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'MRM 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'MRM 20'. | 2026-10-20 (Claude): slots 1 -> 3 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'MRM 20' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 20
     },
     "mrm30": {
@@ -5913,7 +5913,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 5,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -5932,7 +5932,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mrm/ISMRM30.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'MRM 30' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'MRM 30'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mrm/ISMRM30.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'MRM 30' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'MRM 30'. | 2026-10-20 (Claude): slots 1 -> 5 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'MRM 30' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 30
     },
     "mrm40": {
@@ -5945,7 +5945,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 7,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -5964,7 +5964,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mrm/ISMRM40.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'MRM 40' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'MRM 40'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mrm/ISMRM40.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot filled from Total Warfare pp. 303-306 weapons table, row 'MRM 40' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'MRM 40'. | 2026-10-20 (Claude): slots 1 -> 7 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'MRM 40' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 40
     },
     "mrm10(os)": {
@@ -5982,7 +5982,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -6001,7 +6001,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'MRM 10' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'MRM 10' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'MRM 10' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 10
     },
     "mrm20(os)": {
@@ -6019,7 +6019,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -6038,7 +6038,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'MRM 20' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'MRM 20' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 3 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'MRM 20' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 20
     },
     "mrm30(os)": {
@@ -6056,7 +6056,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 5,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -6075,7 +6075,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'MRM 30' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'MRM 30' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 5 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'MRM 30' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 30
     },
     "mrm40(os)": {
@@ -6093,7 +6093,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 7,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -6112,7 +6112,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'MRM 40' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'MRM 40' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 7 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'MRM 40' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 40
     },
     "isnarcbeacon": {
@@ -6477,7 +6477,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 5,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -6495,7 +6495,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek c3/ISC3M.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek c3/ISC3M.java (main branch, fetched 2026-07-14). | 2026-10-20 (Claude): slots 1 -> 5: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot)",
       "rack_size": null
     },
     "isc3masterboostedsystemunit": {
@@ -6509,7 +6509,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 6,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -6527,7 +6527,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek c3/ISC3MBS.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek c3/ISC3MBS.java (main branch, fetched 2026-07-14). | 2026-10-20 (Claude): slots 1 -> 6: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot)",
       "rack_size": null
     },
     "cllighttag": {
@@ -6600,7 +6600,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -6614,7 +6614,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mml/ISMML3.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mml/ISMML3.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'MML 3' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 3
     },
     "ismml5": {
@@ -6625,7 +6625,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -6639,7 +6639,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mml/ISMML5.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mml/ISMML5.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-20 (Claude): slots 1 -> 3 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'MML 5' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 5
     },
     "ismml7": {
@@ -6650,7 +6650,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 4,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -6664,7 +6664,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mml/ISMML7.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mml/ISMML7.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-20 (Claude): slots 1 -> 4 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'MML 7' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 7
     },
     "ismml9": {
@@ -6675,7 +6675,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 5,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -6689,7 +6689,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mml/ISMML9.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/mml/ISMML9.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-20 (Claude): slots 1 -> 5 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'MML 9' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 9
     },
     "islongtom": {
@@ -6773,7 +6773,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 10,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -6791,7 +6791,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek artillery/Sniper.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek artillery/Sniper.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-20 (Claude): slots 1 -> 10: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot)",
       "rack_size": 20
     },
     "arrowiv": {
@@ -6939,7 +6939,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 4,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -6958,7 +6958,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Rotary AC/2 (Clan)' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Rotary AC/2 (Clan)' (table shows a dash = no minimum)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Rotary AC/2 (Clan)' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Rotary AC/2 (Clan)' (table shows a dash = no minimum). | 2026-10-20 (Claude): slots 1 -> 4 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'Rotary AC/2' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "clrotaryac5": {
       "canonical_name": "CLRotaryAC5",
@@ -6969,7 +6969,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 8,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -6988,7 +6988,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Rotary AC/5 (Clan)' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Rotary AC/5 (Clan)' (table shows a dash = no minimum)."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Rotary AC/5 (Clan)' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Rotary AC/5 (Clan)' (table shows a dash = no minimum). | 2026-10-20 (Claude): slots 1 -> 8 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'Rotary AC/5' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "israilgun": {
       "canonical_name": "ISRailGun",
@@ -7022,7 +7022,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -7041,7 +7041,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISFluidGun.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Fluid Gun'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISFluidGun.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=0 from Tactical Operations: AUE row 'Fluid Gun'. | 2026-10-20 (Claude): slots 1 -> 2: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot)",
       "rack_size": 1
     },
     "clanfluidgun": {
@@ -7110,7 +7110,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": true,
       "explosion_damage": null,
@@ -7129,7 +7129,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 2: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot)"
     },
     "ismpod": {
       "canonical_name": "ISMPod",
@@ -7231,7 +7231,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -7250,7 +7250,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/ISThunderbolt10.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Thunderbolt\u201310' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=5 from Tactical Operations: AUE row 'Thunderbolt\u201310'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/ISThunderbolt10.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Thunderbolt\u201310' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=5 from Tactical Operations: AUE row 'Thunderbolt\u201310'. | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.250, IS row 'Thunderbolt 10' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "thunderbolt15": {
@@ -7264,7 +7264,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -7283,7 +7283,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/ISThunderbolt15.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Thunderbolt\u201315' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=5 from Tactical Operations: AUE row 'Thunderbolt\u201315'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/ISThunderbolt15.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Thunderbolt\u201315' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=5 from Tactical Operations: AUE row 'Thunderbolt\u201315'. | 2026-10-20 (Claude): slots 1 -> 3 from the Core Rulebook Weapons and Equipment Tables, p.250, IS row 'Thunderbolt 15' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "thunderbolt20": {
@@ -7297,7 +7297,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 5,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -7316,7 +7316,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/ISThunderbolt20.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Thunderbolt\u201320' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=5 from Tactical Operations: AUE row 'Thunderbolt\u201320'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/ISThunderbolt20.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Tactical Operations: Advanced Units & Equipment pp. 216-230 weapons table, row 'Thunderbolt\u201320' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=5 from Tactical Operations: AUE row 'Thunderbolt\u201320'. | 2026-10-20 (Claude): slots 1 -> 5 from the Core Rulebook Weapons and Equipment Tables, p.250, IS row 'Thunderbolt 20' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "thunderbolt5(os)": {
@@ -7372,7 +7372,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -7391,7 +7391,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/oneShot/ISThunderbolt10OS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range copied from base launcher 'Thunderbolt 10' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/oneShot/ISThunderbolt10OS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range copied from base launcher 'Thunderbolt 10' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.250, IS row 'Thunderbolt 10' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "thunderbolt15(os)": {
@@ -7411,7 +7411,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -7430,7 +7430,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/oneShot/ISThunderbolt15OS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range copied from base launcher 'Thunderbolt 15' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/oneShot/ISThunderbolt15OS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range copied from base launcher 'Thunderbolt 15' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 3 from the Core Rulebook Weapons and Equipment Tables, p.250, IS row 'Thunderbolt 15' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "thunderbolt20(os)": {
@@ -7450,7 +7450,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 5,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -7469,7 +7469,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/oneShot/ISThunderbolt20OS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range copied from base launcher 'Thunderbolt 20' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | Stats sourced from MegaMek missiles/innerSphere/thunderbolt/oneShot/ISThunderbolt20OS.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, damage_per_shot, heat, range copied from base launcher 'Thunderbolt 20' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 5 from the Core Rulebook Weapons and Equipment Tables, p.250, IS row 'Thunderbolt 20' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "nail/rivetgun": {
@@ -7939,7 +7939,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 6,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -7958,7 +7958,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/clan/CLImprovedGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Gauss Rifle' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=2 from Interstellar Operations row 'Improved Gauss Rifle'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/clan/CLImprovedGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Gauss Rifle' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=2 from Interstellar Operations row 'Improved Gauss Rifle'. | 2026-10-20 (Claude): slots 1 -> 6: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot)",
       "rack_size": null
     },
     "improvedlargelaser": {
@@ -8108,7 +8108,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -8127,7 +8127,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Plasma Rifle' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
     },
     "clplasmacannon": {
       "canonical_name": "CLPlasmaCannon",
@@ -8383,7 +8383,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -8402,7 +8402,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek mortars/clan/CLMekMortar8.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=6 from Tactical Operations: AUE row '\u2019Mech Mortar/8 (Clan)'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek mortars/clan/CLMekMortar8.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=6 from Tactical Operations: AUE row '\u2019Mech Mortar/8 (Clan)'. | 2026-10-20 (Claude): slots 1 -> 3: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot)",
       "rack_size": 8
     },
     "cladvancedsrm2": {
@@ -8584,7 +8584,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -8602,7 +8602,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek ppc/clan/CLEnhancedPPC.java (main branch, fetched 2026-07-14).",
+      "notes": "Not confirmed | Stats sourced from MegaMek ppc/clan/CLEnhancedPPC.java (main branch, fetched 2026-07-14). | 2026-10-20 (Claude): slots 1 -> 3: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot)",
       "rack_size": null
     },
     "cliosstreaklrm5": {
@@ -8647,7 +8647,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -8666,7 +8666,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakLRM10' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakLRM10' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'Streak LRM 10' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 10
     },
     "cliosstreaklrm15": {
@@ -8679,7 +8679,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -8698,7 +8698,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakLRM15' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakLRM15' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 3 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'Streak LRM 15' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 15
     },
     "cliosstreaklrm20": {
@@ -8711,7 +8711,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 5,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -8730,7 +8730,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakLRM20' (Daniel: OS weapons have the same range and damage stats as their primary).",
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range, rack_size copied from base launcher 'CLStreakLRM20' (Daniel: OS weapons have the same range and damage stats as their primary). | 2026-10-20 (Claude): slots 1 -> 5 from the Core Rulebook Weapons and Equipment Tables, p.252, Clan row 'Streak LRM 20' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": 20
     },
     "smallre-engineeredlaser": {
@@ -8773,7 +8773,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -8792,7 +8792,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/medium/ISReengineeredLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Medium Re-Engineered Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Medium Re-Engineered Laser'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/medium/ISReengineeredLaserMedium.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Medium Re-Engineered Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Medium Re-Engineered Laser'. | 2026-10-20 (Claude): slots 1 -> 2 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'Medium Re-engineered Laser' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "largere-engineeredlaser": {
@@ -8804,7 +8804,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 5,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -8823,7 +8823,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/large/ISReengineeredLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Large Re-Engineered Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Large Re-Engineered Laser'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/innerSphere/large/ISReengineeredLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Large Re-Engineered Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Large Re-Engineered Laser'. | 2026-10-20 (Claude): slots 1 -> 5 from the Core Rulebook Weapons and Equipment Tables, p.249, IS row 'Large Re-engineered Laser' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
       "rack_size": null
     },
     "tsempcannon": {
@@ -8908,7 +8908,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -8922,7 +8922,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 2: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot)"
     },
     "isrischyperlaser": {
       "canonical_name": "ISRISCHyperLaser",
@@ -8931,7 +8931,7 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -8950,7 +8950,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Interstellar Operations pp. 217-226 alternate-era table, row 'RISC Hyper Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'RISC Hyper Laser'."
+      "notes": "Not confirmed | 2026-10-19: damage_type, damage_per_shot, heat, range filled from Interstellar Operations pp. 217-226 alternate-era table, row 'RISC Hyper Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'RISC Hyper Laser'. | 2026-10-20 (Claude): slots 1 -> 3: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot)"
     },
     "isvehicleflamerammo": {
       "canonical_name": "IS Vehicle Flamer Ammo",
@@ -25907,6 +25907,90 @@
       "special_rules_ref": null,
       "verified": false,
       "notes": "Not confirmed"
+    },
+    "ismachinegunammo-full": {
+      "canonical_name": "IS Machine Gun Ammo - Full",
+      "aliases": [
+        "IS Machine Gun Ammo - Full",
+        "IS Ammo MG - Full",
+        "ISMG Ammo (200)",
+        "IS Machine Gun Ammo"
+      ],
+      "category": "ammo",
+      "tech_base": "IS",
+      "slots": 1,
+      "crit_eligible": true,
+      "explosive": true,
+      "explosion_damage": null,
+      "damage_type": null,
+      "shots_per_ton": null,
+      "damage_per_shot": null,
+      "heat": null,
+      "range": null,
+      "battle_value": null,
+      "tonnage": null,
+      "special_rules": false,
+      "special_rules_ref": null,
+      "verified": false,
+      "notes": "Added 2026-10-20 (Claude): IS machine gun ammo had no row, so 'IS Ammo MG - Full' / 'IS Machine Gun Ammo - Half' bins (174 units in data/meks.zip) weren't ammo and IS machine guns never fired. Mirrors the Clan row."
+    },
+    "ismachinegunammo-half": {
+      "canonical_name": "IS Machine Gun Ammo - Half",
+      "aliases": [
+        "IS Machine Gun Ammo - Half",
+        "IS Ammo MG - Half",
+        "ISMG Ammo (100)",
+        "IS Machine Gun Ammo (1/2 ton)"
+      ],
+      "category": "ammo",
+      "tech_base": "IS",
+      "slots": 1,
+      "crit_eligible": true,
+      "explosive": true,
+      "explosion_damage": null,
+      "damage_type": null,
+      "shots_per_ton": null,
+      "damage_per_shot": null,
+      "heat": null,
+      "range": null,
+      "battle_value": null,
+      "tonnage": null,
+      "special_rules": false,
+      "special_rules_ref": null,
+      "verified": false,
+      "notes": "Added 2026-10-20 (Claude): IS machine gun ammo had no row, so 'IS Ammo MG - Full' / 'IS Machine Gun Ammo - Half' bins (174 units in data/meks.zip) weren't ammo and IS machine guns never fired. Mirrors the Clan row."
+    },
+    "ismachinegun": {
+      "canonical_name": "ISMachine Gun",
+      "aliases": [
+        "ISMachine Gun",
+        "Machine Gun",
+        "IS Machine Gun",
+        "ISMG"
+      ],
+      "category": "weapon",
+      "tech_base": "IS",
+      "slots": 1,
+      "crit_eligible": true,
+      "explosive": false,
+      "explosion_damage": null,
+      "damage_type": "Ballistic",
+      "shots_per_ton": 200,
+      "damage_per_shot": 2,
+      "heat": 0,
+      "range": {
+        "min": 0,
+        "short": 1,
+        "medium": 2,
+        "long": 3
+      },
+      "battle_value": 5,
+      "tonnage": 0.5,
+      "special_rules": false,
+      "special_rules_ref": null,
+      "verified": false,
+      "notes": "Added 2026-10-20 (Claude) from the Core Rulebook IS weapons table, p.248 row 'Machine Gun' (heat 0, damage 2, 1 / 2 / 3, 0.5 t, 1 slot, 200 shots). The IS machine gun had no row, so its crit lines were inert padding and it never fired.",
+      "rack_size": null
     }
   },
   "alias_map": {
@@ -33742,6 +33826,17 @@
     "isimpact-resistant": "isimpact-resistant",
     "isheat-dissipating": "isheat-dissipating",
     "clanheat-dissipating": "isheat-dissipating",
-    "isanti-penetrativeablation": "isanti-penetrativeablation"
+    "isanti-penetrativeablation": "isanti-penetrativeablation",
+    "ismachinegunammo-full": "ismachinegunammo-full",
+    "isammomg-full": "ismachinegunammo-full",
+    "ismgammo(200)": "ismachinegunammo-full",
+    "ismachinegunammo": "ismachinegunammo-full",
+    "ismachinegunammo-half": "ismachinegunammo-half",
+    "isammomg-half": "ismachinegunammo-half",
+    "ismgammo(100)": "ismachinegunammo-half",
+    "ismachinegunammo(1/2ton)": "ismachinegunammo-half",
+    "ismachinegun": "ismachinegun",
+    "machinegun": "ismachinegun",
+    "ismg": "ismachinegun"
   }
 }
