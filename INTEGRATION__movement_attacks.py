@@ -191,7 +191,11 @@ class MoverIndex:
         self.walk = compute_walk_mp(mover)
         self.budget = compute_running_mp(mover) if standup_mp is None else standup_mp
         self.ground: Dict[tuple, List[tuple]] = {}
-        for x, y, facing, fc, mode, mp in ranged_combat.movement_options(mover, terrain_map, standup_mp=standup_mp):
+        # Forward-only states: a charge ends with a forward move into the target's hex, and the
+        # hex count would restart after a backward step (backward charges not offered - see
+        # INTEGRATION__RULES_REVIEW.md).
+        for x, y, facing, fc, mode, mp in ranged_combat.movement_options(mover, terrain_map, standup_mp=standup_mp,
+                                                                         backward=False):
             if mode != "Jump":
                 self.ground.setdefault((x, y, facing), []).append((fc, mp))
         self.jump_mp = compute_jump_mp(mover) if standup_mp is None and not mover.prone else 0

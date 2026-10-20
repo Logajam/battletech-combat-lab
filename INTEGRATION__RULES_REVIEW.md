@@ -35,6 +35,7 @@ the Game (sequence, initiative) - a quick pass.
 | F3 | Partial cover never comes from the attacker's own hex | p.57 | At range 1 the code looked at the attacker's hex as the "hex next to the target". LATENT. |
 | F4 | A leg hit on a target in partial cover strikes the cover - no damage | pp.66, 73 | Only aimed shots handled cover (by re-rolling). Ordinary hits and missile groups now lose a leg hit to the cover; the floating-critical re-roll re-rolls legs (p.95). LATENT. |
 | F5 | A head hit always costs the MechWarrior 1 hit | p.117 | When a hit-location 2 (floating critical, p.95) re-rolled onto the Head, the pilot hit was skipped. |
+| F6 | Backward walking (was G1) | pp.45-46, 63 | Built 2026-10-20: a walking mech may step into the hex directly behind it (facing kept); a turn with a backward step never spends more than Walking MP; the hex count for TMM restarts when the mech reverses direction. The battle log marks moves that use it ("includes a backward move"). Not yet offered: backward level changes and backward charges (G11, G12). |
 
 ---
 
@@ -42,7 +43,7 @@ the Game (sequence, initiative) - a quick pass.
 
 | # | Rule | Page | Notes |
 |---|---|---|---|
-| G1 | Backward walking | p.46 | A walking mech may move backward (into the hex behind it). The movement table only moves forward, so a mech can't back away while keeping its front armor toward the enemy. Moderate build (`pathfinder/pathfinder.py` gets a backward step; Walk only). Hexes moved backward count for TMM (from the last reversal, p.63). Probably matters for the "hanging back" behavior too. |
+| G1 | ~~Backward walking~~ | p.46 | Built 2026-10-20 - see F6. |
 | G2 | Ground movement: at most 2 levels up or down per hex; 1 with a destroyed hip or leg | pp.46-47, 90, 99 | The table lets a mech climb or drop any height for 1 MP per level. Already on the PATHFINDER backlog ("elevation cap ... unenforced"). LATENT. |
 | G3 | Jump landing height: no higher than start level + Jumping MP | p.50 | Only the hexes *passed over* are checked (`combat.build_jump_states`). LATENT. |
 | G4 | No moving through the enemy's hex | p.48 | Only ending in its hex is excluded; a path can pass through it. Small effect on open boards (a 1-MP detour). |
@@ -52,6 +53,8 @@ the Game (sequence, initiative) - a quick pass.
 | G8 | Minimum Movement (1 hex ahead with too few MP) | p.49 | Not offered. Rare (very damaged or heat-slowed mechs). |
 | G9 | Expected damage ignores leg hits lost to partial cover | p.66 | Movement scoring and weapon choice still count them. LATENT. |
 | G10 | Weapons with special Core rules: Ultra / Rotary rate of fire and jams, LB-X cluster ammo | pp.183-186 | Already known (summary banner). Big for mechs that carry them. |
+| G11 | Backward level change: one level up or down, a PSR each time (fall in the lower of the two hexes); not with a destroyed hip | pp.46-47, 115 | Backward steps are only offered into same-level hexes: the movement scoring can't price a PSR in the middle of a move yet. LATENT (flat board). |
+| G12 | Charging after a backward step | p.78 | The charge planner uses forward-only paths (the hex count restarts after a backward step and the planner adds the final forward step). Small. |
 
 ---
 
