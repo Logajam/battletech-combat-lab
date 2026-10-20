@@ -358,8 +358,9 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     if attacker.shutdown:
         config.log(f"  [Ranged] {a_name}: shut down - no attacks.")
         return
-    if getattr(attacker, "charging", None) is not None:
-        config.log(f"  [Ranged] {a_name}: charging {t_name} - no ranged attacks this turn (p.78).")
+    if getattr(attacker, "charging", None) is not None or getattr(attacker, "dfa", None) is not None:
+        what = "charging" if getattr(attacker, "charging", None) is not None else "in a death from above on"
+        config.log(f"  [Ranged] {a_name}: {what} {t_name} - no ranged attacks this turn (pp.78-79).")
         return
     a_hex = hex_geometry.parse_hex_label(attacker.hex)
     t_hex = hex_geometry.parse_hex_label(target.hex)

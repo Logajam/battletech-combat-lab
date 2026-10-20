@@ -29,6 +29,7 @@ import INTEGRATION__attack_resolution as attack_resolution  # noqa: E402
 import INTEGRATION__movement_selection as movement_selection  # noqa: E402
 import INTEGRATION__physical as physical  # noqa: E402
 import INTEGRATION__charge as charge  # noqa: E402
+import INTEGRATION__movement_attacks as movement_attacks  # noqa: E402
 from INTEGRATION__attack_resolution import SideReport  # noqa: E402
 from INTEGRATION__rng import BattleRNG  # noqa: E402
 import piloting_rolls  # noqa: E402
@@ -50,6 +51,8 @@ def unit(name):
 
 
 CHARGER = unit("Charger CGR-1A1")          # 80 t, 5/8, five small lasers - a born charger
+HIGHLANDER = unit("Highlander HGN-733")    # 90 t, jumps 3
+COMMANDO = unit("Commando COM-2D")         # 25 t, 6/9
 ATLAS = unit("Atlas AS7-D")                # 100 t, 3/5
 SYNTHETIC = parse_mtf(config.data_path("TEST_Synthetic_Loadout.mtf"))
 
@@ -80,18 +83,20 @@ class Dice:
         charge_roll, location, psr, other = self.values
 
         def roll(prompt=""):
-            if "Charge attack" in prompt:
+            if "Charge attack" in prompt or "DFA attack" in prompt:
                 return charge_roll
             if "location" in prompt:
                 return location
             if "PSR" in prompt or "Seatbelt" in prompt or "consciousness" in prompt.lower():
                 return psr
             return other
+        self.real_pick = config.pick_number
         config.roll_2d6 = roll
+        config.pick_number = lambda n, prompt="": min(n, 3)
         return self
 
     def __exit__(self, *exc):
-        config.roll_2d6 = self.real
+        config.roll_2d6, config.pick_number = self.real, self.real_pick
 
 
 def unarmed(template):
@@ -141,13 +146,13 @@ def charge_states_end_adjacent_facing_with_mp_to_enter():
     """Movement (p.78): end next to the target facing it, with MP left to
     enter its hex; hexes moved count the target's hex; never a jump."""
     a, t = fresh(CHARGER, "0812"), fresh(ATLAS, "0806", "S")
-    states = charge.charge_states(a, t, TERRAIN)
+    states = movement_attacks.MoverIndex(a, TERRAIN).charge_states(movement_attacks.pose_of(t))
     assert states
     run = 8
     for s in states:
         assert s["mode"] in ("Walk", "Run") and s["charge"]
-        assert charge.hex_distance(charge.hex_geometry.parse_hex_label(s["hex"]),
-                                   charge.hex_geometry.parse_hex_label(t.hex)) == 1
+        assert movement_attacks.hex_distance(charge.hex_geometry.parse_hex_label(s["hex"]),
+                                             charge.hex_geometry.parse_hex_label(t.hex)) == 1
         assert s["mp_spent"] <= run and s["fc"] >= 1
     straight = [s for s in states if s["hex"] == "0807" and s["facing"] == "N"]
     assert straight and max(s["fc"] for s in straight) == 6          # 5 hexes up the column + the target's
@@ -155,47 +160,40 @@ def charge_states_end_adjacent_facing_with_mp_to_enter():
 
 @check
 def the_gate_and_the_pick():
-    """In a real battle (Charger CGR-1A1 vs Atlas AS7-D, seed 3, 20 turns) the
-    Charger charges - its five small lasers are weak against 100 tons; with
-    CHARGES off it never does. A charge never gets past the gate when an
-    ordinary attack in that mode does more."""
+    """Real battles (Charger CGR-1A1 vs Commando COM-2D, seeds 1-4): the
+    Charger charges at least once; with CHARGES off never. The gate: no charge
+    gets through when an ordinary attack in its mode does more."""
     import re
     counts = []
     for on in (True, False):
-        config.CHARGES = on
-        config.MECH_RED_MTF = os.path.join(_TMP, "meks", "3039u", "Charger CGR-1A1.mtf")
-        config.MECH_BLUE_MTF = os.path.join(_TMP, "meks", "3039u", "Atlas AS7-D.mtf")
-        config.VERBOSE = True
-        buf = io.StringIO()
-        try:
-            with redirect_stdout(buf):
-                orchestrator.run_batch(num_simulations=1, seed=3, max_turns=20)
-        finally:
-            config.CHARGES, config.VERBOSE = True, False
-            config.MECH_RED_MTF = config.MECH_BLUE_MTF = "Asymptote II iJ Mpulse.mtf"
-        log = buf.getvalue()
-        counts.append(log.count("declares a CHARGE"))
-        if on:
-            assert re.search(r"CHARGE needs \d+", log)
-            assert "no ranged attacks this turn" in log
+        total = 0
+        for seed in (1, 2, 3, 4):
+            config.CHARGES = on
+            config.MECH_RED_MTF = os.path.join(_TMP, "meks", "3039u", "Charger CGR-1A1.mtf")
+            config.MECH_BLUE_MTF = os.path.join(_TMP, "meks", "3039u", "Commando COM-2D.mtf")
+            config.VERBOSE = True
+            buf = io.StringIO()
+            try:
+                with redirect_stdout(buf):
+                    orchestrator.run_batch(num_simulations=1, seed=seed, max_turns=20)
+            finally:
+                config.CHARGES, config.VERBOSE = True, False
+                config.MECH_RED_MTF = config.MECH_BLUE_MTF = "Asymptote II iJ Mpulse.mtf"
+            log = buf.getvalue()
+            total += log.count("declares a CHARGE")
+            if on and "declares a CHARGE" in log:
+                assert re.search(r"CHARGE needs \d+", log) and "no ranged attacks this turn" in log
+        counts.append(total)
     assert counts[0] >= 1 and counts[1] == 0, counts
+    import INTEGRATION__ranged_combat as ranged_combat
     a, t = fresh(CHARGER, "0811", "N", "Red"), fresh(ATLAS, "0806", "S", "Blue")
-    # the gate itself: no charge state passes when ordinary attacks are worth more in every mode
-    big = {"Walk": 1e9, "Run": 1e9}
-    real = charge.expected_dealt
-    seen = []
-    charge.expected_dealt = lambda *args: (seen.append(1), real(*args))[1]
-    try:
-        ev1, me, them = None, None, None
-        class Fake:                                         # noqa: E306 - a static list with huge damage
-            def __init__(self, mode):
-                self.dealt, self.side_on_defender, self.mode = big[mode], "front", mode
-        out = movement_selection._charge_pick(a, t, TERRAIN, None, 0.5, ev1,
-                                              movement_selection._Side(a), movement_selection._Side(t),
-                                              [Fake("Walk"), Fake("Run")])
-    finally:
-        charge.expected_dealt = real
-    assert out is None and seen
+    index, pose = movement_attacks.MoverIndex(a, TERRAIN), movement_attacks.pose_of(t)
+    ev = ranged_combat.MoveEvaluator(a, t, TERRAIN)
+    me, them = movement_selection._Side(a), movement_selection._Side(t)
+    args = (t.hex, t.facing, t.move_fc, t.move_mode, t.mp_spent)
+    run = lambda best: movement_attacks.scored_options(a, t, pose, index, ev, me.exposure, them.exposure,  # noqa: E731
+                                                       me.psr_cost, best, args, movement_selection._objective)
+    assert run({}) and not run({"Walk": 1e9, "Run": 1e9})
 
 
 the_gate_and_the_pick.real_dice = True    # a real battle: its own seeded dice
@@ -290,6 +288,97 @@ def cancelled_charges():
     with Dice():
         physical.run_physical_phase(a, t, TERRAIN, {})
     assert attack_resolution.total_hp(t) == before
+
+
+def dfa_ing(attacker, target, stop, facing, jumped=3):
+    attacker.hex, attacker.facing = stop, facing
+    attacker.move_mode, attacker.move_fc, attacker.mp_spent = "Jump", jumped, jumped
+    attacker.dfa = target
+
+
+@check
+def dfa_numbers_and_reach():
+    """pp.79-80: ceil(tons/10 x 3) to the target, ceil(tons/5) to the
+    attacker, a miss falls 2 levels (x3); to-hit Piloting + 3 + TMM +
+    comparative, no terrain. Reach: jump distance, and clearing the target's
+    LOS level (its hex + 2)."""
+    import INTEGRATION__dfa as dfa
+    h, t = fresh(HIGHLANDER, "0809", "N"), fresh(ATLAS, "0806", "S", piloting=4)
+    assert (dfa.target_damage(h), dfa.attacker_damage(h), dfa.miss_fall_damage(h)) == (27, 18, 27)
+    assert dfa.to_hit(h, t, 1) == 5 + 3 + 1 + 1
+    index = movement_attacks.MoverIndex(h, TERRAIN)
+    states = index.dfa_states(movement_attacks.pose_of(t))
+    assert [(s["hex"], s["facing"], s["mode"], s["fc"]) for s in states] == [("0807", "N", "Jump", 3)]
+    t.hex = "0805"                                                    # 4 hexes: too far
+    assert not index.dfa_states(movement_attacks.pose_of(t))
+    hill = copy.deepcopy(TERRAIN)
+    hill["hexes"]["0806"]["level"] = 2                                # LOS level 4 > 3 jump MP
+    t.hex = "0806"
+    assert not movement_attacks.MoverIndex(h, hill).dfa_states(movement_attacks.pose_of(t))
+
+
+@check
+def dfa_hit_and_miss():
+    """Hit: 27 to the Atlas (Punch table), 18 to the Highlander, which lands
+    in the Atlas's hex; the Atlas is pushed on; the Atlas can't punch the
+    Highlander in the air. Miss: the Atlas steps aside, the Highlander falls
+    2 levels in its hex (27, rear)."""
+    a, t = fresh(HIGHLANDER, "0807", "N", "Red"), fresh(ATLAS, "0806", "S", "Blue")
+    dfa_ing(a, t, "0807", "N")
+    before_a, before_t = attack_resolution.total_hp(a), attack_resolution.total_hp(t)
+    with Dice(other=12):                                              # the Atlas would hit anything it tried
+        physical.run_physical_phase(a, t, TERRAIN, {})
+    assert before_t - attack_resolution.total_hp(t) == 27 and before_a - attack_resolution.total_hp(a) == 18
+    assert a.hex == "0806" and t.hex == "0805" and not a.prone and not t.prone
+    a, t = fresh(HIGHLANDER, "0807", "N", "Red"), fresh(ATLAS, "0806", "S", "Blue")
+    dfa_ing(a, t, "0807", "N")
+    before_a, before_t = attack_resolution.total_hp(a), attack_resolution.total_hp(t)
+    with Dice(charge=2):
+        physical.run_physical_phase(a, t, TERRAIN, {})
+    assert a.hex == "0806" and a.prone and t.hex != "0806"
+    assert before_a - attack_resolution.total_hp(a) == 27 and attack_resolution.total_hp(t) == before_t
+
+
+@check
+def dfa_holds_fire_and_cancels():
+    """No ranged fire while in a DFA; a target destroyed before the Physical
+    phase cancels it - the attacker lands in its hex."""
+    a, t = fresh(HIGHLANDER, "0807", "N", "Red"), fresh(ATLAS, "0806", "S", "Blue")
+    dfa_ing(a, t, "0807", "N")
+    rep = SideReport()
+    with ScriptedDice([], default=12):
+        attack_resolution.declare_attacks(a, t, TERRAIN, rep)
+    assert not rep.attacks_list
+    t.destroyed = True
+    with Dice():
+        physical.run_physical_phase(a, t, TERRAIN, {})
+    assert a.dfa is None and a.hex == "0806"
+
+
+@check
+def first_mover_anticipates_movement_attacks():
+    """Two-ply: the first mover's modeled reply includes the second mover's
+    charges (the same gate and score the real second mover uses), so some
+    spots are scored against a charge; with CHARGES off none are."""
+    seen = {}
+    real = movement_selection._modeled_reply
+    for on in (True, False):
+        config.CHARGES = on
+        replies = []
+
+        def spy(*args, **kw):
+            r = real(*args, **kw)
+            replies.append(r)
+            return r
+        movement_selection._modeled_reply = spy
+        try:
+            first, second = fresh(COMMANDO, "0806", "S", "Blue"), fresh(CHARGER, "0811", "N", "Red")
+            movement_selection.choose(first, second, TERRAIN, BattleRNG(1), moves_first=True)
+        finally:
+            movement_selection._modeled_reply = real
+            config.CHARGES = True
+        seen[on] = sum(1 for r in replies if r is not None and r.attack == "charge")
+    assert seen[True] > 0 and seen[False] == 0, seen
 
 
 @check

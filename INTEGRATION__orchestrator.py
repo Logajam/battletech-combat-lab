@@ -187,6 +187,7 @@ def _reset_movement_state(mech):
     mech.mp_spent = 0
     mech.movement_heat = 0
     mech.charging = None                 # the mech it declared a charge against (Core p.78)
+    mech.dfa = None                      # ... or a death from above against (pp.79-80)
 
 
 # Heat rules (movement heat, Improved-JJ detection, budget) live in
@@ -282,6 +283,10 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_fi
             mover.charging = other
             config.log(f"  [Movement] {name} declares a CHARGE against {other.side_name} "
                        f"(stops adjacent; {mover.move_fc} hexes counting the target's hex).")
+        if pick.get("dfa"):
+            mover.dfa = other
+            config.log(f"  [Movement] {name} declares DEATH FROM ABOVE on {other.side_name} "
+                       f"(in the air next to it; jumped {mover.move_fc} hexes).")
         config.log(f"  [Movement] {name}: {start} -> {mover.hex} {mover.facing}, {mover.move_mode} "
                    f"({mover.mp_spent} MP, {mover.move_fc} hexes, {mover.movement_heat} heat; budget "
                    f"walk {mp['walk']} / run {mp['run']} / jump {mp['jump']}"

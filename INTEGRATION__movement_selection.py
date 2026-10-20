@@ -129,7 +129,7 @@ import INTEGRATION__ranged_combat as ranged_combat  # noqa: E402
 import INTEGRATION__structure_weight as structure_weight  # noqa: E402
 import INTEGRATION__los_cache as geo_cache  # noqa: E402
 import INTEGRATION__equipment_systems as equipment_systems  # noqa: E402
-import INTEGRATION__charge as charge  # noqa: E402
+import INTEGRATION__movement_attacks as movement_attacks  # noqa: E402
 
 SIDES = ("front", "left", "right", "rear")
 _P_2D6 = {roll: (6 - abs(roll - 7)) / 36 for roll in range(2, 13)}
@@ -365,11 +365,13 @@ def _static_scores(cands, prepared_by_key, me, them):
     return out
 
 
-def _modeled_reply(c, ev2, prepared2, them, me, other, mover_xy_of_c, terrain_map):
+def _modeled_reply(c, ev2, prepared2, them, me, other, mover_xy_of_c, terrain_map, index2=None):
     """The second mover's reply if the first mover ends at prepared state c:
     (MovementCandidate or None, reply's prepared state or None). The reply is
-    picked by the same rule the real second mover uses - the objective, then
-    the closing fallback when nothing deals damage - with no randomness."""
+    picked by the same rule the real second mover uses - the objective, a
+    charge / DFA when one passes the gate and scores better (index2 = the
+    second mover's MoverIndex, None when it can't make one), then the closing
+    fallback when nothing deals damage - with no randomness."""
     cands = ev2.evaluate(c.label, c.facing_compass, c.fc, c.mode, c.mp_spent, prepared2)
     best_score, best = None, None
     any_damage = False
@@ -386,6 +388,14 @@ def _modeled_reply(c, ev2, prepared2, them, me, other, mover_xy_of_c, terrain_ma
             # tie: nearer the first mover's pinned hex wins (first seen otherwise)
             if cand.distance < best.distance:
                 best = cand
+    if index2 is not None:
+        # The first mover has finished moving at c, so the second may charge or DFA it.
+        special = movement_attacks.scored_options(
+            other, ev2.defender, movement_attacks.pose_at(c.label, c.facing_compass, c.fc, c.mode), index2, ev2,
+            them.exposure, me.exposure, them.psr_cost, movement_attacks.best_by_mode(cands, me.exposure),
+            (c.label, c.facing_compass, c.fc, c.mode, c.mp_spent), _objective)
+        if special and (not any_damage or round(special[0][0], 9) > best_score):
+            return special[0][1]
     if any_damage:
         return best
     # Nothing deals damage from here: the second mover would fall back to closing.
@@ -406,46 +416,36 @@ def choose(mover, other, terrain_map, battle_rng, moves_first, standup_mp=None, 
     mover / other: BattleMech instances (see orchestrator._attach_mech_config).
     `other` hasn't moved yet this turn if `moves_first`, else it has (its real
     position). Returns (pick, note): pick is {hex, facing, mode, fc, mp_spent}
-    (plus "charge": True for a charge, INTEGRATION__charge) or None (nothing
-    reachable); note is a one-line log string."""
+    (plus "charge" / "dfa": True for an attack declared in movement,
+    INTEGRATION__movement_attacks) or None (nothing reachable); note is a
+    one-line log string."""
     pick, note, score, ctx = _choose_normal(mover, other, terrain_map, battle_rng, moves_first,
                                             standup_mp=standup_mp, entry_edge=entry_edge)
-    if ctx is not None and config.CHARGES and entry_edge is None \
-            and charge.can_charge(mover, other, target_has_moved=not moves_first):
-        charged = _charge_pick(mover, other, terrain_map, standup_mp, score, *ctx)
-        if charged is not None:
-            return charged
+    if ctx is not None and entry_edge is None and (config.CHARGES or config.DFA) \
+            and movement_attacks.can_be_attacked(other, target_has_moved=not moves_first):
+        special = _movement_attack_pick(mover, other, terrain_map, standup_mp, score, *ctx)
+        if special is not None:
+            return special
     return pick, note
 
 
-def _charge_pick(mover, other, terrain_map, standup_mp, normal_score, ev1, me, them, static):
-    """INTEGRATION__charge's decision: gate each charge on beating the best
-    ordinary attack (ranged + physical) in the same movement mode, then score
-    the survivors like any spot and keep the best if it beats the normal pick."""
-    best_by_mode: Dict[str, float] = {}
-    for c in static:
-        value = c.dealt * them.exposure[c.side_on_defender]
-        best_by_mode[c.mode] = max(best_by_mode.get(c.mode, 0.0), value)
-    best = None
-    for state in charge.charge_states(mover, other, terrain_map, standup_mp=standup_mp):
-        dealt, p_hit, dmg, tn = charge.expected_dealt(mover, other, state, terrain_map)
-        if dealt <= best_by_mode.get(state["mode"], 0.0):
-            continue                      # the gate: no better than an ordinary attack in this mode
-        x, y = hex_geometry.parse_hex_label(state["hex"])
-        prepared = ev1.prepare([(x, y, hex_geometry.compass_to_facing(state["facing"]), state["fc"],
-                                 state["mode"], state["mp_spent"])])
-        cands = ev1.evaluate(other.hex, other.facing, other.move_fc, other.move_mode, other.mp_spent, prepared)
-        received = (cands[0].received * me.exposure[cands[0].side_on_mover]) if cands else 0.0
-        received += charge.self_damage_worth(mover, other, p_hit)
-        extras = me.psr_cost(state["mode"], state["fc"])
-        score = _objective(dealt, received, 1.0, 1.0, extras)
-        if best is None or score > best[0]:
-            best = (score, state, dealt, received, extras, p_hit, dmg, tn)
-    if best is None or (normal_score is not None and best[0] <= normal_score):
+def _movement_attack_pick(mover, other, terrain_map, standup_mp, normal_score, ev1, me, them, static):
+    """The mover's best charge / DFA against the enemy where it stands, if one
+    passes the gate (beats the best ordinary attack in its movement mode) and
+    beats the ordinary pick's score - INTEGRATION__movement_attacks."""
+    index = movement_attacks.MoverIndex(mover, terrain_map, standup_mp=standup_mp)
+    options = movement_attacks.scored_options(
+        mover, other, movement_attacks.pose_of(other), index, ev1, me.exposure, them.exposure, me.psr_cost,
+        movement_attacks.best_by_mode(static, them.exposure),
+        (other.hex, other.facing, other.move_fc, other.move_mode, other.mp_spent), _objective)
+    if not options:
         return None
-    score, state, dealt, received, extras, p_hit, dmg, tn = best
-    return state, (f"CHARGE {other.side_name}: score {score:.3f} = dealt {dealt:.2f} (TN {tn}, P {p_hit:.2f}, "
-                   f"{dmg} dmg) / (received {received:.2f} incl. self-damage + PSR {extras:.2f}) beats "
+    score, cand, state, what = options[0]
+    if normal_score is not None and score <= normal_score:
+        return None
+    return state, (f"{what} on {other.side_name}: score {score:.3f} = dealt {cand.dealt:.2f} "
+                   f"x{them.exposure[cand.side_on_defender]:.2f} / (received {cand.received:.2f} incl. self-damage "
+                   f"x{me.exposure[cand.side_on_mover]:.2f} + PSR {me.psr_cost(state['mode'], state['fc']):.2f}) beats "
                    f"{'nothing' if normal_score is None else f'{normal_score:.3f}'}")
 
 
@@ -507,8 +507,11 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
     ev2 = ranged_combat.MoveEvaluator(other, mover, terrain_map)
     prepared2 = ev2.prepare(_opponent_options(other, terrain_map))
     scored, any_dealt = [], False
+    index2 = None
+    if (config.CHARGES or config.DFA) and not (other.prone or is_immobile(other)):
+        index2 = movement_attacks.MoverIndex(other, terrain_map)    # its charges / DFAs, built once
     for c in prepared1:
-        reply = _modeled_reply(c, ev2, prepared2, them, me, other, c.hex_xy, terrain_map)
+        reply = _modeled_reply(c, ev2, prepared2, them, me, other, c.hex_xy, terrain_map, index2)
         if reply is None:
             dealt = received = 0.0
             dealt_mult = received_mult = 1.0
@@ -525,6 +528,7 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
     if any_dealt:
         o, (dealt, received, dm, rm, extras, reply) = _best_by_score(scored, enemy_xy, battle_rng)
         reply_txt = (f"; modeled reply {other.side_name} -> {reply.hex} {reply.facing} {reply.mode}"
+                     f"{f' ({reply.attack.upper()})' if reply.attack else ''}"
                      if reply is not None else "; modeled reply: none with LOS")
         return (_pick_dict(o), _note(dealt, received, dm, rm, extras,
                                      f"two-ply, {len(prepared1)} spots x {len(prepared2)} replies{reply_txt}"),

@@ -449,6 +449,8 @@ def choose_attack(attacker, target, terrain_map):
     expected damage, weighted by where each table lands (Worth: a kick at
     stripped legs or a punch at a thin head counts for more). Returns
     (base TN, [options], ArcAction) or None."""
+    if is_destroyed(attacker) or is_destroyed(target) or attacker.hex == target.hex:
+        return None
     turret = arcs.current_action(attacker).turret
     actions = tuple(dict.fromkeys(a._replace(turret=turret) for a in arcs.arc_options(attacker, phase="physical")))
     side = attack_resolution.attack_side(hex_geometry.parse_hex_label(attacker.hex),
@@ -494,13 +496,15 @@ def _location(table, side, target):
 def run_physical_phase(mech_a, mech_b, terrain_map, reports):
     """Both mechs declare and roll, then the damage lands, then charges'
     damage and displacement, then PSRs and consciousness checks (p.83)."""
-    import INTEGRATION__charge as charge       # charge imports this module
+    import INTEGRATION__charge as charge       # charge and dfa import this module
+    import INTEGRATION__dfa as dfa
     for m in (mech_a, mech_b):
         rep = reports.get(m.side_name)
         m.weapons_fired_this_turn = frozenset(id(x.weapon) for x in rep.attacks_list) if rep else frozenset()
         piloting_rolls.snapshot_pre_attack_phase(m)
     declared = []
     charges = []
+    dfas = []
     for attacker, target in ((mech_a, mech_b), (mech_b, mech_a)):
         if getattr(attacker, "charging", None) is not None:
             outcome = charge.declare(attacker, target, terrain_map)
@@ -508,6 +512,13 @@ def run_physical_phase(mech_a, mech_b, terrain_map, reports):
                 if outcome != "miss" and outcome[1]:
                     charges.append((attacker, target))
                 continue
+        if getattr(attacker, "dfa", None) is not None:
+            outcome = dfa.declare(attacker, target, terrain_map)
+            if outcome is not None:                      # hit or miss, it lands: no other physical attack
+                dfas.append((attacker, target, outcome[1]))
+                continue
+        if getattr(target, "dfa", None) is not None and not is_destroyed(target):
+            continue                                     # the target is in the air (p.79)
         choice = choose_attack(attacker, target, terrain_map)
         if choice is None:
             continue
@@ -542,6 +553,9 @@ def run_physical_phase(mech_a, mech_b, terrain_map, reports):
             triggers[attacker.side_name].append(("missed a kick", 0))
     for attacker, target in charges:                     # damage, then displacement (p.78, p.113)
         for name, extra in charge.resolve_hit(attacker, target, terrain_map).items():
+            triggers[name].extend(extra)
+    for attacker, target, hit in dfas:                   # damage, landing, displacement (p.80)
+        for name, extra in dfa.resolve(attacker, target, hit, terrain_map).items():
             triggers[name].extend(extra)
     for m in (mech_a, mech_b):
         attack_resolution._with_piloting(m, piloting_rolls.resolve_attack_phase_psr,

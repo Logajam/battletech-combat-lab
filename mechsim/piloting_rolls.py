@@ -189,7 +189,7 @@ def special_case_modifier(mech):
 
 
 # HELP(piloting_skill_rolls.resolve_fall)
-def resolve_fall(mech, seatbelt_modifier, cause="", levels=0):
+def resolve_fall(mech, seatbelt_modifier, cause="", levels=0, side="front"):
     """Shared fall handler - called from resolve_attack_phase_psr (failed
     PSR or automatic gyro/leg-destroyed fall) and resolve_stand_up (failed
     stand attempt, or falling again immediately after a successful stand).
@@ -201,7 +201,9 @@ def resolve_fall(mech, seatbelt_modifier, cause="", levels=0):
     worked example: leg destroyed +5, gyro hit +2, 20+ dmg +1 -> seatbelt TN
     is also 5+5+2+1=13, not a separate/lower baseline).
     levels (2026-10-20, Core p.115): levels fallen - a mech displaced two or
-    more levels down falls automatically; damage is multiplied by levels + 1."""
+    more levels down falls automatically; damage is multiplied by levels + 1.
+    side (2026-10-20): the hit-location column - "rear" for a failed death
+    from above (p.80)."""
     mech.prone = True
     total_damage = fall_damage(mech) * (levels + 1)
     config.log(f"FALL{f' ({cause})' if cause else ''}: {mech.chassis} {mech.model} "
@@ -211,9 +213,10 @@ def resolve_fall(mech, seatbelt_modifier, cause="", levels=0):
     while remaining > 0:
         cluster = min(5, remaining)
         loc_roll = config.roll_2d6(prompt="  Fall damage hit-location roll")
-        loc = resolve_hit_location(loc_roll, mech, "front")
+        loc = resolve_hit_location(loc_roll, mech, side)
         config.log(f"  Fall cluster ({cluster} dmg): rolled {loc_roll} -> {loc}")
-        apply_damage(mech, loc, cluster, armor_field="armor", damage_type=DamageType.PHYSICAL)
+        apply_damage(mech, loc, cluster, armor_field="rear_armor" if side == "rear" else "armor",
+                     damage_type=DamageType.PHYSICAL)
         remaining -= cluster
         if is_destroyed(mech):
             return

@@ -52,19 +52,17 @@ import math
 
 import INTEGRATION__config as config
 import INTEGRATION__attack_resolution as attack_resolution
-import INTEGRATION__physical as physical
-from mech_state import (DamageType, is_destroyed, is_immobile, all_crew_unconscious, compute_walk_mp,
-                        compute_running_mp, mark_consciousness_check_pending)
+import INTEGRATION__movement_attacks as movement_attacks
+from INTEGRATION__movement_attacks import groupings, comparative_modifier, terrain_modifier
+from mech_state import (DamageType, is_destroyed, is_immobile, all_crew_unconscious,
+                        mark_consciousness_check_pending)
 from damage_resolution import apply_damage
 from hit_location import resolve_hit_location
 import piloting_rolls
 import hex_geometry
 import combat
-import terrain_rules
-from los import hex_distance, trace_los_path
 
 CHARGE_PSR_MODIFIER = 2         # p.78: both mechs, after a successful charge
-IMMOBILE_COMPARATIVE_PILOTING = 4
 
 
 # =============================================================================
@@ -78,87 +76,13 @@ def attacker_damage(target):
     return math.ceil(target.mass / 10)
 
 
-def groupings(damage):
-    return [5] * (damage // 5) + ([damage % 5] if damage % 5 else [])
-
-
-def comparative_modifier(attacker, target):
-    return attacker.piloting - (IMMOBILE_COMPARATIVE_PILOTING if is_immobile(target) else target.piloting)
-
-
-def terrain_modifier(a_hex, t_hex, terrain_map):
-    """The LOS terrain modifier without partial cover (p.78: ignored)."""
-    trace = trace_los_path(a_hex, t_hex, terrain_map)
-    cover = trace.steps[-1].partial_cover if trace.steps else 0
-    return trace.result.modifier - cover
-
-
-def to_hit(attacker, mode, target, a_hex, t_hex, terrain_map, target_tmm):
+def to_hit(attacker, mode, target, a_xy, t_xy, terrain_map, target_tmm):
     return (attacker.piloting + combat.MODE_TO_AMM[mode] + target_tmm
-            + terrain_modifier(a_hex, t_hex, terrain_map) + comparative_modifier(attacker, target))
+            + terrain_modifier(a_xy, t_xy, terrain_map) + comparative_modifier(attacker, target))
 
 
-def worth(damage, target, side):
-    """Expected-damage-equivalent worth of `damage` in 5-point groups on the
-    standard table (armor exposure x structure bonus, physical.Worth)."""
-    w = physical.Worth(target)
-    return sum(g * w.factor("standard", side, g) for g in groupings(damage))
-
-
-# =============================================================================
-# ==========================  MOVEMENT PHASE  =================================
-# =============================================================================
 def can_charge(mover, target, target_has_moved):
-    return (target.hex is not None and mover.hex is not None and not target.prone and not is_destroyed(target)
-            and (target_has_moved or is_immobile(target)))
-
-
-def charge_states(mover, target, terrain_map, standup_mp=None):
-    """Every way the mover can charge the target this turn: [{hex, facing,
-    mode, fc, mp_spent}] with fc / mp_spent INCLUDING the move into the
-    target's hex. For each (hex, facing, mode) only the most hexes moved
-    (then least MP) is kept - more hexes means more damage and TMM."""
-    import INTEGRATION__ranged_combat as ranged_combat      # it imports physical, which this module needs first
-    t_xy = hex_geometry.parse_hex_label(target.hex)
-    t_info = terrain_map["hexes"][target.hex]
-    walk = compute_walk_mp(mover)
-    budget = compute_running_mp(mover) if standup_mp is None else standup_mp
-    best = {}
-    for x, y, facing, fc, mode, mp in ranged_combat.movement_options(mover, terrain_map, standup_mp=standup_mp):
-        if mode == "Jump" or (x, y) == t_xy or hex_distance((x, y), t_xy) != 1:
-            continue
-        if combat._direction_facing((x, y), t_xy) != facing:
-            continue                                   # must face the target and enter it moving forward
-        label = hex_geometry.hex_label(x, y)
-        a_level = terrain_map["hexes"][label]["level"]
-        if abs(t_info["level"] - a_level) > 2:
-            continue
-        total = mp + terrain_rules.transition_cost(a_level, t_info["level"], t_info["features"])
-        if total > budget:
-            continue
-        charge_mode = "Run" if standup_mp is not None else combat.classify_movement_mode(total, walk)
-        key = (label, facing, charge_mode)
-        cand = (fc + 1, -total)
-        if key not in best or cand > best[key]:
-            best[key] = cand
-    return [{"hex": label, "facing": hex_geometry.facing_to_compass(facing), "mode": mode,
-             "fc": fc, "mp_spent": -neg_mp, "charge": True}
-            for (label, facing, mode), (fc, neg_mp) in best.items()]
-
-
-def expected_dealt(mover, target, state, terrain_map):
-    """(worth to the target, P(hit), raw damage, TN) of charging from state."""
-    a_hex, t_hex = hex_geometry.parse_hex_label(state["hex"]), hex_geometry.parse_hex_label(target.hex)
-    tmm = combat.fc_to_tmm(state["fc"], jumped=False)
-    tn = to_hit(mover, state["mode"], target, a_hex, t_hex, terrain_map, attack_resolution._target_tmm(target))
-    p = combat.hit_probability(tn) if tn <= 12 else 0.0
-    dmg = target_damage(mover, tmm)
-    side = attack_resolution.attack_side(a_hex, t_hex, hex_geometry.compass_to_facing(target.facing), terrain_map)
-    return p * worth(dmg, target, side), p, dmg, tn
-
-
-def self_damage_worth(mover, target, p_hit):
-    return p_hit * worth(attacker_damage(target), mover, "front")
+    return movement_attacks.can_be_attacked(target, target_has_moved) and not target.prone and mover.hex is not None
 
 
 # =============================================================================
@@ -194,16 +118,7 @@ def declare(attacker, target, terrain_map):
 
 
 def _apply(mech, damage, side, label):
-    for g in groupings(damage):
-        if is_destroyed(mech):
-            return
-        loc = resolve_hit_location(config.roll_2d6(prompt=f"{label} hit location"), mech, side)
-        config.log(f"    {label}: {g} to {mech.side_name}'s {loc}.")
-        if loc == "Head":
-            mech.pilot_hits += 1
-            mark_consciousness_check_pending(mech)
-        apply_damage(mech, loc, g, armor_field="rear_armor" if side == "rear" else "armor",
-                     damage_type=DamageType.PHYSICAL)
+    movement_attacks.apply_groups(mech, damage, "standard", side, label)
 
 
 def resolve_hit(attacker, target, terrain_map):
@@ -223,22 +138,16 @@ def resolve_hit(attacker, target, terrain_map):
         if not is_destroyed(attacker):
             attacker.hex = target.hex
         return triggers
-    direction = combat._direction_facing(a_hex, t_hex)
-    dx, dy = hex_geometry.FACING_DELTAS[direction]
-    try:
-        new_label = hex_geometry.hex_label(t_hex[0] + dx, t_hex[1] + dy)
-    except ValueError:
-        new_label = None
-    hexes = terrain_map["hexes"]
-    if new_label not in hexes:
+    kind, new_label, drop = movement_attacks.displacement(target.hex, combat._direction_facing(a_hex, t_hex),
+                                                          terrain_map)
+    if kind == "off":
         target.destroyed, target.cause_of_death = True, "Displaced off the battlefield"
         config.log(f"    {target.side_name} is pushed off the battlefield - destroyed (p.113).")
         if not is_destroyed(attacker):
             attacker.hex = target.hex
         return triggers
-    drop = hexes[target.hex]["level"] - hexes[new_label]["level"]
-    if drop <= -3:
-        config.log(f"    Displacement into {new_label} is prohibited (3+ levels up) - neither mech moves (p.113).")
+    if kind == "blocked":
+        config.log(f"    Displacement is prohibited (3+ levels up) - neither mech moves (p.113).")
         triggers[target.side_name].append(("charged", CHARGE_PSR_MODIFIER))
         return triggers
     old = target.hex
