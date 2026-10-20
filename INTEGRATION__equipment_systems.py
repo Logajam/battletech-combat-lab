@@ -58,6 +58,8 @@ Not modeled: shutting a system off by choice, MASC/supercharger crits taken
 mid-move. (ECM itself - jamming Artemis and Narc - is INTEGRATION__electronics.)
 """
 
+from contextlib import contextmanager
+
 import INTEGRATION__config as config
 from equipment import Equipment, is_crit_target
 from damage_resolution import resolve_slot_hit
@@ -310,6 +312,32 @@ def radical_destroyed(mech):
 # =============================================================================
 def reset_movement_boost(mech):
     mech.run_mp_multiplier = RUN_MULTIPLIER_BY_BOOSTERS[0]
+
+
+def boost_multiplier(mech, planned=True):
+    """The Running MP multiplier the mech's working MASC / supercharger give
+    (p.204), counting the roll as a success (3+ on Daniel's 1-on / 1-off cycle).
+    planned=True: only if the bot will use them this turn (the same decision
+    resolve_movement_boosters makes, without its stub warning); False: whenever
+    they work (the mech's BEST speed). For modeling a mech that hasn't moved
+    yet - added 2026-10-20 (Claude): the two-ply look-ahead modeled a
+    supercharged Kontio at its unboosted speed, and it then ran further than
+    predicted and pushed the Hammerhead off the board."""
+    live = sum(1 for kind in ("masc", "supercharger") if system_live(mech, kind))
+    if not live or (planned and not use_escalating(mech, "MASC / supercharger", warn=False)):
+        return RUN_MULTIPLIER_BY_BOOSTERS[0]
+    return RUN_MULTIPLIER_BY_BOOSTERS[live]
+
+
+@contextmanager
+def modeled_boost(mech, multiplier):
+    """Running MP computed with this multiplier inside the block (restored after)."""
+    saved = mech.run_mp_multiplier
+    mech.run_mp_multiplier = multiplier
+    try:
+        yield
+    finally:
+        mech.run_mp_multiplier = saved
 
 
 def resolve_movement_boosters(mech):

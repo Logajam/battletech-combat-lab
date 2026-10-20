@@ -227,7 +227,9 @@ def reduced_options(mover, terrain_map, exclude_hex=None, standup_mp=None, entry
 
 def _opponent_options(other, terrain_map):
     """The reachable states a modeled second mover could end in, mirroring
-    orchestrator._phase_movement: immobile and prone mechs stay put."""
+    orchestrator._phase_movement: immobile and prone mechs stay put. It hasn't
+    rolled its MASC / supercharger yet: on a turn it will use them, it is
+    modeled at the boosted speed (equipment_systems.boost_multiplier)."""
     x, y, facing = hex_geometry.state_from_label(other.hex, other.facing)
     if is_immobile(other):
         return [(x, y, facing, 0, "Stand Still", 0)]
@@ -237,7 +239,8 @@ def _opponent_options(other, terrain_map):
         # A mech that can't stand may turn on the ground (orchestrator._turn_while_down) -
         # not modeled: it is scored where it lies, as it faces now.
         return [(x, y, facing, 0, "Run" if tries else "Stand Still", 0)]
-    return reduced_options(other, terrain_map)
+    with equipment_systems.modeled_boost(other, equipment_systems.boost_multiplier(other)):
+        return reduced_options(other, terrain_map)
 
 
 def _pick_dict(o) -> Dict[str, object]:
