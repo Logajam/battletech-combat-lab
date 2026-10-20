@@ -263,6 +263,20 @@ MOVEMENT_PSR_COST = True
 # per weapon, the part of a hit that gets past a location's armor and into its
 # structure counts this many times. 1.0 = off. See INTEGRATION__structure_weight.
 MOVEMENT_STRUCTURE_WEIGHT = 2.0
+# Which movement objective scores a spot (Daniel, 2026-10-20 - an option to test):
+#   "ratio"    - dealt / (received + PSR cost + MOVEMENT_RATIO_EPSILON) (Daniel, 2026-10-19)
+#   "lifetime" - dealt + (my HP left after this turn / the enemy's future damage
+#                per turn) x my future damage per turn: the damage this mech can
+#                expect to deal before it is destroyed. Fights when this turn's
+#                trade beats the trades it can expect later; a spot that gets it
+#                destroyed (or pushed off the board) keeps only its dealt.
+#                Future damage: INTEGRATION__future_damage. HP is armor + rear
+#                armor + MOVEMENT_STRUCTURE_WEIGHT x structure (the same units
+#                as dealt / received).
+MOVEMENT_OBJECTIVE = "ratio"
+MOVEMENT_LIFETIME_INITIATIVE = 0.5          # odds of winning initiative (scales both sides; cancels out)
+MOVEMENT_LIFETIME_ATTACKER_MODE = "Walk"    # the attacker's assumed movement for future damage (AMM, heat)
+MOVEMENT_LIFETIME_FUTURE_FLOOR = 1.0        # future damage per turn is never taken below this (no divide by zero)
 
 # Charge attacks (Core p.78, INTEGRATION__charge, 2026-10-20): the mover may
 # charge an enemy that has finished moving, when a charge in that movement mode

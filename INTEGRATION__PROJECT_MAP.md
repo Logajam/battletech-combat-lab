@@ -150,8 +150,9 @@ open). Read it before building rules.
    (Section 4, "Movement objective vs lethal spots", 2026-10-20). The ratio
    dealt / received scores every spot where the mech deals nothing as 0, so a
    spot where it deals a little and dies beats every safe one - the
-   Hammerhead walks onto the board edge to be pushed off. Options there;
-   build what Daniel picks.
+   Hammerhead walks onto the board edge to be pushed off. Daniel's "lifetime"
+   objective is built as an option (`config.MOVEMENT_OBJECTIVE`); A/B batches
+   in the Change Record. Next: Daniel decides from those results.
 0. **Known issues Daniel asked to fix later** (Section 4, "Known issues to
    fix later"): Arrow IV / artillery scatter must stay inside the firing arc;
    machine gun array ammo per gun needs a check / test.
@@ -655,6 +656,17 @@ forward arc, kicks included, never into a side arc.
   `INTEGRATION__stubs.py`, warns loudly every run, is counted into the
   results, keeps its knobs in config. (The movement stub is gone since
   2026-10-19.) Hit table default `mechsim_random`.
+- **Movement objective option (Daniel, 2026-10-20):** after the board-edge
+  finding (Section 4), Daniel's design, built as an option to test against the
+  ratio ("Go for it as an option. Then we test a few batches of battles and see
+  if the results change dramatically"): score = damage now + (turns I survive)
+  x (my future damage per turn); turns I survive = HP left after this turn /
+  the enemy's future damage per turn; future damage per turn = .5 (odds of
+  winning initiative) x perfect expected damage, "Gunnery+Best enemy TMM as the
+  target number vs the optimum damage potential of the attacking mech". Claude's
+  readings agreed before building: heat-limited (sustainable, at the present
+  heat), the attacker assumed to walk (+1), kicks / punches at range 1, the same
+  structure-weighted units as dealt / received. `config.MOVEMENT_OBJECTIVE`.
 - **Movement selection (Daniel, 2026-10-19):** objective = damage dealt /
   (damage received + .001). Two-ply so both sides move intelligently. The old
   `combat_turn` closing fallback ported as-is ("working system first, improve
@@ -724,6 +736,7 @@ forward arc, kicks included, never into a side arc.
 | Decision point | Lives in | Decides |
 |---|---|---|
 | Movement selection | `INTEGRATION__movement_selection.choose` | Spot (hex + facing + mode) maximizing dealt×exposure / (received×exposure + movement-PSR cost + .001); first mover scores each spot by the second mover's modeled reply (two-ply). Knobs: config MOVEMENT SETTINGS. |
+| Movement objective option | `movement_selection._Ratio` / `_Lifetime` (`config.MOVEMENT_OBJECTIVE`) | "ratio" (default, above) or "lifetime": dealt + (effective HP left / enemy future damage) x own future damage (`INTEGRATION__future_damage`: 0.5 x best heat-limited expected damage at gunnery + walking +1 + the target's best TMM, kicks / punches at range 1). Each side scores its own spots with it, the modeled reply too |
 | Movement-PSR cost | `movement_selection.psr_costs` | P(fail) × fall damage, only for Run / Jump with a Movement-Phase PSR trigger; damage-caused PSRs ignored (Daniel) |
 | Armor-exposure weighting | `movement_selection.exposure_factors` | Per-side vulnerability from current armor + structure (front = 1.0, clamped) |
 | No-LOS / out-of-range movement fallback | `movement_selection.closing_fallback` | Ported as-is from `combat_turn._closing_fallback` (cases A/B1/B2); nearest-to-enemy otherwise |
@@ -844,6 +857,18 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-20 (Claude):** Movement objective option "lifetime" (Daniel's
+  design, Section 5 "Movement objective option"). New
+  `INTEGRATION__future_damage.py` (future damage per turn; `best_tmm` reads
+  Running / Jumping MP without compute_tmm's side effect);
+  `movement_selection._Ratio` / `_Lifetime` objects, one per side per pick
+  (`_link`), used by the static scores, the two-ply and its modeled reply, and
+  the charge / DFA scoring; `effective_hp` = armor + rear + k x structure.
+  Config `MOVEMENT_OBJECTIVE` ("ratio" default), `MOVEMENT_LIFETIME_INITIATIVE`,
+  `MOVEMENT_LIFETIME_ATTACKER_MODE`, `MOVEMENT_LIFETIME_FUTURE_FLOOR`. Three new
+  checks in `tests/test_movement_selection.py`. Default unchanged: reference
+  logs match, benchmark 458 / 466.
 
 - **2026-10-20 (Claude):** Battle replays (Daniel: "build outputs both text
   and visual you can share from battles you run so I can see whats going on
