@@ -36,7 +36,8 @@ edited).
   to-hit modifiers.
 - `ammo.py` (NEW 2026-10-19) → `config`, `stubs`, `weapon_rules`; MECHSIM
   `equipment` (Equipment, lookup_equipment), `damage_resolution.get_weapons`
-- `physical.py` (NEW 2026-10-19) → `config`, `attack_resolution`, `arcs`; MECHSIM
+- `charge.py` (NEW 2026-10-20) → `config`, `attack_resolution`, `physical`, `ranged_combat` (lazily, for movement options); MECHSIM `mech_state`, `damage_resolution`, `hit_location`, `piloting_rolls`; PATHFINDER `hex_geometry`, `combat`, `terrain_rules`, `los`. Used by `movement_selection` (the decision) and `physical` (resolution, lazy import).
+- `physical.py` (NEW 2026-10-19) → `config`, `attack_resolution`, `arcs`, `structure_weight`, `charge` (lazy); MECHSIM
   `mech_state`, `equipment`, `damage_resolution.apply_damage`,
   `hit_location.resolve_hit_location`, `piloting_rolls`; PATHFINDER
   `hex_geometry`, `combat`, `los` (has_los, hex_distance)
@@ -117,7 +118,7 @@ main.py
    ├─ movement_selection.py ── ranged_combat.py, los_cache.py, piloting_rolls, hit_location, damage_resolution
    ├─ stubs.py
    ├─ attack_resolution.py ── heat.py, weapon_rules.py, ammo.py
-   ├─ physical.py ── attack_resolution.py, arcs.py, hit_location, piloting_rolls
+   ├─ physical.py ── attack_resolution.py, arcs.py, charge.py, hit_location, piloting_rolls
    └─ results.py
 ```
 

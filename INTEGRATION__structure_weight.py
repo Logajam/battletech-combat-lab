@@ -53,23 +53,28 @@ import hit_location  # noqa: E402
 _P_2D6 = {roll: (6 - abs(roll - 7)) / 36 for roll in range(2, 13)}
 
 
-def hit_spread(mech, side):
+def hit_spread(mech, side, rolls=None):
     """[(probability, location state dict, armor key)] for a shot on `side`
     of `mech` ('front'/'left'/'right'/'rear') from its CURRENT state. A hit on
     a destroyed location moves inward (TRANSFER_MAP); one that leaves the mech
-    is dropped (its probability is simply missing from the list)."""
-    if side == "left":
-        table = hit_location.HIT_TABLE_LEFT_SIDE
-    elif side == "right":
-        table = hit_location.HIT_TABLE_RIGHT_SIDE
-    else:
-        table = hit_location.HIT_TABLE_FRONT_REAR
-    spread = []
-    for roll, p in _P_2D6.items():
+    is dropped (its probability is simply missing from the list).
+    rolls (2026-10-20): [(probability, location name)] of another table -
+    the punch / kick tables (INTEGRATION__physical.table_rolls) - instead of
+    the standard 2D6 table."""
+    if rolls is None:
+        if side == "left":
+            table = hit_location.HIT_TABLE_LEFT_SIDE
+        elif side == "right":
+            table = hit_location.HIT_TABLE_RIGHT_SIDE
+        else:
+            table = hit_location.HIT_TABLE_FRONT_REAR
         # resolve_hit_location also translates quad leg names; its tripod leg
         # sub-roll draws Python's random, which a lookahead must not touch, so
         # a tripod reads the raw table (its Left/Right Leg rows).
-        loc = table[roll] if mech.mech_type == "tripod" else hit_location.resolve_hit_location(roll, mech, side)
+        rolls = [(p, table[roll] if mech.mech_type == "tripod" else hit_location.resolve_hit_location(roll, mech, side))
+                 for roll, p in _P_2D6.items()]
+    spread = []
+    for p, loc in rolls:
         while loc is not None and mech.locations.get(loc, {}).get("destroyed"):
             loc = TRANSFER_MAP.get(loc)
         state = mech.locations.get(loc) if loc is not None else None
@@ -78,6 +83,20 @@ def hit_spread(mech, side):
         armor_key = "rear_armor" if side == "rear" and "rear_armor" in state else "armor"
         spread.append((p, state, armor_key))
     return spread
+
+
+def vulnerability(spread):
+    """sum of P(roll) / durability(location) over a hit_spread (see
+    INTEGRATION__movement_selection's exposure weighting)."""
+    return sum(p / max(1, state[armor_key] + state["structure"]) for p, state, armor_key in spread)
+
+
+def spread_worth(spread, damage, k):
+    """Expected worth of one hit of `damage` rolled on `spread` (a roll that
+    leaves the mech counts flat)."""
+    covered = sum(p for p, _, _ in spread)
+    return damage * (1.0 - covered) + sum(p * worth(damage, state[armor_key], state["structure"], k)
+                                          for p, state, armor_key in spread)
 
 
 def worth(damage, armor, structure, k):
@@ -112,12 +131,6 @@ def multipliers(attacker_weapons, target, side):
         if raw <= 0:
             result[id(w)] = 1.0
             continue
-        total = 0.0
-        for d in groups:
-            # a roll whose hit leaves the mech was dropped from the spread: it counts flat
-            covered = sum(p for p, _, _ in spread)
-            total += d * (1.0 - covered)
-            for p, state, armor_key in spread:
-                total += p * worth(d, state[armor_key], state["structure"], k)
-        result[id(w)] = total / raw
+        # a roll whose hit leaves the mech was dropped from the spread: it counts flat
+        result[id(w)] = sum(spread_worth(spread, d, k) for d in groups) / raw
     return result

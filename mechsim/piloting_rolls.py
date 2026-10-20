@@ -189,7 +189,7 @@ def special_case_modifier(mech):
 
 
 # HELP(piloting_skill_rolls.resolve_fall)
-def resolve_fall(mech, seatbelt_modifier, cause=""):
+def resolve_fall(mech, seatbelt_modifier, cause="", levels=0):
     """Shared fall handler - called from resolve_attack_phase_psr (failed
     PSR or automatic gyro/leg-destroyed fall) and resolve_stand_up (failed
     stand attempt, or falling again immediately after a successful stand).
@@ -199,9 +199,11 @@ def resolve_fall(mech, seatbelt_modifier, cause=""):
     avoidance roll) at config.PILOTING + seatbelt_modifier - the SAME
     accumulated modifier used for the roll that caused this fall (Daniel's
     worked example: leg destroyed +5, gyro hit +2, 20+ dmg +1 -> seatbelt TN
-    is also 5+5+2+1=13, not a separate/lower baseline)."""
+    is also 5+5+2+1=13, not a separate/lower baseline).
+    levels (2026-10-20, Core p.115): levels fallen - a mech displaced two or
+    more levels down falls automatically; damage is multiplied by levels + 1."""
     mech.prone = True
-    total_damage = fall_damage(mech)
+    total_damage = fall_damage(mech) * (levels + 1)
     config.log(f"FALL{f' ({cause})' if cause else ''}: {mech.chassis} {mech.model} "
                f"takes {total_damage} falling damage (front table, 5-pt clusters).")
 

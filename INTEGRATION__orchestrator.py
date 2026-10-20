@@ -186,6 +186,7 @@ def _reset_movement_state(mech):
     mech.move_fc = 0
     mech.mp_spent = 0
     mech.movement_heat = 0
+    mech.charging = None                 # the mech it declared a charge against (Core p.78)
 
 
 # Heat rules (movement heat, Improved-JJ detection, budget) live in
@@ -277,6 +278,10 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_fi
         mover.hex, mover.facing = pick["hex"], pick["facing"]
         mover.move_mode, mover.move_fc, mover.mp_spent = pick["mode"], pick["fc"], pick["mp_spent"]
         mover.movement_heat = heat.movement_heat(mover, mover.move_mode, mover.move_fc)
+        if pick.get("charge"):
+            mover.charging = other
+            config.log(f"  [Movement] {name} declares a CHARGE against {other.side_name} "
+                       f"(stops adjacent; {mover.move_fc} hexes counting the target's hex).")
         config.log(f"  [Movement] {name}: {start} -> {mover.hex} {mover.facing}, {mover.move_mode} "
                    f"({mover.mp_spent} MP, {mover.move_fc} hexes, {mover.movement_heat} heat; budget "
                    f"walk {mp['walk']} / run {mp['run']} / jump {mp['jump']}"

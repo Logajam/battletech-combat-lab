@@ -212,6 +212,11 @@ MOVEMENT_PSR_COST = True
 # structure counts this many times. 1.0 = off. See INTEGRATION__structure_weight.
 MOVEMENT_STRUCTURE_WEIGHT = 2.0
 
+# Charge attacks (Core p.78, INTEGRATION__charge, 2026-10-20): the mover may
+# charge an enemy that has finished moving, when a charge in that movement mode
+# beats the best ordinary attack and its score beats the normal pick.
+CHARGES = True
+
 # =============================================================================
 # ==========================  VISUALIZATION (NOT WIRED)  =====================
 # =============================================================================

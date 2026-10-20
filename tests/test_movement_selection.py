@@ -206,12 +206,12 @@ def adjacent_spots_count_physical_attacks():
                 for c in ev.evaluate(other.hex, other.facing, 0, "Stand Still", 0,
                                      ev.prepare(ranged_combat.movement_options(mover, TERRAIN)))}
     with_physical = scores()
-    real = physical.Planner.plans
-    physical.Planner.plans = lambda self, *a, **k: []
+    real = physical.Planner.plans_in_case
+    physical.Planner.plans_in_case = lambda self, *a, **k: []
     try:
         without = scores()
     finally:
-        physical.Planner.plans = real
+        physical.Planner.plans_in_case = real
     assert with_physical.keys() == without.keys()
     for k, (dist, dealt, received) in with_physical.items():
         d0, r0 = without[k][1], without[k][2]
@@ -249,6 +249,29 @@ def ranged_fire_holds_an_arm_for_a_better_punch():
         if holds:
             m.weapons_fired_this_turn = frozenset(id(x.weapon) for x in rep.attacks_list)
             assert len(physical.choose_attack(m, t, TERRAIN)[1]) == 2                 # both arms punch
+
+
+@check
+def hit_tables_steer_punch_or_kick():
+    """A 50-ton mech's two punches and its kick have the same raw expected
+    damage (2 x 5 vs 10 at TN 4); the hit tables break the tie (p.81): a
+    target with stripped legs gets kicked, one with a stripped upper body
+    gets punched. The punch table's 1-in-6 head chance counts too."""
+    import INTEGRATION__physical as physical
+    synthetic = parse_mtf(config.data_path("TEST_Synthetic_Loadout.mtf"))
+    kinds = []
+    for stripped in (("Left Leg", "Right Leg"), ("Left Arm", "Right Arm", "Left Torso", "Right Torso", "Center Torso")):
+        m, t = fresh("0808", "N", template=synthetic), fresh("0807", "S", template=synthetic)
+        for loc in stripped:
+            t.locations[loc]["armor"] = 0
+        base, picks, _ = physical.choose_attack(m, t, TERRAIN)
+        kinds.append("kick" if picks[0].get("kick") else "punch")
+        w = physical.Worth(t)
+        assert (w.factor("kick", "front", 10) > w.factor("punch", "front", 5)) == (kinds[-1] == "kick")
+    assert kinds == ["kick", "punch"]
+    fresh_target = fresh("0807", "S", template=synthetic)
+    w = physical.Worth(fresh_target)
+    assert w.factor("punch", "front", 5) > w.factor("standard", "front", 5)       # the head is on the punch table
 
 
 @check

@@ -174,6 +174,8 @@ def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_fo
     the attack side too and returns WORTH - expected damage with structure
     damage counted for more - and the memo is keyed by side as well."""
     dissipation = compute_heat_dissipation(mech)
+    weapons = get_weapons(mech)                                   # fixed for the scorer's life
+    table = weapon_selection.build_expected_damage_table(mech)
     scales: Dict[str, dict] = {}
     other = heat.other_heat(mech)
     memo: Dict[tuple, float] = {}
@@ -190,7 +192,7 @@ def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_fo
             _, cached, _ = weapon_selection.select_weapons_to_fire(
                 mech, distance, pre_tn, mech.min_heat, mech.max_heat,
                 dissipation=dissipation, movement_heat=move_heat, other_heat=other, tn_adjust=tn_adjust,
-                unavailable=unavailable, value_scale=scale)
+                unavailable=unavailable, value_scale=scale, weapons=weapons, table=table)
             memo[key] = cached
         return cached
 
@@ -284,25 +286,23 @@ def prepare_options(mover, options) -> List[_Option]:
     return prepared
 
 
-def _with_physical(ranged_best, planner, actions, legs, pair_arcs, a_hex, facing, a_level, t_hex, t_level,
-                   target_prone, base, ranged_for):
+def _with_physical(ranged_best, planner, actions, legs, pair_arcs, facing, diff, target_prone, base, side,
+                   ranged_for):
     """Best expected damage from a spot next to the enemy counting the
     Physical phase too: for every arc action and physical plan, the ranged
     fire without the weapons in the attacking limbs (pp.76, 82) plus the
     plan's expected damage. ranged_for(key, held) gives the ranged part
     (None: no ranged fire possible); ranged_best is the no-physical value."""
     best = ranged_best
-    for action in actions:
-        key = None
-        for value, limbs, _ in planner.plans(a_hex, facing, a_level, t_hex, t_level, target_prone, action, base):
+    if abs(diff) > 1:
+        return best
+    for key, signature in planner.cases(pair_arcs, facing, actions, legs):
+        for value, limbs, _ in planner.plans_in_case(signature, diff, target_prone, base, side):
             if not limbs or value <= 0:
                 continue
-            if ranged_for is None:
-                total = value
-            else:
-                if key is None:
-                    key = arcs.key_for(pair_arcs, facing, action, legs)
-                total = ranged_for(key, planner.held(limbs)) + value
+            if value + ranged_best <= best:
+                break                                    # plans are best first; ranged can't beat ranged_best
+            total = value if ranged_for is None else ranged_for(key, planner.held(limbs)) + value
             if total > best:
                 best = total
     return best
@@ -352,7 +352,12 @@ class MoveEvaluator:
         # Physical attacks (pp.76-83) from / against a spot next to the enemy.
         self.mover_physical = not (mover.shutdown or is_immobile(mover))
         self.defender_physical = not (defender.shutdown or defender.prone or self.defender_immobile)
-        self.mover_planner, self.defender_planner = physical.Planner(mover), physical.Planner(defender)
+        # Physical damage is weighted by its own hit table (relative: the side's
+        # standard exposure factor is applied on top by movement_selection).
+        self.mover_planner = physical.Planner(mover, physical.Worth(defender, relative=True))
+        self.defender_planner = physical.Planner(defender, physical.Worth(mover, relative=True))
+        self._best_dealt: Dict[tuple, float] = {}
+        self._best_received: Dict[tuple, float] = {}
         self.mover_own = equip.own_attack_modifier(mover)
         self.defender_own = equip.own_attack_modifier(defender)
 
@@ -381,6 +386,7 @@ class MoveEvaluator:
         mover_scorer, defender_scorer = self.mover_scorer, self.defender_scorer
         (mover_actions, mover_legs), (defender_actions, defender_legs) = self.mover_arcs, self.defender_arcs
         arc_keys = arcs.arc_keys
+        best_dealt, best_received = self._best_dealt, self._best_received   # best twist, memoized
         no_return_fire = defender.shutdown or defender_cond is None
 
         results: List[MovementCandidate] = []
@@ -414,8 +420,12 @@ class MoveEvaluator:
                           + mover.heat_fire_modifier + dealt_stealth + mover_cond[0]
                           + (prone_target_modifier(defender, distance) if prone_def else 0))
                 pre_tn = pre_max if pre_tn > pre_max else (pre_min if pre_tn < pre_min else pre_tn)
-                dealt = max(mover_scorer(key)(distance, pre_tn, o.move_heat, side_on_def)
-                            for key, _ in arc_keys(a_to_d, o.facing, mover_actions, mover_legs))
+                memo_key = (a_to_d, o.facing, distance, pre_tn, o.move_heat, side_on_def)
+                dealt = best_dealt.get(memo_key)
+                if dealt is None:
+                    dealt = best_dealt[memo_key] = max(
+                        mover_scorer(key)(distance, pre_tn, o.move_heat, side_on_def)
+                        for key, _ in arc_keys(a_to_d, o.facing, mover_actions, mover_legs))
 
             if no_return_fire:
                 received = 0.0
@@ -424,8 +434,12 @@ class MoveEvaluator:
                            + defender.heat_fire_modifier + self.defender_own + defender_cond[0]
                            + o.void_mod)
                 pre_tn2 = pre_max if pre_tn2 > pre_max else (pre_min if pre_tn2 < pre_min else pre_tn2)
-                received = max(defender_scorer(key)(distance, pre_tn2, def_move_heat, side_on_mover)
-                               for key, _ in arc_keys(d_to_a, def_facing, defender_actions, defender_legs))
+                memo_key = (d_to_a, def_facing, distance, pre_tn2, def_move_heat, side_on_mover)
+                received = best_received.get(memo_key)
+                if received is None:
+                    received = best_received[memo_key] = max(
+                        defender_scorer(key)(distance, pre_tn2, def_move_heat, side_on_mover)
+                        for key, _ in arc_keys(d_to_a, def_facing, defender_actions, defender_legs))
 
             if distance == 1:
                 levels = terrain_map["hexes"]
@@ -434,15 +448,15 @@ class MoveEvaluator:
                     base = physical.base_tn(mover, o.amm, defender_tmm, atk_to_def.modifier,
                                             prone_target_modifier(defender, 1))
                     dealt = _with_physical(
-                        dealt, self.mover_planner, mover_actions, mover_legs, a_to_d, atk_hex, o.facing, a_level,
-                        def_hex, d_level, prone_def, base,
+                        dealt, self.mover_planner, mover_actions, mover_legs, a_to_d, o.facing, d_level - a_level,
+                        prone_def, base, side_on_def,
                         (lambda key, held: mover_scorer(key, held)(distance, pre_tn, o.move_heat, side_on_def))
                         if mover_cond is not None else None)
                 if self.defender_physical:
                     base = physical.base_tn(defender, def_amm, o.tmm, def_to_atk.modifier, 0)
                     received = _with_physical(
-                        received, self.defender_planner, defender_actions, defender_legs, d_to_a, def_hex,
-                        def_facing, d_level, atk_hex, a_level, False, base,
+                        received, self.defender_planner, defender_actions, defender_legs, d_to_a, def_facing,
+                        a_level - d_level, False, base, side_on_mover,
                         (lambda key, held: defender_scorer(key, held)(distance, pre_tn2, def_move_heat, side_on_mover))
                         if not no_return_fire else None)
 

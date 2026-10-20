@@ -198,7 +198,8 @@ def build_expected_damage_table(mech):
 
 
 def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipation, movement_heat,
-                           other_heat=0, tn_adjust=None, unavailable=frozenset(), value_scale=None):
+                           other_heat=0, tn_adjust=None, unavailable=frozenset(), value_scale=None,
+                           weapons=None, table=None):
     """min_heat/max_heat are passed explicitly (the orchestrator reads them
     off the mech's attached scenario config - mech.min_heat/mech.max_heat),
     while current_heat lives on the MECHSIM BattleMech object (mech).
@@ -257,6 +258,10 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
 
     pre_tn must be inside [PRE_TN_MIN, PRE_TN_MAX] - callers clamp first.
 
+    weapons / table (2026-10-20, speed): get_weapons(mech) and
+    build_expected_damage_table(mech), when the caller already holds them
+    for a mech whose state can't change between calls (movement scoring).
+
     value_scale (2026-10-19, movement scoring only): optional {id(weapon):
     multiplier} applied to each weapon's expected damage before the choice -
     INTEGRATION__structure_weight's "structure damage is worth more". The
@@ -266,8 +271,10 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
     Returns (selected_weapons: list[Equipment], total_expected_damage: float,
     total_heat: int).
     """
-    weapons = get_weapons(mech)
-    table = build_expected_damage_table(mech)
+    if weapons is None:
+        weapons = get_weapons(mech)
+    if table is None:
+        table = build_expected_damage_table(mech)
     heat_budget = max(0, max_heat + dissipation - mech.current_heat - movement_heat - other_heat)
     min_weapon_heat = min_heat + dissipation - mech.current_heat - movement_heat - other_heat
 

@@ -4,7 +4,8 @@ INTEGRATION__physical.py  (NEW 2026-10-19, Claude - Pile 2 rules, Pile 4 choice)
 The Physical Attack Phase (Core Rulebook pp.76-83), replacing the
 physical_combat stub: punches, kicks and physical weapons (claws, hatchet,
 lance, mace, retractable blade, sword, vibroblades - treated as switched
-off, talons on kicks). Charges, death-from-above, pushes and clubs are not
+off, talons on kicks). Charges are INTEGRATION__charge (declared in the
+Movement Phase, resolved here). Death-from-above, pushes and clubs are not
 built (see results.KNOWN_MISSING_RULES).
 
   - Who (p.76-77): an adjacent target; a standing, powered, conscious
@@ -53,6 +54,7 @@ import math
 import INTEGRATION__config as config
 import INTEGRATION__attack_resolution as attack_resolution
 import INTEGRATION__arcs as arcs
+import INTEGRATION__structure_weight as structure_weight
 from mech_state import DamageType, is_destroyed, is_immobile, mark_consciousness_check_pending
 from equipment import Equipment
 from damage_resolution import apply_damage
@@ -99,6 +101,70 @@ def _weapon_kind(slot):
     return next((spec for frag, spec in PHYSICAL_WEAPONS if frag in n), None)
 
 
+_QUAD_NAMES = {"Left Arm": "Front Left Leg", "Right Arm": "Front Right Leg"}
+
+
+def _quad_location(loc, side):
+    """Punch / kick table names on a quad (arms are its front legs)."""
+    if loc in _QUAD_NAMES:
+        return _QUAD_NAMES[loc]
+    if loc in ("Left Leg", "Right Leg"):
+        return ("Rear " if side == "rear" else "Front ") + loc
+    return loc
+
+
+def table_rolls(table, side, target):
+    """[(probability, location)] of the Punch (1D6) or Kick (1D6: 1-3 / 4-6)
+    Location Table, p.81, for an attack on `side` of `target`; None for the
+    standard 2D6 table."""
+    if table == "punch":
+        rolls = [(1 / 6, loc) for loc in PUNCH_TABLE[side]]
+    elif table == "kick":
+        rolls = [(0.5, loc) for loc in KICK_TABLE[side]]
+    else:
+        return None
+    if target.mech_type in ("quad", "quadvee"):
+        rolls = [(p, _quad_location(loc, side)) for p, loc in rolls]
+    return rolls
+
+
+class Worth:
+    """How much a point of physical damage on each hit table counts against
+    `target` (Pile 4 scoring, 2026-10-20): the table's own armor exposure
+    (INTEGRATION__movement_selection's exposure factor, computed on the punch /
+    kick table instead of the standard one - a kick at stripped legs, a punch's
+    1-in-6 head chance) times the structure bonus for damage getting past
+    armor there (INTEGRATION__structure_weight, k = MOVEMENT_STRUCTURE_WEIGHT).
+    relative=True divides out the standard-table exposure for that side, for a
+    caller (movement scoring) that already multiplies by it."""
+
+    def __init__(self, target, relative=False):
+        self.target = target
+        self.relative = relative
+        self._memo = {}
+        self._front = structure_weight.vulnerability(structure_weight.hit_spread(target, "front"))
+
+    def _exposure(self, spread):
+        if not config.MOVEMENT_EXPOSURE_WEIGHTING or self._front <= 0:
+            return 1.0
+        return max(config.MOVEMENT_EXPOSURE_MIN,
+                   min(config.MOVEMENT_EXPOSURE_MAX, structure_weight.vulnerability(spread) / self._front))
+
+    def factor(self, table, side, damage):
+        k = (table, side, damage)
+        got = self._memo.get(k)
+        if got is None:
+            spread = structure_weight.hit_spread(self.target, side, table_rolls(table, side, self.target))
+            got = self._exposure(spread)
+            if self.relative:
+                standard = 1.0 if side == "front" else self._exposure(structure_weight.hit_spread(self.target, side))
+                got /= standard
+            if damage > 0:
+                got *= structure_weight.spread_worth(spread, damage, config.MOVEMENT_STRUCTURE_WEIGHT) / damage
+            self._memo[k] = got
+        return got
+
+
 # =============================================================================
 # ==========================  LIMB STATE  =====================================
 # =============================================================================
@@ -120,8 +186,9 @@ def _limb_fired(mech, loc, fired_ids):
 class Reach:
     """Where an adjacent target sits for this attacker's physical attacks."""
 
-    def __init__(self, mech, a_hex, facing, t_hex, action):
-        pair = arcs.arcs_between(a_hex, t_hex)
+    def __init__(self, mech, a_hex, facing, t_hex, action, pair=None):
+        if pair is None:
+            pair = arcs.arcs_between(a_hex, t_hex)
         self.torso_arc = pair[(facing + action.twist) % 6]
         self.tripod = mech.mech_type == "tripod"
         self.flipped = action.flip
@@ -262,6 +329,17 @@ def _options(attacker, rel, diff, target_prone, fired):
     return {k: v for k, v in opts.items() if v}
 
 
+class _FixedReach:
+    """A Reach rebuilt from its signature (all the option builders read)."""
+
+    def __init__(self, signature):
+        self._arms = {"Left Arm": signature[0], "Right Arm": signature[1]}
+        self.kick_ok = signature[2]
+
+    def arm_ok(self, arm):
+        return self._arms[arm]
+
+
 class Planner:
     """Physical plans for one mech before anything has fired this turn, for
     positions that don't exist yet (movement scoring, the Ranged phase's
@@ -269,26 +347,48 @@ class Planner:
     difference and whether the target is prone, so they're built once per
     case. Build a new one when the mech's state changes (damage, TSM)."""
 
-    def __init__(self, mech):
+    def __init__(self, mech, worth=None):
         self.mech = mech
+        self.worth = worth                 # a Worth for the target, or None for raw expected damage
         self._options = {}
         self._plans = {}
         self._held = {}
+        self._cases = {}
 
-    def plans(self, a_hex, a_facing, a_level, t_hex, t_level, target_prone, action, base):
+    def plans(self, a_hex, a_facing, a_level, t_hex, t_level, target_prone, action, base, side="front"):
         """plans() for the attack, or [] when the target is out of reach."""
         diff = t_level - a_level
         if abs(diff) > 1 or hex_distance(a_hex, t_hex) != 1:
             return []
-        rel = Reach(self.mech, a_hex, a_facing, t_hex, action)
-        case = (rel.signature(), diff, target_prone)
-        got = self._plans.get((case, base))
+        return self._plans_for(Reach(self.mech, a_hex, a_facing, t_hex, action).signature(), diff,
+                               target_prone, base, side)
+
+    def _plans_for(self, signature, diff, target_prone, base, side="front"):
+        case = (signature, diff, target_prone)
+        side = side if self.worth is not None else "front"
+        got = self._plans.get((case, base, side))
         if got is None:
             options = self._options.get(case)
             if options is None:
-                options = self._options[case] = _options(self.mech, rel, diff, target_prone, frozenset())
-            got = self._plans[(case, base)] = plans(options, base)
+                options = self._options[case] = _options(self.mech, _FixedReach(signature), diff, target_prone,
+                                                         frozenset())
+            got = self._plans[(case, base, side)] = plans(options, base, self.worth, side)
         return got
+
+    def cases(self, pair_arcs, facing, actions, legs):
+        """The distinct (ArcKey, reach signature) pairs `actions` give against
+        an adjacent target with arcs-tuple pair_arcs - two twists that look
+        the same to both the guns and the fists are scored once."""
+        k = (pair_arcs, facing, actions, legs)
+        got = self._cases.get(k)
+        if got is None:
+            got = self._cases[k] = tuple(dict.fromkeys(
+                (arcs.key_for(pair_arcs, facing, a, legs), Reach(self.mech, None, facing, None, a, pair_arcs).signature())
+                for a in actions))
+        return got
+
+    def plans_in_case(self, signature, diff, target_prone, base, side="front"):
+        return self._plans_for(signature, diff, target_prone, base, side) if abs(diff) <= 1 else []
 
     def held(self, limbs):
         got = self._held.get(limbs)
@@ -309,8 +409,12 @@ def _base_tn(attacker, target, terrain_map):
                    has_los(a_hex, t_hex, terrain_map).modifier, attack_resolution.prone_target_modifier(target, 1))
 
 
-def expected_damage(base, picks):
-    return sum(combat.hit_probability(base + o["mod"]) * o["damage"] for o in picks)
+def expected_damage(base, picks, worth=None, side="front"):
+    """Expected damage of the picks; with a Worth, their worth on `side`."""
+    if worth is None:
+        return sum(combat.hit_probability(base + o["mod"]) * o["damage"] for o in picks)
+    return sum(combat.hit_probability(base + o["mod"]) * o["damage"] * worth.factor(o["table"], side, o["damage"])
+               for o in picks)
 
 
 def limb_weapon_ids(mech, limbs):
@@ -320,7 +424,7 @@ def limb_weapon_ids(mech, limbs):
     return frozenset(wid for wid, where in locs.items() if set(where) & set(limbs))
 
 
-def plans(options, base):
+def plans(options, base, worth=None, side="front"):
     """Every physical attack the mech could plan with these options, as
     (expected damage, limbs it uses, picks), best first; the empty plan is
     always included (0.0, (), []). Punches: either arm or both (p.82);
@@ -332,7 +436,7 @@ def plans(options, base):
         else:
             groups = [[o] for o in opts]
         for g in groups:
-            v = expected_damage(base, g)
+            v = expected_damage(base, g, worth, side)
             if v > 0:
                 out.append((v, tuple(o["limb"] for o in g), g))
     out.sort(key=lambda p: -p[0])
@@ -342,11 +446,17 @@ def plans(options, base):
 def choose_attack(attacker, target, terrain_map):
     """Pile 4: the arc action (twist, if it may still declare one - p.76) and
     attack type (all of its options - e.g. both punches) with the most
-    expected damage. Returns (base TN, [options], ArcAction) or None."""
+    expected damage, weighted by where each table lands (Worth: a kick at
+    stripped legs or a punch at a thin head counts for more). Returns
+    (base TN, [options], ArcAction) or None."""
     turret = arcs.current_action(attacker).turret
     actions = tuple(dict.fromkeys(a._replace(turret=turret) for a in arcs.arc_options(attacker, phase="physical")))
+    side = attack_resolution.attack_side(hex_geometry.parse_hex_label(attacker.hex),
+                                         hex_geometry.parse_hex_label(target.hex),
+                                         hex_geometry.compass_to_facing(target.facing), terrain_map)
+    worth = Worth(target)
     base = None
-    value = lambda opts: expected_damage(base, opts)  # noqa: E731
+    value = lambda opts: expected_damage(base, opts, worth, side)  # noqa: E731
     best = None
     for action in actions:
         options = attack_options(attacker, target, terrain_map, action)
@@ -382,14 +492,22 @@ def _location(table, side, target):
 
 
 def run_physical_phase(mech_a, mech_b, terrain_map, reports):
-    """Both mechs declare and roll, then the damage lands, then PSRs and
-    consciousness checks (p.83)."""
+    """Both mechs declare and roll, then the damage lands, then charges'
+    damage and displacement, then PSRs and consciousness checks (p.83)."""
+    import INTEGRATION__charge as charge       # charge imports this module
     for m in (mech_a, mech_b):
         rep = reports.get(m.side_name)
         m.weapons_fired_this_turn = frozenset(id(x.weapon) for x in rep.attacks_list) if rep else frozenset()
         piloting_rolls.snapshot_pre_attack_phase(m)
     declared = []
+    charges = []
     for attacker, target in ((mech_a, mech_b), (mech_b, mech_a)):
+        if getattr(attacker, "charging", None) is not None:
+            outcome = charge.declare(attacker, target, terrain_map)
+            if outcome is not None:                      # going ahead, or a miss: no other physical attack
+                if outcome != "miss" and outcome[1]:
+                    charges.append((attacker, target))
+                continue
         choice = choose_attack(attacker, target, terrain_map)
         if choice is None:
             continue
@@ -422,6 +540,9 @@ def run_physical_phase(mech_a, mech_b, terrain_map, reports):
                 triggers[target.side_name].append(("kicked", 0))
         elif o.get("kick"):
             triggers[attacker.side_name].append(("missed a kick", 0))
+    for attacker, target in charges:                     # damage, then displacement (p.78, p.113)
+        for name, extra in charge.resolve_hit(attacker, target, terrain_map).items():
+            triggers[name].extend(extra)
     for m in (mech_a, mech_b):
         attack_resolution._with_piloting(m, piloting_rolls.resolve_attack_phase_psr,
                                          forced_triggers=tuple(triggers[m.side_name]))
