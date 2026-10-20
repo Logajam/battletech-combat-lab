@@ -47,7 +47,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
     ISLRM20: needs 7 (range mod +2), rolled 8 -> HIT [ISLRM20 Ammo: 4 shots left]
     ISGaussRifle: needs 7 (range mod +2), rolled 10 -> HIT [ISGauss Ammo: 6 shots left]
     ISERLargeLaser: needs 7 (range mod +2), rolled 9 -> HIT
-  [Ranged] Blue -> Red: range 12, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 1 + heat 0); firing ['LRM 20', 'LRM 20'] (weapon heat 12 of budget 13 = max 4 + sink 10 - current 0 - movement 1 - other 0; expected dmg 5.35 with fire control / target AMS)
+  [Ranged] Blue -> Red: range 12, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 1 + heat 0); firing ['LRM 20', 'LRM 20'] (weapon heat 12 of budget 13 = max 4 + sink 10 - current 0 - movement 1 - other 0; expected dmg 5.35)
     LRM 20: needs 8 (range mod +2), rolled 11 -> HIT [IS Ammo LRM-20: 5 shots left]
     LRM 20: needs 8 (range mod +2), rolled 8 -> HIT [IS Ammo LRM-20: 4 shots left]
   [AMS] Red's ISAntiMissileSystem engages Blue's LRM 20 (cuts 6.28 expected; +1 heat; ISAMS Ammo: 11 shots left).
@@ -103,7 +103,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
     ISGaussRifle: needs 7 (range mod +2), rolled 12 -> HIT [ISGauss Ammo: 5 shots left]
     ISERLargeLaser: needs 7 (range mod +2), rolled 9 -> HIT
   [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
-  [Ranged] Blue -> Red: range 9, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 1 + heat 0); firing ['LRM 20', 'Medium Laser'] (weapon heat 9 of budget 10 = max 4 + sink 10 - current 3 - movement 1 - other 0; expected dmg 3.51 with fire control / target AMS)
+  [Ranged] Blue -> Red: range 9, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 1 + heat 0); firing ['LRM 20', 'Medium Laser'] (weapon heat 9 of budget 10 = max 4 + sink 10 - current 3 - movement 1 - other 0; expected dmg 3.51)
     LRM 20: needs 8 (range mod +2), rolled 9 -> HIT [IS Ammo LRM-20: 3 shots left]
     Medium Laser: needs 10 (range mod +4), rolled 7 -> miss
   [AMS] Red's ISAntiMissileSystem engages Blue's LRM 20 (cuts 6.28 expected; +1 heat; ISAMS Ammo: 9 shots left).
@@ -151,7 +151,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
     ISGaussRifle: needs 6 (range mod +2), rolled 8 -> HIT [ISGauss Ammo: 4 shots left]
     ISERLargeLaser: needs 6 (range mod +2), rolled 9 -> HIT
   [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
-  [Ranged] Blue -> Red: range 9, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['LRM 20', 'Medium Laser'] (weapon heat 9 of budget 11 = max 4 + sink 10 - current 3 - movement 0 - other 0; expected dmg 5.13 with fire control / target AMS)
+  [Ranged] Blue -> Red: range 9, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['LRM 20', 'Medium Laser'] (weapon heat 9 of budget 11 = max 4 + sink 10 - current 3 - movement 0 - other 0; expected dmg 5.13)
     LRM 20: needs 7 (range mod +2), rolled 10 -> HIT [IS Ammo LRM-20: 2 shots left]
     Medium Laser: needs 9 (range mod +4), rolled 7 -> miss
   [AMS] Red's ISAntiMissileSystem engages Blue's LRM 20 (cuts 6.28 expected; +1 heat; ISAMS Ammo: 8 shots left).
@@ -196,7 +196,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
     ISGaussRifle: needs 6 (range mod +2), rolled 7 -> HIT [ISGauss Ammo: 3 shots left]
     ISERLargeLaser: needs 6 (range mod +2), rolled 9 -> HIT
   [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
-  [Ranged] Blue -> Red: range 9, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['LRM 20', 'LRM 20'] (weapon heat 12 of budget 12 = max 4 + sink 10 - current 2 - movement 0 - other 0; expected dmg 7.49 with fire control / target AMS)
+  [Ranged] Blue -> Red: range 9, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['LRM 20', 'LRM 20'] (weapon heat 12 of budget 12 = max 4 + sink 10 - current 2 - movement 0 - other 0; expected dmg 7.49)
     LRM 20: needs 7 (range mod +2), rolled 9 -> HIT [IS Ammo LRM-20: 1 shots left]
     LRM 20: needs 7 (range mod +2), rolled 6 -> miss [IS Ammo LRM-20: 0 shots left]
   [AMS] Red's ISAntiMissileSystem engages Blue's LRM 20 (cuts 6.28 expected; +1 heat; ISAMS Ammo: 7 shots left).
@@ -243,7 +243,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
   [Movement] Blue: 0805 NW -> 0807 S, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: score 7.743 = dealt 20.22 x0.84 / (received 2.20 x1.00 + PSR 0.00 + 0.001) [enemy held at 0807; 157 spots with LOS]
   [Movement] Red: 0312 NE -> 0212 NE, Walk (2 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0) - includes a backward move
-  [Ranged] Blue -> Red: range 8, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0); firing ['LRM 20', 'Medium Laser'] (weapon heat 9 of budget 9 = max 4 + sink 10 - current 4 - movement 1 - other 0; expected dmg 2.20 with fire control / target AMS)
+  [Ranged] Blue -> Red: range 8, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0); firing ['LRM 20', 'Medium Laser'] (weapon heat 9 of budget 9 = max 4 + sink 10 - current 4 - movement 1 - other 0; expected dmg 2.20)
     LRM 20: needs 9 (range mod +2), rolled 6 -> miss [IS Ammo LRM-20: 5 shots left]
     Medium Laser: needs 11 (range mod +4), rolled 5 -> miss
   [Ranged] Red -> Blue: range 8, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 1 + heat 0); firing ['ISLRM20', 'ISGaussRifle', 'ISERLargeLaser'] (weapon heat 19 of budget 21 = max 4 + sink 20 - current 2 - movement 1 - other 0; expected dmg 14.87)
@@ -318,7 +318,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
   [Movement] Blue: 0415 S -> 0114 SE, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red: score 2.845 = dealt 27.54 x0.88 / (received 8.51 x1.00 + PSR 0.00 + 0.001) [enemy held at 0114; 89 spots with LOS]
   [Movement] Red: 0117 N -> 0217 N, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0) - includes a backward move
-  [Ranged] Blue -> Red: range 4, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['LRM 20', 'Medium Laser', 'Medium Laser'] (weapon heat 12 of budget 13 = max 4 + sink 10 - current 0 - movement 1 - other 0; expected dmg 8.51 with fire control / target AMS)
+  [Ranged] Blue -> Red: range 4, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['LRM 20', 'Medium Laser', 'Medium Laser'] (weapon heat 12 of budget 13 = max 4 + sink 10 - current 0 - movement 1 - other 0; expected dmg 8.51)
     LRM 20: needs 8 (range mod +3), rolled 4 -> miss [IS Ammo LRM-20: 4 shots left]
     Medium Laser: needs 7 (range mod +2), rolled 10 -> HIT
     Medium Laser: needs 7 (range mod +2), rolled 9 -> HIT
@@ -390,7 +390,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 6.
     ISLRM20: needs 12 (range mod +6), rolled 7 -> miss [ISLRM20 Ammo: 1 shots left]
     ISGaussRifle: needs 8 (range mod +2), rolled 8 -> HIT [ISGauss Ammo: 5 shots left]
     ISERLargeLaser: needs 6 (range mod +0), rolled 6 -> HIT
-  [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['LRM 20', 'Medium Laser', 'Medium Laser'] (weapon heat 12 of budget 12 = max 4 + sink 10 - current 0 - movement 2 - other 0; expected dmg 7.40 with fire control / target AMS)
+  [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['LRM 20', 'Medium Laser', 'Medium Laser'] (weapon heat 12 of budget 12 = max 4 + sink 10 - current 0 - movement 2 - other 0; expected dmg 7.40)
     LRM 20: needs 12 (range mod +6), rolled 6 -> miss [IS Ammo LRM-20: 3 shots left]
     Medium Laser: needs 6 (range mod +0), rolled 10 -> HIT
     Medium Laser: needs 6 (range mod +0), rolled 9 -> HIT
@@ -454,8 +454,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 6.
 !!   (none)
 !! Known missing rules with no runtime flag:
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
-!!   - LB-X / Ultra / Rotary AC multi-shot math (fire as flat single hits; LB-X fires slug only, no cluster mode)
-!!   - HAG range damage; munitions not modeled: LB-X cluster rounds, ATM ER / HE, MML LRM / SRM modes (those bins aren't fired from), AC special rounds (fired as standard), iNarc ECM / haywire / Nemesis pods; Apollo FCS; a Narc homing pod is valued for one turn and not in movement scoring
+!!   - Variable-damage weapons (heavy Gauss, HAG, VSP...) can't fire (no damage data); munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods; Apollo saturation mode; a Narc homing pod is valued for one turn and not in movement scoring
 !!   - Heat sources/sinks with no terrain model yet: water, snow, fire, extreme temperatures; inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules
@@ -482,8 +481,7 @@ BATCH SUMMARY - 1 battle(s): Red = Atlas AS7-K, Blue = Archer ARC-2R
 !!   (none)
 !! Known missing rules with no runtime flag:
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
-!!   - LB-X / Ultra / Rotary AC multi-shot math (fire as flat single hits; LB-X fires slug only, no cluster mode)
-!!   - HAG range damage; munitions not modeled: LB-X cluster rounds, ATM ER / HE, MML LRM / SRM modes (those bins aren't fired from), AC special rounds (fired as standard), iNarc ECM / haywire / Nemesis pods; Apollo FCS; a Narc homing pod is valued for one turn and not in movement scoring
+!!   - Variable-damage weapons (heavy Gauss, HAG, VSP...) can't fire (no damage data); munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods; Apollo saturation mode; a Narc homing pod is valued for one turn and not in movement scoring
 !!   - Heat sources/sinks with no terrain model yet: water, snow, fire, extreme temperatures; inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules

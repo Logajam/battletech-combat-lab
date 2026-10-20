@@ -331,7 +331,7 @@ def _extra_cooling(mech, projected):
     level after normal dissipation."""
     if mech.shutdown:
         return 0, ""
-    if equip.radical_planned(mech):
+    if equip.radical_planned(mech, warn=True):
         if equip.escalating_roll(mech, "radical", "Radical heat sink system"):
             return active_heat_sinks(mech), "radical heat sinks"
         equip.destroy_system(mech, "radical", "failed activation")
@@ -574,9 +574,11 @@ def max_movement_heat(mech):
 
 
 def max_weapon_heat(mech):
-    """Heat of every weapon that could fire next turn (ammo permitting)."""
+    """Heat of every weapon that could fire next turn (ammo permitting; an
+    Ultra / Rotary AC at its full rate of fire, 2026-10-20)."""
+    import INTEGRATION__fire_modes as fire_modes      # fire_modes -> ams -> heat
     out = ammo.unavailable_weapons(mech)
-    return sum(w.heat for w in get_weapons(mech) if w.heat and id(w) not in out)
+    return sum(w.heat * fire_modes.max_shots(w) for w in get_weapons(mech) if w.heat and id(w) not in out)
 
 
 def choose_heat_sink_deactivation(mech, next_turn):

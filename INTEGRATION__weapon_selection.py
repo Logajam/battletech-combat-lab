@@ -69,6 +69,7 @@ for _d in (MECHSIM_DIR, PATHFINDER_DIR):
 import INTEGRATION__config  # noqa: E402,F401 - ensures bare "config" is registered before MECHSIM imports
 import INTEGRATION__expected_damage as expected_damage  # noqa: E402
 import INTEGRATION__weapon_rules as weapon_rules  # noqa: E402
+import INTEGRATION__fire_modes as fire_modes  # noqa: E402
 from damage_resolution import get_weapons  # noqa: E402 - MECHSIM
 from combat import hit_probability  # noqa: E402 - PATHFINDER; reuse the confirmed P(2d6>=tn) table, don't reimplement it
 
@@ -204,7 +205,7 @@ def build_expected_damage_table(mech):
 
 def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipation, movement_heat,
                            other_heat=0, tn_adjust=None, unavailable=frozenset(), value_scale=None,
-                           weapons=None, table=None, bonus_per_hit=None):
+                           weapons=None, table=None, planner=None):
     """min_heat/max_heat are passed explicitly (the orchestrator reads them
     off the mech's attached scenario config - mech.min_heat/mech.max_heat),
     while current_heat lives on the MECHSIM BattleMech object (mech).
@@ -275,10 +276,12 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
     (INTEGRATION__ams.damage_factors, 2026-10-20) - None when it has no AMS
     covering the attacker.
 
-    bonus_per_hit (2026-10-20, attack phase): optional {id(weapon): worth of
-    one hit} added on top of the table - a Narc beacon's pod
-    (INTEGRATION__electronics.pod_value) or explosive pod, which the
-    damage-only table counts as 0.
+    planner (2026-10-20): an INTEGRATION__fire_modes.Planner for this
+    attacker and target. Every weapon fire_modes.special() names (missiles,
+    rapid-fire and LB-X autocannons, MML, ATM, Narc beacons) is priced by it
+    instead of the table - its chosen shot plan's worth and heat (rapid fire:
+    heat per shot; ammunition kind, Artemis / Narc, the target's AMS share, a
+    Narc pod's worth). tn_adjust is not added for those: the planner applies it.
 
     Returns (selected_weapons: list[Equipment], total_expected_damage: float,
     total_heat: int).
@@ -295,6 +298,15 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
     for w in weapons:
         if id(w) in unavailable:
             continue
+        if planner is not None and fire_modes.special(w):
+            if w.heat is None:
+                continue
+            got = planner(w, distance, pre_tn)
+            if got is None:
+                continue
+            value, heat_cost, _ = got
+            candidates.append((w, value if value_scale is None else value * value_scale.get(id(w), 1.0), heat_cost))
+            continue
         row = table.get(id(w), {}).get(distance)
         if row is None:
             continue  # out of range, or no confirmed damage_per_shot
@@ -304,16 +316,13 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
         if tn_adjust is not None:
             tn = max(PRE_TN_MIN, min(PRE_TN_MAX, pre_tn + tn_adjust(w, range_bracket(w, distance))))
         value = row[tn] if value_scale is None else row[tn] * value_scale.get(id(w), 1.0)
-        if bonus_per_hit and id(w) in bonus_per_hit:
-            value += hit_probability(tn + _weapon_range_mod(w, distance)) * bonus_per_hit[id(w)]
-        candidates.append((w, value))
+        candidates.append((w, value, w.heat))
 
     # --- Phase 1: 0/1 knapsack, weight = heat, value = expected damage. ---
     # dp[h] = (best total expected damage achievable with exactly heat budget h used,
     #          set of weapon ids used to achieve it)
     dp = {0: (0.0, frozenset())}
-    for w, ed in candidates:
-        heat_cost = w.heat
+    for w, ed, heat_cost in candidates:
         for used_heat in sorted(list(dp.keys()), reverse=True):
             new_heat = used_heat + heat_cost
             if new_heat > heat_budget:
@@ -333,7 +342,7 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
     if min_heat > 0 and total_heat < min_weapon_heat:   # heat can't end below 0, so a 0 floor needs nothing
         remaining_budget = heat_budget - total_heat
         energy_leftovers = [
-            (w, ed) for w, ed in candidates
+            (w, ed) for w, ed, _ in candidates
             if id(w) not in selected_ids and w.damage_type == "Energy" and w.heat <= remaining_budget
         ]
         energy_leftovers.sort(key=lambda pair: pair[1], reverse=True)

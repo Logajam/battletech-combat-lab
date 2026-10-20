@@ -186,7 +186,8 @@ KNOWN_LOCATIONS = ["Left Arm", "Right Arm", "Left Torso", "Right Torso",
 
 def strip_cosmetic_suffixes(name):
     """Strip MegaMek's cosmetic mounting/variant tags - "(R)" (rear-mounted),
-    "(OMNIPOD)" (Omnimech pod-mounted), "(T)" (turret-mounted) - none of which
+    "(OMNIPOD)" (Omnimech pod-mounted), "(T)" (turret-mounted), "(Split)" (a
+    weapon split between locations - _join_split_items joins it) - none of which
     change the underlying item's slots/explosive/damage_type. Loops because
     tags can stack in either order ("Foo (T) (OMNIPOD)"). Used both to resolve
     a raw .mtf name against equipment.json AND to decide whether consecutive
@@ -202,7 +203,7 @@ def strip_cosmetic_suffixes(name):
     changed = True
     while changed:
         changed = False
-        for suffix in ("(R)", "(OMNIPOD)", "(T)"):
+        for suffix in ("(R)", "(OMNIPOD)", "(T)", "(SPLIT)"):     # "(Split)": a split weapon (2026-10-20)
             if name.upper().endswith(suffix):
                 name = name[:-len(suffix)].strip()
                 changed = True

@@ -54,19 +54,17 @@ Claude's readings (flagged for Daniel in PROJECT_MAP Section 4):
   - Heat: an engagement is skipped if it would leave the mech's projected
     end-of-turn heat above max(its max_heat, config.AMS_HEAT_LIMIT) - default
     13, the last level with no shutdown roll (p.104).
-  - Expected damage (weapon choice and movement scoring): each damaging
-    missile weapon's expected damage is scaled toward its with-AMS value by
-    min(1, engagements / missile weapons) - the share the defender can engage,
+  - Expected damage (weapon choice and movement scoring, INTEGRATION__fire_modes
+    Planner): each damaging missile weapon's expected damage is moved toward
+    its with-AMS value by min(1, engagements / missile weapons) - the share the defender can engage,
     an approximation of "the biggest ones get engaged". Heat isn't priced in
     there (laser AMS counts as available), and in movement scoring the
     defender's torso is taken as untwisted.
 """
 
-import functools
 
 import INTEGRATION__config as config
 import INTEGRATION__weapon_rules as weapon_rules
-import INTEGRATION__expected_damage as expected_damage
 import INTEGRATION__arcs as arcs
 import INTEGRATION__ammo as ammo
 import INTEGRATION__heat as heat
@@ -79,7 +77,6 @@ CLUSTER_MODIFIER = -4          # p.206
 STREAK_RESULT = 7              # p.206: a Streak counts as a 7 on its column
 SINGLE_MISSILE_KILL = 4        # p.206: 1D6 4-6 destroys a single missile
 ENGAGEMENTS_PER_TURN = 2       # p.206, per AMS
-_2D6_EXACT = expected_damage._2D6_EXACT
 
 
 # =============================================================================
@@ -142,80 +139,31 @@ def engagement_capacity(mech, ams_list):
 # =============================================================================
 # ==========================  EXPECTED DAMAGE  ================================
 # =============================================================================
-@functools.lru_cache(maxsize=None)
-def _expected_cluster_hits_engaged(shots, modifier):
-    """Expected missiles that connect when an AMS engages a Cluster weapon:
-    roll + modifier (incl. -4), below 2 = none, above 12 = 12."""
-    total = 0.0
-    for roll, p in _2D6_EXACT.items():
-        r = roll + modifier
-        if r >= 2:
-            total += p * config.CLUSTER_HITS_TABLE[min(12, r)][shots]
-    return total
-
-
-def expected_damage_engaged(weapon, fc=electronics.PLAIN):
+def expected_damage_engaged(weapon, plan=None):
     """E[damage | hit] when an AMS engages the attack (rules above), with the
-    shot's fire control (Artemis / Narc Cluster bonus, Angel-unlocked Streak)."""
-    if not weapon_rules.is_cluster(weapon):
-        return (weapon.damage_per_shot or 0) * (SINGLE_MISSILE_KILL - 1) / 6     # 1D6 1-3: it gets through
-    if weapon_rules.is_streak(weapon) and fc.streak_lock:
-        return weapon.damage_per_shot * config.CLUSTER_HITS_TABLE[STREAK_RESULT][weapon.rack_size]
-    return weapon.damage_per_shot * _expected_cluster_hits_engaged(
-        weapon.rack_size, CLUSTER_MODIFIER + fc.cluster + weapon_rules.cluster_roll_modifier(weapon))
+    shot's plan (INTEGRATION__fire_modes: Artemis / Narc Cluster bonus,
+    Angel-unlocked Streak, ammunition kind)."""
+    import INTEGRATION__fire_modes as fire_modes                 # fire_modes imports this module's users
+    return fire_modes.expected_hit(weapon, plan or fire_modes.PLAIN, ams_engaged=True)
 
 
-def damage_prevented(weapon, fc=electronics.PLAIN):
+def damage_prevented(weapon, plan=None):
     """Expected damage an engagement takes off one hit of `weapon`."""
-    return electronics.expected_hit(weapon, fc) - expected_damage_engaged(weapon, fc)
+    import INTEGRATION__fire_modes as fire_modes
+    plan = plan or fire_modes.PLAIN
+    return fire_modes.expected_hit(weapon, plan) - fire_modes.expected_hit(weapon, plan, ams_engaged=True)
 
 
 def attack_prevented(attack):
     """What engaging this declared hit is worth: a Narc pod's worth (or an
     explosive pod's damage) x the 1D6 4+ kill; otherwise damage_prevented."""
     if electronics.is_narc(attack.weapon):
+        if attack.fire is not None and attack.fire.munition == "explosive":
+            return electronics.SINGLE_MISSILE_KILL_CHANCE * ammo.EXPLOSIVE_POD_DAMAGE.get(attack.weapon.ammo_key, 0)
         return electronics.SINGLE_MISSILE_KILL_CHANCE * (attack.pod_value or 0.0)
     if not engageable(attack.weapon):
         return 0.0
-    return damage_prevented(attack.weapon, attack.fire or electronics.PLAIN)
-
-
-def damage_factors(weapons, engagements, fire=None):
-    """{id(weapon): multiplier} on the plain expected-damage table for an
-    attacker's `weapons` against a target that can engage `engagements`
-    attacks from this direction (bot choice in the module docstring), with
-    `fire` = electronics.fire_controls (Artemis / Narc / Angel ECM), or None
-    when nothing changes the plain numbers."""
-    fire = fire or {}
-    targets = [w for w in weapons if engageable(w)]
-    share = min(1.0, engagements / len(targets)) if engagements > 0 and targets else 0.0
-    if share == 0.0 and not fire:
-        return None
-    out = {}
-    for w in targets:
-        plain = expected_damage.expected_damage_per_hit(w)
-        fc = fire.get(id(w), electronics.PLAIN)
-        base = electronics.expected_hit(w, fc)
-        if plain <= 0:
-            continue
-        factor = base / plain
-        if share and base > 0:
-            factor *= 1.0 - share * (1.0 - expected_damage_engaged(w, fc) / base)
-        if factor != 1.0:
-            out[id(w)] = factor
-    return out or None
-
-
-def combine(scale, factors):
-    """Multiply two {id(weapon): multiplier} dicts (either may be None)."""
-    if not factors:
-        return scale
-    if not scale:
-        return factors
-    out = dict(scale)
-    for k, v in factors.items():
-        out[k] = out.get(k, 1.0) * v
-    return out
+    return damage_prevented(attack.weapon, attack.fire)
 
 
 class Coverage:

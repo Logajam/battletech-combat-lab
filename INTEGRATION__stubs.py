@@ -71,7 +71,10 @@ def stub_unconfirmed_weapon_data(mech_name, weapons):
     """Makes weapon_selection's silent skip of weapons with null damage/heat/
     range loud. They never fire. No knob.
     TODO: equipment.json curation (e.g. ISLBXAC10); LB-X/Ultra handlers."""
+    import INTEGRATION__fire_modes as fire_modes     # fire_modes imports this module
     for w in weapons:
+        if fire_modes.has_profile(w):
+            continue                     # MML: damage and range come from the ammunition (2026-10-20)
         missing = [f for f in ("damage_per_shot", "heat", "weapon_range") if getattr(w, f) is None]
         if missing:
             _warn("unconfirmed_weapon_data", f"{mech_name}'s {w.name} can't fire - null {', '.join(missing)}")
@@ -83,6 +86,65 @@ def stub_ammo_data(mech_name, weapon):
     Warns each time it fires. No knob.
     TODO: shots_per_ton for these rows from Tactical Operations' tables."""
     _warn("ammo_data", f"{mech_name}'s {weapon.name} fired with unlimited ammo (no shots-per-ton data)")
+
+
+# --- Weapon-use decisions (Daniel 2026-10-20: still research) ----------------
+def stub_munition_choice(mech_name, weapon, options, warn=True):
+    """Which ammunition kind / guidance / Apollo mode `weapon` fires
+    (INTEGRATION__fire_modes options: [(ShotPlan, expected worth)]).
+    Knob: STUB_MUNITION_POLICY. Returns the ShotPlan.
+    TODO: a real policy - ammo is limited and some kinds suit some ranges
+    (Memo, PROJECT_MAP Section 6)."""
+    policy = config.STUB_MUNITION_POLICY
+
+    def plain(plan):
+        return plan.munition in ("standard", "homing") and plan.kind in ("", "standard")
+    if policy == "random":
+        plan = options[config.pick_number(len(options), prompt=f"Pick ammo ({weapon.name})") - 1][0]
+    elif policy == "standard":
+        plan = next((p for p, _ in options if plain(p)), options[0][0])
+    else:
+        plan = max(options, key=lambda o: (round(o[1], 9), plain(o[0])))[0]
+    if warn:
+        _warn("munition_choice", f"{mech_name}'s {weapon.name}: "
+              f"{', '.join(f'{p.note or p.munition} {v:.2f}' for p, v in options)} -> "
+              f"{plan.note or plan.munition} (policy {policy})")
+    return plan
+
+
+def stub_rate_of_fire(mech_name, weapon, priced, warn=True):
+    """Shots an Ultra / Rotary AC fires ([(shots, expected damage)]).
+    Knob: STUB_RATE_OF_FIRE. TODO: weigh heat, ammo and a Rotary's jam risk."""
+    policy = config.STUB_RATE_OF_FIRE
+    if policy == "single":
+        shots = priced[0][0]
+    elif policy == "greedy":
+        shots = max(priced, key=lambda o: (round(o[1], 9), -o[0]))[0]
+    else:
+        shots = priced[-1][0]
+    if warn:
+        _warn("rate_of_fire", f"{mech_name}'s {weapon.name}: {len(priced)} rates possible -> {shots} shot"
+              f"{'s' if shots > 1 else ''} (policy {policy})")
+    return shots
+
+
+def stub_unjam(mech_name, weapon, prone=False):
+    """Try to unjam a jammed Rotary AC this turn (stand still / walk only).
+    Knob: STUB_UNJAM (never while prone). TODO: weigh the lost movement."""
+    attempt = bool(config.STUB_UNJAM) and not prone
+    _warn("unjam", f"{mech_name}'s {weapon.name} is jammed -> {'tries to unjam' if attempt else 'stays jammed'}")
+    return attempt
+
+
+def stub_escalating_use(mech_name, label, cycle_on, warn=True):
+    """Use MASC / supercharger / radical heat sinks this turn? cycle_on: what
+    Daniel's 1-on / 1-off cycle says. Knob: STUB_ESCALATING_USE.
+    TODO: weigh this turn's gain against the rising failure chance (Memo)."""
+    policy = config.STUB_ESCALATING_USE
+    use = cycle_on if policy == "cycle" else policy == "always"
+    if warn:
+        _warn("escalating_use", f"{mech_name}'s {label}: {'used' if use else 'not used'} this turn (policy {policy})")
+    return use
 
 
 # =============================================================================

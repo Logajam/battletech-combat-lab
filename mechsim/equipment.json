@@ -2,7 +2,7 @@
   "_meta": {
     "source": "MegaMek equipment.txt export, regenerated via build_equipment_db.py",
     "schema_version": 1,
-    "entry_count": 1086,
+    "entry_count": 691,
     "alias_count": 8164,
     "note": "Entries with verified=false are generic-padding placeholders (1 slot, crit-eligible, non-explosive, no damage type). Confirm and correct as encountered - see notes field. Pruned SMG etc.",
     "weapon_stat_fill_pass1": {
@@ -25907,6 +25907,90 @@
       "special_rules_ref": null,
       "verified": false,
       "notes": "Not confirmed"
+    },
+    "ismachinegunammo-full": {
+      "canonical_name": "IS Machine Gun Ammo - Full",
+      "aliases": [
+        "IS Machine Gun Ammo - Full",
+        "IS Ammo MG - Full",
+        "ISMG Ammo (200)",
+        "IS Machine Gun Ammo"
+      ],
+      "category": "ammo",
+      "tech_base": "IS",
+      "slots": 1,
+      "crit_eligible": true,
+      "explosive": true,
+      "explosion_damage": null,
+      "damage_type": null,
+      "shots_per_ton": null,
+      "damage_per_shot": null,
+      "heat": null,
+      "range": null,
+      "battle_value": null,
+      "tonnage": null,
+      "special_rules": false,
+      "special_rules_ref": null,
+      "verified": false,
+      "notes": "Added 2026-10-20 (Claude): IS machine gun ammo had no row, so 'IS Ammo MG - Full' / 'IS Machine Gun Ammo - Half' bins (174 units in data/meks.zip) weren't ammo and IS machine guns never fired. Mirrors the Clan row."
+    },
+    "ismachinegunammo-half": {
+      "canonical_name": "IS Machine Gun Ammo - Half",
+      "aliases": [
+        "IS Machine Gun Ammo - Half",
+        "IS Ammo MG - Half",
+        "ISMG Ammo (100)",
+        "IS Machine Gun Ammo (1/2 ton)"
+      ],
+      "category": "ammo",
+      "tech_base": "IS",
+      "slots": 1,
+      "crit_eligible": true,
+      "explosive": true,
+      "explosion_damage": null,
+      "damage_type": null,
+      "shots_per_ton": null,
+      "damage_per_shot": null,
+      "heat": null,
+      "range": null,
+      "battle_value": null,
+      "tonnage": null,
+      "special_rules": false,
+      "special_rules_ref": null,
+      "verified": false,
+      "notes": "Added 2026-10-20 (Claude): IS machine gun ammo had no row, so 'IS Ammo MG - Full' / 'IS Machine Gun Ammo - Half' bins (174 units in data/meks.zip) weren't ammo and IS machine guns never fired. Mirrors the Clan row."
+    },
+    "ismachinegun": {
+      "canonical_name": "ISMachine Gun",
+      "aliases": [
+        "ISMachine Gun",
+        "Machine Gun",
+        "IS Machine Gun",
+        "ISMG"
+      ],
+      "category": "weapon",
+      "tech_base": "IS",
+      "slots": 1,
+      "crit_eligible": true,
+      "explosive": false,
+      "explosion_damage": null,
+      "damage_type": "Ballistic",
+      "shots_per_ton": 200,
+      "damage_per_shot": 2,
+      "heat": 0,
+      "range": {
+        "min": 0,
+        "short": 1,
+        "medium": 2,
+        "long": 3
+      },
+      "battle_value": 5,
+      "tonnage": 0.5,
+      "special_rules": false,
+      "special_rules_ref": null,
+      "verified": false,
+      "notes": "Added 2026-10-20 (Claude) from the Core Rulebook IS weapons table, p.248 row 'Machine Gun' (heat 0, damage 2, 1 / 2 / 3, 0.5 t, 1 slot, 200 shots). The IS machine gun had no row, so its crit lines were inert padding and it never fired.",
+      "rack_size": null
     }
   },
   "alias_map": {
@@ -33742,6 +33826,17 @@
     "isimpact-resistant": "isimpact-resistant",
     "isheat-dissipating": "isheat-dissipating",
     "clanheat-dissipating": "isheat-dissipating",
-    "isanti-penetrativeablation": "isanti-penetrativeablation"
+    "isanti-penetrativeablation": "isanti-penetrativeablation",
+    "ismachinegunammo-full": "ismachinegunammo-full",
+    "isammomg-full": "ismachinegunammo-full",
+    "ismgammo(200)": "ismachinegunammo-full",
+    "ismachinegunammo": "ismachinegunammo-full",
+    "ismachinegunammo-half": "ismachinegunammo-half",
+    "isammomg-half": "ismachinegunammo-half",
+    "ismgammo(100)": "ismachinegunammo-half",
+    "ismachinegunammo(1/2ton)": "ismachinegunammo-half",
+    "ismachinegun": "ismachinegun",
+    "machinegun": "ismachinegun",
+    "ismg": "ismachinegun"
   }
 }

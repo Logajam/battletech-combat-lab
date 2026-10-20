@@ -46,7 +46,7 @@ verbose, home-edge deployment. Layout: `INTEGRATION__*.py` at the top;
 boards, test mechs and `meks.zip` (4,227 MegaMek units, 4,162 parse);
 `rules/` the rules library zip; `reference_logs/` same-seed sample battles.
 
-**After any change, from the repo root:** every `tests/test_*.py` (11 files,
+**After any change, from the repo root:** every `tests/test_*.py` (12 files,
 all must pass), `python tests/check_reference_logs.py` (must pass unless the
 change is MEANT to alter results - then look at a fresh battle and run
 `--update`, and say so in the Change Record; Daniel has OK'd regenerating
@@ -93,9 +93,15 @@ cloud container, faster on Daniel's PC).
 - OPTIONAL RULES (config, Daniel 2026-10-20): `FLOATING_CRITICALS` (default
   True), `FIGHT_TO_THE_DEATH` (default False = a mech immobile for good -
   destroyed gyro / both legs - is destroyed; True = rules as written).
+- Weapon-use options (`INTEGRATION__fire_modes`, 2026-10-20): Ultra / Rotary
+  AC rapid fire (Rotary jams and unjamming), LB-X slug / cluster rounds, ATM
+  standard / ER / HE, MML LRM / SRM, Apollo standard-fire mode - the rules are
+  built, the CHOICE is a stub (Daniel: "still a matter of research").
 - Remaining loud stubs (`INTEGRATION__stubs.py`): weapon data gaps
-  (`ammo_data`, `unconfirmed_weapon_data`, `unknown_damage_type`) and
-  `heat_explosion_bin` (a controller choice).
+  (`ammo_data`, `unconfirmed_weapon_data`, `unknown_damage_type`),
+  `heat_explosion_bin` (a controller choice), and the weapon-use decisions
+  (`munition_choice`, `rate_of_fire`, `unjam`, `escalating_use` - MASC /
+  supercharger / radical heat sinks).
 
 **Rules review:** `INTEGRATION__RULES_REVIEW.md` - first pass over the whole
 Core Rulebook done 2026-10-20: what was fixed (F1-F13), the gap list (G2-G16,
@@ -103,11 +109,13 @@ Claude's to build), and the Core-vs-project questions (D1-D7 decided, D8
 open). Read it before building rules.
 
 **Pick up here (open, roughly in priority order):**
-1. **Next big rules item:** Ultra / Rotary autocannon rapid fire and jams,
-   LB-X cluster ammo (review G10, pp.183, 191-192), then the special
-   munitions (G16). AMS, Artemis, Narc and ECM are built (2026-10-20);
-   readings that wait on Daniel are in Section 4 ("AMS readings",
-   "Artemis / Narc / ECM readings").
+1. **Research: how the bot should decide** rate of fire, MASC use and which
+   ammunition (Daniel, 2026-10-20) - today stubs (`STUB_MUNITION_POLICY`,
+   `STUB_RATE_OF_FIRE`, `STUB_UNJAM`, `STUB_ESCALATING_USE`); goes with the
+   future-capability Memo (item 2). Rules still to build: variable-damage
+   weapons (heavy Gauss, HAG, VSP - they can't fire yet), AC special rounds
+   (G16). Questions for Daniel: Section 4 ("AMS readings", "Artemis / Narc /
+   ECM readings", "Weapon-use readings").
 2. **The bot's future-capability planning** - Section 6 "Memo" (Daniel,
    2026-10-20). Needed for clubs, MASC, Rotary ACs (jam risk) and similar.
 3. **Hanging back** (seen 2026-10-20): mechs spending turns at range 5-9 out
@@ -223,6 +231,10 @@ TODOs are from memory — grep before relying on them).
 | `unconfirmed_weapon_data` | Loud warning; weapon never fires | equipment.json curation - special-rules weapons (MG arrays, TAG, SRTs, HAG damage, MML modes, plasma, VSP damage...) |
 | `ammo_data` | Unlimited ammo for a weapon with no shots_per_ton (HVAC, Improved AC - not in the Core tables) | shots_per_ton from Tactical Operations tables |
 | `heat_explosion_bin` | Heat ammo explosion: bins still tied on damage value AND shots left picked at random; unknown-damage bins count as 0 | A controller policy (pile 4) |
+| `munition_choice` | Which ammunition kind / guidance / Apollo mode fires: `STUB_MUNITION_POLICY` "greedy" (most expected damage this shot; ties keep standard) / "standard" / "random" | Research (Daniel 2026-10-20) |
+| `rate_of_fire` | Ultra / Rotary AC shots: `STUB_RATE_OF_FIRE` "max" / "single" / "greedy" (jam risk not priced) | Research |
+| `unjam` | Try to unjam a jammed Rotary AC (stand still / walk only): `STUB_UNJAM` True unless prone | Research |
+| `escalating_use` | MASC / supercharger / radical heat sinks used this turn: `STUB_ESCALATING_USE` "cycle" (Daniel's 1-on / 1-off) / "always" / "never" | Research |
 
 Replaced by Core Rulebook rules 2026-10-19 (Change Record): `attack_direction`
 (p.73), `cluster_grouping` (pp.87, 181), `post_standup_movement` (p.51),
@@ -285,6 +297,19 @@ confirmed project rules, not stubs):
 - MegaMek says which launcher an FCS belongs to only by putting it in the
   same location; linked in slot order there (a leftover FCS goes to a
   launcher with none).
+
+**Weapon-use readings - Daniel may overrule (Claude, 2026-10-20, `INTEGRATION__fire_modes`):**
+- Apollo saturation mode (p.197) fires at a HEX; the Core Rulebook doesn't say
+  what to-hit number an attack on a hex takes (the target's movement modifier?
+  none?). Not offered until Daniel says - only standard-fire mode (no MRM -1).
+- MML LRM groupings: the table (p.250) prints C3/3, C5/5, C7/7, C9/9 - used as
+  printed, so an MML 7 / 9 LRM volley lands as one group. LRMs are C5
+  everywhere else; maybe a printing slip.
+- ATM ER / HE shots per ton are "**" in the table (p.252): the launcher's own
+  figure is used.
+- Unjam attempts are declared at the start of the Movement Phase for both
+  mechs (the rule only says "during the Movement Phase").
+- The Core Ultra AC has no jam rule (only the Rotary jams) - followed as written.
 
 **TODO noted in code:** a failed movement PSR drops the mech in its END hex;
 in tabletop play it falls where the check was failed
@@ -598,8 +623,10 @@ forward arc, kicks included, never into a side arc.
 | Heat-constrained weapon selection | `INTEGRATION__weapon_selection.py` | Which weapons fire this turn, built and wired |
 | Heat ammo explosion bin (controller's choice) | `INTEGRATION__stubs.stub_heat_explosion_bin` | **STUB.** Which of several equally destructive, equally full bins explodes (random). |
 | AMS engagements | `INTEGRATION__ams.engage` | Which missile hits each AMS takes (the ones it cuts most first; a Narc pod counts half its worth - 1D6 4+ - and nothing once a pod is on), cheapest-heat AMS first; skips an engagement that would end the turn above max(max_heat, `config.AMS_HEAT_LIMIT` = 13). Expected damage (weapon choice, movement) scales each missile weapon toward its engaged value by min(1, engagements / missile weapons) |
-| Munition per shot | `INTEGRATION__electronics.best_control`, `ammo.take` | Artemis V, then Narc homing, then Artemis IV - whichever works now - else a standard bin, else any bin (special missiles fire as normal ones) |
-| Fire a Narc beacon / which pod | `electronics.pod_value`, `pod_munition`; `weapon_selection` `bonus_per_hit` | A homing pod is worth one turn of the owner's extra Narc-missile damage (Daniel) - 0 once a pod is on or the target has ECM; explosive pods (4 / 6) when homing is worthless; priced x P(hit) in the knapsack (0 heat). Not in movement scoring |
+| Ammunition kind / guidance / Apollo mode per shot | `fire_modes.Planner` -> **STUB** `stubs.stub_munition_choice` | LB-X slug / cluster, ATM standard / ER / HE, MML LRM / SRM, Artemis / Narc-equipped / standard missiles, Narc homing / explosive pods. Research (Daniel 2026-10-20); default "greedy" |
+| Rate of fire (Ultra / Rotary AC) | `fire_modes.Planner` -> **STUB** `stubs.stub_rate_of_fire` | Research; default "max" |
+| Unjam a Rotary AC | `fire_modes.declare_unjams` -> **STUB** `stubs.stub_unjam` | Research; default: always try unless prone |
+| Narc beacon worth | `electronics.pod_value`, priced by `fire_modes.Planner` | A homing pod is worth one turn of the owner's extra Narc-missile damage (Daniel) - 0 once a pod is on or the target has ECM; explosive pods their damage. Not in movement scoring |
 | Ammo bin to draw from | `INTEGRATION__ammo.spend` | The bin with the fewest shots left (empties bins sooner) |
 | Prop arm when firing prone | `INTEGRATION__attack_resolution.prone_fire` | The arm whose weapons matter least |
 | Physical attack type | `INTEGRATION__physical.choose_attack` | Twist (if still allowed) + attack type (punch / kick / physical weapon / club / push) with the most expected worth, weighted by hit table (`physical.Worth`) |
@@ -611,7 +638,7 @@ forward arc, kicks included, never into a side arc.
 | Club pick-up | `INTEGRATION__clubs.maybe_pick_up` | OFF (`config.CLUB_PICKUP`); waits for the Memo below |
 | DFA miss: where the target steps | `INTEGRATION__dfa.resolve` | The open hex with the smallest drop |
 | Home edge | `config.HOME_EDGE_CHOICE` | Which edge the deployment-roll loser picks (default random) |
-| Escalating Failure use (radical heat sinks, MASC, supercharger) | `INTEGRATION__equipment_systems.cycle_on` | 1-turn-on / 1-turn-off cycle (Daniel's default) |
+| Escalating Failure use (radical heat sinks, MASC, supercharger) | `equipment_systems.use_escalating` -> **STUB** `stubs.stub_escalating_use` | Research (Daniel 2026-10-20); default "cycle" = Daniel's 1-turn-on / 1-turn-off |
 | Coolant pod trigger | `INTEGRATION__heat._extra_cooling` | One pod when heat would stay above min_heat, not on a radical turn |
 | Heat-sink switching | `INTEGRATION__heat.choose_heat_sink_deactivation` | End Phase: how many sinks stay on so min_heat can be reached |
 | Aimed shot location | `config.AIMED_SHOT_LOCATION` | Where shots at immobile targets aim (default Center Torso) |
@@ -632,9 +659,11 @@ ask what an action does to what it can do on later turns:
   Pick-up is OFF (`config.CLUB_PICKUP`) until this exists.
 - **MASC / superchargers.** Each use raises the failure target number and a
   failure wrecks the legs / engine; using them is a trade between this turn's
-  MP and next turns' risk. Today: Daniel's 1-on / 1-off default cycle.
+  MP and next turns' risk. Today: a stub (`STUB_ESCALATING_USE`), default
+  Daniel's 1-on / 1-off cycle.
 - **Rotary autocannons** (and Ultras): more shots now vs jams that take the
-  weapon away later (multi-shot math isn't built yet either).
+  weapon away later. The rules are built (2026-10-20); the rate is a stub
+  (`STUB_RATE_OF_FIRE`), as are the ammunition kind and unjamming.
 - Likely the same shape: radical heat sinks, coolant pods, ammo spending
   ("they'll need their own logic suite on if it's worth using up limited
   ammo"), heat build-up vs a shutdown later, and possibly the hanging-back
@@ -695,6 +724,48 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-20 (Claude):** Weapon-use options with stub decisions (Daniel:
+  "Work on including the functionality of choice, but use a stub for the
+  actual decision"; review F14-F15). New `INTEGRATION__fire_modes.py`:
+  Ultra (1-2) / Rotary (1-6) AC rapid fire (pp.182-183: heat and ammo per
+  shot, one attack roll, Cluster Hits on the shots column, each shot its own
+  location; no aimed rapid fire); Rotary jams (2-3 shots on 2, 4-5 on 3-, 6
+  on 4-) and unjamming (declared in the Movement Phase - stand still / walk
+  only - Gunnery + 3 at the end of the Ranged phase); LB-X cluster rounds
+  (p.192: -1, rating column, 1-point pellets, no TC); ATM ER / HE and MML
+  LRM / SRM ammunition (pp.186, 250, 252: damage, ranges, groupings, MML
+  shots per ton); Apollo standard-fire mode (p.197, linked like Artemis:
+  no MRM -1). `ShotPlan` per shot (`DeclaredAttack.fire`) wraps the
+  electronics guidance; `Planner` prices special weapons for the knapsack
+  (`weapon_selection` `planner=`, replacing the AMS / fire-control value
+  factors and `bonus_per_hit`) and movement scoring, and makes the decision
+  at declaration. New stubs (all loud at the decision): `munition_choice`,
+  `rate_of_fire`, `unjam`, `escalating_use` (MASC / supercharger / radical,
+  `equipment_systems.use_escalating`; default = Daniel's cycle, results
+  unchanged). Ammo: `parse_bin` returns (weapon, munition, kind); LB-X
+  cluster / ATM ER-HE / MML bins now feed their weapons; " - Half" bins hold
+  half; `take` draws a chosen kind. Data: IS machine gun (p.248) and IS MG
+  ammo rows added - IS machine guns never fired; "(Split)" crit lines are
+  read. `heat.max_weapon_heat` counts full rapid fire. Tests:
+  `tests/test_fire_modes.py` (10 checks), `test_ams` / `test_electronics`
+  moved to the Planner API. New reference battles
+  `Cataphract_CTF-3D_vs_Emperor_EMP-6D_seed1.txt`,
+  `Akuma_AKU-2XK_vs_Highlander_IIC_2_seed1.txt` (units copied into `data/`).
+  Reference logs regenerated: outcomes unchanged except where these rules
+  act; the rest only log text (stub lines, the summary banner, split heavy
+  Gauss now one weapon that can't fire yet). Benchmark unchanged (458 / 466).
+
+- **2026-10-20 (Claude):** Weapon slot counts (review F16). equipment.json
+  listed many multi-slot weapons with too few slots (every Ultra / Rotary /
+  LB-X AC, ATM, MRM, MML, Streak LRM, heavy / VSP / X-pulse lasers, HAG,
+  heavy Gauss...) and some Clan ones with the IS count (Clan ER large laser,
+  ER PPC, LRMs, SRM 6). The parser groups crit lines by that count, so a
+  5-slot Ultra AC/5 became five Ultra AC/5s and two adjacent Clan ER large
+  lasers one. 103 rows fixed from the Core tables (pp.248-254, cited per
+  row), 11 non-Core rows from the MegaMek files' crit-line runs; 1,893 of
+  4,162 units had a wrong weapon count. `mtf_parser._join_split_items`: a
+  weapon split between two locations is one item.
 
 - **2026-10-20 (Claude):** Artemis, Narc and ECM (Daniel: "Artemis and Narc.
   Since they both affect Missiles and are affected by ECM in similar ways";

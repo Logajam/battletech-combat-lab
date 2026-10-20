@@ -143,7 +143,8 @@ MECH_BLUE_MTF = "Asymptote II iJ Mpulse.mtf"
 #
 # Radical heat sinks, MASC, supercharger: Escalating Failure systems, used on a
 # 1-turn-on / 1-turn-off cycle (Daniel). True = "on" turns are the odd turns
-# (1, 3, 5...); False = even turns.
+# (1, 3, 5...); False = even turns. (Since 2026-10-20 whether to use them is a
+# stub - STUB_ESCALATING_USE below; "cycle" follows this setting.)
 ESCALATING_CYCLE_ON_ODD_TURNS = True
 # Triple-strength myomer is driven by min_heat (Daniel): a TSM mech's min_heat
 # is raised to at least this (TSM works at 9+ heat), and its max_heat to at
@@ -195,6 +196,30 @@ STITCH_GRID_ROWS = 3
 # Damage type used when equipment.json has damage_type null (only matters for
 # special armor types in armor_rules): "BALLISTIC" / "ENERGY" / "MISSILE"
 STUB_UNKNOWN_DAMAGE_TYPE = "BALLISTIC"
+# --- Bot decisions still being researched (Daniel, 2026-10-20: "How a bot
+# determines what rate to fire at, If it should use MASC, or what kind of ammo
+# to use (Apollo goes in this catagory) is still a matter of research"). The
+# options are real rules (INTEGRATION__fire_modes, INTEGRATION__electronics,
+# INTEGRATION__equipment_systems); these stubs pick one. ---
+# Which ammunition kind / guidance / Apollo mode a weapon fires (LB-X slug or
+# cluster, ATM standard / ER / HE, MML LRM / SRM, Artemis / Narc-equipped or
+# standard missiles, Narc homing or explosive pods):
+#   "greedy"   - most expected damage this shot (a homing pod: its worth);
+#                ties keep standard ammunition
+#   "standard" - standard ammunition / slugs whenever there is some
+#   "random"   - a seeded random pick
+STUB_MUNITION_POLICY = "greedy"
+# How many shots an Ultra (1-2) / Rotary (1-6) autocannon fires:
+#   "max" - as many as it can (ammo permitting); "single" - one; "greedy" -
+#   most expected damage this shot (a Rotary's jam risk isn't priced)
+STUB_RATE_OF_FIRE = "max"
+# Try to unjam a jammed Rotary AC (that turn: stand still or walk only).
+# True = whenever it's jammed and the mech isn't prone.
+STUB_UNJAM = True
+# When MASC / a supercharger / a radical heat sink system is used:
+#   "cycle"  - Daniel's 1-turn-on / 1-turn-off default (ESCALATING_CYCLE_ON_ODD_TURNS)
+#   "always" / "never"
+STUB_ESCALATING_USE = "cycle"
 # (STUB_REAR_MOUNTED removed 2026-10-19: mtf_parser keeps the "(R)" tag as
 # Equipment.rear_mounted; those weapons fire only into the rear arc - Core p.60.)
 # (STUB_HEAT_MODE removed 2026-10-18: heat now always carries over turn to

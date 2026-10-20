@@ -81,6 +81,20 @@ SCENARIOS = {
         'config.MECH_RED_MTF = "Atlas AS7-S2.mtf"',
         'config.MECH_BLUE_MTF = "Kintaro KTO-19.mtf"',
         "config.SEED = 1",
+    ],    # Added 2026-10-20 for the weapon-use choices (stubs): the Cataphract CTF-3D's
+    # Ultra AC/5 rapid-fires and its LB 10-X picks slugs or cluster rounds; the
+    # Emperor EMP-6D's Rotary AC/5s fire x6, jam and are unjammed. Then the
+    # Akuma AKU-2XK's MML 9s pick LRM or SRM rounds and the Highlander IIC 2's
+    # ATM 6 standard / ER / HE (its Artemis bonus blocked by the Akuma's ECM).
+    "Cataphract_CTF-3D_vs_Emperor_EMP-6D_seed1.txt": [
+        'config.MECH_RED_MTF = "Cataphract CTF-3D.mtf"',
+        'config.MECH_BLUE_MTF = "Emperor EMP-6D.mtf"',
+        "config.SEED = 1",
+    ],
+    "Akuma_AKU-2XK_vs_Highlander_IIC_2_seed1.txt": [
+        'config.MECH_RED_MTF = "Akuma AKU-2XK.mtf"',
+        'config.MECH_BLUE_MTF = "Highlander IIC 2.mtf"',
+        "config.SEED = 1",
     ],
 }
 

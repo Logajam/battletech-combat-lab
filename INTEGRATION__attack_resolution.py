@@ -103,6 +103,7 @@ import INTEGRATION__clubs as clubs
 import INTEGRATION__ammo as ammo
 import INTEGRATION__ams as ams
 import INTEGRATION__electronics as electronics
+import INTEGRATION__fire_modes as fire_modes
 from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capability, \
     mark_consciousness_check_pending, compute_heat_dissipation
 import armor_rules
@@ -137,7 +138,7 @@ class DeclaredAttack:
     aimed_at: Optional[str] = None   # aimed-shot location (immobile target)
     cover: bool = False              # target in partial cover: leg hits strike the cover (p.66)
     ams: object = None               # the target's AMS engaging this hit (p.206, INTEGRATION__ams)
-    fire: object = None              # electronics.FireControl: munition, Artemis / Narc bonuses, Streak lock
+    fire: object = None              # fire_modes.ShotPlan: ammunition, Artemis / Narc, rapid fire, Apollo
     pod_value: float = 0.0           # Narc beacon: the homing pod's worth (electronics.pod_value)
 
 
@@ -322,32 +323,31 @@ def firing_conditions(attacker):
     return sensors + prone[0], prone[1], ", ".join(note)
 
 
-def tn_adjuster(attacker, target, aim=None, cover_modifier=0, fire=None):
-    """f(weapon, bracket) -> per-weapon TN change for select_weapons_to_fire:
-    the weapon's own modifier, targeting computer, arm crits, the target's
-    range-stealth bonus, the aimed-shot change for weapons that can aim, and
-    (2026-10-20) Artemis V / Narc homing -1 (`fire`, electronics.fire_controls;
-    worked out here when not given)."""
+def tn_adjuster(attacker, target, aim=None, cover_modifier=0):
+    """f(weapon, bracket, plan=None) -> per-weapon TN change for
+    select_weapons_to_fire: the weapon's own modifier, targeting computer, arm
+    crits, the target's range-stealth bonus, and the aimed-shot change for
+    weapons that can aim. With a fire_modes.ShotPlan (2026-10-20), aiming and
+    the targeting computer follow the plan (no aimed rapid fire or LB-X cluster
+    shot, no TC for cluster rounds); the plan's own TN change (Artemis V, Narc,
+    LB-X cluster) is added by fire_modes, not here."""
     stealth = equip.range_stealth_bonus(target)
-    fire = electronics.fire_controls(attacker, target) if fire is None else fire
     aim_adjust = aimed_tn_adjust(aim, cover_modifier) if aim else 0
     tc = has_targeting_computer(attacker)
     locs = weapon_locations(attacker)
 
-    def adjust(weapon, bracket):
+    def adjust(weapon, bracket, plan=None):
         tn = stealth.get(bracket, 0) if bracket else 0
         tn += weapon_rules.weapon_tn_modifier(weapon, bracket)
         tn += arm_actuator_modifier(attacker, locs.get(id(weapon), ()))
-        aiming = aim and not is_cluster_weapon(weapon)
+        aiming = aim and (fire_modes.aimable(weapon, plan) if plan is not None else not is_cluster_weapon(weapon))
         if aiming:
             tn += aim_adjust
         # TC -1 (p.200): not on head shots, nor on a pulse weapon's aimed shot.
-        if tc and weapon_rules.targeting_computer_eligible(weapon) and not (
-                aiming and (aim == "Head" or weapon_rules.is_pulse(weapon))):
+        eligible = fire_modes.tc_eligible(weapon, plan) if plan is not None else \
+            weapon_rules.targeting_computer_eligible(weapon)
+        if tc and eligible and not (aiming and (aim == "Head" or weapon_rules.is_pulse(weapon))):
             tn -= 1
-        fc = fire.get(id(weapon))
-        if fc is not None:
-            tn += fc.tn
         return tn
     return adjust
 
@@ -418,7 +418,7 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
         config.log(f"  [Ranged] {a_name}: can't make ranged attacks (sensors destroyed, or prone with no arm to prop on).")
         return
     cond_mod, unavailable, cond_note = conditions
-    unavailable = unavailable | ammo.unavailable_weapons(attacker)
+    unavailable = unavailable | ammo.unavailable_weapons(attacker) | fire_modes.jammed_ids(attacker)
     prone_mod = prone_target_modifier(target, distance)
     other_mod = cond_mod + prone_mod
     pre_tn = attacker.gunnery + amm + tmm + los.modifier + heat_mod + stealth_mod + other_mod
@@ -426,24 +426,20 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     aim = None
     if is_immobile(target) and config.AIMED_SHOT_LOCATION:
         aim = aimed_shot_location(target, partial_cover=cover > 0)
-    fire = electronics.fire_controls(attacker, target)          # Artemis / Narc / ECM (2026-10-20)
-    adjust = tn_adjuster(attacker, target, aim, cover, fire)
+    adjust = tn_adjuster(attacker, target, aim, cover)
     side = attack_side(a_hex, t_hex, hex_geometry.compass_to_facing(target.facing), terrain_map)
-    # The target's AMS (p.206) will cut its share of the missile damage, and Artemis / Narc /
-    # Angel ECM change the Cluster rolls - priced into the choice.
+    sel_pre_tn = max(weapon_selection.PRE_TN_MIN, min(weapon_selection.PRE_TN_MAX, pre_tn))
+    # Special weapons (missiles, rapid fire, LB-X, MML, ATM, Narc) are priced by a fire_modes
+    # Planner (2026-10-20): the ammunition / rate the stubs would pick, Artemis / Narc / ECM,
+    # the target's AMS share (p.206) and a Narc pod's worth (Daniel).
     usable = [w for w in get_weapons(attacker) if id(w) not in unavailable]
     k = ams.engagement_capacity(target, ams.covering(target, a_hex)) if ams.can_engage(target) else 0
-    ams_factors = ams.damage_factors(usable, k, fire)
-    # Narc beacons: a homing pod is worth the extra damage it brings next turn (Daniel), an
-    # explosive pod its damage (INTEGRATION__electronics).
-    pod_bonus, pod_munitions = {}, {}
-    for w in usable:
-        if electronics.is_narc(w):
-            pod_munitions[id(w)] = munition = electronics.pod_munition(attacker, w, target)
-            pod_bonus[id(w)] = (ammo.EXPLOSIVE_POD_DAMAGE.get(w.ammo_key, 0) if munition == "explosive" else
-                                electronics.pod_value(attacker, target, distance, pre_tn, adjust, fire))
+    pod_values = {}
+    if any(electronics.is_narc(w) for w in usable):
+        worth = electronics.pod_value(attacker, target, distance, sel_pre_tn, adjust)
+        pod_values = {id(w): worth for w in usable if electronics.is_narc(w)}
+    planner = fire_modes.Planner(attacker, target, adjust, fire_modes.ams_share(k, usable), pod_values)
 
-    sel_pre_tn = max(weapon_selection.PRE_TN_MIN, min(weapon_selection.PRE_TN_MAX, pre_tn))
     dissipation = compute_heat_dissipation(attacker)
     other = heat.other_heat(attacker)
     # Torso twist / arm flip / turret (pp.61-62): declared with the attacks, so try each
@@ -466,7 +462,7 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
                     attacker, distance, sel_pre_tn, attacker.min_heat, attacker.max_heat,
                     dissipation=dissipation, movement_heat=attacker.movement_heat, other_heat=other,
                     tn_adjust=adjust, unavailable=unavailable | arc_unavailable(attacker, key) | held,
-                    value_scale=ams_factors, bonus_per_hit=pod_bonus or None)
+                    planner=planner)
             total = picked[1] + phys_value
             if best is None or total > best[0] + 1e-12:
                 best = (total, picked, key, action, phys_picks, phys_value, held)
@@ -492,31 +488,38 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
                f"firing {[w.name for w in weapons] or 'nothing'}{f' (aimed at {aim})' if aim else ''} "
                f"(weapon heat {weapon_heat}{f' +{surcharge} damaged radical' if surcharge else ''} of budget "
                f"{budget} = max {attacker.max_heat} + sink {dissipation} - current {attacker.current_heat} "
-               f"- movement {attacker.movement_heat} - other {other}; expected dmg {exp_dmg:.2f}"
-               f"{' with fire control / target AMS' if ams_factors and any(id(w) in ams_factors for w in weapons) else ''})")
-    electronics.log_controls(a_name, fire, weapons)
+               f"- movement {attacker.movement_heat} - other {other}; expected dmg {exp_dmg:.2f})")
+    # The decisions themselves (stubs warn here): each special weapon's ammunition / rate.
+    plans = {id(w): planner.declare(w, distance, sel_pre_tn) for w in weapons if fire_modes.special(w)}
+    electronics.log_controls(a_name, plans, weapons)
 
     report.weapon_heat += weapon_heat + surcharge
     for w in weapons:
         # Ammo is marked off at declaration - except Streaks, only on a hit (p.72, p.187) -
         # from a bin of the chosen munition; if none is left the shot is what the bin fired.
-        planned = fire.get(id(w), electronics.PLAIN)            # what `adjust` priced
-        fc = electronics.FireControl(pod_munitions[id(w)]) if electronics.is_narc(w) else planned
+        plan = plans.get(id(w), fire_modes.PLAIN)
         ammo_note = ""
         if not weapon_rules.is_streak(w):
-            ammo_note, used = ammo.take(attacker, w, fc.munition)
-            if used != fc.munition and w.damage_type == "Missile":   # that kind ran out: fire what was taken
-                fc = electronics.FireControl(used) if electronics.is_narc(w) else \
-                    electronics.control_for(attacker, w, target, used)
-        range_mod = weapon_selection._weapon_range_mod(w, distance)
-        extra = adjust(w, weapon_selection.range_bracket(w, distance)) - planned.tn + fc.tn
-        w_aim = aim if aim and not is_cluster_weapon(w) else None
+            notes = [ammo.take(attacker, w, plan.munition, plan.kind if fire_modes.special(w) else None)
+                     for _ in range(plan.shots)]
+            ammo_note = notes[-1][0]
+        if fire_modes.special(w):
+            range_mod = fire_modes.range_mod(w, plan, distance)
+            extra = adjust(w, fire_modes.bracket(w, plan, distance), plan) + plan.tn
+        else:
+            range_mod = weapon_selection._weapon_range_mod(w, distance)
+            extra = adjust(w, weapon_selection.range_bracket(w, distance))
+        w_aim = aim if aim and fire_modes.aimable(w, plan) else None
         tn = pre_tn + range_mod + extra
         roll = config.roll_2d6(prompt=f"To-hit roll ({w.name})")
         hit = roll >= tn
-        config.log(f"    {w.name}: needs {tn} (range mod +{range_mod}"
+        config.log(f"    {w.name}{f' x{plan.shots}' if plan.shots > 1 else ''}: needs {tn} (range mod +{range_mod}"
                    f"{f', modifiers {extra:+d}' if extra else ''}){f' aimed at {w_aim}' if w_aim else ''}, "
                    f"rolled {roll} -> {'HIT' if hit else 'miss'}{f' [{ammo_note}]' if ammo_note else ''}")
+        jam_at = fire_modes.jam_threshold(plan) if fire_modes.is_rotary(w) else 0
+        if roll <= jam_at:
+            w.jammed = True
+            config.log(f"      {w.name} JAMS (roll {roll} with {plan.shots} shots, p.183) - the shots still fire.")
         if weapon_rules.is_streak(w):
             if hit:
                 note = ammo.spend(attacker, w)
@@ -527,8 +530,8 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
                 config.log(f"      Streak missed - launcher doesn't fire: no heat, no ammo.")
         report.attacks += 1
         report.attacks_list.append(DeclaredAttack(weapon=w, tn=tn, roll=roll, hit=hit, side=side,
-                                                  aimed_at=w_aim, cover=cover > 0, fire=fc,
-                                                  pod_value=pod_bonus.get(id(w), 0.0)))
+                                                  aimed_at=w_aim, cover=cover > 0, fire=plan,
+                                                  pod_value=pod_values.get(id(w), 0.0)))
 
 
 def _damage_type_for(weapon):
@@ -615,24 +618,28 @@ def _tac_check(target, loc, armor_field, damage_type, location_destroyed):
 
 def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng):
     """Cannibalized from MECHSIM__sim_runner.resolve_weapon_attack() (the
-    post-to-hit half): one hit for a flat weapon, or a cluster roll and one
-    _resolve_hit per damage group for a cluster weapon. Cluster detection
-    matches INTEGRATION__expected_damage: damage_type == "Missile" with a
-    rack_size (LB-X/Ultra/Rotary are flat single hits for now - documented
-    gap there)."""
+    post-to-hit half): one hit for a flat weapon, or a Cluster Hits Table roll
+    and one _resolve_hit per damage group. Since 2026-10-20 the shot plan
+    (attack.fire, INTEGRATION__fire_modes) sets the column, damage per missile /
+    shot / pellet and grouping: rapid fire (each shot its own location),
+    LB-X cluster rounds (1-point pellets), ATM / MML ammunition, Artemis /
+    Narc / Apollo Cluster changes, an Angel-unlocked Streak."""
     w = attack.weapon
     if electronics.is_narc(w):
         _resolve_pod(attacker, target, attack)
         return
-    if not w.damage_per_shot:
+    plan = attack.fire or fire_modes.PLAIN
+    per = fire_modes.damage_per(w, plan)
+    if not per:
         config.log(f"    {w.name} hit - zero damage weapon, no damage resolution.")
         return
     side = attack.side
-    fc = attack.fire or electronics.PLAIN        # Artemis / Narc Cluster bonus, Angel-unlocked Streak
-    streak = weapon_rules.is_streak(w) and fc.streak_lock
-    bonus = f" {fc.cluster:+d} {fc.note}" if fc.cluster else ""
+    col = fire_modes.column(w, plan)
+    streak = weapon_rules.is_streak(w) and plan.guidance.streak_lock
+    mod = fire_modes.cluster_modifier(w, plan)
+    note = f" ({plan.note})" if plan.note else ""
     dtype = _damage_type_for(w)
-    if attack.ams is not None and not is_cluster_weapon(w):
+    if attack.ams is not None and col is None:
         die = config.pick_number(6, prompt="AMS 1D6 (single missile)")
         if die >= ams.SINGLE_MISSILE_KILL:
             config.log(f"    {w.name} hit - {attack.ams.name} rolls 1D6 {die}: missile destroyed, no damage (p.206).")
@@ -641,37 +648,37 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng):
     if attack.aimed_at:
         _resolve_aimed_hit(target, w, dtype, side, attack)
         return
-    if not is_cluster_weapon(w):
-        config.log(f"    {w.name} hit for {w.damage_per_shot}:")
-        _resolve_hit(target, w.damage_per_shot, dtype, side, cover=attack.cover)
+    if col is None:
+        config.log(f"    {w.name} hit for {per}:")
+        _resolve_hit(target, per, dtype, side, cover=attack.cover)
         return
     if streak and attack.ams is not None:
-        hits = cluster_hits_count(w.rack_size, ams.STREAK_RESULT)    # AMS: the Streak counts as a 7 (p.206)
+        hits = cluster_hits_count(col, ams.STREAK_RESULT)    # AMS: the Streak counts as a 7 (p.206)
         config.log(f"    {w.name} hit: Streak engaged by {attack.ams.name} - result 7 on the "
-                   f"{w.rack_size}-column table -> {hits} connect ({hits * w.damage_per_shot} dmg).")
+                   f"{col}-column table -> {hits} connect ({hits * per} dmg).")
     elif streak:
-        hits = w.rack_size                    # Streak: Cluster result is automatically 12 (p.187)
-        config.log(f"    {w.name} hit: Streak - all {hits} missiles hit ({hits * w.damage_per_shot} dmg).")
+        hits = col                            # Streak: Cluster result is automatically 12 (p.187)
+        config.log(f"    {w.name} hit: Streak - all {hits} missiles hit ({hits * per} dmg).")
     elif attack.ams is not None:
         # AMS (p.206): -4 more; below 2 every missile is destroyed (only the top clamps).
         raw = config.roll_2d6(prompt=f"Cluster hits roll ({w.name})")
-        mod = weapon_rules.cluster_roll_modifier(w) + ams.CLUSTER_MODIFIER + fc.cluster
+        mod += ams.CLUSTER_MODIFIER
         if raw + mod < 2:
-            config.log(f"    {w.name} hit: cluster roll {raw} {mod:+d} (AMS {attack.ams.name}{bonus}) = {raw + mod} "
+            config.log(f"    {w.name} hit: cluster roll {raw} {mod:+d} (AMS {attack.ams.name}){note} = {raw + mod} "
                        f"- below 2, every missile destroyed, no damage.")
             return
-        hits = cluster_hits_count(w.rack_size, min(12, raw + mod))
-        config.log(f"    {w.name} hit: cluster roll {raw} {mod:+d} (AMS {attack.ams.name}{bonus}) on the "
-                   f"{w.rack_size}-column table -> {hits} connect ({hits * w.damage_per_shot} dmg).")
+        hits = cluster_hits_count(col, min(12, raw + mod))
+        config.log(f"    {w.name} hit: cluster roll {raw} {mod:+d} (AMS {attack.ams.name}){note} on the "
+                   f"{col}-column table -> {hits} connect ({hits * per} dmg).")
     else:
         raw = config.roll_2d6(prompt=f"Cluster hits roll ({w.name})")
-        mod = weapon_rules.cluster_roll_modifier(w) + fc.cluster
         cluster_roll = max(2, min(12, raw + mod))     # p.74: results clamp to 2-12
-        hits = cluster_hits_count(w.rack_size, cluster_roll)
-        config.log(f"    {w.name} hit: cluster roll {raw}{f' {mod:+d}' if mod else ''}{f' ({fc.note})' if fc.note else ''} on the "
-                   f"{w.rack_size}-column table -> {hits} connect ({hits * w.damage_per_shot} dmg).")
-    total = hits * w.damage_per_shot
-    groups = weapon_rules.damage_groupings(w, total)
+        hits = cluster_hits_count(col, cluster_roll)
+        config.log(f"    {w.name} hit: cluster roll {raw}{f' {mod:+d}' if mod else ''}{note} on the "
+                   f"{col}-column table -> {hits} connect ({hits * per} dmg).")
+    size = fire_modes.grouping(w, plan)
+    total = hits * per
+    groups = [size] * int(total // size) + ([total - size * int(total // size)] if total % size else [])
     for i, dmg in enumerate(groups, start=1):
         _resolve_hit(target, dmg, dtype, side, tag=f"Group {i}/{len(groups)}: ", cover=attack.cover)
 
@@ -682,7 +689,7 @@ def _resolve_pod(attacker, target, attack):
     in the location struck (a leg behind partial cover: the cover) and works
     from the next phase (INTEGRATION__electronics)."""
     w = attack.weapon
-    munition = (attack.fire or electronics.PLAIN).munition
+    munition = (attack.fire or fire_modes.PLAIN).munition
     if attack.ams is not None:
         die = config.pick_number(6, prompt="AMS 1D6 (Narc pod)")
         if die >= ams.SINGLE_MISSILE_KILL:
@@ -753,6 +760,7 @@ def run_ranged_combat_phase(mover_first, mover_second, terrain_map, battle_rng):
 
     for m in (mover_first, mover_second):
         electronics.activate_pods(m)          # pods that hit this phase work from the next (p.193)
+        fire_modes.resolve_unjams(m)          # Rotary AC unjam attempts (p.183)
     for m in (mover_first, mover_second):
         _with_piloting(m, piloting_rolls.resolve_attack_phase_psr)
         piloting_rolls.resolve_consciousness_checks(m, "Attack Phase")
