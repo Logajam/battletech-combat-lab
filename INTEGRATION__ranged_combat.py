@@ -288,7 +288,7 @@ def prepare_options(mover, options) -> List[_Option]:
 
 
 def _with_physical(ranged_best, planner, actions, legs, pair_arcs, facing, diff, target_prone, base, side,
-                   ranged_for):
+                   ranged_for, push=()):
     """Best expected damage from a spot next to the enemy counting the
     Physical phase too: for every arc action and physical plan, the ranged
     fire without the weapons in the attacking limbs (pp.76, 82) plus the
@@ -306,6 +306,11 @@ def _with_physical(ranged_best, planner, actions, legs, pair_arcs, facing, diff,
             total = value if ranged_for is None else ranged_for(key, planner.held(limbs)) + value
             if total > best:
                 best = total
+    for value, limbs, _ in push:                         # a push: feet facing, no twist / flip needed (p.83)
+        total = value if ranged_for is None else ranged_for(
+            arcs.key_for(pair_arcs, facing, actions[0], legs), planner.held(limbs)) + value
+        if total > best:
+            best = total
     return best
 
 
@@ -452,14 +457,18 @@ class MoveEvaluator:
                         dealt, self.mover_planner, mover_actions, mover_legs, a_to_d, o.facing, d_level - a_level,
                         prone_def, base, side_on_def,
                         (lambda key, held: mover_scorer(key, held)(distance, pre_tn, o.move_heat, side_on_def))
-                        if mover_cond is not None else None)
+                        if mover_cond is not None else None,
+                        self.mover_planner.push_plan(atk_hex, o.facing, a_level, defender, def_hex_label, d_level,
+                                                     base, side_on_def, terrain_map))
                 if self.defender_physical and physical_reply:   # nobody punches a mech in mid-DFA
                     base = physical.base_tn(defender, def_amm, o.tmm, def_to_atk.modifier, 0)
                     received = _with_physical(
                         received, self.defender_planner, defender_actions, defender_legs, d_to_a, def_facing,
                         a_level - d_level, False, base, side_on_mover,
                         (lambda key, held: defender_scorer(key, held)(distance, pre_tn2, def_move_heat, side_on_mover))
-                        if not no_return_fire else None)
+                        if not no_return_fire else None,
+                        self.defender_planner.push_plan(def_hex, def_facing, d_level, mover, o.label, a_level,
+                                                        base, side_on_mover, terrain_map))
 
             results.append(MovementCandidate(
                 hex=o.label, facing=o.facing_compass, mode=o.mode,

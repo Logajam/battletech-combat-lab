@@ -345,8 +345,11 @@ def _physical_planner(attacker, target, terrain_map):
 
     planner = physical.Planner(attacker)
 
+    push = planner.push_plan(a_hex, a_facing, a_level, target, target.hex, t_level, base, "front", terrain_map)
+
     def plans_for(action):
-        return planner.plans(a_hex, a_facing, a_level, t_hex, t_level, target.prone, action, base) or [(0.0, (), [])]
+        got = planner.plans(a_hex, a_facing, a_level, t_hex, t_level, target.prone, action, base) or [(0.0, (), [])]
+        return got + push if push and not action.flip else got
     return plans_for
 
 

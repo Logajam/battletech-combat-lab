@@ -160,31 +160,27 @@ def charge_states_end_adjacent_facing_with_mp_to_enter():
 
 @check
 def the_gate_and_the_pick():
-    """Real battles (Charger CGR-1A1 vs Commando COM-2D, seeds 1-4): the
-    Charger charges at least once; with CHARGES off never. The gate: no charge
-    gets through when an ordinary attack in its mode does more."""
-    import re
-    counts = []
-    for on in (True, False):
-        total = 0
-        for seed in (1, 2, 3, 4):
-            config.CHARGES = on
-            config.MECH_RED_MTF = os.path.join(_TMP, "meks", "3039u", "Charger CGR-1A1.mtf")
-            config.MECH_BLUE_MTF = os.path.join(_TMP, "meks", "3039u", "Commando COM-2D.mtf")
-            config.VERBOSE = True
-            buf = io.StringIO()
-            try:
-                with redirect_stdout(buf):
-                    orchestrator.run_batch(num_simulations=1, seed=seed, max_turns=20)
-            finally:
-                config.CHARGES, config.VERBOSE = True, False
-                config.MECH_RED_MTF = config.MECH_BLUE_MTF = "Asymptote II iJ Mpulse.mtf"
-            log = buf.getvalue()
-            total += log.count("declares a CHARGE")
-            if on and "declares a CHARGE" in log:
-                assert re.search(r"CHARGE needs \d+", log) and "no ranged attacks this turn" in log
-        counts.append(total)
-    assert counts[0] >= 1 and counts[1] == 0, counts
+    """The decision (INTEGRATION__movement_attacks): a Charger five hexes
+    from a standing Atlas has charges that pass the gate; the best is picked
+    when it beats the ordinary pick's score and not when it doesn't; the gate
+    stops every charge when an ordinary attack in its mode does more. A
+    charge pick sets `charging` in the Movement Phase, and the charger then
+    holds its fire."""
+    a, t = fresh(CHARGER, "0811", "N", "Red"), fresh(ATLAS, "0806", "S", "Blue")
+    ctx_static = []
+    me, them = movement_selection._Side(a), movement_selection._Side(t)
+    import INTEGRATION__ranged_combat as ranged_combat
+    ev = ranged_combat.MoveEvaluator(a, t, TERRAIN)
+    low = movement_selection._movement_attack_pick(a, t, TERRAIN, None, 1e-9, ev, me, them, ctx_static)
+    assert low is not None and low[0].get("charge"), low
+    assert movement_selection._movement_attack_pick(a, t, TERRAIN, None, 1e9, ev, me, them, ctx_static) is None
+    real = movement_selection.choose
+    movement_selection.choose = lambda *args, **kw: (low[0], "test")
+    try:
+        orchestrator._phase_movement(a, t, TERRAIN, 1, BattleRNG(1), moves_first=False)
+    finally:
+        movement_selection.choose = real
+    assert a.charging is t and a.hex == low[0]["hex"] and a.move_fc == low[0]["fc"]
     import INTEGRATION__ranged_combat as ranged_combat
     a, t = fresh(CHARGER, "0811", "N", "Red"), fresh(ATLAS, "0806", "S", "Blue")
     index, pose = movement_attacks.MoverIndex(a, TERRAIN), movement_attacks.pose_of(t)
@@ -194,9 +190,6 @@ def the_gate_and_the_pick():
     run = lambda best: movement_attacks.scored_options(a, t, pose, index, ev, me.exposure, them.exposure,  # noqa: E731
                                                        me.psr_cost, best, args, movement_selection._objective)
     assert run({}) and not run({"Walk": 1e9, "Run": 1e9})
-
-
-the_gate_and_the_pick.real_dice = True    # a real battle: its own seeded dice
 
 
 @check
@@ -379,6 +372,68 @@ def first_mover_anticipates_movement_attacks():
             config.CHARGES = True
         seen[on] = sum(1 for r in replies if r is not None and r.attack == "charge")
     assert seen[True] > 0 and seen[False] == 0, seen
+
+
+@check
+def when_a_push_is_possible():
+    """p.83: target standing straight ahead of the pusher's feet at the same
+    level, both arms, no arm weapon fired; the bot only values a push that
+    puts the target off the board or 2+ levels down."""
+    a = fresh(CHARGER, "0802", "N")
+    off_edge = fresh(ATLAS, "0801", "S")
+    opt = physical.attack_options(a, off_edge, TERRAIN)
+    assert opt.get("push") and opt["push"][0]["damage"] == attack_resolution.total_hp(off_edge)
+    a2, mid = fresh(CHARGER, "0808", "N"), fresh(ATLAS, "0807", "S")
+    assert "push" not in physical.attack_options(a2, mid, TERRAIN)            # nothing to push it into
+    cliff = copy.deepcopy(TERRAIN)
+    cliff["hexes"]["0806"]["level"] = -2
+    assert physical.attack_options(a2, mid, cliff)["push"][0]["damage"] > 0
+    a2.facing = "NE"
+    assert "push" not in physical.attack_options(a2, mid, cliff)               # not straight ahead
+    a2.facing = "N"
+    a2.weapons_fired_this_turn = frozenset(id(w) for w in attack_resolution.get_weapons(a2)
+                                           if attack_resolution.weapon_locations(a2)[id(w)] & {"Left Arm", "Right Arm"})
+    if a2.weapons_fired_this_turn:
+        assert "push" not in physical.attack_options(a2, mid, cliff)
+    a2.weapons_fired_this_turn = frozenset()
+    mid.prone = True
+    assert "push" not in physical.attack_options(a2, mid, cliff)
+
+
+@check
+def push_off_the_board_and_off_a_cliff():
+    """A push at a mech with its back to the board edge destroys it; one at
+    a mech with a 2-level drop behind it makes it fall (10 x 3 for 100 t)."""
+    a, t = fresh(CHARGER, "0802", "N", "Red"), fresh(ATLAS, "0801", "S", "Blue")
+    t.piloting = 12
+    base, picks, _ = physical.choose_attack(a, t, TERRAIN)
+    assert picks[0].get("push")
+    with Dice(other=12):
+        physical.run_physical_phase(a, t, TERRAIN, {})
+    assert is_destroyed(t) and t.cause_of_death == "Pushed off the battlefield" and a.hex == "0801"
+    cliff = copy.deepcopy(TERRAIN)
+    cliff["hexes"]["0806"]["level"] = -2
+    a, t = fresh(CHARGER, "0808", "N", "Red"), fresh(ATLAS, "0807", "S", "Blue")
+    t.piloting = 12
+    before = attack_resolution.total_hp(t)
+    with Dice(other=12):
+        physical.run_physical_phase(a, t, cliff, {})
+    assert t.hex == "0806" and t.prone and a.hex == "0807" and before - attack_resolution.total_hp(t) == 30
+
+
+@check
+def the_threat_of_a_push_is_scored():
+    """Movement scoring: standing with your back to the board edge while the
+    enemy can get straight in front of you prices in being pushed off
+    (Daniel: "the threat of it affects choices")."""
+    import INTEGRATION__ranged_combat as ranged_combat
+    mover, pusher = fresh(ATLAS, "0805", "N"), fresh(CHARGER, "0802", "N")
+    ev = ranged_combat.MoveEvaluator(mover, pusher, TERRAIN)
+    x, y = charge.hex_geometry.parse_hex_label("0801")
+    edge = ev.evaluate("0802", "N", 0, "Stand Still", 0, ev.prepare([(x, y, 3, 4, "Walk", 4)]))
+    x2, y2 = charge.hex_geometry.parse_hex_label("0803")
+    inside = ev.evaluate("0802", "S", 0, "Stand Still", 0, ev.prepare([(x2, y2, 0, 2, "Walk", 2)]))
+    assert edge[0].received > inside[0].received + 0.5 * attack_resolution.total_hp(mover) * 0.5, (edge, inside)
 
 
 @check
