@@ -24,7 +24,9 @@ edited).
   `pathfinder.build_movement_table`, `combat` (build_jump_states,
   classify_movement_mode); INTEGRATION `rng`, `weapon_selection`, `heat`,
   `ranged_combat`, `movement_selection`, `stubs`, `attack_resolution`, `results`, `equipment_systems`,
-  `ammo` (attach_ammo), `physical` (run_physical_phase) (2026-10-19)
+  `ammo` (attach_ammo), `physical` (run_physical_phase) (2026-10-19); stdlib
+  `multiprocessing` / `concurrent.futures` + numpy `SeedSequence` for parallel
+  batches (`battle_seed`, `worker_count`, `_worker_battle`) (2026-10-20)
 - `attack_resolution.py` (NEW) → `config`, `stubs`, `weapon_selection`, `heat`, `equipment_systems`,
   `weapon_rules`, `ammo` (2026-10-19);
   MECHSIM `mech_state`, `armor_rules`, `hit_location`, `damage_resolution`

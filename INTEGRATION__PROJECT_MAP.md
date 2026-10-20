@@ -39,12 +39,15 @@ at the top; `mechsim/` and `pathfinder/` hold the source-project modules;
 parse - unzip outside the repo to use one); `rules/` the rules library zip;
 `reference_logs/` same-seed sample battles.
 
-**After any change, from the repo root:** every `tests/test_*.py` (8 files,
+**After any change, from the repo root:** every `tests/test_*.py` (9 files,
 all must pass), `python tests/check_reference_logs.py` (must pass unless the
 change is MEANT to alter results - then look at a fresh battle and run
 `--update`; Daniel has OK'd regenerating them for intended changes), and for
 anything on the hot path `python tests/benchmark_turns.py` (10 turns of the
-default battle; ~14.5 s now; a pure speed change must keep its HP totals).
+default battle; ~11 s on Daniel's machine after the 2026-10-20 speed pass, an
+estimate from this container's 21.5 s → 16.3 s; a pure speed change must keep
+its HP totals). Batches run several battles at once, one per CPU core
+(`config.WORKERS`); the output is identical to running them one at a time.
 
 **What's built (all Core Rulebook, page-cited in the code):**
 - Movement: `INTEGRATION__movement_selection.choose` scores every reachable
@@ -99,7 +102,8 @@ default battle; ~14.5 s now; a pure speed change must keep its HP totals).
 
 **Housekeeping:** reference logs regenerated 2026-10-20 (physical attacks,
 then club pick-up off) and match the code. Speed history: 31.7 s → 11.8 s (speed pass) →
-~14.5 s (all seven physical attacks) for the 10-turn benchmark. Rules are
+~14.5 s (all seven physical attacks) → about 25% less (2026-10-20 memo
+sharing), plus parallel batches, for the 10-turn benchmark. Rules are
 checked against `rules/Battletech_Rule_Reference_Index.zip` (Section 7) - the
 `[p.N]` marker in its markdown PRECEDES page N's text.
 
@@ -607,6 +611,31 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-20 (Claude):** Speed pass 2 (Pile 1 batch loop + Pile 4 movement
+  scoring; no rules touched). (1) **Parallel batches**: `run_batch` runs
+  `config.WORKERS` battles at once (0 = one per CPU core, the default; 1 = one
+  after another; MANUAL_ROLLS always 1). Each battle now has its OWN seed
+  (`orchestrator.battle_seed`: battle 1 = SEED, later battles a SeedSequence
+  mix of (SEED, battle number)) instead of one dice stream shared by the
+  whole batch, so a battle's dice don't depend on which battles ran before
+  it. Workers capture their logs and the parent prints them in battle order,
+  so the output is byte-identical for any worker count
+  (`tests/test_parallel_batch.py`). `BattleResult.seed` records each
+  battle's seed (SEED = it, NUM_SIMULATIONS = 1 replays that battle).
+  RESULT CHANGE, batches only: battles 2+ of a batch differ from before
+  (different dice, same statistics); one-battle runs and every reference log
+  are unchanged. 4 cores here: an 8-battle batch went 78 s → 26 s.
+  (2) **Memo sharing in `ranged_combat.MoveEvaluator`**: the best-twist memo is
+  keyed on the set of arc keys a spot sees (`_ArcClasses`) instead of the
+  exact geometry, and heat-limited scorers are shared by every (arc key,
+  held weapons) that blocks the same weapons. The knapsack runs went
+  246k → 32k on the benchmark. `MovementCandidate` uses slots; the spot-free
+  parts of each pre_tn are added once per call. Results identical (reference
+  logs match, benchmark HP 460 / 450); benchmark 21.5 s → 16.3 s in this
+  container. Also measured: the LOS traces (~15% of a cold benchmark) are
+  cached per board for the life of a worker, so they amortize in a batch.
+  Language switch deferred (Daniel agreed: get it right in Python first).
 
 - **2026-10-20 (Claude):** Club pick-up switched OFF (`config.CLUB_PICKUP =
   False`, Daniel) - the rules stay; the decision waits for the
