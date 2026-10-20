@@ -13,7 +13,9 @@ GitHub logistics.
    holds his decisions (implementation may not override them). Section 6 lists
    every bot decision point and the future-capability Memo. Section 8 is the
    Change Record, newest first.
-3. `INTEGRATION__CALL_GRAPH.md` shows the import structure, and `README.md` the
+3. `INTEGRATION__RULES_REVIEW.md` is the Core Rulebook vs code review: fixed
+   items, the gap list to build, and open questions for Daniel.
+4. `INTEGRATION__CALL_GRAPH.md` shows the import structure, and `README.md` the
    layout and test commands.
 
 ## Working rules (details in PROJECT_MAP Section 7)
@@ -33,6 +35,11 @@ GitHub logistics.
     meant to alter results, and record that in the Change Record.
   - Run `python tests/benchmark_turns.py` for anything on the hot path. A
     speed-only change must keep the results identical.
+- **Optional rules** (where the rulebook offers a choice, or Daniel's rule
+  differs from it) are switches in `INTEGRATION__config.py`'s OPTIONAL RULES
+  section, with the rules-as-written version available.
+- **Keep going.** Don't pause at natural checkpoints. Stop only for a rules or
+  scope call that is Daniel's.
 - **Placeholders** are loud, counted stubs in `INTEGRATION__stubs.py`, never
   silent defaults. New bot decisions get a Section 6 row.
 - **Code style:** Daniel reads the code but doesn't write it. Keep it clean,
