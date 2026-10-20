@@ -69,8 +69,8 @@ MECH SELECTION
   Initiative: Red lost the roll, moves first.
   [Movement select] Red: no spot deals damage even before the reply (two-ply, 535 spots) - closing fallback found nothing; nearest reachable spot to the enemy
   [Movement] Red: 0406 SE -> 0706 N, Jump (5 MP, 3 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
-  [Movement select] Blue: score 8165.312 = dealt 8.10 x1.01 / (received 0.00 x1.02 + PSR 0.00 + 0.001) [enemy held at 0706; 790 spots with LOS]
-  [Movement] Blue: 0805 SW -> 1102 S, Walk (6 MP, 5 hexes, 1 heat; budget walk 6 / run 9 / jump 0) - includes a backward move
+  [Movement select] Blue: score 8165.312 = dealt 8.10 x1.01 / (received 0.00 x1.01 + PSR 0.00 + 0.001) [enemy held at 0706; 790 spots with LOS]
+  [Movement] Blue: 0805 SW -> 1304 NW, Walk (6 MP, 5 hexes, 1 heat; budget walk 6 / run 9 / jump 0) - includes a backward move
   [Ranged] Red -> Blue: range 6, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 49 = max 30 + sink 22 - current 0 - movement 3 - other 0; expected dmg 0.00)
   [Ranged] Blue -> Red: range 6, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 1); firing ['ISSRM6', 'ISLRM10', 'ISMediumLaser', 'ISPPC'] (weapon heat 21 of budget 28 = max 30 + sink 14 - current 9 - movement 1 - other 6; expected dmg 8.08)
     ISSRM6: needs 10 (range mod +2), rolled 6 -> miss [ISSRM6 Ammo: 13 shots left]
@@ -86,17 +86,17 @@ MECH SELECTION
   [Heat] Blue: 9 + movement 1 + weapons 21 + engine 0 + stealth 6 - sinks 14 - coolant pod 14 -> 9
   [Heat] Blue: heat 9 -> next turn -1 Walking MP, +1 to ranged attacks, TSM active (+2 Walking MP).
   -- end of turn 2: Red @ 0706 N: HP 489, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 2: Blue @ 1102 S: HP 271, pilot hits 0, engine 0, gyro 0, heat 9
+  -- end of turn 2: Blue @ 1304 NW: HP 271, pilot hits 0, engine 0, gyro 0, heat 9
 
 === TURN 3 ===
   Initiative: Blue lost the roll, moves first.
     Blue: MASC (turn 1 in a row) needs 3, rolled 6 - works.
     Blue: Supercharger (turn 1 in a row) needs 3, rolled 10 - works.
-  [Movement select] Blue: score 5626.384 = dealt 5.62 x1.00 / (received 0.00 x1.02 + PSR 0.00 + 0.001) [two-ply, 1224 spots x 632 replies; modeled reply Red -> 0708 N Walk]
-  [Movement] Blue: 1102 S -> 1612 S, Run (15 MP, 13 hexes, 2 heat; budget walk 6 / run 15 / jump 0)
+  [Movement select] Blue: score 5626.384 = dealt 5.62 x1.00 / (received 0.00 x1.01 + PSR 0.00 + 0.001) [two-ply, 1364 spots x 632 replies; modeled reply Red -> 0708 N Walk]
+  [Movement] Blue: 1304 NW -> 1612 NE, Run (14 MP, 10 hexes, 2 heat; budget walk 6 / run 15 / jump 0)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 0706 N -> 0708 N, Walk (2 MP, 2 hexes, 1 heat; budget walk 3 / run 4 / jump 5) - includes a backward move
-  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
   [Ranged] Blue -> Red: range 9, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 1); firing ['ISSRM6', 'ISLRM10', 'ISMediumLaser', 'ISPPC'] (weapon heat 21 of budget 41 = max 30 + sink 14 - current 9 - movement 2 - other -8; expected dmg 5.61)
     ISSRM6: needs 11 (range mod +4), rolled 12 -> HIT [ISSRM6 Ammo: 12 shots left]
     ISLRM10: needs 9 (range mod +2), rolled 9 -> HIT [ISLRM10 Ammo: 9 shots left]
@@ -130,85 +130,84 @@ MECH SELECTION
   [Heat] Blue: inferno ammo explosion avoid roll at heat 10: needs 4, rolled 10 - avoided.
   [Heat] Blue: heat 10 -> next turn -2 Walking MP, +1 to ranged attacks, TSM active (+2 Walking MP).
   -- end of turn 3: Red @ 0708 N: HP 482, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 3: Blue @ 1612 S: HP 271, pilot hits 0, engine 0, gyro 0, heat 10
+  -- end of turn 3: Blue @ 1612 NE: HP 271, pilot hits 0, engine 0, gyro 0, heat 10
 
 === TURN 4 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 7060.768 = dealt 5.62 x1.26 / (received 0.00 x1.02 + PSR 0.00 + 0.001) [two-ply, 342 spots x 637 replies; modeled reply Red -> 0710 N Walk]
-  [Movement] Blue: 1612 S -> 1117 SW, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
+  [Movement select] Blue: score 5671.590 = dealt 5.62 x1.01 / (received 0.00 x1.00 + PSR 0.00 + 0.001) [two-ply, 307 spots x 637 replies; modeled reply Red -> 0710 N Walk]
+  [Movement] Blue: 1612 NE -> 1614 NW, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 0) - includes a backward move
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 0708 N -> 0710 N, Walk (2 MP, 2 hexes, 1 heat; budget walk 3 / run 4 / jump 5) - includes a backward move
-  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
-  [Ranged] Blue -> Red: range 9, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 1); firing ['ISSRM6', 'ISLRM10', 'ISMediumLaser', 'ISPPC'] (weapon heat 21 of budget 26 = max 30 + sink 14 - current 10 - movement 2 - other 6; expected dmg 5.61)
+  [Ranged] Blue -> Red: range 9, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 1 + heat 1); firing ['ISSRM6', 'ISLRM10', 'ISMediumLaser', 'ISPPC'] (weapon heat 21 of budget 27 = max 30 + sink 14 - current 10 - movement 1 - other 6; expected dmg 5.61)
     ISSRM6: needs 11 (range mod +4), rolled 10 -> miss [ISSRM6 Ammo: 11 shots left]
     ISLRM10: needs 9 (range mod +2), rolled 9 -> HIT [ISLRM10 Ammo: 8 shots left]
     ISMediumLaser: needs 11 (range mod +4), rolled 8 -> miss
     ISPPC: needs 9 (range mod +2), rolled 9 -> HIT
-  [Ranged] Red -> Blue: range 9, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 51 = max 30 + sink 22 - current 0 - movement 1 - other 0; expected dmg 0.00)
+  [Ranged] Red -> Blue: range 9, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 51 = max 30 + sink 22 - current 0 - movement 1 - other 0; expected dmg 0.00)
     ISLRM10 hit: cluster roll 10 on the 10-column table -> 8 connect (8 dmg).
     ISPPC hit for 10:
-      Hit location roll 7 (rear table): Center Torso.
-10 damage (ENERGY) incoming to Center Torso (rear_armor).
-  [HARDENED/ENERGY] 5 armor pts destroyed at rear_armor (15 -> 10 remaining).
+      Hit location roll 7 (right table): Right Torso.
+10 damage (ENERGY) incoming to Right Torso (armor).
+  [HARDENED/ENERGY] 5 armor pts destroyed at armor (30.5 -> 25.5 remaining).
     ISLRM10: 8 damage in 5-point groupings.
-      Group 1/2: Hit location roll 4 (rear table): Right Arm.
-5 damage (MISSILE) incoming to Right Arm (rear_armor).
+      Group 1/2: Hit location roll 4 (right table): Right Arm.
+5 damage (MISSILE) incoming to Right Arm (armor).
   [HARDENED/MISSILE] 2.5 armor pts destroyed at armor (30.5 -> 28 remaining).
-      Group 2/2: Hit location roll 8 (rear table): Left Torso.
-3 damage (MISSILE) incoming to Left Torso (rear_armor).
-  [HARDENED/MISSILE] 1.5 armor pts destroyed at rear_armor (10 -> 8.5 remaining).
+      Group 2/2: Hit location roll 8 (right table): Center Torso.
+3 damage (MISSILE) incoming to Center Torso (armor).
+  [HARDENED/MISSILE] 1.5 armor pts destroyed at armor (47 -> 45.5 remaining).
   [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 22 -> 0
     Blue: ISCoolantPod triggered.
-  [Heat] Blue: 10 + movement 2 + weapons 21 + engine 0 + stealth 6 - sinks 14 - coolant pod 14 -> 11
-  [Heat] Blue: inferno ammo explosion avoid roll at heat 11: needs 4, rolled 7 - avoided.
-  [Heat] Blue: heat 11 -> next turn -2 Walking MP, +1 to ranged attacks, TSM active (+2 Walking MP).
+  [Heat] Blue: 10 + movement 1 + weapons 21 + engine 0 + stealth 6 - sinks 14 - coolant pod 14 -> 10
+  [Heat] Blue: inferno ammo explosion avoid roll at heat 10: needs 4, rolled 7 - avoided.
+  [Heat] Blue: heat 10 -> next turn -2 Walking MP, +1 to ranged attacks, TSM active (+2 Walking MP).
   -- end of turn 4: Red @ 0710 N: HP 473, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 4: Blue @ 1117 SW: HP 271, pilot hits 0, engine 0, gyro 0, heat 11
+  -- end of turn 4: Blue @ 1614 NW: HP 271, pilot hits 0, engine 0, gyro 0, heat 10
 
 === TURN 5 ===
   Initiative: Blue lost the roll, moves first.
     Blue: MASC (turn 1 in a row) needs 3, rolled 6 - works.
     Blue: Supercharger (turn 1 in a row) needs 3, rolled 4 - works.
-  [Movement select] Blue: score 3120.870 = dealt 3.08 x1.01 / (received 0.00 x1.00 + PSR 0.00 + 0.001) [two-ply, 828 spots x 637 replies; modeled reply Red -> 0712 N Walk]
-  [Movement] Blue: 1117 SW -> 1417 NW, Run (13 MP, 6 hexes, 2 heat; budget walk 5 / run 13 / jump 0)
+  [Movement select] Blue: score 3135.189 = dealt 3.08 x1.02 / (received 0.00 x1.00 + PSR 0.00 + 0.001) [two-ply, 789 spots x 637 replies; modeled reply Red -> 0712 N Walk]
+  [Movement] Blue: 1614 NW -> 1417 NW, Run (13 MP, 7 hexes, 2 heat; budget walk 5 / run 13 / jump 0)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 0710 N -> 0712 N, Walk (2 MP, 2 hexes, 1 heat; budget walk 3 / run 4 / jump 5) - includes a backward move
-  [Ranged] Blue -> Red: range 9, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 1); firing ['ISSRM6', 'ISLRM10', 'ISMediumLaser', 'ISPPC'] (weapon heat 21 of budget 39 = max 30 + sink 14 - current 11 - movement 2 - other -8; expected dmg 3.08)
+  [Ranged] Blue -> Red: range 9, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 1); firing ['ISSRM6', 'ISLRM10', 'ISMediumLaser', 'ISPPC'] (weapon heat 21 of budget 40 = max 30 + sink 14 - current 10 - movement 2 - other -8; expected dmg 3.08)
     ISSRM6: needs 12 (range mod +4), rolled 11 -> miss [ISSRM6 Ammo: 10 shots left]
     ISLRM10: needs 10 (range mod +2), rolled 8 -> miss [ISLRM10 Ammo: 7 shots left]
     ISMediumLaser: needs 12 (range mod +4), rolled 5 -> miss
     ISPPC: needs 10 (range mod +2), rolled 10 -> HIT
-  [Ranged] Red -> Blue: range 9, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 51 = max 30 + sink 22 - current 0 - movement 1 - other 0; expected dmg 0.00)
+  [Ranged] Red -> Blue: range 9, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 51 = max 30 + sink 22 - current 0 - movement 1 - other 0; expected dmg 0.00)
     ISPPC hit for 10:
       Hit location roll 8 (right table): Center Torso.
 10 damage (ENERGY) incoming to Center Torso (armor).
-  [HARDENED/ENERGY] 5 armor pts destroyed at armor (47 -> 42 remaining).
+  [HARDENED/ENERGY] 5 armor pts destroyed at armor (45.5 -> 40.5 remaining).
   [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 22 -> 0
     Blue: Radical heat sink system (turn 1 in a row) needs 3, rolled 7 - works.
-  [Heat] Blue: 11 + movement 2 + weapons 21 + engine 0 + stealth 6 - sinks 14 - radical heat sinks 14 -> 12
-  [Heat] Blue: inferno ammo explosion avoid roll at heat 12: needs 4, rolled 9 - avoided.
-  [Heat] Blue: heat 12 -> next turn -2 Walking MP, +1 to ranged attacks, TSM active (+2 Walking MP).
+  [Heat] Blue: 10 + movement 2 + weapons 21 + engine 0 + stealth 6 - sinks 14 - radical heat sinks 14 -> 11
+  [Heat] Blue: inferno ammo explosion avoid roll at heat 11: needs 4, rolled 9 - avoided.
+  [Heat] Blue: heat 11 -> next turn -2 Walking MP, +1 to ranged attacks, TSM active (+2 Walking MP).
   -- end of turn 5: Red @ 0712 N: HP 468, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 5: Blue @ 1417 NW: HP 271, pilot hits 0, engine 0, gyro 0, heat 12
+  -- end of turn 5: Blue @ 1417 NW: HP 271, pilot hits 0, engine 0, gyro 0, heat 11
 
 === TURN 6 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 843.789 = dealt 0.84 x1.01 / (received 0.00 x1.01 + PSR 0.00 + 0.001) [two-ply, 301 spots x 634 replies; modeled reply Red -> 1211 N Jump]
+  [Movement select] Blue: score 847.588 = dealt 0.84 x1.01 / (received 0.00 x1.01 + PSR 0.00 + 0.001) [two-ply, 301 spots x 634 replies; modeled reply Red -> 1211 N Jump]
   [Movement] Blue: 1417 NW -> 1515 NE, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 0712 N -> 1211 N, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
   [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
-  [Ranged] Blue -> Red: range 5, base TN 11 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 2 + heat 1); firing ['ISSRM6', 'ISLRM10', 'ISMediumLaser', 'ISPPC'] (weapon heat 21 of budget 25 = max 30 + sink 14 - current 12 - movement 1 - other 6; expected dmg 0.83)
+  [Ranged] Blue -> Red: range 5, base TN 11 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 2 + heat 1); firing ['ISSRM6', 'ISLRM10', 'ISMediumLaser', 'ISPPC'] (weapon heat 21 of budget 26 = max 30 + sink 14 - current 11 - movement 1 - other 6; expected dmg 0.83)
     ISSRM6: needs 13 (range mod +2), rolled 7 -> miss [ISSRM6 Ammo: 9 shots left]
     ISLRM10: needs 13 (range mod +2), rolled 7 -> miss [ISLRM10 Ammo: 6 shots left]
     ISMediumLaser: needs 13 (range mod +2), rolled 4 -> miss
     ISPPC: needs 11 (range mod +0), rolled 5 -> miss
   [Ranged] Red -> Blue: range 5, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 49 = max 30 + sink 22 - current 0 - movement 3 - other 0; expected dmg 0.00)
   [Heat] Red: 0 + movement 3 + weapons 0 + engine 0 - sinks 22 -> 0
-  [Heat] Blue: 12 + movement 1 + weapons 21 + engine 0 + stealth 6 - sinks 14 -> 26
-  [Heat] Blue: SHUT DOWN (heat 26, shutdown avoid roll needs 10, rolled 8).
-  [Heat] Blue: ammo explosion avoid roll at heat 26: needs 6, rolled 6 - avoided.
-  [Heat] Blue: inferno ammo explosion avoid roll at heat 26: needs 10, rolled 6 - ISSRM6 Ammo - Inferno in Left Torso EXPLODES.
+  [Heat] Blue: 11 + movement 1 + weapons 21 + engine 0 + stealth 6 - sinks 14 -> 25
+  [Heat] Blue: shutdown avoid roll at heat 25: needs 8, rolled 8 - avoided.
+  [Heat] Blue: ammo explosion avoid roll at heat 25: needs 6, rolled 6 - avoided.
+  [Heat] Blue: inferno ammo explosion avoid roll at heat 25: needs 10, rolled 6 - ISSRM6 Ammo - Inferno in Left Torso EXPLODES.
     ISSRM6 Ammo - Inferno destroyed at Left Torso - EXPLOSION (180 dmg)! Pilot takes 1 hit (1/6).
     Explosion reaches Left Torso. No CASE present - 20 damage to structure.
     14 structure damage taken (0/14 remaining).
@@ -244,9 +243,9 @@ MECH SELECTION
   All critical slots in Left Torso marked DESTROYED.
   Left Arm also destroyed (side torso rule).
   All critical slots in Left Arm marked DESTROYED.
-  [Heat] Blue: inferno ammo burns - +30 heat at once -> 56.
+  [Heat] Blue: inferno ammo burns - +30 heat at once -> 55.
   -- end of turn 6: Red @ 1211 N: HP 468, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 6: Blue @ 1515 NE: HP 227, pilot hits 2, engine 6, gyro 4, heat 56 [SHUT DOWN, DESTROYED (Center Torso Destroyed)]
+  -- end of turn 6: Blue @ 1515 NE: HP 227, pilot hits 2, engine 6, gyro 4, heat 55 [DESTROYED (Center Torso Destroyed)]
 
 >>> Battle over on turn 6: Blue destroyed. <<<
 

@@ -26,7 +26,7 @@ MECH SELECTION
   [Movement select] Blue: no enemy on the board yet - heads for its home edge near 0917 (closing fallback)
   [Movement] Blue: off the board -> 0206 S, Run (8 MP, 7 hexes, 2 heat; budget walk 6 / run 8 / jump 0)
     Red: Supercharger (turn 1 in a row) needs 3, rolled 3 - works.
-  [Movement select] Red: score 21979.807 = dealt 16.92 x1.30 / (received 0.00 x1.00 + PSR 0.00 + 0.001) [enemy held at 0206; 860 spots with LOS]
+  [Movement select] Red: score 21979.807 = dealt 16.92 x1.30 / (received 0.00 x1.00 + PSR 0.00 + 0.001) [enemy held at 0206; 844 spots with LOS]
   [Movement] Red: off the board -> 0105 NE, Run (14 MP, 13 hexes, 2 heat; budget walk 7 / run 14 / jump 0)
   [Ranged] Blue: no weapon can bear on Red (rear arc) - can't fire.
   [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).

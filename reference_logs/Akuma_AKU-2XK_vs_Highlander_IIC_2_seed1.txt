@@ -161,7 +161,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
   Initiative: Red lost the roll, moves first.
   [Movement select] Red: score 0.537 = dealt 19.95 x1.00 / (received 37.14 x1.00 + PSR 0.00 + 0.001) [two-ply, 107 spots x 365 replies; modeled reply Blue -> 1105 SW Stand Still]
   [Movement] Red: 1007 NE -> 0709 NE, Walk (3 MP, 3 hexes, 1 heat; budget walk 3 / run 5 / jump 0) - includes a backward move
-  [Movement select] Blue: score 1.861 = dealt 37.14 x1.00 / (received 19.95 x1.00 + PSR 0.00 + 0.001) [enemy held at 0709; 327 spots with LOS]
+  [Movement select] Blue: score 1.861 = dealt 37.14 x1.00 / (received 19.95 x1.00 + PSR 0.00 + 0.001) [enemy held at 0709; 311 spots with LOS]
   [Movement] Blue: 1105 SW -> 1105 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 3)
   [Ranged] Red -> Blue: range 6, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 1 + heat 0); firing ['ISMediumPulseLaser', 'ISMML9', 'ISMML9', 'ISRotaryAC5'] (weapon heat 20 of budget 21 = max 4 + sink 22 - current 4 - movement 1 - other 0; expected dmg 19.95)
     [Red fire control] ISMML9: MML SRM rounds; ISRotaryAC5: rapid fire x6
@@ -256,7 +256,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
   Initiative: Blue lost the roll, moves first.
   [Movement select] Blue: score 3.544 = dealt 3.65 x1.00 / (received 1.03 x1.00 + PSR 0.00 + 0.001) [two-ply, 365 spots x 163 replies; modeled reply Red -> 1007 NE Run]
   [Movement] Blue: 1105 SW -> 1405 SW, Jump (3 MP, 3 hexes, 3 heat; budget walk 3 / run 5 / jump 3)
-  [Movement select] Red: score 0.282 = dealt 1.03 x1.00 / (received 3.65 x1.00 + PSR 0.00 + 0.001) [enemy held at 1405; 90 spots with LOS]
+  [Movement select] Red: score 0.282 = dealt 1.03 x1.00 / (received 3.65 x1.00 + PSR 0.00 + 0.001) [enemy held at 1405; 74 spots with LOS]
   [Movement] Red: 0709 NE -> 1007 NE, Run (4 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
   [Ranged] Blue -> Red: range 4, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 3 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLATM6', 'CLStreakSRM6', 'CLGaussRifle'] (weapon heat 19 of budget 19 = max 4 + sink 22 - current 4 - movement 3 - other 0; expected dmg 3.64)
     CLERMediumLaser: needs 11 (range mod +0), rolled 11 -> HIT
@@ -284,7 +284,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
   Initiative: Blue lost the roll, moves first.
   [Movement select] Blue: score 1.953 = dealt 33.67 x1.00 / (received 17.24 x1.00 + PSR 0.00 + 0.001) [two-ply, 345 spots x 107 replies; modeled reply Red -> 1007 NE Stand Still]
   [Movement] Blue: 1405 SW -> 1405 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 3)
-  [Movement select] Red: score 0.512 = dealt 17.24 x1.00 / (received 33.67 x1.00 + PSR 0.00 + 0.001) [enemy held at 1405; 94 spots with LOS]
+  [Movement select] Red: score 0.512 = dealt 17.24 x1.00 / (received 33.67 x1.00 + PSR 0.00 + 0.001) [enemy held at 1405; 92 spots with LOS]
   [Movement] Red: 1007 NE -> 1007 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Ranged] Blue -> Red: range 4, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 3 + heat 0); firing ['CLERMediumLaser', 'CLATM6', 'CLATM6', 'CLATM6', 'CLStreakSRM6', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLGaussRifle'] (weapon heat 26 of budget 26 = max 4 + sink 22 - current 0 - movement 0 - other 0; expected dmg 33.17)
     CLERMediumLaser: needs 7 (range mod +0), rolled 7 -> HIT
@@ -555,7 +555,7 @@ Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 9.
   [Movement] Red: 1107 NE -> 1007 NW, Run (3 MP, 1 hexes, 2 heat; budget walk 3 / run 5 / jump 0; stood up with 3 MP left)
 Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 9.
   Success - Highlander IIC 2 is standing (remaining running MP 3).
-  [Movement select] Blue: score 22.146 = dealt 19.24 x0.97 / (received 0.85 x0.99 + PSR 0.00 + 0.001) [enemy held at 1007; 33 spots with LOS]
+  [Movement select] Blue: score 22.146 = dealt 19.24 x0.97 / (received 0.85 x0.99 + PSR 0.00 + 0.001) [enemy held at 1007; 30 spots with LOS]
   [Movement] Blue: 1405 SW -> 1506 S, Run (2 MP, 1 hexes, 2 heat; budget walk 3 / run 5 / jump 3; stood up with 3 MP left)
   [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's right side arc after that).
   [Ranged] Red -> Blue: range 5, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0); firing ['ISERMediumLaser'] (weapon heat 5 of budget 21 = max 4 + sink 22 - current 3 - movement 2 - other 0; expected dmg 0.83)
@@ -645,7 +645,7 @@ Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 9.
   Initiative: Blue lost the roll, moves first.
   [Movement select] Blue: score 3.392 = dealt 35.56 x0.96 / (received 10.15 x0.99 + PSR 0.00 + 0.001) [two-ply, 293 spots x 138 replies; modeled reply Red -> 1006 N Walk]
   [Movement] Blue: 1506 S -> 1503 S, Walk (3 MP, 3 hexes, 1 heat; budget walk 3 / run 5 / jump 3) - includes a backward move
-  [Movement select] Red: score 0.295 = dealt 10.15 x0.99 / (received 35.56 x0.96 + PSR 0.00 + 0.001) [enemy held at 1503; 99 spots with LOS]
+  [Movement select] Red: score 0.295 = dealt 10.15 x0.99 / (received 35.56 x0.96 + PSR 0.00 + 0.001) [enemy held at 1503; 98 spots with LOS]
   [Movement] Red: 1007 NW -> 1006 N, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
   [Ranged] Blue -> Red: range 6, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0); firing ['CLATM6', 'CLATM6', 'CLATM6', 'CLStreakSRM6', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLAPGaussRifle', 'CLGaussRifle'] (weapon heat 21 of budget 21 = max 4 + sink 22 - current 4 - movement 1 - other 0; expected dmg 27.36)
     [Blue fire control] CLATM6: ATM Artemis, ATM HE

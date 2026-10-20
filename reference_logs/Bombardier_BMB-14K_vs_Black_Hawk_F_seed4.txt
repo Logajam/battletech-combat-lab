@@ -268,7 +268,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
   Initiative: Red lost the roll, moves first.
   [Movement select] Red: no spot deals damage even before the reply (two-ply, 637 spots) - closing fallback found nothing; nearest reachable spot to the enemy
   [Movement] Red: 0610 SE -> 0610 N, Run (8 MP, 4 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 37107.241 = dealt 29.63 x1.25 / (received 0.00 x1.06 + PSR 0.00 + 0.001) [enemy held at 0610; 1159 spots with LOS]
+  [Movement select] Blue: score 37107.241 = dealt 29.63 x1.25 / (received 0.00 x1.06 + PSR 0.00 + 0.001) [enemy held at 0610; 1158 spots with LOS]
   [Movement] Blue: 0611 S -> 0412 SE, Walk (5 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Ranged] Red: no weapon can bear on Blue (rear arc) - can't fire.
   [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
