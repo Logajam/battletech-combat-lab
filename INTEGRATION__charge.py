@@ -32,20 +32,14 @@ Charge attacks (Core Rulebook p.78; displacement pp.113-114; falls p.115).
     always aborts). The charge misses outright if the charger fell, was
     destroyed or its pilot is unconscious.
 
-=== THE DECISION (pile 4, Daniel 2026-10-20) ===
-Gate first: for each movement mode, a charge is only looked at if its expected
-damage beats the best ordinary attack (ranged + physical) any spot in that
-mode offers. A charge that passes is scored like any spot: dealt (charge worth)
-/ (return fire and physical attacks on the charger at its hex + the charger's
-own expected self-damage + movement PSR cost), and taken only if that beats
-the ordinary pick's score. Damage is weighted by armor exposure and structure
-like every other number in the picker (INTEGRATION__physical.Worth).
+=== THE DECISION ===
+INTEGRATION__movement_attacks (shared with death from above): the per-mode
+gate (Daniel, 2026-10-20), then scored like any spot; the first mover's
+two-ply anticipates it.
 
-Not modeled: the +2 PSRs and the displacement (falls, a push off the board)
-in the score; a first mover anticipating being charged (the two-ply reply
-doesn't charge); domino effects (no third mech); minimum movement, buildings,
-water halving, lance / spikes / shields; partial cover is ignored as the rule
-says, but woods still count.
+Not modeled: the +2 PSRs in the score; domino effects (no third mech);
+minimum movement, buildings, water halving, lance / spikes / shields; partial
+cover is ignored as the rule says, but woods still count.
 """
 
 import math

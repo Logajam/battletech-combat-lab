@@ -92,6 +92,7 @@ import INTEGRATION__heat as heat
 import INTEGRATION__equipment_systems as equip
 import INTEGRATION__weapon_rules as weapon_rules
 import INTEGRATION__arcs as arcs
+import INTEGRATION__clubs as clubs
 import INTEGRATION__ammo as ammo
 from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capability, \
     mark_consciousness_check_pending, compute_heat_dissipation
@@ -595,6 +596,8 @@ def run_ranged_combat_phase(mover_first, mover_second, terrain_map, battle_rng):
 
     for attacker, target in pairs:
         declare_attacks(attacker, target, terrain_map, reports[attacker.side_name])
+        # Nothing to shoot this turn: maybe pick up a club instead (p.79, INTEGRATION__clubs).
+        clubs.maybe_pick_up(attacker, terrain_map, fired_anything=bool(reports[attacker.side_name].attacks_list))
 
     for attacker, target in pairs:
         rep = reports[attacker.side_name]

@@ -344,6 +344,7 @@ def apply_damage(mech, location, damage, armor_field="armor", damage_type=Damage
                 mech.locations[child]["destroyed"] = True
                 mech.locations[child]["structure"] = 0
                 config.log(f"  {child} also destroyed (side torso rule).")
+                mech.__dict__.setdefault("severed_limbs", []).append(child)   # falls off: a club (p.79)
                 mark_all_crits_destroyed(mech, child)
             nxt = TRANSFER_MAP.get(current)
             config.log(f"  {remaining} damage remains, transfers to {nxt or 'nowhere (attack finished)'}.")
@@ -376,6 +377,8 @@ def check_critical(mech, location, location_destroyed=False, modifier=0):
     if roll == 12 and not location_destroyed:
         if location in NON_TORSO_LOCATIONS:
             config.log(f"    Roll of 12: {location} blown off / destroyed!")
+            # 2026-10-20: a limb blown off lies in the mech's hex - a club (Core p.79, INTEGRATION__clubs)
+            mech.__dict__.setdefault("severed_limbs", []).append(location)
             mech.locations[location]["destroyed"] = True
             mech.locations[location]["structure"] = 0
             mark_all_crits_destroyed(mech, location)
@@ -679,6 +682,7 @@ def apply_explosion(mech, component, location):
                 mech.locations[child]["destroyed"] = True
                 mech.locations[child]["structure"] = 0
                 config.log(f"  {child} also destroyed (side torso rule).")
+                mech.__dict__.setdefault("severed_limbs", []).append(child)   # falls off: a club (p.79)
                 mark_all_crits_destroyed(mech, child)
 
         if case_tier:

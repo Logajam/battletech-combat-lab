@@ -1,10 +1,12 @@
 """
-tests/test_charge.py - checks charge attacks (2026-10-20): the numbers
-(Core p.78), which spots can charge, the movement decision's gate, the
-Physical-phase resolution (damage, displacement, PSRs, cancellation) and
-falls of more than one level (p.115). INTEGRATION__charge has the rules.
+tests/test_special_attacks.py - checks the special physical attacks
+(2026-10-20): charges (Core p.78) and death from above (pp.79-80) - the
+numbers, who can reach, the movement decision's gate, the first mover
+anticipating them, the Physical-phase resolution (damage, displacement,
+PSRs, cancellation) - pushes (p.83) and their threat in movement scoring,
+clubs (p.79), and falls of more than one level (p.115).
 
-    python tests/test_charge.py
+    python tests/test_special_attacks.py
 
 Real units come from data/meks.zip (extracted to a temporary folder).
 """
@@ -30,6 +32,7 @@ import INTEGRATION__movement_selection as movement_selection  # noqa: E402
 import INTEGRATION__physical as physical  # noqa: E402
 import INTEGRATION__charge as charge  # noqa: E402
 import INTEGRATION__movement_attacks as movement_attacks  # noqa: E402
+import INTEGRATION__clubs as clubs  # noqa: E402
 from INTEGRATION__attack_resolution import SideReport  # noqa: E402
 from INTEGRATION__rng import BattleRNG  # noqa: E402
 import piloting_rolls  # noqa: E402
@@ -436,6 +439,100 @@ def the_threat_of_a_push_is_scored():
     assert edge[0].received > inside[0].received + 0.5 * attack_resolution.total_hp(mover) * 0.5, (edge, inside)
 
 
+WOODS = next(label for label, info in sorted(TERRAIN["hexes"].items()) if "woods" in info["features"])
+CLEAR = next(label for label, info in sorted(TERRAIN["hexes"].items()) if not info["features"] and label > "0300")
+
+
+def broken(mech, arm, part):
+    for i, slot in enumerate(mech.crits[arm]):
+        if getattr(slot, "name", slot) == part:
+            mech.destroyed_slot_info[(arm, i)] = {"name": part, "instance_id": None}
+            mech.crits[arm][i] = "DESTROYED"
+            return
+
+
+@check
+def who_can_hold_a_club():
+    """p.79: two hands (claws count) and both shoulders, none damaged; quads can't."""
+    assert clubs.can_wield(fresh(ATLAS, "0808"))
+    m = fresh(ATLAS, "0808")
+    broken(m, "Left Arm", "Hand Actuator")
+    assert not clubs.can_wield(m)
+    m = fresh(ATLAS, "0808")
+    broken(m, "Right Arm", "Shoulder")
+    assert not clubs.can_wield(m)
+    q = fresh(ATLAS, "0808")
+    q.mech_type = "quad"
+    assert not clubs.can_wield(q)
+
+
+@check
+def picking_up_a_club():
+    """In woods, a mech with nothing to shoot uproots a tree instead of
+    firing; one that fired doesn't; a limb lying in a hex can be picked up
+    by another mech standing there later."""
+    clubs.reset_battle()
+    m = fresh(ATLAS, WOODS)
+    assert clubs.maybe_pick_up(m, TERRAIN, fired_anything=True) is None and not getattr(m, "club", None)
+    assert clubs.maybe_pick_up(m, TERRAIN, fired_anything=False) == "tree" and m.club == "tree"
+    loser = fresh(ATLAS, CLEAR)
+    loser.severed_limbs = ["Left Arm"]
+    clubs.after_phase(loser)
+    clubs.after_phase(loser)                                         # counted once
+    finder = fresh(ATLAS, CLEAR)                                      # (the Charger has no left hand)
+    assert clubs.found_here(finder, TERRAIN) == ["limb"]
+    assert clubs.maybe_pick_up(finder, TERRAIN, fired_anything=False) == "limb"
+    assert clubs.found_here(fresh(ATLAS, CLEAR), TERRAIN) == []
+    a, t = fresh(unarmed(ATLAS), WOODS, "N", "Red"), fresh(CHARGER, "0101", "S", "Blue")
+    a.club = None
+    with ScriptedDice([], default=7):
+        attack_resolution.run_ranged_combat_phase(a, t, TERRAIN, BattleRNG(1))
+    assert a.club == "tree"
+
+
+@check
+def club_attacks():
+    """p.79: forward arc of the twisted torso, Piloting - 1, ceil(tons / 5)
+    on the standard table, a PSR for the target; no arm weapon fired that
+    turn; a damaged arm actuator +2; a tree breaks after one hit; a club
+    that can't be held any more is dropped."""
+    a, t = fresh(ATLAS, "0808", "N", "Red"), fresh(CHARGER, "0807", "S", "Blue")
+    a.club = "tree"
+    club = physical.attack_options(a, t, TERRAIN)["club"][0]
+    assert club["damage"] == 20 and club["mod"] == -1 and club["table"] == "standard"
+    side = fresh(CHARGER, "0909", "N")                                 # right side arc: needs a twist
+    assert "club" not in physical.attack_options(a, side, TERRAIN)
+    assert "club" in physical.attack_options(a, side, TERRAIN, arcs_twist(1))
+    a.weapons_fired_this_turn = frozenset(id(w) for w in attack_resolution.get_weapons(a)
+                                          if attack_resolution.weapon_locations(a)[id(w)] & {"Left Arm", "Right Arm"})
+    assert "club" not in physical.attack_options(a, t, TERRAIN)
+    a.weapons_fired_this_turn = frozenset()
+    broken(a, "Left Arm", "Lower Arm Actuator")
+    assert physical.attack_options(a, t, TERRAIN)["club"][0]["mod"] == 1
+    a, t = fresh(ATLAS, "0808", "N", "Red"), fresh(CHARGER, "0807", "S", "Blue")
+    a.club = "tree"
+    before = attack_resolution.total_hp(t)
+    real = physical.choose_attack
+    physical.choose_attack = lambda att, tgt, tm: (real(att, tgt, tm) if att is not a else
+                                                   (physical._base_tn(att, tgt, tm),
+                                                    physical.attack_options(att, tgt, tm)["club"],
+                                                    physical.arcs.current_action(att)))
+    try:
+        with Dice(other=12, psr=12):
+            physical.run_physical_phase(a, t, TERRAIN, {})
+    finally:
+        physical.choose_attack = real
+    assert before - attack_resolution.total_hp(t) >= 20 and a.club is None
+    a.club = "girder"
+    broken(a, "Right Arm", "Hand Actuator")
+    clubs.after_phase(a)
+    assert a.club is None
+
+
+def arcs_twist(n):
+    return physical.arcs.ArcAction(twist=n)
+
+
 @check
 def falls_of_several_levels():
     """p.115: falling damage x (levels + 1)."""
@@ -463,9 +560,9 @@ def run_all():
             traceback.print_exc()
     print()
     if failed:
-        print(f"{failed} of {len(CHECKS)} charge checks FAILED.")
+        print(f"{failed} of {len(CHECKS)} special-attack checks FAILED.")
         sys.exit(1)
-    print(f"All {len(CHECKS)} charge checks passed.")
+    print(f"All {len(CHECKS)} special-attack checks passed.")
 
 
 if __name__ == "__main__":
