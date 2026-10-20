@@ -121,7 +121,7 @@ def bin_names():
     for name, (weapon_name, kind) in kinds.items():
         entry, _, got = ammo.parse_bin(name)
         assert entry is not None and (entry["canonical_name"], got) == (weapon_name, kind), (name, entry, got)
-    assert ammo.parse_bin("CLArrowIVAmmo") == (None, None, None)
+    assert ammo.parse_bin("ISArrowIVHomingAmmo") == (None, None, None)       # homing needs TAG: not modeled
 
 
 @check

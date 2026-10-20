@@ -37,22 +37,23 @@ MECH SELECTION
     ISMediumLaser: needs 9 (range mod +2), rolled 12 -> HIT
     ISPPC: needs 7 (range mod +0), rolled 2 -> miss
     ISSRM6 hit: cluster roll 7 on the 6-column table -> 4 connect (8 dmg).
-      Group 1/4: Hit location roll 4 (left table): Left Arm.
+    ISMediumLaser hit for 5:
+      Hit location roll 4 (left table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (armor).
+  [HARDENED/ENERGY] 2.5 armor pts destroyed at armor (34 -> 31.5 remaining).
+    ISSRM6: 8 damage in 2-point groupings.
+      Group 1/4: Hit location roll 5 (left table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
-  [HARDENED/MISSILE] 1 armor pts destroyed at armor (34 -> 33 remaining).
-      Group 2/4: Hit location roll 5 (left table): Left Arm.
-2 damage (MISSILE) incoming to Left Arm (armor).
-  [HARDENED/MISSILE] 1 armor pts destroyed at armor (33 -> 32 remaining).
-      Group 3/4: Hit location roll 9 (left table): Right Torso.
+  [HARDENED/MISSILE] 1 armor pts destroyed at armor (31.5 -> 30.5 remaining).
+      Group 2/4: Hit location roll 9 (left table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (armor).
   [HARDENED/MISSILE] 1 armor pts destroyed at armor (32 -> 31 remaining).
-      Group 4/4: Hit location roll 5 (left table): Left Arm.
+      Group 3/4: Hit location roll 5 (left table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
+  [HARDENED/MISSILE] 1 armor pts destroyed at armor (30.5 -> 29.5 remaining).
+      Group 4/4: Hit location roll 7 (left table): Left Torso.
+2 damage (MISSILE) incoming to Left Torso (armor).
   [HARDENED/MISSILE] 1 armor pts destroyed at armor (32 -> 31 remaining).
-    ISMediumLaser hit for 5:
-      Hit location roll 7 (left table): Left Torso.
-5 damage (ENERGY) incoming to Left Torso (armor).
-  [HARDENED/ENERGY] 2.5 armor pts destroyed at armor (32 -> 29.5 remaining).
   [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 22 -> 0
     Blue: Radical heat sink system (turn 1 in a row) needs 3, rolled 2 - FAILS.
     Blue: Radical Heat Sink System in Right Torso destroyed (failed activation).
@@ -130,25 +131,26 @@ Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 10.
     ISSRM6: needs 8 (range mod +0), rolled 11 -> HIT [ISSRM6 Ammo: 13 shots left]
     ISMediumLaser: needs 8 (range mod +0), rolled 10 -> HIT
     ISSRM6 hit: cluster roll 10 on the 6-column table -> 5 connect (10 dmg).
-      Group 1/5: Hit location roll 3 (front table): Right Arm.
-2 damage (MISSILE) incoming to Right Arm (armor).
-  [HARDENED/MISSILE] 1 armor pts destroyed at armor (34 -> 33 remaining).
-      Group 2/5: Hit location roll 7 (front table): Center Torso.
+    ISMediumLaser hit for 5:
+      Hit location roll 3 (front table): Right Arm.
+5 damage (ENERGY) incoming to Right Arm (armor).
+  [HARDENED/ENERGY] 2.5 armor pts destroyed at armor (34 -> 31.5 remaining).
+    ISSRM6: 10 damage in 2-point groupings.
+      Group 1/5: Hit location roll 7 (front table): Center Torso.
 2 damage (MISSILE) incoming to Center Torso (armor).
   [HARDENED/MISSILE] 1 armor pts destroyed at armor (47 -> 46 remaining).
-      Group 3/5: Hit location roll 10 (front table): Left Arm.
+      Group 2/5: Hit location roll 10 (front table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
-  [HARDENED/MISSILE] 1 armor pts destroyed at armor (31 -> 30 remaining).
-      Group 4/5: Hit location roll 3 (front table): Right Arm.
+  [HARDENED/MISSILE] 1 armor pts destroyed at armor (29.5 -> 28.5 remaining).
+      Group 3/5: Hit location roll 3 (front table): Right Arm.
 2 damage (MISSILE) incoming to Right Arm (armor).
-  [HARDENED/MISSILE] 1 armor pts destroyed at armor (33 -> 32 remaining).
-      Group 5/5: Hit location roll 6 (front table): Right Torso.
+  [HARDENED/MISSILE] 1 armor pts destroyed at armor (31.5 -> 30.5 remaining).
+      Group 4/5: Hit location roll 6 (front table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (armor).
   [HARDENED/MISSILE] 1 armor pts destroyed at armor (31 -> 30 remaining).
-    ISMediumLaser hit for 5:
-      Hit location roll 7 (front table): Center Torso.
-5 damage (ENERGY) incoming to Center Torso (armor).
-  [HARDENED/ENERGY] 2.5 armor pts destroyed at armor (46 -> 43.5 remaining).
+      Group 5/5: Hit location roll 7 (front table): Center Torso.
+2 damage (MISSILE) incoming to Center Torso (armor).
+  [HARDENED/MISSILE] 1 armor pts destroyed at armor (46 -> 45 remaining).
   [Heat] Red: 1 + movement 3 + weapons 20 + engine 0 - sinks 22 -> 2
   [Heat] Blue: 5 + movement 3 + weapons 8 + engine 0 + stealth 6 - sinks 14 -> 8
   [Heat] Blue: heat 8 -> next turn -1 Walking MP, +1 to ranged attacks.
@@ -170,21 +172,22 @@ Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 10.
     ISMediumPulseLaser: needs 8 (range mod +2, modifiers -1), rolled 11 -> HIT
     ISMediumPulseLaser: needs 8 (range mod +2, modifiers -1), rolled 9 -> HIT
     ISSRM6 hit: cluster roll 9 on the 6-column table -> 5 connect (10 dmg).
+    ISSRM6: 10 damage in 2-point groupings.
       Group 1/5: Hit location roll 3 (front table): Right Arm.
 2 damage (MISSILE) incoming to Right Arm (armor).
-  [HARDENED/MISSILE] 1 armor pts destroyed at armor (32 -> 31 remaining).
+  [HARDENED/MISSILE] 1 armor pts destroyed at armor (30.5 -> 29.5 remaining).
       Group 2/5: Hit location roll 6 (front table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (armor).
   [HARDENED/MISSILE] 1 armor pts destroyed at armor (30 -> 29 remaining).
       Group 3/5: Hit location roll 7 (front table): Center Torso.
 2 damage (MISSILE) incoming to Center Torso (armor).
-  [HARDENED/MISSILE] 1 armor pts destroyed at armor (43.5 -> 42.5 remaining).
+  [HARDENED/MISSILE] 1 armor pts destroyed at armor (45 -> 44 remaining).
       Group 4/5: Hit location roll 8 (front table): Left Torso.
 2 damage (MISSILE) incoming to Left Torso (armor).
-  [HARDENED/MISSILE] 1 armor pts destroyed at armor (29.5 -> 28.5 remaining).
+  [HARDENED/MISSILE] 1 armor pts destroyed at armor (31 -> 30 remaining).
       Group 5/5: Hit location roll 8 (front table): Left Torso.
 2 damage (MISSILE) incoming to Left Torso (armor).
-  [HARDENED/MISSILE] 1 armor pts destroyed at armor (28.5 -> 27.5 remaining).
+  [HARDENED/MISSILE] 1 armor pts destroyed at armor (30 -> 29 remaining).
     ISMediumPulseLaser hit for 6:
       Hit location roll 6 (left table): Left Leg.
 6 damage (ENERGY) incoming to Left Leg (armor).
@@ -205,17 +208,18 @@ Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 10.
 
 === TURN 5 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 1.954 = dealt 2.56 x1.08 / (received 1.39 x1.02 + PSR 0.00 + 0.001) [two-ply, 396 spots x 247 replies; modeled reply Blue -> 0704 SW Run]
+  [Movement select] Red: score 1.956 = dealt 2.56 x1.08 / (received 1.39 x1.02 + PSR 0.00 + 0.001) [two-ply, 396 spots x 247 replies; modeled reply Blue -> 0704 SW Run]
   [Movement] Red: 1504 NW -> 1202 NW, Walk (3 MP, 3 hexes, 1 heat; budget walk 3 / run 4 / jump 5)
     Blue: MASC (turn 1 in a row) needs 3, rolled 11 - works.
     Blue: Supercharger (turn 1 in a row) needs 3, rolled 3 - works.
-  [Movement select] Blue: score 3742.140 = dealt 3.68 x1.02 / (received 0.00 x0.95 + PSR 0.00 + 0.001) [enemy held at 1202; 523 spots with LOS]
+  [Movement select] Blue: score 3738.813 = dealt 3.68 x1.02 / (received 0.00 x0.95 + PSR 0.00 + 0.001) [enemy held at 1202; 523 spots with LOS]
   [Movement] Blue: 1201 S -> 0606 NW, Run (10 MP, 8 hexes, 3 heat; budget walk 4 / run 10 / jump 0)
   [Ranged] Red -> Blue: range 7, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 22 = max 4 + sink 22 - current 3 - movement 1 - other 0; expected dmg 0.00)
   [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
   [Ranged] Blue -> Red: range 7, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['ISLRM10'] (weapon heat 4 +1 damaged radical of budget 6 = max 9 + sink 14 - current 7 - movement 3 - other 7; expected dmg 3.68)
     ISLRM10: needs 7 (range mod +0), rolled 9 -> HIT [ISLRM10 Ammo: 10 shots left]
     ISLRM10 hit: cluster roll 3 on the 10-column table -> 3 connect (3 dmg).
+    ISLRM10: 3 damage in 5-point groupings.
   Tripod leg sub-roll (left): base 5 -> 6 -> Left Leg
       Group 1/1: Hit location roll 6 (left table): Left Leg.
 3 damage (MISSILE) incoming to Left Leg (armor).
@@ -228,7 +232,7 @@ Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 10.
 
 === TURN 6 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 226.517 = dealt 0.22 x1.02 / (received 0.00 x0.95 + PSR 0.00 + 0.001) [two-ply, 277 spots x 445 replies; modeled reply Red -> 0701 N Jump]
+  [Movement select] Blue: score 226.315 = dealt 0.22 x1.02 / (received 0.00 x0.95 + PSR 0.00 + 0.001) [two-ply, 277 spots x 445 replies; modeled reply Red -> 0701 N Jump]
   [Movement] Blue: 0606 NW -> 0203 N, Run (6 MP, 5 hexes, 3 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 1202 NW -> 0701 N, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
@@ -279,9 +283,9 @@ Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 10.
 
 === TURN 8 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 0.124 = dealt 18.45 x1.00 / (received 148.66 x1.00 + PSR 0.00 + 0.001) [two-ply, 197 spots x 567 replies; modeled reply Red -> 0205 SW Run]
+  [Movement select] Blue: score 0.124 = dealt 18.46 x1.00 / (received 148.66 x1.00 + PSR 0.00 + 0.001) [two-ply, 197 spots x 567 replies; modeled reply Red -> 0205 SW Run]
   [Movement] Blue: 0203 N -> 0106 NE, Walk (4 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
-  [Movement select] Red: score 8.055 = dealt 148.66 x1.00 / (received 18.45 x1.00 + PSR 0.00 + 0.001) [enemy held at 0106; 507 spots with LOS]
+  [Movement select] Red: score 8.055 = dealt 148.66 x1.00 / (received 18.46 x1.00 + PSR 0.00 + 0.001) [enemy held at 0106; 507 spots with LOS]
   [Movement] Red: 0505 NW -> 0205 SW, Run (4 MP, 3 hexes, 2 heat; budget walk 3 / run 4 / jump 5)
   [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['ISSRM6', 'ISMediumLaser'] (weapon heat 7 +1 damaged radical of budget 7 = max 9 + sink 14 - current 7 - movement 2 - other 7; expected dmg 9.39)
     ISSRM6: needs 6 (range mod +0), rolled 4 -> miss [ISSRM6 Ammo: 9 shots left]
@@ -295,7 +299,7 @@ Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 10.
     ISMediumLaser hit for 5:
       Hit location roll 7 (front table): Center Torso.
 5 damage (ENERGY) incoming to Center Torso (armor).
-  [HARDENED/ENERGY] 2.5 armor pts destroyed at armor (42.5 -> 40 remaining).
+  [HARDENED/ENERGY] 2.5 armor pts destroyed at armor (44 -> 41.5 remaining).
     ISMediumPulseLaser hit for 6:
       Hit location roll 11 (front table): Left Arm.
 6 damage (ENERGY) incoming to Left Arm (armor).
@@ -345,7 +349,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 5.
 !!   escalating_use                       7 runs, in 1/1 battle(s)
 !! Known missing rules with no runtime flag:
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
-!!   - Variable-damage weapons (heavy Gauss, HAG, VSP...) can't fire (no damage data); munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods; Apollo saturation mode; a Narc homing pod is valued for one turn and not in movement scoring
+!!   - Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH
 !!   - Heat sources/sinks with no terrain model yet: water, snow, fire, extreme temperatures; inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules
@@ -372,7 +376,7 @@ BATCH SUMMARY - 1 battle(s): Red = Asymptote II iJ Mpulse, Blue = TEST Heat Gear
 !!   escalating_use                       7 runs, in 1/1 battle(s)
 !! Known missing rules with no runtime flag:
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
-!!   - Variable-damage weapons (heavy Gauss, HAG, VSP...) can't fire (no damage data); munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods; Apollo saturation mode; a Narc homing pod is valued for one turn and not in movement scoring
+!!   - Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH
 !!   - Heat sources/sinks with no terrain model yet: water, snow, fire, extreme temperatures; inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules

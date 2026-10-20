@@ -46,7 +46,7 @@ verbose, home-edge deployment. Layout: `INTEGRATION__*.py` at the top;
 boards, test mechs and `meks.zip` (4,227 MegaMek units, 4,162 parse);
 `rules/` the rules library zip; `reference_logs/` same-seed sample battles.
 
-**After any change, from the repo root:** every `tests/test_*.py` (12 files,
+**After any change, from the repo root:** every `tests/test_*.py` (13 files,
 all must pass), `python tests/check_reference_logs.py` (must pass unless the
 change is MEANT to alter results - then look at a fresh battle and run
 `--update`, and say so in the Change Record; Daniel has OK'd regenerating
@@ -96,7 +96,14 @@ cloud container, faster on Daniel's PC).
 - Weapon-use options (`INTEGRATION__fire_modes`, 2026-10-20): Ultra / Rotary
   AC rapid fire (Rotary jams and unjamming), LB-X slug / cluster rounds, ATM
   standard / ER / HE, MML LRM / SRM, Apollo standard-fire mode - the rules are
-  built, the CHOICE is a stub (Daniel: "still a matter of research").
+  built, the CHOICE is a stub (Daniel: "still a matter of research");
+  Apollo saturation mode (an attack on the hex, Daniel's ruling).
+- Every Core weapon fires (`INTEGRATION__weapon_profiles`, 2026-10-20):
+  variable damage (heavy Gauss, Snub-Nose PPC, VSP), HAG, M-pods, machine
+  gun arrays, bombast lasers, rifles, flamer / plasma heat on the target
+  (outside heat, max 15), Arrow IV and artillery cannons (area effect,
+  scatter). Optional rule `POOL_CLUSTER_DAMAGE` (default True, Daniel):
+  cluster damage of one grouping size is summed before grouping.
 - Remaining loud stubs (`INTEGRATION__stubs.py`): weapon data gaps
   (`ammo_data`, `unconfirmed_weapon_data`, `unknown_damage_type`),
   `heat_explosion_bin` (a controller choice), and the weapon-use decisions
@@ -112,10 +119,15 @@ open). Read it before building rules.
 1. **Research: how the bot should decide** rate of fire, MASC use and which
    ammunition (Daniel, 2026-10-20) - today stubs (`STUB_MUNITION_POLICY`,
    `STUB_RATE_OF_FIRE`, `STUB_UNJAM`, `STUB_ESCALATING_USE`); goes with the
-   future-capability Memo (item 2). Rules still to build: variable-damage
-   weapons (heavy Gauss, HAG, VSP - they can't fire yet), AC special rounds
-   (G16). Questions for Daniel: Section 4 ("AMS readings", "Artemis / Narc /
-   ECM readings", "Weapon-use readings").
+   future-capability Memo (item 2). Daniel's ideas for after the "get all
+   weapons basically working" pass (2026-10-20): (a) a lookup table of known
+   best solutions per weapon by range and starting to-hit number (e.g. HE vs
+   standard ATM ammo), instead of working it out each time; (b) raise a
+   multi-hit (cluster) weapon's expected value by its odds of a critical hit
+   given the target's known armor - helps LB-X slug vs cluster and medium
+   laser vs SRM 4. Deferred: specialty ammo (AC AP / caseless / flak /
+   precision, Arrow IV homing...). Placeholder to set: `TARGET_HEAT_WORTH`.
+   Questions for Daniel: Section 4.
 2. **The bot's future-capability planning** - Section 6 "Memo" (Daniel,
    2026-10-20). Needed for clubs, MASC, Rotary ACs (jam risk) and similar.
 3. **Hanging back** (seen 2026-10-20): mechs spending turns at range 5-9 out
@@ -298,15 +310,20 @@ confirmed project rules, not stubs):
   same location; linked in slot order there (a leftover FCS goes to a
   launcher with none).
 
-**Weapon-use readings - Daniel may overrule (Claude, 2026-10-20, `INTEGRATION__fire_modes`):**
-- Apollo saturation mode (p.197) fires at a HEX; the Core Rulebook doesn't say
-  what to-hit number an attack on a hex takes (the target's movement modifier?
-  none?). Not offered until Daniel says - only standard-fire mode (no MRM -1).
-- MML LRM groupings: the table (p.250) prints C3/3, C5/5, C7/7, C9/9 - used as
-  printed, so an MML 7 / 9 LRM volley lands as one group. LRMs are C5
-  everywhere else; maybe a printing slip.
-- ATM ER / HE shots per ton are "**" in the table (p.252): the launcher's own
-  figure is used.
+**Weapon-use readings (Claude, 2026-10-20, `INTEGRATION__fire_modes`):**
+- DECIDED (Daniel): an attack on a hex (Apollo saturation, Arrow IV) takes no
+  target modifiers - no TMM, not even the immobile -4 - "so its usually gunnery
+  + range + LOS blockers". MML LRM rounds group by 5 (the p.250 C7/C9 is a
+  typo), SRM by 2. ATM ER / HE use the launcher's shots per ton.
+- Arrow IV (p.182): "Do not modify the Target Number for range, target
+  movement, or an immobile target" - read as: the attacker's own modifiers
+  (movement, heat, sensors) and LOS still apply; prone-target and target
+  stealth don't (hex attack). Area-effect damage on a 'Mech: 5-point
+  groupings (pp.87, 182). Scatter isn't held inside the firing arc.
+- Machine gun arrays: one round from each gun fired.
+- Heat on the target (flamers, plasma) is priced at `TARGET_HEAT_WORTH` (0.5
+  damage a point) - a placeholder for Daniel; without it a plasma cannon (no
+  damage) would never fire.
 - Unjam attempts are declared at the start of the Movement Phase for both
   mechs (the rule only says "during the Movement Phase").
 - The Core Ultra AC has no jam rule (only the Rotary jams) - followed as written.
@@ -623,10 +640,11 @@ forward arc, kicks included, never into a side arc.
 | Heat-constrained weapon selection | `INTEGRATION__weapon_selection.py` | Which weapons fire this turn, built and wired |
 | Heat ammo explosion bin (controller's choice) | `INTEGRATION__stubs.stub_heat_explosion_bin` | **STUB.** Which of several equally destructive, equally full bins explodes (random). |
 | AMS engagements | `INTEGRATION__ams.engage` | Which missile hits each AMS takes (the ones it cuts most first; a Narc pod counts half its worth - 1D6 4+ - and nothing once a pod is on), cheapest-heat AMS first; skips an engagement that would end the turn above max(max_heat, `config.AMS_HEAT_LIMIT` = 13). Expected damage (weapon choice, movement) scales each missile weapon toward its engaged value by min(1, engagements / missile weapons) |
-| Ammunition kind / guidance / Apollo mode per shot | `fire_modes.Planner` -> **STUB** `stubs.stub_munition_choice` | LB-X slug / cluster, ATM standard / ER / HE, MML LRM / SRM, Artemis / Narc-equipped / standard missiles, Narc homing / explosive pods. Research (Daniel 2026-10-20); default "greedy" |
+| Ammunition kind / guidance / Apollo mode per shot | `fire_modes.Planner` -> **STUB** `stubs.stub_munition_choice` | LB-X slug / cluster, ATM standard / ER / HE, MML LRM / SRM, Artemis / Narc-equipped / standard missiles, Narc homing / explosive pods, Apollo standard / saturation, bombast 8 / 12 / 16. Research (Daniel 2026-10-20); default "greedy" |
 | Rate of fire (Ultra / Rotary AC) | `fire_modes.Planner` -> **STUB** `stubs.stub_rate_of_fire` | Research; default "max" |
 | Unjam a Rotary AC | `fire_modes.declare_unjams` -> **STUB** `stubs.stub_unjam` | Research; default: always try unless prone |
 | Narc beacon worth | `electronics.pod_value`, priced by `fire_modes.Planner` | A homing pod is worth one turn of the owner's extra Narc-missile damage (Daniel) - 0 once a pod is on or the target has ECM; explosive pods their damage. Not in movement scoring |
+| Worth of heat put on the enemy | `config.TARGET_HEAT_WORTH`, `fire_modes.Planner.value` | 0.5 damage per heat point - placeholder until Daniel sets it |
 | Ammo bin to draw from | `INTEGRATION__ammo.spend` | The bin with the fewest shots left (empties bins sooner) |
 | Prop arm when firing prone | `INTEGRATION__attack_resolution.prone_fire` | The arm whose weapons matter least |
 | Physical attack type | `INTEGRATION__physical.choose_attack` | Twist (if still allowed) + attack type (punch / kick / physical weapon / club / push) with the most expected worth, weighted by hit table (`physical.Worth`) |
@@ -724,6 +742,35 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-20 (Claude):** Non-functional weapons (Daniel: "Fixing non
+  functional weapons just became top priority"; review F18-F20). New
+  `INTEGRATION__weapon_profiles.py`, read by `fire_modes`: variable damage by
+  bracket (heavy Gauss 25/20/10, Snub-Nose PPC 10/8/5, VSP 5/4/3, 9/7/5,
+  11/9/7 - Daniel), HAG (C5 on the 20/30/40 column, +2 short / -2 long),
+  M-pods (15/10/5 column, C1), machine gun arrays (p.185: +2, the guns'
+  column, one location; guns linked per location), bombast lasers (8/12/16
+  at +0/+1/+2, heat 6/9/12 - a munition-stub choice), rifles (-3 vs 'Mechs),
+  flamer / plasma heat on the target (`heat.resolve_heat_phase` outside
+  heat, cap 15, p.102), Arrow IV (hex attack 7-17 hexes, Gunnery + 4, 20 AE,
+  scatter MOF/2, 10 next door) and artillery cannons (AE, no immobile -4,
+  scatter, Long Tom splash 10). Apollo saturation mode (Daniel's hex-attack
+  ruling: `Planner(hex_offset=)` drops the target's TMM / immobile / prone /
+  Void modifiers). MML LRM grouping 5 (Daniel: table typo). New optional
+  rule `POOL_CLUSTER_DAMAGE` (default True, Daniel): an attacker's cluster
+  damage of one grouping size (and damage type) is summed per phase, then
+  grouped. New knob `TARGET_HEAT_WORTH` (placeholder 0.5). equipment.json:
+  Clan flamers, plasma rifle / cannon, M-pod, B-pod, Snub-Nose PPC type,
+  heavy MGA rows filled; IS MGA, three rifles, rifle ammo, bombast laser,
+  Clan Arrow IV (12 slots; IS 15) added; artillery cannon damage / slots;
+  chemical laser shots per ton (ammo now used). Ammo: Arrow IV standard bins
+  feed; glued "...Ammo" names. 617 units had a Core weapon that couldn't
+  fire; now only non-Core weapons are left (TSEMP, iATM, mortars,
+  full-size artillery, fluid gun...). New `tests/test_weapons.py` (12
+  checks); new reference battles `Bombardier_BMB-14K_vs_Black_Hawk_F_seed4`,
+  `Bombardier_BMB-05A_vs_Cataphract_CTF-3LL_seed4`. Reference logs
+  regenerated (pooled cluster damage changes missile battles; banner text).
+  Benchmark unchanged (458 / 466).
 
 - **2026-10-20 (Claude):** Weapon-use options with stub decisions (Daniel:
   "Work on including the functionality of choice, but use a stub for the

@@ -95,6 +95,19 @@ SCENARIOS = {
         'config.MECH_RED_MTF = "Akuma AKU-2XK.mtf"',
         'config.MECH_BLUE_MTF = "Highlander IIC 2.mtf"',
         "config.SEED = 1",
+    ],    # Added 2026-10-20 for the weapons that couldn't fire: the Bombardier BMB-14K's
+    # machine gun array against the Black Hawk F's HAG 20; the Bombardier
+    # BMB-05A's Arrow IV (hex attacks, scatter) against the Cataphract CTF-3LL's
+    # plasma rifle (heat on the target).
+    "Bombardier_BMB-14K_vs_Black_Hawk_F_seed4.txt": [
+        'config.MECH_RED_MTF = "Bombardier BMB-14K.mtf"',
+        'config.MECH_BLUE_MTF = "Black Hawk (Nova) F.mtf"',
+        "config.SEED = 4",
+    ],
+    "Bombardier_BMB-05A_vs_Cataphract_CTF-3LL_seed4.txt": [
+        'config.MECH_RED_MTF = "Bombardier BMB-05A.mtf"',
+        'config.MECH_BLUE_MTF = "Cataphract CTF-3LL.mtf"',
+        "config.SEED = 4",
     ],
 }
 

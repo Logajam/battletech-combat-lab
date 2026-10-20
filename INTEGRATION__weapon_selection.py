@@ -299,7 +299,7 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
         if id(w) in unavailable:
             continue
         if planner is not None and fire_modes.special(w):
-            if w.heat is None:
+            if w.heat is None and not fire_modes.has_profile(w):     # (a bombast laser's heat is per shot)
                 continue
             got = planner(w, distance, pre_tn)
             if got is None:

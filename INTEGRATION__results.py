@@ -21,9 +21,11 @@ KNOWN_MISSING_RULES = [
     "Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG "
     "designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods "
     "any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied",
-    "Variable-damage weapons (heavy Gauss, HAG, VSP...) can't fire (no damage data); munitions not modeled: AC "
-    "armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods; "
-    "Apollo saturation mode; a Narc homing pod is valued for one turn and not in movement scoring",
+    "Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / "
+    "haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and "
+    "PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; "
+    "a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo "
+    "saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH",
     "Heat sources/sinks with no terrain model yet: water, snow, fire, extreme temperatures; "
     "inferno missiles (inferno bins aren't fired from; they can still explode)",
     "Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary "

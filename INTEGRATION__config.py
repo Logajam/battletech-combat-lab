@@ -156,6 +156,11 @@ TSM_MIN_HEAT = 9
 # heat level with no shutdown roll (p.104). Matters mostly for laser AMS
 # (7 heat IS / 5 Clan per engagement; a standard AMS makes 1).
 AMS_HEAT_LIMIT = 13
+# Worth of one point of heat put on the enemy (flamers, plasma - pp.102, 189),
+# counted as this much damage when the bot prices a heat-causing weapon.
+# PLACEHOLDER (Claude 2026-10-20) until Daniel sets it - without it a plasma
+# cannon (no damage, 2D6 heat) would never be worth firing.
+TARGET_HEAT_WORTH = 0.5
 # Aimed shots at immobile targets (shut down / crew unconscious, Core p.70):
 # the location every eligible weapon aims at, or None for no aimed shots.
 # "Head" uses +3 instead of the -4 immobile modifier.
@@ -265,6 +270,13 @@ CLUB_PICKUP = False
 # =============================================================================
 # ==========================  OPTIONAL RULES  =================================
 # =============================================================================
+# Cluster damage pooling (Daniel, 2026-10-20: "all cluster damage of a specific
+# size is added up and then applied. So 2 LRM 20's that both rolled for 12
+# damage would do 5,5,5,5,4"). True: in a Ranged phase, every Cluster hit's
+# damage from one attacker with the same grouping size (and damage type) is
+# summed, then split into groupings. False: each attack's hits are grouped on
+# their own (Core pp.74, 87 read per attack).
+POOL_CLUSTER_DAMAGE = True
 # Rules where the Core Rulebook offers a choice, or where Daniel's own rule
 # differs from it (Daniel, 2026-10-20).
 #
