@@ -549,7 +549,7 @@ def falls_of_several_levels():
     m = fresh(ATLAS, "0808")
     before = attack_resolution.total_hp(m)
     with ScriptedDice([], default=7):
-        piloting_rolls.resolve_fall(m, 0, levels=2)
+        piloting_rolls.resolve_fall(m, levels=2)
     assert before - attack_resolution.total_hp(m) == 30
 
 

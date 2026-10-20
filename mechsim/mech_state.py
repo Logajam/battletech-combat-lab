@@ -584,11 +584,29 @@ def all_crew_unconscious(mech):
 
 
 def is_immobile(mech):
-    """Immobile in the Core Rulebook's sense (p.49/p.64): shut down, or no
-    conscious crew. Skips the Movement Phase and gives attackers the -4
-    immobile modifier. (0 MP from damage - both legs destroyed - is already
-    a kill in this sim; 0 MP from heat is NOT immobile, p.49.)"""
-    return mech.shutdown or all_crew_unconscious(mech)
+    """Immobile in the Core Rulebook's sense (p.49/p.64): shut down, no
+    conscious crew, or 0 MP entirely due to damage - both legs destroyed
+    (p.90; 2026-10-20 - matters with config.FIGHT_TO_THE_DEATH, otherwise
+    that mech is already destroyed). Skips the Movement Phase and gives
+    attackers the -4 immobile modifier. 0 MP from heat is NOT immobile, nor
+    is a destroyed gyro (p.49)."""
+    return mech.shutdown or all_crew_unconscious(mech) or legs_gone(mech)
+
+
+def legs_gone(mech):
+    """Both legs destroyed (a quad: three - the quad offset of
+    HELP(leg_kill_threshold.quad_offset)): 0 MP from damage."""
+    leg_kill_threshold = 3 if mech.mech_type in ("quad", "quadvee") else 2
+    return sum(1 for leg in mech.leg_locations if mech.locations[leg]["destroyed"]) >= leg_kill_threshold
+
+
+def fight_to_the_death():
+    """config.FIGHT_TO_THE_DEATH (Daniel, 2026-10-20): True = rules as
+    written; False (default) = a mech rendered immobile for good (gyro
+    destroyed, legs destroyed) counts as destroyed. Read through the bare
+    config module, as every MECHSIM file does."""
+    import config
+    return getattr(config, "FIGHT_TO_THE_DEATH", False)
 
 
 def pilot_unconscious(mech):
@@ -614,8 +632,12 @@ def is_destroyed(mech):
         mech.cause_of_death = "Head Destroyed"
         return True
     # HELP(leg_kill_threshold.quad_offset)
-    leg_kill_threshold = 3 if mech.mech_type in ("quad", "quadvee") else 2
-    if sum(1 for leg in mech.leg_locations if mech.locations[leg]["destroyed"]) >= leg_kill_threshold:
+    # Legs and gyro (Daniel, 2026-10-20): destroyed only under his default
+    # rule (config.FIGHT_TO_THE_DEATH False). With it True, both legs gone
+    # makes the mech immobile (is_immobile), and it is destroyed only once it
+    # also has no ranged weapons (Core p.99, below).
+    to_the_death = fight_to_the_death()
+    if not to_the_death and legs_gone(mech):
         mech.destroyed = True
         mech.cause_of_death = "Legs Destroyed"
         return True
@@ -645,12 +667,26 @@ def is_destroyed(mech):
         mech.destroyed = True
         mech.cause_of_death = "Engine Destroyed"
         return True
-    if mech.gyro_hits >= 2:
+    if mech.gyro_hits >= 2 and not to_the_death:
         mech.destroyed = True
         mech.cause_of_death = "Gyro Destroyed"
         return True
+    if to_the_death and is_immobile(mech) and legs_gone(mech) and not _has_ranged_weapon(mech):
+        # p.99: "All ranged weapons destroyed (or none to begin with) AND immobile". Only
+        # checked for immobility from damage: a shut-down mech or an unconscious pilot
+        # can recover, and that check would end the battle early.
+        mech.destroyed = True
+        mech.cause_of_death = "Immobile, No Ranged Weapons"
+        return True
 
     return False
+
+
+def _has_ranged_weapon(mech):
+    """Any weapon left (Core p.99's 'ranged weapons'; physical weapons are
+    'misc' in equipment.json, not 'weapon')."""
+    from damage_resolution import get_weapons    # damage_resolution imports this module
+    return bool(get_weapons(mech))
 
 
 # HELP(is_crippled.definition)

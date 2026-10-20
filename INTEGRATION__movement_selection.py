@@ -165,7 +165,8 @@ def exposure_factors(mech) -> Dict[str, float]:
 # =============================================================================
 def psr_costs(mech) -> Dict[str, float]:
     """{"Run": expected fall damage, "Jump": expected fall damage} for this
-    mech's CURRENT damage; 0 where no roll is forced. Run's cost only applies
+    mech's CURRENT damage; 0 where no roll is forced. Several triggers mean
+    several rolls (2026-10-20): P(fall) = 1 - P(each roll succeeds)^rolls. Run's cost only applies
     when the mech moves 1+ hex (a caller checks that)."""
     costs = {"Run": 0.0, "Jump": 0.0}
     if not config.MOVEMENT_PSR_COST:
@@ -174,8 +175,10 @@ def psr_costs(mech) -> Dict[str, float]:
         target = piloting_rolls.movement_psr_target_number(mech, psr_mode)
         if target is None:
             continue
-        p_fail = 1.0 - combat.hit_probability(target)     # the roll fails when it is under the target
-        costs[mode] = p_fail * piloting_rolls.fall_damage(mech)
+        # One roll per trigger (piloting_rolls.movement_psr_count, Core p.110): the mech
+        # falls unless every roll succeeds.
+        p_stand = combat.hit_probability(target) ** piloting_rolls.movement_psr_count(mech, psr_mode)
+        costs[mode] = (1.0 - p_stand) * piloting_rolls.fall_damage(mech)
     return costs
 
 
@@ -225,7 +228,10 @@ def _opponent_options(other, terrain_map):
     if is_immobile(other):
         return [(x, y, facing, 0, "Stand Still", 0)]
     if other.prone:
-        tries = other.pilot_hits < 5 and compute_running_mp(other) > 0   # resolve_stand_up's own gates
+        tries = (piloting_rolls.can_stand(other) and other.pilot_hits < 5
+                 and compute_running_mp(other) > 0)                     # resolve_stand_up's own gates
+        # A mech that can't stand may turn on the ground (orchestrator._turn_while_down) -
+        # not modeled: it is scored where it lies, as it faces now.
         return [(x, y, facing, 0, "Run" if tries else "Stand Still", 0)]
     return reduced_options(other, terrain_map)
 

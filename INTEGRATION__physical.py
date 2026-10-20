@@ -622,7 +622,7 @@ def _resolve_pushes(pushes, triggers, terrain_map):
         config.log(f"    {target.side_name} is pushed {old} -> {label}; {attacker.side_name} follows into {old}.")
         if drop >= 2:
             config.log(f"    {target.side_name} is pushed {drop} levels down - automatic fall (p.83).")
-            piloting_rolls.resolve_fall(target, seatbelt_modifier=0, cause="pushed down", levels=drop)
+            piloting_rolls.resolve_fall(target, cause="pushed down", levels=drop)
         else:
             triggers[target.side_name].append(("pushed", PUSH_PSR_MODIFIER))
 

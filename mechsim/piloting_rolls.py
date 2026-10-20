@@ -15,8 +15,9 @@ Two phases per turn, both driven from sim_runner.simulate_turn():
   ATTACK PHASE (resolve_attack_phase_psr, called AFTER the attack loop):
     - Diffs current state against pre_attack_phase_snapshot to find this-
       phase triggers (>=20 dmg, actuator destroyed, gyro hit, leg destroyed).
-    - One accumulated roll per turn (not one per trigger) - all applicable
-      modifiers (this-phase + preexisting + special-case) stack onto it.
+    - One roll per trigger (2026-10-20, Core p.110 - was one accumulated
+      roll), every roll at the sum of all applicable modifiers (this-phase +
+      preexisting + special-case); the first failure is a fall.
     - A mech that's already prone can't fall further this phase (Daniel:
       "a mech that is prone can't fall over again unless attempting to
       stand") - skipped entirely if mech.prone is already True.
@@ -57,17 +58,13 @@ notes tag above for the full list):
   Resistant armor's dispatch in armor_rules.py - no other current armor
   type treats PHYSICAL differently from a flat 1:1 hit).
 - A leg destroyed and its own actuator hits in the SAME phase are not
-  double-counted (the +5 leg-destroyed value supersedes that leg's own
-  this-phase actuator count) - extrapolated from Note 11's "ignore all
-  other critical hit modifiers to that leg" (written for the preexisting-
-  damage case) to the same-phase case, not independently confirmed.
-- Gyro-destroyed automatic fall (+6 seatbelt modifier) is implemented per
-  the table but is currently UNREACHABLE in this sim: mech_state.is_destroyed
-  already kills the mech outright at 2 gyro hits, before this module would
-  ever see a "destroyed but still fighting" gyro state. resolve_attack_phase_psr
-  guards on is_destroyed(mech) at the top for exactly this reason - kept for
-  correctness/future-proofing if that kill rule ever changes, not dead code
-  removed outright.
+  double-counted (leg destruction replaces that leg's actuator effects,
+  Core p.90).
+- Gyro-destroyed automatic fall: reachable only with
+  config.FIGHT_TO_THE_DEATH (otherwise mech_state.is_destroyed kills the
+  mech at 2 gyro hits first).
+- Seatbelt checks follow Core p.117 since 2026-10-20 (Piloting + levels
+  fallen only; see resolve_fall).
 - A mech that fails check_movement_psr during a normal (non-prone-at-start)
   turn returns tmm_from_mp(0) for the rest of that turn's TMM - same "fallen
   = 0" convention as the stood-up-then-fell-again path, not independently
@@ -82,7 +79,8 @@ import math
 import config
 from hit_location import resolve_hit_location
 from mech_state import ArmorType, DamageType, is_destroyed, compute_running_mp, \
-    mark_consciousness_check_pending, all_crew_unconscious, pilot_unconscious, consciousness_target_number
+    mark_consciousness_check_pending, all_crew_unconscious, pilot_unconscious, consciousness_target_number, \
+    is_immobile
 from damage_resolution import apply_damage, tmm_from_mp, compute_tmm
 
 # HELP(piloting_skill_rolls.trigger_values)
@@ -92,8 +90,6 @@ from damage_resolution import apply_damage, tmm_from_mp, compute_tmm
 DAMAGE_20_PLUS_MODIFIER = 1
 LEG_ACTUATOR_DESTROYED_MODIFIER = 1
 GYRO_HIT_MODIFIER = 2
-GYRO_DESTROYED_SEATBELT_MODIFIER = 6   # Note 4 - currently unreachable, see module docstring
-LEG_DESTROYED_SEATBELT_MODIFIER = 5    # Note 5
 
 # Preexisting-damage modifiers (state at start of round) - same point values
 # as their this-phase counterparts for actuators/gyro (table gives them the
@@ -189,25 +185,36 @@ def special_case_modifier(mech):
 
 
 # HELP(piloting_skill_rolls.resolve_fall)
-def resolve_fall(mech, seatbelt_modifier, cause="", levels=0, side="front"):
+def resolve_fall(mech, cause="", levels=0, side=None):
     """Shared fall handler - called from resolve_attack_phase_psr (failed
-    PSR or automatic gyro/leg-destroyed fall) and resolve_stand_up (failed
-    stand attempt, or falling again immediately after a successful stand).
-    Sets mech.prone = True, applies ceil(mass/10) falling damage in 5-point
-    clusters (each independently rolled against the FRONT hit-location
-    table - Daniel, 2026-07-16), then runs the seatbelt check (pilot-injury-
-    avoidance roll) at config.PILOTING + seatbelt_modifier - the SAME
-    accumulated modifier used for the roll that caused this fall (Daniel's
-    worked example: leg destroyed +5, gyro hit +2, 20+ dmg +1 -> seatbelt TN
-    is also 5+5+2+1=13, not a separate/lower baseline).
-    levels (2026-10-20, Core p.115): levels fallen - a mech displaced two or
-    more levels down falls automatically; damage is multiplied by levels + 1.
-    side (2026-10-20): the hit-location column - "rear" for a failed death
-    from above (p.80)."""
+    PSR or automatic gyro/leg-destroyed fall), check_movement_psr and
+    resolve_stand_up, and the displacement / DFA code. Sets mech.prone =
+    True, applies the falling damage in 5-point clusters, then makes the
+    seatbelt check.
+
+    Rules as written since 2026-10-20 (Daniel: "Follow the rules as written";
+    "Add that functionality"):
+      - Damage (p.115): ceil(tonnage / 10) x (levels fallen + 1), in 5-point
+        groupings, a Hit Location roll for each.
+      - Side (p.115): "roll 1D6: on a 1, all damage is applied to the rear,
+        otherwise it is applied to the front". side= skips the roll when a
+        rule names the side ("rear" for a failed death from above, p.80).
+      - Seatbelt check (p.117): Piloting + 1 per level fallen above 0, and
+        no other modifier; the MechWarrior takes 1 hit on a failure, or
+        automatically if the 'Mech is immobile or the target number is over
+        12. (Was: the fall's whole PSR modifier, Daniel's 2026-07-16 rule.)
+    levels: levels fallen - a mech displaced two or more levels down falls
+    automatically (2026-10-20, Core p.115)."""
     mech.prone = True
+    if side is None:
+        die = config.pick_number(6, prompt="  Fall side 1D6 (1 = rear)")
+        side = "rear" if die == 1 else "front"
+        side_note = f"1D6 {die}: {side}"
+    else:
+        side_note = side
     total_damage = fall_damage(mech) * (levels + 1)
     config.log(f"FALL{f' ({cause})' if cause else ''}: {mech.chassis} {mech.model} "
-               f"takes {total_damage} falling damage (front table, 5-pt clusters).")
+               f"takes {total_damage} falling damage ({side_note} table, 5-pt clusters).")
 
     remaining = total_damage
     while remaining > 0:
@@ -221,17 +228,55 @@ def resolve_fall(mech, seatbelt_modifier, cause="", levels=0, side="front"):
         if is_destroyed(mech):
             return
 
-    needed = config.PILOTING + seatbelt_modifier
-    roll = config.roll_2d6(prompt="  Seatbelt check roll")
-    mod_note = f" (Piloting {config.PILOTING} + {seatbelt_modifier:+d})" if seatbelt_modifier else ""
-    if roll < needed:
+    needed = config.PILOTING + levels
+    level_note = f" (Piloting {config.PILOTING} + {levels} levels)" if levels else ""
+    if is_immobile(mech) or needed > 12:
         mech.pilot_hits += 1
         mark_consciousness_check_pending(mech)
-        config.log(f"  Seatbelt check: needs {needed}{mod_note}. Rolled {roll}. FAILED - "
-                   f"pilot takes 1 hit ({mech.pilot_hits}/6).")
+        why = "immobile" if is_immobile(mech) else f"needs {needed}"
+        config.log(f"  Seatbelt check: {why} - pilot takes 1 hit automatically ({mech.pilot_hits}/6).")
     else:
-        config.log(f"  Seatbelt check: needs {needed}{mod_note}. Rolled {roll}. Pilot unharmed.")
+        roll = config.roll_2d6(prompt="  Seatbelt check roll")
+        if roll < needed:
+            mech.pilot_hits += 1
+            mark_consciousness_check_pending(mech)
+            config.log(f"  Seatbelt check: needs {needed}{level_note}. Rolled {roll}. FAILED - "
+                       f"pilot takes 1 hit ({mech.pilot_hits}/6).")
+        else:
+            config.log(f"  Seatbelt check: needs {needed}{level_note}. Rolled {roll}. Pilot unharmed.")
     is_destroyed(mech)
+
+
+def roll_psrs(mech, count, modifier, what):
+    """p.110 Multiple Rolls (2026-10-20, rules as written): `count` PSRs made
+    one at a time, each at Piloting + `modifier` (every modifier applies to
+    every roll); the first failure means a fall and the rest are not rolled.
+    Returns True if every roll succeeded. Does not resolve the fall."""
+    needed = config.PILOTING + modifier
+    for i in range(1, count + 1):
+        roll = config.roll_2d6(prompt=f"{what} roll {i}/{count}")
+        config.log(f"{what}{f' {i}/{count}' if count > 1 else ''}: needs {needed} "
+                   f"(Piloting {config.PILOTING} + {modifier:+d}). Rolled {roll}.")
+        if roll < needed:
+            config.log("  Failed - falls." + (f" ({count - i} more not rolled.)" if i < count else ""))
+            return False
+    config.log("  Succeeded - remains standing.")
+    return True
+
+
+def can_stand(mech):
+    """Whether a prone mech may try to stand at all (2026-10-20): not with a
+    destroyed gyro (p.98), two destroyed legs, or one destroyed leg and two
+    destroyed arms (p.51). Only reachable with config.FIGHT_TO_THE_DEATH -
+    otherwise the first two are kills."""
+    if mech.gyro_hits >= 2:
+        return False
+    legs_lost = sum(1 for loc in mech.leg_locations if mech.locations[loc]["destroyed"])
+    arms_lost = sum(1 for loc in ("Left Arm", "Right Arm") if loc in mech.locations
+                    and mech.locations[loc]["destroyed"])
+    if mech.mech_type in ("quad", "quadvee"):
+        return legs_lost < 3
+    return legs_lost < 2 and not (legs_lost == 1 and arms_lost == 2)
 
 
 def movement_psr_trigger(mech, mode):
@@ -254,6 +299,26 @@ def movement_psr_trigger(mech, mode):
     ):
         return "Hip/leg destroyed while running"
     return None
+
+
+def movement_psr_count(mech, mode):
+    """How many Movement Phase PSRs moving in `mode` forces (2026-10-20,
+    rules as written, p.111 "each" and p.110 Leg Damage): one for a gyro hit,
+    plus one per leg with damage that triggers in this mode (running: a
+    destroyed leg or hip; jumping: a destroyed leg or any destroyed leg
+    actuator) - never more than one per leg. 0 when movement_psr_trigger is
+    None."""
+    if movement_psr_trigger(mech, mode) is None:
+        return 0
+    count = 1 if mech.gyro_hits > 0 else 0
+    for loc in mech.leg_locations:
+        if mech.locations[loc]["destroyed"]:
+            count += 1
+        elif mode == "jump" and mech.destroyed_leg_actuators.get(loc, 0) > 0:
+            count += 1
+        elif mode == "running" and loc in mech.destroyed_hip_locations:
+            count += 1
+    return count
 
 
 def movement_psr_target_number(mech, mode):
@@ -289,7 +354,7 @@ def check_movement_psr(mech, mode, cause=None):
     Same roll mechanics as every other PSR in this module (Daniel: "Special
     modifiers apply to every piloting skill roll... mechanics should be the
     same") - config.PILOTING + preexisting_modifier + special_case_modifier,
-    one roll, fail -> resolve_fall.
+    one roll per trigger (movement_psr_count, 2026-10-20), fail -> resolve_fall.
 
     Shared by two call sites with different GATES to reach this same check
     (Daniel: "The triggers and definitions should be the same, just
@@ -307,17 +372,10 @@ def check_movement_psr(mech, mode, cause=None):
         return True  # no trigger condition met - no roll, remains standing
 
     modifier = preexisting_modifier(mech) + special_case_modifier(mech)
-    needed = config.PILOTING + modifier
-    roll = config.roll_2d6(prompt=f"Movement Phase PSR roll ({mode} mode)")
-    config.log(f"Movement Phase PSR ({mode} mode, {trigger_desc}): needs {needed} "
-               f"(Piloting {config.PILOTING} + {modifier:+d}). Rolled {roll}.")
-    if roll < needed:
-        config.log("  Failed - falls.")
-        resolve_fall(mech, seatbelt_modifier=modifier,
-                     cause=cause or f"failed Movement Phase PSR ({mode})")
+    count = movement_psr_count(mech, mode)
+    if not roll_psrs(mech, count, modifier, f"Movement Phase PSR ({mode} mode, {trigger_desc})"):
+        resolve_fall(mech, cause=cause or f"failed Movement Phase PSR ({mode})")
         return False
-
-    config.log("  Succeeded - remains standing.")
     return True
 
 
@@ -339,6 +397,9 @@ def resolve_stand_up(mech):
 
     Returns the running MP to use for this turn's TMM (0 if the mech ends
     the Movement Phase still prone)."""
+    if not can_stand(mech):
+        config.log("Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains prone.")
+        return 0
     if mech.pilot_hits >= 5:
         config.log("Pilot has 5+ hits - remaining prone rather than risk a stand attempt.")
         return 0
@@ -369,7 +430,7 @@ def resolve_stand_up(mech):
 
         if roll < needed:
             config.log("  Failed to stand.")
-            resolve_fall(mech, seatbelt_modifier=modifier, cause="failed to stand")
+            resolve_fall(mech, cause="failed to stand")
             if is_destroyed(mech):
                 return 0
             continue  # loop re-checks stopping conditions at the top
@@ -427,31 +488,27 @@ def resolve_movement_phase(mech):
 
 # HELP(piloting_skill_rolls.resolve_attack_phase_psr)
 def resolve_attack_phase_psr(mech, forced_triggers=()):
-    """Called once per turn, AFTER the attack loop finishes. Skips entirely
-    if the mech is already destroyed (nothing to resolve for a dead mech -
-    also the guard that makes the gyro-destroyed automatic-fall branch
-    below unreachable, see module docstring) or already prone (Daniel: "a
-    mech that is prone can't fall over again unless attempting to stand").
+    """Called after each attack phase. Skips entirely if the mech is already
+    destroyed or already prone (Daniel: "a mech that is prone can't fall
+    over again unless attempting to stand"; Core p.110).
 
     Diffs current state against mech.pre_attack_phase_snapshot to find
-    this-phase triggers, accumulates ALL applicable modifiers (this-phase +
-    preexisting + special-case) into ONE roll (Daniel: "1 accumulated roll
-    after all attacks have been made"). Leg-destroyed-this-phase and
-    (unreachable) gyro-destroyed-this-phase are automatic falls - no roll
-    to prevent the fall itself, but the seatbelt check still uses the full
-    accumulated modifier (Note 4/5 values in place of the lesser hit-level
-    values).
+    this-phase triggers. Since 2026-10-20 (Daniel: rules as written, Core
+    p.110): one PSR per trigger, each at the sum of ALL applicable modifiers
+    (this-phase + preexisting + special-case), stopping at the first
+    failure; leg damage forces at most one roll per leg. A leg (or, with
+    config.FIGHT_TO_THE_DEATH, the gyro) destroyed this phase is an
+    automatic fall - no roll. Was: one accumulated roll (Daniel, 2026-07-16).
 
     PILOT CONSCIOUSNESS (Daniel, 2026-07-17): if a trigger fires and every
     tracked crew member is unconscious (mech_state.all_crew_unconscious),
-    the roll itself is skipped - auto-fail straight to resolve_fall, same
-    accumulated modifier. See resolve_consciousness_checks/
-    resolve_end_phase_wakeup below for where crew go unconscious/wake up.
+    the rolls are skipped - auto-fail straight to resolve_fall. See
+    resolve_consciousness_checks/resolve_end_phase_wakeup below for where
+    crew go unconscious/wake up.
 
     forced_triggers (2026-10-19, INTEGRATION__physical): extra (reason,
     modifier) PSR triggers from this phase that aren't damage - kicked,
-    missed a kick (Core p.111, both +0). They join the same one accumulated
-    roll as the damage triggers above."""
+    missed a kick (Core p.111, both +0), charged. Each is one more roll."""
     if is_destroyed(mech) or mech.prone:
         return
 
@@ -459,8 +516,14 @@ def resolve_attack_phase_psr(mech, forced_triggers=()):
     if not snap:
         return  # nothing to diff against - shouldn't happen post-snapshot_pre_attack_phase, safe no-op
 
+    # Rules as written since 2026-10-20 (Daniel: "Follow the rules as written"):
+    # one PSR per trigger, each made at the SUM of every modifier this phase
+    # (plus preexisting damage and special cases), the first failure is a fall
+    # and ends the sequence (p.110 Multiple Rolls). Leg damage forces at most
+    # one roll per leg, whatever number of actuators it lost (p.110 Leg Damage).
+    # A leg or gyro destroyed this phase is an automatic fall (p.111) - no roll.
     modifier = 0
-    triggered = False
+    rolls = 0
     automatic_fall = False
 
     current_total = sum(v.get("armor", 0) + v.get("rear_armor", 0) + v.get("structure", 0)
@@ -468,7 +531,7 @@ def resolve_attack_phase_psr(mech, forced_triggers=()):
     damage_this_phase = snap["total_armor_structure"] - current_total
     if damage_this_phase >= 20:
         modifier += DAMAGE_20_PLUS_MODIFIER
-        triggered = True
+        rolls += 1
         config.log(f"PSR trigger: {damage_this_phase} armor+structure lost this phase (>=20) "
                    f"-> {DAMAGE_20_PLUS_MODIFIER:+d}.")
 
@@ -479,72 +542,58 @@ def resolve_attack_phase_psr(mech, forced_triggers=()):
         if mech.locations[loc]["destroyed"]:
             newly_destroyed_legs.add(loc)
             automatic_fall = True
-            modifier += LEG_DESTROYED_SEATBELT_MODIFIER
-            config.log(f"PSR trigger: {loc} destroyed this phase -> automatic fall "
-                       f"(seatbelt {LEG_DESTROYED_SEATBELT_MODIFIER:+d}).")
+            config.log(f"PSR trigger: {loc} destroyed this phase -> automatic fall.")
 
     for loc in mech.leg_locations:
         if loc in snap["destroyed_legs"] or loc in newly_destroyed_legs:
-            continue  # Note 11 extrapolation - don't double-count a leg destroyed this same phase
+            continue  # leg destruction replaces that leg's actuator effects (p.90)
         new_actuators = mech.destroyed_leg_actuators.get(loc, 0) - snap["destroyed_leg_actuators"].get(loc, 0)
         if new_actuators > 0:
             modifier += new_actuators * LEG_ACTUATOR_DESTROYED_MODIFIER
-            triggered = True
+            rolls += 1                                   # one roll per leg (p.110)
             config.log(f"PSR trigger: {new_actuators} leg actuator(s) destroyed at {loc} this phase "
-                       f"-> {new_actuators * LEG_ACTUATOR_DESTROYED_MODIFIER:+d}.")
+                       f"-> {new_actuators * LEG_ACTUATOR_DESTROYED_MODIFIER:+d}, one roll.")
 
     new_gyro_hits = mech.gyro_hits - snap["gyro_hits"]
     if new_gyro_hits > 0:
         if mech.gyro_hits >= 2:
-            # Currently unreachable - is_destroyed() already returns True at 2 gyro
-            # hits and this function returns at the top. Kept for correctness/
-            # future-proofing, see module docstring.
+            # Reachable only with config.FIGHT_TO_THE_DEATH (otherwise is_destroyed()
+            # returned True at the top): gyro destroyed -> automatic fall (p.98).
             automatic_fall = True
-            modifier += GYRO_DESTROYED_SEATBELT_MODIFIER
-            config.log(f"PSR trigger: Gyro destroyed this phase -> automatic fall "
-                       f"(seatbelt {GYRO_DESTROYED_SEATBELT_MODIFIER:+d}).")
+            config.log("PSR trigger: Gyro destroyed this phase -> automatic fall.")
         else:
-            modifier += new_gyro_hits * GYRO_HIT_MODIFIER
-            triggered = True
-            config.log(f"PSR trigger: Gyro hit this phase -> {new_gyro_hits * GYRO_HIT_MODIFIER:+d}.")
+            modifier += GYRO_HIT_MODIFIER
+            rolls += 1
+            config.log(f"PSR trigger: Gyro hit this phase -> {GYRO_HIT_MODIFIER:+d}.")
 
     for reason, mod in forced_triggers:
         modifier += mod
-        triggered = True
+        rolls += 1
         config.log(f"PSR trigger: {reason} -> {mod:+d}.")
 
-    if not (triggered or automatic_fall):
+    if not (rolls or automatic_fall):
         return
 
     modifier += preexisting_modifier(mech) + special_case_modifier(mech)
 
     if automatic_fall:
-        config.log(f"Automatic fall this phase - seatbelt check only (accumulated modifier {modifier:+d}).")
-        resolve_fall(mech, seatbelt_modifier=modifier, cause="automatic fall")
+        config.log("Automatic fall this phase.")
+        resolve_fall(mech, cause="automatic fall")
         return
 
     # HELP(pilot_consciousness.attack_phase_auto_fail)
     # Daniel, 2026-07-17: "any subsequent piloting skill rolls will
-    # automatically fail" once every crew member is unconscious - no roll,
-    # straight to resolve_fall at the same accumulated modifier a normal
-    # roll would have used.
+    # automatically fail" once every crew member is unconscious - no roll.
     # Shutdown (2026-10-19, Core Rulebook p.105): "Any PSR required of a
     # standing shutdown 'Mech fails automatically" - same auto-fail path.
     if all_crew_unconscious(mech) or mech.shutdown:
         why = "shut down" if mech.shutdown else "all crew unconscious"
-        config.log(f"{why.capitalize()} - Attack Phase PSR auto-fails (accumulated modifier {modifier:+d}).")
-        resolve_fall(mech, seatbelt_modifier=modifier, cause=f"auto-fail ({why})")
+        config.log(f"{why.capitalize()} - Attack Phase PSR auto-fails.")
+        resolve_fall(mech, cause=f"auto-fail ({why})")
         return
 
-    needed = config.PILOTING + modifier
-    roll = config.roll_2d6(prompt="Attack Phase PSR roll")
-    config.log(f"Attack Phase PSR: needs {needed} (Piloting {config.PILOTING} + {modifier:+d}). "
-               f"Rolled {roll}.")
-    if roll < needed:
-        config.log("  Failed - falls.")
-        resolve_fall(mech, seatbelt_modifier=modifier, cause="failed Attack Phase PSR")
-    else:
-        config.log("  Succeeded - remains standing.")
+    if not roll_psrs(mech, rolls, modifier, "Attack Phase PSR"):
+        resolve_fall(mech, cause="failed Attack Phase PSR")
 
 
 # HELP(pilot_consciousness.resolve_checks)

@@ -101,7 +101,9 @@ its HP totals). Batches run several battles at once, one per CPU core
    .001); domino effects (no third mech); turret crits lock at the last
    declared direction; weapon data gaps (stubs above); `PROMPT_FOR_MAP` /
    `STITCH_MAPS` not built.
-6. Units for wider testing: `data/meks.zip`. LAMs, ultralights (< 20 t) and
+6. **Crippled / forced withdrawal** (Daniel, 2026-10-20): an option plus a
+   bot movement-picker override - not started.
+7. Units for wider testing: `data/meks.zip`. LAMs, ultralights (< 20 t) and
    superheavies don't parse.
 
 **Housekeeping:** reference logs regenerated 2026-10-20 (physical attacks,
@@ -218,6 +220,9 @@ BattleRNG stream).
 **Core Rulebook vs existing MECHSIM rules - Daniel to decide** (found
 2026-10-19 while replacing stubs; MECHSIM left unchanged because these are
 confirmed project rules, not stubs):
+- (Decided 2026-10-20, see Section 5: multiple PSRs one per trigger, the
+  seatbelt check, fall side, Floating Criticals and fight-to-the-death are
+  settled.)
 - Standing up (p.51, PSR table p.111): each attempt is a PSR at -1;
   `resolve_stand_up` uses no -1.
 - Tripod with no leg destroyed: -1 to PSRs (p.111); MECHSIM uses -2.
@@ -399,6 +404,19 @@ forward arc, kicks included, never into a side arc.
 
 ## 5. DECISIONS LOG (Daniel's calls — implementation may not override)
 
+- **Rules review calls (Daniel, 2026-10-20):** "We've entered the realm of
+  optional rules" - each becomes a config switch. Floating Criticals: a
+  true/false switch, default true (`FLOATING_CRITICALS`). Gyro destroyed and
+  both legs destroyed: "Fight to the death" - True follows the rules as
+  written; False (default) follows Daniel's rules and "declare[s] a fight
+  done when one mech is rendered immobile" (`FIGHT_TO_THE_DEATH`; Claude's
+  reading: immobile for good - destroyed gyro, both legs - not a shutdown or
+  an unconscious pilot, which can recover). "Related to this concept is
+  forced withdrawal and crippled. But that's both an option and adding a bot
+  movement picker override" - later. Multiple PSRs and the seatbelt check:
+  "Follow the rules as written." Fall side (1D6, 1 = rear): "Add that
+  functionality."
+
 - **Gunnery/piloting skill:** config-level input, not derived from `.mtf`.
 - **HP scalar for scoring:** total remaining armor + structure. Adjustable later.
 - **Weapon data model:** `equipment.json` is the single source once a
@@ -534,6 +552,7 @@ forward arc, kicks included, never into a side arc.
 | Torso twist / arm flip / turret | `declare_attacks`, `physical.choose_attack`, `ranged_combat.MoveEvaluator` | Most expected damage; no change wins ties (Section 4a) |
 | Charge / death from above | `movement_selection._movement_attack_pick`, `_modeled_reply`; `INTEGRATION__movement_attacks` | Gate per movement mode (beat the best ordinary attack), then the objective must beat the ordinary pick; both movers (two-ply) |
 | Push value | `physical.push_option`, `movement_attacks.displacement_worth` | P(hit) x (target HP off the board / fall worth 2+ levels down / else 0) |
+| Turning while down | `orchestrator._turn_while_down` | A prone mech that can't stand (fight to the death): fewest hexside turns that put the enemy in its forward arc, else a side arc; none if nothing improves (1 per turn with a destroyed gyro, p.98). The two-ply reply model doesn't anticipate it |
 | Club pick-up | `INTEGRATION__clubs.maybe_pick_up` | OFF (`config.CLUB_PICKUP`); waits for the Memo below |
 | DFA miss: where the target steps | `INTEGRATION__dfa.resolve` | The open hex with the smallest drop |
 | Home edge | `config.HOME_EDGE_CHOICE` | Which edge the deployment-roll loser picks (default random) |
@@ -615,6 +634,27 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-20 (Claude):** Daniel's calls on rules review D1-D7 (Section 5).
+  New OPTIONAL RULES section in `INTEGRATION__config.py`:
+  `FLOATING_CRITICALS` (default True; False = the standard Through-Armor
+  Critical, Core p.91: damage stays on the torso the 2 hit, plus one crit
+  check there, following the damage transfer if that torso is gone) and
+  `FIGHT_TO_THE_DEATH` (default False = Daniel's rule, a mech rendered
+  immobile for good - destroyed gyro, both legs - is destroyed; True = rules
+  as written: a destroyed gyro falls and can't stand (p.98), both legs gone
+  is immobile (pp.49, 90; `mech_state.is_immobile` now includes it), and an
+  immobile mech with no ranged weapons is destroyed (p.99); a prone mech that
+  can't stand turns toward the enemy - `orchestrator._turn_while_down`, one
+  hexside a turn with a destroyed gyro). Rules as written now
+  (`mechsim/piloting_rolls.py`): one PSR per trigger at the sum of all the
+  phase's modifiers, stopping at the first failure, one per leg (p.110;
+  `roll_psrs`, `movement_psr_count` - movement scoring prices 1 - P^rolls);
+  seatbelt check at Piloting + levels fallen only, automatic hit when
+  immobile or over 12 (p.117); falls roll 1D6 for the side, 1 = rear (p.115).
+  `resolve_fall` lost its `seatbelt_modifier` argument; `can_stand` (pp.51,
+  98). Tests in `tests/test_rules.py` (5 checks). RESULT CHANGE: two
+  reference logs regenerated (falls).
 
 - **2026-10-20 (Claude):** Backward walking (Core pp.45-46, TMM p.63;
   rules review G1). `pathfinder.build_movement_table(backward_mp=...)`: a
