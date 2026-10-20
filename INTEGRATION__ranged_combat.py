@@ -200,7 +200,7 @@ def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_fo
     return score
 
 
-def movement_options(mover, terrain_map, standup_mp=None, entry_edge=None):
+def movement_options(mover, terrain_map, standup_mp=None, entry_edge=None, backward=True):
     """Every end state the mover can reach this turn, as (x, y, facing, fc,
     mode, mp_spent), deduplicated. Normally: Walk/Run from its hex and facing
     (pathfinder.build_movement_table at Running MP) plus jumps.
@@ -211,7 +211,14 @@ def movement_options(mover, terrain_map, standup_mp=None, entry_edge=None):
     entry_edge (2026-10-19, Core p.37): the mover is entering the battlefield
     - it moves into any hex of its home edge (the labels given) with any
     facing, its MP counted from that first hex (whose entry cost it pays,
-    and which counts as a hex moved). Jumping onto the board isn't modeled."""
+    and which counts as a hex moved). Jumping onto the board isn't modeled.
+    backward (2026-10-20, Core pp.45-46): a walking mech may also move
+    backward (pathfinder.build_movement_table's backward_mp = Walking MP);
+    those states only ever have Walk's MP. Not after standing up (MECHSIM
+    stands with Running MP - a Run, which can't move backward) or when
+    entering the board. backward=False gives the forward-only states
+    (movement_attacks' charge index: a charge ends moving forward into the
+    target's hex, and its hex count would restart after a backward step)."""
     if entry_edge is not None:
         yield from _entry_options(mover, terrain_map, entry_edge)
         return
@@ -220,12 +227,15 @@ def movement_options(mover, terrain_map, standup_mp=None, entry_edge=None):
         walk = compute_walk_mp(mover)
         starts, run_budget, jump_mp = [start_facing], compute_running_mp(mover), compute_jump_mp(mover)
         mode_for = lambda spent: combat.classify_movement_mode(spent, walk)  # noqa: E731
+        backward_mp = walk if backward and walk > 0 else None
     else:
         starts, run_budget, jump_mp = range(6), standup_mp, 0
         mode_for = lambda spent: "Run"  # noqa: E731
+        backward_mp = None
     seen = set()
     for f0 in starts:
-        for (x, y, facing), col in build_movement_table(sx, sy, f0, run_budget, terrain_map=terrain_map).items():
+        for (x, y, facing), col in build_movement_table(sx, sy, f0, run_budget, terrain_map=terrain_map,
+                                                        backward_mp=backward_mp).items():
             for mp_spent, fc in col.items():
                 key = (x, y, facing, fc, mode_for(mp_spent), mp_spent)
                 if key not in seen:

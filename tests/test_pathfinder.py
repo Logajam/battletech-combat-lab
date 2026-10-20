@@ -178,6 +178,37 @@ def test_8_bucket_queue_vs_flat():
     print("Test 8 (bucket-queue DP matches flat DP on all-clear terrain): PASS")
 
 
+def test_9_backward_movement():
+    # 2026-10-20, Core Rulebook pp.45-46, 63: walking mechs may move backward
+    # (hex directly behind, facing kept); never past Walking MP once they have;
+    # the hex count restarts when the mech reverses; same-level hexes only
+    # (backward level changes need a PSR - not offered yet).
+    board = board_parser.parse_board_file(BOARD_FILE)
+    hexes = {label: {"level": 0, "features": {}, "impassable": False} for label in board["hexes"]}
+    clear = {"width": board["width"], "height": board["height"], "hexes": hexes}
+    x0, y0 = parse_hex_label("0808")
+    north = compass_to_facing("N")
+    behind = lambda n: (x0, y0 - 2 * n, north)          # noqa: E731 - n hexes straight back, still facing N
+
+    forward_only = build_movement_table(x0, y0, north, 3, terrain_map=clear)
+    assert behind(1) not in forward_only, "Test 9 FAILED: backward move offered without backward_mp"
+
+    table = build_movement_table(x0, y0, north, 3, terrain_map=clear, backward_mp=2)
+    assert table[behind(1)] == {1: 1} and table[behind(2)] == {2: 2}, table.get(behind(2))
+    # Walking MP 2, Running MP 3: three hexes back would be a backward run - not allowed.
+    assert behind(3) not in table, "Test 9 FAILED: moved backward past Walking MP"
+    assert behind(3) in build_movement_table(x0, y0, north, 3, terrain_map=clear, backward_mp=3)
+    # One hex forward, then back again (2 MP, facing N, back in the start hex): the
+    # reversal restarts the count, so 1 hex - not 2.
+    assert table[(x0, y0, north)][2] == 1, table[(x0, y0, north)]
+
+    # A level-1 hex behind: no backward step into it.
+    hexes[hex_label(*behind(1)[:2])] = {"level": 1, "features": {}, "impassable": False}
+    table = build_movement_table(x0, y0, north, 3, terrain_map=clear, backward_mp=3)
+    assert behind(1) not in table or 1 not in table[behind(1)], "Test 9 FAILED: backward level change offered"
+    print("Test 9 (backward movement): PASS")
+
+
 TESTS = [
     test_1_straight_line,
     test_2_turning_tax,
@@ -187,6 +218,7 @@ TESTS = [
     test_6_board_parser,
     test_7_transition_cost,
     test_8_bucket_queue_vs_flat,
+    test_9_backward_movement,
 ]
 
 

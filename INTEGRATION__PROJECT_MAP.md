@@ -78,7 +78,7 @@ its HP totals). Batches run several battles at once, one per CPU core
 
 **Pick up here (open, roughly in Daniel's priority order):**
 0. **Rules review** (`INTEGRATION__RULES_REVIEW.md`, started 2026-10-20):
-   its "Gaps" list is Claude's to build (backward walking first); its
+   its "Gaps" list is Claude's to build (backward walking done 2026-10-20); its
    "for Daniel" list needs his calls; chapters still to review are listed
    at its top.
 1. **The bot's future-capability planning** - Section 6 "Memo" (Daniel,
@@ -615,6 +615,21 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-20 (Claude):** Backward walking (Core pp.45-46, TMM p.63;
+  rules review G1). `pathfinder.build_movement_table(backward_mp=...)`: a
+  walking mech may step into the hex directly behind it, facing unchanged,
+  same entry cost; a path that has moved backward never spends more than
+  Walking MP (only walking mechs move backward); the forward count (TMM)
+  restarts at 1 when the mech reverses direction. The search state carries
+  (last direction, moved backward yet); without backward_mp the table is
+  exactly as before. `ranged_combat.movement_options(backward=True)` passes
+  Walking MP (not after standing up, not when entering the board); the charge
+  index uses forward-only states. Same-level backward steps only - a backward
+  level change needs a mid-move PSR the scoring can't price yet (review G11).
+  The battle log marks moves that need a backward step (VERBOSE only). Test 9
+  in `tests/test_pathfinder.py`. RESULT CHANGE: reference logs regenerated.
+  Benchmark 17.1 s (the Asymptote gains ~30 end states at Walking MP 3).
 
 - **2026-10-20 (Claude):** Rules review, first pass - new
   `INTEGRATION__RULES_REVIEW.md` (Core Rulebook vs code: fixed items, gaps,

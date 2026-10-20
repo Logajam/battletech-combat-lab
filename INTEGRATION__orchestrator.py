@@ -123,6 +123,7 @@ import INTEGRATION__equipment_systems as equip  # noqa: E402
 import INTEGRATION__ammo as ammo  # noqa: E402
 import INTEGRATION__physical as physical  # noqa: E402
 import INTEGRATION__movement_selection as movement_selection  # noqa: E402
+import INTEGRATION__ranged_combat as ranged_combat  # noqa: E402
 import INTEGRATION__stubs as stubs  # noqa: E402
 import INTEGRATION__attack_resolution as attack_resolution  # noqa: E402
 import INTEGRATION__arcs as arcs  # noqa: E402
@@ -238,6 +239,17 @@ def _compute_available_mp(mech):
 _MODE_TO_PSR = {"Run": "running", "Jump": "jump"}
 
 
+def _needs_backward_move(mover, pick, terrain_map, standup_mp, entry_edge):
+    """Log helper (2026-10-20): True if the picked Walk end state can only be
+    reached with a backward move (Core p.46) - it isn't among the forward-only
+    states. Only called with VERBOSE on, so batches don't pay for it."""
+    if pick["mode"] != "Walk" or standup_mp is not None or entry_edge is not None or pick.get("charge"):
+        return False
+    x, y = hex_geometry.parse_hex_label(pick["hex"])
+    state = (x, y, hex_geometry.compass_to_facing(pick["facing"]), pick["fc"], pick["mode"], pick["mp_spent"])
+    return state not in set(ranged_combat.movement_options(mover, terrain_map, backward=False))
+
+
 def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_first):
     """One mech's movement. See the module docstring table for which parts
     are real and which are stubs. `other` is the opponent: for the first
@@ -284,6 +296,7 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_fi
 
     if pick is not None:
         start = "off the board" if entry_edge is not None else f"{mover.hex} {mover.facing}"
+        backward = config.VERBOSE and _needs_backward_move(mover, pick, terrain_map, standup_mp, entry_edge)
         mover.hex, mover.facing = pick["hex"], pick["facing"]
         mover.move_mode, mover.move_fc, mover.mp_spent = pick["mode"], pick["fc"], pick["mp_spent"]
         mover.movement_heat = heat.movement_heat(mover, mover.move_mode, mover.move_fc)
@@ -298,7 +311,8 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_fi
         config.log(f"  [Movement] {name}: {start} -> {mover.hex} {mover.facing}, {mover.move_mode} "
                    f"({mover.mp_spent} MP, {mover.move_fc} hexes, {mover.movement_heat} heat; budget "
                    f"walk {mp['walk']} / run {mp['run']} / jump {mp['jump']}"
-                   f"{f'; stood up with {standup_mp} MP left' if standup_mp is not None else ''})")
+                   f"{f'; stood up with {standup_mp} MP left' if standup_mp is not None else ''})"
+                   f"{' - includes a backward move' if backward else ''}")
     else:
         # stays put: Stand Still, which still generates heat with an XXL engine (p.102)
         mover.movement_heat = heat.movement_heat(mover, mover.move_mode, mover.move_fc)
