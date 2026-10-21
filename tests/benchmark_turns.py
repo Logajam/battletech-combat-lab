@@ -13,8 +13,10 @@ totals - the HP totals must not change for a pure speed change.
 Reference points (PROJECT_MAP Change Record): 31.7 s before the 2026-10-20
 speed pass, 11.8 s after it, ~14.5 s with all seven physical attacks,
 about 25% less after the 2026-10-20 memo sharing (21.5 s -> 16.3 s on a
-slower machine). Parallel batches (config.WORKERS) don't show here - this is
-one battle.
+slower machine), ~13.4 s after the 2026-10-21 speed pass, ~3.5 s with the
+grid search as the default (2026-10-21; HP 495 / 495 - 501 / 495 with
+config.MOVEMENT_SEARCH = MOVEMENT_ASSUMED_ENEMY_SEARCH = "exhaustive").
+Parallel batches (config.WORKERS) don't show here - this is one battle.
 """
 
 import cProfile

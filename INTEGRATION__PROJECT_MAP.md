@@ -59,7 +59,7 @@ unzip `rules/Battletech_Rule_Reference_Index.zip` OUTSIDE the repo (e.g.
 marker PRECEDES page N's text), condensed and page-cited in
 `summary/core-rules/*.yaml` (fast to read); unzip `data/meks.zip` outside the
 repo when wider unit testing is needed. Then confirm a clean baseline:
-`python tests/run_checks.py --bench` (about 3.5 min).
+`python tests/run_checks.py --bench` (about 1 min).
 
 **It runs end to end.** `.mtf` in → turn-by-turn battle on a real board →
 batch summary (+ "WHERE THE TIME WENT" table) out: `python INTEGRATION__main.py`.
@@ -76,7 +76,7 @@ parse); `rules/` the rules library zip; `reference_logs/` same-seed sample
 battles; `replays/` and `run_stats/` (git-ignored) generated output.
 
 **After any change, from the repo root:** `python tests/run_checks.py` -
-one command, about 4 min: every `tests/test_*.py` (16 files) and every
+one command, about 1 min: every `tests/test_*.py` (16 files) and every
 reference battle (15), side by side, one line each, all must pass. Reference
 battles stop at 50 turns (`check_reference_logs.TEST_BATTLE_MAX_TURNS`,
 Daniel); one that hits the cap prints a NOTE ("a possible flaw") - today
@@ -86,18 +86,27 @@ battle, run `python tests/check_reference_logs.py --update`, and say so in
 the Change Record (Daniel has OK'd regenerating them for intended changes).
 For anything on the hot path add `--bench` (10 turns of the Asymptote mirror,
 pinned so timings stay comparable - a pure speed change must keep its HP
-totals, currently 501 / 495 since the 2026-10-21 lifetime default; ~15 s in
-the cloud container; it prints where the time went). Bot changes: compare
-with `python tests/ab_batches.py` (same seeds, several settings side by side).
+totals, currently 495 / 495 since the 2026-10-21 grid-search default (501 /
+495 with the exhaustive search); ~3.5 s in the cloud container (~14.5 s
+exhaustive); it prints where the time went). Bot changes: compare with
+`python tests/ab_batches.py` (same seeds, several settings side by side, 20
+battles a setting - Daniel).
 
 **What's built (all Core Rulebook, page-cited in the code):**
 - Batches: `config.WORKERS` battles at once, one per CPU core (0 = all
   cores); each battle has its own seed (`orchestrator.battle_seed`, battle 1
   = SEED) and the output is identical for any worker count
   (`tests/test_parallel_batch.py`). `BattleResult.seed` replays a battle.
-- Movement: `INTEGRATION__movement_selection.choose` scores every reachable
-  spot, exposure- and structure-weighted, TWO-PLY for the first mover (the
-  modeled reply now moves at its MASC / supercharger speed). DEFAULT objective
+- Movement: `INTEGRATION__movement_selection.choose` scores reachable spots,
+  exposure- and structure-weighted, TWO-PLY for the first mover (the
+  modeled reply now moves at its MASC / supercharger speed). WHICH spots:
+  DEFAULT since 2026-10-21 (Daniel) the "grid" search - Daniel's guess and
+  follow: a 1-in-7 hex net laid from the mover's own hex, then climb to
+  better neighbours; a second mover also always looks at the 6 hexes around
+  the enemy - for its own pick and as the first mover's assumed reply
+  (`config.MOVEMENT_SEARCH`, `MOVEMENT_ASSUMED_ENEMY_SEARCH`, per side in
+  `MECH_*_CONFIG` "search" / "assumes_enemy_search"); "exhaustive" = every
+  spot ("perfect", ~4x slower). DEFAULT objective
   since 2026-10-21 (Daniel): "lifetime" = dealt now + (HP left / enemy future
   damage per turn) x my future damage per turn (`INTEGRATION__future_damage`:
   0.5 x best heat-limited expected damage at gunnery + walking + the target's
@@ -194,23 +203,20 @@ open). Read it before building rules.
    without firing); test with `tests/ab_batches.py` and replays. Reference
    battles are capped at 50 turns meanwhile, and every batch summary flags
    battles that hit the turn cap.
-1. **Speed** (Daniel: "We still need more speed"). Session 6 cut ~25%
-   (Change Record). The two-ply look-ahead is still ~95% of run time because
-   it is exhaustive: every first-mover spot (300-630) x every reply spot
-   (400-630). Reply scoring (`MoveEvaluator.evaluate` for each modeled reply)
+1. **Speed** (Daniel: "We still need more speed"). Session 6: ~25% off the
+   exhaustive search (Change Record), then the grid search as the default
+   (~4x). With the EXHAUSTIVE search the two-ply look-ahead is ~95% of run
+   time: every first-mover spot (300-630) x every reply spot (400-630). Reply scoring (`MoveEvaluator.evaluate` for each modeled reply)
    ~70%, the per-reply loop in `movement_selection._modeled_reply` ~20%,
    reply charges / DFA ~3%. Pure-Python tuning is near its floor (~3 memo
    lookups a pair); the next big steps are fewer pairs (e.g. two-ply only the
    best spots by the static score - changes the bot, Daniel's call, test with
    `ab_batches.py`) or the compiled hot path (item 9). A speed-only change
-   must keep the benchmark's 501 / 495 and every reference log.
-   **Guess and follow** (Daniel's idea, built 2026-10-21 as switches, off by
-   default - A/B results in the Change Record): first mover only = ~2-3x
-   faster, results within noise; both movers with the second mover's
-   always-checks (own hex, the 6 around the enemy) = ~3.5-4.5x, results
-   within noise (Kontio 57 -> 61 of 100; without the always-checks it fell
-   to 38). Waiting on Daniel: whether to make it the default. Watch: 5 of
-   100 Kontio battles hit the turn cap (baseline 1).
+   must keep the benchmark's HP totals and every reference log.
+   **Guess and follow** - the default since 2026-10-21 (A/B results in the
+   Change Record): both movers with the second mover's always-checks = ~3.5-
+   4.5x, results within noise (Kontio 57 -> 61 of 100). Watch: 5 of 100
+   Kontio battles hit the turn cap (exhaustive 1).
 2. **Known issues Daniel asked to fix later** (Section 4, "Known issues to
    fix later"): Arrow IV / artillery scatter must stay inside the firing arc;
    machine gun array ammo per gun needs a check / test.
@@ -255,13 +261,13 @@ open). Read it before building rules.
    settings with batches (discussed 2026-10-20, not started).
 
 **Housekeeping:** reference logs match the code (last regenerated
-2026-10-21, end of session 5: the two map battles for the movement
-subphase, the rest for the KNOWN_MISSING_RULES text). Speed history
-(10-turn benchmark, HP 501 / 495): 31.7 s → 11.8 s → ~14.5 s (all physical
+2026-10-21, session 6: all 15 for the grid-search default). Speed history
+(10-turn benchmark, HP 501 / 495 with the exhaustive search): 31.7 s → 11.8 s → ~14.5 s (all physical
 attacks) → ~25% less (memo sharing) → ~15 s; 16-18 s in session 5's
 container, the same as the pre-map code on that machine - compare only like
 with like. Hill / water / rubble boards use the path-aware movement search
-(~5-10% slower than the plain one). Session 6 speed pass: ~17.9 s -> ~13.4 s. Scratch for map work: unzip
+(~5-10% slower than the plain one). Session 6 speed pass: ~17.9 s -> ~13.4 s;
+then the grid-search default: ~3.5 s (HP 495 / 495). Scratch for map work: unzip
 `data/maps.zip` outside the repo; `tests/survey_maps.py` reads the zip
 directly.
 
@@ -1019,6 +1025,30 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** The grid search is the DEFAULT (Daniel: "I think it
+  should become the default"), and each side can have its own search
+  (Daniel: "See how much of an advantage perfect knowledge is vs close
+  enough"). `config.MOVEMENT_SEARCH` (how a mech picks its own spot - the
+  first mover's two-ply candidates, the second mover's real pick) and
+  `MOVEMENT_ASSUMED_ENEMY_SEARCH` (how a first mover assumes the reply
+  picks) replace MOVEMENT_TWO_PLY_SEARCH / MOVEMENT_REPLY_SEARCH; both
+  "grid". Per side: `MECH_RED_CONFIG` / `MECH_BLUE_CONFIG` "search",
+  "assumes_enemy_search" (`orchestrator._attach_mech_config`,
+  `movement_selection.own_search` / `assumed_enemy_search`). The movement
+  note says "N of M spots (grid search) x K replies (grid search)". All 15
+  reference logs regenerated (intended); the Asymptote mirror still hits
+  the 50-turn cap. Benchmark 501 / 495 (14.5 s) -> 495 / 495 (~3.5 s); both
+  "exhaustive" settings, globally or per side, still give 501 / 495.
+  `run_checks.py` 186 s -> ~60 s. Two movement checks that prove the
+  perfect search finds the best spot now pin "exhaustive"; new check
+  per_side_search_settings. `tests/ab_batches.py`: settings "DICT.key" set
+  one key of a config dict; sets "search" (all fast vs all perfect) and
+  "knowledge" (one side perfect, expecting perfect or fast...).
+  **Bug fix found by the new battles:** an aimed shot (p.70) applied
+  `weapon.damage_per_shot` instead of the shot's damage
+  (`fire_modes.damage_per`), so an aimed Heavy Gauss Rifle shot (variable
+  damage, no listed figure) crashed the Atlas AS7-S2 vs Kintaro battle;
+  `_resolve_aimed_hit` now takes the damage (`tests/test_equipment.py`).
 - **2026-10-21 (Claude):** Grid spin A/B (Daniel: "clockwise vs counter
   clockwise grid spin ... no more then a single set of 20 sims").
   `config.MOVEMENT_GRID_SPIN`: the two mirror-image 1-in-7 nets, cube

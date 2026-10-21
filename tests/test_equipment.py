@@ -332,9 +332,16 @@ def aimed_shots():
     laser = next(x for x in attacks if x.aimed_at)
     before = t.locations["Center Torso"]["armor"]
     with ScriptedDice([], default=7), Picks([4]):
-        attack_resolution._resolve_aimed_hit(t, laser.weapon, attack_resolution._damage_type_for(laser.weapon),
-                                             "front", laser)
+        attack_resolution._resolve_aimed_hit(t, laser.weapon, laser.weapon.damage_per_shot,
+                                             attack_resolution._damage_type_for(laser.weapon), "front", laser)
     assert t.locations["Center Torso"]["armor"] < before       # (Hardened armor halves it)
+    # The damage given is the damage dealt, not the weapon's listed figure (2026-10-21: a
+    # Heavy Gauss Rifle - variable damage, no listed figure - crashed an aimed shot).
+    before = t.locations["Center Torso"]["armor"]
+    with ScriptedDice([], default=7), Picks([4]):
+        attack_resolution._resolve_aimed_hit(t, laser.weapon, 20, attack_resolution._damage_type_for(laser.weapon),
+                                             "front", laser)
+    assert t.locations["Center Torso"]["armor"] < before
 
 
 # =============================================================================

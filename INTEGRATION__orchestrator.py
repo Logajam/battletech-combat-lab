@@ -187,6 +187,10 @@ def _attach_mech_config(mech, cfg, side_name):
     mech.piloting = cfg["piloting"]
     mech.min_heat = cfg["min_heat"]
     mech.max_heat = cfg["max_heat"]
+    # Movement search per side (2026-10-21): None = config.MOVEMENT_SEARCH /
+    # MOVEMENT_ASSUMED_ENEMY_SEARCH (movement_selection.own_search / assumed_enemy_search).
+    mech.move_search = cfg.get("search")
+    mech.assumes_enemy_search = cfg.get("assumes_enemy_search")
     mech.current_heat = 0
     mech.shutdown = False
     mech.deactivated_heat_sinks = 0

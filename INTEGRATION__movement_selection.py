@@ -566,7 +566,7 @@ def _modeled_reply(c, ev2, prepared2, them, me, other, mover_xy_of_c, terrain_ma
         return rows
 
     with timing.section("reply scoring"):
-        if config.MOVEMENT_REPLY_SEARCH == "grid" and prepared2:
+        if assumed_enemy_search(me.mech) == "grid" and prepared2:
             # The second mover picks by guess and follow too (Daniel, 2026-10-21).
             rows = _grid_search(prepared2, reply_rows, hex_geometry.parse_hex_label(other.hex),
                                 config.MOVEMENT_SEARCH_STARTS, target_xy=c.hex_xy)
@@ -710,7 +710,7 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
                     for cand in ev1.evaluate(other.hex, other.facing, other.move_fc, other.move_mode,
                                              other.mp_spent, states)]
 
-        if not moves_first and config.MOVEMENT_REPLY_SEARCH == "grid":
+        if not moves_first and own_search(mover) == "grid":
             # The second mover picks by guess and follow (Daniel, 2026-10-21) - as the first mover modeled it.
             static = [cand for _, cand in _grid_search(prepared1, static_rows, _search_start(mover, prepared1),
                                                        config.MOVEMENT_SEARCH_STARTS, target_xy=enemy_xy)]
@@ -757,7 +757,7 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
             return (me.objective(dealt, received, dealt_mult, received_mult, extras), c,
                     (dealt, received, dealt_mult, received_mult, extras, reply))
 
-        if config.MOVEMENT_TWO_PLY_SEARCH == "grid":
+        if own_search(mover) == "grid":
             # No hexes around the enemy here: it moves after the first mover (Daniel, 2026-10-21:
             # "Always checks wouldn't help the first mover"). The own hex is always a net hex.
             scored = _grid_search(prepared1, lambda states: [score_spot(c) for c in states],
@@ -772,7 +772,9 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
                      if reply is not None else "; modeled reply: none with LOS")
         return (_pick_dict(o), me.objective.note(dealt, received, dm, rm, extras,
                                                  f"two-ply, {_spots_text(len(scored), len(prepared1))} x "
-                                                 f"{len(prepared2)} replies{reply_txt}"),
+                                                 f"{len(prepared2)} replies"
+                                                 f"{' (grid search)' if assumed_enemy_search(mover) == 'grid' else ''}"
+                                                 f"{reply_txt}"),
                 me.objective(dealt, received, dm, rm, extras), ctx)
     return (*_fallback_pick(mover, other, prepared1, enemy_xy, dealt_for, terrain_map, battle_rng,
                             f"no spot deals damage even before the reply (two-ply, {len(prepared1)} spots)"), None, ctx)
@@ -782,6 +784,18 @@ def _spots_text(checked, total):
     return f"{total} spots" if checked == total else f"{checked} of {total} spots (grid search)"
 
 
+def own_search(mech):
+    """How this mech picks its own spot: "grid" or "exhaustive" - its config
+    "search" (orchestrator._attach_mech_config), else config.MOVEMENT_SEARCH."""
+    return getattr(mech, "move_search", None) or config.MOVEMENT_SEARCH
+
+
+def assumed_enemy_search(mech):
+    """How this mech, moving first, assumes the second mover picks its reply:
+    its config "assumes_enemy_search", else config.MOVEMENT_ASSUMED_ENEMY_SEARCH."""
+    return getattr(mech, "assumes_enemy_search", None) or config.MOVEMENT_ASSUMED_ENEMY_SEARCH
+
+
 def _search_start(mover, prepared):
     """The hex a grid search's net is laid from: the mover's own, or (entering
     the board, no hex yet) its first reachable one."""
@@ -789,8 +803,8 @@ def _search_start(mover, prepared):
 
 
 def _grid_search(prepared, score_hex, start_xy, starts, target_xy=None):
-    """Daniel's "guess and follow" (2026-10-21, config.MOVEMENT_TWO_PLY_SEARCH
-    / MOVEMENT_REPLY_SEARCH = "grid"): the rows of a search over the
+    """Daniel's "guess and follow" (2026-10-21, own_search /
+    assumed_enemy_search = "grid"): the rows of a search over the
     reachable HEXES instead of every state. score_hex(states) scores all the
     states of one hex (facings, modes) and returns rows whose first item is
     the score - none for a hex it can't use (no LOS). The net: the hexes whose

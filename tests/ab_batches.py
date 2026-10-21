@@ -47,36 +47,41 @@ os.environ.setdefault("INTEGRATION_DATA_DIR", "./data")
 import INTEGRATION__config as config  # noqa: E402
 import INTEGRATION__orchestrator as orchestrator  # noqa: E402
 
+def _side(side, own, assumes):
+    """Settings giving one side its own movement search and its assumption about
+    the enemy's ("MECH_RED_CONFIG.search" sets that dict's key)."""
+    cfg = f"MECH_{side.upper()}_CONFIG"
+    return {f"{cfg}.search": own, f"{cfg}.assumes_enemy_search": assumes}
+
+
 # (name, {config setting: value}) - the first is the baseline the others are compared with.
+# A setting "DICT.key" sets one key of a config dict (per-side mech settings).
 VARIANT_SETS = {
     "objective": [
         ("ratio", {"MOVEMENT_OBJECTIVE": "ratio", "MOVEMENT_LIFETIME_HISTORY_K": None}),
         ("lifetime + history K=3", {"MOVEMENT_OBJECTIVE": "lifetime", "MOVEMENT_LIFETIME_HISTORY_K": 3.0}),
     ],
-    # Daniel's guess-and-follow two-ply search (config.MOVEMENT_TWO_PLY_SEARCH, 2026-10-21).
+    # Daniel's guess-and-follow search (2026-10-21): everyone "perfect" vs everyone "fast".
     "search": [
-        ("exhaustive (baseline)", {"MOVEMENT_TWO_PLY_SEARCH": "exhaustive"}),
-        ("grid 1/7 + follow", {"MOVEMENT_TWO_PLY_SEARCH": "grid", "MOVEMENT_SEARCH_STARTS": 1}),
-        ("grid 1/7 + follow best 3", {"MOVEMENT_TWO_PLY_SEARCH": "grid", "MOVEMENT_SEARCH_STARTS": 3}),
+        ("all fast (default)", {}),
+        ("all perfect", {"MOVEMENT_SEARCH": "exhaustive", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "exhaustive"}),
     ],
-    # Both movers pick by guess and follow (MOVEMENT_REPLY_SEARCH, Daniel 2026-10-21).
-    "search-both": [
-        ("grid both movers", {"MOVEMENT_TWO_PLY_SEARCH": "grid", "MOVEMENT_REPLY_SEARCH": "grid"}),
+    # "See how much of an advantage perfect knowledge is vs close enough" (Daniel, 2026-10-21).
+    # Per side: how it picks its own spot / how it assumes the enemy picks (perfect = every
+    # spot, fast = the grid search).
+    "knowledge": [
+        ("all fast (default)", {}),
+        ("Red perfect, expects perfect", _side("Red", "exhaustive", "exhaustive")),
+        ("Red perfect, expects fast", _side("Red", "exhaustive", "grid")),
+        ("Blue perfect, expects perfect", _side("Blue", "exhaustive", "exhaustive")),
+        ("Blue perfect, expects fast", _side("Blue", "exhaustive", "grid")),
+        ("Red fast, expects perfect", _side("Red", "grid", "exhaustive")),
+        ("Blue fast, expects perfect", _side("Blue", "grid", "exhaustive")),
     ],
-    # With the always-checks (own hex, the 6 around the enemy - Daniel, 2026-10-21; second mover only).
-    "search-always-both": [
-        ("always: grid both movers", {"MOVEMENT_TWO_PLY_SEARCH": "grid", "MOVEMENT_REPLY_SEARCH": "grid"}),
-    ],
-    # The net's two mirror images (MOVEMENT_GRID_SPIN, Daniel 2026-10-21), both movers on the grid.
+    # The net's two mirror images (MOVEMENT_GRID_SPIN, Daniel 2026-10-21).
     "grid-spin": [
-        ("spin clockwise", {"MOVEMENT_TWO_PLY_SEARCH": "grid", "MOVEMENT_REPLY_SEARCH": "grid",
-                            "MOVEMENT_GRID_SPIN": "clockwise"}),
-        ("spin counterclockwise", {"MOVEMENT_TWO_PLY_SEARCH": "grid", "MOVEMENT_REPLY_SEARCH": "grid",
-                                   "MOVEMENT_GRID_SPIN": "counterclockwise"}),
-    ],
-    "search-always": [
-        ("always: grid first mover", {"MOVEMENT_TWO_PLY_SEARCH": "grid"}),
-        ("always: grid both movers", {"MOVEMENT_TWO_PLY_SEARCH": "grid", "MOVEMENT_REPLY_SEARCH": "grid"}),
+        ("spin clockwise", {"MOVEMENT_GRID_SPIN": "clockwise"}),
+        ("spin counterclockwise", {"MOVEMENT_GRID_SPIN": "counterclockwise"}),
     ],
     # The default settings alone: with --seed, a yardstick for how much results move with the dice alone.
     "baseline": [("default settings", {})],
@@ -90,9 +95,18 @@ def run_variant(red, blue, battles, settings, turns=None, board=None, seed=12345
         settings["MAX_TURNS"] = turns
     if board is not None:
         settings["DEFAULT_BOARD_PATH"] = board
-    saved = {name: getattr(config, name) for name in settings}
+    saved = {}
+    for name in settings:
+        top = name.split(".")[0]
+        if top not in saved:
+            value = getattr(config, top)
+            saved[top] = dict(value) if isinstance(value, dict) else value
     for name, value in settings.items():
-        setattr(config, name, value)
+        if "." in name:
+            top, key = name.split(".", 1)
+            getattr(config, top)[key] = value
+        else:
+            setattr(config, name, value)
     config.MECH_RED_MTF, config.MECH_BLUE_MTF = red, blue
     config.VERBOSE, config.SEED, config.TIMING = False, seed, False
     start = time.time()

@@ -263,25 +263,30 @@ STUB_ESCALATING_USE = "cycle"
 #   score = dealt / (received + PSR cost + MOVEMENT_RATIO_EPSILON)
 # The first mover scores each spot by the second mover's modeled reply (two-ply).
 MOVEMENT_TWO_PLY = True          # False: the first mover scores against the enemy standing still
-# Two-ply search (2026-10-21, Daniel's "guess and follow"): which of the first
-# mover's spots get the modeled reply.
-#   "exhaustive" - every reachable spot (the original; the default).
+# Movement search (2026-10-21, Daniel's "guess and follow"; the default since
+# 2026-10-21 - Daniel: "I think it should become the default"):
 #   "grid"       - a 1-in-7 net of the reachable hexes (the hex grid's own spacing:
 #                  every hex is a net hex or touches exactly one; the mover's own hex
 #                  is always in it), then from the best MOVEMENT_SEARCH_STARTS net
 #                  hexes follow uphill: look at the unchecked neighbours of the best
 #                  hex so far, move to the best of them while it improves. A hex
 #                  "looked at" scores all its facings and modes. No dice involved.
-MOVEMENT_TWO_PLY_SEARCH = "exhaustive"
+#                  A second mover (knowing where its enemy stands) also always looks
+#                  at the 6 hexes around the enemy (melee).
+#   "exhaustive" - every reachable spot ("perfect"; the original).
+# MOVEMENT_SEARCH: how a mech picks its OWN spot (first mover: which spots get the
+# two-ply look-ahead; second mover: its real pick).
+# MOVEMENT_ASSUMED_ENEMY_SEARCH: how a first mover ASSUMES the second mover picks its
+# reply in the look-ahead.
+# Per side (Daniel, 2026-10-21: "See how much of an advantage perfect knowledge is vs
+# close enough"): MECH_RED_CONFIG / MECH_BLUE_CONFIG may set "search" and
+# "assumes_enemy_search" to override these two for that mech.
+MOVEMENT_SEARCH = "grid"
+MOVEMENT_ASSUMED_ENEMY_SEARCH = "grid"
 MOVEMENT_SEARCH_STARTS = 1      # "grid": how many of the best net hexes to follow uphill from
 # "grid": which of the two mirror-image 1-in-7 nets (2026-10-21, Daniel's spin A/B). The
 # range-3 net hexes are "2 hexes out, then 1 turning clockwise" or "... counter-clockwise".
 MOVEMENT_GRID_SPIN = "clockwise"
-# The second mover's picker (2026-10-21, Daniel: "what happens if second mover uses
-# the same picker formula as first mover"): "exhaustive" (default) or "grid" - the
-# same guess and follow over ITS spots, both in the first mover's modeled reply and
-# in the second mover's real pick.
-MOVEMENT_REPLY_SEARCH = "exhaustive"
 MOVEMENT_RATIO_EPSILON = 0.001   # added to the denominator so no-return-fire spots don't divide by zero
 # Armor-exposure weighting: damage that lands on thin armor counts for more,
 # in both directions (what this mech deals and what it receives). A shot from
