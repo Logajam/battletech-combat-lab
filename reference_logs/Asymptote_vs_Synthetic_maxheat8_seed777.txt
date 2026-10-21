@@ -43,7 +43,7 @@ WARNING: expected 5 slots for ISUltraAC5 but only found 1 consecutive matching l
 
 === TURN 2 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 2379.822 = dealt 0.00 x1.01 + (HP 671.5 - received 0.79 x1.00 - PSR 0.00) / enemy future 4.19 x my future 14.86 [two-ply, 86 of 504 spots (grid search) x 303 replies (grid search); modeled reply Blue -> 0712 NE Walk]
+  [Movement select] Red: score 2379.822 = dealt 0.00 x1.01 + (HP 671.5 - received 0.79 x1.00 - PSR 0.00) / enemy future 4.19 x my future 14.86 [two-ply, 92 of 510 spots (grid search) x 303 replies (grid search); modeled reply Blue -> 0712 NE Walk]
   [Movement] Red: 0703 SE -> 0201 S, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
   [Movement select] Blue: score 94.078 = dealt 0.79 x1.00 + (HP 331.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 14.86 x my future 4.19 [enemy held at 0201; 40 spots with LOS]
   [Movement] Blue: 0514 N -> 0712 NE, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
@@ -58,7 +58,7 @@ WARNING: expected 5 slots for ISUltraAC5 but only found 1 consecutive matching l
 
 === TURN 3 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 96.650 = dealt 2.64 x1.27 + (HP 331.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 11.89 x my future 3.35 [two-ply, 85 of 305 spots (grid search) x 280 replies (grid search); modeled reply Red -> 0604 N Jump]
+  [Movement select] Blue: score 96.650 = dealt 2.64 x1.27 + (HP 331.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 11.89 x my future 3.35 [two-ply, 85 of 305 spots (grid search) x 286 replies (grid search); modeled reply Red -> 0604 N Jump]
   [Movement] Blue: 0712 NE -> 0713 NE, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 0201 S -> 0604 N, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
@@ -75,7 +75,7 @@ WARNING: expected 5 slots for ISUltraAC5 but only found 1 consecutive matching l
 
 === TURN 4 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 106.902 = dealt 10.68 x1.27 + (HP 331.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 9.90 x my future 2.79 [two-ply, 50 of 277 spots (grid search) x 564 replies (grid search); modeled reply Red -> 0606 N Walk]
+  [Movement select] Blue: score 106.902 = dealt 10.68 x1.27 + (HP 331.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 9.90 x my future 2.79 [two-ply, 50 of 277 spots (grid search) x 570 replies (grid search); modeled reply Red -> 0606 N Walk]
   [Movement] Blue: 0713 NE -> 0615 N, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 0604 N -> 0606 N, Walk (2 MP, 2 hexes, 1 heat; budget walk 3 / run 4 / jump 5) - includes a backward move
@@ -111,7 +111,7 @@ WARNING: expected 5 slots for ISUltraAC5 but only found 1 consecutive matching l
 
 === TURN 5 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 148.916 = dealt 10.68 x1.31 + (HP 331.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 8.49 x my future 3.46 [two-ply, 86 of 292 spots (grid search) x 628 replies (grid search); modeled reply Red -> 0608 N Walk]
+  [Movement select] Blue: score 148.916 = dealt 10.68 x1.31 + (HP 331.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 8.49 x my future 3.46 [two-ply, 86 of 292 spots (grid search) x 634 replies (grid search); modeled reply Red -> 0608 N Walk]
   [Movement] Blue: 0615 N -> 0416 N, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 0606 N -> 0608 N, Walk (2 MP, 2 hexes, 1 heat; budget walk 3 / run 4 / jump 5) - includes a backward move
@@ -144,7 +144,7 @@ WARNING: expected 5 slots for ISUltraAC5 but only found 1 consecutive matching l
 
 === TURN 6 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 1189.802 = dealt 0.00 x1.00 + (HP 655.5 - received 0.26 x1.00 - PSR 0.00) / enemy future 4.09 x my future 7.43 [two-ply, 111 of 634 spots (grid search) x 268 replies (grid search); modeled reply Blue -> 0416 N Stand Still]
+  [Movement select] Red: score 1189.802 = dealt 0.00 x1.00 + (HP 655.5 - received 0.26 x1.00 - PSR 0.00) / enemy future 4.09 x my future 7.43 [two-ply, 117 of 640 spots (grid search) x 268 replies (grid search); modeled reply Blue -> 0416 N Stand Still]
   [Movement] Red: 0608 N -> 0504 S, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
   [Movement select] Blue: score 182.549 = dealt 0.26 x1.00 + (HP 331.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 7.43 x my future 4.09 [enemy held at 0504; 70 spots with LOS]
   [Movement] Blue: 0416 N -> 0416 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
@@ -158,7 +158,7 @@ WARNING: expected 5 slots for ISUltraAC5 but only found 1 consecutive matching l
 
 === TURN 7 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 188.531 = dealt 4.69 x1.33 + (HP 331.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 6.60 x my future 3.64 [two-ply, 77 of 268 spots (grid search) x 489 replies (grid search); modeled reply Red -> 0106 N Jump]
+  [Movement select] Blue: score 188.531 = dealt 4.69 x1.33 + (HP 331.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 6.60 x my future 3.64 [two-ply, 77 of 268 spots (grid search) x 495 replies (grid search); modeled reply Red -> 0106 N Jump]
   [Movement] Blue: 0416 N -> 0115 NW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 0504 S -> 0106 N, Jump (5 MP, 4 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
@@ -183,7 +183,7 @@ WARNING: expected 5 slots for ISUltraAC5 but only found 1 consecutive matching l
 
 === TURN 8 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 224.141 = dealt 10.68 x1.33 + (HP 331.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 5.94 x my future 3.77 [two-ply, 65 of 158 spots (grid search) x 367 replies (grid search); modeled reply Red -> 0108 N Walk]
+  [Movement select] Blue: score 224.141 = dealt 10.68 x1.33 + (HP 331.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 5.94 x my future 3.77 [two-ply, 65 of 158 spots (grid search) x 373 replies (grid search); modeled reply Red -> 0108 N Walk]
   [Movement] Blue: 0115 NW -> 0117 N, Walk (3 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 0106 N -> 0108 N, Walk (2 MP, 2 hexes, 1 heat; budget walk 3 / run 4 / jump 5) - includes a backward move
@@ -203,7 +203,7 @@ WARNING: expected 5 slots for ISUltraAC5 but only found 1 consecutive matching l
 
 === TURN 9 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 959.136 = dealt 8.33 x1.00 + (HP 648.0 - received 5.00 x1.00 - PSR 0.00) / enemy future 3.65 x my future 5.40 [two-ply, 73 of 365 spots (grid search) x 154 replies (grid search); modeled reply Blue -> 0117 N Stand Still]
+  [Movement select] Red: score 959.136 = dealt 8.33 x1.00 + (HP 648.0 - received 5.00 x1.00 - PSR 0.00) / enemy future 3.65 x my future 5.40 [two-ply, 79 of 371 spots (grid search) x 154 replies (grid search); modeled reply Blue -> 0117 N Stand Still]
   [Movement] Red: 0108 N -> 0212 S, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
   [Movement select] Blue: score 223.210 = dealt 5.00 x1.00 + (HP 331.0 - received 8.33 x1.00 - PSR 0.00) / enemy future 5.40 x my future 3.65 [enemy held at 0212; 76 spots with LOS]
   [Movement] Blue: 0117 N -> 0117 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
@@ -228,9 +228,9 @@ WARNING: expected 5 slots for ISUltraAC5 but only found 1 consecutive matching l
 
 === TURN 10 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 1056.896 = dealt 17.50 x1.03 + (HP 648.0 - received 9.58 x1.00 - PSR 0.00) / enemy future 3.35 x my future 5.45 [two-ply, 105 of 436 spots (grid search) x 154 replies (grid search); modeled reply Blue -> 0117 N Stand Still]
+  [Movement select] Red: score 1056.896 = dealt 17.50 x1.03 + (HP 648.0 - received 9.58 x1.00 - PSR 0.00) / enemy future 3.35 x my future 5.45 [two-ply, 111 of 442 spots (grid search) x 154 replies (grid search); modeled reply Blue -> 0117 N Stand Still]
   [Movement] Red: 0212 S -> 0414 SW, Jump (5 MP, 3 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
-  [Movement select] Blue: score 198.222 = dealt 9.58 x1.00 + (HP 325.0 - received 17.50 x1.03 - PSR 0.00) / enemy future 5.45 x my future 3.35 [enemy held at 0414; 82 spots with LOS]
+  [Movement select] Blue: score 198.222 = dealt 9.58 x1.00 + (HP 325.0 - received 17.50 x1.03 - PSR 0.00) / enemy future 5.45 x my future 3.35 [enemy held at 0414; 81 spots with LOS]
   [Movement] Blue: 0117 N -> 0117 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Ranged] Red -> Blue: range 4, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 8 + sink 22 - current 1 - movement 3 - other 0; expected dmg 17.50)
     ISMediumPulseLaser: needs 7 (range mod +2, modifiers -2), rolled 5 -> miss
@@ -266,9 +266,9 @@ WARNING: expected 5 slots for ISUltraAC5 but only found 1 consecutive matching l
 
 === TURN 11 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 1108.397 = dealt 27.50 x1.01 + (HP 643.5 - received 15.90 x1.00 - PSR 0.00) / enemy future 3.44 x my future 5.92 [two-ply, 150 of 493 spots (grid search) x 154 replies (grid search); modeled reply Blue -> 0117 N Stand Still]
+  [Movement select] Red: score 1108.397 = dealt 27.50 x1.01 + (HP 643.5 - received 15.90 x1.00 - PSR 0.00) / enemy future 3.44 x my future 5.92 [two-ply, 156 of 499 spots (grid search) x 154 replies (grid search); modeled reply Blue -> 0117 N Stand Still]
   [Movement] Red: 0414 SW -> 0414 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Movement select] Blue: score 181.512 = dealt 15.90 x1.00 + (HP 313.0 - received 27.50 x1.01 - PSR 0.00) / enemy future 5.92 x my future 3.44 [enemy held at 0414; 82 spots with LOS]
+  [Movement select] Blue: score 181.512 = dealt 15.90 x1.00 + (HP 313.0 - received 27.50 x1.01 - PSR 0.00) / enemy future 5.92 x my future 3.44 [enemy held at 0414; 81 spots with LOS]
   [Movement] Blue: 0117 N -> 0117 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Ranged] Red -> Blue: range 4, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 28 = max 8 + sink 22 - current 2 - movement 0 - other 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +2, modifiers -2), rolled 5 -> HIT
@@ -415,9 +415,9 @@ Stand attempt 1: needs 7 (Piloting 5 + +2). Rolled 7.
   Success - TEST Synthetic Loadout Probe is standing (remaining running MP 4).
 Movement Phase PSR (running mode, gyro hit): needs 7 (Piloting 5 + +2). Rolled 10.
   Succeeded - remains standing.
-  [Movement select] Blue: score 35.134 = dealt 5.00 x1.02 + (HP 202.0 - received 59.80 x1.41 - PSR 0.00) / enemy future 13.58 x my future 3.46 [two-ply, 23 of 57 spots (grid search) x 499 replies (grid search); modeled reply Red -> 0317 S Run]
+  [Movement select] Blue: score 35.134 = dealt 5.00 x1.02 + (HP 202.0 - received 59.80 x1.41 - PSR 0.00) / enemy future 13.58 x my future 3.46 [two-ply, 23 of 57 spots (grid search) x 505 replies (grid search); modeled reply Red -> 0317 S Run]
   [Movement] Blue: 0117 N -> 0416 NE, Run (4 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0; stood up with 4 MP left)
-  [Movement select] Red: score 2543.049 = dealt 59.80 x1.41 + (HP 631.5 - received 5.00 x1.02 - PSR 0.00) / enemy future 3.46 x my future 13.58 [enemy held at 0416; 125 spots with LOS]
+  [Movement select] Red: score 2543.049 = dealt 59.80 x1.41 + (HP 631.5 - received 5.00 x1.02 - PSR 0.00) / enemy future 3.46 x my future 13.58 [enemy held at 0416; 130 spots with LOS]
   [Movement] Red: 0414 SW -> 0317 S, Run (4 MP, 3 hexes, 2 heat; budget walk 3 / run 4 / jump 5)
   [Ranged] Blue -> Red: range 1, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['ISMediumPulseLaser'] (weapon heat 4 of budget 14 = max 8 + sink 10 - current 2 - movement 2 - other 0; expected dmg 5.00)
     ISMediumPulseLaser: needs 5 (range mod +0, modifiers -2), rolled 5 -> HIT
@@ -526,8 +526,7 @@ Physical Attack Phase consciousness check (gunner, 1 pilot hits): needs 3. Rolle
 !! Known missing rules with no runtime flag:
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
 !!   - Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH
-!!   - Water (RULES_REVIEW G6): leg weapons' Kick-table hits between partially submerged mechs; variable-damage weapons' underwater damage bracket
-!!   - Movement subphase (G20): damage PSRs (gyro / hip / leg) still fall in the END hex; a charge's last step into the target's hex rolls no terrain PSR; mud's -1 isn't priced in movement scoring
+!!   - Movement subphase (G20): mud's -1 isn't priced in movement scoring
 !!   - Heat sources/sinks with no terrain model yet: snow, fire, extreme temperatures (water: built 2026-10-21); inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules
@@ -555,8 +554,7 @@ BATCH SUMMARY - 1 battle(s): Red = Asymptote II iJ Mpulse, Blue = TEST Synthetic
 !! Known missing rules with no runtime flag:
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
 !!   - Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH
-!!   - Water (RULES_REVIEW G6): leg weapons' Kick-table hits between partially submerged mechs; variable-damage weapons' underwater damage bracket
-!!   - Movement subphase (G20): damage PSRs (gyro / hip / leg) still fall in the END hex; a charge's last step into the target's hex rolls no terrain PSR; mud's -1 isn't priced in movement scoring
+!!   - Movement subphase (G20): mud's -1 isn't priced in movement scoring
 !!   - Heat sources/sinks with no terrain model yet: snow, fire, extreme temperatures (water: built 2026-10-21); inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules

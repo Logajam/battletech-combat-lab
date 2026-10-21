@@ -40,7 +40,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 2 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 257.139 = dealt 0.00 x1.00 + (HP 390.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 11.09 x my future 7.31 [two-ply, 62 of 335 spots (grid search) x 449 replies (grid search); modeled reply: none with LOS]
+  [Movement select] Blue: score 257.139 = dealt 0.00 x1.00 + (HP 390.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 11.09 x my future 7.31 [two-ply, 68 of 341 spots (grid search) x 455 replies (grid search); modeled reply: none with LOS]
   [Movement] Blue: 1302 SW -> 1601 SW, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red: no spot deals damage - closing fallback found nothing; nearest reachable spot to the enemy
   [Movement] Red: 0113 N -> 0208 N, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
@@ -53,7 +53,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 3 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 496.029 = dealt 2.70 x1.00 + (HP 326.0 - received 0.72 x1.01 - PSR 0.00) / enemy future 7.31 x my future 11.09 [two-ply, 205 of 485 spots (grid search) x 182 replies (grid search); modeled reply Blue -> 1302 SW Jump]
+  [Movement select] Red: score 496.029 = dealt 2.70 x1.00 + (HP 326.0 - received 0.72 x1.01 - PSR 0.00) / enemy future 7.31 x my future 11.09 [two-ply, 211 of 491 spots (grid search) x 188 replies (grid search); modeled reply Blue -> 1302 SW Jump]
   [Movement] Red: 0208 N -> 0210 N, Walk (5 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
   [Movement select] Blue: score 256.092 = dealt 0.72 x1.01 + (HP 390.0 - received 2.70 x1.00 - PSR 0.00) / enemy future 11.09 x my future 7.31 [enemy held at 0210; 59 spots with LOS]
   [Movement] Blue: 1601 SW -> 1302 SW, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
@@ -73,7 +73,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 4 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 257.139 = dealt 0.00 x1.00 + (HP 390.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 11.09 x my future 7.31 [two-ply, 62 of 335 spots (grid search) x 481 replies (grid search); modeled reply: none with LOS]
+  [Movement select] Blue: score 257.139 = dealt 0.00 x1.00 + (HP 390.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 11.09 x my future 7.31 [two-ply, 68 of 341 spots (grid search) x 487 replies (grid search); modeled reply: none with LOS]
   [Movement] Blue: 1302 SW -> 1601 NE, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red: no spot deals damage - closing fallback found nothing; nearest reachable spot to the enemy
   [Movement] Red: 0210 N -> 0708 SW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
@@ -102,7 +102,7 @@ Movement Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
   Initiative: Red lost the roll, moves first.
 Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 5.
   Success - Black Hawk F is standing (remaining running MP 6).
-  [Movement select] Red: score 361.153 = dealt 0.58 x1.02 + (HP 319.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 7.36 x my future 8.32 [two-ply, 40 of 48 spots (grid search) x 154 replies (grid search); modeled reply Blue -> 1203 N Jump]
+  [Movement select] Red: score 361.153 = dealt 0.58 x1.02 + (HP 319.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 7.36 x my future 8.32 [two-ply, 40 of 48 spots (grid search) x 160 replies (grid search); modeled reply Blue -> 1203 N Jump]
 [Movement] Red: water PSR at 0707: needs 5 (Piloting 5 + +0). Rolled 3.
   Failed - falls.
 FALL (failed water PSR at 0707): Black Hawk F takes 2 falling damage (halved: water, p.115) (1D6 3: front table, 5-pt clusters).
@@ -114,7 +114,7 @@ FALL (failed water PSR at 0707): Black Hawk F takes 2 falling damage (halved: wa
   [Movement] Red: 0708 SW -> fell at 0707 N after 3 MP (1 hexes) of a planned Run to 0707 NW.
 Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 6.
   Success - Black Hawk F is standing (remaining running MP 1).
-  [Movement select] Red (stood up again, 1 MP left): score 359.701 = dealt 0.58 x1.02 + (HP 317.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 7.34 x my future 8.32 [two-ply, 6 spots x 154 replies (grid search); modeled reply Blue -> 1203 N Jump]
+  [Movement select] Red (stood up again, 1 MP left): score 359.701 = dealt 0.58 x1.02 + (HP 317.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 7.34 x my future 8.32 [two-ply, 6 spots x 160 replies (grid search); modeled reply Blue -> 1203 N Jump]
   [Movement] Red: ends at 0707 NW, Run (5 MP, 1 hexes, 2 heat).
   [Movement select] Blue: no spot deals damage - closing fallback
   [Movement] Blue: 1601 NE -> 1203 N, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
@@ -146,9 +146,9 @@ Jumped into water (depth 1) PSR: needs 5 (Piloting 5 + +0). Rolled 6.
 
 === TURN 7 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 336.314 = dealt 6.02 x1.00 + (HP 317.0 - received 5.59 x1.00 - PSR 0.00) / enemy future 5.23 x my future 5.55 [two-ply, 94 of 112 spots (grid search) x 333 replies (grid search); modeled reply Blue -> 0702 S Jump]
+  [Movement select] Red: score 336.314 = dealt 6.02 x1.00 + (HP 317.0 - received 5.59 x1.00 - PSR 0.00) / enemy future 5.23 x my future 5.55 [two-ply, 94 of 112 spots (grid search) x 339 replies (grid search); modeled reply Blue -> 0702 S Jump]
   [Movement] Red: 0606 NW -> 0507 NW, Walk (5 MP, 1 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 367.618 = dealt 5.59 x1.00 + (HP 390.0 - received 6.02 x1.00 - PSR 0.00) / enemy future 5.55 x my future 5.23 [enemy held at 0507; 72 spots with LOS]
+  [Movement select] Blue: score 367.618 = dealt 5.59 x1.00 + (HP 390.0 - received 6.02 x1.00 - PSR 0.00) / enemy future 5.55 x my future 5.23 [enemy held at 0507; 78 spots with LOS]
   [Movement] Blue: 1102 SW -> 0702 S, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
   [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
   [Ranged] Red -> Blue: range 6, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 2 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLHAG20'] (weapon heat 19 of budget 31 = max 4 + sink 28 - current 0 - movement 1 - other 0; expected dmg 6.02)
@@ -180,7 +180,7 @@ Jumped into water (depth 1) PSR: needs 5 (Piloting 5 + +0). Rolled 6.
 
 === TURN 8 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 264.214 = dealt 8.80 x1.00 + (HP 378.0 - received 10.10 x1.00 - PSR 1.17) / enemy future 6.43 x my future 4.48 [two-ply, 120 of 326 spots (grid search) x 198 replies (grid search); modeled reply Red -> 0504 NW Run]
+  [Movement select] Blue: score 264.214 = dealt 8.80 x1.00 + (HP 378.0 - received 10.10 x1.00 - PSR 1.17) / enemy future 6.43 x my future 4.48 [two-ply, 126 of 332 spots (grid search) x 204 replies (grid search); modeled reply Red -> 0504 NW Run]
 [Movement] Blue: backward level change PSR at 0701: needs 5 (Piloting 5 + +0). Rolled 8.
   Succeeded - remains standing.
   [Movement] Blue: 0702 S -> 0701 SW, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 4) - includes a backward move
@@ -266,7 +266,7 @@ FALL (auto-fail (all crew unconscious)): Black Hawk F takes 5 falling damage (1D
 === TURN 9 ===
   Initiative: Red lost the roll, moves first.
   [Movement] Red: all crew unconscious - skips movement (immobile).
-  [Movement select] Blue: score 728.822 = dealt 44.40 x1.00 + (HP 357.0 - received 9.17 x0.98 - PSR 0.00) / enemy future 4.12 x my future 8.11 [enemy held at 0505; 49 spots with LOS]
+  [Movement select] Blue: score 728.822 = dealt 44.40 x1.00 + (HP 357.0 - received 9.17 x0.98 - PSR 0.00) / enemy future 4.12 x my future 8.11 [enemy held at 0505; 55 spots with LOS]
   [Movement] Blue: 0701 SW -> 0504 SE, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
   [Ranged] Red -> Blue: range 1, base TN 8 (gunnery 4 + AMM 0 [Stand Still] + TMM 2 + LOS 0 + heat 0 + prone +2); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 32 = max 4 + sink 28 - current 0 - movement 0 - other 0; expected dmg 8.75)
     CLERMediumLaser: needs 8 (range mod +0), rolled 8 -> HIT
@@ -347,7 +347,7 @@ End Phase wake-up check (pilot, 3 pilot hits): needs 7. Rolled 11.
 
 === TURN 10 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 730.645 = dealt 24.94 x1.03 + (HP 343.0 - received 3.71 x1.00 - PSR 0.00) / enemy future 6.25 x my future 12.99 [two-ply, 122 of 441 spots (grid search) x 1 replies (grid search); modeled reply Red -> 0505 N Run]
+  [Movement select] Blue: score 730.645 = dealt 24.94 x1.03 + (HP 343.0 - received 3.71 x1.00 - PSR 0.00) / enemy future 6.25 x my future 12.99 [two-ply, 128 of 444 spots (grid search) x 1 replies (grid search); modeled reply Red -> 0505 N Run]
   [Movement] Blue: 0504 SE -> 0205 NE, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 4) - includes a backward move
 Stand attempt 1: needs 7 (Piloting 5 + +2). Rolled 6.
   Failed to stand.
@@ -421,8 +421,7 @@ Movement Phase consciousness check (pilot, 4 pilot hits): needs 10. Rolled 8.
 !! Known missing rules with no runtime flag:
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
 !!   - Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH
-!!   - Water (RULES_REVIEW G6): leg weapons' Kick-table hits between partially submerged mechs; variable-damage weapons' underwater damage bracket
-!!   - Movement subphase (G20): damage PSRs (gyro / hip / leg) still fall in the END hex; a charge's last step into the target's hex rolls no terrain PSR; mud's -1 isn't priced in movement scoring
+!!   - Movement subphase (G20): mud's -1 isn't priced in movement scoring
 !!   - Heat sources/sinks with no terrain model yet: snow, fire, extreme temperatures (water: built 2026-10-21); inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules
@@ -451,8 +450,7 @@ BATCH SUMMARY - 1 battle(s): Red = Black Hawk F, Blue = Cataphract CTF-3D
 !! Known missing rules with no runtime flag:
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
 !!   - Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH
-!!   - Water (RULES_REVIEW G6): leg weapons' Kick-table hits between partially submerged mechs; variable-damage weapons' underwater damage bracket
-!!   - Movement subphase (G20): damage PSRs (gyro / hip / leg) still fall in the END hex; a charge's last step into the target's hex rolls no terrain PSR; mud's -1 isn't priced in movement scoring
+!!   - Movement subphase (G20): mud's -1 isn't priced in movement scoring
 !!   - Heat sources/sinks with no terrain model yet: snow, fire, extreme temperatures (water: built 2026-10-21); inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules

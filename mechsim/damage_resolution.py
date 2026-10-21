@@ -421,6 +421,8 @@ def check_critical(mech, location, location_destroyed=False, modifier=0):
         return
 
     if roll == 12 and not location_destroyed:
+        if location in NON_TORSO_LOCATIONS and _armored_joint_absorbs(mech, location):
+            return
         if location in NON_TORSO_LOCATIONS:
             config.log(f"    Roll of 12: {location} blown off / destroyed!")
             # 2026-10-20: a limb blown off lies in the mech's hex - a club (Core p.79, INTEGRATION__clubs)
@@ -438,6 +440,19 @@ def check_critical(mech, location, location_destroyed=False, modifier=0):
     config.log(f"    {count} critical hit(s).")
     for i in range(1, count + 1):
         resolve_critical(mech, location, explosive_only=location_destroyed, idx=i, total=count)
+
+
+def _armored_joint_absorbs(mech, location):
+    """Core p.207: an armored shoulder / hip that hasn't taken a hit yet stops
+    a limb from being blown off - that slot just loses its component armor.
+    Returns True if it did."""
+    for slot_idx, slot in enumerate(mech.crits[location]):
+        if slot in ("Shoulder", "Hip") and (location, slot_idx) in getattr(mech, "armored_slots", ()):
+            mech.armored_slots.discard((location, slot_idx))
+            config.log(f"    Roll of 12: {location} would be blown off - its armored {slot} stops it and "
+                       f"loses its component armor (p.207).")
+            return True
+    return False
 
 
 def resolve_critical(mech, location, explosive_only, idx, total):
@@ -461,6 +476,14 @@ def resolve_critical(mech, location, explosive_only, idx, total):
             choice = config.pick_number(len(pool), prompt="  Pick slot to hit")
             slot_idx = pool[choice - 1]
         slot = mech.crits[location][slot_idx]
+        if (location, slot_idx) in getattr(mech, "armored_slots", ()):
+            # Armored component (Core p.207, 2026-10-21): the slot's armor absorbs the hit -
+            # the item doesn't count as hit. Only attacks' crits come here (MASC /
+            # supercharger crits call resolve_slot_hit directly: armor can't stop those).
+            mech.armored_slots.discard((location, slot_idx))
+            config.log(f"    {idx}/{total} Criticals: {getattr(slot, 'name', slot)} slot hit - its component "
+                       f"armor absorbs it, no effect (p.207).")
+            return
         resolve_slot_hit(mech, location, slot_idx, slot, idx, total)
         return
 

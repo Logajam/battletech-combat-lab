@@ -29,7 +29,7 @@ import terrain_rules  # noqa: E402
 import piloting_rolls  # noqa: E402
 from hex_geometry import parse_hex_label, hex_label  # noqa: E402
 from los import trace_los_path  # noqa: E402
-from mech_state import clone_mech  # noqa: E402
+from mech_state import clone_mech, DamageType  # noqa: E402
 from mtf_parser import parse_mtf  # noqa: E402
 from test_heat import ScriptedDice  # noqa: E402
 
@@ -138,6 +138,55 @@ def underwater_ranges():
     assert partial(arm, "short") == 0
     under = water.range_adjuster(mech, locs, water.SUBMERGED, base)
     assert under(arm, "medium") == 2
+
+
+@check
+def legs_only_kick_table():
+    """pp.67, 127 (2026-10-21): hits on a 'Mech standing in depth 1 from a leg
+    weapon in depth 1, or from any weapon fully submerged, use the Kick
+    Location Table - legs only, no partial cover."""
+    mech = SimpleNamespace(leg_locations=["Left Leg", "Right Leg"])
+    arm, leg = SimpleNamespace(), SimpleNamespace()
+    locs = {id(arm): {"Left Arm"}, id(leg): {"Left Leg"}}
+    G, P, S = water.GROUND, water.PARTIAL, water.SUBMERGED
+    assert water.kick_table_weapon_ids(mech, [arm, leg], locs, P, P) == frozenset({id(leg)})
+    assert water.kick_table_weapon_ids(mech, [arm, leg], locs, S, P) == frozenset({id(arm), id(leg)})
+    assert water.kick_table_weapon_ids(mech, [arm, leg], locs, G, P) == frozenset()
+    assert water.kick_table_weapon_ids(mech, [arm, leg], locs, P, S) == frozenset()
+    lake()
+    t = place(ARCHER, "0807", "S")
+    before = {k: v["armor"] for k, v in t.locations.items()}
+    real = config.pick_number
+    try:
+        for die, want in ((2, "Right Leg"), (5, "Left Leg")):         # front column: 1-3 right, 4-6 left
+            with ScriptedDice([], default=2):                          # a 2 on 2D6 would be a TAC - not here
+                config.pick_number = lambda n, prompt="", die=die: die
+                assert attack_resolution._resolve_hit(t, 3, DamageType.ENERGY, "front", cover=attack_resolution.KICK) == want
+    finally:
+        config.pick_number = real
+    changed = sorted(k for k, v in t.locations.items() if v["armor"] != before[k])
+    assert changed == ["Left Leg", "Right Leg"], changed
+
+
+@check
+def underwater_damage_bracket():
+    """p.127: an energy weapon firing from under water fires one bracket
+    longer "in all rules aspects" - a Snub-Nose PPC at medium range (10-13)
+    deals its long-range 5, not 8."""
+    import zipfile, tempfile
+    import INTEGRATION__fire_modes as fire_modes
+    import INTEGRATION__weapon_profiles as wp
+    from damage_resolution import get_weapons
+    with zipfile.ZipFile(os.path.join(REPO_ROOT, "data", "meks.zip")) as z:
+        path = z.extract("meks/3050U/Awesome AWS-10KM.mtf", tempfile.mkdtemp())
+    a, t = place(parse_mtf(path), "0808"), place(ARCHER, "0804", "S")
+    ppc = next(w for w in get_weapons(a) if "SNPPC" in wp.cn(w))
+    dry = lambda w, bracket, plan=None: 0                     # noqa: E731
+    wet = lambda w, bracket, plan=None: 0                     # noqa: E731
+    wet.underwater_ids = frozenset({id(ppc)})
+    assert fire_modes.Planner(a, t, dry)(ppc, 10, 4)[2].bracket == "medium"
+    plan = fire_modes.Planner(a, t, wet)(ppc, 10, 4)[2]
+    assert plan.bracket == "long" and fire_modes.damage_per(ppc, plan) == 5
 
 
 @check

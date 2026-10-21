@@ -203,11 +203,21 @@ def strip_cosmetic_suffixes(name):
     changed = True
     while changed:
         changed = False
-        for suffix in ("(R)", "(OMNIPOD)", "(T)", "(SPLIT)"):     # "(Split)": a split weapon (2026-10-20)
+        # "(armored)" (2026-10-21): component armor, Core p.207 - recorded per slot by
+        # is_armored / parse_mtf (mech.armored_slots). Before, the tag wasn't stripped, so an
+        # armored engine / gyro / cockpit / actuator was inert padding and an armored weapon
+        # never fired.
+        for suffix in ("(R)", "(OMNIPOD)", "(T)", "(SPLIT)", "(ARMORED)"):     # "(Split)": a split weapon (2026-10-20)
             if name.upper().endswith(suffix):
                 name = name[:-len(suffix)].strip()
                 changed = True
     return name
+
+
+def is_armored(raw_name):
+    """True if a raw .mtf crit line carries MegaMek's "(armored)" tag (any case,
+    stacked with other tags in any order) - an armored component (Core p.207)."""
+    return "(ARMORED)" in raw_name.upper()
 
 
 def _join_split_items(mech):
@@ -665,6 +675,10 @@ def parse_mtf(filepath):
     for loc in mech.locations:
         if loc in location_lines:
             mech.crits[loc] = build_crit_list(location_lines[loc], special_rules_seen)
+            # Armored components (p.207): each tagged slot absorbs one crit - not ammunition.
+            for idx, (raw, slot) in enumerate(zip(location_lines[loc], mech.crits[loc])):
+                if is_armored(raw) and getattr(slot, "category", None) != "ammo":
+                    mech.armored_slots.add((loc, idx))
         else:
             print(f"WARNING: no critical slot section found for {loc} in .mtf file.")
     _join_split_items(mech)

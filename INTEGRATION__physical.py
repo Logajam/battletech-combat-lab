@@ -753,6 +753,9 @@ def run_physical_phase(mech_a, mech_b, terrain_map, reports):
     for attacker, target, hit in dfas:                   # damage, landing, displacement (p.80)
         for name, extra in dfa.resolve(attacker, target, hit, terrain_map).items():
             triggers[name].extend(extra)
+    import INTEGRATION__movement_attacks as movement_attacks
+    for m in (mech_a, mech_b):                           # a charger's / DFA's movement ends now (pp.78, 80)
+        triggers[m.side_name].extend(movement_attacks.end_of_movement_triggers(m, terrain_map))
     for m in (mech_a, mech_b):
         attack_resolution._with_piloting(m, piloting_rolls.resolve_attack_phase_psr,
                                          forced_triggers=tuple(triggers[m.side_name]))

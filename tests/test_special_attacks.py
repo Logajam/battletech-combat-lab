@@ -238,6 +238,31 @@ def failed_charge_and_failed_psr():
 
 
 @check
+def charge_end_of_movement_psrs():
+    """pp.78, 113 (2026-10-21): a charger's movement ends in the Physical
+    phase, so its end-of-movement PSRs (running with a gyro hit) wait until
+    then - even when the charge misses - plus a PSR for the hex it advances
+    into (rubble) when the charge hits."""
+    a, t = fresh(CHARGER, "0807", "N", "Red"), fresh(ATLAS, "0806", "S", "Blue")
+    charging(a, t, "0807", "N")
+    a.gyro_hits = 1
+    a.deferred_end_of_move = {"mode": "running", "from_hex": "0807"}
+    with Dice(charge=2, psr=2):                                       # misses; every PSR fails
+        physical.run_physical_phase(a, t, TERRAIN, {})
+    assert a.hex == "0807" and a.prone and not t.prone                # fell in its own hex: the gyro PSR
+    rubble = copy.deepcopy(TERRAIN)
+    rubble["hexes"]["0806"]["features"] = dict(rubble["hexes"]["0806"]["features"], rubble=[])
+    a, t = fresh(CHARGER, "0807", "N", "Red"), fresh(ATLAS, "0806", "S", "Blue")
+    charging(a, t, "0807", "N")
+    a.gyro_hits = 1
+    a.deferred_end_of_move = {"mode": "running", "from_hex": "0807"}
+    a.hex = "0806"                                                    # as after a successful charge
+    got = movement_attacks.end_of_movement_triggers(a, rubble)
+    assert [r for r, _ in got] == ["entered rubble at 0806", "end of movement (running, gyro hit)"], got
+    assert a.deferred_end_of_move is None and movement_attacks.end_of_movement_triggers(a, rubble) == []
+
+
+@check
 def pushed_off_the_board_or_down_a_cliff():
     """p.113: displaced off the board = destroyed; 3+ levels up = nobody
     moves; 2+ levels down = automatic fall of that many levels (p.115)."""

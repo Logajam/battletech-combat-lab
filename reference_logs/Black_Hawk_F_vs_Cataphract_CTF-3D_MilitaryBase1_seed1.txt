@@ -36,7 +36,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 2 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 495.208 = dealt 5.28 x1.00 + (HP 326.0 - received 2.94 x1.01 - PSR 0.00) / enemy future 7.31 x my future 11.09 [two-ply, 180 of 601 spots (grid search) x 508 replies (grid search); modeled reply Blue -> 1104 S Jump]
+  [Movement select] Red: score 495.208 = dealt 5.28 x1.00 + (HP 326.0 - received 2.94 x1.01 - PSR 0.00) / enemy future 7.31 x my future 11.09 [two-ply, 186 of 607 spots (grid search) x 514 replies (grid search); modeled reply Blue -> 1104 S Jump]
   [Movement] Red: 0816 NE -> 1116 NE, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue: score 256.633 = dealt 2.94 x1.01 + (HP 390.0 - received 5.28 x1.00 - PSR 0.00) / enemy future 11.09 x my future 7.31 [enemy held at 1116; 36 spots with LOS]
   [Movement] Blue: 0704 SE -> 1004 S, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
@@ -65,7 +65,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 3 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 199.068 = dealt 0.00 x1.00 + (HP 381.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 10.50 x my future 5.48 [two-ply, 92 of 485 spots (grid search) x 722 replies (grid search); modeled reply: none with LOS]
+  [Movement select] Blue: score 199.068 = dealt 0.00 x1.00 + (HP 381.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 10.50 x my future 5.48 [two-ply, 98 of 491 spots (grid search) x 728 replies (grid search); modeled reply: none with LOS]
   [Movement] Blue: 1004 S -> 1202 NE, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 1116 NE -> 1011 N, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
@@ -78,7 +78,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 4 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 630.149 = dealt 9.36 x1.00 + (HP 326.0 - received 1.64 x1.00 - PSR 0.00) / enemy future 4.39 x my future 8.40 [two-ply, 220 of 839 spots (grid search) x 444 replies (grid search); modeled reply Blue -> 1404 S Jump]
+  [Movement select] Red: score 630.149 = dealt 9.36 x1.00 + (HP 326.0 - received 1.64 x1.00 - PSR 0.00) / enemy future 4.39 x my future 8.40 [two-ply, 226 of 845 spots (grid search) x 450 replies (grid search); modeled reply Blue -> 1404 S Jump]
   [Movement] Red: 1011 N -> 1011 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue: score 195.822 = dealt 1.64 x1.00 + (HP 381.0 - received 9.36 x1.00 - PSR 0.00) / enemy future 8.40 x my future 4.39 [enemy held at 1011; 24 spots with LOS]
   [Movement] Blue: 1202 NE -> 1404 S, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
@@ -99,7 +99,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 5 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 199.068 = dealt 0.00 x1.00 + (HP 381.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 7.00 x my future 3.66 [two-ply, 97 of 404 spots (grid search) x 839 replies (grid search); modeled reply: none with LOS]
+  [Movement select] Blue: score 199.068 = dealt 0.00 x1.00 + (HP 381.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 7.00 x my future 3.66 [two-ply, 103 of 410 spots (grid search) x 845 replies (grid search); modeled reply: none with LOS]
   [Movement] Blue: 1404 S -> 1202 N, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 1011 N -> 0308 NW, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
@@ -112,7 +112,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 6 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 627.143 = dealt 9.36 x1.00 + (HP 326.0 - received 3.21 x1.00 - PSR 0.00) / enemy future 3.13 x my future 6.00 [two-ply, 197 of 742 spots (grid search) x 434 replies (grid search); modeled reply Blue -> 1404 SW Jump]
+  [Movement select] Red: score 627.143 = dealt 9.36 x1.00 + (HP 326.0 - received 3.21 x1.00 - PSR 0.00) / enemy future 3.13 x my future 6.00 [two-ply, 203 of 748 spots (grid search) x 440 replies (grid search); modeled reply Blue -> 1404 SW Jump]
   [Movement] Red: 0308 NW -> 0609 NE, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
   [Movement select] Blue: score 197.393 = dealt 3.21 x1.00 + (HP 381.0 - received 9.36 x1.00 - PSR 0.00) / enemy future 6.00 x my future 3.13 [enemy held at 0609; 36 spots with LOS]
   [Movement] Blue: 1202 N -> 1404 SW, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
@@ -164,9 +164,9 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 7 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 525.680 = dealt 14.04 x1.00 + (HP 318.0 - received 5.59 x1.01 - PSR 0.00) / enemy future 3.72 x my future 6.09 [two-ply, 160 of 1024 spots (grid search) x 403 replies (grid search); modeled reply Blue -> 1505 NW Walk]
+  [Movement select] Red: score 525.680 = dealt 14.04 x1.00 + (HP 318.0 - received 5.59 x1.01 - PSR 0.00) / enemy future 3.72 x my future 6.09 [two-ply, 166 of 1030 spots (grid search) x 409 replies (grid search); modeled reply Blue -> 1505 NW Walk]
   [Movement] Red: 0609 NE -> 0603 N, Run (7 MP, 6 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
-  [Movement select] Blue: score 225.402 = dealt 5.59 x1.01 + (HP 374.0 - received 14.04 x1.00 - PSR 0.00) / enemy future 6.09 x my future 3.72 [enemy held at 0603; 97 spots with LOS]
+  [Movement select] Blue: score 225.402 = dealt 5.59 x1.01 + (HP 374.0 - received 14.04 x1.00 - PSR 0.00) / enemy future 6.09 x my future 3.72 [enemy held at 0603; 103 spots with LOS]
   [Movement] Blue: 1404 SW -> 1505 NW, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 4) - includes a backward move
   [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
   [Ranged] Red -> Blue: range 9, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLHAG20'] (weapon heat 19 of budget 30 = max 4 + sink 28 - current 0 - movement 2 - other 0; expected dmg 14.04)
@@ -195,9 +195,9 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 8 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 662.646 = dealt 5.28 x0.98 + (HP 318.0 - received 3.02 x1.00 - PSR 0.00) / enemy future 3.30 x my future 6.90 [two-ply, 143 of 798 spots (grid search) x 363 replies (grid search); modeled reply Blue -> 1505 NW Stand Still]
+  [Movement select] Red: score 662.646 = dealt 5.28 x0.98 + (HP 318.0 - received 3.02 x1.00 - PSR 0.00) / enemy future 3.30 x my future 6.90 [two-ply, 149 of 804 spots (grid search) x 369 replies (grid search); modeled reply Blue -> 1505 NW Stand Still]
   [Movement] Red: 0603 N -> 0206 NE, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
-  [Movement select] Blue: score 173.015 = dealt 3.02 x1.00 + (HP 360.0 - received 5.28 x0.98 - PSR 0.00) / enemy future 6.90 x my future 3.30 [enemy held at 0206; 91 spots with LOS]
+  [Movement select] Blue: score 173.015 = dealt 3.02 x1.00 + (HP 360.0 - received 5.28 x0.98 - PSR 0.00) / enemy future 6.90 x my future 3.30 [enemy held at 0206; 97 spots with LOS]
   [Movement] Blue: 1505 NW -> 1505 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
   [Ranged] Red -> Blue: range 13, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLHAG20'] (weapon heat 19 of budget 27 = max 4 + sink 28 - current 0 - movement 5 - other 0; expected dmg 5.28)
     CLERMediumLaser: needs 11 (range mod +4), rolled 5 -> miss
@@ -234,7 +234,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 9 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 147.596 = dealt 0.72 x1.00 + (HP 344.0 - received 1.06 x0.97 - PSR 0.00) / enemy future 8.08 x my future 3.46 [two-ply, 100 of 363 spots (grid search) x 475 replies (grid search); modeled reply Red -> 0102 SE Jump]
+  [Movement select] Blue: score 147.596 = dealt 0.72 x1.00 + (HP 344.0 - received 1.06 x0.97 - PSR 0.00) / enemy future 8.08 x my future 3.46 [two-ply, 106 of 369 spots (grid search) x 481 replies (grid search); modeled reply Red -> 0102 SE Jump]
   [Movement] Blue: 1505 NW -> 1303 N, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red: score 730.247 = dealt 1.06 x0.97 + (HP 313.0 - received 0.72 x1.00 - PSR 0.00) / enemy future 3.46 x my future 8.08 [enemy held at 1303; 12 spots with LOS]
   [Movement] Red: 0206 NE -> 0102 SE, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
@@ -255,7 +255,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 10 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 732.267 = dealt 5.38 x0.97 + (HP 313.0 - received 1.64 x1.01 - PSR 0.00) / enemy future 3.14 x my future 7.34 [two-ply, 135 of 299 spots (grid search) x 447 replies (grid search); modeled reply Blue -> 1405 N Jump]
+  [Movement select] Red: score 732.267 = dealt 5.38 x0.97 + (HP 313.0 - received 1.64 x1.01 - PSR 0.00) / enemy future 3.14 x my future 7.34 [two-ply, 141 of 305 spots (grid search) x 453 replies (grid search); modeled reply Blue -> 1405 N Jump]
   [Movement] Red: 0102 SE -> 0304 S, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue: score 146.731 = dealt 1.64 x1.01 + (HP 344.0 - received 5.38 x0.97 - PSR 0.00) / enemy future 7.34 x my future 3.14 [enemy held at 0304; 67 spots with LOS]
   [Movement] Blue: 1303 N -> 1405 N, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
@@ -281,7 +281,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 11 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 133.194 = dealt 0.00 x1.00 + (HP 337.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 7.29 x my future 2.88 [two-ply, 76 of 425 spots (grid search) x 544 replies (grid search); modeled reply: none with LOS]
+  [Movement select] Blue: score 133.194 = dealt 0.00 x1.00 + (HP 337.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 7.29 x my future 2.88 [two-ply, 82 of 431 spots (grid search) x 550 replies (grid search); modeled reply: none with LOS]
   [Movement] Blue: 1405 N -> 1608 SW, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 0304 S -> 0707 SE, Run (7 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
@@ -294,7 +294,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 12 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 793.311 = dealt 9.71 x0.98 + (HP 313.0 - received 3.21 x1.01 - PSR 0.00) / enemy future 2.66 x my future 6.73 [two-ply, 224 of 955 spots (grid search) x 279 replies (grid search); modeled reply Blue -> 1511 N Jump]
+  [Movement select] Red: score 793.311 = dealt 9.71 x0.98 + (HP 313.0 - received 3.21 x1.01 - PSR 0.00) / enemy future 2.66 x my future 6.73 [two-ply, 230 of 961 spots (grid search) x 285 replies (grid search); modeled reply Blue -> 1511 N Jump]
   [Movement] Red: 0707 SE -> 0608 N, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
   [Movement select] Blue: score 132.651 = dealt 3.21 x1.01 + (HP 337.0 - received 9.71 x0.98 - PSR 0.00) / enemy future 6.73 x my future 2.66 [enemy held at 0608; 42 spots with LOS]
   [Movement] Blue: 1608 SW -> 1511 N, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
@@ -338,7 +338,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 13 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 156.286 = dealt 0.00 x1.00 + (HP 337.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 6.25 x my future 2.90 [two-ply, 86 of 369 spots (grid search) x 1059 replies (grid search); modeled reply: none with LOS]
+  [Movement select] Blue: score 156.286 = dealt 0.00 x1.00 + (HP 337.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 6.25 x my future 2.90 [two-ply, 92 of 375 spots (grid search) x 1065 replies (grid search); modeled reply: none with LOS]
   [Movement] Blue: 1511 N -> 1413 SE, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 0608 N -> 0513 S, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
@@ -351,7 +351,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 14 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 663.091 = dealt 20.36 x0.98 + (HP 307.0 - received 8.80 x1.00 - PSR 0.00) / enemy future 2.71 x my future 5.83 [two-ply, 213 of 833 spots (grid search) x 475 replies (grid search); modeled reply Blue -> 1114 N Jump]
+  [Movement select] Red: score 663.091 = dealt 20.36 x0.98 + (HP 307.0 - received 8.80 x1.00 - PSR 0.00) / enemy future 2.71 x my future 5.83 [two-ply, 219 of 839 spots (grid search) x 481 replies (grid search); modeled reply Blue -> 1114 N Jump]
   [Movement] Red: 0513 S -> 0513 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue: score 155.773 = dealt 8.80 x1.00 + (HP 337.0 - received 20.36 x0.98 - PSR 0.00) / enemy future 5.83 x my future 2.71 [enemy held at 0513; 42 spots with LOS]
   [Movement] Blue: 1413 SE -> 1114 N, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
@@ -400,7 +400,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
 
 === TURN 15 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 122.716 = dealt 4.16 x1.00 + (HP 314.0 - received 10.66 x1.06 - PSR 0.00) / enemy future 7.23 x my future 2.83 [two-ply, 123 of 478 spots (grid search) x 833 replies (grid search); modeled reply Red -> 0916 S Jump]
+  [Movement select] Blue: score 122.716 = dealt 4.16 x1.00 + (HP 314.0 - received 10.66 x1.06 - PSR 0.00) / enemy future 7.23 x my future 2.83 [two-ply, 129 of 484 spots (grid search) x 839 replies (grid search); modeled reply Red -> 0916 S Jump]
   [Movement] Blue: 1114 N -> 0816 NW, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red: score 771.795 = dealt 10.66 x1.06 + (HP 302.0 - received 4.16 x1.00 - PSR 0.00) / enemy future 2.83 x my future 7.23 [enemy held at 0816; 46 spots with LOS]
   [Movement] Red: 0513 S -> 0916 S, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
@@ -460,9 +460,9 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
 
 === TURN 16 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 86.462 = dealt 4.17 x1.00 + (HP 303.0 - received 25.42 x0.91 - PSR 0.00) / enemy future 7.45 x my future 2.19 [two-ply, 112 of 350 spots (grid search) x 633 replies (grid search); modeled reply Red -> 1116 NE Walk]
+  [Movement select] Blue: score 86.462 = dealt 4.17 x1.00 + (HP 303.0 - received 25.42 x0.91 - PSR 0.00) / enemy future 7.45 x my future 2.19 [two-ply, 100 of 338 spots (grid search) x 639 replies (grid search); modeled reply Red -> 1116 NE Walk]
   [Movement] Blue: 0816 NW -> 1215 NE, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 1036.238 = dealt 25.42 x0.91 + (HP 302.0 - received 4.17 x1.00 - PSR 0.00) / enemy future 2.19 x my future 7.45 [enemy held at 1215; 193 spots with LOS]
+  [Movement select] Red: score 1036.238 = dealt 25.42 x0.91 + (HP 302.0 - received 4.17 x1.00 - PSR 0.00) / enemy future 2.19 x my future 7.45 [enemy held at 1215; 198 spots with LOS]
   [Movement] Red: 0916 S -> 1116 NE, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Ranged] Blue -> Red: range 1, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 0); firing ['ISMediumLaser', 'ISMediumLaser'] (weapon heat 6 of budget 16 = max 4 + sink 16 - current 0 - movement 4 - other 0; expected dmg 4.17)
     ISMediumLaser: needs 8 (range mod +0), rolled 5 -> miss
@@ -548,75 +548,25 @@ FALL (failed to stand): Cataphract CTF-3D takes 7 falling damage (1D6 1: rear ta
   Seatbelt check: needs 5. Rolled 8. Pilot unharmed.
 Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   [Movement] Blue: still prone at 1215.
-  [Movement select] Red: score 1850.939 = dealt 55.78 x1.17 + (HP 290.0 - received 0.83 x0.99 - PSR 0.00) / enemy future 2.07 x my future 12.78 [enemy held at 1215; 216 spots with LOS]
-  [Movement] Red: 1116 NE -> 1316 SW, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
-  [Ranged] Blue -> Red: range 1, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 0 + heat 0 + prone +2); firing ['ISMediumLaser'] (weapon heat 3 of budget 18 = max 4 + sink 16 - current 0 - movement 2 - other 0; expected dmg 0.83)
-    ISMediumLaser: needs 10 (range mod +0), rolled 8 -> miss
-  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0 + prone target -2); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLHAG20'] (weapon heat 19 of budget 30 = max 4 + sink 28 - current 0 - movement 2 - other 0; expected dmg 30.34)
-    CLERMediumLaser: needs 4 (range mod +0), rolled 2 -> miss
-    CLERMediumLaser: needs 4 (range mod +0), rolled 10 -> HIT
-    CLERMediumLaser: needs 4 (range mod +0), rolled 11 -> HIT
-    CLHAG20: needs 6 (range mod +2), rolled 5 -> miss [HAG/20 Ammo: 0 shots left]
-    CLERMediumLaser hit for 7:
+  [Movement select] Red: score 1848.471 = dealt 60.20 x1.17 + (HP 290.0 - received 2.08 x0.99 - PSR 0.00) / enemy future 2.07 x my future 12.78 [enemy held at 1215; 200 spots with LOS]
+  [Movement] Red: 1116 NE -> 1216 NW, Walk (5 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
+  [Ranged] Blue -> Red: range 1, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0 + prone +2); firing ['ISMediumLaser'] (weapon heat 3 of budget 18 = max 4 + sink 16 - current 0 - movement 2 - other 0; expected dmg 2.08)
+    ISMediumLaser: needs 8 (range mod +0), rolled 8 -> HIT
+  [Ranged] Red -> Blue: range 1, base TN 3 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0 + prone target -2); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLHAG20'] (weapon heat 19 of budget 31 = max 4 + sink 28 - current 0 - movement 1 - other 0; expected dmg 33.22)
+    CLERMediumLaser: needs 3 (range mod +0), rolled 2 -> miss
+    CLERMediumLaser: needs 3 (range mod +0), rolled 10 -> HIT
+    CLERMediumLaser: needs 3 (range mod +0), rolled 11 -> HIT
+    CLHAG20: needs 5 (range mod +2), rolled 5 -> HIT [HAG/20 Ammo: 0 shots left]
+    ISMediumLaser hit for 5:
       Hit location roll 5 (right table): Right Arm.
-7 damage (ENERGY) incoming to Right Arm (armor).
-  [STANDARD/ENERGY] 2 armor pts destroyed at armor (2 -> 0 remaining). 5 damage applied to structure [STANDARD] (11 -> 6/11 remaining).
-  Check for possible critical. Roll a 6.
-    No critical hit.
+5 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (12 -> 7 remaining).
     CLERMediumLaser hit for 7:
-      Hit location roll 9 (right table): Left Torso.
-7 damage (ENERGY) incoming to Left Torso (armor).
-  [STANDARD/ENERGY] 7 armor pts destroyed at armor (9 -> 2 remaining).
-  [Physical] Red -> Blue: kick (Left Leg) needs 4 (piloting 5 + base 0 + attack -1), rolled 2 -> miss (10 dmg, right side)
-PSR trigger: missed a kick -> +0.
-Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 5.
-  Succeeded - remains standing.
-  [Heat] Red: 0 + movement 2 + weapons 19 + engine 0 - sinks 28 -> 0
-  [Heat] Blue: 0 + movement 2 + weapons 3 + engine 0 - sinks 16 -> 0
-  -- end of turn 17: Red @ 1316 SW: HP 207, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 17: Blue @ 1215 NE: HP 122, pilot hits 1, engine 0, gyro 0, heat 0 [PRONE]
-
-=== TURN 18 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 2027.387 = dealt 42.31 x1.20 + (HP 290.0 - received 0.42 x0.99 - PSR 0.00) / enemy future 1.96 x my future 13.38 [two-ply, 187 of 651 spots (grid search) x 1 replies (grid search); modeled reply Blue -> 1215 NE Run]
-  [Movement] Red: 1316 SW -> 1617 SW, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
-Stand attempt 1: needs 10 (Piloting 5 + +5). Rolled 5.
-  Failed to stand.
-FALL (failed to stand): Cataphract CTF-3D takes 7 falling damage (1D6 1: rear table, 5-pt clusters).
-  Fall cluster (5 dmg): rolled 8 -> Left Torso
-5 damage (PHYSICAL) incoming to Left Torso (rear_armor).
-  [STANDARD/PHYSICAL] 5 armor pts destroyed at rear_armor (9 -> 4 remaining).
-  Fall cluster (2 dmg): rolled 7 -> Center Torso
-2 damage (PHYSICAL) incoming to Center Torso (rear_armor).
-  [STANDARD/PHYSICAL] 2 armor pts destroyed at rear_armor (2 -> 0 remaining).
-  Seatbelt check: needs 5. Rolled 4. FAILED - pilot takes 1 hit (2/6).
-Insufficient MP (<2) remaining for another stand attempt. Remains prone.
-  [Movement] Blue: still prone at 1215.
-Movement Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 8.
-  Pilot stays conscious.
-  [Ranged] Red -> Blue: range 4, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0 + prone target 1); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLHAG20'] (weapon heat 19 of budget 31 = max 4 + sink 28 - current 0 - movement 1 - other 0; expected dmg 26.26)
-    CLERMediumLaser: needs 6 (range mod +0), rolled 9 -> HIT
-    CLERMediumLaser: needs 6 (range mod +0), rolled 9 -> HIT
-    CLERMediumLaser: needs 6 (range mod +0), rolled 2 -> miss
-    CLHAG20: needs 6 (range mod +0), rolled 8 -> HIT [HAG/20 Ammo: 5 shots left]
-  [Ranged] Blue -> Red: range 4, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0 + prone +2); firing ['ISMediumLaser'] (weapon heat 3 of budget 18 = max 4 + sink 16 - current 0 - movement 2 - other 0; expected dmg 0.42)
-    ISMediumLaser: needs 11 (range mod +2), rolled 7 -> miss
-    CLERMediumLaser hit for 7:
-      Hit location roll 9 (right table): Left Torso.
-7 damage (ENERGY) incoming to Left Torso (armor).
-  [STANDARD/ENERGY] 2 armor pts destroyed at armor (2 -> 0 remaining). 5 damage applied to structure [STANDARD] (15 -> 10/15 remaining).
-  Check for possible critical. Roll a 5.
-    No critical hit.
-    CLERMediumLaser hit for 7:
-      Hit location roll 8 (right table): Center Torso.
-7 damage (ENERGY) incoming to Center Torso (armor).
-  [STANDARD/ENERGY] 7 armor pts destroyed at armor (12 -> 5 remaining).
-    CLHAG20 hit: cluster roll 12 +2 on the 20-column table -> 20 connect (20 dmg).
-    CLHAG20: 20 damage in 5-point groupings.
-      Group 1/4: Hit location roll 7 (right table): Right Torso.
-5 damage (BALLISTIC) incoming to Right Torso (armor).
-  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (8 -> 3/15 remaining).
-  Check for possible critical. Roll a 8.
+      Hit location roll 6 (right table): Right Leg.
+7 damage (ENERGY) incoming to Right Leg (armor).
+  Right Leg already destroyed - damage transfers to Right Torso.
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 7 damage applied to structure [STANDARD] (8 -> 1/15 remaining).
+  Check for possible critical. Roll a 9.
     1 critical hit(s).
   Critical hit pool at Right Torso:
     1: Engine (slot 1)
@@ -629,12 +579,27 @@ Movement Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 8.
     8: ISMediumLaser (slot 10)
     9: ISUltraAC5 Ammo (slot 11)
     1/1 Criticals: Engine hit.
-      Current crit slots in Right Torso: ['Engine', 'Engine', 'DESTROYED', 'DESTROYED', 'ISLBXAC10', 'ISLBXAC10', 'DESTROYED', 'ISLBXAC10', 'ISLBXAC10', 'ISMediumLaser', 'ISUltraAC5 Ammo', 'ISCASE']
+      Current crit slots in Right Torso: ['DESTROYED', 'Engine', 'Engine', 'DESTROYED', 'ISLBXAC10', 'ISLBXAC10', 'DESTROYED', 'ISLBXAC10', 'ISLBXAC10', 'ISMediumLaser', 'ISUltraAC5 Ammo', 'ISCASE']
       Engine hit (1/3).
-      Group 2/4: Hit location roll 6 (right table): Right Leg.
-5 damage (BALLISTIC) incoming to Right Leg (armor).
-  Right Leg already destroyed - damage transfers to Right Torso.
-  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (3 -> 0/15 remaining).
+    CLERMediumLaser hit for 7:
+      Hit location roll 2 (right table): Right Torso.
+      Roll of 2 - Through-Armor Critical (floating) triggered.
+      Floating TAC re-roll: 5 -> Right Arm
+7 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 2 armor pts destroyed at armor (2 -> 0 remaining). 5 damage applied to structure [STANDARD] (11 -> 6/11 remaining).
+  Check for possible critical. Roll a 5.
+    No critical hit.
+      Additional critical hit due to TAC.
+  Check for possible critical. Roll a 7.
+    No critical hit.
+    CLHAG20 hit: cluster roll 5 +2 on the 20-column table -> 12 connect (12 dmg).
+    CLHAG20: 12 damage in 5-point groupings.
+      Group 1/3: Hit location roll 8 (right table): Center Torso.
+5 damage (BALLISTIC) incoming to Center Torso (armor).
+  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (12 -> 7 remaining).
+      Group 2/3: Hit location roll 7 (right table): Right Torso.
+5 damage (BALLISTIC) incoming to Right Torso (armor).
+  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 1 damage applied to structure [STANDARD] (1 -> 0/15 remaining).
   Right Torso destroyed with no live explosive components - no critical roll.
   Right Torso DESTROYED!
     Engine hit (2/3) from Right Torso destruction.
@@ -642,21 +607,17 @@ Movement Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 8.
   All critical slots in Right Torso marked DESTROYED.
   Right Arm also destroyed (side torso rule).
   All critical slots in Right Arm marked DESTROYED.
-  2 damage remains, transfers to Center Torso.
-      Group 3/4: Hit location roll 2 (right table): Right Torso.
-5 damage (BALLISTIC) incoming to Right Torso (armor).
+  4 damage remains, transfers to Center Torso.
+      Group 3/3: Hit location roll 4 (right table): Right Arm.
+2 damage (BALLISTIC) incoming to Right Arm (armor).
+  Right Arm already destroyed - damage transfers to Right Torso.
   Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (5 -> 0 remaining).
-      Group 4/4: Hit location roll 8 (right table): Center Torso.
-5 damage (BALLISTIC) incoming to Center Torso (armor).
-  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (22 -> 17/22 remaining).
-  Check for possible critical. Roll a 3.
-    No critical hit.
+  [STANDARD/BALLISTIC] 2 armor pts destroyed at armor (7 -> 5 remaining).
   [Heat] Red: 0 + movement 1 + weapons 19 + engine 0 - sinks 28 -> 0
-  -- end of turn 18: Red @ 1617 SW: HP 207, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 18: Blue @ 1215 NE: HP 77, pilot hits 2, engine 3, gyro 0, heat 0 [PRONE, DESTROYED (Engine Destroyed)]
+  -- end of turn 17: Red @ 1216 NW: HP 202, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 17: Blue @ 1215 NE: HP 108, pilot hits 1, engine 3, gyro 0, heat 0 [PRONE, DESTROYED (Engine Destroyed)]
 
->>> Battle over on turn 18: Blue destroyed. <<<
+>>> Battle over on turn 17: Blue destroyed. <<<
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! RESULTS PRODUCED WITH STUBS ACTIVE - NOT RULES-COMPLETE
@@ -666,8 +627,7 @@ Movement Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 8.
 !! Known missing rules with no runtime flag:
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
 !!   - Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH
-!!   - Water (RULES_REVIEW G6): leg weapons' Kick-table hits between partially submerged mechs; variable-damage weapons' underwater damage bracket
-!!   - Movement subphase (G20): damage PSRs (gyro / hip / leg) still fall in the END hex; a charge's last step into the target's hex rolls no terrain PSR; mud's -1 isn't priced in movement scoring
+!!   - Movement subphase (G20): mud's -1 isn't priced in movement scoring
 !!   - Heat sources/sinks with no terrain model yet: snow, fire, extreme temperatures (water: built 2026-10-21); inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules
@@ -679,14 +639,14 @@ Movement Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 8.
 BATCH SUMMARY - 1 battle(s): Red = Black Hawk F, Blue = Cataphract CTF-3D
 ######################################################################
   Wins:  Red 1   Blue 0   Draw 0
-  Average turns: 18.0 (decisive battles only: 18.0)
-  Average attacks fired by the winner before the kill: 52.0
-  Average remaining HP (armor+structure): Red 85%   Blue 27%
-  Hit rate: Red 33%   Blue 15%
+  Average turns: 17.0 (decisive battles only: 17.0)
+  Average attacks fired by the winner before the kill: 48.0
+  Average remaining HP (armor+structure): Red 83%   Blue 38%
+  Hit rate: Red 31%   Blue 18%
   Causes of death:
     Blue (Cataphract CTF-3D): Engine Destroyed: 1
   Per battle:
-    #1: 18 turns, winner Red; Red 207/243 HP (17/52 hits, 161 dealt); Blue 77/283 HP (5/34 hits, 29 dealt) DESTROYED: Engine Destroyed
+    #1: 17 turns, winner Red; Red 202/243 HP (15/48 hits, 137 dealt); Blue 108/283 HP (6/33 hits, 34 dealt) DESTROYED: Engine Destroyed
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! RESULTS PRODUCED WITH STUBS ACTIVE - NOT RULES-COMPLETE
@@ -696,8 +656,7 @@ BATCH SUMMARY - 1 battle(s): Red = Black Hawk F, Blue = Cataphract CTF-3D
 !! Known missing rules with no runtime flag:
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
 !!   - Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH
-!!   - Water (RULES_REVIEW G6): leg weapons' Kick-table hits between partially submerged mechs; variable-damage weapons' underwater damage bracket
-!!   - Movement subphase (G20): damage PSRs (gyro / hip / leg) still fall in the END hex; a charge's last step into the target's hex rolls no terrain PSR; mud's -1 isn't priced in movement scoring
+!!   - Movement subphase (G20): mud's -1 isn't priced in movement scoring
 !!   - Heat sources/sinks with no terrain model yet: snow, fire, extreme temperatures (water: built 2026-10-21); inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules

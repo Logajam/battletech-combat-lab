@@ -48,6 +48,7 @@ import INTEGRATION__water as water
 from mech_state import is_destroyed, is_immobile, compute_walk_mp, compute_running_mp
 import hex_geometry
 import combat
+import piloting_rolls
 import terrain_rules
 from los import hex_distance, hex_line, trace_los_path
 
@@ -377,3 +378,45 @@ def can_be_attacked(target, target_has_moved):
     immobile (pp.78-79). (A charge also needs it standing - charge_states'
     caller checks; a DFA may land on a prone mech.)"""
     return target.hex is not None and not is_destroyed(target) and (target_has_moved or is_immobile(target))
+
+
+def end_of_movement_triggers(mech, terrain_map):
+    """The PSRs a charging / DFA mech owes when its movement finally ends in
+    the Physical Attack Phase (2026-10-21): "after a charge and any
+    displacement, the attacker's movement for the turn is finished. If that
+    'Mech has critical damage that applies PSRs at the end of the 'Mech's
+    movement, those must be resolved at that time" (p.78; DFA the same,
+    p.80). As (reason, modifier) triggers joined to the phase's others (one
+    roll each, p.110):
+      - the hex it advanced into (a successful charge) - rubble, sand with a
+        level change, water when running (pp.48, 113); or the hex it landed
+        in (a DFA that hit, or one cancelled because the target was
+        destroyed) - depth 1+ water, rubble (p.50);
+      - the movement-mode PSRs (running with a damaged gyro / hip, jumping
+        with damaged legs, p.111), one per trigger.
+    Nothing for a mech that is down (a missed DFA falls anyway) or destroyed.
+    Simplification: a failed water-landing roll falls 0 levels here, not
+    the water's depth (a jump that lands normally falls the depth, p.50)."""
+    pending = getattr(mech, "deferred_end_of_move", None)
+    mech.deferred_end_of_move = None
+    if pending is None or is_destroyed(mech) or mech.prone or mech.hex is None:
+        return []
+    hexes = terrain_map["hexes"]
+    out = []
+    if mech.hex != pending["from_hex"]:
+        info = hexes[mech.hex]
+        if mech.move_mode == "Jump":
+            depth = water.depth_at(mech.hex)
+            if depth >= 1:
+                out.append((f"landed in water at {mech.hex} (depth {depth})", 0))
+            if "rubble" in info["features"]:
+                out.append((f"landed in rubble at {mech.hex}", 0))
+        else:
+            for cause in terrain_rules.step_psr_causes(hexes[pending["from_hex"]], info, False,
+                                                       mech.move_mode == "Run"):
+                out.append((f"entered {cause} at {mech.hex}", terrain_rules.PSR_MODIFIER[cause]))
+    mode = pending["mode"]
+    trigger = piloting_rolls.movement_psr_trigger(mech, mode) if mode is not None else None
+    if trigger:
+        out += [(f"end of movement ({mode}, {trigger})", 0)] * piloting_rolls.movement_psr_count(mech, mode)
+    return out

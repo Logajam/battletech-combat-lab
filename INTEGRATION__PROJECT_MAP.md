@@ -263,11 +263,8 @@ open). Read it before building rules.
    priced in movement scoring - Daniel's rule so far is "only Movement-phase
    PSRs count". A bot target choosing the clearer hex on a two-hex LOS line
    (p.56) isn't modeled (Section 6).
-7. **Maps - leftovers** (RULES_REVIEW G6, G7, G20-G22): water (leg weapons'
-   Kick-table hits between partially submerged mechs; variable-damage
-   weapons' underwater bracket); the movement subphase (damage PSRs - gyro /
-   hip / leg - still fall in the END hex; a charge's last step rolls no
-   terrain PSR; mud's -1 isn't priced); prone LOS height (G7); Section 4
+7. **Maps - leftovers** (RULES_REVIEW G7, G20-G22): water done (F36); the movement subphase (mud's -1 isn't
+   priced - bot); prone LOS height (G7); Section 4
    "Map terrain waiting on rules" (Daniel is hunting the rules);
    `PROMPT_FOR_MAP` / `STITCH_MAPS`.
    - **Hull-breach risk in movement scoring (G21) - DON'T BUILD YET**
@@ -1056,6 +1053,48 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Movement options (RULES_REVIEW G5, G8 -> F38):
+  jumping into the mech's own hex for 1 MP (p.50 - any facing, +1 TMM, 3
+  heat) and Minimum Movement (p.49 - run one hex straight ahead without the
+  MP it costs, as the whole move). Reference logs regenerated: 10 changed
+  (jump-capable mechs), same winners; the Asymptote mirror still hits the
+  cap but trades more (6 / 6 damage -> 15 / 27). Benchmark 495 / 495. Not
+  built: G12 (a charge after a backward step - the charge planner's paths
+  are forward-only; a bot option). G7 (prone LOS height) waits for Daniel
+  with D8 - `pathfinder/los.py` is his ruleset ("don't change without
+  asking").
+- **2026-10-21 (Claude):** Armored components (RULES_REVIEW G14 -> F37),
+  and a parser bug found on the way: MegaMek's "(armored)" tag wasn't
+  stripped, so on the 37 units carrying it an armored engine / gyro /
+  cockpit / actuator was inert padding (crits did nothing) and an armored
+  weapon never fired. Now parsed (`mech.armored_slots`); each armored slot
+  absorbs one attack crit (p.207), not MASC / supercharger ones; an armored
+  hip / shoulder stops a limb blown off once. test_rules armored_components.
+  Reference logs unchanged (no armored unit in them).
+- **2026-10-21 (Claude):** Water leftovers (RULES_REVIEW G6 -> F36): hits on
+  a 'Mech standing in depth 1 from a leg weapon in depth 1, or any weapon of
+  a fully submerged 'Mech, use the Kick Location Table (legs only, no
+  partial cover, pp.67, 127); an energy weapon firing from under water uses
+  the next bracket for its damage too (p.127, Snub-Nose PPC / VSP). New
+  checks in test_water (18). Reference logs regenerated for the known-
+  missing-rules text only (no battle changed).
+- **2026-10-21 (Claude):** Rules gaps, physics first (Daniel: "I'm basically
+  after getting the environment and physics of the game correct before
+  worrying too much about the bots behavior"). (1) G20 "damage PSRs fall in
+  the END hex" is the RULE (p.113: movement-mode PSRs are made at the end of
+  movement) - TODO removed. But a charger's / DFA's movement only ends in the
+  Physical phase (pp.78, 80): its end-of-movement PSRs now wait until then,
+  joined by a PSR for the hex a successful charger advances into (rubble,
+  sand, water when running) or a DFA lands in (water, rubble)
+  (`movement_attacks.end_of_movement_triggers`); a DFA mech no longer rolls a
+  landing PSR for the hex it hangs over (RULES_REVIEW F34). (2) G4: a mech
+  can't pass through a mobile enemy's hex on the ground (p.48, F35;
+  `pathfinder.build_movement_table(blocked=...)`). Reference logs
+  regenerated: all 15 (the known-missing-rules text), 4 with different
+  moves - Atlas S2 vs Kintaro, Kintaro vs Atlas, Bombardier 05A vs
+  Cataphract, Black Hawk vs Cataphract (Military Base) - same winners.
+  Benchmark unchanged (495 / 495). New checks: test_special_attacks
+  charge_end_of_movement_psrs, test_pathfinder 9b.
 - **2026-10-21 (Claude):** Daniel's two known issues fixed (Daniel: "Start
   with known issues"). (1) Scatter vs the firing arc (pp.182-183): a missed
   Arrow IV / artillery cannon now walks its scatter path hex by hex and

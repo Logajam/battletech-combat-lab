@@ -67,6 +67,7 @@ import INTEGRATION__expected_damage as expected_damage
 import INTEGRATION__electronics as electronics
 import INTEGRATION__ammo as ammo
 import INTEGRATION__weapon_profiles as wp
+import INTEGRATION__water as water
 from equipment import Equipment
 from damage_resolution import get_weapons
 
@@ -486,6 +487,14 @@ class Planner:
         self._kinds = {}
         self._memo = {}
 
+    def damage_bracket(self, weapon, b):
+        """The bracket the shot's damage uses: an energy weapon firing from
+        under water fires one bracket longer in every respect (p.127;
+        water.range_adjuster marks those weapons)."""
+        if id(weapon) in getattr(self.adjust, "underwater_ids", ()) and b:
+            return water.SHIFTED_BRACKET[b]
+        return b or ""
+
     def kinds(self, weapon):
         got = self._kinds.get(id(weapon))
         if got is None:
@@ -499,7 +508,7 @@ class Planner:
         if rm is None:
             return None
         b = bracket(weapon, plan, distance)
-        plan = plan._replace(bracket=b or "")
+        plan = plan._replace(bracket=self.damage_bracket(weapon, b))
         if plan.hex_attack:
             if self.hex_offset is None:
                 return None
@@ -527,7 +536,8 @@ class Planner:
         for plan in self.kinds(weapon):
             got = self.value(weapon, plan, distance, pre_tn)
             if got is not None:
-                options.append((plan._replace(bracket=bracket(weapon, plan, distance) or ""), got[0]))
+                options.append((plan._replace(bracket=self.damage_bracket(weapon, bracket(weapon, plan, distance))),
+                                got[0]))
         if not options:
             return None
         plan = stubs.stub_munition_choice(name, weapon, options, warn=warn) if len(options) > 1 else options[0][0]

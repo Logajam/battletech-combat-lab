@@ -108,6 +108,35 @@ def standing_up_then_moving():
 
 
 @check
+def jump_in_place_and_minimum_movement():
+    """2026-10-21: p.50 - a 'Mech may jump into its own hex for 1 MP (any
+    facing, 0 hexes, +1 TMM for jumping). p.49 - Minimum Movement: with at
+    least 1 MP, a run into the hex straight ahead even without the MP it
+    costs, if that is the whole move; never into a prohibited hex."""
+    import copy
+    hawk = fresh(parse_mtf(config.data_path("Black Hawk (Nova) F.mtf")))
+    sx, sy = hex_geometry.parse_hex_label(hawk.hex)
+    in_place = [st for st in ranged_combat.movement_options(hawk, TERRAIN) if st[:2] == (sx, sy) and st[4] == "Jump"]
+    assert sorted(st[2] for st in in_place) == list(range(6)) and all(st[3] == 0 and st[5] == 1 for st in in_place)
+    import combat
+    assert combat.fc_to_tmm(0, jumped=True) == 1
+    m = fresh()                                                     # 0808 facing N
+    ahead = hex_geometry.hex_label(sx, sy + 2)
+    tm = copy.deepcopy(TERRAIN)
+    tm["hexes"][ahead] = dict(tm["hexes"][ahead], level=1, features={"woods": ["2"]})   # 1 + 2 woods + 1 level
+    level_limit = 2
+    got = ranged_combat._minimum_move(m, tm, sx, sy, 0, 2, set(), level_limit)
+    assert got == (sx, sy + 2, 0, 1, "Run", 2), got
+    assert ranged_combat._minimum_move(m, tm, sx, sy, 0, 4, set(), level_limit) is None   # affordable: normal move
+    assert ranged_combat._minimum_move(m, tm, sx, sy, 0, 0, set(), level_limit) is None   # needs 1 MP
+    tm["hexes"][ahead] = dict(tm["hexes"][ahead], level=3, features={})                 # 3 levels up: prohibited
+    assert ranged_combat._minimum_move(m, tm, sx, sy, 0, 2, set(), level_limit) is None
+    m.blocked_hex = (sx, sy + 2)                                    # a mobile enemy there
+    tm["hexes"][ahead] = dict(tm["hexes"][ahead], level=1, features={"woods": ["2"]})
+    assert ranged_combat._minimum_move(m, tm, sx, sy, 0, 2, set(), level_limit) is None
+
+
+@check
 def weapon_and_equipment_modifiers():
     """Weapon entries pp.184-189 and targeting computer p.200."""
     from equipment import Equipment
@@ -483,6 +512,44 @@ def autocannon_first_critical():
     i = m.crits[loc].index(laser)
     dr.resolve_slot_hit(m, loc, i, laser, 1, 1)                 # anything else: destroyed at once
     assert laser not in attack_resolution.get_weapons(m)
+
+
+@check
+def armored_components():
+    """2026-10-21, Core p.207: MegaMek's "(armored)" tag is read (before, an
+    armored engine / gyro was inert padding); each armored slot absorbs one
+    critical hit from an attack with no effect; MASC / supercharger crits
+    (resolve_slot_hit called directly) ignore it; an armored hip not yet hit
+    stops a limb blown off; ammunition is never armored."""
+    import tempfile
+    import zipfile
+    import damage_resolution as dr
+    with zipfile.ZipFile(os.path.join(REPO_ROOT, "data", "meks.zip")) as z:
+        path = z.extract("meks/XTRs/Phantoms/Grand Titan Vengeance T-IT-N14R.mtf", tempfile.mkdtemp())
+    m = fresh(parse_mtf(path))
+    ct = m.crits["Center Torso"]
+    assert ct[:5] == ["Engine", "Engine", "Engine", "Gyro", "Gyro"] and m.crits["Head"][2] == "Cockpit"
+    assert {("Center Torso", i) for i in range(8)} <= m.armored_slots and ("Head", 2) in m.armored_slots
+    assert not any(getattr(s, "category", None) == "ammo" for loc, i in m.armored_slots for s in [m.crits[loc][i]])
+    real = config.pick_number
+    try:
+        config.pick_number = lambda n, prompt="": 1                       # the first slot in the pool: Engine
+        dr.resolve_critical(m, "Center Torso", explosive_only=False, idx=1, total=1)
+        assert m.engine_hits == 0 and ct[0] == "Engine" and ("Center Torso", 0) not in m.armored_slots
+        dr.resolve_critical(m, "Center Torso", explosive_only=False, idx=1, total=1)
+        assert m.engine_hits == 1 and ct[0] == "DESTROYED"                 # its armor is spent
+        dr.resolve_slot_hit(m, "Center Torso", 1, "Engine", 1, 1)          # a supercharger's crit: no armor
+        assert m.engine_hits == 2
+    finally:
+        config.pick_number = real
+    leg = fresh()
+    hip = leg.crits["Left Leg"].index("Hip")
+    leg.armored_slots = {("Left Leg", hip)}
+    with ScriptedDice([12, 12]):
+        dr.check_critical(leg, "Left Leg")
+        assert not leg.locations["Left Leg"]["destroyed"] and not leg.armored_slots
+        dr.check_critical(leg, "Left Leg")
+        assert leg.locations["Left Leg"]["destroyed"]
 
 
 @check
