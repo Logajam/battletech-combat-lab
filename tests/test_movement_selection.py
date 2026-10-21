@@ -741,9 +741,11 @@ def grid_search_net_and_follow():
     q_r = lambda h: (h[0], (h[1] - h[0]) // 2)                       # noqa: E731
     colour = lambda h: (q_r(h)[0] + 3 * q_r(h)[1]) % 7               # noqa: E731
     deltas = hex_geometry.FACING_DELTAS.values()
-    for h in hexes:
-        near = [colour((h[0] + dx, h[1] + dy)) for dx, dy in deltas]
-        assert sorted(near + [colour(h)]) == list(range(7)), h      # a hex and its 6 neighbours: all 7 colours
+    for k in (3, 5):                                                # both spins (config.MOVEMENT_GRID_SPIN)
+        spun = lambda h: (q_r(h)[0] + k * q_r(h)[1]) % 7            # noqa: E731
+        for h in hexes:
+            near = [spun((h[0] + dx, h[1] + dy)) for dx, dy in deltas]
+            assert sorted(near + [spun(h)]) == list(range(7)), h    # a hex and its 6 neighbours: all 7 colours
     # Two states (facings) per hex; one smooth hill peaking at hex 1210.
     peak = hex_geometry.parse_hex_label("1210")
     states = [types.SimpleNamespace(hex_xy=h, facing=f) for h in hexes for f in (0, 3)]
