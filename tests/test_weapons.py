@@ -31,6 +31,7 @@ import INTEGRATION__attack_resolution as attack_resolution  # noqa: E402
 import INTEGRATION__fire_modes as fire_modes  # noqa: E402
 import INTEGRATION__weapon_profiles as wp  # noqa: E402
 import INTEGRATION__heat as heat  # noqa: E402
+import INTEGRATION__ammo as ammo  # noqa: E402
 from INTEGRATION__attack_resolution import DeclaredAttack  # noqa: E402
 from mtf_parser import parse_mtf  # noqa: E402
 from mech_state import clone_mech  # noqa: E402
@@ -233,6 +234,62 @@ def arrow_iv():
         config.pick_number = lambda n, prompt="": 4                       # direction 4 (down), 1 hex
         attack_resolution._resolve_area_miss(a, t, miss, TERRAIN)
     assert before - attack_resolution.total_hp(t) == 10
+
+
+@check
+def arrow_iv_scatter_held_by_firing_arc():
+    """A scatter can't leave the launcher's firing arc: it lands in the last
+    hex before it would (pp.182-183; Daniel's known issue, fixed 2026-10-21).
+    The Bombardier on 0808 faces NE; its Arrow IV (split left arm / torso)
+    fires forward only, so north of the board's top row is the arc's edge."""
+    def scatter(target_hex, direction, roll):
+        a, t = fresh(BOMBARDIER_A, facing="NE"), target()
+        t.hex = target_hex
+        arrow = weapon(a, wp.is_arrow)
+        plan = fire_modes.ShotPlan(kind="artillery")
+        miss = DeclaredAttack(weapon=arrow, tn=9, roll=roll, hit=False, fire=plan)
+        before = attack_resolution.total_hp(t)
+        with ScriptedDice([], default=7):
+            config.pick_number = lambda n, prompt="": direction
+            attack_resolution._resolve_area_miss(a, t, miss, TERRAIN)
+        return before - attack_resolution.total_hp(t)
+    # 0801, direction 6 (upper left): the first hex is already outside - it lands on the target: 20.
+    assert scatter("0801", 6, 7) == wp.ARROW_DAMAGE
+    # 0902, direction 6, 2 hexes: the second is outside - held 1 hex away (0801): the splash, 10.
+    assert scatter("0902", 6, 5) == wp.ARROW_SPLASH
+    # The same 2-hex scatter down the board (direction 4) stays in the arc: 2 hexes away, nothing.
+    assert scatter("0902", 4, 5) == 0
+
+
+@check
+def machine_gun_array_ammo():
+    """Each gun the array fires takes its own round, and guns sharing bins
+    share the rounds (Daniel's known issue, checked 2026-10-21): a shared bin
+    with 1 round fires one gun, with none the array can't fire, and
+    declaring the attack takes one round a gun from the bin."""
+    a, t = fresh(BOMBARDIER_K), target()
+    mga = weapon(a, wp.is_mga)
+    guns = wp.mga_guns(a, mga)
+    bins = {id(b): b for g in guns for b in ammo.bins_for(a, g)}
+    assert len(guns) == 3 and len(bins) == 1                 # three machine guns on one 100-round bin
+    bin_ = next(iter(bins.values()))
+    shots = lambda: (planner(a, t)(mga, 1, 6) or (0, 0, fire_modes.ShotPlan(shots=0)))[2].shots
+    assert shots() == 3
+    assert fire_modes.take_array_rounds(a, mga, 3) and bin_.shots_left == 97
+    bin_.shots_left = 2
+    assert shots() == 2
+    bin_.shots_left = 1
+    assert shots() == 1
+    fire_modes.take_array_rounds(a, mga, 1)
+    assert bin_.shots_left == 0 and planner(a, t)(mga, 1, 6) is None
+    # A destroyed gun drops out of the array's column.
+    b = fresh(BOMBARDIER_K)
+    b_mga = weapon(b, wp.is_mga)
+    gun = wp.mga_guns(b, b_mga)[0]
+    loc, idx = next((l, i) for l, slots in b.crits.items() for i, s in enumerate(slots) if s is gun)
+    b.crits[loc][idx] = "DESTROYED"                           # as damage_resolution.resolve_slot_hit does
+    b.destroyed_slot_info[(loc, idx)] = {"name": gun.name, "instance_id": id(gun)}
+    assert len(wp.mga_guns(b, b_mga)) == 2 and planner(b, t)(b_mga, 1, 6)[2].shots == 2
 
 
 @check

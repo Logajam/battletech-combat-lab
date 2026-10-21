@@ -391,6 +391,30 @@ def rounds_left(mech, weapon, munition, kind):
     return sum(b.shots_left for b in bins)
 
 
+def mga_firing_guns(attacker, array):
+    """The machine guns `array` can fire now: each needs a round of its own
+    (p.185, Daniel: the array "should still track ammo for each MG in the
+    array being fired"). Guns of one type draw on the same bins, so the
+    rounds are counted once for all of them - a bin with 1 round left fires
+    one gun, not every gun that can reach it (fixed 2026-10-21)."""
+    left, out = {}, []
+    for g in wp.mga_guns(attacker, array):
+        key = g.ammo_key if getattr(g, "needs_ammo", False) else id(g)
+        if key not in left:
+            left[key] = rounds_left(attacker, g, "standard", "")
+        if left[key] >= 1:
+            left[key] -= 1
+            out.append(g)
+    return out
+
+
+def take_array_rounds(attacker, array, shots):
+    """Mark off one round for each of the first `shots` guns that can fire
+    (mga_firing_guns); returns the last bin's log note."""
+    notes = [ammo.take(attacker, g, "standard", "") for g in mga_firing_guns(attacker, array)[:shots]]
+    return notes[-1][0] if notes else ""
+
+
 def kind_options(attacker, weapon, target):
     """Every ammunition kind / guidance / Apollo mode `weapon` could fire now,
     as ShotPlans with 1 shot (the rate is a separate choice)."""
@@ -402,7 +426,7 @@ def kind_options(attacker, weapon, target):
     if wp.is_arrow(weapon):
         return [ShotPlan(kind="artillery")] if ("standard", "") in bin_kinds(attacker, weapon) else []
     if wp.is_mga(weapon):
-        guns = [g for g in wp.mga_guns(attacker, weapon) if rounds_left(attacker, g, "standard", "") >= 1]
+        guns = mga_firing_guns(attacker, weapon)
         return [ShotPlan(kind="array", shots=len(guns))] if guns else []
     out = []
     for munition, kind in sorted(bin_kinds(attacker, weapon)) or [("standard", "")]:
