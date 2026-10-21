@@ -250,6 +250,10 @@ STUB_UNJAM = True
 #   "cycle"  - Daniel's 1-turn-on / 1-turn-off default (ESCALATING_CYCLE_ON_ODD_TURNS)
 #   "always" / "never"
 STUB_ESCALATING_USE = "cycle"
+# Equipment choices (Daniel, 2026-10-21: wired, the decisions deferred - each is
+# a stub in INTEGRATION__stubs).
+# Charge with torso spikes declared (p.196): True = always when the mech has them.
+STUB_CHARGE_SPIKES = True
 # (STUB_REAR_MOUNTED removed 2026-10-19: mtf_parser keeps the "(R)" tag as
 # Equipment.rear_mounted; those weapons fire only into the rear arc - Core p.60.)
 # (STUB_HEAT_MODE removed 2026-10-18: heat now always carries over turn to

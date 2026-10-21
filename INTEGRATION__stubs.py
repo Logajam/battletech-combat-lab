@@ -147,6 +147,19 @@ def stub_escalating_use(mech_name, label, cycle_on, warn=True):
     return use
 
 
+# --- Equipment choices (Daniel 2026-10-21: "Wire in equipment that requires
+# choice ... but defer the actual bot decision making for later") ------------
+def stub_charge_spikes(mech_name, clusters):
+    """Declare torso spikes for a charge (p.196: +2 damage a cluster, but each
+    spiked location the charge damages risks losing its cluster)? Knob:
+    STUB_CHARGE_SPIKES. TODO: weigh the damage against the spikes' defensive
+    worth later (Memo)."""
+    use = bool(config.STUB_CHARGE_SPIKES)
+    _warn("charge_spikes", f"{mech_name}'s {clusters} torso spike cluster(s): {'used' if use else 'not used'} "
+                           f"in the charge")
+    return use
+
+
 # =============================================================================
 # ==========================  OTHER PHASES  ==================================
 # =============================================================================

@@ -252,6 +252,17 @@ def _join_split_items(mech):
             mech.crits[loc] = [a if s is partner else s for s in slots]
 
 
+# Equipment whose slot count depends on the 'Mech's tonnage (Core pp.194-196):
+# physical weapons, shields and talons - grouped from the .mtf lines instead.
+VARIABLE_SIZE_FRAGMENTS = ("HATCHET", "SWORD", "MACE", "LANCE", "CLAW", "RETRACTABLEBLADE", "VIBROBLADE",
+                           "SHIELD", "TALONS")
+
+
+def _variable_size(canonical_name):
+    n = canonical_name.replace(" ", "").replace("-", "").upper()
+    return any(f in n for f in VARIABLE_SIZE_FRAGMENTS) and "BLUESHIELD" not in n
+
+
 def build_crit_list(raw_lines, special_rules_seen=None):
     """special_rules_seen: optional set, mutated in place with (name, ref) pairs
     for any equipment.json entry flagged special_rules=True that gets used here.
@@ -305,6 +316,14 @@ def build_crit_list(raw_lines, special_rules_seen=None):
 
         if entry is not None:
             slots_needed = entry["slots"]
+            if _variable_size(entry["canonical_name"]):
+                # A physical weapon / shield / talons is sized by the 'Mech's tonnage, so
+                # equipment.json can't hold its slot count (it says 1): take every
+                # consecutive line of it as ONE item (2026-10-21 - each line was its own
+                # item, so one critical hit didn't wreck a hatchet, p.94).
+                slots_needed = 1
+                while i + slots_needed < n and strip_cosmetic_suffixes(raw_lines[i + slots_needed].strip()) == base_name:
+                    slots_needed += 1
             group = [raw_lines[i]]
             j = i + 1
             while len(group) < slots_needed and j < n:

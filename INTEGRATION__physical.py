@@ -4,7 +4,8 @@ INTEGRATION__physical.py  (NEW 2026-10-19, Claude - Pile 2 rules, Pile 4 choice)
 The Physical Attack Phase (Core Rulebook pp.76-83), replacing the
 physical_combat stub: punches, kicks and physical weapons (claws, hatchet,
 lance, mace, retractable blade, sword, vibroblades - treated as switched
-off, talons on kicks), pushes (push_option / _resolve_pushes, p.83) and
+off, talons on kicks; spikes and the lance's armor-piercing check:
+INTEGRATION__physical_gear, 2026-10-21), pushes (push_option / _resolve_pushes, p.83) and
 clubs (_club_options; finding one: INTEGRATION__clubs, p.79). Charges and
 death from above are declared in the Movement Phase (INTEGRATION__charge,
 INTEGRATION__dfa, INTEGRATION__movement_attacks) and resolved here.
@@ -57,6 +58,7 @@ import INTEGRATION__attack_resolution as attack_resolution
 import INTEGRATION__arcs as arcs
 import INTEGRATION__structure_weight as structure_weight
 import INTEGRATION__water as water
+import INTEGRATION__physical_gear as gear
 from mech_state import head_hit_hurts_pilot, has_torso_cockpit, torso_cockpit_sensor_penalty  # p.203
 from mech_state import tripod_pilot_modifier  # p.236
 from mech_state import (DamageType, is_destroyed, is_immobile, mark_consciousness_check_pending,
@@ -287,8 +289,8 @@ def _kick_options(m, rel, fired, table):
         if _limb_fired(m, leg, fired):
             continue
         dmg = _strength(m, 5) // (2 ** halves)
-        if any(_norm(getattr(s, "name", "")) == "TALONS" for s in m.crits[leg]):
-            dmg = round(dmg * 1.5)
+        if leg in gear.talon_legs(m):                  # p.196: lost with the leg's foot actuator too
+            dmg = gear.with_talons(dmg)
         out.append(dict(name=f"kick ({leg})", mod=mod, damage=dmg, table="kick" if table is None else table,
                         kick=True, limb=leg))
     return out
@@ -311,7 +313,8 @@ def _weapon_options(m, rel, fired, table, target_prone):
                                if (part == "Lower Arm Actuator" and not _has_part(m, arm, part)) or _lost(m, arm, part))
             mod += _arm_aes(m, arm)
             out.append(dict(name=f"{slot.name} ({arm})", mod=mod, damage=_strength(m, per, plus),
-                            table="standard" if table is None else table, limb=arm))
+                            table="standard" if table is None else table, limb=arm, weapon=True,
+                            lance="LANCE" in _norm(slot.name)))
     return out
 
 
@@ -742,11 +745,18 @@ def run_physical_phase(mech_a, mech_b, terrain_map, reports):
             dmg = water.physical_damage(target, loc, o["damage"])     # halved under water (p.77)
             config.log(f"    {o['name']} hits {target.side_name}'s {loc} for {dmg}"
                        f"{' (halved: under water, p.77)' if dmg != o['damage'] else ''}.")
+            dmg, spiked = gear.spike_reduce(target, loc, dmg, o["name"])        # p.196
             if loc == "Head" and head_hit_hurts_pilot(target):
                 target.pilot_hits += 1
                 mark_consciousness_check_pending(target)
+            before = gear.snapshot(target, loc)
             apply_damage(target, loc, dmg, armor_field="rear_armor" if side == "rear" else "armor",
                          damage_type=DamageType.PHYSICAL)
+            if o.get("lance") and gear.armor_only(target, loc, before):
+                gear.lance_ap_check(target, loc, gear.LANCE_AP_TN, o["name"])     # p.194
+            if spiked and not (o.get("club") or o.get("weapon")):
+                limb = o.get("limb")                                           # p.196: the punching / kicking limb
+                gear.spike_retaliation(attacker, [limb] if isinstance(limb, str) else list(limb or ()))
             if o.get("kick"):
                 triggers[target.side_name].append(("kicked", 0))
             if o.get("club"):

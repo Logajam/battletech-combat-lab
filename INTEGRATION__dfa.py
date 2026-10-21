@@ -34,12 +34,14 @@ charges); this module has the numbers and the Physical-phase resolution.
     it is already down - it lands in the target's hex without a second fall,
     an approximation of "resolve as a failed DFA instead of falling"), or its
     pilot is unconscious.
-Not modeled: talons (x1.5), wind, water, a third mech in the displacement hex.
+Talons x1.5 and the target's spikes: INTEGRATION__physical_gear (2026-10-21).
+Not modeled: wind, water, a third mech in the displacement hex.
 """
 
 import math
 
 import INTEGRATION__config as config
+import INTEGRATION__physical_gear as gear
 from INTEGRATION__movement_attacks import comparative_modifier, displacement, apply_groups
 from mech_state import is_destroyed, all_crew_unconscious, torso_cockpit_sensor_penalty, tripod_pilot_modifier
 import piloting_rolls
@@ -52,7 +54,10 @@ MISS_FALL_LEVELS = 2
 
 
 def target_damage(attacker):
-    return math.ceil(attacker.mass / 10 * 3)
+    """ceil(tons / 10 x 3); x1.5 (rounding normally) with talons on both legs -
+    a tripod / quad: two (p.196, 2026-10-21; was not modeled)."""
+    damage = math.ceil(attacker.mass / 10 * 3)
+    return gear.with_talons(damage) if gear.dfa_talons(attacker) else damage
 
 
 def attacker_damage(attacker):
@@ -140,7 +145,11 @@ def resolve(attacker, target, hit, terrain_map):
         table, t_side = ("standard", "rear") if target.prone else ("punch", side)
         config.log(f"    DFA: {target.side_name} takes {target_damage(attacker)} ({table} table, {t_side}), "
                    f"{attacker.side_name} takes {attacker_damage(attacker)} (kick table).")
-        apply_groups(target, target_damage(attacker), table, t_side, "DFA")
+        hits = apply_groups(target, target_damage(attacker), table, t_side,
+                            "DFA" + (" (talons x1.5, p.196)" if gear.dfa_talons(attacker) else ""))
+        if any(spiked for _, spiked in hits):
+            gear.spike_retaliation(attacker, [l for l in attacker.leg_locations
+                                              if not attacker.locations[l]["destroyed"]][:2])   # p.196: both legs
         apply_groups(attacker, attacker_damage(attacker), "kick", "front", "DFA (attacker)")
         fell = False
         if not is_destroyed(target):

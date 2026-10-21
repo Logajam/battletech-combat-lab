@@ -42,8 +42,13 @@ and displacement, so its end-of-movement PSRs (running with a gyro / hip hit)
 and the PSR for entering the target's hex (rubble...) are rolled then, with
 the phase's other PSRs (INTEGRATION__movement_attacks.end_of_movement_triggers).
 
+Spikes and lances (p.194, 196; 2026-10-21, INTEGRATION__physical_gear): a
+charging 'Mech may declare its torso spikes (+2 a cluster - a stub decides);
+the target's spikes cut each grouping by 4 and hurt the charger's centre
+torso; a lance makes a 5+ armor-piercing check on the first location hit.
+
 Not modeled: the +2 PSRs in the score; domino effects (no third mech);
-minimum movement, buildings, water halving, lance / spikes / shields; partial
+minimum movement, buildings, water halving, shields; partial
 cover is ignored as the rule says, but woods still count.
 """
 
@@ -52,6 +57,7 @@ import math
 import INTEGRATION__config as config
 import INTEGRATION__attack_resolution as attack_resolution
 import INTEGRATION__movement_attacks as movement_attacks
+import INTEGRATION__physical_gear as gear
 from INTEGRATION__movement_attacks import groupings, comparative_modifier, terrain_modifier
 from mech_state import torso_cockpit_sensor_penalty, tripod_pilot_modifier
 from mech_state import (DamageType, is_destroyed, is_immobile, all_crew_unconscious,
@@ -125,19 +131,27 @@ def declare(attacker, target, terrain_map):
     return tn, hit
 
 
-def _apply(mech, damage, side, label):
-    movement_attacks.apply_groups(mech, damage, "standard", side, label)
-
-
 def resolve_hit(attacker, target, terrain_map):
     """Damage both ways, then displacement (p.78, pp.113-115). Returns the PSR
     triggers {side_name: [(reason, modifier)]}."""
     a_hex, t_hex = hex_geometry.parse_hex_label(attacker.hex), hex_geometry.parse_hex_label(target.hex)
     side = attack_resolution.attack_side(a_hex, t_hex, hex_geometry.compass_to_facing(target.facing), terrain_map)
     dealt, taken = target_damage(attacker, combat.fc_to_tmm(attacker.move_fc, jumped=False)), attacker_damage(target)
-    config.log(f"    Charge: {target.side_name} takes {dealt} ({side}), {attacker.side_name} takes {taken}.")
-    _apply(target, dealt, side, "Charge")
-    _apply(attacker, taken, "front", "Charge (attacker)")
+    spikes = gear.use_spikes_in_charge(attacker)                 # a declared choice (p.196) - a stub
+    bonus = gear.charge_spike_bonus(attacker, spikes)
+    config.log(f"    Charge: {target.side_name} takes {dealt}{f' + {bonus} (spikes, p.196)' if bonus else ''} "
+               f"({side}), {attacker.side_name} takes {taken}.")
+    first = movement_attacks.apply_groups(target, dealt + bonus, "standard", side, "Charge")
+    if first and any(spiked for _, spiked in first):
+        gear.spike_retaliation(attacker, ["Center Torso"])          # p.196: a charge delivers with the CT
+    # Lance (p.194): an armor-piercing check at 5+ on the first location the charge hit, if it kept armor.
+    if first and not is_destroyed(target):
+        loc = first[0][0]
+        v = target.locations[loc]
+        if not v["destroyed"] and v.get("armor", 0) + v.get("rear_armor", 0) > 0:
+            for _ in gear.lances(attacker):
+                gear.lance_ap_check(target, loc, gear.LANCE_CHARGE_AP_TN, "lance in a charge")
+    movement_attacks.apply_groups(attacker, taken, "standard", "front", "Charge (attacker)", spike_wear=spikes)
 
     triggers = {attacker.side_name: [], target.side_name: []}
     if not is_destroyed(attacker):

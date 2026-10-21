@@ -12,6 +12,7 @@ Real units come from data/meks.zip (extracted to a temporary folder).
 """
 
 import copy
+import math
 import io
 import os
 import sys
@@ -578,6 +579,49 @@ def falls_of_several_levels():
     with ScriptedDice([], default=7):
         piloting_rolls.resolve_fall(m, levels=2)
     assert before - attack_resolution.total_hp(m) == 30
+
+
+def any_unit(path):
+    with zipfile.ZipFile(os.path.join(REPO_ROOT, "data", "meks.zip")) as z:
+        out = z.extract(f"meks/{path}.mtf", _TMP)
+    with redirect_stdout(io.StringIO()):
+        return parse_mtf(out)
+
+
+@check
+def talons_spikes_and_lances():
+    """2026-10-21, Core pp.194-196 (INTEGRATION__physical_gear): talons on
+    both legs make a DFA x1.5 (lost with a foot actuator); spikes cut a
+    physical hit on their location by 4 (minimum 1) and give the attacker 2
+    back; a lance that only dented armor makes a 9+ armor-piercing check -
+    1 point of internal structure."""
+    import INTEGRATION__dfa as dfa
+    import INTEGRATION__physical_gear as gear
+    caesar = fresh(any_unit("3145/NTNU RS/NTNU/Caesar CES-5D"), "0808")
+    assert gear.dfa_talons(caesar)
+    plain = math.ceil(caesar.mass / 10 * 3)
+    assert dfa.target_damage(caesar) == int(plain * 1.5 + 0.5)
+    caesar.destroyed_slot_info[(caesar.leg_locations[0], 0)] = {"name": "Foot Actuator", "instance_id": None}
+    assert not gear.dfa_talons(caesar) and dfa.target_damage(caesar) == plain
+
+    porc = fresh(any_unit("XTRs/Caveat Emptor/Porcupine PRC-3N"), "0808")
+    spiked = next(loc for loc in porc.locations if gear.spike_clusters(porc, loc))
+    assert gear.spike_reduce(porc, spiked, 10) == (6, True) and gear.spike_reduce(porc, spiked, 3) == (1, True)
+    a = fresh(ATLAS, "0807")
+    before = a.locations["Right Arm"]["armor"]
+    gear.spike_retaliation(a, ["Right Arm"])
+    assert a.locations["Right Arm"]["armor"] == before - 2
+
+    t = fresh(ATLAS, "0806")
+    s_before = t.locations["Center Torso"]["structure"]
+    with ScriptedDice([9]):
+        gear.lance_ap_check(t, "Center Torso", gear.LANCE_AP_TN, "test")
+    assert t.locations["Center Torso"]["structure"] == s_before - 1
+    with ScriptedDice([8]):
+        gear.lance_ap_check(t, "Center Torso", gear.LANCE_AP_TN, "test")
+    assert t.locations["Center Torso"]["structure"] == s_before - 1
+    hachi = fresh(any_unit("3055U/Hachiwara HCA-6P"), "0808")
+    assert len(gear.lances(hachi)) == 1
 
 
 def run_all():

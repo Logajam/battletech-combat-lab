@@ -975,6 +975,7 @@ forward arc, kicks included, never into a side arc.
 | Charge / death from above | `movement_selection._movement_attack_pick`, `_modeled_reply`; `INTEGRATION__movement_attacks` | Gate per movement mode (beat the best ordinary attack), then the objective must beat the ordinary pick; both movers (two-ply) |
 | Push value | `physical.push_option`, `movement_attacks.displacement_worth` | P(hit) x (target HP off the board / fall worth 2+ levels down / else 0) |
 | Turning while down | `orchestrator._turn_while_down` | A prone mech that can't stand (fight to the death): fewest hexside turns that put the enemy in its forward arc, else a side arc; none if nothing improves (1 per turn with a destroyed gyro, p.98). The two-ply reply model doesn't anticipate it |
+| Charge with spikes | `stubs.stub_charge_spikes` | STUB (`STUB_CHARGE_SPIKES`, default always): declare torso spikes for a charge (p.196) - +2 damage a cluster vs losing clusters |
 | Club pick-up | `INTEGRATION__clubs.maybe_pick_up` | ON (`config.CLUB_PICKUP`, Daniel 2026-10-21): picks one up on a turn it fires nothing; smarter use waits for the Memo below |
 | DFA miss: where the target steps | `INTEGRATION__dfa.resolve` | The open hex with the smallest drop |
 | Home edge | `config.HOME_EDGE_CHOICE` | Which edge the deployment-roll loser picks (default random) |
@@ -1112,6 +1113,12 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Talons on DFA, spikes, lance armor-piercing checks
+  (RULES_REVIEW F46, new `INTEGRATION__physical_gear`), the charge-spikes
+  declaration as a stub (`STUB_CHARGE_SPIKES`, Section 6). Bug fixed: a
+  multi-slot physical weapon was one item per slot (one crit didn't wreck
+  it). test_special_attacks talons_spikes_and_lances. Reference logs
+  unchanged.
 - **2026-10-21 (Claude):** Heat-dissipating armor (RULES_REVIEW F45, p.202):
   flamer / plasma damage to it halved, no outside heat. test_weapons
   heat_dissipating_armor. Reference logs unchanged.
