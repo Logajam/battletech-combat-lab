@@ -188,7 +188,10 @@ def step_cost(
     if abs(change) > level_limit:
         return None                      # pp.46-47: 2 levels (1 with a destroyed hip)
     if backward and change != 0:
-        return None                      # backward level changes need a PSR mid-move - not offered (G11)
+        # Backward level change (p.46, 2026-10-21): one level only, a PSR each
+        # time (step_psrs), never with a destroyed hip (p.47) nor on a roof (p.134).
+        if abs(change) != 1 or level_limit < MAX_LEVEL_CHANGE or from_roof:
+            return None
 
     on_road = from_info is not None and is_paved(from_info) and is_paved(to_info)
     if on_road:
@@ -198,6 +201,74 @@ def step_cost(
 
     assert cost >= 1, f"step_cost produced {cost} < 1 — violates the DP's load-bearing invariant."
     return cost
+
+
+# Terrain PSRs (Movement Costs Table p.48; Daniel's movement subphase,
+# 2026-10-21): what a step or a facing change forces. Two counts - "always"
+# (whatever the movement mode) and "run" (only if the move uses Running MP) -
+# because the pathfinder doesn't know the move's mode until it ends.
+PSR_TERRAIN_FEATURES = ("rubble", "sand", "mud", "water")
+
+
+def step_psrs(from_info, to_info, backward=False):
+    """(always, run_only) PSRs a ground step into to_info forces:
+    rubble +0 (p.48); sand +0 only with a level change by ground movement
+    (p.122); water depth 1+ +0 only with Running MP (p.48 fn 8, p.51); a
+    backward level change +0 (p.46). from_info None = entering the board."""
+    always = run_only = 0
+    features = to_info["features"]
+    if "rubble" in features:
+        always += 1
+    changes_level = from_info is not None and from_info["level"] != to_info["level"]
+    if "sand" in features and changes_level:
+        always += 1
+    if to_info.get("depth", 0) >= 1:
+        run_only += 1
+    if backward and changes_level:
+        always += 1
+    return always, run_only
+
+
+def turn_psrs(info):
+    """(always, run_only) PSRs a facing change in this hex forces: mud, -1, if
+    running (p.124)."""
+    return (0, 1) if "mud" in info["features"] else (0, 0)
+
+
+# PSR modifier for each trigger (p.48 / p.124): all +0 except mud's -1.
+PSR_MODIFIER = {"rubble": 0, "sand": 0, "water": 0, "backward level change": 0, "mud": -1}
+
+
+def step_psr_causes(from_info, to_info, backward, running):
+    """The triggers step_psrs counts, as names (PSR_MODIFIER keys), for the
+    mode actually used - the movement subphase rolls one PSR each."""
+    causes = []
+    features = to_info["features"]
+    if "rubble" in features:
+        causes.append("rubble")
+    changes_level = from_info is not None and from_info["level"] != to_info["level"]
+    if "sand" in features and changes_level:
+        causes.append("sand")
+    if running and to_info.get("depth", 0) >= 1:
+        causes.append("water")
+    if backward and changes_level:
+        causes.append("backward level change")
+    return causes
+
+
+def has_psr_terrain(terrain_map) -> bool:
+    """Can any step on this board force a terrain PSR - rubble, sand, mud,
+    depth 1+ water, or a level change (a backward level change)? Cached on
+    the board. Without any, movement takes the plain (faster) search."""
+    flag = terrain_map.get("_psr_terrain")
+    if flag is None:
+        hexes = terrain_map["hexes"].values()
+        levels = {info["level"] for info in hexes}
+        flag = len(levels) > 1 or any(
+            info.get("depth", 0) >= 1 or any(f in info["features"] for f in ("rubble", "sand", "mud"))
+            for info in hexes)
+        terrain_map["_psr_terrain"] = flag
+    return flag
 
 
 def transition_cost(

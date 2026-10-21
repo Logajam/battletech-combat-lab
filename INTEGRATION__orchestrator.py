@@ -346,9 +346,17 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_fi
         return
     config.log(f"  [Movement select] {name}: {why}")
 
+    fell = None
     if pick is not None:
         start = "off the board" if entry_edge is not None else f"{mover.hex} {mover.facing}"
         backward = config.VERBOSE and _needs_backward_move(mover, pick, terrain_map, standup_mp, entry_edge)
+        # The movement subphase (Daniel, 2026-10-21): walk the planned path; a
+        # terrain PSR failed on the way drops the mech there, and it re-plans.
+        fell = _walk_path(mover, pick, terrain_map, standup_mp, entry_edge)
+    if pick is not None and fell is not None:
+        budget = standup_mp if standup_mp is not None else (mp["run"] if pick["mode"] == "Run" else mp["walk"])
+        _after_fall_midmove(mover, other, pick, fell, budget, terrain_map, battle_rng, moves_first, start)
+    elif pick is not None:
         mover.hex, mover.facing = pick["hex"], pick["facing"]
         mover.move_mode, mover.move_fc, mover.mp_spent = pick["mode"], pick["fc"], pick["mp_spent"]
         mover.movement_heat = heat.movement_heat(mover, mover.move_mode, mover.move_fc)
@@ -372,7 +380,6 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_fi
     if standup_mp is not None:
         # resolve_stand_up already made the running-mode PSR for moving on
         # after standing ("fell again after standing").
-        _water_psr(mover)
         piloting_rolls.resolve_consciousness_checks(mover, "Movement Phase")
         return
 
@@ -380,14 +387,14 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_fi
     # with the damage check_movement_psr looks for. Walking and standing
     # still never force one.
     psr_mode = _MODE_TO_PSR.get(mover.move_mode)
-    if psr_mode == "running" and mover.move_fc < 1:
-        psr_mode = None
+    if (psr_mode == "running" and mover.move_fc < 1) or mover.prone:
+        psr_mode = None                      # a prone mech (it fell on the way) makes no PSRs (p.51)
     if psr_mode is not None:
         # TODO (rule check): a failed PSR currently drops the mech in its
         # END hex - in tabletop play it falls where the check was failed.
         # Check MegaMek movement processing for where the fall happens.
         _with_piloting(mover, piloting_rolls.check_movement_psr, psr_mode)
-    _water_psr(mover)
+    _landing_psr(mover)
     if booster_failures and not is_destroyed(mover):
         # Failed MASC / supercharger: damage, then any PSR it forces, at the
         # end of movement (p.204) - the PSR uses the damage-this-phase triggers.
@@ -397,32 +404,123 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_fi
     piloting_rolls.resolve_consciousness_checks(mover, "Movement Phase")
 
 
-def _water_psr(mover):
-    """Running or jumping into depth 1+ water (2026-10-21): running into such a
-    hex forces a PSR (+0, pp.48, 51); a jump that lands in one forces a PSR
-    with no modifier for the depth, and a failure falls the hex's depth in
-    levels to the bottom (p.50). Falls in water take half damage (p.115,
-    piloting_rolls.resolve_fall). Simplification, like the TODO above: only
-    the END hex is checked - the movement table keeps end states, not paths,
-    so water a run passes through and leaves isn't rolled for (p.113 wants a
-    roll after each water hex entered)."""
-    if mover.prone or is_destroyed(mover) or mover.hex is None:
+def _landing_psr(mover):
+    """A jump that lands in depth 1+ water forces a PSR with no modifier for
+    the depth, and a failure falls the hex's depth in levels to the bottom
+    (p.50); landing in rubble forces its +0 PSR (p.48 - "any PSR-related
+    effects for the hex it lands in are applied", p.50). Falls in water take
+    half damage (p.115, piloting_rolls.resolve_fall). Ground moves roll their
+    terrain PSRs hex by hex in _walk_path."""
+    if mover.prone or is_destroyed(mover) or mover.hex is None or mover.move_mode != "Jump":
         return
+    info = water.board()["hexes"][mover.hex] if water.board() is not None else None
     depth = water.depth_at(mover.hex)
-    if depth < 1:
-        return
-    if mover.move_mode == "Run" and mover.move_fc >= 1:
-        what, levels = "Ran into water", 0
-    elif mover.move_mode == "Jump":
-        what, levels = "Jumped into water", depth
-    else:
-        return
     modifier = piloting_rolls.preexisting_modifier(mover) + piloting_rolls.special_case_modifier(mover)
+    checks = []
+    if depth >= 1:
+        checks.append((f"Jumped into water (depth {depth})", depth))
+    if info is not None and "rubble" in info["features"]:
+        checks.append(("Landed in rubble", 0))
 
     def roll(mech):
-        if not piloting_rolls.roll_psrs(mech, 1, modifier, f"{what} (depth {depth}) PSR"):
-            piloting_rolls.resolve_fall(mech, cause=f"{what.lower()}, failed PSR", levels=levels)
-    _with_piloting(mover, roll)
+        for what, levels in checks:
+            if mech.prone:
+                return
+            if not piloting_rolls.roll_psrs(mech, 1, modifier, f"{what} PSR"):
+                piloting_rolls.resolve_fall(mech, cause=f"{what.lower()}, failed PSR", levels=levels)
+    if checks:
+        _with_piloting(mover, roll)
+
+
+def _walk_path(mover, pick, terrain_map, standup_mp, entry_edge):
+    """The movement subphase (Daniel, 2026-10-21: "There is a difference
+    between planning where you want to go which the picker does. And actually
+    getting there, which is needed when piloting skill rolls are required for
+    entering terrain"): walk the ground path to the pick (ranged_combat.
+    path_to) hex by hex, making each terrain PSR where it happens - rubble,
+    sand with a level change, water when running, a backward level change
+    (terrain_rules.step_psr_causes), a facing change in mud when running
+    (-1, p.124). Returns None when the mech gets there (or no roll was
+    needed), else (hex, facing, MP spent, hexes moved) where it fell - a
+    backward level change falls in the lower of the two hexes (p.46)."""
+    if pick["mode"] not in ("Walk", "Run") or not terrain_rules.has_psr_terrain(terrain_map):
+        return None
+    x, y = hex_geometry.parse_hex_label(pick["hex"])
+    key = (x, y, hex_geometry.compass_to_facing(pick["facing"]), pick["fc"], pick["mode"], pick["mp_spent"])
+    if not getattr(mover, "path_psrs", {}).get(key):
+        return None                          # nothing on the way forces a roll
+    path = ranged_combat.path_to(mover, terrain_map, pick, standup_mp, entry_edge)
+    if path is None:
+        config.log(f"  [Movement] {mover.side_name}: path to {pick['hex']} not found - moved there without "
+                   f"terrain PSRs.")
+        return None
+    hexes = terrain_map["hexes"]
+    running = pick["mode"] == "Run"
+    base = piloting_rolls.preexisting_modifier(mover) + piloting_rolls.special_case_modifier(mover)
+    here, facing, moved = mover.hex, mover.facing, 0
+    for step, (sx, sy, sf), mp_after in path:
+        label, facing = hex_geometry.hex_label(sx, sy), hex_geometry.facing_to_compass(sf)
+        if step == "turn":
+            causes = ["mud"] if running and "mud" in hexes[here]["features"] else []
+            fall_at = here
+        else:
+            from_info = None if step == "enter" else hexes[here]
+            causes = terrain_rules.step_psr_causes(from_info, hexes[label], step == "backward", running)
+            fall_at = label
+            if step == "backward" and from_info is not None and from_info["level"] < hexes[label]["level"]:
+                fall_at = here                # p.46: the lower of the two hexes
+            here, moved = label, moved + 1
+        for cause in causes:
+            modifier = base + terrain_rules.PSR_MODIFIER[cause]
+
+            def roll(mech, cause=cause, modifier=modifier, label=label):
+                return piloting_rolls.roll_psrs(mech, 1, modifier, f"[Movement] {mech.side_name}: {cause} PSR "
+                                                                   f"at {label}")
+            if not _with_piloting(mover, roll):
+                mover.hex, mover.facing = fall_at, facing
+                _with_piloting(mover, piloting_rolls.resolve_fall, cause=f"failed {cause} PSR at {fall_at}")
+                return fall_at, facing, mp_after, moved
+    return None
+
+
+def _after_fall_midmove(mover, other, pick, fell, budget, terrain_map, battle_rng, moves_first, start):
+    """A terrain PSR failed partway through the move (Daniel, 2026-10-21: "A
+    failure and subsequent results would cause that mech to recalculate its
+    movement starting from its current state"): the mech lies where it fell
+    with the MP it hasn't spent; it may try to stand with them (p.51 - "as
+    long as it has enough MP left and did not jump"), and if it stands with
+    MP to spare it picks a new spot from there, walked the same way - again
+    and again, until it gets there, runs out of MP or stays down. The move
+    keeps its declared mode; its hexes and MP add up."""
+    label, facing, used, moved = fell
+    mover.move_mode, mover.move_fc, mover.mp_spent = pick["mode"], moved, used
+    config.log(f"  [Movement] {mover.side_name}: {start} -> fell at {label} {facing} after {used} MP "
+               f"({moved} hexes) of a planned {pick['mode']} to {pick['hex']} {pick['facing']}.")
+    while not is_destroyed(mover) and mover.prone:
+        remaining = budget - mover.mp_spent
+        if remaining <= 0 or not piloting_rolls.can_stand(mover) or mover.pilot_hits >= 5:
+            break
+        left = _with_piloting(mover, piloting_rolls.resolve_stand_up, mp_available=remaining)
+        mover.mp_spent = budget - left if not mover.prone else budget
+        if mover.prone or is_destroyed(mover) or left <= 0:
+            break
+        pick2, why = movement_selection.choose(mover, other, terrain_map, battle_rng, moves_first, standup_mp=left)
+        config.log(f"  [Movement select] {mover.side_name} (stood up again, {left} MP left): {why}")
+        if pick2 is None:
+            break
+        fell2 = _walk_path(mover, pick2, terrain_map, left, None)
+        if fell2 is None:
+            mover.hex, mover.facing = pick2["hex"], pick2["facing"]
+            mover.move_fc += pick2["fc"]
+            mover.mp_spent += pick2["mp_spent"]
+            break
+        label, facing, used2, moved2 = fell2
+        mover.move_fc += moved2
+        mover.mp_spent += used2
+        config.log(f"  [Movement] {mover.side_name}: fell again at {label} {facing}.")
+    mover.movement_heat = heat.movement_heat(mover, mover.move_mode, mover.move_fc)
+    config.log(f"  [Movement] {mover.side_name}: ends at {mover.hex} {mover.facing}{' (prone)' if mover.prone else ''}, "
+               f"{mover.move_mode} ({mover.mp_spent} MP, {mover.move_fc} hexes, {mover.movement_heat} heat).")
 
 
 # =============================================================================

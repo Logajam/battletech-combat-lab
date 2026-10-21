@@ -139,8 +139,8 @@ SCENARIOS = {
         "config.SEED = 1",
     ],
     # Added 2026-10-21 for the water rules: MegaMek's Large Lakes 1 (Map Set 4) -
-    # depth 1 and 2 lakes. Jumps and runs into water (PSRs, a halved fall),
-    # attacks held across the water line, submerged heat sinks, leg jump jets.
+    # depth 1 and 2 lakes. Since the movement subphase (2026-10-21): runs through
+    # water roll a PSR in each water hex entered, two falls on the way.
     "Black_Hawk_F_vs_Cataphract_CTF-3D_LargeLakes1_seed1.txt": [
         'config.MECH_RED_MTF = "Black Hawk (Nova) F.mtf"',
         'config.MECH_BLUE_MTF = "Cataphract CTF-3D.mtf"',

@@ -186,19 +186,17 @@ def psr_costs(mech) -> Dict[str, float]:
     return costs
 
 
-def water_psr_costs(mech) -> Dict[str, float]:
-    """{"Run": cost, "Jump": cost per level fallen} of the PSR for running or
-    jumping into depth 1+ water (2026-10-21, Core pp.48, 50-51: +0, no depth
-    modifier): P(fail) x the fall's damage, halved in water (p.115). A failed
-    jump into water falls the hex's depth in levels - the caller multiplies
-    the Jump figure by (depth + 1). One roll, whatever the path (the end hex
-    stands for it - see the orchestrator's water PSR)."""
+def terrain_psr_odds(mech) -> Dict[str, float]:
+    """{"fail": P(failing one terrain PSR), "fall": a 0-level fall's damage}
+    (2026-10-21) for pricing the PSRs terrain forces: water, rubble, sand,
+    mud, backward level changes on a ground path (pathfinder.PathTable,
+    rolled in the orchestrator's movement subphase), and landing a jump in
+    water or rubble (pp.48, 50, 122, 124). Standard modifiers only (mud's
+    -1 isn't priced). {} when config.MOVEMENT_PSR_COST is off."""
     if not config.MOVEMENT_PSR_COST:
         return {}
     target = mech.piloting + piloting_rolls.preexisting_modifier(mech) + piloting_rolls.special_case_modifier(mech)
-    p_fail = 1.0 - combat.hit_probability(target)
-    cost = p_fail * piloting_rolls.fall_damage(mech) / 2
-    return {"Run": cost, "Jump": cost}
+    return {"fail": 1.0 - combat.hit_probability(target), "fall": piloting_rolls.fall_damage(mech)}
 
 
 class _Side:
@@ -209,26 +207,45 @@ class _Side:
         self.mech = mech
         self.exposure = exposure_factors(mech)
         self._psr = psr_costs(mech) if psr_applies else {"Run": 0.0, "Jump": 0.0}
-        self._water = water_psr_costs(mech) if psr_applies else {}
+        self._terrain = terrain_psr_odds(mech) if psr_applies else {}
         self.objective = _RATIO
 
-    def psr_cost(self, mode, fc, hex_label=None):
+    def psr_cost(self, mode, fc, hex_label=None, facing=None, mp=None):
         """Expected fall damage from this move's PSRs: the mech's damage
-        (psr_costs) plus running or jumping into depth 1+ water (2026-10-21,
-        water_psr_costs) when the spot's hex is given."""
-        if mode == "Run":
-            if fc < 1:
-                return 0.0                                  # check_movement_psr's gate: Run 1+ hex
+        (psr_costs - Run 1+ hex, Jump) plus terrain (2026-10-21): the PSRs the
+        ground path to (hex_label, facing, fc, mode, mp) forces (mech.path_psrs,
+        ranged_combat.movement_options), or a jump landing in depth 1+ water
+        (falling the depth in levels, half damage - pp.50, 115) or rubble."""
+        cost = 0.0
+        if mode == "Run" and fc >= 1:                       # check_movement_psr's gate: Run 1+ hex
             cost = self._psr["Run"]
         elif mode == "Jump":
             cost = self._psr["Jump"]
-        else:
-            return 0.0
-        if self._water and hex_label is not None:
+        odds = self._terrain
+        if not odds or hex_label is None:
+            return cost
+        if mode == "Jump":
             depth = water.depth_at(hex_label)
             if depth >= 1:
-                cost += self._water[mode] * (depth + 1 if mode == "Jump" else 1)
+                cost += odds["fail"] * odds["fall"] * (depth + 1) / 2
+            board = water.board()
+            if board is not None and "rubble" in board["hexes"][hex_label]["features"]:
+                cost += odds["fail"] * odds["fall"]
+        elif mode in ("Walk", "Run") and facing is not None and mp is not None:
+            x, y = hex_geometry.parse_hex_label(hex_label)
+            f = facing if isinstance(facing, int) else hex_geometry.compass_to_facing(facing)
+            n = getattr(self.mech, "path_psrs", {}).get((x, y, f, fc, mode, mp), 0)
+            if n:
+                cost += (1.0 - (1.0 - odds["fail"]) ** n) * odds["fall"]
         return cost
+
+    def psr_for(self, spot):
+        """psr_cost for a MovementCandidate, a ranged_combat._Option or a pick /
+        state dict (hex, facing, mode, fc, mp_spent)."""
+        if isinstance(spot, dict):
+            return self.psr_cost(spot["mode"], spot["fc"], spot["hex"], spot["facing"], spot["mp_spent"])
+        label = spot.label if hasattr(spot, "label") else spot.hex
+        return self.psr_cost(spot.mode, spot.fc, label, spot.facing, spot.mp_spent)
 
 
 # =============================================================================
@@ -240,6 +257,7 @@ def reduced_options(mover, terrain_map, exclude_hex=None, standup_mp=None, entry
     (a label or None) is a hex that is occupied and can't be ended in."""
     exclude_xy = hex_geometry.parse_hex_label(exclude_hex) if exclude_hex else None
     void = "void_signature" in equipment_systems.active_stealth(mover)
+    mover.path_psrs = {}                   # this pick's terrain PSR counts (ranged_combat.movement_options)
     best: Dict[tuple, tuple] = {}
     for x, y, facing, fc, mode, mp_spent in ranged_combat.movement_options(mover, terrain_map, standup_mp, entry_edge):
         if (x, y) == exclude_xy:
@@ -248,10 +266,25 @@ def reduced_options(mover, terrain_map, exclude_hex=None, standup_mp=None, entry
         # (0 hexes +3 ... 6+ hexes 0), so for it more movement is not
         # "never worse" (Daniel, 2026-10-19): keep every (fc, MP) variant.
         key = (x, y, facing, mode, fc, mp_spent) if void else (x, y, facing, mode, fc > 0)
+        # Terrain PSRs on the way (2026-10-21, mover.path_psrs): a path with fewer
+        # is kept as its own variant - unless a path with fewer does as well anyway.
+        n = mover.path_psrs.get((x, y, facing, fc, mode, mp_spent), 0)
+        key += (n,)
         cur = best.get(key)
         if cur is None or fc > cur[3] or (fc == cur[3] and mp_spent < cur[5]):
             best[key] = (x, y, facing, fc, mode, mp_spent)
-    return list(best.values())
+    if not mover.path_psrs:
+        return list(best.values())
+    by_base: Dict[tuple, list] = {}
+    for key, st in best.items():
+        by_base.setdefault(key[:-1], []).append((key[-1], st))
+    kept = []
+    for variants in by_base.values():
+        for n, st in variants:
+            if any(m < n and o[3] >= st[3] and o[5] <= st[5] for m, o in variants):
+                continue                   # a path with fewer PSRs is no worse
+            kept.append(st)
+    return kept
 
 
 def _opponent_options(other, terrain_map):
@@ -504,7 +537,7 @@ def _static_scores(cands, prepared_by_key, me, them):
     for cand in cands:
         o = prepared_by_key[(cand.hex, cand.facing, cand.mode, cand.fc)]
         score = me.objective(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
-                             me.exposure[cand.side_on_mover], me.psr_cost(cand.mode, cand.fc, cand.hex))
+                             me.exposure[cand.side_on_mover], me.psr_for(cand))
         out.append((score, o, cand))
     return out
 
@@ -525,7 +558,7 @@ def _modeled_reply(c, ev2, prepared2, them, me, other, mover_xy_of_c, terrain_ma
         if cand.dealt > 0:
             any_damage = True
         score = them.objective(cand.dealt, cand.received, me.exposure[cand.side_on_defender],
-                               them.exposure[cand.side_on_mover], them.psr_cost(cand.mode, cand.fc, cand.hex))
+                               them.exposure[cand.side_on_mover], them.psr_for(cand))
         key = round(score, 9)
         if best is None or key > best_score:
             best_score, best = key, cand
@@ -593,11 +626,11 @@ def _movement_attack_pick(mover, other, terrain_map, standup_mp, normal_score, e
     if me.objective is not _RATIO:
         return state, (f"{what} on {other.side_name}: " + me.objective.note(
             cand.dealt, cand.received, them.exposure[cand.side_on_defender], me.exposure[cand.side_on_mover],
-            me.psr_cost(state['mode'], state['fc'], state['hex']), "incl. self-damage") +
+            me.psr_for(state), "incl. self-damage") +
             f" beats {'nothing' if normal_score is None else f'{normal_score:.3f}'}")
     return state, (f"{what} on {other.side_name}: score {score:.3f} = dealt {cand.dealt:.2f} "
                    f"x{them.exposure[cand.side_on_defender]:.2f} / (received {cand.received:.2f} incl. self-damage "
-                   f"x{me.exposure[cand.side_on_mover]:.2f} + PSR {me.psr_cost(state['mode'], state['fc'], state['hex']):.2f}) beats "
+                   f"x{me.exposure[cand.side_on_mover]:.2f} + PSR {me.psr_for(state):.2f}) beats "
                    f"{'nothing' if normal_score is None else f'{normal_score:.3f}'}")
 
 
@@ -653,9 +686,9 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
         if scored and any(c.dealt > 0 for _, _, c in scored):
             o, cand = _best_by_score(scored, enemy_xy, battle_rng)
             score = me.objective(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
-                                 me.exposure[cand.side_on_mover], me.psr_cost(cand.mode, cand.fc, cand.hex))
+                                 me.exposure[cand.side_on_mover], me.psr_for(cand))
             return _pick_dict(o), me.objective.note(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
-                                                    me.exposure[cand.side_on_mover], me.psr_cost(cand.mode, cand.fc, cand.hex),
+                                                    me.exposure[cand.side_on_mover], me.psr_for(cand),
                                         f"enemy held at {other.hex}; {len(scored)} spots with LOS"), score, ctx
         return (*_fallback_pick(mover, other, prepared1, enemy_xy, dealt_for, terrain_map, battle_rng,
                                 "no spot deals damage"), None, ctx)
@@ -680,7 +713,7 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
                 received_mult = me.exposure[reply.side_on_defender]
             if dealt > 0:
                 any_dealt = True
-            extras = me.psr_cost(c.mode, c.fc, c.label)
+            extras = me.psr_for(c)
             scored.append((me.objective(dealt, received, dealt_mult, received_mult, extras), c,
                            (dealt, received, dealt_mult, received_mult, extras, reply)))
     if any_dealt:

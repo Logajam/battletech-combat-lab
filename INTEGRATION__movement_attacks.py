@@ -351,7 +351,7 @@ def scored_options(mover, target, pose, index, ev, mover_exposure, target_exposu
         cand = dataclasses.replace(base, dealt=dealt_abs / t_mult, received=base.received + self_cost / m_mult,
                                    side_on_defender=side, attack="charge" if state.get("charge") else "dfa")
         score = objective(cand.dealt, cand.received, t_mult, m_mult,
-                          psr_cost(state["mode"], state["fc"], state["hex"]))
+                          psr_cost(state["mode"], state["fc"], state["hex"], state["facing"], state["mp_spent"]))
         kind = "CHARGE" if state.get("charge") else "DFA"
         out.append((score, cand, state, f"{kind} (TN {tn}, P {p:.2f}, {dmg} dmg)"))
     out.sort(key=lambda t: -t[0])

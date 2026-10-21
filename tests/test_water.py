@@ -27,7 +27,7 @@ import INTEGRATION__ranged_combat as ranged_combat  # noqa: E402
 import INTEGRATION__water as water  # noqa: E402
 import terrain_rules  # noqa: E402
 import piloting_rolls  # noqa: E402
-from hex_geometry import parse_hex_label  # noqa: E402
+from hex_geometry import parse_hex_label, hex_label  # noqa: E402
 from los import trace_los_path  # noqa: E402
 from mech_state import clone_mech  # noqa: E402
 from mtf_parser import parse_mtf  # noqa: E402
@@ -184,16 +184,69 @@ def falls_and_psrs_in_water():
     hawk.move_mode, hawk.move_fc = "Jump", 3
     hp = attack_resolution.total_hp(hawk)
     with ScriptedDice([2], default=8):            # the PSR fails; the rest (locations, seatbelt) don't matter
-        orchestrator._water_psr(hawk)
+        orchestrator._landing_psr(hawk)
     assert hawk.prone and attack_resolution.total_hp(hawk) == hp - 7        # 5 x (2 + 1) // 2
-    runner = place(ARCHER, "0807")
-    runner.move_mode, runner.move_fc = "Run", 2
-    with ScriptedDice([12]):
-        orchestrator._water_psr(runner)
-    assert not runner.prone
-    walker = place(ARCHER, "0807")                # walking in: no roll
+    walker = place(ARCHER, "0807")                # a ground move: nothing rolled on landing
+    walker.move_mode = "Run"
     with ScriptedDice([]):
-        orchestrator._water_psr(walker)
+        orchestrator._landing_psr(walker)
+
+
+def _run_through_water(mech, tm, at_least=1):
+    """A Run option whose path enters depth 1+ water at least `at_least` times."""
+    import INTEGRATION__movement_selection as movement_selection
+    movement_selection.reduced_options(mech, tm)                     # fills mech.path_psrs
+    for key, n in sorted(mech.path_psrs.items()):
+        if key[4] == "Run" and n >= at_least:
+            x, y, f, fc, mode, mp = key
+            from hex_geometry import hex_label, facing_to_compass
+            return {"hex": hex_label(x, y), "facing": facing_to_compass(f), "mode": mode, "fc": fc, "mp_spent": mp}
+    raise AssertionError("no run through water found")
+
+
+@check
+def the_movement_subphase():
+    """Daniel, 2026-10-21: the picker plans, then the mech walks the path and
+    each terrain PSR is rolled where it happens (p.113: running through water
+    "a separate PSR is required immediately after each water hex is
+    entered"); a failure drops it in that hex. Walking in: no roll."""
+    tm = lake()
+    runner = place(ARCHER, "0809", "N")
+    pick = _run_through_water(runner, tm)
+    path = ranged_combat.path_to(runner, tm, pick)
+    wet = [st for step, st, _ in path if step != "turn" and tm["hexes"][hex_label(*st[:2])].get("depth", 0) >= 1]
+    assert len(wet) >= 1
+    with ScriptedDice([12] * (len(wet) - 1) + [2], default=8):       # passes, then fails the last
+        fell = orchestrator._walk_path(runner, pick, tm, None, None)
+    assert fell is not None and fell[0] == hex_label(*wet[-1][:2]) and runner.prone and runner.hex == fell[0]
+    runner2 = place(ARCHER, "0809", "N")
+    pick2 = _run_through_water(runner2, tm)
+    with ScriptedDice([], default=12):
+        assert orchestrator._walk_path(runner2, pick2, tm, None, None) is None
+    walker = place(ARCHER, "0809", "N")
+    walk_pick = dict(pick2, mode="Walk")
+    with ScriptedDice([]):
+        assert orchestrator._walk_path(walker, walk_pick, tm, None, None) is None     # no water PSR walking
+
+
+@check
+def terrain_psrs_and_backward_level_changes():
+    """p.48: rubble +0 on entering; sand +0 only with a level change; water
+    only running; p.46: a backward level change of one level is allowed in
+    the PSR-aware search, with a PSR, never two levels nor with a destroyed
+    hip."""
+    hi = {"level": 1, "features": {}, "impassable": False}
+    lo = {"level": 0, "features": {}, "impassable": False}
+    rubble = {"level": 0, "features": {"rubble": ["1"]}, "impassable": False}
+    sand_hi = {"level": 1, "features": {"sand": ["1"]}, "impassable": False}
+    assert terrain_rules.step_psrs(lo, rubble) == (1, 0)
+    assert terrain_rules.step_psrs(lo, sand_hi) == (1, 0) and terrain_rules.step_psrs(hi, sand_hi) == (0, 0)
+    assert terrain_rules.step_psrs(lo, {"level": -1, "features": {}, "depth": 1}) == (0, 1)
+    assert terrain_rules.step_psrs(lo, hi, backward=True) == (1, 0)
+    assert terrain_rules.step_cost(lo, hi, backward=True) == 2
+    assert terrain_rules.step_cost(lo, {"level": 2, "features": {}}, backward=True) is None
+    assert terrain_rules.step_cost(lo, hi, level_limit=1, backward=True) is None
+    assert terrain_rules.turn_psrs({"features": {"mud": ["1"]}}) == (0, 1)
 
 
 @check

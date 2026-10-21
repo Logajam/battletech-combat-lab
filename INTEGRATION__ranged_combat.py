@@ -126,7 +126,7 @@ if PATHFINDER_DIR not in sys.path:
     sys.path.insert(0, PATHFINDER_DIR)
 
 import hex_geometry  # noqa: E402
-from pathfinder import build_movement_table  # noqa: E402
+from pathfinder import build_movement_table, PathTable  # noqa: E402
 import terrain_rules  # noqa: E402
 from los import has_los, hex_distance  # noqa: E402
 import combat  # noqa: E402
@@ -237,7 +237,14 @@ def _movement_options(mover, terrain_map, standup_mp=None, entry_edge=None, back
     stands with Running MP - a Run, which can't move backward) or when
     entering the board. backward=False gives the forward-only states
     (movement_attacks' charge index: a charge ends moving forward into the
-    target's hex, and its hex count would restart after a backward step)."""
+    target's hex, and its hex count would restart after a backward step).
+    Terrain PSRs (2026-10-21): on a board where steps can force one
+    (pathfinder.PathTable), mover.path_psrs[state] = how many the state's
+    path forces in its mode (run-only ones count for Run) - movement scoring
+    prices them, the orchestrator's movement subphase rolls them.
+    movement_selection.reduced_options clears it before a pick."""
+    if not hasattr(mover, "path_psrs"):
+        mover.path_psrs = {}
     if entry_edge is not None:
         yield from _entry_options(mover, terrain_map, entry_edge)
         return
@@ -254,17 +261,29 @@ def _movement_options(mover, terrain_map, standup_mp=None, entry_edge=None, back
     level_limit = terrain_rules.max_level_change(bool(mover.destroyed_hip_locations))   # pp.46-47
     seen = set()
     for f0 in starts:
-        for (x, y, facing), col in build_movement_table(sx, sy, f0, run_budget, terrain_map=terrain_map,
-                                                        backward_mp=backward_mp,
-                                                        level_limit=level_limit).items():
+        table = build_movement_table(sx, sy, f0, run_budget, terrain_map=terrain_map, backward_mp=backward_mp,
+                                     level_limit=level_limit)
+        for (x, y, facing), col in table.items():
+            psrs = table.psrs.get((x, y, facing)) if isinstance(table, PathTable) else None
             for mp_spent, fc in col.items():
                 key = (x, y, facing, fc, mode_for(mp_spent), mp_spent)
+                if psrs is not None:
+                    _note_psrs(mover, key, psrs[mp_spent])
                 if key not in seen:
                     seen.add(key)
                     yield key
     if jump_mp > 0:
         for (x, y, facing), fc in combat.build_jump_states(sx, sy, jump_mp, terrain_map).items():
             yield (x, y, facing, fc, "Jump", jump_mp)
+
+
+def _note_psrs(mover, key, psrs):
+    """Record the terrain PSRs (always, run_only) of the path to option `key`
+    (x, y, facing, fc, mode, mp) - the fewest when several paths reach it."""
+    n = psrs[0] + (psrs[1] if key[4] == "Run" else 0)
+    old = mover.path_psrs.get(key)
+    if old is None or n < old:
+        mover.path_psrs[key] = n
 
 
 def _entry_options(mover, terrain_map, edge_labels):
@@ -279,12 +298,17 @@ def _entry_options(mover, terrain_map, edge_labels):
             continue
         level_limit = terrain_rules.max_level_change(bool(mover.destroyed_hip_locations))
         ex, ey = hex_geometry.parse_hex_label(label)
+        entry_psrs = terrain_rules.step_psrs(None, info)          # entering the edge hex itself
         for f0 in range(6):
-            for (x, y, facing), col in build_movement_table(ex, ey, f0, run - cost, terrain_map=terrain_map,
-                                                            level_limit=level_limit).items():
+            table = build_movement_table(ex, ey, f0, run - cost, terrain_map=terrain_map, level_limit=level_limit)
+            for (x, y, facing), col in table.items():
+                psrs = table.psrs.get((x, y, facing)) if isinstance(table, PathTable) else None
                 for spent, fc in col.items():
                     total = spent + cost
                     key = (x, y, facing, fc + 1, combat.classify_movement_mode(total, walk), total)
+                    if psrs is not None:
+                        a, r = psrs[spent]
+                        _note_psrs(mover, key, (a + entry_psrs[0], r + entry_psrs[1]))
                     if key not in seen:
                         seen.add(key)
                         yield key
@@ -666,3 +690,48 @@ def evaluate_going_second(
     prepared = evaluator.prepare(movement_options(mover, terrain_map, standup_mp, entry_edge))
     return evaluator.evaluate(defender.hex, defender.facing, defender_state["fc"], defender_state["mode"],
                               defender.mp_spent, prepared)
+
+
+# =============================================================================
+# ==========================  THE PATH TO A PICK  =============================
+# =============================================================================
+def path_to(mover, terrain_map, pick, standup_mp=None, entry_edge=None):
+    """The ground path to a picked end state (2026-10-21, Daniel's movement
+    subphase: "There is a difference between planning where you want to go
+    which the picker does. And actually getting there"): the same search
+    movement_options ran (pathfinder.build_movement_table with keep_parents),
+    walked back from the pick. Returns [(step, (x, y, facing), mp after)] -
+    step "enter" (onto the board, first), "forward", "backward" or "turn" -
+    or None when no such path is found (then the move is applied whole)."""
+    x, y = hex_geometry.parse_hex_label(pick["hex"])
+    state = (x, y, hex_geometry.compass_to_facing(pick["facing"]))
+    fc, mp = pick["fc"], pick["mp_spent"]
+    level_limit = terrain_rules.max_level_change(bool(mover.destroyed_hip_locations))
+    if entry_edge is not None:
+        run = compute_running_mp(mover)
+        for label in entry_edge:
+            info = terrain_map["hexes"].get(label)
+            cost = terrain_rules.step_cost(None, info) if info is not None else None
+            if cost is None or cost > mp:
+                continue
+            ex, ey = hex_geometry.parse_hex_label(label)
+            for f0 in range(6):
+                table = build_movement_table(ex, ey, f0, run - cost, terrain_map=terrain_map,
+                                             level_limit=level_limit, keep_parents=True)
+                if table.get(state, {}).get(mp - cost) == fc - 1:
+                    return [("enter", (ex, ey, f0), cost)] + [(s, st, m + cost)
+                                                              for s, st, m in table.path(state, mp - cost)]
+        return None
+    sx, sy, start_facing = hex_geometry.state_from_label(mover.hex, mover.facing)
+    if standup_mp is None:
+        walk = compute_walk_mp(mover)
+        starts, budget = [start_facing], compute_running_mp(mover)
+        backward_mp = walk if walk > 0 else None
+    else:
+        starts, budget, backward_mp = range(6), standup_mp, None
+    for f0 in starts:
+        table = build_movement_table(sx, sy, f0, budget, terrain_map=terrain_map, backward_mp=backward_mp,
+                                     level_limit=level_limit, keep_parents=True)
+        if table.get(state, {}).get(mp) == fc:
+            return table.path(state, mp)
+    return None
