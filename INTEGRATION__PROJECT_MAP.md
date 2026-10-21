@@ -739,7 +739,7 @@ forward arc, kicks included, never into a side arc.
 | Decision point | Lives in | Decides |
 |---|---|---|
 | Movement selection | `INTEGRATION__movement_selection.choose` | Spot (hex + facing + mode) maximizing dealt×exposure / (received×exposure + movement-PSR cost + .001); first mover scores each spot by the second mover's modeled reply (two-ply). Knobs: config MOVEMENT SETTINGS. |
-| Movement objective option | `movement_selection._Ratio` / `_Lifetime` (`config.MOVEMENT_OBJECTIVE`) | "ratio" (default, above) or "lifetime": dealt + (effective HP left / enemy future damage) x own future damage (`INTEGRATION__future_damage`: 0.5 x best heat-limited expected damage at gunnery + walking +1 + the target's best TMM, kicks / punches at range 1). Each side scores its own spots with it, the modeled reply too |
+| Movement objective option (+ history blend, `MOVEMENT_LIFETIME_HISTORY_K`) | `movement_selection._Ratio` / `_Lifetime` (`config.MOVEMENT_OBJECTIVE`) | "ratio" (default, above) or "lifetime": dealt + (effective HP left / enemy future damage) x own future damage (`INTEGRATION__future_damage`: 0.5 x best heat-limited expected damage at gunnery + walking +1 + the target's best TMM, kicks / punches at range 1). Each side scores its own spots with it, the modeled reply too |
 | LOS exactly between two hexes (p.56) | `pathfinder/los._evaluate` (`worse_key`) | The target's controller picks the hex; the bot always takes the MORE obstructive one (blocking first, then woods). The pick is the same from either end (checked on all 12,060 such pairs of the 16x17 board), so p.56's "used for all attacks between those two 'Mechs ... for the rest of that turn" holds without storing it. Not modeled: a target choosing the clearer hex to shoot back better; p.56's random pick for a non-player target (a hex attack takes the more obstructive one too). Partial / off-board hexes are never picked (p.56: "LOS cannot be shifted so that it passes through a partial hex") |
 | Movement-PSR cost | `movement_selection.psr_costs` | P(fail) × fall damage, only for Run / Jump with a Movement-Phase PSR trigger; damage-caused PSRs ignored (Daniel) |
 | Armor-exposure weighting | `movement_selection.exposure_factors` | Per-side vulnerability from current armor + structure (front = 1.0, clamped) |
@@ -861,6 +861,19 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-21 (Claude):** History blend for the lifetime objective (Daniel:
+  "We can't predict the future. But we can record the past"; "go with History
+  blended K for now"; no destruction filter - "Works for pushes. Doesn't work
+  elsewhere"; "I'm willing for a desperate mech to take chances later in the
+  match"). `config.MOVEMENT_LIFETIME_HISTORY_K` (None = off): each future
+  damage per turn = (K x estimate + damage really done) / (K + turns fought).
+  The orchestrator records each mech's effective HP at deployment and every
+  End Phase (`movement_selection.record_hp`, `mech.hp_log`); damage done =
+  the other mech's real HP loss (falls and explosions included); turns fought
+  start at the first turn either mech lost HP (`battle_record`). New check
+  `history_blend_math`. Default unchanged (ratio; K None): reference logs
+  match, benchmark 477 / 468.
 
 - **2026-10-21 (Claude):** A/B batches, MOVEMENT_OBJECTIVE "ratio" vs
   "lifetime", same seeds (12345 batches), after the LOS and booster fixes. No

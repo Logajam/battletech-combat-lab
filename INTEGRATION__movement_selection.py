@@ -297,8 +297,13 @@ class _Lifetime:
     def __init__(self, me, them):
         floor = config.MOVEMENT_LIFETIME_FUTURE_FLOOR
         self.hp = effective_hp(me.mech)
-        self.mine = max(future_damage.future_damage(me.mech, them.mech), floor)
-        self.theirs = max(future_damage.future_damage(them.mech, me.mech), floor)
+        mine = future_damage.future_damage(me.mech, them.mech)
+        theirs = future_damage.future_damage(them.mech, me.mech)
+        k = config.MOVEMENT_LIFETIME_HISTORY_K
+        if k is not None:
+            mine, theirs = _blend_with_history(k, mine, theirs, me.mech, them.mech)
+        self.mine = max(mine, floor)
+        self.theirs = max(theirs, floor)
 
     def __call__(self, dealt, received, dealt_mult, received_mult, extras):
         left = self.hp - (received * received_mult + extras)
@@ -309,6 +314,37 @@ class _Lifetime:
         return (f"score {score:.3f} = dealt {dealt:.2f} x{dealt_mult:.2f} + (HP {self.hp:.1f} - received "
                 f"{received:.2f} x{received_mult:.2f} - PSR {extras:.2f}) / enemy future {self.theirs:.2f} "
                 f"x my future {self.mine:.2f} [{how}]")
+
+
+def record_hp(mech):
+    """The orchestrator's record of the past for the history blend: the
+    mech's effective HP at deployment and at the end of every turn
+    (mech.hp_log[0] = start, [n] = end of turn n)."""
+    if not hasattr(mech, "hp_log"):
+        mech.hp_log = []
+    mech.hp_log.append(effective_hp(mech))
+
+
+def battle_record(me_mech, them_mech):
+    """(HP the enemy has really lost, HP I have really lost, turns fought) so
+    far. Turns fought count from the first turn either mech lost HP, so the
+    turns spent closing in don't drag both rates toward 0. (0, 0, 0) without
+    a record (a mech that never went through run_battle)."""
+    mine, theirs = getattr(me_mech, "hp_log", None), getattr(them_mech, "hp_log", None)
+    if not mine or not theirs:
+        return 0.0, 0.0, 0
+    turns = min(len(mine), len(theirs)) - 1
+    first = next((t for t in range(1, turns + 1) if mine[t] < mine[t - 1] or theirs[t] < theirs[t - 1]), None)
+    fought = 0 if first is None else turns - first + 1
+    return theirs[0] - theirs[turns], mine[0] - mine[turns], fought
+
+
+def _blend_with_history(k, mine_estimate, theirs_estimate, me_mech, them_mech):
+    """config.MOVEMENT_LIFETIME_HISTORY_K (Daniel, 2026-10-21): each rate =
+    (K x estimate + damage really done) / (K + turns fought)."""
+    dealt, taken, fought = battle_record(me_mech, them_mech)
+    return ((k * mine_estimate + dealt) / (k + fought),
+            (k * theirs_estimate + taken) / (k + fought))
 
 
 def _link(me, them):

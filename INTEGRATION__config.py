@@ -277,6 +277,16 @@ MOVEMENT_OBJECTIVE = "ratio"
 MOVEMENT_LIFETIME_INITIATIVE = 0.5          # odds of winning initiative (scales both sides; cancels out)
 MOVEMENT_LIFETIME_ATTACKER_MODE = "Walk"    # the attacker's assumed movement for future damage (AMM, heat)
 MOVEMENT_LIFETIME_FUTURE_FLOOR = 1.0        # future damage per turn is never taken below this (no divide by zero)
+# History blend (Daniel, 2026-10-21: "We can't predict the future. But we can
+# record the past ... a mech that is doing well will continue to do well, but a
+# mech that is losing becomes more desperate to inflict damage"). Each future
+# damage per turn becomes
+#     (K x the estimate + damage actually done so far) / (K + turns fought)
+# where damage done = how much the OTHER mech's HP (same units: armor + k x
+# structure) has really gone down, and turns fought count from the first turn
+# either mech lost HP. K = how many turns' worth of trust the estimate gets:
+# on the first turn it is all estimate, later the record takes over. None = off.
+MOVEMENT_LIFETIME_HISTORY_K = None
 
 # Charge attacks (Core p.78, INTEGRATION__charge, 2026-10-20): the mover may
 # charge an enemy that has finished moving, when a charge in that movement mode
