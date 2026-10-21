@@ -1125,7 +1125,8 @@ turn's score, so a decision sees what it gives up.
   when fired charged, the explosion on a crit. Both choices are stubs, off by
   default (`STUB_CAPACITOR_START` / `STUB_CAPACITOR_CHARGE`, Section 6).
   `weapon_selection`'s table cache key now includes the charges.
-  test_weapons ppc_capacitor. Reference logs unchanged.
+  test_weapons ppc_capacitor. Reference logs updated: only the known-missing
+  note's wording (capacitor charging is now a stub, off by default).
 - **2026-10-21 (Claude):** Blue Shield particle field damper (RULES_REVIEW
   F52, pp.180, 207); on / off is a stub (`STUB_BLUE_SHIELD`, Section 6).
   test_equipment blue_shield. Reference logs unchanged.
