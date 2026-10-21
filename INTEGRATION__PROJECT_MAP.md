@@ -245,9 +245,8 @@ open). Read it before building rules.
    checks if a matchup shows the grid missing narrow peaks; (c) mechs
    pushed off the board edge aren't priced in movement scoring (item 6) -
    0 vs 4 of 60 in one grid A/B, small numbers.
-2. **Known issues Daniel asked to fix later** (Section 4, "Known issues to
-   fix later"): Arrow IV / artillery scatter must stay inside the firing arc;
-   machine gun array ammo per gun needs a check / test.
+2. ~~**Known issues Daniel asked to fix later**~~ - both fixed 2026-10-21
+   (scatter held inside the firing arc; machine gun array ammo). Section 4.
 3. **Research: how the bot should decide** rate of fire, MASC use and which
    ammunition (Daniel, 2026-10-20) - today stubs (`STUB_MUNITION_POLICY`,
    `STUB_RATE_OF_FIRE`, `STUB_UNJAM`, `STUB_ESCALATING_USE`); goes with the
@@ -471,16 +470,19 @@ when dealt is 0; (c) a difference, dealt - received. Replay of that battle:
 https://claude.ai/artifact/NJUknRiK1fcZzUv4A1fndX
 
 **Known issues to fix later (Daniel, 2026-10-20):**
-- **Scatter vs the firing arc.** Arrow IV (p.182) and artillery cannon
-  (p.183) misses "cannot scatter outside the launcher's firing arc: ... lands
-  in the last hex along its scatter path before it would". The code
-  (`attack_resolution._resolve_area_miss`) ignores the arc - Daniel: "Firing
-  arc is an issue."
-- **Machine gun array ammo.** Daniel: the array "should still track ammo for
-  each MG in the array being fired". The code takes one round from each gun's
-  bins (`declare_attacks`, `ammo.take` per gun in `weapon_profiles.mga_guns`)
-  - confirm it with a test (shared bins, a gun with no ammo left drops out of
-  the column) and fix anything that falls short.
+- ~~**Scatter vs the firing arc.**~~ FIXED 2026-10-21 (Claude): a missed
+  Arrow IV / artillery cannon walks its scatter path a hex at a time and
+  lands in the last hex still inside the launcher's firing arc (pp.182-183,
+  `attack_resolution._resolve_area_miss` / `_in_firing_arc`: the mech's
+  facing and this turn's twist / flip / turret). Held back all the way, it
+  lands in the target's hex and deals the full area-effect damage.
+  `tests/test_weapons.py` arrow_iv_scatter_held_by_firing_arc.
+- ~~**Machine gun array ammo.**~~ FIXED 2026-10-21 (Claude): each gun still
+  takes its own round, but guns sharing a bin used to each count the whole
+  bin, so a bin with 1 round left fired every gun in the array. Now the
+  rounds are counted once for all the guns (`fire_modes.mga_firing_guns`,
+  `take_array_rounds`). Tested: shared bin, 1 / 2 / 0 rounds left, a
+  destroyed gun drops out (`tests/test_weapons.py` machine_gun_array_ammo).
 
 **Map terrain waiting on rules (Daniel is hunting them, 2026-10-21):** these
 stop a map loading (`terrain_rules.UNSUPPORTED_FEATURES`); counts are of the
@@ -508,9 +510,10 @@ stop a map loading (`terrain_rules.UNSUPPORTED_FEATURES`); counts are of the
 - DECIDED (Daniel: "Arrow IV to hit sounds correct"): the attacker's own
   modifiers (movement, heat, sensors) and LOS apply; range, target movement,
   immobile, prone-target and target stealth don't (hex attack). Area-effect
-  damage on a 'Mech: 5-point groupings (pp.87, 182). Scatter / firing arc:
-  see "Known issues" above.
-- Machine gun arrays: one round from each gun fired (see "Known issues").
+  damage on a 'Mech: 5-point groupings (pp.87, 182). Scatter stays inside
+  the firing arc (fixed 2026-10-21, see "Known issues" above).
+- Machine gun arrays: one round from each gun fired, shared bins counted
+  once (fixed 2026-10-21, see "Known issues").
 - Heat on the target (flamers, plasma) is priced at `TARGET_HEAT_WORTH` (0.5
   damage a point) - a placeholder for Daniel; without it a plasma cannon (no
   damage) would never fire.
@@ -1053,6 +1056,19 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Daniel's two known issues fixed (Daniel: "Start
+  with known issues"). (1) Scatter vs the firing arc (pp.182-183): a missed
+  Arrow IV / artillery cannon now walks its scatter path hex by hex and
+  stops at the last hex its launcher's firing arc still covers
+  (`attack_resolution._in_firing_arc`: facing + declared twist / flip /
+  turret); held all the way back it lands on the target's hex for the full
+  area-effect damage. Artillery cannons without splash now roll the
+  direction too (needed to know whether the arc holds the shell on the
+  target). (2) Machine gun array ammo: guns sharing a bin each counted the
+  whole bin, so 1 round left fired all 3 guns; the rounds are now counted
+  once (`fire_modes.mga_firing_guns`, `take_array_rounds`). New checks in
+  `tests/test_weapons.py` (14 now). `run_checks.py`: 31 of 31, every
+  reference log unchanged (neither case arose in them).
 - **2026-10-21 (Claude):** Session 6 wrap-up (Daniel: "Good session. Wrap it
   up. make sure everything is updated and ready to go for the next
   session."). Section 0 rewritten for session 6 (summary, the speed item's

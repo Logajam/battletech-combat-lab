@@ -533,9 +533,7 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
         plan = plans.get(id(w), fire_modes.PLAIN)
         ammo_note = ""
         if weapon_profiles.is_mga(w):         # an array: one round from each machine gun it fires
-            notes = [ammo.take(attacker, g, "standard", "")
-                     for g in weapon_profiles.mga_guns(attacker, w)[:plan.shots]] or [("", "standard")]
-            ammo_note = notes[-1][0]
+            ammo_note = fire_modes.take_array_rounds(attacker, w, plan.shots)
         elif not weapon_rules.is_streak(w):
             kind = None if not fire_modes.special(w) or plan.kind in weapon_profiles.BOMBAST \
                 or plan.kind in ("saturation", "artillery") else plan.kind
@@ -779,32 +777,58 @@ def _resolve_area(target, damage, side, cover):
     _apply_groups(target, damage, weapon_profiles.AREA_GROUPING, DamageType.MISSILE, side, cover, "AE ")
 
 
+def _in_firing_arc(attacker, weapon, xy):
+    """Can `weapon` bear on hex `xy` (doubled coords) with the attacker's
+    facing and this turn's declared twist / flip / turret (pp.60-62)?"""
+    key = arcs.key_for(arcs.arcs_between(hex_geometry.parse_hex_label(attacker.hex), xy),
+                       hex_geometry.compass_to_facing(attacker.facing),
+                       arcs.current_action(attacker), arcs.leg_offsets(attacker))
+    return id(weapon) not in arc_unavailable(attacker, key)
+
+
 def _resolve_area_miss(attacker, target, attack, terrain_map):
     """A missed Arrow IV / artillery cannon scatters (pp.182-183): 1D6
-    direction (1 = up the map, clockwise), MOF / 2 hexes rounding up. Landing
-    next to the target deals it the splash (Arrow IV and Long Tom 10, else
-    none); off the board, nothing. (The scatter isn't held inside the firing
-    arc - Claude's simplification; a duel has nothing else in the way.)"""
-    if not weapon_profiles.splash(attack.weapon):
-        config.log(f"    {attack.weapon.name} missed - the shell lands away from {target.side_name} (no splash).")
-        return
+    direction (1 = up the map, clockwise), MOF / 2 hexes rounding up. The
+    impact point can't leave the launcher's firing arc: it lands in the last
+    hex along the scatter path before it would (pp.182, 183 - fixed
+    2026-10-21, Daniel: "Firing arc is an issue"); held back all the way, it
+    lands in the target's own hex and deals the full area-effect damage.
+    Landing next to the target deals it the splash (Arrow IV and Long Tom 10,
+    else none); off the board, nothing (p.181)."""
+    w = attack.weapon
     mof = attack.tn - attack.roll
     dist = -(-mof // 2)
     direction = config.pick_number(6, prompt="Arrow IV scatter direction 1D6") - 1
     tx, ty = hex_geometry.parse_hex_label(target.hex)
     dx, dy = hex_geometry.FACING_DELTAS[direction]
-    impact = (tx + dx * dist, ty + dy * dist)
+    # Walk the scatter path a hex at a time; stop before the first hex outside the arc.
+    steps = 0
+    while steps < dist and _in_firing_arc(attacker, w, (tx + dx * (steps + 1), ty + dy * (steps + 1))):
+        steps += 1
+    impact = (tx + dx * steps, ty + dy * steps)
+    held = f" (held to {steps} by the firing arc, pp.182-183)" if steps < dist else ""
+    if steps == 0:
+        dmg = fire_modes.damage_per(w, attack.fire or fire_modes.PLAIN)
+        config.log(f"    {w.name} missed by {mof}: scatters {dist} hex{'es' if dist > 1 else ''} "
+                   f"(direction {direction + 1}), but the firing arc holds it in {target.side_name}'s hex: "
+                   f"{dmg} area-effect damage (pp.182-183).")
+        _resolve_area(target, dmg, attack.side, attack.cover)
+        return
+    if not weapon_profiles.splash(w):
+        config.log(f"    {w.name} missed - the shell lands {steps} hex{'es' if steps > 1 else ''} away "
+                   f"from {target.side_name}{held} (no splash).")
+        return
     try:
         label = hex_geometry.hex_label(*impact)
     except ValueError:
         label = None
     on_board = label is not None and label in terrain_map["hexes"]
-    config.log(f"    {attack.weapon.name} missed by {mof}: scatters {dist} hex{'es' if dist > 1 else ''} "
-               f"(direction {direction + 1}) to {label or 'off the board'}"
+    config.log(f"    {w.name} missed by {mof}: scatters {dist} hex{'es' if dist > 1 else ''} "
+               f"(direction {direction + 1}){held} to {label or 'off the board'}"
                f"{'' if on_board else ' - off the board, no effect'}.")
-    if on_board and hex_distance(impact, (tx, ty)) == 1:
+    if on_board and steps == 1:
         side = attack_side(impact, (tx, ty), hex_geometry.compass_to_facing(target.facing), terrain_map)
-        dmg = weapon_profiles.splash(attack.weapon)
+        dmg = weapon_profiles.splash(w)
         config.log(f"      {target.side_name} is next to the impact: {dmg} area-effect damage.")
         _resolve_area(target, dmg, side, False)
 
