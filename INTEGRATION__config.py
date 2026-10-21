@@ -265,6 +265,9 @@ STUB_BLUE_SHIELD = "on"
 # TAG (p.200): designate the enemy before the Ranged Attack Phase? "when_useful" (the 'Mech has homing
 # artillery rounds to use it) / "always" / "never".
 STUB_FIRE_TAG = "when_useful"
+# TAG aim: "mech" (the enemy - homing rounds hit it in full) / "hex" (the ground it stands on - an easier
+# shot, homing rounds then do 5 AE to it) / "easier" (the lower target number).
+STUB_TAG_AIM = "mech"
 # PPC capacitors (p.188): start the battle charged? "empty" / "charged".
 STUB_CAPACITOR_START = "empty"
 # Charge a PPC capacitor instead of firing its PPC? "never" / "when_idle" (whenever the PPC isn't fired).

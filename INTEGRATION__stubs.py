@@ -212,6 +212,25 @@ def stub_fire_tag(mech_name, useful):
     return fire
 
 
+def stub_tag_aim(mech_name, tn_mech, tn_hex):
+    """TAG the enemy 'Mech or the ground it stands on (Daniel, 2026-10-21:
+    "Ground is an easier and thus better target some times. But that's a bot
+    logic question")? A designated 'Mech takes the homing hit (Arrow IV 20,
+    Sniper 10, Thumper 5); a designated hex only gives the 'Mech in it 5 AE.
+    tn_mech / tn_hex: the TAG target numbers (None: can't).
+    Knob: STUB_TAG_AIM ("mech" / "hex" / "easier"). Returns "mech" or "hex"."""
+    policy = config.STUB_TAG_AIM
+    if tn_mech is None or (policy == "hex" and tn_hex is not None):
+        aim = "hex"
+    elif policy == "easier" and tn_hex is not None and tn_hex < tn_mech:
+        aim = "hex"
+    else:
+        aim = "mech"
+    _warn("tag_aim", f"{mech_name}: TAG the {'ground' if aim == 'hex' else 'Mech'} (needs mech {tn_mech}, "
+          f"hex {tn_hex}; policy {policy})")
+    return aim
+
+
 def stub_capacitor_start(mech_name, ppc_name):
     """Start the battle with this PPC's capacitor charged (p.188: 5 heat a
     turn held, +5 damage and +5 heat when fired)? Knob: STUB_CAPACITOR_START

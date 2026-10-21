@@ -6750,7 +6750,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 20,
       "damage_per_shot": null,
       "heat": 5,
       "range": {
@@ -6763,7 +6763,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek artillery/Thumper.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-21 (Claude): slots 1 -> 15 - the crit-line runs in data/meks.zip (1 + 7 + 7, 3 + 12 across torsos). Damage is Daniel's Arrow IV wiring (INTEGRATION__weapon_profiles.ARTILLERY: 15 / 5).",
+      "notes": "Not confirmed | Stats sourced from MegaMek artillery/Thumper.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-21 (Claude): slots 1 -> 15 - the crit-line runs in data/meks.zip (1 + 7 + 7, 3 + 12 across torsos). Damage is Daniel's Arrow IV wiring (INTEGRATION__weapon_profiles.ARTILLERY: 15 / 5). Shots per ton 20, heat 5 - Daniel, 2026-10-21.",
       "rack_size": 15
     },
     "issniper": {
@@ -6783,7 +6783,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
+      "shots_per_ton": 10,
       "damage_per_shot": null,
       "heat": 10,
       "range": {
@@ -6796,7 +6796,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek artillery/Sniper.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-20 (Claude): slots 1 -> 10: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot) | 2026-10-21 (Claude): slots 10 -> 20 - every Sniper in data/meks.zip is split 10 + 10 or 12 + 8 across a torso and its arm (the 10-slot reading made two Snipers of one). Damage: INTEGRATION__weapon_profiles.ARTILLERY (20 / 10).",
+      "notes": "Not confirmed | Stats sourced from MegaMek artillery/Sniper.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-20 (Claude): slots 1 -> 10: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot) | 2026-10-21 (Claude): slots 10 -> 20 - every Sniper in data/meks.zip is split 10 + 10 or 12 + 8 across a torso and its arm (the 10-slot reading made two Snipers of one). Damage: INTEGRATION__weapon_profiles.ARTILLERY (20 / 10). Shots per ton 10, heat 10 - Daniel, 2026-10-21.",
       "rack_size": 20
     },
     "arrowiv": {

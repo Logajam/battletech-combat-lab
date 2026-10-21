@@ -261,7 +261,8 @@ HELEPOLIS = unit("3075/Helepolis HEP-2H")
 
 @check
 def thumper_and_sniper_artillery():
-    for template, slots, dealt, near in ((GRAND_TITAN, 15, 15, 5), (HELEPOLIS, 20, 20, 10)):
+    # Shots per ton and heat: Daniel, 2026-10-21 (Thumper 20 / 5 heat, Sniper 10 / 10 heat).
+    for template, slots, dealt, near, shots, heat_ in ((GRAND_TITAN, 15, 15, 5, 20, 5), (HELEPOLIS, 20, 20, 10, 10, 10)):
         a, t = fresh(template), target()
         arts = [w for w in get_weapons(a) if wp.is_arrow(w)]
         assert len(arts) == 1 and arts[0].slots_occupied == slots       # one launcher, not one a slot
@@ -270,7 +271,8 @@ def thumper_and_sniper_artillery():
         value, _, plan = planner(a, t, hex_offset=-3)(art, 10, 6)
         assert plan.kind == "artillery" and plan.tn == wp.ARROW_TN
         assert damage_taken(t, hit(art, plan), []) == dealt
-        assert wp.splash(art) == near and art.ammo_unknown            # no shots-per-ton data: a loud stub
+        assert wp.splash(art) == near and not art.ammo_unknown and art.heat == heat_
+        assert {b.shots_left for b in ammo.bins_for(a, art)} == {shots}
     assert wp.HOMING_DAMAGE == {"ARROWIV": 20, "SNIPER": 10, "THUMPER": 5}
 
 
@@ -302,6 +304,19 @@ def tag_and_homing_artillery():
     assert plan.kind == "homing" and plan.tn == 0
     assert abs(value - (33 / 36 * 20 + 3 / 36 * 5)) < 1e-9
     assert damage_taken(t, hit(arrow, plan), []) == 20            # one 20-point direct-fire hit
+    # TAG at the ground (Daniel, 2026-10-21): no TMM, so an easier shot; homing rounds then do
+    # the 5 AE to the 'Mech in the hex, hit or miss.
+    t.move_mode, t.move_fc = "Run", 8
+    at_mech = attack_resolution.single_attack_tn(a, t, TERRAIN, tag.tags(a))[0]
+    at_hex = attack_resolution.single_attack_tn(a, t, TERRAIN, tag.tags(a), at_hex=True)[0]
+    assert at_hex < at_mech
+    with Knobs(STUB_TAG_AIM="easier"), ScriptedDice([12]):
+        tag.designation_phase(a, t, TERRAIN)
+    assert t.tag_designated == "hex"
+    value, _, plan = planner(a, t, hex_offset=-3)(arrow, 4, 9)
+    assert plan.kind == "homing" and value == wp.HOMING_AE
+    assert damage_taken(t, hit(arrow, plan), []) == wp.HOMING_AE
+    t.tag_designated = True
     # In the phase: the homing roll needs 4 whatever the modifiers; a 3 drops 5 on the hex.
     a, t = fresh(FLAMBERGE_C), target()
     t.tag_designated = True
