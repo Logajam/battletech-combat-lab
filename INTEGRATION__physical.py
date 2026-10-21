@@ -56,6 +56,7 @@ import INTEGRATION__config as config
 import INTEGRATION__attack_resolution as attack_resolution
 import INTEGRATION__arcs as arcs
 import INTEGRATION__structure_weight as structure_weight
+import INTEGRATION__water as water
 from mech_state import (DamageType, is_destroyed, is_immobile, mark_consciousness_check_pending,
                         arm_aes_working, leg_aes_working)
 from equipment import Equipment
@@ -327,7 +328,16 @@ def attack_options(attacker, target, terrain_map, action=None):
         push = push_option(attacker, a_xy, a_facing, a_level, target, target.hex, t_level, terrain_map, fired)
         if push is not None:
             opts["push"] = [push]
-    return opts
+    return water_filter(opts, water.physical_allowed(water.state(attacker, terrain_map),
+                                                     water.state(target, terrain_map)))
+
+
+def water_filter(opts, allowed):
+    """opts without the attack kinds the water rules out (INTEGRATION__water.
+    physical_allowed, p.77); allowed None = no restriction."""
+    if allowed is None:
+        return opts
+    return {k: v for k, v in opts.items() if k in allowed}
 
 
 def options_at(attacker, a_hex, a_facing, a_level, t_hex, t_level, target_prone, fired, action):
@@ -421,24 +431,27 @@ class Planner:
         self._cases = {}
         self._push_target, self._push_values = None, {}
 
-    def plans(self, a_hex, a_facing, a_level, t_hex, t_level, target_prone, action, base, side="front"):
-        """plans() for the attack, or [] when the target is out of reach."""
+    def plans(self, a_hex, a_facing, a_level, t_hex, t_level, target_prone, action, base, side="front",
+              allowed=None):
+        """plans() for the attack, or [] when the target is out of reach.
+        allowed: the attack kinds water leaves (water_filter), None = all."""
         diff = t_level - a_level
         if abs(diff) > 1 or hex_distance(a_hex, t_hex) != 1:
             return []
         return self._plans_for(Reach(self.mech, a_hex, a_facing, t_hex, action).signature(), diff,
-                               target_prone, base, side)
+                               target_prone, base, side, allowed)
 
-    def _plans_for(self, signature, diff, target_prone, base, side="front"):
+    def _plans_for(self, signature, diff, target_prone, base, side="front", allowed=None):
         case = (signature, diff, target_prone)
         side = side if self.worth is not None else "front"
-        got = self._plans.get((case, base, side))
+        got = self._plans.get((case, base, side, allowed))
         if got is None:
             options = self._options.get(case)
             if options is None:
                 options = self._options[case] = _options(self.mech, _FixedReach(signature), diff, target_prone,
                                                          frozenset())
-            got = self._plans[(case, base, side)] = plans(options, base, self.worth, side)
+            got = self._plans[(case, base, side, allowed)] = plans(water_filter(options, allowed), base,
+                                                                   self.worth, side)
         return got
 
     def cases(self, pair_arcs, facing, actions, legs):
@@ -453,8 +466,8 @@ class Planner:
                 for a in actions))
         return got
 
-    def plans_in_case(self, signature, diff, target_prone, base, side="front"):
-        return self._plans_for(signature, diff, target_prone, base, side) if abs(diff) <= 1 else []
+    def plans_in_case(self, signature, diff, target_prone, base, side="front", allowed=None):
+        return self._plans_for(signature, diff, target_prone, base, side, allowed) if abs(diff) <= 1 else []
 
     def push_plan(self, a_xy, a_facing, a_level, target, t_label, t_level, base, side, terrain_map):
         """[(value, limbs, [option])] for the push from this spot, or []."""
@@ -704,11 +717,13 @@ def run_physical_phase(mech_a, mech_b, terrain_map, reports):
             continue
         if hit:
             loc = _location(o["table"], side, target)
-            config.log(f"    {o['name']} hits {target.side_name}'s {loc} for {o['damage']}.")
+            dmg = water.physical_damage(target, loc, o["damage"])     # halved under water (p.77)
+            config.log(f"    {o['name']} hits {target.side_name}'s {loc} for {dmg}"
+                       f"{' (halved: under water, p.77)' if dmg != o['damage'] else ''}.")
             if loc == "Head":
                 target.pilot_hits += 1
                 mark_consciousness_check_pending(target)
-            apply_damage(target, loc, o["damage"], armor_field="rear_armor" if side == "rear" else "armor",
+            apply_damage(target, loc, dmg, armor_field="rear_armor" if side == "rear" else "armor",
                          damage_type=DamageType.PHYSICAL)
             if o.get("kick"):
                 triggers[target.side_name].append(("kicked", 0))

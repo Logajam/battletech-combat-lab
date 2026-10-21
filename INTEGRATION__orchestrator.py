@@ -444,6 +444,8 @@ def _phase_end(mech_red, mech_blue, turn_number, stats):
     """Unconscious-pilot recovery (Section 2 scope) plus bookkeeping:
     first turn each mech meets MECHSIM's is_crippled()."""
     for m in (mech_red, mech_blue):
+        if not is_destroyed(m):
+            water.drowning(m, heat.has_life_support_hit(m))     # p.117 (2026-10-21)
         piloting_rolls.resolve_end_phase_wakeup(m)
         heat.choose_heat_sink_deactivation(m, next_turn=turn_number + 1)
         equip.end_turn(m)
@@ -514,9 +516,12 @@ def _deploy_home_edges(mech_red, mech_blue, terrain_map, battle_rng):
 
 def _after_phase(*mechs):
     """Severed limbs fall into their mech's hex; clubs that can't be held
-    any more are dropped (INTEGRATION__clubs, Core p.79)."""
+    any more are dropped (INTEGRATION__clubs, Core p.79); a location with no
+    armor left under water is breached (INTEGRATION__water, p.127)."""
     for m in mechs:
         clubs.after_phase(m)
+        if not is_destroyed(m):
+            water.auto_breaches(m)
 
 
 def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,

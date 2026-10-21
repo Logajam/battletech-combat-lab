@@ -27,9 +27,13 @@ What this module rules on (each function cites its page):
 PSRs for running or jumping into water live in the orchestrator / movement
 scoring (p.48, p.50), partial cover in pathfinder/los.py (p.66).
 
-Not built here yet (RULES_REVIEW G6 part 2): hull breaches (p.127), physical
-attacks in water (p.77), the life support / drowning hit (p.117), leg
-weapons' kick-table hits between two partially submerged 'Mechs (p.67).
+Part 2 (2026-10-21): physical attacks in water (p.77: which attacks, half
+damage to underwater locations), hull breaches (p.127) and the life support
+drowning hit (p.117).
+
+Not built yet (RULES_REVIEW G6): leg weapons' Kick-table hits between two
+partially submerged 'Mechs (p.67); variable-damage weapons' underwater
+damage bracket; a PSR for each water hex a run passes through.
 
 The battle's board is set once per battle (set_board, from
 orchestrator.run_battle) so code that only has a mech - heat dissipation,
@@ -38,10 +42,14 @@ falls - can find its hex's depth, the way config holds the battle's RNG.
 
 from typing import Dict, FrozenSet, Optional
 
-from damage_resolution import is_heat_sink, is_jump_jet, heat_sink_units
-from mech_state import active_heat_sinks, heat_sink_rate, compute_jump_mp
+import INTEGRATION__config as config
+from damage_resolution import is_heat_sink, is_jump_jet, heat_sink_units, mark_all_crits_destroyed
+from mech_state import active_heat_sinks, heat_sink_rate, compute_jump_mp, mark_consciousness_check_pending
 
 GROUND, PARTIAL, SUBMERGED = "ground", "partial", "submerged"
+
+# p.127 Hull Breaches: "On a result of 2-4, the 'Mech has lost integrity in that location".
+BREACH_MAX_ROLL = 4
 
 # p.103: "No more than 6 additional heat points per turn can be dissipated due to water."
 MAX_WATER_DISSIPATION = 6
@@ -207,3 +215,102 @@ def fall_damage_divisor(mech) -> int:
 def hexes_by_depth(terrain_map) -> Dict[str, int]:
     """{label: depth} of the board's water hexes of depth 1+."""
     return {label: info["depth"] for label, info in terrain_map["hexes"].items() if info.get("depth", 0) >= 1}
+
+
+# =============================================================================
+# ==========================  PHYSICAL ATTACKS  ===============================
+# =============================================================================
+def physical_allowed(a_state, t_state) -> Optional[FrozenSet[str]]:
+    """Physical attacks an attacker in a_state may make on a target in t_state
+    (p.77): None = any; else the attack kinds allowed ("kick", ...), empty =
+    none. "A physical attack cannot be made against a fully submerged 'Mech,
+    unless the attack begins underwater as well" - from depth 1 only a kick
+    (the legs are under water); a fully submerged attacker can't reach a
+    'Mech on land (the water line, p.62). Death from above: a submerged
+    target is out of reach from the air; a 'Mech in depth 2+ can't jump
+    anyway (p.50)."""
+    if t_state == SUBMERGED:
+        if a_state == SUBMERGED:
+            return None
+        return frozenset({"kick"}) if a_state == PARTIAL else frozenset()
+    if a_state == SUBMERGED and t_state == GROUND:
+        return frozenset()
+    return None
+
+
+def physical_damage(target, location, damage) -> int:
+    """p.77: physical damage to an underwater location is halved, rounded down."""
+    if location in submerged_locations(target, state(target)):
+        return damage // 2
+    return damage
+
+
+# =============================================================================
+# ==========================  HULL BREACHES  ==================================
+# =============================================================================
+def breached(mech):
+    return mech.__dict__.setdefault("breached_locations", set())
+
+
+def check_breach(mech, location):
+    """p.127: an underwater location that takes damage rolls 2D6 - a breach
+    on 2-4. Called by damage_resolution.apply_damage for each location a
+    damage grouping reaches (only under water, so dry battles roll nothing)."""
+    if location in breached(mech) or mech.locations[location]["destroyed"]:
+        return
+    if location not in submerged_locations(mech, state(mech)):
+        return
+    roll = config.roll_2d6(prompt=f"Hull breach check ({location})")
+    if roll <= BREACH_MAX_ROLL:
+        config.log(f"    Hull breach check, {location} under water: rolled {roll} - BREACHED (2-4, p.127).")
+        breach(mech, location)
+    else:
+        config.log(f"    Hull breach check, {location} under water: rolled {roll} - holds.")
+
+
+def auto_breaches(mech):
+    """p.127: a location with all its armor gone (a torso: either facing) is
+    breached as soon as it is under water. Checked after every phase."""
+    if mech.hex is None:
+        return
+    for location in sorted(submerged_locations(mech, state(mech))):
+        loc = mech.locations[location]
+        if location in breached(mech) or loc["destroyed"]:
+            continue
+        if loc.get("armor", 0) <= 0 or ("rear_armor" in loc and loc["rear_armor"] <= 0):
+            config.log(f"    {mech.side_name}'s {location} has no armor left and is under water - BREACHED (p.127).")
+            breach(mech, location)
+
+
+def breach(mech, location):
+    """p.127 Breach Effects: every component in the location stops working (as
+    if each slot were destroyed: engine / gyro hits, cockpit, jump jets, heat
+    sinks, weapons...), a breached leg counts as a destroyed leg, and a
+    breached side torso breaches its arm. Simplifications: the slots are
+    marked destroyed (damage_resolution.mark_all_crits_destroyed), so they no
+    longer soak critical hits and its ammunition can't explode - the Core
+    Rulebook keeps both."""
+    breached(mech).add(location)
+    config.log(f"    {mech.side_name}'s {location} floods - its components stop working (p.127).")
+    mark_all_crits_destroyed(mech, location)
+    if location in mech.leg_locations:
+        mech.locations[location]["destroyed"] = True
+        config.log(f"    A breached leg counts as destroyed (p.127).")
+    child = mech.side_torso_child.get(location)
+    if child and child not in breached(mech) and not mech.locations[child]["destroyed"]:
+        config.log(f"    The {child} on that side is breached with it (p.127).")
+        breach(mech, child)
+
+
+# =============================================================================
+# ==========================  DROWNING  =======================================
+# =============================================================================
+def drowning(mech, has_life_support_hit):
+    """p.117: with a life support critical hit, a 'Mech fully submerged in the
+    End Phase costs its MechWarrior 1 hit."""
+    if mech.hex is None or not has_life_support_hit or state(mech) != SUBMERGED:
+        return
+    mech.pilot_hits += 1
+    mark_consciousness_check_pending(mech)
+    config.log(f"  [End] {mech.side_name}: life support destroyed and fully submerged - "
+               f"MechWarrior takes 1 hit ({mech.pilot_hits}/6, p.117).")

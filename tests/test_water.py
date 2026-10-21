@@ -3,8 +3,9 @@ tests/test_water.py - the water rules (2026-10-21, INTEGRATION__water;
 Daniel: water "Also Yes as the next task"): depth as levels (pp.47, 51, 57),
 partial cover in depth 1 (p.66), the water line and which weapons can fire
 (pp.62, 67, 127), underwater ranges (p.127), heat sinks in water (p.103),
-jump jets in water (p.50), running / jumping into water (pp.48, 50) and
-falls in water (p.115).
+jump jets in water (p.50), running / jumping into water (pp.48, 50), falls
+in water (p.115), physical attacks in water (p.77), hull breaches (p.127)
+and drowning (p.117).
 
     python tests/test_water.py
 """
@@ -224,6 +225,70 @@ def movement_scoring_sees_the_water_line():
     # The same spots against a target on land: full fire from land, arm / torso weapons from depth 1.
     cands = {c.hex: c for c in ev.evaluate("0808", "S", 0, "Walk", 0, ev.prepare(options))}
     assert cands["0811"].dealt > 0.0 and cands["1006"].dealt > 0.0
+
+
+@check
+def physical_attacks_in_water():
+    """p.77: no physical attack on a fully submerged 'Mech from above the water
+    (from depth 1 only a kick, its legs being under water); none from under
+    water at a 'Mech on land; half damage to underwater locations."""
+    import INTEGRATION__physical as physical
+    G, P, S = water.GROUND, water.PARTIAL, water.SUBMERGED
+    assert water.physical_allowed(G, G) is None and water.physical_allowed(G, P) is None
+    assert water.physical_allowed(G, S) == frozenset() and water.physical_allowed(S, G) == frozenset()
+    assert water.physical_allowed(P, S) == frozenset({"kick"}) and water.physical_allowed(S, S) is None
+    assert water.physical_allowed(S, P) is None
+    tm = lake()
+    atlas, archer = place(ATLAS, "0807", "N"), place(ARCHER, "0806", "S")       # depth 1 next to depth 2
+    assert set(physical.attack_options(atlas, archer, tm)) <= {"kick"}
+    land = place(ATLAS, "0707", "NE")                                          # land, adjacent to 0806
+    assert physical.attack_options(land, archer, tm) == {}
+    assert water.physical_damage(archer, "Center Torso", 9) == 4               # all of a submerged 'Mech
+    assert water.physical_damage(atlas, "Left Leg", 9) == 4                    # depth 1: the legs
+    assert water.physical_damage(atlas, "Center Torso", 9) == 9
+
+
+@check
+def hull_breaches():
+    """p.127: an underwater location that takes damage breaches on 2-4; a
+    breached leg counts as destroyed; a breached side torso breaches its arm;
+    a location with no armor left breaches as soon as it is under water."""
+    lake()
+    atlas = place(ATLAS, "0807")                                    # depth 1: legs under water
+    with ScriptedDice([5]):
+        attack_resolution.apply_damage(atlas, "Left Leg", 2)
+    assert not water.breached(atlas)
+    with ScriptedDice([4]):
+        attack_resolution.apply_damage(atlas, "Left Leg", 2)
+    assert water.breached(atlas) == {"Left Leg"} and atlas.locations["Left Leg"]["destroyed"]
+    with ScriptedDice([]):                                          # above the water: no roll
+        attack_resolution.apply_damage(atlas, "Left Torso", 2)
+    deep = place(ATLAS, "0806")                                     # depth 2: everything under water
+    with ScriptedDice([2]):
+        attack_resolution.apply_damage(deep, "Right Torso", 2)
+    assert {"Right Torso", "Right Arm"} <= water.breached(deep)
+    stripped = place(ARCHER, "0808")
+    stripped.locations["Left Arm"]["armor"] = 0
+    water.auto_breaches(stripped)
+    assert not water.breached(stripped)                             # on land
+    stripped.hex = "0806"
+    water.auto_breaches(stripped)
+    assert "Left Arm" in water.breached(stripped)
+
+
+@check
+def drowning():
+    """p.117: a life support critical and fully submerged in the End Phase -
+    the MechWarrior takes a hit."""
+    lake()
+    atlas = place(ATLAS, "0806")
+    water.drowning(atlas, has_life_support_hit=False)
+    assert atlas.pilot_hits == 0
+    water.drowning(atlas, has_life_support_hit=True)
+    assert atlas.pilot_hits == 1
+    atlas.hex = "0807"                                              # depth 1, standing: not submerged
+    water.drowning(atlas, has_life_support_hit=True)
+    assert atlas.pilot_hits == 1
 
 
 def run_all():

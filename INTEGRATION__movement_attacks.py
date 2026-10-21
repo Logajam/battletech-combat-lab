@@ -130,11 +130,13 @@ def apply_groups(mech, damage, table, side, label):
         if is_destroyed(mech):
             return
         loc = physical._location(table, side, mech)
-        config.log(f"    {label}: {g} to {mech.side_name}'s {loc}.")
+        dmg = water.physical_damage(mech, loc, g)                 # halved under water (p.77)
+        config.log(f"    {label}: {dmg} to {mech.side_name}'s {loc}"
+                   f"{' (halved: under water, p.77)' if dmg != g else ''}.")
         if loc == "Head":
             mech.pilot_hits += 1
             mark_consciousness_check_pending(mech)
-        apply_damage(mech, loc, g, armor_field="rear_armor" if side == "rear" else "armor",
+        apply_damage(mech, loc, dmg, armor_field="rear_armor" if side == "rear" else "armor",
                      damage_type=DamageType.PHYSICAL)
 
 
@@ -235,6 +237,12 @@ class MoverIndex:
             cost = terrain_rules.step_cost(hexes[n], t_info, self.level_limit)
             if cost is None:
                 continue
+            # Water (p.77, INTEGRATION__water): no charge at a fully submerged target from
+            # above the water, nor from under water at a target on land.
+            allowed = water.physical_allowed(water.state_at(n, False, self.terrain_map),
+                                             water.state_at(pose.label, pose.prone, self.terrain_map))
+            if allowed is not None and "charge" not in allowed:
+                continue
             for fc, mp in states:
                 total = mp + cost
                 if total > self.budget:
@@ -254,6 +262,8 @@ class MoverIndex:
         hex next to it along the path."""
         if not self.jump_hexes or pose.xy not in self.jump_hexes:
             return []
+        if water.state_at(pose.label, pose.prone, self.terrain_map) == water.SUBMERGED:
+            return []                    # out of reach from the air (p.77, INTEGRATION__water)
         dist = hex_distance(self.start_xy, pose.xy)
         hexes = self.terrain_map["hexes"]
         need = hexes[pose.label]["level"] + (PRONE_HEIGHT if pose.prone else STANDING_HEIGHT) \
