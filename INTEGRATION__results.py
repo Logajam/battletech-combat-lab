@@ -22,8 +22,8 @@ KNOWN_MISSING_RULES = [
     "designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods "
     "any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied",
     "Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / "
-    "haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and "
-    "PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; "
+    "haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser "
+    "charging, HAG flak; PPC capacitor charging is a stub, off by default; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; "
     "a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo "
     "saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH",
     "Movement subphase (G20): mud's -1 isn't priced in movement scoring",

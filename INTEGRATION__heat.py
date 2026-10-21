@@ -314,12 +314,15 @@ def resolve_heat_phase(mech, weapon_heat):
     # Outside heat (2026-10-20, p.102): hits by heat-causing weapons this turn, at most 15.
     outside = min(OUTSIDE_HEAT_CAP, getattr(mech, "outside_heat", 0))
     mech.outside_heat = 0
-    generated = mech.movement_heat + weapon_heat + eng + stealth + outside
+    cap = getattr(mech, "capacitor_heat", 0)        # PPC capacitors charging / held (p.188, 2026-10-21)
+    mech.capacitor_heat = 0
+    generated = mech.movement_heat + weapon_heat + eng + stealth + outside + cap
     extra, how = _extra_cooling(mech, before + generated - dissipation)
     mech.current_heat = max(0, before + generated - dissipation - extra)
     overflow = mech.current_heat - OVERFLOW_HEAT
     config.log(f"  [Heat] {name}: {before} + movement {mech.movement_heat} + weapons {weapon_heat} "
                f"+ engine {eng}{f' + stealth {stealth}' if stealth else ''}{f' + outside {outside}' if outside else ''}"
+               f"{f' + capacitors {cap}' if cap else ''}"
                f" - sinks {sinks}{f' - water {water_bonus}' if water_bonus else ''}"
                f"{f' - {how} {extra}' if how else ''} -> {mech.current_heat}"
                f"{f' (overflow {overflow})' if overflow > 0 else ''}")

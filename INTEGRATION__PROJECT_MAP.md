@@ -290,10 +290,11 @@ open). Read it before building rules.
    dissipating armor, Blue Shield, HarJel, torpedoes (not even parsed),
    cockpit command console, chemical laser ammo (check), quad kicks.
 8. **PPC capacitors** (Daniel, 2026-10-21: "PPC charging is a bot logic
-   question that requires its own session"): build the rules (p.188 - charge
-   instead of firing, 5 heat, +5 heat a turn held, +5 heat and +5 damage when
-   fired, the explosion if hit while charged) with the charging decision as a
-   stub, in a session of its own. ~65 units in `data/meks.zip`.
+   question that requires its own session"): the rules are BUILT (2026-10-21,
+   `INTEGRATION__capacitor`, RULES_REVIEW F53); left for that session is the
+   decision - the two stubs `STUB_CAPACITOR_START` / `STUB_CAPACITOR_CHARGE`
+   (off by default), and weapon choice seeing the 5 holding heat. ~65 units
+   in `data/meks.zip`.
 9. Later (Daniel agreed 2026-10-20): a setup shell GUI (the replay viewer
    exists); a compiled hot path (Cython / Rust for `MoveEvaluator.evaluate`)
    once the rules settle - not a rewrite; evolutionary tuning of the bot's
@@ -980,6 +981,8 @@ forward arc, kicks included, never into a side arc.
 | Activate a vibroblade | `stubs.stub_vibroblade` | STUB (`STUB_VIBROBLADE`, default on): fixed damage + heat vs tonnage damage (p.196) |
 | Command console swap | `stubs.stub_console_swap` | STUB (`STUB_CONSOLE_SWAP`, default when the pilot is out or more hurt): End Phase seat swap (p.203) |
 | Blue Shield on / off | `stubs.stub_blue_shield` | STUB (`STUB_BLUE_SHIELD`, default "on"): switched at the start and each End Phase (p.207); Memo: only against PPCs, and weigh the stealth it negates |
+| PPC capacitor at the start | `stubs.stub_capacitor_start` | STUB (`STUB_CAPACITOR_START`, default "empty"): start the battle charged (p.188); Memo: the PPC-charging bot session |
+| Charge a PPC capacitor | `stubs.stub_capacitor_charge` | STUB (`STUB_CAPACITOR_CHARGE`, default "never"; "when_idle" = whenever the PPC isn't fired): charge instead of firing (p.188); Memo: weigh 5 heat now and each turn held against +5 damage, and let weapon choice see the holding heat |
 | Club pick-up | `INTEGRATION__clubs.maybe_pick_up` | ON (`config.CLUB_PICKUP`, Daniel 2026-10-21): picks one up on a turn it fires nothing; smarter use waits for the Memo below |
 | DFA miss: where the target steps | `INTEGRATION__dfa.resolve` | The open hex with the smallest drop |
 | Home edge | `config.HOME_EDGE_CHOICE` | Which edge the deployment-roll loser picks (default random) |
@@ -1117,6 +1120,12 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** PPC capacitors (RULES_REVIEW F53, p.188), new
+  `INTEGRATION__capacitor`: links, charging / holding heat, +5 damage and heat
+  when fired charged, the explosion on a crit. Both choices are stubs, off by
+  default (`STUB_CAPACITOR_START` / `STUB_CAPACITOR_CHARGE`, Section 6).
+  `weapon_selection`'s table cache key now includes the charges.
+  test_weapons ppc_capacitor. Reference logs unchanged.
 - **2026-10-21 (Claude):** Blue Shield particle field damper (RULES_REVIEW
   F52, pp.180, 207); on / off is a stub (`STUB_BLUE_SHIELD`, Section 6).
   test_equipment blue_shield. Reference logs unchanged.

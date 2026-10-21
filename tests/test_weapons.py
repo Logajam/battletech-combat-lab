@@ -370,6 +370,64 @@ def pooled_cluster_damage():
     assert groups(False) == [5, 5, 2, 5, 5, 2]
 
 
+
+# PPC capacitors (Core p.188), added 2026-10-21: the Carrion Crow Prime has
+# a Clan ER PPC (2 slots) and a capacitor in its left arm; the Blackjack
+# BJ2-OX four light PPCs, each with a capacitor.
+CARRION_CROW = unit("Rec Guides ilClan/Vol 12/Carrion Crow Prime")
+BLACKJACK_OX = unit("3058Uu/Blackjack BJ2-OX")
+
+
+@check
+def ppc_capacitor():
+    import INTEGRATION__capacitor as capacitor
+    bj = fresh(BLACKJACK_OX)
+    assert len(bj.capacitors) == 4 and len({id(c.linked_ppc) for c in bj.capacitors}) == 4
+    m = fresh(CARRION_CROW)                                   # default: starts empty, never charges
+    cap = m.capacitors[0]
+    ppc = cap.linked_ppc
+    assert "PPC" in ppc.name and not cap.charged and (ppc.heat, ppc.damage_per_shot) == (15, 15)
+    with Knobs(STUB_CAPACITOR_START="charged"):
+        m = fresh(CARRION_CROW)
+    cap, ppc = m.capacitors[0], m.capacitors[0].linked_ppc
+    assert cap.charged and (ppc.heat, ppc.damage_per_shot) == (20, 20)
+
+    # Held a turn: 5 heat; fired: the +5 rides on the PPC's own heat, no holding heat, charge spent.
+    capacitor.declare(m, [])
+    capacitor.end_phase(m)
+    assert m.capacitor_heat == 5 and cap.charged
+    capacitor.declare(m, [DeclaredAttack(weapon=ppc, tn=8, roll=9, hit=True)])
+    capacitor.end_phase(m)
+    assert m.capacitor_heat == 0 and not cap.charged and (ppc.heat, ppc.damage_per_shot) == (15, 15)
+    # Charging instead of firing: 5 heat, charged from the next turn.
+    with Knobs(STUB_CAPACITOR_CHARGE="when_idle"):
+        capacitor.declare(m, [])
+    assert cap.charging and not cap.charged
+    capacitor.end_phase(m)
+    assert m.capacitor_heat == 5 and cap.charged
+    m.current_heat = 0
+    with ScriptedDice([]):
+        heat.resolve_heat_phase(m, weapon_heat=0)
+    assert m.capacitor_heat == 0
+
+    # A crit while declared firing: only the slot struck.
+    from damage_resolution import resolve_slot_hit
+    capacitor.declare(m, [DeclaredAttack(weapon=ppc, tn=8, roll=9, hit=True)])
+    i = next(i for i, s in enumerate(m.crits["Left Arm"]) if s is cap)
+    resolve_slot_hit(m, "Left Arm", i, cap, 1, 1)
+    assert m.pilot_hits == 0 and any(s is ppc for s in m.crits["Left Arm"])
+    # A crit on the PPC while charged: 2 x (2 + 1) = 6 explosion, every slot of both gone.
+    with Knobs(STUB_CAPACITOR_START="charged"):
+        m = fresh(CARRION_CROW)
+    cap, ppc = m.capacitors[0], m.capacitors[0].linked_ppc
+    capacitor.declare(m, [])
+    before = m.locations["Left Arm"]["structure"]
+    i = next(i for i, s in enumerate(m.crits["Left Arm"]) if s is ppc)
+    resolve_slot_hit(m, "Left Arm", i, ppc, 1, 1)
+    assert m.pilot_hits == 1 and m.locations["Left Arm"]["structure"] == max(0, before - 6)
+    assert not any(s is ppc or s is cap for s in m.crits["Left Arm"]) and not cap.charged
+
+
 def run_all():
     failed = 0
     for fn in CHECKS:

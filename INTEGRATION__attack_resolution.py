@@ -104,11 +104,12 @@ import INTEGRATION__ammo as ammo
 import INTEGRATION__ams as ams
 import INTEGRATION__electronics as electronics
 import INTEGRATION__fire_modes as fire_modes
+import INTEGRATION__capacitor as capacitor
 import INTEGRATION__physical_gear as gear  # noqa: E402 - shields, p.195
 import INTEGRATION__weapon_profiles as weapon_profiles
 import INTEGRATION__timing as timing
 import INTEGRATION__water as water
-from mech_state import pilot_hit, head_hit_hurts_pilot, tripod_gunner_modifier, is_destroyed  # noqa: E402 - pp.203, 236
+from mech_state import pilot_hit, head_hit_hurts_pilot, tripod_gunner_modifier, is_destroyed, all_crew_unconscious  # noqa: E402 - pp.203, 236
 from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capability, \
     mark_consciousness_check_pending, compute_heat_dissipation, arm_aes_working
 import armor_rules
@@ -973,6 +974,9 @@ def run_ranged_combat_phase(mover_first, mover_second, terrain_map, battle_rng):
             declare_attacks(attacker, target, terrain_map, reports[attacker.side_name])
             # Nothing to shoot this turn: maybe pick up a club instead (p.79, INTEGRATION__clubs).
             clubs.maybe_pick_up(attacker, terrain_map, fired_anything=bool(reports[attacker.side_name].attacks_list))
+            # PPC capacitors (p.188): a charged PPC that fires spends its charge; an idle one may charge (a stub).
+            capacitor.declare(attacker, reports[attacker.side_name].attacks_list,
+                              can_act=not (is_destroyed(attacker) or attacker.shutdown or all_crew_unconscious(attacker)))
 
     # AMS (p.206): engaged right after the attack rolls, before any damage lands.
     for attacker, target in pairs:
@@ -1003,6 +1007,7 @@ def run_ranged_combat_phase(mover_first, mover_second, terrain_map, battle_rng):
         gear.lower(m)                         # a raised shield lowers at the end of the phase (p.195)
         electronics.activate_pods(m)          # pods that hit this phase work from the next (p.193)
         fire_modes.resolve_unjams(m)          # Rotary AC unjam attempts (p.183)
+        capacitor.end_phase(m)                # charges spent / stored, holding heat (p.188)
     for m in (mover_first, mover_second):
         _with_piloting(m, piloting_rolls.resolve_attack_phase_psr)
         piloting_rolls.resolve_consciousness_checks(m, "Attack Phase")
