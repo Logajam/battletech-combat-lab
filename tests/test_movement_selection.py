@@ -729,6 +729,41 @@ def lifetime_option_runs_and_is_deterministic():
         config.MOVEMENT_OBJECTIVE = saved
 
 
+@check
+def grid_search_net_and_follow():
+    """config.MOVEMENT_TWO_PLY_SEARCH = "grid" (Daniel's guess and follow,
+    2026-10-21): the 1-in-7 net covers the board (every hex is a net hex or
+    touches exactly one), the mover's own hex is a net hex, the search follows
+    a single hill to its top, every state in a looked-at hex is scored once,
+    and the same input gives the same answer."""
+    import types
+    hexes = [hex_geometry.parse_hex_label(f"{c:02d}{r:02d}") for c in range(1, 17) for r in range(1, 18)]
+    q_r = lambda h: (h[0], (h[1] - h[0]) // 2)                       # noqa: E731
+    colour = lambda h: (q_r(h)[0] + 3 * q_r(h)[1]) % 7               # noqa: E731
+    deltas = hex_geometry.FACING_DELTAS.values()
+    for h in hexes:
+        near = [colour((h[0] + dx, h[1] + dy)) for dx, dy in deltas]
+        assert sorted(near + [colour(h)]) == list(range(7)), h      # a hex and its 6 neighbours: all 7 colours
+    # Two states (facings) per hex; one smooth hill peaking at hex 1210.
+    peak = hex_geometry.parse_hex_label("1210")
+    states = [types.SimpleNamespace(hex_xy=h, facing=f) for h in hexes for f in (0, 3)]
+    calls = []
+
+    def score_spot(c):
+        calls.append(c)
+        d = max(abs(c.hex_xy[0] - peak[0]), (abs(c.hex_xy[0] - peak[0]) + abs(c.hex_xy[1] - peak[1])) // 2)
+        return (100.0 - d + 0.1 * c.facing, c, None)
+
+    start = hex_geometry.parse_hex_label("0303")
+    scored = ms._grid_search(states, lambda sts: [score_spot(c) for c in sts], start, 1)
+    assert max(scored, key=lambda t: t[0])[1].hex_xy == peak
+    assert len(calls) == len({id(c) for c in calls}) == len(scored)   # each state scored once
+    assert start in {c.hex_xy for c in calls}                         # the mover's own hex is in the net
+    assert len(scored) < len(states) / 3                              # far fewer than every state
+    again = ms._grid_search(states, lambda sts: [score_spot(c) for c in sts], start, 1)
+    assert [(s, c.hex_xy, c.facing) for s, c, _ in again] == [(s, c.hex_xy, c.facing) for s, c, _ in scored]
+
+
 if __name__ == "__main__":
     failures = 0
     for fn in CHECKS:

@@ -552,20 +552,32 @@ def _modeled_reply(c, ev2, prepared2, them, me, other, mover_xy_of_c, terrain_ma
     second mover's psr_for per reply state, keyed (hex, facing, mode, fc,
     mp_spent) - it doesn't depend on c, so the caller works it out once
     (speed only, 2026-10-21); None = work it out here."""
-    with timing.section("reply scoring"):
-        cands = ev2.evaluate(c.label, c.facing_compass, c.fc, c.mode, c.mp_spent, prepared2)
     if reply_psr is None:
         reply_psr = _psr_by_state(them, prepared2)
-    best_score, best = None, None
-    any_damage = False
     # `me` is the first mover, `them` the second: here the second mover is the one choosing.
     objective, my_exposure, their_exposure = them.objective, me.exposure, them.exposure
-    for cand in cands:
+
+    def reply_rows(states):
+        rows = []
+        for cand in ev2.evaluate(c.label, c.facing_compass, c.fc, c.mode, c.mp_spent, states):
+            rows.append((objective(cand.dealt, cand.received, my_exposure[cand.side_on_defender],
+                                   their_exposure[cand.side_on_mover],
+                                   reply_psr[(cand.hex, cand.facing, cand.mode, cand.fc, cand.mp_spent)]), cand))
+        return rows
+
+    with timing.section("reply scoring"):
+        if config.MOVEMENT_REPLY_SEARCH == "grid" and prepared2:
+            # The second mover picks by guess and follow too (Daniel, 2026-10-21).
+            rows = _grid_search(prepared2, reply_rows, hex_geometry.parse_hex_label(other.hex),
+                                config.MOVEMENT_SEARCH_STARTS)
+        else:
+            rows = reply_rows(prepared2)
+    cands = [cand for _, cand in rows]
+    best_score, best = None, None
+    any_damage = False
+    for score, cand in rows:
         if cand.dealt > 0:
             any_damage = True
-        score = objective(cand.dealt, cand.received, my_exposure[cand.side_on_defender],
-                          their_exposure[cand.side_on_mover],
-                          reply_psr[(cand.hex, cand.facing, cand.mode, cand.fc, cand.mp_spent)])
         key = round(score, 9)
         if best is None or key > best_score:
             best_score, best = key, cand
@@ -593,7 +605,11 @@ def _modeled_reply(c, ev2, prepared2, them, me, other, mover_xy_of_c, terrain_ma
         if not pool:
             return None
         fb = _nearest_to(pool, mover_xy_of_c)
-    return by_key.get((fb.label, fb.facing_compass, fb.mode, fb.fc))
+    hit = by_key.get((fb.label, fb.facing_compass, fb.mode, fb.fc))
+    if hit is None and len(cands) < len(prepared2):
+        # A grid search didn't look at the fallback's spot: score it now (None without LOS, as before).
+        hit = next(iter(ev2.evaluate(c.label, c.facing_compass, c.fc, c.mode, c.mp_spent, [fb])), None)
+    return hit
 
 
 def _psr_by_state(side, prepared):
@@ -687,7 +703,19 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
         if not prepared1:
             return None, "no reachable spot", None, None
         prepared_by_key = {(o.label, o.facing_compass, o.mode, o.fc): o for o in prepared1}
-        static = ev1.evaluate(other.hex, other.facing, other.move_fc, other.move_mode, other.mp_spent, prepared1)
+
+        def static_rows(states):
+            return [(me.objective(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
+                                  me.exposure[cand.side_on_mover], me.psr_for(cand)), cand)
+                    for cand in ev1.evaluate(other.hex, other.facing, other.move_fc, other.move_mode,
+                                             other.mp_spent, states)]
+
+        if not moves_first and config.MOVEMENT_REPLY_SEARCH == "grid":
+            # The second mover picks by guess and follow (Daniel, 2026-10-21) - as the first mover modeled it.
+            static = [cand for _, cand in _grid_search(prepared1, static_rows, _search_start(mover, prepared1),
+                                                       config.MOVEMENT_SEARCH_STARTS)]
+        else:
+            static = ev1.evaluate(other.hex, other.facing, other.move_fc, other.move_mode, other.mp_spent, prepared1)
     static_dealt = {(c.hex, c.facing, c.mode, c.fc): c.dealt for c in static}
     dealt_for = lambda o: static_dealt.get((o.label, o.facing_compass, o.mode, o.fc), 0.0)  # noqa: E731
 
@@ -710,12 +738,12 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
     with timing.section("two-ply look-ahead"):
         ev2 = ranged_combat.MoveEvaluator(other, mover, terrain_map)
         prepared2 = ev2.prepare(_opponent_options(other, terrain_map))
-        scored, any_dealt = [], False
         index2 = None
         if (config.CHARGES or config.DFA) and not (other.prone or is_immobile(other)):
             index2 = movement_attacks.MoverIndex(other, terrain_map)    # its charges / DFAs, built once
         reply_psr = _psr_by_state(them, prepared2)                         # the same for every c
-        for c in prepared1:
+
+        def score_spot(c):
             reply = _modeled_reply(c, ev2, prepared2, them, me, other, c.hex_xy, terrain_map, index2, reply_psr)
             if reply is None:
                 dealt = received = 0.0
@@ -725,21 +753,83 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
                 dealt, received = reply.received, reply.dealt
                 dealt_mult = them.exposure[reply.side_on_mover]
                 received_mult = me.exposure[reply.side_on_defender]
-            if dealt > 0:
-                any_dealt = True
             extras = me.psr_for(c)
-            scored.append((me.objective(dealt, received, dealt_mult, received_mult, extras), c,
-                           (dealt, received, dealt_mult, received_mult, extras, reply)))
+            return (me.objective(dealt, received, dealt_mult, received_mult, extras), c,
+                    (dealt, received, dealt_mult, received_mult, extras, reply))
+
+        if config.MOVEMENT_TWO_PLY_SEARCH == "grid":
+            scored = _grid_search(prepared1, lambda states: [score_spot(c) for c in states],
+                                  _search_start(mover, prepared1), config.MOVEMENT_SEARCH_STARTS)
+        else:
+            scored = [score_spot(c) for c in prepared1]
+        any_dealt = any(payload[0] > 0 for _, _, payload in scored)
     if any_dealt:
         o, (dealt, received, dm, rm, extras, reply) = _best_by_score(scored, enemy_xy, battle_rng)
         reply_txt = (f"; modeled reply {other.side_name} -> {reply.hex} {reply.facing} {reply.mode}"
                      f"{f' ({reply.attack.upper()})' if reply.attack else ''}"
                      if reply is not None else "; modeled reply: none with LOS")
         return (_pick_dict(o), me.objective.note(dealt, received, dm, rm, extras,
-                                                 f"two-ply, {len(prepared1)} spots x {len(prepared2)} replies{reply_txt}"),
+                                                 f"two-ply, {_spots_text(len(scored), len(prepared1))} x "
+                                                 f"{len(prepared2)} replies{reply_txt}"),
                 me.objective(dealt, received, dm, rm, extras), ctx)
     return (*_fallback_pick(mover, other, prepared1, enemy_xy, dealt_for, terrain_map, battle_rng,
                             f"no spot deals damage even before the reply (two-ply, {len(prepared1)} spots)"), None, ctx)
+
+
+def _spots_text(checked, total):
+    return f"{total} spots" if checked == total else f"{checked} of {total} spots (grid search)"
+
+
+def _search_start(mover, prepared):
+    """The hex a grid search's net is laid from: the mover's own, or (entering
+    the board, no hex yet) its first reachable one."""
+    return hex_geometry.parse_hex_label(mover.hex) if mover.hex else prepared[0].hex_xy
+
+
+def _grid_search(prepared, score_hex, start_xy, starts):
+    """Daniel's "guess and follow" (2026-10-21, config.MOVEMENT_TWO_PLY_SEARCH
+    / MOVEMENT_REPLY_SEARCH = "grid"): the rows of a search over the
+    reachable HEXES instead of every state. score_hex(states) scores all the
+    states of one hex (facings, modes) and returns rows whose first item is
+    the score - none for a hex it can't use (no LOS). The net: the hexes whose
+    cube (q + 3r) mod 7 matches start_xy (the mover's own hex) - one hex in 7,
+    and every hex is a net hex or next to exactly one. Then from each of the
+    `starts` best net hexes: look at the unchecked neighbours of the current
+    hex and move to the best one while it beats the current hex; stop when
+    none does. Deterministic. Rows keep the prepared order within a hex."""
+    by_hex: Dict[tuple, list] = {}
+    for c in prepared:
+        by_hex.setdefault(c.hex_xy, []).append(c)
+    hex_best: Dict[tuple, float] = {}
+    scored = []
+
+    def look(h):
+        if h in hex_best or h not in by_hex:
+            return
+        rows = score_hex(by_hex[h])
+        scored.extend(rows)
+        hex_best[h] = max((round(row[0], 9) for row in rows), default=float("-inf"))
+
+    def colour(h):
+        q, r = h[0], (h[1] - h[0]) // 2          # doubled (x, y) -> cube q, r (pathfinder/los.py)
+        return (q + 3 * r) % 7
+
+    net_colour = colour(start_xy)
+    for h in by_hex:
+        if colour(h) == net_colour:
+            look(h)
+    if not hex_best and by_hex:                  # a tiny reach with no net hex: the first hex
+        look(next(iter(by_hex)))
+    for h in sorted(hex_best, key=lambda h: -hex_best[h])[:starts]:
+        while True:
+            nbrs = [(h[0] + dx, h[1] + dy) for dx, dy in hex_geometry.FACING_DELTAS.values()]
+            for n in nbrs:
+                look(n)
+            nxt = max((n for n in nbrs if n in hex_best), key=lambda n: hex_best[n], default=None)
+            if nxt is None or hex_best[nxt] <= hex_best[h]:
+                break
+            h = nxt
+    return scored
 
 
 def _fallback_pick(mover, other, prepared, enemy_xy, dealt_for, terrain_map, battle_rng, why):

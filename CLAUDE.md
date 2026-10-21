@@ -41,7 +41,9 @@ GitHub logistics.
     speed-only change must keep the results identical. It prints where the time
     went (`INTEGRATION__timing`), as every batch does.
 - **Bot changes:** compare settings on the same seeds with
-  `python tests/ab_batches.py`, and show Daniel the numbers.
+  `python tests/ab_batches.py`, and show Daniel the numbers. 20 battles a
+  setting by default (Daniel); longer only if something looks very off, or
+  to build a baseline during down time.
 - **Show Daniel battles as replays.** Set `REPLAY_BATTLES` in
   `INTEGRATION__config.py`, run, and publish the page from `replays/` with the
   Artifact tool; give him the link (he doesn't run the code himself).

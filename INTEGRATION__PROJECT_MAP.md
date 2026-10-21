@@ -204,6 +204,11 @@ open). Read it before building rules.
    best spots by the static score - changes the bot, Daniel's call, test with
    `ab_batches.py`) or the compiled hot path (item 9). A speed-only change
    must keep the benchmark's 501 / 495 and every reference log.
+   **Guess and follow** (Daniel's idea, built 2026-10-21 as switches, off by
+   default - A/B results in the Change Record): first mover only = ~2-3x
+   faster, results within noise; both movers = ~4x, but the Kontio (melee)
+   fell from 57 to 38 wins of 100. Waiting on Daniel: which to use, or
+   refine the search for narrow (melee) peaks first.
 2. **Known issues Daniel asked to fix later** (Section 4, "Known issues to
    fix later"): Arrow IV / artillery scatter must stay inside the firing arc;
    machine gun array ammo per gun needs a check / test.
@@ -859,7 +864,7 @@ forward arc, kicks included, never into a side arc.
 
 | Decision point | Lives in | Decides |
 |---|---|---|
-| Movement selection | `INTEGRATION__movement_selection.choose` | Spot (hex + facing + mode) maximizing the objective - DEFAULT "lifetime" + history blend (row below), or "ratio": dealt×exposure / (received×exposure + movement-PSR cost + .001); first mover scores each spot by the second mover's modeled reply (two-ply, at its MASC / supercharger speed). Knobs: config MOVEMENT SETTINGS. |
+| Movement selection | `INTEGRATION__movement_selection.choose` | Spot (hex + facing + mode) maximizing the objective - DEFAULT "lifetime" + history blend (row below), or "ratio": dealt×exposure / (received×exposure + movement-PSR cost + .001); first mover scores each spot by the second mover's modeled reply (two-ply, at its MASC / supercharger speed). Which spots get the reply: `MOVEMENT_TWO_PLY_SEARCH` - "exhaustive" (default, every spot) or "grid" (Daniel's guess and follow, 2026-10-21: a 1-in-7 hex net, then uphill from the best `MOVEMENT_SEARCH_STARTS` net hexes, `_grid_search`). `MOVEMENT_REPLY_SEARCH` the same for the second mover (its modeled reply and its real pick). Knobs: config MOVEMENT SETTINGS. |
 | Movement objective option (+ history blend, `MOVEMENT_LIFETIME_HISTORY_K`) | `movement_selection._Ratio` / `_Lifetime` (`config.MOVEMENT_OBJECTIVE`) | "ratio" (default, above) or "lifetime": dealt + (effective HP left / enemy future damage) x own future damage (`INTEGRATION__future_damage`: 0.5 x best heat-limited expected damage at gunnery + walking +1 + the target's best TMM, kicks / punches at range 1). Each side scores its own spots with it, the modeled reply too |
 | LOS exactly between two hexes (p.56) | `pathfinder/los._evaluate` (`worse_key`) | The target's controller picks the hex; the bot always takes the MORE obstructive one (blocking first, then woods). The pick is the same from either end (checked on all 12,060 such pairs of the 16x17 board), so p.56's "used for all attacks between those two 'Mechs ... for the rest of that turn" holds without storing it. Not modeled: a target choosing the clearer hex to shoot back better; p.56's random pick for a non-player target (a hex attack takes the more obstructive one too). Partial / off-board hexes are never picked (p.56: "LOS cannot be shifted so that it passes through a partial hex") |
 | Movement-PSR cost | `movement_selection.psr_costs` | P(fail) × fall damage, only for Run / Jump with a Movement-Phase PSR trigger; damage-caused PSRs ignored (Daniel) |
@@ -982,6 +987,14 @@ turn's score, so a decision sees what it gives up.
   last that long. If it does it deserves to be noted as a possible flaw." A
   reference battle that hits the cap prints a NOTE; batch summaries flag
   battles that hit config.MAX_TURNS.
+- (Daniel, 2026-10-21) A/B batch size: "We really need to do smaller test
+  batches. like 20 runs is probably enough to show a major change ... Can do
+  longer tests if something looks very off, or if we're establishing a longer
+  baseline during down time." Default `tests/ab_batches.py 20 ...`; battle n of
+  a batch always gets the same seed, so 20 battles repeat the first 20 of an
+  older batch (compare against its saved rows in `run_stats/ab/`). Judge
+  totals (wins, damage, HP, turns), not "same winner": one different move
+  re-rolls the rest of a battle.
 - (Daniel, 2026-10-21) Another instance may be working in parallel (maps):
   merge `origin/main` before merging, regenerate reference logs rather than
   hand-merging them.
@@ -1004,6 +1017,38 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Guess-and-follow two-ply search (Daniel: "check a
+  sample of all the places you could end up, pick the best ranking one and
+  then check the hexes around it. If a better choice exists follow it"), as
+  switches, default OFF - every reference log and the benchmark (501 / 495)
+  unchanged. `config.MOVEMENT_TWO_PLY_SEARCH` = "grid": the first mover looks
+  at a 1-in-7 net of its reachable hexes (cube (q + 3r) mod 7 - the hex
+  grid's own spacing: every hex is a net hex or next to exactly one), then
+  climbs from the best `MOVEMENT_SEARCH_STARTS` net hexes to better
+  neighbours (`movement_selection._grid_search`; a hex looked at scores all
+  its facings / modes). `config.MOVEMENT_REPLY_SEARCH` = "grid" does the
+  same for the second mover, in the modeled reply and in its real pick
+  (Daniel: "what happens if second mover uses the same picker formula").
+  Offline first (230 recorded two-ply decisions, 14 matchups): ~5 local
+  peaks among ~58 hexes a decision; grid 1/7 + climb = 28% of the work,
+  exact best 52%, within 2 points 78%; sparser nets lose accuracy but save
+  little more (the climb dominates). A/B (`tests/ab_batches.py --set search`,
+  same seeds, 50-turn cap; 100 battles Kontio vs Hammerhead, 60 the rest):
+  first mover on the grid - winners within dice noise in all 6 matchups
+  (Kontio 57 -> 63 / 54 with best 3; Bombardier vs Black Hawk 6 -> 11 / 11
+  of 60, borderline), battles a little shorter with slightly more hits a
+  turn, batches 1.4x (Atlas, slow) to 3.3x faster. A yardstick run on other
+  seeds (`--set baseline --seed 777`) moved hits a turn by up to 0.09 by dice
+  alone. Both movers on the grid (`--set search-both`): 20 battles each,
+  close in five matchups, but Kontio vs Hammerhead 6 / 20 (baseline 11 / 20);
+  100 battles confirmed it - Kontio 38 wins (baseline 57), the Hammerhead's
+  CT / engine deaths 35 -> 16. Likely: the Kontio's best spots are narrow
+  (the right adjacent hex and facing for its claws), the hardest kind of
+  peak for a sparse net to find. Benchmark with both on: ~14 s -> 3.0 s.
+  Also: `ab_batches.py` gained --set / --turns / --board / --seed, damage /
+  HP / identical-battle / speed columns; Daniel's 20-battle rule (Section 7);
+  `tests/test_movement_selection.py` grid_search_net_and_follow. Output:
+  `run_stats/ab_search_2026-10-21.txt`, `ab_noise_...`, `ab_both_...`.
 - **2026-10-21 (Claude):** Speed pass (session 6; Daniel: "Back to trying to
   speed up a simulation run"). Speed only - every reference log and the
   benchmark's 501 / 495 are unchanged. Benchmark ~17.9 s -> ~13.4 s (about
