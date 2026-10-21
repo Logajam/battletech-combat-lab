@@ -26,12 +26,12 @@ MECH SELECTION
   [Movement select] Blue: no enemy on the board yet - heads for its home edge near 0917 (closing fallback)
   [Movement] Blue: off the board -> 0206 S, Run (8 MP, 7 hexes, 2 heat; budget walk 6 / run 8 / jump 0)
     Red: Supercharger (turn 1 in a row) needs 3, rolled 3 - works.
-  [Movement select] Red: score 21979.807 = dealt 16.92 x1.30 / (received 0.00 x1.00 + PSR 0.00 + 0.001) [enemy held at 0206; 844 spots with LOS]
-  [Movement] Red: off the board -> 0105 NE, Run (14 MP, 13 hexes, 2 heat; budget walk 7 / run 14 / jump 0)
+  [Movement select] Red: score 482.963 = dealt 20.59 x1.30 + (HP 270.0 - received 1.00 x1.00 - PSR 0.00) / enemy future 7.23 x my future 12.26 [enemy held at 0206; 844 spots with LOS]
+  [Movement] Red: off the board -> 0205 NE, Run (14 MP, 13 hexes, 2 heat; budget walk 7 / run 14 / jump 0)
   [Ranged] Blue: no weapon can bear on Red (rear arc) - can't fire.
   [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
-  [Ranged] Red -> Blue: range 2, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['CLMicroPulseLaser', 'CLMediumPulseLaser', 'CLERSmallLaser', 'CLERSmallLaser', 'CLERSmallLaser', 'CLMediumPulseLaser', 'CLERSmallLaser'] (weapon heat 17 of budget 17 = max 9 + sink 20 - current 0 - movement 2 - other 10; expected dmg 14.56)
-    CLMicroPulseLaser: needs 9 (range mod +2, modifiers -2), rolled 9 -> HIT
+  [Ranged] Red -> Blue: range 1, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['CLMicroPulseLaser', 'CLMediumPulseLaser', 'CLERSmallLaser', 'CLERSmallLaser', 'CLERSmallLaser', 'CLMediumPulseLaser', 'CLERSmallLaser'] (weapon heat 17 of budget 17 = max 9 + sink 20 - current 0 - movement 2 - other 10; expected dmg 15.47)
+    CLMicroPulseLaser: needs 7 (range mod +0, modifiers -2), rolled 9 -> HIT
     CLMediumPulseLaser: needs 7 (range mod +0, modifiers -2), rolled 8 -> HIT
     CLERSmallLaser: needs 9 (range mod +0), rolled 11 -> HIT
     CLERSmallLaser: needs 9 (range mod +0), rolled 12 -> HIT
@@ -78,7 +78,7 @@ MECH SELECTION
   0.0 damage remains, transfers to nowhere (attack finished).
   [Heat] Red: 0 + movement 2 + weapons 17 + engine 0 + stealth 10 - sinks 20 -> 9
   [Heat] Red: heat 9 -> next turn -1 Walking MP, +1 to ranged attacks, TSM active (+2 Walking MP).
-  -- end of turn 1: Red @ 0105 NE: HP 203, pilot hits 0, engine 0, gyro 0, heat 9
+  -- end of turn 1: Red @ 0205 NE: HP 203, pilot hits 0, engine 0, gyro 0, heat 9
   -- end of turn 1: Blue @ 0206 S: HP 174.5, pilot hits 0, engine 6, gyro 4, heat 0 [DESTROYED (Center Torso Destroyed)]
 
 >>> Battle over on turn 1: Blue destroyed. <<<

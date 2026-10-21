@@ -66,14 +66,16 @@ def check(fn):
 
 
 def objective_of(cand, me, them):
-    """The picker's objective for one MovementCandidate (mover = me)."""
-    return ms._objective(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
-                         me.exposure[cand.side_on_mover], me.psr_cost(cand.mode, cand.fc))
+    """The picker's objective for one MovementCandidate (mover = me) - whichever
+    config.MOVEMENT_OBJECTIVE is set (full_scores links the sides)."""
+    return me.objective(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
+                        me.exposure[cand.side_on_mover], me.psr_cost(cand.mode, cand.fc))
 
 
 def full_scores(mover, other, standup_mp=None):
     """Every UNREDUCED state of `mover` scored against `other` where it stands."""
     me, them = ms._Side(mover), ms._Side(other)
+    ms._link(me, them)
     cands = ranged_combat.evaluate_going_second(
         mover, other, TERRAIN, defender_state={"fc": other.move_fc, "mode": other.move_mode}, standup_mp=standup_mp)
     return me, them, cands
@@ -396,8 +398,8 @@ def second_mover_takes_the_best_scoring_spot():
         pick, why = ms.choose(mover, other, TERRAIN, rng, moves_first=False)
         me, them, full = full_scores(mover, other)
         best = max(objective_of(c, me, them) for c in full)
-        if best <= 0:
-            continue
+        if not any(c.dealt > 0 for c in full):
+            continue                                   # nothing deals damage: the closing fallback picks
         match = [c for c in full if (c.hex, c.facing, c.mode, c.fc) == (pick["hex"], pick["facing"], pick["mode"], pick["fc"])]
         assert match, (pick, why)
         assert abs(objective_of(match[0], me, them) - best) < TOL, (pick, why, best)

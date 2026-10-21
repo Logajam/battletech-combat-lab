@@ -58,7 +58,7 @@ boards, test mechs and `meks.zip` (4,227 MegaMek units, 4,162 parse);
 `rules/` the rules library zip; `reference_logs/` same-seed sample battles.
 
 **After any change, from the repo root:** `python tests/run_checks.py` -
-one command, about 1.5 min in the cloud container: every `tests/test_*.py`
+one command, about 12 min in the cloud container (the Asymptote mirror reference battle runs 488 turns under the lifetime default): every `tests/test_*.py`
 (13 files) and every reference battle (12), side by side, one line each, all
 must pass. A reference log may differ only when the change is MEANT to alter
 results - then look at a fresh battle, run
@@ -66,7 +66,7 @@ results - then look at a fresh battle, run
 Record (Daniel has OK'd regenerating them for intended changes). For anything
 on the hot path add `--bench` (10 turns of the Asymptote mirror, the old
 default, pinned so timings stay comparable - a pure speed
-change must keep its HP totals, currently 477 / 468 (since the 2026-10-20 LOS fix); ~17-20 s in the cloud
+change must keep its HP totals, currently 501 / 495 (since the 2026-10-21 lifetime default); ~17-20 s in the cloud
 container, faster on Daniel's PC). The slowest checks, for whoever trims
 them: the Asymptote mirror reference battle (~80 s, the floor),
 `test_parallel_batch` (~60 s), `test_movement_selection` (~25 s).
@@ -155,10 +155,10 @@ open). Read it before building rules.
    spot where it deals a little and dies beats every safe one - the
    Hammerhead walks onto the board edge to be pushed off. Daniel's "lifetime"
    objective is built as an option (`config.MOVEMENT_OBJECTIVE`); A/B batches
-   (2026-10-21 Change Record): edge deaths 45 -> 12, but the out-matched
-   mech turns passive and battles double in length. Next: Daniel decides
-   (Claude's proposal: count the future term only when the mech can actually
-   get out of reach; otherwise take the best trade now).
+   (2026-10-21 Change Record): edge deaths 45 -> 12. Daniel added the history
+   blend (K = 3) and made it the DEFAULT (2026-10-21). Open: mirror matches
+   stall (the Asymptote mirror ran 488 turns) - Daniel to decide on an
+   anti-stall rule.
 0. **Known issues Daniel asked to fix later** (Section 4, "Known issues to
    fix later"): Arrow IV / artillery scatter must stay inside the firing arc;
    machine gun array ammo per gun needs a check / test.
@@ -662,6 +662,10 @@ forward arc, kicks included, never into a side arc.
   `INTEGRATION__stubs.py`, warns loudly every run, is counted into the
   results, keeps its knobs in config. (The movement stub is gone since
   2026-10-19.) Hit table default `mechsim_random`.
+- **Movement objective default (Daniel, 2026-10-21):** "lifetime" with the
+  history blend K = 3 is the default ("Switch this system to the new
+  default"); "ratio" stays available. No destruction filter ("Works for
+  pushes. Doesn't work elsewhere"); a desperate mech may take chances late.
 - **Movement objective option (Daniel, 2026-10-20):** after the board-edge
   finding (Section 4), Daniel's design, built as an option to test against the
   ratio ("Go for it as an option. Then we test a few batches of battles and see
@@ -864,6 +868,19 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-21 (Claude):** New default movement objective: "lifetime" with
+  the history blend, K = 3 (Daniel: "Switch this system to the new default").
+  `tests/test_movement_selection.py`'s brute-force helpers now score with the
+  configured objective (they used the ratio formula directly). All reference
+  logs regenerated (intended). Benchmark 477 / 468 -> 501 / 495 (15.3 s).
+  FINDING for Daniel: mirror matches stall. The Asymptote mirror reference
+  battle went from ~100 turns to 488 (cap 500): shots fired in only 55 of 488
+  turns, up to 33 turns in a row with none; it ended on a head hit. Equal
+  future damage on both sides means each fights only when this turn's trade
+  beats 1:1, so neither commits. That one battle makes run_checks.py take
+  ~12 min (was ~1.5). Options for Daniel: an anti-stall rule, or a turn cap
+  for that reference battle.
 
 - **2026-10-21 (Claude):** Time tracker (Daniel: "put a tracker on them to see
   where they're spending their time. We still need more speed"). New
