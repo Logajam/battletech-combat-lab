@@ -1053,6 +1053,16 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** BUG FIXED (RULES_REVIEW F40, p.94): Inner Sphere
+  endo-steel / ferro-fibrous / stealth / reactive / reflective / ballistic-
+  reinforced slots are written as plain names that don't match
+  equipment.json, and any plain name counted as a crit target - on ~1,090
+  units those 7-28 filler slots soaked critical hits meant for real
+  components. Now inapplicable (`equipment.is_structure_or_armor_slot`).
+  Found by a parse survey of all 4,227 units for unrecognized components
+  (the rest are non-Core gear: cargo, backhoes, torpedoes...). 3 reference
+  battles changed, same winners. test_rules
+  structure_and_armor_slots_take_no_crits.
 - **2026-10-21 (Claude):** Cockpits (RULES_REVIEW F39, p.203): small and
   torso-mounted cockpits +1 to every PSR (205 + 34 units in meks.zip);
   torso-mounted - no pilot hit from head hits, the head's loss isn't fatal

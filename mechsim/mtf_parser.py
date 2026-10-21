@@ -43,7 +43,7 @@ CURRENT effective MP each round.
 import re
 
 import config
-from equipment import lookup_equipment, ANATOMY_COMPONENTS, ENGINE_NAMES, Equipment
+from equipment import lookup_equipment, ANATOMY_COMPONENTS, ENGINE_NAMES, Equipment, is_structure_or_armor_slot
 from mech_state import ArmorType, StructureType, BattleMech, structure_for_tonnage, snapshot_round_capability
 from damage_resolution import is_partial_wing
 
@@ -366,7 +366,7 @@ def build_crit_list(raw_lines, special_rules_seen=None):
             i += 1
             continue
 
-        if base_name not in ANATOMY_COMPONENTS:
+        if base_name not in ANATOMY_COMPONENTS and not is_structure_or_armor_slot(base_name):
             # Genuinely unrecognized, benign-fallback case - gated behind VERBOSE
             # per Daniel's instruction (this isn't a data problem worth seeing by
             # default, just an untagged item running as inert padding).

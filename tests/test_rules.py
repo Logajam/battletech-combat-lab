@@ -587,6 +587,36 @@ def cockpit_types():
 
 
 @check
+def structure_and_armor_slots_take_no_crits():
+    """2026-10-21, Core p.94: endo-steel and other structure, ferro-fibrous
+    and other armor slots are inapplicable - a critical hit there is rolled
+    again. MegaMek's plain names for them used to count as crit targets."""
+    from equipment import is_crit_target
+    for name in ("Endo Steel", "Endo-Steel", "Endo Steel Prototype", "Endo-Composite", "Ferro-Fibrous",
+                 "Light Ferro-Fibrous", "Heavy Ferro-Fibrous", "Ferro-Fibrous Prototype", "Ferro-Lamellor",
+                 "Stealth", "Stealth Armor", "Reactive", "Reflective Armor", "IS Ballistic-Reinforced"):
+        assert not is_crit_target(name), name
+    for name in ("Hip", "Sensors", "Engine", "Gyro", "Life Support", "Conversion Gear"):
+        assert is_crit_target(name), name
+    m = fresh(parse_mtf(config.data_path("Akuma AKU-2XK.mtf")))          # plain "Endo-Steel" lines
+    fillers = [(loc, i) for loc, slots in m.crits.items() for i, s in enumerate(slots)
+               if isinstance(s, str) and ("Endo" in s or "Ferro" in s or "Stealth" in s)]
+    assert fillers, "the Akuma carries filler slots"
+    import damage_resolution as dr
+    real = config.pick_number
+    picked = []
+    try:
+        config.pick_number = lambda n, prompt="": picked.append(n) or 1
+        loc = fillers[0][0]
+        pool = sum(1 for s in m.crits[loc] if is_crit_target(s))
+        dr.resolve_critical(m, loc, explosive_only=False, idx=1, total=1)
+        assert not picked or picked[0] == pool
+        assert all(m.crits[l][i] != "DESTROYED" for l, i in fillers)
+    finally:
+        config.pick_number = real
+
+
+@check
 def explosions_and_case():
     """2026-10-20, Core p.96: no CASE - at most 20 structure damage, and when
     the base damage was over 20 the location that took the 20th point loses

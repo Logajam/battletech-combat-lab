@@ -146,6 +146,23 @@ ENGINE_NAMES = ("Fusion Engine", "XL Engine", "Light Engine", "Compact Engine", 
 PLAIN_STRING_CRIT_INELIGIBLE = ("CASE", "CASE II")
 
 
+# Structure / armor filler slots (Core p.94, 2026-10-21): "slots for CASE, TSM,
+# endo-steel and other structure, ferro-fibrous and other armor" can't take
+# critical damage - a hit there is rolled again. MegaMek writes them as plain
+# names ("Endo Steel", "Ferro-Fibrous", "Stealth", "IS Ballistic-Reinforced"...)
+# that don't resolve against equipment.json, so before this they stayed plain
+# strings that is_crit_target counted as targets - an endo / ferro 'Mech's 7-28
+# filler slots soaked critical hits that belong to its real components.
+STRUCTURE_ARMOR_SLOT_WORDS = ("ENDOSTEEL", "ENDOCOMPOSITE", "FERROFIBROUS", "FERROLAMELLOR", "STEALTH",
+                              "REACTIVE", "REFLECTIVE", "BALLISTICREINFORCED")
+
+
+def is_structure_or_armor_slot(name):
+    """True for a structure / armor filler slot name (STRUCTURE_ARMOR_SLOT_WORDS)."""
+    norm = "".join(c for c in str(name).upper() if c.isalpha())
+    return any(word in norm for word in STRUCTURE_ARMOR_SLOT_WORDS)
+
+
 def is_crit_target(slot):
     """Can this crit-slot entry be the RESULT of a random critical-hit roll?
     Respects Equipment.crit_eligible (data-driven, from equipment.json) - e.g.
@@ -156,4 +173,4 @@ def is_crit_target(slot):
         return False
     if isinstance(slot, Equipment):
         return slot.crit_eligible
-    return True
+    return not is_structure_or_armor_slot(slot)
