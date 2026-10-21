@@ -108,6 +108,35 @@ def standing_up_then_moving():
 
 
 @check
+def jump_in_place_and_minimum_movement():
+    """2026-10-21: p.50 - a 'Mech may jump into its own hex for 1 MP (any
+    facing, 0 hexes, +1 TMM for jumping). p.49 - Minimum Movement: with at
+    least 1 MP, a run into the hex straight ahead even without the MP it
+    costs, if that is the whole move; never into a prohibited hex."""
+    import copy
+    hawk = fresh(parse_mtf(config.data_path("Black Hawk (Nova) F.mtf")))
+    sx, sy = hex_geometry.parse_hex_label(hawk.hex)
+    in_place = [st for st in ranged_combat.movement_options(hawk, TERRAIN) if st[:2] == (sx, sy) and st[4] == "Jump"]
+    assert sorted(st[2] for st in in_place) == list(range(6)) and all(st[3] == 0 and st[5] == 1 for st in in_place)
+    import combat
+    assert combat.fc_to_tmm(0, jumped=True) == 1
+    m = fresh()                                                     # 0808 facing N
+    ahead = hex_geometry.hex_label(sx, sy + 2)
+    tm = copy.deepcopy(TERRAIN)
+    tm["hexes"][ahead] = dict(tm["hexes"][ahead], level=1, features={"woods": ["2"]})   # 1 + 2 woods + 1 level
+    level_limit = 2
+    got = ranged_combat._minimum_move(m, tm, sx, sy, 0, 2, set(), level_limit)
+    assert got == (sx, sy + 2, 0, 1, "Run", 2), got
+    assert ranged_combat._minimum_move(m, tm, sx, sy, 0, 4, set(), level_limit) is None   # affordable: normal move
+    assert ranged_combat._minimum_move(m, tm, sx, sy, 0, 0, set(), level_limit) is None   # needs 1 MP
+    tm["hexes"][ahead] = dict(tm["hexes"][ahead], level=3, features={})                 # 3 levels up: prohibited
+    assert ranged_combat._minimum_move(m, tm, sx, sy, 0, 2, set(), level_limit) is None
+    m.blocked_hex = (sx, sy + 2)                                    # a mobile enemy there
+    tm["hexes"][ahead] = dict(tm["hexes"][ahead], level=1, features={"woods": ["2"]})
+    assert ranged_combat._minimum_move(m, tm, sx, sy, 0, 2, set(), level_limit) is None
+
+
+@check
 def weapon_and_equipment_modifiers():
     """Weapon entries pp.184-189 and targeting computer p.200."""
     from equipment import Equipment

@@ -36,7 +36,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 2 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 495.208 = dealt 5.28 x1.00 + (HP 326.0 - received 2.94 x1.01 - PSR 0.00) / enemy future 7.31 x my future 11.09 [two-ply, 180 of 601 spots (grid search) x 508 replies (grid search); modeled reply Blue -> 1104 S Jump]
+  [Movement select] Red: score 495.208 = dealt 5.28 x1.00 + (HP 326.0 - received 2.94 x1.01 - PSR 0.00) / enemy future 7.31 x my future 11.09 [two-ply, 186 of 607 spots (grid search) x 514 replies (grid search); modeled reply Blue -> 1104 S Jump]
   [Movement] Red: 0816 NE -> 1116 NE, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue: score 256.633 = dealt 2.94 x1.01 + (HP 390.0 - received 5.28 x1.00 - PSR 0.00) / enemy future 11.09 x my future 7.31 [enemy held at 1116; 36 spots with LOS]
   [Movement] Blue: 0704 SE -> 1004 S, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
@@ -65,7 +65,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 3 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 199.068 = dealt 0.00 x1.00 + (HP 381.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 10.50 x my future 5.48 [two-ply, 92 of 485 spots (grid search) x 722 replies (grid search); modeled reply: none with LOS]
+  [Movement select] Blue: score 199.068 = dealt 0.00 x1.00 + (HP 381.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 10.50 x my future 5.48 [two-ply, 98 of 491 spots (grid search) x 728 replies (grid search); modeled reply: none with LOS]
   [Movement] Blue: 1004 S -> 1202 NE, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 1116 NE -> 1011 N, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
@@ -78,7 +78,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 4 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 630.149 = dealt 9.36 x1.00 + (HP 326.0 - received 1.64 x1.00 - PSR 0.00) / enemy future 4.39 x my future 8.40 [two-ply, 220 of 839 spots (grid search) x 444 replies (grid search); modeled reply Blue -> 1404 S Jump]
+  [Movement select] Red: score 630.149 = dealt 9.36 x1.00 + (HP 326.0 - received 1.64 x1.00 - PSR 0.00) / enemy future 4.39 x my future 8.40 [two-ply, 226 of 845 spots (grid search) x 450 replies (grid search); modeled reply Blue -> 1404 S Jump]
   [Movement] Red: 1011 N -> 1011 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue: score 195.822 = dealt 1.64 x1.00 + (HP 381.0 - received 9.36 x1.00 - PSR 0.00) / enemy future 8.40 x my future 4.39 [enemy held at 1011; 24 spots with LOS]
   [Movement] Blue: 1202 NE -> 1404 S, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
@@ -99,7 +99,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 5 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 199.068 = dealt 0.00 x1.00 + (HP 381.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 7.00 x my future 3.66 [two-ply, 97 of 404 spots (grid search) x 839 replies (grid search); modeled reply: none with LOS]
+  [Movement select] Blue: score 199.068 = dealt 0.00 x1.00 + (HP 381.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 7.00 x my future 3.66 [two-ply, 103 of 410 spots (grid search) x 845 replies (grid search); modeled reply: none with LOS]
   [Movement] Blue: 1404 S -> 1202 N, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 1011 N -> 0308 NW, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
@@ -112,7 +112,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 6 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 627.143 = dealt 9.36 x1.00 + (HP 326.0 - received 3.21 x1.00 - PSR 0.00) / enemy future 3.13 x my future 6.00 [two-ply, 197 of 742 spots (grid search) x 434 replies (grid search); modeled reply Blue -> 1404 SW Jump]
+  [Movement select] Red: score 627.143 = dealt 9.36 x1.00 + (HP 326.0 - received 3.21 x1.00 - PSR 0.00) / enemy future 3.13 x my future 6.00 [two-ply, 203 of 748 spots (grid search) x 440 replies (grid search); modeled reply Blue -> 1404 SW Jump]
   [Movement] Red: 0308 NW -> 0609 NE, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
   [Movement select] Blue: score 197.393 = dealt 3.21 x1.00 + (HP 381.0 - received 9.36 x1.00 - PSR 0.00) / enemy future 6.00 x my future 3.13 [enemy held at 0609; 36 spots with LOS]
   [Movement] Blue: 1202 N -> 1404 SW, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
@@ -164,9 +164,9 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 7 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 525.680 = dealt 14.04 x1.00 + (HP 318.0 - received 5.59 x1.01 - PSR 0.00) / enemy future 3.72 x my future 6.09 [two-ply, 160 of 1024 spots (grid search) x 403 replies (grid search); modeled reply Blue -> 1505 NW Walk]
+  [Movement select] Red: score 525.680 = dealt 14.04 x1.00 + (HP 318.0 - received 5.59 x1.01 - PSR 0.00) / enemy future 3.72 x my future 6.09 [two-ply, 166 of 1030 spots (grid search) x 409 replies (grid search); modeled reply Blue -> 1505 NW Walk]
   [Movement] Red: 0609 NE -> 0603 N, Run (7 MP, 6 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
-  [Movement select] Blue: score 225.402 = dealt 5.59 x1.01 + (HP 374.0 - received 14.04 x1.00 - PSR 0.00) / enemy future 6.09 x my future 3.72 [enemy held at 0603; 97 spots with LOS]
+  [Movement select] Blue: score 225.402 = dealt 5.59 x1.01 + (HP 374.0 - received 14.04 x1.00 - PSR 0.00) / enemy future 6.09 x my future 3.72 [enemy held at 0603; 103 spots with LOS]
   [Movement] Blue: 1404 SW -> 1505 NW, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 4) - includes a backward move
   [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
   [Ranged] Red -> Blue: range 9, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLHAG20'] (weapon heat 19 of budget 30 = max 4 + sink 28 - current 0 - movement 2 - other 0; expected dmg 14.04)
@@ -195,9 +195,9 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 8 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 662.646 = dealt 5.28 x0.98 + (HP 318.0 - received 3.02 x1.00 - PSR 0.00) / enemy future 3.30 x my future 6.90 [two-ply, 143 of 798 spots (grid search) x 363 replies (grid search); modeled reply Blue -> 1505 NW Stand Still]
+  [Movement select] Red: score 662.646 = dealt 5.28 x0.98 + (HP 318.0 - received 3.02 x1.00 - PSR 0.00) / enemy future 3.30 x my future 6.90 [two-ply, 149 of 804 spots (grid search) x 369 replies (grid search); modeled reply Blue -> 1505 NW Stand Still]
   [Movement] Red: 0603 N -> 0206 NE, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
-  [Movement select] Blue: score 173.015 = dealt 3.02 x1.00 + (HP 360.0 - received 5.28 x0.98 - PSR 0.00) / enemy future 6.90 x my future 3.30 [enemy held at 0206; 91 spots with LOS]
+  [Movement select] Blue: score 173.015 = dealt 3.02 x1.00 + (HP 360.0 - received 5.28 x0.98 - PSR 0.00) / enemy future 6.90 x my future 3.30 [enemy held at 0206; 97 spots with LOS]
   [Movement] Blue: 1505 NW -> 1505 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
   [Ranged] Red -> Blue: range 13, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLHAG20'] (weapon heat 19 of budget 27 = max 4 + sink 28 - current 0 - movement 5 - other 0; expected dmg 5.28)
     CLERMediumLaser: needs 11 (range mod +4), rolled 5 -> miss
@@ -234,7 +234,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 9 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 147.596 = dealt 0.72 x1.00 + (HP 344.0 - received 1.06 x0.97 - PSR 0.00) / enemy future 8.08 x my future 3.46 [two-ply, 100 of 363 spots (grid search) x 475 replies (grid search); modeled reply Red -> 0102 SE Jump]
+  [Movement select] Blue: score 147.596 = dealt 0.72 x1.00 + (HP 344.0 - received 1.06 x0.97 - PSR 0.00) / enemy future 8.08 x my future 3.46 [two-ply, 106 of 369 spots (grid search) x 481 replies (grid search); modeled reply Red -> 0102 SE Jump]
   [Movement] Blue: 1505 NW -> 1303 N, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red: score 730.247 = dealt 1.06 x0.97 + (HP 313.0 - received 0.72 x1.00 - PSR 0.00) / enemy future 3.46 x my future 8.08 [enemy held at 1303; 12 spots with LOS]
   [Movement] Red: 0206 NE -> 0102 SE, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
@@ -255,7 +255,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 10 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 732.267 = dealt 5.38 x0.97 + (HP 313.0 - received 1.64 x1.01 - PSR 0.00) / enemy future 3.14 x my future 7.34 [two-ply, 135 of 299 spots (grid search) x 447 replies (grid search); modeled reply Blue -> 1405 N Jump]
+  [Movement select] Red: score 732.267 = dealt 5.38 x0.97 + (HP 313.0 - received 1.64 x1.01 - PSR 0.00) / enemy future 3.14 x my future 7.34 [two-ply, 141 of 305 spots (grid search) x 453 replies (grid search); modeled reply Blue -> 1405 N Jump]
   [Movement] Red: 0102 SE -> 0304 S, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue: score 146.731 = dealt 1.64 x1.01 + (HP 344.0 - received 5.38 x0.97 - PSR 0.00) / enemy future 7.34 x my future 3.14 [enemy held at 0304; 67 spots with LOS]
   [Movement] Blue: 1303 N -> 1405 N, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
@@ -281,7 +281,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 11 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 133.194 = dealt 0.00 x1.00 + (HP 337.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 7.29 x my future 2.88 [two-ply, 76 of 425 spots (grid search) x 544 replies (grid search); modeled reply: none with LOS]
+  [Movement select] Blue: score 133.194 = dealt 0.00 x1.00 + (HP 337.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 7.29 x my future 2.88 [two-ply, 82 of 431 spots (grid search) x 550 replies (grid search); modeled reply: none with LOS]
   [Movement] Blue: 1405 N -> 1608 SW, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 0304 S -> 0707 SE, Run (7 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
@@ -294,7 +294,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 12 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 793.311 = dealt 9.71 x0.98 + (HP 313.0 - received 3.21 x1.01 - PSR 0.00) / enemy future 2.66 x my future 6.73 [two-ply, 224 of 955 spots (grid search) x 279 replies (grid search); modeled reply Blue -> 1511 N Jump]
+  [Movement select] Red: score 793.311 = dealt 9.71 x0.98 + (HP 313.0 - received 3.21 x1.01 - PSR 0.00) / enemy future 2.66 x my future 6.73 [two-ply, 230 of 961 spots (grid search) x 285 replies (grid search); modeled reply Blue -> 1511 N Jump]
   [Movement] Red: 0707 SE -> 0608 N, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
   [Movement select] Blue: score 132.651 = dealt 3.21 x1.01 + (HP 337.0 - received 9.71 x0.98 - PSR 0.00) / enemy future 6.73 x my future 2.66 [enemy held at 0608; 42 spots with LOS]
   [Movement] Blue: 1608 SW -> 1511 N, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
@@ -338,7 +338,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 13 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 156.286 = dealt 0.00 x1.00 + (HP 337.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 6.25 x my future 2.90 [two-ply, 86 of 369 spots (grid search) x 1059 replies (grid search); modeled reply: none with LOS]
+  [Movement select] Blue: score 156.286 = dealt 0.00 x1.00 + (HP 337.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 6.25 x my future 2.90 [two-ply, 92 of 375 spots (grid search) x 1065 replies (grid search); modeled reply: none with LOS]
   [Movement] Blue: 1511 N -> 1413 SE, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 0608 N -> 0513 S, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
@@ -351,7 +351,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 14 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 663.091 = dealt 20.36 x0.98 + (HP 307.0 - received 8.80 x1.00 - PSR 0.00) / enemy future 2.71 x my future 5.83 [two-ply, 213 of 833 spots (grid search) x 475 replies (grid search); modeled reply Blue -> 1114 N Jump]
+  [Movement select] Red: score 663.091 = dealt 20.36 x0.98 + (HP 307.0 - received 8.80 x1.00 - PSR 0.00) / enemy future 2.71 x my future 5.83 [two-ply, 219 of 839 spots (grid search) x 481 replies (grid search); modeled reply Blue -> 1114 N Jump]
   [Movement] Red: 0513 S -> 0513 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue: score 155.773 = dealt 8.80 x1.00 + (HP 337.0 - received 20.36 x0.98 - PSR 0.00) / enemy future 5.83 x my future 2.71 [enemy held at 0513; 42 spots with LOS]
   [Movement] Blue: 1413 SE -> 1114 N, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
@@ -400,7 +400,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
 
 === TURN 15 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 122.716 = dealt 4.16 x1.00 + (HP 314.0 - received 10.66 x1.06 - PSR 0.00) / enemy future 7.23 x my future 2.83 [two-ply, 123 of 478 spots (grid search) x 833 replies (grid search); modeled reply Red -> 0916 S Jump]
+  [Movement select] Blue: score 122.716 = dealt 4.16 x1.00 + (HP 314.0 - received 10.66 x1.06 - PSR 0.00) / enemy future 7.23 x my future 2.83 [two-ply, 129 of 484 spots (grid search) x 839 replies (grid search); modeled reply Red -> 0916 S Jump]
   [Movement] Blue: 1114 N -> 0816 NW, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red: score 771.795 = dealt 10.66 x1.06 + (HP 302.0 - received 4.16 x1.00 - PSR 0.00) / enemy future 2.83 x my future 7.23 [enemy held at 0816; 46 spots with LOS]
   [Movement] Red: 0513 S -> 0916 S, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
@@ -460,9 +460,9 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
 
 === TURN 16 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 86.462 = dealt 4.17 x1.00 + (HP 303.0 - received 25.42 x0.91 - PSR 0.00) / enemy future 7.45 x my future 2.19 [two-ply, 94 of 332 spots (grid search) x 633 replies (grid search); modeled reply Red -> 1116 NE Walk]
+  [Movement select] Blue: score 86.462 = dealt 4.17 x1.00 + (HP 303.0 - received 25.42 x0.91 - PSR 0.00) / enemy future 7.45 x my future 2.19 [two-ply, 100 of 338 spots (grid search) x 639 replies (grid search); modeled reply Red -> 1116 NE Walk]
   [Movement] Blue: 0816 NW -> 1215 NE, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 1036.238 = dealt 25.42 x0.91 + (HP 302.0 - received 4.17 x1.00 - PSR 0.00) / enemy future 2.19 x my future 7.45 [enemy held at 1215; 192 spots with LOS]
+  [Movement select] Red: score 1036.238 = dealt 25.42 x0.91 + (HP 302.0 - received 4.17 x1.00 - PSR 0.00) / enemy future 2.19 x my future 7.45 [enemy held at 1215; 198 spots with LOS]
   [Movement] Red: 0916 S -> 1116 NE, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Ranged] Blue -> Red: range 1, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 0); firing ['ISMediumLaser', 'ISMediumLaser'] (weapon heat 6 of budget 16 = max 4 + sink 16 - current 0 - movement 4 - other 0; expected dmg 4.17)
     ISMediumLaser: needs 8 (range mod +0), rolled 5 -> miss
@@ -548,7 +548,7 @@ FALL (failed to stand): Cataphract CTF-3D takes 7 falling damage (1D6 1: rear ta
   Seatbelt check: needs 5. Rolled 8. Pilot unharmed.
 Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   [Movement] Blue: still prone at 1215.
-  [Movement select] Red: score 1848.471 = dealt 60.20 x1.17 + (HP 290.0 - received 2.08 x0.99 - PSR 0.00) / enemy future 2.07 x my future 12.78 [enemy held at 1215; 194 spots with LOS]
+  [Movement select] Red: score 1848.471 = dealt 60.20 x1.17 + (HP 290.0 - received 2.08 x0.99 - PSR 0.00) / enemy future 2.07 x my future 12.78 [enemy held at 1215; 200 spots with LOS]
   [Movement] Red: 1116 NE -> 1216 NW, Walk (5 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
   [Ranged] Blue -> Red: range 1, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0 + prone +2); firing ['ISMediumLaser'] (weapon heat 3 of budget 18 = max 4 + sink 16 - current 0 - movement 2 - other 0; expected dmg 2.08)
     ISMediumLaser: needs 8 (range mod +0), rolled 8 -> HIT

@@ -41,7 +41,7 @@ MECH SELECTION
 
 === TURN 2 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 1523.893 = dealt 0.00 x1.01 + (HP 674.0 - received 4.92 x1.02 - PSR 0.00) / enemy future 5.42 x my future 12.35 [two-ply, 72 of 371 spots (grid search) x 575 replies (grid search); modeled reply Blue -> 0911 SE Run]
+  [Movement select] Red: score 1523.893 = dealt 0.00 x1.01 + (HP 674.0 - received 4.92 x1.02 - PSR 0.00) / enemy future 5.42 x my future 12.35 [two-ply, 78 of 377 spots (grid search) x 575 replies (grid search); modeled reply Blue -> 0911 SE Run]
   [Movement] Red: 0402 SE -> 0905 NW, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
   [Movement select] Blue: score 170.065 = dealt 4.92 x1.02 + (HP 376.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 12.35 x my future 5.42 [enemy held at 0905; 153 spots with LOS]
   [Movement] Blue: 0805 SW -> 0810 NE, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
@@ -73,7 +73,7 @@ MECH SELECTION
 
 === TURN 3 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 1011.756 = dealt 0.00 x1.01 + (HP 666.0 - received 1.36 x1.27 - PSR 0.00) / enemy future 6.08 x my future 9.26 [two-ply, 123 of 613 spots (grid search) x 1535 replies (grid search); modeled reply Blue -> 0810 NE Stand Still]
+  [Movement select] Red: score 1011.756 = dealt 0.00 x1.01 + (HP 666.0 - received 1.36 x1.27 - PSR 0.00) / enemy future 6.08 x my future 9.26 [two-ply, 129 of 619 spots (grid search) x 1535 replies (grid search); modeled reply Blue -> 0810 NE Stand Still]
   [Movement] Red: 0905 NW -> 0503 N, Jump (5 MP, 4 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
     Blue: MASC (turn 1 in a row) needs 3, rolled 6 - works.
     Blue: Supercharger (turn 1 in a row) needs 3, rolled 8 - works.
@@ -101,7 +101,7 @@ MECH SELECTION
 
 === TURN 4 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 247.254 = dealt 0.00 x1.00 + (HP 376.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 7.41 x my future 4.87 [two-ply, 79 of 306 spots (grid search) x 450 replies (grid search); modeled reply: none with LOS]
+  [Movement select] Blue: score 247.254 = dealt 0.00 x1.00 + (HP 376.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 7.41 x my future 4.87 [two-ply, 79 of 306 spots (grid search) x 456 replies (grid search); modeled reply: none with LOS]
   [Movement] Blue: 0810 NE -> 1109 NE, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 0503 N -> 1004 N, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
@@ -117,7 +117,7 @@ MECH SELECTION
   Initiative: Blue lost the roll, moves first.
     Blue: MASC (turn 1 in a row) needs 3, rolled 5 - works.
     Blue: Supercharger (turn 1 in a row) needs 3, rolled 9 - works.
-  [Movement select] Blue: score 276.807 = dealt 7.51 x1.28 + (HP 376.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 6.17 x my future 4.39 [two-ply, 219 of 1364 spots (grid search) x 597 replies (grid search); modeled reply Red -> 1406 N Jump]
+  [Movement select] Blue: score 276.807 = dealt 7.51 x1.28 + (HP 376.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 6.17 x my future 4.39 [two-ply, 219 of 1364 spots (grid search) x 603 replies (grid search); modeled reply Red -> 1406 N Jump]
   [Movement] Blue: 1109 NE -> 1610 SW, Run (12 MP, 9 hexes, 2 heat; budget walk 5 / run 13 / jump 0)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 1004 N -> 1406 N, Jump (5 MP, 4 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
@@ -139,7 +139,7 @@ MECH SELECTION
 
 === TURN 6 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 676.525 = dealt 0.00 x1.01 + (HP 664.0 - received 1.01 x1.01 - PSR 0.00) / enemy future 5.19 x my future 5.29 [two-ply, 121 of 477 spots (grid search) x 433 replies (grid search); modeled reply Blue -> 1606 S Walk]
+  [Movement select] Red: score 676.525 = dealt 0.00 x1.01 + (HP 664.0 - received 1.01 x1.01 - PSR 0.00) / enemy future 5.19 x my future 5.29 [two-ply, 127 of 483 spots (grid search) x 433 replies (grid search); modeled reply Blue -> 1606 S Walk]
   [Movement] Red: 1406 N -> 1006 S, Jump (5 MP, 4 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
   [Movement select] Blue: score 369.493 = dealt 1.01 x1.01 + (HP 376.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 5.29 x my future 5.19 [enemy held at 1006; 42 spots with LOS]
   [Movement] Blue: 1610 SW -> 1607 N, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
@@ -160,7 +160,7 @@ MECH SELECTION
 
 === TURN 7 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 677.279 = dealt 0.00 x1.01 + (HP 664.0 - received 0.28 x1.02 - PSR 0.00) / enemy future 4.54 x my future 4.63 [two-ply, 107 of 600 spots (grid search) x 937 replies (grid search); modeled reply Blue -> 0709 NW Run]
+  [Movement select] Red: score 677.279 = dealt 0.00 x1.01 + (HP 664.0 - received 0.28 x1.02 - PSR 0.00) / enemy future 4.54 x my future 4.63 [two-ply, 113 of 606 spots (grid search) x 937 replies (grid search); modeled reply Blue -> 0709 NW Run]
   [Movement] Red: 1006 S -> 0505 SE, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
     Blue: MASC (turn 1 in a row) needs 3, rolled 7 - works.
     Blue: Supercharger (turn 1 in a row) needs 3, rolled 7 - works.
@@ -182,7 +182,7 @@ MECH SELECTION
 
 === TURN 8 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 370.678 = dealt 2.21 x1.00 + (HP 376.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 4.12 x my future 4.03 [two-ply, 116 of 624 spots (grid search) x 573 replies (grid search); modeled reply Red -> 0806 SE Walk]
+  [Movement select] Blue: score 370.678 = dealt 2.21 x1.00 + (HP 376.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 4.12 x my future 4.03 [two-ply, 116 of 624 spots (grid search) x 579 replies (grid search); modeled reply Red -> 0806 SE Walk]
   [Movement] Blue: 0709 N -> 1209 NE, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 0505 SE -> 0806 SE, Walk (3 MP, 3 hexes, 1 heat; budget walk 3 / run 4 / jump 5)
@@ -271,7 +271,7 @@ Heat Phase (ammo explosion) consciousness check (pilot, 2 pilot hits): needs 5. 
 
 === TURN 9 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 19309.395 = dealt 63.39 x3.00 + (HP 664.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.00 x my future 28.79 [two-ply, 126 of 620 spots (grid search) x 1 replies (grid search); modeled reply Blue -> 1209 NE Stand Still]
+  [Movement select] Red: score 19309.395 = dealt 63.39 x3.00 + (HP 664.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.00 x my future 28.79 [two-ply, 132 of 626 spots (grid search) x 1 replies (grid search); modeled reply Blue -> 1209 NE Stand Still]
   [Movement] Red: 0806 SE -> 1110 S, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
   [Movement] Blue: shut down - skips movement (immobile).
   [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).

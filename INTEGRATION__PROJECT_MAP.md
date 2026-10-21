@@ -1053,6 +1053,16 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Movement options (RULES_REVIEW G5, G8 -> F38):
+  jumping into the mech's own hex for 1 MP (p.50 - any facing, +1 TMM, 3
+  heat) and Minimum Movement (p.49 - run one hex straight ahead without the
+  MP it costs, as the whole move). Reference logs regenerated: 10 changed
+  (jump-capable mechs), same winners; the Asymptote mirror still hits the
+  cap but trades more (6 / 6 damage -> 15 / 27). Benchmark 495 / 495. Not
+  built: G12 (a charge after a backward step - the charge planner's paths
+  are forward-only; a bot option). G7 (prone LOS height) waits for Daniel
+  with D8 - `pathfinder/los.py` is his ruleset ("don't change without
+  asking").
 - **2026-10-21 (Claude):** Armored components (RULES_REVIEW G14 -> F37),
   and a parser bug found on the way: MegaMek's "(armored)" tag wasn't
   stripped, so on the 37 units carrying it an armored engine / gyro /
