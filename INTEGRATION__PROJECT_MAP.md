@@ -1025,6 +1025,24 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Knowledge A/B (Daniel: "If Red moves perfectly,
+  and thinks Blue will move perfectly But blue moves using the fast method
+  ... See how much of an advantage perfect knowledge is vs close enough").
+  `tests/ab_batches.py --set knowledge`, 20 battles a setting, same seeds,
+  50-turn cap. "Perfect" = exhaustive search; "expects" = the search it
+  assumes for the enemy's reply. Wins of the side named (all fast = 0):
+  Kontio (R) 11 vs Hammerhead (B) 8: R perfect +1 / +3 (expecting perfect /
+  fast), B perfect 0 / -2; a fast side expecting perfect: R -2, B -2.
+  Kintaro (R) 6 vs Atlas (B) 13: R perfect 0 / +1, B perfect +5 / +6;
+  expecting perfect: R -1, B +1. Bombardier (R) 6 vs Black Hawk (B) 13: R
+  perfect -2 / 0, B perfect +6 / +4; expecting perfect: R -5, B +3.
+  Cataphract (R) 1 vs Emperor (B) 19: R perfect +2 / -1, B perfect 0 / -1
+  (at the ceiling); expecting perfect: R -1, B +1. Dice noise at 20 battles
+  is about +-2 wins. Reading: searching perfectly helped the side already
+  winning (Atlas, Black Hawk ~ +5, Kontio +1 to +3) and not the underdog;
+  what a side assumes about the enemy's search made no consistent
+  difference. A perfect side runs 0.3-0.6x the default's speed. Output:
+  `run_stats/ab_knowledge_2026-10-21.txt`.
 - **2026-10-21 (Claude):** The grid search is the DEFAULT (Daniel: "I think it
   should become the default"), and each side can have its own search
   (Daniel: "See how much of an advantage perfect knowledge is vs close
