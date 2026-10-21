@@ -13,36 +13,31 @@ source project's file overwrite the other's same-named file.
 
 ---
 
-## 0. WHERE WE ARE (2026-10-21, end of session 4) — read this first
+## 0. WHERE WE ARE (2026-10-21, end of session 5) — read this first
 
-**Session 4 in one paragraph (all merged to `main`, PRs #18-#31):** one-command
-checks (`tests/run_checks.py`); default matchup Kontio vs Hammerhead (the
-starter set's example battle); Actuator Enhancement System (p.206); battle
-REPLAYS (shareable HTML pages); LOS on the border of two hexes fixed (p.56 -
-the second hex was often missed, and the board edge crashed); the two-ply
-models MASC / supercharger speed; a new movement objective, Daniel's
-"lifetime" with a history blend, A/B-tested and made the DEFAULT; a time
-tracker on every batch; reference battles capped at 50 turns. Details and
-A/B numbers: Change Record (Section 8), Daniel's calls: Section 5.
-
-**Maps (2026-10-21, the parallel maps instance - merged after PR #31):**
+**Session 5 in one paragraph - MAPS (all merged to `main`, PRs #32-#36):**
 Daniel's MegaMek map pack is `data/maps.zip` (346 maps, 192 of them 16x17);
-`python tests/survey_maps.py` says which play and what stops the rest.
-165 of the 192 16x17 maps play (31 did before - the rest crashed, didn't
-load, or had buildings / cliffs silently ignored). Built: costs and stacking,
-road travel, level-change limits, jump landing height, PASSIVE buildings
-(`config.PASSIVE_BUILDINGS`), and a load-time refusal of terrain not built
-yet. Water part 1 (F29, `INTEGRATION__water`): depth as level, partial
-cover, the water line, underwater weapons / ranges, heat sinks, jump jets,
-water PSRs, halved falls. Water part 2 (F30): physical attacks in water,
-hull breaches, drowning. Deployment (F31, `INTEGRATION__deployment`):
-start up to `DEPLOYMENT_DEPTH` hexes in, roofs allowed, never stuck - the
-override goes 3 in (the Solaris arenas play now). The movement subphase
-(F32): the picker plans, the mech walks the path rolling each terrain PSR
-where it happens (water when running, rubble, sand, mud, backward level
-changes), and re-plans after a fall. The full building rules are deferred
-to a later session (Daniel, 2026-10-21). Details: RULES_REVIEW F24-F28, G6, G19; Section 4
-"Map terrain waiting on rules".
+`python tests/survey_maps.py` says which play and what stops the rest - 165
+of the 192 16x17 maps play (31 did before; the rest crashed, didn't load, or
+had buildings / cliffs / water silently ignored). Built (RULES_REVIEW
+F24-F32): terrain costs and stacking, road travel, the 2-level climbing
+limit, jump landing height; PASSIVE buildings (`config.PASSIVE_BUILDINGS`,
+Daniel's option); a load-time refusal of terrain not built yet; the water
+rules (`INTEGRATION__water`: depth as level, partial cover, the water line,
+underwater weapons and ranges, heat sinks, jump jets, physical attacks,
+hull breaches, drowning, halved falls); deployment depth with the stuck-
+terrain override (`INTEGRATION__deployment`, the Solaris arenas play); and
+Daniel's MOVEMENT SUBPHASE - the picker plans, the mech walks the path
+rolling each terrain PSR where it happens (water when running, rubble,
+sand, mud, backward level changes) and re-plans after a fall. Reference
+battles on Military Base 1 (buildings, cliffs) and Large Lakes 1 (water).
+Daniel deferred the full building rules and the breach-risk pricing (with
+his cluster-weapon / risky-equipment costing idea) to later sessions.
+Details: Change Record (Section 8), Daniel's calls: Section 5.
+
+**Session 4 (PRs #18-#31), for reference:** one-command checks; Kontio vs
+Hammerhead default; AES; replays; LOS on hex borders; the "lifetime"
+movement objective (default); the time tracker; 50-turn reference cap.
 
 **Hand-off for a new instance.** Daniel's goal: "beat the simulator into
 shape." He is not a GitHub person - **Claude runs the logistics** (Daniel,
@@ -81,8 +76,8 @@ parse); `rules/` the rules library zip; `reference_logs/` same-seed sample
 battles; `replays/` and `run_stats/` (git-ignored) generated output.
 
 **After any change, from the repo root:** `python tests/run_checks.py` -
-one command, about 3 min: every `tests/test_*.py` (14 files) and every
-reference battle (13), side by side, one line each, all must pass. Reference
+one command, about 4 min: every `tests/test_*.py` (16 files) and every
+reference battle (15), side by side, one line each, all must pass. Reference
 battles stop at 50 turns (`check_reference_logs.TEST_BATTLE_MAX_TURNS`,
 Daniel); one that hits the cap prints a NOTE ("a possible flaw") - today
 only the Asymptote mirror (the stall, Pick up here 0). A reference log may
@@ -224,21 +219,22 @@ open). Read it before building rules.
    priced in movement scoring - Daniel's rule so far is "only Movement-phase
    PSRs count". A bot target choosing the clearer hex on a two-hex LOS line
    (p.56) isn't modeled (Section 6).
-7. **Maps** (see above): leftovers - water (G6), the subphase's (G20: damage
-   PSRs in the END hex, charge's last step, mud's -1 in scoring), and
-   **pricing hull-breach risk in movement scoring** (Daniel, 2026-10-21: "How
-   does the bot price the chance of a breach if it falls or takes damage in
-   water?" - today it doesn't: falls and incoming fire in water are priced
-   as on land (falls halved); the 2-4 breach chance per damaged underwater
-   location, the automatic breach of an armorless one, and what a breach
-   costs (a leg = destroyed, a torso's engine / gyro slots) are not counted,
-   while water's benefits - sink bonus, cover, the water line - are);
-   **deferred to a later session (Daniel, 2026-10-21): the full building
-   rules** (forced entry, inside, damage, collapse, bridges, pp.53, 130-136 -
-   a discussion first; passive buildings stand in until then); terrain PSRs
-   mid-move (G19 rubble / sand / mud, G11 backward level changes) and in a
-   spot's cost; prone LOS height (G7); Section 4 "Map terrain waiting on
-   rules" (Daniel is hunting the rules); `PROMPT_FOR_MAP` / `STITCH_MAPS`.
+7. **Maps - leftovers** (RULES_REVIEW G6, G7, G20-G22): water (leg weapons'
+   Kick-table hits between partially submerged mechs; variable-damage
+   weapons' underwater bracket); the movement subphase (damage PSRs - gyro /
+   hip / leg - still fall in the END hex; a charge's last step rolls no
+   terrain PSR; mud's -1 isn't priced); prone LOS height (G7); Section 4
+   "Map terrain waiting on rules" (Daniel is hunting the rules);
+   `PROMPT_FOR_MAP` / `STITCH_MAPS`.
+   - **Hull-breach risk in movement scoring (G21) - DON'T BUILD YET**
+     (Daniel, 2026-10-21: "Your plan is close to what I'm thinking. Save the
+     notes but don't implement it yet. Its related to an Idea I have for how
+     to cost cluster weapons and the use of risky equipment"). The plan and
+     the gap: Section 6 Memo, "Breach risk".
+   - **Deferred to a later session (Daniel, 2026-10-21): the full building
+     rules** (G22 - forced entry, inside, damage, collapse, support limits,
+     bridges; pp.53, 130-136; "probably a discussion first"). Passive
+     buildings stand in until then.
 8. Waiting on Daniel (Section 4): stand-up PSR -1, tripod -1, jumped with leg
    destroyed +4 (MECHSIM: +5), quads standing; D8 (LOS model); does HOLDING a
    club stop arm / torso weapons firing?
@@ -247,10 +243,16 @@ open). Read it before building rules.
    once the rules settle - not a rewrite; evolutionary tuning of the bot's
    settings with batches (discussed 2026-10-20, not started).
 
-**Housekeeping:** reference logs regenerated 2026-10-21 (lifetime default,
-50-turn cap) and match the code. Speed history (10-turn benchmark): 31.7 s →
-11.8 s → ~14.5 s (all physical attacks) → ~25% less (memo sharing) → ~15 s
-today; battles changed in between, so compare only like with like.
+**Housekeeping:** reference logs match the code (last regenerated
+2026-10-21, end of session 5: the two map battles for the movement
+subphase, the rest for the KNOWN_MISSING_RULES text). Speed history
+(10-turn benchmark, HP 501 / 495): 31.7 s → 11.8 s → ~14.5 s (all physical
+attacks) → ~25% less (memo sharing) → ~15 s; 16-18 s in session 5's
+container, the same as the pre-map code on that machine - compare only like
+with like. Hill / water / rubble boards use the path-aware movement search
+(~5-10% slower than the plain one). Scratch for map work: unzip
+`data/maps.zip` outside the repo; `tests/survey_maps.py` reads the zip
+directly.
 
 ---
 
@@ -657,6 +659,10 @@ forward arc, kicks included, never into a side arc.
     starting from its current state."
   - (Later, 2026-10-21) "Think buildings are deferred for another session
     later. Add them to the list." - Pick up here item 7.
+  - Breach-risk pricing (G21): "Your plan is close to what I'm thinking.
+    Save the notes but don't implement it yet" - tied to his idea for
+    costing cluster weapons and risky equipment, another session (Section 6
+    Memo).
   - Breached slots / ammo and halved physical damage in movement scoring:
     "wiring and logic jobs that don't need calls, just the effort to fix
     them."
@@ -904,6 +910,20 @@ ask what an action does to what it can do on later turns:
   ("they'll need their own logic suite on if it's worth using up limited
   ammo"), heat build-up vs a shutdown later, and possibly the hanging-back
   movement problem (Section 0, "Pick up here" item 2).
+- **Breach risk in water (2026-10-21, G21 - notes only, Daniel: "Save the
+  notes but don't implement it yet. Its related to an Idea I have for how to
+  cost cluster weapons and the use of risky equipment. That is also for
+  another session").** Today a spot in water is scored for its benefits
+  (submerged heat sinks, partial cover, the water line) and its falls
+  (halved), but not for hull breaches (p.127). Claude's plan, which Daniel
+  called "close to what I'm thinking": for each underwater location that
+  would take damage at a spot, add P(breach) = 1/6 (2-4 on 2D6) x that
+  location's breach cost; price a breach as losing everything in the
+  location (as the bot already values a destroyed location - a breached leg
+  counts as destroyed, a torso's engine / gyro slots); a location with no
+  armor left breaches for certain the moment it goes under. Wait for
+  Daniel's cluster-weapon / risky-equipment costing idea - the same shape
+  (expected value of a chance of a big loss) should serve all three.
 Not designed yet - Daniel: "when we get to figuring out how the bot should
 think." A natural shape is a value for the mech's state at the end of the
 turn (weapons usable, heat, jam / failure risk, a club in hand) added to the
@@ -979,6 +999,14 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-21 (Claude):** Session 5 wrap-up (Daniel: "Go ahead and wrap
+  this one up. All files up to date. List of future problems to solve
+  updated. Workspace cleaned up for the next session."). Section 0 rewritten
+  for session 5; Pick up here item 7 reorganized (map leftovers; breach-risk
+  pricing G21 noted but NOT to be built yet; full building rules G22
+  deferred); the breach plan saved in the Section 6 Memo; Section 5 records
+  Daniel's calls. No code change.
 
 - **2026-10-21 (Claude):** The movement subphase (Daniel's design, Section 5;
   RULES_REVIEW F32; G11, G19 done).
