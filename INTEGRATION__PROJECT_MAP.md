@@ -143,7 +143,7 @@ battles a setting - Daniel).
   partial cover (leg hits strike the cover). Ranged fire and the following
   physical attack are planned together.
 - Physical: all seven attack types (punch, kick, physical weapons, clubs -
-  pick-up OFF, pushes, charges, DFA), each weighted by its own hit table.
+  pick-up ON since 2026-10-21, pushes, charges, DFA), each weighted by its own hit table.
 - Damage: floating or standard TACs (option), autocannons survive their
   first crit (p.183), internal explosions with the 20 cap, armor loss and
   CASE / CASE II venting (p.96).
@@ -277,8 +277,11 @@ open). Read it before building rules.
      rules** (G22 - forced entry, inside, damage, collapse, support limits,
      bridges; pp.53, 130-136; "probably a discussion first"). Passive
      buildings stand in until then.
-8. Waiting on Daniel (Section 4): does HOLDING a
-   club stop arm / torso weapons firing?
+8. **PPC capacitors** (Daniel, 2026-10-21: "PPC charging is a bot logic
+   question that requires its own session"): build the rules (p.188 - charge
+   instead of firing, 5 heat, +5 heat a turn held, +5 heat and +5 damage when
+   fired, the explosion if hit while charged) with the charging decision as a
+   stub, in a session of its own. ~65 units in `data/meks.zip`.
 9. Later (Daniel agreed 2026-10-20): a setup shell GUI (the replay viewer
    exists); a compiled hot path (Cython / Rust for `MoveEvaluator.evaluate`)
    once the rules settle - not a rewrite; evolutionary tuning of the bot's
@@ -697,6 +700,11 @@ forward arc, kicks included, never into a side arc.
 
 ## 5. DECISIONS LOG (Daniel's calls — implementation may not override)
 
+- **Clubs (Daniel, 2026-10-21):** "Clubs do not block weapons fire. Though
+  Firing weapons in either arm does preclude the club attack that turn. May
+  as well have mechs pick them up if they have nothing better to do." -
+  `CLUB_PICKUP` on. PPC capacitor charging: "a bot logic question that
+  requires its own session" (Pick up here 8).
 - **Rules over house rules (Daniel, 2026-10-21):** "Follow the rules, not my
   calls." - quads' leg damage now follows pp.238-239 (F43);
   `POOL_CLUSTER_DAMAGE` defaults to False (rules as written). Kept on
@@ -946,7 +954,7 @@ forward arc, kicks included, never into a side arc.
 | Charge / death from above | `movement_selection._movement_attack_pick`, `_modeled_reply`; `INTEGRATION__movement_attacks` | Gate per movement mode (beat the best ordinary attack), then the objective must beat the ordinary pick; both movers (two-ply) |
 | Push value | `physical.push_option`, `movement_attacks.displacement_worth` | P(hit) x (target HP off the board / fall worth 2+ levels down / else 0) |
 | Turning while down | `orchestrator._turn_while_down` | A prone mech that can't stand (fight to the death): fewest hexside turns that put the enemy in its forward arc, else a side arc; none if nothing improves (1 per turn with a destroyed gyro, p.98). The two-ply reply model doesn't anticipate it |
-| Club pick-up | `INTEGRATION__clubs.maybe_pick_up` | OFF (`config.CLUB_PICKUP`); waits for the Memo below |
+| Club pick-up | `INTEGRATION__clubs.maybe_pick_up` | ON (`config.CLUB_PICKUP`, Daniel 2026-10-21): picks one up on a turn it fires nothing; smarter use waits for the Memo below |
 | DFA miss: where the target steps | `INTEGRATION__dfa.resolve` | The open hex with the smallest drop |
 | Home edge | `config.HOME_EDGE_CHOICE` | Which edge the deployment-roll loser picks (default random) |
 | Escalating Failure use (radical heat sinks, MASC, supercharger) | `equipment_systems.use_escalating` -> **STUB** `stubs.stub_escalating_use` | Research (Daniel 2026-10-20); default "cycle" = Daniel's 1-turn-on / 1-turn-off |
@@ -967,7 +975,7 @@ ask what an action does to what it can do on later turns:
   the arm and front-torso weapons while it's held; "the question is if the
   utility of having a club is greater than the weapons you're armed with. The
   answer is almost always no - I've never seen anyone use a tree as a club."
-  Pick-up is OFF (`config.CLUB_PICKUP`) until this exists.
+  Pick-up is ON since 2026-10-21 (only on turns with nothing better to do) until this exists.
 - **MASC / superchargers.** Each use raises the failure target number and a
   failure wrecks the legs / engine; using them is a trade between this turn's
   MP and next turns' risk. Today: a stub (`STUB_ESCALATING_USE`), default
@@ -1083,6 +1091,12 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Clubs (Daniel): holding one never blocks fire
+  (the code already let it fire), firing an arm weapon rules out the club
+  attack that turn (already so, p.79); `CLUB_PICKUP` now on - a mech that
+  fires nothing picks up a club in its hex. PPC capacitors noted for their
+  own session (Pick up here 8). Reference logs regenerated where clubs got
+  picked up.
 - **2026-10-21 (Claude):** "Follow the rules, not my calls" (Daniel). Quads'
   leg damage by the book (RULES_REVIEW F43, pp.238-239): lost legs -1
   Walking MP / +1 PSR each for the first two, three = a biped with one leg

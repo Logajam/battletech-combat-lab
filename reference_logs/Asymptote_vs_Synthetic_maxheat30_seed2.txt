@@ -107,6 +107,7 @@ WARNING: expected 5 slots for ISUltraAC5 but only found 1 consecutive matching l
   [Movement select] Blue: score 86.569 = dealt 0.79 x1.00 + (HP 331.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 9.24 x my future 2.39 [enemy held at 0308; 141 spots with LOS]
   [Movement] Blue: 1110 SW -> 1011 S, Walk (3 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
   [Ranged] Red -> Blue: range 7, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 49 = max 30 + sink 22 - current 0 - movement 3 - other 0; expected dmg 0.00)
+  [Ranged] Red picks up a tree club in 0308 instead of firing (p.79).
   [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
   [Ranged] Blue -> Red: range 7, base TN 11 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 3 + heat 0); firing ['ISLRM15'] (weapon heat 5 of budget 39 = max 30 + sink 10 - current 0 - movement 1 - other 0; expected dmg 0.79)
     ISLRM15: needs 11 (range mod +0), rolled 10 -> miss [ISLRM15 Ammo: 3 shots left]
@@ -175,6 +176,7 @@ WARNING: expected 5 slots for ISUltraAC5 but only found 1 consecutive matching l
   [Movement] Blue: 1212 NW -> 0814 SW, Run (6 MP, 4 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
   [Ranged] Red: no LOS to Blue - holds fire.
   [Ranged] Blue: no LOS to Red - holds fire.
+  [Ranged] Blue picks up a tree club in 0814 instead of firing (p.79).
   [Heat] Red: 0 + movement 3 + weapons 0 + engine 0 - sinks 22 -> 0
   [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
   -- end of turn 10: Red @ 0402 SW: HP 496, pilot hits 0, engine 0, gyro 0, heat 0
@@ -479,9 +481,9 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
 
 === TURN 25 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 100.379 = dealt 5.00 x1.00 + (HP 295.0 - received 37.52 x1.16 - PSR 0.00) / enemy future 3.88 x my future 1.47 [two-ply, 76 of 229 spots (grid search) x 386 replies (grid search); modeled reply Red -> 0615 NE Jump]
+  [Movement select] Blue: score 99.977 = dealt 5.00 x1.00 + (HP 295.0 - received 38.44 x1.16 - PSR 0.00) / enemy future 3.88 x my future 1.47 [two-ply, 76 of 229 spots (grid search) x 386 replies (grid search); modeled reply Red -> 0615 NE Jump]
   [Movement] Blue: 0416 NE -> 0715 NE, Walk (3 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
-  [Movement select] Red: score 1744.985 = dealt 37.52 x1.16 + (HP 650.0 - received 5.00 x1.00 - PSR 0.00) / enemy future 1.47 x my future 3.88 [enemy held at 0715; 109 spots with LOS]
+  [Movement select] Red: score 1746.045 = dealt 38.44 x1.16 + (HP 650.0 - received 5.00 x1.00 - PSR 0.00) / enemy future 1.47 x my future 3.88 [enemy held at 0715; 109 spots with LOS]
   [Movement] Red: 0316 N -> 0615 NE, Jump (5 MP, 3 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
   [Ranged] Blue -> Red: range 1, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 0); firing ['ISMediumPulseLaser'] (weapon heat 4 of budget 39 = max 30 + sink 10 - current 0 - movement 1 - other 0; expected dmg 5.00)
     ISMediumPulseLaser: needs 5 (range mod +0, modifiers -2), rolled 8 -> HIT
@@ -762,6 +764,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
     6: ISUltraAC5 (slot 6)
     2/2 Criticals: Shoulder hit.
       Current crit slots in Left Arm: ['DESTROYED', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', 'ISLBXAC10', 'ISUltraAC5', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  Blue drops its tree club in 0517 (p.79).
   [Physical] Blue twists its torso 1 hexside right to reach Red.
   [Physical] Blue -> Red: punch (Right Arm) needs 7 (piloting 5 + base 3 + attack -1), rolled 2 -> miss (5 dmg, front side)
   [Physical] Red -> Blue: punch (Left Arm) needs 7 (piloting 5 + base 3 + attack -1), rolled 7 -> HIT (10 dmg, rear side)

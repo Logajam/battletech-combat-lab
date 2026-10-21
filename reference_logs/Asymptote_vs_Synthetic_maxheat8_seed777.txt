@@ -137,6 +137,7 @@ WARNING: expected 5 slots for ISUltraAC5 but only found 1 consecutive matching l
   [Movement select] Blue: score 142.140 = dealt 0.26 x1.00 + (HP 331.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 8.08 x my future 3.46 [enemy held at 0504; 71 spots with LOS]
   [Movement] Blue: 0416 NE -> 0416 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Ranged] Red -> Blue: range 13, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 27 = max 8 + sink 22 - current 0 - movement 3 - other 0; expected dmg 0.00)
+  [Ranged] Red picks up a tree club in 0504 instead of firing (p.79).
   [Ranged] Blue -> Red: range 13, base TN 10 (gunnery 4 + AMM 0 [Stand Still] + TMM 3 + LOS 3 + heat 0); firing ['ISLRM15'] (weapon heat 5 of budget 15 = max 8 + sink 10 - current 3 - movement 0 - other 0; expected dmg 0.26)
     ISLRM15: needs 12 (range mod +2), rolled 8 -> miss [ISLRM15 Ammo: 2 shots left]
   [Heat] Red: 0 + movement 3 + weapons 0 + engine 0 - sinks 22 -> 0
