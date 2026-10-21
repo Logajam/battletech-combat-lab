@@ -774,6 +774,7 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng, po
         _resolve_aimed_hit(target, w, per, dtype, side, attack)
         return
     if col is None:
+        per = equip.blue_shield_damage(target, w, per)       # a PPC vs an active Blue Shield (p.207)
         config.log(f"    {w.name} hit for {per}{note}:")
         _resolve_hit(target, per, dtype, side, cover=attack.cover, heat_weapon=weapon_profiles.heat_causing(w))
         return

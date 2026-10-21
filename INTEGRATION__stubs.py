@@ -191,6 +191,16 @@ def stub_console_swap(mech_name, pilot_hits, secondary_hits, pilot_out):
     return swap
 
 
+def stub_blue_shield(mech_name, when):
+    """Switch the Blue Shield on (p.207: halves PPC damage, negates stealth,
+    may fail after 6 turns of use)? Asked at the start and each End Phase.
+    Knob: STUB_BLUE_SHIELD ("on" / "off"). TODO: only when the enemy has PPCs
+    and the stealth isn't worth more (Memo)."""
+    on = config.STUB_BLUE_SHIELD == "on"
+    _warn("blue_shield", f"{mech_name} ({when}): Blue Shield {'on' if on else 'off'}")
+    return on
+
+
 # =============================================================================
 # ==========================  OTHER PHASES  ==================================
 # =============================================================================

@@ -65,6 +65,7 @@ mid-move. (ECM itself - jamming Artemis and Narc - is INTEGRATION__electronics.)
 from contextlib import contextmanager
 
 import INTEGRATION__config as config
+import INTEGRATION__stubs as stubs
 from equipment import Equipment, is_crit_target
 from damage_resolution import resolve_slot_hit
 
@@ -113,6 +114,8 @@ def _kind(slot):
         return "radical"
     if "COOLANTPOD" in n:
         return "coolant_pod"
+    if "BLUESHIELD" in n:
+        return "blue_shield"
     if "CHAMELEON" in n:
         return "chameleon"
     if "NULLSIGNATURE" in n:
@@ -146,6 +149,8 @@ def attach_equipment(mech):
     mech.escalating_turns = {k: 0 for k in ESCALATING_SYSTEMS}
     mech.systems_used_this_turn = set()
     mech.turn_number = 0
+    mech.pfd_active = has_system(mech, "blue_shield") and stubs.stub_blue_shield(mech.side_name, "start")
+    mech.pfd_turns_used, mech.pfd_failed = 0, False
 
 
 def _destroyed_ids(mech):
@@ -227,6 +232,7 @@ def end_turn(mech):
             mech.escalating_turns[key] = max(0, mech.escalating_turns[key] - 1)
     mech.systems_used_this_turn = set()
     harjel_end_turn(mech)                      # HarJel II / III repair (p.208)
+    blue_shield_end_turn(mech)                 # Blue Shield failure check and switch (p.207)
 
 
 # =============================================================================
@@ -235,8 +241,8 @@ def end_turn(mech):
 def active_stealth(mech):
     """Stealth systems switched on and working right now (always on by
     default; nothing works while shut down - p.104)."""
-    if mech.shutdown:
-        return []
+    if mech.shutdown or blue_shield_on(mech):
+        return []                              # an active Blue Shield negates stealth (p.207)
     active = [k for k in ("chameleon", "null_signature") if system_live(mech, k)]
     if mech.has_stealth_armor and ecm_live(mech):
         active.append("stealth_armor")
@@ -506,3 +512,69 @@ def harjel_end_turn(mech):
                 v["rear_armor"] = rear + got_r
             config.log(f"  [End] {mech.side_name}'s HarJel {'II' if kind == 2 else 'III'} restores {got_f + got_r} "
                        f"armor at {loc}{f' ({got_f} front, {got_r} rear)' if got_r else ''} (p.208).")
+
+
+# =============================================================================
+# ==========================  BLUE SHIELD PFD  (p.207, 2026-10-21)  ===========
+# =============================================================================
+# Activated (p.180 - on or off from the start, switched in the End Phase: a
+# choice, stubs.stub_blue_shield). While on: damage from every PPC type is
+# halved (round down, minimum 1); the 'Mech's stealth systems are negated.
+# Escalating Failure, but only once it has been on for 6 turns (consecutive
+# or not): End Phase of the 6th turn of use, roll at the 1st interval (3+);
+# each later turn of use, one interval higher - never lower. A failure: off
+# for the rest of the battle. A critical hit to one of its slots while on: a
+# 5-point component explosion there, and off for good.
+PFD_FAILURE_AFTER = 6
+PFD_EXPLOSION = 5
+
+
+def blue_shield_on(mech):
+    return (getattr(mech, "pfd_active", False) and not getattr(mech, "pfd_failed", False)
+            and not mech.shutdown and system_live(mech, "blue_shield"))
+
+
+def is_ppc(weapon):
+    n = _norm(getattr(weapon, "name", ""))
+    return "PPC" in n and "CAPACITOR" not in n
+
+
+def blue_shield_damage(target, weapon, damage):
+    """A PPC hit's damage after the target's Blue Shield (p.207)."""
+    if damage and is_ppc(weapon) and blue_shield_on(target):
+        cut = max(1, damage // 2)
+        config.log(f"      {target.side_name}'s Blue Shield halves the {weapon.name}: {damage} -> {cut} (p.207).")
+        return cut
+    return damage
+
+
+def blue_shield_end_turn(mech):
+    if not has_system(mech, "blue_shield") or mech.pfd_failed:
+        return
+    if blue_shield_on(mech):
+        mech.pfd_turns_used += 1
+        if mech.pfd_turns_used >= PFD_FAILURE_AFTER:
+            interval = mech.pfd_turns_used - PFD_FAILURE_AFTER + 1
+            tn = escalating_avoid_tn(interval)
+            roll = config.roll_2d6(prompt="Blue Shield escalating failure roll")
+            config.log(f"  [End] {mech.side_name}'s Blue Shield ({mech.pfd_turns_used} turns on) needs {tn}, "
+                       f"rolled {roll} - {'holds' if roll >= tn else 'FAILS: off for the rest of the battle'} (p.207).")
+            if roll < tn:
+                mech.pfd_failed, mech.pfd_active = True, False
+                return
+    if system_live(mech, "blue_shield") and not mech.pfd_failed:
+        mech.pfd_active = stubs.stub_blue_shield(mech.side_name, "end phase")
+
+
+def blue_shield_hit(mech, location, slot):
+    """A critical hit to a Blue Shield slot (p.207): while on, a 5-point
+    component explosion there and the PFD is off for good. The slot is
+    already marked destroyed by now, so "was it on" reads the switch rather
+    than system_live (an earlier slot hit already set pfd_failed)."""
+    if not getattr(mech, "pfd_active", False) or mech.pfd_failed or mech.shutdown:
+        return
+    from damage_resolution import apply_explosion
+    mech.pfd_failed, mech.pfd_active = True, False
+    slot.explosion_damage = PFD_EXPLOSION
+    config.log(f"      Blue Shield hit while active: a {PFD_EXPLOSION}-point explosion (p.207).")
+    apply_explosion(mech, slot, location)

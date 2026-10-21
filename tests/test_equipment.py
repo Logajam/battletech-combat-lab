@@ -429,6 +429,78 @@ def aes_arms_ranged_and_physical():
     assert physical._both_arms_aes(m) == 0
 
 
+
+# =============================================================================
+# Blue Shield particle field damper (Core p.207), added 2026-10-21: the
+# Quasimodo QSM-3D (data/meks.zip) mounts one (7 slots).
+# =============================================================================
+def _quasimodo():
+    import io
+    import tempfile
+    import zipfile
+    from contextlib import redirect_stdout
+    with zipfile.ZipFile(os.path.join(REPO_ROOT, "data", "meks.zip")) as z:
+        path = z.extract("meks/3145/Marik/Quasimodo QSM-3D.mtf", tempfile.mkdtemp())
+    with redirect_stdout(io.StringIO()):
+        return parse_mtf(path)
+
+
+QUASIMODO = _quasimodo()
+
+
+def _pfd():
+    m = clone_mech(QUASIMODO)
+    orchestrator._attach_mech_config(m, {"hex": "0505", "facing": "N", "gunnery": 4, "piloting": 5,
+                                         "min_heat": 0, "max_heat": 30}, "Test")
+    return m
+
+
+@check
+def blue_shield():
+    """p.207: PPC damage halved (round down, min 1), stealth negated; the
+    escalating roll starts in the 6th turn of use; a hit while on explodes."""
+    m = _pfd()
+    assert len(m.equipment_systems["blue_shield"]) == 7 and equip.blue_shield_on(m)
+    ppc, laser = Equipment("ISERPPC", category="weapon"), Equipment("ISLargeLaser", category="weapon")
+    assert equip.blue_shield_damage(m, ppc, 10) == 5 and equip.blue_shield_damage(m, ppc, 1) == 1
+    assert equip.blue_shield_damage(m, laser, 8) == 8
+    m.equipment_systems["chameleon"] = [Equipment("Chameleon Light Polarization Shield", category="misc")]
+    assert equip.active_stealth(m) == []                      # negated while on
+    m.pfd_active = False
+    assert equip.active_stealth(m) == ["chameleon"] and equip.blue_shield_damage(m, ppc, 10) == 10
+    m.pfd_active = True
+
+    # Five turns of use roll nothing; the 6th rolls at 3+, the 7th at 5+ (a 4 fails).
+    with ScriptedDice([]) as dice:
+        for _ in range(5):
+            equip.blue_shield_end_turn(m)
+    assert dice.count == 0 and m.pfd_turns_used == 5 and equip.blue_shield_on(m)
+    with ScriptedDice([3, 4]):
+        equip.blue_shield_end_turn(m)
+        assert equip.blue_shield_on(m)
+        equip.blue_shield_end_turn(m)
+    assert m.pfd_failed and not equip.blue_shield_on(m)
+    with ScriptedDice([]) as dice:
+        equip.blue_shield_end_turn(m)                         # failed for good: no more rolls
+    assert dice.count == 0 and not m.pfd_active
+
+    # A crit while on: a 5-point explosion (structure; pilot hit) and off for good.
+    m = _pfd()
+    pfd = m.equipment_systems["blue_shield"][0].name
+    locs = [l for l, slots in m.crits.items() if any(getattr(s, "name", "") == pfd for s in slots)]
+    loc = locs[0]
+    before = m.locations[loc]["structure"]
+    _hit_slot(m, loc, pfd)
+    assert m.pfd_failed and m.pilot_hits == 1 and m.locations[loc]["structure"] == before - 5
+    _hit_slot(m, locs[1], pfd)                                # a second slot: no second blast
+    assert m.pilot_hits == 1
+    # ...while off it is merely destroyed.
+    m = _pfd()
+    m.pfd_active = False
+    _hit_slot(m, loc, pfd)
+    assert m.pilot_hits == 0 and not equip.system_live(m, "blue_shield")
+
+
 def run_all():
     failed = 0
     for fn in CHECKS:
