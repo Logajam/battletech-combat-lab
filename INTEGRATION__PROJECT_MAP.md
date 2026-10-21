@@ -95,7 +95,7 @@ parse); `rules/` the rules library zip; `reference_logs/` same-seed sample
 battles; `replays/` and `run_stats/` (git-ignored) generated output.
 
 **After any change, from the repo root:** `python tests/run_checks.py` -
-one command, about 1 min: every `tests/test_*.py` (16 files) and every
+one command, about 1 min: every `tests/test_*.py` (17 files) and every
 reference battle (15), side by side, one line each, all must pass. Reference
 battles stop at 50 turns (`check_reference_logs.TEST_BATTLE_MAX_TURNS`,
 Daniel); one that hits the cap prints a NOTE ("a possible flaw") - today
@@ -210,7 +210,7 @@ battles a setting - Daniel).
 
 **Rules review:** `INTEGRATION__RULES_REVIEW.md` - first pass over the whole
 Core Rulebook done 2026-10-20: what was fixed (F1-F23), the gap list (G2-G18,
-Claude's to build), and the Core-vs-project questions (D1-D7 decided, D8
+Claude's to build), and the Core-vs-project questions (D1-D8 decided; D8
 open). Read it before building rules.
 
 **Pick up here (open, roughly in priority order):**
@@ -264,7 +264,7 @@ open). Read it before building rules.
    PSRs count". A bot target choosing the clearer hex on a two-hex LOS line
    (p.56) isn't modeled (Section 6).
 7. **Maps - leftovers** (RULES_REVIEW G7, G20-G22): water done (F36); the movement subphase (mud's -1 isn't
-   priced - bot); prone LOS height (G7); Section 4
+   priced - bot); prone LOS height done (G7, F41); Section 4
    "Map terrain waiting on rules" (Daniel is hunting the rules);
    `PROMPT_FOR_MAP` / `STITCH_MAPS`.
    - **Hull-breach risk in movement scoring (G21) - DON'T BUILD YET**
@@ -277,7 +277,7 @@ open). Read it before building rules.
      bridges; pp.53, 130-136; "probably a discussion first"). Passive
      buildings stand in until then.
 8. Waiting on Daniel (Section 4): stand-up PSR -1, tripod -1, jumped with leg
-   destroyed +4 (MECHSIM: +5), quads standing; D8 (LOS model); does HOLDING a
+   destroyed +4 (MECHSIM: +5), quads standing; does HOLDING a
    club stop arm / torso weapons firing?
 9. Later (Daniel agreed 2026-10-20): a setup shell GUI (the replay viewer
    exists); a compiled hot path (Cython / Rust for `MoveEvaluator.evaluate`)
@@ -582,8 +582,9 @@ No PATHFINDER module used by the battle loop imports `config`.
 1. `equipment.json`'s `category` field only has `weapon`/`ammo`/`misc` —
    heat sinks are `misc`; finding them needs a name match, not a category
    filter.
-2. Pathfinder's LOS tie-break is an explicit placeholder until a real
-   move/attack evaluation function exists.
+2. ~~Pathfinder's LOS tie-break is an explicit placeholder~~ - 2026-10-21:
+   the target picks one side of a border line for the whole line (p.56),
+   the side worse for the attacker (RULES_REVIEW F41).
 3. ~~MECHSIM's PSR system has only ever been smoke-tested against the
    hardcoded fixture mech~~ — 2026-10-18: now exercised against real parsed
    .mtf units (Attack Phase 20+ damage, leg actuator, hip-triggered movement
@@ -688,6 +689,10 @@ forward arc, kicks included, never into a side arc.
 
 ## 5. DECISIONS LOG (Daniel's calls — implementation may not override)
 
+- **Line of sight (Daniel, 2026-10-21):** "Go ahead and make sure the LOS
+  rules match those in the rules and fix prone mechs." - the Core Rulebook's
+  LOS (pp.56-58, 66) replaces his simplified 2026-07-19 rules (RULES_REVIEW
+  D8 decided, F41).
 - **Deployment and movement calls (Daniel, 2026-10-21):**
   - "A mech's level before it enters is undefined. So it can enter on top of
     those level 5 walls. But it could also get stuck up there which is bad.
@@ -932,7 +937,7 @@ forward arc, kicks included, never into a side arc.
 | Candidate reduction | `movement_selection.reduced_options` | Max FC (min MP) per (hex, facing, mode, fc>0); Void-Signature exempt |
 | Best-reply selection | `movement_selection._modeled_reply` | Wired (two-ply) |
 | `compute_score()` | `PATHFINDER__combat.py` | Not wired (reference; built on flat HP/weapon dicts) |
-| LOS rule-6 tie-break | `PATHFINDER__los.py` | Placeholder, see Known Issues #2 |
+| LOS border-line side | `pathfinder/los.py` | The target picks the side worse for the attacker, whole line (p.56; F41) |
 | Closing-turn detection | `movement_selection.closing_fallback` | Wired (ported) |
 
 ### Memo: the bot must weigh how an action changes its FUTURE capabilities (Daniel, 2026-10-20)
@@ -1053,6 +1058,19 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Line of sight rebuilt to the Core Rulebook (Daniel:
+  "make sure the LOS rules match those in the rules and fix prone mechs";
+  RULES_REVIEW F41, D8 decided, G7 built). `pathfinder/los.py`: LOS levels
+  with heights (standing 2, prone 1), the p.57 intervening test, hills /
+  buildings block, woods and jungle points (3 block), partial cover with the
+  height and prone conditions, border lines on one side for the whole line
+  (the target's pick). Heights passed from `declare_attacks` / `attack_side`
+  and the movement-scoring cache (`los_cache.board(map, a_height,
+  t_height)`). New `tests/test_los.py` (the rulebook's examples).
+  Reference logs regenerated: 8 changed; Large Lakes 1 now draws at the cap
+  - the Cataphract sits fully under water where nobody can fire (p.62), a
+  bot stall (Pick up here 0), not an LOS fault; the others keep their
+  winners. Benchmark 495 / 495, ~4 s.
 - **2026-10-21 (Claude):** BUG FIXED (RULES_REVIEW F40, p.94): Inner Sphere
   endo-steel / ferro-fibrous / stealth / reactive / reflective / ballistic-
   reinforced slots are written as plain names that don't match

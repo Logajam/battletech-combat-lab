@@ -788,7 +788,7 @@ End Phase wake-up check (pilot, 1 pilot hits): needs 3. Rolled 4.
   Initiative: Red lost the roll, moves first.
   [Movement select] Red: score 591.416 = dealt 0.00 x1.02 + (HP 653.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.57 x my future 1.42 [two-ply, 153 of 507 spots (grid search) x 535 replies (grid search); modeled reply Blue -> 0707 N Jump]
   [Movement] Red: 1405 NW -> 1405 SE, Walk (3 MP, 0 hexes, 1 heat; budget walk 3 / run 4 / jump 5)
-  [Movement select] Blue: score 727.621 = dealt 0.00 x1.01 + (HP 659.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 1.42 x my future 1.57 [enemy held at 1405; 106 spots with LOS]
+  [Movement select] Blue: score 727.621 = dealt 0.00 x1.01 + (HP 659.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 1.42 x my future 1.57 [enemy held at 1405; 113 spots with LOS]
   [Movement] Blue: 0407 N -> 0707 NW, Jump (5 MP, 3 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
   [Ranged] Red -> Blue: range 7, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 20 = max 4 + sink 22 - current 0 - movement 1 - other 5; expected dmg 0.00)
   [Ranged] Blue -> Red: range 7, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 4 + heat 0); firing nothing (weapon heat 0 of budget 23 = max 4 + sink 22 - current 0 - movement 3 - other 0; expected dmg 0.00)
