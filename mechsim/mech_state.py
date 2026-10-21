@@ -571,6 +571,36 @@ def consciousness_target_number(pilot_hits):
     return CONSCIOUSNESS_TN_BY_HITS[pilot_hits]
 
 
+def has_torso_cockpit(mech):
+    """A torso-mounted cockpit (Core p.203; MegaMek "Cockpit:Torso-Mounted Cockpit")."""
+    return "TORSO" in (getattr(mech, "cockpit_type", "") or "").upper()
+
+
+def has_small_cockpit(mech):
+    """A small cockpit (Core p.203)."""
+    return "SMALL" in (getattr(mech, "cockpit_type", "") or "").upper()
+
+
+def head_hit_hurts_pilot(mech):
+    """p.117: the MechWarrior takes 1 hit whenever the head takes a hit -
+    "unless the 'Mech has a torso-mounted cockpit" (p.203: no pilot damage
+    from hits to the head; 2026-10-21)."""
+    return not has_torso_cockpit(mech)
+
+
+def torso_cockpit_sensor_penalty(mech):
+    """p.203 (2026-10-21): a torso-mounted cockpit's sensor hits also hurt
+    physical attacks and PSRs - +4 once both head sensors are hit, or with 3+
+    sensor hits anywhere (the ranged-attack side is attack_resolution.
+    sensor_modifier). 0 for any other cockpit."""
+    if not has_torso_cockpit(mech):
+        return 0
+    hit = [loc for (loc, _), info in mech.destroyed_slot_info.items() if info["name"] == "Sensors"]
+    if len(hit) >= 3 or (len(hit) == 2 and all(loc == "Head" for loc in hit)):
+        return 4
+    return 0
+
+
 def mark_consciousness_check_pending(mech):
     """Called from every mech.pilot_hits += 1 site (sim_runner._resolve_hit's
     head hit, damage_resolution.apply_explosion, piloting_rolls.resolve_fall's
@@ -634,7 +664,8 @@ def is_destroyed(mech):
         mech.destroyed = True
         mech.cause_of_death = "Center Torso Destroyed"
         return True
-    if mech.locations["Head"]["destroyed"]:
+    if mech.locations["Head"]["destroyed"] and not has_torso_cockpit(mech):
+        # p.203 (2026-10-21): a torso-mounted cockpit survives losing the head.
         mech.destroyed = True
         mech.cause_of_death = "Head Destroyed"
         return True

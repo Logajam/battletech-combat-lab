@@ -45,6 +45,7 @@ import INTEGRATION__config as config
 import INTEGRATION__attack_resolution as attack_resolution
 import INTEGRATION__physical as physical
 import INTEGRATION__water as water
+from mech_state import head_hit_hurts_pilot, torso_cockpit_sensor_penalty  # p.203
 from mech_state import is_destroyed, is_immobile, compute_walk_mp, compute_running_mp
 import hex_geometry
 import combat
@@ -134,7 +135,7 @@ def apply_groups(mech, damage, table, side, label):
         dmg = water.physical_damage(mech, loc, g)                 # halved under water (p.77)
         config.log(f"    {label}: {dmg} to {mech.side_name}'s {loc}"
                    f"{' (halved: under water, p.77)' if dmg != g else ''}.")
-        if loc == "Head":
+        if loc == "Head" and head_hit_hurts_pilot(mech):
             mech.pilot_hits += 1
             mark_consciousness_check_pending(mech)
         apply_damage(mech, loc, dmg, armor_field="rear_armor" if side == "rear" else "armor",

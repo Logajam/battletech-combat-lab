@@ -7,7 +7,6 @@ armor pool depletes - see damage_resolution.apply_damage) and left/right side
 rear armor).
 """
 
-import random
 import config
 
 # ---- Hit location tables (Total Warfare - "Left Side / Front-Rear / Right Side") ----
@@ -41,6 +40,23 @@ FACING_CHOICES = ("front", "front", "front", "left", "right", "rear")
 
 
 def resolve_hit_location(loc_roll, mech, facing):
+    """The location a 2D6 hit-location roll strikes. A torso-mounted
+    cockpit's destroyed head: "further strikes to the head have their
+    location rerolled" (Core p.203, 2026-10-21)."""
+    loc = _resolve_hit_location(loc_roll, mech, facing)
+    while loc == "Head" and _head_gone_torso_cockpit(mech):
+        loc_roll = config.roll_2d6(prompt="Hit location re-roll (head destroyed, torso-mounted cockpit)")
+        config.log(f"  Head already destroyed (torso-mounted cockpit) - re-rolled {loc_roll}.")
+        loc = _resolve_hit_location(loc_roll, mech, facing)
+    return loc
+
+
+def _head_gone_torso_cockpit(mech):
+    return (mech.locations.get("Head", {}).get("destroyed")
+            and "TORSO" in (getattr(mech, "cockpit_type", "") or "").upper())
+
+
+def _resolve_hit_location(loc_roll, mech, facing):
     if facing == "left":
         table = HIT_TABLE_LEFT_SIDE
     elif facing == "right":
@@ -50,7 +66,9 @@ def resolve_hit_location(loc_roll, mech, facing):
 
     loc = table.get(loc_roll, "Center Torso")
     if mech.mech_type == "tripod" and loc in ("Left Leg", "Right Leg"):
-        base_roll = random.randint(1, 6)
+        # The battle's own dice (2026-10-21; was Python's random module, outside the
+        # BattleRNG stream - a battle's seed didn't fully replay it).
+        base_roll = config.pick_number(6, prompt="Tripod leg sub-roll 1D6")
         if facing == "right":
             sub_roll = base_roll - 1
             loc = TRIPOD_LEG_SUBROLL_RIGHT[sub_roll]
