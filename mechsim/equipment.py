@@ -66,7 +66,8 @@ class Equipment:
         self.battle_value = battle_value
         self.tonnage = tonnage
         self.rack_size = rack_size
-        # Default explosive yield is 2 damage per slot occupied (per Daniel's rule).
+        # Default explosive yield is 2 damage per slot occupied (Core p.96: "unless specified
+        # otherwise, a component explosion does 2 points of damage, multiplied by the number of slots").
         # Ammo bins override this with their own flat value (20, per the 2026 rule change).
         if explosion_damage is not None:
             self.explosion_damage = explosion_damage

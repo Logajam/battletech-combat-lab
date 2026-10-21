@@ -50,6 +50,7 @@ from mech_state import is_destroyed, is_immobile, compute_walk_mp, compute_runni
 import hex_geometry
 import combat
 import piloting_rolls
+from mech_state import ground_level_limited  # pp.90, 99, 238-239
 import terrain_rules
 from los import hex_distance, hex_line, trace_los_path
 
@@ -200,7 +201,7 @@ class MoverIndex:
         self.mover, self.terrain_map, self.standup_mp = mover, terrain_map, standup_mp
         self.walk = compute_walk_mp(mover)
         self.budget = compute_running_mp(mover) if standup_mp is None else standup_mp
-        self.level_limit = terrain_rules.max_level_change(bool(mover.destroyed_hip_locations))
+        self.level_limit = terrain_rules.max_level_change(ground_level_limited(mover))
         self.ground: Dict[tuple, List[tuple]] = {}
         # Forward-only states: a charge ends with a forward move into the target's hex, and the
         # hex count would restart after a backward step (backward charges not offered - see

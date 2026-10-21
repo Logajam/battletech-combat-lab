@@ -127,6 +127,7 @@ if PATHFINDER_DIR not in sys.path:
 
 import hex_geometry  # noqa: E402
 from pathfinder import build_movement_table, PathTable  # noqa: E402
+from mech_state import ground_level_limited  # noqa: E402 - pp.90, 99, 238-239
 import terrain_rules  # noqa: E402
 from los import has_los, hex_distance, STANDING_HEIGHT, PRONE_HEIGHT  # noqa: E402
 import combat  # noqa: E402
@@ -261,7 +262,7 @@ def _movement_options(mover, terrain_map, standup_mp=None, entry_edge=None, back
         starts, run_budget, jump_mp = range(6), standup_mp, 0
         mode_for = lambda spent: "Run"  # noqa: E731
         backward_mp = None
-    level_limit = terrain_rules.max_level_change(bool(mover.destroyed_hip_locations))   # pp.46-47
+    level_limit = terrain_rules.max_level_change(ground_level_limited(mover))   # pp.46-47
     seen = set()
     for f0 in starts:
         table = build_movement_table(sx, sy, f0, run_budget, terrain_map=terrain_map, backward_mp=backward_mp,
@@ -343,7 +344,7 @@ def _entry_options(mover, terrain_map, edge_labels):
         cost = terrain_rules.step_cost(None, info)        # None: can't walk onto a roof from off the board
         if cost is None or cost > run:
             continue
-        level_limit = terrain_rules.max_level_change(bool(mover.destroyed_hip_locations))
+        level_limit = terrain_rules.max_level_change(ground_level_limited(mover))
         ex, ey = hex_geometry.parse_hex_label(label)
         entry_psrs = terrain_rules.step_psrs(None, info)          # entering the edge hex itself
         for f0 in range(6):
@@ -788,7 +789,7 @@ def path_to(mover, terrain_map, pick, standup_mp=None, entry_edge=None):
     x, y = hex_geometry.parse_hex_label(pick["hex"])
     state = (x, y, hex_geometry.compass_to_facing(pick["facing"]))
     fc, mp = pick["fc"], pick["mp_spent"]
-    level_limit = terrain_rules.max_level_change(bool(mover.destroyed_hip_locations))
+    level_limit = terrain_rules.max_level_change(ground_level_limited(mover))
     if entry_edge is not None:
         run = compute_running_mp(mover)
         for label in entry_edge:

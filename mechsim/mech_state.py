@@ -571,6 +571,53 @@ def consciousness_target_number(pilot_hits):
     return CONSCIOUSNESS_TN_BY_HITS[pilot_hits]
 
 
+# =============================================================================
+# Four-legged 'Mechs' leg damage (Core pp.238-239; 2026-10-21, Daniel: "Follow
+# the rules, not my calls" - replaces his 2026-07-12 rule that a quad's lost
+# legs count one fewer, with death at three):
+#   one lost leg   -1 Walking MP, +1 PSR; no run / jump PSR for it
+#   two lost legs  -2 Walking MP, +2 PSR, plus the effects of a hip hit
+#   three          a biped with one leg destroyed (Walking MP 1, +4 PSR)
+#   four           a biped with both legs destroyed (immobile)
+#   hip hits       the FIRST has none of the standard effects (only prone
+#                  fire and kicks in that arc); each later one is a biped's
+# =============================================================================
+QUAD_TYPES = ("quad", "quadvee")
+
+
+def is_quad(mech):
+    return mech.mech_type in QUAD_TYPES
+
+
+def live_hip_legs(mech, destroyed_legs=None, hip_legs=None):
+    """Legs still on the 'Mech whose hip is destroyed (a lost leg's hip is
+    part of the leg). destroyed_legs / hip_legs: a snapshot's sets instead of
+    the live state."""
+    destroyed_legs = destroyed_legs if destroyed_legs is not None else {
+        l for l in mech.leg_locations if mech.locations[l]["destroyed"]}
+    hip_legs = hip_legs if hip_legs is not None else mech.destroyed_hip_locations
+    return {l for l in hip_legs if l not in destroyed_legs}
+
+
+def hip_effects(mech):
+    """How many hip hits have their standard effects (MP -1, +1 PSR, a PSR when
+    running, one level per hex): a biped's / tripod's each; a quad's all but
+    the first, plus one when it has lost exactly two legs (pp.238-239)."""
+    hips = len(live_hip_legs(mech))
+    if not is_quad(mech):
+        return hips
+    return max(0, hips - 1) + (1 if destroyed_leg_count(mech) == 2 else 0)
+
+
+def ground_level_limited(mech):
+    """One level per hex moved forward, none backward (pp.90, 99): a destroyed
+    hip or leg - for a quad, a hip hit with its standard effects or three
+    lost legs. terrain_rules.max_level_change takes this."""
+    if not is_quad(mech):
+        return bool(mech.destroyed_hip_locations)
+    return hip_effects(mech) > 0 or destroyed_leg_count(mech) >= 3
+
+
 TRIPOD_DEDICATED_PILOT_MODIFIER = -1   # p.236: PSRs and physical attack rolls
 TRIPOD_CREW_DISABLED_MODIFIER = 2      # p.236: dedicated pilot / gunner unconscious or killed
 
@@ -656,9 +703,8 @@ def is_immobile(mech):
 
 
 def legs_gone(mech):
-    """Both legs destroyed (a quad: three - the quad offset of
-    HELP(leg_kill_threshold.quad_offset)): 0 MP from damage."""
-    leg_kill_threshold = 3 if mech.mech_type in ("quad", "quadvee") else 2
+    """Both legs destroyed (a quad: all four, p.238): 0 MP from damage."""
+    leg_kill_threshold = 4 if is_quad(mech) else 2           # p.238: a quad's four (was 3)
     return sum(1 for leg in mech.leg_locations if mech.locations[leg]["destroyed"]) >= leg_kill_threshold
 
 
@@ -695,7 +741,6 @@ def is_destroyed(mech):
         mech.destroyed = True
         mech.cause_of_death = "Head Destroyed"
         return True
-    # HELP(leg_kill_threshold.quad_offset)
     # Legs and gyro (Daniel, 2026-10-20): destroyed only under his default
     # rule (config.FIGHT_TO_THE_DEATH False). With it True, both legs gone
     # makes the mech immobile (is_immobile), and it is destroyed only once it
@@ -814,19 +859,13 @@ def compute_walk_mp(mech):
       be. (Death still happens at 2 legs destroyed - see is_destroyed's
       leg_kill_threshold - so this flat-1 case is only reachable at exactly
       1 leg destroyed.)
-    - Quad: per RAW, quad leg loss severity is offset by 1 compared to a
-      biped/tripod (Daniel: "Quads get a -1 modifier to their leg destroyed
-      count") - 2 legs destroyed forces the same flat-1 as a biped's 1 leg
-      lost; 3 legs destroyed is the death threshold (see is_destroyed). A
-      quad with exactly 1 leg destroyed does NOT hit the flat-1 case - that
-      single destroyed leg instead contributes a flat -1 to the accumulated
-      actuator penalty below (RAW: "a -1 MP penalty replaces any penalties
-      associated with damaged leg actuators in the destroyed leg") rather
-      than counting its individual actuator hits.
-    - Otherwise (no leg destroyed forcing the flat-1 case): walking MP is
-      base_walk_mp minus 1 per destroyed leg actuator slot (Hip/Upper Leg
-      Actuator/Lower Leg Actuator/Foot Actuator - Daniel's house rule, no
-      Hip-halves-MP RAW special case), summed across all non-destroyed legs.
+    - Quad (Core p.238; 2026-10-21 - was Daniel's "one fewer lost leg"
+      rule): each of its first two lost legs -1 instead of that leg's
+      actuator hits; three lost legs = a biped with one leg lost (flat 1);
+      its first hip hit costs no MP (p.239).
+    - Otherwise: walking MP is base_walk_mp minus 1 per destroyed leg
+      actuator (Hip / Upper Leg / Lower Leg / Foot - pp.98-99), summed
+      across the legs still on the 'Mech.
     - Floor of 1 always (Daniel, 2026-07-12: confirmed as the deliberate
       choice, not a RAW deviation worth correcting - "functionally the same
       for our purposes").
@@ -843,22 +882,16 @@ def compute_walk_mp(mech):
 def _damage_walk_mp(mech):
     """compute_walk_mp before heat: leg damage only, floor 1."""
     destroyed_legs = [loc for loc in mech.leg_locations if mech.locations[loc]["destroyed"]]
-    is_quad = mech.mech_type in ("quad", "quadvee")
-    effective_destroyed = max(0, len(destroyed_legs) - (1 if is_quad else 0))
+    quad = is_quad(mech)
+    if len(destroyed_legs) >= (3 if quad else 1):
+        return 1                             # a destroyed leg (a quad: its third), p.90 / p.238
 
-    if effective_destroyed >= 1:
-        return 1
-
-    penalty = 0
+    penalty = len(destroyed_legs)            # a quad's first two lost legs, -1 each (p.238)
     for loc in mech.leg_locations:
-        if loc in destroyed_legs:
-            # Only reachable here for a quad with exactly 1 leg destroyed
-            # (effective_destroyed == 0 in that case) - flat -1 replaces that
-            # leg's own actuator count per the RAW quote above.
-            penalty += 1
-        else:
+        if loc not in destroyed_legs:
             penalty += mech.destroyed_leg_actuators.get(loc, 0)
-
+    if quad and live_hip_legs(mech):
+        penalty -= 1                         # a quad's first hip hit costs no MP (p.239)
     return max(1, mech.base_walk_mp - penalty)
 
 

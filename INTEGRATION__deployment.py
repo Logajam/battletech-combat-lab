@@ -28,6 +28,7 @@ from typing import Dict, List, Set
 
 import INTEGRATION__config as config
 import INTEGRATION__water as water
+from mech_state import ground_level_limited  # pp.90, 99, 238-239
 import terrain_rules
 import combat
 import hex_geometry
@@ -93,7 +94,7 @@ def reaches(mech, start, goal: Set[str], terrain_map, moves_cache=None) -> bool:
     as it likes (Daniel's "no path to the other side of the map")? Walking
     alone is tried first (cheap); jumps only if that fails. moves_cache: a
     dict shared between calls for one mech and board (speed only)."""
-    level_limit = terrain_rules.max_level_change(bool(mech.destroyed_hip_locations))
+    level_limit = terrain_rules.max_level_change(ground_level_limited(mech))
     cache = {} if moves_cache is None else moves_cache
     for jumping in (False, True):
         if jumping and compute_jump_mp(mech) <= 0:

@@ -200,7 +200,8 @@ battles a setting - Daniel).
   variable damage (heavy Gauss, Snub-Nose PPC, VSP), HAG, M-pods, machine
   gun arrays, bombast lasers, rifles, flamer / plasma heat on the target
   (outside heat, max 15), Arrow IV and artillery cannons (area effect,
-  scatter). Optional rule `POOL_CLUSTER_DAMAGE` (default True, Daniel):
+  scatter). Optional rule `POOL_CLUSTER_DAMAGE` (Daniel's; default False since
+  2026-10-21 - the rules as written):
   cluster damage of one grouping size is summed before grouping.
 - Remaining loud stubs (`INTEGRATION__stubs.py`): weapon data gaps
   (`ammo_data`, `unconfirmed_weapon_data`, `unknown_damage_type`),
@@ -276,8 +277,7 @@ open). Read it before building rules.
      rules** (G22 - forced entry, inside, damage, collapse, support limits,
      bridges; pp.53, 130-136; "probably a discussion first"). Passive
      buildings stand in until then.
-8. Waiting on Daniel (Section 4): his quad leg-loss house rule vs the
-   appendix (p.238); does HOLDING a
+8. Waiting on Daniel (Section 4): does HOLDING a
    club stop arm / torso weapons firing?
 9. Later (Daniel agreed 2026-10-20): a setup shell GUI (the replay viewer
    exists); a compiled hot path (Cython / Rust for `MoveEvaluator.evaluate`)
@@ -416,12 +416,13 @@ confirmed project rules, not stubs):
   237); leg destroyed +4 (p.111); quads -2 only with all four legs, +1 per
   lost leg for the first two, no PSR to stand with all four legs, one lost
   leg forces no run / jump PSR (pp.238-239).
-- OPEN (found 2026-10-21, for Daniel): his 2026-07-12 quad leg rules
+- RESOLVED 2026-10-21 (Daniel: "Follow the rules, not my calls" - built,
+  RULES_REVIEW F43): his 2026-07-12 quad leg rules
   (`mech_state._damage_walk_mp`, `legs_gone`: a quad's lost legs count one
   fewer, so 2 lost legs = Walking MP 1 and 3 = destroyed) differ from the
   appendix (p.238): 1 lost leg -1 Walking MP, 2 lost legs -2 (the effects
   of a hip hit), 3 = a biped with one leg lost (still moves), 4 = both legs
-  lost. Left as his rule - say if it should follow the book.
+  lost. Now the book's.
 - Rear arc: Daniel's 2026-07-20 rule was one hexside (60 degrees); the p.60
   Firing Arcs Diagram (screenshot, 2026-10-19) shows 120 degrees, and
   `INTEGRATION__arcs.py` now follows the diagram (agrees at range 1).
@@ -696,6 +697,11 @@ forward arc, kicks included, never into a side arc.
 
 ## 5. DECISIONS LOG (Daniel's calls — implementation may not override)
 
+- **Rules over house rules (Daniel, 2026-10-21):** "Follow the rules, not my
+  calls." - quads' leg damage now follows pp.238-239 (F43);
+  `POOL_CLUSTER_DAMAGE` defaults to False (rules as written). Kept on
+  purpose: `FIGHT_TO_THE_DEATH` off - "it saves time when the situation is
+  hopeless". (Section 7 standing prompt.)
 - **PSR special cases (Daniel, 2026-10-21):** "Stand up, tripod, jumping, 4
   legged mechs should all have answers in the rules. Clear them please." -
   rules as written (RULES_REVIEW F42). This replaces his 2026-07-16 tripod
@@ -760,7 +766,8 @@ forward arc, kicks included, never into a side arc.
   - Heavy Gauss 25 / 20 / 10; VSP damage S / M / L 5/4/3, 9/7/5, 11/9/7; HAG a
     5-point cluster weapon, +2 Cluster roll at short, -2 at long.
   - "All cluster damage of a specific size is added up and then applied" -
-    built as optional rule `POOL_CLUSTER_DAMAGE`, default True.
+    built as optional rule `POOL_CLUSTER_DAMAGE`, default True (False since
+    2026-10-21: "Follow the rules, not my calls").
   - "Fixing non functional weapons just became top priority" (done); specialty
     ammo deferred.
   - Later ideas: a best-solution lookup table per weapon by range and starting
@@ -995,6 +1002,12 @@ turn's score, so a decision sees what it gives up.
 
 ## 7. STANDING PROMPTS
 
+- (Daniel, 2026-10-21) **"Follow the rules, not my calls."** Where the Core
+  Rulebook answers a question and an earlier call of Daniel's differs, the
+  rulebook wins - change the code (or the switch's default) and say so. The
+  exception is a switch he keeps for SPEED, not as a rules opinion:
+  `FIGHT_TO_THE_DEATH` stays off ("it saves time when the situation is
+  hopeless"), with the rules-as-written version one switch away.
 - (Daniel, 2026-10-19: "nuke those standing instructions - Claude Code did
   good work with little to go on." The old "don't run code until told
   'compile'" and "one test pass" gates are retired: build, test and run freely;
@@ -1070,6 +1083,19 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** "Follow the rules, not my calls" (Daniel). Quads'
+  leg damage by the book (RULES_REVIEW F43, pp.238-239): lost legs -1
+  Walking MP / +1 PSR each for the first two, three = a biped with one leg
+  lost (still mobile), four = immobile (was: destroyed at three, Walking MP
+  1 at two); the first hip hit has no MP / PSR / running-PSR / level-limit
+  effect, later ones do; two lost legs bring a hip hit's effects.
+  `mech_state.hip_effects` / `ground_level_limited` (the level limit now
+  goes through it everywhere). `POOL_CLUSTER_DAMAGE` default False. Sweep
+  of other "Daniel's rule" spots: the 2-per-slot component explosion is the
+  book's (p.96) - comment fixed; `FIGHT_TO_THE_DEATH` briefly flipped on,
+  then back off at Daniel's word (speed). Reference logs regenerated: 12
+  changed by the pooling default; one winner flipped (Bombardier 14K vs
+  Black Hawk: Blue -> Red). test_rules quad_leg_damage_by_the_book.
 - **2026-10-21 (Claude):** PSR special cases cleared from the rules
   (RULES_REVIEW F42): stand-up -1, leg destroyed +4 (was +5), tripod -1 with
   no leg lost (was -2) plus the dedicated pilot -1 / +2 disabled (PSRs and

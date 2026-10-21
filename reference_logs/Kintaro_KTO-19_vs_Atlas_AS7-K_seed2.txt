@@ -215,7 +215,6 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
     ISGaussRifle: needs 11 (range mod +2), rolled 8 -> miss [ISGauss Ammo: 2 shots left]
     ISERLargeLaser: needs 11 (range mod +2), rolled 5 -> miss
     ISLRM20 hit: cluster roll 10 on the 20-column table -> 16 connect (16 dmg).
-    ISLRM20: 16 damage in 5-point groupings.
       Group 1/4: Hit location roll 8 (front table): Left Torso.
 5 damage (MISSILE) incoming to Left Torso (armor).
   [STANDARD/MISSILE] 5 armor pts destroyed at armor (18 -> 13 remaining).
@@ -303,7 +302,6 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
     ISMediumPulseLaser: needs 5 (range mod +0, modifiers -2), rolled 5 -> HIT
   [AMS] Blue: no AMS covers the attack from Red's hex.
     ISSRM6 hit: cluster roll 3 on the 6-column table -> 2 connect (4 dmg).
-    ISSRM6: 4 damage in 2-point groupings.
       Group 1/2: Hit location roll 4 (rear table): Right Arm.
 2 damage (MISSILE) incoming to Right Arm (rear_armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (29 -> 27 remaining).
@@ -378,7 +376,6 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
     ISERLargeLaser: needs 10 (range mod +2), rolled 6 -> miss
   [AMS] Blue's ISAntiMissileSystem engages Red's ISLRM5 (cuts 1.58 expected; +1 heat; ISAMS Ammo: 10 shots left).
     ISLRM5 hit: cluster roll 8 -4 (AMS ISAntiMissileSystem) on the 5-column table -> 2 connect (2 dmg).
-    ISLRM5: 2 damage in 5-point groupings.
       Group 1/1: Hit location roll 7 (left table): Left Torso.
 2 damage (MISSILE) incoming to Left Torso (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (32 -> 30 remaining).
@@ -445,7 +442,6 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
 8 damage (ENERGY) incoming to Left Leg (armor).
   [STANDARD/ENERGY] 8 armor pts destroyed at armor (17 -> 9 remaining).
     ISLRM5 hit: cluster roll 7 -4 (AMS ISAntiMissileSystem) on the 5-column table -> 2 connect (2 dmg).
-    ISLRM5: 2 damage in 5-point groupings.
       Group 1/1: Hit location roll 7 (front table): Center Torso.
 2 damage (MISSILE) incoming to Center Torso (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (47 -> 45 remaining).
