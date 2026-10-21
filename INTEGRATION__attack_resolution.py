@@ -106,6 +106,7 @@ import INTEGRATION__electronics as electronics
 import INTEGRATION__fire_modes as fire_modes
 import INTEGRATION__weapon_profiles as weapon_profiles
 import INTEGRATION__timing as timing
+import INTEGRATION__water as water
 from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capability, \
     mark_consciousness_check_pending, compute_heat_dissipation, arm_aes_working
 import armor_rules
@@ -432,6 +433,17 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     cond_mod, unavailable, cond_note = conditions
     unavailable = (unavailable | ammo.unavailable_weapons(attacker) | fire_modes.jammed_ids(attacker)
                    | weapon_profiles.array_gun_ids(attacker))
+    # Water (2026-10-21, INTEGRATION__water, pp.62, 67, 127): attacks can't cross
+    # the water line; from depth 1 only some weapons can bear; only energy weapons
+    # fire from a submerged location.
+    a_water, t_water = water.state(attacker, terrain_map), water.state(target, terrain_map)
+    w_locs = weapon_locations(attacker)
+    water_blocked = water.blocked_weapon_ids(attacker, get_weapons(attacker), w_locs, a_water, t_water)
+    if water_blocked is None:
+        config.log(f"  [Ranged] {a_name} ({a_water}) can't attack {t_name} ({t_water}) "
+                   f"across the water line (p.62) - holds fire.")
+        return
+    unavailable = unavailable | water_blocked
     prone_mod = prone_target_modifier(target, distance)
     other_mod = cond_mod + prone_mod
     pre_tn = attacker.gunnery + amm + tmm + los.modifier + heat_mod + stealth_mod + other_mod
@@ -439,7 +451,7 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     aim = None
     if is_immobile(target) and config.AIMED_SHOT_LOCATION:
         aim = aimed_shot_location(target, partial_cover=cover > 0)
-    adjust = tn_adjuster(attacker, target, aim, cover)
+    adjust = water.range_adjuster(attacker, w_locs, a_water, tn_adjuster(attacker, target, aim, cover))
     side = attack_side(a_hex, t_hex, hex_geometry.compass_to_facing(target.facing), terrain_map)
     sel_pre_tn = max(weapon_selection.PRE_TN_MIN, min(weapon_selection.PRE_TN_MAX, pre_tn))
     # Special weapons (missiles, rapid fire, LB-X, MML, ATM, Narc) are priced by a fire_modes
@@ -456,7 +468,7 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     hex_offset = -(tmm + prone_mod + equip.void_signature_modifier(target))
     planner = fire_modes.Planner(attacker, target, adjust, fire_modes.ams_share(k, usable), pod_values, hex_offset)
 
-    dissipation = compute_heat_dissipation(attacker)
+    dissipation = compute_heat_dissipation(attacker) + water.dissipation_bonus(attacker)
     other = heat.other_heat(attacker)
     # Torso twist / arm flip / turret (pp.61-62): declared with the attacks, so try each
     # one the mech may make and keep the one with the most expected damage; no change wins ties.

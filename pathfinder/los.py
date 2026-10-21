@@ -328,13 +328,25 @@ def _evaluate(attacker_hex: Hex, target_hex: Hex, terrain_map: Dict[str, object]
     # intervening hex: at range 1 the hex before the target is the
     # attacker's own, which is never intervening terrain (Core p.57;
     # fixed 2026-10-20, Claude).
+    # Water (2026-10-21): a water hex's level is its floor (terrain_rules.
+    # prepare_board), and cover must be "a hill or a building" (p.66) - so a
+    # shallower water hex next to a deeper one gives none.
     cover = 0
     if blocked_at is None and total_distance >= 2:
         for c in path[total_distance - 1]:
             info = hex_info(c)
-            if info is not None and info["level"] == b_level + 1:
+            if info is not None and info["level"] == b_level + 1 and not info.get("depth"):
                 cover = max(cover, 1)
+    # Partial cover from water (p.66): a 'Mech standing in depth 1 water has
+    # it, even against higher attackers - but not against a fully submerged
+    # attacker (depth 2+; p.67). Hex-based: a prone target in depth 1 is
+    # fully submerged, and attacks on it from above the water can't be made
+    # at all (INTEGRATION__water), so its cover never counts.
+    if blocked_at is None and b_info.get("depth") == 1 and a_info.get("depth", 0) < 2:
+        cover = 1
+    if blocked_at is None:
         modifier += cover
+    if blocked_at is None and total_distance >= 2:
         if steps and steps[-1].index == total_distance - 1:
             steps[-1].partial_cover = cover
             steps[-1].cumulative_modifier = modifier

@@ -130,7 +130,8 @@ def _board(terrain_map):
     for label, info in terrain_map["hexes"].items():
         feats = {k: v[0] if isinstance(v, list) and v else v for k, v in info.get("features", {}).items()
                  if k != "foliage_elev"}
-        hexes[label] = {"l": info.get("level", 0), "f": feats}
+        # A water hex's "level" is its floor (terrain_rules.prepare_board); the map shows the surface.
+        hexes[label] = {"l": info.get("surface_level", info.get("level", 0)), "f": feats}
         if info.get("building"):
             hexes[label]["b"] = 1          # a passive building: "l" is its roof level
     return {"width": terrain_map["width"], "height": terrain_map["height"], "hexes": hexes}

@@ -86,7 +86,8 @@ no engine, weapon or stealth heat; heat sinks keep working. It can move and
 fire the turn after it restarts.
 
 Not modeled (the sim has no such terrain or decision yet - see
-results.KNOWN_MISSING_RULES): water/snow/fire/extreme temperatures,
+results.KNOWN_MISSING_RULES): snow/fire/extreme temperatures (water's
+submerged heat sinks: INTEGRATION__water, 2026-10-21),
 inferno missiles' heat on targets (launchers fire standard ammo),
 voluntary shutdown.
 """
@@ -97,6 +98,7 @@ import INTEGRATION__config as config
 import INTEGRATION__stubs as stubs
 import INTEGRATION__equipment_systems as equip
 import INTEGRATION__ammo as ammo
+import INTEGRATION__water as water
 from mech_state import compute_heat_dissipation, is_destroyed, pilot_unconscious, \
     mark_consciousness_check_pending, active_heat_sinks, working_heat_sinks, heat_sink_rate, \
     compute_walk_mp, compute_running_mp, compute_jump_mp
@@ -290,8 +292,8 @@ def weapon_heat_budget(mech, move_heat):
     """max_heat + dissipation - current heat - movement heat - other heat,
     floored at 0. Same formula weapon_selection.select_weapons_to_fire
     applies internally; exposed here for logging."""
-    return max(0, mech.max_heat + compute_heat_dissipation(mech) - mech.current_heat
-               - move_heat - other_heat(mech))
+    return max(0, mech.max_heat + compute_heat_dissipation(mech) + water.dissipation_bonus(mech)
+               - mech.current_heat - move_heat - other_heat(mech))
 
 
 # =============================================================================
@@ -304,7 +306,9 @@ def resolve_heat_phase(mech, weapon_heat):
     was_shut_down = mech.shutdown
     eng = engine_heat(mech)
     stealth = equip.stealth_heat(mech)
-    dissipation = compute_heat_dissipation(mech)
+    sinks = compute_heat_dissipation(mech)
+    water_bonus = water.dissipation_bonus(mech)     # submerged sinks dissipate double (p.103, 2026-10-21)
+    dissipation = sinks + water_bonus
     before = mech.current_heat
     # Outside heat (2026-10-20, p.102): hits by heat-causing weapons this turn, at most 15.
     outside = min(OUTSIDE_HEAT_CAP, getattr(mech, "outside_heat", 0))
@@ -315,7 +319,7 @@ def resolve_heat_phase(mech, weapon_heat):
     overflow = mech.current_heat - OVERFLOW_HEAT
     config.log(f"  [Heat] {name}: {before} + movement {mech.movement_heat} + weapons {weapon_heat} "
                f"+ engine {eng}{f' + stealth {stealth}' if stealth else ''}{f' + outside {outside}' if outside else ''}"
-               f" - sinks {dissipation}"
+               f" - sinks {sinks}{f' - water {water_bonus}' if water_bonus else ''}"
                f"{f' - {how} {extra}' if how else ''} -> {mech.current_heat}"
                f"{f' (overflow {overflow})' if overflow > 0 else ''}")
 

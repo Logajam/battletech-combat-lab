@@ -26,7 +26,10 @@ KNOWN_MISSING_RULES = [
     "PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; "
     "a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo "
     "saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH",
-    "Heat sources/sinks with no terrain model yet: water, snow, fire, extreme temperatures; "
+    "Water, part 2 (RULES_REVIEW G6): hull breaches, physical attacks in water (no attack on a submerged mech "
+    "from above the water, half damage underwater, no DFA from depth 2+), the life support drowning hit, leg "
+    "weapons' Kick-table hits between partially submerged mechs; the water PSR checks a run's END hex only",
+    "Heat sources/sinks with no terrain model yet: snow, fire, extreme temperatures (water: built 2026-10-21); "
     "inferno missiles (inferno bins aren't fired from; they can still explode)",
     "Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary "
     "shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/"

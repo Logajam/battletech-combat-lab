@@ -134,6 +134,7 @@ import INTEGRATION__arcs as arcs  # noqa: E402
 import INTEGRATION__clubs as clubs  # noqa: E402
 import INTEGRATION__replay as replay  # noqa: E402
 import INTEGRATION__timing as timing  # noqa: E402
+import INTEGRATION__water as water  # noqa: E402
 from INTEGRATION__attack_resolution import _with_piloting, total_hp  # noqa: E402
 from INTEGRATION__results import BattleResult, SideStats, summarize  # noqa: E402
 
@@ -242,7 +243,7 @@ def _compute_available_mp(mech):
     return {
         "walk": compute_walk_mp(mech),
         "run": compute_running_mp(mech),
-        "jump": compute_jump_mp(mech),
+        "jump": water.jump_mp(mech),             # leg jets in depth 1, none deeper (p.50)
     }
 
 
@@ -370,6 +371,7 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_fi
     if standup_mp is not None:
         # resolve_stand_up already made the running-mode PSR for moving on
         # after standing ("fell again after standing").
+        _water_psr(mover)
         piloting_rolls.resolve_consciousness_checks(mover, "Movement Phase")
         return
 
@@ -384,6 +386,7 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_fi
         # END hex - in tabletop play it falls where the check was failed.
         # Check MegaMek movement processing for where the fall happens.
         _with_piloting(mover, piloting_rolls.check_movement_psr, psr_mode)
+    _water_psr(mover)
     if booster_failures and not is_destroyed(mover):
         # Failed MASC / supercharger: damage, then any PSR it forces, at the
         # end of movement (p.204) - the PSR uses the damage-this-phase triggers.
@@ -391,6 +394,34 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_fi
         equip.apply_booster_failures(mover, booster_failures)
         _with_piloting(mover, piloting_rolls.resolve_attack_phase_psr)
     piloting_rolls.resolve_consciousness_checks(mover, "Movement Phase")
+
+
+def _water_psr(mover):
+    """Running or jumping into depth 1+ water (2026-10-21): running into such a
+    hex forces a PSR (+0, pp.48, 51); a jump that lands in one forces a PSR
+    with no modifier for the depth, and a failure falls the hex's depth in
+    levels to the bottom (p.50). Falls in water take half damage (p.115,
+    piloting_rolls.resolve_fall). Simplification, like the TODO above: only
+    the END hex is checked - the movement table keeps end states, not paths,
+    so water a run passes through and leaves isn't rolled for (p.113 wants a
+    roll after each water hex entered)."""
+    if mover.prone or is_destroyed(mover) or mover.hex is None:
+        return
+    depth = water.depth_at(mover.hex)
+    if depth < 1:
+        return
+    if mover.move_mode == "Run" and mover.move_fc >= 1:
+        what, levels = "Ran into water", 0
+    elif mover.move_mode == "Jump":
+        what, levels = "Jumped into water", depth
+    else:
+        return
+    modifier = piloting_rolls.preexisting_modifier(mover) + piloting_rolls.special_case_modifier(mover)
+
+    def roll(mech):
+        if not piloting_rolls.roll_psrs(mech, 1, modifier, f"{what} (depth {depth}) PSR"):
+            piloting_rolls.resolve_fall(mech, cause=f"{what.lower()}, failed PSR", levels=levels)
+    _with_piloting(mover, roll)
 
 
 # =============================================================================
@@ -500,6 +531,7 @@ def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,
     }
     by_name = {"Red": mech_red, "Blue": mech_blue}
     clubs.reset_battle()
+    water.set_board(terrain_map)          # heat sinks, falls, jump jets read the hex's depth (2026-10-21)
     if config.DEPLOYMENT == "home_edge":
         _deploy_home_edges(mech_red, mech_blue, terrain_map, battle_rng)
     elif config.DEPLOYMENT != "fixed_hexes":

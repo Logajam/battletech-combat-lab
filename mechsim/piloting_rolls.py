@@ -207,7 +207,9 @@ def resolve_fall(mech, cause="", levels=0, side=None):
         automatically if the 'Mech is immobile or the target number is over
         12. (Was: the fall's whole PSR modifier, Daniel's 2026-07-16 rule.)
     levels: levels fallen - a mech displaced two or more levels down falls
-    automatically (2026-10-20, Core p.115)."""
+    automatically (2026-10-20, Core p.115).
+    Water (2026-10-21, p.115): damage halved (rounded down) when the mech's
+    hex is depth 1+ water."""
     mech.prone = True
     if side is None:
         die = config.pick_number(6, prompt="  Fall side 1D6 (1 = rear)")
@@ -216,8 +218,14 @@ def resolve_fall(mech, cause="", levels=0, side=None):
     else:
         side_note = side
     total_damage = fall_damage(mech) * (levels + 1)
+    # Water (2026-10-21, Core p.115): a fall in depth 1+ water does half damage,
+    # rounded down. The board's depth is the integration's (INTEGRATION__water).
+    import INTEGRATION__water as water
+    divisor = water.fall_damage_divisor(mech)
+    total_damage //= divisor
     config.log(f"FALL{f' ({cause})' if cause else ''}: {mech.chassis} {mech.model} "
-               f"takes {total_damage} falling damage ({side_note} table, 5-pt clusters).")
+               f"takes {total_damage} falling damage{' (halved: water, p.115)' if divisor > 1 else ''} "
+               f"({side_note} table, 5-pt clusters).")
 
     remaining = total_damage
     while remaining > 0:
