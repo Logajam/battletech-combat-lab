@@ -19,10 +19,10 @@ from typing import Dict, List, Optional
 # per-attack). Printed with every summary.
 KNOWN_MISSING_RULES = [
     "Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG "
-    "designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods "
+    "designation would use up (TAG fires as the 'Mech faces). Firing arcs, torso twists (both attack phases, tripods "
     "any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied",
     "Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / "
-    "haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser "
+    "haywire / Nemesis pods, Arrow IV special rounds but homing; semi-guided missiles; distant (18+ hex) Arrow IV fire, bombast laser "
     "charging, HAG flak; PPC capacitor charging is a stub, off by default; non-Core weapons (TSEMP, iATM, mortars...) can't fire; Thumper / Sniper artillery fire as Arrow IV (Daniel); "
     "a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo "
     "saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH",

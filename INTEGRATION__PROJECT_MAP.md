@@ -277,13 +277,13 @@ open). Read it before building rules.
      rules** (G22 - forced entry, inside, damage, collapse, support limits,
      bridges; pp.53, 130-136; "probably a discussion first"). Passive
      buildings stand in until then.
-7a. **IN PROGRESS (session 7, Daniel 2026-10-21: "Continue with the rulebook
+7a. **DONE (session 7, Daniel 2026-10-21: "Continue with the rulebook
    items. Wire in equipment that requires choice (Like capacitors) but defer
-   the actual bot decision making for later. if the session times out
-   continue when it resets.")** - work through RULES_REVIEW G23-G33 in order,
-   each choice wired as options + a loud stub (decision deferred); then
-   Thumper / Sniper artillery and TAG / homing / smoke / active probes
-   (Section 5, 2026-10-21). Done so far: see the Change Record.
+   the actual bot decision making for later.")** - RULES_REVIEW G23-G33 built
+   (F43-F54), each choice a loud stub; Thumper / Sniper artillery (F55); TAG
+   and homing artillery (F56). Left: **smoke and active probes (G34)** - no
+   smoke source yet (no unit carries Smoke IV rounds); **open for Daniel:**
+   Thumper / Sniper shots per ton and heat (F55).
    **Equipment without rules yet** (survey of every unit in `data/meks.zip`,
    2026-10-21; RULES_REVIEW G23-G33): heavy-duty gyro (57 units), shields /
    spikes / talons on DFA / lance in charges / vibroblades, APDS, heat-
@@ -983,6 +983,7 @@ forward arc, kicks included, never into a side arc.
 | Blue Shield on / off | `stubs.stub_blue_shield` | STUB (`STUB_BLUE_SHIELD`, default "on"): switched at the start and each End Phase (p.207); Memo: only against PPCs, and weigh the stealth it negates |
 | PPC capacitor at the start | `stubs.stub_capacitor_start` | STUB (`STUB_CAPACITOR_START`, default "empty"): start the battle charged (p.188); Memo: the PPC-charging bot session |
 | Charge a PPC capacitor | `stubs.stub_capacitor_charge` | STUB (`STUB_CAPACITOR_CHARGE`, default "never"; "when_idle" = whenever the PPC isn't fired): charge instead of firing (p.188); Memo: weigh 5 heat now and each turn held against +5 damage, and let weapon choice see the holding heat |
+| Fire TAG | `stubs.stub_fire_tag` | STUB (`STUB_FIRE_TAG`, default "when_useful": the 'Mech has homing artillery rounds): designate the enemy before the Ranged Attack Phase (p.200); Memo: the twist / flip TAG may use first, semi-guided rounds |
 | Club pick-up | `INTEGRATION__clubs.maybe_pick_up` | ON (`config.CLUB_PICKUP`, Daniel 2026-10-21): picks one up on a turn it fires nothing; smarter use waits for the Memo below |
 | DFA miss: where the target steps | `INTEGRATION__dfa.resolve` | The open hex with the smallest drop |
 | Home edge | `config.HOME_EDGE_CHOICE` | Which edge the deployment-roll loser picks (default random) |
@@ -1120,6 +1121,14 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** TAG and homing artillery (RULES_REVIEW F56, pp.53,
+  190, 200), new `INTEGRATION__tag`: a designation step before the Ranged
+  Attack Phase (`STUB_FIRE_TAG`, Section 6); Arrow IV / Thumper / Sniper
+  homing rounds parsed and fired at a designated target (2D6 4+: 20 / 10 / 5
+  direct-fire, else 5 AE). Smoke and active probes left as G34 (no smoke
+  source yet). test_weapons tag_and_homing_artillery. Reference logs
+  updated: the Asymptote mounts TAG, so the new stub's lines and the
+  known-missing wording - battle results unchanged.
 - **2026-10-21 (Claude):** Thumper / Sniper artillery as Arrow IV (Daniel's
   wiring; RULES_REVIEW F55): their own damage (15/5, 20/10), slots fixed
   (15, 20), the parser joins a three-location split; homing damage recorded

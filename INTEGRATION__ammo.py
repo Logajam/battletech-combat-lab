@@ -70,14 +70,15 @@ def weapon_entry_for_ammo(bin_name):
 # Torpedo bins ("Clan Ammo LRTorpedo-15", p.187) feed the same-size launcher's
 # row but only torpedo launchers (and a torpedo launcher takes only them).
 # Bins whose munition isn't modeled stay unlinked (their weapon can't fire from
-# them): Arrow IV, and iNarc ECM / haywire / Nemesis pods (no unit in
+# them): Arrow IV special rounds but homing (built 2026-10-21), and iNarc ECM / haywire / Nemesis pods (no unit in
 # data/meks.zip carries those). A " - Half" bin holds half a ton's shots.
 _MUNITION_SUFFIXES = (
     (re.compile(r"\s*Artemis V-capable", re.I), "artemis5"),
     (re.compile(r"\s*Artemis-capable", re.I), "artemis4"),
     (re.compile(r"\s*Narc-capable", re.I), "narc"),
+    (re.compile(r"\s*Homing(?=\s*Ammo|\s*$)", re.I), "homing"),     # Arrow IV homing missiles (p.190, 2026-10-21)
 )
-_NOT_MODELED = re.compile(r"ArrowIV ?(Homing|Cluster|Inferno|Smoke|Thunder)|ECM Pods|Haywire|Nemesis", re.I)
+_NOT_MODELED = re.compile(r"ArrowIV ?(Cluster|Inferno|Smoke|Thunder)|ECM Pods|Haywire|Nemesis", re.I)
 _LBX_CLUSTER = re.compile(r"\s*Cluster|\sCL(?= Ammo)", re.I)
 _ATM_KIND = re.compile(r"(ATM-?\d+)\s+(ER|HE)\b", re.I)
 _MML = re.compile(r"MML-?(\d)\s*(LRM|SRM)", re.I)
@@ -171,7 +172,7 @@ def attach_ammo(mech):
                 if entry is not None and (kind in fire_modes.MML_KINDS or kind in fire_modes.ATM_KINDS):
                     per = fire_modes.MML_KINDS[kind][0] if kind in fire_modes.MML_KINDS else fire_modes.ATM_KINDS[kind][0]
                     slot.shot_damage = per * (entry.get("rack_size") or 1)
-                if munition in ("homing", "explosive"):          # pods: 2 / 3 per pod, explosive 4 / 6 (p.193)
+                if munition in ("homing", "explosive") and slot.feeds in NARC_POD_DAMAGE:   # pods: 2 / 3, explosive 4 / 6 (p.193)
                     table = EXPLOSIVE_POD_DAMAGE if munition == "explosive" else NARC_POD_DAMAGE
                     slot.missiles_per_shot, slot.shot_damage = 1, table[slot.feeds]
                 _update_explosion(slot)
