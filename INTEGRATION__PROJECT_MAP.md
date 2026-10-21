@@ -277,6 +277,11 @@ open). Read it before building rules.
      rules** (G22 - forced entry, inside, damage, collapse, support limits,
      bridges; pp.53, 130-136; "probably a discussion first"). Passive
      buildings stand in until then.
+7a. **Equipment without rules yet** (survey of every unit in `data/meks.zip`,
+   2026-10-21; RULES_REVIEW G23-G33): heavy-duty gyro (57 units), shields /
+   spikes / talons on DFA / lance in charges / vibroblades, APDS, heat-
+   dissipating armor, Blue Shield, HarJel, torpedoes (not even parsed),
+   cockpit command console, chemical laser ammo (check), quad kicks.
 8. **PPC capacitors** (Daniel, 2026-10-21: "PPC charging is a bot logic
    question that requires its own session"): build the rules (p.188 - charge
    instead of firing, 5 heat, +5 heat a turn held, +5 heat and +5 damage when
@@ -1091,6 +1096,11 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** To-do list refilled (Daniel: "Are there any weapons
+  or equipment that don't have rules implemented yet"): a survey of every
+  unit in `data/meks.zip` against the Core Rulebook's Weapons & Equipment
+  chapter - RULES_REVIEW G23-G33 (Pick up here 7a), plus the list of items
+  with no effect in a duel and non-Core items.
 - **2026-10-21 (Claude):** Clubs (Daniel): holding one never blocks fire
   (the code already let it fire), firing an arm weapon rules out the club
   attack that turn (already so, p.79); `CLUB_PICKUP` now on - a mech that
