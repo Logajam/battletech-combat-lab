@@ -760,6 +760,12 @@ def grid_search_net_and_follow():
     assert len(calls) == len({id(c) for c in calls}) == len(scored)   # each state scored once
     assert start in {c.hex_xy for c in calls}                         # the mover's own hex is in the net
     assert len(scored) < len(states) / 3                              # far fewer than every state
+    # The always-checks (Daniel, 2026-10-21): the 6 hexes around the enemy are looked at.
+    calls.clear()
+    enemy = hex_geometry.parse_hex_label("0315")
+    ms._grid_search(states, lambda sts: [score_spot(c) for c in sts], start, 1, target_xy=enemy)
+    looked = {c.hex_xy for c in calls}
+    assert all((enemy[0] + dx, enemy[1] + dy) in looked for dx, dy in deltas)
     again = ms._grid_search(states, lambda sts: [score_spot(c) for c in sts], start, 1)
     assert [(s, c.hex_xy, c.facing) for s, c, _ in again] == [(s, c.hex_xy, c.facing) for s, c, _ in scored]
 

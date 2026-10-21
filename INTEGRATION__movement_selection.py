@@ -569,7 +569,7 @@ def _modeled_reply(c, ev2, prepared2, them, me, other, mover_xy_of_c, terrain_ma
         if config.MOVEMENT_REPLY_SEARCH == "grid" and prepared2:
             # The second mover picks by guess and follow too (Daniel, 2026-10-21).
             rows = _grid_search(prepared2, reply_rows, hex_geometry.parse_hex_label(other.hex),
-                                config.MOVEMENT_SEARCH_STARTS)
+                                config.MOVEMENT_SEARCH_STARTS, target_xy=c.hex_xy)
         else:
             rows = reply_rows(prepared2)
     cands = [cand for _, cand in rows]
@@ -713,7 +713,7 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
         if not moves_first and config.MOVEMENT_REPLY_SEARCH == "grid":
             # The second mover picks by guess and follow (Daniel, 2026-10-21) - as the first mover modeled it.
             static = [cand for _, cand in _grid_search(prepared1, static_rows, _search_start(mover, prepared1),
-                                                       config.MOVEMENT_SEARCH_STARTS)]
+                                                       config.MOVEMENT_SEARCH_STARTS, target_xy=enemy_xy)]
         else:
             static = ev1.evaluate(other.hex, other.facing, other.move_fc, other.move_mode, other.mp_spent, prepared1)
     static_dealt = {(c.hex, c.facing, c.mode, c.fc): c.dealt for c in static}
@@ -758,6 +758,8 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
                     (dealt, received, dealt_mult, received_mult, extras, reply))
 
         if config.MOVEMENT_TWO_PLY_SEARCH == "grid":
+            # No hexes around the enemy here: it moves after the first mover (Daniel, 2026-10-21:
+            # "Always checks wouldn't help the first mover"). The own hex is always a net hex.
             scored = _grid_search(prepared1, lambda states: [score_spot(c) for c in states],
                                   _search_start(mover, prepared1), config.MOVEMENT_SEARCH_STARTS)
         else:
@@ -786,7 +788,7 @@ def _search_start(mover, prepared):
     return hex_geometry.parse_hex_label(mover.hex) if mover.hex else prepared[0].hex_xy
 
 
-def _grid_search(prepared, score_hex, start_xy, starts):
+def _grid_search(prepared, score_hex, start_xy, starts, target_xy=None):
     """Daniel's "guess and follow" (2026-10-21, config.MOVEMENT_TWO_PLY_SEARCH
     / MOVEMENT_REPLY_SEARCH = "grid"): the rows of a search over the
     reachable HEXES instead of every state. score_hex(states) scores all the
@@ -796,7 +798,13 @@ def _grid_search(prepared, score_hex, start_xy, starts):
     and every hex is a net hex or next to exactly one. Then from each of the
     `starts` best net hexes: look at the unchecked neighbours of the current
     hex and move to the best one while it beats the current hex; stop when
-    none does. Deterministic. Rows keep the prepared order within a hex."""
+    none does. Deterministic. Rows keep the prepared order within a hex.
+    Always looked at too (Daniel, 2026-10-21: "a short list of always
+    checks"), before the climb: start_xy (standing still) and, given the
+    enemy's hex target_xy, the 6 hexes around it (melee - the narrow peaks a
+    sparse net misses). Only the second mover passes target_xy: the first
+    mover's enemy moves after it, so its present hex says nothing about melee. A charge / DFA into the enemy's hex is priced apart
+    from this search, over every charge state (movement_attacks)."""
     by_hex: Dict[tuple, list] = {}
     for c in prepared:
         by_hex.setdefault(c.hex_xy, []).append(c)
@@ -818,6 +826,10 @@ def _grid_search(prepared, score_hex, start_xy, starts):
     for h in by_hex:
         if colour(h) == net_colour:
             look(h)
+    look(start_xy)                               # standing still
+    if target_xy is not None:                    # the 6 hexes around the enemy
+        for dx, dy in hex_geometry.FACING_DELTAS.values():
+            look((target_xy[0] + dx, target_xy[1] + dy))
     if not hex_best and by_hex:                  # a tiny reach with no net hex: the first hex
         look(next(iter(by_hex)))
     for h in sorted(hex_best, key=lambda h: -hex_best[h])[:starts]:

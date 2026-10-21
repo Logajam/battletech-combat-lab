@@ -206,9 +206,11 @@ open). Read it before building rules.
    must keep the benchmark's 501 / 495 and every reference log.
    **Guess and follow** (Daniel's idea, built 2026-10-21 as switches, off by
    default - A/B results in the Change Record): first mover only = ~2-3x
-   faster, results within noise; both movers = ~4x, but the Kontio (melee)
-   fell from 57 to 38 wins of 100. Waiting on Daniel: which to use, or
-   refine the search for narrow (melee) peaks first.
+   faster, results within noise; both movers with the second mover's
+   always-checks (own hex, the 6 around the enemy) = ~3.5-4.5x, results
+   within noise (Kontio 57 -> 61 of 100; without the always-checks it fell
+   to 38). Waiting on Daniel: whether to make it the default. Watch: 5 of
+   100 Kontio battles hit the turn cap (baseline 1).
 2. **Known issues Daniel asked to fix later** (Section 4, "Known issues to
    fix later"): Arrow IV / artillery scatter must stay inside the firing arc;
    machine gun array ammo per gun needs a check / test.
@@ -1017,6 +1019,22 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Always-checks for the grid search (Daniel: "add a
+  short list of always checks. Your starting position for standing still,
+  the targets position for charging. And the 6 hexes around it for melee";
+  then "Always checks wouldn't help the first mover"). `_grid_search` always
+  looks at the mover's own hex and, for the SECOND mover only (the modeled
+  reply and its real pick), the 6 hexes around the enemy; the first mover's
+  enemy moves after it. Charging into the target's hex needed nothing new:
+  charges / DFAs are scored apart, over every charge state, in any search
+  mode. Defaults unchanged (reference logs, benchmark 501 / 495). A/B, 20
+  battles x 6 matchups (`--set search-always`): first mover only - the same
+  numbers as before (own hex was already a net hex); both movers - all six
+  within noise of the exhaustive baseline. Kontio vs Hammerhead, 100 battles
+  (the case that looked off): Kontio 61 / Hammerhead 34 / 5 draws (baseline
+  57 / 41 / 2; without the always-checks 38 / 61 / 1), 3.5x faster than the
+  baseline batch; 5 battles hit the 50-turn cap (baseline 1) - watch.
+  Benchmark with both grids on: 3.4 s (exhaustive ~14 s).
 - **2026-10-21 (Claude):** Guess-and-follow two-ply search (Daniel: "check a
   sample of all the places you could end up, pick the best ranking one and
   then check the hexes around it. If a better choice exists follow it"), as
