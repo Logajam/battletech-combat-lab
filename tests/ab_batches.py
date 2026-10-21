@@ -63,6 +63,14 @@ VARIANT_SETS = {
     "search-both": [
         ("grid both movers", {"MOVEMENT_TWO_PLY_SEARCH": "grid", "MOVEMENT_REPLY_SEARCH": "grid"}),
     ],
+    # With the always-checks (own hex, the 6 around the enemy - Daniel, 2026-10-21; second mover only).
+    "search-always-both": [
+        ("always: grid both movers", {"MOVEMENT_TWO_PLY_SEARCH": "grid", "MOVEMENT_REPLY_SEARCH": "grid"}),
+    ],
+    "search-always": [
+        ("always: grid first mover", {"MOVEMENT_TWO_PLY_SEARCH": "grid"}),
+        ("always: grid both movers", {"MOVEMENT_TWO_PLY_SEARCH": "grid", "MOVEMENT_REPLY_SEARCH": "grid"}),
+    ],
     # The default settings alone: with --seed, a yardstick for how much results move with the dice alone.
     "baseline": [("default settings", {})],
 }
