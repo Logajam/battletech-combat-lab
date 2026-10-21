@@ -29,6 +29,27 @@ A lance attack that damages only armor makes an armor-piercing check: 2D6
 critical-hit check. A 'Mech with a lance that hits with a charge makes the
 same check, at 5+, on the first location the charge damages if it still has
 armor afterwards. Two lances: one damage instance, two checks.
+
+=== VIBROBLADES (p.196) ===
+-2 to hit. Declared activated or not (a choice - stubs.stub_vibroblade):
+activated it deals a fixed 7 / 10 / 14 (small / medium / large) whatever the
+actuators or TSM, and makes 3 / 5 / 7 heat when the attack is declared;
+deactivated, 1 per 10 tons + 1 (actuators and TSM as normal), never more than
+the activated damage before TSM.
+
+=== SHIELDS (p.195) ===
+Small / medium / large: Damage Absorbance 3 / 5 / 7, Damage Capacity 11 / 18 /
+25 (mech_state.SHIELD_SIZES; the MP and jump costs are mech_state's). A
+LOWERED shield protects its own arm; a RAISED one (declared at the start of a
+phase - a choice, stubs.stub_raise_shield) also the centre torso and the
+same-side torso and leg (a tripod: not its centre leg), and then nothing in
+those locations attacks that phase (rear-mounted weapons aside) and their AMS
+is off. Damage from outside (not into the rear hit zone, not falls or
+explosions) to a protected location loses up to the shield's DA, which comes
+off its Capacity; at 0 the shield is gone. Absorbed damage doesn't count for
+the 20-point PSR. Shield bash: a punch with the shield arm +1 / +2 / +3.
+A charger with a raised shield takes the charge's groupings on that arm.
+Two shields: only one raised at a time.
 """
 
 import INTEGRATION__config as config
@@ -181,3 +202,116 @@ def armor_only(target, loc, before):
 def snapshot(target, loc):
     v = target.locations[loc]
     return v.get("armor", 0) + v.get("rear_armor", 0), v["structure"]
+
+
+# =============================================================================
+# ==========================  VIBROBLADES  ====================================
+# =============================================================================
+VIBRO = {"SMALL": (7, 3), "MEDIUM": (10, 5), "LARGE": (14, 7)}     # (damage, heat), p.196 / p.249
+
+
+def vibro_size(slot):
+    n = _norm(slot.name)
+    return next((size for size in VIBRO if size in n), "MEDIUM")
+
+
+def vibro_attack(mech, slot, deactivated_damage, tsm):
+    """(damage, heat, activated?) for a vibroblade attack; deactivated_damage =
+    1 per 10 tons + 1 before TSM and actuator halving (the cap applies to it)."""
+    damage, heat = VIBRO[vibro_size(slot)]
+    if stubs.stub_vibroblade(mech.side_name, slot.name, warn=False):
+        return damage, heat, True
+    return min(deactivated_damage, damage) * (2 if tsm else 1), 0, False
+
+
+# =============================================================================
+# ==========================  SHIELDS  ========================================
+# =============================================================================
+SHIELD_BASH = {"SMALL": 1, "MEDIUM": 2, "LARGE": 3}       # p.195: + damage to a punch with that arm
+SIDE_OF = {"Left Arm": ("Left Torso", "Left Leg"), "Right Arm": ("Right Torso", "Right Leg")}
+
+
+def _capacity(shield, size):
+    """The shield's Damage Capacity left (kept on the Equipment instance)."""
+    from mech_state import SHIELD_SIZES
+    if getattr(shield, "shield_dc", None) is None:
+        shield.shield_dc = SHIELD_SIZES[size][1]
+    return shield.shield_dc
+
+
+def raised_arm(mech):
+    """The arm whose shield is raised this phase, or None."""
+    return getattr(mech, "shield_raised", None)
+
+
+def covered(mech, arm):
+    """Locations a RAISED shield on `arm` protects (p.195)."""
+    torso, leg = SIDE_OF[arm]
+    locs = {arm, "Center Torso", torso}
+    if mech.mech_type != "tripod" or leg != "Center Leg":
+        locs.add(leg)
+    return locs & set(mech.locations)
+
+
+def declare_raise(mech, phase):
+    """Start of an attack phase: raise a shield? (stubs.stub_raise_shield.)
+    Sets mech.shield_raised for this phase and returns it."""
+    from mech_state import mech_shields
+    mech.shield_raised = None
+    shields = [(arm, s, size) for arm, s, size in mech_shields(mech) if _capacity(s, size) > 0]
+    if shields and not mech.prone:
+        arm = stubs.stub_raise_shield(mech.side_name, phase, [a for a, _, _ in shields])
+        if arm:
+            mech.shield_raised = arm
+            config.log(f"  [{phase}] {mech.side_name} raises its {arm} shield (p.195).")
+    return mech.shield_raised
+
+
+def lower(mech):
+    mech.shield_raised = None
+
+
+def raised_blocks(mech):
+    """Locations that can't attack this phase behind a raised shield (p.195)."""
+    arm = raised_arm(mech)
+    return covered(mech, arm) if arm else set()
+
+
+def shield_absorb(target, loc, damage, side):
+    """Damage from outside to `loc` after the target's shields (p.195).
+    Rear-hit-zone attacks bypass them."""
+    from mech_state import mech_shields, SHIELD_SIZES
+    if damage <= 0 or side == "rear":
+        return damage
+    raised = raised_arm(target)
+    for arm, shield, size in mech_shields(target):
+        if loc != arm and not (raised == arm and loc in covered(target, arm)):
+            continue
+        dc = _capacity(shield, size)
+        if dc <= 0:
+            continue
+        took = min(damage, SHIELD_SIZES[size][0], dc)
+        shield.shield_dc = dc - took
+        config.log(f"      {target.side_name}'s {size.lower()} shield ({arm}) absorbs {took} of {damage} at {loc} "
+                   f"(capacity left {shield.shield_dc}, p.195).")
+        if shield.shield_dc <= 0:
+            _wreck(target, arm, shield)
+        return damage - took
+    return damage
+
+
+def _wreck(mech, arm, shield):
+    """A shield whose Damage Capacity is used up is gone (its slots destroyed)."""
+    config.log(f"      {mech.side_name}'s {arm} shield is destroyed (capacity used up).")
+    for idx, s in enumerate(mech.crits[arm]):
+        if s is shield:
+            mech.destroyed_slot_info[(arm, idx)] = {"name": shield.name, "instance_id": id(shield)}
+            mech.crits[arm][idx] = "DESTROYED"
+    if raised_arm(mech) == arm:
+        mech.shield_raised = None
+
+
+def shield_bash(mech, arm):
+    """+damage to a punch with `arm` from its shield (p.195)."""
+    from mech_state import mech_shields
+    return sum(SHIELD_BASH[size] for a, _, size in mech_shields(mech) if a == arm)

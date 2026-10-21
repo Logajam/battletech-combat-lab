@@ -160,6 +160,26 @@ def stub_charge_spikes(mech_name, clusters):
     return use
 
 
+def stub_vibroblade(mech_name, blade, warn=True):
+    """Activate a vibroblade for this attack (p.196: fixed damage and heat)?
+    Knob: STUB_VIBROBLADE ("on" / "off"). TODO: weigh the extra damage
+    against the heat (Memo)."""
+    on = config.STUB_VIBROBLADE == "on"
+    if warn:
+        _warn("vibroblade", f"{mech_name}'s {blade}: {'activated' if on else 'not activated'}")
+    return on
+
+
+def stub_raise_shield(mech_name, phase, arms):
+    """Raise a shield this phase (p.195: more locations protected, but nothing
+    behind it attacks)? arms: the arms with a usable shield. Returns the arm
+    to raise, or None. Knob: STUB_RAISE_SHIELD ("never" / "always").
+    TODO: raise when the shielded locations have nothing worth firing (Memo)."""
+    arm = arms[0] if config.STUB_RAISE_SHIELD == "always" and arms else None
+    _warn("raise_shield", f"{mech_name} ({phase}): {'raises its ' + arm + ' shield' if arm else 'keeps its shield lowered'}")
+    return arm
+
+
 # =============================================================================
 # ==========================  OTHER PHASES  ==================================
 # =============================================================================

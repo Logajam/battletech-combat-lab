@@ -104,10 +104,11 @@ import INTEGRATION__ammo as ammo
 import INTEGRATION__ams as ams
 import INTEGRATION__electronics as electronics
 import INTEGRATION__fire_modes as fire_modes
+import INTEGRATION__physical_gear as gear  # noqa: E402 - shields, p.195
 import INTEGRATION__weapon_profiles as weapon_profiles
 import INTEGRATION__timing as timing
 import INTEGRATION__water as water
-from mech_state import head_hit_hurts_pilot, tripod_gunner_modifier  # noqa: E402 - pp.203, 236
+from mech_state import head_hit_hurts_pilot, tripod_gunner_modifier, is_destroyed  # noqa: E402 - pp.203, 236
 from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capability, \
     mark_consciousness_check_pending, compute_heat_dissipation, arm_aes_working
 import armor_rules
@@ -448,7 +449,7 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
         return
     cond_mod, unavailable, cond_note = conditions
     unavailable = (unavailable | ammo.unavailable_weapons(attacker) | fire_modes.jammed_ids(attacker)
-                   | weapon_profiles.array_gun_ids(attacker))
+                   | weapon_profiles.array_gun_ids(attacker) | shielded_weapon_ids(attacker))
     # Water (2026-10-21, INTEGRATION__water, pp.62, 67, 127): attacks can't cross
     # the water line; from depth 1 only some weapons can bear; only energy weapons
     # fire from a submerged location.
@@ -611,7 +612,7 @@ def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False, c
         import INTEGRATION__physical as physical     # physical imports this module
         loc = physical._location("kick", side, target)
         config.log(f"      {tag}Kick Location Table ({side}; legs only under water, p.67): {loc}.")
-        apply_damage(target, loc, _heat_armor_damage(target, loc, damage, heat_weapon), armor_field=armor_field,
+        apply_damage(target, loc, _protected(target, loc, damage, side, heat_weapon), armor_field=armor_field,
                      damage_type=damage_type)
         return loc
     loc_roll = config.roll_2d6(prompt=f"{tag}Hit location roll")
@@ -647,7 +648,7 @@ def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False, c
             target.pilot_hits += 1
             mark_consciousness_check_pending(target)
             config.log(f"      Head hit - pilot takes 1 hit ({target.pilot_hits}/6), regardless of armor.")
-        apply_damage(target, tac_loc, _heat_armor_damage(target, tac_loc, damage, heat_weapon),
+        apply_damage(target, tac_loc, _protected(target, tac_loc, damage, tac_side, heat_weapon),
                      armor_field=tac_armor_field, damage_type=damage_type)
         config.log("      Additional critical hit due to TAC.")
         _tac_check(target, tac_loc, tac_armor_field, damage_type, location_destroyed=False)
@@ -662,7 +663,7 @@ def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False, c
         while tac_loc is not None and target.locations[tac_loc]["destroyed"]:
             tac_loc = TRANSFER_MAP.get(tac_loc)
 
-    apply_damage(target, loc, _heat_armor_damage(target, loc, damage, heat_weapon), armor_field=armor_field,
+    apply_damage(target, loc, _protected(target, loc, damage, side, heat_weapon), armor_field=armor_field,
                  damage_type=damage_type)
 
     if tac_loc is not None:
@@ -701,6 +702,23 @@ def _heat_armor_damage(target, loc, damage, heat_weapon):
         config.log(f"      Heat-dissipating armor at {loc}: {damage} -> {halved} (p.202).")
         return halved
     return damage
+
+
+def shielded_weapon_ids(mech):
+    """Weapons behind a raised shield this phase (p.195): none of them fires,
+    rear-mounted ones aside."""
+    blocked = gear.raised_blocks(mech)
+    if not blocked:
+        return frozenset()
+    locs = weapon_locations(mech)
+    return frozenset(id(w) for w in get_weapons(mech)
+                     if locs.get(id(w), set()) & blocked and not getattr(w, "rear_mounted", False))
+
+
+def _protected(target, loc, damage, side, heat_weapon=False):
+    """Damage that reaches `loc` after the target's shield (p.195) and then its
+    heat-dissipating armor (p.202) - 2026-10-21."""
+    return _heat_armor_damage(target, loc, gear.shield_absorb(target, loc, damage, side), heat_weapon)
 
 
 def _target_heat(target, weapon):
@@ -795,7 +813,8 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng, po
             if loc == "Head" and head_hit_hurts_pilot(target):
                 target.pilot_hits += 1
                 mark_consciousness_check_pending(target)
-            apply_damage(target, loc, per, armor_field="rear_armor" if side == "rear" else "armor", damage_type=dtype)
+            apply_damage(target, loc, _protected(target, loc, per, side), armor_field="rear_armor" if side == "rear" else "armor",
+                         damage_type=dtype)
         return
     if plan.kind == "saturation":
         total = fire_modes.third(hits)
@@ -930,7 +949,7 @@ def _resolve_aimed_hit(target, weapon, damage, dtype, side, attack):
         target.pilot_hits += 1
         mark_consciousness_check_pending(target)
         config.log(f"      Head hit - pilot takes 1 hit ({target.pilot_hits}/6), regardless of armor.")
-    apply_damage(target, loc, _heat_armor_damage(target, loc, damage, weapon_profiles.heat_causing(weapon)),
+    apply_damage(target, loc, _protected(target, loc, damage, side, weapon_profiles.heat_causing(weapon)),
                  armor_field="rear_armor" if side == "rear" else "armor", damage_type=dtype)
 
 
@@ -943,6 +962,8 @@ def run_ranged_combat_phase(mover_first, mover_second, terrain_map, battle_rng):
     for m in (mover_first, mover_second):
         snapshot_round_capability(m)
         piloting_rolls.snapshot_pre_attack_phase(m)
+        if not is_destroyed(m):
+            gear.declare_raise(m, "Ranged")               # p.195 - a stub decides
 
     with timing.section("choosing weapons and twists"):
         for attacker, target in pairs:
@@ -976,6 +997,7 @@ def run_ranged_combat_phase(mover_first, mover_second, terrain_map, battle_rng):
             rep.damage_dealt += hp_before - total_hp(target)
 
     for m in (mover_first, mover_second):
+        gear.lower(m)                         # a raised shield lowers at the end of the phase (p.195)
         electronics.activate_pods(m)          # pods that hit this phase work from the next (p.193)
         fire_modes.resolve_unjams(m)          # Rotary AC unjam attempts (p.183)
     for m in (mover_first, mover_second):

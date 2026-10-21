@@ -624,6 +624,57 @@ def talons_spikes_and_lances():
     assert len(gear.lances(hachi)) == 1
 
 
+@check
+def vibroblades():
+    """p.196 (2026-10-21): activated (STUB_VIBROBLADE "on") a large vibroblade
+    hits for a fixed 14 and makes 7 heat when declared; deactivated, 1 per 10
+    tons + 1, capped at 14 before TSM."""
+    import INTEGRATION__physical_gear as gear
+    knight = fresh(any_unit("XTRs/Most Wanted/Black Knight BL-X-KNT 'Red Reaper'"), "0808")
+    blade = next(s for loc in ("Left Arm", "Right Arm") for s in knight.crits[loc] if "Vibroblade" in getattr(s, "name", ""))
+    assert gear.vibro_size(blade) in ("LARGE", "MEDIUM", "SMALL")
+    damage, heat = gear.VIBRO[gear.vibro_size(blade)]
+    assert gear.vibro_attack(knight, blade, 99, False) == (damage, heat, True)
+    saved = config.STUB_VIBROBLADE
+    try:
+        config.STUB_VIBROBLADE = "off"
+        assert gear.vibro_attack(knight, blade, 99, False) == (damage, 0, False)          # capped
+        assert gear.vibro_attack(knight, blade, 4, True) == (8, 0, False)                 # TSM after the cap
+    finally:
+        config.STUB_VIBROBLADE = saved
+
+
+@check
+def shields():
+    """p.195 (2026-10-21): a medium shield absorbs 5 of each hit to its own
+    arm (lowered) - to the CT and that side too when raised - until its 18
+    capacity is gone; rear hits bypass it; -1 Walking MP; a large one also
+    stops jumping; a punch with the shield arm +2 (medium); nothing behind a
+    raised shield attacks (weapons or limbs)."""
+    import INTEGRATION__physical_gear as gear
+    from mech_state import mech_shields, compute_walk_mp, compute_jump_mp
+    knight = fresh(any_unit("3145/Davion/Black Knight BLK-NT-4D"), "0808")
+    [(arm, shield, size)] = mech_shields(knight)
+    assert size == "MEDIUM"
+    assert compute_walk_mp(knight) == knight.base_walk_mp - 1
+    assert gear.shield_absorb(knight, arm, 8, "front") == 3                  # lowered: its own arm
+    assert gear.shield_absorb(knight, "Center Torso", 8, "front") == 8        # not the CT
+    knight.shield_raised = arm
+    assert gear.shield_absorb(knight, "Center Torso", 8, "front") == 3        # raised: the CT too
+    assert gear.shield_absorb(knight, "Center Torso", 8, "rear") == 8         # rear hits bypass it
+    assert attack_resolution.shielded_weapon_ids(knight) or not any(
+        attack_resolution.weapon_locations(knight).get(id(w), set()) & gear.covered(knight, arm)
+        for w in attack_resolution.get_weapons(knight))
+    assert gear.shield_absorb(knight, "Center Torso", 20, "front") == 15      # 18 - 5 - 5 = 8 left: takes 5
+    assert gear.shield_absorb(knight, "Center Torso", 20, "front") == 17      # the last 3
+    assert not mech_shields(knight) and gear.raised_arm(knight) is None       # used up: gone
+    assert compute_walk_mp(knight) == knight.base_walk_mp
+    red = fresh(any_unit("XTRs/Most Wanted/Black Knight BL-X-KNT 'Red Reaper'"), "0808")
+    assert any(size == "LARGE" for _, _, size in mech_shields(red)) and compute_jump_mp(red) == 0
+    bk = fresh(any_unit("3145/Davion/Black Knight BLK-NT-4D"), "0808")
+    assert gear.shield_bash(bk, arm) == 2 and gear.shield_bash(bk, "Left Arm" if arm == "Right Arm" else "Right Arm") == 0
+
+
 def run_all():
     failed = 0
     for fn in CHECKS:

@@ -254,6 +254,10 @@ STUB_ESCALATING_USE = "cycle"
 # a stub in INTEGRATION__stubs).
 # Charge with torso spikes declared (p.196): True = always when the mech has them.
 STUB_CHARGE_SPIKES = True
+# Activate a vibroblade for its attack (p.196): "on" (fixed damage, heat) / "off".
+STUB_VIBROBLADE = "on"
+# Raise a shield at the start of an attack phase (p.195): "never" / "always".
+STUB_RAISE_SHIELD = "never"
 # (STUB_REAR_MOUNTED removed 2026-10-19: mtf_parser keeps the "(R)" tag as
 # Equipment.rear_mounted; those weapons fire only into the rear arc - Core p.60.)
 # (STUB_HEAT_MODE removed 2026-10-18: heat now always carries over turn to

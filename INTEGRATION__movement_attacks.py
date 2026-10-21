@@ -124,7 +124,7 @@ def total_hp(mech):
     return attack_resolution.total_hp(mech)
 
 
-def apply_groups(mech, damage, table, side, label, spike_wear=False):
+def apply_groups(mech, damage, table, side, label, spike_wear=False, onto=None):
     """Deal `damage` to mech in 5-point groupings, each rolled on `table`
     ("standard" / "punch" / "kick") against `side` (p.87). Spikes (p.196,
     2026-10-21, INTEGRATION__physical_gear): a grouping that lands on a
@@ -138,11 +138,12 @@ def apply_groups(mech, damage, table, side, label, spike_wear=False):
     for g in groupings(damage):
         if is_destroyed(mech):
             return hits
-        loc = physical._location(table, side, mech)
+        loc = onto or physical._location(table, side, mech)       # onto: a raised shield's arm (p.195)
         dmg = water.physical_damage(mech, loc, g)                 # halved under water (p.77)
         config.log(f"    {label}: {dmg} to {mech.side_name}'s {loc}"
                    f"{' (halved: under water, p.77)' if dmg != g else ''}.")
         dmg, spiked = gear.spike_reduce(mech, loc, dmg, label)
+        dmg = gear.shield_absorb(mech, loc, dmg, side)            # p.195
         if loc == "Head" and head_hit_hurts_pilot(mech):
             mech.pilot_hits += 1
             mark_consciousness_check_pending(mech)

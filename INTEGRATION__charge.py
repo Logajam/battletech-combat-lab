@@ -151,7 +151,8 @@ def resolve_hit(attacker, target, terrain_map):
         if not v["destroyed"] and v.get("armor", 0) + v.get("rear_armor", 0) > 0:
             for _ in gear.lances(attacker):
                 gear.lance_ap_check(target, loc, gear.LANCE_CHARGE_AP_TN, "lance in a charge")
-    movement_attacks.apply_groups(attacker, taken, "standard", "front", "Charge (attacker)", spike_wear=spikes)
+    movement_attacks.apply_groups(attacker, taken, "standard", "front", "Charge (attacker)", spike_wear=spikes,
+                                  onto=gear.raised_arm(attacker))      # a raised shield takes it all (p.195)
 
     triggers = {attacker.side_name: [], target.side_name: []}
     if not is_destroyed(attacker):
