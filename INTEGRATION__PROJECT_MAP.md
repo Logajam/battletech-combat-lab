@@ -287,7 +287,7 @@ open). Read it before building rules.
    **Equipment without rules yet** (survey of every unit in `data/meks.zip`,
    2026-10-21; RULES_REVIEW G23-G33): heavy-duty gyro (57 units), shields /
    spikes / talons on DFA / lance in charges / vibroblades, APDS, heat-
-   dissipating armor, Blue Shield, HarJel, torpedoes (not even parsed),
+   dissipating armor, Blue Shield, HarJel, torpedoes,
    cockpit command console, chemical laser ammo (check), quad kicks.
 8. **PPC capacitors** (Daniel, 2026-10-21: "PPC charging is a bot logic
    question that requires its own session"): the rules are BUILT (2026-10-21,
@@ -1120,6 +1120,11 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Torpedo launchers (RULES_REVIEW F54, pp.127,
+  187): all torpedo names parse (as their LRM / SRM launcher), fire only
+  underwater along an all-water line, and use only torpedo rounds. Before,
+  "LRT 5"-style names fired on land as LRMs and "CLLRT15" didn't parse (26
+  units). test_water torpedoes. Reference logs unchanged; the benchmark too.
 - **2026-10-21 (Claude):** PPC capacitors (RULES_REVIEW F53, p.188), new
   `INTEGRATION__capacitor`: links, charging / holding heat, +5 damage and heat
   when fired charged, the explosion on a crit. Both choices are stubs, off by

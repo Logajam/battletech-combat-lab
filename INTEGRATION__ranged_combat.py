@@ -146,6 +146,7 @@ from INTEGRATION__attack_resolution import tn_adjuster, aimed_shot_location, fir
     prone_target_modifier, arc_unavailable, weapon_locations, _SIDE_BY_RELATIVE_HEXSIDE  # noqa: E402
 import INTEGRATION__physical as physical  # noqa: E402
 import INTEGRATION__water as water  # noqa: E402
+import INTEGRATION__weapon_rules as weapon_rules  # noqa: E402
 
 IMMOBILE_TMM = -4  # same convention as INTEGRATION__attack_resolution.IMMOBILE_TMM
 
@@ -494,6 +495,7 @@ class MoveEvaluator:
             # same set, and a shared scorer shares its memo.
             by_unavailable: Dict[tuple, object] = {}
             usable = [w for w in get_weapons(who) if id(w) not in blocked]
+            torpedoes = frozenset(id(w) for w in usable if weapon_rules.is_torpedo(w))   # underwater only (p.187)
             planners: Dict[tuple, object] = {}     # fire_modes.Planner per (AMS count, water) (shares its memo)
             w_locs = weapon_locations(who)
 
@@ -507,6 +509,8 @@ class MoveEvaluator:
                     unavailable = blocked | arc_unavailable(who, key) | held
                     if wet is not None:
                         unavailable = unavailable | wet[1]
+                    else:
+                        unavailable = unavailable | torpedoes
                     w_state, bonus = (wet[0], wet[2]) if wet is not None else (water.GROUND, 0)
                     scorer = by_unavailable.get((unavailable, ams_k, w_state, bonus))
                     if scorer is None:
@@ -557,12 +561,16 @@ class MoveEvaluator:
         f_depth, t_depth = depths.get(f_label, 0), depths.get(t_label, 0)
         if not f_depth and not t_depth:
             return None
-        key = (id(firer), f_depth, f_prone, t_depth, t_prone)
+        # A torpedo needs an all-water line (p.187) - looked at only for a firer that carries one.
+        line = (f_depth > 0 and t_depth > 0 and any(weapon_rules.is_torpedo(w) for w in get_weapons(firer))
+                and water.water_line(f_label, t_label, self.terrain_map))
+        key = (id(firer), f_depth, f_prone, t_depth, t_prone, line)
         case = self._wet_cases.get(key)
         if case is None:
             f_state = water.state_at(f_label, f_prone, self.terrain_map)
             t_state = water.state_at(t_label, t_prone, self.terrain_map)
-            blocked = water.blocked_weapon_ids(firer, get_weapons(firer), weapon_locations(firer), f_state, t_state)
+            blocked = water.blocked_weapon_ids(firer, get_weapons(firer), weapon_locations(firer), f_state, t_state,
+                                               torpedo_line=line)
             case = self._wet_cases[key] = "none" if blocked is None else \
                 (f_state, blocked, water.dissipation_bonus(firer, f_state))
         return case

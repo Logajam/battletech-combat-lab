@@ -298,6 +298,73 @@ def terrain_psrs_and_backward_level_changes():
     assert terrain_rules.turn_psrs({"features": {"mud": ["1"]}}) == (0, 1)
 
 
+
+def _meks_unit(path):
+    import io
+    import tempfile
+    import zipfile
+    from contextlib import redirect_stdout
+    with zipfile.ZipFile(os.path.join(REPO_ROOT, "data", "meks.zip")) as z:
+        out = z.extract(f"meks/{path}.mtf", tempfile.mkdtemp())
+    with redirect_stdout(io.StringIO()):
+        return parse_mtf(out)
+
+
+ARCTIC_FOX_U = _meks_unit("3085u/ONN/Arctic Fox AF1U")      # an LRT 10 in its right arm, torpedo ammo
+
+
+@check
+def torpedoes():
+    """p.187 (2026-10-21): an LRM / SRM launcher's statistics; fires only from a
+    submerged location, at a target at least partly submerged, along a line
+    entirely through depth 1+ water; torpedo rounds feed only torpedo launchers."""
+    import INTEGRATION__weapon_rules as weapon_rules
+    import INTEGRATION__ammo as ammo
+    from equipment import lookup_equipment
+    assert lookup_equipment("CLLRT15")["canonical_name"] == "CLLRM15"
+    assert lookup_equipment("Clan Ammo SRTorpedo-6") is not None
+    fox = place(ARCTIC_FOX_U, "0806", "S")
+    lrt = next(w for w in attack_resolution.get_weapons(fox) if weapon_rules.is_torpedo(w))
+    assert lrt.rack_size == 10 and weapon_rules.grouping_size(lrt) == 5
+    assert ammo.bins_for(fox, lrt) and all(b.torpedo for b in ammo.bins_for(fox, lrt))
+    plain = SimpleNamespace(name="LRM 10", ammo_key=lrt.ammo_key, torpedo=False)
+    assert ammo.bins_for(fox, plain) == []                          # an LRM can't fire torpedo rounds
+
+    mech = SimpleNamespace(leg_locations=["Left Leg", "Right Leg"],
+                           locations={"Left Leg": {}, "Right Leg": {}, "Right Arm": {}})
+    arm, leg = SimpleNamespace(name="LRT 10", damage_type="Missile"), SimpleNamespace(name="SRT 4", damage_type="Missile")
+    locs = {id(arm): {"Right Arm"}, id(leg): {"Left Leg"}}
+    G, P, S = water.GROUND, water.PARTIAL, water.SUBMERGED
+    ids = lambda *ws: frozenset(id(w) for w in ws)            # noqa: E731
+    blocked = lambda a, t, line: water.blocked_weapon_ids(mech, [arm, leg], locs, a, t, torpedo_line=line)  # noqa: E731
+    assert blocked(G, G, False) == ids(arm, leg)                 # never on land
+    assert blocked(G, P, True) == ids(arm, leg)                  # not from a dry location
+    assert blocked(S, S, True) == frozenset() and blocked(S, P, True) == frozenset()
+    assert blocked(S, S, False) == ids(arm, leg)                 # the line leaves the water
+    assert blocked(P, P, True) == ids(arm)                       # depth 1: only the submerged leg's
+    assert blocked(P, S, True) == ids(arm)
+
+    tm = lake()
+    assert water.water_line("0806", "0807", tm) and water.water_line("0805", "0807", tm)
+    assert not water.water_line("0806", "0808", tm)              # the target's hex is dry
+    assert not water.water_line("0807", "0809", tm)              # depth 0 isn't depth 1+
+    # In the attack phase: from depth 3, across depth 2, at a 'Mech in depth 1 the torpedo
+    # fires (Kick table: legs, every one under water); from land, never.
+    fox = place(ARCTIC_FOX_U, "0805", "S")
+    lrt = next(w for w in attack_resolution.get_weapons(fox) if weapon_rules.is_torpedo(w))
+    archer = place(ARCHER, "0807", "N")
+    rep = attack_resolution.SideReport()
+    with ScriptedDice([], default=7):
+        attack_resolution.declare_attacks(fox, archer, tm, rep)
+    assert any(a.weapon is lrt for a in rep.attacks_list)
+    fox = place(ARCTIC_FOX_U, "0809", "N")
+    archer = place(ARCHER, "0808", "S")
+    rep = attack_resolution.SideReport()
+    with ScriptedDice([], default=7):
+        attack_resolution.declare_attacks(fox, archer, tm, rep)
+    assert rep.attacks_list and not any(weapon_rules.is_torpedo(a.weapon) for a in rep.attacks_list)
+
+
 @check
 def attacks_across_the_water_line():
     """p.62: no attack from land at a fully submerged 'Mech, or back."""

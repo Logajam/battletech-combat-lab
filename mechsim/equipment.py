@@ -124,9 +124,27 @@ def lookup_equipment(raw_name):
     caller falls back to generic-padding treatment."""
     key = re.sub(r"\s+", "", raw_name.strip().lower())
     canon = EQUIPMENT_ALIAS_MAP.get(key)
+    if canon is None and is_torpedo_name(raw_name):
+        canon = EQUIPMENT_ALIAS_MAP.get(_TORPEDO_PART.sub(r"\1rm", key))
     if canon is None:
         return None
     return EQUIPMENT_ENTRIES.get(canon)
+
+
+# Torpedoes (Core p.187, 2026-10-21): "any standard 'Mech-sized SRM, LRM, or
+# NLRM launcher, and use the same statistics as the launcher type chosen".
+# equipment.json folded "LRT 5" / "SRT 4" into the LRM / SRM rows, but not
+# "CLLRT15" or the ammo bins ("Clan Ammo LRTorpedo-15"): lookup_equipment
+# falls back to the launcher's own name. The Equipment keeps its torpedo name,
+# so is_torpedo_name still tells it apart (INTEGRATION__weapon_rules.is_torpedo).
+_TORPEDO_NAME = re.compile(r"(?:L|S)RT(?:ORPEDO)?-?\d", re.I)
+_TORPEDO_PART = re.compile(r"(l|s)rt(?:orpedo)?(?=-?\d)")
+
+
+def is_torpedo_name(name):
+    """True for a torpedo launcher or torpedo ammo name ("LRT 15", "CLSRT6",
+    "IS Ammo LRTorpedo-10")."""
+    return bool(_TORPEDO_NAME.search((name or "").replace(" ", "")))
 
 
 # Anatomy terms that are real mech structure but NOT in MegaMek's equipment

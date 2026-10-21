@@ -457,7 +457,10 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     # fire from a submerged location.
     a_water, t_water = water.state(attacker, terrain_map), water.state(target, terrain_map)
     w_locs = weapon_locations(attacker)
-    water_blocked = water.blocked_weapon_ids(attacker, get_weapons(attacker), w_locs, a_water, t_water)
+    water_blocked = water.blocked_weapon_ids(
+        attacker, get_weapons(attacker), w_locs, a_water, t_water,
+        torpedo_line=a_water != water.GROUND and t_water != water.GROUND
+        and water.water_line(attacker.hex, target.hex, terrain_map))          # torpedoes (p.187)
     if water_blocked is None:
         config.log(f"  [Ranged] {a_name} ({a_water}) can't attack {t_name} ({t_water}) "
                    f"across the water line (p.62) - holds fire.")
