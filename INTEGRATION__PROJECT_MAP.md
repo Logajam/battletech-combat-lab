@@ -34,9 +34,9 @@ road travel, level-change limits, jump landing height, PASSIVE buildings
 (`config.PASSIVE_BUILDINGS`), and a load-time refusal of terrain not built
 yet. Water part 1 (F29, `INTEGRATION__water`): depth as level, partial
 cover, the water line, underwater weapons / ranges, heat sinks, jump jets,
-water PSRs, halved falls. Next: water part 2 (G6: hull breaches, physical
-attacks in water, drowning), then the full building rules (a discussion
-with Daniel first). Details: RULES_REVIEW F24-F28, G6, G19; Section 4
+water PSRs, halved falls. Water part 2 (F30): physical attacks in water,
+hull breaches, drowning. Next: the full building rules (a discussion with
+Daniel first); small water leftovers in G6. Details: RULES_REVIEW F24-F28, G6, G19; Section 4
 "Map terrain waiting on rules".
 
 **Hand-off for a new instance.** Daniel's goal: "beat the simulator into
@@ -156,6 +156,7 @@ with `python tests/ab_batches.py` (same seeds, several settings side by side).
   floor; partial cover in depth 1; the water line; which weapons fire from /
   at water and underwater ranges; submerged heat sinks; jump jets; PSRs for
   running / jumping in; halved falls - priced in movement scoring too.
+  Part 2: physical attacks in water, hull breaches, drowning.
 - Heat (pp.102-107) and heat equipment; piloting rolls one per trigger
   (p.110); seatbelt checks (p.117); falls with the 1D6 side roll (p.115) and
   multiple levels; displacement; deployment from home edges.
@@ -218,9 +219,8 @@ open). Read it before building rules.
    priced in movement scoring - Daniel's rule so far is "only Movement-phase
    PSRs count". A bot target choosing the clearer hex on a two-hex LOS line
    (p.56) isn't modeled (Section 6).
-7. **Maps** (see above): water part 2 next (G6: hull breaches, physical
-   attacks in water, drowning), then the full building rules (discuss with
-   Daniel first); terrain PSRs
+7. **Maps** (see above): the full building rules next (discuss with Daniel
+   first); water leftovers (G6, small); terrain PSRs
    mid-move (G19 rubble / sand / mud, G11 backward level changes) and in a
    spot's cost; prone LOS height (G7); Section 4 "Map terrain waiting on
    rules" (Daniel is hunting the rules); `PROMPT_FOR_MAP` / `STITCH_MAPS`.
@@ -944,6 +944,27 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-21 (Claude):** MAPS, part 3 - water rules, part 2 (RULES_REVIEW
+  F30; `INTEGRATION__water`).
+  - Physical attacks in water (p.77): `water.physical_allowed` filters the
+    attack kinds in `physical.attack_options`, the Ranged phase's look-ahead
+    (`attack_resolution._physical_planner`), movement scoring
+    (`physical.Planner` / `ranged_combat._with_physical` take `allowed`) and
+    charge / DFA planning (`movement_attacks`). `water.physical_damage`
+    halves damage to underwater locations (punches, kicks, clubs, charges,
+    DFAs).
+  - Hull breaches (p.127): `damage_resolution.apply_damage` calls
+    `water.check_breach` for each underwater location a grouping damages (2-4
+    breaches); `orchestrator._after_phase` breaches armorless locations under
+    water (`water.auto_breaches`); `water.breach` marks the slots destroyed,
+    a leg as destroyed, a side torso's arm with it.
+  - Drowning (p.117): `orchestrator._phase_end` - life support crit + fully
+    submerged = 1 MechWarrior hit.
+  - `tests/test_water.py` 9 -> 12 checks. The Large Lakes reference battle
+    regenerated (breach rolls change its dice); every other reference log
+    changed only in KNOWN_MISSING_RULES' water line. Benchmark 501 / 495.
+    Sweep: 64 water maps x 2 seeds, 128 battles, no errors.
 
 - **2026-10-21 (Claude):** MAPS, part 2 - water rules, part 1 (Daniel: water
   "Also Yes as the next task"). New `INTEGRATION__water.py` (page cites in

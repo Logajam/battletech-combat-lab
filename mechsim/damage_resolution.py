@@ -336,6 +336,13 @@ def apply_damage(mech, location, damage, armor_field="armor", damage_type=Damage
                 mech.structure_type, armor_type, armor_present=loc[armor_key] > 0)
             check_critical(mech, current, destroyed_this_hit, modifier=modifier)
 
+        # Hull breach check (2026-10-21, Core p.127): an underwater location that
+        # takes damage rolls for a breach. The board's water is the integration's
+        # (INTEGRATION__water); nothing is rolled on dry land.
+        if not destroyed_this_hit and (armor_destroyed > 0 or struct_dmg > 0) and not is_destroyed(mech):
+            import INTEGRATION__water as water
+            water.check_breach(mech, current)
+
         if destroyed_this_hit:
             loc["structure"] = 0
             loc["destroyed"] = True

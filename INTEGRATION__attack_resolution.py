@@ -378,11 +378,15 @@ def _physical_planner(attacker, target, terrain_map):
     a_level, t_level = terrain_map["hexes"][attacker.hex]["level"], terrain_map["hexes"][target.hex]["level"]
 
     planner = physical.Planner(attacker)
+    allowed = water.physical_allowed(water.state(attacker, terrain_map), water.state(target, terrain_map))  # p.77
 
     push = planner.push_plan(a_hex, a_facing, a_level, target, target.hex, t_level, base, "front", terrain_map)
+    if allowed is not None and "push" not in allowed:
+        push = []
 
     def plans_for(action):
-        got = planner.plans(a_hex, a_facing, a_level, t_hex, t_level, target.prone, action, base) or [(0.0, (), [])]
+        got = planner.plans(a_hex, a_facing, a_level, t_hex, t_level, target.prone, action, base,
+                            allowed=allowed) or [(0.0, (), [])]
         return got + push if push and not action.flip else got
     return plans_for
 
