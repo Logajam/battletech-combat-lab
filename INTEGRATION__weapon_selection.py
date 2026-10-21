@@ -145,9 +145,11 @@ def _weapon_range_mod(weapon, distance):
 
 
 def _cache_key(mech):
-    """(current_heat, frozenset of live weapon instance ids) - see module
-    docstring's caching policy."""
-    return (mech.current_heat, frozenset(id(w) for w in get_weapons(mech)))
+    """(current_heat, frozenset of live weapon instance ids, PPC capacitor
+    charges) - see module docstring's caching policy. A charged capacitor
+    changes its PPC's damage (INTEGRATION__capacitor, 2026-10-21)."""
+    return (mech.current_heat, frozenset(id(w) for w in get_weapons(mech)),
+            tuple(c.charged for c in getattr(mech, "capacitors", ())))
 
 
 def build_expected_damage_table(mech):

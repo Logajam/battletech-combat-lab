@@ -201,6 +201,27 @@ def stub_blue_shield(mech_name, when):
     return on
 
 
+def stub_capacitor_start(mech_name, ppc_name):
+    """Start the battle with this PPC's capacitor charged (p.188: 5 heat a
+    turn held, +5 damage and +5 heat when fired)? Knob: STUB_CAPACITOR_START
+    ("empty" / "charged"). TODO: the PPC-charging bot session (Daniel,
+    2026-10-21)."""
+    on = config.STUB_CAPACITOR_START == "charged"
+    _warn("capacitor_start", f"{mech_name}: {ppc_name} capacitor starts {'charged' if on else 'empty'}")
+    return on
+
+
+def stub_capacitor_charge(mech_name, ppc_name):
+    """Charge this PPC's capacitor instead of firing the PPC this turn
+    (p.188)? Asked only when the PPC isn't fired and the capacitor is empty.
+    Knob: STUB_CAPACITOR_CHARGE ("never" / "when_idle"). TODO: the
+    PPC-charging bot session (Daniel, 2026-10-21) - weigh the heat against
+    the +5 damage next turn."""
+    on = config.STUB_CAPACITOR_CHARGE == "when_idle"
+    _warn("capacitor_charge", f"{mech_name}: {'charge' if on else 'leave empty'} the {ppc_name} capacitor")
+    return on
+
+
 # =============================================================================
 # ==========================  OTHER PHASES  ==================================
 # =============================================================================

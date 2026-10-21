@@ -128,6 +128,7 @@ import INTEGRATION__equipment_systems as equip  # noqa: E402
 import INTEGRATION__ammo as ammo  # noqa: E402
 import INTEGRATION__electronics as electronics  # noqa: E402
 import INTEGRATION__fire_modes as fire_modes  # noqa: E402
+import INTEGRATION__capacitor as capacitor  # noqa: E402
 import INTEGRATION__physical as physical  # noqa: E402
 import INTEGRATION__movement_selection as movement_selection  # noqa: E402
 import INTEGRATION__ranged_combat as ranged_combat  # noqa: E402
@@ -201,6 +202,7 @@ def _attach_mech_config(mech, cfg, side_name):
     ammo.attach_ammo(mech)
     electronics.attach(mech)          # Artemis links, ECM suites, Narc pods (2026-10-20)
     fire_modes.attach(mech)           # Apollo links, Rotary AC jams (2026-10-20)
+    capacitor.attach(mech)            # PPC capacitor links; start charged? - a stub (p.188, 2026-10-21)
     if mech.has_tsm:
         # TSM is driven by min_heat (Daniel, 2026-10-19); max_heat must allow it.
         mech.min_heat = max(mech.min_heat, config.TSM_MIN_HEAT)

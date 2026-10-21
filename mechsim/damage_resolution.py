@@ -543,6 +543,9 @@ def resolve_slot_hit(mech, location, slot_idx, slot, idx, total):
             mech.partial_wing_active = False
             config.log(f"      Partial Wing disabled (system-wide, all-or-nothing) "
                        f"- jump MP now {compute_jump_mp(mech)}.")
+        if hasattr(component, "linked_ppc") or getattr(component, "capacitor", None) is not None:
+            import INTEGRATION__capacitor as capacitor       # a charged PPC capacitor explodes (p.188, 2026-10-21)
+            capacitor.crit_hit(mech, location, component)
         if "BLUESHIELD" in (component.name or "").replace(" ", "").upper():
             import INTEGRATION__equipment_systems as equip   # an active PFD explodes (p.207, 2026-10-21)
             equip.blue_shield_hit(mech, location, component)
