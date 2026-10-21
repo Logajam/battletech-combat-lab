@@ -116,6 +116,25 @@ launchers, MRM cluster -1, pp.185-187); Gauss rifle component explosion
 | G14 | ~~Armored components~~ | p.207 | Built 2026-10-21 - see F37. |
 | G15 | ~~ECM~~ | p.200 | Built 2026-10-20 - see F13. |
 | G12 | Charging after a backward step | p.78 | The charge planner uses forward-only paths (the hex count restarts after a backward step and the planner adds the final forward step). Small. |
+| G23 | Heavy-duty gyro | p.204 | Not built (57 units). +1 PSR per HD gyro hit, no PSR forced by the hits or by running, a +2 PSR whenever it jumps with any hits, destroyed only at the 4th hit. Today it plays as a standard gyro (2 hits). |
+| G24 | Shields, spikes, talons on a DFA, lance in a charge, vibroblade activation | pp.194-196 | Not built (~15 / 12 / 10 / 15 / 9+ units). Shields: raising one, damage taken by it, shield bash. Spikes: -4 physical damage to the location, 2 back to the attacker, +2 a cluster in a charge. Talons: DFA damage x1.5 (kicks already have it). Lance: its charge effects. Vibroblades: activation and heat (today treated as switched off). |
+| G25 | Advanced Point Defense System (APDS) | p.206 | Not built - can't fire today (4 units). |
+| G26 | Heat-dissipating armor | p.202 | Parsed, no effect (5 units): halves damage from heat-causing weapons, cancels outside heat (flamers, plasma). |
+| G27 | Blue Shield particle field damper | pp.180, 207 | Not built (4 units): halves PPC damage while active, Escalating Failure after 6 turns, negates stealth, a 5-point explosion if hit while active. |
+| G28 | HarJel I / II / III | p.208 | Not built (19 units): HarJel stops breach checks while armor remains (a hit to it breaches the location); II / III repair armor. |
+| G29 | Torpedo launchers (LRT / SRT) | p.187 | Not even parsed ("CLLRT15" is an unrecognized component - 27 units): fire only from and to water through water hexes. |
+| G30 | Cockpit command console | p.203 | Not built (35 units): a second MechWarrior who can take over as pilot, no ammo-explosion hits for whichever warrior is secondary. |
+| G31 | Chemical lasers' ammunition | p.185 | To check (35 units): they need ammo - their ammo rows have no shots-per-ton data, so they may fire forever. |
+| G32 | Quad kicks: front kick with front hips only, mule kick | p.238 | Not built - a quad kicks like a biped (from F43). |
+| G33 | PPC capacitors | p.188 | Not built (~65 units) - its own bot session (Daniel, 2026-10-21; PROJECT_MAP Pick up here 8). |
+
+No effect in a two-'Mech duel (left out on purpose): C3 / C3i networks (need
+team-mates, p.198), active probes and the Watchdog's probe (only hidden units,
+p.197), TAG (only designates for homing / semi-guided ammo, p.199). Not Core
+Rulebook equipment (can't fire / no effect): TSEMP, mech mortars, iATM, fluid
+guns, full-size Thumper / Sniper artillery, nail / rivet guns, vehicular
+grenade launchers, industrial tools (chainsaws, drills, hoists...), UMU,
+modular armor (survey of `data/meks.zip`, 2026-10-21).
 
 ---
 
