@@ -78,7 +78,8 @@ import math
 
 import config
 from hit_location import resolve_hit_location
-from mech_state import has_small_cockpit, has_torso_cockpit, torso_cockpit_sensor_penalty
+from mech_state import has_small_cockpit, has_torso_cockpit, torso_cockpit_sensor_penalty, \
+    destroyed_leg_count, tripod_pilot_modifier
 from mech_state import ArmorType, DamageType, is_destroyed, compute_running_mp, leg_aes_working, \
     mark_consciousness_check_pending, all_crew_unconscious, pilot_unconscious, consciousness_target_number, \
     is_immobile
@@ -99,7 +100,11 @@ GYRO_HIT_MODIFIER = 2
 # no automatic fall (the mech didn't just fall this phase from it).
 PREEXISTING_ACTUATOR_MODIFIER = 1
 PREEXISTING_GYRO_HIT_MODIFIER = 2
-PREEXISTING_LEG_DESTROYED_MODIFIER = 5
+PREEXISTING_LEG_DESTROYED_MODIFIER = 4   # p.111 (2026-10-21; MECHSIM had 5)
+QUAD_LEG_DESTROYED_MODIFIER = 1          # p.238: a quad's 1st and 2nd destroyed legs, +1 each
+STAND_UP_MODIFIER = -1                   # p.51, PSR table p.111: each attempt to stand
+QUAD_PSR_MODIFIER = -2                   # p.239 (errata): a quad with no leg destroyed
+TRIPOD_PSR_MODIFIER = -1                 # p.237: a tripod with no leg destroyed (MECHSIM had -2)
 COCKPIT_PSR_MODIFIER = 1                 # small or torso-mounted cockpit, every PSR (p.203)
 
 
@@ -148,34 +153,48 @@ def preexisting_modifier(mech):
 
     total = snap["gyro_hits"] * PREEXISTING_GYRO_HIT_MODIFIER
     for loc in mech.leg_locations:
-        if loc in snap["destroyed_legs"]:
-            # Note 11: a leg already destroyed at start of round uses the
-            # flat +5 in place of (not in addition to) that leg's own
-            # actuator count.
-            total += PREEXISTING_LEG_DESTROYED_MODIFIER
-        else:
+        if loc not in snap["destroyed_legs"]:
             total += snap["destroyed_leg_actuators"].get(loc, 0) * PREEXISTING_ACTUATOR_MODIFIER
+    # A leg already destroyed at the start of the round: +4 in place of (not in
+    # addition to) that leg's own actuator hits (p.111 note 14). A quad (p.238):
+    # +1 for each of its first two lost legs; a third makes it a biped with one
+    # leg lost (+4). (Was MECHSIM's +5 for any leg.)
+    lost = len(snap["destroyed_legs"])
+    if mech.mech_type in ("quad", "quadvee") and lost <= 2:
+        total += lost * QUAD_LEG_DESTROYED_MODIFIER
+    elif mech.mech_type in ("quad", "quadvee"):
+        total += PREEXISTING_LEG_DESTROYED_MODIFIER
+    else:
+        total += lost * PREEXISTING_LEG_DESTROYED_MODIFIER
     return total
 
 
 def special_case_modifier(mech):
     """Unit-type/equipment modifiers that apply to EVERY PSR (Note 9).
-    Hardened Armor, tripod, and quad/quadvee implemented (Daniel, 2026-07-16:
-    tripod -2, quad -2, both confirmed values; quadvee shares the quad
-    chassis so gets the same -2 - Daniel, 2026-07-17). Modifiers stack if
-    more than one applies (e.g. a quad with Hardened Armor legs: -2 + 1 =
-    -1). AES in all legs: a fixed -2 (Core p.206; added 2026-10-20, Daniel:
+    Hardened Armor +1; quad / quadvee -2 and tripod -1, each only while no
+    leg is destroyed, plus a tripod's dedicated pilot -1 (+2 if disabled)
+    (Core pp.236-239; 2026-10-21, Daniel: "Stand up, tripod, jumping, 4
+    legged mechs should all have answers in the rules" - was MECHSIM's -2
+    for both, legs or not). Modifiers stack if more than one applies (e.g. a
+    quad with Hardened Armor legs: -2 + 1 = -1). AES in all legs: a fixed -2 (Core p.206; added 2026-10-20, Daniel:
     "if AES is the only thing not built in this test, lets get that fixed"),
     lost if any leg AES slot is hit. Small / torso-mounted cockpit +1 and a
     torso-mounted cockpit's sensor hits +4 (p.203, 2026-10-21).
 
-    Also includes the Pilot-role-unconscious +3 modifier (2026-07-17) - see
+    Also includes the Pilot-role-unconscious +3 modifier (2026-07-17; a
+    QuadVee's - a tripod uses the rulebook's +2 above) - see
     pilot_consciousness.pilot_unconscious_modifier below."""
     total = 0
     if any(mech.armor_type.get(loc) == ArmorType.HARDENED for loc in mech.leg_locations):
         total += 1
-    if mech.mech_type in ("tripod", "quad", "quadvee"):
-        total -= 2
+    # Four and three legs: -2 / -1 only while no leg is destroyed (pp.237, 239;
+    # 2026-10-21 - was -2 for both, legs or not). A tripod's dedicated pilot -1,
+    # +2 if disabled (p.236, mech_state.tripod_pilot_modifier).
+    if mech.mech_type in ("quad", "quadvee") and not destroyed_leg_count(mech):
+        total += QUAD_PSR_MODIFIER
+    if mech.mech_type == "tripod" and not destroyed_leg_count(mech):
+        total += TRIPOD_PSR_MODIFIER
+    total += tripod_pilot_modifier(mech)
     if leg_aes_working(mech):
         total -= 2                                  # AES in all legs, p.206
     # Small or torso-mounted cockpit: +1 to every PSR (p.203; 2026-10-21 - was
@@ -190,7 +209,7 @@ def special_case_modifier(mech):
     # (all_crew_unconscious) - resolve_movement_phase/resolve_attack_phase_psr
     # skip/auto-fail entirely in that case, so this only has teeth for a
     # tripod/quadvee with Pilot out but Gunner still conscious.
-    if pilot_unconscious(mech):
+    if pilot_unconscious(mech) and mech.mech_type != "tripod":     # tripods: tripod_pilot_modifier
         total += 3
     return total
 
@@ -307,17 +326,34 @@ def movement_psr_trigger(mech, mode):
     this (Core p.111) - callers gate those."""
     if mech.gyro_hits > 0:
         return "gyro hit"
+    if _quad_leg_triggers(mech) and mode in ("running", "jump"):
+        return "a quad's lost legs"
     if mode == "jump" and any(
-        mech.locations[loc]["destroyed"] or mech.destroyed_leg_actuators.get(loc, 0) > 0
+        mech.destroyed_leg_actuators.get(loc, 0) > 0
+        or (mech.locations[loc]["destroyed"] and not _is_quad(mech))
         for loc in mech.leg_locations
     ):
         return "leg actuator/leg destroyed while jumping"
     if mode == "running" and any(
-        mech.locations[loc]["destroyed"] or loc in mech.destroyed_hip_locations
+        loc in mech.destroyed_hip_locations or (mech.locations[loc]["destroyed"] and not _is_quad(mech))
         for loc in mech.leg_locations
     ):
         return "Hip/leg destroyed while running"
     return None
+
+
+def _is_quad(mech):
+    return mech.mech_type in ("quad", "quadvee")
+
+
+def _quad_leg_triggers(mech):
+    """Movement-mode PSRs a quad's destroyed legs force (p.238, 2026-10-21):
+    one lost leg none ("can still run and jump without this forcing a PSR"),
+    two the effects of a hip hit (one roll), three a biped with one leg lost
+    (one roll). 0 for anything else."""
+    if not _is_quad(mech):
+        return 0
+    return 1 if destroyed_leg_count(mech) >= 2 else 0
 
 
 def movement_psr_count(mech, mode):
@@ -329,10 +365,11 @@ def movement_psr_count(mech, mode):
     None."""
     if movement_psr_trigger(mech, mode) is None:
         return 0
-    count = 1 if mech.gyro_hits > 0 else 0
+    count = (1 if mech.gyro_hits > 0 else 0) + _quad_leg_triggers(mech)
     for loc in mech.leg_locations:
         if mech.locations[loc]["destroyed"]:
-            count += 1
+            if not _is_quad(mech):
+                count += 1
         elif mode == "jump" and mech.destroyed_leg_actuators.get(loc, 0) > 0:
             count += 1
         elif mode == "running" and loc in mech.destroyed_hip_locations:
@@ -446,13 +483,19 @@ def resolve_stand_up(mech, mp_available=None):
                 return 0
 
         running_mp = max(0, running_mp - 2)
-        modifier = preexisting_modifier(mech) + special_case_modifier(mech)
-        needed = config.PILOTING + modifier
-        roll = config.roll_2d6(prompt=f"Stand-up attempt {attempt} roll")
-        config.log(f"Stand attempt {attempt}: needs {needed} (Piloting {config.PILOTING} "
-                   f"+ {modifier:+d}). Rolled {roll}.")
+        if mech.mech_type in ("quad", "quadvee") and not destroyed_leg_count(mech):
+            # p.238: a quad with all four legs stands without a PSR (2026-10-21).
+            config.log(f"Stand attempt {attempt}: a quad with no leg destroyed stands without a PSR (p.238).")
+            roll, needed = None, None
+        else:
+            # p.51 / p.111: each attempt is a PSR at -1 (2026-10-21; MECHSIM had no -1).
+            modifier = preexisting_modifier(mech) + special_case_modifier(mech) + STAND_UP_MODIFIER
+            needed = config.PILOTING + modifier
+            roll = config.roll_2d6(prompt=f"Stand-up attempt {attempt} roll")
+            config.log(f"Stand attempt {attempt}: needs {needed} (Piloting {config.PILOTING} "
+                       f"+ {modifier:+d}, incl. -1 for standing). Rolled {roll}.")
 
-        if roll < needed:
+        if roll is not None and roll < needed:
             config.log("  Failed to stand.")
             resolve_fall(mech, cause="failed to stand")
             if is_destroyed(mech):

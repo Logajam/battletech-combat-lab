@@ -168,7 +168,7 @@ FALL (failed Attack Phase PSR): Akuma AKU-2XK takes 9 falling damage (1D6 4: fro
 
 === TURN 5 ===
   Initiative: Red lost the roll, moves first.
-Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 5.
+Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
   Success - Akuma AKU-2XK is standing (remaining running MP 3).
   [Movement select] Red: score 279.068 = dealt 0.42 x1.02 + (HP 517.0 - received 9.16 x1.13 - PSR 0.00) / enemy future 16.44 x my future 9.04 [two-ply, 33 of 60 spots (grid search) x 303 replies (grid search); modeled reply Blue -> 0705 SE Run]
   [Movement] Red: 0812 N -> 0813 S, Run (3 MP, 1 hexes, 2 heat; budget walk 3 / run 5 / jump 0; stood up with 3 MP left)
@@ -591,7 +591,7 @@ FALL (failed Attack Phase PSR): Akuma AKU-2XK takes 9 falling damage (1D6 1: rea
   Initiative: Blue lost the roll, moves first.
   [Movement select] Blue: score 1541.625 = dealt 15.19 x0.93 + (HP 490.0 - received 0.00 x0.98 - PSR 0.00) / enemy future 3.76 x my future 11.71 [two-ply, 151 of 362 spots (grid search) x 1 replies (grid search); modeled reply Red -> 0312 NW Run]
   [Movement] Blue: 0505 NW -> 0505 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 3)
-Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 9.
+Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
   Success - Akuma AKU-2XK is standing (remaining running MP 3).
   [Movement select] Red: score 176.831 = dealt 0.80 x0.98 + (HP 396.0 - received 12.60 x0.93 - PSR 0.00) / enemy future 11.71 x my future 5.36 [enemy held at 0505; 24 spots with LOS]
   [Movement] Red: 0312 NW -> 0212 NW, Run (3 MP, 1 hexes, 2 heat; budget walk 3 / run 5 / jump 0; stood up with 3 MP left)

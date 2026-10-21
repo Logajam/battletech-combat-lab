@@ -617,6 +617,60 @@ def structure_and_armor_slots_take_no_crits():
 
 
 @check
+def psr_modifiers_by_the_book():
+    """2026-10-21 (Daniel: "Stand up, tripod, jumping, 4 legged mechs should
+    all have answers in the rules"): standing up -1 per attempt (pp.51, 111);
+    a leg destroyed before the round +4 (p.111; was +5), so jumping with it is
+    +4, not +8; a tripod -1 with no leg destroyed (p.237; was -2) and its
+    dedicated pilot -1, +2 when disabled (p.236); a quad -2 only with all its
+    legs (p.239), +1 for each of its first two lost legs (p.238), no PSR to
+    stand with all four legs, and one lost leg forces no run / jump PSR."""
+    import tempfile
+    import zipfile
+    import piloting_rolls as pr
+    m = fresh()
+    m.prone = True
+    config.PILOTING = m.piloting
+    base = pr.special_case_modifier(m) + pr.preexisting_modifier(m)
+    with ScriptedDice([m.piloting + base - 1], default=12):        # exactly the -1 target number
+        pr.resolve_stand_up(m)
+    assert not m.prone
+    leg = fresh()
+    leg.locations["Left Leg"]["destroyed"] = True
+    pr.snapshot_preexisting_damage(leg)
+    assert pr.preexisting_modifier(leg) == 4
+    assert pr.movement_psr_target_number(leg, "jump") == leg.piloting + 4 + pr.special_case_modifier(leg)
+
+    tri = fresh(parse_mtf(config.data_path("Asymptote II iJ Mpulse.mtf")))
+    assert tri.mech_type == "tripod"
+    t0 = pr.special_case_modifier(tri)
+    tri.crew["pilot"]["unconscious"] = True
+    assert pr.special_case_modifier(tri) == t0 + 3                 # -1 pilot becomes +2
+    tri.crew["pilot"]["unconscious"] = False
+    tri.locations[tri.leg_locations[0]]["destroyed"] = True
+    assert pr.special_case_modifier(tri) == t0 + 1                 # loses the -1 for three legs
+    tri.crew["gunner"]["unconscious"] = True
+    assert attack_resolution.firing_conditions(tri)[0] >= 2
+
+    with zipfile.ZipFile(os.path.join(REPO_ROOT, "data", "meks.zip")) as z:
+        path = z.extract("meks/3039u/Goliath GOL-1H.mtf", tempfile.mkdtemp())
+    quad = fresh(parse_mtf(path))
+    assert quad.mech_type == "quad"
+    q0 = pr.special_case_modifier(quad)
+    quad.prone = True
+    with ScriptedDice([], default=2):                               # every roll would fail - none is made
+        pr.resolve_stand_up(quad)
+    assert not quad.prone
+    quad.locations[quad.leg_locations[0]]["destroyed"] = True
+    pr.snapshot_preexisting_damage(quad)
+    assert pr.special_case_modifier(quad) == q0 + 2 and pr.preexisting_modifier(quad) == 1
+    assert pr.movement_psr_trigger(quad, "running") is None and pr.movement_psr_trigger(quad, "jump") is None
+    quad.locations[quad.leg_locations[1]]["destroyed"] = True
+    pr.snapshot_preexisting_damage(quad)
+    assert pr.preexisting_modifier(quad) == 2 and pr.movement_psr_count(quad, "running") == 1
+
+
+@check
 def explosions_and_case():
     """2026-10-20, Core p.96: no CASE - at most 20 structure damage, and when
     the base damage was over 20 the location that took the 20th point loses

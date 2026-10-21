@@ -485,7 +485,7 @@ FALL (failed Attack Phase PSR): Cataphract CTF-3D takes 7 falling damage (1D6 3:
 
 === TURN 14 ===
   Initiative: Blue lost the roll, moves first.
-Stand attempt 1: needs 7 (Piloting 5 + +2). Rolled 10.
+Stand attempt 1: needs 6 (Piloting 5 + +1, incl. -1 for standing). Rolled 10.
   Success - Cataphract CTF-3D is standing (remaining running MP 3).
 Movement Phase PSR (running mode, gyro hit): needs 7 (Piloting 5 + +2). Rolled 9.
   Succeeded - remains standing.
@@ -533,7 +533,7 @@ FALL (failed Movement Phase PSR (jump)): Cataphract CTF-3D takes 7 falling damag
 
 === TURN 16 ===
   Initiative: Blue lost the roll, moves first.
-Stand attempt 1: needs 7 (Piloting 5 + +2). Rolled 12.
+Stand attempt 1: needs 6 (Piloting 5 + +1, incl. -1 for standing). Rolled 12.
   Success - Cataphract CTF-3D is standing (remaining running MP 4).
 Movement Phase PSR (running mode, gyro hit): needs 7 (Piloting 5 + +2). Rolled 8.
   Succeeded - remains standing.

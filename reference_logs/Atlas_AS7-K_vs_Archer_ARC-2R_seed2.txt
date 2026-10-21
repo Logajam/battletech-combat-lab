@@ -203,7 +203,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
   Initiative: Red lost the roll, moves first.
   [Movement select] Red: score 1686.972 = dealt 11.43 x0.89 + (HP 578.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 4.41 x my future 12.80 [two-ply, 83 of 171 spots (grid search) x 1 replies (grid search); modeled reply Blue -> 1405 SE Run]
   [Movement] Red: 0611 NE -> 0611 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 9.
+Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
   Success - Archer ARC-2R is standing (remaining running MP 4).
   [Movement select] Blue: score 153.512 = dealt 1.78 x1.00 + (HP 356.0 - received 11.43 x0.89 - PSR 0.00) / enemy future 12.80 x my future 5.62 [enemy held at 0611; 30 spots with LOS]
   [Movement] Blue: 1405 SE -> 1405 S, Run (0 MP, 0 hexes, 2 heat; budget walk 4 / run 6 / jump 0; stood up with 4 MP left)

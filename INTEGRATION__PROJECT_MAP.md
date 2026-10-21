@@ -276,8 +276,8 @@ open). Read it before building rules.
      rules** (G22 - forced entry, inside, damage, collapse, support limits,
      bridges; pp.53, 130-136; "probably a discussion first"). Passive
      buildings stand in until then.
-8. Waiting on Daniel (Section 4): stand-up PSR -1, tripod -1, jumped with leg
-   destroyed +4 (MECHSIM: +5), quads standing; does HOLDING a
+8. Waiting on Daniel (Section 4): his quad leg-loss house rule vs the
+   appendix (p.238); does HOLDING a
    club stop arm / torso weapons firing?
 9. Later (Daniel agreed 2026-10-20): a setup shell GUI (the replay viewer
    exists); a compiled hot path (Cython / Rust for `MoveEvaluator.evaluate`)
@@ -409,12 +409,19 @@ confirmed project rules, not stubs):
 - (Decided 2026-10-20, see Section 5: multiple PSRs one per trigger, the
   seatbelt check, fall side, Floating Criticals and fight-to-the-death are
   settled.)
-- Standing up (p.51, PSR table p.111): each attempt is a PSR at -1;
-  `resolve_stand_up` uses no -1.
-- Tripod with no leg destroyed: -1 to PSRs (p.111); MECHSIM uses -2.
-- Preexisting leg destroyed: +4 (p.111, "jumped with leg destroyed +4");
-  MECHSIM uses +5.
-- Quads only need a PSR to stand if a leg is destroyed (p.231).
+- RESOLVED 2026-10-21 (Daniel: "Stand up, tripod, jumping, 4 legged mechs
+  should all have answers in the rules. Clear them please." - rules as
+  written, RULES_REVIEW F42): standing up -1 per attempt (p.51); tripod -1
+  with no leg destroyed plus its dedicated pilot -1 / +2 disabled (pp.236-
+  237); leg destroyed +4 (p.111); quads -2 only with all four legs, +1 per
+  lost leg for the first two, no PSR to stand with all four legs, one lost
+  leg forces no run / jump PSR (pp.238-239).
+- OPEN (found 2026-10-21, for Daniel): his 2026-07-12 quad leg rules
+  (`mech_state._damage_walk_mp`, `legs_gone`: a quad's lost legs count one
+  fewer, so 2 lost legs = Walking MP 1 and 3 = destroyed) differ from the
+  appendix (p.238): 1 lost leg -1 Walking MP, 2 lost legs -2 (the effects
+  of a hip hit), 3 = a biped with one leg lost (still moves), 4 = both legs
+  lost. Left as his rule - say if it should follow the book.
 - Rear arc: Daniel's 2026-07-20 rule was one hexside (60 degrees); the p.60
   Firing Arcs Diagram (screenshot, 2026-10-19) shows 120 degrees, and
   `INTEGRATION__arcs.py` now follows the diagram (agrees at range 1).
@@ -689,6 +696,11 @@ forward arc, kicks included, never into a side arc.
 
 ## 5. DECISIONS LOG (Daniel's calls — implementation may not override)
 
+- **PSR special cases (Daniel, 2026-10-21):** "Stand up, tripod, jumping, 4
+  legged mechs should all have answers in the rules. Clear them please." -
+  rules as written (RULES_REVIEW F42). This replaces his 2026-07-16 tripod
+  -2 and 2026-07-17 pilot-unconscious +3 for tripods (+2, p.236; a QuadVee
+  keeps +3 - not a Core unit).
 - **Line of sight (Daniel, 2026-10-21):** "Go ahead and make sure the LOS
   rules match those in the rules and fix prone mechs." - the Core Rulebook's
   LOS (pp.56-58, 66) replaces his simplified 2026-07-19 rules (RULES_REVIEW
@@ -1058,6 +1070,16 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** PSR special cases cleared from the rules
+  (RULES_REVIEW F42): stand-up -1, leg destroyed +4 (was +5), tripod -1 with
+  no leg lost (was -2) plus the dedicated pilot -1 / +2 disabled (PSRs and
+  physical attacks) and the gunnery officer's +2 to ranged attacks when
+  disabled, quad -2 only with all legs, +1 per lost leg (first two), no PSR
+  to stand, one lost leg forces no run / jump PSR. test_rules
+  psr_modifiers_by_the_book. Reference logs regenerated (13 changed in the
+  detail, 3 in the result, same winners). Found on the way: Daniel's quad
+  leg-loss MP / destruction house rule differs from p.238 - left, asked
+  (Section 4).
 - **2026-10-21 (Claude):** Line of sight rebuilt to the Core Rulebook (Daniel:
   "make sure the LOS rules match those in the rules and fix prone mechs";
   RULES_REVIEW F41, D8 decided, G7 built). `pathfinder/los.py`: LOS levels

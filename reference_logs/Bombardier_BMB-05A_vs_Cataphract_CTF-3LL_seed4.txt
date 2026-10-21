@@ -283,7 +283,7 @@ FALL (failed Attack Phase PSR): Bombardier BMB-05A takes 7 falling damage (1D6 2
   Initiative: Blue lost the roll, moves first.
   [Movement select] Blue: score 4645.792 = dealt 24.07 x1.08 + (HP 390.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 1.00 x my future 11.85 [two-ply, 101 of 268 spots (grid search) x 1 replies (grid search); modeled reply Red -> 0610 S Run]
   [Movement] Blue: 0804 NW -> 0707 SE, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
-Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 10.
+Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 10.
   Success - Bombardier BMB-05A is standing (remaining running MP 6).
   [Movement select] Red: score 58.328 = dealt 8.10 x1.16 + (HP 366.0 - received 10.14 x0.98 - PSR 0.00) / enemy future 11.85 x my future 1.63 [enemy held at 0707; 76 spots with LOS]
   [Movement] Red: 0610 S -> 0606 NE, Run (5 MP, 4 hexes, 2 heat; budget walk 5 / run 8 / jump 0; stood up with 6 MP left)

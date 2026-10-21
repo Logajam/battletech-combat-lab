@@ -58,6 +58,7 @@ import INTEGRATION__arcs as arcs
 import INTEGRATION__structure_weight as structure_weight
 import INTEGRATION__water as water
 from mech_state import head_hit_hurts_pilot, has_torso_cockpit, torso_cockpit_sensor_penalty  # p.203
+from mech_state import tripod_pilot_modifier  # p.236
 from mech_state import (DamageType, is_destroyed, is_immobile, mark_consciousness_check_pending,
                         arm_aes_working, leg_aes_working)
 from equipment import Equipment
@@ -508,9 +509,10 @@ class Planner:
 def base_tn(attacker, amm, target_tmm, los_modifier, target_prone_modifier):
     """p.76: Piloting + AMM + TMM + terrain + prone / immobile target; never
     heat or sensors - except a torso-mounted cockpit's sensor hits (+4, p.203,
-    mech_state.torso_cockpit_sensor_penalty; 2026-10-21)."""
+    mech_state.torso_cockpit_sensor_penalty; 2026-10-21) and a tripod's
+    dedicated pilot (-1, +2 if disabled - p.236, tripod_pilot_modifier)."""
     return (attacker.piloting + amm + target_tmm + los_modifier + target_prone_modifier
-            + torso_cockpit_sensor_penalty(attacker))
+            + torso_cockpit_sensor_penalty(attacker) + tripod_pilot_modifier(attacker))   # p.236
 
 
 def _base_tn(attacker, target, terrain_map):
