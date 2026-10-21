@@ -112,6 +112,8 @@ def covering(mech, attacker_hex, action=None):
     key = arcs.key_for(arcs.arcs_between(m_hex, attacker_hex), facing,
                        action if action is not None else arcs.current_action(mech), arcs.leg_offsets(mech))
     blocked = arcs.unavailable(mech, found, weapon_locations(mech), key)
+    from INTEGRATION__attack_resolution import shielded_weapon_ids
+    blocked = blocked | shielded_weapon_ids(mech)       # an AMS behind a raised shield is off (p.195)
     return [w for w in found if id(w) not in blocked]
 
 

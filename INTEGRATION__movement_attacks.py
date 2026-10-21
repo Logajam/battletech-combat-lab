@@ -124,23 +124,35 @@ def total_hp(mech):
     return attack_resolution.total_hp(mech)
 
 
-def apply_groups(mech, damage, table, side, label):
+def apply_groups(mech, damage, table, side, label, spike_wear=False, onto=None):
     """Deal `damage` to mech in 5-point groupings, each rolled on `table`
-    ("standard" / "punch" / "kick") against `side` (p.87)."""
+    ("standard" / "punch" / "kick") against `side` (p.87). Spikes (p.196,
+    2026-10-21, INTEGRATION__physical_gear): a grouping that lands on a
+    spiked location is cut by 4 (minimum 1); spike_wear - the mech used its
+    spikes offensively in this charge, so each spiked location hit rolls to
+    lose its cluster. Returns [(location, was it spiked)] in order."""
+    import INTEGRATION__physical_gear as gear
     from mech_state import DamageType, mark_consciousness_check_pending
     from damage_resolution import apply_damage
+    hits = []
     for g in groupings(damage):
         if is_destroyed(mech):
-            return
-        loc = physical._location(table, side, mech)
+            return hits
+        loc = onto or physical._location(table, side, mech)       # onto: a raised shield's arm (p.195)
         dmg = water.physical_damage(mech, loc, g)                 # halved under water (p.77)
         config.log(f"    {label}: {dmg} to {mech.side_name}'s {loc}"
                    f"{' (halved: under water, p.77)' if dmg != g else ''}.")
+        dmg, spiked = gear.spike_reduce(mech, loc, dmg, label)
+        dmg = gear.shield_absorb(mech, loc, dmg, side)            # p.195
         if loc == "Head" and head_hit_hurts_pilot(mech):
             mech.pilot_hits += 1
             mark_consciousness_check_pending(mech)
         apply_damage(mech, loc, dmg, armor_field="rear_armor" if side == "rear" else "armor",
                      damage_type=DamageType.PHYSICAL)
+        if spiked and spike_wear:
+            gear.spike_wear(mech, loc)
+        hits.append((loc, spiked))
+    return hits
 
 
 # =============================================================================

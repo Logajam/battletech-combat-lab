@@ -628,6 +628,26 @@ def gyro_destroyed(mech):
     return mech.gyro_hits >= (4 if has_hd_gyro(mech) else 2)
 
 
+# Shields (Core p.195, 2026-10-21): size -> (Damage Absorbance, Damage Capacity,
+# Walking MP penalty, no jumping). The absorbing itself is INTEGRATION__physical_gear.
+SHIELD_SIZES = {"SMALL": (3, 11, 0, False), "MEDIUM": (5, 18, 1, False), "LARGE": (7, 25, 1, True)}
+
+
+def mech_shields(mech):
+    """[(arm, shield Equipment, size)] for the shields still on the 'Mech."""
+    out, seen = [], set()
+    for arm in ("Left Arm", "Right Arm"):
+        if arm not in mech.locations or mech.locations[arm]["destroyed"]:
+            continue
+        for s in mech.crits.get(arm, []):
+            n = (getattr(s, "name", "") or "").replace(" ", "").upper()
+            if isinstance(s, Equipment) and "SHIELD" in n and "BLUESHIELD" not in n and id(s) not in seen:
+                seen.add(id(s))
+                size = next((k for k in SHIELD_SIZES if k in n), "MEDIUM")
+                out.append((arm, s, size))
+    return out
+
+
 TRIPOD_DEDICATED_PILOT_MODIFIER = -1   # p.236: PSRs and physical attack rolls
 TRIPOD_CREW_DISABLED_MODIFIER = 2      # p.236: dedicated pilot / gunner unconscious or killed
 
@@ -902,6 +922,7 @@ def _damage_walk_mp(mech):
             penalty += mech.destroyed_leg_actuators.get(loc, 0)
     if quad and live_hip_legs(mech):
         penalty -= 1                         # a quad's first hip hit costs no MP (p.239)
+    penalty += sum(SHIELD_SIZES[size][2] for _, _, size in mech_shields(mech))   # p.195, not below 1
     return max(1, mech.base_walk_mp - penalty)
 
 
@@ -993,6 +1014,8 @@ def compute_jump_mp(mech):
     AND the jet-only total above is already > 0 - Daniel: "If somehow the
     base jump mp=0, then the bonus = zero too" (Partial Wing amplifies
     existing jump capability, it doesn't grant jumping from nothing)."""
+    if any(SHIELD_SIZES[size][3] for _, _, size in mech_shields(mech)):
+        return 0                             # a large shield: no jumping (p.195, 2026-10-21)
     jet_mp = max(0, mech.base_jump_mp - len(mech.destroyed_jump_jet_ids))
     if jet_mp == 0 or not mech.partial_wing_active:
         return jet_mp
