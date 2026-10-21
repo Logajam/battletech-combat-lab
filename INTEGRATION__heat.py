@@ -99,6 +99,7 @@ import INTEGRATION__stubs as stubs
 import INTEGRATION__equipment_systems as equip
 import INTEGRATION__ammo as ammo
 import INTEGRATION__water as water
+from mech_state import pilot_hit  # command console, p.203
 from mech_state import compute_heat_dissipation, is_destroyed, pilot_unconscious, \
     mark_consciousness_check_pending, active_heat_sinks, working_heat_sinks, heat_sink_rate, \
     compute_walk_mp, compute_running_mp, compute_jump_mp
@@ -556,8 +557,7 @@ def _life_support_hits(mech):
     hits = _highest(table, mech.current_heat)
     if not hits:
         return
-    mech.pilot_hits += hits
-    mark_consciousness_check_pending(mech)
+    pilot_hit(mech, hits, head=True)          # heat hurts a command console's second warrior too (p.203)
     config.log(f"  [Heat] {mech.side_name}: life support destroyed"
                f"{' (torso-mounted cockpit)' if getattr(mech, 'torso_cockpit', False) else ''}, "
                f"heat {mech.current_heat} - MechWarrior takes {hits} hit(s) ({mech.pilot_hits}/6).")

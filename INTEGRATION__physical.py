@@ -60,7 +60,7 @@ import INTEGRATION__structure_weight as structure_weight
 import INTEGRATION__water as water
 import INTEGRATION__physical_gear as gear
 import INTEGRATION__stubs as stubs
-from mech_state import head_hit_hurts_pilot, has_torso_cockpit, torso_cockpit_sensor_penalty  # p.203
+from mech_state import pilot_hit, head_hit_hurts_pilot, has_torso_cockpit, torso_cockpit_sensor_penalty  # p.203
 from mech_state import tripod_pilot_modifier  # p.236
 from mech_state import (DamageType, is_destroyed, is_immobile, mark_consciousness_check_pending,
                         arm_aes_working, leg_aes_working)
@@ -812,8 +812,7 @@ def run_physical_phase(mech_a, mech_b, terrain_map, reports):
             dmg, spiked = gear.spike_reduce(target, loc, dmg, o["name"])        # p.196
             dmg = gear.shield_absorb(target, loc, dmg, side)                    # p.195
             if loc == "Head" and head_hit_hurts_pilot(target):
-                target.pilot_hits += 1
-                mark_consciousness_check_pending(target)
+                pilot_hit(target, head=True)              # both warriors with a command console (p.203)
             before = gear.snapshot(target, loc)
             apply_damage(target, loc, dmg, armor_field="rear_armor" if side == "rear" else "armor",
                          damage_type=DamageType.PHYSICAL)

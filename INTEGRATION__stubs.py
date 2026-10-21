@@ -180,6 +180,17 @@ def stub_raise_shield(mech_name, phase, arms):
     return arm
 
 
+def stub_console_swap(mech_name, pilot_hits, secondary_hits, pilot_out):
+    """End Phase: swap the pilot and the command console's warrior (p.203)?
+    Knob: STUB_CONSOLE_SWAP ("when_needed": when the pilot is out or more
+    hurt than the secondary / "never"). TODO: a real policy (Memo)."""
+    swap = (config.STUB_CONSOLE_SWAP == "when_needed"
+            and (pilot_out or pilot_hits > secondary_hits) and secondary_hits < 6)
+    _warn("console_swap", f"{mech_name}: pilot {pilot_hits} hits{' (out)' if pilot_out else ''}, console "
+                          f"{secondary_hits} - {'swap' if swap else 'no swap'}")
+    return swap
+
+
 # =============================================================================
 # ==========================  OTHER PHASES  ==================================
 # =============================================================================

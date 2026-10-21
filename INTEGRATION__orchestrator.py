@@ -105,6 +105,8 @@ from mech_state import (  # noqa: E402 - MECHSIM, resolved via MECHSIM_DIR
     all_crew_unconscious,
     is_immobile,
     gyro_destroyed,
+    console_active,
+    swap_warriors,
 )
 import piloting_rolls  # noqa: E402 - MECHSIM
 
@@ -567,10 +569,24 @@ def _phase_heat(mech_red, mech_blue, reports):
         heat.resolve_heat_phase(m, reports[m.side_name].weapon_heat)
 
 
+def _console_swap(mech):
+    """End Phase seat swap with a command console's warrior (p.203) - forced
+    when the pilot was killed, otherwise a stub decides."""
+    if is_destroyed(mech) or not console_active(mech):
+        return
+    pilot_out = getattr(mech, "primary_dead", False) or mech.crew["pilot"]["unconscious"]
+    if getattr(mech, "primary_dead", False) or stubs.stub_console_swap(
+            mech.side_name, mech.pilot_hits, getattr(mech, "secondary_hits", 0), pilot_out):
+        swap_warriors(mech)
+        config.log(f"  [End] {mech.side_name}: the pilot and the command console's warrior swap seats "
+                   f"(pilot now {mech.pilot_hits} hits, p.203).")
+
+
 def _phase_end(mech_red, mech_blue, turn_number, stats):
     """Unconscious-pilot recovery (Section 2 scope) plus bookkeeping:
     first turn each mech meets MECHSIM's is_crippled()."""
     for m in (mech_red, mech_blue):
+        _console_swap(m)                                        # command console (p.203, 2026-10-21)
         if not is_destroyed(m):
             water.drowning(m, heat.has_life_support_hit(m))     # p.117 (2026-10-21)
         piloting_rolls.resolve_end_phase_wakeup(m)

@@ -79,7 +79,8 @@ import math
 import config
 from hit_location import resolve_hit_location
 from mech_state import has_small_cockpit, has_torso_cockpit, torso_cockpit_sensor_penalty, \
-    destroyed_leg_count, tripod_pilot_modifier, is_quad, live_hip_legs, hip_effects, has_hd_gyro, gyro_destroyed
+    destroyed_leg_count, tripod_pilot_modifier, is_quad, live_hip_legs, hip_effects, has_hd_gyro, gyro_destroyed, \
+    console_active
 from mech_state import ArmorType, DamageType, is_destroyed, compute_running_mp, leg_aes_working, \
     mark_consciousness_check_pending, all_crew_unconscious, pilot_unconscious, consciousness_target_number, \
     is_immobile
@@ -288,6 +289,13 @@ def resolve_fall(mech, cause="", levels=0, side=None):
                        f"pilot takes 1 hit ({mech.pilot_hits}/6).")
         else:
             config.log(f"  Seatbelt check: needs {needed}{level_note}. Rolled {roll}. Pilot unharmed.")
+    if console_active(mech):
+        # p.203: a command console's second warrior makes his own check.
+        roll = None if (is_immobile(mech) or needed > 12) else config.roll_2d6(prompt="  Seatbelt check roll (console)")
+        if roll is None or roll < needed:
+            mech.secondary_hits = getattr(mech, "secondary_hits", 0) + 1
+            config.log(f"  Seatbelt check (command console warrior): "
+                       f"{'automatic' if roll is None else f'rolled {roll}'} - takes 1 hit ({mech.secondary_hits}/6).")
     is_destroyed(mech)
 
 

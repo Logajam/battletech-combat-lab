@@ -73,7 +73,7 @@ import re
 import config
 import armor_rules
 from equipment import Equipment, is_crit_target
-from mech_state import has_hd_gyro  # p.204
+from mech_state import has_hd_gyro, has_command_console, console_active, console_takes_over  # pp.203-204
 from mech_state import ArmorType, DamageType, display_crits, is_destroyed, \
     compute_walk_mp, compute_jump_mp, compute_mechanical_jump_booster_mp, \
     compute_running_mp, mark_consciousness_check_pending, compute_heat_dissipation
@@ -562,6 +562,16 @@ def resolve_slot_hit(mech, location, slot_idx, slot, idx, total):
         elif slot == "Gyro":
             mech.gyro_hits += 1
             config.log(f"      Gyro hit ({mech.gyro_hits}/{4 if has_hd_gyro(mech) else 2}).")
+        elif slot == "Cockpit" and has_command_console(mech) and any(s == "Cockpit" for s in mech.crits[location]):
+            # A command console (p.203): the head's first Cockpit slot is the pilot's, the
+            # second the console's; one is lost, the other carries on (2026-10-21).
+            first = slot_idx < max(i for i, s in enumerate(mech.crits[location]) if s == "Cockpit")
+            if first and console_active(mech):
+                config.log(f"      Pilot's cockpit destroyed - the command console takes over (p.203).")
+                console_takes_over(mech, "pilot's cockpit destroyed")
+            else:
+                mech.console_lost = True
+                config.log(f"      Command console destroyed - no second warrior any more (p.203).")
         elif slot == "Cockpit":
             mech.cockpit_hit = True
             config.log(f"      Cockpit hit - instant kill condition set.")

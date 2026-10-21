@@ -45,7 +45,7 @@ import INTEGRATION__config as config
 import INTEGRATION__attack_resolution as attack_resolution
 import INTEGRATION__physical as physical
 import INTEGRATION__water as water
-from mech_state import head_hit_hurts_pilot, torso_cockpit_sensor_penalty  # p.203
+from mech_state import pilot_hit, head_hit_hurts_pilot, torso_cockpit_sensor_penalty  # p.203
 from mech_state import is_destroyed, is_immobile, compute_walk_mp, compute_running_mp
 import hex_geometry
 import combat
@@ -145,8 +145,7 @@ def apply_groups(mech, damage, table, side, label, spike_wear=False, onto=None):
         dmg, spiked = gear.spike_reduce(mech, loc, dmg, label)
         dmg = gear.shield_absorb(mech, loc, dmg, side)            # p.195
         if loc == "Head" and head_hit_hurts_pilot(mech):
-            mech.pilot_hits += 1
-            mark_consciousness_check_pending(mech)
+            pilot_hit(mech, head=True)              # both warriors with a command console (p.203)
         apply_damage(mech, loc, dmg, armor_field="rear_armor" if side == "rear" else "armor",
                      damage_type=DamageType.PHYSICAL)
         if spiked and spike_wear:
