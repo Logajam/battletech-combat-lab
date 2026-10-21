@@ -211,6 +211,17 @@ def test_9_backward_movement():
     print("Test 9 (backward movement): PASS")
 
 
+def test_10_line_shapes():
+    """los.hex_line shifts a line shape worked out once per offset (2026-10-21,
+    speed only): it must equal the line worked out from scratch for every
+    ordered pair of hexes on a 16x17 board."""
+    import los
+    hexes = [parse_hex_label(f"{c:02d}{r:02d}") for c in range(1, 17) for r in range(1, 18)]
+    bad = [(a, b) for a in hexes for b in hexes if los.hex_line(a, b) != los._hex_line_direct(a, b)]
+    assert not bad, f"{len(bad)} lines differ, e.g. {bad[0]}"
+    print(f"test_10_line_shapes: {len(hexes) ** 2} hex pairs, shifted shape = direct line - PASS")
+
+
 TESTS = [
     test_1_straight_line,
     test_2_turning_tax,
@@ -221,6 +232,7 @@ TESTS = [
     test_7_transition_cost,
     test_8_bucket_queue_vs_flat,
     test_9_backward_movement,
+    test_10_line_shapes,
 ]
 
 

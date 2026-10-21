@@ -194,12 +194,16 @@ open). Read it before building rules.
    without firing); test with `tests/ab_batches.py` and replays. Reference
    battles are capped at 50 turns meanwhile, and every batch summary flags
    battles that hit the turn cap.
-1. **Speed** (Daniel: "We still need more speed"). The time tracker says the
-   two-ply look-ahead is ~95% of run time: reply scoring (`MoveEvaluator.evaluate`
-   for each modeled reply) ~70%, the per-reply candidate loop in
-   `movement_selection._modeled_reply` ~21%, reply charges / DFA ~4%; ranged,
-   physical, heat and End Phase together under 0.2%. A speed-only change must
-   keep the benchmark's 501 / 495 and every reference log.
+1. **Speed** (Daniel: "We still need more speed"). Session 6 cut ~25%
+   (Change Record). The two-ply look-ahead is still ~95% of run time because
+   it is exhaustive: every first-mover spot (300-630) x every reply spot
+   (400-630). Reply scoring (`MoveEvaluator.evaluate` for each modeled reply)
+   ~70%, the per-reply loop in `movement_selection._modeled_reply` ~20%,
+   reply charges / DFA ~3%. Pure-Python tuning is near its floor (~3 memo
+   lookups a pair); the next big steps are fewer pairs (e.g. two-ply only the
+   best spots by the static score - changes the bot, Daniel's call, test with
+   `ab_batches.py`) or the compiled hot path (item 9). A speed-only change
+   must keep the benchmark's 501 / 495 and every reference log.
 2. **Known issues Daniel asked to fix later** (Section 4, "Known issues to
    fix later"): Arrow IV / artillery scatter must stay inside the firing arc;
    machine gun array ammo per gun needs a check / test.
@@ -250,7 +254,7 @@ subphase, the rest for the KNOWN_MISSING_RULES text). Speed history
 attacks) → ~25% less (memo sharing) → ~15 s; 16-18 s in session 5's
 container, the same as the pre-map code on that machine - compare only like
 with like. Hill / water / rubble boards use the path-aware movement search
-(~5-10% slower than the plain one). Scratch for map work: unzip
+(~5-10% slower than the plain one). Session 6 speed pass: ~17.9 s -> ~13.4 s. Scratch for map work: unzip
 `data/maps.zip` outside the repo; `tests/survey_maps.py` reads the zip
 directly.
 
@@ -1000,6 +1004,29 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Speed pass (session 6; Daniel: "Back to trying to
+  speed up a simulation run"). Speed only - every reference log and the
+  benchmark's 501 / 495 are unchanged. Benchmark ~17.9 s -> ~13.4 s (about
+  25% less, averaged over 3 runs each in this container). (1)
+  `movement_selection._modeled_reply`: the reply spots' PSR costs don't
+  depend on the first mover's spot, so `_psr_by_state` works them out once
+  per pick instead of ~2 million times. (2) `MoveEvaluator.evaluate`: what
+  depends only on the mover's hex (LOS rows, side hit, the defender's arc
+  class, the to-hit bases, water) is worked out once per hex per call
+  (`_hex_row`), the facing-dependent parts once per (hex, facing); candidates
+  are built positionally. (3) `movement_attacks.scored_options` accepts a
+  function for `best_by_mode`, so the reply's per-mode table is built only
+  when a charge / DFA state exists. (4) `pathfinder/los.hex_line` works each
+  line's shape out once per hex offset and shifts it (a 16x17 board has
+  ~74k hex pairs but ~1,000 offsets) - checked equal to the direct line for
+  every pair on 16x17 and 50x50 boards; `tests/test_pathfinder.py`
+  test_10 keeps the 16x17 check. What's left (profile): the two-ply is
+  still ~95% of a turn because it is exhaustive - every first-mover spot
+  (313-629 in the benchmark) x every reply spot (396-634), up to ~400k
+  pairs a pick, at about 3 memo lookups each; the one-time LOS fill is
+  ~25% of a cold 10-turn benchmark but is paid once per worker in a batch.
+  Further big gains need fewer pairs (a bot change - Daniel's call) or a
+  compiled hot path (Pick up here 1).
 - **2026-10-21 (Claude):** Session 5 wrap-up (Daniel: "Go ahead and wrap
   this one up. All files up to date. List of future problems to solve
   updated. Workspace cleaned up for the next session."). Section 0 rewritten

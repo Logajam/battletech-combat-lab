@@ -529,6 +529,44 @@ class MoveEvaluator:
         return (water.physical_allowed(water.state_at(a_label, a_prone, self.terrain_map), t_state),
                 None if t_state == water.GROUND else t_state)
 
+    def _hex_row(self, o, def_hex, def_hex_label, def_facing, row_into, row_out_of, pair_info, dealt_base,
+                 received_base, prone_def, defender_ams, no_return_fire):
+        """evaluate's per-hex row for the mover on o's hex (speed only,
+        2026-10-21): False when that hex can't be used (the defender's own hex,
+        an off-board line, no LOS), else a tuple of everything about the hex
+        that doesn't depend on the mover's facing or mode, then a 6-slot list
+        evaluate fills per facing (side hit, arc class, AMS count) and the
+        line's entry hexside at the mover."""
+        atk_hex = o.hex_xy
+        if atk_hex == def_hex:
+            return False  # occupying the defender's hex is undefined, same as combat.py
+        try:
+            atk_to_def, entry_at_def, distance, a_to_d = row_into.get(atk_hex) or pair_info(atk_hex, def_hex,
+                                                                                             self.terrain_map)
+            def_to_atk, entry_at_atk, _, d_to_a = row_out_of.get(atk_hex) or pair_info(def_hex, atk_hex,
+                                                                                         self.terrain_map)
+        except ValueError:
+            return False  # off-board LOS line - not a usable candidate
+        if not atk_to_def.los:
+            return False  # no shot possible from here at all
+        side_on_def = _SIDE_BY_RELATIVE_HEXSIDE[(entry_at_def - def_facing) % 6]
+        # Water (2026-10-21): each side's firing case from here - None on dry ground.
+        wet_dealt = wet_received = None
+        if self.water_depths is not None:
+            wet_dealt = self._wet(self.mover, o.label, False, self.defender, def_hex_label, prone_def)
+            wet_received = self._wet(self.defender, def_hex_label, prone_def, self.mover, o.label, False)
+        # The parts of each pre_tn fixed by the hex (the mover's AMM / TMM are added per state).
+        dealt_hex = dealt_base + atk_to_def.modifier + (prone_target_modifier(self.defender, distance)
+                                                        if prone_def else 0)
+        received_hex = received_base + def_to_atk.modifier
+        if no_return_fire:
+            r_cls, r_keys = None, ()
+        else:
+            r_cls, r_keys = self._defender_classes.of(d_to_a, def_facing)
+        k_def = defender_ams(d_to_a, def_facing) if defender_ams else 0
+        return (atk_hex, atk_to_def, def_to_atk, distance, a_to_d, d_to_a, side_on_def, dealt_hex, received_hex,
+                r_keys, r_cls, k_def, wet_dealt, wet_received, [None] * 6, entry_at_atk)
+
     def prepare(self, options) -> List[_Option]:
         """See prepare_options (this evaluator's mover)."""
         return prepare_options(self.mover, options)
@@ -554,7 +592,7 @@ class MoveEvaluator:
         mover_scorer, defender_scorer = self.mover_scorer, self.defender_scorer
         (mover_actions, mover_legs), (defender_actions, defender_legs) = self.mover_arcs, self.defender_arcs
         best_dealt, best_received = self._best_dealt, self._best_received   # best twist, memoized
-        mover_class, defender_class = self._mover_classes.of, self._defender_classes.of
+        mover_class = self._mover_classes.of
         no_return_fire = defender.shutdown or defender_cond is None
         # The parts of each side's pre_tn that don't depend on the mover's spot (all
         # whole numbers, so adding them up front changes nothing - speed only).
@@ -576,34 +614,34 @@ class MoveEvaluator:
         water_depths = self.water_depths
         mover_ams = self.mover_ams.engagements if self.mover_ams.ams else None
         defender_ams = self.defender_ams.engagements if self.defender_ams.ams else None
+        # Speed only (2026-10-21): what depends on the mover's HEX alone (the LOS rows,
+        # the side it hits, the defender's arc class, both to-hit bases, water) is
+        # worked out once per hex per call, and what depends on (hex, facing) once per
+        # facing - a hex holds ~8 states (facings x modes). Same numbers, same order.
+        per_hex: Dict[str, object] = {}
         for o in prepared:
-            atk_hex = o.hex_xy
-            if atk_hex == def_hex:
-                continue  # occupying the defender's hex is undefined, same as combat.py
-            try:
-                atk_to_def, entry_at_def, distance, a_to_d = row_into.get(atk_hex) or pair_info(atk_hex, def_hex, terrain_map)
-                def_to_atk, entry_at_atk, _, d_to_a = row_out_of.get(atk_hex) or pair_info(def_hex, atk_hex, terrain_map)
-            except ValueError:
-                continue  # off-board LOS line - not a usable candidate
-            if not atk_to_def.los:
-                continue  # no shot possible from here at all
-            side_on_def = _SIDE_BY_RELATIVE_HEXSIDE[(entry_at_def - def_facing) % 6]
-            side_on_mover = _SIDE_BY_RELATIVE_HEXSIDE[(entry_at_atk - o.facing) % 6]
-
-            # Water (2026-10-21): each side's firing case from here - None on dry ground.
-            wet_dealt = wet_received = None
-            if water_depths is not None:
-                wet_dealt = self._wet(mover, o.label, False, defender, def_hex_label, prone_def)
-                wet_received = self._wet(defender, def_hex_label, prone_def, mover, o.label, False)
+            h = per_hex.get(o.label)
+            if h is None:
+                h = per_hex[o.label] = self._hex_row(o, def_hex, def_hex_label, def_facing, row_into, row_out_of,
+                                                     pair_info, dealt_base, received_base, prone_def, defender_ams,
+                                                     no_return_fire)
+            if h is False:
+                continue
+            (atk_hex, atk_to_def, def_to_atk, distance, a_to_d, d_to_a, side_on_def, dealt_hex, received_hex,
+             r_keys, r_cls, k_def, wet_dealt, wet_received, by_facing, entry_at_atk) = h
+            f = by_facing[o.facing]
+            if f is None:
+                f = by_facing[o.facing] = (
+                    _SIDE_BY_RELATIVE_HEXSIDE[(entry_at_atk - o.facing) % 6],
+                    mover_class(a_to_d, o.facing),
+                    mover_ams(a_to_d, o.facing) if mover_ams else 0)
+            side_on_mover, (cls, keys), k_mov = f
 
             if mover_cond is None or wet_dealt == "none":
                 dealt = 0.0
             else:
-                pre_tn = (dealt_base + o.amm + atk_to_def.modifier
-                          + (prone_target_modifier(defender, distance) if prone_def else 0))
+                pre_tn = dealt_hex + o.amm
                 pre_tn = pre_max if pre_tn > pre_max else (pre_min if pre_tn < pre_min else pre_tn)
-                cls, keys = mover_class(a_to_d, o.facing)
-                k_def = defender_ams(d_to_a, def_facing) if defender_ams else 0
                 memo_key = (cls, distance, pre_tn, o.move_heat, side_on_def, k_def, wet_dealt)
                 dealt = best_dealt.get(memo_key)
                 if dealt is None:
@@ -614,17 +652,15 @@ class MoveEvaluator:
             if no_return_fire or wet_received == "none":
                 received = 0.0
             else:
-                pre_tn2 = received_base + o.tmm + def_to_atk.modifier + o.void_mod
+                pre_tn2 = received_hex + o.tmm + o.void_mod
                 pre_tn2 = pre_max if pre_tn2 > pre_max else (pre_min if pre_tn2 < pre_min else pre_tn2)
-                cls, keys = defender_class(d_to_a, def_facing)
-                k_mov = mover_ams(a_to_d, o.facing) if mover_ams else 0
-                memo_key = (cls, distance, pre_tn2, def_move_heat, side_on_mover, k_mov, wet_received)
+                memo_key = (r_cls, distance, pre_tn2, def_move_heat, side_on_mover, k_mov, wet_received)
                 received = best_received.get(memo_key)
                 if received is None:
                     received = best_received[memo_key] = max(
                         defender_scorer(key, ams_k=k_mov, wet=wet_received)(distance, pre_tn2, def_move_heat,
                                                                            side_on_mover)
-                        for key in keys)
+                        for key in r_keys)
 
             if distance == 1:
                 levels = terrain_map["hexes"]
@@ -653,12 +689,8 @@ class MoveEvaluator:
                                                         base, side_on_mover, terrain_map),
                         *self._physical_water(def_hex_label, prone_def, o.label, False))
 
-            results.append(MovementCandidate(
-                hex=o.label, facing=o.facing_compass, mode=o.mode,
-                fc=o.fc, mp_spent=o.mp_spent, distance=distance, dealt=dealt, received=received,
-                movement_heat=o.move_heat,
-                side_on_defender=side_on_def, side_on_mover=side_on_mover,
-            ))
+            results.append(MovementCandidate(o.label, o.facing_compass, o.mode, o.fc, o.mp_spent, distance,
+                                             dealt, received, o.move_heat, side_on_def, side_on_mover))
         return results
 
 

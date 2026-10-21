@@ -322,13 +322,17 @@ def scored_options(mover, target, pose, index, ev, mover_exposure, target_exposu
     exposures are {side: factor}; objective is movement_selection._objective.
     Each candidate's dealt / received are in the evaluator's units (the
     caller multiplies by the exposure factors), so a movement attack can stand
-    in wherever a MovementCandidate does."""
+    in wherever a MovementCandidate does. best_by_mode may also be a function
+    returning that dict: it is then called only if some state needs the gate
+    (speed only, 2026-10-21 - most spots have no charge or DFA at all)."""
     out = []
     states = []
     if "charge" in allowed and config.CHARGES and not pose.prone:
         states += index.charge_states(pose)
     if "dfa" in allowed and config.DFA:
         states += index.dfa_states(pose)
+    if states and callable(best_by_mode):
+        best_by_mode = best_by_mode()
     for state in states:
         dealt_abs, self_cost, p, tn, dmg, side, physical_reply = values(mover, target, pose, state,
                                                                         ev.terrain_map)

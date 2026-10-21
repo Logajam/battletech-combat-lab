@@ -542,23 +542,30 @@ def _static_scores(cands, prepared_by_key, me, them):
     return out
 
 
-def _modeled_reply(c, ev2, prepared2, them, me, other, mover_xy_of_c, terrain_map, index2=None):
+def _modeled_reply(c, ev2, prepared2, them, me, other, mover_xy_of_c, terrain_map, index2=None, reply_psr=None):
     """The second mover's reply if the first mover ends at prepared state c:
     (MovementCandidate or None, reply's prepared state or None). The reply is
     picked by the same rule the real second mover uses - the objective, a
     charge / DFA when one passes the gate and scores better (index2 = the
     second mover's MoverIndex, None when it can't make one), then the closing
-    fallback when nothing deals damage - with no randomness."""
+    fallback when nothing deals damage - with no randomness. reply_psr: the
+    second mover's psr_for per reply state, keyed (hex, facing, mode, fc,
+    mp_spent) - it doesn't depend on c, so the caller works it out once
+    (speed only, 2026-10-21); None = work it out here."""
     with timing.section("reply scoring"):
         cands = ev2.evaluate(c.label, c.facing_compass, c.fc, c.mode, c.mp_spent, prepared2)
+    if reply_psr is None:
+        reply_psr = _psr_by_state(them, prepared2)
     best_score, best = None, None
     any_damage = False
     # `me` is the first mover, `them` the second: here the second mover is the one choosing.
+    objective, my_exposure, their_exposure = them.objective, me.exposure, them.exposure
     for cand in cands:
         if cand.dealt > 0:
             any_damage = True
-        score = them.objective(cand.dealt, cand.received, me.exposure[cand.side_on_defender],
-                               them.exposure[cand.side_on_mover], them.psr_for(cand))
+        score = objective(cand.dealt, cand.received, my_exposure[cand.side_on_defender],
+                          their_exposure[cand.side_on_mover],
+                          reply_psr[(cand.hex, cand.facing, cand.mode, cand.fc, cand.mp_spent)])
         key = round(score, 9)
         if best is None or key > best_score:
             best_score, best = key, cand
@@ -571,7 +578,7 @@ def _modeled_reply(c, ev2, prepared2, them, me, other, mover_xy_of_c, terrain_ma
         with timing.section("reply charges and DFA"):
             special = movement_attacks.scored_options(
                 other, ev2.defender, movement_attacks.pose_at(c.label, c.facing_compass, c.fc, c.mode), index2, ev2,
-                them.exposure, me.exposure, them.psr_cost, movement_attacks.best_by_mode(cands, me.exposure),
+                them.exposure, me.exposure, them.psr_cost, lambda: movement_attacks.best_by_mode(cands, me.exposure),
                 (c.label, c.facing_compass, c.fc, c.mode, c.mp_spent), them.objective)
         if special and (not any_damage or round(special[0][0], 9) > best_score):
             return special[0][1]
@@ -587,6 +594,12 @@ def _modeled_reply(c, ev2, prepared2, them, me, other, mover_xy_of_c, terrain_ma
             return None
         fb = _nearest_to(pool, mover_xy_of_c)
     return by_key.get((fb.label, fb.facing_compass, fb.mode, fb.fc))
+
+
+def _psr_by_state(side, prepared):
+    """{(hex, facing, mode, fc, mp_spent): side.psr_for(state)} for prepared
+    states, keyed the way a MovementCandidate names its state."""
+    return {(o.label, o.facing_compass, o.mode, o.fc, o.mp_spent): side.psr_for(o) for o in prepared}
 
 
 def choose(mover, other, terrain_map, battle_rng, moves_first, standup_mp=None, entry_edge=None):
@@ -701,8 +714,9 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
         index2 = None
         if (config.CHARGES or config.DFA) and not (other.prone or is_immobile(other)):
             index2 = movement_attacks.MoverIndex(other, terrain_map)    # its charges / DFAs, built once
+        reply_psr = _psr_by_state(them, prepared2)                         # the same for every c
         for c in prepared1:
-            reply = _modeled_reply(c, ev2, prepared2, them, me, other, c.hex_xy, terrain_map, index2)
+            reply = _modeled_reply(c, ev2, prepared2, them, me, other, c.hex_xy, terrain_map, index2, reply_psr)
             if reply is None:
                 dealt = received = 0.0
                 dealt_mult = received_mult = 1.0
