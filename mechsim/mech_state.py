@@ -571,6 +571,31 @@ def consciousness_target_number(pilot_hits):
     return CONSCIOUSNESS_TN_BY_HITS[pilot_hits]
 
 
+TRIPOD_DEDICATED_PILOT_MODIFIER = -1   # p.236: PSRs and physical attack rolls
+TRIPOD_CREW_DISABLED_MODIFIER = 2      # p.236: dedicated pilot / gunner unconscious or killed
+
+
+def destroyed_leg_count(mech):
+    return sum(1 for leg in mech.leg_locations if mech.locations[leg]["destroyed"])
+
+
+def tripod_pilot_modifier(mech):
+    """Core p.236 (2026-10-21): a tripod's dedicated pilot gives -1 to PSRs
+    and physical attack rolls; if the pilot is disabled, the gunner flies it
+    without that benefit, at +2. 0 for anything that isn't a tripod."""
+    if mech.mech_type != "tripod":
+        return 0
+    return TRIPOD_CREW_DISABLED_MODIFIER if mech.crew["pilot"]["unconscious"] else TRIPOD_DEDICATED_PILOT_MODIFIER
+
+
+def tripod_gunner_modifier(mech):
+    """Core p.236 (2026-10-21): a tripod whose dedicated gunnery officer is
+    disabled fires at +2 (the pilot takes over the weapons)."""
+    if mech.mech_type != "tripod" or "gunner" not in mech.crew:
+        return 0
+    return TRIPOD_CREW_DISABLED_MODIFIER if mech.crew["gunner"]["unconscious"] else 0
+
+
 def has_torso_cockpit(mech):
     """A torso-mounted cockpit (Core p.203; MegaMek "Cockpit:Torso-Mounted Cockpit")."""
     return "TORSO" in (getattr(mech, "cockpit_type", "") or "").upper()
@@ -650,8 +675,9 @@ def pilot_unconscious(mech):
     """Specifically the 'pilot' role (as opposed to 'gunner') - drives the
     +3 piloting-roll modifier (Daniel: "Pilot: If unconscious +3 modifier
     to piloting skill rolls") which is distinct from, and can apply even
-    when, all_crew_unconscious is False (e.g. a tripod/quadvee with Pilot
-    out but Gunner still conscious)."""
+    when, all_crew_unconscious is False (e.g. a QuadVee with Pilot out but
+    Gunner still conscious). Tripods follow the Core Rulebook instead since
+    2026-10-21 (tripod_pilot_modifier: +2, p.236)."""
     return mech.crew["pilot"]["unconscious"]
 
 

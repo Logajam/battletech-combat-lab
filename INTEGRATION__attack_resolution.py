@@ -107,7 +107,7 @@ import INTEGRATION__fire_modes as fire_modes
 import INTEGRATION__weapon_profiles as weapon_profiles
 import INTEGRATION__timing as timing
 import INTEGRATION__water as water
-from mech_state import head_hit_hurts_pilot  # noqa: E402 - torso-mounted cockpit, p.203
+from mech_state import head_hit_hurts_pilot, tripod_gunner_modifier  # noqa: E402 - pp.203, 236
 from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capability, \
     mark_consciousness_check_pending, compute_heat_dissipation, arm_aes_working
 import armor_rules
@@ -339,7 +339,10 @@ def firing_conditions(attacker):
         note.append(f"sensors +{sensors}")
     if prone[0] or prone[1]:
         note.append(f"prone +{prone[0]}")
-    return sensors + prone[0], prone[1], ", ".join(note)
+    gunner = tripod_gunner_modifier(attacker)       # a tripod's gunnery officer disabled, p.236
+    if gunner:
+        note.append(f"tripod gunner out +{gunner}")
+    return sensors + prone[0] + gunner, prone[1], ", ".join(note)
 
 
 def tn_adjuster(attacker, target, aim=None, cover_modifier=0):

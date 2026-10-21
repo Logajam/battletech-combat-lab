@@ -304,7 +304,7 @@ FALL (failed Attack Phase PSR): Bombardier BMB-14K takes 7 falling damage (1D6 5
 
 === TURN 8 ===
   Initiative: Red lost the roll, moves first.
-Stand attempt 1: needs 7 (Piloting 5 + +2). Rolled 7.
+Stand attempt 1: needs 6 (Piloting 5 + +1, incl. -1 for standing). Rolled 7.
   Success - Bombardier BMB-14K is standing (remaining running MP 3).
 Movement Phase PSR (running mode, Hip/leg destroyed while running): needs 7 (Piloting 5 + +2). Rolled 10.
   Succeeded - remains standing.

@@ -41,7 +41,7 @@ import math
 
 import INTEGRATION__config as config
 from INTEGRATION__movement_attacks import comparative_modifier, displacement, apply_groups
-from mech_state import is_destroyed, all_crew_unconscious, torso_cockpit_sensor_penalty
+from mech_state import is_destroyed, all_crew_unconscious, torso_cockpit_sensor_penalty, tripod_pilot_modifier
 import piloting_rolls
 import hex_geometry
 import combat
@@ -65,7 +65,7 @@ def miss_fall_damage(attacker):
 
 def to_hit(attacker, target, target_tmm):
     return (attacker.piloting + JUMP_MODIFIER + target_tmm + comparative_modifier(attacker, target)
-            + torso_cockpit_sensor_penalty(attacker))                                 # p.203
+            + torso_cockpit_sensor_penalty(attacker) + tripod_pilot_modifier(attacker))   # pp.203, 236
 
 
 def _land(attacker, label):

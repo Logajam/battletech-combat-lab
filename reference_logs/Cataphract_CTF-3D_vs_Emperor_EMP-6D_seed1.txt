@@ -231,7 +231,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
   Initiative: Red lost the roll, moves first.
   [Movement select] Red: score 926.630 = dealt 8.80 x1.00 + (HP 375.0 - received 0.64 x0.99 - PSR 0.00) / enemy future 6.15 x my future 15.07 [two-ply, 180 of 649 spots (grid search) x 1 replies (grid search); modeled reply Blue -> 1107 S Run]
   [Movement] Red: 0813 NW -> 0813 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
-Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 5.
+Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
   Success - Emperor EMP-6D is standing (remaining running MP 3).
   [Movement select] Blue: score 569.964 = dealt 6.33 x0.99 + (HP 526.0 - received 8.80 x1.00 - PSR 0.00) / enemy future 15.07 x my future 16.42 [enemy held at 0813; 25 spots with LOS]
   [Movement] Blue: 1107 S -> 1107 S, Run (0 MP, 0 hexes, 2 heat; budget walk 3 / run 5 / jump 3; stood up with 3 MP left)
@@ -292,7 +292,7 @@ FALL (failed Attack Phase PSR): Emperor EMP-6D takes 9 falling damage (1D6 3: fr
   Initiative: Red lost the roll, moves first.
   [Movement select] Red: score 750.959 = dealt 8.80 x1.00 + (HP 357.0 - received 0.65 x1.03 - PSR 0.00) / enemy future 8.54 x my future 17.78 [two-ply, 180 of 649 spots (grid search) x 1 replies (grid search); modeled reply Blue -> 1107 S Run]
   [Movement] Red: 0813 NW -> 0813 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
-Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 11.
+Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 11.
   Success - Emperor EMP-6D is standing (remaining running MP 3).
   [Movement select] Blue: score 519.455 = dealt 6.40 x1.03 + (HP 497.0 - received 8.80 x1.00 - PSR 0.00) / enemy future 17.78 x my future 18.67 [enemy held at 0813; 25 spots with LOS]
   [Movement] Blue: 1107 S -> 1107 S, Run (0 MP, 0 hexes, 2 heat; budget walk 3 / run 5 / jump 3; stood up with 3 MP left)
@@ -631,7 +631,7 @@ Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 8.
   Initiative: Blue lost the roll, moves first.
   [Movement select] Blue: score 1483.443 = dealt 43.85 x1.13 + (HP 482.0 - received 0.14 x0.98 - PSR 0.00) / enemy future 6.19 x my future 18.41 [two-ply, 159 of 381 spots (grid search) x 1 replies (grid search); modeled reply Red -> 0817 SW Run]
   [Movement] Blue: 1311 SW -> 1112 SW, Walk (2 MP, 2 hexes, 1 heat; budget walk 3 / run 5 / jump 3)
-Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 10.
+Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 10.
   Success - Cataphract CTF-3D is standing (remaining running MP 4).
   [Movement select] Red: score 94.733 = dealt 7.36 x0.98 + (HP 238.0 - received 21.29 x0.98 - PSR 0.00) / enemy future 18.41 x my future 7.41 [enemy held at 1112; 26 spots with LOS]
   [Movement] Red: 0817 SW -> 1017 SE, Run (3 MP, 2 hexes, 2 heat; budget walk 4 / run 6 / jump 4; stood up with 4 MP left)

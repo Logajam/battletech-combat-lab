@@ -105,7 +105,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
   Initiative: Red lost the roll, moves first.
   [Movement select] Red: score 6211.603 = dealt 14.20 x1.10 + (HP 608.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.67 x my future 16.98 [two-ply, 84 of 162 spots (grid search) x 1 replies (grid search); modeled reply Blue -> 0504 NE Run]
   [Movement] Red: 0513 N -> 0513 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 6.
+Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 6.
   Success - Kintaro KTO-19 is standing (remaining running MP 6).
   [Movement select] Blue: score 106.589 = dealt 2.99 x1.00 + (HP 327.0 - received 20.22 x0.96 - PSR 0.00) / enemy future 16.98 x my future 5.72 [enemy held at 0513; 38 spots with LOS]
   [Movement] Blue: 0504 NE -> 0107 S, Run (6 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 0; stood up with 6 MP left)
