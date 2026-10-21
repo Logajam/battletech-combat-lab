@@ -334,11 +334,12 @@ MOVEMENT_LIFETIME_HISTORY_K = 3.0  # default since 2026-10-21 (Daniel); K 1 vs 3
 CHARGES = True
 # Death from above (Core pp.79-80, INTEGRATION__dfa, 2026-10-20): same decision.
 DFA = True
-# Picking up clubs (Core p.79, INTEGRATION__clubs). OFF (Daniel, 2026-10-20: a
-# club is almost never worth what it costs - "I've never seen anyone use a tree
-# as a club"). The rules stay in; the decision waits for the bot's
-# future-capability planning (PROJECT_MAP Section 6, "Memo").
-CLUB_PICKUP = False
+# Picking up clubs (Core p.79, INTEGRATION__clubs). ON since 2026-10-21 (Daniel:
+# "Clubs do not block weapons fire ... May as well have mechs pick them up if
+# they have nothing better to do"): a mech that fires nothing in a Ranged phase
+# picks up a club in its hex. Was off (2026-10-20). A smarter decision waits for
+# the bot's future-capability planning (PROJECT_MAP Section 6, "Memo").
+CLUB_PICKUP = True
 
 # =============================================================================
 # ==========================  OPTIONAL RULES  =================================

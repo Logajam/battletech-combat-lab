@@ -797,6 +797,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 6.
   [Movement select] Blue: score 251.683 = dealt 0.75 x0.97 + (HP 220.0 - received 0.00 x0.96 - PSR 0.00) / enemy future 6.24 x my future 7.12 [enemy held at 1405; 161 spots with LOS]
   [Movement] Blue: 0712 SW -> 1109 N, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
   [Ranged] Red -> Blue: range 5, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 22 = max 4 + sink 20 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Ranged] Red picks up a tree club in 1405 instead of firing (p.79).
   [Ranged] Blue -> Red: range 5, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 3 + heat 0); firing ['CLERMediumLaser'] (weapon heat 5 of budget 9 = max 4 + sink 24 - current 4 - movement 5 - other 10; expected dmg 0.58)
     CLERMediumLaser: needs 11 (range mod +0), rolled 11 -> HIT
     CLERMediumLaser hit for 7:

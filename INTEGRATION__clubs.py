@@ -21,18 +21,17 @@ who can hold one, and when the bot picks one up.
     breaks after one successful attack.
 
 === THE BOT (pile 4) ===
-OFF by default (config.CLUB_PICKUP = False, Daniel 2026-10-20): a club is
-almost never worth giving up the arm / torso weapons for. Whether it is
-depends on what the mech will be able to do on LATER turns - a decision for
-the bot's future-capability planning (PROJECT_MAP Section 6, "Memo").
-With CLUB_PICKUP on, the rule is Claude's placeholder: pick one up only on a
-turn it fires nothing anyway (no line of sight, nothing in arc or in range),
-standing, not charging or in a DFA, with free hands; a limb or girder (they
-last) before a tree. Once held, the club is just another physical plan in
-movement scoring and the attack phases.
-Open rules question (Daniel, 2026-10-20, "IIRC"): does HOLDING a club stop
-the arm / front-torso weapons firing? The rules library (Core p.79) only bars
-arm-mounted weapons in the turn of a club attack; check Total Warfare.
+ON (config.CLUB_PICKUP = True since 2026-10-21 - Daniel: "May as well have
+mechs pick them up if they have nothing better to do"; it was off from
+2026-10-20). The rule (Claude's placeholder): pick one up only on a turn it
+fires nothing anyway (no line of sight, nothing in arc or in range), standing,
+not charging or in a DFA, with free hands; a limb or girder (they last)
+before a tree. Once held, the club is just another physical plan in movement
+scoring and the attack phases. Whether a club is worth more than that waits
+for the bot's future-capability planning (PROJECT_MAP Section 6, "Memo").
+Holding a club does NOT stop any weapon firing (Daniel, 2026-10-21: "Clubs do
+not block weapons fire"); firing any arm-mounted weapon that turn rules out
+the club attack (p.79, physical._club_options).
 
 Not modeled: rubble from destroyed buildings (no buildings yet - a board
 "rubble" feature is honoured), limbs carried off by displacement, wading

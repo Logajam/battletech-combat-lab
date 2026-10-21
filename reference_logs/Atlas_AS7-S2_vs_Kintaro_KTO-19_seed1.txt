@@ -204,6 +204,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 5.
   [Movement] Blue: 0512 SE -> 0212 NW, Run (8 MP, 4 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
   [Ranged] Red holds ['ISERLargeLaser'] back for the Physical phase (plans punch (Left Arm), expected 5.83).
   [Ranged] Red -> Blue: range 1, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 34 = max 4 + sink 32 - current 1 - movement 1 - other 0; expected dmg 0.00)
+  [Ranged] Red picks up a tree club in 0312 instead of firing (p.79).
   [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
   [Ranged] Blue holds ['ISLRM5', 'ISSRM6'] back for the Physical phase (plans punch (Left Arm), expected 3.50).
   [Ranged] Blue -> Red: range 1, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0); firing ['ISSRM6', 'ISMediumLaser', 'ISMediumLaser'] (weapon heat 10 of budget 10 = max 4 + sink 10 - current 2 - movement 2 - other 0; expected dmg 10.50)
