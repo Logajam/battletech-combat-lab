@@ -98,6 +98,7 @@ launchers, MRM cluster -1, pp.185-187); Gauss rifle component explosion
 | F52 | Blue Shield particle field damper (was G27) | pp.180, 207 | Built 2026-10-21 (`equipment_systems.blue_shield_*`): while on, every PPC's damage is halved (round down, minimum 1) and the 'Mech's stealth systems are negated; Escalating Failure once it has been on 6 turns (consecutive or not) - the 6th turn rolls at 3+, each later turn of use one step higher; a failure turns it off for the battle. A critical hit to any of its slots while on: a 5-point explosion there (internal, pilot hit), off for good. Switching it on or off (start, each End Phase) is a stub (`STUB_BLUE_SHIELD`, default on). |
 | F53 | PPC capacitors (was G33) | pp.180, 188 | Built 2026-10-21 (new `INTEGRATION__capacitor`): each capacitor is linked to a PPC in its own location (the record sheet doesn't name the link). Charging takes the PPC's turn instead of firing it and makes 5 heat; held, 5 heat a turn; a charged PPC must use the charge when it fires: +5 damage and +5 heat (the PPC's own heat and damage read 5 higher while charged, so weapon choice, the heat report and damage all see it). A critical hit to the capacitor or its PPC while charged: a 2 x (combined slots) explosion and every slot of both destroyed - unless the PPC was declared firing that Ranged Attack Phase. Two choices are stubs, both off by default until the PPC-charging bot session (Daniel, 2026-10-21): start charged (`STUB_CAPACITOR_START`) and charge an idle PPC (`STUB_CAPACITOR_CHARGE`). Not modeled: weapon choice doesn't see the holding heat a charged PPC costs if not fired. |
 | F54 | Torpedo launchers (was G29) | pp.127, 187 | Built 2026-10-21: every torpedo name now resolves to its LRM / SRM launcher's row (`equipment.lookup_equipment` falls back from "CLLRT15" / "Clan Ammo LRTorpedo-15"; "LRT 5" was already folded into LRM 5 and fired on land as an LRM - wrong); the Equipment keeps its torpedo name (`weapon_rules.is_torpedo`), groups as its launcher (SRT 2, LRT 5), and torpedo rounds feed only torpedo launchers (`ammo.bins_for`). A torpedo fires only from a submerged location, at a target at least partly submerged, along a line entirely through depth 1+ water - both hexes on a hexside line (`water.water_line`, `water.blocked_weapon_ids`; the movement scoring too). The "reroll a location that isn't submerged" rule is met by the Kick table every torpedo already uses against a 'Mech in depth 1. Normal ranges (the underwater bracket shift is for energy weapons). NLRT: no unit carries one. |
+| F55 | Thumper and Sniper artillery (not Core - Daniel's wiring) | p.182 (Arrow IV), p.153 | Built 2026-10-21 (Daniel: "Thumper And Sniper Artillery use the same rules as Arrow IV. Thumper uses a 15/5 damage profile as a difference"): `weapon_profiles.is_arrow` covers them (7-17 hexes, Gunnery + 4, area effect, scatter), Thumper 15 in the hex / 5 around it, Sniper 20 / 10 (the Core support-strike table p.153 agrees: Thumper 3/1, Sniper 4/2). equipment.json slots fixed (Thumper 1 -> 15, Sniper 10 -> 20) and the parser now joins an item split across three locations, so each is one launcher, not one per slot. Homing damage (Sniper 10, Thumper 5, +5 AE in the hex; `HOMING_DAMAGE`) is recorded but waits on TAG. **Open (Daniel):** shots per ton and heat - not in the library; ammo is unlimited with a loud stub (`stub_ammo_data`), heat is the data's 5 / 10. |
 
 ---
 
@@ -141,9 +142,11 @@ launchers, MRM cluster -1, pp.185-187); Gauss rifle component explosion
 
 No effect in a two-'Mech duel (left out on purpose): C3 / C3i networks (need
 team-mates, p.198), active probes and the Watchdog's probe (only hidden units,
-p.197), TAG (only designates for homing / semi-guided ammo, p.199). Not Core
+p.197), TAG (only designates for homing / semi-guided ammo, p.199) - but
+Daniel, 2026-10-21: "Active probes and TAG could have a use in a 1 on 1 fight
+when smoke and homing ammo is included" (PROJECT_MAP Pick up here). Not Core
 Rulebook equipment (can't fire / no effect): TSEMP, mech mortars, iATM, fluid
-guns, full-size Thumper / Sniper artillery, nail / rivet guns, vehicular
+guns, nail / rivet guns, vehicular
 grenade launchers, industrial tools (chainsaws, drills, hoists...), UMU,
 modular armor (survey of `data/meks.zip`, 2026-10-21).
 

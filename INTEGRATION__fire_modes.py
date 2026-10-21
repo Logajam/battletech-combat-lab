@@ -185,7 +185,7 @@ def damage_per(weapon, plan):
     if plan.kind in wp.BOMBAST:
         return wp.BOMBAST[plan.kind][0]
     if wp.is_arrow(weapon):
-        return wp.ARROW_DAMAGE
+        return wp.arrow_damage(weapon)
     if wp.is_infantry_pod(weapon):
         return 0
     table = wp.variable_damage(weapon)

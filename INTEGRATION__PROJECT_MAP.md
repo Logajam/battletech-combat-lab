@@ -1120,6 +1120,12 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Thumper / Sniper artillery as Arrow IV (Daniel's
+  wiring; RULES_REVIEW F55): their own damage (15/5, 20/10), slots fixed
+  (15, 20), the parser joins a three-location split; homing damage recorded
+  for TAG. Open for Daniel: shots per ton (unlimited, loud stub) and heat.
+  test_weapons thumper_and_sniper_artillery. Reference logs updated: the
+  known-missing note's wording only.
 - **2026-10-21 (Claude):** Torpedo launchers (RULES_REVIEW F54, pp.127,
   187): all torpedo names parse (as their LRM / SRM launcher), fire only
   underwater along an all-water line, and use only torpedo rounds. Before,

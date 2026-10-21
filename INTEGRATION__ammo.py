@@ -31,6 +31,7 @@ import re
 import INTEGRATION__config as config
 import INTEGRATION__stubs as stubs
 import INTEGRATION__weapon_rules as weapon_rules
+import INTEGRATION__weapon_profiles as weapon_profiles
 from equipment import Equipment, lookup_equipment
 from damage_resolution import get_weapons
 
@@ -182,8 +183,9 @@ def attach_ammo(mech):
         w.fired_once = False
         shots = entry.get("shots_per_ton") if entry else None
         w.needs_ammo = not w.one_shot and (isinstance(shots, int) or fire_modes.is_mml(w))
-        w.ammo_unknown = (not w.one_shot and shots is None and w.damage_type in ("Ballistic", "Missile")
-                          and (w.damage_per_shot or 0) > 0)
+        w.ammo_unknown = (not w.one_shot and shots is None
+                          and ((w.damage_type in ("Ballistic", "Missile") and (w.damage_per_shot or 0) > 0)
+                               or weapon_profiles.is_arrow(w)))          # Thumper / Sniper (2026-10-21)
 
 
 def _update_explosion(bin_):

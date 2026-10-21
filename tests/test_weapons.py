@@ -250,6 +250,29 @@ def arrow_iv():
     assert before - attack_resolution.total_hp(t) == 10
 
 
+
+# Thumper / Sniper artillery (Daniel, 2026-10-21: "use the same rules as Arrow
+# IV. Thumper uses a 15/5 damage profile"): the Grand Titan's Thumper runs
+# across its centre and right torsos (3 + 12 slots); the Helepolis HEP-2H's
+# Sniper across its right torso and arm (10 + 10).
+GRAND_TITAN = unit("XTRs/Phantoms/Grand Titan Vengeance T-IT-N14R")
+HELEPOLIS = unit("3075/Helepolis HEP-2H")
+
+
+@check
+def thumper_and_sniper_artillery():
+    for template, slots, dealt, near in ((GRAND_TITAN, 15, 15, 5), (HELEPOLIS, 20, 20, 10)):
+        a, t = fresh(template), target()
+        arts = [w for w in get_weapons(a) if wp.is_arrow(w)]
+        assert len(arts) == 1 and arts[0].slots_occupied == slots       # one launcher, not one a slot
+        art = arts[0]
+        assert planner(a, t, hex_offset=0)(art, 5, 6) is None             # under 7 hexes, as Arrow IV
+        value, _, plan = planner(a, t, hex_offset=-3)(art, 10, 6)
+        assert plan.kind == "artillery" and plan.tn == wp.ARROW_TN
+        assert damage_taken(t, hit(art, plan), []) == dealt
+        assert wp.splash(art) == near and art.ammo_unknown            # no shots-per-ton data: a loud stub
+    assert wp.HOMING_DAMAGE == {"ARROWIV": 20, "SNIPER": 10, "THUMPER": 5}
+
 @check
 def arrow_iv_scatter_held_by_firing_arc():
     """A scatter can't leave the launcher's firing arc: it lands in the last

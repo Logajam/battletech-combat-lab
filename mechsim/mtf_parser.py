@@ -221,9 +221,9 @@ def is_armored(raw_name):
 
 
 def _join_split_items(mech):
-    """(2026-10-20, Claude) A multi-slot item split between two locations comes
-    out of build_crit_list as two short instances (one per location). Join each
-    pair of same-named short parts whose slots add up to the item's size into
+    """(2026-10-20, Claude) A multi-slot item split between two (or three)
+    locations comes out of build_crit_list as short instances (one per
+    location). Join each set of same-named short parts whose slots add up to the item's size into
     ONE instance (the first part's), so it counts as one weapon - its slots in
     both locations, as INTEGRATION__attack_resolution.weapon_locations and the
     firing-arc rules expect. Anything still short is a real data problem and
@@ -236,20 +236,26 @@ def _join_split_items(mech):
                 seen.add(id(s))
                 if s.slots_occupied < getattr(s, "slots_needed", s.slots_occupied):
                     parts.append(s)
+    # Three parts (2026-10-21): a Thumper runs across both side torsos and the
+    # centre torso (1 + 7 + 7 slots). Pairs are tried first, as before.
+    from itertools import combinations
     used = set()
     for a in parts:
         if id(a) in used:
             continue
-        partner = next((b for b in parts if b is not a and id(b) not in used and b.name == a.name
-                        and a.slots_occupied + b.slots_occupied == a.slots_needed), None)
-        if partner is None:
+        others = [b for b in parts if b is not a and id(b) not in used and b.name == a.name]
+        partners = next((combo for k in (1, 2) for combo in combinations(others, k)
+                         if a.slots_occupied + sum(b.slots_occupied for b in combo) == a.slots_needed), None)
+        if partners is None:
             print(f"WARNING: expected {a.slots_needed} slots for {a.name} but only found "
                   f"{a.slots_occupied} consecutive matching lines - treating as a {a.slots_occupied}-slot item.")
             continue
-        used.update((id(a), id(partner)))
-        a.slots_occupied += partner.slots_occupied
-        for loc, slots in mech.crits.items():
-            mech.crits[loc] = [a if s is partner else s for s in slots]
+        used.add(id(a))
+        for partner in partners:
+            used.add(id(partner))
+            a.slots_occupied += partner.slots_occupied
+            for loc, slots in mech.crits.items():
+                mech.crits[loc] = [a if s is partner else s for s in slots]
 
 
 # Equipment whose slot count depends on the 'Mech's tonnage (Core pp.194-196):

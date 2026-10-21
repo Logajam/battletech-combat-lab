@@ -38,6 +38,13 @@ without their special rule. Core Rulebook pages per entry; tables pp.248-254.
     10 to the hexes around it, 5-point groupings; a miss scatters 1D6
     direction, MOF / 2 (round up) hexes - so a miss by 1-2 lands next to the
     target. AMS can't touch it. Standard missiles only (homing needs TAG).
+  Thumper and Sniper artillery (Tactical Operations; Daniel, 2026-10-21:
+    "Thumper And Sniper Artillery use the same rules as Arrow IV. Thumper uses
+    a 15/5 damage profile as a difference. Their homing ammo does 10 (Sniper)
+    and 5 (Thumper) on a hit. Plus 5 AE damage to all units in the target
+    hex... we'll post the full rules later"): is_arrow covers them, with
+    their own damage (ARTILLERY; the Core support-strike tables p.153 agree:
+    Thumper 3/1, Sniper 4/2 x 5). Homing damage (HOMING_DAMAGE) waits on TAG.
 """
 
 import re
@@ -57,6 +64,11 @@ MGA_MAX_GUNS = 4
 BOMBAST = {"8": (8, 0, 6), "12": (12, 1, 9), "16": (16, 2, 12)}     # kind -> (damage, TN, heat)
 RIFLE_VS_MECH = -3
 ARROW_DAMAGE, ARROW_SPLASH, ARROW_TN = 20, 10, 4
+ARTILLERY = {"ARROWIV": (ARROW_DAMAGE, ARROW_SPLASH),    # (in the hex, the hexes around it)
+             "SNIPER": (20, 10),                         # Daniel 2026-10-21: "the same rules as Arrow IV"
+             "THUMPER": (15, 5)}                         # "Thumper uses a 15/5 damage profile"
+HOMING_DAMAGE = {"ARROWIV": 20, "SNIPER": 10, "THUMPER": 5}   # p.190; Daniel 2026-10-21 - needs TAG (not built)
+HOMING_AE = 5                                      # p.190: to anything else in the target hex
 CANNON_SPLASH = {"LONGTOMCANNON": 10}               # adjacent-hex damage (p.183)
 ARROW_RANGE = (7, 17)
 AREA_GROUPING = 5                                  # artillery / AE: 5-point groupings (pp.87, 182)
@@ -111,8 +123,22 @@ def is_rifle(weapon):
     return n.endswith("RIFLE") and not any(k in n for k in ("GAUSS", "PLASMA"))
 
 
+def artillery_kind(weapon):
+    """"ARROWIV" / "SNIPER" / "THUMPER" for a weapon fired by the Arrow IV
+    rules (a key of ARTILLERY), else None. Not the artillery cannons."""
+    n = cn(weapon)
+    if "ARROWIV" in n:
+        return "ARROWIV"
+    return next((k for k in ("SNIPER", "THUMPER") if n.endswith(k) or n.endswith(k + "ARTILLERY")), None)
+
+
 def is_arrow(weapon):
-    return "ARROWIV" in cn(weapon)
+    """Fired by the Arrow IV rules (p.182): Arrow IV, Thumper and Sniper."""
+    return artillery_kind(weapon) is not None
+
+
+def arrow_damage(weapon):
+    return ARTILLERY[artillery_kind(weapon)][0]
 
 
 def is_art_cannon(weapon):
@@ -123,7 +149,7 @@ def is_art_cannon(weapon):
 def splash(weapon):
     """Damage to the hexes next to where an area-effect shell lands."""
     if is_arrow(weapon):
-        return ARROW_SPLASH
+        return ARTILLERY[artillery_kind(weapon)][1]
     return next((v for k, v in CANNON_SPLASH.items() if k in cn(weapon)), 0)
 
 
