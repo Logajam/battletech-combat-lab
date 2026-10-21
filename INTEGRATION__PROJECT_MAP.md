@@ -1053,6 +1053,14 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Cockpits (RULES_REVIEW F39, p.203): small and
+  torso-mounted cockpits +1 to every PSR (205 + 34 units in meks.zip);
+  torso-mounted - no pilot hit from head hits, the head's loss isn't fatal
+  (later head hits re-rolled), sensor hits +4 to physical attacks and PSRs
+  (both head sensors, or 3+). The tripod leg sub-roll now draws from the
+  battle's dice (was Python's random - a seed didn't replay it): the 5
+  Asymptote reference battles changed, same winners. test_rules
+  cockpit_types.
 - **2026-10-21 (Claude):** Movement options (RULES_REVIEW G5, G8 -> F38):
   jumping into the mech's own hex for 1 MP (p.50 - any facing, +1 TMM, 3
   heat) and Minimum Movement (p.49 - run one hex straight ahead without the

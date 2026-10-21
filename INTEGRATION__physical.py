@@ -57,6 +57,7 @@ import INTEGRATION__attack_resolution as attack_resolution
 import INTEGRATION__arcs as arcs
 import INTEGRATION__structure_weight as structure_weight
 import INTEGRATION__water as water
+from mech_state import head_hit_hurts_pilot, has_torso_cockpit, torso_cockpit_sensor_penalty  # p.203
 from mech_state import (DamageType, is_destroyed, is_immobile, mark_consciousness_check_pending,
                         arm_aes_working, leg_aes_working)
 from equipment import Equipment
@@ -506,8 +507,10 @@ class Planner:
 
 def base_tn(attacker, amm, target_tmm, los_modifier, target_prone_modifier):
     """p.76: Piloting + AMM + TMM + terrain + prone / immobile target; never
-    heat or sensors."""
-    return attacker.piloting + amm + target_tmm + los_modifier + target_prone_modifier
+    heat or sensors - except a torso-mounted cockpit's sensor hits (+4, p.203,
+    mech_state.torso_cockpit_sensor_penalty; 2026-10-21)."""
+    return (attacker.piloting + amm + target_tmm + los_modifier + target_prone_modifier
+            + torso_cockpit_sensor_penalty(attacker))
 
 
 def _base_tn(attacker, target, terrain_map):
@@ -633,6 +636,9 @@ def _location(table, side, target):
         loc = KICK_TABLE[side][0 if die <= 3 else 1]
     else:
         loc = PUNCH_TABLE[side][die - 1]
+        while loc == "Head" and target.locations["Head"]["destroyed"] and has_torso_cockpit(target):
+            die = config.pick_number(6, prompt="punch location re-roll (head destroyed, 1D6)")   # p.203
+            loc = PUNCH_TABLE[side][die - 1]
     if target.mech_type in ("quad", "quadvee"):
         quad = {"Left Arm": "Front Left Leg", "Right Arm": "Front Right Leg",
                 "Left Leg": "Rear Left Leg" if side == "rear" else "Front Left Leg",
@@ -734,7 +740,7 @@ def run_physical_phase(mech_a, mech_b, terrain_map, reports):
             dmg = water.physical_damage(target, loc, o["damage"])     # halved under water (p.77)
             config.log(f"    {o['name']} hits {target.side_name}'s {loc} for {dmg}"
                        f"{' (halved: under water, p.77)' if dmg != o['damage'] else ''}.")
-            if loc == "Head":
+            if loc == "Head" and head_hit_hurts_pilot(target):
                 target.pilot_hits += 1
                 mark_consciousness_check_pending(target)
             apply_damage(target, loc, dmg, armor_field="rear_armor" if side == "rear" else "armor",

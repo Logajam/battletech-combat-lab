@@ -553,6 +553,40 @@ def armored_components():
 
 
 @check
+def cockpit_types():
+    """2026-10-21, Core p.203: small and torso-mounted cockpits +1 to every
+    PSR. Torso-mounted: no MechWarrior hit from head hits, losing the head
+    doesn't destroy the 'Mech and later head hits are re-rolled; both head
+    sensors or 3+ sensors hit: +4 to physical attacks and PSRs."""
+    import piloting_rolls
+    import INTEGRATION__physical as physical
+    from mech_state import is_destroyed
+    m = fresh()
+    base = piloting_rolls.special_case_modifier(m)
+    m.cockpit_type = "Small Cockpit"
+    assert piloting_rolls.special_case_modifier(m) == base + 1
+    m.cockpit_type = "Torso-Mounted Cockpit"
+    assert piloting_rolls.special_case_modifier(m) == base + 1
+    pilot = m.pilot_hits
+    with ScriptedDice([12]):                                        # 12: head (front)
+        attack_resolution._resolve_hit(m, 2, attack_resolution.DamageType.ENERGY, "front")
+    assert m.pilot_hits == pilot and m.locations["Head"]["armor"] < fresh().locations["Head"]["armor"]
+    m.locations["Head"]["destroyed"] = True
+    assert not is_destroyed(m)
+    with ScriptedDice([12, 7]):                                     # the head again: re-rolled to 7 (CT)
+        assert attack_resolution.resolve_hit_location(12, m, "front") == "Center Torso"
+    n = fresh()
+    n.cockpit_type = "Torso-Mounted Cockpit"
+    sensors = [i for i, s in enumerate(n.crits["Head"]) if s == "Sensors"]
+    for i in sensors[:2]:
+        n.destroyed_slot_info[("Head", i)] = {"name": "Sensors", "instance_id": None}
+    assert physical.base_tn(n, 0, 0, 0, 0) == n.piloting + 4
+    assert piloting_rolls.special_case_modifier(n) == base + 1 + 4
+    n.cockpit_type = "Standard Cockpit"
+    assert physical.base_tn(n, 0, 0, 0, 0) == n.piloting and piloting_rolls.special_case_modifier(n) == base
+
+
+@check
 def explosions_and_case():
     """2026-10-20, Core p.96: no CASE - at most 20 structure damage, and when
     the base damage was over 20 the location that took the 20th point loses

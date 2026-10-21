@@ -51,8 +51,12 @@ above min_heat (see INTEGRATION__heat._extra_cooling).
     turn +2 Walking MP (Running recalculated), before heat penalties.
     (Its physical-attack doubling waits on physical combat.)
   - Torso-mounted cockpit (p.203): life support hits at heat 1-14 (1 hit)
-    and 15+ (2 hits) instead of 10-19 / 20+ (INTEGRATION__heat). Its PSR
-    and sensor rules are not modeled.
+    and 15+ (2 hits) instead of 10-19 / 20+ (INTEGRATION__heat). Its other
+    rules (2026-10-21, mech_state): +1 to every PSR (a small cockpit too), no
+    MechWarrior hit from head hits, the head's loss isn't fatal (later head
+    hits re-rolled), sensor hits +2 / +4 to ranged attacks
+    (attack_resolution.sensor_modifier) and +4 to physical attacks and PSRs
+    once both head sensors or 3+ sensors are hit.
 
 Not modeled: shutting a system off by choice, MASC/supercharger crits taken
 mid-move. (ECM itself - jamming Artemis and Narc - is INTEGRATION__electronics.)

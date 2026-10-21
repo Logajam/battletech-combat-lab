@@ -69,15 +69,16 @@ notes tag above for the full list):
   turn returns tmm_from_mp(0) for the rest of that turn's TMM - same "fallen
   = 0" convention as the stood-up-then-fell-again path, not independently
   confirmed by Daniel.
-- Cockpit-type (small/torso-mounted, +1) special case is NOT implemented -
-  Daniel: "skip special equipment for now". AES-in-legs (-2) is, since
-  2026-10-20 (mech_state.leg_aes_working).
+- Cockpit type (small / torso-mounted, +1, p.203): built 2026-10-21 (was
+  deferred - Daniel: "skip special equipment for now"). AES-in-legs (-2)
+  since 2026-10-20 (mech_state.leg_aes_working).
 """
 
 import math
 
 import config
 from hit_location import resolve_hit_location
+from mech_state import has_small_cockpit, has_torso_cockpit, torso_cockpit_sensor_penalty
 from mech_state import ArmorType, DamageType, is_destroyed, compute_running_mp, leg_aes_working, \
     mark_consciousness_check_pending, all_crew_unconscious, pilot_unconscious, consciousness_target_number, \
     is_immobile
@@ -99,6 +100,7 @@ GYRO_HIT_MODIFIER = 2
 PREEXISTING_ACTUATOR_MODIFIER = 1
 PREEXISTING_GYRO_HIT_MODIFIER = 2
 PREEXISTING_LEG_DESTROYED_MODIFIER = 5
+COCKPIT_PSR_MODIFIER = 1                 # small or torso-mounted cockpit, every PSR (p.203)
 
 
 # HELP(piloting_skill_rolls.preexisting_snapshot)
@@ -164,8 +166,8 @@ def special_case_modifier(mech):
     more than one applies (e.g. a quad with Hardened Armor legs: -2 + 1 =
     -1). AES in all legs: a fixed -2 (Core p.206; added 2026-10-20, Daniel:
     "if AES is the only thing not built in this test, lets get that fixed"),
-    lost if any leg AES slot is hit. Cockpit-type (+1) still deferred -
-    Daniel: "skip special equipment for now".
+    lost if any leg AES slot is hit. Small / torso-mounted cockpit +1 and a
+    torso-mounted cockpit's sensor hits +4 (p.203, 2026-10-21).
 
     Also includes the Pilot-role-unconscious +3 modifier (2026-07-17) - see
     pilot_consciousness.pilot_unconscious_modifier below."""
@@ -176,6 +178,12 @@ def special_case_modifier(mech):
         total -= 2
     if leg_aes_working(mech):
         total -= 2                                  # AES in all legs, p.206
+    # Small or torso-mounted cockpit: +1 to every PSR (p.203; 2026-10-21 - was
+    # deferred, "skip special equipment for now"), and a torso-mounted
+    # cockpit's sensor hits +4 (mech_state.torso_cockpit_sensor_penalty).
+    if has_small_cockpit(mech) or has_torso_cockpit(mech):
+        total += COCKPIT_PSR_MODIFIER
+    total += torso_cockpit_sensor_penalty(mech)
     # HELP(pilot_consciousness.pilot_unconscious_modifier)
     # Daniel, 2026-07-17: "Pilot: If unconscious +3 modifier to piloting
     # skill rolls." Only matters when the mech ISN'T already fully immobile
