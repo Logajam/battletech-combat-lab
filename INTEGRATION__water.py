@@ -43,7 +43,7 @@ falls - can find its hex's depth, the way config holds the battle's RNG.
 from typing import Dict, FrozenSet, Optional
 
 import INTEGRATION__config as config
-from damage_resolution import is_heat_sink, is_jump_jet, heat_sink_units, mark_all_crits_destroyed
+from damage_resolution import is_heat_sink, is_jump_jet, heat_sink_units, mark_location_nonfunctional
 from mech_state import active_heat_sinks, heat_sink_rate, compute_jump_mp, mark_consciousness_check_pending
 
 GROUND, PARTIAL, SUBMERGED = "ground", "partial", "submerged"
@@ -238,6 +238,34 @@ def physical_allowed(a_state, t_state) -> Optional[FrozenSet[str]]:
     return None
 
 
+_2D6 = {r: (6 - abs(7 - r)) / 36 for r in range(2, 13)}
+
+
+def _leg_share(target, side):
+    """P(a standard-table hit lands on a leg), p.74 - read off MECHSIM's own
+    tables; a quad's arm results are its front legs."""
+    import hit_location
+    table = (hit_location.HIT_TABLE_LEFT_SIDE if side == "left" else
+             hit_location.HIT_TABLE_RIGHT_SIDE if side == "right" else hit_location.HIT_TABLE_FRONT_REAR)
+    quad = getattr(target, "mech_type", "") in ("quad", "quadvee")
+    return sum(p for r, p in _2D6.items() if "Leg" in table[r] or (quad and "Arm" in table[r]))
+
+
+def physical_value_factor(target, t_state, table, side="front") -> float:
+    """How much of a physical attack's damage lands at full strength, for
+    movement scoring (2026-10-21; the attack itself halves per hit,
+    physical_damage): 1 on land, 1/2 at a fully submerged 'Mech, and in
+    depth 1 only hits on the legs are halved - a Kick-table hit always, a
+    Punch-table hit never, a standard-table hit by the odds of a leg."""
+    if t_state == GROUND or table == "displacement":
+        return 1.0
+    if t_state == SUBMERGED or table == "kick":
+        return 0.5
+    if table == "punch":
+        return 1.0
+    return 1.0 - 0.5 * _leg_share(target, side)
+
+
 def physical_damage(target, location, damage) -> int:
     """p.77: physical damage to an underwater location is halved, rounded down."""
     if location in submerged_locations(target, state(target)):
@@ -283,16 +311,16 @@ def auto_breaches(mech):
 
 
 def breach(mech, location):
-    """p.127 Breach Effects: every component in the location stops working (as
-    if each slot were destroyed: engine / gyro hits, cockpit, jump jets, heat
-    sinks, weapons...), a breached leg counts as a destroyed leg, and a
-    breached side torso breaches its arm. Simplifications: the slots are
-    marked destroyed (damage_resolution.mark_all_crits_destroyed), so they no
-    longer soak critical hits and its ammunition can't explode - the Core
-    Rulebook keeps both."""
+    """p.127 Breach Effects: every component in the location stops working (the
+    gameplay results of each slot being destroyed: engine / gyro hits,
+    cockpit, jump jets, heat sinks, weapons, actuators...) - but these are not
+    critical hits: the slots stay, can still absorb critical hits, and ammo
+    in them can still explode (damage_resolution.mark_location_nonfunctional).
+    A breached leg counts as a destroyed leg; a breached side torso breaches
+    its arm."""
     breached(mech).add(location)
     config.log(f"    {mech.side_name}'s {location} floods - its components stop working (p.127).")
-    mark_all_crits_destroyed(mech, location)
+    mark_location_nonfunctional(mech, location, "breach")
     if location in mech.leg_locations:
         mech.locations[location]["destroyed"] = True
         config.log(f"    A breached leg counts as destroyed (p.127).")

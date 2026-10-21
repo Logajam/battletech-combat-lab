@@ -616,7 +616,8 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
 
     if other.hex is None:
         # The enemy hasn't entered the board: nothing to shoot or to model. Head for its home edge.
-        enemy_label = other.home_edge[len(other.home_edge) // 2]
+        edge_row = getattr(other, "home_edge_row", None) or other.home_edge
+        enemy_label = edge_row[len(edge_row) // 2]
         enemy_xy = hex_geometry.parse_hex_label(enemy_label)
         prepared = ranged_combat.prepare_options(mover, options)
         if not prepared:

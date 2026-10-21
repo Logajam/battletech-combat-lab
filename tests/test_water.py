@@ -249,6 +249,28 @@ def physical_attacks_in_water():
 
 
 @check
+def physical_scoring_in_water():
+    """Movement / attack scoring (2026-10-21): physical damage to underwater
+    locations counts half (p.77) - all of it at a submerged 'Mech, Kick-table
+    hits and the leg share of standard-table hits in depth 1, none of a
+    Punch-table hit."""
+    import INTEGRATION__physical as physical
+    G, P, S = water.GROUND, water.PARTIAL, water.SUBMERGED
+    archer = place(ARCHER, "0808")
+    f = water.physical_value_factor
+    assert f(archer, G, "kick") == 1.0 and f(archer, S, "punch") == 0.5
+    assert f(archer, P, "kick") == 0.5 and f(archer, P, "punch") == 1.0
+    assert abs(f(archer, P, "standard", "front") - (1 - 0.5 * 8 / 36)) < 1e-9     # legs on 5 and 9 (p.74)
+    atlas = place(ATLAS, "0807", "N")
+    planner = physical.Planner(atlas)
+    xy = parse_hex_label
+    dry = planner.plans(xy("0807"), 0, 0, xy("0806"), 0, False, physical.arcs.current_action(atlas), 5)
+    wet = planner.plans(xy("0807"), 0, 0, xy("0806"), 0, False, physical.arcs.current_action(atlas), 5,
+                        t_water=S)
+    assert abs(wet[0][0] - dry[0][0] / 2) < 1e-9 and dry[0][0] > 0
+
+
+@check
 def hull_breaches():
     """p.127: an underwater location that takes damage breaches on 2-4; a
     breached leg counts as destroyed; a breached side torso breaches its arm;
@@ -274,6 +296,33 @@ def hull_breaches():
     stripped.hex = "0806"
     water.auto_breaches(stripped)
     assert "Left Arm" in water.breached(stripped)
+
+
+@check
+def breached_slots_still_take_crits():
+    """p.127: a breach's effects are not critical hits - the breached slots
+    still absorb critical hits (without counting their effect twice), and
+    ammunition in them can still explode; gear that only explodes while
+    working (a Gauss rifle) doesn't."""
+    import damage_resolution
+    atlas = place(ATLAS, "0806")
+    lt = atlas.crits["Left Torso"]                 # 3 Engine, LRM 20 (5), LRM ammo x2, AMS ammo, CASE
+    damage_resolution.mark_location_nonfunctional(atlas, "Left Torso")
+    assert atlas.engine_hits == 3
+    assert not any(w.name == "ISLRM20" for w in attack_resolution.get_weapons(atlas))
+    assert all(slot != "DESTROYED" for slot in lt)                # the slots are still there
+    with ScriptedDice([], default=8):
+        damage_resolution.resolve_slot_hit(atlas, "Left Torso", 0, lt[0], 1, 1)       # an engine slot
+        assert atlas.engine_hits == 3                                                   # not counted again
+        ammo = lt[8]
+        damage_resolution.resolve_slot_hit(atlas, "Left Torso", 8, ammo, 1, 1)
+        assert ammo.exploded                                                            # ammo still explodes
+    rt = atlas.crits["Right Torso"]                # 3 Engine, Gauss rifle (7), CASE
+    gauss = rt[3]
+    damage_resolution.mark_location_nonfunctional(atlas, "Right Torso")
+    with ScriptedDice([], default=8):
+        damage_resolution.resolve_slot_hit(atlas, "Right Torso", 3, gauss, 1, 1)
+    assert not getattr(gauss, "exploded", False)                                        # not while it's dead
 
 
 @check

@@ -321,21 +321,22 @@ def prepare_options(mover, options) -> List[_Option]:
 
 
 def _with_physical(ranged_best, planner, actions, legs, pair_arcs, facing, diff, target_prone, base, side,
-                   ranged_for, push=(), allowed=None):
+                   ranged_for, push=(), allowed=None, t_water=None):
     """Best expected damage from a spot next to the enemy counting the
     Physical phase too: for every arc action and physical plan, the ranged
     fire without the weapons in the attacking limbs (pp.76, 82) plus the
     plan's expected damage. ranged_for(key, held) gives the ranged part
     (None: no ranged fire possible); ranged_best is the no-physical value.
     allowed: the physical attack kinds water leaves (INTEGRATION__water,
-    p.77), None = all."""
+    p.77), None = all; t_water: the target's water state (half damage to its
+    underwater locations), None = on land."""
     best = ranged_best
     if abs(diff) > 1:
         return best
     if allowed is not None and "push" not in allowed:
         push = ()
     for key, signature in planner.cases(pair_arcs, facing, actions, legs):
-        for value, limbs, _ in planner.plans_in_case(signature, diff, target_prone, base, side, allowed):
+        for value, limbs, _ in planner.plans_in_case(signature, diff, target_prone, base, side, allowed, t_water):
             if not limbs or value <= 0:
                 continue
             if value + ranged_best <= best:
@@ -493,13 +494,16 @@ class MoveEvaluator:
                 (f_state, blocked, water.dissipation_bonus(firer, f_state))
         return case
 
-    def _physical_allowed(self, a_label, a_prone, t_label, t_prone):
-        """The physical attack kinds water allows from a_label at t_label
-        (INTEGRATION__water.physical_allowed, p.77); None = all (or no water)."""
+    def _physical_water(self, a_label, a_prone, t_label, t_prone):
+        """(the physical attack kinds water allows from a_label at t_label -
+        INTEGRATION__water.physical_allowed, p.77 - None = all; the target's
+        water state, for its halved damage - None = on land). (None, None) on
+        a board without water."""
         if self.water_depths is None:
-            return None
-        return water.physical_allowed(water.state_at(a_label, a_prone, self.terrain_map),
-                                      water.state_at(t_label, t_prone, self.terrain_map))
+            return None, None
+        t_state = water.state_at(t_label, t_prone, self.terrain_map)
+        return (water.physical_allowed(water.state_at(a_label, a_prone, self.terrain_map), t_state),
+                None if t_state == water.GROUND else t_state)
 
     def prepare(self, options) -> List[_Option]:
         """See prepare_options (this evaluator's mover)."""
@@ -612,7 +616,7 @@ class MoveEvaluator:
                         if mover_cond is not None and wet_dealt != "none" else None,
                         self.mover_planner.push_plan(atk_hex, o.facing, a_level, defender, def_hex_label, d_level,
                                                      base, side_on_def, terrain_map),
-                        self._physical_allowed(o.label, False, def_hex_label, prone_def))
+                        *self._physical_water(o.label, False, def_hex_label, prone_def))
                 if self.defender_physical and physical_reply:   # nobody punches a mech in mid-DFA
                     base = physical.base_tn(defender, def_amm, o.tmm, def_to_atk.modifier, 0)
                     received = _with_physical(
@@ -623,7 +627,7 @@ class MoveEvaluator:
                         if not no_return_fire and wet_received != "none" else None,
                         self.defender_planner.push_plan(def_hex, def_facing, d_level, mover, o.label, a_level,
                                                         base, side_on_mover, terrain_map),
-                        self._physical_allowed(def_hex_label, prone_def, o.label, False))
+                        *self._physical_water(def_hex_label, prone_def, o.label, False))
 
             results.append(MovementCandidate(
                 hex=o.label, facing=o.facing_compass, mode=o.mode,

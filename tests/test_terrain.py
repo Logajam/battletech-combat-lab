@@ -188,7 +188,8 @@ def passive_buildings_movement():
     h = tm["hexes"]
     assert terrain_rules.step_cost(h["0808"], h["1008"]) is None
     assert not {"0807", "0806", "0805", "1008"} & reachable(tm, "0808", mp=10)
-    assert terrain_rules.step_cost(None, h["0807"]) is None          # can't enter the board onto a roof
+    assert terrain_rules.step_cost(None, h["0807"]) == 1             # entering the board: onto a roof is fine
+                                                                     # (Daniel, 2026-10-21 - no level before it enters)
     assert terrain_rules.step_cost(h["0807"], h["0806"]) == 1         # roof to roof, same level (as pavement)
     assert terrain_rules.step_cost(h["0806"], h["0805"]) == 1         # one lower: road discount makes it +0
     assert terrain_rules.step_cost(h["0805"], h["0806"]) is None      # never up
@@ -214,25 +215,55 @@ def passive_buildings_block_los():
     assert has_los(parse_hex_label("0808"), parse_hex_label("0804"), open_map).los
 
 
-@check
-def walled_home_edges_end_the_battle():
-    """p.37: a mech that can't move onto the battlefield is destroyed. With
-    both home edges walled by buildings (as on some Solaris arena maps) the
-    battle used to carry on into the Ranged phase with mechs that had no hex
-    and crash; it now ends on turn 1 with both destroyed."""
+def _mechs():
     import INTEGRATION__orchestrator as orchestrator
-    from INTEGRATION__rng import BattleRNG
     from mech_state import clone_mech
     from mtf_parser import parse_mtf
+    out = []
+    for name, side in (("Kontio.mtf", "Red"), ("Hammerhead.mtf", "Blue"), ("Black Hawk (Nova) F.mtf", "Red")):
+        m = clone_mech(parse_mtf(config.data_path(name)))
+        orchestrator._attach_mech_config(m, config.MECH_RED_CONFIG, side)
+        out.append(m)
+    return out
+
+
+@check
+def deployment_start_hexes():
+    """Daniel, 2026-10-21: a mech may start its movement up to
+    DEPLOYMENT_DEPTH hexes in (default 0), roofs included, but never where it
+    would be stuck (no path to the far side for this unit); with no such hex,
+    the override lets it start DEPLOYMENT_STUCK_DEPTH (3) hexes in."""
+    import INTEGRATION__deployment as deployment
     walls = {f"{c:02d}{r:02d}": hexinfo(0, building=["4"], bldg_elev=["5"])
-             for c in (1, 16) for r in range(1, 18)}
+             for c in (1, 16) for r in range(1, 18)}                # a Solaris-style walled arena
     tm = terrain_rules.prepare_board(board(walls))
-    red = clone_mech(parse_mtf(config.data_path("Kontio.mtf")))
-    blue = clone_mech(parse_mtf(config.data_path("Hammerhead.mtf")))
-    orchestrator._attach_mech_config(red, config.MECH_RED_CONFIG, "Red")
-    orchestrator._attach_mech_config(blue, config.MECH_BLUE_CONFIG, "Blue")
+    kontio, _, hawk = _mechs()
+    assert deployment.band(tm, "W", 0) == [f"01{r:02d}" for r in range(1, 18)]
+    assert len(deployment.band(tm, "W", 3)) == 4 * 17
+    start = deployment.start_hexes(kontio, tm, "W")                 # no jump jets: stuck on the wall
+    assert start["depth"] == 3 and len(start["stuck"]) == 17
+    assert set(start["hexes"]) == {f"{c:02d}{r:02d}" for c in (2, 3, 4) for r in range(1, 18)}
+    start = deployment.start_hexes(hawk, tm, "W")                   # jumps down off the wall: fine
+    assert start["depth"] == 0 and len(start["hexes"]) == 17 and not start["stuck"]
+    start = deployment.start_hexes(kontio, board(), "N")            # open board: the edge, as before
+    assert start["depth"] == 0 and start["hexes"] == deployment.band(board(), "N", 0)
+
+
+@check
+def no_start_hex_ends_the_battle():
+    """p.37: a mech that can't move onto the battlefield is destroyed. A wall
+    of buildings right across the board leaves a mech without jump jets no
+    start hex from which it could reach the far side, at any depth: the
+    battle ends on turn 1 with both destroyed (it used to crash in the
+    Ranged phase with mechs that had no hex)."""
+    import INTEGRATION__orchestrator as orchestrator
+    from INTEGRATION__rng import BattleRNG
+    wall = {f"{c:02d}09": hexinfo(0, building=["4"], bldg_elev=["5"]) for c in range(1, 17)}
+    tm = terrain_rules.prepare_board(board(wall))
+    red, blue, _ = _mechs()
+    blue.side_name = "Blue"
     saved = config.HOME_EDGE_CHOICE
-    config.HOME_EDGE_CHOICE = "W"
+    config.HOME_EDGE_CHOICE = "N"
     try:
         result = orchestrator.run_battle(red, blue, tm, BattleRNG(seed=1), max_turns=3)
     finally:
