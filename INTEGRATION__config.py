@@ -348,8 +348,9 @@ CLUB_PICKUP = False
 # damage would do 5,5,5,5,4"). True: in a Ranged phase, every Cluster hit's
 # damage from one attacker with the same grouping size (and damage type) is
 # summed, then split into groupings. False: each attack's hits are grouped on
-# their own (Core pp.74, 87 read per attack).
-POOL_CLUSTER_DAMAGE = True
+# their own (Core pp.74, 87 read per attack). Default False since 2026-10-21
+# (Daniel: "Follow the rules, not my calls") - the rules as written.
+POOL_CLUSTER_DAMAGE = False
 # Rules where the Core Rulebook offers a choice, or where Daniel's own rule
 # differs from it (Daniel, 2026-10-20).
 #
@@ -359,9 +360,11 @@ POOL_CLUSTER_DAMAGE = True
 # hit, plus one extra critical-hit check there.
 FLOATING_CRITICALS = True
 #
-# Fight to the death (Daniel, 2026-10-20). False (default, Daniel's rule): the
-# fight is over when a mech is rendered immobile for good - a destroyed gyro or
-# both legs destroyed counts as destroyed. True (the rules as written): a
+# Fight to the death (Daniel, 2026-10-20). False (default, Daniel's rule - kept
+# 2026-10-21: "fight to the death is set to off because it saves time when the
+# situation is hopeless"): the fight is over when a mech is rendered immobile
+# for good - a destroyed gyro or both legs destroyed counts as destroyed. True
+# (the rules as written): a
 # destroyed gyro means a fall and no standing up (p.98) but the mech fights on
 # from the ground; both legs destroyed makes it immobile (pp.49, 90) and it
 # fights on propped up (p.67); a mech is destroyed when immobile with no ranged

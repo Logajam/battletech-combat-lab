@@ -37,23 +37,22 @@ MECH SELECTION
     ISMediumLaser: needs 9 (range mod +2), rolled 12 -> HIT
     ISPPC: needs 7 (range mod +0), rolled 2 -> miss
     ISSRM6 hit: cluster roll 7 on the 6-column table -> 4 connect (8 dmg).
-    ISMediumLaser hit for 5:
-      Hit location roll 4 (left table): Left Arm.
-5 damage (ENERGY) incoming to Left Arm (armor).
-  [HARDENED/ENERGY] 2.5 armor pts destroyed at armor (34 -> 31.5 remaining).
-    ISSRM6: 8 damage in 2-point groupings.
-      Group 1/4: Hit location roll 5 (left table): Left Arm.
+      Group 1/4: Hit location roll 4 (left table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
-  [HARDENED/MISSILE] 1 armor pts destroyed at armor (31.5 -> 30.5 remaining).
-      Group 2/4: Hit location roll 9 (left table): Right Torso.
+  [HARDENED/MISSILE] 1 armor pts destroyed at armor (34 -> 33 remaining).
+      Group 2/4: Hit location roll 5 (left table): Left Arm.
+2 damage (MISSILE) incoming to Left Arm (armor).
+  [HARDENED/MISSILE] 1 armor pts destroyed at armor (33 -> 32 remaining).
+      Group 3/4: Hit location roll 9 (left table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (armor).
   [HARDENED/MISSILE] 1 armor pts destroyed at armor (32 -> 31 remaining).
-      Group 3/4: Hit location roll 5 (left table): Left Arm.
+      Group 4/4: Hit location roll 5 (left table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
-  [HARDENED/MISSILE] 1 armor pts destroyed at armor (30.5 -> 29.5 remaining).
-      Group 4/4: Hit location roll 7 (left table): Left Torso.
-2 damage (MISSILE) incoming to Left Torso (armor).
   [HARDENED/MISSILE] 1 armor pts destroyed at armor (32 -> 31 remaining).
+    ISMediumLaser hit for 5:
+      Hit location roll 7 (left table): Left Torso.
+5 damage (ENERGY) incoming to Left Torso (armor).
+  [HARDENED/ENERGY] 2.5 armor pts destroyed at armor (32 -> 29.5 remaining).
   [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 22 -> 0
     Blue: Radical heat sink system (turn 1 in a row) needs 3, rolled 2 - FAILS.
     Blue: Radical Heat Sink System in Right Torso destroyed (failed activation).
@@ -125,9 +124,9 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
   Initiative: Blue lost the roll, moves first.
 Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 11.
   Success - TEST Heat Gear Equipment Probe is standing (remaining running MP 4).
-  [Movement select] Blue: score 61.136 = dealt 6.26 x1.01 + (HP 318.0 - received 57.23 x1.06 - PSR 0.00) / enemy future 21.21 x my future 4.52 [two-ply, 18 of 110 spots (grid search) x 580 replies (grid search); modeled reply Red -> 1204 NW Walk]
+  [Movement select] Blue: score 61.144 = dealt 6.26 x1.01 + (HP 318.0 - received 57.23 x1.06 - PSR 0.00) / enemy future 21.21 x my future 4.52 [two-ply, 18 of 110 spots (grid search) x 580 replies (grid search); modeled reply Red -> 1204 NW Walk]
   [Movement] Blue: 1004 SE -> 1304 NE, Run (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 0; stood up with 4 MP left)
-  [Movement select] Red: score 3165.968 = dealt 57.23 x1.06 + (HP 667.5 - received 6.26 x1.01 - PSR 0.00) / enemy future 4.52 x my future 21.21 [enemy held at 1304; 155 spots with LOS]
+  [Movement select] Red: score 3165.745 = dealt 57.23 x1.06 + (HP 667.5 - received 6.26 x1.01 - PSR 0.00) / enemy future 4.52 x my future 21.21 [enemy held at 1304; 155 spots with LOS]
   [Movement] Red: 1104 SW -> 1204 NW, Walk (2 MP, 1 hexes, 1 heat; budget walk 3 / run 4 / jump 5) - includes a backward move
   [Ranged] Blue holds ['ISMediumLaser'] back for the Physical phase (plans punch (Left Arm), expected 4.33).
   [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 8 = max 9 + sink 14 - current 5 - movement 3 - other 7; expected dmg 0.00)
@@ -221,9 +220,9 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 9.
 
 === TURN 4 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 4959.159 = dealt 38.30 x1.01 + (HP 667.5 - received 6.61 x1.00 - PSR 0.00) / enemy future 3.56 x my future 26.53 [two-ply, 118 of 552 spots (grid search) x 491 replies (grid search); modeled reply Blue -> 1206 NW Walk]
+  [Movement select] Red: score 4958.045 = dealt 38.30 x1.01 + (HP 667.5 - received 6.62 x1.00 - PSR 0.00) / enemy future 3.56 x my future 26.53 [two-ply, 118 of 552 spots (grid search) x 491 replies (grid search); modeled reply Blue -> 1206 NW Walk]
   [Movement] Red: 1204 NW -> 1107 NE, Jump (5 MP, 3 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
-  [Movement select] Blue: score 36.342 = dealt 6.61 x1.00 + (HP 260.0 - received 38.30 x1.01 - PSR 0.00) / enemy future 26.53 x my future 3.56 [enemy held at 1107; 116 spots with LOS]
+  [Movement select] Blue: score 36.350 = dealt 6.62 x1.00 + (HP 260.0 - received 38.30 x1.01 - PSR 0.00) / enemy future 26.53 x my future 3.56 [enemy held at 1107; 116 spots with LOS]
   [Movement] Blue: 1304 NE -> 1206 NW, Walk (5 MP, 3 hexes, 2 heat; budget walk 5 / run 8 / jump 0) - includes a backward move
   [Ranged] Red -> Blue: range 1, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 23 = max 4 + sink 22 - current 0 - movement 3 - other 0; expected dmg 21.67)
     ISMediumPulseLaser: needs 6 (range mod +0, modifiers -2), rolled 7 -> HIT
@@ -297,7 +296,7 @@ Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 5.
   [Movement] Red: 1107 NE -> 1306 S, Jump (5 MP, 2 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
 Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 10.
   Success - TEST Heat Gear Equipment Probe is standing (remaining running MP 4).
-  [Movement select] Blue: score 21.858 = dealt 11.59 x1.02 + (HP 190.0 - received 52.50 x0.91 - PSR 0.00) / enemy future 37.88 x my future 2.67 [enemy held at 1306; 34 spots with LOS]
+  [Movement select] Blue: score 21.864 = dealt 11.60 x1.02 + (HP 190.0 - received 52.50 x0.91 - PSR 0.00) / enemy future 37.88 x my future 2.67 [enemy held at 1306; 34 spots with LOS]
   [Movement] Blue: 1206 NW -> 1406 N, Run (4 MP, 2 hexes, 3 heat; budget walk 4 / run 6 / jump 0; stood up with 4 MP left)
   [Ranged] Red -> Blue: range 1, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 22 = max 4 + sink 22 - current 1 - movement 3 - other 0; expected dmg 25.00)
     ISMediumPulseLaser: needs 5 (range mod +0, modifiers -2), rolled 6 -> HIT

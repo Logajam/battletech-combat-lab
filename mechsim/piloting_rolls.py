@@ -79,7 +79,7 @@ import math
 import config
 from hit_location import resolve_hit_location
 from mech_state import has_small_cockpit, has_torso_cockpit, torso_cockpit_sensor_penalty, \
-    destroyed_leg_count, tripod_pilot_modifier
+    destroyed_leg_count, tripod_pilot_modifier, is_quad, live_hip_legs, hip_effects
 from mech_state import ArmorType, DamageType, is_destroyed, compute_running_mp, leg_aes_working, \
     mark_consciousness_check_pending, all_crew_unconscious, pilot_unconscious, consciousness_target_number, \
     is_immobile
@@ -120,6 +120,7 @@ def snapshot_preexisting_damage(mech):
         "gyro_hits": mech.gyro_hits,
         "destroyed_leg_actuators": dict(mech.destroyed_leg_actuators),
         "destroyed_legs": {loc for loc in mech.leg_locations if mech.locations[loc]["destroyed"]},
+        "hip_legs": set(mech.destroyed_hip_locations),
     }
 
 
@@ -139,6 +140,7 @@ def snapshot_pre_attack_phase(mech):
         "gyro_hits": mech.gyro_hits,
         "destroyed_leg_actuators": dict(mech.destroyed_leg_actuators),
         "destroyed_legs": {loc for loc in mech.leg_locations if mech.locations[loc]["destroyed"]},
+        "hip_legs": set(mech.destroyed_hip_locations),
     }
 
 
@@ -158,12 +160,13 @@ def preexisting_modifier(mech):
     # A leg already destroyed at the start of the round: +4 in place of (not in
     # addition to) that leg's own actuator hits (p.111 note 14). A quad (p.238):
     # +1 for each of its first two lost legs; a third makes it a biped with one
-    # leg lost (+4). (Was MECHSIM's +5 for any leg.)
+    # leg lost (+4); its first hip hit has no PSR modifier (p.239). (Was
+    # MECHSIM's +5 for any leg.)
     lost = len(snap["destroyed_legs"])
-    if mech.mech_type in ("quad", "quadvee") and lost <= 2:
-        total += lost * QUAD_LEG_DESTROYED_MODIFIER
-    elif mech.mech_type in ("quad", "quadvee"):
-        total += PREEXISTING_LEG_DESTROYED_MODIFIER
+    if is_quad(mech):
+        total += lost * QUAD_LEG_DESTROYED_MODIFIER if lost <= 2 else PREEXISTING_LEG_DESTROYED_MODIFIER
+        if live_hip_legs(mech, snap["destroyed_legs"], snap.get("hip_legs", set())):
+            total -= PREEXISTING_ACTUATOR_MODIFIER
     else:
         total += lost * PREEXISTING_LEG_DESTROYED_MODIFIER
     return total
@@ -312,8 +315,8 @@ def can_stand(mech):
     legs_lost = sum(1 for loc in mech.leg_locations if mech.locations[loc]["destroyed"])
     arms_lost = sum(1 for loc in ("Left Arm", "Right Arm") if loc in mech.locations
                     and mech.locations[loc]["destroyed"])
-    if mech.mech_type in ("quad", "quadvee"):
-        return legs_lost < 3
+    if is_quad(mech):
+        return legs_lost < 4                 # three lost = a biped with one leg (p.238)
     return legs_lost < 2 and not (legs_lost == 1 and arms_lost == 2)
 
 
@@ -326,16 +329,15 @@ def movement_psr_trigger(mech, mode):
     this (Core p.111) - callers gate those."""
     if mech.gyro_hits > 0:
         return "gyro hit"
-    if _quad_leg_triggers(mech) and mode in ("running", "jump"):
-        return "a quad's lost legs"
+    if is_quad(mech):
+        return _quad_trigger(mech, mode)
     if mode == "jump" and any(
-        mech.destroyed_leg_actuators.get(loc, 0) > 0
-        or (mech.locations[loc]["destroyed"] and not _is_quad(mech))
+        mech.destroyed_leg_actuators.get(loc, 0) > 0 or mech.locations[loc]["destroyed"]
         for loc in mech.leg_locations
     ):
         return "leg actuator/leg destroyed while jumping"
     if mode == "running" and any(
-        loc in mech.destroyed_hip_locations or (mech.locations[loc]["destroyed"] and not _is_quad(mech))
+        loc in mech.destroyed_hip_locations or mech.locations[loc]["destroyed"]
         for loc in mech.leg_locations
     ):
         return "Hip/leg destroyed while running"
@@ -343,17 +345,31 @@ def movement_psr_trigger(mech, mode):
 
 
 def _is_quad(mech):
-    return mech.mech_type in ("quad", "quadvee")
+    return is_quad(mech)
 
 
-def _quad_leg_triggers(mech):
-    """Movement-mode PSRs a quad's destroyed legs force (p.238, 2026-10-21):
-    one lost leg none ("can still run and jump without this forcing a PSR"),
-    two the effects of a hip hit (one roll), three a biped with one leg lost
-    (one roll). 0 for anything else."""
-    if not _is_quad(mech):
-        return 0
-    return 1 if destroyed_leg_count(mech) >= 2 else 0
+def _quad_counts(mech, mode):
+    """Movement-mode PSRs a quad's leg damage forces (pp.238-239, 2026-10-21):
+    running - one per hip hit with its standard effects (two lost legs count
+    as one), one more from the third lost leg; jumping - one per leg still on
+    the 'Mech with an actuator hit (its free first hip aside), one from two or
+    more lost legs. One lost leg forces none ("can still run and jump")."""
+    lost = destroyed_leg_count(mech)
+    if mode == "running":
+        return hip_effects(mech) + (1 if lost >= 3 else 0)
+    live = [l for l in mech.leg_locations if not mech.locations[l]["destroyed"]]
+    hips = live_hip_legs(mech)
+    # legs with an actuator hit other than the hip, then legs whose only hit is the hip -
+    # the free first hip taken from those (Claude's call: hits aren't kept in order)
+    damaged = [l for l in live if mech.destroyed_leg_actuators.get(l, 0) > (1 if l in hips else 0)]
+    hip_only = [l for l in hips if l not in damaged]
+    return len(damaged) + max(0, len(hip_only) - 1) + (1 if lost >= 2 else 0)
+
+
+def _quad_trigger(mech, mode):
+    if mode in ("running", "jump") and _quad_counts(mech, mode):
+        return "a quad's leg damage"
+    return None
 
 
 def movement_psr_count(mech, mode):
@@ -365,11 +381,12 @@ def movement_psr_count(mech, mode):
     None."""
     if movement_psr_trigger(mech, mode) is None:
         return 0
-    count = (1 if mech.gyro_hits > 0 else 0) + _quad_leg_triggers(mech)
+    count = 1 if mech.gyro_hits > 0 else 0
+    if _is_quad(mech):
+        return count + _quad_counts(mech, mode)
     for loc in mech.leg_locations:
         if mech.locations[loc]["destroyed"]:
-            if not _is_quad(mech):
-                count += 1
+            count += 1
         elif mode == "jump" and mech.destroyed_leg_actuators.get(loc, 0) > 0:
             count += 1
         elif mode == "running" and loc in mech.destroyed_hip_locations:
@@ -615,6 +632,9 @@ def resolve_attack_phase_psr(mech, forced_triggers=()):
         if loc in snap["destroyed_legs"] or loc in newly_destroyed_legs:
             continue  # leg destruction replaces that leg's actuator effects (p.90)
         new_actuators = mech.destroyed_leg_actuators.get(loc, 0) - snap["destroyed_leg_actuators"].get(loc, 0)
+        if (is_quad(mech) and new_actuators > 0 and loc in mech.destroyed_hip_locations
+                and loc not in snap.get("hip_legs", ()) and len(live_hip_legs(mech)) == 1):
+            new_actuators -= 1               # a quad's first hip hit: none of the standard effects (p.239)
         if new_actuators > 0:
             modifier += new_actuators * LEG_ACTUATOR_DESTROYED_MODIFIER
             rolls += 1                                   # one roll per leg (p.110)

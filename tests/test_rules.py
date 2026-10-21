@@ -671,6 +671,51 @@ def psr_modifiers_by_the_book():
 
 
 @check
+def quad_leg_damage_by_the_book():
+    """2026-10-21, Core pp.238-239 (Daniel: "Follow the rules, not my
+    calls"): a quad's lost legs -1 Walking MP each for the first two, three
+    lost = a biped with one leg (Walking MP 1, still mobile), four = immobile;
+    its first hip hit has no MP / PSR effect and no one-level limit, the
+    second does; two lost legs bring the hip effects."""
+    import tempfile
+    import zipfile
+    import piloting_rolls as pr
+    from mech_state import compute_walk_mp, is_destroyed, is_immobile, ground_level_limited
+    with zipfile.ZipFile(os.path.join(REPO_ROOT, "data", "meks.zip")) as z:
+        path = z.extract("meks/3039u/Goliath GOL-1H.mtf", tempfile.mkdtemp())
+    template = parse_mtf(path)
+    q = fresh(template)
+    base = compute_walk_mp(q)
+    legs = q.leg_locations
+
+    def lose(n):
+        for leg in legs[:n]:
+            q.locations[leg]["destroyed"] = True
+            q.destroyed_hip_locations.add(leg)              # as a destroyed leg's crit sweep does
+    lose(1)
+    assert compute_walk_mp(q) == base - 1 and not ground_level_limited(q)
+    lose(2)
+    assert compute_walk_mp(q) == max(1, base - 2) and ground_level_limited(q)
+    lose(3)
+    assert compute_walk_mp(q) == 1 and not is_immobile(q) and not is_destroyed(q) and pr.can_stand(q)
+    lose(4)
+    assert is_immobile(q)
+    h = fresh(template)
+    hip_leg = h.leg_locations[0]
+    h.destroyed_hip_locations.add(hip_leg)
+    h.destroyed_leg_actuators[hip_leg] = 1
+    pr.snapshot_preexisting_damage(h)
+    assert compute_walk_mp(h) == base and pr.preexisting_modifier(h) == 0
+    assert pr.movement_psr_trigger(h, "running") is None and not ground_level_limited(h)
+    second = h.leg_locations[1]
+    h.destroyed_hip_locations.add(second)
+    h.destroyed_leg_actuators[second] = 1
+    pr.snapshot_preexisting_damage(h)
+    assert compute_walk_mp(h) == base - 1 and pr.preexisting_modifier(h) == 1
+    assert pr.movement_psr_count(h, "running") == 1 and ground_level_limited(h)
+
+
+@check
 def explosions_and_case():
     """2026-10-20, Core p.96: no CASE - at most 20 structure damage, and when
     the base damage was over 20 the location that took the 20th point loses

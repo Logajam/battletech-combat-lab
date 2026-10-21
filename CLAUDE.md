@@ -20,6 +20,11 @@ GitHub logistics.
 
 ## Working rules (details in PROJECT_MAP Section 7)
 
+- **The rulebook beats house rules** (Daniel, 2026-10-21: "Follow the rules,
+  not my calls"): where the Core Rulebook answers it and an earlier call of
+  Daniel's differs, follow the book and say so. Exception: switches kept for
+  speed, like `FIGHT_TO_THE_DEATH` off ("it saves time when the situation is
+  hopeless").
 - **Rules come from the library, never from memory.** Use
   `rules/Battletech_Rule_Reference_Index.zip`, unzipped OUTSIDE the repo. The
   Core Rulebook is in `base/core-rules/*.md`, and a `[p.N]` marker comes before

@@ -190,7 +190,6 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 5 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (22 -> 17 remaining).
     ISRotaryAC5 hit: cluster roll 3 (rapid fire x6) on the 6-column table -> 2 connect (10 dmg).
-    ISRotaryAC5: 10 damage in 5-point groupings.
       Group 1/2: Hit location roll 11 (right table): Left Leg.
 5 damage (BALLISTIC) incoming to Left Leg (armor).
   [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (19 -> 14 remaining).
@@ -202,7 +201,6 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 10 damage (BALLISTIC) incoming to Right Leg (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (38 -> 28 remaining).
     ISUltraAC5 hit: cluster roll 10 (rapid fire x2) on the 2-column table -> 2 connect (10 dmg).
-    ISUltraAC5: 10 damage in 5-point groupings.
       Group 1/2: Hit location roll 6 (front table): Right Torso.
 5 damage (BALLISTIC) incoming to Right Torso (armor).
   [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (30 -> 25 remaining).
@@ -253,7 +251,6 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
 10 damage (BALLISTIC) incoming to Right Torso (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (25 -> 15 remaining).
     ISUltraAC5 hit: cluster roll 10 (rapid fire x2) on the 2-column table -> 2 connect (10 dmg).
-    ISUltraAC5: 10 damage in 5-point groupings.
       Group 1/2: Hit location roll 7 (front table): Center Torso.
 5 damage (BALLISTIC) incoming to Center Torso (armor).
   [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (48 -> 43 remaining).
@@ -314,7 +311,6 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 11.
 10 damage (BALLISTIC) incoming to Right Torso (armor).
   [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (15 -> 5 remaining).
     ISUltraAC5 hit: cluster roll 3 (rapid fire x2) on the 2-column table -> 1 connect (5 dmg).
-    ISUltraAC5: 5 damage in 5-point groupings.
       Group 1/1: Hit location roll 7 (front table): Center Torso.
 5 damage (BALLISTIC) incoming to Center Torso (armor).
   [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (38 -> 33 remaining).
@@ -432,7 +428,6 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 11.
     ISUltraAC5 x2: needs 10 (range mod +2), rolled 8 -> miss [ISUltraAC5 Ammo: 4 shots left]
     ISMediumLaser: needs 12 (range mod +4), rolled 8 -> miss
     ISRotaryAC5 hit: cluster roll 8 (rapid fire x6) on the 6-column table -> 4 connect (20 dmg).
-    ISRotaryAC5: 20 damage in 5-point groupings.
       Group 1/4: Hit location roll 7 (right table): Right Torso.
 5 damage (BALLISTIC) incoming to Right Torso (armor).
   [STANDARD/BALLISTIC] 3 armor pts destroyed at armor (3 -> 0 remaining). 2 damage applied to structure [STANDARD] (15 -> 13/15 remaining).
@@ -550,54 +545,36 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
 8 damage (ENERGY) incoming to Right Arm (rear_armor).
   [STANDARD/ENERGY] 8 armor pts destroyed at armor (22 -> 14 remaining).
     ISRotaryAC5 hit: cluster roll 5 (rapid fire x6) on the 6-column table -> 3 connect (15 dmg).
-    ISRotaryAC5 hit: cluster roll 6 (rapid fire x6) on the 6-column table -> 4 connect (20 dmg).
-    Cluster damage pooled (5-point groupings): ISRotaryAC5 15 + ISRotaryAC5 20 = 35.
-      Group 1/7: Hit location roll 5 (rear table): Right Leg.
+      Group 1/3: Hit location roll 6 (rear table): Right Torso.
+5 damage (BALLISTIC) incoming to Right Torso (rear_armor).
+  [STANDARD/BALLISTIC] 5 armor pts destroyed at rear_armor (9 -> 4 remaining).
+      Group 2/3: Hit location roll 5 (rear table): Right Leg.
 5 damage (BALLISTIC) incoming to Right Leg (rear_armor).
   [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (6 -> 1 remaining).
-      Group 2/7: Hit location roll 9 (rear table): Left Leg.
+      Group 3/3: Hit location roll 9 (rear table): Left Leg.
 5 damage (BALLISTIC) incoming to Left Leg (rear_armor).
   [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (13 -> 8/15 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
-      Group 3/7: Hit location roll 12 (rear table): Head.
+    ISRotaryAC5 hit: cluster roll 12 (rapid fire x6) on the 6-column table -> 6 connect (30 dmg).
+      Group 1/6: Hit location roll 8 (rear table): Left Torso.
+5 damage (BALLISTIC) incoming to Left Torso (rear_armor).
+  [STANDARD/BALLISTIC] 5 armor pts destroyed at rear_armor (9 -> 4 remaining).
+      Group 2/6: Hit location roll 12 (rear table): Head.
       Head hit - pilot takes 1 hit (1/6), regardless of armor.
 5 damage (BALLISTIC) incoming to Head (rear_armor).
   [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (9 -> 4 remaining).
-      Group 4/7: Hit location roll 8 (rear table): Left Torso.
-5 damage (BALLISTIC) incoming to Left Torso (rear_armor).
-  [STANDARD/BALLISTIC] 5 armor pts destroyed at rear_armor (9 -> 4 remaining).
-      Group 5/7: Hit location roll 12 (rear table): Head.
-      Head hit - pilot takes 1 hit (2/6), regardless of armor.
-5 damage (BALLISTIC) incoming to Head (rear_armor).
-  [STANDARD/BALLISTIC] 4 armor pts destroyed at armor (4 -> 0 remaining). 1 damage applied to structure [STANDARD] (3 -> 2/3 remaining).
-  Check for possible critical. Roll a 10.
-    2 critical hit(s).
-  Critical hit pool at Head:
-    1: Life Support (slot 1)
-    2: Sensors (slot 2)
-    3: Cockpit (slot 3)
-    4: Heat Sink (slot 4)
-    5: Sensors (slot 5)
-    6: Life Support (slot 6)
-    1/2 Criticals: Life Support hit.
-      Current crit slots in Head: ['DESTROYED', 'Sensors', 'Cockpit', 'Heat Sink', 'Sensors', 'Life Support', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-  Critical hit pool at Head:
-    1: Sensors (slot 2)
-    2: Cockpit (slot 3)
-    3: Heat Sink (slot 4)
-    4: Sensors (slot 5)
-    5: Life Support (slot 6)
-    2/2 Criticals: Life Support hit.
-      Current crit slots in Head: ['DESTROYED', 'Sensors', 'Cockpit', 'Heat Sink', 'Sensors', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Group 6/7: Hit location roll 7 (rear table): Center Torso.
+      Group 3/6: Hit location roll 10 (rear table): Left Arm.
+5 damage (BALLISTIC) incoming to Left Arm (rear_armor).
+  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (17 -> 12 remaining).
+      Group 4/6: Hit location roll 7 (rear table): Center Torso.
 5 damage (BALLISTIC) incoming to Center Torso (rear_armor).
   [STANDARD/BALLISTIC] 5 armor pts destroyed at rear_armor (9 -> 4 remaining).
-      Group 7/7: Hit location roll 2 (rear table): Center Torso.
+      Group 5/6: Hit location roll 2 (rear table): Center Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
       Floating TAC re-roll: 11 -> Left Arm
 5 damage (BALLISTIC) incoming to Left Arm (rear_armor).
-  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (17 -> 12 remaining).
+  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (12 -> 7 remaining).
       Additional critical hit due to TAC.
   Check for possible critical. Roll a 9.
     1 critical hit(s).
@@ -609,253 +586,97 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
     5: ISMediumLaser (slot 5)
     1/1 Criticals: Shoulder hit.
       Current crit slots in Left Arm: ['DESTROYED', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', 'ISMediumLaser', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-PSR trigger: 43 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 5.
-  Failed - falls.
-FALL (failed Attack Phase PSR): Cataphract CTF-3D takes 7 falling damage (1D6 2: front table, 5-pt clusters).
-  Fall cluster (5 dmg): rolled 7 -> Center Torso
-5 damage (PHYSICAL) incoming to Center Torso (armor).
-  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (11 -> 6 remaining).
-  Fall cluster (2 dmg): rolled 7 -> Center Torso
-2 damage (PHYSICAL) incoming to Center Torso (armor).
-  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (6 -> 4 remaining).
-  Seatbelt check: needs 5. Rolled 7. Pilot unharmed.
-Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 8.
+      Group 6/6: Hit location roll 5 (rear table): Right Leg.
+5 damage (BALLISTIC) incoming to Right Leg (rear_armor).
+  [STANDARD/BALLISTIC] 1 armor pts destroyed at armor (1 -> 0 remaining). 4 damage applied to structure [STANDARD] (15 -> 11/15 remaining).
+  Check for possible critical. Roll a 7.
+    No critical hit.
+PSR trigger: 53 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
+  Succeeded - remains standing.
+Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
   Pilot stays conscious.
   [Heat] Red: 2 + movement 3 + weapons 5 + engine 10 - sinks 16 -> 4
   [Heat] Blue: 2 + movement 0 + weapons 29 + engine 0 - sinks 28 -> 3
-  -- end of turn 19: Red @ 0817 SW: HP 151, pilot hits 2, engine 2, gyro 0, heat 4 [PRONE]
+  -- end of turn 19: Red @ 0817 SW: HP 148, pilot hits 1, engine 2, gyro 0, heat 4
   -- end of turn 19: Blue @ 1311 SW: HP 344, pilot hits 1, engine 0, gyro 0, heat 3
 
 === TURN 20 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 1483.443 = dealt 43.85 x1.13 + (HP 482.0 - received 0.14 x0.98 - PSR 0.00) / enemy future 6.19 x my future 18.41 [two-ply, 159 of 381 spots (grid search) x 1 replies (grid search); modeled reply Red -> 0817 SW Run]
-  [Movement] Blue: 1311 SW -> 1112 SW, Walk (2 MP, 2 hexes, 1 heat; budget walk 3 / run 5 / jump 3)
-Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 10.
-  Success - Cataphract CTF-3D is standing (remaining running MP 4).
-  [Movement select] Red: score 94.733 = dealt 7.36 x0.98 + (HP 238.0 - received 21.29 x0.98 - PSR 0.00) / enemy future 18.41 x my future 7.41 [enemy held at 1112; 26 spots with LOS]
-  [Movement] Red: 0817 SW -> 1017 SE, Run (3 MP, 2 hexes, 2 heat; budget walk 4 / run 6 / jump 4; stood up with 4 MP left)
-  [Ranged] Blue -> Red: range 6, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0); firing ['ISERLargeLaser', 'ISRotaryAC5', 'ISRotaryAC5'] (weapon heat 24 of budget 28 = max 4 + sink 28 - current 3 - movement 1 - other 0; expected dmg 15.78)
-    [Blue fire control] ISRotaryAC5: rapid fire x6
-    ISERLargeLaser: needs 7 (range mod +0), rolled 11 -> HIT
-    ISRotaryAC5 x6: needs 9 (range mod +2), rolled 5 -> miss [ISRotaryAC5 Ammo: 4 shots left]
-    ISRotaryAC5 x6: needs 9 (range mod +2), rolled 5 -> miss [ISRotaryAC5 Ammo: 18 shots left]
-  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
-  [Ranged] Red -> Blue: range 6, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0); firing ['ISLBXAC10', 'ISUltraAC5'] (weapon heat 4 of budget 4 = max 4 + sink 16 - current 4 - movement 2 - other 10; expected dmg 7.12)
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 87.826 = dealt 1.18 x1.00 + (HP 232.0 - received 12.12 x0.77 - PSR 0.00) / enemy future 19.05 x my future 7.41 [two-ply, 131 of 315 spots (grid search) x 381 replies (grid search); modeled reply Blue -> 1012 SW Walk]
+  [Movement] Red: 0817 SW -> 0714 SW, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
+  [Movement select] Blue: score 1244.711 = dealt 12.12 x0.77 + (HP 482.0 - received 1.18 x1.00 - PSR 0.00) / enemy future 7.41 x my future 19.05 [enemy held at 0714; 111 spots with LOS]
+  [Movement] Blue: 1311 SW -> 1012 SW, Walk (3 MP, 3 hexes, 1 heat; budget walk 3 / run 5 / jump 3)
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's right side arc after that).
+  [Ranged] Red -> Blue: range 3, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 2 + heat 0); firing ['ISUltraAC5'] (weapon heat 2 of budget 2 = max 4 + sink 16 - current 4 - movement 4 - other 10; expected dmg 1.18)
     [Red fire control] ISUltraAC5: rapid fire x2
-    ISLBXAC10: needs 8 (range mod +0), rolled 6 -> miss [ISLBXAC10 Ammo: 5 shots left]
-    ISUltraAC5 x2: needs 8 (range mod +0), rolled 9 -> HIT [ISUltraAC5 Ammo: 0 shots left]
-    ISERLargeLaser hit for 8:
-      Hit location roll 2 (left table): Left Torso.
-      Roll of 2 - Through-Armor Critical (floating) triggered.
-      Floating TAC re-roll: 5 -> Left Arm
-8 damage (ENERGY) incoming to Left Arm (armor).
-  [STANDARD/ENERGY] 8 armor pts destroyed at armor (12 -> 4 remaining).
-      Additional critical hit due to TAC.
-  Check for possible critical. Roll a 5.
-    No critical hit.
-    ISUltraAC5 hit: cluster roll 7 (rapid fire x2) on the 2-column table -> 1 connect (5 dmg).
-    ISUltraAC5: 5 damage in 5-point groupings.
-      Group 1/1: Hit location roll 5 (left table): Left Arm.
-5 damage (BALLISTIC) incoming to Left Arm (armor).
-  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (30 -> 25 remaining).
-  [Heat] Red: 4 + movement 2 + weapons 4 + engine 10 - sinks 16 -> 4
-  [Heat] Blue: 3 + movement 1 + weapons 24 + engine 0 - sinks 28 -> 0
-  -- end of turn 20: Red @ 1017 SE: HP 143, pilot hits 2, engine 2, gyro 0, heat 4
-  -- end of turn 20: Blue @ 1112 SW: HP 339, pilot hits 1, engine 0, gyro 0, heat 0
+    ISUltraAC5 x2: needs 10 (range mod +0), rolled 11 -> HIT [ISUltraAC5 Ammo: 0 shots left]
+  [Ranged] Blue -> Red: range 3, base TN 10 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 3 + heat 0); firing ['ISERMediumLaser', 'ISERMediumLaser', 'ISERMediumLaser', 'ISRotaryAC5', 'ISRotaryAC5'] (weapon heat 27 of budget 28 = max 4 + sink 28 - current 3 - movement 1 - other 0; expected dmg 9.17)
+    [Blue fire control] ISRotaryAC5: rapid fire x6
+    ISERMediumLaser: needs 10 (range mod +0), rolled 5 -> miss
+    ISERMediumLaser: needs 10 (range mod +0), rolled 5 -> miss
+    ISERMediumLaser: needs 10 (range mod +0), rolled 6 -> miss
+    ISRotaryAC5 x6: needs 10 (range mod +0), rolled 9 -> miss [ISRotaryAC5 Ammo: 4 shots left]
+    ISRotaryAC5 x6: needs 10 (range mod +0), rolled 2 -> miss [ISRotaryAC5 Ammo: 18 shots left]
+      ISRotaryAC5 JAMS (roll 2 with 6 shots, p.183) - the shots still fire.
+    ISUltraAC5 hit: cluster roll 5 (rapid fire x2) on the 2-column table -> 1 connect (5 dmg).
+      Group 1/1: Hit location roll 5 (front table): Right Leg.
+5 damage (BALLISTIC) incoming to Right Leg (armor).
+  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (28 -> 23 remaining).
+  [Heat] Red: 4 + movement 4 + weapons 2 + engine 10 - sinks 16 -> 4
+  [Heat] Blue: 3 + movement 1 + weapons 27 + engine 0 - sinks 28 -> 3
+  -- end of turn 20: Red @ 0714 SW: HP 148, pilot hits 1, engine 2, gyro 0, heat 4
+  -- end of turn 20: Blue @ 1012 SW: HP 339, pilot hits 1, engine 0, gyro 0, heat 3
 
 === TURN 21 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 1178.607 = dealt 34.36 x0.99 + (HP 477.0 - received 9.73 x0.99 - PSR 0.00) / enemy future 7.23 x my future 17.71 [two-ply, 161 of 371 spots (grid search) x 315 replies (grid search); modeled reply Red -> 1017 SE Stand Still]
-  [Movement] Blue: 1112 SW -> 1112 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 3)
-  [Movement select] Red: score 89.671 = dealt 9.73 x0.99 + (HP 230.0 - received 34.36 x0.99 - PSR 0.00) / enemy future 17.71 x my future 7.23 [enemy held at 1112; 100 spots with LOS]
-  [Movement] Red: 1017 SE -> 1017 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
-  [Ranged] Blue -> Red: range 6, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['ISERMediumLaser', 'ISERLargeLaser', 'ISRotaryAC5', 'ISRotaryAC5'] (weapon heat 29 of budget 32 = max 4 + sink 28 - current 0 - movement 0 - other 0; expected dmg 24.53)
+  [Movement] Blue tries to unjam ['ISRotaryAC5'] (stand still or walk only, p.183).
+  [Movement select] Blue: score 1070.529 = dealt 17.21 x0.97 + (HP 477.0 - received 6.25 x1.00 - PSR 0.00) / enemy future 7.28 x my future 16.29 [two-ply, 44 of 51 spots (grid search) x 630 replies (grid search); modeled reply Red -> 0512 SE Jump]
+  [Movement] Blue: 1012 SW -> 1112 NW, Walk (2 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 3) - includes a backward move
+  [Movement select] Red: score 102.431 = dealt 6.25 x1.00 + (HP 232.0 - received 17.21 x0.97 - PSR 0.00) / enemy future 16.29 x my future 7.28 [enemy held at 1112; 161 spots with LOS]
+  [Movement] Red: 0714 SW -> 0511 S, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
+  [Ranged] Blue -> Red: range 6, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 0); firing ['ISERMediumLaser', 'ISERLargeLaser', 'ISERMediumLaser', 'ISRotaryAC5'] (weapon heat 28 of budget 28 = max 4 + sink 28 - current 3 - movement 1 - other 0; expected dmg 13.00)
     [Blue fire control] ISRotaryAC5: rapid fire x6
-    ISERMediumLaser: needs 8 (range mod +2), rolled 4 -> miss
-    ISERLargeLaser: needs 6 (range mod +0), rolled 8 -> HIT
-    ISRotaryAC5 x6: needs 8 (range mod +2), rolled 9 -> HIT [ISRotaryAC5 Ammo: 12 shots left]
-    ISRotaryAC5 x6: needs 8 (range mod +2), rolled 9 -> HIT [ISRotaryAC5 Ammo: 6 shots left]
+    ISERMediumLaser: needs 9 (range mod +2), rolled 8 -> miss
+    ISERLargeLaser: needs 7 (range mod +0), rolled 7 -> HIT
+    ISERMediumLaser: needs 9 (range mod +2), rolled 4 -> miss
+    ISRotaryAC5 x6: needs 9 (range mod +2), rolled 8 -> miss [ISRotaryAC5 Ammo: 12 shots left]
   [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
-  [Ranged] Red -> Blue: range 6, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['ISLBXAC10', 'ISMediumLaser'] (weapon heat 5 of budget 6 = max 4 + sink 16 - current 4 - movement 0 - other 10; expected dmg 9.31)
-    ISLBXAC10: needs 6 (range mod +0), rolled 2 -> miss [ISLBXAC10 Ammo: 4 shots left]
-    ISMediumLaser: needs 8 (range mod +2), rolled 8 -> HIT
+  [Ranged] Red -> Blue: range 6, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing ['ISLBXAC10'] (weapon heat 2 of budget 2 = max 4 + sink 16 - current 4 - movement 4 - other 10; expected dmg 5.83)
+    ISLBXAC10: needs 7 (range mod +0), rolled 9 -> HIT [ISLBXAC10 Ammo: 5 shots left]
     ISERLargeLaser hit for 8:
-      Hit location roll 7 (left table): Left Torso.
-8 damage (ENERGY) incoming to Left Torso (armor).
-  [STANDARD/ENERGY] 8 armor pts destroyed at armor (16 -> 8 remaining).
-    ISRotaryAC5 hit: cluster roll 9 (rapid fire x6) on the 6-column table -> 5 connect (25 dmg).
-    ISRotaryAC5 hit: cluster roll 5 (rapid fire x6) on the 6-column table -> 3 connect (15 dmg).
-    Cluster damage pooled (5-point groupings): ISRotaryAC5 25 + ISRotaryAC5 15 = 40.
-      Group 1/8: Hit location roll 8 (left table): Center Torso.
-5 damage (BALLISTIC) incoming to Center Torso (armor).
-  [STANDARD/BALLISTIC] 4 armor pts destroyed at armor (4 -> 0 remaining). 1 damage applied to structure [STANDARD] (22 -> 21/22 remaining).
-  Check for possible critical. Roll a 12.
-    Roll of 12 on torso: rolling 3 critical hits instead of destruction.
-    3 critical hit(s).
-  Critical hit pool at Center Torso:
-    1: Engine (slot 1)
-    2: Engine (slot 2)
-    3: Engine (slot 3)
-    4: Gyro (slot 4)
-    5: Gyro (slot 5)
-    6: Gyro (slot 6)
-    7: Gyro (slot 7)
-    8: Engine (slot 8)
-    9: Engine (slot 9)
-    10: Engine (slot 10)
-    11: Heat Sink (slot 11)
-    12: Heat Sink (slot 12)
-    1/3 Criticals: Engine hit.
-      Current crit slots in Center Torso: ['Engine', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'Heat Sink', 'Heat Sink']
-      Engine hit (3/3).
-  Critical hit pool at Center Torso:
-    1: Engine (slot 1)
-    2: Engine (slot 2)
-    3: Gyro (slot 4)
-    4: Gyro (slot 5)
-    5: Gyro (slot 6)
-    6: Gyro (slot 7)
-    7: Engine (slot 8)
-    8: Engine (slot 9)
-    9: Engine (slot 10)
-    10: Heat Sink (slot 11)
-    11: Heat Sink (slot 12)
-    2/3 Criticals: Engine hit.
-      Current crit slots in Center Torso: ['Engine', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'DESTROYED', 'Engine', 'Heat Sink', 'Heat Sink']
-      Engine hit (4/3).
-  Critical hit pool at Center Torso:
-    1: Engine (slot 1)
-    2: Engine (slot 2)
-    3: Gyro (slot 4)
-    4: Gyro (slot 5)
-    5: Gyro (slot 6)
-    6: Gyro (slot 7)
-    7: Engine (slot 8)
-    8: Engine (slot 10)
-    9: Heat Sink (slot 11)
-    10: Heat Sink (slot 12)
-    3/3 Criticals: Engine hit.
-      Current crit slots in Center Torso: ['Engine', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'DESTROYED', 'DESTROYED', 'Heat Sink', 'Heat Sink']
-      Engine hit (5/3).
-      Group 2/8: Hit location roll 7 (left table): Left Torso.
-5 damage (BALLISTIC) incoming to Left Torso (armor).
-  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (8 -> 3 remaining).
-      Group 3/8: Hit location roll 8 (left table): Center Torso.
-5 damage (BALLISTIC) incoming to Center Torso (armor).
-  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (21 -> 16/22 remaining).
-  Check for possible critical. Roll a 6.
-    No critical hit.
-      Group 4/8: Hit location roll 2 (left table): Left Torso.
-      Roll of 2 - Through-Armor Critical (floating) triggered.
-      Floating TAC re-roll: 8 -> Center Torso
-5 damage (BALLISTIC) incoming to Center Torso (armor).
-  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (16 -> 11/22 remaining).
-  Check for possible critical. Roll a 3.
-    No critical hit.
-      Additional critical hit due to TAC.
-  Check for possible critical. Roll a 9.
-    1 critical hit(s).
-  Critical hit pool at Center Torso:
-    1: Engine (slot 1)
-    2: Engine (slot 2)
-    3: Gyro (slot 4)
-    4: Gyro (slot 5)
-    5: Gyro (slot 6)
-    6: Gyro (slot 7)
-    7: Engine (slot 8)
-    8: Heat Sink (slot 11)
-    9: Heat Sink (slot 12)
-    1/1 Criticals: Gyro hit.
-      Current crit slots in Center Torso: ['Engine', 'Engine', 'DESTROYED', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'DESTROYED', 'DESTROYED', 'Heat Sink', 'Heat Sink']
-      Gyro hit (1/2).
-      Group 5/8: Hit location roll 9 (left table): Right Torso.
-5 damage (BALLISTIC) incoming to Right Torso (armor).
-  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (3 -> 0/15 remaining).
+      Hit location roll 9 (left table): Right Torso.
+8 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (3 -> 0/15 remaining).
   Right Torso destroyed with no live explosive components - no critical roll.
   Right Torso DESTROYED!
-    Engine hit (6/3) from Right Torso destruction.
+    Engine hit (3/3) from Right Torso destruction.
   All critical slots in Right Torso marked DESTROYED.
   Right Arm also destroyed (side torso rule).
   All critical slots in Right Arm marked DESTROYED.
-  2 damage remains, transfers to Center Torso.
-      Group 6/8: Hit location roll 10 (left table): Right Arm.
-5 damage (BALLISTIC) incoming to Right Arm (armor).
-  Right Arm already destroyed - damage transfers to Right Torso.
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (11 -> 6/22 remaining).
-  Check for possible critical. Roll a 12.
-    Roll of 12 on torso: rolling 3 critical hits instead of destruction.
-    3 critical hit(s).
-  Critical hit pool at Center Torso:
-    1: Engine (slot 1)
-    2: Engine (slot 2)
-    3: Gyro (slot 5)
-    4: Gyro (slot 6)
-    5: Gyro (slot 7)
-    6: Engine (slot 8)
-    7: Heat Sink (slot 11)
-    8: Heat Sink (slot 12)
-    1/3 Criticals: Engine hit.
-      Current crit slots in Center Torso: ['DESTROYED', 'Engine', 'DESTROYED', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'DESTROYED', 'DESTROYED', 'Heat Sink', 'Heat Sink']
-      Engine hit (7/3).
-  Critical hit pool at Center Torso:
-    1: Engine (slot 2)
-    2: Gyro (slot 5)
-    3: Gyro (slot 6)
-    4: Gyro (slot 7)
-    5: Engine (slot 8)
-    6: Heat Sink (slot 11)
-    7: Heat Sink (slot 12)
-    2/3 Criticals: Engine hit.
-      Current crit slots in Center Torso: ['DESTROYED', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'DESTROYED', 'DESTROYED', 'Heat Sink', 'Heat Sink']
-      Engine hit (8/3).
-  Critical hit pool at Center Torso:
-    1: Gyro (slot 5)
-    2: Gyro (slot 6)
-    3: Gyro (slot 7)
-    4: Engine (slot 8)
-    5: Heat Sink (slot 11)
-    6: Heat Sink (slot 12)
-    3/3 Criticals: Heat Sink slot hit.
-      Current crit slots in Center Torso: ['DESTROYED', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'DESTROYED', 'DESTROYED', 'DESTROYED', 'Heat Sink']
-      Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 15).
-      Group 7/8: Hit location roll 3 (left table): Left Leg.
-5 damage (BALLISTIC) incoming to Left Leg (armor).
-  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (8 -> 3/15 remaining).
+  5 damage remains, transfers to Center Torso.
+    ISLBXAC10 hit for 10:
+      Hit location roll 2 (front table): Center Torso.
+      Roll of 2 - Through-Armor Critical (floating) triggered.
+      Floating TAC re-roll: 8 -> Left Torso
+10 damage (BALLISTIC) incoming to Left Torso (armor).
+  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (21 -> 11 remaining).
+      Additional critical hit due to TAC.
   Check for possible critical. Roll a 7.
     No critical hit.
-      Group 8/8: Hit location roll 12 (left table): Head.
-      Head hit - pilot takes 1 hit (3/6), regardless of armor.
-5 damage (BALLISTIC) incoming to Head (armor).
-  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (2 -> 0/3 remaining).
-  Head destroyed with no live explosive components - no critical roll.
-  Head DESTROYED!
-    Cockpit destroyed from Head destruction.
-    Heat sink destroyed (Heat Sink) from Head destruction - heat dissipation reduced (now 14).
-  All critical slots in Head marked DESTROYED.
-  3 damage remains, transfers to nowhere (attack finished).
-    ISMediumLaser hit for 5:
-      Hit location roll 2 (left table): Left Torso.
-      Roll of 2 - Through-Armor Critical (floating) triggered.
-      Floating TAC re-roll: 6 -> Left Leg
-5 damage (ENERGY) incoming to Left Leg (armor).
-  [STANDARD/ENERGY] 5 armor pts destroyed at armor (33 -> 28 remaining).
-      Additional critical hit due to TAC.
-  Check for possible critical. Roll a 2.
-    No critical hit.
-  [Heat] Blue: 0 + movement 0 + weapons 29 + engine 0 - sinks 28 -> 1
-  -- end of turn 21: Red @ 1017 SE: HP 89, pilot hits 3, engine 8, gyro 1, heat 4 [DESTROYED (Engine Destroyed)]
-  -- end of turn 21: Blue @ 1112 SW: HP 334, pilot hits 1, engine 0, gyro 0, heat 1
+  [Ranged] Blue unjam ISRotaryAC5: needs 7, rolled 9 -> cleared.
+  [Heat] Blue: 3 + movement 1 + weapons 28 + engine 0 - sinks 28 -> 4
+  -- end of turn 21: Red @ 0511 S: HP 134, pilot hits 1, engine 3, gyro 0, heat 4 [DESTROYED (Engine Destroyed)]
+  -- end of turn 21: Blue @ 1112 NW: HP 329, pilot hits 1, engine 0, gyro 0, heat 4
 
 >>> Battle over on turn 21: Red destroyed. <<<
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! RESULTS PRODUCED WITH STUBS ACTIVE - NOT RULES-COMPLETE
 !! Stubs that ran:
-!!   rate_of_fire                        29 runs, in 1/1 battle(s)
-!!   munition_choice                     12 runs, in 1/1 battle(s)
-!!   unjam                                3 runs, in 1/1 battle(s)
+!!   rate_of_fire                        28 runs, in 1/1 battle(s)
+!!   munition_choice                     11 runs, in 1/1 battle(s)
+!!   unjam                                4 runs, in 1/1 battle(s)
 !! Known missing rules with no runtime flag:
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
 !!   - Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH
@@ -870,20 +691,20 @@ BATCH SUMMARY - 1 battle(s): Red = Cataphract CTF-3D, Blue = Emperor EMP-6D
 ######################################################################
   Wins:  Red 0   Blue 1   Draw 0
   Average turns: 21.0 (decisive battles only: 21.0)
-  Average attacks fired by the winner before the kill: 53.0
-  Average remaining HP (armor+structure): Red 31%   Blue 80%
-  Hit rate: Red 25%   Blue 32%
+  Average attacks fired by the winner before the kill: 55.0
+  Average remaining HP (armor+structure): Red 47%   Blue 79%
+  Hit rate: Red 27%   Blue 25%
   Causes of death:
     Red (Cataphract CTF-3D): Engine Destroyed: 1
   Per battle:
-    #1: 21 turns, winner Blue; Red 89/283 HP (8/32 hits, 65 dealt) DESTROYED: Engine Destroyed; Blue 334/417 HP (17/53 hits, 187 dealt)
+    #1: 21 turns, winner Blue; Red 134/283 HP (8/30 hits, 70 dealt) DESTROYED: Engine Destroyed; Blue 329/417 HP (14/55 hits, 149 dealt)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! RESULTS PRODUCED WITH STUBS ACTIVE - NOT RULES-COMPLETE
 !! Stubs that ran:
-!!   rate_of_fire                        29 runs, in 1/1 battle(s)
-!!   munition_choice                     12 runs, in 1/1 battle(s)
-!!   unjam                                3 runs, in 1/1 battle(s)
+!!   rate_of_fire                        28 runs, in 1/1 battle(s)
+!!   munition_choice                     11 runs, in 1/1 battle(s)
+!!   unjam                                4 runs, in 1/1 battle(s)
 !! Known missing rules with no runtime flag:
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
 !!   - Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH
@@ -931,10 +752,9 @@ STUB: rate_of_fire - Red's ISUltraAC5: 2 rates possible -> 2 shots (policy max)
 STUB: rate_of_fire - Blue's ISRotaryAC5: 6 rates possible -> 6 shots (policy max)
 STUB: rate_of_fire - Blue's ISRotaryAC5: 6 rates possible -> 6 shots (policy max)
 STUB: rate_of_fire - Red's ISUltraAC5: 2 rates possible -> 2 shots (policy max)
-STUB: rate_of_fire - Blue's ISRotaryAC5: 6 rates possible -> 6 shots (policy max)
-STUB: rate_of_fire - Blue's ISRotaryAC5: 6 rates possible -> 6 shots (policy max)
-STUB: munition_choice - Red's ISLBXAC10: standard 4.17, LB-X cluster rounds 3.68 -> standard (policy greedy)
 STUB: rate_of_fire - Red's ISUltraAC5: 2 rates possible -> 2 shots (policy max)
 STUB: rate_of_fire - Blue's ISRotaryAC5: 6 rates possible -> 6 shots (policy max)
 STUB: rate_of_fire - Blue's ISRotaryAC5: 6 rates possible -> 6 shots (policy max)
-STUB: munition_choice - Red's ISLBXAC10: standard 7.22, LB-X cluster rounds 5.25 -> standard (policy greedy)
+STUB: unjam - Blue's ISRotaryAC5 is jammed -> tries to unjam
+STUB: rate_of_fire - Blue's ISRotaryAC5: 6 rates possible -> 6 shots (policy max)
+STUB: munition_choice - Red's ISLBXAC10: standard 5.83, LB-X cluster rounds 4.55 -> standard (policy greedy)
