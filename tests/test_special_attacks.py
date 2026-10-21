@@ -675,6 +675,25 @@ def shields():
     assert gear.shield_bash(bk, arm) == 2 and gear.shield_bash(bk, "Left Arm" if arm == "Right Arm" else "Right Arm") == 0
 
 
+@check
+def quad_kicks():
+    """p.238 (2026-10-21): a quad kicks forward with its front legs (front
+    hips only needed), mule-kicks into its rear arc with its rear legs (rear
+    hips, and both front legs still on); a hip hit stops kicks in its arc."""
+    goliath = fresh(any_unit("3039u/Goliath GOL-1H"), "0808", "N")
+    xy = charge.hex_geometry.parse_hex_label
+    opts = lambda m, t: physical.options_at(m, xy("0808"), 0, 0, xy(t), 0, False, frozenset(),  # noqa: E731
+                                            physical.arcs.NO_ACTION).get("kick", [])
+    assert sorted(o["limb"] for o in opts(goliath, "0807")) == ["Front Left Leg", "Front Right Leg"]
+    mule = opts(goliath, "0809")
+    assert sorted(o["limb"] for o in mule) == ["Rear Left Leg", "Rear Right Leg"] and "mule" in mule[0]["name"]
+    goliath.destroyed_hip_locations.add("Rear Left Leg")
+    assert not opts(goliath, "0809") and opts(goliath, "0807")       # a rear hip: no mule kick, front still
+    g2 = fresh(any_unit("3039u/Goliath GOL-1H"), "0808", "N")
+    g2.locations["Front Left Leg"]["destroyed"] = True
+    assert not opts(g2, "0809")                                      # a lost front leg: no mule kick
+
+
 def run_all():
     failed = 0
     for fn in CHECKS:

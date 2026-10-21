@@ -108,7 +108,7 @@ import INTEGRATION__physical_gear as gear  # noqa: E402 - shields, p.195
 import INTEGRATION__weapon_profiles as weapon_profiles
 import INTEGRATION__timing as timing
 import INTEGRATION__water as water
-from mech_state import head_hit_hurts_pilot, tripod_gunner_modifier, is_destroyed  # noqa: E402 - pp.203, 236
+from mech_state import pilot_hit, head_hit_hurts_pilot, tripod_gunner_modifier, is_destroyed  # noqa: E402 - pp.203, 236
 from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capability, \
     mark_consciousness_check_pending, compute_heat_dissipation, arm_aes_working
 import armor_rules
@@ -627,8 +627,7 @@ def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False, c
         return None
 
     if loc == "Head" and head_hit_hurts_pilot(target):
-        target.pilot_hits += 1
-        mark_consciousness_check_pending(target)
+        pilot_hit(target, head=True)              # both warriors with a command console (p.203)
         config.log(f"      Head hit - pilot takes 1 hit ({target.pilot_hits}/6), regardless of armor.")
 
     if loc_roll == 2 and config.FLOATING_CRITICALS and not target.locations[loc]["destroyed"]:
@@ -645,8 +644,7 @@ def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False, c
         if tac_loc == "Head" and head_hit_hurts_pilot(target):
             # Fixed 2026-10-20: a head hit always costs the MechWarrior 1 hit (p.117),
             # including when the floating re-roll lands on the head.
-            target.pilot_hits += 1
-            mark_consciousness_check_pending(target)
+            pilot_hit(target, head=True)              # both warriors with a command console (p.203)
             config.log(f"      Head hit - pilot takes 1 hit ({target.pilot_hits}/6), regardless of armor.")
         apply_damage(target, tac_loc, _protected(target, tac_loc, damage, tac_side, heat_weapon),
                      armor_field=tac_armor_field, damage_type=damage_type)
@@ -811,8 +809,7 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng, po
             if loc is None or target.destroyed:
                 break
             if loc == "Head" and head_hit_hurts_pilot(target):
-                target.pilot_hits += 1
-                mark_consciousness_check_pending(target)
+                pilot_hit(target, head=True)              # both warriors with a command console (p.203)
             apply_damage(target, loc, _protected(target, loc, per, side), armor_field="rear_armor" if side == "rear" else "armor",
                          damage_type=dtype)
         return
@@ -946,8 +943,7 @@ def _resolve_aimed_hit(target, weapon, damage, dtype, side, attack):
     config.log(f"    {weapon.name} hit for {damage}: aimed at {attack.aimed_at}, 1D6 {die} - on target.")
     loc = attack.aimed_at
     if loc == "Head" and head_hit_hurts_pilot(target):
-        target.pilot_hits += 1
-        mark_consciousness_check_pending(target)
+        pilot_hit(target, head=True)              # both warriors with a command console (p.203)
         config.log(f"      Head hit - pilot takes 1 hit ({target.pilot_hits}/6), regardless of armor.")
     apply_damage(target, loc, _protected(target, loc, damage, side, weapon_profiles.heat_causing(weapon)),
                  armor_field="rear_armor" if side == "rear" else "armor", damage_type=dtype)

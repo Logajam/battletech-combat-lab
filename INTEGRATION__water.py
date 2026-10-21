@@ -316,7 +316,12 @@ def check_breach(mech, location):
         return
     if location not in submerged_locations(mech, state(mech)):
         return
-    roll = config.roll_2d6(prompt=f"Hull breach check ({location})")
+    import INTEGRATION__equipment_systems as equip      # HarJel (p.208, 2026-10-21)
+    skip, bonus = equip.harjel_breach_check(mech, location)
+    if skip:
+        config.log(f"    Hull breach check, {location}: none - HarJel with armor left (p.208).")
+        return
+    roll = config.roll_2d6(prompt=f"Hull breach check ({location})") + bonus
     if roll <= BREACH_MAX_ROLL:
         config.log(f"    Hull breach check, {location} under water: rolled {roll} - BREACHED (2-4, p.127).")
         breach(mech, location)

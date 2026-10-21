@@ -978,6 +978,7 @@ forward arc, kicks included, never into a side arc.
 | Charge with spikes | `stubs.stub_charge_spikes` | STUB (`STUB_CHARGE_SPIKES`, default always): declare torso spikes for a charge (p.196) - +2 damage a cluster vs losing clusters |
 | Raise a shield | `stubs.stub_raise_shield` | STUB (`STUB_RAISE_SHIELD`, default never): raise at the start of an attack phase (p.195) - more cover vs nothing behind it attacks |
 | Activate a vibroblade | `stubs.stub_vibroblade` | STUB (`STUB_VIBROBLADE`, default on): fixed damage + heat vs tonnage damage (p.196) |
+| Command console swap | `stubs.stub_console_swap` | STUB (`STUB_CONSOLE_SWAP`, default when the pilot is out or more hurt): End Phase seat swap (p.203) |
 | Club pick-up | `INTEGRATION__clubs.maybe_pick_up` | ON (`config.CLUB_PICKUP`, Daniel 2026-10-21): picks one up on a turn it fires nothing; smarter use waits for the Memo below |
 | DFA miss: where the target steps | `INTEGRATION__dfa.resolve` | The open hex with the smallest drop |
 | Home edge | `config.HOME_EDGE_CHOICE` | Which edge the deployment-roll loser picks (default random) |
@@ -1115,6 +1116,13 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Cockpit command console (RULES_REVIEW F50, p.203);
+  the End Phase seat swap is a stub (`STUB_CONSOLE_SWAP`, Section 6).
+  test_rules command_console. Reference logs unchanged.
+- **2026-10-21 (Claude):** HarJel I / II / III (RULES_REVIEW F49, p.208).
+  test_water harjel. Reference logs unchanged.
+- **2026-10-21 (Claude):** Quad kicks - front kick and mule kick (RULES_REVIEW
+  F48, p.238). test_special_attacks quad_kicks. Reference logs unchanged.
 - **2026-10-21 (Claude):** Shields and vibroblades (RULES_REVIEW F47); raising a
   shield and activating a vibroblade are stubs (`STUB_RAISE_SHIELD` never,
   `STUB_VIBROBLADE` on - Section 6). test_special_attacks shields,

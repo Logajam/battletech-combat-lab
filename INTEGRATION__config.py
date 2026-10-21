@@ -258,6 +258,8 @@ STUB_CHARGE_SPIKES = True
 STUB_VIBROBLADE = "on"
 # Raise a shield at the start of an attack phase (p.195): "never" / "always".
 STUB_RAISE_SHIELD = "never"
+# Command console End Phase seat swap (p.203): "when_needed" (pilot out or more hurt) / "never".
+STUB_CONSOLE_SWAP = "when_needed"
 # (STUB_REAR_MOUNTED removed 2026-10-19: mtf_parser keeps the "(R)" tag as
 # Equipment.rear_mounted; those weapons fire only into the rear arc - Core p.60.)
 # (STUB_HEAT_MODE removed 2026-10-18: heat now always carries over turn to

@@ -60,7 +60,7 @@ import INTEGRATION__structure_weight as structure_weight
 import INTEGRATION__water as water
 import INTEGRATION__physical_gear as gear
 import INTEGRATION__stubs as stubs
-from mech_state import head_hit_hurts_pilot, has_torso_cockpit, torso_cockpit_sensor_penalty  # p.203
+from mech_state import pilot_hit, head_hit_hurts_pilot, has_torso_cockpit, torso_cockpit_sensor_penalty  # p.203
 from mech_state import tripod_pilot_modifier  # p.236
 from mech_state import (DamageType, is_destroyed, is_immobile, mark_consciousness_check_pending,
                         arm_aes_working, leg_aes_working)
@@ -225,6 +225,8 @@ class Reach:
         self.flipped = action.flip
         # Kicks use the legs (p.81) - except a tripod's, which follow the torso (p.236).
         self.kick_ok = (self.torso_arc if self.tripod else pair[facing]) == arcs.FORWARD
+        # A quad's "mule kick" goes into its REAR arc (p.238, 2026-10-21).
+        self.mule_ok = mech.mech_type in ("quad", "quadvee") and pair[facing] == arcs.REAR
 
     def arm_ok(self, arm):
         if self.flipped:
@@ -239,7 +241,7 @@ class Reach:
 
     def signature(self):
         """Everything about the geometry the attack options depend on."""
-        return (self.arm_ok("Left Arm"), self.arm_ok("Right Arm"), self.kick_ok, self.club_ok())
+        return (self.arm_ok("Left Arm"), self.arm_ok("Right Arm"), self.kick_ok, self.club_ok(), self.mule_ok)
 
 
 def _strength(mech, per_tons, plus=0):
@@ -272,7 +274,46 @@ def _punch_options(m, rel, fired, table):
     return out
 
 
+QUAD_FRONT_LEGS = ("Front Left Leg", "Front Right Leg")
+QUAD_REAR_LEGS = ("Rear Left Leg", "Rear Right Leg")
+
+
+def _quad_kick_options(m, rel, fired, table):
+    """A quad's kicks (p.238, 2026-10-21): a front kick needs only its two
+    front hips (not all four); a "mule kick" into its rear arc needs its two
+    rear hips and both front legs; a hip hit stops kicks in that hip's arc
+    only, and only the kicking pair's leg actuators count against it."""
+    if rel.kick_ok:
+        pair, what = QUAD_FRONT_LEGS, "kick"
+    elif rel.mule_ok and not any(m.locations[l]["destroyed"] for l in QUAD_FRONT_LEGS):
+        pair, what = QUAD_REAR_LEGS, "mule kick"
+    else:
+        return []
+    if any(m.locations[l]["destroyed"] or l in m.destroyed_hip_locations for l in pair):
+        return []
+    mod, halves = KICK_MOD + _leg_aes(m), 0
+    for leg in pair:
+        if _lost(m, leg, "Foot Actuator"):
+            mod += 1
+        for part in ("Lower Leg Actuator", "Upper Leg Actuator"):
+            if _lost(m, leg, part):
+                mod += 2
+                halves += 1
+    out = []
+    for leg in pair:
+        if _limb_fired(m, leg, fired):
+            continue
+        dmg = _strength(m, 5) // (2 ** halves)
+        if leg in gear.talon_legs(m):
+            dmg = gear.with_talons(dmg)
+        out.append(dict(name=f"{what} ({leg})", mod=mod, damage=dmg, table="kick" if table is None else table,
+                        kick=True, limb=leg))
+    return out
+
+
 def _kick_options(m, rel, fired, table):
+    if m.mech_type in ("quad", "quadvee"):
+        return _quad_kick_options(m, rel, fired, table)
     if not rel.kick_ok or m.destroyed_hip_locations:
         return []
     legs = [l for l in m.leg_locations if not m.locations[l]["destroyed"]]
@@ -771,8 +812,7 @@ def run_physical_phase(mech_a, mech_b, terrain_map, reports):
             dmg, spiked = gear.spike_reduce(target, loc, dmg, o["name"])        # p.196
             dmg = gear.shield_absorb(target, loc, dmg, side)                    # p.195
             if loc == "Head" and head_hit_hurts_pilot(target):
-                target.pilot_hits += 1
-                mark_consciousness_check_pending(target)
+                pilot_hit(target, head=True)              # both warriors with a command console (p.203)
             before = gear.snapshot(target, loc)
             apply_damage(target, loc, dmg, armor_field="rear_armor" if side == "rear" else "armor",
                          damage_type=DamageType.PHYSICAL)

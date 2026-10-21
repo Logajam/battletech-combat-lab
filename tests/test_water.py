@@ -442,6 +442,39 @@ def drowning():
     assert atlas.pilot_hits == 1
 
 
+@check
+def harjel():
+    """p.208 (2026-10-21): HarJel I - no breach check while the location has
+    armor; a hit to it breaches the location. HarJel II - +2 to the breach
+    check; armor damage taken in a turn comes back, up to 2, in the End
+    Phase (never above the starting armor); HarJel III up to 4."""
+    import zipfile
+    import tempfile
+    import INTEGRATION__equipment_systems as equip
+    tmp = tempfile.mkdtemp()
+    with zipfile.ZipFile(os.path.join(REPO_ROOT, "data", "meks.zip")) as z:
+        lich = parse_mtf(z.extract("meks/WoR Supplemental/Osteon U.mtf", tmp))            # HarJel I
+        ariel = parse_mtf(z.extract("meks/XTRs/Royal Fantasy/Agrotera AGT-UA _Ariel_.mtf", tmp))
+    m = place(lich, "0808")
+    loc = next(l for l in m.locations if equip.harjel_kind(m, l) == 1)
+    assert equip.harjel_breach_check(m, loc) == (True, 0)
+    m.locations[loc]["armor"] = 0
+    if "rear_armor" in m.locations[loc]:
+        m.locations[loc]["rear_armor"] = 0
+    assert equip.harjel_breach_check(m, loc) == (False, 0)
+    a = place(ariel, "0808")
+    loc2 = next(l for l in a.locations if equip.harjel_kind(a, l) >= 2)
+    back = equip.HARJEL_REPAIR[equip.harjel_kind(a, loc2)]          # 2 (II) / 4 (III)
+    assert equip.harjel_breach_check(a, loc2) == (False, 2)
+    equip.harjel_start_turn(a)
+    a.locations[loc2]["armor"] -= 6
+    equip.harjel_end_turn(a)
+    assert a.locations[loc2]["armor"] == a.max_armor[loc2] - 6 + back
+    equip.harjel_start_turn(a)
+    equip.harjel_end_turn(a)                                         # no damage this turn: no repair
+    assert a.locations[loc2]["armor"] == a.max_armor[loc2] - 6 + back
+
+
 def run_all():
     failed = []
     for fn in CHECKS:

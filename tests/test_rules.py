@@ -748,6 +748,36 @@ def heavy_duty_gyro():
 
 
 @check
+def command_console():
+    """2026-10-21, Core p.203: a command console's second warrior takes head
+    and heat hits with the pilot (not explosions); losing the pilot's cockpit
+    slot hands the 'Mech to him; a pilot killed with him alive leaves the
+    'Mech pilotless until the End Phase swap - not destroyed."""
+    import tempfile
+    import zipfile
+    import damage_resolution as dr
+    from mech_state import pilot_hit, console_active, is_destroyed, swap_warriors
+    with zipfile.ZipFile(os.path.join(REPO_ROOT, "data", "meks.zip")) as z:
+        path = z.extract("meks/Turning Points/OTP Red Corsair/BattleMaster BLR-1G Red Corsair.mtf", tempfile.mkdtemp())
+    template = parse_mtf(path)
+    m = fresh(template)
+    assert console_active(m)
+    pilot_hit(m, head=True)
+    pilot_hit(m)                                                    # an explosion: the pilot only
+    assert (m.pilot_hits, m.secondary_hits) == (2, 1)
+    cockpits = [i for i, s in enumerate(m.crits["Head"]) if s == "Cockpit"]
+    dr.resolve_slot_hit(m, "Head", cockpits[0], "Cockpit", 1, 1)     # the pilot's slot
+    assert not is_destroyed(m) and m.pilot_hits == 1 and not console_active(m)
+    dr.resolve_slot_hit(m, "Head", cockpits[1], "Cockpit", 1, 1)     # now the last one
+    assert is_destroyed(m)
+    k = fresh(template)
+    k.pilot_hits = 6
+    assert not is_destroyed(k) and k.primary_dead and all(st["unconscious"] for st in k.crew.values())
+    swap_warriors(k)
+    assert k.pilot_hits == 0 and not any(st["unconscious"] for st in k.crew.values()) and not is_destroyed(k)
+
+
+@check
 def explosions_and_case():
     """2026-10-20, Core p.96: no CASE - at most 20 structure damage, and when
     the base damage was over 20 the location that took the 20th point loses

@@ -673,6 +673,58 @@ def tripod_gunner_modifier(mech):
     return TRIPOD_CREW_DISABLED_MODIFIER if mech.crew["gunner"]["unconscious"] else 0
 
 
+# =============================================================================
+# Cockpit command console (Core p.203, 2026-10-21): a second MechWarrior
+# (mech.secondary_hits) who takes head-hit and heat damage with the pilot, but
+# not ammunition / component explosion hits, and makes his own seatbelt check
+# in a fall. The console is the head's second "Cockpit" slot: if the pilot's
+# cockpit slot is destroyed the secondary takes over (the console benefit is
+# then gone); both destroyed = cockpit destroyed. In the End Phase the two may
+# swap seats (a choice - stubs.stub_console_swap); a pilot killed with a
+# living secondary leaves the 'Mech without a pilot until then (crew out).
+# Not modeled: the secondary's own consciousness rolls, spotting, Edge.
+# =============================================================================
+def has_command_console(mech):
+    return "COMMAND" in (getattr(mech, "cockpit_type", "") or "").upper()
+
+
+def console_active(mech):
+    """A console 'Mech whose second warrior is still in the console (alive)."""
+    return (has_command_console(mech) and not getattr(mech, "console_lost", False)
+            and getattr(mech, "secondary_hits", 0) < 6)
+
+
+def pilot_hit(mech, n=1, head=False):
+    """The MechWarrior takes n hits (a consciousness check follows). head /
+    heat: the command console's secondary warrior takes them too (p.203)."""
+    mech.pilot_hits += n
+    mark_consciousness_check_pending(mech)
+    if head and console_active(mech):
+        mech.secondary_hits = getattr(mech, "secondary_hits", 0) + n
+
+
+def console_takes_over(mech, why):
+    """The secondary warrior becomes the pilot for good (p.203)."""
+    mech.pilot_hits = getattr(mech, "secondary_hits", 0)
+    mech.console_lost = True
+    mech.primary_dead = False
+    for state in mech.crew.values():
+        state["unconscious"] = False
+    import config
+    config.log(f"  {mech.side_name}: the command console's MechWarrior takes over as pilot ({why}, p.203).")
+
+
+def swap_warriors(mech):
+    """End Phase seat swap (p.203)."""
+    mech.pilot_hits, mech.secondary_hits = getattr(mech, "secondary_hits", 0), mech.pilot_hits
+    dead = getattr(mech, "primary_dead", False)
+    mech.primary_dead = False
+    if dead:
+        mech.secondary_hits = 6                         # the dead warrior is now the secondary
+    for state in mech.crew.values():
+        state["unconscious"] = False                    # the secondary's own consciousness isn't modeled
+
+
 def has_torso_cockpit(mech):
     """A torso-mounted cockpit (Core p.203; MegaMek "Cockpit:Torso-Mounted Cockpit")."""
     return "TORSO" in (getattr(mech, "cockpit_type", "") or "").upper()
@@ -798,7 +850,14 @@ def is_destroyed(mech):
         mech.destroyed = True
         mech.cause_of_death = "Cockpit Destroyed"
         return True
-    if mech.pilot_hits >= 6:
+    if mech.pilot_hits >= 6 and console_active(mech):
+        # p.203: a living secondary warrior can take the seat in the End Phase -
+        # until then nobody flies the 'Mech (the checks below still apply).
+        if not getattr(mech, "primary_dead", False):
+            mech.primary_dead = True
+            for state in mech.crew.values():
+                state["unconscious"] = True
+    elif mech.pilot_hits >= 6:
         mech.destroyed = True
         mech.cause_of_death = "6 Pilot Hits"
         return True

@@ -192,6 +192,7 @@ def destroy_system(mech, kind, why):
 def start_turn(mech, turn_number):
     mech.turn_number = turn_number
     mech.systems_used_this_turn = set()
+    harjel_start_turn(mech)                    # HarJel II / III repair (p.208)
 
 
 def cycle_on(mech, turn_number=None):
@@ -225,6 +226,7 @@ def end_turn(mech):
         if key not in mech.systems_used_this_turn:
             mech.escalating_turns[key] = max(0, mech.escalating_turns[key] - 1)
     mech.systems_used_this_turn = set()
+    harjel_end_turn(mech)                      # HarJel II / III repair (p.208)
 
 
 # =============================================================================
@@ -417,3 +419,90 @@ def _supercharger_crits(mech, count):
 # =============================================================================
 def tsm_active_for(mech, heat_level):
     return mech.has_tsm and heat_level >= TSM_ACTIVE_HEAT
+
+
+# =============================================================================
+# ==========================  HARJEL  (p.208, 2026-10-21)  ====================
+# =============================================================================
+# HarJel I: no hull-breach check for its location while that location has any
+# armor (a breach is still automatic once all its armor is gone); a critical
+# hit to it breaches the location. HarJel II / III: +2 to the location's
+# breach checks while it has armor, and each turn the location takes armor
+# damage it gets up to 2 / 4 armor back in the End Phase (never above its
+# starting armor; a torso's split front / rear as evenly as possible); a
+# critical hit to it forces an immediate extra critical-hit check there.
+HARJEL_REPAIR = {2: 2, 3: 4}
+HARJEL_BREACH_BONUS = 2
+
+
+def harjel_kind(mech, location):
+    """1, 2 or 3 for a working HarJel (I / II / III) in `location`, else 0."""
+    best = 0
+    for s in mech.crits.get(location, []):
+        n = (getattr(s, "name", "") or "").replace(" ", "").upper() if isinstance(s, Equipment) else ""
+        if "HARJEL" in n:
+            best = max(best, 3 if "HARJELIII" in n else 2 if "HARJELII" in n else 1)
+    return best
+
+
+def _armor(mech, location):
+    v = mech.locations[location]
+    return v.get("armor", 0) + v.get("rear_armor", 0)
+
+
+def harjel_breach_check(mech, location):
+    """(skip the breach check?, bonus to the roll) for an underwater location
+    that took damage (INTEGRATION__water.check_breach)."""
+    kind = harjel_kind(mech, location)
+    if not kind or _armor(mech, location) <= 0:
+        return False, 0
+    return (True, 0) if kind == 1 else (False, HARJEL_BREACH_BONUS)
+
+
+def harjel_hit(mech, location, slot):
+    """A critical hit to a HarJel slot (p.208): HarJel I - the gel leaks and
+    the location counts as breached; II / III - an extra critical-hit check."""
+    n = (getattr(slot, "name", "") or "").replace(" ", "").upper()
+    if "HARJELII" in n:
+        config.log(f"      {slot.name} hit: gel leak - an immediate extra critical-hit check at {location} (p.208).")
+        from damage_resolution import check_critical
+        check_critical(mech, location)
+    else:
+        import INTEGRATION__water as water
+        config.log(f"      {slot.name} hit: gel leak - {location} counts as breached (p.208).")
+        water.breach(mech, location)
+
+
+def harjel_start_turn(mech):
+    mech.armor_at_turn_start = {loc: (v.get("armor", 0), v.get("rear_armor", 0)) for loc, v in mech.locations.items()}
+
+
+def harjel_end_turn(mech):
+    """End Phase repair for HarJel II / III locations that took armor damage."""
+    start = getattr(mech, "armor_at_turn_start", None)
+    if not start:
+        return
+    for loc, (front0, rear0) in start.items():
+        kind = harjel_kind(mech, loc)
+        v = mech.locations[loc]
+        if kind < 2 or v["destroyed"]:
+            continue
+        front, rear = v.get("armor", 0), v.get("rear_armor", 0)
+        if front >= front0 and rear >= rear0:
+            continue                                   # no armor damage here this turn
+        budget = HARJEL_REPAIR[kind]
+        room_f = max(0, mech.max_armor.get(loc, 0) - front)
+        room_r = max(0, mech.max_rear_armor.get(loc, 0) - rear) if "rear_armor" in v else 0
+        got_f = got_r = 0
+        while budget and (room_f > got_f or room_r > got_r):   # alternate - as evenly as possible
+            if room_f > got_f and (got_f <= got_r or room_r <= got_r):
+                got_f += 1
+            elif room_r > got_r:
+                got_r += 1
+            budget -= 1
+        if got_f or got_r:
+            v["armor"] = front + got_f
+            if got_r:
+                v["rear_armor"] = rear + got_r
+            config.log(f"  [End] {mech.side_name}'s HarJel {'II' if kind == 2 else 'III'} restores {got_f + got_r} "
+                       f"armor at {loc}{f' ({got_f} front, {got_r} rear)' if got_r else ''} (p.208).")
