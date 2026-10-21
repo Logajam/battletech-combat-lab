@@ -67,6 +67,11 @@ launchers, MRM cluster -1, pp.185-187); Gauss rifle component explosion
 | F22 | LOS on the border of two hexes | p.56 | Fixed 2026-10-20: the second hex was often missed (round-half-to-even), so its woods were ignored; along the board edge the off-board / partial hex is never used ("LOS cannot be shifted so that it passes through a partial hex") instead of crashing. The pick is the same from either end, so it holds for all attacks between the pair that turn. |
 | F23 | Hardened armor | p.202 | Checked 2026-10-20: all four effects were already built (2 points per pip, -2 TAC while armor remains, +1 PSR, -1 Running MP). |
 | F6 | Backward walking (was G1) | pp.45-46, 63 | Built 2026-10-20: a walking mech may step into the hex directly behind it (facing kept); a turn with a backward step never spends more than Walking MP; the hex count for TMM restarts when the mech reverses direction. The battle log marks moves that use it ("includes a backward move"). Not yet offered: backward level changes and backward charges (G11, G12). |
+| F24 | Map terrain from MegaMek's map pack (Daniel's 192 16x17 maps, 2026-10-21) | pp.47-48, 53, 122, 127 | Built 2026-10-21: MegaMek "option" lines load (20 maps wouldn't); depth-0 water costs nothing (p.122; 14 maps crashed); stacked terrain adds up (p.47; was G6); jungle costs as woods; rubble +1, swamp +1, sand / mud +0 (MP only - their PSRs are G19); road travel (p.53): +0 terrain and level change -1 only road to road (pavement and roofs count), a road hex entered off the road costs its underlying terrain (was: always +0). |
+| F25 | Level-change limits (was G2) | pp.46-47 | Built 2026-10-21: 2 levels a hex, 1 with a destroyed hip; charges' last step too. 74 of the 192 maps have 3+ level cliffs. |
+| F26 | Jump landing height (was G3) | p.50 | Built 2026-10-21: no landing higher than start level + Jumping MP. |
+| F27 | Passive buildings (Daniel's option, `config.PASSIVE_BUILDINGS`, default on) | pp.46, 50, 130, 134-135 | Built 2026-10-21: a building is a block as tall as its roof (hex level + height, p.130) - blocks LOS like a hill (p.135), can't be entered by ground movement, a jump can land on the roof (p.50), roof to roof same level or one lower, never off a roof on foot (p.134); pushes from the ground into it are blocked. Ignored before (82 maps): mechs walked and shot through buildings. The full rules (forced entry, inside, damage, collapse, support limits, pp.130-136) are a discussion with Daniel first. |
+| F28 | Terrain the simulator can't play is refused when the map loads | - | 2026-10-21, `terrain_rules.prepare_board`: bridges, ultra-heavy woods and MegaMek-only terrain (fuel tanks, magma, hazardous liquid, fortified, planted fields, elevators, impassable) stop the map with a list, instead of a crash mid-battle (bridges) or being played as clear. `tests/survey_maps.py` lists which maps play. |
 
 ---
 
@@ -75,11 +80,12 @@ launchers, MRM cluster -1, pp.185-187); Gauss rifle component explosion
 | # | Rule | Page | Notes |
 |---|---|---|---|
 | G1 | ~~Backward walking~~ | p.46 | Built 2026-10-20 - see F6. |
-| G2 | Ground movement: at most 2 levels up or down per hex; 1 with a destroyed hip or leg | pp.46-47, 90, 99 | The table lets a mech climb or drop any height for 1 MP per level. Already on the PATHFINDER backlog ("elevation cap ... unenforced"). LATENT. |
-| G3 | Jump landing height: no higher than start level + Jumping MP | p.50 | Only the hexes *passed over* are checked (`combat.build_jump_states`). LATENT. |
+| G2 | ~~Level-change limits~~ | pp.46-47 | Built 2026-10-21 - see F25. |
+| G3 | ~~Jump landing height~~ | p.50 | Built 2026-10-21 - see F26. |
 | G4 | No moving through the enemy's hex | p.48 | Only ending in its hex is excluded; a path can pass through it. Small effect on open boards (a 1-MP detour). |
 | G5 | Jump into your own hex (1 MP) | p.50 | Not offered. Gains the jump TMM bonus and a free facing without moving. Small. |
-| G6 | Running into water, rubble and other terrain PSRs; road movement only along the road (+0 only road-to-road, level change -1); stacked terrain costs add up | pp.48, 53, 110-111 | No board in `data/` has these yet. `terrain_rules` raises on stacked costs (loud, fine for now). Road +0 applies even when entering from off-road. LATENT. |
+| G6 | Water rules: depth works as a level change (p.51), partial cover in depth 1 (p.66), the running-into-water PSR (p.48), jumping into / out of water (p.50), underwater combat (p.127), water's heat-sink bonus | pp.48, 50-51, 66, 127 | Next task (Daniel, 2026-10-21: "Also Yes as the next task"). Road travel and stacked costs were built 2026-10-21 (F24). |
+| G19 | Terrain PSRs on entering a hex: rubble (+0), sand (only with a level change), mud (running facing change, -1) | pp.48, 122, 124 | Need a PSR in the middle of a move (the fall happens in that hex) - same machinery as the water PSR and backward level changes (G11). |
 | G7 | Prone mechs are 1 level high for LOS | p.57 | LOS treats every mech as standing. Affects what a prone mech can see or be seen by over low walls / hills. LATENT on a flat board. |
 | G8 | Minimum Movement (1 hex ahead with too few MP) | p.49 | Not offered. Rare (very damaged or heat-slowed mechs). |
 | G9 | Expected damage ignores leg hits lost to partial cover | p.66 | Movement scoring and weapon choice still count them. LATENT. |

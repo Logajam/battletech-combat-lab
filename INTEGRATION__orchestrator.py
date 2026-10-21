@@ -114,6 +114,7 @@ PATHFINDER_DIR = os.environ.get(
 if PATHFINDER_DIR not in sys.path:
     sys.path.insert(0, PATHFINDER_DIR)
 import board_parser  # noqa: E402 - PATHFINDER
+import terrain_rules  # noqa: E402 - PATHFINDER
 import hex_geometry  # noqa: E402 - PATHFINDER
 import combat  # noqa: E402 - PATHFINDER; build_jump_states/classify_movement_mode/fc_to_tmm/MODE_TO_AMM
 
@@ -156,8 +157,13 @@ def _load_map():
     path = config.data_path(config.DEFAULT_BOARD_PATH)
     config.log(f"\nLoading map: {path}")
     terrain_map = board_parser.parse_board_file(path)
+    # Refuses terrain the simulator can't play yet, and sets up buildings
+    # (config.PASSIVE_BUILDINGS) - see pathfinder/terrain_rules.py.
+    terrain_rules.prepare_board(terrain_map, passive_buildings=config.PASSIVE_BUILDINGS)
+    buildings = sum(1 for info in terrain_map["hexes"].values() if info.get("building"))
     config.log(f"  Map loaded: {terrain_map['width']}x{terrain_map['height']}, "
-               f"{len(terrain_map['hexes'])} hexes.")
+               f"{len(terrain_map['hexes'])} hexes"
+               + (f", {buildings} building hexes (passive)." if buildings else "."))
     return terrain_map
 
 
@@ -524,6 +530,17 @@ def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,
         with timing.section("movement"):
             _phase_movement(mover_second, mover_first, terrain_map, turn, battle_rng, moves_first=False)
         replay.mark(turn, f"{winner_name} moves")
+
+        if mech_red.hex is None or mech_blue.hex is None:
+            # A mech that couldn't enter the battlefield is destroyed (p.37) and
+            # never got a hex - e.g. a Solaris arena whose home edge is all wall
+            # (2026-10-21). Nothing else can happen this turn.
+            result.turns_taken = turn
+            red_dead, blue_dead = is_destroyed(mech_red), is_destroyed(mech_blue)
+            result.destroyed = "Both" if (red_dead and blue_dead) else ("Red" if red_dead else "Blue")
+            config.log(f"\n>>> Battle over on turn {turn}: {result.destroyed} destroyed "
+                       f"(couldn't enter the battlefield). <<<")
+            break
 
         _after_phase(mech_red, mech_blue)
         with timing.section("ranged attacks"):

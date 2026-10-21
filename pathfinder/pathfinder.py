@@ -13,8 +13,9 @@ Two modes:
   - terrain_map given (a board_parser.parse_board_file() result): Phase 2
     bucket-queue sweep (Dial's algorithm) per
     movement_pathfinder_handoff.md Section 4a. Forward-move cost comes
-    from terrain_rules.transition_cost() (backward moves too, when
-    backward_mp is given - 2026-10-20); turning always costs 1 MP
+    from terrain_rules.step_cost() (backward moves too, when
+    backward_mp is given - 2026-10-20), which also says which steps are
+    allowed at all (level-change limit, roofs - 2026-10-21); turning always costs 1 MP
     (facing changes have no terrain dependency). Board-edge bounding is
     enforced by simply not generating a transition into a hex that isn't
     in terrain_map — not by filtering afterward (per handoff Section 4e).
@@ -22,7 +23,7 @@ Two modes:
 Load-bearing invariant (both modes): every transition cost must be >= 1.
 Bucket-queue mode relies on this to guarantee each layer is processed
 exactly once (a transition from a state finalized at layer mp always
-lands at a layer > mp, never <= mp). terrain_rules.transition_cost()
+lands at a layer > mp, never <= mp). terrain_rules.step_cost()
 asserts this itself.
 """
 
@@ -77,6 +78,7 @@ def _build_terrain_aware(
     mp_budget: int,
     terrain_map: Dict[str, object],
     backward_mp: Optional[int] = None,
+    level_limit: int = terrain_rules.MAX_LEVEL_CHANGE,
 ) -> MovementTable:
     """Phase 2: bucket-queue (Dial's algorithm) sweep, board-edge bounded.
 
@@ -90,7 +92,8 @@ def _build_terrain_aware(
     hexes"), so the forward count restarts at 1 on a reversal; turning in
     place doesn't reverse anything.
     Backward LEVEL changes (one level, each needing a PSR, p.46) are not
-    offered: only a backward step into a hex of the same level. The movement
+    offered: only a backward step into a hex of the same level
+    (terrain_rules.step_cost with backward=True). The movement
     scoring has no way to price a PSR in the middle of a move yet (GAP in
     INTEGRATION__RULES_REVIEW.md).
 
@@ -148,23 +151,18 @@ def _build_terrain_aware(
 
             # 1. Forward move: cost from terrain_rules, into next hex.
             dest_info = hex_info(x + dx, y + dy)
-            if dest_info is not None and not dest_info["impassable"]:
-                new_mp = mp + terrain_rules.transition_cost(
-                    current_info["level"], dest_info["level"], dest_info["features"]
-                )
-                if new_mp <= budget:
-                    push(new_mp, (x + dx, y + dy, facing, 1, used_back), fc + 1 if last >= 0 else 1)
+            if dest_info is not None:
+                cost = terrain_rules.step_cost(current_info, dest_info, level_limit)
+                if cost is not None and mp + cost <= budget:
+                    push(mp + cost, (x + dx, y + dy, facing, 1, used_back), fc + 1 if last >= 0 else 1)
 
             # 2. Backward move (walking only, same level only - see docstring).
             if backward_mp is not None:
                 dest_info = hex_info(x - dx, y - dy)
-                if (dest_info is not None and not dest_info["impassable"]
-                        and dest_info["level"] == current_info["level"]):
-                    new_mp = mp + terrain_rules.transition_cost(
-                        current_info["level"], dest_info["level"], dest_info["features"]
-                    )
-                    if new_mp <= backward_mp:
-                        push(new_mp, (x - dx, y - dy, facing, -1, True), fc + 1 if last <= 0 else 1)
+                if dest_info is not None:
+                    cost = terrain_rules.step_cost(current_info, dest_info, level_limit, backward=True)
+                    if cost is not None and mp + cost <= backward_mp:
+                        push(mp + cost, (x - dx, y - dy, facing, -1, True), fc + 1 if last <= 0 else 1)
 
             # 3. / 4. Turning: always costs 1 MP, hex unchanged, forward_count unchanged.
             if mp + 1 <= budget:
@@ -181,9 +179,12 @@ def build_movement_table(
     mp_budget: int,
     terrain_map: Optional[Dict[str, object]] = None,
     backward_mp: Optional[int] = None,
+    level_limit: int = terrain_rules.MAX_LEVEL_CHANGE,
 ) -> MovementTable:
     """backward_mp: the mech's Walking MP to allow backward moves (terrain
-    mode only - see _build_terrain_aware); None = forward moves only."""
+    mode only - see _build_terrain_aware); None = forward moves only.
+    level_limit (2026-10-21, pp.46-47): most levels one ground step may climb
+    or drop - terrain_rules.max_level_change() (2, or 1 with a destroyed hip)."""
     if start_facing not in FACING_DELTAS:
         raise ValueError(f"start_facing must be 0-5, got {start_facing}")
     if mp_budget < 0:
@@ -191,7 +192,7 @@ def build_movement_table(
 
     if terrain_map is None:
         return _build_flat(start_x, start_y, start_facing, mp_budget)
-    return _build_terrain_aware(start_x, start_y, start_facing, mp_budget, terrain_map, backward_mp)
+    return _build_terrain_aware(start_x, start_y, start_facing, mp_budget, terrain_map, backward_mp, level_limit)
 
 
 def query_envelope(table: MovementTable) -> Set[State]:

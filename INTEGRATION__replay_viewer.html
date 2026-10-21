@@ -23,6 +23,9 @@ straight from disk or published as a link.
   --woods-light: #bcd2a2;
   --woods-heavy: #93b47c;
   --water: #a8c6dc;
+  --building: #8f8a84;
+  --paved: #d3cfc4;
+  --rough: #cfc3a6;
   --red: #b33f2a;
   --blue: #2c62a6;
   --hit: #9a3412;
@@ -37,6 +40,7 @@ straight from disk or published as a link.
   :root:not([data-theme="light"]) {
     --bg: #131714; --panel: #1a1f1b; --ink: #e3e8e1; --muted: #98a49b; --line: #313a33;
     --hex: #1f2620; --hex-edge: #36413a; --woods-light: #2f4627; --woods-heavy: #40602f; --water: #22405a;
+    --building: #4a4642; --paved: #34352f; --rough: #3e3a2c;
     --red: #e46a52; --blue: #5d95de; --hit: #f0915f; --good: #8fc26f; --armor: #9fb184; --structure: #d6a052;
     color-scheme: dark;
   }
@@ -44,6 +48,7 @@ straight from disk or published as a link.
 :root[data-theme="dark"] {
   --bg: #131714; --panel: #1a1f1b; --ink: #e3e8e1; --muted: #98a49b; --line: #313a33;
   --hex: #1f2620; --hex-edge: #36413a; --woods-light: #2f4627; --woods-heavy: #40602f; --water: #22405a;
+  --building: #4a4642; --paved: #34352f; --rough: #3e3a2c;
   --red: #e46a52; --blue: #5d95de; --hit: #f0915f; --good: #8fc26f; --armor: #9fb184; --structure: #d6a052;
   color-scheme: dark;
 }
@@ -234,26 +239,37 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
     return e;
   }
   var terrain = el("g", {}, svg);
-  var seen = { woods1: false, woods2: false, water: false, level: false, other: {} };
+  var seen = { woods1: false, woods2: false, water: false, level: false, building: false, paved: false, rough: false, other: {} };
   Object.keys(data.board.hexes).sort().forEach(function (label) {
     var h = data.board.hexes[label], p = centre(label), f = h.f || {};
     var fill = "var(--hex)";
-    if (f.woods) { fill = String(f.woods) === "1" ? "var(--woods-light)" : "var(--woods-heavy)"; seen["woods" + (String(f.woods) === "1" ? 1 : 2)] = true; }
-    if (f.water) { fill = "var(--water)"; seen.water = true; }
+    var trees = f.woods || f.jungle;
+    if (f.road || f.pavement) { fill = "var(--paved)"; seen.paved = true; }
+    if (f.rough || f.rubble) { fill = "var(--rough)"; seen.rough = true; }
+    if (trees) { fill = String(trees) === "1" ? "var(--woods-light)" : "var(--woods-heavy)"; seen["woods" + (String(trees) === "1" ? 1 : 2)] = true; }
+    if (f.water && String(f.water) !== "0") { fill = "var(--water)"; seen.water = true; }
+    if (h.b) { fill = "var(--building)"; seen.building = true; }
     el("polygon", { points: hexPoints(p[0], p[1]), fill: fill, stroke: "var(--hex-edge)", "stroke-width": h.l ? 1.6 : 0.8 }, terrain);
     var t = el("text", { x: p[0], y: p[1] - R * 0.55, "text-anchor": "middle", "font-size": 6.5, fill: "var(--muted)", "font-family": "IBM Plex Mono, monospace" }, terrain);
     t.textContent = label;
     if (h.l) {
       seen.level = true;
       var lv = el("text", { x: p[0], y: p[1] + R * 0.72, "text-anchor": "middle", "font-size": 7.5, "font-weight": 600, fill: "var(--ink)" }, terrain);
-      lv.textContent = "L" + h.l;
+      lv.textContent = (h.b ? "B" : "L") + h.l;
+    }
+    if (f.water && String(f.water) !== "0") {
+      var dp = el("text", { x: p[0], y: p[1] + R * 0.12, "text-anchor": "middle", "font-size": 6.5, fill: "var(--muted)" }, terrain);
+      dp.textContent = "D" + f.water;
     }
     Object.keys(f).forEach(function (k) { if (k !== "woods" && k !== "water") seen.other[k] = true; });
   });
   var legend = [];
   if (seen.woods1) legend.push('<span><i style="background:var(--woods-light)"></i>Light woods</span>');
   if (seen.woods2) legend.push('<span><i style="background:var(--woods-heavy)"></i>Heavy woods</span>');
-  if (seen.water) legend.push('<span><i style="background:var(--water)"></i>Water</span>');
+  if (seen.water) legend.push('<span><i style="background:var(--water)"></i>Water (D1, D2... = depth)</span>');
+  if (seen.rough) legend.push('<span><i style="background:var(--rough)"></i>Rough / rubble</span>');
+  if (seen.paved) legend.push('<span><i style="background:var(--paved)"></i>Road / pavement</span>');
+  if (seen.building) legend.push('<span><i style="background:var(--building)"></i>Building (B3 = roof at level 3)</span>');
   if (seen.level) legend.push("<span>L1, L2... = level</span>");
   SIDES.forEach(function (s) {
     legend.push('<span><i style="background:' + sideVar(s) + ';border-color:' + sideVar(s) + '"></i>' + s + ": " + esc(data.mechs[s].name) + "</span>");

@@ -25,13 +25,16 @@ models MASC / supercharger speed; a new movement objective, Daniel's
 tracker on every batch; reference battles capped at 50 turns. Details and
 A/B numbers: Change Record (Section 8), Daniel's calls: Section 5.
 
-**Another instance is working on MAPS in parallel** (Daniel, 2026-10-21:
-"making sure more varied map functionality works" - the review's gap list,
-item 7 below). It branched before PR #31. Whoever merges second: merge
-`origin/main` into your branch first, then REGENERATE the reference logs
-(`python tests/check_reference_logs.py --update`, never hand-merge them),
-rerun `tests/run_checks.py`, and record it in the Change Record. Expect
-Change Record / Section 0 merge conflicts - keep both sides' entries.
+**Maps (2026-10-21, the parallel maps instance - merged after PR #31):**
+Daniel's MegaMek map pack is `data/maps.zip` (346 maps, 192 of them 16x17);
+`python tests/survey_maps.py` says which play and what stops the rest.
+165 of the 192 16x17 maps play (31 did before - the rest crashed, didn't
+load, or had buildings / cliffs silently ignored). Built: costs and stacking,
+road travel, level-change limits, jump landing height, PASSIVE buildings
+(`config.PASSIVE_BUILDINGS`), and a load-time refusal of terrain not built
+yet. Next: the water rules (G6), then the full building rules (a discussion
+with Daniel first). Details: RULES_REVIEW F24-F28, G6, G19; Section 4
+"Map terrain waiting on rules".
 
 **Hand-off for a new instance.** Daniel's goal: "beat the simulator into
 shape." He is not a GitHub person - **Claude runs the logistics** (Daniel,
@@ -140,6 +143,13 @@ with `python tests/ab_batches.py` (same seeds, several settings side by side).
 - Time tracker (`INTEGRATION__timing`, 2026-10-21): every batch ends with a
   "WHERE THE TIME WENT" table (`config.TIMING`); `config.PROFILE_FUNCTIONS`
   adds a per-function profile. The benchmark prints it too.
+- Map terrain (2026-10-21, `pathfinder/terrain_rules.py`): Movement Costs
+  Table (p.48) with stacking (p.47), road travel (p.53), at most 2 levels a
+  step (1 with a destroyed hip, pp.46-47), jump landing height (p.50),
+  passive buildings (option `PASSIVE_BUILDINGS`, default on: block LOS,
+  can't be walked into, jump onto the roof, roof-to-roof moves, p.134);
+  `terrain_rules.prepare_board` refuses terrain not built yet when the map
+  loads. Water's only effect so far is its MP cost.
 - Heat (pp.102-107) and heat equipment; piloting rolls one per trigger
   (p.110); seatbelt checks (p.117); falls with the 1D6 side roll (p.115) and
   multiple levels; displacement; deployment from home edges.
@@ -202,11 +212,11 @@ open). Read it before building rules.
    priced in movement scoring - Daniel's rule so far is "only Movement-phase
    PSRs count". A bot target choosing the clearer hex on a two-hex LOS line
    (p.56) isn't modeled (Section 6).
-7. **Maps - the other instance's work** (see above): the review's gap list
-   (mostly LATENT on the flat default board: level-change limits, jump
-   landing height, water / roads / rubble, prone LOS height, backward level
-   changes); terrain PSRs / mines in a spot's cost; `PROMPT_FOR_MAP` /
-   `STITCH_MAPS`.
+7. **Maps** (see above): water rules next (G6, Daniel: "the next task"),
+   then the full building rules (discuss with Daniel first); terrain PSRs
+   mid-move (G19 rubble / sand / mud, G11 backward level changes) and in a
+   spot's cost; prone LOS height (G7); Section 4 "Map terrain waiting on
+   rules" (Daniel is hunting the rules); `PROMPT_FOR_MAP` / `STITCH_MAPS`.
 8. Waiting on Daniel (Section 4): stand-up PSR -1, tripod -1, jumped with leg
    destroyed +4 (MECHSIM: +5), quads standing; D8 (LOS model); does HOLDING a
    club stop arm / torso weapons firing?
@@ -403,6 +413,24 @@ https://claude.ai/artifact/NJUknRiK1fcZzUv4A1fndX
   - confirm it with a test (shared bins, a gun with no ammo left drops out of
   the column) and fix anything that falls short.
 
+**Map terrain waiting on rules (Daniel is hunting them, 2026-10-21):** these
+stop a map loading (`terrain_rules.UNSUPPORTED_FEATURES`); counts are of the
+192 16x17 maps in `data/maps.zip` (`python tests/survey_maps.py`):
+- Bridges - 11 maps. In the Core Rulebook (pp.53, 131: paved bridges are
+  roads, otherwise buildings; under-bridge movement; capacity, collapse), but
+  they lean on the full building rules.
+- Fuel tanks - 6; hazardous liquid - 3; ultra-heavy woods (density 3) - 3;
+  fortified hexes - 2; planted fields - 2; elevators - 1; impassable - 1;
+  magma - 1 (the Core Rulebook only mentions it in passing and points to
+  *MapPack: Volcanic*). None of
+  these are in the rules library.
+- Solaris arena maps (e.g. Hartford Gardens, Scrapyard) are walled: their
+  east / west edges are all building, so a home-edge deployment there means
+  neither mech can enter (both destroyed, p.37). Arenas need a deployment
+  zone inside - Daniel's call.
+- Not blocking, ignored: MegaMek "arms" / "legs" terrain (severed limbs lying
+  in a hex, 4 maps) - pick-up isn't on (clubs, p.79).
+
 **Weapon-use readings (Claude, 2026-10-20, `INTEGRATION__fire_modes`):**
 - DECIDED (Daniel): an attack on a hex (Apollo saturation, Arrow IV) takes no
   target modifiers - no TMM, not even the immobile -4 - "so its usually gunnery
@@ -474,9 +502,9 @@ No PATHFINDER module used by the battle loop imports `config`.
   Tripod, small/torso cockpit) specified but not implemented, cockpit-type/AES
   not parsed.
 - PATHFINDER: impassable-hex detection (`.board` always reports `False`,
-  no confirmed rule); bridge cost/elevation rules (`ValueError` on any
-  bridge feature, unconfirmed); elevation cap on single-step movement
-  (unenforced); LOS rule-6 tie-break is a placeholder pending a real
+  no confirmed rule); bridges (refused at map load since 2026-10-21 - see
+  "Map terrain waiting on rules"); ~~elevation cap on single-step movement~~
+  (built 2026-10-21, pp.46-47); LOS rule-6 tie-break is a placeholder pending a real
   evaluation function; closing-turn reweighting formula undesigned;
   persistent cross-call LOS/damage-EV cache (currently rebuilt per
   candidate); JSON export of search-state (deferred).
@@ -590,6 +618,21 @@ forward arc, kicks included, never into a side arc.
 ---
 
 ## 5. DECISIONS LOG (Daniel's calls — implementation may not override)
+
+- **Map calls (Daniel, 2026-10-21, after the survey of MegaMek's 192 16x17
+  maps):**
+  - Easy map fixes approved: MegaMek "option" lines, depth-0 water, stacked
+    terrain costs, jungle, the 2-level climbing limit.
+  - Water rules (partial cover, running PSR, heat sinks, underwater combat):
+    "Also Yes as the next task."
+  - Buildings: "set an option (Set to on) to treat buildings as passive
+    terrain. Blocks LOS. Can't be entered. Can be jumped onto (But not
+    climbed onto IIRC)" - built as `config.PASSIVE_BUILDINGS` (default True).
+    The full Core building rules come next, "probably a discussion first".
+  - The rest (bridges, ultra-heavy woods, MegaMek-only terrain): "We're
+    after full functionality in the end. So you'll have to let me know what
+    is still causing problems so I can go hunt down rules. I know ultra heavy
+    is easy enough to add. Bridges are probably a pain."
 
 - **Session 3 calls (Daniel, 2026-10-20):**
   - Build order: AMS, then "Artemis and Narc. Since they both affect Missiles
@@ -894,6 +937,45 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-21 (Claude):** MAPS, part 1 (Daniel, after the survey of
+  MegaMek's 192 16x17 maps: "1. Yes ... 3. set an option (Set to on) to
+  treat buildings as passive terrain"). Before: 31 maps played correctly, 29
+  crashed (depth-0 water, bridges, ultra-heavy woods, stacked costs), 20
+  didn't load (MegaMek "option" lines), and on the rest buildings, cliffs
+  and most water rules were silently ignored. Now 165 play.
+  - `pathfinder/board_parser.py`: skips "option" lines; knows MegaMek's
+    terrain names (no warnings for building / pavement / fluff codes).
+  - `pathfinder/terrain_rules.py` rewritten around `step_cost(from, to,
+    level_limit, backward)` (MP or None = not allowed): Movement Costs Table
+    p.48 with jungle / rubble / swamp / sand / mud / depth-0 water; stacked
+    terrain adds up (p.47); road travel only road to road (p.53 - a road hex
+    entered off the road now pays its terrain, CHANGED from always +0); the
+    2-level limit, 1 with a destroyed hip (pp.46-47); passive buildings
+    (pp.46, 134). `prepare_board()` runs when a map loads: refuses terrain not
+    built yet with a list (bridges, ultra-heavy woods, MegaMek-only terrain)
+    and turns building hexes into roofs (level = hex level + height, p.130).
+    `transition_cost` kept for simple callers / old tests.
+  - `pathfinder/pathfinder.py` (`level_limit`), `ranged_combat.movement_options`
+    (hip limit; board entry can't land on a roof), `pathfinder/combat.py`
+    (jump landing height, p.50), `movement_attacks` (charge's last step uses
+    step_cost; a push from the ground into a building is blocked).
+  - Option `config.PASSIVE_BUILDINGS` (default True; False refuses maps with
+    buildings until the full rules are built).
+  - Bug fix (`orchestrator.run_battle`): a mech that can't enter the
+    battlefield (destroyed, p.37) left the battle running into the Ranged
+    phase with no hex and crashed; the battle now ends there. Found on the
+    Solaris arenas (Hartford Gardens, Scrapyard), whose east / west edges are
+    solid walls.
+  - Replay viewer draws buildings (B3 = roof level 3), roads / pavement,
+    rough / rubble, water depth.
+  - `data/maps.zip` (Daniel's map pack), `tests/survey_maps.py` (which maps
+    play), `tests/test_terrain.py` (10 checks), new reference battle Black
+    Hawk F vs Cataphract CTF-3D on `data/16x17_Military_Base_1.board` (seed 1,
+    3 roof landings). The other reference logs are unchanged (flat board).
+    Published replay: https://claude.ai/artifact/HcWk2ESA5zT4YKGc8MGfem
+  - RULES_REVIEW F24-F28 (G2, G3 done), G6 now the water rules, new G19
+    (terrain PSRs mid-move). Section 4: "Map terrain waiting on rules".
 
 - **2026-10-21 (Claude):** Session 4 wrap-up (Daniel: "Cap the test battles
   length to 50 ... Anti-stall rule for the bot is added to the future tasks
