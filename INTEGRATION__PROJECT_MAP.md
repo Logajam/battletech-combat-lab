@@ -862,6 +862,19 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** A/B batches for the history blend (same seeds as
+  the ratio / lifetime batches below). Kontio vs Hammerhead, 100: lifetime +
+  history K=3 Kontio 58 / Hammerhead 41 / draw 1 (ratio 59 / 39 / 2, plain
+  lifetime 68 / 32 / 0), 19.3 turns (12.8 / 23.9), 13 off-board deaths
+  (45 / 12); K=1: 55 / 45 / 0, 20.4 turns, 15 off-board - K 1 vs 3 is within
+  the dice noise. Atlas AS7-K vs Archer ARC-2R, 40: 37 / 3 / 0, 15.8 turns
+  (ratio 11.1, lifetime 21.7), same winner as ratio on 37 of 40. Cataphract
+  CTF-3D vs Emperor EMP-6D: 3 / 37, 19.0 turns (12.4 / 24.6), same winner 34
+  of 40. Replays, seed 766213648170853994 (pushed off turn 8 under ratio, wins
+  turn 16 with history): https://claude.ai/artifact/C1ZBQWqzZmAnkp3tJfun5w
+  (ratio), https://claude.ai/artifact/44yfKRLbr1XDTatWiBDCX9 (history K=3).
+  Waiting on Daniel: make lifetime + history K=3 the default?
+
 - **2026-10-21 (Claude):** History blend for the lifetime objective (Daniel:
   "We can't predict the future. But we can record the past"; "go with History
   blended K for now"; no destruction filter - "Works for pushes. Doesn't work
