@@ -156,10 +156,11 @@ def _build_terrain_aware(
                 if cost is not None and mp + cost <= budget:
                     push(mp + cost, (x + dx, y + dy, facing, 1, used_back), fc + 1 if last >= 0 else 1)
 
-            # 2. Backward move (walking only, same level only - see docstring).
+            # 2. Backward move (walking only, same level only - see docstring;
+            # level changes, with their PSR, are _build_terrain_psr's).
             if backward_mp is not None:
                 dest_info = hex_info(x - dx, y - dy)
-                if dest_info is not None:
+                if dest_info is not None and dest_info["level"] == current_info["level"]:
                     cost = terrain_rules.step_cost(current_info, dest_info, level_limit, backward=True)
                     if cost is not None and mp + cost <= backward_mp:
                         push(mp + cost, (x - dx, y - dy, facing, -1, True), fc + 1 if last <= 0 else 1)
@@ -172,6 +173,124 @@ def _build_terrain_aware(
     return table
 
 
+class PathTable(dict):
+    """A MovementTable (state -> {mp_spent: forward_count}) that also knows,
+    for each entry, the terrain PSRs its path forces - psrs[state][mp] =
+    (always, run_only), terrain_rules.step_psrs / turn_psrs - and, when asked
+    for, how to walk it (path()). Built by _build_terrain_psr (2026-10-21,
+    Daniel's movement subphase)."""
+
+    def __init__(self):
+        super().__init__()
+        self.psrs: Dict[State, Dict[int, Tuple[int, int]]] = {}
+        self.parents = None        # {(search key, mp): (previous key, previous mp, step)} when kept
+        self.best_keys = {}        # {(state, mp): the search key that won the table entry}
+
+    def path(self, state: State, mp: int):
+        """[(step, (x, y, facing), mp after)] from the start to `state` at `mp`
+        (needs keep_parents); step is "forward", "backward" or "turn"."""
+        key = self.best_keys[(state, mp)]
+        out = []
+        while (key, mp) in self.parents:
+            prev_key, prev_mp, step = self.parents[(key, mp)]
+            out.append((step, key[:3], mp))
+            key, mp = prev_key, prev_mp
+        out.reverse()
+        return out
+
+
+def _build_terrain_psr(
+    start_x: int,
+    start_y: int,
+    start_facing: int,
+    mp_budget: int,
+    terrain_map: Dict[str, object],
+    backward_mp: Optional[int],
+    level_limit: int,
+    keep_parents: bool,
+) -> PathTable:
+    """_build_terrain_aware on a board where steps can force terrain PSRs
+    (terrain_rules.has_psr_terrain; 2026-10-21, Daniel: "There is a
+    difference between planning where you want to go which the picker does.
+    And actually getting there"). The same search, but each entry also counts
+    its path's terrain PSRs (always, run-only); between two paths to the same
+    state and MP, the one with more hexes moved wins as before, then the one
+    with fewer PSRs. Backward level changes (one level, a PSR each, p.46) are
+    allowed here. keep_parents: remember each entry's path (PathTable.path),
+    for the movement subphase that walks it."""
+    hexes = terrain_map["hexes"]
+
+    def hex_info(x: int, y: int) -> Optional[dict]:
+        try:
+            label = hex_label(x, y)
+        except ValueError:
+            return None
+        return hexes.get(label)
+
+    table = PathTable()
+    if keep_parents:
+        table.parents = {}
+    if hex_info(start_x, start_y) is None:
+        raise ValueError(f"Start hex {hex_label(start_x, start_y)!r} is not on the loaded board.")
+
+    start_key = (start_x, start_y, start_facing, 0, False)
+    # buckets[mp] = {search key: (forward_count, -total PSRs, always, run_only)}
+    buckets: Dict[int, Dict[tuple, tuple]] = {0: {start_key: (0, 0, 0, 0)}}
+    parents = table.parents
+
+    def push(mp, key, value, prev_key, prev_mp, step):
+        b = buckets.setdefault(mp, {})
+        old = b.get(key)
+        if old is None or value[:2] > old[:2]:
+            b[key] = value
+            if parents is not None:
+                parents[(key, mp)] = (prev_key, prev_mp, step)
+
+    for mp in range(mp_budget + 1):
+        bucket = buckets.get(mp)
+        if not bucket:
+            continue
+        for key, value in bucket.items():
+            x, y, facing, last, used_back = key
+            fc, neg, always, run_only = value
+            state = (x, y, facing)
+            col = table.setdefault(state, {})
+            if mp not in col or (fc, neg) > (col[mp], -sum(table.psrs[state][mp])):
+                col[mp] = fc
+                table.psrs.setdefault(state, {})[mp] = (always, run_only)
+                table.best_keys[(state, mp)] = key
+            budget = backward_mp if used_back else mp_budget
+            current_info = hex_info(x, y)
+            dx, dy = FACING_DELTAS[facing]
+
+            # 1. Forward move.
+            dest_info = hex_info(x + dx, y + dy)
+            if dest_info is not None:
+                cost = terrain_rules.step_cost(current_info, dest_info, level_limit)
+                if cost is not None and mp + cost <= budget:
+                    a, r = terrain_rules.step_psrs(current_info, dest_info)
+                    push(mp + cost, (x + dx, y + dy, facing, 1, used_back),
+                         (fc + 1 if last >= 0 else 1, neg - a - r, always + a, run_only + r), key, mp, "forward")
+
+            # 2. Backward move (walking only; a level change costs a PSR).
+            if backward_mp is not None:
+                dest_info = hex_info(x - dx, y - dy)
+                if dest_info is not None:
+                    cost = terrain_rules.step_cost(current_info, dest_info, level_limit, backward=True)
+                    if cost is not None and mp + cost <= backward_mp:
+                        a, r = terrain_rules.step_psrs(current_info, dest_info, backward=True)
+                        push(mp + cost, (x - dx, y - dy, facing, -1, True),
+                             (fc + 1 if last <= 0 else 1, neg - a - r, always + a, run_only + r), key, mp, "backward")
+
+            # 3. / 4. Turning (mud: a PSR if running, p.124).
+            if mp + 1 <= budget:
+                a, r = terrain_rules.turn_psrs(current_info)
+                for new_facing in ((facing - 1) % 6, (facing + 1) % 6):
+                    push(mp + 1, (x, y, new_facing, last, used_back), (fc, neg - a - r, always + a, run_only + r),
+                         key, mp, "turn")
+    return table
+
+
 def build_movement_table(
     start_x: int,
     start_y: int,
@@ -180,11 +299,15 @@ def build_movement_table(
     terrain_map: Optional[Dict[str, object]] = None,
     backward_mp: Optional[int] = None,
     level_limit: int = terrain_rules.MAX_LEVEL_CHANGE,
+    keep_parents: bool = False,
 ) -> MovementTable:
     """backward_mp: the mech's Walking MP to allow backward moves (terrain
     mode only - see _build_terrain_aware); None = forward moves only.
     level_limit (2026-10-21, pp.46-47): most levels one ground step may climb
-    or drop - terrain_rules.max_level_change() (2, or 1 with a destroyed hip)."""
+    or drop - terrain_rules.max_level_change() (2, or 1 with a destroyed hip).
+    On a board where a step can force a terrain PSR (terrain_rules.
+    has_psr_terrain) the table is a PathTable (PSR counts per entry, paths
+    with keep_parents) - 2026-10-21, Daniel's movement subphase."""
     if start_facing not in FACING_DELTAS:
         raise ValueError(f"start_facing must be 0-5, got {start_facing}")
     if mp_budget < 0:
@@ -192,6 +315,9 @@ def build_movement_table(
 
     if terrain_map is None:
         return _build_flat(start_x, start_y, start_facing, mp_budget)
+    if terrain_rules.has_psr_terrain(terrain_map) or keep_parents:
+        return _build_terrain_psr(start_x, start_y, start_facing, mp_budget, terrain_map, backward_mp, level_limit,
+                                  keep_parents)
     return _build_terrain_aware(start_x, start_y, start_facing, mp_budget, terrain_map, backward_mp, level_limit)
 
 

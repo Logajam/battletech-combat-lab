@@ -57,7 +57,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 3 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 500.194 = dealt 11.31 x1.00 + (HP 326.0 - received 3.62 x1.01 - PSR 0.00) / enemy future 7.31 x my future 11.09 [two-ply, 502 spots x 472 replies; modeled reply Blue -> 1505 SE Jump]
+  [Movement select] Red: score 500.194 = dealt 11.31 x1.00 + (HP 326.0 - received 3.62 x1.01 - PSR 0.00) / enemy future 7.31 x my future 11.09 [two-ply, 502 spots x 485 replies; modeled reply Blue -> 1505 SE Jump]
   [Movement] Red: 1612 NE -> 1605 N, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue: score 253.346 = dealt 3.62 x1.01 + (HP 390.0 - received 11.31 x1.00 - PSR 0.00) / enemy future 11.09 x my future 7.31 [enemy held at 1605; 31 spots with LOS]
   [Movement] Blue: 1104 S -> 1506 NE, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
@@ -102,9 +102,9 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 4 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 582.358 = dealt 30.30 x1.03 + (HP 322.0 - received 16.52 x1.00 - PSR 0.00) / enemy future 6.48 x my future 11.69 [two-ply, 478 spots x 331 replies; modeled reply Blue -> 1506 NE Stand Still]
+  [Movement select] Red: score 582.358 = dealt 30.30 x1.03 + (HP 322.0 - received 16.52 x1.00 - PSR 0.00) / enemy future 6.48 x my future 11.69 [two-ply, 478 spots x 343 replies; modeled reply Blue -> 1506 NE Stand Still]
   [Movement] Red: 1605 N -> 1610 N, Walk (5 MP, 5 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
-  [Movement select] Blue: score 207.642 = dealt 16.52 x1.00 + (HP 376.0 - received 30.30 x1.03 - PSR 0.00) / enemy future 11.69 x my future 6.48 [enemy held at 1610; 181 spots with LOS]
+  [Movement select] Blue: score 207.642 = dealt 16.52 x1.00 + (HP 376.0 - received 30.30 x1.03 - PSR 0.00) / enemy future 11.69 x my future 6.48 [enemy held at 1610; 191 spots with LOS]
   [Movement] Blue: 1506 NE -> 1506 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
   [Ranged] Red -> Blue: range 5, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLHAG20'] (weapon heat 19 of budget 31 = max 4 + sink 28 - current 0 - movement 1 - other 0; expected dmg 30.30)
     CLERMediumLaser: needs 5 (range mod +0), rolled 6 -> HIT
@@ -191,7 +191,7 @@ Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 8.
 
 === TURN 6 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 150.487 = dealt 3.21 x0.98 + (HP 336.0 - received 6.41 x1.00 - PSR 0.00) / enemy future 15.01 x my future 6.71 [two-ply, 339 spots x 516 replies; modeled reply Red -> 1511 SW Jump]
+  [Movement select] Blue: score 150.487 = dealt 3.21 x0.98 + (HP 336.0 - received 6.41 x1.00 - PSR 0.00) / enemy future 15.01 x my future 6.71 [two-ply, 350 spots x 516 replies; modeled reply Red -> 1511 SW Jump]
   [Movement] Blue: 1509 SE -> 1208 SE, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red: score 686.112 = dealt 6.41 x1.00 + (HP 307.0 - received 3.21 x0.98 - PSR 0.00) / enemy future 6.71 x my future 15.01 [enemy held at 1208; 12 spots with LOS]
   [Movement] Red: 1615 N -> 1511 SW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
@@ -260,9 +260,9 @@ Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 8.
 
 === TURN 7 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 149.867 = dealt 1.64 x0.97 + (HP 316.0 - received 3.22 x0.97 - PSR 0.00) / enemy future 15.62 x my future 7.40 [two-ply, 514 spots x 567 replies; modeled reply Red -> 1010 SW Jump]
+  [Movement select] Blue: score 149.867 = dealt 1.64 x0.97 + (HP 316.0 - received 3.22 x0.97 - PSR 0.00) / enemy future 15.62 x my future 7.40 [two-ply, 521 spots x 569 replies; modeled reply Red -> 1010 SW Jump]
   [Movement] Blue: 1208 SE -> 1006 SE, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 624.354 = dealt 3.22 x0.97 + (HP 296.0 - received 1.64 x0.97 - PSR 0.00) / enemy future 7.40 x my future 15.62 [enemy held at 1006; 438 spots with LOS]
+  [Movement select] Red: score 624.354 = dealt 3.22 x0.97 + (HP 296.0 - received 1.64 x0.97 - PSR 0.00) / enemy future 7.40 x my future 15.62 [enemy held at 1006; 440 spots with LOS]
   [Movement] Red: 1511 SW -> 1010 SW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
   [Ranged] Blue -> Red: range 4, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 1 + heat 0); firing ['ISLBXAC10', 'ISMediumLaser', 'ISUltraAC5'] (weapon heat 7 of budget 17 = max 4 + sink 16 - current 0 - movement 3 - other 0; expected dmg 1.64)
     [Blue fire control] ISLBXAC10: LB-X cluster rounds; ISUltraAC5: rapid fire x2
@@ -282,7 +282,7 @@ Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 8.
 
 === TURN 8 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 624.590 = dealt 0.00 x1.00 + (HP 296.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 6.48 x my future 13.67 [two-ply, 847 spots x 384 replies; modeled reply: none with LOS]
+  [Movement select] Red: score 624.590 = dealt 0.00 x1.00 + (HP 296.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 6.48 x my future 13.67 [two-ply, 848 spots x 395 replies; modeled reply: none with LOS]
   [Movement] Red: 1010 SW -> 1214 NE, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue: no spot deals damage - closing fallback
   [Movement] Blue: 1006 SE -> 1208 N, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
@@ -295,7 +295,7 @@ Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 8.
 
 === TURN 9 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 149.336 = dealt 0.18 x0.97 + (HP 316.0 - received 1.28 x0.97 - PSR 0.00) / enemy future 12.15 x my future 5.76 [two-ply, 492 spots x 770 replies; modeled reply Red -> 0713 SW Jump]
+  [Movement select] Blue: score 149.336 = dealt 0.18 x0.97 + (HP 316.0 - received 1.28 x0.97 - PSR 0.00) / enemy future 12.15 x my future 5.76 [two-ply, 501 spots x 770 replies; modeled reply Red -> 0713 SW Jump]
   [Movement] Blue: 1208 N -> 1006 SE, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red: score 625.476 = dealt 1.28 x0.97 + (HP 296.0 - received 0.18 x0.97 - PSR 0.00) / enemy future 5.76 x my future 12.15 [enemy held at 1006; 228 spots with LOS]
   [Movement] Red: 1214 NE -> 0713 SW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
@@ -313,7 +313,7 @@ Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 8.
 
 === TURN 10 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 624.590 = dealt 0.00 x1.00 + (HP 296.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 5.18 x my future 10.93 [two-ply, 567 spots x 384 replies; modeled reply: none with LOS]
+  [Movement select] Red: score 624.590 = dealt 0.00 x1.00 + (HP 296.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 5.18 x my future 10.93 [two-ply, 567 spots x 395 replies; modeled reply: none with LOS]
   [Movement] Red: 0713 SW -> 1115 SW, Jump (5 MP, 4 hexes, 4 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue: no spot deals damage - closing fallback
   [Movement] Blue: 1006 SE -> 1009 N, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
@@ -343,7 +343,7 @@ Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 8.
 
 === TURN 12 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 151.404 = dealt 3.21 x0.97 + (HP 316.0 - received 3.21 x0.97 - PSR 0.00) / enemy future 9.11 x my future 4.32 [two-ply, 384 spots x 573 replies; modeled reply Red -> 0309 N Jump]
+  [Movement select] Blue: score 151.404 = dealt 3.21 x0.97 + (HP 316.0 - received 3.21 x0.97 - PSR 0.00) / enemy future 9.11 x my future 4.32 [two-ply, 395 spots x 573 replies; modeled reply Red -> 0309 N Jump]
   [Movement] Blue: 1006 S -> 1006 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red: score 621.112 = dealt 3.21 x0.97 + (HP 296.0 - received 3.21 x0.97 - PSR 0.00) / enemy future 4.32 x my future 9.11 [enemy held at 1006; 495 spots with LOS]
   [Movement] Red: 0612 SW -> 0309 N, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
@@ -387,9 +387,9 @@ Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 8.
 
 === TURN 13 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 167.657 = dealt 1.64 x0.97 + (HP 316.0 - received 6.26 x1.00 - PSR 0.00) / enemy future 8.41 x my future 4.51 [two-ply, 384 spots x 808 replies; modeled reply Red -> 0612 NW Jump]
+  [Movement select] Blue: score 167.657 = dealt 1.64 x0.97 + (HP 316.0 - received 6.26 x1.00 - PSR 0.00) / enemy future 8.41 x my future 4.51 [two-ply, 395 spots x 811 replies; modeled reply Red -> 0612 NW Jump]
   [Movement] Blue: 1006 S -> 1006 SW, Walk (1 MP, 0 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 544.200 = dealt 6.26 x1.00 + (HP 290.0 - received 1.64 x0.97 - PSR 0.00) / enemy future 4.51 x my future 8.41 [enemy held at 1006; 727 spots with LOS]
+  [Movement select] Red: score 544.200 = dealt 6.26 x1.00 + (HP 290.0 - received 1.64 x0.97 - PSR 0.00) / enemy future 4.51 x my future 8.41 [enemy held at 1006; 730 spots with LOS]
   [Movement] Red: 0309 N -> 0612 NW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
   [Ranged] Blue -> Red: range 8, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 1 + heat 0); firing ['ISLBXAC10', 'ISMediumLaser', 'ISUltraAC5'] (weapon heat 7 of budget 19 = max 4 + sink 16 - current 0 - movement 1 - other 0; expected dmg 1.64)
     [Blue fire control] ISLBXAC10: LB-X cluster rounds; ISUltraAC5: rapid fire x2
@@ -409,7 +409,7 @@ Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 8.
 
 === TURN 14 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 540.978 = dealt 6.21 x0.97 + (HP 290.0 - received 3.21 x1.00 - PSR 0.00) / enemy future 4.19 x my future 7.81 [two-ply, 571 spots x 398 replies; modeled reply Blue -> 0608 NE Jump]
+  [Movement select] Red: score 540.978 = dealt 6.21 x0.97 + (HP 290.0 - received 3.21 x1.00 - PSR 0.00) / enemy future 4.19 x my future 7.81 [two-ply, 571 spots x 402 replies; modeled reply Blue -> 0608 NE Jump]
   [Movement] Red: 0612 NW -> 1112 NW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue: score 169.384 = dealt 3.21 x1.00 + (HP 316.0 - received 6.21 x0.97 - PSR 0.00) / enemy future 7.81 x my future 4.19 [enemy held at 1112; 61 spots with LOS]
   [Movement] Blue: 1006 SW -> 0608 NE, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
@@ -461,9 +461,9 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 6.
 
 === TURN 15 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 192.588 = dealt 1.44 x0.97 + (HP 316.0 - received 6.21 x0.97 - PSR 0.00) / enemy future 7.29 x my future 4.50 [two-ply, 620 spots x 779 replies; modeled reply Red -> 0813 NW Walk]
+  [Movement select] Blue: score 192.588 = dealt 1.44 x0.97 + (HP 316.0 - received 6.21 x0.97 - PSR 0.00) / enemy future 7.29 x my future 4.50 [two-ply, 620 spots x 803 replies; modeled reply Red -> 0813 NW Walk]
   [Movement] Blue: 0608 NE -> 1006 SE, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 460.942 = dealt 6.21 x0.97 + (HP 282.0 - received 1.44 x0.97 - PSR 0.00) / enemy future 4.50 x my future 7.29 [enemy held at 1006; 614 spots with LOS]
+  [Movement select] Red: score 460.942 = dealt 6.21 x0.97 + (HP 282.0 - received 1.44 x0.97 - PSR 0.00) / enemy future 4.50 x my future 7.29 [enemy held at 1006; 638 spots with LOS]
   [Movement] Red: 1112 NW -> 0813 NW, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
   [Ranged] Blue -> Red: range 8, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 1 + heat 0); firing ['ISLBXAC10', 'ISMediumLaser', 'ISUltraAC5'] (weapon heat 7 of budget 16 = max 4 + sink 16 - current 0 - movement 4 - other 0; expected dmg 1.42)
@@ -491,7 +491,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 10.
 
 === TURN 16 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 174.891 = dealt 0.00 x1.00 + (HP 309.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 7.25 x my future 4.10 [two-ply, 384 spots x 724 replies; modeled reply: none with LOS]
+  [Movement select] Blue: score 174.891 = dealt 0.00 x1.00 + (HP 309.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 7.25 x my future 4.10 [two-ply, 395 spots x 750 replies; modeled reply: none with LOS]
   [Movement] Blue: 1006 SE -> 0803 SW, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red: no spot deals damage - closing fallback found nothing; nearest reachable spot to the enemy
   [Movement] Red: 0813 NW -> 0808 SW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
@@ -504,7 +504,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 10.
 
 === TURN 17 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 174.891 = dealt 0.00 x1.00 + (HP 309.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 6.83 x my future 3.86 [two-ply, 527 spots x 978 replies; modeled reply: none with LOS]
+  [Movement select] Blue: score 174.891 = dealt 0.00 x1.00 + (HP 309.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 6.83 x my future 3.86 [two-ply, 527 spots x 979 replies; modeled reply: none with LOS]
   [Movement] Blue: 0803 SW -> 1202 S, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 0808 SW -> 0803 N, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
@@ -596,7 +596,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
 
 === TURN 19 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 592.795 = dealt 17.46 x0.96 + (HP 272.0 - received 3.85 x0.95 - PSR 0.00) / enemy future 4.14 x my future 8.89 [two-ply, 900 spots x 392 replies; modeled reply Blue -> 1103 NW Jump]
+  [Movement select] Red: score 592.795 = dealt 17.46 x0.96 + (HP 272.0 - received 3.85 x0.95 - PSR 0.00) / enemy future 4.14 x my future 8.89 [two-ply, 902 spots x 392 replies; modeled reply Blue -> 1103 NW Jump]
   [Movement] Red: 0605 N -> 0707 NW, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
   [Movement select] Blue: score 119.310 = dealt 3.85 x0.95 + (HP 265.0 - received 17.46 x0.96 - PSR 0.00) / enemy future 8.89 x my future 4.14 [enemy held at 0707; 42 spots with LOS]
   [Movement] Blue: 0801 SE -> 1103 NW, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
@@ -646,7 +646,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
 
 === TURN 20 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 528.486 = dealt 6.14 x0.97 + (HP 258.0 - received 1.88 x0.92 - PSR 0.00) / enemy future 4.60 x my future 9.38 [two-ply, 989 spots x 385 replies; modeled reply Blue -> 1405 N Jump]
+  [Movement select] Red: score 528.486 = dealt 6.14 x0.97 + (HP 258.0 - received 1.88 x0.92 - PSR 0.00) / enemy future 4.60 x my future 9.38 [two-ply, 1002 spots x 389 replies; modeled reply Blue -> 1405 N Jump]
   [Movement] Red: 0707 NW -> 0305 N, Walk (5 MP, 4 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue: score 120.932 = dealt 1.88 x0.92 + (HP 249.0 - received 6.14 x0.97 - PSR 0.00) / enemy future 9.38 x my future 4.60 [enemy held at 0305; 12 spots with LOS]
   [Movement] Blue: 1103 NW -> 1405 N, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
@@ -688,7 +688,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 6.
 
 === TURN 21 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 102.341 = dealt 0.97 x0.88 + (HP 242.0 - received 1.06 x0.99 - PSR 1.94) / enemy future 9.55 x my future 4.06 [two-ply, 367 spots x 594 replies; modeled reply Red -> 0202 NW Jump]
+  [Movement select] Blue: score 102.341 = dealt 0.97 x0.88 + (HP 242.0 - received 1.06 x0.99 - PSR 1.94) / enemy future 9.55 x my future 4.06 [two-ply, 369 spots x 620 replies; modeled reply Red -> 0202 NW Jump]
   [Movement] Blue: 1405 N -> 1303 N, Jump (4 MP, 3 hexes, 3 heat; budget walk 3 / run 5 / jump 4)
 Movement Phase PSR (jump mode, leg actuator/leg destroyed while jumping): needs 6 (Piloting 5 + +1). Rolled 3.
   Failed - falls.
@@ -720,7 +720,7 @@ Movement Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 6.
   Initiative: Blue lost the roll, moves first.
 Stand attempt 1: needs 6 (Piloting 5 + +1). Rolled 6.
   Success - Cataphract CTF-3D is standing (remaining running MP 3).
-  [Movement select] Blue: score 92.165 = dealt 4.07 x0.92 + (HP 235.0 - received 18.98 x1.00 - PSR 0.00) / enemy future 9.46 x my future 3.87 [two-ply, 47 spots x 375 replies; modeled reply Red -> 0701 N Jump]
+  [Movement select] Blue: score 92.165 = dealt 4.07 x0.92 + (HP 235.0 - received 18.98 x1.00 - PSR 0.00) / enemy future 9.46 x my future 3.87 [two-ply, 47 spots x 376 replies; modeled reply Red -> 0701 N Jump]
   [Movement] Blue: 1303 N -> 1303 N, Run (0 MP, 0 hexes, 2 heat; budget walk 3 / run 5 / jump 4; stood up with 3 MP left)
   [Movement select] Red: score 640.243 = dealt 18.98 x1.00 + (HP 258.0 - received 4.07 x0.92 - PSR 0.00) / enemy future 3.87 x my future 9.46 [enemy held at 1303; 45 spots with LOS]
   [Movement] Red: 0202 S -> 0701 N, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
@@ -784,7 +784,7 @@ Movement Phase PSR (jump mode, leg actuator/leg destroyed while jumping): needs 
 
 === TURN 24 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 623.400 = dealt 25.85 x1.00 + (HP 248.0 - received 9.23 x0.88 - PSR 0.00) / enemy future 3.92 x my future 9.77 [two-ply, 657 spots x 253 replies; modeled reply Blue -> 1304 SW Jump]
+  [Movement select] Red: score 623.400 = dealt 25.85 x1.00 + (HP 248.0 - received 9.23 x0.88 - PSR 0.00) / enemy future 3.92 x my future 9.77 [two-ply, 660 spots x 253 replies; modeled reply Blue -> 1304 SW Jump]
   [Movement] Red: 0706 N -> 0706 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue: score 80.470 = dealt 9.23 x0.88 + (HP 208.0 - received 25.85 x1.00 - PSR 1.94) / enemy future 9.77 x my future 3.92 [enemy held at 0706; 161 spots with LOS]
   [Movement] Blue: 1605 SE -> 1304 SW, Jump (4 MP, 3 hexes, 3 heat; budget walk 3 / run 5 / jump 4)
@@ -904,7 +904,8 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 6.
 !! Known missing rules with no runtime flag:
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
 !!   - Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH
-!!   - Water (RULES_REVIEW G6): leg weapons' Kick-table hits between partially submerged mechs; variable-damage weapons' underwater damage bracket; the water PSR checks a run's END hex only; breached slots no longer soak crits and breached ammo can't explode
+!!   - Water (RULES_REVIEW G6): leg weapons' Kick-table hits between partially submerged mechs; variable-damage weapons' underwater damage bracket
+!!   - Movement subphase (G20): damage PSRs (gyro / hip / leg) still fall in the END hex; a charge's last step into the target's hex rolls no terrain PSR; mud's -1 isn't priced in movement scoring
 !!   - Heat sources/sinks with no terrain model yet: snow, fire, extreme temperatures (water: built 2026-10-21); inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules
@@ -933,7 +934,8 @@ BATCH SUMMARY - 1 battle(s): Red = Black Hawk F, Blue = Cataphract CTF-3D
 !! Known missing rules with no runtime flag:
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
 !!   - Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH
-!!   - Water (RULES_REVIEW G6): leg weapons' Kick-table hits between partially submerged mechs; variable-damage weapons' underwater damage bracket; the water PSR checks a run's END hex only; breached slots no longer soak crits and breached ammo can't explode
+!!   - Water (RULES_REVIEW G6): leg weapons' Kick-table hits between partially submerged mechs; variable-damage weapons' underwater damage bracket
+!!   - Movement subphase (G20): damage PSRs (gyro / hip / leg) still fall in the END hex; a charge's last step into the target's hex rolls no terrain PSR; mud's -1 isn't priced in movement scoring
 !!   - Heat sources/sinks with no terrain model yet: snow, fire, extreme temperatures (water: built 2026-10-21); inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules

@@ -391,7 +391,7 @@ def check_movement_psr(mech, mode, cause=None):
 
 
 # HELP(piloting_skill_rolls.resolve_stand_up)
-def resolve_stand_up(mech):
+def resolve_stand_up(mech, mp_available=None):
     """Movement Phase stand-up retry loop (Daniel, 2026-07-16): each attempt
     spends 2 running MP (floored at 0) toward this turn's TMM regardless of
     outcome. First attempt only needs running MP > 0 (minimum movement
@@ -407,7 +407,12 @@ def resolve_stand_up(mech):
     stand again this round").
 
     Returns the running MP to use for this turn's TMM (0 if the mech ends
-    the Movement Phase still prone)."""
+    the Movement Phase still prone).
+
+    mp_available (2026-10-21, Daniel's movement subphase): the MP the mech
+    has left after falling partway through its move (p.51: it "can attempt
+    to stand in the same Movement Phase that it fell, as long as it has
+    enough MP left"); None = its full running MP."""
     if not can_stand(mech):
         config.log("Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains prone.")
         return 0
@@ -415,7 +420,7 @@ def resolve_stand_up(mech):
         config.log("Pilot has 5+ hits - remaining prone rather than risk a stand attempt.")
         return 0
 
-    running_mp = compute_running_mp(mech)
+    running_mp = compute_running_mp(mech) if mp_available is None else mp_available
     if running_mp <= 0:
         config.log("No running MP available - cannot attempt to stand (minimum movement rule). "
                    "Remains prone.")

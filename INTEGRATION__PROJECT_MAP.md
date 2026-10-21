@@ -37,9 +37,11 @@ cover, the water line, underwater weapons / ranges, heat sinks, jump jets,
 water PSRs, halved falls. Water part 2 (F30): physical attacks in water,
 hull breaches, drowning. Deployment (F31, `INTEGRATION__deployment`):
 start up to `DEPLOYMENT_DEPTH` hexes in, roofs allowed, never stuck - the
-override goes 3 in (the Solaris arenas play now). Next: Daniel's movement
-subphase (G20: walk the planned path, PSRs per hex, re-plan after a fall),
-then the full building rules (a discussion with Daniel first). Details: RULES_REVIEW F24-F28, G6, G19; Section 4
+override goes 3 in (the Solaris arenas play now). The movement subphase
+(F32): the picker plans, the mech walks the path rolling each terrain PSR
+where it happens (water when running, rubble, sand, mud, backward level
+changes), and re-plans after a fall. The full building rules are deferred
+to a later session (Daniel, 2026-10-21). Details: RULES_REVIEW F24-F28, G6, G19; Section 4
 "Map terrain waiting on rules".
 
 **Hand-off for a new instance.** Daniel's goal: "beat the simulator into
@@ -222,10 +224,18 @@ open). Read it before building rules.
    priced in movement scoring - Daniel's rule so far is "only Movement-phase
    PSRs count". A bot target choosing the clearer hex on a two-hex LOS line
    (p.56) isn't modeled (Section 6).
-7. **Maps** (see above): the movement subphase next (G20, Daniel's design:
-   plan, then walk the path with terrain PSRs per hex, re-plan after a
-   fall), then the full building rules (discuss with Daniel first); water
-   leftovers (G6, small); terrain PSRs
+7. **Maps** (see above): leftovers - water (G6), the subphase's (G20: damage
+   PSRs in the END hex, charge's last step, mud's -1 in scoring), and
+   **pricing hull-breach risk in movement scoring** (Daniel, 2026-10-21: "How
+   does the bot price the chance of a breach if it falls or takes damage in
+   water?" - today it doesn't: falls and incoming fire in water are priced
+   as on land (falls halved); the 2-4 breach chance per damaged underwater
+   location, the automatic breach of an armorless one, and what a breach
+   costs (a leg = destroyed, a torso's engine / gyro slots) are not counted,
+   while water's benefits - sink bonus, cover, the water line - are);
+   **deferred to a later session (Daniel, 2026-10-21): the full building
+   rules** (forced entry, inside, damage, collapse, bridges, pp.53, 130-136 -
+   a discussion first; passive buildings stand in until then); terrain PSRs
    mid-move (G19 rubble / sand / mud, G11 backward level changes) and in a
    spot's cost; prone LOS height (G7); Section 4 "Map terrain waiting on
    rules" (Daniel is hunting the rules); `PROMPT_FOR_MAP` / `STITCH_MAPS`.
@@ -645,6 +655,8 @@ forward arc, kicks included, never into a side arc.
     when piloting skill rolls are required for entering terrain. A failure
     and subsequent results would cause that mech to recalculate its movement
     starting from its current state."
+  - (Later, 2026-10-21) "Think buildings are deferred for another session
+    later. Add them to the list." - Pick up here item 7.
   - Breached slots / ammo and halved physical damage in movement scoring:
     "wiring and logic jobs that don't need calls, just the effort to fix
     them."
@@ -967,6 +979,33 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-21 (Claude):** The movement subphase (Daniel's design, Section 5;
+  RULES_REVIEW F32; G11, G19 done).
+  - `terrain_rules`: `step_psrs` / `turn_psrs` / `step_psr_causes`
+    (rubble, sand with a level change, water when running, mud facing
+    changes when running, backward level changes), `PSR_MODIFIER`,
+    `has_psr_terrain` (cached on the board); backward level changes of one
+    level allowed in `step_cost` (not with a destroyed hip, not on a roof).
+  - `pathfinder`: `_build_terrain_psr` -> `PathTable` (PSR counts per entry,
+    `path()` with `keep_parents`), used only on boards with PSR terrain or
+    any level change - the flat boards keep `_build_terrain_aware` (results
+    identical there).
+  - `ranged_combat.movement_options` records `mover.path_psrs` (cleared per
+    pick in `movement_selection.reduced_options`, which keeps a fewer-PSR
+    variant unless dominated); `path_to()` rebuilds the path for a pick.
+  - `movement_selection._Side.psr_cost` / `psr_for`: terrain PSRs priced as
+    P(fall) x fall damage (`terrain_psr_odds`); jumps landing in water or
+    rubble. Replaces the end-hex water pricing.
+  - `orchestrator._walk_path` (roll each PSR in its hex; fall there) and
+    `_after_fall_midmove` (stand with the MP left - `piloting_rolls.
+    resolve_stand_up(mp_available=)` - and re-pick, repeatedly; hexes and MP
+    add up, mode kept); `_landing_psr` (jumps: water, rubble) replaces
+    `_water_psr`; a prone mech skips the end-of-move damage PSR.
+  - Tests: `test_water.py` 16 (the subphase, terrain PSRs, backward level
+    changes). Reference logs: Military Base 1 (backward level changes) and
+    Large Lakes 1 (PSRs per water hex, two falls) regenerated; the others
+    changed only in KNOWN_MISSING_RULES. Hill boards ~5-10% slower.
 
 - **2026-10-21 (Claude):** Deployment depth and stuck terrain; water
   leftovers (Daniel's calls, Section 5; RULES_REVIEW F31, G20).

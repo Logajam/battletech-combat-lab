@@ -69,6 +69,11 @@ def set_board(terrain_map):
     _BOARD = terrain_map
 
 
+def board():
+    """The battle's board (set_board), or None."""
+    return _BOARD
+
+
 def depth_at(label, terrain_map=None) -> int:
     """Water depth of a hex (0 = dry or depth 0)."""
     board = terrain_map if terrain_map is not None else _BOARD
