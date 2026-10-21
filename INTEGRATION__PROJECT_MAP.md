@@ -1112,6 +1112,9 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Heat-dissipating armor (RULES_REVIEW F45, p.202):
+  flamer / plasma damage to it halved, no outside heat. test_weapons
+  heat_dissipating_armor. Reference logs unchanged.
 - **2026-10-21 (Claude):** Heavy-duty gyro (RULES_REVIEW F44, p.204): 4 hits to
   destroy, +1 a hit, no PSR from its hits or from running, +2 to jump with
   hits; the .mtf gyro type is now read. Chemical laser ammo checked - already

@@ -217,6 +217,20 @@ def heat_on_the_target():
 
 
 @check
+def heat_dissipating_armor():
+    """p.202 (2026-10-21): a heat-causing weapon's damage to a location with
+    heat-dissipating armor is halved (rounding up), and a 'Mech with any of it
+    takes no outside heat. A plasma rifle (10 damage, 1D6 heat) shows both."""
+    from mech_state import ArmorType
+    p, t = fresh(CATAPHRACT_LL), target()
+    for loc in t.armor_type:
+        t.armor_type[loc] = ArmorType.HEAT_DISSIPATING
+    rifle = weapon(p, lambda w: "PLASMARIFLE" in wp.cn(w))
+    taken = damage_taken(t, hit(rifle, fire_modes.PLAIN), [], picks=6)
+    assert taken == -(-rifle.damage_per_shot // 2) and getattr(t, "outside_heat", 0) == 0, taken
+
+
+@check
 def arrow_iv():
     """Arrow IV: a hex attack 7-17 hexes away, Gunnery + 4, no range / TMM
     modifier; 20 area-effect damage on a hit; a miss by 1-2 lands next door: 10."""
