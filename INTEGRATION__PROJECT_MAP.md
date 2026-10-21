@@ -1115,6 +1115,8 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Quad kicks - front kick and mule kick (RULES_REVIEW
+  F48, p.238). test_special_attacks quad_kicks. Reference logs unchanged.
 - **2026-10-21 (Claude):** Shields and vibroblades (RULES_REVIEW F47); raising a
   shield and activating a vibroblade are stubs (`STUB_RAISE_SHIELD` never,
   `STUB_VIBROBLADE` on - Section 6). test_special_attacks shields,
