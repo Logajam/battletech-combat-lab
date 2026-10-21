@@ -487,7 +487,7 @@ def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,
     """Section 2's turn structure for up to max_turns turns, or until a mech
     is destroyed (checked after End Phase each turn)."""
     max_turns = max_turns if max_turns is not None else config.MAX_TURNS
-    result = BattleResult()
+    result = BattleResult(turn_cap=max_turns)
     stats = {
         "Red": SideStats(name=f"Red ({mech_red.chassis} {mech_red.model})", max_hp=total_hp(mech_red)),
         "Blue": SideStats(name=f"Blue ({mech_blue.chassis} {mech_blue.model})", max_hp=total_hp(mech_blue)),
