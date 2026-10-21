@@ -30,7 +30,8 @@ GitHub logistics.
   once every test passes. Daniel doesn't use GitHub, so tell him in plain words
   what changed.
 - **After every change:**
-  - Run `python tests/run_checks.py` (about 1.5 min): every `tests/test_*.py`
+  - Run `python tests/run_checks.py` (about 12 min since the lifetime default -
+    the Asymptote mirror reference battle stalls to 488 turns): every `tests/test_*.py`
     plus every reference battle, side by side, one line each. All must pass.
   - A reference log that differs: if the change was meant to alter results, run
     `python tests/check_reference_logs.py --update` and record that in the
