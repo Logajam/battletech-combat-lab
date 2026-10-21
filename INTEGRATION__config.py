@@ -137,6 +137,16 @@ MECH_BLUE_CONFIG = {
 DEPLOYMENT = "home_edge"
 # Which edge the deployment-roll loser picks: "random", or "N"/"E"/"S"/"W".
 HOME_EDGE_CHOICE = "random"
+# How far in from its home edge a mech may start its movement (Daniel,
+# 2026-10-21: "Its value is the number of hexes in from the edge that a mech
+# can start its movement"): 0 = the edge hexes only (Core p.37). Read here as
+# hexes 0..N in, so 3 = the edge row and the three rows behind it.
+DEPLOYMENT_DEPTH = 0
+# Daniel's "I can't enter / stuck terrain" override: when no hex within
+# DEPLOYMENT_DEPTH lets this mech enter AND still reach the far side of the
+# map (by walking or jumping - "stuck" is no path to the other side for this
+# unit), it may start this many hexes in instead. INTEGRATION__deployment.
+DEPLOYMENT_STUCK_DEPTH = 3
 
 # .mtf files for a headless run (2026-10-18). None = open the tkinter picker.
 # Default matchup (Daniel, 2026-10-20): the Kontio vs the Hammerhead, the

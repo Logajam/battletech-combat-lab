@@ -27,7 +27,8 @@ prepare_board() raises each building hex to its roof - its LOS level, the
 hex's level plus the building's height (p.130) - so it blocks LOS like a
 hill (p.135). Ground movement can't enter it from the ground (Daniel: "Can't
 be entered"; p.46: a 'Mech can't move from the ground onto a roof); a 'Mech
-can land on the roof by jumping (p.50). From a roof, ground movement may only
+can land on the roof by jumping (p.50), or start its movement on one when it
+enters the battlefield (Daniel, 2026-10-21 - INTEGRATION__deployment). From a roof, ground movement may only
 go to an adjacent roof at the same level or one lower, never higher and
 never backward down a level, and never off the roof onto a non-building hex
 (p.134); roofs are crossed as pavement (p.134). Not in the passive version:
@@ -161,7 +162,10 @@ def step_cost(
     """
     MP for a ground-movement step from from_info's hex into to_info's, or
     None if the step isn't allowed. from_info None = entering the board from
-    off it (deployment, p.37): no level change, no road travel.
+    off it (deployment, p.37): no level change, no road travel - and a roof
+    may be entered (Daniel, 2026-10-21: "a mech's level before it enters is
+    undefined. So it can enter on top of those level 5 walls"; whether it
+    would be stuck there is INTEGRATION__deployment's check).
 
     Invariant the pathfinder depends on (handoff Section 4a): an allowed step
     always costs >= 1, so a state can't be re-added to an already-finalized
@@ -175,7 +179,7 @@ def step_cost(
     from_level = to_level if from_info is None else from_info["level"]
     change = to_level - from_level
 
-    if to_roof and not from_roof:
+    if to_roof and from_info is not None and not from_roof:
         return None                      # can't move from the ground onto a roof (p.46)
     if from_roof and not to_roof:
         return None                      # nor off a roof without jumping (p.134)

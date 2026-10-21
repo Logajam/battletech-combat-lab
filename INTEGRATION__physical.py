@@ -432,26 +432,34 @@ class Planner:
         self._push_target, self._push_values = None, {}
 
     def plans(self, a_hex, a_facing, a_level, t_hex, t_level, target_prone, action, base, side="front",
-              allowed=None):
+              allowed=None, t_water=None):
         """plans() for the attack, or [] when the target is out of reach.
-        allowed: the attack kinds water leaves (water_filter), None = all."""
+        allowed: the attack kinds water leaves (water_filter), None = all.
+        t_water: the target's water state (INTEGRATION__water) - damage to its
+        underwater locations counts half; None = on land."""
         diff = t_level - a_level
         if abs(diff) > 1 or hex_distance(a_hex, t_hex) != 1:
             return []
         return self._plans_for(Reach(self.mech, a_hex, a_facing, t_hex, action).signature(), diff,
-                               target_prone, base, side, allowed)
+                               target_prone, base, side, allowed, t_water)
 
-    def _plans_for(self, signature, diff, target_prone, base, side="front", allowed=None):
+    def _plans_for(self, signature, diff, target_prone, base, side="front", allowed=None, t_water=None):
         case = (signature, diff, target_prone)
         side = side if self.worth is not None else "front"
-        got = self._plans.get((case, base, side, allowed))
+        key = (case, base, side, allowed, t_water)
+        got = self._plans.get(key)
         if got is None:
             options = self._options.get(case)
             if options is None:
                 options = self._options[case] = _options(self.mech, _FixedReach(signature), diff, target_prone,
                                                          frozenset())
-            got = self._plans[(case, base, side, allowed)] = plans(water_filter(options, allowed), base,
-                                                                   self.worth, side)
+            options = water_filter(options, allowed)
+            if t_water not in (None, water.GROUND):
+                target = self.worth.target if self.worth is not None else None
+                options = {k: [dict(o, damage=o["damage"] * water.physical_value_factor(target, t_water, o["table"],
+                                                                                          side))
+                               for o in opts] for k, opts in options.items()}
+            got = self._plans[key] = plans(options, base, self.worth, side)
         return got
 
     def cases(self, pair_arcs, facing, actions, legs):
@@ -466,8 +474,8 @@ class Planner:
                 for a in actions))
         return got
 
-    def plans_in_case(self, signature, diff, target_prone, base, side="front", allowed=None):
-        return self._plans_for(signature, diff, target_prone, base, side, allowed) if abs(diff) <= 1 else []
+    def plans_in_case(self, signature, diff, target_prone, base, side="front", allowed=None, t_water=None):
+        return self._plans_for(signature, diff, target_prone, base, side, allowed, t_water) if abs(diff) <= 1 else []
 
     def push_plan(self, a_xy, a_facing, a_level, target, t_label, t_level, base, side, terrain_map):
         """[(value, limbs, [option])] for the push from this spot, or []."""
@@ -592,7 +600,13 @@ def choose_attack(attacker, target, terrain_map):
                                          hex_geometry.compass_to_facing(target.facing), terrain_map)
     worth = Worth(target)
     base = None
-    value = lambda opts: expected_damage(base, opts, worth, side)  # noqa: E731
+    t_water = water.state(target, terrain_map)       # damage to underwater locations counts half (p.77)
+
+    def value(opts):
+        if t_water != water.GROUND:
+            opts = [dict(o, damage=o["damage"] * water.physical_value_factor(target, t_water, o["table"], side))
+                    for o in opts]
+        return expected_damage(base, opts, worth, side)
     best = None
     for action in actions:
         options = attack_options(attacker, target, terrain_map, action)

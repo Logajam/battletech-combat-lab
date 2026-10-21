@@ -135,6 +135,7 @@ import INTEGRATION__clubs as clubs  # noqa: E402
 import INTEGRATION__replay as replay  # noqa: E402
 import INTEGRATION__timing as timing  # noqa: E402
 import INTEGRATION__water as water  # noqa: E402
+import INTEGRATION__deployment as deployment  # noqa: E402
 from INTEGRATION__attack_resolution import _with_piloting, total_hp  # noqa: E402
 from INTEGRATION__results import BattleResult, SideStats, summarize  # noqa: E402
 
@@ -508,9 +509,20 @@ def _deploy_home_edges(mech_red, mech_blue, terrain_map, battle_rng):
     else:
         raise ValueError(f"Unknown HOME_EDGE_CHOICE {config.HOME_EDGE_CHOICE!r}")
     for mech, e in ((loser, edge), (winner, OPPOSITE_EDGE[edge])):
-        mech.home_edge = _edge_hexes(terrain_map, e)
+        # Where it may start its movement: config.DEPLOYMENT_DEPTH hexes in, roofs
+        # included, never a stuck hex - the override goes deeper (INTEGRATION__deployment,
+        # Daniel 2026-10-21).
+        start = deployment.start_hexes(mech, terrain_map, e)
+        mech.home_edge = start["hexes"]
+        mech.home_edge_row = _edge_hexes(terrain_map, e)          # where an enemy heads before it has entered
         mech.hex, mech.facing = None, "N"
-        config.log(f"  Deployment: {mech.side_name} home edge {e} ({mech.home_edge[0]}-{mech.home_edge[-1]}).")
+        if start["depth"] == 0 and not start["stuck"] and mech.home_edge == _edge_hexes(terrain_map, e):
+            config.log(f"  Deployment: {mech.side_name} home edge {e} ({mech.home_edge[0]}-{mech.home_edge[-1]}).")
+        else:
+            override = " (stuck-terrain override)" if start["depth"] != config.DEPLOYMENT_DEPTH else ""
+            left_out = f", {len(start['stuck'])} stuck hexes left out" if start["stuck"] else ""
+            config.log(f"  Deployment: {mech.side_name} home edge {e}, starting up to {start['depth']} hexes in"
+                       f"{override}: {len(mech.home_edge)} start hexes{left_out}.")
     config.log(f"  Deployment roll: Red {red}, Blue {blue} - {loser.side_name} chose its edge.")
 
 

@@ -292,11 +292,14 @@ def values(mover, target, pose, state, terrain_map):
     a_xy = hex_geometry.parse_hex_label(state["hex"])
     side = attack_resolution.attack_side(a_xy, pose.xy, pose.facing, terrain_map)
     direction = combat._direction_facing(a_xy, pose.xy)
+    # Damage to the target's underwater locations counts half (p.77, INTEGRATION__water).
+    t_water = water.state_at(pose.label, pose.prone, terrain_map)
+    wet = lambda table, s: water.physical_value_factor(target, t_water, table, s)  # noqa: E731
     if state.get("charge"):
         tn = charge.to_hit(mover, state["mode"], target, a_xy, pose.xy, terrain_map, pose.tmm)
         p = hit_chance(tn)
         dmg = charge.target_damage(mover, combat.fc_to_tmm(state["fc"], jumped=False))
-        dealt = p * (table_worth(dmg, target, "standard", side)
+        dealt = p * (table_worth(dmg, target, "standard", side) * wet("standard", side)
                      + displacement_worth(target, pose.label, direction, terrain_map))
         self_cost = p * table_worth(charge.attacker_damage(target), mover, "standard", "front")
         return dealt, self_cost, p, tn, dmg, side, True
@@ -304,7 +307,7 @@ def values(mover, target, pose, state, terrain_map):
     p = hit_chance(tn)
     dmg = dfa.target_damage(mover)
     table, t_side = ("standard", "rear") if pose.prone else ("punch", side)
-    dealt = p * (table_worth(dmg, target, table, t_side)
+    dealt = p * (table_worth(dmg, target, table, t_side) * wet(table, t_side)
                  + displacement_worth(target, pose.label, direction, terrain_map))
     self_cost = (p * table_worth(dfa.attacker_damage(mover), mover, "kick", "front")
                  + (1 - p) * table_worth(dfa.miss_fall_damage(mover), mover, "standard", "rear"))

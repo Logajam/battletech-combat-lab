@@ -228,49 +228,86 @@ def mark_all_crits_destroyed(mech, location):
         slot = mech.crits[location][i]
         if slot in ("DESTROYED", "-Empty-"):
             continue
+        already_lost = (location, i) in breached_slots(mech)      # its effects already counted (a breach)
         # HELP(record_sheet.destroyed_slot_info)
         mech.destroyed_slot_info[(location, i)] = (
             {"name": slot.name, "instance_id": id(slot)} if isinstance(slot, Equipment)
             else {"name": slot, "instance_id": None})
         mech.crits[location][i] = "DESTROYED"
-        if isinstance(slot, Equipment):
-            if is_jump_jet(slot) and id(slot) not in mech.destroyed_jump_jet_ids:
-                mech.destroyed_jump_jet_ids.add(id(slot))
-                config.log(f"    Jump jet destroyed ({slot.name}) from {location} destruction - "
-                           f"jump MP reduced (now {compute_jump_mp(mech)}).")
-            if is_heat_sink(slot) and id(slot) not in mech.destroyed_heat_sinks:
-                mech.destroyed_heat_sinks[id(slot)] = heat_sink_units(slot)
-                config.log(f"    Heat sink destroyed ({slot.name}) from {location} destruction - "
-                           f"heat dissipation reduced (now {compute_heat_dissipation(mech)}).")
-            if is_mechanical_jump_booster(slot) and not mech.mechanical_jump_booster_disabled:
-                mech.mechanical_jump_booster_disabled = True
-                config.log(f"    Mechanical Jump Booster disabled (system-wide) from {location} "
-                           f"destruction - jump booster MP now {compute_mechanical_jump_booster_mp(mech)}.")
-            if is_partial_wing(slot) and mech.partial_wing_active:
-                mech.partial_wing_active = False
-                config.log(f"    Partial Wing disabled (system-wide) from {location} "
-                           f"destruction - jump MP now {compute_jump_mp(mech)}.")
-        elif slot == "Engine":
-            mech.engine_hits += 1
-            config.log(f"    Engine hit ({mech.engine_hits}/3) from {location} destruction.")
-        elif slot == "Gyro":
-            mech.gyro_hits += 1
-            config.log(f"    Gyro hit ({mech.gyro_hits}/2) from {location} destruction.")
-        elif slot == "Cockpit":
-            mech.cockpit_hit = True
-            config.log(f"    Cockpit destroyed from {location} destruction.")
-        elif slot == "Hip" and location in mech.leg_locations:
-            # HELP(hip_actuator.tracking) - mirrors the jump-jet location-wipe
-            # gap fix: a bulk location wipe (structure destroyed / roll-of-12
-            # limb-blown-off) must also flag the Hip loss, or the Movement
-            # Phase running-mode PSR trigger silently misses it. NOTE: this
-            # function does not increment destroyed_leg_actuators on a bulk
-            # wipe (pre-existing gap, out of scope here) - harmless for PSR
-            # purposes since a fully-destroyed leg already satisfies every
-            # trigger/modifier check below via mech.locations[loc]["destroyed"].
-            mech.destroyed_hip_locations.add(location)
-            config.log(f"    Hip specifically destroyed at {location} from {location} destruction.")
+        if not already_lost:
+            _slot_loss_effects(mech, location, slot, "destruction")
     config.log(f"  All critical slots in {location} marked DESTROYED.")
+
+
+def breached_slots(mech):
+    """{(location, slot index)} put out of action by a hull breach (Core p.127,
+    2026-10-21): their effects are already counted, but the slot is still
+    there - it can absorb critical hits, and ammunition in it can explode."""
+    return mech.__dict__.setdefault("breached_slot_set", set())
+
+
+def mark_location_nonfunctional(mech, location, why="breach"):
+    """Hull breach (Core p.127, 2026-10-21): "All components in a breached
+    location that can take critical hits become nonfunctional: apply the
+    gameplay results of each slot in that location being destroyed ... these
+    effects are not critical hits: explosive slots do not explode due to
+    breaches, and nonfunctional slots can still absorb critical hits."
+    Each slot is recorded in destroyed_slot_info (so weapons, actuators,
+    sensors and ammo feeds read as lost) and its effects applied once, but the
+    slot stays in mech.crits."""
+    if location not in mech.crits:
+        return
+    for i, slot in enumerate(mech.crits[location]):
+        if slot in ("DESTROYED", "-Empty-") or (location, i) in breached_slots(mech):
+            continue
+        mech.destroyed_slot_info[(location, i)] = (
+            {"name": slot.name, "instance_id": id(slot)} if isinstance(slot, Equipment)
+            else {"name": slot, "instance_id": None})
+        breached_slots(mech).add((location, i))
+        _slot_loss_effects(mech, location, slot, why)
+
+
+def _slot_loss_effects(mech, location, slot, why):
+    """The gameplay results of losing one slot (jump jets, heat sinks, jump
+    boosters, partial wing, engine / gyro / cockpit, hip) - shared by a
+    location's destruction and a hull breach."""
+    if isinstance(slot, Equipment):
+        if is_jump_jet(slot) and id(slot) not in mech.destroyed_jump_jet_ids:
+            mech.destroyed_jump_jet_ids.add(id(slot))
+            config.log(f"    Jump jet destroyed ({slot.name}) from {location} {why} - "
+                       f"jump MP reduced (now {compute_jump_mp(mech)}).")
+        if is_heat_sink(slot) and id(slot) not in mech.destroyed_heat_sinks:
+            mech.destroyed_heat_sinks[id(slot)] = heat_sink_units(slot)
+            config.log(f"    Heat sink destroyed ({slot.name}) from {location} {why} - "
+                       f"heat dissipation reduced (now {compute_heat_dissipation(mech)}).")
+        if is_mechanical_jump_booster(slot) and not mech.mechanical_jump_booster_disabled:
+            mech.mechanical_jump_booster_disabled = True
+            config.log(f"    Mechanical Jump Booster disabled (system-wide) from {location} "
+                       f"{why} - jump booster MP now {compute_mechanical_jump_booster_mp(mech)}.")
+        if is_partial_wing(slot) and mech.partial_wing_active:
+            mech.partial_wing_active = False
+            config.log(f"    Partial Wing disabled (system-wide) from {location} "
+                       f"{why} - jump MP now {compute_jump_mp(mech)}.")
+    elif slot == "Engine":
+        mech.engine_hits += 1
+        config.log(f"    Engine hit ({mech.engine_hits}/3) from {location} {why}.")
+    elif slot == "Gyro":
+        mech.gyro_hits += 1
+        config.log(f"    Gyro hit ({mech.gyro_hits}/2) from {location} {why}.")
+    elif slot == "Cockpit":
+        mech.cockpit_hit = True
+        config.log(f"    Cockpit destroyed from {location} {why}.")
+    elif slot == "Hip" and location in mech.leg_locations:
+        # HELP(hip_actuator.tracking) - mirrors the jump-jet location-wipe
+        # gap fix: a bulk location wipe (structure destroyed / roll-of-12
+        # limb-blown-off) must also flag the Hip loss, or the Movement
+        # Phase running-mode PSR trigger silently misses it. NOTE: this
+        # function does not increment destroyed_leg_actuators on a bulk
+        # wipe (pre-existing gap, out of scope here) - harmless for PSR
+        # purposes since a fully-destroyed leg already satisfies every
+        # trigger/modifier check below via mech.locations[loc]["destroyed"].
+        mech.destroyed_hip_locations.add(location)
+        config.log(f"    Hip specifically destroyed at {location} from {location} {why}.")
 
 
 def apply_damage(mech, location, damage, armor_field="armor", damage_type=DamageType.BALLISTIC):
@@ -447,6 +484,16 @@ def resolve_critical(mech, location, explosive_only, idx, total):
 
 
 def resolve_slot_hit(mech, location, slot_idx, slot, idx, total):
+    if (location, slot_idx) in breached_slots(mech):
+        # A breached slot (Core p.127) still absorbs the hit: its effects were
+        # counted at the breach; ammunition in it still explodes, other
+        # explosive gear doesn't ("only explode if active").
+        mech.crits[location][slot_idx] = "DESTROYED"
+        config.log(f"    {idx}/{total} Criticals: {getattr(slot, 'name', slot)} slot hit (already breached).")
+        if isinstance(slot, Equipment) and slot.category == "ammo" and slot.is_explosive and not slot.exploded:
+            slot.exploded = True
+            apply_explosion(mech, slot, location)
+        return
     if isinstance(slot, Equipment):
         component = slot
         if _autocannon_shrugs_off(mech, location, slot_idx, component, idx, total):

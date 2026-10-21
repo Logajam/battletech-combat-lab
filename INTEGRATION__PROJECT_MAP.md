@@ -35,8 +35,11 @@ road travel, level-change limits, jump landing height, PASSIVE buildings
 yet. Water part 1 (F29, `INTEGRATION__water`): depth as level, partial
 cover, the water line, underwater weapons / ranges, heat sinks, jump jets,
 water PSRs, halved falls. Water part 2 (F30): physical attacks in water,
-hull breaches, drowning. Next: the full building rules (a discussion with
-Daniel first); small water leftovers in G6. Details: RULES_REVIEW F24-F28, G6, G19; Section 4
+hull breaches, drowning. Deployment (F31, `INTEGRATION__deployment`):
+start up to `DEPLOYMENT_DEPTH` hexes in, roofs allowed, never stuck - the
+override goes 3 in (the Solaris arenas play now). Next: Daniel's movement
+subphase (G20: walk the planned path, PSRs per hex, re-plan after a fall),
+then the full building rules (a discussion with Daniel first). Details: RULES_REVIEW F24-F28, G6, G19; Section 4
 "Map terrain waiting on rules".
 
 **Hand-off for a new instance.** Daniel's goal: "beat the simulator into
@@ -219,8 +222,10 @@ open). Read it before building rules.
    priced in movement scoring - Daniel's rule so far is "only Movement-phase
    PSRs count". A bot target choosing the clearer hex on a two-hex LOS line
    (p.56) isn't modeled (Section 6).
-7. **Maps** (see above): the full building rules next (discuss with Daniel
-   first); water leftovers (G6, small); terrain PSRs
+7. **Maps** (see above): the movement subphase next (G20, Daniel's design:
+   plan, then walk the path with terrain PSRs per hex, re-plan after a
+   fall), then the full building rules (discuss with Daniel first); water
+   leftovers (G6, small); terrain PSRs
    mid-move (G19 rubble / sand / mud, G11 backward level changes) and in a
    spot's cost; prone LOS height (G7); Section 4 "Map terrain waiting on
    rules" (Daniel is hunting the rules); `PROMPT_FOR_MAP` / `STITCH_MAPS`.
@@ -626,6 +631,24 @@ forward arc, kicks included, never into a side arc.
 
 ## 5. DECISIONS LOG (Daniel's calls — implementation may not override)
 
+- **Deployment and movement calls (Daniel, 2026-10-21):**
+  - "A mech's level before it enters is undefined. So it can enter on top of
+    those level 5 walls. But it could also get stuck up there which is bad.
+    (I think defining stuck as no path to the other side of the map is
+    possible for this unit.)"
+  - "Add a deployment option. Default is 0 with a 'I can't enter/stuck
+    terrain' override. Its value is the number of hexes in from the edge that
+    a mech can start its movement. The override sets it at 3."
+  - "Expanding the simplifications is the next task. Which might require a
+    new subphase. There is a difference between planning where you want to
+    go which the picker does. And actually getting there, which is needed
+    when piloting skill rolls are required for entering terrain. A failure
+    and subsequent results would cause that mech to recalculate its movement
+    starting from its current state."
+  - Breached slots / ammo and halved physical damage in movement scoring:
+    "wiring and logic jobs that don't need calls, just the effort to fix
+    them."
+
 - **Map calls (Daniel, 2026-10-21, after the survey of MegaMek's 192 16x17
   maps):**
   - Easy map fixes approved: MegaMek "option" lines, depth-0 water, stacked
@@ -944,6 +967,27 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-21 (Claude):** Deployment depth and stuck terrain; water
+  leftovers (Daniel's calls, Section 5; RULES_REVIEW F31, G20).
+  - New `INTEGRATION__deployment.py`: `start_hexes(mech, board, edge)` -
+    hexes 0..`config.DEPLOYMENT_DEPTH` (default 0) in from the home edge
+    that the mech can enter (roofs too: `terrain_rules.step_cost(None, roof)`
+    now allowed - "a mech's level before it enters is undefined") and from
+    which it is not stuck (walking / jumping can reach a hex within 3 of the
+    far edge); none -> `config.DEPLOYMENT_STUCK_DEPTH` (3). The deployment
+    log line is unchanged for a plain edge. `mech.home_edge_row` keeps the
+    edge for "head for the enemy's edge".
+  - Hull breaches (`damage_resolution.mark_location_nonfunctional`, shared
+    `_slot_loss_effects`): slots stay, still soak crits (effects not counted
+    twice), breached ammo still explodes, breached gear that explodes only
+    when working doesn't (p.127).
+  - Scoring: `water.physical_value_factor` - physical damage to underwater
+    locations counted at half in movement scoring (`physical.Planner`
+    t_water), the Physical phase's pick and charge / DFA values (p.77).
+  - Tests: `test_terrain.py` 11 (deployment, no start hex), `test_water.py`
+    14. All reference logs unchanged. Benchmark 501 / 495 (17.2-17.6 s vs
+    17.9-18.3 s for the pre-water code on the same machine).
 
 - **2026-10-21 (Claude):** MAPS, part 3 - water rules, part 2 (RULES_REVIEW
   F30; `INTEGRATION__water`).
