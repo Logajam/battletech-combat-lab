@@ -495,6 +495,9 @@ def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,
         _deploy_home_edges(mech_red, mech_blue, terrain_map, battle_rng)
     elif config.DEPLOYMENT != "fixed_hexes":
         raise ValueError(f"Unknown DEPLOYMENT {config.DEPLOYMENT!r}")
+    for m in (mech_red, mech_blue):
+        m.hp_log = []
+        movement_selection.record_hp(m)      # the history blend's record (config.MOVEMENT_LIFETIME_HISTORY_K)
     replay.mark(0, "Deployment")
 
     for turn in range(1, max_turns + 1):
@@ -535,6 +538,8 @@ def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,
 
         config.log(f"  -- end of turn {turn}: {_status_line(mech_red)}")
         config.log(f"  -- end of turn {turn}: {_status_line(mech_blue)}")
+        for m in (mech_red, mech_blue):
+            movement_selection.record_hp(m)
         replay.mark(turn, "Heat and end phase")
 
         result.turns_taken = turn

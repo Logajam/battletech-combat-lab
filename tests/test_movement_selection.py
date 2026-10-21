@@ -672,6 +672,26 @@ def lifetime_objective_math():
 
 
 @check
+def history_blend_math():
+    """MOVEMENT_LIFETIME_HISTORY_K (2026-10-21): rates = (K x estimate + damage
+    really done) / (K + turns fought); turns fought start at the first turn
+    either mech lost HP."""
+    class M:
+        pass
+    me, them = M(), M()
+    me.hp_log = [300, 300, 300, 290, 280]          # deployment, end of turns 1-4
+    them.hp_log = [250, 250, 250, 220, 190]        # first loss: turn 3
+    assert ms.battle_record(me, them) == (60, 20, 2)
+    mine, theirs = ms._blend_with_history(3.0, 10.0, 8.0, me, them)
+    assert abs(mine - (3 * 10 + 60) / 5) < TOL     # 18: doing well - its future rises
+    assert abs(theirs - (3 * 8 + 20) / 5) < TOL    # 8.8
+    # Before anyone is hit (or without a record) it is all estimate.
+    me.hp_log, them.hp_log = [300, 300], [250, 250]
+    assert ms._blend_with_history(3.0, 10.0, 8.0, me, them) == (10.0, 8.0)
+    assert ms.battle_record(M(), them) == (0.0, 0.0, 0)
+
+
+@check
 def future_damage_follows_evasion():
     """INTEGRATION__future_damage: the target's best TMM sets the to-hit, so
     the same gunfire is worth less against a faster mech; the estimate never
