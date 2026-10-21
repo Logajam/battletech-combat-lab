@@ -152,7 +152,10 @@ open). Read it before building rules.
    spot where it deals a little and dies beats every safe one - the
    Hammerhead walks onto the board edge to be pushed off. Daniel's "lifetime"
    objective is built as an option (`config.MOVEMENT_OBJECTIVE`); A/B batches
-   in the Change Record. Next: Daniel decides from those results.
+   (2026-10-21 Change Record): edge deaths 45 -> 12, but the out-matched
+   mech turns passive and battles double in length. Next: Daniel decides
+   (Claude's proposal: count the future term only when the mech can actually
+   get out of reach; otherwise take the best trade now).
 0. **Known issues Daniel asked to fix later** (Section 4, "Known issues to
    fix later"): Arrow IV / artillery scatter must stay inside the firing arc;
    machine gun array ammo per gun needs a check / test.
@@ -857,6 +860,22 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-21 (Claude):** A/B batches, MOVEMENT_OBJECTIVE "ratio" vs
+  "lifetime", same seeds (12345 batches), after the LOS and booster fixes. No
+  code change. Kontio vs Hammerhead, 100 each: ratio Kontio 59 / Hammerhead
+  39 / draw 2, 12.8 turns, 45 off-board deaths; lifetime 68 / 32 / 0, 23.9
+  turns, 12 off-board deaths; same winner on 56 of 100. The Hammerhead's
+  hits per turn halve (0.51 -> 0.26): its fight-or-not bar (my future / the
+  enemy's future, ~0.6 against the faster, stealthier Kontio) is rarely met,
+  so it backs off - but the Kontio reaches it anyway and shoots its back.
+  Atlas AS7-K vs Archer ARC-2R, 40 each: 38 / 1 / 1 vs 37 / 3 / 0, 11.1 ->
+  21.7 turns, same winner 35 of 40. Cataphract CTF-3D vs Emperor EMP-6D: 3 /
+  37 both, 12.4 -> 24.6 turns, same winner 34 of 40. Replays of seed
+  6507740548082236446 (Hammerhead wins turn 19 under ratio, dies turn 4
+  under lifetime): https://claude.ai/artifact/7bjL7ePCNvjvWtF7dHb2M9 (ratio),
+  https://claude.ai/artifact/5aWrPwb9mXCLkznRnpZaHV (lifetime). Waiting on
+  Daniel: keep / adjust / drop the lifetime option.
 
 - **2026-10-20 (Claude):** The two-ply look-ahead models MASC / supercharger
   speed. The modeled second mover's moves were built before its booster roll
