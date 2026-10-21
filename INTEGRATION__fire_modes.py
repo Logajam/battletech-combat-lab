@@ -134,7 +134,8 @@ class ShotPlan(NamedTuple):
     (munition, Artemis / Narc to-hit and Cluster changes, Streak lock)."""
     guidance: electronics.FireControl = electronics.PLAIN
     kind: str = ""          # "", "cluster" (LB-X), "er" / "he" (ATM), "lrm" / "srm" (MML), "8" / "12" / "16"
-                            # (bombast), "saturation" (Apollo), "artillery" (Arrow IV)
+                            # (bombast), "saturation" (Apollo), "artillery" (Arrow IV), "homing" (Arrow IV
+                            # homing at a TAG-designated target, p.190)
     shots: int = 1          # rapid fire; a machine gun array: the guns it fires
     apollo: bool = False
     bracket: str = ""       # range bracket fired at (variable damage, HAG, M-pod) - set by the Planner
@@ -162,7 +163,8 @@ class ShotPlan(NamedTuple):
         if self.kind:
             parts.append({"cluster": "LB-X cluster rounds", "er": "ATM ER", "he": "ATM HE",
                           "lrm": "MML LRM rounds", "srm": "MML SRM rounds", "saturation": "Apollo saturation",
-                          "artillery": "artillery at the hex", "array": f"array of {self.shots}"}.get(
+                          "artillery": "artillery at the hex", "array": f"array of {self.shots}",
+                          "homing": "homing at the TAG-designated target"}.get(
                               self.kind, f"{self.kind} damage"))
         if self.shots > 1 and self.kind != "array":
             parts.append(f"rapid fire x{self.shots}")
@@ -184,6 +186,8 @@ def damage_per(weapon, plan):
         return ATM_KINDS.get(plan.kind or "standard", ATM_KINDS["standard"])[0]
     if plan.kind in wp.BOMBAST:
         return wp.BOMBAST[plan.kind][0]
+    if plan.kind == "homing":
+        return wp.homing_damage(weapon)
     if wp.is_arrow(weapon):
         return wp.arrow_damage(weapon)
     if wp.is_infantry_pod(weapon):
@@ -201,6 +205,8 @@ def weapon_range(weapon, plan):
         return MML_KINDS[plan.kind][2]
     if "ATM" in _cn(weapon) and plan.kind in ATM_KINDS:
         return ATM_KINDS[plan.kind][1]
+    if plan.kind == "homing":
+        return {"min": 0, "short": wp.HOMING_REACH, "medium": wp.HOMING_REACH, "long": wp.HOMING_REACH, "floor": 1}
     if wp.is_arrow(weapon):
         lo, hi = wp.ARROW_RANGE
         return {"min": 0, "short": hi, "medium": hi, "long": hi, "floor": lo}
@@ -425,7 +431,11 @@ def kind_options(attacker, weapon, target):
     if wp.is_bombast(weapon):
         return [ShotPlan(kind=k) for k in wp.BOMBAST]
     if wp.is_arrow(weapon):
-        return [ShotPlan(kind="artillery")] if ("standard", "") in bin_kinds(attacker, weapon) else []
+        have = bin_kinds(attacker, weapon)
+        plans = [ShotPlan(kind="artillery")] if ("standard", "") in have else []
+        if ("homing", "") in have and getattr(target, "tag_designated", False):     # p.190
+            plans.append(ShotPlan(electronics.FireControl("homing", note="homing"), kind="homing"))
+        return plans
     if wp.is_mga(weapon):
         guns = mga_firing_guns(attacker, weapon)
         return [ShotPlan(kind="array", shots=len(guns))] if guns else []
@@ -515,6 +525,9 @@ class Planner:
             tn = pre_tn + self.hex_offset + rm + self.adjust(weapon, None, plan) + plan.tn
         else:
             tn = pre_tn + rm + self.adjust(weapon, b, plan) + plan.tn + area_immobile_fix(weapon, self.target)
+        if plan.kind == "homing":            # 2D6 4+, no modifiers; else 5 AE in the hex (p.190)
+            p = hit_probability(wp.HOMING_TN)
+            return p * wp.homing_damage(weapon) + (1 - p) * wp.HOMING_AE, wp.HOMING_TN
         p = hit_probability(tn)
         if plan.kind == "artillery" or wp.is_art_cannon(weapon):
             # the hex hit; a miss by 1-2 scatters 1 hex - next to the target: the splash (pp.182-183)

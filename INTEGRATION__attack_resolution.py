@@ -405,6 +405,47 @@ def _physical_planner(attacker, target, terrain_map):
     return plans_for
 
 
+def single_attack_tn(attacker, target, terrain_map, weapons):
+    """(TN, weapon, note) of the easiest standard ranged attack with one of
+    `weapons` from where the attacker stands, as it faces now (no twist), or
+    None when none can be made. The same modifiers declare_attacks uses -
+    added 2026-10-21 for TAG (INTEGRATION__tag, p.200: "calculate the Target
+    Number as for a standard ranged attack")."""
+    a_hex, t_hex = hex_geometry.parse_hex_label(attacker.hex), hex_geometry.parse_hex_label(target.hex)
+    if a_hex == t_hex:
+        return None
+    heights = (los_height(attacker), los_height(target))
+    trace = trace_los_path(a_hex, t_hex, terrain_map, *heights)
+    los, cover = trace.result, trace.steps[-1].partial_cover
+    conditions = firing_conditions(attacker)
+    if not los.los or conditions is None:
+        return None
+    cond_mod, unavailable, cond_note = conditions
+    a_water, t_water = water.state(attacker, terrain_map), water.state(target, terrain_map)
+    w_locs = weapon_locations(attacker)
+    blocked = water.blocked_weapon_ids(attacker, get_weapons(attacker), w_locs, a_water, t_water)
+    if blocked is None:
+        return None
+    a_facing = hex_geometry.compass_to_facing(attacker.facing)
+    key = arcs.key_for(arcs.arcs_between(a_hex, t_hex), a_facing, arcs.current_action(attacker),
+                       arcs.leg_offsets(attacker))
+    unavailable = unavailable | blocked | arc_unavailable(attacker, key) | shielded_weapon_ids(attacker)
+    distance = hex_distance(a_hex, t_hex)
+    pre_tn = (attacker.gunnery + combat.MODE_TO_AMM[attacker.move_mode] + _target_tmm(target) + los.modifier
+              + attacker.heat_fire_modifier + equip.void_signature_modifier(target) + equip.own_attack_modifier(attacker)
+              + cond_mod + prone_target_modifier(target, distance))
+    adjust = water.range_adjuster(attacker, w_locs, a_water, tn_adjuster(attacker, target, None, cover))
+    best = None
+    for w in weapons:
+        rm = weapon_selection._weapon_range_mod(w, distance)
+        if id(w) in unavailable or rm is None:
+            continue
+        tn = pre_tn + rm + adjust(w, weapon_selection.range_bracket(w, distance))
+        if best is None or tn < best[0]:
+            best = (tn, w, f"range {distance}{f', {cond_note}' if cond_note else ''}")
+    return best
+
+
 def declare_attacks(attacker, target, terrain_map, report: SideReport):
     """Step 2 above for one attacker. Rolls to-hit for every selected
     weapon; returns nothing (fills report)."""
@@ -555,7 +596,7 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
             ammo_note = fire_modes.take_array_rounds(attacker, w, plan.shots)
         elif not weapon_rules.is_streak(w):
             kind = None if not fire_modes.special(w) or plan.kind in weapon_profiles.BOMBAST \
-                or plan.kind in ("saturation", "artillery") else plan.kind
+                or plan.kind in ("saturation", "artillery", "homing") else plan.kind
             notes = [ammo.take(attacker, w, plan.munition, kind) for _ in range(plan.shots)]
             ammo_note = notes[-1][0]
         if fire_modes.special(w) and plan.hex_attack:
@@ -572,6 +613,8 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
             extra -= cover                     # p.67: "this does not count as partial cover"
             w_aim = None                       # it can only hit the legs, by the Kick table
         tn = pre_tn + range_mod + extra
+        if plan.kind == "homing":              # p.190: 2D6 with no modifiers at all
+            range_mod, extra, tn = 0, 0, weapon_profiles.HOMING_TN
         roll = config.roll_2d6(prompt=f"To-hit roll ({w.name})")
         hit = roll >= tn
         config.log(f"    {w.name}{f' x{plan.shots}' if plan.shots > 1 else ''}: needs {tn} (range mod +{range_mod}"
@@ -751,6 +794,12 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng, po
         return
     plan = attack.fire or fire_modes.PLAIN
     _target_heat(target, w)
+    if plan.kind == "homing":
+        dmg = weapon_profiles.homing_damage(w)
+        config.log(f"    {w.name} homing missile hits the TAG-designated {target.side_name}: {dmg} direct-fire "
+                   f"ballistic damage (p.190):")
+        _resolve_hit(target, dmg, DamageType.BALLISTIC, attack.side, cover=attack.cover)
+        return
     if plan.kind == "artillery" or weapon_profiles.is_art_cannon(w):
         dmg = fire_modes.damage_per(w, plan)
         config.log(f"    {w.name} hits {target.side_name}'s hex: {dmg} area-effect damage (pp.182-183).")
@@ -994,6 +1043,10 @@ def run_ranged_combat_phase(mover_first, mover_second, terrain_map, battle_rng):
                 if attack.hit:
                     rep.hits += 1
                     _resolve_one_attack(attacker, target, attack, battle_rng, pool)
+                elif attack.fire is not None and attack.fire.kind == "homing":
+                    config.log(f"    {attack.weapon.name} homing missile misses (rolled {attack.roll}): it strikes "
+                               f"{target.side_name}'s hex for {weapon_profiles.HOMING_AE} area-effect damage (p.190).")
+                    _resolve_area(target, weapon_profiles.HOMING_AE, attack.side, attack.cover)
                 elif (attack.fire is not None and attack.fire.kind == "artillery") or weapon_profiles.is_art_cannon(attack.weapon):
                     _resolve_area_miss(attacker, target, attack, terrain_map)
             for (size, dtype, side, cover), parts in (pool or {}).items():

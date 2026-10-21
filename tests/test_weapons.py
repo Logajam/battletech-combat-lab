@@ -273,6 +273,45 @@ def thumper_and_sniper_artillery():
         assert wp.splash(art) == near and art.ammo_unknown            # no shots-per-ton data: a loud stub
     assert wp.HOMING_DAMAGE == {"ARROWIV": 20, "SNIPER": 10, "THUMPER": 5}
 
+
+# TAG and homing artillery (pp.53, 190, 200), added 2026-10-21: the Flamberge
+# C carries a Clan TAG, an Arrow IV and standard and homing rounds.
+FLAMBERGE_C = unit("3085u/Cutting Edge/Flamberge C")
+
+
+@check
+def tag_and_homing_artillery():
+    import INTEGRATION__tag as tag
+    a, t = fresh(FLAMBERGE_C), target()                          # 4 hexes apart
+    arrow = weapon(a, wp.is_arrow)
+    assert tag.tags(a) and tag.uses_designation(a)
+    assert {k for k, _ in fire_modes.bin_kinds(a, arrow)} == {"standard", "homing"}
+    assert [p.kind for p in fire_modes.kind_options(a, arrow, t)] == ["artillery"]   # not designated
+    # The designation phase: a hit designates the target for this turn.
+    with ScriptedDice([12]):
+        tag.designation_phase(a, t, TERRAIN)
+    assert t.tag_designated and not a.tag_designated
+    with ScriptedDice([2]):
+        tag.designation_phase(a, t, TERRAIN)                     # a new turn: cleared, then missed
+    assert not t.tag_designated
+    with Knobs(STUB_FIRE_TAG="never"), ScriptedDice([]):
+        tag.designation_phase(a, t, TERRAIN)                     # held: no roll
+    t.tag_designated = True
+    # Homing: 2D6 4+ with no modifiers, inside the Arrow IV's 7-hex minimum too.
+    value, _, plan = planner(a, t, hex_offset=-3)(arrow, 4, 9)
+    assert plan.kind == "homing" and plan.tn == 0
+    assert abs(value - (33 / 36 * 20 + 3 / 36 * 5)) < 1e-9
+    assert damage_taken(t, hit(arrow, plan), []) == 20            # one 20-point direct-fire hit
+    # In the phase: the homing roll needs 4 whatever the modifiers; a 3 drops 5 on the hex.
+    a, t = fresh(FLAMBERGE_C), target()
+    t.tag_designated = True
+    rep = attack_resolution.SideReport()
+    with ScriptedDice([], default=3):
+        attack_resolution.declare_attacks(a, t, TERRAIN, rep)
+    homing = [x for x in rep.attacks_list if x.fire is not None and x.fire.kind == "homing"]
+    assert len(homing) == 1 and homing[0].tn == wp.HOMING_TN and not homing[0].hit
+
+
 @check
 def arrow_iv_scatter_held_by_firing_arc():
     """A scatter can't leave the launcher's firing arc: it lands in the last

@@ -201,6 +201,17 @@ def stub_blue_shield(mech_name, when):
     return on
 
 
+def stub_fire_tag(mech_name, useful):
+    """Fire TAG at the enemy this turn (p.200: designates it for homing
+    artillery)? useful: the 'Mech has a launcher with homing rounds to use
+    the designation (in a duel only its own). Knob: STUB_FIRE_TAG
+    ("when_useful" / "always" / "never"). TODO: semi-guided missiles, the
+    twist / flip TAG uses up (Memo)."""
+    fire = config.STUB_FIRE_TAG == "always" or (config.STUB_FIRE_TAG == "when_useful" and useful)
+    _warn("fire_tag", f"{mech_name}: {'fires' if fire else 'holds'} TAG ({'useful' if useful else 'nothing uses it'})")
+    return fire
+
+
 def stub_capacitor_start(mech_name, ppc_name):
     """Start the battle with this PPC's capacitor charged (p.188: 5 heat a
     turn held, +5 damage and +5 heat when fired)? Knob: STUB_CAPACITOR_START

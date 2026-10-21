@@ -44,7 +44,14 @@ without their special rule. Core Rulebook pages per entry; tables pp.248-254.
     and 5 (Thumper) on a hit. Plus 5 AE damage to all units in the target
     hex... we'll post the full rules later"): is_arrow covers them, with
     their own damage (ARTILLERY; the Core support-strike tables p.153 agree:
-    Thumper 3/1, Sniper 4/2 x 5). Homing damage (HOMING_DAMAGE) waits on TAG.
+    Thumper 3/1, Sniper 4/2 x 5).
+  Homing artillery (p.190, 2026-10-21): only at a target designated by TAG
+    this turn (INTEGRATION__tag) - in a duel, the firer's own. 2D6 4+ with no
+    modifiers: HOMING_DAMAGE as one direct-fire ballistic hit on the side
+    facing the firer (Arrow IV 20, Sniper 10, Thumper 5); 3 or less: the
+    target's hex takes 5 area-effect damage. The chosen hex is 7-17 hexes
+    away and the target within 8 of it, so any target up to 17 hexes away in
+    the launcher's arc can be reached. Not modeled: firing without LOS.
 """
 
 import re
@@ -69,6 +76,8 @@ ARTILLERY = {"ARROWIV": (ARROW_DAMAGE, ARROW_SPLASH),    # (in the hex, the hexe
              "THUMPER": (15, 5)}                         # "Thumper uses a 15/5 damage profile"
 HOMING_DAMAGE = {"ARROWIV": 20, "SNIPER": 10, "THUMPER": 5}   # p.190; Daniel 2026-10-21 - needs TAG (not built)
 HOMING_AE = 5                                      # p.190: to anything else in the target hex
+HOMING_TN = 4                                      # p.190: 2D6, no modifiers
+HOMING_REACH = 17                                  # a "close" attack: a chosen hex 7-17 away within 8 of the target
 CANNON_SPLASH = {"LONGTOMCANNON": 10}               # adjacent-hex damage (p.183)
 ARROW_RANGE = (7, 17)
 AREA_GROUPING = 5                                  # artillery / AE: 5-point groupings (pp.87, 182)
@@ -139,6 +148,10 @@ def is_arrow(weapon):
 
 def arrow_damage(weapon):
     return ARTILLERY[artillery_kind(weapon)][0]
+
+
+def homing_damage(weapon):
+    return HOMING_DAMAGE[artillery_kind(weapon)]
 
 
 def is_art_cannon(weapon):
