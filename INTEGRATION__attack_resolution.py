@@ -127,6 +127,7 @@ DAMAGE_TYPE_BY_NAME = {
 }
 
 IMMOBILE_TMM = -4  # MECHSIM piloting_rolls.resolve_movement_phase convention (immobile target)
+KICK = "kick"                          # DeclaredAttack.cover: hits use the Kick Location Table (pp.67, 127)
 AIMED_HEAD_ADJUST = -IMMOBILE_TMM + 3  # p.70: head shots drop the -4 and take +3 instead
 AIMED_SHOT_SUCCESS = 4                 # 1D6 4+ hits the aimed location
 
@@ -139,7 +140,7 @@ class DeclaredAttack:
     hit: bool
     side: str = "front"              # hit table: attack direction (attack_side)
     aimed_at: Optional[str] = None   # aimed-shot location (immobile target)
-    cover: bool = False              # target in partial cover: leg hits strike the cover (p.66)
+    cover: object = False            # True: partial cover, leg hits strike it (p.66); KICK: legs only (p.67)
     ams: object = None               # the target's AMS engaging this hit (p.206, INTEGRATION__ams)
     fire: object = None              # fire_modes.ShotPlan: ammunition, Artemis / Narc, rapid fire, Apollo
     pod_value: float = 0.0           # Narc beacon: the homing pod's worth (electronics.pod_value)
@@ -449,6 +450,8 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
                    f"across the water line (p.62) - holds fire.")
         return
     unavailable = unavailable | water_blocked
+    # Legs-only hits on a 'Mech standing in depth 1 (pp.67, 127): the Kick table, not partial cover.
+    kick_ids = water.kick_table_weapon_ids(attacker, get_weapons(attacker), w_locs, a_water, t_water)
     prone_mod = prone_target_modifier(target, distance)
     other_mod = cond_mod + prone_mod
     pre_tn = attacker.gunnery + amm + tmm + los.modifier + heat_mod + stealth_mod + other_mod
@@ -549,6 +552,9 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
             range_mod = weapon_selection._weapon_range_mod(w, distance)
             extra = adjust(w, weapon_selection.range_bracket(w, distance))
         w_aim = aim if aim and fire_modes.aimable(w, plan) else None
+        if id(w) in kick_ids:
+            extra -= cover                     # p.67: "this does not count as partial cover"
+            w_aim = None                       # it can only hit the legs, by the Kick table
         tn = pre_tn + range_mod + extra
         roll = config.roll_2d6(prompt=f"To-hit roll ({w.name})")
         hit = roll >= tn
@@ -569,7 +575,8 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
                 config.log(f"      Streak missed - launcher doesn't fire: no heat, no ammo.")
         report.attacks += 1
         report.attacks_list.append(DeclaredAttack(weapon=w, tn=tn, roll=roll, hit=hit, side=side,
-                                                  aimed_at=w_aim, cover=cover > 0, fire=plan,
+                                                  aimed_at=w_aim, cover=KICK if id(w) in kick_ids else cover > 0,
+                                                  fire=plan,
                                                   pod_value=pod_values.get(id(w), 0.0)))
 
 
@@ -585,8 +592,17 @@ def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False, c
     than read from config.FACING.
     cover (2026-10-20, Core pp.66, 73): the target is in partial cover - a hit
     location roll that comes up a leg strikes the cover instead, no damage (the
-    floating TAC re-roll re-rolls legs instead, p.95)."""
+    floating TAC re-roll re-rolls legs instead, p.95). cover == KICK
+    (2026-10-21, pp.67, 127): the hit is on a 'Mech standing in depth 1 from a
+    leg weapon in depth 1 or from under water - the Kick Location Table (1D6,
+    legs only; no 2 on 2D6, so no Through-Armor Critical)."""
     armor_field = "rear_armor" if side == "rear" else "armor"
+    if cover == KICK:
+        import INTEGRATION__physical as physical     # physical imports this module
+        loc = physical._location("kick", side, target)
+        config.log(f"      {tag}Kick Location Table ({side}; legs only under water, p.67): {loc}.")
+        apply_damage(target, loc, damage, armor_field=armor_field, damage_type=damage_type)
+        return loc
     loc_roll = config.roll_2d6(prompt=f"{tag}Hit location roll")
     loc = resolve_hit_location(loc_roll, target, side)
     config.log(f"      {tag}Hit location roll {loc_roll} ({side} table): {loc}.")
@@ -853,7 +869,10 @@ def _resolve_pod(attacker, target, attack):
         return
     roll = config.roll_2d6(prompt="Hit location roll (Narc pod)")
     loc = resolve_hit_location(roll, target, attack.side)
-    if attack.cover and loc in target.leg_locations:
+    if attack.cover == KICK:
+        import INTEGRATION__physical as physical
+        loc = physical._location("kick", attack.side, target)
+    elif attack.cover and loc in target.leg_locations:
         config.log(f"    {w.name} hit: location roll {roll} -> {loc}, behind partial cover - the pod strikes the cover.")
         return
     electronics.attach_pod(target, loc, attacker.side_name)

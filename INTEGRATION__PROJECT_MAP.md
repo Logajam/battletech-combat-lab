@@ -263,9 +263,7 @@ open). Read it before building rules.
    priced in movement scoring - Daniel's rule so far is "only Movement-phase
    PSRs count". A bot target choosing the clearer hex on a two-hex LOS line
    (p.56) isn't modeled (Section 6).
-7. **Maps - leftovers** (RULES_REVIEW G6, G7, G20-G22): water (leg weapons'
-   Kick-table hits between partially submerged mechs; variable-damage
-   weapons' underwater bracket); the movement subphase (mud's -1 isn't
+7. **Maps - leftovers** (RULES_REVIEW G7, G20-G22): water done (F36); the movement subphase (mud's -1 isn't
    priced - bot); prone LOS height (G7); Section 4
    "Map terrain waiting on rules" (Daniel is hunting the rules);
    `PROMPT_FOR_MAP` / `STITCH_MAPS`.
@@ -1055,6 +1053,13 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Water leftovers (RULES_REVIEW G6 -> F36): hits on
+  a 'Mech standing in depth 1 from a leg weapon in depth 1, or any weapon of
+  a fully submerged 'Mech, use the Kick Location Table (legs only, no
+  partial cover, pp.67, 127); an energy weapon firing from under water uses
+  the next bracket for its damage too (p.127, Snub-Nose PPC / VSP). New
+  checks in test_water (18). Reference logs regenerated for the known-
+  missing-rules text only (no battle changed).
 - **2026-10-21 (Claude):** Rules gaps, physics first (Daniel: "I'm basically
   after getting the environment and physics of the game correct before
   worrying too much about the bots behavior"). (1) G20 "damage PSRs fall in

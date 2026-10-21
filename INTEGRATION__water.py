@@ -31,9 +31,11 @@ Part 2 (2026-10-21): physical attacks in water (p.77: which attacks, half
 damage to underwater locations), hull breaches (p.127) and the life support
 drowning hit (p.117).
 
-Not built yet (RULES_REVIEW G6): leg weapons' Kick-table hits between two
-partially submerged 'Mechs (p.67); variable-damage weapons' underwater
-damage bracket; a PSR for each water hex a run passes through.
+Leftovers built 2026-10-21 (RULES_REVIEW G6): Kick-table hits on a 'Mech
+standing in depth 1 from a leg weapon in depth 1 or any weapon fully
+submerged (kick_table_weapon_ids, pp.67, 127); variable-damage weapons'
+underwater damage bracket (range_adjuster's underwater_ids, p.127). A PSR
+for each water hex a run passes through: the movement subphase (F32).
 
 The battle's board is set once per battle (set_board, from
 orchestrator.run_battle) so code that only has a mech - heat dissipation,
@@ -141,14 +143,31 @@ def blocked_weapon_ids(attacker, weapons, weapon_locs, a_state, t_state) -> Opti
     return frozenset(blocked)
 
 
+def kick_table_weapon_ids(attacker, weapons, weapon_locs, a_state, t_state) -> FrozenSet[int]:
+    """ids of the attacker's weapons whose hits on a target standing in depth 1
+    use the Kick Location Table - legs only, and not partial cover (no cover
+    modifier, no leg hits lost to it): leg weapons from depth 1, and every
+    weapon from a fully submerged 'Mech (pp.67, 127, Underwater Attacks Table
+    notes 3 and 7; built 2026-10-21, RULES_REVIEW G6)."""
+    if t_state != PARTIAL:
+        return frozenset()
+    if a_state == SUBMERGED:
+        return frozenset(id(w) for w in weapons)
+    if a_state == PARTIAL:
+        legs = set(attacker.leg_locations)
+        return frozenset(id(w) for w in weapons if weapon_locs.get(id(w), set()) & legs)
+    return frozenset()
+
+
 def range_adjuster(attacker, weapon_locs, a_state, base_adjust):
     """Wraps an attack_resolution.tn_adjuster for the underwater range
     shift (p.127): an energy weapon in a submerged location fires one
     bracket longer - +2 TN at short and medium, no shot at long. Minimum
     range is unchanged. Returns base_adjust itself when nothing is submerged.
-    Not shifted: variable-damage weapons' damage bracket (Core: "applying all
-    rules aspects relevant to this new bracket") - none of the weapons that
-    vary damage by bracket fires underwater in the test units."""
+    The wrapper carries `underwater_ids` (the submerged weapons' ids):
+    fire_modes.Planner shifts their damage bracket too - "applying all rules
+    aspects relevant to this new bracket" (p.127: a Snub-Nose PPC at medium
+    range deals its long-range 5) - built 2026-10-21, RULES_REVIEW G6."""
     under = submerged_locations(attacker, a_state)
     if not under:
         return base_adjust
@@ -159,7 +178,11 @@ def range_adjuster(attacker, weapon_locs, a_state, base_adjust):
         if id(weapon) in submerged_ids and bracket is not None:
             tn += UNDERWATER_BRACKET_TN.get(bracket, CANT_FIRE_TN)
         return tn
+    adjust.underwater_ids = frozenset(submerged_ids)
     return adjust
+
+
+SHIFTED_BRACKET = {"short": "medium", "medium": "long", "long": ""}   # p.127: one bracket longer
 
 
 # =============================================================================
