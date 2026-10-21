@@ -40,8 +40,8 @@ start up to `DEPLOYMENT_DEPTH` hexes in, roofs allowed, never stuck - the
 override goes 3 in (the Solaris arenas play now). The movement subphase
 (F32): the picker plans, the mech walks the path rolling each terrain PSR
 where it happens (water when running, rubble, sand, mud, backward level
-changes), and re-plans after a fall. Next: the full building rules (a
-discussion with Daniel first). Details: RULES_REVIEW F24-F28, G6, G19; Section 4
+changes), and re-plans after a fall. The full building rules are deferred
+to a later session (Daniel, 2026-10-21). Details: RULES_REVIEW F24-F28, G6, G19; Section 4
 "Map terrain waiting on rules".
 
 **Hand-off for a new instance.** Daniel's goal: "beat the simulator into
@@ -224,9 +224,18 @@ open). Read it before building rules.
    priced in movement scoring - Daniel's rule so far is "only Movement-phase
    PSRs count". A bot target choosing the clearer hex on a two-hex LOS line
    (p.56) isn't modeled (Section 6).
-7. **Maps** (see above): the full building rules next (discuss with Daniel
-   first); leftovers: water (G6) and the subphase's (G20: damage PSRs in the
-   END hex, charge's last step, mud's -1 in scoring); terrain PSRs
+7. **Maps** (see above): leftovers - water (G6), the subphase's (G20: damage
+   PSRs in the END hex, charge's last step, mud's -1 in scoring), and
+   **pricing hull-breach risk in movement scoring** (Daniel, 2026-10-21: "How
+   does the bot price the chance of a breach if it falls or takes damage in
+   water?" - today it doesn't: falls and incoming fire in water are priced
+   as on land (falls halved); the 2-4 breach chance per damaged underwater
+   location, the automatic breach of an armorless one, and what a breach
+   costs (a leg = destroyed, a torso's engine / gyro slots) are not counted,
+   while water's benefits - sink bonus, cover, the water line - are);
+   **deferred to a later session (Daniel, 2026-10-21): the full building
+   rules** (forced entry, inside, damage, collapse, bridges, pp.53, 130-136 -
+   a discussion first; passive buildings stand in until then); terrain PSRs
    mid-move (G19 rubble / sand / mud, G11 backward level changes) and in a
    spot's cost; prone LOS height (G7); Section 4 "Map terrain waiting on
    rules" (Daniel is hunting the rules); `PROMPT_FOR_MAP` / `STITCH_MAPS`.
@@ -646,6 +655,8 @@ forward arc, kicks included, never into a side arc.
     when piloting skill rolls are required for entering terrain. A failure
     and subsequent results would cause that mech to recalculate its movement
     starting from its current state."
+  - (Later, 2026-10-21) "Think buildings are deferred for another session
+    later. Add them to the list." - Pick up here item 7.
   - Breached slots / ammo and halved physical damage in movement scoring:
     "wiring and logic jobs that don't need calls, just the effort to fix
     them."
