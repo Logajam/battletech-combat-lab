@@ -30,7 +30,7 @@ one after another) - the output is the same either way.
 | `reference_logs/` | Same-seed sample logs (matchup and settings in the file name), for checking that a change didn't alter results |
 
 After a change, from the repo root:
-- `python tests/ab_batches.py`: A/B batches - one matchup, the same seeds, under several bot settings (edit `VARIANTS` at its top)
+- `python tests/ab_batches.py 20 "Red.mtf" "Blue.mtf" --set knowledge --turns 50`: A/B batches - one matchup, the same seeds, under several bot settings (`--set` picks a `VARIANT_SETS` entry at its top: `objective`, `search`, `knowledge`, `grid-spin`, `baseline`; `--board`, `--seed` too). 20 battles a setting by default (Daniel)
 - `python tests/run_checks.py`: **the clean-baseline check** - runs every test below and every reference battle side by side, one line each (`--bench` adds the benchmark)
 - `python tests/check_reference_logs.py`: re-runs the reference battles and checks the results are unchanged
 - `python tests/test_pathfinder.py`: checks the movement/map code

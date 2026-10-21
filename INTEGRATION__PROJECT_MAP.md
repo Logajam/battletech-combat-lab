@@ -13,9 +13,28 @@ source project's file overwrite the other's same-named file.
 
 ---
 
-## 0. WHERE WE ARE (2026-10-21, end of session 5) — read this first
+## 0. WHERE WE ARE (2026-10-21, end of session 6) — read this first
 
-**Session 5 in one paragraph - MAPS (all merged to `main`, PRs #32-#36):**
+**Session 6 in one paragraph - SPEED (all merged to `main`, PRs #38-#43):**
+a speed-only pass (~25%: reply PSR costs once per pick, per-hex rows in
+`MoveEvaluator.evaluate`, lazy charge-gate tables, LOS line shapes cached
+per offset), then Daniel's "guess and follow" movement search, now the
+DEFAULT for both movers (`config.MOVEMENT_SEARCH` /
+`MOVEMENT_ASSUMED_ENEMY_SEARCH` = "grid"): a 1-in-7 hex net laid from the
+mover's own hex, then climb to better neighbours; the second mover also
+always looks at the 6 hexes around the enemy (without that, melee mechs
+lost: Kontio 57 -> 38 of 100). Benchmark 14.5 s -> ~3.5 s; `run_checks.py`
+~3 min -> ~1 min. Per side (`MECH_*_CONFIG` "search" /
+"assumes_enemy_search") each mech can be "perfect" (exhaustive) or "fast".
+A/B tooling (`tests/ab_batches.py --set ... --board --seed`); Daniel's rule:
+20 battles a setting. Findings: fast is within dice noise of perfect for
+both sides; one side searching perfectly helped the favourite (Atlas,
+Black Hawk ~+5 of 20) but not the underdog; what a side assumes about the
+enemy's search made no consistent difference; grid spin doesn't matter.
+Bug fixed on the way: aimed shots with variable-damage weapons (Heavy
+Gauss) crashed. Details: Change Record (Section 8).
+
+**Session 5 - MAPS (PRs #32-#36), for reference:**
 Daniel's MegaMek map pack is `data/maps.zip` (346 maps, 192 of them 16x17);
 `python tests/survey_maps.py` says which play and what stops the rest - 165
 of the 192 16x17 maps play (31 did before; the rest crashed, didn't load, or
@@ -35,7 +54,7 @@ Daniel deferred the full building rules and the breach-risk pricing (with
 his cluster-weapon / risky-equipment costing idea) to later sessions.
 Details: Change Record (Section 8), Daniel's calls: Section 5.
 
-**Session 4 (PRs #18-#31), for reference:** one-command checks; Kontio vs
+**Session 4 (PRs #18-#31):** one-command checks; Kontio vs
 Hammerhead default; AES; replays; LOS on hex borders; the "lifetime"
 movement objective (default); the time tracker; 50-turn reference cap.
 
@@ -203,7 +222,8 @@ open). Read it before building rules.
    without firing); test with `tests/ab_batches.py` and replays. Reference
    battles are capped at 50 turns meanwhile, and every batch summary flags
    battles that hit the turn cap.
-1. **Speed** (Daniel: "We still need more speed"). Session 6: ~25% off the
+1. **Speed** (Daniel: "We still need more speed") - largely done in session
+   6; next steps only if runs get slow again. Session 6: ~25% off the
    exhaustive search (Change Record), then the grid search as the default
    (~4x). With the EXHAUSTIVE search the two-ply look-ahead is ~95% of run
    time: every first-mover spot (300-630) x every reply spot (400-630). Reply scoring (`MoveEvaluator.evaluate` for each modeled reply)
@@ -217,6 +237,14 @@ open). Read it before building rules.
    Change Record): both movers with the second mover's always-checks = ~3.5-
    4.5x, results within noise (Kontio 57 -> 61 of 100). Watch: 5 of 100
    Kontio battles hit the turn cap (exhaustive 1).
+   Open follow-ups (Daniel's to call, none started): (a) confirm with a
+   longer down-time run that a perfect search really helps the favourite
+   (Atlas vs Kintaro, Black Hawk vs Bombardier: +5 of 20 - the only
+   knowledge results beyond noise); (b) the reply search could also climb
+   from more than one start, or the first mover could get extra always-
+   checks if a matchup shows the grid missing narrow peaks; (c) mechs
+   pushed off the board edge aren't priced in movement scoring (item 6) -
+   0 vs 4 of 60 in one grid A/B, small numbers.
 2. **Known issues Daniel asked to fix later** (Section 4, "Known issues to
    fix later"): Arrow IV / artillery scatter must stay inside the firing arc;
    machine gun array ammo per gun needs a check / test.
@@ -872,7 +900,7 @@ forward arc, kicks included, never into a side arc.
 
 | Decision point | Lives in | Decides |
 |---|---|---|
-| Movement selection | `INTEGRATION__movement_selection.choose` | Spot (hex + facing + mode) maximizing the objective - DEFAULT "lifetime" + history blend (row below), or "ratio": dealt×exposure / (received×exposure + movement-PSR cost + .001); first mover scores each spot by the second mover's modeled reply (two-ply, at its MASC / supercharger speed). Which spots get the reply: `MOVEMENT_TWO_PLY_SEARCH` - "exhaustive" (default, every spot) or "grid" (Daniel's guess and follow, 2026-10-21: a 1-in-7 hex net, then uphill from the best `MOVEMENT_SEARCH_STARTS` net hexes, `_grid_search`). `MOVEMENT_REPLY_SEARCH` the same for the second mover (its modeled reply and its real pick). Knobs: config MOVEMENT SETTINGS. |
+| Movement selection | `INTEGRATION__movement_selection.choose` | Spot (hex + facing + mode) maximizing the objective - DEFAULT "lifetime" + history blend (row below), or "ratio": dealt×exposure / (received×exposure + movement-PSR cost + .001); first mover scores each spot by the second mover's modeled reply (two-ply, at its MASC / supercharger speed). Which spots are scored: `MOVEMENT_SEARCH` (a mech's own pick) and `MOVEMENT_ASSUMED_ENEMY_SEARCH` (the first mover's modeled reply), per side in `MECH_*_CONFIG` "search" / "assumes_enemy_search" - "grid" (DEFAULT since 2026-10-21, Daniel's guess and follow: a 1-in-7 hex net from the mover's own hex, `MOVEMENT_GRID_SPIN`, then uphill from the best `MOVEMENT_SEARCH_STARTS` net hexes; a second mover always also looks at the 6 hexes around the enemy - `_grid_search`) or "exhaustive" (every spot, "perfect"). Knobs: config MOVEMENT SETTINGS. |
 | Movement objective option (+ history blend, `MOVEMENT_LIFETIME_HISTORY_K`) | `movement_selection._Ratio` / `_Lifetime` (`config.MOVEMENT_OBJECTIVE`) | "ratio" (default, above) or "lifetime": dealt + (effective HP left / enemy future damage) x own future damage (`INTEGRATION__future_damage`: 0.5 x best heat-limited expected damage at gunnery + walking +1 + the target's best TMM, kicks / punches at range 1). Each side scores its own spots with it, the modeled reply too |
 | LOS exactly between two hexes (p.56) | `pathfinder/los._evaluate` (`worse_key`) | The target's controller picks the hex; the bot always takes the MORE obstructive one (blocking first, then woods). The pick is the same from either end (checked on all 12,060 such pairs of the 16x17 board), so p.56's "used for all attacks between those two 'Mechs ... for the rest of that turn" holds without storing it. Not modeled: a target choosing the clearer hex to shoot back better; p.56's random pick for a non-player target (a hex attack takes the more obstructive one too). Partial / off-board hexes are never picked (p.56: "LOS cannot be shifted so that it passes through a partial hex") |
 | Movement-PSR cost | `movement_selection.psr_costs` | P(fail) × fall damage, only for Run / Jump with a Movement-Phase PSR trigger; damage-caused PSRs ignored (Daniel) |
@@ -1025,6 +1053,12 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Session 6 wrap-up (Daniel: "Good session. Wrap it
+  up. make sure everything is updated and ready to go for the next
+  session."). Section 0 rewritten for session 6 (summary, the speed item's
+  status and open follow-ups); Section 6's movement row names the new
+  search settings; README's A/B line updated. Clean baseline at hand-off:
+  `run_checks.py --bench` 31 of 31 in 60 s, benchmark 495 / 495 in 3.5 s.
 - **2026-10-21 (Claude):** Knowledge A/B (Daniel: "If Red moves perfectly,
   and thinks Blue will move perfectly But blue moves using the fast method
   ... See how much of an advantage perfect knowledge is vs close enough").
