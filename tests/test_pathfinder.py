@@ -139,8 +139,10 @@ def test_7_transition_cost():
     assert terrain_rules.transition_cost(0, 0, {"water": ["3"]}) == 3
     # Elevation change of 2, otherwise clear: 1 + 0 + 2 = 3
     assert terrain_rules.transition_cost(0, 2, {}) == 3
-    # Road overrides heavy woods terrain cost, elevation still applies: 1 + 0 + 1 = 2
-    assert terrain_rules.transition_cost(0, 1, {"woods": ["2"], "road": []}) == 2
+    # A road hex entered from off the road costs its underlying terrain (p.53,
+    # 2026-10-21 - was: the road always cancelled it): 1 + 2 + 1 = 4. Road
+    # travel (road to road) is terrain_rules.step_cost's - tests/test_terrain.py.
+    assert terrain_rules.transition_cost(0, 1, {"woods": ["2"], "road": []}) == 4
     # Unresolved bridge feature -> ValueError, not a guessed number.
     try:
         terrain_rules.transition_cost(0, 0, {"bridge": ["0"]})

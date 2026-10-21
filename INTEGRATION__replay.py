@@ -131,6 +131,8 @@ def _board(terrain_map):
         feats = {k: v[0] if isinstance(v, list) and v else v for k, v in info.get("features", {}).items()
                  if k != "foliage_elev"}
         hexes[label] = {"l": info.get("level", 0), "f": feats}
+        if info.get("building"):
+            hexes[label]["b"] = 1          # a passive building: "l" is its roof level
     return {"width": terrain_map["width"], "height": terrain_map["height"], "hexes": hexes}
 
 

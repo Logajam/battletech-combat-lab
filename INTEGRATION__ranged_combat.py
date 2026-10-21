@@ -247,10 +247,12 @@ def _movement_options(mover, terrain_map, standup_mp=None, entry_edge=None, back
         starts, run_budget, jump_mp = range(6), standup_mp, 0
         mode_for = lambda spent: "Run"  # noqa: E731
         backward_mp = None
+    level_limit = terrain_rules.max_level_change(bool(mover.destroyed_hip_locations))   # pp.46-47
     seen = set()
     for f0 in starts:
         for (x, y, facing), col in build_movement_table(sx, sy, f0, run_budget, terrain_map=terrain_map,
-                                                        backward_mp=backward_mp).items():
+                                                        backward_mp=backward_mp,
+                                                        level_limit=level_limit).items():
             for mp_spent, fc in col.items():
                 key = (x, y, facing, fc, mode_for(mp_spent), mp_spent)
                 if key not in seen:
@@ -266,14 +268,16 @@ def _entry_options(mover, terrain_map, edge_labels):
     seen = set()
     for label in edge_labels:
         info = terrain_map["hexes"].get(label)
-        if info is None or info["impassable"]:
+        if info is None:
             continue
-        cost = terrain_rules.transition_cost(info["level"], info["level"], info["features"])
-        if cost > run:
+        cost = terrain_rules.step_cost(None, info)        # None: can't walk onto a roof from off the board
+        if cost is None or cost > run:
             continue
+        level_limit = terrain_rules.max_level_change(bool(mover.destroyed_hip_locations))
         ex, ey = hex_geometry.parse_hex_label(label)
         for f0 in range(6):
-            for (x, y, facing), col in build_movement_table(ex, ey, f0, run - cost, terrain_map=terrain_map).items():
+            for (x, y, facing), col in build_movement_table(ex, ey, f0, run - cost, terrain_map=terrain_map,
+                                                            level_limit=level_limit).items():
                 for spent, fc in col.items():
                     total = spent + cost
                     key = (x, y, facing, fc + 1, combat.classify_movement_mode(total, walk), total)

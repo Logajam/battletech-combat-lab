@@ -333,6 +333,16 @@ FLOATING_CRITICALS = True
 # fights on propped up (p.67); a mech is destroyed when immobile with no ranged
 # weapons left (p.99). (Crippled / forced withdrawal: a later option.)
 FIGHT_TO_THE_DEATH = False
+#
+# Passive buildings (Daniel, 2026-10-21: "treat buildings as passive terrain.
+# Blocks LOS. Can't be entered. Can be jumped onto"). True: a building hex is
+# a block as tall as its roof - it blocks LOS like a hill (p.135), ground
+# movement can't enter it, a 'Mech can jump onto the roof (p.50) and walk
+# roof to roof (same level or one lower) but not off a roof (p.134); nothing
+# damages it. False: the full building rules (forced entry, moving inside,
+# damage, collapse - Core pp.130-136) - not built yet, so a map with
+# buildings refuses to load.
+PASSIVE_BUILDINGS = True
 
 # =============================================================================
 # ==========================  VISUALIZATION (NOT WIRED)  =====================

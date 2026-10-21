@@ -20,7 +20,7 @@ edited).
 - `orchestrator.py` → `config` (imported first; self-registers as bare
   `config`), MECHSIM `mech_state` (is_destroyed, is_crippled, clone_mech,
   compute_*_mp, all_crew_unconscious, is_immobile),
-  `piloting_rolls`; PATHFINDER `board_parser`, `hex_geometry`,
+  `piloting_rolls`; PATHFINDER `board_parser`, `terrain_rules` (prepare_board, 2026-10-21), `hex_geometry`,
   `pathfinder.build_movement_table`, `combat` (build_jump_states,
   classify_movement_mode); INTEGRATION `rng`, `weapon_selection`, `heat`,
   `ranged_combat`, `movement_selection`, `stubs`, `attack_resolution`, `results`, `equipment_systems`,

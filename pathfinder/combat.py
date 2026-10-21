@@ -345,7 +345,8 @@ def build_jump_states(start_x: int, start_y: int, jump_mp: int, terrain_map: Dic
     hex distance jumped (used for the TMM lookup on defender return fire).
 
     Legality (see module docstring): on-board, not impassable, within
-    jump_mp hex-distance, and the straight-line path isn't blocked by an
+    jump_mp hex-distance, the landing hex no higher than start_level +
+    jump_mp (p.50), and the straight-line path isn't blocked by an
     intervening hex at/above start_level + jump_mp + JUMP_BLOCK_MARGIN. An
     intervening step that runs off-board (can happen only on a concave/edge
     path) is treated as blocking that candidate, matching this project's
@@ -381,6 +382,13 @@ def build_jump_states(start_x: int, start_y: int, jump_mp: int, terrain_map: Dic
 
         dist = hex_distance(start_hex, candidate_hex)
         if dist > jump_mp:
+            continue
+        # Landing height (Core p.50, 2026-10-21): no hex higher than the
+        # start hex's level + Jumping MP - the same limit as the hexes
+        # passed over (block_threshold is one above it). A roof's level is
+        # its LOS level (terrain_rules.prepare_board), so this covers
+        # landing on buildings too.
+        if info["level"] >= block_threshold:
             continue
 
         path = hex_line(start_hex, candidate_hex)

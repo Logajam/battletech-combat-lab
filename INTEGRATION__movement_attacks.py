@@ -155,11 +155,16 @@ def displacement(from_label, direction, terrain_map):
     """Where a mech on from_label pushed one hex in `direction` ends up
     (pp.113-114): ("off", None, 0) off the board (destroyed), ("blocked",
     None, 0) for a hex 3+ levels up (prohibited), else ("moved", label,
-    levels dropped)."""
+    levels dropped).
+    Passive buildings (2026-10-21, config.PASSIVE_BUILDINGS): a building
+    can't be entered from the ground, so a push from the ground into one is
+    blocked like a wall; from a roof the usual level rule applies."""
     to = neighbour(from_label, direction)
     hexes = terrain_map["hexes"]
     if to is None or to not in hexes:
         return "off", None, 0
+    if hexes[to].get("building") and not hexes[from_label].get("building"):
+        return "blocked", None, 0
     drop = hexes[from_label]["level"] - hexes[to]["level"]
     if drop <= -3:
         return "blocked", None, 0
@@ -190,6 +195,7 @@ class MoverIndex:
         self.mover, self.terrain_map, self.standup_mp = mover, terrain_map, standup_mp
         self.walk = compute_walk_mp(mover)
         self.budget = compute_running_mp(mover) if standup_mp is None else standup_mp
+        self.level_limit = terrain_rules.max_level_change(bool(mover.destroyed_hip_locations))
         self.ground: Dict[tuple, List[tuple]] = {}
         # Forward-only states: a charge ends with a forward move into the target's hex, and the
         # hex count would restart after a backward step (backward charges not offered - see
@@ -223,10 +229,11 @@ class MoverIndex:
             states = self.ground.get((nx, ny, facing))
             if not states:
                 continue
-            a_level = hexes[n]["level"]
-            if abs(t_info["level"] - a_level) > 2:
+            # The final step into the target's hex follows the ground-movement
+            # rules (level-change limit, roofs - terrain_rules.step_cost, pp.46-47, 134).
+            cost = terrain_rules.step_cost(hexes[n], t_info, self.level_limit)
+            if cost is None:
                 continue
-            cost = terrain_rules.transition_cost(a_level, t_info["level"], t_info["features"])
             for fc, mp in states:
                 total = mp + cost
                 if total > self.budget:

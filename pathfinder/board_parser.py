@@ -17,12 +17,18 @@ File format (as seen in the reference sample, 16x17_Grassland_1.board):
 - The features string is semicolon-separated; each feature is
   "name[:param[:param2...]]" (params optional, colon-separated).
 - Lines starting with '#' are comments; 'tag "..."' lines are cosmetic
-  metadata and are skipped.
+  metadata and are skipped. 'option NAME VALUE' lines (MegaMek board
+  settings, e.g. "option exit_roads_to_pavement false" - how MegaMek draws
+  road ends; added 2026-10-21) carry no Core Rulebook rule and are skipped.
 
-Recognized feature names (per movement_pathfinder_handoff.md Section 4b):
-  woods (1=light, 2=heavy), rough, water (depth as param), road,
-  bridge / bridge_cf / bridge_elev, and purely cosmetic ones
-  (ground_fluff, foliage_elev) that carry no rules weight.
+Recognized feature names (per movement_pathfinder_handoff.md Section 4b,
+widened 2026-10-21 after a pass over MegaMek's map pack): woods / jungle
+(1=light, 2=heavy), rough, rubble, sand, mud, swamp, water (depth as param),
+road, pavement, buildings (building / bldg_*), bridges (bridge / bridge_*),
+the other MegaMek terrain the pack uses, and purely cosmetic ones (the
+*fluff codes, foliage_elev). Which of them the simulator can PLAY is
+terrain_rules.py's call (terrain_rules.prepare_board rejects the rest when
+a map loads); this list only stops the parser warning about names it knows.
 
 Anything else encountered gets a WARNING (recoverable, not fatal) — the
 parser's job is to capture what's on the map, not to judge whether every
@@ -42,9 +48,14 @@ from typing import Dict, List, Tuple
 # dropped) but triggers a WARNING so an unrecognized code doesn't silently
 # slip through unnoticed.
 KNOWN_FEATURE_NAMES = {
-    "woods", "rough", "water", "road",
+    "woods", "jungle", "rough", "rubble", "sand", "mud", "swamp", "water",
+    "road", "pavement",
+    "building", "bldg_elev", "bldg_cf", "bldg_class", "bldg_armor", "bldg_basement_type",
     "bridge", "bridge_cf", "bridge_elev",
-    "ground_fluff", "foliage_elev",
+    "fuel_tank", "fuel_tank_cf", "fuel_tank_elev", "fuel_tank_magn",
+    "magma", "hazardous_liquid", "fortified", "impassable", "elevator", "planted_fields",
+    "arms", "legs",                               # MegaMek: severed limbs lying in the hex
+    "ground_fluff", "foliage_elev", "fluff", "bldg_fluff", "road_fluff",   # cosmetic
 }
 
 # =============================================================================
@@ -104,7 +115,7 @@ def parse_board_file(filepath: str) -> Dict[str, object]:
             line = raw_line.strip()
             if not line or line.startswith("#"):
                 continue
-            if line.startswith("tag "):
+            if line.startswith("tag ") or line.startswith("option "):
                 continue
             if line == "end":
                 seen_end = True
@@ -130,7 +141,7 @@ def parse_board_file(filepath: str) -> Dict[str, object]:
             raise ValueError(
                 f"Unrecognized line {line_num} in board file {filepath!r}: {raw_line!r} — "
                 f"does not match 'size W H', 'hex CCRR LEVEL \"features\" \"theme\"', "
-                f"a comment, a tag line, or 'end'. Out of scope for this parser as written; "
+                f"a comment, a tag or option line, or 'end'. Out of scope for this parser as written; "
                 f"extend _HEX_LINE_RE/_SIZE_LINE_RE deliberately if this is a new valid format, "
                 f"don't silently skip it."
             )

@@ -128,6 +128,16 @@ SCENARIOS = {
         'config.MECH_BLUE_MTF = "Cataphract CTF-3LL.mtf"',
         "config.SEED = 4",
     ],
+    # Added 2026-10-21 for map terrain: MegaMek's Military Base 1 (Map Set 7) -
+    # hills, cliffs of 3+ levels, roads and 27 passive building hexes
+    # (config.PASSIVE_BUILDINGS). Both mechs jump; the Black Hawk lands on
+    # roofs three times.
+    "Black_Hawk_F_vs_Cataphract_CTF-3D_MilitaryBase1_seed1.txt": [
+        'config.MECH_RED_MTF = "Black Hawk (Nova) F.mtf"',
+        'config.MECH_BLUE_MTF = "Cataphract CTF-3D.mtf"',
+        'config.DEFAULT_BOARD_PATH = "16x17_Military_Base_1.board"',
+        "config.SEED = 1",
+    ],
 }
 
 
