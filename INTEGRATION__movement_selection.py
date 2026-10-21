@@ -507,7 +507,7 @@ def closing_fallback(mover, other, options, enemy_xy, dealt_for, terrain_map, ex
         if _bracket(hex_distance(cell, enemy_xy), weapon) < initial_bracket:
             continue
         try:
-            los = geo_cache.los(cell, enemy_xy, terrain_map)
+            los = geo_cache.los(cell, enemy_xy, terrain_map, 2, 1 if other.prone else 2)   # heights, p.57
         except ValueError:
             continue
         if not los.los:

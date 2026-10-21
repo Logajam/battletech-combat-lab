@@ -17,44 +17,36 @@ no facing dependency. Argument order is always (attacker_hex, target_hex);
 this matters because Rule 5 (partial cover) is defined relative to "the
 unit being attacked," i.e. the second argument.
 
-=== Rules, confirmed by Daniel (2026-07-19), KISS-mode, static target ===
+=== Rules: the Core Rulebook, pp.56-58 and 66 (since 2026-10-21) ===
+Daniel, 2026-10-21: "make sure the LOS rules match those in the rules and fix
+prone mechs" - this replaces his simplified 2026-07-19 ruleset (woods counted
+only at exactly the higher mech's level; a 2-level hard-block test; partial
+cover without the height and prone conditions; per-step border picks).
 
-Applied to every intervening hex on the LOS path (endpoints excluded):
+  LOS level = the hex's level + the 'Mech's height: 2 standing, 1 prone
+  (p.57). A water hex's level is its floor (terrain_rules.prepare_board), a
+  building hex's its roof.
+  Only the hexes BETWEEN the two 'Mechs count. Terrain intervenes if its
+  level is >= both LOS levels, or >= the LOS level of the 'Mech it is
+  adjacent to (p.57). A hill / building level that intervenes blocks LOS;
+  woods / jungle (their level + 2) that intervene add their points - light 1,
+  heavy 2, also the to-hit modifier - and 3+ points block (p.58). Water never
+  intervenes. 'Mechs never intervene. Adjacent 'Mechs always see each other.
+  Partial cover (p.66): a standing target next to a hex one level higher
+  along the LOS (hill or building; not woods, not water), unless the
+  attacker's LOS level is higher than the target's; a prone target gets none
+  - that hex intervenes and hides it. Standing in depth 1 water: partial
+  cover even against higher attackers, not against a fully submerged one.
+  Target in woods / jungle: +1 / +2 to hit (p.66), never part of LOS.
+  A line exactly on a hex border (p.56): the target's controller picks the
+  side for the whole line - here the side worse for the attacker (blocked,
+  else the higher modifier); a side with an off-board hex can't be picked.
+  The same choice gives the attack direction (p.73, attack_resolution.
+  attack_side).
 
-  1. Hard block: an intervening hex's level >= (higher endpoint's level + 2).
-  2. Hard block: the hex adjacent-on-path to whichever endpoint is LOWER
-     has level >= (lower endpoint's level + 2). (If both endpoints are
-     the same level, both sides' adjacent hexes are checked, since
-     neither is uniquely "the lower" one.)
-  3. Soft block: sum the to-hit modifier of every intervening woods hex
-     (light=+1, heavy=+2). If the running sum exceeds 2 at any point,
-     LOS is blocked from that hex onward (evaluation stops immediately —
-     this is a hard stop once the threshold is crossed, not a retroactive
-     block of the whole path).
-  4. A woods hex counts as "intervening" (i.e. contributes to rule 3) if
-     its level == the higher endpoint's level, OR its level >= the lower
-     endpoint's level AND it is the hex adjacent-on-path to the lower
-     endpoint (same "adjacent" hex identified in rule 2).
-  5. Partial cover (does not block, adds modifier only): the hex
-     adjacent-on-path to the target (second argument) with
-     level == target's level + 1 adds +1.
-  5a. Target in woods (Core p.66, added 2026-10-20): +1 light / +2 heavy
-     to-hit if the TARGET's own hex has woods. Not a LOS rule - added after
-     the blocking check, never counts toward rule 3's woods block.
-  6. Tie-break when the line runs exactly along a hex-grid edge (two
-     candidate hexes for one step of the path): evaluate both
-     candidates against rules 1-5 and keep whichever is worse for the
-     attacker — a block wins over no block; failing that, the higher
-     woods contribution wins. (Per Daniel: this stands in for "defender
-     picks whichever option most favors them" until a proper evaluation
-     function exists to drive that choice for real.)
-
-KISS-mode note (Daniel, 2026-07-19): woods canopy height and mech height
-are both treated as 2 levels and cancel out, so rules 1/2/4 use the
-hex's raw `level` field as-is — `foliage_elev` is NOT factored in here,
-matching board_parser.py's existing "cosmetic, no rules weight" framing
-for that feature. This is a deliberate simplification versus MegaMek's
-full multi-height LOS model, not an oversight.
+Not modeled: firing at a HEX (p.58: an adjacent hex intervenes only if
+higher) - Arrow IV / artillery use the target 'Mech's line; levels of
+multi-level buildings' insides (buildings are passive, PASSIVE_BUILDINGS).
 
 Off-board line assumption (Daniel, 2026-07-19): has_los()/trace_los_path()
 raise ValueError if any hex on the line — endpoint or intervening — is
@@ -62,12 +54,6 @@ off the loaded board. This is deliberately NOT caught/handled gracefully:
 Daniel confirmed that would only matter for concave board shapes, which
 this project doesn't need to support.
 
-NOT implemented (out of scope this pass, per Daniel): minimum range,
-heat, non-static-target TMM-on-defender interactions, any GATOR modifier
-other than the woods/partial-cover terrain modifiers above. Elevation/
-woods LOS rules above are Daniel's own simplified ruleset for this
-project, not researched from a rulebook — do not "correct" them against
-MegaMek/official BT LOS rules without asking first.
 """
 
 from dataclasses import dataclass, field
@@ -230,7 +216,25 @@ def _hex_line_direct(a: Hex, b: Hex) -> List[List[Hex]]:
 # =============================================================================
 
 
-def _evaluate(attacker_hex: Hex, target_hex: Hex, terrain_map: Dict[str, object]) -> LOSTrace:
+STANDING_HEIGHT, PRONE_HEIGHT = 2, 1     # 'Mech heights in levels (p.57)
+WOODS_HEIGHT = 2                          # woods / jungle rise 2 levels above their hex (p.57)
+WOODS_BLOCK_POINTS = 3                    # 3+ points of intervening woods / jungle block LOS (p.58)
+WOODS_POINTS = {"1": 1, "2": 2}           # light 1, heavy 2 (p.58; also their to-hit modifier, p.66)
+WOODS_FEATURES = ("woods", "jungle")
+
+
+def _woods_density(features) -> Optional[str]:
+    for name in WOODS_FEATURES:
+        if name in features:
+            return features[name][0] if features[name] else None
+    return None
+
+
+def _evaluate(attacker_hex: Hex, target_hex: Hex, terrain_map: Dict[str, object],
+              attacker_height: int = STANDING_HEIGHT, target_height: int = STANDING_HEIGHT) -> LOSTrace:
+    """The Core Rulebook's line of sight (pp.56-58, 66; rebuilt 2026-10-21 -
+    Daniel: "make sure the LOS rules match those in the rules and fix prone
+    mechs"). Heights: 2 for a standing 'Mech, 1 for a prone one (p.57)."""
     hexes = terrain_map["hexes"]
 
     def hex_info(h: Hex):
@@ -247,165 +251,121 @@ def _evaluate(attacker_hex: Hex, target_hex: Hex, terrain_map: Dict[str, object]
     if b_info is None:
         raise ValueError(f"LOS target hex {target_hex} is not on the loaded board.")
 
-    a_level = a_info["level"]
-    b_level = b_info["level"]
-    highest_level = max(a_level, b_level)
-    lowest_level = min(a_level, b_level)
+    a_level, b_level = a_info["level"], b_info["level"]
+    a_los, b_los = a_level + attacker_height, b_level + target_height      # LOS levels (p.57)
 
     path = hex_line(attacker_hex, target_hex)
-    total_distance = len(path) - 1
-
-    steps: List[LOSStep] = [
-        LOSStep(index=0, hex=attacker_hex, level=a_level, is_endpoint=True)
-    ]
-
-    if total_distance == 0:
+    n = len(path) - 1
+    if n == 0:
+        steps = [LOSStep(index=0, hex=attacker_hex, level=a_level, is_endpoint=True)]
         return LOSTrace(steps=steps, result=LOSResult(los=True, modifier=0, distance=0))
 
-    modifier = 0
-    blocked_at: Optional[int] = None
+    def intervenes(top: int, i: int) -> bool:
+        """p.57: terrain intervenes if its level is >= both LOS levels, or >= the
+        LOS level of the 'Mech it is adjacent to."""
+        return ((top >= a_los and top >= b_los) or (i == 1 and top >= a_los)
+                or (i == n - 1 and top >= b_los))
 
-    def worse_key(item):
-        _, _, blocked_here, contrib = item
-        return (1 if blocked_here else 0, contrib)
+    # A line exactly on the border between two hexes: the target's controller
+    # picks which side it runs along, for the whole line (p.56) - so each side is
+    # one candidate path. A side through a hex off the board isn't there to pick.
+    sides = []
+    for pick in (0, -1):
+        hexes_on = [path[i][pick] for i in range(1, n)]
+        if all(hex_info(h) is not None for h in hexes_on):
+            sides.append(hexes_on)
+        if all(len(path[i]) == 1 for i in range(1, n)):
+            break                                    # no border steps: one path
+    if not sides:
+        raise ValueError(f"LOS line {attacker_hex} -> {target_hex} runs off the loaded board.")
 
-    for step_index in range(1, total_distance):
-        candidates = path[step_index]
-        adjacent_to_low_a = step_index == 1 and a_level == lowest_level
-        adjacent_to_low_b = step_index == total_distance - 1 and b_level == lowest_level
-        adjacent_to_low_endpoint = adjacent_to_low_a or adjacent_to_low_b
-
-        # A line exactly between two hexes (p.56: the target's controller picks
-        # which one) along the board edge: an off-board hex isn't there to pick,
-        # so the line passes through the on-board one (Claude, 2026-10-20 -
-        # found when an Atlas vs Archer battle crashed here).
-        if len(candidates) > 1:
-            on_board = [c for c in candidates if hex_info(c) is not None]
-            if on_board:
-                candidates = on_board
-
-        evaluated = []
-        for c in candidates:
-            info = hex_info(c)
-            if info is None:
-                raise ValueError(
-                    f"Intervening LOS hex {c} is not on the loaded board — "
-                    f"LOS calc requires the full line to be on-board."
-                )
+    def walk(hexes_on):
+        """(steps, blocked_at, modifier) along one path - modifier is the
+        intervening woods (each hex its points) plus partial cover; the
+        target's own woods are added after the choice."""
+        steps: List[LOSStep] = [LOSStep(index=0, hex=attacker_hex, level=a_level, is_endpoint=True)]
+        woods, blocked_at = 0, None
+        for i, h in enumerate(hexes_on, start=1):
+            info = hex_info(h)
             level = info["level"]
-            blocked_here = level >= highest_level + 2
-            if adjacent_to_low_endpoint and level >= lowest_level + 2:
-                blocked_here = True
+            after = blocked_at is not None
+            contrib, blocks = 0, False
+            if not after:
+                # Hills and buildings (a roof's level is the hex's level): one
+                # intervening hex blocks (p.58). Water never intervenes - a water
+                # hex's level is its floor (terrain_rules.prepare_board).
+                blocks = intervenes(level, i)
+                density = _woods_density(info["features"])
+                if not blocks and density is not None and intervenes(level + WOODS_HEIGHT, i):
+                    contrib = WOODS_POINTS.get(density, 0)
+                    woods += contrib
+                    blocks = woods >= WOODS_BLOCK_POINTS
+                if blocks:
+                    blocked_at = i
+            steps.append(LOSStep(index=i, hex=h, level=level, blocked=blocks, woods_contrib=contrib,
+                                 cumulative_modifier=woods, after_block=after))
+        cover = 0
+        if blocked_at is None:
+            # Partial cover (p.66): a STANDING target next to a hex one level higher
+            # along the LOS (a hill or a building - not water, not woods), unless
+            # the attacker's LOS level is higher. A prone target gets none: that hex
+            # hides it instead (it intervenes above). Water: standing in depth 1 is
+            # partial cover even against higher attackers, but not against a fully
+            # submerged attacker (p.67) - standing in depth 2+, or prone in water.
+            if target_height == STANDING_HEIGHT:
+                if n >= 2:
+                    info = hex_info(hexes_on[-1])
+                    if info["level"] == b_level + 1 and not info.get("depth") and a_los <= b_los:
+                        cover = 1
+                a_depth = a_info.get("depth", 0)
+                a_submerged = a_depth >= 2 or (a_depth >= 1 and attacker_height == PRONE_HEIGHT)
+                if b_info.get("depth") == 1 and not a_submerged:
+                    cover = 1
+            if n >= 2:
+                steps[-1].partial_cover = cover
+                steps[-1].cumulative_modifier = woods + cover
+        return steps, blocked_at, woods + cover, cover
 
-            contrib = 0
-            if not blocked_here:
-                features = info["features"]
-                if "woods" in features:
-                    density = features["woods"][0] if features["woods"] else None
-                    is_intervening = level == highest_level or (
-                        level >= lowest_level and adjacent_to_low_endpoint
-                    )
-                    if is_intervening:
-                        if density == "1":
-                            contrib = 1
-                        elif density == "2":
-                            contrib = 2
+    walked = [walk(h) for h in sides]
+    # The target's choice: a blocked line if it can, else the higher modifier.
+    best = max(range(len(walked)), key=lambda k: (walked[k][1] is not None, walked[k][2]))
+    steps, blocked_at, modifier, cover = walked[best]
+    if len(walked) > 1:
+        for step, other in zip(steps[1:], sides[1 - best]):
+            if other != step.hex:
+                step.other_candidate = other
 
-            evaluated.append((c, level, blocked_here, contrib))
-
-        chosen = max(evaluated, key=worse_key)
-        chosen_hex, chosen_level, chosen_blocked, chosen_contrib = chosen
-        other = next((e[0] for e in evaluated if e[0] != chosen_hex), None)
-
-        after_block = blocked_at is not None
-        this_step_blocks = False
-
-        if not after_block:
-            if chosen_blocked:
-                blocked_at = step_index
-                this_step_blocks = True
-            else:
-                modifier += chosen_contrib
-                if modifier > 2:
-                    blocked_at = step_index
-                    this_step_blocks = True
-
-        steps.append(LOSStep(
-            index=step_index,
-            hex=chosen_hex,
-            other_candidate=other,
-            level=chosen_level,
-            is_endpoint=False,
-            blocked=this_step_blocks,
-            woods_contrib=(0 if after_block else chosen_contrib),
-            cumulative_modifier=modifier,
-            after_block=after_block,
-        ))
-
-    # Rule 5: partial cover, hex adjacent-on-path to the target only —
-    # only applies if LOS survived the whole intervening path. Needs an
-    # intervening hex: at range 1 the hex before the target is the
-    # attacker's own, which is never intervening terrain (Core p.57;
-    # fixed 2026-10-20, Claude).
-    # Water (2026-10-21): a water hex's level is its floor (terrain_rules.
-    # prepare_board), and cover must be "a hill or a building" (p.66) - so a
-    # shallower water hex next to a deeper one gives none.
-    cover = 0
-    if blocked_at is None and total_distance >= 2:
-        for c in path[total_distance - 1]:
-            info = hex_info(c)
-            if info is not None and info["level"] == b_level + 1 and not info.get("depth"):
-                cover = max(cover, 1)
-    # Partial cover from water (p.66): a 'Mech standing in depth 1 water has
-    # it, even against higher attackers - but not against a fully submerged
-    # attacker (depth 2+; p.67). Hex-based: a prone target in depth 1 is
-    # fully submerged, and attacks on it from above the water can't be made
-    # at all (INTEGRATION__water), so its cover never counts.
-    if blocked_at is None and b_info.get("depth") == 1 and a_info.get("depth", 0) < 2:
-        cover = 1
-    if blocked_at is None:
-        modifier += cover
-    if blocked_at is None and total_distance >= 2:
-        if steps and steps[-1].index == total_distance - 1:
-            steps[-1].partial_cover = cover
-            steps[-1].cumulative_modifier = modifier
-
-    # Target in woods (added 2026-10-20, Claude - Core p.66 and the Attack
-    # Modifiers Table pp.68-69): "+1 if target in light woods/jungle", "+2 if
-    # target in heavy woods/jungle". A to-hit modifier only: the target's own
-    # hex never affects LOS (p.57-58), so it is added after the blocking check
-    # and never counts toward the 3-point woods block.
+    # Target in woods / jungle (p.66): +1 light, +2 heavy - a to-hit modifier only;
+    # the target's own hex never affects LOS (pp.57-58).
     target_woods = 0
     if blocked_at is None:
-        woods = b_info["features"].get("woods")
-        density = woods[0] if woods else None
-        target_woods = TARGET_WOODS_MODIFIER.get(density, 0)
+        target_woods = TARGET_WOODS_MODIFIER.get(_woods_density(b_info["features"]), 0)
         modifier += target_woods
-
     steps.append(LOSStep(
-        index=total_distance,
+        index=n,
         hex=target_hex,
         level=b_level,
         is_endpoint=True,
         woods_contrib=target_woods,
-        partial_cover=cover,   # also here: callers read steps[-1] (2026-10-20 fix - it read 0 before)
+        partial_cover=cover,   # also here: callers read steps[-1]
         cumulative_modifier=modifier,
         after_block=blocked_at is not None,
     ))
-
     los = blocked_at is None
-    distance = blocked_at if blocked_at is not None else total_distance
-    return LOSTrace(steps=steps, result=LOSResult(los=los, modifier=modifier, distance=distance))
+    return LOSTrace(steps=steps, result=LOSResult(los=los, modifier=modifier,
+                                                  distance=n if los else blocked_at))
 
 
-def has_los(attacker_hex: Hex, target_hex: Hex, terrain_map: Dict[str, object]) -> LOSResult:
-    return _evaluate(attacker_hex, target_hex, terrain_map).result
+def has_los(attacker_hex: Hex, target_hex: Hex, terrain_map: Dict[str, object],
+            attacker_height: int = STANDING_HEIGHT, target_height: int = STANDING_HEIGHT) -> LOSResult:
+    return _evaluate(attacker_hex, target_hex, terrain_map, attacker_height, target_height).result
 
 
-def trace_los_path(attacker_hex: Hex, target_hex: Hex, terrain_map: Dict[str, object]) -> LOSTrace:
+def trace_los_path(attacker_hex: Hex, target_hex: Hex, terrain_map: Dict[str, object],
+                   attacker_height: int = STANDING_HEIGHT, target_height: int = STANDING_HEIGHT) -> LOSTrace:
     """Same evaluation as has_los(), but returns the full per-step trace
     (chosen hex, discarded tie-break candidate, per-step contribution,
     and exactly which step blocked) for callers that need to render or
     debug the line rather than just get the final result. los_viz.py is
     the current consumer."""
-    return _evaluate(attacker_hex, target_hex, terrain_map)
+    return _evaluate(attacker_hex, target_hex, terrain_map, attacker_height, target_height)

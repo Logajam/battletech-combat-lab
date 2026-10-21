@@ -128,7 +128,7 @@ if PATHFINDER_DIR not in sys.path:
 import hex_geometry  # noqa: E402
 from pathfinder import build_movement_table, PathTable  # noqa: E402
 import terrain_rules  # noqa: E402
-from los import has_los, hex_distance  # noqa: E402
+from los import has_los, hex_distance, STANDING_HEIGHT, PRONE_HEIGHT  # noqa: E402
 import combat  # noqa: E402
 
 import INTEGRATION__weapon_selection as weapon_selection  # noqa: E402
@@ -589,10 +589,11 @@ class MoveEvaluator:
         if atk_hex == def_hex:
             return False  # occupying the defender's hex is undefined, same as combat.py
         try:
-            atk_to_def, entry_at_def, distance, a_to_d = row_into.get(atk_hex) or pair_info(atk_hex, def_hex,
-                                                                                             self.terrain_map)
-            def_to_atk, entry_at_atk, _, d_to_a = row_out_of.get(atk_hex) or pair_info(def_hex, atk_hex,
-                                                                                         self.terrain_map)
+            d_height = PRONE_HEIGHT if prone_def else STANDING_HEIGHT
+            atk_to_def, entry_at_def, distance, a_to_d = row_into.get(atk_hex) or pair_info(
+                atk_hex, def_hex, self.terrain_map, STANDING_HEIGHT, d_height)
+            def_to_atk, entry_at_atk, _, d_to_a = row_out_of.get(atk_hex) or pair_info(
+                def_hex, atk_hex, self.terrain_map, d_height, STANDING_HEIGHT)
         except ValueError:
             return False  # off-board LOS line - not a usable candidate
         if not atk_to_def.los:
@@ -653,12 +654,13 @@ class MoveEvaluator:
         # Rows pinned on the defender's hex: lines INTO it (mover -> defender) and
         # OUT of it (defender -> mover), keyed by the mover's hex - plain dict gets
         # in the loop below; a miss falls back to pair_info (which fills the rows).
-        board = geo_cache.board(terrain_map)
-        row_into = board.to.setdefault(def_hex, {})
-        row_out_of = board.frm.setdefault(def_hex, {})
+        # LOS heights (p.57): the mover stands at every spot; a prone defender is 1 level tall.
+        prone_def = defender.prone
+        d_height = PRONE_HEIGHT if prone_def else STANDING_HEIGHT
+        row_into = geo_cache.board(terrain_map, STANDING_HEIGHT, d_height).to.setdefault(def_hex, {})
+        row_out_of = geo_cache.board(terrain_map, d_height, STANDING_HEIGHT).frm.setdefault(def_hex, {})
         pair_info = geo_cache.pair_info
         pre_min, pre_max = weapon_selection.PRE_TN_MIN, weapon_selection.PRE_TN_MAX
-        prone_def = defender.prone
         water_depths = self.water_depths
         mover_ams = self.mover_ams.engagements if self.mover_ams.ams else None
         defender_ams = self.defender_ams.engagements if self.defender_ams.ams else None

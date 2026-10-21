@@ -607,7 +607,7 @@ def closing_fallback_cases():
         def __init__(self, ok):
             self.los = ok
 
-    def fake_los(cell, target, terrain):
+    def fake_los(cell, target, terrain, a_height=2, t_height=2):
         return FakeLos(cell[0] > enemy[0] and los.hex_distance(cell, enemy) >= 5)
 
     geo_cache.los = fake_los

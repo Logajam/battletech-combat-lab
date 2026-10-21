@@ -117,7 +117,7 @@ import piloting_rolls
 
 import hex_geometry
 import combat
-from los import hex_distance, trace_los_path
+from los import hex_distance, trace_los_path, STANDING_HEIGHT, PRONE_HEIGHT
 
 # equipment.json damage_type strings -> MECHSIM DamageType. A name mapping,
 # not a rule. Anything else (incl. null) goes through stub_unknown_damage_type.
@@ -183,13 +183,18 @@ def _target_tmm(target):
 _SIDE_BY_RELATIVE_HEXSIDE = {0: "front", 1: "right", 2: "right", 3: "rear", 4: "left", 5: "left"}
 
 
-def attack_side(a_hex, t_hex, target_facing, terrain_map):
+def los_height(mech):
+    """A 'Mech's height for line of sight (p.57): 2 standing, 1 prone."""
+    return PRONE_HEIGHT if mech.prone else STANDING_HEIGHT
+
+
+def attack_side(a_hex, t_hex, target_facing, terrain_map, a_height=STANDING_HEIGHT, t_height=STANDING_HEIGHT):
     """Attack direction (Core p.73): the hexside of the target's hex that
     the line of sight crosses, read against the target's facing (a prone
     mech uses the same facing). Front and rear hit zones are one hexside
     each, the sides two each (Attack Direction Diagram). A line exactly on
     a border uses the hex the LOS rules chose (los.trace_los_path)."""
-    steps = trace_los_path(a_hex, t_hex, terrain_map).steps
+    steps = trace_los_path(a_hex, t_hex, terrain_map, a_height, t_height).steps
     entry = steps[-2].hex                      # the hex the line enters the target's hex from
     relative = (combat._direction_facing(t_hex, entry) - target_facing) % 6
     return _SIDE_BY_RELATIVE_HEXSIDE[relative]
@@ -414,7 +419,8 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
 
     stubs.stub_unconfirmed_weapon_data(a_name, get_weapons(attacker))
 
-    trace = trace_los_path(a_hex, t_hex, terrain_map)
+    heights = (los_height(attacker), los_height(target))          # prone: 1 level (p.57)
+    trace = trace_los_path(a_hex, t_hex, terrain_map, *heights)
     los = trace.result
     cover = trace.steps[-1].partial_cover      # partial cover (p.66): leg hits strike the cover
     if not los.los:
@@ -461,7 +467,7 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     if is_immobile(target) and config.AIMED_SHOT_LOCATION:
         aim = aimed_shot_location(target, partial_cover=cover > 0)
     adjust = water.range_adjuster(attacker, w_locs, a_water, tn_adjuster(attacker, target, aim, cover))
-    side = attack_side(a_hex, t_hex, hex_geometry.compass_to_facing(target.facing), terrain_map)
+    side = attack_side(a_hex, t_hex, hex_geometry.compass_to_facing(target.facing), terrain_map, *heights)
     sel_pre_tn = max(weapon_selection.PRE_TN_MIN, min(weapon_selection.PRE_TN_MAX, pre_tn))
     # Special weapons (missiles, rapid fire, LB-X, MML, ATM, Narc) are priced by a fire_modes
     # Planner (2026-10-20): the ammunition / rate the stubs would pick, Artemis / Narc / ECM,

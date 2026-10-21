@@ -7,8 +7,9 @@ every first-mover spot against every reply spot, so the same hex pair gets
 asked about hundreds of thousands of times per turn. None of the answers
 change while a board is loaded, so each is worked out once and remembered.
 
-  pair_info(a, t, terrain_map) -> (LOSResult, entry_dir, distance, arcs)
-      for a line from hex a to hex t. entry_dir is the absolute facing (0-5)
+  pair_info(a, t, terrain_map, a_height=2, t_height=2) -> (LOSResult, entry_dir,
+      distance, arcs) for a line from hex a to hex t, the 'Mechs that tall
+      (2 standing, 1 prone - p.57). entry_dir is the absolute facing (0-5)
       from t toward the hex the line enters t's hex from - the number attack
       direction (Core p.73) is read from. distance is the hex distance.
       arcs is INTEGRATION__arcs.arcs_between(a, t): the firing arc t is in for
@@ -36,7 +37,7 @@ if PATHFINDER_DIR not in sys.path:
 
 import combat  # noqa: E402 - PATHFINDER
 import INTEGRATION__arcs as arcs  # noqa: E402
-from los import trace_los_path, hex_distance  # noqa: E402 - PATHFINDER
+from los import trace_los_path, hex_distance, STANDING_HEIGHT  # noqa: E402 - PATHFINDER
 
 MAX_ENTRIES = 250_000
 
@@ -60,8 +61,10 @@ class _Board:
         self.count = 0
 
 
-# id(terrain_map) -> _Board. The board keeps the map object, so an id can't be
-# reused by a different map while its entry exists.
+# (id(terrain_map), attacker height, target height) -> _Board. The board keeps
+# the map object, so an id can't be reused by a different map while its entry
+# exists. Heights (2026-10-21, p.57): 2 standing, 1 prone - a line's answer
+# depends on both 'Mechs' LOS levels, so each height pair has its own cache.
 _BOARDS = {}
 
 
@@ -70,16 +73,17 @@ def reset():
     _BOARDS.clear()
 
 
-def board(terrain_map) -> _Board:
-    b = _BOARDS.get(id(terrain_map))
+def board(terrain_map, a_height=STANDING_HEIGHT, t_height=STANDING_HEIGHT) -> _Board:
+    key = (id(terrain_map), a_height, t_height)
+    b = _BOARDS.get(key)
     if b is None or b.terrain_map is not terrain_map:
         b = _Board(terrain_map)
-        _BOARDS[id(terrain_map)] = b
+        _BOARDS[key] = b
     return b
 
 
-def pair_info(a_hex, t_hex, terrain_map):
-    b = board(terrain_map)
+def pair_info(a_hex, t_hex, terrain_map, a_height=STANDING_HEIGHT, t_height=STANDING_HEIGHT):
+    b = board(terrain_map, a_height, t_height)
     hit = b.to.get(t_hex, {}).get(a_hex)
     if hit:
         return hit
@@ -88,7 +92,7 @@ def pair_info(a_hex, t_hex, terrain_map):
     if b.count >= MAX_ENTRIES:
         b.clear()
     try:
-        trace = trace_los_path(a_hex, t_hex, terrain_map)
+        trace = trace_los_path(a_hex, t_hex, terrain_map, a_height, t_height)
     except ValueError:
         hit = False
     else:
@@ -105,6 +109,6 @@ def pair_info(a_hex, t_hex, terrain_map):
     return hit
 
 
-def los(a_hex, t_hex, terrain_map):
-    return pair_info(a_hex, t_hex, terrain_map)[0]
+def los(a_hex, t_hex, terrain_map, a_height=STANDING_HEIGHT, t_height=STANDING_HEIGHT):
+    return pair_info(a_hex, t_hex, terrain_map, a_height, t_height)[0]
 
