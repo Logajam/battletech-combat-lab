@@ -618,6 +618,16 @@ def ground_level_limited(mech):
     return hip_effects(mech) > 0 or destroyed_leg_count(mech) >= 3
 
 
+def has_hd_gyro(mech):
+    """A heavy-duty gyro (Core p.204; MegaMek "Gyro:Heavy Duty Gyro")."""
+    return "HEAVY" in (getattr(mech, "gyro_type", "") or "").upper()
+
+
+def gyro_destroyed(mech):
+    """The gyro is destroyed: its 2nd hit - a heavy-duty gyro's 4th (p.204)."""
+    return mech.gyro_hits >= (4 if has_hd_gyro(mech) else 2)
+
+
 TRIPOD_DEDICATED_PILOT_MODIFIER = -1   # p.236: PSRs and physical attack rolls
 TRIPOD_CREW_DISABLED_MODIFIER = 2      # p.236: dedicated pilot / gunner unconscious or killed
 
@@ -776,7 +786,7 @@ def is_destroyed(mech):
         mech.destroyed = True
         mech.cause_of_death = "Engine Destroyed"
         return True
-    if mech.gyro_hits >= 2 and not to_the_death:
+    if gyro_destroyed(mech) and not to_the_death:
         mech.destroyed = True
         mech.cause_of_death = "Gyro Destroyed"
         return True

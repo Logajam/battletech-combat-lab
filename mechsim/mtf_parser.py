@@ -389,6 +389,7 @@ def parse_mtf(filepath):
     # after the fact. Cheap: just another pass over lines already in memory.
     config_str = "Biped"
     cockpit_str = ""
+    gyro_str = ""
     for raw in raw_lines:
         line = raw.strip()
         if ":" in line:
@@ -398,6 +399,8 @@ def parse_mtf(filepath):
                 config_str = value.strip()
             elif key_lower == "cockpit":
                 cockpit_str = value.strip()
+            elif key_lower == "gyro":
+                gyro_str = value.strip()             # e.g. "Heavy Duty Gyro" (2026-10-21, p.204)
 
     mech_type = determine_mech_type(config_str, cockpit_str)
     armor_keys = armor_key_map(mech_type)
@@ -633,6 +636,7 @@ def parse_mtf(filepath):
     # 2026-10-19: header text kept for INTEGRATION__equipment_systems (torso-
     # mounted cockpit life support, stealth armor detection).
     mech.cockpit_type = cockpit_str
+    mech.gyro_type = gyro_str
     mech.armor_desc = global_armor_text or ""
     mech.structure_type = structure_type
 

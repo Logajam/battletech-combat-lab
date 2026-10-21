@@ -79,7 +79,7 @@ import math
 import config
 from hit_location import resolve_hit_location
 from mech_state import has_small_cockpit, has_torso_cockpit, torso_cockpit_sensor_penalty, \
-    destroyed_leg_count, tripod_pilot_modifier, is_quad, live_hip_legs, hip_effects
+    destroyed_leg_count, tripod_pilot_modifier, is_quad, live_hip_legs, hip_effects, has_hd_gyro, gyro_destroyed
 from mech_state import ArmorType, DamageType, is_destroyed, compute_running_mp, leg_aes_working, \
     mark_consciousness_check_pending, all_crew_unconscious, pilot_unconscious, consciousness_target_number, \
     is_immobile
@@ -105,6 +105,8 @@ QUAD_LEG_DESTROYED_MODIFIER = 1          # p.238: a quad's 1st and 2nd destroyed
 STAND_UP_MODIFIER = -1                   # p.51, PSR table p.111: each attempt to stand
 QUAD_PSR_MODIFIER = -2                   # p.239 (errata): a quad with no leg destroyed
 TRIPOD_PSR_MODIFIER = -1                 # p.237: a tripod with no leg destroyed (MECHSIM had -2)
+HD_GYRO_HIT_MODIFIER = 1                 # p.204: each heavy-duty gyro hit (no PSR forced by it)
+HD_GYRO_JUMP_MODIFIER = 2                # p.204: jumping with any heavy-duty gyro hits, in place of the +1s
 COCKPIT_PSR_MODIFIER = 1                 # small or torso-mounted cockpit, every PSR (p.203)
 
 
@@ -153,7 +155,8 @@ def preexisting_modifier(mech):
     if not snap:
         return 0
 
-    total = snap["gyro_hits"] * PREEXISTING_GYRO_HIT_MODIFIER
+    # A heavy-duty gyro: +1 a hit instead of +2 (p.204, 2026-10-21).
+    total = snap["gyro_hits"] * (HD_GYRO_HIT_MODIFIER if has_hd_gyro(mech) else PREEXISTING_GYRO_HIT_MODIFIER)
     for loc in mech.leg_locations:
         if loc not in snap["destroyed_legs"]:
             total += snap["destroyed_leg_actuators"].get(loc, 0) * PREEXISTING_ACTUATOR_MODIFIER
@@ -310,7 +313,7 @@ def can_stand(mech):
     destroyed gyro (p.98), two destroyed legs, or one destroyed leg and two
     destroyed arms (p.51). Only reachable with config.FIGHT_TO_THE_DEATH -
     otherwise the first two are kills."""
-    if mech.gyro_hits >= 2:
+    if gyro_destroyed(mech):
         return False
     legs_lost = sum(1 for loc in mech.leg_locations if mech.locations[loc]["destroyed"])
     arms_lost = sum(1 for loc in ("Left Arm", "Right Arm") if loc in mech.locations
@@ -327,8 +330,8 @@ def movement_psr_trigger(mech, mode):
     Claude) so movement selection can price a PSR before choosing a move;
     the conditions are unchanged. Walking and standing still never reach
     this (Core p.111) - callers gate those."""
-    if mech.gyro_hits > 0:
-        return "gyro hit"
+    if mech.gyro_hits > 0 and (mode == "jump" or not has_hd_gyro(mech)):
+        return "gyro hit"                    # a heavy-duty gyro forces no PSR for running (p.204)
     if is_quad(mech):
         return _quad_trigger(mech, mode)
     if mode == "jump" and any(
@@ -381,7 +384,7 @@ def movement_psr_count(mech, mode):
     None."""
     if movement_psr_trigger(mech, mode) is None:
         return 0
-    count = 1 if mech.gyro_hits > 0 else 0
+    count = 1 if mech.gyro_hits > 0 and (mode == "jump" or not has_hd_gyro(mech)) else 0
     if _is_quad(mech):
         return count + _quad_counts(mech, mode)
     for loc in mech.leg_locations:
@@ -394,6 +397,15 @@ def movement_psr_count(mech, mode):
     return count
 
 
+def hd_gyro_jump_adjust(mech, mode):
+    """p.204: jumping with any heavy-duty gyro hits is a PSR at +2 "regardless
+    of the number of hits" - in place of the +1 a hit preexisting_modifier
+    counts. 0 otherwise."""
+    if mode == "jump" and has_hd_gyro(mech) and mech.gyro_hits > 0:
+        return HD_GYRO_JUMP_MODIFIER - mech.gyro_hits * HD_GYRO_HIT_MODIFIER
+    return 0
+
+
 def movement_psr_target_number(mech, mode):
     """Target number (2d6, roll under it fails) of the Movement Phase PSR this
     mech would have to make moving in `mode`, or None if none is forced.
@@ -401,7 +413,7 @@ def movement_psr_target_number(mech, mode):
     preexisting-damage and special-case modifiers. Read-only."""
     if movement_psr_trigger(mech, mode) is None:
         return None
-    return mech.piloting + preexisting_modifier(mech) + special_case_modifier(mech)
+    return mech.piloting + preexisting_modifier(mech) + special_case_modifier(mech) + hd_gyro_jump_adjust(mech, mode)
 
 
 def fall_damage(mech):
@@ -444,7 +456,7 @@ def check_movement_psr(mech, mode, cause=None):
     if trigger_desc is None:
         return True  # no trigger condition met - no roll, remains standing
 
-    modifier = preexisting_modifier(mech) + special_case_modifier(mech)
+    modifier = preexisting_modifier(mech) + special_case_modifier(mech) + hd_gyro_jump_adjust(mech, mode)
     count = movement_psr_count(mech, mode)
     if not roll_psrs(mech, count, modifier, f"Movement Phase PSR ({mode} mode, {trigger_desc})"):
         resolve_fall(mech, cause=cause or f"failed Movement Phase PSR ({mode})")
@@ -643,11 +655,16 @@ def resolve_attack_phase_psr(mech, forced_triggers=()):
 
     new_gyro_hits = mech.gyro_hits - snap["gyro_hits"]
     if new_gyro_hits > 0:
-        if mech.gyro_hits >= 2:
+        if gyro_destroyed(mech):
             # Reachable only with config.FIGHT_TO_THE_DEATH (otherwise is_destroyed()
             # returned True at the top): gyro destroyed -> automatic fall (p.98).
             automatic_fall = True
             config.log("PSR trigger: Gyro destroyed this phase -> automatic fall.")
+        elif has_hd_gyro(mech):
+            # A heavy-duty gyro hit forces no PSR (p.204) - its +1 still counts if one is made.
+            modifier += new_gyro_hits * HD_GYRO_HIT_MODIFIER
+            config.log(f"Heavy-duty gyro hit this phase: no PSR forced, {new_gyro_hits * HD_GYRO_HIT_MODIFIER:+d} "
+                       f"to any PSR (p.204).")
         else:
             modifier += GYRO_HIT_MODIFIER
             rolls += 1

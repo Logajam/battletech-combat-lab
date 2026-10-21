@@ -716,6 +716,38 @@ def quad_leg_damage_by_the_book():
 
 
 @check
+def heavy_duty_gyro():
+    """2026-10-21, Core p.204: a heavy-duty gyro is destroyed only by its 4th
+    hit; each hit +1 to PSRs (not +2); no PSR forced by the hits or by
+    running; jumping with any hits is a PSR at +2 (not +1 a hit). The type
+    comes from the .mtf "Gyro:" line."""
+    import piloting_rolls as pr
+    from mech_state import is_destroyed, gyro_destroyed
+    m = fresh()
+    m.gyro_type = "Heavy Duty Gyro"
+    m.gyro_hits = 3
+    pr.snapshot_preexisting_damage(m)
+    assert not gyro_destroyed(m) and not is_destroyed(m)
+    assert pr.preexisting_modifier(m) == 3
+    assert pr.movement_psr_trigger(m, "running") is None and pr.movement_psr_count(m, "running") == 0
+    assert pr.movement_psr_count(m, "jump") == 1
+    assert pr.movement_psr_target_number(m, "jump") == m.piloting + pr.special_case_modifier(m) + 2
+    m.gyro_hits = 4
+    assert gyro_destroyed(m)
+    s = fresh()                                                     # a standard gyro: 2 hits
+    s.gyro_hits = 2
+    assert gyro_destroyed(s)
+    hd = fresh()
+    hd.gyro_type = "Heavy Duty Gyro"
+    pr.snapshot_pre_attack_phase(hd)
+    pr.snapshot_preexisting_damage(hd)
+    hd.gyro_hits = 1
+    with ScriptedDice([], default=2):                               # every roll would fail - none is made
+        pr.resolve_attack_phase_psr(hd)
+    assert not hd.prone
+
+
+@check
 def explosions_and_case():
     """2026-10-20, Core p.96: no CASE - at most 20 structure damage, and when
     the base damage was over 20 the location that took the 20th point loses
