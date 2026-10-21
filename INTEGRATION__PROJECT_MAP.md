@@ -117,6 +117,9 @@ them: the Asymptote mirror reference battle (~80 s, the floor),
   (`tests/test_replay.py`). **Share battles with Daniel this way**: publish
   the page with the Artifact tool and give him the link (he doesn't run
   the code himself).
+- Time tracker (`INTEGRATION__timing`, 2026-10-21): every batch ends with a
+  "WHERE THE TIME WENT" table (`config.TIMING`); `config.PROFILE_FUNCTIONS`
+  adds a per-function profile. The benchmark prints it too.
 - Heat (pp.102-107) and heat equipment; piloting rolls one per trigger
   (p.110); seatbelt checks (p.117); falls with the 1D6 side roll (p.115) and
   multiple levels; displacement; deployment from home edges.
@@ -861,6 +864,25 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-21 (Claude):** Time tracker (Daniel: "put a tracker on them to see
+  where they're spending their time. We still need more speed"). New
+  `INTEGRATION__timing.py`: `timing.section(name)` timers that nest (movement >
+  picking a spot > two-ply look-ahead > reply scoring ...), each battle's
+  totals carried back on `BattleResult.timing` (parallel workers included),
+  and a "WHERE THE TIME WENT" table after every batch and in
+  `tests/benchmark_turns.py`. `config.TIMING` (default True),
+  `config.PROFILE_FUNCTIONS` = N lists the top N functions by own time
+  (cProfile, ~2x slower; `BattleResult.profile`). Sections in the orchestrator
+  (movement, ranged, physical, heat, end), movement_selection (reachable
+  spots, scoring vs the enemy where it stands, future damage, two-ply, reply
+  scoring, reply charges / DFA, charges / DFA) and attack_resolution
+  (choosing weapons, resolving hits). The reference battles and the tests
+  that compare printed output switch TIMING off. No result changes
+  (benchmark 477 / 468). First reading (benchmark, ratio objective): the
+  two-ply look-ahead is ~97% of the time - reply scoring ~74%, the per-reply
+  candidate loop ~18%, reply charges / DFA ~5%; ranged, physical, heat and End
+  Phase together under 0.2%.
 
 - **2026-10-21 (Claude):** A/B batches for the history blend (same seeds as
   the ratio / lifetime batches below). Kontio vs Hammerhead, 100: lifetime +

@@ -30,7 +30,8 @@ def _run_batch(workers, extra=()):
         ["import INTEGRATION__config as config",
          f"config.WORKERS = {workers}",
          "config.NUM_SIMULATIONS = 3",
-         "config.MAX_TURNS = 3"]
+         "config.MAX_TURNS = 3",
+         "config.TIMING = False"]      # run times differ between the two runs
         + list(extra)
         + ["import INTEGRATION__orchestrator as orchestrator",
            "results = orchestrator.run_batch()",

@@ -40,6 +40,7 @@ from mtf_parser import parse_mtf  # noqa: E402
 from mech_state import clone_mech  # noqa: E402
 
 config.VERBOSE = False
+config.TIMING = False      # same-seed checks compare printed output; run times differ
 TERRAIN = orchestrator._load_map()
 ASYMPTOTE = parse_mtf(config.data_path("Asymptote II iJ Mpulse.mtf"))
 TOL = 1e-9

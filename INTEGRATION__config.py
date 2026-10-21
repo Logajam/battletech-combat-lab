@@ -76,6 +76,12 @@ WORKERS = 0
 # heat, and the log of each step. 0 = none.
 REPLAY_BATTLES = 0
 REPLAY_DIR = "replays"
+# Where the time goes (2026-10-21, INTEGRATION__timing): TIMING prints a table of
+# the time spent in each part of the turn after every batch (it only reads the
+# clock - results don't change). PROFILE_FUNCTIONS = N also lists the N
+# functions with the most time of their own (cProfile; about 2x slower). 0 = off.
+TIMING = True
+PROFILE_FUNCTIONS = 0
 
 if MANUAL_ROLLS:
     VERBOSE = True  # MANUAL_ROLLS is only useful if Daniel can see what's happening

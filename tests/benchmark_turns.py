@@ -31,6 +31,7 @@ os.chdir(REPO_ROOT)
 
 import INTEGRATION__config as config  # noqa: E402
 import INTEGRATION__orchestrator as orchestrator  # noqa: E402
+import INTEGRATION__timing as timing  # noqa: E402
 
 
 def main():
@@ -46,8 +47,11 @@ def main():
         result = orchestrator.run_batch(num_simulations=1, seed=12345, max_turns=turns)[0]
     if sort:
         profile.disable()
-    print(f"{result.turns_taken} turns in {time.time() - start:.1f} s; final HP red {result.red.final_hp} "
+    elapsed = time.time() - start
+    print(f"{result.turns_taken} turns in {elapsed:.1f} s; final HP red {result.red.final_hp} "
           f"blue {result.blue.final_hp}")
+    if config.TIMING:                         # where those seconds went (INTEGRATION__timing, 2026-10-21)
+        timing.report([result], elapsed, 1)
     if sort:
         pstats.Stats(profile).sort_stats(sort).print_stats(30)
 

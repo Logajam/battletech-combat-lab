@@ -36,7 +36,8 @@ GitHub logistics.
     `python tests/check_reference_logs.py --update` and record that in the
     Change Record.
   - Add `--bench` (the 10-turn benchmark) for anything on the hot path. A
-    speed-only change must keep the results identical.
+    speed-only change must keep the results identical. It prints where the time
+    went (`INTEGRATION__timing`), as every batch does.
 - **Show Daniel battles as replays.** Set `REPLAY_BATTLES` in
   `INTEGRATION__config.py`, run, and publish the page from `replays/` with the
   Artifact tool; give him the link (he doesn't run the code himself).
