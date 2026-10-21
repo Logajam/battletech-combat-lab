@@ -260,6 +260,8 @@ STUB_VIBROBLADE = "on"
 STUB_RAISE_SHIELD = "never"
 # Command console End Phase seat swap (p.203): "when_needed" (pilot out or more hurt) / "never".
 STUB_CONSOLE_SWAP = "when_needed"
+# Blue Shield particle field damper switched on (p.207): "on" / "off".
+STUB_BLUE_SHIELD = "on"
 # (STUB_REAR_MOUNTED removed 2026-10-19: mtf_parser keeps the "(R)" tag as
 # Equipment.rear_mounted; those weapons fire only into the rear arc - Core p.60.)
 # (STUB_HEAT_MODE removed 2026-10-18: heat now always carries over turn to

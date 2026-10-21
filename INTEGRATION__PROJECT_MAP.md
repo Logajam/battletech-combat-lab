@@ -979,6 +979,7 @@ forward arc, kicks included, never into a side arc.
 | Raise a shield | `stubs.stub_raise_shield` | STUB (`STUB_RAISE_SHIELD`, default never): raise at the start of an attack phase (p.195) - more cover vs nothing behind it attacks |
 | Activate a vibroblade | `stubs.stub_vibroblade` | STUB (`STUB_VIBROBLADE`, default on): fixed damage + heat vs tonnage damage (p.196) |
 | Command console swap | `stubs.stub_console_swap` | STUB (`STUB_CONSOLE_SWAP`, default when the pilot is out or more hurt): End Phase seat swap (p.203) |
+| Blue Shield on / off | `stubs.stub_blue_shield` | STUB (`STUB_BLUE_SHIELD`, default "on"): switched at the start and each End Phase (p.207); Memo: only against PPCs, and weigh the stealth it negates |
 | Club pick-up | `INTEGRATION__clubs.maybe_pick_up` | ON (`config.CLUB_PICKUP`, Daniel 2026-10-21): picks one up on a turn it fires nothing; smarter use waits for the Memo below |
 | DFA miss: where the target steps | `INTEGRATION__dfa.resolve` | The open hex with the smallest drop |
 | Home edge | `config.HOME_EDGE_CHOICE` | Which edge the deployment-roll loser picks (default random) |
@@ -1116,6 +1117,12 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Blue Shield particle field damper (RULES_REVIEW
+  F52, pp.180, 207); on / off is a stub (`STUB_BLUE_SHIELD`, Section 6).
+  test_equipment blue_shield. Reference logs unchanged.
+- **2026-10-21 (Claude):** APDS (RULES_REVIEW F51, p.206) - Core after all;
+  engages like an AMS and stacks with one. test_ams apds. Reference logs
+  unchanged.
 - **2026-10-21 (Claude):** Cockpit command console (RULES_REVIEW F50, p.203);
   the End Phase seat swap is a stub (`STUB_CONSOLE_SWAP`, Section 6).
   test_rules command_console. Reference logs unchanged.

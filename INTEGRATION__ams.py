@@ -1,7 +1,16 @@
 """
 INTEGRATION__ams.py  (NEW 2026-10-20, Claude - Pile 2 rules, Pile 4 engagement choice)
 
-Anti-Missile Systems: the standard AMS and the laser AMS (Core Rulebook p.206).
+Anti-Missile Systems: the standard AMS, the laser AMS and the Advanced Point
+Defense System (Core Rulebook p.206).
+
+=== APDS (p.206, 2026-10-21) ===
+In a two-'Mech duel it only ever defends its own 'Mech (same hex), where it
+works as a standard AMS: Cluster roll -4, a Streak counted as a 12 then -5,
+a single missile destroyed on 1D6 4+; 1 shot and 2 heat an engagement. A
+missile attack may be engaged by one AMS and one APDS together - both
+modifiers apply (attack.apds; a single missile gets both 1D6 rolls). Its
+reach over 1-3 hexes to protect others doesn't arise with one 'Mech a side.
 
 === RULES (p.206) ===
   - When a Type M (Missile) weapon HITS a 'Mech carrying an AMS, and the attack
@@ -75,7 +84,8 @@ from mech_state import all_crew_unconscious, compute_heat_dissipation
 import hex_geometry
 
 CLUSTER_MODIFIER = -4          # p.206
-STREAK_RESULT = 7              # p.206: a Streak counts as a 7 on its column
+STREAK_RESULT = 7              # p.206: a Streak counts as a 7 on its column (12 - 5)
+STREAK_CUT = 5                 # p.206: per AMS / APDS engaging a Streak, from its 12
 SINGLE_MISSILE_KILL = 4        # p.206: 1D6 4-6 destroys a single missile
 ENGAGEMENTS_PER_TURN = 2       # p.206, per AMS
 
@@ -210,17 +220,26 @@ def projected_heat(mech, weapon_heat):
 def engage(defender, attacker, attacks, defender_report):
     """Assign the defender's AMS to the attacker's declared hits (bot choice
     in the module docstring): sets attack.ams on each engaged attack, marks
-    off the shot and adds the heat to defender_report.weapon_heat."""
+    off the shot and adds the heat to defender_report.weapon_heat. Then its
+    APDS (p.206, 2026-10-21) the same way, onto attack.apds: one AMS and one
+    APDS may both engage the same attack, their effects adding up."""
     hits = [a for a in attacks if a.hit and attack_prevented(a) > 0]
     if not hits or not systems(defender):
         return
+    _engage(defender, attacker, hits, defender_report, apds=False)
+    _engage(defender, attacker, hits, defender_report, apds=True)
+
+
+def _engage(defender, attacker, hits, defender_report, apds):
     name = defender.side_name
     if not can_engage(defender):
         config.log(f"  [AMS] {name}: can't engage ({'shut down' if defender.shutdown else 'crew unconscious'}).")
         return
-    ams_list = sorted(covering(defender, hex_geometry.parse_hex_label(attacker.hex)), key=lambda w: w.heat or 0)
+    ams_list = sorted((w for w in covering(defender, hex_geometry.parse_hex_label(attacker.hex))
+                       if weapon_rules.is_apds(w) == apds), key=lambda w: w.heat or 0)
     if not ams_list:
-        config.log(f"  [AMS] {name}: no AMS covers the attack from {attacker.side_name}'s hex.")
+        if not apds:
+            config.log(f"  [AMS] {name}: no AMS covers the attack from {attacker.side_name}'s hex.")
         return
     limit = max(defender.max_heat, config.AMS_HEAT_LIMIT)
     used = {}
@@ -233,10 +252,15 @@ def engage(defender, attacker, attacks, defender_report):
                 config.log(f"  [AMS] {name}: {w.name} holds - engaging {attack.weapon.name} would end the turn "
                            f"at {projected} heat (limit {limit}).")
                 continue
+            if apds and attack.apds is not None:
+                break
             used[id(w)] = used.get(id(w), 0) + 1
             note = ammo.spend(defender, w)
             defender_report.weapon_heat += w.heat or 0
-            attack.ams = w
+            if apds:
+                attack.apds = w
+            else:
+                attack.ams = w
             config.log(f"  [AMS] {name}'s {w.name} engages {attacker.side_name}'s {attack.weapon.name} "
                        f"(cuts {attack_prevented(attack):.2f} expected; +{w.heat or 0} heat{f'; {note}' if note else ''}).")
             break

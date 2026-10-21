@@ -7133,7 +7133,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 2: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot)"
+      "notes": "2026-10-21 (Claude): Core Rulebook p.250 row - heat 2, long range 3, 2 slots, 12 shots a ton; damage_per_shot 2 = its ammo's explosion damage a shot (p.206). Was: not found in the Core tables."
     },
     "ismpod": {
       "canonical_name": "ISMPod",
@@ -8879,10 +8879,14 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
-      "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "shots_per_ton": 12,
+      "damage_per_shot": 2,
+      "heat": 2,
+      "range": {
+        "short": 1,
+        "medium": 1,
+        "long": 3
+      },
       "battle_value": null,
       "tonnage": null,
       "special_rules": false,
