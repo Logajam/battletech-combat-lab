@@ -133,6 +133,7 @@ import INTEGRATION__movement_attacks as movement_attacks  # noqa: E402
 import INTEGRATION__weapon_rules as weapon_rules  # noqa: E402
 import INTEGRATION__future_damage as future_damage  # noqa: E402
 import INTEGRATION__timing as timing  # noqa: E402
+import INTEGRATION__water as water  # noqa: E402
 
 SIDES = ("front", "left", "right", "rear")
 _P_2D6 = {roll: (6 - abs(roll - 7)) / 36 for roll in range(2, 13)}
@@ -185,6 +186,21 @@ def psr_costs(mech) -> Dict[str, float]:
     return costs
 
 
+def water_psr_costs(mech) -> Dict[str, float]:
+    """{"Run": cost, "Jump": cost per level fallen} of the PSR for running or
+    jumping into depth 1+ water (2026-10-21, Core pp.48, 50-51: +0, no depth
+    modifier): P(fail) x the fall's damage, halved in water (p.115). A failed
+    jump into water falls the hex's depth in levels - the caller multiplies
+    the Jump figure by (depth + 1). One roll, whatever the path (the end hex
+    stands for it - see the orchestrator's water PSR)."""
+    if not config.MOVEMENT_PSR_COST:
+        return {}
+    target = mech.piloting + piloting_rolls.preexisting_modifier(mech) + piloting_rolls.special_case_modifier(mech)
+    p_fail = 1.0 - combat.hit_probability(target)
+    cost = p_fail * piloting_rolls.fall_damage(mech) / 2
+    return {"Run": cost, "Jump": cost}
+
+
 class _Side:
     """One mech's per-pick scoring inputs: exposure table and PSR prices, and
     (after _link) the objective it scores its own spots with."""
@@ -193,14 +209,26 @@ class _Side:
         self.mech = mech
         self.exposure = exposure_factors(mech)
         self._psr = psr_costs(mech) if psr_applies else {"Run": 0.0, "Jump": 0.0}
+        self._water = water_psr_costs(mech) if psr_applies else {}
         self.objective = _RATIO
 
-    def psr_cost(self, mode, fc):
+    def psr_cost(self, mode, fc, hex_label=None):
+        """Expected fall damage from this move's PSRs: the mech's damage
+        (psr_costs) plus running or jumping into depth 1+ water (2026-10-21,
+        water_psr_costs) when the spot's hex is given."""
         if mode == "Run":
-            return self._psr["Run"] if fc >= 1 else 0.0   # check_movement_psr's gate: Run 1+ hex
-        if mode == "Jump":
-            return self._psr["Jump"]
-        return 0.0
+            if fc < 1:
+                return 0.0                                  # check_movement_psr's gate: Run 1+ hex
+            cost = self._psr["Run"]
+        elif mode == "Jump":
+            cost = self._psr["Jump"]
+        else:
+            return 0.0
+        if self._water and hex_label is not None:
+            depth = water.depth_at(hex_label)
+            if depth >= 1:
+                cost += self._water[mode] * (depth + 1 if mode == "Jump" else 1)
+        return cost
 
 
 # =============================================================================
@@ -476,7 +504,7 @@ def _static_scores(cands, prepared_by_key, me, them):
     for cand in cands:
         o = prepared_by_key[(cand.hex, cand.facing, cand.mode, cand.fc)]
         score = me.objective(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
-                             me.exposure[cand.side_on_mover], me.psr_cost(cand.mode, cand.fc))
+                             me.exposure[cand.side_on_mover], me.psr_cost(cand.mode, cand.fc, cand.hex))
         out.append((score, o, cand))
     return out
 
@@ -497,7 +525,7 @@ def _modeled_reply(c, ev2, prepared2, them, me, other, mover_xy_of_c, terrain_ma
         if cand.dealt > 0:
             any_damage = True
         score = them.objective(cand.dealt, cand.received, me.exposure[cand.side_on_defender],
-                               them.exposure[cand.side_on_mover], them.psr_cost(cand.mode, cand.fc))
+                               them.exposure[cand.side_on_mover], them.psr_cost(cand.mode, cand.fc, cand.hex))
         key = round(score, 9)
         if best is None or key > best_score:
             best_score, best = key, cand
@@ -565,11 +593,11 @@ def _movement_attack_pick(mover, other, terrain_map, standup_mp, normal_score, e
     if me.objective is not _RATIO:
         return state, (f"{what} on {other.side_name}: " + me.objective.note(
             cand.dealt, cand.received, them.exposure[cand.side_on_defender], me.exposure[cand.side_on_mover],
-            me.psr_cost(state['mode'], state['fc']), "incl. self-damage") +
+            me.psr_cost(state['mode'], state['fc'], state['hex']), "incl. self-damage") +
             f" beats {'nothing' if normal_score is None else f'{normal_score:.3f}'}")
     return state, (f"{what} on {other.side_name}: score {score:.3f} = dealt {cand.dealt:.2f} "
                    f"x{them.exposure[cand.side_on_defender]:.2f} / (received {cand.received:.2f} incl. self-damage "
-                   f"x{me.exposure[cand.side_on_mover]:.2f} + PSR {me.psr_cost(state['mode'], state['fc']):.2f}) beats "
+                   f"x{me.exposure[cand.side_on_mover]:.2f} + PSR {me.psr_cost(state['mode'], state['fc'], state['hex']):.2f}) beats "
                    f"{'nothing' if normal_score is None else f'{normal_score:.3f}'}")
 
 
@@ -624,9 +652,9 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
         if scored and any(c.dealt > 0 for _, _, c in scored):
             o, cand = _best_by_score(scored, enemy_xy, battle_rng)
             score = me.objective(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
-                                 me.exposure[cand.side_on_mover], me.psr_cost(cand.mode, cand.fc))
+                                 me.exposure[cand.side_on_mover], me.psr_cost(cand.mode, cand.fc, cand.hex))
             return _pick_dict(o), me.objective.note(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
-                                                    me.exposure[cand.side_on_mover], me.psr_cost(cand.mode, cand.fc),
+                                                    me.exposure[cand.side_on_mover], me.psr_cost(cand.mode, cand.fc, cand.hex),
                                         f"enemy held at {other.hex}; {len(scored)} spots with LOS"), score, ctx
         return (*_fallback_pick(mover, other, prepared1, enemy_xy, dealt_for, terrain_map, battle_rng,
                                 "no spot deals damage"), None, ctx)
@@ -651,7 +679,7 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
                 received_mult = me.exposure[reply.side_on_defender]
             if dealt > 0:
                 any_dealt = True
-            extras = me.psr_cost(c.mode, c.fc)
+            extras = me.psr_cost(c.mode, c.fc, c.label)
             scored.append((me.objective(dealt, received, dealt_mult, received_mult, extras), c,
                            (dealt, received, dealt_mult, received_mult, extras, reply)))
     if any_dealt:

@@ -44,7 +44,8 @@ from typing import Dict, List, NamedTuple, Optional
 import INTEGRATION__config as config
 import INTEGRATION__attack_resolution as attack_resolution
 import INTEGRATION__physical as physical
-from mech_state import is_destroyed, is_immobile, compute_walk_mp, compute_running_mp, compute_jump_mp
+import INTEGRATION__water as water
+from mech_state import is_destroyed, is_immobile, compute_walk_mp, compute_running_mp
 import hex_geometry
 import combat
 import terrain_rules
@@ -204,7 +205,7 @@ class MoverIndex:
                                                                          backward=False):
             if mode != "Jump":
                 self.ground.setdefault((x, y, facing), []).append((fc, mp))
-        self.jump_mp = compute_jump_mp(mover) if standup_mp is None and not mover.prone else 0
+        self.jump_mp = water.jump_mp(mover) if standup_mp is None and not mover.prone else 0   # water: p.50
         self.start_label = mover.hex
         self.start_xy = hex_geometry.parse_hex_label(mover.hex) if mover.hex else None
         self.jump_hexes = set()
@@ -336,7 +337,8 @@ def scored_options(mover, target, pose, index, ev, mover_exposure, target_exposu
         m_mult = mover_exposure[base.side_on_mover] or 1.0
         cand = dataclasses.replace(base, dealt=dealt_abs / t_mult, received=base.received + self_cost / m_mult,
                                    side_on_defender=side, attack="charge" if state.get("charge") else "dfa")
-        score = objective(cand.dealt, cand.received, t_mult, m_mult, psr_cost(state["mode"], state["fc"]))
+        score = objective(cand.dealt, cand.received, t_mult, m_mult,
+                          psr_cost(state["mode"], state["fc"], state["hex"]))
         kind = "CHARGE" if state.get("charge") else "DFA"
         out.append((score, cand, state, f"{kind} (TN {tn}, P {p:.2f}, {dmg} dmg)"))
     out.sort(key=lambda t: -t[0])

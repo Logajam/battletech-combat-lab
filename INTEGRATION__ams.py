@@ -68,6 +68,7 @@ import INTEGRATION__weapon_rules as weapon_rules
 import INTEGRATION__arcs as arcs
 import INTEGRATION__ammo as ammo
 import INTEGRATION__heat as heat
+import INTEGRATION__water as water
 import INTEGRATION__electronics as electronics
 from damage_resolution import get_weapons
 from mech_state import all_crew_unconscious, compute_heat_dissipation
@@ -201,7 +202,7 @@ def projected_heat(mech, weapon_heat):
     """The mech's heat level at the end of this turn if nothing else changes:
     current + movement + other heat + this phase's weapon / AMS heat - sinks."""
     return (mech.current_heat + mech.movement_heat + heat.other_heat(mech) + weapon_heat
-            - compute_heat_dissipation(mech))
+            - compute_heat_dissipation(mech) - water.dissipation_bonus(mech))
 
 
 def engage(defender, attacker, attacks, defender_report):

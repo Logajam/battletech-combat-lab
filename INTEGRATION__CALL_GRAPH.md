@@ -51,6 +51,7 @@ edited).
   `attack_resolution` (weapon_locations, lazy); MECHSIM `damage_resolution.get_weapons`,
   `mech_state` (all_crew_unconscious, compute_heat_dissipation); PATHFINDER `hex_geometry`.
   Used by `attack_resolution` (engage, weapon-choice factors) and `ranged_combat` (Coverage).
+- `water.py` (NEW 2026-10-21) → MECHSIM `damage_resolution`, `mech_state`. Leaf otherwise; holds the battle's board (`set_board`, from `orchestrator.run_battle`). Used by `attack_resolution`, `ranged_combat`, `movement_selection`, `movement_attacks`, `heat`, `ams`, `orchestrator`, and MECHSIM `piloting_rolls.resolve_fall` (lazy import, fall damage in water).
 - `movement_attacks.py` (NEW 2026-10-20) → `config`, `attack_resolution`, `physical`, `ranged_combat` (lazy), `charge` / `dfa` (lazy); MECHSIM `mech_state`; PATHFINDER `hex_geometry`, `combat`, `terrain_rules`, `los`. Used by `movement_selection` (charge / DFA decisions, both movers' two-ply), `charge`, `dfa`, `physical` (displacement for pushes, lazy).
 - `charge.py` (NEW 2026-10-20) → `config`, `attack_resolution`, `movement_attacks`; MECHSIM `mech_state`, `damage_resolution`, `hit_location`, `piloting_rolls`; PATHFINDER `hex_geometry`, `combat`. Used by `physical` (resolution, lazy import).
 - `dfa.py` (NEW 2026-10-20) → `config`, `movement_attacks`, `attack_resolution` (lazy); MECHSIM `mech_state`, `piloting_rolls`; PATHFINDER `hex_geometry`, `combat`. Used by `physical` (lazy).

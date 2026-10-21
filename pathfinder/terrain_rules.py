@@ -11,7 +11,8 @@ is 1, the rest are additions on top):
   - Woods / jungle: light +1, heavy +2 (the table lists them together)
   - Water: depth 0 +0 (cosmetic for 'Mechs, p.122), depth 1 +1, depth 2+ +2
   - Pavement +0; a road hex entered off the road costs its underlying terrain
-  - Level change +1 per level, up or down (p.46)
+  - Level change +1 per level, up or down (p.46); water depth counts as
+    levels (p.51) because prepare_board puts a water hex's level at its floor
   - Stacked terrain: every modifier adds up (p.47, "Stacked Terrain")
 Road travel (p.53): moving from one paved hex (road or pavement) to another
 pays only the base 1 MP, and a level change between them costs 1 less (to a
@@ -219,6 +220,10 @@ def prepare_board(terrain_map: Dict[str, object], passive_buildings: bool = True
     unsupported terrain (with hex counts) rather than letting a battle treat
     it as clear.
 
+    Water (2026-10-21): a water hex of depth 1+ keeps its surface level as
+    "surface_level", its depth as "depth", and its "level" becomes the floor
+    (surface - depth) - see INTEGRATION__water.
+
     Buildings (passive_buildings, Daniel 2026-10-21): each building hex keeps
     its ground level as "ground_level", its "level" becomes the roof's LOS
     level (hex level + bldg_elev, p.130), and "building" is set True - see the
@@ -240,6 +245,17 @@ def prepare_board(terrain_map: Dict[str, object], passive_buildings: bool = True
             if f in features and (features[f][:1] or ["?"])[0] not in CORE_WOODS_DENSITIES:
                 key = f"{f} density {(features[f][:1] or ['?'])[0]} (ultra-heavy; not in the Core Rulebook)"
                 problems[key] = problems.get(key, 0) + 1
+        # Water (2026-10-21): the hex's level becomes the water's floor - the
+        # surface level minus the depth (p.57: "a hex at Depth 2 ... is at
+        # Level -2"; p.47: the printed level is the surface). A 'Mech in it
+        # stands on the bottom, so level changes in and out (p.51), jumps
+        # (p.50), LOS and falls (p.115) all see the depth. "depth" keeps it.
+        if "water" in features and "depth" not in info:
+            depth = _water_depth(features["water"])
+            if depth >= 1:
+                info["surface_level"] = info["level"]
+                info["depth"] = depth
+                info["level"] = info["level"] - depth
         if "building" in features:
             building_hexes += 1
             if passive_buildings and not info.get("building"):

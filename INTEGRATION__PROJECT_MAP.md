@@ -32,7 +32,10 @@ Daniel's MegaMek map pack is `data/maps.zip` (346 maps, 192 of them 16x17);
 load, or had buildings / cliffs silently ignored). Built: costs and stacking,
 road travel, level-change limits, jump landing height, PASSIVE buildings
 (`config.PASSIVE_BUILDINGS`), and a load-time refusal of terrain not built
-yet. Next: the water rules (G6), then the full building rules (a discussion
+yet. Water part 1 (F29, `INTEGRATION__water`): depth as level, partial
+cover, the water line, underwater weapons / ranges, heat sinks, jump jets,
+water PSRs, halved falls. Next: water part 2 (G6: hull breaches, physical
+attacks in water, drowning), then the full building rules (a discussion
 with Daniel first). Details: RULES_REVIEW F24-F28, G6, G19; Section 4
 "Map terrain waiting on rules".
 
@@ -149,7 +152,10 @@ with `python tests/ab_batches.py` (same seeds, several settings side by side).
   passive buildings (option `PASSIVE_BUILDINGS`, default on: block LOS,
   can't be walked into, jump onto the roof, roof-to-roof moves, p.134);
   `terrain_rules.prepare_board` refuses terrain not built yet when the map
-  loads. Water's only effect so far is its MP cost.
+  loads. Water (`INTEGRATION__water`, part 1): a water hex's level is its
+  floor; partial cover in depth 1; the water line; which weapons fire from /
+  at water and underwater ranges; submerged heat sinks; jump jets; PSRs for
+  running / jumping in; halved falls - priced in movement scoring too.
 - Heat (pp.102-107) and heat equipment; piloting rolls one per trigger
   (p.110); seatbelt checks (p.117); falls with the 1D6 side roll (p.115) and
   multiple levels; displacement; deployment from home edges.
@@ -212,8 +218,9 @@ open). Read it before building rules.
    priced in movement scoring - Daniel's rule so far is "only Movement-phase
    PSRs count". A bot target choosing the clearer hex on a two-hex LOS line
    (p.56) isn't modeled (Section 6).
-7. **Maps** (see above): water rules next (G6, Daniel: "the next task"),
-   then the full building rules (discuss with Daniel first); terrain PSRs
+7. **Maps** (see above): water part 2 next (G6: hull breaches, physical
+   attacks in water, drowning), then the full building rules (discuss with
+   Daniel first); terrain PSRs
    mid-move (G19 rubble / sand / mud, G11 backward level changes) and in a
    spot's cost; prone LOS height (G7); Section 4 "Map terrain waiting on
    rules" (Daniel is hunting the rules); `PROMPT_FOR_MAP` / `STITCH_MAPS`.
@@ -937,6 +944,42 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-21 (Claude):** MAPS, part 2 - water rules, part 1 (Daniel: water
+  "Also Yes as the next task"). New `INTEGRATION__water.py` (page cites in
+  each function); RULES_REVIEW F29, G6 is now part 2.
+  - `terrain_rules.prepare_board`: a depth 1+ water hex's `level` becomes
+    its floor (surface - depth, p.57), with `depth` and `surface_level` kept
+    - so moving in / out is a level change (p.51; a depth-3 lake can't be
+    walked into from its shore), jumps start / land at the floor (p.50), a
+    'Mech in water stands on the bottom for LOS, and falls into water add
+    the depth (p.115).
+  - `los.py`: partial cover for a target standing in depth 1 (p.66), not
+    against a fully submerged attacker; a water hex is never the "hill" that
+    gives cover.
+  - `attack_resolution.declare_attacks`: no attack across the water line
+    (p.62); weapons the water stops (Underwater Attacks Table, pp.67, 127);
+    underwater range +1 bracket, no long range (p.127, via the TN adjuster);
+    submerged heat sinks in the heat budget.
+  - Heat (`heat.py`, `ams.py`): submerged sinks dissipate double, at most +6
+    (p.103); the Heat log shows "- water N".
+  - Jumping MP in water (p.50): `water.jump_mp` (movement options, charges,
+    the budget line).
+  - PSRs: `orchestrator._water_psr` - running (Run, 1+ hex) or jumping into
+    depth 1+ water, a failed jump falls the depth (pp.48, 50); END hex only
+    (no paths kept). `piloting_rolls.resolve_fall` halves damage in water
+    (p.115).
+  - Movement scoring (`ranged_combat.MoveEvaluator`, `movement_selection`):
+    each spot's water case (weapons stopped, range shift, heat sink bonus,
+    the water line) and the water PSR's expected fall damage. Boards with no
+    water take exactly the old path - every older reference log and the
+    benchmark (501 / 495) are unchanged apart from the summary's
+    KNOWN_MISSING_RULES text (water part 2 listed; all logs regenerated for
+    that line only).
+  - Replay viewer shows a water hex's surface level. `tests/test_water.py`
+    (9 checks); reference battle Black Hawk F vs Cataphract CTF-3D on
+    `data/16x17_Large_Lakes_1.board` (seed 1: jumps and runs into water, a
+    halved fall, fire held across the water line, submerged sinks).
 
 - **2026-10-21 (Claude):** MAPS, part 1 (Daniel, after the survey of
   MegaMek's 192 16x17 maps: "1. Yes ... 3. set an option (Set to on) to

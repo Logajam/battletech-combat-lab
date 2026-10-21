@@ -142,8 +142,9 @@ import INTEGRATION__fire_modes as fire_modes  # noqa: E402
 import INTEGRATION__weapon_profiles as weapon_profiles  # noqa: E402
 import INTEGRATION__los_cache as geo_cache  # noqa: E402
 from INTEGRATION__attack_resolution import tn_adjuster, aimed_shot_location, firing_conditions, \
-    prone_target_modifier, arc_unavailable, _SIDE_BY_RELATIVE_HEXSIDE  # noqa: E402
+    prone_target_modifier, arc_unavailable, weapon_locations, _SIDE_BY_RELATIVE_HEXSIDE  # noqa: E402
 import INTEGRATION__physical as physical  # noqa: E402
+import INTEGRATION__water as water  # noqa: E402
 
 IMMOBILE_TMM = -4  # same convention as INTEGRATION__attack_resolution.IMMOBILE_TMM
 
@@ -166,7 +167,8 @@ class MovementCandidate:
     attack: str = ""            # "charge" / "dfa" for an attack declared in movement (INTEGRATION__movement_attacks)
 
 
-def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_for_side=None, planner=None):
+def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_for_side=None, planner=None,
+                              extra_dissipation=0):
     """Returns score(distance, pre_tn, move_heat) -> expected damage of the
     weapons select_weapons_to_fire() would actually fire, memoized for this
     call. Dissipation and other heat are read once (they can't change
@@ -178,8 +180,10 @@ def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_fo
     the attack side too and returns WORTH - expected damage with structure
     damage counted for more - and the memo is keyed by side as well.
     planner (2026-10-20): the fire_modes.Planner pricing this mech's special
-    weapons against this target (weapon_selection.select_weapons_to_fire)."""
-    dissipation = compute_heat_dissipation(mech)
+    weapons against this target (weapon_selection.select_weapons_to_fire).
+    extra_dissipation (2026-10-21): submerged heat sinks' bonus where this
+    mech would stand (INTEGRATION__water, p.103)."""
+    dissipation = compute_heat_dissipation(mech) + extra_dissipation
     weapons = get_weapons(mech)                                   # fixed for the scorer's life
     table = weapon_selection.build_expected_damage_table(mech)
     scales: Dict[str, dict] = {}
@@ -240,7 +244,7 @@ def _movement_options(mover, terrain_map, standup_mp=None, entry_edge=None, back
     sx, sy, start_facing = hex_geometry.state_from_label(mover.hex, mover.facing)
     if standup_mp is None:
         walk = compute_walk_mp(mover)
-        starts, run_budget, jump_mp = [start_facing], compute_running_mp(mover), compute_jump_mp(mover)
+        starts, run_budget, jump_mp = [start_facing], compute_running_mp(mover), water.jump_mp(mover)   # water: p.50
         mode_for = lambda spent: combat.classify_movement_mode(spent, walk)  # noqa: E731
         backward_mp = walk if backward and walk > 0 else None
     else:
@@ -412,25 +416,36 @@ class MoveEvaluator:
             # same set, and a shared scorer shares its memo.
             by_unavailable: Dict[tuple, object] = {}
             usable = [w for w in get_weapons(who) if id(w) not in blocked]
-            planners: Dict[int, object] = {}       # fire_modes.Planner per AMS engagement count (shares its memo)
+            planners: Dict[tuple, object] = {}     # fire_modes.Planner per (AMS count, water) (shares its memo)
+            w_locs = weapon_locations(who)
 
-            def get(key, held=frozenset(), ams_k=0):
+            def get(key, held=frozenset(), ams_k=0, wet=None):
                 # held: weapons kept back because their limb attacks in the Physical phase
                 # ams_k: attacks the target's AMS can engage from here (INTEGRATION__ams, p.206)
-                scorer = cache.get((key, held, ams_k))
+                # wet: None on dry ground, else (firer's water state, weapons the water stops,
+                #      heat sink bonus) - INTEGRATION__water (2026-10-21)
+                scorer = cache.get((key, held, ams_k, wet))
                 if scorer is None:
                     unavailable = blocked | arc_unavailable(who, key) | held
-                    scorer = by_unavailable.get((unavailable, ams_k))
+                    if wet is not None:
+                        unavailable = unavailable | wet[1]
+                    w_state, bonus = (wet[0], wet[2]) if wet is not None else (water.GROUND, 0)
+                    scorer = by_unavailable.get((unavailable, ams_k, w_state, bonus))
                     if scorer is None:
-                        planner = planners.get(ams_k)
+                        planner = planners.get((ams_k, w_state))
                         if planner is None:
-                            planner = planners[ams_k] = fire_modes.Planner(
-                                who, target, adjust, fire_modes.ams_share(ams_k, usable))
-                        scorer = by_unavailable[(unavailable, ams_k)] = _make_heat_limited_scorer(
-                            who, adjust, unavailable, scale, planner)
-                    cache[(key, held, ams_k)] = scorer
+                            w_adjust = water.range_adjuster(who, w_locs, w_state, adjust)
+                            planner = planners[(ams_k, w_state)] = fire_modes.Planner(
+                                who, target, w_adjust, fire_modes.ams_share(ams_k, usable))
+                        scorer = by_unavailable[(unavailable, ams_k, w_state, bonus)] = _make_heat_limited_scorer(
+                            who, planner.adjust, unavailable, scale, planner, bonus)
+                    cache[(key, held, ams_k, wet)] = scorer
                 return scorer
             return get
+        # Water (2026-10-21, INTEGRATION__water): None on a board without depth 1+ water,
+        # so dry battles take exactly the old path.
+        self.water_depths = water.hexes_by_depth(terrain_map) or None
+        self._wet_cases: Dict[tuple, tuple] = {}
         self.mover_scorer = scorer_getter(mover, defender, mover_adjust, mover_blocked, mover_scale, mover_scorers)
         self.defender_scorer = scorer_getter(defender, mover, defender_adjust, defender_blocked, defender_scale,
                                              defender_scorers)
@@ -454,6 +469,25 @@ class MoveEvaluator:
         # Each side's AMS (p.206): how many of the other's missile attacks it can engage, by arc.
         self.mover_ams = ams.Coverage(mover)
         self.defender_ams = ams.Coverage(defender)
+
+    def _wet(self, firer, f_label, f_prone, target, t_label, t_prone):
+        """The water case of firer at f_label shooting target at t_label
+        (INTEGRATION__water): None when both are on dry ground (the old path),
+        "none" when no attack can cross the water line, else the scorer's wet
+        argument (firer's water state, weapons the water stops, heat sink bonus)."""
+        depths = self.water_depths
+        f_depth, t_depth = depths.get(f_label, 0), depths.get(t_label, 0)
+        if not f_depth and not t_depth:
+            return None
+        key = (id(firer), f_depth, f_prone, t_depth, t_prone)
+        case = self._wet_cases.get(key)
+        if case is None:
+            f_state = water.state_at(f_label, f_prone, self.terrain_map)
+            t_state = water.state_at(t_label, t_prone, self.terrain_map)
+            blocked = water.blocked_weapon_ids(firer, get_weapons(firer), weapon_locations(firer), f_state, t_state)
+            case = self._wet_cases[key] = "none" if blocked is None else \
+                (f_state, blocked, water.dissipation_bonus(firer, f_state))
+        return case
 
     def prepare(self, options) -> List[_Option]:
         """See prepare_options (this evaluator's mover)."""
@@ -499,6 +533,7 @@ class MoveEvaluator:
         pair_info = geo_cache.pair_info
         pre_min, pre_max = weapon_selection.PRE_TN_MIN, weapon_selection.PRE_TN_MAX
         prone_def = defender.prone
+        water_depths = self.water_depths
         mover_ams = self.mover_ams.engagements if self.mover_ams.ams else None
         defender_ams = self.defender_ams.engagements if self.defender_ams.ams else None
         for o in prepared:
@@ -515,7 +550,13 @@ class MoveEvaluator:
             side_on_def = _SIDE_BY_RELATIVE_HEXSIDE[(entry_at_def - def_facing) % 6]
             side_on_mover = _SIDE_BY_RELATIVE_HEXSIDE[(entry_at_atk - o.facing) % 6]
 
-            if mover_cond is None:
+            # Water (2026-10-21): each side's firing case from here - None on dry ground.
+            wet_dealt = wet_received = None
+            if water_depths is not None:
+                wet_dealt = self._wet(mover, o.label, False, defender, def_hex_label, prone_def)
+                wet_received = self._wet(defender, def_hex_label, prone_def, mover, o.label, False)
+
+            if mover_cond is None or wet_dealt == "none":
                 dealt = 0.0
             else:
                 pre_tn = (dealt_base + o.amm + atk_to_def.modifier
@@ -523,24 +564,26 @@ class MoveEvaluator:
                 pre_tn = pre_max if pre_tn > pre_max else (pre_min if pre_tn < pre_min else pre_tn)
                 cls, keys = mover_class(a_to_d, o.facing)
                 k_def = defender_ams(d_to_a, def_facing) if defender_ams else 0
-                memo_key = (cls, distance, pre_tn, o.move_heat, side_on_def, k_def)
+                memo_key = (cls, distance, pre_tn, o.move_heat, side_on_def, k_def, wet_dealt)
                 dealt = best_dealt.get(memo_key)
                 if dealt is None:
                     dealt = best_dealt[memo_key] = max(
-                        mover_scorer(key, ams_k=k_def)(distance, pre_tn, o.move_heat, side_on_def) for key in keys)
+                        mover_scorer(key, ams_k=k_def, wet=wet_dealt)(distance, pre_tn, o.move_heat, side_on_def)
+                        for key in keys)
 
-            if no_return_fire:
+            if no_return_fire or wet_received == "none":
                 received = 0.0
             else:
                 pre_tn2 = received_base + o.tmm + def_to_atk.modifier + o.void_mod
                 pre_tn2 = pre_max if pre_tn2 > pre_max else (pre_min if pre_tn2 < pre_min else pre_tn2)
                 cls, keys = defender_class(d_to_a, def_facing)
                 k_mov = mover_ams(a_to_d, o.facing) if mover_ams else 0
-                memo_key = (cls, distance, pre_tn2, def_move_heat, side_on_mover, k_mov)
+                memo_key = (cls, distance, pre_tn2, def_move_heat, side_on_mover, k_mov, wet_received)
                 received = best_received.get(memo_key)
                 if received is None:
                     received = best_received[memo_key] = max(
-                        defender_scorer(key, ams_k=k_mov)(distance, pre_tn2, def_move_heat, side_on_mover)
+                        defender_scorer(key, ams_k=k_mov, wet=wet_received)(distance, pre_tn2, def_move_heat,
+                                                                           side_on_mover)
                         for key in keys)
 
             if distance == 1:
@@ -552,8 +595,9 @@ class MoveEvaluator:
                     dealt = _with_physical(
                         dealt, self.mover_planner, mover_actions, mover_legs, a_to_d, o.facing, d_level - a_level,
                         prone_def, base, side_on_def,
-                        (lambda key, held: mover_scorer(key, held, k_def)(distance, pre_tn, o.move_heat, side_on_def))
-                        if mover_cond is not None else None,
+                        (lambda key, held: mover_scorer(key, held, k_def, wet_dealt)(distance, pre_tn, o.move_heat,
+                                                                                      side_on_def))
+                        if mover_cond is not None and wet_dealt != "none" else None,
                         self.mover_planner.push_plan(atk_hex, o.facing, a_level, defender, def_hex_label, d_level,
                                                      base, side_on_def, terrain_map))
                 if self.defender_physical and physical_reply:   # nobody punches a mech in mid-DFA
@@ -561,8 +605,9 @@ class MoveEvaluator:
                     received = _with_physical(
                         received, self.defender_planner, defender_actions, defender_legs, d_to_a, def_facing,
                         a_level - d_level, False, base, side_on_mover,
-                        (lambda key, held: defender_scorer(key, held, k_mov)(distance, pre_tn2, def_move_heat, side_on_mover))
-                        if not no_return_fire else None,
+                        (lambda key, held: defender_scorer(key, held, k_mov, wet_received)(distance, pre_tn2,
+                                                                                            def_move_heat, side_on_mover))
+                        if not no_return_fire and wet_received != "none" else None,
                         self.defender_planner.push_plan(def_hex, def_facing, d_level, mover, o.label, a_level,
                                                         base, side_on_mover, terrain_map))
 
