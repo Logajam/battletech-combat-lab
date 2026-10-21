@@ -543,6 +543,9 @@ def resolve_slot_hit(mech, location, slot_idx, slot, idx, total):
             mech.partial_wing_active = False
             config.log(f"      Partial Wing disabled (system-wide, all-or-nothing) "
                        f"- jump MP now {compute_jump_mp(mech)}.")
+        if "HARJEL" in (component.name or "").replace(" ", "").upper():
+            import INTEGRATION__equipment_systems as equip   # HarJel's gel leak (p.208, 2026-10-21)
+            equip.harjel_hit(mech, location, component)
         if component.is_explosive and not component.exploded:
             component.exploded = True
             apply_explosion(mech, component, location)
