@@ -13,9 +13,27 @@ source project's file overwrite the other's same-named file.
 
 ---
 
-## 0. WHERE WE ARE (2026-10-21, end of session 6) — read this first
+## 0. WHERE WE ARE (2026-10-21, end of session 7) — read this first
 
-**Session 6 in one paragraph - SPEED (all merged to `main`, PRs #38-#43):**
+**Session 7 in one paragraph - RULES AND EQUIPMENT (all merged to `main`,
+PRs #44-#61):** Daniel: get the environment and physics right before the
+bot, and "Follow the rules, not my calls" (except `FIGHT_TO_THE_DEATH`
+off, for speed - now a CLAUDE.md working rule). Fixed the known issues
+(scatter held in the firing arc, MG array ammo); charge / DFA end-of-move
+PSRs and no moving through the enemy; water leftovers; armored components;
+cockpits; filler slots can't take crits; LOS rewritten to the book with
+heights and prone 'Mechs (`tests/test_los.py`); the PSR special cases;
+quad leg damage; clubs (pick-up on). Then the equipment survey (RULES_REVIEW
+G23-G34) built with every choice a loud stub, decisions deferred: HD gyro,
+heat-dissipating armor, talons / spikes / lance / vibroblades / shields
+(`INTEGRATION__physical_gear`), quad kicks, HarJel, command console, APDS,
+Blue Shield, PPC capacitors (`INTEGRATION__capacitor`, off by default),
+torpedoes, Thumper / Sniper as Arrow IV (Daniel's numbers), TAG and homing
+artillery (`INTEGRATION__tag`, TAG may aim at the ground). Left: smoke and
+active probes (G34, no smoke source yet); the split-item cleanup (Section
+4). New stubs are in Section 6; details in the Change Record (Section 8).
+
+**Session 6 - SPEED (all merged to `main`, PRs #38-#43):**
 a speed-only pass (~25%: reply PSR costs once per pick, per-hex rows in
 `MoveEvaluator.evaluate`, lazy charge-gate tables, LOS line shapes cached
 per offset), then Daniel's "guess and follow" movement search, now the
@@ -209,10 +227,11 @@ battles a setting - Daniel).
   (`munition_choice`, `rate_of_fire`, `unjam`, `escalating_use` - MASC /
   supercharger / radical heat sinks).
 
-**Rules review:** `INTEGRATION__RULES_REVIEW.md` - first pass over the whole
-Core Rulebook done 2026-10-20: what was fixed (F1-F23), the gap list (G2-G18,
-Claude's to build), and the Core-vs-project questions (D1-D8 decided; D8
-open). Read it before building rules.
+**Rules review:** `INTEGRATION__RULES_REVIEW.md` - the Core Rulebook vs the
+code: what was fixed (F1-F56), the gap list (G rows; open: G16 special
+munitions, G18 choices, G21 breach pricing, G22 buildings, G34 smoke /
+probes), and the Core-vs-project questions (D1-D8 decided). Read it before
+building rules.
 
 **Pick up here (open, roughly in priority order):**
 0. **Anti-stall rule for the bot** (Daniel, 2026-10-21: "Anti-stall rule for
@@ -283,12 +302,8 @@ open). Read it before building rules.
    (F43-F54), each choice a loud stub; Thumper / Sniper artillery (F55); TAG
    and homing artillery (F56). Left: **smoke and active probes (G34)** - no
    smoke source yet (no unit carries Smoke IV rounds). Thumper / Sniper
-   shots per ton and heat: answered (F55).
-   **Equipment without rules yet** (survey of every unit in `data/meks.zip`,
-   2026-10-21; RULES_REVIEW G23-G33): heavy-duty gyro (57 units), shields /
-   spikes / talons on DFA / lance in charges / vibroblades, APDS, heat-
-   dissipating armor, Blue Shield, HarJel, torpedoes,
-   cockpit command console, chemical laser ammo (check), quad kicks.
+   shots per ton and heat: answered (F55). Every new choice is a stub with
+   a Section 6 row, waiting for the bot sessions.
 8. **PPC capacitors** (Daniel, 2026-10-21: "PPC charging is a bot logic
    question that requires its own session"): the rules are BUILT (2026-10-21,
    `INTEGRATION__capacitor`, RULES_REVIEW F53); left for that session is the
