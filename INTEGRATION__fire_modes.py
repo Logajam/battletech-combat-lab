@@ -526,6 +526,8 @@ class Planner:
         else:
             tn = pre_tn + rm + self.adjust(weapon, b, plan) + plan.tn + area_immobile_fix(weapon, self.target)
         if plan.kind == "homing":            # 2D6 4+, no modifiers; else 5 AE in the hex (p.190)
+            if getattr(self.target, "tag_designated", False) == "hex":
+                return wp.HOMING_AE, wp.HOMING_TN    # the ground designated: 5 AE to the 'Mech either way
             p = hit_probability(wp.HOMING_TN)
             return p * wp.homing_damage(weapon) + (1 - p) * wp.HOMING_AE, wp.HOMING_TN
         p = hit_probability(tn)

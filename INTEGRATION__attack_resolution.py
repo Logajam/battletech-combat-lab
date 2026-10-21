@@ -405,18 +405,20 @@ def _physical_planner(attacker, target, terrain_map):
     return plans_for
 
 
-def single_attack_tn(attacker, target, terrain_map, weapons):
+def single_attack_tn(attacker, target, terrain_map, weapons, at_hex=False):
     """(TN, weapon, note) of the easiest standard ranged attack with one of
     `weapons` from where the attacker stands, as it faces now (no twist), or
     None when none can be made. The same modifiers declare_attacks uses -
     added 2026-10-21 for TAG (INTEGRATION__tag, p.200: "calculate the Target
-    Number as for a standard ranged attack")."""
+    Number as for a standard ranged attack"). at_hex: at the target's hex
+    instead - none of the target's own modifiers (TMM, prone, Void-Signature,
+    partial cover), as for the other hex attacks (Daniel, 2026-10-20)."""
     a_hex, t_hex = hex_geometry.parse_hex_label(attacker.hex), hex_geometry.parse_hex_label(target.hex)
     if a_hex == t_hex:
         return None
     heights = (los_height(attacker), los_height(target))
     trace = trace_los_path(a_hex, t_hex, terrain_map, *heights)
-    los, cover = trace.result, trace.steps[-1].partial_cover
+    los, cover = trace.result, (0 if at_hex else trace.steps[-1].partial_cover)
     conditions = firing_conditions(attacker)
     if not los.los or conditions is None:
         return None
@@ -431,9 +433,10 @@ def single_attack_tn(attacker, target, terrain_map, weapons):
                        arcs.leg_offsets(attacker))
     unavailable = unavailable | blocked | arc_unavailable(attacker, key) | shielded_weapon_ids(attacker)
     distance = hex_distance(a_hex, t_hex)
-    pre_tn = (attacker.gunnery + combat.MODE_TO_AMM[attacker.move_mode] + _target_tmm(target) + los.modifier
-              + attacker.heat_fire_modifier + equip.void_signature_modifier(target) + equip.own_attack_modifier(attacker)
-              + cond_mod + prone_target_modifier(target, distance))
+    own = 0 if at_hex else (_target_tmm(target) + equip.void_signature_modifier(target)
+                            + prone_target_modifier(target, distance))
+    pre_tn = (attacker.gunnery + combat.MODE_TO_AMM[attacker.move_mode] + los.modifier + attacker.heat_fire_modifier
+              + equip.own_attack_modifier(attacker) + cond_mod + own)
     adjust = water.range_adjuster(attacker, w_locs, a_water, tn_adjuster(attacker, target, None, cover))
     best = None
     for w in weapons:
@@ -794,6 +797,11 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng, po
         return
     plan = attack.fire or fire_modes.PLAIN
     _target_heat(target, w)
+    if plan.kind == "homing" and getattr(target, "tag_designated", False) == "hex":
+        config.log(f"    {w.name} homing missile hits the TAG-designated hex: {weapon_profiles.HOMING_AE} "
+                   f"area-effect damage to {target.side_name} in it (p.190; Daniel 2026-10-21).")
+        _resolve_area(target, weapon_profiles.HOMING_AE, attack.side, attack.cover)
+        return
     if plan.kind == "homing":
         dmg = weapon_profiles.homing_damage(w)
         config.log(f"    {w.name} homing missile hits the TAG-designated {target.side_name}: {dmg} direct-fire "

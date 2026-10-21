@@ -21,7 +21,13 @@ fight when smoke and homing ammo is included".
 
 === THE DECISION ===
 Whether to fire TAG is a stub (stubs.stub_fire_tag, default: when the 'Mech
-has homing rounds to use it).
+has homing rounds to use it), and so is its aim (stubs.stub_tag_aim): the
+enemy 'Mech, or the ground it stands on (Daniel, 2026-10-21: "if you aim at
+the ground with the TAG so the splash damage hits the mech. (Ground is an
+easier and thus better target some times. But that's a bot logic
+question.)") - a hex attack, none of the 'Mech's own modifiers. A
+designated hex: homing rounds deal the 5 AE to the 'Mech in it, hit or miss.
+target.tag_designated: False, "mech" or "hex".
 
 Not modeled: the torso twist / arm flip a 'Mech may make just before firing
 TAG (it then can't twist again that turn) - TAG fires as the 'Mech faces;
@@ -69,12 +75,16 @@ def _designate(attacker, target, terrain_map):
         return
     if not stubs.stub_fire_tag(attacker.side_name, uses_designation(attacker)):
         return
-    got = attack_resolution.single_attack_tn(attacker, target, terrain_map, live)
-    if got is None:
+    at_mech = attack_resolution.single_attack_tn(attacker, target, terrain_map, live)
+    at_hex = attack_resolution.single_attack_tn(attacker, target, terrain_map, live, at_hex=True)
+    if at_mech is None and at_hex is None:
         config.log(f"  [TAG] {attacker.side_name} can't designate {target.side_name} (no LOS, range or arc).")
         return
-    tn, weapon, note = got
+    aim = stubs.stub_tag_aim(attacker.side_name, at_mech and at_mech[0], at_hex and at_hex[0])
+    tn, weapon, note = at_hex if aim == "hex" else at_mech
     roll = config.roll_2d6(prompt=f"TAG roll ({weapon.name})")
-    target.tag_designated = target.tag_designated or roll >= tn
-    config.log(f"  [TAG] {attacker.side_name}'s {weapon.name} -> {target.side_name}: needs {tn} ({note}), rolled "
+    if roll >= tn and target.tag_designated != "mech":
+        target.tag_designated = aim
+    what = f"{target.side_name}'s hex" if aim == "hex" else target.side_name
+    config.log(f"  [TAG] {attacker.side_name}'s {weapon.name} -> {what}: needs {tn} ({note}), rolled "
                f"{roll} -> {'DESIGNATED for this turn (p.200)' if roll >= tn else 'miss'}")

@@ -282,8 +282,8 @@ open). Read it before building rules.
    the actual bot decision making for later.")** - RULES_REVIEW G23-G33 built
    (F43-F54), each choice a loud stub; Thumper / Sniper artillery (F55); TAG
    and homing artillery (F56). Left: **smoke and active probes (G34)** - no
-   smoke source yet (no unit carries Smoke IV rounds); **open for Daniel:**
-   Thumper / Sniper shots per ton and heat (F55).
+   smoke source yet (no unit carries Smoke IV rounds). Thumper / Sniper
+   shots per ton and heat: answered (F55).
    **Equipment without rules yet** (survey of every unit in `data/meks.zip`,
    2026-10-21; RULES_REVIEW G23-G33): heavy-duty gyro (57 units), shields /
    spikes / talons on DFA / lance in charges / vibroblades, APDS, heat-
@@ -491,6 +491,14 @@ when dealt is 0; (c) a difference, dealt - received. Replay of that battle:
 https://claude.ai/artifact/NJUknRiK1fcZzUv4A1fndX
 
 **Known issues to fix later (Daniel, 2026-10-20):**
+- **Split items in a shared location (cleanup sweep; Daniel, 2026-10-21).**
+  `mtf_parser._join_split_items` joins the parts of an item split across 2
+  or 3 locations by name and slot count. Two of the same item that both put
+  slots in one location (two Thumpers sharing the centre torso, possible on a
+  superheavy) run together there into one part, so neither adds up and both
+  stay short (a WARNING, not a silent mix-up). The Uni ATAE-70 ArtilleryMech
+  (its Thumper 1 + 7 + 7 across three torsos) is an illegal design, not
+  labeled as one (Daniel). Let the code sit until the cleanup sweep.
 - ~~**Scatter vs the firing arc.**~~ FIXED 2026-10-21 (Claude): a missed
   Arrow IV / artillery cannon walks its scatter path a hex at a time and
   lands in the last hex still inside the launcher's firing arc (pp.182-183,
@@ -984,6 +992,7 @@ forward arc, kicks included, never into a side arc.
 | PPC capacitor at the start | `stubs.stub_capacitor_start` | STUB (`STUB_CAPACITOR_START`, default "empty"): start the battle charged (p.188); Memo: the PPC-charging bot session |
 | Charge a PPC capacitor | `stubs.stub_capacitor_charge` | STUB (`STUB_CAPACITOR_CHARGE`, default "never"; "when_idle" = whenever the PPC isn't fired): charge instead of firing (p.188); Memo: weigh 5 heat now and each turn held against +5 damage, and let weapon choice see the holding heat |
 | Fire TAG | `stubs.stub_fire_tag` | STUB (`STUB_FIRE_TAG`, default "when_useful": the 'Mech has homing artillery rounds): designate the enemy before the Ranged Attack Phase (p.200); Memo: the twist / flip TAG may use first, semi-guided rounds |
+| TAG aim | `stubs.stub_tag_aim` | STUB (`STUB_TAG_AIM`, default "mech"; "hex" / "easier"): designate the enemy or the ground it stands on (Daniel 2026-10-21: ground is easier, homing then does 5 AE to the 'Mech - "a bot logic question") |
 | Club pick-up | `INTEGRATION__clubs.maybe_pick_up` | ON (`config.CLUB_PICKUP`, Daniel 2026-10-21): picks one up on a turn it fires nothing; smarter use waits for the Memo below |
 | DFA miss: where the target steps | `INTEGRATION__dfa.resolve` | The open hex with the smallest drop |
 | Home edge | `config.HOME_EDGE_CHOICE` | Which edge the deployment-roll loser picks (default random) |
@@ -1121,6 +1130,13 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Daniel's answers: Thumper 20 shots a ton / 5
+  heat, Sniper 10 / 10 (equipment.json; no more unlimited-ammo stub); homing
+  rounds' 5 AE hits every other unit in the hex; TAG can designate the
+  ground (`STUB_TAG_AIM`, Section 6; homing then 5 AE to the 'Mech there).
+  The Uni ATAE-70 is an illegal design; the split-item join in a shared
+  location is a Section 4 cleanup-sweep item (code left as is).
+  test_weapons updated. Reference logs unchanged.
 - **2026-10-21 (Claude):** TAG and homing artillery (RULES_REVIEW F56, pp.53,
   190, 200), new `INTEGRATION__tag`: a designation step before the Ranged
   Attack Phase (`STUB_FIRE_TAG`, Section 6); Arrow IV / Thumper / Sniper

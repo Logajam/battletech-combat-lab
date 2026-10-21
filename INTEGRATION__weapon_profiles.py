@@ -51,7 +51,11 @@ without their special rule. Core Rulebook pages per entry; tables pp.248-254.
     facing the firer (Arrow IV 20, Sniper 10, Thumper 5); 3 or less: the
     target's hex takes 5 area-effect damage. The chosen hex is 7-17 hexes
     away and the target within 8 of it, so any target up to 17 hexes away in
-    the launcher's arc can be reached. Not modeled: firing without LOS.
+    the launcher's arc can be reached. The 5 also hits every OTHER unit in
+    the hex on a hit (Daniel, 2026-10-21) - nobody else in a duel. TAG can
+    designate the ground (the enemy's hex) instead of the 'Mech, an easier
+    shot (INTEGRATION__tag): then either result is 5 AE on the 'Mech there.
+    Not modeled: firing without LOS.
 """
 
 import re
