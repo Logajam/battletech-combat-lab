@@ -32,6 +32,7 @@ OUT_DIR = tempfile.mkdtemp()
 def _batch(record):
     saved = config.REPLAY_BATTLES, config.REPLAY_DIR, config.WORKERS
     config.REPLAY_BATTLES, config.REPLAY_DIR, config.WORKERS = (1 if record else 0), OUT_DIR, 1
+    config.TIMING = False                          # run times differ between the two runs
     try:
         out = io.StringIO()
         with redirect_stdout(out):

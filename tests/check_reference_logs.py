@@ -126,7 +126,8 @@ SCENARIOS = {
 
 def run_scenario(overrides):
     code = "\n".join(
-        ["import INTEGRATION__config as config"]
+        ["import INTEGRATION__config as config",
+         "config.TIMING = False"]      # run times differ every run - not part of a saved log
         + overrides
         + ["import INTEGRATION__orchestrator as orchestrator", "orchestrator.run_batch()"]
     )

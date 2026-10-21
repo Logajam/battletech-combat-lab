@@ -105,6 +105,7 @@ import INTEGRATION__ams as ams
 import INTEGRATION__electronics as electronics
 import INTEGRATION__fire_modes as fire_modes
 import INTEGRATION__weapon_profiles as weapon_profiles
+import INTEGRATION__timing as timing
 from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capability, \
     mark_consciousness_check_pending, compute_heat_dissipation, arm_aes_working
 import armor_rules
@@ -848,34 +849,36 @@ def run_ranged_combat_phase(mover_first, mover_second, terrain_map, battle_rng):
         snapshot_round_capability(m)
         piloting_rolls.snapshot_pre_attack_phase(m)
 
-    for attacker, target in pairs:
-        declare_attacks(attacker, target, terrain_map, reports[attacker.side_name])
-        # Nothing to shoot this turn: maybe pick up a club instead (p.79, INTEGRATION__clubs).
-        clubs.maybe_pick_up(attacker, terrain_map, fired_anything=bool(reports[attacker.side_name].attacks_list))
+    with timing.section("choosing weapons and twists"):
+        for attacker, target in pairs:
+            declare_attacks(attacker, target, terrain_map, reports[attacker.side_name])
+            # Nothing to shoot this turn: maybe pick up a club instead (p.79, INTEGRATION__clubs).
+            clubs.maybe_pick_up(attacker, terrain_map, fired_anything=bool(reports[attacker.side_name].attacks_list))
 
     # AMS (p.206): engaged right after the attack rolls, before any damage lands.
     for attacker, target in pairs:
         ams.engage(target, attacker, reports[attacker.side_name].attacks_list, reports[target.side_name])
 
-    for attacker, target in pairs:
-        rep = reports[attacker.side_name]
-        hp_before = total_hp(target)
-        pool = {} if config.POOL_CLUSTER_DAMAGE else None
-        for attack in rep.attacks_list:
-            if attack.hit:
-                rep.hits += 1
-                _resolve_one_attack(attacker, target, attack, battle_rng, pool)
-            elif (attack.fire is not None and attack.fire.kind == "artillery") or weapon_profiles.is_art_cannon(attack.weapon):
-                _resolve_area_miss(attacker, target, attack, terrain_map)
-        for (size, dtype, side, cover), parts in (pool or {}).items():
-            total = sum(d for _, d in parts)
-            if len(parts) > 1:
-                config.log(f"    Cluster damage pooled ({size}-point groupings): "
-                           f"{' + '.join(f'{n} {d}' for n, d in parts)} = {total}.")
-            else:
-                config.log(f"    {parts[0][0]}: {total} damage in {size}-point groupings.")
-            _apply_groups(target, total, size, dtype, side, cover)
-        rep.damage_dealt += hp_before - total_hp(target)
+    with timing.section("resolving hits and damage"):
+        for attacker, target in pairs:
+            rep = reports[attacker.side_name]
+            hp_before = total_hp(target)
+            pool = {} if config.POOL_CLUSTER_DAMAGE else None
+            for attack in rep.attacks_list:
+                if attack.hit:
+                    rep.hits += 1
+                    _resolve_one_attack(attacker, target, attack, battle_rng, pool)
+                elif (attack.fire is not None and attack.fire.kind == "artillery") or weapon_profiles.is_art_cannon(attack.weapon):
+                    _resolve_area_miss(attacker, target, attack, terrain_map)
+            for (size, dtype, side, cover), parts in (pool or {}).items():
+                total = sum(d for _, d in parts)
+                if len(parts) > 1:
+                    config.log(f"    Cluster damage pooled ({size}-point groupings): "
+                               f"{' + '.join(f'{n} {d}' for n, d in parts)} = {total}.")
+                else:
+                    config.log(f"    {parts[0][0]}: {total} damage in {size}-point groupings.")
+                _apply_groups(target, total, size, dtype, side, cover)
+            rep.damage_dealt += hp_before - total_hp(target)
 
     for m in (mover_first, mover_second):
         electronics.activate_pods(m)          # pods that hit this phase work from the next (p.193)

@@ -86,6 +86,7 @@ import os
 import pickle
 import random
 import sys
+import time
 from concurrent.futures import ProcessPoolExecutor
 from contextlib import redirect_stderr, redirect_stdout
 from typing import List, Optional
@@ -131,6 +132,7 @@ import INTEGRATION__attack_resolution as attack_resolution  # noqa: E402
 import INTEGRATION__arcs as arcs  # noqa: E402
 import INTEGRATION__clubs as clubs  # noqa: E402
 import INTEGRATION__replay as replay  # noqa: E402
+import INTEGRATION__timing as timing  # noqa: E402
 from INTEGRATION__attack_resolution import _with_piloting, total_hp  # noqa: E402
 from INTEGRATION__results import BattleResult, SideStats, summarize  # noqa: E402
 
@@ -326,8 +328,9 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_fi
         booster_failures = equip.resolve_movement_boosters(mover)   # MASC / supercharger (p.204)
     mp = _compute_available_mp(mover)
     entry_edge = mover.home_edge if mover.hex is None else None   # entering the battlefield (p.37)
-    pick, why = movement_selection.choose(mover, other, terrain_map, battle_rng, moves_first,
-                                          standup_mp=standup_mp, entry_edge=entry_edge)
+    with timing.section("picking a spot"):
+        pick, why = movement_selection.choose(mover, other, terrain_map, battle_rng, moves_first,
+                                              standup_mp=standup_mp, entry_edge=entry_edge)
     if pick is None and entry_edge is not None:
         # "A unit must move onto the battlefield ... If it cannot, it is destroyed." (p.37)
         mover.destroyed, mover.cause_of_death = True, "Could Not Enter Battlefield"
@@ -515,13 +518,16 @@ def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,
             _reset_movement_state(m)
         for m in (mover_first, mover_second):
             fire_modes.declare_unjams(m)     # Rotary AC unjam attempts are declared in the Movement Phase (p.183)
-        _phase_movement(mover_first, mover_second, terrain_map, turn, battle_rng, moves_first=True)
+        with timing.section("movement"):
+            _phase_movement(mover_first, mover_second, terrain_map, turn, battle_rng, moves_first=True)
         replay.mark(turn, f"{loser_name} moves")
-        _phase_movement(mover_second, mover_first, terrain_map, turn, battle_rng, moves_first=False)
+        with timing.section("movement"):
+            _phase_movement(mover_second, mover_first, terrain_map, turn, battle_rng, moves_first=False)
         replay.mark(turn, f"{winner_name} moves")
 
         _after_phase(mech_red, mech_blue)
-        reports = attack_resolution.run_ranged_combat_phase(mover_first, mover_second, terrain_map, battle_rng)
+        with timing.section("ranged attacks"):
+            reports = attack_resolution.run_ranged_combat_phase(mover_first, mover_second, terrain_map, battle_rng)
         _after_phase(mech_red, mech_blue)
         replay.mark(turn, "Ranged attacks")
         for side, rep in reports.items():
@@ -529,12 +535,15 @@ def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,
             stats[side].hits += rep.hits
             stats[side].damage_dealt += rep.damage_dealt
 
-        physical.run_physical_phase(mover_first, mover_second, terrain_map, reports)
+        with timing.section("physical attacks"):
+            physical.run_physical_phase(mover_first, mover_second, terrain_map, reports)
         _after_phase(mech_red, mech_blue)
         replay.mark(turn, "Physical attacks")
-        _phase_heat(mech_red, mech_blue, reports)
+        with timing.section("heat phase"):
+            _phase_heat(mech_red, mech_blue, reports)
         _after_phase(mech_red, mech_blue)
-        _phase_end(mech_red, mech_blue, turn, stats)
+        with timing.section("end phase"):
+            _phase_end(mech_red, mech_blue, turn, stats)
 
         config.log(f"  -- end of turn {turn}: {_status_line(mech_red)}")
         config.log(f"  -- end of turn {turn}: {_status_line(mech_blue)}")
@@ -623,7 +632,12 @@ def _run_one_battle(sim, num_simulations, seed, max_turns, template_red, templat
     recording = sim <= config.REPLAY_BATTLES
     if recording:
         replay.start(mech_red, mech_blue, terrain_map, sim_seed, sim)
-    result = run_battle(mech_red, mech_blue, terrain_map, battle_rng, max_turns)
+    timing.take()                          # nothing carried over from outside this battle
+    prof = timing.start_profile()
+    with timing.section("battle"):
+        result = run_battle(mech_red, mech_blue, terrain_map, battle_rng, max_turns)
+    result.profile = timing.stop_profile(prof)
+    result.timing = timing.take() if config.TIMING else None
     result.active_stubs = stubs.active_stubs()
     result.seed = sim_seed
     if recording:
@@ -684,6 +698,7 @@ def run_batch(num_simulations: Optional[int] = None, seed: Optional[int] = None,
     max_turns = max_turns if max_turns is not None else config.MAX_TURNS
     seed = seed if seed is not None else config.SEED
 
+    started = time.perf_counter()
     terrain_map = _load_map()
     template_red, template_blue, red_path, blue_path = config.load_two_mechs()
 
@@ -709,6 +724,8 @@ def run_batch(num_simulations: Optional[int] = None, seed: Optional[int] = None,
     summarize(results,
               f"{template_red.chassis} {template_red.model}",
               f"{template_blue.chassis} {template_blue.model}")
+    if config.TIMING:
+        timing.report(results, time.perf_counter() - started, workers)
     for result in results:
         if result.replay is not None:
             print(f"Replay saved: {replay.write(result.replay)}")
