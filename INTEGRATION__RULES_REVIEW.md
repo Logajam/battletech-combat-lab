@@ -94,6 +94,7 @@ launchers, MRM cluster -1, pp.185-187); Gauss rifle component explosion
 | F48 | Quad kicks (was G32) | p.238 | Built 2026-10-21 (`physical._quad_kick_options`): a front kick with the front legs needs only the front hips; a mule kick into the rear arc with the rear legs needs the rear hips and both front legs; a hip hit stops kicks in that arc only; only the kicking pair's leg actuators count. |
 | F49 | HarJel I / II / III (was G28) | p.208 | Built 2026-10-21 (`equipment_systems.harjel_*`): HarJel I - no breach check for its location while it has armor; a hit to it breaches the location. HarJel II / III - +2 to that location's breach checks while it has armor; armor damage taken in a turn comes back in the End Phase, up to 2 / 4 (not above the starting armor; a torso's front / rear split evenly); a hit to it forces an extra critical-hit check. |
 | F50 | Cockpit command console (was G30) | p.203 | Built 2026-10-21 (`mech_state.console_active` / `pilot_hit` / `swap_warriors`): a second warrior (`secondary_hits`) takes head and heat hits with the pilot, not explosion hits, and makes his own seatbelt check; the head's first Cockpit slot is the pilot's, the second the console's - lose the pilot's and the console warrior takes over, lose both and the 'Mech is destroyed (before, any Cockpit hit killed it); a pilot killed with the console warrior alive leaves the 'Mech pilotless (crew out) until the End Phase swap. The End Phase swap otherwise is a stub (`STUB_CONSOLE_SWAP`, default: when the pilot is out or more hurt). Not modeled: the console warrior's own consciousness rolls, spotting, Edge. |
+| F51 | Advanced Point Defense System (was G25) | p.206 | Built 2026-10-21 (`INTEGRATION__ams`, `weapon_rules.is_apds`): it is in the Core Rulebook (it was taken for Tactical Operations and couldn't fire); equipment.json filled from the p.250 table (2 heat, 12 shots a ton, ammo 2 a shot when it explodes). Defending its own 'Mech it works as an AMS; an AMS and an APDS may both engage one attack - Cluster -4 each, a Streak's 12 -5 each, a single missile both 1D6 rolls (`attack.apds`). Its 1-3 hex reach for others doesn't arise in a duel. |
 
 ---
 
@@ -125,7 +126,7 @@ launchers, MRM cluster -1, pp.185-187); Gauss rifle component explosion
 | G12 | Charging after a backward step | p.78 | The charge planner uses forward-only paths (the hex count restarts after a backward step and the planner adds the final forward step). Small. |
 | G23 | ~~Heavy-duty gyro~~ | p.204 | Built 2026-10-21 - see F44. |
 | G24 | ~~Shields, spikes, talons on a DFA, lance in a charge, vibroblade activation~~ | pp.194-196 | Built 2026-10-21 - see F46, F47. |
-| G25 | Advanced Point Defense System (APDS) | p.206 | Not built - can't fire today (4 units). |
+| G25 | ~~Advanced Point Defense System (APDS)~~ | p.206 | Built 2026-10-21 - see F51. |
 | G26 | ~~Heat-dissipating armor~~ | p.202 | Built 2026-10-21 - see F45. |
 | G27 | Blue Shield particle field damper | pp.180, 207 | Not built (4 units): halves PPC damage while active, Escalating Failure after 6 turns, negates stealth, a 5-point explosion if hit while active. |
 | G28 | ~~HarJel I / II / III~~ | p.208 | Built 2026-10-21 - see F49. |

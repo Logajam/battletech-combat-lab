@@ -1116,6 +1116,9 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** APDS (RULES_REVIEW F51, p.206) - Core after all;
+  engages like an AMS and stacks with one. test_ams apds. Reference logs
+  unchanged.
 - **2026-10-21 (Claude):** Cockpit command console (RULES_REVIEW F50, p.203);
   the End Phase seat swap is a stub (`STUB_CONSOLE_SWAP`, Section 6).
   test_rules command_console. Reference logs unchanged.

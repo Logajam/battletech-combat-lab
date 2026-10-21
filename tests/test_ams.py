@@ -29,7 +29,8 @@ os.chdir(REPO_ROOT)
 import INTEGRATION__config as config  # noqa: E402
 import INTEGRATION__orchestrator as orchestrator  # noqa: E402
 import INTEGRATION__attack_resolution as attack_resolution  # noqa: E402
-import INTEGRATION__ams as ams  # noqa: E402
+import INTEGRATION__ams as ams
+import INTEGRATION__weapon_rules as weapon_rules  # noqa: E402
 import INTEGRATION__ammo as ammo  # noqa: E402
 import INTEGRATION__weapon_selection as weapon_selection  # noqa: E402
 import INTEGRATION__ranged_combat as ranged_combat  # noqa: E402
@@ -239,6 +240,28 @@ def resolution_cluster_streak_single():
     tb.ams = a
     assert resolve(tb, [], picks=4) == 0
     assert resolve(tb, [7], picks=3) == 10
+
+
+@check
+def apds():
+    """p.206 (2026-10-21): the APDS defends its own 'Mech as an AMS (2 heat,
+    1 of 12 shots an engagement, never fired as a weapon); one AMS and one
+    APDS on the same attack add up - Cluster roll -8, a Streak's 12 - 10 = 2."""
+    osprey = fresh(unit("XTRs/Republic III/Osprey OSP-36"), "0808", "N", "Red", max_heat=30)
+    systems = ams.systems(osprey)
+    assert systems and all(weapon_rules.is_apds(w) for w in systems)
+    a = fresh(ARCHER, "0804", "S", "Blue")
+    attacks = hits(weapon(a, "LRM"), 1)
+    rep = SideReport()
+    ams.engage(osprey, a, attacks, rep)
+    assert attacks[0].apds is not None and attacks[0].ams is None and rep.weapon_heat == 2
+    assert ams.shots_left(osprey, systems[0]) == 2 * 12 - 1
+    both = hits(weapon(fresh(ARCHER), "LRM"))[0]
+    both.ams, both.apds = ams.systems(fresh(ATLAS_K))[0], systems[0]
+    assert resolve(both, [11]) == TABLE[3][20]                     # 11 - 4 - 4
+    streak = hits(weapon(fresh(ATLAS_S), "Streak"))[0]
+    streak.ams, streak.apds = both.ams, both.apds
+    assert resolve(streak, [7]) == 2 * TABLE[2][2]                 # 12 - 5 - 5
 
 
 @check

@@ -120,6 +120,13 @@ def is_pulse(weapon):
 
 
 def is_ams(weapon):
-    """Anti-Missile System or laser AMS (p.206) - a defensive system, never an
-    attack (INTEGRATION__ams). APDS (Tactical Operations) is not Core."""
-    return "ANTIMISSILESYSTEM" in canonical_name(weapon)
+    """Anti-Missile System, laser AMS or Advanced Point Defense System (p.206) -
+    a defensive system, never an attack (INTEGRATION__ams). The APDS is in the
+    Core Rulebook after all (p.206; 2026-10-21 - was taken for Tactical
+    Operations): is_apds tells it apart."""
+    n = canonical_name(weapon)
+    return "ANTIMISSILESYSTEM" in n or "APDS" in n
+
+
+def is_apds(weapon):
+    return "APDS" in canonical_name(weapon)

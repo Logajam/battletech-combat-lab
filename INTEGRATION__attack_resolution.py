@@ -144,6 +144,7 @@ class DeclaredAttack:
     aimed_at: Optional[str] = None   # aimed-shot location (immobile target)
     cover: object = False            # True: partial cover, leg hits strike it (p.66); KICK: legs only (p.67)
     ams: object = None               # the target's AMS engaging this hit (p.206, INTEGRATION__ams)
+    apds: object = None              # ... and / or its APDS (p.206, 2026-10-21)
     fire: object = None              # fire_modes.ShotPlan: ammunition, Artemis / Narc, rapid fire, Apollo
     pod_value: float = 0.0           # Narc beacon: the homing pod's worth (electronics.pod_value)
 
@@ -761,12 +762,14 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng, po
     mod = fire_modes.cluster_modifier(w, plan)
     note = f" ({plan.note})" if plan.note else ""
     dtype = _damage_type_for(w)
-    if attack.ams is not None and col is None:
-        die = config.pick_number(6, prompt="AMS 1D6 (single missile)")
-        if die >= ams.SINGLE_MISSILE_KILL:
-            config.log(f"    {w.name} hit - {attack.ams.name} rolls 1D6 {die}: missile destroyed, no damage (p.206).")
-            return
-        config.log(f"    {w.name} hit - {attack.ams.name} rolls 1D6 {die}: the missile gets through.")
+    engaged = [x for x in (attack.ams, attack.apds) if x is not None]   # an AMS and / or an APDS (p.206)
+    if engaged and col is None:
+        for system in engaged:                       # a single missile: each engaged system rolls 1D6
+            die = config.pick_number(6, prompt="AMS 1D6 (single missile)")
+            if die >= ams.SINGLE_MISSILE_KILL:
+                config.log(f"    {w.name} hit - {system.name} rolls 1D6 {die}: missile destroyed, no damage (p.206).")
+                return
+            config.log(f"    {w.name} hit - {system.name} rolls 1D6 {die}: the missile gets through.")
     if attack.aimed_at:
         _resolve_aimed_hit(target, w, per, dtype, side, attack)
         return
@@ -777,23 +780,26 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng, po
     if col == 0:
         config.log(f"    {w.name} hit - no guns left to fire.")
         return
-    if streak and attack.ams is not None:
-        hits = cluster_hits_count(col, ams.STREAK_RESULT)    # AMS: the Streak counts as a 7 (p.206)
-        config.log(f"    {w.name} hit: Streak engaged by {attack.ams.name} - result 7 on the "
+    names = " + ".join(x.name for x in engaged)
+    if streak and engaged:
+        # AMS / APDS: the Streak counts as a 12 then -5 each - a 7, or a 2 with both (p.206).
+        result = max(2, 12 - ams.STREAK_CUT * len(engaged))
+        hits = cluster_hits_count(col, result)
+        config.log(f"    {w.name} hit: Streak engaged by {names} - result {result} on the "
                    f"{col}-column table -> {hits} connect ({hits * per} dmg).")
     elif streak:
         hits = col                            # Streak: Cluster result is automatically 12 (p.187)
         config.log(f"    {w.name} hit: Streak - all {hits} missiles hit ({hits * per} dmg).")
-    elif attack.ams is not None:
-        # AMS (p.206): -4 more; below 2 every missile is destroyed (only the top clamps).
+    elif engaged:
+        # AMS / APDS (p.206): -4 more each; below 2 every missile is destroyed (only the top clamps).
         raw = config.roll_2d6(prompt=f"Cluster hits roll ({w.name})")
-        mod += ams.CLUSTER_MODIFIER
+        mod += ams.CLUSTER_MODIFIER * len(engaged)
         if raw + mod < 2:
-            config.log(f"    {w.name} hit: cluster roll {raw} {mod:+d} (AMS {attack.ams.name}){note} = {raw + mod} "
+            config.log(f"    {w.name} hit: cluster roll {raw} {mod:+d} (AMS {names}){note} = {raw + mod} "
                        f"- below 2, every missile destroyed, no damage.")
             return
         hits = cluster_hits_count(col, min(12, raw + mod))
-        config.log(f"    {w.name} hit: cluster roll {raw} {mod:+d} (AMS {attack.ams.name}){note} on the "
+        config.log(f"    {w.name} hit: cluster roll {raw} {mod:+d} (AMS {names}){note} on the "
                    f"{col}-column table -> {hits} connect ({hits * per} dmg).")
     else:
         raw = config.roll_2d6(prompt=f"Cluster hits roll ({w.name})")
@@ -903,12 +909,12 @@ def _resolve_pod(attacker, target, attack):
     from the next phase (INTEGRATION__electronics)."""
     w = attack.weapon
     munition = (attack.fire or fire_modes.PLAIN).munition
-    if attack.ams is not None:
+    for system in (x for x in (attack.ams, attack.apds) if x is not None):
         die = config.pick_number(6, prompt="AMS 1D6 (Narc pod)")
         if die >= ams.SINGLE_MISSILE_KILL:
-            config.log(f"    {w.name} hit - {attack.ams.name} rolls 1D6 {die}: pod destroyed (p.206).")
+            config.log(f"    {w.name} hit - {system.name} rolls 1D6 {die}: pod destroyed (p.206).")
             return
-        config.log(f"    {w.name} hit - {attack.ams.name} rolls 1D6 {die}: the pod gets through.")
+        config.log(f"    {w.name} hit - {system.name} rolls 1D6 {die}: the pod gets through.")
     if munition == "explosive":
         dmg = ammo.EXPLOSIVE_POD_DAMAGE.get(w.ammo_key, 0)
         config.log(f"    {w.name} hit: explosive pod for {dmg}:")
