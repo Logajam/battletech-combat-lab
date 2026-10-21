@@ -27,6 +27,13 @@ from concurrent.futures import ThreadPoolExecutor
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOG_DIR = os.path.join(REPO_ROOT, "reference_logs")
 
+# Every reference battle stops at this many turns (Daniel, 2026-10-21: "Cap the
+# test battles length to 50 ... No real fight should last that long. If it does
+# it deserves to be noted as a possible flaw"). A battle that reaches it is
+# flagged in the report (it still passes if its log matches).
+TEST_BATTLE_MAX_TURNS = 50
+CAP_MARKER = "-turn cap with both mechs standing"
+
 # file name -> config overrides (Python statements run after
 # `import INTEGRATION__config as config`, before the batch starts)
 SCENARIOS = {
@@ -127,7 +134,8 @@ SCENARIOS = {
 def run_scenario(overrides):
     code = "\n".join(
         ["import INTEGRATION__config as config",
-         "config.TIMING = False"]      # run times differ every run - not part of a saved log
+         "config.TIMING = False",      # run times differ every run - not part of a saved log
+         f"config.MAX_TURNS = {TEST_BATTLE_MAX_TURNS}"]
         + overrides
         + ["import INTEGRATION__orchestrator as orchestrator", "orchestrator.run_batch()"]
     )
@@ -149,9 +157,11 @@ def compare(name, actual):
             expected = f.read()
     except FileNotFoundError:
         return False, [f"MISSING  {name} (run with --update to create it)"]
+    note = ([f"    NOTE: reached the {TEST_BATTLE_MAX_TURNS}-turn cap with both mechs standing - a possible flaw"]
+            if CAP_MARKER in actual else [])
     if actual.replace("\r\n", "\n") == expected.replace("\r\n", "\n"):
-        return True, [f"MATCH    {name}"]
-    lines = [f"DIFFERS  {name} - first differences:"]
+        return True, [f"MATCH    {name}"] + note
+    lines = [f"DIFFERS  {name} - first differences:"] + note
     diff = difflib.unified_diff(expected.splitlines(), actual.splitlines(),
                                 "saved", "this run", n=1, lineterm="")
     for i, line in enumerate(diff):
@@ -177,6 +187,8 @@ def main():
             with open(os.path.join(LOG_DIR, name), "w", encoding="utf-8", newline="\n") as f:
                 f.write(actual)
             print(f"UPDATED  {name}")
+            if CAP_MARKER in actual:
+                print(f"    NOTE: reached the {TEST_BATTLE_MAX_TURNS}-turn cap with both mechs standing - a possible flaw")
             continue
         matched, lines = compare(name, actual)
         failures += not matched

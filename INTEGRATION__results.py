@@ -67,6 +67,7 @@ class BattleResult:
     seed: Optional[int] = None   # this battle's own seed: SEED = seed, NUM_SIMULATIONS = 1 replays it
     replay: Optional[dict] = None  # INTEGRATION__replay data when config.REPLAY_BATTLES covered this battle
     timing: Optional[dict] = None  # INTEGRATION__timing section totals (config.TIMING)
+    turn_cap: Optional[int] = None  # the max_turns this battle ran under
     profile: Optional[dict] = None  # raw cProfile stats (config.PROFILE_FUNCTIONS > 0)
 
     # Old field names kept so anything written against the 2026-08-30
@@ -153,6 +154,13 @@ def summarize(results: List[BattleResult], red_label: str, blue_label: str) -> d
         print(f"    {cause}: {c}")
     if not causes:
         print("    (none)")
+    # Daniel (2026-10-21): "No real fight should last that long. If it does it
+    # deserves to be noted as a possible flaw."
+    capped = [r for r in results if r.destroyed is None and r.turn_cap and r.turns_taken >= r.turn_cap]
+    if capped:
+        print(f"  !! {len(capped)} battle(s) reached the {capped[0].turn_cap}-turn cap with both mechs standing - "
+              f"a possible flaw (a stall?)")
+    summary["turn_cap_reached"] = len(capped)
     if n <= 10:
         print("  Per battle:")
         for i, r in enumerate(results, start=1):

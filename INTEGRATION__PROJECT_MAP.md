@@ -13,17 +13,25 @@ source project's file overwrite the other's same-named file.
 
 ---
 
-## 0. WHERE WE ARE (2026-10-20, end of session 3) — read this first
+## 0. WHERE WE ARE (2026-10-21, end of session 4) — read this first
 
-**Session 3 in one paragraph (all merged to `main`, PRs #13-#16):** AMS;
-Artemis / Narc / ECM; weapon-use options (rapid fire, ammo kinds, Apollo)
-with the DECISIONS as loud stubs (Daniel: research); every Core weapon made
-to fire (variable damage, HAG, M-pods, MG arrays, bombast, rifles, heat
-weapons, Arrow IV, artillery cannons); optional rule `POOL_CLUSTER_DAMAGE`.
-Big data fixes on the way: ammo bins that fed nothing (1,541 units), weapon
-slot counts that duplicated or merged weapons (1,893 units), IS machine guns
-missing. Daniel closed the session with "Good pass" and asked for the two
-known issues below (Section 4, "Known issues to fix later") to be logged.
+**Session 4 in one paragraph (all merged to `main`, PRs #18-#31):** one-command
+checks (`tests/run_checks.py`); default matchup Kontio vs Hammerhead (the
+starter set's example battle); Actuator Enhancement System (p.206); battle
+REPLAYS (shareable HTML pages); LOS on the border of two hexes fixed (p.56 -
+the second hex was often missed, and the board edge crashed); the two-ply
+models MASC / supercharger speed; a new movement objective, Daniel's
+"lifetime" with a history blend, A/B-tested and made the DEFAULT; a time
+tracker on every batch; reference battles capped at 50 turns. Details and
+A/B numbers: Change Record (Section 8), Daniel's calls: Section 5.
+
+**Another instance is working on MAPS in parallel** (Daniel, 2026-10-21:
+"making sure more varied map functionality works" - the review's gap list,
+item 7 below). It branched before PR #31. Whoever merges second: merge
+`origin/main` into your branch first, then REGENERATE the reference logs
+(`python tests/check_reference_logs.py --update`, never hand-merge them),
+rerun `tests/run_checks.py`, and record it in the Change Record. Expect
+Change Record / Section 0 merge conflicts - keep both sides' entries.
 
 **Hand-off for a new instance.** Daniel's goal: "beat the simulator into
 shape." He is not a GitHub person - **Claude runs the logistics** (Daniel,
@@ -31,45 +39,50 @@ shape." He is not a GitHub person - **Claude runs the logistics** (Daniel,
 `claude/...` branch, commit, push, open a PR to `main`, and merge it once the
 tests pass (no CI is configured - the local tests are the gate); tell Daniel
 in plain words what changed. If the branch's last PR is already merged,
-restart the branch from `origin/main` before new work. Section 7 has the
-standing instructions; Section 5 Daniel's decisions; the Change Record
-(Section 8, newest first) every change with page cites.
+restart the branch from `origin/main` before new work. **Show Daniel battles
+as replays** (`config.REPLAY_BATTLES`, publish the page from `replays/` with
+the Artifact tool, give him the link) - he doesn't run the code himself.
+Section 7 has the standing instructions; Section 5 Daniel's decisions; the
+Change Record (Section 8, newest first) every change with page cites.
 **Daniel expects Claude to keep working without pausing** at natural
-checkpoints (2026-10-20: "Core rulebook review was paused? Or were you
-waiting for a continue command?") - stop only for his calls (rules / scope).
+checkpoints - stop only for his calls (rules / scope).
 
 **Session setup (cloud container):** `pip install -r requirements.txt`;
 unzip `rules/Battletech_Rule_Reference_Index.zip` OUTSIDE the repo (e.g.
 `/home/user/rules_lib/`) - Core Rulebook in `base/core-rules/*.md` (a `[p.N]`
 marker PRECEDES page N's text), condensed and page-cited in
 `summary/core-rules/*.yaml` (fast to read); unzip `data/meks.zip` outside the
-repo when wider unit testing is needed. Then run the checks below to confirm
-a clean baseline (`python tests/run_checks.py --bench`, about 2 min).
+repo when wider unit testing is needed. Then confirm a clean baseline:
+`python tests/run_checks.py --bench` (about 3.5 min).
 
 **It runs end to end.** `.mtf` in → turn-by-turn battle on a real board →
-batch summary out: `python INTEGRATION__main.py`. Settings (mech files,
-board, seed, batch size, worker count, OPTIONAL RULES, every knob) are in
+batch summary (+ "WHERE THE TIME WENT" table) out: `python INTEGRATION__main.py`.
+Settings (mech files, board, seed, batch size, worker count, OPTIONAL RULES,
+movement objective, replays, timing - every knob) are in
 `INTEGRATION__config.py`. Default (Daniel, 2026-10-20): Kontio (Red, 40 t:
 TSM, claws, stealth armor + ECM, supercharger, lasers) vs Hammerhead (Blue,
-45 t: hardened armor, leg AES, large pulse, Streak SRM 6), the starter set's example battle, on 16x17 Grassland (flat, level 0, 30 woods hexes), seed 12345, 1 battle,
-verbose, home-edge deployment. Layout: `INTEGRATION__*.py` at the top;
-`mechsim/` and `pathfinder/` hold the source-project modules; `data/` the
-boards, test mechs and `meks.zip` (4,227 MegaMek units, 4,162 parse);
-`rules/` the rules library zip; `reference_logs/` same-seed sample battles.
+45 t: hardened armor, leg AES, large pulse, Streak SRM 6), the starter set's
+example battle, on 16x17 Grassland (flat, level 0, 30 woods hexes), seed
+12345, 1 battle, verbose, home-edge deployment. Layout: `INTEGRATION__*.py`
+at the top; `mechsim/` and `pathfinder/` hold the source-project modules;
+`data/` the boards, test mechs and `meks.zip` (4,227 MegaMek units, 4,162
+parse); `rules/` the rules library zip; `reference_logs/` same-seed sample
+battles; `replays/` and `run_stats/` (git-ignored) generated output.
 
 **After any change, from the repo root:** `python tests/run_checks.py` -
-one command, about 12 min in the cloud container (the Asymptote mirror reference battle runs 488 turns under the lifetime default): every `tests/test_*.py`
-(13 files) and every reference battle (12), side by side, one line each, all
-must pass. A reference log may differ only when the change is MEANT to alter
-results - then look at a fresh battle, run
-`python tests/check_reference_logs.py --update`, and say so in the Change
-Record (Daniel has OK'd regenerating them for intended changes). For anything
-on the hot path add `--bench` (10 turns of the Asymptote mirror, the old
-default, pinned so timings stay comparable - a pure speed
-change must keep its HP totals, currently 501 / 495 (since the 2026-10-21 lifetime default); ~17-20 s in the cloud
-container, faster on Daniel's PC). The slowest checks, for whoever trims
-them: the Asymptote mirror reference battle (~80 s, the floor),
-`test_parallel_batch` (~60 s), `test_movement_selection` (~25 s).
+one command, about 3 min: every `tests/test_*.py` (14 files) and every
+reference battle (13), side by side, one line each, all must pass. Reference
+battles stop at 50 turns (`check_reference_logs.TEST_BATTLE_MAX_TURNS`,
+Daniel); one that hits the cap prints a NOTE ("a possible flaw") - today
+only the Asymptote mirror (the stall, Pick up here 0). A reference log may
+differ only when the change is MEANT to alter results - then look at a fresh
+battle, run `python tests/check_reference_logs.py --update`, and say so in
+the Change Record (Daniel has OK'd regenerating them for intended changes).
+For anything on the hot path add `--bench` (10 turns of the Asymptote mirror,
+pinned so timings stay comparable - a pure speed change must keep its HP
+totals, currently 501 / 495 since the 2026-10-21 lifetime default; ~15 s in
+the cloud container; it prints where the time went). Bot changes: compare
+with `python tests/ab_batches.py` (same seeds, several settings side by side).
 
 **What's built (all Core Rulebook, page-cited in the code):**
 - Batches: `config.WORKERS` battles at once, one per CPU core (0 = all
@@ -77,10 +90,17 @@ them: the Asymptote mirror reference battle (~80 s, the floor),
   = SEED) and the output is identical for any worker count
   (`tests/test_parallel_batch.py`). `BattleResult.seed` replays a battle.
 - Movement: `INTEGRATION__movement_selection.choose` scores every reachable
-  spot by dealt / (received + movement-PSR cost + .001), exposure- and
-  structure-weighted, TWO-PLY for the first mover. Closing fallback when
-  nothing deals damage. Backward walking (pp.45-46; same-level steps only).
-  Speed: `ranged_combat.MoveEvaluator` memos are shared by arc class and by
+  spot, exposure- and structure-weighted, TWO-PLY for the first mover (the
+  modeled reply now moves at its MASC / supercharger speed). DEFAULT objective
+  since 2026-10-21 (Daniel): "lifetime" = dealt now + (HP left / enemy future
+  damage per turn) x my future damage per turn (`INTEGRATION__future_damage`:
+  0.5 x best heat-limited expected damage at gunnery + walking + the target's
+  best TMM), each future rate blended with the battle's real record,
+  (K x estimate + damage really done) / (K + turns fought), K = 3. "ratio" =
+  dealt / (received + PSR cost + .001) is still a setting
+  (`config.MOVEMENT_OBJECTIVE`). Closing fallback when nothing deals damage.
+  Backward walking (pp.45-46; same-level steps only). Speed:
+  `ranged_combat.MoveEvaluator` memos are shared by arc class and by
   blocked-weapon set.
 - Arcs and arc actions (`INTEGRATION__arcs`, Section 4a).
 - Ranged combat: heat-limited weapon choice, to-hit modifiers incl. the
@@ -144,64 +164,61 @@ them: the Asymptote mirror reference battle (~80 s, the floor),
   supercharger / radical heat sinks).
 
 **Rules review:** `INTEGRATION__RULES_REVIEW.md` - first pass over the whole
-Core Rulebook done 2026-10-20: what was fixed (F1-F20), the gap list (G2-G18,
+Core Rulebook done 2026-10-20: what was fixed (F1-F23), the gap list (G2-G18,
 Claude's to build), and the Core-vs-project questions (D1-D7 decided, D8
 open). Read it before building rules.
 
 **Pick up here (open, roughly in priority order):**
-0. **Waiting on Daniel: the movement objective can't see a lethal spot**
-   (Section 4, "Movement objective vs lethal spots", 2026-10-20). The ratio
-   dealt / received scores every spot where the mech deals nothing as 0, so a
-   spot where it deals a little and dies beats every safe one - the
-   Hammerhead walks onto the board edge to be pushed off. Daniel's "lifetime"
-   objective is built as an option (`config.MOVEMENT_OBJECTIVE`); A/B batches
-   (2026-10-21 Change Record): edge deaths 45 -> 12. Daniel added the history
-   blend (K = 3) and made it the DEFAULT (2026-10-21). Open: mirror matches
-   stall (the Asymptote mirror ran 488 turns) - Daniel to decide on an
-   anti-stall rule.
-0. **Known issues Daniel asked to fix later** (Section 4, "Known issues to
+0. **Anti-stall rule for the bot** (Daniel, 2026-10-21: "Anti-stall rule for
+   the bot is added to the future tasks list"). Under the lifetime default,
+   mirror matches stall: the Asymptote mirror ran 488 turns (shots in only 55),
+   because with equal future damage each side fights only when a trade beats
+   1:1. Design it with Daniel (ideas so far: force an attack after N turns
+   without firing); test with `tests/ab_batches.py` and replays. Reference
+   battles are capped at 50 turns meanwhile, and every batch summary flags
+   battles that hit the turn cap.
+1. **Speed** (Daniel: "We still need more speed"). The time tracker says the
+   two-ply look-ahead is ~95% of run time: reply scoring (`MoveEvaluator.evaluate`
+   for each modeled reply) ~70%, the per-reply candidate loop in
+   `movement_selection._modeled_reply` ~21%, reply charges / DFA ~4%; ranged,
+   physical, heat and End Phase together under 0.2%. A speed-only change must
+   keep the benchmark's 501 / 495 and every reference log.
+2. **Known issues Daniel asked to fix later** (Section 4, "Known issues to
    fix later"): Arrow IV / artillery scatter must stay inside the firing arc;
    machine gun array ammo per gun needs a check / test.
-1. **Research: how the bot should decide** rate of fire, MASC use and which
+3. **Research: how the bot should decide** rate of fire, MASC use and which
    ammunition (Daniel, 2026-10-20) - today stubs (`STUB_MUNITION_POLICY`,
    `STUB_RATE_OF_FIRE`, `STUB_UNJAM`, `STUB_ESCALATING_USE`); goes with the
-   future-capability Memo (item 2). Daniel's ideas for after the "get all
-   weapons basically working" pass (2026-10-20): (a) a lookup table of known
-   best solutions per weapon by range and starting to-hit number (e.g. HE vs
-   standard ATM ammo), instead of working it out each time; (b) raise a
-   multi-hit (cluster) weapon's expected value by its odds of a critical hit
-   given the target's known armor - helps LB-X slug vs cluster and medium
-   laser vs SRM 4. Deferred: specialty ammo (AC AP / caseless / flak /
-   precision, Arrow IV homing...). Placeholder to set: `TARGET_HEAT_WORTH`.
-   Questions for Daniel: Section 4.
-2. **The bot's future-capability planning** - Section 6 "Memo" (Daniel,
+   future-capability Memo (item 4). Daniel's ideas: (a) a lookup table of
+   known best solutions per weapon by range and starting to-hit number;
+   (b) raise a cluster weapon's expected value by its odds of a critical hit
+   given the target's armor. Deferred: specialty ammo. Placeholder to set:
+   `TARGET_HEAT_WORTH`. Questions for Daniel: Section 4.
+4. **The bot's future-capability planning** - Section 6 "Memo" (Daniel,
    2026-10-20). Needed for clubs, MASC, Rotary ACs (jam risk) and similar.
-3. **Hanging back** (seen 2026-10-20): mechs spending turns at range 5-9 out
-   of their weapons' reach. Daniel: "can wait". Re-check now that woods and
-   backward walking exist. Likely suspects: the dealt / received ratio and the
-   closing fallback.
-4. **Crippled / forced withdrawal** (Daniel, 2026-10-20): an option plus a
+5. **Crippled / forced withdrawal** (Daniel, 2026-10-20): an option plus a
    bot movement-picker override - not started.
-5. Attack-caused PSRs (kick, club, push, charge, DFA, 20+ damage) aren't
+6. Attack-caused PSRs (kick, club, push, charge, DFA, 20+ damage) aren't
    priced in movement scoring - Daniel's rule so far is "only Movement-phase
-   PSRs count".
-6. Waiting on Daniel (Section 4): stand-up PSR -1, tripod -1, jumped with leg
+   PSRs count". A bot target choosing the clearer hex on a two-hex LOS line
+   (p.56) isn't modeled (Section 6).
+7. **Maps - the other instance's work** (see above): the review's gap list
+   (mostly LATENT on the flat default board: level-change limits, jump
+   landing height, water / roads / rubble, prone LOS height, backward level
+   changes); terrain PSRs / mines in a spot's cost; `PROMPT_FOR_MAP` /
+   `STITCH_MAPS`.
+8. Waiting on Daniel (Section 4): stand-up PSR -1, tripod -1, jumped with leg
    destroyed +4 (MECHSIM: +5), quads standing; D8 (LOS model); does HOLDING a
    club stop arm / torso weapons firing?
-7. Rest of the review's gap list (mostly LATENT on the flat default board:
-   level-change limits, jump landing height, water / roads / rubble, prone LOS
-   height, backward level changes); other follow-ups: terrain PSRs / mines in
-   a spot's cost; structure weighting in the real Ranged weapon choice; HP
-   awareness; domino effects; `PROMPT_FOR_MAP` / `STITCH_MAPS`.
-8. Later (Daniel agreed 2026-10-20): GUI (battle replay viewer first, then a
-   setup shell); a compiled hot path (Cython / Rust for
-   `MoveEvaluator.evaluate`) once the rules settle - not a rewrite.
+9. Later (Daniel agreed 2026-10-20): a setup shell GUI (the replay viewer
+   exists); a compiled hot path (Cython / Rust for `MoveEvaluator.evaluate`)
+   once the rules settle - not a rewrite; evolutionary tuning of the bot's
+   settings with batches (discussed 2026-10-20, not started).
 
-**Housekeeping:** reference logs regenerated 2026-10-20 (several intended
-rule changes, each in the Change Record) and match the code. Speed history
-(10-turn benchmark): 31.7 s → 11.8 s → ~14.5 s (all physical attacks) →
-~25% less (memo sharing); battles changed since (woods, backward walking), so
-compare only like with like.
+**Housekeeping:** reference logs regenerated 2026-10-21 (lifetime default,
+50-turn cap) and match the code. Speed history (10-turn benchmark): 31.7 s →
+11.8 s → ~14.5 s (all physical attacks) → ~25% less (memo sharing) → ~15 s
+today; battles changed in between, so compare only like with like.
 
 ---
 
@@ -356,8 +373,10 @@ confirmed project rules, not stubs):
   same location; linked in slot order there (a leftover FCS goes to a
   launcher with none).
 
-**Movement objective vs lethal spots (Claude, 2026-10-20 - Daniel's call,
-Section 5 "Movement selection"):** Daniel asked why the Hammerhead stands on
+**Movement objective vs lethal spots (Claude, 2026-10-20 - RESOLVED
+2026-10-21: Daniel's "lifetime" objective with the history blend is the
+default; edge deaths 45 -> ~13 per 100. Its side effect, mirror-match stalls,
+is Pick up here 0):** Daniel asked why the Hammerhead stands on
 the board edge so much (37 of its 57 losses in a 100-battle batch were pushes
 or displacement off the board). Traced on seed 2167380083587462785, turn 4:
 the push IS priced (the Kontio's modeled reply pushes for 146 = the
@@ -745,7 +764,7 @@ forward arc, kicks included, never into a side arc.
 
 | Decision point | Lives in | Decides |
 |---|---|---|
-| Movement selection | `INTEGRATION__movement_selection.choose` | Spot (hex + facing + mode) maximizing dealt×exposure / (received×exposure + movement-PSR cost + .001); first mover scores each spot by the second mover's modeled reply (two-ply). Knobs: config MOVEMENT SETTINGS. |
+| Movement selection | `INTEGRATION__movement_selection.choose` | Spot (hex + facing + mode) maximizing the objective - DEFAULT "lifetime" + history blend (row below), or "ratio": dealt×exposure / (received×exposure + movement-PSR cost + .001); first mover scores each spot by the second mover's modeled reply (two-ply, at its MASC / supercharger speed). Knobs: config MOVEMENT SETTINGS. |
 | Movement objective option (+ history blend, `MOVEMENT_LIFETIME_HISTORY_K`) | `movement_selection._Ratio` / `_Lifetime` (`config.MOVEMENT_OBJECTIVE`) | "ratio" (default, above) or "lifetime": dealt + (effective HP left / enemy future damage) x own future damage (`INTEGRATION__future_damage`: 0.5 x best heat-limited expected damage at gunnery + walking +1 + the target's best TMM, kicks / punches at range 1). Each side scores its own spots with it, the modeled reply too |
 | LOS exactly between two hexes (p.56) | `pathfinder/los._evaluate` (`worse_key`) | The target's controller picks the hex; the bot always takes the MORE obstructive one (blocking first, then woods). The pick is the same from either end (checked on all 12,060 such pairs of the 16x17 board), so p.56's "used for all attacks between those two 'Mechs ... for the rest of that turn" holds without storing it. Not modeled: a target choosing the clearer hex to shoot back better; p.56's random pick for a non-player target (a hex attack takes the more obstructive one too). Partial / off-board hexes are never picked (p.56: "LOS cannot be shifted so that it passes through a partial hex") |
 | Movement-PSR cost | `movement_selection.psr_costs` | P(fail) × fall damage, only for Run / Jump with a Movement-Phase PSR trigger; damage-caused PSRs ignored (Daniel) |
@@ -850,6 +869,13 @@ turn's score, so a decision sees what it gives up.
   clean baseline") The baseline is one command, `python tests/run_checks.py`;
   a new test file or reference battle joins it automatically - keep new
   checks quick.
+- (Daniel, 2026-10-21) Test battles stop at 50 turns: "No real fight should
+  last that long. If it does it deserves to be noted as a possible flaw." A
+  reference battle that hits the cap prints a NOTE; batch summaries flag
+  battles that hit config.MAX_TURNS.
+- (Daniel, 2026-10-21) Another instance may be working in parallel (maps):
+  merge `origin/main` before merging, regenerate reference logs rather than
+  hand-merging them.
 - Measure speed on the fixed benchmark (`tests/benchmark_turns.py`) before and
   after; a change only for speed must leave every result identical.
 - Reference logs: regenerate (`--update`) only for changes meant to alter
@@ -868,6 +894,20 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-21 (Claude):** Session 4 wrap-up (Daniel: "Cap the test battles
+  length to 50 ... Anti-stall rule for the bot is added to the future tasks
+  list ... the work space is set for the next instance"). Reference battles
+  run with `config.MAX_TURNS = 50` (`check_reference_logs.TEST_BATTLE_MAX_TURNS`);
+  one that reaches it prints "NOTE: reached the 50-turn cap ... a possible
+  flaw" (also in `run_checks.py`), and every batch summary flags battles that
+  hit their turn cap (`BattleResult.turn_cap`, summary "turn_cap_reached").
+  Only the Asymptote mirror hits it (the stall); its log regenerated (the
+  others end before turn 50 and are unchanged). run_checks ~12 min -> ~3 min.
+  New `tests/ab_batches.py` (the A/B harness used this session: same seeds,
+  several settings side by side). Section 0 rewritten for the next instance;
+  RULES_REVIEW F21-F23 (AES, LOS on the border of two hexes, hardened armor);
+  Section 7 notes (50-turn cap; a parallel instance). Benchmark 501 / 495.
 
 - **2026-10-21 (Claude):** New default movement objective: "lifetime" with
   the history blend, K = 3 (Daniel: "Switch this system to the new default").

@@ -64,6 +64,8 @@ def main():
             if not ok:
                 failed += 1
                 print("    " + output.strip().replace("\n", "\n    "))
+            elif "NOTE:" in output:                # e.g. a reference battle that hit its turn cap
+                print("\n".join(l for l in output.splitlines() if "NOTE:" in l))
     print()
     print(f"{len(jobs) - failed} of {len(jobs)} checks passed in {time.time() - start:.0f} s."
           + ("" if not failed else f"  {failed} FAILED."))

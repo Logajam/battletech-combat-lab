@@ -30,15 +30,18 @@ GitHub logistics.
   once every test passes. Daniel doesn't use GitHub, so tell him in plain words
   what changed.
 - **After every change:**
-  - Run `python tests/run_checks.py` (about 12 min since the lifetime default -
-    the Asymptote mirror reference battle stalls to 488 turns): every `tests/test_*.py`
+  - Run `python tests/run_checks.py` (about 3 min): every `tests/test_*.py`
     plus every reference battle, side by side, one line each. All must pass.
+    Reference battles stop at 50 turns; one that hits the cap prints a NOTE
+    (Daniel: "a possible flaw").
   - A reference log that differs: if the change was meant to alter results, run
     `python tests/check_reference_logs.py --update` and record that in the
     Change Record.
   - Add `--bench` (the 10-turn benchmark) for anything on the hot path. A
     speed-only change must keep the results identical. It prints where the time
     went (`INTEGRATION__timing`), as every batch does.
+- **Bot changes:** compare settings on the same seeds with
+  `python tests/ab_batches.py`, and show Daniel the numbers.
 - **Show Daniel battles as replays.** Set `REPLAY_BATTLES` in
   `INTEGRATION__config.py`, run, and publish the page from `replays/` with the
   Artifact tool; give him the link (he doesn't run the code himself).
