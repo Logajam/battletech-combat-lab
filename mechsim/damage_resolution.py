@@ -73,6 +73,7 @@ import re
 import config
 import armor_rules
 from equipment import Equipment, is_crit_target
+from mech_state import has_hd_gyro  # p.204
 from mech_state import ArmorType, DamageType, display_crits, is_destroyed, \
     compute_walk_mp, compute_jump_mp, compute_mechanical_jump_booster_mp, \
     compute_running_mp, mark_consciousness_check_pending, compute_heat_dissipation
@@ -293,7 +294,7 @@ def _slot_loss_effects(mech, location, slot, why):
         config.log(f"    Engine hit ({mech.engine_hits}/3) from {location} {why}.")
     elif slot == "Gyro":
         mech.gyro_hits += 1
-        config.log(f"    Gyro hit ({mech.gyro_hits}/2) from {location} {why}.")
+        config.log(f"    Gyro hit ({mech.gyro_hits}/{4 if has_hd_gyro(mech) else 2}) from {location} {why}.")
     elif slot == "Cockpit":
         mech.cockpit_hit = True
         config.log(f"    Cockpit destroyed from {location} {why}.")
@@ -557,7 +558,7 @@ def resolve_slot_hit(mech, location, slot_idx, slot, idx, total):
             config.log(f"      Engine hit ({mech.engine_hits}/3).")
         elif slot == "Gyro":
             mech.gyro_hits += 1
-            config.log(f"      Gyro hit ({mech.gyro_hits}/2).")
+            config.log(f"      Gyro hit ({mech.gyro_hits}/{4 if has_hd_gyro(mech) else 2}).")
         elif slot == "Cockpit":
             mech.cockpit_hit = True
             config.log(f"      Cockpit hit - instant kill condition set.")

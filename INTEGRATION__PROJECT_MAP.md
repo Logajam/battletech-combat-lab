@@ -277,7 +277,14 @@ open). Read it before building rules.
      rules** (G22 - forced entry, inside, damage, collapse, support limits,
      bridges; pp.53, 130-136; "probably a discussion first"). Passive
      buildings stand in until then.
-7a. **Equipment without rules yet** (survey of every unit in `data/meks.zip`,
+7a. **IN PROGRESS (session 7, Daniel 2026-10-21: "Continue with the rulebook
+   items. Wire in equipment that requires choice (Like capacitors) but defer
+   the actual bot decision making for later. if the session times out
+   continue when it resets.")** - work through RULES_REVIEW G23-G33 in order,
+   each choice wired as options + a loud stub (decision deferred); then
+   Thumper / Sniper artillery and TAG / homing / smoke / active probes
+   (Section 5, 2026-10-21). Done so far: see the Change Record.
+   **Equipment without rules yet** (survey of every unit in `data/meks.zip`,
    2026-10-21; RULES_REVIEW G23-G33): heavy-duty gyro (57 units), shields /
    spikes / talons on DFA / lance in charges / vibroblades, APDS, heat-
    dissipating armor, Blue Shield, HarJel, torpedoes (not even parsed),
@@ -705,6 +712,15 @@ forward arc, kicks included, never into a side arc.
 
 ## 5. DECISIONS LOG (Daniel's calls — implementation may not override)
 
+- **Equipment wiring (Daniel, 2026-10-21):** "Wire in equipment that requires
+  choice (Like capacitors) but defer the actual bot decision making for
+  later." - each choice is options + a stub (Section 6 row). "Active probes
+  and TAG could have a use in a 1 on 1 fight when smoke and homing ammo is
+  included." "Thumper And Sniper Artillery use the same rules as Arrow IV.
+  Thumper uses a 15/5 damage profile as a difference. Their homing ammo does
+  10 (Sniper) and 5 (Thumper) on a hit. Plus 5 AE damage to all units in the
+  target hex. Thats enough for basic wiring, we'll post the full rules
+  later."
 - **Clubs (Daniel, 2026-10-21):** "Clubs do not block weapons fire. Though
   Firing weapons in either arm does preclude the club attack that turn. May
   as well have mechs pick them up if they have nothing better to do." -
@@ -1096,6 +1112,13 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Heat-dissipating armor (RULES_REVIEW F45, p.202):
+  flamer / plasma damage to it halved, no outside heat. test_weapons
+  heat_dissipating_armor. Reference logs unchanged.
+- **2026-10-21 (Claude):** Heavy-duty gyro (RULES_REVIEW F44, p.204): 4 hits to
+  destroy, +1 a hit, no PSR from its hits or from running, +2 to jump with
+  hits; the .mtf gyro type is now read. Chemical laser ammo checked - already
+  right (G31). test_rules heavy_duty_gyro. Reference logs unchanged.
 - **2026-10-21 (Claude):** To-do list refilled (Daniel: "Are there any weapons
   or equipment that don't have rules implemented yet"): a survey of every
   unit in `data/meks.zip` against the Core Rulebook's Weapons & Equipment

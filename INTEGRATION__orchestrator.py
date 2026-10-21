@@ -104,6 +104,7 @@ from mech_state import (  # noqa: E402 - MECHSIM, resolved via MECHSIM_DIR
     compute_jump_mp,
     all_crew_unconscious,
     is_immobile,
+    gyro_destroyed,
 )
 import piloting_rolls  # noqa: E402 - MECHSIM
 
@@ -281,7 +282,7 @@ def _turn_while_down(mover, other):
     if other.hex is None or mover.hex is None:
         return
     walk = compute_walk_mp(mover)
-    max_turns = min(walk, 1 if mover.gyro_hits >= 2 else 3)
+    max_turns = min(walk, 1 if gyro_destroyed(mover) else 3)
     if max_turns < 1:
         return
     me, them = hex_geometry.parse_hex_label(mover.hex), hex_geometry.parse_hex_label(other.hex)

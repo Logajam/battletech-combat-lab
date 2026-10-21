@@ -595,7 +595,7 @@ def _damage_type_for(weapon):
     return dt if dt is not None else stubs.stub_unknown_damage_type(weapon)
 
 
-def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False, cover=False):
+def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False, cover=False, heat_weapon=False):
     """Cannibalized from MECHSIM__sim_runner._resolve_hit() - same logic:
     hit-location roll, head-hit pilot damage, floating TAC on a 2, then
     apply_damage(). Only change: `side` is passed in (attack_side) rather
@@ -611,7 +611,8 @@ def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False, c
         import INTEGRATION__physical as physical     # physical imports this module
         loc = physical._location("kick", side, target)
         config.log(f"      {tag}Kick Location Table ({side}; legs only under water, p.67): {loc}.")
-        apply_damage(target, loc, damage, armor_field=armor_field, damage_type=damage_type)
+        apply_damage(target, loc, _heat_armor_damage(target, loc, damage, heat_weapon), armor_field=armor_field,
+                     damage_type=damage_type)
         return loc
     loc_roll = config.roll_2d6(prompt=f"{tag}Hit location roll")
     loc = resolve_hit_location(loc_roll, target, side)
@@ -646,7 +647,8 @@ def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False, c
             target.pilot_hits += 1
             mark_consciousness_check_pending(target)
             config.log(f"      Head hit - pilot takes 1 hit ({target.pilot_hits}/6), regardless of armor.")
-        apply_damage(target, tac_loc, damage, armor_field=tac_armor_field, damage_type=damage_type)
+        apply_damage(target, tac_loc, _heat_armor_damage(target, tac_loc, damage, heat_weapon),
+                     armor_field=tac_armor_field, damage_type=damage_type)
         config.log("      Additional critical hit due to TAC.")
         _tac_check(target, tac_loc, tac_armor_field, damage_type, location_destroyed=False)
         return tac_loc
@@ -660,7 +662,8 @@ def _resolve_hit(target, damage, damage_type, side, tag="", reroll_legs=False, c
         while tac_loc is not None and target.locations[tac_loc]["destroyed"]:
             tac_loc = TRANSFER_MAP.get(tac_loc)
 
-    apply_damage(target, loc, damage, armor_field=armor_field, damage_type=damage_type)
+    apply_damage(target, loc, _heat_armor_damage(target, loc, damage, heat_weapon), armor_field=armor_field,
+                 damage_type=damage_type)
 
     if tac_loc is not None:
         config.log(f"      Roll of 2 - Through-Armor Critical: extra critical-hit check at {tac_loc}.")
@@ -686,10 +689,28 @@ def _d6(n):
     return sum(config.pick_number(6, prompt="Heat 1D6") for _ in range(n))
 
 
+def has_heat_dissipating_armor(mech):
+    return any(t == ArmorType.HEAT_DISSIPATING for t in mech.armor_type.values())
+
+
+def _heat_armor_damage(target, loc, damage, heat_weapon):
+    """Heat-dissipating armor (p.202, 2026-10-21): damage from a heat-causing
+    weapon to a location armored with it is halved, rounding up."""
+    if heat_weapon and target.armor_type.get(loc) == ArmorType.HEAT_DISSIPATING and damage:
+        halved = -(-damage // 2)
+        config.log(f"      Heat-dissipating armor at {loc}: {damage} -> {halved} (p.202).")
+        return halved
+    return damage
+
+
 def _target_heat(target, weapon):
     """A heat-causing weapon's hit (flamers, plasma - weapon_profiles): outside
-    heat on the target, applied (at most 15 a turn) in its Heat Phase."""
+    heat on the target, applied (at most 15 a turn) in its Heat Phase - none
+    on a 'Mech with any heat-dissipating armor (p.202, 2026-10-21)."""
     got = weapon_profiles.target_heat(weapon, _d6)
+    if got and has_heat_dissipating_armor(target):
+        config.log(f"      {weapon.name}: heat-dissipating armor - no heat to {target.side_name} (p.202).")
+        return
     if got:
         target.outside_heat = getattr(target, "outside_heat", 0) + got
         config.log(f"      {weapon.name}: +{got} heat to {target.side_name} (outside heat, p.102).")
@@ -735,7 +756,7 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng, po
         return
     if col is None:
         config.log(f"    {w.name} hit for {per}{note}:")
-        _resolve_hit(target, per, dtype, side, cover=attack.cover)
+        _resolve_hit(target, per, dtype, side, cover=attack.cover, heat_weapon=weapon_profiles.heat_causing(w))
         return
     if col == 0:
         config.log(f"    {w.name} hit - no guns left to fire.")
@@ -900,7 +921,8 @@ def _resolve_aimed_hit(target, weapon, damage, dtype, side, attack):
     if die < AIMED_SHOT_SUCCESS:
         config.log(f"    {weapon.name} hit for {damage}: aimed at {attack.aimed_at}, "
                    f"1D6 {die} - rolls for location.")
-        _resolve_hit(target, damage, dtype, side, reroll_legs=attack.cover)
+        _resolve_hit(target, damage, dtype, side, reroll_legs=attack.cover,
+                     heat_weapon=weapon_profiles.heat_causing(weapon))
         return
     config.log(f"    {weapon.name} hit for {damage}: aimed at {attack.aimed_at}, 1D6 {die} - on target.")
     loc = attack.aimed_at
@@ -908,7 +930,7 @@ def _resolve_aimed_hit(target, weapon, damage, dtype, side, attack):
         target.pilot_hits += 1
         mark_consciousness_check_pending(target)
         config.log(f"      Head hit - pilot takes 1 hit ({target.pilot_hits}/6), regardless of armor.")
-    apply_damage(target, loc, damage,
+    apply_damage(target, loc, _heat_armor_damage(target, loc, damage, weapon_profiles.heat_causing(weapon)),
                  armor_field="rear_armor" if side == "rear" else "armor", damage_type=dtype)
 
 
