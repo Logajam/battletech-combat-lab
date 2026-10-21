@@ -211,6 +211,25 @@ def test_9_backward_movement():
     print("Test 9 (backward movement): PASS")
 
 
+def test_9b_enemy_hex_blocked():
+    # 2026-10-21, Core Rulebook p.48: a 'Mech can't enter a hex holding a
+    # (mobile) enemy 'Mech - not even to pass through. `blocked` closes it,
+    # in both search modes (plain and PSR-counting / path-keeping).
+    board = board_parser.parse_board_file(BOARD_FILE)
+    hexes = {label: {"level": 0, "features": {}, "impassable": False} for label in board["hexes"]}
+    clear = {"width": board["width"], "height": board["height"], "hexes": hexes}
+    x0, y0 = parse_hex_label("0808")
+    north = compass_to_facing("N")
+    ahead = (x0, y0 + 2)
+    for keep in (False, True):
+        open_table = build_movement_table(x0, y0, north, 3, terrain_map=clear, keep_parents=keep)
+        assert open_table[(x0, y0 + 4, north)][2] == 2         # straight through: 2 hexes, 2 MP
+        table = build_movement_table(x0, y0, north, 3, terrain_map=clear, keep_parents=keep, blocked=ahead)
+        assert not any((x, y) == ahead for x, y, _ in table), "Test 9b FAILED: entered the enemy's hex"
+        assert (x0, y0 + 4, north) not in table, "Test 9b FAILED: passed through the enemy's hex"
+    print("Test 9b (enemy hex blocked): PASS")
+
+
 def test_10_line_shapes():
     """los.hex_line shifts a line shape worked out once per offset (2026-10-21,
     speed only): it must equal the line worked out from scratch for every
@@ -232,6 +251,7 @@ TESTS = [
     test_7_transition_cost,
     test_8_bucket_queue_vs_flat,
     test_9_backward_movement,
+    test_9b_enemy_hex_blocked,
     test_10_line_shapes,
 ]
 

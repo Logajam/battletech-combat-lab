@@ -37,6 +37,11 @@ INTEGRATION__movement_attacks (shared with death from above): the per-mode
 gate (Daniel, 2026-10-20), then scored like any spot; the first mover's
 two-ply anticipates it.
 
+End of movement (2026-10-21): the charger's movement ends after the charge
+and displacement, so its end-of-movement PSRs (running with a gyro / hip hit)
+and the PSR for entering the target's hex (rubble...) are rolled then, with
+the phase's other PSRs (INTEGRATION__movement_attacks.end_of_movement_triggers).
+
 Not modeled: the +2 PSRs in the score; domino effects (no third mech);
 minimum movement, buildings, water halving, lance / spikes / shields; partial
 cover is ignored as the rule says, but woods still count.

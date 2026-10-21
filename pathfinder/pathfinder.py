@@ -79,6 +79,7 @@ def _build_terrain_aware(
     terrain_map: Dict[str, object],
     backward_mp: Optional[int] = None,
     level_limit: int = terrain_rules.MAX_LEVEL_CHANGE,
+    blocked: Optional[Tuple[int, int]] = None,
 ) -> MovementTable:
     """Phase 2: bucket-queue (Dial's algorithm) sweep, board-edge bounded.
 
@@ -102,10 +103,16 @@ def _build_terrain_aware(
     whether the path has moved backward at all. Within one such (direction,
     used-backward) pair a higher forward count is never worse, so only the best
     is kept, as before. With backward_mp None, every path is forward-only and
-    the table is exactly what it was before 2026-10-20."""
+    the table is exactly what it was before 2026-10-20.
+
+    blocked (2026-10-21, p.48): a hex no step may enter - a mobile enemy
+    'Mech's ("cannot enter a hex occupied by an enemy 'Mech unless that 'Mech
+    is immobile"); treated like a hex off the board."""
     hexes = terrain_map["hexes"]
 
     def hex_info(x: int, y: int) -> Optional[dict]:
+        if (x, y) == blocked:
+            return None
         try:
             label = hex_label(x, y)
         except ValueError:
@@ -208,6 +215,7 @@ def _build_terrain_psr(
     backward_mp: Optional[int],
     level_limit: int,
     keep_parents: bool,
+    blocked: Optional[Tuple[int, int]] = None,
 ) -> PathTable:
     """_build_terrain_aware on a board where steps can force terrain PSRs
     (terrain_rules.has_psr_terrain; 2026-10-21, Daniel: "There is a
@@ -217,10 +225,12 @@ def _build_terrain_psr(
     state and MP, the one with more hexes moved wins as before, then the one
     with fewer PSRs. Backward level changes (one level, a PSR each, p.46) are
     allowed here. keep_parents: remember each entry's path (PathTable.path),
-    for the movement subphase that walks it."""
+    for the movement subphase that walks it. blocked: as _build_terrain_aware."""
     hexes = terrain_map["hexes"]
 
     def hex_info(x: int, y: int) -> Optional[dict]:
+        if (x, y) == blocked:
+            return None
         try:
             label = hex_label(x, y)
         except ValueError:
@@ -300,6 +310,7 @@ def build_movement_table(
     backward_mp: Optional[int] = None,
     level_limit: int = terrain_rules.MAX_LEVEL_CHANGE,
     keep_parents: bool = False,
+    blocked: Optional[Tuple[int, int]] = None,
 ) -> MovementTable:
     """backward_mp: the mech's Walking MP to allow backward moves (terrain
     mode only - see _build_terrain_aware); None = forward moves only.
@@ -307,7 +318,9 @@ def build_movement_table(
     or drop - terrain_rules.max_level_change() (2, or 1 with a destroyed hip).
     On a board where a step can force a terrain PSR (terrain_rules.
     has_psr_terrain) the table is a PathTable (PSR counts per entry, paths
-    with keep_parents) - 2026-10-21, Daniel's movement subphase."""
+    with keep_parents) - 2026-10-21, Daniel's movement subphase.
+    blocked (2026-10-21, p.48): an (x, y) hex no ground step may enter - a
+    mobile enemy 'Mech's (terrain mode only)."""
     if start_facing not in FACING_DELTAS:
         raise ValueError(f"start_facing must be 0-5, got {start_facing}")
     if mp_budget < 0:
@@ -317,8 +330,9 @@ def build_movement_table(
         return _build_flat(start_x, start_y, start_facing, mp_budget)
     if terrain_rules.has_psr_terrain(terrain_map) or keep_parents:
         return _build_terrain_psr(start_x, start_y, start_facing, mp_budget, terrain_map, backward_mp, level_limit,
-                                  keep_parents)
-    return _build_terrain_aware(start_x, start_y, start_facing, mp_budget, terrain_map, backward_mp, level_limit)
+                                  keep_parents, blocked)
+    return _build_terrain_aware(start_x, start_y, start_facing, mp_budget, terrain_map, backward_mp, level_limit,
+                                blocked)
 
 
 def query_envelope(table: MovementTable) -> Set[State]:

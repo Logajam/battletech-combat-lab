@@ -125,7 +125,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
   Initiative: Blue lost the roll, moves first.
 Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 11.
   Success - TEST Heat Gear Equipment Probe is standing (remaining running MP 4).
-  [Movement select] Blue: score 66.002 = dealt 4.22 x1.01 + (HP 318.0 - received 41.02 x1.09 - PSR 0.00) / enemy future 20.00 x my future 4.52 [two-ply, 38 of 125 spots (grid search) x 574 replies (grid search); modeled reply Red -> 1405 S Jump]
+  [Movement select] Blue: score 66.002 = dealt 4.22 x1.01 + (HP 318.0 - received 41.02 x1.09 - PSR 0.00) / enemy future 20.00 x my future 4.52 [two-ply, 26 of 110 spots (grid search) x 574 replies (grid search); modeled reply Red -> 1405 S Jump]
   [Movement] Blue: 1004 SE -> 1305 NE, Run (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 0; stood up with 4 MP left)
   [Movement select] Red: score 2981.938 = dealt 41.02 x1.09 + (HP 667.5 - received 4.22 x1.01 - PSR 0.00) / enemy future 4.52 x my future 20.00 [enemy held at 1305; 136 spots with LOS]
   [Movement] Red: 1104 SW -> 1405 S, Jump (5 MP, 3 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
@@ -185,7 +185,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
 
 === TURN 4 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 64.196 = dealt 3.61 x1.01 + (HP 300.0 - received 37.48 x1.00 - PSR 0.00) / enemy future 19.78 x my future 4.56 [two-ply, 79 of 253 spots (grid search) x 501 replies (grid search); modeled reply Red -> 1603 S Jump]
+  [Movement select] Blue: score 64.196 = dealt 3.61 x1.01 + (HP 300.0 - received 37.48 x1.00 - PSR 0.00) / enemy future 19.78 x my future 4.56 [two-ply, 79 of 251 spots (grid search) x 501 replies (grid search); modeled reply Red -> 1603 S Jump]
   [Movement] Blue: 1305 NE -> 1503 NW, Run (6 MP, 4 hexes, 3 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: score 2887.572 = dealt 37.48 x1.00 + (HP 661.0 - received 3.61 x1.01 - PSR 0.00) / enemy future 4.56 x my future 19.78 [enemy held at 1503; 109 spots with LOS]
   [Movement] Red: 1405 S -> 1603 S, Jump (5 MP, 3 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
@@ -225,7 +225,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
   Initiative: Blue lost the roll, moves first.
     Blue: MASC (turn 1 in a row) needs 3, rolled 6 - works.
     Blue: Supercharger (turn 1 in a row) needs 3, rolled 8 - works.
-  [Movement select] Blue: score 63.556 = dealt 5.85 x1.01 + (HP 276.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 19.87 x my future 4.15 [two-ply, 141 of 802 spots (grid search) x 313 replies (grid search); modeled reply Red -> 1606 S Walk]
+  [Movement select] Blue: score 63.556 = dealt 5.85 x1.01 + (HP 276.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 19.87 x my future 4.15 [two-ply, 141 of 796 spots (grid search) x 313 replies (grid search); modeled reply Red -> 1606 S Walk]
   [Movement] Blue: 1503 NW -> 1209 SW, Run (13 MP, 10 hexes, 3 heat; budget walk 5 / run 13 / jump 0)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 1603 S -> 1606 S, Walk (3 MP, 3 hexes, 1 heat; budget walk 3 / run 4 / jump 5)
@@ -298,7 +298,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
 
 === TURN 8 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 92.217 = dealt 2.22 x1.00 + (HP 270.0 - received 8.72 x1.00 - PSR 0.00) / enemy future 14.56 x my future 5.01 [two-ply, 160 of 790 spots (grid search) x 591 replies (grid search); modeled reply Red -> 1109 S Run]
+  [Movement select] Blue: score 92.217 = dealt 2.22 x1.00 + (HP 270.0 - received 8.72 x1.00 - PSR 0.00) / enemy future 14.56 x my future 5.01 [two-ply, 160 of 785 spots (grid search) x 591 replies (grid search); modeled reply Red -> 1109 S Run]
   [Movement] Blue: 1207 NE -> 1212 N, Walk (6 MP, 5 hexes, 2 heat; budget walk 6 / run 9 / jump 0) - includes a backward move
   [Movement select] Red: score 1889.400 = dealt 8.72 x1.00 + (HP 650.0 - received 2.22 x1.00 - PSR 0.00) / enemy future 5.01 x my future 14.56 [enemy held at 1212; 141 spots with LOS]
   [Movement] Red: 1107 SW -> 1109 S, Run (4 MP, 2 hexes, 2 heat; budget walk 3 / run 4 / jump 5)
@@ -407,7 +407,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   Initiative: Blue lost the roll, moves first.
     Blue: MASC (turn 1 in a row) needs 3, rolled 7 - works.
     Blue: Supercharger (turn 1 in a row) needs 3, rolled 11 - works.
-  [Movement select] Blue: score 69.493 = dealt 0.67 x1.24 + (HP 258.0 - received 0.00 x1.21 - PSR 0.00) / enemy future 11.00 x my future 2.93 [two-ply, 132 of 641 spots (grid search) x 543 replies (grid search); modeled reply Red -> 0707 N Jump]
+  [Movement select] Blue: score 69.493 = dealt 0.67 x1.24 + (HP 258.0 - received 0.00 x1.21 - PSR 0.00) / enemy future 11.00 x my future 2.93 [two-ply, 132 of 640 spots (grid search) x 543 replies (grid search); modeled reply Red -> 0707 N Jump]
   [Movement] Blue: 1408 N -> 0712 SW, Run (9 MP, 7 hexes, 3 heat; budget walk 4 / run 10 / jump 0)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 1003 N -> 0707 N, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
@@ -441,7 +441,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   Initiative: Blue lost the roll, moves first.
     Blue: MASC (turn 1 in a row) needs 3, rolled 12 - works.
     Blue: Supercharger (turn 1 in a row) needs 3, rolled 9 - works.
-  [Movement select] Blue: score 68.838 = dealt 0.18 x1.00 + (HP 258.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 9.71 x my future 2.58 [two-ply, 102 of 494 spots (grid search) x 550 replies (grid search); modeled reply Red -> 0807 NE Jump]
+  [Movement select] Blue: score 68.838 = dealt 0.18 x1.00 + (HP 258.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 9.71 x my future 2.58 [two-ply, 102 of 490 spots (grid search) x 550 replies (grid search); modeled reply Red -> 0807 NE Jump]
   [Movement] Blue: 0415 S -> 0717 N, Run (10 MP, 5 hexes, 3 heat; budget walk 4 / run 10 / jump 0)
   [Movement select] Red: score 2426.645 = dealt 0.00 x1.00 + (HP 646.0 - received 0.18 x1.00 - PSR 0.00) / enemy future 2.58 x my future 9.71 [enemy held at 0717; 79 spots with LOS]
   [Movement] Red: 0410 N -> 0807 SE, Jump (5 MP, 5 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
@@ -474,7 +474,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
   Initiative: Blue lost the roll, moves first.
     Blue: MASC (turn 1 in a row) needs 3, rolled 9 - works.
     Blue: Supercharger (turn 1 in a row) needs 3, rolled 6 - works.
-  [Movement select] Blue: score 85.887 = dealt 1.33 x1.00 + (HP 258.0 - received 0.00 x1.21 - PSR 0.00) / enemy future 8.69 x my future 2.85 [two-ply, 219 of 1160 spots (grid search) x 634 replies (grid search); modeled reply Red -> 0910 SE Run]
+  [Movement select] Blue: score 85.887 = dealt 1.33 x1.00 + (HP 258.0 - received 0.00 x1.21 - PSR 0.00) / enemy future 8.69 x my future 2.85 [two-ply, 214 of 1105 spots (grid search) x 634 replies (grid search); modeled reply Red -> 0910 SE Run]
   [Movement] Blue: 0617 N -> 0915 SW, Run (15 MP, 11 hexes, 3 heat; budget walk 6 / run 15 / jump 0)
   [Movement select] Red: no spot deals damage - closing fallback
   [Movement] Red: 0608 NE -> 0910 SE, Run (4 MP, 3 hexes, 2 heat; budget walk 3 / run 4 / jump 5)
@@ -691,7 +691,7 @@ Attack Phase PSR: needs 4 (Piloting 5 + -1). Rolled 7.
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
 !!   - Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH
 !!   - Water (RULES_REVIEW G6): leg weapons' Kick-table hits between partially submerged mechs; variable-damage weapons' underwater damage bracket
-!!   - Movement subphase (G20): damage PSRs (gyro / hip / leg) still fall in the END hex; a charge's last step into the target's hex rolls no terrain PSR; mud's -1 isn't priced in movement scoring
+!!   - Movement subphase (G20): mud's -1 isn't priced in movement scoring
 !!   - Heat sources/sinks with no terrain model yet: snow, fire, extreme temperatures (water: built 2026-10-21); inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules
@@ -720,7 +720,7 @@ BATCH SUMMARY - 1 battle(s): Red = Asymptote II iJ Mpulse, Blue = TEST Heat Gear
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
 !!   - Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH
 !!   - Water (RULES_REVIEW G6): leg weapons' Kick-table hits between partially submerged mechs; variable-damage weapons' underwater damage bracket
-!!   - Movement subphase (G20): damage PSRs (gyro / hip / leg) still fall in the END hex; a charge's last step into the target's hex rolls no terrain PSR; mud's -1 isn't priced in movement scoring
+!!   - Movement subphase (G20): mud's -1 isn't priced in movement scoring
 !!   - Heat sources/sinks with no terrain model yet: snow, fire, extreme temperatures (water: built 2026-10-21); inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules

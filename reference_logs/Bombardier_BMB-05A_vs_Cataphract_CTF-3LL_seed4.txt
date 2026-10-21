@@ -220,7 +220,7 @@ MECH SELECTION
 
 === TURN 12 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 91.282 = dealt 0.00 x1.02 + (HP 393.0 - received 4.60 x1.11 - PSR 0.00) / enemy future 10.38 x my future 2.44 [two-ply, 100 of 589 spots (grid search) x 268 replies (grid search); modeled reply Blue -> 0804 NW Stand Still]
+  [Movement select] Red: score 91.282 = dealt 0.00 x1.02 + (HP 393.0 - received 4.60 x1.11 - PSR 0.00) / enemy future 10.38 x my future 2.44 [two-ply, 100 of 585 spots (grid search) x 268 replies (grid search); modeled reply Blue -> 0804 NW Stand Still]
   [Movement] Red: 0606 S -> 0614 S, Run (8 MP, 8 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
   [Movement select] Blue: score 1662.352 = dealt 4.60 x1.11 + (HP 390.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 2.44 x my future 10.38 [enemy held at 0614; 101 spots with LOS]
   [Movement] Blue: 0804 NW -> 0804 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
@@ -285,7 +285,7 @@ FALL (failed Attack Phase PSR): Bombardier BMB-05A takes 7 falling damage (1D6 2
   [Movement] Blue: 0804 NW -> 0707 SE, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
 Stand attempt 1: needs 5 (Piloting 5 + +0). Rolled 10.
   Success - Bombardier BMB-05A is standing (remaining running MP 6).
-  [Movement select] Red: score 58.328 = dealt 8.10 x1.16 + (HP 366.0 - received 10.14 x0.98 - PSR 0.00) / enemy future 11.85 x my future 1.63 [enemy held at 0707; 78 spots with LOS]
+  [Movement select] Red: score 58.328 = dealt 8.10 x1.16 + (HP 366.0 - received 10.14 x0.98 - PSR 0.00) / enemy future 11.85 x my future 1.63 [enemy held at 0707; 76 spots with LOS]
   [Movement] Red: 0610 S -> 0606 NE, Run (5 MP, 4 hexes, 2 heat; budget walk 5 / run 8 / jump 0; stood up with 6 MP left)
   [Ranged] Blue -> Red: range 1, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 8 of budget 34 = max 4 + sink 32 - current 0 - movement 2 - other 0; expected dmg 10.00)
     ISMediumPulseLaser: needs 5 (range mod +0, modifiers -2), rolled 5 -> HIT
@@ -321,7 +321,7 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
 
 === TURN 15 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 123.574 = dealt 0.00 x1.00 + (HP 353.0 - received 9.50 x1.02 - PSR 0.00) / enemy future 11.91 x my future 4.29 [two-ply, 103 of 580 spots (grid search) x 541 replies (grid search); modeled reply Blue -> 1104 N Run]
+  [Movement select] Red: score 123.574 = dealt 0.00 x1.00 + (HP 353.0 - received 9.50 x1.02 - PSR 0.00) / enemy future 11.91 x my future 4.29 [two-ply, 98 of 543 spots (grid search) x 541 replies (grid search); modeled reply Blue -> 1104 N Run]
   [Movement] Red: 0606 NE -> 1202 N, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
     Blue: MASC (turn 1 in a row) needs 3, rolled 9 - works.
   [Movement select] Blue: score 1048.694 = dealt 9.50 x1.02 + (HP 374.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 4.29 x my future 11.91 [enemy held at 1202; 133 spots with LOS]
@@ -340,71 +340,196 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
 
 === TURN 16 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 119.731 = dealt 0.00 x1.00 + (HP 353.0 - received 19.96 x1.02 - PSR 0.00) / enemy future 10.42 x my future 3.75 [two-ply, 95 of 421 spots (grid search) x 300 replies (grid search); modeled reply Blue -> 1303 SW Walk]
-  [Movement] Red: 1202 N -> 1105 S, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 1059.371 = dealt 19.96 x1.02 + (HP 374.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 3.75 x my future 10.42 [enemy held at 1105; 110 spots with LOS]
-  [Movement] Blue: 1104 NW -> 1303 SW, Walk (3 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
-  [Ranged] Red: no weapon can bear on Blue (rear arc) - can't fire.
-  [Ranged] Blue -> Red: range 3, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 0); firing ['ISLBXAC10', 'ISERMediumLaser', 'ISPlasmaRifle', 'ISERMediumLaser'] (weapon heat 22 of budget 35 = max 4 + sink 32 - current 0 - movement 1 - other 0; expected dmg 18.52)
+  [Movement select] Red: score 120.195 = dealt 0.00 x0.99 + (HP 353.0 - received 19.25 x0.99 - PSR 0.00) / enemy future 10.42 x my future 3.75 [two-ply, 139 of 415 spots (grid search) x 300 replies (grid search); modeled reply Blue -> 0902 N Walk]
+  [Movement] Red: 1202 N -> 1304 S, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
+  [Movement select] Blue: score 1058.082 = dealt 19.25 x0.99 + (HP 374.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 3.75 x my future 10.42 [enemy held at 1304; 121 spots with LOS]
+  [Movement] Blue: 1104 NW -> 0902 N, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red -> Blue: range 4, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 22 = max 4 + sink 20 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
+  [Ranged] Blue -> Red: range 4, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 0); firing ['ISLBXAC10', 'ISERMediumLaser', 'ISPlasmaRifle', 'ISERMediumLaser'] (weapon heat 22 of budget 35 = max 4 + sink 32 - current 0 - movement 1 - other 0; expected dmg 18.52)
     ISLBXAC10: needs 7 (range mod +0), rolled 7 -> HIT [IS LB 10-X AC Ammo: 0 shots left]
     ISERMediumLaser: needs 7 (range mod +0), rolled 7 -> HIT
     ISPlasmaRifle: needs 7 (range mod +0), rolled 8 -> HIT [ISPlasmaRifleAmmo: 0 shots left]
     ISERMediumLaser: needs 7 (range mod +0), rolled 10 -> HIT
     ISLBXAC10 hit for 10:
-      Hit location roll 4 (left table): Left Arm.
-10 damage (BALLISTIC) incoming to Left Arm (armor).
-  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (5 -> 0 remaining). 5 damage applied to structure [STANDARD] (10 -> 5/10 remaining).
-  Check for possible critical. Roll a 9.
-    1 critical hit(s).
-  Critical hit pool at Left Arm:
-    1: Shoulder (slot 1)
-    2: Upper Arm Actuator (slot 2)
-    3: ISArrowIVSystem (slot 3)
-    4: ISArrowIVSystem (slot 4)
-    5: ISArrowIVSystem (slot 5)
-    6: ISArrowIVSystem (slot 6)
-    7: ISArrowIVSystem (slot 7)
-    8: ISArrowIVSystem (slot 8)
-    9: ISArrowIVSystem (slot 9)
-    10: ISArrowIVSystem (slot 10)
-    11: ISArrowIVSystem (slot 11)
-    12: ISArrowIVSystem (slot 12)
-    1/1 Criticals: ISArrowIVSystem slot hit.
-      Current crit slots in Left Arm: ['Shoulder', 'Upper Arm Actuator', 'ISArrowIVSystem', 'DESTROYED', 'ISArrowIVSystem', 'ISArrowIVSystem', 'ISArrowIVSystem', 'ISArrowIVSystem', 'ISArrowIVSystem', 'ISArrowIVSystem', 'ISArrowIVSystem', 'ISArrowIVSystem']
+      Hit location roll 4 (right table): Right Arm.
+10 damage (BALLISTIC) incoming to Right Arm (armor).
+  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (14 -> 4 remaining).
     ISERMediumLaser hit for 5:
-      Hit location roll 7 (left table): Left Torso.
+      Hit location roll 9 (right table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (15 -> 10 remaining).
+      ISPlasmaRifle: +2 heat to Red (outside heat, p.102).
+    ISPlasmaRifle hit for 10:
+      Hit location roll 7 (right table): Right Torso.
+10 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (20 -> 10 remaining).
+    ISERMediumLaser hit for 5:
+      Hit location roll 10 (right table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (5 -> 0 remaining).
+PSR trigger: 30 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 12.
+  Succeeded - remains standing.
+  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 + outside 2 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 22 + engine 0 - sinks 32 -> 0
+  -- end of turn 16: Red @ 1304 S: HP 219, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 16: Blue @ 0902 N: HP 267, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 17 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 83.789 = dealt 0.00 x0.99 + (HP 323.0 - received 2.19 x1.00 - PSR 0.00) / enemy future 12.77 x my future 3.33 [two-ply, 99 of 569 spots (grid search) x 324 replies (grid search); modeled reply Blue -> 1302 SE Run]
+  [Movement] Red: 1304 S -> 1311 SW, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
+    Blue: MASC (turn 1 in a row) needs 3, rolled 8 - works.
+  [Movement select] Blue: score 1434.176 = dealt 2.19 x1.00 + (HP 374.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 3.33 x my future 12.77 [enemy held at 1311; 49 spots with LOS]
+  [Movement] Blue: 0902 N -> 1302 S, Run (7 MP, 4 hexes, 2 heat; budget walk 4 / run 8 / jump 0)
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 9, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['ISArrowIVSystem'] (weapon heat 10 of budget 22 = max 4 + sink 20 - current 0 - movement 2 - other 0; expected dmg 5.83)
+    [Red fire control] ISArrowIVSystem: artillery at the hex
+    ISArrowIVSystem: needs 10 (range mod +0, modifiers +3), rolled 3 -> miss [ISArrowIV Ammo: 0 shots left]
+  [Ranged] Blue -> Red: range 9, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['ISLBXAC10', 'ISERMediumLaser', 'ISPlasmaRifle'] (weapon heat 17 of budget 34 = max 4 + sink 32 - current 0 - movement 2 - other 0; expected dmg 1.81)
+    ISLBXAC10: needs 11 (range mod +2), rolled 5 -> miss [IS LB 10-X AC Ammo: 9 shots left]
+    ISERMediumLaser: needs 13 (range mod +4), rolled 4 -> miss
+    ISPlasmaRifle: needs 11 (range mod +2), rolled 12 -> HIT [ISPlasmaRifleAmmo: 9 shots left]
+    ISArrowIVSystem missed by 7: scatters 4 hexes (direction 5) to 0904.
+      ISPlasmaRifle: +3 heat to Red (outside heat, p.102).
+    ISPlasmaRifle hit for 10:
+      Hit location roll 4 (right table): Right Arm.
+10 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 4 armor pts destroyed at armor (4 -> 0 remaining). 6 damage applied to structure [STANDARD] (10 -> 4/10 remaining).
+  Check for possible critical. Roll a 7.
+    No critical hit.
+  [Heat] Red: 0 + movement 2 + weapons 10 + engine 0 + outside 3 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 17 + engine 0 - sinks 32 -> 0
+  -- end of turn 17: Red @ 1311 SW: HP 209, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 17: Blue @ 1302 S: HP 267, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 18 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 70.648 = dealt 0.00 x1.06 + (HP 307.0 - received 0.73 x1.00 - PSR 0.00) / enemy future 13.01 x my future 3.00 [two-ply, 121 of 573 spots (grid search) x 271 replies (grid search); modeled reply Blue -> 0905 SW Run]
+  [Movement] Red: 1311 SW -> 0813 S, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
+  [Movement select] Blue: score 1622.089 = dealt 0.73 x1.00 + (HP 374.0 - received 0.00 x1.06 - PSR 0.00) / enemy future 3.00 x my future 13.01 [enemy held at 0813; 13 spots with LOS]
+  [Movement] Blue: 1302 S -> 0804 SW, Run (6 MP, 5 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red -> Blue: range 9, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 22 = max 4 + sink 20 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Ranged] Blue -> Red: range 9, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 2 + heat 0); firing ['ISLBXAC10', 'ISERMediumLaser', 'ISPlasmaRifle'] (weapon heat 17 of budget 34 = max 4 + sink 32 - current 0 - movement 2 - other 0; expected dmg 0.60)
+    ISLBXAC10: needs 12 (range mod +2), rolled 6 -> miss [IS LB 10-X AC Ammo: 8 shots left]
+    ISERMediumLaser: needs 14 (range mod +4), rolled 12 -> miss
+    ISPlasmaRifle: needs 12 (range mod +2), rolled 12 -> HIT [ISPlasmaRifleAmmo: 8 shots left]
+      ISPlasmaRifle: +4 heat to Red (outside heat, p.102).
+    ISPlasmaRifle hit for 10:
+      Hit location roll 11 (rear table): Left Arm.
+10 damage (ENERGY) incoming to Left Arm (rear_armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 10 damage applied to structure [STANDARD] (10 -> 0/10 remaining).
+  Left Arm destroyed with no live explosive components - no critical roll.
+  Left Arm DESTROYED!
+  All critical slots in Left Arm marked DESTROYED.
+  0 damage remains, transfers to Left Torso.
+  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 + outside 4 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 17 + engine 0 - sinks 32 -> 0
+  -- end of turn 18: Red @ 0813 S: HP 199, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 18: Blue @ 0804 SW: HP 267, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 19 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: no spot deals damage even before the reply (two-ply, 551 spots) - closing fallback
+  [Movement] Red: 0813 S -> 0811 S, Walk (2 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 0) - includes a backward move
+    Blue: MASC (turn 1 in a row) needs 3, rolled 7 - works.
+  [Movement select] Blue: score 1866.638 = dealt 25.53 x1.19 + (HP 374.0 - received 0.00 x1.06 - PSR 0.00) / enemy future 2.73 x my future 13.40 [enemy held at 0811; 91 spots with LOS]
+  [Movement] Blue: 0804 SW -> 0609 S, Run (7 MP, 6 hexes, 2 heat; budget walk 4 / run 8 / jump 0)
+  [Ranged] Red -> Blue: range 3, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 23 = max 4 + sink 20 - current 0 - movement 1 - other 0; expected dmg 0.00)
+  [Ranged] Blue -> Red: range 3, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['ISLBXAC10', 'ISERMediumLaser', 'ISPlasmaRifle', 'ISERMediumLaser'] (weapon heat 22 of budget 34 = max 4 + sink 32 - current 0 - movement 2 - other 0; expected dmg 22.93)
+    ISLBXAC10: needs 6 (range mod +0), rolled 8 -> HIT [IS LB 10-X AC Ammo: 7 shots left]
+    ISERMediumLaser: needs 6 (range mod +0), rolled 5 -> miss
+    ISPlasmaRifle: needs 6 (range mod +0), rolled 9 -> HIT [ISPlasmaRifleAmmo: 7 shots left]
+    ISERMediumLaser: needs 6 (range mod +0), rolled 10 -> HIT
+    ISLBXAC10 hit for 10:
+      Hit location roll 7 (right table): Right Torso.
+10 damage (BALLISTIC) incoming to Right Torso (armor).
+  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (10 -> 0 remaining).
+      ISPlasmaRifle: +3 heat to Red (outside heat, p.102).
+    ISPlasmaRifle hit for 10:
+      Hit location roll 8 (right table): Center Torso.
+10 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (17 -> 7 remaining).
+    ISERMediumLaser hit for 5:
+      Hit location roll 7 (right table): Right Torso.
+5 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (15 -> 10/15 remaining).
+  Check for possible critical. Roll a 7.
+    No critical hit.
+PSR trigger: 25 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
+  Succeeded - remains standing.
+  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 + outside 3 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 22 + engine 0 - sinks 32 -> 0
+  -- end of turn 19: Red @ 0811 S: HP 174, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 19: Blue @ 0609 S: HP 267, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 20 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 40.931 = dealt 0.00 x1.00 + (HP 257.0 - received 11.52 x0.89 - PSR 0.00) / enemy future 15.08 x my future 2.50 [two-ply, 83 of 577 spots (grid search) x 313 replies (grid search); modeled reply Blue -> 0512 SW Walk]
+  [Movement] Red: 0811 S -> 0115 SW, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
+  [Movement select] Blue: score 2264.598 = dealt 11.52 x0.89 + (HP 374.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 2.50 x my future 15.08 [enemy held at 0115; 80 spots with LOS]
+  [Movement] Blue: 0609 S -> 0512 SW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red -> Blue: range 5, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 22 = max 4 + sink 20 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Ranged] Blue -> Red: range 5, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 0 + heat 0); firing ['ISLBXAC10', 'ISERMediumLaser', 'ISPlasmaRifle', 'ISERMediumLaser'] (weapon heat 22 of budget 35 = max 4 + sink 32 - current 0 - movement 1 - other 0; expected dmg 10.73)
+    ISLBXAC10: needs 8 (range mod +0), rolled 3 -> miss [IS LB 10-X AC Ammo: 6 shots left]
+    ISERMediumLaser: needs 10 (range mod +2), rolled 7 -> miss
+    ISPlasmaRifle: needs 8 (range mod +0), rolled 9 -> HIT [ISPlasmaRifleAmmo: 6 shots left]
+    ISERMediumLaser: needs 10 (range mod +2), rolled 7 -> miss
       ISPlasmaRifle: +5 heat to Red (outside heat, p.102).
     ISPlasmaRifle hit for 10:
-      Hit location roll 10 (left table): Right Arm.
-10 damage (ENERGY) incoming to Right Arm (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (14 -> 4 remaining).
-    ISERMediumLaser hit for 5:
-      Hit location roll 12 (left table): Head.
-      Head hit - pilot takes 1 hit (2/6), regardless of armor.
-5 damage (ENERGY) incoming to Head (armor).
-  [STANDARD/ENERGY] 2 armor pts destroyed at armor (2 -> 0 remaining). 3 damage applied to structure [STANDARD] (3 -> 0/3 remaining).
-  Head destroyed with no live explosive components - no critical roll.
-  Head DESTROYED!
-    Cockpit destroyed from Head destruction.
-  All critical slots in Head marked DESTROYED.
-  0 damage remains, transfers to nowhere (attack finished).
+      Hit location roll 4 (rear table): Right Arm.
+10 damage (ENERGY) incoming to Right Arm (rear_armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 4 damage applied to structure [STANDARD] (4 -> 0/10 remaining).
+  Right Arm destroyed with no live explosive components - no critical roll.
+  Right Arm DESTROYED!
+  All critical slots in Right Arm marked DESTROYED.
+  6 damage remains, transfers to Right Torso.
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 6 damage applied to structure [STANDARD] (10 -> 4/15 remaining).
+  Check for possible critical. Roll a 10.
+    2 critical hit(s).
+  Critical hit pool at Right Torso:
+    1: Engine (slot 1)
+    2: Engine (slot 2)
+    3: Engine (slot 3)
+    4: ISArrowIV Ammo (slot 4)
+    5: ISArrowIV Ammo (slot 5)
+    6: ISArrowIV Ammo (slot 6)
+    7: ISArrowIV Ammo (slot 7)
+    8: ISAMS Ammo (slot 8)
+    9: ISAMS Ammo (slot 9)
+    1/2 Criticals: ISArrowIV Ammo slot hit.
+      Current crit slots in Right Torso: ['Engine', 'Engine', 'Engine', 'ISArrowIV Ammo', 'ISArrowIV Ammo', 'ISArrowIV Ammo', 'DESTROYED', 'ISAMS Ammo', 'ISAMS Ammo', 'ISCASE', '-Empty-', '-Empty-']
+    ISArrowIV Ammo destroyed at Right Torso - EXPLOSION (20 dmg)! Pilot takes 1 hit (2/6).
+    Explosion reaches Right Torso. CASE present - at most 10 structure damage.
+    4 structure damage taken (0/15 remaining).
+  Check for possible critical. Roll a 7.
+    No critical hit.
+    Right Torso DESTROYED! (explosion)
+    Engine hit (1/3) from Right Torso destruction.
+    Engine hit (2/3) from Right Torso destruction.
+    Engine hit (3/3) from Right Torso destruction.
+  All critical slots in Right Torso marked DESTROYED.
+  Right Arm also destroyed (side torso rule).
+  All critical slots in Right Arm marked DESTROYED.
+    CASE contains the explosion. No further transfer.
+    2/2 Criticals: Right Torso critical slots exhausted during this round - discarded (no transfer).
   [Heat] Blue: 0 + movement 1 + weapons 22 + engine 0 - sinks 32 -> 0
-  -- end of turn 16: Red @ 1105 S: HP 219, pilot hits 2, engine 0, gyro 0, heat 0 [DESTROYED (Head Destroyed)]
-  -- end of turn 16: Blue @ 1303 SW: HP 267, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 20: Red @ 0115 SW: HP 160, pilot hits 2, engine 3, gyro 0, heat 0 [DESTROYED (Engine Destroyed)]
+  -- end of turn 20: Blue @ 0512 SW: HP 267, pilot hits 0, engine 0, gyro 0, heat 0
 
->>> Battle over on turn 16: Red destroyed. <<<
+>>> Battle over on turn 20: Red destroyed. <<<
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! RESULTS PRODUCED WITH STUBS ACTIVE - NOT RULES-COMPLETE
 !! Stubs that ran:
-!!   escalating_use                      16 runs, in 1/1 battle(s)
+!!   escalating_use                      20 runs, in 1/1 battle(s)
 !! Known missing rules with no runtime flag:
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
 !!   - Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH
 !!   - Water (RULES_REVIEW G6): leg weapons' Kick-table hits between partially submerged mechs; variable-damage weapons' underwater damage bracket
-!!   - Movement subphase (G20): damage PSRs (gyro / hip / leg) still fall in the END hex; a charge's last step into the target's hex rolls no terrain PSR; mud's -1 isn't priced in movement scoring
+!!   - Movement subphase (G20): mud's -1 isn't priced in movement scoring
 !!   - Heat sources/sinks with no terrain model yet: snow, fire, extreme temperatures (water: built 2026-10-21); inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules
@@ -416,24 +541,24 @@ Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled
 BATCH SUMMARY - 1 battle(s): Red = Bombardier BMB-05A, Blue = Cataphract CTF-3LL
 ######################################################################
   Wins:  Red 0   Blue 1   Draw 0
-  Average turns: 16.0 (decisive battles only: 16.0)
-  Average attacks fired by the winner before the kill: 39.0
-  Average remaining HP (armor+structure): Red 72%   Blue 94%
-  Hit rate: Red 12%   Blue 26%
+  Average turns: 20.0 (decisive battles only: 20.0)
+  Average attacks fired by the winner before the kill: 53.0
+  Average remaining HP (armor+structure): Red 53%   Blue 94%
+  Hit rate: Red 11%   Blue 30%
   Causes of death:
-    Red (Bombardier BMB-05A): Head Destroyed: 1
+    Red (Bombardier BMB-05A): Engine Destroyed: 1
   Per battle:
-    #1: 16 turns, winner Blue; Red 219/304 HP (1/8 hits, 3 dealt) DESTROYED: Head Destroyed; Blue 267/283 HP (10/39 hits, 71 dealt)
+    #1: 20 turns, winner Blue; Red 160/304 HP (1/9 hits, 3 dealt) DESTROYED: Engine Destroyed; Blue 267/283 HP (16/53 hits, 130 dealt)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! RESULTS PRODUCED WITH STUBS ACTIVE - NOT RULES-COMPLETE
 !! Stubs that ran:
-!!   escalating_use                      16 runs, in 1/1 battle(s)
+!!   escalating_use                      20 runs, in 1/1 battle(s)
 !! Known missing rules with no runtime flag:
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
 !!   - Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH
 !!   - Water (RULES_REVIEW G6): leg weapons' Kick-table hits between partially submerged mechs; variable-damage weapons' underwater damage bracket
-!!   - Movement subphase (G20): damage PSRs (gyro / hip / leg) still fall in the END hex; a charge's last step into the target's hex rolls no terrain PSR; mud's -1 isn't priced in movement scoring
+!!   - Movement subphase (G20): mud's -1 isn't priced in movement scoring
 !!   - Heat sources/sinks with no terrain model yet: snow, fire, extreme temperatures (water: built 2026-10-21); inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules
@@ -442,6 +567,10 @@ BATCH SUMMARY - 1 battle(s): Red = Bombardier BMB-05A, Blue = Cataphract CTF-3LL
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 # stderr (stub warnings)
+STUB: escalating_use - Blue's MASC / supercharger: used this turn (policy cycle)
+STUB: escalating_use - Blue's MASC / supercharger: not used this turn (policy cycle)
+STUB: escalating_use - Blue's MASC / supercharger: used this turn (policy cycle)
+STUB: escalating_use - Blue's MASC / supercharger: not used this turn (policy cycle)
 STUB: escalating_use - Blue's MASC / supercharger: used this turn (policy cycle)
 STUB: escalating_use - Blue's MASC / supercharger: not used this turn (policy cycle)
 STUB: escalating_use - Blue's MASC / supercharger: used this turn (policy cycle)

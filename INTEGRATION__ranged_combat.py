@@ -242,7 +242,10 @@ def _movement_options(mover, terrain_map, standup_mp=None, entry_edge=None, back
     (pathfinder.PathTable), mover.path_psrs[state] = how many the state's
     path forces in its mode (run-only ones count for Run) - movement scoring
     prices them, the orchestrator's movement subphase rolls them.
-    movement_selection.reduced_options clears it before a pick."""
+    movement_selection.reduced_options clears it before a pick.
+    mover.blocked_hex (2026-10-21, p.48): the (x, y) of a mobile enemy 'Mech
+    no ground step may enter (jumps pass over it) - set by the orchestrator
+    for the mover's real move (blocked_by_enemy), None otherwise."""
     if not hasattr(mover, "path_psrs"):
         mover.path_psrs = {}
     if entry_edge is not None:
@@ -262,7 +265,7 @@ def _movement_options(mover, terrain_map, standup_mp=None, entry_edge=None, back
     seen = set()
     for f0 in starts:
         table = build_movement_table(sx, sy, f0, run_budget, terrain_map=terrain_map, backward_mp=backward_mp,
-                                     level_limit=level_limit)
+                                     level_limit=level_limit, blocked=getattr(mover, "blocked_hex", None))
         for (x, y, facing), col in table.items():
             psrs = table.psrs.get((x, y, facing)) if isinstance(table, PathTable) else None
             for mp_spent, fc in col.items():
@@ -289,9 +292,10 @@ def _note_psrs(mover, key, psrs):
 def _entry_options(mover, terrain_map, edge_labels):
     walk, run = compute_walk_mp(mover), compute_running_mp(mover)
     seen = set()
+    blocked = getattr(mover, "blocked_hex", None)
     for label in edge_labels:
         info = terrain_map["hexes"].get(label)
-        if info is None:
+        if info is None or hex_geometry.parse_hex_label(label) == blocked:
             continue
         cost = terrain_rules.step_cost(None, info)        # None: can't walk onto a roof from off the board
         if cost is None or cost > run:
@@ -300,7 +304,8 @@ def _entry_options(mover, terrain_map, edge_labels):
         ex, ey = hex_geometry.parse_hex_label(label)
         entry_psrs = terrain_rules.step_psrs(None, info)          # entering the edge hex itself
         for f0 in range(6):
-            table = build_movement_table(ex, ey, f0, run - cost, terrain_map=terrain_map, level_limit=level_limit)
+            table = build_movement_table(ex, ey, f0, run - cost, terrain_map=terrain_map, level_limit=level_limit,
+                                         blocked=getattr(mover, "blocked_hex", None))
             for (x, y, facing), col in table.items():
                 psrs = table.psrs.get((x, y, facing)) if isinstance(table, PathTable) else None
                 for spent, fc in col.items():
@@ -749,7 +754,8 @@ def path_to(mover, terrain_map, pick, standup_mp=None, entry_edge=None):
             ex, ey = hex_geometry.parse_hex_label(label)
             for f0 in range(6):
                 table = build_movement_table(ex, ey, f0, run - cost, terrain_map=terrain_map,
-                                             level_limit=level_limit, keep_parents=True)
+                                             level_limit=level_limit, keep_parents=True,
+                                             blocked=getattr(mover, "blocked_hex", None))
                 if table.get(state, {}).get(mp - cost) == fc - 1:
                     return [("enter", (ex, ey, f0), cost)] + [(s, st, m + cost)
                                                               for s, st, m in table.path(state, mp - cost)]
@@ -763,7 +769,8 @@ def path_to(mover, terrain_map, pick, standup_mp=None, entry_edge=None):
         starts, budget, backward_mp = range(6), standup_mp, None
     for f0 in starts:
         table = build_movement_table(sx, sy, f0, budget, terrain_map=terrain_map, backward_mp=backward_mp,
-                                     level_limit=level_limit, keep_parents=True)
+                                     level_limit=level_limit, keep_parents=True,
+                                     blocked=getattr(mover, "blocked_hex", None))
         if table.get(state, {}).get(mp) == fc:
             return table.path(state, mp)
     return None

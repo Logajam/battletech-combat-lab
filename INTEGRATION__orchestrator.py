@@ -216,6 +216,7 @@ def _reset_movement_state(mech):
     mech.movement_heat = 0
     mech.charging = None                 # the mech it declared a charge against (Core p.78)
     mech.dfa = None                      # ... or a death from above against (pp.79-80)
+    mech.deferred_end_of_move = None     # a charger's / DFA's end-of-movement PSRs (pp.78, 80)
 
 
 # Heat rules (movement heat, Improved-JJ detection, budget) live in
@@ -302,6 +303,19 @@ def _turn_while_down(mover, other):
 
 
 def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_first):
+    """One mech's movement, with the enemy's hex closed to its ground moves
+    while it moves (p.48: "cannot enter a hex occupied by an enemy 'Mech
+    unless that 'Mech is immobile"; 2026-10-21 - before, a path could pass
+    through it, only ending there was excluded). Jumps pass over it."""
+    mover.blocked_hex = (hex_geometry.parse_hex_label(other.hex)
+                         if other.hex is not None and not is_immobile(other) else None)
+    try:
+        _move(mover, other, terrain_map, turn_number, battle_rng, moves_first)
+    finally:
+        mover.blocked_hex = None             # the modeled reply (movement_selection) never blocks
+
+
+def _move(mover, other, terrain_map, turn_number, battle_rng, moves_first):
     """One mech's movement. See the module docstring table for which parts
     are real and which are stubs. `other` is the opponent: for the first
     mover it hasn't moved yet this turn (its current hex is a projection);
@@ -393,12 +407,21 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_fi
     psr_mode = _MODE_TO_PSR.get(mover.move_mode)
     if (psr_mode == "running" and mover.move_fc < 1) or mover.prone:
         psr_mode = None                      # a prone mech (it fell on the way) makes no PSRs (p.51)
-    if psr_mode is not None:
-        # TODO (rule check): a failed PSR currently drops the mech in its
-        # END hex - in tabletop play it falls where the check was failed.
-        # Check MegaMek movement processing for where the fall happens.
-        _with_piloting(mover, piloting_rolls.check_movement_psr, psr_mode)
-    _landing_psr(mover)
+    # These are rolled "at the end of a 'Mech's movement" (p.113), so a
+    # failure falls in the END hex - the rule, not a simplification (checked
+    # 2026-10-21). A mech that declared a charge or a DFA hasn't finished
+    # moving: it rolls them (and any PSR for the hex it enters or lands in)
+    # in the Physical Attack Phase, after the attack (pp.78, 80) -
+    # INTEGRATION__movement_attacks.end_of_movement_triggers.
+    if mover.charging is not None or mover.dfa is not None:
+        mover.deferred_end_of_move = {"mode": psr_mode, "from_hex": mover.hex}
+        if psr_mode is not None and piloting_rolls.movement_psr_trigger(mover, psr_mode):
+            config.log(f"  [Movement] {name}'s end-of-movement PSRs wait for the Physical Attack Phase "
+                       f"(its movement ends with the {'charge' if mover.charging is not None else 'DFA'}, pp.78, 80).")
+    else:
+        if psr_mode is not None:
+            _with_piloting(mover, piloting_rolls.check_movement_psr, psr_mode)
+        _landing_psr(mover)
     if booster_failures and not is_destroyed(mover):
         # Failed MASC / supercharger: damage, then any PSR it forces, at the
         # end of movement (p.204) - the PSR uses the damage-this-phase triggers.

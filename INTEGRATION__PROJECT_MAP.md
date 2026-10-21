@@ -265,9 +265,8 @@ open). Read it before building rules.
    (p.56) isn't modeled (Section 6).
 7. **Maps - leftovers** (RULES_REVIEW G6, G7, G20-G22): water (leg weapons'
    Kick-table hits between partially submerged mechs; variable-damage
-   weapons' underwater bracket); the movement subphase (damage PSRs - gyro /
-   hip / leg - still fall in the END hex; a charge's last step rolls no
-   terrain PSR; mud's -1 isn't priced); prone LOS height (G7); Section 4
+   weapons' underwater bracket); the movement subphase (mud's -1 isn't
+   priced - bot); prone LOS height (G7); Section 4
    "Map terrain waiting on rules" (Daniel is hunting the rules);
    `PROMPT_FOR_MAP` / `STITCH_MAPS`.
    - **Hull-breach risk in movement scoring (G21) - DON'T BUILD YET**
@@ -1056,6 +1055,23 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Rules gaps, physics first (Daniel: "I'm basically
+  after getting the environment and physics of the game correct before
+  worrying too much about the bots behavior"). (1) G20 "damage PSRs fall in
+  the END hex" is the RULE (p.113: movement-mode PSRs are made at the end of
+  movement) - TODO removed. But a charger's / DFA's movement only ends in the
+  Physical phase (pp.78, 80): its end-of-movement PSRs now wait until then,
+  joined by a PSR for the hex a successful charger advances into (rubble,
+  sand, water when running) or a DFA lands in (water, rubble)
+  (`movement_attacks.end_of_movement_triggers`); a DFA mech no longer rolls a
+  landing PSR for the hex it hangs over (RULES_REVIEW F34). (2) G4: a mech
+  can't pass through a mobile enemy's hex on the ground (p.48, F35;
+  `pathfinder.build_movement_table(blocked=...)`). Reference logs
+  regenerated: all 15 (the known-missing-rules text), 4 with different
+  moves - Atlas S2 vs Kintaro, Kintaro vs Atlas, Bombardier 05A vs
+  Cataphract, Black Hawk vs Cataphract (Military Base) - same winners.
+  Benchmark unchanged (495 / 495). New checks: test_special_attacks
+  charge_end_of_movement_psrs, test_pathfinder 9b.
 - **2026-10-21 (Claude):** Daniel's two known issues fixed (Daniel: "Start
   with known issues"). (1) Scatter vs the firing arc (pp.182-183): a missed
   Arrow IV / artillery cannon now walks its scatter path hex by hex and

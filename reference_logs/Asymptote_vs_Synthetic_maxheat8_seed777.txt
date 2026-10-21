@@ -230,7 +230,7 @@ WARNING: expected 5 slots for ISUltraAC5 but only found 1 consecutive matching l
   Initiative: Red lost the roll, moves first.
   [Movement select] Red: score 1056.896 = dealt 17.50 x1.03 + (HP 648.0 - received 9.58 x1.00 - PSR 0.00) / enemy future 3.35 x my future 5.45 [two-ply, 105 of 436 spots (grid search) x 154 replies (grid search); modeled reply Blue -> 0117 N Stand Still]
   [Movement] Red: 0212 S -> 0414 SW, Jump (5 MP, 3 hexes, 3 heat; budget walk 3 / run 4 / jump 5)
-  [Movement select] Blue: score 198.222 = dealt 9.58 x1.00 + (HP 325.0 - received 17.50 x1.03 - PSR 0.00) / enemy future 5.45 x my future 3.35 [enemy held at 0414; 82 spots with LOS]
+  [Movement select] Blue: score 198.222 = dealt 9.58 x1.00 + (HP 325.0 - received 17.50 x1.03 - PSR 0.00) / enemy future 5.45 x my future 3.35 [enemy held at 0414; 81 spots with LOS]
   [Movement] Blue: 0117 N -> 0117 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Ranged] Red -> Blue: range 4, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 26 = max 8 + sink 22 - current 1 - movement 3 - other 0; expected dmg 17.50)
     ISMediumPulseLaser: needs 7 (range mod +2, modifiers -2), rolled 5 -> miss
@@ -268,7 +268,7 @@ WARNING: expected 5 slots for ISUltraAC5 but only found 1 consecutive matching l
   Initiative: Red lost the roll, moves first.
   [Movement select] Red: score 1108.397 = dealt 27.50 x1.01 + (HP 643.5 - received 15.90 x1.00 - PSR 0.00) / enemy future 3.44 x my future 5.92 [two-ply, 150 of 493 spots (grid search) x 154 replies (grid search); modeled reply Blue -> 0117 N Stand Still]
   [Movement] Red: 0414 SW -> 0414 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 4 / jump 5)
-  [Movement select] Blue: score 181.512 = dealt 15.90 x1.00 + (HP 313.0 - received 27.50 x1.01 - PSR 0.00) / enemy future 5.92 x my future 3.44 [enemy held at 0414; 82 spots with LOS]
+  [Movement select] Blue: score 181.512 = dealt 15.90 x1.00 + (HP 313.0 - received 27.50 x1.01 - PSR 0.00) / enemy future 5.92 x my future 3.44 [enemy held at 0414; 81 spots with LOS]
   [Movement] Blue: 0117 N -> 0117 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Ranged] Red -> Blue: range 4, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 20 of budget 28 = max 8 + sink 22 - current 2 - movement 0 - other 0; expected dmg 27.50)
     ISMediumPulseLaser: needs 4 (range mod +2, modifiers -2), rolled 5 -> HIT
@@ -417,7 +417,7 @@ Movement Phase PSR (running mode, gyro hit): needs 7 (Piloting 5 + +2). Rolled 1
   Succeeded - remains standing.
   [Movement select] Blue: score 35.134 = dealt 5.00 x1.02 + (HP 202.0 - received 59.80 x1.41 - PSR 0.00) / enemy future 13.58 x my future 3.46 [two-ply, 23 of 57 spots (grid search) x 499 replies (grid search); modeled reply Red -> 0317 S Run]
   [Movement] Blue: 0117 N -> 0416 NE, Run (4 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0; stood up with 4 MP left)
-  [Movement select] Red: score 2543.049 = dealt 59.80 x1.41 + (HP 631.5 - received 5.00 x1.02 - PSR 0.00) / enemy future 3.46 x my future 13.58 [enemy held at 0416; 125 spots with LOS]
+  [Movement select] Red: score 2543.049 = dealt 59.80 x1.41 + (HP 631.5 - received 5.00 x1.02 - PSR 0.00) / enemy future 3.46 x my future 13.58 [enemy held at 0416; 124 spots with LOS]
   [Movement] Red: 0414 SW -> 0317 S, Run (4 MP, 3 hexes, 2 heat; budget walk 3 / run 4 / jump 5)
   [Ranged] Blue -> Red: range 1, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['ISMediumPulseLaser'] (weapon heat 4 of budget 14 = max 8 + sink 10 - current 2 - movement 2 - other 0; expected dmg 5.00)
     ISMediumPulseLaser: needs 5 (range mod +0, modifiers -2), rolled 5 -> HIT
@@ -527,7 +527,7 @@ Physical Attack Phase consciousness check (gunner, 1 pilot hits): needs 3. Rolle
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
 !!   - Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH
 !!   - Water (RULES_REVIEW G6): leg weapons' Kick-table hits between partially submerged mechs; variable-damage weapons' underwater damage bracket
-!!   - Movement subphase (G20): damage PSRs (gyro / hip / leg) still fall in the END hex; a charge's last step into the target's hex rolls no terrain PSR; mud's -1 isn't priced in movement scoring
+!!   - Movement subphase (G20): mud's -1 isn't priced in movement scoring
 !!   - Heat sources/sinks with no terrain model yet: snow, fire, extreme temperatures (water: built 2026-10-21); inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules
@@ -556,7 +556,7 @@ BATCH SUMMARY - 1 battle(s): Red = Asymptote II iJ Mpulse, Blue = TEST Synthetic
 !!   - Shoulder / head turrets (not Core equipment: their (T) weapons fire forward); the twist / flip a TAG designation would use up (TAG doesn't fire yet). Firing arcs, torso twists (both attack phases, tripods any hexside), tripod leg arcs, reversing arms and Quad Turrets are applied
 !!   - Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / haywire / Nemesis pods, Arrow IV homing / special rounds; distant (18+ hex) Arrow IV fire, bombast laser and PPC capacitor charging, HAG flak; non-Core weapons (TSEMP, iATM, mortars, full-size artillery...) can't fire; a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH
 !!   - Water (RULES_REVIEW G6): leg weapons' Kick-table hits between partially submerged mechs; variable-damage weapons' underwater damage bracket
-!!   - Movement subphase (G20): damage PSRs (gyro / hip / leg) still fall in the END hex; a charge's last step into the target's hex rolls no terrain PSR; mud's -1 isn't priced in movement scoring
+!!   - Movement subphase (G20): mud's -1 isn't priced in movement scoring
 !!   - Heat sources/sinks with no terrain model yet: snow, fire, extreme temperatures (water: built 2026-10-21); inferno missiles (inferno bins aren't fired from; they can still explode)
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
 !!   - Torso-mounted cockpit PSR rules
