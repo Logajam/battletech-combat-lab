@@ -22,6 +22,8 @@ GROUPING_BY_FAMILY = (      # (name fragment, grouping size), first match wins -
     ("ATM", 6),
     ("SRM", 2),
     ("LRM", 5),
+    ("SRT", 2),             # torpedoes: the launcher's own statistics (p.187)
+    ("LRT", 5),
     ("MRM", 5),
 )
 CLUSTER_MODIFIER_BY_FAMILY = (("MRM", -1),)   # p.186
@@ -130,3 +132,14 @@ def is_ams(weapon):
 
 def is_apds(weapon):
     return "APDS" in canonical_name(weapon)
+
+
+def is_torpedo(weapon):
+    """A torpedo launcher (p.187): an SRM / LRM with its statistics that fires
+    only underwater (INTEGRATION__water.blocked_weapon_ids). Cached on the
+    weapon (INTEGRATION__ammo.attach_ammo sets .torpedo)."""
+    cached = getattr(weapon, "torpedo", None)
+    if cached is None:
+        from equipment import is_torpedo_name
+        cached = is_torpedo_name(getattr(weapon, "name", ""))
+    return cached

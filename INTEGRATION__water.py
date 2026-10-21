@@ -45,6 +45,7 @@ falls - can find its hex's depth, the way config holds the battle's RNG.
 from typing import Dict, FrozenSet, Optional
 
 import INTEGRATION__config as config
+import INTEGRATION__weapon_rules as weapon_rules
 from damage_resolution import is_heat_sink, is_jump_jet, heat_sink_units, mark_location_nonfunctional
 from mech_state import active_heat_sinks, heat_sink_rate, compute_jump_mp, mark_consciousness_check_pending
 
@@ -111,7 +112,20 @@ def submerged_locations(mech, water_state):
 # =============================================================================
 # ==========================  RANGED ATTACKS  =================================
 # =============================================================================
-def blocked_weapon_ids(attacker, weapons, weapon_locs, a_state, t_state) -> Optional[FrozenSet[int]]:
+def water_line(a_label, t_label, terrain_map=None) -> bool:
+    """True when the line from a_label to t_label runs entirely through water
+    of depth 1 or deeper, both ends included - the torpedo's line (p.187). On
+    a line along a hexside both hexes must be water: the defender picks the
+    hex the line uses (p.57)."""
+    from los import hex_line
+    import hex_geometry
+    a, t = hex_geometry.parse_hex_label(a_label), hex_geometry.parse_hex_label(t_label)
+    return all(depth_at(hex_geometry.hex_label(*h), terrain_map) >= 1
+               for step in hex_line(a, t) for h in step)
+
+
+def blocked_weapon_ids(attacker, weapons, weapon_locs, a_state, t_state,
+                       torpedo_line=False) -> Optional[FrozenSet[int]]:
     """ids of the attacker's weapons that can't fire at a target in t_state
     from a_state, or None when no attack can be made at all.
     weapon_locs: {id(weapon): set of locations} (attack_resolution.weapon_locations).
@@ -123,9 +137,17 @@ def blocked_weapon_ids(attacker, weapons, weapon_locs, a_state, t_state) -> Opti
       partial   -> partial: all          partial   -> submerged: leg weapons only
       submerged -> submerged: all        submerged -> partial: all (legs only hit, no cover)
       submerged -> ground: none
-    And p.127: only energy weapons fire from a submerged location."""
+    And p.127: only energy weapons fire from a submerged location.
+    Torpedoes (p.187, 2026-10-21) are the exception, and fire only so: from a
+    submerged location, at a target at least partly submerged, along a line
+    entirely through depth 1+ water (torpedo_line - water_line). A torpedo hit
+    on a location that isn't submerged is rolled again: against a 'Mech in
+    depth 1 every torpedo already uses the Kick table (kick_table_weapon_ids -
+    a torpedo fires from a leg or from a fully submerged 'Mech), and every
+    location of a submerged 'Mech is under water."""
+    torpedoes = frozenset(id(w) for w in weapons if weapon_rules.is_torpedo(w))
     if a_state == GROUND and t_state == GROUND:
-        return frozenset()
+        return torpedoes
     if (a_state == GROUND and t_state == SUBMERGED) or (a_state == SUBMERGED and t_state == GROUND):
         return None
     legs = set(attacker.leg_locations)
@@ -134,7 +156,10 @@ def blocked_weapon_ids(attacker, weapons, weapon_locs, a_state, t_state) -> Opti
     for w in weapons:
         locs = weapon_locs.get(id(w), set())
         in_leg = bool(locs & legs)
-        if a_state == PARTIAL and t_state == GROUND and in_leg:
+        if id(w) in torpedoes:
+            if not (locs and locs <= under and t_state != GROUND and torpedo_line):
+                blocked.add(id(w))
+        elif a_state == PARTIAL and t_state == GROUND and in_leg:
             blocked.add(id(w))
         elif a_state == PARTIAL and t_state == SUBMERGED and not in_leg:
             blocked.add(id(w))

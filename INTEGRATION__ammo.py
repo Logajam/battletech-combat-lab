@@ -66,6 +66,8 @@ def weapon_entry_for_ammo(bin_name):
 #   narc (Narc-equipped missiles), homing / explosive (Narc / iNarc pods).
 # Ammunition KIND (2026-10-20, INTEGRATION__fire_modes): "cluster" (LB-X
 # cluster rounds), "er" / "he" (ATM), "lrm" / "srm" (MML), else "".
+# Torpedo bins ("Clan Ammo LRTorpedo-15", p.187) feed the same-size launcher's
+# row but only torpedo launchers (and a torpedo launcher takes only them).
 # Bins whose munition isn't modeled stay unlinked (their weapon can't fire from
 # them): Arrow IV, and iNarc ECM / haywire / Nemesis pods (no unit in
 # data/meks.zip carries those). A " - Half" bin holds half a ton's shots.
@@ -153,6 +155,7 @@ def attach_ammo(mech):
                 entry, munition, kind = parse_bin(slot.name)
                 slot.feeds = entry["canonical_name"] if entry else None
                 slot.munition, slot.kind = munition, kind
+                slot.torpedo = weapon_rules.is_torpedo(slot)         # torpedo rounds feed torpedo launchers only (p.187)
                 shots = entry.get("shots_per_ton") if entry else None
                 if kind in fire_modes.MML_KINDS and entry is not None:
                     shots = fire_modes.MML_SHOTS.get(entry.get("rack_size"), {}).get(kind)
@@ -174,6 +177,7 @@ def attach_ammo(mech):
     for w in get_weapons(mech):
         entry = _entry(w.name)
         w.ammo_key = entry["canonical_name"] if entry else None
+        w.torpedo = weapon_rules.is_torpedo(w)                   # p.187 (2026-10-21)
         w.one_shot = is_one_shot(w)
         w.fired_once = False
         shots = entry.get("shots_per_ton") if entry else None
@@ -212,6 +216,7 @@ def bins_for(mech, weapon):
         for s in slots:
             if (isinstance(s, Equipment) and s.category == "ammo" and id(s) not in seen and id(s) not in dead
                     and not s.exploded and getattr(s, "feeds", None) == weapon.ammo_key and weapon.ammo_key
+                    and getattr(s, "torpedo", False) == getattr(weapon, "torpedo", False)
                     and "INFERNO" not in s.name.upper()
                     and (s.shots_left is None or s.shots_left > 0)):
                 seen.add(id(s))
