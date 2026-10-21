@@ -1019,6 +1019,15 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Grid spin A/B (Daniel: "clockwise vs counter
+  clockwise grid spin ... no more then a single set of 20 sims").
+  `config.MOVEMENT_GRID_SPIN`: the two mirror-image 1-in-7 nets, cube
+  (q + 3r) or (q + 5r) mod 7 - range-3 net hexes "2 out, then 1 turning
+  clockwise / counter-clockwise"; default "clockwise" (the net so far).
+  Kontio vs Hammerhead, 20 battles, both movers on the grid
+  (`--set grid-spin`): clockwise 11 / 8 / 1 draw, 14.7 turns, dealt 42.0 /
+  44.0; counter-clockwise 12 / 7 / 1, 18.2 turns, 47.4 / 48.0 - no
+  difference beyond dice noise; kept clockwise. Defaults unchanged.
 - **2026-10-21 (Claude):** Always-checks for the grid search (Daniel: "add a
   short list of always checks. Your starting position for standing still,
   the targets position for charging. And the 6 hexes around it for melee";

@@ -67,6 +67,13 @@ VARIANT_SETS = {
     "search-always-both": [
         ("always: grid both movers", {"MOVEMENT_TWO_PLY_SEARCH": "grid", "MOVEMENT_REPLY_SEARCH": "grid"}),
     ],
+    # The net's two mirror images (MOVEMENT_GRID_SPIN, Daniel 2026-10-21), both movers on the grid.
+    "grid-spin": [
+        ("spin clockwise", {"MOVEMENT_TWO_PLY_SEARCH": "grid", "MOVEMENT_REPLY_SEARCH": "grid",
+                            "MOVEMENT_GRID_SPIN": "clockwise"}),
+        ("spin counterclockwise", {"MOVEMENT_TWO_PLY_SEARCH": "grid", "MOVEMENT_REPLY_SEARCH": "grid",
+                                   "MOVEMENT_GRID_SPIN": "counterclockwise"}),
+    ],
     "search-always": [
         ("always: grid first mover", {"MOVEMENT_TWO_PLY_SEARCH": "grid"}),
         ("always: grid both movers", {"MOVEMENT_TWO_PLY_SEARCH": "grid", "MOVEMENT_REPLY_SEARCH": "grid"}),

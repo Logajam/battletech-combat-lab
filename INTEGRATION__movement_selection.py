@@ -794,7 +794,9 @@ def _grid_search(prepared, score_hex, start_xy, starts, target_xy=None):
     reachable HEXES instead of every state. score_hex(states) scores all the
     states of one hex (facings, modes) and returns rows whose first item is
     the score - none for a hex it can't use (no LOS). The net: the hexes whose
-    cube (q + 3r) mod 7 matches start_xy (the mover's own hex) - one hex in 7,
+    cube (q + 3r) mod 7 - (q + 5r), the mirror image, for
+    config.MOVEMENT_GRID_SPIN = "counterclockwise" - matches start_xy (the
+    mover's own hex) - one hex in 7,
     and every hex is a net hex or next to exactly one. Then from each of the
     `starts` best net hexes: look at the unchecked neighbours of the current
     hex and move to the best one while it beats the current hex; stop when
@@ -818,9 +820,11 @@ def _grid_search(prepared, score_hex, start_xy, starts, target_xy=None):
         scored.extend(rows)
         hex_best[h] = max((round(row[0], 9) for row in rows), default=float("-inf"))
 
+    k = 3 if config.MOVEMENT_GRID_SPIN == "clockwise" else 5     # the two mirror-image nets
+
     def colour(h):
         q, r = h[0], (h[1] - h[0]) // 2          # doubled (x, y) -> cube q, r (pathfinder/los.py)
-        return (q + 3 * r) % 7
+        return (q + k * r) % 7
 
     net_colour = colour(start_xy)
     for h in by_hex:

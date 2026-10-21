@@ -274,6 +274,9 @@ MOVEMENT_TWO_PLY = True          # False: the first mover scores against the ene
 #                  "looked at" scores all its facings and modes. No dice involved.
 MOVEMENT_TWO_PLY_SEARCH = "exhaustive"
 MOVEMENT_SEARCH_STARTS = 1      # "grid": how many of the best net hexes to follow uphill from
+# "grid": which of the two mirror-image 1-in-7 nets (2026-10-21, Daniel's spin A/B). The
+# range-3 net hexes are "2 hexes out, then 1 turning clockwise" or "... counter-clockwise".
+MOVEMENT_GRID_SPIN = "clockwise"
 # The second mover's picker (2026-10-21, Daniel: "what happens if second mover uses
 # the same picker formula as first mover"): "exhaustive" (default) or "grid" - the
 # same guess and follow over ITS spots, both in the first mover's modeled reply and
