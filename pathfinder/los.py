@@ -179,6 +179,10 @@ def _cube_round_candidates(q: float, r: float, s: float) -> List[Tuple[int, int,
     return [first] if first == second else [first, second]
 
 
+# (dx, dy) -> the line's steps from (0, 0) to (dx, dy) (hex_line, 2026-10-21).
+_LINE_SHAPES: Dict[Tuple[int, int], List[List[Hex]]] = {}
+
+
 def hex_line(a: Hex, b: Hex) -> List[List[Hex]]:
     """
     The straight-line path of hexes between two hex centers (endpoints
@@ -186,7 +190,22 @@ def hex_line(a: Hex, b: Hex) -> List[List[Hex]]:
     if the line runs exactly along a shared hex-grid edge at that step,
     both candidate hexes are returned (see rule 6 in the module
     docstring — has_los() picks the worse one).
+
+    Speed only (2026-10-21, Claude): the line's shape depends only on the
+    offset b - a, so it is worked out once per offset (from (0, 0)) and
+    shifted onto a. tests/test_pathfinder.py checks this against
+    _hex_line_direct for every pair of hexes on a board.
     """
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    shape = _LINE_SHAPES.get((dx, dy))
+    if shape is None:
+        shape = _LINE_SHAPES[(dx, dy)] = _hex_line_direct((0, 0), (dx, dy))
+    ax, ay = a
+    return [[(ax + x, ay + y) for x, y in step] for step in shape]
+
+
+def _hex_line_direct(a: Hex, b: Hex) -> List[List[Hex]]:
+    """hex_line worked out from scratch for this a and b."""
     n = hex_distance(a, b)
     aq, ar, as_ = _to_cube(a)
     bq, br, bs = _to_cube(b)
