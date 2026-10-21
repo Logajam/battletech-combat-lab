@@ -388,10 +388,29 @@ def void_signature_mech_keeps_every_movement_variant():
     assert abs(best_full - max(objective_of(c, me, them) for c in red)) < TOL
 
 
+class exhaustive_search:
+    """Run a check with the "perfect" search (every spot) - the default is the
+    grid search since 2026-10-21; checks that prove the best spot is found
+    are about the exhaustive one."""
+
+    def __enter__(self):
+        self.saved = config.MOVEMENT_SEARCH, config.MOVEMENT_ASSUMED_ENEMY_SEARCH
+        config.MOVEMENT_SEARCH = config.MOVEMENT_ASSUMED_ENEMY_SEARCH = "exhaustive"
+
+    def __exit__(self, *exc):
+        config.MOVEMENT_SEARCH, config.MOVEMENT_ASSUMED_ENEMY_SEARCH = self.saved
+
+
 @check
 def second_mover_takes_the_best_scoring_spot():
     """With the enemy's position final (second mover), choose() returns a spot
-    scoring the maximum objective over the full unreduced list."""
+    scoring the maximum objective over the full unreduced list (the
+    exhaustive search)."""
+    with exhaustive_search():
+        _second_mover_takes_the_best_scoring_spot()
+
+
+def _second_mover_takes_the_best_scoring_spot():
     rng = BattleRNG(seed=11)
     for mover_hex, other_hex, other_f in [("0808", "0813", "N"), ("0404", "0808", "SW"), ("1212", "0910", "SE")]:
         mover, other = fresh(mover_hex, "N"), fresh(other_hex, other_f)
@@ -410,7 +429,13 @@ def first_mover_scores_a_spot_by_the_real_replys_numbers():
     """For sampled first-mover spots, the modeled reply's objective equals what
     a brute force finds: put the first mover physically at the spot, score the
     second mover's UNREDUCED envelope with a fresh evaluate_going_second, take
-    the best. (Proves pinning, evaluator reuse, the cache and the reduction.)"""
+    the best. (Proves pinning, evaluator reuse, the cache and the reduction;
+    the exhaustive search.)"""
+    with exhaustive_search():
+        _first_mover_scores_a_spot_by_the_real_replys_numbers()
+
+
+def _first_mover_scores_a_spot_by_the_real_replys_numbers():
     mover, other = fresh("0808", "N"), fresh("0911", "NW")
     me, them = ms._Side(mover), ms._Side(other)
     spots = ms.reduced_options(mover, TERRAIN, exclude_hex=other.hex)
@@ -731,7 +756,7 @@ def lifetime_option_runs_and_is_deterministic():
 
 @check
 def grid_search_net_and_follow():
-    """config.MOVEMENT_TWO_PLY_SEARCH = "grid" (Daniel's guess and follow,
+    """config.MOVEMENT_SEARCH = "grid" (Daniel's guess and follow,
     2026-10-21): the 1-in-7 net covers the board (every hex is a net hex or
     touches exactly one), the mover's own hex is a net hex, the search follows
     a single hill to its top, every state in a looked-at hex is scored once,
@@ -770,6 +795,18 @@ def grid_search_net_and_follow():
     assert all((enemy[0] + dx, enemy[1] + dy) in looked for dx, dy in deltas)
     again = ms._grid_search(states, lambda sts: [score_spot(c) for c in sts], start, 1)
     assert [(s, c.hex_xy, c.facing) for s, c, _ in again] == [(s, c.hex_xy, c.facing) for s, c, _ in scored]
+
+
+@check
+def per_side_search_settings():
+    """MECH_*_CONFIG "search" / "assumes_enemy_search" (2026-10-21) override
+    config.MOVEMENT_SEARCH / MOVEMENT_ASSUMED_ENEMY_SEARCH for that mech only."""
+    a, b = fresh("0808", "N"), fresh("0911", "NW")
+    a.move_search, a.assumes_enemy_search = "exhaustive", "exhaustive"
+    b.move_search = b.assumes_enemy_search = None
+    assert ms.own_search(a) == ms.assumed_enemy_search(a) == "exhaustive"
+    assert ms.own_search(b) == config.MOVEMENT_SEARCH
+    assert ms.assumed_enemy_search(b) == config.MOVEMENT_ASSUMED_ENEMY_SEARCH
 
 
 if __name__ == "__main__":

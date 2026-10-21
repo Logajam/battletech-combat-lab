@@ -30,7 +30,7 @@ GitHub logistics.
   once every test passes. Daniel doesn't use GitHub, so tell him in plain words
   what changed.
 - **After every change:**
-  - Run `python tests/run_checks.py` (about 3 min): every `tests/test_*.py`
+  - Run `python tests/run_checks.py` (about 1 min): every `tests/test_*.py`
     plus every reference battle, side by side, one line each. All must pass.
     Reference battles stop at 50 turns; one that hits the cap prints a NOTE
     (Daniel: "a possible flaw").

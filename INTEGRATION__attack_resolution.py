@@ -707,7 +707,7 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng, po
             return
         config.log(f"    {w.name} hit - {attack.ams.name} rolls 1D6 {die}: the missile gets through.")
     if attack.aimed_at:
-        _resolve_aimed_hit(target, w, dtype, side, attack)
+        _resolve_aimed_hit(target, w, per, dtype, side, attack)
         return
     if col is None:
         config.log(f"    {w.name} hit for {per}{note}:")
@@ -837,22 +837,25 @@ def _resolve_pod(attacker, target, attack):
                f"works from the next phase{' - but its ECM blocks it' if electronics.narc_blocked(target) else ''}.")
 
 
-def _resolve_aimed_hit(target, weapon, dtype, side, attack):
+def _resolve_aimed_hit(target, weapon, damage, dtype, side, attack):
     """p.70: 1D6 4+ puts the hit on the aimed location; otherwise roll
-    normally (re-rolling legs behind partial cover)."""
+    normally (re-rolling legs behind partial cover). damage: this shot's
+    damage (fire_modes.damage_per - a variable-damage weapon's by range; it
+    was weapon.damage_per_shot, empty for a Heavy Gauss Rifle - fixed
+    2026-10-21 when an aimed shot from one crashed a battle)."""
     die = config.pick_number(6, prompt="Aimed shot 1D6")
     if die < AIMED_SHOT_SUCCESS:
-        config.log(f"    {weapon.name} hit for {weapon.damage_per_shot}: aimed at {attack.aimed_at}, "
+        config.log(f"    {weapon.name} hit for {damage}: aimed at {attack.aimed_at}, "
                    f"1D6 {die} - rolls for location.")
-        _resolve_hit(target, weapon.damage_per_shot, dtype, side, reroll_legs=attack.cover)
+        _resolve_hit(target, damage, dtype, side, reroll_legs=attack.cover)
         return
-    config.log(f"    {weapon.name} hit for {weapon.damage_per_shot}: aimed at {attack.aimed_at}, 1D6 {die} - on target.")
+    config.log(f"    {weapon.name} hit for {damage}: aimed at {attack.aimed_at}, 1D6 {die} - on target.")
     loc = attack.aimed_at
     if loc == "Head":
         target.pilot_hits += 1
         mark_consciousness_check_pending(target)
         config.log(f"      Head hit - pilot takes 1 hit ({target.pilot_hits}/6), regardless of armor.")
-    apply_damage(target, loc, weapon.damage_per_shot,
+    apply_damage(target, loc, damage,
                  armor_field="rear_armor" if side == "rear" else "armor", damage_type=dtype)
 
 
