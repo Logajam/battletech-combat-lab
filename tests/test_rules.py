@@ -486,6 +486,44 @@ def autocannon_first_critical():
 
 
 @check
+def armored_components():
+    """2026-10-21, Core p.207: MegaMek's "(armored)" tag is read (before, an
+    armored engine / gyro was inert padding); each armored slot absorbs one
+    critical hit from an attack with no effect; MASC / supercharger crits
+    (resolve_slot_hit called directly) ignore it; an armored hip not yet hit
+    stops a limb blown off; ammunition is never armored."""
+    import tempfile
+    import zipfile
+    import damage_resolution as dr
+    with zipfile.ZipFile(os.path.join(REPO_ROOT, "data", "meks.zip")) as z:
+        path = z.extract("meks/XTRs/Phantoms/Grand Titan Vengeance T-IT-N14R.mtf", tempfile.mkdtemp())
+    m = fresh(parse_mtf(path))
+    ct = m.crits["Center Torso"]
+    assert ct[:5] == ["Engine", "Engine", "Engine", "Gyro", "Gyro"] and m.crits["Head"][2] == "Cockpit"
+    assert {("Center Torso", i) for i in range(8)} <= m.armored_slots and ("Head", 2) in m.armored_slots
+    assert not any(getattr(s, "category", None) == "ammo" for loc, i in m.armored_slots for s in [m.crits[loc][i]])
+    real = config.pick_number
+    try:
+        config.pick_number = lambda n, prompt="": 1                       # the first slot in the pool: Engine
+        dr.resolve_critical(m, "Center Torso", explosive_only=False, idx=1, total=1)
+        assert m.engine_hits == 0 and ct[0] == "Engine" and ("Center Torso", 0) not in m.armored_slots
+        dr.resolve_critical(m, "Center Torso", explosive_only=False, idx=1, total=1)
+        assert m.engine_hits == 1 and ct[0] == "DESTROYED"                 # its armor is spent
+        dr.resolve_slot_hit(m, "Center Torso", 1, "Engine", 1, 1)          # a supercharger's crit: no armor
+        assert m.engine_hits == 2
+    finally:
+        config.pick_number = real
+    leg = fresh()
+    hip = leg.crits["Left Leg"].index("Hip")
+    leg.armored_slots = {("Left Leg", hip)}
+    with ScriptedDice([12, 12]):
+        dr.check_critical(leg, "Left Leg")
+        assert not leg.locations["Left Leg"]["destroyed"] and not leg.armored_slots
+        dr.check_critical(leg, "Left Leg")
+        assert leg.locations["Left Leg"]["destroyed"]
+
+
+@check
 def explosions_and_case():
     """2026-10-20, Core p.96: no CASE - at most 20 structure damage, and when
     the base damage was over 20 the location that took the 20th point loses

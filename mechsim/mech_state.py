@@ -347,6 +347,13 @@ class BattleMech:
         # opaque sentinel, unaffected by this table's presence.
         self.destroyed_slot_info = {}
 
+        # Armored components (Core p.207, 2026-10-21): {(location, slot index)}
+        # of critical slots still carrying component armor - MegaMek's
+        # "(armored)" tag, read by mtf_parser.parse_mtf. Each absorbs one
+        # critical hit from an attack (damage_resolution.resolve_critical) and
+        # is then removed. Never ammunition.
+        self.armored_slots = set()
+
         # Mechanical Jump Booster (2026-07-13, Claude) - separate MP track from
         # standard jump jets, all-or-nothing (a crit to ANY of its slots, anywhere
         # on the mech, disables the whole system - unlike standard jump jets' per-

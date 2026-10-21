@@ -1053,6 +1053,14 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-21 (Claude):** Armored components (RULES_REVIEW G14 -> F37),
+  and a parser bug found on the way: MegaMek's "(armored)" tag wasn't
+  stripped, so on the 37 units carrying it an armored engine / gyro /
+  cockpit / actuator was inert padding (crits did nothing) and an armored
+  weapon never fired. Now parsed (`mech.armored_slots`); each armored slot
+  absorbs one attack crit (p.207), not MASC / supercharger ones; an armored
+  hip / shoulder stops a limb blown off once. test_rules armored_components.
+  Reference logs unchanged (no armored unit in them).
 - **2026-10-21 (Claude):** Water leftovers (RULES_REVIEW G6 -> F36): hits on
   a 'Mech standing in depth 1 from a leg weapon in depth 1, or any weapon of
   a fully submerged 'Mech, use the Kick Location Table (legs only, no
