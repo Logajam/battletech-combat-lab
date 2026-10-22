@@ -29,7 +29,11 @@ GitHub logistics.
   `rules/Battletech_Rule_Reference_Index.zip`, unzipped OUTSIDE the repo. The
   Core Rulebook is in `base/core-rules/*.md`, and a `[p.N]` marker comes before
   page N's text. Cite the page in the code. If the library doesn't settle a
-  rule, ask Daniel.
+  rule, ask Daniel. The zip is a snapshot of the private repo
+  `logajam/battletech-rules-index` (its own CLAUDE.md has the pipeline);
+  that repo also holds TO: Advanced Units & Equipment (2026-10-22), which
+  the zip predates. Attach it with `add_repo` when a rule needs a newer book,
+  and refresh the zip when Daniel wants that book used here.
 - **Logistics are Claude's** (Daniel: "You're in charge of the logistics").
   Work on the session branch, commit, push, open a PR to `main`, and merge it
   once every test passes. Daniel doesn't use GitHub, so tell him in plain words
