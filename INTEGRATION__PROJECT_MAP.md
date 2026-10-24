@@ -273,6 +273,14 @@ numbers: Change Record (Section 8).
    checks if a matchup shows the grid missing narrow peaks; (c) mechs
    pushed off the board edge aren't priced in movement scoring (item 6) -
    0 vs 4 of 60 in one grid A/B, small numbers.
+   **Future (Daniel, 2026-10-24: "explore short list vs short list at some
+   point in the future when there are more tokens available"):** a deeper
+   run of the short-list look-ahead on BOTH sides (the default since
+   2026-10-24) - more matchups and battles than the short 12-battle check in
+   the Change Record. Watch Kontio vs Hammerhead: both short-grid went 9-2
+   against 5-5 for both perfect (the isolation run put it on the grid
+   search, not the short list). `python tests/ab_batches.py N red blue
+   --set short-vs-perfect` (and `--set short-list`).
 2. ~~**Known issues Daniel asked to fix later**~~ - both fixed 2026-10-21
    (scatter held inside the firing arc; machine gun array ammo). Section 4.
 3. **Research: how the bot should decide** rate of fire, MASC use and which
