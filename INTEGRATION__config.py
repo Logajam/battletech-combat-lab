@@ -312,7 +312,9 @@ MOVEMENT_TWO_PLY = True          # False: the first mover scores against the ene
 # close enough"): MECH_RED_CONFIG / MECH_BLUE_CONFIG may set "search" and
 # "assumes_enemy_search" to override these two for that mech.
 MOVEMENT_SEARCH = "grid"
-MOVEMENT_ASSUMED_ENEMY_SEARCH = "grid"
+# "short_list" is the default since 2026-10-24 (Daniel: "we push 'Simple Short list' for the
+# first movers evaluation"); "grid" was the default before that.
+MOVEMENT_ASSUMED_ENEMY_SEARCH = "short_list"
 MOVEMENT_SEARCH_STARTS = 1      # "grid": how many of the best net hexes to follow uphill from
 # "short_list": how many damage-drop ranges per mech go on the list, and the pre-to-hit
 # number the rough damage-by-range curve is read at (gunnery 4 + about 2 for movement).

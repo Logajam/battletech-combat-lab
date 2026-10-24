@@ -40,736 +40,177 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 2 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 257.139 = dealt 0.00 x1.00 + (HP 390.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 11.09 x my future 7.31 [two-ply, 68 of 341 spots (grid search) x 455 replies (grid search); modeled reply: none with LOS]
-  [Movement] Blue: 1302 SW -> 1601 SW, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: no spot deals damage - closing fallback found nothing; nearest reachable spot to the enemy
-  [Movement] Red: 0113 N -> 0208 N, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
-  [Ranged] Blue: no LOS to Red - holds fire.
-  [Ranged] Red: no LOS to Blue - holds fire.
-  [Heat] Red: 0 + movement 5 + weapons 0 + engine 0 - sinks 28 -> 0
-  [Heat] Blue: 0 + movement 3 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 2: Red @ 0208 N: HP 243, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 2: Blue @ 1601 SW: HP 283, pilot hits 0, engine 0, gyro 0, heat 0
+  [Movement select] Blue: score 259.888 = dealt 2.94 x1.00 + (HP 390.0 - received 0.28 x1.00 - PSR 0.00) / enemy future 11.09 x my future 7.31 [two-ply, 141 of 341 spots (grid search) x 455 replies (short list); modeled reply Red -> 0113 NE Jump]
+  [Movement] Blue: 1302 SW -> 1302 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
+  [Movement select] Red: score 496.021 = dealt 8.79 x1.00 + (HP 326.0 - received 4.75 x1.00 - PSR 0.00) / enemy future 7.31 x my future 11.09 [enemy held at 1302; 179 spots with LOS]
+  [Movement] Red: 0113 N -> 0211 NE, Walk (5 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue -> Red: range 15, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['ISLBXAC10', 'ISUltraAC5'] (weapon heat 4 of budget 20 = max 4 + sink 16 - current 0 - movement 0 - other 0; expected dmg 4.75)
+    [Blue fire control] ISUltraAC5: rapid fire x2
+    ISLBXAC10: needs 9 (range mod +4), rolled 6 -> miss [ISLBXAC10 Ammo: 9 shots left]
+    ISUltraAC5 x2: needs 9 (range mod +4), rolled 7 -> miss [ISUltraAC5 Ammo: 16 shots left]
+  [Ranged] Red -> Blue: range 15, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 1 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLHAG20'] (weapon heat 19 of budget 31 = max 4 + sink 28 - current 0 - movement 1 - other 0; expected dmg 8.79)
+    CLERMediumLaser: needs 10 (range mod +4), rolled 9 -> miss
+    CLERMediumLaser: needs 10 (range mod +4), rolled 5 -> miss
+    CLERMediumLaser: needs 10 (range mod +4), rolled 7 -> miss
+    CLHAG20: needs 8 (range mod +2), rolled 4 -> miss [HAG/20 Ammo: 4 shots left]
+  [Heat] Red: 0 + movement 1 + weapons 19 + engine 0 - sinks 28 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 4 + engine 0 - sinks 16 -> 0
+  -- end of turn 2: Red @ 0211 NE: HP 243, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 2: Blue @ 1302 SW: HP 283, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 3 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 496.029 = dealt 2.70 x1.00 + (HP 326.0 - received 0.72 x1.01 - PSR 0.00) / enemy future 7.31 x my future 11.09 [two-ply, 211 of 491 spots (grid search) x 188 replies (grid search); modeled reply Blue -> 1302 SW Jump]
-  [Movement] Red: 0208 N -> 0210 N, Walk (5 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
-  [Movement select] Blue: score 256.092 = dealt 0.72 x1.01 + (HP 390.0 - received 2.70 x1.00 - PSR 0.00) / enemy future 11.09 x my future 7.31 [enemy held at 0210; 59 spots with LOS]
-  [Movement] Blue: 1601 SW -> 1302 SW, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
-  [Ranged] Red -> Blue: range 14, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 1 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLHAG20'] (weapon heat 19 of budget 31 = max 4 + sink 28 - current 0 - movement 1 - other 0; expected dmg 2.70)
-    CLERMediumLaser: needs 12 (range mod +4), rolled 9 -> miss
-    CLERMediumLaser: needs 12 (range mod +4), rolled 5 -> miss
-    CLERMediumLaser: needs 12 (range mod +4), rolled 7 -> miss
-    CLHAG20: needs 10 (range mod +2), rolled 4 -> miss [HAG/20 Ammo: 4 shots left]
-  [Ranged] Blue -> Red: range 14, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 1 + heat 0); firing ['ISLBXAC10', 'ISUltraAC5'] (weapon heat 4 of budget 17 = max 4 + sink 16 - current 0 - movement 3 - other 0; expected dmg 0.72)
+  [Movement select] Red: score 495.208 = dealt 5.28 x1.00 + (HP 326.0 - received 2.94 x1.01 - PSR 0.00) / enemy future 7.31 x my future 11.09 [two-ply, 146 of 210 spots (grid search) x 341 replies (short list); modeled reply Blue -> 1302 SW Stand Still]
+  [Movement] Red: 0211 NE -> 0111 NW, Walk (5 MP, 1 hexes, 1 heat; budget walk 5 / run 8 / jump 1)
+  [Movement select] Blue: score 257.337 = dealt 1.64 x1.01 + (HP 390.0 - received 1.06 x1.00 - PSR 1.17) / enemy future 11.09 x my future 7.31 [enemy held at 0111; 74 spots with LOS]
+  [Movement] Blue: 1302 SW -> 1204 SW, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
+Jumped into water (depth 1) PSR: needs 5 (Piloting 5 + +0). Rolled 9.
+  Succeeded - remains standing.
+  [Ranged] Red -> Blue: range 12, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 2 + heat 0); firing ['CLHAG20'] (weapon heat 4 of budget 31 = max 4 + sink 28 - current 0 - movement 1 - other 0; expected dmg 1.06)
+    CLHAG20: needs 11 (range mod +2), rolled 7 -> miss [HAG/20 Ammo: 3 shots left]
+  [Ranged] Blue -> Red: range 12, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 2 + heat 0); firing ['ISLBXAC10', 'ISUltraAC5'] (weapon heat 4 of budget 17 = max 4 + sink 16 - current 0 - movement 3 - other 0; expected dmg 1.64)
     [Blue fire control] ISLBXAC10: LB-X cluster rounds; ISUltraAC5: rapid fire x2
-    ISLBXAC10: needs 11 (range mod +4, modifiers -1), rolled 7 -> miss [ISLBXAC10 CL Ammo: 8 shots left]
-    ISUltraAC5 x2: needs 12 (range mod +4), rolled 10 -> miss [ISUltraAC5 Ammo: 16 shots left]
-  [Heat] Red: 0 + movement 1 + weapons 19 + engine 0 - sinks 28 -> 0
+    ISLBXAC10: needs 10 (range mod +2, modifiers -1), rolled 3 -> miss [ISLBXAC10 CL Ammo: 8 shots left]
+    ISUltraAC5 x2: needs 11 (range mod +2), rolled 9 -> miss [ISUltraAC5 Ammo: 14 shots left]
+  [Heat] Red: 0 + movement 1 + weapons 4 + engine 0 - sinks 28 -> 0
   [Heat] Blue: 0 + movement 3 + weapons 4 + engine 0 - sinks 16 -> 0
-  -- end of turn 3: Red @ 0210 N: HP 243, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 3: Blue @ 1302 SW: HP 283, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 3: Red @ 0111 NW: HP 243, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 3: Blue @ 1204 SW: HP 283, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 4 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 257.139 = dealt 0.00 x1.00 + (HP 390.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 11.09 x my future 7.31 [two-ply, 68 of 341 spots (grid search) x 487 replies (grid search); modeled reply: none with LOS]
-  [Movement] Blue: 1302 SW -> 1601 NE, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: no spot deals damage - closing fallback found nothing; nearest reachable spot to the enemy
-  [Movement] Red: 0210 N -> 0708 SW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
-Jumped into water (depth 2) PSR: needs 5 (Piloting 5 + +0). Rolled 3.
-  Failed - falls.
-FALL (jumped into water (depth 2), failed PSR): Black Hawk F takes 7 falling damage (halved: water, p.115) (1D6 5: front table, 5-pt clusters).
-  Fall cluster (5 dmg): rolled 9 -> Left Leg
-5 damage (PHYSICAL) incoming to Left Leg (armor).
-  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (20 -> 15 remaining).
-    Hull breach check, Left Leg under water: rolled 8 - holds.
-  Fall cluster (2 dmg): rolled 7 -> Center Torso
-2 damage (PHYSICAL) incoming to Center Torso (armor).
-  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (23 -> 21 remaining).
-    Hull breach check, Center Torso under water: rolled 8 - holds.
-  Seatbelt check: needs 7 (Piloting 5 + 2 levels). Rolled 6. FAILED - pilot takes 1 hit (1/6).
-Movement Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
-  Pilot stays conscious.
-  [Ranged] Blue: no LOS to Red - holds fire.
-  [Ranged] Red: no LOS to Blue - holds fire.
-  [Heat] Red: 0 + movement 5 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 3 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 4: Red @ 0708 SW: HP 236, pilot hits 1, engine 0, gyro 0, heat 0 [PRONE]
-  -- end of turn 4: Blue @ 1601 NE: HP 283, pilot hits 0, engine 0, gyro 0, heat 0
+  [Movement select] Blue: score 257.139 = dealt 0.00 x1.00 + (HP 390.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 11.09 x my future 7.31 [two-ply, 52 of 53 spots (grid search) x 407 replies (short list); modeled reply Red -> 0210 NE Walk]
+  [Movement] Blue: 1204 SW -> 1105 SW, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red: score 494.441 = dealt 0.00 x1.00 + (HP 326.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 7.31 x my future 11.09 [enemy held at 1105; 129 spots with LOS]
+  [Movement] Red: 0111 NW -> 0208 N, Jump (5 MP, 3 hexes, 3 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue (submerged) can't attack Red (ground) across the water line (p.62) - holds fire.
+  [Ranged] Red (ground) can't attack Blue (submerged) across the water line (p.62) - holds fire.
+  [Heat] Red: 0 + movement 3 + weapons 0 + engine 0 - sinks 28 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 - water 6 -> 0
+  -- end of turn 4: Red @ 0208 N: HP 243, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 4: Blue @ 1105 SW: HP 283, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 5 ===
-  Initiative: Red lost the roll, moves first.
-Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
-  Success - Black Hawk F is standing (remaining running MP 6).
-  [Movement select] Red: score 361.153 = dealt 0.58 x1.02 + (HP 319.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 7.36 x my future 8.32 [two-ply, 40 of 48 spots (grid search) x 160 replies (grid search); modeled reply Blue -> 1203 N Jump]
-[Movement] Red: water PSR at 0707: needs 5 (Piloting 5 + +0). Rolled 3.
-  Failed - falls.
-FALL (failed water PSR at 0707): Black Hawk F takes 2 falling damage (halved: water, p.115) (1D6 3: front table, 5-pt clusters).
-  Fall cluster (2 dmg): rolled 7 -> Center Torso
-2 damage (PHYSICAL) incoming to Center Torso (armor).
-  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (21 -> 19 remaining).
-    Hull breach check, Center Torso under water: rolled 8 - holds.
-  Seatbelt check: needs 5. Rolled 10. Pilot unharmed.
-  [Movement] Red: 0708 SW -> fell at 0707 N after 3 MP (1 hexes) of a planned Run to 0707 NW.
-Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 6.
-  Success - Black Hawk F is standing (remaining running MP 1).
-  [Movement select] Red (stood up again, 1 MP left): score 359.701 = dealt 0.58 x1.02 + (HP 317.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 7.34 x my future 8.32 [two-ply, 6 spots x 160 replies (grid search); modeled reply Blue -> 1203 N Jump]
-  [Movement] Red: ends at 0707 NW, Run (5 MP, 1 hexes, 2 heat).
-  [Movement select] Blue: no spot deals damage - closing fallback
-  [Movement] Blue: 1601 NE -> 1203 N, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
-Jumped into water (depth 1) PSR: needs 5 (Piloting 5 + +0). Rolled 6.
-  Succeeded - remains standing.
-  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
-  [Ranged] Red -> Blue: range 6, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 36 = max 4 + sink 34 - current 0 - movement 2 - other 0; expected dmg 0.58)
-    CLERMediumLaser: needs 12 (range mod +2, modifiers +2), rolled 8 -> miss
-    CLERMediumLaser: needs 12 (range mod +2, modifiers +2), rolled 9 -> miss
-    CLERMediumLaser: needs 12 (range mod +2, modifiers +2), rolled 7 -> miss
-  [Ranged] Blue -> Red: range 6, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 16 = max 4 + sink 16 - current 0 - movement 4 - other 0; expected dmg 0.00)
-  [Heat] Red: 0 + movement 2 + weapons 15 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 4 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 5: Red @ 0707 NW: HP 234, pilot hits 1, engine 0, gyro 0, heat 0
-  -- end of turn 5: Blue @ 1203 N: HP 283, pilot hits 0, engine 0, gyro 0, heat 0
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 254.126 = dealt 0.83 x1.00 + (HP 390.0 - received 5.83 x1.00 - PSR 0.00) / enemy future 11.09 x my future 7.31 [two-ply, 43 spots x 491 replies (short list); modeled reply Red -> 0706 NE Jump]
+  [Movement] Blue: 1105 SW -> 1105 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red: score 494.441 = dealt 0.00 x1.00 + (HP 326.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 7.31 x my future 11.09 [enemy held at 1105; 171 spots with LOS]
+  [Movement] Red: 0208 N -> 0306 SE, Jump (5 MP, 3 hexes, 3 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue (submerged) can't attack Red (ground) across the water line (p.62) - holds fire.
+  [Ranged] Red (ground) can't attack Blue (submerged) across the water line (p.62) - holds fire.
+  [Heat] Red: 0 + movement 3 + weapons 0 + engine 0 - sinks 28 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 0 + engine 0 - sinks 16 - water 6 -> 0
+  -- end of turn 5: Red @ 0306 SE: HP 243, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 5: Blue @ 1105 SW: HP 283, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 6 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 367.712 = dealt 0.00 x1.00 + (HP 390.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 6.65 x my future 6.27 [two-ply, 21 of 70 spots (grid search) x 88 replies (grid search); modeled reply Red -> 0606 NW Walk]
-  [Movement] Blue: 1203 N -> 1102 SW, Run (6 MP, 2 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
-  [Movement select] Red: no spot deals damage - closing fallback
-  [Movement] Red: 0707 NW -> 0606 NW, Walk (3 MP, 1 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 6: Red @ 0606 NW: HP 234, pilot hits 1, engine 0, gyro 0, heat 0
-  -- end of turn 6: Blue @ 1102 SW: HP 283, pilot hits 0, engine 0, gyro 0, heat 0
+  [Movement select] Blue: score 254.126 = dealt 0.83 x1.00 + (HP 390.0 - received 5.83 x1.00 - PSR 0.00) / enemy future 11.09 x my future 7.31 [two-ply, 43 spots x 592 replies (short list); modeled reply Red -> 0807 NE Jump]
+  [Movement] Blue: 1105 SW -> 1105 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red: score 496.482 = dealt 5.83 x1.00 + (HP 326.0 - received 0.83 x1.00 - PSR 1.67) / enemy future 7.31 x my future 11.09 [enemy held at 1105; 97 spots with LOS]
+  [Movement] Red: 0306 SE -> 0807 NE, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+Jumped into water (depth 3) PSR: needs 5 (Piloting 5 + +0). Rolled 9.
+  Succeeded - remains standing.
+  [Ranged] Blue -> Red: range 4, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 3 + LOS 0 + heat 0); firing ['ISMediumLaser', 'ISMediumLaser'] (weapon heat 6 of budget 26 = max 4 + sink 22 - current 0 - movement 0 - other 0; expected dmg 0.83)
+    ISMediumLaser: needs 11 (range mod +2, modifiers +2), rolled 5 -> miss
+    ISMediumLaser: needs 11 (range mod +2, modifiers +2), rolled 3 -> miss
+  [Ranged] Red -> Blue: range 4, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 33 = max 4 + sink 34 - current 0 - movement 5 - other 0; expected dmg 5.83)
+    CLERMediumLaser: needs 9 (range mod +0, modifiers +2), rolled 7 -> miss
+    CLERMediumLaser: needs 9 (range mod +0, modifiers +2), rolled 8 -> miss
+    CLERMediumLaser: needs 9 (range mod +0, modifiers +2), rolled 10 -> HIT
+    CLERMediumLaser hit for 7:
+      Hit location roll 6 (front table): Right Torso.
+7 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 7 armor pts destroyed at armor (16 -> 9 remaining).
+    Hull breach check, Right Torso under water: rolled 6 - holds.
+  [Heat] Red: 0 + movement 5 + weapons 15 + engine 0 - sinks 28 - water 6 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 6 + engine 0 - sinks 16 - water 6 -> 0
+  -- end of turn 6: Red @ 0807 NE: HP 243, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 6: Blue @ 1105 SW: HP 276, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 7 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 336.314 = dealt 6.02 x1.00 + (HP 317.0 - received 5.59 x1.00 - PSR 0.00) / enemy future 5.23 x my future 5.55 [two-ply, 94 of 112 spots (grid search) x 339 replies (grid search); modeled reply Blue -> 0802 SW Jump]
-  [Movement] Red: 0606 NW -> 0507 NW, Walk (5 MP, 1 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 367.618 = dealt 5.59 x1.00 + (HP 390.0 - received 6.02 x1.00 - PSR 0.00) / enemy future 5.55 x my future 5.23 [enemy held at 0507; 78 spots with LOS]
-  [Movement] Blue: 1102 SW -> 0702 S, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
-  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
-  [Ranged] Red -> Blue: range 6, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 2 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLHAG20'] (weapon heat 19 of budget 31 = max 4 + sink 28 - current 0 - movement 1 - other 0; expected dmg 6.02)
-    CLERMediumLaser: needs 11 (range mod +2), rolled 3 -> miss
-    CLERMediumLaser: needs 11 (range mod +2), rolled 8 -> miss
-    CLERMediumLaser: needs 11 (range mod +2), rolled 4 -> miss
-    CLHAG20: needs 9 (range mod +0), rolled 9 -> HIT [HAG/20 Ammo: 3 shots left]
-  [Ranged] Blue -> Red: range 6, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 2 + heat 0); firing ['ISLBXAC10', 'ISMediumLaser', 'ISUltraAC5', 'ISMediumLaser'] (weapon heat 10 of budget 16 = max 4 + sink 16 - current 0 - movement 4 - other 0; expected dmg 5.58)
-    [Blue fire control] ISUltraAC5: rapid fire x2
-    ISLBXAC10: needs 9 (range mod +0), rolled 6 -> miss [ISLBXAC10 Ammo: 9 shots left]
-    ISMediumLaser: needs 11 (range mod +2), rolled 8 -> miss
-    ISUltraAC5 x2: needs 9 (range mod +0), rolled 7 -> miss [ISUltraAC5 Ammo: 14 shots left]
-    ISMediumLaser: needs 11 (range mod +2), rolled 10 -> miss
-    CLHAG20 hit: cluster roll 3 +2 on the 20-column table -> 12 connect (12 dmg).
-      Group 1/3: Hit location roll 11 (front table): Left Arm.
-5 damage (BALLISTIC) incoming to Left Arm (armor).
-  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (22 -> 17 remaining).
-      Group 2/3: Hit location roll 8 (front table): Left Torso.
-5 damage (BALLISTIC) incoming to Left Torso (armor).
-  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (16 -> 11 remaining).
-      Group 3/3: Hit location roll 5 (front table): Right Leg.
-2 damage (BALLISTIC) incoming to Right Leg (armor).
-  [STANDARD/BALLISTIC] 2 armor pts destroyed at armor (19 -> 17 remaining).
-  [Heat] Red: 0 + movement 1 + weapons 19 + engine 0 - sinks 28 -> 0
-  [Heat] Blue: 0 + movement 4 + weapons 10 + engine 0 - sinks 16 -> 0
-  -- end of turn 7: Red @ 0507 NW: HP 234, pilot hits 1, engine 0, gyro 0, heat 0
-  -- end of turn 7: Blue @ 0702 S: HP 271, pilot hits 0, engine 0, gyro 0, heat 0
+  [Movement select] Red: score 597.783 = dealt 15.17 x1.00 + (HP 326.0 - received 5.83 x1.00 - PSR 0.00) / enemy future 5.48 x my future 9.98 [two-ply, 61 of 68 spots (grid search) x 43 replies (short list); modeled reply Blue -> 1005 SW Walk]
+  [Movement] Red: 0807 NE -> 0807 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
+  [Movement select] Blue: score 207.970 = dealt 5.83 x1.00 + (HP 383.0 - received 15.17 x1.00 - PSR 0.00) / enemy future 9.98 x my future 5.48 [enemy held at 0807; 43 spots with LOS]
+  [Movement] Blue: 1105 SW -> 1005 SW, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red -> Blue: range 3, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 38 = max 4 + sink 34 - current 0 - movement 0 - other 0; expected dmg 15.17)
+    CLERMediumLaser: needs 6 (range mod +0, modifiers +2), rolled 7 -> HIT
+    CLERMediumLaser: needs 6 (range mod +0, modifiers +2), rolled 8 -> HIT
+    CLERMediumLaser: needs 6 (range mod +0, modifiers +2), rolled 5 -> miss
+  [Ranged] Blue -> Red: range 3, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumLaser', 'ISMediumLaser'] (weapon heat 6 of budget 25 = max 4 + sink 22 - current 0 - movement 1 - other 0; expected dmg 5.83)
+    ISMediumLaser: needs 7 (range mod +0, modifiers +2), rolled 4 -> miss
+    ISMediumLaser: needs 7 (range mod +0, modifiers +2), rolled 9 -> HIT
+    CLERMediumLaser hit for 7:
+      Hit location roll 3 (front table): Right Arm.
+7 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 7 armor pts destroyed at armor (22 -> 15 remaining).
+    Hull breach check, Right Arm under water: rolled 8 - holds.
+    CLERMediumLaser hit for 7:
+      Hit location roll 4 (front table): Right Arm.
+7 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 7 armor pts destroyed at armor (15 -> 8 remaining).
+    Hull breach check, Right Arm under water: rolled 9 - holds.
+    ISMediumLaser hit for 5:
+      Hit location roll 6 (front table): Right Torso.
+5 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (16 -> 11 remaining).
+    Hull breach check, Right Torso under water: rolled 8 - holds.
+  [Heat] Red: 0 + movement 0 + weapons 15 + engine 0 - sinks 28 - water 6 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 6 + engine 0 - sinks 16 - water 6 -> 0
+  -- end of turn 7: Red @ 0807 NE: HP 238, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 7: Blue @ 1005 SW: HP 262, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 8 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 262.464 = dealt 0.00 x1.00 + (HP 378.0 - received 0.00 x1.00 - PSR 1.17) / enemy future 6.43 x my future 4.48 [two-ply, 138 of 332 spots (grid search) x 204 replies (grid search); modeled reply: none with LOS]
-  [Movement] Blue: 0702 S -> 0801 NE, Jump (4 MP, 1 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
-Jumped into water (depth 1) PSR: needs 5 (Piloting 5 + +0). Rolled 8.
-  Succeeded - remains standing.
-  [Movement select] Red: no spot deals damage - closing fallback
-[Movement] Red: backward level change PSR at 0606: needs 5 (Piloting 5 + +0). Rolled 2.
-  Failed - falls.
-FALL (failed backward level change PSR at 0606): Black Hawk F takes 2 falling damage (halved: water, p.115) (1D6 2: front table, 5-pt clusters).
-  Fall cluster (2 dmg): rolled 3 -> Right Arm
-2 damage (PHYSICAL) incoming to Right Arm (armor).
-  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (16 -> 14 remaining).
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 639.959 = dealt 15.17 x1.00 + (HP 321.0 - received 7.22 x1.00 - PSR 0.00) / enemy future 5.34 x my future 10.64 [two-ply, 61 of 68 spots (grid search) x 32 replies (short list); modeled reply Blue -> 1005 SW Stand Still]
+  [Movement] Red: 0807 NE -> 0807 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
+  [Movement select] Blue: score 184.921 = dealt 7.22 x1.00 + (HP 369.0 - received 15.17 x1.00 - PSR 0.00) / enemy future 10.64 x my future 5.34 [enemy held at 0807; 32 spots with LOS]
+  [Movement] Blue: 1005 SW -> 1005 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red -> Blue: range 3, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 38 = max 4 + sink 34 - current 0 - movement 0 - other 0; expected dmg 15.17)
+    CLERMediumLaser: needs 6 (range mod +0, modifiers +2), rolled 3 -> miss
+    CLERMediumLaser: needs 6 (range mod +0, modifiers +2), rolled 11 -> HIT
+    CLERMediumLaser: needs 6 (range mod +0, modifiers +2), rolled 8 -> HIT
+  [Ranged] Blue -> Red: range 3, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumLaser', 'ISMediumLaser'] (weapon heat 6 of budget 26 = max 4 + sink 22 - current 0 - movement 0 - other 0; expected dmg 7.22)
+    ISMediumLaser: needs 6 (range mod +0, modifiers +2), rolled 5 -> miss
+    ISMediumLaser: needs 6 (range mod +0, modifiers +2), rolled 10 -> HIT
+    CLERMediumLaser hit for 7:
+      Hit location roll 6 (front table): Right Torso.
+7 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 7 armor pts destroyed at armor (9 -> 2 remaining).
+    Hull breach check, Right Torso under water: rolled 8 - holds.
+    CLERMediumLaser hit for 7:
+      Hit location roll 2 (front table): Center Torso.
+      Roll of 2 - Through-Armor Critical (floating) triggered.
+      Floating TAC re-roll: 3 -> Right Arm
+7 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 7 armor pts destroyed at armor (8 -> 1 remaining).
     Hull breach check, Right Arm under water: rolled 8 - holds.
-  Seatbelt check: needs 5. Rolled 4. FAILED - pilot takes 1 hit (2/6).
-  [Movement] Red: 0507 NW -> fell at 0606 SW after 5 MP (1 hexes) of a planned Walk to 0606 SW.
-  [Movement] Red: ends at 0606 SW (prone), Walk (5 MP, 1 hexes, 1 heat).
-Movement Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 7.
-  Pilot stays conscious.
-  [Ranged] Blue: no LOS to Red - holds fire.
-  [Ranged] Red: no LOS to Blue - holds fire.
-  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 3 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 8: Red @ 0606 SW: HP 232, pilot hits 2, engine 0, gyro 0, heat 0 [PRONE]
-  -- end of turn 8: Blue @ 0801 NE: HP 271, pilot hits 0, engine 0, gyro 0, heat 0
+      Additional critical hit due to TAC.
+  Check for possible critical. Roll a 4.
+    No critical hit.
+    ISMediumLaser hit for 5:
+      Hit location roll 7 (front table): Center Torso.
+5 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (23 -> 18 remaining).
+    Hull breach check, Center Torso under water: rolled 4 - BREACHED (2-4, p.127).
+    Red's Center Torso floods - its components stop working (p.127).
+    Engine hit (1/3) from Center Torso breach.
+    Engine hit (2/3) from Center Torso breach.
+    Engine hit (3/3) from Center Torso breach.
+    Gyro hit (1/2) from Center Torso breach.
+    Gyro hit (2/2) from Center Torso breach.
+    Gyro hit (3/2) from Center Torso breach.
+    Gyro hit (4/2) from Center Torso breach.
+    Engine hit (4/3) from Center Torso breach.
+    Engine hit (5/3) from Center Torso breach.
+    Engine hit (6/3) from Center Torso breach.
+    Jump jet destroyed (Jump Jet) from Center Torso breach - jump MP reduced (now 4).
+  [Heat] Blue: 0 + movement 0 + weapons 6 + engine 0 - sinks 16 - water 6 -> 0
+  -- end of turn 8: Red @ 0807 NE: HP 233, pilot hits 0, engine 6, gyro 4, heat 0 [DESTROYED (Engine Destroyed)]
+  -- end of turn 8: Blue @ 1005 SW: HP 248, pilot hits 0, engine 0, gyro 0, heat 0
 
-=== TURN 9 ===
-  Initiative: Red lost the roll, moves first.
-Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
-  Success - Black Hawk F is standing (remaining running MP 6).
-  [Movement select] Red: score 426.610 = dealt 0.00 x1.12 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 4.16 x my future 5.63 [two-ply, 42 of 52 spots (grid search) x 55 replies (grid search); modeled reply Blue -> 0802 N Walk]
-[Movement] Red: water PSR at 0706: needs 5 (Piloting 5 + +0). Rolled 8.
-  Succeeded - remains standing.
-  [Movement] Red: 0606 SW -> 0706 NE, Run (3 MP, 1 hexes, 2 heat; budget walk 5 / run 8 / jump 0; stood up with 6 MP left)
-  [Movement select] Blue: no spot deals damage - closing fallback found nothing; nearest reachable spot to the enemy
-  [Movement] Blue: 0801 NE -> 0802 NW, Run (6 MP, 1 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 9: Red @ 0706 NE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 9: Blue @ 0802 NW: HP 271, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 10 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 426.610 = dealt 0.00 x1.03 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 3.70 x my future 5.00 [two-ply, 73 of 92 spots (grid search) x 330 replies (grid search); modeled reply Blue -> 0703 SW Walk]
-  [Movement] Red: 0706 NE -> 0706 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 279.108 = dealt 0.00 x1.01 + (HP 378.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 5.00 x my future 3.70 [enemy held at 0706; 130 spots with LOS]
-  [Movement] Blue: 0802 NW -> 0703 NW, Jump (4 MP, 1 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 0 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 3 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 10: Red @ 0706 NE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 10: Blue @ 0703 NW: HP 271, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 11 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 426.610 = dealt 0.00 x1.03 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 3.33 x my future 4.50 [two-ply, 73 of 92 spots (grid search) x 413 replies (grid search); modeled reply Blue -> 0703 NW Stand Still]
-  [Movement] Red: 0706 NE -> 0706 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 279.108 = dealt 0.00 x1.01 + (HP 378.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 4.50 x my future 3.33 [enemy held at 0706; 155 spots with LOS]
-  [Movement] Blue: 0703 NW -> 0703 NW, Walk (2 MP, 0 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 0 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 11: Red @ 0706 NE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 11: Blue @ 0703 NW: HP 271, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 12 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 279.108 = dealt 0.00 x1.01 + (HP 378.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 4.09 x my future 3.02 [two-ply, 131 of 407 spots (grid search) x 92 replies (grid search); modeled reply Red -> 0706 NE Stand Still]
-  [Movement] Blue: 0703 NW -> 0703 SW, Walk (1 MP, 0 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 426.610 = dealt 0.00 x1.03 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 3.02 x my future 4.09 [enemy held at 0703; 67 spots with LOS]
-  [Movement] Red: 0706 NE -> 0706 SE, Run (7 MP, 0 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 12: Red @ 0706 SE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 12: Blue @ 0703 SW: HP 271, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 13 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 426.610 = dealt 0.00 x1.03 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 2.77 x my future 3.75 [two-ply, 72 of 88 spots (grid search) x 430 replies (grid search); modeled reply Blue -> 0703 SW Stand Still]
-  [Movement] Red: 0706 SE -> 0706 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 279.108 = dealt 0.00 x1.01 + (HP 378.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 3.75 x my future 2.77 [enemy held at 0706; 160 spots with LOS]
-  [Movement] Blue: 0703 SW -> 0703 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 0 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 0 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 13: Red @ 0706 SE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 13: Blue @ 0703 SW: HP 271, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 14 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 426.610 = dealt 0.00 x1.03 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 2.56 x my future 3.46 [two-ply, 72 of 88 spots (grid search) x 430 replies (grid search); modeled reply Blue -> 0703 SW Stand Still]
-  [Movement] Red: 0706 SE -> 0706 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 279.108 = dealt 0.00 x1.01 + (HP 378.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 3.46 x my future 2.56 [enemy held at 0706; 160 spots with LOS]
-  [Movement] Blue: 0703 SW -> 0703 NW, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 4) - includes a backward move
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 0 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 14: Red @ 0706 SE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 14: Blue @ 0703 NW: HP 271, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 15 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 426.610 = dealt 0.00 x1.03 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 2.38 x my future 3.22 [two-ply, 72 of 88 spots (grid search) x 413 replies (grid search); modeled reply Blue -> 0703 NW Stand Still]
-  [Movement] Red: 0706 SE -> 0706 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 279.108 = dealt 0.00 x1.01 + (HP 378.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 3.22 x my future 2.38 [enemy held at 0706; 155 spots with LOS]
-  [Movement] Blue: 0703 NW -> 0603 NW, Run (5 MP, 1 hexes, 2 heat; budget walk 4 / run 6 / jump 4)
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 0 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 15: Red @ 0706 SE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 15: Blue @ 0603 NW: HP 271, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 16 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 426.610 = dealt 0.00 x1.01 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 2.22 x my future 3.00 [two-ply, 72 of 88 spots (grid search) x 448 replies (grid search); modeled reply Blue -> 0604 N Walk]
-  [Movement] Red: 0706 SE -> 0706 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 279.108 = dealt 0.00 x1.01 + (HP 378.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 3.00 x my future 2.22 [enemy held at 0706; 174 spots with LOS]
-  [Movement] Blue: 0603 NW -> 0604 SE, Jump (4 MP, 1 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 0 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 3 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 16: Red @ 0706 SE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 16: Blue @ 0604 SE: HP 271, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 17 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 279.108 = dealt 0.00 x1.01 + (HP 378.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 2.82 x my future 2.08 [two-ply, 143 of 440 spots (grid search) x 88 replies (grid search); modeled reply Red -> 0706 SE Stand Still]
-  [Movement] Blue: 0604 SE -> 0604 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 426.610 = dealt 0.00 x1.00 + (HP 315.0 - received 0.00 x1.17 - PSR 0.00) / enemy future 2.08 x my future 2.82 [enemy held at 0604; 75 spots with LOS]
-  [Movement] Red: 0706 SE -> 0706 S, Run (7 MP, 0 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 0 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 17: Red @ 0706 S: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 17: Blue @ 0604 SE: HP 271, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 18 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 426.610 = dealt 0.00 x1.00 + (HP 315.0 - received 0.00 x1.17 - PSR 0.00) / enemy future 1.96 x my future 2.65 [two-ply, 72 of 90 spots (grid search) x 446 replies (grid search); modeled reply Blue -> 0604 SE Stand Still]
-  [Movement] Red: 0706 S -> 0706 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 279.108 = dealt 0.00 x1.17 + (HP 378.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 2.65 x my future 1.96 [enemy held at 0706; 161 spots with LOS]
-  [Movement] Blue: 0604 SE -> 0604 NE, Run (5 MP, 0 hexes, 2 heat; budget walk 4 / run 6 / jump 4)
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 0 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 18: Red @ 0706 S: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 18: Blue @ 0604 NE: HP 271, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 19 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 279.108 = dealt 0.00 x1.00 + (HP 378.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 2.50 x my future 1.85 [two-ply, 107 of 445 spots (grid search) x 90 replies (grid search); modeled reply Red -> 0706 S Stand Still]
-  [Movement] Blue: 0604 NE -> 0404 S, Jump (4 MP, 2 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 426.610 = dealt 0.00 x1.03 + (HP 315.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.85 x my future 2.50 [enemy held at 0404; 53 spots with LOS]
-  [Movement] Red: 0706 S -> 0606 NW, Walk (5 MP, 1 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 3 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 19: Red @ 0606 NW: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 19: Blue @ 0404 S: HP 271, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 20 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 279.108 = dealt 0.00 x1.00 + (HP 378.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 2.37 x my future 1.75 [two-ply, 156 of 454 spots (grid search) x 112 replies (grid search); modeled reply Red -> 0606 NW Stand Still]
-  [Movement] Blue: 0404 S -> 0405 NE, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 426.610 = dealt 0.00 x1.01 + (HP 315.0 - received 0.00 x1.17 - PSR 0.00) / enemy future 1.75 x my future 2.37 [enemy held at 0405; 77 spots with LOS]
-  [Movement] Red: 0606 NW -> 0606 SE, Walk (3 MP, 0 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 20: Red @ 0606 SE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 20: Blue @ 0405 NE: HP 271, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 21 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 279.108 = dealt 0.00 x1.17 + (HP 378.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 2.25 x my future 1.66 [two-ply, 144 of 449 spots (grid search) x 98 replies (grid search); modeled reply Red -> 0606 SE Stand Still]
-  [Movement] Blue: 0405 NE -> 0405 SE, Walk (1 MP, 0 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 426.610 = dealt 0.00 x1.00 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.66 x my future 2.25 [enemy held at 0405; 67 spots with LOS]
-  [Movement] Red: 0606 SE -> 0606 NE, Walk (1 MP, 0 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 21: Red @ 0606 NE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 21: Blue @ 0405 SE: HP 271, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 22 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 426.610 = dealt 0.00 x1.00 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.58 x my future 2.14 [two-ply, 77 of 98 spots (grid search) x 444 replies (grid search); modeled reply Blue -> 0405 SE Stand Still]
-  [Movement] Red: 0606 NE -> 0606 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 279.108 = dealt 0.00 x1.01 + (HP 378.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 2.14 x my future 1.58 [enemy held at 0606; 172 spots with LOS]
-  [Movement] Blue: 0405 SE -> 0405 SW, Walk (2 MP, 0 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 0 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 22: Red @ 0606 NE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 22: Blue @ 0405 SW: HP 271, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 23 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 426.610 = dealt 0.00 x1.03 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.51 x my future 2.05 [two-ply, 77 of 98 spots (grid search) x 452 replies (grid search); modeled reply Blue -> 0405 SW Stand Still]
-  [Movement] Red: 0606 NE -> 0606 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 279.108 = dealt 0.00 x1.01 + (HP 378.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 2.05 x my future 1.51 [enemy held at 0606; 171 spots with LOS]
-  [Movement] Blue: 0405 SW -> 0505 SW, Walk (1 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 4) - includes a backward move
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 0 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 23: Red @ 0606 NE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 23: Blue @ 0505 SW: HP 271, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 24 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 426.610 = dealt 0.00 x1.03 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.45 x my future 1.96 [two-ply, 77 of 97 spots (grid search) x 473 replies (grid search); modeled reply Blue -> 0505 SW Stand Still]
-  [Movement] Red: 0606 NE -> 0606 SE, Walk (1 MP, 0 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 279.108 = dealt 0.00 x1.01 + (HP 378.0 - received 0.00 x1.12 - PSR 0.00) / enemy future 1.96 x my future 1.45 [enemy held at 0606; 168 spots with LOS]
-  [Movement] Blue: 0505 SW -> 0505 NW, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 4) - includes a backward move
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 24: Red @ 0606 SE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 24: Blue @ 0505 NW: HP 271, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 25 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 279.108 = dealt 0.00 x1.17 + (HP 378.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 1.88 x my future 1.39 [two-ply, 125 of 483 spots (grid search) x 98 replies (grid search); modeled reply Red -> 0606 SE Stand Still]
-  [Movement] Blue: 0505 NW -> 0105 S, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 426.610 = dealt 0.00 x1.03 + (HP 315.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.39 x my future 1.88 [enemy held at 0105; 56 spots with LOS]
-  [Movement] Red: 0606 SE -> 0606 SW, Run (6 MP, 0 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 4 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 25: Red @ 0606 SW: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 25: Blue @ 0105 S: HP 271, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 26 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 279.108 = dealt 0.00 x1.00 + (HP 378.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 1.80 x my future 1.33 [two-ply, 104 of 299 spots (grid search) x 110 replies (grid search); modeled reply Red -> 0606 SW Stand Still]
-  [Movement] Blue: 0105 S -> 0105 S, Walk (2 MP, 0 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 426.610 = dealt 0.00 x1.03 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.33 x my future 1.80 [enemy held at 0105; 57 spots with LOS]
-  [Movement] Red: 0606 SW -> 0606 NE, Run (7 MP, 0 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 26: Red @ 0606 NE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 26: Blue @ 0105 S: HP 271, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 27 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 432.486 = dealt 5.83 x1.01 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.28 x my future 1.73 [two-ply, 80 of 98 spots (grid search) x 299 replies (grid search); modeled reply Blue -> 0506 N Jump]
-  [Movement] Red: 0606 NE -> 0707 NE, Walk (5 MP, 1 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: no spot deals damage - closing fallback found nothing; nearest reachable spot to the enemy
-  [Movement] Blue: 0105 S -> 0506 S, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
-Jumped into water (depth 1) PSR: needs 5 (Piloting 5 + +0). Rolled 3.
-  Failed - falls.
-FALL (jumped into water (depth 1), failed PSR): Cataphract CTF-3D takes 7 falling damage (halved: water, p.115) (1D6 5: front table, 5-pt clusters).
-  Fall cluster (5 dmg): rolled 8 -> Left Torso
-5 damage (PHYSICAL) incoming to Left Torso (armor).
-  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (11 -> 6 remaining).
-    Hull breach check, Left Torso under water: rolled 7 - holds.
-  Fall cluster (2 dmg): rolled 10 -> Left Arm
-2 damage (PHYSICAL) incoming to Left Arm (armor).
-  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (17 -> 15 remaining).
-    Hull breach check, Left Arm under water: rolled 11 - holds.
-  Seatbelt check: needs 6 (Piloting 5 + 1 levels). Rolled 8. Pilot unharmed.
-  [Ranged] Red -> Blue: range 2, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 0 + prone target 1); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 37 = max 4 + sink 34 - current 0 - movement 1 - other 0; expected dmg 3.50)
-    CLERMediumLaser: needs 10 (range mod +0, modifiers +2), rolled 6 -> miss
-    CLERMediumLaser: needs 10 (range mod +0, modifiers +2), rolled 5 -> miss
-    CLERMediumLaser: needs 10 (range mod +0, modifiers +2), rolled 8 -> miss
-  [Ranged] Blue -> Red: range 2, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0 + prone +2); firing ['ISMediumLaser'] (weapon heat 3 of budget 22 = max 4 + sink 22 - current 0 - movement 4 - other 0; expected dmg 0.42)
-    ISMediumLaser: needs 11 (range mod +0, modifiers +2), rolled 6 -> miss
-  [Heat] Red: 0 + movement 1 + weapons 15 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 4 + weapons 3 + engine 0 - sinks 16 - water 6 -> 0
-  -- end of turn 27: Red @ 0707 NE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 27: Blue @ 0506 S: HP 264, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE]
-
-=== TURN 28 ===
-  Initiative: Blue lost the roll, moves first.
-Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 11.
-  Success - Cataphract CTF-3D is standing (remaining running MP 4).
-  [Movement select] Blue: score 237.278 = dealt 0.00 x1.01 + (HP 371.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 1.93 x my future 1.23 [two-ply, 27 of 30 spots (grid search) x 79 replies (grid search); modeled reply Red -> 0706 N Walk]
-  [Movement] Blue: 0506 S -> 0505 NE, Run (4 MP, 1 hexes, 2 heat; budget walk 4 / run 6 / jump 0; stood up with 4 MP left)
-  [Movement select] Red: score 492.523 = dealt 0.00 x0.99 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.23 x my future 1.93 [enemy held at 0505; 71 spots with LOS]
-  [Movement] Red: 0707 NE -> 0706 N, Walk (4 MP, 1 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 28: Red @ 0706 N: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 28: Blue @ 0505 NE: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 29 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 237.278 = dealt 0.00 x1.01 + (HP 371.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 1.86 x my future 1.19 [two-ply, 148 of 462 spots (grid search) x 101 replies (grid search); modeled reply Red -> 0706 N Stand Still]
-  [Movement] Blue: 0505 NE -> 0505 NE, Walk (2 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 4) - includes a backward move
-  [Movement select] Red: score 492.523 = dealt 0.00 x0.99 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.19 x my future 1.86 [enemy held at 0505; 69 spots with LOS]
-  [Movement] Red: 0706 N -> 0606 SE, Walk (5 MP, 1 hexes, 1 heat; budget walk 5 / run 8 / jump 0) - includes a backward move
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 29: Red @ 0606 SE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 29: Blue @ 0505 NE: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 30 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 237.278 = dealt 0.00 x1.01 + (HP 371.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 1.79 x my future 1.15 [two-ply, 148 of 462 spots (grid search) x 98 replies (grid search); modeled reply Red -> 0606 SE Stand Still]
-  [Movement] Blue: 0505 NE -> 0505 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 492.523 = dealt 0.00 x0.99 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.15 x my future 1.79 [enemy held at 0505; 77 spots with LOS]
-  [Movement] Red: 0606 SE -> 0606 NE, Run (7 MP, 0 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 0 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 30: Red @ 0606 NE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 30: Blue @ 0505 NE: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 31 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 237.278 = dealt 0.00 x1.01 + (HP 371.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 1.73 x my future 1.11 [two-ply, 148 of 462 spots (grid search) x 98 replies (grid search); modeled reply Red -> 0606 NE Stand Still]
-  [Movement] Blue: 0505 NE -> 0604 SE, Walk (2 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 492.523 = dealt 0.00 x0.99 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.11 x my future 1.73 [enemy held at 0604; 71 spots with LOS]
-  [Movement] Red: 0606 NE -> 0606 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 0 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 31: Red @ 0606 NE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 31: Blue @ 0604 SE: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 32 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 492.523 = dealt 0.00 x0.99 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.07 x my future 1.68 [two-ply, 77 of 94 spots (grid search) x 446 replies (grid search); modeled reply Blue -> 0604 SE Stand Still]
-  [Movement] Red: 0606 NE -> 0606 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 237.278 = dealt 0.00 x1.01 + (HP 371.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 1.68 x my future 1.07 [enemy held at 0606; 167 spots with LOS]
-  [Movement] Blue: 0604 SE -> 0604 NE, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 4) - includes a backward move
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 0 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 32: Red @ 0606 NE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 32: Blue @ 0604 NE: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 33 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 237.278 = dealt 0.00 x1.01 + (HP 371.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.63 x my future 1.04 [two-ply, 141 of 445 spots (grid search) x 98 replies (grid search); modeled reply Red -> 0606 NE Stand Still]
-  [Movement] Blue: 0604 NE -> 0505 SE, Walk (2 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 4) - includes a backward move
-  [Movement select] Red: score 492.523 = dealt 0.00 x1.00 + (HP 315.0 - received 0.00 x1.17 - PSR 0.00) / enemy future 1.04 x my future 1.63 [enemy held at 0505; 80 spots with LOS]
-  [Movement] Red: 0606 NE -> 0606 S, Run (6 MP, 0 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 33: Red @ 0606 S: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 33: Blue @ 0505 SE: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 34 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 492.523 = dealt 0.00 x1.00 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.01 x my future 1.58 [two-ply, 77 of 101 spots (grid search) x 462 replies (grid search); modeled reply Blue -> 0505 SE Stand Still]
-  [Movement] Red: 0606 S -> 0606 SE, Walk (1 MP, 0 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 237.278 = dealt 0.00 x1.17 + (HP 371.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 1.58 x my future 1.01 [enemy held at 0606; 169 spots with LOS]
-  [Movement] Blue: 0505 SE -> 0405 N, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 4) - includes a backward move
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 34: Red @ 0606 SE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 34: Blue @ 0405 N: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 35 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 481.797 = dealt 0.00 x0.99 + (HP 315.0 - received 0.00 x1.17 - PSR 0.00) / enemy future 1.00 x my future 1.53 [two-ply, 76 of 98 spots (grid search) x 470 replies (grid search); modeled reply Blue -> 0405 N Stand Still]
-  [Movement] Red: 0606 SE -> 0606 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 242.561 = dealt 0.00 x1.17 + (HP 371.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 1.53 x my future 1.00 [enemy held at 0606; 169 spots with LOS]
-  [Movement] Blue: 0405 N -> 0405 N, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 4) - includes a backward move
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 0 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 35: Red @ 0606 SE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 35: Blue @ 0405 N: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 36 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 468.031 = dealt 0.00 x0.99 + (HP 315.0 - received 0.00 x1.17 - PSR 0.00) / enemy future 1.00 x my future 1.49 [two-ply, 76 of 98 spots (grid search) x 470 replies (grid search); modeled reply Blue -> 0405 N Stand Still]
-  [Movement] Red: 0606 SE -> 0606 SE, Walk (2 MP, 0 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 249.695 = dealt 0.00 x1.17 + (HP 371.0 - received 0.00 x1.08 - PSR 0.00) / enemy future 1.49 x my future 1.00 [enemy held at 0606; 169 spots with LOS]
-  [Movement] Blue: 0405 N -> 0405 NW, Walk (1 MP, 0 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 36: Red @ 0606 SE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 36: Blue @ 0405 NW: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 37 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 256.829 = dealt 0.00 x1.17 + (HP 371.0 - received 0.00 x1.05 - PSR 0.00) / enemy future 1.44 x my future 1.00 [two-ply, 149 of 465 spots (grid search) x 98 replies (grid search); modeled reply Red -> 0606 SE Stand Still]
-  [Movement] Blue: 0405 NW -> 0405 SW, Walk (1 MP, 0 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 455.030 = dealt 0.00 x1.05 + (HP 315.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 1.44 [enemy held at 0405; 67 spots with LOS]
-  [Movement] Red: 0606 SE -> 0606 S, Walk (1 MP, 0 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 37: Red @ 0606 S: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 37: Blue @ 0405 SW: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 38 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 263.963 = dealt 0.00 x1.00 + (HP 371.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 1.41 x my future 1.00 [two-ply, 147 of 446 spots (grid search) x 101 replies (grid search); modeled reply Red -> 0606 S Stand Still]
-  [Movement] Blue: 0405 SW -> 0405 NE, Walk (3 MP, 0 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 442.732 = dealt 0.00 x0.99 + (HP 315.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 1.41 [enemy held at 0405; 70 spots with LOS]
-  [Movement] Red: 0606 S -> 0606 NW, Run (6 MP, 0 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 38: Red @ 0606 NW: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 38: Blue @ 0405 NE: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 39 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 271.097 = dealt 0.00 x1.00 + (HP 371.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 1.37 x my future 1.00 [two-ply, 144 of 449 spots (grid search) x 112 replies (grid search); modeled reply Red -> 0606 NW Stand Still]
-  [Movement] Blue: 0405 NE -> 0405 NE, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 4) - includes a backward move
-  [Movement select] Red: score 431.081 = dealt 0.00 x0.99 + (HP 315.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 1.37 [enemy held at 0405; 77 spots with LOS]
-  [Movement] Red: 0606 NW -> 0606 S, Run (6 MP, 0 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 39: Red @ 0606 S: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 39: Blue @ 0405 NE: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 40 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 420.028 = dealt 0.00 x0.99 + (HP 315.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 1.33 [two-ply, 77 of 101 spots (grid search) x 455 replies (grid search); modeled reply Blue -> 0405 NE Stand Still]
-  [Movement] Red: 0606 S -> 0606 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 278.231 = dealt 0.00 x1.00 + (HP 371.0 - received 0.00 x1.05 - PSR 0.00) / enemy future 1.33 x my future 1.00 [enemy held at 0606; 169 spots with LOS]
-  [Movement] Blue: 0405 NE -> 0405 S, Run (6 MP, 0 hexes, 2 heat; budget walk 4 / run 6 / jump 4)
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 0 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 40: Red @ 0606 S: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 40: Blue @ 0405 S: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 41 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 285.366 = dealt 0.00 x1.00 + (HP 371.0 - received 0.00 x1.05 - PSR 0.00) / enemy future 1.30 x my future 1.00 [two-ply, 148 of 438 spots (grid search) x 101 replies (grid search); modeled reply Red -> 0606 S Stand Still]
-  [Movement] Blue: 0405 S -> 0405 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 409.527 = dealt 0.00 x1.05 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.00 x my future 1.30 [enemy held at 0405; 70 spots with LOS]
-  [Movement] Red: 0606 S -> 0606 NE, Walk (2 MP, 0 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 0 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 41: Red @ 0606 NE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 41: Blue @ 0405 S: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 42 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 292.500 = dealt 0.00 x1.01 + (HP 371.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.27 x my future 1.00 [two-ply, 148 of 438 spots (grid search) x 98 replies (grid search); modeled reply Red -> 0606 NE Stand Still]
-  [Movement] Blue: 0405 S -> 0405 SE, Walk (1 MP, 0 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 399.539 = dealt 0.00 x1.00 + (HP 315.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 1.27 [enemy held at 0405; 68 spots with LOS]
-  [Movement] Red: 0606 NE -> 0606 S, Run (6 MP, 0 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 42: Red @ 0606 S: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 42: Blue @ 0405 SE: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 43 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 299.634 = dealt 0.00 x1.00 + (HP 371.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.24 x my future 1.00 [two-ply, 148 of 438 spots (grid search) x 101 replies (grid search); modeled reply Red -> 0606 S Stand Still]
-  [Movement] Blue: 0405 SE -> 0405 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 390.026 = dealt 0.00 x1.00 + (HP 315.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 1.24 [enemy held at 0405; 70 spots with LOS]
-  [Movement] Red: 0606 S -> 0606 NW, Run (6 MP, 0 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 0 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 43: Red @ 0606 NW: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 43: Blue @ 0405 SE: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 44 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 305.610 = dealt 8.33 x1.17 + (HP 371.0 - received 12.25 x1.08 - PSR 0.00) / enemy future 1.21 x my future 1.00 [two-ply, 148 of 438 spots (grid search) x 112 replies (grid search); modeled reply Red -> 0305 NW Run]
-  [Movement] Blue: 0405 SE -> 0405 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 380.956 = dealt 0.00 x1.00 + (HP 315.0 - received 0.00 x1.17 - PSR 0.00) / enemy future 1.00 x my future 1.21 [enemy held at 0405; 77 spots with LOS]
-  [Movement] Red: 0606 NW -> 0606 SE, Walk (3 MP, 0 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 0 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 44: Red @ 0606 SE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 44: Blue @ 0405 SE: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 45 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 372.298 = dealt 0.00 x1.00 + (HP 315.0 - received 0.00 x1.17 - PSR 0.00) / enemy future 1.00 x my future 1.18 [two-ply, 76 of 98 spots (grid search) x 444 replies (grid search); modeled reply Blue -> 0405 SE Stand Still]
-  [Movement] Red: 0606 SE -> 0606 SE, Walk (2 MP, 0 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 313.902 = dealt 0.00 x1.17 + (HP 371.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 1.18 x my future 1.00 [enemy held at 0606; 172 spots with LOS]
-  [Movement] Blue: 0405 SE -> 0405 NE, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 4) - includes a backward move
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 45: Red @ 0606 SE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 45: Blue @ 0405 NE: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 46 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 364.024 = dealt 0.00 x0.99 + (HP 315.0 - received 0.00 x1.17 - PSR 0.00) / enemy future 1.00 x my future 1.16 [two-ply, 76 of 98 spots (grid search) x 455 replies (grid search); modeled reply Blue -> 0405 NE Stand Still]
-  [Movement] Red: 0606 SE -> 0606 SE, Walk (2 MP, 0 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 321.036 = dealt 0.00 x1.01 + (HP 371.0 - received 0.00 x1.05 - PSR 0.00) / enemy future 1.16 x my future 1.00 [enemy held at 0606; 169 spots with LOS]
-  [Movement] Blue: 0405 NE -> 0505 SW, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 4)
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 46: Red @ 0606 SE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 46: Blue @ 0505 SW: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 47 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 356.111 = dealt 0.00 x1.05 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.00 x my future 1.13 [two-ply, 76 of 98 spots (grid search) x 473 replies (grid search); modeled reply Blue -> 0505 SW Stand Still]
-  [Movement] Red: 0606 SE -> 0606 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 328.170 = dealt 0.00 x1.01 + (HP 371.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 1.13 x my future 1.00 [enemy held at 0606; 168 spots with LOS]
-  [Movement] Blue: 0505 SW -> 0604 SE, Jump (4 MP, 1 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 0 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 3 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 47: Red @ 0606 SE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 47: Blue @ 0604 SE: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 48 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 348.534 = dealt 0.00 x1.00 + (HP 315.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.00 x my future 1.11 [two-ply, 76 of 97 spots (grid search) x 446 replies (grid search); modeled reply Blue -> 0604 SE Stand Still]
-  [Movement] Red: 0606 SE -> 0706 NE, Walk (4 MP, 1 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 335.305 = dealt 0.00 x1.01 + (HP 371.0 - received 0.00 x1.05 - PSR 0.00) / enemy future 1.11 x my future 1.00 [enemy held at 0706; 161 spots with LOS]
-  [Movement] Blue: 0604 SE -> 0604 SW, Jump (1 MP, 0 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 3 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 48: Red @ 0706 NE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 48: Blue @ 0604 SW: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 49 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 342.439 = dealt 0.00 x1.01 + (HP 371.0 - received 0.00 x1.05 - PSR 0.00) / enemy future 1.08 x my future 1.00 [two-ply, 126 of 458 spots (grid search) x 92 replies (grid search); modeled reply Red -> 0706 NE Stand Still]
-  [Movement] Blue: 0604 SW -> 0404 S, Jump (4 MP, 2 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Red: score 341.273 = dealt 0.00 x1.05 + (HP 315.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 1.08 [enemy held at 0404; 52 spots with LOS]
-  [Movement] Red: 0706 NE -> 0706 NW, Walk (2 MP, 0 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 3 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 49: Red @ 0706 NW: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 49: Blue @ 0404 S: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 50 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 334.308 = dealt 0.00 x1.00 + (HP 315.0 - received 0.00 x1.17 - PSR 0.00) / enemy future 1.00 x my future 1.06 [two-ply, 75 of 103 spots (grid search) x 460 replies (grid search); modeled reply Blue -> 0505 SE Walk]
-  [Movement] Red: 0706 NW -> 0706 SE, Walk (3 MP, 0 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 349.573 = dealt 0.00 x1.17 + (HP 371.0 - received 0.00 x1.05 - PSR 0.00) / enemy future 1.06 x my future 1.00 [enemy held at 0706; 193 spots with LOS]
-  [Movement] Blue: 0404 S -> 0505 SW, Run (6 MP, 1 hexes, 2 heat; budget walk 4 / run 6 / jump 4)
-  [Ranged] Red (submerged) can't attack Blue (ground) across the water line (p.62) - holds fire.
-  [Ranged] Blue (ground) can't attack Red (submerged) across the water line (p.62) - holds fire.
-  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 28 - water 6 -> 0
-  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 16 -> 0
-  -- end of turn 50: Red @ 0706 SE: HP 232, pilot hits 2, engine 0, gyro 0, heat 0
-  -- end of turn 50: Blue @ 0505 SW: HP 264, pilot hits 0, engine 0, gyro 0, heat 0
+>>> Battle over on turn 8: Red destroyed. <<<
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! RESULTS PRODUCED WITH STUBS ACTIVE - NOT RULES-COMPLETE
@@ -788,16 +229,15 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 11.
 ######################################################################
 BATCH SUMMARY - 1 battle(s): Red = Black Hawk F, Blue = Cataphract CTF-3D
 ######################################################################
-  Wins:  Red 0   Blue 0   Draw 1
-  Average turns: 50.0 (decisive battles only: 0.0)
-  Average attacks fired by the winner before the kill: 0.0
-  Average remaining HP (armor+structure): Red 95%   Blue 93%
-  Hit rate: Red 7%   Blue 0%
+  Wins:  Red 0   Blue 1   Draw 0
+  Average turns: 8.0 (decisive battles only: 8.0)
+  Average attacks fired by the winner before the kill: 12.0
+  Average remaining HP (armor+structure): Red 96%   Blue 88%
+  Hit rate: Red 33%   Blue 17%
   Causes of death:
-    (none)
-  !! 1 battle(s) reached the 50-turn cap with both mechs standing - a possible flaw (a stall?)
+    Red (Black Hawk F): Engine Destroyed: 1
   Per battle:
-    #1: 50 turns, winner Draw; Red 232/243 HP (1/15 hits, 12 dealt); Blue 264/283 HP (0/9 hits, 0 dealt)
+    #1: 8 turns, winner Blue; Red 233/243 HP (5/15 hits, 35 dealt) DESTROYED: Engine Destroyed; Blue 248/283 HP (2/12 hits, 10 dealt)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! RESULTS PRODUCED WITH STUBS ACTIVE - NOT RULES-COMPLETE
@@ -816,7 +256,7 @@ BATCH SUMMARY - 1 battle(s): Red = Black Hawk F, Blue = Cataphract CTF-3D
 # stderr (stub warnings)
 STUB: munition_choice - Blue's ISLBXAC10: standard 0.28, LB-X cluster rounds 0.53 -> LB-X cluster rounds (policy greedy)
 STUB: rate_of_fire - Blue's ISUltraAC5: 2 rates possible -> 2 shots (policy max)
-STUB: munition_choice - Blue's ISLBXAC10: standard 0.28, LB-X cluster rounds 0.53 -> LB-X cluster rounds (policy greedy)
-STUB: rate_of_fire - Blue's ISUltraAC5: 2 rates possible -> 2 shots (policy max)
 STUB: munition_choice - Blue's ISLBXAC10: standard 2.78, LB-X cluster rounds 2.63 -> standard (policy greedy)
+STUB: rate_of_fire - Blue's ISUltraAC5: 2 rates possible -> 2 shots (policy max)
+STUB: munition_choice - Blue's ISLBXAC10: standard 0.83, LB-X cluster rounds 1.05 -> LB-X cluster rounds (policy greedy)
 STUB: rate_of_fire - Blue's ISUltraAC5: 2 rates possible -> 2 shots (policy max)
