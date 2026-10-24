@@ -21,6 +21,10 @@ baseline"):
     python tests/ab_batches.py 60 "Black Hawk (Nova) F.mtf" "Cataphract CTF-3D.mtf" --set search \
         --board 16x17_Military_Base_1.board
 
+2026-10-24 (Claude): sets "short-list" (grid vs short-list look-ahead, for the
+time a turn) and "short-vs-perfect" (Daniel's "Simple Short Grid" against
+perfect knowledge, one per side), and a "ms a turn" column.
+
 --set picks a VARIANT_SETS entry (default "objective", the original two;
 "baseline" runs the default settings alone - with --seed, a noise yardstick);
 --seed sets the batch seed (default 12345);
@@ -82,6 +86,23 @@ VARIANT_SETS = {
     "grid-spin": [
         ("spin clockwise", {"MOVEMENT_GRID_SPIN": "clockwise"}),
         ("spin counterclockwise", {"MOVEMENT_GRID_SPIN": "counterclockwise"}),
+    ],
+    # Daniel's "simple short list" reply model (2026-10-24): what it costs per turn against
+    # the grid reply, both movers searching their own spots by grid.
+    "short-list": [
+        ("grid reply", {"MOVEMENT_SEARCH": "grid", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "grid"}),
+        ("short-list reply", {"MOVEMENT_SEARCH": "grid", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "short_list"}),
+    ],
+    # "Simple Short Grid" (grid for its own spots, short-list look-ahead) against perfect
+    # knowledge (every spot, every reply), one per side (Daniel, 2026-10-24: "make sure
+    # win rates don't deviate too badly").
+    "short-vs-perfect": [
+        ("both perfect", {"MOVEMENT_SEARCH": "exhaustive", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "exhaustive"}),
+        ("Red short-grid, Blue perfect", {**_side("Red", "grid", "short_list"),
+                                          **_side("Blue", "exhaustive", "exhaustive")}),
+        ("Red perfect, Blue short-grid", {**_side("Red", "exhaustive", "exhaustive"),
+                                          **_side("Blue", "grid", "short_list")}),
+        ("both short-grid", {"MOVEMENT_SEARCH": "grid", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "short_list"}),
     ],
     # The default settings alone: with --seed, a yardstick for how much results move with the dice alone.
     "baseline": [("default settings", {})],
@@ -164,7 +185,8 @@ def main():
         print(f"  {'':28s} damage dealt R {sum(r.red.damage_dealt for r in results) / n:5.1f} "
               f"B {sum(r.blue.damage_dealt for r in results) / n:5.1f} | HP left R "
               f"{sum(r.red.final_hp for r in results) / n:5.1f} B {sum(r.blue.final_hp for r in results) / n:5.1f} | "
-              f"identical battles {identical}/{battles} | {base_seconds / seconds:.1f}x the baseline's speed")
+              f"identical battles {identical}/{battles} | {base_seconds / seconds:.1f}x the baseline's speed | "
+              f"{1000 * seconds / max(1, turns):.0f} ms a turn (batch clock)")
         rows = [{"seed": str(r.seed), "turns": r.turns_taken, "winner": r.winner,
                  "red_cause": r.red.cause_of_death, "blue_cause": r.blue.cause_of_death,
                  "red_hp": r.red.final_hp, "blue_hp": r.blue.final_hp,

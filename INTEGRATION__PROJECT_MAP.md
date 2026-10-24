@@ -233,6 +233,14 @@ munitions, G18 choices, G21 breach pricing, G22 buildings, G34 smoke /
 probes), and the Core-vs-project questions (D1-D8 decided). Read it before
 building rules.
 
+**Session 8 (2026-10-24):** Daniel's two-ply research - the second
+mover's reply comes from a short list of places (next to the first mover,
+standing still, range-bracket ends), so the first mover's look-ahead now
+checks only those (`MOVEMENT_ASSUMED_ENEMY_SEARCH = "short_list"`, the
+default), each hex scored roughly (best TMM, facing the first mover). ~1.5x
+faster a turn, results within noise of perfect knowledge. Details and
+numbers: Change Record (Section 8).
+
 **Pick up here (open, roughly in priority order):**
 0. **Anti-stall rule for the bot** (Daniel, 2026-10-21: "Anti-stall rule for
    the bot is added to the future tasks list"). Under the lifetime default,
@@ -977,7 +985,7 @@ forward arc, kicks included, never into a side arc.
 
 | Decision point | Lives in | Decides |
 |---|---|---|
-| Movement selection | `INTEGRATION__movement_selection.choose` | Spot (hex + facing + mode) maximizing the objective - DEFAULT "lifetime" + history blend (row below), or "ratio": dealt×exposure / (received×exposure + movement-PSR cost + .001); first mover scores each spot by the second mover's modeled reply (two-ply, at its MASC / supercharger speed). Which spots are scored: `MOVEMENT_SEARCH` (a mech's own pick) and `MOVEMENT_ASSUMED_ENEMY_SEARCH` (the first mover's modeled reply), per side in `MECH_*_CONFIG` "search" / "assumes_enemy_search" - "grid" (DEFAULT since 2026-10-21, Daniel's guess and follow: a 1-in-7 hex net from the mover's own hex, `MOVEMENT_GRID_SPIN`, then uphill from the best `MOVEMENT_SEARCH_STARTS` net hexes; a second mover always also looks at the 6 hexes around the enemy - `_grid_search`) or "exhaustive" (every spot, "perfect"). Knobs: config MOVEMENT SETTINGS. |
+| Movement selection | `INTEGRATION__movement_selection.choose` | Spot (hex + facing + mode) maximizing the objective - DEFAULT "lifetime" + history blend (row below), or "ratio": dealt×exposure / (received×exposure + movement-PSR cost + .001); first mover scores each spot by the second mover's modeled reply (two-ply, at its MASC / supercharger speed). Which spots are scored: `MOVEMENT_SEARCH` (a mech's own pick) and `MOVEMENT_ASSUMED_ENEMY_SEARCH` (the first mover's modeled reply), per side in `MECH_*_CONFIG` "search" / "assumes_enemy_search" - "grid" (DEFAULT since 2026-10-21, Daniel's guess and follow: a 1-in-7 hex net from the mover's own hex, `MOVEMENT_GRID_SPIN`, then uphill from the best `MOVEMENT_SEARCH_STARTS` net hexes; a second mover always also looks at the 6 hexes around the enemy - `_grid_search`) or "exhaustive" (every spot, "perfect"); for the modeled reply also "short_list" (DEFAULT since 2026-10-24, Daniel's simple short list: hexes next to the first mover, the replier's own, and at the ranges where either side's damage drops most - `short_list_distances`, `MOVEMENT_SHORT_LIST_DROPS` - each mode once at its best TMM, facing the first mover). Knobs: config MOVEMENT SETTINGS. |
 | Movement objective option (+ history blend, `MOVEMENT_LIFETIME_HISTORY_K`) | `movement_selection._Ratio` / `_Lifetime` (`config.MOVEMENT_OBJECTIVE`) | "ratio" (default, above) or "lifetime": dealt + (effective HP left / enemy future damage) x own future damage (`INTEGRATION__future_damage`: 0.5 x best heat-limited expected damage at gunnery + walking +1 + the target's best TMM, kicks / punches at range 1). Each side scores its own spots with it, the modeled reply too |
 | LOS exactly between two hexes (p.56) | `pathfinder/los._evaluate` (`worse_key`) | The target's controller picks the hex; the bot always takes the MORE obstructive one (blocking first, then woods). The pick is the same from either end (checked on all 12,060 such pairs of the 16x17 board), so p.56's "used for all attacks between those two 'Mechs ... for the rest of that turn" holds without storing it. Not modeled: a target choosing the clearer hex to shoot back better; p.56's random pick for a non-player target (a hex attack takes the more obstructive one too). Partial / off-board hexes are never picked (p.56: "LOS cannot be shifted so that it passes through a partial hex") |
 | Movement-PSR cost | `movement_selection.psr_costs` | P(fail) × fall damage, only for Run / Jump with a Movement-Phase PSR trigger; damage-caused PSRs ignored (Daniel) |
@@ -1145,6 +1153,41 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-24 (Claude):** Daniel's "simple short list" two-ply look-ahead,
+  the DEFAULT (`MOVEMENT_ASSUMED_ENEMY_SEARCH = "short_list"`; Daniel: "we
+  push 'Simple Short list' for the first movers evaluation"; both movers keep
+  the grid search for their own spots). Research first (Daniel's theory: "the
+  move second side ... will consistently tend to pick a spot from a more
+  limited selection of locations"): 30 full-fidelity battles (both sides
+  exhaustive; 5 matchups, 3 boards, ~156k modeled replies). In one decision
+  the reply lands on 5-63 distinct hexes for 125-800 first-mover spots; 89%
+  hit the first mover's side or rear, 31% stand next to it (Kontio 86%,
+  mostly behind); stand-off replies sit at range-bracket ends (Atlas 44% at
+  7, Cataphract at 6, Black Hawk one past the Cataphract's brackets). The
+  rule of thumb (`movement_selection.short_list_distances`): next to the
+  first mover, the replier's own hex, the replier's `MOVEMENT_SHORT_LIST_DROPS`
+  = 2 biggest damage drops and one past the first mover's (rough damage by
+  range at pre-TN 6); ~80% of exact replies. Each listed hex is scored once
+  per movement mode at its best TMM, facing the first mover (Daniel:
+  "Location, best tmm of any move to that hex per movement type. Expected
+  incoming damage as if its facing you"; the facing isn't checked as
+  reachable, and the first mover's return fire counts as front hits - "The
+  first mover can never control its targets facing anyways unless its
+  immobile"; an immobile or prone replier keeps the full model). Same-state
+  A/B over 191 decisions: same pick 46%, score lost 0.20% on average (worst
+  3.5%) vs 0.45% (worst 6.6%) for the grid reply - picks change but among
+  near-ties. Per turn (ab_batches `--set short-list`, 8 battles, 15 turns):
+  ~1.5x faster than the grid reply (Kontio 244 -> 168 ms, Atlas 54 -> 43,
+  Black Hawk 111 -> 69). Short-grid vs perfect knowledge, one per side
+  (`--set short-vs-perfect`, 12 battles, 25 turns): Atlas / Archer and Black
+  Hawk / Cataphract within noise; Kontio / Hammerhead both perfect 5-5,
+  Hammerhead short-grid vs Kontio perfect 2-8, both short-grid 9-2 - an
+  isolation run (20 battles, both grid for own spots) gave grid reply 12-5,
+  short-list 13-3, so the lean is the grid search's (already the default),
+  not the short list's. Benchmark ~3.5 s -> 2.1 s (HP 501 / 495). New:
+  `ranged_combat.turned_option`; tests short_list_reply_follows_its_rule,
+  damage_drops_sit_on_bracket_ends; test_replay reads the outcome from the
+  result instead of pinning it. Reference logs updated (all 15 - intended).
 - **2026-10-21 (Claude):** Daniel's answers: Thumper 20 shots a ton / 5
   heat, Sniper 10 / 10 (equipment.json; no more unlimited-ammo stub); homing
   rounds' 5 AE hits every other unit in the hex; TAG can designate the

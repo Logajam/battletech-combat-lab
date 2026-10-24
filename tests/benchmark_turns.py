@@ -15,7 +15,8 @@ speed pass, 11.8 s after it, ~14.5 s with all seven physical attacks,
 about 25% less after the 2026-10-20 memo sharing (21.5 s -> 16.3 s on a
 slower machine), ~13.4 s after the 2026-10-21 speed pass, ~3.5 s with the
 grid search as the default (2026-10-21; HP 495 / 495 - 501 / 495 with
-config.MOVEMENT_SEARCH = MOVEMENT_ASSUMED_ENEMY_SEARCH = "exhaustive").
+config.MOVEMENT_SEARCH = MOVEMENT_ASSUMED_ENEMY_SEARCH = "exhaustive"), ~2.1 s with the
+short-list look-ahead as the default (2026-10-24; HP 501 / 495).
 Parallel batches (config.WORKERS) don't show here - this is one battle.
 """
 

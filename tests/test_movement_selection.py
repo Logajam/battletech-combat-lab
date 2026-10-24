@@ -809,6 +809,64 @@ def per_side_search_settings():
     assert ms.assumed_enemy_search(b) == config.MOVEMENT_ASSUMED_ENEMY_SEARCH
 
 
+@check
+def short_list_reply_follows_its_rule():
+    """The "short_list" reply model (Daniel, 2026-10-24): for sampled first-
+    mover spots c, the states it looks at are exactly one per (hex, mode) at a
+    short-list distance from c or on the replier's own hex, each with the best
+    TMM any reachable state of that hex and mode has (least MP on a tie),
+    facing c; and the modeled reply is the best of them by the objective
+    (brute force over the same states)."""
+    mover, other = fresh("0808", "N"), fresh("0911", "NW")
+    me, them = ms._Side(mover), ms._Side(other)
+    ev1 = ranged_combat.MoveEvaluator(mover, other, TERRAIN)
+    prepared1 = ev1.prepare(ms.reduced_options(mover, TERRAIN, exclude_hex=other.hex))
+    ev2 = ranged_combat.MoveEvaluator(other, mover, TERRAIN)
+    prepared2 = ev2.prepare(ms._opponent_options(other, TERRAIN))
+    distances = ms.short_list_distances(other, mover)
+    assert 1 in distances and len(distances) <= 1 + 2 * config.MOVEMENT_SHORT_LIST_DROPS, distances
+    best_fc = {}
+    for o in prepared2:
+        k = (o.label, o.mode)
+        best_fc[k] = max(best_fc.get(k, (-1, 0)), (o.fc, -o.mp_spent))
+    saved = config.MOVEMENT_ASSUMED_ENEMY_SEARCH
+    config.MOVEMENT_ASSUMED_ENEMY_SEARCH = "short_list"
+    try:
+        compared = 0
+        for c in random.Random(7).sample(prepared1, 25):
+            states, psr = ms.short_list_states(c, prepared2, other, mover, them, None)
+            want = {k for k in best_fc if k[0] != c.label and
+                    (k[0] == other.hex or los.hex_distance(xy(k[0]), c.hex_xy) in distances)}
+            assert {(s.label, s.mode) for s in states} == want, c.label
+            assert len(states) == len(want)
+            for s in states:
+                assert (s.fc, -s.mp_spent) == best_fc[(s.label, s.mode)], (s.label, s.mode)
+                assert s.facing == combat._direction_facing(s.hex_xy, c.hex_xy), (s.label, c.label)
+            reply = ms._modeled_reply(c, ev2, prepared2, them, me, other, c.hex_xy, TERRAIN)
+            rows = [(ms._objective(r.dealt, r.received, me.exposure[r.side_on_defender],
+                                   them.exposure[r.side_on_mover], psr[(r.hex, r.facing, r.mode, r.fc, r.mp_spent)]), r)
+                    for r in ev2.evaluate(c.label, c.facing_compass, c.fc, c.mode, c.mp_spent, states)]
+            if not any(r.dealt > 0 for _, r in rows):
+                continue                   # closing-fallback case: covered by its own check
+            got = ms._objective(reply.dealt, reply.received, me.exposure[reply.side_on_defender],
+                                them.exposure[reply.side_on_mover],
+                                psr[(reply.hex, reply.facing, reply.mode, reply.fc, reply.mp_spent)])
+            assert abs(got - max(s for s, _ in rows)) < TOL, (c.label, got)
+            compared += 1
+        assert compared >= 5, compared
+    finally:
+        config.MOVEMENT_ASSUMED_ENEMY_SEARCH = saved
+
+
+@check
+def damage_drops_sit_on_bracket_ends():
+    """The short list's damage drops are the ends of weapon range brackets:
+    every drop distance is some live weapon's short, medium or long range."""
+    ends = {w.weapon_range[b] for w in ms._weapon_ranges(ASYMPTOTE) for b in ("short", "medium", "long")}
+    drops = ms.damage_drops(ASYMPTOTE, 3)
+    assert drops and drops <= ends, (drops, ends)
+
+
 if __name__ == "__main__":
     failures = 0
     for fn in CHECKS:

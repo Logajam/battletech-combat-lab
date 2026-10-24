@@ -296,6 +296,14 @@ MOVEMENT_TWO_PLY = True          # False: the first mover scores against the ene
 #                  A second mover (knowing where its enemy stands) also always looks
 #                  at the 6 hexes around the enemy (melee).
 #   "exhaustive" - every reachable spot ("perfect"; the original).
+#   "short_list" - MOVEMENT_ASSUMED_ENEMY_SEARCH only (Daniel's "simple short list",
+#                  2026-10-24): the first mover looks for the reply only on a rule-of-
+#                  thumb list of hexes - next to the first mover, the replier's own
+#                  hex, and the hexes at the MOVEMENT_SHORT_LIST_DROPS ranges where
+#                  the replier's damage drops most, or one past where the first
+#                  mover's does. Each hex is scored once per movement mode at its
+#                  best TMM, facing the first mover (its facing isn't searched).
+#                  An immobile or prone replier keeps the full model.
 # MOVEMENT_SEARCH: how a mech picks its OWN spot (first mover: which spots get the
 # two-ply look-ahead; second mover: its real pick).
 # MOVEMENT_ASSUMED_ENEMY_SEARCH: how a first mover ASSUMES the second mover picks its
@@ -304,8 +312,14 @@ MOVEMENT_TWO_PLY = True          # False: the first mover scores against the ene
 # close enough"): MECH_RED_CONFIG / MECH_BLUE_CONFIG may set "search" and
 # "assumes_enemy_search" to override these two for that mech.
 MOVEMENT_SEARCH = "grid"
-MOVEMENT_ASSUMED_ENEMY_SEARCH = "grid"
+# "short_list" is the default since 2026-10-24 (Daniel: "we push 'Simple Short list' for the
+# first movers evaluation"); "grid" was the default before that.
+MOVEMENT_ASSUMED_ENEMY_SEARCH = "short_list"
 MOVEMENT_SEARCH_STARTS = 1      # "grid": how many of the best net hexes to follow uphill from
+# "short_list": how many damage-drop ranges per mech go on the list, and the pre-to-hit
+# number the rough damage-by-range curve is read at (gunnery 4 + about 2 for movement).
+MOVEMENT_SHORT_LIST_DROPS = 2
+MOVEMENT_SHORT_LIST_PRE_TN = 6
 # "grid": which of the two mirror-image 1-in-7 nets (2026-10-21, Daniel's spin A/B). The
 # range-3 net hexes are "2 hexes out, then 1 turning clockwise" or "... counter-clockwise".
 MOVEMENT_GRID_SPIN = "clockwise"

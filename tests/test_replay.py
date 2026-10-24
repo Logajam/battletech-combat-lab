@@ -23,8 +23,10 @@ import INTEGRATION__config as config  # noqa: E402 - registers bare "config" fir
 import INTEGRATION__orchestrator as orchestrator  # noqa: E402
 import INTEGRATION__replay as replay  # noqa: E402
 
-# Battle 1 of seed 2167380083587462785 (Kontio vs Hammerhead): four turns, ends
-# with the Hammerhead pushed off the board.
+# Battle 1 of seed 2167380083587462785 (Kontio vs Hammerhead) - a short battle
+# (chosen when it ended in four turns with the Hammerhead pushed off the board;
+# the checks below read the outcome from the result, so they hold whatever the
+# bot does, 2026-10-24).
 SEED = 2167380083587462785
 OUT_DIR = tempfile.mkdtemp()
 
@@ -63,9 +65,10 @@ def steps_follow_the_turn():
     assert steps[-1]["phase"] == "Battle over"
     assert [s["phase"] for s in steps[3:6]] == ["Ranged attacks", "Physical attacks", "Heat and end phase"]
     last = steps[-1]["state"]
-    assert last["Blue"]["destroyed"] and not last["Red"]["destroyed"]
-    assert last["Blue"]["hp"] == RECORDED.blue.final_hp
-    assert data["result"]["causes"]["Blue"] == RECORDED.blue.cause_of_death
+    for side, stats in (("Red", RECORDED.red), ("Blue", RECORDED.blue)):
+        assert bool(last[side]["destroyed"]) == bool(stats.destroyed), side
+        assert last[side]["hp"] == stats.final_hp, side
+        assert data["result"]["causes"][side] == stats.cause_of_death, side
     # Every log line of the battle lands in exactly one step, VERBOSE or not.
     logged = sum(len(s["log"]) for s in steps)
     assert logged > 100, logged

@@ -51,7 +51,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 2 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 1383.926 = dealt 9.94 x0.99 + (HP 608.0 - received 1.78 x1.00 - PSR 0.00) / enemy future 4.78 x my future 10.83 [two-ply, 81 of 151 spots (grid search) x 228 replies (grid search); modeled reply Blue -> 1404 S Walk]
+  [Movement select] Red: score 1383.074 = dealt 9.94 x1.00 + (HP 608.0 - received 2.20 x1.00 - PSR 0.00) / enemy future 4.78 x my future 10.83 [two-ply, 81 of 151 spots (grid search) x 228 replies (short list); modeled reply Blue -> 0905 SW Run]
   [Movement] Red: 0310 NE -> 0310 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue: score 178.322 = dealt 1.78 x1.00 + (HP 410.0 - received 9.94 x0.99 - PSR 0.00) / enemy future 10.83 x my future 4.78 [enemy held at 0310; 60 spots with LOS]
   [Movement] Blue: 1502 SW -> 1404 S, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
@@ -68,7 +68,7 @@ WARNING: unrecognized global armor type 'Standard Armor' - defaulting to Standar
 
 === TURN 3 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 1189.556 = dealt 14.91 x0.99 + (HP 608.0 - received 5.35 x1.00 - PSR 0.00) / enemy future 4.44 x my future 8.66 [two-ply, 81 of 151 spots (grid search) x 228 replies (grid search); modeled reply Blue -> 1404 S Stand Still]
+  [Movement select] Red: score 1188.200 = dealt 9.94 x1.00 + (HP 608.0 - received 3.56 x1.00 - PSR 0.00) / enemy future 4.44 x my future 8.66 [two-ply, 81 of 151 spots (grid search) x 228 replies (short list); modeled reply Blue -> 1106 SW Run]
   [Movement] Red: 0310 NE -> 0310 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue: score 208.096 = dealt 5.35 x1.00 + (HP 410.0 - received 14.91 x0.99 - PSR 0.00) / enemy future 8.66 x my future 4.44 [enemy held at 0310; 77 spots with LOS]
   [Movement] Blue: 1404 S -> 1404 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
@@ -103,11 +103,10 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 9.
 
 === TURN 4 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 159.837 = dealt 1.78 x1.00 + (HP 395.0 - received 3.20 x0.91 - PSR 0.00) / enemy future 10.36 x my future 4.18 [two-ply, 116 of 228 spots (grid search) x 151 replies (grid search); modeled reply Red -> 0611 NE Run]
-  [Movement] Blue: 1404 S -> 1405 SE, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Blue: score 160.047 = dealt 1.21 x1.00 + (HP 395.0 - received 1.07 x0.91 - PSR 0.00) / enemy future 10.36 x my future 4.18 [two-ply, 116 of 228 spots (grid search) x 151 replies (short list); modeled reply Red -> 0607 NE Run]
+  [Movement] Blue: 1404 S -> 1405 S, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: score 1491.868 = dealt 3.20 x0.91 + (HP 602.0 - received 1.78 x1.00 - PSR 0.00) / enemy future 4.18 x my future 10.36 [enemy held at 1405; 7 spots with LOS]
   [Movement] Red: 0310 NE -> 0611 NE, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
   [Ranged] Blue -> Red: range 10, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 1 + heat 0); firing ['LRM 20'] (weapon heat 6 of budget 11 = max 4 + sink 10 - current 2 - movement 1 - other 0; expected dmg 1.78)
     LRM 20: needs 9 (range mod +2), rolled 5 -> miss [IS Ammo LRM-20: 0 shots left]
   [Ranged] Red -> Blue: range 10, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 3 + heat 0); firing ['ISLRM20', 'ISGaussRifle', 'ISERLargeLaser'] (weapon heat 19 of budget 21 = max 4 + sink 20 - current 1 - movement 2 - other 0; expected dmg 2.97)
@@ -117,15 +116,14 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 9.
   [Heat] Red: 1 + movement 2 + weapons 19 + engine 0 - sinks 20 -> 2
   [Heat] Blue: 2 + movement 1 + weapons 6 + engine 0 - sinks 10 -> 0
   -- end of turn 4: Red @ 0611 NE: HP 450, pilot hits 1, engine 0, gyro 0, heat 2
-  -- end of turn 4: Blue @ 1405 SE: HP 288, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 4: Blue @ 1405 S: HP 288, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 5 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 182.378 = dealt 7.49 x1.00 + (HP 395.0 - received 10.67 x0.91 - PSR 0.00) / enemy future 8.88 x my future 4.03 [two-ply, 100 of 258 spots (grid search) x 171 replies (grid search); modeled reply Red -> 0611 NE Stand Still]
-  [Movement] Blue: 1405 SE -> 1405 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Blue: score 181.954 = dealt 9.27 x1.00 + (HP 395.0 - received 16.01 x0.91 - PSR 0.00) / enemy future 8.88 x my future 4.03 [two-ply, 103 of 279 spots (grid search) x 171 replies (short list); modeled reply Red -> 0910 NE Walk]
+  [Movement] Blue: 1405 S -> 1405 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Red: score 1319.414 = dealt 10.67 x0.91 + (HP 602.0 - received 7.49 x1.00 - PSR 0.00) / enemy future 4.03 x my future 8.88 [enemy held at 1405; 58 spots with LOS]
   [Movement] Red: 0611 NE -> 0611 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
   [Ranged] Blue -> Red: range 10, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['LRM 20', 'LRM 20'] (weapon heat 12 of budget 14 = max 4 + sink 10 - current 0 - movement 0 - other 0; expected dmg 7.49)
     LRM 20: needs 7 (range mod +2), rolled 7 -> HIT [IS Ammo LRM-20: 5 shots left]
     LRM 20: needs 7 (range mod +2), rolled 7 -> HIT [IS Ammo LRM-20: 4 shots left]
@@ -178,227 +176,292 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
   [Heat] Red: 2 + movement 0 + weapons 21 + engine 0 - sinks 20 -> 3
   [Heat] Blue: 0 + movement 0 + weapons 12 + engine 0 - sinks 10 -> 2
   -- end of turn 5: Red @ 0611 NE: HP 426, pilot hits 1, engine 0, gyro 0, heat 3
-  -- end of turn 5: Blue @ 1405 SE: HP 261, pilot hits 0, engine 0, gyro 0, heat 2
+  -- end of turn 5: Blue @ 1405 S: HP 261, pilot hits 0, engine 0, gyro 0, heat 2
 
 === TURN 6 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 1088.892 = dealt 3.59 x0.99 + (HP 578.0 - received 1.21 x1.00 - PSR 0.00) / enemy future 6.11 x my future 11.50 [two-ply, 42 of 171 spots (grid search) x 258 replies (grid search); modeled reply Blue -> 1510 S Run]
-  [Movement] Red: 0611 NE -> 0709 NE, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
-  [Movement select] Blue: score 194.887 = dealt 1.21 x1.00 + (HP 368.0 - received 3.59 x0.99 - PSR 0.00) / enemy future 11.50 x my future 6.11 [enemy held at 0709; 23 spots with LOS]
-  [Movement] Blue: 1405 SE -> 1510 S, Run (6 MP, 5 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
-  [Ranged] Red -> Blue: range 8, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 1 + heat 0); firing ['ISLRM20', 'ISGaussRifle', 'ISERLargeLaser'] (weapon heat 19 of budget 19 = max 4 + sink 20 - current 3 - movement 2 - other 0; expected dmg 2.97)
+  [Movement select] Red: score 1090.221 = dealt 3.62 x1.00 + (HP 578.0 - received 0.53 x1.00 - PSR 0.00) / enemy future 6.11 x my future 11.50 [two-ply, 44 of 171 spots (grid search) x 279 replies (short list); modeled reply Blue -> 1407 SW Run]
+  [Movement] Red: 0611 NE -> 0608 NE, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
+  [Movement select] Blue: score 194.715 = dealt 1.07 x1.00 + (HP 368.0 - received 3.62 x1.00 - PSR 0.00) / enemy future 11.50 x my future 6.11 [enemy held at 0608; 40 spots with LOS]
+  [Movement] Blue: 1405 S -> 1603 SW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
+  [Ranged] Red -> Blue: range 10, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 2 + heat 0); firing ['ISLRM20', 'ISGaussRifle', 'ISERLargeLaser'] (weapon heat 19 of budget 19 = max 4 + sink 20 - current 3 - movement 2 - other 0; expected dmg 2.97)
     ISLRM20: needs 11 (range mod +2), rolled 8 -> miss [ISLRM20 Ammo: 0 shots left]
     ISGaussRifle: needs 11 (range mod +2), rolled 7 -> miss [ISGauss Ammo: 2 shots left]
     ISERLargeLaser: needs 11 (range mod +2), rolled 9 -> miss
-  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
-  [Ranged] Blue -> Red: range 8, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 1 + heat 0); firing ['LRM 20', 'Medium Laser'] (weapon heat 9 of budget 10 = max 4 + sink 10 - current 2 - movement 2 - other 0; expected dmg 1.21)
+  [Ranged] Blue -> Red: range 10, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 2 + heat 0); firing ['LRM 20'] (weapon heat 6 of budget 11 = max 4 + sink 10 - current 2 - movement 1 - other 0; expected dmg 1.07)
     LRM 20: needs 10 (range mod +2), rolled 9 -> miss [IS Ammo LRM-20: 3 shots left]
-    Medium Laser: needs 12 (range mod +4), rolled 6 -> miss
   [Heat] Red: 3 + movement 2 + weapons 19 + engine 0 - sinks 20 -> 4
-  [Heat] Blue: 2 + movement 2 + weapons 9 + engine 0 - sinks 10 -> 3
-  -- end of turn 6: Red @ 0709 NE: HP 426, pilot hits 1, engine 0, gyro 0, heat 4
-  -- end of turn 6: Blue @ 1510 S: HP 261, pilot hits 0, engine 0, gyro 0, heat 3
+  [Heat] Blue: 2 + movement 1 + weapons 6 + engine 0 - sinks 10 -> 0
+  -- end of turn 6: Red @ 0608 NE: HP 426, pilot hits 1, engine 0, gyro 0, heat 4
+  -- end of turn 6: Blue @ 1603 SW: HP 261, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 7 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 1098.535 = dealt 28.98 x0.99 + (HP 578.0 - received 9.49 x1.00 - PSR 0.00) / enemy future 5.43 x my future 10.23 [two-ply, 84 of 163 spots (grid search) x 252 replies (grid search); modeled reply Blue -> 1113 SW Run]
-  [Movement] Red: 0709 NE -> 0709 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Movement select] Blue: score 189.762 = dealt 9.49 x1.00 + (HP 368.0 - received 28.98 x0.99 - PSR 0.00) / enemy future 10.23 x my future 5.43 [enemy held at 0709; 36 spots with LOS]
-  [Movement] Blue: 1510 S -> 1113 SW, Run (6 MP, 5 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
-  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
-  [Ranged] Red -> Blue: range 6, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 2 + LOS 0 + heat 0); firing ['ISLRM20', 'ISGaussRifle', 'ISERLargeLaser'] (weapon heat 19 of budget 20 = max 4 + sink 20 - current 4 - movement 0 - other 0; expected dmg 24.02)
-    ISLRM20: needs 7 (range mod +1), rolled 8 -> HIT [ISLRM20 Ammo: 5 shots left]
-    ISGaussRifle: needs 6 (range mod +0), rolled 6 -> HIT [ISGauss Ammo: 1 shots left]
-    ISERLargeLaser: needs 6 (range mod +0), rolled 6 -> HIT
-  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
-  [Ranged] Blue -> Red: range 6, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['LRM 20', 'Medium Laser'] (weapon heat 9 of budget 9 = max 4 + sink 10 - current 3 - movement 2 - other 0; expected dmg 5.83)
-    LRM 20: needs 7 (range mod +1), rolled 9 -> HIT [IS Ammo LRM-20: 2 shots left]
-    Medium Laser: needs 8 (range mod +2), rolled 7 -> miss
+  [Movement select] Red: score 1027.112 = dealt 12.08 x1.00 + (HP 578.0 - received 2.14 x1.00 - PSR 0.00) / enemy future 5.80 x my future 10.23 [two-ply, 84 of 164 spots (grid search) x 220 replies (short list); modeled reply Blue -> 1404 SW Run]
+  [Movement] Red: 0608 NE -> 0608 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+  [Movement select] Blue: score 203.849 = dealt 5.35 x1.00 + (HP 368.0 - received 18.11 x1.00 - PSR 0.00) / enemy future 10.23 x my future 5.80 [enemy held at 0608; 63 spots with LOS]
+  [Movement] Blue: 1603 SW -> 1603 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red -> Blue: range 10, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['ISLRM20', 'ISGaussRifle', 'ISERLargeLaser'] (weapon heat 19 of budget 20 = max 4 + sink 20 - current 4 - movement 0 - other 0; expected dmg 14.87)
+    ISLRM20: needs 8 (range mod +2), rolled 7 -> miss [ISLRM20 Ammo: 5 shots left]
+    ISGaussRifle: needs 8 (range mod +2), rolled 4 -> miss [ISGauss Ammo: 1 shots left]
+    ISERLargeLaser: needs 8 (range mod +2), rolled 5 -> miss
+  [Ranged] Blue -> Red: range 10, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['LRM 20', 'LRM 20'] (weapon heat 12 of budget 14 = max 4 + sink 10 - current 0 - movement 0 - other 0; expected dmg 5.35)
+    LRM 20: needs 8 (range mod +2), rolled 8 -> HIT [IS Ammo LRM-20: 2 shots left]
+    LRM 20: needs 8 (range mod +2), rolled 6 -> miss [IS Ammo LRM-20: 1 shots left]
   [AMS] Red's ISAntiMissileSystem engages Blue's LRM 20 (cuts 6.28 expected; +1 heat; ISAMS Ammo: 7 shots left).
-    ISLRM20 hit: cluster roll 3 on the 20-column table -> 6 connect (6 dmg).
-      Group 1/2: Hit location roll 8 (right table): Center Torso.
-5 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 5 armor pts destroyed at armor (33 -> 28 remaining).
-      Group 2/2: Hit location roll 8 (right table): Center Torso.
+    LRM 20 hit: cluster roll 6 -4 (AMS ISAntiMissileSystem) on the 20-column table -> 6 connect (6 dmg).
+      Group 1/2: Hit location roll 9 (front table): Left Leg.
+5 damage (MISSILE) incoming to Left Leg (armor).
+  [STANDARD/MISSILE] 5 armor pts destroyed at armor (34 -> 29 remaining).
+      Group 2/2: Hit location roll 7 (front table): Center Torso.
 1 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 1 armor pts destroyed at armor (28 -> 27 remaining).
-    ISGaussRifle hit for 15:
-      Hit location roll 7 (right table): Right Torso.
-15 damage (BALLISTIC) incoming to Right Torso (armor).
-  [STANDARD/BALLISTIC] 15 armor pts destroyed at armor (19 -> 4 remaining).
-    ISERLargeLaser hit for 8:
-      Hit location roll 7 (right table): Right Torso.
-8 damage (ENERGY) incoming to Right Torso (armor).
-  [STANDARD/ENERGY] 4 armor pts destroyed at armor (4 -> 0 remaining). 4 damage applied to structure [STANDARD] (15 -> 11/15 remaining).
-  Check for possible critical. Roll a 5.
-    No critical hit.
-    LRM 20 hit: cluster roll 5 -4 (AMS ISAntiMissileSystem) = 1 - below 2, every missile destroyed, no damage.
-PSR trigger: 29 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
-  Succeeded - remains standing.
+  [STANDARD/MISSILE] 1 armor pts destroyed at armor (42 -> 41 remaining).
   [Heat] Red: 4 + movement 0 + weapons 20 + engine 0 - sinks 20 -> 4
-  [Heat] Blue: 3 + movement 2 + weapons 9 + engine 0 - sinks 10 -> 4
-  -- end of turn 7: Red @ 0709 NE: HP 426, pilot hits 1, engine 0, gyro 0, heat 4
-  -- end of turn 7: Blue @ 1113 SW: HP 232, pilot hits 0, engine 0, gyro 0, heat 4
+  [Heat] Blue: 0 + movement 0 + weapons 12 + engine 0 - sinks 10 -> 2
+  -- end of turn 7: Red @ 0608 NE: HP 420, pilot hits 1, engine 0, gyro 0, heat 4
+  -- end of turn 7: Blue @ 1603 SW: HP 261, pilot hits 0, engine 0, gyro 0, heat 2
 
 === TURN 8 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 123.109 = dealt 2.78 x1.00 + (HP 335.0 - received 17.92 x1.00 - PSR 0.00) / enemy future 12.89 x my future 4.89 [two-ply, 61 of 250 spots (grid search) x 163 replies (grid search); modeled reply Red -> 0806 NE Run]
-  [Movement] Blue: 1113 SW -> 0810 N, Run (6 MP, 4 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
-  [Movement select] Red: score 1533.680 = dealt 17.92 x1.00 + (HP 578.0 - received 2.78 x1.00 - PSR 0.00) / enemy future 4.89 x my future 12.89 [enemy held at 0810; 74 spots with LOS]
-  [Movement] Red: 0709 NE -> 0806 NE, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Blue -> Red: range 4, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 8 = max 4 + sink 10 - current 4 - movement 2 - other 0; expected dmg 2.78)
-    Medium Laser: needs 9 (range mod +2), rolled 5 -> miss
-    Medium Laser: needs 9 (range mod +2), rolled 7 -> miss
-  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
-  [Ranged] Red -> Blue: range 4, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['ISGaussRifle', 'ISERLargeLaser'] (weapon heat 13 of budget 18 = max 4 + sink 20 - current 4 - movement 2 - other 0; expected dmg 13.42)
-    ISGaussRifle: needs 7 (range mod +0), rolled 7 -> HIT [ISGauss Ammo: 0 shots left]
-    ISERLargeLaser: needs 7 (range mod +0), rolled 6 -> miss
-    ISGaussRifle hit for 15:
-      Hit location roll 10 (front table): Left Arm.
-15 damage (BALLISTIC) incoming to Left Arm (armor).
-  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 11 damage applied to structure [STANDARD] (11 -> 0/11 remaining).
-  Left Arm destroyed with no live explosive components - no critical roll.
-  Left Arm DESTROYED!
-  All critical slots in Left Arm marked DESTROYED.
-  4 damage remains, transfers to Left Torso.
-  [STANDARD/BALLISTIC] 4 armor pts destroyed at armor (24 -> 20 remaining).
-  [Heat] Red: 4 + movement 2 + weapons 13 + engine 0 - sinks 20 -> 0
-  [Heat] Blue: 4 + movement 2 + weapons 6 + engine 0 - sinks 10 -> 2
-  -- end of turn 8: Red @ 0806 NE: HP 426, pilot hits 1, engine 0, gyro 0, heat 0
-  -- end of turn 8: Blue @ 0810 N: HP 217, pilot hits 0, engine 0, gyro 0, heat 2
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 960.717 = dealt 18.11 x1.00 + (HP 572.0 - received 5.35 x1.00 - PSR 0.00) / enemy future 5.53 x my future 9.20 [two-ply, 84 of 164 spots (grid search) x 220 replies (short list); modeled reply Blue -> 1603 SW Stand Still]
+  [Movement] Red: 0608 NE -> 0608 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+  [Movement select] Blue: score 215.684 = dealt 5.35 x1.00 + (HP 368.0 - received 18.11 x1.00 - PSR 0.00) / enemy future 9.20 x my future 5.53 [enemy held at 0608; 63 spots with LOS]
+  [Movement] Blue: 1603 SW -> 1603 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red -> Blue: range 10, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['ISLRM20', 'ISGaussRifle', 'ISERLargeLaser'] (weapon heat 19 of budget 20 = max 4 + sink 20 - current 4 - movement 0 - other 0; expected dmg 14.87)
+    ISLRM20: needs 8 (range mod +2), rolled 8 -> HIT [ISLRM20 Ammo: 4 shots left]
+    ISGaussRifle: needs 8 (range mod +2), rolled 7 -> miss [ISGauss Ammo: 0 shots left]
+    ISERLargeLaser: needs 8 (range mod +2), rolled 7 -> miss
+  [Ranged] Blue -> Red: range 10, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['LRM 20', 'LRM 20'] (weapon heat 12 of budget 12 = max 4 + sink 10 - current 2 - movement 0 - other 0; expected dmg 5.35)
+    LRM 20: needs 8 (range mod +2), rolled 5 -> miss [IS Ammo LRM-20: 0 shots left]
+    LRM 20: needs 8 (range mod +2), rolled 5 -> miss [IS Ammo LRM-20: 5 shots left]
+    ISLRM20 hit: cluster roll 11 on the 20-column table -> 20 connect (20 dmg).
+      Group 1/4: Hit location roll 7 (front table): Center Torso.
+5 damage (MISSILE) incoming to Center Torso (armor).
+  [STANDARD/MISSILE] 5 armor pts destroyed at armor (33 -> 28 remaining).
+      Group 2/4: Hit location roll 6 (front table): Right Torso.
+5 damage (MISSILE) incoming to Right Torso (armor).
+  [STANDARD/MISSILE] 5 armor pts destroyed at armor (19 -> 14 remaining).
+      Group 3/4: Hit location roll 5 (front table): Right Leg.
+5 damage (MISSILE) incoming to Right Leg (armor).
+  [STANDARD/MISSILE] 5 armor pts destroyed at armor (24 -> 19 remaining).
+      Group 4/4: Hit location roll 7 (front table): Center Torso.
+5 damage (MISSILE) incoming to Center Torso (armor).
+  [STANDARD/MISSILE] 5 armor pts destroyed at armor (28 -> 23 remaining).
+PSR trigger: 20 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
+  Succeeded - remains standing.
+  [Heat] Red: 4 + movement 0 + weapons 19 + engine 0 - sinks 20 -> 3
+  [Heat] Blue: 2 + movement 0 + weapons 12 + engine 0 - sinks 10 -> 4
+  -- end of turn 8: Red @ 0608 NE: HP 420, pilot hits 1, engine 0, gyro 0, heat 3
+  -- end of turn 8: Blue @ 1603 SW: HP 241, pilot hits 0, engine 0, gyro 0, heat 4
 
 === TURN 9 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 89.845 = dealt 6.74 x1.00 + (HP 309.0 - received 29.81 x0.91 - PSR 0.00) / enemy future 13.73 x my future 4.05 [two-ply, 57 of 298 spots (grid search) x 156 replies (grid search); modeled reply Red -> 0806 S Walk]
-  [Movement] Blue: 0810 N -> 0713 NE, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
-  [Movement select] Red: score 1964.450 = dealt 29.81 x0.91 + (HP 578.0 - received 6.74 x1.00 - PSR 0.00) / enemy future 4.05 x my future 13.73 [enemy held at 0713; 80 spots with LOS]
-  [Movement] Red: 0806 NE -> 0907 S, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Blue -> Red: range 7, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['LRM 20', 'Medium Laser'] (weapon heat 9 of budget 11 = max 4 + sink 10 - current 2 - movement 1 - other 0; expected dmg 6.74)
-    LRM 20: needs 5 (range mod +0), rolled 4 -> miss [IS Ammo LRM-20: 1 shots left]
-    Medium Laser: needs 9 (range mod +4), rolled 6 -> miss
-  [Ranged] Red -> Blue: range 7, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['ISLRM20', 'ISGaussRifle', 'ISERLargeLaser'] (weapon heat 19 of budget 23 = max 4 + sink 20 - current 0 - movement 1 - other 0; expected dmg 25.78)
-    ISLRM20: needs 6 (range mod +0), rolled 5 -> miss [ISLRM20 Ammo: 4 shots left]
-    ISGaussRifle: needs 6 (range mod +0), rolled 8 -> HIT [ISGauss Ammo: 7 shots left]
-    ISERLargeLaser: needs 6 (range mod +0), rolled 6 -> HIT
-    ISGaussRifle hit for 15:
-      Hit location roll 7 (left table): Left Torso.
-15 damage (BALLISTIC) incoming to Left Torso (armor).
-  [STANDARD/BALLISTIC] 15 armor pts destroyed at armor (20 -> 5 remaining).
-    ISERLargeLaser hit for 8:
-      Hit location roll 6 (left table): Left Leg.
-8 damage (ENERGY) incoming to Left Leg (armor).
-  [STANDARD/ENERGY] 8 armor pts destroyed at armor (21 -> 13 remaining).
-PSR trigger: 23 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
-  Succeeded - remains standing.
-  [Heat] Red: 0 + movement 1 + weapons 19 + engine 0 - sinks 20 -> 0
-  [Heat] Blue: 2 + movement 1 + weapons 9 + engine 0 - sinks 10 -> 2
-  -- end of turn 9: Red @ 0907 S: HP 426, pilot hits 1, engine 0, gyro 0, heat 0
-  -- end of turn 9: Blue @ 0713 NE: HP 194, pilot hits 0, engine 0, gyro 0, heat 2
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 1169.466 = dealt 12.11 x1.00 + (HP 572.0 - received 1.07 x1.00 - PSR 0.00) / enemy future 5.03 x my future 10.20 [two-ply, 84 of 164 spots (grid search) x 220 replies (short list); modeled reply Blue -> 1404 SW Run]
+  [Movement] Red: 0608 NE -> 0608 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+  [Movement select] Blue: score 166.805 = dealt 1.07 x1.00 + (HP 348.0 - received 12.01 x1.00 - PSR 0.00) / enemy future 10.20 x my future 5.03 [enemy held at 0608; 82 spots with LOS]
+  [Movement] Blue: 1603 SW -> 1404 S, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red -> Blue: range 8, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 1 + LOS 2 + heat 0); firing ['ISLRM20', 'ISGaussRifle', 'ISERLargeLaser'] (weapon heat 19 of budget 21 = max 4 + sink 20 - current 3 - movement 0 - other 0; expected dmg 9.92)
+    ISLRM20: needs 9 (range mod +2), rolled 5 -> miss [ISLRM20 Ammo: 3 shots left]
+    ISGaussRifle: needs 9 (range mod +2), rolled 3 -> miss [ISGauss Ammo: 7 shots left]
+    ISERLargeLaser: needs 9 (range mod +2), rolled 4 -> miss
+  [Ranged] Blue -> Red: range 8, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0); firing ['LRM 20'] (weapon heat 6 of budget 8 = max 4 + sink 10 - current 4 - movement 2 - other 0; expected dmg 1.07)
+    LRM 20: needs 10 (range mod +2), rolled 6 -> miss [IS Ammo LRM-20: 4 shots left]
+  [Heat] Red: 3 + movement 0 + weapons 19 + engine 0 - sinks 20 -> 2
+  [Heat] Blue: 4 + movement 2 + weapons 6 + engine 0 - sinks 10 -> 2
+  -- end of turn 9: Red @ 0608 NE: HP 420, pilot hits 1, engine 0, gyro 0, heat 2
+  -- end of turn 9: Blue @ 1404 S: HP 241, pilot hits 0, engine 0, gyro 0, heat 2
 
 === TURN 10 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 70.209 = dealt 6.74 x1.00 + (HP 286.0 - received 33.74 x0.98 - PSR 0.00) / enemy future 14.78 x my future 3.71 [two-ply, 72 of 277 spots (grid search) x 143 replies (grid search); modeled reply Red -> 0908 SW Walk]
-  [Movement] Blue: 0713 NE -> 0412 SE, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
-  [Movement select] Red: score 2308.517 = dealt 33.74 x0.98 + (HP 578.0 - received 6.74 x1.00 - PSR 0.00) / enemy future 3.71 x my future 14.78 [enemy held at 0412; 91 spots with LOS]
-  [Movement] Red: 0907 S -> 0807 SW, Walk (2 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
-  [Ranged] Blue -> Red: range 7, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['LRM 20', 'Medium Laser'] (weapon heat 9 of budget 11 = max 4 + sink 10 - current 2 - movement 1 - other 0; expected dmg 6.74)
-    LRM 20: needs 5 (range mod +0), rolled 12 -> HIT [IS Ammo LRM-20: 0 shots left]
-    Medium Laser: needs 9 (range mod +4), rolled 7 -> miss
-  [Ranged] Red -> Blue: range 7, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['ISLRM20', 'ISGaussRifle', 'ISERLargeLaser'] (weapon heat 19 of budget 23 = max 4 + sink 20 - current 0 - movement 1 - other 0; expected dmg 25.78)
-    ISLRM20: needs 6 (range mod +0), rolled 11 -> HIT [ISLRM20 Ammo: 3 shots left]
-    ISGaussRifle: needs 6 (range mod +0), rolled 9 -> HIT [ISGauss Ammo: 6 shots left]
-    ISERLargeLaser: needs 6 (range mod +0), rolled 5 -> miss
-  [AMS] Red's ISAntiMissileSystem engages Blue's LRM 20 (cuts 6.28 expected; +1 heat; ISAMS Ammo: 6 shots left).
-    LRM 20 hit: cluster roll 6 -4 (AMS ISAntiMissileSystem) on the 20-column table -> 6 connect (6 dmg).
-      Group 1/2: Hit location roll 11 (front table): Left Arm.
-5 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 5 armor pts destroyed at armor (29 -> 24 remaining).
-      Group 2/2: Hit location roll 10 (front table): Left Arm.
-1 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 1 armor pts destroyed at armor (24 -> 23 remaining).
-    ISLRM20 hit: cluster roll 8 on the 20-column table -> 12 connect (12 dmg).
-      Group 1/3: Hit location roll 4 (left table): Left Arm.
-5 damage (MISSILE) incoming to Left Arm (armor).
-  Left Arm already destroyed - damage transfers to Left Torso.
-  [STANDARD/MISSILE] 5 armor pts destroyed at armor (5 -> 0 remaining).
-      Group 2/3: Hit location roll 10 (left table): Right Arm.
-5 damage (MISSILE) incoming to Right Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (2 -> 0 remaining). 3 damage applied to structure [STANDARD] (11 -> 8/11 remaining).
-  Check for possible critical. Roll a 9.
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 1168.021 = dealt 12.11 x1.00 + (HP 572.0 - received 1.78 x1.00 - PSR 0.00) / enemy future 4.61 x my future 9.35 [two-ply, 48 of 164 spots (grid search) x 228 replies (short list); modeled reply Blue -> 1606 SW Run]
+  [Movement] Red: 0608 NE -> 0908 NE, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
+  [Movement select] Blue: score 168.429 = dealt 0.83 x1.00 + (HP 348.0 - received 8.24 x1.00 - PSR 0.00) / enemy future 9.35 x my future 4.61 [enemy held at 0908; 15 spots with LOS]
+  [Movement] Blue: 1404 S -> 1308 S, Run (6 MP, 4 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red -> Blue: range 4, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 2 + heat 0); firing ['ISLRM20', 'ISGaussRifle', 'ISERLargeLaser'] (weapon heat 19 of budget 20 = max 4 + sink 20 - current 2 - movement 2 - other 0; expected dmg 6.74)
+    ISLRM20: needs 12 (range mod +3), rolled 6 -> miss [ISLRM20 Ammo: 2 shots left]
+    ISGaussRifle: needs 9 (range mod +0), rolled 7 -> miss [ISGauss Ammo: 6 shots left]
+    ISERLargeLaser: needs 9 (range mod +0), rolled 6 -> miss
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's rear arc after that).
+  [Ranged] Blue -> Red: range 4, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 2 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 10 = max 4 + sink 10 - current 2 - movement 2 - other 0; expected dmg 0.83)
+    Medium Laser: needs 11 (range mod +2), rolled 8 -> miss
+    Medium Laser: needs 11 (range mod +2), rolled 5 -> miss
+  [Heat] Red: 2 + movement 2 + weapons 19 + engine 0 - sinks 20 -> 3
+  [Heat] Blue: 2 + movement 2 + weapons 6 + engine 0 - sinks 10 -> 0
+  -- end of turn 10: Red @ 0908 NE: HP 420, pilot hits 1, engine 0, gyro 0, heat 3
+  -- end of turn 10: Blue @ 1308 S: HP 241, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 11 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 1103.881 = dealt 12.11 x1.00 + (HP 572.0 - received 5.35 x1.00 - PSR 0.00) / enemy future 4.48 x my future 8.63 [two-ply, 81 of 123 spots (grid search) x 278 replies (short list); modeled reply Blue -> 1313 N Run]
+  [Movement] Red: 0908 NE -> 1007 SE, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
+  [Movement select] Blue: score 180.150 = dealt 4.17 x1.03 + (HP 348.0 - received 9.19 x1.00 - PSR 0.00) / enemy future 8.63 x my future 4.48 [enemy held at 1007; 74 spots with LOS]
+  [Movement] Blue: 1308 S -> 1207 S, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
+  [Ranged] Red -> Blue: range 2, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 3 + heat 0); firing ['ISLRM20', 'ISGaussRifle', 'ISERLargeLaser'] (weapon heat 19 of budget 20 = max 4 + sink 20 - current 3 - movement 1 - other 0; expected dmg 7.50)
+    ISLRM20: needs 13 (range mod +5), rolled 7 -> miss [ISLRM20 Ammo: 1 shots left]
+    ISGaussRifle: needs 9 (range mod +1), rolled 11 -> HIT [ISGauss Ammo: 5 shots left]
+    ISERLargeLaser: needs 8 (range mod +0), rolled 9 -> HIT
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's rear arc after that).
+  [Ranged] Blue -> Red: range 2, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 3 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 13 = max 4 + sink 10 - current 0 - movement 1 - other 0; expected dmg 4.17)
+    Medium Laser: needs 8 (range mod +0), rolled 5 -> miss
+    Medium Laser: needs 8 (range mod +0), rolled 6 -> miss
+    ISGaussRifle hit for 15:
+      Hit location roll 11 (right table): Left Leg.
+15 damage (BALLISTIC) incoming to Left Leg (armor).
+  [STANDARD/BALLISTIC] 15 armor pts destroyed at armor (21 -> 6 remaining).
+    ISERLargeLaser hit for 8:
+      Hit location roll 10 (right table): Left Arm.
+8 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 8 damage applied to structure [STANDARD] (11 -> 3/11 remaining).
+  Check for possible critical. Roll a 8.
     1 critical hit(s).
-  Critical hit pool at Right Arm:
+  Critical hit pool at Left Arm:
     1: Shoulder (slot 1)
     2: Upper Arm Actuator (slot 2)
     3: Lower Arm Actuator (slot 3)
     4: Hand Actuator (slot 4)
     5: Medium Laser (slot 5)
-    1/1 Criticals: Lower Arm Actuator hit.
-      Current crit slots in Right Arm: ['Shoulder', 'Upper Arm Actuator', 'DESTROYED', 'Hand Actuator', 'Medium Laser', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Group 3/3: Hit location roll 4 (left table): Left Arm.
-2 damage (MISSILE) incoming to Left Arm (armor).
-  Left Arm already destroyed - damage transfers to Left Torso.
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (15 -> 13/15 remaining).
+    1/1 Criticals: Shoulder hit.
+      Current crit slots in Left Arm: ['DESTROYED', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', 'Medium Laser', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+PSR trigger: 23 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 4.
+  Failed - falls.
+FALL (failed Attack Phase PSR): Archer ARC-2R takes 7 falling damage (1D6 4: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 10 -> Left Arm
+5 damage (PHYSICAL) incoming to Left Arm (armor).
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (3 -> 0/11 remaining).
+  Left Arm destroyed with no live explosive components - no critical roll.
+  Left Arm DESTROYED!
+  All critical slots in Left Arm marked DESTROYED.
+  2 damage remains, transfers to Left Torso.
+  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (24 -> 22 remaining).
+  Fall cluster (2 dmg): rolled 9 -> Left Leg
+2 damage (PHYSICAL) incoming to Left Leg (armor).
+  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (6 -> 4 remaining).
+  Seatbelt check: needs 5. Rolled 4. FAILED - pilot takes 1 hit (1/6).
+Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
+  Pilot stays conscious.
+  [Heat] Red: 3 + movement 1 + weapons 19 + engine 0 - sinks 20 -> 3
+  [Heat] Blue: 0 + movement 1 + weapons 6 + engine 0 - sinks 10 -> 0
+  -- end of turn 11: Red @ 1007 SE: HP 420, pilot hits 1, engine 0, gyro 0, heat 3
+  -- end of turn 11: Blue @ 1207 S: HP 211, pilot hits 1, engine 0, gyro 0, heat 0 [PRONE]
+
+=== TURN 12 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 1942.072 = dealt 18.47 x1.06 + (HP 572.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 3.33 x my future 11.18 [two-ply, 77 of 125 spots (grid search) x 1 replies (short list); modeled reply Blue -> 1207 S Run]
+  [Movement] Red: 1007 SE -> 1008 SE, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
+Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
+  Success - Archer ARC-2R is standing (remaining running MP 4).
+  [Movement select] Blue: score 116.638 = dealt 5.83 x1.03 + (HP 307.0 - received 9.71 x0.98 - PSR 0.00) / enemy future 11.18 x my future 4.16 [enemy held at 1008; 49 spots with LOS]
+  [Movement] Blue: 1207 S -> 1107 N, Run (4 MP, 1 hexes, 2 heat; budget walk 4 / run 6 / jump 0; stood up with 4 MP left)
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's rear arc after that).
+  [Ranged] Red -> Blue: range 2, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 3 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 8 of budget 20 = max 4 + sink 20 - current 3 - movement 1 - other 0; expected dmg 8.67)
+    ISMediumPulseLaser: needs 6 (range mod +0, modifiers -2), rolled 8 -> HIT
+    ISMediumPulseLaser: needs 6 (range mod +0, modifiers -2), rolled 6 -> HIT
+  [Ranged] Blue -> Red: range 2, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 12 = max 4 + sink 10 - current 0 - movement 2 - other 0; expected dmg 5.83)
+    Medium Laser: needs 7 (range mod +0), rolled 8 -> HIT
+    Medium Laser: needs 7 (range mod +0), rolled 7 -> HIT
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 6 (left table): Left Leg.
+6 damage (ENERGY) incoming to Left Leg (armor).
+  [STANDARD/ENERGY] 4 armor pts destroyed at armor (4 -> 0 remaining). 2 damage applied to structure [STANDARD] (15 -> 13/15 remaining).
+  Check for possible critical. Roll a 2.
+    No critical hit.
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 6 (left table): Left Leg.
+6 damage (ENERGY) incoming to Left Leg (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 6 damage applied to structure [STANDARD] (13 -> 7/15 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
-    ISGaussRifle hit for 15:
-      Hit location roll 6 (left table): Left Leg.
-15 damage (BALLISTIC) incoming to Left Leg (armor).
-  [STANDARD/BALLISTIC] 13 armor pts destroyed at armor (13 -> 0 remaining). 2 damage applied to structure [STANDARD] (15 -> 13/15 remaining).
-  Check for possible critical. Roll a 8.
-    1 critical hit(s).
-  Critical hit pool at Left Leg:
-    1: Hip (slot 1)
-    2: Upper Leg Actuator (slot 2)
-    3: Lower Leg Actuator (slot 3)
-    4: Foot Actuator (slot 4)
-    1/1 Criticals: Lower Leg Actuator hit.
-      Current crit slots in Left Leg: ['Hip', 'Upper Leg Actuator', 'DESTROYED', 'Foot Actuator', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Leg actuator hit at Left Leg (1 destroyed there) - walk MP now 3.
-PSR trigger: 27 armor+structure lost this phase (>=20) -> +1.
-PSR trigger: 1 leg actuator(s) destroyed at Left Leg this phase -> +1, one roll.
-Attack Phase PSR 1/2: needs 7 (Piloting 5 + +2). Rolled 7.
-Attack Phase PSR 2/2: needs 7 (Piloting 5 + +2). Rolled 8.
-  Succeeded - remains standing.
-  [Heat] Red: 0 + movement 1 + weapons 20 + engine 0 - sinks 20 -> 1
-  [Heat] Blue: 2 + movement 1 + weapons 9 + engine 0 - sinks 10 -> 2
-  [End] Blue is now CRIPPLED (BattleMech Manual definition).
-  -- end of turn 10: Red @ 0807 SW: HP 420, pilot hits 1, engine 0, gyro 0, heat 1
-  -- end of turn 10: Blue @ 0412 SE: HP 167, pilot hits 0, engine 0, gyro 0, heat 2
+    Medium Laser hit for 5:
+      Hit location roll 7 (left table): Left Torso.
+5 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (25 -> 20 remaining).
+    Medium Laser hit for 5:
+      Hit location roll 9 (left table): Right Torso.
+5 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (32 -> 27 remaining).
+  [Heat] Red: 3 + movement 1 + weapons 8 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 6 + engine 0 - sinks 10 -> 0
+  -- end of turn 12: Red @ 1008 SE: HP 410, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 12: Blue @ 1107 N: HP 199, pilot hits 1, engine 0, gyro 0, heat 0
 
-=== TURN 11 ===
+=== TURN 13 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 2642.042 = dealt 56.23 x1.04 + (HP 572.0 - received 11.76 x1.00 - PSR 0.00) / enemy future 3.67 x my future 16.93 [two-ply, 84 of 165 spots (grid search) x 152 replies (grid search); modeled reply Blue -> 0412 SE Stand Still]
-  [Movement] Red: 0807 SW -> 0807 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Movement select] Blue: score 53.700 = dealt 11.76 x1.00 + (HP 252.0 - received 56.23 x1.04 - PSR 0.00) / enemy future 16.93 x my future 3.67 [enemy held at 0807; 78 spots with LOS]
-  [Movement] Blue: 0412 SE -> 0412 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Red -> Blue: range 7, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISLRM20', 'ISGaussRifle', 'ISERLargeLaser'] (weapon heat 19 of budget 23 = max 4 + sink 20 - current 1 - movement 0 - other 0; expected dmg 32.72)
-    ISLRM20: needs 4 (range mod +0), rolled 7 -> HIT [ISLRM20 Ammo: 2 shots left]
-    ISGaussRifle: needs 4 (range mod +0), rolled 6 -> HIT [ISGauss Ammo: 5 shots left]
-    ISERLargeLaser: needs 4 (range mod +0), rolled 2 -> miss
-  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
-  [Ranged] Blue -> Red: range 7, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['LRM 20', 'LRM 20'] (weapon heat 12 of budget 12 = max 4 + sink 10 - current 2 - movement 0 - other 0; expected dmg 11.76)
-    LRM 20: needs 4 (range mod +0), rolled 6 -> HIT [IS Ammo LRM-20: 5 shots left]
-    LRM 20: needs 4 (range mod +0), rolled 7 -> HIT [IS Ammo LRM-20: 4 shots left]
-  [AMS] Red's ISAntiMissileSystem engages Blue's LRM 20 (cuts 6.28 expected; +1 heat; ISAMS Ammo: 5 shots left).
-  [AMS] Red's ISAntiMissileSystem engages Blue's LRM 20 (cuts 6.28 expected; +1 heat; ISAMS Ammo: 4 shots left).
-    ISLRM20 hit: cluster roll 7 on the 20-column table -> 12 connect (12 dmg).
-      Group 1/3: Hit location roll 9 (left table): Right Torso.
-5 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (11 -> 6/15 remaining).
-  Check for possible critical. Roll a 4.
-    No critical hit.
-      Group 2/3: Hit location roll 5 (left table): Left Arm.
-5 damage (MISSILE) incoming to Left Arm (armor).
+  [Movement select] Red: score 1542.699 = dealt 11.73 x1.00 + (HP 562.0 - received 5.95 x1.00 - PSR 0.00) / enemy future 4.55 x my future 12.52 [two-ply, 79 of 123 spots (grid search) x 202 replies (short list); modeled reply Blue -> 1107 SW Stand Still]
+  [Movement] Red: 1008 SE -> 0909 N, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0) - includes a backward move
+  [Movement select] Blue: score 107.657 = dealt 8.33 x1.00 + (HP 287.0 - received 11.83 x1.14 - PSR 0.00) / enemy future 12.52 x my future 4.55 [enemy held at 0909; 74 spots with LOS]
+  [Movement] Blue: 1107 N -> 1107 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red -> Blue: range 3, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 3 + heat 0); firing ['ISLRM20', 'ISGaussRifle', 'ISERLargeLaser'] (weapon heat 19 of budget 23 = max 4 + sink 20 - current 0 - movement 1 - other 0; expected dmg 9.94)
+    ISLRM20: needs 12 (range mod +4), rolled 4 -> miss [ISLRM20 Ammo: 0 shots left]
+    ISGaussRifle: needs 8 (range mod +0), rolled 7 -> miss [ISGauss Ammo: 4 shots left]
+    ISERLargeLaser: needs 8 (range mod +0), rolled 10 -> HIT
+  [Ranged] Blue -> Red: range 3, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 14 = max 4 + sink 10 - current 0 - movement 0 - other 0; expected dmg 8.33)
+    Medium Laser: needs 5 (range mod +0), rolled 7 -> HIT
+    Medium Laser: needs 5 (range mod +0), rolled 8 -> HIT
+    ISERLargeLaser hit for 8:
+      Hit location roll 6 (left table): Left Leg.
+8 damage (ENERGY) incoming to Left Leg (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 7 damage applied to structure [STANDARD] (7 -> 0/15 remaining).
+  Left Leg destroyed with no live explosive components - no critical roll.
+  Left Leg DESTROYED!
+    Hip specifically destroyed at Left Leg from Left Leg destruction.
+  All critical slots in Left Leg marked DESTROYED.
+  1 damage remains, transfers to Left Torso.
+  [STANDARD/ENERGY] 1 armor pts destroyed at armor (22 -> 21 remaining).
+    Medium Laser hit for 5:
+      Hit location roll 6 (right table): Right Leg.
+5 damage (ENERGY) incoming to Right Leg (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (41 -> 36 remaining).
+    Medium Laser hit for 5:
+      Hit location roll 10 (right table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (29 -> 24 remaining).
+PSR trigger: Left Leg destroyed this phase -> automatic fall.
+Automatic fall this phase.
+FALL (automatic fall): Archer ARC-2R takes 7 falling damage (1D6 5: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 9 -> Left Leg
+5 damage (PHYSICAL) incoming to Left Leg (armor).
+  Left Leg already destroyed - damage transfers to Left Torso.
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (21 -> 16 remaining).
+  Fall cluster (2 dmg): rolled 8 -> Left Torso
+2 damage (PHYSICAL) incoming to Left Torso (armor).
+  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (16 -> 14 remaining).
+  Seatbelt check: needs 5. Rolled 11. Pilot unharmed.
+  [Heat] Red: 0 + movement 1 + weapons 19 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 6 + engine 0 - sinks 10 -> 0
+  -- end of turn 13: Red @ 0909 N: HP 400, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 13: Blue @ 1107 N: HP 184, pilot hits 1, engine 0, gyro 0, heat 0 [PRONE]
+
+=== TURN 14 ===
+  Initiative: Blue lost the roll, moves first.
+Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 7.
+  Failed to stand.
+FALL (failed to stand): Archer ARC-2R takes 7 falling damage (1D6 1: rear table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 7 -> Center Torso
+5 damage (PHYSICAL) incoming to Center Torso (rear_armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at rear_armor (10 -> 5 remaining).
+  Fall cluster (2 dmg): rolled 6 -> Right Torso
+2 damage (PHYSICAL) incoming to Right Torso (rear_armor).
+  [STANDARD/PHYSICAL] 2 armor pts destroyed at rear_armor (6 -> 4 remaining).
+  Seatbelt check: needs 5. Rolled 4. FAILED - pilot takes 1 hit (2/6).
+Insufficient MP (<2) remaining for another stand attempt. Remains prone.
+  [Movement] Blue: still prone at 1107.
+Movement Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 6.
+  Pilot stays conscious.
+  [Movement select] Red: score 1768.343 = dealt 49.52 x1.27 + (HP 552.0 - received 4.17 x1.04 - PSR 0.00) / enemy future 4.16 x my future 12.96 [enemy held at 1107; 43 spots with LOS]
+  [Movement] Red: 0909 N -> 1108 NE, Walk (3 MP, 2 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
+  [Ranged] Blue -> Red: range 1, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0 + prone +2); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 12 = max 4 + sink 10 - current 0 - movement 2 - other 0; expected dmg 4.17)
+    Medium Laser: needs 8 (range mod +0), rolled 7 -> miss
+    Medium Laser: needs 8 (range mod +0), rolled 7 -> miss
+  [Ranged] Red -> Blue: range 1, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0 + prone target -2); firing ['ISGaussRifle', 'ISERLargeLaser'] (weapon heat 13 of budget 23 = max 4 + sink 20 - current 0 - movement 1 - other 0; expected dmg 15.42)
+    ISGaussRifle: needs 7 (range mod +2), rolled 6 -> miss [ISGauss Ammo: 3 shots left]
+    ISERLargeLaser: needs 5 (range mod +0), rolled 3 -> miss
+  [Physical] Red -> Blue: kick (Left Leg) needs 5 (piloting 5 + base 1 + attack -1), rolled 7 -> HIT (20 dmg, rear side)
+    kick (Left Leg) hits Blue's Left Arm for 20.
+20 damage (PHYSICAL) incoming to Left Arm (rear_armor).
   Left Arm already destroyed - damage transfers to Left Torso.
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (13 -> 8/15 remaining).
-  Check for possible critical. Roll a 4.
-    No critical hit.
-      Group 3/3: Hit location roll 7 (left table): Left Torso.
-2 damage (MISSILE) incoming to Left Torso (armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (8 -> 6/15 remaining).
+  [STANDARD/PHYSICAL] 14 armor pts destroyed at armor (14 -> 0 remaining). 6 damage applied to structure [STANDARD] (15 -> 9/15 remaining).
   Check for possible critical. Roll a 10.
     2 critical hit(s).
   Critical hit pool at Left Torso:
@@ -410,110 +473,483 @@ Attack Phase PSR 2/2: needs 7 (Piloting 5 + +2). Rolled 8.
     6: IS Ammo LRM-20 (slot 6)
     7: IS Ammo LRM-20 (slot 7)
     1/2 Criticals: LRM 20 slot hit.
-      Current crit slots in Left Torso: ['DESTROYED', 'LRM 20', 'LRM 20', 'LRM 20', 'LRM 20', 'IS Ammo LRM-20', 'IS Ammo LRM-20', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+      Current crit slots in Left Torso: ['LRM 20', 'LRM 20', 'LRM 20', 'LRM 20', 'DESTROYED', 'IS Ammo LRM-20', 'IS Ammo LRM-20', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
   Critical hit pool at Left Torso:
-    1: LRM 20 (slot 2)
-    2: LRM 20 (slot 3)
-    3: LRM 20 (slot 4)
-    4: LRM 20 (slot 5)
+    1: LRM 20 (slot 1)
+    2: LRM 20 (slot 2)
+    3: LRM 20 (slot 3)
+    4: LRM 20 (slot 4)
     5: IS Ammo LRM-20 (slot 6)
     6: IS Ammo LRM-20 (slot 7)
     2/2 Criticals: LRM 20 slot hit.
-      Current crit slots in Left Torso: ['DESTROYED', 'LRM 20', 'LRM 20', 'LRM 20', 'DESTROYED', 'IS Ammo LRM-20', 'IS Ammo LRM-20', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-    ISGaussRifle hit for 15:
-      Hit location roll 7 (left table): Left Torso.
-15 damage (BALLISTIC) incoming to Left Torso (armor).
-  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 6 damage applied to structure [STANDARD] (6 -> 0/15 remaining).
+      Current crit slots in Left Torso: ['LRM 20', 'LRM 20', 'LRM 20', 'DESTROYED', 'DESTROYED', 'IS Ammo LRM-20', 'IS Ammo LRM-20', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  [Heat] Red: 0 + movement 1 + weapons 13 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 6 + engine 0 - sinks 10 -> 0
+  -- end of turn 14: Red @ 1108 NE: HP 400, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 14: Blue @ 1107 N: HP 157, pilot hits 2, engine 0, gyro 0, heat 0 [PRONE]
+
+=== TURN 15 ===
+  Initiative: Blue lost the roll, moves first.
+Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 7.
+  Failed to stand.
+FALL (failed to stand): Archer ARC-2R takes 7 falling damage (1D6 3: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 6 -> Right Torso
+5 damage (PHYSICAL) incoming to Right Torso (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (14 -> 9 remaining).
+  Fall cluster (2 dmg): rolled 6 -> Right Torso
+2 damage (PHYSICAL) incoming to Right Torso (armor).
+  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (9 -> 7 remaining).
+  Seatbelt check: needs 5. Rolled 4. FAILED - pilot takes 1 hit (3/6).
+Insufficient MP (<2) remaining for another stand attempt. Remains prone.
+  [Movement] Blue: still prone at 1107.
+Movement Phase consciousness check (pilot, 3 pilot hits): needs 7. Rolled 12.
+  Pilot stays conscious.
+  [Movement select] Red: score 2352.537 = dealt 47.10 x1.19 + (HP 552.0 - received 0.00 x1.04 - PSR 0.00) / enemy future 3.61 x my future 15.00 [enemy held at 1107; 45 spots with LOS]
+  [Movement] Red: 1108 NE -> 1007 SE, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0) - includes a backward move
+  [Ranged] Blue: no weapon can bear on Red (left side arc) - can't fire.
+  [Ranged] Red -> Blue: range 1, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0 + prone target -2); firing ['ISGaussRifle', 'ISERLargeLaser'] (weapon heat 13 of budget 23 = max 4 + sink 20 - current 0 - movement 1 - other 0; expected dmg 15.42)
+    ISGaussRifle: needs 7 (range mod +2), rolled 6 -> miss [ISGauss Ammo: 2 shots left]
+    ISERLargeLaser: needs 5 (range mod +0), rolled 11 -> HIT
+    ISERLargeLaser hit for 8:
+      Hit location roll 3 (left table): Left Leg.
+8 damage (ENERGY) incoming to Left Leg (armor).
+  Left Leg already destroyed - damage transfers to Left Torso.
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 8 damage applied to structure [STANDARD] (9 -> 1/15 remaining).
+  Check for possible critical. Roll a 6.
+    No critical hit.
+  [Physical] Red -> Blue: kick (Left Leg) needs 5 (piloting 5 + base 1 + attack -1), rolled 4 -> miss (20 dmg, left side)
+PSR trigger: missed a kick -> +0.
+Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
+  Succeeded - remains standing.
+  [Heat] Red: 0 + movement 1 + weapons 13 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
+  -- end of turn 15: Red @ 1007 SE: HP 400, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 15: Blue @ 1107 N: HP 142, pilot hits 3, engine 0, gyro 0, heat 0 [PRONE]
+
+=== TURN 16 ===
+  Initiative: Blue lost the roll, moves first.
+Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 8.
+  Success - Archer ARC-2R is standing (remaining running MP 0).
+  [Movement select] Blue: score 51.866 = dealt 7.66 x1.00 + (HP 209.0 - received 21.28 x1.45 - PSR 0.00) / enemy future 15.17 x my future 3.76 [two-ply, 6 spots x 129 replies (short list); modeled reply Red -> 1206 SW Run]
+  [Movement] Blue: 1107 N -> 1107 SE, Run (0 MP, 0 hexes, 2 heat; budget walk 1 / run 2 / jump 0; stood up with 0 MP left)
+  [Movement select] Red: score 2224.602 = dealt 8.10 x1.00 + (HP 552.0 - received 2.08 x1.04 - PSR 0.00) / enemy future 3.76 x my future 15.17 [enemy held at 1107; 57 spots with LOS]
+  [Movement] Red: 1007 SE -> 1308 NE, Run (4 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
+  [Ranged] Blue -> Red: range 2, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 1 + heat 0); firing ['LRM 20', 'Medium Laser'] (weapon heat 9 of budget 12 = max 4 + sink 10 - current 0 - movement 2 - other 0; expected dmg 2.08)
+    LRM 20: needs 13 (range mod +5), rolled 7 -> miss [IS Ammo LRM-20: 3 shots left]
+    Medium Laser: needs 8 (range mod +0), rolled 7 -> miss
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's rear arc after that).
+  [Ranged] Red -> Blue: range 2, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 3 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 8 of budget 22 = max 4 + sink 20 - current 0 - movement 2 - other 0; expected dmg 7.00)
+    ISMediumPulseLaser: needs 7 (range mod +0, modifiers -2), rolled 7 -> HIT
+    ISMediumPulseLaser: needs 7 (range mod +0, modifiers -2), rolled 11 -> HIT
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 2 (front table): Center Torso.
+      Roll of 2 - Through-Armor Critical (floating) triggered.
+      Floating TAC re-roll: 9 -> Left Leg
+6 damage (ENERGY) incoming to Left Leg (armor).
+  Left Leg already destroyed - damage transfers to Left Torso.
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 1 damage applied to structure [STANDARD] (1 -> 0/15 remaining).
   Left Torso destroyed with no live explosive components - no critical roll.
   Left Torso DESTROYED!
   All critical slots in Left Torso marked DESTROYED.
   Left Arm also destroyed (side torso rule).
   All critical slots in Left Arm marked DESTROYED.
-  9 damage remains, transfers to Center Torso.
-  [STANDARD/BALLISTIC] 9 armor pts destroyed at armor (27 -> 18 remaining).
-    LRM 20 hit: cluster roll 8 -4 (AMS ISAntiMissileSystem) on the 20-column table -> 9 connect (9 dmg).
-      Group 1/2: Hit location roll 6 (front table): Right Torso.
-5 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 5 armor pts destroyed at armor (32 -> 27 remaining).
-      Group 2/2: Hit location roll 6 (front table): Right Torso.
-4 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 4 armor pts destroyed at armor (27 -> 23 remaining).
-    LRM 20 hit: cluster roll 10 -4 (AMS ISAntiMissileSystem) on the 20-column table -> 12 connect (12 dmg).
-      Group 1/3: Hit location roll 9 (front table): Left Leg.
-5 damage (MISSILE) incoming to Left Leg (armor).
-  [STANDARD/MISSILE] 5 armor pts destroyed at armor (34 -> 29 remaining).
-      Group 2/3: Hit location roll 8 (front table): Left Torso.
-5 damage (MISSILE) incoming to Left Torso (armor).
-  [STANDARD/MISSILE] 5 armor pts destroyed at armor (25 -> 20 remaining).
-      Group 3/3: Hit location roll 11 (front table): Left Arm.
-2 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (23 -> 21 remaining).
-PSR trigger: 21 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
-  Succeeded - remains standing.
-PSR trigger: 27 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 6.
-  Failed - falls.
-FALL (failed Attack Phase PSR): Archer ARC-2R takes 7 falling damage (1D6 4: front table, 5-pt clusters).
-  Fall cluster (5 dmg): rolled 7 -> Center Torso
-5 damage (PHYSICAL) incoming to Center Torso (armor).
-  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (18 -> 13 remaining).
-  Fall cluster (2 dmg): rolled 7 -> Center Torso
-2 damage (PHYSICAL) incoming to Center Torso (armor).
-  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (13 -> 11 remaining).
-  Seatbelt check: needs 5. Rolled 6. Pilot unharmed.
-  [Heat] Red: 1 + movement 0 + weapons 21 + engine 0 - sinks 20 -> 2
-  [Heat] Blue: 2 + movement 0 + weapons 12 + engine 0 - sinks 10 -> 4
-  -- end of turn 11: Red @ 0807 SW: HP 399, pilot hits 1, engine 0, gyro 0, heat 2
-  -- end of turn 11: Blue @ 0412 SE: HP 133, pilot hits 0, engine 0, gyro 0, heat 4 [PRONE]
+  5 damage remains, transfers to Center Torso.
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (23 -> 18 remaining).
+      Additional critical hit due to TAC.
+  Check for possible critical. Roll a 10.
+    2 critical hit(s).
+    1/2 Criticals: Left Leg was already fully cratered at the start of this round - transfers to Left Torso.
+    1/2 Criticals: Left Torso critical slots exhausted during this round - discarded (no transfer).
+    2/2 Criticals: Left Leg was already fully cratered at the start of this round - transfers to Left Torso.
+    2/2 Criticals: Left Torso critical slots exhausted during this round - discarded (no transfer).
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 4 (front table): Right Arm.
+6 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 2 armor pts destroyed at armor (2 -> 0 remaining). 4 damage applied to structure [STANDARD] (11 -> 7/11 remaining).
+  Check for possible critical. Roll a 6.
+    No critical hit.
+  [Heat] Red: 0 + movement 2 + weapons 8 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 9 + engine 0 - sinks 10 -> 1
+  [End] Blue is now CRIPPLED (BattleMech Manual definition).
+  -- end of turn 16: Red @ 1308 NE: HP 400, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 16: Blue @ 1107 SE: HP 130, pilot hits 3, engine 0, gyro 0, heat 1
 
-=== TURN 12 ===
+=== TURN 17 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 2436.952 = dealt 45.44 x0.93 + (HP 551.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 4.45 x my future 19.34 [two-ply, 84 of 165 spots (grid search) x 1 replies (grid search); modeled reply Blue -> 0412 SE Run]
-  [Movement] Red: 0807 SW -> 0807 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 7.
-  Success - Archer ARC-2R is standing (remaining running MP 3).
-  [Movement select] Blue: score 44.544 = dealt 4.17 x1.00 + (HP 194.0 - received 41.74 x0.84 - PSR 0.00) / enemy future 19.34 x my future 4.91 [enemy held at 0807; 40 spots with LOS]
-  [Movement] Blue: 0412 SE -> 0411 SW, Run (3 MP, 1 hexes, 2 heat; budget walk 3 / run 5 / jump 0; stood up with 3 MP left)
-  [Ranged] Red -> Blue: range 6, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISLRM20', 'ISGaussRifle', 'ISERLargeLaser'] (weapon heat 19 of budget 22 = max 4 + sink 20 - current 2 - movement 0 - other 0; expected dmg 31.66)
-    ISLRM20: needs 5 (range mod +1), rolled 7 -> HIT [ISLRM20 Ammo: 1 shots left]
-    ISGaussRifle: needs 4 (range mod +0), rolled 6 -> HIT [ISGauss Ammo: 4 shots left]
-    ISERLargeLaser: needs 4 (range mod +0), rolled 3 -> miss
-  [Ranged] Blue -> Red: range 6, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 8 = max 4 + sink 10 - current 4 - movement 2 - other 0; expected dmg 4.17)
-    Medium Laser: needs 8 (range mod +2), rolled 7 -> miss
-    Medium Laser: needs 8 (range mod +2), rolled 11 -> HIT
-    ISLRM20 hit: cluster roll 10 on the 20-column table -> 16 connect (16 dmg).
-      Group 1/4: Hit location roll 7 (rear table): Center Torso.
-5 damage (MISSILE) incoming to Center Torso (rear_armor).
-  [STANDARD/MISSILE] 5 armor pts destroyed at rear_armor (10 -> 5 remaining).
-      Group 2/4: Hit location roll 4 (rear table): Right Arm.
-5 damage (MISSILE) incoming to Right Arm (rear_armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (8 -> 3/11 remaining).
+  [Movement select] Red: score 2335.812 = dealt 12.47 x1.00 + (HP 552.0 - received 5.24 x1.04 - PSR 0.00) / enemy future 3.56 x my future 15.15 [two-ply, 74 of 145 spots (grid search) x 9 replies (short list); modeled reply Blue -> 1107 SE Stand Still]
+  [Movement] Red: 1308 NE -> 1308 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+  [Movement select] Blue: score 47.444 = dealt 5.83 x1.04 + (HP 186.0 - received 11.97 x0.84 - PSR 0.00) / enemy future 15.15 x my future 3.56 [enemy held at 1308; 9 spots with LOS]
+  [Movement] Blue: 1107 SE -> 1107 SW, Run (2 MP, 0 hexes, 2 heat; budget walk 1 / run 2 / jump 0)
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 2, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 3 + heat 0); firing ['ISGaussRifle', 'ISERLargeLaser'] (weapon heat 13 of budget 24 = max 4 + sink 20 - current 0 - movement 0 - other 0; expected dmg 10.92)
+    ISGaussRifle: needs 8 (range mod +1), rolled 6 -> miss [ISGauss Ammo: 1 shots left]
+    ISERLargeLaser: needs 7 (range mod +0), rolled 6 -> miss
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's rear arc after that).
+  [Ranged] Blue -> Red: range 2, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 11 = max 4 + sink 10 - current 1 - movement 2 - other 0; expected dmg 5.83)
+    Medium Laser: needs 7 (range mod +0), rolled 7 -> HIT
+    Medium Laser: needs 7 (range mod +0), rolled 7 -> HIT
+    Medium Laser hit for 5:
+      Hit location roll 9 (left table): Right Torso.
+5 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (27 -> 22 remaining).
+    Medium Laser hit for 5:
+      Hit location roll 5 (left table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (24 -> 19 remaining).
+  [Heat] Red: 0 + movement 0 + weapons 13 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 1 + movement 2 + weapons 6 + engine 0 - sinks 10 -> 0
+  -- end of turn 17: Red @ 1308 NE: HP 390, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 17: Blue @ 1107 SW: HP 130, pilot hits 3, engine 0, gyro 0, heat 0
+
+=== TURN 18 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 52.875 = dealt 8.58 x1.00 + (HP 186.0 - received 18.69 x1.17 - PSR 0.00) / enemy future 14.40 x my future 3.89 [two-ply, 9 spots x 145 replies (short list); modeled reply Red -> 1206 SW Run]
+  [Movement] Blue: 1107 SW -> 1107 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
+  [Movement select] Red: score 2003.036 = dealt 14.46 x1.17 + (HP 542.0 - received 5.83 x0.99 - PSR 0.00) / enemy future 3.89 x my future 14.40 [enemy held at 1107; 55 spots with LOS]
+  [Movement] Red: 1308 NE -> 1606 S, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
+  [Ranged] Blue -> Red: range 5, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 1 + LOS 0 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 14 = max 4 + sink 10 - current 0 - movement 0 - other 0; expected dmg 5.83)
+    Medium Laser: needs 7 (range mod +2), rolled 7 -> HIT
+    Medium Laser: needs 7 (range mod +2), rolled 4 -> miss
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 5, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0); firing ['ISGaussRifle', 'ISERLargeLaser'] (weapon heat 13 of budget 22 = max 4 + sink 20 - current 0 - movement 2 - other 0; expected dmg 9.58)
+    ISGaussRifle: needs 8 (range mod +0), rolled 7 -> miss [ISGauss Ammo: 0 shots left]
+    ISERLargeLaser: needs 8 (range mod +0), rolled 2 -> miss
+    Medium Laser hit for 5:
+      Hit location roll 10 (right table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (19 -> 14 remaining).
+  [Heat] Red: 0 + movement 2 + weapons 13 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 6 + engine 0 - sinks 10 -> 0
+  -- end of turn 18: Red @ 1606 S: HP 385, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 18: Blue @ 1107 SW: HP 130, pilot hits 3, engine 0, gyro 0, heat 0
+
+=== TURN 19 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 58.585 = dealt 2.81 x1.00 + (HP 186.0 - received 2.42 x0.84 - PSR 0.00) / enemy future 13.00 x my future 3.94 [two-ply, 9 spots x 111 replies (short list); modeled reply Red -> 1611 NW Run]
+  [Movement] Blue: 1107 SW -> 1107 S, Walk (1 MP, 0 hexes, 1 heat; budget walk 1 / run 2 / jump 0)
+  [Movement select] Red: score 1765.383 = dealt 2.42 x0.84 + (HP 537.0 - received 2.46 x0.98 - PSR 0.00) / enemy future 3.94 x my future 13.00 [enemy held at 1107; 45 spots with LOS]
+  [Movement] Red: 1606 S -> 1509 SW, Run (4 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
+  [Ranged] Blue -> Red: range 4, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 1 + heat 0); firing ['LRM 20', 'Medium Laser'] (weapon heat 9 of budget 13 = max 4 + sink 10 - current 0 - movement 1 - other 0; expected dmg 2.46)
+    LRM 20: needs 10 (range mod +3), rolled 9 -> miss [IS Ammo LRM-20: 2 shots left]
+    Medium Laser: needs 9 (range mod +2), rolled 11 -> HIT
+  [Ranged] Red -> Blue: range 4, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 3 + heat 0); firing ['ISERLargeLaser'] (weapon heat 12 of budget 22 = max 4 + sink 20 - current 0 - movement 2 - other 0; expected dmg 2.22)
+    ISERLargeLaser: needs 9 (range mod +0), rolled 6 -> miss
+    Medium Laser hit for 5:
+      Hit location roll 6 (right table): Right Leg.
+5 damage (ENERGY) incoming to Right Leg (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (36 -> 31 remaining).
+  [Heat] Red: 0 + movement 2 + weapons 12 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 9 + engine 0 - sinks 10 -> 0
+  -- end of turn 19: Red @ 1509 SW: HP 380, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 19: Blue @ 1107 S: HP 130, pilot hits 3, engine 0, gyro 0, heat 0
+
+=== TURN 20 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 62.644 = dealt 5.59 x1.00 + (HP 186.0 - received 10.14 x0.84 - PSR 0.00) / enemy future 12.40 x my future 3.99 [two-ply, 9 spots x 156 replies (short list); modeled reply Red -> 1509 NW Stand Still]
+  [Movement] Blue: 1107 S -> 1107 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
+  [Movement select] Red: score 1646.149 = dealt 10.14 x0.84 + (HP 532.0 - received 5.59 x0.99 - PSR 0.00) / enemy future 3.99 x my future 12.40 [enemy held at 1107; 85 spots with LOS]
+  [Movement] Red: 1509 SW -> 1509 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+  [Ranged] Blue -> Red: range 4, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['LRM 20', 'Medium Laser'] (weapon heat 9 of budget 14 = max 4 + sink 10 - current 0 - movement 0 - other 0; expected dmg 5.59)
+    LRM 20: needs 8 (range mod +3), rolled 7 -> miss [IS Ammo LRM-20: 1 shots left]
+    Medium Laser: needs 7 (range mod +2), rolled 7 -> HIT
+  [Ranged] Red -> Blue: range 4, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 3 + heat 0); firing ['ISERLargeLaser', 'ISERLargeLaser'] (weapon heat 24 of budget 24 = max 4 + sink 20 - current 0 - movement 0 - other 0; expected dmg 9.33)
+    ISERLargeLaser: needs 7 (range mod +0), rolled 7 -> HIT
+    ISERLargeLaser: needs 7 (range mod +0), rolled 6 -> miss
+    Medium Laser hit for 5:
+      Hit location roll 11 (right table): Left Leg.
+5 damage (ENERGY) incoming to Left Leg (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (29 -> 24 remaining).
+    ISERLargeLaser hit for 8:
+      Hit location roll 3 (left table): Left Leg.
+8 damage (ENERGY) incoming to Left Leg (armor).
+  Left Leg already destroyed - damage transfers to Left Torso.
+  Left Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/ENERGY] 8 armor pts destroyed at armor (18 -> 10 remaining).
+  [Heat] Red: 0 + movement 0 + weapons 24 + engine 0 - sinks 20 -> 4
+  [Heat] Blue: 0 + movement 0 + weapons 9 + engine 0 - sinks 10 -> 0
+  -- end of turn 20: Red @ 1509 SW: HP 375, pilot hits 1, engine 0, gyro 0, heat 4
+  -- end of turn 20: Blue @ 1107 S: HP 122, pilot hits 3, engine 0, gyro 0, heat 0
+
+=== TURN 21 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 1587.863 = dealt 8.36 x1.14 + (HP 527.0 - received 4.15 x1.05 - PSR 0.00) / enemy future 4.03 x my future 12.18 [two-ply, 33 of 156 spots (grid search) x 9 replies (short list); modeled reply Blue -> 1107 NE Stand Still]
+  [Movement] Red: 1509 SW -> 1307 N, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
+  [Movement select] Blue: score 64.371 = dealt 7.22 x1.05 + (HP 178.0 - received 7.58 x0.87 - PSR 0.00) / enemy future 12.18 x my future 4.03 [enemy held at 1307; 9 spots with LOS]
+  [Movement] Blue: 1107 S -> 1107 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's rear arc after that).
+  [Ranged] Red -> Blue: range 2, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 3 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 8 of budget 18 = max 4 + sink 20 - current 4 - movement 2 - other 0; expected dmg 7.00)
+    ISMediumPulseLaser: needs 7 (range mod +0, modifiers -2), rolled 4 -> miss
+    ISMediumPulseLaser: needs 7 (range mod +0, modifiers -2), rolled 7 -> HIT
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's rear arc after that).
+  [Ranged] Blue -> Red: range 2, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 1 + LOS 1 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 14 = max 4 + sink 10 - current 0 - movement 0 - other 0; expected dmg 7.22)
+    Medium Laser: needs 6 (range mod +0), rolled 8 -> HIT
+    Medium Laser: needs 6 (range mod +0), rolled 9 -> HIT
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 11 (left table): Right Leg.
+6 damage (ENERGY) incoming to Right Leg (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (19 -> 13 remaining).
+    Medium Laser hit for 5:
+      Hit location roll 10 (left table): Right Arm.
+5 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (29 -> 24 remaining).
+    Medium Laser hit for 5:
+      Hit location roll 2 (left table): Left Torso.
+      Roll of 2 - Through-Armor Critical (floating) triggered.
+      Floating TAC re-roll: 7 -> Left Torso
+5 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (20 -> 15 remaining).
+      Additional critical hit due to TAC.
+  Check for possible critical. Roll a 6.
+    No critical hit.
+  [Heat] Red: 4 + movement 2 + weapons 8 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 6 + engine 0 - sinks 10 -> 0
+  -- end of turn 21: Red @ 1307 N: HP 365, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 21: Blue @ 1107 S: HP 116, pilot hits 3, engine 0, gyro 0, heat 0
+
+=== TURN 22 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 1435.400 = dealt 11.94 x1.15 + (HP 517.0 - received 5.24 x1.05 - PSR 0.00) / enemy future 4.28 x my future 11.90 [two-ply, 77 of 143 spots (grid search) x 9 replies (short list); modeled reply Blue -> 1107 NE Stand Still]
+  [Movement] Red: 1307 N -> 1307 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+  [Movement select] Blue: score 67.294 = dealt 8.33 x1.05 + (HP 172.0 - received 10.83 x0.86 - PSR 0.00) / enemy future 11.90 x my future 4.28 [enemy held at 1307; 9 spots with LOS]
+  [Movement] Blue: 1107 S -> 1107 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's rear arc after that).
+  [Ranged] Red -> Blue: range 2, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 3 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 8 of budget 24 = max 4 + sink 20 - current 0 - movement 0 - other 0; expected dmg 10.00)
+    ISMediumPulseLaser: needs 5 (range mod +0, modifiers -2), rolled 5 -> HIT
+    ISMediumPulseLaser: needs 5 (range mod +0, modifiers -2), rolled 6 -> HIT
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's rear arc after that).
+  [Ranged] Blue -> Red: range 2, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 14 = max 4 + sink 10 - current 0 - movement 0 - other 0; expected dmg 8.33)
+    Medium Laser: needs 5 (range mod +0), rolled 11 -> HIT
+    Medium Laser: needs 5 (range mod +0), rolled 11 -> HIT
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 9 (left table): Right Torso.
+6 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (7 -> 1 remaining).
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 10 (left table): Right Arm.
+6 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 6 damage applied to structure [STANDARD] (7 -> 1/11 remaining).
+  Check for possible critical. Roll a 5.
+    No critical hit.
+    Medium Laser hit for 5:
+      Hit location roll 6 (left table): Left Leg.
+5 damage (ENERGY) incoming to Left Leg (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (24 -> 19 remaining).
+    Medium Laser hit for 5:
+      Hit location roll 3 (left table): Left Leg.
+5 damage (ENERGY) incoming to Left Leg (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (19 -> 14 remaining).
+  [Heat] Red: 0 + movement 0 + weapons 8 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 6 + engine 0 - sinks 10 -> 0
+  -- end of turn 22: Red @ 1307 N: HP 355, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 22: Blue @ 1107 S: HP 104, pilot hits 3, engine 0, gyro 0, heat 0
+
+=== TURN 23 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 1365.719 = dealt 11.94 x1.33 + (HP 507.0 - received 5.24 x1.07 - PSR 0.00) / enemy future 4.51 x my future 12.14 [two-ply, 77 of 143 spots (grid search) x 9 replies (short list); modeled reply Blue -> 1107 NE Stand Still]
+  [Movement] Red: 1307 N -> 1307 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+  [Movement select] Blue: score 63.347 = dealt 8.33 x1.07 + (HP 154.0 - received 11.06 x0.68 - PSR 0.00) / enemy future 12.14 x my future 4.51 [enemy held at 1307; 9 spots with LOS]
+  [Movement] Blue: 1107 S -> 1107 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's rear arc after that).
+  [Ranged] Red -> Blue: range 2, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 3 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 8 of budget 24 = max 4 + sink 20 - current 0 - movement 0 - other 0; expected dmg 10.00)
+    ISMediumPulseLaser: needs 5 (range mod +0, modifiers -2), rolled 7 -> HIT
+    ISMediumPulseLaser: needs 5 (range mod +0, modifiers -2), rolled 7 -> HIT
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's rear arc after that).
+  [Ranged] Blue -> Red: range 2, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 14 = max 4 + sink 10 - current 0 - movement 0 - other 0; expected dmg 8.33)
+    Medium Laser: needs 5 (range mod +0), rolled 8 -> HIT
+    Medium Laser: needs 5 (range mod +0), rolled 8 -> HIT
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 4 (left table): Left Arm.
+6 damage (ENERGY) incoming to Left Arm (armor).
+  Left Arm already destroyed - damage transfers to Left Torso.
+  Left Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (10 -> 4 remaining).
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 7 (left table): Left Torso.
+6 damage (ENERGY) incoming to Left Torso (armor).
+  Left Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/ENERGY] 4 armor pts destroyed at armor (4 -> 0 remaining). 2 damage applied to structure [STANDARD] (22 -> 20/22 remaining).
+  Check for possible critical. Roll a 3.
+    No critical hit.
+    Medium Laser hit for 5:
+      Hit location roll 4 (left table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (14 -> 9 remaining).
+    Medium Laser hit for 5:
+      Hit location roll 5 (left table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (9 -> 4 remaining).
+  [Heat] Red: 0 + movement 0 + weapons 8 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 6 + engine 0 - sinks 10 -> 0
+  -- end of turn 23: Red @ 1307 N: HP 345, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 23: Blue @ 1107 S: HP 92, pilot hits 3, engine 0, gyro 0, heat 0
+
+=== TURN 24 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 1344.465 = dealt 15.83 x1.29 + (HP 497.0 - received 5.43 x1.10 - PSR 0.00) / enemy future 4.73 x my future 12.76 [two-ply, 77 of 143 spots (grid search) x 9 replies (short list); modeled reply Blue -> 1107 NE Stand Still]
+  [Movement] Red: 1307 N -> 1307 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+  [Movement select] Blue: score 56.588 = dealt 8.66 x1.10 + (HP 140.0 - received 18.29 x0.71 - PSR 0.00) / enemy future 12.76 x my future 4.73 [enemy held at 1307; 9 spots with LOS]
+  [Movement] Blue: 1107 S -> 1107 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's rear arc after that).
+  [Ranged] Red -> Blue: range 2, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 3 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 8 of budget 24 = max 4 + sink 20 - current 0 - movement 0 - other 0; expected dmg 10.00)
+    ISMediumPulseLaser: needs 5 (range mod +0, modifiers -2), rolled 7 -> HIT
+    ISMediumPulseLaser: needs 5 (range mod +0, modifiers -2), rolled 4 -> miss
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's rear arc after that).
+  [Ranged] Blue -> Red: range 2, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 14 = max 4 + sink 10 - current 0 - movement 0 - other 0; expected dmg 8.33)
+    Medium Laser: needs 5 (range mod +0), rolled 6 -> HIT
+    Medium Laser: needs 5 (range mod +0), rolled 10 -> HIT
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 11 (left table): Right Leg.
+6 damage (ENERGY) incoming to Right Leg (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (13 -> 7 remaining).
+    Medium Laser hit for 5:
+      Hit location roll 8 (left table): Center Torso.
+5 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (41 -> 36 remaining).
+    Medium Laser hit for 5:
+      Hit location roll 7 (left table): Left Torso.
+5 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (15 -> 10 remaining).
+  [Heat] Red: 0 + movement 0 + weapons 8 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 6 + engine 0 - sinks 10 -> 0
+  -- end of turn 24: Red @ 1307 N: HP 335, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 24: Blue @ 1107 S: HP 86, pilot hits 3, engine 0, gyro 0, heat 0
+
+=== TURN 25 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 1240.600 = dealt 15.83 x1.29 + (HP 487.0 - received 5.43 x1.10 - PSR 0.00) / enemy future 4.93 x my future 12.50 [two-ply, 77 of 143 spots (grid search) x 9 replies (short list); modeled reply Blue -> 1107 NE Stand Still]
+  [Movement] Red: 1307 N -> 1307 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+  [Movement select] Blue: score 57.231 = dealt 8.66 x1.10 + (HP 134.0 - received 18.29 x0.71 - PSR 0.00) / enemy future 12.50 x my future 4.93 [enemy held at 1307; 9 spots with LOS]
+  [Movement] Blue: 1107 S -> 1107 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's rear arc after that).
+  [Ranged] Red -> Blue: range 2, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 3 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser'] (weapon heat 8 of budget 24 = max 4 + sink 20 - current 0 - movement 0 - other 0; expected dmg 10.00)
+    ISMediumPulseLaser: needs 5 (range mod +0, modifiers -2), rolled 7 -> HIT
+    ISMediumPulseLaser: needs 5 (range mod +0, modifiers -2), rolled 7 -> HIT
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's rear arc after that).
+  [Ranged] Blue -> Red: range 2, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 14 = max 4 + sink 10 - current 0 - movement 0 - other 0; expected dmg 8.33)
+    Medium Laser: needs 5 (range mod +0), rolled 7 -> HIT
+    Medium Laser: needs 5 (range mod +0), rolled 7 -> HIT
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 12 (left table): Head.
+      Head hit - pilot takes 1 hit (4/6), regardless of armor.
+6 damage (ENERGY) incoming to Head (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (9 -> 3 remaining).
+    ISMediumPulseLaser hit for 6:
+      Hit location roll 9 (left table): Right Torso.
+6 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 1 armor pts destroyed at armor (1 -> 0 remaining). 5 damage applied to structure [STANDARD] (15 -> 10/15 remaining).
+  Check for possible critical. Roll a 6.
+    No critical hit.
+    Medium Laser hit for 5:
+      Hit location roll 5 (left table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 4 armor pts destroyed at armor (4 -> 0 remaining). 1 damage applied to structure [STANDARD] (17 -> 16/17 remaining).
+  Check for possible critical. Roll a 11.
+    2 critical hit(s).
+  Critical hit pool at Left Arm:
+    1: Shoulder (slot 1)
+    2: Upper Arm Actuator (slot 2)
+    3: Lower Arm Actuator (slot 3)
+    4: Hand Actuator (slot 4)
+    5: Heat Sink (slot 5)
+    6: Heat Sink (slot 6)
+    7: ISERLargeLaser (slot 7)
+    8: ISERLargeLaser (slot 8)
+    9: ISAntiMissileSystem (slot 9)
+    1/2 Criticals: Hand Actuator hit.
+      Current crit slots in Left Arm: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'DESTROYED', 'Heat Sink', 'Heat Sink', 'ISERLargeLaser', 'ISERLargeLaser', 'ISAntiMissileSystem', '-Empty-', '-Empty-', '-Empty-']
+  Critical hit pool at Left Arm:
+    1: Shoulder (slot 1)
+    2: Upper Arm Actuator (slot 2)
+    3: Lower Arm Actuator (slot 3)
+    4: Heat Sink (slot 5)
+    5: Heat Sink (slot 6)
+    6: ISERLargeLaser (slot 7)
+    7: ISERLargeLaser (slot 8)
+    8: ISAntiMissileSystem (slot 9)
+    2/2 Criticals: Lower Arm Actuator hit.
+      Current crit slots in Left Arm: ['Shoulder', 'Upper Arm Actuator', 'DESTROYED', 'DESTROYED', 'Heat Sink', 'Heat Sink', 'ISERLargeLaser', 'ISERLargeLaser', 'ISAntiMissileSystem', '-Empty-', '-Empty-', '-Empty-']
+    Medium Laser hit for 5:
+      Hit location roll 11 (left table): Right Leg.
+5 damage (ENERGY) incoming to Right Leg (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (31 -> 26 remaining).
+Attack Phase consciousness check (pilot, 4 pilot hits): needs 10. Rolled 7.
+  Pilot knocked unconscious.
+  [Heat] Red: 0 + movement 0 + weapons 8 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 6 + engine 0 - sinks 10 -> 0
+  -- end of turn 25: Red @ 1307 N: HP 325, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 25: Blue @ 1107 S: HP 74, pilot hits 4, engine 0, gyro 0, heat 0 [UNCONSCIOUS]
+
+=== TURN 26 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 1252.582 = dealt 3.72 x0.72 + (HP 476.0 - received 3.32 x1.12 - PSR 0.00) / enemy future 4.71 x my future 12.48 [two-ply, 50 of 143 spots (grid search) x 1 replies (short list); modeled reply Blue -> 1107 S Stand Still]
+  [Movement] Red: 1307 N -> 1505 N, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
+  [Movement] Blue: all crew unconscious - skips movement (immobile).
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's rear arc after that).
+  [Ranged] Red -> Blue: range 4, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM -4 + LOS 4 + heat 0); firing ['ISMediumPulseLaser', 'ISMediumPulseLaser'] (aimed at Center Torso) (weapon heat 8 of budget 22 = max 4 + sink 20 - current 0 - movement 2 - other 0; expected dmg 8.67)
+    ISMediumPulseLaser: needs 6 (range mod +2, modifiers -2) aimed at Center Torso, rolled 9 -> HIT
+    ISMediumPulseLaser: needs 6 (range mod +2, modifiers -2) aimed at Center Torso, rolled 6 -> HIT
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
+  [Ranged] Blue -> Red: range 4, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 1 + LOS 2 + heat 0); firing ['LRM 20', 'Medium Laser'] (weapon heat 9 of budget 14 = max 4 + sink 10 - current 0 - movement 0 - other 0; expected dmg 3.50)
+    LRM 20: needs 10 (range mod +3), rolled 4 -> miss [IS Ammo LRM-20: 0 shots left]
+    Medium Laser: needs 9 (range mod +2), rolled 5 -> miss
+    ISMediumPulseLaser hit for 6: aimed at Center Torso, 1D6 3 - rolls for location.
+      Hit location roll 8 (left table): Center Torso.
+6 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 6 damage applied to structure [STANDARD] (20 -> 14/22 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
-      Group 3/4: Hit location roll 6 (rear table): Right Torso.
-5 damage (MISSILE) incoming to Right Torso (rear_armor).
-  [STANDARD/MISSILE] 5 armor pts destroyed at rear_armor (6 -> 1 remaining).
-      Group 4/4: Hit location roll 6 (rear table): Right Torso.
-1 damage (MISSILE) incoming to Right Torso (rear_armor).
-  [STANDARD/MISSILE] 1 armor pts destroyed at rear_armor (1 -> 0 remaining).
-    ISGaussRifle hit for 15:
-      Hit location roll 4 (rear table): Right Arm.
-15 damage (BALLISTIC) incoming to Right Arm (rear_armor).
-  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (3 -> 0/11 remaining).
+    ISMediumPulseLaser hit for 6: aimed at Center Torso, 1D6 1 - rolls for location.
+      Hit location roll 10 (left table): Right Arm.
+6 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 1 damage applied to structure [STANDARD] (1 -> 0/11 remaining).
   Right Arm destroyed with no live explosive components - no critical roll.
   Right Arm DESTROYED!
   All critical slots in Right Arm marked DESTROYED.
-  12 damage remains, transfers to Right Torso.
-  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 6 damage applied to structure [STANDARD] (6 -> 0/15 remaining).
-  Check for possible critical. Roll a 12.
-    3 critical hit(s).
-  Critical hit pool at Right Torso:
-    1: IS Ammo LRM-20 (slot 6)
-    2: IS Ammo LRM-20 (slot 7)
-    1/3 Criticals: IS Ammo LRM-20 slot hit.
-      Current crit slots in Right Torso: ['LRM 20', 'LRM 20', 'LRM 20', 'LRM 20', 'LRM 20', 'DESTROYED', 'IS Ammo LRM-20', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-    IS Ammo LRM-20 destroyed at Right Torso - EXPLOSION (80 dmg)! Pilot takes 1 hit (1/6).
+  5 damage remains, transfers to Right Torso.
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (10 -> 5/15 remaining).
+  Check for possible critical. Roll a 3.
+    No critical hit.
+  [Heat] Red: 0 + movement 2 + weapons 8 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 9 + engine 0 - sinks 10 -> 0
+End Phase wake-up check (pilot, 4 pilot hits): needs 10. Rolled 7.
+  Pilot remains unconscious.
+  -- end of turn 26: Red @ 1505 N: HP 325, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 26: Blue @ 1107 S: HP 62, pilot hits 4, engine 0, gyro 0, heat 0 [UNCONSCIOUS]
+
+=== TURN 27 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement] Blue: all crew unconscious - skips movement (immobile).
+  [Movement select] Red: score 1354.047 = dealt 27.30 x0.91 + (HP 476.0 - received 4.98 x1.12 - PSR 0.00) / enemy future 4.55 x my future 12.86 [enemy held at 1107; 74 spots with LOS]
+  [Movement] Red: 1505 N -> 1505 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's rear arc after that).
+  [Ranged] Blue -> Red: range 4, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 14 = max 4 + sink 10 - current 0 - movement 0 - other 0; expected dmg 4.17)
+    Medium Laser: needs 8 (range mod +2), rolled 10 -> HIT
+    Medium Laser: needs 8 (range mod +2), rolled 4 -> miss
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 4, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM -4 + LOS 4 + heat 0); firing ['ISERLargeLaser', 'ISERLargeLaser'] (aimed at Center Torso) (weapon heat 24 of budget 24 = max 4 + sink 20 - current 0 - movement 0 - other 0; expected dmg 14.67)
+    ISERLargeLaser: needs 4 (range mod +0) aimed at Center Torso, rolled 7 -> HIT
+    ISERLargeLaser: needs 4 (range mod +0) aimed at Center Torso, rolled 8 -> HIT
+    Medium Laser hit for 5:
+      Hit location roll 8 (left table): Center Torso.
+5 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (36 -> 31 remaining).
+    ISERLargeLaser hit for 8: aimed at Center Torso, 1D6 1 - rolls for location.
+      Hit location roll 7 (left table): Left Torso.
+8 damage (ENERGY) incoming to Left Torso (armor).
+  Left Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 8 damage applied to structure [STANDARD] (14 -> 6/22 remaining).
+  Check for possible critical. Roll a 4.
+    No critical hit.
+    ISERLargeLaser hit for 8: aimed at Center Torso, 1D6 3 - rolls for location.
+      Hit location roll 10 (left table): Right Arm.
+8 damage (ENERGY) incoming to Right Arm (armor).
+  Right Arm already destroyed - damage transfers to Right Torso.
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (5 -> 0/15 remaining).
+  Check for possible critical. Roll a 11.
+    2 critical hit(s).
+    1/2 Criticals: IS Ammo LRM-20 slot hit.
+      Current crit slots in Right Torso: ['LRM 20', 'LRM 20', 'LRM 20', 'LRM 20', 'LRM 20', 'IS Ammo LRM-20', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+    IS Ammo LRM-20 destroyed at Right Torso - EXPLOSION (120 dmg)! Pilot takes 1 hit (5/6).
     Explosion reaches Right Torso. No CASE present - 20 damage to structure.
     0 structure damage taken (0/15 remaining).
     Right Torso DESTROYED! (explosion)
@@ -522,37 +958,9 @@ Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 7.
   All critical slots in Right Arm marked DESTROYED.
     20 explosion damage remains, transfers to Center Torso.
     Explosion reaches Center Torso. No CASE present - 20 damage to structure.
-    20 structure damage taken (2/22 remaining).
-  Check for possible critical. Roll a 6.
-    No critical hit.
-    base damage over 20 (p.96): Center Torso loses 5 rear armor (0 left).
-    2/3 Criticals: no live explosive component available - discarded.
-    3/3 Criticals: no live explosive component available - discarded.
-  Right Torso DESTROYED!
-  All critical slots in Right Torso marked DESTROYED.
-  Right Arm also destroyed (side torso rule).
-  All critical slots in Right Arm marked DESTROYED.
-  6 damage remains, transfers to Center Torso.
-  [STANDARD/BALLISTIC] 6 armor pts destroyed at armor (11 -> 5 remaining).
-    Medium Laser hit for 5:
-      Hit location roll 11 (front table): Left Arm.
-5 damage (ENERGY) incoming to Left Arm (armor).
-  [STANDARD/ENERGY] 5 armor pts destroyed at armor (21 -> 16 remaining).
-PSR trigger: 56 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 3.
-  Failed - falls.
-FALL (failed Attack Phase PSR): Archer ARC-2R takes 7 falling damage (1D6 3: front table, 5-pt clusters).
-  Fall cluster (5 dmg): rolled 6 -> Right Torso
-5 damage (PHYSICAL) incoming to Right Torso (armor).
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (5 -> 0 remaining).
-  Fall cluster (2 dmg): rolled 4 -> Right Arm
-2 damage (PHYSICAL) incoming to Right Arm (armor).
-  Right Arm already destroyed - damage transfers to Right Torso.
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (2 -> 0/22 remaining).
+    6 structure damage taken (0/22 remaining).
   Center Torso destroyed with no live explosive components - no critical roll.
-  Center Torso DESTROYED!
+    Center Torso DESTROYED! (explosion)
     Engine hit (1/3) from Center Torso destruction.
     Engine hit (2/3) from Center Torso destruction.
     Engine hit (3/3) from Center Torso destruction.
@@ -564,12 +972,17 @@ FALL (failed Attack Phase PSR): Archer ARC-2R takes 7 falling damage (1D6 3: fro
     Engine hit (5/3) from Center Torso destruction.
     Engine hit (6/3) from Center Torso destruction.
   All critical slots in Center Torso marked DESTROYED.
-  0 damage remains, transfers to nowhere (attack finished).
-  [Heat] Red: 2 + movement 0 + weapons 19 + engine 0 - sinks 20 -> 1
-  -- end of turn 12: Red @ 0807 SW: HP 394, pilot hits 1, engine 0, gyro 0, heat 1
-  -- end of turn 12: Blue @ 0411 SW: HP 70, pilot hits 1, engine 6, gyro 4, heat 4 [PRONE, DESTROYED (Center Torso Destroyed)]
+    2/2 Criticals: no live explosive component available - discarded.
+  Right Torso DESTROYED!
+  All critical slots in Right Torso marked DESTROYED.
+  Right Arm also destroyed (side torso rule).
+  All critical slots in Right Arm marked DESTROYED.
+  3 damage remains, transfers to Center Torso.
+  [Heat] Red: 0 + movement 0 + weapons 24 + engine 0 - sinks 20 -> 4
+  -- end of turn 27: Red @ 1505 N: HP 320, pilot hits 1, engine 0, gyro 0, heat 4
+  -- end of turn 27: Blue @ 1107 S: HP 43, pilot hits 5, engine 6, gyro 4, heat 0 [UNCONSCIOUS, DESTROYED (Center Torso Destroyed)]
 
->>> Battle over on turn 12: Blue destroyed. <<<
+>>> Battle over on turn 27: Blue destroyed. <<<
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! RESULTS PRODUCED WITH STUBS ACTIVE - NOT RULES-COMPLETE
@@ -588,14 +1001,14 @@ FALL (failed Attack Phase PSR): Archer ARC-2R takes 7 falling damage (1D6 3: fro
 BATCH SUMMARY - 1 battle(s): Red = Atlas AS7-K, Blue = Archer ARC-2R
 ######################################################################
   Wins:  Red 1   Blue 0   Draw 0
-  Average turns: 12.0 (decisive battles only: 12.0)
-  Average attacks fired by the winner before the kill: 35.0
-  Average remaining HP (armor+structure): Red 86%   Blue 22%
-  Hit rate: Red 46%   Blue 41%
+  Average turns: 27.0 (decisive battles only: 27.0)
+  Average attacks fired by the winner before the kill: 65.0
+  Average remaining HP (armor+structure): Red 70%   Blue 14%
+  Hit rate: Red 40%   Blue 52%
   Causes of death:
     Blue (Archer ARC-2R): Center Torso Destroyed: 1
   Per battle:
-    #1: 12 turns, winner Red; Red 394/456 HP (16/35 hits, 231 dealt); Blue 70/315 HP (9/22 hits, 62 dealt) DESTROYED: Center Torso Destroyed
+    #1: 27 turns, winner Red; Red 320/456 HP (26/65 hits, 224 dealt); Blue 43/315 HP (25/48 hits, 136 dealt) DESTROYED: Center Torso Destroyed
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! RESULTS PRODUCED WITH STUBS ACTIVE - NOT RULES-COMPLETE

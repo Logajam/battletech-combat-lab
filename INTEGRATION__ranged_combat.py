@@ -394,6 +394,18 @@ def prepare_options(mover, options) -> List[_Option]:
     return prepared
 
 
+def turned_option(o, facing) -> "_Option":
+    """A copy of prepared state o facing `facing` instead (0-5). Nothing else
+    on an _Option depends on the facing, so the copy keeps o's hexes moved,
+    mode, TMM and heat - used by movement_selection's "short_list" reply model
+    (2026-10-24), which assumes a facing it doesn't check is reachable."""
+    t = _Option()
+    for slot in _Option.__slots__:
+        setattr(t, slot, getattr(o, slot))
+    t.facing, t.facing_compass = facing, hex_geometry.facing_to_compass(facing)
+    return t
+
+
 def _with_physical(ranged_best, planner, actions, legs, pair_arcs, facing, diff, target_prone, base, side,
                    ranged_for, push=(), allowed=None, t_water=None):
     """Best expected damage from a spot next to the enemy counting the

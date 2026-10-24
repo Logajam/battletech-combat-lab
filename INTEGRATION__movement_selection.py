@@ -134,6 +134,7 @@ import INTEGRATION__weapon_rules as weapon_rules  # noqa: E402
 import INTEGRATION__future_damage as future_damage  # noqa: E402
 import INTEGRATION__timing as timing  # noqa: E402
 import INTEGRATION__water as water  # noqa: E402
+import INTEGRATION__weapon_selection as weapon_selection  # noqa: E402
 
 SIDES = ("front", "left", "right", "rear")
 _P_2D6 = {roll: (6 - abs(roll - 7)) / 36 for roll in range(2, 13)}
@@ -557,16 +558,22 @@ def _modeled_reply(c, ev2, prepared2, them, me, other, mover_xy_of_c, terrain_ma
     # `me` is the first mover, `them` the second: here the second mover is the one choosing.
     objective, my_exposure, their_exposure = them.objective, me.exposure, them.exposure
 
-    def reply_rows(states):
+    def reply_rows(states, psr=reply_psr):
         rows = []
         for cand in ev2.evaluate(c.label, c.facing_compass, c.fc, c.mode, c.mp_spent, states):
             rows.append((objective(cand.dealt, cand.received, my_exposure[cand.side_on_defender],
                                    their_exposure[cand.side_on_mover],
-                                   reply_psr[(cand.hex, cand.facing, cand.mode, cand.fc, cand.mp_spent)]), cand))
+                                   psr[(cand.hex, cand.facing, cand.mode, cand.fc, cand.mp_spent)]), cand))
         return rows
 
     with timing.section("reply scoring"):
-        if assumed_enemy_search(me.mech) == "grid" and prepared2:
+        if (assumed_enemy_search(me.mech) == "short_list" and prepared2
+                and not (other.prone or is_immobile(other))):
+            # Daniel's "simple short list" (2026-10-24): the hexes on the rule-of-thumb
+            # list, each mode once at its best TMM, facing the first mover.
+            states, psr = short_list_states(c, prepared2, other, ev2.defender, them, reply_psr)
+            rows = reply_rows(states, psr)
+        elif assumed_enemy_search(me.mech) == "grid" and prepared2:
             # The second mover picks by guess and follow too (Daniel, 2026-10-21).
             rows = _grid_search(prepared2, reply_rows, hex_geometry.parse_hex_label(other.hex),
                                 config.MOVEMENT_SEARCH_STARTS, target_xy=c.hex_xy)
@@ -616,6 +623,90 @@ def _psr_by_state(side, prepared):
     """{(hex, facing, mode, fc, mp_spent): side.psr_for(state)} for prepared
     states, keyed the way a MovementCandidate names its state."""
     return {(o.label, o.facing_compass, o.mode, o.fc, o.mp_spent): side.psr_for(o) for o in prepared}
+
+
+# =============================================================================
+# ==================  THE "SIMPLE SHORT LIST" REPLY MODEL  ====================
+# =============================================================================
+# Daniel, 2026-10-24 (MOVEMENT_ASSUMED_ENEMY_SEARCH = "short_list"). From
+# full-fidelity two-ply runs (both sides exhaustive, 5 matchups, ~156k modeled
+# replies): the second mover's reply lands on few hexes - next to the first
+# mover (mostly behind it), standing still, or at a range where one side's
+# damage drops (the end of a weapon bracket). So the first mover only looks at
+# those hexes, and scores each one roughly (Daniel: "Location, best tmm of any
+# move to that hex per movement type. Expected incoming damage as if its facing
+# you"): the facing isn't searched - the reply is assumed to face the first
+# mover, which is also the worst case for the first mover's return fire (it
+# lands on the front; Daniel: "The first mover can never control its targets
+# facing anyways unless its immobile"). An immobile or prone second mover keeps
+# the full model (it can't pick its spot or facing).
+
+def damage_drops(mech, count):
+    """The `count` distances after which this mech's rough expected damage
+    falls the most: every live weapon fired at pre-to-hit
+    config.MOVEMENT_SHORT_LIST_PRE_TN, heat ignored (the end of a weapon
+    bracket, weighted by how much damage stops there)."""
+    table = weapon_selection.build_expected_damage_table(mech)
+    pre_tn = config.MOVEMENT_SHORT_LIST_PRE_TN
+    by_distance: Dict[int, float] = {}
+    for w in get_weapons(mech):
+        for distance, row in table.get(id(w), {}).items():
+            by_distance[distance] = by_distance.get(distance, 0.0) + row.get(pre_tn, 0.0)
+    if not by_distance:
+        return set()
+    drops = sorted(((by_distance.get(d, 0.0) - by_distance.get(d + 1, 0.0), d)
+                    for d in range(1, max(by_distance) + 1)), reverse=True)
+    return {d for drop, d in drops[:count] if drop > 0}
+
+
+def short_list_distances(replier, first_mover):
+    """The rule of thumb: the distances from the first mover the second mover's
+    reply is looked for at - 1 (next to it), the replier's biggest damage drops,
+    and one past the first mover's biggest drops (just out of its bracket).
+    Standing still is added by the caller."""
+    count = config.MOVEMENT_SHORT_LIST_DROPS
+    return {1} | damage_drops(replier, count) | {d + 1 for d in damage_drops(first_mover, count)}
+
+
+# One look-ahead's working set: rebuilt when the reply states change (a new
+# look-ahead). Holding the list itself keeps its id from being reused.
+_SHORT_LIST = {"source": None}
+
+
+def short_list_states(c, prepared2, other, first_mover, them, reply_psr):
+    """The reply states the first mover looks at when it ends at state c: per
+    hex at a short-list distance from c (plus the replier's own hex) and per
+    movement mode, the state with the best TMM (most hexes moved; least MP on a
+    tie), turned to face c (pathfinder combat._direction_facing). Returns
+    (states, psr): psr is reply_psr plus these states' PSR costs (a PSR cost
+    doesn't depend on facing, but the table is keyed by it)."""
+    cache = _SHORT_LIST
+    if cache["source"] is not prepared2:
+        best: Dict[tuple, object] = {}
+        for o in prepared2:
+            k = (o.label, o.mode)
+            if k not in best or (o.fc, -o.mp_spent) > (best[k].fc, -best[k].mp_spent):
+                best[k] = o
+        cache.clear()
+        cache.update(source=prepared2, best=list(best.values()), turned={},
+                     psr=dict(reply_psr) if reply_psr is not None else _psr_by_state(them, prepared2),
+                     distances=short_list_distances(other, first_mover))
+    distances, turned, psr = cache["distances"], cache["turned"], cache["psr"]
+    states = []
+    for o in cache["best"]:
+        if o.hex_xy == c.hex_xy:
+            continue
+        if o.label != other.hex and hex_distance(o.hex_xy, c.hex_xy) not in distances:
+            continue
+        facing = combat._direction_facing(o.hex_xy, c.hex_xy)
+        key = (o.label, o.mode, facing)
+        state = turned.get(key)
+        if state is None:
+            state = ranged_combat.turned_option(o, facing)
+            turned[key] = state
+            psr[(state.label, state.facing_compass, state.mode, state.fc, state.mp_spent)] = them.psr_for(state)
+        states.append(state)
+    return states, psr
 
 
 def choose(mover, other, terrain_map, battle_rng, moves_first, standup_mp=None, entry_edge=None):
@@ -773,11 +864,14 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
         return (_pick_dict(o), me.objective.note(dealt, received, dm, rm, extras,
                                                  f"two-ply, {_spots_text(len(scored), len(prepared1))} x "
                                                  f"{len(prepared2)} replies"
-                                                 f"{' (grid search)' if assumed_enemy_search(mover) == 'grid' else ''}"
+                                                 f"{_REPLY_SEARCH_TEXT.get(assumed_enemy_search(mover), '')}"
                                                  f"{reply_txt}"),
                 me.objective(dealt, received, dm, rm, extras), ctx)
     return (*_fallback_pick(mover, other, prepared1, enemy_xy, dealt_for, terrain_map, battle_rng,
                             f"no spot deals damage even before the reply (two-ply, {len(prepared1)} spots)"), None, ctx)
+
+
+_REPLY_SEARCH_TEXT = {"grid": " (grid search)", "short_list": " (short list)"}
 
 
 def _spots_text(checked, total):
@@ -791,8 +885,9 @@ def own_search(mech):
 
 
 def assumed_enemy_search(mech):
-    """How this mech, moving first, assumes the second mover picks its reply:
-    its config "assumes_enemy_search", else config.MOVEMENT_ASSUMED_ENEMY_SEARCH."""
+    """How this mech, moving first, assumes the second mover picks its reply
+    ("short_list", "grid" or "exhaustive"): its config "assumes_enemy_search",
+    else config.MOVEMENT_ASSUMED_ENEMY_SEARCH."""
     return getattr(mech, "assumes_enemy_search", None) or config.MOVEMENT_ASSUMED_ENEMY_SEARCH
 
 
