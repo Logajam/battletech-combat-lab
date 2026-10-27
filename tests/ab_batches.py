@@ -120,6 +120,7 @@ VARIANT_SETS = {
     "short-short": [
         ("Short Grid (default)", {}),
         ("Short-Short", {"MOVEMENT_SEARCH": "short_list"}),
+        ("Short-Short + grid prune", {"MOVEMENT_SEARCH": "short_list", "MOVEMENT_SHORT_LIST_GRID": True}),
     ],
 }
 VARIANTS = VARIANT_SETS["objective"]

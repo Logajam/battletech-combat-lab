@@ -1230,6 +1230,24 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-27 (Claude):** Short-Short, best few states + grid prune (Daniel:
+  "Keep only the best few states. Also wonder if short list hexes tend to be
+  continuous. If so then a grid search prune on them would reduce the total
+  that need to be checked"). `movement_selection.own_short_list`: per
+  short-list hex and movement mode, one state - most hexes moved (least MP
+  on a tie), then the facing nearest the enemy - always a reachable state.
+  New `config.MOVEMENT_SHORT_LIST_GRID` (default False): the grid search
+  ("guess and follow") over those hexes instead of all of them.
+  Contiguity (Short-Short, 10 battles each, Kontio-Hammerhead, Atlas-Archer,
+  Cataphract-Emperor; 740 decisions): reachable 412 states / 60 hexes ->
+  short list 25 hexes, 48 states kept; 1.9 connected groups a decision, the
+  largest holding 85% of the hexes, 0.3 lone hexes - mostly continuous.
+  A/B, 20 battles, wins Red-Blue-draw, ms a turn (Short Grid -> Short-Short
+  -> + grid prune): Kontio-Hammerhead 13-5-2 / 14-6-0 / 12-8-0, 127 / 125 /
+  104 ms; Atlas-Archer 19-1-0 / 20-0-0 / 20-0-0, 36 / 29 / 28 ms;
+  Cataphract-Emperor 2-17-1 / 1-19-0 / 1-19-0, 98 / 105 / 73 ms. Results
+  within noise; Short-Short battles end sooner (9-10 turns vs 16-18 on two
+  matchups). Default unchanged; all checks pass.
 - **2026-10-27 (Claude):** "Short-Short" for Gladiator, BEGUN (Daniel: "second
   mover only tests its short list vs the opponent's short list to pick a
   movement option"; Daniel near his usage limit). `MOVEMENT_SEARCH` /

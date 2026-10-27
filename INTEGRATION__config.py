@@ -316,7 +316,7 @@ MOVEMENT_TWO_PLY = True          # False: the first mover scores against the ene
 #                  A second mover (knowing where its enemy stands) also always looks
 #                  at the 6 hexes around the enemy (melee).
 #   "exhaustive" - every reachable spot ("perfect"; the original).
-#   "short_list" - MOVEMENT_ASSUMED_ENEMY_SEARCH only (Daniel's "simple short list",
+#   "short_list" - (Daniel's "simple short list",
 #                  2026-10-24): the first mover looks for the reply only on a rule-of-
 #                  thumb list of hexes - next to the first mover, the replier's own
 #                  hex, and the hexes at the MOVEMENT_SHORT_LIST_DROPS ranges where
@@ -324,6 +324,11 @@ MOVEMENT_TWO_PLY = True          # False: the first mover scores against the ene
 #                  mover's does. Each hex is scored once per movement mode at its
 #                  best TMM, facing the first mover (its facing isn't searched).
 #                  An immobile or prone replier keeps the full model.
+#                  As MOVEMENT_SEARCH ("Short-Short", 2026-10-27: "both sides are only
+#                  picking from their own short lists"): the mover's own hex and the
+#                  hexes at those ranges from the enemy, best few states per hex
+#                  (movement_selection.own_short_list), each with the look-ahead
+#                  when moving first.
 # MOVEMENT_SEARCH: how a mech picks its OWN spot (first mover: which spots get the
 # two-ply look-ahead; second mover: its real pick).
 # MOVEMENT_ASSUMED_ENEMY_SEARCH: how a first mover ASSUMES the second mover picks its
@@ -340,6 +345,11 @@ MOVEMENT_SEARCH_STARTS = 1      # "grid": how many of the best net hexes to foll
 # number the rough damage-by-range curve is read at (gunnery 4 + about 2 for movement).
 MOVEMENT_SHORT_LIST_DROPS = 2
 MOVEMENT_SHORT_LIST_PRE_TN = 6
+# Short-Short (own search "short_list", 2026-10-27): True = Daniel's grid search
+# ("guess and follow") over the short-list hexes instead of scoring them all
+# (Daniel: "if short list hexes tend to be continuous ... a grid search prune on
+# them would reduce the total that need to be checked").
+MOVEMENT_SHORT_LIST_GRID = False
 # "grid": which of the two mirror-image 1-in-7 nets (2026-10-21, Daniel's spin A/B). The
 # range-3 net hexes are "2 hexes out, then 1 turning clockwise" or "... counter-clockwise".
 MOVEMENT_GRID_SPIN = "clockwise"

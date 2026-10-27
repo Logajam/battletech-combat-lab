@@ -668,6 +668,28 @@ def short_list_distances(replier, first_mover):
     return {1} | damage_drops(replier, count) | {d + 1 for d in damage_drops(first_mover, count)}
 
 
+def own_short_list(mover, other, prepared, enemy_xy):
+    """A mover's own short list ("Short-Short", Daniel 2026-10-27): its own
+    hex and the hexes at short_list_distances from the enemy's hex - and, per
+    hex and movement mode, only the best few states (Daniel: "Keep only the
+    best few states"): the most hexes moved (best TMM; least MP on a tie),
+    then the facing nearest to facing the enemy. Every state kept is really
+    reachable. All of `prepared` if none qualifies."""
+    distances = short_list_distances(mover, other)
+    best: Dict[tuple, object] = {}
+    for o in prepared:
+        if o.label != mover.hex and hex_distance(o.hex_xy, enemy_xy) not in distances:
+            continue
+        want = combat._direction_facing(o.hex_xy, enemy_xy) if o.hex_xy != enemy_xy else o.facing
+        turn = min((o.facing - want) % 6, (want - o.facing) % 6)
+        rank = (o.fc, -o.mp_spent, -turn)
+        k = (o.label, o.mode)
+        if k not in best or rank > best[k][0]:
+            best[k] = (rank, o)
+    kept = [o for _, o in best.values()]
+    return kept or prepared
+
+
 # One look-ahead's working set: rebuilt when the reply states change (a new
 # look-ahead). Holding the list itself keeps its id from being reused.
 _SHORT_LIST = {"source": None}
@@ -805,10 +827,12 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
             # "Short-Short" (Daniel, 2026-10-27): the second mover checks only its own short
             # list - its own hex and the hexes at the short-list distances from the enemy
             # (short_list_distances) - every reachable state there, so the pick is legal.
-            distances = short_list_distances(mover, other)
-            states = [o for o in prepared1 if o.label == mover.hex or hex_distance(o.hex_xy, enemy_xy) in distances]
-            static = ev1.evaluate(other.hex, other.facing, other.move_fc, other.move_mode, other.mp_spent,
-                                  states or prepared1)
+            states = own_short_list(mover, other, prepared1, enemy_xy)
+            if config.MOVEMENT_SHORT_LIST_GRID:
+                static = [cand for _, cand in _grid_search(states, static_rows, _search_start(mover, states),
+                                                           config.MOVEMENT_SEARCH_STARTS, target_xy=enemy_xy)]
+            else:
+                static = ev1.evaluate(other.hex, other.facing, other.move_fc, other.move_mode, other.mp_spent, states)
         elif not moves_first and own_search(mover) == "grid":
             # The second mover picks by guess and follow (Daniel, 2026-10-21) - as the first mover modeled it.
             static = [cand for _, cand in _grid_search(prepared1, static_rows, _search_start(mover, prepared1),
@@ -861,9 +885,12 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
             # short lists"): the first mover scores only its own hex and the hexes at the
             # short-list distances from the enemy where it stands now, each against the
             # second mover's short list (assumed_enemy_search).
-            distances = short_list_distances(mover, other)
-            states = [c for c in prepared1 if c.label == mover.hex or hex_distance(c.hex_xy, enemy_xy) in distances]
-            scored = [score_spot(c) for c in (states or prepared1)]
+            states = own_short_list(mover, other, prepared1, enemy_xy)
+            if config.MOVEMENT_SHORT_LIST_GRID:
+                scored = _grid_search(states, lambda group: [score_spot(c) for c in group],
+                                      _search_start(mover, states), config.MOVEMENT_SEARCH_STARTS)
+            else:
+                scored = [score_spot(c) for c in states]
         elif own_search(mover) == "grid":
             # No hexes around the enemy here: it moves after the first mover (Daniel, 2026-10-21:
             # "Always checks wouldn't help the first mover"). The own hex is always a net hex.
