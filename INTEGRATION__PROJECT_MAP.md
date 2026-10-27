@@ -1230,6 +1230,24 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-27 (Claude):** Princess vs Gladiator SPEED (Daniel: "how fast is
+  princess compared to gladiator? Either in terms of operations to reach a
+  decision, or just measure how long its turns take"). `tests/bot_agreement.py`
+  now times each picker on the same positions and counts its operations -
+  the (my spot, enemy spot) pairs it scores. 8 matchups x 20 battles, 2,272
+  movement decisions, 4 workers, mean / median ms a decision, mean pairs:
+  Princess 36 / 25 ms, 385 pairs; Short Grid 115 / 80 ms, 2,039 pairs (3.2x
+  Princess); Perfect 556 / 102 ms (max 7.8 s), 89,153 pairs (15.6x). Moving
+  first: Princess 23 ms, Short Grid 177 ms (7.8x), Perfect 1,046 ms (46x) -
+  the look-ahead is Gladiator's cost (Princess has none). Moving second, all
+  three are about the same (49 / 54 / 62 ms; Short Grid scores fewer pairs,
+  110 vs 388). Whole turns, 10 battles, both sides the same bot, 1 worker
+  (s a turn, Gladiator -> Princess): Kontio-Hammerhead 0.388 -> 0.275,
+  Atlas-Archer 0.118 -> 0.041, Cataphract-Emperor 0.186 -> 0.081. Movement
+  is 90-98% of a turn for both; the weapon choice is ~1.5-3.3 ms and the
+  physical choice ~0.3-0.5 ms a call for either bot. (Princess's Kontio
+  turns stay slow: a fast 'Mech has ~1,500 spots, all ranked with its fire
+  control's heat plans.)
 - **2026-10-27 (Claude):** Princess vs Gladiator, longer and wider (Daniel:
   "Longer and wider comparison runs. Also get a sense for how often princes's
   top pick matches the 'Perfect Knowledge' and the current default setting
