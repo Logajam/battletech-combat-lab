@@ -113,6 +113,8 @@ PILOTING = 5
 # MECHSIM__equipment.get_weapons() on the parsed mech), "walking_mp"/
 # "running_mp"/"jumping_mp" (computed live from mech_state, not static),
 # "max_hp"/"current_hp" (tracked on the BattleMech instance itself).
+# "bot" (optional, 2026-10-27, INTEGRATION__bots): which bot decides for this
+# unit - None = BOT below.
 MECH_RED_CONFIG = {
     "hex": "0505",
     "facing": "S",
@@ -129,6 +131,13 @@ MECH_BLUE_CONFIG = {
     "min_heat": 0,
     "max_heat": 4,
 }
+
+# Which bot drives a unit when its MECH_*_CONFIG has no "bot" key (Daniel,
+# 2026-10-27, INTEGRATION__bots):
+#   "gladiator" - this project's bot (movement_selection, weapon_selection, ...)
+#   "princess"  - a clone of MegaMek's Princess bot - NOT BUILT YET (refused
+#                 at load time; plan in PROJECT_MAP Section 6, "Princess clone")
+BOT = "gladiator"
 
 # Deployment (2026-10-19, Core p.37):
 #   "home_edge"   - deployment roll; the loser picks a home edge, the winner

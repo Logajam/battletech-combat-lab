@@ -132,6 +132,7 @@ import INTEGRATION__capacitor as capacitor  # noqa: E402
 import INTEGRATION__tag as tag  # noqa: E402
 import INTEGRATION__physical as physical  # noqa: E402
 import INTEGRATION__movement_selection as movement_selection  # noqa: E402
+import INTEGRATION__bots as bots  # noqa: E402 - which bot decides for each unit (2026-10-27)
 import INTEGRATION__ranged_combat as ranged_combat  # noqa: E402
 import INTEGRATION__stubs as stubs  # noqa: E402
 import INTEGRATION__attack_resolution as attack_resolution  # noqa: E402
@@ -196,6 +197,8 @@ def _attach_mech_config(mech, cfg, side_name):
     # MOVEMENT_ASSUMED_ENEMY_SEARCH (movement_selection.own_search / assumed_enemy_search).
     mech.move_search = cfg.get("search")
     mech.assumes_enemy_search = cfg.get("assumes_enemy_search")
+    # Which bot decides for this unit (2026-10-27, INTEGRATION__bots): "gladiator" / "princess".
+    mech.bot = bots.bot_for(cfg)
     mech.current_heat = 0
     mech.shutdown = False
     mech.deactivated_heat_sinks = 0
@@ -362,8 +365,8 @@ def _move(mover, other, terrain_map, turn_number, battle_rng, moves_first):
     mp = _compute_available_mp(mover)
     entry_edge = mover.home_edge if mover.hex is None else None   # entering the battlefield (p.37)
     with timing.section("picking a spot"):
-        pick, why = movement_selection.choose(mover, other, terrain_map, battle_rng, moves_first,
-                                              standup_mp=standup_mp, entry_edge=entry_edge)
+        pick, why = bots.choose_movement(mover, other, terrain_map, battle_rng, moves_first,
+                                         standup_mp=standup_mp, entry_edge=entry_edge)
     if pick is None and entry_edge is not None:
         # "A unit must move onto the battlefield ... If it cannot, it is destroyed." (p.37)
         mover.destroyed, mover.cause_of_death = True, "Could Not Enter Battlefield"
@@ -538,7 +541,7 @@ def _after_fall_midmove(mover, other, pick, fell, budget, terrain_map, battle_rn
         mover.mp_spent = budget - left if not mover.prone else budget
         if mover.prone or is_destroyed(mover) or left <= 0:
             break
-        pick2, why = movement_selection.choose(mover, other, terrain_map, battle_rng, moves_first, standup_mp=left)
+        pick2, why = bots.choose_movement(mover, other, terrain_map, battle_rng, moves_first, standup_mp=left)
         config.log(f"  [Movement select] {mover.side_name} (stood up again, {left} MP left): {why}")
         if pick2 is None:
             break
