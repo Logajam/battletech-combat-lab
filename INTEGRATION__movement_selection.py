@@ -856,7 +856,15 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
             return (me.objective(dealt, received, dealt_mult, received_mult, extras), c,
                     (dealt, received, dealt_mult, received_mult, extras, reply))
 
-        if own_search(mover) in ("grid", "short_list"):   # a first mover has no short list of its own
+        if own_search(mover) == "short_list":
+            # "Short-Short" (Daniel, 2026-10-27: "both sides are only picking from their own
+            # short lists"): the first mover scores only its own hex and the hexes at the
+            # short-list distances from the enemy where it stands now, each against the
+            # second mover's short list (assumed_enemy_search).
+            distances = short_list_distances(mover, other)
+            states = [c for c in prepared1 if c.label == mover.hex or hex_distance(c.hex_xy, enemy_xy) in distances]
+            scored = [score_spot(c) for c in (states or prepared1)]
+        elif own_search(mover) == "grid":
             # No hexes around the enemy here: it moves after the first mover (Daniel, 2026-10-21:
             # "Always checks wouldn't help the first mover"). The own hex is always a net hex.
             scored = _grid_search(prepared1, lambda states: [score_spot(c) for c in states],
@@ -887,8 +895,9 @@ def _spots_text(checked, total):
 
 
 def own_search(mech):
-    """How this mech picks its own spot: "grid", "exhaustive" or (second
-    mover only, else "grid") "short_list" - "Short-Short" with
+    """How this mech picks its own spot: "grid", "exhaustive" or
+    "short_list" (either mover: its own hex and the short-list distances
+    from the enemy) - "Short-Short" with
     assumes_enemy_search "short_list", 2026-10-27 - its config
     "search" (orchestrator._attach_mech_config), else config.MOVEMENT_SEARCH."""
     return getattr(mech, "move_search", None) or config.MOVEMENT_SEARCH
