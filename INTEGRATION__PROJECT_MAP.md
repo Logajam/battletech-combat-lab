@@ -1230,6 +1230,17 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-27 (Claude):** "Short-Short" for Gladiator, BEGUN (Daniel: "second
+  mover only tests its short list vs the opponent's short list to pick a
+  movement option"; Daniel near his usage limit). `MOVEMENT_SEARCH` /
+  `"search"` = "short_list": the second mover scores only the reachable
+  states in its own hex and at the short-list distances from the enemy
+  (`short_list_distances`); a first mover with it uses the grid. With the
+  default look-ahead ("short_list") that is Short-Short. `ab_batches.py
+  --set short-short`. First check, Kontio-Hammerhead, 20 battles: Short Grid
+  13-5-2, Short-Short 13-7-0 (34 s vs 40 s, same winner 10/20). Default
+  unchanged. Open: wider A/B, a speed and agreement row (bot_agreement),
+  Daniel's confirmation that this is the reading he meant.
 - **2026-10-27 (Claude):** Princess vs Gladiator SPEED (Daniel: "how fast is
   princess compared to gladiator? Either in terms of operations to reach a
   decision, or just measure how long its turns take"). `tests/bot_agreement.py`

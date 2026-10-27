@@ -801,7 +801,15 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
                     for cand in ev1.evaluate(other.hex, other.facing, other.move_fc, other.move_mode,
                                              other.mp_spent, states)]
 
-        if not moves_first and own_search(mover) == "grid":
+        if not moves_first and own_search(mover) == "short_list":
+            # "Short-Short" (Daniel, 2026-10-27): the second mover checks only its own short
+            # list - its own hex and the hexes at the short-list distances from the enemy
+            # (short_list_distances) - every reachable state there, so the pick is legal.
+            distances = short_list_distances(mover, other)
+            states = [o for o in prepared1 if o.label == mover.hex or hex_distance(o.hex_xy, enemy_xy) in distances]
+            static = ev1.evaluate(other.hex, other.facing, other.move_fc, other.move_mode, other.mp_spent,
+                                  states or prepared1)
+        elif not moves_first and own_search(mover) == "grid":
             # The second mover picks by guess and follow (Daniel, 2026-10-21) - as the first mover modeled it.
             static = [cand for _, cand in _grid_search(prepared1, static_rows, _search_start(mover, prepared1),
                                                        config.MOVEMENT_SEARCH_STARTS, target_xy=enemy_xy)]
@@ -848,7 +856,7 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
             return (me.objective(dealt, received, dealt_mult, received_mult, extras), c,
                     (dealt, received, dealt_mult, received_mult, extras, reply))
 
-        if own_search(mover) == "grid":
+        if own_search(mover) in ("grid", "short_list"):   # a first mover has no short list of its own
             # No hexes around the enemy here: it moves after the first mover (Daniel, 2026-10-21:
             # "Always checks wouldn't help the first mover"). The own hex is always a net hex.
             scored = _grid_search(prepared1, lambda states: [score_spot(c) for c in states],
@@ -879,7 +887,9 @@ def _spots_text(checked, total):
 
 
 def own_search(mech):
-    """How this mech picks its own spot: "grid" or "exhaustive" - its config
+    """How this mech picks its own spot: "grid", "exhaustive" or (second
+    mover only, else "grid") "short_list" - "Short-Short" with
+    assumes_enemy_search "short_list", 2026-10-27 - its config
     "search" (orchestrator._attach_mech_config), else config.MOVEMENT_SEARCH."""
     return getattr(mech, "move_search", None) or config.MOVEMENT_SEARCH
 
