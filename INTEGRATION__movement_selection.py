@@ -694,6 +694,24 @@ def own_short_list(mover, other, prepared, enemy_xy):
 # look-ahead). Holding the list itself keeps its id from being reused.
 _SHORT_LIST = {"source": None}
 
+# Studies only (2026-10-27, tests/pick_quality.py): a dict here receives the
+# objective score of EVERY state a pick scored - "spots": {(hex, facing, mode,
+# fc): score} (a state with no line of sight scored as dealing and taking
+# nothing) and "attacks": {(hex, facing, mode, fc, "charge"/"dfa"): score} - so
+# other pickers' choices can be priced on the same scale. None = off (the
+# default; nothing changes).
+SCORE_SINK = None
+
+
+def _sink_spots(rows, prepared, me):
+    """rows: [(score, state, ...)] -> SCORE_SINK["spots"], every prepared state."""
+    spots = {(c.label, c.facing_compass, c.mode, c.fc): score for score, c, *_ in rows}
+    for o in prepared:
+        key = (o.label, o.facing_compass, o.mode, o.fc)
+        if key not in spots:
+            spots[key] = me.objective(0.0, 0.0, 1.0, 1.0, me.psr_for(o))
+    SCORE_SINK["spots"] = spots
+
 
 def short_list_states(c, prepared2, other, first_mover, them, reply_psr):
     """The reply states the first mover looks at when it ends at state c: per
@@ -762,6 +780,9 @@ def _movement_attack_pick(mover, other, terrain_map, standup_mp, normal_score, e
         (other.hex, other.facing, other.move_fc, other.move_mode, other.mp_spent), me.objective)
     if not options:
         return None
+    if SCORE_SINK is not None:
+        SCORE_SINK["attacks"] = {(st["hex"], st["facing"], st["mode"], st["fc"], "charge" if st.get("charge") else "dfa"): sc
+                                 for sc, _, st, _ in options}
     score, cand, state, what = options[0]
     if normal_score is not None and score <= normal_score:
         return None
@@ -847,6 +868,8 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
 
     if not two_ply:
         scored = _static_scores(static, prepared_by_key, me, them)
+        if SCORE_SINK is not None:
+            _sink_spots(scored, prepared1, me)
         if scored and any(c.dealt > 0 for _, _, c in scored):
             o, cand = _best_by_score(scored, enemy_xy, battle_rng)
             score = me.objective(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
@@ -899,6 +922,8 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
         else:
             scored = [score_spot(c) for c in prepared1]
         any_dealt = any(payload[0] > 0 for _, _, payload in scored)
+        if SCORE_SINK is not None:
+            _sink_spots(scored, prepared1, me)
     if any_dealt:
         o, (dealt, received, dm, rm, extras, reply) = _best_by_score(scored, enemy_xy, battle_rng)
         reply_txt = (f"; modeled reply {other.side_name} -> {reply.hex} {reply.facing} {reply.mode}"
