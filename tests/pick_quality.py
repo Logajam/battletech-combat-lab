@@ -42,7 +42,13 @@ and side, and overall (by mover order too):
                  farther) - Daniel's "close range when I don't have to" check;
                  kiting scenarios are marked
   ms             time per decision
-Decisions where the best score is 0 or less are left out of "% of best".
+  no LOS         share of picks (moving second) on a spot with no line of
+                 sight to the enemy - outside what Perfect chooses among; such
+                 a pick is priced at most at the best
+Best, worst and rank are over the spots Perfect chooses among (moving second:
+the spots with line of sight) and its charges / DFAs. Decisions where nothing
+deals damage (Perfect's closing fallback) are left out; so are decisions with
+a best score of 0 or less from "% of best".
 Scenarios run one after another, each one's battles in parallel (--workers).
 Raw rows: run_stats/pick_quality/.
 """
@@ -155,18 +161,30 @@ def _recording_choose(mover, other, terrain_map, battle_rng, moves_first, standu
             picks[name] = _key(pick)
         spots = sink.get("spots", {})
         attacks = sink.get("attacks", {})
-
-        def price(k):
-            if k is None:
-                return None
-            return attacks.get(k) if k[4] else spots.get(k[:4])
-        all_scores = sorted(list(spots.values()) + list(attacks.values()))
+        considered = sink.get("considered", set(spots))
+        # Best / worst / rank over the spots Perfect chooses among (moving second, only
+        # spots with line of sight) and its charges / DFAs.
+        all_scores = sorted([spots[k] for k in considered] + list(attacks.values()))
         best = all_scores[-1] if all_scores else None
         worst = all_scores[0] if all_scores else None
+
+        def price(k):
+            """A spot outside Perfect's choice (no line of sight, moving second) is
+            worth at most its best - Gladiator never takes one while it can shoot."""
+            if k is None:
+                return None
+            if k[4]:
+                return attacks.get(k)
+            value = spots.get(k[:4])
+            if value is not None and k[:4] not in considered and best is not None:
+                value = min(value, best)
+            return value
         enemy_xy = hex_geometry.parse_hex_label(other.hex)
         _ROWS.append({
             "side": mover.side_name, "moves_first": bool(moves_first), "turn": getattr(mover, "turn_number", 0),
             "stood_up": standup_mp is not None, "picks": picks, "seconds": seconds, "best": best, "worst": worst,
+            "fallback": bool(sink.get("fallback")),
+            "hidden": {n: (k is not None and not k[4] and k[:4] not in considered) for n, k in picks.items()},
             "scores": {n: price(k) for n, k in picks.items()},
             "rank": {n: (None if price(k) is None or not all_scores else
                          sum(1 for v in all_scores if v <= price(k) + 1e-9) / len(all_scores))
@@ -202,8 +220,9 @@ def _mean(values):
 
 
 def _table(rows, title):
+    rows = [r for r in rows if not r.get("fallback")]
     lines = [title, f"  {'picker':<17} {'n':>4} {'% of best':>9} {'% of range':>10} {'got best':>9} {'rank pct':>9} {'hexes off':>10} "
-                    f"{'same hex':>9} {'closer':>7} {'ms':>7}"]
+                    f"{'same hex':>9} {'closer':>7} {'no LOS':>7} {'ms':>7}"]
     for name in PICKERS:
         mine = [r for r in rows if r["scores"].get(name) is not None]
         if not mine:
@@ -222,6 +241,7 @@ def _table(rows, title):
         lines.append(f"  {name:<17} {len(mine):>4} {_mean(pct):>8.1f}% {_mean(spread):>9.1f}% {100 * _mean(got):>8.0f}% "
                      f"{100 * _mean([r['rank'][name] for r in mine]):>8.0f}% {_mean(off):>10.2f} "
                      f"{100 * _mean(same):>8.0f}% {_mean(closer):>+7.2f} "
+                     f"{100 * _mean([r['hidden'][name] for r in mine]):>6.0f}% "
                      f"{1000 * _mean([r['seconds'][name] for r in mine]):>7.0f}")
     return "\n".join(lines)
 
