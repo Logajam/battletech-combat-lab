@@ -1057,11 +1057,31 @@ forward arc, kicks included, never into a side arc.
 | Closing-turn detection | `movement_selection.closing_fallback` | Wired (ported) |
 
 | Which bot decides for a unit | `INTEGRATION__bots.bot_for` (`config.BOT`, `MECH_*_CONFIG["bot"]`) | "gladiator" (DEFAULT - every row above) or "princess" (the clone below). Routed through `bots`: the Movement Phase pick (`choose_movement`), the weapon choice (`fire_control` around `attack_resolution.declare_attacks`' arc loop) and the physical attack (`choose_physical`). Every other row (ammunition kind, rate of fire, MASC, AMS, heat sinks, clubs, aimed shots...) is shared |
-| Princess: movement | `INTEGRATION__princess.choose` | BasicPathRanker.rankPath (below) |
+| Princess: movement | `INTEGRATION__princess_modern.choose` ("modern", DEFAULT) / `INTEGRATION__princess.choose` ("0.50.07") - `config.PRINCESS_VERSION` | BasicPathRanker.rankPath (below) |
+| Princess: posture | `INTEGRATION__princess_modern.posture` | ATTACK, or DEFEND while the enemy closes 0.5+ hexes a round (3-round window); once a round, kept on `mech.princess_memory` |
 | Princess: weapons and twist | `INTEGRATION__princess_fire.FireControl` via `weapon_selection.fire_control` | FireControl's plan utility and heat plans (below); the twist / flip with the best utility |
 | Princess: physical attack | `INTEGRATION__princess_fire.choose_physical` | PhysicalCalculator.getBestPhysicalAttack (below); no new twist |
 
 ### Princess clone (Daniel, 2026-10-27) - as built
+
+**Two versions, `config.PRINCESS_VERSION`** (Daniel, 2026-10-27: "Clone the
+entire modern suit for Princess"): **"modern"** (DEFAULT) = MegaMek main at
+commit `fd2edfb` (2026-10-26), cloned with `git clone --depth 1 --filter=
+blob:none --sparse https://github.com/MegaMek/megamek.git` (git works through
+the proxy; `megamek/src/megamek/client/bot` is 55k lines, mostly aerospace,
+infantry, artillery, formations, convoys - not used by a 'Mech duel). A 'Mech
+still gets `BasicPathRanker` (Princess.getPathRanker), the same validation,
+FireControl and PhysicalCalculator; what changed is in
+`INTEGRATION__princess_modern` (ranker: posture, close-range incentive,
+squaring up, position hold + water sustain boost, movement / cover discounts,
+physical threat weights, water hazard) and `INTEGRATION__princess_fire`
+(tolerance with movement heat and the TSM ceiling, the TSM heat incentive,
+crits / kills by damage on a hit). Module docstrings have the formulas.
+**"0.50.07"** = the classic ranker below, kept (it reproduces the earlier
+recorded runs exactly). Not ported from modern, beyond the v0.50.07 list
+below: standoff for artillery / TAG 'Mechs, sprinting, unit orders, mutual
+support / crowding / formations (no friends in a duel), forced withdrawal,
+the enemy / friendly memory (FightMemory, EnemyTracker - multi-unit).
 
 Reference: MegaMek **v0.50.07** `megamek/src/megamek/client/bot/princess/`
 (+ `client/bot/PhysicalCalculator.java`, `princess/geometry/`). Fetch with
@@ -1230,6 +1250,29 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-27 (Claude):** The MODERN Princess (Daniel: "Clone the entire
+  modern suit for Princess. Do a sanity check vs the results of one of the
+  previous runs thats already recorded, see if she improves"). MegaMek main
+  at fd2edfb (2026-10-26): new `INTEGRATION__princess_modern.py` (posture,
+  close-range incentive, squaring up, position hold with the water sustain
+  boost, attacker-movement and cover discounts, physical threat weights, the
+  modern water hazard) and modern FireControl in `INTEGRATION__princess_fire`
+  (movement heat and the TSM ceiling in the tolerance, the TSM heat
+  incentive, crits / kills by damage on a hit). `config.PRINCESS_VERSION`
+  ("modern" DEFAULT, "0.50.07"); orchestrator sets `mover.turn_number`;
+  `ab_batches.py --set bots-classic`; `tests/test_bots.py` checks the modern
+  fire control, the posture and both versions' battles. The classic version
+  reproduces its recorded 20-battle Kontio-Hammerhead run exactly (5-15-0 /
+  17-2-1 / 7-13-0); Gladiator unchanged (all reference logs identical).
+  Sanity check against the recorded 100-battle runs (same seeds; wins of the
+  side Princess plays, classic -> modern, with both-Gladiator for scale):
+  Kontio-Hammerhead - Princess Red 14 -> 40 (Gladiator 63), off-board deaths
+  48 -> 25; Princess Blue 14 -> 11 (Gladiator 31); both Princess Red 44 -> 68.
+  Atlas-Archer - Princess Red 73 -> 81 (Gladiator 92); Princess Blue 0 -> 2
+  (Gladiator 7); both Princess 94-6 -> 97-2. Battles last longer (Kontio
+  6-7 -> 7-8 turns, Atlas 9-11 -> 10-14). Modern Princess is better, most
+  of all as the faster brawler (the close-range pull, squaring up); it still
+  trails Gladiator in every seat, and is still pushed off the board often.
 - **2026-10-27 (Claude):** Short-Short, best few states + grid prune (Daniel:
   "Keep only the best few states. Also wonder if short list hexes tend to be
   continuous. If so then a grid search prune on them would reduce the total

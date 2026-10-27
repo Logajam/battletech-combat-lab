@@ -116,6 +116,14 @@ VARIANT_SETS = {
         ("Gladiator vs Princess (Blue)", {"MECH_BLUE_CONFIG.bot": "princess"}),
         ("Princess vs Princess", {"MECH_RED_CONFIG.bot": "princess", "MECH_BLUE_CONFIG.bot": "princess"}),
     ],
+    # The same with the classic Princess (v0.50.07, the first clone) - to compare the versions.
+    "bots-classic": [
+        ("Gladiator vs Gladiator", {}),
+        ("Princess (Red) vs Gladiator", {"MECH_RED_CONFIG.bot": "princess", "PRINCESS_VERSION": "0.50.07"}),
+        ("Gladiator vs Princess (Blue)", {"MECH_BLUE_CONFIG.bot": "princess", "PRINCESS_VERSION": "0.50.07"}),
+        ("Princess vs Princess", {"MECH_RED_CONFIG.bot": "princess", "MECH_BLUE_CONFIG.bot": "princess",
+                                  "PRINCESS_VERSION": "0.50.07"}),
+    ],
     # "Short-Short" (Daniel, 2026-10-27): the second mover picks from its own short list too.
     "short-short": [
         ("Short Grid (default)", {}),

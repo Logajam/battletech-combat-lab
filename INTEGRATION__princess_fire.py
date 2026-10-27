@@ -144,13 +144,16 @@ def total_hp(mech):
                for e in mech.locations.values() if not e["destroyed"])
 
 
-def weapon_crits_and_kill(target, side, p_hit, expected):
-    """(expected criticals, kill chance) of one weapon with P(hit) p_hit and
-    expected damage `expected` (= P(hit) x damage on a hit, as Princess
-    compares it) against target from `side` - WeaponFireInfo.initDamage."""
+def weapon_crits_and_kill(target, side, p_hit, expected, on_hit=None, odds=None):
+    """(expected criticals, kill chance) of one weapon with P(hit) p_hit
+    against target from `side` - WeaponFireInfo.initDamage. v0.50.07 compares
+    the EXPECTED damage (P(hit) x damage on a hit) with each location's armor
+    (+ structure); the modern code compares the damage ON A HIT (on_hit given:
+    destroyed at >= armor + structure, a critical chance above the armor).
+    odds: the hit-location odds to use (default: the standard table by side)."""
     crits = ROLL_TWO * EXPECTED_CRITICAL_HIT_COUNT * p_hit
     kill = 0.0
-    odds = HIT_ODDS.get(side or "front", HIT_ODDS["front"])
+    odds = odds or HIT_ODDS.get(side or "front", HIT_ODDS["front"])
     rear = side == "rear"
     for i, base in enumerate(MEK_LOCATIONS):
         loc = _location_name(target, base)
@@ -165,15 +168,53 @@ def weapon_crits_and_kill(target, side, p_hit, expected):
         if loc is None:
             continue
         p_loc = odds[i]
+        if p_loc == 0:
+            continue
         armor = _armor(target, loc, rear)
         structure = max(0, target.locations[loc]["structure"])
-        if expected > armor + structure:
+        destroyed = (on_hit >= armor + structure) if on_hit is not None else (expected > armor + structure)
+        if destroyed:
             crits += p_loc * p_hit
             if loc == "Center Torso" or (loc == "Head" and not has_torso_cockpit(target)):
                 kill += p_loc * p_hit
-        elif expected > armor:
+        elif (on_hit if on_hit is not None else expected) > armor:
             crits += p_loc * p_hit * EXPECTED_CRITICAL_HIT_COUNT
     return crits, kill
+
+
+# Modern FireControl (2026-10-27): a TSM 'Mech wants its heat up to the activation band.
+TSM_DESIRED_HEAT = 9
+TSM_HEAT_CEILING = 13
+TSM_ACTIVATION_UTILITY = 20.0
+
+
+def modern():
+    """True for the modern Princess (config.PRINCESS_VERSION)."""
+    return config.PRINCESS_VERSION == "modern"
+
+
+def heat_tolerance(mech, dissipation, unavoidable):
+    """calcHeatTolerance: sinks - heat the 'Mech carries into the Heat Phase
+    whatever it fires (`unavoidable`) + 5. Modern: a TSM 'Mech may run up to
+    TSM_HEAT_CEILING at the end of the turn."""
+    tolerance = dissipation - unavoidable + HEAT_TOLERANCE_BONUS
+    if modern() and getattr(mech, "has_tsm", False):
+        tolerance = max(tolerance, dissipation - unavoidable + TSM_HEAT_CEILING)
+    return tolerance
+
+
+def tsm_heat_bonus(mech, dissipation, unavoidable, weapon_heat):
+    """applyTsmHeatIncentive: a TSM 'Mech's plan earns up to 20 for ending the
+    turn near heat 9 (falling to 0 at 13)."""
+    if not getattr(mech, "has_tsm", False) or weapon_heat <= 0:
+        return 0.0
+    projected = max(0, unavoidable + weapon_heat - dissipation)
+    if projected <= 0:
+        return 0.0
+    if projected < TSM_DESIRED_HEAT:
+        return TSM_ACTIVATION_UTILITY * projected / TSM_DESIRED_HEAT
+    band = max(1, TSM_HEAT_CEILING - TSM_DESIRED_HEAT)
+    return TSM_ACTIVATION_UTILITY * max(0.0, 1.0 - (projected - TSM_DESIRED_HEAT) / band)
 
 
 # =============================================================================
@@ -182,11 +223,15 @@ def weapon_crits_and_kill(target, side, p_hit, expected):
 class FireControl:
     """Princess's firing-plan choice, handed to weapon_selection.fire_control.
     guess=True: the movement ranker's estimate (alpha strike when within the
-    heat tolerance); False: the real attack (best plan by utility). One
-    object per decision - it caches each target's multiplier and HP."""
+    heat limit); False: the real attack (best plan by utility). One object per
+    decision - it caches each target's multiplier and HP. `self_mech`: the
+    Princess unit whose move is being ranked (guess mode, modern) - its own
+    plans are limited by the tolerance with the move's heat, the enemy's by
+    sinks - heat + 5 (calculateMyDamagePotential / calculateDamagePotential)."""
 
-    def __init__(self, guess):
+    def __init__(self, guess, self_mech=None):
         self.guess = guess
+        self.self_mech = self_mech
         self._target = {}
         self.last = None            # (expected damage, utility) of the last plan chosen (for the log)
 
@@ -199,16 +244,37 @@ class FireControl:
             got = self._target[id(target)] = (mult, max(1, total_hp(target)))
         return got
 
-    def __call__(self, mech, candidates, dissipation, other_heat, planner, side):
+    def _limits(self, mech, dissipation, other_heat, movement_heat):
+        """(utility tolerance, alpha-strike heat limit, unavoidable heat)."""
+        if not modern():
+            tolerance = dissipation - mech.current_heat - other_heat + HEAT_TOLERANCE_BONUS
+            return tolerance, tolerance, mech.current_heat + other_heat
+        if not self.guess:                                  # firing: the move is committed (heatBuildup)
+            unavoidable = mech.current_heat + movement_heat + other_heat
+            tolerance = heat_tolerance(mech, dissipation, unavoidable)
+            return tolerance, tolerance, unavoidable
+        if mech is self.self_mech:                          # my move, not yet made
+            tolerance = heat_tolerance(mech, dissipation, mech.current_heat + other_heat)
+            limit = heat_tolerance(mech, dissipation, mech.current_heat + other_heat + movement_heat)
+            return tolerance, limit, mech.current_heat + other_heat + movement_heat
+        unavoidable = mech.current_heat + movement_heat + other_heat   # the enemy: its move is made
+        return (heat_tolerance(mech, dissipation, unavoidable),
+                dissipation - mech.current_heat + HEAT_TOLERANCE_BONUS, unavoidable)
+
+    def __call__(self, mech, candidates, dissipation, other_heat, planner, side, movement_heat=0):
         target = planner.target if planner is not None else None
-        tolerance = dissipation - mech.current_heat - other_heat + HEAT_TOLERANCE_BONUS
+        tolerance, limit, unavoidable = self._limits(mech, dissipation, other_heat, movement_heat)
         mult, hp = self._target_terms(target) if target is not None else (1.0, 1)
         infos = []
         for w, expected, heat, tn in candidates:
             p = hit_probability(tn) if tn <= 12 else 0.0
             if p <= 0 or expected <= 0:
                 continue                         # an impossible shot is never in a plan
-            crits, kill = weapon_crits_and_kill(target, side, p, expected) if target is not None else (0.0, 0.0)
+            if target is None:
+                crits, kill = 0.0, 0.0
+            else:
+                crits, kill = weapon_crits_and_kill(target, side, p, expected,
+                                                    on_hit=expected / p if modern() else None)
             infos.append((w, expected, heat, crits, kill))
 
         def utility(plan):
@@ -227,7 +293,7 @@ class FireControl:
         alpha = empty
         for info in infos:
             alpha = add(alpha, info)
-        if self.guess and alpha[4] <= tolerance:
+        if self.guess and alpha[4] <= limit:
             return self._result(mech, alpha, utility(alpha))
         # calcFiringPlansUnderHeat: plans[h] = the best plan found with heat h.
         plans = [empty]
@@ -246,9 +312,12 @@ class FireControl:
                     if u > best_u:
                         best, best_u = test, u
             plans.append(best)
-        chosen, chosen_u = empty, 0.0
+        # getBestFiringPlanUnderHeat - the modern firing choice adds the TSM heat incentive.
+        bonus = ((lambda plan: tsm_heat_bonus(mech, dissipation, unavoidable, plan[4]))
+                 if modern() and not self.guess else (lambda plan: 0.0))
+        chosen, chosen_u = empty, bonus(empty)
         for plan in plans:
-            u = utility(plan)
+            u = utility(plan) + bonus(plan)
             if u > chosen_u:
                 chosen, chosen_u = plan, u
         return self._result(mech, chosen, chosen_u)

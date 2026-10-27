@@ -18,7 +18,7 @@ one after another) - the output is the same either way.
 
 | Path | What's there |
 |---|---|
-| `INTEGRATION__*.py` | The simulator: turn flow, combat, movement picking (`movement_selection`), firing arcs and torso twists (`arcs`), heat, results, stubs; which bot drives each unit (`bots`: "gladiator", this project's, or "princess", a clone of MegaMek's Princess in `princess` / `princess_fire`) |
+| `INTEGRATION__*.py` | The simulator: turn flow, combat, movement picking (`movement_selection`), firing arcs and torso twists (`arcs`), heat, results, stubs; which bot drives each unit (`bots`: "gladiator", this project's, or "princess", a clone of MegaMek's Princess - modern in `princess_modern`, v0.50.07 in `princess`, fire control in `princess_fire`) |
 | `mechsim/` | Mech state, damage, crits, piloting rolls, `.mtf` parser, `equipment.json` (full equipment database) |
 | `pathfinder/` | Hex geometry, board parser, movement, LOS, to-hit pieces |
 | `data/` | `.board` maps (16x17 Grassland, 50x50 BigBlank) and `.mtf` mechs (test mechs, plus real units from `meks.zip` for the AMS / Artemis / Narc / ECM / weapon-use reference battles) |

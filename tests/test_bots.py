@@ -72,7 +72,25 @@ class _W:
         self.name, self.heat = name, heat
 
 
+class _Version:
+    """config.PRINCESS_VERSION set for a block."""
+
+    def __init__(self, version):
+        self.version = version
+
+    def __enter__(self):
+        self.saved, config.PRINCESS_VERSION = config.PRINCESS_VERSION, self.version
+
+    def __exit__(self, *exc):
+        config.PRINCESS_VERSION = self.saved
+
+
 def fire_control_utility():
+    with _Version("0.50.07"):
+        _fire_control_utility()
+
+
+def _fire_control_utility():
     # A fresh Kontio as target: utility = (ED + 10 crits + 50 kill) x log10(2 x its
     # damage at range 1 + 10) - 5 x heat over the tolerance.
     red, blue = _mechs()
@@ -94,6 +112,41 @@ def fire_control_utility():
     # Nothing worth firing (an impossible shot) -> the empty plan.
     _, u3, heat3 = fc(red, [(w1, 3.0, 4, 13)], 10, 0, planner, "front")
     assert u3 == 0 and heat3 == 0
+
+
+def modern_fire_control():
+    # The Kontio (Red) carries TSM: modern tolerance = 10 sinks - 0 heat + 13 (the TSM
+    # ceiling) = 23, so a 20-heat plan isn't penalised; the firing choice adds the TSM
+    # incentive 20 x (projected heat 10 ... the band 9-13).
+    red, blue = _mechs()
+    assert getattr(red, "has_tsm", False)
+    red.current_heat = 0
+    planner = type("P", (), {"target": blue})()
+    mult = math.log10(2 * princess_fire.max_damage_at_range(blue, 1) + 10)
+    w1 = _W("a", 20)
+    with _Version("modern"):
+        weapons, u, heat = princess_fire.FireControl(guess=False)(red, [(w1, 3.0, 20, 7)], 10, 0, planner, "front")
+        p = 21 / 36
+        crits, kill = princess_fire.weapon_crits_and_kill(blue, "front", p, 3.0, on_hit=3.0 / p)
+        bonus = princess_fire.tsm_heat_bonus(red, 10, 0, 20)
+        assert abs(bonus - 20.0 * (1 - (10 - 9) / 4)) < 1e-9, bonus
+        assert heat == 20 and abs(u - ((3.0 + 10 * crits + 50 * kill) * mult + bonus)) < 1e-9, (heat, u)
+        # Its own guess while ranking a move counts the move's heat: 18 + 6 movement > 23 + ...
+        guess = princess_fire.FireControl(guess=True, self_mech=red)
+        _, _, h_still = guess(red, [(w1, 3.0, 20, 7)], 10, 0, planner, "front", 0)
+        assert h_still == 20                       # within 23: the alpha strike
+        _, _, h_ran = guess(red, [(w1, 3.0, 20, 7)], 10, 0, planner, "front", 6)
+        assert h_ran in (0, 20)                    # over 17 now: a plan by utility (penalty 5 x 3)
+
+
+def modern_posture():
+    import INTEGRATION__princess_modern as modern
+    red, blue = _mechs()
+    red.hex, blue.hex = "0101", "0115"            # 14 apart
+    for turn, blue_hex, want in ((1, "0115", "ATTACK"), (2, "0113", "DEFEND"), (3, "0113", "DEFEND"),
+                                 (4, "0113", "DEFEND"), (5, "0113", "ATTACK")):   # the window is 3 rounds
+        red.turn_number, blue.hex = turn, blue_hex
+        assert modern.posture(red, blue) == want, (turn, modern.posture(red, blue))
 
 
 def fire_control_scoped():
@@ -133,15 +186,18 @@ def _battle(seed):
 
 
 def princess_battle():
-    first, log = _battle(12345)
-    again, log2 = _battle(12345)
-    assert "Princess: utility" in log, "Princess never picked a move"
-    assert "Princess plan utility" in log, "Princess never chose its weapons"
-    assert log == log2, "the same seed gave a different battle"
-    assert first.turns_taken >= 1
+    for version, note in (("modern", "Princess (modern, "), ("0.50.07", "Princess: utility")):
+        with _Version(version):
+            first, log = _battle(12345)
+            again, log2 = _battle(12345)
+        assert note in log, f"{version}: Princess never picked a move"
+        assert "Princess plan utility" in log, f"{version}: Princess never chose its weapons"
+        assert log == log2, f"{version}: the same seed gave a different battle"
+        assert first.turns_taken >= 1
 
 
-CHECKS = [bot_names, megamek_geometry, fire_control_utility, fire_control_scoped, princess_battle]
+CHECKS = [bot_names, megamek_geometry, fire_control_utility, modern_fire_control, modern_posture,
+          fire_control_scoped, princess_battle]
 
 
 def main():
