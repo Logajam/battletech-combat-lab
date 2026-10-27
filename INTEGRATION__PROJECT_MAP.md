@@ -13,7 +13,7 @@ source project's file overwrite the other's same-named file.
 
 ---
 
-## 0. WHERE WE ARE (2026-10-21, end of session 7) — read this first
+## 0. WHERE WE ARE (2026-10-27, end of session 9) — read this first
 
 **Session 7 in one paragraph - RULES AND EQUIPMENT (all merged to `main`,
 PRs #44-#61):** Daniel: get the environment and physics right before the
@@ -113,7 +113,7 @@ parse); `rules/` the rules library zip; `reference_logs/` same-seed sample
 battles; `replays/` and `run_stats/` (git-ignored) generated output.
 
 **After any change, from the repo root:** `python tests/run_checks.py` -
-one command, about 1 min: every `tests/test_*.py` (17 files) and every
+one command, about 1 min: every `tests/test_*.py` (18 files) and every
 reference battle (15), side by side, one line each, all must pass. Reference
 battles stop at 50 turns (`check_reference_logs.TEST_BATTLE_MAX_TURNS`,
 Daniel); one that hits the cap prints a NOTE ("a possible flaw") - today
@@ -123,9 +123,10 @@ battle, run `python tests/check_reference_logs.py --update`, and say so in
 the Change Record (Daniel has OK'd regenerating them for intended changes).
 For anything on the hot path add `--bench` (10 turns of the Asymptote mirror,
 pinned so timings stay comparable - a pure speed change must keep its HP
-totals, currently 495 / 495 since the 2026-10-21 grid-search default (501 /
-495 with the exhaustive search); ~3.5 s in the cloud container (~14.5 s
-exhaustive); it prints where the time went). Bot changes: compare with
+totals, currently 501 / 495 since the 2026-10-24 short-list look-ahead
+default (also 501 / 495 with the exhaustive search; 495 / 495 was the grid
+look-ahead's); ~2-3 s in the cloud container (~14.5 s exhaustive); it prints
+where the time went). Bot changes: compare with
 `python tests/ab_batches.py` (same seeds, several settings side by side, 20
 battles a setting - Daniel).
 
@@ -241,17 +242,37 @@ default), each hex scored roughly (best TMM, facing the first mover). ~1.5x
 faster a turn, results within noise of perfect knowledge. Details and
 numbers: Change Record (Section 8).
 
-**Session 9 (2026-10-27): bots per unit.** Daniel: "The ability to select
-what type of bot each unit uses. The current system that makes up the bot
-shall be called 'Gladiator'. I would like to make a clone of Megamek's
-Princess bot to compare it against." Built: `INTEGRATION__bots` (`config.BOT`,
-`MECH_*_CONFIG["bot"]`: "gladiator" / "princess"), and the Princess clone -
-MegaMek v0.50.07's path ranker (`INTEGRATION__princess`), fire control and
-physical choice (`INTEGRATION__princess_fire`) on this project's rules, at
-`config.PRINCESS_BEHAVIOR` (MegaMek's DEFAULT sliders). A/B (`ab_batches.py
---set bots`, 20 a setting): Gladiator beats Princess from either side; Princess
-loses many 'Mechs to pushes off the board (it never looks at the edges, as in
-MegaMek). Details: Section 6 "Princess clone", Change Record.
+**Session 9 (2026-10-27) - BOTS PER UNIT, PRINCESS, PICK QUALITY (all merged
+to `main`, PRs #66-#77).** Daniel: "The ability to select what type of bot
+each unit uses. The current system ... shall be called 'Gladiator'. I would
+like to make a clone of Megamek's Princess bot to compare it against."
+- `INTEGRATION__bots`: `config.BOT` / `MECH_*_CONFIG["bot"]` = "gladiator"
+  (default) or "princess"; routes the move, the weapon choice and the
+  physical attack. `weapon_selection.fire_control` lets a bot's own thinking
+  use its own weapon choice (scoped - the other bot never sees it).
+- Princess, two versions (`config.PRINCESS_VERSION`): "modern" (default,
+  MegaMek main fd2edfb, `INTEGRATION__princess_modern`) and "0.50.07"
+  (`INTEGRATION__princess`); fire control and physical choice in
+  `INTEGRATION__princess_fire`; sliders `config.PRINCESS_BEHAVIOR`. Getting
+  MegaMek's source: `git clone --depth 1 --filter=blob:none --sparse
+  https://github.com/MegaMek/megamek.git` works through the proxy (Section 6,
+  "Princess clone"). Not cloned yet: Pick up here 00.
+- Gladiator search options: "Short-Short" (`MOVEMENT_SEARCH = "short_list"`,
+  both movers pick from their own short list, best few states a hex) and its
+  grid prune (`MOVEMENT_SHORT_LIST_GRID`); defaults unchanged ("Short Grid" -
+  Daniel's nickname still to pick).
+- Studies (not in run_checks): `ab_batches.py --set bots / bots-classic /
+  short-short`; `tests/bot_agreement.py` (pick agreement, time, operations);
+  `tests/pick_quality.py` (every bot's pick priced on Perfect Knowledge's
+  scale, 8 scenarios incl. kiters; `movement_selection.SCORE_SINK`). 4 boards
+  and 8 'Mechs added to `data/` for them.
+- Findings (Change Record): Gladiator beats Princess in every seat (modern
+  Princess better than classic, most as a brawler); Princess is ~3x faster a
+  decision than Short Grid, ~16x than Perfect; the short-list rules of thumb
+  hold (Short Grid 94% of Perfect's score range, no closing bias; Short-
+  Short 87%); Princess closes when it needn't (+2 to +2.6 hexes) and hides
+  out of line of sight on bad trades (18% moving second); Gladiator breaks
+  off on bad trades (27% moving first) but NOT more as it gets hurt.
 
 **Pick up here (open, roughly in priority order):**
 00. **Princess clone - TODO as the scope grows** (Daniel, 2026-10-27: "All of
@@ -279,7 +300,11 @@ MegaMek). Details: Section 6 "Princess clone", Change Record.
    - Other gaps listed under Section 6 "Princess clone" (hazards on a path's
      middle hexes, MASC odds, RAC unjam / spin-up, ammo conservation, the
      "move to contact" re-rank, aerospace, infantry).
-   Open too: a name for the default Gladiator ("Short Grid" is a placeholder).
+   Open too: a name for the default Gladiator ("Short Grid" is a placeholder);
+   whether Short-Short (+ grid prune) should become the default (Daniel's
+   call - 3 matchups A/B'd so far, Change Record); a self-preservation pull
+   for a badly hurt Gladiator (it breaks off on bad trades, never because it
+   is hurt - goes with item 5).
 0. **Anti-stall rule for the bot** (Daniel, 2026-10-21: "Anti-stall rule for
    the bot is added to the future tasks list"). Under the lifetime default,
    mirror matches stall: the Asymptote mirror ran 488 turns (shots in only 55),
@@ -370,13 +395,15 @@ MegaMek). Details: Section 6 "Princess clone", Change Record.
    settings with batches (discussed 2026-10-20, not started).
 
 **Housekeeping:** reference logs match the code (last regenerated
-2026-10-21, session 6: all 15 for the grid-search default). Speed history
+2026-10-24, session 8: all 15 for the short-list look-ahead default; nothing
+in session 9 changed Gladiator's results). Speed history
 (10-turn benchmark, HP 501 / 495 with the exhaustive search): 31.7 s → 11.8 s → ~14.5 s (all physical
 attacks) → ~25% less (memo sharing) → ~15 s; 16-18 s in session 5's
 container, the same as the pre-map code on that machine - compare only like
 with like. Hill / water / rubble boards use the path-aware movement search
 (~5-10% slower than the plain one). Session 6 speed pass: ~17.9 s -> ~13.4 s;
-then the grid-search default: ~3.5 s (HP 495 / 495). Scratch for map work: unzip
+then the grid-search default: ~3.5 s (HP 495 / 495); the short-list
+look-ahead default (2026-10-24): ~2 s (HP 501 / 495). Scratch for map work: unzip
 `data/maps.zip` outside the repo; `tests/survey_maps.py` reads the zip
 directly.
 
