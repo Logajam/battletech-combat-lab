@@ -31,6 +31,12 @@ two picks are the same spot (hex, facing and movement mode), the same hex and
 facing, the same hex, and the average hexes between the two picks. Split by
 first / second mover. Raw rows go to run_stats/agreement/ as JSON.
 
+Speed (2026-10-27, Daniel: "how fast is princess compared to gladiator?"):
+each picker's time per decision on the same positions (wall clock - run on a
+quiet machine), and its operations: the (my spot, enemy spot) pairs it
+scores - Gladiator's own search plus its look-ahead's replies, Princess's
+spots against the moved enemy or its estimate for an unmoved one.
+
 Slow: Gladiator Perfect's look-ahead scores every spot against every reply
 (~4x the default). Battles run in parallel (--workers, default all cores).
 """
@@ -95,20 +101,47 @@ def _gladiator(mover, other, terrain_map, rng, moves_first, standup_mp, entry_ed
 
 _ROWS = []
 _REAL_CHOOSE = bots.choose_movement
+# Operations (2026-10-27): (my spot, enemy spot) pairs a picker scores - each state handed
+# to MoveEvaluator.evaluate (Gladiator's search and look-ahead, Princess against a moved
+# enemy), plus each spot Princess ranks against an enemy still to move (_unmoved_estimates).
+_COUNT = [0]
+
+
+def _count_pairs():
+    import INTEGRATION__ranged_combat as ranged_combat
+    evaluate = ranged_combat.MoveEvaluator.evaluate
+    unmoved = princess._unmoved_estimates
+
+    def counted_evaluate(self, def_hex_label, def_facing, def_fc, def_mode, def_mp, prepared, *a, **k):
+        _COUNT[0] += len(prepared)
+        return evaluate(self, def_hex_label, def_facing, def_fc, def_mode, def_mp, prepared, *a, **k)
+
+    def counted_unmoved(mover, other, prepared, terrain_map):
+        _COUNT[0] += len(prepared)
+        return unmoved(mover, other, prepared, terrain_map)
+    ranged_combat.MoveEvaluator.evaluate = counted_evaluate
+    princess._unmoved_estimates = counted_unmoved
 
 
 def _recording_choose(mover, other, terrain_map, battle_rng, moves_first, standup_mp=None, entry_edge=None):
     """bots.choose_movement, after asking all three pickers about the same
     position (each on a copy of the dice)."""
     if other.hex is not None and entry_edge is None:     # a real decision: both 'Mechs on the board
-        picks = {"Princess": princess.choose(mover, other, terrain_map, copy.deepcopy(battle_rng), moves_first,
-                                             standup_mp=standup_mp)[0]}
-        for name, searches in SEARCHES.items():
-            picks[name] = _gladiator(mover, other, terrain_map, copy.deepcopy(battle_rng), moves_first,
-                                     standup_mp, None, searches)
+        picks, seconds, pairs = {}, {}, {}
+        for name in PICKERS:
+            _COUNT[0] = 0
+            started = time.perf_counter()
+            if name == "Princess":
+                picks[name] = princess.choose(mover, other, terrain_map, copy.deepcopy(battle_rng), moves_first,
+                                              standup_mp=standup_mp)[0]
+            else:
+                picks[name] = _gladiator(mover, other, terrain_map, copy.deepcopy(battle_rng), moves_first,
+                                         standup_mp, None, SEARCHES[name])
+            seconds[name] = time.perf_counter() - started
+            pairs[name] = _COUNT[0]
         _ROWS.append({"side": mover.side_name, "driver": mover.bot, "moves_first": bool(moves_first),
                       "stood_up": standup_mp is not None, "mover_hex": mover.hex, "enemy_hex": other.hex,
-                      "picks": {k: _spot(v) for k, v in picks.items()}})
+                      "picks": {k: _spot(v) for k, v in picks.items()}, "seconds": seconds, "pairs": pairs})
     return _REAL_CHOOSE(mover, other, terrain_map, battle_rng, moves_first, standup_mp=standup_mp,
                         entry_edge=entry_edge)
 
@@ -125,7 +158,9 @@ def _battle(job):
     getattr(config, princess_side)["bot"] = "princess"
     getattr(config, other_side)["bot"] = "gladiator"
     config.WORKERS, config.TIMING, config.REPLAY_BATTLES = 1, False, 0
-    bots.choose_movement = _recording_choose
+    if bots.choose_movement is not _recording_choose:
+        bots.choose_movement = _recording_choose
+        _count_pairs()
     _ROWS.clear()
     with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
         terrain_map = orchestrator._load_map()
@@ -159,6 +194,24 @@ def _table(rows, title):
         share = lambda i: 100.0 * sum(1 for c in got if c[i]) / n            # noqa: E731
         lines.append(f"  {x + ' vs ' + y:<26} {n:>9} {share(0):>9.0f}% {share(1):>10.0f}% {share(2):>8.0f}% "
                      f"{sum(c[3] for c in got) / n:>16.2f}")
+    return "\n".join(lines)
+
+
+def _speed(rows, title):
+    """Per picker: mean and median ms a decision, the slowest, and the mean
+    (my spot, enemy spot) pairs scored."""
+    lines = [title, f"  {'picker':<12} {'decisions':>9} {'mean ms':>9} {'median ms':>10} {'max ms':>9} "
+                    f"{'pairs scored':>13} {'vs Princess':>12}"]
+    base = None
+    for name in PICKERS:
+        times = sorted(r["seconds"][name] * 1000 for r in rows if "seconds" in r)
+        if not times:
+            continue
+        pairs = sum(r["pairs"][name] for r in rows) / len(times)
+        mean = sum(times) / len(times)
+        base = base or mean
+        lines.append(f"  {name:<12} {len(times):>9} {mean:>9.0f} {times[len(times) // 2]:>10.0f} {times[-1]:>9.0f} "
+                     f"{pairs:>13.0f} {mean / base:>11.1f}x")
     return "\n".join(lines)
 
 
@@ -197,6 +250,11 @@ def main():
     for first, label in ((True, "first mover (enemy still to move)"), (False, "second mover (enemy has moved)")):
         out.append("")
         out.append(_table([r for r in rows if r["moves_first"] == first], f"ALL MATCHUPS - {label}"))
+    out.append("")
+    out.append(_speed(rows, "DECISION TIME AND OPERATIONS - ALL MATCHUPS"))
+    for first, label in ((True, "first mover"), (False, "second mover")):
+        out.append("")
+        out.append(_speed([r for r in rows if r["moves_first"] == first], f"DECISION TIME AND OPERATIONS - {label}"))
     report = "\n".join(out)
     print(report)
     folder = os.path.join(REPO_ROOT, "run_stats", "agreement")
