@@ -254,13 +254,32 @@ loses many 'Mechs to pushes off the board (it never looks at the edges, as in
 MegaMek). Details: Section 6 "Princess clone", Change Record.
 
 **Pick up here (open, roughly in priority order):**
-00. **Princess clone - follow-ups (Daniel's call, none started):** (a) a
-   longer down-time A/B over more matchups; (b) whether to port the parts left
-   out (Section 6, "Princess clone" - not ported); (a) done 2026-10-27 (Change
-   Record: 8 matchups x 100 battles, plus `tests/bot_agreement.py`); open:
-   a name for the default Gladiator ("Short Grid" is a placeholder); (c) whether the clone should
-   follow a newer MegaMek (v0.51 / main add postures, standoff, a close-range
-   pull and physical-threat weights - a bigger ranker).
+00. **Princess clone - TODO as the scope grows** (Daniel, 2026-10-27: "All of
+   those not cloned features will be needed in the future as the projects
+   scope expands. But we can add them to the todo list"). The modern Princess
+   (MegaMek main fd2edfb) is built and is an option, `config.PRINCESS_VERSION`
+   = "modern" (default) / "0.50.07". Still to clone, each when the project
+   has what it needs:
+   - **Forced withdrawal** - crippled units retreat to their edge and flee,
+     hold fire unless fired on (ForcedWithdrawalTracker, self-preservation
+     mod, Princess.calculatePhysicalTurn); needs the crippled / withdrawal
+     rules (Pick up here 5).
+   - **Standoff for artillery and TAG 'Mechs** - Arrow IV / artillery units
+     hold back past their minimum range, TAG spotters keep a designation band
+     and a priority target (evaluateStandoff, desiredStandoffDistance,
+     spotter priority, shoot-and-scoot); the project already has Arrow IV and
+     TAG (F55-F56).
+   - **Sprinting** (TacOps) - the sprint exposure penalty; needs the sprint
+     movement rule.
+   - **Multi-unit play** - mutual support (herding), anti-crowding, enemy hot
+     spots, the highest-BV cluster anchor, fire distribution across targets
+     (damage already assigned, priority targets, MultiTargetFireControl),
+     FightMemory / EnemyTracker, formations; needs more than two units.
+   - **Unit orders, towns, convoys, deployment planning** - scenario features.
+   - Other gaps listed under Section 6 "Princess clone" (hazards on a path's
+     middle hexes, MASC odds, RAC unjam / spin-up, ammo conservation, the
+     "move to contact" re-rank, aerospace, infantry).
+   Open too: a name for the default Gladiator ("Short Grid" is a placeholder).
 0. **Anti-stall rule for the bot** (Daniel, 2026-10-21: "Anti-stall rule for
    the bot is added to the future tasks list"). Under the lifetime default,
    mirror matches stall: the Asymptote mirror ran 488 turns (shots in only 55),
