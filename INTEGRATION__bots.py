@@ -50,8 +50,7 @@ def bot_for(cfg):
         raise ValueError(f"Unknown bot {name!r} - choose one of {', '.join(BOTS)} "
                          f"(config.BOT / MECH_*_CONFIG['bot']).")
     if name not in BUILT:
-        raise NotImplementedError(f"The {name!r} bot isn't built yet (PROJECT_MAP Section 6, "
-                                  f"'Princess clone'). Use {GLADIATOR!r} for now.")
+        raise NotImplementedError(f"The {name!r} bot isn't built yet. Use {GLADIATOR!r}.")
     return name
 
 

@@ -53,6 +53,11 @@ GitHub logistics.
   `python tests/ab_batches.py`, and show Daniel the numbers. 20 battles a
   setting by default (Daniel); longer only if something looks very off, or
   to build a baseline during down time.
+- **Two bots:** each unit is driven by "gladiator" (this project's) or
+  "princess" (a MegaMek clone, modern or v0.50.07) - `INTEGRATION__bots`,
+  `config.BOT` / `MECH_*_CONFIG["bot"]`, PROJECT_MAP Section 6 "Princess
+  clone". Bot-vs-bot studies: `ab_batches.py --set bots`,
+  `tests/pick_quality.py`, `tests/bot_agreement.py`.
 - **Show Daniel battles as replays.** Set `REPLAY_BATTLES` in
   `INTEGRATION__config.py`, run, and publish the page from `replays/` with the
   Artifact tool; give him the link (he doesn't run the code himself).
