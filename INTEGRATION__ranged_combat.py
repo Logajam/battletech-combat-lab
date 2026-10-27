@@ -204,7 +204,8 @@ def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_fo
             _, cached, _ = weapon_selection.select_weapons_to_fire(
                 mech, distance, pre_tn, mech.min_heat, mech.max_heat,
                 dissipation=dissipation, movement_heat=move_heat, other_heat=other, tn_adjust=tn_adjust,
-                unavailable=unavailable, value_scale=scale, weapons=weapons, table=table, planner=planner)
+                unavailable=unavailable, value_scale=scale, weapons=weapons, table=table, planner=planner,
+                side=side or None)
             memo[key] = cached
         return cached
 

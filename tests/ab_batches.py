@@ -21,6 +21,8 @@ baseline"):
     python tests/ab_batches.py 60 "Black Hawk (Nova) F.mtf" "Cataphract CTF-3D.mtf" --set search \
         --board 16x17_Military_Base_1.board
 
+2026-10-27 (Claude): set "bots" - Gladiator and the Princess clone on each side.
+
 2026-10-24 (Claude): sets "short-list" (grid vs short-list look-ahead, for the
 time a turn) and "short-vs-perfect" (Daniel's "Simple Short Grid" against
 perfect knowledge, one per side), and a "ms a turn" column.
@@ -106,6 +108,14 @@ VARIANT_SETS = {
     ],
     # The default settings alone: with --seed, a yardstick for how much results move with the dice alone.
     "baseline": [("default settings", {})],
+    # Gladiator against the Princess clone (Daniel, 2026-10-27: "I would like to make a
+    # clone of Megamek's Princess bot to compare it against"), each bot on each side.
+    "bots": [
+        ("Gladiator vs Gladiator", {}),
+        ("Princess (Red) vs Gladiator", {"MECH_RED_CONFIG.bot": "princess"}),
+        ("Gladiator vs Princess (Blue)", {"MECH_BLUE_CONFIG.bot": "princess"}),
+        ("Princess vs Princess", {"MECH_RED_CONFIG.bot": "princess", "MECH_BLUE_CONFIG.bot": "princess"}),
+    ],
 }
 VARIANTS = VARIANT_SETS["objective"]
 

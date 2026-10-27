@@ -773,7 +773,8 @@ def run_physical_phase(mech_a, mech_b, terrain_map, reports):
                 continue
         if getattr(target, "dfa", None) is not None and not is_destroyed(target):
             continue                                     # the target is in the air (p.79)
-        choice = choose_attack(attacker, target, terrain_map)
+        import INTEGRATION__bots as bots          # the attacker's own bot picks (2026-10-27)
+        choice = bots.choose_physical(attacker, target, terrain_map)
         if choice is None:
             continue
         base, picks, action = choice

@@ -543,25 +543,30 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     # Next to the target the choice also counts the physical attack that can follow (pp.76, 82):
     # the twist stands for the Physical phase, and a limb that punches or kicks can't have
     # fired - so each (action, physical plan) is scored as ranged + physical expected damage.
-    plans_for = _physical_planner(attacker, target, terrain_map) if distance == 1 else None
+    import INTEGRATION__bots as bots              # bots imports the movement modules, which import this one
+    plans_for = (_physical_planner(attacker, target, terrain_map)
+                 if distance == 1 and bots.plans_physical_with_fire(attacker) else None)
+    # Which bot's fire control picks the weapons (2026-10-27, INTEGRATION__bots).
+    fire_context, chooser = bots.fire_control(attacker)
     actions = arcs.arc_options(attacker) if plans_for else tuple(a for _, a in arc_choices)
     legs = arcs.leg_offsets(attacker)
     picked_cache = {}
     best = None
-    for action in actions:
-        key = arcs.key_for(pair_arcs, a_facing, action, legs)
-        for phys_value, limbs, phys_picks in (plans_for(action) if plans_for else ((0.0, (), []),)):
-            held = physical.limb_weapon_ids(attacker, limbs) if limbs else frozenset()
-            picked = picked_cache.get((key, held))
-            if picked is None:
-                picked = picked_cache[(key, held)] = weapon_selection.select_weapons_to_fire(
-                    attacker, distance, sel_pre_tn, attacker.min_heat, attacker.max_heat,
-                    dissipation=dissipation, movement_heat=attacker.movement_heat, other_heat=other,
-                    tn_adjust=adjust, unavailable=unavailable | arc_unavailable(attacker, key) | held,
-                    planner=planner)
-            total = picked[1] + phys_value
-            if best is None or total > best[0] + 1e-12:
-                best = (total, picked, key, action, phys_picks, phys_value, held)
+    with fire_context:
+        for action in actions:
+            key = arcs.key_for(pair_arcs, a_facing, action, legs)
+            for phys_value, limbs, phys_picks in (plans_for(action) if plans_for else ((0.0, (), []),)):
+                held = physical.limb_weapon_ids(attacker, limbs) if limbs else frozenset()
+                picked = picked_cache.get((key, held))
+                if picked is None:
+                    picked = picked_cache[(key, held)] = weapon_selection.select_weapons_to_fire(
+                        attacker, distance, sel_pre_tn, attacker.min_heat, attacker.max_heat,
+                        dissipation=dissipation, movement_heat=attacker.movement_heat, other_heat=other,
+                        tn_adjust=adjust, unavailable=unavailable | arc_unavailable(attacker, key) | held,
+                        planner=planner, side=side)
+                total = picked[1] + phys_value
+                if best is None or total > best[0] + 1e-12:
+                    best = (total, picked, key, action, phys_picks, phys_value, held)
     _, (weapons, exp_dmg, weapon_heat), chosen_key, chosen, phys_picks, phys_value, held = best
     if not weapons:
         chosen = arcs.current_action(attacker)._replace(turret=chosen.turret)   # nothing fires: declare no change
@@ -584,7 +589,8 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
                f"firing {[w.name for w in weapons] or 'nothing'}{f' (aimed at {aim})' if aim else ''} "
                f"(weapon heat {weapon_heat}{f' +{surcharge} damaged radical' if surcharge else ''} of budget "
                f"{budget} = max {attacker.max_heat} + sink {dissipation} - current {attacker.current_heat} "
-               f"- movement {attacker.movement_heat} - other {other}; expected dmg {exp_dmg:.2f})")
+               f"- movement {attacker.movement_heat} - other {other}; "
+               f"{_choice_note(attacker, weapons, exp_dmg, planner, distance, sel_pre_tn)})")
     # The decisions themselves (stubs warn here): each special weapon's ammunition / rate.
     plans = {id(w): planner.declare(w, distance, sel_pre_tn) for w in weapons if fire_modes.special(w)}
     electronics.log_controls(a_name, plans, weapons)
@@ -640,6 +646,24 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
                                                   aimed_at=w_aim, cover=KICK if id(w) in kick_ids else cover > 0,
                                                   fire=plan,
                                                   pod_value=pod_values.get(id(w), 0.0)))
+
+
+def _choice_note(attacker, weapons, value, planner, distance, pre_tn):
+    """The log's account of the weapon choice: Gladiator's is expected damage;
+    Princess's is a firing-plan utility (INTEGRATION__princess_fire), shown
+    with its expected damage. Its heat budget line above is Gladiator's
+    max_heat - Princess judges heat by its own tolerance instead."""
+    if attacker.bot != "princess":
+        return f"expected dmg {value:.2f}"
+    damage = 0.0
+    for w in weapons:
+        if fire_modes.special(w):
+            got = planner(w, distance, pre_tn)
+            damage += got[0] if got else 0.0
+        else:
+            row = weapon_selection.build_expected_damage_table(attacker).get(id(w), {}).get(distance)
+            damage += row[pre_tn] if row else 0.0
+    return f"Princess plan utility {value:.2f}, about {damage:.2f} expected dmg"
 
 
 def _damage_type_for(weapon):

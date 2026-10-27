@@ -56,6 +56,7 @@ and modules import normally. If a real same-name collision ever comes
 back, solve it at the orchestrator level, not by purging here.
 """
 
+import contextlib
 import os
 import sys
 
@@ -205,9 +206,31 @@ def build_expected_damage_table(mech):
     return table
 
 
+# Which bot's fire control makes the choice (2026-10-27, INTEGRATION__bots). None =
+# Gladiator's knapsack below. A bot that prices fire its own way (Princess,
+# INTEGRATION__princess_fire) sets it for the length of its own thinking with
+# fire_control(), so its estimates - and only its - use its rules: the other
+# bot's movement scoring never sees it.
+_FIRE_CONTROL = None
+
+
+@contextlib.contextmanager
+def fire_control(choose):
+    """Within the block, select_weapons_to_fire hands its candidates to
+    choose(mech, candidates, dissipation, other_heat, planner, side) ->
+    (weapons, value, heat); candidates are (weapon, expected damage, heat,
+    to-hit number) for every weapon that can fire."""
+    global _FIRE_CONTROL
+    saved, _FIRE_CONTROL = _FIRE_CONTROL, choose
+    try:
+        yield
+    finally:
+        _FIRE_CONTROL = saved
+
+
 def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipation, movement_heat,
                            other_heat=0, tn_adjust=None, unavailable=frozenset(), value_scale=None,
-                           weapons=None, table=None, planner=None):
+                           weapons=None, table=None, planner=None, side=None):
     """min_heat/max_heat are passed explicitly (the orchestrator reads them
     off the mech's attached scenario config - mech.min_heat/mech.max_heat),
     while current_heat lives on the MECHSIM BattleMech object (mech).
@@ -285,9 +308,15 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
     heat per shot; ammunition kind, Artemis / Narc, the target's AMS share, a
     Narc pod's worth). tn_adjust is not added for those: the planner applies it.
 
+    side (2026-10-27): the hit-table side the shots land on, when the caller
+    knows it - only another bot's fire control (_FIRE_CONTROL) reads it.
+
     Returns (selected_weapons: list[Equipment], total_expected_damage: float,
     total_heat: int).
     """
+    if _FIRE_CONTROL is not None:
+        return _other_fire_control(mech, distance, pre_tn, dissipation, other_heat, tn_adjust, unavailable,
+                                   weapons, table, planner, side)
     if weapons is None:
         weapons = get_weapons(mech)
     if table is None:
@@ -359,3 +388,36 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
 
     selected_weapons = [w for w in weapons if id(w) in selected_ids]
     return selected_weapons, total_ed, total_heat
+
+
+def _other_fire_control(mech, distance, pre_tn, dissipation, other_heat, tn_adjust, unavailable, weapons, table,
+                        planner, side):
+    """select_weapons_to_fire for another bot's fire control (_FIRE_CONTROL):
+    the same candidates Gladiator's knapsack sees (in range, heat known, the
+    planner pricing special weapons), unscaled, with each one's to-hit number,
+    handed to that bot to choose from."""
+    if weapons is None:
+        weapons = get_weapons(mech)
+    if table is None:
+        table = build_expected_damage_table(mech)
+    candidates = []
+    for w in weapons:
+        if id(w) in unavailable:
+            continue
+        if planner is not None and fire_modes.special(w):
+            if w.heat is None and not fire_modes.has_profile(w):
+                continue
+            got = planner(w, distance, pre_tn)
+            if got is None:
+                continue
+            value, heat_cost, plan = got
+            candidates.append((w, value, heat_cost, planner.value(w, plan, distance, pre_tn)[1]))
+            continue
+        row = table.get(id(w), {}).get(distance)
+        if row is None or w.heat is None:
+            continue
+        tn = pre_tn
+        if tn_adjust is not None:
+            tn = max(PRE_TN_MIN, min(PRE_TN_MAX, pre_tn + tn_adjust(w, range_bracket(w, distance))))
+        candidates.append((w, row[tn], w.heat, tn + _weapon_range_mod(w, distance)))
+    return _FIRE_CONTROL(mech, candidates, dissipation, other_heat, planner, side)
