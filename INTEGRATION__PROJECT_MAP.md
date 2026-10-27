@@ -1269,6 +1269,51 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-27 (Claude):** Do the short list's rules of thumb hold up? (Daniel:
+  "Set up a battery of tests using a diversified set of combatants across a
+  range of maps. At least one set should be a faster unit with longer range
+  that wants to kite ... For each turn's board state take a measurement of"
+  Perfect, Short-Grid, Short-Short-Grid, Princess classic / modern "... what
+  average percentage of score is earned compared to perfect knowledge ...
+  And How many hexes away on average the pick is"). New
+  `tests/pick_quality.py` and `movement_selection.SCORE_SINK` (studies only,
+  off by default: Perfect's run prices every reachable spot and charge / DFA
+  with the objective). 8 scenarios x 20 battles, Gladiator (Short Grid)
+  driving both sides, 30-turn cap, scenarios one after another, battles in
+  parallel: Dervish vs Hunchback (Grassland, kite), Griffin vs Hunchback
+  (Scattered Woods, kite), Catapult vs Jenner (Rolling Hills, LRM vs fast
+  brawler), Kontio vs Hammerhead (Grassland), Atlas vs Archer (Hilltops),
+  Awesome vs Griffin (Military Base, Griffin kites), Locust vs Commando
+  (Desert Hills), Black Hawk vs Cataphract (Large Lakes). Added to data/: 4
+  boards (Rolling Hills 1, Scattered Woods, Hilltops 1, Desert Hills) and 8
+  'Mechs (Dervish DV-6M, Hunchback HBK-4G, Griffin GRF-1N, Catapult CPLT-C1,
+  Jenner JR7-D, Awesome AWS-8Q, Locust LCT-1V, Commando COM-2D).
+  Scale: best / worst / rank over the spots Perfect chooses among (moving
+  second: only spots with line of sight; a no-LOS pick is priced at most at
+  the best); decisions where nothing deals damage (Perfect's closing
+  fallback) left out. "% of best" reads 95-100% for everyone (the lifetime
+  objective is mostly HP left); "% of range" = (pick - worst) / (best -
+  worst) is the sharper one. 5,116 decisions; % of best / % of range / got
+  the best spot / hexes from Perfect's pick / closer to the enemy than
+  Perfect / ms a decision:
+    Perfect          100.0 / 100.0 / 100% / 0.00 / +0.00 / 680 ms
+    Short Grid        99.6 /  94.2 /  57% / 2.23 / -0.13 / 116 ms
+    Short-Short       98.8 /  86.7 /  30% / 3.01 / +0.44 /  70 ms
+    Princess 0.50.07  95.9 /  77.5 /  22% / 3.71 / +2.61 /  40 ms
+    Princess modern   96.6 /  79.7 /  20% / 3.50 / +2.12 /  52 ms
+  First mover: Short Grid 96.1% of range, Short-Short 91.0, Princess 70-76
+  (+2.8 to +3.4 hexes closer). Second mover: Short Grid 91.9, Short-Short
+  81.8, Princess 84-86 (+1.3 to +1.7 closer; 15-17% of its picks hide out of
+  line of sight). Kiters only (1,634 decisions): Short Grid 94.4% of range,
+  +0.05 hexes closer - no closing bias; Short-Short 88.2, +0.56; Princess
+  75-78, +2.5 to +2.8 - Princess closes when it doesn't have to. Per scenario
+  Short Grid stays 92.5-96.1% of range everywhere (worst Military Base),
+  Short-Short 82.9-91.8 (worst Military Base, best Hilltops). Verdict: the
+  rules of thumb hold up - the short-list look-ahead (in Short Grid, the
+  default) loses ~6% of the score range and has no closing bias; picking
+  your own spot from the short list too (Short-Short) costs another ~7%
+  and adds a slight lean in (strongest moving first, +0.9 hexes) for ~40%
+  less time.
 - **2026-10-27 (Claude):** The MODERN Princess (Daniel: "Clone the entire
   modern suit for Princess. Do a sanity check vs the results of one of the
   previous runs thats already recorded, see if she improves"). MegaMek main
