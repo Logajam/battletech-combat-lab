@@ -1235,7 +1235,15 @@ turn's score, so a decision sees what it gives up.
   movement option"; Daniel near his usage limit). `MOVEMENT_SEARCH` /
   `"search"` = "short_list": the second mover scores only the reachable
   states in its own hex and at the short-list distances from the enemy
-  (`short_list_distances`); a first mover with it uses the grid. With the
+  (`short_list_distances`); CORRECTED the same day (Daniel: "I want the
+  First mover to only evaluate against its own short list vs the 2nd movers
+  short list. Basically both sides are only picking from their own short
+  lists"): the first mover too scores only its own hex and the hexes at the
+  short-list distances from the enemy's current hex, each against the second
+  mover's short list (the look-ahead). Kontio-Hammerhead, 20 battles: Short
+  Grid 13-5-2 (17.6 turns), Short-Short 14-6-0 (10.4 turns, same winner
+  15/20); 53 s vs 47 s - every state in the short-list hexes gets the full
+  look-ahead, where the grid search checks only part of the board. With the
   default look-ahead ("short_list") that is Short-Short. `ab_batches.py
   --set short-short`. First check, Kontio-Hammerhead, 20 battles: Short Grid
   13-5-2, Short-Short 13-7-0 (34 s vs 40 s, same winner 10/20). Default
