@@ -1250,6 +1250,29 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-27 (Claude):** The MODERN Princess (Daniel: "Clone the entire
+  modern suit for Princess. Do a sanity check vs the results of one of the
+  previous runs thats already recorded, see if she improves"). MegaMek main
+  at fd2edfb (2026-10-26): new `INTEGRATION__princess_modern.py` (posture,
+  close-range incentive, squaring up, position hold with the water sustain
+  boost, attacker-movement and cover discounts, physical threat weights, the
+  modern water hazard) and modern FireControl in `INTEGRATION__princess_fire`
+  (movement heat and the TSM ceiling in the tolerance, the TSM heat
+  incentive, crits / kills by damage on a hit). `config.PRINCESS_VERSION`
+  ("modern" DEFAULT, "0.50.07"); orchestrator sets `mover.turn_number`;
+  `ab_batches.py --set bots-classic`; `tests/test_bots.py` checks the modern
+  fire control, the posture and both versions' battles. The classic version
+  reproduces its recorded 20-battle Kontio-Hammerhead run exactly (5-15-0 /
+  17-2-1 / 7-13-0); Gladiator unchanged (all reference logs identical).
+  Sanity check against the recorded 100-battle runs (same seeds; wins of the
+  side Princess plays, classic -> modern, with both-Gladiator for scale):
+  Kontio-Hammerhead - Princess Red 14 -> 40 (Gladiator 63), off-board deaths
+  48 -> 25; Princess Blue 14 -> 11 (Gladiator 31); both Princess Red 44 -> 68.
+  Atlas-Archer - Princess Red 73 -> 81 (Gladiator 92); Princess Blue 0 -> 2
+  (Gladiator 7); both Princess 94-6 -> 97-2. Battles last longer (Kontio
+  6-7 -> 7-8 turns, Atlas 9-11 -> 10-14). Modern Princess is better, most
+  of all as the faster brawler (the close-range pull, squaring up); it still
+  trails Gladiator in every seat, and is still pushed off the board often.
 - **2026-10-27 (Claude):** Short-Short, best few states + grid prune (Daniel:
   "Keep only the best few states. Also wonder if short list hexes tend to be
   continuous. If so then a grid search prune on them would reduce the total
