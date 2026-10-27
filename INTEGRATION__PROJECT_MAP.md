@@ -1251,6 +1251,8 @@ turn's score, so a decision sees what it gives up.
   the Atlas stands on its edge row and the Archer pushes it off); Princess
   Blue 20-0-0; Princess both 18-2-0. Princess battles are shorter (6-9 turns
   against 14-18) and its turns are a little faster (no look-ahead).
+  Replays now record each side's bot (`"bot"` in the mech header) and show it
+  in the title ("Kontio (Princess) vs Hammerhead (Gladiator)").
 - **2026-10-27 (Claude):** Bots per unit, stage 1 (Daniel: "The ability to
   select what type of bot each unit uses. The current system ... shall be
   called 'Gladiator'"). New `INTEGRATION__bots.py`: `config.BOT` (default
