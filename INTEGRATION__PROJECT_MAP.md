@@ -1057,11 +1057,31 @@ forward arc, kicks included, never into a side arc.
 | Closing-turn detection | `movement_selection.closing_fallback` | Wired (ported) |
 
 | Which bot decides for a unit | `INTEGRATION__bots.bot_for` (`config.BOT`, `MECH_*_CONFIG["bot"]`) | "gladiator" (DEFAULT - every row above) or "princess" (the clone below). Routed through `bots`: the Movement Phase pick (`choose_movement`), the weapon choice (`fire_control` around `attack_resolution.declare_attacks`' arc loop) and the physical attack (`choose_physical`). Every other row (ammunition kind, rate of fire, MASC, AMS, heat sinks, clubs, aimed shots...) is shared |
-| Princess: movement | `INTEGRATION__princess.choose` | BasicPathRanker.rankPath (below) |
+| Princess: movement | `INTEGRATION__princess_modern.choose` ("modern", DEFAULT) / `INTEGRATION__princess.choose` ("0.50.07") - `config.PRINCESS_VERSION` | BasicPathRanker.rankPath (below) |
+| Princess: posture | `INTEGRATION__princess_modern.posture` | ATTACK, or DEFEND while the enemy closes 0.5+ hexes a round (3-round window); once a round, kept on `mech.princess_memory` |
 | Princess: weapons and twist | `INTEGRATION__princess_fire.FireControl` via `weapon_selection.fire_control` | FireControl's plan utility and heat plans (below); the twist / flip with the best utility |
 | Princess: physical attack | `INTEGRATION__princess_fire.choose_physical` | PhysicalCalculator.getBestPhysicalAttack (below); no new twist |
 
 ### Princess clone (Daniel, 2026-10-27) - as built
+
+**Two versions, `config.PRINCESS_VERSION`** (Daniel, 2026-10-27: "Clone the
+entire modern suit for Princess"): **"modern"** (DEFAULT) = MegaMek main at
+commit `fd2edfb` (2026-10-26), cloned with `git clone --depth 1 --filter=
+blob:none --sparse https://github.com/MegaMek/megamek.git` (git works through
+the proxy; `megamek/src/megamek/client/bot` is 55k lines, mostly aerospace,
+infantry, artillery, formations, convoys - not used by a 'Mech duel). A 'Mech
+still gets `BasicPathRanker` (Princess.getPathRanker), the same validation,
+FireControl and PhysicalCalculator; what changed is in
+`INTEGRATION__princess_modern` (ranker: posture, close-range incentive,
+squaring up, position hold + water sustain boost, movement / cover discounts,
+physical threat weights, water hazard) and `INTEGRATION__princess_fire`
+(tolerance with movement heat and the TSM ceiling, the TSM heat incentive,
+crits / kills by damage on a hit). Module docstrings have the formulas.
+**"0.50.07"** = the classic ranker below, kept (it reproduces the earlier
+recorded runs exactly). Not ported from modern, beyond the v0.50.07 list
+below: standoff for artillery / TAG 'Mechs, sprinting, unit orders, mutual
+support / crowding / formations (no friends in a duel), forced withdrawal,
+the enemy / friendly memory (FightMemory, EnemyTracker - multi-unit).
 
 Reference: MegaMek **v0.50.07** `megamek/src/megamek/client/bot/princess/`
 (+ `client/bot/PhysicalCalculator.java`, `princess/geometry/`). Fetch with
