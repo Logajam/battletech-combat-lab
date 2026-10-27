@@ -256,7 +256,9 @@ MegaMek). Details: Section 6 "Princess clone", Change Record.
 **Pick up here (open, roughly in priority order):**
 00. **Princess clone - follow-ups (Daniel's call, none started):** (a) a
    longer down-time A/B over more matchups; (b) whether to port the parts left
-   out (Section 6, "Princess clone" - not ported); (c) whether the clone should
+   out (Section 6, "Princess clone" - not ported); (a) done 2026-10-27 (Change
+   Record: 8 matchups x 100 battles, plus `tests/bot_agreement.py`); open:
+   a name for the default Gladiator ("Short Grid" is a placeholder); (c) whether the clone should
    follow a newer MegaMek (v0.51 / main add postures, standoff, a close-range
    pull and physical-threat weights - a bigger ranker).
 0. **Anti-stall rule for the bot** (Daniel, 2026-10-21: "Anti-stall rule for
@@ -1228,6 +1230,34 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-27 (Claude):** Princess vs Gladiator, longer and wider (Daniel:
+  "Longer and wider comparison runs. Also get a sense for how often princes's
+  top pick matches the 'Perfect Knowledge' and the current default setting
+  (Needs a nick name.) if it were gladiator"). Nickname used for now: the
+  default Gladiator = **"Short Grid"** (grid search + short-list look-ahead,
+  after Daniel's "Simple Short Grid") - a placeholder for Daniel to rename;
+  "Perfect" = exhaustive own search and look-ahead.
+  A/B, `ab_batches.py 100 ... --set bots --turns 50`, 100 battles a setting,
+  wins of the side Princess takes over (baseline both Gladiator -> that side
+  Princess): Kontio-Hammerhead Red 63->14, Blue 31->14; Atlas-Archer Red
+  92->73, Blue 7->0; Kintaro-Atlas Red 11->4, Blue 87->58; Cataphract-Emperor
+  Red 6->5, Blue 92->83; Akuma-Highlander IIC Red 11->15, Blue 88->64;
+  Bombardier 14K-Black Hawk F Red 21->19, Blue 76->27; Black Hawk-Cataphract
+  Military Base Red 81->48, Blue 17->15; same on Large Lakes Red 75->53, Blue
+  25->10. Overall Princess won 502 of 1,600 battles in the seat where
+  Gladiator won 783 - Gladiator is worse in only one case (Akuma Red, +4,
+  noise). Pushed off the board: up to 48 of 100 with Princess on a side (it
+  ignores edges). Princess battles last 6-10 turns against Gladiator's 12-19.
+  Agreement, new `tests/bot_agreement.py` (20 battles per matchup, the 8
+  above, Princess vs Gladiator alternating sides; at every movement decision
+  Princess, Short Grid and Perfect each pick from the same position, only the
+  'Mech's own bot's pick is played - checked: the battle is unchanged):
+  2,272 decisions - same spot (hex, facing, mode) / same hex / avg hexes
+  apart: Princess vs Perfect 14% / 23% / 2.7; Princess vs Short Grid 13% /
+  22% / 2.7; Short Grid vs Perfect 53% / 55% / 1.6. Moving first (enemy still
+  to move): Princess vs Perfect 4% / 9% / 3.6, Short Grid vs Perfect 39%;
+  moving second: 24% / 37% / 1.8, Short Grid vs Perfect 68%. Least agreement
+  on the terrain boards (7-9% same spot), most Akuma-Highlander (~20%).
 - **2026-10-27 (Claude):** The Princess clone (Daniel: "I would like to
   make a clone of Megamek's Princess bot to compare it against"; "work until
   the task is complete"). New `INTEGRATION__princess.py` (BasicPathRanker:
