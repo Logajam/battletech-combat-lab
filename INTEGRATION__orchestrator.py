@@ -331,6 +331,7 @@ def _move(mover, other, terrain_map, turn_number, battle_rng, moves_first):
     mover it hasn't moved yet this turn (its current hex is a projection);
     for the second mover it has (its real end position). `moves_first` tells
     INTEGRATION__movement_selection which of the two this mech is."""
+    mover.turn_number = turn_number           # read by bots that keep a memory across turns (Princess's posture)
     name = mover.side_name
     _reset_movement_state(mover)
 

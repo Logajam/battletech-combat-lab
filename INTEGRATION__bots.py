@@ -13,8 +13,9 @@ unit's bot:
   "gladiator" - the bot this project has built so far: movement_selection
                 (two-ply, "lifetime" objective, grid search), weapon_selection /
                 fire_modes / physical.choose_attack and every Section 6 row.
-  "princess"  - a port of MegaMek's Princess (v0.50.07): its path ranker
-                (INTEGRATION__princess), fire control and physical-attack
+  "princess"  - a port of MegaMek's Princess: modern (main, 2026-10-26 -
+                INTEGRATION__princess_modern) or v0.50.07 (INTEGRATION__princess)
+                by config.PRINCESS_VERSION; fire control and physical-attack
                 choice (INTEGRATION__princess_fire), at the behavior sliders
                 in config.PRINCESS_BEHAVIOR. PROJECT_MAP Section 6, "Princess
                 clone", lists what was ported and what wasn't.
@@ -30,6 +31,7 @@ import contextlib
 import INTEGRATION__config as config
 import INTEGRATION__movement_selection as movement_selection
 import INTEGRATION__princess as princess
+import INTEGRATION__princess_modern as princess_modern
 import INTEGRATION__princess_fire as princess_fire
 import INTEGRATION__weapon_selection as weapon_selection
 
@@ -56,6 +58,9 @@ def bot_for(cfg):
 def choose_movement(mover, other, terrain_map, battle_rng, moves_first, standup_mp=None, entry_edge=None):
     """The mover's end-of-movement pick, from the mover's own bot. Same
     arguments and return as movement_selection.choose: (pick, note)."""
+    if mover.bot == PRINCESS and config.PRINCESS_VERSION == "modern":
+        return princess_modern.choose(mover, other, terrain_map, battle_rng, moves_first,
+                                      standup_mp=standup_mp, entry_edge=entry_edge)
     if mover.bot == PRINCESS:
         return princess.choose(mover, other, terrain_map, battle_rng, moves_first,
                                standup_mp=standup_mp, entry_edge=entry_edge)

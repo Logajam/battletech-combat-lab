@@ -372,6 +372,13 @@ def _moved_estimates(mover, other, prepared, ev, terrain_map):
 
 def _unmoved_estimates(mover, other, prepared, terrain_map):
     """{option key: (my firing, my physical, their damage)} - evaluateUnmovedEnemy."""
+    return {k: (mine, 0.0, theirs + flank) for k, (mine, theirs, flank) in
+            unmoved_parts(mover, other, prepared, terrain_map).items()}
+
+
+def unmoved_parts(mover, other, prepared, terrain_map):
+    """{option key: (my damage, its weapon damage, its flank kick)} - the parts
+    of evaluateUnmovedEnemy (the modern ranker discounts the first two)."""
     reach = movement_selection._opponent_options(other, terrain_map)
     area = ConvexBoardArea([mm((x, y)) for x, y, *_ in reach])
     potential = {(mm((x, y)), f) for x, y, f, *_ in reach}
@@ -394,12 +401,13 @@ def _unmoved_estimates(mover, other, prepared, terrain_map):
         right = HexLine(behind, (f + spread[1]) % 6)
         mine = mine_at[rng] if (left.judge_area(area) > 0 and right.judge_area(area) < 0) else 0.0
         theirs = theirs_at[rng]
+        flank_kick = 0.0
         flank = ((behind, f), (behind, (f + 1) % 6), (behind, (f + 5) % 6),
                  (left_flank, f), (left_flank, (f + 4) % 6), (left_flank, (f + 5) % 6),
                  (right_flank, f), (right_flank, (f + 1) % 6), (right_flank, (f + 2) % 6))
         if any(combo in potential for combo in flank):
-            theirs += kick
-        out[_key(o)] = (mine, 0.0, theirs)
+            flank_kick = kick
+        out[_key(o)] = (mine, theirs, flank_kick)
     return out
 
 

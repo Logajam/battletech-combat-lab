@@ -143,6 +143,12 @@ BOT = "gladiator"
 # MegaMek's "DEFAULT" behavior. Values: fall shame 10/40/80/100/160/500..500,
 # bravery 0.1-3.0 in steps of 0.3, hyper-aggression 0.25/0.5/1/1.5/2/2.5/3/3.5/
 # 10/50/500, self-preservation 2.5-25 in steps of 2.5, then 30.
+# Which Princess (2026-10-27, Daniel: "Clone the entire modern suit for Princess"):
+#   "modern"  - MegaMek main as of commit fd2edfb (2026-10-26): postures, the close-
+#               range pull, position holding, physical threat weights, movement-heat
+#               and TSM-aware fire control (INTEGRATION__princess_modern)
+#   "0.50.07" - the classic ranker first cloned (INTEGRATION__princess)
+PRINCESS_VERSION = "modern"
 PRINCESS_BEHAVIOR = {
     "fall_shame": 5,
     "bravery": 5,

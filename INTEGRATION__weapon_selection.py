@@ -217,7 +217,7 @@ _FIRE_CONTROL = None
 @contextlib.contextmanager
 def fire_control(choose):
     """Within the block, select_weapons_to_fire hands its candidates to
-    choose(mech, candidates, dissipation, other_heat, planner, side) ->
+    choose(mech, candidates, dissipation, other_heat, planner, side, movement_heat) ->
     (weapons, value, heat); candidates are (weapon, expected damage, heat,
     to-hit number) for every weapon that can fire."""
     global _FIRE_CONTROL
@@ -316,7 +316,7 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
     """
     if _FIRE_CONTROL is not None:
         return _other_fire_control(mech, distance, pre_tn, dissipation, other_heat, tn_adjust, unavailable,
-                                   weapons, table, planner, side)
+                                   weapons, table, planner, side, movement_heat)
     if weapons is None:
         weapons = get_weapons(mech)
     if table is None:
@@ -391,7 +391,7 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
 
 
 def _other_fire_control(mech, distance, pre_tn, dissipation, other_heat, tn_adjust, unavailable, weapons, table,
-                        planner, side):
+                        planner, side, movement_heat=0):
     """select_weapons_to_fire for another bot's fire control (_FIRE_CONTROL):
     the same candidates Gladiator's knapsack sees (in range, heat known, the
     planner pricing special weapons), unscaled, with each one's to-hit number,
@@ -420,4 +420,4 @@ def _other_fire_control(mech, distance, pre_tn, dissipation, other_heat, tn_adju
         if tn_adjust is not None:
             tn = max(PRE_TN_MIN, min(PRE_TN_MAX, pre_tn + tn_adjust(w, range_bracket(w, distance))))
         candidates.append((w, row[tn], w.heat, tn + _weapon_range_mod(w, distance)))
-    return _FIRE_CONTROL(mech, candidates, dissipation, other_heat, planner, side)
+    return _FIRE_CONTROL(mech, candidates, dissipation, other_heat, planner, side, movement_heat)
