@@ -241,7 +241,18 @@ default), each hex scored roughly (best TMM, facing the first mover). ~1.5x
 faster a turn, results within noise of perfect knowledge. Details and
 numbers: Change Record (Section 8).
 
+**Session 9 (2026-10-27): bots per unit.** Daniel: "The ability to select
+what type of bot each unit uses. The current system that makes up the bot
+shall be called 'Gladiator'. I would like to make a clone of Megamek's
+Princess bot to compare it against." Stage 1 built (`INTEGRATION__bots`,
+`config.BOT`, `MECH_*_CONFIG["bot"]`); the Princess port is staged - Daniel
+was near his token limit ("working in smaller stages and saving your work
+is appropriate"). Plan: Section 6, "Princess clone".
+
 **Pick up here (open, roughly in priority order):**
+00. **Princess clone, stages 2-5** (Daniel, 2026-10-27) - Section 6,
+   "Princess clone". Each stage its own PR; then A/B Gladiator vs Princess
+   with `tests/ab_batches.py` and show Daniel the numbers and a replay.
 0. **Anti-stall rule for the bot** (Daniel, 2026-10-21: "Anti-stall rule for
    the bot is added to the future tasks list"). Under the lifetime default,
    mirror matches stall: the Asymptote mirror ran 488 turns (shots in only 55),
@@ -1037,6 +1048,56 @@ forward arc, kicks included, never into a side arc.
 | LOS border-line side | `pathfinder/los.py` | The target picks the side worse for the attacker, whole line (p.56; F41) |
 | Closing-turn detection | `movement_selection.closing_fallback` | Wired (ported) |
 
+| Which bot decides for a unit | `INTEGRATION__bots.bot_for` (`config.BOT`, `MECH_*_CONFIG["bot"]`) | "gladiator" (DEFAULT - every row above) or "princess" (MegaMek's Princess, not built yet: refused at load time). Movement is routed through `bots.choose_movement`; ranged / physical still call Gladiator's code directly until Princess's FireControl lands |
+
+### Princess clone (Daniel, 2026-10-27) - the plan
+
+Reference: MegaMek **v0.50.07** `megamek/src/megamek/client/bot/princess/`
+(fetch with curl from `raw.githubusercontent.com/MegaMek/megamek/v0.50.07/...`
+- github.com itself is blocked, raw is not). Chosen over `main` / v0.51:
+the classic ranker (2,074-line `BasicPathRanker`), before the postures,
+doctrine and standoff layers were added. Default behavior ("DEFAULT" in
+`BehaviorSettingsFactory`): every slider at index 5 -> fall shame 500,
+bravery 1.5, hyper-aggression 2.5, self-preservation 15, herd mentality 1.0;
+anti-crowding 0, favor-higher-TMM 0, forced withdrawal on (off here: the
+project's FIGHT_TO_THE_DEATH / crippled rules decide, Pick up here 5).
+
+**Movement - `BasicPathRanker.rankPath`** (every reachable path; Princess
+has no two-ply): utility = -fallMod + braveryMod - aggressionMod -
+herdingMod + movementMod - crowding - facingMod - selfPreservationMod.
+- fallMod = P(any PSR fails) x fall shame (x 1000 if certain).
+- braveryMod = P(success) x max(my firing, my physical damage) x bravery -
+  expected damage taken (path PSR damage + each enemy's estimate).
+- Enemy already moved (`evaluateMovedEnemy`): both sides' best FireControl
+  plan "guess" from the real positions (+ kick / punch at range 1).
+  Enemy not moved yet (`evaluateUnmovedEnemy`): the hex it can reach closest
+  to my end hex; its max damage at that range x 0.25 (+ ceil(tons / 5) x
+  0.25 if it can get behind / beside me and kick); mine x 0.25 only if that
+  hex is in my forward arc (HexLine bounds).
+- aggressionMod = distance to the closest enemy x hyper-aggression (0 -> 2).
+- facingMod = 50 x max(0, hexsides off the enemy median - 1)
+  (`FacingDiffCalculator`). movementMod / crowding are 0 at the default
+  sliders; herding needs friends (0 in a duel).
+Port in `INTEGRATION__princess_movement.py`, reusing the project's
+reachable-spot list (`movement_selection` / `pathfinder`), LOS and the
+`ranged_combat` expected-damage pieces for the "guess" plans.
+
+**Fire - `FireControl.determineBestFiringPlan`** (+ `FiringPlan`,
+`WeaponFireInfo`): per weapon expected damage = P(hit) x damage (+ crit
+chance weights); utility adds kill / crit bonuses and subtracts heat over
+the tolerance (`calcHeatTolerance`: heat capacity - heat + 5 for a 'Mek,
+an overheat penalty per point); picks the best plan by heat value, plus
+torso twist. Port in `INTEGRATION__princess_fire.py`.
+
+**Physical - `PhysicalInfo`** (+ `Princess.calculatePhysicalAttacks`):
+expected damage of punch / kick / club and the best one, used when it
+beats nothing. Port in `INTEGRATION__princess_physical.py`.
+
+**Stages:** 1 the bot switch (DONE 2026-10-27); 2 movement ranker; 3 fire
+control; 4 physical; 5 A/B vs Gladiator (20 battles a setting) + replays.
+Stubbed choices (MASC, rate of fire, ammo kind...) use the shared stubs
+until Princess's own rule for each is ported; note each in this section.
+
 ### Memo: the bot must weigh how an action changes its FUTURE capabilities (Daniel, 2026-10-20)
 
 Every decision so far is greedy for the current turn. Several need the bot to
@@ -1160,6 +1221,16 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-27 (Claude):** Bots per unit, stage 1 (Daniel: "The ability to
+  select what type of bot each unit uses. The current system ... shall be
+  called 'Gladiator'"). New `INTEGRATION__bots.py`: `config.BOT` (default
+  "gladiator") and an optional `"bot"` key in each `MECH_*_CONFIG`; the
+  orchestrator attaches `mech.bot` and asks `bots.choose_movement` for the
+  Movement Phase pick. "princess" is registered but refused at load time
+  until built (Section 6, "Princess clone", has the port plan from MegaMek
+  v0.50.07). New `tests/test_bots.py`. Results unchanged: every reference
+  log identical, 33 of 33 checks pass.
 
 - **2026-10-24 (Claude):** Daniel's "simple short list" two-ply look-ahead,
   the DEFAULT (`MOVEMENT_ASSUMED_ENEMY_SEARCH = "short_list"`; Daniel: "we
