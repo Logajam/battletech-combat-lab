@@ -1269,6 +1269,35 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-27 (Claude):** Two questions from the pick-quality battery (Daniel:
+  "why was princess hiding? Also it seems gladiator is blood thirsty. I
+  wonder if there is a case where it will break off an attack to preserve
+  itself"). Scratch study (not in the repo): the 8 pick-quality scenarios x
+  20 battles, Gladiator driving both sides; at every second-mover decision
+  modern Princess's ranker was asked too, with each spot's score parts.
+  PRINCESS HIDES on 487 of 2,739 second-mover decisions (18%; 10% Large
+  Lakes - 28% Scattered Woods) - by her own rules, not a bug: an enemy that
+  has moved can't shoot a spot it can't see, so hiding scores 0 on the trade,
+  and her trade is 1.5 x my damage - its damage (both as firing-plan
+  utility, its punches / kicks at their threat weights). Her best spot WITH
+  line of sight averaged 3.6 dealt vs 8.6 taken; in 60% of the hidden picks
+  that spot traded below zero (1.5 x 3.6 < 8.6). The term that tipped it:
+  the trade 53%, aggression 28% (the hidden spot is NEARER - 7.1 vs 7.8
+  hexes: round a corner, behind woods), facing 10% (the line-of-sight spot
+  faced badly), the close-range pull 8%. Gladiator can't do it when moving
+  second: it only takes a spot with line of sight while one deals damage.
+  GLADIATOR BREAKS OFF, but not to save itself: moving first it chose a
+  spot with no exchange (its modeled reply can't shoot and nor can it) on
+  27% of 2,729 decisions and opened the range on 51%; moving second it chose
+  a line-of-sight spot that deals nothing on 14.5% and opened the range on
+  16%. The rates DON'T rise as it gets hurt (moving first: 27.6% above 80%
+  HP, 27.2% at 50-80%, 25.9% below 50%) - the lifetime objective compares
+  dealt with received x (my future damage / its future damage), and HP left
+  scales both options alike, so being damaged doesn't make it more careful.
+  It disengages when the exchange is bad, not when it is in danger. A
+  self-preservation pull when crippled would be new bot logic - it goes
+  with forced withdrawal (Pick up here 5, and Princess's own withdrawal,
+  item 00) - Daniel's call.
 - **2026-10-27 (Claude):** Do the short list's rules of thumb hold up? (Daniel:
   "Set up a battery of tests using a diversified set of combatants across a
   range of maps. At least one set should be a faster unit with longer range
