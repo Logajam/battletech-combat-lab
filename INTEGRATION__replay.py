@@ -100,6 +100,7 @@ def finish(result):
 def _mech_header(m):
     return {
         "name": f"{m.chassis} {m.model}".strip(),
+        "bot": getattr(m, "bot", "gladiator"),          # which bot drove it (INTEGRATION__bots, 2026-10-27)
         "tons": m.mass,
         "max_hp": total_hp(m),
         "locations": list(m.locations),

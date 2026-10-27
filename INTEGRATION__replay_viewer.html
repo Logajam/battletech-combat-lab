@@ -204,7 +204,11 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
 
   // ---- header ----
   var red = data.mechs.Red.name, blue = data.mechs.Blue.name;
-  $("title").innerHTML = '<span class="red">' + esc(red) + '</span><span class="vs">vs</span><span class="blue">' + esc(blue) + "</span>";
+  function botOf(side) {          // which bot drove it (2026-10-27); older replays don't say
+    var b = data.mechs[side].bot;
+    return b ? ' <span class="tons">(' + esc(b.charAt(0).toUpperCase() + b.slice(1)) + ")</span>" : "";
+  }
+  $("title").innerHTML = '<span class="red">' + esc(red) + botOf("Red") + '</span><span class="vs">vs</span><span class="blue">' + esc(blue) + botOf("Blue") + "</span>";
   document.title = red + " vs " + blue;
   var res = data.result || {};
   var outcome = res.winner === "Draw" ? "Draw after " + res.turns + " turns"
