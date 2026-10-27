@@ -135,9 +135,20 @@ MECH_BLUE_CONFIG = {
 # Which bot drives a unit when its MECH_*_CONFIG has no "bot" key (Daniel,
 # 2026-10-27, INTEGRATION__bots):
 #   "gladiator" - this project's bot (movement_selection, weapon_selection, ...)
-#   "princess"  - a clone of MegaMek's Princess bot - NOT BUILT YET (refused
-#                 at load time; plan in PROJECT_MAP Section 6, "Princess clone")
+#   "princess"  - a clone of MegaMek's Princess bot (v0.50.07: its path ranker,
+#                 fire control and physical choice - INTEGRATION__princess,
+#                 INTEGRATION__princess_fire; PROJECT_MAP Section 6, "Princess clone")
 BOT = "gladiator"
+# Princess's behavior sliders (MegaMek BehaviorSettings, each 0-10); 5 is
+# MegaMek's "DEFAULT" behavior. Values: fall shame 10/40/80/100/160/500..500,
+# bravery 0.1-3.0 in steps of 0.3, hyper-aggression 0.25/0.5/1/1.5/2/2.5/3/3.5/
+# 10/50/500, self-preservation 2.5-25 in steps of 2.5, then 30.
+PRINCESS_BEHAVIOR = {
+    "fall_shame": 5,
+    "bravery": 5,
+    "hyper_aggression": 5,
+    "self_preservation": 5,
+}
 
 # Deployment (2026-10-19, Core p.37):
 #   "home_edge"   - deployment roll; the loser picks a home edge, the winner

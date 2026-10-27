@@ -244,15 +244,21 @@ numbers: Change Record (Section 8).
 **Session 9 (2026-10-27): bots per unit.** Daniel: "The ability to select
 what type of bot each unit uses. The current system that makes up the bot
 shall be called 'Gladiator'. I would like to make a clone of Megamek's
-Princess bot to compare it against." Stage 1 built (`INTEGRATION__bots`,
-`config.BOT`, `MECH_*_CONFIG["bot"]`); the Princess port is staged - Daniel
-was near his token limit ("working in smaller stages and saving your work
-is appropriate"). Plan: Section 6, "Princess clone".
+Princess bot to compare it against." Built: `INTEGRATION__bots` (`config.BOT`,
+`MECH_*_CONFIG["bot"]`: "gladiator" / "princess"), and the Princess clone -
+MegaMek v0.50.07's path ranker (`INTEGRATION__princess`), fire control and
+physical choice (`INTEGRATION__princess_fire`) on this project's rules, at
+`config.PRINCESS_BEHAVIOR` (MegaMek's DEFAULT sliders). A/B (`ab_batches.py
+--set bots`, 20 a setting): Gladiator beats Princess from either side; Princess
+loses many 'Mechs to pushes off the board (it never looks at the edges, as in
+MegaMek). Details: Section 6 "Princess clone", Change Record.
 
 **Pick up here (open, roughly in priority order):**
-00. **Princess clone, stages 2-5** (Daniel, 2026-10-27) - Section 6,
-   "Princess clone". Each stage its own PR; then A/B Gladiator vs Princess
-   with `tests/ab_batches.py` and show Daniel the numbers and a replay.
+00. **Princess clone - follow-ups (Daniel's call, none started):** (a) a
+   longer down-time A/B over more matchups; (b) whether to port the parts left
+   out (Section 6, "Princess clone" - not ported); (c) whether the clone should
+   follow a newer MegaMek (v0.51 / main add postures, standoff, a close-range
+   pull and physical-threat weights - a bigger ranker).
 0. **Anti-stall rule for the bot** (Daniel, 2026-10-21: "Anti-stall rule for
    the bot is added to the future tasks list"). Under the lifetime default,
    mirror matches stall: the Asymptote mirror ran 488 turns (shots in only 55),
@@ -1048,55 +1054,55 @@ forward arc, kicks included, never into a side arc.
 | LOS border-line side | `pathfinder/los.py` | The target picks the side worse for the attacker, whole line (p.56; F41) |
 | Closing-turn detection | `movement_selection.closing_fallback` | Wired (ported) |
 
-| Which bot decides for a unit | `INTEGRATION__bots.bot_for` (`config.BOT`, `MECH_*_CONFIG["bot"]`) | "gladiator" (DEFAULT - every row above) or "princess" (MegaMek's Princess, not built yet: refused at load time). Movement is routed through `bots.choose_movement`; ranged / physical still call Gladiator's code directly until Princess's FireControl lands |
+| Which bot decides for a unit | `INTEGRATION__bots.bot_for` (`config.BOT`, `MECH_*_CONFIG["bot"]`) | "gladiator" (DEFAULT - every row above) or "princess" (the clone below). Routed through `bots`: the Movement Phase pick (`choose_movement`), the weapon choice (`fire_control` around `attack_resolution.declare_attacks`' arc loop) and the physical attack (`choose_physical`). Every other row (ammunition kind, rate of fire, MASC, AMS, heat sinks, clubs, aimed shots...) is shared |
+| Princess: movement | `INTEGRATION__princess.choose` | BasicPathRanker.rankPath (below) |
+| Princess: weapons and twist | `INTEGRATION__princess_fire.FireControl` via `weapon_selection.fire_control` | FireControl's plan utility and heat plans (below); the twist / flip with the best utility |
+| Princess: physical attack | `INTEGRATION__princess_fire.choose_physical` | PhysicalCalculator.getBestPhysicalAttack (below); no new twist |
 
-### Princess clone (Daniel, 2026-10-27) - the plan
+### Princess clone (Daniel, 2026-10-27) - as built
 
 Reference: MegaMek **v0.50.07** `megamek/src/megamek/client/bot/princess/`
-(fetch with curl from `raw.githubusercontent.com/MegaMek/megamek/v0.50.07/...`
-- github.com itself is blocked, raw is not). Chosen over `main` / v0.51:
-the classic ranker (2,074-line `BasicPathRanker`), before the postures,
-doctrine and standoff layers were added. Default behavior ("DEFAULT" in
-`BehaviorSettingsFactory`): every slider at index 5 -> fall shame 500,
-bravery 1.5, hyper-aggression 2.5, self-preservation 15, herd mentality 1.0;
-anti-crowding 0, favor-higher-TMM 0, forced withdrawal on (off here: the
-project's FIGHT_TO_THE_DEATH / crippled rules decide, Pick up here 5).
-
-**Movement - `BasicPathRanker.rankPath`** (every reachable path; Princess
-has no two-ply): utility = -fallMod + braveryMod - aggressionMod -
-herdingMod + movementMod - crowding - facingMod - selfPreservationMod.
-- fallMod = P(any PSR fails) x fall shame (x 1000 if certain).
-- braveryMod = P(success) x max(my firing, my physical damage) x bravery -
-  expected damage taken (path PSR damage + each enemy's estimate).
-- Enemy already moved (`evaluateMovedEnemy`): both sides' best FireControl
-  plan "guess" from the real positions (+ kick / punch at range 1).
-  Enemy not moved yet (`evaluateUnmovedEnemy`): the hex it can reach closest
-  to my end hex; its max damage at that range x 0.25 (+ ceil(tons / 5) x
-  0.25 if it can get behind / beside me and kick); mine x 0.25 only if that
-  hex is in my forward arc (HexLine bounds).
-- aggressionMod = distance to the closest enemy x hyper-aggression (0 -> 2).
-- facingMod = 50 x max(0, hexsides off the enemy median - 1)
-  (`FacingDiffCalculator`). movementMod / crowding are 0 at the default
-  sliders; herding needs friends (0 in a duel).
-Port in `INTEGRATION__princess_movement.py`, reusing the project's
-reachable-spot list (`movement_selection` / `pathfinder`), LOS and the
-`ranged_combat` expected-damage pieces for the "guess" plans.
-
-**Fire - `FireControl.determineBestFiringPlan`** (+ `FiringPlan`,
-`WeaponFireInfo`): per weapon expected damage = P(hit) x damage (+ crit
-chance weights); utility adds kill / crit bonuses and subtracts heat over
-the tolerance (`calcHeatTolerance`: heat capacity - heat + 5 for a 'Mek,
-an overheat penalty per point); picks the best plan by heat value, plus
-torso twist. Port in `INTEGRATION__princess_fire.py`.
-
-**Physical - `PhysicalInfo`** (+ `Princess.calculatePhysicalAttacks`):
-expected damage of punch / kick / club and the best one, used when it
-beats nothing. Port in `INTEGRATION__princess_physical.py`.
-
-**Stages:** 1 the bot switch (DONE 2026-10-27); 2 movement ranker; 3 fire
-control; 4 physical; 5 A/B vs Gladiator (20 battles a setting) + replays.
-Stubbed choices (MASC, rate of fire, ammo kind...) use the shared stubs
-until Princess's own rule for each is ported; note each in this section.
+(+ `client/bot/PhysicalCalculator.java`, `princess/geometry/`). Fetch with
+curl from `raw.githubusercontent.com/MegaMek/megamek/v0.50.07/...` (github.com
+itself is blocked, raw is not). Chosen over `main` / v0.51: the classic ranker
+(2,074-line `BasicPathRanker`), before the postures, doctrine and standoff
+layers. Behavior: `config.PRINCESS_BEHAVIOR`, sliders 0-10, default 5 =
+MegaMek's "DEFAULT" (fall shame 500, bravery 1.5, hyper-aggression 2.5,
+self-preservation 15). The RULES stay the project's (to-hit, LOS, arcs,
+cluster hits, ammunition kinds, AMS, water) - Princess's own parts are the
+CHOICES. The module docstrings have the formulas; in short:
+- **Movement** (`INTEGRATION__princess`): utility = -P(fall) x fall shame +
+  [P(success) x (my fire + my physical) x bravery - damage taken] -
+  hexes to the enemy x hyper-aggression - 50 x hexsides off the ideal facing
+  beyond 1 (the ideal turns toward the better-armored side). Enemy already
+  moved: both sides' guessed firing-plan utility from the real positions
+  (Princess's FireControl in guess mode inside a `MoveEvaluator`, so the
+  project's to-hit and twists) + kicks that hit more often than not. Enemy
+  still to move: summed weapon damage at the range of the closest hex of its
+  reachable area (MegaMek's `ConvexBoardArea` / `HexLine`, ported) x 0.25,
+  + a flank kick; mine only if its whole area is inside my firing wedge.
+  Spots out of range (or farther, if not in range now) and spots under the
+  fall tolerance (0.75) are dropped first. One ply - no look-ahead.
+- **Fire control** (`INTEGRATION__princess_fire.FireControl`): plan utility =
+  (expected damage + 10 x expected criticals + 50 x kill chance) x
+  log10(2 x target's range-1 damage + 10) - 30 x damage / target HP (when
+  0.5+) - 5 x heat over (sinks - heat - stealth heat + 5). Heat plans built
+  level by level; best utility, nothing if no plan beats 0. Princess ignores
+  `max_heat` / `min_heat` (they are Gladiator's).
+- **Physical** (`choose_physical`): punch (each arm / both), kick, club /
+  physical weapon, push, each P(hit) x damage x punch-through bonus; kicks
+  + the target's fall - its own from a miss; a push = the target's fall (its
+  armor off the board). Best above 0.
+- **Not ported** (each a candidate follow-up): charges and DFA (v0.50.07
+  Princess never declares them); forced withdrawal / self-preservation (no
+  crippled rules yet, Pick up here 5); herding, crowding, favor-higher-TMM
+  (0 in a duel at the default sliders); hazards on the path's middle hexes
+  (end hex only: water, rubble, mud); MASC odds in P(success); RAC unjamming
+  and spin-up; ammo conservation; the "move to contact" re-rank; Princess's
+  centre-of-board aim before the enemy enters (it heads for the enemy's home
+  edge, as Gladiator does); damage already assigned by friends (a duel).
+- **Known difference from MegaMek**: ties keep the first spot in the
+  project's order (MegaMek's TreeSet keeps the first path it ranked).
 
 ### Memo: the bot must weigh how an action changes its FUTURE capabilities (Daniel, 2026-10-20)
 
@@ -1222,6 +1228,29 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-27 (Claude):** The Princess clone (Daniel: "I would like to
+  make a clone of Megamek's Princess bot to compare it against"; "work until
+  the task is complete"). New `INTEGRATION__princess.py` (BasicPathRanker:
+  the path utility, both enemy estimates, ConvexBoardArea / HexLine ported
+  with Java integer maths, fall tolerance and range filters, end-hex hazards)
+  and `INTEGRATION__princess_fire.py` (FireControl's plan utility and heat
+  plans; PhysicalCalculator's attack choice). Hooks: `weapon_selection.
+  fire_control` (a context: inside it, `select_weapons_to_fire` hands its
+  candidates - now with each one's to-hit number - to another bot's chooser;
+  `side` passed through from `MoveEvaluator`'s scorers), `bots.fire_control`
+  around `declare_attacks`' arc loop (Princess plans no physical with its
+  fire), `bots.choose_physical` in `run_physical_phase`. `config.
+  PRINCESS_BEHAVIOR`; `ab_batches.py --set bots`; `tests/test_bots.py` now
+  checks the geometry port, the plan utility, that the fire-control hook
+  stays scoped, and a repeatable Princess battle. Gladiator unchanged: every
+  reference log identical, all checks pass.
+  A/B, 20 battles a setting, same seeds, 50-turn cap (wins Red-Blue-draw):
+  Kontio vs Hammerhead - Gladiator both 13-5-2; Princess Red 5-15-0 (8
+  off-board deaths); Princess Blue 17-2-1; Princess both 7-13-0. Atlas AS7-K
+  vs Archer ARC-2R - Gladiator both 19-1-0; Princess Red 12-7-1 (7 off-board:
+  the Atlas stands on its edge row and the Archer pushes it off); Princess
+  Blue 20-0-0; Princess both 18-2-0. Princess battles are shorter (6-9 turns
+  against 14-18) and its turns are a little faster (no look-ahead).
 - **2026-10-27 (Claude):** Bots per unit, stage 1 (Daniel: "The ability to
   select what type of bot each unit uses. The current system ... shall be
   called 'Gladiator'"). New `INTEGRATION__bots.py`: `config.BOT` (default
