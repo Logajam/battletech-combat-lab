@@ -287,6 +287,9 @@ def hazards(mover, o, terrain_map, fall_odds):
         total += round(classic._bog_down_factor(mover.piloting, 0, True, o.mode == "Jump"))
     if "mud" in features:
         total += round(classic._bog_down_factor(mover.piloting, 0, True, False))
+    total += classic.magma_hazard(mover, features, o.mode == "Jump")          # 2026-10-27 (TO:AR terrain)
+    if "hazardous_liquid" in features:
+        total += classic.hazardous_liquid_hazard(mover, o.label, terrain_map)
     return total
 
 

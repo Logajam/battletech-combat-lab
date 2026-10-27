@@ -54,6 +54,7 @@ re-picks with what actually happened (fired weapons, falls, damage).
 import math
 
 import INTEGRATION__config as config
+import INTEGRATION__hazards as hazards  # magma / hazardous liquid on displacement (TO:AR, 2026-10-27)
 import INTEGRATION__attack_resolution as attack_resolution
 import INTEGRATION__arcs as arcs
 import INTEGRATION__structure_weight as structure_weight
@@ -312,6 +313,8 @@ def _quad_kick_options(m, rel, fired, table):
 
 
 def _kick_options(m, rel, fired, table):
+    if getattr(m, "stuck", None):
+        return []                                    # bogged down: no kicks (TO:AR p.61, 2026-10-27)
     if m.mech_type in ("quad", "quadvee"):
         return _quad_kick_options(m, rel, fired, table)
     if not rel.kick_ok or m.destroyed_hip_locations:
@@ -737,6 +740,8 @@ def _resolve_pushes(pushes, triggers, terrain_map):
             continue
         old, target.hex, attacker.hex = target.hex, label, target.hex
         config.log(f"    {target.side_name} is pushed {old} -> {label}; {attacker.side_name} follows into {old}.")
+        hazards.enter_hex(target, label, why=f"pushed into {label}", in_phase=True)    # TO:AR (2026-10-27)
+        hazards.enter_hex(attacker, old, why=f"followed into {old}", in_phase=True)
         if drop >= 2:
             config.log(f"    {target.side_name} is pushed {drop} levels down - automatic fall (p.83).")
             piloting_rolls.resolve_fall(target, cause="pushed down", levels=drop)

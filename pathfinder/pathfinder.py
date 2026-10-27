@@ -190,6 +190,7 @@ class PathTable(dict):
     def __init__(self):
         super().__init__()
         self.psrs: Dict[State, Dict[int, Tuple[int, int]]] = {}
+        self.hazards: Dict[State, Dict[int, float]] = {}   # expected damage of the hexes entered (terrain_rules.step_hazard)
         self.parents = None        # {(search key, mp): (previous key, previous mp, step)} when kept
         self.best_keys = {}        # {(state, mp): the search key that won the table entry}
 
@@ -223,9 +224,14 @@ def _build_terrain_psr(
     And actually getting there"). The same search, but each entry also counts
     its path's terrain PSRs (always, run-only); between two paths to the same
     state and MP, the one with more hexes moved wins as before, then the one
-    with fewer PSRs. Backward level changes (one level, a PSR each, p.46) are
-    allowed here. keep_parents: remember each entry's path (PathTable.path),
-    for the movement subphase that walks it. blocked: as _build_terrain_aware."""
+    with fewer PSRs. Hazards (2026-10-27): each entry also adds up the
+    expected damage of the hexes its path enters (terrain_rules.step_hazard -
+    magma, hazardous liquid), and between two paths to the same state and MP
+    the less damaging wins FIRST - before hexes moved; with no hazard on the
+    board every path scores 0 and nothing changes. Backward level changes
+    (one level, a PSR each, p.46) are allowed here. keep_parents: remember
+    each entry's path (PathTable.path), for the movement subphase that walks
+    it. blocked: as _build_terrain_aware."""
     hexes = terrain_map["hexes"]
 
     def hex_info(x: int, y: int) -> Optional[dict]:
@@ -244,14 +250,14 @@ def _build_terrain_psr(
         raise ValueError(f"Start hex {hex_label(start_x, start_y)!r} is not on the loaded board.")
 
     start_key = (start_x, start_y, start_facing, 0, False)
-    # buckets[mp] = {search key: (forward_count, -total PSRs, always, run_only)}
-    buckets: Dict[int, Dict[tuple, tuple]] = {0: {start_key: (0, 0, 0, 0)}}
+    # buckets[mp] = {search key: (-hazard, forward_count, -total PSRs, always, run_only)}
+    buckets: Dict[int, Dict[tuple, tuple]] = {0: {start_key: (0.0, 0, 0, 0, 0)}}
     parents = table.parents
 
     def push(mp, key, value, prev_key, prev_mp, step):
         b = buckets.setdefault(mp, {})
         old = b.get(key)
-        if old is None or value[:2] > old[:2]:
+        if old is None or value[:3] > old[:3]:
             b[key] = value
             if parents is not None:
                 parents[(key, mp)] = (prev_key, prev_mp, step)
@@ -262,12 +268,13 @@ def _build_terrain_psr(
             continue
         for key, value in bucket.items():
             x, y, facing, last, used_back = key
-            fc, neg, always, run_only = value
+            hz, fc, neg, always, run_only = value
             state = (x, y, facing)
             col = table.setdefault(state, {})
-            if mp not in col or (fc, neg) > (col[mp], -sum(table.psrs[state][mp])):
+            if mp not in col or (hz, fc, neg) > (-table.hazards[state][mp], col[mp], -sum(table.psrs[state][mp])):
                 col[mp] = fc
                 table.psrs.setdefault(state, {})[mp] = (always, run_only)
+                table.hazards.setdefault(state, {})[mp] = -hz if hz else 0.0
                 table.best_keys[(state, mp)] = key
             budget = backward_mp if used_back else mp_budget
             current_info = hex_info(x, y)
@@ -280,7 +287,8 @@ def _build_terrain_psr(
                 if cost is not None and mp + cost <= budget:
                     a, r = terrain_rules.step_psrs(current_info, dest_info)
                     push(mp + cost, (x + dx, y + dy, facing, 1, used_back),
-                         (fc + 1 if last >= 0 else 1, neg - a - r, always + a, run_only + r), key, mp, "forward")
+                         (hz - terrain_rules.step_hazard(dest_info), fc + 1 if last >= 0 else 1, neg - a - r,
+                          always + a, run_only + r), key, mp, "forward")
 
             # 2. Backward move (walking only; a level change costs a PSR).
             if backward_mp is not None:
@@ -290,13 +298,14 @@ def _build_terrain_psr(
                     if cost is not None and mp + cost <= backward_mp:
                         a, r = terrain_rules.step_psrs(current_info, dest_info, backward=True)
                         push(mp + cost, (x - dx, y - dy, facing, -1, True),
-                             (fc + 1 if last <= 0 else 1, neg - a - r, always + a, run_only + r), key, mp, "backward")
+                             (hz - terrain_rules.step_hazard(dest_info), fc + 1 if last <= 0 else 1, neg - a - r,
+                              always + a, run_only + r), key, mp, "backward")
 
             # 3. / 4. Turning (mud: a PSR if running, p.124).
             if mp + 1 <= budget:
                 a, r = terrain_rules.turn_psrs(current_info)
                 for new_facing in ((facing - 1) % 6, (facing + 1) % 6):
-                    push(mp + 1, (x, y, new_facing, last, used_back), (fc, neg - a - r, always + a, run_only + r),
+                    push(mp + 1, (x, y, new_facing, last, used_back), (hz, fc, neg - a - r, always + a, run_only + r),
                          key, mp, "turn")
     return table
 

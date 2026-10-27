@@ -55,6 +55,7 @@ cover is ignored as the rule says, but woods still count.
 import math
 
 import INTEGRATION__config as config
+import INTEGRATION__hazards as hazards  # magma / hazardous liquid on displacement (TO:AR, 2026-10-27)
 import INTEGRATION__attack_resolution as attack_resolution
 import INTEGRATION__movement_attacks as movement_attacks
 import INTEGRATION__physical_gear as gear
@@ -178,6 +179,9 @@ def resolve_hit(attacker, target, terrain_map):
     if not is_destroyed(attacker):
         attacker.hex = old
     config.log(f"    {target.side_name} is displaced {old} -> {new_label}; {attacker.side_name} advances into {old}.")
+    hazards.enter_hex(target, new_label, why=f"displaced into {new_label}", in_phase=True)     # TO:AR (2026-10-27)
+    if not is_destroyed(attacker):
+        hazards.enter_hex(attacker, old, why=f"advanced into {old}", in_phase=True)
     if drop >= 2:
         config.log(f"    {target.side_name} is displaced {drop} levels down - automatic fall (p.114).")
         piloting_rolls.resolve_fall(target, cause="displaced down", levels=drop)

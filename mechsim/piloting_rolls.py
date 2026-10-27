@@ -296,6 +296,10 @@ def resolve_fall(mech, cause="", levels=0, side=None):
             mech.secondary_hits = getattr(mech, "secondary_hits", 0) + 1
             config.log(f"  Seatbelt check (command console warrior): "
                        f"{'automatic' if roll is None else f'rolled {roll}'} - takes 1 hit ({mech.secondary_hits}/6).")
+    # Falling in liquid magma (2026-10-27, TO:AR pp.35, 61): every location
+    # burns and the 'Mech is stuck - the integration's INTEGRATION__hazards.
+    import INTEGRATION__hazards as hazards
+    hazards.after_fall(mech)
     is_destroyed(mech)
 
 

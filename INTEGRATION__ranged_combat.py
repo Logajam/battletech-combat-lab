@@ -245,12 +245,17 @@ def _movement_options(mover, terrain_map, standup_mp=None, entry_edge=None, back
     (pathfinder.PathTable), mover.path_psrs[state] = how many the state's
     path forces in its mode (run-only ones count for Run) - movement scoring
     prices them, the orchestrator's movement subphase rolls them.
-    movement_selection.reduced_options clears it before a pick.
+    movement_selection.reduced_options clears it before a pick. Hazards
+    (2026-10-27): mover.path_hazard[state] = the expected damage of the
+    hexes its path enters (magma, hazardous liquid - terrain_rules.
+    step_hazard), the least when several paths reach it.
     mover.blocked_hex (2026-10-21, p.48): the (x, y) of a mobile enemy 'Mech
     no ground step may enter (jumps pass over it) - set by the orchestrator
     for the mover's real move (blocked_by_enemy), None otherwise."""
     if not hasattr(mover, "path_psrs"):
         mover.path_psrs = {}
+    if not hasattr(mover, "path_hazard"):
+        mover.path_hazard = {}
     if entry_edge is not None:
         yield from _entry_options(mover, terrain_map, entry_edge)
         return
@@ -266,15 +271,20 @@ def _movement_options(mover, terrain_map, standup_mp=None, entry_edge=None, back
         backward_mp = None
     level_limit = terrain_rules.max_level_change(ground_level_limited(mover))   # pp.46-47
     seen = set()
+    if getattr(mover, "jump_only", False):
+        # Bogged down after ground movement (TO:AR p.60): stay, or jump out.
+        starts, standup_mp = [], 0
+        yield (sx, sy, start_facing, 0, mode_for(0), 0)
     for f0 in starts:
         table = build_movement_table(sx, sy, f0, run_budget, terrain_map=terrain_map, backward_mp=backward_mp,
                                      level_limit=level_limit, blocked=getattr(mover, "blocked_hex", None))
         for (x, y, facing), col in table.items():
             psrs = table.psrs.get((x, y, facing)) if isinstance(table, PathTable) else None
+            hazards = table.hazards.get((x, y, facing)) if isinstance(table, PathTable) else None
             for mp_spent, fc in col.items():
                 key = (x, y, facing, fc, mode_for(mp_spent), mp_spent)
                 if psrs is not None:
-                    _note_psrs(mover, key, psrs[mp_spent])
+                    _note_psrs(mover, key, psrs[mp_spent], hazards[mp_spent])
                 if key not in seen:
                     seen.add(key)
                     yield key
@@ -322,17 +332,24 @@ def _minimum_move(mover, terrain_map, sx, sy, facing, run_budget, seen, level_li
     if key in seen:
         return None
     if terrain_rules.has_psr_terrain(terrain_map):
-        _note_psrs(mover, key, terrain_rules.step_psrs(here, info))
+        _note_psrs(mover, key, terrain_rules.step_psrs(here, info), terrain_rules.step_hazard(info))
     return key
 
 
-def _note_psrs(mover, key, psrs):
+def _note_psrs(mover, key, psrs, hazard=0.0):
     """Record the terrain PSRs (always, run_only) of the path to option `key`
-    (x, y, facing, fc, mode, mp) - the fewest when several paths reach it."""
+    (x, y, facing, fc, mode, mp) - the fewest when several paths reach it -
+    and its hazard damage (the least)."""
     n = psrs[0] + (psrs[1] if key[4] == "Run" else 0)
     old = mover.path_psrs.get(key)
     if old is None or n < old:
         mover.path_psrs[key] = n
+    if hazard:
+        old = mover.path_hazard.get(key)
+        if old is None or hazard < old:
+            mover.path_hazard[key] = hazard
+    elif key in mover.path_hazard:
+        mover.path_hazard[key] = 0.0
 
 
 def _entry_options(mover, terrain_map, edge_labels):
@@ -349,17 +366,19 @@ def _entry_options(mover, terrain_map, edge_labels):
         level_limit = terrain_rules.max_level_change(ground_level_limited(mover))
         ex, ey = hex_geometry.parse_hex_label(label)
         entry_psrs = terrain_rules.step_psrs(None, info)          # entering the edge hex itself
+        entry_hazard = terrain_rules.step_hazard(info)
         for f0 in range(6):
             table = build_movement_table(ex, ey, f0, run - cost, terrain_map=terrain_map, level_limit=level_limit,
                                          blocked=getattr(mover, "blocked_hex", None))
             for (x, y, facing), col in table.items():
                 psrs = table.psrs.get((x, y, facing)) if isinstance(table, PathTable) else None
+                hazards = table.hazards.get((x, y, facing)) if isinstance(table, PathTable) else None
                 for spent, fc in col.items():
                     total = spent + cost
                     key = (x, y, facing, fc + 1, combat.classify_movement_mode(total, walk), total)
                     if psrs is not None:
                         a, r = psrs[spent]
-                        _note_psrs(mover, key, (a + entry_psrs[0], r + entry_psrs[1]))
+                        _note_psrs(mover, key, (a + entry_psrs[0], r + entry_psrs[1]), hazards[spent] + entry_hazard)
                     if key not in seen:
                         seen.add(key)
                         yield key

@@ -134,6 +134,7 @@ import INTEGRATION__weapon_rules as weapon_rules  # noqa: E402
 import INTEGRATION__future_damage as future_damage  # noqa: E402
 import INTEGRATION__timing as timing  # noqa: E402
 import INTEGRATION__water as water  # noqa: E402
+import terrain_rules  # noqa: E402 - PATHFINDER
 import INTEGRATION__weapon_selection as weapon_selection  # noqa: E402
 
 SIDES = ("front", "left", "right", "rear")
@@ -200,6 +201,40 @@ def terrain_psr_odds(mech) -> Dict[str, float]:
     return {"fail": 1.0 - combat.hit_probability(target), "fall": piloting_rolls.fall_damage(mech)}
 
 
+def spot_hazard(mech, mode, fc, hex_label, facing, mp):
+    """Expected damage from hazardous terrain (2026-10-27, INTEGRATION__
+    hazards): the hexes the ground path enters (mech.path_hazard, priced for
+    two legs) or the jump's landing hex, plus starting next turn's Movement
+    Phase in the end hex."""
+    board = water.board()
+    if board is None or not terrain_rules.has_psr_terrain(board):
+        return 0.0
+    info = board["hexes"].get(hex_label)
+    if info is None:
+        return 0.0
+    legs = len(mech.leg_locations)
+    out = terrain_rules.step_hazard(info, legs)                  # next turn, starting in it
+    if mode == "Jump":
+        out += terrain_rules.step_hazard(info, legs)             # landing in it
+    elif mode in ("Walk", "Run") and facing is not None and mp is not None:
+        x, y = hex_geometry.parse_hex_label(hex_label)
+        f = facing if isinstance(facing, int) else hex_geometry.compass_to_facing(facing)
+        out += getattr(mech, "path_hazard", {}).get((x, y, f, fc, mode, mp), 0.0)
+    return out
+
+
+def _safest(mech, options):
+    """The prepared states with the least hazard damage (spot_hazard) - all of
+    them on a board without hazards. The closing fallback picks among these:
+    closing in is never worth walking into lava (2026-10-27)."""
+    board = water.board()
+    if not options or board is None or not terrain_rules.has_psr_terrain(board):
+        return options
+    priced = [(round(spot_hazard(mech, o.mode, o.fc, o.label, o.facing, o.mp_spent), 6), o) for o in options]
+    low = min(h for h, _ in priced)
+    return [o for h, o in priced if h == low]
+
+
 class _Side:
     """One mech's per-pick scoring inputs: exposure table and PSR prices, and
     (after _link) the objective it scores its own spots with."""
@@ -222,6 +257,8 @@ class _Side:
             cost = self._psr["Run"]
         elif mode == "Jump":
             cost = self._psr["Jump"]
+        if hex_label is not None and water.board() is not None:
+            cost += self._hazard(mode, fc, hex_label, facing, mp)
         odds = self._terrain
         if not odds or hex_label is None:
             return cost
@@ -239,6 +276,9 @@ class _Side:
             if n:
                 cost += (1.0 - (1.0 - odds["fail"]) ** n) * odds["fall"]
         return cost
+
+    def _hazard(self, mode, fc, hex_label, facing, mp):
+        return spot_hazard(self.mech, mode, fc, hex_label, facing, mp)
 
     def psr_for(self, spot):
         """psr_cost for a MovementCandidate, a ranged_combat._Option or a pick /
@@ -259,6 +299,7 @@ def reduced_options(mover, terrain_map, exclude_hex=None, standup_mp=None, entry
     exclude_xy = hex_geometry.parse_hex_label(exclude_hex) if exclude_hex else None
     void = "void_signature" in equipment_systems.active_stealth(mover)
     mover.path_psrs = {}                   # this pick's terrain PSR counts (ranged_combat.movement_options)
+    mover.path_hazard = {}                 # ... and hazard damage (2026-10-27)
     best: Dict[tuple, tuple] = {}
     for x, y, facing, fc, mode, mp_spent in ranged_combat.movement_options(mover, terrain_map, standup_mp, entry_edge):
         if (x, y) == exclude_xy:
@@ -270,20 +311,22 @@ def reduced_options(mover, terrain_map, exclude_hex=None, standup_mp=None, entry
         # Terrain PSRs on the way (2026-10-21, mover.path_psrs): a path with fewer
         # is kept as its own variant - unless a path with fewer does as well anyway.
         n = mover.path_psrs.get((x, y, facing, fc, mode, mp_spent), 0)
-        key += (n,)
+        h = mover.path_hazard.get((x, y, facing, fc, mode, mp_spent), 0.0)
+        key += (h, n)
         cur = best.get(key)
         if cur is None or fc > cur[3] or (fc == cur[3] and mp_spent < cur[5]):
             best[key] = (x, y, facing, fc, mode, mp_spent)
-    if not mover.path_psrs:
+    if not mover.path_psrs and not mover.path_hazard:
         return list(best.values())
     by_base: Dict[tuple, list] = {}
     for key, st in best.items():
-        by_base.setdefault(key[:-1], []).append((key[-1], st))
+        by_base.setdefault(key[:-2], []).append((key[-2:], st))
     kept = []
     for variants in by_base.values():
-        for n, st in variants:
-            if any(m < n and o[3] >= st[3] and o[5] <= st[5] for m, o in variants):
-                continue                   # a path with fewer PSRs is no worse
+        for (h, n), st in variants:
+            if any((m, g) != (n, h) and m <= n and g <= h and o[3] >= st[3] and o[5] <= st[5]
+                   for (g, m), o in variants):
+                continue                   # a path with fewer PSRs and no more hazard is no worse
             kept.append(st)
     return kept
 
@@ -294,7 +337,8 @@ def _opponent_options(other, terrain_map):
     rolled its MASC / supercharger yet: on a turn it will use them, it is
     modeled at the boosted speed (equipment_systems.boost_multiplier)."""
     x, y, facing = hex_geometry.state_from_label(other.hex, other.facing)
-    if is_immobile(other):
+    if is_immobile(other) or getattr(other, "stuck", None):
+        # Stuck (TO:AR p.60): it rolls to break free first - modeled as staying put.
         return [(x, y, facing, 0, "Stand Still", 0)]
     if other.prone:
         tries = (piloting_rolls.can_stand(other) and other.pilot_hits < 5
@@ -479,7 +523,7 @@ def closing_fallback(mover, other, options, enemy_xy, dealt_for, terrain_map, ex
     mover_xy = hex_geometry.parse_hex_label(mover.hex) if mover.hex is not None else None
     # A mech still off the board counts as out of range (bracket 3).
     initial_bracket = _bracket(hex_distance(mover_xy, enemy_xy), weapon) if mover_xy is not None else 3
-    pool = [o for o in options if o.hex_xy != exclude_xy]
+    pool = _safest(mover, [o for o in options if o.hex_xy != exclude_xy])
 
     if _max_range(mover) < _max_range(other) or initial_bracket == 3:
         # Case A / B1: close the range, scored by damage per bracket closed.
@@ -1038,7 +1082,7 @@ def _fallback_pick(mover, other, prepared, enemy_xy, dealt_for, terrain_map, bat
     fb = closing_fallback(mover, other, prepared, enemy_xy, dealt_for, terrain_map)
     if fb is not None:
         return _pick_dict(fb), f"{why} - closing fallback"
-    return _pick_dict(_nearest_to(prepared, enemy_xy, battle_rng)), \
+    return _pick_dict(_nearest_to(_safest(mover, prepared), enemy_xy, battle_rng)), \
         f"{why} - closing fallback found nothing; nearest reachable spot to the enemy"
 
 

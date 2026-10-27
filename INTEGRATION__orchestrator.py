@@ -141,6 +141,7 @@ import INTEGRATION__clubs as clubs  # noqa: E402
 import INTEGRATION__replay as replay  # noqa: E402
 import INTEGRATION__timing as timing  # noqa: E402
 import INTEGRATION__water as water  # noqa: E402
+import INTEGRATION__hazards as hazards  # noqa: E402 - magma, hazardous liquid, bogging down (TO:AR, 2026-10-27)
 import INTEGRATION__deployment as deployment  # noqa: E402
 from INTEGRATION__attack_resolution import _with_piloting, total_hp  # noqa: E402
 from INTEGRATION__results import BattleResult, SideStats, summarize  # noqa: E402
@@ -319,10 +320,14 @@ def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_fi
     through it, only ending there was excluded). Jumps pass over it."""
     mover.blocked_hex = (hex_geometry.parse_hex_label(other.hex)
                          if other.hex is not None and not is_immobile(other) else None)
+    hazards.start_of_movement(mover)         # liquid magma / pools hurt, a stuck 'Mech tries to get free (TO:AR)
     try:
-        _move(mover, other, terrain_map, turn_number, battle_rng, moves_first)
+        if not is_destroyed(mover):
+            _move(mover, other, terrain_map, turn_number, battle_rng, moves_first)
     finally:
         mover.blocked_hex = None             # the modeled reply (movement_selection) never blocks
+        mover.jump_only = False
+    hazards.end_of_movement(mover)
 
 
 def _move(mover, other, terrain_map, turn_number, battle_rng, moves_first):
@@ -341,6 +346,21 @@ def _move(mover, other, terrain_map, turn_number, battle_rng, moves_first):
         config.log(f"  [Movement] {name}: {why} - skips movement (immobile).")
         return
 
+    stuck = getattr(mover, "stuck", None)
+    if stuck and not mover.prone and not stuck.get("stand_only"):
+        # Bogged down (TO:AR p.60): no ground movement, no facing change. One
+        # stuck by ground movement may still jump out.
+        if hazards.can_jump_out(mover) and water.jump_mp(mover) > 0:
+            mover.jump_only = True
+        else:
+            config.log(f"  [Movement] {name}: stuck at {mover.hex} - stays put.")
+            mover.movement_heat = heat.movement_heat(mover, mover.move_mode, mover.move_fc)
+            return
+    if stuck and mover.prone and stuck.get("prone_stage"):
+        config.log(f"  [Movement] {name}: stuck prone at {mover.hex} - can't stand this turn.")
+        mover.movement_heat = heat.movement_heat(mover, mover.move_mode, mover.move_fc)
+        return
+
     standup_mp = None
     booster_failures = []
     if mover.prone:
@@ -356,6 +376,11 @@ def _move(mover, other, terrain_map, turn_number, battle_rng, moves_first):
             _turn_while_down(mover, other)
         if mover.prone or is_destroyed(mover):
             config.log(f"  [Movement] {name}: still prone at {mover.hex}.")
+            mover.movement_heat = heat.movement_heat(mover, mover.move_mode, mover.move_fc)
+            piloting_rolls.resolve_consciousness_checks(mover, "Movement Phase")
+            return
+        if stuck:
+            config.log(f"  [Movement] {name}: stood up, still stuck at {mover.hex} (TO:AR p.61).")
             mover.movement_heat = heat.movement_heat(mover, mover.move_mode, mover.move_fc)
             piloting_rolls.resolve_consciousness_checks(mover, "Movement Phase")
             return
@@ -382,7 +407,15 @@ def _move(mover, other, terrain_map, turn_number, battle_rng, moves_first):
         # The movement subphase (Daniel, 2026-10-21): walk the planned path; a
         # terrain PSR failed on the way drops the mech there, and it re-plans.
         fell = _walk_path(mover, pick, terrain_map, standup_mp, entry_edge)
-    if pick is not None and fell is not None:
+    if pick is not None and fell is not None and fell[4] != "fell":
+        # Bogged down on the way (or destroyed): the move ends in that hex (TO:AR p.60).
+        label, facing, used, moved, why = fell
+        mover.hex, mover.facing = label, facing
+        mover.move_mode, mover.move_fc, mover.mp_spent = pick["mode"], moved, used
+        mover.movement_heat = heat.movement_heat(mover, mover.move_mode, mover.move_fc)
+        config.log(f"  [Movement] {name}: {start} -> {label} {facing}, {why} after {used} MP ({moved} hexes) of "
+                   f"a planned {pick['mode']} to {pick['hex']} {pick['facing']}.")
+    elif pick is not None and fell is not None:
         budget = standup_mp if standup_mp is not None else (mp["run"] if pick["mode"] == "Run" else mp["walk"])
         _after_fall_midmove(mover, other, pick, fell, budget, terrain_map, battle_rng, moves_first, start)
     elif pick is not None:
@@ -451,9 +484,13 @@ def _landing_psr(mover):
     terrain PSRs hex by hex in _walk_path."""
     if mover.prone or is_destroyed(mover) or mover.hex is None or mover.move_mode != "Jump":
         return
+    hazards.jumped_out(mover)                                    # a jump frees a bogged-down 'Mech (TO:AR p.60)
+    if hazards.enter_hex(mover, mover.hex, jumped=True) or mover.prone or is_destroyed(mover):
+        return                                                   # magma / pools on landing (TO:AR pp.34-35, 47)
     info = water.board()["hexes"][mover.hex] if water.board() is not None else None
     depth = water.depth_at(mover.hex)
-    modifier = piloting_rolls.preexisting_modifier(mover) + piloting_rolls.special_case_modifier(mover)
+    modifier = (piloting_rolls.preexisting_modifier(mover) + piloting_rolls.special_case_modifier(mover)
+                + hazards.psr_modifier(mover.hex))                # magma crust +1 (TO:AR p.30)
     checks = []
     if depth >= 1:
         checks.append((f"Jumped into water (depth {depth})", depth))
@@ -480,13 +517,17 @@ def _walk_path(mover, pick, terrain_map, standup_mp, entry_edge):
     (terrain_rules.step_psr_causes), a facing change in mud when running
     (-1, p.124). Returns None when the mech gets there (or no roll was
     needed), else (hex, facing, MP spent, hexes moved) where it fell - a
-    backward level change falls in the lower of the two hexes (p.46)."""
+    backward level change falls in the lower of the two hexes (p.46).
+    Hazards (2026-10-27, INTEGRATION__hazards): each hex entered may burn,
+    poison or bog the 'Mech down; a bogged-down (or destroyed) 'Mech stops
+    there. The tuple's fifth item says which: "fell", "stuck" or
+    "destroyed"; a terrain PSR in a magma hex takes the hex's modifier."""
     if pick["mode"] not in ("Walk", "Run") or not terrain_rules.has_psr_terrain(terrain_map):
         return None
     x, y = hex_geometry.parse_hex_label(pick["hex"])
     key = (x, y, hex_geometry.compass_to_facing(pick["facing"]), pick["fc"], pick["mode"], pick["mp_spent"])
-    if not getattr(mover, "path_psrs", {}).get(key):
-        return None                          # nothing on the way forces a roll
+    if not getattr(mover, "path_psrs", {}).get(key) and not getattr(mover, "path_hazard", {}).get(key):
+        return None                          # nothing on the way forces a roll or hurts
     path = ranged_combat.path_to(mover, terrain_map, pick, standup_mp, entry_edge)
     if path is None:
         config.log(f"  [Movement] {mover.side_name}: path to {pick['hex']} not found - moved there without "
@@ -508,8 +549,15 @@ def _walk_path(mover, pick, terrain_map, standup_mp, entry_edge):
             if step == "backward" and from_info is not None and from_info["level"] < hexes[label]["level"]:
                 fall_at = here                # p.46: the lower of the two hexes
             here, moved = label, moved + 1
+            got = hazards.enter_hex(mover, label)
+            if got or is_destroyed(mover):
+                return label, facing, mp_after, moved, ("destroyed" if is_destroyed(mover) else
+                                                        "bogged down (stuck)")
+            if mover.prone:                   # the hazard's damage knocked it down
+                mover.hex, mover.facing = label, facing
+                return label, facing, mp_after, moved, "fell"
         for cause in causes:
-            modifier = base + terrain_rules.PSR_MODIFIER[cause]
+            modifier = base + terrain_rules.PSR_MODIFIER[cause] + hazards.psr_modifier(fall_at)
 
             def roll(mech, cause=cause, modifier=modifier, label=label):
                 return piloting_rolls.roll_psrs(mech, 1, modifier, f"[Movement] {mech.side_name}: {cause} PSR "
@@ -517,7 +565,7 @@ def _walk_path(mover, pick, terrain_map, standup_mp, entry_edge):
             if not _with_piloting(mover, roll):
                 mover.hex, mover.facing = fall_at, facing
                 _with_piloting(mover, piloting_rolls.resolve_fall, cause=f"failed {cause} PSR at {fall_at}")
-                return fall_at, facing, mp_after, moved
+                return fall_at, facing, mp_after, moved, "fell"
     return None
 
 
@@ -530,7 +578,7 @@ def _after_fall_midmove(mover, other, pick, fell, budget, terrain_map, battle_rn
     MP to spare it picks a new spot from there, walked the same way - again
     and again, until it gets there, runs out of MP or stays down. The move
     keeps its declared mode; its hexes and MP add up."""
-    label, facing, used, moved = fell
+    label, facing, used, moved, _ = fell
     mover.move_mode, mover.move_fc, mover.mp_spent = pick["mode"], moved, used
     config.log(f"  [Movement] {mover.side_name}: {start} -> fell at {label} {facing} after {used} MP "
                f"({moved} hexes) of a planned {pick['mode']} to {pick['hex']} {pick['facing']}.")
@@ -552,10 +600,13 @@ def _after_fall_midmove(mover, other, pick, fell, budget, terrain_map, battle_rn
             mover.move_fc += pick2["fc"]
             mover.mp_spent += pick2["mp_spent"]
             break
-        label, facing, used2, moved2 = fell2
+        label, facing, used2, moved2, why = fell2
         mover.move_fc += moved2
         mover.mp_spent += used2
-        config.log(f"  [Movement] {mover.side_name}: fell again at {label} {facing}.")
+        config.log(f"  [Movement] {mover.side_name}: {'fell again' if why == 'fell' else why} at {label} {facing}.")
+        if why != "fell":
+            mover.hex, mover.facing = label, facing
+            break
     mover.movement_heat = heat.movement_heat(mover, mover.move_mode, mover.move_fc)
     config.log(f"  [Movement] {mover.side_name}: ends at {mover.hex} {mover.facing}{' (prone)' if mover.prone else ''}, "
                f"{mover.move_mode} ({mover.mp_spent} MP, {mover.move_fc} hexes, {mover.movement_heat} heat).")
@@ -699,6 +750,7 @@ def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,
     by_name = {"Red": mech_red, "Blue": mech_blue}
     clubs.reset_battle()
     water.set_board(terrain_map)          # heat sinks, falls, jump jets read the hex's depth (2026-10-21)
+    hazards.set_board(terrain_map)        # magma / hazardous liquid (TO:AR, 2026-10-27); mends broken crust
     if config.DEPLOYMENT == "home_edge":
         _deploy_home_edges(mech_red, mech_blue, terrain_map, battle_rng)
     elif config.DEPLOYMENT != "fixed_hexes":

@@ -34,10 +34,28 @@ never backward down a level, and never off the roof onto a non-building hex
 (p.134); roofs are crossed as pavement (p.134). Not in the passive version:
 forced entry, moving inside, damage, support limits / collapse (pp.132-136).
 
+Tactical Operations: Advanced Rules terrain (2026-10-27, Daniel: "wire in
+functionality of missing ... hex types already noted"):
+  - Ultra-heavy woods / jungle (MegaMek density 3, TO:AR pp.29-30, 38):
+    prohibited to 'Mechs (Expanded Movement Costs Table, p.30), so
+    prepare_board marks the hex impassable; LOS: pathfinder/los.py.
+  - Impassable hexes (MegaMek "impassable"): no unit may enter them. No
+    rulebook text - the name is the rule (Claude's reading).
+  - Fortified hexes (MegaMek "fortified"): a trench / fieldworks hex, whose
+    only effect is the "digging in" bonus for infantry (TO:AUE p.153, TO:AR
+    p.106) - no effect on 'Mechs, so the hex plays as its other terrain.
+  - Planted fields: +0 MP and PSR (p.30); LOS and to-hit in los.py (p.36).
+  - Magma (MegaMek 1 = crust, 2 = liquid, TO:AR pp.30, 34-35): crust +0 MP,
+    liquid +1 MP (p.30); the damage, heat, crust breaking and bogging down
+    are INTEGRATION__hazards'. Eruptions are an optional rule, not built.
+  - Hazardous liquid pools (TO:AR p.47): "a water hex" for movement, PSRs
+    and prohibition - MegaMek puts them on water hexes; the damage roll is
+    INTEGRATION__hazards'.
+
 Not playable yet (prepare_board raises when a map has them, so a battle
-never silently treats them as clear): bridges, ultra-heavy woods / jungle
-(not in the Core Rulebook), and MegaMek terrain with no Core rule
-(UNSUPPORTED_FEATURES).
+never silently treats them as clear): bridges, fuel tanks and industrial
+elevators - all three lean on the full building rules (Core pp.53, 131;
+TO:AR pp.132-136), which Daniel deferred (UNSUPPORTED_FEATURES).
 """
 
 from typing import Dict, List, Optional
@@ -74,23 +92,25 @@ ROAD_LEVEL_CHANGE_DISCOUNT = 1
 PAVED_FEATURES = {"road", "pavement"}
 
 # Woods / jungle density params the Core Rulebook has (1 light, 2 heavy).
-# MegaMek's density 3 (ultra-heavy) is not in it.
+# MegaMek's density 3 is ultra-heavy (TO:AR p.38): prohibited to 'Mechs.
 WOODS_FEATURES = ("woods", "jungle")
 CORE_WOODS_DENSITIES = {"1": WOODS_LIGHT_COST, "2": WOODS_HEAVY_COST}
+ULTRA_HEAVY_DENSITY = "3"
+
+# Magma (TO:AR p.30, Expanded Movement Costs Table): MegaMek's param 1 is a
+# crust, 2 liquid magma. MP addition and the Piloting modifier of each.
+MAGMA_CRUST, MAGMA_LIQUID = "1", "2"
+MAGMA_COST = {MAGMA_CRUST: 0, MAGMA_LIQUID: 1}
 
 # Terrain a map may carry that the simulator cannot play yet. prepare_board
 # raises on any of them rather than letting a battle treat them as clear.
-# (Bridges: pp.53, 131 - Daniel, 2026-10-21: "probably a pain"; the others
-# have no Core Rulebook rule.)
+# (Bridges: pp.53, 131 - Daniel, 2026-10-21: "probably a pain"; fuel tanks
+# and industrial elevators are buildings too (TO:AR pp.132-136), and the
+# full building rules are deferred - Daniel, 2026-10-21.)
 UNSUPPORTED_FEATURES = {
-    "bridge": "bridges (Core pp.53, 131) - not built yet",
-    "fuel_tank": "fuel tanks (MegaMek terrain, no Core rule)",
-    "magma": "magma (MegaMek terrain, no Core rule)",
-    "hazardous_liquid": "hazardous liquid (MegaMek terrain, no Core rule)",
-    "fortified": "fortified hexes (MegaMek terrain, no Core rule)",
-    "impassable": "impassable hexes (MegaMek terrain, no Core rule)",
-    "elevator": "elevators (MegaMek terrain, no Core rule)",
-    "planted_fields": "planted fields (MegaMek terrain, no Core rule)",
+    "bridge": "bridges (Core pp.53, 131) - need the full building rules (deferred)",
+    "fuel_tank": "fuel tanks (TO:AR pp.132-134) - buildings: need the full building rules (deferred)",
+    "elevator": "industrial elevators (TO:AR pp.135-136) - buildings: need the full building rules (deferred)",
 }
 
 # =============================================================================
@@ -134,13 +154,24 @@ def terrain_cost(features: Dict[str, List[str]]) -> int:
     if "mud" in features:
         cost += MUD_COST
     for feature in WOODS_FEATURES:
-        if feature in features:
-            cost += _woods_cost(feature, features[feature])
+        if feature in features and (features[feature][:1] or [None])[0] != ULTRA_HEAVY_DENSITY:
+            cost += _woods_cost(feature, features[feature])     # ultra-heavy: impassable (prepare_board)
+    if "magma" in features:
+        cost += MAGMA_COST[magma_state(features)]                # TO:AR p.30
     if "water" in features:
         depth = _water_depth(features["water"])
         cost += (WATER_DEPTH_0_COST if depth == 0 else
                  WATER_DEPTH_1_COST if depth == 1 else WATER_DEPTH_2_PLUS_COST)
     return cost
+
+
+def magma_state(features) -> Optional[str]:
+    """MAGMA_CRUST / MAGMA_LIQUID for a hex's features, None if no magma.
+    MegaMek writes "magma:1" (crust) or "magma:2" (liquid); anything else is
+    refused by prepare_board."""
+    if "magma" not in features:
+        return None
+    return (features["magma"][:1] or [None])[0]
 
 
 def is_paved(info: Dict[str, object]) -> bool:
@@ -256,16 +287,49 @@ def step_psr_causes(from_info, to_info, backward, running):
     return causes
 
 
+# Terrain that hurts a 'Mech entering it (TO:AR pp.34-35, 47 - INTEGRATION__
+# hazards): the path-aware search also tracks it, so a board with any takes
+# that search.
+HAZARD_FEATURES = ("magma", "hazardous_liquid")
+
+
+# Expected damage to a standing 'Mech entering such a hex (TO:AR): liquid
+# magma 2D6 a leg (p.35); a crust breaks on 1 in 6 (p.34) and is then liquid;
+# a pool's table averages (0 + 0 + 1.5 + 3.5 + 5.5 + 7) / 6 (p.47; 1D6/2
+# rounded down averages 1.5). Movement scoring prices paths with it.
+MAGMA_DAMAGE_PER_LEG = 7.0
+POOL_EXPECTED_DAMAGE = 17.5 / 6
+
+
+def step_hazard(info, legs: int = 2) -> float:
+    """Expected damage a standing 'Mech with `legs` legs takes entering (or
+    starting its Movement Phase in) this hex - INTEGRATION__hazards' rules.
+    Bogging down and magma heat aren't priced."""
+    features = info["features"]
+    if not any(f in features for f in HAZARD_FEATURES):
+        return 0.0
+    out = 0.0
+    state = magma_state(features)
+    if state == MAGMA_LIQUID:
+        out += MAGMA_DAMAGE_PER_LEG * legs
+    elif state == MAGMA_CRUST:
+        out += MAGMA_DAMAGE_PER_LEG * legs / 6
+    if "hazardous_liquid" in features:
+        out += POOL_EXPECTED_DAMAGE
+    return out
+
+
 def has_psr_terrain(terrain_map) -> bool:
     """Can any step on this board force a terrain PSR - rubble, sand, mud,
-    depth 1+ water, or a level change (a backward level change)? Cached on
-    the board. Without any, movement takes the plain (faster) search."""
+    depth 1+ water, or a level change (a backward level change)? Or hurt -
+    magma, hazardous liquid (2026-10-27)? Cached on the board. Without any,
+    movement takes the plain (faster) search."""
     flag = terrain_map.get("_psr_terrain")
     if flag is None:
         hexes = terrain_map["hexes"].values()
         levels = {info["level"] for info in hexes}
         flag = len(levels) > 1 or any(
-            info.get("depth", 0) >= 1 or any(f in info["features"] for f in ("rubble", "sand", "mud"))
+            info.get("depth", 0) >= 1 or any(f in info["features"] for f in ("rubble", "sand", "mud") + HAZARD_FEATURES)
             for info in hexes)
         terrain_map["_psr_terrain"] = flag
     return flag
@@ -317,9 +381,20 @@ def prepare_board(terrain_map: Dict[str, object], passive_buildings: bool = True
                 key = UNSUPPORTED_FEATURES[f]
                 problems[key] = problems.get(key, 0) + 1
         for f in WOODS_FEATURES:
-            if f in features and (features[f][:1] or ["?"])[0] not in CORE_WOODS_DENSITIES:
-                key = f"{f} density {(features[f][:1] or ['?'])[0]} (ultra-heavy; not in the Core Rulebook)"
+            density = (features[f][:1] or ["?"])[0] if f in features else None
+            if density == ULTRA_HEAVY_DENSITY:
+                info["impassable"] = True        # 'Mechs may not enter (TO:AR p.30); LOS: los.py
+            elif density is not None and density not in CORE_WOODS_DENSITIES:
+                key = f"{f} density {density} (not a TO:AR density)"
                 problems[key] = problems.get(key, 0) + 1
+        if "impassable" in features:
+            info["impassable"] = True            # MegaMek's "impassable" (module docstring)
+        if "magma" in features and magma_state(features) not in MAGMA_COST:
+            key = f"magma {features['magma']} (MegaMek writes 1 crust, 2 liquid)"
+            problems[key] = problems.get(key, 0) + 1
+        if "hazardous_liquid" in features and "water" not in features:
+            key = "hazardous liquid off a water hex (TO:AR p.47: a pool is a water hex)"
+            problems[key] = problems.get(key, 0) + 1
         # Water (2026-10-21): the hex's level becomes the water's floor - the
         # surface level minus the depth (p.57: "a hex at Depth 2 ... is at
         # Level -2"; p.47: the printed level is the surface). A 'Mech in it
