@@ -116,6 +116,11 @@ VARIANT_SETS = {
         ("Gladiator vs Princess (Blue)", {"MECH_BLUE_CONFIG.bot": "princess"}),
         ("Princess vs Princess", {"MECH_RED_CONFIG.bot": "princess", "MECH_BLUE_CONFIG.bot": "princess"}),
     ],
+    # "Short-Short" (Daniel, 2026-10-27): the second mover picks from its own short list too.
+    "short-short": [
+        ("Short Grid (default)", {}),
+        ("Short-Short", {"MOVEMENT_SEARCH": "short_list"}),
+    ],
 }
 VARIANTS = VARIANT_SETS["objective"]
 
