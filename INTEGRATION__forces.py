@@ -69,6 +69,11 @@ def set_battle(units) -> None:
     _BATTLE[:] = list(units)
 
 
+def battle() -> list:
+    """The battle's units (set by the orchestrator), for a bot that has only its own mech in hand."""
+    return list(_BATTLE)
+
+
 def unit_in_hex(label, exclude=()):
     """The standing unit in hex `label`, other than those in `exclude`."""
     for u in _BATTLE:

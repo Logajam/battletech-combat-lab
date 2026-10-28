@@ -133,6 +133,7 @@ import INTEGRATION__tag as tag  # noqa: E402
 import INTEGRATION__physical as physical  # noqa: E402
 import INTEGRATION__movement_selection as movement_selection  # noqa: E402
 import INTEGRATION__bots as bots  # noqa: E402 - which bot decides for each unit (2026-10-27)
+import INTEGRATION__princess_memory as princess_memory  # noqa: E402 - what Princess remembers of its force (2026-10-28)
 import INTEGRATION__ranged_combat as ranged_combat  # noqa: E402
 import INTEGRATION__stubs as stubs  # noqa: E402
 import INTEGRATION__attack_resolution as attack_resolution  # noqa: E402
@@ -824,6 +825,7 @@ def run_skirmish(units, terrain_map, battle_rng: BattleRNG,
                   for m in units}
     clubs.reset_battle()
     forces.set_battle(units)              # displacement code finds the 'Mech in a hex through this (INTEGRATION__domino)
+    princess_memory.reset()               # Princess's heat map and posture start the battle empty
     water.set_board(terrain_map)          # heat sinks, falls, jump jets read the hex's depth (2026-10-21)
     hazards.set_board(terrain_map)        # magma / hazardous liquid (TO:AR, 2026-10-27); mends broken crust
     smoke.set_board(terrain_map)          # no smoke yet (Core p.124, 2026-10-27)
@@ -854,10 +856,12 @@ def run_skirmish(units, terrain_map, battle_rng: BattleRNG,
             fire_modes.declare_unjams(m)     # Rotary AC unjam attempts are declared in the Movement Phase (p.183)
         for mover in forces.movement_order(units, order):
             foe = forces.choose_foe(mover, units) or forces.any_enemy(mover, units)
+            start_hex = mover.hex
             with timing.section("movement"):
                 _phase_movement(mover, foe, terrain_map, turn, battle_rng, moves_first=not foe.moved_this_turn,
                                 units=units)
             mover.moved_this_turn = True
+            princess_memory.unit_moved(mover, start_hex)       # a Princess unit credits where it ended
             replay.mark(turn, f"{mover.side_name} moves")
 
         if any(m.hex is None for m in units):
@@ -876,7 +880,7 @@ def run_skirmish(units, terrain_map, battle_rng: BattleRNG,
         tag.designation_units(fighters, lambda u: forces.choose_target(u, units, terrain_map),
                               terrain_map)                            # TAG, before the Ranged Attack Phase (p.200)
         with timing.section("ranged attacks"):
-            reports = attack_resolution.run_ranged_phase(fighters, lambda u: forces.choose_target(u, units, terrain_map),
+            reports = attack_resolution.run_ranged_phase(fighters, lambda u: bots.choose_target(u, units, terrain_map),
                                                          terrain_map, battle_rng)
         _after_phase(*units)
         replay.mark(turn, "Ranged attacks")
@@ -898,6 +902,7 @@ def run_skirmish(units, terrain_map, battle_rng: BattleRNG,
         with timing.section("heat phase"):
             _phase_heat(units, reports)
         _after_phase(*units)
+        princess_memory.end_of_turn(units)                      # Princess's heat map fades (endOfTurnProcessing)
         with timing.section("end phase"):
             _phase_end(units, turn, unit_stats)
             smoke.end_phase(turn)                # clouds whose time is up clear (2026-10-27)

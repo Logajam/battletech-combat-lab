@@ -126,6 +126,16 @@ VARIANT_SETS = {
         ("Princess vs Princess", {"MECH_RED_CONFIG.bot": "princess", "MECH_BLUE_CONFIG.bot": "princess",
                                   "PRINCESS_VERSION": "0.50.07"}),
     ],
+    # Princess's group behaviors (2026-10-28, INTEGRATION__princess_group): in a duel the only one that acts is
+    # the pull toward the force's remembered "hot spot" (its own earlier ground) - off is the duel-only Princess.
+    "princess-group": [
+        ("Princess vs Gladiator, group off", {"MECH_RED_CONFIG.bot": "princess", "PRINCESS_GROUP": False}),
+        ("Princess vs Gladiator, group on", {"MECH_RED_CONFIG.bot": "princess", "PRINCESS_GROUP": True}),
+        ("Princess vs Princess, group off", {"MECH_RED_CONFIG.bot": "princess", "MECH_BLUE_CONFIG.bot": "princess",
+                                            "PRINCESS_GROUP": False}),
+        ("Princess vs Princess, group on", {"MECH_RED_CONFIG.bot": "princess", "MECH_BLUE_CONFIG.bot": "princess",
+                                            "PRINCESS_GROUP": True}),
+    ],
     # "Short-Short" (Daniel, 2026-10-27): the second mover picks from its own short list too.
     "short-short": [
         ("Short Grid (default)", {}),

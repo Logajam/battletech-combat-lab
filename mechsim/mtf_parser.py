@@ -565,6 +565,7 @@ def parse_mtf(filepath):
     model = bare_names[1] if len(bare_names) >= 2 else ""
 
     mass, engine_line = None, ""
+    tech_base_line = ""
     myomer_line = "Standard"
     walk_mp, jump_mp = None, None
     heat_sink_count, heat_sink_type = None, None
@@ -605,6 +606,8 @@ def parse_mtf(filepath):
                     pass
             elif key == "engine":
                 engine_line = value
+            elif key == "techbase":
+                tech_base_line = value           # Battle Value (INTEGRATION__battle_value): a Clan engine
             elif key == "myomer":
                 # 2026-10-19: only read for super-cooled myomer's movement
                 # heat (INTEGRATION__heat.movement_heat).
@@ -693,6 +696,10 @@ def parse_mtf(filepath):
     # 2026-10-28: an IndustrialMech is a 'Mech with industrial internal structure
     # (MegaMek Mek.isIndustrial) - the Taser / TSEMP effects tables' IndustrialMech columns.
     mech.is_industrial = "INDUSTRIAL" in (structure_text or "").upper()
+    # 2026-10-28: the header text Battle Value reads (INTEGRATION__battle_value): internal
+    # structure line ("Endo Steel", "Composite"...) and the unit's tech base.
+    mech.structure_desc = structure_text or ""
+    mech.tech_base = tech_base_line
 
     if walk_mp is None:
         print("WARNING: no 'walk mp:' line found in .mtf file - defaulting to 1 "

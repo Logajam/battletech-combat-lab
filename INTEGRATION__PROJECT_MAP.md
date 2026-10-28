@@ -24,7 +24,13 @@ domino / fall-from-above displacement, replay for N units, `tests/test_multi_uni
 (2) map stitching and the map picker (`INTEGRATION__map_picker`, `tests/test_map_picker.py`: check the pack-map cache folder and the remembered pick in the file picker's state file) (`_load_map`, `STITCH_BOARDS`; check the seam parity - a 16-wide board plus the gap column shifts the next board's hex columns by an odd amount); (3) the movement cache - `pathfinder._BoardCache` and shared tables (check every
 field a search reads is static - the magma hazard was found not to be; a
 loaded map is never edited in place; blocked-hex normalization `|dx| <= MP,
-|dy| <= 2 MP`; cache invalidation; read-only tables). Review for rules
+|dy| <= 2 MP`; cache invalidation; read-only tables); (4) Princess's group
+behaviors and Battle Value (session 13, below: `INTEGRATION__princess_group`,
+`INTEGRATION__princess_memory`, `INTEGRATION__battle_value`,
+`tools/build_equipment_bv.py`, the dry run in `attack_resolution.declare_attacks`,
+the lazy target choice in `run_ranged_phase`; check the BV against MegaMek's
+numbers on units outside the 4 published ones, and that the Princess clone's
+reading of MegaMek 7205e4d matches what the Java does). Review for rules
 fidelity against the Core Rulebook pages cited, MegaMek parity, and hidden
 RNG-order or stale-cache bugs. When a review is done, move its line out of
 this queue and note it in the Change Record.
@@ -51,6 +57,36 @@ its other enemies or coordinate with its team - that is Pick up here 00
 4v4 Kontio / Hammerhead battle takes ~40 s (13 turns); cost grows with the unit
 count (~0.5 s a unit a turn) - run big battles with `config.WORKERS`.
 Decisions the book doesn't make are in Section 6 ("Multi-unit").
+
+**Session 13 - PRINCESS FOR TEAMS + BATTLE VALUE** (Daniel, 2026-10-28: "Are
+there any Princess features that need to be updated now that multi-unit mode is
+enabled?" ... "I think 1-5 are do able. 6 requires us to calculate BV, which is
+also doable and needed for human integration. As usual use Megamek as source
+material where needed."). Built from MegaMek main 7205e4d (v0.50.07 checked for
+the same code where it exists): (a) FIRE DISTRIBUTION - a Princess unit picks its
+target by the best firing plan against every enemy it can see (MegaMek
+`getBestFiringPlan`), with the damage its friends already declared this phase
+counted (`calcDamageAllocationUtility`: an enemy they are expected to kill scores
+100 x -30, so the unit turns to another); (b) MOVEMENT against every enemy, not
+just the nearest (rankPath: my best damage on any one, all their damage to me;
+the closest enemy by walking-MP-adjusted distance; the median of the 4 closest
+to face), the FORCE's posture (once a round, from the centre of the team),
+MUTUAL SUPPORT (a pull toward the force's remembered hot spot or the friends'
+centre, 1.0 a hex at the default) and ANTI-CROWDING (slider, default 0 = off, as
+MegaMek's default); (c) the heat map behind the hot spot, weighted by BATTLE
+VALUE; (d) `INTEGRATION__battle_value`: BV 2.0 for a 'Mech, exact on the four
+published values and matching others (Warhammer, Griffin, Shadow Hawk, Awesome).
+NOT built, and why: secondary targets - MegaMek's ordinary Princess fires every
+weapon at ONE target (only multi-tasker / multi-trac crews use
+`MultiTargetFireControl`), so the clone does too; the highest-BV cluster anchor
+- MegaMek uses it only for standoff artillery and TAG spotters; formations -
+`MutualSupportPathRanker` is the CASPAR doctrine, a different bot. Switches:
+`config.PRINCESS_GROUP` (off = the old duel Princess), `PRINCESS_BEHAVIOR`
+`mutual_support` / `anti_crowding` / `facing_enemies`. A duel is unchanged with
+PRINCESS_GROUP off (hash-identical logs, both versions); ON, a lone Princess is
+pulled toward its own earlier ground too (MegaMek does that: its heat map holds
+its own moves) - Princess vs Gladiator won 7 -> 5 of 20 (noise), Princess vs
+Princess 12 -> 12.
 
 Previous: **Session 11** (Daniel's IF/THEN movement picker, an option - PRs
 #85-#90) and **Session 10** (Tactical Operations terrain and gear,
@@ -400,14 +436,17 @@ rebuild it with one full run). Numbers: Change Record.
      TAG (F55-F56).
    - **Sprinting** (TacOps) - the sprint exposure penalty; needs the sprint
      movement rule.
-   - **Multi-unit play - the GROUP behaviors** (the independent-bot battle
-     is built, session 12). Daniel's groundwork: IF/THEN pre-move threat
-     picture + a "right now" layer for the real move (Section 5); Princess's
-     mutual support (herding), anti-crowding, enemy hot spots, the highest-BV
-     cluster anchor, fire distribution across targets (damage already
-     assigned, priority targets, MultiTargetFireControl, secondary targets
-     at +1 - p.64), FightMemory / EnemyTracker, formations. Today a unit
-     weighs one enemy at a time.
+   - **Multi-unit play - the GROUP behaviors** - BUILT in session 13 (Change
+     Record): fire distribution, multi-enemy movement, the force's posture,
+     mutual support, anti-crowding (slider), the BV-weighted heat map, BV.
+     Still open: Daniel's IF/THEN pre-move threat picture + "right now" layer
+     (Section 5); FightMemory / EnemyTracker (infantry in buildings / the
+     experimental ranker - not used by a 'Mech); the enemy heat maps (fog of
+     war - this project's bots see every unit); secondary targets and a
+     MultiTargetFireControl for crews with multi-tasker / multi-trac (the rule
+     itself, Core p.64, is not in the engine: a Daniel scope call); the
+     highest-BV cluster anchor (artillery / TAG standoff only); formations
+     (the CASPAR `MutualSupportPathRanker`, a separate bot).
    - **Unit orders, towns, convoys, deployment planning** - scenario features.
    - Other gaps listed under Section 6 "Princess clone" (hazards on a path's
      middle hexes, MASC odds, RAC unjam / spin-up, ammo conservation, the
@@ -1242,8 +1281,12 @@ forward arc, kicks included, never into a side arc.
 |---|---|---|
 | Multi-unit: activation order within a side | `forces.move_index` / `forces.movement_order` | Princess's move index (MegaMek `calculateMoveIndex`: distance to the nearest enemy over the fastest move; far, slow units first) for every bot; a unit still off the board goes first. Ranged / physical declaration order is just roster order (nobody's position changes in those phases). |
 | Multi-unit: Initiative and Unequal Numbers with 3+ sides | `forces.initiative_order`, `forces.activation_sequence` | The book (pp.39-41) covers two sides. Here: every side rolls 2D6, the LOWEST acts first, only tied sides re-roll; each side takes ceil(its eligible units / the smallest other side's) selections at a time, tallied at the start of each round - exactly the book's table for two sides, and MegaMek's `TurnOrdered.generateTurnOrder` (ceil(turns / min)). Shut-down / unconscious (and, moving, immobile) units are left out of the tally and go ahead of their side's first selection. |
-| Multi-unit: whom a bot plans movement against (its "foe") | `forces.choose_foe`, `config.FOE_CHOICE` | "nearest": the nearest standing enemy on the board (ties by roster order), else one not yet on the board. The movement scoring then sees that ONE enemy: the others are not modeled (independent bots). |
-| Multi-unit: whom a unit shoots / fights | `forces.choose_target` | One target a turn: an enemy in sight beats one not, then one a weapon can bear on (arcs and torso twist, `attack_resolution.weapons_can_bear`), then the nearest. Physical attacks: the declared charge / DFA target, else an adjacent enemy. No secondary targets yet (p.64). |
+| Multi-unit: whom a bot plans movement against (its "foe") | `forces.choose_foe`, `config.FOE_CHOICE` | "nearest": the nearest standing enemy on the board (ties by roster order), else one not yet on the board. Gladiator's movement scoring sees that ONE enemy (independent bots). Princess takes it as the start of a `princess_group.Group`: every enemy on the board is weighed (below). |
+| Multi-unit: whom a unit shoots / fights | `bots.choose_target` -> `forces.choose_target` (Gladiator) / `princess_group.choose_target` (Princess) | One target a turn. Gladiator: an enemy in sight beats one not, then one a weapon can bear on (arcs and torso twist, `attack_resolution.weapons_can_bear`), then the nearest. Princess: the enemy whose firing plan has the highest utility (a dry run of the real weapon choice, `declare_attacks(dry=True)`), the damage friends already declared counted (next row). Physical attacks: the declared charge / DFA target, else an adjacent enemy. No secondary targets (p.64): a plan has one target, as in MegaMek's ordinary Princess. |
+| Princess: fire distribution | `princess_fire.overkill_fraction`, `princess_fire.assign_damage`, `princess_group.choose_target` | `FireControl.calcDamageAllocationUtility`: an enemy the team's earlier declarations are expected to destroy (damage >= its total HP) scores 100 x -30 (the unit fires at another, or nothing); below half its HP nothing is charged; between, the fraction of its HP x -30. The damage map is per team, filled as each unit declares in order (`Princess.damageMap`), emptied at the start of every Ranged Attack Phase, and ignored in a movement guess. |
+| Princess: movement in a battle | `princess_group.Group`, `princess_modern._rank` / `princess._rank` | rankPath over ALL enemies: my firing and physical damage the best of any one, damage taken summed; distance / aggression / facing against the closest enemy by adjusted distance (an enemy yet to move counts farther by its walking MP); facing the closest enemy if beside the spot, else the median of the 4 closest (Weiszfeld, `facing_enemies`); an enemy too far for either side to reach adds nothing (`can_matter`, speed only). Posture is the FORCE's (`force_posture`: once a round, the enemy's mean distance to the centre of the team, kept in `princess_memory`). |
+| Princess: mutual support, crowding | `princess_group.Group.support_mod` / `crowding_mod`, `princess_memory` | Mutual support (v0.50.07 "herd mentality"): distance from the end spot to the force's HOT SPOT (heat map: each Princess move credits its end hex with BV - 100 x max(jump, walk) MP; fades each turn - halves where none of the force stands, -200 where one does; the nearest of the top-rated hexes) else the friends' average position; x `mutual_support` (index 0-10 -> 0.1..2.0, default 5 = 1.0). Crowding (`anti_crowding`, default 0 = off, MegaMek's default): 10 / (11 - slider) per unit within ceil(1.3 x slider) hexes (friends, the mover itself at its start included) or within 60% of its range (enemies). `config.PRINCESS_GROUP = False` turns both off. |
+| Battle Value | `INTEGRATION__battle_value.battle_value` | BV 2.0 from MegaMek's `BVCalculator` / `MekBVCalculator` / `HeatTrackingBVCalculator`; item values from MegaMek's classes (`tools/build_equipment_bv.py` -> `mechsim/equipment_bv.json`). Exact on the Atlas AS7-D 1,897, Locust LCT-1V 432, Commando COM-2D 541 and Jenner JR7-D 875; as built (`current=False`) or as it stands (`current=True`), with or without the pilot skill. Not modeled: armored components, C3 / TAG bonuses, Blue Shield, LAMs. |
 | Multi-unit: home edges for 3+ teams | `orchestrator._edges_for_teams` | Two teams: p.37 (loser picks, winner gets the opposite). More: lowest deployment roll picks, then the opposite edge, then the two edges across (clockwise of the pick), round again past four teams (a free for all shares edges). Book silent. |
 | Multi-unit: stepping out of a domino effect | `config.DOMINO_DODGE` (off) | A 'Mech that passes the domino PSR MAY step one hex forward / back (p.114). MegaMek's bots never do (`BotClient` answers "no action", TODO there), so neither does this one; True makes it step aside whenever a legal hex is free (forward first). |
 | Movement selection | `INTEGRATION__movement_selection.choose` | Spot (hex + facing + mode) maximizing the objective - DEFAULT "lifetime" + history blend (row below), or "ratio": dealt×exposure / (received×exposure + movement-PSR cost + .001); first mover scores each spot by the second mover's modeled reply (two-ply, at its MASC / supercharger speed). Which spots are scored: `MOVEMENT_SEARCH` (a mech's own pick) and `MOVEMENT_ASSUMED_ENEMY_SEARCH` (the first mover's modeled reply), per side in `MECH_*_CONFIG` "search" / "assumes_enemy_search" - "grid" (DEFAULT since 2026-10-21, Daniel's guess and follow: a 1-in-7 hex net from the mover's own hex, `MOVEMENT_GRID_SPIN`, then uphill from the best `MOVEMENT_SEARCH_STARTS` net hexes; a second mover always also looks at the 6 hexes around the enemy - `_grid_search`) or "exhaustive" (every spot, "perfect"); for a first mover's own pick also "if_then" (Daniel's IF/THEN, 2026-10-28 - `_if_then_search`: hold still first ("If I hold still then..."), then best spot against that spot's modeled reply, back and forth while the two-ply score rises; keeps the last attempt that rose; also stops on a repeated spot; `MOVEMENT_IF_THEN_STEPS` = fixed steps instead; then `MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB` climbs to better neighbouring hexes; a second mover scores every spot. Daniel: meant for multi-unit threat vectors of farther units, not a single 'Mech's default); for the modeled reply also "short_list" (DEFAULT since 2026-10-24, Daniel's simple short list: hexes next to the first mover, the replier's own, and at the ranges where either side's damage drops most - `short_list_distances`, `MOVEMENT_SHORT_LIST_DROPS` - each mode once at its best TMM, facing the first mover). Knobs: config MOVEMENT SETTINGS. |
@@ -1320,6 +1363,8 @@ recorded runs exactly). Not ported from modern, beyond the v0.50.07 list
 below: standoff for artillery / TAG 'Mechs, sprinting, unit orders, mutual
 support / crowding / formations (no friends in a duel), forced withdrawal,
 the enemy / friendly memory (FightMemory, EnemyTracker - multi-unit).
+[Session 13: mutual support, crowding, the friendly heat map and the damage map
+ARE ported now - `INTEGRATION__princess_group`; formations are CASPAR's.]
 
 Reference: MegaMek **v0.50.07** `megamek/src/megamek/client/bot/princess/`
 (+ `client/bot/PhysicalCalculator.java`, `princess/geometry/`). Fetch with
@@ -1516,6 +1561,43 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-28 (Claude), session 13 - PRINCESS FOR TEAMS + BATTLE VALUE.**
+  **REVIEW PENDING (higher-level model).** Daniel: "I think 1-5 are do able. 6
+  requires us to calculate BV ... As usual use Megamek as source material where
+  needed." Source: MegaMek main 7205e4d (a newer commit than the fd2edfb the
+  modern clone was made from; the group code is the same in v0.50.07 where it
+  exists - `BasicPathRanker`, `PathRanker`, `HeatMap`, `FireControl`,
+  `PostureResolver`, `Coords.median`). Built: (1) `princess_fire`: the damage
+  map and the overkill term (a team stops piling on an enemy it expects to
+  kill); (2) `attack_resolution.declare_attacks(dry=True)` + `config.quiet()` -
+  a dry run of the real weapon choice for each enemy, so Princess's target is
+  the best firing plan (`princess_group.choose_target`, `bots.choose_target`);
+  `run_ranged_phase` picks each unit's target when its turn comes (Gladiator's
+  pick is pure, so nothing changes for it); (3) `princess_group.Group` and
+  `princess_memory`: movement against every enemy, the closest enemy by
+  adjusted distance, the median of the 4 closest to face, the force's posture,
+  mutual support with the BV-weighted heat map, anti-crowding (default off);
+  wired for both Princess versions; the orchestrator credits moves
+  (`princess_memory.unit_moved`), fades the map each turn (`end_of_turn`) and
+  resets it with the battle; (4) `INTEGRATION__battle_value` (BV 2.0) with
+  `tools/build_equipment_bv.py` reading MegaMek's equipment classes into
+  `mechsim/equipment_bv.json` (640 of the 699 items; every weapon and ammo bin
+  of all 4,204 playable units in the pack is priced); `mtf_parser` now keeps
+  `structure_desc` and `tech_base`. Checked: BV exact on the four published values
+  and 1 off a fifth (Mad Cat Prime 2,737 vs the TRO's 2,738); a Warhammer
+  1,299, Griffin 1,272, Shadow Hawk 1,064 and Awesome 1,605 land on the
+  readouts too. `tests/test_princess_group.py` (17) and `tests/test_battle_value.py`
+  (7). A duel with `PRINCESS_GROUP` off is hash-identical to before, both
+  versions; the reference logs (no Princess) are unchanged. Duel A/B (20
+  battles, Kontio v Hammerhead, `ab_batches.py --set princess-group`): Princess
+  vs Gladiator, group off Red 7 / Blue 10 / Draw 3 -> on 5 / 13 / 2; Princess vs
+  Princess 12 / 7 / 1 both ways. Left out on purpose: secondary targets (MegaMek's
+  ordinary Princess fires at one target), the highest-BV cluster anchor
+  (artillery / TAG standoff only), formations (CASPAR's ranker). OPEN FOR THE
+  REVIEWER: the 7205e4d Java was read, not run (building MegaMek was not
+  allowed here), so BV was checked against published values rather than against
+  MegaMek's own output.
 
 - **2026-10-28 (Claude), session 12 - MAP PICKER.** **REVIEW PENDING
   (higher-level model).** Daniel: "Wire in the map picker. Will need it for the

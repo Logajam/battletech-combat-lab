@@ -120,6 +120,46 @@ def _armor(mech, loc, rear):
     return max(0, value)
 
 
+# =============================================================================
+# ===========================  DAMAGE ALREADY ASSIGNED  =======================
+# =============================================================================
+# Princess.damageMap: the expected damage the bot's own units have already
+# declared at each enemy this Ranged Attack Phase (filled as each unit's
+# attacks are declared, in declaration order; Princess.calculateFiringTurn).
+# FireControl.calcDamageAllocationUtility reads it so a team stops piling onto
+# an enemy it already expects to kill. Keyed by id(target); one map for the
+# phase, because every Princess unit on the board is "the bot's own units"
+# (MegaMek counts only the same player's units - not allies - per side; a
+# team here is the owner, so the map is kept per team).
+ALREADY_DESTROYED_OVERKILL = 100.0     # FireControl.ALREADY_DESTROYED_OVERKILL
+_assigned = {}
+
+
+def reset_assigned():
+    """Princess.calculateFiringTurn's start of phase: nothing assigned yet."""
+    _assigned.clear()
+
+
+def assigned_damage(team, target):
+    """Princess.getDamageAlreadyAssigned: damage `team`'s units have declared at target."""
+    return _assigned.get((team, id(target)), 0.0)
+
+
+def assign_damage(team, target, damage):
+    _assigned[(team, id(target))] = assigned_damage(team, target) + damage
+
+
+def overkill_fraction(existing, expected, hp):
+    """FireControl.calcDamageAllocationUtility: 100 for a target already
+    expected destroyed by friends; else the share of the target's HP the
+    friends' damage plus this plan's would deal, when that reaches half
+    (below that, shoot as normal - no spreading); else 0."""
+    if existing / hp >= 1.0:
+        return ALREADY_DESTROYED_OVERKILL
+    fraction = (existing + expected) / hp
+    return fraction if fraction >= 0.5 else 0.0
+
+
 def max_damage_at_range(mech, distance):
     """FireControl.getMaxDamageAtRange: the summed damage of every weapon in
     range at `distance` (beyond Long is out; inside the minimum range is
@@ -265,6 +305,9 @@ class FireControl:
         target = planner.target if planner is not None else None
         tolerance, limit, unavoidable = self._limits(mech, dissipation, other_heat, movement_heat)
         mult, hp = self._target_terms(target) if target is not None else (1.0, 1)
+        # Damage this unit's friends have already declared at the target (not in a movement guess:
+        # Princess leaves its damageMap empty during movement).
+        existing = 0.0 if (self.guess or target is None) else assigned_damage(getattr(mech, "team", None), target)
         infos = []
         for w, expected, heat, tn in candidates:
             p = hit_probability(tn) if tn <= 12 else 0.0
@@ -280,8 +323,7 @@ class FireControl:
         def utility(plan):
             _, ed, crits, survive, heat = plan
             u = (DAMAGE_UTILITY * ed + CRITICAL_UTILITY * crits + KILL_UTILITY * (1 - survive)) * mult
-            fraction = ed / hp
-            u += TARGET_HP_FRACTION_DEALT_UTILITY * (fraction if fraction >= 0.5 else 0.0)
+            u += TARGET_HP_FRACTION_DEALT_UTILITY * overkill_fraction(existing, ed, hp)
             return u - OVERHEAT_DISUTILITY * max(0, heat - tolerance)
 
         def add(plan, info):

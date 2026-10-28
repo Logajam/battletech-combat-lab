@@ -59,6 +59,8 @@ import INTEGRATION__expected_damage as expected_damage
 import INTEGRATION__weapon_rules as weapon_rules
 import INTEGRATION__princess as classic
 import INTEGRATION__princess_fire as princess_fire
+import INTEGRATION__princess_group as princess_group
+import INTEGRATION__forces as forces
 import INTEGRATION__los_cache as geo_cache
 import INTEGRATION__water as water
 import INTEGRATION__arcs as arcs
@@ -97,33 +99,12 @@ PUNCH_ODDS["rear"], KICK_ODDS["rear"] = PUNCH_ODDS["front"], KICK_ODDS["front"]
 # =============================================================================
 # ===========================  POSTURE  =======================================
 # =============================================================================
-def posture(mover, other):
-    """PostureResolver.resolve (AUTO): once a round, from where the 'Mechs
-    stand at Princess's first move that round. Kept on mover.princess_memory
-    (a fresh mech each battle)."""
-    memory = mover.__dict__.setdefault("princess_memory", {"by_round": {}, "posture": ATTACK, "round": None})
-    round_ = getattr(mover, "turn_number", 0)
-    if memory["round"] == round_:
-        return memory["posture"]
-    memory["round"] = round_
-    if mover.hex is None or other.hex is None:
-        memory["posture"] = ATTACK
-        return ATTACK
-    distance = hex_distance(hex_geometry.parse_hex_label(mover.hex), hex_geometry.parse_hex_label(other.hex))
-    by_round = memory["by_round"]
-    by_round[round_] = distance
-    for old in [r for r in by_round if r < round_ - CLOSING_WINDOW_ROUNDS]:
-        del by_round[old]
-    baseline = next((r for r in range(round_ - CLOSING_WINDOW_ROUNDS, round_) if r in by_round), round_)
-    if baseline == round_:
-        memory["posture"] = ATTACK
-        return ATTACK
-    closing = (by_round[baseline] - distance) / (round_ - baseline)
-    if memory["posture"] == DEFEND:
-        memory["posture"] = DEFEND if closing > DEFEND_EXIT_THRESHOLD_HEXES_PER_ROUND else ATTACK
-    else:
-        memory["posture"] = DEFEND if closing >= CLOSING_THRESHOLD_HEXES_PER_ROUND else ATTACK
-    return memory["posture"]
+def posture(mover, other, units=None):
+    """PostureResolver.resolve (AUTO) for `mover`'s team - once a round, from the enemy's mean distance to the
+    centre of the team's force (INTEGRATION__princess_group.force_posture; kept in the team's memory,
+    INTEGRATION__princess_memory). With two 'Mechs that is just the distance between them."""
+    group = princess_group.Group(mover, other, units if units is not None else [mover, other], True)
+    return princess_group.force_posture(mover, group)
 
 
 # =============================================================================
@@ -197,13 +178,17 @@ def close_range_incentive(mech, dist):
     return premium * (CLOSE_RANGE_BAND - dist) / (CLOSE_RANGE_BAND - 1) * CLOSE_RANGE_INCENTIVE_WEIGHT
 
 
-def facing_mod(o, enemy_xy, bias, square_up):
-    """FacingDiffCalculator (modern): squaring up faces the enemy exactly."""
-    want = combat._direction_facing(o.hex_xy, enemy_xy)
+def facing_mod(o, face_xy, bias, square_up, closest_xy=None):
+    """FacingDiffCalculator (modern): squaring up faces the closest enemy exactly (no armor bias, no tolerance);
+    otherwise the unit faces face_xy - the closest enemy when it ends beside it, else the median of the closest few."""
+    if square_up and closest_xy is not None:
+        face_xy, bias, tolerance = closest_xy, 0, 0
+    else:
+        square_up, tolerance = False, classic.ALLOW_FACING_TOLERANCE
+    want = combat._direction_facing(o.hex_xy, face_xy)
     if not square_up:
         want = (want + bias) % 6
     diff = min((o.facing - want) % 6, (want - o.facing) % 6)
-    tolerance = 0 if square_up else classic.ALLOW_FACING_TOLERANCE
     return classic.FACING_MOD_MULTIPLIER * max(0, diff - tolerance)
 
 
@@ -374,28 +359,41 @@ def my_physical(attacker, a_xy, a_label, a_facing, a_amm, target, t_xy, t_label,
 # =============================================================================
 def choose(mover, other, terrain_map, battle_rng, moves_first, standup_mp=None, entry_edge=None):
     """Modern Princess's end-of-movement pick. Same arguments and return as
-    movement_selection.choose: (pick, note)."""
+    movement_selection.choose: (pick, note). `other` is the nearest enemy; the unit weighs every enemy on the
+    board (BasicPathRanker.rankPath loops over all of them: my best damage on any one, the damage of all of
+    them to me), its force's posture, and its friends (INTEGRATION__princess_group)."""
     if other.hex is None:
         return movement_selection.choose(mover, other, terrain_map, battle_rng, moves_first,
                                          standup_mp=standup_mp, entry_edge=entry_edge)
-    stance = posture(mover, other)
+    group = princess_group.Group(mover, other, forces.battle() or [mover, other], moves_first)
+    stance = princess_group.force_posture(mover, group)
     with timing.section("reachable spots"):
         options = movement_selection.reduced_options(mover, terrain_map,
                                                      exclude_hex=movement_selection.occupied_hexes(mover, other),
                                                      standup_mp=standup_mp, entry_edge=entry_edge)
-    enemy_xy = hex_geometry.parse_hex_label(other.hex)
-    moved = not moves_first or is_immobile(other)
+    moved = group.has_moved(other)
+    prepared, estimate = None, None
     with timing.section("Princess path ranking"), \
             weapon_selection.fire_control(princess_fire.FireControl(guess=True, self_mech=mover)):
-        ev = ranged_combat.MoveEvaluator(mover, other, terrain_map)
-        ev.mover_physical = ev.defender_physical = False      # physical attacks are priced below
-        prepared = ev.prepare(options)
-        if not prepared:
-            return None, "no reachable spot"
-        estimate = (_moved_estimates(mover, other, prepared, ev, terrain_map) if moved
-                    else _unmoved_estimates(mover, other, prepared, terrain_map))
+        for foe in group.foes:
+            if not princess_group.can_matter(mover, foe):
+                continue                                          # too far for either side to reach the other
+            ev = ranged_combat.MoveEvaluator(mover, foe, terrain_map)
+            ev.mover_physical = ev.defender_physical = False      # physical attacks are priced below
+            if prepared is None:
+                prepared = ev.prepare(options)
+                if not prepared:
+                    return None, "no reachable spot"
+            got = (_moved_estimates(mover, foe, prepared, ev, terrain_map) if group.has_moved(foe)
+                   else _unmoved_estimates(mover, foe, prepared, terrain_map))
+            estimate = got if estimate is None else princess_group.combine_estimates(estimate, got)
+        if prepared is None:                                      # every enemy out of reach: the options still rank
+            prepared = ranged_combat.prepare_options(mover, options)
+            if not prepared:
+                return None, "no reachable spot"
+            estimate = {classic._key(o): (0.0, 0.0, 0.0) for o in prepared}
     paths = ranged_combat.PathBook(mover, terrain_map, standup_mp, entry_edge)
-    return _rank(mover, other, prepared, estimate, enemy_xy, terrain_map, standup_mp is None, moved, stance, paths)
+    return _rank(mover, group, prepared, estimate, terrain_map, standup_mp is None, moved, stance, paths)
 
 
 def _moved_estimates(mover, other, prepared, ev, terrain_map):
@@ -438,7 +436,13 @@ def _unmoved_estimates(mover, other, prepared, terrain_map):
             for k, (mine, _, theirs, flank) in out.items()}
 
 
-def _rank(mover, other, prepared, estimate, enemy_xy, terrain_map, psr_applies, moved, stance, paths=None):
+def _foes_note(group, moved):
+    """"enemy moved" for a duel (the form of every earlier log), "3 enemies, nearest still to move" for a battle."""
+    state = "moved" if moved else "still to move"
+    return f"enemy {state}" if len(group.foes) == 1 else f"{len(group.foes)} enemies, nearest {state}"
+
+
+def _rank(mover, group, prepared, estimate, terrain_map, psr_applies, moved, stance, paths=None):
     fall_shame = princess_fire.setting("fall_shame")
     bravery = princess_fire.setting("bravery")
     aggression = princess_fire.setting("hyper_aggression")
@@ -446,7 +450,8 @@ def _rank(mover, other, prepared, estimate, enemy_xy, terrain_map, psr_applies, 
     melee = estimated_melee_damage(mover) > 0
     tolerance = config.PRINCESS_BEHAVIOR["fall_shame"] / 20.0 + 0.50
     max_range = movement_selection._max_range(mover)
-    start = (hex_distance(hex_geometry.parse_hex_label(mover.hex), enemy_xy) if mover.hex is not None else None)
+    # validatePaths: the closest enemy now, and from each end spot
+    start = group.distance_to_enemy(hex_geometry.parse_hex_label(mover.hex)) if mover.hex is not None else None
     in_range = start is not None and max_range >= start
     no_pull = stance == DEFEND and start is not None and start <= THREAT_CONTACT_RANGE
     odds = movement_selection.terrain_psr_odds(mover)
@@ -455,7 +460,7 @@ def _rank(mover, other, prepared, estimate, enemy_xy, terrain_map, psr_applies, 
     valid = []
     for o in prepared:
         if start is not None:
-            d = hex_distance(o.hex_xy, enemy_xy)
+            d = group.distance_to_enemy(o.hex_xy)
             if (in_range and d > max_range) or (not in_range and d > start):
                 continue
         if success[classic._key(o)] < tolerance:
@@ -474,21 +479,27 @@ def _rank(mover, other, prepared, estimate, enemy_xy, terrain_map, psr_applies, 
         fail = 1.0 - p
         fall_mod = fail * (classic.UNIT_DESTRUCTION_FACTOR if fail == 1 else fall_shame)
         bravery_mod = p * done * bravery - taken
-        dist = hex_distance(o.hex_xy, enemy_xy)
+        dist = group.distance_to_enemy(o.hex_xy)
         aggression_mod = 0.0 if no_pull else (dist if dist else 2) * aggression
         close = close_range_incentive(mover, dist)
-        face = facing_mod(o, enemy_xy, bias, square_up=close > 0 and melee and dist >= 1)
+        face_xy = group.face_target(o.hex_xy)
+        near = group.nearest(o.hex_xy, min_distance=1)
+        face = facing_mod(o, face_xy, bias, square_up=close > 0 and melee and dist >= 1,
+                          closest_xy=hex_geometry.parse_hex_label(near[0].hex) if near else None)
+        support = group.support_mod(o.hex_xy)
+        crowd = group.crowding_mod(o.hex_xy, max_range)
         hold = 0.0
         if o.fc == 0 and dist <= THREAT_CONTACT_RANGE:
             quality = p * done * heat_sink_boost(mover, o, dist, terrain_map) - taken
             if quality > 0:
                 hold = min(cap * min(quality, turn_of_advance) + ESTIMATE_NOISE_MARGIN, turn_of_advance)
-        utility = -fall_mod + bravery_mod - aggression_mod + close - face + hold
+        utility = -fall_mod + bravery_mod - aggression_mod + close - support - crowd - face + hold
         if best is None or utility > best[0]:
-            best = (utility, o, fall_mod, bravery_mod, p, done, taken, aggression_mod, close, face, hold)
-    utility, o, fall_mod, bravery_mod, p, done, taken, aggression_mod, close, face, hold = best
+            best = (utility, o, fall_mod, bravery_mod, p, done, taken, aggression_mod, close, face, hold, support, crowd)
+    utility, o, fall_mod, bravery_mod, p, done, taken, aggression_mod, close, face, hold, support, crowd = best
+    group_note = (f" - mutual support {support:.2f}" if support else "") + (f" - crowding {crowd:.2f}" if crowd else "")
     note = (f"Princess (modern, {stance.lower()}): utility {utility:.2f} = -fall {fall_mod:.2f} + bravery "
             f"{bravery_mod:.2f} [{p:.2f} x {done:.2f} x {bravery} - taken {taken:.2f}] - aggression "
-            f"{aggression_mod:.2f} + close range {close:.2f} - facing {face:.0f} + hold {hold:.2f} "
-            f"[{len(pool)} of {len(prepared)} spots; enemy {'moved' if moved else 'still to move'}]")
+            f"{aggression_mod:.2f} + close range {close:.2f}{group_note} - facing {face:.0f} + hold {hold:.2f} "
+            f"[{len(pool)} of {len(prepared)} spots; {_foes_note(group, moved)}]")
     return {"hex": o.label, "facing": o.facing_compass, "mode": o.mode, "fc": o.fc, "mp_spent": o.mp_spent}, note
