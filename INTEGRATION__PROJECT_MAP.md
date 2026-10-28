@@ -13,11 +13,14 @@ source project's file overwrite the other's same-named file.
 
 ---
 
-## 0. WHERE WE ARE (2026-10-28, end of session 10) — read this first
+## 0. WHERE WE ARE (2026-10-28, end of session 11) — read this first
 
-Latest: **Session 10** (Tactical Operations terrain and gear, Interstellar
-Operations weapons, ultralight and superheavy 'Mechs - PRs #79-#83) is
-summed up below, just above "Pick up here"; the open work is that list.
+Latest: **Session 11** (Daniel's IF/THEN movement picker, an option - PRs
+#85-#90) and **Session 10** (Tactical Operations terrain and gear,
+Interstellar Operations weapons, ultralight and superheavy 'Mechs - PRs
+#79-#83) are summed up below, just above "Pick up here"; the open work is
+that list. Daniel's multi-unit bot groundwork (IF/THEN as a pre-move threat
+picture + a "right now" layer) is in Section 5.
 
 **Session 7 in one paragraph - RULES AND EQUIPMENT (all merged to `main`,
 PRs #44-#61):** Daniel: get the environment and physics right before the
@@ -318,7 +321,7 @@ TO:AR summaries in `logajam/battletech-rules-index` (RULES_REVIEW F57-F64):
   `TASER_EFFECT_WORTH` stays 5 and joins the research pile (item 3); every
   Gauss rifle now explodes when hit ("Fix it").
 
-**Session 11 (2026-10-28) - IF/THEN PICKER.** Daniel's IF/THEN first-mover
+**Session 11 (2026-10-28) - IF/THEN PICKER (PRs #85-#90).** Daniel's IF/THEN first-mover
 picker (`MOVEMENT_SEARCH = "if_then"`, an option, not the default): best
 spot against the enemy where it stands, then best spot against that spot's
 modeled reply, back and forth while the two-ply score rises. Measured with
@@ -334,7 +337,13 @@ Perfect 2,309). Then a closing climb to better neighbouring hexes
 94.5% of range, about Short Grid's time. Daniel: IF/THEN is for multi-unit
 threat vectors of farther units, not a single 'Mech's default (Section 5).
 Full battery (8 scenarios x 20): first mover 94.5% of range (Short Grid 96.1,
-Short-Short 91.0), same time as Short Grid. Numbers: Change Record.
+Short-Short 91.0), same time as Short Grid - Daniel: "a fairly strong
+prediction level". Settings to use it: `MOVEMENT_SEARCH = "if_then"`,
+`MOVEMENT_IF_THEN_STEPS = 12`, `MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB = True`
+(the steps default is still 0, the climb). Study tools: `pick_quality.py
+--pickers` (only the named pickers) and `--perfect-cache FILE` (Perfect's
+prices reused; the file lives in `run_stats/`, lost with the session -
+rebuild it with one full run). Numbers: Change Record.
 
 **Pick up here (open, roughly in priority order):**
 00. **Princess clone - TODO as the scope grows** (Daniel, 2026-10-27: "All of
@@ -1405,6 +1414,10 @@ turn's score, so a decision sees what it gives up.
   be a thing" - build every option of a rule a unit could carry (all ammo
   kinds, effects for every unit column a 'Mech can be), not only what
   `data/meks.zip` carries today.
+- (Daniel, 2026-10-28) Bot studies: "only run the more interesting test
+  series. We're after general feel, not full stats" - name only the pickers
+  / settings that matter and use few battles; a full battery only when he
+  asks for one.
 - (Daniel, 2026-10-28) Stats a rulebook paste or table doesn't give (slots,
   shots per ton, a weapon's range / heat): "megamek's values to use" -
   borrow from MegaMek's source (main branch) and cite it in the
