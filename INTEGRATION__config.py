@@ -30,6 +30,7 @@ MECHSIM__config.py satisfied, now shifted onto this file.
     placeholder in INTEGRATION__stubs.py lives here).
 """
 
+import contextlib
 import os
 import random
 import sys
@@ -154,7 +155,16 @@ PRINCESS_BEHAVIOR = {
     "bravery": 5,
     "hyper_aggression": 5,
     "self_preservation": 5,
+    # The group sliders (2026-10-28, INTEGRATION__princess_group; BehaviorSettings defaults):
+    "mutual_support": 5,        # 0-10 -> 0.1 ... 2.0 (default 5 = 1.0): the pull toward the force's hot spot /
+                                # the friends' centre, per hex of distance (BasicPathRanker.calculateMutualSupportMod)
+    "anti_crowding": 0,         # 0-10 (default 0 = off): a penalty for ending among friends and enemies
+    "facing_enemies": 4,        # 1-12: how many of the closest enemies the unit turns to face (their median)
 }
+# The group behaviors on or off (2026-10-28, Daniel: Princess's mutual support, crowding, ...). Off gives the
+# duel-only Princess the earlier recorded runs were made with (still weighing every enemy and the force's
+# posture, but with no pull toward its friends or its own earlier ground).
+PRINCESS_GROUP = True
 
 # Deployment (2026-10-19, Core p.37):
 #   "home_edge"   - deployment roll; the loser picks a home edge, the winner
@@ -595,7 +605,24 @@ def set_log_sink(fn):
     _log_sink = fn
 
 
+_quiet_depth = 0   # > 0 inside quiet(): a dry run's log lines are dropped
+
+
+@contextlib.contextmanager
+def quiet():
+    """Within the block log() says nothing - for a bot weighing a choice
+    with the same code that will later declare it (a dry run)."""
+    global _quiet_depth
+    _quiet_depth += 1
+    try:
+        yield
+    finally:
+        _quiet_depth -= 1
+
+
 def log(msg=""):
+    if _quiet_depth:
+        return
     if VERBOSE:
         print(msg)
     if _log_sink is not None:

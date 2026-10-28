@@ -63,7 +63,11 @@ GitHub logistics.
   `config.BOT` / `MECH_*_CONFIG["bot"]`, PROJECT_MAP Section 6 "Princess
   clone". Bot-vs-bot studies: `ab_batches.py --set bots`,
   `tests/pick_quality.py` (`--pickers`, `--perfect-cache`),
-  `tests/bot_agreement.py`. Daniel wants "general feel, not full stats":
+  `tests/bot_agreement.py`. Princess in a team battle: target by firing-plan
+  utility with friends' damage counted, movement against every enemy, mutual
+  support off the BV-weighted heat map (`config.PRINCESS_GROUP`,
+  `INTEGRATION__princess_group` / `_memory`; Battle Value is
+  `INTEGRATION__battle_value`). Daniel wants "general feel, not full stats":
   only the interesting series, few battles, unless he asks for a full run.
 - **Movement searches:** Short Grid is the default; Daniel's IF/THEN
   (`MOVEMENT_SEARCH = "if_then"`) is an option meant for multi-unit threat

@@ -473,9 +473,22 @@ def weapons_can_bear(attacker, target):
     return any(len(arc_unavailable(attacker, key)) < total for key, _ in arc_choices)
 
 
-def declare_attacks(attacker, target, terrain_map, report: SideReport):
+def declare_attacks(attacker, target, terrain_map, report: SideReport, dry=False):
     """Step 2 above for one attacker. Rolls to-hit for every selected
-    weapon; returns nothing (fills report)."""
+    weapon; returns nothing (fills report).
+
+    dry=True (2026-10-28, Princess's target choice): do everything up to the
+    weapon choice, change nothing and log nothing, and return what the bot
+    would get from this target - (the choice's value, expected damage), or
+    None when nothing can fire at it. The real declaration runs the same code,
+    so the dry run can't disagree with it."""
+    if dry:
+        with config.quiet():
+            return _declare(attacker, target, terrain_map, report, True)
+    return _declare(attacker, target, terrain_map, report, False)
+
+
+def _declare(attacker, target, terrain_map, report, dry):
     import INTEGRATION__physical as physical      # physical imports this module
     a_name, t_name = attacker.side_name, target.side_name
     if attacker.shutdown:
@@ -491,7 +504,8 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
         config.log(f"  [Ranged] {a_name}: same hex as target - no attack (undefined).")
         return
 
-    stubs.stub_unconfirmed_weapon_data(a_name, get_weapons(attacker))
+    if not dry:
+        stubs.stub_unconfirmed_weapon_data(a_name, get_weapons(attacker))
 
     heights = (los_height(attacker), los_height(target))          # prone: 1 level (p.57)
     trace = trace_los_path(a_hex, t_hex, terrain_map, *heights)
@@ -608,6 +622,8 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
                 if best is None or total > best[0] + 1e-12:
                     best = (total, picked, key, action, phys_picks, phys_value, held)
     _, (weapons, exp_dmg, weapon_heat), chosen_key, chosen, phys_picks, phys_value, held = best
+    if dry:
+        return (exp_dmg, _plan_damage(attacker, weapons, planner, distance, sel_pre_tn)) if weapons else None
     if not weapons:
         chosen = arcs.current_action(attacker)._replace(turret=chosen.turret)   # nothing fires: declare no change
     arcs.declare(attacker, chosen)
@@ -619,6 +635,11 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     if phys_picks and held_names:
         config.log(f"  [Ranged] {a_name} holds {held_names} back for the Physical phase "
                    f"(plans {', '.join(o['name'] for o in phys_picks)}, expected {phys_value:.2f}).")
+    if attacker.bot == "princess" and weapons:
+        # Princess.calculateFiringTurn: what this plan is expected to do goes into the damage map its
+        # team's later units read (calcDamageAllocationUtility).
+        import INTEGRATION__princess_fire as princess_fire
+        princess_fire.assign_damage(attacker.team, target, _plan_damage(attacker, weapons, planner, distance, sel_pre_tn))
     budget = heat.weapon_heat_budget(attacker, attacker.movement_heat)
     surcharge = heat.weapon_fire_surcharge(attacker) if weapons else 0
 
@@ -699,13 +720,9 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
                                                   pod_value=pod_values.get(id(w), 0.0)))
 
 
-def _choice_note(attacker, weapons, value, planner, distance, pre_tn):
-    """The log's account of the weapon choice: Gladiator's is expected damage;
-    Princess's is a firing-plan utility (INTEGRATION__princess_fire), shown
-    with its expected damage. Its heat budget line above is Gladiator's
-    max_heat - Princess judges heat by its own tolerance instead."""
-    if attacker.bot != "princess":
-        return f"expected dmg {value:.2f}"
+def _plan_damage(attacker, weapons, planner, distance, pre_tn):
+    """About how much damage the chosen weapons deal (expected, no heat or
+    utility terms) - a special weapon by its planner, the rest by the table."""
     damage = 0.0
     for w in weapons:
         if fire_modes.special(w):
@@ -714,6 +731,17 @@ def _choice_note(attacker, weapons, value, planner, distance, pre_tn):
         else:
             row = weapon_selection.build_expected_damage_table(attacker).get(id(w), {}).get(distance)
             damage += row[pre_tn] if row else 0.0
+    return damage
+
+
+def _choice_note(attacker, weapons, value, planner, distance, pre_tn):
+    """The log's account of the weapon choice: Gladiator's is expected damage;
+    Princess's is a firing-plan utility (INTEGRATION__princess_fire), shown
+    with its expected damage. Its heat budget line above is Gladiator's
+    max_heat - Princess judges heat by its own tolerance instead."""
+    if attacker.bot != "princess":
+        return f"expected dmg {value:.2f}"
+    damage = _plan_damage(attacker, weapons, planner, distance, pre_tn)
     return f"Princess plan utility {value:.2f}, about {damage:.2f} expected dmg"
 
 
@@ -1158,8 +1186,8 @@ def run_ranged_phase(order, target_of, terrain_map, battle_rng):
     Initiative first, sides alternating), `target_of(unit)` the one enemy a
     unit fires at (None: nothing to shoot). Returns {side_name: SideReport}."""
     reports = {m.side_name: SideReport() for m in order}
-    pairs = [(m, target_of(m)) for m in order]
-    pairs = [(attacker, target) for attacker, target in pairs if target is not None]
+    import INTEGRATION__princess_fire as princess_fire
+    princess_fire.reset_assigned()               # Princess's damage map starts the phase empty
     for m in order:
         m._ams_used = {}                         # AMS engagements spent this phase, shared by every attacker (p.206)
 
@@ -1170,7 +1198,14 @@ def run_ranged_phase(order, target_of, terrain_map, battle_rng):
             gear.declare_raise(m, "Ranged")               # p.195 - a stub decides
 
     with timing.section("choosing weapons and twists"):
-        for attacker, target in pairs:
+        pairs = []
+        for attacker in order:
+            # The target is picked as each unit's turn comes (a bot may weigh what its friends
+            # have already declared - Princess's damage map), not up front.
+            target = target_of(attacker)
+            if target is None:
+                continue
+            pairs.append((attacker, target))
             declare_attacks(attacker, target, terrain_map, reports[attacker.side_name])
             # Nothing to shoot this turn: maybe pick up a club instead (p.79, INTEGRATION__clubs).
             clubs.maybe_pick_up(attacker, terrain_map, fired_anything=bool(reports[attacker.side_name].attacks_list))

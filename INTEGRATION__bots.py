@@ -30,7 +30,9 @@ import contextlib
 
 import INTEGRATION__config as config
 import INTEGRATION__movement_selection as movement_selection
+import INTEGRATION__forces as forces
 import INTEGRATION__princess as princess
+import INTEGRATION__princess_group as princess_group
 import INTEGRATION__princess_modern as princess_modern
 import INTEGRATION__princess_fire as princess_fire
 import INTEGRATION__weapon_selection as weapon_selection
@@ -65,6 +67,16 @@ def choose_movement(mover, other, terrain_map, battle_rng, moves_first, standup_
                                standup_mp=standup_mp, entry_edge=entry_edge)
     return movement_selection.choose(mover, other, terrain_map, battle_rng, moves_first,
                                      standup_mp=standup_mp, entry_edge=entry_edge)
+
+
+def choose_target(attacker, units, terrain_map):
+    """The one enemy this unit's bot fires at in the Ranged Attack Phase:
+    Princess takes the enemy its firing plans rate highest, with the damage
+    its friends have already declared counted (INTEGRATION__princess_group);
+    Gladiator's pick is forces.choose_target (in sight, bears, nearest)."""
+    if attacker.bot == PRINCESS:
+        return princess_group.choose_target(attacker, units, terrain_map)
+    return forces.choose_target(attacker, units, terrain_map)
 
 
 def fire_control(attacker):
