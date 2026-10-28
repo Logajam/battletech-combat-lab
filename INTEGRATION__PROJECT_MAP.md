@@ -1606,6 +1606,13 @@ turn's score, so a decision sees what it gives up.
   s (was 123-152). Three battles say little about strength; Legate costs about 2x
   at this size. To do (Pick up here 000): map reading, concentrated-fire estimate,
   speed, on-by-default decision.
+  20-BATTLE RUN (Daniel: "a battery of 20 tests"), Princess (Red) v Legate
+  Gladiator (Blue), seed 12345, 4 cores x 5 battles, about 25 minutes: Red
+  (Princess) won 15, 5 draws at the 50-turn cap, Gladiator won none; Gladiator
+  was wiped out in 15 of them and kept 1-3 'Mechs in the draws; 23-50 turns;
+  168-351 s a battle. (The earlier 3-battle no-Legate Princess v Gladiator run
+  was 3 Princess wins; a matching 20-battle no-Legate run was not made.)
+  `baseline_battery.py` gained `--first/--last` (split over cores) and `--replay`.
 
 - **2026-10-28 (Claude), session 13 - BASELINE TEST BATTERY.** **REVIEW PENDING
   (higher-level model).** Daniel: "4 maps stitched together, 12 mechs vs 12
