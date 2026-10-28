@@ -81,13 +81,17 @@ class _BoardCache:
     finds them already done. Blocked hexes are NOT cached (they change turn
     to turn); the searches test them before asking."""
 
-    __slots__ = ("hexes", "info_xy", "steps", "extras", "turns", "tables")
+    __slots__ = ("hexes", "info_xy", "steps", "extras", "turns", "tables", "hazardous")
 
     def __init__(self, terrain_map):
         self.hexes = terrain_map["hexes"]
+        # Hazards (magma crust breaking, INTEGRATION__hazards) change during a battle: such a board
+        # reads them live and shares no finished tables (their PathTables carry the hazards).
+        self.hazardous = any(f in info["features"] for info in self.hexes.values()
+                             for f in terrain_rules.HAZARD_FEATURES)
         self.info_xy = {}
         self.steps = {}       # {limit key: {(fx, fy, tx, ty, backward): cost or None}}
-        self.extras = {}      # {limit key: {(fx, fy, tx, ty, backward): (cost, always, run_only, hazard)}}
+        self.extras = {}      # {limit key: {(fx, fy, tx, ty, backward): (cost, always, run_only)}}
         self.tables = {}      # finished movement tables, see build_movement_table
         self.turns = {}       # {(x, y): (always, run_only)} PSRs a facing change forces there
 
@@ -113,7 +117,8 @@ class _BoardCache:
             return got
 
     def extra(self, level_limit, fx, fy, tx, ty, backward=False):
-        """(cost, always PSRs, run-only PSRs, hazard) of the step - cost None if it isn't allowed."""
+        """(cost, always PSRs, run-only PSRs) of the step - cost None if it isn't allowed. The hex's hazard
+        is NOT here: magma crust breaks during a battle (INTEGRATION__hazards), so hazard() reads it live."""
         extras = self.extras.setdefault((int(level_limit), getattr(level_limit, "superheavy", False)), {})
         key = (fx, fy, tx, ty, backward)
         try:
@@ -122,12 +127,16 @@ class _BoardCache:
             here, there = self.info(fx, fy), self.info(tx, ty)
             cost = terrain_rules.step_cost(here, there, level_limit, backward)
             if cost is None:
-                got = (None, 0, 0, 0.0)
+                got = (None, 0, 0)
             else:
                 a, r = terrain_rules.step_psrs(here, there, backward)
-                got = (cost, a, r, terrain_rules.step_hazard(there))
+                got = (cost, a, r)
             extras[key] = got
             return got
+
+    def hazard(self, x, y):
+        """terrain_rules.step_hazard of the hex, read live (0 at once on a board with no hazard feature)."""
+        return terrain_rules.step_hazard(self.info(x, y)) if self.hazardous else 0.0
 
     def turn(self, x, y):
         try:
@@ -313,7 +322,7 @@ def _build_terrain_psr(
     it. blocked: as _build_terrain_aware."""
     board = _board(terrain_map)
     blocked = _blocked_set(blocked)
-    board_info, board_extra = board.info, board.extra
+    board_info, board_extra, board_hazard = board.info, board.extra, board.hazard
 
     def hex_info(x: int, y: int) -> Optional[dict]:
         if (x, y) in blocked:
@@ -360,20 +369,20 @@ def _build_terrain_psr(
             # 1. Forward move.
             dest_info = hex_info(x + dx, y + dy)
             if dest_info is not None:
-                cost, a, r, hazard = board_extra(level_limit, x, y, x + dx, y + dy)
+                cost, a, r = board_extra(level_limit, x, y, x + dx, y + dy)
                 if cost is not None and mp + cost <= budget:
                     push(mp + cost, (x + dx, y + dy, facing, 1, used_back),
-                         (hz - hazard, fc + 1 if last >= 0 else 1, neg - a - r,
+                         (hz - board_hazard(x + dx, y + dy), fc + 1 if last >= 0 else 1, neg - a - r,
                           always + a, run_only + r), key, mp, "forward")
 
             # 2. Backward move (walking only; a level change costs a PSR).
             if backward_mp is not None:
                 dest_info = hex_info(x - dx, y - dy)
                 if dest_info is not None:
-                    cost, a, r, hazard = board_extra(level_limit, x, y, x - dx, y - dy, True)
+                    cost, a, r = board_extra(level_limit, x, y, x - dx, y - dy, True)
                     if cost is not None and mp + cost <= backward_mp:
                         push(mp + cost, (x - dx, y - dy, facing, -1, True),
-                             (hz - hazard, fc + 1 if last <= 0 else 1, neg - a - r,
+                             (hz - board_hazard(x - dx, y - dy), fc + 1 if last <= 0 else 1, neg - a - r,
                               always + a, run_only + r), key, mp, "backward")
 
             # 3. / 4. Turning (mud: a PSR if running, p.124).
@@ -437,7 +446,7 @@ def build_movement_table(
                      if abs(b[0] - start_x) <= mp_budget and abs(b[1] - start_y) <= 2 * mp_budget)   # y counts half-hexes
     key = (start_x, start_y, start_facing, mp_budget, backward_mp,
            int(level_limit), getattr(level_limit, "superheavy", False), near)
-    got = board.tables.get(key)
+    got = None if board.hazardous else board.tables.get(key)
     if got is not None:
         return got
     if terrain_rules.has_psr_terrain(terrain_map):
@@ -446,6 +455,8 @@ def build_movement_table(
     else:
         got = _build_terrain_aware(start_x, start_y, start_facing, mp_budget, terrain_map, backward_mp, level_limit,
                                    near)
+    if board.hazardous:
+        return got
     if len(board.tables) >= TABLE_CACHE_SIZE:
         board.tables.clear()                  # simple and bounded; a battle refills what it uses
     board.tables[key] = got

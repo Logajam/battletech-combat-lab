@@ -74,6 +74,10 @@ GitHub logistics.
 - **Optional rules** (where the rulebook offers a choice, or Daniel's rule
   differs from it) are switches in `INTEGRATION__config.py`'s OPTIONAL RULES
   section, with the rules-as-written version available.
+- **Label work for review** (Daniel, 2026-10-28, standing order): at the end
+  of every session, list what you built in PROJECT_MAP Section 0's REVIEW
+  QUEUE and mark its Change Record entries "REVIEW PENDING (higher-level
+  model)", so a stronger model can review it when there are spare cycles.
 - **Keep going.** Don't pause at natural checkpoints. Stop only for a rules or
   scope call that is Daniel's.
 - **Placeholders** are loud, counted stubs in `INTEGRATION__stubs.py`, never
