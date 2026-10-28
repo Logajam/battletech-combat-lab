@@ -156,20 +156,24 @@ from INTEGRATION__results import BattleResult, SideStats, summarize, summarize_t
 # =============================================================================
 def _load_map():
     """Loads config.DEFAULT_BOARD_PATH (resolved under config.DATA_DIR) as a
-    single board. config.PROMPT_FOR_MAP's interactive picker is still not
-    built (needs a board-picking counterpart to file_picker.pick_files()).
-    config.STITCH_MAPS raises rather than silently ignoring a multi-board
-    setup it can't fulfill yet."""
+    single board - or, with config.STITCH_MAPS, the config.STITCH_BOARDS laid
+    out in a STITCH_GRID_COLS x STITCH_GRID_ROWS grid as one big board
+    (board_parser.stitch_boards: a blank hex row / column at every seam).
+    config.PROMPT_FOR_MAP's interactive picker is still not built (needs a
+    board-picking counterpart to file_picker.pick_files())."""
     if config.STITCH_MAPS:
-        raise NotImplementedError(
-            "config.STITCH_MAPS is True, but _load_map() only wires the "
-            "single-board DEFAULT_BOARD_PATH case. board_parser.stitch_boards() "
-            "itself is ready - what's missing is picking/ordering the board "
-            "files for it. Not built yet - ask before adding one."
-        )
-    path = config.data_path(config.DEFAULT_BOARD_PATH)
-    config.log(f"\nLoading map: {path}")
-    terrain_map = board_parser.parse_board_file(path)
+        names = list(config.STITCH_BOARDS)
+        cols, rows = config.STITCH_GRID_COLS, config.STITCH_GRID_ROWS
+        if len(names) != cols * rows:
+            raise ValueError(f"config.STITCH_MAPS needs STITCH_BOARDS to name {cols} x {rows} = {cols * rows} "
+                             f"board files, row-major; it names {len(names)}.")
+        paths = [config.data_path(n) for n in names]
+        config.log(f"\nStitching {cols} x {rows} maps (row-major): " + ", ".join(names))
+        terrain_map = board_parser.stitch_boards(paths, cols, rows)
+    else:
+        path = config.data_path(config.DEFAULT_BOARD_PATH)
+        config.log(f"\nLoading map: {path}")
+        terrain_map = board_parser.parse_board_file(path)
     # Refuses terrain the simulator can't play yet, and sets up buildings
     # (config.PASSIVE_BUILDINGS) - see pathfinder/terrain_rules.py.
     terrain_rules.prepare_board(terrain_map, passive_buildings=config.PASSIVE_BUILDINGS)
