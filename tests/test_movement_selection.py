@@ -887,8 +887,8 @@ def if_then_climbs_by_its_rule():
         top = max(score(c) for c in cands)
         return next(c for c in cands if score(c) == top)
 
-    saved = config.MOVEMENT_SEARCH
-    config.MOVEMENT_SEARCH, ms._if_then_search = "if_then", spy
+    saved = config.MOVEMENT_SEARCH, config.MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB
+    config.MOVEMENT_SEARCH, config.MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB, ms._if_then_search = "if_then", False, spy
     try:
         rng, climbed = BattleRNG(seed=13), 0
         for mover_hex, other_hex, other_f in [("0808", "0911", "NW"), ("0404", "0808", "SW"), ("1212", "0910", "SE")]:
@@ -925,7 +925,7 @@ def if_then_climbs_by_its_rule():
                 assert (pick["hex"], pick["facing"], pick["mode"], pick["fc"]) == key(rows[-1][1]), (pick, why)
         assert climbed >= 1, climbed
     finally:
-        config.MOVEMENT_SEARCH, ms._if_then_search = saved, real
+        (config.MOVEMENT_SEARCH, config.MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB), ms._if_then_search = saved, real
 
 
 @check
@@ -941,8 +941,9 @@ def if_then_fixed_steps_keep_the_best():
         seen.append((hold, rows))
         return rows
 
-    saved = config.MOVEMENT_SEARCH, config.MOVEMENT_IF_THEN_STEPS
-    config.MOVEMENT_SEARCH, config.MOVEMENT_IF_THEN_STEPS, ms._if_then_search = "if_then", 5, spy
+    saved = config.MOVEMENT_SEARCH, config.MOVEMENT_IF_THEN_STEPS, config.MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB
+    config.MOVEMENT_SEARCH, config.MOVEMENT_IF_THEN_STEPS, config.MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB = "if_then", 5, False
+    ms._if_then_search = spy
     try:
         rng, checked = BattleRNG(seed=13), 0
         for mover_hex, other_hex, other_f in [("0808", "0911", "NW"), ("0404", "0808", "SW"), ("1212", "0910", "SE")]:
@@ -960,7 +961,52 @@ def if_then_fixed_steps_keep_the_best():
                 checked += 1
         assert checked >= 1
     finally:
-        (config.MOVEMENT_SEARCH, config.MOVEMENT_IF_THEN_STEPS), ms._if_then_search = saved, real
+        (config.MOVEMENT_SEARCH, config.MOVEMENT_IF_THEN_STEPS, config.MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB) = saved
+        ms._if_then_search = real
+
+
+@check
+def if_then_neighbour_climb_ends_on_a_local_best():
+    """IF/THEN's finishing climb (MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB, Daniel
+    2026-10-28 "option 2"): the pick scores at least the best attempt; every
+    state of the pick's hex and of its 6 neighbours is scored; no neighbour's
+    best beats the pick; no state is scored twice."""
+    real_climb = ms._neighbour_climb
+    seen = []
+
+    def spy(rows, prepared, score_spot):
+        before = [r[0] for r in rows]
+        out = real_climb(rows, prepared, score_spot)
+        seen.append((before, out, prepared))
+        return out
+
+    saved = config.MOVEMENT_SEARCH, config.MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB
+    config.MOVEMENT_SEARCH, config.MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB, ms._neighbour_climb = "if_then", True, spy
+    try:
+        rng, checked = BattleRNG(seed=13), 0
+        for mover_hex, other_hex, other_f in [("0808", "0911", "NW"), ("0404", "0808", "SW"), ("1212", "0910", "SE")]:
+            mover, other = fresh(mover_hex, "N"), fresh(other_hex, other_f)
+            seen.clear()
+            pick, why = ms.choose(mover, other, TERRAIN, rng, moves_first=True)
+            if not seen:
+                continue
+            before, rows, prepared = seen[0]
+            keys = [(r[1].label, r[1].facing_compass, r[1].mode, r[1].fc) for r in rows]
+            assert len(set(keys)) == len(keys)
+            if not any(r[2][0] > 0 for r in rows):
+                continue
+            got = next(r for r in rows if (r[1].label, r[1].facing_compass, r[1].mode, r[1].fc) ==
+                       (pick["hex"], pick["facing"], pick["mode"], pick["fc"]))
+            assert round(got[0], 9) >= round(max(before), 9)
+            h = got[1].hex_xy
+            area = {h} | {(h[0] + dx, h[1] + dy) for dx, dy in hex_geometry.FACING_DELTAS.values()}
+            want = {(c.label, c.facing_compass, c.mode, c.fc) for c in prepared if c.hex_xy in area}
+            assert want <= set(keys)
+            assert all(round(r[0], 9) <= round(got[0], 9) for r in rows if r[1].hex_xy in area)
+            checked += 1
+        assert checked >= 1
+    finally:
+        (config.MOVEMENT_SEARCH, config.MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB), ms._neighbour_climb = saved, real_climb
 
 
 @check

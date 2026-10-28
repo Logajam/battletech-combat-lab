@@ -970,6 +970,9 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
             # reply, the best answer to it, back and forth while the honest score climbs.
             hold = next((o for o in prepared1 if o.label == mover.hex and o.mode == "Stand Still"), None)
             scored = _if_then_search(hold, static, prepared_by_key, ev1, prepared1, me, them, score_spot)
+            if config.MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB and scored:
+                with timing.section("IF/THEN neighbour climb"):
+                    scored = _neighbour_climb(scored, prepared1, score_spot)
         elif own_search(mover) == "grid":
             # No hexes around the enemy here: it moves after the first mover (Daniel, 2026-10-21:
             # "Always checks wouldn't help the first mover"). The own hex is always a net hex.
@@ -1000,7 +1003,7 @@ _REPLY_SEARCH_TEXT = {"grid": " (grid search)", "short_list": " (short list)"}
 
 def _spots_text(checked, total, search=None):
     if search == "if_then":
-        return f"IF/THEN, {checked} attempt{'s' if checked != 1 else ''} of {total} spots"
+        return f"IF/THEN, {checked} spot{'s' if checked != 1 else ''} scored of {total}"
     return f"{total} spots" if checked == total else f"{checked} of {total} spots (grid search)"
 
 
@@ -1062,6 +1065,49 @@ def _if_then_search(hold, static, prepared_by_key, ev1, prepared1, me, them, sco
             # The enemy holds the reply's hex, so the mover can't end there.
             state = best_response(ev1.evaluate(reply.hex, reply.facing, reply.fc, reply.mode, reply.mp_spent,
                                                [o for o in prepared1 if o.label != reply.hex]))
+    return rows
+
+
+def _neighbour_climb(rows, prepared, score_spot):
+    """IF/THEN's finishing climb (Daniel, 2026-10-28, "option 2";
+    config.MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB): from the hex of the best attempt
+    so far, score every state of that hex and of its 6 neighbours honestly
+    (score_spot - the two-ply score, the modeled reply to each state), move to
+    the best neighbour while it beats the current hex, stop when none does -
+    the grid search's uphill step. Fixes "right area, wrong hex". States
+    already scored aren't scored again. Returns rows plus the new ones."""
+    by_hex: Dict[tuple, list] = {}
+    for c in prepared:
+        by_hex.setdefault(c.hex_xy, []).append(c)
+    key = lambda c: (c.label, c.facing_compass, c.mode, c.fc)       # noqa: E731
+    done = {key(row[1]) for row in rows}
+    hex_best: Dict[tuple, float] = {}
+    for row in rows:
+        h = row[1].hex_xy
+        hex_best[h] = max(hex_best.get(h, float("-inf")), round(row[0], 9))
+    looked = set()
+
+    def look(h):
+        if h in looked or h not in by_hex:
+            return
+        looked.add(h)
+        for c in by_hex[h]:
+            if key(c) not in done:
+                done.add(key(c))
+                row = score_spot(c)
+                rows.append(row)
+                hex_best[h] = max(hex_best.get(h, float("-inf")), round(row[0], 9))
+
+    h = max(rows, key=lambda row: round(row[0], 9))[1].hex_xy
+    look(h)
+    while True:
+        nbrs = [(h[0] + dx, h[1] + dy) for dx, dy in hex_geometry.FACING_DELTAS.values()]
+        for n in nbrs:
+            look(n)
+        nxt = max((n for n in nbrs if n in hex_best), key=lambda n: hex_best[n], default=None)
+        if nxt is None or hex_best[nxt] <= hex_best[h]:
+            break
+        h = nxt
     return rows
 
 
