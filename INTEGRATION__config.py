@@ -277,7 +277,10 @@ AIMED_SHOT_LOCATION = "Center Torso"
 # DEFAULT_BOARD_PATH (one board), or - with STITCH_MAPS - the boards named in
 # STITCH_BOARDS laid out row-major in a STITCH_GRID_COLS x STITCH_GRID_ROWS
 # grid (board_parser.stitch_boards; 2026-10-28, for company-size fights).
-# PROMPT_FOR_MAP's interactive picker is still not built - ignored for now.
+# PROMPT_FOR_MAP = True asks a person for the map at the start of a run
+# (INTEGRATION__map_picker: one board or a stitched grid, from data/ and the
+# data/maps.zip pack; Enter repeats last time's pick) and writes the answer
+# into the settings below. Headless runs keep the configured map.
 PROMPT_FOR_MAP = False
 DEFAULT_BOARD_PATH = "16x17_Grassland_1.board"
 STITCH_MAPS = False

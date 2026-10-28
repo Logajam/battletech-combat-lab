@@ -36,6 +36,7 @@ After a change, from the repo root:
 - `python tests/run_checks.py`: **the clean-baseline check** - runs every test below and every reference battle side by side, one line each (`--bench` adds the benchmark)
 - `python tests/check_reference_logs.py`: re-runs the reference battles and checks the results are unchanged
 - `python tests/test_multi_unit.py`: checks multi-unit battles (Core Rulebook pp.39-41, 113-116): Initiative and the Unequal Numbers tables, who a unit fights, stacking, domino effects and accidental falls from above, and whole 3-way / lance / free-for-all battles - uses units from `data/meks.zip`
+- `python tests/test_map_picker.py`: checks the map picker (listing the loose boards and the map pack, finding a map, which maps fit a stitched grid, the console menu with scripted answers, remembering the last pick)
 - `python tests/test_pathfinder.py`: checks the movement/map code
 - `python tests/test_weapon_range.py`: checks range brackets and the minimum-range penalty
 - `python tests/test_heat.py`: checks the Heat Scale rules (Core Rulebook pp.102-107) with scripted dice

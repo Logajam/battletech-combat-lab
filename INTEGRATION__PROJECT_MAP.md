@@ -17,11 +17,11 @@ source project's file overwrite the other's same-named file.
 
 **REVIEW QUEUE - needs a higher-level model's review when there are spare
 cycles** (Daniel's standing order, 2026-10-28; Section 7). Written by Sonnet 5.5,
-tested (38 of 38 checks, reference logs unchanged) but not independently
+tested (39 of 39 checks, reference logs unchanged) but not independently
 reviewed. Session 12 (2026-10-28): (1) multi-unit battles - `INTEGRATION__forces`,
 `INTEGRATION__domino`, `orchestrator.run_skirmish`, Unequal Numbers for 3+ sides,
 domino / fall-from-above displacement, replay for N units, `tests/test_multi_unit.py`;
-(2) map stitching (`_load_map`, `STITCH_BOARDS`; check the seam parity - a 16-wide board plus the gap column shifts the next board's hex columns by an odd amount); (3) the movement cache - `pathfinder._BoardCache` and shared tables (check every
+(2) map stitching and the map picker (`INTEGRATION__map_picker`, `tests/test_map_picker.py`: check the pack-map cache folder and the remembered pick in the file picker's state file) (`_load_map`, `STITCH_BOARDS`; check the seam parity - a 16-wide board plus the gap column shifts the next board's hex columns by an odd amount); (3) the movement cache - `pathfinder._BoardCache` and shared tables (check every
 field a search reads is static - the magma hazard was found not to be; a
 loaded map is never edited in place; blocked-hex normalization `|dx| <= MP,
 |dy| <= 2 MP`; cache invalidation; read-only tables). Review for rules
@@ -496,7 +496,7 @@ rebuild it with one full run). Numbers: Change Record.
 7. **Maps - leftovers** (RULES_REVIEW G7, G20-G22): water done (F36); the movement subphase (mud's -1 isn't
    priced - bot); prone LOS height done (G7, F41); Section 4
    "Map terrain waiting on rules" (Daniel is hunting the rules);
-   `PROMPT_FOR_MAP` (the interactive picker; `STITCH_MAPS` works, 2026-10-28).
+   `PROMPT_FOR_MAP` and `STITCH_MAPS` both work (2026-10-28).
    - **Hull-breach risk in movement scoring (G21) - DON'T BUILD YET**
      (Daniel, 2026-10-21: "Your plan is close to what I'm thinking. Save the
      notes but don't implement it yet. Its related to an Idea I have for how
@@ -799,7 +799,7 @@ in tabletop play it falls where the check was failed
 (`orchestrator._phase_movement`).
 
 **Other open items:**
-- `config.PROMPT_FOR_MAP` picker not built — always loads `DEFAULT_BOARD_PATH`.
+- `config.PROMPT_FOR_MAP` works (2026-10-28, `INTEGRATION__map_picker`): a console menu; the GUI will call the same library.
 - `STITCH_MAPS` works (2026-10-28): `STITCH_BOARDS` names the boards, row-major.
 - ~~Full `MECHSIM__equipment.json` not available (only the 14-entry
   mini)~~ RESOLVED 2026-10-19: the full DB is now `mechsim/equipment.json`
@@ -1517,6 +1517,25 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-28 (Claude), session 12 - MAP PICKER.** **REVIEW PENDING
+  (higher-level model).** Daniel: "Wire in the map picker. Will need it for the
+  next trick, making the program easily accessible by a person, which is GUI
+  work." `INTEGRATION__map_picker` in two layers so the GUI can reuse the
+  first: the library (`list_maps` - the loose boards in data/ plus the
+  356-board `maps.zip` pack, by name, pack folder and size; `resolve_board`;
+  `playable` - what `prepare_board` refuses, e.g. bridges; `compatible_maps` -
+  the stitch size rule per grid slot; `MapChoice` / `apply_choice` /
+  `remember_choice`) and the console menu `choose_map(ask, say)` (last time's
+  pick offered first; one board or a columns x rows grid up to 12; numbered
+  list with a text filter; an unplayable map is refused with the reason).
+  `config.PROMPT_FOR_MAP = True` makes `orchestrator._load_map` ask once per
+  run and write the answer into config; with no keyboard it keeps the
+  configured map. Config may now name a pack map directly
+  ("AGoAC Maps/16x17 Desert 2.board") - `_load_map` resolves every name
+  through the picker. Tests: `tests/test_map_picker.py` (8 checks, scripted
+  answers). 39 of 39 checks pass, reference logs unchanged. GUI notes: call
+  `list_maps()` for the list, `playable()` on demand (about 0.1 s a map, so not
+  for all 356 at once), `compatible_maps()` per slot, `apply_choice()` to set.
 - **2026-10-28 (Claude), session 12 - MAP STITCHING + OFFICIAL NAME.**
   **REVIEW PENDING (higher-level model).** Daniel: "Short Grid is the official
   name now. Map stitching up and running." The name is recorded (the
@@ -1529,7 +1548,7 @@ turn's score, so a decision sees what it gives up.
   viewer need nothing special (a 6v6 on two stitched 16x17 maps, 33x17, ran 14
   turns and replayed without console errors). Test:
   `test_terrain.stitched_map_loads_and_crosses_the_seam`. Not built: a map
-  picker (`PROMPT_FOR_MAP`); Section 6 gap: on a stitched board the home
+  picker (built the same day, next entry); Section 6 gap: on a stitched board the home
   edges are the outer edges of the whole field, so long fields mean long
   approach marches. 38 of 38 checks pass, reference logs unchanged.
 - **2026-10-28 (Claude), session 12 - MOVEMENT TABLE CACHE (speed only).**
