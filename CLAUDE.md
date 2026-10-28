@@ -61,7 +61,12 @@ GitHub logistics.
   "princess" (a MegaMek clone, modern or v0.50.07) - `INTEGRATION__bots`,
   `config.BOT` / `MECH_*_CONFIG["bot"]`, PROJECT_MAP Section 6 "Princess
   clone". Bot-vs-bot studies: `ab_batches.py --set bots`,
-  `tests/pick_quality.py`, `tests/bot_agreement.py`.
+  `tests/pick_quality.py` (`--pickers`, `--perfect-cache`),
+  `tests/bot_agreement.py`. Daniel wants "general feel, not full stats":
+  only the interesting series, few battles, unless he asks for a full run.
+- **Movement searches:** Short Grid is the default; Daniel's IF/THEN
+  (`MOVEMENT_SEARCH = "if_then"`) is an option meant for multi-unit threat
+  estimates, not a single 'Mech's default (PROJECT_MAP Section 5).
 - **Show Daniel battles as replays.** Set `REPLAY_BATTLES` in
   `INTEGRATION__config.py`, run, and publish the page from `replays/` with the
   Artifact tool; give him the link (he doesn't run the code himself).
