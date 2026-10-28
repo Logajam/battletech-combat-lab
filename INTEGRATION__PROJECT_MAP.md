@@ -296,9 +296,12 @@ TO:AR summaries in `logajam/battletech-rules-index` (RULES_REVIEW F57-F64):
   slot had been read as its own weapon).
 - Left (books not in the library): TSEMP, iATM, nail / rivet guns, Improved
   weapons' ammo (Interstellar Operations - the rules repo's next book),
-  industrial tools (TechManual). Left for Daniel: 'Mech UMUs, the chain
-  whip grapple, Princess hazards on a path's middle hexes, the
-  `TASER_EFFECT_WORTH` placeholder.
+  industrial tools (TechManual).
+- Daniel's answers (2026-10-28): 'Mech UMUs and the chain whip grapple -
+  DEFERRED (Pick up here 10); Princess now prices hazards on every hex of
+  her path like MegaMek ("Need the change for an acurate replica");
+  `TASER_EFFECT_WORTH` stays 5 and joins the research pile (item 3); every
+  Gauss rifle now explodes when hit ("Fix it").
 
 **Pick up here (open, roughly in priority order):**
 00. **Princess clone - TODO as the scope grows** (Daniel, 2026-10-27: "All of
@@ -378,8 +381,10 @@ TO:AR summaries in `logajam/battletech-rules-index` (RULES_REVIEW F57-F64):
    future-capability Memo (item 4). Daniel's ideas: (a) a lookup table of
    known best solutions per weapon by range and starting to-hit number;
    (b) raise a cluster weapon's expected value by its odds of a critical hit
-   given the target's armor. Deferred: specialty ammo. Placeholder to set:
-   `TARGET_HEAT_WORTH`. Questions for Daniel: Section 4.
+   given the target's armor. Deferred: specialty ammo. Placeholders to set:
+   `TARGET_HEAT_WORTH`, and `TASER_EFFECT_WORTH` (Daniel, 2026-10-28: "Good
+   enough for now. Add it in the same pile as deriving the value of cluster
+   weapons"). Questions for Daniel: Section 4.
 4. **The bot's future-capability planning** - Section 6 "Memo" (Daniel,
    2026-10-20). Needed for clubs, MASC, Rotary ACs (jam risk) and similar.
 5. **Crippled / forced withdrawal** (Daniel, 2026-10-20): an option plus a
@@ -415,6 +420,11 @@ TO:AR summaries in `logajam/battletech-rules-index` (RULES_REVIEW F57-F64):
    decision - the two stubs `STUB_CAPACITOR_START` / `STUB_CAPACITOR_CHARGE`
    (off by default), and weapon choice seeing the 5 holding heat. ~65 units
    in `data/meks.zip`.
+10. **Deferred TO:AUE items (Daniel, 2026-10-28: "Defered")**: 'Mech UMUs
+   (TO:AUE p.107 - submarine-style movement under water, 1 MP a UMU, +3 to
+   its own attacks; needs underwater elevations in the movement search) and
+   the chain whip's arm grapple (TO:AUE p.101 - needs TO:AR's grappling
+   rules; the leg trip is built).
 9. Later (Daniel agreed 2026-10-20): a setup shell GUI (the replay viewer
    exists); a compiled hot path (Cython / Rust for `MoveEvaluator.evaluate`)
    once the rules settle - not a rewrite; evolutionary tuning of the bot's
@@ -1326,6 +1336,24 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-28 (Claude):** Daniel's answers to the TO questions. (1) Princess
+  prices hazards like MegaMek's checkPathForHazards: every hex her ground
+  path stands in (`ranged_combat.PathBook` - the path the project's search
+  found, the searches shared per pick), each once, the last as the end
+  hex; a jump its landing hex; standing still nothing (modern: the water it
+  stands in); a stand-up's GET_UP step in its own hex. Checking MegaMek's
+  Terrains.HAZARDS (v0.50.07 and main alike) showed swamp is a hazard
+  (calcSwampHazard - now ported) and rubble is not (its calcRubbleHazard is
+  never reached) - the clone had priced rubble and missed swamp. Princess
+  no longer walks through lava (Caustic Valley battles, both versions).
+  Speed: a board with no hazard terrain skips it (`_hazard_board`). (2)
+  Every Gauss rifle explodes when hit (Core p.184): Light, Heavy, Improved
+  Heavy, Silver Bullet, AP Gauss and the HAGs were marked non-explosive.
+  (3) `TASER_EFFECT_WORTH` joins the research pile (Pick up here 3); UMUs
+  and the chain whip grapple deferred (Pick up here 10). Reference logs
+  unchanged except the summary's gap-list text. Tests: tests/test_hazards.py
+  princess_prices_the_whole_path, tests/test_advanced_gear.py
+  every_gauss_rifle_explodes.
 - **2026-10-28 (Claude):** Tactical Operations weapons, equipment and hex
   types (Daniel: "wire in functionality of missing weapons, equipment, and
   hex types already noted"; rules from the TO:AUE / TO:AR summary layers of

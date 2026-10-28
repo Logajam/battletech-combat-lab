@@ -28,10 +28,9 @@ KNOWN_MISSING_RULES = [
     "saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH",
     "Movement subphase (G20): mud's -1 isn't priced in movement scoring",
     "TO:AR terrain (2026-10-27): magma eruptions, hazardous pool flow, smoke drift / wind are optional rules - not "
-    "built; magma heat and the chance of bogging down aren't priced in movement scoring; Princess prices hazards at "
-    "her end hex only (MegaMek checks every hex of the path); bridges, fuel tanks and elevators wait on the full "
-    "building rules. Not built: 'Mech UMUs (underwater submarine movement), the chain whip's arm grapple (TO:AR "
-    "grappling), industrial tools (rules in TechManual / Total Warfare)",
+    "built; magma heat and the chance of bogging down aren't priced in movement scoring; bridges, fuel tanks and elevators wait on the full "
+    "building rules. Deferred (Daniel, 2026-10-28): 'Mech UMUs (underwater submarine movement), the chain whip's "
+    "arm grapple (TO:AR grappling). Not built: industrial tools (rules in TechManual / Total Warfare)",
     "Heat sources/sinks with no terrain model yet: snow, fire, extreme temperatures (water: built 2026-10-21); "
     "inferno missiles (inferno bins aren't fired from; they can still explode)",
     "Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary "

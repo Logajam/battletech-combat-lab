@@ -48,12 +48,17 @@ are - Princess's numbers never prefer fewer hexes moved), then:
   - if nothing is left, use them all.
 Ties keep the first spot found (MegaMek's TreeSet drops an equal rank).
 
-Hazards (checkPathForHazards) are priced at the END hex only - Princess
-checks every hex of a ground path: water (an unarmored submerged location
-50, the head / center torso 1000), rubble and mud (the bog-down factor),
-and (2026-10-27, TO:AR terrain) magma and hazardous liquid pools -
-calcMagmaHazard / calcLavaHazard / calcHazardousLiquidHazard, the same in
-v0.50.07 and MegaMek main (checked against both sources).
+Hazards (checkPathForHazards; every hex of the path since 2026-10-28 -
+Daniel: "Need the change for an acurate replica"; was the end hex only): a
+jump prices its landing hex; a ground move every hex its steps stand in
+(ranged_combat.PathBook - the path the project's search found to that end
+state), each once, the last as the end hex; standing still nothing. Per hex
+(Terrains.HAZARDS): water (an unarmored submerged location 50, the head /
+center torso 1000), swamp (calcSwampHazard - quicksand odds), mud (the
+bog-down factor), magma (calcMagmaHazard / calcLavaHazard) and hazardous
+liquid (calcHazardousLiquidHazard) - the same in v0.50.07 and MegaMek main.
+Rubble is NOT a MegaMek hazard terrain (its calcRubbleHazard is never
+reached); the clone priced it until 2026-10-28.
 Not ported: charges and death from above (v0.50.07 Princess never
 declares them), MASC odds in P(success) (the project rolls MASC before
 the move), unjamming a rotary AC, forced withdrawal, the "move to contact"
@@ -257,33 +262,100 @@ def _bog_down_factor(pilot, modifier, end_hex, jump_landing):
     return 1.0 + bogged + turns
 
 
-def hazards(mover, o, terrain_map):
-    """checkHexForHazards for the end hex (module docstring)."""
-    info = terrain_map["hexes"][o.label]
-    features = info.get("features", ())
-    jump = o.mode == "Jump"
+def _submerged_breaches(mover, depth, prone):
+    """calcWaterHazard (v0.50.07): every submerged location with no armor
+    left - 50, the head / center torso the destruction factor (Princess
+    returns it for the water at once, the hex's other hazards still add)."""
     total = 0.0
-    depth = water.depth_at(o.label, terrain_map)
-    if depth >= 1:
-        for loc, entry in mover.locations.items():
-            if entry["destroyed"]:
-                continue
-            legs = loc in mover.leg_locations or loc in ("Front Left Leg", "Front Right Leg")
-            if not (depth >= 2 or mover.prone or legs):
-                continue
-            if entry["armor"] > 0:
-                continue
-            if loc in ("Head", "Center Torso"):
-                return UNIT_DESTRUCTION_FACTOR
-            total += 50
-    if "rubble" in features:
-        total += round(_bog_down_factor(mover.piloting, 0, True, jump))
-    if "mud" in features:
-        total += round(_bog_down_factor(mover.piloting, 0, True, False))
-    total += magma_hazard(mover, features, jump)
-    if "hazardous_liquid" in features:
-        total += hazardous_liquid_hazard(mover, o.label, terrain_map)
+    for loc, entry in mover.locations.items():
+        if entry["destroyed"]:
+            continue
+        legs = loc in mover.leg_locations or loc in ("Front Left Leg", "Front Right Leg")
+        if not (depth >= 2 or prone or legs) or entry["armor"] > 0:
+            continue
+        if loc in ("Head", "Center Torso"):
+            return UNIT_DESTRUCTION_FACTOR
+        total += 50
     return total
+
+
+def swamp_hazard(mover, features, end_hex, jump_landing):
+    """calcSwampHazard: the chance it is (1) or becomes (1 in 36) quicksand x
+    the destruction factor / (1 + the 'Mech's height, 1), x the bog-down
+    factor at +1 (+3 in quicksand - MegaMek's swamp level 2+)."""
+    quicksand = int((features["swamp"][:1] or ["1"])[0] or 1) > 1
+    chance = 1.0 if quicksand else 1 / 36.0
+    hazard = chance * UNIT_DESTRUCTION_FACTOR / (1 + 1)
+    return round(hazard * _bog_down_factor(mover.piloting, 3 if quicksand else 1, end_hex, jump_landing))
+
+
+def hex_hazard(mover, label, terrain_map, end_hex, jump_landing, prone, water_fn=None):
+    """checkHexForHazards for one hex (Terrains.HAZARDS the project's maps
+    can hold: water, swamp, mud, magma, hazardous liquid - NOT rubble, which
+    MegaMek's set leaves out; buildings can't be entered on the ground here).
+    water_fn(label, depth, end_hex, prone): the modern waterHazard instead."""
+    features = terrain_map["hexes"][label].get("features", {})
+    total = 0.0
+    depth = water.depth_at(label, terrain_map)
+    if depth >= 1:
+        total += water_fn(label, depth, end_hex, prone) if water_fn else _submerged_breaches(mover, depth, prone)
+    if "swamp" in features:
+        total += swamp_hazard(mover, features, end_hex, jump_landing)
+    if "mud" in features:
+        total += round(_bog_down_factor(mover.piloting, 0, end_hex, False))
+    total += magma_hazard(mover, features, jump_landing, end_hex, prone)
+    if "hazardous_liquid" in features:
+        total += hazardous_liquid_hazard(mover, label, terrain_map, prone)
+    return total
+
+
+_HAZARD_FEATURES = ("swamp", "mud", "magma", "hazardous_liquid")
+
+
+def _hazard_board(terrain_map):
+    """Has the board any hex hex_hazard could price (depth 1+ water, swamp,
+    mud, magma, hazardous liquid)? Cached on the board."""
+    flag = terrain_map.get("_princess_hazards")
+    if flag is None:
+        flag = terrain_map["_princess_hazards"] = any(
+            info.get("depth", 0) >= 1 or any(f in info["features"] for f in _HAZARD_FEATURES)
+            for info in terrain_map["hexes"].values())
+    return flag
+
+
+def path_hazards(mover, o, terrain_map, paths, water_fn=None, stay_fn=None):
+    """checkPathForHazards (2026-10-28, Daniel: "Need the change for an
+    acurate replica"): a jump - its landing hex only; otherwise every hex
+    its steps stand in, a hex once (repeats skipped), the last step's hex as
+    the end hex. A move with no steps (standing still) - nothing, or
+    stay_fn() (modern: the water it stays in). A 'Mech standing up first
+    has a get-up step in the hex it lies in (MegaMek's GET_UP)."""
+    if not _hazard_board(terrain_map):
+        return 0.0                           # speed only: no hex here can price anything
+    if o.mode == "Jump":
+        return hex_hazard(mover, o.label, terrain_map, True, True, mover.prone, water_fn)
+    moves = bool(o.fc or o.mp_spent)
+    steps = paths.path(o) if (paths is not None and moves) else None
+    if steps is None and moves:
+        steps = [("forward", (o.x, o.y, o.facing), o.mp_spent)]     # no path found: the end hex alone
+    if paths is not None and paths.standup_mp is not None and mover.hex is not None:
+        sx, sy, sf = hex_geometry.state_from_label(mover.hex, mover.facing)
+        steps = [("get up", (sx, sy, sf), 0)] + (steps or [])
+    if not steps:
+        return stay_fn() if stay_fn else 0.0
+    total, previous = 0.0, None
+    for n, (_, (x, y, _f), _) in enumerate(steps):
+        if (x, y) == previous:
+            continue
+        total += hex_hazard(mover, hex_geometry.hex_label(x, y), terrain_map, n == len(steps) - 1, False, False,
+                            water_fn)
+        previous = (x, y)
+    return total
+
+
+def hazards(mover, o, terrain_map, paths=None):
+    """checkPathForHazards (v0.50.07) for prepared state o."""
+    return path_hazards(mover, o, terrain_map, paths)
 
 
 # MegaMek's leg locations for calcLavaHazard / calcHazardousLiquidHazard's
@@ -296,19 +368,20 @@ def _total_armor(mover):
     return sum(max(0, e["armor"]) + max(0, e.get("rear_armor", 0)) for e in mover.locations.values())
 
 
-def lava_hazard(mover, jump_landing):
-    """calcLavaHazard for a 'Mech's end hex (endHex = True): 10 heat, plus
-    the destruction factor x expected damage / exposed armor (biped 14 on its
+def lava_hazard(mover, jump_landing, end_hex=True, prone=None):
+    """calcLavaHazard: heat (10 in the end hex, 5 passing through), plus the
+    destruction factor x expected damage / exposed armor (biped 14 on its
     legs, tripod 21, quad 28; prone 7 a location on all its armor), all x
     the bog-down factor when jumping in (PSR +4)."""
+    prone = mover.prone if prone is None else prone
     psr_factor = 1.0
-    if jump_landing:
+    if jump_landing and end_hex:
         odds = hit_probability(mover.piloting + 4)
         bogged = 1.0 - odds
         turns = math.log10(0.10) / math.log10(bogged) if 0.0 < bogged < 1.0 else 0.0
         psr_factor = 1.0 + bogged + turns
-    value = 10.0
-    if mover.prone:
+    value = 10.0 if end_hex else 5.0
+    if prone:
         dmg, exposed = 7 * len(mover.locations), _total_armor(mover)
     else:
         dmg, exposed = 7 * len(mover.leg_locations), _leg_armor(mover)
@@ -316,25 +389,25 @@ def lava_hazard(mover, jump_landing):
     return round(value * psr_factor)
 
 
-def magma_hazard(mover, features, jump_landing):
-    """calcMagmaHazard (end hex): liquid = lava_hazard; a crust = lava_hazard
-    x the chance it breaks (1/2 jumping, 0.1667 walking), rounded, plus 5 x
-    the chance it holds (heat)."""
+def magma_hazard(mover, features, jump_landing, end_hex=True, prone=None):
+    """calcMagmaHazard: liquid = lava_hazard; a crust = lava_hazard x the
+    chance it breaks (1/2 jumping, 0.1667 walking), rounded, plus the heat
+    (5 in the end hex, 2 passing) x the chance it holds."""
     state = terrain_rules.magma_state(features)
     if state == terrain_rules.MAGMA_LIQUID:
-        return lava_hazard(mover, jump_landing)
+        return lava_hazard(mover, jump_landing, end_hex, prone)
     if state == terrain_rules.MAGMA_CRUST:
         breaks = 0.5 if jump_landing else 0.1667
-        return round(lava_hazard(mover, jump_landing) * breaks) + 5 * (1 - breaks)
+        return round(lava_hazard(mover, jump_landing, end_hex, prone) * breaks) + (5 if end_hex else 2) * (1 - breaks)
     return 0.0
 
 
-def hazardous_liquid_hazard(mover, label, terrain_map):
-    """calcHazardousLiquidHazard (end hex): 3 average damage x the
-    destruction factor / exposed armor - the legs, or all of it when prone
-    or in water deeper than 1."""
+def hazardous_liquid_hazard(mover, label, terrain_map, prone=None):
+    """calcHazardousLiquidHazard: 3 average damage x the destruction factor
+    / exposed armor - the legs, or all of it when prone or in water deeper
+    than 1."""
     dmg = max(3.0, 2.0 / 3.0)
-    if mover.prone or water.depth_at(label, terrain_map) > 1:
+    if (mover.prone if prone is None else prone) or water.depth_at(label, terrain_map) > 1:
         exposed = _total_armor(mover)
     else:
         exposed = _leg_armor(mover)
@@ -406,7 +479,8 @@ def choose(mover, other, terrain_map, battle_rng, moves_first, standup_mp=None, 
             return None, "no reachable spot"
         estimate = (_moved_estimates(mover, other, prepared, ev, terrain_map) if moved
                     else _unmoved_estimates(mover, other, prepared, terrain_map))
-    return _rank(mover, other, prepared, estimate, enemy_xy, terrain_map, standup_mp is None, moved)
+    paths = ranged_combat.PathBook(mover, terrain_map, standup_mp, entry_edge)
+    return _rank(mover, other, prepared, estimate, enemy_xy, terrain_map, standup_mp is None, moved, paths)
 
 
 def _moved_estimates(mover, other, prepared, ev, terrain_map):
@@ -477,7 +551,7 @@ def _key(o):
     return o.label, o.facing, o.mode, o.fc, o.mp_spent
 
 
-def _rank(mover, other, prepared, estimate, enemy_xy, terrain_map, psr_applies, moved):
+def _rank(mover, other, prepared, estimate, enemy_xy, terrain_map, psr_applies, moved, paths=None):
     fall_shame = princess_fire.setting("fall_shame")
     bravery = princess_fire.setting("bravery")
     aggression = princess_fire.setting("hyper_aggression")
@@ -503,7 +577,7 @@ def _rank(mover, other, prepared, estimate, enemy_xy, terrain_map, psr_applies, 
     for o in pool:
         p = success[_key(o)]
         mine, physical_mine, theirs = estimate[_key(o)]
-        taken = theirs + hazards(mover, o, terrain_map)
+        taken = theirs + hazards(mover, o, terrain_map, paths)
         fail = 1.0 - p
         fall_mod = fail * (UNIT_DESTRUCTION_FACTOR if fail == 1 else fall_shame)
         bravery_mod = p * (mine + physical_mine) * bravery - taken
