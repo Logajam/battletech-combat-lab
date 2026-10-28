@@ -47,7 +47,7 @@ charging 'Mech may declare its torso spikes (+2 a cluster - a stub decides);
 the target's spikes cut each grouping by 4 and hurt the charger's centre
 torso; a lance makes a 5+ armor-piercing check on the first location hit.
 
-Not modeled: the +2 PSRs in the score; domino effects (no third mech);
+Not modeled: the +2 PSRs in the score; (a third 'Mech in the displacement hex: domino effect and accidental fall from above, INTEGRATION__domino, 2026-10-28);
 minimum movement, buildings, water halving, shields; partial
 cover is ignored as the rule says, but woods still count.
 """

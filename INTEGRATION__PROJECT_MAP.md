@@ -13,9 +13,32 @@ source project's file overwrite the other's same-named file.
 
 ---
 
-## 0. WHERE WE ARE (2026-10-28, end of session 11) — read this first
+## 0. WHERE WE ARE (2026-10-28, session 12) — read this first
 
-Latest: **Session 11** (Daniel's IF/THEN movement picker, an option - PRs
+Latest: **Session 12 - MULTI-UNIT BATTLES** (Daniel, 2026-10-28: "Multiple units
+that can be assigned to multiple teams. The ideal ranges would probably be a 4
+unit lance and a 12 unit company vs like forces. But a 20 unit free for all or
+a 3 way battle between different lances are also possibilities... For the
+moment we're just getting to the point where we can unleash a group of bots to
+operate independently."). A battle is now a LIST of units on any number of
+teams: `config.FORCES = [{"team": "Red", "mtf": "Atlas AS7-D.mtf", "count": 4},
+{"team": "Blue", ...}]` (None = the old Red vs Blue duel, byte-identical: all 15
+reference logs match). New: `INTEGRATION__forces` (teams, Initiative for any
+number of sides, the Unequal Numbers rule - Core p.41, who a bot plans against
+and shoots at), `INTEGRATION__domino` (displacement into an occupied hex: the
+domino effect and the accidental fall from above, pp.113-116),
+`orchestrator.run_skirmish`, `results.summarize_teams`, a replay viewer for any
+number of units and teams, `tests/test_multi_unit.py`. The bots are INDEPENDENT:
+each unit's bot (Gladiator or Princess) plans its movement against its nearest
+enemy (`forces.choose_foe`) and fires at the enemy it picks
+(`forces.choose_target`: in sight, a weapon bears, nearest); it does not model
+its other enemies or coordinate with its team - that is Pick up here 00
+(Daniel's IF/THEN threat picture, mutual support, fire distribution). Speed: a
+4v4 Kontio / Hammerhead battle takes ~40 s (13 turns); cost grows with the unit
+count (~0.5 s a unit a turn) - run big battles with `config.WORKERS`.
+Decisions the book doesn't make are in Section 6 ("Multi-unit").
+
+Previous: **Session 11** (Daniel's IF/THEN movement picker, an option - PRs
 #85-#90) and **Session 10** (Tactical Operations terrain and gear,
 Interstellar Operations weapons, ultralight and superheavy 'Mechs - PRs
 #79-#83) are summed up below, just above "Pick up here"; the open work is
@@ -363,11 +386,14 @@ rebuild it with one full run). Numbers: Change Record.
      TAG (F55-F56).
    - **Sprinting** (TacOps) - the sprint exposure penalty; needs the sprint
      movement rule.
-   - **Multi-unit play** (Daniel's groundwork: IF/THEN pre-move threat picture
-     + a "right now" layer for the real move - Section 5) - mutual support (herding), anti-crowding, enemy hot
-     spots, the highest-BV cluster anchor, fire distribution across targets
-     (damage already assigned, priority targets, MultiTargetFireControl),
-     FightMemory / EnemyTracker, formations; needs more than two units.
+   - **Multi-unit play - the GROUP behaviors** (the independent-bot battle
+     is built, session 12). Daniel's groundwork: IF/THEN pre-move threat
+     picture + a "right now" layer for the real move (Section 5); Princess's
+     mutual support (herding), anti-crowding, enemy hot spots, the highest-BV
+     cluster anchor, fire distribution across targets (damage already
+     assigned, priority targets, MultiTargetFireControl, secondary targets
+     at +1 - p.64), FightMemory / EnemyTracker, formations. Today a unit
+     weighs one enemy at a time.
    - **Unit orders, towns, convoys, deployment planning** - scenario features.
    - Other gaps listed under Section 6 "Princess clone" (hazards on a path's
      middle hexes, MASC odds, RAC unjam / spin-up, ammo conservation, the
@@ -909,6 +935,18 @@ forward arc, kicks included, never into a side arc.
 
 ## 5. DECISIONS LOG (Daniel's calls — implementation may not override)
 
+- **Multi-unit battles (Daniel, 2026-10-28):** "Multiple units that can be
+  assigned to multiple teams. The ideal ranges would probably be a 4 unit
+  lance and a 12 unit company vs like forces. But a 20 unit free for all or a
+  3 way battle between different lances are also possibilities that need to be
+  covered by the general solution. For the moment we're just getting to the
+  point where we can unleash a group of bots to operate independently. (Or as
+  a group if Princess already has that wired in waiting to go.)" - built as
+  `config.FORCES`; Princess has no group mode wired in here (its mutual
+  support, fire distribution and formations are the unbuilt Pick up here 00
+  items), so the bots run independently. "If you encounter a question that
+  can't be answered in the rules, consult how megamek does it, then me if its
+  still a question" (Section 7).
 - **IF/THEN's purpose (Daniel, 2026-10-28):** "this will not be a default
   search patern for an individual mech. In multi-unit games it is used to get
   a general idea of threat vector of farther away units while stronger
@@ -1172,6 +1210,12 @@ forward arc, kicks included, never into a side arc.
 
 | Decision point | Lives in | Decides |
 |---|---|---|
+| Multi-unit: activation order within a side | `forces.move_index` / `forces.movement_order` | Princess's move index (MegaMek `calculateMoveIndex`: distance to the nearest enemy over the fastest move; far, slow units first) for every bot; a unit still off the board goes first. Ranged / physical declaration order is just roster order (nobody's position changes in those phases). |
+| Multi-unit: Initiative and Unequal Numbers with 3+ sides | `forces.initiative_order`, `forces.activation_sequence` | The book (pp.39-41) covers two sides. Here: every side rolls 2D6, the LOWEST acts first, only tied sides re-roll; each side takes ceil(its eligible units / the smallest other side's) selections at a time, tallied at the start of each round - exactly the book's table for two sides, and MegaMek's `TurnOrdered.generateTurnOrder` (ceil(turns / min)). Shut-down / unconscious (and, moving, immobile) units are left out of the tally and go ahead of their side's first selection. |
+| Multi-unit: whom a bot plans movement against (its "foe") | `forces.choose_foe`, `config.FOE_CHOICE` | "nearest": the nearest standing enemy on the board (ties by roster order), else one not yet on the board. The movement scoring then sees that ONE enemy: the others are not modeled (independent bots). |
+| Multi-unit: whom a unit shoots / fights | `forces.choose_target` | One target a turn: an enemy in sight beats one not, then one a weapon can bear on (arcs and torso twist, `attack_resolution.weapons_can_bear`), then the nearest. Physical attacks: the declared charge / DFA target, else an adjacent enemy. No secondary targets yet (p.64). |
+| Multi-unit: home edges for 3+ teams | `orchestrator._edges_for_teams` | Two teams: p.37 (loser picks, winner gets the opposite). More: lowest deployment roll picks, then the opposite edge, then the two edges across (clockwise of the pick), round again past four teams (a free for all shares edges). Book silent. |
+| Multi-unit: stepping out of a domino effect | `config.DOMINO_DODGE` (off) | A 'Mech that passes the domino PSR MAY step one hex forward / back (p.114). MegaMek's bots never do (`BotClient` answers "no action", TODO there), so neither does this one; True makes it step aside whenever a legal hex is free (forward first). |
 | Movement selection | `INTEGRATION__movement_selection.choose` | Spot (hex + facing + mode) maximizing the objective - DEFAULT "lifetime" + history blend (row below), or "ratio": dealt×exposure / (received×exposure + movement-PSR cost + .001); first mover scores each spot by the second mover's modeled reply (two-ply, at its MASC / supercharger speed). Which spots are scored: `MOVEMENT_SEARCH` (a mech's own pick) and `MOVEMENT_ASSUMED_ENEMY_SEARCH` (the first mover's modeled reply), per side in `MECH_*_CONFIG` "search" / "assumes_enemy_search" - "grid" (DEFAULT since 2026-10-21, Daniel's guess and follow: a 1-in-7 hex net from the mover's own hex, `MOVEMENT_GRID_SPIN`, then uphill from the best `MOVEMENT_SEARCH_STARTS` net hexes; a second mover always also looks at the 6 hexes around the enemy - `_grid_search`) or "exhaustive" (every spot, "perfect"); for a first mover's own pick also "if_then" (Daniel's IF/THEN, 2026-10-28 - `_if_then_search`: hold still first ("If I hold still then..."), then best spot against that spot's modeled reply, back and forth while the two-ply score rises; keeps the last attempt that rose; also stops on a repeated spot; `MOVEMENT_IF_THEN_STEPS` = fixed steps instead; then `MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB` climbs to better neighbouring hexes; a second mover scores every spot. Daniel: meant for multi-unit threat vectors of farther units, not a single 'Mech's default); for the modeled reply also "short_list" (DEFAULT since 2026-10-24, Daniel's simple short list: hexes next to the first mover, the replier's own, and at the ranges where either side's damage drops most - `short_list_distances`, `MOVEMENT_SHORT_LIST_DROPS` - each mode once at its best TMM, facing the first mover). Knobs: config MOVEMENT SETTINGS. |
 | Movement objective option (+ history blend, `MOVEMENT_LIFETIME_HISTORY_K`) | `movement_selection._Ratio` / `_Lifetime` (`config.MOVEMENT_OBJECTIVE`) | "ratio" (default, above) or "lifetime": dealt + (effective HP left / enemy future damage) x own future damage (`INTEGRATION__future_damage`: 0.5 x best heat-limited expected damage at gunnery + walking +1 + the target's best TMM, kicks / punches at range 1). Each side scores its own spots with it, the modeled reply too |
 | LOS exactly between two hexes (p.56) | `pathfinder/los._evaluate` (`worse_key`) | The target's controller picks the hex; the bot always takes the MORE obstructive one (blocking first, then woods). The pick is the same from either end (checked on all 12,060 such pairs of the 16x17 board), so p.56's "used for all attacks between those two 'Mechs ... for the rest of that turn" holds without storing it. Not modeled: a target choosing the clearer hex to shoot back better; p.56's random pick for a non-player target (a hex attack takes the more obstructive one too). Partial / off-board hexes are never picked (p.56: "LOS cannot be shifted so that it passes through a partial hex") |
@@ -1333,6 +1377,13 @@ turn's score, so a decision sees what it gives up.
 
 ## 7. STANDING PROMPTS
 
+- (Daniel, 2026-10-28) **A question the rules can't answer: MegaMek first, then
+  Daniel.** "If you encounter a question that can't be answered in the rules,
+  consult how megamek does it, then me if its still a question." (MegaMek's
+  source: `add_repo` / clone `MegaMek/megamek` - Section 0's setup.) Used so
+  far: the Unequal Numbers split for more than two sides (`TurnOrdered`:
+  each side takes ceil(its turns / the smallest side's)), and the domino-effect
+  dodge (MegaMek's bots never step aside - `BotClient`).
 - (Daniel, 2026-10-21) **"Follow the rules, not my calls."** Where the Core
   Rulebook answers a question and an earlier call of Daniel's differs, the
   rulebook wins - change the code (or the switch's default) and say so. The
@@ -1430,6 +1481,50 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-28 (Claude), session 12 - MULTI-UNIT BATTLES.** Daniel: units on
+  teams, a lance / company against like forces, a free for all, a 3-way battle
+  - "unleash a group of bots to operate independently". The two-'Mech battle
+  is the same code with two units: every battle in the 15 reference logs
+  plays out identically (benchmark HP 501 / 495); the logs were regenerated
+  (`--update`) only because the results banner no longer lists "domino effects
+  (no third mech)" as missing - 30 banner lines, nothing else. Built:
+  - `config.FORCES` (list of `{team, mtf, count, name, gunnery, ...}`; None =
+    Red vs Blue as before), `config.load_roster`, `FORCE_DEFAULTS`,
+    `FOE_CHOICE`, `DOMINO_DODGE`. Labels: a team's only unit is called by the
+    team ("Red"), else "Red 1", "Red 2"; a free for all = one team per unit.
+  - `INTEGRATION__forces`: teams / enemies / stacking sets; `initiative_order`
+    (any number of sides, ties re-roll among the tied); `activation_sequence`
+    = Core p.41 Unequal Numbers (reproduces the book's 18 v 10 and 14 v 5
+    tables - `tests/test_multi_unit.py`) generalized to 3+ sides like MegaMek's
+    `TurnOrdered`; `move_index` (Princess's, for both bots); `choose_foe`,
+    `choose_target` (Section 6 rows).
+  - `orchestrator.run_skirmish` (and `run_battle` as its two-'Mech form):
+    per-unit movement against the unit's foe with every mobile enemy's hex
+    closed (`mover.blocked_hex` is now a set; `pathfinder._blocked_set`) and
+    no ending in any other unit's hex (`reduced_options` takes a set; both
+    Princess rankers too), TAG / ranged / physical phases over the whole force
+    (`tag.designation_units`, `attack_resolution.run_ranged_phase`,
+    `physical.run_physical_units`; the two-'Mech functions wrap them), AMS
+    engagements shared by every attacker on a target (p.206, `_ams_used`),
+    home edges for any number of teams, the battle ends when one team or none
+    is left (p.41: last 'Mechs destroyed together = draw).
+  - `INTEGRATION__domino`: a charge, push or DFA displacing a 'Mech into an
+    occupied hex - domino effect (PSR, forced on a hex, fall on a failure,
+    chains, destroyed with nowhere to go) and the accidental fall from above
+    (TN 7 attack, damage, random neighbour) per pp.113-116; the old "domino
+    effects (no third mech)" gap is closed. Not modeled: a submerged target's
+    halved damage.
+  - Results: `BattleResult.teams` / `.units`, `summarize_teams`; `.red` /
+    `.blue` keep working for the teams of those names. Replay: any number of
+    units and teams (colour per team, numbered markers, record sheets fold up
+    past four units, click a marker for its sheet).
+  - Not built (loud, Pick up here 00): any group behavior (mutual support,
+    fire distribution, secondary targets p.64, a threat picture), stitched
+    boards for company-size fights (`STITCH_MAPS`), Gladiator's movement
+    scoring seeing more than one enemy. Timing: a 4v4 Kontio / Hammerhead
+    battle ~40 s for 13 turns, ~0.5 s a unit a turn, the entry turn the
+    slowest (`DEPLOYMENT_DEPTH` > 0 multiplies the entry search).
+  Tests: `tests/test_multi_unit.py` (20 checks).
 - **2026-10-28 (Claude):** Full pick-quality battery for the latest IF/THEN
   (hold still first + neighbour climb), against the recorded 2026-10-27/28
   runs: 8 scenarios x 20 battles, same seeds (Short Grid reproduced its

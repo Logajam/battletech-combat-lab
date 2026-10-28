@@ -39,7 +39,7 @@ KNOWN_MISSING_RULES = [
     "shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/"
     "supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)",
     "Physical attacks: all seven types are built; not priced in movement scoring: the PSRs a hit forces (only "
-    "Movement-phase PSRs count), picking up a club as part of the plan; domino effects (no third mech)",
+    "Movement-phase PSRs count), picking up a club as part of the plan",
 ]
 
 

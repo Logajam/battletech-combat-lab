@@ -416,7 +416,7 @@ Heat Phase (ammo explosion) consciousness check (pilot, 3 pilot hits): needs 7. 
 !!   - TO:AR terrain (2026-10-27): magma eruptions, hazardous pool flow, smoke drift / wind are optional rules - not built; magma heat and the chance of bogging down aren't priced in movement scoring; bridges, fuel tanks and elevators wait on the full building rules. Deferred (Daniel, 2026-10-28): 'Mech UMUs (underwater submarine movement), the chain whip's arm grapple (TO:AR grappling), industrial tools (TechManual / Total Warfare). LAMs don't load. Superheavies (Core p.240): building rules, foliage and friendly-unit hexes not built; bot LOS estimates outside ranged movement scoring use standard 'Mech heights
 !!   - Heat sources/sinks with no terrain model yet: snow, fire, extreme temperatures (water: built 2026-10-21); inferno missiles setting hexes on fire
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
-!!   - Physical attacks: all seven types are built; not priced in movement scoring: the PSRs a hit forces (only Movement-phase PSRs count), picking up a club as part of the plan; domino effects (no third mech)
+!!   - Physical attacks: all seven types are built; not priced in movement scoring: the PSRs a hit forces (only Movement-phase PSRs count), picking up a club as part of the plan
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ######################################################################
@@ -445,7 +445,7 @@ BATCH SUMMARY - 1 battle(s): Red = Asymptote II iJ Mpulse, Blue = TEST Heat Gear
 !!   - TO:AR terrain (2026-10-27): magma eruptions, hazardous pool flow, smoke drift / wind are optional rules - not built; magma heat and the chance of bogging down aren't priced in movement scoring; bridges, fuel tanks and elevators wait on the full building rules. Deferred (Daniel, 2026-10-28): 'Mech UMUs (underwater submarine movement), the chain whip's arm grapple (TO:AR grappling), industrial tools (TechManual / Total Warfare). LAMs don't load. Superheavies (Core p.240): building rules, foliage and friendly-unit hexes not built; bot LOS estimates outside ranged movement scoring use standard 'Mech heights
 !!   - Heat sources/sinks with no terrain model yet: snow, fire, extreme temperatures (water: built 2026-10-21); inferno missiles setting hexes on fire
 !!   - Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)
-!!   - Physical attacks: all seven types are built; not priced in movement scoring: the PSRs a hit forces (only Movement-phase PSRs count), picking up a club as part of the plan; domino effects (no third mech)
+!!   - Physical attacks: all seven types are built; not priced in movement scoring: the PSRs a hit forces (only Movement-phase PSRs count), picking up a club as part of the plan
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 # stderr (stub warnings)

@@ -33,8 +33,8 @@ then a lookup on the target's six neighbours (charges) or a distance / height
 check (DFA), cheap enough to run for every first-mover spot in the two-ply.
 
 Not priced: the +2 PSRs after a hit, a 0-level fall's chance after a push or
-an ordinary hit (Daniel's PSR rule: only Movement-phase PSRs count), domino
-effects (no third mech), wind, water halving.
+an ordinary hit (Daniel's PSR rule: only Movement-phase PSRs count), wind, water halving. (A third 'Mech in the displacement hex is
+resolved - domino effect / accidental fall from above, INTEGRATION__domino.)
 """
 
 import dataclasses
