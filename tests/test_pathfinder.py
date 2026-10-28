@@ -205,7 +205,10 @@ def test_9_backward_movement():
     assert table[(x0, y0, north)][2] == 1, table[(x0, y0, north)]
 
     # A level-1 hex behind: no backward step into it.
+    # (a changed copy of the board: the pathfinder keeps per-board caches, so a loaded map is never edited in place)
+    hexes = dict(hexes)
     hexes[hex_label(*behind(1)[:2])] = {"level": 1, "features": {}, "impassable": False}
+    clear = dict(clear, hexes=hexes)
     table = build_movement_table(x0, y0, north, 3, terrain_map=clear, backward_mp=3)
     assert behind(1) not in table or 1 not in table[behind(1)], "Test 9 FAILED: backward level change offered"
     print("Test 9 (backward movement): PASS")

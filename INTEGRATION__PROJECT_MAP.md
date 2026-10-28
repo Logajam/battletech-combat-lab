@@ -411,13 +411,21 @@ rebuild it with one full run). Numbers: Change Record.
    without firing); test with `tests/ab_batches.py` and replays. Reference
    battles are capped at 50 turns meanwhile, and every batch summary flags
    battles that hit the turn cap.
-1. **Speed for multi-unit battles** (session 12): a 12v12 takes ~9.5 s a turn
-   (~0.5 s a unit); ~60% of it is `ranged_combat.movement_options` (each
-   unit's reachable spots, rebuilt every turn - ~285 ms a unit, the entry
-   turn the worst, and `DEPLOYMENT_DEPTH` > 0 multiplies it). Next steps:
-   cache a unit's movement table between turns when nothing changed, and
-   fewer entry hexes. A speed-only change must keep the benchmark (501 / 495)
-   and every reference log. Sample replay (4v4 Kontio / Hammerhead, seed 21):
+1. **Speed for multi-unit battles** (session 12): a 12v12 took ~9.5 s a turn;
+   ~60% of it was `ranged_combat.movement_options` (each unit's reachable
+   spots). DONE (2026-10-28): `pathfinder._BoardCache` - a lazy per-board
+   cache of hex info and step cost / PSRs / hazard per (hex pair, level
+   limit), so a search only computes its own footprint and overlapping
+   footprints (other units, next turn) reuse it - plus finished tables
+   shared between identical requests. Table-building time halved (profile
+   12.3 -> 5.7 s); 4v4 -25%, 12v12 2 turns 26.5 -> 12.5 s; logs identical.
+   What is left, in order: the reply scoring (`_modeled_reply` /
+   `MoveEvaluator.evaluate`, ~8 s of the 18 s profile; top-few spots only
+   would change results - A/B it), `_entry_options` on the entry turn
+   (75k yields; fewer edge hexes), the search loop itself (~1.8 s), and the
+   table reuse found few matches (24 of 439 builds - same-start requests are
+   rare). A speed-only change must keep the benchmark (501 / 495) and every
+   reference log. Sample replay (4v4 Kontio / Hammerhead, seed 21):
    https://claude.ai/artifact/FnXQK7huREYBfhGcM4cEMX
    Also open: stitched boards for company-size fights (`STITCH_MAPS`).
 1a. **Speed** (Daniel: "We still need more speed") - largely done in session
@@ -1490,6 +1498,20 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-28 (Claude), session 12 - MOVEMENT TABLE CACHE (speed only).**
+  Daniel's idea: compute only the hexes inside a unit's movement footprint
+  and share them between units and turns. `pathfinder._BoardCache` (one per
+  loaded board, filled on demand): hex info by (x, y); step cost, terrain
+  PSRs and hazard per (from, to, backward, level limit incl. superheavy);
+  facing-change PSRs; and finished movement tables keyed by (start, facing,
+  MP, backward MP, level limit, blocked hexes within reach). Callers must treat
+  a returned table as read-only. A loaded map must not be edited in place
+  (test_pathfinder test 9 now edits a copy). A/B against the previous code,
+  same seed, battle logs byte-identical: 4v4 grass 18.6 -> 13.9 s, 4v4
+  scattered woods 16.0 -> 15.2, 4v4 hazardous badlands 8.9 -> 8.0, 12v12 grass
+  (2 turns) 26.5 -> 12.5; 1v1 benchmark 2.6 s both (HP 501 / 495). Gains
+  are biggest on the entry turn and big forces; battles that end early or on
+  PSR boards gain little. 38 of 38 checks pass, reference logs unchanged.
 - **2026-10-28 (Claude), session 12 - MULTI-UNIT BATTLES.** Daniel: units on
   teams, a lance / company against like forces, a free for all, a 3-way battle
   - "unleash a group of bots to operate independently". The two-'Mech battle
