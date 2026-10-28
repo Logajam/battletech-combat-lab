@@ -15,7 +15,7 @@ JR7-D 35t, Commando COM-2D 25t, Locust LCT-1V 20t). Gunnery 4 / piloting 5, defa
 settings, home-edge deployment, a 50-turn cap (the reference battles' cap). Battles
 run one after another (so the wall time is the cost of one battle); each one's seed is
 battle_seed(--seed, n). Per battle: winner, turns, units left and HP left per side, wall
-seconds; the time table INTEGRATION__timing prints; rows go to run_stats/baseline/ (git-ignored).
+seconds (one core a battle: run the three setups side by side and each is still the 1-core yardstick); the time table INTEGRATION__timing prints; rows go to run_stats/baseline/ (git-ignored).
 """
 
 import argparse

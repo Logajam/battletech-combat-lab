@@ -24,7 +24,7 @@ domino / fall-from-above displacement, replay for N units, `tests/test_multi_uni
 (2) map stitching and the map picker (`INTEGRATION__map_picker`, `tests/test_map_picker.py`: check the pack-map cache folder and the remembered pick in the file picker's state file) (`_load_map`, `STITCH_BOARDS`; check the seam parity - a 16-wide board plus the gap column shifts the next board's hex columns by an odd amount); (3) the movement cache - `pathfinder._BoardCache` and shared tables (check every
 field a search reads is static - the magma hazard was found not to be; a
 loaded map is never edited in place; blocked-hex normalization `|dx| <= MP,
-|dy| <= 2 MP`; cache invalidation; read-only tables); (4) Princess's group
+|dy| <= 2 MP`; cache invalidation; read-only tables); (4) the baseline battery (`tests/baseline_battery.py`) and Princess's group
 behaviors and Battle Value (session 13, below: `INTEGRATION__princess_group`,
 `INTEGRATION__princess_memory`, `INTEGRATION__battle_value`,
 `tools/build_equipment_bv.py`, the dry run in `attack_resolution.declare_attacks`,
@@ -1561,6 +1561,32 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-28 (Claude), session 13 - BASELINE TEST BATTERY.** **REVIEW PENDING
+  (higher-level model).** Daniel: "4 maps stitched together, 12 mechs vs 12
+  mechs, mixed but mirrored (3 assault, 3 heavy, 3 medium, 3 light); Princess vs
+  Princess, Princess vs Gladiator, Gladiator vs Gladiator. Mostly seeing if it
+  works and how long it takes. Results will be recorded as a yard stick." Then,
+  after the first try (2 x 2 boards, 404 s, 50 turns, a draw): "drop down to a
+  2x1 map size." `tests/baseline_battery.py pp|pg|gg N` (field: Grassland 1 +
+  Desert Hills stitched 2 x 1, 33 x 17; each side Atlas AS7-K, Emperor EMP-6D,
+  Awesome AWS-8Q, Archer ARC-2R, Cataphract CTF-3D, Catapult CPLT-C1, Kintaro
+  KTO-19, Griffin GRF-1N, Hunchback HBK-4G, Jenner JR7-D, Commando COM-2D, Locust
+  LCT-1V; gunnery 4 / piloting 5; 50-turn cap; seed 12345, battle n uses
+  battle_seed). YARDSTICK, each battle on ONE core (the three batteries ran at
+  once on a 4-core box - Daniel: that is the 1-core baseline and keeps the
+  yardstick the same size every time), code at the group-behaviors merge (PR #98):
+  | setup | results (3 battles) | turns | seconds a battle (a turn) |
+  |---|---|---|---|
+  | Gladiator v Gladiator | Red, draw (cap), Red | 44 / 50 / 30 | 96 / 143 / 75 (2.2-2.9) |
+  | Princess (Red) v Gladiator | Red x3 (Gladiator 0 left each time) | 24 / 45 / 34 | 123 / 152 / 147 (3.4-5.1) |
+  | Princess v Princess | Blue, draw (cap), Blue | 35 / 50 / 27 | 243 / 417 / 257 (6.9-9.5) |
+  The 2 x 2 first try (Princess v Princess, 1 battle): draw at the cap, 404 s
+  (8.1 s a turn). FINDING: a Princess battle costs 2-3x a Gladiator one at 12 v
+  12 (movement is 98% of the time; "Princess path ranking" ~110 s of 243 s) -
+  the multi-enemy movement (every enemy evaluated per move) outweighs Gladiator's
+  one-foe two-ply search; a speed pass on it is the obvious next step. 3 battles
+  a setup is a yardstick, not statistics.
 
 - **2026-10-28 (Claude), session 13 - PRINCESS FOR TEAMS + BATTLE VALUE.**
   **REVIEW PENDING (higher-level model).** Daniel: "I think 1-5 are do able. 6
