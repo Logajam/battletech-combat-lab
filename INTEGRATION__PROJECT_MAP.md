@@ -1582,6 +1582,31 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-28 (Claude), session 13 - LEGATE (first version).** **REVIEW PENDING
+  (higher-level model).** Daniel: "making gladiator less myopic ... a multi-unit
+  bot layer at the start of the movement phase ... I call this layer Legate; it's
+  in charge of keeping tabs on the battlefield", then his answers: the IF/THEN
+  runs 12 rounds; ties in a round go by picker score and can cascade; a unit
+  locks only when its own choices loop; the score is Gladiator's picker score
+  with damage taken the sum over all enemies and damage dealt the max; the foe
+  is the most threatening enemy yet to move; fire at the weapons phase goes to
+  the enemy it can hurt most once positions are final. New `INTEGRATION__legate`
+  (design in its docstring and the Section 6 row), `config.LEGATE` (OFF by
+  default) / `LEGATE_ITERATIONS` 12, `bots.choose_foe`, `Extras` hook in
+  `movement_selection._choose_normal` / `_static_scores`, `legate.plan_turn` /
+  `end_phase` / `reset` in the orchestrator, `tests/test_legate.py` (12 checks),
+  `baseline_battery.py --legate`. With it off, or in a duel, nothing changes: 42
+  of 42 checks pass, reference logs untouched. Fire choice needed no change
+  (`forces.choose_target` already picks among all enemies once positions are
+  final). RESULTS (12 v 12 battery, seed 12345, 1 core each, 3 battles, Legate on
+  for every Gladiator): Gladiator v Gladiator: Draw (cap), Draw (cap), Red; 50/50/44
+  turns; 241/292/206 s (4.7-5.8 s a turn, was 2.2-2.9: about 2x; the estimate is
+  ~45% of it). Princess (Red) v Gladiator: Princess won 2 and drew 1 (was 3
+  wins); Gladiator had 0/3/0 'Mechs left (was 0/0/0); 34/50/39 turns; 233/289/276
+  s (was 123-152). Three battles say little about strength; Legate costs about 2x
+  at this size. To do (Pick up here 000): map reading, concentrated-fire estimate,
+  speed, on-by-default decision.
+
 - **2026-10-28 (Claude), session 13 - BASELINE TEST BATTERY.** **REVIEW PENDING
   (higher-level model).** Daniel: "4 maps stitched together, 12 mechs vs 12
   mechs, mixed but mirrored (3 assault, 3 heavy, 3 medium, 3 light); Princess vs
