@@ -23,7 +23,7 @@ KNOWN_MISSING_RULES = [
     "turrets (TO:AUE p.159) are applied",
     "Munitions not modeled: AC armor-piercing / caseless / flak / precision rounds (fired as standard), iNarc ECM / "
     "haywire / Nemesis pods, Arrow IV special rounds but homing; semi-guided missiles; distant (18+ hex) Arrow IV fire, bombast laser "
-    "charging, HAG flak; PPC capacitor charging is a stub, off by default; TSEMP, iATM and nail / rivet guns can't fire (their rules are in books not yet in the library); 'Mech mortar shells other than armor-piercing, fluid gun / VGL ammo other than water / fragmentation (no unit carries them); a Taser hit's effect is priced at TASER_EFFECT_WORTH (placeholder); mortar indirect fire and active probes against smoke aren't priced in movement scoring; Thumper / Sniper artillery fire as Arrow IV (Daniel); "
+    "charging, HAG flak; PPC capacitor charging is a stub, off by default; Interstellar Operations (2026-10-28): a TSEMP hit's effect is priced at TSEMP_EFFECT_WORTH and IMP effects at IMP_EFFECT_WORTH (placeholders), the TSEMP's own interference isn't priced, iATM indirect fire (needs a spotter) and IIW / IMP bins in the heat-explosion rolls (as normal ammo) - not built, a nail gun is priced as if hitting the front; 'Mech mortar shells other than armor-piercing, fluid gun / VGL ammo other than water / fragmentation (no unit carries them); a Taser hit's effect is priced at TASER_EFFECT_WORTH (placeholder); mortar indirect fire and active probes against smoke aren't priced in movement scoring; Thumper / Sniper artillery fire as Arrow IV (Daniel); "
     "a Narc homing pod is valued for one turn and not in movement scoring; hex attacks (Arrow IV, Apollo "
     "saturation) aren't priced in movement scoring; outside heat on the target is priced at TARGET_HEAT_WORTH",
     "Movement subphase (G20): mud's -1 isn't priced in movement scoring",
@@ -32,7 +32,7 @@ KNOWN_MISSING_RULES = [
     "building rules. Deferred (Daniel, 2026-10-28): 'Mech UMUs (underwater submarine movement), the chain whip's "
     "arm grapple (TO:AR grappling). Not built: industrial tools (rules in TechManual / Total Warfare)",
     "Heat sources/sinks with no terrain model yet: snow, fire, extreme temperatures (water: built 2026-10-21); "
-    "inferno missiles (inferno bins aren't fired from; they can still explode)",
+    "inferno missiles setting hexes on fire",
     "Heat decisions (bot logic, later): cooldown (a mech at max_heat stays there), voluntary "
     "shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/"
     "supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)",

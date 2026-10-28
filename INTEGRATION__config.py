@@ -218,6 +218,15 @@ TARGET_HEAT_WORTH = 0.5
 # PLACEHOLDER (Claude 2026-10-27) until Daniel sets it - without it a Taser
 # (1 damage for 6 heat) would never be worth firing.
 TASER_EFFECT_WORTH = 5.0
+# A TSEMP hit's effect (Interstellar Operations pp.90-91: interference or a
+# shutdown through the next turn), counted as this much damage when the bot
+# prices a TSEMP shot - and IMP missile effects (+1 to hit, -1 MP, hostile ECM
+# through the next turn), this much per +1 level. PLACEHOLDERS (Claude
+# 2026-10-28) until Daniel sets them, in the research pile with
+# TASER_EFFECT_WORTH and the worth of cluster weapons - without them a TSEMP
+# (no damage) would never be worth firing.
+TSEMP_EFFECT_WORTH = 5.0
+IMP_EFFECT_WORTH = 2.0
 # Aimed shots at immobile targets (shut down / crew unconscious, Core p.70):
 # the location every eligible weapon aims at, or None for no aimed shots.
 # "Head" uses +3 instead of the -4 immobile modifier.

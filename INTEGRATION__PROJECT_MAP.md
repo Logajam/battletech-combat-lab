@@ -294,9 +294,13 @@ TO:AR summaries in `logajam/battletech-rules-index` (RULES_REVIEW F57-F64):
   `INTEGRATION__smoke`).
 - Data fixes: HVAC, mortar, fluid gun, flail, chain whip slot counts (each
   slot had been read as its own weapon).
-- Left (books not in the library): TSEMP, iATM, nail / rivet guns, Improved
-  weapons' ammo (Interstellar Operations - the rules repo's next book),
-  industrial tools (TechManual).
+- Interstellar Operations (2026-10-28, Daniel pasted the rules; MegaMek's
+  values for stats the pastes don't give - RULES_REVIEW F66-F69): TSEMP
+  Cannon / One-Shot / Repeating, iATM (a Streak when fired directly) with
+  ER / HE / IMP / IIW rounds, inferno missiles (Core p.192 - needed by IIW,
+  any unit's inferno bins now fire), Improved weapons' slots and ammo, the
+  nail / rivet gun (MegaMek's rule). Industrial tools (TechManual) still
+  left.
 - Daniel's answers (2026-10-28): 'Mech UMUs and the chain whip grapple -
   DEFERRED (Pick up here 10); Princess now prices hazards on every hex of
   her path like MegaMek ("Need the change for an acurate replica");
@@ -384,7 +388,8 @@ TO:AR summaries in `logajam/battletech-rules-index` (RULES_REVIEW F57-F64):
    given the target's armor. Deferred: specialty ammo. Placeholders to set:
    `TARGET_HEAT_WORTH`, and `TASER_EFFECT_WORTH` (Daniel, 2026-10-28: "Good
    enough for now. Add it in the same pile as deriving the value of cluster
-   weapons"). Questions for Daniel: Section 4.
+   weapons"); `TSEMP_EFFECT_WORTH`, `IMP_EFFECT_WORTH` (same pile,
+   2026-10-28). Questions for Daniel: Section 4.
 4. **The bot's future-capability planning** - Section 6 "Memo" (Daniel,
    2026-10-20). Needed for clubs, MASC, Rotary ACs (jam risk) and similar.
 5. **Crippled / forced withdrawal** (Daniel, 2026-10-20): an option plus a
@@ -1105,12 +1110,14 @@ forward arc, kicks included, never into a side arc.
 | Heat-constrained weapon selection | `INTEGRATION__weapon_selection.py` | Which weapons fire this turn, built and wired |
 | Heat ammo explosion bin (controller's choice) | `INTEGRATION__stubs.stub_heat_explosion_bin` | **STUB.** Which of several equally destructive, equally full bins explodes (random). |
 | AMS engagements | `INTEGRATION__ams.engage` | Which missile hits each AMS takes (the ones it cuts most first; a Narc pod counts half its worth - 1D6 4+ - and nothing once a pod is on), cheapest-heat AMS first; skips an engagement that would end the turn above max(max_heat, `config.AMS_HEAT_LIMIT` = 13). Expected damage (weapon choice, movement) scales each missile weapon toward its engaged value by min(1, engagements / missile weapons) |
-| Ammunition kind / guidance / Apollo mode per shot | `fire_modes.Planner` -> **STUB** `stubs.stub_munition_choice` | LB-X slug / cluster, ATM standard / ER / HE, MML LRM / SRM, Artemis / Narc-equipped / standard missiles, Narc homing / explosive pods, Apollo standard / saturation, bombast 8 / 12 / 16. Research (Daniel 2026-10-20); default "greedy" |
+| Ammunition kind / guidance / Apollo mode per shot | `fire_modes.Planner` -> **STUB** `stubs.stub_munition_choice` | LB-X slug / cluster, ATM standard / ER / HE (iATM also IMP / IIW), inferno / standard missiles, MML LRM / SRM, Artemis / Narc-equipped / standard missiles, Narc homing / explosive pods, Apollo standard / saturation, bombast 8 / 12 / 16. Research (Daniel 2026-10-20); default "greedy" |
 | Rate of fire (Ultra / Rotary AC) | `fire_modes.Planner` -> **STUB** `stubs.stub_rate_of_fire` | Research; default "max" |
 | Unjam a Rotary AC | `fire_modes.declare_unjams` -> **STUB** `stubs.stub_unjam` | Research; default: always try unless prone |
 | Narc beacon worth | `electronics.pod_value`, priced by `fire_modes.Planner` | A homing pod is worth one turn of the owner's extra Narc-missile damage (Daniel) - 0 once a pod is on or the target has ECM; explosive pods their damage. Not in movement scoring |
 | Worth of heat put on the enemy | `config.TARGET_HEAT_WORTH`, `fire_modes.Planner.value` | 0.5 damage per heat point - placeholder until Daniel sets it |
 | Worth of a Taser hit's effect (TO:AUE p.158) | `config.TASER_EFFECT_WORTH`, `fire_modes.Planner.value` | 5 damage - placeholder until Daniel sets it (2026-10-27) |
+| Worth of a TSEMP hit's effect / of IMP missile effects (Interstellar Operations) | `config.TSEMP_EFFECT_WORTH`, `config.IMP_EFFECT_WORTH`, `fire_modes.Planner._advanced_worth` | 5 damage a TSEMP hit; 2 a level of IMP effect - placeholders (2026-10-28). The firer's own TSEMP interference isn't priced |
+| Worth of a nail / rivet gun hit | `advanced_weapons.nail_worth` | 3.5 x the chance the hit lands on a location with no front armor left (2026-10-28) |
 | Closing in on a hazardous board | `movement_selection._safest` (closing fallback, nearest spot) | only the spots with the least hazard damage (2026-10-27) |
 | Ammo bin to draw from | `INTEGRATION__ammo.spend` | The bin with the fewest shots left (empties bins sooner) |
 | Prop arm when firing prone | `INTEGRATION__attack_resolution.prone_fire` | The arm whose weapons matter least |
@@ -1336,6 +1343,30 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-28 (Claude):** Interstellar Operations weapons from Daniel's
+  pasted rules (TSEMP pp.88-91, iATM, IMP and IIW rounds) and MegaMek's
+  values for what the pastes don't give (Daniel: "There should either be a
+  weapons table to look up, or megamek's values to use. Borrow from megamek
+  for the nail gun too"; "Build what could be used. Custom units are and
+  will be a thing"). RULES_REVIEW F66-F69. `INTEGRATION__advanced_weapons`:
+  TSEMP effects / interference / shutdown / recharge / Repeating misfeed,
+  IMP effects, inferno heat (Core p.192), nail gun; hooks in
+  attack_resolution, fire_modes (IMP / IIW kinds, inferno munition,
+  pricing), ammo (inferno bins fire; Improved and iATM IMP / IIW bins link;
+  a recharging TSEMP is unavailable), electronics (as if jammed), mech_state
+  (IMP -MP), equipment_systems / physical / charge / dfa (to-hit),
+  weapon_rules (an iATM is a Streak), mtf_parser (`is_industrial` - also
+  fixes the Taser's IndustrialMech column, which was never used).
+  equipment.json "intops_pass": TSEMP rows (slots 5 / 3 / 7 - each slot
+  had been read as its own TSEMP), iATM rows, Improved weapons' slots
+  (Improved AC/5, SRM 6, LRM 15 / 20 had been doubled or quadrupled) and
+  shots, Improved Gauss explosive (Daniel), nail gun range / heat / shots,
+  nail ammo not explosive. Placeholders `TSEMP_EFFECT_WORTH` 5,
+  `IMP_EFFECT_WORTH` 2 (Pick up here 3). Reference logs regenerated: only
+  the summary's gap-list text and new munition-choice stub lines (the
+  HeatGear test 'Mech's SRM inferno bins are now an option - the greedy
+  stub keeps firing standard); no battle result moved. Benchmark unchanged
+  (HP 501 / 495). New tests/test_intops.py (8 checks).
 - **2026-10-28 (Claude):** Daniel's answers to the TO questions. (1) Princess
   prices hazards like MegaMek's checkPathForHazards: every hex her ground
   path stands in (`ranged_combat.PathBook` - the path the project's search

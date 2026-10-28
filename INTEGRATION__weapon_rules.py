@@ -41,7 +41,10 @@ def is_cluster(weapon):
 
 
 def is_streak(weapon):
-    return "STREAK" in _norm(weapon)
+    """Streak launchers - and the iATM, which fires directly as a Streak SRM
+    (Interstellar Operations, 2026-10-28: no lock, no shot; all missiles hit)."""
+    n = _norm(weapon)
+    return "STREAK" in n or "IATM" in n
 
 
 def grouping_size(weapon):

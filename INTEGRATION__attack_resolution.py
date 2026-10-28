@@ -659,13 +659,16 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
             adv.hvac_smoke(attacker, target, terrain_map, getattr(attacker, "turn_number", 0))
             if roll == adv.HVAC_MISFEED_ROLL:
                 adv.hvac_misfeed(attacker, w, sorted(w_locs.get(id(w), ("Center Torso",)))[0])
+        if adv.is_tsemp(w) and not adv.tsemp_fired(attacker, w, roll, getattr(attacker, "turn_number", 0),
+                                                   sorted(w_locs.get(id(w), ("Center Torso",)))[0]):
+            hit = False                        # a Repeating TSEMP exploded on a 2: no effect (IO p.88)
         jam_at = fire_modes.jam_threshold(plan) if fire_modes.is_rotary(w) else 0
         if roll <= jam_at:
             w.jammed = True
             config.log(f"      {w.name} JAMS (roll {roll} with {plan.shots} shots, p.183) - the shots still fire.")
         if weapon_rules.is_streak(w):
             if hit:
-                note = ammo.spend(attacker, w)
+                note = ammo.spend(attacker, w, plan.munition, plan.kind)     # an iATM's chosen round
                 if note:
                     config.log(f"      [{note}]")
             else:
@@ -867,8 +870,12 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng, po
         config.log(f"    {w.name} hits {target.side_name}'s hex: {dmg} area-effect damage (pp.182-183).")
         _resolve_area(target, dmg, attack.side, attack.cover)
         return
+    if adv.is_nail_gun(w):
+        _resolve_nail(target, attack)
+        return
     per = fire_modes.damage_per(w, plan)
-    if not per:
+    inferno = fire_modes.is_inferno(plan)
+    if not per and not inferno:
         config.log(f"    {w.name} hit - zero damage weapon, no damage resolution.")
         return
     side = attack.side
@@ -923,6 +930,11 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng, po
         hits = cluster_hits_count(col, cluster_roll)
         config.log(f"    {w.name} hit: cluster roll {raw}{f' {mod:+d}' if mod else ''}{note} on the "
                    f"{col}-column table -> {hits} connect ({hits * per} dmg).")
+    if inferno:                                # inferno missiles: heat, no damage (p.192)
+        adv.inferno_hit(target, hits, f"{w.name} infernos")
+        return
+    if plan.kind == "imp":                     # iATM IMP: damage as normal, plus its effects (IO)
+        adv.imp_hit(target, hits, getattr(attacker, "turn_number", 0))
     total = hits * per
     if weapon_profiles.is_mga(w):
         # Machine gun array (p.185): one hit location roll, every hit there one at a time.
@@ -947,6 +959,49 @@ def _resolve_one_attack(attacker, target, attack: DeclaredAttack, battle_rng, po
         pool.setdefault((size, dtype, side, attack.cover), []).append((w.name, total))
         return
     _apply_groups(target, total, size, dtype, side, attack.cover)
+
+
+def _resolve_nail(target, attack):
+    """A nail / rivet gun hit (MegaMek's rule, Daniel 2026-10-28 -
+    INTEGRATION__advanced_weapons): 1D6 to a location with no armor left;
+    nothing to a location that still has armor, and damage that would
+    transfer into an armored location is lost. The hit location roll is a
+    normal one (partial cover takes leg hits; no Through-Armor Critical -
+    a nail can't pierce armor)."""
+    side = attack.side
+    field = "rear_armor" if side == "rear" else "armor"
+    loc_roll = config.roll_2d6(prompt="Hit location roll")
+    loc = resolve_hit_location(loc_roll, target, side)
+    config.log(f"    {attack.weapon.name} hit - hit location roll {loc_roll} ({side} table): {loc}.")
+    if attack.cover and loc in target.leg_locations:
+        config.log("      Leg hit strikes the partial cover - no damage (p.66).")
+        return
+    while loc is not None and target.locations[loc]["destroyed"]:
+        loc = TRANSFER_MAP.get(loc)
+        field = "armor"
+    if loc is None:
+        return
+    info = target.locations[loc]
+
+    def armored(name, key):
+        here = target.locations[name]
+        modular = any(getattr(s, "modular_points", 0) > 0 and getattr(s, "modular_location", name) == name
+                      for s in getattr(target, "modular_armor", ()))
+        return here.get(key, here["armor"]) > 0 or modular
+    if armored(loc, field):
+        config.log(f"      {loc} still has armor - the nails do nothing (MegaMek: armor BAR 5+).")
+        return
+    dmg = config.pick_number(adv.NAIL_DIE, prompt="Nail / rivet gun damage 1D6")
+    nxt = TRANSFER_MAP.get(loc)
+    if dmg > info["structure"] and nxt is not None and not target.locations[nxt]["destroyed"] and armored(nxt, "armor"):
+        config.log(f"      1D6 = {dmg}; only {info['structure']} can land - the rest would transfer into armor.")
+        dmg = info["structure"]
+    else:
+        config.log(f"      1D6 = {dmg} damage to the bare {loc}.")
+    if loc == "Head" and dmg > 0 and head_hit_hurts_pilot(target):
+        pilot_hit(target, head=True)
+        config.log(f"      Head hit - pilot takes 1 hit ({target.pilot_hits}/6).")
+    apply_damage(target, loc, dmg, armor_field=field, damage_type=DamageType.BALLISTIC)
 
 
 def _apply_groups(target, total, size, dtype, side, cover, label=""):
@@ -1104,6 +1159,10 @@ def run_ranged_combat_phase(mover_first, mover_second, terrain_map, battle_rng):
             for attack in rep.attacks_list:
                 if attack.hit:
                     rep.hits += 1
+                    if adv.is_tsemp(attack.weapon):           # no damage - an effects roll (IO pp.90-91)
+                        config.log(f"    {attack.weapon.name} hit:")
+                        adv.tsemp_hit(attacker, target, getattr(attacker, "turn_number", 0))
+                        continue
                     _resolve_one_attack(attacker, target, attack, battle_rng, pool)
                     if adv.is_taser(attack.weapon):           # TO:AUE pp.157-158
                         adv.taser_hit(attacker, target, getattr(attacker, "turn_number", 0))

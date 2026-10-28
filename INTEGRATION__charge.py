@@ -94,7 +94,7 @@ def to_hit(attacker, mode, target, a_xy, t_xy, terrain_map, target_tmm):
             + terrain_modifier(a_xy, t_xy, terrain_map) + comparative_modifier(attacker, target)
             + aes_modifier(attacker) + torso_cockpit_sensor_penalty(attacker)       # p.203
             + tripod_pilot_modifier(attacker)                                        # p.236
-            + adv.interference(attacker))                                            # Taser (TO:AUE p.158)
+            + adv.own_attack_modifier(attacker, physical=True))                                            # Taser (TO:AUE p.158), IMP (IO)
 
 
 def can_charge(mover, target, target_has_moved):

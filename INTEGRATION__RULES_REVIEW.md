@@ -109,6 +109,10 @@ launchers, MRM cluster -1, pp.185-187); Gauss rifle component explosion
 | F63 | Fluid guns, VGLs, flail, chain whip, shoulder / head turrets, modular armor | TO:AUE pp.93, 101, 125, 127, 159, 172-175 | Built 2026-10-27: fluid guns (water) and VGLs (fragmentation) have no effect on 'Mechs - never fired; flail +0, 9 damage, a roll of 2 hits itself for 5 + PSR; chain whip -2, 3 damage, leg hit -> trip attack (PSR +3) - the arm grapple is NOT built (needs TO:AR grappling); shoulder turrets fire anywhere but through the opposite side, head turrets anywhere (a quad's not to the rear with a quad turret), a crit locks the turret where it last fired; modular armor 10 points a slot taken first, -1 Walk / Jump MP, +1 PSR, no stealth armor while any is left. |
 | F64 | Smoke and active probes (was G34) | Core pp.124, 197, 200-201 | Built 2026-10-27 (new `INTEGRATION__smoke`): light / heavy smoke as light / heavy woods, 2 levels high, never past 2 points / +2 with woods; two light = heavy; each cloud lasts as its source says. An active probe (3 / 4 / 5 / Watchdog 5 / Bloodhound 8) ignores smoke's to-hit within range unless inside a hostile ECM radius (6; Bloodhound only Angel). Source so far: HVACs. Wind / drift / dissipation rolls (optional) not built; probes aren't priced in movement scoring. |
 | F65 | Every Gauss rifle explodes when hit | p.184 | Fixed 2026-10-28 (Daniel: "Fix it"): Light, Heavy, Improved Heavy, Silver Bullet, AP Gauss and HAG 20 / 30 / 40 were not marked explosive in equipment.json; the p.184 general rule covers every Gauss rifle (all type X): the first critical hit is a component explosion, 2 x slots (p.96). |
+| F66 | TSEMP Cannon, TSEMP One-Shot, Repeating TSEMP | IO pp.88, 90-91 (Daniel's paste) | Built 2026-10-28: no damage; a hit rolls 2D6 on the Effects Table (-2 at 100+ tons, -1 ICE, +1 a TSEMP hit already this turn up to +4, min 2; nothing at 200+ tons): BattleMech 7-8 / IndustrialMech 6-7 interference (+2 to hit with weapons, as if in hostile ECM), 9+ / 8+ shutdown, through the End Phase of the next turn. The firer suffers interference; the Cannon can't fire in consecutive turns; explosion 2 a slot (Daniel: Core overrides IO's 10); a fired One-Shot can't explode; a Repeating TSEMP explodes on an attack roll of 2 with no effect. Slots / heat / range from MegaMek. The text says effective up to 200 tons, the table "200+ tons NA" - the table (and MegaMek) followed. |
+| F67 | iATM, IMP and IIW rounds | IO (Daniel's paste) | Built 2026-10-28: fired directly a Streak (no lock - no shot; all missiles hit); standard / ER / HE as ATM; IMP: HE range, 1 damage, every 3 missiles hostile ECM, +1 to hit (all attacks), -1 Walk / Jump MP (max 2 each, none for non-fusion), +1 outside heat, through the next turn's End Phase, no new effect while it lasts; IIW: inferno rules. Indirect fire (needs a spotter, Core p.70) not built. Reading (Claude): IMP missiles of the whole turn count together toward the 3s. |
+| F68 | Inferno missiles | Core p.192 | Built 2026-10-28 (IIW needs it): each missile that strikes deals 2 heat, applied in the Heat Phase (outside heat, max 15 a turn, p.103; none with heat-dissipating armor, p.202); no damage, no hit location. Inferno bins of any launcher now fire (the munition choice stub picks). Setting hexes on fire not built. |
+| F69 | Improved weapons; nail / rivet gun | MegaMek (Daniel 2026-10-28) | Improved ACs / SRMs / LRMs / Gauss / Large Pulse / PPC: MegaMek's slots and shots per ton (normal rules); Improved Gauss explosive (Daniel). Nail / rivet gun (MegaMek): range 1, heat 0, 1D6 a hit, nothing to a location that still has armor, damage transferring into armor lost; 300 shots, not explosive. |
 
 ---
 
@@ -153,9 +157,8 @@ launchers, MRM cluster -1, pp.185-187); Gauss rifle component explosion
 
 No effect in a two-'Mech duel (left out on purpose): C3 / C3i networks (need
 team-mates, p.198); active probes and the Watchdog's probe (hidden units,
-p.197 - and smoke, G34). TAG is built (F56). Not in the rules
-library yet (can't fire / no effect): TSEMP, iATM, nail / rivet guns, Improved
-(primitive Clan) weapons' ammo - Interstellar Operations / TechManual; industrial
+p.197 - and smoke, G34). TAG is built (F56). TSEMP, iATM, nail / rivet guns and Improved weapons are
+built (F66-F69, 2026-10-28). Not in the rules library yet: industrial
 tools (chainsaws, drills, hoists... - TechManual / Total Warfare). In TO:AUE but
 not built: 'Mech UMUs (underwater submarine movement - a movement-system job,
 Daniel's call) and the chain whip's grapple (2026-10-27).
