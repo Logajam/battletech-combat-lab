@@ -81,11 +81,10 @@ def stub_unconfirmed_weapon_data(mech_name, weapons):
 
 
 def stub_ammo_data(mech_name, weapon):
-    """This weapon's shots per ton isn't in equipment.json (not in the Core
-    Rulebook or TO:AUE tables - e.g. Improved ACs / Gauss / LRMs, Interstellar
-    Operations), so its ammo is unlimited. Warns each time it fires. No knob.
-    TODO: shots_per_ton for these rows from Interstellar Operations' tables
-    (HVACs filled from TO:AUE 2026-10-27)."""
+    """This weapon's shots per ton isn't in equipment.json, so its ammo is
+    unlimited. Warns each time it fires. No knob. (HVACs filled from TO:AUE
+    2026-10-27; the Improved weapons from MegaMek 2026-10-28 - no unit in
+    data/meks.zip triggers this now.)"""
     _warn("ammo_data", f"{mech_name}'s {weapon.name} fired with unlimited ammo (no shots-per-ton data)")
 
 

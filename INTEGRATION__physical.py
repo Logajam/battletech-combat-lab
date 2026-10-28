@@ -593,7 +593,7 @@ def base_tn(attacker, amm, target_tmm, los_modifier, target_prone_modifier):
     mech_state.torso_cockpit_sensor_penalty; 2026-10-21) and a tripod's
     dedicated pilot (-1, +2 if disabled - p.236, tripod_pilot_modifier)."""
     return (attacker.piloting + amm + target_tmm + los_modifier + target_prone_modifier
-            + adv.interference(attacker)                                   # Taser (TO:AUE p.158)
+            + adv.own_attack_modifier(attacker, physical=True)                                   # Taser (TO:AUE p.158), IMP (IO)
             + torso_cockpit_sensor_penalty(attacker) + tripod_pilot_modifier(attacker))   # p.236
 
 

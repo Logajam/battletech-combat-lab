@@ -73,6 +73,11 @@
     "gauss_explosive_fix": {
       "date": "2026-10-28",
       "note": "Light, Heavy, Improved Heavy, Silver Bullet, AP Gauss and HAG 20/30/40 marked explosive (Core p.184). The Improved Gauss Rifle (Interstellar Operations) is left as it was. Not mirrored in build_equipment_db.py."
+    },
+    "intops_pass": {
+      "date": "2026-10-28",
+      "source": "Interstellar Operations rules pasted by Daniel (TSEMP pp.88-91, iATM, IMP / IIW) and MegaMek's values for the stats those pastes don't give (Daniel: 'There should either be a weapons table to look up, or megamek's values to use')",
+      "note": "TSEMP, iATM and Improved weapon rows filled / slot counts fixed; Improved Gauss explosive; nail / rivet gun from MegaMek. Not mirrored in build_equipment_db.py."
     }
   },
   "entries": {
@@ -5736,21 +5741,27 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
-      "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_type": "Missile",
+      "shots_per_ton": 20,
+      "damage_per_shot": 2,
+      "heat": 2,
+      "range": {
+        "min": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
       "battle_value": null,
       "tonnage": null,
-      "special_rules": false,
+      "special_rules": true,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-28 (intops_pass): iATM (Interstellar Operations, Daniel's paste): an ATM firing like a Streak when direct; slots / heat / rack / shots per ton from MegaMek (main branch, fetched 2026-10-28) CLIATM3 and its ammo; range and damage from the ammunition (fire_modes.ATM_KINDS).",
+      "rack_size": 3
     },
     "cliatm6": {
       "canonical_name": "CLiATM6",
@@ -5760,21 +5771,27 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
-      "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_type": "Missile",
+      "shots_per_ton": 10,
+      "damage_per_shot": 2,
+      "heat": 4,
+      "range": {
+        "min": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
       "battle_value": null,
       "tonnage": null,
-      "special_rules": false,
+      "special_rules": true,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-28 (intops_pass): iATM (Interstellar Operations, Daniel's paste): an ATM firing like a Streak when direct; slots / heat / rack / shots per ton from MegaMek (main branch, fetched 2026-10-28) CLIATM6 and its ammo; range and damage from the ammunition (fire_modes.ATM_KINDS).",
+      "rack_size": 6
     },
     "cliatm9": {
       "canonical_name": "CLiATM9",
@@ -5788,17 +5805,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
-      "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_type": "Missile",
+      "shots_per_ton": 7,
+      "damage_per_shot": 2,
+      "heat": 6,
+      "range": {
+        "min": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
       "battle_value": null,
       "tonnage": null,
-      "special_rules": false,
+      "special_rules": true,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 4: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot)"
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 4: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot) | 2026-10-28 (intops_pass): iATM (Interstellar Operations, Daniel's paste): an ATM firing like a Streak when direct; slots / heat / rack / shots per ton from MegaMek (main branch, fetched 2026-10-28) CLIATM9 and its ammo; range and damage from the ammunition (fire_modes.ATM_KINDS).",
+      "rack_size": 9
     },
     "cliatm12": {
       "canonical_name": "CLiATM12",
@@ -5812,17 +5835,23 @@
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
-      "damage_type": null,
-      "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_type": "Missile",
+      "shots_per_ton": 5,
+      "damage_per_shot": 2,
+      "heat": 8,
+      "range": {
+        "min": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
       "battle_value": null,
       "tonnage": null,
-      "special_rules": false,
+      "special_rules": true,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 5: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot)"
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 5: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot) | 2026-10-28 (intops_pass): iATM (Interstellar Operations, Daniel's paste): an ATM firing like a Streak when direct; slots / heat / rack / shots per ton from MegaMek (main branch, fetched 2026-10-28) CLIATM12 and its ammo; range and damage from the ammunition (fire_modes.ATM_KINDS).",
+      "rack_size": 12
     },
     "fusillade": {
       "canonical_name": "Fusillade",
@@ -7506,16 +7535,21 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
-      "damage_per_shot": null,
+      "shots_per_ton": 300,
+      "damage_per_shot": 0,
       "heat": 0,
-      "range": null,
+      "range": {
+        "min": 0,
+        "short": 1,
+        "medium": 1,
+        "long": 1
+      },
       "battle_value": null,
       "tonnage": null,
-      "special_rules": false,
+      "special_rules": true,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISNailAndRivetGun.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, heat filled from Total Warfare pp. 303-306 weapons table, row 'Nail/Rivet Gun' (Daniel's Weapon_Rules_Tables rip).",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/innerSphere/ISNailAndRivetGun.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: damage_type, heat filled from Total Warfare pp. 303-306 weapons table, row 'Nail/Rivet Gun' (Daniel's Weapon_Rules_Tables rip). | 2026-10-28 (intops_pass): Daniel 2026-10-28: borrow MegaMek (MegaMek (main branch, fetched 2026-10-28) NailRivetGunWeapon / NailRivetGunHandler / TWDamageManager): range 1, heat 0, 1D6 a hit (INTEGRATION__advanced_weapons), no damage to a location with armor of BAR 5+ left; 300 shots a ton.",
       "rack_size": null
     },
     "isvehiculargrenadelauncher": {
@@ -7590,7 +7624,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 45,
       "damage_per_shot": 2,
       "heat": 1,
       "range": {
@@ -7604,7 +7638,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/clan/CLImprovedAC2.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Autocannon/2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=4 from Interstellar Operations row 'Improved Autocannon/2'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/clan/CLImprovedAC2.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Autocannon/2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=4 from Interstellar Operations row 'Improved Autocannon/2'. | 2026-10-28 (intops_pass): Improved (primitive Clan) weapon - normal rules, own stats (Daniel 2026-10-28): slots 1 (was 1: each slot read as its own weapon) and shots per ton 45 from MegaMek (main branch, fetched 2026-10-28).",
       "rack_size": 2
     },
     "improvedautocannon/5": {
@@ -7615,12 +7649,12 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 20,
       "damage_per_shot": 5,
       "heat": 1,
       "range": {
@@ -7634,7 +7668,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/clan/CLImprovedAC5.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Autocannon/5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Interstellar Operations row 'Improved Autocannon/5'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/clan/CLImprovedAC5.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Autocannon/5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Interstellar Operations row 'Improved Autocannon/5'. | 2026-10-28 (intops_pass): Improved (primitive Clan) weapon - normal rules, own stats (Daniel 2026-10-28): slots 2 (was 1: each slot read as its own weapon) and shots per ton 20 from MegaMek (main branch, fetched 2026-10-28).",
       "rack_size": 5
     },
     "improvedautocannon/10": {
@@ -7645,12 +7679,12 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 6,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 10,
       "damage_per_shot": 10,
       "heat": 3,
       "range": {
@@ -7664,7 +7698,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/clan/CLImprovedAC10.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Autocannon/10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Improved Autocannon/10'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/clan/CLImprovedAC10.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Autocannon/10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Improved Autocannon/10'. | 2026-10-28 (intops_pass): Improved (primitive Clan) weapon - normal rules, own stats (Daniel 2026-10-28): slots 6 (was 1: each slot read as its own weapon) and shots per ton 10 from MegaMek (main branch, fetched 2026-10-28).",
       "rack_size": 10
     },
     "improvedautocannon/20": {
@@ -7675,12 +7709,12 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 9,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 5,
       "damage_per_shot": 20,
       "heat": 7,
       "range": {
@@ -7694,7 +7728,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/clan/CLImprovedAC20.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Autocannon/20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Improved Autocannon/20'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek autoCannons/clan/CLImprovedAC20.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Autocannon/20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Improved Autocannon/20'. | 2026-10-28 (intops_pass): Improved (primitive Clan) weapon - normal rules, own stats (Daniel 2026-10-28): slots 9 (was 1: each slot read as its own weapon) and shots per ton 5 from MegaMek (main branch, fetched 2026-10-28).",
       "rack_size": 20
     },
     "improvedsrm2": {
@@ -7710,7 +7744,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 50,
       "damage_per_shot": 2,
       "heat": 2,
       "range": {
@@ -7724,7 +7758,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek srms/clan/improvedSRM/CLImprovedSRM2.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=2 | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved SRM 2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Improved SRM 2'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek srms/clan/improvedSRM/CLImprovedSRM2.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=2 | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved SRM 2' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Improved SRM 2'. | 2026-10-28 (intops_pass): Improved (primitive Clan) weapon - normal rules, own stats (Daniel 2026-10-28): slots 1 (was 1: each slot read as its own weapon) and shots per ton 50 from MegaMek (main branch, fetched 2026-10-28).",
       "rack_size": 2
     },
     "improvedsrm4": {
@@ -7740,7 +7774,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 25,
       "damage_per_shot": 2,
       "heat": 3,
       "range": {
@@ -7754,7 +7788,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek srms/clan/improvedSRM/CLImprovedSRM4.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=4 | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved SRM 4' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Improved SRM 4'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek srms/clan/improvedSRM/CLImprovedSRM4.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=4 | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved SRM 4' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Improved SRM 4'. | 2026-10-28 (intops_pass): Improved (primitive Clan) weapon - normal rules, own stats (Daniel 2026-10-28): slots 1 (was 1: each slot read as its own weapon) and shots per ton 25 from MegaMek (main branch, fetched 2026-10-28).",
       "rack_size": 4
     },
     "improvedsrm6": {
@@ -7765,12 +7799,12 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 15,
       "damage_per_shot": 2,
       "heat": 4,
       "range": {
@@ -7784,7 +7818,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek srms/clan/improvedSRM/CLImprovedSRM6.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=6 | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved SRM 6' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Improved SRM 6'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek srms/clan/improvedSRM/CLImprovedSRM6.java (main branch, fetched 2026-07-14). damage_per_shot = 2/missile (standard rule) x rack_size=6 | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved SRM 6' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Improved SRM 6'. | 2026-10-28 (intops_pass): Improved (primitive Clan) weapon - normal rules, own stats (Daniel 2026-10-28): slots 2 (was 1: each slot read as its own weapon) and shots per ton 15 from MegaMek (main branch, fetched 2026-10-28).",
       "rack_size": 6
     },
     "improvedlrm5": {
@@ -7801,7 +7835,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 24,
       "damage_per_shot": 1,
       "heat": 2,
       "range": {
@@ -7815,7 +7849,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/improvedLRM/CLImprovedLRM5.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=5; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved LRM 5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=6 from Interstellar Operations row 'Improved LRM 5'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/improvedLRM/CLImprovedLRM5.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=5; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved LRM 5' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=6 from Interstellar Operations row 'Improved LRM 5'. | 2026-10-28 (intops_pass): Improved (primitive Clan) weapon - normal rules, own stats (Daniel 2026-10-28): slots 1 (was 1: each slot read as its own weapon) and shots per ton 24 from MegaMek (main branch, fetched 2026-10-28).",
       "rack_size": 5
     },
     "improvedlrm10": {
@@ -7832,7 +7866,7 @@
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 12,
       "damage_per_shot": 1,
       "heat": 4,
       "range": {
@@ -7846,7 +7880,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/improvedLRM/CLImprovedLRM10.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=10; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved LRM 10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=6 from Interstellar Operations row 'Improved LRM 10'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/improvedLRM/CLImprovedLRM10.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=10; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved LRM 10' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=6 from Interstellar Operations row 'Improved LRM 10'. | 2026-10-28 (intops_pass): Improved (primitive Clan) weapon - normal rules, own stats (Daniel 2026-10-28): slots 1 (was 1: each slot read as its own weapon) and shots per ton 12 from MegaMek (main branch, fetched 2026-10-28).",
       "rack_size": 10
     },
     "improvedlrm15": {
@@ -7858,12 +7892,12 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 8,
       "damage_per_shot": 1,
       "heat": 5,
       "range": {
@@ -7877,7 +7911,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/improvedLRM/CLImprovedLRM15.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=15; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved LRM 15' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=6 from Interstellar Operations row 'Improved LRM 15'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/improvedLRM/CLImprovedLRM15.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=15; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved LRM 15' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=6 from Interstellar Operations row 'Improved LRM 15'. | 2026-10-28 (intops_pass): Improved (primitive Clan) weapon - normal rules, own stats (Daniel 2026-10-28): slots 2 (was 1: each slot read as its own weapon) and shots per ton 8 from MegaMek (main branch, fetched 2026-10-28).",
       "rack_size": 15
     },
     "improvedlrm20": {
@@ -7889,12 +7923,12 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 4,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
       "damage_type": "Missile",
-      "shots_per_ton": null,
+      "shots_per_ton": 6,
       "damage_per_shot": 1,
       "heat": 6,
       "range": {
@@ -7908,7 +7942,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/improvedLRM/CLImprovedLRM20.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=20; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved LRM 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=6 from Interstellar Operations row 'Improved LRM 20'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lrms/clan/improvedLRM/CLImprovedLRM20.java (main branch, fetched 2026-07-14). damage_per_shot = 1/missile (standard rule) x rack_size=20; range 7/14/21 inherited from LRMWeapon.java base class (not restated per-launcher) | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved LRM 20' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=6 from Interstellar Operations row 'Improved LRM 20'. | 2026-10-28 (intops_pass): Improved (primitive Clan) weapon - normal rules, own stats (Daniel 2026-10-28): slots 4 (was 1: each slot read as its own weapon) and shots per ton 6 from MegaMek (main branch, fetched 2026-10-28).",
       "rack_size": 20
     },
     "improvedgaussrifle": {
@@ -7921,10 +7955,10 @@
       "tech_base": "Clan",
       "slots": 6,
       "crit_eligible": true,
-      "explosive": false,
+      "explosive": true,
       "explosion_damage": null,
       "damage_type": "Ballistic",
-      "shots_per_ton": null,
+      "shots_per_ton": 8,
       "damage_per_shot": 15,
       "heat": 1,
       "range": {
@@ -7938,7 +7972,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/clan/CLImprovedGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Gauss Rifle' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=2 from Interstellar Operations row 'Improved Gauss Rifle'. | 2026-10-20 (Claude): slots 1 -> 6: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot)",
+      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/clan/CLImprovedGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Gauss Rifle' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=2 from Interstellar Operations row 'Improved Gauss Rifle'. | 2026-10-20 (Claude): slots 1 -> 6: not in the Core Rulebook tables; the crit-line runs in data/meks.zip's MegaMek files (each item is written as one line per slot) | 2026-10-28 (intops_pass): Improved (primitive Clan) weapon - normal rules, own stats (Daniel 2026-10-28): slots 6 (was 1: each slot read as its own weapon) and shots per ton 8 from MegaMek (main branch, fetched 2026-10-28). | 2026-10-28 (intops_pass): explosive like every Gauss rifle (Daniel 2026-10-28; MegaMek GaussWeapon).",
       "rack_size": null
     },
     "improvedlargelaser": {
@@ -7980,7 +8014,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -7999,7 +8033,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLImprovedPulseLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Large Pulse Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Improved Large Pulse Laser'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek lasers/clan/large/CLImprovedPulseLaserLarge.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved Large Pulse Laser' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Interstellar Operations row 'Improved Large Pulse Laser'. | 2026-10-28 (intops_pass): slots 2 (was 1) from MegaMek (main branch, fetched 2026-10-28).",
       "rack_size": null
     },
     "improvedppc": {
@@ -8011,7 +8045,7 @@
       ],
       "category": "weapon",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -8030,7 +8064,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek ppc/clan/CLImprovedPPC.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved PPC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Interstellar Operations row 'Improved PPC'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek ppc/clan/CLImprovedPPC.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Interstellar Operations pp. 217-226 alternate-era table, row 'Improved PPC' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Interstellar Operations row 'Improved PPC'. | 2026-10-28 (intops_pass): slots 2 (was 1) from MegaMek (main branch, fetched 2026-10-28). MegaMek also marks it explosive - not taken (no rule in hand; no unit carries it).",
       "rack_size": null
     },
     "isfireextinguisher": {
@@ -8814,21 +8848,26 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 5,
       "crit_eligible": true,
-      "explosive": false,
+      "explosive": true,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Energy",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 0,
+      "heat": 10,
+      "range": {
+        "min": 0,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
       "battle_value": 488,
       "tonnage": 6.0,
-      "special_rules": false,
+      "special_rules": true,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISTSEMPCannon.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISTSEMPCannon.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-28 (intops_pass): Interstellar Operations pp.90-91 (Daniel's paste): no damage, an effects roll (INTEGRATION__advanced_weapons); explosive, 2 per slot (Core p.96 - Daniel: the Core rule overrides IntOps' 10). Slots, heat 10, range 5/10/15 from MegaMek (main branch, fetched 2026-10-28) TSEMPWeapon / tsempcannon.",
       "rack_size": null
     },
     "tsempone-shot": {
@@ -8839,21 +8878,26 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 3,
       "crit_eligible": true,
-      "explosive": false,
+      "explosive": true,
       "explosion_damage": null,
-      "damage_type": null,
-      "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_type": "Energy",
+      "shots_per_ton": "OS",
+      "damage_per_shot": 0,
+      "heat": 10,
+      "range": {
+        "min": 0,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
       "battle_value": 98,
       "tonnage": 4.0,
-      "special_rules": false,
+      "special_rules": true,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISTSEMPOneShot.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISTSEMPOneShot.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-28 (intops_pass): Interstellar Operations pp.90-91 (Daniel's paste): no damage, an effects roll (INTEGRATION__advanced_weapons); explosive, 2 per slot (Core p.96 - Daniel: the Core rule overrides IntOps' 10). Slots, heat 10, range 5/10/15 from MegaMek (main branch, fetched 2026-10-28) TSEMPWeapon / tsempone-shot.",
       "rack_size": null
     },
     "tsemprepeatingcannon": {
@@ -8864,21 +8908,26 @@
       ],
       "category": "weapon",
       "tech_base": "IS",
-      "slots": 1,
+      "slots": 7,
       "crit_eligible": true,
-      "explosive": false,
+      "explosive": true,
       "explosion_damage": null,
-      "damage_type": null,
+      "damage_type": "Energy",
       "shots_per_ton": null,
-      "damage_per_shot": null,
-      "heat": null,
-      "range": null,
+      "damage_per_shot": 0,
+      "heat": 10,
+      "range": {
+        "min": 0,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
       "battle_value": 600,
       "tonnage": 8.0,
-      "special_rules": false,
+      "special_rules": true,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISTSEMPRepeatingCannon.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review.",
+      "notes": "Not confirmed | Stats sourced from MegaMek other/innerSphere/ISTSEMPRepeatingCannon.java (main branch, fetched 2026-07-14). PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-28 (intops_pass): Interstellar Operations p.88 (Daniel's paste): no damage, an effects roll (INTEGRATION__advanced_weapons); explosive, 2 per slot (Core p.96 - Daniel: the Core rule overrides IntOps' 10). Slots, heat 10, range 5/10/15 from MegaMek (main branch, fetched 2026-10-28) TSEMPWeapon / tsemprepeatingcannon.",
       "rack_size": null
     },
     "isapds": {
@@ -18253,7 +18302,7 @@
       "tech_base": "IS",
       "slots": 1,
       "crit_eligible": true,
-      "explosive": true,
+      "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
       "shots_per_ton": null,
@@ -18265,7 +18314,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-28 (intops_pass): not explosive (MegaMek (main branch, fetched 2026-10-28) AmmoType: explosive = false)."
     },
     "isammonail/rivet-half": {
       "canonical_name": "IS Ammo Nail/Rivet - Half",
@@ -18277,7 +18326,7 @@
       "tech_base": "IS",
       "slots": 1,
       "crit_eligible": true,
-      "explosive": true,
+      "explosive": false,
       "explosion_damage": null,
       "damage_type": null,
       "shots_per_ton": null,
@@ -18289,7 +18338,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed"
+      "notes": "Not confirmed | 2026-10-28 (intops_pass): not explosive (MegaMek (main branch, fetched 2026-10-28) AmmoType: explosive = false)."
     },
     "isc3sensors": {
       "canonical_name": "ISC3Sensors",

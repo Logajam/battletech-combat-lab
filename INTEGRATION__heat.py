@@ -88,7 +88,8 @@ fire the turn after it restarts.
 Not modeled (the sim has no such terrain or decision yet - see
 results.KNOWN_MISSING_RULES): snow/fire/extreme temperatures (water's
 submerged heat sinks: INTEGRATION__water, 2026-10-21),
-inferno missiles' heat on targets (launchers fire standard ammo),
+inferno missiles setting hexes on fire (their heat on a target is built
+since 2026-10-28 - INTEGRATION__advanced_weapons),
 voluntary shutdown.
 """
 

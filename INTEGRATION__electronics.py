@@ -184,8 +184,10 @@ def angel_field(mech):
 
 def as_if_jammed(mech):
     """Active stealth armor / Void-Signature: the mech suffers hostile-ECM
-    effects itself (pp.202, 209)."""
-    return any(k in ("stealth_armor", "void_signature") for k in equip.active_stealth(mech))
+    effects itself (pp.202, 209); so does a 'Mech under TSEMP interference or
+    IMP missile effects (Interstellar Operations, 2026-10-28)."""
+    import INTEGRATION__advanced_weapons as adv
+    return any(k in ("stealth_armor", "void_signature") for k in equip.active_stealth(mech)) or adv.as_if_jammed(mech)
 
 
 def artemis_blocked(attacker, target):

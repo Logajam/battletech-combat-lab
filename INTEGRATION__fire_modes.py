@@ -44,6 +44,11 @@ ammo to use (Apollo goes in this catagory) is still a matter of research").
     all - no TMM, no immobile -4 (nor prone target or target stealth) - "so
     its usually gunnery + range + LOS blockers" (+ the attacker's own
     modifiers). The Arrow IV (INTEGRATION__weapon_profiles) is a hex attack too.
+  - iATM (Interstellar Operations, 2026-10-28): also IMP and IIW rounds
+    (ATM_KINDS); fired directly it is a Streak (weapon_rules.is_streak).
+  - Inferno missiles (p.192; built 2026-10-28 - bins named "... Inferno",
+    and iATM IIW): no damage, 2 heat to the target a missile that strikes
+    (INTEGRATION__advanced_weapons); priced at TARGET_HEAT_WORTH a heat point.
   - Not modeled (no unit in data/meks.zip carries them): AC armor-piercing,
     caseless, flak and precision rounds.
 
@@ -84,6 +89,10 @@ ATM_KINDS = {
     "standard": (2, {"min": 4, "short": 5, "medium": 10, "long": 15}),
     "er": (1, {"min": 4, "short": 9, "medium": 18, "long": 27}),
     "he": (3, {"min": 0, "short": 3, "medium": 6, "long": 9}),
+    # iATM only (Interstellar Operations, 2026-10-28): IMP - HE range, 1 damage a missile
+    # (plus its effects, INTEGRATION__advanced_weapons); IIW - standard range, inferno rules.
+    "imp": (1, {"min": 0, "short": 3, "medium": 6, "long": 9}),
+    "iiw": (0, {"min": 4, "short": 5, "medium": 10, "long": 15}),
 }
 LBX_CLUSTER_TN = -1
 RAC_JAM_AT = ((6, 4), (4, 3), (2, 2))      # (shots at least, jams on a roll of this or less) - p.183
@@ -162,6 +171,7 @@ class ShotPlan(NamedTuple):
         parts = [self.guidance.note] if self.guidance.note else []
         if self.kind:
             parts.append({"cluster": "LB-X cluster rounds", "er": "ATM ER", "he": "ATM HE",
+                          "imp": "iATM IMP", "iiw": "iATM IIW (inferno)",
                           "lrm": "MML LRM rounds", "srm": "MML SRM rounds", "saturation": "Apollo saturation",
                           "artillery": "artillery at the hex", "array": f"array of {self.shots}",
                           "homing": "homing at the TAG-designated target"}.get(
@@ -176,8 +186,15 @@ class ShotPlan(NamedTuple):
 PLAIN = ShotPlan()
 
 
+def is_inferno(plan):
+    """Inferno missiles (p.192): an inferno bin's munition, or iATM IIW rounds."""
+    return plan.munition == "inferno" or plan.kind == "iiw"
+
+
 def damage_per(weapon, plan):
     """Damage of one missile / shot / pellet / slug."""
+    if is_inferno(plan):
+        return 0                               # heat instead (p.192)
     if plan.kind == "cluster" or wp.is_hag(weapon) or wp.is_mpod(weapon):
         return 1
     if is_mml(weapon) and plan.kind in MML_KINDS:
@@ -328,7 +345,10 @@ def expected_hit(weapon, plan=PLAIN, ams_engaged=False):
     """E[damage | hit] for this plan; with ams_engaged, as if the target's AMS
     took it (Missile weapons only - INTEGRATION__ams)."""
     import INTEGRATION__ams as ams
-    dmg = damage_per(weapon, plan) or 0
+    import INTEGRATION__advanced_weapons as adv
+    # Inferno missiles: their heat, counted as damage at TARGET_HEAT_WORTH a point.
+    dmg = (adv.INFERNO_HEAT_PER_MISSILE * config.TARGET_HEAT_WORTH if is_inferno(plan)
+           else damage_per(weapon, plan) or 0)
     if dmg == 0:
         return 0.0
     col = column(weapon, plan)
@@ -478,7 +498,8 @@ def special(weapon):
     """Weapons the Planner prices (anything that isn't a plain single shot)."""
     return (weapon.damage_type == "Missile" or max_shots(weapon) > 1 or is_lbx(weapon) or is_mml(weapon)
             or "ATM" in _cn(weapon) or has_profile(weapon) or wp.is_rifle(weapon) or wp.heat_causing(weapon)
-            or wp.is_art_cannon(weapon) or "TASER" in _cn(weapon))           # Taser: its effect's worth (2026-10-27)
+            or wp.is_art_cannon(weapon) or "TASER" in _cn(weapon)            # Taser: its effect's worth (2026-10-27)
+            or "TSEMP" in _cn(weapon) or "NAIL" in _cn(weapon) or "RIVET" in _cn(weapon))   # IO / MegaMek (2026-10-28)
 
 
 class Planner:
@@ -545,7 +566,21 @@ class Planner:
         hit += config.TARGET_HEAT_WORTH * wp.expected_target_heat(weapon)       # flamers, plasma (placeholder worth)
         if "TASER" in _cn(weapon) and (getattr(self.target, "mass", 0) or 0) <= 100:
             hit += config.TASER_EFFECT_WORTH          # shutdown / interference (TO:AUE p.158) - placeholder worth
+        hit += self._advanced_worth(weapon, plan)
         return p * hit, tn
+
+    def _advanced_worth(self, weapon, plan):
+        """Interstellar Operations / MegaMek weapons (2026-10-28): a TSEMP hit's
+        effect, IMP effects, a nail gun's 1D6 on a bare location."""
+        import INTEGRATION__advanced_weapons as adv
+        if adv.is_tsemp(weapon):
+            return config.TSEMP_EFFECT_WORTH if (getattr(self.target, "mass", 0) or 0) < adv.TSEMP_NO_EFFECT_TONS else 0.0
+        if adv.is_nail_gun(weapon):
+            return adv.nail_worth(self.target, getattr(self.adjust, "side", "front"))
+        if plan.kind == "imp" and not adv.imp_level(self.target):
+            col = column(weapon, plan) or 0           # fired directly: every missile hits (a Streak)
+            return config.IMP_EFFECT_WORTH * min(adv.IMP_MAX, col // adv.IMP_PER_STEP)
+        return 0.0
 
     def _decide(self, weapon, distance, pre_tn, warn):
         name = self.attacker.side_name

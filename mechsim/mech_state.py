@@ -965,7 +965,8 @@ def compute_walk_mp(mech):
     TSM (2026-10-19, Core p.205): +2 Walking MP while mech.tsm_active,
     added before the heat penalty comes off.
     """
-    return max(0, _damage_walk_mp(mech) + (2 if mech.tsm_active else 0) - mech.heat_mp_penalty)
+    return max(0, _damage_walk_mp(mech) + (2 if mech.tsm_active else 0) - mech.heat_mp_penalty
+               - getattr(mech, "imp_mp", 0))
 
 
 def _damage_walk_mp(mech):
@@ -1080,6 +1081,7 @@ def compute_jump_mp(mech):
     jet_mp = max(0, mech.base_jump_mp - len(mech.destroyed_jump_jet_ids))
     if jet_mp and any(getattr(s, "modular_points", 0) > 0 for s in getattr(mech, "modular_armor", ())):
         jet_mp -= 1                          # modular armor: -1 Jumping MP (TO:AUE p.93, 2026-10-27)
+    jet_mp = max(0, jet_mp - getattr(mech, "imp_mp", 0))    # IMP missiles (Interstellar Operations, 2026-10-28)
     if jet_mp == 0 or not mech.partial_wing_active:
         return jet_mp
     return jet_mp + (1 if mech.mass >= 60 else 2)

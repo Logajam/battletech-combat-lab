@@ -664,6 +664,9 @@ def parse_mtf(filepath):
     mech.gyro_type = gyro_str
     mech.armor_desc = global_armor_text or ""
     mech.structure_type = structure_type
+    # 2026-10-28: an IndustrialMech is a 'Mech with industrial internal structure
+    # (MegaMek Mek.isIndustrial) - the Taser / TSEMP effects tables' IndustrialMech columns.
+    mech.is_industrial = "INDUSTRIAL" in (structure_text or "").upper()
 
     if walk_mp is None:
         print("WARNING: no 'walk mp:' line found in .mtf file - defaulting to 1 "

@@ -17,9 +17,9 @@ Ammunition, replacing the unlimited-ammo and one-shot stubs. Core Rulebook:
 
 Bot choice (pile 4, not a rule): which bin a shot comes from - the bin with
 the fewest shots left, so bins run empty (and stop being explosive) sooner.
-Inferno bins are never fired from: inferno missiles' effect on a target
-(heat, no damage - p.192) isn't modeled, so they stay aboard as a heat
-explosion risk only.
+Inferno bins (munition "inferno") are fired from since 2026-10-28: 2 heat on
+the target a missile, no damage (p.192, INTEGRATION__advanced_weapons);
+which bin a launcher fires is the munition choice (INTEGRATION__fire_modes).
 
 A weapon whose ammo has no shots_per_ton in equipment.json (a few Tactical
 Operations weapons) keeps firing with unlimited ammo; stubs.stub_ammo_data
@@ -77,10 +77,16 @@ _MUNITION_SUFFIXES = (
     (re.compile(r"\s*Artemis-capable", re.I), "artemis4"),
     (re.compile(r"\s*Narc-capable", re.I), "narc"),
     (re.compile(r"\s*Homing(?=\s*Ammo|\s*$)", re.I), "homing"),     # Arrow IV homing missiles (p.190, 2026-10-21)
+    (re.compile(r"\s*\(?Inferno\)?", re.I), "inferno"),             # inferno missiles (p.192, fired since 2026-10-28)
 )
 _NOT_MODELED = re.compile(r"ArrowIV ?(Cluster|Inferno|Smoke|Thunder)|ECM Pods|Haywire|Nemesis", re.I)
 _LBX_CLUSTER = re.compile(r"\s*Cluster|\sCL(?= Ammo)", re.I)
-_ATM_KIND = re.compile(r"(ATM-?\d+)\s+(ER|HE)\b", re.I)
+_ATM_KIND = re.compile(r"(ATM-?\d+)\s+(ER|HE|IMP|IIW)\b", re.I)     # IMP / IIW: iATM only (Interstellar Operations)
+# Improved (primitive Clan) weapons' bins (2026-10-28): "CLImpGaussAmmo", "CLImpAmmoSRM6",
+# "CLIMPAmmoAC5", "ClanImprovedLRM15Ammo" -> the Improved weapon's row.
+_IMPROVED = re.compile(r"^(?:CL|CLAN)IMP(?:ROVED)?(?:AMMO)?(GAUSS|AC|SRM|LRM)(\d*)(?:AMMO)?$")
+_IMPROVED_ROW = {"GAUSS": "Improved Gauss Rifle", "AC": "Improved Autocannon/{}", "SRM": "Improved SRM {}",
+                 "LRM": "Improved LRM {}"}
 _MML = re.compile(r"MML-?(\d)\s*(LRM|SRM)", re.I)
 _MORTAR = re.compile(r"(AMMO)?(SC|ARMORPIERCING)?MORTAR(AMMO)?(\d)")    # on _norm_name; groups 2 / 4 used
 TASER_AMMO_EXPLOSION = 6
@@ -115,6 +121,9 @@ def parse_bin(bin_name):
             return None, None, None
         tech = "Clan" if u.startswith(("CL", "CLAN")) else "IS"
         return _entry(f"{tech} Mech Mortar-{mortar.group(4)}"), munition, ""
+    imp = _IMPROVED.match(_norm_name(name))
+    if imp:
+        return _entry(_IMPROVED_ROW[imp.group(1)].format(imp.group(2))), munition, ""
     mml = _MML.search(name)
     if mml:
         return _entry(f"ISMML{mml.group(1)}"), munition, mml.group(2).lower()
@@ -223,8 +232,7 @@ def _dead_ids(mech):
 
 
 def bins_for(mech, weapon):
-    """Live bins holding this weapon's ammo, with shots left (unique).
-    Inferno bins excluded (see module docstring)."""
+    """Live bins holding this weapon's ammo, with shots left (unique)."""
     dead = _dead_ids(mech)
     seen, out = set(), []
     for slots in mech.crits.values():
@@ -232,7 +240,6 @@ def bins_for(mech, weapon):
             if (isinstance(s, Equipment) and s.category == "ammo" and id(s) not in seen and id(s) not in dead
                     and not s.exploded and getattr(s, "feeds", None) == weapon.ammo_key and weapon.ammo_key
                     and getattr(s, "torpedo", False) == getattr(weapon, "torpedo", False)
-                    and "INFERNO" not in s.name.upper()
                     and (s.shots_left is None or s.shots_left > 0)):
                 seen.add(id(s))
                 out.append(s)
@@ -241,11 +248,14 @@ def bins_for(mech, weapon):
 
 def unavailable_weapons(mech):
     """Weapons that can't fire for lack of ammo: spent one-shots, empty or
-    destroyed bins. Identical weapons sharing too few shots: the extras."""
+    destroyed bins. Identical weapons sharing too few shots: the extras.
+    Also a TSEMP Cannon recharging after last turn's shot (IO p.91, 2026-10-28)."""
     out = set()
     by_key = {}
     for w in get_weapons(mech):
-        if getattr(w, "one_shot", False):
+        if getattr(w, "tsemp_recharge_until", None) is not None:
+            out.add(id(w))
+        elif getattr(w, "one_shot", False):
             if w.fired_once:
                 out.add(id(w))
         elif getattr(w, "needs_ammo", False):

@@ -281,10 +281,11 @@ def void_signature_modifier(target, hexes_moved=None, mp_spent=None):
 
 def own_attack_modifier(attacker):
     """An active Void-Signature System adds +1 to its own mech's ranged
-    attacks; Taser interference +2 (TO:AUE p.158, 2026-10-27)."""
+    attacks; Taser interference +2 (TO:AUE p.158, 2026-10-27); TSEMP
+    interference +2 and IMP missiles +1 / +2 (Interstellar Operations, 2026-10-28)."""
     import INTEGRATION__advanced_weapons as adv
     return ((VOID_OWN_ATTACK_MODIFIER if "void_signature" in active_stealth(attacker) else 0)
-            + adv.interference(attacker))
+            + adv.own_attack_modifier(attacker))
 
 
 # =============================================================================
