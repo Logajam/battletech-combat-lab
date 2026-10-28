@@ -353,7 +353,8 @@ Numbers: Change Record.
      TAG (F55-F56).
    - **Sprinting** (TacOps) - the sprint exposure penalty; needs the sprint
      movement rule.
-   - **Multi-unit play** - mutual support (herding), anti-crowding, enemy hot
+   - **Multi-unit play** (Daniel's groundwork: IF/THEN pre-move threat picture
+     + a "right now" layer for the real move - Section 5) - mutual support (herding), anti-crowding, enemy hot
      spots, the highest-BV cluster anchor, fire distribution across targets
      (damage already assigned, priority targets, MultiTargetFireControl),
      FightMemory / EnemyTracker, formations; needs more than two units.
@@ -905,6 +906,21 @@ forward arc, kicks included, never into a side arc.
   explosions." It stays an option (`MOVEMENT_SEARCH = "if_then"`). Studies of
   it: "only run the more interesting test series. We're after general feel,
   not full stats" (`tests/pick_quality.py --pickers`, a few battles).
+- **Multi-unit aware bot - Daniel's groundwork (2026-10-28):** two layers.
+  (1) A PRE-MOVE phase, not the real movement: IF/THEN run for all units at
+  once ("One side can move all of their units at once, Then the other starts
+  a counter move"), up to ~12 rounds; a unit whose answer stops changing
+  locks and costs nothing more. It "mimics a humans estimate of potential and
+  threat zones"; no unlocking ("This is not their actual move phase").
+  (2) The real movement adds "What is tactically important right now": units
+  in that "right now" group get the strong search (Short Grid style) against
+  the few enemies that matter; every other unit "can skip their entire short
+  list value and just plug in either their final movement location or their
+  IF/THEN location as the likely threat vector". Purpose: avoid the joint-
+  position explosion (every unit's spot x every enemy's reply). Open design
+  points for when it is built (Claude): what puts a unit in "right now"
+  (range, line of sight, threat, ...); a target model for who shoots whom
+  (focus fire), so a unit doesn't assume the whole enemy force fires at it.
 - **Equipment wiring (Daniel, 2026-10-21):** "Wire in equipment that requires
   choice (Like capacitors) but defer the actual bot decision making for
   later." - each choice is options + a stub (Section 6 row). "Active probes
