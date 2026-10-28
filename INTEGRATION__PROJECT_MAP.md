@@ -299,8 +299,13 @@ TO:AR summaries in `logajam/battletech-rules-index` (RULES_REVIEW F57-F64):
   Cannon / One-Shot / Repeating, iATM (a Streak when fired directly) with
   ER / HE / IMP / IIW rounds, inferno missiles (Core p.192 - needed by IIW,
   any unit's inferno bins now fire), Improved weapons' slots and ammo, the
-  nail / rivet gun (MegaMek's rule). Industrial tools (TechManual) still
-  left.
+  nail / rivet gun (MegaMek's rule). Industrial tools deferred (Daniel).
+- Ultralight and superheavy 'Mechs (2026-10-28, Daniel: "Go borrow from
+  megamek to get superheavy and ultra light mechs working" - RULES_REVIEW
+  F70-F71): MegaMek's structure table (10-15, 105-200 tons) and superheavy
+  slots (two items a slot, half the slots each), the Core superheavy
+  appendix (pp.236, 240-241). All 42 such units in data/meks.zip load; only
+  the 23 LAMs still don't.
 - Daniel's answers (2026-10-28): 'Mech UMUs and the chain whip grapple -
   DEFERRED (Pick up here 10); Princess now prices hazards on every hex of
   her path like MegaMek ("Need the change for an acurate replica");
@@ -553,8 +558,8 @@ the older items here had been built): the twist / flip a TAG designation
 uses up; special munitions (G16, deferred); bombast charging, HAG flak,
 distant Arrow IV (G18); full buildings / bridges (G22, deferred); fire,
 snow / ice, extreme temperatures; heat decisions (cooldown, voluntary
-shutdown); domino effects (no third mech). Units that don't load:
-ultralight (under 20 tons) and superheavy (over 100 tons) 'Mechs, LAMs.
+shutdown); domino effects (no third mech). Units that don't load: LAMs
+(ultralights and superheavies load since 2026-10-28).
 
 **Core Rulebook vs existing MECHSIM rules - Daniel to decide** (found
 2026-10-19 while replacing stubs; MECHSIM left unchanged because these are
@@ -1343,6 +1348,30 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-28 (Claude):** Ultralight and superheavy 'Mechs (Daniel: "Go
+  borrow from megamek to get superheavy and ultra light mechs working").
+  RULES_REVIEW F70-F71. From MegaMek: the structure table for 10-15 and
+  105-200 tons (a superheavy head 4), superheavy slots - an item takes half
+  its slots, rounded up, and one slot may hold two ammo bins / heat sinks
+  ("A|B": the second is appended after the 12 slots as `partner_of_slot`,
+  never itself a critical hit target; `clone_mech` re-points the pairs).
+  From the Core appendix (pp.236, 240-241): Large target -1
+  (`_target_tmm`, movement scoring), +1 to its own physical attacks
+  (`physical_attacker_modifier`), 1 MP less into rough / rubble / woods /
+  jungle (`terrain_rules.GroundLimit` carries the flag through the path
+  search), 3 levels tall / 2 prone (`los.Height` - partial cover next to a
+  hex 2 levels up or in depth 2; none prone), water one level deeper and
+  the depth-1 `water.WADING` state, its own Different Levels table
+  (`physical._superheavy_options`, kicks two levels down), a slot's two
+  ammo bins explode together for one MechWarrior hit, a compact engine
+  dies at 2 hits, a superheavy tripod's technical officer (command console
+  benefits, +2 to avoid heat shutdown / ammo explosions). Also fixed: a
+  quad's cached reach lost its mule kick (`physical._FixedReach.mule_ok`) -
+  a crash when a quad was scored next to an enemy. Not built: buildings
+  (deferred), foliage (no such terrain), friendly-unit hex rules (no
+  allies). Reference logs: only the summary's gap-list text changed;
+  benchmark unchanged (HP 501 / 495). New tests/test_superheavy.py (9
+  checks).
 - **2026-10-28 (Claude):** Industrial tools deferred (Daniel: "Defering
   industrial tools") - Pick up here 10, the summary's gap list. Section 4's
   stale "rules gaps" paragraph refreshed. Reference logs regenerated (gap

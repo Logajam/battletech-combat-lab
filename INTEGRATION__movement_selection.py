@@ -640,7 +640,8 @@ def _modeled_reply(c, ev2, prepared2, them, me, other, mover_xy_of_c, terrain_ma
         # The first mover has finished moving at c, so the second may charge or DFA it.
         with timing.section("reply charges and DFA"):
             special = movement_attacks.scored_options(
-                other, ev2.defender, movement_attacks.pose_at(c.label, c.facing_compass, c.fc, c.mode), index2, ev2,
+                other, ev2.defender, movement_attacks.pose_at(c.label, c.facing_compass, c.fc, c.mode,
+                                                           target=ev2.defender), index2, ev2,
                 them.exposure, me.exposure, them.psr_cost, lambda: movement_attacks.best_by_mode(cands, me.exposure),
                 (c.label, c.facing_compass, c.fc, c.mode, c.mp_spent), them.objective)
         if special and (not any_damage or round(special[0][0], 9) > best_score):

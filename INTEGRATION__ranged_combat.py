@@ -127,9 +127,10 @@ if PATHFINDER_DIR not in sys.path:
 
 import hex_geometry  # noqa: E402
 from pathfinder import build_movement_table, PathTable  # noqa: E402
-from mech_state import ground_level_limited  # noqa: E402 - pp.90, 99, 238-239
+from mech_state import is_superheavy, ground_level_limited  # noqa: E402 - pp.90, 99, 238-239
 import terrain_rules  # noqa: E402
-from los import has_los, hex_distance, STANDING_HEIGHT, PRONE_HEIGHT  # noqa: E402
+from los import has_los, hex_distance, STANDING_HEIGHT, PRONE_HEIGHT, mech_height  # noqa: E402
+from mech_state import target_size_modifier  # noqa: E402 - MECHSIM, Core p.240 (2026-10-28)
 import combat  # noqa: E402
 
 import INTEGRATION__weapon_selection as weapon_selection  # noqa: E402
@@ -269,7 +270,7 @@ def _movement_options(mover, terrain_map, standup_mp=None, entry_edge=None, back
         starts, run_budget, jump_mp = range(6), standup_mp, 0
         mode_for = lambda spent: "Run"  # noqa: E731
         backward_mp = None
-    level_limit = terrain_rules.max_level_change(ground_level_limited(mover))   # pp.46-47
+    level_limit = terrain_rules.max_level_change(ground_level_limited(mover), is_superheavy(mover))   # pp.46-47
     seen = set()
     if getattr(mover, "jump_only", False):
         # Bogged down after ground movement (TO:AR p.60): stay, or jump out.
@@ -363,7 +364,7 @@ def _entry_options(mover, terrain_map, edge_labels):
         cost = terrain_rules.step_cost(None, info)        # None: can't walk onto a roof from off the board
         if cost is None or cost > run:
             continue
-        level_limit = terrain_rules.max_level_change(ground_level_limited(mover))
+        level_limit = terrain_rules.max_level_change(ground_level_limited(mover), is_superheavy(mover))
         ex, ey = hex_geometry.parse_hex_label(label)
         entry_psrs = terrain_rules.step_psrs(None, info)          # entering the edge hex itself
         entry_hazard = terrain_rules.step_hazard(info)
@@ -408,7 +409,7 @@ def prepare_options(mover, options) -> List[_Option]:
         o.fc, o.mode, o.mp_spent = fc, mode, mp_spent
         o.amm = combat.MODE_TO_AMM[mode]
         o.move_heat = heat.movement_heat(mover, mode, fc)
-        o.tmm = combat.fc_to_tmm(fc, jumped=(mode == "Jump"))
+        o.tmm = combat.fc_to_tmm(fc, jumped=(mode == "Jump")) + target_size_modifier(mover)   # Core p.240
         o.void_mod = equip.void_signature_modifier(mover, fc, mp_spent)
         prepared.append(o)
     return prepared
@@ -437,7 +438,7 @@ def _with_physical(ranged_best, planner, actions, legs, pair_arcs, facing, diff,
     p.77), None = all; t_water: the target's water state (half damage to its
     underwater locations), None = on land."""
     best = ranged_best
-    if abs(diff) > 1:
+    if not physical.reachable(diff, planner.target_superheavy):
         return best
     if allowed is not None and "push" not in allowed:
         push = ()
@@ -596,26 +597,26 @@ class MoveEvaluator:
         # A torpedo needs an all-water line (p.187) - looked at only for a firer that carries one.
         line = (f_depth > 0 and t_depth > 0 and any(weapon_rules.is_torpedo(w) for w in get_weapons(firer))
                 and water.water_line(f_label, t_label, self.terrain_map))
-        key = (id(firer), f_depth, f_prone, t_depth, t_prone, line)
+        key = (id(firer), id(target), f_depth, f_prone, t_depth, t_prone, line)
         case = self._wet_cases.get(key)
         if case is None:
-            f_state = water.state_at(f_label, f_prone, self.terrain_map)
-            t_state = water.state_at(t_label, t_prone, self.terrain_map)
+            f_state = water.state_at(f_label, f_prone, self.terrain_map, is_superheavy(firer))   # p.240
+            t_state = water.state_at(t_label, t_prone, self.terrain_map, is_superheavy(target))
             blocked = water.blocked_weapon_ids(firer, get_weapons(firer), weapon_locations(firer), f_state, t_state,
                                                torpedo_line=line)
             case = self._wet_cases[key] = "none" if blocked is None else \
                 (f_state, blocked, water.dissipation_bonus(firer, f_state))
         return case
 
-    def _physical_water(self, a_label, a_prone, t_label, t_prone):
+    def _physical_water(self, a_label, a_prone, t_label, t_prone, a_superheavy=False, t_superheavy=False):
         """(the physical attack kinds water allows from a_label at t_label -
         INTEGRATION__water.physical_allowed, p.77 - None = all; the target's
         water state, for its halved damage - None = on land). (None, None) on
         a board without water."""
         if self.water_depths is None:
             return None, None
-        t_state = water.state_at(t_label, t_prone, self.terrain_map)
-        return (water.physical_allowed(water.state_at(a_label, a_prone, self.terrain_map), t_state),
+        t_state = water.state_at(t_label, t_prone, self.terrain_map, t_superheavy)
+        return (water.physical_allowed(water.state_at(a_label, a_prone, self.terrain_map, a_superheavy), t_state),
                 None if t_state == water.GROUND else t_state)
 
     def _hex_row(self, o, def_hex, def_hex_label, def_facing, row_into, row_out_of, pair_info, dealt_base,
@@ -630,11 +631,12 @@ class MoveEvaluator:
         if atk_hex == def_hex:
             return False  # occupying the defender's hex is undefined, same as combat.py
         try:
-            d_height = PRONE_HEIGHT if prone_def else STANDING_HEIGHT
+            d_height = mech_height(prone_def, is_superheavy(self.defender))
+            m_height = mech_height(False, is_superheavy(self.mover))
             atk_to_def, entry_at_def, distance, a_to_d = row_into.get(atk_hex) or pair_info(
-                atk_hex, def_hex, self.terrain_map, STANDING_HEIGHT, d_height)
+                atk_hex, def_hex, self.terrain_map, m_height, d_height)
             def_to_atk, entry_at_atk, _, d_to_a = row_out_of.get(atk_hex) or pair_info(
-                def_hex, atk_hex, self.terrain_map, d_height, STANDING_HEIGHT)
+                def_hex, atk_hex, self.terrain_map, d_height, m_height)
         except ValueError:
             return False  # off-board LOS line - not a usable candidate
         if not atk_to_def.los:
@@ -676,6 +678,7 @@ class MoveEvaluator:
         else:
             defender_tmm = combat.fc_to_tmm(def_fc, jumped=(def_mode == "Jump"))
             def_move_heat = heat.movement_heat(defender, def_mode, def_fc)
+        defender_tmm += target_size_modifier(defender)          # a superheavy is a Large target (Core p.240)
         def_amm = combat.MODE_TO_AMM[def_mode]
         dealt_stealth = equip.void_signature_modifier(defender, def_fc, def_mp_spent) + self.mover_own
         mover_cond, defender_cond = self.mover_cond, self.defender_cond
@@ -695,11 +698,13 @@ class MoveEvaluator:
         # Rows pinned on the defender's hex: lines INTO it (mover -> defender) and
         # OUT of it (defender -> mover), keyed by the mover's hex - plain dict gets
         # in the loop below; a miss falls back to pair_info (which fills the rows).
-        # LOS heights (p.57): the mover stands at every spot; a prone defender is 1 level tall.
+        # LOS heights (p.57): the mover stands at every spot; a prone defender is 1 level tall
+        # (a superheavy 3 / 2 - Core p.240).
         prone_def = defender.prone
-        d_height = PRONE_HEIGHT if prone_def else STANDING_HEIGHT
-        row_into = geo_cache.board(terrain_map, STANDING_HEIGHT, d_height).to.setdefault(def_hex, {})
-        row_out_of = geo_cache.board(terrain_map, d_height, STANDING_HEIGHT).frm.setdefault(def_hex, {})
+        d_height = mech_height(prone_def, is_superheavy(defender))
+        m_height = mech_height(False, is_superheavy(mover))
+        row_into = geo_cache.board(terrain_map, m_height, d_height).to.setdefault(def_hex, {})
+        row_out_of = geo_cache.board(terrain_map, d_height, m_height).frm.setdefault(def_hex, {})
         pair_info = geo_cache.pair_info
         pre_min, pre_max = weapon_selection.PRE_TN_MIN, weapon_selection.PRE_TN_MAX
         water_depths = self.water_depths
@@ -767,7 +772,8 @@ class MoveEvaluator:
                         if mover_cond is not None and wet_dealt != "none" else None,
                         self.mover_planner.push_plan(atk_hex, o.facing, a_level, defender, def_hex_label, d_level,
                                                      base, side_on_def, terrain_map),
-                        *self._physical_water(o.label, False, def_hex_label, prone_def))
+                        *self._physical_water(o.label, False, def_hex_label, prone_def,
+                                              is_superheavy(mover), is_superheavy(defender)))
                 if self.defender_physical and physical_reply:   # nobody punches a mech in mid-DFA
                     base = physical.base_tn(defender, def_amm, o.tmm, def_to_atk.modifier, 0)
                     received = _with_physical(
@@ -778,7 +784,8 @@ class MoveEvaluator:
                         if not no_return_fire and wet_received != "none" else None,
                         self.defender_planner.push_plan(def_hex, def_facing, d_level, mover, o.label, a_level,
                                                         base, side_on_mover, terrain_map),
-                        *self._physical_water(def_hex_label, prone_def, o.label, False))
+                        *self._physical_water(def_hex_label, prone_def, o.label, False,
+                                              is_superheavy(defender), is_superheavy(mover)))
 
             results.append(MovementCandidate(o.label, o.facing_compass, o.mode, o.fc, o.mp_spent, distance,
                                              dealt, received, o.move_heat, side_on_def, side_on_mover))
@@ -842,7 +849,7 @@ def path_to(mover, terrain_map, pick, standup_mp=None, entry_edge=None, tables=N
     x, y = hex_geometry.parse_hex_label(pick["hex"])
     state = (x, y, hex_geometry.compass_to_facing(pick["facing"]))
     fc, mp = pick["fc"], pick["mp_spent"]
-    level_limit = terrain_rules.max_level_change(ground_level_limited(mover))
+    level_limit = terrain_rules.max_level_change(ground_level_limited(mover), is_superheavy(mover))
     if entry_edge is not None:
         run = compute_running_mp(mover)
         for label in entry_edge:

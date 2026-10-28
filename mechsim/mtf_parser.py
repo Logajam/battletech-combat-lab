@@ -44,7 +44,8 @@ import re
 
 import config
 from equipment import lookup_equipment, ANATOMY_COMPONENTS, ENGINE_NAMES, Equipment, is_structure_or_armor_slot
-from mech_state import ArmorType, StructureType, BattleMech, structure_for_tonnage, snapshot_round_capability
+from mech_state import ArmorType, StructureType, BattleMech, structure_for_tonnage, snapshot_round_capability, \
+    SUPERHEAVY_MIN_TONS
 from damage_resolution import is_partial_wing
 
 
@@ -269,20 +270,43 @@ def _variable_size(canonical_name):
     return any(f in n for f in VARIABLE_SIZE_FRAGMENTS) and "BLUESHIELD" not in n
 
 
-def build_crit_list(raw_lines, special_rules_seen=None):
+def build_crit_list(raw_lines, special_rules_seen=None, superheavy=False):
     """special_rules_seen: optional set, mutated in place with (name, ref) pairs
     for any equipment.json entry flagged special_rules=True that gets used here.
     parse_mtf() collects this across all locations and prints one summary note
-    per mech build."""
+    per mech build.
+
+    superheavy (2026-10-28, Core p.240 / MegaMek): every superheavy critical
+    slot holds two slots' worth of items, so an item takes half its slots,
+    rounded up (MegaMek Mek.addEquipment), and one slot may hold two ammo bins
+    or heat sinks ("A|B" in the .mtf). The second item is appended after the
+    location's 12 slots, marked `partner` of the first (and the first of it):
+    it is never itself picked by a critical hit (Core p.240: a hit to the slot
+    is a hit to one item - MegaMek hits the first), but ammo / heat sink scans
+    see it; an exploding bin takes its partner with it (damage_resolution.
+    apply_explosion - one MechWarrior hit)."""
     if special_rules_seen is None:
         special_rules_seen = set()
 
     result = []
+    partners = []
     i = 0
     n = len(raw_lines)
     while i < n:
         raw = raw_lines[i]
         name = raw.strip()
+
+        if superheavy and "|" in name:
+            first, second = (part.strip() for part in name.split("|", 1))
+            a = build_crit_list([first], special_rules_seen)[0]
+            b = build_crit_list([second], special_rules_seen)[0]
+            if isinstance(a, Equipment) and isinstance(b, Equipment):
+                a.partner, b.partner = b, a
+                b.partner_of_slot = a                      # the slot's second item
+                partners.append(b)
+            result.append(a)
+            i += 1
+            continue
 
         if name == "-Empty-":
             result.append("-Empty-")
@@ -322,6 +346,8 @@ def build_crit_list(raw_lines, special_rules_seen=None):
 
         if entry is not None:
             slots_needed = entry["slots"]
+            if superheavy:
+                slots_needed = -(-slots_needed // 2)       # half the slots, rounded up (Core p.240; MegaMek)
             if _variable_size(entry["canonical_name"]):
                 # A physical weapon / shield / talons is sized by the 'Mech's tonnage, so
                 # equipment.json can't hold its slot count (it says 1): take every
@@ -401,7 +427,7 @@ def build_crit_list(raw_lines, special_rules_seen=None):
         result.append(base_name)
         i += 1
 
-    return result
+    return result + partners
 
 
 def parse_mtf(filepath):
@@ -706,7 +732,8 @@ def parse_mtf(filepath):
     special_rules_seen = set()
     for loc in mech.locations:
         if loc in location_lines:
-            mech.crits[loc] = build_crit_list(location_lines[loc], special_rules_seen)
+            mech.crits[loc] = build_crit_list(location_lines[loc], special_rules_seen,
+                                              superheavy=mass >= SUPERHEAVY_MIN_TONS)
             # Armored components (p.207): each tagged slot absorbs one crit - not ammunition.
             for idx, (raw, slot) in enumerate(zip(location_lines[loc], mech.crits[loc])):
                 if is_armored(raw) and getattr(slot, "category", None) != "ammo":

@@ -200,7 +200,7 @@ def pool_damage(mech, why):
     if dmg <= 0:
         return
     import INTEGRATION__water as water
-    legs_only = water.state_at(mech.hex, mech.prone) == water.PARTIAL      # standing in depth 1
+    legs_only = water.state(mech) in (water.PARTIAL, water.WADING)       # standing in depth 1 (a superheavy: 1-2)
 
     def apply():
         left = dmg

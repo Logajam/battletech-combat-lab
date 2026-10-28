@@ -112,6 +112,7 @@ import INTEGRATION__water as water
 import INTEGRATION__hazards as hazards
 import INTEGRATION__advanced_weapons as adv
 import INTEGRATION__smoke as smoke
+from mech_state import target_size_modifier, is_superheavy  # noqa: E402 - Core p.240 (2026-10-28)
 from mech_state import pilot_hit, head_hit_hurts_pilot, tripod_gunner_modifier, is_destroyed, all_crew_unconscious  # noqa: E402 - pp.203, 236
 from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capability, \
     mark_consciousness_check_pending, compute_heat_dissipation, arm_aes_working
@@ -122,7 +123,7 @@ import piloting_rolls
 
 import hex_geometry
 import combat
-from los import hex_distance, trace_los_path, STANDING_HEIGHT, PRONE_HEIGHT, LOSResult, target_hex_modifier
+from los import hex_distance, trace_los_path, STANDING_HEIGHT, PRONE_HEIGHT, LOSResult, target_hex_modifier, mech_height
 
 # equipment.json damage_type strings -> MECHSIM DamageType. A name mapping,
 # not a rule. Anything else (incl. null) goes through stub_unknown_damage_type.
@@ -182,8 +183,9 @@ def _with_piloting(mech, fn, *args, **kwargs):
 
 def _target_tmm(target):
     """The target's movement modifier - immobile -4 (MECHSIM's convention),
-    else its TMM; a bogged-down target adds -2 (TO:AR p.60, 2026-10-27)."""
-    stuck = hazards.STUCK_TO_HIT if hazards.is_stuck(target) else 0
+    else its TMM; a bogged-down target adds -2 (TO:AR p.60, 2026-10-27); a
+    superheavy -1, a Large target (Core pp.64, 240 - 2026-10-28)."""
+    stuck = (hazards.STUCK_TO_HIT if hazards.is_stuck(target) else 0) + target_size_modifier(target)
     if is_immobile(target):
         return IMMOBILE_TMM + stuck
     return combat.fc_to_tmm(target.move_fc, jumped=(target.move_mode == "Jump")) + stuck
@@ -193,8 +195,9 @@ _SIDE_BY_RELATIVE_HEXSIDE = {0: "front", 1: "right", 2: "right", 3: "rear", 4: "
 
 
 def los_height(mech):
-    """A 'Mech's height for line of sight (p.57): 2 standing, 1 prone."""
-    return PRONE_HEIGHT if mech.prone else STANDING_HEIGHT
+    """A 'Mech's height for line of sight (p.57): 2 standing, 1 prone (a
+    superheavy 3 / 2, p.240 - los.Height)."""
+    return mech_height(mech.prone, is_superheavy(mech))
 
 
 def attack_side(a_hex, t_hex, target_facing, terrain_map, a_height=STANDING_HEIGHT, t_height=STANDING_HEIGHT):
@@ -396,7 +399,7 @@ def _physical_planner(attacker, target, terrain_map):
     a_facing = hex_geometry.compass_to_facing(attacker.facing)
     a_level, t_level = terrain_map["hexes"][attacker.hex]["level"], terrain_map["hexes"][target.hex]["level"]
 
-    planner = physical.Planner(attacker)
+    planner = physical.Planner(attacker, target=target)
     t_water = water.state(target, terrain_map)
     allowed = water.physical_allowed(water.state(attacker, terrain_map), t_water)  # p.77
 

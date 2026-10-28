@@ -38,6 +38,10 @@ cover without the height and prone conditions; per-step border picks).
   - that hex intervenes and hides it. Standing in depth 1 water: partial
   cover even against higher attackers, not against a fully submerged one.
   Target in woods / jungle: +1 / +2 to hit (p.66), never part of LOS.
+  Superheavies (2026-10-28, Core p.240): 3 levels tall, 2 prone (a Height,
+  below). Standing, partial cover only next to a hex two levels higher, or in
+  depth 2 water; prone, none. Fully submerged attacker: depth 3+, or depth
+  2+ prone. Woods still give their +1 / +2.
   Tactical Operations: Advanced Rules terrain (2026-10-27):
   - Ultra-heavy woods / jungle (density 3) rise 3 levels; ONE intervening
     hex blocks LOS; a target in one +3 (TO:AR pp.29, 38) - 'Mechs can't
@@ -73,7 +77,7 @@ this project doesn't need to support.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, NamedTuple, Optional, Tuple
 
 from hex_geometry import hex_label
 
@@ -234,6 +238,38 @@ def _hex_line_direct(a: Hex, b: Hex) -> List[List[Hex]]:
 
 
 STANDING_HEIGHT, PRONE_HEIGHT = 2, 1     # 'Mech heights in levels (p.57)
+
+
+class Height(NamedTuple):
+    """A superheavy's height (Core p.240) - a plain int is a normal 'Mech's.
+    A separate type so a prone superheavy (2 levels) never shares an LOS
+    cache entry with a standing 'Mech (also 2)."""
+    levels: int
+    standing: bool
+    superheavy: bool = True
+
+
+SUPERHEAVY_STANDING, SUPERHEAVY_PRONE = Height(3, True), Height(2, False)
+SUPERHEAVY_COVER_STEP = 2                 # p.240: cover next to a hex 2 levels higher (normally 1)
+
+
+def mech_height(prone: bool, superheavy: bool = False):
+    """The LOS height code of a 'Mech (p.57; p.240)."""
+    if superheavy:
+        return SUPERHEAVY_PRONE if prone else SUPERHEAVY_STANDING
+    return PRONE_HEIGHT if prone else STANDING_HEIGHT
+
+
+def _levels(height) -> int:
+    return height.levels if isinstance(height, Height) else height
+
+
+def _standing(height) -> bool:
+    return height.standing if isinstance(height, Height) else height == STANDING_HEIGHT
+
+
+def _superheavy(height) -> bool:
+    return isinstance(height, Height)
 WOODS_HEIGHT = 2                          # woods / jungle rise 2 levels above their hex (p.57)
 WOODS_BLOCK_POINTS = 3                    # 3+ points of intervening woods / jungle block LOS (p.58)
 WOODS_POINTS = {"1": 1, "2": 2}           # light 1, heavy 2 (p.58; also their to-hit modifier, p.66)
@@ -284,7 +320,7 @@ def _evaluate(attacker_hex: Hex, target_hex: Hex, terrain_map: Dict[str, object]
         raise ValueError(f"LOS target hex {target_hex} is not on the loaded board.")
 
     a_level, b_level = a_info["level"], b_info["level"]
-    a_los, b_los = a_level + attacker_height, b_level + target_height      # LOS levels (p.57)
+    a_los, b_los = a_level + _levels(attacker_height), b_level + _levels(target_height)   # LOS levels (p.57)
 
     path = hex_line(attacker_hex, target_hex)
     n = len(path) - 1
@@ -357,14 +393,16 @@ def _evaluate(attacker_hex: Hex, target_hex: Hex, terrain_map: Dict[str, object]
             # hides it instead (it intervenes above). Water: standing in depth 1 is
             # partial cover even against higher attackers, but not against a fully
             # submerged attacker (p.67) - standing in depth 2+, or prone in water.
-            if target_height == STANDING_HEIGHT:
+            # A superheavy (p.240): a hex 2 levels higher, depth 2; its own depths one deeper.
+            if _standing(target_height):
+                step = SUPERHEAVY_COVER_STEP if _superheavy(target_height) else 1
                 if n >= 2:
                     info = hex_info(hexes_on[-1])
-                    if info["level"] == b_level + 1 and not info.get("depth") and a_los <= b_los:
+                    if info["level"] == b_level + step and not info.get("depth") and a_los <= b_los:
                         cover = 1
-                a_depth = a_info.get("depth", 0)
-                a_submerged = a_depth >= 2 or (a_depth >= 1 and attacker_height == PRONE_HEIGHT)
-                if b_info.get("depth") == 1 and not a_submerged:
+                a_depth = a_info.get("depth", 0) - (1 if _superheavy(attacker_height) else 0)
+                a_submerged = a_depth >= 2 or (a_depth >= 1 and not _standing(attacker_height))
+                if b_info.get("depth") == step and not a_submerged:
                     cover = 1
             if n >= 2:
                 steps[-1].partial_cover = cover
