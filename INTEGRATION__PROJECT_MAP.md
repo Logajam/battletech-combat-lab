@@ -318,6 +318,14 @@ TO:AR summaries in `logajam/battletech-rules-index` (RULES_REVIEW F57-F64):
   `TASER_EFFECT_WORTH` stays 5 and joins the research pile (item 3); every
   Gauss rifle now explodes when hit ("Fix it").
 
+**Session 11 (2026-10-28) - IF/THEN PICKER.** Daniel's IF/THEN first-mover
+picker (`MOVEMENT_SEARCH = "if_then"`, an option, not the default): best
+spot against the enemy where it stands, then best spot against that spot's
+modeled reply, back and forth while the two-ply score rises. Measured with
+`tests/pick_quality.py` (now 7 pickers) - first mover 85% of Perfect's score
+range vs Short Grid's 96%, ~2 hexes closer to the enemy than Perfect, 102 ms
+a pick vs 174 (Short Grid) and 1,218 (Perfect). Numbers: Change Record.
+
 **Pick up here (open, roughly in priority order):**
 00. **Princess clone - TODO as the scope grows** (Daniel, 2026-10-27: "All of
    those not cloned features will be needed in the future as the projects
@@ -1376,6 +1384,42 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-28 (Claude):** Daniel's IF/THEN first-mover picker ("IF I don't
+  move, where will the enemy end up ... If the Second mover would move there,
+  where should I go ... until the first mover generates a lower score than its
+  previous attempt ... or until it picks the same location twice").
+  `config.MOVEMENT_SEARCH` / `MECH_*_CONFIG["search"]` = "if_then" - an
+  option, the default is unchanged (all reference logs identical).
+  `movement_selection._if_then_search`: attempt 1 = the best spot (every
+  reachable spot) against the enemy where it stands (Daniel: "Project its
+  own move vs the 2nd movers static position first"); each attempt is scored
+  by its modeled reply (`MOVEMENT_ASSUMED_ENEMY_SEARCH`, short list by
+  default), the next attempt is the best spot against that reply; stops when
+  an attempt doesn't score higher (keeps the one before), repeats a spot, or
+  has no reply. Daniel declined hedging against several replies and extra
+  seeds ("measure the best it can do"). A second mover with "if_then" scores
+  every spot (it already knows where the enemy stands). Also
+  `tests/pick_quality.py` pickers "IF/THEN" and "IF/THEN perfect" (exhaustive
+  reply model), `tests/ab_batches.py --set if-then`, test
+  `if_then_climbs_by_its_rule`. Pick quality, same 8 scenarios x 20 battles
+  and seeds as 2026-10-27 (the old pickers' numbers reproduce exactly), FIRST
+  MOVER (2,716 decisions; % of range / got best / rank pct / hexes off /
+  closer / ms):
+    Perfect          100.0 / 100% / 100% / 0.00 / +0.00 / 1218 ms
+    Short Grid        96.1 /  49% /  95% / 2.47 / -0.11 /  174 ms
+    Short-Short       91.0 /  26% /  88% / 3.39 / +0.87 /   93 ms
+    IF/THEN           85.1 /  18% /  73% / 3.94 / +1.98 /  102 ms
+    IF/THEN perfect   84.6 /  17% /  73% / 3.95 / +2.12 /  128 ms
+    Princess modern   75.7 /   9% /  61% / 4.31 / +2.82 /   45 ms
+  Moving second IF/THEN = Perfect (every spot). Per scenario (first mover):
+  best on Atlas vs Archer (95.6-97.0% of range, beats Short Grid), worst on
+  Catapult vs Jenner (88%) and Kontio vs Hammerhead (90%, +1.8 to +2.9 hexes
+  closer). Why (24 battles traced, 397 first-mover picks): the climb is
+  short - 1 attempt kept in 52%, 2 in 32%, 3+ in 12%; it stopped on a lower
+  score 303 times, a repeated spot 90, no reply 4. The best spot against a
+  fixed enemy hex is usually close in (the enemy "holds still"), and the
+  honest score of the next answer is usually lower, so it mostly keeps the
+  static best's answer - a lean in. A perfect reply model doesn't help.
 - **2026-10-28 (Claude):** Ultralight and superheavy 'Mechs (Daniel: "Go
   borrow from megamek to get superheavy and ultra light mechs working").
   RULES_REVIEW F70-F71. From MegaMek: the structure table for 10-15 and
