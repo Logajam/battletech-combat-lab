@@ -56,6 +56,7 @@ def main():
     ap.add_argument("battles", type=int, nargs="?", default=1)
     ap.add_argument("--seed", type=int, default=12345)
     ap.add_argument("--turns", type=int, default=50)
+    ap.add_argument("--legate", action="store_true", help="config.LEGATE on (Gladiator units see the whole enemy force)")
     args = ap.parse_args()
     red_bot, blue_bot, title = SETUPS[args.setup]
     config.FORCES = forces(red_bot, blue_bot)
@@ -64,10 +65,11 @@ def main():
     config.PROMPT_FOR_MAP = False
     config.DEPLOYMENT, config.DEPLOYMENT_DEPTH, config.WORKERS, config.REPLAY_BATTLES = "home_edge", 0, 1, 0
     config.VERBOSE = False
+    config.LEGATE = args.legate
     with redirect_stdout(io.StringIO()):
         terrain = orchestrator._load_map()
         roster = config.load_roster()
-    print(f"{title}: 12 v 12 on a 2 x 1 stitched field, {args.battles} battle(s), cap {args.turns} turns, seed {args.seed}")
+    print(f"{title}{' + Legate' if args.legate else ''}: 12 v 12 on a 2 x 1 stitched field, {args.battles} battle(s), cap {args.turns} turns, seed {args.seed}")
     rows = []
     for n in range(1, args.battles + 1):
         timing.reset() if hasattr(timing, "reset") else None

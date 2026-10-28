@@ -1,0 +1,460 @@
+"""
+INTEGRATION__legate.py  (NEW 2026-10-28, Claude - Legate, the battlefield-keeping layer)
+
+Daniel, 2026-10-28: "making gladiator less myopic ... a multi-unit bot layer at the start of the
+movement phase. I call this layer 'Legate'; it's in charge of keeping tabs on the battlefield."
+Gladiator (the project's own bot) plans a move against ONE foe. Legate gives it the rest of the
+enemy force. Config: `config.LEGATE` (off = the old one-foe planning, byte for byte).
+
+WHAT LEGATE DOES, each Movement Phase, for each side that has a Gladiator unit and 2+ enemies
+  1. ESTIMATE (plan_turn). Daniel's IF/THEN run for every unit at once, up to config.LEGATE_ITERATIONS
+     rounds. Round 0: everyone holds still. Each round the enemy units answer first, then the asking
+     side's own units answer (the back and forth of the two-'Mech IF/THEN, many against many):
+       - a unit looks at its reachable spots (the grid search, as a Gladiator's own search) and scores
+         each with the PICKER score Gladiator uses (the "lifetime" objective), but against the WHOLE
+         opposing force standing where it is estimated to be: damage taken = the SUM of what every
+         opposing unit could deal to that spot, damage dealt = the MAX over the opposing units;
+       - two units that want the same hex: the higher score keeps it, the other takes its next best
+         choice, and that can displace a third unit that was sitting in it, and so on (a cascade, settled
+         before the next round - `resolve`);
+       - a unit that picks a hex it has already tried is in a loop: it is LOCKED at its best-scoring
+         attempt and stays there, for everyone else's choices too.
+     The enemy units' best attempts are the estimate of where they will move this turn.
+  2. FOE (foe_for). A Gladiator plans against the enemy that would score highest against it - each
+     enemy at its estimated spot (its real spot once it has moved), against this unit where it stands -
+     among the enemies that have NOT moved yet; if all have, the most threatening of them.
+  3. THE MOVE (movement_selection._choose_normal, through `Extras`). The unit runs its usual search
+     against that foe, and each spot is also scored against every OTHER enemy at its estimated spot (its
+     real spot once moved): damage taken adds up over all of them, damage dealt is the best over all.
+  4. FIRE. Unchanged: INTEGRATION__forces.choose_target already looks at every enemy once positions are
+     final (in sight, bears, nearest).
+
+PLACEHOLDERS (Daniel: "This will change later"): the damage a single unit would really take when the
+enemy force concentrates fire is simply summed; there is no estimate of how much fire one unit draws.
+TO DO (Daniel): Legate reads the map and finds tactically useful terrain; the concentrated-fire
+estimate; a better score for the estimate (PROJECT_MAP Section 0, Pick up here).
+
+Speed: estimates are cached per (unit, foe, foe's estimated spot), so once units settle later rounds
+are cheap; timing sections "Legate estimate" and "Legate extras" show the cost.
+"""
+
+import contextlib
+from typing import Dict, List, Optional, Tuple
+
+import INTEGRATION__config as config
+import INTEGRATION__forces as forces
+import INTEGRATION__future_damage as future_damage
+import INTEGRATION__movement_selection as movement_selection
+import INTEGRATION__ranged_combat as ranged_combat
+import INTEGRATION__timing as timing
+import hex_geometry  # noqa: E402 - PATHFINDER
+from los import hex_distance  # noqa: E402 - PATHFINDER
+from mech_state import is_immobile  # noqa: E402 - MECHSIM
+
+State = Tuple[str, str, int, str, int]            # hex label, facing compass, hexes moved, mode, MP spent
+
+_PLANS: Dict[str, Dict[int, State]] = {}          # team -> {id(enemy unit): its estimated end state}
+_RATES: Dict[Tuple[int, int], Tuple[float, float]] = {}   # (id(a), id(b)) -> (a's, b's) future damage rates
+
+
+def reset() -> None:
+    """A new battle: no plan, no cached rates."""
+    _PLANS.clear()
+    _RATES.clear()
+
+
+def end_phase() -> None:
+    """The Movement Phase is over: the plans are spent (the rates are valid until the next heat phase's
+    damage, so they go too)."""
+    _PLANS.clear()
+    _RATES.clear()
+
+
+def _key(o) -> Tuple[str, str, str, int, int]:
+    return (o.label, o.facing_compass, o.mode, o.fc, o.mp_spent)
+
+
+def _state_of(o) -> State:
+    return (o.label, o.facing_compass, o.fc, o.mode, o.mp_spent)
+
+
+def _hold(mech) -> State:
+    return (mech.hex, mech.facing, 0, "Stand Still", 0)
+
+
+def _real_state(mech) -> State:
+    """Where a unit that has moved this turn really is."""
+    return (mech.hex, mech.facing, mech.move_fc, mech.move_mode, mech.mp_spent)
+
+
+def _xy(label):
+    return hex_geometry.parse_hex_label(label)
+
+
+def can_matter(mover, foe) -> bool:
+    """Can this foe matter to the mover's move at all (the same shortcut Princess's group code uses)?"""
+    import INTEGRATION__princess_group as princess_group
+    return princess_group.can_matter(mover, foe)
+
+
+# =============================================================================
+# ===========================  THE PICKER SCORE  ==============================
+# =============================================================================
+def pair_rates(a, b) -> Tuple[float, float]:
+    """(a's future damage on b, b's on a) per turn, blended with the battle so far - what
+    movement_selection._Lifetime reads for a pair. Cached for the phase."""
+    got = _RATES.get((id(a), id(b)))
+    if got is None:
+        mine, theirs = future_damage.future_damage(a, b), future_damage.future_damage(b, a)
+        k = config.MOVEMENT_LIFETIME_HISTORY_K
+        if k is not None:
+            mine, theirs = movement_selection._blend_with_history(k, mine, theirs, a, b)
+        got = _RATES[(id(a), id(b))] = (mine, theirs)
+        _RATES[(id(b), id(a))] = (theirs, mine)
+    return got
+
+
+class MultiLifetime:
+    """movement_selection._Lifetime against several foes (Daniel, 2026-10-28): the damage taken is the
+    SUM over the foes and the damage dealt the MAX, so the future rates are too: my future damage is
+    the best over the foes, theirs is the sum of every foe's. Called as objective(dealt, received,
+    dealt_mult, received_mult, extras) like the others."""
+
+    def __init__(self, me, foes):
+        floor = config.MOVEMENT_LIFETIME_FUTURE_FLOOR
+        self.hp = movement_selection.effective_hp(me)
+        rates = [pair_rates(me, f) for f in foes]
+        self.mine = max([floor] + [m for m, _ in rates])
+        self.theirs = max(floor, sum(t for _, t in rates))
+
+    def __call__(self, dealt, received, dealt_mult, received_mult, extras):
+        left = self.hp - (received * received_mult + extras)
+        return dealt * dealt_mult + (left / self.theirs * self.mine if left > 0 else 0.0)
+
+    def note(self, dealt, received, dealt_mult, received_mult, extras, how):
+        score = self(dealt, received, dealt_mult, received_mult, extras)
+        return (f"score {score:.3f} = dealt {dealt:.2f} x{dealt_mult:.2f} + (HP {self.hp:.1f} - received "
+                f"{received:.2f} x{received_mult:.2f} - PSR {extras:.2f}) / all enemies' future {self.theirs:.2f} "
+                f"x my best future {self.mine:.2f} [{how}]")
+
+
+def objective_for(me, foes):
+    """The picker score for `me` (a movement_selection._Side) against a set of foe mechs."""
+    if config.MOVEMENT_OBJECTIVE == "lifetime" and foes:
+        return MultiLifetime(me.mech, foes)
+    return movement_selection._RATIO
+
+
+# =============================================================================
+# ===========================  ONE UNIT, MODELED  =============================
+# =============================================================================
+@contextlib.contextmanager
+def _blocking(mech, units):
+    """The mech's ground steps can't enter a mobile enemy's hex while its options are built (as in
+    orchestrator._phase_movement)."""
+    mech.blocked_hex = forces.blocked_xy(mech, units)
+    try:
+        yield
+    finally:
+        mech.blocked_hex = None
+
+
+class _Unit:
+    """One unit as the estimate sees it: its reachable spots, where it is estimated to end, and what
+    it has tried."""
+
+    def __init__(self, mech, units, terrain_map, lite=False, side=None):
+        self.mech, self.terrain_map = mech, terrain_map
+        self.side = side or movement_selection._Side(mech)
+        if lite:                                       # only to score against / be scored against
+            self.prepared = []
+        else:
+            with _blocking(mech, units):
+                options = movement_selection._opponent_options(mech, terrain_map)
+            self.prepared = ranged_combat.prepare_options(mech, options)
+        self.state: State = _hold(mech)               # where it is taken to stand right now
+        self.locked = False
+        self.tried = set()                            # hexes it has picked in earlier rounds
+        self.best: Optional[Tuple[float, State]] = None   # its best-scoring attempt
+        self._evaluators: Dict[int, object] = {}
+        self._rows: Dict[tuple, dict] = {}            # (id(foe), foe's state) -> {key: candidate or None}
+
+    def evaluator(self, foe):
+        ev = self._evaluators.get(id(foe))
+        if ev is None:
+            ev = self._evaluators[id(foe)] = ranged_combat.MoveEvaluator(self.mech, foe, self.terrain_map)
+        return ev
+
+    def rows(self, foe, foe_state: State, states) -> dict:
+        """{state key: MovementCandidate} for each of `states` against `foe` standing at foe_state - a
+        state with no line of sight is None. Remembered while the foe stays there."""
+        memo = self._rows.setdefault((id(foe), foe_state), {})
+        missing = [o for o in states if _key(o) not in memo]
+        if missing:
+            got = {(c.hex, c.facing, c.mode, c.fc, c.mp_spent): c
+                   for c in self.evaluator(foe).evaluate(foe_state[0], foe_state[1], foe_state[2], foe_state[3],
+                                                         foe_state[4], missing)}
+            for o in missing:
+                memo[_key(o)] = got.get(_key(o))
+        return memo
+
+
+def combine(me: "_Unit", entries, states, objective):
+    """Score each of `states` for `me` against several foes: entries = [(foe _Unit-like with .side and
+    .mech, foe state)]. Damage taken adds up over the foes, damage dealt is the best (both with the
+    exposure factors); a state with no line of sight to any foe is left out. Rows (score, state, (dealt,
+    received)) in the order of `states`."""
+    per_foe = [(foe, me.rows(foe.mech, st, states)) for foe, st in entries]
+    out = []
+    for o in states:
+        dealt = received = 0.0
+        seen = False
+        for foe, rows in per_foe:
+            cand = rows.get(_key(o))
+            if cand is None:
+                continue
+            seen = True
+            dealt = max(dealt, cand.dealt * foe.side.exposure[cand.side_on_defender])
+            received += cand.received * me.side.exposure[cand.side_on_mover]
+        if seen:
+            out.append((objective(dealt, received, 1.0, 1.0, me.side.psr_for(o)), o, (dealt, received)))
+    return out
+
+
+# =============================================================================
+# ===========================  THE ESTIMATE  ==================================
+# =============================================================================
+def resolve(proposals: List[Tuple[object, list]], locked: Dict[object, str]) -> Dict[object, Tuple[float, object]]:
+    """Give every unit a spot: proposals = [(unit, [(score, state), ...best first, one per hex])];
+    locked = {unit: hex it is fixed at}. Two units that want a hex: the higher score keeps it (a tie:
+    whoever was there first), the other goes down its list, and the one it displaces does the same -
+    a cascade that ends because every list only moves forward. A unit with nothing left stays unplaced
+    (not in the result). Returns {unit: (score, state)}."""
+    reserved = set(locked.values())
+    pointer = {id(u): 0 for u, _ in proposals}
+    lists = {id(u): rows for u, rows in proposals}
+    holder: Dict[str, object] = {}                     # hex -> unit
+    placed: Dict[int, Tuple[float, object]] = {}
+    pending = [u for u, _ in proposals]
+    while pending:
+        unit = pending.pop(0)
+        rows = lists[id(unit)]
+        while pointer[id(unit)] < len(rows):
+            score, state = rows[pointer[id(unit)]]
+            label = state.label
+            if label in reserved:
+                pointer[id(unit)] += 1
+                continue
+            current = holder.get(label)
+            if current is None:
+                holder[label] = unit
+                placed[id(unit)] = (score, state)
+                break
+            if score > placed[id(current)][0]:
+                holder[label] = unit
+                placed[id(unit)] = (score, state)
+                del placed[id(current)]
+                pointer[id(current)] += 1
+                pending.append(current)
+                break
+            pointer[id(unit)] += 1
+    return {u: placed[id(u)] for u, _ in proposals if id(u) in placed}
+
+
+def _proposals(unit: _Unit, opposing: List[_Unit], taken: set, objective_cache) -> List[Tuple[float, object]]:
+    """The unit's spots, best first, one per hex: the grid search scored against every opposing unit
+    where it is estimated to stand (the unit that can't move offers only where it is)."""
+    prepared = [o for o in unit.prepared if o.label not in taken]
+    if not prepared:
+        return []
+    entries = [(f, f.state) for f in opposing if can_matter(unit.mech, f.mech)]
+    rows: list = []
+    if entries and len(prepared) > 1:
+        objective = objective_cache(unit)
+        rows = movement_selection._grid_search(
+            prepared, lambda states: combine(unit, entries, states, objective),
+            movement_selection._search_start(unit.mech, prepared), config.MOVEMENT_SEARCH_STARTS)
+    if not any(r[2][0] > 0 for r in rows):
+        # Nothing it can hit from any spot it looked at: it closes on the nearest opposing unit.
+        if opposing:
+            here = _xy(unit.mech.hex)
+            target_xy = min((_xy(f.state[0]) for f in opposing), key=lambda xy: hex_distance(here, xy))
+            ranked = sorted(prepared, key=lambda o: hex_distance(o.hex_xy, target_xy))
+            rows = [(-1.0e6 - hex_distance(o.hex_xy, target_xy), o, (0.0, 0.0)) for o in ranked[:8]]
+    best_by_hex: Dict[str, Tuple[float, object]] = {}
+    for score, o, _ in rows:
+        if o.label not in best_by_hex or score > best_by_hex[o.label][0]:
+            best_by_hex[o.label] = (score, o)
+    return sorted(best_by_hex.values(), key=lambda r: -r[0])
+
+
+def _half_round(movers: List[_Unit], opposing: List[_Unit], objective_cache) -> None:
+    """One side answers: every unit that is not locked picks a spot against the opposing side where it
+    stands now; conflicts cascade (resolve); a unit that lands on a hex it has tried is locked at its best
+    attempt (and the conflicts are settled again with that hex taken)."""
+    taken = {f.state[0] for f in opposing}
+    free = [u for u in movers if not u.locked]
+    proposals = [(u, _proposals(u, opposing, taken, objective_cache)) for u in free]
+    while True:
+        locked = {u: u.state[0] for u in movers if u.locked}
+        placed = resolve(proposals, locked)
+        newly = []
+        for u, (score, o) in placed.items():
+            if o.label in u.tried:
+                newly.append(u)
+        if not newly:
+            break
+        for u in newly:
+            u.locked = True
+            u.state = u.best[1] if u.best is not None else u.state
+        proposals = [(u, rows) for u, rows in proposals if not u.locked]
+    for u, (score, o) in placed.items():
+        u.tried.add(o.label)
+        u.state = _state_of(o)
+        if u.best is None or score > u.best[0]:
+            u.best = (score, u.state)
+
+
+def plan_turn(units, terrain_map) -> None:
+    """The start of the Movement Phase: estimate where each side's enemies will end, for every team with a
+    Gladiator unit that faces two or more enemies on the board. Stores the estimate (estimate_for)."""
+    _PLANS.clear()
+    if not config.LEGATE:
+        return
+    alive = forces.standing(units)
+    on_board = [u for u in alive if u.hex is not None]
+    if len(on_board) != len(alive):
+        return                                          # somebody is still to enter the board: no plan
+    for team in forces.team_names(alive):
+        mine = [u for u in on_board if u.team == team]
+        theirs = [u for u in on_board if u.team != team]
+        if len(theirs) < 2 or not any(getattr(u, "bot", None) == "gladiator" for u in mine):
+            continue
+        with timing.section("Legate estimate"):
+            _PLANS[team] = _estimate(mine, theirs, units, terrain_map)
+
+
+def _estimate(mine, theirs, units, terrain_map) -> Dict[int, State]:
+    asking = [_Unit(m, units, terrain_map) for m in mine]
+    enemy = [_Unit(m, units, terrain_map) for m in theirs]
+    objectives: Dict[int, object] = {}
+
+    def objective_cache(unit: _Unit):
+        got = objectives.get(id(unit))
+        if got is None:
+            others = enemy if unit in asking else asking
+            got = objectives[id(unit)] = objective_for(unit.side, [f.mech for f in others
+                                                                  if can_matter(unit.mech, f.mech)])
+        return got
+
+    for _ in range(max(config.LEGATE_ITERATIONS, 0)):
+        _half_round(enemy, asking, objective_cache)
+        if all(u.locked for u in enemy):
+            break
+        _half_round(asking, enemy, objective_cache)
+    # An enemy unit that never settled takes its best attempt.
+    return {id(u.mech): (u.best[1] if u.best is not None else u.state) for u in enemy}
+
+
+def estimate_for(team: str, foe) -> Optional[State]:
+    plan = _PLANS.get(team)
+    return None if plan is None else plan.get(id(foe))
+
+
+# =============================================================================
+# ===========================  USING IT  ======================================
+# =============================================================================
+def foe_state(team: str, foe) -> State:
+    """Where the mover should take this foe to be: its real spot if it has moved, else Legate's estimate,
+    else where it stands."""
+    if getattr(foe, "moved_this_turn", False):
+        return _real_state(foe)
+    return estimate_for(team, foe) or _hold(foe)
+
+
+def active_for(mover, units) -> bool:
+    return (config.LEGATE and getattr(mover, "bot", None) == "gladiator" and mover.team in _PLANS
+            and len(forces.enemies_of(mover, units)) >= 2)
+
+
+def foe_for(mover, units, terrain_map):
+    """The enemy this Gladiator plans against: the one expected to score highest against it (each at
+    its estimated or real spot, against the mover where it stands), among the enemies yet to move; if all
+    have moved, the most threatening of them. None when Legate has nothing to say (the caller then uses
+    forces.choose_foe)."""
+    if not active_for(mover, units) or mover.hex is None:
+        return None
+    foes = [f for f in forces.enemies_of(mover, units) if f.hex is not None]
+    waiting = [f for f in foes if not f.moved_this_turn]
+    pool = waiting or foes
+    if not pool:
+        return None
+    with timing.section("Legate foe choice"):
+        best = None
+        hold = ranged_combat.prepare_options(mover, [(*_xy(mover.hex), hex_geometry.compass_to_facing(mover.facing),
+                                                      0, "Stand Still", 0)])
+        side = movement_selection._Side(mover)
+        for index, f in enumerate(pool):
+            threat = _threat(mover, f, foe_state(mover.team, f), hold, side, terrain_map)
+            rank = (-threat, forces.distance(mover, f) or 0, index)
+            if best is None or rank < best[0]:
+                best = (rank, f)
+    return best[1]
+
+
+def _threat(mover, foe, state: State, hold, side, terrain_map) -> float:
+    """The foe's picker score against the mover standing still: what the foe would deal the mover and
+    take back from where it is estimated to stand."""
+    ev = ranged_combat.MoveEvaluator(mover, foe, terrain_map)
+    got = ev.evaluate(state[0], state[1], state[2], state[3], state[4], hold)
+    if not got:
+        return 0.0
+    cand = got[0]
+    foe_side = movement_selection._Side(foe)
+    dealt = cand.received * side.exposure[cand.side_on_mover]          # what the foe deals the mover
+    taken = cand.dealt * foe_side.exposure[cand.side_on_defender]       # what it takes back
+    mine, theirs = pair_rates(foe, mover)
+    floor = config.MOVEMENT_LIFETIME_FUTURE_FLOOR
+    if config.MOVEMENT_OBJECTIVE == "lifetime":
+        left = movement_selection.effective_hp(foe) - taken
+        return dealt + (left / max(theirs, floor) * max(mine, floor) if left > 0 else 0.0)
+    return dealt / (taken + config.MOVEMENT_RATIO_EPSILON)
+
+
+class Extras:
+    """What a Gladiator's move scoring adds for the enemies other than its foe (movement_selection
+    hooks `adjust`): each other enemy where it is believed to stand - its real spot once it has moved,
+    else Legate's estimate - and the mover's picker score against all of them together."""
+
+    def __init__(self, mover, primary, units, terrain_map, me_side):
+        self.mover, self.terrain_map = mover, terrain_map
+        self.others = [f for f in forces.enemies_of(mover, units)
+                       if f is not primary and f.hex is not None and can_matter(mover, f)]
+        self.entries = [(_Unit(f, units, terrain_map, lite=True), foe_state(mover.team, f)) for f in self.others]
+        self.unit = _Unit(mover, units, terrain_map, lite=True, side=me_side)
+        self.count = len(self.entries)
+
+    def objective(self, primary, me_side):
+        return objective_for(me_side, [primary] + self.others)
+
+    def prefetch(self, states) -> None:
+        """Score a batch of states against every other enemy in one go (the evaluator is per foe)."""
+        with timing.section("Legate extras"):
+            for foe, st in self.entries:
+                self.unit.rows(foe.mech, st, states)
+
+    def adjust(self, o, dealt, received, dealt_mult, received_mult):
+        """The mover's dealt / received at state o against its foe, with the other enemies added: damage
+        taken adds up, damage dealt is the best of all. Returned already multiplied by the exposure
+        factors, with multipliers of 1.0."""
+        with timing.section("Legate extras"):
+            d, r = dealt * dealt_mult, received * received_mult
+            for foe, st in self.entries:
+                if st[0] == o.label:
+                    continue
+                cand = self.unit.rows(foe.mech, st, [o]).get(_key(o))
+                if cand is None:
+                    continue
+                d = max(d, cand.dealt * foe.side.exposure[cand.side_on_defender])
+                r += cand.received * self.unit.side.exposure[cand.side_on_mover]
+        return d, r, 1.0, 1.0

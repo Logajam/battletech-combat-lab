@@ -133,6 +133,7 @@ import INTEGRATION__tag as tag  # noqa: E402
 import INTEGRATION__physical as physical  # noqa: E402
 import INTEGRATION__movement_selection as movement_selection  # noqa: E402
 import INTEGRATION__bots as bots  # noqa: E402 - which bot decides for each unit (2026-10-27)
+import INTEGRATION__legate as legate  # noqa: E402 - Gladiator's view of the whole enemy force (2026-10-28)
 import INTEGRATION__princess_memory as princess_memory  # noqa: E402 - what Princess remembers of its force (2026-10-28)
 import INTEGRATION__ranged_combat as ranged_combat  # noqa: E402
 import INTEGRATION__stubs as stubs  # noqa: E402
@@ -825,6 +826,7 @@ def run_skirmish(units, terrain_map, battle_rng: BattleRNG,
                   for m in units}
     clubs.reset_battle()
     forces.set_battle(units)              # displacement code finds the 'Mech in a hex through this (INTEGRATION__domino)
+    legate.reset()
     princess_memory.reset()               # Princess's heat map and posture start the battle empty
     water.set_board(terrain_map)          # heat sinks, falls, jump jets read the hex's depth (2026-10-21)
     hazards.set_board(terrain_map)        # magma / hazardous liquid (TO:AR, 2026-10-27); mends broken crust
@@ -854,8 +856,9 @@ def run_skirmish(units, terrain_map, battle_rng: BattleRNG,
             m.moved_this_turn = False
         for m in in_order:
             fire_modes.declare_unjams(m)     # Rotary AC unjam attempts are declared in the Movement Phase (p.183)
+        legate.plan_turn(units, terrain_map)        # Legate estimates where each side's enemies will move
         for mover in forces.movement_order(units, order):
-            foe = forces.choose_foe(mover, units) or forces.any_enemy(mover, units)
+            foe = bots.choose_foe(mover, units, terrain_map)
             start_hex = mover.hex
             with timing.section("movement"):
                 _phase_movement(mover, foe, terrain_map, turn, battle_rng, moves_first=not foe.moved_this_turn,
@@ -863,6 +866,7 @@ def run_skirmish(units, terrain_map, battle_rng: BattleRNG,
             mover.moved_this_turn = True
             princess_memory.unit_moved(mover, start_hex)       # a Princess unit credits where it ended
             replay.mark(turn, f"{mover.side_name} moves")
+        legate.end_phase()
 
         if any(m.hex is None for m in units):
             # A mech that couldn't enter the battlefield is destroyed (p.37) and

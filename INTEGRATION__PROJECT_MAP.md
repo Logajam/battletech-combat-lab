@@ -30,7 +30,7 @@ behaviors and Battle Value (session 13, below: `INTEGRATION__princess_group`,
 `tools/build_equipment_bv.py`, the dry run in `attack_resolution.declare_attacks`,
 the lazy target choice in `run_ranged_phase`; check the BV against MegaMek's
 numbers on units outside the 4 published ones, and that the Princess clone's
-reading of MegaMek 7205e4d matches what the Java does). Review for rules
+reading of MegaMek 7205e4d matches what the Java does); (5) Legate (session 13: `INTEGRATION__legate`, `config.LEGATE`, the `Extras` hook in `movement_selection._choose_normal` and `_static_scores`, `bots.choose_foe`, `tests/test_legate.py`: check the cascade / lock rules against Daniel's IF/THEN text, that a battle with `LEGATE` off is byte-identical, and the cached evaluators for stale damage / prone state). Review for rules
 fidelity against the Core Rulebook pages cited, MegaMek parity, and hidden
 RNG-order or stale-cache bugs. When a review is done, move its line out of
 this queue and note it in the Change Record.
@@ -419,6 +419,25 @@ prices reused; the file lives in `run_stats/`, lost with the session -
 rebuild it with one full run). Numbers: Change Record.
 
 **Pick up here (open, roughly in priority order):**
+000. **Legate** (Daniel, 2026-10-28: "making gladiator less myopic ... a multi-unit
+   bot layer at the start of the movement phase ... in charge of keeping tabs on
+   the battlefield") - BUILT as a first version (Change Record; `config.LEGATE`,
+   off by default until Daniel has seen the numbers). TO DO, in Daniel's words
+   or close to them:
+   - **Read the maps and find tactically useful terrain** ("Eventually I will
+     want Legate to read maps and determine tactically useful terrain
+     features"); for now it only lets Gladiator keep track of the whole enemy
+     force.
+   - **How much fire one unit would really take** - the estimate's score sums
+     every enemy's damage on a spot; "need to add an estimate of how much
+     actual fire a single unit would take. Which is part of figuring out how
+     concentrated fire should be calculated" (Daniel: "This will change later").
+   - **Speed** - the estimate roughly triples a Gladiator battle's time at 12 v
+     12 (Change Record); evaluators are cached per foe's estimated spot, the
+     estimate is run per side with a Gladiator.
+   - Open questions: on by default? The Princess clone could read the same
+     estimate. Gladiator's second mover (the foe already moved) scores only
+     spots in sight of that foe in `_static_scores`, as before.
 00. **Princess clone - TODO as the scope grows** (Daniel, 2026-10-27: "All of
    those not cloned features will be needed in the future as the projects
    scope expands. But we can add them to the todo list"). The modern Princess
@@ -1281,7 +1300,8 @@ forward arc, kicks included, never into a side arc.
 |---|---|---|
 | Multi-unit: activation order within a side | `forces.move_index` / `forces.movement_order` | Princess's move index (MegaMek `calculateMoveIndex`: distance to the nearest enemy over the fastest move; far, slow units first) for every bot; a unit still off the board goes first. Ranged / physical declaration order is just roster order (nobody's position changes in those phases). |
 | Multi-unit: Initiative and Unequal Numbers with 3+ sides | `forces.initiative_order`, `forces.activation_sequence` | The book (pp.39-41) covers two sides. Here: every side rolls 2D6, the LOWEST acts first, only tied sides re-roll; each side takes ceil(its eligible units / the smallest other side's) selections at a time, tallied at the start of each round - exactly the book's table for two sides, and MegaMek's `TurnOrdered.generateTurnOrder` (ceil(turns / min)). Shut-down / unconscious (and, moving, immobile) units are left out of the tally and go ahead of their side's first selection. |
-| Multi-unit: whom a bot plans movement against (its "foe") | `forces.choose_foe`, `config.FOE_CHOICE` | "nearest": the nearest standing enemy on the board (ties by roster order), else one not yet on the board. Gladiator's movement scoring sees that ONE enemy (independent bots). Princess takes it as the start of a `princess_group.Group`: every enemy on the board is weighed (below). |
+| Multi-unit: whom a bot plans movement against (its "foe") | `bots.choose_foe` -> `forces.choose_foe`, `config.FOE_CHOICE` | "nearest": the nearest standing enemy on the board (ties by roster order), else one not yet on the board. Gladiator's movement scoring sees that ONE enemy (independent bots) unless Legate is on (next row). Princess takes it as the start of a `princess_group.Group`: every enemy on the board is weighed (below). |
+| Legate: Gladiator against the whole enemy force | `INTEGRATION__legate` (`config.LEGATE`, `LEGATE_ITERATIONS`), `movement_selection._legate_extras` | Daniel's design, 2026-10-28. At the start of the Movement Phase, for each side with a Gladiator and 2+ enemies on the board: IF/THEN for all units at once - round 0 everyone holds still, each round the enemy units answer, then the asking side's own units; a unit scores each spot (the grid search) with the picker score ("lifetime") against the WHOLE opposing force at its estimated spots: damage taken = the SUM over opposing units, damage dealt = the MAX, future damage rates likewise (`MultiLifetime`). Two units wanting a hex: the higher score keeps it, the other takes its next best, which can displace a third (cascade, `resolve`), settled before the next round; a unit that picks a hex it already tried is locked at its best attempt (closed to the others too). 12 rounds at most (`LEGATE_ITERATIONS`); the enemy units' best attempts are the estimate. Each Gladiator then plans against the enemy that would score highest against it (each at its estimated spot, its real spot once moved) among those yet to move (all moved: the most threatening), runs its normal search against that foe, and every spot is also scored against the other enemies at their estimated / real spots (taken adds up, dealt is the best). Fire at the weapons phase is unchanged (it already looks at every enemy). Off, or a duel: byte-identical. Placeholder: no estimate of the fire one unit really draws. |
 | Multi-unit: whom a unit shoots / fights | `bots.choose_target` -> `forces.choose_target` (Gladiator) / `princess_group.choose_target` (Princess) | One target a turn. Gladiator: an enemy in sight beats one not, then one a weapon can bear on (arcs and torso twist, `attack_resolution.weapons_can_bear`), then the nearest. Princess: the enemy whose firing plan has the highest utility (a dry run of the real weapon choice, `declare_attacks(dry=True)`), the damage friends already declared counted (next row). Physical attacks: the declared charge / DFA target, else an adjacent enemy. No secondary targets (p.64): a plan has one target, as in MegaMek's ordinary Princess. |
 | Princess: fire distribution | `princess_fire.overkill_fraction`, `princess_fire.assign_damage`, `princess_group.choose_target` | `FireControl.calcDamageAllocationUtility`: an enemy the team's earlier declarations are expected to destroy (damage >= its total HP) scores 100 x -30 (the unit fires at another, or nothing); below half its HP nothing is charged; between, the fraction of its HP x -30. The damage map is per team, filled as each unit declares in order (`Princess.damageMap`), emptied at the start of every Ranged Attack Phase, and ignored in a movement guess. |
 | Princess: movement in a battle | `princess_group.Group`, `princess_modern._rank` / `princess._rank` | rankPath over ALL enemies: my firing and physical damage the best of any one, damage taken summed; distance / aggression / facing against the closest enemy by adjusted distance (an enemy yet to move counts farther by its walking MP); facing the closest enemy if beside the spot, else the median of the 4 closest (Weiszfeld, `facing_enemies`); an enemy too far for either side to reach adds nothing (`can_matter`, speed only). Posture is the FORCE's (`force_posture`: once a round, the enemy's mean distance to the centre of the team, kept in `princess_memory`). |
@@ -1561,6 +1581,31 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-28 (Claude), session 13 - LEGATE (first version).** **REVIEW PENDING
+  (higher-level model).** Daniel: "making gladiator less myopic ... a multi-unit
+  bot layer at the start of the movement phase ... I call this layer Legate; it's
+  in charge of keeping tabs on the battlefield", then his answers: the IF/THEN
+  runs 12 rounds; ties in a round go by picker score and can cascade; a unit
+  locks only when its own choices loop; the score is Gladiator's picker score
+  with damage taken the sum over all enemies and damage dealt the max; the foe
+  is the most threatening enemy yet to move; fire at the weapons phase goes to
+  the enemy it can hurt most once positions are final. New `INTEGRATION__legate`
+  (design in its docstring and the Section 6 row), `config.LEGATE` (OFF by
+  default) / `LEGATE_ITERATIONS` 12, `bots.choose_foe`, `Extras` hook in
+  `movement_selection._choose_normal` / `_static_scores`, `legate.plan_turn` /
+  `end_phase` / `reset` in the orchestrator, `tests/test_legate.py` (12 checks),
+  `baseline_battery.py --legate`. With it off, or in a duel, nothing changes: 42
+  of 42 checks pass, reference logs untouched. Fire choice needed no change
+  (`forces.choose_target` already picks among all enemies once positions are
+  final). RESULTS (12 v 12 battery, seed 12345, 1 core each, 3 battles, Legate on
+  for every Gladiator): Gladiator v Gladiator: Draw (cap), Draw (cap), Red; 50/50/44
+  turns; 241/292/206 s (4.7-5.8 s a turn, was 2.2-2.9: about 2x; the estimate is
+  ~45% of it). Princess (Red) v Gladiator: Princess won 2 and drew 1 (was 3
+  wins); Gladiator had 0/3/0 'Mechs left (was 0/0/0); 34/50/39 turns; 233/289/276
+  s (was 123-152). Three battles say little about strength; Legate costs about 2x
+  at this size. To do (Pick up here 000): map reading, concentrated-fire estimate,
+  speed, on-by-default decision.
 
 - **2026-10-28 (Claude), session 13 - BASELINE TEST BATTERY.** **REVIEW PENDING
   (higher-level model).** Daniel: "4 maps stitched together, 12 mechs vs 12
