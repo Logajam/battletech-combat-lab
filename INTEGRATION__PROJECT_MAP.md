@@ -333,7 +333,8 @@ Perfect 2,309). Then a closing climb to better neighbouring hexes
 (`MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB`, Daniel's "option 2"): 12 steps + climb
 94.5% of range, about Short Grid's time. Daniel: IF/THEN is for multi-unit
 threat vectors of farther units, not a single 'Mech's default (Section 5).
-Numbers: Change Record.
+Full battery (8 scenarios x 20): first mover 94.5% of range (Short Grid 96.1,
+Short-Short 91.0), same time as Short Grid. Numbers: Change Record.
 
 **Pick up here (open, roughly in priority order):**
 00. **Princess clone - TODO as the scope grows** (Daniel, 2026-10-27: "All of
@@ -1416,6 +1417,27 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-28 (Claude):** Full pick-quality battery for the latest IF/THEN
+  (hold still first + neighbour climb), against the recorded 2026-10-27/28
+  runs: 8 scenarios x 20 battles, same seeds (Short Grid reproduced its
+  recorded numbers exactly). `tests/pick_quality.py --perfect-cache FILE`
+  (Daniel: "since Perfect is slow to generate, but once generated..."):
+  Perfect's prices are saved per decision and reused while the battle
+  follows the recorded path - scenarios 1-6 ran ~2x faster from the cache
+  (`run_stats/`, git-ignored, lost with the session). FIRST MOVER (2,716
+  decisions; % of range / got best / rank pct / hexes off / closer / ms):
+    Perfect               100.0 / 100% / 100% / 0.00 / +0.00 / 1269
+    Short Grid             96.1 /  49% /  95% / 2.47 / -0.11 /  196
+    IF/THEN + climb        93.7 /  36% /  92% / 3.25 / +0.88 /  177
+    IF/THEN 12 + climb     94.5 /  39% /  93% / 3.21 / +0.87 /  198
+    (recorded) Short-Short 91.0 /  26% /  88% / 3.39 / +0.87 /   93
+    (recorded) IF/THEN first version 85.1 / 18% / 73% / 3.94 / +1.98 / 102
+    (recorded) Princess modern 75.7 / 9% / 61% / 4.31 / +2.82 / 45
+  Per scenario, IF/THEN 12 + climb 91.2-95.7% (Short Grid 92.9-98.5); it
+  beats Short Grid only on Atlas vs Archer (95.2 vs 94.2). Holds still on 20%
+  of first-mover picks (Short Grid 18%, Perfect 11%). Moving second it is
+  Perfect (every spot). One 'Mech against one, it costs about Short Grid's
+  time - its saving is meant for multi-unit play (Section 5).
 - **2026-10-28 (Claude):** IF/THEN neighbour climb (Daniel: "I like option
   2"), `config.MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB` (on): after the back and
   forth, from the best attempt's hex score every state of that hex and its 6
