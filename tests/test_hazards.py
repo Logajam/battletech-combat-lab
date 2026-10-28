@@ -159,6 +159,22 @@ def path_avoids_lava():
 
 
 @check
+def movement_cache_sees_a_broken_crust():
+    """Speed cache (2026-10-28): a magma crust that breaks mid-battle changes
+    the hex's hazard; a table built afterwards must price it, not repeat the
+    one built before."""
+    tm = board({"0807": hexinfo(magma=["1"])})            # crust
+    x, y = parse_hex_label("0808")
+    north = compass_to_facing("N")
+    cx, cy = parse_hex_label("0807")
+    state = (cx, cy, north)                                 # one hex north: the crust hex
+    crust = build_movement_table(x, y, north, 3, terrain_map=tm).hazards[state][1]
+    tm["hexes"]["0807"]["features"]["magma"] = ["2"]      # the crust breaks: liquid
+    liquid = build_movement_table(x, y, north, 3, terrain_map=tm).hazards[state][1]
+    assert liquid > crust, (crust, liquid)
+
+
+@check
 def crust_breaks_and_liquid_burns():
     """p.34: entering a crust on the ground breaks it on a 6; then liquid
     magma: 2D6 a leg (p.35) and the bog-down roll at +4 (p.60)."""

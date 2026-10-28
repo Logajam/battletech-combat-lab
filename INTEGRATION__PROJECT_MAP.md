@@ -15,6 +15,20 @@ source project's file overwrite the other's same-named file.
 
 ## 0. WHERE WE ARE (2026-10-28, session 12) — read this first
 
+**REVIEW QUEUE - needs a higher-level model's review when there are spare
+cycles** (Daniel's standing order, 2026-10-28; Section 7). Written by Sonnet 5.5,
+tested (38 of 38 checks, reference logs unchanged) but not independently
+reviewed. Session 12 (2026-10-28): (1) multi-unit battles - `INTEGRATION__forces`,
+`INTEGRATION__domino`, `orchestrator.run_skirmish`, Unequal Numbers for 3+ sides,
+domino / fall-from-above displacement, replay for N units, `tests/test_multi_unit.py`;
+(2) the movement cache - `pathfinder._BoardCache` and shared tables (check every
+field a search reads is static - the magma hazard was found not to be; a
+loaded map is never edited in place; blocked-hex normalization `|dx| <= MP,
+|dy| <= 2 MP`; cache invalidation; read-only tables). Review for rules
+fidelity against the Core Rulebook pages cited, MegaMek parity, and hidden
+RNG-order or stale-cache bugs. When a review is done, move its line out of
+this queue and note it in the Change Record.
+
 Latest: **Session 12 - MULTI-UNIT BATTLES** (Daniel, 2026-10-28: "Multiple units
 that can be assigned to multiple teams. The ideal ranges would probably be a 4
 unit lance and a 12 unit company vs like forces. But a 20 unit free for all or
@@ -1394,6 +1408,12 @@ turn's score, so a decision sees what it gives up.
 
 ## 7. STANDING PROMPTS
 
+- (Daniel, 2026-10-28) **Label every session's work for review.** "Label the
+  work you did today with a note to have a higher level model review it when
+  there are spare cycles, make that a standard order going forward." At the
+  end of each session, add what was built to Section 0's REVIEW QUEUE, and mark
+  its Change Record entries "REVIEW PENDING (higher-level model)". A reviewer
+  clears the line when done.
 - (Daniel, 2026-10-28) **A question the rules can't answer: MegaMek first, then
   Daniel.** "If you encounter a question that can't be answered in the rules,
   consult how megamek does it, then me if its still a question." (MegaMek's
@@ -1499,6 +1519,7 @@ turn's score, so a decision sees what it gives up.
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
 - **2026-10-28 (Claude), session 12 - MOVEMENT TABLE CACHE (speed only).**
+  **REVIEW PENDING (higher-level model).**
   Daniel's idea: compute only the hexes inside a unit's movement footprint
   and share them between units and turns. `pathfinder._BoardCache` (one per
   loaded board, filled on demand): hex info by (x, y); step cost, terrain
@@ -1512,7 +1533,13 @@ turn's score, so a decision sees what it gives up.
   (2 turns) 26.5 -> 12.5; 1v1 benchmark 2.6 s both (HP 501 / 495). Gains
   are biggest on the entry turn and big forces; battles that end early or on
   PSR boards gain little. 38 of 38 checks pass, reference logs unchanged.
-- **2026-10-28 (Claude), session 12 - MULTI-UNIT BATTLES.** Daniel: units on
+  Caught in review before it shipped further: magma crust breaks mid-battle,
+  so hazards are read live and a board with a hazard feature shares no
+  finished tables (`_BoardCache.hazardous`; test
+  `movement_cache_sees_a_broken_crust`, which fails without it). Smoke also
+  lives on hex infos but nothing the search reads.
+- **2026-10-28 (Claude), session 12 - MULTI-UNIT BATTLES.**
+  **REVIEW PENDING (higher-level model).** Daniel: units on
   teams, a lance / company against like forces, a free for all, a 3-way battle
   - "unleash a group of bots to operate independently". The two-'Mech battle
   is the same code with two units: every battle in the 15 reference logs
