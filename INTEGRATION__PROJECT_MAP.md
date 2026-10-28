@@ -21,7 +21,7 @@ tested (38 of 38 checks, reference logs unchanged) but not independently
 reviewed. Session 12 (2026-10-28): (1) multi-unit battles - `INTEGRATION__forces`,
 `INTEGRATION__domino`, `orchestrator.run_skirmish`, Unequal Numbers for 3+ sides,
 domino / fall-from-above displacement, replay for N units, `tests/test_multi_unit.py`;
-(2) the movement cache - `pathfinder._BoardCache` and shared tables (check every
+(2) map stitching (`_load_map`, `STITCH_BOARDS`; check the seam parity - a 16-wide board plus the gap column shifts the next board's hex columns by an odd amount); (3) the movement cache - `pathfinder._BoardCache` and shared tables (check every
 field a search reads is static - the magma hazard was found not to be; a
 loaded map is never edited in place; blocked-hex normalization `|dx| <= MP,
 |dy| <= 2 MP`; cache invalidation; read-only tables). Review for rules
@@ -303,8 +303,8 @@ like to make a clone of Megamek's Princess bot to compare it against."
   "Princess clone"). Not cloned yet: Pick up here 00.
 - Gladiator search options: "Short-Short" (`MOVEMENT_SEARCH = "short_list"`,
   both movers pick from their own short list, best few states a hex) and its
-  grid prune (`MOVEMENT_SHORT_LIST_GRID`); defaults unchanged ("Short Grid" -
-  Daniel's nickname still to pick).
+  grid prune (`MOVEMENT_SHORT_LIST_GRID`); defaults unchanged ("Short Grid", the
+  official name since Daniel, 2026-10-28).
 - Studies (not in run_checks): `ab_batches.py --set bots / bots-classic /
   short-short`; `tests/bot_agreement.py` (pick agreement, time, operations);
   `tests/pick_quality.py` (every bot's pick priced on Perfect Knowledge's
@@ -412,8 +412,7 @@ rebuild it with one full run). Numbers: Change Record.
    - Other gaps listed under Section 6 "Princess clone" (hazards on a path's
      middle hexes, MASC odds, RAC unjam / spin-up, ammo conservation, the
      "move to contact" re-rank, aerospace, infantry).
-   Open too: a name for the default Gladiator ("Short Grid" is a placeholder);
-   whether Short-Short (+ grid prune) should become the default (Daniel's
+   Open too: whether Short-Short (+ grid prune) should become the default (Daniel's
    call - 3 matchups A/B'd so far, Change Record); a self-preservation pull
    for a badly hurt Gladiator (it breaks off on bad trades, never because it
    is hurt - goes with item 5).
@@ -441,7 +440,7 @@ rebuild it with one full run). Numbers: Change Record.
    rare). A speed-only change must keep the benchmark (501 / 495) and every
    reference log. Sample replay (4v4 Kontio / Hammerhead, seed 21):
    https://claude.ai/artifact/FnXQK7huREYBfhGcM4cEMX
-   Also open: stitched boards for company-size fights (`STITCH_MAPS`).
+   Stitched boards for company-size fights: DONE 2026-10-28 (`STITCH_MAPS`).
 1a. **Speed** (Daniel: "We still need more speed") - largely done in session
    6; next steps only if runs get slow again. Session 6: ~25% off the
    exhaustive search (Change Record), then the grid search as the default
@@ -497,7 +496,7 @@ rebuild it with one full run). Numbers: Change Record.
 7. **Maps - leftovers** (RULES_REVIEW G7, G20-G22): water done (F36); the movement subphase (mud's -1 isn't
    priced - bot); prone LOS height done (G7, F41); Section 4
    "Map terrain waiting on rules" (Daniel is hunting the rules);
-   `PROMPT_FOR_MAP` / `STITCH_MAPS`.
+   `PROMPT_FOR_MAP` (the interactive picker; `STITCH_MAPS` works, 2026-10-28).
    - **Hull-breach risk in movement scoring (G21) - DON'T BUILD YET**
      (Daniel, 2026-10-21: "Your plan is close to what I'm thinking. Save the
      notes but don't implement it yet. Its related to an Idea I have for how
@@ -801,7 +800,7 @@ in tabletop play it falls where the check was failed
 
 **Other open items:**
 - `config.PROMPT_FOR_MAP` picker not built — always loads `DEFAULT_BOARD_PATH`.
-- `STITCH_MAPS` raises NotImplementedError (stitch_boards itself is ready).
+- `STITCH_MAPS` works (2026-10-28): `STITCH_BOARDS` names the boards, row-major.
 - ~~Full `MECHSIM__equipment.json` not available (only the 14-entry
   mini)~~ RESOLVED 2026-10-19: the full DB is now `mechsim/equipment.json`
   (689 entries, 166 verified; 279 weapons, 144 with damage stats). Improved
@@ -1518,6 +1517,21 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-28 (Claude), session 12 - MAP STITCHING + OFFICIAL NAME.**
+  **REVIEW PENDING (higher-level model).** Daniel: "Short Grid is the official
+  name now. Map stitching up and running." The name is recorded (the
+  "placeholder" notes are gone). `config.STITCH_MAPS` works: `STITCH_BOARDS`
+  (board files, row-major), `STITCH_GRID_COLS` x `STITCH_GRID_ROWS`;
+  `orchestrator._load_map` calls the existing `board_parser.stitch_boards`
+  (blank hex row / column at each seam, Daniel 2026-07-20; same-size rule), then
+  `prepare_board` as for one board; a list that doesn't fill the grid is
+  refused. Home edges, deployment, LOS, the movement cache and the replay
+  viewer need nothing special (a 6v6 on two stitched 16x17 maps, 33x17, ran 14
+  turns and replayed without console errors). Test:
+  `test_terrain.stitched_map_loads_and_crosses_the_seam`. Not built: a map
+  picker (`PROMPT_FOR_MAP`); Section 6 gap: on a stitched board the home
+  edges are the outer edges of the whole field, so long fields mean long
+  approach marches. 38 of 38 checks pass, reference logs unchanged.
 - **2026-10-28 (Claude), session 12 - MOVEMENT TABLE CACHE (speed only).**
   **REVIEW PENDING (higher-level model).**
   Daniel's idea: compute only the hexes inside a unit's movement footprint
@@ -1577,8 +1591,7 @@ turn's score, so a decision sees what it gives up.
     units and teams (colour per team, numbered markers, record sheets fold up
     past four units, click a marker for its sheet).
   - Not built (loud, Pick up here 00): any group behavior (mutual support,
-    fire distribution, secondary targets p.64, a threat picture), stitched
-    boards for company-size fights (`STITCH_MAPS`), Gladiator's movement
+    fire distribution, secondary targets p.64, a threat picture), Gladiator's movement
     scoring seeing more than one enemy. Timing: a 4v4 Kontio / Hammerhead
     battle ~40 s for 13 turns, ~0.5 s a unit a turn, the entry turn the
     slowest (`DEPLOYMENT_DEPTH` > 0 multiplies the entry search).
@@ -1936,7 +1949,7 @@ turn's score, so a decision sees what it gives up.
   top pick matches the 'Perfect Knowledge' and the current default setting
   (Needs a nick name.) if it were gladiator"). Nickname used for now: the
   default Gladiator = **"Short Grid"** (grid search + short-list look-ahead,
-  after Daniel's "Simple Short Grid") - a placeholder for Daniel to rename;
+  after Daniel's "Simple Short Grid") - made the official name 2026-10-28;
   "Perfect" = exhaustive own search and look-ahead.
   A/B, `ab_batches.py 100 ... --set bots --turns 50`, 100 battles a setting,
   wins of the side Princess takes over (baseline both Gladiator -> that side

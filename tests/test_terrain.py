@@ -273,6 +273,39 @@ def no_start_hex_ends_the_battle():
     assert result.turns_taken == 1 and result.destroyed == "Both", (result.turns_taken, result.destroyed)
 
 
+@check
+def stitched_map_loads_and_crosses_the_seam():
+    """Map stitching (2026-10-28): config.STITCH_MAPS lays STITCH_BOARDS out
+    row-major with a blank hex column / row at every seam (Daniel, 2026-07-20),
+    keeps the first board's numbering, and a 'Mech can walk across the seam."""
+    import INTEGRATION__orchestrator as orchestrator
+    saved = (config.STITCH_MAPS, config.STITCH_BOARDS, config.STITCH_GRID_COLS, config.STITCH_GRID_ROWS)
+    try:
+        config.STITCH_MAPS, config.STITCH_GRID_COLS, config.STITCH_GRID_ROWS = True, 2, 2
+        config.STITCH_BOARDS = ["16x17_Grassland_1.board", "16x17_Scattered_Woods.board",
+                                "16x17_Hilltops_1.board", "16x17_Grassland_1.board"]
+        tm = orchestrator._load_map()
+        assert (tm["width"], tm["height"]) == (33, 35), (tm["width"], tm["height"])
+        single = board_parser.parse_board_file(config.data_path("16x17_Grassland_1.board"))
+        assert tm["hexes"]["0305"]["level"] == single["hexes"]["0305"]["level"]   # first board: native labels
+        assert tm["hexes"]["1705"]["level"] == 0 and not tm["hexes"]["1705"]["features"]   # the seam column
+        assert tm["hexes"]["1806"] is not tm["hexes"]["0206"]                     # second board is its own data
+        # Walk east across the seam column on row 5: 1 MP a clear hex.
+        x, y = parse_hex_label("1405")
+        table = build_movement_table(x, y, compass_to_facing("NE"), 6, terrain_map=tm)
+        assert any(sx >= parse_hex_label("1805")[0] for sx, _, _ in table), "never crossed the seam"
+        # Wrong number of boards: refused, not guessed.
+        config.STITCH_BOARDS = ["16x17_Grassland_1.board"]
+        try:
+            orchestrator._load_map()
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("a board list that doesn't fill the grid was accepted")
+    finally:
+        config.STITCH_MAPS, config.STITCH_BOARDS, config.STITCH_GRID_COLS, config.STITCH_GRID_ROWS = saved
+
+
 def run_all():
     failed = []
     for fn in CHECKS:

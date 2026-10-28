@@ -273,15 +273,23 @@ AIMED_SHOT_LOCATION = "Center Torso"
 # =============================================================================
 # ==========================  MAP LOADING  ===================================
 # =============================================================================
-# Ported from PATHFINDER__config.py. orchestrator._load_map() uses
-# DEFAULT_BOARD_PATH (single board). PROMPT_FOR_MAP's picker is still not
-# built - ignored for now. STITCH_MAPS=True raises NotImplementedError.
+# Ported from PATHFINDER__config.py. orchestrator._load_map() loads
+# DEFAULT_BOARD_PATH (one board), or - with STITCH_MAPS - the boards named in
+# STITCH_BOARDS laid out row-major in a STITCH_GRID_COLS x STITCH_GRID_ROWS
+# grid (board_parser.stitch_boards; 2026-10-28, for company-size fights).
+# PROMPT_FOR_MAP's interactive picker is still not built - ignored for now.
 PROMPT_FOR_MAP = False
 DEFAULT_BOARD_PATH = "16x17_Grassland_1.board"
 STITCH_MAPS = False
-EXPECTED_MAP_COUNT = 6
+# Board files (under DATA_DIR), row-major: left to right, then down. Same-row
+# boards must share a height and same-column boards a width; a blank hex row /
+# column is inserted at every seam (Daniel, 2026-07-20). Use one name several
+# times for a repeated board. Example, a 2 x 1 field of two 16x17 maps:
+#   STITCH_MAPS = True; STITCH_GRID_COLS, STITCH_GRID_ROWS = 2, 1
+#   STITCH_BOARDS = ["16x17_Grassland_1.board", "16x17_Scattered_Woods.board"]
+STITCH_BOARDS = []
 STITCH_GRID_COLS = 2
-STITCH_GRID_ROWS = 3
+STITCH_GRID_ROWS = 1
 
 # =============================================================================
 # ==========================  STUB SETTINGS (2026-10-18)  ====================
