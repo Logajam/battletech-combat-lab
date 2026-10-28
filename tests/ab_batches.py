@@ -21,6 +21,8 @@ baseline"):
     python tests/ab_batches.py 60 "Black Hawk (Nova) F.mtf" "Cataphract CTF-3D.mtf" --set search \
         --board 16x17_Military_Base_1.board
 
+2026-10-28 (Claude): set "if-then" - Daniel's IF/THEN first-mover picker.
+
 2026-10-27 (Claude): set "bots" - Gladiator and the Princess clone on each side.
 
 2026-10-24 (Claude): sets "short-list" (grid vs short-list look-ahead, for the
@@ -129,6 +131,14 @@ VARIANT_SETS = {
         ("Short Grid (default)", {}),
         ("Short-Short", {"MOVEMENT_SEARCH": "short_list"}),
         ("Short-Short + grid prune", {"MOVEMENT_SEARCH": "short_list", "MOVEMENT_SHORT_LIST_GRID": True}),
+    ],
+    # Daniel's IF/THEN (2026-10-28): the first mover answers the enemy's modeled reply,
+    # back and forth while its score climbs - against Short Grid and Perfect Knowledge.
+    "if-then": [
+        ("Short Grid (default)", {}),
+        ("IF/THEN (short-list replies)", {"MOVEMENT_SEARCH": "if_then"}),
+        ("IF/THEN (perfect replies)", {"MOVEMENT_SEARCH": "if_then", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "exhaustive"}),
+        ("Perfect Knowledge", {"MOVEMENT_SEARCH": "exhaustive", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "exhaustive"}),
     ],
 }
 VARIANTS = VARIANT_SETS["objective"]

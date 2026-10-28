@@ -12,7 +12,7 @@ hexes away on average the pick is from what perfect knowledge says is best").
 
 The battles are Gladiator (the default, "Short Grid") against Gladiator, so the
 board states are the ones the project's own bot reaches. At EVERY movement
-decision of either 'Mech, before it moves, five pickers choose from the same
+decision of either 'Mech, before it moves, seven pickers choose from the same
 position (each on a copy of the dice; only the real pick is played - the
 battle is the one a plain run gives):
   Perfect        - Gladiator, every spot, every reply spot in its look-ahead
@@ -23,6 +23,12 @@ battle is the one a plain run gives):
   Short-Short    - Short-Short-Grid: both movers pick from their own short list
                    (best few states a hex), pruned by the grid search
                    (MOVEMENT_SEARCH = "short_list", MOVEMENT_SHORT_LIST_GRID = True).
+  IF/THEN        - Daniel's IF/THEN (2026-10-28, MOVEMENT_SEARCH = "if_then"): the
+                   first mover answers the enemy where it stands, then the enemy's
+                   modeled reply, back and forth while the score climbs; the reply
+                   modeled by the short list (as Short Grid). Moving second it
+                   scores every spot, so it picks as Perfect does there.
+  IF/THEN perfect - the same with every reply spot in the modeled reply.
   Princess 0.50.07, Princess modern - the two Princess clones.
 Each pick is priced at Perfect's score for that spot. Reported per scenario
 and side, and overall (by mover order too):
@@ -94,12 +100,15 @@ SCENARIOS = [
     ("Black Hawk vs Cataphract, Large Lakes", "Black Hawk (Nova) F.mtf", "Cataphract CTF-3D.mtf",
      "16x17_Large_Lakes_1.board", None),
 ]
-PICKERS = ("Perfect", "Short Grid", "Short-Short", "Princess 0.50.07", "Princess modern")
+PICKERS = ("Perfect", "Short Grid", "Short-Short", "IF/THEN", "IF/THEN perfect", "Princess 0.50.07",
+           "Princess modern")
 GLADIATOR_SETTINGS = {
     "Perfect": {"MOVEMENT_SEARCH": "exhaustive", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "exhaustive"},
     "Short Grid": {"MOVEMENT_SEARCH": "grid", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "short_list"},
     "Short-Short": {"MOVEMENT_SEARCH": "short_list", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "short_list",
                     "MOVEMENT_SHORT_LIST_GRID": True},
+    "IF/THEN": {"MOVEMENT_SEARCH": "if_then", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "short_list"},
+    "IF/THEN perfect": {"MOVEMENT_SEARCH": "if_then", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "exhaustive"},
 }
 
 

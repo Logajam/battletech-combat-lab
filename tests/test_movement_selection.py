@@ -859,6 +859,69 @@ def short_list_reply_follows_its_rule():
 
 
 @check
+def if_then_climbs_by_its_rule():
+    """Daniel's IF/THEN first-mover picker (2026-10-28, own search "if_then"):
+    the first attempt is the best spot against the enemy where it stands; each
+    later attempt is the best spot against the previous attempt's modeled
+    reply (not on the reply's hex); the kept attempts' two-ply scores rise
+    strictly; the climb stops at a score that doesn't rise, a repeated spot or
+    no reply; and the pick is the last kept attempt."""
+    real = ms._if_then_search
+    seen = []
+
+    def spy(static, prepared_by_key, ev1, prepared1, me, them, score_spot):
+        tried = []
+
+        def scoring(c):
+            row = score_spot(c)
+            tried.append((c, row))
+            return row
+        rows = real(static, prepared_by_key, ev1, prepared1, me, them, scoring)
+        seen.append((static, ev1, prepared1, me, them, tried, rows))
+        return rows
+
+    def best_of(cands, me, them):
+        def score(c):
+            return round(me.objective(c.dealt, c.received, them.exposure[c.side_on_defender],
+                                      me.exposure[c.side_on_mover], me.psr_for(c)), 9)
+        top = max(score(c) for c in cands)
+        return next(c for c in cands if score(c) == top)
+
+    saved = config.MOVEMENT_SEARCH
+    config.MOVEMENT_SEARCH, ms._if_then_search = "if_then", spy
+    try:
+        rng, climbed = BattleRNG(seed=13), 0
+        for mover_hex, other_hex, other_f in [("0808", "0911", "NW"), ("0404", "0808", "SW"), ("1212", "0910", "SE")]:
+            mover, other = fresh(mover_hex, "N"), fresh(other_hex, other_f)
+            seen.clear()
+            pick, why = ms.choose(mover, other, TERRAIN, rng, moves_first=True)
+            assert len(seen) == 1, why
+            static, ev1, prepared1, me, them, tried, rows = seen[0]
+            key = lambda c: (c.label, c.facing_compass, c.mode, c.fc)            # noqa: E731
+            want = best_of(static, me, them)
+            assert key(tried[0][0]) == (want.hex, want.facing, want.mode, want.fc)
+            for (_, before), (after, _) in zip(tried, tried[1:]):
+                reply = before[2][5]
+                want = best_of(ev1.evaluate(reply.hex, reply.facing, reply.fc, reply.mode, reply.mp_spent,
+                                            [o for o in prepared1 if o.label != reply.hex]), me, them)
+                assert key(after) == (want.hex, want.facing, want.mode, want.fc)
+            scores = [round(r[0], 9) for r in rows]
+            assert rows and scores == sorted(set(scores)), scores
+            assert [r for _, r in tried[:len(rows)]] == rows
+            last = tried[-1]
+            stopped = (len(tried) > len(rows) or last[1][2][5] is None
+                       or len({key(c) for c, _ in tried}) < len(tried))
+            assert stopped, [key(c) for c, _ in tried]
+            if any(r[2][0] > 0 for r in rows):
+                assert "IF/THEN" in why, why
+                climbed += 1
+                assert (pick["hex"], pick["facing"], pick["mode"], pick["fc"]) == key(rows[-1][1]), (pick, why)
+        assert climbed >= 1, climbed
+    finally:
+        config.MOVEMENT_SEARCH, ms._if_then_search = saved, real
+
+
+@check
 def damage_drops_sit_on_bracket_ends():
     """The short list's damage drops are the ends of weapon range brackets:
     every drop distance is some live weapon's short, medium or long range."""
