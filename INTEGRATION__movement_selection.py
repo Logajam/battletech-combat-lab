@@ -1025,9 +1025,13 @@ def _if_then_search(hold, static, prepared_by_key, ev1, prepared1, me, them, sco
     it picks the same location twice"; with strictly rising scores that can't
     pick better), or there is no reply, or no spot of the mover's answers it
     (none with line of sight).
+    config.MOVEMENT_IF_THEN_STEPS > 0 (Daniel, 2026-10-28) replaces the climb's
+    stop: it goes on for that many attempts whatever they score, stops early
+    when an attempt lands on a hex it has already tried (or on no reply / no
+    answer), and the best-scoring attempt is the pick.
     Each round costs one pass over the mover's spots plus one modeled reply,
     instead of every spot x every reply. Returns the kept attempts' score_spot
-    rows, scores rising."""
+    rows (climb: scores rising; fixed steps: every attempt scored)."""
     def best_response(cands):
         best_key, best = None, None
         for cand in cands:
@@ -1037,15 +1041,18 @@ def _if_then_search(hold, static, prepared_by_key, ev1, prepared1, me, them, sco
                 best_key, best = key, cand
         return None if best is None else prepared_by_key[(best.hex, best.facing, best.mode, best.fc)]
 
+    steps = config.MOVEMENT_IF_THEN_STEPS
     rows, tried = [], set()
     state = hold if hold is not None else best_response(static)
     while state is not None:
-        key = (state.label, state.facing_compass, state.mode, state.fc)
-        if key in tried:
+        # Fixed steps (Daniel, 2026-10-28: "run like 10 to 15 steps, with an early stop
+        # if it lands on the same hex again. Then pick the best"): a repeat is by hex.
+        key = state.label if steps else (state.label, state.facing_compass, state.mode, state.fc)
+        if key in tried or (steps and len(rows) >= steps):
             break
         tried.add(key)
         row = score_spot(state)
-        if rows and round(row[0], 9) <= round(rows[-1][0], 9):
+        if not steps and rows and round(row[0], 9) <= round(rows[-1][0], 9):
             break
         rows.append(row)
         reply = row[2][5]

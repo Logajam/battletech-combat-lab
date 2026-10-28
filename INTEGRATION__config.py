@@ -369,6 +369,10 @@ MOVEMENT_SEARCH = "grid"
 # first movers evaluation"); "grid" was the default before that.
 MOVEMENT_ASSUMED_ENEMY_SEARCH = "short_list"
 MOVEMENT_SEARCH_STARTS = 1      # "grid": how many of the best net hexes to follow uphill from
+# "if_then": 0 = the climb (stop when an attempt scores no better, keep the one before);
+# N > 0 = up to N attempts whatever they score, stopping early on a hex it already tried,
+# then the best-scoring attempt (Daniel, 2026-10-28: "run like 10 to 15 steps").
+MOVEMENT_IF_THEN_STEPS = 0
 # "short_list": how many damage-drop ranges per mech go on the list, and the pre-to-hit
 # number the rough damage-by-range curve is read at (gunnery 4 + about 2 for movement).
 MOVEMENT_SHORT_LIST_DROPS = 2

@@ -12,7 +12,7 @@ hexes away on average the pick is from what perfect knowledge says is best").
 
 The battles are Gladiator (the default, "Short Grid") against Gladiator, so the
 board states are the ones the project's own bot reaches. At EVERY movement
-decision of either 'Mech, before it moves, seven pickers choose from the same
+decision of either 'Mech, before it moves, eight pickers choose from the same
 position (each on a copy of the dice; only the real pick is played - the
 battle is the one a plain run gives):
   Perfect        - Gladiator, every spot, every reply spot in its look-ahead
@@ -29,6 +29,9 @@ battle is the one a plain run gives):
                    modeled by the short list (as Short Grid). Moving second it
                    scores every spot, so it picks as Perfect does there.
   IF/THEN perfect - the same with every reply spot in the modeled reply.
+  IF/THEN 12 steps - IF/THEN going on for up to 12 attempts whatever they score
+                   (early stop on a hex already tried), the best one kept
+                   (MOVEMENT_IF_THEN_STEPS = 12).
   Princess 0.50.07, Princess modern - the two Princess clones.
 Each pick is priced at Perfect's score for that spot. Reported per scenario
 and side, and overall (by mover order too):
@@ -100,8 +103,8 @@ SCENARIOS = [
     ("Black Hawk vs Cataphract, Large Lakes", "Black Hawk (Nova) F.mtf", "Cataphract CTF-3D.mtf",
      "16x17_Large_Lakes_1.board", None),
 ]
-PICKERS = ("Perfect", "Short Grid", "Short-Short", "IF/THEN", "IF/THEN perfect", "Princess 0.50.07",
-           "Princess modern")
+PICKERS = ("Perfect", "Short Grid", "Short-Short", "IF/THEN", "IF/THEN perfect", "IF/THEN 12 steps",
+           "Princess 0.50.07", "Princess modern")
 GLADIATOR_SETTINGS = {
     "Perfect": {"MOVEMENT_SEARCH": "exhaustive", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "exhaustive"},
     "Short Grid": {"MOVEMENT_SEARCH": "grid", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "short_list"},
@@ -109,6 +112,8 @@ GLADIATOR_SETTINGS = {
                     "MOVEMENT_SHORT_LIST_GRID": True},
     "IF/THEN": {"MOVEMENT_SEARCH": "if_then", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "short_list"},
     "IF/THEN perfect": {"MOVEMENT_SEARCH": "if_then", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "exhaustive"},
+    "IF/THEN 12 steps": {"MOVEMENT_SEARCH": "if_then", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "short_list",
+                         "MOVEMENT_IF_THEN_STEPS": 12},
 }
 
 
@@ -230,7 +235,7 @@ def _mean(values):
 
 def _table(rows, title):
     rows = [r for r in rows if not r.get("fallback")]
-    lines = [title, f"  {'picker':<17} {'n':>4} {'% of best':>9} {'% of range':>10} {'got best':>9} {'rank pct':>9} {'hexes off':>10} "
+    lines = [title, f"  {'picker':<18} {'n':>4} {'% of best':>9} {'% of range':>10} {'got best':>9} {'rank pct':>9} {'hexes off':>10} "
                     f"{'same hex':>9} {'closer':>7} {'no LOS':>7} {'ms':>7}"]
     for name in PICKERS:
         mine = [r for r in rows if r["scores"].get(name) is not None]
@@ -247,7 +252,7 @@ def _table(rows, title):
         same = [r["picks"][name][0] == perfect_hex(r) for r in mine if perfect_hex(r)]
         closer = [r["enemy_distance"]["Perfect"] - r["enemy_distance"][name] for r in mine
                   if r["enemy_distance"].get("Perfect") is not None]
-        lines.append(f"  {name:<17} {len(mine):>4} {_mean(pct):>8.1f}% {_mean(spread):>9.1f}% {100 * _mean(got):>8.0f}% "
+        lines.append(f"  {name:<18} {len(mine):>4} {_mean(pct):>8.1f}% {_mean(spread):>9.1f}% {100 * _mean(got):>8.0f}% "
                      f"{100 * _mean([r['rank'][name] for r in mine]):>8.0f}% {_mean(off):>10.2f} "
                      f"{100 * _mean(same):>8.0f}% {_mean(closer):>+7.2f} "
                      f"{100 * _mean([r['hidden'][name] for r in mine]):>6.0f}% "
