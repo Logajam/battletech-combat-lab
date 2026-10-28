@@ -20,7 +20,7 @@ one after another) - the output is the same either way.
 
 | Path | What's there |
 |---|---|
-| `INTEGRATION__*.py` | The simulator: turn flow, combat, movement picking (`movement_selection`), firing arcs and torso twists (`arcs`), heat, results, stubs; Tactical Operations / Interstellar Operations gear and terrain (`advanced_weapons`, `advanced_equipment`, `hazards`, `smoke`); which bot drives each unit (`bots`: "gladiator", this project's, or "princess", a clone of MegaMek's Princess - modern in `princess_modern`, v0.50.07 in `princess`, fire control in `princess_fire`; its team behaviors in `princess_group` and `princess_memory`); Battle Value (`battle_value`, items from `mechsim/equipment_bv.json`) |
+| `INTEGRATION__*.py` | The simulator: turn flow, combat, movement picking (`movement_selection`), firing arcs and torso twists (`arcs`), heat, results, stubs; Tactical Operations / Interstellar Operations gear and terrain (`advanced_weapons`, `advanced_equipment`, `hazards`, `smoke`); which bot drives each unit (`bots`: "gladiator", this project's, or "princess", a clone of MegaMek's Princess - modern in `princess_modern`, v0.50.07 in `princess`, fire control in `princess_fire`; its team behaviors in `princess_group` and `princess_memory`); Battle Value (`battle_value`, items from `mechsim/equipment_bv.json`); Legate (`legate`, `config.LEGATE`: the layer that lets a Gladiator plan against the whole enemy force) |
 | `mechsim/` | Mech state, damage, crits, piloting rolls, `.mtf` parser, `equipment.json` (full equipment database) |
 | `pathfinder/` | Hex geometry, board parser, movement, LOS, to-hit pieces |
 | `data/` | `.board` maps (16x17 Grassland, 50x50 BigBlank) and `.mtf` mechs (test mechs, plus real units from `meks.zip` for the AMS / Artemis / Narc / ECM / weapon-use reference battles) |
@@ -38,8 +38,9 @@ After a change, from the repo root:
 - `python tests/test_multi_unit.py`: checks multi-unit battles (Core Rulebook pp.39-41, 113-116): Initiative and the Unequal Numbers tables, who a unit fights, stacking, domino effects and accidental falls from above, and whole 3-way / lance / free-for-all battles - uses units from `data/meks.zip`
 - `python tests/test_map_picker.py`: checks the map picker (listing the loose boards and the map pack, finding a map, which maps fit a stitched grid, the console menu with scripted answers, remembering the last pick)
 - `python tests/test_princess_group.py`: checks Princess's team behaviors (the target choice with the damage friends already declared, the heat map and its hot spot, mutual support, crowding, the force's posture, a move against several enemies)
+- `python tests/test_legate.py`: checks Legate (the hex-conflict cascade, the estimate, the foe choice, the other enemies' damage in a Gladiator's move score; off and in a duel nothing changes)
 - `python tests/test_battle_value.py`: checks Battle Value (the four published values, skill, damage, the equipment data, every unit in the pack priced)
-- `python tests/baseline_battery.py pp|pg|gg [battles]`: the baseline battery - 12 v 12 mirrored forces on a 2 x 1 stitched field, Princess v Princess / Princess v Gladiator / Gladiator v Gladiator; prints winner, turns, units and HP left, seconds a battle (a yardstick: results recorded in PROJECT_MAP Section 8)
+- `python tests/baseline_battery.py pp|pg|gg [battles] [--legate]`: the baseline battery - 12 v 12 mirrored forces on a 2 x 1 stitched field, Princess v Princess / Princess v Gladiator / Gladiator v Gladiator; prints winner, turns, units and HP left, seconds a battle (a yardstick: results recorded in PROJECT_MAP Section 8)
 - `python tests/test_pathfinder.py`: checks the movement/map code
 - `python tests/test_weapon_range.py`: checks range brackets and the minimum-range penalty
 - `python tests/test_heat.py`: checks the Heat Scale rules (Core Rulebook pp.102-107) with scripted dice

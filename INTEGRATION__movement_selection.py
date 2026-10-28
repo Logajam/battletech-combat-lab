@@ -103,6 +103,7 @@ Nothing here is a BattleTech rule: it is a scoring and search policy. Its
 knobs live in INTEGRATION__config.py (MOVEMENT SETTINGS).
 """
 
+import dataclasses
 import os
 import sys
 from typing import Dict, List, Optional, Tuple
@@ -589,12 +590,38 @@ def closing_fallback(mover, other, options, enemy_xy, dealt_for, terrain_map, ex
 # =============================================================================
 # ===========================  THE CHOICE  ====================================
 # =============================================================================
-def _static_scores(cands, prepared_by_key, me, them):
+def _legate_extras(mover, other, terrain_map, me):
+    """Legate's view of the enemies other than `other` for this mover's pick (INTEGRATION__legate.Extras), or
+    None - a duel, a Princess unit, Legate off, or no plan this turn: the scoring is then exactly as before."""
+    if not config.LEGATE or getattr(mover, "bot", None) != "gladiator" or other.hex is None:
+        return None
+    import INTEGRATION__forces as forces
+    import INTEGRATION__legate as legate
+    units = forces.battle()
+    if not legate.active_for(mover, units):
+        return None
+    extras = legate.Extras(mover, other, units, terrain_map, me)
+    return extras if extras.count else None
+
+
+def _prefetch(lx, states):
+    """The states about to be scored, with Legate's other-enemy figures worked out for the batch first."""
+    if lx is not None:
+        lx.prefetch(states)
+    return states
+
+
+def _static_scores(cands, prepared_by_key, me, them, extras=None):
     """Objective for the mover's states against the enemy where it stands.
-    Returns [(score, prepared_state, MovementCandidate)]."""
+    Returns [(score, prepared_state, MovementCandidate)]. With Legate's `extras` the other enemies' damage is
+    folded into each candidate (taken adds up, dealt is the best), so every later use of it agrees."""
     out = []
     for cand in cands:
         o = prepared_by_key[(cand.hex, cand.facing, cand.mode, cand.fc)]
+        if extras is not None:
+            dm, rm = them.exposure[cand.side_on_defender], me.exposure[cand.side_on_mover]
+            dealt, received, _, _ = extras.adjust(o, cand.dealt, cand.received, dm, rm)
+            cand = dataclasses.replace(cand, dealt=dealt / dm, received=received / rm)
         score = me.objective(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
                              me.exposure[cand.side_on_mover], me.psr_for(cand))
         out.append((score, o, cand))
@@ -891,6 +918,9 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
     them = _Side(other, psr_applies=True)
     with timing.section("future damage estimate"):
         _link(me, them)
+    lx = _legate_extras(mover, other, terrain_map, me)          # the other enemies (INTEGRATION__legate), or None
+    if lx is not None:
+        me.objective = lx.objective(other, me)
     enemy_xy = hex_geometry.parse_hex_label(other.hex)
 
     # Static evaluation: the enemy standing where it is now. Real for the second
@@ -932,7 +962,8 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
     ctx = (ev1, me, them, static)
 
     if not two_ply:
-        scored = _static_scores(static, prepared_by_key, me, them)
+        _prefetch(lx, [prepared_by_key[(c.hex, c.facing, c.mode, c.fc)] for c in static])
+        scored = _static_scores(static, prepared_by_key, me, them, lx)
         if SCORE_SINK is not None:
             _sink_spots(scored, prepared1, me, not any(c.dealt > 0 for _, _, c in scored))
         if scored and any(c.dealt > 0 for _, _, c in scored):
@@ -964,9 +995,12 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
                 dealt, received = reply.received, reply.dealt
                 dealt_mult = them.exposure[reply.side_on_mover]
                 received_mult = me.exposure[reply.side_on_defender]
-            extras = me.psr_for(c)
-            return (me.objective(dealt, received, dealt_mult, received_mult, extras), c,
-                    (dealt, received, dealt_mult, received_mult, extras, reply))
+            psr = me.psr_for(c)
+            if lx is not None:
+                dealt, received, dealt_mult, received_mult = lx.adjust(c, dealt, received, dealt_mult,
+                                                                       received_mult)
+            return (me.objective(dealt, received, dealt_mult, received_mult, psr), c,
+                    (dealt, received, dealt_mult, received_mult, psr, reply))
 
         if own_search(mover) == "short_list":
             # "Short-Short" (Daniel, 2026-10-27: "both sides are only picking from their own
@@ -975,10 +1009,10 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
             # second mover's short list (assumed_enemy_search).
             states = own_short_list(mover, other, prepared1, enemy_xy)
             if config.MOVEMENT_SHORT_LIST_GRID:
-                scored = _grid_search(states, lambda group: [score_spot(c) for c in group],
+                scored = _grid_search(states, lambda group: [score_spot(c) for c in _prefetch(lx, group)],
                                       _search_start(mover, states), config.MOVEMENT_SEARCH_STARTS)
             else:
-                scored = [score_spot(c) for c in states]
+                scored = [score_spot(c) for c in _prefetch(lx, states)]
         elif own_search(mover) == "if_then":
             # Daniel's IF/THEN (2026-10-28): "If I hold still then ..." - the enemy's modeled
             # reply, the best answer to it, back and forth while the honest score climbs.
@@ -990,10 +1024,10 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
         elif own_search(mover) == "grid":
             # No hexes around the enemy here: it moves after the first mover (Daniel, 2026-10-21:
             # "Always checks wouldn't help the first mover"). The own hex is always a net hex.
-            scored = _grid_search(prepared1, lambda states: [score_spot(c) for c in states],
+            scored = _grid_search(prepared1, lambda states: [score_spot(c) for c in _prefetch(lx, states)],
                                   _search_start(mover, prepared1), config.MOVEMENT_SEARCH_STARTS)
         else:
-            scored = [score_spot(c) for c in prepared1]
+            scored = [score_spot(c) for c in _prefetch(lx, prepared1)]
         any_dealt = any(payload[0] > 0 for _, _, payload in scored)
         if SCORE_SINK is not None:
             _sink_spots(scored, prepared1, me, not any_dealt)

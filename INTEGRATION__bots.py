@@ -31,6 +31,7 @@ import contextlib
 import INTEGRATION__config as config
 import INTEGRATION__movement_selection as movement_selection
 import INTEGRATION__forces as forces
+import INTEGRATION__legate as legate
 import INTEGRATION__princess as princess
 import INTEGRATION__princess_group as princess_group
 import INTEGRATION__princess_modern as princess_modern
@@ -67,6 +68,17 @@ def choose_movement(mover, other, terrain_map, battle_rng, moves_first, standup_
                                standup_mp=standup_mp, entry_edge=entry_edge)
     return movement_selection.choose(mover, other, terrain_map, battle_rng, moves_first,
                                      standup_mp=standup_mp, entry_edge=entry_edge)
+
+
+def choose_foe(mover, units, terrain_map):
+    """The enemy this unit's movement is planned against: for a Gladiator with Legate on, the enemy
+    expected to score highest against it among those yet to move (INTEGRATION__legate.foe_for); else the
+    nearest (forces.choose_foe)."""
+    if mover.bot == GLADIATOR:
+        foe = legate.foe_for(mover, units, terrain_map)
+        if foe is not None:
+            return foe
+    return forces.choose_foe(mover, units) or forces.any_enemy(mover, units)
 
 
 def choose_target(attacker, units, terrain_map):

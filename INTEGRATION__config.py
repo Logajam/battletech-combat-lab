@@ -166,6 +166,14 @@ PRINCESS_BEHAVIOR = {
 # posture, but with no pull toward its friends or its own earlier ground).
 PRINCESS_GROUP = True
 
+# Legate (2026-10-28, Daniel): the multi-unit layer that runs at the start of each Movement Phase so a
+# Gladiator-driven unit is not blind to the other enemies (INTEGRATION__legate). False = every Gladiator
+# plans against its nearest foe alone, as before. Duels are unchanged either way (one enemy).
+LEGATE = False
+# Legate's IF/THEN search: how many rounds (each round every enemy unit answers, then every unit of the
+# asking side answers). A unit that picks a hex it already tried is locked at its best attempt.
+LEGATE_ITERATIONS = 12
+
 # Deployment (2026-10-19, Core p.37):
 #   "home_edge"   - deployment roll; the loser picks a home edge, the winner
 #                   gets the opposite one; mechs enter along it on turn 1
