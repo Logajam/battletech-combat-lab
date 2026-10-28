@@ -818,14 +818,27 @@ def evaluate_going_second(
 # =============================================================================
 # ==========================  THE PATH TO A PICK  =============================
 # =============================================================================
-def path_to(mover, terrain_map, pick, standup_mp=None, entry_edge=None):
+def path_to(mover, terrain_map, pick, standup_mp=None, entry_edge=None, tables=None):
     """The ground path to a picked end state (2026-10-21, Daniel's movement
     subphase: "There is a difference between planning where you want to go
     which the picker does. And actually getting there"): the same search
     movement_options ran (pathfinder.build_movement_table with keep_parents),
     walked back from the pick. Returns [(step, (x, y, facing), mp after)] -
     step "enter" (onto the board, first), "forward", "backward" or "turn" -
-    or None when no such path is found (then the move is applied whole)."""
+    or None when no such path is found (then the move is applied whole).
+    tables: a dict to keep the searched tables in, so asking for many picks
+    from one spot searches once (PathBook, 2026-10-28)."""
+    def table_for(x0, y0, f0, budget, backward_mp=None):
+        key = (x0, y0, f0, budget, backward_mp)
+        got = tables.get(key) if tables is not None else None
+        if got is None:
+            got = build_movement_table(x0, y0, f0, budget, terrain_map=terrain_map, backward_mp=backward_mp,
+                                       level_limit=level_limit, keep_parents=True,
+                                       blocked=getattr(mover, "blocked_hex", None))
+            if tables is not None:
+                tables[key] = got
+        return got
+
     x, y = hex_geometry.parse_hex_label(pick["hex"])
     state = (x, y, hex_geometry.compass_to_facing(pick["facing"]))
     fc, mp = pick["fc"], pick["mp_spent"]
@@ -839,9 +852,7 @@ def path_to(mover, terrain_map, pick, standup_mp=None, entry_edge=None):
                 continue
             ex, ey = hex_geometry.parse_hex_label(label)
             for f0 in range(6):
-                table = build_movement_table(ex, ey, f0, run - cost, terrain_map=terrain_map,
-                                             level_limit=level_limit, keep_parents=True,
-                                             blocked=getattr(mover, "blocked_hex", None))
+                table = table_for(ex, ey, f0, run - cost)
                 if table.get(state, {}).get(mp - cost) == fc - 1:
                     return [("enter", (ex, ey, f0), cost)] + [(s, st, m + cost)
                                                               for s, st, m in table.path(state, mp - cost)]
@@ -859,9 +870,23 @@ def path_to(mover, terrain_map, pick, standup_mp=None, entry_edge=None):
     else:
         starts, budget, backward_mp = range(6), standup_mp, None
     for f0 in starts:
-        table = build_movement_table(sx, sy, f0, budget, terrain_map=terrain_map, backward_mp=backward_mp,
-                                     level_limit=level_limit, keep_parents=True,
-                                     blocked=getattr(mover, "blocked_hex", None))
+        table = table_for(sx, sy, f0, budget, backward_mp)
         if table.get(state, {}).get(mp) == fc:
             return table.path(state, mp)
     return None
+
+
+class PathBook:
+    """The ground path to each of one pick's end states (path_to), the
+    searches shared - for a bot that prices every hex a path enters
+    (Princess's checkPathForHazards, 2026-10-28)."""
+
+    def __init__(self, mover, terrain_map, standup_mp=None, entry_edge=None):
+        self.mover, self.terrain_map = mover, terrain_map
+        self.standup_mp, self.entry_edge = standup_mp, entry_edge
+        self._tables = {}
+
+    def path(self, o):
+        """[(step, (x, y, facing), mp after)] for prepared state o, None if not found."""
+        pick = {"hex": o.label, "facing": o.facing_compass, "mode": o.mode, "fc": o.fc, "mp_spent": o.mp_spent}
+        return path_to(self.mover, self.terrain_map, pick, self.standup_mp, self.entry_edge, self._tables)

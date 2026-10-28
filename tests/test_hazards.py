@@ -230,6 +230,25 @@ def pool_hits_legs_in_depth_one():
     assert armor(m, "Left Leg") + armor(m, "Right Leg") == legs - 9
 
 
+@check
+def princess_prices_the_whole_path():
+    """MegaMek's checkPathForHazards (2026-10-28): every hex a ground path
+    stands in, not just the end hex; rubble is not one of its hazards."""
+    import INTEGRATION__princess as princess
+    import INTEGRATION__ranged_combat as ranged_combat
+    tm = board({"0807": hexinfo(magma=["2"]), "0806": hexinfo(rubble=["1"])})
+    m = place("0808")
+    m.facing = "N"
+    x, y = parse_hex_label("0806")
+    through, = ranged_combat.prepare_options(m, [(x, y, compass_to_facing("N"), 2, "Walk", 4)])
+    paths = ranged_combat.PathBook(m, tm)
+    assert [hex_label(px, py) for _, (px, py, _f), _ in paths.path(through)] == ["0807", "0806"]
+    assert princess.hazards(m, through, tm, None) == 0               # the end hex (rubble) alone: nothing
+    assert princess.hazards(m, through, tm, paths) == princess.lava_hazard(m, False, end_hex=False) > 0
+    stay, = ranged_combat.prepare_options(m, [(*parse_hex_label("0808"), compass_to_facing("N"), 0, "Stand Still", 0)])
+    assert princess.hazards(m, stay, tm, paths) == 0
+
+
 def run_all():
     failed = []
     for fn in CHECKS:

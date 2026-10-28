@@ -262,6 +262,16 @@ def melee_weapons():
     assert whip and physical._weapon_kind(whip[0]) == (-2, None, 3, "standard")
 
 
+@check
+def every_gauss_rifle_explodes():
+    """Core p.184 (Daniel 2026-10-28: "Fix it"): every Gauss rifle's first
+    critical hit is a component explosion - light, heavy, HAG too."""
+    from equipment import lookup_equipment
+    for name in ("ISGaussRifle", "ISLightGaussRifle", "ISHeavyGaussRifle", "ISImprovedHeavyGaussRifle", "ISSBGR",
+                 "CLHAG20", "CLAPGaussRifle", "ISMagshotGR"):
+        assert lookup_equipment(name)["explosive"], name
+
+
 def run_all():
     failed = []
     for fn in CHECKS:

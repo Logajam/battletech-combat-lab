@@ -69,6 +69,10 @@
       "date": "2026-10-27",
       "source": "TO:AUE Heavy Weapons and Equipment Combat Data (pp.216-222) and the weapon / munition entries cited in each notes field",
       "note": "HVAC shots per ton; 'Mech mortars (AP shells); fluid guns (water) and the VGL (fragmentation) - no effect on 'Mechs; Mek Taser and fluid gun ammo added. Not mirrored in build_equipment_db.py."
+    },
+    "gauss_explosive_fix": {
+      "date": "2026-10-28",
+      "note": "Light, Heavy, Improved Heavy, Silver Bullet, AP Gauss and HAG 20/30/40 marked explosive (Core p.184). The Improved Gauss Rifle (Interstellar Operations) is left as it was. Not mirrored in build_equipment_db.py."
     }
   },
   "entries": {
@@ -2744,7 +2748,7 @@
       "tech_base": "IS",
       "slots": 7,
       "crit_eligible": true,
-      "explosive": false,
+      "explosive": true,
       "explosion_damage": null,
       "damage_type": "Ballistic",
       "shots_per_ton": 8,
@@ -2760,7 +2764,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/innerSphere/ISSilverBulletGauss.java (main branch, fetched 2026-07-14). | 2026-10-20 (Claude): slots 1 -> 7 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Silver Bullet Gauss' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
+      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/innerSphere/ISSilverBulletGauss.java (main branch, fetched 2026-07-14). | 2026-10-20 (Claude): slots 1 -> 7 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Silver Bullet Gauss' (a multi-slot weapon listed as fewer slots parsed as several weapons) | 2026-10-28: explosive (Daniel: \"Fix it\") - Core p.184 Gauss Rifles - General: the first critical hit to each activated Gauss rifle is a component explosion (2 x slots, p.96); the p.184 Gauss entries are all type X.",
       "rack_size": 15
     },
     "clgaussrifle": {
@@ -2803,7 +2807,7 @@
       "tech_base": "IS",
       "slots": 5,
       "crit_eligible": true,
-      "explosive": false,
+      "explosive": true,
       "explosion_damage": null,
       "damage_type": "Ballistic",
       "shots_per_ton": 16,
@@ -2820,7 +2824,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/innerSphere/ISLGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Light Gauss Rifle' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Total Warfare row 'Light Gauss Rifle'. | 2026-10-20 (Claude): slots 1 -> 5 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Light Gauss Rifle' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
+      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/innerSphere/ISLGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'Light Gauss Rifle' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=3 from Total Warfare row 'Light Gauss Rifle'. | 2026-10-20 (Claude): slots 1 -> 5 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Light Gauss Rifle' (a multi-slot weapon listed as fewer slots parsed as several weapons) | 2026-10-28: explosive (Daniel: \"Fix it\") - Core p.184 Gauss Rifles - General: the first critical hit to each activated Gauss rifle is a component explosion (2 x slots, p.96); the p.184 Gauss entries are all type X.",
       "rack_size": null
     },
     "isheavygaussrifle": {
@@ -2833,7 +2837,7 @@
       "tech_base": "IS",
       "slots": 11,
       "crit_eligible": true,
-      "explosive": false,
+      "explosive": true,
       "explosion_damage": null,
       "damage_type": "Ballistic",
       "shots_per_ton": 4,
@@ -2850,7 +2854,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/innerSphere/ISHGaussRifle.java (main branch, fetched 2026-07-14). MegaMek damage field is non-literal (DAMAGE_VARIABLE) - range/ammo-variable, left null PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=4 from Total Warfare row 'Heavy Gauss Rifle'. | 2026-10-20 (Claude): slots 1 -> 11 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Heavy Gauss Rifle' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
+      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/innerSphere/ISHGaussRifle.java (main branch, fetched 2026-07-14). MegaMek damage field is non-literal (DAMAGE_VARIABLE) - range/ammo-variable, left null PARTIAL: damage_per_shot not resolved - needs manual review. | 2026-10-19: range.min=4 from Total Warfare row 'Heavy Gauss Rifle'. | 2026-10-20 (Claude): slots 1 -> 11 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Heavy Gauss Rifle' (a multi-slot weapon listed as fewer slots parsed as several weapons) | 2026-10-28: explosive (Daniel: \"Fix it\") - Core p.184 Gauss Rifles - General: the first critical hit to each activated Gauss rifle is a component explosion (2 x slots, p.96); the p.184 Gauss entries are all type X.",
       "rack_size": null
     },
     "isimprovedheavygaussrifle": {
@@ -2863,7 +2867,7 @@
       "tech_base": "IS",
       "slots": 11,
       "crit_eligible": true,
-      "explosive": false,
+      "explosive": true,
       "explosion_damage": null,
       "damage_type": "Ballistic",
       "shots_per_ton": 4,
@@ -2879,7 +2883,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/innerSphere/ISImpHGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-20 (Claude): slots 1 -> 11 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Improved Heavy Gauss' (a multi-slot weapon listed as fewer slots parsed as several weapons)",
+      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/innerSphere/ISImpHGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-20 (Claude): slots 1 -> 11 from the Core Rulebook Weapons and Equipment Tables, p.248, IS row 'Improved Heavy Gauss' (a multi-slot weapon listed as fewer slots parsed as several weapons) | 2026-10-28: explosive (Daniel: \"Fix it\") - Core p.184 Gauss Rifles - General: the first critical hit to each activated Gauss rifle is a component explosion (2 x slots, p.96); the p.184 Gauss entries are all type X.",
       "rack_size": null
     },
     "clhag20": {
@@ -2892,7 +2896,7 @@
       "tech_base": "Clan",
       "slots": 6,
       "crit_eligible": true,
-      "explosive": false,
+      "explosive": true,
       "explosion_damage": null,
       "damage_type": "Ballistic",
       "shots_per_ton": 6,
@@ -2909,7 +2913,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 6 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'HAG 20' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 6 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'HAG 20' (a multi-slot weapon listed as fewer slots parsed as several weapons) | 2026-10-28: explosive (Daniel: \"Fix it\") - Core p.184 Gauss Rifles - General: the first critical hit to each activated Gauss rifle is a component explosion (2 x slots, p.96); the p.184 Gauss entries are all type X."
     },
     "clhag30": {
       "canonical_name": "CLHAG30",
@@ -2921,7 +2925,7 @@
       "tech_base": "Clan",
       "slots": 8,
       "crit_eligible": true,
-      "explosive": false,
+      "explosive": true,
       "explosion_damage": null,
       "damage_type": "Ballistic",
       "shots_per_ton": 4,
@@ -2938,7 +2942,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 8 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'HAG 30' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 8 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'HAG 30' (a multi-slot weapon listed as fewer slots parsed as several weapons) | 2026-10-28: explosive (Daniel: \"Fix it\") - Core p.184 Gauss Rifles - General: the first critical hit to each activated Gauss rifle is a component explosion (2 x slots, p.96); the p.184 Gauss entries are all type X."
     },
     "clhag40": {
       "canonical_name": "CLHAG40",
@@ -2950,7 +2954,7 @@
       "tech_base": "Clan",
       "slots": 10,
       "crit_eligible": true,
-      "explosive": false,
+      "explosive": true,
       "explosion_damage": null,
       "damage_type": "Ballistic",
       "shots_per_ton": 3,
@@ -2967,7 +2971,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": false,
-      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 10 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'HAG 40' (a multi-slot weapon listed as fewer slots parsed as several weapons)"
+      "notes": "Not confirmed | 2026-10-20 (Claude): slots 1 -> 10 from the Core Rulebook Weapons and Equipment Tables, p.251, Clan row 'HAG 40' (a multi-slot weapon listed as fewer slots parsed as several weapons) | 2026-10-28: explosive (Daniel: \"Fix it\") - Core p.184 Gauss Rifles - General: the first critical hit to each activated Gauss rifle is a component explosion (2 x slots, p.96); the p.184 Gauss entries are all type X."
     },
     "clapgaussrifle": {
       "canonical_name": "CLAPGaussRifle",
@@ -2979,7 +2983,7 @@
       "tech_base": "Clan",
       "slots": 1,
       "crit_eligible": true,
-      "explosive": false,
+      "explosive": true,
       "explosion_damage": null,
       "damage_type": "Ballistic",
       "shots_per_ton": 40,
@@ -2996,7 +3000,7 @@
       "special_rules": false,
       "special_rules_ref": null,
       "verified": true,
-      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/clan/CLAPGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'AP Gauss Rifle' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'AP Gauss Rifle'.",
+      "notes": "Not confirmed | Stats sourced from MegaMek gaussRifles/clan/CLAPGaussRifle.java (main branch, fetched 2026-07-14). | 2026-10-19: damage_type filled from Total Warfare pp. 303-306 weapons table, row 'AP Gauss Rifle' (Daniel's Weapon_Rules_Tables rip). | 2026-10-19: range.min=0 from Total Warfare row 'AP Gauss Rifle'. | 2026-10-28: explosive (Daniel: \"Fix it\") - Core p.184 Gauss Rifles - General: the first critical hit to each activated Gauss rifle is a component explosion (2 x slots, p.96); the p.184 Gauss entries are all type X.",
       "rack_size": null
     },
     "lightmachinegun": {

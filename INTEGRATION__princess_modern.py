@@ -39,7 +39,9 @@ on a hit) is INTEGRATION__princess_fire; the physical-attack choice
     (both punches, the kick, a club); my firing plan judged with the move's
     heat (FireControl.calcHeatTolerance with predicted movement heat).
   - WATER HAZARD: a breached location 50 (head / center torso 1000) - plus,
-    for the locations a fall would put under, the chance of falling there.
+    for the locations a fall would put under, the chance of falling there;
+    priced for every hex of the path (checkPathForHazards, 2026-10-28 -
+    classic.path_hazards), and for the water a 'Mech standing still is in.
   Zero in a duel at the default sliders, not computed: mutual support,
   crowding, favor-higher-TMM, self-preservation / withdrawal (no crippled
   rules here yet), standoff (artillery / TAG spotters - none carry them in
@@ -242,55 +244,50 @@ def heat_sink_boost(mech, o, dist, terrain_map):
     return wet / dry if dry > 0 and wet > dry else 1.0
 
 
-def water_hazard(mover, o, terrain_map, fall_odds):
-    """waterHazard (modern) for the end hex: each submerged location with no
-    armor left - 50, the head / center torso 1000; and the locations only a
-    fall would put under, x the chance of falling as it enters (running into
-    water forces a roll here - the project's terrain PSR)."""
-    depth = water.depth_at(o.label, terrain_map)
-    if depth < 1:
-        return 0.0
-
-    def submerged(prone):
+def water_hazard(mover, label, depth, end_hex, prone, fall_odds, moving=True):
+    """waterHazard (modern) for one hex: each submerged location with no
+    armor left - 50, the head / center torso 1000; and, along a move (a
+    MovePath), the locations only a fall would put under, x the chance of
+    falling as it enters (running into water forces a roll here - the
+    project's terrain PSR)."""
+    def submerged(down):
         out = set()
         for loc, entry in mover.locations.items():
             if entry["destroyed"]:
                 continue
             legs = loc in mover.leg_locations or loc in ("Front Left Leg", "Front Right Leg")
-            if depth >= 2 or prone or legs:
+            if depth >= 2 or down or legs:
                 out.add(loc)
         return out
 
     def weight(loc):
         return classic.UNIT_DESTRUCTION_FACTOR if loc in ("Head", "Center Torso") else 50.0
-    now, if_down = submerged(mover.prone), submerged(True)
+    now, if_down = submerged(prone), submerged(True)
     total = 0.0
     for loc in now:
         if mover.locations[loc]["armor"] <= 0:
             if weight(loc) == classic.UNIT_DESTRUCTION_FACTOR:
                 return classic.UNIT_DESTRUCTION_FACTOR
             total += weight(loc)
+    if moving:
+        for loc in if_down - now:
+            if mover.locations[loc]["armor"] <= 0:
+                total += fall_odds * weight(loc)
+    return total
+
+
+def hazards(mover, o, terrain_map, fall_odds, paths=None):
+    """checkPathForHazards (modern): classic.path_hazards with waterHazard;
+    a move with no steps prices the water it stays in (a 'Mech in water)."""
     p_fall = fall_odds if o.mode == "Run" else 0.0
-    for loc in if_down - now:
-        if mover.locations[loc]["armor"] <= 0:
-            total += p_fall * weight(loc)
-    return total
 
+    def water_fn(label, depth, end_hex, prone):
+        return water_hazard(mover, label, depth, end_hex, prone, p_fall)
 
-def hazards(mover, o, terrain_map, fall_odds):
-    info = terrain_map["hexes"][o.label]
-    features = info.get("features", ())
-    total = water_hazard(mover, o, terrain_map, fall_odds)
-    if total >= classic.UNIT_DESTRUCTION_FACTOR:
-        return total
-    if "rubble" in features:
-        total += round(classic._bog_down_factor(mover.piloting, 0, True, o.mode == "Jump"))
-    if "mud" in features:
-        total += round(classic._bog_down_factor(mover.piloting, 0, True, False))
-    total += classic.magma_hazard(mover, features, o.mode == "Jump")          # 2026-10-27 (TO:AR terrain)
-    if "hazardous_liquid" in features:
-        total += classic.hazardous_liquid_hazard(mover, o.label, terrain_map)
-    return total
+    def stay_fn():
+        depth = water.depth_at(mover.hex, terrain_map) if mover.hex is not None else 0
+        return water_hazard(mover, mover.hex, depth, True, mover.prone, 0.0, moving=False) if depth >= 1 else 0.0
+    return classic.path_hazards(mover, o, terrain_map, paths, water_fn, stay_fn)
 
 
 # =============================================================================
@@ -395,7 +392,8 @@ def choose(mover, other, terrain_map, battle_rng, moves_first, standup_mp=None, 
             return None, "no reachable spot"
         estimate = (_moved_estimates(mover, other, prepared, ev, terrain_map) if moved
                     else _unmoved_estimates(mover, other, prepared, terrain_map))
-    return _rank(mover, other, prepared, estimate, enemy_xy, terrain_map, standup_mp is None, moved, stance)
+    paths = ranged_combat.PathBook(mover, terrain_map, standup_mp, entry_edge)
+    return _rank(mover, other, prepared, estimate, enemy_xy, terrain_map, standup_mp is None, moved, stance, paths)
 
 
 def _moved_estimates(mover, other, prepared, ev, terrain_map):
@@ -438,7 +436,7 @@ def _unmoved_estimates(mover, other, prepared, terrain_map):
             for k, (mine, _, theirs, flank) in out.items()}
 
 
-def _rank(mover, other, prepared, estimate, enemy_xy, terrain_map, psr_applies, moved, stance):
+def _rank(mover, other, prepared, estimate, enemy_xy, terrain_map, psr_applies, moved, stance, paths=None):
     fall_shame = princess_fire.setting("fall_shame")
     bravery = princess_fire.setting("bravery")
     aggression = princess_fire.setting("hyper_aggression")
@@ -470,7 +468,7 @@ def _rank(mover, other, prepared, estimate, enemy_xy, terrain_map, psr_applies, 
         p = success[k]
         mine, physical_mine, theirs = estimate[k]
         done = mine + physical_mine
-        taken = theirs + hazards(mover, o, terrain_map, fall_odds)
+        taken = theirs + hazards(mover, o, terrain_map, fall_odds, paths)
         fail = 1.0 - p
         fall_mod = fail * (classic.UNIT_DESTRUCTION_FACTOR if fail == 1 else fall_shame)
         bravery_mod = p * done * bravery - taken
