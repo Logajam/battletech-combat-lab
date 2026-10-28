@@ -329,7 +329,11 @@ attempt became "If I hold still then...": on the two worst scenarios 81.5 ->
 84.0% of range, lean in +3.3 -> +2.2 hexes, but it now holds still on 34% of
 first-mover picks (Perfect 8%). Fixed steps (`MOVEMENT_IF_THEN_STEPS = 12`,
 Daniel): 84.0 -> 88.9% of range for +50 ms a pick (198 ms; Short Grid 281,
-Perfect 2,309). Numbers: Change Record.
+Perfect 2,309). Then a closing climb to better neighbouring hexes
+(`MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB`, Daniel's "option 2"): 12 steps + climb
+94.5% of range, about Short Grid's time. Daniel: IF/THEN is for multi-unit
+threat vectors of farther units, not a single 'Mech's default (Section 5).
+Numbers: Change Record.
 
 **Pick up here (open, roughly in priority order):**
 00. **Princess clone - TODO as the scope grows** (Daniel, 2026-10-27: "All of
@@ -894,6 +898,13 @@ forward arc, kicks included, never into a side arc.
 
 ## 5. DECISIONS LOG (Daniel's calls — implementation may not override)
 
+- **IF/THEN's purpose (Daniel, 2026-10-28):** "this will not be a default
+  search patern for an individual mech. In multi-unit games it is used to get
+  a general idea of threat vector of farther away units while stronger
+  searches deal with more immediate threats to avoid full N! computation
+  explosions." It stays an option (`MOVEMENT_SEARCH = "if_then"`). Studies of
+  it: "only run the more interesting test series. We're after general feel,
+  not full stats" (`tests/pick_quality.py --pickers`, a few battles).
 - **Equipment wiring (Daniel, 2026-10-21):** "Wire in equipment that requires
   choice (Like capacitors) but defer the actual bot decision making for
   later." - each choice is options + a stub (Section 6 row). "Active probes
@@ -1135,7 +1146,7 @@ forward arc, kicks included, never into a side arc.
 
 | Decision point | Lives in | Decides |
 |---|---|---|
-| Movement selection | `INTEGRATION__movement_selection.choose` | Spot (hex + facing + mode) maximizing the objective - DEFAULT "lifetime" + history blend (row below), or "ratio": dealt×exposure / (received×exposure + movement-PSR cost + .001); first mover scores each spot by the second mover's modeled reply (two-ply, at its MASC / supercharger speed). Which spots are scored: `MOVEMENT_SEARCH` (a mech's own pick) and `MOVEMENT_ASSUMED_ENEMY_SEARCH` (the first mover's modeled reply), per side in `MECH_*_CONFIG` "search" / "assumes_enemy_search" - "grid" (DEFAULT since 2026-10-21, Daniel's guess and follow: a 1-in-7 hex net from the mover's own hex, `MOVEMENT_GRID_SPIN`, then uphill from the best `MOVEMENT_SEARCH_STARTS` net hexes; a second mover always also looks at the 6 hexes around the enemy - `_grid_search`) or "exhaustive" (every spot, "perfect"); for a first mover's own pick also "if_then" (Daniel's IF/THEN, 2026-10-28 - `_if_then_search`: hold still first ("If I hold still then..."), then best spot against that spot's modeled reply, back and forth while the two-ply score rises; keeps the last attempt that rose; also stops on a repeated spot; a second mover scores every spot); for the modeled reply also "short_list" (DEFAULT since 2026-10-24, Daniel's simple short list: hexes next to the first mover, the replier's own, and at the ranges where either side's damage drops most - `short_list_distances`, `MOVEMENT_SHORT_LIST_DROPS` - each mode once at its best TMM, facing the first mover). Knobs: config MOVEMENT SETTINGS. |
+| Movement selection | `INTEGRATION__movement_selection.choose` | Spot (hex + facing + mode) maximizing the objective - DEFAULT "lifetime" + history blend (row below), or "ratio": dealt×exposure / (received×exposure + movement-PSR cost + .001); first mover scores each spot by the second mover's modeled reply (two-ply, at its MASC / supercharger speed). Which spots are scored: `MOVEMENT_SEARCH` (a mech's own pick) and `MOVEMENT_ASSUMED_ENEMY_SEARCH` (the first mover's modeled reply), per side in `MECH_*_CONFIG` "search" / "assumes_enemy_search" - "grid" (DEFAULT since 2026-10-21, Daniel's guess and follow: a 1-in-7 hex net from the mover's own hex, `MOVEMENT_GRID_SPIN`, then uphill from the best `MOVEMENT_SEARCH_STARTS` net hexes; a second mover always also looks at the 6 hexes around the enemy - `_grid_search`) or "exhaustive" (every spot, "perfect"); for a first mover's own pick also "if_then" (Daniel's IF/THEN, 2026-10-28 - `_if_then_search`: hold still first ("If I hold still then..."), then best spot against that spot's modeled reply, back and forth while the two-ply score rises; keeps the last attempt that rose; also stops on a repeated spot; `MOVEMENT_IF_THEN_STEPS` = fixed steps instead; then `MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB` climbs to better neighbouring hexes; a second mover scores every spot. Daniel: meant for multi-unit threat vectors of farther units, not a single 'Mech's default); for the modeled reply also "short_list" (DEFAULT since 2026-10-24, Daniel's simple short list: hexes next to the first mover, the replier's own, and at the ranges where either side's damage drops most - `short_list_distances`, `MOVEMENT_SHORT_LIST_DROPS` - each mode once at its best TMM, facing the first mover). Knobs: config MOVEMENT SETTINGS. |
 | Movement objective option (+ history blend, `MOVEMENT_LIFETIME_HISTORY_K`) | `movement_selection._Ratio` / `_Lifetime` (`config.MOVEMENT_OBJECTIVE`) | "ratio" (default, above) or "lifetime": dealt + (effective HP left / enemy future damage) x own future damage (`INTEGRATION__future_damage`: 0.5 x best heat-limited expected damage at gunnery + walking +1 + the target's best TMM, kicks / punches at range 1). Each side scores its own spots with it, the modeled reply too |
 | LOS exactly between two hexes (p.56) | `pathfinder/los._evaluate` (`worse_key`) | The target's controller picks the hex; the bot always takes the MORE obstructive one (blocking first, then woods). The pick is the same from either end (checked on all 12,060 such pairs of the 16x17 board), so p.56's "used for all attacks between those two 'Mechs ... for the rest of that turn" holds without storing it. Not modeled: a target choosing the clearer hex to shoot back better; p.56's random pick for a non-player target (a hex attack takes the more obstructive one too). Partial / off-board hexes are never picked (p.56: "LOS cannot be shifted so that it passes through a partial hex") |
 | Movement-PSR cost | `movement_selection.psr_costs` | P(fail) × fall damage, only for Run / Jump with a Movement-Phase PSR trigger; damage-caused PSRs ignored (Daniel) |
@@ -1389,6 +1400,23 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-28 (Claude):** IF/THEN neighbour climb (Daniel: "I like option
+  2"), `config.MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB` (on): after the back and
+  forth, from the best attempt's hex score every state of that hex and its 6
+  neighbours by the two-ply score, move to the best neighbour while it
+  beats the current hex (`movement_selection._neighbour_climb`); test
+  `if_then_neighbour_climb_ends_on_a_local_best`. `tests/pick_quality.py
+  --pickers` (only the named pickers; Perfect always runs). Quick read
+  (Daniel: "general feel, not full stats"): Catapult vs Jenner and Kontio vs
+  Hammerhead, 8 battles each, FIRST MOVER (% of range / got best / rank pct /
+  hexes off / closer / ms - ms run beside the test suite, so high):
+    Perfect             100.0 / 100% / 100% / 0.00 / +0.00 / 2678
+    Short Grid           97.3 /  45% /  96% / 3.16 / -0.45 /  321
+    IF/THEN 12 steps     88.5 /  18% /  76% / 4.32 / +1.84 /  222
+    IF/THEN + climb      93.3 /  29% /  89% / 4.29 / +1.59 /  293
+    IF/THEN 12 + climb   94.5 /  34% /  91% / 4.20 / +1.48 /  325
+  The climb is worth ~5-6 points of range for ~100 ms; the lean in shrinks
+  but stays (+1.5 hexes).
 - **2026-10-28 (Claude):** IF/THEN fixed steps, `config.MOVEMENT_IF_THEN_STEPS`
   (Daniel: "run like 10 to 15 steps, with an early stop if it lands on the
   same hex again. Then pick the best"): 0 = the climb (default), N = up to N

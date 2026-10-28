@@ -373,6 +373,12 @@ MOVEMENT_SEARCH_STARTS = 1      # "grid": how many of the best net hexes to foll
 # N > 0 = up to N attempts whatever they score, stopping early on a hex it already tried,
 # then the best-scoring attempt (Daniel, 2026-10-28: "run like 10 to 15 steps").
 MOVEMENT_IF_THEN_STEPS = 0
+# "if_then": True = after the back and forth, climb from the best attempt's hex to better
+# neighbouring hexes by the two-ply score (Daniel, 2026-10-28: "I like option 2").
+# IF/THEN isn't meant as a single 'Mech's default search (Daniel, 2026-10-28): in
+# multi-unit games it gives the threat vector of farther units, while stronger
+# searches handle the immediate threats.
+MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB = True
 # "short_list": how many damage-drop ranges per mech go on the list, and the pre-to-hit
 # number the rough damage-by-range curve is read at (gunnery 4 + about 2 for movement).
 MOVEMENT_SHORT_LIST_DROPS = 2

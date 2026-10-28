@@ -9,10 +9,11 @@ hexes away on average the pick is from what perfect knowledge says is best").
 
     python tests/pick_quality.py                       # every scenario, 20 battles each
     python tests/pick_quality.py 8 --scenarios 1 2     # 8 battles, the two kiting scenarios
+    python tests/pick_quality.py 8 --scenarios 3 4 --pickers "Short Grid" "IF/THEN + climb"
 
 The battles are Gladiator (the default, "Short Grid") against Gladiator, so the
 board states are the ones the project's own bot reaches. At EVERY movement
-decision of either 'Mech, before it moves, eight pickers choose from the same
+decision of either 'Mech, before it moves, nine pickers choose from the same
 position (each on a copy of the dice; only the real pick is played - the
 battle is the one a plain run gives):
   Perfect        - Gladiator, every spot, every reply spot in its look-ahead
@@ -32,6 +33,10 @@ battle is the one a plain run gives):
   IF/THEN 12 steps - IF/THEN going on for up to 12 attempts whatever they score
                    (early stop on a hex already tried), the best one kept
                    (MOVEMENT_IF_THEN_STEPS = 12).
+  IF/THEN + climb, IF/THEN 12 + climb - the same two, then a climb to better
+                   neighbouring hexes by the two-ply score
+                   (MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB, on by default; the two above
+                   run with it off).
   Princess 0.50.07, Princess modern - the two Princess clones.
 Each pick is priced at Perfect's score for that spot. Reported per scenario
 and side, and overall (by mover order too):
@@ -103,17 +108,25 @@ SCENARIOS = [
     ("Black Hawk vs Cataphract, Large Lakes", "Black Hawk (Nova) F.mtf", "Cataphract CTF-3D.mtf",
      "16x17_Large_Lakes_1.board", None),
 ]
-PICKERS = ("Perfect", "Short Grid", "Short-Short", "IF/THEN", "IF/THEN perfect", "IF/THEN 12 steps",
-           "Princess 0.50.07", "Princess modern")
+# "IF/THEN perfect" (every reply spot) is kept in GLADIATOR_SETTINGS but off the list:
+# it scored the same as IF/THEN (2026-10-28).
+PICKERS = ("Perfect", "Short Grid", "Short-Short", "IF/THEN", "IF/THEN 12 steps", "IF/THEN + climb",
+           "IF/THEN 12 + climb", "Princess 0.50.07", "Princess modern")
 GLADIATOR_SETTINGS = {
     "Perfect": {"MOVEMENT_SEARCH": "exhaustive", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "exhaustive"},
     "Short Grid": {"MOVEMENT_SEARCH": "grid", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "short_list"},
     "Short-Short": {"MOVEMENT_SEARCH": "short_list", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "short_list",
                     "MOVEMENT_SHORT_LIST_GRID": True},
-    "IF/THEN": {"MOVEMENT_SEARCH": "if_then", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "short_list"},
-    "IF/THEN perfect": {"MOVEMENT_SEARCH": "if_then", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "exhaustive"},
+    "IF/THEN": {"MOVEMENT_SEARCH": "if_then", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "short_list",
+                "MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB": False},
+    "IF/THEN perfect": {"MOVEMENT_SEARCH": "if_then", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "exhaustive",
+                        "MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB": False},
     "IF/THEN 12 steps": {"MOVEMENT_SEARCH": "if_then", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "short_list",
-                         "MOVEMENT_IF_THEN_STEPS": 12},
+                         "MOVEMENT_IF_THEN_STEPS": 12, "MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB": False},
+    "IF/THEN + climb": {"MOVEMENT_SEARCH": "if_then", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "short_list",
+                        "MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB": True},
+    "IF/THEN 12 + climb": {"MOVEMENT_SEARCH": "if_then", "MOVEMENT_ASSUMED_ENEMY_SEARCH": "short_list",
+                           "MOVEMENT_IF_THEN_STEPS": 12, "MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB": True},
 }
 
 
@@ -212,7 +225,9 @@ def _recording_choose(mover, other, terrain_map, battle_rng, moves_first, standu
 
 
 def _battle(job):
-    index, sim, seed, max_turns = job
+    index, sim, seed, max_turns, pickers = job
+    global PICKERS
+    PICKERS = pickers                        # a spawned worker starts from the module's default
     _, red, blue, board, _ = SCENARIOS[index]
     config.MECH_RED_MTF, config.MECH_BLUE_MTF, config.DEFAULT_BOARD_PATH = red, blue, board
     config.MECH_RED_CONFIG["bot"] = config.MECH_BLUE_CONFIG["bot"] = "gladiator"
@@ -235,7 +250,7 @@ def _mean(values):
 
 def _table(rows, title):
     rows = [r for r in rows if not r.get("fallback")]
-    lines = [title, f"  {'picker':<18} {'n':>4} {'% of best':>9} {'% of range':>10} {'got best':>9} {'rank pct':>9} {'hexes off':>10} "
+    lines = [title, f"  {'picker':<19} {'n':>4} {'% of best':>9} {'% of range':>10} {'got best':>9} {'rank pct':>9} {'hexes off':>10} "
                     f"{'same hex':>9} {'closer':>7} {'no LOS':>7} {'ms':>7}"]
     for name in PICKERS:
         mine = [r for r in rows if r["scores"].get(name) is not None]
@@ -252,7 +267,7 @@ def _table(rows, title):
         same = [r["picks"][name][0] == perfect_hex(r) for r in mine if perfect_hex(r)]
         closer = [r["enemy_distance"]["Perfect"] - r["enemy_distance"][name] for r in mine
                   if r["enemy_distance"].get("Perfect") is not None]
-        lines.append(f"  {name:<18} {len(mine):>4} {_mean(pct):>8.1f}% {_mean(spread):>9.1f}% {100 * _mean(got):>8.0f}% "
+        lines.append(f"  {name:<19} {len(mine):>4} {_mean(pct):>8.1f}% {_mean(spread):>9.1f}% {100 * _mean(got):>8.0f}% "
                      f"{100 * _mean([r['rank'][name] for r in mine]):>8.0f}% {_mean(off):>10.2f} "
                      f"{100 * _mean(same):>8.0f}% {_mean(closer):>+7.2f} "
                      f"{100 * _mean([r['hidden'][name] for r in mine]):>6.0f}% "
@@ -265,9 +280,17 @@ def main():
     parser.add_argument("battles", nargs="?", type=int, default=20, help="battles per scenario")
     parser.add_argument("--scenarios", nargs="*", type=int, default=None, help="1-based scenario numbers")
     parser.add_argument("--turns", type=int, default=30, help="turn cap per battle")
+    parser.add_argument("--pickers", nargs="*", default=None,
+                        help="only these pickers (Perfect is always run - it prices the spots)")
     parser.add_argument("--seed", type=int, default=12345)
     parser.add_argument("--workers", type=int, default=0, help="battles at once within a scenario (0 = all cores)")
     args = parser.parse_args()
+    global PICKERS
+    if args.pickers:
+        unknown = [p for p in args.pickers if p not in PICKERS]
+        if unknown:
+            parser.error(f"unknown pickers {unknown}; known: {list(PICKERS)}")
+        PICKERS = ("Perfect",) + tuple(p for p in PICKERS if p in args.pickers and p != "Perfect")
     chosen = [s - 1 for s in args.scenarios] if args.scenarios else list(range(len(SCENARIOS)))
     workers = args.workers or os.cpu_count() or 1
     folder = os.path.join(REPO_ROOT, "run_stats", "pick_quality")
@@ -279,7 +302,7 @@ def main():
     for i in chosen:
         name, red, blue, board, kiter = SCENARIOS[i]
         started = time.perf_counter()
-        jobs = [(i, sim, args.seed, args.turns) for sim in range(1, args.battles + 1)]
+        jobs = [(i, sim, args.seed, args.turns, PICKERS) for sim in range(1, args.battles + 1)]
         rows, battles = [], []
         with ProcessPoolExecutor(max_workers=workers, mp_context=multiprocessing.get_context("spawn")) as pool:
             for got_rows, battle in pool.map(_battle, jobs):
