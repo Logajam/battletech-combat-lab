@@ -107,6 +107,7 @@ edited).
   self-registration), `weapon_rules` (2026-10-19)
 - `config.py` → `file_picker` (INTEGRATION__file_picker), MECHSIM `mtf_parser`
 - `rng.py` → `numpy` only
+- `map_picker.py` (NEW 2026-10-28, the map picker: a GUI-ready library plus the console menu) → `config`, `file_picker` (remembered pick); PATHFINDER `board_parser`, `terrain_rules` (lazy, the playable check). Used by `orchestrator._load_map` (resolve_board, prompt_and_apply when `PROMPT_FOR_MAP`).
 - `file_picker.py` → stdlib/`tkinter` only. Leaf. Only used when
   `MECH_*_MTF` is None.
 

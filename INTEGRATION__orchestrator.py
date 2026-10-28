@@ -148,6 +148,7 @@ import INTEGRATION__smoke as smoke  # noqa: E402 - smoke clouds and active probe
 import INTEGRATION__deployment as deployment  # noqa: E402
 import INTEGRATION__forces as forces  # noqa: E402 - teams, activation order, foe / target choice (2026-10-28)
 from INTEGRATION__attack_resolution import _with_piloting, total_hp  # noqa: E402
+import INTEGRATION__map_picker as map_picker  # noqa: E402
 from INTEGRATION__results import BattleResult, SideStats, summarize, summarize_teams, team_totals  # noqa: E402
 
 
@@ -155,23 +156,28 @@ from INTEGRATION__results import BattleResult, SideStats, summarize, summarize_t
 # ==========================  MAP LOADING  ====================================
 # =============================================================================
 def _load_map():
-    """Loads config.DEFAULT_BOARD_PATH (resolved under config.DATA_DIR) as a
-    single board - or, with config.STITCH_MAPS, the config.STITCH_BOARDS laid
-    out in a STITCH_GRID_COLS x STITCH_GRID_ROWS grid as one big board
+    """Loads config.DEFAULT_BOARD_PATH as a single board - or, with
+    config.STITCH_MAPS, the config.STITCH_BOARDS laid out in a
+    STITCH_GRID_COLS x STITCH_GRID_ROWS grid as one big board
     (board_parser.stitch_boards: a blank hex row / column at every seam).
-    config.PROMPT_FOR_MAP's interactive picker is still not built (needs a
-    board-picking counterpart to file_picker.pick_files())."""
+    A map name is a file under config.DATA_DIR or a map in the data/maps.zip
+    pack (INTEGRATION__map_picker.resolve_board). With config.PROMPT_FOR_MAP a
+    person is asked first (INTEGRATION__map_picker.choose_map; the answer is
+    written into config, and the question isn't asked again this run)."""
+    if config.PROMPT_FOR_MAP:
+        map_picker.prompt_and_apply()
+        config.PROMPT_FOR_MAP = False
     if config.STITCH_MAPS:
         names = list(config.STITCH_BOARDS)
         cols, rows = config.STITCH_GRID_COLS, config.STITCH_GRID_ROWS
         if len(names) != cols * rows:
             raise ValueError(f"config.STITCH_MAPS needs STITCH_BOARDS to name {cols} x {rows} = {cols * rows} "
                              f"board files, row-major; it names {len(names)}.")
-        paths = [config.data_path(n) for n in names]
+        paths = [map_picker.resolve_board(n) for n in names]
         config.log(f"\nStitching {cols} x {rows} maps (row-major): " + ", ".join(names))
         terrain_map = board_parser.stitch_boards(paths, cols, rows)
     else:
-        path = config.data_path(config.DEFAULT_BOARD_PATH)
+        path = map_picker.resolve_board(config.DEFAULT_BOARD_PATH)
         config.log(f"\nLoading map: {path}")
         terrain_map = board_parser.parse_board_file(path)
     # Refuses terrain the simulator can't play yet, and sets up buildings
