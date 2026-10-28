@@ -965,6 +965,10 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
                                       _search_start(mover, states), config.MOVEMENT_SEARCH_STARTS)
             else:
                 scored = [score_spot(c) for c in states]
+        elif own_search(mover) == "if_then":
+            # Daniel's IF/THEN (2026-10-28): best answer to the enemy where it stands, then
+            # to its modeled reply, back and forth while the honest score climbs.
+            scored = _if_then_search(static, prepared_by_key, ev1, prepared1, me, them, score_spot)
         elif own_search(mover) == "grid":
             # No hexes around the enemy here: it moves after the first mover (Daniel, 2026-10-21:
             # "Always checks wouldn't help the first mover"). The own hex is always a net hex.
@@ -981,7 +985,7 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
                      f"{f' ({reply.attack.upper()})' if reply.attack else ''}"
                      if reply is not None else "; modeled reply: none with LOS")
         return (_pick_dict(o), me.objective.note(dealt, received, dm, rm, extras,
-                                                 f"two-ply, {_spots_text(len(scored), len(prepared1))} x "
+                                                 f"two-ply, {_spots_text(len(scored), len(prepared1), own_search(mover))} x "
                                                  f"{len(prepared2)} replies"
                                                  f"{_REPLY_SEARCH_TEXT.get(assumed_enemy_search(mover), '')}"
                                                  f"{reply_txt}"),
@@ -993,12 +997,65 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
 _REPLY_SEARCH_TEXT = {"grid": " (grid search)", "short_list": " (short list)"}
 
 
-def _spots_text(checked, total):
+def _spots_text(checked, total, search=None):
+    if search == "if_then":
+        return f"IF/THEN, {checked} attempt{'s' if checked != 1 else ''} of {total} spots"
     return f"{total} spots" if checked == total else f"{checked} of {total} spots (grid search)"
 
 
+def _if_then_search(static, prepared_by_key, ev1, prepared1, me, them, score_spot):
+    """Daniel's IF/THEN picker (2026-10-28, own_search = "if_then", first mover):
+    "IF the enemy ends up there, THEN where should I go" - back and forth with
+    the second mover's modeled reply until the climb stops.
+
+      1. First attempt: the mover's best spot against the enemy where it
+         stands now (`static`, every reachable spot - Daniel: "Have the First
+         mover Project its own move vs the 2nd movers static position first").
+      2. Score the attempt honestly: score_spot = the second mover's modeled
+         reply to it (assumed_enemy_search), as every two-ply pick is scored.
+      3. Next attempt: the mover's best spot (every reachable spot) against
+         the enemy standing at that reply's state. Back to 2.
+    Stops when an attempt doesn't score better than the one before (ties
+    included) - the one before is the pick (hill climbing: the last attempt
+    kept is the best) - or an attempt repeats an earlier one (Daniel: "or until
+    it picks the same location twice"; with strictly rising scores that can't
+    pick better), or the reply has no line of sight (no state to answer).
+    Each round costs one pass over the mover's spots plus one modeled reply,
+    instead of every spot x every reply. Returns the kept attempts' score_spot
+    rows, scores rising."""
+    def best_response(cands):
+        best_key, best = None, None
+        for cand in cands:
+            key = round(me.objective(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
+                                     me.exposure[cand.side_on_mover], me.psr_for(cand)), 9)
+            if best is None or key > best_key:      # tie: first seen (deterministic)
+                best_key, best = key, cand
+        return best
+
+    rows, tried = [], set()
+    cand = best_response(static)
+    while cand is not None:
+        key = (cand.hex, cand.facing, cand.mode, cand.fc)
+        if key in tried:
+            break
+        tried.add(key)
+        row = score_spot(prepared_by_key[key])
+        if rows and round(row[0], 9) <= round(rows[-1][0], 9):
+            break
+        rows.append(row)
+        reply = row[2][5]
+        if reply is None:
+            break
+        with timing.section("IF/THEN best answers"):
+            # The enemy holds the reply's hex, so the mover can't end there.
+            cand = best_response(ev1.evaluate(reply.hex, reply.facing, reply.fc, reply.mode, reply.mp_spent,
+                                              [o for o in prepared1 if o.label != reply.hex]))
+    return rows
+
+
 def own_search(mech):
-    """How this mech picks its own spot: "grid", "exhaustive" or
+    """How this mech picks its own spot: "grid", "exhaustive", "if_then"
+    (first mover: _if_then_search; second mover: every spot, as "exhaustive") or
     "short_list" (either mover: its own hex and the short-list distances
     from the enemy) - "Short-Short" with
     assumes_enemy_search "short_list", 2026-10-27 - its config
