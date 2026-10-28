@@ -87,7 +87,8 @@ def main():
               + " | ".join(f"{t}: {alive}/12 left, HP {hp}/{mx}, dealt {dealt}" for t, (alive, hp, mx, dealt) in teams.items())
               + f" | {wall:.0f} s ({row['seconds_per_turn']} s a turn)")
         if result.timing:
-            print("    time: " + ", ".join(f"{k} {v:.0f}s" for k, v in sorted(result.timing.items(), key=lambda kv: -kv[1])[:8]))
+            secs = {k: (v[0] if isinstance(v, (list, tuple)) else v) for k, v in result.timing.items()}
+            print("    time: " + ", ".join(f"{k} {v:.0f}s" for k, v in sorted(secs.items(), key=lambda kv: -kv[1])[:8]))
     out_dir = os.path.join(REPO_ROOT, "run_stats", "baseline")
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, f"{args.setup}_seed{args.seed}_{int(time.time())}.json")
