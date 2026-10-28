@@ -102,7 +102,7 @@ import INTEGRATION__ammo as ammo
 import INTEGRATION__water as water
 import INTEGRATION__hazards as hazards
 import INTEGRATION__advanced_weapons as adv
-from mech_state import pilot_hit  # command console, p.203
+from mech_state import pilot_hit, technical_officer_bonus  # command console, p.203; technical officer, p.236
 from mech_state import compute_heat_dissipation, is_destroyed, pilot_unconscious, \
     mark_consciousness_check_pending, active_heat_sinks, working_heat_sinks, heat_sink_rate, \
     compute_walk_mp, compute_running_mp, compute_jump_mp
@@ -420,6 +420,7 @@ def _check_shutdown(mech):
     tn = shutdown_avoid_tn(level)
     if tn is None:
         return
+    tn -= technical_officer_bonus(mech)          # a superheavy tripod's technical officer (p.236)
     if pilot_unconscious(mech):
         _shut_down(mech, f"heat {level}, MechWarrior unconscious - can't override")
         return
@@ -520,6 +521,7 @@ def _check_ammo_explosion(mech, inferno):
     tn = inferno_avoid_tn(level) if inferno else ammo_avoid_tn(level)
     if tn is None:
         return False
+    tn -= technical_officer_bonus(mech)          # a superheavy tripod's technical officer (p.236)
     bins = live_ammo_bins(mech, inferno=inferno)
     if not bins:
         return False

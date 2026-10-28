@@ -28,7 +28,7 @@ from typing import Dict, List, Set
 
 import INTEGRATION__config as config
 import INTEGRATION__water as water
-from mech_state import ground_level_limited  # pp.90, 99, 238-239
+from mech_state import is_superheavy, ground_level_limited  # pp.90, 99, 238-239
 import terrain_rules
 import combat
 import hex_geometry
@@ -58,7 +58,7 @@ def band(terrain_map, edge, depth) -> List[str]:
 
 def _jump_mp_at(mech, label, terrain_map):
     """The mech's Jumping MP standing (not prone) in `label` (p.50)."""
-    lost = water.jump_mp_lost(mech, water.state_at(label, False, terrain_map))
+    lost = water.jump_mp_lost(mech, water.state_at(label, False, terrain_map, is_superheavy(mech)))
     return 0 if lost is None else max(0, compute_jump_mp(mech) - lost)
 
 
@@ -94,7 +94,7 @@ def reaches(mech, start, goal: Set[str], terrain_map, moves_cache=None) -> bool:
     as it likes (Daniel's "no path to the other side of the map")? Walking
     alone is tried first (cheap); jumps only if that fails. moves_cache: a
     dict shared between calls for one mech and board (speed only)."""
-    level_limit = terrain_rules.max_level_change(ground_level_limited(mech))
+    level_limit = terrain_rules.max_level_change(ground_level_limited(mech), is_superheavy(mech))
     cache = {} if moves_cache is None else moves_cache
     for jumping in (False, True):
         if jumping and compute_jump_mp(mech) <= 0:

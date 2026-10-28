@@ -44,7 +44,7 @@ import INTEGRATION__config as config
 import INTEGRATION__hazards as hazards  # magma / hazardous liquid on displacement (TO:AR, 2026-10-27)
 import INTEGRATION__physical_gear as gear
 from INTEGRATION__movement_attacks import comparative_modifier, displacement, apply_groups
-from mech_state import is_destroyed, all_crew_unconscious, torso_cockpit_sensor_penalty, tripod_pilot_modifier
+from mech_state import is_destroyed, all_crew_unconscious, torso_cockpit_sensor_penalty, physical_attacker_modifier
 import piloting_rolls
 import hex_geometry
 import combat
@@ -73,7 +73,7 @@ def to_hit(attacker, target, target_tmm):
     import INTEGRATION__advanced_weapons as adv
     return (attacker.piloting + JUMP_MODIFIER + target_tmm + comparative_modifier(attacker, target)
             + adv.own_attack_modifier(attacker, physical=True)                                   # Taser (TO:AUE p.158), IMP (IO)
-            + torso_cockpit_sensor_penalty(attacker) + tripod_pilot_modifier(attacker))   # pp.203, 236
+            + torso_cockpit_sensor_penalty(attacker) + physical_attacker_modifier(attacker))   # pp.203, 236, 240
 
 
 def _land(attacker, label):

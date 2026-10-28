@@ -61,7 +61,7 @@ import INTEGRATION__attack_resolution as attack_resolution
 import INTEGRATION__movement_attacks as movement_attacks
 import INTEGRATION__physical_gear as gear
 from INTEGRATION__movement_attacks import groupings, comparative_modifier, terrain_modifier
-from mech_state import torso_cockpit_sensor_penalty, tripod_pilot_modifier
+from mech_state import torso_cockpit_sensor_penalty, physical_attacker_modifier
 from mech_state import (DamageType, is_destroyed, is_immobile, all_crew_unconscious,
                         mark_consciousness_check_pending, leg_aes_working)
 from damage_resolution import apply_damage
@@ -93,7 +93,7 @@ def to_hit(attacker, mode, target, a_xy, t_xy, terrain_map, target_tmm):
     return (attacker.piloting + combat.MODE_TO_AMM[mode] + target_tmm
             + terrain_modifier(a_xy, t_xy, terrain_map) + comparative_modifier(attacker, target)
             + aes_modifier(attacker) + torso_cockpit_sensor_penalty(attacker)       # p.203
-            + tripod_pilot_modifier(attacker)                                        # p.236
+            + physical_attacker_modifier(attacker)                                        # pp.236, 240
             + adv.own_attack_modifier(attacker, physical=True))                                            # Taser (TO:AUE p.158), IMP (IO)
 
 

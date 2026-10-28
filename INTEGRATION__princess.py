@@ -77,7 +77,7 @@ import INTEGRATION__water as water
 import INTEGRATION__arcs as arcs
 import INTEGRATION__attack_resolution as attack_resolution
 import INTEGRATION__timing as timing
-from mech_state import is_immobile  # noqa: E402 - MECHSIM
+from mech_state import is_immobile, is_superheavy  # noqa: E402 - MECHSIM
 import piloting_rolls  # noqa: E402 - MECHSIM
 import hex_geometry  # noqa: E402 - PATHFINDER
 import combat  # noqa: E402 - PATHFINDER
@@ -442,7 +442,8 @@ def _kick_potential(attacker, a_xy, a_label, a_facing, a_amm, target, t_xy, t_la
     import INTEGRATION__physical as physical
     levels = terrain_map["hexes"]
     opts = physical.options_at(attacker, a_xy, a_facing, levels[a_label]["level"], t_xy, levels[t_label]["level"],
-                               target_prone, frozenset(), arcs.current_action(attacker))
+                               target_prone, frozenset(), arcs.current_action(attacker),
+                               is_superheavy(target))
     kicks = opts.get("kick")
     if not kicks:
         return 0.0

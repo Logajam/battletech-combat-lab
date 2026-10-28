@@ -64,7 +64,7 @@ import INTEGRATION__water as water
 import INTEGRATION__arcs as arcs
 import INTEGRATION__attack_resolution as attack_resolution
 import INTEGRATION__timing as timing
-from mech_state import is_immobile, compute_heat_dissipation, compute_walk_mp  # noqa: E402 - MECHSIM
+from mech_state import is_immobile, compute_heat_dissipation, compute_walk_mp, is_superheavy  # noqa: E402 - MECHSIM
 from damage_resolution import get_weapons  # noqa: E402 - MECHSIM
 import hex_geometry  # noqa: E402 - PATHFINDER
 import combat  # noqa: E402 - PATHFINDER
@@ -238,7 +238,7 @@ def heat_sink_boost(mech, o, dist, terrain_map):
         return 1.0
     rng = max(1, int(math.ceil(dist)))
     dry_capacity = compute_heat_dissipation(mech)
-    wet_capacity = dry_capacity + water.dissipation_bonus(mech, water.state_at(o.label, mech.prone, terrain_map))
+    wet_capacity = dry_capacity + water.dissipation_bonus(mech, water.state_at(o.label, mech.prone, terrain_map, is_superheavy(mech)))
     dry = sustained_damage(mech, rng, dry_capacity)
     wet = sustained_damage(mech, rng, wet_capacity)
     return wet / dry if dry > 0 and wet > dry else 1.0
@@ -301,7 +301,8 @@ def _physical_options(attacker, a_xy, a_label, a_facing, a_amm, target, t_xy, t_
     import INTEGRATION__physical as physical
     levels = terrain_map["hexes"]
     opts = physical.options_at(attacker, a_xy, a_facing, levels[a_label]["level"], t_xy, levels[t_label]["level"],
-                               target_prone, frozenset(), arcs.current_action(attacker))
+                               target_prone, frozenset(), arcs.current_action(attacker),
+                               is_superheavy(target))
     if not opts:
         return None, {}, "front"
     los_mod = geo_cache.los(a_xy, t_xy, terrain_map, 2, 1 if target_prone else 2).modifier

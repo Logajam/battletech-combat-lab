@@ -74,6 +74,7 @@ import config
 import armor_rules
 from equipment import Equipment, is_crit_target
 from mech_state import has_hd_gyro, has_command_console, console_active, console_takes_over  # pp.203-204
+from mech_state import engine_hits_to_destroy  # p.240 (2026-10-28)
 from mech_state import ArmorType, DamageType, display_crits, is_destroyed, \
     compute_walk_mp, compute_jump_mp, compute_mechanical_jump_booster_mp, \
     compute_running_mp, mark_consciousness_check_pending, compute_heat_dissipation
@@ -291,7 +292,7 @@ def _slot_loss_effects(mech, location, slot, why):
                        f"{why} - jump MP now {compute_jump_mp(mech)}.")
     elif slot == "Engine":
         mech.engine_hits += 1
-        config.log(f"    Engine hit ({mech.engine_hits}/3) from {location} {why}.")
+        config.log(f"    Engine hit ({mech.engine_hits}/{engine_hits_to_destroy(mech)}) from {location} {why}.")
     elif slot == "Gyro":
         mech.gyro_hits += 1
         config.log(f"    Gyro hit ({mech.gyro_hits}/{4 if has_hd_gyro(mech) else 2}) from {location} {why}.")
@@ -466,7 +467,8 @@ def _armored_joint_absorbs(mech, location):
 def resolve_critical(mech, location, explosive_only, idx, total):
     if explosive_only:
         pool = [i for i, s in enumerate(mech.crits[location])
-                if isinstance(s, Equipment) and s.is_explosive and not s.exploded]
+                if isinstance(s, Equipment) and s.is_explosive and not s.exploded
+                and getattr(s, "partner_of_slot", None) is None]       # a superheavy slot's second item
     else:
         pool = [i for i, s in enumerate(mech.crits[location]) if is_crit_target(s)]
 
@@ -574,7 +576,7 @@ def resolve_slot_hit(mech, location, slot_idx, slot, idx, total):
         config.log(f"      Current crit slots in {location}: {display_crits(mech, location)}")
         if slot == "Engine":
             mech.engine_hits += 1
-            config.log(f"      Engine hit ({mech.engine_hits}/3).")
+            config.log(f"      Engine hit ({mech.engine_hits}/{engine_hits_to_destroy(mech)}).")
         elif slot == "Gyro":
             mech.gyro_hits += 1
             config.log(f"      Gyro hit ({mech.gyro_hits}/{4 if has_hd_gyro(mech) else 2}).")
@@ -793,11 +795,26 @@ def apply_explosion(mech, component, location):
     damage reaching it is over that and the location survives, the excess goes
     to its armor (a torso: rear armor), at most 10; the rest is negated and
     nothing transfers. CASE II gives the explosion's crit checks -1.
-    The MechWarrior takes 1 hit (p.117) either way."""
+    The MechWarrior takes 1 hit (p.117) either way.
+    A superheavy slot holding two ammo bins (2026-10-28, Core p.240; MegaMek
+    explodes both): the second bin goes up with the first - one explosion,
+    one MechWarrior hit."""
     mech.explosions += 1
     mech.pilot_hits += 1
     mark_consciousness_check_pending(mech)
     base = component.explosion_damage
+    partner = getattr(component, "partner", None)
+    if (partner is not None and getattr(component, "category", None) == "ammo"
+            and partner.category == "ammo" and partner.is_explosive and not partner.exploded):
+        partner.exploded = True
+        base += partner.explosion_damage
+        for loc, slots in mech.crits.items():
+            for i, s in enumerate(slots):
+                if s is partner:
+                    mech.destroyed_slot_info[(loc, i)] = {"name": partner.name, "instance_id": id(partner)}
+                    slots[i] = "DESTROYED"
+        config.log(f"    {partner.name} shares the superheavy slot - it explodes too "
+                   f"(+{partner.explosion_damage}; one MechWarrior hit, Core p.240).")
     config.log(f"    {component.name} destroyed at {location} - EXPLOSION ({base} dmg)! "
         f"Pilot takes 1 hit ({mech.pilot_hits}/6).")
 

@@ -39,6 +39,11 @@ INTEGRATION__dfa, INTEGRATION__movement_attacks) and resolved here.
     punch / weapon only, on the Kick table; one level down: kick / weapon on
     the Punch table. Prone target: kick / weapon (not claws) on the standard
     table at the same level, punch / weapon one level up.
+    A superheavy target (2026-10-28, Core p.240's Different Levels table):
+    standing 1 up - punch / weapon / club on the Kick table (charge too);
+    1 down - punch, kick, weapon, club on their default tables; 2 down - kick,
+    weapon, club on the Punch table (charge, default). Prone 1 up - punch,
+    weapon, club, default tables; 1 down - all, default tables; 2 down - none.
   - All attacks are declared and rolled, then damage lands (p.83). A kicked
     mech, and one that missed a kick, makes a PSR (+0) at the end of the
     phase, joined to the phase's damage PSR (piloting_rolls).
@@ -75,7 +80,7 @@ import INTEGRATION__water as water
 import INTEGRATION__physical_gear as gear
 import INTEGRATION__stubs as stubs
 from mech_state import pilot_hit, head_hit_hurts_pilot, has_torso_cockpit, torso_cockpit_sensor_penalty  # p.203
-from mech_state import tripod_pilot_modifier  # p.236
+from mech_state import physical_attacker_modifier, is_superheavy  # pp.236, 240
 from mech_state import (DamageType, is_destroyed, is_immobile, mark_consciousness_check_pending,
                         arm_aes_working, leg_aes_working)
 from equipment import Equipment
@@ -397,7 +402,8 @@ def attack_options(attacker, target, terrain_map, action=None):
     a_level, t_level = terrain_map["hexes"][attacker.hex]["level"], terrain_map["hexes"][target.hex]["level"]
     fired = getattr(attacker, "weapons_fired_this_turn", frozenset())
     opts = options_at(attacker, a_xy, a_facing, a_level, hex_geometry.parse_hex_label(target.hex), t_level,
-                      target.prone, fired, arcs.current_action(attacker) if action is None else action)
+                      target.prone, fired, arcs.current_action(attacker) if action is None else action,
+                      is_superheavy(target))
     if not (action or arcs.current_action(attacker)).flip:          # reversed arms can't push either
         push = push_option(attacker, a_xy, a_facing, a_level, target, target.hex, t_level, terrain_map, fired)
         if push is not None:
@@ -423,7 +429,8 @@ def water_filter(opts, allowed):
     return {k: v for k, v in opts.items() if k in allowed}
 
 
-def options_at(attacker, a_hex, a_facing, a_level, t_hex, t_level, target_prone, fired, action):
+def options_at(attacker, a_hex, a_facing, a_level, t_hex, t_level, target_prone, fired, action,
+               target_superheavy=False):
     """attack_options for an attacker standing on a_hex facing a_facing (0-5)
     against a target on t_hex - positions given, so movement scoring can ask
     about a spot neither mech stands on yet. The attacker is taken to be able
@@ -431,12 +438,50 @@ def options_at(attacker, a_hex, a_facing, a_level, t_hex, t_level, target_prone,
     if hex_distance(a_hex, t_hex) != 1:
         return {}
     diff = t_level - a_level
-    if abs(diff) > 1:
+    if not reachable(diff, target_superheavy):
         return {}
-    return _options(attacker, Reach(attacker, a_hex, a_facing, t_hex, action), diff, target_prone, fired)
+    return _options(attacker, Reach(attacker, a_hex, a_facing, t_hex, action), diff, target_prone, fired,
+                    target_superheavy)
 
 
-def _options(attacker, rel, diff, target_prone, fired):
+def reachable(diff, target_superheavy=False):
+    """Can a physical attack span this level difference (target minus
+    attacker)? One level - two down at a superheavy (Core pp.77, 240)."""
+    return -2 <= diff <= 1 if target_superheavy else abs(diff) <= 1
+
+
+def _superheavy_options(attacker, rel, diff, target_prone, fired):
+    """Core p.240's Different Levels table for a superheavy target."""
+    opts = {}
+    if not target_prone:
+        if diff == 1:
+            opts["punch"] = _punch_options(attacker, rel, fired, "kick")
+            opts["weapon"] = _weapon_options(attacker, rel, fired, "kick", False)
+            opts["club"] = _club_options(attacker, rel, fired, "kick")
+        elif diff == -1:
+            opts["punch"] = _punch_options(attacker, rel, fired, None)
+            opts["kick"] = _kick_options(attacker, rel, fired, None)
+            opts["weapon"] = _weapon_options(attacker, rel, fired, None, False)
+            opts["club"] = _club_options(attacker, rel, fired, "standard")
+        elif diff == -2:
+            opts["kick"] = _kick_options(attacker, rel, fired, "punch")
+            opts["weapon"] = _weapon_options(attacker, rel, fired, "punch", False)
+            opts["club"] = _club_options(attacker, rel, fired, "punch")
+    elif diff == 1:
+        opts["punch"] = _punch_options(attacker, rel, fired, None)
+        opts["weapon"] = _weapon_options(attacker, rel, fired, None, True)
+        opts["club"] = _club_options(attacker, rel, fired, "standard")
+    elif diff == -1:
+        opts["punch"] = _punch_options(attacker, rel, fired, None)
+        opts["kick"] = _kick_options(attacker, rel, fired, "standard")
+        opts["weapon"] = _weapon_options(attacker, rel, fired, None, True)
+        opts["club"] = _club_options(attacker, rel, fired, "standard")
+    return {k: v for k, v in opts.items() if v}
+
+
+def _options(attacker, rel, diff, target_prone, fired, target_superheavy=False):
+    if target_superheavy and diff != 0:
+        return _superheavy_options(attacker, rel, diff, target_prone, fired)
     opts = {}
     if target_prone:
         if diff == 0:
@@ -490,6 +535,7 @@ class _FixedReach:
         self._arms = {"Left Arm": signature[0], "Right Arm": signature[1]}
         self.kick_ok = signature[2]
         self._club = signature[3]
+        self.mule_ok = signature[4]        # a quad's mule kick (p.238; was missing - fixed 2026-10-28)
 
     def arm_ok(self, arm):
         return self._arms[arm]
@@ -505,9 +551,11 @@ class Planner:
     difference and whether the target is prone, so they're built once per
     case. Build a new one when the mech's state changes (damage, TSM)."""
 
-    def __init__(self, mech, worth=None):
+    def __init__(self, mech, worth=None, target=None):
         self.mech = mech
         self.worth = worth                 # a Worth for the target, or None for raw expected damage
+        # A superheavy target's own Different Levels table (Core p.240, 2026-10-28).
+        self.target_superheavy = is_superheavy(target if target is not None else getattr(worth, "target", None))
         self._options = {}
         self._plans = {}
         self._held = {}
@@ -521,7 +569,7 @@ class Planner:
         t_water: the target's water state (INTEGRATION__water) - damage to its
         underwater locations counts half; None = on land."""
         diff = t_level - a_level
-        if abs(diff) > 1 or hex_distance(a_hex, t_hex) != 1:
+        if not reachable(diff, self.target_superheavy) or hex_distance(a_hex, t_hex) != 1:
             return []
         return self._plans_for(Reach(self.mech, a_hex, a_facing, t_hex, action).signature(), diff,
                                target_prone, base, side, allowed, t_water)
@@ -535,7 +583,7 @@ class Planner:
             options = self._options.get(case)
             if options is None:
                 options = self._options[case] = _options(self.mech, _FixedReach(signature), diff, target_prone,
-                                                         frozenset())
+                                                         frozenset(), self.target_superheavy)
             options = water_filter(options, allowed)
             if t_water not in (None, water.GROUND):
                 target = self.worth.target if self.worth is not None else None
@@ -558,7 +606,8 @@ class Planner:
         return got
 
     def plans_in_case(self, signature, diff, target_prone, base, side="front", allowed=None, t_water=None):
-        return self._plans_for(signature, diff, target_prone, base, side, allowed, t_water) if abs(diff) <= 1 else []
+        return (self._plans_for(signature, diff, target_prone, base, side, allowed, t_water)
+                if reachable(diff, self.target_superheavy) else [])
 
     def push_plan(self, a_xy, a_facing, a_level, target, t_label, t_level, base, side, terrain_map):
         """[(value, limbs, [option])] for the push from this spot, or []."""
@@ -594,7 +643,7 @@ def base_tn(attacker, amm, target_tmm, los_modifier, target_prone_modifier):
     dedicated pilot (-1, +2 if disabled - p.236, tripod_pilot_modifier)."""
     return (attacker.piloting + amm + target_tmm + los_modifier + target_prone_modifier
             + adv.own_attack_modifier(attacker, physical=True)                                   # Taser (TO:AUE p.158), IMP (IO)
-            + torso_cockpit_sensor_penalty(attacker) + tripod_pilot_modifier(attacker))   # p.236
+            + torso_cockpit_sensor_penalty(attacker) + physical_attacker_modifier(attacker))   # p.236
 
 
 def _base_tn(attacker, target, terrain_map):

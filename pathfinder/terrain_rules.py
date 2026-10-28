@@ -139,9 +139,23 @@ def _water_depth(params: List[str]) -> int:
     return depth
 
 
-def terrain_cost(features: Dict[str, List[str]]) -> int:
+SUPERHEAVY_DISCOUNT = 1   # Core p.240: a superheavy pays 1 less to enter these terrains
+SUPERHEAVY_DISCOUNTED = ("rough", "rubble", "woods", "jungle")   # (and foliage - no such terrain here)
+
+
+def terrain_cost(features: Dict[str, List[str]], superheavy: bool = False) -> int:
     """The hex's terrain MP addition (p.48), every terrain in it added up
-    (p.47, Stacked Terrain). Road travel is handled by step_cost."""
+    (p.47, Stacked Terrain). Road travel is handled by step_cost.
+    superheavy (2026-10-28, Core p.240): rough, rubble, woods and jungle each
+    cost it 1 MP less (never below nothing)."""
+    if superheavy:
+        base = terrain_cost(features)
+        cut = 0
+        for f in SUPERHEAVY_DISCOUNTED:
+            if f in features:
+                alone = terrain_cost({f: features[f]})
+                cut += min(SUPERHEAVY_DISCOUNT, alone)
+        return base - cut
     cost = 0
     if "rough" in features:
         cost += ROUGH_COST
@@ -179,9 +193,22 @@ def is_paved(info: Dict[str, object]) -> bool:
     return bool(info.get("building")) or any(f in info["features"] for f in PAVED_FEATURES)
 
 
-def max_level_change(hip_destroyed: bool) -> int:
-    """Most levels ground movement may climb or drop per hex (pp.46-47)."""
-    return MAX_LEVEL_CHANGE_HIP_DESTROYED if hip_destroyed else MAX_LEVEL_CHANGE
+class GroundLimit(int):
+    """A mover's level limit (an int, as before) that also says whether the
+    mover is a superheavy - so step_cost can give it its terrain discount
+    (Core p.240) without a new argument through every path search."""
+    superheavy = False
+
+    def __new__(cls, value, superheavy=False):
+        limit = int.__new__(cls, value)
+        limit.superheavy = superheavy
+        return limit
+
+
+def max_level_change(hip_destroyed: bool, superheavy: bool = False) -> int:
+    """Most levels ground movement may climb or drop per hex (pp.46-47);
+    a GroundLimit carrying the superheavy flag (2026-10-28)."""
+    return GroundLimit(MAX_LEVEL_CHANGE_HIP_DESTROYED if hip_destroyed else MAX_LEVEL_CHANGE, superheavy)
 
 
 def step_cost(
@@ -228,7 +255,8 @@ def step_cost(
     if on_road:
         cost = BASE_ENTRY_COST + max(0, abs(change) - ROAD_LEVEL_CHANGE_DISCOUNT) * ELEVATION_COST_PER_LEVEL
     else:
-        cost = BASE_ENTRY_COST + terrain_cost(to_info["features"]) + abs(change) * ELEVATION_COST_PER_LEVEL
+        cost = (BASE_ENTRY_COST + terrain_cost(to_info["features"], getattr(level_limit, "superheavy", False))
+                + abs(change) * ELEVATION_COST_PER_LEVEL)
 
     assert cost >= 1, f"step_cost produced {cost} < 1 — violates the DP's load-bearing invariant."
     return cost

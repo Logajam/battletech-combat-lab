@@ -13,6 +13,13 @@ A 'Mech's water state (p.127):
   GROUND     - not in water of depth 1+.
   PARTIAL    - standing in depth 1: legs submerged, partial cover (p.66).
   SUBMERGED  - standing in depth 2+, or prone in depth 1+: fully submerged.
+A superheavy (2026-10-28, Core p.240: "add 1 to the levels specified") is
+PARTIAL standing in depth 2 and SUBMERGED standing in depth 3+ or prone in
+depth 2+; in depth 1 (standing or prone) it is
+  WADING     - its legs are in the water (heat sinks, leg jump jets, breaches
+               as PARTIAL), but for combat it is on dry ground, except that it
+               can't attack a partly or fully submerged target, and attacks
+               from submerged locations or units on it use the Kick table.
 
 What this module rules on (each function cites its page):
   - which weapons can fire, for the attacker's and target's states
@@ -47,9 +54,11 @@ from typing import Dict, FrozenSet, Optional
 import INTEGRATION__config as config
 import INTEGRATION__weapon_rules as weapon_rules
 from damage_resolution import is_heat_sink, is_jump_jet, heat_sink_units, mark_location_nonfunctional
-from mech_state import active_heat_sinks, heat_sink_rate, compute_jump_mp, mark_consciousness_check_pending
+from mech_state import active_heat_sinks, heat_sink_rate, compute_jump_mp, mark_consciousness_check_pending, \
+    is_superheavy
 
 GROUND, PARTIAL, SUBMERGED = "ground", "partial", "submerged"
+WADING = "wading"          # a superheavy in depth 1 (Core p.240)
 
 # p.127 Hull Breaches: "On a result of 2-4, the 'Mech has lost integrity in that location".
 BREACH_MAX_ROLL = 4
@@ -86,25 +95,35 @@ def depth_at(label, terrain_map=None) -> int:
     return info.get("depth", 0) if info else 0
 
 
-def state_at(label, prone=False, terrain_map=None) -> str:
-    """GROUND / PARTIAL / SUBMERGED for a 'Mech in `label` (p.127)."""
+def state_at(label, prone=False, terrain_map=None, superheavy=False) -> str:
+    """GROUND / PARTIAL / SUBMERGED (/ WADING) for a 'Mech in `label` (p.127;
+    a superheavy one level deeper, p.240)."""
     d = depth_at(label, terrain_map)
     if d <= 0:
         return GROUND
+    if superheavy:
+        if d == 1:
+            return WADING
+        d -= 1
     if prone or d >= 2:
         return SUBMERGED
     return PARTIAL
 
 
 def state(mech, terrain_map=None) -> str:
-    return state_at(mech.hex, mech.prone, terrain_map)
+    return state_at(mech.hex, mech.prone, terrain_map, is_superheavy(mech))
+
+
+def _combat(water_state):
+    """The state for combat: a wading superheavy is on dry ground (p.240)."""
+    return GROUND if water_state == WADING else water_state
 
 
 def submerged_locations(mech, water_state):
     """Locations under water: the legs in depth 1, everything when submerged."""
     if water_state == SUBMERGED:
         return set(mech.locations)
-    if water_state == PARTIAL:
+    if water_state in (PARTIAL, WADING):
         return set(mech.leg_locations)
     return set()
 
@@ -146,6 +165,16 @@ def blocked_weapon_ids(attacker, weapons, weapon_locs, a_state, t_state,
     a torpedo fires from a leg or from a fully submerged 'Mech), and every
     location of a submerged 'Mech is under water."""
     torpedoes = frozenset(id(w) for w in weapons if weapon_rules.is_torpedo(w))
+    if a_state == WADING and t_state in (PARTIAL, SUBMERGED):
+        return None                          # a superheavy in depth 1 (p.240)
+    if t_state == WADING and a_state in (PARTIAL, SUBMERGED):
+        # p.240: attacks from submerged locations / units on a superheavy in depth 1 are
+        # made (on the Kick table - kick_table_weapon_ids); only energy weapons fire
+        # from a submerged location (p.127).
+        under = submerged_locations(attacker, a_state)
+        return frozenset(id(w) for w in weapons
+                         if id(w) in torpedoes or (weapon_locs.get(id(w), set()) & under and w.damage_type != "Energy"))
+    a_state, t_state = _combat(a_state), _combat(t_state)
     if a_state == GROUND and t_state == GROUND:
         return torpedoes
     if (a_state == GROUND and t_state == SUBMERGED) or (a_state == SUBMERGED and t_state == GROUND):
@@ -174,6 +203,9 @@ def kick_table_weapon_ids(attacker, weapons, weapon_locs, a_state, t_state) -> F
     modifier, no leg hits lost to it): leg weapons from depth 1, and every
     weapon from a fully submerged 'Mech (pp.67, 127, Underwater Attacks Table
     notes 3 and 7; built 2026-10-21, RULES_REVIEW G6)."""
+    if t_state == WADING:                    # p.240: from submerged locations or units
+        under = submerged_locations(attacker, a_state) if a_state in (PARTIAL, SUBMERGED) else set()
+        return frozenset(id(w) for w in weapons if weapon_locs.get(id(w), set()) & under or a_state == SUBMERGED)
     if t_state != PARTIAL:
         return frozenset()
     if a_state == SUBMERGED:
@@ -248,7 +280,7 @@ def jump_mp_lost(mech, water_state=None) -> Optional[int]:
     water_state = state(mech) if water_state is None else water_state
     if water_state == SUBMERGED:
         return None
-    if water_state == PARTIAL:
+    if water_state in (PARTIAL, WADING):
         return sum(1 for loc in mech.leg_locations for jet in _working(mech, loc, is_jump_jet)
                    if id(jet) not in mech.destroyed_jump_jet_ids)
     return 0
@@ -281,7 +313,11 @@ def physical_allowed(a_state, t_state) -> Optional[FrozenSet[str]]:
     (the legs are under water); a fully submerged attacker can't reach a
     'Mech on land (the water line, p.62). Death from above: a submerged
     target is out of reach from the air; a 'Mech in depth 2+ can't jump
-    anyway (p.50)."""
+    anyway (p.50). A wading superheavy (p.240) can't attack a partly or fully
+    submerged target; otherwise it is on dry ground."""
+    if a_state == WADING and t_state in (PARTIAL, SUBMERGED):
+        return frozenset()
+    a_state, t_state = _combat(a_state), _combat(t_state)
     if t_state == SUBMERGED:
         if a_state == SUBMERGED:
             return None

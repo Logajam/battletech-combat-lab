@@ -50,12 +50,13 @@ from mech_state import is_destroyed, is_immobile, compute_walk_mp, compute_runni
 import hex_geometry
 import combat
 import piloting_rolls
-from mech_state import ground_level_limited  # pp.90, 99, 238-239
+from mech_state import is_superheavy, ground_level_limited  # pp.90, 99, 238-239
 import terrain_rules
 from los import hex_distance, hex_line, trace_los_path
 
 IMMOBILE_COMPARATIVE_PILOTING = 4        # p.77
 STANDING_HEIGHT, PRONE_HEIGHT = 2, 1     # unit height in levels (pp.57, 79)
+SUPERHEAVY_HEIGHTS = {False: 3, True: 2}  # a superheavy standing / prone (p.240)
 
 
 class Pose(NamedTuple):
@@ -65,16 +66,19 @@ class Pose(NamedTuple):
     facing: int            # 0-5
     tmm: int
     prone: bool
+    superheavy: bool = False   # its water state is one level shallower (Core p.240, 2026-10-28)
 
 
 def pose_of(mech):
     return Pose(mech.hex, hex_geometry.parse_hex_label(mech.hex), hex_geometry.compass_to_facing(mech.facing),
-                attack_resolution._target_tmm(mech), mech.prone)
+                attack_resolution._target_tmm(mech), mech.prone, is_superheavy(mech))
 
 
-def pose_at(label, facing_compass, fc, mode, prone=False):
+def pose_at(label, facing_compass, fc, mode, prone=False, target=None):
+    from mech_state import target_size_modifier                 # a superheavy: Large (Core p.240)
     return Pose(label, hex_geometry.parse_hex_label(label), hex_geometry.compass_to_facing(facing_compass),
-                combat.fc_to_tmm(fc, jumped=(mode == "Jump")), prone)
+                combat.fc_to_tmm(fc, jumped=(mode == "Jump")) + (target_size_modifier(target) if target else 0), prone,
+                bool(target) and is_superheavy(target))
 
 
 # =============================================================================
@@ -212,7 +216,7 @@ class MoverIndex:
         self.mover, self.terrain_map, self.standup_mp = mover, terrain_map, standup_mp
         self.walk = compute_walk_mp(mover)
         self.budget = compute_running_mp(mover) if standup_mp is None else standup_mp
-        self.level_limit = terrain_rules.max_level_change(ground_level_limited(mover))
+        self.level_limit = terrain_rules.max_level_change(ground_level_limited(mover), is_superheavy(mover))
         self.ground: Dict[tuple, List[tuple]] = {}
         # Forward-only states: a charge ends with a forward move into the target's hex, and the
         # hex count would restart after a backward step (backward charges not offered - see
@@ -253,8 +257,8 @@ class MoverIndex:
                 continue
             # Water (p.77, INTEGRATION__water): no charge at a fully submerged target from
             # above the water, nor from under water at a target on land.
-            allowed = water.physical_allowed(water.state_at(n, False, self.terrain_map),
-                                             water.state_at(pose.label, pose.prone, self.terrain_map))
+            allowed = water.physical_allowed(water.state_at(n, False, self.terrain_map, is_superheavy(self.mover)),
+                                             water.state_at(pose.label, pose.prone, self.terrain_map, pose.superheavy))
             if allowed is not None and "charge" not in allowed:
                 continue
             for fc, mp in states:
@@ -276,11 +280,12 @@ class MoverIndex:
         hex next to it along the path."""
         if not self.jump_hexes or pose.xy not in self.jump_hexes:
             return []
-        if water.state_at(pose.label, pose.prone, self.terrain_map) == water.SUBMERGED:
+        if water.state_at(pose.label, pose.prone, self.terrain_map, pose.superheavy) == water.SUBMERGED:
             return []                    # out of reach from the air (p.77, INTEGRATION__water)
         dist = hex_distance(self.start_xy, pose.xy)
         hexes = self.terrain_map["hexes"]
-        need = hexes[pose.label]["level"] + (PRONE_HEIGHT if pose.prone else STANDING_HEIGHT) \
+        need = hexes[pose.label]["level"] + (SUPERHEAVY_HEIGHTS[pose.prone] if pose.superheavy else
+                                             PRONE_HEIGHT if pose.prone else STANDING_HEIGHT) \
             - hexes[self.start_label]["level"]
         if dist > self.jump_mp or need > self.jump_mp:
             return []
@@ -307,7 +312,7 @@ def values(mover, target, pose, state, terrain_map):
     side = attack_resolution.attack_side(a_xy, pose.xy, pose.facing, terrain_map)
     direction = combat._direction_facing(a_xy, pose.xy)
     # Damage to the target's underwater locations counts half (p.77, INTEGRATION__water).
-    t_water = water.state_at(pose.label, pose.prone, terrain_map)
+    t_water = water.state_at(pose.label, pose.prone, terrain_map, pose.superheavy)
     wet = lambda table, s: water.physical_value_factor(target, t_water, table, s)  # noqa: E731
     if state.get("charge"):
         tn = charge.to_hit(mover, state["mode"], target, a_xy, pose.xy, terrain_map, pose.tmm)

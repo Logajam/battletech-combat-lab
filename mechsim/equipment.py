@@ -191,5 +191,6 @@ def is_crit_target(slot):
     if slot in ("DESTROYED", "-Empty-") or slot in PLAIN_STRING_CRIT_INELIGIBLE:
         return False
     if isinstance(slot, Equipment):
-        return slot.crit_eligible
+        # A superheavy slot's second item (mtf_parser.build_crit_list) is hit only with its slot.
+        return slot.crit_eligible and getattr(slot, "partner_of_slot", None) is None
     return not is_structure_or_armor_slot(slot)
