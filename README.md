@@ -39,6 +39,7 @@ After a change, from the repo root:
 - `python tests/test_map_picker.py`: checks the map picker (listing the loose boards and the map pack, finding a map, which maps fit a stitched grid, the console menu with scripted answers, remembering the last pick)
 - `python tests/test_princess_group.py`: checks Princess's team behaviors (the target choice with the damage friends already declared, the heat map and its hot spot, mutual support, crowding, the force's posture, a move against several enemies)
 - `python tests/test_battle_value.py`: checks Battle Value (the four published values, skill, damage, the equipment data, every unit in the pack priced)
+- `python tests/baseline_battery.py pp|pg|gg [battles]`: the baseline battery - 12 v 12 mirrored forces on a 2 x 1 stitched field, Princess v Princess / Princess v Gladiator / Gladiator v Gladiator; prints winner, turns, units and HP left, seconds a battle (a yardstick: results recorded in PROJECT_MAP Section 8)
 - `python tests/test_pathfinder.py`: checks the movement/map code
 - `python tests/test_weapon_range.py`: checks range brackets and the minimum-range penalty
 - `python tests/test_heat.py`: checks the Heat Scale rules (Core Rulebook pp.102-107) with scripted dice
