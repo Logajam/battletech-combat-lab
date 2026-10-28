@@ -10,6 +10,8 @@ hexes away on average the pick is from what perfect knowledge says is best").
     python tests/pick_quality.py                       # every scenario, 20 battles each
     python tests/pick_quality.py 8 --scenarios 1 2     # 8 battles, the two kiting scenarios
     python tests/pick_quality.py 8 --scenarios 3 4 --pickers "Short Grid" "IF/THEN + climb"
+    python tests/pick_quality.py --perfect-cache run_stats/perfect.json.gz --pickers "IF/THEN + climb"
+                                   # Perfect's prices saved by the first run, reused by the next
 
 The battles are Gladiator (the default, "Short Grid") against Gladiator, so the
 board states are the ones the project's own bot reaches. At EVERY movement
@@ -69,6 +71,7 @@ Raw rows: run_stats/pick_quality/.
 
 import argparse
 import copy
+import gzip
 import io
 import json
 import math
@@ -158,24 +161,70 @@ def _key(pick):
 
 _ROWS = []
 _REAL_CHOOSE = bots.choose_movement
+# Perfect's prices, reused (--perfect-cache, 2026-10-28, Daniel: "we can just compare its
+# results vs previously recorded results"). The battles are regenerated from their seeds,
+# so the same decision comes up in the same order; Perfect - by far the slowest picker -
+# is then read from the cache instead of run again. One entry per decision, in order, with
+# the position it was made in; a different position (the battle went another way) means
+# the cache is stale for the rest of that battle and Perfect runs again. Valid only while
+# Perfect's scoring is unchanged (the objective, the reply model, the rules).
+_CACHE_IN, _CACHE_OUT = [], []
+
+
+def _position(mover, other, moves_first, standup_mp):
+    return [mover.side_name, getattr(mover, "turn_number", 0), mover.hex, mover.facing, other.hex, other.facing,
+            bool(moves_first), standup_mp]
+
+
+def _run_perfect(mover, other, terrain_map, battle_rng, moves_first, standup_mp):
+    """Perfect's pick and its prices for every spot (movement_selection.SCORE_SINK)."""
+    sink = {}
+    rng = copy.deepcopy(battle_rng)
+    started = time.perf_counter()
+    with _Settings(mover, GLADIATOR_SETTINGS["Perfect"]):
+        movement_selection.SCORE_SINK = sink
+        try:
+            pick = movement_selection.choose(mover, other, terrain_map, rng, moves_first, standup_mp=standup_mp)[0]
+        finally:
+            movement_selection.SCORE_SINK = None
+    return _key(pick), time.perf_counter() - started, sink
+
+
+def _cached_perfect(mover, other, terrain_map, battle_rng, moves_first, standup_mp):
+    position = _position(mover, other, moves_first, standup_mp)
+    i = len(_CACHE_OUT)
+    hit = _CACHE_IN[i] if i < len(_CACHE_IN) and _CACHE_IN[i]["position"] == position else None
+    if hit is None:
+        del _CACHE_IN[i:]                    # the battle left the recorded path
+        pick, seconds, sink = _run_perfect(mover, other, terrain_map, battle_rng, moves_first, standup_mp)
+        entry = {"position": position, "pick": list(pick) if pick else None, "seconds": seconds,
+                 "spots": [list(k) + [v] for k, v in sink.get("spots", {}).items()],
+                 "attacks": [list(k) + [v] for k, v in sink.get("attacks", {}).items()],
+                 "considered": [list(k) for k in sink.get("considered", set(sink.get("spots", {})))],
+                 "fallback": bool(sink.get("fallback"))}
+    else:
+        entry = hit
+    _CACHE_OUT.append(entry)
+    sink = {"spots": {tuple(r[:-1]): r[-1] for r in entry["spots"]},
+            "attacks": {tuple(r[:-1]): r[-1] for r in entry["attacks"]},
+            "considered": {tuple(k) for k in entry["considered"]}, "fallback": entry["fallback"]}
+    return (tuple(entry["pick"]) if entry["pick"] else None), entry["seconds"], sink
 
 
 def _recording_choose(mover, other, terrain_map, battle_rng, moves_first, standup_mp=None, entry_edge=None):
     if other.hex is not None and entry_edge is None:
         picks, seconds = {}, {}
-        sink = {}
+        picks["Perfect"], seconds["Perfect"], sink = _cached_perfect(mover, other, terrain_map, battle_rng,
+                                                                     moves_first, standup_mp)
         for name in PICKERS:
+            if name == "Perfect":
+                continue
             rng = copy.deepcopy(battle_rng)
             started = time.perf_counter()
             if name in GLADIATOR_SETTINGS:
                 with _Settings(mover, GLADIATOR_SETTINGS[name]):
-                    if name == "Perfect":
-                        movement_selection.SCORE_SINK = sink
-                    try:
-                        pick = movement_selection.choose(mover, other, terrain_map, rng, moves_first,
-                                                         standup_mp=standup_mp)[0]
-                    finally:
-                        movement_selection.SCORE_SINK = None
+                    pick = movement_selection.choose(mover, other, terrain_map, rng, moves_first,
+                                                     standup_mp=standup_mp)[0]
             else:
                 version = "modern" if name.endswith("modern") else "0.50.07"
                 saved, config.PRINCESS_VERSION = config.PRINCESS_VERSION, version
@@ -225,9 +274,10 @@ def _recording_choose(mover, other, terrain_map, battle_rng, moves_first, standu
 
 
 def _battle(job):
-    index, sim, seed, max_turns, pickers = job
+    index, sim, seed, max_turns, pickers, cached = job
     global PICKERS
     PICKERS = pickers                        # a spawned worker starts from the module's default
+    _CACHE_IN[:], _CACHE_OUT[:] = cached or [], []
     _, red, blue, board, _ = SCENARIOS[index]
     config.MECH_RED_MTF, config.MECH_BLUE_MTF, config.DEFAULT_BOARD_PATH = red, blue, board
     config.MECH_RED_CONFIG["bot"] = config.MECH_BLUE_CONFIG["bot"] = "gladiator"
@@ -240,7 +290,9 @@ def _battle(job):
         result = orchestrator._run_one_battle(sim, sim, seed, max_turns, template_red, template_blue, terrain_map)
     for row in _ROWS:
         row.update(scenario=index, battle=sim)
-    return list(_ROWS), {"scenario": index, "battle": sim, "turns": result.turns_taken}
+    reused = sum(1 for a, b in zip(_CACHE_IN, _CACHE_OUT) if a is b)
+    return list(_ROWS), {"scenario": index, "battle": sim, "turns": result.turns_taken,
+                         "perfect_cache": list(_CACHE_OUT), "perfect_reused": reused}
 
 
 def _mean(values):
@@ -282,6 +334,9 @@ def main():
     parser.add_argument("--turns", type=int, default=30, help="turn cap per battle")
     parser.add_argument("--pickers", nargs="*", default=None,
                         help="only these pickers (Perfect is always run - it prices the spots)")
+    parser.add_argument("--perfect-cache", default=None,
+                        help="file of Perfect's prices (gzip JSON): read if there, written after; only "
+                             "while Perfect's scoring is unchanged")
     parser.add_argument("--seed", type=int, default=12345)
     parser.add_argument("--workers", type=int, default=0, help="battles at once within a scenario (0 = all cores)")
     args = parser.parse_args()
@@ -296,21 +351,32 @@ def main():
     folder = os.path.join(REPO_ROOT, "run_stats", "pick_quality")
     os.makedirs(folder, exist_ok=True)
     stamp = time.strftime("%Y%m%d_%H%M%S")
+    cache = {}
+    if args.perfect_cache and os.path.exists(args.perfect_cache):
+        with gzip.open(args.perfect_cache, "rt") as f:
+            cache = json.load(f)
     all_rows, report = [], [f"Movement picks priced on Perfect Knowledge's scale - {args.battles} battles per "
                             f"scenario, Gladiator (Short Grid) driving both sides, seed {args.seed}, "
                             f"{args.turns}-turn cap"]
     for i in chosen:
         name, red, blue, board, kiter = SCENARIOS[i]
         started = time.perf_counter()
-        jobs = [(i, sim, args.seed, args.turns, PICKERS) for sim in range(1, args.battles + 1)]
+        jobs = [(i, sim, args.seed, args.turns, PICKERS, cache.get(f"{i}/{sim}/{args.seed}/{args.turns}"))
+                for sim in range(1, args.battles + 1)]
         rows, battles = [], []
         with ProcessPoolExecutor(max_workers=workers, mp_context=multiprocessing.get_context("spawn")) as pool:
             for got_rows, battle in pool.map(_battle, jobs):
                 rows += got_rows
+                cache[f"{i}/{battle['battle']}/{args.seed}/{args.turns}"] = battle.pop("perfect_cache")
                 battles.append(battle)
+        if args.perfect_cache:
+            with gzip.open(args.perfect_cache, "wt") as f:
+                json.dump(cache, f)
         all_rows += rows
+        reused = sum(b["perfect_reused"] for b in battles)
         part = [f"\n{i + 1}. {name} ({red} Red vs {blue} Blue) - {len(rows)} decisions, "
-                f"{_mean([b['turns'] for b in battles]):.1f} turns a battle, {(time.perf_counter() - started) / 60:.1f} min"]
+                f"{_mean([b['turns'] for b in battles]):.1f} turns a battle, {(time.perf_counter() - started) / 60:.1f} min"
+                + (f", Perfect from the cache for {reused}" if args.perfect_cache else "")]
         part.append(_table(rows, "  both sides"))
         for side in ("Red", "Blue"):
             label = f"  {side}{' (the kiter)' if side == kiter else ''}"
