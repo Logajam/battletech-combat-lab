@@ -429,7 +429,9 @@ TO:AR summaries in `logajam/battletech-rules-index` (RULES_REVIEW F57-F64):
    (TO:AUE p.107 - submarine-style movement under water, 1 MP a UMU, +3 to
    its own attacks; needs underwater elevations in the movement search) and
    the chain whip's arm grapple (TO:AUE p.101 - needs TO:AR's grappling
-   rules; the leg trip is built).
+   rules; the leg trip is built). Industrial tools - chainsaws, drills,
+   hoists... (TechManual / Total Warfare; Daniel, 2026-10-28: "Defering
+   industrial tools").
 9. Later (Daniel agreed 2026-10-20): a setup shell GUI (the replay viewer
    exists); a compiled hot path (Cython / Rust for `MoveEvaluator.evaluate`)
    once the rules settle - not a rewrite; evolutionary tuning of the bot's
@@ -545,16 +547,14 @@ Replaced by Core Rulebook rules 2026-10-19 (Change Record): `attack_direction`
 184-200), `rear_mounted_weapons` (p.60), `ammo` / `one_shot` (pp.72-73, 95,
 180-182), `deployment` (p.37), `physical_combat` (pp.76-83, partly).
 
-**Rules gaps with no runtime flag** (also printed in every summary):
-shoulder / head turrets (not Core) and the twist / flip a TAG designation
-uses up (TAG doesn't fire yet) - Section 4a; LB-X/Ultra/Rotary multi-shot math;
-Artemis/HAG/ammo variants; heat sources with no terrain model yet (water,
-snow, fire, extreme temperatures) and inferno missiles (bins aren't fired
-from); heat decisions (cooldown, voluntary shutdown); stealth armor /
-Void-Signature hostile-ECM side effects; torso-mounted cockpit PSR/sensor
-rules; domino effects (no third mech); jumping onto the board at deployment;
-tripod leg sub-roll uses Python `random` (seeded from SEED, not the
-BattleRNG stream).
+**Rules gaps with no runtime flag** (the current list is printed in every
+summary - `INTEGRATION__results.KNOWN_MISSING_RULES`; refreshed 2026-10-28,
+the older items here had been built): the twist / flip a TAG designation
+uses up; special munitions (G16, deferred); bombast charging, HAG flak,
+distant Arrow IV (G18); full buildings / bridges (G22, deferred); fire,
+snow / ice, extreme temperatures; heat decisions (cooldown, voluntary
+shutdown); domino effects (no third mech). Units that don't load:
+ultralight (under 20 tons) and superheavy (over 100 tons) 'Mechs, LAMs.
 
 **Core Rulebook vs existing MECHSIM rules - Daniel to decide** (found
 2026-10-19 while replacing stubs; MECHSIM left unchanged because these are
@@ -1343,6 +1343,10 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-28 (Claude):** Industrial tools deferred (Daniel: "Defering
+  industrial tools") - Pick up here 10, the summary's gap list. Section 4's
+  stale "rules gaps" paragraph refreshed. Reference logs regenerated (gap
+  text only).
 - **2026-10-28 (Claude):** Interstellar Operations weapons from Daniel's
   pasted rules (TSEMP pp.88-91, iATM, IMP and IIW rounds) and MegaMek's
   values for what the pastes don't give (Daniel: "There should either be a

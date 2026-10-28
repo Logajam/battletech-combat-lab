@@ -158,8 +158,8 @@ launchers, MRM cluster -1, pp.185-187); Gauss rifle component explosion
 No effect in a two-'Mech duel (left out on purpose): C3 / C3i networks (need
 team-mates, p.198); active probes and the Watchdog's probe (hidden units,
 p.197 - and smoke, G34). TAG is built (F56). TSEMP, iATM, nail / rivet guns and Improved weapons are
-built (F66-F69, 2026-10-28). Not in the rules library yet: industrial
-tools (chainsaws, drills, hoists... - TechManual / Total Warfare). In TO:AUE but
+built (F66-F69, 2026-10-28). Industrial tools (chainsaws, drills,
+hoists... - TechManual / Total Warfare): deferred (Daniel, 2026-10-28). In TO:AUE but
 not built: 'Mech UMUs (underwater submarine movement - a movement-system job,
 Daniel's call) and the chain whip's grapple (2026-10-27).
 
