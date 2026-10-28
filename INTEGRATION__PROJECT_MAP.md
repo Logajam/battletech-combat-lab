@@ -143,7 +143,7 @@ load - only the 23 LAMs don't); `rules/` the rules library zip; `reference_logs/
 battles; `replays/` and `run_stats/` (git-ignored) generated output.
 
 **After any change, from the repo root:** `python tests/run_checks.py` -
-one command, about 1 min: every `tests/test_*.py` (22 files) and every
+one command, about 1 min: every `tests/test_*.py` (23 files, incl. `test_multi_unit.py`) and every
 reference battle (15), side by side, one line each, all must pass. Reference
 battles stop at 50 turns (`check_reference_logs.TEST_BATTLE_MAX_TURNS`,
 Daniel); one that hits the cap prints a NOTE ("a possible flaw") - today
@@ -411,7 +411,16 @@ rebuild it with one full run). Numbers: Change Record.
    without firing); test with `tests/ab_batches.py` and replays. Reference
    battles are capped at 50 turns meanwhile, and every batch summary flags
    battles that hit the turn cap.
-1. **Speed** (Daniel: "We still need more speed") - largely done in session
+1. **Speed for multi-unit battles** (session 12): a 12v12 takes ~9.5 s a turn
+   (~0.5 s a unit); ~60% of it is `ranged_combat.movement_options` (each
+   unit's reachable spots, rebuilt every turn - ~285 ms a unit, the entry
+   turn the worst, and `DEPLOYMENT_DEPTH` > 0 multiplies it). Next steps:
+   cache a unit's movement table between turns when nothing changed, and
+   fewer entry hexes. A speed-only change must keep the benchmark (501 / 495)
+   and every reference log. Sample replay (4v4 Kontio / Hammerhead, seed 21):
+   https://claude.ai/artifact/FnXQK7huREYBfhGcM4cEMX
+   Also open: stitched boards for company-size fights (`STITCH_MAPS`).
+1a. **Speed** (Daniel: "We still need more speed") - largely done in session
    6; next steps only if runs get slow again. Session 6: ~25% off the
    exhaustive search (Change Record), then the grid search as the default
    (~4x). With the EXHAUSTIVE search the two-ply look-ahead is ~95% of run
