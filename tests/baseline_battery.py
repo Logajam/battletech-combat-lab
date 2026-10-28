@@ -7,7 +7,7 @@ will be recorded as a yard stick for future tests.").
     python tests/baseline_battery.py pg 3 --seed 7     # Princess (Red) vs Gladiator (Blue), 3 battles
     python tests/baseline_battery.py gg 3              # Gladiator vs Gladiator
 
-The field: FOUR 16x17 boards stitched 2 x 2 (a 33 x 35 field), 12 'Mechs a side, mirrored -
+The field: TWO 16x17 boards stitched 2 x 1 (a 33 x 17 field; Daniel: "drop down to a 2x1 map size. Give the bots less room to hide in" - the first try was four boards, 2 x 2, and ran 50 turns with no result), 12 'Mechs a side, mirrored -
 the same twelve on each side: 3 assault (Atlas AS7-K 100t, Emperor EMP-6D 90t, Awesome
 AWS-8Q 80t), 3 heavy (Archer ARC-2R 70t, Cataphract CTF-3D 70t, Catapult CPLT-C1 65t),
 3 medium (Kintaro KTO-19 55t, Griffin GRF-1N 55t, Hunchback HBK-4G 50t), 3 light (Jenner
@@ -35,8 +35,7 @@ import INTEGRATION__config as config  # noqa: E402
 import INTEGRATION__orchestrator as orchestrator  # noqa: E402
 import INTEGRATION__timing as timing  # noqa: E402
 
-BOARDS = ["16x17_Grassland_1.board", "16x17_Desert_Hills.board",
-          "16x17_Hilltops_1.board", "16x17_Scattered_Woods.board"]
+BOARDS = ["16x17_Grassland_1.board", "16x17_Desert_Hills.board"]
 FORCE = [("Atlas AS7-K", "assault"), ("Emperor EMP-6D", "assault"), ("Awesome AWS-8Q", "assault"),
          ("Archer ARC-2R", "heavy"), ("Cataphract CTF-3D", "heavy"), ("Catapult CPLT-C1", "heavy"),
          ("Kintaro KTO-19", "medium"), ("Griffin GRF-1N", "medium"), ("Hunchback HBK-4G", "medium"),
@@ -61,14 +60,14 @@ def main():
     red_bot, blue_bot, title = SETUPS[args.setup]
     config.FORCES = forces(red_bot, blue_bot)
     config.STITCH_MAPS, config.STITCH_BOARDS = True, BOARDS
-    config.STITCH_GRID_COLS = config.STITCH_GRID_ROWS = 2
+    config.STITCH_GRID_COLS, config.STITCH_GRID_ROWS = 2, 1
     config.PROMPT_FOR_MAP = False
     config.DEPLOYMENT, config.DEPLOYMENT_DEPTH, config.WORKERS, config.REPLAY_BATTLES = "home_edge", 0, 1, 0
     config.VERBOSE = False
     with redirect_stdout(io.StringIO()):
         terrain = orchestrator._load_map()
         roster = config.load_roster()
-    print(f"{title}: 12 v 12 on a 2 x 2 stitched field, {args.battles} battle(s), cap {args.turns} turns, seed {args.seed}")
+    print(f"{title}: 12 v 12 on a 2 x 1 stitched field, {args.battles} battle(s), cap {args.turns} turns, seed {args.seed}")
     rows = []
     for n in range(1, args.battles + 1):
         timing.reset() if hasattr(timing, "reset") else None
