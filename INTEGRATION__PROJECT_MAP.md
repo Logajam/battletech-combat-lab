@@ -1613,6 +1613,15 @@ turn's score, so a decision sees what it gives up.
   168-351 s a battle. (The earlier 3-battle no-Legate Princess v Gladiator run
   was 3 Princess wins; a matching 20-battle no-Legate run was not made.)
   `baseline_battery.py` gained `--first/--last` (split over cores) and `--replay`.
+  MATCHING 20 WITHOUT LEGATE (same seeds): Princess won 14, 6 draws, Gladiator
+  none; Gladiator wiped out in 14. Averages over 20 (Legate / no Legate):
+  turns 39.6 / 36.7; Princess 'Mechs left 5.6 / 7.0; Princess HP left 2068 /
+  2295; damage Princess dealt 1721 / 1674; damage Gladiator dealt 959 / 772
+  (+24%); Gladiator 'Mechs left 0.35 / 0.75; seconds a battle 259 / 143 (1.8x).
+  Reading: Legate makes Gladiator hurt Princess more (about 10% more of
+  Princess's HP lost, 1.4 more 'Mechs lost, 24% more damage dealt) but not win
+  more: no Gladiator wins either way, and the draws are stragglers at the cap
+  (5 v 6), the anti-stall item. Princess still wins every decisive battle.
 
 - **2026-10-28 (Claude), session 13 - BASELINE TEST BATTERY.** **REVIEW PENDING
   (higher-level model).** Daniel: "4 maps stitched together, 12 mechs vs 12
