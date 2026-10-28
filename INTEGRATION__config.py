@@ -338,9 +338,9 @@ MOVEMENT_TWO_PLY = True          # False: the first mover scores against the ene
 #                  at the 6 hexes around the enemy (melee).
 #   "exhaustive" - every reachable spot ("perfect"; the original).
 #   "if_then"    - (Daniel's IF/THEN, 2026-10-28; MOVEMENT_SEARCH only): the first
-#                  mover takes its best spot against the enemy where it stands, asks
-#                  where the second mover would reply to that, takes its best spot
-#                  against that reply, and so on, back and forth; it stops when an
+#                  mover asks "If I hold still then" where would the second mover
+#                  reply, takes its best spot against that reply, asks where the
+#                  reply to that would be, and so on, back and forth; it stops when an
 #                  attempt scores no better (two-ply score) than the one before and
 #                  keeps that one before, or picks a spot twice. A second mover
 #                  scores every spot, as "exhaustive".

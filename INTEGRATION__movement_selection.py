@@ -966,9 +966,10 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
             else:
                 scored = [score_spot(c) for c in states]
         elif own_search(mover) == "if_then":
-            # Daniel's IF/THEN (2026-10-28): best answer to the enemy where it stands, then
-            # to its modeled reply, back and forth while the honest score climbs.
-            scored = _if_then_search(static, prepared_by_key, ev1, prepared1, me, them, score_spot)
+            # Daniel's IF/THEN (2026-10-28): "If I hold still then ..." - the enemy's modeled
+            # reply, the best answer to it, back and forth while the honest score climbs.
+            hold = next((o for o in prepared1 if o.label == mover.hex and o.mode == "Stand Still"), None)
+            scored = _if_then_search(hold, static, prepared_by_key, ev1, prepared1, me, them, score_spot)
         elif own_search(mover) == "grid":
             # No hexes around the enemy here: it moves after the first mover (Daniel, 2026-10-21:
             # "Always checks wouldn't help the first mover"). The own hex is always a net hex.
@@ -1003,14 +1004,17 @@ def _spots_text(checked, total, search=None):
     return f"{total} spots" if checked == total else f"{checked} of {total} spots (grid search)"
 
 
-def _if_then_search(static, prepared_by_key, ev1, prepared1, me, them, score_spot):
+def _if_then_search(hold, static, prepared_by_key, ev1, prepared1, me, them, score_spot):
     """Daniel's IF/THEN picker (2026-10-28, own_search = "if_then", first mover):
     "IF the enemy ends up there, THEN where should I go" - back and forth with
     the second mover's modeled reply until the climb stops.
 
-      1. First attempt: the mover's best spot against the enemy where it
-         stands now (`static`, every reachable spot - Daniel: "Have the First
-         mover Project its own move vs the 2nd movers static position first").
+      1. First attempt: holding still (`hold`, the Stand Still state on the
+         mover's own hex - Daniel, 2026-10-28: "Its first step is 'If I hold
+         still then...'"; it takes away the lean toward spots that only score
+         well against an enemy that doesn't move, and locks in quickly when
+         holding still really is best). Without one (standing up, entering
+         the board): the best spot against the enemy where it stands (`static`).
       2. Score the attempt honestly: score_spot = the second mover's modeled
          reply to it (assumed_enemy_search), as every two-ply pick is scored.
       3. Next attempt: the mover's best spot (every reachable spot) against
@@ -1019,7 +1023,8 @@ def _if_then_search(static, prepared_by_key, ev1, prepared1, me, them, score_spo
     included) - the one before is the pick (hill climbing: the last attempt
     kept is the best) - or an attempt repeats an earlier one (Daniel: "or until
     it picks the same location twice"; with strictly rising scores that can't
-    pick better), or the reply has no line of sight (no state to answer).
+    pick better), or there is no reply, or no spot of the mover's answers it
+    (none with line of sight).
     Each round costs one pass over the mover's spots plus one modeled reply,
     instead of every spot x every reply. Returns the kept attempts' score_spot
     rows, scores rising."""
@@ -1030,16 +1035,16 @@ def _if_then_search(static, prepared_by_key, ev1, prepared1, me, them, score_spo
                                      me.exposure[cand.side_on_mover], me.psr_for(cand)), 9)
             if best is None or key > best_key:      # tie: first seen (deterministic)
                 best_key, best = key, cand
-        return best
+        return None if best is None else prepared_by_key[(best.hex, best.facing, best.mode, best.fc)]
 
     rows, tried = [], set()
-    cand = best_response(static)
-    while cand is not None:
-        key = (cand.hex, cand.facing, cand.mode, cand.fc)
+    state = hold if hold is not None else best_response(static)
+    while state is not None:
+        key = (state.label, state.facing_compass, state.mode, state.fc)
         if key in tried:
             break
         tried.add(key)
-        row = score_spot(prepared_by_key[key])
+        row = score_spot(state)
         if rows and round(row[0], 9) <= round(rows[-1][0], 9):
             break
         rows.append(row)
@@ -1048,8 +1053,8 @@ def _if_then_search(static, prepared_by_key, ev1, prepared1, me, them, score_spo
             break
         with timing.section("IF/THEN best answers"):
             # The enemy holds the reply's hex, so the mover can't end there.
-            cand = best_response(ev1.evaluate(reply.hex, reply.facing, reply.fc, reply.mode, reply.mp_spent,
-                                              [o for o in prepared1 if o.label != reply.hex]))
+            state = best_response(ev1.evaluate(reply.hex, reply.facing, reply.fc, reply.mode, reply.mp_spent,
+                                               [o for o in prepared1 if o.label != reply.hex]))
     return rows
 
 
