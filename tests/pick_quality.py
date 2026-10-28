@@ -24,8 +24,8 @@ battle is the one a plain run gives):
                    (best few states a hex), pruned by the grid search
                    (MOVEMENT_SEARCH = "short_list", MOVEMENT_SHORT_LIST_GRID = True).
   IF/THEN        - Daniel's IF/THEN (2026-10-28, MOVEMENT_SEARCH = "if_then"): the
-                   first mover answers the enemy where it stands, then the enemy's
-                   modeled reply, back and forth while the score climbs; the reply
+                   first mover asks "If I hold still then" where the enemy replies,
+                   answers that reply, back and forth while the score climbs; the reply
                    modeled by the short list (as Short Grid). Moving second it
                    scores every spot, so it picks as Perfect does there.
   IF/THEN perfect - the same with every reply spot in the modeled reply.

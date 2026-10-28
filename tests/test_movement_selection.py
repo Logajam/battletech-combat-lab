@@ -861,23 +861,23 @@ def short_list_reply_follows_its_rule():
 @check
 def if_then_climbs_by_its_rule():
     """Daniel's IF/THEN first-mover picker (2026-10-28, own search "if_then"):
-    the first attempt is the best spot against the enemy where it stands; each
+    the first attempt is holding still (the Stand Still state on its own hex); each
     later attempt is the best spot against the previous attempt's modeled
     reply (not on the reply's hex); the kept attempts' two-ply scores rise
-    strictly; the climb stops at a score that doesn't rise, a repeated spot or
-    no reply; and the pick is the last kept attempt."""
+    strictly; the climb stops at a score that doesn't rise, a repeated spot,
+    no reply or no answer to it; and the pick is the last kept attempt."""
     real = ms._if_then_search
     seen = []
 
-    def spy(static, prepared_by_key, ev1, prepared1, me, them, score_spot):
+    def spy(hold, static, prepared_by_key, ev1, prepared1, me, them, score_spot):
         tried = []
 
         def scoring(c):
             row = score_spot(c)
             tried.append((c, row))
             return row
-        rows = real(static, prepared_by_key, ev1, prepared1, me, them, scoring)
-        seen.append((static, ev1, prepared1, me, them, tried, rows))
+        rows = real(hold, static, prepared_by_key, ev1, prepared1, me, them, scoring)
+        seen.append((hold, ev1, prepared1, me, them, tried, rows))
         return rows
 
     def best_of(cands, me, them):
@@ -896,10 +896,11 @@ def if_then_climbs_by_its_rule():
             seen.clear()
             pick, why = ms.choose(mover, other, TERRAIN, rng, moves_first=True)
             assert len(seen) == 1, why
-            static, ev1, prepared1, me, them, tried, rows = seen[0]
+            hold, ev1, prepared1, me, them, tried, rows = seen[0]
             key = lambda c: (c.label, c.facing_compass, c.mode, c.fc)            # noqa: E731
-            want = best_of(static, me, them)
-            assert key(tried[0][0]) == (want.hex, want.facing, want.mode, want.fc)
+            assert (hold.label, hold.facing_compass, hold.mode, hold.mp_spent) == (mover.hex, mover.facing,
+                                                                                 "Stand Still", 0)
+            assert key(tried[0][0]) == key(hold)
             for (_, before), (after, _) in zip(tried, tried[1:]):
                 reply = before[2][5]
                 want = best_of(ev1.evaluate(reply.hex, reply.facing, reply.fc, reply.mode, reply.mp_spent,
@@ -909,8 +910,14 @@ def if_then_climbs_by_its_rule():
             assert rows and scores == sorted(set(scores)), scores
             assert [r for _, r in tried[:len(rows)]] == rows
             last = tried[-1]
-            stopped = (len(tried) > len(rows) or last[1][2][5] is None
-                       or len({key(c) for c, _ in tried}) < len(tried))
+            reply = last[1][2][5]
+            stopped = len(tried) > len(rows) or reply is None
+            if not stopped:
+                # Otherwise the next answer repeats an attempt (not scored again) or there is none.
+                answers = ev1.evaluate(reply.hex, reply.facing, reply.fc, reply.mode, reply.mp_spent,
+                                       [o for o in prepared1 if o.label != reply.hex])
+                nxt = best_of(answers, me, them) if answers else None
+                stopped = nxt is None or (nxt.hex, nxt.facing, nxt.mode, nxt.fc) in {key(c) for c, _ in tried}
             assert stopped, [key(c) for c, _ in tried]
             if any(r[2][0] > 0 for r in rows):
                 assert "IF/THEN" in why, why
