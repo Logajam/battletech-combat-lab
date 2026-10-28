@@ -41,8 +41,8 @@ _active = None
 
 
 class _Recording:
-    def __init__(self, mech_red, mech_blue, terrain_map, seed, sim):
-        self.mechs = {"Red": mech_red, "Blue": mech_blue}
+    def __init__(self, units, terrain_map, seed, sim):
+        self.mechs = {m.side_name: m for m in units}
         self.lines = []
         self.steps = []
         self.data = {
@@ -67,10 +67,11 @@ class _Recording:
         self.lines = []
 
 
-def start(mech_red, mech_blue, terrain_map, seed, sim):
-    """Begin recording a battle (call before run_battle)."""
+def start(units, terrain_map, seed, sim):
+    """Begin recording a battle (call before run_skirmish); `units` are its
+    mechs, each shown under its label (side_name)."""
     global _active
-    _active = _Recording(mech_red, mech_blue, terrain_map, seed, sim)
+    _active = _Recording(units, terrain_map, seed, sim)
     config.set_log_sink(_active.log)
 
 
@@ -92,7 +93,7 @@ def finish(result):
     rec.data["result"] = {
         "winner": result.winner,
         "turns": result.turns_taken,
-        "causes": {side: getattr(result, side.lower()).cause_of_death for side in ("Red", "Blue")},
+        "causes": {label: stats.cause_of_death for label, stats in result.units.items()},
     }
     return rec.data
 

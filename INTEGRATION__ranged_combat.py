@@ -126,6 +126,7 @@ if PATHFINDER_DIR not in sys.path:
     sys.path.insert(0, PATHFINDER_DIR)
 
 import hex_geometry  # noqa: E402
+import pathfinder  # noqa: E402
 from pathfinder import build_movement_table, PathTable  # noqa: E402
 from mech_state import is_superheavy, ground_level_limited  # noqa: E402 - pp.90, 99, 238-239
 import terrain_rules  # noqa: E402
@@ -302,6 +303,12 @@ def _movement_options(mover, terrain_map, standup_mp=None, entry_edge=None, back
             yield (sx, sy, facing, 0, "Jump", 1)
 
 
+def _blocked_hexes(mover):
+    """mover.blocked_hex as a set of (x, y): None, one hex, or the hexes of
+    every mobile enemy 'Mech on the board (the multi-unit battle)."""
+    return pathfinder._blocked_set(getattr(mover, "blocked_hex", None))
+
+
 def _minimum_move(mover, terrain_map, sx, sy, facing, run_budget, seen, level_limit):
     """Minimum Movement (p.49, 2026-10-21, RULES_REVIEW G8): a 'Mech with at
     least 1 MP may run into the hex directly in front of it even without the
@@ -315,7 +322,7 @@ def _minimum_move(mover, terrain_map, sx, sy, facing, run_budget, seen, level_li
         return None
     dx, dy = hex_geometry.FACING_DELTAS[facing]
     fx, fy = sx + dx, sy + dy
-    if (fx, fy) == getattr(mover, "blocked_hex", None):
+    if (fx, fy) in _blocked_hexes(mover):
         return None
     try:
         label = hex_geometry.hex_label(fx, fy)
@@ -356,10 +363,10 @@ def _note_psrs(mover, key, psrs, hazard=0.0):
 def _entry_options(mover, terrain_map, edge_labels):
     walk, run = compute_walk_mp(mover), compute_running_mp(mover)
     seen = set()
-    blocked = getattr(mover, "blocked_hex", None)
+    blocked = _blocked_hexes(mover)
     for label in edge_labels:
         info = terrain_map["hexes"].get(label)
-        if info is None or hex_geometry.parse_hex_label(label) == blocked:
+        if info is None or hex_geometry.parse_hex_label(label) in blocked:
             continue
         cost = terrain_rules.step_cost(None, info)        # None: can't walk onto a roof from off the board
         if cost is None or cost > run:

@@ -146,8 +146,9 @@ import INTEGRATION__advanced_equipment as adv_equip  # noqa: E402 - TO:AUE equip
 import INTEGRATION__hazards as hazards  # noqa: E402
 import INTEGRATION__smoke as smoke  # noqa: E402 - smoke clouds and active probes (2026-10-27) - magma, hazardous liquid, bogging down (TO:AR, 2026-10-27)
 import INTEGRATION__deployment as deployment  # noqa: E402
+import INTEGRATION__forces as forces  # noqa: E402 - teams, activation order, foe / target choice (2026-10-28)
 from INTEGRATION__attack_resolution import _with_piloting, total_hp  # noqa: E402
-from INTEGRATION__results import BattleResult, SideStats, summarize  # noqa: E402
+from INTEGRATION__results import BattleResult, SideStats, summarize, summarize_teams, team_totals  # noqa: E402
 
 
 # =============================================================================
@@ -191,6 +192,8 @@ def _attach_mech_config(mech, cfg, side_name):
     when config.DEPLOYMENT is "fixed_hexes"; with "home_edge" run_battle
     takes the mech off the board again (_deploy_home_edges)."""
     mech.side_name = side_name
+    mech.team = cfg.get("team", side_name)    # the side it fights for (INTEGRATION__forces, 2026-10-28)
+    mech.moved_this_turn = False
     mech.hex, mech.facing = cfg["hex"], cfg["facing"]
     mech.home_edge = None
     mech.gunnery = cfg["gunnery"]
@@ -242,16 +245,12 @@ def _reset_movement_state(mech):
 # ==========================  INITIATIVE  =====================================
 # =============================================================================
 def roll_initiative(battle_rng: BattleRNG) -> str:
-    """Both sides roll 2d6 via the shared BattleRNG; both reroll on a tie
-    until a winner emerges. Higher roll wins initiative and moves second;
-    lower roll loses and moves first. Returns the LOSING side's name.
-    CONFIRMED (Daniel, 2026-08-31)."""
-    while True:
-        red_roll = battle_rng.roll_2d6()
-        blue_roll = battle_rng.roll_2d6()
-        if red_roll != blue_roll:
-            break
-    return "Red" if red_roll < blue_roll else "Blue"
+    """Two-side Initiative: both sides roll 2D6 via the shared BattleRNG; both
+    reroll on a tie until a winner emerges. Higher roll wins initiative and
+    moves second; lower roll loses and moves first. Returns the LOSING side's
+    name. CONFIRMED (Daniel, 2026-08-31). The multi-unit battle uses
+    forces.initiative_order, which draws the same dice for two sides."""
+    return forces.initiative_order(["Red", "Blue"], battle_rng)[0]
 
 
 # =============================================================================
@@ -317,19 +316,29 @@ def _turn_while_down(mover, other):
                f"{best_turns} MP).")
 
 
-def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_first):
+def _phase_movement(mover, other, terrain_map, turn_number, battle_rng, moves_first, units=None):
     """One mech's movement, with the enemy's hex closed to its ground moves
     while it moves (p.48: "cannot enter a hex occupied by an enemy 'Mech
     unless that 'Mech is immobile"; 2026-10-21 - before, a path could pass
-    through it, only ending there was excluded). Jumps pass over it."""
-    mover.blocked_hex = (hex_geometry.parse_hex_label(other.hex)
-                         if other.hex is not None and not is_immobile(other) else None)
+    through it, only ending there was excluded). Jumps pass over it.
+
+    `other` is the foe the mover's bot plans against. With `units` (the whole
+    battle, 2026-10-28) every mobile enemy's hex is closed and no other
+    unit's hex may be ended in (stacking, p.49); without it, only `other`."""
+    if units is None:
+        mover.blocked_hex = (hex_geometry.parse_hex_label(other.hex)
+                             if other.hex is not None and not is_immobile(other) else None)
+        mover.other_unit_hexes = None
+    else:
+        mover.blocked_hex = forces.blocked_xy(mover, units)
+        mover.other_unit_hexes = forces.occupied_labels(mover, units)
     hazards.start_of_movement(mover)         # liquid magma / pools hurt, a stuck 'Mech tries to get free (TO:AR)
     try:
         if not is_destroyed(mover):
             _move(mover, other, terrain_map, turn_number, battle_rng, moves_first)
     finally:
         mover.blocked_hex = None             # the modeled reply (movement_selection) never blocks
+        mover.other_unit_hexes = None
         mover.jump_only = False
     hazards.end_of_movement(mover)
 
@@ -619,14 +628,14 @@ def _after_fall_midmove(mover, other, pick, fell, budget, terrain_map, battle_rn
 # =============================================================================
 # ==========================  OTHER PHASES  ===================================
 # =============================================================================
-def _phase_heat(mech_red, mech_blue, reports):
-    """Heat Phase for both mechs (Core Rulebook pp.102-107): heat is saved
+def _phase_heat(units, reports):
+    """Heat Phase for every unit (Core Rulebook pp.102-107): heat is saved
     state (Daniel, 2026-10-18); INTEGRATION__heat.resolve_heat_phase adds
     this turn's movement/weapon/engine heat, subtracts dissipation, then
     resolves shutdown/restart, ammo explosion and life-support hits, and
     sets next turn's MP/to-hit penalties. A mech already destroyed this
     turn is skipped."""
-    for m in (mech_red, mech_blue):
+    for m in units:
         if is_destroyed(m):
             continue
         heat.resolve_heat_phase(m, reports[m.side_name].weapon_heat)
@@ -645,10 +654,10 @@ def _console_swap(mech):
                    f"(pilot now {mech.pilot_hits} hits, p.203).")
 
 
-def _phase_end(mech_red, mech_blue, turn_number, stats):
+def _phase_end(units, turn_number, stats):
     """Unconscious-pilot recovery (Section 2 scope) plus bookkeeping:
     first turn each mech meets MECHSIM's is_crippled()."""
-    for m in (mech_red, mech_blue):
+    for m in units:
         _console_swap(m)                                        # command console (p.203, 2026-10-21)
         if not is_destroyed(m):
             water.drowning(m, heat.has_life_support_hit(m))     # p.117 (2026-10-21)
@@ -698,38 +707,65 @@ def _edge_hexes(terrain_map, edge):
 
 
 def _deploy_home_edges(mech_red, mech_blue, terrain_map, battle_rng):
-    """Default deployment (Core p.37): both sides roll 2D6 (rerolling ties);
+    """The two-mech deployment (kept for callers that name both mechs)."""
+    _two_sides(mech_red, mech_blue)
+    _deploy_teams([mech_red, mech_blue], terrain_map, battle_rng)
+
+
+def _two_sides(mech_red, mech_blue):
+    """Two mechs handed over as a pair are two sides even if they were attached
+    under the same name (the unit tests do): give them the teams Red and Blue."""
+    if mech_red.team == mech_blue.team:
+        mech_red.team, mech_blue.team = "Red", "Blue"
+
+
+def _edges_for_teams(first_edge, count):
+    """The home edge of each team in deployment-roll order (lowest roll
+    first): the first team's pick, the one opposite it (Core p.37), then the
+    two edges across (clockwise of the pick, and the one opposite that), and
+    round again if there are more than four teams - a free for all shares
+    edges (the book only covers two sides; PROJECT_MAP Section 6)."""
+    start = EDGE_NAMES.index(first_edge)
+    cycle = [EDGE_NAMES[start], OPPOSITE_EDGE[EDGE_NAMES[start]],
+             EDGE_NAMES[(start + 1) % 4], OPPOSITE_EDGE[EDGE_NAMES[(start + 1) % 4]]]
+    return [cycle[i % 4] for i in range(count)]
+
+
+def _deploy_teams(units, terrain_map, battle_rng):
+    """Default deployment (Core p.37): the sides roll 2D6 (rerolling ties);
     the loser chooses a home edge, the winner takes the one opposite. Each
-    mech starts off the board and enters along its home edge in its first
-    Movement Phase. Which edge the loser picks is a bot choice
-    (config.HOME_EDGE_CHOICE)."""
-    while True:
-        red, blue = battle_rng.roll_2d6(), battle_rng.roll_2d6()
-        if red != blue:
-            break
-    loser, winner = (mech_red, mech_blue) if red < blue else (mech_blue, mech_red)
+    mech starts off the board and enters along its team's home edge in its
+    first Movement Phase. Which edge the loser picks is a bot choice
+    (config.HOME_EDGE_CHOICE). With more than two teams the lowest roll
+    picks first and the others take the next edges (_edges_for_teams)."""
+    teams = forces.team_names(units)
+    rolls = {}
+    order = forces.initiative_order(teams, battle_rng, rolls)
     if config.HOME_EDGE_CHOICE == "random":
         edge = EDGE_NAMES[battle_rng.pick_number(len(EDGE_NAMES)) - 1]
     elif config.HOME_EDGE_CHOICE in EDGE_NAMES:
         edge = config.HOME_EDGE_CHOICE
     else:
         raise ValueError(f"Unknown HOME_EDGE_CHOICE {config.HOME_EDGE_CHOICE!r}")
-    for mech, e in ((loser, edge), (winner, OPPOSITE_EDGE[edge])):
-        # Where it may start its movement: config.DEPLOYMENT_DEPTH hexes in, roofs
-        # included, never a stuck hex - the override goes deeper (INTEGRATION__deployment,
-        # Daniel 2026-10-21).
-        start = deployment.start_hexes(mech, terrain_map, e)
-        mech.home_edge = start["hexes"]
-        mech.home_edge_row = _edge_hexes(terrain_map, e)          # where an enemy heads before it has entered
-        mech.hex, mech.facing = None, "N"
-        if start["depth"] == 0 and not start["stuck"] and mech.home_edge == _edge_hexes(terrain_map, e):
-            config.log(f"  Deployment: {mech.side_name} home edge {e} ({mech.home_edge[0]}-{mech.home_edge[-1]}).")
-        else:
-            override = " (stuck-terrain override)" if start["depth"] != config.DEPLOYMENT_DEPTH else ""
-            left_out = f", {len(start['stuck'])} stuck hexes left out" if start["stuck"] else ""
-            config.log(f"  Deployment: {mech.side_name} home edge {e}, starting up to {start['depth']} hexes in"
-                       f"{override}: {len(mech.home_edge)} start hexes{left_out}.")
-    config.log(f"  Deployment roll: Red {red}, Blue {blue} - {loser.side_name} chose its edge.")
+    edge_of = dict(zip(order, _edges_for_teams(edge, len(order))))
+    for team in order:
+        e = edge_of[team]
+        for mech in (u for u in units if u.team == team):
+            # Where it may start its movement: config.DEPLOYMENT_DEPTH hexes in, roofs
+            # included, never a stuck hex - the override goes deeper (INTEGRATION__deployment,
+            # Daniel 2026-10-21).
+            start = deployment.start_hexes(mech, terrain_map, e)
+            mech.home_edge = start["hexes"]
+            mech.home_edge_row = _edge_hexes(terrain_map, e)          # where an enemy heads before it has entered
+            mech.hex, mech.facing = None, "N"
+            if start["depth"] == 0 and not start["stuck"] and mech.home_edge == _edge_hexes(terrain_map, e):
+                config.log(f"  Deployment: {mech.side_name} home edge {e} ({mech.home_edge[0]}-{mech.home_edge[-1]}).")
+            else:
+                override = " (stuck-terrain override)" if start["depth"] != config.DEPLOYMENT_DEPTH else ""
+                left_out = f", {len(start['stuck'])} stuck hexes left out" if start["stuck"] else ""
+                config.log(f"  Deployment: {mech.side_name} home edge {e}, starting up to {start['depth']} hexes in"
+                           f"{override}: {len(mech.home_edge)} start hexes{left_out}.")
+    config.log(f"  Deployment roll: {', '.join(f'{t} {rolls[t]}' for t in teams)} - {order[0]} chose its edge.")
 
 
 def _after_phase(*mechs):
@@ -744,111 +780,165 @@ def _after_phase(*mechs):
 
 def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,
                max_turns: Optional[int] = None) -> BattleResult:
-    """Section 2's turn structure for up to max_turns turns, or until a mech
-    is destroyed (checked after End Phase each turn)."""
+    """The two-mech battle: Section 2's turn structure for up to max_turns
+    turns, or until a mech is destroyed (checked after End Phase each turn).
+    A mech's team is `Red` / `Blue` unless it was attached with another
+    (run_skirmish is the general form)."""
+    _two_sides(mech_red, mech_blue)
+    return run_skirmish([mech_red, mech_blue], terrain_map, battle_rng, max_turns)
+
+
+def _log_initiative(order):
+    if len(order) == 2:
+        config.log(f"  Initiative: {order[0]} lost the roll, moves first.")
+    else:
+        config.log(f"  Initiative order (acts first to last): {', '.join(order)}.")
+
+
+def run_skirmish(units, terrain_map, battle_rng: BattleRNG,
+                 max_turns: Optional[int] = None) -> BattleResult:
+    """Section 2's turn structure for any number of units on any number of
+    teams (2026-10-28, INTEGRATION__forces) for up to max_turns turns, or
+    until one team or none is left standing (checked after End Phase each
+    turn - Core p.41: "the side with the last surviving 'Mech(s) wins"; the
+    last 'Mechs of every side destroyed in the same turn is a draw).
+
+    `units`: attached mechs (_attach_mech_config), each with a unique
+    side_name and a `team`. Each unit's bot plans its own movement against its
+    foe (forces.choose_foe) and fires at the enemy it chooses
+    (forces.choose_target): independent bots."""
     max_turns = max_turns if max_turns is not None else config.MAX_TURNS
     result = BattleResult(turn_cap=max_turns)
-    stats = {
-        "Red": SideStats(name=f"Red ({mech_red.chassis} {mech_red.model})", max_hp=total_hp(mech_red)),
-        "Blue": SideStats(name=f"Blue ({mech_blue.chassis} {mech_blue.model})", max_hp=total_hp(mech_blue)),
-    }
-    by_name = {"Red": mech_red, "Blue": mech_blue}
+    team_list = forces.team_names(units)
+    unit_stats = {m.side_name: SideStats(name=f"{m.side_name} ({m.chassis} {m.model})", max_hp=total_hp(m))
+                  for m in units}
     clubs.reset_battle()
+    forces.set_battle(units)              # displacement code finds the 'Mech in a hex through this (INTEGRATION__domino)
     water.set_board(terrain_map)          # heat sinks, falls, jump jets read the hex's depth (2026-10-21)
     hazards.set_board(terrain_map)        # magma / hazardous liquid (TO:AR, 2026-10-27); mends broken crust
     smoke.set_board(terrain_map)          # no smoke yet (Core p.124, 2026-10-27)
     if config.DEPLOYMENT == "home_edge":
-        _deploy_home_edges(mech_red, mech_blue, terrain_map, battle_rng)
+        _deploy_teams(units, terrain_map, battle_rng)
     elif config.DEPLOYMENT != "fixed_hexes":
         raise ValueError(f"Unknown DEPLOYMENT {config.DEPLOYMENT!r}")
-    for m in (mech_red, mech_blue):
+    for m in units:
         m.hp_log = []
         movement_selection.record_hp(m)      # the history blend's record (config.MOVEMENT_LIFETIME_HISTORY_K)
     replay.mark(0, "Deployment")
 
     for turn in range(1, max_turns + 1):
         config.log(f"\n=== TURN {turn} ===")
-        for m in (mech_red, mech_blue):
+        alive = forces.standing(units)
+        for m in units:
             piloting_rolls.snapshot_preexisting_damage(m)
             equip.start_turn(m, turn)
 
-        loser_name = roll_initiative(battle_rng)
-        winner_name = "Blue" if loser_name == "Red" else "Red"
-        mover_first, mover_second = by_name[loser_name], by_name[winner_name]
-        config.log(f"  Initiative: {loser_name} lost the roll, moves first.")
+        order = forces.initiative_order(forces.team_names(alive), battle_rng)
+        _log_initiative(order)
+        in_order = [m for t in order for m in alive if m.team == t]      # the side that lost first
 
-        for m in (mech_red, mech_blue):
+        for m in units:
             _reset_movement_state(m)
-        for m in (mover_first, mover_second):
+            m.moved_this_turn = False
+        for m in in_order:
             fire_modes.declare_unjams(m)     # Rotary AC unjam attempts are declared in the Movement Phase (p.183)
-        with timing.section("movement"):
-            _phase_movement(mover_first, mover_second, terrain_map, turn, battle_rng, moves_first=True)
-        replay.mark(turn, f"{loser_name} moves")
-        with timing.section("movement"):
-            _phase_movement(mover_second, mover_first, terrain_map, turn, battle_rng, moves_first=False)
-        replay.mark(turn, f"{winner_name} moves")
+        for mover in forces.movement_order(units, order):
+            foe = forces.choose_foe(mover, units) or forces.any_enemy(mover, units)
+            with timing.section("movement"):
+                _phase_movement(mover, foe, terrain_map, turn, battle_rng, moves_first=not foe.moved_this_turn,
+                                units=units)
+            mover.moved_this_turn = True
+            replay.mark(turn, f"{mover.side_name} moves")
 
-        if mech_red.hex is None or mech_blue.hex is None:
+        if any(m.hex is None for m in units):
             # A mech that couldn't enter the battlefield is destroyed (p.37) and
             # never got a hex - e.g. a Solaris arena whose home edge is all wall
-            # (2026-10-21). Nothing else can happen this turn.
-            result.turns_taken = turn
-            red_dead, blue_dead = is_destroyed(mech_red), is_destroyed(mech_blue)
-            result.destroyed = "Both" if (red_dead and blue_dead) else ("Red" if red_dead else "Blue")
-            config.log(f"\n>>> Battle over on turn {turn}: {result.destroyed} destroyed "
-                       f"(couldn't enter the battlefield). <<<")
-            break
+            # (2026-10-21). With one team or none left, nothing else can happen this turn.
+            if len(forces.teams_standing(units)) < 2:
+                result.turns_taken = turn
+                _conclude(result, units, team_list)
+                config.log(f"\n>>> Battle over on turn {turn}: {_over_text(result)} "
+                           f"(couldn't enter the battlefield). <<<")
+                break
 
-        _after_phase(mech_red, mech_blue)
-        tag.designation_phase(mover_first, mover_second, terrain_map)   # TAG, before the Ranged Attack Phase (p.200)
+        _after_phase(*units)
+        fighters = forces.fire_order(units, order)
+        tag.designation_units(fighters, lambda u: forces.choose_target(u, units, terrain_map),
+                              terrain_map)                            # TAG, before the Ranged Attack Phase (p.200)
         with timing.section("ranged attacks"):
-            reports = attack_resolution.run_ranged_combat_phase(mover_first, mover_second, terrain_map, battle_rng)
-        _after_phase(mech_red, mech_blue)
+            reports = attack_resolution.run_ranged_phase(fighters, lambda u: forces.choose_target(u, units, terrain_map),
+                                                         terrain_map, battle_rng)
+        _after_phase(*units)
         replay.mark(turn, "Ranged attacks")
         for side, rep in reports.items():
-            stats[side].attacks += rep.attacks
-            stats[side].hits += rep.hits
-            stats[side].damage_dealt += rep.damage_dealt
+            unit_stats[side].attacks += rep.attacks
+            unit_stats[side].hits += rep.hits
+            unit_stats[side].damage_dealt += rep.damage_dealt
 
         with timing.section("physical attacks"):
-            physical.run_physical_phase(mover_first, mover_second, terrain_map, reports)
-        _after_phase(mech_red, mech_blue)
+            scrappers = forces.fire_order(units, order)
+
+            def physical_target(u):
+                declared = getattr(u, "charging", None) or getattr(u, "dfa", None)
+                return declared or forces.choose_target(u, units, terrain_map, adjacent_only=True)
+
+            physical.run_physical_units(scrappers, physical_target, terrain_map, reports)
+        _after_phase(*units)
         replay.mark(turn, "Physical attacks")
         with timing.section("heat phase"):
-            _phase_heat(mech_red, mech_blue, reports)
-        _after_phase(mech_red, mech_blue)
+            _phase_heat(units, reports)
+        _after_phase(*units)
         with timing.section("end phase"):
-            _phase_end(mech_red, mech_blue, turn, stats)
+            _phase_end(units, turn, unit_stats)
             smoke.end_phase(turn)                # clouds whose time is up clear (2026-10-27)
 
-        config.log(f"  -- end of turn {turn}: {_status_line(mech_red)}")
-        config.log(f"  -- end of turn {turn}: {_status_line(mech_blue)}")
-        for m in (mech_red, mech_blue):
+        for m in units:
+            config.log(f"  -- end of turn {turn}: {_status_line(m)}")
+        for m in units:
             movement_selection.record_hp(m)
         replay.mark(turn, "Heat and end phase")
 
         result.turns_taken = turn
-        red_dead = is_destroyed(mech_red)
-        blue_dead = is_destroyed(mech_blue)
-        if red_dead or blue_dead:
-            result.destroyed = "Both" if (red_dead and blue_dead) else ("Red" if red_dead else "Blue")
-            config.log(f"\n>>> Battle over on turn {turn}: {result.destroyed} destroyed. <<<")
+        if len(forces.teams_standing(units)) < 2:
+            _conclude(result, units, team_list)
+            config.log(f"\n>>> Battle over on turn {turn}: {_over_text(result)}. <<<")
             break
 
-    for side, m in by_name.items():
-        s = stats[side]
+    for m in units:
+        s = unit_stats[m.side_name]
         s.final_hp = total_hp(m)
         s.destroyed = is_destroyed(m)
+        s.units_lost = 1 if s.destroyed else 0
         s.cause_of_death = m.cause_of_death if s.destroyed else None
         s.final_hex = m.hex
-    result.red, result.blue = stats["Red"], stats["Blue"]
-    if result.destroyed == "Red":
-        result.winner = "Blue"
-    elif result.destroyed == "Blue":
-        result.winner = "Red"
-    else:
-        result.winner = "Draw"
+    result.units = unit_stats
+    result.teams = {t: team_totals(t, [unit_stats[m.side_name] for m in units if m.team == t]) for t in team_list}
+    if result.winner == "Draw" and result.destroyed is None:
+        pass                                     # the turn cap with two or more teams standing
+    result.red = result.teams.get("Red", result.red)
+    result.blue = result.teams.get("Blue", result.blue)
     return result
+
+
+def _conclude(result, units, team_list):
+    """Who won: the one team left standing, else a draw. `destroyed` names
+    the eliminated team(s): legacy "Red" / "Blue" / "Both" for a battle of
+    the teams Red and Blue, else their names joined with "+" ("All" when
+    none is left)."""
+    left = forces.teams_standing(units)
+    gone = [t for t in team_list if t not in left]
+    if set(team_list) == {"Red", "Blue"} and len(team_list) == 2:
+        result.destroyed = "Both" if len(gone) == 2 else gone[0]
+    else:
+        result.destroyed = "All" if len(left) == 0 else "+".join(gone)
+    result.winner = left[0] if len(left) == 1 else "Draw"
+
+
+def _over_text(result):
+    if result.winner != "Draw":
+        return f"{result.destroyed} destroyed" if result.destroyed in ("Red", "Blue") else \
+            f"{result.winner} wins ({result.destroyed} destroyed)"
+    return "Both destroyed" if result.destroyed == "Both" else "everyone destroyed"
 
 
 # =============================================================================
@@ -881,9 +971,25 @@ def battle_seed(seed: Optional[int], sim: int) -> Optional[int]:
     return int(np.random.SeedSequence([seed, sim]).generate_state(1, np.uint64)[0] >> 1)
 
 
+def _roster_of_two(template_red, template_blue):
+    """The two-'Mech battle as a roster (config.load_roster's shape), with
+    MECH_RED_CONFIG / MECH_BLUE_CONFIG as they are now."""
+    return [{"template": template_red, "cfg": dict(config.MECH_RED_CONFIG, team="Red"), "label": "Red",
+             "team": "Red"},
+            {"template": template_blue, "cfg": dict(config.MECH_BLUE_CONFIG, team="Blue"), "label": "Blue",
+             "team": "Blue"}]
+
+
 def _run_one_battle(sim, num_simulations, seed, max_turns, template_red, template_blue, terrain_map):
+    """One battle of a two-'Mech batch (see _run_one_roster)."""
+    return _run_one_roster(sim, num_simulations, seed, max_turns, _roster_of_two(template_red, template_blue),
+                           terrain_map)
+
+
+def _run_one_roster(sim, num_simulations, seed, max_turns, roster, terrain_map):
     """One battle of a batch with its own BattleRNG, fresh mech copies and
-    per-battle caches reset. Returns the BattleResult."""
+    per-battle caches reset. `roster`: config.load_roster()'s entries, one per
+    unit. Returns the BattleResult."""
     config.log("\n" + "=" * 70)
     config.log(f"=== SIMULATION {sim}/{num_simulations} ===")
     config.log("=" * 70)
@@ -900,18 +1006,17 @@ def _run_one_battle(sim, num_simulations, seed, max_turns, template_red, templat
     stubs.reset_battle_stubs()
     weapon_selection.reset_table_cache()
 
-    mech_red = clone_mech(template_red)
-    mech_blue = clone_mech(template_blue)
-    _attach_mech_config(mech_red, config.MECH_RED_CONFIG, "Red")
-    _attach_mech_config(mech_blue, config.MECH_BLUE_CONFIG, "Blue")
+    units = [clone_mech(entry["template"]) for entry in roster]
+    for mech, entry in zip(units, roster):
+        _attach_mech_config(mech, entry["cfg"], entry["label"])
 
     recording = sim <= config.REPLAY_BATTLES
     if recording:
-        replay.start(mech_red, mech_blue, terrain_map, sim_seed, sim)
+        replay.start(units, terrain_map, sim_seed, sim)
     timing.take()                          # nothing carried over from outside this battle
     prof = timing.start_profile()
     with timing.section("battle"):
-        result = run_battle(mech_red, mech_blue, terrain_map, battle_rng, max_turns)
+        result = run_skirmish(units, terrain_map, battle_rng, max_turns)
     result.profile = timing.stop_profile(prof)
     result.timing = timing.take() if config.TIMING else None
     result.active_stubs = stubs.active_stubs()
@@ -938,10 +1043,10 @@ def _config_snapshot():
     return snap
 
 
-def _worker_init(settings, template_red, template_blue, terrain_map):
+def _worker_init(settings, roster, terrain_map):
     for name, value in settings.items():
         setattr(config, name, value)
-    _WORKER.update(red=template_red, blue=template_blue, terrain_map=terrain_map)
+    _WORKER.update(roster=roster, terrain_map=terrain_map)
 
 
 def _worker_battle(args):
@@ -949,8 +1054,8 @@ def _worker_battle(args):
     sim, num_simulations, seed, max_turns = args
     out, err = io.StringIO(), io.StringIO()
     with redirect_stdout(out), redirect_stderr(err):
-        result = _run_one_battle(sim, num_simulations, seed, max_turns,
-                                 _WORKER["red"], _WORKER["blue"], _WORKER["terrain_map"])
+        result = _run_one_roster(sim, num_simulations, seed, max_turns,
+                                 _WORKER["roster"], _WORKER["terrain_map"])
     return result, out.getvalue(), err.getvalue()
 
 
@@ -961,6 +1066,19 @@ def worker_count(num_simulations: int) -> int:
         return 1
     workers = config.WORKERS if config.WORKERS > 0 else (os.cpu_count() or 1)
     return max(1, min(workers, num_simulations))
+
+
+def _team_labels(roster):
+    """What each team fields, for the batch summary: '4x Atlas AS7-D, 2x Hammerhead'."""
+    labels = {}
+    for team in dict.fromkeys(entry["team"] for entry in roster):
+        counts = {}
+        for entry in roster:
+            if entry["team"] == team:
+                name = f"{entry['template'].chassis} {entry['template'].model}"
+                counts[name] = counts.get(name, 0) + 1
+        labels[team] = ", ".join(f"{n}x {name}" if n > 1 else name for name, n in counts.items())
+    return labels
 
 
 def run_batch(num_simulations: Optional[int] = None, seed: Optional[int] = None,
@@ -976,19 +1094,18 @@ def run_batch(num_simulations: Optional[int] = None, seed: Optional[int] = None,
 
     started = time.perf_counter()
     terrain_map = _load_map()
-    template_red, template_blue, red_path, blue_path = config.load_two_mechs()
+    roster = config.load_roster()
 
     results: List[BattleResult] = []
     workers = worker_count(num_simulations)
     if workers == 1:
         for sim in range(1, num_simulations + 1):
-            results.append(_run_one_battle(sim, num_simulations, seed, max_turns,
-                                           template_red, template_blue, terrain_map))
+            results.append(_run_one_roster(sim, num_simulations, seed, max_turns, roster, terrain_map))
     else:
         jobs = [(sim, num_simulations, seed, max_turns) for sim in range(1, num_simulations + 1)]
         context = multiprocessing.get_context("spawn")
         with ProcessPoolExecutor(max_workers=workers, mp_context=context, initializer=_worker_init,
-                                 initargs=(_config_snapshot(), template_red, template_blue, terrain_map)) as pool:
+                                 initargs=(_config_snapshot(), roster, terrain_map)) as pool:
             # map() hands results back in battle order, so the logs print in order.
             for result, out, err in pool.map(_worker_battle, jobs):
                 sys.stdout.write(out)
@@ -997,9 +1114,12 @@ def run_batch(num_simulations: Optional[int] = None, seed: Optional[int] = None,
                 sys.stderr.flush()
                 results.append(result)
 
-    summarize(results,
-              f"{template_red.chassis} {template_red.model}",
-              f"{template_blue.chassis} {template_blue.model}")
+    if config.FORCES is None:
+        summarize(results,
+                  f"{roster[0]['template'].chassis} {roster[0]['template'].model}",
+                  f"{roster[1]['template'].chassis} {roster[1]['template'].model}")
+    else:
+        summarize_teams(results, _team_labels(roster))
     if config.TIMING:
         timing.report(results, time.perf_counter() - started, workers)
     for result in results:

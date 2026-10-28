@@ -68,6 +68,7 @@ will punch or kick) and in movement scoring (Planner); this phase then
 re-picks with what actually happened (fired weapons, falls, damage).
 """
 
+from collections import defaultdict
 import math
 
 import INTEGRATION__config as config
@@ -75,6 +76,7 @@ import INTEGRATION__hazards as hazards
 import INTEGRATION__advanced_weapons as adv  # Taser interference (TO:AUE p.158, 2026-10-27)  # magma / hazardous liquid on displacement (TO:AR, 2026-10-27)
 import INTEGRATION__attack_resolution as attack_resolution
 import INTEGRATION__arcs as arcs
+import INTEGRATION__domino as domino
 import INTEGRATION__structure_weight as structure_weight
 import INTEGRATION__water as water
 import INTEGRATION__physical_gear as gear
@@ -807,11 +809,21 @@ def _resolve_pushes(pushes, triggers, terrain_map):
             config.log(f"    The push into a hex 3+ levels up is prohibited - nobody moves (p.83).")
             triggers[target.side_name].append(("pushed", PUSH_PSR_MODIFIER))
             continue
-        old, target.hex, attacker.hex = target.hex, label, target.hex
+        old = target.hex
+        fell_here = False
+        if domino.occupant(label, exclude=(attacker, target)) is not None:           # a third 'Mech there (pp.113-116)
+            fell_here = domino.displace_into_occupied(target, label, direction, drop, terrain_map, "pushed")
+            label = target.hex
+        else:
+            target.hex = label
+        attacker.hex = old
         config.log(f"    {target.side_name} is pushed {old} -> {label}; {attacker.side_name} follows into {old}.")
-        hazards.enter_hex(target, label, why=f"pushed into {label}", in_phase=True)    # TO:AR (2026-10-27)
+        if not fell_here:
+            hazards.enter_hex(target, label, why=f"pushed into {label}", in_phase=True)    # TO:AR (2026-10-27)
         hazards.enter_hex(attacker, old, why=f"followed into {old}", in_phase=True)
-        if drop >= 2:
+        if fell_here:
+            pass                                       # the fall from above was resolved with the displacement
+        elif drop >= 2:
             config.log(f"    {target.side_name} is pushed {drop} levels down - automatic fall (p.83).")
             piloting_rolls.resolve_fall(target, cause="pushed down", levels=drop)
         else:
@@ -831,12 +843,22 @@ def _whip_trip(attacker, target, o, triggers):
 
 
 def run_physical_phase(mech_a, mech_b, terrain_map, reports):
-    """Both mechs declare and roll, then the damage lands, then charges'
-    damage and displacement, then PSRs and consciousness checks (p.83)."""
+    """The two-mech Physical Attack Phase: each of the two attacks the other.
+    (run_physical_units is the general one.)"""
+    foe = {id(mech_a): mech_b, id(mech_b): mech_a}
+    run_physical_units([mech_a, mech_b], lambda unit: foe[id(unit)], terrain_map, reports)
+
+
+def run_physical_units(order, target_of, terrain_map, reports):
+    """Every unit declares and rolls, then the damage lands, then charges'
+    damage and displacement, then PSRs and consciousness checks (p.83), for
+    any number of units (2026-10-28, INTEGRATION__forces): `order` is the
+    units in declaration order (the side that lost Initiative first),
+    `target_of(unit)` the one enemy a unit attacks (None: nobody to hit)."""
     import INTEGRATION__charge as charge       # charge and dfa import this module
     import INTEGRATION__dfa as dfa
     import INTEGRATION__clubs as clubs
-    for m in (mech_a, mech_b):
+    for m in order:
         rep = reports.get(m.side_name)
         m.weapons_fired_this_turn = frozenset(id(x.weapon) for x in rep.attacks_list) if rep else frozenset()
         piloting_rolls.snapshot_pre_attack_phase(m)
@@ -845,7 +867,10 @@ def run_physical_phase(mech_a, mech_b, terrain_map, reports):
     declared = []
     charges = []
     dfas = []
-    for attacker, target in ((mech_a, mech_b), (mech_b, mech_a)):
+    for attacker in order:
+        target = target_of(attacker)
+        if target is None:
+            continue
         if getattr(attacker, "charging", None) is not None:
             outcome = charge.declare(attacker, target, terrain_map)
             if outcome is not None:                      # going ahead, or a miss: no other physical attack
@@ -888,7 +913,7 @@ def run_physical_phase(mech_a, mech_b, terrain_map, reports):
                        f"rolled {roll} -> {'HIT' if hit else 'miss'} ({o['damage']} dmg, {side} side)"
                        f"{' - the flail swings back into its wielder (TO:AUE p.101)' if o.get('fumble') else ''}")
             declared.append((attacker, target, dict(o, tn=tn), hit, side))
-    triggers = {mech_a.side_name: [], mech_b.side_name: []}
+    triggers = defaultdict(list)             # PSR triggers by unit label (a charge's target may have just fallen)
     pushes = []
     for attacker, target, o, hit, side in declared:
         if o.get("push"):
@@ -934,11 +959,11 @@ def run_physical_phase(mech_a, mech_b, terrain_map, reports):
         for name, extra in dfa.resolve(attacker, target, hit, terrain_map).items():
             triggers[name].extend(extra)
     import INTEGRATION__movement_attacks as movement_attacks
-    for m in (mech_a, mech_b):
+    for m in order:
         gear.lower(m)                                    # a raised shield lowers at the end of the phase
-    for m in (mech_a, mech_b):                           # a charger's / DFA's movement ends now (pp.78, 80)
+    for m in order:                                      # a charger's / DFA's movement ends now (pp.78, 80)
         triggers[m.side_name].extend(movement_attacks.end_of_movement_triggers(m, terrain_map))
-    for m in (mech_a, mech_b):
+    for m in order:
         attack_resolution._with_piloting(m, piloting_rolls.resolve_attack_phase_psr,
                                          forced_triggers=tuple(triggers[m.side_name]))
         piloting_rolls.resolve_consciousness_checks(m, "Physical Attack Phase")

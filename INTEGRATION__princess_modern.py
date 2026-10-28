@@ -380,7 +380,8 @@ def choose(mover, other, terrain_map, battle_rng, moves_first, standup_mp=None, 
                                          standup_mp=standup_mp, entry_edge=entry_edge)
     stance = posture(mover, other)
     with timing.section("reachable spots"):
-        options = movement_selection.reduced_options(mover, terrain_map, exclude_hex=other.hex,
+        options = movement_selection.reduced_options(mover, terrain_map,
+                                                     exclude_hex=movement_selection.occupied_hexes(mover, other),
                                                      standup_mp=standup_mp, entry_edge=entry_edge)
     enemy_xy = hex_geometry.parse_hex_label(other.hex)
     moved = not moves_first or is_immobile(other)
