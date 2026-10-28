@@ -109,6 +109,9 @@ import INTEGRATION__physical_gear as gear  # noqa: E402 - shields, p.195
 import INTEGRATION__weapon_profiles as weapon_profiles
 import INTEGRATION__timing as timing
 import INTEGRATION__water as water
+import INTEGRATION__hazards as hazards
+import INTEGRATION__advanced_weapons as adv
+import INTEGRATION__smoke as smoke
 from mech_state import pilot_hit, head_hit_hurts_pilot, tripod_gunner_modifier, is_destroyed, all_crew_unconscious  # noqa: E402 - pp.203, 236
 from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capability, \
     mark_consciousness_check_pending, compute_heat_dissipation, arm_aes_working
@@ -119,7 +122,7 @@ import piloting_rolls
 
 import hex_geometry
 import combat
-from los import hex_distance, trace_los_path, STANDING_HEIGHT, PRONE_HEIGHT
+from los import hex_distance, trace_los_path, STANDING_HEIGHT, PRONE_HEIGHT, LOSResult, target_hex_modifier
 
 # equipment.json damage_type strings -> MECHSIM DamageType. A name mapping,
 # not a rule. Anything else (incl. null) goes through stub_unknown_damage_type.
@@ -178,9 +181,12 @@ def _with_piloting(mech, fn, *args, **kwargs):
 
 
 def _target_tmm(target):
+    """The target's movement modifier - immobile -4 (MECHSIM's convention),
+    else its TMM; a bogged-down target adds -2 (TO:AR p.60, 2026-10-27)."""
+    stuck = hazards.STUCK_TO_HIT if hazards.is_stuck(target) else 0
     if is_immobile(target):
-        return IMMOBILE_TMM
-    return combat.fc_to_tmm(target.move_fc, jumped=(target.move_mode == "Jump"))
+        return IMMOBILE_TMM + stuck
+    return combat.fc_to_tmm(target.move_fc, jumped=(target.move_mode == "Jump")) + stuck
 
 
 _SIDE_BY_RELATIVE_HEXSIDE = {0: "front", 1: "right", 2: "right", 3: "rear", 4: "left", 5: "left"}
@@ -473,9 +479,18 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     trace = trace_los_path(a_hex, t_hex, terrain_map, *heights)
     los = trace.result
     cover = trace.steps[-1].partial_cover      # partial cover (p.66): leg hits strike the cover
+    indirect = False
     if not los.los:
-        config.log(f"  [Ranged] {a_name}: no LOS to {t_name} - holds fire.")
-        return
+        # 'Mech mortars may fire indirectly with no spotter (TO:AUE p.136; Core p.70:
+        # only without LOS) - INTEGRATION__advanced_weapons. Nothing else fires.
+        if not adv.indirect_weapons(attacker):
+            config.log(f"  [Ranged] {a_name}: no LOS to {t_name} - holds fire.")
+            return
+        indirect = True
+        los = LOSResult(los=True, modifier=target_hex_modifier(t_hex, terrain_map), distance=hex_distance(a_hex, t_hex))
+        cover = 0                              # indirect fire ignores partial cover (Core p.70)
+        config.log(f"  [Ranged] {a_name}: no LOS to {t_name} - only its mortars may fire, indirectly "
+                   f"(+{adv.MORTAR_INDIRECT_MODIFIER}: indirect +1, no spotter +2; target hex terrain only).")
     a_facing = hex_geometry.compass_to_facing(attacker.facing)
     pair_arcs = arcs.arcs_between(a_hex, t_hex)
     arc_choices = arcs.arc_keys(pair_arcs, a_facing, arcs.arc_options(attacker), arcs.leg_offsets(attacker))
@@ -495,7 +510,11 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
         return
     cond_mod, unavailable, cond_note = conditions
     unavailable = (unavailable | ammo.unavailable_weapons(attacker) | fire_modes.jammed_ids(attacker)
-                   | weapon_profiles.array_gun_ids(attacker) | shielded_weapon_ids(attacker))
+                   | weapon_profiles.array_gun_ids(attacker) | shielded_weapon_ids(attacker)
+                   | adv.no_effect_ids(attacker))                  # fluid guns, VGLs: nothing for a 'Mech (TO:AUE)
+    if indirect:
+        unavailable = unavailable | frozenset(id(w) for w in get_weapons(attacker)
+                                              if id(w) not in {id(m) for m in adv.indirect_weapons(attacker)})
     # Water (2026-10-21, INTEGRATION__water, pp.62, 67, 127): attacks can't cross
     # the water line; from depth 1 only some weapons can bear; only energy weapons
     # fire from a submerged location.
@@ -514,7 +533,10 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     kick_ids = water.kick_table_weapon_ids(attacker, get_weapons(attacker), w_locs, a_water, t_water)
     prone_mod = prone_target_modifier(target, distance)
     other_mod = cond_mod + prone_mod
-    pre_tn = attacker.gunnery + amm + tmm + los.modifier + heat_mod + stealth_mod + other_mod
+    probe_mod = 0 if indirect else -smoke.probe_relief(attacker, target, trace, distance)   # Core pp.124, 197
+    if probe_mod:
+        config.log(f"  [Ranged] {a_name}'s active probe sees through the smoke on the line ({probe_mod}).")
+    pre_tn = attacker.gunnery + amm + tmm + los.modifier + heat_mod + stealth_mod + other_mod + probe_mod
 
     aim = None
     if is_immobile(target) and config.AIMED_SHOT_LOCATION:
@@ -596,6 +618,7 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
     electronics.log_controls(a_name, plans, weapons)
 
     report.weapon_heat += weapon_heat + surcharge
+    t_dir = combat._direction_facing(a_hex, t_hex)
     for w in weapons:
         # Ammo is marked off at declaration - except Streaks, only on a hit (p.72, p.187) -
         # from a bin of the chosen munition; if none is left the shot is what the bin fired.
@@ -624,11 +647,18 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport):
         tn = pre_tn + range_mod + extra
         if plan.kind == "homing":              # p.190: 2D6 with no modifiers at all
             range_mod, extra, tn = 0, 0, weapon_profiles.HOMING_TN
+        if indirect:
+            tn += adv.MORTAR_INDIRECT_MODIFIER - adv.MORTAR_DIRECT_MODIFIER   # indirect, not direct (TO:AUE p.136)
         roll = config.roll_2d6(prompt=f"To-hit roll ({w.name})")
         hit = roll >= tn
         config.log(f"    {w.name}{f' x{plan.shots}' if plan.shots > 1 else ''}: needs {tn} (range mod +{range_mod}"
                    f"{f', modifiers {extra:+d}' if extra else ''}){f' aimed at {w_aim}' if w_aim else ''}, "
                    f"rolled {roll} -> {'HIT' if hit else 'miss'}{f' [{ammo_note}]' if ammo_note else ''}")
+        arcs.note_mech_turret_fire(attacker, w, w_locs.get(id(w), ()), t_dir - a_facing)   # TO:AUE p.159
+        if adv.is_hvac(w):                     # TO:AUE p.97
+            adv.hvac_smoke(attacker, target, terrain_map, getattr(attacker, "turn_number", 0))
+            if roll == adv.HVAC_MISFEED_ROLL:
+                adv.hvac_misfeed(attacker, w, sorted(w_locs.get(id(w), ("Center Torso",)))[0])
         jam_at = fire_modes.jam_threshold(plan) if fire_modes.is_rotary(w) else 0
         if roll <= jam_at:
             w.jammed = True
@@ -1075,6 +1105,8 @@ def run_ranged_combat_phase(mover_first, mover_second, terrain_map, battle_rng):
                 if attack.hit:
                     rep.hits += 1
                     _resolve_one_attack(attacker, target, attack, battle_rng, pool)
+                    if adv.is_taser(attack.weapon):           # TO:AUE pp.157-158
+                        adv.taser_hit(attacker, target, getattr(attacker, "turn_number", 0))
                 elif attack.fire is not None and attack.fire.kind == "homing":
                     config.log(f"    {attack.weapon.name} homing missile misses (rolled {attack.roll}): it strikes "
                                f"{target.side_name}'s hex for {weapon_profiles.HOMING_AE} area-effect damage (p.190).")

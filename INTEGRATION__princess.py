@@ -50,7 +50,10 @@ Ties keep the first spot found (MegaMek's TreeSet drops an equal rank).
 
 Hazards (checkPathForHazards) are priced at the END hex only - Princess
 checks every hex of a ground path: water (an unarmored submerged location
-50, the head / center torso 1000), rubble and mud (the bog-down factor).
+50, the head / center torso 1000), rubble and mud (the bog-down factor),
+and (2026-10-27, TO:AR terrain) magma and hazardous liquid pools -
+calcMagmaHazard / calcLavaHazard / calcHazardousLiquidHazard, the same in
+v0.50.07 and MegaMek main (checked against both sources).
 Not ported: charges and death from above (v0.50.07 Princess never
 declares them), MASC odds in P(success) (the project rolls MASC before
 the move), unjamming a rotary AC, forced withdrawal, the "move to contact"
@@ -73,6 +76,7 @@ from mech_state import is_immobile  # noqa: E402 - MECHSIM
 import piloting_rolls  # noqa: E402 - MECHSIM
 import hex_geometry  # noqa: E402 - PATHFINDER
 import combat  # noqa: E402 - PATHFINDER
+import terrain_rules  # noqa: E402 - PATHFINDER
 from combat import hit_probability  # noqa: E402 - PATHFINDER
 from los import hex_distance  # noqa: E402 - PATHFINDER
 
@@ -276,7 +280,65 @@ def hazards(mover, o, terrain_map):
         total += round(_bog_down_factor(mover.piloting, 0, True, jump))
     if "mud" in features:
         total += round(_bog_down_factor(mover.piloting, 0, True, False))
+    total += magma_hazard(mover, features, jump)
+    if "hazardous_liquid" in features:
+        total += hazardous_liquid_hazard(mover, o.label, terrain_map)
     return total
+
+
+# MegaMek's leg locations for calcLavaHazard / calcHazardousLiquidHazard's
+# exposed armor: a quad's four legs (Mek.LOC_LEFT_ARM / RIGHT_ARM are its front legs).
+def _leg_armor(mover):
+    return sum(max(0, mover.locations[l]["armor"]) for l in mover.leg_locations)
+
+
+def _total_armor(mover):
+    return sum(max(0, e["armor"]) + max(0, e.get("rear_armor", 0)) for e in mover.locations.values())
+
+
+def lava_hazard(mover, jump_landing):
+    """calcLavaHazard for a 'Mech's end hex (endHex = True): 10 heat, plus
+    the destruction factor x expected damage / exposed armor (biped 14 on its
+    legs, tripod 21, quad 28; prone 7 a location on all its armor), all x
+    the bog-down factor when jumping in (PSR +4)."""
+    psr_factor = 1.0
+    if jump_landing:
+        odds = hit_probability(mover.piloting + 4)
+        bogged = 1.0 - odds
+        turns = math.log10(0.10) / math.log10(bogged) if 0.0 < bogged < 1.0 else 0.0
+        psr_factor = 1.0 + bogged + turns
+    value = 10.0
+    if mover.prone:
+        dmg, exposed = 7 * len(mover.locations), _total_armor(mover)
+    else:
+        dmg, exposed = 7 * len(mover.leg_locations), _leg_armor(mover)
+    value += UNIT_DESTRUCTION_FACTOR * (dmg / max(exposed, 1))
+    return round(value * psr_factor)
+
+
+def magma_hazard(mover, features, jump_landing):
+    """calcMagmaHazard (end hex): liquid = lava_hazard; a crust = lava_hazard
+    x the chance it breaks (1/2 jumping, 0.1667 walking), rounded, plus 5 x
+    the chance it holds (heat)."""
+    state = terrain_rules.magma_state(features)
+    if state == terrain_rules.MAGMA_LIQUID:
+        return lava_hazard(mover, jump_landing)
+    if state == terrain_rules.MAGMA_CRUST:
+        breaks = 0.5 if jump_landing else 0.1667
+        return round(lava_hazard(mover, jump_landing) * breaks) + 5 * (1 - breaks)
+    return 0.0
+
+
+def hazardous_liquid_hazard(mover, label, terrain_map):
+    """calcHazardousLiquidHazard (end hex): 3 average damage x the
+    destruction factor / exposed armor - the legs, or all of it when prone
+    or in water deeper than 1."""
+    dmg = max(3.0, 2.0 / 3.0)
+    if mover.prone or water.depth_at(label, terrain_map) > 1:
+        exposed = _total_armor(mover)
+    else:
+        exposed = _leg_armor(mover)
+    return round(UNIT_DESTRUCTION_FACTOR * (dmg / max(exposed, 1)))
 
 
 def _armor_bias(mech):

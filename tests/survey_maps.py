@@ -63,7 +63,7 @@ def check_map(path):
             terrain_rules.prepare_board(tm, passive_buildings=config.PASSIVE_BUILDINGS)
         except ValueError as e:
             lines = str(e).splitlines()
-            return [line.strip(" -").split(":")[0] for line in lines[1:]] or [lines[0]]
+            return [line.strip(" -").rsplit(":", 1)[0] for line in lines[1:]] or [lines[0]]
     hexes = tm["hexes"]
     for label, info in hexes.items():
         x, y = parse_hex_label(label)

@@ -134,11 +134,13 @@ def jump_landing_height():
 
 @check
 def map_check_refuses_unplayable_terrain():
-    """terrain_rules.prepare_board: bridges, ultra-heavy woods and MegaMek-only
-    terrain stop the map loading with a list, instead of being played as clear
-    (bridges used to crash mid-battle)."""
+    """terrain_rules.prepare_board: bridges, fuel tanks and elevators (the full
+    building rules) stop the map loading with a list, instead of being played
+    as clear (bridges used to crash mid-battle). Ultra-heavy woods and magma
+    play since 2026-10-27 (tests/test_hazards.py); a magma param MegaMek
+    doesn't write is still refused."""
     for bad in ({"bridge": ["2", "18"], "bridge_cf": ["40"], "bridge_elev": ["0"]},
-                {"woods": ["3"]}, {"magma": ["2"]}):
+                {"fuel_tank": ["1", "0"]}, {"elevator": ["3", "2"]}, {"magma": ["7"]}):
         try:
             terrain_rules.prepare_board(board({"0505": hexinfo(0, **bad)}))
         except ValueError as e:

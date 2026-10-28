@@ -60,9 +60,22 @@ Prone mechs cannot twist or flip (pp.51, 62); quads cannot twist (p.238).
 TAG designation (p.53) would also use up the twist / flip, but TAG never fires
 yet (stubs.unconfirmed_weapon_data), so that case can't arise.
 
+=== SHOULDER AND HEAD TURRETS (TO:AUE p.159, 2026-10-27) ===
+A "(T)" weapon in a location with a Shoulder Turret, or anywhere on a 'Mech
+with a Head Turret (and no turret in its own location), turns to any facing
+like a vehicle turret - here: it bears on a target in any arc of the
+(twisted) torso, except that a shoulder turret may not fire through the
+'Mech's opposite-side hexsides (a left shoulder turret: not into the right
+side arc; a right one: not into the left), and a quad's head turret, when it
+also has a quad turret, not into the rear arc. A critical hit on the turret
+slot locks it at the facing it last had (`mech_turret_dir`, the direction it
+last fired, as hexsides from the 'Mech's facing - Claude's reading: the lock
+ignores later torso twists); a locked turret's weapons fire only into the
+forward arc of that direction (an extra leg_offsets entry, "turret:<loc>").
+
 Claude's calls (not in the rules): a rear-mounted weapon in a flipped arm still
-fires only to the rear; a "(T)" weapon on a mech without a Quad Turret
-(shoulder / head turrets are not Core equipment) is treated as fixed forward.
+fires only to the rear; a "(T)" weapon with no turret of any kind on the
+'Mech is treated as fixed forward.
 
 Nothing here is a number: only geometry and the p.60 table.
 """
@@ -118,6 +131,46 @@ def _norm(name):
 def has_quad_turret(mech):
     return any(_norm(getattr(s, "name", s)).endswith("QUADTURRET")
                for slots in mech.crits.values() for s in slots)
+
+
+MECH_TURRET_NAMES = ("SHOULDERTURRET", "HEADTURRET")
+
+
+def mech_turrets(mech):
+    """{location: "shoulder" / "head"} for the 'Mech's shoulder and head
+    turrets (TO:AUE p.159), whether working or locked."""
+    out = {}
+    for loc, slots in mech.crits.items():
+        for s in slots:
+            n = _norm(getattr(s, "name", s))
+            if n.endswith("SHOULDERTURRET"):
+                out[loc] = "shoulder"
+            elif n.endswith("HEADTURRET"):
+                out[loc] = "head"
+    for (loc, _), info in mech.destroyed_slot_info.items():
+        n = _norm(info["name"] if isinstance(info, dict) else info[0])
+        if n.endswith("SHOULDERTURRET"):
+            out.setdefault(loc, "shoulder")
+        elif n.endswith("HEADTURRET"):
+            out.setdefault(loc, "head")
+    return out
+
+
+def mech_turret_locked(mech, loc):
+    """A crit on a shoulder / head turret slot locks it (TO:AUE p.159)."""
+    return any(l == loc and _norm(info["name"] if isinstance(info, dict) else info[0]).endswith(MECH_TURRET_NAMES)
+               for (l, _), info in mech.destroyed_slot_info.items())
+
+
+def mech_turret_of(mech, locations):
+    """The location of the shoulder / head turret a "(T)" weapon in
+    `locations` sits in - its own location's, else the head turret's - or None."""
+    turrets = mech_turrets(mech)
+    for loc in locations:
+        if loc in turrets:
+            return loc
+    heads = [loc for loc, kind in turrets.items() if kind == "head"]
+    return heads[0] if heads else None
 
 
 def turret_locked(mech):
@@ -186,10 +239,17 @@ def twist_options(mech):
 
 def leg_offsets(mech):
     """(leg location, offset of its forward arc from the facing), in the
-    mech's leg order."""
+    mech's leg order - plus ("turret:<loc>", offset) for each LOCKED shoulder
+    / head turret, whose forward arc is fixed the same way."""
     if mech.mech_type == "tripod":
-        return tuple((leg, TRIPOD_LEG_OFFSETS.get(leg, 0)) for leg in mech.leg_locations)
-    return tuple((leg, 0) for leg in mech.leg_locations)
+        out = tuple((leg, TRIPOD_LEG_OFFSETS.get(leg, 0)) for leg in mech.leg_locations)
+    else:
+        out = tuple((leg, 0) for leg in mech.leg_locations)
+    if getattr(mech, "mech_turret_dir", None) is not None or any(mech_turrets(mech)):
+        dirs = getattr(mech, "mech_turret_dir", {}) or {}
+        out += tuple((f"turret:{loc}", dirs.get(loc, 0)) for loc in mech_turrets(mech)
+                     if mech_turret_locked(mech, loc))
+    return out
 
 
 class ArcKey(NamedTuple):
@@ -228,8 +288,12 @@ def arc_keys(arcs, facing, actions, legs):
 def weapon_class(mech, weapon, locations):
     """'turret', 'rear', 'leg', 'left_arm', 'right_arm' or 'torso' (head /
     torso / split-location: forward arc only, moved by a twist)."""
-    if getattr(weapon, "turret_mounted", False) and has_quad_turret(mech):
+    if getattr(weapon, "turret_mounted", False) and has_quad_turret(mech) and mech_turret_of(mech, locations) is None:
         return "turret"
+    if getattr(weapon, "turret_mounted", False):
+        loc = mech_turret_of(mech, locations)
+        if loc is not None:
+            return f"turret:{loc}"                     # shoulder / head turret (TO:AUE p.159)
     if getattr(weapon, "rear_mounted", False):
         return "rear"
     locations = set(locations)
@@ -251,6 +315,8 @@ def unavailable(mech, weapons, locations_by_weapon, key):
         kind = weapon_class(mech, w, locs)
         if kind == "turret":
             ok = bool(key.turret_forward)
+        elif kind.startswith("turret:"):
+            ok = _mech_turret_bears(mech, kind[len("turret:"):], torso_arc, key)
         elif kind == "rear":
             ok = torso_arc == REAR
         elif kind == "leg":
@@ -266,6 +332,25 @@ def unavailable(mech, weapons, locations_by_weapon, key):
         if not ok:
             blocked.add(id(w))
     return frozenset(blocked)
+
+
+def _mech_turret_bears(mech, loc, torso_arc, key):
+    """A shoulder / head turret's weapons on a target in `torso_arc` (TO:AUE
+    p.159, module docstring)."""
+    if mech_turret_locked(mech, loc):
+        return f"turret:{loc}" in key.legs_forward
+    if mech_turrets(mech).get(loc) == "head":
+        return not (has_quad_turret(mech) and torso_arc == REAR)
+    side = "Left" if loc.startswith("Left") else "Right" if loc.startswith("Right") else None
+    return not ((side == "Left" and torso_arc == RIGHT) or (side == "Right" and torso_arc == LEFT))
+
+
+def note_mech_turret_fire(mech, weapon, locations, target_offset):
+    """Remember where a working shoulder / head turret last pointed - the
+    target's direction, hexsides from the 'Mech's facing - for a later lock."""
+    kind = weapon_class(mech, weapon, locations)
+    if kind.startswith("turret:") and not mech_turret_locked(mech, kind[len("turret:"):]):
+        mech.__dict__.setdefault("mech_turret_dir", {})[kind[len("turret:"):]] = target_offset % 6
 
 
 def declare(mech, action):

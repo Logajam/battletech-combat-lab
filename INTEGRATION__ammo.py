@@ -82,6 +82,8 @@ _NOT_MODELED = re.compile(r"ArrowIV ?(Cluster|Inferno|Smoke|Thunder)|ECM Pods|Ha
 _LBX_CLUSTER = re.compile(r"\s*Cluster|\sCL(?= Ammo)", re.I)
 _ATM_KIND = re.compile(r"(ATM-?\d+)\s+(ER|HE)\b", re.I)
 _MML = re.compile(r"MML-?(\d)\s*(LRM|SRM)", re.I)
+_MORTAR = re.compile(r"(AMMO)?(SC|ARMORPIERCING)?MORTAR(AMMO)?(\d)")    # on _norm_name; groups 2 / 4 used
+TASER_AMMO_EXPLOSION = 6
 NARC_POD_DAMAGE = {"ISNarcBeacon": 2, "CLNarcBeacon": 2, "ISImprovedNarc": 3}      # explosion per pod, p.193
 EXPLOSIVE_POD_DAMAGE = {"ISNarcBeacon": 4, "CLNarcBeacon": 4, "ISImprovedNarc": 6}  # hit / explosion, p.193
 
@@ -105,6 +107,14 @@ def parse_bin(bin_name):
     if "NARC" in u and ("POD" in u or u.endswith("NARC")):
         weapon = "ISImprovedNarc" if "INARC" in u else ("CLNarcBeacon" if u.startswith("CL") else "ISNarcBeacon")
         return _entry(weapon), ("explosive" if "EXPLOSIVE" in u else "homing"), ""
+    mortar = _MORTAR.search(u)
+    if mortar:
+        # 'Mech mortar shells (TO:AUE pp.185-187, 2026-10-27): armor-piercing (shaped-
+        # charge, "SC") - the default and all data/meks.zip carries; other shells unlinked.
+        if not mortar.group(2):
+            return None, None, None
+        tech = "Clan" if u.startswith(("CL", "CLAN")) else "IS"
+        return _entry(f"{tech} Mech Mortar-{mortar.group(4)}"), munition, ""
     mml = _MML.search(name)
     if mml:
         return _entry(f"ISMML{mml.group(1)}"), munition, mml.group(2).lower()
@@ -169,6 +179,8 @@ def attach_ammo(mech):
                     slot.shots_left //= 2
                 slot.missiles_per_shot = (entry.get("rack_size") or 1) if entry and entry.get("damage_type") == "Missile" else 1
                 slot.shot_damage = damage_per_shot(entry)
+                if entry is not None and "TASER" in _norm_name(entry["canonical_name"]):
+                    slot.shot_damage = TASER_AMMO_EXPLOSION         # 6 a shot left (TO:AUE p.158, 2026-10-27)
                 if entry is not None and (kind in fire_modes.MML_KINDS or kind in fire_modes.ATM_KINDS):
                     per = fire_modes.MML_KINDS[kind][0] if kind in fire_modes.MML_KINDS else fire_modes.ATM_KINDS[kind][0]
                     slot.shot_damage = per * (entry.get("rack_size") or 1)

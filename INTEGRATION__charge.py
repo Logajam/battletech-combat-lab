@@ -55,6 +55,8 @@ cover is ignored as the rule says, but woods still count.
 import math
 
 import INTEGRATION__config as config
+import INTEGRATION__hazards as hazards
+import INTEGRATION__advanced_weapons as adv  # Taser interference (TO:AUE p.158, 2026-10-27)  # magma / hazardous liquid on displacement (TO:AR, 2026-10-27)
 import INTEGRATION__attack_resolution as attack_resolution
 import INTEGRATION__movement_attacks as movement_attacks
 import INTEGRATION__physical_gear as gear
@@ -91,7 +93,8 @@ def to_hit(attacker, mode, target, a_xy, t_xy, terrain_map, target_tmm):
     return (attacker.piloting + combat.MODE_TO_AMM[mode] + target_tmm
             + terrain_modifier(a_xy, t_xy, terrain_map) + comparative_modifier(attacker, target)
             + aes_modifier(attacker) + torso_cockpit_sensor_penalty(attacker)       # p.203
-            + tripod_pilot_modifier(attacker))                                       # p.236
+            + tripod_pilot_modifier(attacker)                                        # p.236
+            + adv.interference(attacker))                                            # Taser (TO:AUE p.158)
 
 
 def can_charge(mover, target, target_has_moved):
@@ -178,6 +181,9 @@ def resolve_hit(attacker, target, terrain_map):
     if not is_destroyed(attacker):
         attacker.hex = old
     config.log(f"    {target.side_name} is displaced {old} -> {new_label}; {attacker.side_name} advances into {old}.")
+    hazards.enter_hex(target, new_label, why=f"displaced into {new_label}", in_phase=True)     # TO:AR (2026-10-27)
+    if not is_destroyed(attacker):
+        hazards.enter_hex(attacker, old, why=f"advanced into {old}", in_phase=True)
     if drop >= 2:
         config.log(f"    {target.side_name} is displaced {drop} levels down - automatic fall (p.114).")
         piloting_rolls.resolve_fall(target, cause="displaced down", levels=drop)

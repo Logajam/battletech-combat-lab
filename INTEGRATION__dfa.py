@@ -41,6 +41,7 @@ Not modeled: wind, water, a third mech in the displacement hex.
 import math
 
 import INTEGRATION__config as config
+import INTEGRATION__hazards as hazards  # magma / hazardous liquid on displacement (TO:AR, 2026-10-27)
 import INTEGRATION__physical_gear as gear
 from INTEGRATION__movement_attacks import comparative_modifier, displacement, apply_groups
 from mech_state import is_destroyed, all_crew_unconscious, torso_cockpit_sensor_penalty, tripod_pilot_modifier
@@ -69,7 +70,9 @@ def miss_fall_damage(attacker):
 
 
 def to_hit(attacker, target, target_tmm):
+    import INTEGRATION__advanced_weapons as adv
     return (attacker.piloting + JUMP_MODIFIER + target_tmm + comparative_modifier(attacker, target)
+            + adv.interference(attacker)                                   # Taser (TO:AUE p.158)
             + torso_cockpit_sensor_penalty(attacker) + tripod_pilot_modifier(attacker))   # pp.203, 236
 
 
@@ -77,6 +80,7 @@ def _land(attacker, label):
     """The attacker lands in the target's hex, facing as it was (p.80)."""
     if not is_destroyed(attacker):
         attacker.hex = label
+        hazards.enter_hex(attacker, label, jumped=True, in_phase=True)     # magma / pools (TO:AR, 2026-10-27)
 
 
 def declare(attacker, target, terrain_map):
@@ -125,6 +129,7 @@ def _displace(target, kind, label, drop, triggers, cause):
         return True
     old, target.hex = target.hex, label
     config.log(f"    {target.side_name} is displaced {old} -> {label}.")
+    hazards.enter_hex(target, label, why=f"displaced into {label}", in_phase=True)
     if drop >= 2:
         config.log(f"    {target.side_name} is displaced {drop} levels down - automatic fall (p.114).")
         piloting_rolls.resolve_fall(target, cause=cause, levels=drop)

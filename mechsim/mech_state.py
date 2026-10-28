@@ -982,6 +982,8 @@ def _damage_walk_mp(mech):
     if quad and live_hip_legs(mech):
         penalty -= 1                         # a quad's first hip hit costs no MP (p.239)
     penalty += sum(SHIELD_SIZES[size][2] for _, _, size in mech_shields(mech))   # p.195, not below 1
+    if any(getattr(s, "modular_points", 0) > 0 for s in getattr(mech, "modular_armor", ())):
+        penalty += 1                         # modular armor: -1 Walking MP (TO:AUE p.93, 2026-10-27)
     return max(1, mech.base_walk_mp - penalty)
 
 
@@ -1076,6 +1078,8 @@ def compute_jump_mp(mech):
     if any(SHIELD_SIZES[size][3] for _, _, size in mech_shields(mech)):
         return 0                             # a large shield: no jumping (p.195, 2026-10-21)
     jet_mp = max(0, mech.base_jump_mp - len(mech.destroyed_jump_jet_ids))
+    if jet_mp and any(getattr(s, "modular_points", 0) > 0 for s in getattr(mech, "modular_armor", ())):
+        jet_mp -= 1                          # modular armor: -1 Jumping MP (TO:AUE p.93, 2026-10-27)
     if jet_mp == 0 or not mech.partial_wing_active:
         return jet_mp
     return jet_mp + (1 if mech.mass >= 60 else 2)

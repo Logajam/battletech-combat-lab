@@ -330,6 +330,13 @@ def apply_damage(mech, location, damage, armor_field="armor", damage_type=Damage
 
         loc = mech.locations[current]
         armor_key = current_armor_field if current_armor_field in loc else "armor"
+        if getattr(mech, "modular_armor", None):
+            # Modular armor takes it first (2026-10-27, TO:AUE p.93 - the integration's
+            # INTEGRATION__advanced_equipment); the rest is a new attack on the location.
+            import INTEGRATION__advanced_equipment as adv_equip
+            remaining = adv_equip.absorb(mech, current, armor_key, remaining)
+            if remaining <= 0:
+                return
 
         # Re-engineered (Holy) damage ignores armor-type properties entirely -
         # math proceeds as if this location's armor were STANDARD.
@@ -549,6 +556,9 @@ def resolve_slot_hit(mech, location, slot_idx, slot, idx, total):
         if "BLUESHIELD" in (component.name or "").replace(" ", "").upper():
             import INTEGRATION__equipment_systems as equip   # an active PFD explodes (p.207, 2026-10-21)
             equip.blue_shield_hit(mech, location, component)
+        if getattr(component, "modular_points", 0):
+            import INTEGRATION__advanced_equipment as adv_equip     # its points are destroyed (TO:AUE p.93, 2026-10-27)
+            adv_equip.slot_hit(mech, component)
         if "HARJEL" in (component.name or "").replace(" ", "").upper():
             import INTEGRATION__equipment_systems as equip   # HarJel's gel leak (p.208, 2026-10-21)
             equip.harjel_hit(mech, location, component)

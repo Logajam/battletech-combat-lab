@@ -212,6 +212,12 @@ AMS_HEAT_LIMIT = 13
 # PLACEHOLDER (Claude 2026-10-20) until Daniel sets it - without it a plasma
 # cannon (no damage, 2D6 heat) would never be worth firing.
 TARGET_HEAT_WORTH = 0.5
+# A BattleMech Taser hit's effect on the target (TO:AUE p.158: shut down 3
+# turns on 11+, else +2 to its Piloting / Gunnery and 5 heat a turn for 3
+# turns), counted as this much damage when the bot prices a Taser shot.
+# PLACEHOLDER (Claude 2026-10-27) until Daniel sets it - without it a Taser
+# (1 damage for 6 heat) would never be worth firing.
+TASER_EFFECT_WORTH = 5.0
 # Aimed shots at immobile targets (shut down / crew unconscious, Core p.70):
 # the location every eligible weapon aims at, or None for no aimed shots.
 # "Head" uses +3 instead of the -4 immobile modifier.

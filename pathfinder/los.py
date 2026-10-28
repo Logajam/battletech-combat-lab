@@ -38,6 +38,22 @@ cover without the height and prone conditions; per-step border picks).
   - that hex intervenes and hides it. Standing in depth 1 water: partial
   cover even against higher attackers, not against a fully submerged one.
   Target in woods / jungle: +1 / +2 to hit (p.66), never part of LOS.
+  Tactical Operations: Advanced Rules terrain (2026-10-27):
+  - Ultra-heavy woods / jungle (density 3) rise 3 levels; ONE intervening
+    hex blocks LOS; a target in one +3 (TO:AR pp.29, 38) - 'Mechs can't
+    enter them (terrain_rules), so only the blocking matters here.
+  - Planted fields rise 1 level; +1 to hit for every two full intervening
+    planted-field hexes, 6 intervening block LOS (TO:AR p.36). They count
+    on their own, not as woods points. With the Core test above a field
+    intervenes between standing 'Mechs only at a lower level or next to a
+    prone one - the book's p.37 example (a 'Mech ignores the field next to
+    itself, the vehicle's neighbour counts) works the same way.
+  Smoke (2026-10-27, Core p.124; INTEGRATION__smoke keeps it in a hex's
+  info["smoke"]): light acts as light woods, heavy as heavy woods, 2 levels
+  above the hex's ground (a water hex's surface), but never raising a hex's
+  intervening points past 2 or a target hex's modifier past +2, woods
+  included. Each step's smoke share is LOSStep.smoke_contrib (an active
+  probe ignores it - INTEGRATION__smoke.probe_relief).
   A line exactly on a hex border (p.56): the target's controller picks the
   side for the whole line - here the side worse for the attacker (blocked,
   else the higher modifier); a side with an off-board hex can't be picked.
@@ -65,7 +81,7 @@ Hex = Tuple[int, int]  # (x, y) doubled coordinates, no facing
 
 # Target-hex woods to-hit modifier by woods density (Core p.66): light +1,
 # heavy +2. Recorded on the target's LOSStep as woods_contrib.
-TARGET_WOODS_MODIFIER = {"1": 1, "2": 2}
+TARGET_WOODS_MODIFIER = {"1": 1, "2": 2, "3": 3}         # ultra-heavy +3 (TO:AR p.38)
 
 
 @dataclass
@@ -95,6 +111,7 @@ class LOSStep:
     woods_contrib: int = 0              # this step's own woods modifier contribution
     partial_cover: int = 0              # rule 5, only possibly nonzero on the step adjacent to target
     cumulative_modifier: int = 0        # running modifier total through this step
+    smoke_contrib: int = 0              # the part of this step's points / modifier that is smoke (Core p.124)
     after_block: bool = False           # True for steps beyond the blocking step (not evaluated)
 
 
@@ -221,6 +238,21 @@ WOODS_HEIGHT = 2                          # woods / jungle rise 2 levels above t
 WOODS_BLOCK_POINTS = 3                    # 3+ points of intervening woods / jungle block LOS (p.58)
 WOODS_POINTS = {"1": 1, "2": 2}           # light 1, heavy 2 (p.58; also their to-hit modifier, p.66)
 WOODS_FEATURES = ("woods", "jungle")
+ULTRA_HEAVY, ULTRA_HEAVY_HEIGHT = "3", 3   # ultra-heavy woods / jungle: 3 levels, one hex blocks (TO:AR pp.29, 38)
+FIELDS_HEIGHT = 1                          # planted fields rise 1 level (TO:AR p.36)
+FIELDS_PER_POINT, FIELDS_BLOCK = 2, 6      # +1 per two full intervening hexes; 6 block LOS (p.36)
+SMOKE_HEIGHT = 2                           # smoke rises 2 levels above the ground (Core p.124)
+SMOKE_POINTS = {"1": 1, "2": 2}            # light / heavy: as light / heavy woods (Core p.124)
+SMOKE_HEX_CAP = 2                          # smoke never takes a hex past 2 points / +2 (Core p.124)
+
+
+def _smoke_share(info, woods_points: int) -> int:
+    """What a hex's smoke adds to `woods_points` (its woods' points or
+    to-hit modifier): never past 2 (Core p.124)."""
+    smoke = info.get("smoke")
+    if not smoke:
+        return 0
+    return max(0, min(SMOKE_HEX_CAP, woods_points + SMOKE_POINTS[smoke["density"]]) - woods_points)
 
 
 def _woods_density(features) -> Optional[str]:
@@ -284,26 +316,39 @@ def _evaluate(attacker_hex: Hex, target_hex: Hex, terrain_map: Dict[str, object]
         intervening woods (each hex its points) plus partial cover; the
         target's own woods are added after the choice."""
         steps: List[LOSStep] = [LOSStep(index=0, hex=attacker_hex, level=a_level, is_endpoint=True)]
-        woods, blocked_at = 0, None
+        woods, fields, blocked_at = 0, 0, None
         for i, h in enumerate(hexes_on, start=1):
             info = hex_info(h)
             level = info["level"]
             after = blocked_at is not None
-            contrib, blocks = 0, False
+            contrib, blocks, smoke = 0, False, 0
             if not after:
                 # Hills and buildings (a roof's level is the hex's level): one
                 # intervening hex blocks (p.58). Water never intervenes - a water
                 # hex's level is its floor (terrain_rules.prepare_board).
                 blocks = intervenes(level, i)
                 density = _woods_density(info["features"])
-                if not blocks and density is not None and intervenes(level + WOODS_HEIGHT, i):
+                if not blocks and density == ULTRA_HEAVY:
+                    blocks = intervenes(level + ULTRA_HEAVY_HEIGHT, i)       # TO:AR p.38
+                elif not blocks and density is not None and intervenes(level + WOODS_HEIGHT, i):
                     contrib = WOODS_POINTS.get(density, 0)
                     woods += contrib
                     blocks = woods >= WOODS_BLOCK_POINTS
+                if (not blocks and "smoke" in info
+                        and intervenes(info.get("surface_level", level) + SMOKE_HEIGHT, i)):
+                    smoke = _smoke_share(info, contrib)                      # Core p.124
+                    contrib += smoke
+                    woods += smoke
+                    blocks = woods >= WOODS_BLOCK_POINTS
+                if not blocks and "planted_fields" in info["features"] and intervenes(level + FIELDS_HEIGHT, i):
+                    fields += 1                                              # TO:AR p.36
+                    contrib += 1 if fields % FIELDS_PER_POINT == 0 else 0  # this hex completes a pair: +1
+                    blocks = fields >= FIELDS_BLOCK
                 if blocks:
                     blocked_at = i
             steps.append(LOSStep(index=i, hex=h, level=level, blocked=blocks, woods_contrib=contrib,
-                                 cumulative_modifier=woods, after_block=after))
+                                 cumulative_modifier=woods + fields // FIELDS_PER_POINT, after_block=after,
+                                 smoke_contrib=smoke))
         cover = 0
         if blocked_at is None:
             # Partial cover (p.66): a STANDING target next to a hex one level higher
@@ -323,8 +368,8 @@ def _evaluate(attacker_hex: Hex, target_hex: Hex, terrain_map: Dict[str, object]
                     cover = 1
             if n >= 2:
                 steps[-1].partial_cover = cover
-                steps[-1].cumulative_modifier = woods + cover
-        return steps, blocked_at, woods + cover, cover
+                steps[-1].cumulative_modifier = woods + fields // FIELDS_PER_POINT + cover
+        return steps, blocked_at, woods + fields // FIELDS_PER_POINT + cover, cover
 
     walked = [walk(h) for h in sides]
     # The target's choice: a blocked line if it can, else the higher modifier.
@@ -337,16 +382,18 @@ def _evaluate(attacker_hex: Hex, target_hex: Hex, terrain_map: Dict[str, object]
 
     # Target in woods / jungle (p.66): +1 light, +2 heavy - a to-hit modifier only;
     # the target's own hex never affects LOS (pp.57-58).
-    target_woods = 0
+    target_woods = target_smoke = 0
     if blocked_at is None:
         target_woods = TARGET_WOODS_MODIFIER.get(_woods_density(b_info["features"]), 0)
-        modifier += target_woods
+        target_smoke = _smoke_share(b_info, target_woods)                       # Core p.124
+        modifier += target_woods + target_smoke
     steps.append(LOSStep(
         index=n,
         hex=target_hex,
         level=b_level,
         is_endpoint=True,
-        woods_contrib=target_woods,
+        woods_contrib=target_woods + target_smoke,
+        smoke_contrib=target_smoke,
         partial_cover=cover,   # also here: callers read steps[-1]
         cumulative_modifier=modifier,
         after_block=blocked_at is not None,
@@ -354,6 +401,16 @@ def _evaluate(attacker_hex: Hex, target_hex: Hex, terrain_map: Dict[str, object]
     los = blocked_at is None
     return LOSTrace(steps=steps, result=LOSResult(los=los, modifier=modifier,
                                                   distance=n if los else blocked_at))
+
+
+def target_hex_modifier(target_hex: Hex, terrain_map: Dict[str, object]) -> int:
+    """The to-hit modifier of the target's own hex alone - woods / jungle
+    (p.66) - for an attack that takes no LOS modifiers: indirect fire with
+    no spotter (2026-10-27, TO:AUE p.136 'Mech mortars; Core p.70: "Attacks
+    ignoring Spotter LOS modifiers still apply effects of the target's hex")."""
+    info = terrain_map["hexes"][hex_label(*target_hex)]
+    woods = TARGET_WOODS_MODIFIER.get(_woods_density(info["features"]), 0)
+    return woods + _smoke_share(info, woods)
 
 
 def has_los(attacker_hex: Hex, target_hex: Hex, terrain_map: Dict[str, object],
