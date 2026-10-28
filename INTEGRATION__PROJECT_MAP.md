@@ -13,7 +13,11 @@ source project's file overwrite the other's same-named file.
 
 ---
 
-## 0. WHERE WE ARE (2026-10-27, end of session 9) — read this first
+## 0. WHERE WE ARE (2026-10-28, end of session 10) — read this first
+
+Latest: **Session 10** (Tactical Operations terrain and gear, Interstellar
+Operations weapons, ultralight and superheavy 'Mechs - PRs #79-#83) is
+summed up below, just above "Pick up here"; the open work is that list.
 
 **Session 7 in one paragraph - RULES AND EQUIPMENT (all merged to `main`,
 PRs #44-#61):** Daniel: get the environment and physics right before the
@@ -108,12 +112,12 @@ TSM, claws, stealth armor + ECM, supercharger, lasers) vs Hammerhead (Blue,
 example battle, on 16x17 Grassland (flat, level 0, 30 woods hexes), seed
 12345, 1 battle, verbose, home-edge deployment. Layout: `INTEGRATION__*.py`
 at the top; `mechsim/` and `pathfinder/` hold the source-project modules;
-`data/` the boards, test mechs and `meks.zip` (4,227 MegaMek units, 4,162
-parse); `rules/` the rules library zip; `reference_logs/` same-seed sample
+`data/` the boards, test mechs and `meks.zip` (4,227 MegaMek units, 4,204
+load - only the 23 LAMs don't); `rules/` the rules library zip; `reference_logs/` same-seed sample
 battles; `replays/` and `run_stats/` (git-ignored) generated output.
 
 **After any change, from the repo root:** `python tests/run_checks.py` -
-one command, about 1 min: every `tests/test_*.py` (18 files) and every
+one command, about 1 min: every `tests/test_*.py` (22 files) and every
 reference battle (15), side by side, one line each, all must pass. Reference
 battles stop at 50 turns (`check_reference_logs.TEST_BATTLE_MAX_TURNS`,
 Daniel); one that hits the cap prints a NOTE ("a possible flaw") - today
@@ -274,7 +278,9 @@ like to make a clone of Megamek's Princess bot to compare it against."
   out of line of sight on bad trades (18% moving second); Gladiator breaks
   off on bad trades (27% moving first) but NOT more as it gets hurt.
 
-**Session 10 (2026-10-27/28) - TACTICAL OPERATIONS EQUIPMENT AND TERRAIN.**
+**Session 10 (2026-10-27/28) - TACTICAL OPERATIONS EQUIPMENT AND TERRAIN,
+INTERSTELLAR OPERATIONS WEAPONS, ULTRALIGHTS AND SUPERHEAVIES (all merged to
+`main`, PRs #79-#83).**
 Daniel: "The tactical operations books have been indexed ... wire in
 functionality of missing weapons, equipment, and hex types already noted.
 If there is anything beyond those categories needed to match megameks level
@@ -420,8 +426,8 @@ TO:AR summaries in `logajam/battletech-rules-index` (RULES_REVIEW F57-F64):
    items. Wire in equipment that requires choice (Like capacitors) but defer
    the actual bot decision making for later.")** - RULES_REVIEW G23-G33 built
    (F43-F54), each choice a loud stub; Thumper / Sniper artillery (F55); TAG
-   and homing artillery (F56). Left: **smoke and active probes (G34)** - no
-   smoke source yet (no unit carries Smoke IV rounds). Thumper / Sniper
+   and homing artillery (F56). Smoke and active probes (G34) built in
+   session 10 (F64 - the HVAC is the smoke source). Thumper / Sniper
    shots per ton and heat: answered (F55). Every new choice is a stub with
    a Section 6 row, waiting for the bot sessions.
 8. **PPC capacitors** (Daniel, 2026-10-21: "PPC charging is a bot logic
@@ -430,6 +436,10 @@ TO:AR summaries in `logajam/battletech-rules-index` (RULES_REVIEW F57-F64):
    decision - the two stubs `STUB_CAPACITOR_START` / `STUB_CAPACITOR_CHARGE`
    (off by default), and weapon choice seeing the 5 holding heat. ~65 units
    in `data/meks.zip`.
+9. Later (Daniel agreed 2026-10-20): a setup shell GUI (the replay viewer
+   exists); a compiled hot path (Cython / Rust for `MoveEvaluator.evaluate`)
+   once the rules settle - not a rewrite; evolutionary tuning of the bot's
+   settings with batches (discussed 2026-10-20, not started).
 10. **Deferred TO:AUE items (Daniel, 2026-10-28: "Defered")**: 'Mech UMUs
    (TO:AUE p.107 - submarine-style movement under water, 1 MP a UMU, +3 to
    its own attacks; needs underwater elevations in the movement search) and
@@ -437,10 +447,16 @@ TO:AR summaries in `logajam/battletech-rules-index` (RULES_REVIEW F57-F64):
    rules; the leg trip is built). Industrial tools - chainsaws, drills,
    hoists... (TechManual / Total Warfare; Daniel, 2026-10-28: "Defering
    industrial tools").
-9. Later (Daniel agreed 2026-10-20): a setup shell GUI (the replay viewer
-   exists); a compiled hot path (Cython / Rust for `MoveEvaluator.evaluate`)
-   once the rules settle - not a rewrite; evolutionary tuning of the bot's
-   settings with batches (discussed 2026-10-20, not started).
+11. **Physics gaps left (survey 2026-10-28, for Daniel to pick from - none
+   started):** LAMs (23 units - their own movement system, flight); fire,
+   snow / ice and extreme temperatures (Core pp.120-123 - matter once a map
+   or setting turns them on; inferno missiles setting hexes alight goes
+   with fire); G18 choices (bombast laser charging; HAG flak and distant
+   Arrow IV barely matter in a ground duel); G12 (charging after a backward
+   step); the torso twist a TAG shot uses up; TO:AR optional rules (wind,
+   smoke drift, magma eruptions). Every weapon on every unit that loads now
+   fires with real ammo counts. The rest of the open work is bot decisions
+   (items 3, 4, 8) and placeholder values.
 
 **Housekeeping:** reference logs match the code (last regenerated
 2026-10-24, session 8: all 15 for the short-list look-ahead default; nothing
@@ -1341,6 +1357,18 @@ turn's score, so a decision sees what it gives up.
 - New weapons / equipment: check the item's equipment.json row against the
   Core tables (pp.248-254) - slots, damage, range, heat, shots per ton - and
   its ammo-bin names against `ammo.parse_bin`; the data had many gaps.
+  Multi-slot items whose row says 1 slot get read as one weapon per slot
+  (HVACs, mortars, TSEMPs, Improved ACs / missiles all did) - check the
+  parsed weapon count against the unit's Weapons list.
+- (Daniel, 2026-10-28) "Build what could be used. Custom units are and will
+  be a thing" - build every option of a rule a unit could carry (all ammo
+  kinds, effects for every unit column a 'Mech can be), not only what
+  `data/meks.zip` carries today.
+- (Daniel, 2026-10-28) Stats a rulebook paste or table doesn't give (slots,
+  shots per ton, a weapon's range / heat): "megamek's values to use" -
+  borrow from MegaMek's source (main branch) and cite it in the
+  equipment.json note / the code. Rules text Daniel pastes counts as the
+  library (cite the book and page he gives).
 
 ---
 

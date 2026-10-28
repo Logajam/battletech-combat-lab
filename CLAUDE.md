@@ -31,8 +31,12 @@ GitHub logistics.
   page N's text. Cite the page in the code. If the library doesn't settle a
   rule, ask Daniel. The zip is a snapshot of the private repo
   `logajam/battletech-rules-index` (its own CLAUDE.md has the pipeline);
-  that repo also holds TO: Advanced Units & Equipment (2026-10-22), which
-  the zip predates. Attach it with `add_repo` when a rule needs a newer book,
+  that repo also holds TO: Advanced Units & Equipment and TO: Advanced Rules
+  (2026-10), which the zip predates (session 10 read them from a clone of
+  that repo). Interstellar Operations isn't indexed yet: its TSEMP / iATM
+  rules came from Daniel's pastes, and stats no paste or table gives come
+  from MegaMek's source at Daniel's word (cite "MegaMek" in the code).
+  Attach it with `add_repo` when a rule needs a newer book,
   and refresh the zip when Daniel wants that book used here.
 - **Logistics are Claude's** (Daniel: "You're in charge of the logistics").
   Work on the session branch, commit, push, open a PR to `main`, and merge it
