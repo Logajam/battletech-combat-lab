@@ -141,7 +141,10 @@ import INTEGRATION__clubs as clubs  # noqa: E402
 import INTEGRATION__replay as replay  # noqa: E402
 import INTEGRATION__timing as timing  # noqa: E402
 import INTEGRATION__water as water  # noqa: E402
-import INTEGRATION__hazards as hazards  # noqa: E402 - magma, hazardous liquid, bogging down (TO:AR, 2026-10-27)
+import INTEGRATION__advanced_weapons as adv  # noqa: E402 - TO:AUE weapons (2026-10-27)
+import INTEGRATION__advanced_equipment as adv_equip  # noqa: E402 - TO:AUE equipment (2026-10-27)
+import INTEGRATION__hazards as hazards  # noqa: E402
+import INTEGRATION__smoke as smoke  # noqa: E402 - smoke clouds and active probes (2026-10-27) - magma, hazardous liquid, bogging down (TO:AR, 2026-10-27)
 import INTEGRATION__deployment as deployment  # noqa: E402
 from INTEGRATION__attack_resolution import _with_piloting, total_hp  # noqa: E402
 from INTEGRATION__results import BattleResult, SideStats, summarize  # noqa: E402
@@ -208,6 +211,7 @@ def _attach_mech_config(mech, cfg, side_name):
     electronics.attach(mech)          # Artemis links, ECM suites, Narc pods (2026-10-20)
     fire_modes.attach(mech)           # Apollo links, Rotary AC jams (2026-10-20)
     capacitor.attach(mech)            # PPC capacitor links; start charged? - a stub (p.188, 2026-10-21)
+    adv_equip.attach(mech)            # modular armor (TO:AUE p.93, 2026-10-27)
     mech.tag_designated = False       # TAG designation for this turn's Ranged Attack Phase (p.200, 2026-10-21)
     if mech.has_tsm:
         # TSM is driven by min_heat (Daniel, 2026-10-19); max_heat must allow it.
@@ -651,6 +655,7 @@ def _phase_end(mech_red, mech_blue, turn_number, stats):
         piloting_rolls.resolve_end_phase_wakeup(m)
         heat.choose_heat_sink_deactivation(m, next_turn=turn_number + 1)
         equip.end_turn(m)
+        adv.end_phase(m, turn_number)        # Taser effects run out (TO:AUE p.158, 2026-10-27)
         arcs.end_turn(m)                     # torso forward, arms back (Core pp.40, 62)
         s = stats[m.side_name]
         if s.crippled_at is None and not is_destroyed(m) and is_crippled(m):
@@ -751,6 +756,7 @@ def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,
     clubs.reset_battle()
     water.set_board(terrain_map)          # heat sinks, falls, jump jets read the hex's depth (2026-10-21)
     hazards.set_board(terrain_map)        # magma / hazardous liquid (TO:AR, 2026-10-27); mends broken crust
+    smoke.set_board(terrain_map)          # no smoke yet (Core p.124, 2026-10-27)
     if config.DEPLOYMENT == "home_edge":
         _deploy_home_edges(mech_red, mech_blue, terrain_map, battle_rng)
     elif config.DEPLOYMENT != "fixed_hexes":
@@ -813,6 +819,7 @@ def run_battle(mech_red, mech_blue, terrain_map, battle_rng: BattleRNG,
         _after_phase(mech_red, mech_blue)
         with timing.section("end phase"):
             _phase_end(mech_red, mech_blue, turn, stats)
+            smoke.end_phase(turn)                # clouds whose time is up clear (2026-10-27)
 
         config.log(f"  -- end of turn {turn}: {_status_line(mech_red)}")
         config.log(f"  -- end of turn {turn}: {_status_line(mech_blue)}")

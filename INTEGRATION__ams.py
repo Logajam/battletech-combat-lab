@@ -96,6 +96,8 @@ ENGAGEMENTS_PER_TURN = 2       # p.206, per AMS
 def engageable(weapon):
     """A Type M weapon that does damage (expected-damage pricing; a Narc
     beacon's pod is priced by the engagement itself - damage_prevented)."""
+    if "MORTAR" in weapon_rules.canonical_name(weapon):
+        return False                 # AMS may not engage 'Mech mortar flights (TO:AUE p.136, 2026-10-27)
     return weapon.damage_type == "Missile" and (weapon.damage_per_shot or 0) > 0
 
 

@@ -42,6 +42,18 @@ INTEGRATION__dfa, INTEGRATION__movement_attacks) and resolved here.
   - All attacks are declared and rolled, then damage lands (p.83). A kicked
     mech, and one that missed a kick, makes a PSR (+0) at the end of the
     phase, joined to the phase's damage PSR (piloting_rolls).
+  - TO:AUE melee weapons (2026-10-27, Daniel: "wire in functionality of
+    missing weapons"), wielded like the Core physical weapons:
+    Flail (p.101): +0 to hit, 9 damage whatever the 'Mech's weight, myomer
+    or actuators; an attack roll of 2 misses and hits the attacker itself
+    for 5 (Front column of the Hit Location Table), then it makes a PSR.
+    Chain whip (p.101; table: 3 damage, -2): the sword's to-hit, 3 damage
+    not changed by weight or TSM. A hit on a 'Mech's LEG allows a bonus trip
+    attack straight away (the same roll needed; -2 more if the wielder's TSM
+    is active and the target's isn't): no damage, the target makes a PSR at
+    +3. Not built: the arm-hit grapple (it needs TO:AR's grappling rules).
+    One melee weapon attack a phase (p.100) - the project already makes one
+    weapon attack per arm-limb choice.
 
 Bot choice (pile 4): the twist and attack type with the most expected
 damage; ties keep the torso where it is. The plan is first made in the
@@ -54,7 +66,8 @@ re-picks with what actually happened (fired weapons, falls, damage).
 import math
 
 import INTEGRATION__config as config
-import INTEGRATION__hazards as hazards  # magma / hazardous liquid on displacement (TO:AR, 2026-10-27)
+import INTEGRATION__hazards as hazards
+import INTEGRATION__advanced_weapons as adv  # Taser interference (TO:AUE p.158, 2026-10-27)  # magma / hazardous liquid on displacement (TO:AR, 2026-10-27)
 import INTEGRATION__attack_resolution as attack_resolution
 import INTEGRATION__arcs as arcs
 import INTEGRATION__structure_weight as structure_weight
@@ -96,7 +109,12 @@ PHYSICAL_WEAPONS = (
     ("RETRACTABLEBLADE", (-2, 10, 0, "standard")),
     ("SWORD", (-2, 10, 1, "standard")),
     ("VIBROBLADE", (-2, 10, 1, "standard")),      # deactivated; activated: physical_gear.vibro_attack
+    # TO:AUE (2026-10-27): per-tons None = fixed damage (`+damage`), never TSM / weight.
+    ("FLAIL", (0, None, 9, "standard")),          # p.101
+    ("CHAINWHIP", (-2, None, 3, "standard")),     # p.101 and its table (TO:AUE p.216)
 )
+FLAIL_FUMBLE_ROLL, FLAIL_FUMBLE_DAMAGE = 2, 5     # TO:AUE p.101
+WHIP_TRIP_PSR, WHIP_TSM_BONUS = 3, -2             # TO:AUE p.101
 
 
 def _norm(name):
@@ -358,13 +376,14 @@ def _weapon_options(m, rel, fired, table, target_prone):
             mod = tn_mod + sum(2 for part in ("Lower Arm Actuator", "Upper Arm Actuator")
                                if (part == "Lower Arm Actuator" and not _has_part(m, arm, part)) or _lost(m, arm, part))
             mod += _arm_aes(m, arm)
-            damage, heat, active = _strength(m, per, plus), 0, False
+            damage, heat, active = (plus if per is None else _strength(m, per, plus)), 0, False
             if "VIBROBLADE" in _norm(slot.name):          # p.196 - activation is a stub
                 damage, heat, active = gear.vibro_attack(m, slot, math.ceil(m.mass / per) + plus,
                                                          getattr(m, "tsm_active", False))
             out.append(dict(name=f"{slot.name} ({arm}){' activated' if active else ''}", mod=mod, damage=damage,
                             table="standard" if table is None else table, limb=arm, weapon=True,
-                            lance="LANCE" in _norm(slot.name), heat=heat, blade=slot.name if active else None))
+                            lance="LANCE" in _norm(slot.name), heat=heat, blade=slot.name if active else None,
+                            flail="FLAIL" in _norm(slot.name), whip="CHAINWHIP" in _norm(slot.name)))
     return out
 
 
@@ -574,6 +593,7 @@ def base_tn(attacker, amm, target_tmm, los_modifier, target_prone_modifier):
     mech_state.torso_cockpit_sensor_penalty; 2026-10-21) and a tripod's
     dedicated pilot (-1, +2 if disabled - p.236, tripod_pilot_modifier)."""
     return (attacker.piloting + amm + target_tmm + los_modifier + target_prone_modifier
+            + adv.interference(attacker)                                   # Taser (TO:AUE p.158)
             + torso_cockpit_sensor_penalty(attacker) + tripod_pilot_modifier(attacker))   # p.236
 
 
@@ -749,6 +769,18 @@ def _resolve_pushes(pushes, triggers, terrain_map):
             triggers[target.side_name].append(("pushed", PUSH_PSR_MODIFIER))
 
 
+def _whip_trip(attacker, target, o, triggers):
+    """A chain whip's bonus trip attack after a leg hit (TO:AUE p.101)."""
+    tn = o["tn"] + (WHIP_TSM_BONUS if getattr(attacker, "tsm_active", False)
+                    and not getattr(target, "tsm_active", False) else 0)
+    roll = config.roll_2d6(prompt="Chain whip trip attack roll")
+    config.log(f"    Chain whip bonus trip attack: needs {tn}, rolled {roll} -> "
+               f"{'the leg is caught: ' + target.side_name + ' makes a PSR at +3' if roll >= tn else 'miss'} "
+               f"(TO:AUE p.101).")
+    if roll >= tn:
+        triggers[target.side_name].append(("tripped by a chain whip", WHIP_TRIP_PSR))
+
+
 def run_physical_phase(mech_a, mech_b, terrain_map, reports):
     """Both mechs declare and roll, then the damage lands, then charges'
     damage and displacement, then PSRs and consciousness checks (p.83)."""
@@ -799,10 +831,14 @@ def run_physical_phase(mech_a, mech_b, terrain_map, reports):
             tn = base + o["mod"]
             roll = config.roll_2d6(prompt=f"Physical attack roll ({o['name']})")
             hit = roll >= tn
+            if o.get("flail") and roll == FLAIL_FUMBLE_ROLL:
+                hit = False
+                o = dict(o, fumble=True)
             config.log(f"  [Physical] {attacker.side_name} -> {target.side_name}: {o['name']} needs {tn} "
                        f"(piloting {attacker.piloting} + base {base - attacker.piloting} + attack {o['mod']:+d}), "
-                       f"rolled {roll} -> {'HIT' if hit else 'miss'} ({o['damage']} dmg, {side} side)")
-            declared.append((attacker, target, o, hit, side))
+                       f"rolled {roll} -> {'HIT' if hit else 'miss'} ({o['damage']} dmg, {side} side)"
+                       f"{' - the flail swings back into its wielder (TO:AUE p.101)' if o.get('fumble') else ''}")
+            declared.append((attacker, target, dict(o, tn=tn), hit, side))
     triggers = {mech_a.side_name: [], mech_b.side_name: []}
     pushes = []
     for attacker, target, o, hit, side in declared:
@@ -832,8 +868,15 @@ def run_physical_phase(mech_a, mech_b, terrain_map, reports):
             if o.get("club"):
                 triggers[target.side_name].append(("hit by a club", 0))     # p.79
                 clubs.used(attacker)
+            if o.get("whip") and loc in target.leg_locations and not target.locations[loc]["destroyed"]:
+                _whip_trip(attacker, target, o, triggers)                  # TO:AUE p.101
         elif o.get("kick"):
             triggers[attacker.side_name].append(("missed a kick", 0))
+        elif o.get("fumble"):
+            loc = resolve_hit_location(config.roll_2d6(prompt="Flail fumble hit location"), attacker, "front")
+            config.log(f"    The flail hits {attacker.side_name}'s own {loc} for {FLAIL_FUMBLE_DAMAGE} (TO:AUE p.101).")
+            apply_damage(attacker, loc, FLAIL_FUMBLE_DAMAGE, damage_type=DamageType.PHYSICAL)
+            triggers[attacker.side_name].append(("hit itself with a flail", 0))
     _resolve_pushes(pushes, triggers, terrain_map)
     for attacker, target in charges:                     # damage, then displacement (p.78, p.113)
         for name, extra in charge.resolve_hit(attacker, target, terrain_map).items():

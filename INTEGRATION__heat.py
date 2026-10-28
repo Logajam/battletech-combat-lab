@@ -100,6 +100,7 @@ import INTEGRATION__equipment_systems as equip
 import INTEGRATION__ammo as ammo
 import INTEGRATION__water as water
 import INTEGRATION__hazards as hazards
+import INTEGRATION__advanced_weapons as adv
 from mech_state import pilot_hit  # command console, p.203
 from mech_state import compute_heat_dissipation, is_destroyed, pilot_unconscious, \
     mark_consciousness_check_pending, active_heat_sinks, working_heat_sinks, heat_sink_rate, \
@@ -318,13 +319,14 @@ def resolve_heat_phase(mech, weapon_heat):
     cap = getattr(mech, "capacitor_heat", 0)        # PPC capacitors charging / held (p.188, 2026-10-21)
     mech.capacitor_heat = 0
     magma = hazards.magma_heat(mech)                # magma: added AFTER the outside cap (TO:AR p.35, 2026-10-27)
-    generated = mech.movement_heat + weapon_heat + eng + stealth + outside + cap + magma
+    taser = adv.taser_heat(mech)                    # Taser interference: 5 a turn (TO:AUE p.158, 2026-10-27)
+    generated = mech.movement_heat + weapon_heat + eng + stealth + outside + cap + magma + taser
     extra, how = _extra_cooling(mech, before + generated - dissipation)
     mech.current_heat = max(0, before + generated - dissipation - extra)
     overflow = mech.current_heat - OVERFLOW_HEAT
     config.log(f"  [Heat] {name}: {before} + movement {mech.movement_heat} + weapons {weapon_heat} "
                f"+ engine {eng}{f' + stealth {stealth}' if stealth else ''}{f' + outside {outside}' if outside else ''}"
-               f"{f' + capacitors {cap}' if cap else ''}{f' + magma {magma}' if magma else ''}"
+               f"{f' + capacitors {cap}' if cap else ''}{f' + magma {magma}' if magma else ''}{f' + Taser {taser}' if taser else ''}"
                f" - sinks {sinks}{f' - water {water_bonus}' if water_bonus else ''}"
                f"{f' - {how} {extra}' if how else ''} -> {mech.current_heat}"
                f"{f' (overflow {overflow})' if overflow > 0 else ''}")
@@ -435,6 +437,9 @@ def _shut_down(mech, why):
 def _try_restart(mech):
     level = mech.current_heat
     name = mech.side_name
+    if adv.held_down(mech):
+        config.log(f"  [Heat] {name}: shut down by a Taser - no restart before the effect ends (TO:AUE p.158).")
+        return
     tn = shutdown_avoid_tn(level)
     if tn is None:
         mech.shutdown = False

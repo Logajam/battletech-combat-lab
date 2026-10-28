@@ -25,6 +25,7 @@ GROUPING_BY_FAMILY = (      # (name fragment, grouping size), first match wins -
     ("SRT", 2),             # torpedoes: the launcher's own statistics (p.187)
     ("LRT", 5),
     ("MRM", 5),
+    ("MORTAR", 2),          # 'Mech mortar armor-piercing shells: 2-point groups (TO:AUE p.186, 2026-10-27)
 )
 CLUSTER_MODIFIER_BY_FAMILY = (("MRM", -1),)   # p.186
 
@@ -105,6 +106,10 @@ def weapon_tn_modifier(weapon, bracket):
         return 1
     if "MPOD" in n:
         return -1
+    if "MORTAR" in n:
+        return 3                                                       # fired directly (TO:AUE p.136, 2026-10-27)
+    if "TASER" in n:
+        return 1                                                       # TO:AUE p.157 (2026-10-27)
     return 0
 
 
@@ -114,6 +119,8 @@ def targeting_computer_eligible(weapon):
     if is_cluster(weapon) or weapon.damage_type not in ("Energy", "Ballistic"):
         return False
     n = canonical_name(weapon)
+    if "TASER" in n:
+        return False                       # TO:AUE p.157: no targeting computer benefit (2026-10-27)
     return not any(k in n for k in ("FLAMER", "MACHINEGUN", "MGA", "LIGHTMG", "HEAVYMG")) and not n.endswith("MG")
 
 

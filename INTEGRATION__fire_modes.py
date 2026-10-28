@@ -478,7 +478,7 @@ def special(weapon):
     """Weapons the Planner prices (anything that isn't a plain single shot)."""
     return (weapon.damage_type == "Missile" or max_shots(weapon) > 1 or is_lbx(weapon) or is_mml(weapon)
             or "ATM" in _cn(weapon) or has_profile(weapon) or wp.is_rifle(weapon) or wp.heat_causing(weapon)
-            or wp.is_art_cannon(weapon))
+            or wp.is_art_cannon(weapon) or "TASER" in _cn(weapon))           # Taser: its effect's worth (2026-10-27)
 
 
 class Planner:
@@ -540,9 +540,11 @@ class Planner:
                      else self.pod_values.get(id(weapon), 0.0))
             return p * worth, tn
         hit = expected_hit(weapon, plan)
-        if self.ams_share and weapon.damage_type == "Missile" and hit > 0:
+        if self.ams_share and weapon.damage_type == "Missile" and "MORTAR" not in _cn(weapon) and hit > 0:   # TO:AUE p.136
             hit -= self.ams_share * (hit - expected_hit(weapon, plan, ams_engaged=True))
         hit += config.TARGET_HEAT_WORTH * wp.expected_target_heat(weapon)       # flamers, plasma (placeholder worth)
+        if "TASER" in _cn(weapon) and (getattr(self.target, "mass", 0) or 0) <= 100:
+            hit += config.TASER_EFFECT_WORTH          # shutdown / interference (TO:AUE p.158) - placeholder worth
         return p * hit, tn
 
     def _decide(self, weapon, distance, pre_tn, warn):
@@ -587,7 +589,8 @@ def area_immobile_fix(weapon, target):
 def ams_share(target_capacity, weapons):
     """Fraction of missile hits a target AMS able to engage `target_capacity`
     attacks would take (INTEGRATION__ams bot choice)."""
-    n = sum(1 for w in weapons if w.damage_type == "Missile" and (w.damage_per_shot or 0) > 0)
+    n = sum(1 for w in weapons if w.damage_type == "Missile" and (w.damage_per_shot or 0) > 0
+            and "MORTAR" not in _cn(w))                        # AMS can't engage mortars (TO:AUE p.136)
     return min(1.0, target_capacity / n) if target_capacity > 0 and n else 0.0
 
 

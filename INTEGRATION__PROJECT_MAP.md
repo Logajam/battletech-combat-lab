@@ -274,6 +274,32 @@ like to make a clone of Megamek's Princess bot to compare it against."
   out of line of sight on bad trades (18% moving second); Gladiator breaks
   off on bad trades (27% moving first) but NOT more as it gets hurt.
 
+**Session 10 (2026-10-27/28) - TACTICAL OPERATIONS EQUIPMENT AND TERRAIN.**
+Daniel: "The tactical operations books have been indexed ... wire in
+functionality of missing weapons, equipment, and hex types already noted.
+If there is anything beyond those categories needed to match megameks level
+of base functionality ask before including them." Built from the TO:AUE /
+TO:AR summaries in `logajam/battletech-rules-index` (RULES_REVIEW F57-F64):
+- Hex types: magma (crust / liquid, bogging down) and hazardous liquid pools
+  (new `INTEGRATION__hazards`), ultra-heavy woods / jungle, impassable,
+  fortified and planted-field hexes. 174 of 192 16x17 maps play (was 165);
+  bridges, fuel tanks and elevators still wait on the full building rules.
+  Both bots price the hazards (Gladiator: path + end hex; Princess: end hex,
+  ported from MegaMek's calcMagmaHazard / calcHazardousLiquidHazard).
+- Weapons (new `INTEGRATION__advanced_weapons`): HVACs (ammo, misfeed,
+  smoke), 'Mech mortars (AP shells, direct and indirect fire), the Taser,
+  fluid guns / VGLs (no effect on 'Mechs), flail and chain whip.
+- Equipment: shoulder / head turrets (`INTEGRATION__arcs`), modular armor
+  (new `INTEGRATION__advanced_equipment`); smoke and active probes (G34, new
+  `INTEGRATION__smoke`).
+- Data fixes: HVAC, mortar, fluid gun, flail, chain whip slot counts (each
+  slot had been read as its own weapon).
+- Left (books not in the library): TSEMP, iATM, nail / rivet guns, Improved
+  weapons' ammo (Interstellar Operations - the rules repo's next book),
+  industrial tools (TechManual). Left for Daniel: 'Mech UMUs, the chain
+  whip grapple, Princess hazards on a path's middle hexes, the
+  `TASER_EFFECT_WORTH` placeholder.
+
 **Pick up here (open, roughly in priority order):**
 00. **Princess clone - TODO as the scope grows** (Daniel, 2026-10-27: "All of
    those not cloned features will be needed in the future as the projects
@@ -609,7 +635,9 @@ https://claude.ai/artifact/NJUknRiK1fcZzUv4A1fndX
   `take_array_rounds`). Tested: shared bin, 1 / 2 / 0 rounds left, a
   destroyed gun drops out (`tests/test_weapons.py` machine_gun_array_ammo).
 
-**Map terrain waiting on rules (Daniel is hunting them, 2026-10-21):** these
+**Map terrain waiting on rules (Daniel is hunting them, 2026-10-21; updated
+2026-10-27 - magma, hazardous liquid, ultra-heavy woods, fortified, planted
+fields and impassable hexes now play from TO:AR, RULES_REVIEW F57-F59):** these
 stop a map loading (`terrain_rules.UNSUPPORTED_FEATURES`); counts are of the
 192 16x17 maps in `data/maps.zip` (`python tests/survey_maps.py`):
 - Bridges - 11 maps. In the Core Rulebook (pp.53, 131: paved bridges are
@@ -1072,6 +1100,8 @@ forward arc, kicks included, never into a side arc.
 | Unjam a Rotary AC | `fire_modes.declare_unjams` -> **STUB** `stubs.stub_unjam` | Research; default: always try unless prone |
 | Narc beacon worth | `electronics.pod_value`, priced by `fire_modes.Planner` | A homing pod is worth one turn of the owner's extra Narc-missile damage (Daniel) - 0 once a pod is on or the target has ECM; explosive pods their damage. Not in movement scoring |
 | Worth of heat put on the enemy | `config.TARGET_HEAT_WORTH`, `fire_modes.Planner.value` | 0.5 damage per heat point - placeholder until Daniel sets it |
+| Worth of a Taser hit's effect (TO:AUE p.158) | `config.TASER_EFFECT_WORTH`, `fire_modes.Planner.value` | 5 damage - placeholder until Daniel sets it (2026-10-27) |
+| Closing in on a hazardous board | `movement_selection._safest` (closing fallback, nearest spot) | only the spots with the least hazard damage (2026-10-27) |
 | Ammo bin to draw from | `INTEGRATION__ammo.spend` | The bin with the fewest shots left (empties bins sooner) |
 | Prop arm when firing prone | `INTEGRATION__attack_resolution.prone_fire` | The arm whose weapons matter least |
 | Physical attack type | `INTEGRATION__physical.choose_attack` | Twist (if still allowed) + attack type (punch / kick / physical weapon / club / push) with the most expected worth, weighted by hit table (`physical.Worth`) |
@@ -1296,6 +1326,24 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-28 (Claude):** Tactical Operations weapons, equipment and hex
+  types (Daniel: "wire in functionality of missing weapons, equipment, and
+  hex types already noted"; rules from the TO:AUE / TO:AR summary layers of
+  `logajam/battletech-rules-index`, page-cited in the code). RULES_REVIEW
+  F57-F64. New modules `INTEGRATION__hazards`, `INTEGRATION__smoke`,
+  `INTEGRATION__advanced_weapons`, `INTEGRATION__advanced_equipment`; new
+  tests `tests/test_hazards.py`, `tests/test_advanced_gear.py`; maps
+  `data/32x17_Caustic_Valley_Lava.board`,
+  `data/16x17_Badlands_2_Hazardous_Liquid.board`. equipment.json
+  "to_aue_pass" (shots, damage types, slot counts; Mek Taser and fluid gun
+  ammo rows). Path search: the least hazard damage wins first, then hexes
+  moved (unchanged when a board has no hazards). Reference logs regenerated: only the summary's gap-list text changed
+  (no battle result moved - none of their 'Mechs or boards carry the new items). Found, not fixed
+  (Core data, out of scope): Light / Heavy / Improved Heavy Gauss rows are
+  not marked explosive, though Core p.184's Gauss rule covers every Gauss
+  rifle. Not built, for Daniel: 'Mech UMUs, the chain whip's grapple,
+  Princess checking every path hex for hazards (MegaMek does; the clone
+  prices the end hex - on lava maps she can walk through lava).
 - **2026-10-27 (Claude):** Two questions from the pick-quality battery (Daniel:
   "why was princess hiding? Also it seems gladiator is blood thirsty. I
   wonder if there is a case where it will break off an attack to preserve

@@ -66,6 +66,7 @@ from contextlib import contextmanager
 
 import INTEGRATION__config as config
 import INTEGRATION__stubs as stubs
+import INTEGRATION__advanced_equipment as adv_equip
 from equipment import Equipment, is_crit_target
 from damage_resolution import resolve_slot_hit
 
@@ -244,8 +245,8 @@ def active_stealth(mech):
     if mech.shutdown or blue_shield_on(mech):
         return []                              # an active Blue Shield negates stealth (p.207)
     active = [k for k in ("chameleon", "null_signature") if system_live(mech, k)]
-    if mech.has_stealth_armor and ecm_live(mech):
-        active.append("stealth_armor")
+    if mech.has_stealth_armor and ecm_live(mech) and not adv_equip.active(mech):
+        active.append("stealth_armor")        # modular armor stops it (TO:AUE p.93, 2026-10-27)
     if system_live(mech, "void_signature") and ecm_live(mech):
         active.append("void_signature")
     return active
@@ -279,8 +280,11 @@ def void_signature_modifier(target, hexes_moved=None, mp_spent=None):
 
 
 def own_attack_modifier(attacker):
-    """An active Void-Signature System adds +1 to its own mech's ranged attacks."""
-    return VOID_OWN_ATTACK_MODIFIER if "void_signature" in active_stealth(attacker) else 0
+    """An active Void-Signature System adds +1 to its own mech's ranged
+    attacks; Taser interference +2 (TO:AUE p.158, 2026-10-27)."""
+    import INTEGRATION__advanced_weapons as adv
+    return ((VOID_OWN_ATTACK_MODIFIER if "void_signature" in active_stealth(attacker) else 0)
+            + adv.interference(attacker))
 
 
 # =============================================================================

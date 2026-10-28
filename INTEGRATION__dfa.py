@@ -70,7 +70,9 @@ def miss_fall_damage(attacker):
 
 
 def to_hit(attacker, target, target_tmm):
+    import INTEGRATION__advanced_weapons as adv
     return (attacker.piloting + JUMP_MODIFIER + target_tmm + comparative_modifier(attacker, target)
+            + adv.interference(attacker)                                   # Taser (TO:AUE p.158)
             + torso_cockpit_sensor_penalty(attacker) + tripod_pilot_modifier(attacker))   # pp.203, 236
 
 

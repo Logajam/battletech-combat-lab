@@ -210,6 +210,13 @@ def special_case_modifier(mech):
     if has_small_cockpit(mech) or has_torso_cockpit(mech):
         total += COCKPIT_PSR_MODIFIER
     total += torso_cockpit_sensor_penalty(mech)
+    # Taser interference: +2 to Piloting-related target numbers (2026-10-27,
+    # TO:AUE p.158 - the integration's INTEGRATION__advanced_weapons).
+    if getattr(mech, "taser_interference_until", None) is not None:
+        total += 2
+    # Modular armor: +1 to every PSR while any of it is left (TO:AUE p.93, 2026-10-27).
+    if any(getattr(s, "modular_points", 0) > 0 for s in getattr(mech, "modular_armor", ())):
+        total += 1
     # HELP(pilot_consciousness.pilot_unconscious_modifier)
     # Daniel, 2026-07-17: "Pilot: If unconscious +3 modifier to piloting
     # skill rolls." Only matters when the mech ISN'T already fully immobile
