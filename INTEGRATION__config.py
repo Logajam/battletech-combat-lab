@@ -182,6 +182,44 @@ MECH_RED_MTF = "Kontio.mtf"
 MECH_BLUE_MTF = "Hammerhead.mtf"
 
 # =============================================================================
+# ==========================  MULTI-UNIT BATTLES (2026-10-28)  ===============
+# =============================================================================
+# Daniel, 2026-10-28: "Multiple units that can be assigned to multiple teams.
+# The ideal ranges would probably be a 4 unit lance and a 12 unit company vs
+# like forces. But a 20 unit free for all or a 3 way battle between different
+# lances are also possibilities that need to be covered by the general
+# solution." (INTEGRATION__forces, PROJECT_MAP Section 5.)
+#
+# FORCES = None  -> the two-'Mech battle above (MECH_RED_* vs MECH_BLUE_*).
+# FORCES = [...] -> a list of units, one dict each; MECH_RED_* / MECH_BLUE_*
+#                   are then unused. Keys:
+#     "team"      the side it fights for (any text; units on different teams
+#                 are enemies, a free for all is one team per unit)
+#     "mtf"       its .mtf file (resolved under DATA_DIR like MECH_*_MTF)
+#     "count"     (optional, default 1) how many of this unit to field
+#     "name"      (optional) its label in the logs; default: the team's name
+#                 when it has one unit, else "<team> 1", "<team> 2", ...
+#     "gunnery", "piloting", "min_heat", "max_heat", "bot", "search",
+#     "assumes_enemy_search"   as in MECH_*_CONFIG; any left out come from
+#                 FORCE_DEFAULTS
+#     "hex", "facing"  where it starts, with DEPLOYMENT = "fixed_hexes" only
+# Example, a lance against a lance:
+#   FORCES = [{"team": "Red", "mtf": "Atlas AS7-D.mtf", "count": 4},
+#             {"team": "Blue", "mtf": "Hammerhead.mtf", "count": 4}]
+FORCES = None
+FORCE_DEFAULTS = {"facing": "N", "gunnery": 4, "piloting": 5, "min_heat": 0, "max_heat": 4,
+                  "bot": None, "search": None, "assumes_enemy_search": None}
+# Whom each bot plans its movement against (its "foe"; the other enemies are not
+# modeled by the movement scoring - independent bots) and fires at. "nearest":
+# the nearest enemy (a fire target must also be in sight). Section 6, 'Target choice'.
+FOE_CHOICE = "nearest"
+# A 'Mech that passes its domino-effect PSR may step one hex forward or back out of
+# the way instead of being pushed on (Core p.114). MegaMek's bots never do
+# ("TODO: Bots should figure out how to step out", BotClient) - so neither does
+# this one. True: it steps aside whenever a legal hex is open (forward first).
+DOMINO_DODGE = False
+
+# =============================================================================
 # ==========================  EQUIPMENT SETTINGS (2026-10-19)  ===============
 # =============================================================================
 # Player choices for heat/movement equipment (Daniel, 2026-10-19: "for the
@@ -672,6 +710,74 @@ def load_two_mechs():
 
     print("=" * 60)
     return mech_red, mech_blue, red_path, blue_path
+
+
+def _unit_label(team, number, of_team, name):
+    """A unit's label in the logs (INTEGRATION__forces): its name, else the team's
+    name when it is the team's only unit, else '<team> <number>'."""
+    if name:
+        return name
+    return team if of_team == 1 else f"{team} {number}"
+
+
+def load_roster():
+    """Everything a battle needs to field its units: a list of dicts
+    {"template": parsed BattleMech, "cfg": its settings (the keys of
+    MECH_*_CONFIG plus "team"), "label": its unique label, "team": its team,
+    "path": its .mtf}, in the order the units are listed.
+
+    FORCES None: the two-'Mech battle - Red from MECH_RED_*, Blue from
+    MECH_BLUE_*, exactly as load_two_mechs() reads them (same printout).
+    Otherwise one entry per unit of FORCES (each distinct .mtf is parsed once;
+    battles clone the template)."""
+    if FORCES is None:
+        red, blue, red_path, blue_path = load_two_mechs()
+        return [{"template": red, "cfg": dict(MECH_RED_CONFIG, team="Red"), "label": "Red", "team": "Red",
+                 "path": red_path},
+                {"template": blue, "cfg": dict(MECH_BLUE_CONFIG, team="Blue"), "label": "Blue", "team": "Blue",
+                 "path": blue_path}]
+    print("=" * 60)
+    print("FORCES")
+    print("=" * 60)
+    specs = []
+    for entry in FORCES:
+        unknown = set(entry) - {"team", "mtf", "count", "name", "hex", "facing", "gunnery", "piloting", "min_heat",
+                                "max_heat", "bot", "search", "assumes_enemy_search"}
+        if unknown:
+            raise ValueError(f"FORCES entry {entry.get('team')!r}: unknown key(s) {sorted(unknown)}")
+        if "team" not in entry or not entry.get("mtf"):
+            raise ValueError(f"FORCES entries need a 'team' and an 'mtf': {entry}")
+        specs += [dict(entry) for _ in range(int(entry.get("count", 1)))]
+    if len(specs) < 2 or len({e["team"] for e in specs}) < 2:
+        raise ValueError("FORCES needs at least two units on at least two teams.")
+    per_team = {}
+    for e in specs:
+        per_team[e["team"]] = per_team.get(e["team"], 0) + 1
+    parsed = {}
+    roster, seen_labels, numbers = [], set(), {}
+    for e in specs:
+        team = e["team"]
+        numbers[team] = numbers.get(team, 0) + 1
+        label = _unit_label(team, numbers[team], per_team[team], e.get("name"))
+        if label in seen_labels:
+            raise ValueError(f"Two units are both called {label!r} - give them different names.")
+        seen_labels.add(label)
+        path = data_path(e["mtf"])
+        if path not in parsed:
+            parsed[path] = parse_mtf(path)
+        cfg = dict(FORCE_DEFAULTS)
+        cfg.update({k: v for k, v in e.items() if k not in ("count", "mtf", "name")})
+        if DEPLOYMENT == "fixed_hexes" and not e.get("hex"):
+            raise ValueError(f"{label}: DEPLOYMENT is 'fixed_hexes' - the unit needs a 'hex'.")
+        cfg.setdefault("hex", None)
+        mech = parsed[path]
+        print(f"  {label:<16} {team:<10} {mech.chassis} {mech.model}  ({path})")
+        roster.append({"template": mech, "cfg": cfg, "label": label, "team": team, "path": path})
+    hexes = [r["cfg"]["hex"] for r in roster if r["cfg"].get("hex")]
+    if len(hexes) != len(set(hexes)):
+        raise ValueError("Two units start in the same hex.")
+    print("=" * 60)
+    return roster
 
 
 # =============================================================================

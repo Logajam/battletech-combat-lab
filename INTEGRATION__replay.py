@@ -41,14 +41,16 @@ _active = None
 
 
 class _Recording:
-    def __init__(self, mech_red, mech_blue, terrain_map, seed, sim):
-        self.mechs = {"Red": mech_red, "Blue": mech_blue}
+    def __init__(self, units, terrain_map, seed, sim):
+        self.mechs = {m.side_name: m for m in units}
         self.lines = []
         self.steps = []
         self.data = {
             "sim": sim,
             "seed": None if seed is None else str(seed),   # text: seeds pass JavaScript's exact-integer limit
             "mechs": {side: _mech_header(m) for side, m in self.mechs.items()},
+            "teams": {side: getattr(m, "team", side) for side, m in self.mechs.items()},   # unit label -> its team
+            "team_order": list(dict.fromkeys(getattr(m, "team", side) for side, m in self.mechs.items())),
             "board": _board(terrain_map),
             "steps": self.steps,
         }
@@ -67,10 +69,11 @@ class _Recording:
         self.lines = []
 
 
-def start(mech_red, mech_blue, terrain_map, seed, sim):
-    """Begin recording a battle (call before run_battle)."""
+def start(units, terrain_map, seed, sim):
+    """Begin recording a battle (call before run_skirmish); `units` are its
+    mechs, each shown under its label (side_name)."""
     global _active
-    _active = _Recording(mech_red, mech_blue, terrain_map, seed, sim)
+    _active = _Recording(units, terrain_map, seed, sim)
     config.set_log_sink(_active.log)
 
 
@@ -92,7 +95,7 @@ def finish(result):
     rec.data["result"] = {
         "winner": result.winner,
         "turns": result.turns_taken,
-        "causes": {side: getattr(result, side.lower()).cause_of_death for side in ("Red", "Blue")},
+        "causes": {label: stats.cause_of_death for label, stats in result.units.items()},
     }
     return rec.data
 
@@ -141,9 +144,17 @@ def _board(terrain_map):
 # =============================================================================
 # ==========================  WRITING THE PAGE  ===============================
 # =============================================================================
+def _sides(data):
+    """The battle's sides as the page names them: a team with one unit by its
+    mech ("Kontio"), a force by its team name and size ("Red 4 units")."""
+    teams = data.get("team_order") or list(data["mechs"])
+    members = {t: [s for s in data["mechs"] if data.get("teams", {}).get(s, s) == t] for t in teams}
+    return [data["mechs"][members[t][0]]["name"] if len(members[t]) == 1 else f"{t} {len(members[t])} units"
+            for t in teams]
+
+
 def file_name(data):
-    red, blue = data["mechs"]["Red"]["name"], data["mechs"]["Blue"]["name"]
-    stem = f"{red}_vs_{blue}_battle{data['sim']}_seed{data['seed']}"
+    stem = f"{'_vs_'.join(_sides(data))}_battle{data['sim']}_seed{data['seed']}"
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", stem) + ".html"
 
 
@@ -153,7 +164,7 @@ def render(data):
         page = f.read()
     # "</" would end the <script> holding the data early.
     payload = json.dumps(data, separators=(",", ":")).replace("</", "<\\/")
-    title = html.escape(f"{data['mechs']['Red']['name']} vs {data['mechs']['Blue']['name']}, battle {data['sim']}")
+    title = html.escape(f"{' vs '.join(_sides(data))}, battle {data['sim']}")
     page = page.replace("<title>Battle Replay</title>", f"<title>{title}</title>", 1)
     return page.replace(DATA_PLACEHOLDER, payload, 1)
 

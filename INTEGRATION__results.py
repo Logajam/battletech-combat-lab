@@ -39,7 +39,7 @@ KNOWN_MISSING_RULES = [
     "shutdown; equipment uses Daniel's defaults (stealth always on, 1-on/1-off radical/MASC/"
     "supercharger, coolant pod when above min_heat, aimed shots at config.AIMED_SHOT_LOCATION)",
     "Physical attacks: all seven types are built; not priced in movement scoring: the PSRs a hit forces (only "
-    "Movement-phase PSRs count), picking up a club as part of the plan; domino effects (no third mech)",
+    "Movement-phase PSRs count), picking up a club as part of the plan",
 ]
 
 
@@ -55,6 +55,8 @@ class SideStats:
     hits: int = 0
     damage_dealt: float = 0.0
     final_hex: str = ""
+    units: int = 1                 # how many 'Mechs these stats cover (a team's total, 2026-10-28)
+    units_lost: int = 0            # ... and how many of them were destroyed
 
 
 @dataclass
@@ -68,6 +70,12 @@ class BattleResult:
     winner: str = "Draw"
     red: SideStats = field(default_factory=SideStats)
     blue: SideStats = field(default_factory=SideStats)
+    # Multi-unit battles (2026-10-28, INTEGRATION__forces): totals per team and the stats of each
+    # unit by its label. `red` / `blue` are the teams called "Red" / "Blue" (a team's own stats
+    # when it has one unit). With several teams `destroyed` names the eliminated ones joined by
+    # "+" ("All" when none is left) and `winner` is the one team still standing, else "Draw".
+    teams: Dict[str, SideStats] = field(default_factory=dict)
+    units: Dict[str, SideStats] = field(default_factory=dict)
     active_stubs: Dict[str, int] = field(default_factory=dict)
     seed: Optional[int] = None   # this battle's own seed: SEED = seed, NUM_SIMULATIONS = 1 replays it
     replay: Optional[dict] = None  # INTEGRATION__replay data when config.REPLAY_BATTLES covered this battle
@@ -174,5 +182,99 @@ def summarize(results: List[BattleResult], red_label: str, blue_label: str) -> d
                   f"{r.red.damage_dealt:g} dealt){' DESTROYED: ' + r.red.cause_of_death if r.red.destroyed else ''}; "
                   f"Blue {r.blue.final_hp:g}/{r.blue.max_hp:g} HP ({r.blue.hits}/{r.blue.attacks} hits, "
                   f"{r.blue.damage_dealt:g} dealt){' DESTROYED: ' + r.blue.cause_of_death if r.blue.destroyed else ''}")
+    print("\n" + banner)
+    return summary
+
+
+# =============================================================================
+# ==========================  MULTI-UNIT BATTLES (2026-10-28)  ===============
+# =============================================================================
+def team_totals(team: str, members: List[SideStats]) -> SideStats:
+    """One team's stats from its units' (a single unit's own stats come back
+    as they are, so a two-'Mech battle reads exactly as it always did)."""
+    if len(members) == 1:
+        return members[0]
+    crippled = [m.crippled_at for m in members if m.crippled_at is not None]
+    return SideStats(
+        name=f"{team} ({len(members)} units)",
+        max_hp=sum(m.max_hp for m in members),
+        final_hp=sum(m.final_hp for m in members),
+        destroyed=all(m.destroyed for m in members),
+        crippled_at=min(crippled) if crippled else None,
+        attacks=sum(m.attacks for m in members),
+        hits=sum(m.hits for m in members),
+        damage_dealt=sum(m.damage_dealt for m in members),
+        units=len(members),
+        units_lost=sum(1 for m in members if m.destroyed),
+    )
+
+
+def summarize_teams(results: List[BattleResult], team_labels: Dict[str, str]) -> dict:
+    """The batch summary for any number of teams (the two-'Mech Red / Blue
+    battle keeps `summarize`'s layout). team_labels: team -> what it fielded."""
+    n = len(results)
+    teams = list(team_labels)
+    stub_totals = Counter()
+    stub_battles = Counter()
+    for r in results:
+        for name, c in r.active_stubs.items():
+            stub_totals[name] += c
+            stub_battles[name] += 1
+    wins = Counter(r.winner for r in results)
+    causes = Counter()
+    for r in results:
+        for s in r.units.values():
+            if s.destroyed:
+                causes[f"{s.name}: {s.cause_of_death}"] += 1
+
+    def avg(xs):
+        xs = list(xs)
+        return sum(xs) / len(xs) if xs else 0.0
+
+    decisive = [r for r in results if r.winner in teams]
+    summary = {
+        "n": n,
+        "wins": dict(wins),
+        "avg_turns": avg(r.turns_taken for r in results),
+        "avg_turns_decisive": avg(r.turns_taken for r in decisive),
+        "causes_of_death": dict(causes),
+        "avg_units_lost": {t: avg(r.teams[t].units_lost for r in results if t in r.teams) for t in teams},
+        "avg_final_hp_pct": {t: avg(100 * r.teams[t].final_hp / r.teams[t].max_hp
+                                    for r in results if t in r.teams and r.teams[t].max_hp) for t in teams},
+        "avg_hit_rate": {t: avg(r.teams[t].hits / r.teams[t].attacks
+                                for r in results if t in r.teams and r.teams[t].attacks) for t in teams},
+        "active_stubs": dict(stub_totals),
+        "active_stubs_battles": dict(stub_battles),
+    }
+    banner = _stub_banner(stub_totals, stub_battles, n)
+    print("\n" + banner)
+    print("\n" + "#" * 70)
+    print(f"BATCH SUMMARY - {n} battle(s): " + ", ".join(f"{t} = {label}" for t, label in team_labels.items()))
+    print("#" * 70)
+    print("  Wins:  " + "   ".join(f"{t} {wins.get(t, 0)}" for t in teams) + f"   Draw {wins.get('Draw', 0)}")
+    print(f"  Average turns: {summary['avg_turns']:.1f} (decisive battles only: {summary['avg_turns_decisive']:.1f})")
+    first = next((r for r in results if r.teams), None)
+    sizes = {t: first.teams[t].units for t in teams if first and t in first.teams} if first else {}
+    print("  Average units lost: " + "   ".join(
+        f"{t} {summary['avg_units_lost'][t]:.1f} of {sizes.get(t, '?')}" for t in teams))
+    print("  Average remaining HP (armor+structure): " + "   ".join(
+        f"{t} {summary['avg_final_hp_pct'][t]:.0f}%" for t in teams))
+    print("  Hit rate: " + "   ".join(f"{t} {100 * summary['avg_hit_rate'][t]:.0f}%" for t in teams))
+    print("  Causes of death:")
+    for cause, c in causes.most_common():
+        print(f"    {cause}: {c}")
+    if not causes:
+        print("    (none)")
+    capped = [r for r in results if r.destroyed is None and r.turn_cap and r.turns_taken >= r.turn_cap]
+    if capped:
+        print(f"  !! {len(capped)} battle(s) reached the {capped[0].turn_cap}-turn cap with two or more teams "
+              f"standing - a possible flaw (a stall?)")
+    summary["turn_cap_reached"] = len(capped)
+    if n <= 10:
+        print("  Per battle:")
+        for i, r in enumerate(results, start=1):
+            left = ", ".join(f"{t} {r.teams[t].units - r.teams[t].units_lost}/{r.teams[t].units} left "
+                             f"({r.teams[t].final_hp:g}/{r.teams[t].max_hp:g} HP)" for t in teams if t in r.teams)
+            print(f"    #{i}: {r.turns_taken} turns, winner {r.winner}; {left}")
     print("\n" + banner)
     return summary

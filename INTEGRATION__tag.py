@@ -60,11 +60,21 @@ def uses_designation(mech):
 
 
 def designation_phase(first, second, terrain_map):
-    """Between the Movement and Ranged Attack Phases, in initiative order."""
-    for m in (first, second):
+    """Between the Movement and Ranged Attack Phases, in initiative order
+    (two mechs; designation_units is the general one)."""
+    foe = {id(first): second, id(second): first}
+    designation_units([first, second], lambda unit: foe[id(unit)], terrain_map)
+
+
+def designation_units(order, target_of, terrain_map):
+    """TAG designation for any number of units, in initiative order;
+    target_of(unit) is the enemy it designates (None: nobody)."""
+    for m in order:
         m.tag_designated = False
-    for attacker, target in ((first, second), (second, first)):
-        _designate(attacker, target, terrain_map)
+    for attacker in order:
+        target = target_of(attacker)
+        if target is not None:
+            _designate(attacker, target, terrain_map)
 
 
 def _designate(attacker, target, terrain_map):

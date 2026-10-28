@@ -244,7 +244,11 @@ def _engage(defender, attacker, hits, defender_report, apds):
             config.log(f"  [AMS] {name}: no AMS covers the attack from {attacker.side_name}'s hex.")
         return
     limit = max(defender.max_heat, config.AMS_HEAT_LIMIT)
-    used = {}
+    # Engagements spent so far this phase: shared by every attacker on this defender (the ranged phase sets
+    # defender._ams_used, 2026-10-28); a bare call keeps its own count.
+    used = getattr(defender, "_ams_used", None)
+    if used is None:
+        used = {}
     for attack in sorted(hits, key=attack_prevented, reverse=True):
         for w in ams_list:
             if used.get(id(w), 0) >= ENGAGEMENTS_PER_TURN or shots_left(defender, w) < 1:

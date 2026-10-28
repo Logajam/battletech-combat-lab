@@ -43,6 +43,7 @@ import math
 import INTEGRATION__config as config
 import INTEGRATION__hazards as hazards  # magma / hazardous liquid on displacement (TO:AR, 2026-10-27)
 import INTEGRATION__physical_gear as gear
+import INTEGRATION__domino as domino
 from INTEGRATION__movement_attacks import comparative_modifier, displacement, apply_groups
 from mech_state import is_destroyed, all_crew_unconscious, torso_cockpit_sensor_penalty, physical_attacker_modifier
 import piloting_rolls
@@ -121,14 +122,23 @@ def _open_hexes(target, direction, terrain_map):
     return out
 
 
-def _displace(target, kind, label, drop, triggers, cause):
+def _displace(target, kind, label, drop, triggers, cause, terrain_map=None):
     """Move the target; returns True if it fell automatically."""
     if kind == "off":
         target.destroyed, target.cause_of_death = True, "Displaced off the battlefield"
         config.log(f"    {target.side_name} is pushed off the battlefield - destroyed (p.113).")
         return True
-    old, target.hex = target.hex, label
+    old = target.hex
+    fell_here = False
+    if domino.occupant(label, exclude=(target,)) is not None:         # a third 'Mech there (pp.113-116)
+        fell_here = domino.displace_into_occupied(target, label, domino.movement_attacks_direction(old, label),
+                                                  drop, terrain_map, cause)
+        label = target.hex
+    else:
+        target.hex = label
     config.log(f"    {target.side_name} is displaced {old} -> {label}.")
+    if fell_here:
+        return True
     hazards.enter_hex(target, label, why=f"displaced into {label}", in_phase=True)
     if drop >= 2:
         config.log(f"    {target.side_name} is displaced {drop} levels down - automatic fall (p.114).")
@@ -164,7 +174,7 @@ def resolve(attacker, target, hit, terrain_map):
                 config.log(f"    {target.side_name} can't be displaced anywhere - destroyed (p.81).")
             else:
                 _, kind, label, drop = options[0]
-                fell = _displace(target, kind, label, drop, triggers, "displaced by a DFA")
+                fell = _displace(target, kind, label, drop, triggers, "displaced by a DFA", terrain_map)
         _land(attacker, target_hex)
         if not fell:
             for m, why in ((target, "hit by a DFA"), (attacker, "DFA (attacker)")):
@@ -177,8 +187,9 @@ def resolve(attacker, target, hit, terrain_map):
         attacker.destroyed, attacker.cause_of_death = True, "Failed DFA with nowhere to land"
         config.log(f"    {target.side_name} has nowhere to step aside - {attacker.side_name} is destroyed (p.81).")
         return triggers
-    _, _, label, drop = min(options, key=lambda o: (max(o[3], 0), o[0] != direction))
-    _displace(target, "moved", label, drop, triggers, "stepping aside from a DFA")
+    _, _, label, drop = min(options, key=lambda o: (domino.occupant(o[2], exclude=(target, attacker)) is not None,
+                                                    max(o[3], 0), o[0] != direction))     # an empty hex first
+    _displace(target, "moved", label, drop, triggers, "stepping aside from a DFA", terrain_map)
     _land(attacker, target_hex)
     if not attacker.prone and not is_destroyed(attacker):
         config.log(f"    {attacker.side_name} misses and falls {MISS_FALL_LEVELS} levels in {target_hex} (rear, p.80).")

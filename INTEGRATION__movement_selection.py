@@ -292,17 +292,31 @@ class _Side:
 # =============================================================================
 # ===========================  CANDIDATE SETS  ================================
 # =============================================================================
+def occupied_hexes(mover, other):
+    """The hexes a mover may not end in: every other unit on the board
+    (mover.other_unit_hexes, set by the orchestrator for the multi-unit
+    battle - stacking, p.49), else just `other`'s hex."""
+    labels = getattr(mover, "other_unit_hexes", None)
+    return labels if labels is not None else other.hex
+
+
 def reduced_options(mover, terrain_map, exclude_hex=None, standup_mp=None, entry_edge=None):
     """The mover's reachable end states after the Section 5c reduction, as
     (x, y, facing, fc, mode, mp_spent) tuples in a stable order. exclude_hex
-    (a label or None) is a hex that is occupied and can't be ended in."""
-    exclude_xy = hex_geometry.parse_hex_label(exclude_hex) if exclude_hex else None
+    (a label, None, or a collection of labels - every other unit on the board,
+    the stacking limit, p.49) is a hex that is occupied and can't be ended in."""
+    if not exclude_hex:
+        exclude_xy = frozenset()
+    elif isinstance(exclude_hex, str):
+        exclude_xy = frozenset((hex_geometry.parse_hex_label(exclude_hex),))
+    else:
+        exclude_xy = frozenset(hex_geometry.parse_hex_label(label) for label in exclude_hex if label)
     void = "void_signature" in equipment_systems.active_stealth(mover)
     mover.path_psrs = {}                   # this pick's terrain PSR counts (ranged_combat.movement_options)
     mover.path_hazard = {}                 # ... and hazard damage (2026-10-27)
     best: Dict[tuple, tuple] = {}
     for x, y, facing, fc, mode, mp_spent in ranged_combat.movement_options(mover, terrain_map, standup_mp, entry_edge):
-        if (x, y) == exclude_xy:
+        if (x, y) in exclude_xy:
             continue
         # A live Void-Signature System's TN bonus FALLS as hexes moved rise
         # (0 hexes +3 ... 6+ hexes 0), so for it more movement is not
@@ -858,8 +872,8 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
     decision (None when there is no enemy on the board)."""
     me = _Side(mover, psr_applies=standup_mp is None)   # a stand-up already rolled its PSR (orchestrator)
     with timing.section("reachable spots"):
-        options = reduced_options(mover, terrain_map, exclude_hex=other.hex, standup_mp=standup_mp,
-                                  entry_edge=entry_edge)
+        options = reduced_options(mover, terrain_map, exclude_hex=occupied_hexes(mover, other),
+                                  standup_mp=standup_mp, entry_edge=entry_edge)
 
     if other.hex is None:
         # The enemy hasn't entered the board: nothing to shoot or to model. Head for its home edge.

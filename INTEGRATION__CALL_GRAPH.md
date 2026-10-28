@@ -17,6 +17,7 @@ edited).
 
 **Pile 1 / integration (`INTEGRATION__*`)**
 - `main.py` → `orchestrator`
+  (2026-10-28: `orchestrator` → `forces`; `run_skirmish` is the general battle, `run_battle` its two-'Mech form)
 - `orchestrator.py` → `config` (imported first; self-registers as bare
   `config`), MECHSIM `mech_state` (is_destroyed, is_crippled, clone_mech,
   compute_*_mp, all_crew_unconscious, is_immobile),
@@ -62,6 +63,8 @@ edited).
 - `movement_attacks.py` (NEW 2026-10-20) → `config`, `attack_resolution`, `physical`, `ranged_combat` (lazy), `charge` / `dfa` (lazy); MECHSIM `mech_state`; PATHFINDER `hex_geometry`, `combat`, `terrain_rules`, `los`. Used by `movement_selection` (charge / DFA decisions, both movers' two-ply), `charge`, `dfa`, `physical` (displacement for pushes, lazy).
 - `charge.py` (NEW 2026-10-20) → `config`, `attack_resolution`, `movement_attacks`; MECHSIM `mech_state`, `damage_resolution`, `hit_location`, `piloting_rolls`; PATHFINDER `hex_geometry`, `combat`. Used by `physical` (resolution, lazy import).
 - `dfa.py` (NEW 2026-10-20) → `config`, `movement_attacks`, `attack_resolution` (lazy); MECHSIM `mech_state`, `piloting_rolls`; PATHFINDER `hex_geometry`, `combat`. Used by `physical` (lazy).
+- `forces.py` (NEW 2026-10-28, multi-unit battles) → `config`; MECHSIM `mech_state`; PATHFINDER `hex_geometry`, `los`; `attack_resolution` (lazy: `los_height`, `weapons_can_bear`). Used by `orchestrator` (teams, initiative, activation order, foe / target choice, deployment), `domino` (`unit_in_hex`).
+- `domino.py` (NEW 2026-10-28, displacement into an occupied hex, Core pp.113-116) → `config`, `forces`, `hazards`; MECHSIM `mech_state`, `piloting_rolls`; PATHFINDER `hex_geometry`, `combat`, `terrain_rules`; `movement_attacks` / `attack_resolution` (lazy - they import the physical modules that import this one). Used by `charge`, `dfa`, `physical` (pushes).
 - `bots.py` (NEW 2026-10-27) → `config`, `movement_selection`, `princess`, `princess_fire`, `weapon_selection`; `physical` (lazy). Used by `orchestrator` (`bot_for`, `choose_movement`), `attack_resolution` (`fire_control`, `plans_physical_with_fire`, lazy) and `physical` (`choose_physical`, lazy).
 - `princess.py` (NEW 2026-10-27, MegaMek Princess's path ranker) → `config`, `movement_selection`, `ranged_combat`, `weapon_selection`, `princess_fire`, `los_cache`, `water`, `arcs`, `attack_resolution`, `timing`; `physical` (lazy); MECHSIM `mech_state`, `piloting_rolls`; PATHFINDER `hex_geometry`, `combat`, `los`. Used by `bots`.
 - `princess_modern.py` (NEW 2026-10-27, MegaMek main's Princess ranker, commit fd2edfb) → `config`, `movement_selection`, `ranged_combat`, `weapon_selection`, `expected_damage`, `weapon_rules`, `princess` (shared geometry, PSR odds, unmoved estimate), `princess_fire`, `los_cache`, `water`, `arcs`, `attack_resolution`, `timing`; `physical` (lazy); MECHSIM `mech_state`, `damage_resolution`; PATHFINDER `hex_geometry`, `combat`, `los`. Used by `bots` when `config.PRINCESS_VERSION` is "modern".

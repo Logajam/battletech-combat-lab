@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Battle Replay</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!--
@@ -28,6 +29,7 @@ straight from disk or published as a link.
   --rough: #cfc3a6;
   --red: #b33f2a;
   --blue: #2c62a6;
+  --t3: #2f7d4f; --t4: #a8761c; --t5: #7a4fa0; --t6: #1f8a8a; --t7: #b0447a; --t8: #6b6f3a;
   --hit: #9a3412;
   --good: #3f6b2a;
   --armor: #6f7f5a;
@@ -42,6 +44,7 @@ straight from disk or published as a link.
     --hex: #1f2620; --hex-edge: #36413a; --woods-light: #2f4627; --woods-heavy: #40602f; --water: #22405a;
     --building: #4a4642; --paved: #34352f; --rough: #3e3a2c;
     --red: #e46a52; --blue: #5d95de; --hit: #f0915f; --good: #8fc26f; --armor: #9fb184; --structure: #d6a052;
+    --t3: #6cc08a; --t4: #dfb257; --t5: #b48ad8; --t6: #5fc4c4; --t7: #e48bb8; --t8: #b2b66a;
     color-scheme: dark;
   }
 }
@@ -50,6 +53,7 @@ straight from disk or published as a link.
   --hex: #1f2620; --hex-edge: #36413a; --woods-light: #2f4627; --woods-heavy: #40602f; --water: #22405a;
   --building: #4a4642; --paved: #34352f; --rough: #3e3a2c;
   --red: #e46a52; --blue: #5d95de; --hit: #f0915f; --good: #8fc26f; --armor: #9fb184; --structure: #d6a052;
+  --t3: #6cc08a; --t4: #dfb257; --t5: #b48ad8; --t6: #5fc4c4; --t7: #e48bb8; --t8: #b2b66a;
   color-scheme: dark;
 }
 
@@ -69,8 +73,7 @@ h1 {
   margin: 0; text-wrap: balance; letter-spacing: 0.01em;
 }
 h1 .vs { color: var(--muted); font-weight: 500; padding: 0 0.25em; }
-h1 .red { color: var(--red); }
-h1 .blue { color: var(--blue); }
+h1 .team { white-space: nowrap; }
 .meta { color: var(--muted); margin: 0; }
 
 .controls {
@@ -118,6 +121,10 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outl
 }
 .sheet-head h2 { font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; margin: 0; line-height: 1.1; }
 .sheet-head .tons { color: var(--muted); font-size: 12px; }
+.sheet.compact { padding: 8px 12px; }
+.sheet.compact .sheet-head { cursor: pointer; }
+.sheet.acting { box-shadow: 0 0 0 2px var(--ink); }
+.sheet .sheet-head h2 .n { color: var(--muted); font-weight: 500; font-size: 0.95rem; }
 .chips { display: flex; gap: 4px; flex-wrap: wrap; margin-left: auto; }
 .chip { font: 600 11px var(--font-body); letter-spacing: 0.06em; text-transform: uppercase; border-radius: 3px; padding: 2px 6px; border: 1px solid currentColor; }
 .chip.dead { color: var(--hit); }
@@ -148,8 +155,7 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
 .log .tag { font-weight: 500; color: var(--muted); }
 .log .hit { color: var(--hit); font-weight: 500; }
 .log .big { color: var(--hit); font-weight: 600; }
-.log .r { color: var(--red); font-weight: 500; }
-.log .b { color: var(--blue); font-weight: 500; }
+.log .u { font-weight: 600; }
 .empty { color: var(--muted); font-style: italic; }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
@@ -176,7 +182,7 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
 
   <div class="main">
     <section class="map" aria-label="Map">
-      <svg id="board" role="img" aria-label="Hex map with both mechs"></svg>
+      <svg id="board" role="img" aria-label="Hex map with every mech"></svg>
       <div class="legend" id="legend"></div>
     </section>
     <aside class="side" id="sheets"></aside>
@@ -193,28 +199,57 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
   "use strict";
   var data = JSON.parse(document.getElementById("replay-data").textContent);
   var steps = data.steps;
-  var SIDES = ["Red", "Blue"];
+  var SIDES = Object.keys(data.mechs);                       // the units, by label
+  var TEAMS = data.team_order || SIDES;                       // older replays: the two units are the two teams
+  var PALETTE = ["var(--red)", "var(--blue)", "var(--t3)", "var(--t4)", "var(--t5)", "var(--t6)", "var(--t7)", "var(--t8)"];
+  function teamOf(side) { return (data.teams && data.teams[side]) || side; }
+  function teamColour(team) {
+    if (team === "Red") return PALETTE[0];
+    if (team === "Blue") return PALETTE[1];
+    var i = TEAMS.filter(function (t) { return t !== "Red" && t !== "Blue"; }).indexOf(team);
+    return PALETTE[2 + (i < 0 ? 0 : i) % (PALETTE.length - 2)];
+  }
+  var many = SIDES.length > 4;                                // a big battle: record sheets fold up
+  var openSheets = {};
   var COMPASS = { N: 0, NE: 1, SE: 2, S: 3, SW: 4, NW: 5 };
   var R = 24, SQ3 = Math.sqrt(3);
   var idx = 0, timer = null;
 
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
-  function sideVar(side) { return side === "Red" ? "var(--red)" : "var(--blue)"; }
+  function sideVar(side) { return teamColour(teamOf(side)); }
+  function unitsOf(team) { return SIDES.filter(function (s) { return teamOf(s) === team; }); }
+  function teamName(team) {                                   // a lone unit shows its mech, a force its team name
+    var us = unitsOf(team);
+    return us.length === 1 ? data.mechs[us[0]].name : team + " (" + us.length + " units)";
+  }
+  function badge(side) {                                      // what is written on the map marker
+    var m = /(\d+)$/.exec(side);
+    return m ? m[1] : data.mechs[side].name.charAt(0);
+  }
 
   // ---- header ----
-  var red = data.mechs.Red.name, blue = data.mechs.Blue.name;
   function botOf(side) {          // which bot drove it (2026-10-27); older replays don't say
     var b = data.mechs[side].bot;
     return b ? ' <span class="tons">(' + esc(b.charAt(0).toUpperCase() + b.slice(1)) + ")</span>" : "";
   }
-  $("title").innerHTML = '<span class="red">' + esc(red) + botOf("Red") + '</span><span class="vs">vs</span><span class="blue">' + esc(blue) + botOf("Blue") + "</span>";
-  document.title = red + " vs " + blue;
+  var titleParts = TEAMS.map(function (t) {
+    var us = unitsOf(t);
+    var label = us.length === 1 ? esc(data.mechs[us[0]].name) + botOf(us[0]) : esc(t) + ' <span class="tons">(' + us.length + " units)</span>";
+    return '<span class="team" style="color:' + teamColour(t) + '">' + label + "</span>";
+  });
+  $("title").innerHTML = titleParts.join('<span class="vs">vs</span>');
+  document.title = TEAMS.map(function (t) { return unitsOf(t).length === 1 ? data.mechs[unitsOf(t)[0]].name : t; }).join(" vs ");
   var res = data.result || {};
-  var outcome = res.winner === "Draw" ? "Draw after " + res.turns + " turns"
-    : (res.winner === "Red" ? red : blue) + " won on turn " + res.turns;
-  var loser = res.winner === "Red" ? "Blue" : res.winner === "Blue" ? "Red" : null;
-  if (loser && res.causes && res.causes[loser]) outcome += " (" + data.mechs[loser].name + ": " + res.causes[loser] + ")";
+  var outcome = res.winner === "Draw" || !res.winner ? "Draw after " + res.turns + " turns"
+    : teamName(res.winner) + " won on turn " + res.turns;
+  if (SIDES.length === 2 && res.winner && res.winner !== "Draw") {
+    var loserUnit = SIDES.filter(function (s) { return teamOf(s) !== res.winner; })[0];
+    if (loserUnit && res.causes && res.causes[loserUnit]) outcome += " (" + data.mechs[loserUnit].name + ": " + res.causes[loserUnit] + ")";
+  } else if (res.causes) {
+    var gone = SIDES.filter(function (s) { return res.causes[s]; });
+    outcome += " · " + gone.length + " of " + SIDES.length + " units destroyed";
+  }
   $("meta").textContent = "Battle " + data.sim + " · seed " + data.seed + " · " + outcome;
 
   // ---- board geometry: MegaMek flat-topped hexes, even columns half a hex lower; N is up ----
@@ -275,8 +310,10 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
   if (seen.paved) legend.push('<span><i style="background:var(--paved)"></i>Road / pavement</span>');
   if (seen.building) legend.push('<span><i style="background:var(--building)"></i>Building (B3 = roof at level 3)</span>');
   if (seen.level) legend.push("<span>L1, L2... = level</span>");
-  SIDES.forEach(function (s) {
-    legend.push('<span><i style="background:' + sideVar(s) + ';border-color:' + sideVar(s) + '"></i>' + s + ": " + esc(data.mechs[s].name) + "</span>");
+  TEAMS.forEach(function (t) {
+    var us = unitsOf(t);
+    var what = us.length === 1 ? esc(data.mechs[us[0]].name) : us.length + " units";
+    legend.push('<span><i style="background:' + teamColour(t) + ';border-color:' + teamColour(t) + '"></i>' + esc(t) + ": " + what + "</span>");
   });
   legend.push("<span>Wedge = facing, line = torso twist, dashed = moved this step</span>");
   $("legend").innerHTML = legend.join("");
@@ -290,12 +327,14 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
   function drawUnits() {
     trails.innerHTML = ""; units.innerHTML = "";
     var st = steps[idx].state, prev = idx > 0 ? steps[idx - 1].state : null;
-    var same = st.Red.hex && st.Red.hex === st.Blue.hex;
-    SIDES.forEach(function (side, n) {
+    var crowd = {};                                           // units sharing a hex for a moment (a charge's end): fan them out
+    SIDES.forEach(function (side) { var h = st[side].hex; if (h && !st[side].destroyed) (crowd[h] = crowd[h] || []).push(side); });
+    SIDES.forEach(function (side) {
       var m = st[side];
       if (!m.hex) return;
       var p = centre(m.hex);
-      if (same) p = [p[0] + (n ? 6 : -6), p[1]];
+      var group = crowd[m.hex] || [side];
+      if (group.length > 1) p = [p[0] + (group.indexOf(side) - (group.length - 1) / 2) * 12, p[1]];
       var colour = m.destroyed ? "var(--muted)" : sideVar(side);
       if (prev && prev[side].hex && prev[side].hex !== m.hex) {
         var q = centre(prev[side].hex);
@@ -313,9 +352,11 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
         el("line", { x1: p[0], y1: p[1], x2: tw[0], y2: tw[1], stroke: "var(--panel)", "stroke-width": 2.5, "stroke-linecap": "round" }, g);
       }
       var t = el("text", { x: p[0], y: p[1] + 4, "text-anchor": "middle", "font-size": 11, "font-weight": 700, fill: "var(--panel)", "font-family": "Saira Condensed, sans-serif" }, g);
-      t.textContent = m.destroyed ? "✕" : data.mechs[side].name.charAt(0);
+      t.textContent = m.destroyed ? "✕" : badge(side);
       var title = el("title", {}, g);
       title.textContent = side + " " + data.mechs[side].name + " at " + m.hex + " facing " + m.facing + (m.prone ? ", prone" : "") + (m.destroyed ? ", destroyed" : "");
+      g.style.cursor = "pointer";
+      g.addEventListener("click", function () { openSheets[side] = !openSheets[side]; drawSheets(); });
     });
   }
 
@@ -334,15 +375,34 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
     return d < 0 ? '<span class="delta">' + d + "</span>" : "";
   }
 
+  // Who acted in this step (its record sheet is outlined): the units whose state or position changed.
+  function acting(side, st, prev) {
+    if (!prev) return false;
+    var a = st[side], b = prev[side];
+    return a.hex !== b.hex || a.hp !== b.hp || a.heat !== b.heat || a.prone !== b.prone;
+  }
+
   function drawSheets() {
     var st = steps[idx].state, prev = idx > 0 ? steps[idx - 1].state : null;
-    $("sheets").innerHTML = SIDES.map(function (side) {
+    var order = TEAMS.reduce(function (acc, t) { return acc.concat(unitsOf(t)); }, []);
+    $("sheets").innerHTML = order.map(function (side) {
       var h = data.mechs[side], m = st[side], pm = prev ? prev[side] : null;
+      var compact = many && !openSheets[side];
       var chips = [];
       if (m.destroyed) chips.push('<span class="chip dead">Destroyed</span>');
       if (m.prone) chips.push('<span class="chip warn">Prone</span>');
       if (m.shutdown) chips.push('<span class="chip warn">Shut down</span>');
       var hpPct = h.max_hp ? 100 * m.hp / h.max_hp : 0;
+      var head = '<div class="sheet-head" data-side="' + esc(side) + '"><span class="side-tag" style="background:' + sideVar(side) + '">' + esc(side) + "</span>" +
+        "<h2>" + esc(h.name) + '</h2><span class="tons">' + h.tons + " t</span>" +
+        '<div class="chips">' + chips.join("") + "</div></div>";
+      var hpbar = '<div class="hpbar"><div style="width:' + hpPct.toFixed(0) + "%;background:" + sideVar(side) + '"></div></div>';
+      var cls = "sheet" + (compact ? " compact" : "") + (acting(side, st, prev) ? " acting" : "");
+      if (compact) {
+        return '<section class="' + cls + '" aria-label="' + esc(side) + ' record sheet">' + head +
+          '<div class="stats"><span>Hex <b>' + (m.hex || "off board") + "</b></span><span>Heat <b>" + m.heat + "</b></span>" +
+          "<span>HP <b>" + fmt(m.hp) + "</b> / " + h.max_hp + deltaTxt(m.hp, pm && pm.hp) + "</span></div>" + hpbar + "</section>";
+      }
       var rows = h.locations.map(function (loc) {
         var max = h.max[loc], v = m.locs[loc], pv = pm ? pm.locs[loc] : null;
         var rear = max[1] ? '<div class="cell">' + bar(v[1], max[1], "var(--armor)") + '<span class="num">' + fmt(v[1]) + "/" + max[1] + deltaTxt(v[1], pv && pv[1]) + "</span></div>" : "";
@@ -351,22 +411,25 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
           "<td>" + rear + "</td>" +
           '<td><div class="cell">' + bar(v[2], max[2], "var(--structure)") + '<span class="num">' + fmt(v[2]) + "/" + max[2] + deltaTxt(v[2], pv && pv[2]) + "</span></div></td></tr>";
       }).join("");
-      return '<section class="sheet" aria-label="' + side + ' record sheet">' +
-        '<div class="sheet-head"><span class="side-tag" style="background:' + sideVar(side) + '">' + side + "</span>" +
-        "<h2>" + esc(h.name) + '</h2><span class="tons">' + h.tons + " t</span>" +
-        '<div class="chips">' + chips.join("") + "</div></div>" +
+      return '<section class="' + cls + '" aria-label="' + esc(side) + ' record sheet">' + head +
         '<div class="stats"><span>Hex <b>' + (m.hex || "off board") + "</b></span>" +
         "<span>Facing <b>" + m.facing + "</b>" + (m.twist ? " (torso " + (m.twist > 0 ? "+" : "") + m.twist + ")" : "") + "</span>" +
         "<span>Heat <b>" + m.heat + "</b></span>" +
         (m.pilot_hits ? "<span>Pilot hits <b>" + m.pilot_hits + "</b></span>" : "") +
-        "<span>Armor + structure <b>" + fmt(m.hp) + "</b> / " + h.max_hp + deltaTxt(m.hp, pm && pm.hp) + "</span></div>" +
-        '<div class="hpbar"><div style="width:' + hpPct.toFixed(0) + "%;background:" + sideVar(side) + '"></div></div>' +
+        "<span>Armor + structure <b>" + fmt(m.hp) + "</b> / " + h.max_hp + deltaTxt(m.hp, pm && pm.hp) + "</span></div>" + hpbar +
         '<table class="locs"><thead><tr><th>Loc</th><th>Armor</th><th>Rear</th><th>Structure</th></tr></thead><tbody>' + rows + "</tbody></table>" +
         "</section>";
     }).join("");
+    if (many) {
+      Array.prototype.forEach.call($("sheets").querySelectorAll(".sheet-head"), function (el) {
+        el.addEventListener("click", function () { var s = el.getAttribute("data-side"); openSheets[s] = !openSheets[s]; drawSheets(); });
+      });
+    }
   }
 
   // ---- log ----
+  var labelRegex = new RegExp("(" + SIDES.slice().sort(function (a, b) { return b.length - a.length; })
+    .map(function (l) { return esc(l).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }).join("|") + ")", "g");
   function highlight(line) {
     var s = esc(line);
     s = s.replace(/^(\s*)(\[[^\]]+\])/, '$1<span class="tag">$2</span>');
@@ -374,7 +437,7 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
     // A location or mech lost ("Center Torso DESTROYED!", "pushed off the battlefield - destroyed"),
     // not "armor pts destroyed at armor".
     s = s.replace(/(\bDESTROYED\b.*$|- destroyed\b.*$)/, '<span class="big">$1</span>');
-    s = s.replace(/\bRed\b/g, '<span class="r">Red</span>').replace(/\bBlue\b/g, '<span class="b">Blue</span>');
+    s = s.replace(labelRegex, function (m) { return '<span class="u" style="color:' + sideVar(m) + '">' + m + "</span>"; });
     return s;
   }
   function drawLog() {

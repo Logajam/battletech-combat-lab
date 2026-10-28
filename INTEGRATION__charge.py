@@ -47,7 +47,7 @@ charging 'Mech may declare its torso spikes (+2 a cluster - a stub decides);
 the target's spikes cut each grouping by 4 and hurt the charger's centre
 torso; a lance makes a 5+ armor-piercing check on the first location hit.
 
-Not modeled: the +2 PSRs in the score; domino effects (no third mech);
+Not modeled: the +2 PSRs in the score; (a third 'Mech in the displacement hex: domino effect and accidental fall from above, INTEGRATION__domino, 2026-10-28);
 minimum movement, buildings, water halving, shields; partial
 cover is ignored as the rule says, but woods still count.
 """
@@ -59,6 +59,7 @@ import INTEGRATION__hazards as hazards
 import INTEGRATION__advanced_weapons as adv  # Taser interference (TO:AUE p.158, 2026-10-27)  # magma / hazardous liquid on displacement (TO:AR, 2026-10-27)
 import INTEGRATION__attack_resolution as attack_resolution
 import INTEGRATION__movement_attacks as movement_attacks
+import INTEGRATION__domino as domino
 import INTEGRATION__physical_gear as gear
 from INTEGRATION__movement_attacks import groupings, comparative_modifier, terrain_modifier
 from mech_state import torso_cockpit_sensor_penalty, physical_attacker_modifier
@@ -177,14 +178,23 @@ def resolve_hit(attacker, target, terrain_map):
         triggers[target.side_name].append(("charged", CHARGE_PSR_MODIFIER))
         return triggers
     old = target.hex
-    target.hex = new_label
+    fell_here = False
+    if domino.occupant(new_label, exclude=(attacker, target)) is not None:      # a third 'Mech there (pp.113-116)
+        fell_here = domino.displace_into_occupied(target, new_label, combat._direction_facing(a_hex, t_hex), drop,
+                                                  terrain_map, "displaced by a charge")
+        new_label = target.hex
+    else:
+        target.hex = new_label
     if not is_destroyed(attacker):
         attacker.hex = old
     config.log(f"    {target.side_name} is displaced {old} -> {new_label}; {attacker.side_name} advances into {old}.")
-    hazards.enter_hex(target, new_label, why=f"displaced into {new_label}", in_phase=True)     # TO:AR (2026-10-27)
+    if not fell_here:
+        hazards.enter_hex(target, new_label, why=f"displaced into {new_label}", in_phase=True)     # TO:AR (2026-10-27)
     if not is_destroyed(attacker):
         hazards.enter_hex(attacker, old, why=f"advanced into {old}", in_phase=True)
-    if drop >= 2:
+    if fell_here:
+        pass                                            # the fall from above was resolved with the displacement
+    elif drop >= 2:
         config.log(f"    {target.side_name} is displaced {drop} levels down - automatic fall (p.114).")
         piloting_rolls.resolve_fall(target, cause="displaced down", levels=drop)
     else:

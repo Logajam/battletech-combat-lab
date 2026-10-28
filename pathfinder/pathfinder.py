@@ -109,9 +109,10 @@ def _build_terrain_aware(
     'Mech's ("cannot enter a hex occupied by an enemy 'Mech unless that 'Mech
     is immobile"); treated like a hex off the board."""
     hexes = terrain_map["hexes"]
+    blocked = _blocked_set(blocked)
 
     def hex_info(x: int, y: int) -> Optional[dict]:
-        if (x, y) == blocked:
+        if (x, y) in blocked:
             return None
         try:
             label = hex_label(x, y)
@@ -233,9 +234,10 @@ def _build_terrain_psr(
     each entry's path (PathTable.path), for the movement subphase that walks
     it. blocked: as _build_terrain_aware."""
     hexes = terrain_map["hexes"]
+    blocked = _blocked_set(blocked)
 
     def hex_info(x: int, y: int) -> Optional[dict]:
-        if (x, y) == blocked:
+        if (x, y) in blocked:
             return None
         try:
             label = hex_label(x, y)
@@ -308,6 +310,17 @@ def _build_terrain_psr(
                     push(mp + 1, (x, y, new_facing, last, used_back), (hz, fc, neg - a - r, always + a, run_only + r),
                          key, mp, "turn")
     return table
+
+
+def _blocked_set(blocked):
+    """`blocked` as a frozenset of (x, y) hexes: None (nothing blocked), one
+    (x, y) pair, or a collection of pairs (several mobile enemy 'Mechs on the
+    board, 2026-10-28 - the multi-unit battle)."""
+    if blocked is None:
+        return frozenset()
+    if len(blocked) == 2 and all(isinstance(v, int) for v in blocked):
+        return frozenset((tuple(blocked),))
+    return frozenset(blocked)
 
 
 def build_movement_table(

@@ -458,6 +458,21 @@ def single_attack_tn(attacker, target, terrain_map, weapons, at_hex=False):
     return best
 
 
+def weapons_can_bear(attacker, target):
+    """True when some weapon of the attacker could fire at the target from
+    where each stands, with any torso twist / arm flip it may declare (the
+    arc test declare_attacks makes before choosing weapons)."""
+    a_hex = hex_geometry.parse_hex_label(attacker.hex)
+    t_hex = hex_geometry.parse_hex_label(target.hex)
+    if a_hex == t_hex:
+        return False
+    pair_arcs = arcs.arcs_between(a_hex, t_hex)
+    arc_choices = arcs.arc_keys(pair_arcs, hex_geometry.compass_to_facing(attacker.facing),
+                                arcs.arc_options(attacker), arcs.leg_offsets(attacker))
+    total = len(get_weapons(attacker))
+    return any(len(arc_unavailable(attacker, key)) < total for key, _ in arc_choices)
+
+
 def declare_attacks(attacker, target, terrain_map, report: SideReport):
     """Step 2 above for one attacker. Rolls to-hit for every selected
     weapon; returns nothing (fills report)."""
@@ -1130,12 +1145,25 @@ def _resolve_aimed_hit(target, weapon, damage, dtype, side, attack):
 
 
 def run_ranged_combat_phase(mover_first, mover_second, terrain_map, battle_rng):
-    """Whole phase, per the SEQUENCE in the module docstring. Returns
-    {side_name: SideReport}."""
-    reports = {mover_first.side_name: SideReport(), mover_second.side_name: SideReport()}
-    pairs = ((mover_first, mover_second), (mover_second, mover_first))
+    """The two-mech Ranged Attack Phase: each of the two fires at the other.
+    Returns {side_name: SideReport}. (run_ranged_phase is the general one.)"""
+    foe = {id(mover_first): mover_second, id(mover_second): mover_first}
+    return run_ranged_phase([mover_first, mover_second], lambda unit: foe[id(unit)], terrain_map, battle_rng)
 
-    for m in (mover_first, mover_second):
+
+def run_ranged_phase(order, target_of, terrain_map, battle_rng):
+    """Whole phase, per the SEQUENCE in the module docstring, for any number
+    of units (2026-10-28, INTEGRATION__forces): `order` is the units in
+    declaration / resolution order (Core p.39: the side that lost
+    Initiative first, sides alternating), `target_of(unit)` the one enemy a
+    unit fires at (None: nothing to shoot). Returns {side_name: SideReport}."""
+    reports = {m.side_name: SideReport() for m in order}
+    pairs = [(m, target_of(m)) for m in order]
+    pairs = [(attacker, target) for attacker, target in pairs if target is not None]
+    for m in order:
+        m._ams_used = {}                         # AMS engagements spent this phase, shared by every attacker (p.206)
+
+    for m in order:
         snapshot_round_capability(m)
         piloting_rolls.snapshot_pre_attack_phase(m)
         if not is_destroyed(m):
@@ -1185,12 +1213,13 @@ def run_ranged_combat_phase(mover_first, mover_second, terrain_map, battle_rng):
                 _apply_groups(target, total, size, dtype, side, cover)
             rep.damage_dealt += hp_before - total_hp(target)
 
-    for m in (mover_first, mover_second):
+    for m in order:
+        m._ams_used = None
         gear.lower(m)                         # a raised shield lowers at the end of the phase (p.195)
         electronics.activate_pods(m)          # pods that hit this phase work from the next (p.193)
         fire_modes.resolve_unjams(m)          # Rotary AC unjam attempts (p.183)
         capacitor.end_phase(m)                # charges spent / stored, holding heat (p.188)
-    for m in (mover_first, mover_second):
+    for m in order:
         _with_piloting(m, piloting_rolls.resolve_attack_phase_psr)
         piloting_rolls.resolve_consciousness_checks(m, "Attack Phase")
 

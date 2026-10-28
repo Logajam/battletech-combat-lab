@@ -29,7 +29,8 @@ GitHub logistics.
   `rules/Battletech_Rule_Reference_Index.zip`, unzipped OUTSIDE the repo. The
   Core Rulebook is in `base/core-rules/*.md`, and a `[p.N]` marker comes before
   page N's text. Cite the page in the code. If the library doesn't settle a
-  rule, ask Daniel. The zip is a snapshot of the private repo
+  rule, look at how MegaMek does it (its source; Daniel, 2026-10-28), and ask
+  Daniel only if that still leaves a question. The zip is a snapshot of the private repo
   `logajam/battletech-rules-index` (its own CLAUDE.md has the pipeline);
   that repo also holds TO: Advanced Units & Equipment and TO: Advanced Rules
   (2026-10), which the zip predates (session 10 read them from a clone of
