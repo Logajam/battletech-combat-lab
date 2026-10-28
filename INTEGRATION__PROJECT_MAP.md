@@ -327,7 +327,9 @@ range vs Short Grid's 96%, ~2 hexes closer to the enemy than Perfect, 102 ms
 a pick vs 174 (Short Grid) and 1,218 (Perfect). Then (Daniel) the first
 attempt became "If I hold still then...": on the two worst scenarios 81.5 ->
 84.0% of range, lean in +3.3 -> +2.2 hexes, but it now holds still on 34% of
-first-mover picks (Perfect 8%). Numbers: Change Record.
+first-mover picks (Perfect 8%). Fixed steps (`MOVEMENT_IF_THEN_STEPS = 12`,
+Daniel): 84.0 -> 88.9% of range for +50 ms a pick (198 ms; Short Grid 281,
+Perfect 2,309). Numbers: Change Record.
 
 **Pick up here (open, roughly in priority order):**
 00. **Princess clone - TODO as the scope grows** (Daniel, 2026-10-27: "All of
@@ -1387,6 +1389,23 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-28 (Claude):** IF/THEN fixed steps, `config.MOVEMENT_IF_THEN_STEPS`
+  (Daniel: "run like 10 to 15 steps, with an early stop if it lands on the
+  same hex again. Then pick the best"): 0 = the climb (default), N = up to N
+  attempts whatever they score, early stop on a hex already tried, the
+  best-scoring attempt is the pick. Pick-quality picker "IF/THEN 12 steps";
+  test `if_then_fixed_steps_keep_the_best`. Two worst scenarios, 20 battles
+  each, same seeds, FIRST MOVER (% of range / got best / rank pct / hexes off
+  / closer / holds still / ms):
+    Perfect           100.0 / 100% / 100% / 0.00 / +0.00 /  8% / 2309
+    Short Grid         97.1 /  42% /  96% / 3.19 / -0.40 / 12% /  281
+    Short-Short        91.9 /  20% /  88% / 4.14 / +1.12 / 21% /  139
+    IF/THEN (climb)    84.0 /  14% /  67% / 4.43 / +2.17 / 34% /  150
+    IF/THEN 12 steps   88.9 /  19% /  78% / 4.36 / +1.87 / 29% /  198
+  Catapult vs Jenner 86.6 -> 91.2, Kontio vs Hammerhead 80.2 -> 85.6.
+  Traced (12 battles, 198 picks): it lands on a hex already tried after
+  ~4-5 attempts (12 attempts in 4% of picks); the best attempt is #1 in 31%,
+  #2 28%, #3 15%, #4+ 26%.
 - **2026-10-28 (Claude):** IF/THEN's first attempt is now holding still
   (Daniel: "Its first step is 'If I hold still then...'" - to remove the lean
   from a high score against a stationary target, and to lock in quickly when

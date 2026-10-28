@@ -929,6 +929,41 @@ def if_then_climbs_by_its_rule():
 
 
 @check
+def if_then_fixed_steps_keep_the_best():
+    """MOVEMENT_IF_THEN_STEPS > 0 (Daniel, 2026-10-28): every attempt is kept
+    and scored, at most that many, no hex twice, the first is holding still,
+    and the pick is the best-scoring attempt."""
+    real = ms._if_then_search
+    seen = []
+
+    def spy(hold, *rest):
+        rows = real(hold, *rest)
+        seen.append((hold, rows))
+        return rows
+
+    saved = config.MOVEMENT_SEARCH, config.MOVEMENT_IF_THEN_STEPS
+    config.MOVEMENT_SEARCH, config.MOVEMENT_IF_THEN_STEPS, ms._if_then_search = "if_then", 5, spy
+    try:
+        rng, checked = BattleRNG(seed=13), 0
+        for mover_hex, other_hex, other_f in [("0808", "0911", "NW"), ("0404", "0808", "SW"), ("1212", "0910", "SE")]:
+            mover, other = fresh(mover_hex, "N"), fresh(other_hex, other_f)
+            seen.clear()
+            pick, why = ms.choose(mover, other, TERRAIN, rng, moves_first=True)
+            hold, rows = seen[0]
+            assert 1 <= len(rows) <= 5 and rows[0][1] is hold
+            hexes = [r[1].label for r in rows]
+            assert len(set(hexes)) == len(hexes), hexes
+            if any(r[2][0] > 0 for r in rows):
+                top = max(round(r[0], 9) for r in rows)
+                assert any(round(r[0], 9) == top and (pick["hex"], pick["facing"], pick["mode"], pick["fc"]) ==
+                           (r[1].label, r[1].facing_compass, r[1].mode, r[1].fc) for r in rows), (pick, why)
+                checked += 1
+        assert checked >= 1
+    finally:
+        (config.MOVEMENT_SEARCH, config.MOVEMENT_IF_THEN_STEPS), ms._if_then_search = saved, real
+
+
+@check
 def damage_drops_sit_on_bracket_ends():
     """The short list's damage drops are the ends of weapon range brackets:
     every drop distance is some live weapon's short, medium or long range."""
