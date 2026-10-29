@@ -390,8 +390,29 @@ STUB_CAPACITOR_CHARGE = "never"
 #                     picks its own weapons at the target, and its declared damage is counted for the
 #                     teammates who fire after it.
 #   "nearest"       - the old pick (forces.choose_target: in sight, a weapon bears, nearest).
+#   "kill_curve"    - NOT a stub: Gladiator's own fire director (2026-10-29, Daniel: "splitting fire to
+#                     wreck 2 units is better then hard killing 1 and grazing the other"). Each enemy is
+#                     scored by how much this unit's expected damage raises the enemy's chance of a
+#                     mission kill (INTEGRATION__kill_curve), on top of what teammates already declared
+#                     at it, times the enemy's worth (KILL_CURVE_WEIGHT). Its declaration is counted too.
 # Duels are unchanged either way (one enemy).
 STUB_GLADIATOR_TARGET = "princess_plan"
+# A mission kill for the kill curve (INTEGRATION__kill_curve; 2026-10-29, Daniel: "an immobile, weaponless
+# torso with a leg on the ground is still dangerous, if it can spot ... the weight for spotting has not been
+# evaluated yet"). An immobile 'Mech is already destroyed under the default rules (FIGHT_TO_THE_DEATH off).
+#   "destroyed"         - destroyed only: a 'Mech with no gun that can still move, kick or spot fights on.
+#   "no_ranged_weapons" - also once no ranged weapon is left that can fire (spotting worth nothing).
+STUB_MISSION_KILL = "destroyed"
+# The kill curve (INTEGRATION__kill_curve, 2026-10-29): the chance a 'Mech is mission-killed by N more
+# points of damage from its current state, from a small Monte Carlo on the engine's damage code.
+KILL_CURVE_GROUP = 5            # damage grouping of the trials (Daniel: "rule of thumb ... 5 point clusters")
+KILL_CURVE_TRIALS = 100         # trials a curve (one side of one 'Mech in one damage state; cached)
+KILL_CURVE_MAX_DAMAGE = 200     # a trial stops here (more than a turn's fire on one 'Mech)
+# What counts as a mission kill ("no longer able to support its teams combat operations", Daniel
+# 2026-10-29) is a STUB while spotting has no worth: see STUB_MISSION_KILL below.
+# An enemy's worth in the fire director: "output" (its damage a turn, INTEGRATION__future_damage -
+# Daniel: "Expected damage output from the target / its vulnerability") or "none" (every kill alike).
+KILL_CURVE_WEIGHT = "output"
 # (STUB_REAR_MOUNTED removed 2026-10-19: mtf_parser keeps the "(R)" tag as
 # Equipment.rear_mounted; those weapons fire only into the rear arc - Core p.60.)
 # (STUB_HEAT_MODE removed 2026-10-18: heat now always carries over turn to

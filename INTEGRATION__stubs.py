@@ -290,3 +290,14 @@ def stub_gladiator_target(mech_name, target, enemies):
     _warn("gladiator_target", f"{mech_name}: {enemies} enemies on the board -> fires at "
           f"{target.side_name if target is not None else 'nobody'} (Princess's firing-plan utility)")
     return target
+
+
+def stub_mission_kill(mech_name):
+    """A kill curve was built (INTEGRATION__kill_curve) with what counts as a
+    mission kill set by STUB_MISSION_KILL. TODO (Daniel, 2026-10-29): the
+    worth of spotting - "an immobile, weaponless torso with a leg on the ground
+    is still dangerous, if it can spot ... the weight for spotting has not
+    been evaluated yet" (spotting for indirect fire isn't built either)."""
+    _warn("mission_kill", f"{mech_name}: kill curve counts a mission kill as "
+          f"{config.STUB_MISSION_KILL!r} (spotting has no worth yet)")
+

@@ -479,9 +479,10 @@ def declare_attacks(attacker, target, terrain_map, report: SideReport, dry=False
 
     dry=True (2026-10-28, Princess's target choice): do everything up to the
     weapon choice, change nothing and log nothing, and return what the bot
-    would get from this target - (the choice's value, expected damage), or
-    None when nothing can fire at it. The real declaration runs the same code,
-    so the dry run can't disagree with it."""
+    would get from this target - (the choice's value, expected damage, the
+    side of the target it lands on), or None when nothing can fire at it.
+    The real declaration runs the same code, so the dry run can't disagree
+    with it."""
     if dry:
         with config.quiet():
             return _declare(attacker, target, terrain_map, report, True)
@@ -623,7 +624,7 @@ def _declare(attacker, target, terrain_map, report, dry):
                     best = (total, picked, key, action, phys_picks, phys_value, held)
     _, (weapons, exp_dmg, weapon_heat), chosen_key, chosen, phys_picks, phys_value, held = best
     if dry:
-        return (exp_dmg, _plan_damage(attacker, weapons, planner, distance, sel_pre_tn)) if weapons else None
+        return (exp_dmg, _plan_damage(attacker, weapons, planner, distance, sel_pre_tn), side) if weapons else None
     if not weapons:
         chosen = arcs.current_action(attacker)._replace(turret=chosen.turret)   # nothing fires: declare no change
     arcs.declare(attacker, chosen)

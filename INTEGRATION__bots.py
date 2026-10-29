@@ -37,6 +37,7 @@ import INTEGRATION__princess as princess
 import INTEGRATION__princess_group as princess_group
 import INTEGRATION__princess_modern as princess_modern
 import INTEGRATION__princess_fire as princess_fire
+import INTEGRATION__kill_curve as kill_curve
 import INTEGRATION__weapon_selection as weapon_selection
 
 GLADIATOR = "gladiator"
@@ -86,22 +87,30 @@ def choose_target(attacker, units, terrain_map):
     """The one enemy this unit's bot fires at in the Ranged Attack Phase:
     Princess takes the enemy its firing plans rate highest, with the damage
     its friends have already declared counted (INTEGRATION__princess_group).
-    Gladiator has no target choice of its own yet: with two or more enemies
-    on the board config.STUB_GLADIATOR_TARGET decides - "princess_plan"
-    borrows Princess's choice (seen through Princess's fire control, see
+    For Gladiator, with two or more enemies on the board,
+    config.STUB_GLADIATOR_TARGET decides - "kill_curve" is Gladiator's own
+    fire director (INTEGRATION__kill_curve: the most mission-kill chance
+    added, friends' declared fire counted), "princess_plan" borrows
+    Princess's choice (seen through Princess's fire control, see
     princess_eyes), "nearest" is forces.choose_target (in sight, bears,
     nearest)."""
     if attacker.bot == PRINCESS:
         return princess_group.choose_target(attacker, units, terrain_map)
     policy = config.STUB_GLADIATOR_TARGET
-    if policy == "princess_plan":
+    if policy == "kill_curve":
+        # Gladiator's own fire director (INTEGRATION__kill_curve) - no stub.
+        if len(princess_group.candidates(attacker, units)) >= 2:
+            target = kill_curve.choose_target(attacker, units, terrain_map)
+            return target if target is not None else forces.choose_target(attacker, units, terrain_map)
+    elif policy == "princess_plan":
         enemies = len(princess_group.candidates(attacker, units))
         if enemies >= 2:
             with princess_eyes(attacker):
                 target = princess_group.choose_target(attacker, units, terrain_map)
             return stubs.stub_gladiator_target(attacker.side_name, target, enemies)
     elif policy != "nearest":
-        raise ValueError(f"Unknown STUB_GLADIATOR_TARGET {policy!r} - choose 'princess_plan' or 'nearest'.")
+        raise ValueError(f"Unknown STUB_GLADIATOR_TARGET {policy!r} - choose 'princess_plan', 'kill_curve' "
+                         f"or 'nearest'.")
     return forces.choose_target(attacker, units, terrain_map)
 
 
@@ -127,8 +136,9 @@ def _as_princess(attacker):
 def records_declared_damage(attacker):
     """Does this unit's declaration go into its team's damage map (princess_fire.assign_damage), for the
     teammates who pick a target after it? Princess's always does; a Gladiator's does when it borrows
-    Princess's target choice (STUB_GLADIATOR_TARGET "princess_plan")."""
-    return attacker.bot == PRINCESS or config.STUB_GLADIATOR_TARGET == "princess_plan"
+    Princess's target choice (STUB_GLADIATOR_TARGET "princess_plan") or runs its own fire director
+    ("kill_curve")."""
+    return attacker.bot == PRINCESS or config.STUB_GLADIATOR_TARGET in ("princess_plan", "kill_curve")
 
 
 def fire_control(attacker):
