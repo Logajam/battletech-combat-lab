@@ -28,6 +28,9 @@ columns (or none, as MegaMek abuts boards) would keep the board as drawn.
 recalled, but the Archer ARC-2R (ours 1477, recalled 1415) and the Crusader
 CRD-3R (ours 1317, recalled 1294) don't; the recalled values are from memory, so
 check them against the Master Unit List or MegaMek before changing anything.
+(c) SESSION 14 (Change Record "KILL CURVE, FIRE DIRECTOR..."): `INTEGRATION__kill_curve`
+(the trials' dice swap and caching; the fire director's score), `bots.fire_pick`,
+the `domino.advance_into` crash fix in charge / push / DFA, `princess.direction`.
 When a review is done, move its line out of this queue and note it in the
 Change Record.
 
@@ -434,6 +437,9 @@ prediction level". Settings to use it: `MOVEMENT_SEARCH = "if_then"`,
 --pickers` (only the named pickers) and `--perfect-cache FILE` (Perfect's
 prices reused; the file lives in `run_stats/`, lost with the session -
 rebuild it with one full run). Numbers: Change Record.
+
+**How the bots work now:** `INTEGRATION__BOTS.md` (2026-10-29) - Gladiator v
+Princess, decision by decision, the latest battery and why Gladiator loses.
 
 **Pick up here (open, roughly in priority order):**
 0000. **Team awareness and the topics after it** (Daniel, 2026-10-29, "thinking
@@ -1647,6 +1653,42 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-29 (Claude), session 14 - KILL CURVE, FIRE DIRECTOR, BIG GUNS FIRST;
+  TWO CRASH FIXES; WHY GLADIATOR LOSES.** REVIEW PENDING (higher-level model).
+  Summary for Daniel and the next session: `INTEGRATION__BOTS.md`.
+  - `INTEGRATION__kill_curve` (Daniel: "a function that takes incoming damage and
+    converts it into a % chance of mission kill ... rule of thumb ... 5 point
+    clusters"): 100 trials of 5-point groups through `attack_resolution.
+    _resolve_hit` on a pickled copy, own dice (config's roll functions swapped),
+    cached per unit / side / damage state; ~0.05-0.1 s a curve. Mission kill:
+    STUB_MISSION_KILL ("destroyed" default; "no_ranged_weapons"), after Daniel
+    ruled out the book's Crippled ("that pilot should run") and noted spotting
+    has no worth yet.
+  - Fire director (STUB_GLADIATOR_TARGET "kill_curve", not the default): worth x
+    (kill chance added on top of friends' declared fire + KILL_CURVE_PROGRESS_WEIGHT
+    x useful damage / damage still needed). The softening term came from Daniel:
+    "are units taking long shots to marginally increase a kill vs a hurt unit
+    instead of applying stronger damage vs a unit that needs to be softened
+    first?" - they were (a 1% gain beat a full volley 100 to 1).
+  - Big guns first (GLADIATOR_FIRE_ORDER, default; Daniel's rule).
+  - Speed only: `mech_state.mech_shields` remembers a 'Mech with no shield.
+  - Crash fixes (both reproduced, tests added): a charger / pusher / DFA
+    attacker advancing into its target's old hex goes through the domino code
+    when a fall from above (p.116) put another 'Mech there (MegaMek's
+    doEntityDisplacement; two enemies had ended up stacked); Princess's facing
+    to a point in its own hex is MegaMek's Coords.direction, 5.
+  - Battery, same 20 seeds, + Legate: stub 7 / 9 / 4 (Princess / draw /
+    Gladiator); fire director with list-order firing 15 / 5 / 0; fire director +
+    big guns first 9 / 8 / 3, 'Mechs left 4.3 / 1.3 (replays of all 20, run on
+    the fixed code). Analysis (scratch scripts over the replays): Gladiator lost
+    53 units in turns 1-6 v Princess's 29; 46 of the 53 were lights that dived
+    ahead alone on turn 2. Cause: Legate's MultiLifetime divides HP by ALL
+    enemies' damage a turn, so a unit's life looks ~3 turns long and bad trades
+    score well (Pick up here 000 "how much fire a single unit would take").
+    Also: no cohesion pull (heavies' nearest friend 6.4 hexes v Princess's 4.2
+    on entry). Daniel's question "is it starting positions?": the first movers
+    see ~2 enemies on turn 1 but end further back than Princess's, not worse.
+  - Daniel's next topics are Pick up here 0000; ammo conservation is item 3.
 - **2026-10-29 (Claude), session 14 - BATTERY RE-RUN WITH THE PRINCESS FIX; KILL-
   CURVE IDEA.** Daniel: "Rerun the 20 battle set with the corrected princess.
   Mostly for curiosity." Same 20 seeds, stub + Legate (both defaults), after the

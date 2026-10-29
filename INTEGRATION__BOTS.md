@@ -100,4 +100,48 @@ expected damage + critical chance + kill chance - overheating.
 
 ## What actually differs, and what the battles show
 
-[filled in from the battery below]
+Same 20 seeds, Gladiator with Legate (session 14):
+
+| Gladiator's target choice | Princess wins / draws / Gladiator wins | 'Mechs left, Princess / Gladiator |
+|---|---|---|
+| "Shoot the nearest" (before session 14) | 15 / 5 / 0 | 5.6 / 0.35 |
+| Princess's choice borrowed (stub, default) | 7 / 9 / 4 | 3.2 / 1.8 |
+| Fire director, list-order firing | 15 / 5 / 0 | 4.6 / 0.7 |
+| Fire director + big guns first | 9 / 8 / 3 | 4.3 / 1.3 |
+
+Big guns first is what made the fire director work at all; with it, the fire
+director is about level with the borrowed choice (20 battles can't separate
+them). Target choice is not what is losing the battles:
+
+1. **Gladiator's light 'Mechs dive in alone on turn 2 and die.** In the fire
+   director + big guns run Gladiator lost 53 units in turns 1-6 across the 20
+   battles, Princess 29. 46 of Gladiator's 53 were its lights (Jenner,
+   Commando, Hunchback, Kintaro, Locust); 46 were closer to the enemy than
+   most of their team, and 44 had at most one friend within 4 hexes.
+   On turn 1 they behave (they stay back with the group); the dive is on turn
+   2, with every enemy in view.
+2. **Why the movement score allows it:** under Legate a Gladiator's "life
+   left" is its HP divided by ALL enemies' damage a turn - as if every enemy
+   shot only it, every turn. Against 12 enemies that is about 3 turns, so its
+   HP is worth little and trading 50 points taken for 10 dealt scores well
+   (example: Blue Jenner, battle 18, turn 3). In fact the enemy's fire is
+   shared over 12 targets - until one unit runs ahead alone, and then it gets
+   all of it. Defeated in detail, one light at a time.
+3. **No "stay together" pull.** Princess's mutual support keeps its force
+   together; Gladiator has none. Its heavies, which move first on turn 1 when
+   only about 2 enemies are on the board, end 6.4 hexes from their nearest
+   friend (Princess's 4.2), and further back from the enemy (17.8 v 15.4).
+   Over turns 1-20 Gladiator's units are always a little more spread out.
+4. Fewer Gladiators fire after the first turns (4.8 a turn in turns 11-20 v
+   Princess's 5.6), following the losses.
+
+## Next steps (Daniel's list, PROJECT_MAP "Pick up here" 0000)
+
+- How much fire one unit really takes (Legate's own to-do): share the enemy's
+  future fire over the units it could shoot, instead of all of it on me.
+  Quick to build and A/B; expected to stop the light dive.
+- Then team awareness: price a move by the team's expected firepower lost,
+  using the kill curve for our own units too ("move somewhere more exposed to
+  draw fire from a vulnerable unit").
+- Movement order hierarchy; active choices in one currency; indirect fire and
+  spotting (which also settles STUB_MISSION_KILL); ammo conservation.
