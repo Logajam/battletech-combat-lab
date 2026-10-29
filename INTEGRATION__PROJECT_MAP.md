@@ -28,6 +28,9 @@ columns (or none, as MegaMek abuts boards) would keep the board as drawn.
 recalled, but the Archer ARC-2R (ours 1477, recalled 1415) and the Crusader
 CRD-3R (ours 1317, recalled 1294) don't; the recalled values are from memory, so
 check them against the Master Unit List or MegaMek before changing anything.
+(d) SESSION 14 cont. (Change Record "TEAM AWARENESS..."): `legate.fire_share`, `_Herd`, `_TeamFire`
+(the greedy fire distribution both ways, the team value and its conversion into the objective's PSR
+cost - `Extras.team_cost`), all off by default.
 (c) SESSION 14 (Change Record "KILL CURVE, FIRE DIRECTOR..."): `INTEGRATION__kill_curve`
 (the trials' dice swap and caching; the fire director's score), `bots.fire_pick`,
 the `domino.advance_into` crash fix in charge / push / DFA, `princess.direction`.
@@ -1681,6 +1684,30 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-29 (Claude), session 14 (cont.) - TEAM AWARENESS: FIRE SPLIT, HERDING,
+  TEAM VALUE, EXCHANGE - BUILT AS OPTIONS, NONE BEATS THE BASELINE YET.** REVIEW
+  PENDING (higher-level model). Daniel's designs (Pick up here 0000), all in
+  `INTEGRATION__legate`, all off by default: `LEGATE_FIRE_SPLIT` (fire_share),
+  `LEGATE_HERDING` (_Herd), `LEGATE_TEAM_VALUE` "sum" / "product" (_TeamFire: the
+  enemy's fire this turn distributed over the team, greedy "most hurt, not
+  already doomed"; the team's future damage with kill curves), and
+  `LEGATE_TEAM_EXCHANGE` (our fire on the enemy by the same rule; the enemy's
+  future damage removed counts too). Battery, same 20 seeds, Legate, target stub,
+  big guns first (Princess wins / draws / Gladiator wins; 'Mechs left P / G):
+  baseline 8 / 8 / 4 (3.3 / 1.9); fire split 4 / 16 / 0 (5.55 / 3.35 - stops the
+  light dive, then both sides go passive); herding 8 / 8 / 4 (3.25 / 2.0 - half
+  the battles end differently, the totals don't move); split + herding 1 / 19 / 0
+  (5.3 / 3.25); + team value "sum" 12 / 4 / 4 (4.45 / 1.5); + "product" 17 / 3 / 0
+  (5.75 / 0.45); + "sum" + exchange 18 / 1 / 1 (5.4 / 0.25). Reading (not yet
+  checked in replays): each mover scores its spot with its teammates at their
+  ESTIMATED spots and the enemy shooting whoever it hurts most, so it can count on
+  a teammate to draw the fire (and, with the exchange, to finish its kills) - and
+  every teammate reasons the same way at once: the force over-commits. Next:
+  check that in replays; then let a mover count the teammates yet to move at
+  their own best spots / their own risk (a coordination step), before tuning
+  weights. Also fixed: the long-flaky check (`test_superheavy` superheavy_slots,
+  live dice in an ammo blast's critical rolls, ~1 run in 20). Battery flags:
+  `--fire-split`, `--herding`, `--team-value`, `--fire-order`.
 - **2026-10-29 (Claude), session 14 - KILL CURVE, FIRE DIRECTOR, BIG GUNS FIRST;
   TWO CRASH FIXES; WHY GLADIATOR LOSES.** REVIEW PENDING (higher-level model).
   Summary for Daniel and the next session: `INTEGRATION__BOTS.md`.

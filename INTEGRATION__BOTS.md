@@ -135,6 +135,44 @@ them). Target choice is not what is losing the battles:
 4. Fewer Gladiators fire after the first turns (4.8 a turn in turns 11-20 v
    Princess's 5.6), following the losses.
 
+## Team awareness (built later on 2026-10-29, all options, off by default)
+
+Daniel's designs, in Legate, each a switch in `INTEGRATION__config.py`:
+
+- **Fire split** (`LEGATE_FIRE_SPLIT`): a unit's life-left estimate shares each
+  enemy's future fire over the team it can reach, instead of "every enemy
+  shoots only me".
+- **Herding** (`LEGATE_HERDING`): a spot an enemy can reach costs extra for each
+  hex it lies beyond every teammate's support (a teammate's medium range, long
+  if it stands still, and only if it can see one of those enemies).
+- **Team value** (`LEGATE_TEAM_VALUE`): the enemy's fire this turn is
+  distributed over the whole team (each enemy at the unit it hurts most, not
+  already doomed) with the mover at the spot being scored, and the move is worth
+  the team's future damage (each unit's life-left term times its kill-curve
+  chance of surviving the turn; or Daniel's product form).
+- **Exchange** (`LEGATE_TEAM_EXCHANGE`, with a team value): our fire is
+  distributed over the enemy the same way, and the enemy's future damage it
+  removes counts too ("some of us may die, but that's a sacrifice I'm willing to
+  make").
+
+Results, same 20 seeds (Princess wins / draws / Gladiator wins):
+
+| Setting | Result | 'Mechs left, Princess / Gladiator |
+|---|---|---|
+| Baseline (target stub + big guns first) | 8 / 8 / 4 | 3.3 / 1.9 |
+| Fire split | 4 / 16 / 0 | 5.55 / 3.35 |
+| Herding | 8 / 8 / 4 | 3.25 / 2.0 |
+| Split + herding | 1 / 19 / 0 | 5.3 / 3.25 |
+| + team value "sum" | 12 / 4 / 4 | 4.45 / 1.5 |
+| + team value "product" | 17 / 3 / 0 | 5.75 / 0.45 |
+| + "sum" + exchange | 18 / 1 / 1 | 5.4 / 0.25 |
+
+The fire split stops the light 'Mechs' suicide dives, but then both sides
+stall. The team value and the exchange make Gladiator aggressive again, and it
+over-commits: each unit plans as if its teammates stand where Legate estimated
+and draw the fire (or finish its kills), and all of them do that at once. That
+coordination problem is the next thing to look at.
+
 ## Next steps (Daniel's list, PROJECT_MAP "Pick up here" 0000)
 
 - How much fire one unit really takes (Legate's own to-do): share the enemy's

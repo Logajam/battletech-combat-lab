@@ -178,12 +178,12 @@ LEGATE_ITERATIONS = 12
 # How much of an enemy's future fire a Gladiator expects to draw in its life-left estimate
 # (INTEGRATION__legate.fire_share, 2026-10-29): "proportional" (its slice of what that enemy could deal
 # across the team) or "none" (all of it - the first version, which made lights dive in alone).
-LEGATE_FIRE_SPLIT = "proportional"
+LEGATE_FIRE_SPLIT = "none"          # "proportional" stalled battles in the 2026-10-29 A/B (Change Record)
 # Herding (INTEGRATION__legate._Herd, 2026-10-29, Daniel's shape): a spot an enemy can reach costs
 # LEGATE_HERD_WEIGHT damage for each hex it lies beyond the support of every teammate that can see one
 # of those enemies (support: the end of the teammate's medium bracket, long if it stands still);
-# no teammate sees one: LEGATE_HERD_UNSEEN_GAP hexes. Placeholders until A/B'd.
-LEGATE_HERDING = True
+# no teammate sees one: LEGATE_HERD_UNSEEN_GAP hexes. Placeholder weights; off by default (A/B 2026-10-29).
+LEGATE_HERDING = False             # 2 a hex changed half the battles but not the results (A/B 2026-10-29)
 LEGATE_HERD_WEIGHT = 2.0
 LEGATE_HERD_UNSEEN_GAP = 6
 # The team's future damage in a Gladiator's move score (INTEGRATION__legate._TeamFire, 2026-10-29, Daniel:
