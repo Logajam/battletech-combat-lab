@@ -29,6 +29,7 @@ rate of fire, MASC, AMS, heat sinks...) is shared by both bots.
 import contextlib
 
 import INTEGRATION__config as config
+import INTEGRATION__stubs as stubs
 import INTEGRATION__movement_selection as movement_selection
 import INTEGRATION__forces as forces
 import INTEGRATION__legate as legate
@@ -84,18 +85,57 @@ def choose_foe(mover, units, terrain_map):
 def choose_target(attacker, units, terrain_map):
     """The one enemy this unit's bot fires at in the Ranged Attack Phase:
     Princess takes the enemy its firing plans rate highest, with the damage
-    its friends have already declared counted (INTEGRATION__princess_group);
-    Gladiator's pick is forces.choose_target (in sight, bears, nearest)."""
+    its friends have already declared counted (INTEGRATION__princess_group).
+    Gladiator has no target choice of its own yet: with two or more enemies
+    on the board config.STUB_GLADIATOR_TARGET decides - "princess_plan"
+    borrows Princess's choice (seen through Princess's fire control, see
+    princess_eyes), "nearest" is forces.choose_target (in sight, bears,
+    nearest)."""
     if attacker.bot == PRINCESS:
         return princess_group.choose_target(attacker, units, terrain_map)
+    policy = config.STUB_GLADIATOR_TARGET
+    if policy == "princess_plan":
+        enemies = len(princess_group.candidates(attacker, units))
+        if enemies >= 2:
+            with princess_eyes(attacker):
+                target = princess_group.choose_target(attacker, units, terrain_map)
+            return stubs.stub_gladiator_target(attacker.side_name, target, enemies)
+    elif policy != "nearest":
+        raise ValueError(f"Unknown STUB_GLADIATOR_TARGET {policy!r} - choose 'princess_plan' or 'nearest'.")
     return forces.choose_target(attacker, units, terrain_map)
+
+
+# Units whose candidate targets are being scored through Princess's eyes right now (a Gladiator under
+# STUB_GLADIATOR_TARGET "princess_plan"): fire_control and plans_physical_with_fire answer as for Princess,
+# so the dry-run declaration (attack_resolution.declare_attacks, dry=True) returns Princess's utility.
+_PRINCESS_EYES = set()
+
+
+@contextlib.contextmanager
+def princess_eyes(attacker):
+    _PRINCESS_EYES.add(id(attacker))
+    try:
+        yield
+    finally:
+        _PRINCESS_EYES.discard(id(attacker))
+
+
+def _as_princess(attacker):
+    return attacker.bot == PRINCESS or id(attacker) in _PRINCESS_EYES
+
+
+def records_declared_damage(attacker):
+    """Does this unit's declaration go into its team's damage map (princess_fire.assign_damage), for the
+    teammates who pick a target after it? Princess's always does; a Gladiator's does when it borrows
+    Princess's target choice (STUB_GLADIATOR_TARGET "princess_plan")."""
+    return attacker.bot == PRINCESS or config.STUB_GLADIATOR_TARGET == "princess_plan"
 
 
 def fire_control(attacker):
     """A context for the attack phase's weapon choice: Gladiator's knapsack
     (nothing to change), or Princess's FireControl. The object (or None)
     comes back for the log."""
-    if attacker.bot == PRINCESS:
+    if _as_princess(attacker):
         chooser = princess_fire.FireControl(guess=False)
         return weapon_selection.fire_control(chooser), chooser
     return contextlib.nullcontext(), None
@@ -105,7 +145,7 @@ def plans_physical_with_fire(attacker):
     """Gladiator plans ranged fire and the physical attack that follows
     together (attack_resolution._physical_planner); Princess fires first and
     picks its physical attack in the Physical phase."""
-    return attacker.bot != PRINCESS
+    return not _as_princess(attacker)
 
 
 def choose_physical(attacker, target, terrain_map):

@@ -131,10 +131,42 @@ def gladiator_and_a_duel_still_use_the_projects_pick():
     a = fresh(ATLAS, "0808", "N", "A", "A")
     near, far = fresh(COMMANDO, "0806", "S", "B 1", "B"), fresh(COMMANDO, "0803", "S", "B 2", "B")
     units = [a, near, far]
-    assert bots.choose_target(a, units, TERRAIN) is forces.choose_target(a, units, TERRAIN)
+    saved = config.STUB_GLADIATOR_TARGET
+    config.STUB_GLADIATOR_TARGET = "nearest"                      # the old pick, one switch away
+    try:
+        assert bots.choose_target(a, units, TERRAIN) is forces.choose_target(a, units, TERRAIN)
+    finally:
+        config.STUB_GLADIATOR_TARGET = saved
     p = princess(ATLAS, "0808", "N", "P", "P")
     duel = [p, near]
     assert bots.choose_target(p, duel, TERRAIN) is near
+
+
+@check
+def gladiator_borrows_princess_target_choice_and_spreads_its_fire():
+    """STUB_GLADIATOR_TARGET "princess_plan" (2026-10-29): a Gladiator with two
+    enemies scores them through Princess's fire control, turns away from one its
+    teammates are expected to kill, and its own declaration is counted for the
+    teammates after it."""
+    a1, a2, b1, b2 = lance()
+    a1.bot = a2.bot = "gladiator"
+    units = [a1, a2, b1, b2]
+    saved = config.STUB_GLADIATOR_TARGET
+    config.STUB_GLADIATOR_TARGET = "princess_plan"
+    try:
+        with redirect_stdout(io.StringIO()):
+            first = bots.choose_target(a2, units, TERRAIN)
+            other = b2 if first is b1 else b1
+            princess_fire.assign_damage("A", first, attack_resolution.total_hp(first))   # friends expect it dead
+            assert bots.choose_target(a2, units, TERRAIN) is other
+        assert a2.bot == "gladiator" and bots.fire_control(a2)[1] is None   # its own weapon choice afterwards
+        princess_fire.reset_assigned()
+        with ScriptedDice([], default=7), redirect_stdout(io.StringIO()):
+            attack_resolution.run_ranged_phase(units, lambda u: bots.choose_target(u, units, TERRAIN), TERRAIN, None)
+        assigned = {foe.side_name: princess_fire.assigned_damage("A", foe) for foe in (b1, b2)}
+        assert sum(v > 0 for v in assigned.values()) >= 1, assigned       # Gladiator's fire is on the map
+    finally:
+        config.STUB_GLADIATOR_TARGET = saved
 
 
 # =============================================================================

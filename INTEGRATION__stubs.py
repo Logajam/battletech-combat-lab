@@ -276,3 +276,17 @@ def stub_heat_explosion_bin(mech_name, tied, damage_value, unknown_names):
                      f"controller's choice made at random")
     _warn("heat_explosion_bin", f"{mech_name}: {'; '.join(notes)} -> {pick[1].name} in {pick[0]}")
     return pick
+
+
+# =============================================================================
+# ==========================  GLADIATOR TARGET CHOICE  =======================
+# =============================================================================
+def stub_gladiator_target(mech_name, target, enemies):
+    """A Gladiator unit with two or more enemies on the board took Princess's
+    target choice (INTEGRATION__bots.choose_target). Knob: STUB_GLADIATOR_TARGET.
+    TODO (Daniel, 2026-10-29): Gladiator's own focus fire and target
+    saturation - which enemy to shoot given what teammates already declared,
+    and how much fire one enemy can usefully absorb."""
+    _warn("gladiator_target", f"{mech_name}: {enemies} enemies on the board -> fires at "
+          f"{target.side_name if target is not None else 'nobody'} (Princess's firing-plan utility)")
+    return target
