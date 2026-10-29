@@ -498,6 +498,7 @@ class Extras:
         with timing.section("Legate extras"):
             d, r = dealt * dealt_mult, received * received_mult
             on_me = {id(self.primary): r}                  # each enemy's damage on the mover at o
+            on_them = {id(self.primary): d}                # the mover's damage on each enemy at o
             for foe, st in self.entries:
                 if st[0] == o.label:
                     continue
@@ -508,10 +509,11 @@ class Extras:
                 taken = cand.received * self.unit.side.exposure[cand.side_on_mover]
                 r += taken
                 on_me[id(foe.mech)] = taken
+                on_them[id(foe.mech)] = cand.dealt * foe.side.exposure[cand.side_on_defender]
             if self.team is not None:
                 # LEGATE_TEAM_VALUE: the damage the mover actually draws when the enemy's fire is
                 # distributed over the whole team, and the team's future damage carried as a cost.
-                r, cost = self.team.evaluate(on_me)
+                r, cost = self.team.evaluate(on_me, on_them, d)
                 self._team_cost[_key(o)] = cost
             if self.herd is not None:
                 r += self.herd.penalty(o.hex_xy)
@@ -652,6 +654,8 @@ class _TeamFire:
         team = mover.team
         self.me = objective_for(me_side, self.enemies)
         self.units = []                                   # (unit, MultiLifetime, {id(enemy): damage on it})
+        self.deals: Dict[int, Dict[int, float]] = {}      # id(teammate) -> {id(enemy): damage it deals it}
+        self._sides: Dict[int, object] = {}
         for u in forces.standing(units):
             if u is mover or u.team != team or u.hex is None:
                 continue
@@ -663,7 +667,7 @@ class _TeamFire:
             obj = objective_for(side, foes)
             if not isinstance(obj, MultiLifetime):
                 continue
-            dmg = {}
+            dmg, deals = {}, {}
             with timing.section("Legate team fire"):
                 o = None
                 for e in foes:
@@ -675,14 +679,45 @@ class _TeamFire:
                             o = _prepared(u, st)
                         unit = _Unit(u, units, terrain_map, lite=True, side=side)
                         cand = unit.rows(e, est, [o]).get(_key(o)) if est[0] != st[0] else None
-                        got = _FRIEND_DMG[key] = (cand.received * side.exposure[cand.side_on_mover]
-                                                  if cand is not None else 0.0)
-                    dmg[id(e)] = got
+                        got = _FRIEND_DMG[key] = ((cand.received * side.exposure[cand.side_on_mover],
+                                                   cand.dealt * self._side(e).exposure[cand.side_on_defender])
+                                                  if cand is not None else (0.0, 0.0))
+                    dmg[id(e)], deals[id(e)] = got
             self.units.append((u, obj, dmg))
+            self.deals[id(u)] = deals
+        # The enemy side, for LEGATE_TEAM_EXCHANGE: each enemy's own life-left rates against our team.
+        ours = [mover] + [u for u, _, _ in self.units]
+        self.foes = []                                    # (enemy, its MultiLifetime against our team)
+        if config.LEGATE_TEAM_EXCHANGE:
+            for e in self.enemies:
+                obj = objective_for(self._side(e), [u for u in ours if can_matter(e, u)] or ours)
+                if isinstance(obj, MultiLifetime):
+                    self.foes.append((e, obj))
+
+    def _side(self, mech):
+        got = self._sides.get(id(mech))
+        if got is None:
+            got = self._sides[id(mech)] = movement_selection._Side(mech)
+        return got
+
+    @staticmethod
+    def _greedy(table, hp):
+        """table: {shooter: {target: damage}}; hp: {target: effective HP}. The shooters in order of their
+        biggest damage, each at the target it hurts most among those not already doomed by the fire
+        assigned before it (assigned >= HP), else the one it hurts most. {target: damage drawn}."""
+        drawn = dict.fromkeys(hp, 0.0)
+        for shooter in sorted(table, key=lambda k: -max(table[k].values(), default=0.0)):
+            row = {t: v for t, v in table[shooter].items() if t in drawn}
+            live = {t: v for t, v in row.items() if v > 0 and drawn[t] < hp[t]}
+            pool = live or {t: v for t, v in row.items() if v > 0}
+            if pool:
+                t = max(pool, key=pool.get)
+                drawn[t] += row[t]
+        return drawn
 
     def distribute(self, on_me):
         """{id(unit): damage drawn} for the mover (on_me: {id(enemy): its damage on the mover}) and the
-        teammates."""
+        teammates - the enemy's fire (LEGATE_TEAM_FIRE_MODEL "greedy")."""
         if config.LEGATE_TEAM_FIRE_MODEL != "greedy":
             raise ValueError(f"Unknown LEGATE_TEAM_FIRE_MODEL {config.LEGATE_TEAM_FIRE_MODEL!r} ('greedy')")
         hp = {id(self.mover): self.me.hp}
@@ -692,36 +727,47 @@ class _TeamFire:
             row = {id(self.mover): on_me.get(id(e), 0.0)}
             row.update({id(u): dmg.get(id(e), 0.0) for u, _, dmg in self.units})
             table[id(e)] = row
-        drawn = dict.fromkeys(hp, 0.0)
-        for eid in sorted(table, key=lambda k: -max(table[k].values(), default=0.0)):
-            row = table[eid]
-            live = {k: v for k, v in row.items() if v > 0 and drawn[k] < hp[k]}
-            pool = live or {k: v for k, v in row.items() if v > 0}
-            if pool:
-                k = max(pool, key=pool.get)
-                drawn[k] += row[k]
-        return drawn
+        return self._greedy(table, hp)
 
-    def evaluate(self, on_me):
-        """(the damage the mover draws, the team cost in the mover's HP units) for one spot."""
+    def our_fire(self, on_them):
+        """{id(enemy): damage drawn} under our team's fire, the same greedy rule (on_them: {id(enemy): the
+        mover's damage on it at the spot being scored})."""
+        hp = {id(e): obj.hp for e, obj in self.foes}
+        table = {id(self.mover): dict(on_them)}
+        table.update({uid: deals for uid, deals in self.deals.items()})
+        return self._greedy(table, hp)
+
+    @staticmethod
+    def _team_value(rows, drawn):
+        """LEGATE_TEAM_VALUE of a side: rows [(unit, its MultiLifetime)], drawn {id(unit): damage}."""
         import INTEGRATION__kill_curve as kill_curve
+        mine, life, total = 0.0, 0.0, 0.0
+        for u, obj in rows:
+            d = drawn.get(id(u), 0.0)
+            alive = 1.0 - kill_curve.chance(u, "front", d)
+            left = max(obj.hp - d, 0.0) / obj.theirs
+            total += alive * left * obj.mine
+            mine += alive * obj.mine
+            life += left
+        if config.LEGATE_TEAM_VALUE == "sum":
+            return total
+        if config.LEGATE_TEAM_VALUE == "product":
+            return mine * life / max(len(rows), 1)
+        raise ValueError(f"Unknown LEGATE_TEAM_VALUE {config.LEGATE_TEAM_VALUE!r} (None, 'sum' or 'product')")
+
+    def evaluate(self, on_me, on_them=None, dealt=0.0):
+        """(the damage the mover draws, the team cost in the mover's HP units) for one spot. The score
+        the objective then gives is dealt + TV_ours, or with LEGATE_TEAM_EXCHANGE
+        TV_ours + LEGATE_TEAM_EXCHANGE_WEIGHT x (TV_theirs untouched - TV_theirs under our fire): the
+        enemy's future damage this move helps take off the board, in place of the mover's own dealt
+        (which is part of our fire)."""
         with timing.section("Legate team fire"):
             drawn = self.distribute(on_me)
             rows = [(self.mover, self.me)] + [(u, obj) for u, obj, _ in self.units]
-            mine, life, total = 0.0, 0.0, 0.0
-            for u, obj in rows:
-                d = drawn[id(u)]
-                alive = 1.0 - kill_curve.chance(u, "front", d)
-                left = max(obj.hp - d, 0.0) / obj.theirs
-                total += alive * left * obj.mine
-                mine += alive * obj.mine
-                life += left
-            if config.LEGATE_TEAM_VALUE == "sum":
-                tv = total
-            elif config.LEGATE_TEAM_VALUE == "product":
-                tv = mine * life / len(rows)
-            else:
-                raise ValueError(f"Unknown LEGATE_TEAM_VALUE {config.LEGATE_TEAM_VALUE!r} (None, 'sum' or 'product')")
+            tv = self._team_value(rows, drawn)
+            if self.foes:
+                theirs0 = self._team_value(self.foes, {})
+                theirs = self._team_value(self.foes, self.our_fire(on_them or {}))
+                tv += config.LEGATE_TEAM_EXCHANGE_WEIGHT * (theirs0 - theirs) - dealt
             d_me = drawn[id(self.mover)]
             return d_me, (self.me.hp - d_me) - tv * self.me.theirs / self.me.mine
-

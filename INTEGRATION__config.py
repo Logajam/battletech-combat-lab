@@ -194,6 +194,13 @@ LEGATE_HERD_UNSEEN_GAP = 6
 # SUM(future damage) x SUM(future vulnerability), over the team's size); None = off (the mover's own term).
 LEGATE_TEAM_VALUE = None
 LEGATE_TEAM_FIRE_MODEL = "greedy"   # whom each enemy shoots: its most-hurt target not already doomed
+# The exchange (2026-10-29, Daniel: "a valid tactic is to saturate them with targets while swarming them
+# down ... 'some of us may die, but that's a sacrifice I'm willing to make'"): with a team value, also count
+# the enemy's future damage our team's fire takes off the board this turn (our fire distributed by the same
+# rule, each enemy's kill curve), times LEGATE_TEAM_EXCHANGE_WEIGHT - so a move is worth our team's future
+# damage plus the enemy's we remove.
+LEGATE_TEAM_EXCHANGE = True
+LEGATE_TEAM_EXCHANGE_WEIGHT = 1.0
 
 # Deployment (2026-10-19, Core p.37):
 #   "home_edge"   - deployment roll; the loser picks a home edge, the winner

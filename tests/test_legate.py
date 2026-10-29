@@ -272,10 +272,15 @@ def a_gladiator_picks_a_move_with_legate_and_without():
             assert ("enemies' future on me" in note) == flag     # Legate's own score text only when on
 
 
-def _team_fire():
+def _team_fire(exchange=False):
     a1, a2, b1, b2, b3 = units = line_up()
     legate.reset()
-    tf = legate._TeamFire(a1, b1, [b2, b3], units, TERRAIN, movement_selection._Side(a1))
+    saved = config.LEGATE_TEAM_EXCHANGE
+    config.LEGATE_TEAM_EXCHANGE = exchange
+    try:
+        tf = legate._TeamFire(a1, b1, [b2, b3], units, TERRAIN, movement_selection._Side(a1))
+    finally:
+        config.LEGATE_TEAM_EXCHANGE = saved
     obj2 = legate.objective_for(movement_selection._Side(a2), [b1, b2, b3])
     return units, tf, obj2
 
@@ -338,6 +343,49 @@ def drawing_fire_off_a_doomed_friend_raises_the_team_value():
         obj2.mine = 3 * tf.me.mine                              # a friend with three times my firepower
         safe, bait = tf.evaluate({id(b1): 5.0}), tf.evaluate({id(b1): 45.0})
         assert score(bait) > score(safe)                        # draw the fire
+    finally:
+        config.LEGATE_TEAM_VALUE = saved
+
+
+@check
+def our_fire_goes_where_it_hurts_most_and_leaves_a_doomed_enemy():
+    """The exchange's model of our own fire: the same greedy rule, biggest guns first."""
+    (a1, a2, b1, b2, b3), tf, obj2 = _team_fire(exchange=True)
+    assert [e for e, _ in tf.foes] == [b1, b2, b3]
+    tf.deals = {id(a2): {id(b1): 30.0, id(b2): 10.0, id(b3): 0.0}}
+    drawn = tf.our_fire({id(b1): 12.0, id(b2): 8.0})
+    assert drawn[id(b1)] == 42.0 and drawn[id(b2)] == 0.0       # both at B 1
+    tf.foes = [(e, obj) for e, obj in tf.foes]
+    for e, obj in tf.foes:
+        if e is b1:
+            obj.hp = 25.0                                       # the Atlas's 30 already dooms it
+    drawn = tf.our_fire({id(b1): 12.0, id(b2): 8.0})
+    assert drawn[id(b1)] == 30.0 and drawn[id(b2)] == 8.0       # the mover turns to B 2
+
+
+@check
+def the_exchange_can_pay_for_a_sacrifice():
+    """Daniel, 2026-10-29: "saturate them with targets while swarming them down ... some of us may die,
+    but that's a sacrifice I'm willing to make". A spot where the mover takes 45 but its fire finishes a
+    hard-hitting enemy outscores a safe spot where it takes and deals nothing - with
+    the exchange on; with it off only the mover's own damage dealt counts, and the safe spot wins. (An
+    enemy our fire would finish next turn anyway is worth little to kill now: it removes only the
+    damage it had left to deal.)"""
+    saved = config.LEGATE_TEAM_VALUE
+    config.LEGATE_TEAM_VALUE = "sum"
+    try:
+        for exchange in (True, False):
+            (a1, a2, b1, b2, b3), tf, obj2 = _team_fire(exchange=exchange)
+            tf.units = [(a2, obj2, {id(b1): 0.0, id(b2): 0.0, id(b3): 0.0})]
+            tf.deals = {id(a2): {}}                             # the friend can't reach B 1
+            for e, obj in tf.foes:
+                if e is b1:
+                    # a hurt enemy that hits hard and that our fire won't reliably reach after this turn
+                    obj.hp, obj.mine, obj.theirs = 30.0, 4 * tf.me.mine, tf.me.theirs
+            score = lambda got, dealt: tf.me(dealt, got[0], 1.0, 1.0, got[1])
+            safe = score(tf.evaluate({id(b1): 0.0}, {}, 0.0), 0.0)
+            push = score(tf.evaluate({id(b1): 45.0}, {id(b1): 30.0}, 30.0), 30.0)   # the mover finishes it
+            assert (push > safe) == exchange, (exchange, push, safe)
     finally:
         config.LEGATE_TEAM_VALUE = saved
 
