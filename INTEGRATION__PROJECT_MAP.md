@@ -556,7 +556,14 @@ rebuild it with one full run). Numbers: Change Record.
    future-capability Memo (item 4). Daniel's ideas: (a) a lookup table of
    known best solutions per weapon by range and starting to-hit number;
    (b) raise a cluster weapon's expected value by its odds of a critical hit
-   given the target's armor. Deferred: specialty ammo. Placeholders to set:
+   given the target's armor. **Ammo conservation for Gladiator** (Daniel,
+   2026-10-29: "Add conserving ammo to the to do list for gladiator"): in
+   battle 10 of the 12 v 12 battery, Gladiator's Emperor fired its Rotary
+   ACs at the "max" rate and was dry by turn 20 of 50, and by turns 30-40
+   nearly every LRM, Gauss, Ultra and LB-X on both sides was empty (Change
+   Record, session 14). Gladiator should weigh rounds left against the
+   battle still ahead (rate of fire, and whether a long, low-odds shot is
+   worth a round); Princess's own rationing is in MegaMek. Deferred: specialty ammo. Placeholders to set:
    `TARGET_HEAT_WORTH`, and `TASER_EFFECT_WORTH` (Daniel, 2026-10-28: "Good
    enough for now. Add it in the same pile as deriving the value of cluster
    weapons"); `TSEMP_EFFECT_WORTH`, `IMP_EFFECT_WORTH` (same pile,
