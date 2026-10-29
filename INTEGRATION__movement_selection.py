@@ -622,8 +622,9 @@ def _static_scores(cands, prepared_by_key, me, them, extras=None):
             dm, rm = them.exposure[cand.side_on_defender], me.exposure[cand.side_on_mover]
             dealt, received, _, _ = extras.adjust(o, cand.dealt, cand.received, dm, rm)
             cand = dataclasses.replace(cand, dealt=dealt / dm, received=received / rm)
+        psr = me.psr_for(cand) + (extras.team_cost(o) if extras is not None else 0.0)   # + Legate's team term
         score = me.objective(cand.dealt, cand.received, them.exposure[cand.side_on_defender],
-                             me.exposure[cand.side_on_mover], me.psr_for(cand))
+                             me.exposure[cand.side_on_mover], psr)
         out.append((score, o, cand))
     return out
 
@@ -999,6 +1000,7 @@ def _choose_normal(mover, other, terrain_map, battle_rng, moves_first, standup_m
             if lx is not None:
                 dealt, received, dealt_mult, received_mult = lx.adjust(c, dealt, received, dealt_mult,
                                                                        received_mult)
+                psr += lx.team_cost(c)                     # Legate's team term (LEGATE_TEAM_VALUE), else 0
             return (me.objective(dealt, received, dealt_mult, received_mult, psr), c,
                     (dealt, received, dealt_mult, received_mult, psr, reply))
 

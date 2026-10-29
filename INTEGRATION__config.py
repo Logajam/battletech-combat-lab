@@ -186,6 +186,14 @@ LEGATE_FIRE_SPLIT = "proportional"
 LEGATE_HERDING = True
 LEGATE_HERD_WEIGHT = 2.0
 LEGATE_HERD_UNSEEN_GAP = 6
+# The team's future damage in a Gladiator's move score (INTEGRATION__legate._TeamFire, 2026-10-29, Daniel:
+# "aware of the expected distribution of enemy fire ... how that distribution changed across its entire
+# force, and the expected loss of future damage"): the enemy's fire this turn is distributed over the whole
+# team with the mover at the spot being scored, and the score is dealt + the team's future damage -
+# "sum" (each unit's life-left term, times its chance of living through the turn) or "product" (Daniel's
+# SUM(future damage) x SUM(future vulnerability), over the team's size); None = off (the mover's own term).
+LEGATE_TEAM_VALUE = None
+LEGATE_TEAM_FIRE_MODEL = "greedy"   # whom each enemy shoots: its most-hurt target not already doomed
 
 # Deployment (2026-10-19, Core p.37):
 #   "home_edge"   - deployment roll; the loser picks a home edge, the winner

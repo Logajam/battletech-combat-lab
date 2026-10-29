@@ -70,6 +70,8 @@ def main():
                     help="config.LEGATE_HERDING: the penalty for a spot beyond every friend's support")
     ap.add_argument("--fire-order", choices=("big_guns_first", "roster"), default=config.GLADIATOR_FIRE_ORDER,
                     help="config.GLADIATOR_FIRE_ORDER")
+    ap.add_argument("--team-value", choices=("sum", "product"), default=config.LEGATE_TEAM_VALUE,
+                    help="config.LEGATE_TEAM_VALUE: score a move by the whole team's future damage")
     args = ap.parse_args()
     red_bot, blue_bot, title = SETUPS[args.setup]
     config.FORCES = forces(red_bot, blue_bot)
@@ -82,7 +84,9 @@ def main():
     config.STUB_GLADIATOR_TARGET = args.target
     config.LEGATE_FIRE_SPLIT, config.LEGATE_HERDING = args.fire_split, args.herding
     config.GLADIATOR_FIRE_ORDER = args.fire_order
-    tag = f"split-{args.fire_split}{'_herd' if args.herding else ''}_{args.fire_order}"
+    config.LEGATE_TEAM_VALUE = args.team_value
+    tag = (f"split-{args.fire_split}{'_herd' if args.herding else ''}_{args.fire_order}"
+           f"{f'_team-{args.team_value}' if args.team_value else ''}")
     config.REPLAY_BATTLES = 1 if args.replay else 0
     with redirect_stdout(io.StringIO()):
         terrain = orchestrator._load_map()

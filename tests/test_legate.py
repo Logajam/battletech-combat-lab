@@ -272,6 +272,76 @@ def a_gladiator_picks_a_move_with_legate_and_without():
             assert ("enemies' future on me" in note) == flag     # Legate's own score text only when on
 
 
+def _team_fire():
+    a1, a2, b1, b2, b3 = units = line_up()
+    legate.reset()
+    tf = legate._TeamFire(a1, b1, [b2, b3], units, TERRAIN, movement_selection._Side(a1))
+    obj2 = legate.objective_for(movement_selection._Side(a2), [b1, b2, b3])
+    return units, tf, obj2
+
+
+@check
+def each_enemy_shoots_the_unit_it_hurts_most_so_the_movers_spot_can_draw_fire():
+    """LEGATE_TEAM_VALUE's fire distribution ("greedy", 2026-10-29): B 1 can deal the other Atlas 30 and
+    the mover 10 - it shoots the Atlas; with the mover standing where B 1 deals it 40, it shoots the mover."""
+    (a1, a2, b1, b2, b3), tf, obj2 = _team_fire()
+    tf.units = [(a2, obj2, {id(b1): 30.0, id(b2): 0.0, id(b3): 0.0})]
+    drawn = tf.distribute({id(b1): 10.0})
+    assert drawn[id(a2)] == 30.0 and drawn[id(a1)] == 0.0
+    drawn = tf.distribute({id(b1): 40.0})
+    assert drawn[id(a1)] == 40.0 and drawn[id(a2)] == 0.0
+    tf.units = [(a2, obj2, {id(b1): 30.0, id(b2): 25.0, id(b3): 0.0})]
+    obj2.hp = 20.0                                              # 30 already dooms it: B 2 turns to the mover
+    drawn = tf.distribute({id(b1): 5.0, id(b2): 10.0})
+    assert drawn[id(a2)] == 30.0 and drawn[id(a1)] == 10.0
+
+
+@check
+def the_team_term_makes_the_score_dealt_plus_the_teams_future_damage():
+    """The cost evaluate() returns, added to the PSR cost, turns the mover's lifetime score into
+    dealt + TV - and with no teammate TV is the mover's own lifetime term times its chance to live."""
+    import INTEGRATION__kill_curve as kill_curve
+    (a1, a2, b1, b2, b3), tf, obj2 = _team_fire()
+    saved = config.LEGATE_TEAM_VALUE
+    try:
+        for mode in ("sum", "product"):
+            config.LEGATE_TEAM_VALUE = mode
+            tf.units = []
+            d_me, cost = tf.evaluate({id(b1): 12.0})
+            me = tf.me
+            alive = 1.0 - kill_curve.chance(a1, "front", 12.0)
+            tv = alive * (me.hp - 12.0) / me.theirs * me.mine
+            assert d_me == 12.0
+            assert abs(me(3.0, d_me, 1.0, 1.0, cost) - (3.0 + tv)) < 1e-6, mode
+    finally:
+        config.LEGATE_TEAM_VALUE = saved
+
+
+@check
+def drawing_fire_off_a_doomed_friend_raises_the_team_value():
+    """Daniel's example: "Move to a location that is more exposed, because it will draw fire away from a
+    vulnerable unit, preserving future firepower." A hurt friend with three times the mover's firepower
+    is worth more alive than the extra damage the healthy mover takes; with the mover's own firepower
+    it is not (each point of health left is worth its owner's damage a turn over its expected fire)."""
+    (a1, a2, b1, b2, b3), tf, obj2 = _team_fire()
+    saved = config.LEGATE_TEAM_VALUE
+    config.LEGATE_TEAM_VALUE = "sum"
+    try:
+        tf.units = [(a2, obj2, {id(b1): 40.0, id(b2): 0.0, id(b3): 0.0})]
+        obj2.hp = 35.0                                          # 40 more points destroy it
+        obj2.mine, obj2.theirs = tf.me.mine, tf.me.theirs       # the same firepower and fire as the mover
+        score = lambda got: tf.me(0.0, got[0], 1.0, 1.0, got[1])
+        safe = tf.evaluate({id(b1): 5.0})                       # B 1 shoots the friend
+        bait = tf.evaluate({id(b1): 45.0})                      # B 1 shoots the mover instead
+        assert bait[0] == 45.0 and safe[0] == 0.0
+        assert score(bait) < score(safe)                        # 45 of my HP for 35 of an equal's: no
+        obj2.mine = 3 * tf.me.mine                              # a friend with three times my firepower
+        safe, bait = tf.evaluate({id(b1): 5.0}), tf.evaluate({id(b1): 45.0})
+        assert score(bait) > score(safe)                        # draw the fire
+    finally:
+        config.LEGATE_TEAM_VALUE = saved
+
+
 def run_all():
     failed = 0
     for fn in CHECKS:

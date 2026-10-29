@@ -864,7 +864,12 @@ when dealt is 0; (c) a difference, dealt - received. Replay of that battle:
 https://claude.ai/artifact/NJUknRiK1fcZzUv4A1fndX
 
 **Known issues to fix later (found session 13, Claude):**
-- One `tests/run_checks.py` run once reported "40 of 41 checks passed, 1
+- ~~FLAKY CHECK~~ FIXED 2026-10-29 (Claude): it was `test_superheavy.py`
+  `superheavy_slots` - the ammo blast rolled its critical-hit checks with live
+  dice, and about 1 run in 20 a critical set off another bin (one pilot hit
+  more than the check expected). The check now pins those rolls to a miss
+  (old version: 3 failures in 60 runs; new: 0 in 30). Earlier notes:
+  One `tests/run_checks.py` run once reported "40 of 41 checks passed, 1
   FAILED" and the failing line was not captured; the next ~10 runs were all
   green. A flaky check somewhere (a shared cache or file written by two checks
   running side by side is the first suspect). If it shows again, keep the
