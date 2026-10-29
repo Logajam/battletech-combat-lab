@@ -176,19 +176,21 @@ def worth(target, attacker):
     return max(future_damage.future_damage(target, attacker), 0.0)
 
 
-# A tie-break weight for the kill progress (expected damage / expected damage still needed): early on,
-# when no single unit's fire can kill anything (every gain 0), it still points the fire at the enemy
-# nearest a kill. Small enough never to outweigh one trial of the curve (1 / KILL_CURVE_TRIALS).
-_PROGRESS_WEIGHT = 1e-3
-
-
 def choose_target(attacker, units, terrain_map):
     """Gladiator's fire director (config.STUB_GLADIATOR_TARGET "kill_curve"): the enemy where this
-    unit's expected damage adds the most mission-kill chance, counting what its teammates already
-    declared at it this phase (princess_fire's damage map), times the enemy's worth:
-        gain = worth x [f(declared + mine) - f(declared)]   (f: the enemy's kill curve on the side hit)
-    Summed over a team's sequential picks, this maximises the expected worth killed: two 60% kills
-    (120%) beat one 100% and a graze (105%). None if no enemy can be fired at."""
+    unit's expected damage (at its real to-hit numbers - the dry run of its own weapon choice) does
+    the most, counting what its teammates already declared at it this phase (princess_fire's damage
+    map), times the enemy's worth:
+        gain = worth x ( f(declared + mine) - f(declared)
+                         + KILL_CURVE_PROGRESS_WEIGHT x useful / need )
+    f: the enemy's kill curve on the side this unit hits; need: the damage it still needs
+    (expected_damage_to_kill); useful: the part of mine within need - declared (overkill pays
+    nothing). worth x useful / need is Daniel's "Expected damage output from the target / its
+    vulnerability": a fresh Locust needs ~40, a fresh Atlas ~190. The first term is the kill chance added THIS turn: summed over a
+    team's sequential picks it favors two 60% kills (120%) over one 100% and a graze (105%). The
+    second is softening (Daniel, 2026-10-29: "applying stronger damage vs a unit that needs to be
+    softened first"): the share of a kill this damage pays toward later turns - without it a long
+    shot adding 1% on a hurt unit beat a full volley into a fresh one. None if nothing can be fired at."""
     import INTEGRATION__attack_resolution as attack_resolution
     import INTEGRATION__princess_fire as princess_fire
     import INTEGRATION__princess_group as princess_group
@@ -201,10 +203,11 @@ def choose_target(attacker, units, terrain_map):
         declared = princess_fire.assigned_damage(attacker.team, foe)
         w = worth(foe, attacker)
         before, after = chance(foe, side, declared), chance(foe, side, declared + mine)
-        progress = mine / max(expected_damage_to_kill(foe, side) - declared, config.KILL_CURVE_GROUP)
-        score = w * (after - before + _PROGRESS_WEIGHT * progress)
-        notes.append(f"{foe.side_name} ({side}, +{mine:.1f} on {declared:.1f}) {before:.0%}->{after:.0%} "
-                     f"x worth {w:.1f} = {score:.3f}")
+        need = expected_damage_to_kill(foe, side)
+        progress = min(mine, max(need - declared, 0.0)) / max(need, config.KILL_CURVE_GROUP)
+        score = w * (after - before + config.KILL_CURVE_PROGRESS_WEIGHT * progress)
+        notes.append(f"{foe.side_name} ({side}, +{mine:.1f} on {declared:.1f}) kill {before:.0%}->{after:.0%}, "
+                     f"softening {progress:.0%} x worth {w:.1f} = {score:.3f}")
         if best is None or score > best[0] + 1e-12:
             best = (score, foe)
     if best is None:

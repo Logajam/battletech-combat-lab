@@ -413,6 +413,11 @@ KILL_CURVE_MAX_DAMAGE = 200     # a trial stops here (more than a turn's fire on
 # An enemy's worth in the fire director: "output" (its damage a turn, INTEGRATION__future_damage -
 # Daniel: "Expected damage output from the target / its vulnerability") or "none" (every kill alike).
 KILL_CURVE_WEIGHT = "output"
+# Softening in the fire director (2026-10-29): what a share of a kill paid toward later turns is worth
+# beside kill chance added this turn (mine / the damage the enemy still needs). 1 = a full kill's worth
+# of softening counts as a kill now; near 0, only kills this turn count (a long shot that adds 1% on a
+# hurt enemy then beats a full volley into a fresh one).
+KILL_CURVE_PROGRESS_WEIGHT = 1.0
 # (STUB_REAR_MOUNTED removed 2026-10-19: mtf_parser keeps the "(R)" tag as
 # Equipment.rear_mounted; those weapons fire only into the rear arc - Core p.60.)
 # (STUB_HEAT_MODE removed 2026-10-18: heat now always carries over turn to
