@@ -114,6 +114,41 @@ def choose_target(attacker, units, terrain_map):
     return forces.choose_target(attacker, units, terrain_map)
 
 
+def fire_pick(units, terrain_map):
+    """Gladiator's FIRING ORDER (config.GLADIATOR_FIRE_ORDER; 2026-10-29, Daniel: "A general rule for
+    firing order is Big guns first followed by smaller guns. Its the same rule used on a mech, just
+    applied to the entire formation."): within each of its side's selections (the alternation and
+    Unequal Numbers stay, p.41), a side's Gladiator units declare biggest guns first - the most
+    expected damage this unit could deal any enemy now (kill_curve.firepower, the dry run of its
+    own weapon choice) - so the smaller guns that declare later see the big guns' fire in the
+    team's damage map and fill in around it. Only matters when Gladiator's target choice reads
+    that map (STUB_GLADIATOR_TARGET "kill_curve" / "princess_plan"). Princess units keep roster
+    order (MegaMek's order is not cloned), after a mixed side's Gladiators. Returns the pick
+    function for forces.fire_order, or None for roster order."""
+    teams = [u.team for u in forces.standing(units) if u.bot != PRINCESS]
+    if config.GLADIATOR_FIRE_ORDER == "roster" or all(teams.count(t) < 2 for t in teams):
+        return None                                  # no side has two Gladiators: nothing to order
+    if config.GLADIATOR_FIRE_ORDER != "big_guns_first":
+        raise ValueError(f"Unknown GLADIATOR_FIRE_ORDER {config.GLADIATOR_FIRE_ORDER!r} "
+                         f"('big_guns_first' or 'roster')")
+    guns = {}
+
+    def rank(u):
+        if u.bot == PRINCESS:
+            return (0, 0.0)
+        if id(u) not in guns:
+            guns[id(u)] = kill_curve.firepower(u, units, terrain_map)
+        return (1, guns[id(u)])
+
+    def pick(candidates):
+        best = max(candidates, key=rank)            # max keeps the first of equals: roster order
+        if best.bot != PRINCESS and len(candidates) > 1:
+            config.log(f"  [Ranged] Firing order: {best.side_name} declares next "
+                       f"(big guns first: expected {guns[id(best)]:.1f}).")
+        return best
+    return pick
+
+
 # Units whose candidate targets are being scored through Princess's eyes right now (a Gladiator under
 # STUB_GLADIATOR_TARGET "princess_plan"): fire_control and plans_physical_with_fire answer as for Princess,
 # so the dry-run declaration (attack_resolution.declare_attacks, dry=True) returns Princess's utility.

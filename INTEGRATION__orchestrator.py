@@ -884,6 +884,9 @@ def run_skirmish(units, terrain_map, battle_rng: BattleRNG,
         tag.designation_units(fighters, lambda u: forces.choose_target(u, units, terrain_map),
                               terrain_map)                            # TAG, before the Ranged Attack Phase (p.200)
         with timing.section("ranged attacks"):
+            pick = bots.fire_pick(units, terrain_map)             # Gladiator's firing order, after TAG
+            if pick is not None:
+                fighters = forces.fire_order(units, order, pick)
             reports = attack_resolution.run_ranged_phase(fighters, lambda u: bots.choose_target(u, units, terrain_map),
                                                          terrain_map, battle_rng)
         _after_phase(*units)

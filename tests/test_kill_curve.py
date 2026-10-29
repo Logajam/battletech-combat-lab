@@ -114,6 +114,28 @@ def the_fire_director_finishes_a_wreck_then_turns_once_friends_have_it():
         princess_fire.reset_assigned()
 
 
+@check
+def big_guns_declare_first_within_each_selection():
+    """GLADIATOR_FIRE_ORDER "big_guns_first" (Daniel: "Big guns first followed by smaller guns"):
+    a Commando listed first still declares after the Atlas beside it; sides still alternate."""
+    a1, a2 = fresh(COMMANDO, "0908", "N", "A 1", "A"), fresh(ATLAS, "0808", "N", "A 2", "A")
+    b1, b2 = fresh(COMMANDO, "0806", "S", "B 1", "B"), fresh(COMMANDO, "0805", "S", "B 2", "B")
+    units = [a1, a2, b1, b2]
+    for m in units:
+        m.bot = "gladiator"
+    forces.set_battle(units)
+    assert forces.fire_order(units, ["A", "B"]) == [a1, b1, a2, b2]               # roster order
+    pick = bots.fire_pick(units, TERRAIN)
+    assert pick is not None
+    assert forces.fire_order(units, ["A", "B"], pick)[0] is a2                      # the Atlas first
+    saved = config.GLADIATOR_FIRE_ORDER
+    config.GLADIATOR_FIRE_ORDER = "roster"
+    try:
+        assert bots.fire_pick(units, TERRAIN) is None
+    finally:
+        config.GLADIATOR_FIRE_ORDER = saved
+
+
 def run_all():
     failed = 0
     for fn in CHECKS:

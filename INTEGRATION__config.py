@@ -418,6 +418,10 @@ KILL_CURVE_WEIGHT = "output"
 # of softening counts as a kill now; near 0, only kills this turn count (a long shot that adds 1% on a
 # hurt enemy then beats a full volley into a fresh one).
 KILL_CURVE_PROGRESS_WEIGHT = 1.0
+# Gladiator's firing order within its side's selections (2026-10-29, Daniel: "Big guns first followed by
+# smaller guns. Its the same rule used on a mech, just applied to the entire formation."):
+# "big_guns_first" (most expected damage at any enemy now declares first) or "roster" (list order).
+GLADIATOR_FIRE_ORDER = "big_guns_first"
 # (STUB_REAR_MOUNTED removed 2026-10-19: mtf_parser keeps the "(R)" tag as
 # Equipment.rear_mounted; those weapons fire only into the rear arc - Core p.60.)
 # (STUB_HEAT_MODE removed 2026-10-18: heat now always carries over turn to

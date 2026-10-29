@@ -176,6 +176,19 @@ def worth(target, attacker):
     return max(future_damage.future_damage(target, attacker), 0.0)
 
 
+def firepower(attacker, units, terrain_map):
+    """The most expected damage this unit could deal any one enemy now (the dry run of its own
+    weapon choice, to-hit numbers and range counted) - Gladiator's firing order ranks by it."""
+    import INTEGRATION__attack_resolution as attack_resolution
+    import INTEGRATION__princess_group as princess_group
+    best = 0.0
+    for foe in princess_group.candidates(attacker, units):
+        got = attack_resolution.declare_attacks(attacker, foe, terrain_map, attack_resolution.SideReport(), dry=True)
+        if got is not None:
+            best = max(best, got[1])
+    return best
+
+
 def choose_target(attacker, units, terrain_map):
     """Gladiator's fire director (config.STUB_GLADIATOR_TARGET "kill_curve"): the enemy where this
     unit's expected damage (at its real to-hit numbers - the dry run of its own weapon choice) does

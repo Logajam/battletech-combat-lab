@@ -247,10 +247,12 @@ def movement_order(units, teams_in_order) -> Iterator[object]:
                                pick=lambda c: max(c, key=lambda u: move_index(u, units)))
 
 
-def fire_order(units, teams_in_order) -> List[object]:
+def fire_order(units, teams_in_order, pick=None) -> List[object]:
     """The attack phases' declaration / resolution order (p.39): fixed at
-    the start of the phase, since nobody's position changes in it."""
-    return list(activation_sequence(units, teams_in_order, can_select_fire))
+    the start of the phase, since nobody's position changes in it. pick: which
+    of a side's units declares next (default roster order; Gladiator's firing
+    order: bots.fire_pick)."""
+    return list(activation_sequence(units, teams_in_order, can_select_fire, pick))
 
 
 # =============================================================================
