@@ -1629,6 +1629,18 @@ turn's score, so a decision sees what it gives up.
   damage to Gladiator is unchanged - Gladiator still takes about twice what it
   deals. Target choice is part of the gap, not most of it: the rest is where
   Gladiator stands (movement) and how much fire it soaks.
+  STUB + LEGATE (Daniel: "Stub plus legate. Go."), same 20 seeds (stub+Legate /
+  Legate alone, recorded 2026-10-28): Princess won 7 / 15, draws 9 / 5,
+  GLADIATOR WON 4 / 0 (battles 1, 13, 15, 20 - its first wins in a 12 v 12);
+  Gladiator wiped out in 7 / 15; turns 42.8 / 39.6; Princess 'Mechs left 3.65 /
+  5.6, HP left 1776 / 2068; damage Gladiator dealt 1235 / 959 (+29%); damage
+  Princess dealt 1543 / 1721; Gladiator 'Mechs left 2.10 / 0.35; 260 / 259 s a
+  battle. Reading: the two together are far more than either alone (stub alone
+  +16% damage, Legate alone +24%, both +60% over the plain bot, 772 -> 1235) -
+  Legate's positioning puts several Gladiators in range of the same enemies,
+  and the shared target choice turns that into kills. The damage ratio went
+  from about 1 : 2.2 to 1 : 1.25. 9 cap draws now: the anti-stall item matters
+  more.
 
 - **2026-10-29 (Claude), session 14 - REVIEW OF SESSIONS 12-13 (Sonnet's work).**
   Daniel: "quickly review the work done by Sonnet models. If they're kosher we
