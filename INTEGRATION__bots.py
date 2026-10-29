@@ -37,6 +37,7 @@ import INTEGRATION__princess as princess
 import INTEGRATION__princess_group as princess_group
 import INTEGRATION__princess_modern as princess_modern
 import INTEGRATION__princess_fire as princess_fire
+import INTEGRATION__kill_curve as kill_curve
 import INTEGRATION__weapon_selection as weapon_selection
 
 GLADIATOR = "gladiator"
@@ -86,23 +87,66 @@ def choose_target(attacker, units, terrain_map):
     """The one enemy this unit's bot fires at in the Ranged Attack Phase:
     Princess takes the enemy its firing plans rate highest, with the damage
     its friends have already declared counted (INTEGRATION__princess_group).
-    Gladiator has no target choice of its own yet: with two or more enemies
-    on the board config.STUB_GLADIATOR_TARGET decides - "princess_plan"
-    borrows Princess's choice (seen through Princess's fire control, see
+    For Gladiator, with two or more enemies on the board,
+    config.STUB_GLADIATOR_TARGET decides - "kill_curve" is Gladiator's own
+    fire director (INTEGRATION__kill_curve: the most mission-kill chance
+    added, friends' declared fire counted), "princess_plan" borrows
+    Princess's choice (seen through Princess's fire control, see
     princess_eyes), "nearest" is forces.choose_target (in sight, bears,
     nearest)."""
     if attacker.bot == PRINCESS:
         return princess_group.choose_target(attacker, units, terrain_map)
     policy = config.STUB_GLADIATOR_TARGET
-    if policy == "princess_plan":
+    if policy == "kill_curve":
+        # Gladiator's own fire director (INTEGRATION__kill_curve) - no stub.
+        if len(princess_group.candidates(attacker, units)) >= 2:
+            target = kill_curve.choose_target(attacker, units, terrain_map)
+            return target if target is not None else forces.choose_target(attacker, units, terrain_map)
+    elif policy == "princess_plan":
         enemies = len(princess_group.candidates(attacker, units))
         if enemies >= 2:
             with princess_eyes(attacker):
                 target = princess_group.choose_target(attacker, units, terrain_map)
             return stubs.stub_gladiator_target(attacker.side_name, target, enemies)
     elif policy != "nearest":
-        raise ValueError(f"Unknown STUB_GLADIATOR_TARGET {policy!r} - choose 'princess_plan' or 'nearest'.")
+        raise ValueError(f"Unknown STUB_GLADIATOR_TARGET {policy!r} - choose 'princess_plan', 'kill_curve' "
+                         f"or 'nearest'.")
     return forces.choose_target(attacker, units, terrain_map)
+
+
+def fire_pick(units, terrain_map):
+    """Gladiator's FIRING ORDER (config.GLADIATOR_FIRE_ORDER; 2026-10-29, Daniel: "A general rule for
+    firing order is Big guns first followed by smaller guns. Its the same rule used on a mech, just
+    applied to the entire formation."): within each of its side's selections (the alternation and
+    Unequal Numbers stay, p.41), a side's Gladiator units declare biggest guns first - the most
+    expected damage this unit could deal any enemy now (kill_curve.firepower, the dry run of its
+    own weapon choice) - so the smaller guns that declare later see the big guns' fire in the
+    team's damage map and fill in around it. Only matters when Gladiator's target choice reads
+    that map (STUB_GLADIATOR_TARGET "kill_curve" / "princess_plan"). Princess units keep roster
+    order (MegaMek's order is not cloned), after a mixed side's Gladiators. Returns the pick
+    function for forces.fire_order, or None for roster order."""
+    teams = [u.team for u in forces.standing(units) if u.bot != PRINCESS]
+    if config.GLADIATOR_FIRE_ORDER == "roster" or all(teams.count(t) < 2 for t in teams):
+        return None                                  # no side has two Gladiators: nothing to order
+    if config.GLADIATOR_FIRE_ORDER != "big_guns_first":
+        raise ValueError(f"Unknown GLADIATOR_FIRE_ORDER {config.GLADIATOR_FIRE_ORDER!r} "
+                         f"('big_guns_first' or 'roster')")
+    guns = {}
+
+    def rank(u):
+        if u.bot == PRINCESS:
+            return (0, 0.0)
+        if id(u) not in guns:
+            guns[id(u)] = kill_curve.firepower(u, units, terrain_map)
+        return (1, guns[id(u)])
+
+    def pick(candidates):
+        best = max(candidates, key=rank)            # max keeps the first of equals: roster order
+        if best.bot != PRINCESS and len(candidates) > 1:
+            config.log(f"  [Ranged] Firing order: {best.side_name} declares next "
+                       f"(big guns first: expected {guns[id(best)]:.1f}).")
+        return best
+    return pick
 
 
 # Units whose candidate targets are being scored through Princess's eyes right now (a Gladiator under
@@ -127,8 +171,9 @@ def _as_princess(attacker):
 def records_declared_damage(attacker):
     """Does this unit's declaration go into its team's damage map (princess_fire.assign_damage), for the
     teammates who pick a target after it? Princess's always does; a Gladiator's does when it borrows
-    Princess's target choice (STUB_GLADIATOR_TARGET "princess_plan")."""
-    return attacker.bot == PRINCESS or config.STUB_GLADIATOR_TARGET == "princess_plan"
+    Princess's target choice (STUB_GLADIATOR_TARGET "princess_plan") or runs its own fire director
+    ("kill_curve")."""
+    return attacker.bot == PRINCESS or config.STUB_GLADIATOR_TARGET in ("princess_plan", "kill_curve")
 
 
 def fire_control(attacker):

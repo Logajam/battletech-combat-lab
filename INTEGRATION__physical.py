@@ -816,11 +816,12 @@ def _resolve_pushes(pushes, triggers, terrain_map):
             label = target.hex
         else:
             target.hex = label
-        attacker.hex = old
         config.log(f"    {target.side_name} is pushed {old} -> {label}; {attacker.side_name} follows into {old}.")
+        attacker_fell = domino.advance_into(attacker, old, direction, terrain_map, "following its push")
         if not fell_here:
             hazards.enter_hex(target, label, why=f"pushed into {label}", in_phase=True)    # TO:AR (2026-10-27)
-        hazards.enter_hex(attacker, old, why=f"followed into {old}", in_phase=True)
+        if not attacker_fell:
+            hazards.enter_hex(attacker, attacker.hex, why=f"followed into {attacker.hex}", in_phase=True)
         if fell_here:
             pass                                       # the fall from above was resolved with the displacement
         elif drop >= 2:

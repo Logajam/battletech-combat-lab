@@ -194,7 +194,7 @@ def facing_mod(o, face_xy, bias, square_up, closest_xy=None):
         face_xy, bias, tolerance = closest_xy, 0, 0
     else:
         square_up, tolerance = False, classic.ALLOW_FACING_TOLERANCE
-    want = combat._direction_facing(o.hex_xy, face_xy)
+    want = classic.direction(o.hex_xy, face_xy)
     if not square_up:
         want = (want + bias) % 6
     diff = min((o.facing - want) % 6, (want - o.facing) % 6)

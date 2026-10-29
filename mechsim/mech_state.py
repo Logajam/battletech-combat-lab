@@ -675,7 +675,11 @@ SHIELD_SIZES = {"SMALL": (3, 11, 0, False), "MEDIUM": (5, 18, 1, False), "LARGE"
 
 
 def mech_shields(mech):
-    """[(arm, shield Equipment, size)] for the shields still on the 'Mech."""
+    """[(arm, shield Equipment, size)] for the shields still on the 'Mech.
+    A 'Mech found with no shield in its arms never gains one: remembered
+    (mech._no_shields, 2026-10-29 - speed only, called on every hit)."""
+    if mech.__dict__.get("_no_shields"):
+        return []
     out, seen = [], set()
     for arm in ("Left Arm", "Right Arm"):
         if arm not in mech.locations or mech.locations[arm]["destroyed"]:
@@ -686,6 +690,9 @@ def mech_shields(mech):
                 seen.add(id(s))
                 size = next((k for k in SHIELD_SIZES if k in n), "MEDIUM")
                 out.append((arm, s, size))
+    if not out and not any("SHIELD" in (getattr(s, "name", "") or "").upper()
+                           for arm in ("Left Arm", "Right Arm") for s in mech.crits.get(arm, [])):
+        mech._no_shields = True
     return out
 
 

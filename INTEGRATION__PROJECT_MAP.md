@@ -28,6 +28,9 @@ columns (or none, as MegaMek abuts boards) would keep the board as drawn.
 recalled, but the Archer ARC-2R (ours 1477, recalled 1415) and the Crusader
 CRD-3R (ours 1317, recalled 1294) don't; the recalled values are from memory, so
 check them against the Master Unit List or MegaMek before changing anything.
+(c) SESSION 14 (Change Record "KILL CURVE, FIRE DIRECTOR..."): `INTEGRATION__kill_curve`
+(the trials' dice swap and caching; the fire director's score), `bots.fire_pick`,
+the `domino.advance_into` crash fix in charge / push / DFA, `princess.direction`.
 When a review is done, move its line out of this queue and note it in the
 Change Record.
 
@@ -435,7 +438,34 @@ prediction level". Settings to use it: `MOVEMENT_SEARCH = "if_then"`,
 prices reused; the file lives in `run_stats/`, lost with the session -
 rebuild it with one full run). Numbers: Change Record.
 
+**How the bots work now:** `INTEGRATION__BOTS.md` (2026-10-29) - Gladiator v
+Princess, decision by decision, the latest battery and why Gladiator loses.
+
 **Pick up here (open, roughly in priority order):**
+0000. **Team awareness and the topics after it** (Daniel, 2026-10-29, "thinking
+   out loud" - topics to design, nothing built). The fire director
+   (`INTEGRATION__kill_curve`, STUB_GLADIATOR_TARGET "kill_curve") is the first
+   piece: it prices damage as kill chance x the enemy's output.
+   - **Team awareness:** "Gladiator needs to have a sense of how its actions
+     affect the enemies board state and its own teams board state. The example
+     case is 'Move to a location that is more exposed, because it will draw
+     fire away from a vulnerable unit, preserving future firepower.'" Claude's
+     note: the kill curve works for our own units too, so a move could be
+     scored by the enemy's likely fire allocation (their side's fire director)
+     with this unit at that spot: the team's expected firepower lost, summed
+     over its units (output x kill chance), not just this unit's.
+   - **Movement order hierarchy:** which of a team's units moves first. Today
+     both bots use Princess's move index (`forces.move_index`: faster units
+     closer to the enemy move later).
+   - **Firing order hierarchy:** which declares first. BUILT 2026-10-29 as
+     Daniel's rule, "Big guns first followed by smaller guns. Its the same
+     rule used on a mech, just applied to the entire formation."
+     (`config.GLADIATOR_FIRE_ORDER`, Section 6 activation-order row).
+   - **Active choice systems** (a whole host: rate of fire, ammunition kind,
+     MASC, AMS, shields, capacitors, aimed shots... today mostly stubs) -
+     ideally priced in one currency (the kill curve's).
+   - **Indirect fire valuation** (spotting isn't built; its worth also decides
+     STUB_MISSION_KILL: a gunless 'Mech that can spot).
 000. **Legate** (Daniel, 2026-10-28: "making gladiator less myopic ... a multi-unit
    bot layer at the start of the movement phase ... in charge of keeping tabs on
    the battlefield") - BUILT as a first version (Change Record; `config.LEGATE`,
@@ -822,6 +852,14 @@ https://claude.ai/artifact/NJUknRiK1fcZzUv4A1fndX
   running side by side is the first suspect). If it shows again, keep the
   output. Seen once more 2026-10-29 ("41 of 42 ... 1 FAILED", output cut by a
   `tail -1`; the next 3 runs green).
+- (found session 14, Claude) `mech_state.is_crippled` (logged as "now
+  CRIPPLED" in the End Phase, nothing else reads it) uses the BattleMech
+  Manual list Daniel quoted; the Core Rulebook's Crippling Damage ('Mechs,
+  p.228) is a different, shorter list (two engine hits; two destroyed limbs
+  with a leg among them; a destroyed torso, which a standard or compact fusion
+  engine may ignore on a Piloting Skill Roll). Only matters once forced
+  withdrawal is built (Daniel, 2026-10-29: crippled means "that pilot should
+  run" - not a mission kill).
 
 **Known issues to fix later (Daniel, 2026-10-20):**
 - **Split items in a shared location (cleanup sweep; Daniel, 2026-10-21).**
@@ -1331,11 +1369,11 @@ forward arc, kicks included, never into a side arc.
 
 | Decision point | Lives in | Decides |
 |---|---|---|
-| Multi-unit: activation order within a side | `forces.move_index` / `forces.movement_order` | Princess's move index (MegaMek `calculateMoveIndex`: distance to the nearest enemy over the fastest move; far, slow units first) for every bot; a unit still off the board goes first. Ranged / physical declaration order is just roster order (nobody's position changes in those phases). |
+| Multi-unit: activation order within a side | `forces.move_index` / `forces.movement_order` | Princess's move index (MegaMek `calculateMoveIndex`: distance to the nearest enemy over the fastest move; far, slow units first) for every bot; a unit still off the board goes first. Ranged declaration: Gladiator's FIRING ORDER, `bots.fire_pick`, `config.GLADIATOR_FIRE_ORDER` (2026-10-29, Daniel: "Big guns first followed by smaller guns. Its the same rule used on a mech, just applied to the entire formation.") - "big_guns_first" (default): within each of its side's selections, the Gladiator with the most expected damage at any enemy now (`kill_curve.firepower`, the dry run of its weapon choice) declares first, so smaller guns see the big guns' fire in the damage map; ranked after TAG designation; only when a side has 2+ Gladiators. "roster": list order. Princess units and the physical phase: roster order. |
 | Multi-unit: Initiative and Unequal Numbers with 3+ sides | `forces.initiative_order`, `forces.activation_sequence` | The book (pp.39-41) covers two sides. Here: every side rolls 2D6, the LOWEST acts first, only tied sides re-roll; each side takes ceil(its eligible units / the smallest other side's) selections at a time, tallied at the start of each round - exactly the book's table for two sides, and MegaMek's `TurnOrdered.generateTurnOrder` (ceil(turns / min)). Shut-down / unconscious (and, moving, immobile) units are left out of the tally and go ahead of their side's first selection. |
 | Multi-unit: whom a bot plans movement against (its "foe") | `bots.choose_foe` -> `forces.choose_foe`, `config.FOE_CHOICE` | "nearest": the nearest standing enemy on the board (ties by roster order), else one not yet on the board. Gladiator's movement scoring sees that ONE enemy (independent bots) unless Legate is on (next row). Princess takes it as the start of a `princess_group.Group`: every enemy on the board is weighed (below). |
 | Legate: Gladiator against the whole enemy force | `INTEGRATION__legate` (`config.LEGATE`, `LEGATE_ITERATIONS`), `movement_selection._legate_extras` | Daniel's design, 2026-10-28. At the start of the Movement Phase, for each side with a Gladiator and 2+ enemies on the board: IF/THEN for all units at once - round 0 everyone holds still, each round the enemy units answer, then the asking side's own units; a unit scores each spot (the grid search) with the picker score ("lifetime") against the WHOLE opposing force at its estimated spots: damage taken = the SUM over opposing units, damage dealt = the MAX, future damage rates likewise (`MultiLifetime`). Two units wanting a hex: the higher score keeps it, the other takes its next best, which can displace a third (cascade, `resolve`), settled before the next round; a unit that picks a hex it already tried is locked at its best attempt (closed to the others too). 12 rounds at most (`LEGATE_ITERATIONS`); the enemy units' best attempts are the estimate. Each Gladiator then plans against the enemy that would score highest against it (each at its estimated spot, its real spot once moved) among those yet to move (all moved: the most threatening), runs its normal search against that foe, and every spot is also scored against the other enemies at their estimated / real spots (taken adds up, dealt is the best). Fire at the weapons phase is unchanged (it already looks at every enemy). Off, or a duel: byte-identical. Placeholder: no estimate of the fire one unit really draws. |
-| Multi-unit: whom a unit shoots / fights | `bots.choose_target` -> `forces.choose_target` (Gladiator) / `princess_group.choose_target` (Princess) | One target a turn. Gladiator with 2+ enemies on the board: **STUB** `stubs.stub_gladiator_target`, `config.STUB_GLADIATOR_TARGET` (2026-10-29, Daniel: "a good test to stub in until we teach gladiator how to focus fire and account for target saturation") - "princess_plan" (default) borrows Princess's choice below, scored through Princess's fire control (`bots.princess_eyes`), and Gladiator's own declaration goes into the team's damage map (`bots.records_declared_damage`); it still picks its own weapons. "nearest" is the old pick: an enemy in sight beats one not, then one a weapon can bear on (arcs and torso twist, `attack_resolution.weapons_can_bear`), then the nearest. Princess: the enemy whose firing plan has the highest utility (a dry run of the real weapon choice, `declare_attacks(dry=True)`), the damage friends already declared counted (next row). Physical attacks: the declared charge / DFA target, else an adjacent enemy. No secondary targets (p.64): a plan has one target, as in MegaMek's ordinary Princess. |
+| Multi-unit: whom a unit shoots / fights | `bots.choose_target` -> `forces.choose_target` (Gladiator) / `princess_group.choose_target` (Princess) / `kill_curve.choose_target` (Gladiator's fire director) | One target a turn. Gladiator with 2+ enemies on the board: `config.STUB_GLADIATOR_TARGET` (2026-10-29). "kill_curve" is Gladiator's own FIRE DIRECTOR (2026-10-29, Daniel: "splitting fire to wreck 2 units is better then hard killing 1 and grazing the other"): each enemy scores worth x [f(declared + mine) - f(declared)], f = its kill curve (`INTEGRATION__kill_curve`: chance of a mission kill from N more damage, 5-point groups, on the side this unit hits), declared = the team's damage map, worth = the enemy's damage a turn (`KILL_CURVE_WEIGHT`), plus a tiny kill-progress tie-break; its declaration is counted for the teammates after it. What counts as a mission kill: **STUB** `stubs.stub_mission_kill`, `config.STUB_MISSION_KILL` ("destroyed" default / "no_ranged_weapons"; spotting has no worth yet). The stub choices (**STUB** `stubs.stub_gladiator_target`, Daniel: "a good test to stub in until we teach gladiator how to focus fire and account for target saturation"): "princess_plan" (default) borrows Princess's choice below, scored through Princess's fire control (`bots.princess_eyes`), and Gladiator's own declaration goes into the team's damage map (`bots.records_declared_damage`); it still picks its own weapons. "nearest" is the old pick: an enemy in sight beats one not, then one a weapon can bear on (arcs and torso twist, `attack_resolution.weapons_can_bear`), then the nearest. Princess: the enemy whose firing plan has the highest utility (a dry run of the real weapon choice, `declare_attacks(dry=True)`), the damage friends already declared counted (next row). Physical attacks: the declared charge / DFA target, else an adjacent enemy. No secondary targets (p.64): a plan has one target, as in MegaMek's ordinary Princess. |
 | Princess: fire distribution | `princess_fire.overkill_fraction`, `princess_fire.assign_damage`, `princess_group.choose_target` | `FireControl.calcDamageAllocationUtility`: an enemy the team's earlier declarations are expected to destroy (damage >= its total HP) scores 100 x -30 (the unit fires at another, or nothing); below half its HP nothing is charged; between, the fraction of its HP x -30. The damage map is per team, filled as each unit declares in order (`Princess.damageMap`), emptied at the start of every Ranged Attack Phase, and ignored in a movement guess. |
 | Princess: movement in a battle | `princess_group.Group`, `princess_modern._rank` / `princess._rank` | rankPath over ALL enemies: my firing and physical damage the best of any one, damage taken summed; distance / aggression / facing against the closest enemy by adjusted distance (an enemy yet to move counts farther by its walking MP); facing the closest enemy if beside the spot, else the median of the 4 closest (Weiszfeld, `facing_enemies`); an enemy too far for either side to reach adds nothing (`can_matter`, speed only). Posture is the FORCE's (`force_posture`: once a round, the enemy's mean distance to the centre of the team, kept in `princess_memory`). |
 | Princess: mutual support, crowding | `princess_group.Group.support_mod` / `crowding_mod`, `princess_memory` | Mutual support (v0.50.07 "herd mentality"): distance from the end spot to the force's HOT SPOT (heat map: each Princess move credits its end hex with BV - 100 x max(jump, walk) MP; fades each turn - halves where none of the force stands, -200 where one does; the nearest of the top-rated hexes) else the friends' average position; x `mutual_support` (index 0-10 -> 0.1..2.0, default 5 = 1.0). Crowding (`anti_crowding`, default 0 = off, MegaMek's default): 10 / (11 - slider) per unit within ceil(1.3 x slider) hexes (friends, the mover itself at its start included) or within 60% of its range (enemies). `config.PRINCESS_GROUP = False` turns both off. |
@@ -1615,6 +1653,42 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-29 (Claude), session 14 - KILL CURVE, FIRE DIRECTOR, BIG GUNS FIRST;
+  TWO CRASH FIXES; WHY GLADIATOR LOSES.** REVIEW PENDING (higher-level model).
+  Summary for Daniel and the next session: `INTEGRATION__BOTS.md`.
+  - `INTEGRATION__kill_curve` (Daniel: "a function that takes incoming damage and
+    converts it into a % chance of mission kill ... rule of thumb ... 5 point
+    clusters"): 100 trials of 5-point groups through `attack_resolution.
+    _resolve_hit` on a pickled copy, own dice (config's roll functions swapped),
+    cached per unit / side / damage state; ~0.05-0.1 s a curve. Mission kill:
+    STUB_MISSION_KILL ("destroyed" default; "no_ranged_weapons"), after Daniel
+    ruled out the book's Crippled ("that pilot should run") and noted spotting
+    has no worth yet.
+  - Fire director (STUB_GLADIATOR_TARGET "kill_curve", not the default): worth x
+    (kill chance added on top of friends' declared fire + KILL_CURVE_PROGRESS_WEIGHT
+    x useful damage / damage still needed). The softening term came from Daniel:
+    "are units taking long shots to marginally increase a kill vs a hurt unit
+    instead of applying stronger damage vs a unit that needs to be softened
+    first?" - they were (a 1% gain beat a full volley 100 to 1).
+  - Big guns first (GLADIATOR_FIRE_ORDER, default; Daniel's rule).
+  - Speed only: `mech_state.mech_shields` remembers a 'Mech with no shield.
+  - Crash fixes (both reproduced, tests added): a charger / pusher / DFA
+    attacker advancing into its target's old hex goes through the domino code
+    when a fall from above (p.116) put another 'Mech there (MegaMek's
+    doEntityDisplacement; two enemies had ended up stacked); Princess's facing
+    to a point in its own hex is MegaMek's Coords.direction, 5.
+  - Battery, same 20 seeds, + Legate: stub 7 / 9 / 4 (Princess / draw /
+    Gladiator); fire director with list-order firing 15 / 5 / 0; fire director +
+    big guns first 9 / 8 / 3, 'Mechs left 4.3 / 1.3 (replays of all 20, run on
+    the fixed code). Analysis (scratch scripts over the replays): Gladiator lost
+    53 units in turns 1-6 v Princess's 29; 46 of the 53 were lights that dived
+    ahead alone on turn 2. Cause: Legate's MultiLifetime divides HP by ALL
+    enemies' damage a turn, so a unit's life looks ~3 turns long and bad trades
+    score well (Pick up here 000 "how much fire a single unit would take").
+    Also: no cohesion pull (heavies' nearest friend 6.4 hexes v Princess's 4.2
+    on entry). Daniel's question "is it starting positions?": the first movers
+    see ~2 enemies on turn 1 but end further back than Princess's, not worse.
+  - Daniel's next topics are Pick up here 0000; ammo conservation is item 3.
 - **2026-10-29 (Claude), session 14 - BATTERY RE-RUN WITH THE PRINCESS FIX; KILL-
   CURVE IDEA.** Daniel: "Rerun the 20 battle set with the corrected princess.
   Mostly for curiosity." Same 20 seeds, stub + Legate (both defaults), after the

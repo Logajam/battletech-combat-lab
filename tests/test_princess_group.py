@@ -366,6 +366,15 @@ def a_princess_unit_picks_a_move_with_several_enemies_and_friends():
     princess_memory.reset()
 
 
+@check
+def facing_a_point_in_the_units_own_hex_is_megameks_direction_five():
+    """Coords.direction from a hex to itself is 5 (radian() gives 1.5 pi when the centres share a y);
+    the facing score used to raise here when a spot sat on the enemies' median (2026-10-29)."""
+    import INTEGRATION__princess as classic
+    assert classic.direction((4, 6), (4, 6)) == classic.SAME_HEX_DIRECTION == 5
+    assert classic.direction((4, 6), (4, 8)) == 0                     # straight north, as before
+
+
 def run_all():
     failed = 0
     for fn in CHECKS:

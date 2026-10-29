@@ -16,7 +16,8 @@ GitHub logistics.
 3. `INTEGRATION__RULES_REVIEW.md` is the Core Rulebook vs code review: fixed
    items, the gap list to build, and open questions for Daniel.
 4. `INTEGRATION__CALL_GRAPH.md` shows the import structure, and `README.md` the
-   layout and test commands.
+   layout and test commands. `INTEGRATION__BOTS.md` explains how Gladiator and
+   Princess decide, and what the latest battery says.
 
 ## Working rules (details in PROJECT_MAP Section 7)
 
@@ -63,7 +64,7 @@ GitHub logistics.
   `config.BOT` / `MECH_*_CONFIG["bot"]`, PROJECT_MAP Section 6 "Princess
   clone". Bot-vs-bot studies: `ab_batches.py --set bots`,
   `tests/pick_quality.py` (`--pickers`, `--perfect-cache`),
-  `tests/bot_agreement.py`. Legate (`config.LEGATE`, off by default;
+  `tests/bot_agreement.py`. Legate (`config.LEGATE`, on by default;
   `INTEGRATION__legate`) gives Gladiator the whole enemy force: a
   start-of-phase IF/THEN estimate, a threat-ordered foe, the other enemies'
   damage in the move score (PROJECT_MAP Section 6 "Legate"). A battery split
