@@ -556,7 +556,14 @@ rebuild it with one full run). Numbers: Change Record.
    future-capability Memo (item 4). Daniel's ideas: (a) a lookup table of
    known best solutions per weapon by range and starting to-hit number;
    (b) raise a cluster weapon's expected value by its odds of a critical hit
-   given the target's armor. Deferred: specialty ammo. Placeholders to set:
+   given the target's armor. **Ammo conservation for Gladiator** (Daniel,
+   2026-10-29: "Add conserving ammo to the to do list for gladiator"): in
+   battle 10 of the 12 v 12 battery, Gladiator's Emperor fired its Rotary
+   ACs at the "max" rate and was dry by turn 20 of 50, and by turns 30-40
+   nearly every LRM, Gauss, Ultra and LB-X on both sides was empty (Change
+   Record, session 14). Gladiator should weigh rounds left against the
+   battle still ahead (rate of fire, and whether a long, low-odds shot is
+   worth a round); Princess's own rationing is in MegaMek. Deferred: specialty ammo. Placeholders to set:
    `TARGET_HEAT_WORTH`, and `TASER_EFFECT_WORTH` (Daniel, 2026-10-28: "Good
    enough for now. Add it in the same pile as deriving the value of cluster
    weapons"); `TSEMP_EFFECT_WORTH`, `IMP_EFFECT_WORTH` (same pile,
@@ -1607,6 +1614,24 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-29 (Claude), session 14 - BATTERY RE-RUN WITH THE PRINCESS FIX; KILL-
+  CURVE IDEA.** Daniel: "Rerun the 20 battle set with the corrected princess.
+  Mostly for curiosity." Same 20 seeds, stub + Legate (both defaults), after the
+  `max_damage_at_range` fix below: Princess 7 wins / 9 draws / Gladiator 4 wins
+  (unchanged from before the fix); damage dealt Gladiator 1274 / Princess 1601
+  a battle (was 1235 / 1543); 'Mechs left Princess 3.2 / Gladiator 1.8 (was
+  3.65 / 2.10); 249 s a battle. Rows in `run_stats/baseline/pg_legate_princess_plan_
+  seed12345_*`. Ammo conservation for Gladiator added to Pick up here 3.
+  Daniel's next idea (discussion, nothing built): a 'Mech's "vulnerability" as
+  the curve f(N) = P(destroyed after N more damage) from its current state, by
+  damage grouping; target value = expected output / vulnerability; a hit's
+  worth = how much it shortens the damage still needed. A scratch prototype
+  (`_resolve_hit` in fixed-size groups, front table, no damage PSRs) gave an
+  Atlas AS7-D an expected 170 / 254 / 223 damage to destroy in 1- / 5- / 20-point
+  groups (1-point: 83% die of 6 pilot hits, p.117; 20-point: 33% head kills), and
+  a Commando 45 / 51 / 38. From fresh (255 left, 5-point groups) 10 into the left
+  arm was worth ~0, 10 into the centre torso 13, 10 into the head 116.
 
 - **2026-10-29 (Claude), session 14 - AMMO RUNS OUT; PRINCESS'S QUICK ESTIMATE FIX.**
   Daniel: "did that emperor in battle 10 still have ammo by that point, and if it
