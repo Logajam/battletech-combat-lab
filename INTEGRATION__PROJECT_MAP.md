@@ -436,6 +436,31 @@ prices reused; the file lives in `run_stats/`, lost with the session -
 rebuild it with one full run). Numbers: Change Record.
 
 **Pick up here (open, roughly in priority order):**
+0000. **Team awareness and the topics after it** (Daniel, 2026-10-29, "thinking
+   out loud" - topics to design, nothing built). The fire director
+   (`INTEGRATION__kill_curve`, STUB_GLADIATOR_TARGET "kill_curve") is the first
+   piece: it prices damage as kill chance x the enemy's output.
+   - **Team awareness:** "Gladiator needs to have a sense of how its actions
+     affect the enemies board state and its own teams board state. The example
+     case is 'Move to a location that is more exposed, because it will draw
+     fire away from a vulnerable unit, preserving future firepower.'" Claude's
+     note: the kill curve works for our own units too, so a move could be
+     scored by the enemy's likely fire allocation (their side's fire director)
+     with this unit at that spot: the team's expected firepower lost, summed
+     over its units (output x kill chance), not just this unit's.
+   - **Movement order hierarchy:** which of a team's units moves first. Today
+     both bots use Princess's move index (`forces.move_index`: faster units
+     closer to the enemy move later).
+   - **Firing order hierarchy:** which declares first. Today a team's units
+     declare in list order, and the fire director is greedy in that order
+     (each sees only earlier friends' declarations); e.g. units with one
+     target in reach first and flexible long-range units last, or one joint
+     assignment for the whole team.
+   - **Active choice systems** (a whole host: rate of fire, ammunition kind,
+     MASC, AMS, shields, capacitors, aimed shots... today mostly stubs) -
+     ideally priced in one currency (the kill curve's).
+   - **Indirect fire valuation** (spotting isn't built; its worth also decides
+     STUB_MISSION_KILL: a gunless 'Mech that can spot).
 000. **Legate** (Daniel, 2026-10-28: "making gladiator less myopic ... a multi-unit
    bot layer at the start of the movement phase ... in charge of keeping tabs on
    the battlefield") - BUILT as a first version (Change Record; `config.LEGATE`,
