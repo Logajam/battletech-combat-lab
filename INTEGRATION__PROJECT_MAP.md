@@ -16,24 +16,20 @@ source project's file overwrite the other's same-named file.
 ## 0. WHERE WE ARE (2026-10-29, end of session 13) — read this first
 
 **REVIEW QUEUE - needs a higher-level model's review when there are spare
-cycles** (Daniel's standing order, 2026-10-28; Section 7). Written by Sonnet 5.5,
-tested (39 of 39 checks, reference logs unchanged) but not independently
-reviewed. Session 12 (2026-10-28): (1) multi-unit battles - `INTEGRATION__forces`,
-`INTEGRATION__domino`, `orchestrator.run_skirmish`, Unequal Numbers for 3+ sides,
-domino / fall-from-above displacement, replay for N units, `tests/test_multi_unit.py`;
-(2) map stitching and the map picker (`INTEGRATION__map_picker`, `tests/test_map_picker.py`: check the pack-map cache folder and the remembered pick in the file picker's state file) (`_load_map`, `STITCH_BOARDS`; check the seam parity - a 16-wide board plus the gap column shifts the next board's hex columns by an odd amount); (3) the movement cache - `pathfinder._BoardCache` and shared tables (check every
-field a search reads is static - the magma hazard was found not to be; a
-loaded map is never edited in place; blocked-hex normalization `|dx| <= MP,
-|dy| <= 2 MP`; cache invalidation; read-only tables); (4) the baseline battery (`tests/baseline_battery.py`) and Princess's group
-behaviors and Battle Value (session 13, below: `INTEGRATION__princess_group`,
-`INTEGRATION__princess_memory`, `INTEGRATION__battle_value`,
-`tools/build_equipment_bv.py`, the dry run in `attack_resolution.declare_attacks`,
-the lazy target choice in `run_ranged_phase`; check the BV against MegaMek's
-numbers on units outside the 4 published ones, and that the Princess clone's
-reading of MegaMek 7205e4d matches what the Java does); (5) Legate (session 13: `INTEGRATION__legate`, `config.LEGATE`, the `Extras` hook in `movement_selection._choose_normal` and `_static_scores`, `bots.choose_foe`, `tests/test_legate.py`: check the cascade / lock rules against Daniel's IF/THEN text, that a battle with `LEGATE` off is byte-identical, and the cached evaluators for stale damage / prone state). Review for rules
-fidelity against the Core Rulebook pages cited, MegaMek parity, and hidden
-RNG-order or stale-cache bugs. When a review is done, move its line out of
-this queue and note it in the Change Record.
+cycles** (Daniel's standing order, 2026-10-28; Section 7). Sessions 12-13 were
+reviewed 2026-10-29 (Change Record): one bug fixed (the movement cache kept a
+broken magma crust's old step cost). Still open from that review: (a) MAP SEAMS -
+Daniel's call: a 16-wide board plus the one blank seam column moves the next
+board 17 columns, an odd number, which flips its column parity, so every other
+column of that board slides half a hex against its neighbours (the board's
+terrain no longer joins up as drawn; rows are fine - 17 + 1 is even). Two blank
+columns (or none, as MegaMek abuts boards) would keep the board as drawn.
+(b) BATTLE VALUE - 26 more units match the published values the reviewer
+recalled, but the Archer ARC-2R (ours 1477, recalled 1415) and the Crusader
+CRD-3R (ours 1317, recalled 1294) don't; the recalled values are from memory, so
+check them against the Master Unit List or MegaMek before changing anything.
+When a review is done, move its line out of this queue and note it in the
+Change Record.
 
 Latest: **Session 12 - MULTI-UNIT BATTLES** (Daniel, 2026-10-28: "Multiple units
 that can be assigned to multiple teams. The ideal ranges would probably be a 4
@@ -1611,8 +1607,30 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
-- **2026-10-28 (Claude), session 13 - LEGATE (first version).** **REVIEW PENDING
-  (higher-level model).** Daniel: "making gladiator less myopic ... a multi-unit
+- **2026-10-29 (Claude), session 14 - REVIEW OF SESSIONS 12-13 (Sonnet's work).**
+  Daniel: "quickly review the work done by Sonnet models. If they're kosher we
+  can clear their 'review this' flags." Read against the Core Rulebook and
+  MegaMek's source (main 4f22bf6): (1) multi-unit battles - Unequal Numbers
+  reproduces both p.41 tables (18 v 10, 14 v 5); the domino effect and the
+  accidental fall from above follow pp.113-116, and the fall damage's
+  "target's height" matches MegaMek's Core rules (a standing 'Mech 1, prone 0):
+  OK. (2) Map picker: OK (minor: a pack map extracted to the temp folder is never
+  refreshed if the pack changes). Map stitching: the seam-parity question is
+  Daniel's (Section 0 REVIEW QUEUE (a)). (3) Movement cache: BUG FIXED - a magma
+  crust that breaks becomes liquid (+1 MP, TO:AR p.30), but `_BoardCache` kept
+  the crust's step cost for the rest of the battle; `test_hazards.py`'s cache
+  check only passed because it read the stale 1 MP entry. Now
+  `INTEGRATION__hazards` drops the board's cache (`pathfinder.forget_board`)
+  when a crust breaks or is mended, and the check breaks a crust for real and
+  wants the 2 MP entry (it fails on the old code). No reference log changed.
+  (4) Princess group: mutual support, the ally centre and the posture's closing
+  test and hysteresis match MegaMek's Java. Battle Value: REVIEW QUEUE (b).
+  (5) Legate: the cascade / lock rules do what the docstring says; minor: in
+  `Extras.adjust` a spot where another enemy is estimated to stand skips that
+  enemy (a slight pull toward its hex - harmless while it is only an estimate).
+  42 of 42 checks pass.
+
+- **2026-10-28 (Claude), session 13 - LEGATE (first version).** **REVIEWED 2026-10-29 (higher-level model; see the review entry).** Daniel: "making gladiator less myopic ... a multi-unit
   bot layer at the start of the movement phase ... I call this layer Legate; it's
   in charge of keeping tabs on the battlefield", then his answers: the IF/THEN
   runs 12 rounds; ties in a round go by picker score and can cascade; a unit
@@ -1652,8 +1670,7 @@ turn's score, so a decision sees what it gives up.
   more: no Gladiator wins either way, and the draws are stragglers at the cap
   (5 v 6), the anti-stall item. Princess still wins every decisive battle.
 
-- **2026-10-28 (Claude), session 13 - BASELINE TEST BATTERY.** **REVIEW PENDING
-  (higher-level model).** Daniel: "4 maps stitched together, 12 mechs vs 12
+- **2026-10-28 (Claude), session 13 - BASELINE TEST BATTERY.** **REVIEWED 2026-10-29 (higher-level model; see the review entry).** Daniel: "4 maps stitched together, 12 mechs vs 12
   mechs, mixed but mirrored (3 assault, 3 heavy, 3 medium, 3 light); Princess vs
   Princess, Princess vs Gladiator, Gladiator vs Gladiator. Mostly seeing if it
   works and how long it takes. Results will be recorded as a yard stick." Then,
@@ -1679,7 +1696,7 @@ turn's score, so a decision sees what it gives up.
   a setup is a yardstick, not statistics.
 
 - **2026-10-28 (Claude), session 13 - PRINCESS FOR TEAMS + BATTLE VALUE.**
-  **REVIEW PENDING (higher-level model).** Daniel: "I think 1-5 are do able. 6
+  **REVIEWED 2026-10-29 (higher-level model; see the review entry).** Daniel: "I think 1-5 are do able. 6
   requires us to calculate BV ... As usual use Megamek as source material where
   needed." Source: MegaMek main 7205e4d (a newer commit than the fd2edfb the
   modern clone was made from; the group code is the same in v0.50.07 where it
@@ -1715,8 +1732,7 @@ turn's score, so a decision sees what it gives up.
   allowed here), so BV was checked against published values rather than against
   MegaMek's own output.
 
-- **2026-10-28 (Claude), session 12 - MAP PICKER.** **REVIEW PENDING
-  (higher-level model).** Daniel: "Wire in the map picker. Will need it for the
+- **2026-10-28 (Claude), session 12 - MAP PICKER.** **REVIEWED 2026-10-29 (higher-level model; see the review entry).** Daniel: "Wire in the map picker. Will need it for the
   next trick, making the program easily accessible by a person, which is GUI
   work." `INTEGRATION__map_picker` in two layers so the GUI can reuse the
   first: the library (`list_maps` - the loose boards in data/ plus the
@@ -1735,7 +1751,7 @@ turn's score, so a decision sees what it gives up.
   `list_maps()` for the list, `playable()` on demand (about 0.1 s a map, so not
   for all 356 at once), `compatible_maps()` per slot, `apply_choice()` to set.
 - **2026-10-28 (Claude), session 12 - MAP STITCHING + OFFICIAL NAME.**
-  **REVIEW PENDING (higher-level model).** Daniel: "Short Grid is the official
+  **REVIEWED 2026-10-29 (higher-level model; see the review entry).** Daniel: "Short Grid is the official
   name now. Map stitching up and running." The name is recorded (the
   "placeholder" notes are gone). `config.STITCH_MAPS` works: `STITCH_BOARDS`
   (board files, row-major), `STITCH_GRID_COLS` x `STITCH_GRID_ROWS`;
@@ -1750,7 +1766,7 @@ turn's score, so a decision sees what it gives up.
   edges are the outer edges of the whole field, so long fields mean long
   approach marches. 38 of 38 checks pass, reference logs unchanged.
 - **2026-10-28 (Claude), session 12 - MOVEMENT TABLE CACHE (speed only).**
-  **REVIEW PENDING (higher-level model).**
+  **REVIEWED 2026-10-29 (higher-level model; see the review entry).**
   Daniel's idea: compute only the hexes inside a unit's movement footprint
   and share them between units and turns. `pathfinder._BoardCache` (one per
   loaded board, filled on demand): hex info by (x, y); step cost, terrain
@@ -1770,7 +1786,7 @@ turn's score, so a decision sees what it gives up.
   `movement_cache_sees_a_broken_crust`, which fails without it). Smoke also
   lives on hex infos but nothing the search reads.
 - **2026-10-28 (Claude), session 12 - MULTI-UNIT BATTLES.**
-  **REVIEW PENDING (higher-level model).** Daniel: units on
+  **REVIEWED 2026-10-29 (higher-level model; see the review entry).** Daniel: units on
   teams, a lance / company against like forces, a free for all, a 3-way battle
   - "unleash a group of bots to operate independently". The two-'Mech battle
   is the same code with two units: every battle in the 15 reference logs

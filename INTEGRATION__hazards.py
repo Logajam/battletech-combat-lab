@@ -63,6 +63,7 @@ from typing import Dict, List, Optional
 import INTEGRATION__config as config
 import INTEGRATION__los_cache  # noqa: F401 - puts PATHFINDER on sys.path
 import terrain_rules  # noqa: E402 - PATHFINDER
+import pathfinder  # noqa: E402 - PATHFINDER (forget_board: its step-cost cache)
 from terrain_rules import MAGMA_CRUST, MAGMA_LIQUID, magma_state  # noqa: E402 - PATHFINDER
 from damage_resolution import apply_damage  # noqa: E402 - MECHSIM
 from hit_location import resolve_hit_location  # noqa: E402 - MECHSIM
@@ -91,6 +92,8 @@ def set_board(terrain_map):
     global _BOARD
     for info in _BROKEN:
         info["features"]["magma"] = [MAGMA_CRUST]
+    if _BROKEN and _BOARD is not None:
+        pathfinder.forget_board(_BOARD)
     _BROKEN.clear()
     _BOARD = terrain_map
 
@@ -252,6 +255,7 @@ def _enter_hex(mech, label, jumped, why):
         if roll >= (CRUST_BREAKS_JUMP if jumped else CRUST_BREAKS_GROUND):
             info["features"]["magma"] = [MAGMA_LIQUID]
             _BROKEN.append(info)
+            pathfinder.forget_board(_BOARD)          # its cached step costs were for the crust
             state = MAGMA_LIQUID
             config.log(f"    {mech.side_name}: the magma crust at {label} breaks (1D6 {roll}) - liquid magma "
                        f"for the rest of the battle (TO:AR p.34).")

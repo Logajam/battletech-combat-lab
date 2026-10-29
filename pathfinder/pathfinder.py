@@ -151,14 +151,22 @@ _BOARDS = {}      # {id(terrain_map): (terrain_map, _BoardCache)} - the map is h
 
 
 def _board(terrain_map):
-    """The (shared, lazily filled) _BoardCache of a loaded board. The map must
-    not change after it is loaded - nothing in the battle edits a hex."""
+    """The (shared, lazily filled) _BoardCache of a loaded board. Code that
+    edits a hex during a battle (magma crust breaking) calls forget_board."""
     got = _BOARDS.get(id(terrain_map))
     if got is None or got[0] is not terrain_map:
         if len(_BOARDS) >= 8:
             _BOARDS.clear()
         got = _BOARDS[id(terrain_map)] = (terrain_map, _BoardCache(terrain_map))
     return got[1]
+
+
+def forget_board(terrain_map):
+    """Drop a board's _BoardCache after one of its hexes changed (2026-10-29,
+    review fix: a magma crust that breaks becomes liquid magma, +1 MP and a
+    different PSR, TO:AR p.30 - the cached step costs of that hex would be
+    stale). Rare, so the whole board is simply refilled on the next search."""
+    _BOARDS.pop(id(terrain_map), None)
 
 
 def _build_terrain_aware(

@@ -162,16 +162,25 @@ def path_avoids_lava():
 def movement_cache_sees_a_broken_crust():
     """Speed cache (2026-10-28): a magma crust that breaks mid-battle changes
     the hex's hazard; a table built afterwards must price it, not repeat the
-    one built before."""
+    one built before. Review fix 2026-10-29: the step cost changes too (crust
+    +0 MP, liquid +1, p.30) - the old check read the liquid hazard at the
+    crust's 1 MP, which only existed because the cached step cost was stale.
+    The crust breaks through INTEGRATION__hazards, which drops the cache."""
     tm = board({"0807": hexinfo(magma=["1"])})            # crust
     x, y = parse_hex_label("0808")
     north = compass_to_facing("N")
     cx, cy = parse_hex_label("0807")
     state = (cx, cy, north)                                 # one hex north: the crust hex
-    crust = build_movement_table(x, y, north, 3, terrain_map=tm).hazards[state][1]
-    tm["hexes"]["0807"]["features"]["magma"] = ["2"]      # the crust breaks: liquid
-    liquid = build_movement_table(x, y, north, 3, terrain_map=tm).hazards[state][1]
-    assert liquid > crust, (crust, liquid)
+    before = build_movement_table(x, y, north, 3, terrain_map=tm).hazards[state]
+    m = place("0807")
+    with ScriptedDice([3, 4, 12]):                         # liquid burns the legs; bog-down roll 12
+        with D6([6]):                                      # 6 on 1D6: the crust breaks (p.34)
+            hazards.enter_hex(m, "0807")
+    assert tm["hexes"]["0807"]["features"]["magma"] == ["2"]
+    after = build_movement_table(x, y, north, 3, terrain_map=tm).hazards[state]
+    assert 1 in before and 1 not in after and 2 in after, (before, after)   # 1 MP -> 2 MP
+    assert after[2] > before[1], (before, after)
+    hazards.set_board(tm)                                   # mends the crust for the next check
 
 
 @check
