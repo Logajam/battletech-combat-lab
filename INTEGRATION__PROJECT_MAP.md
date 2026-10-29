@@ -13,7 +13,7 @@ source project's file overwrite the other's same-named file.
 
 ---
 
-## 0. WHERE WE ARE (2026-10-28, session 12) — read this first
+## 0. WHERE WE ARE (2026-10-29, end of session 13) — read this first
 
 **REVIEW QUEUE - needs a higher-level model's review when there are spare
 cycles** (Daniel's standing order, 2026-10-28; Section 7). Written by Sonnet 5.5,
@@ -87,6 +87,27 @@ PRINCESS_GROUP off (hash-identical logs, both versions); ON, a lone Princess is
 pulled toward its own earlier ground too (MegaMek does that: its heat map holds
 its own moves) - Princess vs Gladiator won 7 -> 5 of 20 (noise), Princess vs
 Princess 12 -> 12.
+
+**Session 13, second half - LEGATE** (Daniel, 2026-10-28: "making gladiator
+less myopic"). `INTEGRATION__legate` + `config.LEGATE` (OFF by default): at the
+start of each Movement Phase an IF/THEN estimate for ALL units at once (12
+rounds; two units wanting a hex - higher picker score wins, the loser takes its
+next best, cascading; a unit that loops is locked) says where each side's
+enemies will go; a Gladiator plans against the most threatening enemy yet to
+move, with every other enemy's damage added to each spot's score (taken = sum,
+dealt = max). Design: its docstring, Section 6 row "Legate", Change Record.
+20-battle comparison, Princess (Red) v Gladiator (Blue), 12 v 12, same seeds:
+with Legate Gladiator deals 24% more damage and Princess loses 1.4 more 'Mechs,
+but neither wins more (Princess 15 v 14 wins, 5 v 6 cap draws, Gladiator 0) and
+a battle takes 1.8x as long. It is NOT yet the default: Daniel has not decided.
+**Next (Daniel is starting a more dedicated session):** Legate speed pass; the
+anti-stall item (the cap-draw stragglers, Pick up here 0); Legate's to-do list
+(Pick up here 000: map reading, concentrated-fire estimate). Running a battery:
+`python tests/baseline_battery.py pg 20 [--legate] --first 1 --last 5` is one
+core's share - start four of them (1-5, 6-10, 11-15, 16-20; add `--replay` to
+the one with battle 1 to get a page in `replays/`, then publish it with the
+Artifact tool), read each output file, and only then report. Launching a
+background command that waits is not the battery finishing.
 
 Previous: **Session 11** (Daniel's IF/THEN movement picker, an option - PRs
 #85-#90) and **Session 10** (Tactical Operations terrain and gear,
@@ -458,8 +479,9 @@ rebuild it with one full run). Numbers: Change Record.
    - **Multi-unit play - the GROUP behaviors** - BUILT in session 13 (Change
      Record): fire distribution, multi-enemy movement, the force's posture,
      mutual support, anti-crowding (slider), the BV-weighted heat map, BV.
-     Still open: Daniel's IF/THEN pre-move threat picture + "right now" layer
-     (Section 5); FightMemory / EnemyTracker (infantry in buildings / the
+     Daniel's IF/THEN pre-move threat picture + "right now" layer is built for
+     GLADIATOR as Legate (Pick up here 000; the Princess clone doesn't use it).
+     Still open: FightMemory / EnemyTracker (infantry in buildings / the
      experimental ranker - not used by a 'Mech); the enemy heat maps (fog of
      war - this project's bots see every unit); secondary targets and a
      MultiTargetFireControl for crews with multi-tasker / multi-trac (the rule
@@ -789,6 +811,13 @@ remaining HP (or a push off the board) ranks below every other spot;
 (b) a smoothed ratio (dealt + k) / (received + k), so received still counts
 when dealt is 0; (c) a difference, dealt - received. Replay of that battle:
 https://claude.ai/artifact/NJUknRiK1fcZzUv4A1fndX
+
+**Known issues to fix later (found session 13, Claude):**
+- One `tests/run_checks.py` run once reported "40 of 41 checks passed, 1
+  FAILED" and the failing line was not captured; the next ~10 runs were all
+  green. A flaky check somewhere (a shared cache or file written by two checks
+  running side by side is the first suspect). If it shows again, keep the
+  output.
 
 **Known issues to fix later (Daniel, 2026-10-20):**
 - **Split items in a shared location (cleanup sweep; Daniel, 2026-10-21).**
