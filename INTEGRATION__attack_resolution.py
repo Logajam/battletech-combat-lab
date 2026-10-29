@@ -635,9 +635,10 @@ def _declare(attacker, target, terrain_map, report, dry):
     if phys_picks and held_names:
         config.log(f"  [Ranged] {a_name} holds {held_names} back for the Physical phase "
                    f"(plans {', '.join(o['name'] for o in phys_picks)}, expected {phys_value:.2f}).")
-    if attacker.bot == "princess" and weapons:
+    if bots.records_declared_damage(attacker) and weapons:
         # Princess.calculateFiringTurn: what this plan is expected to do goes into the damage map its
-        # team's later units read (calcDamageAllocationUtility).
+        # team's later units read (calcDamageAllocationUtility). A Gladiator borrowing Princess's target
+        # choice (config.STUB_GLADIATOR_TARGET) records its own declaration too.
         import INTEGRATION__princess_fire as princess_fire
         princess_fire.assign_damage(attacker.team, target, _plan_damage(attacker, weapons, planner, distance, sel_pre_tn))
     budget = heat.weapon_heat_budget(attacker, attacker.movement_heat)

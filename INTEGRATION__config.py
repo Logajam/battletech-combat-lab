@@ -380,6 +380,16 @@ STUB_TAG_AIM = "mech"
 STUB_CAPACITOR_START = "empty"
 # Charge a PPC capacitor instead of firing its PPC? "never" / "when_idle" (whenever the PPC isn't fired).
 STUB_CAPACITOR_CHARGE = "never"
+# Whom a GLADIATOR unit shoots when two or more enemies are on the board (2026-10-29, Daniel: "a good test
+# to stub in until we teach gladiator how to focus fire and account for target saturation"):
+#   "princess_plan" - Princess's target choice: each enemy scored by Princess's firing-plan utility, with
+#                     the damage the unit's teammates already declared this phase counted (an enemy they
+#                     are expected to kill scores low - focus fire without overkill). Gladiator still
+#                     picks its own weapons at the target, and its declared damage is counted for the
+#                     teammates who fire after it.
+#   "nearest"       - the old pick (forces.choose_target: in sight, a weapon bears, nearest).
+# Duels are unchanged either way (one enemy).
+STUB_GLADIATOR_TARGET = "princess_plan"
 # (STUB_REAR_MOUNTED removed 2026-10-19: mtf_parser keeps the "(R)" tag as
 # Equipment.rear_mounted; those weapons fire only into the rear arc - Core p.60.)
 # (STUB_HEAT_MODE removed 2026-10-18: heat now always carries over turn to
