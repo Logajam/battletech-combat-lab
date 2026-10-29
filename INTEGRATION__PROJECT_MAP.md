@@ -1607,6 +1607,26 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-29 (Claude), session 14 - WHY 12 v 12 BATTLES STALL (diagnosis, no code).**
+  Daniel: "Based on the game records can you get a feel for why the games are
+  stalling out?" Four of the 9 cap draws of the stub + Legate run (battles 2, 9,
+  10, 18) re-run with replays and read turn by turn. Three causes:
+  (1) THE CAP IS TIGHT FOR 24 UNITS: battles 2 and 18 were mop-ups (Gladiator's
+  last 1-2 'Mechs at 138-165 HP, 2-4 more turns at the late damage rate);
+  battle 9 a slugfest still trading (~20 more turns). Decisive battles end at
+  turns 16-49. (2) BOTH BOTS PARK: about half of all moves are Stand Still, in
+  every stage of the battle, both bots; the nearest enemy sits ~10 hexes off
+  and the late damage rate is 10-60 HP a turn a side against 1000-1800 HP left.
+  Battle 10 is a standoff: Princess's Atlas and Emperor at full HP stood still
+  all of turns 35-50 at 18-20 hexes, firing nothing worth it most turns;
+  Gladiator's Emperor stood still 16 of 16 turns. Suspects: Princess modern's
+  position-hold credit (and its DEFEND posture, which is not logged), and
+  Gladiator's lifetime objective, which prices a long-range trade as good
+  enough. (3) NOBODY HUNTS A STRAGGLER: battle 2, six Princess 'Mechs took 11
+  turns over one Gladiator Cataphract; one Princess Awesome sat 22-24 hexes off
+  with no line of sight for 11 of 12 turns. Analysis scripts were in the session
+  scratchpad (per-turn and per-unit tables from replay JSON).
+
 - **2026-10-29 (Claude), session 14 - LEGATE ON BY DEFAULT.** Daniel: "Legate on
   by default in multi unit games." `config.LEGATE = True` (it only acts with 2+
   enemies on the board, so duels and every reference log are unchanged);
