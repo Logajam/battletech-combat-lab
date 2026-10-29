@@ -169,7 +169,9 @@ PRINCESS_GROUP = True
 # Legate (2026-10-28, Daniel): the multi-unit layer that runs at the start of each Movement Phase so a
 # Gladiator-driven unit is not blind to the other enemies (INTEGRATION__legate). False = every Gladiator
 # plans against its nearest foe alone, as before. Duels are unchanged either way (one enemy).
-LEGATE = False
+# ON by default since 2026-10-29 (Daniel: "Legate on by default in multi unit games." - with the
+# Gladiator target stub it took Gladiator from 0 to 4 wins in 20 12 v 12 battles, Change Record).
+LEGATE = True
 # Legate's IF/THEN search: how many rounds (each round every enemy unit answers, then every unit of the
 # asking side answers). A unit that picks a hex it already tried is locked at its best attempt.
 LEGATE_ITERATIONS = 12

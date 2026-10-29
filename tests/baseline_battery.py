@@ -60,7 +60,8 @@ def main():
     ap.add_argument("--first", type=int, default=1, help="run only battles FIRST..LAST of the BATTLES (split a battery over cores)")
     ap.add_argument("--last", type=int, default=0)
     ap.add_argument("--replay", action="store_true", help="save battle 1 as a replay page in replays/")
-    ap.add_argument("--legate", action="store_true", help="config.LEGATE on (Gladiator units see the whole enemy force)")
+    ap.add_argument("--legate", action=argparse.BooleanOptionalAction, default=config.LEGATE,
+                    help="config.LEGATE (default on since 2026-10-29; --no-legate for the old one-foe Gladiator)")
     ap.add_argument("--target", choices=("princess_plan", "nearest"), default=config.STUB_GLADIATOR_TARGET,
                     help="config.STUB_GLADIATOR_TARGET: whom a Gladiator unit shoots (2026-10-29)")
     args = ap.parse_args()
