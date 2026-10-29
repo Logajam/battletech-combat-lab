@@ -195,12 +195,61 @@ def the_picker_score_sums_their_future_damage_and_takes_my_best():
     legate._RATES.clear()
     legate._RATES[(id(a1), id(b1))] = (10.0, 4.0)
     legate._RATES[(id(a1), id(b2))] = (6.0, 5.0)
-    obj = legate.MultiLifetime(a1, [b1, b2])
+    saved = config.LEGATE_FIRE_SPLIT
+    config.LEGATE_FIRE_SPLIT = "none"                          # every enemy's fire all on me
+    try:
+        obj = legate.MultiLifetime(a1, [b1, b2])
+    finally:
+        config.LEGATE_FIRE_SPLIT = saved
     assert obj.mine == 10.0 and obj.theirs == 9.0              # best of mine, sum of theirs
     hp = movement_selection.effective_hp(a1)
     assert abs(obj(3.0, 20.0, 1.0, 1.0, 0.0) - (3.0 + (hp - 20.0) / 9.0 * 10.0)) < 1e-9
     assert obj(3.0, hp + 1, 1.0, 1.0, 0.0) == 3.0              # destroyed: only what it dealt
     legate._RATES.clear()
+
+
+@check
+def an_enemys_future_fire_is_shared_over_the_team_it_can_reach():
+    """LEGATE_FIRE_SPLIT "proportional" (2026-10-29): an enemy that hurts both Atlases alike sends me
+    half its fire; one that can only hurt me sends me all of it."""
+    a1, a2, b1, b2, b3 = line_up()
+    legate._RATES.clear()
+    for foe, on_a1, on_a2 in ((b1, 4.0, 4.0), (b2, 5.0, 0.0)):
+        legate._RATES[(id(foe), id(a1))], legate._RATES[(id(a1), id(foe))] = (on_a1, 7.0), (7.0, on_a1)
+        legate._RATES[(id(foe), id(a2))], legate._RATES[(id(a2), id(foe))] = (on_a2, 7.0), (7.0, on_a2)
+    saved = config.LEGATE_FIRE_SPLIT
+    config.LEGATE_FIRE_SPLIT = "proportional"
+    try:
+        assert legate.fire_share(b1, a1) == 0.5 and legate.fire_share(b2, a1) == 1.0
+        assert legate.MultiLifetime(a1, [b1, b2]).theirs == 4.0 * 0.5 + 5.0
+    finally:
+        config.LEGATE_FIRE_SPLIT = saved
+        legate._RATES.clear()
+
+
+@check
+def herding_charges_a_threatened_spot_beyond_every_seeing_friends_support():
+    """LEGATE_HERDING (2026-10-29, Daniel's shape): an Atlas whose friend stands beside it pays nothing;
+    far beyond the friend's medium range (where an enemy can still reach it) it pays per hex; standing
+    still the friend supports to its long range."""
+    a1, a2, b1, b2, b3 = line_up()
+    with Legate_on():
+        herd = legate._Herd(a1, [a1, a2, b1, b2, b3], TERRAIN)
+        assert herd.gap(movement_selection.hex_geometry.parse_hex_label(a1.hex)) == 0.0   # a2 next door
+        assert 0 < legate.support_range(a2, False) < legate.support_range(a2, True)   # 14 v 21 hexes
+        xy_a2 = movement_selection.hex_geometry.parse_hex_label(a2.hex)
+        herd.friends = [(xy_a2, 3, set(range(len(herd.threats))))]                     # supports 3 hexes out
+        herd._memo.clear()
+        spots = [movement_selection.hex_geometry.parse_hex_label(l) for l in TERRAIN["hexes"]]
+        threatened = [xy for xy in spots if any(legate.hex_distance(xy, exy) <= r for exy, r in herd.threats)]
+        five_out = [xy for xy in threatened if legate.hex_distance(xy, xy_a2) == 5]
+        assert five_out
+        assert all(herd.gap(xy) == 2.0 and herd.penalty(xy) == config.LEGATE_HERD_WEIGHT * 2.0 for xy in five_out)
+        herd.friends = [(xy_a2, 3, set())]                       # it sees none of the threats: no support
+        herd._memo.clear()
+        assert herd.gap(five_out[0]) == config.LEGATE_HERD_UNSEEN_GAP
+        safe = [xy for xy in spots if xy not in threatened]
+        assert not safe or herd.gap(safe[0]) == 0.0              # nothing reaches it: no gap
 
 
 @check
@@ -220,7 +269,125 @@ def a_gladiator_picks_a_move_with_legate_and_without():
             finally:
                 a1.blocked_hex = a1.other_unit_hexes = None
             assert pick is not None and note
-            assert ("all enemies' future" in note) == flag      # Legate's own score text only when on
+            assert ("enemies' future on me" in note) == flag     # Legate's own score text only when on
+
+
+def _team_fire(exchange=False):
+    a1, a2, b1, b2, b3 = units = line_up()
+    legate.reset()
+    saved = config.LEGATE_TEAM_EXCHANGE
+    config.LEGATE_TEAM_EXCHANGE = exchange
+    try:
+        tf = legate._TeamFire(a1, b1, [b2, b3], units, TERRAIN, movement_selection._Side(a1))
+    finally:
+        config.LEGATE_TEAM_EXCHANGE = saved
+    obj2 = legate.objective_for(movement_selection._Side(a2), [b1, b2, b3])
+    return units, tf, obj2
+
+
+@check
+def each_enemy_shoots_the_unit_it_hurts_most_so_the_movers_spot_can_draw_fire():
+    """LEGATE_TEAM_VALUE's fire distribution ("greedy", 2026-10-29): B 1 can deal the other Atlas 30 and
+    the mover 10 - it shoots the Atlas; with the mover standing where B 1 deals it 40, it shoots the mover."""
+    (a1, a2, b1, b2, b3), tf, obj2 = _team_fire()
+    tf.units = [(a2, obj2, {id(b1): 30.0, id(b2): 0.0, id(b3): 0.0})]
+    drawn = tf.distribute({id(b1): 10.0})
+    assert drawn[id(a2)] == 30.0 and drawn[id(a1)] == 0.0
+    drawn = tf.distribute({id(b1): 40.0})
+    assert drawn[id(a1)] == 40.0 and drawn[id(a2)] == 0.0
+    tf.units = [(a2, obj2, {id(b1): 30.0, id(b2): 25.0, id(b3): 0.0})]
+    obj2.hp = 20.0                                              # 30 already dooms it: B 2 turns to the mover
+    drawn = tf.distribute({id(b1): 5.0, id(b2): 10.0})
+    assert drawn[id(a2)] == 30.0 and drawn[id(a1)] == 10.0
+
+
+@check
+def the_team_term_makes_the_score_dealt_plus_the_teams_future_damage():
+    """The cost evaluate() returns, added to the PSR cost, turns the mover's lifetime score into
+    dealt + TV - and with no teammate TV is the mover's own lifetime term times its chance to live."""
+    import INTEGRATION__kill_curve as kill_curve
+    (a1, a2, b1, b2, b3), tf, obj2 = _team_fire()
+    saved = config.LEGATE_TEAM_VALUE
+    try:
+        for mode in ("sum", "product"):
+            config.LEGATE_TEAM_VALUE = mode
+            tf.units = []
+            d_me, cost = tf.evaluate({id(b1): 12.0})
+            me = tf.me
+            alive = 1.0 - kill_curve.chance(a1, "front", 12.0)
+            tv = alive * (me.hp - 12.0) / me.theirs * me.mine
+            assert d_me == 12.0
+            assert abs(me(3.0, d_me, 1.0, 1.0, cost) - (3.0 + tv)) < 1e-6, mode
+    finally:
+        config.LEGATE_TEAM_VALUE = saved
+
+
+@check
+def drawing_fire_off_a_doomed_friend_raises_the_team_value():
+    """Daniel's example: "Move to a location that is more exposed, because it will draw fire away from a
+    vulnerable unit, preserving future firepower." A hurt friend with three times the mover's firepower
+    is worth more alive than the extra damage the healthy mover takes; with the mover's own firepower
+    it is not (each point of health left is worth its owner's damage a turn over its expected fire)."""
+    (a1, a2, b1, b2, b3), tf, obj2 = _team_fire()
+    saved = config.LEGATE_TEAM_VALUE
+    config.LEGATE_TEAM_VALUE = "sum"
+    try:
+        tf.units = [(a2, obj2, {id(b1): 40.0, id(b2): 0.0, id(b3): 0.0})]
+        obj2.hp = 35.0                                          # 40 more points destroy it
+        obj2.mine, obj2.theirs = tf.me.mine, tf.me.theirs       # the same firepower and fire as the mover
+        score = lambda got: tf.me(0.0, got[0], 1.0, 1.0, got[1])
+        safe = tf.evaluate({id(b1): 5.0})                       # B 1 shoots the friend
+        bait = tf.evaluate({id(b1): 45.0})                      # B 1 shoots the mover instead
+        assert bait[0] == 45.0 and safe[0] == 0.0
+        assert score(bait) < score(safe)                        # 45 of my HP for 35 of an equal's: no
+        obj2.mine = 3 * tf.me.mine                              # a friend with three times my firepower
+        safe, bait = tf.evaluate({id(b1): 5.0}), tf.evaluate({id(b1): 45.0})
+        assert score(bait) > score(safe)                        # draw the fire
+    finally:
+        config.LEGATE_TEAM_VALUE = saved
+
+
+@check
+def our_fire_goes_where_it_hurts_most_and_leaves_a_doomed_enemy():
+    """The exchange's model of our own fire: the same greedy rule, biggest guns first."""
+    (a1, a2, b1, b2, b3), tf, obj2 = _team_fire(exchange=True)
+    assert [e for e, _ in tf.foes] == [b1, b2, b3]
+    tf.deals = {id(a2): {id(b1): 30.0, id(b2): 10.0, id(b3): 0.0}}
+    drawn = tf.our_fire({id(b1): 12.0, id(b2): 8.0})
+    assert drawn[id(b1)] == 42.0 and drawn[id(b2)] == 0.0       # both at B 1
+    tf.foes = [(e, obj) for e, obj in tf.foes]
+    for e, obj in tf.foes:
+        if e is b1:
+            obj.hp = 25.0                                       # the Atlas's 30 already dooms it
+    drawn = tf.our_fire({id(b1): 12.0, id(b2): 8.0})
+    assert drawn[id(b1)] == 30.0 and drawn[id(b2)] == 8.0       # the mover turns to B 2
+
+
+@check
+def the_exchange_can_pay_for_a_sacrifice():
+    """Daniel, 2026-10-29: "saturate them with targets while swarming them down ... some of us may die,
+    but that's a sacrifice I'm willing to make". A spot where the mover takes 45 but its fire finishes a
+    hard-hitting enemy outscores a safe spot where it takes and deals nothing - with
+    the exchange on; with it off only the mover's own damage dealt counts, and the safe spot wins. (An
+    enemy our fire would finish next turn anyway is worth little to kill now: it removes only the
+    damage it had left to deal.)"""
+    saved = config.LEGATE_TEAM_VALUE
+    config.LEGATE_TEAM_VALUE = "sum"
+    try:
+        for exchange in (True, False):
+            (a1, a2, b1, b2, b3), tf, obj2 = _team_fire(exchange=exchange)
+            tf.units = [(a2, obj2, {id(b1): 0.0, id(b2): 0.0, id(b3): 0.0})]
+            tf.deals = {id(a2): {}}                             # the friend can't reach B 1
+            for e, obj in tf.foes:
+                if e is b1:
+                    # a hurt enemy that hits hard and that our fire won't reliably reach after this turn
+                    obj.hp, obj.mine, obj.theirs = 30.0, 4 * tf.me.mine, tf.me.theirs
+            score = lambda got, dealt: tf.me(dealt, got[0], 1.0, 1.0, got[1])
+            safe = score(tf.evaluate({id(b1): 0.0}, {}, 0.0), 0.0)
+            push = score(tf.evaluate({id(b1): 45.0}, {id(b1): 30.0}, 30.0), 30.0)   # the mover finishes it
+            assert (push > safe) == exchange, (exchange, push, safe)
+    finally:
+        config.LEGATE_TEAM_VALUE = saved
 
 
 def run_all():

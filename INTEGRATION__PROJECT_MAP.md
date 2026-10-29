@@ -28,6 +28,9 @@ columns (or none, as MegaMek abuts boards) would keep the board as drawn.
 recalled, but the Archer ARC-2R (ours 1477, recalled 1415) and the Crusader
 CRD-3R (ours 1317, recalled 1294) don't; the recalled values are from memory, so
 check them against the Master Unit List or MegaMek before changing anything.
+(d) SESSION 14 cont. (Change Record "TEAM AWARENESS..."): `legate.fire_share`, `_Herd`, `_TeamFire`
+(the greedy fire distribution both ways, the team value and its conversion into the objective's PSR
+cost - `Extras.team_cost`), all off by default.
 (c) SESSION 14 (Change Record "KILL CURVE, FIRE DIRECTOR..."): `INTEGRATION__kill_curve`
 (the trials' dice swap and caching; the fire director's score), `bots.fire_pick`,
 the `domino.advance_into` crash fix in charge / push / DFA, `princess.direction`.
@@ -454,9 +457,32 @@ Princess, decision by decision, the latest battery and why Gladiator loses.
      scored by the enemy's likely fire allocation (their side's fire director)
      with this unit at that spot: the team's expected firepower lost, summed
      over its units (output x kill chance), not just this unit's.
+   - **Team health value** (Daniel, 2026-10-29): "the shape of the team health
+     value should be something like SUM(all future damage)*SUM(All future
+     vulnerability). Where it goes into, or at what scale it goes into the
+     picker I'm not really sure. Numerator side, might replace the units own
+     future damage value (Since in a 1 on 1 it collapses into the same
+     number.)" BUILT as an option to compare: `LEGATE_TEAM_VALUE = "product"`
+     (divided by the team's size for scale) beside "sum" (each unit's own
+     lifetime term summed); where it belongs is still Daniel's call.
+   - **Incoming fire** (Daniel, 2026-10-29): "Gladiator should be aware of
+     incoming fire, the likelyhood of its own destruction, and the likelyhood
+     that fire will be split by its rules. So it can seek adverse exchange
+     ratios with the enemy." BUILT: `LEGATE_FIRE_SPLIT` (the future share)
+     and `LEGATE_TEAM_VALUE` (Daniel: "aware of the expected distribution of
+     enemy fire at the start of its turn ... how that distribution changed
+     across its entire force, and the expected loss of future damage") - this
+     turn's fire distributed over the team, each unit's kill-curve chance of
+     destruction, the team's future damage in the move score.
+   - **Herding** (Daniel, 2026-10-29): "a penalty for being past medium range
+     of any unit in the force ... IF a mech stands still its range of support
+     should increase. Somehow LOS should be involved. You can't support a mech
+     if you can't see its enemies." BUILT as `LEGATE_HERDING` (`legate._Herd`;
+     weights are placeholders until A/B'd).
    - **Movement order hierarchy:** which of a team's units moves first. Today
      both bots use Princess's move index (`forces.move_index`: faster units
-     closer to the enemy move later).
+     closer to the enemy move later). Daniel, 2026-10-29: "We'll continue to
+     use Princess's movement heirarcy for now."
    - **Firing order hierarchy:** which declares first. BUILT 2026-10-29 as
      Daniel's rule, "Big guns first followed by smaller guns. Its the same
      rule used on a mech, just applied to the entire formation."
@@ -846,7 +872,12 @@ when dealt is 0; (c) a difference, dealt - received. Replay of that battle:
 https://claude.ai/artifact/NJUknRiK1fcZzUv4A1fndX
 
 **Known issues to fix later (found session 13, Claude):**
-- One `tests/run_checks.py` run once reported "40 of 41 checks passed, 1
+- ~~FLAKY CHECK~~ FIXED 2026-10-29 (Claude): it was `test_superheavy.py`
+  `superheavy_slots` - the ammo blast rolled its critical-hit checks with live
+  dice, and about 1 run in 20 a critical set off another bin (one pilot hit
+  more than the check expected). The check now pins those rolls to a miss
+  (old version: 3 failures in 60 runs; new: 0 in 30). Earlier notes:
+  One `tests/run_checks.py` run once reported "40 of 41 checks passed, 1
   FAILED" and the failing line was not captured; the next ~10 runs were all
   green. A flaky check somewhere (a shared cache or file written by two checks
   running side by side is the first suspect). If it shows again, keep the
@@ -1372,7 +1403,7 @@ forward arc, kicks included, never into a side arc.
 | Multi-unit: activation order within a side | `forces.move_index` / `forces.movement_order` | Princess's move index (MegaMek `calculateMoveIndex`: distance to the nearest enemy over the fastest move; far, slow units first) for every bot; a unit still off the board goes first. Ranged declaration: Gladiator's FIRING ORDER, `bots.fire_pick`, `config.GLADIATOR_FIRE_ORDER` (2026-10-29, Daniel: "Big guns first followed by smaller guns. Its the same rule used on a mech, just applied to the entire formation.") - "big_guns_first" (default): within each of its side's selections, the Gladiator with the most expected damage at any enemy now (`kill_curve.firepower`, the dry run of its weapon choice) declares first, so smaller guns see the big guns' fire in the damage map; ranked after TAG designation; only when a side has 2+ Gladiators. "roster": list order. Princess units and the physical phase: roster order. |
 | Multi-unit: Initiative and Unequal Numbers with 3+ sides | `forces.initiative_order`, `forces.activation_sequence` | The book (pp.39-41) covers two sides. Here: every side rolls 2D6, the LOWEST acts first, only tied sides re-roll; each side takes ceil(its eligible units / the smallest other side's) selections at a time, tallied at the start of each round - exactly the book's table for two sides, and MegaMek's `TurnOrdered.generateTurnOrder` (ceil(turns / min)). Shut-down / unconscious (and, moving, immobile) units are left out of the tally and go ahead of their side's first selection. |
 | Multi-unit: whom a bot plans movement against (its "foe") | `bots.choose_foe` -> `forces.choose_foe`, `config.FOE_CHOICE` | "nearest": the nearest standing enemy on the board (ties by roster order), else one not yet on the board. Gladiator's movement scoring sees that ONE enemy (independent bots) unless Legate is on (next row). Princess takes it as the start of a `princess_group.Group`: every enemy on the board is weighed (below). |
-| Legate: Gladiator against the whole enemy force | `INTEGRATION__legate` (`config.LEGATE`, `LEGATE_ITERATIONS`), `movement_selection._legate_extras` | Daniel's design, 2026-10-28. At the start of the Movement Phase, for each side with a Gladiator and 2+ enemies on the board: IF/THEN for all units at once - round 0 everyone holds still, each round the enemy units answer, then the asking side's own units; a unit scores each spot (the grid search) with the picker score ("lifetime") against the WHOLE opposing force at its estimated spots: damage taken = the SUM over opposing units, damage dealt = the MAX, future damage rates likewise (`MultiLifetime`). Two units wanting a hex: the higher score keeps it, the other takes its next best, which can displace a third (cascade, `resolve`), settled before the next round; a unit that picks a hex it already tried is locked at its best attempt (closed to the others too). 12 rounds at most (`LEGATE_ITERATIONS`); the enemy units' best attempts are the estimate. Each Gladiator then plans against the enemy that would score highest against it (each at its estimated spot, its real spot once moved) among those yet to move (all moved: the most threatening), runs its normal search against that foe, and every spot is also scored against the other enemies at their estimated / real spots (taken adds up, dealt is the best). Fire at the weapons phase is unchanged (it already looks at every enemy). Off, or a duel: byte-identical. Placeholder: no estimate of the fire one unit really draws. |
+| Legate: Gladiator against the whole enemy force | `INTEGRATION__legate` (`config.LEGATE`, `LEGATE_ITERATIONS`), `movement_selection._legate_extras` | Daniel's design, 2026-10-28. At the start of the Movement Phase, for each side with a Gladiator and 2+ enemies on the board: IF/THEN for all units at once - round 0 everyone holds still, each round the enemy units answer, then the asking side's own units; a unit scores each spot (the grid search) with the picker score ("lifetime") against the WHOLE opposing force at its estimated spots: damage taken = the SUM over opposing units, damage dealt = the MAX, future damage rates likewise (`MultiLifetime`). Two units wanting a hex: the higher score keeps it, the other takes its next best, which can displace a third (cascade, `resolve`), settled before the next round; a unit that picks a hex it already tried is locked at its best attempt (closed to the others too). 12 rounds at most (`LEGATE_ITERATIONS`); the enemy units' best attempts are the estimate. Each Gladiator then plans against the enemy that would score highest against it (each at its estimated spot, its real spot once moved) among those yet to move (all moved: the most threatening), runs its normal search against that foe, and every spot is also scored against the other enemies at their estimated / real spots (taken adds up, dealt is the best). Fire at the weapons phase is unchanged (it already looks at every enemy). Off, or a duel: byte-identical. Placeholder: no estimate of the fire one unit really draws. FIRE SPLIT (`config.LEGATE_FIRE_SPLIT`, 2026-10-29): in the life-left estimate each enemy's future rate on me counts times `legate.fire_share` - "proportional": my slice of what that enemy could deal across my standing team (those it can matter to) - or "none" (all of it, the first version). HERDING (`config.LEGATE_HERDING`, `legate._Herd`, Daniel's shape 2026-10-29): a spot that an enemy (at its estimated spot) can reach costs `LEGATE_HERD_WEIGHT` damage a hex beyond the support of every teammate that can see one of those enemies (LOS from the teammate's estimated / real end spot); support = the end of its medium bracket, long if it stands still; no teammate sees one: `LEGATE_HERD_UNSEEN_GAP` hexes; added to the damage taken. TEAM VALUE (`config.LEGATE_TEAM_VALUE`, off by default until A/B'd; `legate._TeamFire`, Daniel 2026-10-29): with the mover at the spot being scored, each enemy (estimated spot) shoots the unit it hurts most (movement evaluator, per pair) among those not already doomed by the fire assigned before it (`LEGATE_TEAM_FIRE_MODEL` "greedy", enemies in order of their biggest damage); the score becomes dealt + the team's future damage TV, "sum" = sum over the team of (1 - kill-curve chance at the damage drawn) x (effective HP - damage drawn) / theirs x mine, "product" = Daniel's SUM(future damage) x SUM(future vulnerability) / team size; carried into the objective as a cost in the mover's HP (`Extras.team_cost`, added to the PSR cost); the mover's damage taken is what it draws under that distribution. |
 | Multi-unit: whom a unit shoots / fights | `bots.choose_target` -> `forces.choose_target` (Gladiator) / `princess_group.choose_target` (Princess) / `kill_curve.choose_target` (Gladiator's fire director) | One target a turn. Gladiator with 2+ enemies on the board: `config.STUB_GLADIATOR_TARGET` (2026-10-29). "kill_curve" is Gladiator's own FIRE DIRECTOR (2026-10-29, Daniel: "splitting fire to wreck 2 units is better then hard killing 1 and grazing the other"): each enemy scores worth x [f(declared + mine) - f(declared)], f = its kill curve (`INTEGRATION__kill_curve`: chance of a mission kill from N more damage, 5-point groups, on the side this unit hits), declared = the team's damage map, worth = the enemy's damage a turn (`KILL_CURVE_WEIGHT`), plus a tiny kill-progress tie-break; its declaration is counted for the teammates after it. What counts as a mission kill: **STUB** `stubs.stub_mission_kill`, `config.STUB_MISSION_KILL` ("destroyed" default / "no_ranged_weapons"; spotting has no worth yet). The stub choices (**STUB** `stubs.stub_gladiator_target`, Daniel: "a good test to stub in until we teach gladiator how to focus fire and account for target saturation"): "princess_plan" (default) borrows Princess's choice below, scored through Princess's fire control (`bots.princess_eyes`), and Gladiator's own declaration goes into the team's damage map (`bots.records_declared_damage`); it still picks its own weapons. "nearest" is the old pick: an enemy in sight beats one not, then one a weapon can bear on (arcs and torso twist, `attack_resolution.weapons_can_bear`), then the nearest. Princess: the enemy whose firing plan has the highest utility (a dry run of the real weapon choice, `declare_attacks(dry=True)`), the damage friends already declared counted (next row). Physical attacks: the declared charge / DFA target, else an adjacent enemy. No secondary targets (p.64): a plan has one target, as in MegaMek's ordinary Princess. |
 | Princess: fire distribution | `princess_fire.overkill_fraction`, `princess_fire.assign_damage`, `princess_group.choose_target` | `FireControl.calcDamageAllocationUtility`: an enemy the team's earlier declarations are expected to destroy (damage >= its total HP) scores 100 x -30 (the unit fires at another, or nothing); below half its HP nothing is charged; between, the fraction of its HP x -30. The damage map is per team, filled as each unit declares in order (`Princess.damageMap`), emptied at the start of every Ranged Attack Phase, and ignored in a movement guess. |
 | Princess: movement in a battle | `princess_group.Group`, `princess_modern._rank` / `princess._rank` | rankPath over ALL enemies: my firing and physical damage the best of any one, damage taken summed; distance / aggression / facing against the closest enemy by adjusted distance (an enemy yet to move counts farther by its walking MP); facing the closest enemy if beside the spot, else the median of the 4 closest (Weiszfeld, `facing_enemies`); an enemy too far for either side to reach adds nothing (`can_matter`, speed only). Posture is the FORCE's (`force_posture`: once a round, the enemy's mean distance to the centre of the team, kept in `princess_memory`). |
@@ -1653,6 +1684,30 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-29 (Claude), session 14 (cont.) - TEAM AWARENESS: FIRE SPLIT, HERDING,
+  TEAM VALUE, EXCHANGE - BUILT AS OPTIONS, NONE BEATS THE BASELINE YET.** REVIEW
+  PENDING (higher-level model). Daniel's designs (Pick up here 0000), all in
+  `INTEGRATION__legate`, all off by default: `LEGATE_FIRE_SPLIT` (fire_share),
+  `LEGATE_HERDING` (_Herd), `LEGATE_TEAM_VALUE` "sum" / "product" (_TeamFire: the
+  enemy's fire this turn distributed over the team, greedy "most hurt, not
+  already doomed"; the team's future damage with kill curves), and
+  `LEGATE_TEAM_EXCHANGE` (our fire on the enemy by the same rule; the enemy's
+  future damage removed counts too). Battery, same 20 seeds, Legate, target stub,
+  big guns first (Princess wins / draws / Gladiator wins; 'Mechs left P / G):
+  baseline 8 / 8 / 4 (3.3 / 1.9); fire split 4 / 16 / 0 (5.55 / 3.35 - stops the
+  light dive, then both sides go passive); herding 8 / 8 / 4 (3.25 / 2.0 - half
+  the battles end differently, the totals don't move); split + herding 1 / 19 / 0
+  (5.3 / 3.25); + team value "sum" 12 / 4 / 4 (4.45 / 1.5); + "product" 17 / 3 / 0
+  (5.75 / 0.45); + "sum" + exchange 18 / 1 / 1 (5.4 / 0.25). Reading (not yet
+  checked in replays): each mover scores its spot with its teammates at their
+  ESTIMATED spots and the enemy shooting whoever it hurts most, so it can count on
+  a teammate to draw the fire (and, with the exchange, to finish its kills) - and
+  every teammate reasons the same way at once: the force over-commits. Next:
+  check that in replays; then let a mover count the teammates yet to move at
+  their own best spots / their own risk (a coordination step), before tuning
+  weights. Also fixed: the long-flaky check (`test_superheavy` superheavy_slots,
+  live dice in an ammo blast's critical rolls, ~1 run in 20). Battery flags:
+  `--fire-split`, `--herding`, `--team-value`, `--fire-order`.
 - **2026-10-29 (Claude), session 14 - KILL CURVE, FIRE DIRECTOR, BIG GUNS FIRST;
   TWO CRASH FIXES; WHY GLADIATOR LOSES.** REVIEW PENDING (higher-level model).
   Summary for Daniel and the next session: `INTEGRATION__BOTS.md`.

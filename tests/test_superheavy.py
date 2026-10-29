@@ -104,8 +104,13 @@ def superheavy_slots():
     second = first.partner
     assert second.partner_of_slot is first and not is_crit_target(second) and is_crit_target(first)
     before = m.pilot_hits
-    with redirect_stdout(io.StringIO()):
-        apply_explosion(m, first, "Left Arm")
+    real = config.roll_2d6
+    config.roll_2d6 = lambda prompt="": 2       # the blast's critical-hit checks all miss: no second
+    try:                                        # bin set off by chance (this check was flaky, 2026-10-29)
+        with redirect_stdout(io.StringIO()):
+            apply_explosion(m, first, "Left Arm")
+    finally:
+        config.roll_2d6 = real
     assert second.exploded and m.pilot_hits == before + 1
 
 

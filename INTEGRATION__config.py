@@ -175,6 +175,32 @@ LEGATE = True
 # Legate's IF/THEN search: how many rounds (each round every enemy unit answers, then every unit of the
 # asking side answers). A unit that picks a hex it already tried is locked at its best attempt.
 LEGATE_ITERATIONS = 12
+# How much of an enemy's future fire a Gladiator expects to draw in its life-left estimate
+# (INTEGRATION__legate.fire_share, 2026-10-29): "proportional" (its slice of what that enemy could deal
+# across the team) or "none" (all of it - the first version, which made lights dive in alone).
+LEGATE_FIRE_SPLIT = "none"          # "proportional" stalled battles in the 2026-10-29 A/B (Change Record)
+# Herding (INTEGRATION__legate._Herd, 2026-10-29, Daniel's shape): a spot an enemy can reach costs
+# LEGATE_HERD_WEIGHT damage for each hex it lies beyond the support of every teammate that can see one
+# of those enemies (support: the end of the teammate's medium bracket, long if it stands still);
+# no teammate sees one: LEGATE_HERD_UNSEEN_GAP hexes. Placeholder weights; off by default (A/B 2026-10-29).
+LEGATE_HERDING = False             # 2 a hex changed half the battles but not the results (A/B 2026-10-29)
+LEGATE_HERD_WEIGHT = 2.0
+LEGATE_HERD_UNSEEN_GAP = 6
+# The team's future damage in a Gladiator's move score (INTEGRATION__legate._TeamFire, 2026-10-29, Daniel:
+# "aware of the expected distribution of enemy fire ... how that distribution changed across its entire
+# force, and the expected loss of future damage"): the enemy's fire this turn is distributed over the whole
+# team with the mover at the spot being scored, and the score is dealt + the team's future damage -
+# "sum" (each unit's life-left term, times its chance of living through the turn) or "product" (Daniel's
+# SUM(future damage) x SUM(future vulnerability), over the team's size); None = off (the mover's own term).
+LEGATE_TEAM_VALUE = None
+LEGATE_TEAM_FIRE_MODEL = "greedy"   # whom each enemy shoots: its most-hurt target not already doomed
+# The exchange (2026-10-29, Daniel: "a valid tactic is to saturate them with targets while swarming them
+# down ... 'some of us may die, but that's a sacrifice I'm willing to make'"): with a team value, also count
+# the enemy's future damage our team's fire takes off the board this turn (our fire distributed by the same
+# rule, each enemy's kill curve), times LEGATE_TEAM_EXCHANGE_WEIGHT - so a move is worth our team's future
+# damage plus the enemy's we remove.
+LEGATE_TEAM_EXCHANGE = True
+LEGATE_TEAM_EXCHANGE_WEIGHT = 1.0
 
 # Deployment (2026-10-19, Core p.37):
 #   "home_edge"   - deployment roll; the loser picks a home edge, the winner
