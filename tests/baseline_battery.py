@@ -64,6 +64,12 @@ def main():
                     help="config.LEGATE (default on since 2026-10-29; --no-legate for the old one-foe Gladiator)")
     ap.add_argument("--target", choices=("princess_plan", "kill_curve", "nearest"), default=config.STUB_GLADIATOR_TARGET,
                     help="config.STUB_GLADIATOR_TARGET: whom a Gladiator unit shoots (2026-10-29)")
+    ap.add_argument("--fire-split", choices=("proportional", "none"), default=config.LEGATE_FIRE_SPLIT,
+                    help="config.LEGATE_FIRE_SPLIT: a Gladiator's expected share of an enemy's future fire")
+    ap.add_argument("--herding", action=argparse.BooleanOptionalAction, default=config.LEGATE_HERDING,
+                    help="config.LEGATE_HERDING: the penalty for a spot beyond every friend's support")
+    ap.add_argument("--fire-order", choices=("big_guns_first", "roster"), default=config.GLADIATOR_FIRE_ORDER,
+                    help="config.GLADIATOR_FIRE_ORDER")
     args = ap.parse_args()
     red_bot, blue_bot, title = SETUPS[args.setup]
     config.FORCES = forces(red_bot, blue_bot)
@@ -74,11 +80,14 @@ def main():
     config.VERBOSE = False
     config.LEGATE = args.legate
     config.STUB_GLADIATOR_TARGET = args.target
+    config.LEGATE_FIRE_SPLIT, config.LEGATE_HERDING = args.fire_split, args.herding
+    config.GLADIATOR_FIRE_ORDER = args.fire_order
+    tag = f"split-{args.fire_split}{'_herd' if args.herding else ''}_{args.fire_order}"
     config.REPLAY_BATTLES = 1 if args.replay else 0
     with redirect_stdout(io.StringIO()):
         terrain = orchestrator._load_map()
         roster = config.load_roster()
-    print(f"{title}{' + Legate' if args.legate else ''}, Gladiator targets: {args.target}: 12 v 12 on a 2 x 1 stitched field, {args.battles} battle(s), cap {args.turns} turns, seed {args.seed}")
+    print(f"{title}{' + Legate' if args.legate else ''}, Gladiator targets: {args.target}, {tag}: 12 v 12 on a 2 x 1 stitched field, {args.battles} battle(s), cap {args.turns} turns, seed {args.seed}")
     rows = []
     for n in range(args.first, (args.last or args.battles) + 1):
         timing.reset() if hasattr(timing, "reset") else None
@@ -103,9 +112,9 @@ def main():
             print("    time: " + ", ".join(f"{k} {v:.0f}s" for k, v in sorted(secs.items(), key=lambda kv: -kv[1])[:8]))
     out_dir = os.path.join(REPO_ROOT, "run_stats", "baseline")
     os.makedirs(out_dir, exist_ok=True)
-    path = os.path.join(out_dir, f"{args.setup}{'_legate' if args.legate else ''}_{args.target}_seed{args.seed}_{args.first}-{args.last or args.battles}_{int(time.time())}.json")
+    path = os.path.join(out_dir, f"{args.setup}{'_legate' if args.legate else ''}_{args.target}_{tag}_seed{args.seed}_{args.first}-{args.last or args.battles}_{int(time.time())}.json")
     with open(path, "w") as f:
-        json.dump({"setup": title, "legate": args.legate, "gladiator_target": args.target, "seed": args.seed, "turn_cap": args.turns, "boards": BOARDS,
+        json.dump({"setup": title, "legate": args.legate, "gladiator_target": args.target, "settings": tag, "seed": args.seed, "turn_cap": args.turns, "boards": BOARDS,
                    "force": [n for n, _ in FORCE], "rows": rows}, f, indent=1, default=str)
     print(f"rows -> {path}")
 

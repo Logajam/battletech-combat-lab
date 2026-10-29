@@ -29,8 +29,10 @@ WHAT LEGATE DOES, each Movement Phase, for each side that has a Gladiator unit a
   4. FIRE. Unchanged: INTEGRATION__forces.choose_target already looks at every enemy once positions are
      final (in sight, bears, nearest).
 
-PLACEHOLDERS (Daniel: "This will change later"): the damage a single unit would really take when the
-enemy force concentrates fire is simply summed; there is no estimate of how much fire one unit draws.
+PLACEHOLDERS (Daniel: "This will change later"): the damage a single unit would really take THIS turn
+when the enemy force concentrates fire is simply summed. Its FUTURE share is estimated (fire_share,
+config.LEGATE_FIRE_SPLIT, 2026-10-29): the old "every enemy shoots only me" made a unit's life look ~3
+turns long against 12 enemies, so bad trades scored well and lights dived in alone (Change Record).
 TO DO (Daniel): Legate reads the map and finds tactically useful terrain; the concentrated-fire
 estimate; a better score for the estimate (PROJECT_MAP Section 0, Pick up here).
 
@@ -54,12 +56,14 @@ from mech_state import is_immobile  # noqa: E402 - MECHSIM
 State = Tuple[str, str, int, str, int]            # hex label, facing compass, hexes moved, mode, MP spent
 
 _PLANS: Dict[str, Dict[int, State]] = {}          # team -> {id(enemy unit): its estimated end state}
+_OWN: Dict[str, Dict[int, State]] = {}            # team -> {id(own unit): its estimated end state} (herding)
 _RATES: Dict[Tuple[int, int], Tuple[float, float]] = {}   # (id(a), id(b)) -> (a's, b's) future damage rates
 
 
 def reset() -> None:
     """A new battle: no plan, no cached rates."""
     _PLANS.clear()
+    _OWN.clear()
     _RATES.clear()
 
 
@@ -114,18 +118,43 @@ def pair_rates(a, b) -> Tuple[float, float]:
     return got
 
 
+def fire_share(foe, me) -> float:
+    """The share of `foe`'s future fire that lands on `me` (config.LEGATE_FIRE_SPLIT, 2026-10-29 -
+    Daniel: Gladiator should know "the likelyhood that fire will be split by its rules"):
+      "none"         - all of it (the original MultiLifetime: every enemy shoots only me);
+      "proportional" - my slice of what the foe could deal across my team: its damage a turn on me
+                       over the sum on every standing teammate it can matter to, me included. A
+                       stand-in for the enemy's targeting rule (Princess takes the plan with the best
+                       utility, mostly expected damage), so a unit the enemy hurts more draws more."""
+    policy = config.LEGATE_FIRE_SPLIT
+    if policy == "none":
+        return 1.0
+    if policy != "proportional":
+        raise ValueError(f"Unknown LEGATE_FIRE_SPLIT {policy!r} ('proportional' or 'none')")
+    mine = pair_rates(foe, me)[0]
+    if mine <= 0:
+        return 0.0
+    team = [u for u in forces.standing(forces.battle()) if u.team == me.team and u.hex is not None
+            and (u is me or can_matter(u, foe))]
+    if not any(u is me for u in team):
+        team.append(me)
+    total = sum(pair_rates(foe, u)[0] for u in team)
+    return mine / total if total > 0 else 1.0
+
+
 class MultiLifetime:
     """movement_selection._Lifetime against several foes (Daniel, 2026-10-28): the damage taken is the
     SUM over the foes and the damage dealt the MAX, so the future rates are too: my future damage is
-    the best over the foes, theirs is the sum of every foe's. Called as objective(dealt, received,
-    dealt_mult, received_mult, extras) like the others."""
+    the best over the foes, theirs is the sum of every foe's - each foe's times the share of its fire
+    I can expect to draw (fire_share; LEGATE_FIRE_SPLIT "none" = all of it). Called as
+    objective(dealt, received, dealt_mult, received_mult, extras) like the others."""
 
     def __init__(self, me, foes):
         floor = config.MOVEMENT_LIFETIME_FUTURE_FLOOR
         self.hp = movement_selection.effective_hp(me)
         rates = [pair_rates(me, f) for f in foes]
         self.mine = max([floor] + [m for m, _ in rates])
-        self.theirs = max(floor, sum(t for _, t in rates))
+        self.theirs = max(floor, sum(t * fire_share(f, me) for (_, t), f in zip(rates, foes)))
 
     def __call__(self, dealt, received, dealt_mult, received_mult, extras):
         left = self.hp - (received * received_mult + extras)
@@ -134,7 +163,7 @@ class MultiLifetime:
     def note(self, dealt, received, dealt_mult, received_mult, extras, how):
         score = self(dealt, received, dealt_mult, received_mult, extras)
         return (f"score {score:.3f} = dealt {dealt:.2f} x{dealt_mult:.2f} + (HP {self.hp:.1f} - received "
-                f"{received:.2f} x{received_mult:.2f} - PSR {extras:.2f}) / all enemies' future {self.theirs:.2f} "
+                f"{received:.2f} x{received_mult:.2f} - PSR {extras:.2f}) / enemies' future on me {self.theirs:.2f} "
                 f"x my best future {self.mine:.2f} [{how}]")
 
 
@@ -319,6 +348,7 @@ def plan_turn(units, terrain_map) -> None:
     """The start of the Movement Phase: estimate where each side's enemies will end, for every team with a
     Gladiator unit that faces two or more enemies on the board. Stores the estimate (estimate_for)."""
     _PLANS.clear()
+    _OWN.clear()
     if not config.LEGATE:
         return
     alive = forces.standing(units)
@@ -331,7 +361,7 @@ def plan_turn(units, terrain_map) -> None:
         if len(theirs) < 2 or not any(getattr(u, "bot", None) == "gladiator" for u in mine):
             continue
         with timing.section("Legate estimate"):
-            _PLANS[team] = _estimate(mine, theirs, units, terrain_map)
+            _PLANS[team], _OWN[team] = _estimate(mine, theirs, units, terrain_map)
 
 
 def _estimate(mine, theirs, units, terrain_map) -> Dict[int, State]:
@@ -352,8 +382,18 @@ def _estimate(mine, theirs, units, terrain_map) -> Dict[int, State]:
         if all(u.locked for u in enemy):
             break
         _half_round(asking, enemy, objective_cache)
-    # An enemy unit that never settled takes its best attempt.
-    return {id(u.mech): (u.best[1] if u.best is not None else u.state) for u in enemy}
+    # A unit that never settled takes its best attempt. (enemy estimate, own side's estimate)
+    def ends(side):
+        return {id(u.mech): (u.best[1] if u.best is not None else u.state) for u in side}
+    return ends(enemy), ends(asking)
+
+
+def friend_state(team: str, friend) -> State:
+    """Where a teammate is taken to end this turn: its real spot if it has moved, else Legate's
+    estimate of its own side, else where it stands."""
+    if getattr(friend, "moved_this_turn", False):
+        return _real_state(friend)
+    return _OWN.get(team, {}).get(id(friend)) or _hold(friend)
 
 
 def estimate_for(team: str, foe) -> Optional[State]:
@@ -433,6 +473,7 @@ class Extras:
         self.entries = [(_Unit(f, units, terrain_map, lite=True), foe_state(mover.team, f)) for f in self.others]
         self.unit = _Unit(mover, units, terrain_map, lite=True, side=me_side)
         self.count = len(self.entries)
+        self.herd = _Herd(mover, units, terrain_map) if config.LEGATE_HERDING else None
 
     def objective(self, primary, me_side):
         return objective_for(me_side, [primary] + self.others)
@@ -457,4 +498,89 @@ class Extras:
                     continue
                 d = max(d, cand.dealt * foe.side.exposure[cand.side_on_defender])
                 r += cand.received * self.unit.side.exposure[cand.side_on_mover]
+            if self.herd is not None:
+                r += self.herd.penalty(o.hex_xy)
         return d, r, 1.0, 1.0
+
+
+# =============================================================================
+# ===========================  HERDING  =======================================
+# =============================================================================
+def _ranged_weapons(mech):
+    import INTEGRATION__ammo as ammo
+    import INTEGRATION__weapon_rules as weapon_rules
+    from damage_resolution import get_weapons
+    out = ammo.unavailable_weapons(mech)
+    return [w for w in get_weapons(mech) if id(w) not in out and not weapon_rules.is_ams(w)
+            and w.weapon_range and w.weapon_range.get("long") is not None]
+
+
+def support_range(mech, standing_still) -> int:
+    """How far a unit can support a friend (Daniel, 2026-10-29: "Mech A has a 7/14/21 range bracket,
+    Mech B wants to be within 14 hexes of A ... IF a mech stands still its range of support should
+    increase"): the end of its medium bracket, or of its long bracket when it stands still (Claude's
+    reading of "should increase": standing still instead of walking is the to-hit points of one
+    range bracket, AMM 0 v +1 / +2, Core p.57 - so it reaches one bracket further). The best of its
+    weapons that can still fire; 0 with none."""
+    key = "long" if standing_still else "medium"
+    return max((w.weapon_range[key] for w in _ranged_weapons(mech)), default=0)
+
+
+def reach(mech) -> int:
+    """The farthest any of its weapons that can still fire reaches (long bracket)."""
+    return max((w.weapon_range["long"] for w in _ranged_weapons(mech)), default=0)
+
+
+class _Herd:
+    """The herding penalty for one Gladiator's spots (config.LEGATE_HERDING; Daniel, 2026-10-29:
+    "Herding shape should be something like a penalty for being past medium range of any unit in the
+    force ... Somehow LOS should be involved. You can't support a mech if you can't see its enemies.")
+    A spot s is threatened by the enemies (where Legate believes they will end) whose weapons reach
+    s. A teammate A (where it will end: friend_state) supports s if it can see one of those enemies
+    (LOS from its spot to the enemy's) - its support then reaches support_range(A) hexes (standing
+    still: further). The spot's gap is the fewest hexes it lies beyond the support of any such
+    teammate; no teammate sees a threat: LEGATE_HERD_UNSEEN_GAP. Not threatened: no gap. The
+    penalty, LEGATE_HERD_WEIGHT x gap, counts as extra damage taken (it sits beside the damage the
+    other enemies would deal). Chains work by themselves: C supported by B, B by A."""
+
+    def __init__(self, mover, units, terrain_map):
+        import INTEGRATION__los_cache as los_cache
+        self.terrain_map = terrain_map
+        enemies = [f for f in forces.enemies_of(mover, units) if f.hex is not None]
+        self.threats = []                                      # (enemy xy, its reach)
+        for f in enemies:
+            st = foe_state(mover.team, f)
+            self.threats.append((_xy(st[0]), reach(f)))
+        self.friends = []                                      # (friend xy, support range, {threat index it sees})
+        for u in forces.standing(units):
+            if u is mover or u.team != mover.team or u.hex is None:
+                continue
+            st = friend_state(mover.team, u)
+            xy = _xy(st[0])
+            seen = set()
+            for i, (exy, _) in enumerate(self.threats):
+                try:
+                    if los_cache.los(xy, exy, terrain_map).los:
+                        seen.add(i)
+                except ValueError:
+                    pass
+            self.friends.append((xy, support_range(u, st[3] == "Stand Still"), seen))
+        self._memo: Dict[Tuple[int, int], float] = {}
+
+    def gap(self, xy) -> float:
+        threats = {i for i, (exy, r) in enumerate(self.threats) if hex_distance(xy, exy) <= r}
+        if not threats:
+            return 0.0
+        best = None
+        for fxy, rng, seen in self.friends:
+            if seen & threats:
+                g = max(0, hex_distance(xy, fxy) - rng)
+                best = g if best is None else min(best, g)
+        return float(config.LEGATE_HERD_UNSEEN_GAP if best is None else best)
+
+    def penalty(self, xy) -> float:
+        got = self._memo.get(xy)
+        if got is None:
+            got = self._memo[xy] = config.LEGATE_HERD_WEIGHT * self.gap(xy)
+        return got
+

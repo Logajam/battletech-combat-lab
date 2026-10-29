@@ -195,12 +195,61 @@ def the_picker_score_sums_their_future_damage_and_takes_my_best():
     legate._RATES.clear()
     legate._RATES[(id(a1), id(b1))] = (10.0, 4.0)
     legate._RATES[(id(a1), id(b2))] = (6.0, 5.0)
-    obj = legate.MultiLifetime(a1, [b1, b2])
+    saved = config.LEGATE_FIRE_SPLIT
+    config.LEGATE_FIRE_SPLIT = "none"                          # every enemy's fire all on me
+    try:
+        obj = legate.MultiLifetime(a1, [b1, b2])
+    finally:
+        config.LEGATE_FIRE_SPLIT = saved
     assert obj.mine == 10.0 and obj.theirs == 9.0              # best of mine, sum of theirs
     hp = movement_selection.effective_hp(a1)
     assert abs(obj(3.0, 20.0, 1.0, 1.0, 0.0) - (3.0 + (hp - 20.0) / 9.0 * 10.0)) < 1e-9
     assert obj(3.0, hp + 1, 1.0, 1.0, 0.0) == 3.0              # destroyed: only what it dealt
     legate._RATES.clear()
+
+
+@check
+def an_enemys_future_fire_is_shared_over_the_team_it_can_reach():
+    """LEGATE_FIRE_SPLIT "proportional" (2026-10-29): an enemy that hurts both Atlases alike sends me
+    half its fire; one that can only hurt me sends me all of it."""
+    a1, a2, b1, b2, b3 = line_up()
+    legate._RATES.clear()
+    for foe, on_a1, on_a2 in ((b1, 4.0, 4.0), (b2, 5.0, 0.0)):
+        legate._RATES[(id(foe), id(a1))], legate._RATES[(id(a1), id(foe))] = (on_a1, 7.0), (7.0, on_a1)
+        legate._RATES[(id(foe), id(a2))], legate._RATES[(id(a2), id(foe))] = (on_a2, 7.0), (7.0, on_a2)
+    saved = config.LEGATE_FIRE_SPLIT
+    config.LEGATE_FIRE_SPLIT = "proportional"
+    try:
+        assert legate.fire_share(b1, a1) == 0.5 and legate.fire_share(b2, a1) == 1.0
+        assert legate.MultiLifetime(a1, [b1, b2]).theirs == 4.0 * 0.5 + 5.0
+    finally:
+        config.LEGATE_FIRE_SPLIT = saved
+        legate._RATES.clear()
+
+
+@check
+def herding_charges_a_threatened_spot_beyond_every_seeing_friends_support():
+    """LEGATE_HERDING (2026-10-29, Daniel's shape): an Atlas whose friend stands beside it pays nothing;
+    far beyond the friend's medium range (where an enemy can still reach it) it pays per hex; standing
+    still the friend supports to its long range."""
+    a1, a2, b1, b2, b3 = line_up()
+    with Legate_on():
+        herd = legate._Herd(a1, [a1, a2, b1, b2, b3], TERRAIN)
+        assert herd.gap(movement_selection.hex_geometry.parse_hex_label(a1.hex)) == 0.0   # a2 next door
+        assert 0 < legate.support_range(a2, False) < legate.support_range(a2, True)   # 14 v 21 hexes
+        xy_a2 = movement_selection.hex_geometry.parse_hex_label(a2.hex)
+        herd.friends = [(xy_a2, 3, set(range(len(herd.threats))))]                     # supports 3 hexes out
+        herd._memo.clear()
+        spots = [movement_selection.hex_geometry.parse_hex_label(l) for l in TERRAIN["hexes"]]
+        threatened = [xy for xy in spots if any(legate.hex_distance(xy, exy) <= r for exy, r in herd.threats)]
+        five_out = [xy for xy in threatened if legate.hex_distance(xy, xy_a2) == 5]
+        assert five_out
+        assert all(herd.gap(xy) == 2.0 and herd.penalty(xy) == config.LEGATE_HERD_WEIGHT * 2.0 for xy in five_out)
+        herd.friends = [(xy_a2, 3, set())]                       # it sees none of the threats: no support
+        herd._memo.clear()
+        assert herd.gap(five_out[0]) == config.LEGATE_HERD_UNSEEN_GAP
+        safe = [xy for xy in spots if xy not in threatened]
+        assert not safe or herd.gap(safe[0]) == 0.0              # nothing reaches it: no gap
 
 
 @check
@@ -220,7 +269,7 @@ def a_gladiator_picks_a_move_with_legate_and_without():
             finally:
                 a1.blocked_hex = a1.other_unit_hexes = None
             assert pick is not None and note
-            assert ("all enemies' future" in note) == flag      # Legate's own score text only when on
+            assert ("enemies' future on me" in note) == flag     # Legate's own score text only when on
 
 
 def run_all():
