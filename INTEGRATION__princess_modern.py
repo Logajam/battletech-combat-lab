@@ -168,11 +168,20 @@ def estimated_melee_damage(mech):
     return math.floor(mech.mass / 5.0)
 
 
-def close_range_incentive(mech, dist):
+def close_range_incentive(mech, dist, max_at=None):
+    """max_at: an optional {range: max_damage_at_range} memo for one ranking (nothing changes the mech's
+    weapons or ammo while its paths are ranked)."""
     if dist < 1 or dist >= CLOSE_RANGE_BAND:
         return 0.0
-    point_blank = princess_fire.max_damage_at_range(mech, 1) + estimated_melee_damage(mech)
-    premium = point_blank - princess_fire.max_damage_at_range(mech, int(math.ceil(dist)))
+
+    def at(rng):
+        if max_at is None:
+            return princess_fire.max_damage_at_range(mech, rng)
+        if rng not in max_at:
+            max_at[rng] = princess_fire.max_damage_at_range(mech, rng)
+        return max_at[rng]
+    point_blank = at(1) + estimated_melee_damage(mech)
+    premium = point_blank - at(int(math.ceil(dist)))
     if premium <= 0:
         return 0.0
     return premium * (CLOSE_RANGE_BAND - dist) / (CLOSE_RANGE_BAND - 1) * CLOSE_RANGE_INCENTIVE_WEIGHT
@@ -470,6 +479,7 @@ def _rank(mover, group, prepared, estimate, terrain_map, psr_applies, moved, sta
     turn_of_advance = TEMPO_REFERENCE_MP * aggression
     cap = HOLD_CREDIT_DEFEND_CAP_FACTOR if stance == DEFEND else HOLD_CREDIT_ATTACK_CAP_FACTOR
     best = None
+    max_at = {}                                  # close_range_incentive's memo for this ranking
     for o in pool:
         k = classic._key(o)
         p = success[k]
@@ -481,7 +491,7 @@ def _rank(mover, group, prepared, estimate, terrain_map, psr_applies, moved, sta
         bravery_mod = p * done * bravery - taken
         dist = group.distance_to_enemy(o.hex_xy)
         aggression_mod = 0.0 if no_pull else (dist if dist else 2) * aggression
-        close = close_range_incentive(mover, dist)
+        close = close_range_incentive(mover, dist, max_at)
         face_xy = group.face_target(o.hex_xy)
         near = group.nearest(o.hex_xy, min_distance=1)
         face = facing_mod(o, face_xy, bias, square_up=close > 0 and melee and dist >= 1,

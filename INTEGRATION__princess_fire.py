@@ -165,10 +165,19 @@ def max_damage_at_range(mech, distance):
     range at `distance` (beyond Long is out; inside the minimum range is
     in), no to-hit. Cluster weapons count their rack size ("only a little
     over half of a cluster will generally hit ... still better than just
-    discounting them completely"); a weapon without a fixed damage counts 0."""
+    discounting them completely"); a weapon without a fixed damage counts 0.
+    A weapon that can't fire is skipped, as MegaMek's `weapon.isCrippled()`
+    does: destroyed (get_weapons), jammed, or out of ammo / a spent one-shot
+    (review fix 2026-10-29: the port counted them, so Princess planned with
+    empty LRMs and Gauss Rifles, and read an enemy's empty guns as a threat)."""
+    import INTEGRATION__ammo as ammo                  # ammo / fire_modes import modules that import this one
+    import INTEGRATION__fire_modes as fire_modes
+    crippled = ammo.unavailable_weapons(mech) | fire_modes.jammed_ids(mech)
     total = 0
     for w in get_weapons(mech):
         if weapon_rules.is_ams(w) or not w.weapon_range or w.weapon_range.get("long") is None:
+            continue
+        if id(w) in crippled:
             continue
         if distance > w.weapon_range["long"]:
             continue

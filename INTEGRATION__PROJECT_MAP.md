@@ -813,7 +813,8 @@ https://claude.ai/artifact/NJUknRiK1fcZzUv4A1fndX
   FAILED" and the failing line was not captured; the next ~10 runs were all
   green. A flaky check somewhere (a shared cache or file written by two checks
   running side by side is the first suspect). If it shows again, keep the
-  output.
+  output. Seen once more 2026-10-29 ("41 of 42 ... 1 FAILED", output cut by a
+  `tail -1`; the next 3 runs green).
 
 **Known issues to fix later (Daniel, 2026-10-20):**
 - **Split items in a shared location (cleanup sweep; Daniel, 2026-10-21).**
@@ -1606,6 +1607,28 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-29 (Claude), session 14 - AMMO RUNS OUT; PRINCESS'S QUICK ESTIMATE FIX.**
+  Daniel: "did that emperor in battle 10 still have ammo by that point, and if it
+  didnt, was it still acting like it did?" Battle 10 re-run (same seed) with
+  every bin read at each end phase. Gladiator's Emperor fired its two Rotary
+  AC/5s at `STUB_RATE_OF_FIRE = "max"` (6 shots each a turn): 120 rounds, 36 left
+  at turn 10, dry by turn 20; from then on it fired its ER large lasers only, and
+  its movement scoring knew (ranged_combat / future_damage drop empty weapons).
+  Princess's Emperor still had 54-78 rounds (MegaMek's own fire control). And by
+  turns 30-40 nearly every ammo weapon on the field was empty on both sides
+  (every LRM 20 / 15, both Gauss Rifles, Ultra and LB-X ACs): the LRM carriers
+  are left with medium lasers - another stall cause (they hang back at LRM range
+  with nothing that reaches). BUG FIXED (MegaMek parity):
+  `princess_fire.max_damage_at_range` (FireControl.getMaxDamageAtRange) counted
+  weapons that are out of ammo, jammed or a spent one-shot; MegaMek skips them
+  (`weapon.isCrippled()`). It feeds Princess's close-range pull (modern), the
+  v0.50.07 estimate against an enemy yet to move, and the target-threat term of
+  the firing-plan utility - so Princess planned with empty guns and read an
+  enemy's empty guns as a threat. Now skipped; `close_range_incentive` memoizes
+  it per ranking (45 us a call). No reference log changed (no Princess battle
+  in them runs dry). OPEN, Daniel's (a research stub): Gladiator's
+  rate-of-fire policy ("max" empties an Emperor in ~10 turns of fire).
 
 - **2026-10-29 (Claude), session 14 - WHY 12 v 12 BATTLES STALL (diagnosis, no code).**
   Daniel: "Based on the game records can you get a feel for why the games are
