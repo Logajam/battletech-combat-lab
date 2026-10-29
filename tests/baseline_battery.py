@@ -33,6 +33,7 @@ os.environ.setdefault("INTEGRATION_DATA_DIR", "./data")
 
 import INTEGRATION__config as config  # noqa: E402
 import INTEGRATION__orchestrator as orchestrator  # noqa: E402
+import INTEGRATION__replay as replay  # noqa: E402
 import INTEGRATION__timing as timing  # noqa: E402
 
 BOARDS = ["16x17_Grassland_1.board", "16x17_Desert_Hills.board"]
@@ -56,6 +57,9 @@ def main():
     ap.add_argument("battles", type=int, nargs="?", default=1)
     ap.add_argument("--seed", type=int, default=12345)
     ap.add_argument("--turns", type=int, default=50)
+    ap.add_argument("--first", type=int, default=1, help="run only battles FIRST..LAST of the BATTLES (split a battery over cores)")
+    ap.add_argument("--last", type=int, default=0)
+    ap.add_argument("--replay", action="store_true", help="save battle 1 as a replay page in replays/")
     ap.add_argument("--legate", action="store_true", help="config.LEGATE on (Gladiator units see the whole enemy force)")
     args = ap.parse_args()
     red_bot, blue_bot, title = SETUPS[args.setup]
@@ -63,20 +67,23 @@ def main():
     config.STITCH_MAPS, config.STITCH_BOARDS = True, BOARDS
     config.STITCH_GRID_COLS, config.STITCH_GRID_ROWS = 2, 1
     config.PROMPT_FOR_MAP = False
-    config.DEPLOYMENT, config.DEPLOYMENT_DEPTH, config.WORKERS, config.REPLAY_BATTLES = "home_edge", 0, 1, 0
+    config.DEPLOYMENT, config.DEPLOYMENT_DEPTH, config.WORKERS = "home_edge", 0, 1
     config.VERBOSE = False
     config.LEGATE = args.legate
+    config.REPLAY_BATTLES = 1 if args.replay else 0
     with redirect_stdout(io.StringIO()):
         terrain = orchestrator._load_map()
         roster = config.load_roster()
     print(f"{title}{' + Legate' if args.legate else ''}: 12 v 12 on a 2 x 1 stitched field, {args.battles} battle(s), cap {args.turns} turns, seed {args.seed}")
     rows = []
-    for n in range(1, args.battles + 1):
+    for n in range(args.first, (args.last or args.battles) + 1):
         timing.reset() if hasattr(timing, "reset") else None
         t0 = time.time()
         with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
             result = orchestrator._run_one_roster(n, args.battles, args.seed, args.turns, roster, terrain)
         wall = time.time() - t0
+        if getattr(result, "replay", None):
+            print(f"  replay -> {replay.write(result.replay)}")
         teams = {name: (s.units - s.units_lost, round(s.final_hp), round(s.max_hp), round(s.damage_dealt))
                  for name, s in result.teams.items()}
         row = {"battle": n, "seed": result.seed, "winner": result.winner, "turns": result.turns_taken,
@@ -92,7 +99,7 @@ def main():
             print("    time: " + ", ".join(f"{k} {v:.0f}s" for k, v in sorted(secs.items(), key=lambda kv: -kv[1])[:8]))
     out_dir = os.path.join(REPO_ROOT, "run_stats", "baseline")
     os.makedirs(out_dir, exist_ok=True)
-    path = os.path.join(out_dir, f"{args.setup}_seed{args.seed}_{int(time.time())}.json")
+    path = os.path.join(out_dir, f"{args.setup}_seed{args.seed}_{args.first}-{args.last or args.battles}_{int(time.time())}.json")
     with open(path, "w") as f:
         json.dump({"setup": title, "seed": args.seed, "turn_cap": args.turns, "boards": BOARDS,
                    "force": [n for n, _ in FORCE], "rows": rows}, f, indent=1, default=str)

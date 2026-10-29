@@ -63,8 +63,13 @@ GitHub logistics.
   `config.BOT` / `MECH_*_CONFIG["bot"]`, PROJECT_MAP Section 6 "Princess
   clone". Bot-vs-bot studies: `ab_batches.py --set bots`,
   `tests/pick_quality.py` (`--pickers`, `--perfect-cache`),
-  `tests/bot_agreement.py`. Princess in a team battle: target by firing-plan
-  utility with friends' damage counted, movement against every enemy, mutual
+  `tests/bot_agreement.py`. Legate (`config.LEGATE`, off by default;
+  `INTEGRATION__legate`) gives Gladiator the whole enemy force: a
+  start-of-phase IF/THEN estimate, a threat-ordered foe, the other enemies'
+  damage in the move score (PROJECT_MAP Section 6 "Legate"). A battery split
+  over cores: `python tests/baseline_battery.py pg 20 [--legate] --first 1
+  --last 5`, four of them side by side. Princess in a team battle: target by
+  firing-plan utility with friends' damage counted, movement against every enemy, mutual
   support off the BV-weighted heat map (`config.PRINCESS_GROUP`,
   `INTEGRATION__princess_group` / `_memory`; Battle Value is
   `INTEGRATION__battle_value`). Daniel wants "general feel, not full stats":
