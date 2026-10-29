@@ -429,8 +429,19 @@ def _armor_bias(mech):
     return 1 if left > right else (-1 if right > left else 0)
 
 
+# Coords.direction from a hex to itself: radian() returns 1.5 pi when the two centres share a y, which rounds
+# to direction 5 (NW). Our facings are numbered as MegaMek's (0 = N, clockwise).
+SAME_HEX_DIRECTION = 5
+
+
+def direction(from_xy, to_xy):
+    """MegaMek Coords.direction: the facing from one hex toward another; SAME_HEX_DIRECTION when they are
+    the same hex (2026-10-29: a spot on the enemies' median point raised here before)."""
+    return SAME_HEX_DIRECTION if from_xy == to_xy else combat._direction_facing(from_xy, to_xy)
+
+
 def facing_diff(o, enemy_xy, bias):
-    desired = (combat._direction_facing(o.hex_xy, enemy_xy) + bias) % 6
+    desired = (direction(o.hex_xy, enemy_xy) + bias) % 6
     diff = min((o.facing - desired) % 6, (desired - o.facing) % 6)
     return max(0, diff - ALLOW_FACING_TOLERANCE)
 

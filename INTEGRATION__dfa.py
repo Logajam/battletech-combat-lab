@@ -77,11 +77,16 @@ def to_hit(attacker, target, target_tmm):
             + torso_cockpit_sensor_penalty(attacker) + physical_attacker_modifier(attacker))   # pp.203, 236, 240
 
 
-def _land(attacker, label):
-    """The attacker lands in the target's hex, facing as it was (p.80)."""
-    if not is_destroyed(attacker):
-        attacker.hex = label
-        hazards.enter_hex(attacker, label, jumped=True, in_phase=True)     # magma / pools (TO:AR, 2026-10-27)
+def _land(attacker, label, direction=None, terrain_map=None):
+    """The attacker lands in the target's hex, facing as it was (p.80) - through domino.advance_into when
+    the target's displacement chain has put another 'Mech there. Returns True if the attacker fell."""
+    if is_destroyed(attacker):
+        return False
+    if terrain_map is not None and domino.advance_into(attacker, label, direction, terrain_map, "landing its DFA"):
+        return True
+    attacker.hex = label
+    hazards.enter_hex(attacker, label, jumped=True, in_phase=True)     # magma / pools (TO:AR, 2026-10-27)
+    return False
 
 
 def declare(attacker, target, terrain_map):
@@ -175,10 +180,10 @@ def resolve(attacker, target, hit, terrain_map):
             else:
                 _, kind, label, drop = options[0]
                 fell = _displace(target, kind, label, drop, triggers, "displaced by a DFA", terrain_map)
-        _land(attacker, target_hex)
+        attacker_fell = _land(attacker, target_hex, direction, terrain_map)
         if not fell:
             for m, why in ((target, "hit by a DFA"), (attacker, "DFA (attacker)")):
-                if not is_destroyed(m):
+                if not is_destroyed(m) and not (m is attacker and attacker_fell):
                     triggers[m.side_name].append((why, DFA_PSR_MODIFIER))
         return triggers
     # Miss: the target steps aside (its choice - the safest open hex), the attacker falls 2 levels.
@@ -190,7 +195,7 @@ def resolve(attacker, target, hit, terrain_map):
     _, _, label, drop = min(options, key=lambda o: (domino.occupant(o[2], exclude=(target, attacker)) is not None,
                                                     max(o[3], 0), o[0] != direction))     # an empty hex first
     _displace(target, "moved", label, drop, triggers, "stepping aside from a DFA", terrain_map)
-    _land(attacker, target_hex)
+    _land(attacker, target_hex, direction, terrain_map)
     if not attacker.prone and not is_destroyed(attacker):
         config.log(f"    {attacker.side_name} misses and falls {MISS_FALL_LEVELS} levels in {target_hex} (rear, p.80).")
         piloting_rolls.resolve_fall(attacker, cause="failed DFA", levels=MISS_FALL_LEVELS,

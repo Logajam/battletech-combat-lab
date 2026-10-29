@@ -185,13 +185,17 @@ def resolve_hit(attacker, target, terrain_map):
         new_label = target.hex
     else:
         target.hex = new_label
-    if not is_destroyed(attacker):
-        attacker.hex = old
     config.log(f"    {target.side_name} is displaced {old} -> {new_label}; {attacker.side_name} advances into {old}.")
+    attacker_fell = False
+    if not is_destroyed(attacker):
+        attacker_fell = domino.advance_into(attacker, old, combat._direction_facing(a_hex, t_hex), terrain_map,
+                                            "advancing after its charge")
+        if attacker_fell:
+            triggers[attacker.side_name] = []          # it already fell: no charge PSR on top
     if not fell_here:
         hazards.enter_hex(target, new_label, why=f"displaced into {new_label}", in_phase=True)     # TO:AR (2026-10-27)
-    if not is_destroyed(attacker):
-        hazards.enter_hex(attacker, old, why=f"advanced into {old}", in_phase=True)
+    if not is_destroyed(attacker) and not attacker_fell:
+        hazards.enter_hex(attacker, attacker.hex, why=f"advanced into {attacker.hex}", in_phase=True)
     if fell_here:
         pass                                            # the fall from above was resolved with the displacement
     elif drop >= 2:

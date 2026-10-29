@@ -95,6 +95,22 @@ def displace_into_occupied(mover, label, direction, drop, terrain_map, cause):
     return False
 
 
+def advance_into(mover, label, direction, terrain_map, cause):
+    """An attacker follows into the hex its target just left: a charge (p.79), a push (p.83), a DFA's
+    landing (p.80). The target's own displacement can set off a chain that puts another 'Mech in that
+    hex (a fall from above displaces the 'Mech below to "a random neighboring legal hex", p.116, and
+    the hex the target left is empty at that moment). Then the attacker's move is itself a displacement
+    into an occupied hex - domino effect or fall from above - as MegaMek moves it
+    (TWGameManager.resolveChargeDamage: doEntityDisplacement for the attacker too; 2026-10-29, found
+    when two enemies ended up stacked in one hex). Returns True when `mover` fell here."""
+    if occupant(label, exclude=(mover,)) is None:
+        mover.hex = label
+        return False
+    hexes = terrain_map["hexes"]
+    drop = hexes[mover.hex]["level"] - hexes[label]["level"] if mover.hex in hexes else 0
+    return displace_into_occupied(mover, label, direction, drop, terrain_map, cause)
+
+
 def _legal_dodges(mech, origin, direction, terrain_map):
     """Hexes `mech` may step into to dodge a domino: directly forward or back
     (its own facing), free, legal ground moves; none backward if it ran."""

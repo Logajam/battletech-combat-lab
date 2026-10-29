@@ -346,6 +346,22 @@ def a_missed_fall_from_above_lands_next_door_and_falls():
     assert physical.attack_resolution.total_hp(third) == before
 
 
+@check
+def a_charger_never_advances_onto_a_mech_the_fall_pushed_into_its_targets_old_hex():
+    """2026-10-29 (found in a 12 v 12 battle): the 'Mech fallen upon is displaced to a random
+    neighbouring legal hex (p.116) - which may be the hex the charged target just left. The charger
+    then advances into an occupied hex: a domino effect (domino.advance_into, as MegaMek), never two
+    'Mechs stacked in one hex. Every displacement pick is tried."""
+    for pick in range(1, 7):
+        tm = stepped_terrain({"0806": 2, "0805": 0})
+        a, t, (third,), _ = charge_into(["0805"], terrain=tm)
+        with Rolls(psr=12, attack=12):
+            config.pick_number = lambda n, prompt="", k=pick: min(k, n)
+            phase([a, t, third], a, t, tm)
+        spots = [m.hex for m in (a, t, third) if not is_destroyed(m)]
+        assert len(spots) == len(set(spots)), (pick, a.hex, t.hex, third.hex)
+
+
 # =============================================================================
 # ==========================  WHOLE BATTLES  ==================================
 # =============================================================================
