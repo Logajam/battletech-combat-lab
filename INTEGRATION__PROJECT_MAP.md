@@ -1615,6 +1615,24 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-29 (Claude), session 14 - BATTERY RE-RUN WITH THE PRINCESS FIX; KILL-
+  CURVE IDEA.** Daniel: "Rerun the 20 battle set with the corrected princess.
+  Mostly for curiosity." Same 20 seeds, stub + Legate (both defaults), after the
+  `max_damage_at_range` fix below: Princess 7 wins / 9 draws / Gladiator 4 wins
+  (unchanged from before the fix); damage dealt Gladiator 1274 / Princess 1601
+  a battle (was 1235 / 1543); 'Mechs left Princess 3.2 / Gladiator 1.8 (was
+  3.65 / 2.10); 249 s a battle. Rows in `run_stats/baseline/pg_legate_princess_plan_
+  seed12345_*`. Ammo conservation for Gladiator added to Pick up here 3.
+  Daniel's next idea (discussion, nothing built): a 'Mech's "vulnerability" as
+  the curve f(N) = P(destroyed after N more damage) from its current state, by
+  damage grouping; target value = expected output / vulnerability; a hit's
+  worth = how much it shortens the damage still needed. A scratch prototype
+  (`_resolve_hit` in fixed-size groups, front table, no damage PSRs) gave an
+  Atlas AS7-D an expected 170 / 254 / 223 damage to destroy in 1- / 5- / 20-point
+  groups (1-point: 83% die of 6 pilot hits, p.117; 20-point: 33% head kills), and
+  a Commando 45 / 51 / 38. From fresh (255 left, 5-point groups) 10 into the left
+  arm was worth ~0, 10 into the centre torso 13, 10 into the head 116.
+
 - **2026-10-29 (Claude), session 14 - AMMO RUNS OUT; PRINCESS'S QUICK ESTIMATE FIX.**
   Daniel: "did that emperor in battle 10 still have ammo by that point, and if it
   didnt, was it still acting like it did?" Battle 10 re-run (same seed) with
