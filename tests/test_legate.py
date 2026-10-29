@@ -106,7 +106,11 @@ def a_unit_with_nothing_left_is_not_placed():
 @check
 def off_and_in_a_duel_there_is_no_plan():
     units = line_up()
-    legate.plan_turn(units, TERRAIN)                           # config.LEGATE is off
+    saved, config.LEGATE = config.LEGATE, False                # switched off (on by default since 2026-10-29)
+    try:
+        legate.plan_turn(units, TERRAIN)
+    finally:
+        config.LEGATE = saved
     assert legate._PLANS == {}
     duel = [fresh(ATLAS, "0808", "N", "A 1", "A"), fresh(COMMANDO, "0805", "S", "B 1", "B")]
     for u in duel:
