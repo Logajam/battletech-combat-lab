@@ -173,6 +173,27 @@ over-commits: each unit plans as if its teammates stand where Legate estimated
 and draw the fire (or finish its kills), and all of them do that at once. That
 coordination problem is the next thing to look at.
 
+## Diagnosis (session 15, 2026-10-30): Daniel's five suspects, measured
+
+`tests/legate_probe.py` (report: `tests/legate_probe_report.py`) runs the battery with probes. It
+re-scores every Gladiator move with the enemies where they REALLY ended, so an estimate error is
+priced in damage and in score points, not just hexes. On the baseline:
+
+| Suspect | Finding |
+|---|---|
+| IF/THEN estimate leads units astray | Off 2.7 hexes (worse than "everyone stands still", 2.0) but closer in damage (4.5 v 5.4 points a move); picks within 2.5% of the best in hindsight. Replacing it with "stands still": 11 / 5 / 4, no better. **Not the cause.** |
+| Moving off the wrong unit | The primary foe fires at the mover 45% of the time, ~1/3 of the predicted damage. **Small.** |
+| Weights | Not swept. |
+| Systemic error | **Found.** Every enemy in reach counted as shooting the mover this turn: 4.8 a move, 1.1 really did. The fire split shared only future fire, so HP grew dearer while this turn stayed ~4x too high - the stall. Also: Gladiator's own damage is rated ~25% high (incoming is right). |
+| Cohesion | **Confirmed.** Units with no friend within 4 hexes: 19 / 26 / 47% (turns 1-3 / 4-10 / 11+) v Princess 9 / 12 / 22%. Herding barely moves it. |
+
+| Setting (20 battles) | Princess wins / draws / Gladiator wins | 'Mechs left, P / G |
+|---|---|---|
+| Old baseline | 8 / 8 / 4 | 3.3 / 1.9 |
+| Estimate replaced by "stands still" | 11 / 5 / 4 | 3.9 / 1.3 |
+| **Fire split, this turn too (now default)** | **8 / 4 / 8** | **2.65 / 2.1** |
+| + herding | 9 / 4 / 7 | 3.1 / 2.25 |
+
 ## Next steps (Daniel's list, PROJECT_MAP "Pick up here" 0000)
 
 - How much fire one unit really takes (Legate's own to-do): share the enemy's

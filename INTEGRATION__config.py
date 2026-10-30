@@ -178,11 +178,12 @@ LEGATE_ITERATIONS = 12
 # How much of an enemy's future fire a Gladiator expects to draw in its life-left estimate
 # (INTEGRATION__legate.fire_share, 2026-10-29): "proportional" (its slice of what that enemy could deal
 # across the team) or "none" (all of it - the first version, which made lights dive in alone).
-LEGATE_FIRE_SPLIT = "none"          # "proportional" stalled battles in the 2026-10-29 A/B (Change Record)
+LEGATE_FIRE_SPLIT = "proportional"  # with LEGATE_SPLIT_THIS_TURN: best in the 2026-10-30 A/B (Change Record);
+                                    # alone it stalled battles (2026-10-29)
 # The same share for THIS turn's damage (2026-10-30): without it the split makes HP worth more while this
 # turn's damage still counts every enemy as shooting the mover (session 15 probe: 3.4 enemies counted,
 # 0.63 really fired) - a mismatch. Only has an effect with LEGATE_FIRE_SPLIT "proportional".
-LEGATE_SPLIT_THIS_TURN = False
+LEGATE_SPLIT_THIS_TURN = True       # default since 2026-10-30 (8 / 4 / 8 v the old 8 / 8 / 4)
 # Herding (INTEGRATION__legate._Herd, 2026-10-29, Daniel's shape): a spot an enemy can reach costs
 # LEGATE_HERD_WEIGHT damage for each hex it lies beyond the support of every teammate that can see one
 # of those enemies (support: the end of the teammate's medium bracket, long if it stands still);

@@ -64,7 +64,8 @@ GitHub logistics.
   `config.BOT` / `MECH_*_CONFIG["bot"]`, PROJECT_MAP Section 6 "Princess
   clone". Bot-vs-bot studies: `ab_batches.py --set bots`,
   `tests/pick_quality.py` (`--pickers`, `--perfect-cache`),
-  `tests/bot_agreement.py`. Legate (`config.LEGATE`, on by default;
+  `tests/bot_agreement.py`; `tests/legate_probe.py` (+ `_report`) measures Legate's estimate,
+  predicted v actual damage, regret, cohesion and calibration in a battery. Legate (`config.LEGATE`, on by default;
   `INTEGRATION__legate`) gives Gladiator the whole enemy force: a
   start-of-phase IF/THEN estimate, a threat-ordered foe, the other enemies'
   damage in the move score (PROJECT_MAP Section 6 "Legate"). A battery split

@@ -30,7 +30,7 @@ WHAT LEGATE DOES, each Movement Phase, for each side that has a Gladiator unit a
      final (in sight, bears, nearest).
 
 PLACEHOLDERS (Daniel: "This will change later"): the damage a single unit would really take THIS turn
-when the enemy force concentrates fire is simply summed. Its FUTURE share is estimated (fire_share,
+when the enemy force concentrates fire is each enemy's damage times its share (now_share below). Its FUTURE share is estimated (fire_share,
 config.LEGATE_FIRE_SPLIT, 2026-10-29): the old "every enemy shoots only me" made a unit's life look ~3
 turns long against 12 enemies, so bad trades scored well and lights dived in alone (Change Record).
 THIS turn's damage can take the same share (now_share, config.LEGATE_SPLIT_THIS_TURN, 2026-10-30).
