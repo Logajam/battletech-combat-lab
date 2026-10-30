@@ -203,6 +203,12 @@ LEGATE_COHESION_SCALE = 1.0
 # LEGATE_COHESION_THREATENED_ONLY a spot no enemy (at its estimated spot) can reach earns nothing.
 LEGATE_COHESION_MAX_ALLIES = None
 LEGATE_COHESION_THREATENED_ONLY = False
+# Whose brackets pair two units (2026-10-30, Daniel: "A fire support unit in the back will feel like its
+# out of position because its not in cohesion with a short ranged back stabber up front. The back stabber
+# however will feel fine since it has covering fire."): "ally" - the teammate's brackets (does it cover me)
+# and mutual support inside BOTH support ranges (the shorter pulls everyone in); "either" - the better
+# covering of the two (whichever unit covers the other) and support inside EITHER support range.
+LEGATE_COHESION_PAIRING = "ally"
 LEGATE_HERDING = False             # 2 a hex changed half the battles but not the results (A/B 2026-10-29)
 LEGATE_HERD_WEIGHT = 2.0
 LEGATE_HERD_UNSEEN_GAP = 6

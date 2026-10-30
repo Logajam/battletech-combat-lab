@@ -646,10 +646,14 @@ class _Cohesion:
     the teammates, times LEGATE_COHESION_SCALE, in damage points (taken off the damage the spot is
     expected to take). No LOS test (herding has one). LEGATE_COHESION_MAX_ALLIES: only the best that
     many teammates count; LEGATE_COHESION_THREATENED_ONLY: a spot no enemy can reach (each at its
-    estimated spot, its weapons' long reach) earns nothing."""
+    estimated spot, its weapons' long reach) earns nothing. LEGATE_COHESION_PAIRING "either" (Daniel's
+    fire-support point): the pair is judged by whichever unit covers the other better, and support
+    counts inside either unit's support range - a fire-support unit holding a brawler in its medium
+    bracket is in cohesion too, not only the brawler."""
 
     def __init__(self, mover, units):
         self.mine = (support_range(mover, False), support_range(mover, True))
+        self.my_brackets = brackets(mover)
         self.threats = [(_xy(foe_state(mover.team, f)[0]), reach(f))      # (enemy xy, its reach)
                         for f in forces.enemies_of(mover, units) if f.hex is not None]
         self.friends = []                                      # (friend xy, its brackets, its support range)
@@ -665,14 +669,23 @@ class _Cohesion:
         got = self._memo.get(key)
         if got is None:
             rewards, mine = config.LEGATE_COHESION_REWARD, self.mine[1 if standing_still else 0]
+            pairing = config.LEGATE_COHESION_PAIRING
+            if pairing not in ("ally", "either"):
+                raise ValueError(f"Unknown LEGATE_COHESION_PAIRING {pairing!r} ('ally' or 'either')")
             each = []
             if not (config.LEGATE_COHESION_THREATENED_ONLY
                     and not any(hex_distance(xy, exy) <= r for exy, r in self.threats)):
-                for fxy, (short, medium, long_), support in self.friends:
+                for fxy, theirs, support in self.friends:
                     d = hex_distance(xy, fxy)
+                    if pairing == "either":                # the better covering of the two
+                        short, medium, long_ = (max(a, b) for a, b in zip(theirs, self.my_brackets))
+                        reach_ = max(mine, support)
+                    else:                                  # the teammate covering me; mutual = both
+                        short, medium, long_ = theirs
+                        reach_ = min(mine, support)
                     got = (rewards["short"] if d <= short else rewards["medium"] if d <= medium
                            else rewards["long"] if d <= long_ else 0.0)
-                    if d <= min(mine, support):
+                    if d <= reach_:
                         got += config.LEGATE_COHESION_MUTUAL
                     each.append(got)
             cap = config.LEGATE_COHESION_MAX_ALLIES

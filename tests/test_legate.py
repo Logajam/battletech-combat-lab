@@ -298,8 +298,18 @@ def cohesion_rewards_each_friends_bracket_and_mutual_support():
             coh.threats = [(at(2), 0)]                           # an enemy that reaches only that hex
             coh._memo.clear()
             assert coh.reward(at(2)) == 2 * (r["short"] + M)
+            # Daniel's fire-support case: I am a 7/14/21 unit, my friend a 3/6/9 brawler 12 hexes off.
+            config.LEGATE_COHESION_THREATENED_ONLY = False
+            coh.friends, coh.mine, coh.my_brackets = [(xy_a2, (3, 6, 9), 6)], (14, 21), (7, 14, 21)
+            coh._memo.clear()
+            assert coh.reward(at(12)) == 0.0                     # "ally": out of the brawler's reach
+            config.LEGATE_COHESION_PAIRING = "either"
+            coh._memo.clear()
+            assert coh.reward(at(12)) == r["medium"] + M         # "either": I cover it from my medium
+            assert coh.reward(at(5)) == r["short"] + M
         finally:
             config.LEGATE_COHESION_MAX_ALLIES, config.LEGATE_COHESION_THREATENED_ONLY = saved
+            config.LEGATE_COHESION_PAIRING = "ally"
 
 
 @check
