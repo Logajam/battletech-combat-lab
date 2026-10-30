@@ -222,9 +222,15 @@ def an_enemys_future_fire_is_shared_over_the_team_it_can_reach():
     try:
         assert legate.fire_share(b1, a1) == 0.5 and legate.fire_share(b2, a1) == 1.0
         assert legate.MultiLifetime(a1, [b1, b2]).theirs == 4.0 * 0.5 + 5.0
+        assert legate.now_share(b1, a1) == 1.0                  # this turn: every enemy shoots me ...
+        config.LEGATE_SPLIT_THIS_TURN = True
+        legate._SHARES.clear()
+        assert legate.now_share(b1, a1) == 0.5                  # ... unless this turn is split the same way
     finally:
         config.LEGATE_FIRE_SPLIT = saved
+        config.LEGATE_SPLIT_THIS_TURN = False
         legate._RATES.clear()
+        legate._SHARES.clear()
 
 
 @check
