@@ -701,6 +701,14 @@ Princess, decision by decision, the latest battery and why Gladiator loses.
    smoke drift, magma eruptions). Every weapon on every unit that loads now
    fires with real ammo counts. The rest of the open work is bot decisions
    (items 3, 4, 8) and placeholder values.
+12. **Combat Lab GUI (wish list + spec, Daniel via GPT, 2026-10-30 - none
+   started):** `INTEGRATION__COMBAT_LAB.md` - Part A the idea pile (interactive
+   replay, branches, bot comparison, heat maps, tokens, MegaMek import, bot
+   plugin adapter), Part B the spec to build (tabbed Windows-3.x-style
+   `CombatLab.exe`: Units / Map / Options / Results / Replay). Item 9's setup
+   shell GUI is its first stage. Foundation both need: a full-state snapshot
+   per phase (the replay is output only today). Open for Daniel: tkinter + `.exe`
+   v. HTML front end, and `.blk` v. `.mtf`.
 
 **Housekeeping:** reference logs match the code (last regenerated
 2026-10-24, session 8: all 15 for the short-list look-ahead default; nothing
@@ -1704,6 +1712,12 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-30 (Claude), session 15 (cont.) - COMBAT LAB GUI WISH LIST FILED (docs only).** REVIEW PENDING
+  (higher-level model). Daniel's notes (as summarized by GPT) split into
+  `INTEGRATION__COMBAT_LAB.md`: Part A future ideas, Part B functional spec, each with Claude's notes
+  (state snapshot is the foundation; tkinter v. HTML and `.blk` v. `.mtf` questions for Daniel).
+  Pick-up item 12 added. No code changed.
 
 - **2026-10-30 (Claude), session 15 (cont.) - COHESION REWARD BUILT (OFF): IT GROUPS THE FORCE BUT
   DOESN'T WIN BATTLES.** REVIEW PENDING (higher-level model). Daniel: "Reward staying within a range
