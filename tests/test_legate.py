@@ -286,6 +286,20 @@ def cohesion_rewards_each_friends_bracket_and_mutual_support():
         coh.friends = coh.friends * 2                            # two friends in the same place
         coh._memo.clear()
         assert coh.reward(at(2)) == 2 * (r["short"] + M)
+        saved = config.LEGATE_COHESION_MAX_ALLIES, config.LEGATE_COHESION_THREATENED_ONLY
+        try:
+            config.LEGATE_COHESION_MAX_ALLIES = 1                # only the best friend counts
+            coh._memo.clear()
+            assert coh.reward(at(2)) == r["short"] + M
+            config.LEGATE_COHESION_MAX_ALLIES, config.LEGATE_COHESION_THREATENED_ONLY = None, True
+            coh.threats = []                                     # no enemy reaches anywhere: no reward
+            coh._memo.clear()
+            assert coh.reward(at(2)) == 0.0
+            coh.threats = [(at(2), 0)]                           # an enemy that reaches only that hex
+            coh._memo.clear()
+            assert coh.reward(at(2)) == 2 * (r["short"] + M)
+        finally:
+            config.LEGATE_COHESION_MAX_ALLIES, config.LEGATE_COHESION_THREATENED_ONLY = saved
 
 
 @check

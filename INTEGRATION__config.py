@@ -198,6 +198,11 @@ LEGATE_COHESION = False
 LEGATE_COHESION_REWARD = {"short": 2.0, "medium": 1.0, "long": 0.25}
 LEGATE_COHESION_MUTUAL = 1.0
 LEGATE_COHESION_SCALE = 1.0
+# Refinements (2026-10-30, after the first cohesion A/B balled the force up): only the
+# LEGATE_COHESION_MAX_ALLIES best-rewarding teammates count (None = all), and with
+# LEGATE_COHESION_THREATENED_ONLY a spot no enemy (at its estimated spot) can reach earns nothing.
+LEGATE_COHESION_MAX_ALLIES = None
+LEGATE_COHESION_THREATENED_ONLY = False
 LEGATE_HERDING = False             # 2 a hex changed half the battles but not the results (A/B 2026-10-29)
 LEGATE_HERD_WEIGHT = 2.0
 LEGATE_HERD_UNSEEN_GAP = 6

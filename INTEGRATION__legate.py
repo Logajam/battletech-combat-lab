@@ -644,10 +644,14 @@ class _Cohesion:
     spot within mutual support of A - inside both support_range(A) and the mover's own support_range
     there (medium; long if it stands still at the spot) - earns LEGATE_COHESION_MUTUAL more. Summed over
     the teammates, times LEGATE_COHESION_SCALE, in damage points (taken off the damage the spot is
-    expected to take). No LOS test (herding has one)."""
+    expected to take). No LOS test (herding has one). LEGATE_COHESION_MAX_ALLIES: only the best that
+    many teammates count; LEGATE_COHESION_THREATENED_ONLY: a spot no enemy can reach (each at its
+    estimated spot, its weapons' long reach) earns nothing."""
 
     def __init__(self, mover, units):
         self.mine = (support_range(mover, False), support_range(mover, True))
+        self.threats = [(_xy(foe_state(mover.team, f)[0]), reach(f))      # (enemy xy, its reach)
+                        for f in forces.enemies_of(mover, units) if f.hex is not None]
         self.friends = []                                      # (friend xy, its brackets, its support range)
         for u in forces.standing(units):
             if u is mover or u.team != mover.team or u.hex is None:
@@ -661,18 +665,20 @@ class _Cohesion:
         got = self._memo.get(key)
         if got is None:
             rewards, mine = config.LEGATE_COHESION_REWARD, self.mine[1 if standing_still else 0]
-            total = 0.0
-            for fxy, (short, medium, long_), support in self.friends:
-                d = hex_distance(xy, fxy)
-                if d <= short:
-                    total += rewards["short"]
-                elif d <= medium:
-                    total += rewards["medium"]
-                elif d <= long_:
-                    total += rewards["long"]
-                if d <= min(mine, support):
-                    total += config.LEGATE_COHESION_MUTUAL
-            got = self._memo[key] = total * config.LEGATE_COHESION_SCALE
+            each = []
+            if not (config.LEGATE_COHESION_THREATENED_ONLY
+                    and not any(hex_distance(xy, exy) <= r for exy, r in self.threats)):
+                for fxy, (short, medium, long_), support in self.friends:
+                    d = hex_distance(xy, fxy)
+                    got = (rewards["short"] if d <= short else rewards["medium"] if d <= medium
+                           else rewards["long"] if d <= long_ else 0.0)
+                    if d <= min(mine, support):
+                        got += config.LEGATE_COHESION_MUTUAL
+                    each.append(got)
+            cap = config.LEGATE_COHESION_MAX_ALLIES
+            if cap is not None:
+                each = sorted(each, reverse=True)[:cap]
+            got = self._memo[key] = sum(each) * config.LEGATE_COHESION_SCALE
         return got
 
 

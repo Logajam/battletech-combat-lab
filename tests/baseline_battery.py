@@ -68,6 +68,8 @@ def main():
                     help="config.LEGATE_FIRE_SPLIT: a Gladiator's expected share of an enemy's future fire")
     ap.add_argument("--split-now", action=argparse.BooleanOptionalAction, default=config.LEGATE_SPLIT_THIS_TURN,
                     help="config.LEGATE_SPLIT_THIS_TURN: the same share for this turn's damage (2026-10-30)")
+    ap.add_argument("--cohesion", type=float, default=None,
+                    help="config.LEGATE_COHESION on, at this LEGATE_COHESION_SCALE (2026-10-30)")
     ap.add_argument("--herding", action=argparse.BooleanOptionalAction, default=config.LEGATE_HERDING,
                     help="config.LEGATE_HERDING: the penalty for a spot beyond every friend's support")
     ap.add_argument("--fire-order", choices=("big_guns_first", "roster"), default=config.GLADIATOR_FIRE_ORDER,
@@ -86,9 +88,11 @@ def main():
     config.STUB_GLADIATOR_TARGET = args.target
     config.LEGATE_FIRE_SPLIT, config.LEGATE_HERDING = args.fire_split, args.herding
     config.LEGATE_SPLIT_THIS_TURN = args.split_now
+    if args.cohesion is not None:
+        config.LEGATE_COHESION, config.LEGATE_COHESION_SCALE = True, args.cohesion
     config.GLADIATOR_FIRE_ORDER = args.fire_order
     config.LEGATE_TEAM_VALUE = args.team_value
-    tag = (f"split-{args.fire_split}{'-now' if args.split_now else ''}{'_herd' if args.herding else ''}_{args.fire_order}"
+    tag = (f"split-{args.fire_split}{'-now' if args.split_now else ''}{'_herd' if args.herding else ''}{f'_coh{args.cohesion}' if args.cohesion is not None else ''}_{args.fire_order}"
            f"{f'_team-{args.team_value}' if args.team_value else ''}")
     config.REPLAY_BATTLES = 1 if args.replay else 0
     with redirect_stdout(io.StringIO()):
