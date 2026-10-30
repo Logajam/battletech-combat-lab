@@ -1,4 +1,4 @@
-# How the two bots work (2026-10-29, end of session 14)
+# How the two bots work (2026-10-30, end of session 15)
 
 Written for Daniel and the next session: what Gladiator (this project's bot)
 does now, and what Princess (the MegaMek clone) does differently. The details
@@ -45,8 +45,12 @@ the enemy would actually make to it (two-ply).
 **Legate (on by default in team battles).** At the start of each Movement
 Phase it runs an IF/THEN estimate of where every unit on both sides will move
 (each side answers the other, a few rounds). Then each Gladiator scores its
-spots against the WHOLE enemy force at those estimated spots: damage taken is
-the sum over enemies, damage dealt the best single target.
+spots against the WHOLE enemy force at those estimated spots: damage dealt is
+the best single target; damage taken adds up over the enemies, each enemy's
+damage times the share of its fire this unit can expect to draw (its slice of
+what that enemy could deal across the team - the fire split, default since
+session 15, for this turn and the "damage the enemy deals me a turn" above
+alike). Off by default: herding, cohesion, team value, exchange (below).
 
 **Whom to shoot: the fire director** (`STUB_GLADIATOR_TARGET = "kill_curve"`,
 built 2026-10-29). Each enemy has a kill curve: the chance it is
@@ -210,13 +214,14 @@ fire-support unit behind a brawler is in position too). Same 20 seeds:
 
 It groups the force as intended, but no setting beats none.
 
-## Next steps (Daniel's list, PROJECT_MAP "Pick up here" 0000)
+## Next steps (PROJECT_MAP "Pick up here" 00000 and 0000)
 
-- How much fire one unit really takes (Legate's own to-do): share the enemy's
-  future fire over the units it could shoot, instead of all of it on me.
-  Quick to build and A/B; expected to stop the light dive.
-- Then team awareness: price a move by the team's expected firepower lost,
-  using the kill curve for our own units too ("move somewhere more exposed to
-  draw fire from a vulnerable unit").
+- Why grouping doesn't win: the cohesion reward matches Princess's spread but
+  not her results - check with `tests/legate_probe.py` whether moves spent on
+  cohesion cost firing spots (damage dealt, regret).
+- Gladiator rates its own damage ~25% high (incoming is right): find where the
+  movement model and the fire phase's dry run part.
+- Re-test team value / exchange on the new fire-split default (they were built
+  on the old over-count).
 - Movement order hierarchy; active choices in one currency; indirect fire and
   spotting (which also settles STUB_MISSION_KILL); ammo conservation.
