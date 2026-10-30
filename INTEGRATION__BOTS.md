@@ -194,6 +194,22 @@ priced in damage and in score points, not just hexes. On the baseline:
 | **Fire split, this turn too (now default)** | **8 / 4 / 8** | **2.65 / 2.1** |
 | + herding | 9 / 4 / 7 | 3.1 / 2.25 |
 
+## Cohesion reward (session 15 cont., off by default)
+
+`LEGATE_COHESION` (Daniel's design): each ally whose short / medium / long bracket covers a spot makes
+it worth 2 / 1 / 0.25 damage points, mutual support 1 more. Options: count only the best 3 allies;
+no support needed where no enemy reaches; "either" pairing (whichever of the two covers the other, so a
+fire-support unit behind a brawler is in position too). Same 20 seeds:
+
+| Setting | Princess / draws / Gladiator | 'Mechs left P / G | Gladiator alone, turns 11+ |
+|---|---|---|---|
+| No cohesion (default) | 8 / 4 / 8 | 2.65 / 2.1 | 45% |
+| "ally" x0.5 / x1 / x2 | 9/6/5, 11/4/5, 12/5/3 | 3.65/2.15, 4.2/1.5, 3.65/1.4 | 10%, 6%, 4% |
+| "either", 3 allies, threatened only, x0.5 | 8 / 6 / 6 | 2.8 / 1.95 | 20% (Princess 21%) |
+| same, x1 | 13 / 4 / 3 | 4.35 / 1.4 | 16% |
+
+It groups the force as intended, but no setting beats none.
+
 ## Next steps (Daniel's list, PROJECT_MAP "Pick up here" 0000)
 
 - How much fire one unit really takes (Legate's own to-do): share the enemy's

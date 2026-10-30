@@ -31,6 +31,8 @@ check them against the Master Unit List or MegaMek before changing anything.
 (d) SESSION 14 cont. (Change Record "TEAM AWARENESS..."): `legate.fire_share`, `_Herd`, `_TeamFire`
 (the greedy fire distribution both ways, the team value and its conversion into the objective's PSR
 cost - `Extras.team_cost`), all off by default.
+(f) SESSION 15 cont. (Change Record "COHESION REWARD..."): `legate._Cohesion`, `legate.brackets`
+(off by default).
 (e) SESSION 15 (Change Record "LEGATE DIAGNOSIS..."): `legate.now_share` (the this-turn fire
 split, now default with LEGATE_FIRE_SPLIT "proportional") and the probe battery
 `tests/legate_probe.py` / `legate_probe_report.py` (its monkeypatches must leave battles untouched).
@@ -450,8 +452,10 @@ Princess, decision by decision, the latest battery and why Gladiator loses.
 **Pick up here (open, roughly in priority order):**
 00000. **Cohesion and the open biases** (session 15 diagnosis, Change Record 2026-10-30): Gladiator's
    units end alone about twice as often as Princess's, worse late (47% v 22% with no friend within 4
-   hexes), and herding at its placeholder weight barely helps - next: a mutual-support pull like
-   Princess's, or herding weights swept with `tests/legate_probe.py` watching cohesion. Gladiator
+   hexes). The cohesion reward (`LEGATE_COHESION`, Daniel's design, off) fixes the spread - "either"
+   pairing at x0.5 matches Princess's cohesion - but no setting wins more battles than none: the
+   spread may not be what loses them. Open: why (moves spent on cohesion instead of firing spots?
+   check with the probe's regret / dealt figures). Gladiator
    rates its own damage ~25% high (incoming is right) - find where the movement model and the fire
    phase's dry run part. The team value / exchange options were built on the old, unshared damage
    count: worth re-running on top of the new default.
@@ -1694,6 +1698,26 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-10-30 (Claude), session 15 (cont.) - COHESION REWARD BUILT (OFF): IT GROUPS THE FORCE BUT
+  DOESN'T WIN BATTLES.** REVIEW PENDING (higher-level model). Daniel: "Reward staying within a range
+  braket of its allies, stronger at short, much weaker at long. And how many allies are in mutual
+  support range." `legate._Cohesion` (`config.LEGATE_COHESION`, off): per teammate (at its estimated /
+  real end spot) a spot in its short / medium / long bracket earns `LEGATE_COHESION_REWARD` 2 / 1 /
+  0.25 damage points, mutual support `LEGATE_COHESION_MUTUAL` 1 more, times `LEGATE_COHESION_SCALE`,
+  taken off the damage taken. Refinements: `LEGATE_COHESION_MAX_ALLIES` (best N teammates count);
+  `LEGATE_COHESION_THREATENED_ONLY` (a spot no enemy can reach needs no support - counts as fully
+  supported; the first build gave it ZERO, which pulled units into the enemy's reach: 15 / 2 / 3, a
+  bug, fixed); `LEGATE_COHESION_PAIRING` "either" (Daniel: "A fire support unit in the back will feel
+  like its out of position because its not in cohesion with a short ranged back stabber up front. The
+  back stabber however will feel fine since it has covering fire" - the pair is judged by whichever
+  unit covers the other; support inside either support range). `baseline_battery.py --cohesion
+  SCALE`. Battery, same 20 seeds, on the current default (Princess wins / draws / Gladiator wins;
+  'Mechs left P / G; Gladiator units with no friend within 4 hexes, turns 11+): no cohesion 8 / 4 / 8
+  (2.65 / 2.1; 45%); "ally" pairing x0.5 9 / 6 / 5 (3.65 / 2.15; 10%), x1 11 / 4 / 5 (4.2 / 1.5; 6%),
+  x2 12 / 5 / 3 (3.65 / 1.4; 4%) - the force balls up; "either" + 3 allies + threatened only x0.5
+  8 / 6 / 6 (2.8 / 1.95; 20%, Princess 21%), x1 13 / 4 / 3 (4.35 / 1.4; 16%). Best is "either" x0.5,
+  level with no cohesion within 20 battles' noise; stronger is worse. Default stays off. Replay of an
+  "ally" x0.5 battle published for Daniel. Reference logs unchanged; 43/43 checks.
 - **2026-10-30 (Claude), session 15 - LEGATE DIAGNOSIS: DANIEL'S FIVE SUSPECTS MEASURED; THE
   FIRE SPLIT NOW COVERS THIS TURN TOO, AND IS THE DEFAULT.** REVIEW PENDING (higher-level model).
   Daniel's suspects: the IF/THEN estimate leads units astray; units model their move off the wrong
