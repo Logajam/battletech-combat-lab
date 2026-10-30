@@ -493,6 +493,7 @@ class Extras:
         self.unit = _Unit(mover, units, terrain_map, lite=True, side=me_side)
         self.count = len(self.entries)
         self.herd = _Herd(mover, units, terrain_map) if config.LEGATE_HERDING else None
+        self.cohesion = _Cohesion(mover, units) if config.LEGATE_COHESION else None
         self.primary = primary
         self.team = (_TeamFire(mover, primary, self.others, units, terrain_map, me_side)
                      if config.LEGATE_TEAM_VALUE and config.MOVEMENT_OBJECTIVE == "lifetime" else None)
@@ -534,6 +535,8 @@ class Extras:
                 self._team_cost[_key(o)] = cost
             if self.herd is not None:
                 r += self.herd.penalty(o.hex_xy)
+            if self.cohesion is not None:
+                r -= self.cohesion.reward(o.hex_xy, o.mode == "Stand Still")
         return d, r, 1.0, 1.0
 
     def team_cost(self, o) -> float:
@@ -622,6 +625,54 @@ class _Herd:
         got = self._memo.get(xy)
         if got is None:
             got = self._memo[xy] = config.LEGATE_HERD_WEIGHT * self.gap(xy)
+        return got
+
+
+def brackets(mech) -> Tuple[int, int, int]:
+    """The ends of its short, medium and long brackets - the best of its weapons that can still fire
+    for each (0, 0, 0 with none)."""
+    weapons = _ranged_weapons(mech)
+    return tuple(max((w.weapon_range[k] or 0 for w in weapons), default=0) for k in ("short", "medium", "long"))
+
+
+class _Cohesion:
+    """The cohesion reward for one Gladiator's spots (config.LEGATE_COHESION; Daniel, 2026-10-30:
+    "Reward staying within a range braket of its allies, stronger at short, much weaker at long. And how
+    many allies are in mutual support range."). Each standing teammate A, where it will end
+    (friend_state): a spot within A's short bracket earns LEGATE_COHESION_REWARD["short"], else within
+    its medium or long bracket that bracket's reward (A's own brackets: how well A covers the spot). A
+    spot within mutual support of A - inside both support_range(A) and the mover's own support_range
+    there (medium; long if it stands still at the spot) - earns LEGATE_COHESION_MUTUAL more. Summed over
+    the teammates, times LEGATE_COHESION_SCALE, in damage points (taken off the damage the spot is
+    expected to take). No LOS test (herding has one)."""
+
+    def __init__(self, mover, units):
+        self.mine = (support_range(mover, False), support_range(mover, True))
+        self.friends = []                                      # (friend xy, its brackets, its support range)
+        for u in forces.standing(units):
+            if u is mover or u.team != mover.team or u.hex is None:
+                continue
+            st = friend_state(mover.team, u)
+            self.friends.append((_xy(st[0]), brackets(u), support_range(u, st[3] == "Stand Still")))
+        self._memo: Dict[tuple, float] = {}
+
+    def reward(self, xy, standing_still=False) -> float:
+        key = (xy, standing_still)
+        got = self._memo.get(key)
+        if got is None:
+            rewards, mine = config.LEGATE_COHESION_REWARD, self.mine[1 if standing_still else 0]
+            total = 0.0
+            for fxy, (short, medium, long_), support in self.friends:
+                d = hex_distance(xy, fxy)
+                if d <= short:
+                    total += rewards["short"]
+                elif d <= medium:
+                    total += rewards["medium"]
+                elif d <= long_:
+                    total += rewards["long"]
+                if d <= min(mine, support):
+                    total += config.LEGATE_COHESION_MUTUAL
+            got = self._memo[key] = total * config.LEGATE_COHESION_SCALE
         return got
 
 

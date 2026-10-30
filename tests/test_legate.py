@@ -259,6 +259,36 @@ def herding_charges_a_threatened_spot_beyond_every_seeing_friends_support():
 
 
 @check
+def cohesion_rewards_each_friends_bracket_and_mutual_support():
+    """LEGATE_COHESION (2026-10-30, Daniel: "stronger at short, much weaker at long. And how many allies
+    are in mutual support range"): next to the friend a spot earns the short reward plus mutual support;
+    out in the friend's long bracket only the small long reward; beyond its reach nothing. Two friends
+    there count twice."""
+    a1, a2, b1, b2, b3 = line_up()
+    with Legate_on():
+        coh = legate._Cohesion(a1, [a1, a2, b1, b2, b3])
+        assert 0 < legate.brackets(a2)[0] < legate.brackets(a2)[1] < legate.brackets(a2)[2]
+        r = config.LEGATE_COHESION_REWARD
+        assert r["short"] > r["medium"] > r["long"] > 0
+        xy_a2 = movement_selection.hex_geometry.parse_hex_label(a2.hex)
+        spots = [movement_selection.hex_geometry.parse_hex_label(l) for l in TERRAIN["hexes"]]
+        at = lambda d: next(xy for xy in spots if legate.hex_distance(xy, xy_a2) == d)
+        mutual = min(legate.support_range(a1, False), legate.support_range(a2, False))
+        assert coh.reward(at(1)) == r["short"] + config.LEGATE_COHESION_MUTUAL      # the real Atlases
+        coh.friends, coh.mine = [(xy_a2, (3, 6, 9), 6)], (6, 9)  # a 3/6/9 friend; I support 6 (9 standing)
+        coh._memo.clear()
+        M = config.LEGATE_COHESION_MUTUAL
+        assert coh.reward(at(2)) == r["short"] + M
+        assert coh.reward(at(5)) == r["medium"] + M
+        assert coh.reward(at(8)) == r["long"]                    # beyond the friend's support of 6
+        assert coh.reward(at(10)) == 0.0
+        assert coh.reward(at(5), standing_still=True) == r["medium"] + M
+        coh.friends = coh.friends * 2                            # two friends in the same place
+        coh._memo.clear()
+        assert coh.reward(at(2)) == 2 * (r["short"] + M)
+
+
+@check
 def a_gladiator_picks_a_move_with_legate_and_without():
     units = line_up()
     a1, a2, b1, b2, b3 = units

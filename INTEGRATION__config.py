@@ -188,6 +188,16 @@ LEGATE_SPLIT_THIS_TURN = True       # default since 2026-10-30 (8 / 4 / 8 v the 
 # LEGATE_HERD_WEIGHT damage for each hex it lies beyond the support of every teammate that can see one
 # of those enemies (support: the end of the teammate's medium bracket, long if it stands still);
 # no teammate sees one: LEGATE_HERD_UNSEEN_GAP hexes. Placeholder weights; off by default (A/B 2026-10-29).
+# Cohesion (INTEGRATION__legate._Cohesion, 2026-10-30, Daniel: "Reward staying within a range braket of
+# its allies, stronger at short, much weaker at long. And how many allies are in mutual support range."):
+# for each teammate (where it will end), a spot inside its short / medium / long bracket (its best weapon
+# for each) earns LEGATE_COHESION_REWARD[bracket], and one in mutual support range (within both units'
+# support_range: medium, long when standing still) LEGATE_COHESION_MUTUAL more; damage points, taken off
+# the damage the spot is expected to take; all times LEGATE_COHESION_SCALE. Placeholder weights.
+LEGATE_COHESION = False
+LEGATE_COHESION_REWARD = {"short": 2.0, "medium": 1.0, "long": 0.25}
+LEGATE_COHESION_MUTUAL = 1.0
+LEGATE_COHESION_SCALE = 1.0
 LEGATE_HERDING = False             # 2 a hex changed half the battles but not the results (A/B 2026-10-29)
 LEGATE_HERD_WEIGHT = 2.0
 LEGATE_HERD_UNSEEN_GAP = 6
