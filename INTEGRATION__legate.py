@@ -646,7 +646,8 @@ class _Cohesion:
     the teammates, times LEGATE_COHESION_SCALE, in damage points (taken off the damage the spot is
     expected to take). No LOS test (herding has one). LEGATE_COHESION_MAX_ALLIES: only the best that
     many teammates count; LEGATE_COHESION_THREATENED_ONLY: a spot no enemy can reach (each at its
-    estimated spot, its weapons' long reach) earns nothing. LEGATE_COHESION_PAIRING "either" (Daniel's
+    estimated spot, its weapons' long reach) needs no support and counts as fully supported (the short
+    reward plus mutual support for every teammate). LEGATE_COHESION_PAIRING "either" (Daniel's
     fire-support point): the pair is judged by whichever unit covers the other better, and support
     counts inside either unit's support range - a fire-support unit holding a brawler in its medium
     bracket is in cohesion too, not only the brawler."""
@@ -673,8 +674,13 @@ class _Cohesion:
             if pairing not in ("ally", "either"):
                 raise ValueError(f"Unknown LEGATE_COHESION_PAIRING {pairing!r} ('ally' or 'either')")
             each = []
-            if not (config.LEGATE_COHESION_THREATENED_ONLY
+            if (config.LEGATE_COHESION_THREATENED_ONLY
                     and not any(hex_distance(xy, exy) <= r for exy, r in self.threats)):
+                # Nothing can reach the spot: it needs no support, so it counts as fully supported
+                # (a zero here made every threatened spot with friends beat a safe one - a pull INTO
+                # the enemy's reach, 15 / 2 / 3 in the 2026-10-30 A/B).
+                each = [rewards["short"] + config.LEGATE_COHESION_MUTUAL] * len(self.friends)
+            else:
                 for fxy, theirs, support in self.friends:
                     d = hex_distance(xy, fxy)
                     if pairing == "either":                # the better covering of the two

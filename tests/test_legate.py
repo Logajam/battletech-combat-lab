@@ -292,9 +292,9 @@ def cohesion_rewards_each_friends_bracket_and_mutual_support():
             coh._memo.clear()
             assert coh.reward(at(2)) == r["short"] + M
             config.LEGATE_COHESION_MAX_ALLIES, config.LEGATE_COHESION_THREATENED_ONLY = None, True
-            coh.threats = []                                     # no enemy reaches anywhere: no reward
+            coh.threats = []                                     # no enemy reaches anywhere: fully supported
             coh._memo.clear()
-            assert coh.reward(at(2)) == 0.0
+            assert coh.reward(at(2)) == coh.reward(at(10)) == 2 * (r["short"] + M)
             coh.threats = [(at(2), 0)]                           # an enemy that reaches only that hex
             coh._memo.clear()
             assert coh.reward(at(2)) == 2 * (r["short"] + M)
