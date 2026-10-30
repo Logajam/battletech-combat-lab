@@ -217,14 +217,20 @@ def an_enemys_future_fire_is_shared_over_the_team_it_can_reach():
     for foe, on_a1, on_a2 in ((b1, 4.0, 4.0), (b2, 5.0, 0.0)):
         legate._RATES[(id(foe), id(a1))], legate._RATES[(id(a1), id(foe))] = (on_a1, 7.0), (7.0, on_a1)
         legate._RATES[(id(foe), id(a2))], legate._RATES[(id(a2), id(foe))] = (on_a2, 7.0), (7.0, on_a2)
-    saved = config.LEGATE_FIRE_SPLIT
-    config.LEGATE_FIRE_SPLIT = "proportional"
+    saved, saved_now = config.LEGATE_FIRE_SPLIT, config.LEGATE_SPLIT_THIS_TURN
+    config.LEGATE_FIRE_SPLIT, config.LEGATE_SPLIT_THIS_TURN = "proportional", False
+    legate._SHARES.clear()
     try:
         assert legate.fire_share(b1, a1) == 0.5 and legate.fire_share(b2, a1) == 1.0
         assert legate.MultiLifetime(a1, [b1, b2]).theirs == 4.0 * 0.5 + 5.0
+        assert legate.now_share(b1, a1) == 1.0                  # this turn: every enemy shoots me ...
+        config.LEGATE_SPLIT_THIS_TURN = True
+        legate._SHARES.clear()
+        assert legate.now_share(b1, a1) == 0.5                  # ... unless this turn is split the same way
     finally:
-        config.LEGATE_FIRE_SPLIT = saved
+        config.LEGATE_FIRE_SPLIT, config.LEGATE_SPLIT_THIS_TURN = saved, saved_now
         legate._RATES.clear()
+        legate._SHARES.clear()
 
 
 @check

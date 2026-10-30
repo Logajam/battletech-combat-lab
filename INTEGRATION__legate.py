@@ -30,9 +30,10 @@ WHAT LEGATE DOES, each Movement Phase, for each side that has a Gladiator unit a
      final (in sight, bears, nearest).
 
 PLACEHOLDERS (Daniel: "This will change later"): the damage a single unit would really take THIS turn
-when the enemy force concentrates fire is simply summed. Its FUTURE share is estimated (fire_share,
+when the enemy force concentrates fire is each enemy's damage times its share (now_share below). Its FUTURE share is estimated (fire_share,
 config.LEGATE_FIRE_SPLIT, 2026-10-29): the old "every enemy shoots only me" made a unit's life look ~3
 turns long against 12 enemies, so bad trades scored well and lights dived in alone (Change Record).
+THIS turn's damage can take the same share (now_share, config.LEGATE_SPLIT_THIS_TURN, 2026-10-30).
 TO DO (Daniel): Legate reads the map and finds tactically useful terrain; the concentrated-fire
 estimate; a better score for the estimate (PROJECT_MAP Section 0, Pick up here).
 
@@ -59,6 +60,7 @@ _PLANS: Dict[str, Dict[int, State]] = {}          # team -> {id(enemy unit): its
 _OWN: Dict[str, Dict[int, State]] = {}            # team -> {id(own unit): its estimated end state} (herding)
 _FRIEND_DMG: Dict[tuple, float] = {}              # (id(unit), its state, id(enemy), enemy state) -> damage on it
 _RATES: Dict[Tuple[int, int], Tuple[float, float]] = {}   # (id(a), id(b)) -> (a's, b's) future damage rates
+_SHARES: Dict[Tuple[int, int], float] = {}        # (id(foe), id(me)) -> this turn's share (now_share)
 
 
 def reset() -> None:
@@ -66,6 +68,7 @@ def reset() -> None:
     _PLANS.clear()
     _OWN.clear()
     _RATES.clear()
+    _SHARES.clear()
     _FRIEND_DMG.clear()
 
 
@@ -74,6 +77,7 @@ def end_phase() -> None:
     damage, so they go too)."""
     _PLANS.clear()
     _RATES.clear()
+    _SHARES.clear()
 
 
 def _key(o) -> Tuple[str, str, str, int, int]:
@@ -142,6 +146,18 @@ def fire_share(foe, me) -> float:
         team.append(me)
     total = sum(pair_rates(foe, u)[0] for u in team)
     return mine / total if total > 0 else 1.0
+
+
+def now_share(foe, me) -> float:
+    """The share of `foe`'s fire THIS turn counted on `me` in a move score: fire_share with
+    config.LEGATE_SPLIT_THIS_TURN (2026-10-30), else 1 (every enemy that can reach the spot shoots it).
+    Cached for the phase."""
+    if not config.LEGATE_SPLIT_THIS_TURN:
+        return 1.0
+    got = _SHARES.get((id(foe), id(me)))
+    if got is None:
+        got = _SHARES[(id(foe), id(me))] = fire_share(foe, me)
+    return got
 
 
 class MultiLifetime:
@@ -247,7 +263,7 @@ def combine(me: "_Unit", entries, states, objective):
                 continue
             seen = True
             dealt = max(dealt, cand.dealt * foe.side.exposure[cand.side_on_defender])
-            received += cand.received * me.side.exposure[cand.side_on_mover]
+            received += cand.received * me.side.exposure[cand.side_on_mover] * now_share(foe.mech, me.mech)
         if seen:
             out.append((objective(dealt, received, 1.0, 1.0, me.side.psr_for(o)), o, (dealt, received)))
     return out
@@ -497,7 +513,8 @@ class Extras:
         factors, with multipliers of 1.0."""
         with timing.section("Legate extras"):
             d, r = dealt * dealt_mult, received * received_mult
-            on_me = {id(self.primary): r}                  # each enemy's damage on the mover at o
+            on_me = {id(self.primary): r}                  # (unshared: _TeamFire distributes the fire itself)
+            r *= now_share(self.primary, self.mover)       # LEGATE_SPLIT_THIS_TURN, else 1                  # each enemy's damage on the mover at o
             on_them = {id(self.primary): d}                # the mover's damage on each enemy at o
             for foe, st in self.entries:
                 if st[0] == o.label:
@@ -507,7 +524,7 @@ class Extras:
                     continue
                 d = max(d, cand.dealt * foe.side.exposure[cand.side_on_defender])
                 taken = cand.received * self.unit.side.exposure[cand.side_on_mover]
-                r += taken
+                r += taken * now_share(foe.mech, self.mover)
                 on_me[id(foe.mech)] = taken
                 on_them[id(foe.mech)] = cand.dealt * foe.side.exposure[cand.side_on_defender]
             if self.team is not None:
