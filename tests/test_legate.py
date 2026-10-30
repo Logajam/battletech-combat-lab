@@ -259,6 +259,60 @@ def herding_charges_a_threatened_spot_beyond_every_seeing_friends_support():
 
 
 @check
+def cohesion_rewards_each_friends_bracket_and_mutual_support():
+    """LEGATE_COHESION (2026-10-30, Daniel: "stronger at short, much weaker at long. And how many allies
+    are in mutual support range"): next to the friend a spot earns the short reward plus mutual support;
+    out in the friend's long bracket only the small long reward; beyond its reach nothing. Two friends
+    there count twice."""
+    a1, a2, b1, b2, b3 = line_up()
+    with Legate_on():
+        coh = legate._Cohesion(a1, [a1, a2, b1, b2, b3])
+        assert 0 < legate.brackets(a2)[0] < legate.brackets(a2)[1] < legate.brackets(a2)[2]
+        r = config.LEGATE_COHESION_REWARD
+        assert r["short"] > r["medium"] > r["long"] > 0
+        xy_a2 = movement_selection.hex_geometry.parse_hex_label(a2.hex)
+        spots = [movement_selection.hex_geometry.parse_hex_label(l) for l in TERRAIN["hexes"]]
+        at = lambda d: next(xy for xy in spots if legate.hex_distance(xy, xy_a2) == d)
+        mutual = min(legate.support_range(a1, False), legate.support_range(a2, False))
+        assert coh.reward(at(1)) == r["short"] + config.LEGATE_COHESION_MUTUAL      # the real Atlases
+        coh.friends, coh.mine = [(xy_a2, (3, 6, 9), 6)], (6, 9)  # a 3/6/9 friend; I support 6 (9 standing)
+        coh._memo.clear()
+        M = config.LEGATE_COHESION_MUTUAL
+        assert coh.reward(at(2)) == r["short"] + M
+        assert coh.reward(at(5)) == r["medium"] + M
+        assert coh.reward(at(8)) == r["long"]                    # beyond the friend's support of 6
+        assert coh.reward(at(10)) == 0.0
+        assert coh.reward(at(5), standing_still=True) == r["medium"] + M
+        coh.friends = coh.friends * 2                            # two friends in the same place
+        coh._memo.clear()
+        assert coh.reward(at(2)) == 2 * (r["short"] + M)
+        saved = config.LEGATE_COHESION_MAX_ALLIES, config.LEGATE_COHESION_THREATENED_ONLY
+        try:
+            config.LEGATE_COHESION_MAX_ALLIES = 1                # only the best friend counts
+            coh._memo.clear()
+            assert coh.reward(at(2)) == r["short"] + M
+            config.LEGATE_COHESION_MAX_ALLIES, config.LEGATE_COHESION_THREATENED_ONLY = None, True
+            coh.threats = []                                     # no enemy reaches anywhere: fully supported
+            coh._memo.clear()
+            assert coh.reward(at(2)) == coh.reward(at(10)) == 2 * (r["short"] + M)
+            coh.threats = [(at(2), 0)]                           # an enemy that reaches only that hex
+            coh._memo.clear()
+            assert coh.reward(at(2)) == 2 * (r["short"] + M)
+            # Daniel's fire-support case: I am a 7/14/21 unit, my friend a 3/6/9 brawler 12 hexes off.
+            config.LEGATE_COHESION_THREATENED_ONLY = False
+            coh.friends, coh.mine, coh.my_brackets = [(xy_a2, (3, 6, 9), 6)], (14, 21), (7, 14, 21)
+            coh._memo.clear()
+            assert coh.reward(at(12)) == 0.0                     # "ally": out of the brawler's reach
+            config.LEGATE_COHESION_PAIRING = "either"
+            coh._memo.clear()
+            assert coh.reward(at(12)) == r["medium"] + M         # "either": I cover it from my medium
+            assert coh.reward(at(5)) == r["short"] + M
+        finally:
+            config.LEGATE_COHESION_MAX_ALLIES, config.LEGATE_COHESION_THREATENED_ONLY = saved
+            config.LEGATE_COHESION_PAIRING = "ally"
+
+
+@check
 def a_gladiator_picks_a_move_with_legate_and_without():
     units = line_up()
     a1, a2, b1, b2, b3 = units
