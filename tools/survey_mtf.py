@@ -18,7 +18,7 @@ for d,_,fs in os.walk(root):
     cur=None;slots=C.defaultdict(list);inw=False
     for l in L:
         if l.startswith('Config:'):cfg[l[7:].strip()]+=1; omni+=('Omni' in l)
-        elif l.startswith('Mass:'):ton[int(l[5:])//10*10]+=1
+        elif l.lower().startswith('mass:'):ton[int(l[5:])//10*10]+=1
         elif l.startswith('TechBase:'):tech[l[9:].strip()]+=1
         elif l.startswith('Jump MP:'):jj[min(int(l[8:] or 0),8)]+=1
         elif l.startswith('Weapons:'):inw=True
