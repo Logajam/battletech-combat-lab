@@ -124,6 +124,20 @@ needs no GUI change.
     filled in later, by exception. Daniel is willing to spend cycles on this
     ground work (2026-10-31).
 
+- **Unit library survey (2026-10-31, `tools/survey_mtf.py`; rough counts).**
+  4,227 `.mtf` files (not 65). Config: biped 3,026 + biped omni 1,006, quad 148,
+  LAM 23, tripod 11, QuadVee 13. Tonnage 20-100 mostly (30t 387, 50t 426,
+  100t 134; a few 10t, 130t, 200t). Tech base: IS 1,893, Clan 641, mixed 134.
+  Jump MP 0 on 1,618 (the rest 2-8). Weapons by zone: arms ~10,400, side
+  torsos ~8,500, center torso 1,636, head 950, legs ~190; rear-facing only 35.
+  Class: energy 13.5k, missile 4.3k, ballistic 3.0k.
+  **Useful free signal: arm actuators.** Per arm: hand 3,548, lower arm only
+  2,135, upper arm only 2,449 (upper-only = a gun-pod arm). So "hand / forearm /
+  pod arm" comes from data, not the hash. Omnimechs (1,046) have pod-slot items,
+  which suggests per-config looks. Findings: parameters needed beyond the first
+  list are LAM / QuadVee transform modes and tripod (three legs); a handful of
+  units carry no cockpit in the head (48), so head position can be read from data.
+
 ---
 
 # PART B - Combat Lab GUI: functional specification (to implement)
