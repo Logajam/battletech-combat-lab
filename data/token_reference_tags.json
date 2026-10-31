@@ -1,0 +1,353 @@
+{
+ "flea": {
+  "archetype": "bird",
+  "torso": "narrow",
+  "head_mount": "built_in",
+  "head_shape": "dome",
+  "shoulders": "flush",
+  "note": "small round head sunk in torso; thin pod arms",
+  "new": [
+   "pod arms"
+  ],
+  "confidence": "med"
+ },
+ "locust": {
+  "archetype": "bird",
+  "torso": "narrow",
+  "head_mount": "built_in",
+  "head_shape": "box",
+  "shoulders": "flush",
+  "note": "tiny torso, stub arms, long thin bird legs",
+  "new": [],
+  "confidence": "med"
+ },
+ "commando": {
+  "archetype": "bird",
+  "torso": "box",
+  "head_mount": "top",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "wide boxy shoulders carrying racks; small head",
+  "new": [
+   "shoulder racks as part of the body"
+  ],
+  "confidence": "low"
+ },
+ "spider": {
+  "archetype": "bird",
+  "torso": "narrow",
+  "head_mount": "front",
+  "head_shape": "dome",
+  "shoulders": "boom",
+  "note": "flared hips and shoulders, jump jets",
+  "new": [
+   "flared hips"
+  ],
+  "confidence": "low"
+ },
+ "urbanmech": {
+  "archetype": "humanoid",
+  "torso": "slab",
+  "head_mount": "built_in",
+  "head_shape": "box",
+  "shoulders": "flush",
+  "note": "squat, big torso, short arms, deep knee bend",
+  "new": [
+   "squat humanoid"
+  ],
+  "confidence": "med"
+ },
+ "firestarter": {
+  "archetype": "bird",
+  "torso": "box",
+  "head_mount": "built_in",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "broad shoulders, head in torso",
+  "new": [],
+  "confidence": "low"
+ },
+ "jenner": {
+  "archetype": "bird",
+  "torso": "narrow",
+  "head_mount": "front",
+  "head_shape": "wedge",
+  "shoulders": "flush",
+  "note": "wedge head forward, pod arms, strong forward lean",
+  "new": [
+   "forward wedge head"
+  ],
+  "confidence": "med"
+ },
+ "panther": {
+  "archetype": "humanoid",
+  "torso": "box",
+  "head_mount": "top",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "box shoulders with racks, small head",
+  "new": [],
+  "confidence": "low"
+ },
+ "raven": {
+  "archetype": "bird",
+  "torso": "narrow",
+  "head_mount": "front",
+  "head_shape": "dome",
+  "shoulders": "flush",
+  "note": "slim from the front, deep from the side; big forward head",
+  "new": [
+   "deep slim torso"
+  ],
+  "confidence": "med"
+ },
+ "wolfhound": {
+  "archetype": "humanoid",
+  "torso": "box",
+  "head_mount": "top",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "broad shoulders, small head",
+  "new": [],
+  "confidence": "low"
+ },
+ "cicada": {
+  "archetype": "bird",
+  "torso": "narrow",
+  "head_mount": "front",
+  "head_shape": "dome",
+  "shoulders": "flush",
+  "note": "slim, head forward",
+  "new": [],
+  "confidence": "low"
+ },
+ "blackjack": {
+  "archetype": "humanoid",
+  "torso": "box",
+  "head_mount": "top",
+  "head_shape": "box",
+  "shoulders": "flush",
+  "note": "boxy, slim legs",
+  "new": [],
+  "confidence": "low"
+ },
+ "phoenix hawk": {
+  "archetype": "humanoid",
+  "torso": "box",
+  "head_mount": "top",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "big shoulders, jump jets",
+  "new": [],
+  "confidence": "low"
+ },
+ "centurion": {
+  "archetype": "humanoid",
+  "torso": "slab",
+  "head_mount": "built_in",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "broad, head low between raised shoulders",
+  "new": [
+   "raised shoulders"
+  ],
+  "confidence": "med"
+ },
+ "crab": {
+  "archetype": "lizard",
+  "torso": "ovoid",
+  "head_mount": "built_in",
+  "head_shape": "dome",
+  "shoulders": "flush",
+  "note": "wide splayed legs, round body, crouched side",
+  "new": [
+   "claw arms"
+  ],
+  "confidence": "med"
+ },
+ "hunchback": {
+  "archetype": "humanoid",
+  "torso": "narrow",
+  "head_mount": "built_in",
+  "head_shape": "box",
+  "shoulders": "flush",
+  "note": "slim front, large hump on one shoulder; arms low",
+  "new": [
+   "shoulder hump"
+  ],
+  "confidence": "med"
+ },
+ "trebuchet": {
+  "archetype": "bird",
+  "torso": "box",
+  "head_mount": "top",
+  "head_shape": "box",
+  "shoulders": "flush",
+  "note": "bird legs, boxy torso",
+  "new": [],
+  "confidence": "low"
+ },
+ "griffin": {
+  "archetype": "bird",
+  "torso": "box",
+  "head_mount": "top",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "bird legs, boom shoulders",
+  "new": [],
+  "confidence": "low"
+ },
+ "shadow hawk": {
+  "archetype": "humanoid",
+  "torso": "box",
+  "head_mount": "top",
+  "head_shape": "wedge",
+  "shoulders": "flush",
+  "note": "standard humanoid, wedge head",
+  "new": [],
+  "confidence": "low"
+ },
+ "wolverine": {
+  "archetype": "humanoid",
+  "torso": "box",
+  "head_mount": "top",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "humanoid, broad",
+  "new": [],
+  "confidence": "low"
+ },
+ "rifleman": {
+  "archetype": "humanoid",
+  "torso": "box",
+  "head_mount": "top",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "twin gun pods on top of the shoulders",
+  "new": [
+   "gun pod on shoulder"
+  ],
+  "confidence": "med"
+ },
+ "catapult": {
+  "archetype": "bird",
+  "torso": "box",
+  "head_mount": "built_in",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "missile boxes above the shoulders",
+  "new": [
+   "shoulder boxes (racks)"
+  ],
+  "confidence": "med"
+ },
+ "jagermech": {
+  "archetype": "humanoid",
+  "torso": "box",
+  "head_mount": "top",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "twin barrels on the arms",
+  "new": [],
+  "confidence": "low"
+ },
+ "thunderbolt": {
+  "archetype": "humanoid",
+  "torso": "slab",
+  "head_mount": "top",
+  "head_shape": "box",
+  "shoulders": "flush",
+  "note": "broad, heavy, hands",
+  "new": [],
+  "confidence": "med"
+ },
+ "archer": {
+  "archetype": "humanoid",
+  "torso": "slab",
+  "head_mount": "built_in",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "wide with big rack boxes on the shoulders",
+  "new": [],
+  "confidence": "low"
+ },
+ "warhammer": {
+  "archetype": "humanoid",
+  "torso": "slab",
+  "head_mount": "top",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "broad shoulders, pod arms",
+  "new": [],
+  "confidence": "low"
+ },
+ "marauder": {
+  "archetype": "bird",
+  "torso": "slab",
+  "head_mount": "front",
+  "head_shape": "visor",
+  "shoulders": "flush",
+  "note": "head forward, leaning side profile, pod arms",
+  "new": [
+   "forward-hung torso"
+  ],
+  "confidence": "low"
+ },
+ "orion": {
+  "archetype": "humanoid",
+  "torso": "slab",
+  "head_mount": "top",
+  "head_shape": "box",
+  "shoulders": "flush",
+  "note": "broad, hands",
+  "new": [],
+  "confidence": "low"
+ },
+ "awesome": {
+  "archetype": "humanoid",
+  "torso": "slab",
+  "head_mount": "built_in",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "barrel chest, wide shoulders, head in torso",
+  "new": [],
+  "confidence": "low"
+ },
+ "stalker": {
+  "archetype": "bird",
+  "torso": "slab",
+  "head_mount": "built_in",
+  "head_shape": "box",
+  "shoulders": "flush",
+  "note": "squat and wide, short legs, low torso, small arms",
+  "new": [
+   "squat wide body"
+  ],
+  "confidence": "med"
+ },
+ "atlas": {
+  "archetype": "humanoid",
+  "torso": "slab",
+  "head_mount": "front",
+  "head_shape": "dome",
+  "shoulders": "boom",
+  "note": "wide box torso with separate shoulder block; hands; head dome in torso top; thick straight legs",
+  "new": [
+   "thick legs"
+  ],
+  "confidence": "med"
+ },
+ "king crab": {
+  "archetype": "lizard",
+  "torso": "slab",
+  "head_mount": "built_in",
+  "head_shape": "box",
+  "shoulders": "flush",
+  "note": "squat and wide, hunched forward, big arm pods",
+  "new": [
+   "squat wide body",
+   "hunched"
+  ],
+  "confidence": "med"
+ }
+}

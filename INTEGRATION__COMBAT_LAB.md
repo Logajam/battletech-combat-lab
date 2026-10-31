@@ -202,6 +202,17 @@ needs no GUI change.
   Plan: v2 = a vocabulary of archetypes, joints, head mounts and mount styles
   above; fix the bugs first; re-render the same 26 units for comparison.
 
+- **Reference tags from the MWO chart (Claude's reading, 2026-10-31).**
+  `data/token_reference_tags.json`: 31 chart units tagged in the token vocabulary
+  (archetype, torso, head mount and shape, shoulders, note, confidence). Coarse:
+  the chart's silhouettes are about 100 px tall, so most are "low" or "med"
+  confidence. NOT applied as overrides yet; they are a vocabulary check (which
+  values are missing) and a candidate override list for Daniel to correct.
+  Features the vocabulary lacks: shoulder hump (Hunchback), gun pod on the shoulder
+  (Rifleman), shoulder boxes (Catapult), squat wide body (Stalker, King Crab),
+  forward wedge head (Jenner), claw arms (Crab), raised shoulders (Centurion),
+  flared hips (Spider), thick legs (Atlas), deep slim torso (Raven).
+
 ---
 
 # PART B - Combat Lab GUI: functional specification (to implement)
