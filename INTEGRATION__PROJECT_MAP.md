@@ -708,7 +708,20 @@ Princess, decision by decision, the latest battery and why Gladiator loses.
    `CombatLab.exe`: Units / Map / Options / Results / Replay). Item 9's setup
    shell GUI is its first stage. Foundation both need: a full-state snapshot
    per phase (the replay is output only today). Open for Daniel: tkinter + `.exe`
-   v. HTML front end, and `.blk` v. `.mtf`.
+   v. HTML front end (Daniel 2026-10-31: HTML, like MekBay - click the `.exe`, the
+   browser shows it, works offline on his own PC); `.blk` later (orbital fire
+   support, thousands of units), 'Mechs stay `.mtf`.
+13. **NEXT WEEK (Daniel, 2026-10-31): condense the physics core into something
+   faster.** The game physics are essentially complete (changes only for bugs);
+   ongoing work is bot behaviour, which can stay in Python. Plan: survey the
+   hot path first (`INTEGRATION__timing`; `MoveEvaluator.evaluate`, LOS,
+   expected damage), pick Rust or Cython, port the physics behind a narrow
+   API, keep the bots in Python calling it. Safety net: the reference logs and
+   `tests/run_checks.py` must stay byte-identical (a speed-only change, CLAUDE.md).
+   Watch the boundary: bots call the evaluator thousands of times a move, so
+   the API should score many spots per call, not one. Supersedes item 9's
+   "once the rules settle" wording. The Combat Lab state snapshot and the
+   engine API (COMBAT_LAB.md) should be designed with this boundary in mind.
 
 **Housekeeping:** reference logs match the code (last regenerated
 2026-10-24, session 8: all 15 for the short-list look-ahead default; nothing
@@ -1712,6 +1725,11 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-10-31 (Claude) - DOCS: COMBAT LAB FRONT END = HTML; COMPILED PHYSICS CORE QUEUED.** REVIEW PENDING
+  (higher-level model). Daniel chose the HTML front end (local `.exe` + browser, offline) and asked that
+  condensing the physics core into a faster language go on next week's list, bots staying in Python
+  (pick-up items 12-13). No code changed.
 
 - **2026-10-30 (Claude), session 15 (cont.) - COMBAT LAB GUI WISH LIST FILED (docs only).** REVIEW PENDING
   (higher-level model). Daniel's notes (as summarized by GPT) split into

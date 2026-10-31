@@ -173,9 +173,10 @@ are acceptable and may become the default.
    current replay viewer is an HTML page I publish as a link. The
    alternative is the same Lab as a local web page (engine behind a small
    local server), which I can publish screenshots / artifacts of while
-   building and which makes Stage 2's 3D (WebGL) natural. **Daniel's call:**
-   tkinter + `.exe` (you run it) v. HTML front end (works for review links;
-   an `.exe` can still wrap it).
+   building and which makes Stage 2's 3D (WebGL) natural. **Decided (Daniel, 2026-10-31): HTML front end**, like MekBay: click
+   `CombatLab.exe`, it starts a local server and opens the browser; works
+   offline. The engine may become a compiled core later (PROJECT_MAP item 13), so
+   keep the GUI-to-engine API coarse and language-neutral (JSON).
 3. **Estimated runtime** is feasible: `INTEGRATION__timing` already measures
    where the time goes; per-battle time from a few pilot battles, scaled by
    simulations / CPU threads.
