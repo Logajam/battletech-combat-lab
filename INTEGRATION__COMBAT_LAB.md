@@ -213,6 +213,54 @@ needs no GUI change.
   forward wedge head (Jenner), claw arms (Crab), raised shoulders (Centurion),
   flared hips (Spider), thick legs (Atlas), deep slim torso (Raven).
 
+- **Token sheet v2 review (Daniel, 2026-10-31; reference-tag and hash-only rows).**
+  Wins: Spider (hashed) close to the ideal; the Jenner D v K pair shows hash-by-name
+  works (same silhouette, different loadouts); the Archer reference version could
+  be an Archer; Urbanmech partly right. *Structural findings:*
+  1. **The views are technical drawings of ONE object** from different angles; the
+     measurements must match. v2 draws each view separately, so top is out of
+     proportion, a sloped front does not slope from the side, and the side view of
+     the Panther head is "funny". Fix: one 3D part model (boxes / limbs with x, y,
+     z) projected orthographically to top, front, rear and side.
+  2. **Never draw outside the standee**; the standee is hard-capped to its base
+     (Scorpion). Clip and size to the base.
+  3. **Weight must look right** (the Scorpion looks massive for its tonnage).
+  4. **Do not over-represent weapons from top and side** (Archer: a rack just
+     painted on the arm in the side view). Weapons that cannot be seen from a
+     direction stay out of that view.
+  5. **Color:** 3 or 4 tones, with greebling lines that separate left / centre /
+     right torso (legs ran into torso stripes on the Spider).
+  6. **Shape variety:** arm and leg segments are all still blocks; hips need
+     their own section (a wedge body only works on a separate hips section,
+     otherwise it is a skirt); torsos flaring out like a bell (Urbanmech) read as
+     not war-fighting equipment.
+  *Rules to add:* dog and lizard apply to QUADS only (dog: knees under the body;
+  lizard: legs angle out from the body, knees away from it); bipeds are
+  humanoid / bird / Martian. Legs differ across models (they all look alike now).
+  Digitigrade legs with claw or hoof feet. Tripods: stand over none of their
+  legs, bent knees. Chicken legs with more knee bend and a higher hip pivot
+  (Stalker). Arms may go above the mech (Catapult: ovoid body on a hips section,
+  missile boxes rising above like ears). Jump jets by LOCATION from the file
+  (Jenner: 2 right torso, 2 left torso, 1 centre). Weapon mount follows the arm:
+  with a lower actuator the weapon sits in line with the forearm; with only an
+  upper actuator the arm is a turret mounted at the side, not a right-angle stub.
+  Boom shoulders need connective tissue. The neck is too thin. The head may sit
+  in the centre torso on a boom neck (Jenner). Visual size threshold: how big a
+  weapon must be before the head is displaced (Raven: SRM could be in the torso).
+  Pod versus built in: odds to be settled (omni units mark pods in the file).
+  Do not mount the Mad Cat's missile boxes on the sides: the area is dense and they
+  clip; they are shoulder box launchers. Orion got pod-happy for no reason.
+  Missile scale: real masses (SRM about 10 kg a missile, LRM 25 kg for 3) give small
+  missiles; add an artistic fudge factor so they do not disappear. Greebling can
+  offset features (Warhammer: a shoulder searchlight balances the SRMs).
+  Flea in the source's words: a torso on a separate hips section, legs under
+  the body joined to the hips from the side, digitigrade, claw or hoof feet,
+  cockpit upper front, torso tilted back (fighter or attack-helicopter feel),
+  angular, arms like turrets / gun barrels on the torso.
+  *Sprite study:* Daniel recommends studying MegaMek's sprites (top-down
+  especially) to build a dictionary of shapes. Their art is copyrighted: describe
+  shapes in words and tags, never trace or copy the images.
+
 ---
 
 # PART B - Combat Lab GUI: functional specification (to implement)
