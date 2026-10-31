@@ -86,6 +86,31 @@ needs no GUI change.
   mean `.mtf` (almost surely), or is a non-'Mech unit type coming? Until
   answered the spec below says `.mtf`.
 
+- **Procedural tokens - Daniel's design (2026-10-31):**
+  - **Look.** The unit's name is hashed to pick features and cosmetic detail
+    (silhouette family from the chassis name so variants look related;
+    cosmetics from the full model name). Weapon and equipment hardpoints come
+    from the unit's real data, location by location. Tonnage and armor loadout
+    set size and bulk.
+  - **Overrides.** A named-unit override list beats the hash, e.g. "Timber Wolf:
+    digitigrade legs, flexible arms, over-the-shoulder missile racks, ovoid
+    body". Keep it a plain data file Daniel can read and edit.
+  - **Outputs.** Top-down token, front standee, rear standee; 3D standees later.
+  - **Art language.** Daniel wants the look to stay close to the MWO models
+    and the Unit Recognition Guide posters; he will find reference material.
+  - **Claude's notes.**
+    - Build one parametric part model per unit (JSON: body, legs, arms,
+      hardpoints, scale), then render it three ways: top-down, front, back (SVG,
+      so it fits the HTML front end and scales cleanly); the later 3D view
+      reads the same model. Overrides edit the part model, not the pictures.
+    - Hardpoints are real data: the `.mtf` lists equipment by location, so
+      arm, torso and head weapons can sit where the unit carries them.
+    - MWO models and the poster art are copyrighted. Use them as reference
+      for proportions and style only; the generator draws original shapes.
+      Notes on a design's look go in the override file with the unit named.
+    - Stage 1: plain shapes, correct footprint, readable facing. Detail comes
+      after the pipeline works.
+
 ---
 
 # PART B - Combat Lab GUI: functional specification (to implement)
