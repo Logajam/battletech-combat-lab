@@ -140,13 +140,19 @@ needs no GUI change.
 
 - **Token scale (Daniel, 2026-10-31).** The MWO scale-reference chart (labelled
   silhouettes, front + side, by weight class) is the art-language reference
-  for proportions only; its own scale is unreliable. Drawn height follows the
-  cube-square law: height = 2 levels x (tons / 100)^(1/3), so 20t = 1.17, 35t =
-  1.41, 50t = 1.59, 75t = 1.82, 100t = 2.00, 200t = 2.52 levels; width and depth
-  scale the same way, then armor / loadout add bulk. Daniel: a standee is 2
-  levels tall at 100t, 105-200t counts as 3 levels (a bucket). Keep the RULES
-  height (whole levels, line of sight) separate from the DRAWN height.
-  Rescale every reference silhouette to this curve before using its proportions.
+  for proportions only; its own scale is unreliable. Rescale every reference
+  silhouette to the curve below before using its proportions.
+  **Drawn height matches the rules height (Daniel: in the art, so a 3D camera
+  behind a mech sees what line of sight sees).** Rules (`pathfinder/los.py`,
+  Core p.57, p.240): normal 'Mech 2 levels standing, 1 prone; superheavy
+  (over 100t) 3 standing, 2 prone. Cube-square law inside each band, never
+  above the rules height: normal = 2 x (tons/100)^(1/3) (20t 1.17, 35t 1.41,
+  50t 1.59, 75t 1.82, 100t 2.00); superheavy = 3 x (tons/200)^(1/3) (105t 2.38,
+  200t 3.00). Width and depth scale likewise; armor and loadout add bulk.
+  Known gap: a light 'Mech drawn under 2 levels can look hidden behind a
+  level-1 hill where the rules say visible; the rules decide LOS. Open
+  question for Daniel: the alternative of drawing every normal 'Mech at 2
+  levels and showing weight by bulk only.
 
 ---
 
