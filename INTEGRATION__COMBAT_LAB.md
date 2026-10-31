@@ -138,6 +138,16 @@ needs no GUI change.
   list are LAM / QuadVee transform modes and tripod (three legs); a handful of
   units carry no cockpit in the head (48), so head position can be read from data.
 
+- **Token scale (Daniel, 2026-10-31).** The MWO scale-reference chart (labelled
+  silhouettes, front + side, by weight class) is the art-language reference
+  for proportions only; its own scale is unreliable. Drawn height follows the
+  cube-square law: height = 2 levels x (tons / 100)^(1/3), so 20t = 1.17, 35t =
+  1.41, 50t = 1.59, 75t = 1.82, 100t = 2.00, 200t = 2.52 levels; width and depth
+  scale the same way, then armor / loadout add bulk. Daniel: a standee is 2
+  levels tall at 100t, 105-200t counts as 3 levels (a bucket). Keep the RULES
+  height (whole levels, line of sight) separate from the DRAWN height.
+  Rescale every reference silhouette to this curve before using its proportions.
+
 ---
 
 # PART B - Combat Lab GUI: functional specification (to implement)
