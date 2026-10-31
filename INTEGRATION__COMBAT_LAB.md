@@ -149,10 +149,13 @@ needs no GUI change.
   above the rules height: normal = 2 x (tons/100)^(1/3) (20t 1.17, 35t 1.41,
   50t 1.59, 75t 1.82, 100t 2.00); superheavy = 3 x (tons/200)^(1/3) (105t 2.38,
   200t 3.00). Width and depth scale likewise; armor and loadout add bulk.
-  Known gap: a light 'Mech drawn under 2 levels can look hidden behind a
-  level-1 hill where the rules say visible; the rules decide LOS. Open
-  question for Daniel: the alternative of drawing every normal 'Mech at 2
-  levels and showing weight by bulk only.
+  **Decided (Daniel, 2026-10-31):** the STANDEE (card + base) is always the
+  rules height - 2 levels, 3 for a superheavy - and the 'Mech drawn on it is
+  scaled by the curve above (a light 'Mech is 1.15-ish levels tall on a 2-level
+  card, empty above). Selection, hill clipping and LOS checks use the card;
+  the figure is only the art. Quirk: behind a level-1 hill the camera shows a
+  sliver of a light 'Mech where the rules say visible; mark it with an LOS line
+  or highlight.
 
 ---
 
