@@ -1,0 +1,63 @@
+<title>Combat Lab Token Sheet</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Barlow:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a technical recognition sheet. A shared-scale lineup on top, then one tile per unit
+   with four views (top token, front card, rear card, side card), as in the MWO scale chart. */
+:root {
+  --bg: #e6e9ee; --panel: #f2f4f7; --ink: #1d2430; --mute: #5a6475; --line: #c4cad4;
+  --fig: #333a45; --fig2: #4d5663; --hl: #8d98a8; --card: #dfe3ea; --cardline: #aeb6c2; --base: #bcc3ce;
+  --hexfill: #d3d8e0; --energy: #d2453b; --ballistic: #d8962d; --missile: #3478c0;
+  --display: "Barlow Condensed", "Arial Narrow", sans-serif; --body: "Barlow", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12161c; --panel: #1a2029; --ink: #e3e7ee; --mute: #98a2b3; --line: #2c3541;
+  --fig: #b9c1cd; --fig2: #8590a0; --hl: #e3e7ee; --card: #222a35; --cardline: #3a4553; --base: #0b0e12;
+  --hexfill: #232b36; --energy: #ee6b60; --ballistic: #e8ad4f; --missile: #5fa0e6; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #12161c; --panel: #1a2029; --ink: #e3e7ee; --mute: #98a2b3; --line: #2c3541;
+  --fig: #b9c1cd; --fig2: #8590a0; --hl: #e3e7ee; --card: #222a35; --cardline: #3a4553; --base: #0b0e12;
+  --hexfill: #232b36; --energy: #ee6b60; --ballistic: #e8ad4f; --missile: #5fa0e6; color-scheme: dark; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5;
+  padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 1380px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+h1 { font: 700 40px/1.05 var(--display); letter-spacing: .02em; text-transform: uppercase; margin: 0; }
+h2 { font: 700 22px/1.1 var(--display); letter-spacing: .06em; text-transform: uppercase; margin: 0 0 8px; }
+h3 { font: 700 20px/1.1 var(--display); letter-spacing: .03em; margin: 0; }
+p { margin: 0; max-width: 68ch; }
+.lede { color: var(--mute); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font: 500 12px var(--mono); color: var(--mute); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+section.band { background: var(--panel); border: 1px solid var(--line); padding: 16px; }
+.scroll { overflow-x: auto; max-width: 100%; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 640px), 1fr)); gap: 14px; }
+.tile { background: var(--panel); border: 1px solid var(--line); padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 4px 14px; font: 500 12px var(--mono); color: var(--mute); }
+.views { display: flex; gap: 4px; align-items: flex-end; overflow-x: auto; max-width: 100%; }
+.views svg { flex: none; }
+.tags { font: 400 12px/1.5 var(--mono); color: var(--mute); }
+svg .f { fill: var(--fig); } svg .g { fill: var(--fig2); } svg .hl { fill: var(--hl); }
+svg .we { fill: var(--energy); } svg .wb { fill: var(--ballistic); } svg .wm { fill: var(--missile); }
+svg .card { fill: var(--card); stroke: var(--cardline); stroke-width: 1; stroke-dasharray: 3 3; }
+svg .lvl { stroke: var(--cardline); stroke-width: 1; stroke-dasharray: 1 4; }
+svg .base { fill: var(--base); } svg .hex { fill: var(--hexfill); stroke: var(--cardline); stroke-width: 1.2; }
+svg .lab { font: 500 10px var(--mono); fill: var(--mute); }
+ul.open { margin: 0; padding-left: 18px; max-width: 74ch; display: flex; flex-direction: column; gap: 4px; }
+</style>
+<main>
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <h1>Combat Lab Token Sheet</h1>
+    <p class="lede">First pass of the procedural tokens: __N__ units drawn from their unit files only. The standee card is the rules height (2 levels, 3 for a superheavy); the figure on it follows the cube-square law inside that band. Dotted lines mark levels 1 to 3. Views: top-down token on its hex, front, rear, side.</p>
+    <div class="legend"><span><i style="background:var(--energy)"></i>energy</span><span><i style="background:var(--ballistic)"></i>ballistic</span><span><i style="background:var(--missile)"></i>missile</span><span>light dots on the rear view: jump jets and heat sink fins</span></div>
+  </header>
+  <section class="band"><h2>All units at one scale</h2><div class="scroll">__LINEUP__</div></section>
+  <section><h2>Unit by unit</h2><div class="grid">__TILES__</div></section>
+  <section class="band"><h2>What to judge</h2>
+    <ul class="open">
+      <li>Does each outline read as its own unit, or only as a 'Mech of that weight? Only the Timber Wolf has an override so far; every other look is the name hash plus the file's data.</li>
+      <li>Arms come from the file: hand, forearm, or a gun-pod arm. Weapons sit by zone and class (barrel, rack, turret, port), not by slot order.</li>
+      <li>Torsos, heads and legs are the hash's guess. Every unit that looks wrong is a candidate for a new parameter value or a named override.</li>
+    </ul>
+  </section>
+</main>
