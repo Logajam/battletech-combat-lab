@@ -170,8 +170,13 @@ def mount_style(zone, cls, big, n_zone, classes_in_zone, hands, archetype):
     return "head_port" if zone == "Head" else "chest_" + cls
 
 
-def build_model(unit):
-    """The part model: a plain dict a renderer (or a person) can read and edit."""
+FEATURE_KEYS = ("archetype", "torso", "panels", "head_mount", "head_shape", "shoulders", "antenna", "arms_flex")
+
+
+def build_model(unit, overrides=None, hash_only=False):
+    """The part model: a plain dict a renderer (or a person) can read and edit.
+    `overrides` (name -> features) is added to data/token_overrides.json; `hash_only`
+    ignores every override, to show what the name hash alone gives."""
     tons = unit["tons"]
     chassis = unit.get("clanname") or unit.get("chassis", "?")
     names = {unit.get("chassis", "").lower(), unit.get("clanname", "").lower()}
@@ -207,6 +212,16 @@ def build_model(unit):
     if head_slots and not any("Cockpit" in x for x in head_slots):
         model["head_mount"] = "built_in"                    # cockpit not in the head
 
+    # named-unit overrides beat the hash (a name looks the features up and substitutes them)
+    if not hash_only:
+        ov = {**_overrides(), **(overrides or {})}
+        for n in names:
+            for k, v in (ov.get(n) or {}).items():
+                if k in FEATURE_KEYS:
+                    model[k] = v
+                    model["overridden"].append(k)
+    arche = model["archetype"]
+
     # arms from the actuators in each arm's slots (data, not the hash)
     arms = {}
     for side, zone in (("L", "Left Arm"), ("R", "Right Arm")):
@@ -240,14 +255,6 @@ def build_model(unit):
     big_side = [z for z in ("Left Torso", "Right Torso") for g in per_zone.get(z, []) if g["big"]]
     model["head_offset"] = 0 if len(big_side) != 1 else (1 if big_side[0] == "Left Torso" else -1)   # figure's right = +1
 
-    # named-unit overrides beat the hash
-    ov = _overrides()
-    for n in names:
-        if n and n in ov:
-            for k, v in ov[n].items():
-                if k != "note":
-                    model[k] = v
-                    model["overridden"].append(k)
     return model
 
 
