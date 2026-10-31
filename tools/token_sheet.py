@@ -40,7 +40,7 @@ def main(root, out):
         for g in m["hardpoints"]:
             hp.setdefault(g["mount"], 0)
             hp[g["mount"]] += g["count"]
-        tags = [f'legs {m["legs"]}', f'torso {m["torso"]}', f'head {m["head"]}']
+        tags = [m["archetype"], f"torso {m['torso']}/{m['panels']}", f"head {m['head_mount']}/{m['head_shape']}"]
         if m["arms"]:
             tags.append("arms " + "/".join(m["arms"][s] for s in "LR"))
         tags += [f"{k.replace('_', ' ')} x{v}" for k, v in sorted(hp.items())]

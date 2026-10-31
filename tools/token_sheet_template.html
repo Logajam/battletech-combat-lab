@@ -48,14 +48,14 @@ ul.open { margin: 0; padding-left: 18px; max-width: 74ch; display: flex; flex-di
 <main>
   <header style="display:flex;flex-direction:column;gap:10px">
     <h1>Combat Lab Token Sheet</h1>
-    <p class="lede">First pass of the procedural tokens: __N__ units drawn from their unit files only. The standee card is the rules height (2 levels, 3 for a superheavy); the figure on it follows the cube-square law inside that band. Dotted lines mark levels 1 to 3. Views: top-down token on its hex, front, rear, side.</p>
+    <p class="lede">Second pass of the procedural tokens: __N__ units drawn from their unit files only. The standee card is the rules height (2 levels, 3 for a superheavy); the figure on it follows the cube-square law inside that band. Dotted lines mark levels 1 to 3. Views: top-down token on its hex, front, rear, side.</p>
     <div class="legend"><span><i style="background:var(--energy)"></i>energy</span><span><i style="background:var(--ballistic)"></i>ballistic</span><span><i style="background:var(--missile)"></i>missile</span><span>light dots on the rear view: jump jets and heat sink fins</span></div>
   </header>
   <section class="band"><h2>All units at one scale</h2><div class="scroll">__LINEUP__</div></section>
   <section><h2>Unit by unit</h2><div class="grid">__TILES__</div></section>
   <section class="band"><h2>What to judge</h2>
     <ul class="open">
-      <li>Does each outline read as its own unit, or only as a 'Mech of that weight? Only the Timber Wolf has an override so far; every other look is the name hash plus the file's data.</li>
+      <li>Does each outline read as its own unit, or only as a 'Mech of that weight? Only the Timber Wolf has an override so far. Silhouette, torso and head come from the chassis-name hash (the model number does not change them); arms, weapons and jump jets come from the file.</li>
       <li>Arms come from the file: hand, forearm, or a gun-pod arm. Weapons sit by zone and class (barrel, rack, turret, port), not by slot order.</li>
       <li>Torsos, heads and legs are the hash's guess. Every unit that looks wrong is a candidate for a new parameter value or a named override.</li>
     </ul>
