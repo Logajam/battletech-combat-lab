@@ -203,7 +203,7 @@ needs no GUI change.
   above; fix the bugs first; re-render the same 26 units for comparison.
 
 - **Reference tags from the MWO chart (Claude's reading, 2026-10-31).**
-  `data/token_reference_tags.json`: 31 chart units tagged in the token vocabulary
+  `data/token_reference_tags.json`: 32 chart units tagged in the token vocabulary
   (archetype, torso, head mount and shape, shoulders, note, confidence). Coarse:
   the chart's silhouettes are about 100 px tall, so most are "low" or "med"
   confidence. NOT applied as overrides yet; they are a vocabulary check (which
