@@ -36,6 +36,7 @@ section.band { background: var(--panel); border: 1px solid var(--line); padding:
 .meta { display: flex; flex-wrap: wrap; gap: 4px 14px; font: 500 12px var(--mono); color: var(--mute); }
 .views { display: flex; gap: 4px; align-items: flex-end; overflow-x: auto; max-width: 100%; }
 .views svg { flex: none; }
+.rowlab { font: 700 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--mute); }
 .tags { font: 400 12px/1.5 var(--mono); color: var(--mute); }
 svg .f { fill: var(--fig); } svg .g { fill: var(--fig2); } svg .hl { fill: var(--hl); }
 svg .we { fill: var(--energy); } svg .wb { fill: var(--ballistic); } svg .wm { fill: var(--missile); }
@@ -48,7 +49,7 @@ ul.open { margin: 0; padding-left: 18px; max-width: 74ch; display: flex; flex-di
 <main>
   <header style="display:flex;flex-direction:column;gap:10px">
     <h1>Combat Lab Token Sheet</h1>
-    <p class="lede">Second pass of the procedural tokens: __N__ units drawn from their unit files only. The standee card is the rules height (2 levels, 3 for a superheavy); the figure on it follows the cube-square law inside that band. Dotted lines mark levels 1 to 3. Views: top-down token on its hex, front, rear, side.</p>
+    <p class="lede">Second pass of the procedural tokens: __N__ units, each drawn twice. The first row applies the reference tags read from the MWO chart (plus any named override); the second row is the chassis-name hash alone, which is how an unlisted unit would look. The standee card is the rules height (2 levels, 3 for a superheavy); the figure on it follows the cube-square law inside that band. Dotted lines mark levels 1 to 3. Views: top-down token on its hex, front, rear, side.</p>
     <div class="legend"><span><i style="background:var(--energy)"></i>energy</span><span><i style="background:var(--ballistic)"></i>ballistic</span><span><i style="background:var(--missile)"></i>missile</span><span>light dots on the rear view: jump jets and heat sink fins</span></div>
   </header>
   <section class="band"><h2>All units at one scale</h2><div class="scroll">__LINEUP__</div></section>
