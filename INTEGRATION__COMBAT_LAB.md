@@ -157,6 +157,51 @@ needs no GUI change.
   sliver of a light 'Mech where the rules say visible; mark it with an LOS line
   or highlight.
 
+- **Token sheet v1 review (Daniel, 2026-10-31; sheet = first pass, 26 units).**
+  Verdict: "wooden block golems more than mechs"; Thunderbolt and Stalker came
+  out surprisingly accurate, Jenner a nice design. Needed: more distinctive
+  features and shapes.
+  *Archetypes to build around:* humanoid, bird walker, dog, lizard, Martian
+  (tripods are their own thing). "Brick wall is what we got in abundance."
+  *Bugs found in v1:* left / right mirrored between the front view and the top
+  view (Awesome: PPC on opposite arms); a weapon dot drawn at different sizes in
+  different views; top view shows no weapon direction; a stray energy weapon on
+  the Awesome's rear view; cockpit colour differs top v front; jump jets
+  disagree between rear and side views (Wolverine) and the outermost need a
+  firmer attachment; quad side view draws 8 limbs (Scorpion); arms drawn in
+  front of and behind the legs at once (Cyclops); torso looks, top v side and
+  front v rear, disagree (Mad Cat); an ovoid torso that is nearly a sphere
+  breaks the joints (Griffin); the heat-sink fin bars on the rear read as
+  nothing (the "double line": they were the fins, one bar per 6 sinks).
+  *Proportion:* far too blocky and too deep from the side; legs too thick
+  (Hunchback); humanly proportioned by default, skinny-and-deep only as an
+  option; width must follow the weight class and chassis family (Flea and Locust
+  should match; Zeus got too wide), not accumulate; side views look about to fall
+  forward (centre of gravity not over the legs): give the limbs a dynamic pose,
+  e.g. mid-step; squat and wide is an option (King Crab); a slim front with more
+  depth is an option (Raven); weapon sizes should be fixed, so they look larger on
+  smaller mechs.
+  *Joints and head:* knees, elbows (general), a neck (Commando); head mount
+  options: built into the torso (Flea), front, top, full head, plus an OFFSET
+  modifier (especially with a large weapon in a side torso); different head
+  shapes (Shadow Hawk).
+  *Body and legs:* legs on the sides of the torso, or on a hips section the upper
+  torso twists around; shoulders that extend outward before the arm; three torso
+  patterns (left / centre / right torso are three locations to show).
+  *Arms:* weapon-pod arms (Jenner, Catapult, Stalker: a small pod when the
+  weapons are small; big arms only where there are hands, "for beating people");
+  arms need not be symmetrical.
+  *Weapons:* pods need not sit above the shoulder (also on hips, e.g. a narrow
+  body with arms spread); missile pods read by salvo size (how many missiles
+  at once); Atlas shows weapons need not go over the shoulder. Daniel's guess
+  that hand units seldom carry over-the-shoulder weapons is ART, not data:
+  survey of 4,043 non-quad units (2026-10-31): torso missiles on 35% of
+  two-hand, 38% of one-hand and 33% of no-hand units; torso ballistics 15% / 7% /
+  12%; torso energy 43% / 43% / 42%. So hands do not predict torso weapons in the
+  files; any rule is a style choice.
+  Plan: v2 = a vocabulary of archetypes, joints, head mounts and mount styles
+  above; fix the bugs first; re-render the same 26 units for comparison.
+
 ---
 
 # PART B - Combat Lab GUI: functional specification (to implement)
