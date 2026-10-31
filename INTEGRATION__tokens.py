@@ -33,7 +33,7 @@ import re
 LEVEL = 60                     # px for one level of height in every drawing
 OVERRIDES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "token_overrides.json")
 
-ARCHETYPES = ("humanoid", "humanoid", "bird", "dog", "lizard", "martian")
+ARCHETYPES = ("humanoid", "humanoid", "bird", "bird", "martian")      # bipeds; quads get dog / lizard, tripods their own
 
 ZONES = ("Left Arm", "Right Arm", "Left Torso", "Right Torso", "Center Torso", "Head")
 SLOT_HEADERS = ZONES + ("Left Leg", "Right Leg", "Front Left Leg", "Front Right Leg",
@@ -67,7 +67,7 @@ def weapon_is_big(name):
 
 def read_unit(path):
     """Read the parts of a .mtf this module needs (not the engine's parser)."""
-    unit = {"weapons": [], "slots": {}, "jets": 0}
+    unit = {"weapons": [], "slots": {}, "jets": 0, "jets_by": {}}
     cur = None
     in_weapons = False
     for raw in open(path, errors="ignore").read().splitlines():
@@ -113,6 +113,7 @@ def read_unit(path):
             unit["slots"][cur].append(line)
             if "Jump Jet" in line:
                 unit["jets"] += 1
+                unit["jets_by"][cur] = unit["jets_by"].get(cur, 0) + 1
     unit["jets"] = unit["jets"] if unit.get("jump_mp") else 0
     unit.setdefault("jump_mp", 0)
     unit.setdefault("heat_sinks", 10)
@@ -170,7 +171,7 @@ def mount_style(zone, cls, big, n_zone, classes_in_zone, hands, archetype):
     return "head_port" if zone == "Head" else "chest_" + cls
 
 
-FEATURE_KEYS = ("archetype", "torso", "panels", "head_mount", "head_shape", "shoulders", "antenna", "arms_flex")
+FEATURE_KEYS = ("archetype", "torso", "panels", "head_mount", "head_shape", "shoulders", "antenna", "arms_flex", "tilt", "arms_up")
 
 
 def build_model(unit, overrides=None, hash_only=False):
@@ -205,7 +206,7 @@ def build_model(unit, overrides=None, hash_only=False):
         "head_shape": ("box", "dome", "wedge", "visor")[hc[4] % 4],
         "shoulders": ("flush", "boom")[hc[6] % 2],
         "antenna": hc[7] % 3 == 0,
-        "jets": min(unit["jets"], 6),
+        "jets": min(unit["jets"], 6), "jets_by": dict(unit.get("jets_by", {})),
         "overridden": [],
     }
     head_slots = unit["slots"].get("Head")
@@ -258,451 +259,424 @@ def build_model(unit, overrides=None, hash_only=False):
     return model
 
 
-# --------------------------------------------------------------------- drawing
-# Figure frame: the figure's RIGHT is +1. Views: front (viewer faces the figure, so
-# the figure's right is on the viewer's LEFT), rear (same side as the figure),
-# top (facing up, same side), side (facing right, the figure's left is near).
-# Weapons are drawn at ABSOLUTE pixel sizes (g.px), so they look larger on a small
-# 'Mech and the same in every view.
 
-class G:
-    """A tiny SVG builder in a raw frame (y up). `ymax` is the top of the figure."""
+# ------------------------------------------------------------ the 3D part model
+# One object, drawn from four sides (Daniel, 2026-10-31: "technical drawings ... the
+# measurements have to match"). Axes: x = the figure's right (+), y = forward (+),
+# z = up. Parts are boxes (frustums) and limbs (sphere sweeps); each view is an
+# orthographic projection of the SAME parts, hulled and drawn far to near.
+#   top   : screen (x, -y)      front : (-x, -z)      rear : (x, -z)      side : (y, -z)
+# A part lists the views it shows in (`vis`), so a port on the chest face is not
+# painted onto the side view. Weapons have ABSOLUTE pixel sizes (k px per raw unit).
 
-    def __init__(self):
-        self.items, self.ymax, self.xmax = [], 0.0, 0.0
-
-    def _top(self, y, x=0.0):
-        self.ymax = max(self.ymax, y)
-        self.xmax = max(self.xmax, abs(x))
-
-    def rect(self, x, y, w, h, c):
-        self._top(y + h, max(abs(x), abs(x + w)))
-        self.items.append(f'<rect x="{x:.4f}" y="{y:.4f}" width="{w:.4f}" height="{h:.4f}" class="{c}"/>')
-
-    def ell(self, cx, cy, rx, ry, c):
-        self._top(cy + ry, abs(cx) + rx)
-        self.items.append(f'<ellipse cx="{cx:.4f}" cy="{cy:.4f}" rx="{rx:.4f}" ry="{ry:.4f}" class="{c}"/>')
-
-    def poly(self, pts, c):
-        self._top(max(p[1] for p in pts), max(abs(p[0]) for p in pts))
-        s = " ".join(f"{x:.4f},{y:.4f}" for x, y in pts)
-        self.items.append(f'<polygon points="{s}" class="{c}"/>')
-
-    def svg(self, height_px, extra=""):
-        k = height_px / self.ymax
-        return f'<g transform="scale({k:.4f},{-k:.4f})">{"".join(self.items)}</g>{extra}'
-
-
-ARCH = {   # leg_h, torso_h, tw (width), td (depth), leg_w, hip (half spacing), lean, splay, kind
-    "humanoid": dict(leg_h=.44, torso_h=.32, tw=.34, td=.22, leg_w=.075, hip=.085, lean=.04, splay=.00, kind="straight"),
-    "bird":     dict(leg_h=.50, torso_h=.27, tw=.28, td=.30, leg_w=.060, hip=.075, lean=.11, splay=.01, kind="reverse"),
-    "dog":      dict(leg_h=.36, torso_h=.26, tw=.30, td=.40, leg_w=.070, hip=.090, lean=.20, splay=.02, kind="reverse"),
-    "lizard":   dict(leg_h=.30, torso_h=.27, tw=.34, td=.38, leg_w=.085, hip=.140, lean=.06, splay=.09, kind="bent"),
-    "martian":  dict(leg_h=.58, torso_h=.27, tw=.32, td=.28, leg_w=.058, hip=.095, lean=.00, splay=.02, kind="straight"),
+LEVEL_PX = LEVEL
+ARCH3 = {   # leg_h, hips (w, d), torso (w, d, h), tilt, leg_r
+    "humanoid": dict(lh=.42, hw=.20, hd=.16, tw=.34, td=.24, th=.32, tilt=.03, lr=.050),
+    "bird":     dict(lh=.50, hw=.17, hd=.16, tw=.30, td=.28, th=.28, tilt=.14, lr=.042),
+    "martian":  dict(lh=.56, hw=.17, hd=.16, tw=.32, td=.26, th=.26, tilt=-.04, lr=.036),
+    "dog":      dict(lh=.30, hw=.30, hd=.50, tw=.30, td=.52, th=.24, tilt=.06, lr=.042),
+    "lizard":   dict(lh=.26, hw=.34, hd=.50, tw=.34, td=.50, th=.22, tilt=.02, lr=.046),
 }
+TRIPOD3 = dict(lh=.44, hw=.20, hd=.20, tw=.36, td=.30, th=.24, tilt=.0, lr=.036)
 WCLS = {"energy": "we", "ballistic": "wb", "missile": "wm"}
-SIDE = {"Left": -1, "Right": 1}                      # figure-frame sign of each arm / torso
+TONE = {"1": "t1", "2": "t2", "3": "t3", "4": "t4"}
 
 
-def _dims(model):
-    a = dict(ARCH[model["archetype"]])
-    wf = (0.92 + 0.14 * min(model["tons"], 100) / 100.0) * model["bulk"]
-    for k in ("tw", "leg_w", "hip"):
-        a[k] *= wf
-    a["tw"] *= 1.12
-    a["leg_w"] *= 1.35
-    a["tw"] *= {"box": 1.0, "ovoid": 0.95, "narrow": 0.82, "slab": 1.12}[model["torso"]]
-    a["y0"] = a["leg_h"] - 0.03
-    a["ytop"] = a["y0"] + a["torso_h"]
-    return a
+def _hull(pts):
+    pts = sorted(set((round(x, 4), round(y, 4)) for x, y in pts))
+    if len(pts) < 3:
+        return pts
+
+    def half(ps):
+        h = []
+        for p in ps:
+            while len(h) >= 2 and (h[-1][0] - h[-2][0]) * (p[1] - h[-2][1]) - (h[-1][1] - h[-2][1]) * (p[0] - h[-2][0]) <= 0:
+                h.pop()
+            h.append(p)
+        return h
+    lo, up = half(pts), half(pts[::-1])
+    return lo[:-1] + up[:-1]
 
 
-def _vx(view, fx):
-    """Figure-frame x to the drawing's x for a view."""
-    return -fx if view == "front" else fx
+def _proj(view, p):
+    x, y, z = p
+    return {"top": (x, -y), "front": (-x, -z), "rear": (x, -z), "side": (y, -z)}[view]
 
 
-class Canvas(G):
-    def __init__(self, k=100.0):
-        super().__init__()
-        self.k = k
+def _depth(view, p):
+    x, y, z = p
+    return {"top": z, "front": y, "rear": -y, "side": -x}[view]       # larger = nearer the viewer is drawn last
+
+
+class B3:
+    """Collects parts. `f` scales x and y (the mass fit); `k` is px per raw unit."""
+
+    def __init__(self, f=1.0, k=100.0):
+        self.parts, self.f, self.k = [], f, k
 
     def px(self, v):
         return v / self.k
 
-    def limb(self, pts, widths, c):
-        """A tapered limb through `pts` with a width at each point (a polygon strip)."""
-        left, right = [], []
-        for i, (x, y) in enumerate(pts):
-            x0, y0 = pts[max(i - 1, 0)]
-            x1, y1 = pts[min(i + 1, len(pts) - 1)]
-            dx, dy = x1 - x0, y1 - y0
-            n = math.hypot(dx, dy) or 1.0
-            nx, ny = -dy / n, dx / n
-            w = widths[i] / 2
-            left.append((x + nx * w, y + ny * w))
-            right.append((x - nx * w, y - ny * w))
-        self.poly(left + right[::-1], c)
-        for (x, y), w in zip(pts[1:-1], widths[1:-1]):             # joint caps (knees, elbows)
-            self.ell(x, y, w * 0.62, w * 0.62, c)
+    def box(self, c, s, tone, tilt=0.0, tx=1.0, ty=1.0, vis=None, tag="b", cls=None):
+        f = self.f
+        cx, cy, cz = c[0] * f, c[1] * f, c[2]
+        sx, sy, sz = s[0] * f, s[1] * f, s[2]
+        z0, z1 = cz - sz / 2, cz + sz / 2
+        pts = []
+        for zz, scx, scy, ax, ay in ((z0, cx, cy, sx / 2, sy / 2), (z1, cx, cy + tilt * sz, sx / 2 * tx, sy / 2 * ty)):
+            for dx in (-1, 1):
+                for dy in (-1, 1):
+                    pts.append((scx + dx * ax, scy + dy * ay, zz))
+        self.parts.append({"groups": [[(p, 0.0) for p in pts]], "cls": cls or TONE[tone], "vis": vis, "tag": tag,
+                           "vol": sx * sy * sz * (1 + tx * ty) / 2})
 
-    def port(self, x, y, cls, big):
-        r = self.px((1.5 if cls == "energy" else 2.2) + (1.2 if big else 0))
-        if cls == "ballistic":
-            self.ell(x, y, r + self.px(1.1), r + self.px(1.1), "g")
-        self.ell(x, y, r, r, WCLS[cls])
+    def seg(self, points, radii, tone, vis=None, tag="b", cls=None):
+        f = self.f
+        pts = [(p[0] * f, p[1] * f, p[2]) for p in points]
+        rs = [r * f for r in radii]
+        groups = [[(pts[i], rs[i]), (pts[i + 1], rs[i + 1])] for i in range(len(pts) - 1)]
+        vol = sum(math.pi * ((groups[i][0][1] + groups[i][1][1]) / 2) ** 2 * math.dist(groups[i][0][0], groups[i][1][0])
+                  for i in range(len(groups)))
+        self.parts.append({"groups": groups, "cls": cls or TONE[tone], "vis": vis, "tag": tag, "vol": vol})
 
-    def pod(self, cx, cy, tubes, cls="missile"):
-        """A missile pod: a box of cells, one cell per tube up to 24 (reads as salvo size)."""
-        n = max(2, min(tubes, 24))
-        cols = max(2, math.ceil(math.sqrt(n)))
-        rows = math.ceil(n / cols)
-        cell = self.px(3.2)
-        w, h = cols * cell + self.px(1.6), rows * cell + self.px(1.6)
-        self.rect(cx - w / 2, cy - h / 2, w, h, "g")
-        for i in range(n):
-            r, c = divmod(i, cols)
-            self.ell(cx + (c - (cols - 1) / 2) * cell, cy + ((rows - 1) / 2 - r) * cell, cell * 0.36, cell * 0.36, "wm")
-        return w, h
+    def ball(self, c, r, tone, vis=None, tag="b"):
+        self.seg([c, c], [r, r], tone, vis, tag)
+
+    def barrel(self, c, length_px, r_px, cls, vis=None):
+        x, y, z = c
+        self.seg([(x, y, z), (x, y + self.px(length_px) / self.f, z)], [self.px(r_px) / self.f] * 2, None, vis, "w", cls)
 
 
-def _leg_pts(d, kind, fx, stance=0.0, side=False):
-    """Hip, knee, ankle(, toe) of one leg. Front: straight down with a knee. Side: the pose."""
-    lh = d["leg_h"]
-    if not side:
-        sp = d["splay"]
-        return [(fx * d["hip"], lh), (fx * (d["hip"] + sp * 0.7), lh * 0.5), (fx * (d["hip"] + sp), 0.03)]
-    if kind == "reverse":                                    # bird / dog: hock points back, foot forward
-        return [(0, lh), (-0.08 + stance * 0.4, lh * 0.50), (0.04 + stance, lh * 0.20), (0.05 + stance, 0.02)]
-    if kind == "bent":                                       # lizard: knee out front
-        return [(0, lh), (0.09 + stance * 0.4, lh * 0.55), (0.01 + stance, 0.03)]
-    return [(0, lh), (0.03 + stance * 0.5, lh * 0.5), (stance, 0.03)]
+def _pod(b, c, tubes, tone="3"):
+    """A missile pod, sized from the tube count (real masses are small: a cube-root law
+    with a fudge so it never disappears). Cells on the front, a stripe on top and side."""
+    n = max(2, min(tubes, 30))
+    w = b.px(5 + 2.4 * n ** (1 / 3))
+    h = w * (0.9 if n <= 6 else 1.1)
+    d = w * 1.4
+    x, y, z = c
+    b.box((x, y, z), (w, d, h), tone, tag="w")
+    cols = max(2, math.ceil(math.sqrt(n)))
+    rows = math.ceil(n / cols)
+    cell = w / (cols + 0.6)
+    for i in range(min(n, 30)):
+        r, cc = divmod(i, cols)
+        b.box((x + (cc - (cols - 1) / 2) * cell, y + d / 2 + 0.002, z + ((rows - 1) / 2 - r) * cell * 0.9),
+              (cell * 0.55, 0.004, cell * 0.55), "1", vis={"front"}, tag="w", cls="wm")
+    b.box((x, y, z + h / 2 + 0.002), (w * 0.6, d * 0.9, 0.004), "1", vis={"top"}, tag="w", cls="wm")
+    b.box((x + w / 2 + 0.002, y, z), (0.004, d * 0.8, h * 0.2), "1", vis={"side"}, tag="w", cls="wm")
+    return w, h, d
 
 
-def _torso_front(g, model, d, view):
-    tw, y0, th = d["tw"], d["y0"], d["torso_h"]
-    panels, shape = model["panels"], model["torso"]
-    cw = tw * 0.46
-    step = 0.04 if panels == "stepped" else 0.0
-    ch = th * (0.30 if shape == "ovoid" else 0.10)
-    g.poly([(-cw / 2, y0), (cw / 2, y0), (cw / 2, y0 + th + step - ch), (cw / 2 - ch, y0 + th + step),
-            (-cw / 2 + ch, y0 + th + step), (-cw / 2, y0 + th + step - ch)], "f")
-    for sg in (-1, 1):                                       # the two side torsos
-        xi, xo = sg * cw / 2 - sg * 0.004, sg * tw / 2
-        bot = 0.0 if shape != "narrow" else 0.35 * (tw - cw) / 2
-        topc = (tw - cw) / 2 * (0.5 if panels == "wings" else 0.25 if shape == "ovoid" else 0.0)
-        tt = y0 + th - (0.02 if panels == "wings" else 0.0)
-        g.poly([(xi, y0 + 0.005), (xo - sg * bot, y0 + 0.005), (xo, y0 + th * 0.35), (xo - sg * topc, tt), (xi, tt)], "g" if panels == "stepped" else "f")
+def _build(model, f, k):
+    """All the parts of one unit. Returns a B3."""
+    b = B3(f, k)
+    arche = model["archetype"]
+    A = dict(TRIPOD3 if model["tripod"] else ARCH3[arche])
+    wf = (0.92 + 0.14 * min(model["tons"], 100) / 100.0) * model["bulk"]
+    A["tw"] *= wf * {"box": 1.0, "ovoid": 0.95, "narrow": 0.82, "slab": 1.12}[model["torso"]]
+    A["hw"] *= wf
+    A["lr"] *= wf * (1.0 + 0.0)
+    lh, hw, hd, tw, td, th, lr = A["lh"], A["hw"], A["hd"], A["tw"], A["td"], A["th"], A["lr"]
+    tilt = model.get("tilt", A["tilt"])
+    quad = model["quad"]
+    stance = (0.05, -0.05)                                     # mid-step: left foot forward, right back
 
-
-def _head_front(g, model, d, view):
-    mount, shape = model["head_mount"], model["head_shape"]
-    yt = d["ytop"]
-    off = _vx(view, model["head_offset"]) * d["tw"] * 0.16
-    if mount == "built_in":
-        if view != "rear":
-            g.rect(off - 0.045, yt - 0.075, 0.09, 0.04, "hl")
-        return
-    big = mount == "full"
-    hw, hh = (0.15, 0.115) if big else (0.105, 0.085)
-    cy = yt + (hh / 2 + 0.03 if mount != "front" else hh / 2 - 0.012)
-    if mount != "front":
-        g.rect(off - 0.022, yt - 0.01, 0.044, 0.04, "g")     # neck
-    if shape == "dome":
-        g.ell(off, cy, hw / 2, hh / 2, "f")
-    elif shape == "wedge":
-        g.poly([(off - hw / 2, cy - hh / 2), (off + hw / 2, cy - hh / 2), (off + hw * 0.32, cy + hh / 2), (off - hw * 0.32, cy + hh / 2)], "f")
+    # ---- hips and legs: the legs join the hips from the SIDE
+    hips_z = lh + 0.035
+    if quad:
+        b.box((0, 0, hips_z), (hw, hd, 0.07), "3")
     else:
-        g.rect(off - hw / 2, cy - hh / 2, hw, hh, "f")
-    if view != "rear":
-        g.rect(off - hw * (0.42 if shape == "visor" else 0.3), cy - 0.004, hw * (0.84 if shape == "visor" else 0.6), 0.02, "hl")
-    if model.get("antenna"):
-        g.rect(off + hw * 0.3, cy + hh / 2, 0.008, 0.07, "g")
+        b.box((0, 0, hips_z), (hw, hd, 0.07), "3", tx=0.94)
+    hx = hw / 2 + 0.014
 
+    def foot(x, y, z0, big=1.0):
+        b.box((x, y + 0.035, z0 + 0.016), (lr * 2.3 * big, 0.12 * big, 0.032), "4")
 
-def _jets(g, model, d, view):
-    n = model["jets"]
-    for i in range(n):
-        sg = -1 if i % 2 == 0 else 1
-        row = i // 2
-        x = sg * d["tw"] * 0.30
-        g.rect(x - 0.018, d["y0"] + 0.02 + row * 0.06, 0.036, 0.05, "hl")
-
-
-def _arm_front(g, model, d, view, name):
-    kind = (model["arms"] or {})[name[0]]
-    fx = SIDE["Left" if name == "L" else "Right"]
-    sx = _vx(view, fx) * (d["tw"] / 2 + 0.01)
-    sg = 1 if sx >= 0 else -1
-    sy = d["ytop"] - 0.05
-    boom = 0.05 if model["shoulders"] == "boom" else 0.0
-    if boom:
-        g.rect(min(sx, sx + sg * boom), sy - 0.03, boom, 0.06, "f")
-    ex = sx + sg * (boom + 0.025)
-    zone = "Left Arm" if name == "L" else "Right Arm"
-    gs = _groups(model, zone)
-    n_w = sum(x["count"] for x in gs)
-    small = n_w and not any(x["big"] for x in gs)
-    if kind == "pod" or (kind != "hand" and small):          # a weapon-pod arm: stub, then a pod
-        pw = 0.05 + 0.012 * min(n_w, 4) + (0.025 if any(x["big"] for x in gs) else 0)
-        g.limb([(ex, sy), (ex + sg * 0.01, sy - 0.10)], [0.06, 0.055], "g")
-        g.rect(ex + sg * 0.01 - pw / 2, sy - 0.24, pw, 0.15, "f")
-        by = sy - 0.24 + 0.02
-    else:
-        wid = 0.08 if kind == "hand" else 0.07
-        g.limb([(ex, sy), (ex + sg * 0.02, sy - 0.17), (ex + sg * 0.01, sy - 0.33)], [wid * 1.2, wid, wid * 0.9], "g")
-        if kind == "hand":
-            g.rect(ex + sg * 0.01 - 0.03, sy - 0.375, 0.06, 0.05, "f")
-        by = sy - 0.30
-    g.ell(sx, sy, 0.034, 0.034, "f")                          # shoulder joint
-    if view == "rear":
-        return
-    xx = ex + sg * 0.01
-    for gr in gs:
-        if gr["cls"] == "missile":
-            g.pod(xx, by + 0.03, gr["tubes"], "missile")
-        else:
-            for i in range(min(gr["count"], 3)):
-                g.port(xx + (i - (min(gr["count"], 3) - 1) / 2) * g.px(5), by, gr["cls"], gr["big"])
-
-
-def _flank_front(g, model, d, view, name):
-    """Torso-zone weapons: shoulder rack / barrel / turret, flank mounts, or hip pods."""
-    fx = SIDE["Left" if name == "L" else "Right"]
-    zone = "Left Torso" if name == "L" else "Right Torso"
-    x = _vx(view, fx) * d["tw"] * 0.34
-    yt, y0, th = d["ytop"], d["y0"], d["torso_h"]
-    for gr in _groups(model, zone):
-        m, c, n = gr["mount"], gr["cls"], gr["count"]
-        if m == "shoulder_rack":
-            w, h = g.pod(x, yt + 0.045, gr["tubes"])
-        elif m == "shoulder_barrel":
-            g.rect(x - g.px(4), yt - 0.01, g.px(8), 0.05, "g")
-            g.port(x, yt + 0.04, "ballistic", True)
-        elif m == "turret":
-            g.ell(x, yt + 0.03, 0.075, 0.04, "g")
-            for i in range(min(n, 4)):
-                g.port(x + (i - (min(n, 4) - 1) / 2) * g.px(5), yt + 0.03, c, gr["big"])
-        elif m == "hip_pod":
-            if c == "missile":
-                g.pod(_vx(view, fx) * (d["tw"] / 2 + 0.03), y0 + 0.02, gr["tubes"])
-            else:
-                g.rect(_vx(view, fx) * (d["tw"] / 2 + 0.01) - g.px(4), y0 - 0.02, g.px(8), 0.07, "g")
-                g.port(_vx(view, fx) * (d["tw"] / 2 + 0.01), y0 + 0.02, c, gr["big"])
-        else:                                                  # flank mounts, on the torso face
-            if view == "rear":
-                continue
-            if c == "missile":
-                g.pod(x, y0 + th * 0.55, gr["tubes"])
-            else:
-                for i in range(min(n, 3)):
-                    g.port(x, y0 + th * 0.78 - i * g.px(5), c, gr["big"])
-    if name == "L":
-        for gr in _groups(model, "Center Torso"):
-            if view != "rear":
-                for i in range(min(gr["count"], 4)):
-                    g.port((i - (min(gr["count"], 4) - 1) / 2) * g.px(6), y0 + th * 0.3, gr["cls"], gr["big"])
-
-
-def _legs(g, model, d, view):
-    kind = d["kind"]
-    lw = d["leg_w"]
-    for fx in (-1, 1):
-        pts = _leg_pts(d, kind, _vx(view, fx))
-        g.limb(pts, [lw * 1.1, lw * 0.85, lw * 0.8], "g")
-        g.rect(pts[-1][0] - lw * 0.9, 0, lw * 1.8, 0.035, "f")
-    if model["quad"]:
-        for fx in (-1, 1):
-            x = _vx(view, fx) * (d["hip"] * 1.8)
-            g.limb([(x, d["leg_h"] * 0.9), (x, 0.03)], [lw, lw * 0.8], "g")
     if model["tripod"]:
-        g.limb([(0, d["leg_h"] * 0.8), (0, 0.03)], [lw, lw * 0.8], "g")
+        feet = ((-0.24, 0.20), (0.24, 0.20), (0.0, -0.30))
+        for i, (fx, fy) in enumerate(feet):
+            top = (fx * 0.25, fy * 0.25, lh + 0.01)
+            knee = (fx * 0.75 + (0.04 if fx >= 0 else -0.04) * (1 if i < 2 else 0), fy * 0.7, lh * 0.60)
+            b.seg([top, knee, (fx, fy, 0.05)], [lr * 1.3, lr * 0.95, lr * 0.85], "2")
+            b.ball(knee, lr * 0.95, "2")
+            foot(fx, fy - 0.04, 0.0)
+    elif quad:
+        for fx in (-1, 1):
+            for fy, st in ((1, stance[0]), (-1, stance[1])):
+                y0 = fy * hd / 2.2
+                if arche == "dog":
+                    pts = [(fx * hx, y0, lh), (fx * hx, y0 + fy * 0.04 + st * 0.3, lh * 0.5), (fx * (hx - 0.01), y0 + st, 0.05)]
+                else:
+                    pts = [(fx * hx, y0, lh), (fx * (hx + 0.14), y0 + st * 0.3, lh * 0.5), (fx * (hx + 0.08), y0 + st, 0.05)]
+                b.seg(pts, [lr * 1.3, lr, lr * 0.8], "2")
+                b.ball(pts[1], lr, "2")
+                foot(pts[2][0], pts[2][1] - 0.04, 0.0)
+    else:
+        for fx, st in ((-1, stance[0]), (1, stance[1])):             # figure's left is -x
+            x = fx * hx
+            if arche == "bird":                                      # digitigrade: hock back, long foot
+                pts = [(x, 0, lh), (x + fx * 0.012, -0.075 + st * 0.3, lh * 0.55), (x, 0.045 + st, lh * 0.17), (x, 0.11 + st, 0.02)]
+                b.seg(pts, [lr * 1.5, lr * 1.1, lr * 0.75, lr * 0.5], "2")
+                b.ball(pts[1], lr * 1.15, "2")
+                b.box((x, 0.06 + st, 0.02), (lr * 2.0, 0.17, 0.035), "4")
+            elif arche == "martian":                                 # long legs, knees splayed out
+                pts = [(x, 0, lh), (x + fx * 0.09, 0.03 + st * 0.4, lh * 0.55), (x + fx * 0.12, st, 0.05)]
+                b.seg(pts, [lr * 1.4, lr, lr * 0.8], "2")
+                b.ball(pts[1], lr * 1.1, "2")
+                foot(pts[2][0], pts[2][1] - 0.04, 0.0)
+            else:                                                    # humanoid: knee forward
+                pts = [(x, 0, lh), (x + fx * 0.006, 0.045 + st * 0.5, lh * 0.5), (x, st, 0.05)]
+                b.seg(pts, [lr * 1.5, lr * 1.2, lr * 0.95], "2")
+                b.ball(pts[1], lr * 1.2, "2")
+                foot(x, st - 0.04, 0.0)
+
+    # ---- torso: centre + two side torsos, seams between them
+    z0 = hips_z + 0.035
+    ztop = z0 + th
+    cw = tw * 0.46
+    sw = (tw - cw) / 2
+    shape = model["torso"]
+    tx, ty = {"box": (0.94, 0.9), "ovoid": (0.72, 0.72), "narrow": (1.22, 1.0), "slab": (1.0, 1.0)}[shape]
+    step = 0.03 if model["panels"] == "stepped" else 0.0
+    flare = 1.12 if model["panels"] == "wings" else 1.0
+    b.box((0, 0, z0 + th / 2 + step / 2), (cw, td, th + step), "1", tilt=tilt, tx=tx, ty=ty)
+    for fx in (-1, 1):
+        b.box((fx * (cw / 2 + sw / 2), 0, z0 + th / 2), (sw, td * 0.96, th), "2", tilt=tilt, tx=tx * flare, ty=ty)
+        sx_ = fx * cw / 2
+        b.box((sx_, 0.0, z0 + th / 2), (0.006, td * 0.98, th * 0.96), "1", tilt=tilt, vis={"front", "rear", "top"}, cls="ln")
+    ftop = tilt * th                                               # the top face shifts by this
+
+    # ---- head
+    mount, shape_h = model["head_mount"], model["head_shape"]
+    hoff = model["head_offset"] * tw * 0.16
+    if mount == "built_in":
+        b.box((hoff, td / 2 * 0.5 + ftop * 0.8, ztop - 0.07), (0.09, td * 0.5, 0.035), "4", vis={"front", "side"}, cls="hl")
+    else:
+        big = mount in ("full", "boom")
+        hw_, hh_ = (0.15, 0.115) if big else (0.105, 0.085)
+        if mount == "boom":                                        # head in the centre torso, out front on a neck
+            hz = ztop - 0.06
+            hy = td / 2 + 0.12
+            b.seg([(hoff, td / 4, hz), (hoff, hy - 0.04, hz)], [0.04, 0.035], "3")
+        elif mount == "front":
+            hz, hy = ztop - 0.03, td / 2 + 0.01 + ftop * 0.5
+        else:
+            hz, hy = ztop + 0.035 + hh_ / 2, ftop * 0.7
+            b.seg([(hoff, hy, ztop - 0.01), (hoff, hy, ztop + 0.045)], [0.06, 0.05], "3")
+        tpx = {"box": (1, 1), "dome": (0.7, 0.8), "wedge": (0.75, 0.5), "visor": (1, 1)}[shape_h]
+        b.box((hoff, hy, hz), (hw_, hw_ * 0.85, hh_), "1", tx=tpx[0], ty=tpx[1], tilt=-0.2 if shape_h == "wedge" else 0)
+        b.box((hoff, hy + hw_ * 0.43 + 0.002, hz), (hw_ * (0.9 if shape_h == "visor" else 0.6), 0.004, 0.022), "4", vis={"front"}, cls="hl")
+        b.box((hoff, hy + hw_ * 0.3, hz), (hw_ * 0.5, hw_ * 0.5, 0.02), "4", vis={"top"}, cls="hl")
+        if model.get("antenna"):
+            b.seg([(hoff + hw_ * 0.3, hy, hz + hh_ / 2), (hoff + hw_ * 0.3, hy - 0.02, hz + hh_ / 2 + 0.08)], [0.006, 0.004], "3")
+
+    # ---- arms (not on quads): a hand arm, a forearm arm, or a turret-pod arm
+    zs = ztop - 0.05
+    arms = model["arms"] or {}
+    boom = 0.045 if model["shoulders"] == "boom" else 0.012
+    for name, fx in (("L", -1), ("R", 1)):
+        kind = arms.get(name)
+        if not kind or quad:
+            continue
+        zone = "Left Arm" if name == "L" else "Right Arm"
+        gs = _groups(model, zone)
+        sx = fx * (tw / 2 + boom + 0.02)
+        b.seg([(fx * tw / 2 * 0.92, 0.0, zs), (sx, 0.0, zs)], [0.045, 0.04], "3")           # connective tissue
+        b.ball((sx, 0.0, zs), 0.038, "3")
+        small = bool(gs) and not any(x["big"] for x in gs)
+        up = model.get("arms_up")
+        muz = None
+        if kind == "pod" or (kind != "hand" and small and kind != "forearm"):               # upper actuator only: a turret
+            n_w = max(1, sum(x["count"] for x in gs))
+            pw = 0.05 + 0.014 * min(n_w, 4)
+            pz = zs - 0.07 if not up else ztop + 0.08
+            b.box((sx + fx * 0.012, 0.03, pz), (pw, 0.16, 0.11), "1", tx=0.9, ty=0.9)
+            muz = (sx + fx * 0.012, 0.03 + 0.08, pz)
+        else:
+            if up:
+                el, wr = (sx + fx * 0.02, 0.02, zs + 0.12), (sx + fx * 0.01, 0.04, zs + 0.24)
+            else:
+                el, wr = (sx + fx * 0.012, 0.02, zs - 0.13), (sx + fx * 0.006, 0.075, zs - 0.25)
+            w1 = 0.042 if kind == "hand" else 0.037
+            b.seg([(sx, 0.0, zs), el, wr], [w1 * 1.3, w1 * 1.1, w1], "2")
+            b.ball(el, w1 * 1.15, "2")
+            if kind == "hand":
+                b.box((wr[0], wr[1] + 0.02, wr[2] - (0.03 if not up else -0.03)), (0.05, 0.05, 0.06), "4")
+            muz = (wr[0], wr[1] + 0.03, wr[2])
+        for gr in gs:                                          # weapons in line with the forearm / pod
+            if gr["cls"] == "missile":
+                _pod(b, (muz[0], muz[1] - 0.01, muz[2] - 0.06), gr["tubes"])
+            else:
+                nn = min(gr["count"], 3)
+                for i in range(nn):
+                    dx = (i - (nn - 1) / 2) * b.px(5) * f
+                    b.barrel((muz[0] + dx / f, muz[1], muz[2]), 22 if (gr["big"] and gr["cls"] == "ballistic") else 12 if gr["cls"] == "ballistic" else 7,
+                             2.2 + (1.4 if gr["big"] else 0) if gr["cls"] == "ballistic" else 1.5 + (0.8 if gr["big"] else 0), WCLS[gr["cls"]])
+
+    # ---- torso-zone weapons
+    for name, fx in (("L", -1), ("R", 1)):
+        zone = "Left Torso" if name == "L" else "Right Torso"
+        sxx = fx * (cw / 2 + sw / 2)
+        for gr in _groups(model, zone):
+            m, c, n = gr["mount"], gr["cls"], gr["count"]
+            if m == "shoulder_rack":
+                if model.get("arms_up") or model["archetype"] == "bird" and model["torso"] == "ovoid":
+                    _pod(b, (fx * (tw / 2 + 0.01), 0.0, ztop + 0.10), gr["tubes"])             # rises like ears
+                else:
+                    _pod(b, (sxx, -0.01, ztop + 0.05), gr["tubes"])
+            elif m == "shoulder_barrel":
+                b.box((sxx, 0.0, ztop + 0.015), (b.px(8), 0.07, 0.03), "3", tag="w")
+                b.barrel((sxx, 0.03, ztop + 0.035), 24, 3.2, "wb")
+            elif m == "turret":
+                b.box((sxx, 0.0, ztop + 0.03), (0.09, 0.09, 0.05), "3", tag="w")
+                for i in range(min(n, 4)):
+                    b.barrel((sxx + (i - (min(n, 4) - 1) / 2) * b.px(5), 0.04, ztop + 0.04), 10, 1.6, WCLS[c])
+            elif m == "hip_pod":
+                if c == "missile":
+                    _pod(b, (fx * (hw / 2 + 0.07), 0.0, hips_z), gr["tubes"])
+                else:
+                    b.barrel((fx * (hw / 2 + 0.05), 0.0, hips_z), 14, 2.4, WCLS[c])
+            else:                                               # flank mounts on the torso face
+                zf = z0 + th * 0.62
+                fy = td / 2 + ftop * 0.6
+                if c == "missile":
+                    _pod(b, (sxx, fy + 0.02, zf), gr["tubes"])
+                else:
+                    for i in range(min(n, 3)):
+                        b.barrel((sxx, fy - 0.02, zf + 0.02 - i * b.px(5)), 7, 1.5 + (0.9 if gr["big"] else 0), WCLS[c])
+    for gr in _groups(model, "Center Torso"):
+        for i in range(min(gr["count"], 4)):
+            b.box(((i - (min(gr["count"], 4) - 1) / 2) * b.px(6), td / 2 + ftop * 0.3 + 0.002, z0 + th * 0.3),
+                  (b.px(3), 0.004, b.px(3)), "1", vis={"front"}, tag="w", cls=WCLS[gr["cls"]])
+
+    # ---- jump jets, by location (the file says where): torso rear, or on the legs
+    jb = model.get("jets_by") or {}
+    for zone, n in jb.items():
+        for i in range(min(n, 3)):
+            if zone == "Left Torso":
+                x, y, z = -(cw / 2 + sw / 2) + 0.0, -td / 2 - 0.02, z0 + 0.04 + i * 0.06
+            elif zone == "Right Torso":
+                x, y, z = (cw / 2 + sw / 2), -td / 2 - 0.02, z0 + 0.04 + i * 0.06
+            elif zone == "Center Torso":
+                x, y, z = (i - (min(n, 3) - 1) / 2) * 0.05, -td / 2 - 0.02, z0 + 0.10
+            else:
+                x, y, z = (-1 if "Left" in zone else 1) * (hx + 0.03), -0.04, lh * 0.8 - i * 0.06
+            b.box((x, y, z), (0.04, 0.05, 0.05), "4", cls="hl")
+    return b
 
 
-def _figure_front(model, height_px, rear=False):
-    view = "rear" if rear else "front"
-    d = _dims(model)
-    if model["quad"]:
-        d["tw"] *= 1.4
-    k = 100.0
-    for _ in range(3):                                         # the sizes need k, k needs the height
-        g = Canvas(k)
-        _legs(g, model, d, view)
-        _torso_front(g, model, d, view)
-        if not model["quad"]:
-            for n in ("L", "R"):
-                _arm_front(g, model, d, view, n)
-        _flank_front(g, model, d, view, "L")
-        _flank_front(g, model, d, view, "R")
-        _head_front(g, model, d, view)
-        if rear:
-            _jets(g, model, d, view)
-        k = height_px / g.ymax
-    return g.svg(height_px)
+def _volume(b):
+    return sum(p["vol"] for p in b.parts if p["tag"] != "w")
+
+
+_VREF = {}
+
+
+def _mass_factor(model):
+    """Scale x and y so the body's volume matches a plain humanoid's: the cube-square
+    law makes every 'Mech the same fraction of its bounding volume, so a unit that
+    looks heavier than its tonnage is too fat (Scorpion)."""
+    if "v" not in _VREF:
+        ref = {"archetype": "humanoid", "torso": "box", "panels": "flush", "head_mount": "top", "head_shape": "box",
+               "shoulders": "flush", "antenna": False, "jets": 0, "jets_by": {}, "bulk": 1.0, "tons": 70, "quad": False,
+               "tripod": False, "arms": {"L": "hand", "R": "hand"}, "hardpoints": [], "head_offset": 0}
+        _VREF["v"] = _volume(_build(ref, 1.0, 100.0))
+    v = _volume(_build(model, 1.0, 100.0))
+    return max(0.7, min(1.2, (_VREF["v"] / v) ** 0.5)) if v else 1.0
+
+
+def _views(model, height_px):
+    """Build the parts at the right scale; return (parts, k) with k px per raw unit."""
+    f = _mass_factor(model)
+    k = height_px
+    for _ in range(3):
+        b = _build(model, f, k)
+        zmax = max(p[2] + g[1] for part in b.parts for grp in part["groups"] for g in [(p, r) for p, r in grp] for p in [g[0]]) if False else \
+            max(pt[2] + r for part in b.parts for grp in part["groups"] for pt, r in grp)
+        k = height_px / zmax
+    xs = [(pt[0] + s * r) for part in b.parts for grp in part["groups"] for pt, r in grp for s in (-1, 1)]
+    ys = [(pt[1] + s * r) for part in b.parts for grp in part["groups"] for pt, r in grp for s in (-1, 1)]
+    half_w = max(abs(v) for v in xs)
+    half_d = max(abs(v) for v in ys)
+    rl = model["rules_levels"]
+    cap = min(0.96 * 20 * rl / half_w, 0.96 * 56 / half_d, 0.95 * 50 / half_w, 0.90 * 50 / half_d)   # the base / hex cap
+    if k > cap:                                                 # never draw outside the standee or its base
+        k = cap
+        b = _build(model, f, k)
+    return b, k
+
+
+def _render(b, k, view):
+    polys = []
+    for part in b.parts:
+        if part["vis"] and view not in part["vis"]:
+            continue
+        for grp in part["groups"]:
+            pts2 = []
+            for (p, r) in grp:
+                x, y = _proj(view, p)
+                if r:
+                    for ang in range(0, 360, 45):
+                        pts2.append((x + r * math.cos(math.radians(ang)), y + r * math.sin(math.radians(ang))))
+                else:
+                    pts2.append((x, y))
+            hull = _hull(pts2)
+            if len(hull) < 3:
+                continue
+            d = sum(_depth(view, p) for p, _ in grp) / len(grp)
+            polys.append((d, hull, part["cls"]))
+    polys.sort(key=lambda t: t[0])
+    return "".join(
+        '<polygon points="%s" class="%s"/>' % (" ".join(f"{x * k:.1f},{y * k:.1f}" for x, y in h), c) for _, h, c in polys)
 
 
 def _frame(model, inner, kind):
-    """Wrap a drawing in the standee: a card of the RULES height on a base."""
     rl = model["rules_levels"]
     ch = rl * LEVEL
-    cw = 40 * rl
+    cw = 40 * rl if kind != "side" else 116
     card = (f'<rect x="{-cw / 2}" y="{-ch}" width="{cw}" height="{ch}" class="card"/>'
             f'<line x1="{-cw / 2}" x2="{cw / 2}" y1="{-LEVEL}" y2="{-LEVEL}" class="lvl"/>')
     if rl >= 3:
         card += f'<line x1="{-cw / 2}" x2="{cw / 2}" y1="{-2 * LEVEL}" y2="{-2 * LEVEL}" class="lvl"/>'
     base = f'<ellipse cx="0" cy="3" rx="{cw * 0.42}" ry="6" class="base"/>'
-    return (f'<svg class="{kind}" viewBox="-85 {-3 * LEVEL - 6} 170 {3 * LEVEL + 18}" '
-            f'width="170" height="{3 * LEVEL + 18}" role="img" aria-label="{model["name"]} {kind}">'
-            f'{base}{card}{inner}</svg>')
-
-
-def card_svg(model):
-    return _frame(model, _figure_front(model, model["drawn_levels"] * LEVEL), "front")
-
-
-def rear_svg(model):
-    return _frame(model, _figure_front(model, model["drawn_levels"] * LEVEL, rear=True), "rear")
+    return (f'<svg class="{kind}" viewBox="-85 {-3 * LEVEL - 6} 170 {3 * LEVEL + 18}" width="170" '
+            f'height="{3 * LEVEL + 18}" role="img" aria-label="{model["name"]} {kind}">'
+            f'{base}{card}<g class="fig">{inner}</g></svg>')
 
 
 def _groups(model, zone):
     return [g for g in model["hardpoints"] if g["zone"] == zone]
 
 
+def _view_svg(model, view):
+    b, k = _views(model, model["drawn_levels"] * LEVEL)
+    return _frame(model, _render(b, k, view), view if view != "front" else "front")
+
+
+def card_svg(model):
+    return _view_svg(model, "front")
+
+
+def rear_svg(model):
+    return _view_svg(model, "rear")
+
+
 def side_svg(model):
-    """Side view (facing right, the figure's left side near): the limbs mid-step, the
-    torso balanced over the feet."""
-    d = _dims(model)
-    height_px = model["drawn_levels"] * LEVEL
-    kind, lw = d["kind"], d["leg_w"]
-    td = d["td"] * (1.0 if not model["quad"] else 1.9)
-    y0, th, lean = d["y0"], d["torso_h"], d["lean"] * d["torso_h"]
-    k = 100.0
-    for _ in range(3):
-        g = Canvas(k)
-        pairs = [(0.0, 0.0)] if not model["quad"] else [(0.55 * td, 0.0), (-0.55 * td, 0.0)]
-        for hx, _o in pairs:                                    # far leg (back), then near leg (forward)
-            for stance, cls in ((-0.06, "g"), (0.06, "f")):
-                pts = [(x + hx, y) for x, y in _leg_pts(d, kind, 1, stance, side=True)]
-                g.limb(pts, [lw * 1.3] + [lw] * (len(pts) - 2) + [lw * 0.8], cls)
-                tx = pts[-1][0]
-                g.poly([(tx - lw * 0.7, 0), (tx + 0.10, 0), (tx + 0.08, 0.035), (tx - lw * 0.7, 0.04)], "f")
-        if model["tripod"]:
-            g.limb([(-0.14, d["leg_h"] * 0.85), (-0.17, 0.03)], [lw, lw * 0.8], "g")
-        cx0, cx1 = -lean * 0.5 - td * 0.0, lean * 0.5            # torso centred so its mass stays over the feet
-        g.poly([(cx0 - td / 2, y0), (cx0 + td / 2, y0), (cx1 + td / 2, y0 + th), (cx1 - td / 2, y0 + th)], "f")
-        for i in range(model["jets"]):
-            row = i // 2
-            g.rect(cx0 - td / 2 - 0.035, y0 + 0.02 + row * 0.06, 0.04, 0.05, "hl")
-        yt = d["ytop"]
-        mount = model["head_mount"]
-        if mount != "built_in":
-            big = mount == "full"
-            hh = 0.115 if big else 0.085
-            hw = 0.15 if big else 0.105
-            cy = yt + (hh / 2 + 0.03 if mount != "front" else hh / 2 - 0.012)
-            hx = cx1 + td * 0.12
-            if mount != "front":
-                g.rect(hx - 0.022, yt - 0.01, 0.044, 0.04, "g")
-            g.rect(hx - hw * 0.45, cy - hh / 2, hw, hh, "f")
-            g.rect(hx + hw * 0.1, cy - 0.004, hw * 0.4, 0.02, "hl")
-        # the near (left) arm: shoulder, elbow, hand, bent forward
-        kindA = (model["arms"] or {}).get("L", "hand") if not model["quad"] else None
-        sx, sy = cx1 + td * 0.05, yt - 0.05
-        if kindA:
-            gs = _groups(model, "Left Arm")
-            pod = kindA == "pod" or (kindA != "hand" and gs and not any(x["big"] for x in gs))
-            if pod:
-                g.limb([(sx, sy), (sx + 0.03, sy - 0.10)], [0.045, 0.04], "g")
-                pl = 0.07 + 0.015 * min(sum(x["count"] for x in gs), 4)
-                g.rect(sx + 0.03 - 0.04, sy - 0.24, pl, 0.15, "f")
-                ax, ay = sx + 0.03 - 0.04 + pl, sy - 0.17
-            else:
-                g.limb([(sx, sy), (sx + 0.03, sy - 0.15), (sx + 0.10, sy - 0.26)], [0.09, 0.075, 0.065], "g")
-                if kindA == "hand":
-                    g.ell(sx + 0.11, sy - 0.275, 0.032, 0.032, "f")
-                ax, ay = sx + 0.12, sy - 0.26
-            for gr in gs:
-                ln = 22 if (gr["big"] and gr["cls"] == "ballistic") else 12 if gr["cls"] != "energy" else 7
-                t = g.px(2.4 + (1.6 if gr["big"] else 0))
-                if gr["cls"] == "missile":
-                    g.rect(ax - 0.02, ay - g.px(5), g.px(16), g.px(10), "wm")
-                else:
-                    for i in range(min(gr["count"], 3)):
-                        g.rect(ax, ay + g.px(2) * (1 - 2 * i) * 1.2, g.px(ln), t, WCLS[gr["cls"]])
-        # torso-zone weapons, near side
-        for gr in _groups(model, "Left Torso"):
-            m, c = gr["mount"], gr["cls"]
-            if m in ("shoulder_rack", "turret"):
-                g.pod(cx1, yt + 0.045, gr["tubes"]) if c == "missile" else g.ell(cx1, yt + 0.03, 0.075, 0.04, "g")
-            elif m == "shoulder_barrel":
-                g.rect(cx1 - 0.03, yt + 0.02, g.px(24), g.px(4), "wb")
-            elif m == "hip_pod":
-                g.pod(cx0 + td * 0.1, y0 + 0.02, gr["tubes"]) if c == "missile" else g.rect(cx0, y0 - 0.01, g.px(14), g.px(5), WCLS[c])
-            else:
-                g.pod(cx0, y0 + th * 0.5, gr["tubes"]) if c == "missile" else g.rect(cx0 + td * 0.2, y0 + th * 0.7, g.px(10), g.px(3), WCLS[c])
-        k = height_px / g.ymax
-    return _frame_side(model, g.svg(height_px))
-
-
-def _frame_side(model, inner):
-    rl, ch = model["rules_levels"], model["rules_levels"] * LEVEL
-    card = (f'<rect x="-58" y="{-ch}" width="116" height="{ch}" class="card"/>'
-            f'<line x1="-58" x2="58" y1="{-LEVEL}" y2="{-LEVEL}" class="lvl"/>')
-    if rl >= 3:
-        card += f'<line x1="-58" x2="58" y1="{-2 * LEVEL}" y2="{-2 * LEVEL}" class="lvl"/>'
-    return (f'<svg class="side" viewBox="-85 {-3 * LEVEL - 6} 170 {3 * LEVEL + 18}" width="170" '
-            f'height="{3 * LEVEL + 18}" role="img" aria-label="{model["name"]} side">'
-            f'<ellipse cx="0" cy="3" rx="50" ry="6" class="base"/>{card}{inner}</svg>')
+    return _view_svg(model, "side")
 
 
 def top_svg(model):
-    """Top-down token on a flat-topped hex, facing up. Weapons point forward, the
-    figure's right is +x (the same sides as the rear view)."""
+    """Top-down token on a flat-topped hex, facing up: the same parts, seen from above."""
     R = 52
-    d = _dims(model)
-    s = (model["tons"] / 100.0) ** (1.0 / 3.0)
-    sc = R * 1.55 * s                                           # raw -> px for this token
-    tw, td = d["tw"] * sc, d["td"] * sc * (1.9 if model["quad"] else 1.0) * 1.15
+    b, k = _views(model, model["drawn_levels"] * LEVEL)
     hexp = " ".join(f"{R * math.cos(math.radians(a)):.1f},{R * math.sin(math.radians(a)):.1f}" for a in range(0, 360, 60))
-    out = [f'<polygon points="{hexp}" class="hex"/>']
-    lw = d["leg_w"] * sc
-    for fx in (-1, 1):                                          # feet peek out under the torso
-        out.append(f'<rect x="{fx * d["hip"] * sc - lw:.1f}" y="{td * 0.15:.1f}" width="{lw * 2:.1f}" height="{td * 0.5:.1f}" rx="2" class="g"/>')
-    arms = model["arms"] or {"L": "none", "R": "none"}
-    for name, fx in (("L", -1), ("R", 1)):
-        kind = arms[name]
-        zone = "Left Arm" if name == "L" else "Right Arm"
-        gs = _groups(model, zone)
-        pod = kind == "pod" or (kind not in ("hand", "none") and gs and not any(x["big"] for x in gs))
-        aw = (0.06 + 0.012 * min(sum(x["count"] for x in gs), 4)) * sc if pod else 0.062 * sc
-        x = fx * (tw / 2 + aw * 0.4)
-        out.append(f'<rect x="{x - aw / 2:.1f}" y="{-td * 0.35:.1f}" width="{aw:.1f}" height="{td * 0.8:.1f}" rx="2" class="g"/>')
-        for gr in gs:
-            L = 22 if (gr["big"] and gr["cls"] == "ballistic") else 11 if gr["cls"] != "energy" else 6
-            if gr["cls"] == "missile":
-                out.append(f'<rect x="{x - 5:.1f}" y="{-td * 0.35 - 8:.1f}" width="10" height="9" class="wm"/>')
-            else:
-                for i in range(min(gr["count"], 3)):
-                    bx = x + (i - (min(gr["count"], 3) - 1) / 2) * 5
-                    out.append(f'<rect x="{bx - 1.2:.1f}" y="{-td * 0.35 - L:.1f}" width="{2.4 + (1.6 if gr["big"] else 0):.1f}" height="{L:.1f}" class="{WCLS[gr["cls"]]}"/>')
-    out.append(f'<rect x="{-tw / 2:.1f}" y="{-td / 2:.1f}" width="{tw:.1f}" height="{td:.1f}" rx="{(9 if model["torso"] == "ovoid" else 3)}" class="f"/>')
-    for name, fx in (("L", -1), ("R", 1)):
-        zone = "Left Torso" if name == "L" else "Right Torso"
-        for gr in _groups(model, zone):
-            m, c = gr["mount"], gr["cls"]
-            x = fx * tw * 0.3
-            if c == "missile":
-                out.append(f'<rect x="{x - 6:.1f}" y="{-td * 0.45:.1f}" width="12" height="{min(18, 6 + gr["tubes"] * 0.5):.1f}" class="wm"/>')
-            else:
-                L = 20 if (gr["big"] and c == "ballistic") else 9
-                out.append(f'<rect x="{x - 1.6:.1f}" y="{-td / 2 - L:.1f}" width="{3.2 + (1.6 if gr["big"] else 0):.1f}" height="{L + td * 0.25:.1f}" class="{WCLS[c]}"/>')
-    for i in range(model["jets"]):                              # jump jets at the back
-        out.append(f'<rect x="{(-1 if i % 2 == 0 else 1) * tw * 0.3 - 2.5:.1f}" y="{td / 2 - 3 - (i // 2) * 0:.1f}" width="5" height="4" class="hl"/>')
-    if model["head_mount"] != "built_in":
-        hx = model["head_offset"] * tw * 0.16
-        r = R * (0.12 if model["head_mount"] == "full" else 0.09)
-        out.append(f'<circle cx="{hx:.1f}" cy="{-td * 0.30:.1f}" r="{r:.1f}" class="g"/>')
-        out.append(f'<rect x="{hx - r * 0.6:.1f}" y="{-td * 0.30 - r * 0.9:.1f}" width="{r * 1.2:.1f}" height="3" class="hl"/>')
-    out.append(f'<polygon points="0,{-R + 1} -5,{-R + 9} 5,{-R + 9}" class="hl"/>')
-    return (f'<svg class="top" viewBox="-60 -60 120 120" width="120" height="120" role="img" '
-            f'aria-label="{model["name"]} top">{"".join(out)}</svg>')
+    inner = _render(b, k, "top")
+    return (f'<svg class="top" viewBox="-60 -60 120 120" width="120" height="120" role="img" aria-label="{model["name"]} top">'
+            f'<polygon points="{hexp}" class="hex"/><g class="fig">{inner}</g>'
+            f'<polygon points="0,{-R + 1} -5,{-R + 9} 5,{-R + 9}" class="hl"/></svg>')
+
+
+def lineup_figure(model, height_px):
+    b, k = _views(model, height_px)
+    return f'<g class="fig">{_render(b, k, "front")}</g>'

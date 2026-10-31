@@ -92,7 +92,7 @@ def lineup_svg(models):
         x = 40 + i * step + step / 2
         out.append(f'<g transform="translate({x},{h - 24})">'
                    f'<rect x="{-20 * m["rules_levels"]}" y="{-m["rules_levels"] * L}" width="{40 * m["rules_levels"]}" height="{m["rules_levels"] * L}" class="card"/>'
-                   f'{T._figure_front(m, m["drawn_levels"] * L)}'
+                   f'{T.lineup_figure(m, m["drawn_levels"] * L)}'
                    f'<text y="14" text-anchor="middle" class="lab">{m["tons"]}t</text></g>')
     out.append("</svg>")
     return "".join(out)

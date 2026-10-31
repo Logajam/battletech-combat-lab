@@ -6,18 +6,18 @@
    with four views (top token, front card, rear card, side card), as in the MWO scale chart. */
 :root {
   --bg: #e6e9ee; --panel: #f2f4f7; --ink: #1d2430; --mute: #5a6475; --line: #c4cad4;
-  --fig: #333a45; --fig2: #4d5663; --hl: #8d98a8; --card: #dfe3ea; --cardline: #aeb6c2; --base: #bcc3ce;
+  --fig: #333a45; --fig2: #4d5663; --fig3: #606a78; --fig4: #272c35; --edge: #1b2029; --hl: #8d98a8; --card: #dfe3ea; --cardline: #aeb6c2; --base: #bcc3ce;
   --hexfill: #d3d8e0; --energy: #d2453b; --ballistic: #d8962d; --missile: #3478c0;
   --display: "Barlow Condensed", "Arial Narrow", sans-serif; --body: "Barlow", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #12161c; --panel: #1a2029; --ink: #e3e7ee; --mute: #98a2b3; --line: #2c3541;
-  --fig: #b9c1cd; --fig2: #8590a0; --hl: #e3e7ee; --card: #222a35; --cardline: #3a4553; --base: #0b0e12;
+  --fig: #b9c1cd; --fig2: #8f9aab; --fig3: #6c778a; --fig4: #d7dde6; --edge: #0d1015; --hl: #e3e7ee; --card: #222a35; --cardline: #3a4553; --base: #0b0e12;
   --hexfill: #232b36; --energy: #ee6b60; --ballistic: #e8ad4f; --missile: #5fa0e6; color-scheme: dark; } }
 :root[data-theme="dark"] {
   --bg: #12161c; --panel: #1a2029; --ink: #e3e7ee; --mute: #98a2b3; --line: #2c3541;
-  --fig: #b9c1cd; --fig2: #8590a0; --hl: #e3e7ee; --card: #222a35; --cardline: #3a4553; --base: #0b0e12;
+  --fig: #b9c1cd; --fig2: #8f9aab; --fig3: #6c778a; --fig4: #d7dde6; --edge: #0d1015; --hl: #e3e7ee; --card: #222a35; --cardline: #3a4553; --base: #0b0e12;
   --hexfill: #232b36; --energy: #ee6b60; --ballistic: #e8ad4f; --missile: #5fa0e6; color-scheme: dark; }
 body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5;
   padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
@@ -38,7 +38,8 @@ section.band { background: var(--panel); border: 1px solid var(--line); padding:
 .views svg { flex: none; }
 .rowlab { font: 700 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--mute); }
 .tags { font: 400 12px/1.5 var(--mono); color: var(--mute); }
-svg .f { fill: var(--fig); } svg .g { fill: var(--fig2); } svg .hl { fill: var(--hl); }
+svg .t1 { fill: var(--fig); } svg .t2 { fill: var(--fig2); } svg .t3 { fill: var(--fig3); } svg .t4 { fill: var(--fig4); } svg .hl { fill: var(--hl); } svg .ln { fill: var(--edge); }
+svg .fig polygon { stroke: var(--edge); stroke-width: .5; stroke-linejoin: round; }
 svg .we { fill: var(--energy); } svg .wb { fill: var(--ballistic); } svg .wm { fill: var(--missile); }
 svg .card { fill: var(--card); stroke: var(--cardline); stroke-width: 1; stroke-dasharray: 3 3; }
 svg .lvl { stroke: var(--cardline); stroke-width: 1; stroke-dasharray: 1 4; }
@@ -49,8 +50,8 @@ ul.open { margin: 0; padding-left: 18px; max-width: 74ch; display: flex; flex-di
 <main>
   <header style="display:flex;flex-direction:column;gap:10px">
     <h1>Combat Lab Token Sheet</h1>
-    <p class="lede">Second pass of the procedural tokens: __N__ units, each drawn twice. The first row applies the reference tags read from the MWO chart (plus any named override); the second row is the chassis-name hash alone, which is how an unlisted unit would look. The standee card is the rules height (2 levels, 3 for a superheavy); the figure on it follows the cube-square law inside that band. Dotted lines mark levels 1 to 3. Views: top-down token on its hex, front, rear, side.</p>
-    <div class="legend"><span><i style="background:var(--energy)"></i>energy</span><span><i style="background:var(--ballistic)"></i>ballistic</span><span><i style="background:var(--missile)"></i>missile</span><span>light dots on the rear view: jump jets and heat sink fins</span></div>
+    <p class="lede">Third pass of the procedural tokens (one 3D model per unit, drawn from four sides): __N__ units, each drawn twice. The first row applies the reference tags read from the MWO chart (plus any named override); the second row is the chassis-name hash alone, which is how an unlisted unit would look. The standee card is the rules height (2 levels, 3 for a superheavy); the figure on it follows the cube-square law inside that band. Dotted lines mark levels 1 to 3. Views: top-down token on its hex, front, rear, side.</p>
+    <div class="legend"><span><i style="background:var(--energy)"></i>energy</span><span><i style="background:var(--ballistic)"></i>ballistic</span><span><i style="background:var(--missile)"></i>missile</span><span>light blocks on the back: jump jets, placed by location from the file</span></div>
   </header>
   <section class="band"><h2>All units at one scale</h2><div class="scroll">__LINEUP__</div></section>
   <section><h2>Unit by unit</h2><div class="grid">__TILES__</div></section>
