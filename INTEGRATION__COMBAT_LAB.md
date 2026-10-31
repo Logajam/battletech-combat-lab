@@ -111,6 +111,19 @@ needs no GUI change.
     - Stage 1: plain shapes, correct footprint, readable facing. Detail comes
       after the pipeline works.
 
+  - **Hardpoint placement (Daniel, 2026-10-31).** A unit file's critical
+    location says only the coarse zone; slot order is not geometry (small
+    weapons listed after a big rifle may be drawn on a shoulder turret). So:
+    data gives the zone and rear-facing; weapon class, size and count pick a
+    mount style (arm barrel, shoulder rack, torso pod, turret, aperture); the
+    hash and overrides settle the arrangement. Each hardpoint in the part
+    model keeps an overridable mount style.
+  - **Option list first.** Draft a short parameter vocabulary (chassis, legs,
+    torso, head, arms, shoulders, back, bulk), survey `data/meks.zip` with a
+    contact sheet, add values only where a unit looks wrong; overrides are
+    filled in later, by exception. Daniel is willing to spend cycles on this
+    ground work (2026-10-31).
+
 ---
 
 # PART B - Combat Lab GUI: functional specification (to implement)
