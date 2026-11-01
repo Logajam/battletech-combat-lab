@@ -280,6 +280,32 @@ needs no GUI change.
   tripod look, and a check that the Spider's arms show in the top view. Then Daniel
   reviews whether the four views read as one object.
 
+- **Goal restated and "blocks" source (Daniel, 2026-11-01).** Ultimate goal:
+  simplified models in the MWO design language, so a viewer thinks "that looks like
+  BattleTech", with detail from the name hash and the real `.mtf` stats; a location
+  bulks out when it carries more armor. Daniel's ideal: find a source of the "blocks"
+  the 3D models are built from.
+  - **Claude's findings.** `gamemodels3d.com/games/mechwarrior` is a viewer for
+    game-extracted MWO models (about 130 'Mechs by nation and class). Its pages expose
+    only names: no parts, tags, images or downloads reachable by fetch. The game's
+    meshes are copyrighted, so extracting them is out (same rule as the chart and the
+    posters: reference for proportions and style only). No public source of a clean,
+    reusable block set was found.
+  - **Plan: build our own block library.** A small set of original primitives named
+    for the design language (chamfered armor plate, wedge, boom, ovoid, hips ring,
+    digitigrade leg, pod arm, shoulder box, ear...), each with a few parameters
+    (size, chamfer, taper, panel-line style). Values are written in words and tags
+    from reference viewing; the generator draws its own shapes. Adding a new unit
+    means choosing blocks, not tracing a model.
+  - **Armor bulk per location (not built).** `INTEGRATION__tokens.py` uses one global
+    `bulk` (armor per ton, clamped 0.96-1.08). Wanted: each location's thickness from
+    its own armor points relative to the location's structure maximum (so a 2x-armored
+    side torso swells and a bare rear/leg stays slim), with a clamp so the standee cap
+    and the rules height still hold.
+  - **Open (Daniel):** may Claude view model renders (screenshots of the viewer,
+    never extracted files) to write block tags? Otherwise tags come from the chart and
+    posters at lower confidence.
+
 ---
 
 # PART B - Combat Lab GUI: functional specification (to implement)
