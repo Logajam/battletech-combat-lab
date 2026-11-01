@@ -306,6 +306,28 @@ needs no GUI change.
     never extracted files) to write block tags? Otherwise tags come from the chart and
     posters at lower confidence.
 
+- **Token pass v4 (2026-11-01, session 16) - top and side now differ. REVIEW PENDING (higher-level model).**
+  - **Poster references:** none of the Recognition Guide posters or MWO renders are in the repo or
+    this session (Daniel's connection is too slow to send renders), so the new tags are Claude's
+    reading from general knowledge of the silhouettes, in words, `confidence` low: each is a
+    candidate for Daniel to correct. Nothing was traced or copied.
+  - **New features** (`INTEGRATION__tokens.py`, `FEATURE_KEYS`, hashed by default, overridable in
+    `data/token_reference_tags.json`): `plan` = the torso from ABOVE (`block`, `wedge` narrows to the
+    front, `flare` widens to it; a plan warp in `B3.box`); `profile` = the torso from the SIDE
+    (`upright`, `sloped` front face leans back with the rear upright, `lean` pitches forward,
+    `hunch` adds a hump behind the head and moves the head forward); `hips` (`plain`, `flare`).
+    Tagged now: 32 chart units (plan / profile for all; hips flare for Spider, Flea, Catapult).
+  - **Armor thinness (Daniel's rule: thinner when under-armored, never thicker).** Per location,
+    armor against its maximum (twice the structure from `mechsim.mech_state`, head 9) maps to
+    0.78-1.00 of the plain size; applied to the three torso pieces, arms, legs and head. The global
+    `bulk` is now fixed at 1.0. **Bug fixed:** `read_unit` never read any armor (it tested
+    `" Armor"`, the files say `armor`), so the old bulk hint was constant; the parser now keeps
+    `armor_by` per zone (rear armor ignored).
+  - Shoulder racks get a mount or stalk so they no longer float (Griffin, Catapult).
+  - Still open: the hump and wedge barely show in the 120 px top token (the arms dominate the
+    plan), tripod look, Flea hips / claw feet, head displacement threshold, shading, Catapult ears
+    as true boxes. `python tests/run_checks.py`: 43 of 43 pass (tokens are output only).
+
 ---
 
 # PART B - Combat Lab GUI: functional specification (to implement)

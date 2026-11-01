@@ -29,6 +29,7 @@ import json
 import math
 import os
 import re
+import sys
 
 LEVEL = 60                     # px for one level of height in every drawing
 OVERRIDES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "token_overrides.json")
@@ -36,6 +37,10 @@ OVERRIDES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data"
 ARCHETYPES = ("humanoid", "humanoid", "bird", "bird", "martian")      # bipeds; quads get dog / lizard, tripods their own
 
 ZONES = ("Left Arm", "Right Arm", "Left Torso", "Right Torso", "Center Torso", "Head")
+# the .mtf's armor line codes -> zones (front armor; the rear codes RTL / RTR / RTC are left out)
+ARMOR_CODES = {"LA": "Left Arm", "RA": "Right Arm", "LT": "Left Torso", "RT": "Right Torso", "CT": "Center Torso",
+               "HD": "Head", "LL": "Left Leg", "RL": "Right Leg", "CL": "Center Leg", "FLL": "Front Left Leg",
+               "FRL": "Front Right Leg", "RLL": "Rear Left Leg", "RRL": "Rear Right Leg"}
 SLOT_HEADERS = ZONES + ("Left Leg", "Right Leg", "Front Left Leg", "Front Right Leg",
                         "Rear Left Leg", "Rear Right Leg", "Center Leg")
 
@@ -78,7 +83,7 @@ def read_unit(path):
             in_weapons = False
             continue
         key, sep, val = line.partition(":")
-        key = "" if not sep else key if key.endswith(" Armor") else key.lower()      # the files mix "Mass:" and "mass:"
+        key = "" if not sep else key.lower()                  # the files mix "Mass:" and "mass:"
         if key == "chassis":
             unit["chassis"] = val.strip()
         elif key == "clanname":
@@ -96,8 +101,10 @@ def read_unit(path):
             unit["heat_sinks"] = int(m.group(1)) if m else 10
         elif key == "cockpit":
             unit["cockpit"] = val.strip()
-        elif key.endswith(" Armor") and key.split()[0].isupper() and not key.startswith("R"):
-            unit["armor"] = unit.get("armor", 0) + (int(val) if val.strip().isdigit() else 0)
+        elif key.endswith(" armor") and key.split()[0].upper() in ARMOR_CODES and val.strip().isdigit():
+            zone = ARMOR_CODES[key.split()[0].upper()]         # front armor only (RTL / RTR / RTC are rear and not listed)
+            unit.setdefault("armor_by", {})[zone] = int(val)
+            unit["armor"] = unit.get("armor", 0) + int(val)
         elif key == "weapons":
             in_weapons = True
         elif line[:-1] in SLOT_HEADERS and line.endswith(":"):
@@ -171,7 +178,28 @@ def mount_style(zone, cls, big, n_zone, classes_in_zone, hands, archetype):
     return "head_port" if zone == "Head" else "chest_" + cls
 
 
-FEATURE_KEYS = ("archetype", "torso", "panels", "head_mount", "head_shape", "shoulders", "antenna", "arms_flex", "tilt", "arms_up")
+FEATURE_KEYS = ("archetype", "torso", "panels", "head_mount", "head_shape", "shoulders", "antenna", "arms_flex", "tilt", "arms_up",
+                "plan", "profile", "hips")
+
+
+def armor_thinness(unit, tons):
+    """zone -> 0.78..1.00: how slim a location is drawn, from its armor against its
+    maximum (twice the internal structure, mechsim.mech_state; head 9). Full armor = 1.0."""
+    here = os.path.dirname(os.path.abspath(__file__))              # mechsim's modules import each other by bare name
+    for sub in ("mechsim", "pathfinder"):
+        if os.path.join(here, sub) not in sys.path:
+            sys.path.append(os.path.join(here, sub))
+    from mech_state import structure_for_tonnage
+    try:
+        structure = structure_for_tonnage(tons, "quad" if "Quad" in unit.get("config", "") else "biped")
+    except ValueError:
+        return {}
+    out = {}
+    for zone, armor in (unit.get("armor_by") or {}).items():
+        cap = 9 if zone == "Head" else 2 * structure.get(zone, 0)
+        if cap:
+            out[zone] = round(0.78 + 0.22 * min(1.0, armor / (0.8 * cap)), 3)
+    return out
 
 
 def build_model(unit, overrides=None, hash_only=False):
@@ -185,9 +213,11 @@ def build_model(unit, overrides=None, hash_only=False):
     config = unit.get("config", "Biped")
     quad = "Quad" in config
 
-    # armor per ton against a typical 3.0: a bulk hint (armor and loadout add bulk)
-    armor_ratio = unit["armor"] / max(tons, 1) / 3.0 if unit["armor"] else 1.0
-    bulk = max(0.96, min(1.08, 0.97 + 0.06 * armor_ratio))
+    # Daniel (2026-11-01): a location gets THINNER when it is under-armored; it never swells
+    # (bulk causes clipping). Armor is judged against the location's maximum (twice its
+    # structure, head 9; Core "Armor Diagram"), then mapped to 0.78-1.00 of the plain size.
+    bulk = 1.0
+    thin = armor_thinness(unit, tons)
 
     arche = ARCHETYPES[hc[0] % len(ARCHETYPES)]
     if quad:
@@ -198,8 +228,11 @@ def build_model(unit, overrides=None, hash_only=False):
         "name": f'{unit.get("chassis", "?")} {unit.get("model", "")}'.strip(),
         "chassis": chassis, "tons": tons, "config": config, "quad": quad, "tripod": "Tripod" in config,
         "rules_levels": rules_levels(tons), "drawn_levels": round(drawn_levels(tons), 3),
-        "bulk": round(bulk, 3),
+        "bulk": round(bulk, 3), "thin": thin,
         "archetype": arche,
+        "plan": ("block", "block", "wedge", "flare")[hc[8] % 4],           # the torso seen from above
+        "profile": ("upright", "sloped", "lean", "upright", "sloped", "upright", "lean", "hunch")[hc[9] % 8],   # seen from the side
+        "hips": "flare" if hc[10] % 4 == 0 else "plain",
         "torso": ("box", "ovoid", "narrow", "slab")[hc[1] % 4],
         "panels": ("flush", "wings", "stepped")[hc[5] % 3],
         "head_mount": ("built_in", "front", "top", "full")[hc[2] % 4],
@@ -317,7 +350,10 @@ class B3:
     def px(self, v):
         return v / self.k
 
-    def box(self, c, s, tone, tilt=0.0, tx=1.0, ty=1.0, vis=None, tag="b", cls=None):
+    def box(self, c, s, tone, tilt=0.0, tx=1.0, ty=1.0, vis=None, tag="b", cls=None, plan=None):
+        """`plan` = (fw, y_back, y_front): x is scaled from 1 at y_back to fw at y_front, so a
+        torso seen from above is a wedge (fw < 1) or flares forward (fw > 1) while the front
+        and rear views still read its widest edge."""
         f = self.f
         cx, cy, cz = c[0] * f, c[1] * f, c[2]
         sx, sy, sz = s[0] * f, s[1] * f, s[2]
@@ -327,6 +363,9 @@ class B3:
             for dx in (-1, 1):
                 for dy in (-1, 1):
                     pts.append((scx + dx * ax, scy + dy * ay, zz))
+        if plan:
+            fw, yb, yf = plan
+            pts = [(x * (1 + (fw - 1) * max(0.0, min(1.0, (y / f - yb) / (yf - yb)))), y, z) for x, y, z in pts]
         self.parts.append({"groups": [[(p, 0.0) for p in pts]], "cls": cls or TONE[tone], "vis": vis, "tag": tag,
                            "vol": sx * sy * sz * (1 + tx * ty) / 2})
 
@@ -377,8 +416,18 @@ def _build(model, f, k):
     A["tw"] *= wf * {"box": 1.0, "ovoid": 0.95, "narrow": 0.82, "slab": 1.12}[model["torso"]]
     A["hw"] *= wf
     A["lr"] *= wf * (1.0 + 0.0)
+    if model.get("hips") == "flare" and not model["tripod"]:
+        A["hw"] *= 1.35
     lh, hw, hd, tw, td, th, lr = A["lh"], A["hw"], A["hd"], A["tw"], A["td"], A["th"], A["lr"]
+    thin = model.get("thin") or {}
+
+    def slim(zone):                                            # under-armored locations are drawn thinner, never thicker
+        return thin.get(zone, 1.0)
     tilt = model.get("tilt", A["tilt"])
+    profile = model.get("profile", "upright")
+    plan = model.get("plan", "block")
+    if profile == "lean":
+        tilt += 0.16
     quad = model["quad"]
     stance = (0.05, -0.05)                                     # mid-step: left foot forward, right back
 
@@ -415,6 +464,7 @@ def _build(model, f, k):
     else:
         for fx, st in ((-1, stance[0]), (1, stance[1])):             # figure's left is -x
             x = fx * hx
+            lr = A['lr'] * slim('Left Leg' if fx < 0 else 'Right Leg')
             if arche == "bird":                                      # digitigrade: hock back, long foot
                 pts = [(x, 0, lh), (x + fx * 0.012, -0.075 + st * 0.3, lh * 0.55), (x, 0.045 + st, lh * 0.17), (x, 0.11 + st, 0.02)]
                 b.seg(pts, [lr * 1.5, lr * 1.1, lr * 0.75, lr * 0.5], "2")
@@ -440,21 +490,36 @@ def _build(model, f, k):
     tx, ty = {"box": (0.94, 0.9), "ovoid": (0.72, 0.72), "narrow": (1.22, 1.0), "slab": (1.0, 1.0)}[shape]
     step = 0.03 if model["panels"] == "stepped" else 0.0
     flare = 1.12 if model["panels"] == "wings" else 1.0
-    b.box((0, 0, z0 + th / 2 + step / 2), (cw, td, th + step), "1", tilt=tilt, tx=tx, ty=ty)
+    # SIDE profile: "sloped" = the front face leans back to the top (the rear stays upright), which
+    # the top view cannot show; "lean" = the whole torso pitches forward; "hunch" adds a hump (below).
+    if profile == "sloped":
+        ty = 0.55
+        tilt = (td / 2) * (ty - 1) / th
+    # PLAN (top view): "wedge" narrows to the front, "flare" widens to it, both drawn from the back
+    fw = {"block": 1.0, "wedge": 0.70, "flare": 1.18}[plan]
+    pl = (fw, -td / 2, td / 2) if fw != 1.0 else None
+    tw_eff = tw * (1 + (fw - 1) * 0.5)                             # half-way along the depth: where the arms attach
+    cw = cw * slim("Center Torso")
+    b.box((0, 0, z0 + th / 2 + step / 2), (cw, td, th + step), "1", tilt=tilt, tx=tx, ty=ty, plan=pl)
     for fx in (-1, 1):
-        b.box((fx * (cw / 2 + sw / 2), 0, z0 + th / 2), (sw, td * 0.96, th), "2", tilt=tilt, tx=tx * flare, ty=ty)
+        zone_t = "Left Torso" if fx < 0 else "Right Torso"
+        sw_f = sw * slim(zone_t)                                   # a thin side torso is narrower on that side only
+        cxx = fx * (cw / 2 + sw_f / 2)
+        b.box((cxx, 0, z0 + th / 2), (sw_f, td * 0.96, th), "2", tilt=tilt, tx=tx * flare, ty=ty, plan=pl)
         sx_ = fx * cw / 2
-        b.box((sx_, 0.0, z0 + th / 2), (0.006, td * 0.98, th * 0.96), "1", tilt=tilt, vis={"front", "rear", "top"}, cls="ln")
+        b.box((sx_, 0.0, z0 + th / 2), (0.006, td * 0.98, th * 0.96), "1", tilt=tilt, vis={"front", "rear", "top"}, cls="ln", plan=pl)
     ftop = tilt * th                                               # the top face shifts by this
 
     # ---- head
     mount, shape_h = model["head_mount"], model["head_shape"]
     hoff = model["head_offset"] * tw * 0.16
+    hs = slim("Head")
     if mount == "built_in":
         b.box((hoff, td / 2 * 0.5 + ftop * 0.8, ztop - 0.07), (0.09, td * 0.5, 0.035), "4", vis={"front", "side"}, cls="hl")
     else:
         big = mount in ("full", "boom")
-        hw_, hh_ = (0.15, 0.115) if big else (0.105, 0.085)
+        hw_, hh_ = ((0.15, 0.115) if big else (0.105, 0.085))
+        hw_, hh_ = hw_ * hs, hh_ * hs
         if mount == "boom":                                        # head in the centre torso, out front on a neck
             hz = ztop - 0.06
             hy = td / 2 + 0.12
@@ -462,7 +527,7 @@ def _build(model, f, k):
         elif mount == "front":
             hz, hy = ztop - 0.03, td / 2 + 0.01 + ftop * 0.5
         else:
-            hz, hy = ztop + 0.035 + hh_ / 2, ftop * 0.7
+            hz, hy = ztop + 0.035 + hh_ / 2, ftop * 0.7 + (td * 0.18 if profile == "hunch" else 0.0)
             b.seg([(hoff, hy, ztop - 0.01), (hoff, hy, ztop + 0.045)], [0.06, 0.05], "3")
         tpx = {"box": (1, 1), "dome": (0.7, 0.8), "wedge": (0.75, 0.5), "visor": (1, 1)}[shape_h]
         b.box((hoff, hy, hz), (hw_, hw_ * 0.85, hh_), "1", tx=tpx[0], ty=tpx[1], tilt=-0.2 if shape_h == "wedge" else 0)
@@ -470,6 +535,9 @@ def _build(model, f, k):
         b.box((hoff, hy + hw_ * 0.3, hz), (hw_ * 0.5, hw_ * 0.5, 0.02), "4", vis={"top"}, cls="hl")
         if model.get("antenna"):
             b.seg([(hoff + hw_ * 0.3, hy, hz + hh_ / 2), (hoff + hw_ * 0.3, hy - 0.02, hz + hh_ / 2 + 0.08)], [0.006, 0.004], "3")
+
+    if profile == "hunch":                                         # a hump rising behind the head: seen from the side
+        b.box((0, -td * 0.2, ztop + 0.045), (tw * 0.78, td * 0.62, 0.09), "1", tx=0.78, ty=0.55, tilt=-0.12, plan=pl)
 
     # ---- arms (not on quads): a hand arm, a forearm arm, or a turret-pod arm
     zs = ztop - 0.05
@@ -481,8 +549,9 @@ def _build(model, f, k):
             continue
         zone = "Left Arm" if name == "L" else "Right Arm"
         gs = _groups(model, zone)
-        sx = fx * (tw / 2 + boom + 0.02)
-        b.seg([(fx * tw / 2 * 0.92, 0.0, zs), (sx, 0.0, zs)], [0.045, 0.04], "3")           # connective tissue
+        sl = slim(zone)
+        sx = fx * (tw_eff / 2 + boom + 0.02)
+        b.seg([(fx * tw_eff / 2 * 0.92, 0.0, zs), (sx, 0.0, zs)], [0.045 * sl, 0.04 * sl], "3")           # connective tissue
         b.ball((sx, 0.0, zs), 0.038, "3")
         small = bool(gs) and not any(x["big"] for x in gs)
         up = model.get("arms_up")
@@ -491,14 +560,14 @@ def _build(model, f, k):
             n_w = max(1, sum(x["count"] for x in gs))
             pw = 0.05 + 0.014 * min(n_w, 4)
             pz = zs - 0.07 if not up else ztop + 0.08
-            b.box((sx + fx * 0.012, 0.03, pz), (pw, 0.16, 0.11), "1", tx=0.9, ty=0.9)
+            b.box((sx + fx * 0.012, 0.03, pz), (pw * sl, 0.16, 0.11), "1", tx=0.9, ty=0.9)
             muz = (sx + fx * 0.012, 0.03 + 0.08, pz)
         else:
             if up:
                 el, wr = (sx + fx * 0.02, 0.02, zs + 0.12), (sx + fx * 0.01, 0.04, zs + 0.24)
             else:
                 el, wr = (sx + fx * 0.012, 0.02, zs - 0.13), (sx + fx * 0.006, 0.075, zs - 0.25)
-            w1 = 0.042 if kind == "hand" else 0.037
+            w1 = (0.042 if kind == "hand" else 0.037) * sl
             b.seg([(sx, 0.0, zs), el, wr], [w1 * 1.3, w1 * 1.1, w1], "2")
             b.ball(el, w1 * 1.15, "2")
             if kind == "hand":
@@ -517,14 +586,16 @@ def _build(model, f, k):
     # ---- torso-zone weapons
     for name, fx in (("L", -1), ("R", 1)):
         zone = "Left Torso" if name == "L" else "Right Torso"
-        sxx = fx * (cw / 2 + sw / 2)
+        sxx = fx * (cw / 2 + sw * slim(zone) / 2)
         for gr in _groups(model, zone):
             m, c, n = gr["mount"], gr["cls"], gr["count"]
             if m == "shoulder_rack":
                 if model.get("arms_up") or model["archetype"] == "bird" and model["torso"] == "ovoid":
-                    _pod(b, (fx * (tw / 2 + 0.01), 0.0, ztop + 0.10), gr["tubes"])             # rises like ears
+                    _pod(b, (fx * (tw_eff / 2 + 0.01), 0.0, ztop + 0.10), gr["tubes"])         # rises like ears
+                    b.box((fx * (tw_eff / 2 + 0.01), 0.0, ztop + 0.03), (0.035, 0.05, 0.08), "3", tag="w")   # its stalk
                 else:
                     _pod(b, (sxx, -0.01, ztop + 0.05), gr["tubes"])
+                    b.box((sxx, -0.01, ztop + 0.005), (0.05, 0.06, 0.04), "3", tag="w")                      # the rack's mount
             elif m == "shoulder_barrel":
                 b.box((sxx, 0.0, ztop + 0.015), (b.px(8), 0.07, 0.03), "3", tag="w")
                 b.barrel((sxx, 0.03, ztop + 0.035), 24, 3.2, "wb")

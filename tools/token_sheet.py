@@ -61,7 +61,7 @@ def main(root, out):
             hp = {}
             for g in x["hardpoints"]:
                 hp[g["mount"]] = hp.get(g["mount"], 0) + g["count"]
-            t = [x["archetype"], f"torso {x['torso']}/{x['panels']}", f"head {x['head_mount']}/{x['head_shape']}", f"shoulders {x['shoulders']}"]
+            t = [x["archetype"], f"torso {x['torso']}/{x['panels']}", f"head {x['head_mount']}/{x['head_shape']}", f"shoulders {x['shoulders']}", f"plan {x['plan']}", f"profile {x['profile']}", f"hips {x['hips']}"]
             if x["arms"]:
                 t.append("arms " + "/".join(x["arms"][c] for c in "LR"))
             t += [f"{k.replace('_', ' ')} x{v}" for k, v in sorted(hp.items())]
