@@ -261,6 +261,25 @@ needs no GUI change.
   especially) to build a dictionary of shapes. Their art is copyrighted: describe
   shapes in words and tags, never trace or copy the images.
 
+- **Chart resolution (measured 2026-11-01).** The MWO chart image is 2000 x 746 px;
+  its front / side figures measure about 59-77 px (light), 74-91 (medium), 80-98
+  (heavy), 91-107 (assault) tall and the top-down views only 36-54 px. Enough for
+  proportion and silhouette, not for knees, elbows, hands or seam lines. The
+  reference tags (`data/token_reference_tags.json`) are therefore coarse, the light
+  units most of all. A larger chart or per-unit recognition-guide images are wanted.
+
+- **Where the tokens stand (2026-11-01).** `INTEGRATION__tokens.py` (v3: one 3D part
+  model per unit, projected to top / front / rear / side; mass fit; standee and hex
+  caps; jump jets by location; forearm-line weapons; seam lines; four tones; dog and
+  lizard for quads only), `tools/token_sheet.py` + template (the contact sheet, each
+  unit drawn with reference tags and hash only), `data/token_overrides.json`,
+  `data/token_reference_tags.json`. Published sheet: claude.ai artifact
+  CS8cdEG8rBR2jU5o3t1Y8a (private). Next: wider part shapes (limbs are still uniform
+  tubes), Flea-style hips / tilt / claw feet, Catapult ears, Warhammer searchlight,
+  Jenner boom head, a visual-size threshold for head displacement, shading, the
+  tripod look, and a check that the Spider's arms show in the top view. Then Daniel
+  reviews whether the four views read as one object.
+
 ---
 
 # PART B - Combat Lab GUI: functional specification (to implement)

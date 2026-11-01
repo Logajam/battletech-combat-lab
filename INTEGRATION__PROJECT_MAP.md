@@ -722,6 +722,10 @@ Princess, decision by decision, the latest battery and why Gladiator loses.
    the API should score many spots per call, not one. Supersedes item 9's
    "once the rules settle" wording. The Combat Lab state snapshot and the
    engine API (COMBAT_LAB.md) should be designed with this boundary in mind.
+15. **Combat Lab procedural tokens (Daniel, 2026-10-31 - in progress, saved
+   2026-11-01):** `INTEGRATION__COMBAT_LAB.md` (design, reviews, decisions, "Where
+   the tokens stand"), `INTEGRATION__tokens.py`, `tools/token_sheet.py`, data in
+   `data/token_*.json`. Output only; no engine code. Next steps are in the doc.
 14. **MegaMek save import - test it (Daniel, 2026-10-31: "test it and see",
    later, spare cycles):** get sample MegaMek `.sav` files from Daniel, check what a
    save holds and how hard the mapping is (COMBAT_LAB.md, Part A). Last in the Combat Lab order.
