@@ -1,30 +1,32 @@
 {
  "flea": {
   "archetype": "bird",
-  "torso": "narrow",
-  "head_mount": "built_in",
-  "head_shape": "dome",
+  "torso": "slab",
+  "head_mount": "front",
+  "head_shape": "wedge",
   "shoulders": "flush",
-  "note": "small round head sunk in torso; thin pod arms",
+  "note": "whole model: flat wide slab torso nearly horizontal on thin legs, gun pods forward under the front edge, deep knee bend",
   "new": [
    "pod arms"
   ],
-  "confidence": "med",
-  "plan": "wedge",
+  "confidence": "high",
+  "plan": "block",
   "profile": "lean",
-  "hips": "flare"
+  "hips": "flare",
+  "source": "3D model study 2026-11-03"
  },
  "locust": {
   "archetype": "bird",
   "torso": "narrow",
-  "head_mount": "built_in",
-  "head_shape": "box",
-  "shoulders": "flush",
-  "note": "tiny torso, stub arms, long thin bird legs",
+  "head_mount": "front",
+  "head_shape": "wedge",
+  "shoulders": "boom",
+  "note": "whole model: small wedge torso slung forward, wing-like shoulder plates swept up at the sides, thin gun arms, two antennas, thin chicken legs with big claw feet",
   "new": [],
-  "confidence": "med",
+  "confidence": "high",
   "plan": "wedge",
-  "profile": "lean"
+  "profile": "lean",
+  "source": "3D model study 2026-11-03"
  },
  "commando": {
   "archetype": "bird",
@@ -87,13 +89,14 @@
   "head_mount": "front",
   "head_shape": "wedge",
   "shoulders": "flush",
-  "note": "wedge head forward, pod arms, strong forward lean",
+  "note": "whole model: chicken legs, torso slung forward as a long wedge, cockpit beak at the front, tall box pods on the outer sides, two long antennas, small arms tucked under",
   "new": [
    "forward wedge head"
   ],
-  "confidence": "med",
+  "confidence": "high",
   "plan": "wedge",
-  "profile": "sloped"
+  "profile": "lean",
+  "source": "3D model study 2026-11-03"
  },
  "panther": {
   "archetype": "humanoid",
@@ -199,17 +202,18 @@
  },
  "hunchback": {
   "archetype": "humanoid",
-  "torso": "narrow",
+  "torso": "box",
   "head_mount": "built_in",
   "head_shape": "box",
   "shoulders": "flush",
-  "note": "slim front, large hump on one shoulder; arms low",
+  "note": "part kit: tall deep box torso with a big hump on top carrying the gun, head low inside the hump; forearm slab ending in a fist of finger plates; low wedge feet",
   "new": [
    "shoulder hump"
   ],
   "confidence": "med",
   "plan": "block",
-  "profile": "hunch"
+  "profile": "hunch",
+  "source": "3D model study 2026-11-03"
  },
  "trebuchet": {
   "archetype": "bird",
@@ -275,18 +279,19 @@
  },
  "catapult": {
   "archetype": "bird",
-  "torso": "box",
+  "torso": "ovoid",
   "head_mount": "built_in",
-  "head_shape": "box",
-  "shoulders": "boom",
-  "note": "missile boxes above the shoulders",
+  "head_shape": "dome",
+  "shoulders": "flush",
+  "note": "whole model: ovoid body with tall box missile pods rising like ears on both sides (cell grids face front), tiny dome head, small arms, long-striding chicken legs",
   "new": [
    "shoulder boxes (racks)"
   ],
-  "confidence": "med",
+  "confidence": "high",
   "plan": "flare",
   "profile": "upright",
-  "hips": "flare"
+  "hips": "flare",
+  "source": "3D model study 2026-11-03"
  },
  "jagermech": {
   "archetype": "humanoid",
@@ -340,27 +345,29 @@
   "archetype": "bird",
   "torso": "slab",
   "head_mount": "front",
-  "head_shape": "visor",
+  "head_shape": "wedge",
   "shoulders": "flush",
-  "note": "head forward, leaning side profile, pod arms",
+  "note": "part kit: long low arrowhead hull torso (narrow nose, wide rear tabs), boxy waist block with a big round hub, two long forward toes on a flat foot",
   "new": [
    "forward-hung torso"
   ],
-  "confidence": "low",
+  "confidence": "med",
   "plan": "wedge",
-  "profile": "sloped"
+  "profile": "sloped",
+  "source": "3D model study 2026-11-03"
  },
  "orion": {
   "archetype": "humanoid",
-  "torso": "slab",
-  "head_mount": "top",
+  "torso": "box",
+  "head_mount": "built_in",
   "head_shape": "box",
-  "shoulders": "flush",
-  "note": "broad, hands",
+  "shoulders": "boom",
+  "note": "whole model: broad faceted chest with vent grille, head sunk between big rounded shoulders, thick arms with a big cannon on one, straight legs with big knee blocks",
   "new": [],
-  "confidence": "low",
+  "confidence": "high",
   "plan": "flare",
-  "profile": "upright"
+  "profile": "upright",
+  "source": "3D model study 2026-11-03"
  },
  "awesome": {
   "archetype": "humanoid",
@@ -376,17 +383,18 @@
  },
  "stalker": {
   "archetype": "bird",
-  "torso": "slab",
+  "torso": "canopy",
   "head_mount": "built_in",
-  "head_shape": "box",
+  "head_shape": "dome",
   "shoulders": "flush",
-  "note": "squat and wide, short legs, low torso, small arms",
+  "note": "whole model: long snout-nosed body (cockpit cone), big box missile bays flanking the rear with cell grids, antenna, chunky chicken legs, wide flat feet, small arms",
   "new": [
    "squat wide body"
   ],
-  "confidence": "med",
+  "confidence": "high",
   "plan": "block",
-  "profile": "sloped"
+  "profile": "upright",
+  "source": "3D model study 2026-11-03"
  },
  "atlas": {
   "archetype": "humanoid",

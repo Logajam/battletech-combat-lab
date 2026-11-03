@@ -379,6 +379,77 @@ needs no GUI change.
   - **Next:** more kits in the same style (Catapult, Hunchback, Atlas...) would let the block
     library be checked on other chassis; a whole assembled model would give proportions.
 
+- **Reference study: MWO Atlas parts kit (Daniel, 2026-11-03). REVIEW PENDING (higher-level model).**
+  Second kit from the same fan author (28 STL parts, about 140 mm tall, files kept out of the repo).
+  Same caveats as the Timber Wolf kit: a print-in-place articulated toy (ball pins, slots and gaps
+  are print features), parts have no assembly positions. Read from renders; words and rough ratios only.
+  - **Contrast with the Timber Wolf:** the Wolf is smooth and curved (teardrop body, cylinders);
+    the Atlas is ANGULAR and plated: every surface a stack of flat armor plates with chamfered edges,
+    visible bolt heads, louvre vents and diagonal seam lines. Same chamfer rule, different surface
+    language. Suggests a per-chassis `surface` option (smooth / plated).
+  - **Torso (3 options, same body).** A broad block (about 62 wide x 46 deep x 50 tall) with
+    shoulder plates that flare up and outward at the top corners, louvre grilles across the lower
+    front, bolt heads at the corners. The HEAD is a large faceted dome with a face mask (brow and eye
+    slits, the "death's head" look) seated in a notch at the top front, standing proud of the torso
+    in plan and rising above the deck. On one side a round socket disc takes the AC20 mount; the
+    options add a 6-cell missile box on the chest-shoulder.
+  - **Pelvis.** A wide flat OVAL plate on top (chamfered rim, flat top), a short skirt below, and a
+    narrow hanging apron down the front centre: from the front it reads as a T or anvil (wide flange,
+    narrow hanging centre). Big round hip sockets face outward on the sides.
+  - **Legs (humanoid, not digitigrade).** Upper leg a tall chamfered box with a diagonal slash
+    line and a ball at the hip; the knee a clamshell block with a fork; the lower leg a tall slab
+    with vent slits and a narrow spur at the back; the foot LOW (about 14 mm tall against 42 long):
+    a flat sole with a sloped heel, a big cylindrical ankle drum on top, chamfered wedge toes.
+  - **Arms.** The shoulder is a big faceted dome (like a helmet, hexagonal facets) with a rim flange
+    below it, wider than the upper arm; the upper arm a plain chamfered box; the lower arm a long
+    slab ending in a fist of stacked finger plates; add-ons are small gun stubs (a block with a
+    muzzle face and tiny port dots).
+  - **Weapons.** AC20: a boxy receiver with a raised top rail and cooling holes, an underside
+    stub, and a long round barrel; variants change the muzzle only (plain, ringed, a multi-ring brake).
+    SRM-6: a chamfered box with six round tube mouths (2 x 3) on the face, a small mount stub under it.
+  - **Candidate blocks (not built):** `skull_head` (faceted dome with a mask, in a front notch),
+    `dome_pauldron` (faceted dome with a rim flange), `oval_pelvis` with an apron, `fist_hand`,
+    `ac_receiver` (box with rail and holes, long barrel, muzzle options), `srm_box` (box with a tube
+    grid), `louvre` and `bolt` surface details, and a `surface` option (smooth / plated).
+
+- **Reference study round 3: whole-model and part kits (Daniel, 2026-11-03). REVIEW PENDING (higher-level model).**
+  Eight more uploads, files kept out of the repo (session scratch only): MWO-style part kits for the
+  Marauder and Hunchback (same print-articulated style as the Timber Wolf and Atlas kits), and six
+  single-file WHOLE miniatures by another author (Jenner JR7-F, Orion ON1-V, Locust LCT-1V, Flea
+  FLE-4, Stalker STK-3F, Catapult CPLT-C1): the first sources with real whole-mech proportions.
+  Read from renders in four or five views; words and rough ratios only. Caveat: they are posed
+  miniatures (crouched, arms out), so bounding boxes include the pose.
+  - **Bounding ratios, width : depth : height, as posed (rough):** Jenner 0.66 : 0.71 : 1,
+    Locust 0.64 : 0.70 : 1, Flea 0.70 : 0.90 : 1, Stalker 0.59 : 0.66 : 1, Catapult 0.66 : 0.72 : 1,
+    Orion 0.84 : 0.60 : 1 (arms out). Light and medium units are about two thirds as wide as tall,
+    the Flea nearly as deep as tall (a horizontal body); torso is roughly the top 40 percent of
+    the height on every unit, legs the lower 55.
+  - **Shape language per chassis (now in `data/token_reference_tags.json`, confidence high for
+    the whole models):**
+    - *Jenner:* chicken legs; a long wedge torso slung forward; a cockpit beak at the front; tall
+      box pods on the outer sides; two long antennas; small arms tucked under.
+    - *Locust:* small wedge torso slung forward; wing-like shoulder plates swept up at the sides;
+      thin gun arms; two antennas; thin chicken legs with big claw feet.
+    - *Flea:* a flat, wide slab torso almost horizontal on thin legs; gun pods forward under the
+      front edge; deep knee bend.
+    - *Orion:* a broad faceted chest with a vent grille; the head sunk between big rounded
+      shoulders; thick arms, a big cannon on one; straight legs with big knee blocks.
+    - *Stalker:* a long snout-nosed body (a cockpit cone) with big box missile bays flanking the
+      rear (cell grids on the face), an antenna, chunky chicken legs, wide flat feet, small arms.
+      This is the same shape as the Timber Wolf's canopy torso, so Stalker now uses `canopy`.
+    - *Catapult:* an ovoid body with tall box missile pods rising like ears on both sides (cell
+      grids face front), a tiny dome head, small arms, long-striding chicken legs.
+    - *Hunchback (part kit):* a tall deep box torso with a big hump on top carrying the gun, the
+      head low inside the hump; forearm slab ending in a fist of finger plates; low wedge feet.
+    - *Marauder (part kit):* a long low arrowhead hull torso (narrow nose, wide rear tabs), a boxy
+      waist block with a big round hub, a flat foot with two long forward toes.
+  - **Generator changes:** the reference tags above (plan, profile, torso, head, hips) replaced the
+    earlier guesses for these eight; `torso: canopy` now also applies to the Stalker.
+  - **Still not built:** a taller whole-mech check (compare drawn proportions against these
+    ratios), a `ears` torso (Catapult) and `snout` variants, stacked-slab shins, three-toe claw feet,
+    and the shading step. Chicken legs and forward-slung wedge torsos recur on the light chassis, so
+    they are the next most useful shapes.
+
 ---
 
 # PART B - Combat Lab GUI: functional specification (to implement)

@@ -23,6 +23,8 @@ import INTEGRATION__weapon_selection as ws  # noqa: E402
 
 try:
     import fastcore  # noqa: E402
+    if not hasattr(fastcore, "best_subset"):             # the fastcore/ folder as an empty package = not built
+        fastcore = None
 except ImportError:
     fastcore = None
 
