@@ -529,7 +529,18 @@ needs no GUI change.
     eye in the viewer on about 30 units: silhouettes now differ (long barrels, ball fists, swept horns, spar,
     tent antenna, dome torsos, pillar legs, the King Crab's low wedge). Not built: oval disc plan, crouched
     stance, triple hump, V chest, reverse-bent lower leg, heel thrusters, asymmetry, a second antenna.
-  - **Next art steps (not built):** chicken legs with a high hock; the forward-slung wedge torso;
+  - **Details and options added (2026-11-03, session 16, continued).** Chicken legs rebuilt (high hock,
+    claw toes: every bird-archetype chassis changes); option `surface` (plated / smooth: vents, bolts,
+    panel lines on the torso, armor bands on humanoid legs; plated by default from 60 t, otherwise by
+    the name hash); plan `oval` (Atlas); kit `humps` (Kintaro); legs `reverse` (Shadow Hawk, Highlander,
+    with a heel); `feet: thrusters` (Quickdraw); `asym` (one arm 1.32x, the other 0.80x: Vindicator,
+    Dragon); `antennas` count 0-3 (the single head mast is replaced by masts on the torso top);
+    `crouch` (legs 16 percent shorter, knees pushed forward: Crab, King Crab; the torso does not pitch yet).
+    Bug caught: a limb segment's cap is a cube sized by its radius, so a short fat "band" came out as a
+    big block; bands are now thin boxes. Still not built: the Linesman's V chest (no unit file), pitching
+    the torso in a crouch, second and third antennas of different heights per chassis, panel lines on the
+    legs and arms, a camo / team-color option.
+  - **Next art steps (not built):** chicken legs (done above); stacked-slab shins with a high hock; the forward-slung wedge torso;
     the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
     pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits
     cover Atlas, Marauder, Hunchback in detail); a `surface` option (smooth / plated).

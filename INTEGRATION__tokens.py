@@ -181,7 +181,7 @@ def mount_style(zone, cls, big, n_zone, classes_in_zone, hands, archetype, torso
 
 
 FEATURE_KEYS = ("archetype", "torso", "panels", "head_mount", "head_shape", "shoulders", "antenna", "arms_flex", "tilt", "arms_up",
-                "plan", "profile", "hips", "legs", "arm_style", "kit")
+                "plan", "profile", "hips", "legs", "arm_style", "kit", "feet", "asym", "antennas", "surface", "crouch")
 
 
 def armor_thinness(unit, tons):
@@ -236,6 +236,8 @@ def build_model(unit, overrides=None, hash_only=False):
         "profile": ("upright", "sloped", "lean", "wedge_up", "bell", "shoulder", "prow", "dome", "stepped", "sloped", "prow", "hunch")[hc[9] % 12],   # seen from the side
         "hips": "flare" if hc[10] % 4 == 0 else "plain",
         "legs": "", "arm_style": "", "kit": "",      # dictionary terms (data/token_dictionary.json), set by reference tags only
+        "feet": "", "asym": "", "antennas": 0, "crouch": False, "vents": 3 + hc[12] % 3,
+        "surface": "plated" if (tons >= 60 or hc[11] % 2 == 0) else "smooth",   # panel lines, vents and bolts on the torso
         "torso": ("box", "ovoid", "narrow", "slab")[hc[1] % 4],
         "panels": ("flush", "wings", "stepped")[hc[5] % 3],
         "head_mount": ("built_in", "front", "top", "full")[hc[2] % 4],
@@ -430,14 +432,14 @@ class B3:
     def ball(self, c, r, tone, vis=None, tag="b"):
         self.seg([c, c], [r, r], tone, vis, tag)
 
-    def extrude(self, cx, z0, w, d, h, prof, tone, wtop=1.0, fw=1.0, vis=None, tag="b", cls=None, cy=0.0):
+    def extrude(self, cx, z0, w, d, h, prof, tone, wtop=1.0, fw=1.0, vis=None, tag="b", cls=None, cy=0.0, bulge=0.0):
         """A solid whose SIDE view is `prof` (PROFILES): the polygon extruded across width w. wtop = the
         width at the top against the belly; fw = the width at the front against the rear (the plan)."""
         f = self.f
         pts = []
         for u, v in prof:
             hx = w / 2 * (1 - (1 - wtop) * v)
-            plan_k = 1 + (fw - 1) * (u + 1) / 2                    # the plan scales the whole torso about its centre line,
+            plan_k = (1 + (fw - 1) * (u + 1) / 2) * (1 - bulge * u * u)   # the plan scales the whole torso about its centre line,
             for sx in (-1, 1):                                     # so the three sections stay joined
                 pts.append(((cx + sx * hx) * plan_k * f, (cy + u * d / 2) * f, z0 + v * h))
         self.parts.append({"groups": [[(p, 0.0) for p in pts]], "cls": cls or TONE[tone], "vis": vis, "tag": tag,
@@ -560,6 +562,9 @@ def _build(model, f, k):
     def front_y(v):                                                # the torso's front face at height v (0..1), for mounting things on it
         return profile_span(prof, v)[1] * td / 2
     quad = model["quad"]
+    if model.get("crouch"):
+        lh *= 0.84                                                 # a crouched stance: legs shorter, knees pushed forward
+    kc = 0.04 if model.get("crouch") else 0.0
     stance = (0.05, -0.05)                                     # mid-step: left foot forward, right back
 
     # ---- hips and legs: the legs join the hips from the SIDE
@@ -576,6 +581,9 @@ def _build(model, f, k):
 
     def foot(x, y, z0, big=1.0):
         b.box((x, y + 0.035, z0 + 0.016), (lr * 2.3 * big, 0.12 * big, 0.032), "4")
+        if model.get("feet") == "thrusters":                       # heel thrusters (jump jets on the feet)
+            b.box((x, y - 0.035, z0 + 0.04), (lr * 1.4, 0.035, 0.05), "3", ch=0.006)
+            b.box((x, y - 0.058, z0 + 0.04), (lr * 1.0, 0.012, 0.035), "4", cls="hl")
 
     if model["tripod"]:
         feet = ((-0.24, 0.20), (0.24, 0.20), (0.0, -0.30))
@@ -600,12 +608,22 @@ def _build(model, f, k):
         for fx, st in ((-1, stance[0]), (1, stance[1])):             # figure's left is -x
             x = fx * hx
             lr = A['lr'] * slim('Left Leg' if fx < 0 else 'Right Leg')
-            if arche == "bird":                                      # digitigrade: hock back, long foot
-                pts = [(x, 0, lh), (x + fx * 0.012, -0.075 + st * 0.3, lh * 0.55), (x, 0.045 + st, lh * 0.17), (x, 0.11 + st, 0.02)]
-                b.seg(pts, [lr * 1.5, lr * 1.1, lr * 0.75, lr * 0.5], "2")
-                b.ball(pts[1], lr * 1.15, "2")
-                b.seg([(pts[1][0] - 0.016, pts[1][1], pts[1][2]), (pts[1][0] + 0.016, pts[1][1], pts[1][2])], [lr * 1.45] * 2, "3")   # knee disc cover
-                b.box((x, 0.06 + st, 0.02), (lr * 2.0, 0.17, 0.035), "4")
+            if arche == "bird":
+                # CHICKEN LEG (chart + kits, 2026-11-03): thigh angled forward-down to the knee, shin angled
+                # back-down to a HIGH hock, then the long foot forward-down to a claw of three toes
+                hip, knee = (x, 0.0, lh), (x + fx * 0.010, 0.07 + st * 0.3 + kc, lh * 0.60)
+                hock, ank = (x + fx * 0.006, -0.055 + st * 0.3, lh * 0.27), (x, 0.045 + st, 0.045)
+                b.seg([hip, knee], [lr * 1.55, lr * 1.25], "2")
+                b.seg([knee, hock], [lr * 1.25, lr * 0.95], "2")
+                b.seg([hock, ank], [lr * 0.85, lr * 0.62], "2")
+                b.ball(knee, lr * 1.2, "2")
+                b.seg([(knee[0] - 0.016, knee[1], knee[2]), (knee[0] + 0.016, knee[1], knee[2])], [lr * 1.45] * 2, "3")           # knee disc cover
+                b.box((hock[0], hock[1] - 0.012, hock[2]), (lr * 2.0, lr * 1.8, lr * 2.0), "3", ch=0.008)                          # hock block
+                for tdx, tlen in ((-lr * 0.9, 0.11), (lr * 0.9, 0.11), (0.0, -0.07)):                                              # claw toes: two forward, one back
+                    b.box((x + tdx, ank[1] + tlen * 0.5, 0.02), (lr * 0.8, abs(tlen), 0.03), "4", ch=0.006)
+                b.box((x, ank[1] - 0.005, 0.03), (lr * 1.6, 0.05, 0.05), "4", ch=0.008)
+                if model.get("feet") == "thrusters":
+                    b.box((x, ank[1] - 0.04, 0.05), (lr * 1.0, 0.03, 0.05), "3")
             elif arche == "martian":                                 # long legs, knees splayed out
                 pts = [(x, 0, lh), (x + fx * 0.09, 0.03 + st * 0.4, lh * 0.55), (x + fx * 0.12, st, 0.05)]
                 b.seg(pts, [lr * 1.4, lr, lr * 0.8], "2")
@@ -617,6 +635,12 @@ def _build(model, f, k):
                 b.ball(pts[1], lr * 1.95, "2")
                 b.seg([(pts[1][0] - 0.02, pts[1][1], pts[1][2]), (pts[1][0] + 0.02, pts[1][1], pts[1][2])], [lr * 2.0] * 2, "3")
                 foot(x * 1.08, st * 0.5 - 0.04, 0.0, big=1.5)
+            elif model.get("legs") == "reverse":                     # lower leg angled back, with a big heel
+                pts = [(x, 0, lh), (x + fx * 0.006, 0.05 + st * 0.5 + kc, lh * 0.5), (x, -0.025 + st * 0.5, 0.06)]
+                b.seg(pts, [lr * 1.5, lr * 1.25, lr * 1.0], "2")
+                b.ball(pts[1], lr * 1.25, "2")
+                b.box((x, pts[2][1] - 0.05, 0.035), (lr * 2.0, 0.07, 0.06), "3", ch=0.008)       # the heel
+                foot(x, pts[2][1] - 0.01, 0.0)
             elif model.get("legs") == "barrel":                      # a fat barrel-shaped shin under a normal thigh
                 pts = [(x, 0, lh), (x + fx * 0.006, 0.045 + st * 0.5, lh * 0.5), (x, st, 0.05)]
                 b.seg(pts[:2], [lr * 1.5, lr * 1.2], "2")
@@ -629,8 +653,13 @@ def _build(model, f, k):
                 b.ball(pts[1], lr * 1.4, "2")
                 foot(x, st - 0.04, 0.0, big=1.2)
             else:                                                    # humanoid: knee forward
-                pts = [(x, 0, lh), (x + fx * 0.006, 0.045 + st * 0.5, lh * 0.5), (x, st, 0.05)]
+                pts = [(x, 0, lh), (x + fx * 0.006, 0.045 + st * 0.5 + kc, lh * 0.5), (x, st, 0.05)]
                 b.seg(pts, [lr * 1.5, lr * 1.2, lr * 0.95], "2")
+                for tt, ra in ((0.42, 1.55), (0.52, 1.25)):          # armor bands across thigh and shin: thin plates
+                    a0 = (pts[0][0] + (pts[1][0] - pts[0][0]) * tt, pts[0][1] + (pts[1][1] - pts[0][1]) * tt, pts[0][2] + (pts[1][2] - pts[0][2]) * tt)
+                    b.box(a0, (lr * ra * 2.15, lr * ra * 2.15, 0.012), "4", ch=0.004)
+                    a1 = (pts[1][0] + (pts[2][0] - pts[1][0]) * tt, pts[1][1] + (pts[2][1] - pts[1][1]) * tt, pts[1][2] + (pts[2][2] - pts[1][2]) * tt)
+                    b.box(a1, (lr * (ra - 0.3) * 2.15, lr * (ra - 0.3) * 2.15, 0.012), "4", ch=0.004)
                 b.ball(pts[1], lr * 1.2, "2")
                 b.seg([(pts[1][0] - 0.016, pts[1][1], pts[1][2]), (pts[1][0] + 0.016, pts[1][1], pts[1][2])], [lr * 1.5] * 2, "3")    # knee disc cover
                 foot(x, st - 0.04, 0.0)
@@ -645,8 +674,9 @@ def _build(model, f, k):
     step = 0.03 if model["panels"] == "stepped" else 0.0
     flare = 1.12 if model["panels"] == "wings" else 1.0
     # PLAN (top view): "wedge" narrows to the front, "flare" widens to it, both drawn from the back
-    fw = {"block": 1.0, "wedge": 0.70, "flare": 1.18, "arrow": 0.30}[plan]
+    fw = {"block": 1.0, "wedge": 0.70, "flare": 1.18, "arrow": 0.30, "oval": 1.0}[plan]
     pl = (fw, -td / 2, td / 2) if fw != 1.0 else None
+    bulge = 0.2 if plan == "oval" else 0.0                         # an oval disc plan: widest in the middle, narrowing at both ends
     tw_eff = tw * (1 + (fw - 1) * 0.5)                             # half-way along the depth: where the arms attach
     cw = cw * slim("Center Torso")
     bays = {}                                                      # canopy torso: side -> (x, y, z, w, d, h) of its bay
@@ -692,7 +722,7 @@ def _build(model, f, k):
             b.extrude(0, z0, cw, td, th * 0.55, PROFILES["upright"], "1", wtop=tx, fw=fw)
             b.extrude(0, z0 + th * 0.55, cw * 0.92, td * 0.62, th * 0.45, PROFILES["upright"], "1", wtop=tx, fw=fw, cy=-td * 0.2)
         else:
-            b.extrude(0, z0, cw, td, th + step, prof, "1", wtop=tx, fw=fw)
+            b.extrude(0, z0, cw, td, th + step, prof, "1", wtop=tx, fw=fw, bulge=bulge)
         for fx in (-1, 1):
             zone_t = "Left Torso" if fx < 0 else "Right Torso"
             sw_f = sw * slim(zone_t)                               # a thin side torso is narrower on that side only
@@ -701,7 +731,7 @@ def _build(model, f, k):
                 b.extrude(cxx, z0, sw_f, td * 0.96, th * 0.55, PROFILES["upright"], "2", wtop=tx * flare, fw=fw)
                 b.extrude(cxx, z0 + th * 0.55, sw_f, td * 0.55, th * 0.45, PROFILES["upright"], "2", wtop=tx * flare, fw=fw, cy=-td * 0.2)
             else:
-                b.extrude(cxx, z0, sw_f, td * 0.96, th * (1.06 if flare > 1 else 1.0), prof, "2", wtop=tx * flare, fw=fw)
+                b.extrude(cxx, z0, sw_f, td * 0.96, th * (1.06 if flare > 1 else 1.0), prof, "2", wtop=tx * flare, fw=fw, bulge=bulge)
             b.extrude(fx * cw / 2, z0 + th * 0.02, 0.006, td * 0.98, th * 0.96, prof, "1", fw=fw, vis={"front", "rear", "top"}, cls="ln")   # seam between the thirds
     ftop = 0.0
 
@@ -732,8 +762,24 @@ def _build(model, f, k):
         b.box((hoff, hy, hz), (hw_, hw_ * 0.85, hh_), "1", tx=tpx[0], ty=tpx[1], tilt=-0.2 if shape_h == "wedge" else 0)
         b.box((hoff, hy + hw_ * 0.43 + 0.002, hz), (hw_ * (0.9 if shape_h == "visor" else 0.6), 0.004, 0.022), "4", vis={"front"}, cls="hl")
         b.box((hoff, hy + hw_ * 0.3, hz), (hw_ * 0.5, hw_ * 0.5, 0.02), "4", vis={"top"}, cls="hl")
-        if model.get("antenna"):
-            b.seg([(hoff + hw_ * 0.3, hy, hz + hh_ / 2), (hoff + hw_ * 0.3, hy - 0.02, hz + hh_ / 2 + 0.08)], [0.006, 0.004], "3")
+
+    # ANTENNAS: one to three thin masts rising from the top of the torso, leaning slightly back
+    n_ant = model.get("antennas") or (1 if model.get("antenna") else 0)
+    for i in range(int(n_ant)):
+        ax = (i - (n_ant - 1) / 2) * 0.055
+        b.seg([(ax, -td * 0.10, ztop - 0.005), (ax, -td * 0.10 - 0.025, ztop + (0.13 if i % 2 == 0 else 0.17))], [0.006, 0.0035], "3")
+
+    # SURFACE DETAIL (option surface = plated / smooth): vents across the lower front, bolts at the chest
+    # corners and two panel lines along the top; thin dark or light parts laid on the real front face
+    if model.get("surface") == "plated" and not canopy:
+        nv = model.get("vents", 4)
+        for i in range(nv):
+            v = 0.14 + 0.085 * i
+            b.box((0, front_y(v) + 0.0012, z0 + th * v), (cw * 0.62, 0.004, 0.007), "1", cls="ln", ch=0.0)
+        for fxx in (-1, 1):
+            for vv in (0.88, 0.5):
+                b.box((fxx * cw * 0.40, front_y(vv) + 0.002, z0 + th * vv), (0.011, 0.005, 0.011), "4", ch=0.0)
+            b.box((fxx * cw * 0.22, -td * 0.1, ztop + 0.0012), (0.005, td * 0.62, 0.003), "1", cls="ln", ch=0.0)
 
     # SHOULDER KITS (dictionary: shoulders / details): add-ons seen on the chart silhouettes
     kit = model.get("kit", "")
@@ -752,6 +798,8 @@ def _build(model, f, k):
                 b.blob([((fx * (htop + 0.035), 0.0, zk - 0.07), (0.07, 0.075, 0.065))], "2")
             elif kit == "posts":                                      # tall slab posts at both shoulders
                 b.box((fx * (htop + 0.004), -0.02, zk + 0.05), (0.03, 0.11, 0.22), "3", ch=0.01)
+            elif kit == "humps":                                      # a hump over each shoulder, the head between them (three humps on top)
+                b.blob([((fx * htop * 0.62, -0.01, zk + 0.01), (0.06, 0.08, 0.05))], "2")
             elif kit == "pylons":                                     # two tall pylons rising behind the shoulders (jump jets)
                 b.box((fx * htop * 0.45, -td * 0.36, zk + 0.11), (0.024, 0.04, 0.23), "3", ch=0.006)
         if kit == "spar":                                             # a very wide thin bar across the shoulders, round pods at its ends
@@ -792,13 +840,14 @@ def _build(model, f, k):
         small = bool(gs) and not any(x["big"] for x in gs)
         up = model.get("arms_up")
         astyle = model.get("arm_style", "")
+        asz = 1.0 if not model.get("asym") else (1.32 if model["asym"] == name else 0.80)     # asymmetric arms: one bigger, one smaller
         if astyle == "shoulder_pod":
             kind = "pod"                                               # a gun pod on the shoulder instead of an arm (Rifleman)
         blen = 2.4 if astyle in ("long_barrel", "shoulder_pod") else 1.0   # long barrels pass the front of the body
         muz = None
         if kind == "pod" or (kind != "hand" and small and kind != "forearm"):               # upper actuator only: a turret
             n_w = max(1, sum(x["count"] for x in gs))
-            pw = 0.05 + 0.014 * min(n_w, 4)
+            pw = (0.05 + 0.014 * min(n_w, 4)) * asz
             pz = zs_ - 0.07 if not up else ztop + 0.08
             if astyle == "shoulder_pod":
                 pz = zs_ + 0.03
@@ -822,7 +871,7 @@ def _build(model, f, k):
                 el, wr = (sx + fx * 0.008, ay + 0.015, zs_ - 0.07), (sx + fx * 0.004, ay + 0.045, zs_ - 0.13)
             else:
                 el, wr = (sx + fx * 0.012, ay + 0.02, zs_ - 0.13), (sx + fx * 0.006, ay + 0.075, zs_ - 0.25)
-            w1 = (0.042 if kind == "hand" else 0.037) * sl * (0.62 if astyle == "tiny" else 1.0)
+            w1 = (0.042 if kind == "hand" else 0.037) * sl * (0.62 if astyle == "tiny" else 1.0) * asz
             b.seg([(sx, ay, zs_), el, wr], [w1 * 1.3, w1 * 1.1, w1], "2")
             b.ball(el, w1 * 1.15, "2")
             if astyle == "ball":                                           # a huge round ball fist
