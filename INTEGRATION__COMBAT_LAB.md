@@ -540,6 +540,15 @@ needs no GUI change.
     big block; bands are now thin boxes. Still not built: the Linesman's V chest (no unit file), pitching
     the torso in a crouch, second and third antennas of different heights per chassis, panel lines on the
     legs and arms, a camo / team-color option.
+  - **Crouch pitch, limb panel lines, team color, cockpit scale (2026-11-03, session 16, continued).**
+    `crouch` now pitches the whole upper body (everything built after the legs) 20 degrees forward about
+    the hips. Dark panel lines run down the front of thigh, shin and forearm. Parts of class `tm` (chest
+    stripe, shoulder plates, canopy bay tops) take a team color in the viewer (none / red / blue / green /
+    gold; the armor tints 9 percent); the `.glb` files keep the neutral plate color. **Cockpit scale
+    (Daniel: a cockpit is a fixed ~3 t, so it is a bigger share of a light 'Mech):** head and glass scale
+    with the cube root of cockpit tons over total tons (x1.36 at 20 t, 1.0 at 50 t, 0.79 at 100 t, 0.64 at
+    200 t); the weights by cockpit type come from the construction rules, which are not in the indexed
+    Core, so small 2 / torso-mounted 4 / primitive 5 are Claude's recall (flagged in code) and affect art only.
   - **Next art steps (not built):** chicken legs (done above); stacked-slab shins with a high hock; the forward-slung wedge torso;
     the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
     pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits

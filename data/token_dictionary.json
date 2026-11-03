@@ -68,7 +68,7 @@
    ]
   },
   "crouched": {
-   "status": "built (2026-11-03, session 16) - legs only, the torso does not pitch",
+   "status": "built (2026-11-03, session 16): legs 16 percent shorter, knees forward, the whole upper body pitched 20 degrees about the hips",
    "what": "whole body pitched forward over bent legs, torso low",
    "seen": [
     "King Crab",
@@ -310,6 +310,18 @@
    "seen": [
     "every chassis (plated by default from 60 t, else by the name hash)"
    ]
+  },
+  "cockpit_scale": {
+   "status": "built (2026-11-03, session 16)",
+   "what": "head and cockpit glass scale with the cube root of cockpit tons over total tons (a cockpit is a fixed ~3 t): x1.36 at 20 t, 1.0 at 50 t, 0.79 at 100 t, 0.64 at 200 t. Cockpit weights by type are Claude's recall of the construction rules (not in the indexed Core): standard 3, small 2, torso-mounted 4, command console 3, industrial 3, primitive 5"
+  },
+  "team_accents": {
+   "status": "built (2026-11-03, session 16)",
+   "what": "class tm plates (chest stripe, shoulder plates, canopy bay tops) painted in the team color by the viewer; armor tinted a little; red, blue, green, gold"
+  },
+  "limb_panel_lines": {
+   "status": "built (2026-11-03, session 16)",
+   "what": "dark panel line down the front of thigh, shin and forearm"
   }
  }
 }

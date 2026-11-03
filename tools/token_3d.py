@@ -29,6 +29,7 @@ def tags(m):
     for key, label in (("legs", "legs"), ("arm_style", "arm style"), ("kit", "shoulder kit"), ("feet", "feet"), ("asym", "bigger arm"), ("antennas", "antennas"), ("crouch", "stance")):
         if m.get(key):
             t.append((label, "crouched" if m[key] is True else str(m[key]).replace("_", " ")))
+    t.append(("cockpit", f"{m['cockpit_tons']:g} t of {m['tons']} t (head scale x{(m['cockpit_tons'] / max(10, m['tons'])) ** (1 / 3) / (3 / 50) ** (1 / 3):.2f})"))
     t.append(("weapons", ", ".join(f"{k.replace('_', ' ')} x{v}" for k, v in sorted(hp.items())) or "none"))
     return t
 

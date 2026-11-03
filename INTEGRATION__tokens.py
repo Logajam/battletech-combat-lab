@@ -154,6 +154,20 @@ def drawn_levels(tons):
     return 2 * (tons / 100.0) ** (1.0 / 3.0)
 
 
+# Cockpit weight, tons, by type: the standard cockpit is 3 t (Daniel, 2026-11-03: "usually a fixed 3 tons").
+# The other weights are the construction rules' (TechManual, NOT in the indexed Core Rulebook): Claude's
+# recall, used only to scale the drawn cockpit, never in a battle.
+COCKPIT_TONS = {"standard": 3.0, "small": 2.0, "torso-mounted": 4.0, "command console": 3.0, "industrial": 3.0, "primitive": 5.0}
+
+
+def cockpit_tons(text):
+    t = (text or "").lower()
+    for k, v in COCKPIT_TONS.items():
+        if k in t:
+            return v
+    return 3.0
+
+
 def mount_style(zone, cls, big, n_zone, classes_in_zone, hands, archetype, torso=""):
     """Pick how a weapon group is drawn from its zone, class and size.
     Daniel's style rule (2026-10-31): units with hands seldom carry over-the-shoulder
@@ -237,6 +251,7 @@ def build_model(unit, overrides=None, hash_only=False):
         "hips": "flare" if hc[10] % 4 == 0 else "plain",
         "legs": "", "arm_style": "", "kit": "",      # dictionary terms (data/token_dictionary.json), set by reference tags only
         "feet": "", "asym": "", "antennas": 0, "crouch": False, "vents": 3 + hc[12] % 3,
+        "cockpit_tons": cockpit_tons(unit.get("cockpit")),
         "surface": "plated" if (tons >= 60 or hc[11] % 2 == 0) else "smooth",   # panel lines, vents and bolts on the torso
         "torso": ("box", "ovoid", "narrow", "slab")[hc[1] % 4],
         "panels": ("flush", "wings", "stepped")[hc[5] % 3],
@@ -655,6 +670,9 @@ def _build(model, f, k):
             else:                                                    # humanoid: knee forward
                 pts = [(x, 0, lh), (x + fx * 0.006, 0.045 + st * 0.5 + kc, lh * 0.5), (x, st, 0.05)]
                 b.seg(pts, [lr * 1.5, lr * 1.2, lr * 0.95], "2")
+                for a_, b_, r_ in ((pts[0], pts[1], lr * 1.5), (pts[1], pts[2], lr * 1.15)):      # a panel line down the front of thigh and shin
+                    mid_ = ((a_[0] + b_[0]) / 2, (a_[1] + b_[1]) / 2 + r_ * 1.0, (a_[2] + b_[2]) / 2)
+                    b.box(mid_, (0.005, 0.004, abs(a_[2] - b_[2]) * 0.6), "1", cls="ln", ch=0.0)
                 for tt, ra in ((0.42, 1.55), (0.52, 1.25)):          # armor bands across thigh and shin: thin plates
                     a0 = (pts[0][0] + (pts[1][0] - pts[0][0]) * tt, pts[0][1] + (pts[1][1] - pts[0][1]) * tt, pts[0][2] + (pts[1][2] - pts[0][2]) * tt)
                     b.box(a0, (lr * ra * 2.15, lr * ra * 2.15, 0.012), "4", ch=0.004)
@@ -663,6 +681,8 @@ def _build(model, f, k):
                 b.ball(pts[1], lr * 1.2, "2")
                 b.seg([(pts[1][0] - 0.016, pts[1][1], pts[1][2]), (pts[1][0] + 0.016, pts[1][1], pts[1][2])], [lr * 1.5] * 2, "3")    # knee disc cover
                 foot(x, st - 0.04, 0.0)
+
+    n_lower = len(b.parts)                                         # every part after this is the upper body (torso, head, arms, weapons)
 
     # ---- torso: centre + two side torsos, seams between them
     z0 = hips_z + 0.035
@@ -736,19 +756,23 @@ def _build(model, f, k):
     ftop = 0.0
 
     # ---- head
+    # COCKPIT SIZE: a cockpit weighs a fixed ~3 t, so it is a bigger share of a light 'Mech than of an
+    # assault 'Mech: head and glass scale with the cube root of cockpit tons over total tons (1.0 at the
+    # reference 3 t in 50 t; 1.36 at 20 t, 0.79 at 100 t, 0.64 at 200 t)
+    hkf = max(0.55, min(1.5, (model.get("cockpit_tons", 3.0) / max(10.0, model["tons"])) ** (1 / 3) / (3.0 / 50.0) ** (1 / 3)))
     mount, shape_h = model["head_mount"], model["head_shape"]
     if shape in ("canopy", "dome"):
         mount = "built_in"                                          # the cockpit is the dome
     hoff = model["head_offset"] * tw * 0.16
     hs = slim("Head")
     if mount == "built_in" and canopy:                              # the glass sits on the dome of the nose
-        b.box((canopy["visor"][0] + hoff, canopy["visor"][1], canopy["visor"][2]), (tw * 0.18, td * 0.30, 0.03), "4", tilt=-0.12, cls="hl")
+        b.box((canopy["visor"][0] + hoff, canopy["visor"][1], canopy["visor"][2]), (tw * 0.18 * hkf, td * 0.30 * hkf, 0.03), "4", tilt=-0.12, cls="hl")
     elif mount == "built_in":
-        b.box((hoff, max(0.0, front_y(0.9)) * 0.5, ztop - 0.07), (0.09, td * 0.5, 0.035), "4", vis={"front", "side"}, cls="hl")
+        b.box((hoff, max(0.0, front_y(0.9)) * 0.5, ztop - 0.07), (0.09 * hkf, td * 0.5, 0.035), "4", vis={"front", "side"}, cls="hl")
     else:
         big = mount in ("full", "boom")
         hw_, hh_ = ((0.15, 0.115) if big else (0.105, 0.085))
-        hw_, hh_ = hw_ * hs, hh_ * hs
+        hw_, hh_ = hw_ * hs * hkf, hh_ * hs * hkf
         if mount == "boom":                                        # head in the centre torso, out front on a neck
             hz = ztop - 0.06
             hy = td / 2 + 0.12
@@ -757,7 +781,7 @@ def _build(model, f, k):
             hz, hy = ztop - 0.03, front_y(0.95) + 0.005
         else:
             hz, hy = ztop + 0.035 + hh_ / 2, ftop * 0.7 + (td * 0.18 if profile == "hunch" else 0.0)
-            b.seg([(hoff, hy, ztop - 0.01), (hoff, hy, ztop + 0.045)], [0.06, 0.05], "3")
+            b.seg([(hoff, hy, ztop - 0.01), (hoff, hy, ztop + 0.045)], [0.06 * hkf, 0.05 * hkf], "3")
         tpx = {"box": (1, 1), "dome": (0.7, 0.8), "wedge": (0.75, 0.5), "visor": (1, 1)}[shape_h]
         b.box((hoff, hy, hz), (hw_, hw_ * 0.85, hh_), "1", tx=tpx[0], ty=tpx[1], tilt=-0.2 if shape_h == "wedge" else 0)
         b.box((hoff, hy + hw_ * 0.43 + 0.002, hz), (hw_ * (0.9 if shape_h == "visor" else 0.6), 0.004, 0.022), "4", vis={"front"}, cls="hl")
@@ -780,6 +804,16 @@ def _build(model, f, k):
             for vv in (0.88, 0.5):
                 b.box((fxx * cw * 0.40, front_y(vv) + 0.002, z0 + th * vv), (0.011, 0.005, 0.011), "4", ch=0.0)
             b.box((fxx * cw * 0.22, -td * 0.1, ztop + 0.0012), (0.005, td * 0.62, 0.003), "1", cls="ln", ch=0.0)
+
+    # TEAM ACCENTS (class "tm": the viewer paints them in the team color): a chest stripe and plates on the shoulders
+    if not canopy:
+        b.box((0, front_y(0.80) + 0.0015, z0 + th * 0.80), (cw * 0.85, 0.004, 0.02), "1", cls="tm", ch=0.0)
+        for fx in (-1, 1):
+            b.box((fx * (cw / 2 + sw * slim("Left Torso" if fx < 0 else "Right Torso") / 2), -td * 0.15, ztop + 0.0012), (sw * 0.7, td * 0.4, 0.004), "1", cls="tm", ch=0.0)
+    elif shape == "canopy":
+        for fx in (-1, 1):
+            bx_, by_, bz_, bw_, bd_, bh_ = bays[fx]
+            b.box((bx_, by_ - bd_ * 0.22, bz_ + bh_ / 2 + 0.0015), (bw_ * 0.6, bd_ * 0.3, 0.004), "1", cls="tm", ch=0.0)
 
     # SHOULDER KITS (dictionary: shoulders / details): add-ons seen on the chart silhouettes
     kit = model.get("kit", "")
@@ -873,6 +907,7 @@ def _build(model, f, k):
                 el, wr = (sx + fx * 0.012, ay + 0.02, zs_ - 0.13), (sx + fx * 0.006, ay + 0.075, zs_ - 0.25)
             w1 = (0.042 if kind == "hand" else 0.037) * sl * (0.62 if astyle == "tiny" else 1.0) * asz
             b.seg([(sx, ay, zs_), el, wr], [w1 * 1.3, w1 * 1.1, w1], "2")
+            b.box(((el[0] + wr[0]) / 2 + fx * w1 * 1.0, (el[1] + wr[1]) / 2, (el[2] + wr[2]) / 2), (0.004, 0.005, abs(el[2] - wr[2]) * 0.55), "1", cls="ln", ch=0.0)   # forearm panel line
             b.ball(el, w1 * 1.15, "2")
             if astyle == "ball":                                           # a huge round ball fist
                 b.blob([((wr[0], wr[1] + 0.01, wr[2] - 0.035), (0.075, 0.075, 0.075))], "2")
@@ -957,6 +992,12 @@ def _build(model, f, k):
             else:
                 x, y, z = (-1 if "Left" in zone else 1) * (hx + 0.03), -0.04, lh * 0.8 - i * 0.06
             b.box((x, y, z), (0.04, 0.05, 0.05), "4", cls="hl")
+    if model.get("crouch"):                                        # a crouch pitches the whole upper body forward about the hips
+        psi = math.radians(20)
+        zp = z0                                                    # the hip pivot (belly of the torso)
+        cps, sps = math.cos(psi), math.sin(psi)
+        for part in b.parts[n_lower:]:
+            part["groups"] = [[((p[0], p[1] * cps + (p[2] - zp) * sps, zp - p[1] * sps + (p[2] - zp) * cps), r) for p, r in grp] for grp in part["groups"]]
     return b
 
 

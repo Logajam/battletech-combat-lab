@@ -9,7 +9,7 @@
   --accent: #c4571c; --accent-ink: #ffffff;
   --stage-top: #dfe4ec; --stage-bot: #b9c1cd; --ground: #c9d0da; --hexline: #7d8899; --edge: #151a22;
   --m-t1: #5d6877; --m-t2: #7a8596; --m-t3: #97a2b3; --m-t4: #3b4350;
-  --m-we: #d9483b; --m-wb: #dc9a2e; --m-wm: #3f7fd0; --m-hl: #c8d3e0; --m-ln: #20262f;
+  --m-we: #d9483b; --m-wb: #dc9a2e; --m-wm: #3f7fd0; --m-hl: #c8d3e0; --m-ln: #20262f; --m-tm: #aeb7c4;
   --display: "Barlow Condensed", "Arial Narrow", sans-serif; --body: "Barlow", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, monospace;
 }
@@ -18,13 +18,13 @@
   --accent: #f08a45; --accent-ink: #1a1208;
   --stage-top: #2a323e; --stage-bot: #12161c; --ground: #1d232c; --hexline: #566274; --edge: #0b0e12;
   --m-t1: #8a95a6; --m-t2: #a2adbd; --m-t3: #bcc6d4; --m-t4: #566070;
-  --m-we: #f0675a; --m-wb: #efb04c; --m-wm: #5fa0ee; --m-hl: #e6edf6; --m-ln: #0f1318; color-scheme: dark; } }
+  --m-we: #f0675a; --m-wb: #efb04c; --m-wm: #5fa0ee; --m-hl: #e6edf6; --m-ln: #0f1318; --m-tm: #c3ccd9; color-scheme: dark; } }
 :root[data-theme="dark"] {
   --bg: #11151b; --panel: #181d25; --ink: #e5e9f0; --mute: #98a3b5; --line: #2b3441;
   --accent: #f08a45; --accent-ink: #1a1208;
   --stage-top: #2a323e; --stage-bot: #12161c; --ground: #1d232c; --hexline: #566274; --edge: #0b0e12;
   --m-t1: #8a95a6; --m-t2: #a2adbd; --m-t3: #bcc6d4; --m-t4: #566070;
-  --m-we: #f0675a; --m-wb: #efb04c; --m-wm: #5fa0ee; --m-hl: #e6edf6; --m-ln: #0f1318; color-scheme: dark; }
+  --m-we: #f0675a; --m-wb: #efb04c; --m-wm: #5fa0ee; --m-hl: #e6edf6; --m-ln: #0f1318; --m-tm: #c3ccd9; color-scheme: dark; }
 * { box-sizing: border-box; }
 body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5;
   padding-block: 24px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
@@ -90,6 +90,7 @@ dd { margin: 0; overflow-wrap: anywhere; }
           <h2 id="uname"></h2>
           <div class="meta" id="umeta"></div>
           <div class="seg" id="variant"></div>
+        <div class="seg" id="team" role="group" aria-label="Team color"></div>
           <p class="note" id="unote"></p>
         </div>
         <dl id="utags"></dl>
@@ -102,10 +103,12 @@ dd { margin: 0; overflow-wrap: anywhere; }
 const UNITS = /*__DATA__*/null;
 const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const TEAMS = { none: null, red: "#d2432f", blue: "#3b7fd4", green: "#4a9d5b", gold: "#d9a62e" };
 const state = { unit: UNITS.find(u => u.id === "timber-wolf") || UNITS.find(u => u.id === "stalker") || UNITS[0], variant: "ref",
-  ortho: false, spin: !reduce, card: true, theta: 0.65, phi: 1.28, dist: 4.8 };
+  ortho: false, spin: !reduce, card: true, team: "none", theta: 0.65, phi: 1.28, dist: 4.8 };
 state.dist = 2.7 + 1.15 * state.unit.levels;
 let saved; try { saved = JSON.parse(localStorage.getItem("cl3d") || "null"); } catch (e) { saved = null; }
+try { const tm = localStorage.getItem("cl3dteam"); if (tm && TEAMS[tm] !== undefined) state.team = tm; } catch (e) {}
 if (saved && UNITS.some(u => u.id === saved.unit)) { state.unit = UNITS.find(u => u.id === saved.unit); state.variant = saved.variant === "hash" ? "hash" : "ref"; }
 function persist() { try { localStorage.setItem("cl3d", JSON.stringify({ unit: state.unit.id, variant: state.variant })); } catch (e) {} }
 
@@ -128,7 +131,13 @@ const shadowPlane = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.Sh
 shadowPlane.rotation.x = -Math.PI / 2; shadowPlane.receiveShadow = true; ground.add(shadowPlane);
 
 function palette() {
-  const p = {}; for (const c of ["t1", "t2", "t3", "t4", "we", "wb", "wm", "hl", "ln"]) p[c] = new THREE.Color(css("--m-" + c)); return p;
+  const p = {}; for (const c of ["t1", "t2", "t3", "t4", "we", "wb", "wm", "hl", "ln", "tm"]) p[c] = new THREE.Color(css("--m-" + c));
+  const tc = TEAMS[state.team];
+  if (tc) {                                               // the team color paints the accent plates and tints the armor a little
+    const t = new THREE.Color(tc); p.tm = t.clone();
+    for (const c of ["t1", "t2", "t3"]) p[c].lerp(t, 0.09);
+  }
+  return p;
 }
 function buildGround() {
   while (ground.children.length > 1) { const o = ground.children.pop(); o.geometry && o.geometry.dispose(); }
@@ -231,8 +240,14 @@ function renderInfo() {
   u.tags[state.variant].forEach(([k, v]) => { dl.append(mk("dt", { textContent: k }), mk("dd", { textContent: v })); });
   document.getElementById("badge").textContent = u.name + " · " + (state.variant === "ref" ? "reference tags" : "name hash");
 }
+function renderTeam() {
+  const el = document.getElementById("team");
+  el.replaceChildren(mk("span", { textContent: "Team", style: "font:500 12px var(--mono);color:var(--mute);align-self:center;padding-right:4px" }),
+    ...Object.keys(TEAMS).map(k => { const b = mk("button", { type: "button", textContent: k, onclick: () => { state.team = k; try { localStorage.setItem("cl3dteam", k); } catch (e) {} buildModel(); renderTeam(); } });
+      b.setAttribute("aria-pressed", state.team === k); if (TEAMS[k]) b.style.borderLeft = "4px solid " + TEAMS[k]; return b; }));
+}
 function select(u) { state.unit = u; state.dist = fitDist(u); refresh(); }
-function refresh() { persist(); buildModel(); renderInfo(); placeCamera(); }
+function refresh() { persist(); buildModel(); renderInfo(); renderTeam(); placeCamera(); }
 
 new MutationObserver(() => { buildModel(); }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => buildModel());
