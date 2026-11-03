@@ -259,6 +259,14 @@
    "seen": [
     "Rifleman"
    ]
+  },
+  "pincer_hands": {
+   "status": "built (2026-11-03, session 16) as hands: pincer",
+   "what": "two jaws with angled tips on a palm instead of a fist",
+   "seen": [
+    "King Crab",
+    "Crab"
+   ]
   }
  },
  "legs": {
@@ -373,6 +381,20 @@
   "fists_feet_heads": {
    "status": "built (2026-11-03, session 16)",
    "what": "fists with a palm, three finger plates and a thumb; feet with a heel block and two toe wedges; heads by side profile (box / wedge / visor extruded, dome a blob); shoulder caps instead of balls; jump-jet nozzles wider at the mouth with a glow"
+  },
+  "tail_fin": {
+   "status": "built (2026-11-03, session 16)",
+   "what": "a tall swept fin at the rear of the hull plus two small ones",
+   "seen": [
+    "Raven"
+   ]
+  },
+  "grille_chest": {
+   "status": "built (2026-11-03, session 16)",
+   "what": "a recessed grille panel on the chest: a frame and seven dark slats",
+   "seen": [
+    "Awesome"
+   ]
   }
  },
  "weapon_models": {

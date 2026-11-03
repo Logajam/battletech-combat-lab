@@ -137,7 +137,8 @@
   "plan": "arrow",
   "profile": "slung_wedge",
   "source": "whole model 2026-11-03 (Syllogy) and the chart",
-  "arm_style": "tiny"
+  "arm_style": "tiny",
+  "kit": "tail_fin"
  },
  "wolfhound": {
   "archetype": "humanoid",
@@ -237,7 +238,8 @@
   "profile": "lean",
   "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
   "arm_style": "claw",
-  "crouch": true
+  "crouch": true,
+  "hands": "pincer"
  },
  "hunchback": {
   "archetype": "humanoid",
@@ -460,7 +462,7 @@
   "profile": "wedge_up",
   "source": "whole model 2026-11-03 (Syllogy) and the chart",
   "legs": "pillar",
-  "kit": "fins",
+  "kit": "fins,grille",
   "antennas": 1,
   "asym": "L",
   "arm_style": "long_barrel"
@@ -514,7 +516,8 @@
   "profile": "slung_wedge",
   "source": "whole model 2026-11-03 (Syllogy) and the chart",
   "crouch": true,
-  "arm_style": "long_barrel"
+  "arm_style": "long_barrel",
+  "hands": "pincer"
  },
  "vindicator": {
   "archetype": "humanoid",
@@ -679,7 +682,8 @@
   "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
   "legs": "pillar",
   "arm_style": "ball",
-  "antennas": 2
+  "antennas": 2,
+  "hands": "ball"
  },
  "battlemaster": {
   "archetype": "humanoid",
