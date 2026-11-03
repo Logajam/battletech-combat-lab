@@ -464,6 +464,17 @@ needs no GUI change.
     "capsule doll" look. The 2D drawings are unchanged.
   - **Result:** 33 units (32 chart chassis plus the Timber Wolf), about 2.4 MB of page, a few
     thousand triangles per unit. Views are renders of one object, so top, side and front agree.
+  - **Mad Cat review (Daniel, 2026-11-03) and the fixes:** (1) side torsos and hips were rectangular
+    blocks: the canopy body is now ONE convex teardrop (`B3.blob`, a hull of ellipsoids) and the
+    pelvis a hexagonal plate with cut corners and a front apron (all non-quad units); the missile
+    bays are tapered, canted and chamfered. (2) Arms did not line up with the side torsos: the
+    shoulder socket is now on the side torso's outer surface (canopy torsos). (3) "The centre
+    torso shape includes all three sections": the teardrop spans the full torso width (two wide rear
+    lobes are the side torsos, the narrow dome nose the centre torso), with seam lines between the
+    thirds; the bays sit ON the side torsos. (4) Weapons not connected: barrels now start inside the
+    part they mount on (`embed`), flank weapons use the lobe's real front surface, chest weapons
+    poke from the nose, the visor sits on the dome. Other torsos (box, slab...) keep their old
+    mounts; the same embedding for them is not done.
   - **Next art steps (not built):** chicken legs with a high hock; the forward-slung wedge torso;
     the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
     pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits
