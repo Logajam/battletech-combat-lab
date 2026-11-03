@@ -368,10 +368,25 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
         weapons = get_weapons(mech)
     if table is None:
         table = build_expected_damage_table(mech)
+    heat_budget, min_weapon_heat = heat_limits(mech, min_heat, max_heat, dissipation, movement_heat, other_heat)
+    candidates = fire_candidates(distance, pre_tn, tn_adjust, unavailable, value_scale, weapons, table, planner)
+    # --- Phase 1: 0/1 knapsack, weight = heat, value = expected damage. ---
+    best_value, best_heat_used, picked = best_subset([ed for _, ed, _ in candidates],
+                                                     [heat for _, _, heat in candidates], heat_budget)
+    return _finish_choice(candidates, weapons, best_value, best_heat_used, picked, heat_budget, min_heat,
+                          min_weapon_heat)
+
+
+def heat_limits(mech, min_heat, max_heat, dissipation, movement_heat, other_heat):
+    """(weapon heat budget, weapon heat the min_heat floor asks for) - see HEAT BUDGET / MIN HEAT above."""
     heat_budget = max(0, max_heat + dissipation - mech.current_heat - movement_heat - other_heat)
     min_weapon_heat = min_heat + dissipation - mech.current_heat - movement_heat - other_heat
+    return heat_budget, min_weapon_heat
 
-    # Only weapons actually in range at this distance, with confirmed heat data.
+
+def fire_candidates(distance, pre_tn, tn_adjust, unavailable, value_scale, weapons, table, planner):
+    """[(weapon, value, heat)] that can fire at this distance - in range, with confirmed heat data.
+    Independent of the heat budget, so a FireTable keeps them for every movement heat."""
     candidates = []
     for w in weapons:
         if id(w) in unavailable:
@@ -395,10 +410,11 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
             tn = max(PRE_TN_MIN, min(PRE_TN_MAX, pre_tn + tn_adjust(w, range_bracket(w, distance))))
         value = row[tn] if value_scale is None else row[tn] * value_scale.get(id(w), 1.0)
         candidates.append((w, value, w.heat))
+    return candidates
 
-    # --- Phase 1: 0/1 knapsack, weight = heat, value = expected damage. ---
-    best_value, best_heat_used, picked = best_subset([ed for _, ed, _ in candidates],
-                                                     [heat for _, _, heat in candidates], heat_budget)
+
+def _finish_choice(candidates, weapons, best_value, best_heat_used, picked, heat_budget, min_heat, min_weapon_heat):
+    """Phase 1's pick (candidate indices) plus Phase 2's padding -> (weapons, expected damage, heat)."""
     selected_ids = {id(candidates[i][0]) for i in picked}
     total_heat = best_heat_used
     total_ed = best_value
@@ -422,6 +438,129 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
 
     selected_weapons = [w for w in weapons if id(w) in selected_ids]
     return selected_weapons, total_ed, total_heat
+
+
+# =============================================================================
+# ==========================  FIRE TABLES  ====================================
+# =============================================================================
+# Daniel, 2026-11-03: "Choice should be: 'For that target, what is the base TN, and what is
+# the range' After that it should just be a look up table to find the precomputed best mix
+# of weapons for that situation." Movement scoring asks the same weapon choice for every
+# spot it tries, and the spots differ mostly in their movement heat - which only changes
+# the heat budget. One knapsack solved at the largest budget holds the answer for every
+# smaller one: dp[h] (the best value using exactly heat h) is built only from levels at or
+# below h, so filtering it to h <= budget gives exactly what a knapsack solved at that
+# budget would - the same levels, values, chosen weapons, and insertion order, so the same
+# tie-break. Heat costs must not be negative for that (else: solved per budget, as before).
+class FireTable:
+    """Weapon choices by (distance, pre-TN, side): the candidates and their knapsack levels
+    at the largest budget asked so far; a query's heat only filters them."""
+
+    def __init__(self, mech, tn_adjust, unavailable, weapons, table, planner):
+        self.mech, self.tn_adjust, self.unavailable = mech, tn_adjust, unavailable
+        self.weapons, self.table, self.planner = weapons, table, planner
+        self._rows = {}            # (distance, pre_tn, side) -> [candidates, levels or None, levels' budget]
+
+    def choose(self, distance, pre_tn, side, value_scale, min_heat, max_heat, dissipation, movement_heat,
+               other_heat):
+        """select_weapons_to_fire's answer, from the table."""
+        heat_budget, min_weapon_heat = heat_limits(self.mech, min_heat, max_heat, dissipation, movement_heat,
+                                                   other_heat)
+        key = (distance, pre_tn, side)
+        row = self._rows.get(key)
+        if row is None:
+            cands = fire_candidates(distance, pre_tn, self.tn_adjust, self.unavailable, value_scale, self.weapons,
+                                    self.table, self.planner)
+            values, heats = [v for _, v, _ in cands], [h for _, _, h in cands]
+            # [candidates, values, heats, any negative heat, knapsack levels, the budget they were solved at]
+            row = self._rows[key] = [cands, values, heats, any(h < 0 for h in heats), None, -1]
+        cands = row[0]
+        if row[3]:                                                      # (no table: solve this budget)
+            best = best_subset(row[1], row[2], heat_budget)
+        else:
+            if heat_budget > row[5]:
+                # Solved at this budget; any smaller budget after it is a lookup, a larger one
+                # solves again. (Solving at the largest possible budget up front was tried -
+                # the bigger knapsacks cost more than the re-solves they saved, 2026-11-03.)
+                row[4], row[5] = knapsack_levels(row[1], row[2], heat_budget), heat_budget
+            best = best_within(row[4], heat_budget)
+        return _finish_choice(cands, self.weapons, best[0], best[1], best[2], heat_budget, min_heat,
+                              min_weapon_heat)
+
+
+# Shared across scorers (2026-11-03, Daniel: "that Cache is only refreshed if the mech takes
+# battle damage that changes its options"): every movement evaluator, Legate round and
+# future-damage estimate asking the same attacker the same question about the same target
+# shares one FireTable. The key holds everything the choice reads (fire_state below, the
+# weapons that can't fire, heat dissipation and other heat, and the caller's `share` - the
+# scorer's role: aimed or not, AMS engagements, water). Emptied at the start of every turn
+# (stealth / equipment switch then) and when a saved state is loaded; tests/test_fire_tables.py
+# runs team battles with config.FIRE_TABLE_VERIFY recomputing every shared answer.
+_SHARED_TABLES = {}
+
+
+def reset_shared_tables():
+    _SHARED_TABLES.clear()
+
+
+def fire_state(mech):
+    """What a weapon choice reads of a unit beyond its weapons list: its damage (armor,
+    structure, every slot, the rounds in each bin, hit counters - kill_curve's signature),
+    heat, prone / shut down, TAG, Narc pods, stealth, TSEMP / IMP effects, switched-off
+    heat sinks. Not its position (nothing here reads it)."""
+    import INTEGRATION__kill_curve as kill_curve
+    import INTEGRATION__equipment_systems as equip
+    import INTEGRATION__advanced_weapons as adv
+    pods = tuple((p.get("location"), p.get("owner"), p.get("effective")) for p in getattr(mech, "narc_pods", ()))
+    return (kill_curve._signature(mech), mech.current_heat, getattr(mech, "heat_fire_modifier", 0), mech.prone,
+            mech.shutdown, getattr(mech, "tag_designated", False), pods, tuple(equip.active_stealth(mech)),
+            adv.as_if_jammed(mech), adv.imp_level(mech), getattr(mech, "deactivated_heat_sinks", 0),
+            mech.min_heat, mech.max_heat)
+
+
+def shared_fire_table(share, mech, tn_adjust, unavailable, weapons, table, planner, dissipation, other_heat,
+                      weighted):
+    """The FireTable for this question, shared with every scorer that asks the same one."""
+    target = planner.target if planner is not None else None
+    key = (share, id(mech), fire_state(mech), id(target), fire_state(target) if target is not None else None,
+           unavailable, dissipation, other_heat, weighted)
+    got = _SHARED_TABLES.get(key)
+    if got is None:
+        got = _SHARED_TABLES[key] = FireTable(mech, tn_adjust, unavailable, weapons, table, planner)
+    return got
+
+
+def knapsack_levels(values, heats, heat_budget):
+    """_knapsack_levels_python, in Rust when built and switched on (config.USE_FASTCORE)."""
+    if (_fastcore is not None and INTEGRATION__config.USE_FASTCORE and len(values) <= 64
+            and all(type(h) is int for h in heats)):
+        return _fastcore.knapsack_levels(values, heats, heat_budget)
+    return _knapsack_levels_python(values, heats, heat_budget)
+
+
+def _knapsack_levels_python(values, heats, heat_budget):
+    """_best_subset_python's dp as [(heat, value, chosen indices)] in its insertion order."""
+    dp = {0: (0.0, frozenset())}
+    for i, (ed, heat_cost) in enumerate(zip(values, heats)):
+        for used_heat in sorted(list(dp.keys()), reverse=True):
+            new_heat = used_heat + heat_cost
+            if new_heat > heat_budget:
+                continue
+            new_value = dp[used_heat][0] + ed
+            existing = dp.get(new_heat)
+            if existing is None or new_value > existing[0]:
+                dp[new_heat] = (new_value, dp[used_heat][1] | {i})
+    return [(h, v, ids) for h, (v, ids) in dp.items()]
+
+
+def best_within(levels, heat_budget):
+    """(value, heat, indices): the first level, in insertion order, with the highest value
+    among those within the budget - max() over the dict a knapsack at that budget would build."""
+    best = None
+    for h, v, ids in levels:
+        if h <= heat_budget and (best is None or v > best[0]):
+            best = (v, h, ids)
+    return best
 
 
 def _other_fire_control(mech, distance, pre_tn, dissipation, other_heat, tn_adjust, unavailable, weapons, table,

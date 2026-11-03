@@ -53,6 +53,9 @@ one-pool RNG (`config.active_rng`), `tests/test_saved_state.py`, `tests/test_rng
 (i) SESSION 17 (Change Record "RUST TRIAL..."): `fastcore/src/lib.rs` (`best_subset` v
 `weapon_selection._best_subset_python` - tie order), the knapsack extraction, the `special` /
 `has_profile` caches on weapons (static? a weapon whose data changes mid-battle would keep a stale answer).
+(j) SESSION 17 (Change Record "WEAPON-CHOICE LOOKUP TABLES..."): `FireTable`, `fire_state` (is anything a
+weapon choice reads missing from it?), `shared_fire_table`'s key, the `select_weapons_to_fire` split,
+`fastcore.knapsack_levels`, `tests/test_fire_tables.py`.
 When a review is done, move its line out of this queue and note it in the
 Change Record.
 
@@ -747,6 +750,8 @@ Princess, decision by decision, the latest battery and why Gladiator loses.
    Rust tried 2026-11-03 (Change Record, `fastcore/`): exact and 3.4x per call on the weapon knapsack,
    but that is 5.7% of a battle (~1% gained); caching two weapon-kind checks in Python gained ~8%.
    Rust pays for a big piece done per call on flat data (the per-spot scoring), not small kernels.
+   Weapon-choice lookup tables (Daniel's design, 2026-11-03): ~5% on a 12 v 12 - the rows asked are
+   genuinely many (152k a 2-turn 12 v 12); building them (per-weapon pricing) is the next target.
    Watch the boundary: bots call the evaluator thousands of times a move, so
    the API should score many spots per call, not one. Supersedes item 9's
    "once the rules settle" wording. The Combat Lab state snapshot and the
@@ -1770,6 +1775,35 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-11-03 (Claude), session 17 - WEAPON-CHOICE LOOKUP TABLES (Daniel's design).** REVIEW PENDING
+  (higher-level model). Daniel: "Choice should be: 'For that target, what is the base TN, and what is
+  the range' After that it should just be a look up table to find the precomputed best mix of weapons
+  for that situation. And that Cache is only refreshed if the mech takes battle damage that changes its
+  options." Speed only: 47 of 47 checks, every reference log identical (also --round-trip), the 12 v 12
+  log hash unchanged, benchmark 501 / 495.
+  - `weapon_selection.FireTable`: per (distance, pre-TN, side) the candidates and the knapsack's levels;
+    a query's movement heat only filters them (`knapsack_levels` + `best_within` - the same answer and
+    tie-break as solving at that budget, `tests/test_fire_tables.py`). `select_weapons_to_fire` split into
+    `heat_limits` / `fire_candidates` / `_finish_choice` (unchanged behaviour). Rust `knapsack_levels`
+    in `fastcore` (default on, Daniel).
+  - Shared across scorers: `shared_fire_table`, keyed by both units' `fire_state` (damage incl. every
+    slot and bin, heat, prone / shutdown, TAG, Narc pods, stealth, TSEMP / IMP, sinks switched off) plus
+    the weapons that can't fire, dissipation, other heat and the scorer's role (aimed / unaimed / future
+    damage, AMS, water). Emptied every turn and on a saved-state load. `config.FIRE_TABLE_VERIFY` (test
+    switch) recomputes every answer fresh and keeps the tables across turns - leaving the target's state
+    out of the key fails it (tried); leaving the unit's own state out does not (the other parts changed
+    with it in those battles) - kept in anyway.
+  - Measured (12 v 12 Gladiator + Legate, 2 turns, CPU seconds, a noisy shared machine): weapon choice
+    in movement scoring ~11.5 s (28%) -> ~9 s (24%); the battle ~41 -> ~39 s (~5%). Why not more: of
+    565,648 scoring queries, 283,101 miss the scorers' own memos and need 152,829 different
+    (distance, pre-TN, side) rows - the situations really are that many (range 1-30, pre-TN, 4 sides
+    with structure weighting on, the arcs' weapon sets). Tried and dropped: solving each row at the
+    largest budget up front (bigger knapsacks cost more); tables per scorer without sharing are SLOWER
+    than before (13.5 s) - the sharing is what pays. `fire_state` costs ~84 us (1.4 s a 12 v 12 2-turn
+    run): a cheaper signature is the next small win.
+  - Lesson for the Rust port: the cost is in building ~150k candidate rows (planner, to-hit, tables per
+    weapon), i.e. the per-weapon pricing - that is the loop to move as a whole, over flat per-weapon data.
 
 - **2026-11-03 (Claude), session 17 - RUST TRIAL + WEAPON-KIND CACHES.** REVIEW PENDING (higher-level
   model). Daniel: "Move on to testing if rust will give us any extra speed" (long run: Rust or C; keep

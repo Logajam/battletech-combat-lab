@@ -177,6 +177,7 @@ def _restore_modules(battle, state):
     ids = _names_to_ids(units)
     # Pure caches: emptied, so no entry keyed by an old object's id can be hit by a new object.
     weapon_selection.reset_table_cache()
+    weapon_selection.reset_shared_tables()
     kill_curve._CACHE.clear()
     princess_fire.reset_assigned()
     legate.reset()

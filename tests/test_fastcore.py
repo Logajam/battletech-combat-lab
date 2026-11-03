@@ -55,6 +55,20 @@ def the_rust_knapsack_matches_the_python_on_random_weapon_sets():
 
 
 @check
+def the_rust_knapsack_levels_match_the_python():
+    """Every level, in order: heat, value and chosen weapons (FireTable reads them all)."""
+    rng = random.Random(1103)
+    for _ in range(20000):
+        n = rng.randint(0, 12)
+        values = [rng.choice([0.0, 0.5, 1.25, 2.5, rng.random() * 10]) for _ in range(n)]
+        heats = [rng.choice([0, 1, 2, 3, 3, 4, 8, rng.randint(0, 15)]) for _ in range(n)]
+        budget = rng.randint(0, 40)
+        want = ws._knapsack_levels_python(values, heats, budget)
+        got = fastcore.knapsack_levels(values, heats, budget)
+        assert [(h, v, set(i)) for h, v, i in want] == [(h, v, set(i)) for h, v, i in got], (values, heats, budget)
+
+
+@check
 def what_rust_does_not_take_falls_back_to_python():
     values, heats = [1.0, 2.0], [1.5, 2]                    # a non-integer heat
     assert same(ws._best_subset_rust(values, heats, 3), ws._best_subset_python(values, heats, 3))

@@ -886,6 +886,8 @@ def _play_turn(battle, turn) -> bool:
     units, terrain_map, battle_rng = battle.units, battle.terrain_map, battle.battle_rng
     result, unit_stats, team_list = battle.result, battle.unit_stats, battle.team_list
     config.log(f"\n=== TURN {turn} ===")
+    if not config.FIRE_TABLE_VERIFY:            # (the check keeps them, to test the key across turns)
+        weapon_selection.reset_shared_tables()  # stealth / equipment switch at the start of a turn
     alive = forces.standing(units)
     for m in units:
         piloting_rolls.snapshot_preexisting_damage(m)
