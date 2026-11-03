@@ -45,10 +45,26 @@ hips features, per-location armor thinning, the armor-parser fix, and the block 
 (`data/token_blocks.json`; canopy torso, pod arm, knee discs, weapon sections). Output only: no
 engine or battle result changes. Daniel's verdict 2026-11-03: better Mad Cat properties, still reads as
 cheap; held. Priorities are his call (see INTEGRATION__COMBAT_LAB.md).
+(h) SESSION 17 (Change Record "SAVED STATES..." and "RNG CLEAN-UP..."): `INTEGRATION__saved_state.py`
+(what it saves, the id remapping - units by name, destroyed components re-pointed - and what it leaves
+to rebuild), the orchestrator split (`Battle`, `_start_battle`, `play_on`, `_play_turn`, `_finish`), the
+one-pool RNG (`config.active_rng`), `tests/test_saved_state.py`, `tests/test_rng.py`,
+`check_reference_logs.py --round-trip`. Engine results unchanged (logs identical).
 When a review is done, move its line out of this queue and note it in the
 Change Record.
 
-Latest: **Sessions 14-15 - GLADIATOR IN TEAM BATTLES** (Change Record, newest first;
+Latest: **Session 17 - SAVED STATES** (Daniel, 2026-11-03: the board, the units and their state,
+and the dice, so "the engine will just continue from there"; branches keep the same dice by default,
+fresh dice a switch). Built: `INTEGRATION__saved_state.py` - a save at the end of any turn
+(`config.SAVE_STATE_TURNS`), a file of JSON (a readable header + the exact state packed), play on with
+`python INTEGRATION__saved_state.py <file> [--turns N] [--fresh-dice SEED]`. The check: every reference
+battle saved, reloaded and played on from the reload after EVERY turn matches byte for byte
+(`check_reference_logs.py --round-trip`), and so do team battles with Legate and Princess
+(`tests/test_saved_state.py`). It found one real trap: destroyed equipment was recorded by memory
+address, so a reload revived it - the save now re-points those records. Before it, the RNG clean-up:
+one pool of dice per battle (`tests/test_rng.py`). Next: Pick up here 16.
+
+Before that: **Sessions 14-15 - GLADIATOR IN TEAM BATTLES** (Change Record, newest first;
 `INTEGRATION__BOTS.md` sums up how both bots decide and every battery since). Session 14: the kill
 curve and fire director, big-guns-first firing order, Daniel's team-awareness options. Session 15:
 Daniel's five suspects measured with `tests/legate_probe.py`; the fire split now covers this turn's
@@ -736,6 +752,15 @@ Princess, decision by decision, the latest battery and why Gladiator loses.
    later, spare cycles):** get sample MegaMek `.sav` files from Daniel, check what a
    save holds and how hard the mapping is (COMBAT_LAB.md, Part A). Last in the Combat Lab order.
 
+16. **Saved states (Daniel, 2026-11-03) - BUILT at the end of a turn** (`INTEGRATION__saved_state`,
+   Change Record). Next, in order: (a) saves INSIDE a turn - after each phase and after each unit's
+   move (the "what if the Atlas moved here?" point; the turn body `orchestrator._play_turn` has to be
+   cut into resumable steps, with the turn's Initiative order, who has moved and the attack reports
+   saved too); (b) a replay that starts from a loaded state, and a branch's replay beside the
+   original's; (c) a readable engine state (today the exact part is Python pickle) - designed with the
+   engine interface for the faster-language port (item 13), since both need the same list of what a
+   battle's state is; (d) `--round-trip` in `run_checks.py` if it stays cheap (~20 s today, run by
+   hand). Design notes: the module docstring (what is saved, what is rebuilt, the id traps).
 **Housekeeping:** reference logs match the code (last regenerated
 2026-10-24, session 8: all 15 for the short-list look-ahead default; nothing
 in session 9 changed Gladiator's results). Speed history
@@ -1738,6 +1763,43 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-11-03 (Claude), session 17 - SAVED STATES (end of turn).** REVIEW PENDING (higher-level
+  model). Daniel: "load the board, units, their states and positions, and probably a count of how many
+  rnd numbers have been used, and from there the engine will just continue"; a branch keeps the same
+  dice by default, with a switch for fresh dice. Built:
+  - `orchestrator`: `run_skirmish` split into `Battle` (units, board, dice, result, stats, turns done),
+    `_start_battle`, `play_on` (turns from `battle.turn + 1`), `_play_turn` (the old turn body,
+    unchanged) and `_finish`; `after_turn(battle)` hook (may hand back a reloaded copy to play on).
+  - `INTEGRATION__saved_state.py`: `capture` / `restore`, `save` / `load`, `play_on_from`, a command
+    line. Saves the battle (units with all their state, the board as it stands, the dice - the numpy
+    generator's own state and the place in its block of rolls, not a roll count), the bots' memories
+    (Princess's team heat maps / posture, Legate's plans and team-fire cache, severed limbs, stub
+    counts) and every setting. Memories keyed by id(unit) are stored by unit name; caches are emptied
+    on load and rebuild themselves. Found by the round-trip check: `destroyed_slot_info`'s
+    `instance_id` is id(component), so a reload revived destroyed ECM / Artemis / ammo bins; the save
+    keeps each named component beside its record and re-points it on load.
+  - `config.SAVE_STATE_TURNS` / `SAVE_STATE_BATTLES` / `SAVE_STATE_DIR` / `SAVE_STATE_ROUND_TRIP`
+    (test switch); `saved_states/` git-ignored.
+  - Checks: `check_reference_logs.py --round-trip` (all 15 reference battles saved and reloaded after
+    every turn: byte-identical); `tests/test_saved_state.py` (a 2 v 2 Gladiator + Legate v Princess
+    team reloaded every turn, again with Legate's team-fire / herding / cohesion options on; a file
+    played on; same dice repeat, fresh dice branch; settings restored; bad files refused). Leaving out
+    Princess's memory or the component re-pointing makes them fail (tried); leaving out Legate's
+    team-fire cache does not (it recomputes the same values - saved anyway).
+  - Size / speed: a 12 v 12 save is 57 KB and takes under 10 ms to write or read.
+  Engine results unchanged: 45 of 45 checks, every reference log identical, benchmark 501 / 495.
+
+- **2026-11-03 (Claude), session 17 - RNG CLEAN-UP: ONE POOL OF DICE.** REVIEW PENDING (higher-level
+  model). Daniel: "Do a clean up pass" (first step of the saved states). Every roll of a battle already
+  came from its `BattleRNG`; the leftovers are gone: the orchestrator's `random.seed` (nothing drew from
+  it since the tripod fix of 2026-10-21; its comment was stale), config's fallbacks to Python's `random` /
+  numpy's global generator (now `config.active_rng()`: the battle's pool, or a private unseeded
+  `BattleRNG` for rolls outside a battle), and Pathfinder's dead `resolve_combat_roll` /
+  `_roll_weapon_damage` (their caller, combat_turn.py, was deleted long ago) with `BattleRNG.random()`.
+  New `tests/test_rng.py`: real battles (a duel; a 2v2 with Gladiator + Legate + kill curve v Princess,
+  tripods) with Python's `random` and numpy's global generator booby-trapped (shown to catch a planted
+  draw). Speed-only change: 44 of 44 checks, every reference log identical, benchmark 501 / 495.
 
 - **2026-11-03 (Claude), session 17 - ARCHER BV CONFIRMED.** Daniel pasted a BV breakdown for the
   Archer ARC-2R: 1,477 (defensive 786.6, offensive 689.92), the same as `INTEGRATION__battle_value`.

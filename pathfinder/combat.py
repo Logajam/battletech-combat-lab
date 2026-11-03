@@ -44,12 +44,9 @@ an HP-aware four-term formula (FinishBonus/SelfPreservation/DealtSeverity/
 ReceivedSeverity — see that function's docstring and
 DESIGN_NOTES_movement.md#score_formula.2026-07-23). This requires both
 profiles to carry max_hp/current_hp (validate_profiles() enforces this).
-Separately, resolve_combat_roll() is a new sibling to
-evaluate_combat_hexes() that resolves ONE fixed pair of already-chosen
-states with real dice rolls (not expected value) — this is what actually
-subtracts HP after a turn's moves are committed in
-combat_turn.run_multi_turn(); it plays no role in candidate search/
-scoring, which stays fully deterministic/expected-value-based.
+(resolve_combat_roll() - the rolled-damage sibling that the old
+combat_turn.py called - was removed 2026-11-03 with the RNG clean-up: its
+caller was long gone and it was the last draw from Python's `random`.)
 
 === CONFIRMED RULES (Daniel, 2026-07-19/2026-07-20 — do not re-derive) ===
 
@@ -122,7 +119,6 @@ stated. Flagging here rather than silently deviating from the spec.
   - Any GATOR modifier beyond Gunnery/AMM/TMM/LOS-terrain/Range.
 """
 
-import random
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
@@ -568,94 +564,6 @@ def _evaluate_state(
         damage_received=received,
         ratio=ratio,
     )
-
-
-def _roll_weapon_damage(
-    gunnery: int, amm: int, target_tmm: int, los_modifier: int, distance: int,
-    weapons: List[Dict[str, object]], rng: random.Random,
-) -> float:
-    """Same TN math as _weapon_expected_damage(), but resolves each weapon
-    with one actual RNG roll instead of summing probability*damage. Used
-    only for the real HP-subtracting shot at the end of a committed turn
-    (combat_turn.run_multi_turn()) -- NOT for candidate search/scoring,
-    which stays on the deterministic expected-value path above."""
-    total = 0.0
-    for w in weapons:
-        range_mod = range_bracket_modifier(distance, w)
-        if range_mod is None:
-            continue
-        tn = gunnery + amm + target_tmm + los_modifier + range_mod
-        if rng.random() < hit_probability(tn):
-            total += w["damage"]
-    return total
-
-
-def resolve_combat_roll(
-    attacker: Dict[str, object], attacker_hex_label: str, attacker_facing_compass: str,
-    attacker_mode: str, attacker_fc: int,
-    defender: Dict[str, object], defender_hex_label: str, defender_facing_compass: str,
-    defender_mode: str, defender_fc: int,
-    terrain_map: Dict[str, object],
-    rng: Optional[random.Random] = None,
-) -> Tuple[float, float]:
-    """
-    2026-07-23: the actual-damage counterpart to evaluate_combat_hexes().
-    Resolves ONE FIXED PAIR of already-chosen final states (no envelope
-    search) with real dice rolls in both directions -- this is what
-    combat_turn.run_multi_turn() calls once per turn, after both sides'
-    moves are committed, to determine HP loss. Mirrors _evaluate_state()'s
-    geometry/to-hit math (LOS both ways, rear arc, fc_to_tmm/MODE_TO_AMM
-    for both sides) exactly, so a rolled result and an expected-value
-    result for the same two states are computed from identical TN inputs
-    -- only hit resolution differs (roll vs. probability-weighted sum).
-
-    Returns (attacker_deals, defender_deals) -- actual damage each side
-    inflicts on the other this shot, 0.0 if no LOS / rear-arc-blocked /
-    same hex. rng defaults to the global `random` module if not given.
-    SEEDING (2026-08-04, Claude - INTEGRATION project, Section 5 RNG
-    decision): pass an INTEGRATION__rng.BattleRNG instance here for
-    reproducible batches -- it exposes .random(), satisfying this
-    function's rng.random() call with no changes needed in this file.
-    """
-    if rng is None:
-        rng = random
-
-    a_hex = parse_hex_label(attacker_hex_label)
-    d_hex = parse_hex_label(defender_hex_label)
-    if a_hex == d_hex:
-        return 0.0, 0.0
-
-    try:
-        atk_to_def = has_los(a_hex, d_hex, terrain_map)
-        def_to_atk = has_los(d_hex, a_hex, terrain_map)
-    except ValueError:
-        return 0.0, 0.0
-    if not atk_to_def.los:
-        return 0.0, 0.0
-
-    distance = hex_distance(a_hex, d_hex)
-    a_facing = compass_to_facing(attacker_facing_compass)
-    d_facing = compass_to_facing(defender_facing_compass)
-    a_amm = MODE_TO_AMM[attacker_mode]
-    d_amm = MODE_TO_AMM[defender_mode]
-    d_tmm = fc_to_tmm(defender_fc, jumped=(defender_mode == "Jump"))
-    a_tmm = fc_to_tmm(attacker_fc, jumped=(attacker_mode == "Jump"))
-
-    if in_rear_arc(a_hex, a_facing, d_hex):
-        attacker_deals = 0.0
-    else:
-        attacker_deals = _roll_weapon_damage(
-            attacker["gunnery"], a_amm, d_tmm, atk_to_def.modifier, distance, attacker["weapons"], rng
-        )
-
-    if in_rear_arc(d_hex, d_facing, a_hex):
-        defender_deals = 0.0
-    else:
-        defender_deals = _roll_weapon_damage(
-            defender["gunnery"], d_amm, a_tmm, def_to_atk.modifier, distance, defender["weapons"], rng
-        )
-
-    return attacker_deals, defender_deals
 
 
 def validate_profiles(
