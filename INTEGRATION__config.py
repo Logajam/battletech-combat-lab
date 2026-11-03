@@ -32,10 +32,8 @@ MECHSIM__config.py satisfied, now shifted onto this file.
 
 import contextlib
 import os
-import random
 import sys
 
-import numpy as np
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -688,15 +686,34 @@ CLUSTER_HITS_TABLE = {
     for roll, values in _CLUSTER_TABLE_ROWS.items()
 }
 
-_ACTIVE_RNG = None  # set by the orchestrator via set_active_rng() for a seeded, reproducible batch
+# ONE POOL OF DICE (2026-11-03, Daniel: "Do a clean up pass"): every roll of a battle - to-hit,
+# hit location, criticals, PSRs, Initiative, the home edge - comes from the battle's own
+# INTEGRATION__rng.BattleRNG, which the orchestrator hands over with set_active_rng(). Its state
+# is the whole random state of a battle, which is what a saved state stores. Nothing in the
+# engine may draw from Python's `random` module or numpy's global generator; tests/test_rng.py
+# fails a battle that does. Outside a battle (a test calling roll_2d6() by hand) the rolls come
+# from a private unseeded BattleRNG made on first use - the same code path.
+_ACTIVE_RNG = None      # the battle's BattleRNG, set by the orchestrator via set_active_rng()
+_LOOSE_RNG = None       # the unseeded pool for rolls made outside a battle
 
 
 def set_active_rng(battle_rng):
-    """Hands this module a shared INTEGRATION__rng.BattleRNG instance so
-    roll_2d6()/pick_number() draw from it instead of the bare global
-    random/numpy modules. Pass None to revert to unseeded behavior."""
+    """Hands this module the battle's INTEGRATION__rng.BattleRNG, so roll_2d6()
+    / pick_number() draw from it. None = no battle: rolls come from an
+    unseeded pool (not reproducible)."""
     global _ACTIVE_RNG
     _ACTIVE_RNG = battle_rng
+
+
+def active_rng():
+    """The pool rolls are drawn from now: the battle's, or the unseeded one."""
+    global _LOOSE_RNG
+    if _ACTIVE_RNG is not None:
+        return _ACTIVE_RNG
+    if _LOOSE_RNG is None:
+        from INTEGRATION__rng import BattleRNG
+        _LOOSE_RNG = BattleRNG(seed=None)
+    return _LOOSE_RNG
 
 
 _log_sink = None   # INTEGRATION__replay's recorder while it records a battle
@@ -740,26 +757,9 @@ def data_path(path):
     return os.path.join(DATA_DIR, path)
 
 
-_DICE_CACHE_CHUNK = 10000
-_dice_cache = None
-_dice_cache_idx = 0
-
-
 def _next_2d6():
-    """Pulls the next 2d6 sum off the bulk-generated cache (refilling
-    _DICE_CACHE_CHUNK at a time), or from _ACTIVE_RNG if set."""
-    global _dice_cache, _dice_cache_idx
-    if _ACTIVE_RNG is not None:
-        return _ACTIVE_RNG.roll_2d6()
-    if _dice_cache is None or _dice_cache_idx >= len(_dice_cache):
-        _dice_cache = (
-            np.random.randint(1, 7, size=_DICE_CACHE_CHUNK)
-            + np.random.randint(1, 7, size=_DICE_CACHE_CHUNK)
-        ).tolist()
-        _dice_cache_idx = 0
-    val = _dice_cache[_dice_cache_idx]
-    _dice_cache_idx += 1
-    return val
+    """The next 2d6 sum from the active pool (bulk-cached inside BattleRNG)."""
+    return active_rng().roll_2d6()
 
 
 def roll_2d6(prompt="Enter 2d6 roll"):
@@ -785,7 +785,7 @@ def pick_number(n, prompt="Pick a number"):
     """Manual-picking counterpart to roll_2d6() - random 1..n unless
     MANUAL_ROLLS is True (same blank/invalid fallback behavior)."""
     def _auto_pick():
-        return _ACTIVE_RNG.pick_number(n) if _ACTIVE_RNG is not None else random.randint(1, n)
+        return active_rng().pick_number(n)
 
     if not MANUAL_ROLLS:
         return _auto_pick()

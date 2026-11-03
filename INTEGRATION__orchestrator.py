@@ -84,7 +84,6 @@ import io
 import multiprocessing
 import os
 import pickle
-import random
 import sys
 import time
 from concurrent.futures import ProcessPoolExecutor
@@ -1018,12 +1017,7 @@ def _run_one_roster(sim, num_simulations, seed, max_turns, roster, terrain_map):
 
     sim_seed = battle_seed(seed, sim)
     battle_rng = BattleRNG(seed=sim_seed)
-    config.set_active_rng(battle_rng)
-    if sim_seed is not None:
-        # MECHSIM hit_location.py's tripod leg sub-roll uses Python's random
-        # module directly. Seeding it keeps same-seed runs identical (it still
-        # isn't drawn from the BattleRNG stream - noted in KNOWN_MISSING_RULES).
-        random.seed(sim_seed)
+    config.set_active_rng(battle_rng)     # every roll of the battle comes from this one pool
 
     stubs.reset_battle_stubs()
     weapon_selection.reset_table_cache()

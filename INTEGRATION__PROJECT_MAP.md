@@ -1739,6 +1739,17 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-03 (Claude), session 17 - RNG CLEAN-UP: ONE POOL OF DICE.** REVIEW PENDING (higher-level
+  model). Daniel: "Do a clean up pass" (first step of the saved states). Every roll of a battle already
+  came from its `BattleRNG`; the leftovers are gone: the orchestrator's `random.seed` (nothing drew from
+  it since the tripod fix of 2026-10-21; its comment was stale), config's fallbacks to Python's `random` /
+  numpy's global generator (now `config.active_rng()`: the battle's pool, or a private unseeded
+  `BattleRNG` for rolls outside a battle), and Pathfinder's dead `resolve_combat_roll` /
+  `_roll_weapon_damage` (their caller, combat_turn.py, was deleted long ago) with `BattleRNG.random()`.
+  New `tests/test_rng.py`: real battles (a duel; a 2v2 with Gladiator + Legate + kill curve v Princess,
+  tripods) with Python's `random` and numpy's global generator booby-trapped (shown to catch a planted
+  draw). Speed-only change: 44 of 44 checks, every reference log identical, benchmark 501 / 495.
+
 - **2026-11-03 (Claude), session 17 - ARCHER BV CONFIRMED.** Daniel pasted a BV breakdown for the
   Archer ARC-2R: 1,477 (defensive 786.6, offensive 689.92), the same as `INTEGRATION__battle_value`.
   The 2026-10-29 review's recalled 1,415 was wrong; review item (b) now holds only the Crusader

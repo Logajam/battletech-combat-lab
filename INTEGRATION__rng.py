@@ -23,11 +23,8 @@ onto two draw patterns:
     additional random numbers," i.e. this doesn't need roll_2d6()'s
     bulk-cache treatment.
 
-Also exposes random() as a plain passthrough - PATHFINDER__combat.py's
-resolve_combat_roll() already accepts an injectable `rng` param and only
-ever calls rng.random() on it (confirmed by reading that file directly,
-2026-08-04) - so a BattleRNG instance satisfies that duck-typed interface
-with zero changes needed on the Pathfinder side.
+(A random() passthrough for Pathfinder's resolve_combat_roll() was removed
+2026-11-03 with that dead function.)
 
 One seed -> one BattleRNG instance -> every roll anywhere in a batch
 (Mech_Simulator's hit/crit/PSR rolls AND Pathfinder's to-hit rolls) draws
@@ -79,12 +76,6 @@ class BattleRNG:
         if n < 1:
             raise ValueError(f"pick_number(n) needs n >= 1, got {n}")
         return int(self._gen.integers(1, n + 1))
-
-    def random(self):
-        """Plain float in [0, 1). Satisfies PATHFINDER__combat.py's
-        resolve_combat_roll()'s rng.random() call - no changes needed on
-        the Pathfinder side to accept a BattleRNG instance as its rng=."""
-        return float(self._gen.random())
 
     def __repr__(self):
         return f"<BattleRNG seed={self.seed!r}>"
