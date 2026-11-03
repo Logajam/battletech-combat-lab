@@ -515,5 +515,14 @@
    "no cabling, no visible actuators at the shoulder",
    "the viewer lighting is flat; no ambient occlusion"
   ]
+ },
+ "design_principles": {
+  "_about": "Daniel, 2026-11-03. How a 'Mech is built in this setting; the generator should follow it.",
+  "skeleton_muscle_shell": "A unit is a SKELETON driven by MYOMER muscle; weapons and armor go on top. Armor is a SHELL built around the skeleton, with some sections expanded for equipment or thicker armor. So 'blocky' is not the setting's prominent look. An arm can be an elephant's trunk: pure muscle in an exoskeleton shell (built: `arm_style: trunk`, the Mad Cat). The torsos and limbs are NOT yet built as shells over a skeleton; they are still boxes and tapered blocks.",
+  "fusion_power": "Fusion powered: no exhaust stacks unless chosen (the `stacks` back module is tag-only now).",
+  "myomer_not_hydraulics": "Myomer powered: muscle bundles (three thin parallel cables and a clamp) cross the knees and the hock; `pistons: true` draws pistons and sleeves for units where people would expect them (Daniel dislikes them: they imply hydraulics).",
+  "weapon_bulk_follows_mass": "A weapon's drawn bulk follows its mass (cube root, 0.55-1.9 around 3 t); weapon masses are Claude's recall of the construction rules (not in the indexed Core), art only.",
+  "weapon_slots": "Arm hardpoints are slots: the heaviest group in the centre slot, the next below, the third above; leave slots empty. Hand arms carry the weapon on the outside of the forearm; weapon arms get a housing sized by the gun.",
+  "colors": "Cockpit glass is blue (class ck); missiles are violet (class wm); energy red, ballistic amber."
  }
 }

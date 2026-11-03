@@ -13,7 +13,10 @@
   "plan": "block",
   "profile": "lean",
   "hips": "flare",
-  "source": "3D model study 2026-11-03"
+  "source": "3D model study 2026-11-03",
+  "bodyd": 1.3,
+  "bodyh": 0.78,
+  "legscale": 0.95
  },
  "locust": {
   "archetype": "bird",
@@ -27,7 +30,10 @@
   "plan": "wedge",
   "profile": "lean",
   "source": "3D model study 2026-11-03",
-  "antennas": 2
+  "antennas": 2,
+  "bodyh": 1.18,
+  "bodyd": 0.88,
+  "legscale": 1.12
  },
  "commando": {
   "archetype": "bird",
@@ -333,8 +339,10 @@
   "plan": "block",
   "profile": "tall_slab",
   "source": "whole model 2026-11-03 (Syllogy) and the chart",
-  "kit": "shoulder_guns,spar",
-  "antennas": 1
+  "kit": "spar",
+  "antennas": 1,
+  "arm_style": "long_barrel",
+  "armscale": 1.1
  },
  "catapult": {
   "archetype": "bird",
@@ -359,7 +367,7 @@
   "head_mount": "top",
   "head_shape": "box",
   "shoulders": "boom",
-  "note": "whole model (Syllogy JM6-S): tall slab torso, a pod on each shoulder with two very long barrels forward, ordinary arms with fists hanging, thick plated legs with round knees, two antennas and a small spar",
+  "note": "whole model (Syllogy JM6-S): tall slab torso, a pod on each shoulder with two very long barrels forward, ordinary arms with fists hanging, thick plated legs with round knees, two antennas and a small spar; weapons now come from the unit file in the arms (bigger housings for heavier guns)",
   "new": [
    "very long arm barrels"
   ],
@@ -367,8 +375,9 @@
   "plan": "block",
   "profile": "tall_slab",
   "source": "whole model 2026-11-03 (Syllogy) and the chart",
-  "kit": "shoulder_guns",
-  "antennas": 2
+  "antennas": 2,
+  "arm_style": "long_barrel",
+  "armscale": 1.15
  },
  "thunderbolt": {
   "archetype": "humanoid",
@@ -398,7 +407,8 @@
   "profile": "upright",
   "source": "whole model 2026-11-03 (Syllogy) and the chart",
   "legs": "slab",
-  "kit": "tall_launchers"
+  "kit": "tall_launchers",
+  "armscale": 0.9
  },
  "warhammer": {
   "archetype": "humanoid",
@@ -429,7 +439,9 @@
   "confidence": "med",
   "plan": "wedge",
   "profile": "slung_wedge",
-  "source": "3D model study 2026-11-03"
+  "source": "3D model study 2026-11-03",
+  "arm_style": "long_barrel",
+  "armscale": 1.1
  },
  "orion": {
   "archetype": "humanoid",
@@ -465,7 +477,8 @@
   "kit": "fins,grille",
   "antennas": 1,
   "asym": "L",
-  "arm_style": "long_barrel"
+  "arm_style": "long_barrel",
+  "girth": 0.96
  },
  "stalker": {
   "archetype": "bird",
@@ -480,7 +493,9 @@
   "confidence": "high",
   "plan": "block",
   "profile": "upright",
-  "source": "3D model study 2026-11-03"
+  "source": "3D model study 2026-11-03",
+  "bodyd": 1.38,
+  "bodyh": 0.86
  },
  "atlas": {
   "archetype": "humanoid",
@@ -629,7 +644,9 @@
    "wide shoulder flange on a narrow body"
   ],
   "confidence": "med",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "kit": "pauldrons",
+  "armscale": 0.8
  },
  "black knight": {
   "archetype": "humanoid",
@@ -645,7 +662,9 @@
   ],
   "confidence": "med",
   "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
-  "kit": "fins"
+  "kit": "fins",
+  "girth": 1.1,
+  "bodyd": 1.12
  },
  "victor": {
   "archetype": "humanoid",
@@ -663,7 +682,9 @@
   "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
   "kit": "round_blocks",
   "antennas": 1,
-  "legs": "slab"
+  "legs": "slab",
+  "girth": 1.16,
+  "bodyh": 1.04
  },
  "zeus": {
   "archetype": "humanoid",

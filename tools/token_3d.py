@@ -13,6 +13,7 @@ import INTEGRATION__tokens as T
 import INTEGRATION__token_mesh as M
 from token_sheet import find, find_chassis
 
+PREFER = {"quickdraw": "Quickdraw QKD-8X"}              # the variant shown for a chassis when the shortest name is not the one wanted (QKD-8X has Stealth armor)
 EXTRAS = [("Mad Cat (Timber Wolf) Prime", "Timber Wolf")]     # units that live in data/token_overrides.json, not in the chart tags
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -38,7 +39,7 @@ def main(root, out, glb=None):
     ref = json.load(open(os.path.join(HERE, "..", "data", "token_reference_tags.json"), encoding="utf-8"))
     units = []
     for chassis in ref:
-        p = find_chassis(root, chassis)
+        p = (find(root, PREFER[chassis]) if chassis in PREFER else None) or find_chassis(root, chassis)
         if not p:
             print("missing", chassis)
             continue
@@ -46,7 +47,7 @@ def main(root, out, glb=None):
         mr, mh = T.build_model(u, overrides=ref), T.build_model(u, hash_only=True)
         e = {"id": chassis.replace(" ", "-"), "name": mr["name"], "chassis": chassis.title(), "tons": mr["tons"],
              "levels": mr["drawn_levels"], "rules": mr["rules_levels"], "config": mr["config"],
-             "note": ref[chassis].get("note", ""), "source": ref[chassis].get("source", "chart tags"),
+             "note": ref[chassis].get("note", ""), "source": ref[chassis].get("source", "chart tags"), "stealth": bool(mr.get("stealth")),
              "confidence": ref[chassis].get("confidence", ""),
              "ref": M.unit_mesh(mr), "hash": M.unit_mesh(mh), "tags": {"ref": tags(mr), "hash": tags(mh)}}
         units.append(e)
