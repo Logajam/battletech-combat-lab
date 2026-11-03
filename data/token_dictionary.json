@@ -1,0 +1,308 @@
+{
+ "_about": "Combat Lab token DICTIONARY (words for what the MWO scale chart and the 3D kits show), 2026-11-03. 'seen' lists chassis, 'status' says whether the generator has it (built / idea). Words only: nothing is copied from art. Add terms by editing this file.",
+ "plan (top view, front = bottom of the chart's top view)": {
+  "block": {
+   "status": "built",
+   "what": "flat box from above"
+  },
+  "wedge": {
+   "status": "built",
+   "what": "wide rear narrowing to the front",
+   "seen": [
+    "Raven",
+    "Jenner",
+    "Locust",
+    "Crab",
+    "Cicada",
+    "Stalker"
+   ]
+  },
+  "flare": {
+   "status": "built",
+   "what": "widens toward the front"
+  },
+  "arrow": {
+   "status": "idea",
+   "what": "very long, pointed nose (nose half the length) with rear corner tabs",
+   "seen": [
+    "Raven",
+    "Jenner",
+    "Crab",
+    "Stalker",
+    "Catapult"
+   ]
+  },
+  "oval_disc": {
+   "status": "idea",
+   "what": "wide flat oval with a thin rim flange",
+   "seen": [
+    "Atlas"
+   ]
+  },
+  "arms_forward": {
+   "status": "idea",
+   "what": "arm barrels or arms projecting well forward of the body, seen as long bars at both sides",
+   "seen": [
+    "Blackjack",
+    "Rifleman",
+    "JagerMech",
+    "Warhammer",
+    "Griffin",
+    "Wolfhound",
+    "Linesman"
+   ]
+  }
+ },
+ "profile (side view)": {
+  "upright / sloped / lean / wedge_up / bell / shoulder / prow / dome / stepped / hunch": {
+   "status": "built"
+  },
+  "slung_wedge": {
+   "status": "idea",
+   "what": "long low wedge slung forward, nose level or rising",
+   "seen": [
+    "Raven",
+    "Stalker",
+    "Marauder",
+    "King Crab"
+   ]
+  },
+  "crouched": {
+   "status": "idea",
+   "what": "whole body pitched forward over bent legs, torso low",
+   "seen": [
+    "King Crab",
+    "Crab"
+   ]
+  },
+  "tall_slab": {
+   "status": "idea",
+   "what": "narrow tall vertical slab torso",
+   "seen": [
+    "JagerMech",
+    "Grasshopper",
+    "Rifleman"
+   ]
+  }
+ },
+ "torso": {
+  "box / ovoid / narrow / slab / canopy": {
+   "status": "built"
+  },
+  "triple_hump": {
+   "status": "idea",
+   "what": "three humps along the top (head plus two shoulder boxes)",
+   "seen": [
+    "Kintaro"
+   ]
+  },
+  "round_dome": {
+   "status": "idea",
+   "what": "torso and head one round dome",
+   "seen": [
+    "Vindicator",
+    "Cataphract",
+    "Wolverine",
+    "Urbanmech",
+    "Archer"
+   ]
+  },
+  "v_chest": {
+   "status": "idea",
+   "what": "V-shaped chest between tall shoulder posts",
+   "seen": [
+    "Linesman"
+   ]
+  }
+ },
+ "shoulders": {
+  "flush / boom": {
+   "status": "built"
+  },
+  "wing_spar": {
+   "status": "idea",
+   "what": "a very wide thin bar across the shoulders, round pods at its ends",
+   "seen": [
+    "Spider"
+   ]
+  },
+  "ears": {
+   "status": "idea",
+   "what": "tall box missile pods rising above the shoulders",
+   "seen": [
+    "Catapult",
+    "Archer",
+    "Trebuchet"
+   ]
+  },
+  "fins_swept": {
+   "status": "idea",
+   "what": "fins or horns swept outward and up from the shoulders",
+   "seen": [
+    "Awesome",
+    "Black Knight",
+    "Cicada"
+   ]
+  },
+  "vertical_posts": {
+   "status": "idea",
+   "what": "tall slab posts at both shoulders",
+   "seen": [
+    "Linesman"
+   ]
+  },
+  "corner_pods": {
+   "status": "idea",
+   "what": "box pods at the upper outer corners of the torso",
+   "seen": [
+    "Firestarter",
+    "Jenner",
+    "Enforcer",
+    "Centurion"
+   ]
+  },
+  "round_arm_blocks": {
+   "status": "idea",
+   "what": "big rounded blocks where the arms start",
+   "seen": [
+    "Victor",
+    "Zeus",
+    "Urbanmech"
+   ]
+  }
+ },
+ "arms": {
+  "hand / forearm / pod": {
+   "status": "built"
+  },
+  "long_barrel_arms": {
+   "status": "idea",
+   "what": "each arm one or two very long barrels pointing straight forward",
+   "seen": [
+    "Blackjack",
+    "JagerMech",
+    "Warhammer",
+    "Griffin",
+    "Wolfhound"
+   ]
+  },
+  "ball_fists": {
+   "status": "idea",
+   "what": "huge round ball hands hanging at the sides",
+   "seen": [
+    "Zeus"
+   ]
+  },
+  "claw_arms": {
+   "status": "idea",
+   "what": "arms bowed outward and down like crab claws",
+   "seen": [
+    "Crab"
+   ]
+  },
+  "a_frame_arms": {
+   "status": "idea",
+   "what": "arms angled outward and down from the shoulder in an A-frame",
+   "seen": [
+    "Hunchback"
+   ]
+  },
+  "tiny_arms": {
+   "status": "idea",
+   "what": "small arms under big shoulder boxes",
+   "seen": [
+    "Archer",
+    "Stalker",
+    "Catapult"
+   ]
+  },
+  "shoulder_gun_pods": {
+   "status": "idea",
+   "what": "twin-barrel pods at the shoulders sticking far forward (instead of arms)",
+   "seen": [
+    "Rifleman"
+   ]
+  }
+ },
+ "legs": {
+  "chicken (bird)": {
+   "status": "built (basic)",
+   "what": "high hock, shin back, long foot"
+  },
+  "pillar": {
+   "status": "idea",
+   "what": "thick straight columns with little knee bend and block feet",
+   "seen": [
+    "Atlas",
+    "Banshee",
+    "Highlander",
+    "Zeus",
+    "Awesome",
+    "Orion"
+   ]
+  },
+  "barrel_shin": {
+   "status": "idea",
+   "what": "shin shaped like a fat barrel",
+   "seen": [
+    "Archer"
+   ]
+  },
+  "reverse_lower_leg": {
+   "status": "idea",
+   "what": "lower leg angled back with a big heel in side view",
+   "seen": [
+    "Highlander",
+    "Shadow Hawk"
+   ]
+  },
+  "heavy_thigh": {
+   "status": "idea",
+   "what": "very thick thighs, short shins",
+   "seen": [
+    "Cataphract"
+   ]
+  },
+  "heel_thrusters": {
+   "status": "idea",
+   "what": "thrusters on the heel",
+   "seen": [
+    "Quickdraw"
+   ]
+  }
+ },
+ "details": {
+  "antennas": {
+   "status": "built (one)",
+   "what": "one to three thin masts; Zeus two tall, Locust two, Cyclops a tent of three guy wires",
+   "seen": [
+    "Zeus",
+    "Locust",
+    "Cyclops",
+    "Phoenix Hawk"
+   ]
+  },
+  "jump_pylons": {
+   "status": "idea",
+   "what": "tall pylons rising behind the shoulders",
+   "seen": [
+    "Phoenix Hawk"
+   ]
+  },
+  "tent_antenna": {
+   "status": "idea",
+   "what": "three wires from a mast to the shoulders",
+   "seen": [
+    "Cyclops"
+   ]
+  },
+  "asymmetry": {
+   "status": "idea",
+   "what": "one arm much bigger than the other, or bulkier on one side",
+   "seen": [
+    "Vindicator",
+    "Dragon"
+   ]
+  }
+ }
+}

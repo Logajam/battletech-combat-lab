@@ -497,6 +497,28 @@ needs no GUI change.
     sections' centres): the plan factor now scales the whole torso about the centre line. The shoulder
     connector is shortened to torso edge to joint. Checked by eye (top and front) on JagerMech,
     Locust, Commando, Orion, Flea, Hunchback.
+  - **Scale chart re-read with the kit vocabulary (Daniel, 2026-11-03). REVIEW PENDING (higher-level model).**
+    The MWO scale chart came back (2000 x 746; the copy that reached the session is 165 KB, not the 2.7 MB
+    original). Read at 3x, row by row, against everything the kits taught: all 47 chart chassis now have
+    tags (32 existed; 15 new: Vindicator, Enforcer, Kintaro, Quickdraw, Dragon, Cataphract, Grasshopper,
+    Black Knight, Victor, Zeus, Battlemaster, Cyclops, Highlander, Linesman, Banshee) and about 30 existing
+    ones were re-read (the whole-model units stay as the 3D studies set them). Files:
+    `data/token_reference_tags.json` (tags plus a `new` list of unbuilt features per chassis),
+    `data/token_dictionary.json` (the dictionary: plan / profile / torso / shoulder / arm / leg / detail
+    terms, each with what it means in words, which chassis show it, and whether the generator has it),
+    `data/token_chart_proportions.json` (measured: front W/H, side D/H, top W/D and chart height per
+    chassis, from segmenting the silhouettes). The Linesman has no unit file in the library, so it is tagged
+    but not drawn.
+  - **Measured findings:** chart heights grow with tonnage as about tons^0.49, not the cube root (0.33) the
+    generator uses (the chart's own scale is unreliable per Daniel; his rule keeps the cube-square curve);
+    heavier 'Mechs are proportionally WIDER: front W/H averages 0.63 light, 0.68 medium, 0.70 heavy, 0.81
+    assault, and side D/H falls from 0.53 to 0.42. The generator's width factor (`wf`) should follow this.
+  - **Missing blocks, ranked by how many chassis show them** (all `idea` in the dictionary): arms forward
+    past the body / long barrel arms (7: Blackjack, Rifleman, JagerMech, Warhammer, Griffin, Wolfhound,
+    Linesman), pillar legs (6: Atlas, Banshee, Highlander, Zeus, Awesome, Orion), round dome torso (5),
+    arrow plan (5), slung wedge profile (4), shoulder corner pods (4), tiny arms under big boxes (3), tall
+    slab profile (3), round arm blocks (3), swept shoulder fins (3), ears (3). Seen in the viewer: the 47
+    units render but many still look alike, because the generator cannot yet say these.
   - **Next art steps (not built):** chicken legs with a high hock; the forward-slung wedge torso;
     the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
     pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits

@@ -45,17 +45,18 @@
  "spider": {
   "archetype": "bird",
   "torso": "narrow",
-  "head_mount": "front",
+  "head_mount": "top",
   "head_shape": "dome",
   "shoulders": "boom",
-  "note": "flared hips and shoulders, jump jets",
+  "note": "narrow rounded body under a very wide thin bar across the shoulders (a spar); long slender legs bending like a bird; round pods hang at the spar ends",
   "new": [
-   "flared hips"
+   "wing spar across the shoulders"
   ],
-  "confidence": "low",
+  "confidence": "med",
   "plan": "wedge",
-  "profile": "sloped",
-  "hips": "flare"
+  "profile": "lean",
+  "hips": "flare",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "urbanmech": {
   "archetype": "humanoid",
@@ -73,15 +74,18 @@
  },
  "firestarter": {
   "archetype": "bird",
-  "torso": "box",
+  "torso": "ovoid",
   "head_mount": "built_in",
-  "head_shape": "box",
+  "head_shape": "dome",
   "shoulders": "boom",
-  "note": "broad shoulders, head in torso",
-  "new": [],
-  "confidence": "low",
-  "plan": "block",
-  "profile": "sloped"
+  "note": "round domed torso with box pods at the upper corners, tall thin legs, arm barrel forward",
+  "new": [
+   "shoulder corner pods"
+  ],
+  "confidence": "med",
+  "plan": "wedge",
+  "profile": "lean",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "jenner": {
   "archetype": "bird",
@@ -104,101 +108,121 @@
   "head_mount": "top",
   "head_shape": "box",
   "shoulders": "boom",
-  "note": "box shoulders with racks, small head",
-  "new": [],
-  "confidence": "low",
+  "note": "slim boxy torso with arms hanging straight and forearm guns forward, slender legs",
+  "new": [
+   "arms project forward of the body from above"
+  ],
+  "confidence": "med",
   "plan": "block",
-  "profile": "prow"
+  "profile": "upright",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "raven": {
   "archetype": "bird",
   "torso": "narrow",
   "head_mount": "front",
-  "head_shape": "dome",
+  "head_shape": "wedge",
   "shoulders": "flush",
-  "note": "slim from the front, deep from the side; big forward head",
+  "note": "very long arrow-shaped hull narrowing to a point at the front, two small pods at the rear corners, slim legs with a deep bend",
   "new": [
-   "deep slim torso"
+   "long arrow plan",
+   "nose long and pointed"
   ],
-  "confidence": "med",
+  "confidence": "high",
   "plan": "wedge",
-  "profile": "lean"
+  "profile": "prow",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "wolfhound": {
   "archetype": "humanoid",
   "torso": "box",
   "head_mount": "top",
-  "head_shape": "box",
+  "head_shape": "dome",
   "shoulders": "boom",
-  "note": "broad shoulders, small head",
-  "new": [],
-  "confidence": "low",
-  "plan": "wedge",
-  "profile": "sloped"
+  "note": "boxy torso with box shoulders, arms straight down then guns forward, tall straight legs",
+  "new": [
+   "long arm barrels past the body"
+  ],
+  "confidence": "med",
+  "plan": "block",
+  "profile": "upright",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "cicada": {
   "archetype": "bird",
-  "torso": "narrow",
+  "torso": "ovoid",
   "head_mount": "front",
   "head_shape": "dome",
-  "shoulders": "flush",
-  "note": "slim, head forward",
-  "new": [],
-  "confidence": "low",
+  "shoulders": "boom",
+  "note": "shield-shaped from above, small dome torso with swept blade-like shoulder horns, bird legs with a deep bend",
+  "new": [
+   "swept shoulder blades"
+  ],
+  "confidence": "med",
   "plan": "wedge",
-  "profile": "lean"
+  "profile": "lean",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "blackjack": {
   "archetype": "humanoid",
-  "torso": "box",
+  "torso": "slab",
   "head_mount": "top",
   "head_shape": "box",
-  "shoulders": "flush",
-  "note": "boxy, slim legs",
-  "new": [],
-  "confidence": "low",
-  "plan": "wedge",
-  "profile": "sloped"
+  "shoulders": "boom",
+  "note": "wide flat table-like torso, two very long barrels straight forward from the arms; thick columnar legs",
+  "new": [
+   "very long arm barrels"
+  ],
+  "confidence": "med",
+  "plan": "block",
+  "profile": "upright",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "phoenix hawk": {
   "archetype": "humanoid",
   "torso": "box",
   "head_mount": "top",
-  "head_shape": "box",
+  "head_shape": "dome",
   "shoulders": "boom",
-  "note": "big shoulders, jump jets",
-  "new": [],
-  "confidence": "low",
-  "plan": "wedge",
-  "profile": "sloped"
+  "note": "boxy torso with two tall pylons (jump jets) rising behind the shoulders, arms out with a forward gun",
+  "new": [
+   "tall rear pylons (jump jets)"
+  ],
+  "confidence": "med",
+  "plan": "flare",
+  "profile": "sloped",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "centurion": {
   "archetype": "humanoid",
-  "torso": "slab",
-  "head_mount": "built_in",
-  "head_shape": "box",
+  "torso": "box",
+  "head_mount": "top",
+  "head_shape": "dome",
   "shoulders": "boom",
-  "note": "broad, head low between raised shoulders",
+  "note": "wide chest with side pods and rear tabs, arm guns forward, straight legs",
   "new": [
-   "raised shoulders"
+   "shoulder side pods"
   ],
   "confidence": "med",
-  "plan": "wedge",
-  "profile": "shoulder"
+  "plan": "flare",
+  "profile": "shoulder",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "crab": {
-  "archetype": "lizard",
+  "archetype": "bird",
   "torso": "ovoid",
-  "head_mount": "built_in",
+  "head_mount": "front",
   "head_shape": "dome",
-  "shoulders": "flush",
-  "note": "wide splayed legs, round body, crouched side",
+  "shoulders": "boom",
+  "note": "dome torso, arms bowed outward and down like claws, long pointed nose from above, crouched stance on thin legs",
   "new": [
-   "claw arms"
+   "crab-claw arms",
+   "crouched stance"
   ],
   "confidence": "med",
   "plan": "wedge",
-  "profile": "bell"
+  "profile": "lean",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "hunchback": {
   "archetype": "humanoid",
@@ -216,66 +240,75 @@
   "source": "3D model study 2026-11-03"
  },
  "trebuchet": {
-  "archetype": "bird",
-  "torso": "box",
-  "head_mount": "top",
-  "head_shape": "box",
-  "shoulders": "flush",
-  "note": "bird legs, boxy torso",
-  "new": [],
-  "confidence": "low",
+  "archetype": "humanoid",
+  "torso": "ovoid",
+  "head_mount": "built_in",
+  "head_shape": "dome",
+  "shoulders": "boom",
+  "note": "round torso carrying a missile box on each shoulder, straight thin legs, arm gun forward",
+  "new": [
+   "shoulder missile boxes on a round torso"
+  ],
+  "confidence": "med",
   "plan": "block",
-  "profile": "prow"
+  "profile": "dome",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "griffin": {
-  "archetype": "bird",
+  "archetype": "humanoid",
   "torso": "box",
   "head_mount": "top",
-  "head_shape": "box",
+  "head_shape": "dome",
   "shoulders": "boom",
-  "note": "bird legs, boom shoulders",
-  "new": [],
-  "confidence": "low",
-  "plan": "wedge",
-  "profile": "sloped"
+  "note": "boxy torso with a dome head, long arm barrels forward from both sides, thick legs",
+  "new": [
+   "long arm barrels past the body"
+  ],
+  "confidence": "med",
+  "plan": "block",
+  "profile": "upright",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "shadow hawk": {
   "archetype": "humanoid",
   "torso": "box",
   "head_mount": "top",
-  "head_shape": "wedge",
-  "shoulders": "flush",
-  "note": "standard humanoid, wedge head",
+  "head_shape": "dome",
+  "shoulders": "boom",
+  "note": "boxy torso with a long antenna, arm gun forward, bird-like legs with a big foot",
   "new": [],
-  "confidence": "low",
+  "confidence": "med",
   "plan": "block",
-  "profile": "sloped"
+  "profile": "sloped",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "wolverine": {
   "archetype": "humanoid",
-  "torso": "box",
-  "head_mount": "top",
-  "head_shape": "box",
+  "torso": "ovoid",
+  "head_mount": "built_in",
+  "head_shape": "dome",
   "shoulders": "boom",
-  "note": "humanoid, broad",
+  "note": "big round torso dome, arms hanging, straight legs with a big toe",
   "new": [],
-  "confidence": "low",
-  "plan": "flare",
-  "profile": "upright"
+  "confidence": "med",
+  "plan": "block",
+  "profile": "dome",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "rifleman": {
   "archetype": "humanoid",
-  "torso": "box",
+  "torso": "slab",
   "head_mount": "top",
   "head_shape": "box",
   "shoulders": "boom",
-  "note": "twin gun pods on top of the shoulders",
+  "note": "narrow pillar torso with twin-barrel gun pods at the shoulders sticking far forward",
   "new": [
-   "gun pod on shoulder"
+   "shoulder gun pods with long twin barrels"
   ],
   "confidence": "med",
   "plan": "block",
-  "profile": "prow"
+  "profile": "prow",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "catapult": {
   "archetype": "bird",
@@ -295,15 +328,18 @@
  },
  "jagermech": {
   "archetype": "humanoid",
-  "torso": "box",
+  "torso": "slab",
   "head_mount": "top",
   "head_shape": "box",
   "shoulders": "boom",
-  "note": "twin barrels on the arms",
-  "new": [],
-  "confidence": "low",
+  "note": "tall slab torso under a wide shoulder bar, each arm with long twin barrels forward, thick straight legs",
+  "new": [
+   "very long arm barrels"
+  ],
+  "confidence": "med",
   "plan": "block",
-  "profile": "bell"
+  "profile": "upright",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "thunderbolt": {
   "archetype": "humanoid",
@@ -319,27 +355,34 @@
  },
  "archer": {
   "archetype": "humanoid",
-  "torso": "slab",
-  "head_mount": "built_in",
-  "head_shape": "box",
-  "shoulders": "boom",
-  "note": "wide with big rack boxes on the shoulders",
-  "new": [],
-  "confidence": "low",
-  "plan": "block",
-  "profile": "stepped"
- },
- "warhammer": {
-  "archetype": "humanoid",
-  "torso": "slab",
+  "torso": "box",
   "head_mount": "top",
   "head_shape": "box",
   "shoulders": "boom",
-  "note": "broad shoulders, pod arms",
-  "new": [],
-  "confidence": "low",
+  "note": "big domed back, big missile boxes at the shoulders, tiny arms; shins shaped like fat barrels",
+  "new": [
+   "barrel-shaped shins",
+   "shoulder missile boxes"
+  ],
+  "confidence": "med",
   "plan": "block",
-  "profile": "wedge_up"
+  "profile": "dome",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+ },
+ "warhammer": {
+  "archetype": "humanoid",
+  "torso": "box",
+  "head_mount": "top",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "chest forward and tall, rear low; two long arm barrels forward; thick legs",
+  "new": [
+   "long arm barrels past the body"
+  ],
+  "confidence": "med",
+  "plan": "block",
+  "profile": "wedge_up",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "marauder": {
   "archetype": "bird",
@@ -375,11 +418,15 @@
   "head_mount": "built_in",
   "head_shape": "box",
   "shoulders": "boom",
-  "note": "barrel chest, wide shoulders, head in torso",
-  "new": [],
-  "confidence": "low",
+  "note": "giant flat torso, huge round shoulders, horn-like fins swept outward, thick pillar legs",
+  "new": [
+   "swept shoulder horns",
+   "pillar legs"
+  ],
+  "confidence": "med",
   "plan": "block",
-  "profile": "wedge_up"
+  "profile": "wedge_up",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "stalker": {
   "archetype": "bird",
@@ -398,31 +445,258 @@
  },
  "atlas": {
   "archetype": "humanoid",
-  "torso": "slab",
-  "head_mount": "front",
+  "torso": "box",
+  "head_mount": "top",
   "head_shape": "dome",
   "shoulders": "boom",
-  "note": "wide box torso with separate shoulder block; hands; head dome in torso top; thick straight legs",
+  "note": "wide oval disc plan from above, broad plated chest with the skull head set into a front notch; thick pillar legs",
   "new": [
-   "thick legs"
+   "oval disc plan",
+   "skull head in a notch"
   ],
   "confidence": "med",
   "plan": "block",
-  "profile": "shoulder"
+  "profile": "shoulder",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "king crab": {
-  "archetype": "lizard",
-  "torso": "slab",
+  "archetype": "bird",
+  "torso": "box",
+  "head_mount": "built_in",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "crouched with huge arm cannons forward and a bell-shaped low torso; long pointed foot",
+  "new": [
+   "crouched stance",
+   "big arm cannons forward"
+  ],
+  "confidence": "med",
+  "plan": "block",
+  "profile": "bell",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+ },
+ "vindicator": {
+  "archetype": "humanoid",
+  "torso": "ovoid",
+  "plan": "block",
+  "profile": "dome",
+  "head_mount": "built_in",
+  "head_shape": "dome",
+  "shoulders": "flush",
+  "note": "big round dome torso and head in one mass; one heavy weapon arm, the other short; straight columnar legs",
+  "new": [
+   "asymmetric arms (one big gun arm)"
+  ],
+  "confidence": "med",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+ },
+ "enforcer": {
+  "archetype": "humanoid",
+  "torso": "box",
+  "plan": "block",
+  "profile": "upright",
+  "head_mount": "top",
+  "head_shape": "dome",
+  "shoulders": "boom",
+  "note": "boxy torso with a dome cockpit on top, rear corner tabs, side pods on the shoulders; straight legs",
+  "new": [
+   "shoulder side pods"
+  ],
+  "confidence": "med",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+ },
+ "kintaro": {
+  "archetype": "humanoid",
+  "torso": "box",
+  "plan": "block",
+  "profile": "upright",
+  "head_mount": "top",
+  "head_shape": "dome",
+  "shoulders": "boom",
+  "note": "wide torso with three humps on top (head and two shoulder boxes), arms hooked in front; thick columnar legs",
+  "new": [
+   "triple-hump top (head plus two shoulder boxes)"
+  ],
+  "confidence": "med",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+ },
+ "quickdraw": {
+  "archetype": "humanoid",
+  "torso": "box",
+  "plan": "block",
+  "profile": "upright",
+  "head_mount": "top",
+  "head_shape": "dome",
+  "shoulders": "boom",
+  "note": "round head dome centred on a flat wide torso, two antennas, arms hanging; heel thrusters (jump jets) on the feet",
+  "new": [
+   "heel jump thrusters"
+  ],
+  "confidence": "med",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+ },
+ "dragon": {
+  "archetype": "humanoid",
+  "torso": "box",
+  "plan": "block",
+  "profile": "lean",
+  "head_mount": "built_in",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "heavy forward-leaning chest, wide block top from above with the right side bulkier; arm gun forward",
+  "new": [
+   "asymmetric torso bulk"
+  ],
+  "confidence": "med",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+ },
+ "cataphract": {
+  "archetype": "humanoid",
+  "torso": "ovoid",
+  "plan": "flare",
+  "profile": "dome",
   "head_mount": "built_in",
   "head_shape": "box",
   "shoulders": "flush",
-  "note": "squat and wide, hunched forward, big arm pods",
+  "note": "big round chest dome, short thick legs with heavy thighs, arms dangling; from above a wide block with a notched front",
   "new": [
-   "squat wide body",
-   "hunched"
+   "heavy thigh mass"
   ],
   "confidence": "med",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+ },
+ "grasshopper": {
+  "archetype": "bird",
+  "torso": "slab",
+  "plan": "block",
+  "profile": "upright",
+  "head_mount": "top",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "narrow tall slab torso with a wide shoulder flange, long legs with a clear bend, arm gun forward",
+  "new": [
+   "wide shoulder flange on a narrow body"
+  ],
+  "confidence": "med",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+ },
+ "black knight": {
+  "archetype": "humanoid",
+  "torso": "ovoid",
   "plan": "flare",
-  "profile": "bell"
+  "profile": "dome",
+  "head_mount": "built_in",
+  "head_shape": "dome",
+  "shoulders": "boom",
+  "note": "round torso carrying tall shoulder fins slanting outward, long straight legs, arm guns forward",
+  "new": [
+   "shoulder fins swept outward"
+  ],
+  "confidence": "med",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+ },
+ "victor": {
+  "archetype": "humanoid",
+  "torso": "box",
+  "plan": "block",
+  "profile": "dome",
+  "head_mount": "top",
+  "head_shape": "dome",
+  "shoulders": "boom",
+  "note": "wide torso with big rounded arm blocks at the shoulders, round-topped chest, antenna on top; thick columnar legs",
+  "new": [
+   "round arm blocks"
+  ],
+  "confidence": "med",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+ },
+ "zeus": {
+  "archetype": "humanoid",
+  "torso": "box",
+  "plan": "block",
+  "profile": "upright",
+  "head_mount": "top",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "wide flat-topped torso with two tall antennas, huge round ball fists hanging at the sides, thick straight legs",
+  "new": [
+   "round ball fists",
+   "two tall antennas"
+  ],
+  "confidence": "med",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+ },
+ "battlemaster": {
+  "archetype": "humanoid",
+  "torso": "box",
+  "plan": "block",
+  "profile": "upright",
+  "head_mount": "top",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "wide torso with lumps at the shoulders, arms hanging, thick legs",
+  "new": [],
+  "confidence": "med",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+ },
+ "cyclops": {
+  "archetype": "humanoid",
+  "torso": "ovoid",
+  "plan": "flare",
+  "profile": "shoulder",
+  "head_mount": "top",
+  "head_shape": "dome",
+  "shoulders": "boom",
+  "note": "broad ovoid torso with a tent-shaped antenna (three guy wires) on top, arms wide, from above a pronounced front hump",
+  "new": [
+   "tent antenna (three guy wires)"
+  ],
+  "confidence": "med",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+ },
+ "highlander": {
+  "archetype": "humanoid",
+  "torso": "box",
+  "plan": "block",
+  "profile": "upright",
+  "head_mount": "top",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "wide boxy torso, arms hanging with big hands, thick legs with a reverse-bent lower leg and big heel in side view",
+  "new": [
+   "reverse-bent lower leg"
+  ],
+  "confidence": "med",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+ },
+ "linesman": {
+  "archetype": "humanoid",
+  "torso": "box",
+  "plan": "block",
+  "profile": "upright",
+  "head_mount": "top",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "torso with a V-shaped chest and tall vertical slab posts at both shoulders; thick legs; long bars forward from above",
+  "new": [
+   "vertical shoulder posts"
+  ],
+  "confidence": "med",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+ },
+ "banshee": {
+  "archetype": "humanoid",
+  "torso": "slab",
+  "plan": "block",
+  "profile": "upright",
+  "head_mount": "top",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "large slab torso with big shoulder boxes, arms hanging with bulky hands; thick pillar legs",
+  "new": [
+   "pillar legs"
+  ],
+  "confidence": "med",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  }
 }

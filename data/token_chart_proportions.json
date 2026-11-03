@@ -1,0 +1,414 @@
+{
+ "_about": "Proportions measured from the MWO scale-reference chart (2000 x 746 px; silhouettes ~45-110 px tall, so +-2 px = about +-3-5 percent). front_wh = front-view width over height; side_d_over_h = side-view depth over height (posed, arms and guns included: weapons stretch it); top_wd = top-view width over depth; height_px is the front-view height on the chart (the chart gives every unit the same px scale, so heights compare across units; the chart scale itself is unreliable per Daniel 2026-10-31).",
+ "height_vs_tons_exponent": 0.49,
+ "units": [
+  {
+   "chassis": "Flea",
+   "tons": 20,
+   "front_wh": 0.532,
+   "height_px": 47,
+   "top_w_over_front_w": 1.04,
+   "side_d_over_h": 0.489,
+   "top_wd": 1.13
+  },
+  {
+   "chassis": "Locust",
+   "tons": 20,
+   "front_wh": 0.609,
+   "height_px": 46,
+   "top_w_over_front_w": 0.964,
+   "side_d_over_h": 0.587,
+   "top_wd": 1.0
+  },
+  {
+   "chassis": "Commando",
+   "tons": 25,
+   "front_wh": 0.772,
+   "height_px": 57,
+   "top_w_over_front_w": 1.045,
+   "side_d_over_h": 0.386,
+   "top_wd": 2.0
+  },
+  {
+   "chassis": "Spider",
+   "tons": 30,
+   "front_wh": 0.657,
+   "height_px": 67,
+   "top_w_over_front_w": 1.045,
+   "side_d_over_h": 0.463,
+   "top_wd": 1.438
+  },
+  {
+   "chassis": "UrbanMech",
+   "tons": 30,
+   "front_wh": 0.576,
+   "height_px": 59,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.542,
+   "top_wd": 1.062
+  },
+  {
+   "chassis": "Firestarter",
+   "tons": 35,
+   "front_wh": 0.649,
+   "height_px": 74,
+   "top_w_over_front_w": 0.979,
+   "side_d_over_h": 0.459,
+   "top_wd": 1.382
+  },
+  {
+   "chassis": "Jenner",
+   "tons": 35,
+   "front_wh": 0.682,
+   "height_px": 66,
+   "top_w_over_front_w": 1.022,
+   "side_d_over_h": 0.682,
+   "top_wd": 1.045
+  },
+  {
+   "chassis": "Panther",
+   "tons": 35,
+   "front_wh": 0.632,
+   "height_px": 76,
+   "top_w_over_front_w": 1.021,
+   "side_d_over_h": 0.5,
+   "top_wd": 1.256
+  },
+  {
+   "chassis": "Raven",
+   "tons": 35,
+   "front_wh": 0.6,
+   "height_px": 65,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.754,
+   "top_wd": 0.812
+  },
+  {
+   "chassis": "Wolfhound",
+   "tons": 35,
+   "front_wh": 0.558,
+   "height_px": 77,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.468,
+   "top_wd": 1.194
+  },
+  {
+   "chassis": "Cicada",
+   "tons": 40,
+   "front_wh": 0.635,
+   "height_px": 74,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.554,
+   "top_wd": 1.119
+  },
+  {
+   "chassis": "Blackjack",
+   "tons": 45,
+   "front_wh": 0.702,
+   "height_px": 84,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.548,
+   "top_wd": 1.229
+  },
+  {
+   "chassis": "Phoenix Hawk",
+   "tons": 45,
+   "front_wh": 0.392,
+   "height_px": 143,
+   "side_d_over_h": 0.378
+  },
+  {
+   "chassis": "Vindicator",
+   "tons": 45,
+   "front_wh": 0.61,
+   "height_px": 82,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.598,
+   "top_wd": 1.042
+  },
+  {
+   "chassis": "Centurion",
+   "tons": 50,
+   "front_wh": 0.767,
+   "height_px": 86,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.57,
+   "top_wd": 1.347
+  },
+  {
+   "chassis": "Crab",
+   "tons": 50,
+   "front_wh": 0.861,
+   "height_px": 72,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.847,
+   "top_wd": 1.016
+  },
+  {
+   "chassis": "Enforcer",
+   "tons": 50,
+   "front_wh": 0.547,
+   "height_px": 86,
+   "top_w_over_front_w": 1.064,
+   "side_d_over_h": 0.477,
+   "top_wd": 1.22
+  },
+  {
+   "chassis": "Hunchback",
+   "tons": 50,
+   "front_wh": 0.962,
+   "height_px": 78,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.474,
+   "top_wd": 2.027
+  },
+  {
+   "chassis": "Trebuchet",
+   "tons": 50,
+   "front_wh": 0.67,
+   "height_px": 91,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.429,
+   "top_wd": 1.525
+  },
+  {
+   "chassis": "Griffin",
+   "tons": 55,
+   "front_wh": 0.39,
+   "height_px": 146,
+   "side_d_over_h": 0.377
+  },
+  {
+   "chassis": "Kintaro",
+   "tons": 55,
+   "front_wh": 0.789,
+   "height_px": 90,
+   "top_w_over_front_w": 1.014,
+   "side_d_over_h": 0.456,
+   "top_wd": 1.756
+  },
+  {
+   "chassis": "Shadow Hawk",
+   "tons": 55,
+   "front_wh": 0.762,
+   "height_px": 63,
+   "top_w_over_front_w": 1.167,
+   "side_d_over_h": 0.619,
+   "top_wd": 0.406
+  },
+  {
+   "chassis": "Wolverine",
+   "tons": 55,
+   "front_wh": 0.706,
+   "height_px": 85,
+   "top_w_over_front_w": 1.017,
+   "side_d_over_h": 0.541,
+   "top_wd": 1.151
+  },
+  {
+   "chassis": "Dragon",
+   "tons": 60,
+   "front_wh": 0.845,
+   "height_px": 84,
+   "top_w_over_front_w": 1.014,
+   "side_d_over_h": 0.643,
+   "top_wd": 1.309
+  },
+  {
+   "chassis": "Quickdraw",
+   "tons": 60,
+   "front_wh": 0.742,
+   "height_px": 89,
+   "top_w_over_front_w": 1.03,
+   "side_d_over_h": 0.427,
+   "top_wd": 1.789
+  },
+  {
+   "chassis": "Rifleman",
+   "tons": 60,
+   "front_wh": 0.667,
+   "height_px": 93,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.538,
+   "top_wd": 1.192
+  },
+  {
+   "chassis": "Catapult",
+   "tons": 65,
+   "front_wh": 0.802,
+   "height_px": 81,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.617,
+   "top_wd": 1.3
+  },
+  {
+   "chassis": "JagerMech",
+   "tons": 65,
+   "front_wh": 0.716,
+   "height_px": 95,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.632,
+   "top_wd": 1.133
+  },
+  {
+   "chassis": "Thunderbolt",
+   "tons": 65,
+   "front_wh": 0.791,
+   "height_px": 86,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.535,
+   "top_wd": 1.478
+  },
+  {
+   "chassis": "Archer",
+   "tons": 70,
+   "front_wh": 0.695,
+   "height_px": 95,
+   "top_w_over_front_w": 0.985,
+   "side_d_over_h": 0.432,
+   "top_wd": 1.548
+  },
+  {
+   "chassis": "Cataphract",
+   "tons": 70,
+   "front_wh": 1.422,
+   "height_px": 90,
+   "top_w_over_front_w": 0.531,
+   "top_wd": 1.214
+  },
+  {
+   "chassis": "Grasshopper",
+   "tons": 70,
+   "front_wh": 0.408,
+   "height_px": 152,
+   "side_d_over_h": 0.329
+  },
+  {
+   "chassis": "Warhammer",
+   "tons": 70,
+   "front_wh": 0.592,
+   "height_px": 98,
+   "top_w_over_front_w": 1.017,
+   "side_d_over_h": 0.592,
+   "top_wd": 1.017
+  },
+  {
+   "chassis": "Black Knight",
+   "tons": 75,
+   "front_wh": 0.4,
+   "height_px": 155,
+   "side_d_over_h": 0.374
+  },
+  {
+   "chassis": "Marauder",
+   "tons": 75,
+   "front_wh": 0.539,
+   "height_px": 89,
+   "side_d_over_h": 0.719
+  },
+  {
+   "chassis": "Orion",
+   "tons": 75,
+   "front_wh": 0.546,
+   "height_px": 97,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.485,
+   "top_wd": 1.104
+  },
+  {
+   "chassis": "Awesome",
+   "tons": 80,
+   "front_wh": 1.364,
+   "height_px": 99,
+   "top_w_over_front_w": 0.622,
+   "top_wd": 1.75
+  },
+  {
+   "chassis": "Victor",
+   "tons": 80,
+   "front_wh": 0.784,
+   "height_px": 97,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.608,
+   "top_wd": 1.288
+  },
+  {
+   "chassis": "Zeus",
+   "tons": 80,
+   "front_wh": 0.62,
+   "height_px": 100,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.57,
+   "top_wd": 1.107
+  },
+  {
+   "chassis": "Battlemaster",
+   "tons": 85,
+   "front_wh": 0.763,
+   "height_px": 97,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.588,
+   "top_wd": 1.298
+  },
+  {
+   "chassis": "Stalker",
+   "tons": 85,
+   "front_wh": 0.571,
+   "height_px": 91,
+   "top_w_over_front_w": 1.038,
+   "side_d_over_h": 0.692,
+   "top_wd": 0.857
+  },
+  {
+   "chassis": "Cyclops",
+   "tons": 90,
+   "front_wh": 0.673,
+   "height_px": 107,
+   "top_w_over_front_w": 1.014,
+   "side_d_over_h": 0.449,
+   "top_wd": 1.46
+  },
+  {
+   "chassis": "Highlander",
+   "tons": 90,
+   "front_wh": 0.683,
+   "height_px": 104,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.519,
+   "top_wd": 1.315
+  },
+  {
+   "chassis": "Linesman",
+   "tons": 90,
+   "front_wh": 0.619,
+   "height_px": 105,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.419,
+   "top_wd": 1.444
+  },
+  {
+   "chassis": "Banshee",
+   "tons": 95,
+   "front_wh": 0.406,
+   "height_px": 170,
+   "side_d_over_h": 0.359
+  },
+  {
+   "chassis": "Atlas",
+   "tons": 100,
+   "front_wh": 0.762,
+   "height_px": 105,
+   "top_w_over_front_w": 1.0,
+   "side_d_over_h": 0.41,
+   "top_wd": 1.818
+  },
+  {
+   "chassis": "King Crab",
+   "tons": 100,
+   "front_wh": 1.714,
+   "height_px": 91,
+   "top_w_over_front_w": 0.513,
+   "top_wd": 1.096
+  }
+ ]
+}
