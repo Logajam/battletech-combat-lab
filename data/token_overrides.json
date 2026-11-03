@@ -4,13 +4,15 @@
     "torso": "canopy",
     "arms_flex": true,
     "note": "Daniel 2026-10-31: digitigrade legs, flexible arms, over-the-shoulder missile racks on an ovoid body",
-    "archetype": "bird"
+    "archetype": "bird",
+    "arm_style": "trunk"
   },
   "mad cat": {
     "legs": "digitigrade",
     "torso": "canopy",
     "arms_flex": true,
     "note": "same unit as the Timber Wolf",
-    "archetype": "bird"
+    "archetype": "bird",
+    "arm_style": "trunk"
   }
 }

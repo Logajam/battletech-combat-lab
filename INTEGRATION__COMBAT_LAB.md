@@ -618,6 +618,39 @@ needs no GUI change.
     a hatch that looked like a gun port. Honest state: much closer to hardware, still not research-grade: torsos
     are boxy, arms are blocks, heads have no canopy frame, no decals, flat lighting. See `hard_sf_pass_2` in the
     dictionary for the open list.
+  - **Daniel's unit-by-unit review (2026-11-03) and a design philosophy. REVIEW PENDING (higher-level model).**
+    Principles (also in `data/token_dictionary.json` `design_principles`): a 'Mech is a SKELETON driven by MYOMER
+    muscle with weapons and a SHELL of armor on top, some sections expanded for equipment; so not "blocky"; an arm
+    can be an elephant's trunk (pure muscle in an exoskeleton); fusion powered, so exhaust stacks are a choice;
+    pistons are disliked (they imply hydraulics) but expected on heavy machinery, so they are an option.
+    **Root bug found:** the unit files write weapons as "1 ISSRM6", "2 ISStreakSRM2", "ISERLargeLaser"; my parser read
+    the leading count as the weapon's size, so every SRM-6 was a one-tube launcher (Kintaro and Blackjack "missing
+    missiles") and `er` / pulse detection missed. `clean_weapon_name` now normalizes names ("SRM 6", "ER Large
+    Laser"); hand weapons (sword, hatchet, mace, claw...) are split out into `unit["physical"]`.
+    **Done (checked by eye on about 16 units unless noted):** exhaust stacks tag-only; myomer bundles instead of
+    pistons (`pistons: true` for the old look); cockpits blue and VISIBLE on every chassis (a blister with a glass
+    band; the Mauler and Cataphract, domes put the glass on the surface); missiles violet; weapon bulk by mass
+    (Commando's large laser, all large weapons); PPC with a three-way (120 degree) muzzle; Ultra AC twin bores in ONE
+    shroud (King Crab); plasma rifle (Catapult); ER laser focusing ring, pulse two lenses; SRM / LRM / MRM racks each
+    with their own pod and tube layout by rack size (Thunderbolt, Griffin, Dragon); weapons built along the forearm's
+    axis (Cyclops arms hang down, so their guns point down); hardpoint SLOTS on arms (centre, below, above: Rifleman,
+    Dragon's off-centre Gauss); hand arms carry the gun on the outside of the forearm, clamped (Battlemaster);
+    weapon arms (JagerMech, Rifleman, Marauder, Highlander) have a housing sized by the gun, no stub arm, no hand;
+    weapons from the file, not a fixed kit; trunk arms (Timber Wolf / Mad Cat); body proportions by tag (`girth`,
+    `bodyd`, `bodyh`, `legscale`, `armscale`): Victor bigger than Awesome, Black Knight bigger, Stalker long and
+    low, Locust tall and thin against the Flea's flat slab, Grasshopper pauldrons and slimmer arms; speed lengthens
+    legs and slims arms (Wolfhound); jump jets on the back of the calf (Grasshopper), IMPROVED jump jets with a
+    bigger nozzle and fairing (Firestarter); electronics (ECM dome, probe dish, C3 mast); rear-facing weapons
+    drawn on the back (Quickdraw's rear laser, Firestarter's rear flamer); hand weapons (Vindicator's sword,
+    hatchet, mace, claw); head turret weapons (Quickdraw's PPC); Stealth armor read from the file (Quickdraw
+    QKD-8X is shown, dark paint); chest plates cut from the torso's own profile so they no longer float (Crab,
+    Jenner); a neck between head and body (Spider); the Archer's launcher boxes use the file's rack count.
+    **Not done / open:** the skeleton-and-shell rebuild of torsos and limbs (still boxes); the spherical
+    turret option (Cyclops); the Battlemaster's shoulder-to-arm imbalance; Trebuchet and Raven clipping;
+    the Archer's exposed launchers; the Firestarter arm-to-weapon scale; the Warhammer, Urbanmech and Cataphract
+    were praised and left alone; the Cicada's rabbit face and the Black Knight's `.__.` face are kept on purpose
+    (Daniel: funnier intentional) but the Black Knight's was not specifically drawn; the Mad Cat trunk reads as
+    chunky armor, not a trunk. The contact sheets I used squashed some images, which cost me one wrong turn.
   - **Next art steps (not built):** chicken legs (done above); stacked-slab shins with a high hock; the forward-slung wedge torso;
     the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
     pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits
