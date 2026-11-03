@@ -88,9 +88,30 @@ def part_meshes(model, drop=()):
             continue
         for grp in part["groups"]:
             pts = []
-            for p, r in grp:
-                w = _to_world(p, k)
-                pts += [w] if not r else list(w + (sph if part["tag"] == "w" else slab) * (r * s))
+            if len(grp) == 2 and (grp[0][1] or grp[1][1]):
+                # a limb segment or joint: a faceted CYLINDER / frustum along its own axis (8 sides, 12 for weapons
+                # and joints), not a cube on each end; two ends at one point = a low-poly ball
+                (pa, ra), (pb, rb) = grp
+                wa, wb_ = _to_world(pa, k), _to_world(pb, k)
+                ax = wb_ - wa
+                ln = float(np.linalg.norm(ax))
+                if ln < 1e-7:
+                    pts = list(wa + sph * (ra * s))
+                else:
+                    ax = ax / ln
+                    ref = np.array([1.0, 0.0, 0.0]) if abs(ax[0]) < 0.9 else np.array([0.0, 1.0, 0.0])
+                    u = np.cross(ax, ref); u /= np.linalg.norm(u)
+                    v = np.cross(ax, u)
+                    n = 12 if part["tag"] in ("w", "j") else 8
+                    for ang in range(n):
+                        t = 2 * math.pi * (ang + 0.5) / n
+                        d = math.cos(t) * u + math.sin(t) * v
+                        pts.append(wa + d * (ra * s))
+                        pts.append(wb_ + d * (rb * s))
+            else:
+                for p, r in grp:
+                    w = _to_world(p, k)
+                    pts += [w] if not r else list(w + (sph if part["tag"] == "w" else slab) * (r * s))
             m = _hull(pts)
             if m is not None:
                 out.append((part["cls"], np.asarray(m.vertices), np.asarray(m.faces)))

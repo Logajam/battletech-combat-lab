@@ -605,6 +605,19 @@ needs no GUI change.
     arm. Viewer: a Paint selector (with the Team selector). Still open (the dictionary's `hard_sf_pass`):
     cockpit hatch and frame, sensor clusters, handrails and access hatches, unit markings and decals, plating
     breakup on the limbs.
+  - **Second hard-SF review (Daniel, 2026-11-03): "fancy toy blocks" to "the Pentagon would fund this".** His
+    list: knees are cubes with the corners cut off; missile boxes stuck out of the chest; the back plate is a
+    copy-pasted striped board that does not fit all torsos; the Banshee's legs are stacked blocks. Claude's audit
+    found the root: every joint was a chamfered cube cap on a tube, the launchers were free cubes, the back plate
+    one stamped panel. Built: `B3.obox` (an oriented tapered armor block; legs and arms are made of these),
+    cylinder joints (hips, knees, ankles, hocks, elbows), a mesh builder that makes each limb segment a faceted
+    cylinder along its own axis, armored legs (thigh plate, pointed kneecap, calf bulge, lapped shin plates on
+    slab legs), recessed launchers behind a bezel, five rear modules sized by heat sinks and fitted to the
+    torso (fins, reactor dome, twin stacks, engine cowl, framed vent), chest armor plates, cut torso edges.
+    Critique rounds on the way fixed: knee housings that read as wheels, a dark stack that looked like a slot,
+    a hatch that looked like a gun port. Honest state: much closer to hardware, still not research-grade: torsos
+    are boxy, arms are blocks, heads have no canopy frame, no decals, flat lighting. See `hard_sf_pass_2` in the
+    dictionary for the open list.
   - **Next art steps (not built):** chicken legs (done above); stacked-slab shins with a high hock; the forward-slung wedge torso;
     the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
     pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits
