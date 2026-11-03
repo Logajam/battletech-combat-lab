@@ -5,6 +5,11 @@ a byte-identical log, so any difference means a change altered results.
 
     python tests/check_reference_logs.py            # compare
     python tests/check_reference_logs.py --update   # rewrite the saved logs
+    python tests/check_reference_logs.py --round-trip   # save + reload after every turn
+
+--round-trip (2026-11-03, INTEGRATION__saved_state): each battle is saved,
+reloaded from the saved text and played on from the reloaded copy after every
+turn; the log must still match the saved one byte for byte.
 
 Use --update only when a change is SUPPOSED to alter results (a new rule,
 a data fix), and say so in the PROJECT_MAP change record.
@@ -150,12 +155,13 @@ SCENARIOS = {
 }
 
 
-def run_scenario(overrides):
+def run_scenario(overrides, round_trip=False):
     code = "\n".join(
         ["import INTEGRATION__config as config",
          "config.TIMING = False",      # run times differ every run - not part of a saved log
          f"config.MAX_TURNS = {TEST_BATTLE_MAX_TURNS}"]
         + overrides
+        + (["config.SAVE_STATE_ROUND_TRIP = True"] if round_trip else [])
         + ["import INTEGRATION__orchestrator as orchestrator", "orchestrator.run_batch()"]
     )
     env = dict(os.environ, INTEGRATION_DATA_DIR="./data", PYTHONIOENCODING="utf-8")
@@ -193,11 +199,14 @@ def compare(name, actual):
 
 def main():
     update = "--update" in sys.argv[1:]
+    round_trip = "--round-trip" in sys.argv[1:]
+    if update and round_trip:
+        raise SystemExit("--round-trip only compares; it never rewrites the logs")
     # Each battle is its own child process, so they run side by side (one per
     # CPU core) without touching each other's results; reports print in
     # SCENARIOS order. Added 2026-10-20 (Claude): about 3x faster on 4 cores.
     with ThreadPoolExecutor(max_workers=os.cpu_count() or 1) as pool:
-        runs = {name: pool.submit(run_scenario, overrides)
+        runs = {name: pool.submit(run_scenario, overrides, round_trip)
                 for name, overrides in SCENARIOS.items()}
     failures = 0
     for name, run in runs.items():

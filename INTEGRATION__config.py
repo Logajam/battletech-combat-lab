@@ -75,6 +75,19 @@ WORKERS = 0
 # heat, and the log of each step. 0 = none.
 REPLAY_BATTLES = 0
 REPLAY_DIR = "replays"
+# Saved states (2026-11-03, INTEGRATION__saved_state): at the end of the turns
+# listed, battles 1..SAVE_STATE_BATTLES of a run each write a file to
+# SAVE_STATE_DIR holding everything needed to play on from there - the units,
+# the board as it stands, the dice and the bots' memories. Load one with
+# `python INTEGRATION__saved_state.py <file>` to play the rest of the battle.
+#   SAVE_STATE_TURNS: () = none; (3, 5) = after turns 3 and 5; "all" = every turn.
+SAVE_STATE_TURNS = ()
+SAVE_STATE_BATTLES = 1
+SAVE_STATE_DIR = "saved_states"
+# Test switch (tests/check_reference_logs.py --round-trip): after EVERY turn the
+# battle is saved, reloaded from the saved text, and played on from the reloaded
+# copy. The log must match a battle that never stopped, byte for byte.
+SAVE_STATE_ROUND_TRIP = False
 # Where the time goes (2026-10-21, INTEGRATION__timing): TIMING prints a table of
 # the time spent in each part of the turn after every batch (it only reads the
 # clock - results don't change). PROFILE_FUNCTIONS = N also lists the N

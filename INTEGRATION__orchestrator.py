@@ -131,6 +131,7 @@ import INTEGRATION__capacitor as capacitor  # noqa: E402
 import INTEGRATION__tag as tag  # noqa: E402
 import INTEGRATION__physical as physical  # noqa: E402
 import INTEGRATION__movement_selection as movement_selection  # noqa: E402
+import INTEGRATION__saved_state as saved_state  # noqa: E402
 import INTEGRATION__bots as bots  # noqa: E402 - which bot decides for each unit (2026-10-27)
 import INTEGRATION__legate as legate  # noqa: E402 - Gladiator's view of the whole enemy force (2026-10-28)
 import INTEGRATION__princess_memory as princess_memory  # noqa: E402 - what Princess remembers of its force (2026-10-28)
@@ -806,8 +807,27 @@ def _log_initiative(order):
         config.log(f"  Initiative order (acts first to last): {', '.join(order)}.")
 
 
+class Battle:
+    """Everything a battle carries from one turn to the next (2026-11-03, saved states): the units,
+    the board as it now stands, the battle's one pool of dice, the running result and per-unit
+    stats, and how many turns are done. INTEGRATION__saved_state saves one of these (with the
+    bots' memories) at the end of a turn and rebuilds it to play on from there."""
+
+    def __init__(self, units, terrain_map, battle_rng, max_turns):
+        self.units = units
+        self.terrain_map = terrain_map
+        self.battle_rng = battle_rng
+        self.max_turns = max_turns
+        self.result = BattleResult(turn_cap=max_turns)
+        self.team_list = forces.team_names(units)
+        self.unit_stats = {m.side_name: SideStats(name=f"{m.side_name} ({m.chassis} {m.model})",
+                                                  max_hp=total_hp(m)) for m in units}
+        self.turn = 0              # turns finished (0 = deployed, no turn played yet)
+        self.over = False          # one team or none left standing
+
+
 def run_skirmish(units, terrain_map, battle_rng: BattleRNG,
-                 max_turns: Optional[int] = None) -> BattleResult:
+                 max_turns: Optional[int] = None, after_turn=None) -> BattleResult:
     """Section 2's turn structure for any number of units on any number of
     teams (2026-10-28, INTEGRATION__forces) for up to max_turns turns, or
     until one team or none is left standing (checked after End Phase each
@@ -817,12 +837,20 @@ def run_skirmish(units, terrain_map, battle_rng: BattleRNG,
     `units`: attached mechs (_attach_mech_config), each with a unique
     side_name and a `team`. Each unit's bot plans its own movement against its
     foe (forces.choose_foe) and fires at the enemy it chooses
-    (forces.choose_target): independent bots."""
+    (forces.choose_target): independent bots.
+
+    after_turn(battle): called at the end of every turn that leaves the
+    battle going (a saved state is taken there - INTEGRATION__saved_state);
+    if it returns a Battle, play goes on with that one (a reloaded copy)."""
     max_turns = max_turns if max_turns is not None else config.MAX_TURNS
-    result = BattleResult(turn_cap=max_turns)
-    team_list = forces.team_names(units)
-    unit_stats = {m.side_name: SideStats(name=f"{m.side_name} ({m.chassis} {m.model})", max_hp=total_hp(m))
-                  for m in units}
+    battle = Battle(units, terrain_map, battle_rng, max_turns)
+    _start_battle(battle)
+    return play_on(battle, after_turn)
+
+
+def _start_battle(battle):
+    """Per-battle module state set fresh, then deployment."""
+    units, terrain_map = battle.units, battle.terrain_map
     clubs.reset_battle()
     forces.set_battle(units)              # displacement code finds the 'Mech in a hex through this (INTEGRATION__domino)
     legate.reset()
@@ -831,7 +859,7 @@ def run_skirmish(units, terrain_map, battle_rng: BattleRNG,
     hazards.set_board(terrain_map)        # magma / hazardous liquid (TO:AR, 2026-10-27); mends broken crust
     smoke.set_board(terrain_map)          # no smoke yet (Core p.124, 2026-10-27)
     if config.DEPLOYMENT == "home_edge":
-        _deploy_teams(units, terrain_map, battle_rng)
+        _deploy_teams(units, terrain_map, battle.battle_rng)
     elif config.DEPLOYMENT != "fixed_hexes":
         raise ValueError(f"Unknown DEPLOYMENT {config.DEPLOYMENT!r}")
     for m in units:
@@ -839,92 +867,114 @@ def run_skirmish(units, terrain_map, battle_rng: BattleRNG,
         movement_selection.record_hp(m)      # the history blend's record (config.MOVEMENT_LIFETIME_HISTORY_K)
     replay.mark(0, "Deployment")
 
-    for turn in range(1, max_turns + 1):
-        config.log(f"\n=== TURN {turn} ===")
-        alive = forces.standing(units)
-        for m in units:
-            piloting_rolls.snapshot_preexisting_damage(m)
-            equip.start_turn(m, turn)
 
-        order = forces.initiative_order(forces.team_names(alive), battle_rng)
-        _log_initiative(order)
-        in_order = [m for t in order for m in alive if m.team == t]      # the side that lost first
+def play_on(battle, after_turn=None) -> BattleResult:
+    """Plays turns from battle.turn + 1 to the cap or the end of the battle, then
+    totals the result. A fresh battle starts at turn 1; a loaded saved state
+    (INTEGRATION__saved_state.load) at the turn after the one it was saved at."""
+    while not battle.over and battle.turn < battle.max_turns:
+        turn = battle.turn + 1
+        battle.over = _play_turn(battle, turn)
+        battle.turn = turn
+        if not battle.over and after_turn is not None:
+            battle = after_turn(battle) or battle     # it may hand back a reloaded copy to play on with
+    return _finish(battle)
 
-        for m in units:
-            _reset_movement_state(m)
-            m.moved_this_turn = False
-        for m in in_order:
-            fire_modes.declare_unjams(m)     # Rotary AC unjam attempts are declared in the Movement Phase (p.183)
-        legate.plan_turn(units, terrain_map)        # Legate estimates where each side's enemies will move
-        for mover in forces.movement_order(units, order):
-            foe = bots.choose_foe(mover, units, terrain_map)
-            start_hex = mover.hex
-            with timing.section("movement"):
-                _phase_movement(mover, foe, terrain_map, turn, battle_rng, moves_first=not foe.moved_this_turn,
-                                units=units)
-            mover.moved_this_turn = True
-            princess_memory.unit_moved(mover, start_hex)       # a Princess unit credits where it ended
-            replay.mark(turn, f"{mover.side_name} moves")
-        legate.end_phase()
 
-        if any(m.hex is None for m in units):
-            # A mech that couldn't enter the battlefield is destroyed (p.37) and
-            # never got a hex - e.g. a Solaris arena whose home edge is all wall
-            # (2026-10-21). With one team or none left, nothing else can happen this turn.
-            if len(forces.teams_standing(units)) < 2:
-                result.turns_taken = turn
-                _conclude(result, units, team_list)
-                config.log(f"\n>>> Battle over on turn {turn}: {_over_text(result)} "
-                           f"(couldn't enter the battlefield). <<<")
-                break
+def _play_turn(battle, turn) -> bool:
+    """One turn, Initiative to End Phase. True = the battle is over."""
+    units, terrain_map, battle_rng = battle.units, battle.terrain_map, battle.battle_rng
+    result, unit_stats, team_list = battle.result, battle.unit_stats, battle.team_list
+    config.log(f"\n=== TURN {turn} ===")
+    alive = forces.standing(units)
+    for m in units:
+        piloting_rolls.snapshot_preexisting_damage(m)
+        equip.start_turn(m, turn)
 
-        _after_phase(*units)
-        fighters = forces.fire_order(units, order)
-        tag.designation_units(fighters, lambda u: forces.choose_target(u, units, terrain_map),
-                              terrain_map)                            # TAG, before the Ranged Attack Phase (p.200)
-        with timing.section("ranged attacks"):
-            pick = bots.fire_pick(units, terrain_map)             # Gladiator's firing order, after TAG
-            if pick is not None:
-                fighters = forces.fire_order(units, order, pick)
-            reports = attack_resolution.run_ranged_phase(fighters, lambda u: bots.choose_target(u, units, terrain_map),
-                                                         terrain_map, battle_rng)
-        _after_phase(*units)
-        replay.mark(turn, "Ranged attacks")
-        for side, rep in reports.items():
-            unit_stats[side].attacks += rep.attacks
-            unit_stats[side].hits += rep.hits
-            unit_stats[side].damage_dealt += rep.damage_dealt
+    order = forces.initiative_order(forces.team_names(alive), battle_rng)
+    _log_initiative(order)
+    in_order = [m for t in order for m in alive if m.team == t]      # the side that lost first
 
-        with timing.section("physical attacks"):
-            scrappers = forces.fire_order(units, order)
+    for m in units:
+        _reset_movement_state(m)
+        m.moved_this_turn = False
+    for m in in_order:
+        fire_modes.declare_unjams(m)     # Rotary AC unjam attempts are declared in the Movement Phase (p.183)
+    legate.plan_turn(units, terrain_map)        # Legate estimates where each side's enemies will move
+    for mover in forces.movement_order(units, order):
+        foe = bots.choose_foe(mover, units, terrain_map)
+        start_hex = mover.hex
+        with timing.section("movement"):
+            _phase_movement(mover, foe, terrain_map, turn, battle_rng, moves_first=not foe.moved_this_turn,
+                            units=units)
+        mover.moved_this_turn = True
+        princess_memory.unit_moved(mover, start_hex)       # a Princess unit credits where it ended
+        replay.mark(turn, f"{mover.side_name} moves")
+    legate.end_phase()
 
-            def physical_target(u):
-                declared = getattr(u, "charging", None) or getattr(u, "dfa", None)
-                return declared or forces.choose_target(u, units, terrain_map, adjacent_only=True)
-
-            physical.run_physical_units(scrappers, physical_target, terrain_map, reports)
-        _after_phase(*units)
-        replay.mark(turn, "Physical attacks")
-        with timing.section("heat phase"):
-            _phase_heat(units, reports)
-        _after_phase(*units)
-        princess_memory.end_of_turn(units)                      # Princess's heat map fades (endOfTurnProcessing)
-        with timing.section("end phase"):
-            _phase_end(units, turn, unit_stats)
-            smoke.end_phase(turn)                # clouds whose time is up clear (2026-10-27)
-
-        for m in units:
-            config.log(f"  -- end of turn {turn}: {_status_line(m)}")
-        for m in units:
-            movement_selection.record_hp(m)
-        replay.mark(turn, "Heat and end phase")
-
-        result.turns_taken = turn
+    if any(m.hex is None for m in units):
+        # A mech that couldn't enter the battlefield is destroyed (p.37) and
+        # never got a hex - e.g. a Solaris arena whose home edge is all wall
+        # (2026-10-21). With one team or none left, nothing else can happen this turn.
         if len(forces.teams_standing(units)) < 2:
+            result.turns_taken = turn
             _conclude(result, units, team_list)
-            config.log(f"\n>>> Battle over on turn {turn}: {_over_text(result)}. <<<")
-            break
+            config.log(f"\n>>> Battle over on turn {turn}: {_over_text(result)} "
+                       f"(couldn't enter the battlefield). <<<")
+            return True
 
+    _after_phase(*units)
+    fighters = forces.fire_order(units, order)
+    tag.designation_units(fighters, lambda u: forces.choose_target(u, units, terrain_map),
+                          terrain_map)                            # TAG, before the Ranged Attack Phase (p.200)
+    with timing.section("ranged attacks"):
+        pick = bots.fire_pick(units, terrain_map)             # Gladiator's firing order, after TAG
+        if pick is not None:
+            fighters = forces.fire_order(units, order, pick)
+        reports = attack_resolution.run_ranged_phase(fighters, lambda u: bots.choose_target(u, units, terrain_map),
+                                                     terrain_map, battle_rng)
+    _after_phase(*units)
+    replay.mark(turn, "Ranged attacks")
+    for side, rep in reports.items():
+        unit_stats[side].attacks += rep.attacks
+        unit_stats[side].hits += rep.hits
+        unit_stats[side].damage_dealt += rep.damage_dealt
+
+    with timing.section("physical attacks"):
+        scrappers = forces.fire_order(units, order)
+
+        def physical_target(u):
+            declared = getattr(u, "charging", None) or getattr(u, "dfa", None)
+            return declared or forces.choose_target(u, units, terrain_map, adjacent_only=True)
+
+        physical.run_physical_units(scrappers, physical_target, terrain_map, reports)
+    _after_phase(*units)
+    replay.mark(turn, "Physical attacks")
+    with timing.section("heat phase"):
+        _phase_heat(units, reports)
+    _after_phase(*units)
+    princess_memory.end_of_turn(units)                      # Princess's heat map fades (endOfTurnProcessing)
+    with timing.section("end phase"):
+        _phase_end(units, turn, unit_stats)
+        smoke.end_phase(turn)                # clouds whose time is up clear (2026-10-27)
+
+    for m in units:
+        config.log(f"  -- end of turn {turn}: {_status_line(m)}")
+    for m in units:
+        movement_selection.record_hp(m)
+    replay.mark(turn, "Heat and end phase")
+
+    result.turns_taken = turn
+    if len(forces.teams_standing(units)) < 2:
+        _conclude(result, units, team_list)
+        config.log(f"\n>>> Battle over on turn {turn}: {_over_text(result)}. <<<")
+        return True
+    return False
+
+
+def _finish(battle) -> BattleResult:
+    """The battle's totals, once it is over or the turn cap is reached."""
+    units, result, unit_stats, team_list = battle.units, battle.result, battle.unit_stats, battle.team_list
     for m in units:
         s = unit_stats[m.side_name]
         s.final_hp = total_hp(m)
@@ -1032,7 +1082,8 @@ def _run_one_roster(sim, num_simulations, seed, max_turns, roster, terrain_map):
     timing.take()                          # nothing carried over from outside this battle
     prof = timing.start_profile()
     with timing.section("battle"):
-        result = run_skirmish(units, terrain_map, battle_rng, max_turns)
+        result = run_skirmish(units, terrain_map, battle_rng, max_turns,
+                              after_turn=saved_state.after_turn_hook(sim, sim_seed))
     result.profile = timing.stop_profile(prof)
     result.timing = timing.take() if config.TIMING else None
     result.active_stubs = stubs.active_stubs()

@@ -18,6 +18,7 @@ edited).
 **Pile 1 / integration (`INTEGRATION__*`)**
 - `main.py` → `orchestrator`
   (2026-10-28: `orchestrator` → `forces`; `run_skirmish` is the general battle, `run_battle` its two-'Mech form)
+  (2026-11-03: a battle is an `orchestrator.Battle`; `run_skirmish` = `_start_battle` + `play_on`, which plays `_play_turn` from `battle.turn + 1`, so a loaded saved state plays on the same way)
 - `orchestrator.py` → `config` (imported first; self-registers as bare
   `config`), MECHSIM `mech_state` (is_destroyed, is_crippled, clone_mech,
   compute_*_mp, all_crew_unconscious, is_immobile),
@@ -77,6 +78,7 @@ edited).
 - `timing.py` (NEW 2026-10-21) → `config` only (stdlib cProfile / pstats). Used by `orchestrator` (phases, report), `movement_selection`, `attack_resolution`, `tests/benchmark_turns.py`.
 - `future_damage.py` (NEW 2026-10-20) → `config`, `arcs`, `ammo`, `fire_modes`, `heat`, `physical`, `structure_weight`, `weapon_profiles`, `weapon_selection`, `attack_resolution`, `ranged_combat` (`_make_heat_limited_scorer`, `_with_physical`), `equipment_systems`; MECHSIM `damage_resolution`, `mech_state`; PATHFINDER `combat`. Used by `movement_selection` (lifetime objective).
 - `replay.py` (NEW 2026-10-20) → `config`, `arcs`, `attack_resolution` (total_hp); MECHSIM `mech_state`. Reads `replay_viewer.html`. Used by `orchestrator` (marks steps, writes pages).
+- `saved_state.py` (NEW 2026-11-03, saved states) → `config`, `orchestrator` (imported first: it sets the paths; `Battle`, `play_on`, settings snapshot), `clubs`, `forces`, `hazards`, `kill_curve`, `legate`, `princess_fire`, `princess_memory`, `replay` (unit summaries), `smoke`, `stubs`, `water`, `weapon_selection`, `rng`. Used by `orchestrator._run_one_roster` (`after_turn_hook`).
 - `clubs.py` (NEW 2026-10-20) → `config` only. Used by `attack_resolution` (pick-up), `physical` (club attacks), `orchestrator` (battle reset, end-of-phase drops).
 - `physical.py` (NEW 2026-10-19) → `config`, `attack_resolution`, `arcs`, `structure_weight`, `charge` / `dfa` / `clubs` / `movement_attacks` (lazy); MECHSIM
   `mech_state`, `equipment`, `damage_resolution.apply_damage`,
@@ -111,7 +113,7 @@ edited).
 - `expected_damage.py` → bare `config` (= INTEGRATION__config via its
   self-registration), `weapon_rules` (2026-10-19)
 - `config.py` → `file_picker` (INTEGRATION__file_picker), MECHSIM `mtf_parser`
-- `rng.py` → `numpy` only
+- `rng.py` → `numpy` only (2026-11-03: `config.active_rng()` is every roll's pool - the battle's, or an unseeded one outside a battle)
 - `map_picker.py` (NEW 2026-10-28, the map picker: a GUI-ready library plus the console menu) → `config`, `file_picker` (remembered pick); PATHFINDER `board_parser`, `terrain_rules` (lazy, the playable check). Used by `orchestrator._load_map` (resolve_board, prompt_and_apply when `PROMPT_FOR_MAP`).
 - `file_picker.py` → stdlib/`tkinter` only. Leaf. Only used when
   `MECH_*_MTF` is None.
