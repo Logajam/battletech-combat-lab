@@ -740,6 +740,7 @@ Princess, decision by decision, the latest battery and why Gladiator loses.
    expected damage), pick Rust or Cython, port the physics behind a narrow
    API, keep the bots in Python calling it. Safety net: the reference logs and
    `tests/run_checks.py` must stay byte-identical (a speed-only change, CLAUDE.md).
+   PyPy tried 2026-11-03 (Change Record): no gain - once warm it ties CPython 3.13.
    Watch the boundary: bots call the evaluator thousands of times a move, so
    the API should score many spots per call, not one. Supersedes item 9's
    "once the rules settle" wording. The Combat Lab state snapshot and the
@@ -1763,6 +1764,18 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-11-03 (Claude), session 17 - PYPY TRIED: NO GAIN (no code changed).** Daniel: "Test PyPy" (long
+  run: Rust or C, keeping Python's modularity for now). PyPy 7.3.20 (Python 3.11) + numpy 2.4.6, in the
+  scratchpad only. The dice are identical (same stream hash as CPython). Speed: the 10-turn benchmark
+  8.0-8.4 s v 2.5-3.1 s under CPython 3.13 (same result, 501 / 495); the reference battles 51 s v 20 s;
+  a 50-turn Asymptote mirror in one process, seconds per 10 turns PyPy 7.4 / 4.3 / 3.7 / 2.8 / 3.0 v
+  CPython 2.5 / 3.3 / 2.8 / 2.3 / 3.0 - once warm it only ties. Its JIT log: 30% of the run compiling,
+  255 loops + 733 bridges (very branchy code, few tight loops), 6 traces too long. Results: 12 of 15
+  reference logs identical; 3 differ only in a printed rounding (7.375 -> "7.37" v "7.38": a last-bit
+  float difference, same moves and scores). Verdict: not worth it. The lesson for the compiled path:
+  the time is spread over branchy object code, so a port pays only where a loop is reshaped into
+  flat-data work (Pick up here 13).
 
 - **2026-11-03 (Claude), session 17 - SAVED STATES (end of turn).** REVIEW PENDING (higher-level
   model). Daniel: "load the board, units, their states and positions, and probably a count of how many
