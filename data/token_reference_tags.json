@@ -26,7 +26,8 @@
   "confidence": "high",
   "plan": "wedge",
   "profile": "lean",
-  "source": "3D model study 2026-11-03"
+  "source": "3D model study 2026-11-03",
+  "antennas": 2
  },
  "commando": {
   "archetype": "bird",
@@ -199,7 +200,8 @@
   "plan": "flare",
   "profile": "sloped",
   "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
-  "kit": "pylons"
+  "kit": "pylons",
+  "antennas": 2
  },
  "centurion": {
   "archetype": "humanoid",
@@ -215,7 +217,8 @@
   "plan": "flare",
   "profile": "shoulder",
   "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
-  "kit": "corner_pods"
+  "kit": "corner_pods",
+  "antennas": 1
  },
  "crab": {
   "archetype": "bird",
@@ -232,7 +235,8 @@
   "plan": "arrow",
   "profile": "lean",
   "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
-  "arm_style": "claw"
+  "arm_style": "claw",
+  "crouch": true
  },
  "hunchback": {
   "archetype": "humanoid",
@@ -293,7 +297,9 @@
   "confidence": "med",
   "plan": "block",
   "profile": "sloped",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "legs": "reverse",
+  "antennas": 1
  },
  "wolverine": {
   "archetype": "humanoid",
@@ -449,7 +455,8 @@
   "profile": "wedge_up",
   "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
   "legs": "pillar",
-  "kit": "fins"
+  "kit": "fins",
+  "antennas": 1
  },
  "stalker": {
   "archetype": "bird",
@@ -478,7 +485,7 @@
    "skull head in a notch"
   ],
   "confidence": "med",
-  "plan": "block",
+  "plan": "oval",
   "profile": "shoulder",
   "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
   "legs": "pillar"
@@ -497,7 +504,8 @@
   "confidence": "med",
   "plan": "block",
   "profile": "slung_wedge",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "crouch": true
  },
  "vindicator": {
   "archetype": "humanoid",
@@ -512,7 +520,8 @@
    "asymmetric arms (one big gun arm)"
   ],
   "confidence": "med",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "asym": "R"
  },
  "enforcer": {
   "archetype": "humanoid",
@@ -543,7 +552,8 @@
    "triple-hump top (head plus two shoulder boxes)"
   ],
   "confidence": "med",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "kit": "humps"
  },
  "quickdraw": {
   "archetype": "humanoid",
@@ -558,7 +568,9 @@
    "heel jump thrusters"
   ],
   "confidence": "med",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "feet": "thrusters",
+  "antennas": 2
  },
  "dragon": {
   "archetype": "humanoid",
@@ -573,7 +585,8 @@
    "asymmetric torso bulk"
   ],
   "confidence": "med",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "asym": "R"
  },
  "cataphract": {
   "archetype": "humanoid",
@@ -636,7 +649,8 @@
   ],
   "confidence": "med",
   "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
-  "kit": "round_blocks"
+  "kit": "round_blocks",
+  "antennas": 1
  },
  "zeus": {
   "archetype": "humanoid",
@@ -654,7 +668,8 @@
   "confidence": "med",
   "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
   "legs": "pillar",
-  "arm_style": "ball"
+  "arm_style": "ball",
+  "antennas": 2
  },
  "battlemaster": {
   "archetype": "humanoid",
@@ -699,7 +714,7 @@
   ],
   "confidence": "med",
   "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
-  "legs": "pillar"
+  "legs": "reverse"
  },
  "linesman": {
   "archetype": "humanoid",

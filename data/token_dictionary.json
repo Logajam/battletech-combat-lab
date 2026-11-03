@@ -33,7 +33,7 @@
    ]
   },
   "oval_disc": {
-   "status": "idea",
+   "status": "built (2026-11-03, session 16)",
    "what": "wide flat oval with a thin rim flange",
    "seen": [
     "Atlas"
@@ -68,7 +68,7 @@
    ]
   },
   "crouched": {
-   "status": "idea",
+   "status": "built (2026-11-03, session 16) - legs only, the torso does not pitch",
    "what": "whole body pitched forward over bent legs, torso low",
    "seen": [
     "King Crab",
@@ -90,7 +90,7 @@
    "status": "built"
   },
   "triple_hump": {
-   "status": "idea",
+   "status": "built (2026-11-03, session 16)",
    "what": "three humps along the top (head plus two shoulder boxes)",
    "seen": [
     "Kintaro"
@@ -226,8 +226,8 @@
  },
  "legs": {
   "chicken (bird)": {
-   "status": "built (basic)",
-   "what": "high hock, shin back, long foot"
+   "status": "built (2026-11-03, session 16)",
+   "what": "thigh forward-down to the knee, shin back-down to a high hock, long foot with a three-toe claw (two forward, one back), hock block, knee disc cover"
   },
   "pillar": {
    "status": "built (2026-11-03, session 16)",
@@ -249,7 +249,7 @@
    ]
   },
   "reverse_lower_leg": {
-   "status": "idea",
+   "status": "built (2026-11-03, session 16)",
    "what": "lower leg angled back with a big heel in side view",
    "seen": [
     "Highlander",
@@ -264,7 +264,7 @@
    ]
   },
   "heel_thrusters": {
-   "status": "idea",
+   "status": "built (2026-11-03, session 16)",
    "what": "thrusters on the heel",
    "seen": [
     "Quickdraw"
@@ -273,7 +273,7 @@
  },
  "details": {
   "antennas": {
-   "status": "built (one)",
+   "status": "built (2026-11-03, session 16)",
    "what": "one to three thin masts; Zeus two tall, Locust two, Cyclops a tent of three guy wires",
    "seen": [
     "Zeus",
@@ -297,11 +297,18 @@
    ]
   },
   "asymmetry": {
-   "status": "idea",
+   "status": "built (2026-11-03, session 16)",
    "what": "one arm much bigger than the other, or bulkier on one side",
    "seen": [
     "Vindicator",
     "Dragon"
+   ]
+  },
+  "surface_plating": {
+   "status": "built (2026-11-03, session 16)",
+   "what": "option surface = plated / smooth: vents across the lower torso front, bolts at the chest corners, panel lines along the top, armor bands on humanoid legs",
+   "seen": [
+    "every chassis (plated by default from 60 t, else by the name hash)"
    ]
   }
  }

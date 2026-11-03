@@ -26,9 +26,9 @@ def tags(m):
          ("head", f"{m['head_mount']} / {m['head_shape']}"), ("shoulders", m["shoulders"]), ("hips", m["hips"])]
     if m["arms"]:
         t.append(("arms", "/".join(m["arms"][c] for c in "LR")))
-    for key, label in (("legs", "legs"), ("arm_style", "arm style"), ("kit", "shoulder kit")):
+    for key, label in (("legs", "legs"), ("arm_style", "arm style"), ("kit", "shoulder kit"), ("feet", "feet"), ("asym", "bigger arm"), ("antennas", "antennas"), ("crouch", "stance")):
         if m.get(key):
-            t.append((label, m[key].replace("_", " ")))
+            t.append((label, "crouched" if m[key] is True else str(m[key]).replace("_", " ")))
     t.append(("weapons", ", ".join(f"{k.replace('_', ' ')} x{v}" for k, v in sorted(hp.items())) or "none"))
     return t
 
