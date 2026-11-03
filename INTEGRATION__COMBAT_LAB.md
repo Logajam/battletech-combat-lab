@@ -501,21 +501,21 @@ needs no GUI change.
     The MWO scale chart came back (2000 x 746; the copy that reached the session is 165 KB, not the 2.7 MB
     original). Read at 3x, row by row, against everything the kits taught: all 47 chart chassis now have
     tags (32 existed; 15 new: Vindicator, Enforcer, Kintaro, Quickdraw, Dragon, Cataphract, Grasshopper,
-    Black Knight, Victor, Zeus, Battlemaster, Cyclops, Highlander, Linesman, Banshee) and about 30 existing
+    Black Knight, Victor, Zeus, Battlemaster, Cyclops, Highlander, Mauler, Banshee) and about 30 existing
     ones were re-read (the whole-model units stay as the 3D studies set them). Files:
     `data/token_reference_tags.json` (tags plus a `new` list of unbuilt features per chassis),
     `data/token_dictionary.json` (the dictionary: plan / profile / torso / shoulder / arm / leg / detail
     terms, each with what it means in words, which chassis show it, and whether the generator has it),
     `data/token_chart_proportions.json` (measured: front W/H, side D/H, top W/D and chart height per
-    chassis, from segmenting the silhouettes). The Linesman has no unit file in the library, so it is tagged
-    but not drawn.
+    chassis, from segmenting the silhouettes). CORRECTION (2026-11-03): the chart cell first read as "Linesman" is the MAULER; the earlier
+    "no unit file" remark was my misreading, and the library has Maulers.
   - **Measured findings:** chart heights grow with tonnage as about tons^0.49, not the cube root (0.33) the
     generator uses (the chart's own scale is unreliable per Daniel; his rule keeps the cube-square curve);
     heavier 'Mechs are proportionally WIDER: front W/H averages 0.63 light, 0.68 medium, 0.70 heavy, 0.81
     assault, and side D/H falls from 0.53 to 0.42. The generator's width factor (`wf`) should follow this.
   - **Missing blocks, ranked by how many chassis show them** (all `idea` in the dictionary): arms forward
     past the body / long barrel arms (7: Blackjack, Rifleman, JagerMech, Warhammer, Griffin, Wolfhound,
-    Linesman), pillar legs (6: Atlas, Banshee, Highlander, Zeus, Awesome, Orion), round dome torso (5),
+    Mauler), pillar legs (6: Atlas, Banshee, Highlander, Zeus, Awesome, Orion), round dome torso (5),
     arrow plan (5), slung wedge profile (4), shoulder corner pods (4), tiny arms under big boxes (3), tall
     slab profile (3), round arm blocks (3), swept shoulder fins (3), ears (3). Seen in the viewer: the 47
     units render but many still look alike, because the generator cannot yet say these.
@@ -537,7 +537,7 @@ needs no GUI change.
     Dragon); `antennas` count 0-3 (the single head mast is replaced by masts on the torso top);
     `crouch` (legs 16 percent shorter, knees pushed forward: Crab, King Crab; the torso does not pitch yet).
     Bug caught: a limb segment's cap is a cube sized by its radius, so a short fat "band" came out as a
-    big block; bands are now thin boxes. Still not built: the Linesman's V chest (no unit file), pitching
+    big block; bands are now thin boxes. Still not built: the Mauler's hexagonal chest plate, pitching
     the torso in a crouch, second and third antennas of different heights per chassis, panel lines on the
     legs and arms, a camo / team-color option.
   - **Crouch pitch, limb panel lines, team color, cockpit scale (2026-11-03, session 16, continued).**
@@ -556,6 +556,24 @@ needs no GUI change.
     Atlas, Orion. Legs `slab` (two stacked chamfered slabs on the thigh, three tapering on the shin, a
     clamshell knee, wide block foot): Atlas, Banshee, Battlemaster, Victor. Checked by eye on the Atlas,
     Orion, Banshee and Flea (unchanged).
+  - **Weapon models and mech-like parts (Daniel, 2026-11-03: "enhanced weapon models that fit", "replace
+    blocks for something that looks like it would be on an actual mech").** `weapon_fam` reads each weapon's
+    family and size from its name; `weapon_barrel` builds laser (housing, fin plate, lens, pulse = two lenses),
+    PPC (coil rings, forked muzzle), AC / Ultra / LB-X (receiver, side feed, barrel, brake, rail), Gauss
+    (coil rings), machine gun, flamer, rotary; `_pod` missile racks have a lid line and tube mouths as dark
+    recesses with a colored rim. All receivers are buried in the mount. Also replaced: fists (palm, three
+    finger plates, thumb), feet (heel block plus two toe wedges), heads (side profile extruded; dome a
+    blob), shoulder caps (not balls), jump-jet nozzles. Fixed on the way: leg armor bands were too dark.
+    (The chart chassis I misread as "Linesman" is the Mauler; see the correction above.)
+    Page size 5.9 MB (blob samples cut to 64). Checked by eye on 12 units. Not built: AMS dome, TAG /
+    probe / ECM housings, artillery tubes, swiveling turrets.
+  - **Mauler model (Daniel, 2026-11-03).** A whole Syllogy MAL-1R miniature settled the misreading above.
+    Read from renders: small head sunk between two huge slanted-top missile boxes at the shoulders (cell
+    grids forward, tall rear wings), a hexagonal chest plate, one long arm cannon and one slab arm with a
+    flat armor panel, thick plated pillar legs with clamshell knees, stacked-plate shins, block feet with
+    toes. Tagged `mauler` (kit launchers, legs slab, long-barrel arms, asym left); the generator's ears are
+    smaller than the Mauler's launchers, so the Mauler uses the new `launchers` kit (huge slanted-top
+    missile boxes with a forward cell grid and a tall rear wing).
   - **Next art steps (not built):** chicken legs (done above); stacked-slab shins with a high hock; the forward-slung wedge torso;
     the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
     pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits
