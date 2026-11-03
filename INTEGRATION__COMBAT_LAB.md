@@ -412,6 +412,44 @@ needs no GUI change.
     `ac_receiver` (box with rail and holes, long barrel, muzzle options), `srm_box` (box with a tube
     grid), `louvre` and `bolt` surface details, and a `surface` option (smooth / plated).
 
+- **Reference study round 3: whole-model and part kits (Daniel, 2026-11-03). REVIEW PENDING (higher-level model).**
+  Eight more uploads, files kept out of the repo (session scratch only): MWO-style part kits for the
+  Marauder and Hunchback (same print-articulated style as the Timber Wolf and Atlas kits), and six
+  single-file WHOLE miniatures by another author (Jenner JR7-F, Orion ON1-V, Locust LCT-1V, Flea
+  FLE-4, Stalker STK-3F, Catapult CPLT-C1): the first sources with real whole-mech proportions.
+  Read from renders in four or five views; words and rough ratios only. Caveat: they are posed
+  miniatures (crouched, arms out), so bounding boxes include the pose.
+  - **Bounding ratios, width : depth : height, as posed (rough):** Jenner 0.66 : 0.71 : 1,
+    Locust 0.64 : 0.70 : 1, Flea 0.70 : 0.90 : 1, Stalker 0.59 : 0.66 : 1, Catapult 0.66 : 0.72 : 1,
+    Orion 0.84 : 0.60 : 1 (arms out). Light and medium units are about two thirds as wide as tall,
+    the Flea nearly as deep as tall (a horizontal body); torso is roughly the top 40 percent of
+    the height on every unit, legs the lower 55.
+  - **Shape language per chassis (now in `data/token_reference_tags.json`, confidence high for
+    the whole models):**
+    - *Jenner:* chicken legs; a long wedge torso slung forward; a cockpit beak at the front; tall
+      box pods on the outer sides; two long antennas; small arms tucked under.
+    - *Locust:* small wedge torso slung forward; wing-like shoulder plates swept up at the sides;
+      thin gun arms; two antennas; thin chicken legs with big claw feet.
+    - *Flea:* a flat, wide slab torso almost horizontal on thin legs; gun pods forward under the
+      front edge; deep knee bend.
+    - *Orion:* a broad faceted chest with a vent grille; the head sunk between big rounded
+      shoulders; thick arms, a big cannon on one; straight legs with big knee blocks.
+    - *Stalker:* a long snout-nosed body (a cockpit cone) with big box missile bays flanking the
+      rear (cell grids on the face), an antenna, chunky chicken legs, wide flat feet, small arms.
+      This is the same shape as the Timber Wolf's canopy torso, so Stalker now uses `canopy`.
+    - *Catapult:* an ovoid body with tall box missile pods rising like ears on both sides (cell
+      grids face front), a tiny dome head, small arms, long-striding chicken legs.
+    - *Hunchback (part kit):* a tall deep box torso with a big hump on top carrying the gun, the
+      head low inside the hump; forearm slab ending in a fist of finger plates; low wedge feet.
+    - *Marauder (part kit):* a long low arrowhead hull torso (narrow nose, wide rear tabs), a boxy
+      waist block with a big round hub, a flat foot with two long forward toes.
+  - **Generator changes:** the reference tags above (plan, profile, torso, head, hips) replaced the
+    earlier guesses for these eight; `torso: canopy` now also applies to the Stalker.
+  - **Still not built:** a taller whole-mech check (compare drawn proportions against these
+    ratios), a `ears` torso (Catapult) and `snout` variants, stacked-slab shins, three-toe claw feet,
+    and the shading step. Chicken legs and forward-slung wedge torsos recur on the light chassis, so
+    they are the next most useful shapes.
+
 ---
 
 # PART B - Combat Lab GUI: functional specification (to implement)
