@@ -489,6 +489,14 @@ needs no GUI change.
     half-width (max over the shoulder and the lowest point of the arm beside the torso, taper, flare
     and plan included) plus the arm's half-width and a gap; canopy sockets moved out the same way.
     Checked by eye on JagerMech, Mad Cat and Orion; not measured on all 33 units.
+  - **JagerMech arms still clipping, "pointing at a point in front" (Daniel, 2026-11-03).** Real
+    cause: the pod arm's plan taper (narrower toward the muzzle) was applied about the FIGURE'S centre
+    line (`B3.box plan`), so each pod's front corners were pulled inward toward the torso: the arms
+    converged and clipped. `plan` now takes an optional centre x (the pod tapers about its own centre).
+    The same flaw sat in the torso extrude (wedge plans pulled only the section edges, not the side
+    sections' centres): the plan factor now scales the whole torso about the centre line. The shoulder
+    connector is shortened to torso edge to joint. Checked by eye (top and front) on JagerMech,
+    Locust, Commando, Orion, Flea, Hunchback.
   - **Next art steps (not built):** chicken legs with a high hock; the forward-slung wedge torso;
     the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
     pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits
