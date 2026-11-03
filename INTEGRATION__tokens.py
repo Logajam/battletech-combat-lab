@@ -388,7 +388,8 @@ class B3:
         return v / self.k
 
     def box(self, c, s, tone, tilt=0.0, tx=1.0, ty=1.0, vis=None, tag="b", cls=None, plan=None, ch=None):
-        """`plan` = (fw, y_back, y_front): x is scaled from 1 at y_back to fw at y_front, so a
+        """`plan` = (fw, y_back, y_front[, x_centre]): x is scaled (about x_centre, default the figure's
+        centre line: use the part's own x for an off-centre part such as an arm pod) from 1 at y_back to fw at y_front, so a
         torso seen from above is a wedge (fw < 1) or flares forward (fw > 1) while the front
         and rear views still read its widest edge."""
         f = self.f
@@ -408,8 +409,9 @@ class B3:
                     else:
                         pts.append((px_, py_, zz))
         if plan:
-            fw, yb, yf = plan
-            pts = [(x * (1 + (fw - 1) * max(0.0, min(1.0, (y / f - yb) / (yf - yb)))), y, z) for x, y, z in pts]
+            fw, yb, yf = plan[:3]
+            px0 = (plan[3] * f) if len(plan) > 3 else 0.0           # the taper is about this x: 0 = the figure's centre line
+            pts = [(px0 + (x - px0) * (1 + (fw - 1) * max(0.0, min(1.0, (y / f - yb) / (yf - yb)))), y, z) for x, y, z in pts]
         self.parts.append({"groups": [[(p, 0.0) for p in pts]], "cls": cls or TONE[tone], "vis": vis, "tag": tag,
                            "vol": sx * sy * sz * (1 + tx * ty) / 2})
 
@@ -431,9 +433,10 @@ class B3:
         f = self.f
         pts = []
         for u, v in prof:
-            hx = w / 2 * (1 - (1 - wtop) * v) * (1 + (fw - 1) * (u + 1) / 2)
-            for sx in (-1, 1):
-                pts.append(((cx + sx * hx) * f, (cy + u * d / 2) * f, z0 + v * h))
+            hx = w / 2 * (1 - (1 - wtop) * v)
+            plan_k = 1 + (fw - 1) * (u + 1) / 2                    # the plan scales the whole torso about its centre line,
+            for sx in (-1, 1):                                     # so the three sections stay joined
+                pts.append(((cx + sx * hx) * plan_k * f, (cy + u * d / 2) * f, z0 + v * h))
         self.parts.append({"groups": [[(p, 0.0) for p in pts]], "cls": cls or TONE[tone], "vis": vis, "tag": tag,
                            "vol": w * d * h * f * f * 0.8})
 
@@ -716,7 +719,7 @@ def _build(model, f, k):
         top_k = tx * flare
         half_arm = max(half * (1 - (1 - top_k) * vs), half * (1 - (1 - top_k) * vl)) * (1 + (fw - 1) * 0.5)
         sx = fx * canopy["x_arm"] if canopy else fx * (half_arm + 0.058 + boom)
-        b.seg([(fx * (tw_eff / 2 * 0.80), ay, zs_), (sx, ay, zs_)], [0.045 * sl, 0.04 * sl], "3")           # connective tissue
+        b.seg([(fx * (canopy and tw_eff / 2 * 0.80 or half_arm * 0.92), ay, zs_), (sx, ay, zs_)], [0.038 * sl, 0.034 * sl], "3")           # connective tissue: torso edge to shoulder joint only
         b.ball((sx, ay, zs_), 0.038, "3")
         small = bool(gs) and not any(x["big"] for x in gs)
         up = model.get("arms_up")
@@ -727,7 +730,8 @@ def _build(model, f, k):
             pz = zs_ - 0.07 if not up else ztop + 0.08
             # POD ARM (block from the kit study): a lozenge - leaf-shaped in plan (narrows to the muzzle),
             # chamfered, with a raised spine on top and a stub underneath
-            b.box((sx + fx * 0.012, ay + 0.03, pz), (pw * sl, 0.18, 0.10), "1", tx=0.85, plan=(0.55, -0.06, 0.12), ch=0.012)
+            b.box((sx + fx * 0.012, ay + 0.03, pz), (pw * sl, 0.18, 0.10), "1", tx=0.85,
+                  plan=(0.55, ay + 0.03 - 0.09, ay + 0.03 + 0.09, sx + fx * 0.012), ch=0.012)     # tapers about ITS OWN centre line
             b.box((sx + fx * 0.012, ay + 0.02, pz + 0.06), (pw * sl * 0.4, 0.14, 0.025), "3")
             b.box((sx + fx * 0.012, ay - 0.03, pz - 0.06), (pw * sl * 0.3, 0.05, 0.03), "3")
             muz = (sx + fx * 0.012, ay + 0.03 + 0.08, pz)
