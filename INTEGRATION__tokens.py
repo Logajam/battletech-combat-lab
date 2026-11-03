@@ -639,7 +639,7 @@ def _build(model, f, k):
             b.box((bx, bays[fx][1], bays[fx][2]), (bw, bays[fx][4], bays[fx][5]), "2", tx=0.9, ty=0.82, tilt=-0.10, ch=0.016)
             b.box((fx * tw * 0.168, td * 0.02, zc + th * 0.30), (0.007, td * 0.62, th * 0.50), "1", vis={"front", "rear", "top"}, cls="ln")   # seam between the thirds
         canopy = {"y_flank": td * 0.06, "z_flank": zc - th * 0.04, "y_nose": td * 0.36, "z_nose": zc - th * 0.07,
-                  "x_arm": tw * 0.5 + 0.012, "y_arm": -td * 0.02, "z_arm": zc + th * 0.06, "y_rear": -td * 0.40,
+                  "x_arm": tw * 0.5 + 0.052, "y_arm": -td * 0.02, "z_arm": zc + th * 0.06, "y_rear": -td * 0.40,
                   "visor": (0, td * 0.22, zc + th * 0.30)}
         tw_eff = tw
     else:
@@ -707,8 +707,16 @@ def _build(model, f, k):
         sl = slim(zone)
         ay = canopy["y_arm"] if canopy else 0.0                    # the shoulder socket sits on the side torso itself
         zs_ = canopy["z_arm"] if canopy else zs
-        sx = fx * canopy["x_arm"] if canopy else fx * (tw_eff / 2 + boom + 0.02)
-        b.seg([(fx * (tw_eff / 2 * 0.92), ay, zs_), (sx, ay, zs_)], [0.045 * sl, 0.04 * sl], "3")           # connective tissue
+        # The arm hangs OUTSIDE the torso: the torso's real half-width (taper and flare included) at the
+        # shoulder and at the lowest point the arm reaches beside the torso, plus the arm's own half-width
+        # (Daniel, 2026-11-03: JagerMech arms clipped into the torso).
+        zt = "Left Torso" if fx < 0 else "Right Torso"
+        half = cw / 2 + sw * slim(zt)
+        vs, vl = min(1.0, (zs_ - z0) / th), max(0.0, min(1.0, (zs_ - 0.26 - z0) / th))
+        top_k = tx * flare
+        half_arm = max(half * (1 - (1 - top_k) * vs), half * (1 - (1 - top_k) * vl)) * (1 + (fw - 1) * 0.5)
+        sx = fx * canopy["x_arm"] if canopy else fx * (half_arm + 0.058 + boom)
+        b.seg([(fx * (tw_eff / 2 * 0.80), ay, zs_), (sx, ay, zs_)], [0.045 * sl, 0.04 * sl], "3")           # connective tissue
         b.ball((sx, ay, zs_), 0.038, "3")
         small = bool(gs) and not any(x["big"] for x in gs)
         up = model.get("arms_up")

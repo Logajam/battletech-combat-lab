@@ -483,6 +483,12 @@ needs no GUI change.
     tags name them per chassis (several reassigned; low confidence, Claude's reading). Weapons and
     heads now mount on the profile's real front face (`front_y`). The `profile` tag in the reference
     file may now hold any of those names.
+  - **Arm clipping (Daniel, 2026-11-03, JagerMech).** The shoulder was anchored at the torso's
+    nominal edge, ignoring the arm's own thickness and the torso's taper / flare at the height the arm
+    hangs, so the arm's inner edge sat inside the torso. The shoulder x is now the torso's real
+    half-width (max over the shoulder and the lowest point of the arm beside the torso, taper, flare
+    and plan included) plus the arm's half-width and a gap; canopy sockets moved out the same way.
+    Checked by eye on JagerMech, Mad Cat and Orion; not measured on all 33 units.
   - **Next art steps (not built):** chicken legs with a high hock; the forward-slung wedge torso;
     the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
     pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits
