@@ -76,9 +76,8 @@ def _hull(points):
     return m if len(m.faces) else None
 
 
-def part_meshes(model, drop=()):
-    """[(cls, vertices (n,3), faces (m,3))] for every convex solid of the unit, in levels.
-    `drop` lists part tags left out (none by default: weapons are drawn)."""
+def _raw_parts(model, drop=()):
+    """[(cls, vertices (n,3), faces (m,3), tag)] for every convex solid of the unit, in levels, at the model's current fit."""
     b, k = T._views(model, model["drawn_levels"] * T.LEVEL)
     s = k / T.LEVEL
     sph, slab = _sphere_points(), _slab_points()
@@ -114,8 +113,68 @@ def part_meshes(model, drop=()):
                     pts += [w] if not r else list(w + (sph if part["tag"] == "w" else slab) * (r * s))
             m = _hull(pts)
             if m is not None:
-                out.append((part["cls"], np.asarray(m.vertices), np.asarray(m.faces)))
+                out.append((part["cls"], np.asarray(m.vertices), np.asarray(m.faces), part["tag"]))
     return out
+
+
+# ---- the scaling law: equal mass, equal volume
+DENSITY = 0.0037                 # levels^3 of body per ton: the median of the first 47 generated units, so the average look is kept
+FIT_MIN, FIT_MAX = 0.45, 2.4
+
+
+def union_volume(parts, cell=0.04):
+    """Volume (levels^3) of the union of the convex solids, counted on a grid of cell centres (overlaps counted once)."""
+    from scipy.spatial import ConvexHull
+    allv = np.vstack([v for v in parts])
+    lo, hi = allv.min(0) - cell, allv.max(0) + cell
+    shape = np.ceil((hi - lo) / cell).astype(int)
+    occ = np.zeros(shape, dtype=bool)
+    for v in parts:
+        try:
+            h = ConvexHull(v)
+        except Exception:
+            continue
+        i0 = np.maximum(((v.min(0) - lo) / cell).astype(int), 0)
+        i1 = np.minimum(np.ceil((v.max(0) - lo) / cell).astype(int) + 1, shape)
+        idx = np.stack(np.meshgrid(*[np.arange(i0[k], i1[k]) for k in range(3)], indexing="ij"), -1).reshape(-1, 3)
+        pts = lo + (idx + 0.5) * cell
+        inside = np.all(pts @ h.equations[:, :3].T + h.equations[:, 3] <= 1e-9, axis=1)
+        occ[tuple(idx[inside].T)] = True
+    return float(occ.sum() * cell ** 3)
+
+
+def body_volume(model):
+    """Measured volume of the body: every part except weapons (a weapon's bulk follows its own mass)."""
+    return union_volume([v for _, v, _f, tag in _raw_parts(model) if tag != "w"])
+
+
+def calibrate(model):
+    """Set model["fit"] so that body volume = DENSITY x tons (two secant steps on f, volume ~ f^2). The 'Mech's height is
+    already the rules curve; only its width and depth change. Heavy and light, crouched and upright: one density."""
+    if model.get("_cal"):
+        return
+    model["nocap"] = True
+    f0 = T._mass_factor(model) * (0.90 + 0.24 * min(model["tons"], 100) / 100.0)
+    model["fit"] = f0
+    target = DENSITY * model["tons"]
+    v0 = body_volume(model)
+    f1 = min(FIT_MAX, max(FIT_MIN, f0 * math.sqrt(target / max(v0, 1e-6))))
+    model["fit"] = f1
+    v1 = body_volume(model)
+    slope = 2.0
+    if abs(f1 - f0) > 1e-4 and v0 > 0 and v1 > 0:
+        slope = min(3.0, max(0.8, math.log(v1 / v0) / math.log(f1 / f0)))
+    f2 = min(FIT_MAX, max(FIT_MIN, f1 * (target / max(v1, 1e-6)) ** (1.0 / slope)))
+    model["fit"] = f2
+    model["fit_clamped"] = f2 in (FIT_MIN, FIT_MAX)
+    model["_cal"] = True
+
+
+def part_meshes(model, drop=()):
+    """[(cls, vertices (n,3), faces (m,3))] for every convex solid of the unit, in levels, after volume calibration.
+    `drop` lists part tags left out (none by default: weapons are drawn)."""
+    calibrate(model)
+    return [(c, v, f) for c, v, f, tag in _raw_parts(model) if tag not in drop]
 
 
 def unit_mesh(model, digits=3):

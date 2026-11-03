@@ -651,6 +651,18 @@ needs no GUI change.
     were praised and left alone; the Cicada's rabbit face and the Black Knight's `.__.` face are kept on purpose
     (Daniel: funnier intentional) but the Black Knight's was not specifically drawn; the Mad Cat trunk reads as
     chunky armor, not a trunk. The contact sheets I used squashed some images, which cost me one wrong turn.
+  - **Scaling law: equal mass, equal volume (Daniel, 2026-11-03).** His Awesome-v-Victor note was about this, and
+    Claude first misread it as a request for bulk (added `girth` tags, which made it worse). Measured on the 47
+    chart units (union volume of the body parts, weapons excluded): volume per ton varied 0.15 to 0.69 (4x), and
+    fell from light to assault. A second violation: the base cap shrank heavy 'Mechs (the Atlas was drawn 1.36
+    levels tall against its curve of 2.0). Fix: `INTEGRATION__token_mesh.calibrate` scales width and depth so that
+    body volume = DENSITY (0.0037 levels^3 per ton, the old median) x tons, with the height on the rules curve
+    and the base cap off for 3D. Result: all 47 within 3.47-4.01e-3 per ton (2.3 percent spread), none clamped
+    (fit 0.61-1.54); Awesome and Victor (80 t) 0.297 and 0.299. New: `tests/test_token_volume.py` (skips without
+    numpy / scipy / trimesh). The chart's finding that heavier 'Mechs are wider (W/H 0.63 to 0.81) is no longer
+    applied (width and depth scale together, so volume wins); shaping it at constant volume would need separate
+    width and depth factors. Side effects: heavy 'Mechs now look taller and slimmer; the Locust and the Flea
+    (both 20 t, same volume) still look alike. The 2D sheets keep the older estimate.
   - **Next art steps (not built):** chicken legs (done above); stacked-slab shins with a high hock; the forward-slung wedge torso;
     the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
     pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits
