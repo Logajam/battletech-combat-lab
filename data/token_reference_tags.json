@@ -56,11 +56,12 @@
   "plan": "wedge",
   "profile": "lean",
   "hips": "flare",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "kit": "spar"
  },
  "urbanmech": {
   "archetype": "humanoid",
-  "torso": "slab",
+  "torso": "dome",
   "head_mount": "built_in",
   "head_shape": "box",
   "shoulders": "flush",
@@ -70,7 +71,8 @@
   ],
   "confidence": "med",
   "plan": "block",
-  "profile": "dome"
+  "profile": "dome",
+  "kit": "round_blocks"
  },
  "firestarter": {
   "archetype": "bird",
@@ -85,7 +87,8 @@
   "confidence": "med",
   "plan": "wedge",
   "profile": "lean",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "kit": "corner_pods"
  },
  "jenner": {
   "archetype": "bird",
@@ -98,9 +101,10 @@
    "forward wedge head"
   ],
   "confidence": "high",
-  "plan": "wedge",
+  "plan": "arrow",
   "profile": "lean",
-  "source": "3D model study 2026-11-03"
+  "source": "3D model study 2026-11-03",
+  "kit": "corner_pods"
  },
  "panther": {
   "archetype": "humanoid",
@@ -129,8 +133,8 @@
    "nose long and pointed"
   ],
   "confidence": "high",
-  "plan": "wedge",
-  "profile": "prow",
+  "plan": "arrow",
+  "profile": "slung_wedge",
   "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "wolfhound": {
@@ -146,7 +150,8 @@
   "confidence": "med",
   "plan": "block",
   "profile": "upright",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "arm_style": "long_barrel"
  },
  "cicada": {
   "archetype": "bird",
@@ -161,7 +166,8 @@
   "confidence": "med",
   "plan": "wedge",
   "profile": "lean",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "kit": "fins"
  },
  "blackjack": {
   "archetype": "humanoid",
@@ -176,7 +182,8 @@
   "confidence": "med",
   "plan": "block",
   "profile": "upright",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "arm_style": "long_barrel"
  },
  "phoenix hawk": {
   "archetype": "humanoid",
@@ -191,7 +198,8 @@
   "confidence": "med",
   "plan": "flare",
   "profile": "sloped",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "kit": "pylons"
  },
  "centurion": {
   "archetype": "humanoid",
@@ -206,7 +214,8 @@
   "confidence": "med",
   "plan": "flare",
   "profile": "shoulder",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "kit": "corner_pods"
  },
  "crab": {
   "archetype": "bird",
@@ -220,9 +229,10 @@
    "crouched stance"
   ],
   "confidence": "med",
-  "plan": "wedge",
+  "plan": "arrow",
   "profile": "lean",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "arm_style": "claw"
  },
  "hunchback": {
   "archetype": "humanoid",
@@ -237,11 +247,12 @@
   "confidence": "med",
   "plan": "block",
   "profile": "hunch",
-  "source": "3D model study 2026-11-03"
+  "source": "3D model study 2026-11-03",
+  "arm_style": "a_frame"
  },
  "trebuchet": {
   "archetype": "humanoid",
-  "torso": "ovoid",
+  "torso": "dome",
   "head_mount": "built_in",
   "head_shape": "dome",
   "shoulders": "boom",
@@ -252,7 +263,8 @@
   "confidence": "med",
   "plan": "block",
   "profile": "dome",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "kit": "ears"
  },
  "griffin": {
   "archetype": "humanoid",
@@ -267,7 +279,8 @@
   "confidence": "med",
   "plan": "block",
   "profile": "upright",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "arm_style": "long_barrel"
  },
  "shadow hawk": {
   "archetype": "humanoid",
@@ -284,7 +297,7 @@
  },
  "wolverine": {
   "archetype": "humanoid",
-  "torso": "ovoid",
+  "torso": "dome",
   "head_mount": "built_in",
   "head_shape": "dome",
   "shoulders": "boom",
@@ -307,8 +320,9 @@
   ],
   "confidence": "med",
   "plan": "block",
-  "profile": "prow",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "profile": "tall_slab",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "arm_style": "shoulder_pod"
  },
  "catapult": {
   "archetype": "bird",
@@ -324,7 +338,8 @@
   "plan": "flare",
   "profile": "upright",
   "hips": "flare",
-  "source": "3D model study 2026-11-03"
+  "source": "3D model study 2026-11-03",
+  "kit": "ears"
  },
  "jagermech": {
   "archetype": "humanoid",
@@ -338,8 +353,9 @@
   ],
   "confidence": "med",
   "plan": "block",
-  "profile": "upright",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "profile": "tall_slab",
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "arm_style": "long_barrel"
  },
  "thunderbolt": {
   "archetype": "humanoid",
@@ -355,7 +371,7 @@
  },
  "archer": {
   "archetype": "humanoid",
-  "torso": "box",
+  "torso": "dome",
   "head_mount": "top",
   "head_shape": "box",
   "shoulders": "boom",
@@ -367,7 +383,10 @@
   "confidence": "med",
   "plan": "block",
   "profile": "dome",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "legs": "barrel",
+  "arm_style": "tiny",
+  "kit": "ears"
  },
  "warhammer": {
   "archetype": "humanoid",
@@ -382,7 +401,8 @@
   "confidence": "med",
   "plan": "block",
   "profile": "wedge_up",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "arm_style": "long_barrel"
  },
  "marauder": {
   "archetype": "bird",
@@ -396,7 +416,7 @@
   ],
   "confidence": "med",
   "plan": "wedge",
-  "profile": "lean",
+  "profile": "slung_wedge",
   "source": "3D model study 2026-11-03"
  },
  "orion": {
@@ -410,7 +430,8 @@
   "confidence": "high",
   "plan": "flare",
   "profile": "shoulder",
-  "source": "3D model study 2026-11-03"
+  "source": "3D model study 2026-11-03",
+  "legs": "pillar"
  },
  "awesome": {
   "archetype": "humanoid",
@@ -426,7 +447,9 @@
   "confidence": "med",
   "plan": "block",
   "profile": "wedge_up",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "legs": "pillar",
+  "kit": "fins"
  },
  "stalker": {
   "archetype": "bird",
@@ -457,7 +480,8 @@
   "confidence": "med",
   "plan": "block",
   "profile": "shoulder",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "legs": "pillar"
  },
  "king crab": {
   "archetype": "bird",
@@ -472,12 +496,12 @@
   ],
   "confidence": "med",
   "plan": "block",
-  "profile": "bell",
+  "profile": "slung_wedge",
   "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
  },
  "vindicator": {
   "archetype": "humanoid",
-  "torso": "ovoid",
+  "torso": "dome",
   "plan": "block",
   "profile": "dome",
   "head_mount": "built_in",
@@ -503,7 +527,8 @@
    "shoulder side pods"
   ],
   "confidence": "med",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "kit": "corner_pods"
  },
  "kintaro": {
   "archetype": "humanoid",
@@ -552,7 +577,7 @@
  },
  "cataphract": {
   "archetype": "humanoid",
-  "torso": "ovoid",
+  "torso": "dome",
   "plan": "flare",
   "profile": "dome",
   "head_mount": "built_in",
@@ -563,13 +588,14 @@
    "heavy thigh mass"
   ],
   "confidence": "med",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "legs": "heavy"
  },
  "grasshopper": {
   "archetype": "bird",
   "torso": "slab",
   "plan": "block",
-  "profile": "upright",
+  "profile": "tall_slab",
   "head_mount": "top",
   "head_shape": "box",
   "shoulders": "boom",
@@ -593,7 +619,8 @@
    "shoulder fins swept outward"
   ],
   "confidence": "med",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "kit": "fins"
  },
  "victor": {
   "archetype": "humanoid",
@@ -608,7 +635,8 @@
    "round arm blocks"
   ],
   "confidence": "med",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "kit": "round_blocks"
  },
  "zeus": {
   "archetype": "humanoid",
@@ -624,7 +652,9 @@
    "two tall antennas"
   ],
   "confidence": "med",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "legs": "pillar",
+  "arm_style": "ball"
  },
  "battlemaster": {
   "archetype": "humanoid",
@@ -652,7 +682,8 @@
    "tent antenna (three guy wires)"
   ],
   "confidence": "med",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "kit": "tent"
  },
  "highlander": {
   "archetype": "humanoid",
@@ -667,7 +698,8 @@
    "reverse-bent lower leg"
   ],
   "confidence": "med",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "legs": "pillar"
  },
  "linesman": {
   "archetype": "humanoid",
@@ -682,7 +714,8 @@
    "vertical shoulder posts"
   ],
   "confidence": "med",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "kit": "posts"
  },
  "banshee": {
   "archetype": "humanoid",
@@ -697,6 +730,7 @@
    "pillar legs"
   ],
   "confidence": "med",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "legs": "pillar"
  }
 }

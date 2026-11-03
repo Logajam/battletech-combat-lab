@@ -181,7 +181,7 @@ def mount_style(zone, cls, big, n_zone, classes_in_zone, hands, archetype, torso
 
 
 FEATURE_KEYS = ("archetype", "torso", "panels", "head_mount", "head_shape", "shoulders", "antenna", "arms_flex", "tilt", "arms_up",
-                "plan", "profile", "hips")
+                "plan", "profile", "hips", "legs", "arm_style", "kit")
 
 
 def armor_thinness(unit, tons):
@@ -235,6 +235,7 @@ def build_model(unit, overrides=None, hash_only=False):
         "plan": ("block", "block", "wedge", "flare")[hc[8] % 4],           # the torso seen from above
         "profile": ("upright", "sloped", "lean", "wedge_up", "bell", "shoulder", "prow", "dome", "stepped", "sloped", "prow", "hunch")[hc[9] % 12],   # seen from the side
         "hips": "flare" if hc[10] % 4 == 0 else "plain",
+        "legs": "", "arm_style": "", "kit": "",      # dictionary terms (data/token_dictionary.json), set by reference tags only
         "torso": ("box", "ovoid", "narrow", "slab")[hc[1] % 4],
         "panels": ("flush", "wings", "stepped")[hc[5] % 3],
         "head_mount": ("built_in", "front", "top", "full")[hc[2] % 4],
@@ -361,6 +362,8 @@ PROFILES = {
     "prow":     [(-1, .26), (-.62, 0), (.42, 0), (1, .42), (1, .60), (.42, 1), (-.62, 1), (-1, .74)],   # pointed nose, both faces cut
 }
 PROFILES["dome"] = [(-1, 0), (1, 0), (1, .42)] + [(math.cos(math.radians(a)), .42 + .58 * math.sin(math.radians(a))) for a in range(22, 160, 22)] + [(-1, .42)]
+PROFILES["slung_wedge"] = [(-1, .05), (-.9, 0), (.1, 0), (1, .38), (1, .64), (.3, .74), (-.7, 1), (-1, .95)]     # long, low, belly rising to the nose
+PROFILES["tall_slab"] = PROFILES["upright"]                                                                # narrow and tall (size changes in _build)
 PROFILES["hunch"] = PROFILES["stepped"] = PROFILES["upright"]
 
 
@@ -530,7 +533,7 @@ def _build(model, f, k):
     arche = model["archetype"]
     A = dict(TRIPOD3 if model["tripod"] else ARCH3[arche])
     wf = (0.92 + 0.14 * min(model["tons"], 100) / 100.0) * model["bulk"]
-    A["tw"] *= wf * {"box": 1.0, "ovoid": 0.95, "narrow": 0.82, "slab": 1.12, "canopy": 1.05}[model["torso"]]
+    A["tw"] *= wf * {"box": 1.0, "ovoid": 0.95, "narrow": 0.82, "slab": 1.12, "canopy": 1.05, "dome": 1.08}[model["torso"]]
     A["hw"] *= wf
     A["lr"] *= wf * (1.0 + 0.0)
     if model.get("hips") == "flare" and not model["tripod"]:
@@ -544,6 +547,15 @@ def _build(model, f, k):
     profile = model.get("profile", "upright")
     plan = model.get("plan", "block")
     prof = PROFILES.get(profile, PROFILES["upright"])
+    if plan == "arrow":
+        td *= 1.28                                                 # a long pointed nose
+    if profile == "slung_wedge":
+        td *= 1.2
+        th *= 0.9
+    if profile == "tall_slab":
+        tw *= 0.84
+        th *= 1.12
+        td *= 0.92
 
     def front_y(v):                                                # the torso's front face at height v (0..1), for mounting things on it
         return profile_span(prof, v)[1] * td / 2
@@ -599,6 +611,23 @@ def _build(model, f, k):
                 b.seg(pts, [lr * 1.4, lr, lr * 0.8], "2")
                 b.ball(pts[1], lr * 1.1, "2")
                 foot(pts[2][0], pts[2][1] - 0.04, 0.0)
+            elif model.get("legs") == "pillar":                      # thick straight columns, little knee bend, wide block feet
+                pts = [(x * 1.08, 0, lh), (x * 1.08, 0.022 + st * 0.3, lh * 0.5), (x * 1.08, st * 0.5, 0.05)]
+                b.seg(pts, [lr * 1.9, lr * 1.75, lr * 1.55], "2")
+                b.ball(pts[1], lr * 1.95, "2")
+                b.seg([(pts[1][0] - 0.02, pts[1][1], pts[1][2]), (pts[1][0] + 0.02, pts[1][1], pts[1][2])], [lr * 2.0] * 2, "3")
+                foot(x * 1.08, st * 0.5 - 0.04, 0.0, big=1.5)
+            elif model.get("legs") == "barrel":                      # a fat barrel-shaped shin under a normal thigh
+                pts = [(x, 0, lh), (x + fx * 0.006, 0.045 + st * 0.5, lh * 0.5), (x, st, 0.05)]
+                b.seg(pts[:2], [lr * 1.5, lr * 1.2], "2")
+                b.seg([pts[1], (x, st * 0.9, 0.07)], [lr * 1.9, lr * 2.1], "2")
+                b.ball(pts[1], lr * 1.3, "2")
+                foot(x, st - 0.04, 0.0, big=1.25)
+            elif model.get("legs") == "heavy":                       # very thick thighs, short shins
+                pts = [(x, 0, lh), (x + fx * 0.006, 0.045 + st * 0.5, lh * 0.5), (x, st, 0.05)]
+                b.seg(pts, [lr * 2.3, lr * 1.5, lr * 1.0], "2")
+                b.ball(pts[1], lr * 1.4, "2")
+                foot(x, st - 0.04, 0.0, big=1.2)
             else:                                                    # humanoid: knee forward
                 pts = [(x, 0, lh), (x + fx * 0.006, 0.045 + st * 0.5, lh * 0.5), (x, st, 0.05)]
                 b.seg(pts, [lr * 1.5, lr * 1.2, lr * 0.95], "2")
@@ -612,11 +641,11 @@ def _build(model, f, k):
     cw = tw * 0.46
     sw = (tw - cw) / 2
     shape = model["torso"]
-    tx, ty = {"box": (0.94, 0.9), "ovoid": (0.72, 0.72), "narrow": (1.22, 1.0), "slab": (1.0, 1.0), "canopy": (1.0, 1.0)}[shape]
+    tx, ty = {"box": (0.94, 0.9), "ovoid": (0.72, 0.72), "narrow": (1.22, 1.0), "slab": (1.0, 1.0), "canopy": (1.0, 1.0), "dome": (1.0, 1.0)}[shape]
     step = 0.03 if model["panels"] == "stepped" else 0.0
     flare = 1.12 if model["panels"] == "wings" else 1.0
     # PLAN (top view): "wedge" narrows to the front, "flare" widens to it, both drawn from the back
-    fw = {"block": 1.0, "wedge": 0.70, "flare": 1.18}[plan]
+    fw = {"block": 1.0, "wedge": 0.70, "flare": 1.18, "arrow": 0.30}[plan]
     pl = (fw, -td / 2, td / 2) if fw != 1.0 else None
     tw_eff = tw * (1 + (fw - 1) * 0.5)                             # half-way along the depth: where the arms attach
     cw = cw * slim("Center Torso")
@@ -645,6 +674,18 @@ def _build(model, f, k):
                   "x_arm": tw * 0.5 + 0.052, "y_arm": -td * 0.02, "z_arm": zc + th * 0.06, "y_rear": -td * 0.40,
                   "visor": (0, td * 0.22, zc + th * 0.30)}
         tw_eff = tw
+    elif shape == "dome":
+        # ROUND DOME TORSO (chart re-read, 2026-11-03: Vindicator, Cataphract, Wolverine, Urbanmech, Archer,
+        # Trebuchet): torso and head one broad rounded mass, seams between the three sections, the cockpit
+        # glass on the front of the dome. One convex hull of two ellipsoids.
+        zc = z0 + th * 0.5
+        b.blob([((0, 0, zc), (tw * 0.5, td * 0.5, th * 0.55)), ((0, td * 0.06, zc + th * 0.06), (tw * 0.38, td * 0.46, th * 0.52))], "1")
+        for fx in (-1, 1):
+            b.box((fx * tw * 0.17, td * 0.04, zc + th * 0.12), (0.007, td * 0.74, th * 0.62), "1", vis={"front", "rear", "top"}, cls="ln")
+        canopy = {"y_flank": td * 0.26, "z_flank": zc - th * 0.02, "y_nose": td * 0.44, "z_nose": zc - th * 0.04,
+                  "x_arm": tw * 0.5 + 0.052, "y_arm": 0.0, "z_arm": zc + th * 0.10, "y_rear": -td * 0.46,
+                  "visor": (0, td * 0.22, zc + th * 0.34)}
+        tw_eff = tw
     else:
         # three sections, each the side profile extruded across its width (see PROFILES)
         if profile == "stepped":                                   # a low full-depth base and a smaller, set-back upper body
@@ -666,7 +707,7 @@ def _build(model, f, k):
 
     # ---- head
     mount, shape_h = model["head_mount"], model["head_shape"]
-    if shape == "canopy":
+    if shape in ("canopy", "dome"):
         mount = "built_in"                                          # the cockpit is the dome
     hoff = model["head_offset"] * tw * 0.16
     hs = slim("Head")
@@ -694,6 +735,33 @@ def _build(model, f, k):
         if model.get("antenna"):
             b.seg([(hoff + hw_ * 0.3, hy, hz + hh_ / 2), (hoff + hw_ * 0.3, hy - 0.02, hz + hh_ / 2 + 0.08)], [0.006, 0.004], "3")
 
+    # SHOULDER KITS (dictionary: shoulders / details): add-ons seen on the chart silhouettes
+    kit = model.get("kit", "")
+    if kit:
+        htop = (tw * 0.36 if shape == "dome" else tw / 2) if canopy else tw_eff / 2 * tx * flare       # the torso's half-width at its top edge
+        zk = ztop - 0.045 if shape == "dome" else ztop                # a dome is lower at its edges: kits sit on it, not above it
+        for fx in (-1, 1):
+            if kit == "corner_pods":                                  # box pods at the upper outer corners
+                b.box((fx * (htop + 0.014), -td * 0.05, zk - 0.035), (0.05, td * 0.72, 0.13), "2", ch=0.014)
+            elif kit == "fins":                                       # fins / horns swept outward and up from the shoulders
+                b.seg([(fx * (htop - 0.01), -0.03, zk - 0.01), (fx * (htop + 0.10), -0.03, zk + 0.15)], [0.016, 0.008], "3")
+            elif kit == "ears":                                       # tall box pods standing above the shoulders
+                b.box((fx * (htop - 0.015), -0.01, zk + 0.10), (0.07, 0.10, 0.17), "2", tx=0.9, ch=0.012)
+                b.box((fx * (htop - 0.015), -0.01, zk + 0.01), (0.04, 0.06, 0.05), "3")
+            elif kit == "round_blocks":                               # big rounded blocks where the arms start
+                b.blob([((fx * (htop + 0.035), 0.0, zk - 0.07), (0.07, 0.075, 0.065))], "2")
+            elif kit == "posts":                                      # tall slab posts at both shoulders
+                b.box((fx * (htop + 0.004), -0.02, zk + 0.05), (0.03, 0.11, 0.22), "3", ch=0.01)
+            elif kit == "pylons":                                     # two tall pylons rising behind the shoulders (jump jets)
+                b.box((fx * htop * 0.45, -td * 0.36, zk + 0.11), (0.024, 0.04, 0.23), "3", ch=0.006)
+        if kit == "spar":                                             # a very wide thin bar across the shoulders, round pods at its ends
+            b.box((0, -0.01, zk + 0.012), (htop * 2 + 0.34, 0.035, 0.022), "3", ch=0.006)
+            for fx in (-1, 1):
+                b.blob([((fx * (htop + 0.17), 0.0, zk - 0.01), (0.028, 0.03, 0.03))], "4")
+        elif kit == "tent":                                           # a mast with three guy wires down to the shoulders and the head
+            b.seg([(0, 0.0, zk), (0, 0.0, zk + 0.20)], [0.007, 0.005], "3")
+            for tx_, ty_ in ((-htop, 0.0), (htop, 0.0), (0.0, td * 0.3)):
+                b.seg([(0, 0.0, zk + 0.19), (tx_, ty_, zk)], [0.003, 0.003], "3")
     if profile == "hunch":                                         # a hump rising behind the head: seen from the side
         b.box((0, -td * 0.2, ztop + 0.045), (tw * 0.78, td * 0.62, 0.09), "1", tx=0.78, ty=0.55, tilt=-0.12, plan=pl)
 
@@ -723,11 +791,17 @@ def _build(model, f, k):
         b.ball((sx, ay, zs_), 0.038, "3")
         small = bool(gs) and not any(x["big"] for x in gs)
         up = model.get("arms_up")
+        astyle = model.get("arm_style", "")
+        if astyle == "shoulder_pod":
+            kind = "pod"                                               # a gun pod on the shoulder instead of an arm (Rifleman)
+        blen = 2.4 if astyle in ("long_barrel", "shoulder_pod") else 1.0   # long barrels pass the front of the body
         muz = None
         if kind == "pod" or (kind != "hand" and small and kind != "forearm"):               # upper actuator only: a turret
             n_w = max(1, sum(x["count"] for x in gs))
             pw = 0.05 + 0.014 * min(n_w, 4)
             pz = zs_ - 0.07 if not up else ztop + 0.08
+            if astyle == "shoulder_pod":
+                pz = zs_ + 0.03
             # POD ARM (block from the kit study): a lozenge - leaf-shaped in plan (narrows to the muzzle),
             # chamfered, with a raised spine on top and a stub underneath
             b.box((sx + fx * 0.012, ay + 0.03, pz), (pw * sl, 0.18, 0.10), "1", tx=0.85,
@@ -738,12 +812,22 @@ def _build(model, f, k):
         else:
             if up:
                 el, wr = (sx + fx * 0.02, ay + 0.02, zs_ + 0.12), (sx + fx * 0.01, ay + 0.04, zs_ + 0.24)
+            elif astyle == "long_barrel":                                  # forearm raised and pointing forward
+                el, wr = (sx + fx * 0.012, ay + 0.03, zs_ - 0.10), (sx + fx * 0.006, ay + 0.13, zs_ - 0.15)
+            elif astyle == "claw":                                         # bowed outward and down, like a crab's claw
+                el, wr = (sx + fx * 0.085, ay + 0.04, zs_ - 0.10), (sx + fx * 0.045, ay + 0.11, zs_ - 0.22)
+            elif astyle == "a_frame":                                      # angled outward and down from the shoulder
+                el, wr = (sx + fx * 0.07, ay + 0.02, zs_ - 0.11), (sx + fx * 0.15, ay + 0.04, zs_ - 0.21)
+            elif astyle == "tiny":
+                el, wr = (sx + fx * 0.008, ay + 0.015, zs_ - 0.07), (sx + fx * 0.004, ay + 0.045, zs_ - 0.13)
             else:
                 el, wr = (sx + fx * 0.012, ay + 0.02, zs_ - 0.13), (sx + fx * 0.006, ay + 0.075, zs_ - 0.25)
-            w1 = (0.042 if kind == "hand" else 0.037) * sl
+            w1 = (0.042 if kind == "hand" else 0.037) * sl * (0.62 if astyle == "tiny" else 1.0)
             b.seg([(sx, ay, zs_), el, wr], [w1 * 1.3, w1 * 1.1, w1], "2")
             b.ball(el, w1 * 1.15, "2")
-            if kind == "hand":
+            if astyle == "ball":                                           # a huge round ball fist
+                b.blob([((wr[0], wr[1] + 0.01, wr[2] - 0.035), (0.075, 0.075, 0.075))], "2")
+            elif kind == "hand":
                 b.box((wr[0], wr[1] + 0.02, wr[2] - (0.03 if not up else -0.03)), (0.05, 0.05, 0.06), "4")
             muz = (wr[0], wr[1] + 0.03, wr[2])
         for gr in gs:                                          # weapons in line with the forearm / pod
@@ -754,7 +838,7 @@ def _build(model, f, k):
                 for i in range(nn):
                     dx = (i - (nn - 1) / 2) * b.px(5) * f
                     weapon_barrel(b, (muz[0] + dx / f, muz[1], muz[2]), gr,
-                                  22 if (gr["big"] and gr["cls"] == "ballistic") else 12 if gr["cls"] == "ballistic" else 7,
+                                  blen * (22 if (gr["big"] and gr["cls"] == "ballistic") else 12 if gr["cls"] == "ballistic" else 7),
                                   2.2 + (1.4 if gr["big"] else 0) if gr["cls"] == "ballistic" else 1.5 + (0.8 if gr["big"] else 0), embed=0.04)
 
     # ---- torso-zone weapons
@@ -849,7 +933,7 @@ def _mass_factor(model):
 
 def _views(model, height_px):
     """Build the parts at the right scale; return (parts, k) with k px per raw unit."""
-    f = _mass_factor(model)
+    f = _mass_factor(model) * (0.90 + 0.24 * min(model["tons"], 100) / 100.0)     # width follows the weight class (chart W/H 0.63 .. 0.81)
     k = height_px
     for _ in range(3):
         b = _build(model, f, k)

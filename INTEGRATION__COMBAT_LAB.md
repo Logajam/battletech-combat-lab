@@ -519,6 +519,16 @@ needs no GUI change.
     arrow plan (5), slung wedge profile (4), shoulder corner pods (4), tiny arms under big boxes (3), tall
     slab profile (3), round arm blocks (3), swept shoulder fins (3), ears (3). Seen in the viewer: the 47
     units render but many still look alike, because the generator cannot yet say these.
+  - **Missing blocks built (2026-11-03, in the dictionary's ranked order).** New reference-tag keys:
+    `legs` (pillar, barrel, heavy), `arm_style` (long_barrel, ball, claw, a_frame, tiny, shoulder_pod),
+    `kit` (corner_pods, fins, ears, round_blocks, posts, pylons, spar, tent); plan `arrow`; profiles
+    `slung_wedge` and `tall_slab`; torso `dome` (one rounded mass with seams and the glass on its
+    front). Heavier 'Mechs are also drawn wider (width factor 0.90 at 0 t to 1.14 at 100 t on top of the
+    mass fit, after the chart's W/H 0.63 light to 0.81 assault). Applied by tag to the chassis that show
+    each term (`data/token_reference_tags.json`); `data/token_dictionary.json` statuses updated. Checked by
+    eye in the viewer on about 30 units: silhouettes now differ (long barrels, ball fists, swept horns, spar,
+    tent antenna, dome torsos, pillar legs, the King Crab's low wedge). Not built: oval disc plan, crouched
+    stance, triple hump, V chest, reverse-bent lower leg, heel thrusters, asymmetry, a second antenna.
   - **Next art steps (not built):** chicken legs with a high hock; the forward-slung wedge torso;
     the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
     pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits
