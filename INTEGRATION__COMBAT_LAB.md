@@ -549,6 +549,13 @@ needs no GUI change.
     with the cube root of cockpit tons over total tons (x1.36 at 20 t, 1.0 at 50 t, 0.79 at 100 t, 0.64 at
     200 t); the weights by cockpit type come from the construction rules, which are not in the indexed
     Core, so small 2 / torso-mounted 4 / primitive 5 are Claude's recall (flagged in code) and affect art only.
+  - **Skull head, dome pauldrons, stacked-slab legs (2026-11-03, session 16, continued).** The skull head
+    (faceted dome, brow ridge, glowing eye slits, nose bridge, jaw mask plate, seated in a front notch of the
+    torso: `head_mount: notch`, `head_shape: skull`) is the ATLAS ONLY, by named tag, never from the hash
+    (Daniel: unique to the Atlas). Kit `pauldrons` (a faceted dome over each shoulder with a rim flange):
+    Atlas, Orion. Legs `slab` (two stacked chamfered slabs on the thigh, three tapering on the shin, a
+    clamshell knee, wide block foot): Atlas, Banshee, Battlemaster, Victor. Checked by eye on the Atlas,
+    Orion, Banshee and Flea (unchanged).
   - **Next art steps (not built):** chicken legs (done above); stacked-slab shins with a high hock; the forward-slung wedge torso;
     the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
     pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits

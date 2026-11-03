@@ -650,6 +650,17 @@ def _build(model, f, k):
                 b.ball(pts[1], lr * 1.95, "2")
                 b.seg([(pts[1][0] - 0.02, pts[1][1], pts[1][2]), (pts[1][0] + 0.02, pts[1][1], pts[1][2])], [lr * 2.0] * 2, "3")
                 foot(x * 1.08, st * 0.5 - 0.04, 0.0, big=1.5)
+            elif model.get("legs") == "slab":                        # stacked chamfered slabs: two on the thigh, three on the shin, a clamshell knee
+                pts = [(x, 0, lh), (x + fx * 0.006, 0.045 + st * 0.5 + kc, lh * 0.5), (x, st, 0.05)]
+                for a_, b_, w0, w1_, n_ in ((pts[0], pts[1], 2.8, 2.5, 2), (pts[1], pts[2], 2.5, 1.8, 3)):
+                    for i_ in range(n_):
+                        t0, t1 = i_ / n_, (i_ + 1) / n_
+                        tm_ = (t0 + t1) / 2
+                        c_ = tuple(a_[k] + (b_[k] - a_[k]) * tm_ for k in range(3))
+                        wd_ = lr * (w0 + (w1_ - w0) * tm_)
+                        b.box(c_, (wd_, wd_ * 0.95, abs(a_[2] - b_[2]) / n_ * 0.97), "2" if i_ % 2 == 0 else "3", ch=0.01)
+                b.box(pts[1], (lr * 3.0, lr * 3.0, 0.05), "3", ch=0.014)
+                foot(x, st - 0.04, 0.0, big=1.3)
             elif model.get("legs") == "reverse":                     # lower leg angled back, with a big heel
                 pts = [(x, 0, lh), (x + fx * 0.006, 0.05 + st * 0.5 + kc, lh * 0.5), (x, -0.025 + st * 0.5, 0.06)]
                 b.seg(pts, [lr * 1.5, lr * 1.25, lr * 1.0], "2")
@@ -779,13 +790,25 @@ def _build(model, f, k):
             b.seg([(hoff, td / 4, hz), (hoff, hy - 0.04, hz)], [0.04, 0.035], "3")
         elif mount == "front":
             hz, hy = ztop - 0.03, front_y(0.95) + 0.005
+        elif mount == "notch":                                     # seated in a notch at the top front of the torso, standing proud
+            hz, hy = ztop + 0.005, front_y(0.95) - 0.035
         else:
             hz, hy = ztop + 0.035 + hh_ / 2, ftop * 0.7 + (td * 0.18 if profile == "hunch" else 0.0)
             b.seg([(hoff, hy, ztop - 0.01), (hoff, hy, ztop + 0.045)], [0.06 * hkf, 0.05 * hkf], "3")
-        tpx = {"box": (1, 1), "dome": (0.7, 0.8), "wedge": (0.75, 0.5), "visor": (1, 1)}[shape_h]
-        b.box((hoff, hy, hz), (hw_, hw_ * 0.85, hh_), "1", tx=tpx[0], ty=tpx[1], tilt=-0.2 if shape_h == "wedge" else 0)
-        b.box((hoff, hy + hw_ * 0.43 + 0.002, hz), (hw_ * (0.9 if shape_h == "visor" else 0.6), 0.004, 0.022), "4", vis={"front"}, cls="hl")
-        b.box((hoff, hy + hw_ * 0.3, hz), (hw_ * 0.5, hw_ * 0.5, 0.02), "4", vis={"top"}, cls="hl")
+        if shape_h == "skull":
+            # SKULL HEAD (the Atlas only, from the Atlas kit study; named-unit tag, never from the hash): a
+            # faceted dome, a brow ridge, two glowing eye slits, a nose bridge and a mask plate for the jaw
+            b.blob([((hoff, hy, hz), (hw_ * 0.60, hw_ * 0.54, hh_ * 0.66))], "1")
+            b.box((hoff, hy + hw_ * 0.40, hz + hh_ * 0.12), (hw_ * 0.98, 0.022, 0.018), "3", ch=0.004)
+            for ex in (-1, 1):
+                b.box((hoff + ex * hw_ * 0.22, hy + hw_ * 0.47, hz - hh_ * 0.02), (hw_ * 0.22, 0.006, hh_ * 0.16), "4", cls="hl")
+            b.box((hoff, hy + hw_ * 0.42, hz - hh_ * 0.36), (hw_ * 0.58, 0.02, hh_ * 0.30), "3", ch=0.004)
+            b.box((hoff, hy + hw_ * 0.49, hz - hh_ * 0.16), (hw_ * 0.10, 0.006, hh_ * 0.22), "1", cls="ln", ch=0.0)
+        else:
+            tpx = {"box": (1, 1), "dome": (0.7, 0.8), "wedge": (0.75, 0.5), "visor": (1, 1)}[shape_h]
+            b.box((hoff, hy, hz), (hw_, hw_ * 0.85, hh_), "1", tx=tpx[0], ty=tpx[1], tilt=-0.2 if shape_h == "wedge" else 0)
+            b.box((hoff, hy + hw_ * 0.43 + 0.002, hz), (hw_ * (0.9 if shape_h == "visor" else 0.6), 0.004, 0.022), "4", vis={"front"}, cls="hl")
+            b.box((hoff, hy + hw_ * 0.3, hz), (hw_ * 0.5, hw_ * 0.5, 0.02), "4", vis={"top"}, cls="hl")
 
     # ANTENNAS: one to three thin masts rising from the top of the torso, leaning slightly back
     n_ant = model.get("antennas") or (1 if model.get("antenna") else 0)
@@ -830,6 +853,9 @@ def _build(model, f, k):
                 b.box((fx * (htop - 0.015), -0.01, zk + 0.01), (0.04, 0.06, 0.05), "3")
             elif kit == "round_blocks":                               # big rounded blocks where the arms start
                 b.blob([((fx * (htop + 0.035), 0.0, zk - 0.07), (0.07, 0.075, 0.065))], "2")
+            elif kit == "pauldrons":                                  # a faceted dome over each shoulder with a rim flange under it
+                b.blob([((fx * (htop + 0.045), 0.0, zk - 0.01), (0.075, 0.075, 0.055))], "2")
+                b.box((fx * (htop + 0.045), 0.0, zk - 0.058), (0.17, 0.17, 0.014), "3", ch=0.006)
             elif kit == "posts":                                      # tall slab posts at both shoulders
                 b.box((fx * (htop + 0.004), -0.02, zk + 0.05), (0.03, 0.11, 0.22), "3", ch=0.01)
             elif kit == "humps":                                      # a hump over each shoulder, the head between them (three humps on top)
