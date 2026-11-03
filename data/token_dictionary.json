@@ -49,7 +49,7 @@
     "Warhammer",
     "Griffin",
     "Wolfhound",
-    "Linesman"
+    "Mauler"
    ]
   }
  },
@@ -109,9 +109,9 @@
   },
   "v_chest": {
    "status": "idea",
-   "what": "V-shaped chest between tall shoulder posts",
+   "what": "hexagonal faceted chest plate between the shoulder launchers (the chart showed a V; the Mauler model shows a hexagon)",
    "seen": [
-    "Linesman"
+    "Mauler"
    ]
   },
   "skull_head": {
@@ -153,9 +153,9 @@
   },
   "vertical_posts": {
    "status": "built (2026-11-03, session 16)",
-   "what": "tall slab posts at both shoulders",
+   "what": "tall slab posts at both shoulders (on the Mauler: the rear wings of its big shoulder launchers)",
    "seen": [
-    "Linesman"
+    "Mauler"
    ]
   },
   "corner_pods": {
@@ -183,6 +183,13 @@
    "seen": [
     "Atlas",
     "Orion"
+   ]
+  },
+  "launcher_boxes": {
+   "status": "built (2026-11-03, session 16)",
+   "what": "huge slanted-top missile boxes on the shoulders, a cell grid on the sloped face and a tall rear wing (bigger than ears)",
+   "seen": [
+    "Mauler"
    ]
   }
  },
@@ -385,5 +392,6 @@
    "Arrow IV / artillery tubes",
    "angled or swiveling turrets"
   ]
- }
+ },
+ "_corrections": "2026-11-03: the chart cell first read as LINESMAN is the MAULER (90 t); Daniel supplied a Mauler model. There is no Linesman in these notes any more."
 }

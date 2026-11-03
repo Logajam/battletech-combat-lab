@@ -720,22 +720,6 @@
   "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
   "legs": "reverse"
  },
- "linesman": {
-  "archetype": "humanoid",
-  "torso": "box",
-  "plan": "block",
-  "profile": "upright",
-  "head_mount": "top",
-  "head_shape": "box",
-  "shoulders": "boom",
-  "note": "torso with a V-shaped chest and tall vertical slab posts at both shoulders; thick legs; long bars forward from above",
-  "new": [
-   "vertical shoulder posts"
-  ],
-  "confidence": "med",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
-  "kit": "posts"
- },
  "banshee": {
   "archetype": "humanoid",
   "torso": "slab",
@@ -751,5 +735,26 @@
   "confidence": "med",
   "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
   "legs": "slab"
+ },
+ "mauler": {
+  "archetype": "humanoid",
+  "torso": "box",
+  "plan": "block",
+  "profile": "shoulder",
+  "head_mount": "built_in",
+  "head_shape": "box",
+  "shoulders": "boom",
+  "note": "whole model (Syllogy MAL-1R): small head sunk between two huge slanted-top missile boxes at the shoulders (cell grids face forward, tall rear wings), a hexagonal chest plate, one arm a long cannon pointing forward, the other a slab with a flat armor panel; thick plated pillar legs with clamshell knees, stacked-plate shins, block feet with toes",
+  "new": [
+   "huge angled shoulder launchers (taller and wider than ears)",
+   "arm cannon plus slab arm (asymmetric)"
+  ],
+  "confidence": "high",
+  "source": "whole model 2026-11-03 (Syllogy) and the chart",
+  "kit": "launchers",
+  "legs": "slab",
+  "arm_style": "long_barrel",
+  "asym": "L",
+  "surface": "plated"
  }
 }

@@ -941,6 +941,17 @@ def _build(model, f, k):
             elif kit == "ears":                                       # tall box pods standing above the shoulders
                 b.box((fx * (htop - 0.015), -0.01, zk + 0.10), (0.07, 0.10, 0.17), "2", tx=0.9, ch=0.012)
                 b.box((fx * (htop - 0.015), -0.01, zk + 0.01), (0.04, 0.06, 0.05), "3")
+            elif kit == "launchers":                                  # huge slanted-top missile boxes on the shoulders (Mauler): a cell grid forward, a tall rear wing
+                lcx, lcy, lw, ld, lh = fx * (htop - 0.005), -0.04, 0.115, 0.14, 0.21
+                b.extrude(lcx, zk - 0.02, lw, ld, lh, PROFILES["sloped"], "2", wtop=0.95, cy=lcy)
+                for rr in range(3):
+                    vv = 0.20 + 0.25 * rr
+                    fy_ = lcy + profile_span(PROFILES["sloped"], vv)[1] * ld / 2 + 0.0015
+                    for cc in range(4):
+                        cxx_ = lcx + (cc - 1.5) * lw * 0.21
+                        b.box((cxx_, fy_, zk - 0.02 + lh * vv), (lw * 0.17, 0.004, lh * 0.15), "1", tag="w", cls="wm")
+                        b.box((cxx_, fy_ + 0.0015, zk - 0.02 + lh * vv), (lw * 0.11, 0.004, lh * 0.09), "1", tag="w", cls="ln")
+                b.box((fx * (htop + 0.03), -0.12, zk + 0.10), (0.012, 0.09, 0.25), "3", ch=0.004)
             elif kit == "round_blocks":                               # big rounded blocks where the arms start
                 b.blob([((fx * (htop + 0.035), 0.0, zk - 0.07), (0.07, 0.075, 0.065))], "2")
             elif kit == "pauldrons":                                  # a faceted dome over each shoulder with a rim flange under it
