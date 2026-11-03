@@ -40,7 +40,7 @@
   ],
   "confidence": "low",
   "plan": "block",
-  "profile": "sloped"
+  "profile": "wedge_up"
  },
  "spider": {
   "archetype": "bird",
@@ -69,7 +69,7 @@
   ],
   "confidence": "med",
   "plan": "block",
-  "profile": "sloped"
+  "profile": "dome"
  },
  "firestarter": {
   "archetype": "bird",
@@ -108,7 +108,7 @@
   "new": [],
   "confidence": "low",
   "plan": "block",
-  "profile": "sloped"
+  "profile": "prow"
  },
  "raven": {
   "archetype": "bird",
@@ -184,7 +184,7 @@
   ],
   "confidence": "med",
   "plan": "wedge",
-  "profile": "upright"
+  "profile": "shoulder"
  },
  "crab": {
   "archetype": "lizard",
@@ -198,7 +198,7 @@
   ],
   "confidence": "med",
   "plan": "wedge",
-  "profile": "lean"
+  "profile": "bell"
  },
  "hunchback": {
   "archetype": "humanoid",
@@ -225,7 +225,7 @@
   "new": [],
   "confidence": "low",
   "plan": "block",
-  "profile": "sloped"
+  "profile": "prow"
  },
  "griffin": {
   "archetype": "bird",
@@ -275,7 +275,7 @@
   ],
   "confidence": "med",
   "plan": "block",
-  "profile": "sloped"
+  "profile": "prow"
  },
  "catapult": {
   "archetype": "bird",
@@ -303,7 +303,7 @@
   "new": [],
   "confidence": "low",
   "plan": "block",
-  "profile": "upright"
+  "profile": "bell"
  },
  "thunderbolt": {
   "archetype": "humanoid",
@@ -315,7 +315,7 @@
   "new": [],
   "confidence": "med",
   "plan": "flare",
-  "profile": "upright"
+  "profile": "prow"
  },
  "archer": {
   "archetype": "humanoid",
@@ -327,7 +327,7 @@
   "new": [],
   "confidence": "low",
   "plan": "block",
-  "profile": "upright"
+  "profile": "stepped"
  },
  "warhammer": {
   "archetype": "humanoid",
@@ -339,7 +339,7 @@
   "new": [],
   "confidence": "low",
   "plan": "block",
-  "profile": "sloped"
+  "profile": "wedge_up"
  },
  "marauder": {
   "archetype": "bird",
@@ -353,7 +353,7 @@
   ],
   "confidence": "med",
   "plan": "wedge",
-  "profile": "sloped",
+  "profile": "lean",
   "source": "3D model study 2026-11-03"
  },
  "orion": {
@@ -366,7 +366,7 @@
   "new": [],
   "confidence": "high",
   "plan": "flare",
-  "profile": "upright",
+  "profile": "shoulder",
   "source": "3D model study 2026-11-03"
  },
  "awesome": {
@@ -379,7 +379,7 @@
   "new": [],
   "confidence": "low",
   "plan": "block",
-  "profile": "upright"
+  "profile": "wedge_up"
  },
  "stalker": {
   "archetype": "bird",
@@ -408,7 +408,7 @@
   ],
   "confidence": "med",
   "plan": "block",
-  "profile": "upright"
+  "profile": "shoulder"
  },
  "king crab": {
   "archetype": "lizard",
@@ -423,6 +423,6 @@
   ],
   "confidence": "med",
   "plan": "flare",
-  "profile": "upright"
+  "profile": "bell"
  }
 }

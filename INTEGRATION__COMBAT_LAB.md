@@ -475,6 +475,14 @@ needs no GUI change.
     part they mount on (`embed`), flank weapons use the lobe's real front surface, chest weapons
     poke from the nose, the visor sits on the dome. Other torsos (box, slab...) keep their old
     mounts; the same embedding for them is not done.
+  - **Torso side profiles (Daniel, 2026-11-03: "you keep using a parallelogram for torsos").** The
+    cause was a sheared box (`tilt`) on every non-canopy torso. Replaced by real side profiles
+    (`PROFILES` in `INTEGRATION__tokens.py`): upright, sloped, lean, wedge_up, bell, shoulder, prow,
+    dome, stepped (two solids), hunch (hump); each is a convex polygon extruded across the width
+    (`B3.extrude`), so the side view IS the polygon. The hash picks from twelve (weighted), reference
+    tags name them per chassis (several reassigned; low confidence, Claude's reading). Weapons and
+    heads now mount on the profile's real front face (`front_y`). The `profile` tag in the reference
+    file may now hold any of those names.
   - **Next art steps (not built):** chicken legs with a high hock; the forward-slung wedge torso;
     the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
     pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits

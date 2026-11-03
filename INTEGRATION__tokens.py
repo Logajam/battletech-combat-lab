@@ -233,7 +233,7 @@ def build_model(unit, overrides=None, hash_only=False):
         "bulk": round(bulk, 3), "thin": thin,
         "archetype": arche,
         "plan": ("block", "block", "wedge", "flare")[hc[8] % 4],           # the torso seen from above
-        "profile": ("upright", "sloped", "lean", "upright", "sloped", "upright", "lean", "hunch")[hc[9] % 8],   # seen from the side
+        "profile": ("upright", "sloped", "lean", "wedge_up", "bell", "shoulder", "prow", "dome", "stepped", "sloped", "prow", "hunch")[hc[9] % 12],   # seen from the side
         "hips": "flare" if hc[10] % 4 == 0 else "plain",
         "torso": ("box", "ovoid", "narrow", "slab")[hc[1] % 4],
         "panels": ("flush", "wings", "stepped")[hc[5] % 3],
@@ -347,6 +347,36 @@ def _depth(view, p):
     return {"top": z, "front": y, "rear": -y, "side": -x}[view]       # larger = nearer the viewer is drawn last
 
 
+# SIDE PROFILES of a torso (Daniel, 2026-11-03: "you keep using a parallelogram for torsos, so many
+# side views look the same"). Each is a convex polygon (u, v): u = -1 (rear) .. +1 (front) along the
+# depth, v = 0 (belly) .. 1 (top) along the height; the torso is that polygon extruded across its
+# width (B3.extrude), so the side view IS the polygon. "stepped" and "hunch" add a second solid.
+PROFILES = {
+    "upright":  [(-1, .10), (-.9, 0), (.9, 0), (1, .10), (1, .9), (.9, 1), (-.9, 1), (-1, .9)],
+    "sloped":   [(-1, .08), (-.92, 0), (.92, 0), (1, .10), (.30, 1), (-.9, 1), (-1, .92)],          # front face leans back
+    "lean":     [(-1, .10), (-.9, 0), (.9, 0), (1, .10), (1, .38), (-.78, 1), (-1, .92)],           # top falls away to the front
+    "wedge_up": [(-1, .10), (-.9, 0), (.9, 0), (1, .10), (1, .92), (.9, 1), (-.25, 1), (-1, .30)],  # chest forward, rear low
+    "bell":     [(-1, .06), (-.94, 0), (.94, 0), (1, .06), (.52, 1), (-.52, 1)],                    # narrow at the top
+    "shoulder": [(-.56, 0), (.56, 0), (1, .46), (1, .94), (.9, 1), (-.9, 1), (-1, .94), (-1, .46)], # narrow belly, deep chest
+    "prow":     [(-1, .26), (-.62, 0), (.42, 0), (1, .42), (1, .60), (.42, 1), (-.62, 1), (-1, .74)],   # pointed nose, both faces cut
+}
+PROFILES["dome"] = [(-1, 0), (1, 0), (1, .42)] + [(math.cos(math.radians(a)), .42 + .58 * math.sin(math.radians(a))) for a in range(22, 160, 22)] + [(-1, .42)]
+PROFILES["hunch"] = PROFILES["stepped"] = PROFILES["upright"]
+
+
+def profile_span(prof, v):
+    """(u_min, u_max) of a convex profile polygon at height v (0..1)."""
+    us = []
+    n = len(prof)
+    for i in range(n):
+        (u0, v0), (u1, v1) = prof[i], prof[(i + 1) % n]
+        if (v0 - v) * (v1 - v) <= 0 and v0 != v1:
+            us.append(u0 + (u1 - u0) * (v - v0) / (v1 - v0))
+        elif v0 == v1 == v:
+            us += [u0, u1]
+    return (min(us), max(us)) if us else (-1.0, 1.0)
+
+
 class B3:
     """Collects parts. `f` scales x and y (the mass fit); `k` is px per raw unit."""
 
@@ -394,6 +424,18 @@ class B3:
 
     def ball(self, c, r, tone, vis=None, tag="b"):
         self.seg([c, c], [r, r], tone, vis, tag)
+
+    def extrude(self, cx, z0, w, d, h, prof, tone, wtop=1.0, fw=1.0, vis=None, tag="b", cls=None, cy=0.0):
+        """A solid whose SIDE view is `prof` (PROFILES): the polygon extruded across width w. wtop = the
+        width at the top against the belly; fw = the width at the front against the rear (the plan)."""
+        f = self.f
+        pts = []
+        for u, v in prof:
+            hx = w / 2 * (1 - (1 - wtop) * v) * (1 + (fw - 1) * (u + 1) / 2)
+            for sx in (-1, 1):
+                pts.append(((cx + sx * hx) * f, (cy + u * d / 2) * f, z0 + v * h))
+        self.parts.append({"groups": [[(p, 0.0) for p in pts]], "cls": cls or TONE[tone], "vis": vis, "tag": tag,
+                           "vol": w * d * h * f * f * 0.8})
 
     def blob(self, ellipsoids, tone, vis=None, tag="b", cls=None, n=96):
         """ONE convex body: the hull of several ellipsoids [(centre, (rx, ry, rz))]. A teardrop torso
@@ -495,11 +537,13 @@ def _build(model, f, k):
 
     def slim(zone):                                            # under-armored locations are drawn thinner, never thicker
         return thin.get(zone, 1.0)
-    tilt = model.get("tilt", A["tilt"])
+    tilt = 0.0                                                     # (the old shear that made every torso a parallelogram is gone)
     profile = model.get("profile", "upright")
     plan = model.get("plan", "block")
-    if profile == "lean":
-        tilt += 0.16
+    prof = PROFILES.get(profile, PROFILES["upright"])
+
+    def front_y(v):                                                # the torso's front face at height v (0..1), for mounting things on it
+        return profile_span(prof, v)[1] * td / 2
     quad = model["quad"]
     stance = (0.05, -0.05)                                     # mid-step: left foot forward, right back
 
@@ -568,11 +612,6 @@ def _build(model, f, k):
     tx, ty = {"box": (0.94, 0.9), "ovoid": (0.72, 0.72), "narrow": (1.22, 1.0), "slab": (1.0, 1.0), "canopy": (1.0, 1.0)}[shape]
     step = 0.03 if model["panels"] == "stepped" else 0.0
     flare = 1.12 if model["panels"] == "wings" else 1.0
-    # SIDE profile: "sloped" = the front face leans back to the top (the rear stays upright), which
-    # the top view cannot show; "lean" = the whole torso pitches forward; "hunch" adds a hump (below).
-    if profile == "sloped":
-        ty = 0.55
-        tilt = (td / 2) * (ty - 1) / th
     # PLAN (top view): "wedge" narrows to the front, "flare" widens to it, both drawn from the back
     fw = {"block": 1.0, "wedge": 0.70, "flare": 1.18}[plan]
     pl = (fw, -td / 2, td / 2) if fw != 1.0 else None
@@ -604,15 +643,23 @@ def _build(model, f, k):
                   "visor": (0, td * 0.22, zc + th * 0.30)}
         tw_eff = tw
     else:
-        b.box((0, 0, z0 + th / 2 + step / 2), (cw, td, th + step), "1", tilt=tilt, tx=tx, ty=ty, plan=pl)
-    for fx in () if shape == "canopy" else (-1, 1):
-        zone_t = "Left Torso" if fx < 0 else "Right Torso"
-        sw_f = sw * slim(zone_t)                                   # a thin side torso is narrower on that side only
-        cxx = fx * (cw / 2 + sw_f / 2)
-        b.box((cxx, 0, z0 + th / 2), (sw_f, td * 0.96, th), "2", tilt=tilt, tx=tx * flare, ty=ty, plan=pl)
-        sx_ = fx * cw / 2
-        b.box((sx_, 0.0, z0 + th / 2), (0.006, td * 0.98, th * 0.96), "1", tilt=tilt, vis={"front", "rear", "top"}, cls="ln", plan=pl)
-    ftop = tilt * th                                               # the top face shifts by this
+        # three sections, each the side profile extruded across its width (see PROFILES)
+        if profile == "stepped":                                   # a low full-depth base and a smaller, set-back upper body
+            b.extrude(0, z0, cw, td, th * 0.55, PROFILES["upright"], "1", wtop=tx, fw=fw)
+            b.extrude(0, z0 + th * 0.55, cw * 0.92, td * 0.62, th * 0.45, PROFILES["upright"], "1", wtop=tx, fw=fw, cy=-td * 0.2)
+        else:
+            b.extrude(0, z0, cw, td, th + step, prof, "1", wtop=tx, fw=fw)
+        for fx in (-1, 1):
+            zone_t = "Left Torso" if fx < 0 else "Right Torso"
+            sw_f = sw * slim(zone_t)                               # a thin side torso is narrower on that side only
+            cxx = fx * (cw / 2 + sw_f / 2)
+            if profile == "stepped":
+                b.extrude(cxx, z0, sw_f, td * 0.96, th * 0.55, PROFILES["upright"], "2", wtop=tx * flare, fw=fw)
+                b.extrude(cxx, z0 + th * 0.55, sw_f, td * 0.55, th * 0.45, PROFILES["upright"], "2", wtop=tx * flare, fw=fw, cy=-td * 0.2)
+            else:
+                b.extrude(cxx, z0, sw_f, td * 0.96, th * (1.06 if flare > 1 else 1.0), prof, "2", wtop=tx * flare, fw=fw)
+            b.extrude(fx * cw / 2, z0 + th * 0.02, 0.006, td * 0.98, th * 0.96, prof, "1", fw=fw, vis={"front", "rear", "top"}, cls="ln")   # seam between the thirds
+    ftop = 0.0
 
     # ---- head
     mount, shape_h = model["head_mount"], model["head_shape"]
@@ -623,7 +670,7 @@ def _build(model, f, k):
     if mount == "built_in" and canopy:                              # the glass sits on the dome of the nose
         b.box((canopy["visor"][0] + hoff, canopy["visor"][1], canopy["visor"][2]), (tw * 0.18, td * 0.30, 0.03), "4", tilt=-0.12, cls="hl")
     elif mount == "built_in":
-        b.box((hoff, td / 2 * 0.5 + ftop * 0.8, ztop - 0.07), (0.09, td * 0.5, 0.035), "4", vis={"front", "side"}, cls="hl")
+        b.box((hoff, max(0.0, front_y(0.9)) * 0.5, ztop - 0.07), (0.09, td * 0.5, 0.035), "4", vis={"front", "side"}, cls="hl")
     else:
         big = mount in ("full", "boom")
         hw_, hh_ = ((0.15, 0.115) if big else (0.105, 0.085))
@@ -633,7 +680,7 @@ def _build(model, f, k):
             hy = td / 2 + 0.12
             b.seg([(hoff, td / 4, hz), (hoff, hy - 0.04, hz)], [0.04, 0.035], "3")
         elif mount == "front":
-            hz, hy = ztop - 0.03, td / 2 + 0.01 + ftop * 0.5
+            hz, hy = ztop - 0.03, front_y(0.95) + 0.005
         else:
             hz, hy = ztop + 0.035 + hh_ / 2, ftop * 0.7 + (td * 0.18 if profile == "hunch" else 0.0)
             b.seg([(hoff, hy, ztop - 0.01), (hoff, hy, ztop + 0.045)], [0.06, 0.05], "3")
@@ -736,7 +783,7 @@ def _build(model, f, k):
                     b.barrel((fx * (hw / 2 + 0.05), 0.0, hips_z), 14, 2.4, WCLS[c])
             else:                                               # flank mounts on the torso face
                 zf = canopy["z_flank"] if canopy else z0 + th * 0.62
-                fy = canopy["y_flank"] if canopy else td / 2 + ftop * 0.6
+                fy = canopy["y_flank"] if canopy else front_y(0.62) + 0.002
                 if c == "missile":
                     _pod(b, (sxx, fy + 0.02, zf), gr["tubes"])
                 else:
@@ -747,7 +794,7 @@ def _build(model, f, k):
             if canopy:                                              # barrels poking from the nose, buried in it
                 weapon_barrel(b, ((i - (min(gr["count"], 4) - 1) / 2) * b.px(6), canopy["y_nose"], canopy["z_nose"]), gr, 6, 1.4, embed=0.06)
                 continue
-            b.box(((i - (min(gr["count"], 4) - 1) / 2) * b.px(6), td / 2 + ftop * 0.3 + 0.002, z0 + th * 0.3),
+            b.box(((i - (min(gr["count"], 4) - 1) / 2) * b.px(6), front_y(0.3) + 0.002, z0 + th * 0.3),
                   (b.px(3), 0.004, b.px(3)), "1", vis={"front"}, tag="w", cls=WCLS[gr["cls"]])
 
     # ---- jump jets, by location (the file says where): torso rear, or on the legs
