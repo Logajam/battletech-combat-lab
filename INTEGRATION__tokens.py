@@ -62,6 +62,37 @@ def weapon_class(name):
     return "other"
 
 
+def weapon_fam(name):
+    """(family, size 1-3) of a weapon from its name, for its 3D model: laser / ppc / ac / uac / lbx /
+    gauss / rotary / mg / flamer (energy and ballistic), srm / lrm / other missile."""
+    n = name.lower()
+    num = re.search(r"(\d+)", n)
+    k = int(num.group(1)) if num else 0
+    if "gauss" in n:
+        return "gauss", 3 if ("heavy" in n or "hag" in n) else 2
+    if "ppc" in n:
+        return "ppc", 2 if "light" in n else 3
+    if "laser" in n:
+        return "laser", 3 if ("large" in n or "heavy" in n) else 1 if ("small" in n or "micro" in n) else 2
+    if "flamer" in n:
+        return "flamer", 1
+    if "machine gun" in n or n.startswith("mg"):
+        return "mg", 1
+    if "rotary" in n:
+        return "rotary", 3 if k >= 4 else 2
+    if "lb" in n and "x" in n:
+        return "lbx", 3 if k >= 10 else 2
+    if "ultra" in n or "uac" in n:
+        return "uac", 3 if k >= 10 else 2
+    if re.search(r"ac\s*/?\s*\d", n) or "autocannon" in n:
+        return "ac", 1 if k <= 2 else 2 if k <= 5 else 3
+    if "srm" in n or "streak" in n:
+        return "srm", 1 if k <= 2 else 2 if k <= 4 else 3
+    if "lrm" in n or "mrm" in n or "atm" in n or "mml" in n:
+        return "lrm", 2 if k <= 10 else 3
+    return "", 2
+
+
 def weapon_is_big(name):
     """A weapon drawn as a heavy barrel / big rack rather than a small port."""
     n = name.lower()
@@ -298,6 +329,12 @@ def build_model(unit, overrides=None, hash_only=False):
             g["tubes"] += int(m.group(1)) if m else 4
         g["big"] = g["big"] or weapon_is_big(w["name"])
         nm = w["name"].lower()
+        fam_, sz_ = weapon_fam(w["name"])
+        if fam_:
+            fd = g.setdefault("fam", {})
+            fd[fam_] = max(fd.get(fam_, 0), sz_)
+        if "pulse" in nm:
+            g["pulse"] = True
         g.setdefault("subs", set()).update(
             k for k, hit in (("gauss", "gauss" in nm), ("uac", "ultra" in nm or "uac" in nm), ("lbx", "lb " in nm or "lb-" in nm or "lbx" in nm),
                              ("rotary", "rotary" in nm or "gatling" in nm), ("ppc", "ppc" in nm)) if hit)
@@ -379,6 +416,7 @@ PROFILES = {
     "prow":     [(-1, .26), (-.62, 0), (.42, 0), (1, .42), (1, .60), (.42, 1), (-.62, 1), (-1, .74)],   # pointed nose, both faces cut
 }
 PROFILES["dome"] = [(-1, 0), (1, 0), (1, .42)] + [(math.cos(math.radians(a)), .42 + .58 * math.sin(math.radians(a))) for a in range(22, 160, 22)] + [(-1, .42)]
+PROFILES["toe"] = [(-1, 0), (1, 0), (1, .30), (-.2, .85), (-1, 1)]          # a toe: low at the front, rising to the ankle
 PROFILES["slung_wedge"] = [(-1, .05), (-.9, 0), (.1, 0), (1, .38), (1, .64), (.3, .74), (-.7, 1), (-1, .95)]     # long, low, belly rising to the nose
 PROFILES["tall_slab"] = PROFILES["upright"]                                                                # narrow and tall (size changes in _build)
 PROFILES["hunch"] = PROFILES["stepped"] = PROFILES["upright"]
@@ -460,7 +498,7 @@ class B3:
         self.parts.append({"groups": [[(p, 0.0) for p in pts]], "cls": cls or TONE[tone], "vis": vis, "tag": tag,
                            "vol": w * d * h * f * f * 0.8})
 
-    def blob(self, ellipsoids, tone, vis=None, tag="b", cls=None, n=96):
+    def blob(self, ellipsoids, tone, vis=None, tag="b", cls=None, n=64):
         """ONE convex body: the hull of several ellipsoids [(centre, (rx, ry, rz))]. A teardrop torso
         that holds all three torso sections is the hull of a wide rear lobe pair and a narrow nose."""
         f = self.f
@@ -492,53 +530,99 @@ class B3:
 
 
 def weapon_barrel(b, c, gr, length_px, r_px, vis=None, embed=0.0):
-    """One weapon's barrel, drawn by its kind (read from the name): each class has its own
-    SECTION so it reads from the front (Timber Wolf kit study, 2026-11-03):
-    PPC = smooth cylinder with a muzzle collar; Gauss = triangular tube; Ultra AC = twin
-    barrels; LB-X = thick cylinder with an underside rail; rotary = three barrels."""
+    """One weapon's 3D model, by family (read from its name; Timber Wolf / Atlas kit studies, 2026-11-03).
+    The receiver / housing is buried in the part it mounts on (`embed`), so nothing floats.
+    laser = housing with heat-fin plate and a lens in the class color (pulse: a second lens);
+    PPC = long barrel with coil rings and a forked muzzle; AC = receiver, side ammo feed, barrel, muzzle
+    brake (by size); Ultra AC = twin barrels; LB-X = thick barrel with an underside rail; Gauss =
+    triangular tube with coil rings; machine gun = small housing, twin barrels, ammo box; flamer =
+    tank and nozzle; rotary = a drum and three barrels. Sizes are in pixels (weapons keep their own scale)."""
     x, y, z = c
     if embed:                                           # start inside the part it is mounted on: no gap
         y -= embed
         length_px += embed * b.k
+    U = lambda v: b.px(v) / b.f                         # a size across or along the figure (x, y), in model units
+    W = b.px                                            # a size in height
     cls = WCLS[gr["cls"]]
+    fams = gr.get("fam") or {}
+    fam = next((f for f in ("gauss", "lbx", "uac", "rotary", "ac", "ppc", "laser", "mg", "flamer") if f in fams), None)
+    sz = fams.get(fam, 2)
     subs = gr.get("subs") or set()
-    if "gauss" in subs:
+
+    def rbox(y0, rl, rw, rh, tone="3", dz=0.0, dx=0.0):
+        b.box((x + U(dx), y + U(y0 + rl / 2), z + W(dz)), (U(rw), U(rl), W(rh)), tone, tag="w", ch=0.003)
+
+    if fam == "laser":
+        r = (1.0, 1.45, 1.9)[sz - 1]
+        H = (6, 8, 11)[sz - 1]
+        rbox(0, H, r * 2.4, r * 2.2)                                          # housing
+        rbox(H * 0.12, H * 0.62, r * 1.7, r * 0.5, "4", dz=r * 1.25)         # heat-fin plate on top
+        if gr.get("pulse"):
+            for d in (-1, 1):
+                b.barrel((x + U(d * r * 0.55), y + U(H * 0.9), z), max(2.0, length_px - H * 0.9 + 1.0), r * 0.55, cls, vis)
+        else:
+            b.barrel((x, y + U(H * 0.9), z), max(2.0, length_px - H * 0.9 + 1.0), r * 0.9, cls, vis)      # the lens
+    elif fam == "ppc":
+        r = 1.5 + 0.35 * sz
+        b.barrel((x, y, z), length_px, r, cls, vis)
+        for t in (0.22, 0.42, 0.62):                                          # coil rings
+            b.barrel((x, y + U(length_px * t), z), 2.2, r * 1.5, cls, vis)
+        for d in (-1, 1):                                                     # the forked muzzle
+            b.barrel((x + U(d * r * 0.95), y + U(length_px * 0.92), z), 4.0, r * 0.5, cls, vis)
+    elif fam in ("ac", "lbx", "uac"):
+        r = (1.2, 1.6, 2.1)[sz - 1] + (0.3 if fam == "lbx" else 0.0)
+        rl = length_px * 0.40
+        rbox(0, rl, r * 2.8, r * 2.5)                                         # receiver
+        rbox(rl * 0.2, rl * 0.55, r * 1.1, r * 1.5, "4", dx=r * 1.8)          # side ammo feed
+        if fam == "uac":
+            for d in (-1, 1):
+                b.barrel((x + U(d * r * 0.85), y + U(rl * 0.6), z), length_px - rl * 0.6, r * 0.62, cls, vis)
+        else:
+            b.barrel((x, y + U(rl * 0.6), z), length_px - rl * 0.6, r, cls, vis)
+            b.barrel((x, y + U(length_px * 0.92), z), length_px * 0.12, r * 1.4, cls, vis)       # muzzle brake
+            if fam == "lbx":
+                rbox(rl, length_px * 0.5, r * 0.8, r * 0.8, "3", dz=-r * 1.5)                  # underside rail
+    elif fam == "gauss":
         b.prism((x, y, z), length_px, r_px * 1.3, 3, cls, vis)
-    elif "uac" in subs:
+        for t in (0.3, 0.55, 0.8):                                            # coil rings
+            b.prism((x, y + U(length_px * t), z), 2.2, r_px * 1.7, 3, cls, vis)
+    elif fam == "mg":
+        rbox(0, 4.5, 2.6, 2.4)
         for d in (-1, 1):
-            b.barrel((x + d * b.px(r_px * 0.85) / b.f, y, z), length_px, r_px * 0.62, cls, vis)
-        b.box((x, y + b.px(length_px * 0.3) / b.f, z), (b.px(r_px * 3.6) / b.f, b.px(length_px * 0.3), b.px(r_px * 1.6)), "3", tag="w")
-    elif "lbx" in subs:
-        b.barrel((x, y, z), length_px, r_px * 1.2, cls, vis)
-        b.box((x, y + b.px(length_px * 0.4) / b.f, z - b.px(r_px * 1.5)), (b.px(r_px * 0.8) / b.f, b.px(length_px * 0.7), b.px(r_px * 0.8)), "3", tag="w")
-    elif "rotary" in subs:
+            b.barrel((x + U(d * 0.7), y + U(3.0), z), max(3.0, length_px - 3.0), 0.5, cls, vis)
+        rbox(0.5, 3.0, 1.8, 2.0, "4", dz=-2.0)                                # ammo box
+    elif fam == "flamer":
+        b.barrel((x, y + U(2.0), z), 4.5, 1.6, cls, vis)                      # fuel tank
+        b.barrel((x, y + U(5.0), z), max(3.0, length_px - 5.0), 0.7, cls, vis)
+    elif fam == "rotary":
+        b.barrel((x, y, z), length_px * 0.3, r_px * 1.9, cls, vis)            # drum
         for ang in (90, 210, 330):
             dx = b.px(r_px * 0.8) * math.cos(math.radians(ang)) / b.f
             dz = b.px(r_px * 0.8) * math.sin(math.radians(ang))
-            b.barrel((x + dx, y, z + dz), length_px, r_px * 0.5, cls, vis)
-    elif "ppc" in subs:
-        b.barrel((x, y, z), length_px, r_px, cls, vis)
-        b.barrel((x, y + b.px(length_px) / b.f, z), length_px * 0.18, r_px * 1.35, cls, vis)       # the muzzle collar
+            b.barrel((x + dx, y + U(length_px * 0.2), z + dz), length_px * 0.85, r_px * 0.5, cls, vis)
     else:
         b.barrel((x, y, z), length_px, r_px, cls, vis)
 
 
 def _pod(b, c, tubes, tone="3"):
-    """A missile pod, sized from the tube count (real masses are small: a cube-root law
-    with a fudge so it never disappears). Cells on the front, a stripe on top and side."""
+    """A missile launcher, sized from the tube count (real masses are small: a cube-root law with a fudge so
+    it never disappears): a chamfered frame, a lid line across the top, and the tubes as dark recesses with a
+    colored rim on the front face, a stripe on top and on the side."""
     n = max(2, min(tubes, 30))
     w = b.px(5 + 2.4 * n ** (1 / 3))
     h = w * (0.9 if n <= 6 else 1.1)
     d = w * 1.4
     x, y, z = c
-    b.box((x, y, z), (w, d, h), tone, tag="w")
+    b.box((x, y, z), (w, d, h), tone, tag="w", ch=0.004)
     cols = max(2, math.ceil(math.sqrt(n)))
     rows = math.ceil(n / cols)
     cell = w / (cols + 0.6)
     for i in range(min(n, 30)):
         r, cc = divmod(i, cols)
-        b.box((x + (cc - (cols - 1) / 2) * cell, y + d / 2 + 0.002, z + ((rows - 1) / 2 - r) * cell * 0.9),
-              (cell * 0.55, 0.004, cell * 0.55), "1", vis={"front"}, tag="w", cls="wm")
+        cx_, cz_ = x + (cc - (cols - 1) / 2) * cell, z + ((rows - 1) / 2 - r) * cell * 0.9
+        b.box((cx_, y + d / 2 + 0.001, cz_), (cell * 0.80, 0.003, cell * 0.80), "1", tag="w", cls="wm")           # colored rim
+        b.box((cx_, y + d / 2 + 0.003, cz_), (cell * 0.52, 0.005, cell * 0.52), "1", tag="w", cls="ln")           # the dark tube mouth
+    b.box((x, y + d / 2 - d * 0.18, z + h / 2 + 0.0015), (w * 0.9, d * 0.18, 0.003), "1", tag="w", cls="ln")      # lid line
     b.box((x, y, z + h / 2 + 0.002), (w * 0.6, d * 0.9, 0.004), "1", vis={"top"}, tag="w", cls="wm")
     b.box((x + w / 2 + 0.002, y, z), (0.004, d * 0.8, h * 0.2), "1", vis={"side"}, tag="w", cls="wm")
     return w, h, d
@@ -595,7 +679,10 @@ def _build(model, f, k):
     hx = hw / 2 + 0.014
 
     def foot(x, y, z0, big=1.0):
-        b.box((x, y + 0.035, z0 + 0.016), (lr * 2.3 * big, 0.12 * big, 0.032), "4")
+        # a foot: a heel block, a sole plate and two toe wedges (low at the front), not one slab
+        b.box((x, y - 0.012, z0 + 0.022), (lr * 2.3 * big, 0.05 * big, 0.044), "4", ch=0.008)
+        for dx in (-1, 1):
+            b.extrude(x + dx * lr * 0.62 * big, z0, lr * 1.05 * big, 0.085 * big, 0.04, PROFILES["toe"], "4", cy=y + 0.055 * big)
         if model.get("feet") == "thrusters":                       # heel thrusters (jump jets on the feet)
             b.box((x, y - 0.035, z0 + 0.04), (lr * 1.4, 0.035, 0.05), "3", ch=0.006)
             b.box((x, y - 0.058, z0 + 0.04), (lr * 1.0, 0.012, 0.035), "4", cls="hl")
@@ -686,9 +773,9 @@ def _build(model, f, k):
                     b.box(mid_, (0.005, 0.004, abs(a_[2] - b_[2]) * 0.6), "1", cls="ln", ch=0.0)
                 for tt, ra in ((0.42, 1.55), (0.52, 1.25)):          # armor bands across thigh and shin: thin plates
                     a0 = (pts[0][0] + (pts[1][0] - pts[0][0]) * tt, pts[0][1] + (pts[1][1] - pts[0][1]) * tt, pts[0][2] + (pts[1][2] - pts[0][2]) * tt)
-                    b.box(a0, (lr * ra * 2.15, lr * ra * 2.15, 0.012), "4", ch=0.004)
+                    b.box(a0, (lr * ra * 2.1, lr * ra * 2.1, 0.009), "3", ch=0.003)
                     a1 = (pts[1][0] + (pts[2][0] - pts[1][0]) * tt, pts[1][1] + (pts[2][1] - pts[1][1]) * tt, pts[1][2] + (pts[2][2] - pts[1][2]) * tt)
-                    b.box(a1, (lr * (ra - 0.3) * 2.15, lr * (ra - 0.3) * 2.15, 0.012), "4", ch=0.004)
+                    b.box(a1, (lr * (ra - 0.3) * 2.1, lr * (ra - 0.3) * 2.1, 0.009), "3", ch=0.003)
                 b.ball(pts[1], lr * 1.2, "2")
                 b.seg([(pts[1][0] - 0.016, pts[1][1], pts[1][2]), (pts[1][0] + 0.016, pts[1][1], pts[1][2])], [lr * 1.5] * 2, "3")    # knee disc cover
                 foot(x, st - 0.04, 0.0)
@@ -805,8 +892,11 @@ def _build(model, f, k):
             b.box((hoff, hy + hw_ * 0.42, hz - hh_ * 0.36), (hw_ * 0.58, 0.02, hh_ * 0.30), "3", ch=0.004)
             b.box((hoff, hy + hw_ * 0.49, hz - hh_ * 0.16), (hw_ * 0.10, 0.006, hh_ * 0.22), "1", cls="ln", ch=0.0)
         else:
-            tpx = {"box": (1, 1), "dome": (0.7, 0.8), "wedge": (0.75, 0.5), "visor": (1, 1)}[shape_h]
-            b.box((hoff, hy, hz), (hw_, hw_ * 0.85, hh_), "1", tx=tpx[0], ty=tpx[1], tilt=-0.2 if shape_h == "wedge" else 0)
+            if shape_h == "dome":
+                b.blob([((hoff, hy, hz), (hw_ * 0.52, hw_ * 0.46, hh_ * 0.58))], "1")
+            else:                                                  # box / wedge / visor: the side profile extruded
+                hprof = {"box": PROFILES["upright"], "wedge": PROFILES["prow"], "visor": PROFILES["sloped"]}[shape_h]
+                b.extrude(hoff, hz - hh_ / 2, hw_, hw_ * 0.85, hh_, hprof, "1", wtop=0.85)
             b.box((hoff, hy + hw_ * 0.43 + 0.002, hz), (hw_ * (0.9 if shape_h == "visor" else 0.6), 0.004, 0.022), "4", vis={"front"}, cls="hl")
             b.box((hoff, hy + hw_ * 0.3, hz), (hw_ * 0.5, hw_ * 0.5, 0.02), "4", vis={"top"}, cls="hl")
 
@@ -896,7 +986,7 @@ def _build(model, f, k):
         half_arm = max(half * (1 - (1 - top_k) * vs), half * (1 - (1 - top_k) * vl)) * (1 + (fw - 1) * 0.5)
         sx = fx * canopy["x_arm"] if canopy else fx * (half_arm + 0.058 + boom)
         b.seg([(fx * (canopy and tw_eff / 2 * 0.80 or half_arm * 0.92), ay, zs_), (sx, ay, zs_)], [0.038 * sl, 0.034 * sl], "3")           # connective tissue: torso edge to shoulder joint only
-        b.ball((sx, ay, zs_), 0.038, "3")
+        b.blob([((sx, ay, zs_), (0.040, 0.046, 0.040))], "3")                                         # shoulder cap, not a ball
         small = bool(gs) and not any(x["big"] for x in gs)
         up = model.get("arms_up")
         astyle = model.get("arm_style", "")
@@ -938,7 +1028,11 @@ def _build(model, f, k):
             if astyle == "ball":                                           # a huge round ball fist
                 b.blob([((wr[0], wr[1] + 0.01, wr[2] - 0.035), (0.075, 0.075, 0.075))], "2")
             elif kind == "hand":
-                b.box((wr[0], wr[1] + 0.02, wr[2] - (0.03 if not up else -0.03)), (0.05, 0.05, 0.06), "4")
+                hz_ = wr[2] - (0.03 if not up else -0.03)
+                b.box((wr[0], wr[1] + 0.012, hz_), (0.05, 0.04, 0.055), "4", ch=0.006)                      # palm
+                for fi in (-1, 0, 1):                                                                       # three finger plates
+                    b.box((wr[0], wr[1] + 0.04, hz_ + fi * 0.017), (0.046, 0.022, 0.014), "3", ch=0.002)
+                b.box((wr[0] - fx * 0.03, wr[1] + 0.03, hz_ + 0.012), (0.012, 0.03, 0.018), "3", ch=0.002)  # thumb
             muz = (wr[0], wr[1] + 0.03, wr[2])
         for gr in gs:                                          # weapons in line with the forearm / pod
             if gr["cls"] == "missile":
@@ -1017,7 +1111,8 @@ def _build(model, f, k):
                 x, y, z = (i - (min(n, 3) - 1) / 2) * 0.05, -td / 2 - 0.02, z0 + 0.10
             else:
                 x, y, z = (-1 if "Left" in zone else 1) * (hx + 0.03), -0.04, lh * 0.8 - i * 0.06
-            b.box((x, y, z), (0.04, 0.05, 0.05), "4", cls="hl")
+            b.box((x, y, z), (0.034, 0.045, 0.05), "4", tx=1.3, ty=1.3, ch=0.006)                          # nozzle: wider at the mouth
+            b.box((x, y - 0.024, z - 0.018), (0.02, 0.004, 0.02), "4", cls="hl", ch=0.0)                  # glow
     if model.get("crouch"):                                        # a crouch pitches the whole upper body forward about the hips
         psi = math.radians(20)
         zp = z0                                                    # the hip pivot (belly of the torso)

@@ -556,6 +556,17 @@ needs no GUI change.
     Atlas, Orion. Legs `slab` (two stacked chamfered slabs on the thigh, three tapering on the shin, a
     clamshell knee, wide block foot): Atlas, Banshee, Battlemaster, Victor. Checked by eye on the Atlas,
     Orion, Banshee and Flea (unchanged).
+  - **Weapon models and mech-like parts (Daniel, 2026-11-03: "enhanced weapon models that fit", "replace
+    blocks for something that looks like it would be on an actual mech").** `weapon_fam` reads each weapon's
+    family and size from its name; `weapon_barrel` builds laser (housing, fin plate, lens, pulse = two lenses),
+    PPC (coil rings, forked muzzle), AC / Ultra / LB-X (receiver, side feed, barrel, brake, rail), Gauss
+    (coil rings), machine gun, flamer, rotary; `_pod` missile racks have a lid line and tube mouths as dark
+    recesses with a colored rim. All receivers are buried in the mount. Also replaced: fists (palm, three
+    finger plates, thumb), feet (heel block plus two toe wedges), heads (side profile extruded; dome a
+    blob), shoulder caps (not balls), jump-jet nozzles. Fixed on the way: leg armor bands were too dark.
+    The Linesman is a 90 t chart chassis with no unit file in the library, so it cannot be drawn.
+    Page size 5.9 MB (blob samples cut to 64). Checked by eye on 12 units. Not built: AMS dome, TAG /
+    probe / ECM housings, artillery tubes, swiveling turrets.
   - **Next art steps (not built):** chicken legs (done above); stacked-slab shins with a high hock; the forward-slung wedge torso;
     the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
     pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits

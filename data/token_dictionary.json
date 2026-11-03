@@ -347,6 +347,43 @@
   "limb_panel_lines": {
    "status": "built (2026-11-03, session 16)",
    "what": "dark panel line down the front of thigh, shin and forearm"
+  },
+  "fists_feet_heads": {
+   "status": "built (2026-11-03, session 16)",
+   "what": "fists with a palm, three finger plates and a thumb; feet with a heel block and two toe wedges; heads by side profile (box / wedge / visor extruded, dome a blob); shoulder caps instead of balls; jump-jet nozzles wider at the mouth with a glow"
   }
+ },
+ "weapon_models": {
+  "_about": "Each weapon family has its own 3D model, chosen from the weapon's name (weapon_fam in INTEGRATION__tokens.py). Sizes are in pixels so weapons keep a fixed scale (they look larger on small 'Mechs). The receiver is buried in the part the weapon mounts on.",
+  "laser": {
+   "status": "built (2026-11-03, session 16)",
+   "what": "housing with a heat-fin plate and a lens in the energy color; pulse lasers get two lenses; small / medium / large by size"
+  },
+  "ppc": {
+   "status": "built (2026-11-03, session 16)",
+   "what": "long barrel with three coil rings and a forked muzzle (light / standard / ER by size)"
+  },
+  "ac / uac / lbx": {
+   "status": "built (2026-11-03, session 16)",
+   "what": "receiver box, side ammo feed, barrel with a muzzle brake; Ultra AC twin barrels; LB-X a thicker barrel with an underside rail; AC/2 to AC/20 by size"
+  },
+  "gauss": {
+   "status": "built (2026-11-03, session 16)",
+   "what": "triangular tube with three coil rings"
+  },
+  "mg / flamer / rotary": {
+   "status": "built (2026-11-03, session 16)",
+   "what": "machine gun: small housing, twin barrels, ammo box; flamer: tank and nozzle; rotary: a drum and three barrels"
+  },
+  "missile_rack": {
+   "status": "built (2026-11-03, session 16)",
+   "what": "chamfered frame, lid line, tube mouths as dark recesses with a colored rim, stripe on top and side; size from the tube count"
+  },
+  "not_built": [
+   "anti-missile system dome",
+   "TAG / probe / ECM housings",
+   "Arrow IV / artillery tubes",
+   "angled or swiveling turrets"
+  ]
  }
 }
