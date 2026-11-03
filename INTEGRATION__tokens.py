@@ -395,6 +395,22 @@ class B3:
     def ball(self, c, r, tone, vis=None, tag="b"):
         self.seg([c, c], [r, r], tone, vis, tag)
 
+    def blob(self, ellipsoids, tone, vis=None, tag="b", cls=None, n=96):
+        """ONE convex body: the hull of several ellipsoids [(centre, (rx, ry, rz))]. A teardrop torso
+        that holds all three torso sections is the hull of a wide rear lobe pair and a narrow nose."""
+        f = self.f
+        golden = math.pi * (3 - math.sqrt(5))
+        pts, vol = [], 0.0
+        for c, (rx, ry, rz) in ellipsoids:
+            for i in range(n):
+                y = 1 - 2 * (i + 0.5) / n
+                r = math.sqrt(max(0.0, 1 - y * y))
+                th_ = golden * i
+                pts.append(((c[0] + rx * r * math.cos(th_)) * f, (c[1] + ry * y) * f, c[2] + rz * r * math.sin(th_)))
+            vol = max(vol, 4 / 3 * math.pi * rx * ry * rz * f * f)
+        self.parts.append({"groups": [[(p, 0.0) for p in pts]], "cls": cls or TONE[tone], "vis": vis, "tag": tag,
+                           "vol": vol * len(ellipsoids) * 0.75})
+
     def prism(self, c, length_px, r_px, sides, cls, vis=None):
         """A barrel with a polygonal section (Gauss = triangle), pointing forward (+y)."""
         x, y, z = c
@@ -410,12 +426,15 @@ class B3:
         self.seg([(x, y, z), (x, y + self.px(length_px) / self.f, z)], [self.px(r_px) / self.f] * 2, None, vis, "w", cls)
 
 
-def weapon_barrel(b, c, gr, length_px, r_px, vis=None):
+def weapon_barrel(b, c, gr, length_px, r_px, vis=None, embed=0.0):
     """One weapon's barrel, drawn by its kind (read from the name): each class has its own
     SECTION so it reads from the front (Timber Wolf kit study, 2026-11-03):
     PPC = smooth cylinder with a muzzle collar; Gauss = triangular tube; Ultra AC = twin
     barrels; LB-X = thick cylinder with an underside rail; rotary = three barrels."""
     x, y, z = c
+    if embed:                                           # start inside the part it is mounted on: no gap
+        y -= embed
+        length_px += embed * b.k
     cls = WCLS[gr["cls"]]
     subs = gr.get("subs") or set()
     if "gauss" in subs:
@@ -489,7 +508,11 @@ def _build(model, f, k):
     if quad:
         b.box((0, 0, hips_z), (hw, hd, 0.07), "3")
     else:
-        b.box((0, 0, hips_z), (hw, hd, 0.07), "3", tx=0.94)
+        # PELVIS (Atlas / Timber Wolf kit studies): a flat plate, hexagonal from above (full width at the
+        # sides, narrowing front and rear), cut corners, with a short apron hanging at the front
+        b.box((0, 0, hips_z), (hw, hd * 1.05, 0.07), "3", tx=0.92, plan=(0.66, -hd * 0.52, hd * 0.52), ch=0.02)
+        b.box((0, -hd * 0.1, hips_z), (hw * 0.78, hd * 0.8, 0.07), "3", plan=(1.0, -hd * 0.4, hd * 0.4), ch=0.02)
+        b.box((0, hd * 0.42, hips_z - 0.05), (hw * 0.3, hd * 0.3, 0.07), "3", tx=0.7, ty=0.5, ch=0.01)
     hx = hw / 2 + 0.014
 
     def foot(x, y, z0, big=1.0):
@@ -555,25 +578,31 @@ def _build(model, f, k):
     pl = (fw, -td / 2, td / 2) if fw != 1.0 else None
     tw_eff = tw * (1 + (fw - 1) * 0.5)                             # half-way along the depth: where the arms attach
     cw = cw * slim("Center Torso")
-    bays = {}                                                      # canopy torso: side -> (x, y, z, w, d, h) of its wing bay
+    bays = {}                                                      # canopy torso: side -> (x, y, z, w, d, h) of its bay
+    canopy = {}                                                    # canopy anchors for arms, flank weapons, head
     if shape == "canopy":
-        # CANOPY TORSO (block from the Timber Wolf kit study, 2026-11-03): a teardrop body, round dome
-        # nose sloping down and forward over a flat belly, a squared rear deck, and a box BAY on each
-        # rear wing - wider than the body and rising above it. Plan = round nose to square rear; profile =
-        # sloped nose, tall rear. (plan / profile tags do not apply: the shape sets both.)
+        # CANOPY TORSO (Timber Wolf kit study, 2026-11-03; Daniel's review 2026-11-03: the centre body
+        # holds ALL THREE torso sections). One convex teardrop: a wide rear pair of lobes (the side
+        # torsos) and a narrow dome nose (the centre torso), seams between the thirds, and a missile
+        # bay sitting on each side torso. Plan = broad rear, round nose; profile = sloped nose.
         tilt = 0.0
-        rb = tw * 0.25 * slim("Center Torso")
         zc = z0 + th * 0.5
-        b.seg([(0, -td * 0.36, zc), (0, 0.0, zc), (0, td * 0.40, zc - th * 0.20)], [rb * 1.05, rb, rb * 0.60], "1")
-        b.seg([(0, -td * 0.30, zc + th * 0.12), (0, td * 0.12, zc + th * 0.14)], [rb * 0.80, rb * 0.62], "2")     # canopy ridge
-        b.box((0, -td * 0.30, z0 + th * 0.28), (tw * 0.86, td * 0.40, th * 0.50), "3")                            # rear deck
+        sct = slim("Center Torso")
+        b.blob([((0, -td * 0.14, zc), (tw * 0.5 * (0.5 + 0.5 * sct), td * 0.30, th * 0.5)),
+                ((0, td * 0.20, zc - th * 0.06), (tw * 0.20 * sct, td * 0.28, th * 0.42)),
+                ((-tw * 0.33 * (0.7 + 0.3 * slim("Left Torso")), -td * 0.10, zc - th * 0.02), (tw * 0.17, td * 0.26, th * 0.46)),
+                ((tw * 0.33 * (0.7 + 0.3 * slim("Right Torso")), -td * 0.10, zc - th * 0.02), (tw * 0.17, td * 0.26, th * 0.46))], "1")
         for fx in (-1, 1):
             zone_t = "Left Torso" if fx < 0 else "Right Torso"
-            bw = tw * 0.31 * slim(zone_t)
-            bx = fx * (rb * 0.9 + bw / 2)
-            bays[fx] = (bx, -td * 0.22, z0 + th * 0.58, bw, td * 0.42, th * 1.12)
-            b.box((bx, bays[fx][1], bays[fx][2]), (bw, bays[fx][4], bays[fx][5]), "2")
-            b.box((fx * rb * 0.62, -td * 0.30, zc + th * 0.02), (0.006, td * 0.5, th * 0.7), "1", vis={"front", "rear", "top"}, cls="ln")   # seam
+            bw = tw * 0.30 * slim(zone_t)
+            bx = fx * tw * 0.33
+            bays[fx] = (bx, -td * 0.16, zc + th * 0.5 + th * 0.12, bw, td * 0.40, th * 0.52)
+            b.box((bx, bays[fx][1], bays[fx][2]), (bw, bays[fx][4], bays[fx][5]), "2", tx=0.9, ty=0.82, tilt=-0.10, ch=0.016)
+            b.box((fx * tw * 0.168, td * 0.02, zc + th * 0.30), (0.007, td * 0.62, th * 0.50), "1", vis={"front", "rear", "top"}, cls="ln")   # seam between the thirds
+        canopy = {"y_flank": td * 0.06, "z_flank": zc - th * 0.04, "y_nose": td * 0.36, "z_nose": zc - th * 0.07,
+                  "x_arm": tw * 0.5 + 0.012, "y_arm": -td * 0.02, "z_arm": zc + th * 0.06, "y_rear": -td * 0.40,
+                  "visor": (0, td * 0.22, zc + th * 0.30)}
+        tw_eff = tw
     else:
         b.box((0, 0, z0 + th / 2 + step / 2), (cw, td, th + step), "1", tilt=tilt, tx=tx, ty=ty, plan=pl)
     for fx in () if shape == "canopy" else (-1, 1):
@@ -591,7 +620,9 @@ def _build(model, f, k):
         mount = "built_in"                                          # the cockpit is the dome
     hoff = model["head_offset"] * tw * 0.16
     hs = slim("Head")
-    if mount == "built_in":
+    if mount == "built_in" and canopy:                              # the glass sits on the dome of the nose
+        b.box((canopy["visor"][0] + hoff, canopy["visor"][1], canopy["visor"][2]), (tw * 0.18, td * 0.30, 0.03), "4", tilt=-0.12, cls="hl")
+    elif mount == "built_in":
         b.box((hoff, td / 2 * 0.5 + ftop * 0.8, ztop - 0.07), (0.09, td * 0.5, 0.035), "4", vis={"front", "side"}, cls="hl")
     else:
         big = mount in ("full", "boom")
@@ -627,29 +658,31 @@ def _build(model, f, k):
         zone = "Left Arm" if name == "L" else "Right Arm"
         gs = _groups(model, zone)
         sl = slim(zone)
-        sx = fx * (tw_eff / 2 + boom + 0.02)
-        b.seg([(fx * tw_eff / 2 * 0.92, 0.0, zs), (sx, 0.0, zs)], [0.045 * sl, 0.04 * sl], "3")           # connective tissue
-        b.ball((sx, 0.0, zs), 0.038, "3")
+        ay = canopy["y_arm"] if canopy else 0.0                    # the shoulder socket sits on the side torso itself
+        zs_ = canopy["z_arm"] if canopy else zs
+        sx = fx * canopy["x_arm"] if canopy else fx * (tw_eff / 2 + boom + 0.02)
+        b.seg([(fx * (tw_eff / 2 * 0.92), ay, zs_), (sx, ay, zs_)], [0.045 * sl, 0.04 * sl], "3")           # connective tissue
+        b.ball((sx, ay, zs_), 0.038, "3")
         small = bool(gs) and not any(x["big"] for x in gs)
         up = model.get("arms_up")
         muz = None
         if kind == "pod" or (kind != "hand" and small and kind != "forearm"):               # upper actuator only: a turret
             n_w = max(1, sum(x["count"] for x in gs))
             pw = 0.05 + 0.014 * min(n_w, 4)
-            pz = zs - 0.07 if not up else ztop + 0.08
+            pz = zs_ - 0.07 if not up else ztop + 0.08
             # POD ARM (block from the kit study): a lozenge - leaf-shaped in plan (narrows to the muzzle),
             # chamfered, with a raised spine on top and a stub underneath
-            b.box((sx + fx * 0.012, 0.03, pz), (pw * sl, 0.18, 0.10), "1", tx=0.85, plan=(0.55, -0.06, 0.12), ch=0.012)
-            b.box((sx + fx * 0.012, 0.02, pz + 0.06), (pw * sl * 0.4, 0.14, 0.025), "3")
-            b.box((sx + fx * 0.012, -0.03, pz - 0.06), (pw * sl * 0.3, 0.05, 0.03), "3")
-            muz = (sx + fx * 0.012, 0.03 + 0.08, pz)
+            b.box((sx + fx * 0.012, ay + 0.03, pz), (pw * sl, 0.18, 0.10), "1", tx=0.85, plan=(0.55, -0.06, 0.12), ch=0.012)
+            b.box((sx + fx * 0.012, ay + 0.02, pz + 0.06), (pw * sl * 0.4, 0.14, 0.025), "3")
+            b.box((sx + fx * 0.012, ay - 0.03, pz - 0.06), (pw * sl * 0.3, 0.05, 0.03), "3")
+            muz = (sx + fx * 0.012, ay + 0.03 + 0.08, pz)
         else:
             if up:
-                el, wr = (sx + fx * 0.02, 0.02, zs + 0.12), (sx + fx * 0.01, 0.04, zs + 0.24)
+                el, wr = (sx + fx * 0.02, ay + 0.02, zs_ + 0.12), (sx + fx * 0.01, ay + 0.04, zs_ + 0.24)
             else:
-                el, wr = (sx + fx * 0.012, 0.02, zs - 0.13), (sx + fx * 0.006, 0.075, zs - 0.25)
+                el, wr = (sx + fx * 0.012, ay + 0.02, zs_ - 0.13), (sx + fx * 0.006, ay + 0.075, zs_ - 0.25)
             w1 = (0.042 if kind == "hand" else 0.037) * sl
-            b.seg([(sx, 0.0, zs), el, wr], [w1 * 1.3, w1 * 1.1, w1], "2")
+            b.seg([(sx, ay, zs_), el, wr], [w1 * 1.3, w1 * 1.1, w1], "2")
             b.ball(el, w1 * 1.15, "2")
             if kind == "hand":
                 b.box((wr[0], wr[1] + 0.02, wr[2] - (0.03 if not up else -0.03)), (0.05, 0.05, 0.06), "4")
@@ -663,12 +696,12 @@ def _build(model, f, k):
                     dx = (i - (nn - 1) / 2) * b.px(5) * f
                     weapon_barrel(b, (muz[0] + dx / f, muz[1], muz[2]), gr,
                                   22 if (gr["big"] and gr["cls"] == "ballistic") else 12 if gr["cls"] == "ballistic" else 7,
-                                  2.2 + (1.4 if gr["big"] else 0) if gr["cls"] == "ballistic" else 1.5 + (0.8 if gr["big"] else 0))
+                                  2.2 + (1.4 if gr["big"] else 0) if gr["cls"] == "ballistic" else 1.5 + (0.8 if gr["big"] else 0), embed=0.04)
 
     # ---- torso-zone weapons
     for name, fx in (("L", -1), ("R", 1)):
         zone = "Left Torso" if name == "L" else "Right Torso"
-        sxx = fx * (cw / 2 + sw * slim(zone) / 2)
+        sxx = fx * tw * 0.33 if canopy else fx * (cw / 2 + sw * slim(zone) / 2)
         for gr in _groups(model, zone):
             m, c, n = gr["mount"], gr["cls"], gr["count"]
             if m == "wing_bay" and fx in bays:
@@ -702,15 +735,18 @@ def _build(model, f, k):
                 else:
                     b.barrel((fx * (hw / 2 + 0.05), 0.0, hips_z), 14, 2.4, WCLS[c])
             else:                                               # flank mounts on the torso face
-                zf = z0 + th * 0.62
-                fy = td / 2 + ftop * 0.6
+                zf = canopy["z_flank"] if canopy else z0 + th * 0.62
+                fy = canopy["y_flank"] if canopy else td / 2 + ftop * 0.6
                 if c == "missile":
                     _pod(b, (sxx, fy + 0.02, zf), gr["tubes"])
                 else:
                     for i in range(min(n, 3)):
-                        weapon_barrel(b, (sxx, fy - 0.02, zf + 0.02 - i * b.px(5)), gr, 7, 1.5 + (0.9 if gr["big"] else 0))
+                        weapon_barrel(b, (sxx, fy - 0.02, zf + 0.02 - i * b.px(5)), gr, 7, 1.5 + (0.9 if gr["big"] else 0), embed=0.04 if canopy else 0.0)
     for gr in _groups(model, "Center Torso"):
         for i in range(min(gr["count"], 4)):
+            if canopy:                                              # barrels poking from the nose, buried in it
+                weapon_barrel(b, ((i - (min(gr["count"], 4) - 1) / 2) * b.px(6), canopy["y_nose"], canopy["z_nose"]), gr, 6, 1.4, embed=0.06)
+                continue
             b.box(((i - (min(gr["count"], 4) - 1) / 2) * b.px(6), td / 2 + ftop * 0.3 + 0.002, z0 + th * 0.3),
                   (b.px(3), 0.004, b.px(3)), "1", vis={"front"}, tag="w", cls=WCLS[gr["cls"]])
 
@@ -718,7 +754,9 @@ def _build(model, f, k):
     jb = model.get("jets_by") or {}
     for zone, n in jb.items():
         for i in range(min(n, 3)):
-            if zone == "Left Torso":
+            if canopy:
+                x, y, z = (-1 if "Left" in zone else 1 if "Right" in zone else 0) * tw * 0.3, canopy["y_rear"] - 0.02, z0 + 0.06 + i * 0.06
+            elif zone == "Left Torso":
                 x, y, z = -(cw / 2 + sw / 2) + 0.0, -td / 2 - 0.02, z0 + 0.04 + i * 0.06
             elif zone == "Right Torso":
                 x, y, z = (cw / 2 + sw / 2), -td / 2 - 0.02, z0 + 0.04 + i * 0.06
