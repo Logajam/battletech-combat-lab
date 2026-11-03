@@ -586,6 +586,11 @@ needs no GUI change.
     may now be named at once ("shoulder_guns,spar"). Tags updated for all ten (confidence high). Checked by
     eye on nine units. Not done: the Raven's raised tail fin, the Awesome's grille chest, and the
     King Crab's pincer hands.
+  - **The three leftovers from the ten-model batch, built (2026-11-03).** Kit `tail_fin` (a tall swept
+    fin and two small ones at the rear of the hull: Raven); kit `grille` (a recessed chest grille, a frame
+    and seven dark slats: Awesome, named together with the fins: `fins,grille`); a new `hands` key
+    (`pincer`: two jaws with angled tips on a palm, King Crab and Crab; `ball` moved here from `arm_style`,
+    which still works). The King Crab's pincers are partly hidden behind its arm barrels from the front.
   - **Next art steps (not built):** chicken legs (done above); stacked-slab shins with a high hock; the forward-slung wedge torso;
     the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
     pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits

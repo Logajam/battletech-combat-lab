@@ -226,7 +226,7 @@ def mount_style(zone, cls, big, n_zone, classes_in_zone, hands, archetype, torso
 
 
 FEATURE_KEYS = ("archetype", "torso", "panels", "head_mount", "head_shape", "shoulders", "antenna", "arms_flex", "tilt", "arms_up",
-                "plan", "profile", "hips", "legs", "arm_style", "kit", "feet", "asym", "antennas", "surface", "crouch")
+                "plan", "profile", "hips", "legs", "arm_style", "kit", "feet", "asym", "antennas", "surface", "crouch", "hands")
 
 
 def armor_thinness(unit, tons):
@@ -281,7 +281,7 @@ def build_model(unit, overrides=None, hash_only=False):
         "profile": ("upright", "sloped", "lean", "wedge_up", "bell", "shoulder", "prow", "dome", "stepped", "sloped", "prow", "hunch")[hc[9] % 12],   # seen from the side
         "hips": "flare" if hc[10] % 4 == 0 else "plain",
         "legs": "", "arm_style": "", "kit": "",      # dictionary terms (data/token_dictionary.json), set by reference tags only
-        "feet": "", "asym": "", "antennas": 0, "crouch": False, "vents": 3 + hc[12] % 3,
+        "feet": "", "asym": "", "antennas": 0, "crouch": False, "hands": "", "vents": 3 + hc[12] % 3,
         "cockpit_tons": cockpit_tons(unit.get("cockpit")),
         "surface": "plated" if (tons >= 60 or hc[11] % 2 == 0) else "smooth",   # panel lines, vents and bolts on the torso
         "torso": ("box", "ovoid", "narrow", "slab")[hc[1] % 4],
@@ -417,6 +417,7 @@ PROFILES = {
 }
 PROFILES["dome"] = [(-1, 0), (1, 0), (1, .42)] + [(math.cos(math.radians(a)), .42 + .58 * math.sin(math.radians(a))) for a in range(22, 160, 22)] + [(-1, .42)]
 PROFILES["toe"] = [(-1, 0), (1, 0), (1, .30), (-.2, .85), (-1, 1)]          # a toe: low at the front, rising to the ankle
+PROFILES["fin"] = [(-1, 0), (1, 0), (-.15, 1), (-1, .92)]                 # a tail fin: long at the base, swept back to a peak
 PROFILES["slung_wedge"] = [(-1, .05), (-.9, 0), (.1, 0), (1, .38), (1, .64), (.3, .74), (-.7, 1), (-1, .95)]     # long, low, belly rising to the nose
 PROFILES["tall_slab"] = PROFILES["upright"]                                                                # narrow and tall (size changes in _build)
 PROFILES["hunch"] = PROFILES["stepped"] = PROFILES["upright"]
@@ -981,6 +982,15 @@ def _build(model, f, k):
             b.box((0, -0.01, zk + 0.012), (htop * 2 + 0.34, 0.035, 0.022), "3", ch=0.006)
             for fx in (-1, 1):
                 b.blob([((fx * (htop + 0.17), 0.0, zk - 0.01), (0.028, 0.03, 0.03))], "4")
+        elif kit == "tail_fin":                                       # a raised fin at the rear of the hull (Raven): a tall swept fin and two small ones
+            b.extrude(0, ztop - 0.01, 0.014, td * 0.36, 0.17, PROFILES["fin"], "3", cy=-td * 0.28)
+            for fx in (-1, 1):
+                b.extrude(fx * tw_eff * 0.30, ztop - 0.01, 0.010, td * 0.26, 0.08, PROFILES["fin"], "3", cy=-td * 0.30)
+        elif kit == "grille":                                         # a recessed grille chest (Awesome): a frame and dark slats
+            gy = front_y(0.55) + 0.0012
+            b.box((0, gy, z0 + th * 0.55), (cw * 0.72, 0.004, th * 0.46), "4", ch=0.0)
+            for gi in range(7):
+                b.box((0, gy + 0.0022, z0 + th * (0.36 + 0.055 * gi)), (cw * 0.62, 0.003, th * 0.026), "1", cls="ln", ch=0.0)
         elif kit == "tent":                                           # a mast with three guy wires down to the shoulders and the head
             b.seg([(0, 0.0, zk), (0, 0.0, zk + 0.20)], [0.007, 0.005], "3")
             for tx_, ty_ in ((-htop, 0.0), (htop, 0.0), (0.0, td * 0.3)):
@@ -1050,7 +1060,13 @@ def _build(model, f, k):
             b.seg([(sx, ay, zs_), el, wr], [w1 * 1.3, w1 * 1.1, w1], "2")
             b.box(((el[0] + wr[0]) / 2 + fx * w1 * 1.0, (el[1] + wr[1]) / 2, (el[2] + wr[2]) / 2), (0.004, 0.005, abs(el[2] - wr[2]) * 0.55), "1", cls="ln", ch=0.0)   # forearm panel line
             b.ball(el, w1 * 1.15, "2")
-            if astyle == "ball":                                           # a huge round ball fist
+            hstyle = model.get("hands") or ("ball" if astyle == "ball" else "")
+            if hstyle == "pincer":                                         # two jaws and a palm: a pincer
+                for jd in (-1, 1):
+                    b.box((wr[0] + jd * 0.024, wr[1] + 0.045, wr[2] - 0.03), (0.016, 0.085, 0.045), "3", ch=0.004)
+                    b.box((wr[0] + jd * 0.014, wr[1] + 0.095, wr[2] - 0.03), (0.012, 0.03, 0.04), "4", ch=0.003)     # the jaw tips, angled in
+                b.box((wr[0], wr[1] + 0.008, wr[2] - 0.03), (0.06, 0.035, 0.06), "4", ch=0.006)
+            elif hstyle == "ball":                                         # a huge round ball fist
                 b.blob([((wr[0], wr[1] + 0.01, wr[2] - 0.035), (0.075, 0.075, 0.075))], "2")
             elif kind == "hand":
                 hz_ = wr[2] - (0.03 if not up else -0.03)
