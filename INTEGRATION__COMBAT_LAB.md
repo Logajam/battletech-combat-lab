@@ -591,6 +591,20 @@ needs no GUI change.
     and seven dark slats: Awesome, named together with the fins: `fins,grille`); a new `hands` key
     (`pincer`: two jaws with angled tips on a palm, King Crab and Crab; `ball` moved here from `arm_style`,
     which still works). The King Crab's pincers are partly hidden behind its arm barrels from the front.
+  - **Three hard-SF critique passes (Daniel, 2026-11-03: "pretend you are a gamer into hard SF models; could
+    you see this as real military hardware?").** Pass 1 (baseline: looked like an unpainted toy): weapon
+    barrels were bright red / yellow / blue pills; one flat blue-grey; knees were blocks on tubes; no waist
+    joint; no heat rejection. Fixed: gunmetal weapons with the class color only as a marking; paint schemes
+    (steel / desert / olive / urban / arctic / navy, auto per unit) with weathering; a dark waist ring; a
+    finned back radiator; knee hydraulics. Pass 2 (front and side): the new waist ring overhung like a belt,
+    the pelvis apron hung between the legs, heavy 'Mechs had noodle arms, small feet for the mass, no plating
+    breakup. Fixed: ring sized to the pelvis, a flush front skirt plate, arm girth and hands and feet grow
+    with tonnage, chest plate seams. Pass 3 (rear, top, close-up): chest seams stuck out past the torso like
+    whiskers, the waist ring showed as a black slab under dome / canopy bodies, hands tiny against the arms.
+    Fixed: seams limited to the torso's width at that height, no ring on dome / canopy, hands scale with the
+    arm. Viewer: a Paint selector (with the Team selector). Still open (the dictionary's `hard_sf_pass`):
+    cockpit hatch and frame, sensor clusters, handrails and access hatches, unit markings and decals, plating
+    breakup on the limbs.
   - **Next art steps (not built):** chicken legs (done above); stacked-slab shins with a high hock; the forward-slung wedge torso;
     the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
     pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits

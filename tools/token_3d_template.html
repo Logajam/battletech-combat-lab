@@ -9,7 +9,7 @@
   --accent: #c4571c; --accent-ink: #ffffff;
   --stage-top: #dfe4ec; --stage-bot: #b9c1cd; --ground: #c9d0da; --hexline: #7d8899; --edge: #151a22;
   --m-t1: #5d6877; --m-t2: #7a8596; --m-t3: #97a2b3; --m-t4: #3b4350;
-  --m-we: #d9483b; --m-wb: #dc9a2e; --m-wm: #3f7fd0; --m-hl: #c8d3e0; --m-ln: #20262f; --m-tm: #aeb7c4;
+  --m-we: #d9483b; --m-wb: #dc9a2e; --m-wm: #3f7fd0; --m-hl: #c8d3e0; --m-ln: #20262f; --m-tm: #aeb7c4; --m-gm: #3a414c;
   --display: "Barlow Condensed", "Arial Narrow", sans-serif; --body: "Barlow", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, monospace;
 }
@@ -18,13 +18,13 @@
   --accent: #f08a45; --accent-ink: #1a1208;
   --stage-top: #2a323e; --stage-bot: #12161c; --ground: #1d232c; --hexline: #566274; --edge: #0b0e12;
   --m-t1: #8a95a6; --m-t2: #a2adbd; --m-t3: #bcc6d4; --m-t4: #566070;
-  --m-we: #f0675a; --m-wb: #efb04c; --m-wm: #5fa0ee; --m-hl: #e6edf6; --m-ln: #0f1318; --m-tm: #c3ccd9; color-scheme: dark; } }
+  --m-we: #f0675a; --m-wb: #efb04c; --m-wm: #5fa0ee; --m-hl: #e6edf6; --m-ln: #0f1318; --m-tm: #c3ccd9; --m-gm: #5a636f; color-scheme: dark; } }
 :root[data-theme="dark"] {
   --bg: #11151b; --panel: #181d25; --ink: #e5e9f0; --mute: #98a3b5; --line: #2b3441;
   --accent: #f08a45; --accent-ink: #1a1208;
   --stage-top: #2a323e; --stage-bot: #12161c; --ground: #1d232c; --hexline: #566274; --edge: #0b0e12;
   --m-t1: #8a95a6; --m-t2: #a2adbd; --m-t3: #bcc6d4; --m-t4: #566070;
-  --m-we: #f0675a; --m-wb: #efb04c; --m-wm: #5fa0ee; --m-hl: #e6edf6; --m-ln: #0f1318; --m-tm: #c3ccd9; color-scheme: dark; }
+  --m-we: #f0675a; --m-wb: #efb04c; --m-wm: #5fa0ee; --m-hl: #e6edf6; --m-ln: #0f1318; --m-tm: #c3ccd9; --m-gm: #5a636f; color-scheme: dark; }
 * { box-sizing: border-box; }
 body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5;
   padding-block: 24px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
@@ -91,6 +91,7 @@ dd { margin: 0; overflow-wrap: anywhere; }
           <div class="meta" id="umeta"></div>
           <div class="seg" id="variant"></div>
         <div class="seg" id="team" role="group" aria-label="Team color"></div>
+        <div class="seg" id="paint" role="group" aria-label="Paint scheme"></div>
           <p class="note" id="unote"></p>
         </div>
         <dl id="utags"></dl>
@@ -104,10 +105,21 @@ const UNITS = /*__DATA__*/null;
 const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const TEAMS = { none: null, red: "#d2432f", blue: "#3b7fd4", green: "#4a9d5b", gold: "#d9a62e" };
+// Paint schemes (hard-SF critique, round 1): hardware is painted, not bare plastic. "auto" picks one per unit from its name.
+const SCHEMES = {
+  steel:  null,
+  desert: { t1: "#9a8660", t2: "#b09a72", t3: "#c7b588", t4: "#5c5240" },
+  olive:  { t1: "#59623f", t2: "#6c7650", t3: "#848f66", t4: "#363b28" },
+  urban:  { t1: "#555b63", t2: "#6b7279", t3: "#868d94", t4: "#30353b" },
+  arctic: { t1: "#aeb6bf", t2: "#c4cbd2", t3: "#dce1e6", t4: "#6e7782" },
+  navy:   { t1: "#3d4f66", t2: "#4d617b", t3: "#657b97", t4: "#262f3d" },
+};
+const SCHEME_NAMES = Object.keys(SCHEMES);
 const state = { unit: UNITS.find(u => u.id === "timber-wolf") || UNITS.find(u => u.id === "stalker") || UNITS[0], variant: "ref",
-  ortho: false, spin: !reduce, card: true, team: "none", theta: 0.65, phi: 1.28, dist: 4.8 };
+  ortho: false, spin: !reduce, card: true, team: "none", paint: "auto", theta: 0.65, phi: 1.28, dist: 4.8 };
 state.dist = 2.7 + 1.15 * state.unit.levels;
 let saved; try { saved = JSON.parse(localStorage.getItem("cl3d") || "null"); } catch (e) { saved = null; }
+try { const pt = localStorage.getItem("cl3dpaint"); if (pt && (pt === "auto" || SCHEMES[pt] !== undefined)) state.paint = pt; } catch (e) {}
 try { const tm = localStorage.getItem("cl3dteam"); if (tm && TEAMS[tm] !== undefined) state.team = tm; } catch (e) {}
 if (saved && UNITS.some(u => u.id === saved.unit)) { state.unit = UNITS.find(u => u.id === saved.unit); state.variant = saved.variant === "hash" ? "hash" : "ref"; }
 function persist() { try { localStorage.setItem("cl3d", JSON.stringify({ unit: state.unit.id, variant: state.variant })); } catch (e) {} }
@@ -130,8 +142,15 @@ const ground = new THREE.Group(); scene.add(ground);
 const shadowPlane = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.ShadowMaterial({ opacity: 0.28 }));
 shadowPlane.rotation.x = -Math.PI / 2; shadowPlane.receiveShadow = true; ground.add(shadowPlane);
 
+function schemeFor(u) {
+  if (state.paint !== "auto") return state.paint;
+  let h = 0; for (const ch of u.id) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return SCHEME_NAMES[1 + (h % (SCHEME_NAMES.length - 1))];                    // auto never picks bare steel
+}
 function palette() {
-  const p = {}; for (const c of ["t1", "t2", "t3", "t4", "we", "wb", "wm", "hl", "ln", "tm"]) p[c] = new THREE.Color(css("--m-" + c));
+  const p = {}; for (const c of ["t1", "t2", "t3", "t4", "we", "wb", "wm", "hl", "ln", "tm", "gm"]) p[c] = new THREE.Color(css("--m-" + c));
+  const sch = SCHEMES[schemeFor(state.unit)];
+  if (sch) for (const c in sch) p[c] = new THREE.Color(sch[c]);
   const tc = TEAMS[state.team];
   if (tc) {                                               // the team color paints the accent plates and tints the armor a little
     const t = new THREE.Color(tc); p.tm = t.clone();
@@ -161,12 +180,20 @@ function buildModel() {
   modelGroup = new THREE.Group();
   const pal = palette(), mats = {}, mesh = state.unit[state.variant];
   const edgeMat = new THREE.LineBasicMaterial({ color: new THREE.Color(css("--edge")), transparent: true, opacity: 0.5 });
-  for (const c in pal) mats[c] = new THREE.MeshStandardMaterial({ color: pal[c], roughness: c === "hl" ? 0.25 : 0.62, metalness: c === "t4" ? 0.45 : 0.18, flatShading: true,
+  for (const c in pal) mats[c] = new THREE.MeshStandardMaterial({ color: pal[c], roughness: c === "hl" ? 0.25 : 0.62, metalness: c === "t4" || c === "gm" ? 0.5 : 0.18, flatShading: true, vertexColors: true,
     emissive: c === "hl" ? pal[c] : 0x000000, emissiveIntensity: c === "hl" ? 0.12 : 0 });
   for (const part of mesh.parts) {
     const v = part.v, f = part.f, pos = new Float32Array(f.length * 3);
     for (let i = 0; i < f.length; i++) { pos[i * 3] = v[f[i] * 3]; pos[i * 3 + 1] = v[f[i] * 3 + 1]; pos[i * 3 + 2] = v[f[i] * 3 + 2]; }
     const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(pos, 3)); g.computeVertexNormals();
+    const nrm = g.attributes.normal, col = new Float32Array(pos.length);       // weathering: darker toward the feet and on undersides
+    for (let i = 0; i < pos.length; i += 3) {
+      const ht = Math.min(1, Math.max(0, pos[i + 1] / (state.unit.levels * 0.5)));
+      let k = 0.76 + 0.24 * ht * ht * (3 - 2 * ht);
+      if (nrm.getY(i / 3) < -0.3) k *= 0.82;
+      col[i] = col[i + 1] = col[i + 2] = k;
+    }
+    g.setAttribute("color", new THREE.BufferAttribute(col, 3));
     const m = new THREE.Mesh(g, mats[part.cls] || mats.t1); m.castShadow = true; m.receiveShadow = true; modelGroup.add(m);
     if (part.cls !== "ln") modelGroup.add(new THREE.LineSegments(new THREE.EdgesGeometry(g, 24), edgeMat));
   }
@@ -246,8 +273,14 @@ function renderTeam() {
     ...Object.keys(TEAMS).map(k => { const b = mk("button", { type: "button", textContent: k, onclick: () => { state.team = k; try { localStorage.setItem("cl3dteam", k); } catch (e) {} buildModel(); renderTeam(); } });
       b.setAttribute("aria-pressed", state.team === k); if (TEAMS[k]) b.style.borderLeft = "4px solid " + TEAMS[k]; return b; }));
 }
+function renderPaint() {
+  const el = document.getElementById("paint");
+  el.replaceChildren(mk("span", { textContent: "Paint", style: "font:500 12px var(--mono);color:var(--mute);align-self:center;padding-right:4px" }),
+    ...["auto", ...SCHEME_NAMES].map(k => { const b = mk("button", { type: "button", textContent: k, onclick: () => { state.paint = k; try { localStorage.setItem("cl3dpaint", k); } catch (e) {} buildModel(); renderPaint(); } });
+      b.setAttribute("aria-pressed", state.paint === k); return b; }));
+}
 function select(u) { state.unit = u; state.dist = fitDist(u); refresh(); }
-function refresh() { persist(); buildModel(); renderInfo(); renderTeam(); placeCamera(); }
+function refresh() { persist(); buildModel(); renderInfo(); renderTeam(); renderPaint(); placeCamera(); }
 
 new MutationObserver(() => { buildModel(); }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => buildModel());
