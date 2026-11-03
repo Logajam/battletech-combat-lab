@@ -472,5 +472,48 @@
    "unit markings and decals",
    "legs and arms are still smooth slabs without plating breakup"
   ]
+ },
+ "hard_sf_pass_2": {
+  "_about": "Second round of hard-SF review (Daniel, 2026-11-03: 'knees are cubes with corners cut off', 'missile boxes stuck on the chest', 'every back plate is the same striped board', 'Banshee legs are stacked blocks'). Audit list and what was done.",
+  "audit": [
+   "knees, elbows and every joint were chamfered cubes (the mesh cap for limbs)",
+   "legs were tubes with cube ends; the slab legs were literal stacked boxes",
+   "missile boxes were free cubes bolted to the chest, shoulders and forearms",
+   "the back plate was one identical striped board on every torso, ignoring torso shape and heat sinks",
+   "torsos were bare cuboids with sharp edges and flat fronts",
+   "arms were slabs with cube elbows"
+  ],
+  "oriented_blocks": {
+   "status": "built",
+   "what": "B3.obox: an oriented tapered armor block between two points; legs and arms are made of these, not tubes and cubes"
+  },
+  "cylinder_joints": {
+   "status": "built",
+   "what": "hips, knees, ankles, hocks and elbows are short cylinders across the figure; the mesh builder makes every limb segment a faceted cylinder along its own axis (8 sides, 12 for joints and weapons) and a point a low-poly ball"
+  },
+  "armored_legs": {
+   "status": "built",
+   "what": "thigh with a front plate, pointed kneecap guard, shin with a calf bulge and front plate, overlapping lapped shin plates on slab legs, hydraulic piston and sleeve"
+  },
+  "flush_launchers": {
+   "status": "built",
+   "what": "missile racks on the chest are recessed behind a bezel (only the cover and tube mouths show); arm racks lie along the forearm instead of hanging under it"
+  },
+  "back_modules": {
+   "status": "built",
+   "what": "five rear modules by name hash or the back tag (fins, hump reactor housing, twin exhaust stacks, engine cowl, framed vent), sized by the unit's heat sinks and fitted to the torso's rear face, taper and plan"
+  },
+  "chest_plates": {
+   "status": "built",
+   "what": "a raised shield plate over the chest and a plate on each side torso; torso sections have cut side edges"
+  },
+  "still_open": [
+   "torso silhouettes are still box-like; real hulls need compound curves and layered armor",
+   "arms are still blocks with cube-like hands",
+   "head and cockpit: no canopy frame, hatch or sensor cluster",
+   "no decals, markings or stencil text",
+   "no cabling, no visible actuators at the shoulder",
+   "the viewer lighting is flat; no ambient occlusion"
+  ]
  }
 }
