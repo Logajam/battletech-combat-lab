@@ -379,6 +379,39 @@ needs no GUI change.
   - **Next:** more kits in the same style (Catapult, Hunchback, Atlas...) would let the block
     library be checked on other chassis; a whole assembled model would give proportions.
 
+- **Reference study: MWO Atlas parts kit (Daniel, 2026-11-03). REVIEW PENDING (higher-level model).**
+  Second kit from the same fan author (28 STL parts, about 140 mm tall, files kept out of the repo).
+  Same caveats as the Timber Wolf kit: a print-in-place articulated toy (ball pins, slots and gaps
+  are print features), parts have no assembly positions. Read from renders; words and rough ratios only.
+  - **Contrast with the Timber Wolf:** the Wolf is smooth and curved (teardrop body, cylinders);
+    the Atlas is ANGULAR and plated: every surface a stack of flat armor plates with chamfered edges,
+    visible bolt heads, louvre vents and diagonal seam lines. Same chamfer rule, different surface
+    language. Suggests a per-chassis `surface` option (smooth / plated).
+  - **Torso (3 options, same body).** A broad block (about 62 wide x 46 deep x 50 tall) with
+    shoulder plates that flare up and outward at the top corners, louvre grilles across the lower
+    front, bolt heads at the corners. The HEAD is a large faceted dome with a face mask (brow and eye
+    slits, the "death's head" look) seated in a notch at the top front, standing proud of the torso
+    in plan and rising above the deck. On one side a round socket disc takes the AC20 mount; the
+    options add a 6-cell missile box on the chest-shoulder.
+  - **Pelvis.** A wide flat OVAL plate on top (chamfered rim, flat top), a short skirt below, and a
+    narrow hanging apron down the front centre: from the front it reads as a T or anvil (wide flange,
+    narrow hanging centre). Big round hip sockets face outward on the sides.
+  - **Legs (humanoid, not digitigrade).** Upper leg a tall chamfered box with a diagonal slash
+    line and a ball at the hip; the knee a clamshell block with a fork; the lower leg a tall slab
+    with vent slits and a narrow spur at the back; the foot LOW (about 14 mm tall against 42 long):
+    a flat sole with a sloped heel, a big cylindrical ankle drum on top, chamfered wedge toes.
+  - **Arms.** The shoulder is a big faceted dome (like a helmet, hexagonal facets) with a rim flange
+    below it, wider than the upper arm; the upper arm a plain chamfered box; the lower arm a long
+    slab ending in a fist of stacked finger plates; add-ons are small gun stubs (a block with a
+    muzzle face and tiny port dots).
+  - **Weapons.** AC20: a boxy receiver with a raised top rail and cooling holes, an underside
+    stub, and a long round barrel; variants change the muzzle only (plain, ringed, a multi-ring brake).
+    SRM-6: a chamfered box with six round tube mouths (2 x 3) on the face, a small mount stub under it.
+  - **Candidate blocks (not built):** `skull_head` (faceted dome with a mask, in a front notch),
+    `dome_pauldron` (faceted dome with a rim flange), `oval_pelvis` with an apron, `fist_hand`,
+    `ac_receiver` (box with rail and holes, long barrel, muzzle options), `srm_box` (box with a tube
+    grid), `louvre` and `bolt` surface details, and a `surface` option (smooth / plated).
+
 ---
 
 # PART B - Combat Lab GUI: functional specification (to implement)
