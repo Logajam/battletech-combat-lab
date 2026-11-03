@@ -58,6 +58,14 @@ def the_four_published_battle_values():
 
 
 @check
+def the_archer_matches_daniels_breakdown():
+    # Daniel's pasted BV breakdown, 2026-11-03: Archer ARC-2R 1,477 (defensive 786.6 +
+    # offensive 689.92). Settles the review's doubt - its recalled 1,415 was wrong.
+    got = battle_value.battle_value(unit("Archer ARC-2R"))
+    assert got == 1477, f"Archer ARC-2R: {got}, the breakdown says 1477"
+
+
+@check
 def skill_scales_the_base_value_by_the_table():
     atlas = unit("Atlas AS7-D")
     base = battle_value.battle_value(atlas, skill=False)

@@ -25,9 +25,10 @@ column of that board slides half a hex against its neighbours (the board's
 terrain no longer joins up as drawn; rows are fine - 17 + 1 is even). Two blank
 columns (or none, as MegaMek abuts boards) would keep the board as drawn.
 (b) BATTLE VALUE - 26 more units match the published values the reviewer
-recalled, but the Archer ARC-2R (ours 1477, recalled 1415) and the Crusader
-CRD-3R (ours 1317, recalled 1294) don't; the recalled values are from memory, so
-check them against the Master Unit List or MegaMek before changing anything.
+recalled. The Archer ARC-2R is SETTLED: Daniel's BV breakdown (2026-11-03) gives
+1,477, ours exactly (the recalled 1415 was wrong; now a test). Still open: the
+Crusader CRD-3R (ours 1317, recalled 1294) - recalled from memory, so check it
+against a breakdown or MegaMek before changing anything.
 (d) SESSION 14 cont. (Change Record "TEAM AWARENESS..."): `legate.fire_share` (on by default since
 session 15), `_Herd`, `_TeamFire` (the greedy fire distribution both ways, the team value and its
 conversion into the objective's PSR cost - `Extras.team_cost`), off by default.
@@ -1737,6 +1738,11 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-11-03 (Claude), session 17 - ARCHER BV CONFIRMED.** Daniel pasted a BV breakdown for the
+  Archer ARC-2R: 1,477 (defensive 786.6, offensive 689.92), the same as `INTEGRATION__battle_value`.
+  The 2026-10-29 review's recalled 1,415 was wrong; review item (b) now holds only the Crusader
+  CRD-3R. New check in `tests/test_battle_value.py`. No engine change.
 
 - **2026-11-03 (Claude), session 16 - COMBAT LAB TOKENS v4 + BLOCK LIBRARY.** REVIEW PENDING
   (higher-level model). Tokens (output only, no engine change; `python tests/run_checks.py` 43 of 43):
