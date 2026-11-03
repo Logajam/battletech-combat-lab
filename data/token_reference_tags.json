@@ -128,7 +128,7 @@
   "head_mount": "front",
   "head_shape": "wedge",
   "shoulders": "flush",
-  "note": "very long arrow-shaped hull narrowing to a point at the front, two small pods at the rear corners, slim legs with a deep bend",
+  "note": "whole model (Syllogy RVN-1X): a long delta-wing hull with a raised tail fin, tiny arms under it, very tall thin chicken legs with claw feet",
   "new": [
    "long arrow plan",
    "nose long and pointed"
@@ -136,7 +136,8 @@
   "confidence": "high",
   "plan": "arrow",
   "profile": "slung_wedge",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "whole model 2026-11-03 (Syllogy) and the chart",
+  "arm_style": "tiny"
  },
  "wolfhound": {
   "archetype": "humanoid",
@@ -302,17 +303,19 @@
   "antennas": 1
  },
  "wolverine": {
-  "archetype": "humanoid",
-  "torso": "dome",
+  "archetype": "bird",
+  "torso": "box",
   "head_mount": "built_in",
   "head_shape": "dome",
   "shoulders": "boom",
-  "note": "big round torso dome, arms hanging, straight legs with a big toe",
+  "note": "whole model (Syllogy WVR-6R): boxy torso with box pods at the shoulders, two antennas, arms hanging with a gun forward; legs with a strong bend and a claw-wedge foot (the chart dome torso reading was wrong)",
   "new": [],
-  "confidence": "med",
+  "confidence": "high",
   "plan": "block",
-  "profile": "dome",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "profile": "upright",
+  "source": "whole model 2026-11-03 (Syllogy) and the chart",
+  "kit": "corner_pods",
+  "antennas": 2
  },
  "rifleman": {
   "archetype": "humanoid",
@@ -320,15 +323,16 @@
   "head_mount": "top",
   "head_shape": "box",
   "shoulders": "boom",
-  "note": "narrow pillar torso with twin-barrel gun pods at the shoulders sticking far forward",
+  "note": "whole model (Syllogy RFL-3N): narrow torso, a gun pod on each shoulder with long twin barrels forward, a T spar and mast on top, thick legs",
   "new": [
    "shoulder gun pods with long twin barrels"
   ],
-  "confidence": "med",
+  "confidence": "high",
   "plan": "block",
   "profile": "tall_slab",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
-  "arm_style": "shoulder_pod"
+  "source": "whole model 2026-11-03 (Syllogy) and the chart",
+  "kit": "shoulder_guns,spar",
+  "antennas": 1
  },
  "catapult": {
   "archetype": "bird",
@@ -353,15 +357,16 @@
   "head_mount": "top",
   "head_shape": "box",
   "shoulders": "boom",
-  "note": "tall slab torso under a wide shoulder bar, each arm with long twin barrels forward, thick straight legs",
+  "note": "whole model (Syllogy JM6-S): tall slab torso, a pod on each shoulder with two very long barrels forward, ordinary arms with fists hanging, thick plated legs with round knees, two antennas and a small spar",
   "new": [
    "very long arm barrels"
   ],
-  "confidence": "med",
+  "confidence": "high",
   "plan": "block",
   "profile": "tall_slab",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
-  "arm_style": "long_barrel"
+  "source": "whole model 2026-11-03 (Syllogy) and the chart",
+  "kit": "shoulder_guns",
+  "antennas": 2
  },
  "thunderbolt": {
   "archetype": "humanoid",
@@ -377,22 +382,21 @@
  },
  "archer": {
   "archetype": "humanoid",
-  "torso": "dome",
+  "torso": "box",
   "head_mount": "top",
   "head_shape": "box",
   "shoulders": "boom",
-  "note": "big domed back, big missile boxes at the shoulders, tiny arms; shins shaped like fat barrels",
+  "note": "whole model (Syllogy ARC-1A): two huge upright launcher boxes standing at the back of the shoulders (cell grids forward), a tall narrow torso, ordinary arms with fists, thick plated legs (the chart reading of barrel-shaped shins was wrong), two antennas",
   "new": [
    "barrel-shaped shins",
    "shoulder missile boxes"
   ],
-  "confidence": "med",
+  "confidence": "high",
   "plan": "block",
-  "profile": "dome",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
-  "legs": "barrel",
-  "arm_style": "tiny",
-  "kit": "ears"
+  "profile": "upright",
+  "source": "whole model 2026-11-03 (Syllogy) and the chart",
+  "legs": "slab",
+  "kit": "tall_launchers"
  },
  "warhammer": {
   "archetype": "humanoid",
@@ -446,18 +450,20 @@
   "head_mount": "built_in",
   "head_shape": "box",
   "shoulders": "boom",
-  "note": "giant flat torso, huge round shoulders, horn-like fins swept outward, thick pillar legs",
+  "note": "whole models (Syllogy AWS-8Q and Pretty Baby): huge boxy torso with a recessed grille chest, tall thin blade fins swept outward at the shoulders, the left arm one big PPC cannon, the right a fist, thick plated legs, wide block feet",
   "new": [
    "swept shoulder horns",
    "pillar legs"
   ],
-  "confidence": "med",
+  "confidence": "high",
   "plan": "block",
   "profile": "wedge_up",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "source": "whole model 2026-11-03 (Syllogy) and the chart",
   "legs": "pillar",
   "kit": "fins",
-  "antennas": 1
+  "antennas": 1,
+  "asym": "L",
+  "arm_style": "long_barrel"
  },
  "stalker": {
   "archetype": "bird",
@@ -498,16 +504,17 @@
   "head_mount": "built_in",
   "head_shape": "box",
   "shoulders": "boom",
-  "note": "crouched with huge arm cannons forward and a bell-shaped low torso; long pointed foot",
+  "note": "whole model (Syllogy KGC-010): crouched, a wide low hull, arms hanging forward with big cannons / pincers, strongly bent legs, torso pitched forward",
   "new": [
    "crouched stance",
    "big arm cannons forward"
   ],
-  "confidence": "med",
+  "confidence": "high",
   "plan": "block",
   "profile": "slung_wedge",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
-  "crouch": true
+  "source": "whole model 2026-11-03 (Syllogy) and the chart",
+  "crouch": true,
+  "arm_style": "long_barrel"
  },
  "vindicator": {
   "archetype": "humanoid",
@@ -690,19 +697,20 @@
  },
  "cyclops": {
   "archetype": "humanoid",
-  "torso": "ovoid",
+  "torso": "dome",
   "plan": "flare",
   "profile": "shoulder",
   "head_mount": "top",
   "head_shape": "dome",
   "shoulders": "boom",
-  "note": "broad ovoid torso with a tent-shaped antenna (three guy wires) on top, arms wide, from above a pronounced front hump",
+  "note": "whole model (Syllogy CP-10-Z): broad rounded torso with a domed hood head at the front, a tent of three wires up to a mast, big fists at the sides, thick legs",
   "new": [
    "tent antenna (three guy wires)"
   ],
-  "confidence": "med",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
-  "kit": "tent"
+  "confidence": "high",
+  "source": "whole model 2026-11-03 (Syllogy) and the chart",
+  "kit": "tent",
+  "arm_style": "ball"
  },
  "highlander": {
   "archetype": "humanoid",
@@ -712,13 +720,16 @@
   "head_mount": "top",
   "head_shape": "box",
   "shoulders": "boom",
-  "note": "wide boxy torso, arms hanging with big hands, thick legs with a reverse-bent lower leg and big heel in side view",
+  "note": "whole model (Syllogy HGN-732): broad box torso with shoulder boxes, two antennas, the left arm a long cannon forward, the right a fist, thick plated legs",
   "new": [
    "reverse-bent lower leg"
   ],
-  "confidence": "med",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
-  "legs": "reverse"
+  "confidence": "high",
+  "source": "whole model 2026-11-03 (Syllogy) and the chart",
+  "legs": "slab",
+  "arm_style": "long_barrel",
+  "asym": "L",
+  "antennas": 2
  },
  "banshee": {
   "archetype": "humanoid",

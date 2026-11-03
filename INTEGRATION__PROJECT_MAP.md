@@ -1894,6 +1894,12 @@ turn's score, so a decision sees what it gives up.
   functions as not built. Python path unchanged, results identical; 47 of 47 pass. Also: Combat Lab reference
   tags for eight chassis from whole-model / part-kit studies (`INTEGRATION__COMBAT_LAB.md` round 3).
 
+- **2026-11-03 (Claude), session 16 (later) - FLAKY TEST NOTED.** REVIEW PENDING (higher-level model).
+  `tests/test_hazards.py` `magma_heat_is_uncapped` failed in 2 of 4 consecutive `run_checks.py` runs on the same
+  code (art-only commits, nothing in the engine changed) and passed the rest. Not diagnosed: the assertion
+  compares `current_heat` with `15 + 5 + 10 - sinks + heat.engine_heat(m)`, so something in the heat or
+  placement setup is not deterministic. Worth a look before anyone trusts a red or green on it.
+
 - **2026-11-03 (Claude), session 16 - COMBAT LAB TOKENS v4 + BLOCK LIBRARY.** REVIEW PENDING
   (higher-level model). Tokens (output only, no engine change; `python tests/run_checks.py` 43 of 43):
   `plan` / `profile` / `hips` features (so top and side differ), armor thinning per location (thinner
