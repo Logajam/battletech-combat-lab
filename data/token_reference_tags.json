@@ -437,7 +437,8 @@
   "plan": "flare",
   "profile": "shoulder",
   "source": "3D model study 2026-11-03",
-  "legs": "pillar"
+  "legs": "pillar",
+  "kit": "pauldrons"
  },
  "awesome": {
   "archetype": "humanoid",
@@ -476,8 +477,8 @@
  "atlas": {
   "archetype": "humanoid",
   "torso": "box",
-  "head_mount": "top",
-  "head_shape": "dome",
+  "head_mount": "notch",
+  "head_shape": "skull",
   "shoulders": "boom",
   "note": "wide oval disc plan from above, broad plated chest with the skull head set into a front notch; thick pillar legs",
   "new": [
@@ -488,7 +489,8 @@
   "plan": "oval",
   "profile": "shoulder",
   "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
-  "legs": "pillar"
+  "legs": "slab",
+  "kit": "pauldrons"
  },
  "king crab": {
   "archetype": "bird",
@@ -650,7 +652,8 @@
   "confidence": "med",
   "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
   "kit": "round_blocks",
-  "antennas": 1
+  "antennas": 1,
+  "legs": "slab"
  },
  "zeus": {
   "archetype": "humanoid",
@@ -682,7 +685,8 @@
   "note": "wide torso with lumps at the shoulders, arms hanging, thick legs",
   "new": [],
   "confidence": "med",
-  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)"
+  "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
+  "legs": "slab"
  },
  "cyclops": {
   "archetype": "humanoid",
@@ -746,6 +750,6 @@
   ],
   "confidence": "med",
   "source": "scale chart re-read 2026-11-03 (with the kit vocabulary)",
-  "legs": "pillar"
+  "legs": "slab"
  }
 }

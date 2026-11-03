@@ -113,6 +113,13 @@
    "seen": [
     "Linesman"
    ]
+  },
+  "skull_head": {
+   "status": "built (2026-11-03, session 16): Atlas only, by named tag",
+   "what": "faceted dome head with brow ridge, two glowing eye slits, nose bridge and a mask plate for the jaw, seated in a notch at the top front of the torso; never picked by the name hash (Daniel: unique to the Atlas)",
+   "seen": [
+    "Atlas"
+   ]
   }
  },
  "shoulders": {
@@ -168,6 +175,14 @@
     "Victor",
     "Zeus",
     "Urbanmech"
+   ]
+  },
+  "dome_pauldron": {
+   "status": "built (2026-11-03, session 16)",
+   "what": "a faceted dome over each shoulder with a flat rim flange under it",
+   "seen": [
+    "Atlas",
+    "Orion"
    ]
   }
  },
@@ -268,6 +283,16 @@
    "what": "thrusters on the heel",
    "seen": [
     "Quickdraw"
+   ]
+  },
+  "stacked_slab": {
+   "status": "built (2026-11-03, session 16)",
+   "what": "two stacked chamfered slabs on the thigh, three on the shin (tapering), a clamshell knee block, wide block foot",
+   "seen": [
+    "Atlas",
+    "Banshee",
+    "Battlemaster",
+    "Victor"
    ]
   }
  },
