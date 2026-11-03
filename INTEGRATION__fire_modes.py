@@ -130,7 +130,19 @@ def max_shots(weapon):
 
 def has_profile(weapon):
     """Weapons whose damage / range / heat come from INTEGRATION__weapon_profiles
-    or the ammunition fired (MML) rather than one equipment.json number."""
+    or the ammunition fired (MML) rather than one equipment.json number. Cached on
+    the weapon (2026-11-03, speed): it depends only on the weapon's kind."""
+    got = getattr(weapon, "_has_profile", None)
+    if got is None:
+        got = _has_profile(weapon)
+        try:
+            weapon._has_profile = got
+        except AttributeError:
+            pass
+    return got
+
+
+def _has_profile(weapon):
     return (is_mml(weapon) or wp.variable_damage(weapon) is not None or wp.is_hag(weapon) or wp.is_mpod(weapon)
             or wp.is_bombast(weapon) or wp.is_arrow(weapon) or wp.is_mga(weapon) or wp.is_infantry_pod(weapon))
 
@@ -495,7 +507,19 @@ def jammed_ids(mech):
 # ==========================  PRICING / PLANNER  ==============================
 # =============================================================================
 def special(weapon):
-    """Weapons the Planner prices (anything that isn't a plain single shot)."""
+    """Weapons the Planner prices (anything that isn't a plain single shot). Cached on
+    the weapon (2026-11-03, speed): it depends only on the weapon's kind and data."""
+    got = getattr(weapon, "_special", None)
+    if got is None:
+        got = _special(weapon)
+        try:
+            weapon._special = got
+        except AttributeError:
+            pass
+    return got
+
+
+def _special(weapon):
     return (weapon.damage_type == "Missile" or max_shots(weapon) > 1 or is_lbx(weapon) or is_mml(weapon)
             or "ATM" in _cn(weapon) or has_profile(weapon) or wp.is_rifle(weapon) or wp.heat_causing(weapon)
             or wp.is_art_cannon(weapon) or "TASER" in _cn(weapon)            # Taser: its effect's worth (2026-10-27)
