@@ -328,6 +328,51 @@ needs no GUI change.
     plan), tripod look, Flea hips / claw feet, head displacement threshold, shading, Catapult ears
     as true boxes. `python tests/run_checks.py`: 43 of 43 pass (tokens are output only).
 
+- **Reference study: MWO Timber Wolf parts kit (Daniel, 2026-11-03). REVIEW PENDING (higher-level model).**
+  Daniel uploaded a fan-made printable Timber Wolf (54 STL parts, scale about 130 mm tall, by a
+  Thingiverse-style author; the files and the author's PDF stay OUTSIDE the repo, in session
+  scratch only). Claude rendered each part from four angles with three.js in headless
+  Chromium (a throwaway viewer, not committed) and read the shapes. What follows is words and
+  rough ratios for the block library, not copied geometry. Caveats: it is a print-in-place
+  articulated toy, so ball pins, slots and clearance gaps are print features, not design; the
+  parts carry no assembly transform, so whole-mech proportions are not given.
+  - **Torso (10 options, same body).** A teardrop / bullet shape: from above a round-nosed
+    ovoid tapering forward; from the front a smooth dome like a cockpit canopy; from the side a
+    low nose sloping down and forward over a flat underside. Daniel's "ovoid body" is right.
+    Rear third: a squared-off deck carrying two rectangular bays, one per side, WIDER than the
+    body (about 1.7x the body's width overall) and taller at the rear (about 1.4x the body's
+    height), each with a face grid of missile cells or a plain panel (the options vary the cell
+    count, 3 / 6 / 12 etc.). So the "shoulder racks" are box bays built into the rear wings,
+    not pods hung over the shoulders. Plan = rounded nose to square rear with wings; profile =
+    sloped nose, tall rear. Panel lines wrap the dome in long arcs.
+  - **Legs.** Digitigrade in the kit's own anatomy: a thigh block bent like a banana with a
+    disc joint at each end (big flat discs, like hip and knee covers); a chunky shin made of
+    stacked chamfered slabs with a split fork at the knee end and a ball at the ankle; a foot
+    hub with a flat chamfered plate and three toes (two front, one back), each toe a chamfered
+    block with a hollow socket. Every edge is chamfered; there are almost no true curves except
+    the joint discs and the dome.
+  - **Arms.** The arm is mostly a GUN POD: the "hand" parts are long, narrow lozenges (leaf
+    shaped in plan, hexagonal in section) with the weapon built into the front, a raised top
+    spine with panel lines, a small clamp at the rear and a stub underneath. Interchangeable
+    muzzles (twin round bores, open slot, quad slot) show a pod is a hull plus a muzzle choice.
+    Upper arm = a chamfered box on a ball; one variant carries a hanging bracket frame.
+    Elbow and forearm are blocky cubes with chamfered corners and a round cap.
+  - **Weapons (separate barrels).** PPC / ER PPC: a smooth cylinder with a stepped muzzle collar
+    and one fine groove line (ER is longer and thinner); Gauss: a triangular-section tube with
+    chamfered nose; Ultra AC: a slim barrel with ribbed cooling grooves and a twin muzzle; LB-X:
+    a thick cylinder with an underside rail; gatling: three barrels ringed by clamps. Each
+    weapon class has a distinct section (round, triangle, twin, triple) - useful for reading the
+    class from the front.
+  - **Design language in short (candidate blocks):** chamfered everything; a smooth ovoid
+    canopy-like torso; rectangular rack bays on the rear wings; lozenge gun-pod arms; stacked
+    slab shins; disc joint covers; long arc panel lines.
+  - **What it changes in the generator (not built):** a `canopy` torso block (round nose, dome
+    front, sloped side, wings with box bays at the rear instead of racks over the shoulder), a
+    `pod_arm` lozenge, chamfered leg slabs with disc covers, weapon sections by class (cylinder /
+    triangle / twin / triple), and a `chamfer` parameter on every box.
+  - **Next:** more kits in the same style (Catapult, Hunchback, Atlas...) would let the block
+    library be checked on other chassis; a whole assembled model would give proportions.
+
 ---
 
 # PART B - Combat Lab GUI: functional specification (to implement)
