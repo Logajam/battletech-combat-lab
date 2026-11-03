@@ -450,6 +450,25 @@ needs no GUI change.
     and the shading step. Chicken legs and forward-slung wedge torsos recur on the light chassis, so
     they are the next most useful shapes.
 
+- **3D model pipeline (Daniel chose it over more flat-shape work, 2026-11-03). REVIEW PENDING (higher-level model).**
+  The art is now its own project (to be merged with the simulator later). New files:
+  `INTEGRATION__token_mesh.py` (each part of a unit's part model becomes a convex 3D solid; world
+  units are levels, glTF axes: X left, Y up, Z forward; `unit_mesh()` for JSON, `write_glb()` for a
+  binary glTF), `tools/token_3d.py` + `tools/token_3d_template.html` (builds the viewer page: three.js
+  r128 from cdnjs, flat-shaded lit models with edge lines and a soft shadow, orbit / pinch zoom,
+  six preset views, orthographic switch, the standee card and the hex footprint, reference tags
+  against name hash only; `--glb <folder>` also writes one `.glb` per unit). Needs numpy, scipy and
+  trimesh (art tools only; the simulator does not import them).
+  - **Limbs and joints are chamfered slabs in 3D** (a chamfered-cube cap on every limb segment and
+    joint), not tubes; weapon barrels keep round caps. This one change removed most of the
+    "capsule doll" look. The 2D drawings are unchanged.
+  - **Result:** 33 units (32 chart chassis plus the Timber Wolf), about 2.4 MB of page, a few
+    thousand triangles per unit. Views are renders of one object, so top, side and front agree.
+  - **Next art steps (not built):** chicken legs with a high hock; the forward-slung wedge torso;
+    the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
+    pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits
+    cover Atlas, Marauder, Hunchback in detail); a `surface` option (smooth / plated).
+
 ---
 
 # PART B - Combat Lab GUI: functional specification (to implement)
