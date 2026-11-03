@@ -370,6 +370,12 @@ needs no GUI change.
     front, sloped side, wings with box bays at the rear instead of racks over the shoulder), a
     `pod_arm` lozenge, chamfered leg slabs with disc covers, weapon sections by class (cylinder /
     triangle / twin / triple), and a `chamfer` parameter on every box.
+  - **Built from the study (2026-11-03, same session): `data/token_blocks.json` lists the block
+    library with status.** In `INTEGRATION__tokens.py`: a chamfer on every body box; the `canopy`
+    torso (dome nose, rear deck, wing bays with missile cell grids; used by the Timber Wolf / Mad
+    Cat override); the lozenge pod arm; knee disc covers; weapon sections by kind (PPC collar,
+    Gauss triangle, Ultra AC twin, LB-X rail, rotary triple). Still ideas: stacked-slab shin,
+    banana thigh, three-toe foot, bracket upper arm. `python tests/run_checks.py`: 43 of 43.
   - **Next:** more kits in the same style (Catapult, Hunchback, Atlas...) would let the block
     library be checked on other chassis; a whole assembled model would give proportions.
 

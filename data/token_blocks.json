@@ -1,0 +1,32 @@
+{
+ "_about": "The block library for the procedural unit tokens (INTEGRATION__tokens.py). Original shapes in the MWO design language, written from reference viewing in words and rough ratios; no game geometry is stored here. Daniel can read and edit the wording; the code draws the shapes. 'status' says whether the block exists in the generator.",
+ "rule_chamfer": {"status": "built", "what": "every body box has its corners cut (B3.chamfer, 0.007 of the figure height); weapons and tiny parts are not chamfered"},
+ "torso": {
+  "canopy": {"status": "built", "tags": ["torso: canopy"], "what": "teardrop body, round dome nose sloping down and forward over a flat belly, canopy ridge, squared rear deck, a box bay on each rear wing (wider than the body, rising above it) with a cell grid on its face for missiles; the cockpit is the dome", "first_use": "Timber Wolf / Mad Cat (data/token_overrides.json)"},
+  "box / ovoid / narrow / slab": {"status": "built", "what": "the older hash-picked torsos"}
+ },
+ "torso_shape_features": {
+  "plan": {"status": "built", "values": ["block", "wedge", "flare"], "what": "torso seen from above"},
+  "profile": {"status": "built", "values": ["upright", "sloped", "lean", "hunch"], "what": "torso seen from the side"},
+  "hips": {"status": "built", "values": ["plain", "flare"]}
+ },
+ "arm": {
+  "pod_arm": {"status": "built", "what": "lozenge: leaf-shaped in plan (narrows to the muzzle), chamfered, raised spine on top, stub underneath; weapons sit at its muzzle"},
+  "hand_arm / forearm_arm": {"status": "built", "what": "tube arms with elbow ball (older)"},
+  "bracket_upper_arm": {"status": "idea", "what": "upper arm with a hanging bracket frame"}
+ },
+ "leg": {
+  "knee_disc_cover": {"status": "built", "what": "a short flat cylinder across each knee (bird and humanoid legs)"},
+  "stacked_slab_shin": {"status": "idea", "what": "shin made of stacked chamfered slabs with a split fork at the knee end"},
+  "banana_thigh": {"status": "idea", "what": "bent thigh block with a disc at each end"},
+  "three_toe_foot": {"status": "idea", "what": "foot hub with a chamfered plate, two toes forward, one back"}
+ },
+ "weapon_section": {
+  "ppc": {"status": "built", "what": "smooth cylinder plus a short fat muzzle collar"},
+  "gauss": {"status": "built", "what": "triangular-section tube"},
+  "uac": {"status": "built", "what": "twin barrels with a ribbed collar block"},
+  "lbx": {"status": "built", "what": "thick cylinder with an underside rail"},
+  "rotary": {"status": "built", "what": "three barrels in a triangle"},
+  "other": {"status": "built", "what": "plain round barrel"}
+ }
+}
