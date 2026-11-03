@@ -1570,7 +1570,10 @@ def _mass_factor(model):
 
 def _views(model, height_px):
     """Build the parts at the right scale; return (parts, k) with k px per raw unit."""
-    f = _mass_factor(model) * (0.90 + 0.24 * min(model["tons"], 100) / 100.0)     # width follows the weight class (chart W/H 0.63 .. 0.81)
+    # `fit` (set by INTEGRATION__token_mesh.calibrate) is the width / depth factor that makes the MEASURED body volume equal
+    # density x tonnage: two 'Mechs of one mass fill one volume (Daniel, 2026-11-03). Without it (the 2D sheets) the older
+    # estimate below is used.
+    f = model["fit"] if model.get("fit") else _mass_factor(model) * (0.90 + 0.24 * min(model["tons"], 100) / 100.0)
     k = height_px
     for _ in range(3):
         b = _build(model, f, k)
@@ -1583,7 +1586,7 @@ def _views(model, height_px):
     half_d = max(abs(v) for v in ys)
     rl = model["rules_levels"]
     cap = min(0.96 * 20 * rl / half_w, 0.96 * 56 / half_d, 0.95 * 50 / half_w, 0.90 * 50 / half_d)   # the base / hex cap
-    if k > cap:                                                 # never draw outside the standee or its base
+    if k > cap and not model.get("nocap"):                      # never draw outside the standee or its base (2D sheets only)
         k = cap
         b = _build(model, f, k)
     return b, k
