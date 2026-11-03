@@ -430,5 +430,47 @@
    "angled or swiveling turrets"
   ]
  },
- "_corrections": "2026-11-03: the chart cell first read as LINESMAN is the MAULER (90 t); Daniel supplied a Mauler model. There is no Linesman in these notes any more."
+ "_corrections": "2026-11-03: the chart cell first read as LINESMAN is the MAULER (90 t); Daniel supplied a Mauler model. There is no Linesman in these notes any more.",
+ "hard_sf_pass": {
+  "_about": "Three critique passes (2026-11-03) from the point of view of a hard-SF military-hardware fan; what each fixed. Built items are in the generator or the viewer.",
+  "paint_schemes": {
+   "status": "built (viewer)",
+   "what": "steel, desert, olive, urban, arctic, navy; auto picks one per unit from its name; weathering darkens toward the feet and undersides"
+  },
+  "gunmetal_weapons": {
+   "status": "built",
+   "what": "barrels, housings and receivers are gunmetal (class gm); the weapon class color is only a marking: laser lens ring, PPC coil rings, AC band, Gauss rings, flamer tank"
+  },
+  "waist_joint": {
+   "status": "built",
+   "what": "a dark inner ring between pelvis and torso on flat torsos (not on dome / canopy bodies)"
+  },
+  "radiator_panel": {
+   "status": "built",
+   "what": "a finned heat-rejection panel on the back of the torso, more fins from 60 t and 85 t"
+  },
+  "hydraulics": {
+   "status": "built",
+   "what": "a piston and sleeve across the knee of humanoid legs; a long hip-to-hock hydraulic on chicken legs"
+  },
+  "arm_girth_and_hands": {
+   "status": "built",
+   "what": "arm width and hands grow with tonnage (x0.92 to x1.42), so heavy 'Mechs do not have noodle arms"
+  },
+  "foot_size": {
+   "status": "built",
+   "what": "feet grow with tonnage (x0.92 to x1.47): ground pressure reads right"
+  },
+  "plate_seams": {
+   "status": "built",
+   "what": "two seams across the chest, no wider than the torso at that height"
+  },
+  "still_open": [
+   "cockpit hatch and frame",
+   "sensor clusters and a visible actuator at every joint",
+   "handrails, tow hooks, access hatches",
+   "unit markings and decals",
+   "legs and arms are still smooth slabs without plating breakup"
+  ]
+ }
 }
