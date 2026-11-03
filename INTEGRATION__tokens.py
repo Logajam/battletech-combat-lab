@@ -29,6 +29,7 @@ import json
 import math
 import os
 import re
+import sys
 
 LEVEL = 60                     # px for one level of height in every drawing
 OVERRIDES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "token_overrides.json")
@@ -36,6 +37,10 @@ OVERRIDES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data"
 ARCHETYPES = ("humanoid", "humanoid", "bird", "bird", "martian")      # bipeds; quads get dog / lizard, tripods their own
 
 ZONES = ("Left Arm", "Right Arm", "Left Torso", "Right Torso", "Center Torso", "Head")
+# the .mtf's armor line codes -> zones (front armor; the rear codes RTL / RTR / RTC are left out)
+ARMOR_CODES = {"LA": "Left Arm", "RA": "Right Arm", "LT": "Left Torso", "RT": "Right Torso", "CT": "Center Torso",
+               "HD": "Head", "LL": "Left Leg", "RL": "Right Leg", "CL": "Center Leg", "FLL": "Front Left Leg",
+               "FRL": "Front Right Leg", "RLL": "Rear Left Leg", "RRL": "Rear Right Leg"}
 SLOT_HEADERS = ZONES + ("Left Leg", "Right Leg", "Front Left Leg", "Front Right Leg",
                         "Rear Left Leg", "Rear Right Leg", "Center Leg")
 
@@ -78,7 +83,7 @@ def read_unit(path):
             in_weapons = False
             continue
         key, sep, val = line.partition(":")
-        key = "" if not sep else key if key.endswith(" Armor") else key.lower()      # the files mix "Mass:" and "mass:"
+        key = "" if not sep else key.lower()                  # the files mix "Mass:" and "mass:"
         if key == "chassis":
             unit["chassis"] = val.strip()
         elif key == "clanname":
@@ -96,8 +101,10 @@ def read_unit(path):
             unit["heat_sinks"] = int(m.group(1)) if m else 10
         elif key == "cockpit":
             unit["cockpit"] = val.strip()
-        elif key.endswith(" Armor") and key.split()[0].isupper() and not key.startswith("R"):
-            unit["armor"] = unit.get("armor", 0) + (int(val) if val.strip().isdigit() else 0)
+        elif key.endswith(" armor") and key.split()[0].upper() in ARMOR_CODES and val.strip().isdigit():
+            zone = ARMOR_CODES[key.split()[0].upper()]         # front armor only (RTL / RTR / RTC are rear and not listed)
+            unit.setdefault("armor_by", {})[zone] = int(val)
+            unit["armor"] = unit.get("armor", 0) + int(val)
         elif key == "weapons":
             in_weapons = True
         elif line[:-1] in SLOT_HEADERS and line.endswith(":"):
@@ -147,7 +154,7 @@ def drawn_levels(tons):
     return 2 * (tons / 100.0) ** (1.0 / 3.0)
 
 
-def mount_style(zone, cls, big, n_zone, classes_in_zone, hands, archetype):
+def mount_style(zone, cls, big, n_zone, classes_in_zone, hands, archetype, torso=""):
     """Pick how a weapon group is drawn from its zone, class and size.
     Daniel's style rule (2026-10-31): units with hands seldom carry over-the-shoulder
     weapons, so they get flank mounts; dogs and lizards carry hip pods. The files
@@ -157,6 +164,8 @@ def mount_style(zone, cls, big, n_zone, classes_in_zone, hands, archetype):
     if arm:
         return "arm_rack" if cls == "missile" else "arm_barrel" if cls == "ballistic" else "arm_port"
     if side:
+        if torso == "canopy" and cls == "missile":
+            return "wing_bay"                                  # the rear wing bay carries the cells (Timber Wolf kit study)
         if hands == 2:
             return "flank_" + cls
         if archetype in ("dog", "lizard"):
@@ -171,7 +180,28 @@ def mount_style(zone, cls, big, n_zone, classes_in_zone, hands, archetype):
     return "head_port" if zone == "Head" else "chest_" + cls
 
 
-FEATURE_KEYS = ("archetype", "torso", "panels", "head_mount", "head_shape", "shoulders", "antenna", "arms_flex", "tilt", "arms_up")
+FEATURE_KEYS = ("archetype", "torso", "panels", "head_mount", "head_shape", "shoulders", "antenna", "arms_flex", "tilt", "arms_up",
+                "plan", "profile", "hips")
+
+
+def armor_thinness(unit, tons):
+    """zone -> 0.78..1.00: how slim a location is drawn, from its armor against its
+    maximum (twice the internal structure, mechsim.mech_state; head 9). Full armor = 1.0."""
+    here = os.path.dirname(os.path.abspath(__file__))              # mechsim's modules import each other by bare name
+    for sub in ("mechsim", "pathfinder"):
+        if os.path.join(here, sub) not in sys.path:
+            sys.path.append(os.path.join(here, sub))
+    from mech_state import structure_for_tonnage
+    try:
+        structure = structure_for_tonnage(tons, "quad" if "Quad" in unit.get("config", "") else "biped")
+    except ValueError:
+        return {}
+    out = {}
+    for zone, armor in (unit.get("armor_by") or {}).items():
+        cap = 9 if zone == "Head" else 2 * structure.get(zone, 0)
+        if cap:
+            out[zone] = round(0.78 + 0.22 * min(1.0, armor / (0.8 * cap)), 3)
+    return out
 
 
 def build_model(unit, overrides=None, hash_only=False):
@@ -185,9 +215,11 @@ def build_model(unit, overrides=None, hash_only=False):
     config = unit.get("config", "Biped")
     quad = "Quad" in config
 
-    # armor per ton against a typical 3.0: a bulk hint (armor and loadout add bulk)
-    armor_ratio = unit["armor"] / max(tons, 1) / 3.0 if unit["armor"] else 1.0
-    bulk = max(0.96, min(1.08, 0.97 + 0.06 * armor_ratio))
+    # Daniel (2026-11-01): a location gets THINNER when it is under-armored; it never swells
+    # (bulk causes clipping). Armor is judged against the location's maximum (twice its
+    # structure, head 9; Core "Armor Diagram"), then mapped to 0.78-1.00 of the plain size.
+    bulk = 1.0
+    thin = armor_thinness(unit, tons)
 
     arche = ARCHETYPES[hc[0] % len(ARCHETYPES)]
     if quad:
@@ -198,8 +230,11 @@ def build_model(unit, overrides=None, hash_only=False):
         "name": f'{unit.get("chassis", "?")} {unit.get("model", "")}'.strip(),
         "chassis": chassis, "tons": tons, "config": config, "quad": quad, "tripod": "Tripod" in config,
         "rules_levels": rules_levels(tons), "drawn_levels": round(drawn_levels(tons), 3),
-        "bulk": round(bulk, 3),
+        "bulk": round(bulk, 3), "thin": thin,
         "archetype": arche,
+        "plan": ("block", "block", "wedge", "flare")[hc[8] % 4],           # the torso seen from above
+        "profile": ("upright", "sloped", "lean", "upright", "sloped", "upright", "lean", "hunch")[hc[9] % 8],   # seen from the side
+        "hips": "flare" if hc[10] % 4 == 0 else "plain",
         "torso": ("box", "ovoid", "narrow", "slab")[hc[1] % 4],
         "panels": ("flush", "wings", "stepped")[hc[5] % 3],
         "head_mount": ("built_in", "front", "top", "full")[hc[2] % 4],
@@ -244,13 +279,17 @@ def build_model(unit, overrides=None, hash_only=False):
             m = re.search(r"(\d+)", w["name"])
             g["tubes"] += int(m.group(1)) if m else 4
         g["big"] = g["big"] or weapon_is_big(w["name"])
+        nm = w["name"].lower()
+        g.setdefault("subs", set()).update(
+            k for k, hit in (("gauss", "gauss" in nm), ("uac", "ultra" in nm or "uac" in nm), ("lbx", "lb " in nm or "lb-" in nm or "lbx" in nm),
+                             ("rotary", "rotary" in nm or "gatling" in nm), ("ppc", "ppc" in nm)) if hit)
     per_zone = {}
     for (zone, cls), g in groups.items():
         per_zone.setdefault(zone, []).append(g)
     for zone, gs in per_zone.items():
         n_zone = sum(g["count"] for g in gs)
         for g in gs:
-            g["mount"] = mount_style(zone, g["cls"], g["big"], n_zone, {x["cls"] for x in gs}, hands, arche)
+            g["mount"] = mount_style(zone, g["cls"], g["big"], n_zone, {x["cls"] for x in gs}, hands, arche, model["torso"])
     model["hardpoints"] = [g for gs in per_zone.values() for g in gs]
     # a large weapon in a side torso pushes the head to the other side (Daniel)
     big_side = [z for z in ("Left Torso", "Right Torso") for g in per_zone.get(z, []) if g["big"]]
@@ -313,20 +352,34 @@ class B3:
 
     def __init__(self, f=1.0, k=100.0):
         self.parts, self.f, self.k = [], f, k
+        self.chamfer = 0.007                                   # BLOCK RULE: every body box has cut corners (the MWO look)
 
     def px(self, v):
         return v / self.k
 
-    def box(self, c, s, tone, tilt=0.0, tx=1.0, ty=1.0, vis=None, tag="b", cls=None):
+    def box(self, c, s, tone, tilt=0.0, tx=1.0, ty=1.0, vis=None, tag="b", cls=None, plan=None, ch=None):
+        """`plan` = (fw, y_back, y_front): x is scaled from 1 at y_back to fw at y_front, so a
+        torso seen from above is a wedge (fw < 1) or flares forward (fw > 1) while the front
+        and rear views still read its widest edge."""
         f = self.f
         cx, cy, cz = c[0] * f, c[1] * f, c[2]
         sx, sy, sz = s[0] * f, s[1] * f, s[2]
         z0, z1 = cz - sz / 2, cz + sz / 2
         pts = []
-        for zz, scx, scy, ax, ay in ((z0, cx, cy, sx / 2, sy / 2), (z1, cx, cy + tilt * sz, sx / 2 * tx, sy / 2 * ty)):
+        if ch is None:
+            ch = 0.0 if tag == "w" or min(s) < 0.02 else self.chamfer
+        ch = min(ch, 0.3 * min(sx, sy, sz))                    # a chamfer never eats the box
+        for zz, zin, scx, scy, ax, ay in ((z0, 1, cx, cy, sx / 2, sy / 2), (z1, -1, cx, cy + tilt * sz, sx / 2 * tx, sy / 2 * ty)):
             for dx in (-1, 1):
                 for dy in (-1, 1):
-                    pts.append((scx + dx * ax, scy + dy * ay, zz))
+                    px_, py_ = scx + dx * ax, scy + dy * ay
+                    if ch:                                      # each corner becomes three points: the corner cut off
+                        pts += [(px_ - dx * ch, py_, zz), (px_, py_ - dy * ch, zz), (px_, py_, zz + zin * ch)]
+                    else:
+                        pts.append((px_, py_, zz))
+        if plan:
+            fw, yb, yf = plan
+            pts = [(x * (1 + (fw - 1) * max(0.0, min(1.0, (y / f - yb) / (yf - yb)))), y, z) for x, y, z in pts]
         self.parts.append({"groups": [[(p, 0.0) for p in pts]], "cls": cls or TONE[tone], "vis": vis, "tag": tag,
                            "vol": sx * sy * sz * (1 + tx * ty) / 2})
 
@@ -342,9 +395,48 @@ class B3:
     def ball(self, c, r, tone, vis=None, tag="b"):
         self.seg([c, c], [r, r], tone, vis, tag)
 
+    def prism(self, c, length_px, r_px, sides, cls, vis=None):
+        """A barrel with a polygonal section (Gauss = triangle), pointing forward (+y)."""
+        x, y, z = c
+        r = self.px(r_px) / self.f
+        n = self.px(length_px)
+        ring = [(r * math.sin(2 * math.pi * i / sides), r * math.cos(2 * math.pi * i / sides)) for i in range(sides)]
+        pts = [(x + dx, yy, z + dz) for yy in (y, y + n) for dx, dz in ring]
+        self.parts.append({"groups": [[(p, 0.0) for p in pts]], "cls": cls, "vis": vis, "tag": "w",
+                           "vol": math.pi * r * r * n})
+
     def barrel(self, c, length_px, r_px, cls, vis=None):
         x, y, z = c
         self.seg([(x, y, z), (x, y + self.px(length_px) / self.f, z)], [self.px(r_px) / self.f] * 2, None, vis, "w", cls)
+
+
+def weapon_barrel(b, c, gr, length_px, r_px, vis=None):
+    """One weapon's barrel, drawn by its kind (read from the name): each class has its own
+    SECTION so it reads from the front (Timber Wolf kit study, 2026-11-03):
+    PPC = smooth cylinder with a muzzle collar; Gauss = triangular tube; Ultra AC = twin
+    barrels; LB-X = thick cylinder with an underside rail; rotary = three barrels."""
+    x, y, z = c
+    cls = WCLS[gr["cls"]]
+    subs = gr.get("subs") or set()
+    if "gauss" in subs:
+        b.prism((x, y, z), length_px, r_px * 1.3, 3, cls, vis)
+    elif "uac" in subs:
+        for d in (-1, 1):
+            b.barrel((x + d * b.px(r_px * 0.85) / b.f, y, z), length_px, r_px * 0.62, cls, vis)
+        b.box((x, y + b.px(length_px * 0.3) / b.f, z), (b.px(r_px * 3.6) / b.f, b.px(length_px * 0.3), b.px(r_px * 1.6)), "3", tag="w")
+    elif "lbx" in subs:
+        b.barrel((x, y, z), length_px, r_px * 1.2, cls, vis)
+        b.box((x, y + b.px(length_px * 0.4) / b.f, z - b.px(r_px * 1.5)), (b.px(r_px * 0.8) / b.f, b.px(length_px * 0.7), b.px(r_px * 0.8)), "3", tag="w")
+    elif "rotary" in subs:
+        for ang in (90, 210, 330):
+            dx = b.px(r_px * 0.8) * math.cos(math.radians(ang)) / b.f
+            dz = b.px(r_px * 0.8) * math.sin(math.radians(ang))
+            b.barrel((x + dx, y, z + dz), length_px, r_px * 0.5, cls, vis)
+    elif "ppc" in subs:
+        b.barrel((x, y, z), length_px, r_px, cls, vis)
+        b.barrel((x, y + b.px(length_px) / b.f, z), length_px * 0.18, r_px * 1.35, cls, vis)       # the muzzle collar
+    else:
+        b.barrel((x, y, z), length_px, r_px, cls, vis)
 
 
 def _pod(b, c, tubes, tone="3"):
@@ -374,11 +466,21 @@ def _build(model, f, k):
     arche = model["archetype"]
     A = dict(TRIPOD3 if model["tripod"] else ARCH3[arche])
     wf = (0.92 + 0.14 * min(model["tons"], 100) / 100.0) * model["bulk"]
-    A["tw"] *= wf * {"box": 1.0, "ovoid": 0.95, "narrow": 0.82, "slab": 1.12}[model["torso"]]
+    A["tw"] *= wf * {"box": 1.0, "ovoid": 0.95, "narrow": 0.82, "slab": 1.12, "canopy": 1.05}[model["torso"]]
     A["hw"] *= wf
     A["lr"] *= wf * (1.0 + 0.0)
+    if model.get("hips") == "flare" and not model["tripod"]:
+        A["hw"] *= 1.35
     lh, hw, hd, tw, td, th, lr = A["lh"], A["hw"], A["hd"], A["tw"], A["td"], A["th"], A["lr"]
+    thin = model.get("thin") or {}
+
+    def slim(zone):                                            # under-armored locations are drawn thinner, never thicker
+        return thin.get(zone, 1.0)
     tilt = model.get("tilt", A["tilt"])
+    profile = model.get("profile", "upright")
+    plan = model.get("plan", "block")
+    if profile == "lean":
+        tilt += 0.16
     quad = model["quad"]
     stance = (0.05, -0.05)                                     # mid-step: left foot forward, right back
 
@@ -415,10 +517,12 @@ def _build(model, f, k):
     else:
         for fx, st in ((-1, stance[0]), (1, stance[1])):             # figure's left is -x
             x = fx * hx
+            lr = A['lr'] * slim('Left Leg' if fx < 0 else 'Right Leg')
             if arche == "bird":                                      # digitigrade: hock back, long foot
                 pts = [(x, 0, lh), (x + fx * 0.012, -0.075 + st * 0.3, lh * 0.55), (x, 0.045 + st, lh * 0.17), (x, 0.11 + st, 0.02)]
                 b.seg(pts, [lr * 1.5, lr * 1.1, lr * 0.75, lr * 0.5], "2")
                 b.ball(pts[1], lr * 1.15, "2")
+                b.seg([(pts[1][0] - 0.016, pts[1][1], pts[1][2]), (pts[1][0] + 0.016, pts[1][1], pts[1][2])], [lr * 1.45] * 2, "3")   # knee disc cover
                 b.box((x, 0.06 + st, 0.02), (lr * 2.0, 0.17, 0.035), "4")
             elif arche == "martian":                                 # long legs, knees splayed out
                 pts = [(x, 0, lh), (x + fx * 0.09, 0.03 + st * 0.4, lh * 0.55), (x + fx * 0.12, st, 0.05)]
@@ -429,6 +533,7 @@ def _build(model, f, k):
                 pts = [(x, 0, lh), (x + fx * 0.006, 0.045 + st * 0.5, lh * 0.5), (x, st, 0.05)]
                 b.seg(pts, [lr * 1.5, lr * 1.2, lr * 0.95], "2")
                 b.ball(pts[1], lr * 1.2, "2")
+                b.seg([(pts[1][0] - 0.016, pts[1][1], pts[1][2]), (pts[1][0] + 0.016, pts[1][1], pts[1][2])], [lr * 1.5] * 2, "3")    # knee disc cover
                 foot(x, st - 0.04, 0.0)
 
     # ---- torso: centre + two side torsos, seams between them
@@ -437,24 +542,61 @@ def _build(model, f, k):
     cw = tw * 0.46
     sw = (tw - cw) / 2
     shape = model["torso"]
-    tx, ty = {"box": (0.94, 0.9), "ovoid": (0.72, 0.72), "narrow": (1.22, 1.0), "slab": (1.0, 1.0)}[shape]
+    tx, ty = {"box": (0.94, 0.9), "ovoid": (0.72, 0.72), "narrow": (1.22, 1.0), "slab": (1.0, 1.0), "canopy": (1.0, 1.0)}[shape]
     step = 0.03 if model["panels"] == "stepped" else 0.0
     flare = 1.12 if model["panels"] == "wings" else 1.0
-    b.box((0, 0, z0 + th / 2 + step / 2), (cw, td, th + step), "1", tilt=tilt, tx=tx, ty=ty)
-    for fx in (-1, 1):
-        b.box((fx * (cw / 2 + sw / 2), 0, z0 + th / 2), (sw, td * 0.96, th), "2", tilt=tilt, tx=tx * flare, ty=ty)
+    # SIDE profile: "sloped" = the front face leans back to the top (the rear stays upright), which
+    # the top view cannot show; "lean" = the whole torso pitches forward; "hunch" adds a hump (below).
+    if profile == "sloped":
+        ty = 0.55
+        tilt = (td / 2) * (ty - 1) / th
+    # PLAN (top view): "wedge" narrows to the front, "flare" widens to it, both drawn from the back
+    fw = {"block": 1.0, "wedge": 0.70, "flare": 1.18}[plan]
+    pl = (fw, -td / 2, td / 2) if fw != 1.0 else None
+    tw_eff = tw * (1 + (fw - 1) * 0.5)                             # half-way along the depth: where the arms attach
+    cw = cw * slim("Center Torso")
+    bays = {}                                                      # canopy torso: side -> (x, y, z, w, d, h) of its wing bay
+    if shape == "canopy":
+        # CANOPY TORSO (block from the Timber Wolf kit study, 2026-11-03): a teardrop body, round dome
+        # nose sloping down and forward over a flat belly, a squared rear deck, and a box BAY on each
+        # rear wing - wider than the body and rising above it. Plan = round nose to square rear; profile =
+        # sloped nose, tall rear. (plan / profile tags do not apply: the shape sets both.)
+        tilt = 0.0
+        rb = tw * 0.25 * slim("Center Torso")
+        zc = z0 + th * 0.5
+        b.seg([(0, -td * 0.36, zc), (0, 0.0, zc), (0, td * 0.40, zc - th * 0.20)], [rb * 1.05, rb, rb * 0.60], "1")
+        b.seg([(0, -td * 0.30, zc + th * 0.12), (0, td * 0.12, zc + th * 0.14)], [rb * 0.80, rb * 0.62], "2")     # canopy ridge
+        b.box((0, -td * 0.30, z0 + th * 0.28), (tw * 0.86, td * 0.40, th * 0.50), "3")                            # rear deck
+        for fx in (-1, 1):
+            zone_t = "Left Torso" if fx < 0 else "Right Torso"
+            bw = tw * 0.31 * slim(zone_t)
+            bx = fx * (rb * 0.9 + bw / 2)
+            bays[fx] = (bx, -td * 0.22, z0 + th * 0.58, bw, td * 0.42, th * 1.12)
+            b.box((bx, bays[fx][1], bays[fx][2]), (bw, bays[fx][4], bays[fx][5]), "2")
+            b.box((fx * rb * 0.62, -td * 0.30, zc + th * 0.02), (0.006, td * 0.5, th * 0.7), "1", vis={"front", "rear", "top"}, cls="ln")   # seam
+    else:
+        b.box((0, 0, z0 + th / 2 + step / 2), (cw, td, th + step), "1", tilt=tilt, tx=tx, ty=ty, plan=pl)
+    for fx in () if shape == "canopy" else (-1, 1):
+        zone_t = "Left Torso" if fx < 0 else "Right Torso"
+        sw_f = sw * slim(zone_t)                                   # a thin side torso is narrower on that side only
+        cxx = fx * (cw / 2 + sw_f / 2)
+        b.box((cxx, 0, z0 + th / 2), (sw_f, td * 0.96, th), "2", tilt=tilt, tx=tx * flare, ty=ty, plan=pl)
         sx_ = fx * cw / 2
-        b.box((sx_, 0.0, z0 + th / 2), (0.006, td * 0.98, th * 0.96), "1", tilt=tilt, vis={"front", "rear", "top"}, cls="ln")
+        b.box((sx_, 0.0, z0 + th / 2), (0.006, td * 0.98, th * 0.96), "1", tilt=tilt, vis={"front", "rear", "top"}, cls="ln", plan=pl)
     ftop = tilt * th                                               # the top face shifts by this
 
     # ---- head
     mount, shape_h = model["head_mount"], model["head_shape"]
+    if shape == "canopy":
+        mount = "built_in"                                          # the cockpit is the dome
     hoff = model["head_offset"] * tw * 0.16
+    hs = slim("Head")
     if mount == "built_in":
         b.box((hoff, td / 2 * 0.5 + ftop * 0.8, ztop - 0.07), (0.09, td * 0.5, 0.035), "4", vis={"front", "side"}, cls="hl")
     else:
         big = mount in ("full", "boom")
-        hw_, hh_ = (0.15, 0.115) if big else (0.105, 0.085)
+        hw_, hh_ = ((0.15, 0.115) if big else (0.105, 0.085))
+        hw_, hh_ = hw_ * hs, hh_ * hs
         if mount == "boom":                                        # head in the centre torso, out front on a neck
             hz = ztop - 0.06
             hy = td / 2 + 0.12
@@ -462,7 +604,7 @@ def _build(model, f, k):
         elif mount == "front":
             hz, hy = ztop - 0.03, td / 2 + 0.01 + ftop * 0.5
         else:
-            hz, hy = ztop + 0.035 + hh_ / 2, ftop * 0.7
+            hz, hy = ztop + 0.035 + hh_ / 2, ftop * 0.7 + (td * 0.18 if profile == "hunch" else 0.0)
             b.seg([(hoff, hy, ztop - 0.01), (hoff, hy, ztop + 0.045)], [0.06, 0.05], "3")
         tpx = {"box": (1, 1), "dome": (0.7, 0.8), "wedge": (0.75, 0.5), "visor": (1, 1)}[shape_h]
         b.box((hoff, hy, hz), (hw_, hw_ * 0.85, hh_), "1", tx=tpx[0], ty=tpx[1], tilt=-0.2 if shape_h == "wedge" else 0)
@@ -470,6 +612,9 @@ def _build(model, f, k):
         b.box((hoff, hy + hw_ * 0.3, hz), (hw_ * 0.5, hw_ * 0.5, 0.02), "4", vis={"top"}, cls="hl")
         if model.get("antenna"):
             b.seg([(hoff + hw_ * 0.3, hy, hz + hh_ / 2), (hoff + hw_ * 0.3, hy - 0.02, hz + hh_ / 2 + 0.08)], [0.006, 0.004], "3")
+
+    if profile == "hunch":                                         # a hump rising behind the head: seen from the side
+        b.box((0, -td * 0.2, ztop + 0.045), (tw * 0.78, td * 0.62, 0.09), "1", tx=0.78, ty=0.55, tilt=-0.12, plan=pl)
 
     # ---- arms (not on quads): a hand arm, a forearm arm, or a turret-pod arm
     zs = ztop - 0.05
@@ -481,8 +626,9 @@ def _build(model, f, k):
             continue
         zone = "Left Arm" if name == "L" else "Right Arm"
         gs = _groups(model, zone)
-        sx = fx * (tw / 2 + boom + 0.02)
-        b.seg([(fx * tw / 2 * 0.92, 0.0, zs), (sx, 0.0, zs)], [0.045, 0.04], "3")           # connective tissue
+        sl = slim(zone)
+        sx = fx * (tw_eff / 2 + boom + 0.02)
+        b.seg([(fx * tw_eff / 2 * 0.92, 0.0, zs), (sx, 0.0, zs)], [0.045 * sl, 0.04 * sl], "3")           # connective tissue
         b.ball((sx, 0.0, zs), 0.038, "3")
         small = bool(gs) and not any(x["big"] for x in gs)
         up = model.get("arms_up")
@@ -491,14 +637,18 @@ def _build(model, f, k):
             n_w = max(1, sum(x["count"] for x in gs))
             pw = 0.05 + 0.014 * min(n_w, 4)
             pz = zs - 0.07 if not up else ztop + 0.08
-            b.box((sx + fx * 0.012, 0.03, pz), (pw, 0.16, 0.11), "1", tx=0.9, ty=0.9)
+            # POD ARM (block from the kit study): a lozenge - leaf-shaped in plan (narrows to the muzzle),
+            # chamfered, with a raised spine on top and a stub underneath
+            b.box((sx + fx * 0.012, 0.03, pz), (pw * sl, 0.18, 0.10), "1", tx=0.85, plan=(0.55, -0.06, 0.12), ch=0.012)
+            b.box((sx + fx * 0.012, 0.02, pz + 0.06), (pw * sl * 0.4, 0.14, 0.025), "3")
+            b.box((sx + fx * 0.012, -0.03, pz - 0.06), (pw * sl * 0.3, 0.05, 0.03), "3")
             muz = (sx + fx * 0.012, 0.03 + 0.08, pz)
         else:
             if up:
                 el, wr = (sx + fx * 0.02, 0.02, zs + 0.12), (sx + fx * 0.01, 0.04, zs + 0.24)
             else:
                 el, wr = (sx + fx * 0.012, 0.02, zs - 0.13), (sx + fx * 0.006, 0.075, zs - 0.25)
-            w1 = 0.042 if kind == "hand" else 0.037
+            w1 = (0.042 if kind == "hand" else 0.037) * sl
             b.seg([(sx, 0.0, zs), el, wr], [w1 * 1.3, w1 * 1.1, w1], "2")
             b.ball(el, w1 * 1.15, "2")
             if kind == "hand":
@@ -511,23 +661,37 @@ def _build(model, f, k):
                 nn = min(gr["count"], 3)
                 for i in range(nn):
                     dx = (i - (nn - 1) / 2) * b.px(5) * f
-                    b.barrel((muz[0] + dx / f, muz[1], muz[2]), 22 if (gr["big"] and gr["cls"] == "ballistic") else 12 if gr["cls"] == "ballistic" else 7,
-                             2.2 + (1.4 if gr["big"] else 0) if gr["cls"] == "ballistic" else 1.5 + (0.8 if gr["big"] else 0), WCLS[gr["cls"]])
+                    weapon_barrel(b, (muz[0] + dx / f, muz[1], muz[2]), gr,
+                                  22 if (gr["big"] and gr["cls"] == "ballistic") else 12 if gr["cls"] == "ballistic" else 7,
+                                  2.2 + (1.4 if gr["big"] else 0) if gr["cls"] == "ballistic" else 1.5 + (0.8 if gr["big"] else 0))
 
     # ---- torso-zone weapons
     for name, fx in (("L", -1), ("R", 1)):
         zone = "Left Torso" if name == "L" else "Right Torso"
-        sxx = fx * (cw / 2 + sw / 2)
+        sxx = fx * (cw / 2 + sw * slim(zone) / 2)
         for gr in _groups(model, zone):
             m, c, n = gr["mount"], gr["cls"], gr["count"]
-            if m == "shoulder_rack":
+            if m == "wing_bay" and fx in bays:
+                bx_, by_, bz_, bw_, bd_, bh_ = bays[fx]
+                nt = max(2, min(gr["tubes"], 30))
+                cols = max(2, math.ceil(math.sqrt(nt)))
+                rows = math.ceil(nt / cols)
+                cell = min(bw_ * 0.86 / cols, bh_ * 0.8 / rows)
+                for i in range(nt):
+                    rr, cc = divmod(i, cols)
+                    b.box((bx_ + (cc - (cols - 1) / 2) * cell, by_ + bd_ / 2 + 0.002, bz_ + ((rows - 1) / 2 - rr) * cell),
+                          (cell * 0.7, 0.004, cell * 0.7), "1", vis={"front"}, tag="w", cls="wm")
+                b.box((bx_, by_, bz_ + bh_ / 2 + 0.002), (bw_ * 0.6, bd_ * 0.9, 0.004), "1", vis={"top"}, tag="w", cls="wm")
+            elif m == "shoulder_rack":
                 if model.get("arms_up") or model["archetype"] == "bird" and model["torso"] == "ovoid":
-                    _pod(b, (fx * (tw / 2 + 0.01), 0.0, ztop + 0.10), gr["tubes"])             # rises like ears
+                    _pod(b, (fx * (tw_eff / 2 + 0.01), 0.0, ztop + 0.10), gr["tubes"])         # rises like ears
+                    b.box((fx * (tw_eff / 2 + 0.01), 0.0, ztop + 0.03), (0.035, 0.05, 0.08), "3", tag="w")   # its stalk
                 else:
                     _pod(b, (sxx, -0.01, ztop + 0.05), gr["tubes"])
+                    b.box((sxx, -0.01, ztop + 0.005), (0.05, 0.06, 0.04), "3", tag="w")                      # the rack's mount
             elif m == "shoulder_barrel":
                 b.box((sxx, 0.0, ztop + 0.015), (b.px(8), 0.07, 0.03), "3", tag="w")
-                b.barrel((sxx, 0.03, ztop + 0.035), 24, 3.2, "wb")
+                weapon_barrel(b, (sxx, 0.03, ztop + 0.035), gr, 24, 3.2)
             elif m == "turret":
                 b.box((sxx, 0.0, ztop + 0.03), (0.09, 0.09, 0.05), "3", tag="w")
                 for i in range(min(n, 4)):
@@ -544,7 +708,7 @@ def _build(model, f, k):
                     _pod(b, (sxx, fy + 0.02, zf), gr["tubes"])
                 else:
                     for i in range(min(n, 3)):
-                        b.barrel((sxx, fy - 0.02, zf + 0.02 - i * b.px(5)), 7, 1.5 + (0.9 if gr["big"] else 0), WCLS[c])
+                        weapon_barrel(b, (sxx, fy - 0.02, zf + 0.02 - i * b.px(5)), gr, 7, 1.5 + (0.9 if gr["big"] else 0))
     for gr in _groups(model, "Center Torso"):
         for i in range(min(gr["count"], 4)):
             b.box(((i - (min(gr["count"], 4) - 1) / 2) * b.px(6), td / 2 + ftop * 0.3 + 0.002, z0 + th * 0.3),

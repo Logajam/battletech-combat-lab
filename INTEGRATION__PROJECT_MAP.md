@@ -39,6 +39,11 @@ split, now default with LEGATE_FIRE_SPLIT "proportional") and the probe battery
 (c) SESSION 14 (Change Record "KILL CURVE, FIRE DIRECTOR..."): `INTEGRATION__kill_curve`
 (the trials' dice swap and caching; the fire director's score), `bots.fire_pick`,
 the `domino.advance_into` crash fix in charge / push / DFA, `princess.direction`.
+(g) SESSION 16 (Change Record "COMBAT LAB TOKENS v4..."): `INTEGRATION__tokens.py` plan / profile /
+hips features, per-location armor thinning, the armor-parser fix, and the block library
+(`data/token_blocks.json`; canopy torso, pod arm, knee discs, weapon sections). Output only: no
+engine or battle result changes. Daniel's verdict 2026-11-03: better Mad Cat properties, still reads as
+cheap; held. Priorities are his call (see INTEGRATION__COMBAT_LAB.md).
 When a review is done, move its line out of this queue and note it in the
 Change Record.
 
@@ -1732,6 +1737,16 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-11-03 (Claude), session 16 - COMBAT LAB TOKENS v4 + BLOCK LIBRARY.** REVIEW PENDING
+  (higher-level model). Tokens (output only, no engine change; `python tests/run_checks.py` 43 of 43):
+  `plan` / `profile` / `hips` features (so top and side differ), armor thinning per location (thinner
+  when under-armored, never thicker; Daniel 2026-11-01), the `read_unit` armor-parser fix (it never
+  matched, so armor bulk had been constant), mounts for shoulder racks, then a block library from a
+  study of a fan-made MWO Timber Wolf parts kit Daniel uploaded (files kept out of the repo, only
+  descriptions and original shapes committed): chamfered boxes, `canopy` torso with wing bays, lozenge
+  pod arm, knee disc covers, weapon sections by kind. Notes: `INTEGRATION__COMBAT_LAB.md`; vocabulary:
+  `data/token_blocks.json`; sheet republished (claude.ai artifact CS8cdEG8rBR2jU5o3t1Y8a).
 
 - **2026-10-31 (Claude) - DOCS: COMBAT LAB FRONT END = HTML; COMPILED PHYSICS CORE QUEUED.** REVIEW PENDING
   (higher-level model). Daniel chose the HTML front end (local `.exe` + browser, offline) and asked that

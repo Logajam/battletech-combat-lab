@@ -9,7 +9,10 @@
   "new": [
    "pod arms"
   ],
-  "confidence": "med"
+  "confidence": "med",
+  "plan": "wedge",
+  "profile": "lean",
+  "hips": "flare"
  },
  "locust": {
   "archetype": "bird",
@@ -19,7 +22,9 @@
   "shoulders": "flush",
   "note": "tiny torso, stub arms, long thin bird legs",
   "new": [],
-  "confidence": "med"
+  "confidence": "med",
+  "plan": "wedge",
+  "profile": "lean"
  },
  "commando": {
   "archetype": "bird",
@@ -31,7 +36,9 @@
   "new": [
    "shoulder racks as part of the body"
   ],
-  "confidence": "low"
+  "confidence": "low",
+  "plan": "block",
+  "profile": "sloped"
  },
  "spider": {
   "archetype": "bird",
@@ -43,7 +50,10 @@
   "new": [
    "flared hips"
   ],
-  "confidence": "low"
+  "confidence": "low",
+  "plan": "wedge",
+  "profile": "sloped",
+  "hips": "flare"
  },
  "urbanmech": {
   "archetype": "humanoid",
@@ -55,7 +65,9 @@
   "new": [
    "squat humanoid"
   ],
-  "confidence": "med"
+  "confidence": "med",
+  "plan": "block",
+  "profile": "sloped"
  },
  "firestarter": {
   "archetype": "bird",
@@ -65,7 +77,9 @@
   "shoulders": "boom",
   "note": "broad shoulders, head in torso",
   "new": [],
-  "confidence": "low"
+  "confidence": "low",
+  "plan": "block",
+  "profile": "sloped"
  },
  "jenner": {
   "archetype": "bird",
@@ -77,7 +91,9 @@
   "new": [
    "forward wedge head"
   ],
-  "confidence": "med"
+  "confidence": "med",
+  "plan": "wedge",
+  "profile": "sloped"
  },
  "panther": {
   "archetype": "humanoid",
@@ -87,7 +103,9 @@
   "shoulders": "boom",
   "note": "box shoulders with racks, small head",
   "new": [],
-  "confidence": "low"
+  "confidence": "low",
+  "plan": "block",
+  "profile": "sloped"
  },
  "raven": {
   "archetype": "bird",
@@ -99,7 +117,9 @@
   "new": [
    "deep slim torso"
   ],
-  "confidence": "med"
+  "confidence": "med",
+  "plan": "wedge",
+  "profile": "lean"
  },
  "wolfhound": {
   "archetype": "humanoid",
@@ -109,7 +129,9 @@
   "shoulders": "boom",
   "note": "broad shoulders, small head",
   "new": [],
-  "confidence": "low"
+  "confidence": "low",
+  "plan": "wedge",
+  "profile": "sloped"
  },
  "cicada": {
   "archetype": "bird",
@@ -119,7 +141,9 @@
   "shoulders": "flush",
   "note": "slim, head forward",
   "new": [],
-  "confidence": "low"
+  "confidence": "low",
+  "plan": "wedge",
+  "profile": "lean"
  },
  "blackjack": {
   "archetype": "humanoid",
@@ -129,7 +153,9 @@
   "shoulders": "flush",
   "note": "boxy, slim legs",
   "new": [],
-  "confidence": "low"
+  "confidence": "low",
+  "plan": "wedge",
+  "profile": "sloped"
  },
  "phoenix hawk": {
   "archetype": "humanoid",
@@ -139,7 +165,9 @@
   "shoulders": "boom",
   "note": "big shoulders, jump jets",
   "new": [],
-  "confidence": "low"
+  "confidence": "low",
+  "plan": "wedge",
+  "profile": "sloped"
  },
  "centurion": {
   "archetype": "humanoid",
@@ -151,7 +179,9 @@
   "new": [
    "raised shoulders"
   ],
-  "confidence": "med"
+  "confidence": "med",
+  "plan": "wedge",
+  "profile": "upright"
  },
  "crab": {
   "archetype": "lizard",
@@ -163,7 +193,9 @@
   "new": [
    "claw arms"
   ],
-  "confidence": "med"
+  "confidence": "med",
+  "plan": "wedge",
+  "profile": "lean"
  },
  "hunchback": {
   "archetype": "humanoid",
@@ -175,7 +207,9 @@
   "new": [
    "shoulder hump"
   ],
-  "confidence": "med"
+  "confidence": "med",
+  "plan": "block",
+  "profile": "hunch"
  },
  "trebuchet": {
   "archetype": "bird",
@@ -185,7 +219,9 @@
   "shoulders": "flush",
   "note": "bird legs, boxy torso",
   "new": [],
-  "confidence": "low"
+  "confidence": "low",
+  "plan": "block",
+  "profile": "sloped"
  },
  "griffin": {
   "archetype": "bird",
@@ -195,7 +231,9 @@
   "shoulders": "boom",
   "note": "bird legs, boom shoulders",
   "new": [],
-  "confidence": "low"
+  "confidence": "low",
+  "plan": "wedge",
+  "profile": "sloped"
  },
  "shadow hawk": {
   "archetype": "humanoid",
@@ -205,7 +243,9 @@
   "shoulders": "flush",
   "note": "standard humanoid, wedge head",
   "new": [],
-  "confidence": "low"
+  "confidence": "low",
+  "plan": "block",
+  "profile": "sloped"
  },
  "wolverine": {
   "archetype": "humanoid",
@@ -215,7 +255,9 @@
   "shoulders": "boom",
   "note": "humanoid, broad",
   "new": [],
-  "confidence": "low"
+  "confidence": "low",
+  "plan": "flare",
+  "profile": "upright"
  },
  "rifleman": {
   "archetype": "humanoid",
@@ -227,7 +269,9 @@
   "new": [
    "gun pod on shoulder"
   ],
-  "confidence": "med"
+  "confidence": "med",
+  "plan": "block",
+  "profile": "sloped"
  },
  "catapult": {
   "archetype": "bird",
@@ -239,7 +283,10 @@
   "new": [
    "shoulder boxes (racks)"
   ],
-  "confidence": "med"
+  "confidence": "med",
+  "plan": "flare",
+  "profile": "upright",
+  "hips": "flare"
  },
  "jagermech": {
   "archetype": "humanoid",
@@ -249,7 +296,9 @@
   "shoulders": "boom",
   "note": "twin barrels on the arms",
   "new": [],
-  "confidence": "low"
+  "confidence": "low",
+  "plan": "block",
+  "profile": "upright"
  },
  "thunderbolt": {
   "archetype": "humanoid",
@@ -259,7 +308,9 @@
   "shoulders": "flush",
   "note": "broad, heavy, hands",
   "new": [],
-  "confidence": "med"
+  "confidence": "med",
+  "plan": "flare",
+  "profile": "upright"
  },
  "archer": {
   "archetype": "humanoid",
@@ -269,7 +320,9 @@
   "shoulders": "boom",
   "note": "wide with big rack boxes on the shoulders",
   "new": [],
-  "confidence": "low"
+  "confidence": "low",
+  "plan": "block",
+  "profile": "upright"
  },
  "warhammer": {
   "archetype": "humanoid",
@@ -279,7 +332,9 @@
   "shoulders": "boom",
   "note": "broad shoulders, pod arms",
   "new": [],
-  "confidence": "low"
+  "confidence": "low",
+  "plan": "block",
+  "profile": "sloped"
  },
  "marauder": {
   "archetype": "bird",
@@ -291,7 +346,9 @@
   "new": [
    "forward-hung torso"
   ],
-  "confidence": "low"
+  "confidence": "low",
+  "plan": "wedge",
+  "profile": "sloped"
  },
  "orion": {
   "archetype": "humanoid",
@@ -301,7 +358,9 @@
   "shoulders": "flush",
   "note": "broad, hands",
   "new": [],
-  "confidence": "low"
+  "confidence": "low",
+  "plan": "flare",
+  "profile": "upright"
  },
  "awesome": {
   "archetype": "humanoid",
@@ -311,7 +370,9 @@
   "shoulders": "boom",
   "note": "barrel chest, wide shoulders, head in torso",
   "new": [],
-  "confidence": "low"
+  "confidence": "low",
+  "plan": "block",
+  "profile": "upright"
  },
  "stalker": {
   "archetype": "bird",
@@ -323,7 +384,9 @@
   "new": [
    "squat wide body"
   ],
-  "confidence": "med"
+  "confidence": "med",
+  "plan": "block",
+  "profile": "sloped"
  },
  "atlas": {
   "archetype": "humanoid",
@@ -335,7 +398,9 @@
   "new": [
    "thick legs"
   ],
-  "confidence": "med"
+  "confidence": "med",
+  "plan": "block",
+  "profile": "upright"
  },
  "king crab": {
   "archetype": "lizard",
@@ -348,6 +413,8 @@
    "squat wide body",
    "hunched"
   ],
-  "confidence": "med"
+  "confidence": "med",
+  "plan": "flare",
+  "profile": "upright"
  }
 }

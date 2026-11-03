@@ -37,7 +37,7 @@ def find_chassis(root, chassis):
 
 
 def main(root, out):
-    ref = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "token_reference_tags.json")))
+    ref = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "token_reference_tags.json"), encoding="utf-8"))
     paths, missing = [], []
     for n in UNITS:
         p = find(root, n)
@@ -61,7 +61,7 @@ def main(root, out):
             hp = {}
             for g in x["hardpoints"]:
                 hp[g["mount"]] = hp.get(g["mount"], 0) + g["count"]
-            t = [x["archetype"], f"torso {x['torso']}/{x['panels']}", f"head {x['head_mount']}/{x['head_shape']}", f"shoulders {x['shoulders']}"]
+            t = [x["archetype"], f"torso {x['torso']}/{x['panels']}", f"head {x['head_mount']}/{x['head_shape']}", f"shoulders {x['shoulders']}", f"plan {x['plan']}", f"profile {x['profile']}", f"hips {x['hips']}"]
             if x["arms"]:
                 t.append("arms " + "/".join(x["arms"][c] for c in "LR"))
             t += [f"{k.replace('_', ' ')} x{v}" for k, v in sorted(hp.items())]
@@ -74,9 +74,9 @@ def main(root, out):
 <p class="rowlab">Name hash only</p>
 <div class="views">{T.top_svg(h)}{T.card_svg(h)}{T.rear_svg(h)}{T.side_svg(h)}</div>
 <p class="tags">{tagline(h)}</p></article>""")
-    page = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "token_sheet_template.html")).read()
+    page = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "token_sheet_template.html"), encoding="utf-8").read()
     page = page.replace("__LINEUP__", lineup).replace("__TILES__", "\n".join(tiles)).replace("__N__", str(len(models)))
-    open(out, "w").write(page)
+    open(out, "w", encoding="utf-8").write(page)
     print(len(models), "units; missing:", missing)
 
 
