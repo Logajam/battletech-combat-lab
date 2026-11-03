@@ -92,6 +92,10 @@ SAVE_STATE_ROUND_TRIP = False
 # fastcore/ with maturin) where it is installed. Speed only - the same answers as
 # the Python; False (or not installed) = pure Python.
 USE_FASTCORE = True
+# Test switch (tests/test_fire_tables.py): every weapon choice a shared fire table
+# answers in movement scoring is recomputed from scratch and must match (slow); the
+# tables are also kept from turn to turn, so the key must catch every change of state.
+FIRE_TABLE_VERIFY = False
 # Where the time goes (2026-10-21, INTEGRATION__timing): TIMING prints a table of
 # the time spent in each part of the turn after every batch (it only reads the
 # clock - results don't change). PROFILE_FUNCTIONS = N also lists the N

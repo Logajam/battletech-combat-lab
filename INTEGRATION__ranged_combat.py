@@ -172,7 +172,7 @@ class MovementCandidate:
 
 
 def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_for_side=None, planner=None,
-                              extra_dissipation=0):
+                              extra_dissipation=0, share=None):
     """Returns score(distance, pre_tn, move_heat) -> expected damage of the
     weapons select_weapons_to_fire() would actually fire, memoized for this
     call. Dissipation and other heat are read once (they can't change
@@ -186,13 +186,24 @@ def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_fo
     planner (2026-10-20): the fire_modes.Planner pricing this mech's special
     weapons against this target (weapon_selection.select_weapons_to_fire).
     extra_dissipation (2026-10-21): submerged heat sinks' bonus where this
-    mech would stand (INTEGRATION__water, p.103)."""
+    mech would stand (INTEGRATION__water, p.103).
+    share (2026-11-03): what else, besides the units' state, makes this scorer's
+    answers what they are (its role: aimed or not, AMS, water) - scorers with the
+    same share and state use one weapon_selection.FireTable. None = a private one."""
     dissipation = compute_heat_dissipation(mech) + extra_dissipation
     weapons = get_weapons(mech)                                   # fixed for the scorer's life
     table = weapon_selection.build_expected_damage_table(mech)
     scales: Dict[str, dict] = {}
     other = heat.other_heat(mech)
     memo: Dict[tuple, float] = {}
+    # The weapon choice by (distance, pre-TN, side), whatever the movement heat (2026-11-03,
+    # Daniel's lookup table - weapon_selection.FireTable). Another bot's fire control
+    # (weapon_selection._FIRE_CONTROL, Princess) takes the old path.
+    if share is None:
+        fire_table = weapon_selection.FireTable(mech, tn_adjust, unavailable, weapons, table, planner)
+    else:
+        fire_table = weapon_selection.shared_fire_table(share, mech, tn_adjust, unavailable, weapons, table, planner,
+                                                        dissipation, other, scale_for_side is not None)
 
     def score(distance: int, pre_tn: int, move_heat: int, side: str = "") -> float:
         key = (distance, pre_tn, move_heat, side)
@@ -203,11 +214,24 @@ def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_fo
                 scale = scales.get(side)
                 if scale is None:
                     scale = scales[side] = scale_for_side(side)
-            _, cached, _ = weapon_selection.select_weapons_to_fire(
-                mech, distance, pre_tn, mech.min_heat, mech.max_heat,
-                dissipation=dissipation, movement_heat=move_heat, other_heat=other, tn_adjust=tn_adjust,
-                unavailable=unavailable, value_scale=scale, weapons=weapons, table=table, planner=planner,
-                side=side or None)
+            if weapon_selection._FIRE_CONTROL is None:
+                _, cached, _ = fire_table.choose(distance, pre_tn, side, scale, mech.min_heat, mech.max_heat,
+                                                 dissipation, move_heat, other)
+                if config.FIRE_TABLE_VERIFY:              # test switch: the table must give the fresh answer
+                    _, fresh, _ = weapon_selection.select_weapons_to_fire(
+                        mech, distance, pre_tn, mech.min_heat, mech.max_heat,
+                        dissipation=dissipation, movement_heat=move_heat, other_heat=other, tn_adjust=tn_adjust,
+                        unavailable=unavailable, value_scale=scale, weapons=weapons, table=table, planner=planner,
+                        side=side or None)
+                    if fresh != cached:
+                        raise AssertionError(f"fire table for {mech.side_name}: {cached} but fresh {fresh} "
+                                             f"(distance {distance}, pre-TN {pre_tn}, heat {move_heat}, side {side})")
+            else:
+                _, cached, _ = weapon_selection.select_weapons_to_fire(
+                    mech, distance, pre_tn, mech.min_heat, mech.max_heat,
+                    dissipation=dissipation, movement_heat=move_heat, other_heat=other, tn_adjust=tn_adjust,
+                    unavailable=unavailable, value_scale=scale, weapons=weapons, table=table, planner=planner,
+                    side=side or None)
             memo[key] = cached
         return cached
 
@@ -517,7 +541,8 @@ class MoveEvaluator:
             | fire_modes.jammed_ids(mover) | weapon_profiles.array_gun_ids(mover)
         defender_blocked = (self.defender_cond[1] if self.defender_cond else frozenset()) \
             | ammo.unavailable_weapons(defender) | fire_modes.jammed_ids(defender) | weapon_profiles.array_gun_ids(defender)
-        mover_adjust = tn_adjuster(mover, defender, aimed_shot_location(defender))
+        mover_aim = aimed_shot_location(defender)
+        mover_adjust = tn_adjuster(mover, defender, mover_aim)
         defender_adjust = tn_adjuster(defender, mover)
         # Structure weighting (INTEGRATION__structure_weight): off at k = 1.0, which leaves
         # every number exactly as it was.
@@ -529,7 +554,7 @@ class MoveEvaluator:
         mover_scorers: Dict[tuple, object] = {}
         defender_scorers: Dict[tuple, object] = {}
 
-        def scorer_getter(who, target, adjust, blocked, scale, cache):
+        def scorer_getter(who, target, adjust, blocked, scale, cache, role):
             # Scorers are shared by every (key, held) that leaves the same weapons
             # unable to fire (2026-10-20, speed only): many twists / arcs block the
             # same set, and a shared scorer shares its memo.
@@ -560,7 +585,8 @@ class MoveEvaluator:
                             planner = planners[(ams_k, w_state)] = fire_modes.Planner(
                                 who, target, w_adjust, fire_modes.ams_share(ams_k, usable))
                         scorer = by_unavailable[(unavailable, ams_k, w_state, bonus)] = _make_heat_limited_scorer(
-                            who, planner.adjust, unavailable, scale, planner, bonus)
+                            who, planner.adjust, unavailable, scale, planner, bonus,
+                            share=(role, ams_k, w_state, bonus))
                     cache[(key, held, ams_k, wet)] = scorer
                 return scorer
             return get
@@ -568,9 +594,10 @@ class MoveEvaluator:
         # so dry battles take exactly the old path.
         self.water_depths = water.hexes_by_depth(terrain_map) or None
         self._wet_cases: Dict[tuple, tuple] = {}
-        self.mover_scorer = scorer_getter(mover, defender, mover_adjust, mover_blocked, mover_scale, mover_scorers)
+        self.mover_scorer = scorer_getter(mover, defender, mover_adjust, mover_blocked, mover_scale, mover_scorers,
+                                          ("evaluator, aimed at", mover_aim))
         self.defender_scorer = scorer_getter(defender, mover, defender_adjust, defender_blocked, defender_scale,
-                                             defender_scorers)
+                                             defender_scorers, ("evaluator, unaimed", None))
         self.mover_arcs = (arcs.arc_options(mover), arcs.leg_offsets(mover))   # twists / flips / turret (pp.61-62)
         self.defender_arcs = (arcs.arc_options(defender), arcs.leg_offsets(defender))
         # Physical attacks (pp.76-83) from / against a spot next to the enemy.

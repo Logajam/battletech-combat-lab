@@ -107,7 +107,8 @@ def future_damage(attacker, target):
             scale = ((lambda side: structure_weight.multipliers(weapons, target, side))
                      if config.MOVEMENT_STRUCTURE_WEIGHT != 1.0 else None)
             planner = fire_modes.Planner(attacker, target, adjust, fire_modes.ams_share(0, usable))
-            scorer = scorers[unavailable] = _make_heat_limited_scorer(attacker, adjust, unavailable, scale, planner)
+            scorer = scorers[unavailable] = _make_heat_limited_scorer(attacker, adjust, unavailable, scale, planner,
+                                                                      share=("future damage",))
         pre_tn = (attacker.gunnery + amm + tmm + attacker.heat_fire_modifier + cond[0]
                   + equip.own_attack_modifier(attacker))
         pre_tn = max(weapon_selection.PRE_TN_MIN, min(weapon_selection.PRE_TN_MAX, pre_tn))
