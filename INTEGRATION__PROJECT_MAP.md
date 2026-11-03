@@ -752,6 +752,10 @@ Princess, decision by decision, the latest battery and why Gladiator loses.
    Rust pays for a big piece done per call on flat data (the per-spot scoring), not small kernels.
    Weapon-choice lookup tables (Daniel's design, 2026-11-03): ~5% on a 12 v 12 - the rows asked are
    genuinely many (152k a 2-turn 12 v 12); building them (per-weapon pricing) is the next target.
+   **BACK BURNER (Daniel, 2026-11-03: "We're hitting diminishing returns it feels like. There are
+   more profitable tasks.")** When it comes back: (a) a cheaper `weapon_selection.fire_state` (~84 us,
+   ~3% of a 12 v 12); (b) cache each weapon's price per (distance, pre-TN) across sides / twists /
+   targets - the row-building cost; (c) then the full Rust port of that per-weapon pricing loop.
    Watch the boundary: bots call the evaluator thousands of times a move, so
    the API should score many spots per call, not one. Supersedes item 9's
    "once the rules settle" wording. The Combat Lab state snapshot and the
