@@ -228,6 +228,53 @@ def fire_control(choose):
         _FIRE_CONTROL = saved
 
 
+def _best_subset_python(values, heats, heat_budget):
+    """Phase 1 of select_weapons_to_fire: the exact 0/1 knapsack (weight = heat, value =
+    expected damage). Returns (best value, heat it uses, indices of the chosen candidates).
+    dp[h] = (best value using exactly heat h, chosen indices); candidates in order, heats
+    visited high to low, a strictly better value replaces; ties go to the first heat level
+    reached (dict order) - INTEGRATION__fastcore's Rust copy follows the same order exactly."""
+    dp = {0: (0.0, frozenset())}
+    for i, (ed, heat_cost) in enumerate(zip(values, heats)):
+        for used_heat in sorted(list(dp.keys()), reverse=True):
+            new_heat = used_heat + heat_cost
+            if new_heat > heat_budget:
+                continue
+            new_value = dp[used_heat][0] + ed
+            existing = dp.get(new_heat)
+            if existing is None or new_value > existing[0]:
+                dp[new_heat] = (new_value, dp[used_heat][1] | {i})
+    best_heat_used = max(dp, key=lambda h: dp[h][0])
+    best_value, best_ids = dp[best_heat_used]
+    return best_value, best_heat_used, best_ids
+
+
+def _best_subset_rust(values, heats, heat_budget):
+    """fastcore.best_subset (Rust, the same answer as _best_subset_python - tests/test_fastcore.py);
+    Python for what it doesn't take (non-integer heat, more than 64 candidates)."""
+    if len(values) > 64:
+        return _best_subset_python(values, heats, heat_budget)
+    try:
+        return _fastcore.best_subset(values, heats, heat_budget)
+    except TypeError:
+        return _best_subset_python(values, heats, heat_budget)
+
+
+# Compiled hot loops (2026-11-03, trial - the `fastcore/` Rust crate; config.USE_FASTCORE).
+# Speed only: the answers are the Python's, so results don't change. Not built = Python.
+try:
+    import fastcore as _fastcore
+except ImportError:
+    _fastcore = None
+
+
+def best_subset(values, heats, heat_budget):
+    """Phase 1's knapsack: Rust when built and switched on (config.USE_FASTCORE), else Python."""
+    if _fastcore is not None and INTEGRATION__config.USE_FASTCORE:
+        return _best_subset_rust(values, heats, heat_budget)
+    return _best_subset_python(values, heats, heat_budget)
+
+
 def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipation, movement_heat,
                            other_heat=0, tn_adjust=None, unavailable=frozenset(), value_scale=None,
                            weapons=None, table=None, planner=None, side=None):
@@ -350,22 +397,9 @@ def select_weapons_to_fire(mech, distance, pre_tn, min_heat, max_heat, dissipati
         candidates.append((w, value, w.heat))
 
     # --- Phase 1: 0/1 knapsack, weight = heat, value = expected damage. ---
-    # dp[h] = (best total expected damage achievable with exactly heat budget h used,
-    #          set of weapon ids used to achieve it)
-    dp = {0: (0.0, frozenset())}
-    for w, ed, heat_cost in candidates:
-        for used_heat in sorted(list(dp.keys()), reverse=True):
-            new_heat = used_heat + heat_cost
-            if new_heat > heat_budget:
-                continue
-            new_value = dp[used_heat][0] + ed
-            existing = dp.get(new_heat)
-            if existing is None or new_value > existing[0]:
-                dp[new_heat] = (new_value, dp[used_heat][1] | {id(w)})
-
-    best_heat_used = max(dp, key=lambda h: dp[h][0])
-    best_value, best_ids = dp[best_heat_used]
-    selected_ids = set(best_ids)
+    best_value, best_heat_used, picked = best_subset([ed for _, ed, _ in candidates],
+                                                     [heat for _, _, heat in candidates], heat_budget)
+    selected_ids = {id(candidates[i][0]) for i in picked}
     total_heat = best_heat_used
     total_ed = best_value
 

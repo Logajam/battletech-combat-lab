@@ -50,6 +50,9 @@ cheap; held. Priorities are his call (see INTEGRATION__COMBAT_LAB.md).
 to rebuild), the orchestrator split (`Battle`, `_start_battle`, `play_on`, `_play_turn`, `_finish`), the
 one-pool RNG (`config.active_rng`), `tests/test_saved_state.py`, `tests/test_rng.py`,
 `check_reference_logs.py --round-trip`. Engine results unchanged (logs identical).
+(i) SESSION 17 (Change Record "RUST TRIAL..."): `fastcore/src/lib.rs` (`best_subset` v
+`weapon_selection._best_subset_python` - tie order), the knapsack extraction, the `special` /
+`has_profile` caches on weapons (static? a weapon whose data changes mid-battle would keep a stale answer).
 When a review is done, move its line out of this queue and note it in the
 Change Record.
 
@@ -741,6 +744,9 @@ Princess, decision by decision, the latest battery and why Gladiator loses.
    API, keep the bots in Python calling it. Safety net: the reference logs and
    `tests/run_checks.py` must stay byte-identical (a speed-only change, CLAUDE.md).
    PyPy tried 2026-11-03 (Change Record): no gain - once warm it ties CPython 3.13.
+   Rust tried 2026-11-03 (Change Record, `fastcore/`): exact and 3.4x per call on the weapon knapsack,
+   but that is 5.7% of a battle (~1% gained); caching two weapon-kind checks in Python gained ~8%.
+   Rust pays for a big piece done per call on flat data (the per-spot scoring), not small kernels.
    Watch the boundary: bots call the evaluator thousands of times a move, so
    the API should score many spots per call, not one. Supersedes item 9's
    "once the rules settle" wording. The Combat Lab state snapshot and the
@@ -1764,6 +1770,29 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-11-03 (Claude), session 17 - RUST TRIAL + WEAPON-KIND CACHES.** REVIEW PENDING (higher-level
+  model). Daniel: "Move on to testing if rust will give us any extra speed" (long run: Rust or C; keep
+  Python's modularity for now). Speed only: 46 of 46 checks, every reference log identical, benchmark
+  501 / 495.
+  - Profile, 12 v 12 Gladiator v Gladiator (Legate on), 4 turns under cProfile (~2x slower than real):
+    Legate estimate 51%, movement 43% (two-ply 27%, reachable spots 8%); by function, the weapon choice
+    `select_weapons_to_fire` 43% cumulative (618k calls; the bots dry-run what they would fire from each
+    spot). Inside it the arithmetic is small; the time is plumbing: `canonical_name` 31M calls,
+    `fire_modes.special` 1.3M calls (47 s cumulative), `get_weapons` rebuilt 351k times, the Planner.
+  - Rust: `fastcore/` (PyO3 + maturin crate) with `best_subset`, the weapon choice's 0/1 knapsack, now
+    pulled out of `select_weapons_to_fire` as `weapon_selection._best_subset_python` (the spec; ties and
+    sum order copied exactly). Same answer on all 124,680 knapsacks of a 4 v 4 and on 20,000 random ones
+    (`tests/test_fastcore.py`; skips when not built). Per call 0.85 us v 2.89 us (3.4x; most of the 0.85
+    is turning Python lists into Rust ones). But the knapsack is 5.7% of a battle, so a 4 v 4 gained ~1%
+    (inside the run-to-run noise). `config.USE_FASTCORE` (on; not built = Python).
+  - Python: `fire_modes.special` / `has_profile` cached on the weapon (they depend only on its kind, as
+    `canonical_name` already was): 4 v 4 3 turns ~22 -> ~20 s, 12 v 12 2 turns 45.5 -> 41.9 s (~8%),
+    logs identical.
+  - Lesson (Pick up here 13): Rust pays only for a big piece of work done in one call on flat data -
+    a kernel this small saves less than its boundary costs matter. Next candidates, in order: more
+    weapon-kind caching and per-turn flat weapon descriptors in Python (cheap, ~same results check),
+    then the per-spot scoring (to-hit + weapon choice for plain weapons) in Rust over those descriptors.
 
 - **2026-11-03 (Claude), session 17 - PYPY TRIED: NO GAIN (no code changed).** Daniel: "Test PyPy" (long
   run: Rust or C, keeping Python's modularity for now). PyPy 7.3.20 (Python 3.11) + numpy 2.4.6, in the

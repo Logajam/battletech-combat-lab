@@ -88,6 +88,10 @@ SAVE_STATE_DIR = "saved_states"
 # battle is saved, reloaded from the saved text, and played on from the reloaded
 # copy. The log must match a battle that never stopped, byte for byte.
 SAVE_STATE_ROUND_TRIP = False
+# Compiled hot loops (2026-11-03, trial): use the Rust module `fastcore` (built from
+# fastcore/ with maturin) where it is installed. Speed only - the same answers as
+# the Python; False (or not installed) = pure Python.
+USE_FASTCORE = True
 # Where the time goes (2026-10-21, INTEGRATION__timing): TIMING prints a table of
 # the time spent in each part of the turn after every batch (it only reads the
 # clock - results don't change). PROFILE_FUNCTIONS = N also lists the N
