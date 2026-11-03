@@ -929,8 +929,7 @@ def _build(model, f, k):
             b.box((bx_, by_ - bd_ * 0.22, bz_ + bh_ / 2 + 0.0015), (bw_ * 0.6, bd_ * 0.3, 0.004), "1", cls="tm", ch=0.0)
 
     # SHOULDER KITS (dictionary: shoulders / details): add-ons seen on the chart silhouettes
-    kit = model.get("kit", "")
-    if kit:
+    for kit in [k_ for k_ in (model.get("kit") or "").split(",") if k_]:          # several kits may be named: "shoulder_guns,spar"
         htop = (tw * 0.36 if shape == "dome" else tw / 2) if canopy else tw_eff / 2 * tx * flare       # the torso's half-width at its top edge
         zk = ztop - 0.045 if shape == "dome" else ztop                # a dome is lower at its edges: kits sit on it, not above it
         for fx in (-1, 1):
@@ -941,6 +940,21 @@ def _build(model, f, k):
             elif kit == "ears":                                       # tall box pods standing above the shoulders
                 b.box((fx * (htop - 0.015), -0.01, zk + 0.10), (0.07, 0.10, 0.17), "2", tx=0.9, ch=0.012)
                 b.box((fx * (htop - 0.015), -0.01, zk + 0.01), (0.04, 0.06, 0.05), "3")
+            elif kit == "tall_launchers":                             # two tall upright launcher boxes at the back (Archer): a cell grid on the front face
+                tcx, tcy, tw_, td_, th_ = fx * htop * 0.50, -td * 0.18, 0.085, 0.12, 0.27
+                b.extrude(tcx, zk - 0.01, tw_, td_, th_, PROFILES["upright"], "2", wtop=0.95, cy=tcy)
+                for rr in range(5):
+                    for cc in range(3):
+                        cxx_ = tcx + (cc - 1) * tw_ * 0.27
+                        czz_ = zk - 0.01 + th_ * (0.12 + 0.18 * rr)
+                        b.box((cxx_, tcy + td_ / 2 + 0.0015, czz_), (tw_ * 0.21, 0.004, th_ * 0.12), "1", tag="w", cls="wm")
+                        b.box((cxx_, tcy + td_ / 2 + 0.003, czz_), (tw_ * 0.13, 0.004, th_ * 0.07), "1", tag="w", cls="ln")
+            elif kit == "shoulder_guns":                              # gun pods on the shoulders with long twin barrels forward (JagerMech, Rifleman)
+                gx = fx * (htop + 0.012)
+                b.box((gx, 0.0, zk - 0.035), (0.05, 0.14, 0.07), "3", ch=0.008)
+                for dd in (-1, 1):
+                    b.barrel((gx + dd * 0.014, 0.05, zk - 0.035), 0.28 * b.k, 1.9, "wb")
+                b.box((gx, 0.12, zk - 0.035), (0.062, 0.025, 0.084), "4", ch=0.004)                 # muzzle brake block
             elif kit == "launchers":                                  # huge slanted-top missile boxes on the shoulders (Mauler): a cell grid forward, a tall rear wing
                 lcx, lcy, lw, ld, lh = fx * (htop - 0.005), -0.04, 0.115, 0.14, 0.21
                 b.extrude(lcx, zk - 0.02, lw, ld, lh, PROFILES["sloped"], "2", wtop=0.95, cy=lcy)

@@ -191,6 +191,21 @@
    "seen": [
     "Mauler"
    ]
+  },
+  "tall_launchers": {
+   "status": "built (2026-11-03, session 16)",
+   "what": "two tall upright launcher boxes at the back of the shoulders, a cell grid on the front face",
+   "seen": [
+    "Archer"
+   ]
+  },
+  "shoulder_gun_pods_with_arms": {
+   "status": "built (2026-11-03, session 16) as kit shoulder_guns",
+   "what": "a pod on each shoulder with two long barrels forward, in addition to ordinary arms",
+   "seen": [
+    "JagerMech",
+    "Rifleman"
+   ]
   }
  },
  "arms": {
@@ -265,7 +280,7 @@
   },
   "barrel_shin": {
    "status": "built (2026-11-03, session 16)",
-   "what": "shin shaped like a fat barrel",
+   "what": "shin shaped like a fat barrel (the chart suggested it for the Archer; the Archer model shows ordinary plated legs, so it is unused for now)",
    "seen": [
     "Archer"
    ]

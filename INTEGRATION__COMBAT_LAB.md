@@ -574,6 +574,18 @@ needs no GUI change.
     toes. Tagged `mauler` (kit launchers, legs slab, long-barrel arms, asym left); the generator's ears are
     smaller than the Mauler's launchers, so the Mauler uses the new `launchers` kit (huge slanted-top
     missile boxes with a forward cell grid and a tall rear wing).
+  - **Ten more whole models (Daniel, 2026-11-03; files outside the repo):** Awesome (8Q and Pretty Baby),
+    Archer, King Crab, Raven, Wolverine, JagerMech, Rifleman, Highlander, Cyclops (Syllogy miniatures).
+    **Corrections to my chart-only guesses:** the Archer's big feature is two huge UPRIGHT launcher boxes
+    at the back of the shoulders (not barrel shins; its legs are plated slabs); the Wolverine has a BOXY
+    torso with shoulder pods and digitigrade-style legs (not a dome); the JagerMech and Rifleman carry
+    gun pods with long twin barrels on the SHOULDERS in addition to ordinary hanging arms (I had tagged
+    them as long-barrel arms); the Awesome has one big PPC arm and one fist, with tall blade fins; the
+    Cyclops has a domed hood head, a tent antenna and big fists; the King Crab and Raven confirm the
+    crouch and the delta-wing hull. Built: kits `tall_launchers` and `shoulder_guns`, and several kits
+    may now be named at once ("shoulder_guns,spar"). Tags updated for all ten (confidence high). Checked by
+    eye on nine units. Not done: the Raven's raised tail fin, the Awesome's grille chest, and the
+    King Crab's pincer hands.
   - **Next art steps (not built):** chicken legs (done above); stacked-slab shins with a high hock; the forward-slung wedge torso;
     the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
     pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits
