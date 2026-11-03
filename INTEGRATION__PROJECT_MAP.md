@@ -1886,6 +1886,14 @@ turn's score, so a decision sees what it gives up.
   The 2026-10-29 review's recalled 1,415 was wrong; review item (b) now holds only the Crusader
   CRD-3R. New check in `tests/test_battle_value.py`. No engine change.
 
+- **2026-11-03 (Claude), session 16 (cont.) - FASTCORE GUARD FIX; REFERENCE TAGS FROM 3D STUDIES.** REVIEW PENDING
+  (higher-level model). In a fresh checkout without the Rust wheel, `import fastcore` found the repo's own
+  `fastcore/` crate folder and imported it as an empty package, so the "not built = Python" fallback never
+  ran and every battle crashed (`AttributeError: ... knapsack_levels`; 37 of 47 checks failed). Both the guard
+  in `INTEGRATION__weapon_selection.py` and `tests/test_fastcore.py` now treat a `fastcore` without the Rust
+  functions as not built. Python path unchanged, results identical; 47 of 47 pass. Also: Combat Lab reference
+  tags for eight chassis from whole-model / part-kit studies (`INTEGRATION__COMBAT_LAB.md` round 3).
+
 - **2026-11-03 (Claude), session 16 - COMBAT LAB TOKENS v4 + BLOCK LIBRARY.** REVIEW PENDING
   (higher-level model). Tokens (output only, no engine change; `python tests/run_checks.py` 43 of 43):
   `plan` / `profile` / `hips` features (so top and side differ), armor thinning per location (thinner

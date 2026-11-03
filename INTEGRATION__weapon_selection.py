@@ -264,6 +264,8 @@ def _best_subset_rust(values, heats, heat_budget):
 # Speed only: the answers are the Python's, so results don't change. Not built = Python.
 try:
     import fastcore as _fastcore
+    if not hasattr(_fastcore, "knapsack_levels"):       # the repo's own fastcore/ folder imports as an EMPTY package
+        _fastcore = None                                # when the wheel is not built: that means "not built" (Claude, 2026-11-03)
 except ImportError:
     _fastcore = None
 
