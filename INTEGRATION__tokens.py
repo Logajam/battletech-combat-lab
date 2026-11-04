@@ -125,8 +125,10 @@ def weapon_tons(name):
         return 6.0
     if fam == "srm":
         return k * 0.5 * (1.5 if "streak" in n else 1.0)
-    if fam in ("lrm", "mrm"):
-        return {5: 2, 10: 5, 15: 7, 20: 10, 30: 10, 40: 12}.get(k, k * 0.5)
+    if fam == "mrm":
+        return k * 0.25                                        # half an LRM's 0.5 t per missile (Daniel, 2026-11-03)
+    if fam == "lrm":
+        return {5: 2, 10: 5, 15: 7, 20: 10}.get(k, k * 0.5)
     return 3.0
 
 
@@ -756,50 +758,91 @@ def weapon_barrel(b, c, gr, length_px, r_px, vis=None, embed=0.0):
         b.barrel((x, y, z), length_px, r_px, cls, vis)
 
 
+# REAL SCALE (Daniel, 2026-11-03): the Atlas is 12 m tall = 2 levels, so 1 level = 6 m and 10 px of drawing = 1 m. Missile
+# tubes come from meters, never from "what fits the box": an LRM is at most 0.2 m across (a 25/3 kg missile), an SRM 0.25 m.
+PX_PER_M = LEVEL / 6.0
+# An MRM missile has half the mass of an LRM missile (Daniel, 2026-11-03); at one density and shape its diameter is the cube root
+# of that, 0.794 of an LRM's: 0.143 m, pitch 0.167 m.
+TUBE_DIA_M = {"lrm": 0.18, "srm": 0.23, "mrm": 0.18 * 0.5 ** (1 / 3), "": 0.22}          # tube mouth diameter, m
+TUBE_PITCH_M = {"lrm": 0.21, "srm": 0.27, "mrm": 0.21 * 0.5 ** (1 / 3), "": 0.26}        # centre to centre, m
+
+
+def tube_px(fam):
+    """(mouth radius px, pitch px) of a missile tube of this family, at 10 px per metre."""
+    return TUBE_DIA_M.get(fam, 0.22) * PX_PER_M / 2.0, TUBE_PITCH_M.get(fam, 0.26) * PX_PER_M
+
+
+def rack_cells(b, fam, n, cx, yface, zc, w_true, h_true, rim="wm"):
+    """Draw `n` real-scale tube mouths (a colored rim and a dark bore) on a flat face. (cx, zc) is the face centre in model
+    units; `w_true` / `h_true` are the free width and height after the figure's width fit (x and y are scaled by b.f when
+    built). `yface` is a y, or a function of z. As many as fit are drawn, centred, rows filled from the top."""
+    r_px, pitch_px = tube_px(fam)
+    pitch = b.px(pitch_px)
+    cols = max(1, int(w_true / pitch))
+    rows_cap = max(1, int(h_true / pitch))
+    n = max(1, min(n, cols * rows_cap))
+    cols_used = min(cols, max(2, int(math.ceil(math.sqrt(n * 1.6)))))
+    rows_used = int(math.ceil(n / cols_used))
+    for i in range(n):
+        r, c = divmod(i, cols_used)
+        left = n - r * cols_used
+        in_row = min(cols_used, left)
+        xx = cx + (c - (in_row - 1) / 2) * pitch / b.f
+        zz = zc + ((rows_used - 1) / 2 - r) * pitch
+        yy = yface(zz) if callable(yface) else yface
+        b.barrel((xx, yy + 0.001, zz), 1.0, r_px, rim, None)
+        b.barrel((xx, yy + 0.003, zz), 1.0, r_px * 0.62, "ln", None)
+    return n
+
+
 def gfam(gr):
     """The missile family of a weapon group (srm / lrm / mrm), '' if none."""
     return next((f for f in ("srm", "mrm", "lrm") if f in (gr.get("fam") or {})), "")
 
 
 def rack_grid(fam, n):
-    """(columns, rows, cell px, depth factor) of a missile launcher by family and rack size: SRM = few big round tubes in a
-    deep box; LRM = a wide flat bank of small tubes; MRM = medium tubes. Each rack size has its own pod."""
+    """(columns, rows, pitch px, depth factor) of a missile launcher by family and rack size: SRM = a few round tubes in a deep
+    box; LRM = a wide flat bank of small tubes; MRM = between. Each rack size has its own pod; the pitch is the real one."""
     n = max(2, min(n, 40))
+    pitch = tube_px(fam)[1]
     if fam == "srm":
         cols = {2: 2, 4: 2, 6: 3}.get(n, 3 if n > 4 else 2)
-        return cols, max(1, math.ceil(n / cols)), 3.4, 1.5
+        return cols, max(1, math.ceil(n / cols)), pitch, 1.5
     if fam == "mrm":
         cols = 5 if n <= 20 else 6 if n <= 30 else 8
-        return cols, max(1, math.ceil(n / cols)), 2.6, 1.0
+        return cols, max(1, math.ceil(n / cols)), pitch, 1.0
     if fam == "lrm":
-        cols = 5
-        return cols, max(1, math.ceil(n / cols)), 2.0, 0.7
+        return 5, max(1, math.ceil(n / 5)), pitch, 0.7
     cols = max(2, math.ceil(math.sqrt(n)))
-    return cols, math.ceil(n / cols), 3.2, 1.1
+    return cols, math.ceil(n / cols), pitch, 1.1
 
 
 def _pod(b, c, tubes, tone="3", flush=False, fam=""):
-    """A missile launcher, its size and layout from the rack size and family (rack_grid): a chamfered frame, a lid line,
-    round tube mouths (a colored rim and a dark bore), a stripe on top and side. `flush` recesses it behind a bezel
-    (only the cover and the mouths show, a little proud of the surface)."""
+    """A missile launcher at real scale: its box is the tube grid (rack_grid, pitch from meters) plus a thin wall; a lid line,
+    round tube mouths, a stripe on top and side. `flush` recesses it behind a bezel (the cover and mouths a little proud)."""
     n = max(2, min(tubes, 40))
-    cols, rows, cell_px, depth = rack_grid(fam, n)
-    cell = b.px(cell_px)
-    w = cell * (cols + 0.55)
-    h = cell * (rows + 0.55)
-    d = max(w * 0.5, cell * 5.0 * depth)
+    cols, rows, pitch_px, depth = rack_grid(fam, n)
+    r_px, _ = tube_px(fam)
+    cell = b.px(pitch_px)
+    f = b.f
+    w = cell * (cols + 0.35)                       # true width (x is scaled by f when built, so the box is given w / f)
+    h = cell * (rows + 0.35)
+    d = max(w * 0.45, cell * 5.0 * depth)
     x, y, z = c
     if flush:
-        y = y - d / 2 + 0.026
-        b.box((x, y + d / 2 - 0.002, z), (w * 1.12, 0.008, h * 1.14), "3", tag="w", ch=0.004)
-    b.box((x, y, z), (w, d, h), tone, tag="w", ch=0.004)
+        y = y - d / (2 * f) + 0.026
+        b.box((x, y + d / (2 * f) - 0.002, z), (w * 1.10 / f, 0.008, h * 1.12), "3", tag="w", ch=0.004)
+    b.box((x, y, z), (w / f, d / f, h), tone, tag="w", ch=0.004)
     for i in range(min(n, cols * rows)):
         r, cc = divmod(i, cols)
-        cx_, cz_ = x + (cc - (cols - 1) / 2) * cell, z + ((rows - 1) / 2 - r) * cell
-        b.barrel((cx_, y + d / 2 + 0.001, cz_), 1.0, cell_px * 0.46, "wm", None)               # colored rim
-        b.barrel((cx_, y + d / 2 + 0.003, cz_), 1.0, cell_px * 0.30, "ln", None)               # the dark bore
-    b.box((x, y + d / 2 - d * 0.16, z + h / 2 + 0.0015), (w * 0.9, d * 0.16, 0.003), "1", tag="w", cls="ln")      # lid line
-    b.box((x, y, z + h / 2 + 0.002), (w * 0.6, d * 0.9, 0.004), "1", vis={"top"}, tag="w", cls="wm")
+        in_row = min(cols, n - r * cols)
+        cx_ = x + (cc - (in_row - 1) / 2) * cell / f
+        cz_ = z + ((rows - 1) / 2 - r) * cell
+        yf = y + d / (2 * f)
+        b.barrel((cx_, yf + 0.001, cz_), 1.0, r_px, "wm", None)               # colored rim
+        b.barrel((cx_, yf + 0.003, cz_), 1.0, r_px * 0.62, "ln", None)        # the dark bore
+    b.box((x, y + d / (2 * f) - d / f * 0.16, z + h / 2 + 0.0015), (w * 0.9 / f, d / f * 0.16, 0.003), "1", tag="w", cls="ln")      # lid line
+    b.box((x, y, z + h / 2 + 0.002), (w * 0.6 / f, d / f * 0.9, 0.004), "1", vis={"top"}, tag="w", cls="wm")
     return w, h, d
 
 
@@ -1245,14 +1288,8 @@ def _build(model, f, k):
                 tcx, tcy, tw_, td_, th_ = fx * htop * 0.50, -td * 0.18, 0.085, 0.12, 0.27
                 b.extrude(tcx, zk - 0.01, tw_, td_, th_, PROFILES["upright"], "2", wtop=0.95, cy=tcy)
                 ntot = sum(g["tubes"] for g in model["hardpoints"] if g["cls"] == "missile" and g["zone"] in ("Left Torso", "Right Torso")) or 20
-                nbox = max(3, min(20, int(round(ntot / 2.0))))                                         # the cells of each box are the file's launchers, halved
-                rows_ = max(1, math.ceil(nbox / 3))
-                for ci_ in range(nbox):
-                    rr, cc = divmod(ci_, 3)
-                    cxx_ = tcx + (cc - 1) * tw_ * 0.27
-                    czz_ = zk - 0.01 + th_ * (0.10 + 0.82 * (rr + 0.5) / rows_)
-                    b.barrel((cxx_, tcy + td_ / 2 + 0.001, czz_), 1.0, 2.2, "wm", None)
-                    b.barrel((cxx_, tcy + td_ / 2 + 0.003, czz_), 1.0, 1.4, "ln", None)
+                nbox = max(3, min(40, int(round(ntot / 2.0))))                                         # the cells of each box are the file's launchers, halved
+                rack_cells(b, "lrm", nbox, tcx, tcy + td_ / 2, zk - 0.01 + th_ * 0.52, tw_ * b.f * 0.9, th_ * 0.86)
             elif kit == "shoulder_guns":                              # gun pods on the shoulders with long twin barrels forward (JagerMech, Rifleman)
                 gx = fx * (htop + 0.012)
                 b.box((gx, 0.0, zk - 0.035), (0.05, 0.14, 0.07), "3", ch=0.008)
@@ -1262,13 +1299,10 @@ def _build(model, f, k):
             elif kit == "launchers":                                  # huge slanted-top missile boxes on the shoulders (Mauler): a cell grid forward, a tall rear wing
                 lcx, lcy, lw, ld, lh = fx * (htop - 0.005), -0.04, 0.115, 0.14, 0.21
                 b.extrude(lcx, zk - 0.02, lw, ld, lh, PROFILES["sloped"], "2", wtop=0.95, cy=lcy)
-                for rr in range(3):
-                    vv = 0.20 + 0.25 * rr
-                    fy_ = lcy + profile_span(PROFILES["sloped"], vv)[1] * ld / 2 + 0.0015
-                    for cc in range(4):
-                        cxx_ = lcx + (cc - 1.5) * lw * 0.21
-                        b.box((cxx_, fy_, zk - 0.02 + lh * vv), (lw * 0.17, 0.004, lh * 0.15), "1", tag="w", cls="wm")
-                        b.box((cxx_, fy_ + 0.0015, zk - 0.02 + lh * vv), (lw * 0.11, 0.004, lh * 0.09), "1", tag="w", cls="ln")
+                ntot = sum(g["tubes"] for g in model["hardpoints"] if g["cls"] == "missile" and g["zone"] in ("Left Torso", "Right Torso")) or 20
+                lfam = next((gfam(g) for g in model["hardpoints"] if g["cls"] == "missile" and gfam(g)), "lrm") or "lrm"
+                slope_y = lambda zz: lcy + profile_span(PROFILES["sloped"], max(0.05, min(0.95, (zz - (zk - 0.02)) / lh)))[1] * ld / 2
+                rack_cells(b, lfam, max(3, min(40, int(round(ntot / 2.0)))), lcx, slope_y, zk - 0.02 + lh * 0.45, lw * b.f * 0.9, lh * 0.8)
                 b.box((fx * (htop + 0.03), -0.12, zk + 0.10), (0.012, 0.09, 0.25), "3", ch=0.004)
             elif kit == "round_blocks":                               # big rounded blocks where the arms start
                 b.blob([((fx * (htop + 0.035), 0.0, zk - 0.07), (0.07, 0.075, 0.065))], "2")
@@ -1477,14 +1511,7 @@ def _build(model, f, k):
                     continue
             if m == "wing_bay" and fx in bays:
                 bx_, by_, bz_, bw_, bd_, bh_ = bays[fx]
-                nt = max(2, min(gr["tubes"], 30))
-                cols = max(2, math.ceil(math.sqrt(nt)))
-                rows = math.ceil(nt / cols)
-                cell = min(bw_ * 0.86 / cols, bh_ * 0.8 / rows)
-                for i in range(nt):
-                    rr, cc = divmod(i, cols)
-                    b.box((bx_ + (cc - (cols - 1) / 2) * cell, by_ + bd_ / 2 + 0.002, bz_ + ((rows - 1) / 2 - rr) * cell),
-                          (cell * 0.7, 0.004, cell * 0.7), "1", vis={"front"}, tag="w", cls="wm")
+                rack_cells(b, gfam(gr), max(2, min(gr["tubes"], 40)), bx_, by_ + bd_ / 2 + 0.002, bz_, bw_ * b.f * 0.9, bh_ * 0.86)
                 b.box((bx_, by_, bz_ + bh_ / 2 + 0.002), (bw_ * 0.6, bd_ * 0.9, 0.004), "1", vis={"top"}, tag="w", cls="wm")
             elif m == "shoulder_rack":
                 if model.get("arms_up") or model["archetype"] == "bird" and model["torso"] == "ovoid":
@@ -1517,8 +1544,14 @@ def _build(model, f, k):
             if canopy:                                              # barrels poking from the nose, buried in it
                 weapon_barrel(b, ((i - (min(gr["count"], 4) - 1) / 2) * b.px(6), canopy["y_nose"], canopy["z_nose"]), gr, 6, 1.4, embed=0.06)
                 continue
-            b.box(((i - (min(gr["count"], 4) - 1) / 2) * b.px(6), front_y(0.3) + 0.002, z0 + th * 0.3),
-                  (b.px(3), 0.004, b.px(3)), "1", vis={"front"}, tag="w", cls=WCLS[gr["cls"]])
+            # a centre-torso weapon is a REAL model set into the chest: a launcher recessed behind its bezel, or a gun with its
+            # receiver buried in the torso and the barrel poking out (Daniel: the Dragon's MRM-10 needed a model)
+            cxs = (i - (min(gr["count"], 4) - 1) / 2) * b.px(8)
+            if gr["cls"] == "missile":
+                if i == 0:
+                    _pod(b, (0.0, front_y(0.52) + 0.002, z0 + th * 0.50), gr["tubes"], flush=True, fam=gfam(gr))
+            else:
+                weapon_barrel(b, (cxs, front_y(0.30), z0 + th * 0.30), gr, 8, 1.6, embed=0.05)
 
     # ---- jump jets, by location (the file says where): torso rear, or on the legs
     jb = model.get("jets_by") or {}
