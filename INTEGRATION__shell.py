@@ -227,6 +227,7 @@ class Sink:
     def __init__(self, b, scale):
         self.b, self.s = b, 1.0 / scale
         self.zmax = 0.0
+        self.body = []                                   # the body's solids (core, plate, cover): what a weapon must not fire into
 
     def add(self, pts, cls, loc, role="core", tag="b"):
         pts = np.asarray(pts, float)
@@ -235,7 +236,11 @@ class Sink:
         self.zmax = max(self.zmax, float(pts[:, 2].max()))
         self.b.parts.append({"groups": [[(tuple(float(x) * self.s for x in p), 0.0) for p in pts]], "cls": cls, "vis": None, "tag": tag,
                              "vol": 0.0, "loc": loc, "role": role, "layer": LAYER_OF.get(role, "armor")})
-        return Solid(pts)
+        so = Solid(pts)
+        so.loc, so.role = loc, role
+        if role in ("core", "plate", "cover"):
+            self.body.append(so)
+        return so
 
 
 def fit(make, target, vol_of, iters=7, lo=0.35, hi=3.0):

@@ -1801,6 +1801,19 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-04 (Claude), session 18 - CT DEPTH RATIO, ROUND TORSO, CLEAR MUZZLES** (Daniel: keep the centre torso within a ratio
+  of the side torsos' depth "otherwise we could see a distinct cross shape from overhead"; "Archer needs a geometry pass. Could put
+  negative space in front of weapons to prevent them from being blocked by clipping ... Solution might be the Round blocks used on
+  the 'Old blocks' variant of the urbanmech"). REVIEW PENDING (higher-level model). Art only; the three art checks pass.
+  - `torso_pieces`: the centre torso's depth is at most `CT_RATIO` (1.25) x the shallower side torso's; when the shoulder rule
+    thins a side torso, the centre gets shallower and wider to keep its volume (`_torso_parts`, up to 4 rounds).
+  - Torso block `round` (a faceted ovoid, the old blocks' UrbanMech body) replaces `dome`; tags torso dome / ovoid, profile dome,
+    kit round_blocks pick it.
+  - Negative space in front of every weapon: `_muzzle_blocked` tests the bore line 1.2 m ahead against the body's solids
+    (`Sink.body`); a blocked weapon slides forward (up to 0.7 of its length), then tries the location's other rails; one still
+    blocked is drawn and counted (`model["blocked_muzzles"]`, which tests/test_token_shell.py requires to be 0). All eight range
+    chassis: 0.
+
 - **2026-11-04 (Claude), session 18 - SHOULDERS OUT, WAIST AND PELVIS, FORWARD MISSILE BAYS** (Daniel: "shoulder joints should
   generally be farther out then the hip joints ... inflating the torso to push the arms back out will have the added benefit of
   reducing the 'Sandwich mounted sideways on legs' look"; "missiles tend to point towards enemy in battletech. Sometimes they're

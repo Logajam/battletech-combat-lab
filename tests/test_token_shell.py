@@ -90,6 +90,8 @@ def shell_checks(z):
             if style == "facet" and audit is not None:                    # the faceted look: joined, above ground, no clipping
                 r = audit.audit(model)
                 nf = sum(len(c) for c in r["floating"])
+                if model.get("blocked_muzzles"):
+                    bad.append(f"{tag}: {model['blocked_muzzles']} weapons fire into the body")
                 if nf or r["ground"] or r["clip"][0] * 6.0 > 0.005:
                     bad.append(f"{tag}: {nf} floating, {len(r['ground'])} below ground, clip {r['clip'][0] * 6:.3f} m")
             top = max(v[:, 1].max() for _c, _t, _s, v, _f, _l, _r in parts)

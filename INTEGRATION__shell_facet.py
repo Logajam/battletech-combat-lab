@@ -335,7 +335,7 @@ def rails_bird(cx):
 
 BLOCKS = {
     "pose": ("stride", "ready", "crouch"),
-    "torso": ("v_chest", "box", "slab", "wedge", "dome"),
+    "torso": ("v_chest", "box", "slab", "wedge", "round"),
     "housing": ("none", "housing"),
     "missiles": ("face", "bay"),
     "arm": ("pod", "straight"),
@@ -352,8 +352,8 @@ def TAG_PICKS(m):
     if m.get("crouch"):
         t["pose"] = "crouch"
     tor, pk = m.get("torso"), m.get("profile")
-    if tor in ("dome", "ovoid") or pk == "dome":
-        t["torso"] = "dome"
+    if tor in ("dome", "ovoid") or pk == "dome" or m.get("kit") == "round_blocks":
+        t["torso"] = "round"                             # the old blocks' rounded ovoid body (Daniel liked it on the UrbanMech)
     elif tor == "slab" or pk == "tall_slab":
         t["torso"] = "slab"
     elif pk in ("wedge_up", "lean", "sloped", "prow"):
@@ -502,11 +502,11 @@ def split_x(pts, v_left, v_right, min_c):
 def torso_block(kind, W, D, h, z0, yc, Hm):
     """One solid for the whole torso, by block: a V-chest (broad at the shoulders, pulled in at the belly), a box, a tall slab, a
     wedge (deep chest, low back), a dome (round in plan and front: the UrbanMech)."""
-    if kind == "dome":
+    if kind == "round":                                  # a faceted ovoid, the old blocks' UrbanMech body: round in plan, front and side
         pts = []
-        for v, f in ((0.0, 0.84), (0.12, 1.0), (0.38, 1.0), (0.6, 0.9), (0.78, 0.7), (0.92, 0.44), (1.0, 0.18)):
-            for i in range(12):
-                ang = 2 * math.pi * (i + 0.5) / 12
+        for v, f in ((0.0, 0.5), (0.12, 0.8), (0.3, 0.96), (0.5, 1.0), (0.7, 0.94), (0.86, 0.76), (1.0, 0.42)):
+            for i in range(10):
+                ang = 2 * math.pi * (i + 0.5) / 10
                 pts.append((W / 2 * f * math.cos(ang), yc + D / 2 * f * math.sin(ang), z0 + v * h * 1.1))
         return np.array(pts)
     prof = {"v_chest": CHEST, "box": T.PROFILES["upright"], "slab": T.PROFILES["upright"], "wedge": T.PROFILES["wedge_up"]}[kind]
@@ -526,10 +526,10 @@ TORSO_PARTS = {
 def torso_pieces(kind, tgt, D, h, z0, yc, Hm, notch=False, min_outer=0.0):
     """The torso as THREE parts that fit together (Daniel, 2026-11-04: 'The torso of any mech should have 3 parts that fit
     together'): a centre torso standing a little forward and two side torsos set a little back, each its own block whose edges
-    are cut (so a seam shows where they meet), each as wide as its own budget needs at the torso's depth. A dome is one round
-    solid cut into three, so that its parts still make one dome."""
-    if kind == "dome":
-        tp = torso_block("dome", 0.4 * Hm * _fit_scale(lambda s_: torso_block("dome", 0.4 * Hm * s_, D, h, z0, yc, Hm), sum(tgt.values())), D, h, z0, yc, Hm)
+    are cut (so a seam shows where they meet), each as wide as its own budget needs at the torso's depth. A round body is one ovoid
+    solid cut into three, so that its parts still make one body."""
+    if kind == "round":
+        tp = torso_block("round", 0.4 * Hm * _fit_scale(lambda s_: torso_block("round", 0.4 * Hm * s_, D, h, z0, yc, Hm), sum(tgt.values())), D, h, z0, yc, Hm)
         xa, xb = split_x(tp, tgt["Left Torso"], tgt["Right Torso"], 0.035 * Hm)
         return {"Center Torso": clip_x(tp, xa, xb), "Left Torso": clip_x(tp, None, xa), "Right Torso": clip_x(tp, xb, None)}
     spec = TORSO_PARTS[kind]
@@ -540,23 +540,36 @@ def torso_pieces(kind, tgt, D, h, z0, yc, Hm, notch=False, min_outer=0.0):
     ps, ws_top, hs, ds = spec["st"]
     hct = h * hc * (0.86 if notch else 1.0)
 
-    def ct(w):
-        return SH.prof_solid(-w / 2, w / 2, yc + 0.03 * D, D * dc, z0, hct, prof(pc), wtop=wc_top, e=0.03 * Hm, k=0.9)
-    wc = 0.15 * Hm * _fit_scale(lambda s_: ct(0.15 * Hm * s_), tgt["Center Torso"])
-    out = {"Center Torso": ct(wc)}
+    dct = D * dc
+    for _round in range(4):                              # CT depth at most CT_RATIO x the side torsos' (Daniel: no cross from above)
+        out, sdep = _torso_parts(ct_fn=lambda w, dd: SH.prof_solid(-w / 2, w / 2, yc + 0.03 * dd, dd, z0, hct, prof(pc), wtop=wc_top, e=0.03 * Hm, k=0.9),
+                                 dct=dct, tgt=tgt, D=D, ds=ds, h=h, hs=hs, ps=prof(ps), ws_top=ws_top, z0=z0, yc=yc, Hm=Hm, min_outer=min_outer)
+        if dct <= CT_RATIO * min(sdep) + 1e-6:
+            break
+        dct = CT_RATIO * min(sdep)
+    return out
+
+
+CT_RATIO = 1.25
+
+
+def _torso_parts(ct_fn, dct, tgt, D, ds, h, hs, ps, ws_top, z0, yc, Hm, min_outer):
+    wc = 0.15 * Hm * _fit_scale(lambda s_: ct_fn(0.15 * Hm * s_, dct), tgt["Center Torso"])
+    out = {"Center Torso": ct_fn(wc, dct)}
+    sdep = []
     e = 0.012 * Hm                                       # the side torsos tuck a little under the centre torso's cut edge
     for sg, zone in ((-1, "Left Torso"), (1, "Right Torso")):
         def st(w, dk=1.0, sg=sg):
             x0, x1 = sg * (wc / 2 - e), sg * (wc / 2 - e + w)
-            return SH.prof_solid(min(x0, x1), max(x0, x1), yc - 0.03 * D, D * ds * dk, z0, h * hs, prof(ps), wtop=ws_top, e=0.03 * Hm, k=0.9)
+            return SH.prof_solid(min(x0, x1), max(x0, x1), yc - 0.03 * D, D * ds * dk, z0, h * hs, ps, wtop=ws_top, e=0.03 * Hm, k=0.9)
         ws = 0.12 * Hm * _fit_scale(lambda s_: st(0.12 * Hm * s_), tgt[zone])
+        dk = 1.0
         if wc / 2 - e + ws < min_outer:                  # widen to reach the shoulder line, then thin the depth to keep the volume
             ws = min_outer - (wc / 2 - e)
             dk = max(0.45, min(1.0, _fit_scale(lambda s_: st(ws, s_), tgt[zone])))
-            out[zone] = st(ws, dk)
-        else:
-            out[zone] = st(ws)
-    return out
+        out[zone] = st(ws, dk)
+        sdep.append(D * ds * dk)
+    return out, sdep
 
 
 def pose_joints(kind, sg, zh, Hm, bird=False):
@@ -839,23 +852,65 @@ def mount_rails(cx, rails):
                 rail = FRail("line", rail.solid, rail.o, rail.a, (0, 0, 1))
                 if not items:
                     continue
-            if rail.kind == "face":
-                _face(cx, zone, rail, items)
-            else:
-                _line(cx, zone, rail, items)
+            cx.try_only = True
+            failed = (_face if rail.kind == "face" else _line)(cx, zone, rail, items)
+            for it in failed:                             # a muzzle that would fire into the body: try the location's other rails
+                placed_ = False
+                for r2, alt in enumerate(rl):
+                    if r2 == r or alt.kind not in ("face", "line"):
+                        continue
+                    if not (_face if alt.kind == "face" else _line)(cx, zone, alt, [it]):
+                        placed_ = True
+                        break
+                if not placed_:
+                    cx.try_only = False
+                    (_face if rail.kind == "face" else _line)(cx, zone, rail, [it])
+            cx.try_only = False
         for kind, lst in pegs.items():
             lst = lst[:6]
             for idx, it in enumerate(lst):
                 SH.mount_peg(cx, zone, it, idx, len(lst))
 
 
+def _muzzle_blocked(cx, it, fr, reach=1.2):
+    """True when the space in front of a weapon's muzzle (its cross-section, `reach` metres ahead) runs into the body: the
+    negative space in front of every weapon (Daniel, 2026-11-04) must stay clear."""
+    L, W, Hh, _g = cx.geoms[id(it)]
+    c = fr.o + fr.a * L + fr.z * (Hh / 2)                 # the bore: the line ahead of the muzzle, a little of its width
+    r = 0.12 * min(W, Hh)
+    pts = np.array([c + fr.a * t + fr.l * dx + fr.z * dz for t in np.linspace(0.05, reach, 8) for dx, dz in ((0, 0), (-r, 0), (r, 0), (0, -r), (0, r))])
+    for so in cx.S.body:
+        if so.hull is None:
+            continue
+        eq = so.hull.equations
+        if np.any(np.all(pts @ eq[:, :3].T + eq[:, 3] <= -1e-6, axis=1)):
+            return True
+    return False
+
+
 def _emit(cx, zone, it, fr):
+    """Draw an item in its frame. A weapon whose muzzle would fire into the body slides forward along its own axis (up to 0.7 of
+    its length, so it stays seated in its mount) until the space ahead is clear. When it cannot clear and `cx.try_only` is set,
+    nothing is drawn and False comes back, so the caller can try another rail (mount_rails)."""
+    if it["kind"] in SH.RAILKINDS:
+        L = cx.geoms[id(it)][0]
+        moved = 0.0
+        while moved < 0.7 * L and _muzzle_blocked(cx, it, fr):
+            fr = Frame(fr.o + fr.a * 0.1, fr.a, fr.z)
+            moved += 0.1
+        if _muzzle_blocked(cx, it, fr):
+            if getattr(cx, "try_only", False):
+                return False
+            cx.blocked = getattr(cx, "blocked", 0) + 1
     for cls, pts in cx.geoms[id(it)][3]:
         cx.S.add(fr.pp(pts), cls, zone, "item", "w")
+    return True
 
 
 def _face(cx, zone, rail, items):
-    """Items standing out of a face: rows across `lat`, centred; rows stack along `up`, centred too."""
+    """Items standing out of a face: rows across `lat`, centred; rows stack along `up`, centred too. Returns the items that
+    could not be placed with a clear muzzle (when cx.try_only)."""
+    failed = []
     so = rail.solid
     lo, hi = so.extent(rail.lat)
     face_w = 0.85 * (hi - lo)
@@ -884,13 +939,17 @@ def _face(cx, zone, rail, items):
             pt, n = so.hit(p_in, rail.a)
             emb = (L - 0.08) if it["kind"] == "missile" else rail.embed * L          # a rack sits flush, a gun half buried
             fr = Frame(pt - rail.a * emb - rail.up * (Hh / 2), rail.a, rail.up)
-            _emit(cx, zone, it, fr)
+            if not _emit(cx, zone, it, fr):
+                failed.append(it)
             x += W / 2 + gap
         zc -= hr / 2 + gap
+    return failed
 
 
 def _line(cx, zone, rail, items):
-    """Items lying along a surface, one behind the other along the rail, the run centred on the rail's middle."""
+    """Items lying along a surface, one behind the other along the rail, the run centred on the rail's middle. Returns the items
+    that could not be placed with a clear muzzle (when cx.try_only)."""
+    failed = []
     so, a = rail.solid, rail.a
     lo, hi = so.extent(a)
     gap = 0.08
@@ -901,8 +960,10 @@ def _line(cx, zone, rail, items):
         L, W, Hh, _g = cx.geoms[id(it)]
         sc = SH._clamp(start + L / 2, lo + 0.08, hi - 0.08)
         pt, nrm = so.hit(rail.o + a * (sc - mid), rail.dr)
-        _emit(cx, zone, it, Frame(pt + a * (start - sc) - nrm * (0.3 * Hh), a, nrm))
+        if not _emit(cx, zone, it, Frame(pt + a * (start - sc) - nrm * (0.3 * Hh), a, nrm)):
+            failed.append(it)
         start += L + gap
+    return failed
 
 
 def _bay(cx, zone, rail, miss):
@@ -978,6 +1039,7 @@ def assemble(model, P, S, Hm):
         cx.solids[f"leg_{side}_shin"] = sol[(zone, info["shin"])]
     SH.build_layers(cx, info["hd"], info["hx"], info["zh"], info["z0"])
     mount_rails(cx, info["rails"](cx))
+    model["blocked_muzzles"] = getattr(cx, "blocked", 0)               # tests/test_token_shell.py: must be 0
     return S.zmax
 
 
