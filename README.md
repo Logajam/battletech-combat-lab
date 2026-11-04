@@ -31,6 +31,7 @@ one after another) - the output is the same either way.
 | `replays/` | Battle replay pages (made when `REPLAY_BATTLES` in `INTEGRATION__config.py` is above 0; open one in a browser). Not kept in git |
 | `fastcore/` | Rust hot loops (trial, 2026-11-03; optional - without it everything runs in Python): `cd fastcore && maturin build --release && pip install --force-reinstall target/wheels/*.whl`. `config.USE_FASTCORE` switches it off |
 | `saved_states/` | Saved states (made when `SAVE_STATE_TURNS` in `INTEGRATION__config.py` names turns): `python INTEGRATION__saved_state.py <file> [--turns N] [--fresh-dice SEED]` plays on from one. Not kept in git |
+| `tools/` | Combat Lab art (output only; the simulator never imports it): `token_sheet.py` (2D token contact sheet), `token_3d.py` (the 3D model viewer page, `--glb` for glTF files), `token_audit.py` (measures every model: blocks floating free of the body, parts below the ground, mirror symmetry). Need `pip install scipy trimesh python-fcl`. Design and history: `INTEGRATION__COMBAT_LAB.md` |
 | `reference_logs/` | Same-seed sample logs (matchup and settings in the file name), for checking that a change didn't alter results |
 
 After a change, from the repo root:
@@ -57,6 +58,7 @@ After a change, from the repo root:
 - `python tests/test_hazards.py`, `test_advanced_gear.py`, `test_intops.py`, `test_superheavy.py`: check the Tactical Operations terrain and gear, the Interstellar Operations weapons, and ultralight / superheavy 'Mechs (2026-10-27/28) - use units from `data/meks.zip`
 - `python tests/test_parallel_batch.py`: checks that a batch prints the same output whether its battles run one at a time or in parallel, and each battle's own seed
 - `python tests/benchmark_turns.py`: times the first 10 turns of the default battle (seed 12345) - for speed changes
+- `python tests/test_token_volume.py`, `test_token_joined.py`: check the Combat Lab 3D art (equal mass, equal volume; real-scale missile tubes; every block joined to the body). They skip, and pass, without the art libraries above
 - `python tests/test_rules.py`: checks the rules that replaced stubs (attack direction, cluster groupings, to-hit modifiers, ammo, deployment, physical attacks)
 
 Anything not yet a real rule is a loud **stub**: it prints `STUB: ...` to

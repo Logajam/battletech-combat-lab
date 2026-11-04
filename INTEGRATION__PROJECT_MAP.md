@@ -64,7 +64,9 @@ and fixed what it found; its own changes to `INTEGRATION__tokens.py` (snap helpe
 When a review is done, move its line out of this queue and note it in the
 Change Record.
 
-Latest: **Session 17 - SAVED STATES** (Daniel, 2026-11-03: the board, the units and their state,
+Latest art work: **Session 18 - COMBAT LAB 3D REVIEW PASS** (2026-11-04, Change Record): a measured audit of the generated models (`tools/token_audit.py`), every floating block fixed (368 + 351 to 0), arm placement and clipping fixed, semi-realistic lighting in the viewer. Art only; REVIEW QUEUE (k).
+
+Latest engine work: **Session 17 - SAVED STATES** (Daniel, 2026-11-03: the board, the units and their state,
 and the dice, so "the engine will just continue from there"; branches keep the same dice by default,
 fresh dice a switch). Built: `INTEGRATION__saved_state.py` - a save at the end of any turn
 (`config.SAVE_STATE_TURNS`), a file of JSON (a readable header + the exact state packed), play on with
@@ -767,8 +769,10 @@ Princess, decision by decision, the latest battery and why Gladiator loses.
    engine API (COMBAT_LAB.md) should be designed with this boundary in mind.
 15. **Combat Lab procedural tokens (Daniel, 2026-10-31 - in progress, saved
    2026-11-01):** `INTEGRATION__COMBAT_LAB.md` (design, reviews, decisions, "Where
-   the tokens stand"), `INTEGRATION__tokens.py`, `tools/token_sheet.py`, data in
-   `data/token_*.json`. Output only; no engine code. Next steps are in the doc.
+   the tokens stand"), `INTEGRATION__tokens.py`, `INTEGRATION__token_mesh.py` (3D), `tools/token_sheet.py`,
+   `tools/token_3d.py` (viewer), `tools/token_audit.py` (geometry audit, 2026-11-04), data in
+   `data/token_*.json`. Output only; no engine code. Next steps are in the doc (the review pass's
+   "what is left" list: skeleton-and-shell rebuild, bevels / smooth shading, decals, an overlap audit).
 14. **MegaMek save import - test it (Daniel, 2026-10-31: "test it and see",
    later, spare cycles):** get sample MegaMek `.sav` files from Daniel, check what a
    save holds and how hard the mapping is (COMBAT_LAB.md, Part A). Last in the Combat Lab order.
