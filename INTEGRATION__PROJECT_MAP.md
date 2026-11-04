@@ -1801,6 +1801,19 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-04 (Claude), session 18 - BAY HOUSINGS, ATTACHED SHOULDERS, PART LINEUP TOOL** (Daniel: "Doors on the atlas are
+  overshadowed by the missile launchers clipping. Archers arms are also not attatched and the missiles are still clipping";
+  "I will want to look at each set of parts as seperate pieces. Parts that have mounting brackets should indicate where those
+  are."). REVIEW PENDING (higher-level model). Art only; the three art checks pass.
+  - Missile bays get a HOUSING: a flat-fronted box set into the side torso's upper front, aimed forward and about 20 degrees up,
+    its volume booked to the side torso; the racks sit flush in its face, each door hinged at its top edge and raised (`_bay`).
+    The racks no longer poke out of curved or sloped torsos.
+  - Shoulders: the side torso's outer face is found AT shoulder height (a round body narrows up top), the arm hangs clear of the
+    torso's widest point below it (bay housings included), and the shoulder drum reaches in to the face, so the arm is held.
+  - New `tools/token_lineup.py` (replaces token_heads.py): every block of a slot on one 'Mech, the slot's locations drawn alone,
+    with the MOUNTING BRACKETS marked (green: joint sockets; orange: hardpoint rails, numbered) and the checks per block.
+    The brackets come from `_record_brackets` (model["_brackets"]).
+
 - **2026-11-04 (Claude), session 18 - HEAD BLOCK LIBRARY** (Daniel: "Start a pass of designing a group of heads blocks. Think we'll
   tackle one location at a time and build a library of interchangeable blocks."). REVIEW PENDING (higher-level model). Art only;
   the three art checks pass.
