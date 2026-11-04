@@ -887,8 +887,10 @@ def build_layers(cx, hd, hx, zh, z0):
     bone(np.array([0, yc, zh]), neck, br * 1.3)
     sh = [cx.arm_j[x]["S"] for x in "LR"]
     bone(sh[0], sh[1], br * 1.1)
+    # ribs: inside the torso's own sections, never past the side torsos' outer faces (a rib into the arm would lock the shoulder)
+    xs_out = min(float(-cx.sec["Left Torso"][0].pts[:, 0].min()), float(cx.sec["Right Torso"][0].pts[:, 0].max()))
     for fz in (0.25, 0.5, 0.75):
-        wid = tor["W"] * 0.42
+        wid = min(tor["W"] * 0.42, xs_out * 0.8)
         bone(np.array([-wid, yc, z0 + fz * h]), np.array([wid, yc, z0 + fz * h]), br * 0.7)
     S.add(ellipsoid((0, hd["yh"], hd["z0"] + hd["hh"] * 0.5), (hd["hw"] * 0.6, hd["hd"] * 0.4, hd["hh"] * 0.4), 30), "bn", "Head", "bone")
     # torso muscle: vertical bundles front and back of each section

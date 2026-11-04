@@ -397,7 +397,7 @@ def body_humanoid(cx):
         o, j = arm(s_a)
         out += [(p, c, r, nm, zone) for p, c, r, nm in o]
         cx.arm_j[sd_] = j
-    cx.tor = dict(z0=z0, h=h, yc=yc, W=wc + 2 * D, D=D, wc=wc)
+    cx.tor = dict(z0=z0, h=h, yc=yc, W=wc, D=D, wc=wc)            # W: ribs are clamped to the side torsos (build_layers)
     hd = dict(hw=hw, hd=2 * hdp, hh=hh, z0=zb, yh=yh)
     return out, dict(hx=hx, zh=zh, z0=z0, hd=hd, torso_names={"Center Torso": "chest", "Left Torso": "side", "Right Torso": "side"},
                      head="head", thigh="thigh", shin="shin", rails=rails_humanoid)
