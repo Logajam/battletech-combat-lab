@@ -1795,6 +1795,22 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-04 (Claude), session 18 - FACETED BLOCKS: POSE, TORSO, HOUSING, MISSILE BAY, STRAIGHT GUN ARM** (Daniel, after the
+  Syllogy kit comparison - Syllogy's models are MWO's: "Archer does not have launchers above the head. Those are the protective
+  doors for the launchers in the torso in a raised position"; "Jagermech: the guns simply line up with the upper arm coming
+  straight from the shoulder"; yes to pose, deeper torsos, a torso slot; "Hunchback only gets a bigger hump if it becomes a
+  standard block. I'd prefer to minimize one off custom solutions."). REVIEW PENDING (higher-level model). Art only, 50 of 50.
+  - New slots in `INTEGRATION__shell_facet.BLOCKS`: pose (stride / ready / crouch; legs per side via `pose_joints`, the upper body
+    leans about the hip line, `lean_pts`), torso (v_chest / box / slab / wedge / dome: ONE solid 0.30 of the height deep, cut into
+    the three locations by `clip_x` / `split_x` so each piece holds its budget), housing (the hump as a standard block, sized by
+    the side torso's heaviest gun), missiles (face / bay: racks in the torso top under raised doors, `_bay`), arm (pod /
+    straight). The bird body uses the pose slot too. The old per-section chest and the one-off hump are gone.
+  - All eight range chassis within the volume band, 0 floating, nothing below ground, clip 0. Against the Syllogy (MWO) kits:
+    depth up (JagerMech 0.69 v the kit's 0.73, Hunchback 0.37 v 0.54), poses now bent and leaning. Still narrower and less bulky
+    than the medium / heavy kits (Hunchback width 0.52 v 0.85, bulk 0.067 v 0.107); since the kits are MWO's and the MWO Atlas /
+    Timber Wolf matched our budgets, the remaining gap is either our volume budgets or our height curve against MWO's heights:
+    Daniel's call.
+
 - **2026-11-04 (Claude), session 18 - FACETED BLOCK LIBRARY** (Daniel: "Go ahead" on giving the humanoids their own identities).
   REVIEW PENDING (higher-level model). Art only, 50 of 50 checks.
   - `INTEGRATION__shell_facet.py`: `BLOCKS` per slot (leg prism / slab / pillar / greave; knee drum / cap / guard; foot heel_toe /

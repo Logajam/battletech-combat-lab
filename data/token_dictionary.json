@@ -606,7 +606,12 @@
       "foot": "heel_toe (heel block and two toes) / wedge (one block, low at the toe) / three_toe. Tags: feet thrusters or legs pillar -> wedge.",
       "pauldron": "box / slant (a pad sloping outward and down) / drum (across the joint) / collar (no pauldron). Tags: kit pauldrons -> box, kit round_blocks -> drum, shoulders flush -> collar.",
       "forearm": "octagon / square / round (the forearm's section). Tag: kit round_blocks -> round.",
-      "torso, head, launchers, hump, gun pods": "not slot blocks yet: chosen by profile, head_mount / head_shape, kit tall_launchers / launchers, profile hunch / stepped, and arms without hand actuators (body_humanoid)."
+      "torso, head, launchers, hump, gun pods": "not slot blocks yet: chosen by profile, head_mount / head_shape, kit tall_launchers / launchers, profile hunch / stepped, and arms without hand actuators (body_humanoid).",
+      "pose": "stride (left leg forward, right back, knees bent, 7 degree lean) / ready (knees bent, 4 degrees) / crouch (deep bend, 10 degrees). Tag: crouch -> crouch. The bird body uses stride / ready (staggered or level legs) under its own pitch.",
+      "torso": "v_chest / box / slab (taller) / wedge (deep chest, low back) / dome (round in plan and front). ONE solid for the whole torso at 0.30 of the height deep, cut at two x planes so the left, centre and right pieces hold their own budgets (split_x). Tags: torso dome or ovoid, profile dome -> dome; torso slab, profile tall_slab -> slab; profile wedge_up / lean / sloped / prow -> wedge; profile shoulder or head_mount notch -> v_chest; profile bell -> box.",
+      "housing": "none / housing: a raised housing on the side torso with the heaviest gun, sized by that gun (1.9 x its width and height, 0.85 x its length), its front face carrying the gun. A standard block (Daniel, 2026-11-04: no one-off hump). Tag: profile hunch / stepped -> housing; by name hash only when that gun is 6 t or more.",
+      "missiles": "face (racks flush in the side torso's front) / bay (racks set into the side torso top, firing up and forward, each under a protective door raised behind it: the Archer's 'boxes' are these doors, open, per Daniel) / post (the bird body: one launcher on a post). Tags: kit tall_launchers / launchers -> bay.",
+      "arm": "for arms without a hand actuator: pod (upper arm down, the forearm a gun pod aimed forward) / straight (the gun lines up with the upper arm straight out of the shoulder: the JagerMech, per Daniel). Tag: arm_style long_barrel -> straight. Arms with hands are always bent with a fist."
     }
   }
 }
