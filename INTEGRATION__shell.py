@@ -858,7 +858,7 @@ def build_layers(cx, hd, hx, zh, z0):
         for i in range(n):
             ang = 2 * math.pi * i / n + math.pi / 4
             off = ex * math.cos(ang) * w * k + ey * math.sin(ang) * d * k
-            S.add(spindle(p0 + off + (p1 - p0) * 0.06, p1 + off - (p1 - p0) * 0.06, 0.3 * min(w, d)), "my", zone, "muscle")
+            S.add(spindle(p0 + off + (p1 - p0) * 0.06, p1 + off - (p1 - p0) * 0.06, (0.3 if n <= 4 else 0.34) * min(w, d)), "my", zone, "muscle")
     for side, zone in (("L", "Left Leg"), ("R", "Right Leg")):
         J, segs = cx.leg_j[side]
         names = [k for k in ("hip", "knee", "hock", "ankle") if k in J]
@@ -869,8 +869,8 @@ def build_layers(cx, hd, hx, zh, z0):
         toe = J["ankle"] + np.array([0, 0.1 * Hm, 0])
         toe[2] = 0.03 * Hm
         bone(J["ankle"], toe, br * 0.9, zone)
-        for p0, p1, w0, d0, w1, d1 in segs:
-            muscles(p0, p1, (w0 + w1) / 2, (d0 + d1) / 2, zone)
+        for p0, p1, w0, d0, w1, d1 in segs:              # legs carry the most myomer: they hold up the whole 'Mech (bulk_rule leg_factor)
+            muscles(p0, p1, (w0 + w1) / 2, (d0 + d1) / 2, zone, n=6, k=0.48)
     for side, zone in (("L", "Left Arm"), ("R", "Right Arm")):
         j = cx.arm_j[side]
         bone(j["S"], j["E"], br * 0.9, zone)

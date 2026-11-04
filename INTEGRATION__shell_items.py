@@ -328,7 +328,7 @@ def budgets(unit, items):
                 sys.path.append(pth)
         from mech_state import structure_for_tonnage
         pts = structure_for_tonnage(unit["tons"], "biped")
-        w = {z: pts[z] * (rule.get("head_factor", 1.5) if z == "Head" else 1.0) for z in parts}
+        w = {z: pts[z] * (rule.get("head_factor", 1.5) if z == "Head" else rule.get("leg_factor", 1.0) if z.endswith("Leg") else 1.0) for z in parts}
         base = {z: out[z] - parts[z]["items"] for z in parts}
         total = sum(base.values())
         for z, v in parts.items():

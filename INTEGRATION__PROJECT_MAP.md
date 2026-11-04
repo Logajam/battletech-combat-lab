@@ -1795,6 +1795,17 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-04 (Claude), session 18 - LEG MYOMER FACTOR** (Daniel: "Give them a factor. This is where paying attention to the
+  myomers would matter. Legs would tend to have more of them to support the entire mass of the mech."). REVIEW PENDING
+  (higher-level model). Art only, 50 of 50 checks, reference logs identical.
+  - `bulk_rule.leg_factor` 1.6 (data/token_densities.json): each leg's structure points count 1.6 times in the bulk share, as the
+    head's count 1.5. Calibrated on the MWO Atlas kit (each leg with half the pelvis about 22 m3, each arm about 10: ours 19.4
+    and 9.9). Volume below half height v the Syllogy (MWO) kits: Hunchback 36 v 35 percent, JagerMech 38 v 45, Archer 38 v 43,
+    UrbanMech 33 v 49, Locust 25 v 43 (the Locust's long legs are a bird-body shape question, not a budget one).
+  - The myomer layer shows it: six thicker bundles round each leg segment, four on the arms (`build_layers`).
+  - Fixes the factor exposed: racks in a missile bay sit inside the side torso, so their volume goes back to the torso block
+    (it was taken out twice); the gun housing never takes more than 45 percent of its side torso.
+
 - **2026-11-04 (Claude), session 18 - BULK BY STRUCTURE POINTS, THREE-PART TORSO** (Daniel: "sometimes the torso feels like its
   just the center torso. The torso of any mech should have 3 parts that fit together. The relative bulk, before considering
   weapons and equipment also in that location should be based on the number of structural points in that location (Head counts

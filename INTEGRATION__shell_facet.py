@@ -609,6 +609,11 @@ def body_humanoid(cx):
     if b_hous == "housing" and big is not None and (big["tons"] >= 6 or "housing" == TAG_PICKS(m).get("housing")):
         L_, W_, H_, _g = cx.geoms[id(big)]
         hous_dims = (max(1.9 * W_, 0.13 * Hm), max(0.85 * L_, 0.22 * Hm), max(1.9 * H_, 0.12 * Hm))
+        cap = 0.45 * env[hz] / 0.8                        # the housing never takes more than 45 percent of its side torso
+        vh = hous_dims[0] * hous_dims[1] * hous_dims[2]
+        if vh > cap:
+            k_ = (cap / vh) ** (1 / 3)
+            hous_dims = tuple(x * k_ for x in hous_dims)
     else:
         hz, hous_dims = None, None
         if b_hous == "housing":
@@ -616,7 +621,8 @@ def body_humanoid(cx):
     tz = ("Left Torso", "Center Torso", "Right Torso")
     tgt = {z: env[z] for z in tz}
     for z in ("Left Torso", "Right Torso"):
-        tgt[z] -= sum(a * b * c for a, b, c in (housing(it) for it in P["items"].get(z, []) if it["kind"] == "missile" and it["visible"])) * (0.5 if b_miss == "bay" else 0.0)
+        if b_miss == "bay":       # racks in a bay sit INSIDE the side torso: their volume belongs to the torso block, not outside it
+            tgt[z] += sum(SH.item_volume(cx.geoms[id(it)][3]) for it in P["items"].get(z, []) if it["kind"] == "missile" and it["visible"])
         if z == hz:
             tgt[z] -= hous_dims[0] * hous_dims[1] * hous_dims[2] * 0.8
         tgt[z] = max(0.35 * env[z], tgt[z])
