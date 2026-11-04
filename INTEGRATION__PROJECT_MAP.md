@@ -1801,6 +1801,19 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-04 (Claude), session 18 - TEST RANGE FACETED FROM THE NAME HASH; PER-SLOT HASH FIX** (Daniel: "go ahead and generate
+  our smaller test batch's hash values as faceted"). REVIEW PENDING (higher-level model). Art only; the three art checks pass.
+  - The viewer gets a fifth variant, "Faceted, name hash" (`tools/token_3d.py --range`, `facet_hash`): each range chassis built
+    with no reference tags, as an untagged unit would be.
+  - BUG found and fixed: `pick` read the slot's block from a byte of the 8-byte name hash, so every slot after the eighth always
+    took its first block (every name-hash unit had prism legs, drum knees, heel-and-toe feet, a box head, box pauldrons, octagon
+    forearms). Each slot now hashes the unit's name with the slot's name. Tagged slots are unchanged; untagged slots of tagged
+    units change look too.
+  - Heads are fitted to the Head budget as a whole (glass, canopy and ears included: the bubble head was 1.7x over); the bird
+    body's nose cockpit may scale 0.6-1.6 (the Locust's was capped short).
+  - Seen, not changed (for Daniel): the name-hash Archer has a missile rack standing at an odd angle off its round torso's top
+    edge; the name-hash JagerMech (a bird body) shows an amber plate on its canopy.
+
 - **2026-11-04 (Claude), session 18 - BLOCK VARIANTS FOR EVERY BODY PART** (Daniel: "systematically add variant blocks for each
   body part. Lets try to build up the dictionary before regenerating the full list of mechs. I will want to look at each set of
   parts as seperate pieces."). REVIEW PENDING (higher-level model). Art only; the three art checks pass.

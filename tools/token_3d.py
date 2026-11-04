@@ -64,6 +64,9 @@ def main_range(root, out, glb=None):
             mf = T.build_model(u, overrides=ref, style="facet")
             e["facet"] = M.unit_mesh(mf)                         # built first: the blocks are picked while building
             e["tags"]["facet"] = tags(mf)
+            mfh = T.build_model(u, hash_only=True, style="facet")  # the faceted look from the name hash alone: what an untagged unit gets
+            e["facet_hash"] = M.unit_mesh(mfh)
+            e["tags"]["facet_hash"] = tags(mfh)
         units.append(e)
         print(label, mr["shell"], len(e["ref"]["parts"]), "parts", round(mr.get("shell_height_m", 0), 2), "m")
         if glb:

@@ -265,7 +265,7 @@ def body_bird(cx):
     nose_y = yc + Lb / 2 * 0.86
     nose = canopy(nose_y - 0.06 * Hm, z0 + Hb * 0.05, 0.22 * Hm, Wb * 0.62, Hb * 0.62, pitch + math.radians(6))
     nc = nose.mean(0)
-    nose = nc + (nose - nc) * min(1.3, max(0.7, (env["Head"] / max(hull_vol(nose), 1e-6)) ** (1 / 3)))
+    nose = nc + (nose - nc) * min(1.6, max(0.6, (env["Head"] / max(hull_vol(nose), 1e-6)) ** (1 / 3)))
     out.append((nose, "t2", "core", "nose", "Head"))
     hsol = Solid(nose)
     pt, n = hsol.hit(nose.mean(0), _u((0, 0.55, 1)))
@@ -409,7 +409,12 @@ def pick(cx, slot):
         choice, why = tagged[slot], "tag"
     else:
         opts = BLOCKS[slot]
-        choice, why = opts[(cx.P["hash"] >> (8 * (list(BLOCKS).index(slot) + 1))) % len(opts)], "name hash"
+        # one hash per slot (the unit's name and the slot's): the 8-byte name hash ran out after eight slots and every later
+        # slot always took its first block (found 2026-11-04 when the test range was built from the name hash alone)
+        import hashlib
+        u_ = cx.P["unit"]
+        key = (u_.get("chassis", "") + " " + u_.get("model", "") + "|" + slot).lower().encode()
+        choice, why = opts[hashlib.sha256(key).digest()[0] % len(opts)], "name hash"
     cx.m.setdefault("blocks", {})[slot] = (choice, why)
     return choice
 
@@ -866,7 +871,7 @@ def body_humanoid(cx):
         zb = ztop - hh * HEAD_DROP.get(mount, 0.08)
         return head_block(b_head, hw, hdp, hh, yh, zb, Hm), (hw, hdp, hh, yh, zb)
 
-    s_h = _fit_scale(lambda s_: head_of(s_)[0][0][0], env["Head"])
+    s_h = _fit_scale(lambda s_: np.vstack([q[0] for q in head_of(s_)[0]]), env["Head"])   # the whole head: glass, canopy and ears count
     hparts, (hw, hdp, hh, yh, zb) = head_of(s_h)
     out += [(p, c, r, nm, "Head") for p, c, r, nm in hparts]
     hsol = Solid(hparts[0][0])
