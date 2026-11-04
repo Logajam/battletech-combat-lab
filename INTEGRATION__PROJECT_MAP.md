@@ -1801,6 +1801,21 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-04 (Claude), session 18 - COMBAT LAB WORKBENCH** (Daniel: "a viewer that lets me manually set what blocks are being
+  used. Sliders for tonnage and mobility, and drop down menus for weapon loadouts with the ability to control which mounts they
+  use. Basically full control over any combination. Which will let me systematically do testing."). REVIEW PENDING
+  (higher-level model). Art only; the shell test passes.
+  - `tools/token_workbench.py` (a small web server, stdlib only) + `tools/token_workbench.html`: start with
+    `python -I tools/token_workbench.py --port 8765 [--meks <unzipped meks folder>]`, open the port (in a cloud session the app's
+    preview). Each change rebuilds the 'Mech with the real faceted builder. Controls: tonnage, walk and jump MP, armor level,
+    engine and cockpit type, body (humanoid / bird), head mount, reference tags on / off, arm actuators; a menu per block slot
+    (auto = tag or name hash; the page shows what each slot resolved to and why); a loadout table (any of 686 items, its
+    location, its rail or auto); load any of 4,225 unit files and change it; layers, X-ray, edges, mounting brackets; "Run
+    checks" (volume by location against its budget, floating, below ground, clipping, blocked muzzles). Not an Artifact on
+    purpose: a published page cannot run the Python builder.
+  - `INTEGRATION__shell_items.place_items` honours `unit["force_rails"]` ({zone: {item index: rail}}) for the workbench's rail
+    pins; the shuffle is unchanged otherwise.
+
 - **2026-11-04 (Claude), session 18 - TEST RANGE FACETED FROM THE NAME HASH; PER-SLOT HASH FIX** (Daniel: "go ahead and generate
   our smaller test batch's hash values as faceted"). REVIEW PENDING (higher-level model). Art only; the three art checks pass.
   - The viewer gets a fifth variant, "Faceted, name hash" (`tools/token_3d.py --range`, `facet_hash`): each range chassis built

@@ -207,6 +207,18 @@ def place_items(unit, items):
         rng.shuffle(order)
         start = rng.randrange(nr)
         placed = []
+        # pinned items first (the workbench, tools/token_workbench.py: unit["force_rails"] = {zone: {item index in the
+        # location's crit order: rail}}); the rest keep the shuffle
+        force = (unit.get("force_rails") or {}).get(zone) or {}
+        pinned = [lst[i] for i in sorted(force) if i < len(lst)]
+        for i in sorted(force):
+            if i >= len(lst):
+                continue
+            it = lst[i]
+            r = int(force[i]) % nr
+            placed.append((it, r, used[r]))
+            used[r] += it["slots"]
+        order = [it for it in order if not any(it is q for q in pinned)]
         for idx, it in enumerate(order):
             r0 = (start + idx) % nr
             for step in range(nr):
