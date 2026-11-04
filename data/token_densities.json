@@ -145,5 +145,10 @@
     "upper arm actuator": 0.005,
     "lower arm actuator": 0.005,
     "hand actuator": 0.005
+  },
+  "bulk_rule": {
+    "rule": "structure_points",
+    "head_factor": 1.5,
+    "why": "Daniel, 2026-11-04: 'The relative bulk, before considering weapons and equipment also in that location should be based on the number of structural points in that location (Head counts at 1.5 its structure).' The 'Mech's whole base volume (structure, armor, engine, gyro, cockpit, actuators) is kept, and shared among the eight locations by their internal structure points (Core 'Internal Structure Table'), the head's counted 1.5 times; each location's weapons and equipment are added on top. rule 'parts' restores the older per-part budgets (each location's own structure, armor, engine...)."
   }
 }

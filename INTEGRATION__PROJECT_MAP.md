@@ -1795,6 +1795,21 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-04 (Claude), session 18 - BULK BY STRUCTURE POINTS, THREE-PART TORSO** (Daniel: "sometimes the torso feels like its
+  just the center torso. The torso of any mech should have 3 parts that fit together. The relative bulk, before considering
+  weapons and equipment also in that location should be based on the number of structural points in that location (Head counts
+  at 1.5 its structure). This will probably require more depth"; test candidates JagerMech, Atlas, Hunchback). REVIEW PENDING
+  (higher-level model). Art only, 50 of 50 checks, reference logs identical.
+  - `INTEGRATION__shell_items.budgets`: rule `structure_points` (data/token_densities.json `bulk_rule`, head factor 1.5; rule
+    `parts` keeps the old per-part budgets). The 'Mech's base volume is kept and shared by structure points; each location's
+    parts keep their proportions (the hip still builds the pelvis). Atlas: side torsos 12.2 / 8.7 -> 19.0 / 15.5 m3, legs 21.4
+    -> 14.6, head 4.9 -> 3.6. Applies to both looks.
+  - `INTEGRATION__shell_facet.torso_pieces`: three blocks per torso (`TORSO_PARTS`), the centre forward, the sides set back, cut
+    edges so the seams show, each fitted to its own budget; depth 0.36 of the height. The dome stays one solid cut in three.
+  - Measured against the Syllogy (MWO) kits: JagerMech depth 0.73 (kit 0.73), width 0.54 (0.73); Hunchback depth 0.44 (0.54),
+    width 0.50 (0.85). Legs now hold less of the volume than the kits' (JagerMech 30 percent below half height v the kit's 45):
+    the structure-point rule gives the legs a smaller share than the actuator calibration did.
+
 - **2026-11-04 (Claude), session 18 - FACETED BLOCKS: POSE, TORSO, HOUSING, MISSILE BAY, STRAIGHT GUN ARM** (Daniel, after the
   Syllogy kit comparison - Syllogy's models are MWO's: "Archer does not have launchers above the head. Those are the protective
   doors for the launchers in the torso in a raised position"; "Jagermech: the guns simply line up with the upper arm coming

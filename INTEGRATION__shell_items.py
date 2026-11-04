@@ -316,4 +316,26 @@ def budgets(unit, items):
             v["sensors"] = 0.5 / d["cockpit"]["t_per_m3"]
         parts[zone] = v
         out[zone] = sum(v.values())
+    rule = DENS.get("bulk_rule", {})
+    if rule.get("rule") == "structure_points":
+        # Daniel's rule: the base bulk (everything but the location's weapons and equipment) follows the structure points, the
+        # head's counted 1.5 times; the whole 'Mech's base volume is kept. Each part's share inside a location is kept in
+        # proportion (the hip still builds the pelvis, the engine still fills the centre torso), only rescaled.
+        import sys
+        for sub in ("mechsim", "pathfinder"):
+            pth = os.path.join(HERE, sub)
+            if pth not in sys.path:
+                sys.path.append(pth)
+        from mech_state import structure_for_tonnage
+        pts = structure_for_tonnage(unit["tons"], "biped")
+        w = {z: pts[z] * (rule.get("head_factor", 1.5) if z == "Head" else 1.0) for z in parts}
+        base = {z: out[z] - parts[z]["items"] for z in parts}
+        total = sum(base.values())
+        for z, v in parts.items():
+            want = total * w[z] / sum(w.values())
+            k = want / max(base[z], 1e-9)
+            for key in v:
+                if key != "items":
+                    v[key] *= k
+            out[z] = want + v["items"]
     return out, parts

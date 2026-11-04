@@ -489,6 +489,46 @@ def torso_block(kind, W, D, h, z0, yc, Hm):
     return SH.prof_solid(-W / 2, W / 2, yc, D, z0, h * (1.12 if kind == "slab" else 1.0), prof, wtop=wtop, e=0.03 * Hm, k=0.9)
 
 
+# the three torso parts of each torso block: (side-view profile, width at the top against the belly, height and depth factors)
+TORSO_PARTS = {
+    "v_chest": {"ct": ("chest", 1.0, 1.0, 1.0), "st": ("chest", 1.22, 1.0, 0.9)},             # side torsos broad at the shoulder
+    "box": {"ct": ("upright", 0.96, 1.0, 1.0), "st": ("upright", 0.96, 0.95, 0.92)},
+    "slab": {"ct": ("upright", 1.0, 1.12, 1.0), "st": ("upright", 1.0, 1.08, 0.9)},
+    "wedge": {"ct": ("wedge_up", 1.0, 1.0, 1.0), "st": ("wedge_up", 1.08, 0.94, 0.9)},
+}
+
+
+def torso_pieces(kind, tgt, D, h, z0, yc, Hm, notch=False):
+    """The torso as THREE parts that fit together (Daniel, 2026-11-04: 'The torso of any mech should have 3 parts that fit
+    together'): a centre torso standing a little forward and two side torsos set a little back, each its own block whose edges
+    are cut (so a seam shows where they meet), each as wide as its own budget needs at the torso's depth. A dome is one round
+    solid cut into three, so that its parts still make one dome."""
+    if kind == "dome":
+        tp = torso_block("dome", 0.4 * Hm * _fit_scale(lambda s_: torso_block("dome", 0.4 * Hm * s_, D, h, z0, yc, Hm), sum(tgt.values())), D, h, z0, yc, Hm)
+        xa, xb = split_x(tp, tgt["Left Torso"], tgt["Right Torso"], 0.035 * Hm)
+        return {"Center Torso": clip_x(tp, xa, xb), "Left Torso": clip_x(tp, None, xa), "Right Torso": clip_x(tp, xb, None)}
+    spec = TORSO_PARTS[kind]
+
+    def prof(p):
+        return CHEST if p == "chest" else T.PROFILES[p]
+    pc, wc_top, hc, dc = spec["ct"]
+    ps, ws_top, hs, ds = spec["st"]
+    hct = h * hc * (0.86 if notch else 1.0)
+
+    def ct(w):
+        return SH.prof_solid(-w / 2, w / 2, yc + 0.03 * D, D * dc, z0, hct, prof(pc), wtop=wc_top, e=0.03 * Hm, k=0.9)
+    wc = 0.15 * Hm * _fit_scale(lambda s_: ct(0.15 * Hm * s_), tgt["Center Torso"])
+    out = {"Center Torso": ct(wc)}
+    e = 0.012 * Hm                                       # the side torsos tuck a little under the centre torso's cut edge
+    for sg, zone in ((-1, "Left Torso"), (1, "Right Torso")):
+        def st(w, sg=sg):
+            x0, x1 = sg * (wc / 2 - e), sg * (wc / 2 - e + w)
+            return SH.prof_solid(min(x0, x1), max(x0, x1), yc - 0.03 * D, D * ds, z0, h * hs, prof(ps), wtop=ws_top, e=0.03 * Hm, k=0.9)
+        ws = 0.12 * Hm * _fit_scale(lambda s_: st(0.12 * Hm * s_), tgt[zone])
+        out[zone] = st(ws)
+    return out
+
+
 def pose_joints(kind, sg, zh, Hm, bird=False):
     """Leg joints (at x = 0) for a pose. humanoid: stride (left leg forward, right back, knees bent), ready (both knees bent),
     crouch (deep bend); bird: stride staggers the legs, ready does not. Returns (J0, the hip height factor, the forward lean)."""
@@ -555,7 +595,7 @@ def body_humanoid(cx):
     # torso: one solid (the torso block), deep (0.30 of the height), cut into left / centre / right by each location's budget
     z0, yc = zh + 0.01 * Hm, 0.0
     b_tor, b_hous, b_miss = pick(cx, "torso"), pick(cx, "housing"), pick(cx, "missiles")
-    h, D = 0.27 * Hm * m.get("bodyh", 1.0), 0.30 * Hm * m.get("bodyd", 1.0)
+    h, D = 0.27 * Hm * m.get("bodyh", 1.0), 0.36 * Hm * m.get("bodyd", 1.0)        # deep: wide side torsos (structure-point bulk) must not balloon sideways
 
     def housing(it):                                      # a missile bay's or post's share of its side torso
         L, W, Hh, _g = cx.geoms[id(it)]
@@ -580,16 +620,13 @@ def body_humanoid(cx):
         if z == hz:
             tgt[z] -= hous_dims[0] * hous_dims[1] * hous_dims[2] * 0.8
         tgt[z] = max(0.35 * env[z], tgt[z])
-    Vt = sum(tgt.values())
-    sW = _fit_scale(lambda s_: torso_block(b_tor, 0.4 * Hm * s_, D, h, z0, yc, Hm), Vt)
-    tpts = torso_block(b_tor, 0.4 * Hm * sW, D, h, z0, yc, Hm)
-    xa, xb = split_x(tpts, tgt["Left Torso"], tgt["Right Torso"], 0.035 * Hm)
-    out.append((clip_x(tpts, xa, xb), "t2", "core", "chest", "Center Torso"))
-    out.append((clip_x(tpts, None, xa), "t1", "core", "side", "Left Torso"))
-    out.append((clip_x(tpts, xb, None), "t1", "core", "side", "Right Torso"))
+    pieces = torso_pieces(b_tor, tgt, D, h, z0, yc, Hm, notch=(m.get("head_mount") == "notch"))
+    for zone, pp in pieces.items():
+        out.append((pp, "t2" if zone == "Center Torso" else "t1", "core", "chest" if zone == "Center Torso" else "side", zone))
+    tpts = np.vstack(list(pieces.values()))
+    xa, xb = float(pieces["Center Torso"][:, 0].min()), float(pieces["Center Torso"][:, 0].max())
     if hz:
-        sg = -1 if hz.startswith("Left") else 1
-        sp = out[-2][0] if sg < 0 else out[-1][0]
+        sp = pieces[hz]
         top = float(sp[:, 2].max())
         xm = float(sp[:, 0].mean())
         c = np.array([xm, yc + 0.02 * Hm, top + hous_dims[2] * 0.32])
