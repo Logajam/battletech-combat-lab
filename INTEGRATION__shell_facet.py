@@ -125,19 +125,40 @@ def _common(model, P, S, Hm):
 
 
 def _hips(cx, legs, hx, zh, out, y=0.0):
-    """Move the legs apart, add one faceted hip drum per side (sized by the hip actuator), record the joints."""
+    """Move the legs apart; build the PELVIS (one block between the hips, in two halves that meet at the centre line, each sized by
+    its hip actuator) and a hip joint drum at each side of it; record the joints. Returns the pelvis top (the waist sits on it).
+    Daniel, 2026-11-04: twin hip blocks lost the hips-to-waist actuator system the kits show (the torso twists on the waist)."""
     Hm = cx.Hm
+    hp = 0.10 * Hm
+    top = 0.0
     for zone, (o, w, d, J0, segs0) in legs.items():
         sg = -1 if zone.startswith("Left") else 1
         mv = np.array([sg * hx, 0, 0])
         o = [(p + mv,) + tuple(r) for p, *r in o]
-        rh = max(0.045 * Hm, (cx.hipv[zone] / (math.pi * 0.85 * (hx + w))) ** 0.5)
         yh_, zh_ = J0["hip"][1], J0["hip"][2]
-        o.append((prism(np.array([sg * 0.02, yh_, zh_]), np.array([sg * (hx + w * 1.1), yh_, zh_]), rh, rh * 1.1, n=8, lat=(0, 1, 0)), "t1", "core", "hip"))
+        wx = max(0.02, hx - w * 0.25)                                      # the pelvis half reaches into the hip joint
+        dp = min(max(cx.hipv[zone] / (wx * hp * 0.85), d * 1.6), 0.32 * Hm)
+        c = np.array([sg * (0.01 + wx / 2), yh_ * 0.5, zh_ + 0.012 * Hm])
+        o.append((Frame(c, (0, 1, 0)).pp(lbox((0, 0, 0), (wx, dp, hp), bev=0.2 * hp, tap=(0.92, 0.8))), "t1", "core", "hip"))
+        o.append((prism(np.array([sg * (hx - w * 0.55), yh_, zh_]), np.array([sg * (hx + w * 1.05), yh_, zh_]), w * 0.95, w * 0.95, n=8, lat=(0, 1, 0)),
+                  "t4", "cover", "hip_joint"))
+        top = max(top, c[2] + hp / 2)
         for p, cls, role, name in o:
             out.append((p, cls, role, name, zone))
         J = {k: v + mv for k, v in J0.items()}
         cx.leg_j["L" if sg < 0 else "R"] = (J, [(J[a], J[b], w0, d0, w1, d1) for a, b, w0, d0, w1, d1 in segs0])
+    cx.pelvis_top = top
+    return top
+
+
+def _waist(cx, out, top, yc, env_ct):
+    """The waist: a vertical drum on the pelvis that the torso turns on (the torso-twist actuator). Part of the centre torso;
+    returns (its top, its volume)."""
+    Hm = cx.Hm
+    r, hw = 0.075 * Hm, 0.05 * Hm
+    pts = prism(np.array([0, yc, top - 0.02 * Hm]), np.array([0, yc, top + hw]), r, r * 0.9, r * 0.95, r * 0.85, n=12, lat=(1, 0, 0))
+    out.append((pts, "t4", "core", "waist", "Center Torso"))
+    return top + hw, hull_vol(pts)
 
 
 def _antennas(cx, out, hsol):
@@ -192,10 +213,14 @@ def body_bird(cx):
         s = fit(lambda s_: leg(s_, sg)[0], max(0.4 * env[zone], env[zone] - cx.hipv[zone]), vol)
         legs[zone] = leg(s, sg)
     hx = max(l[1] for l in legs.values()) * 1.2 + 0.05 * Hm                   # a wide stance
-    _hips(cx, legs, hx, zh, out)
+    ptop = _hips(cx, legs, hx, zh, out)
 
     pitch = math.radians(9)
-    z0, yc = zh - 0.02 * Hm, 0.02 * Hm
+    yc = 0.02 * Hm
+    wtop_, wv_ = _waist(cx, out, ptop, yc, env["Center Torso"])
+    z0 = wtop_ - 0.03 * Hm
+    env = dict(env)
+    env["Center Torso"] = max(0.4 * env["Center Torso"], env["Center Torso"] - wv_)
 
     def housing(it):
         L, W, Hh, _g = cx.geoms[id(it)]
@@ -498,7 +523,7 @@ TORSO_PARTS = {
 }
 
 
-def torso_pieces(kind, tgt, D, h, z0, yc, Hm, notch=False):
+def torso_pieces(kind, tgt, D, h, z0, yc, Hm, notch=False, min_outer=0.0):
     """The torso as THREE parts that fit together (Daniel, 2026-11-04: 'The torso of any mech should have 3 parts that fit
     together'): a centre torso standing a little forward and two side torsos set a little back, each its own block whose edges
     are cut (so a seam shows where they meet), each as wide as its own budget needs at the torso's depth. A dome is one round
@@ -521,11 +546,16 @@ def torso_pieces(kind, tgt, D, h, z0, yc, Hm, notch=False):
     out = {"Center Torso": ct(wc)}
     e = 0.012 * Hm                                       # the side torsos tuck a little under the centre torso's cut edge
     for sg, zone in ((-1, "Left Torso"), (1, "Right Torso")):
-        def st(w, sg=sg):
+        def st(w, dk=1.0, sg=sg):
             x0, x1 = sg * (wc / 2 - e), sg * (wc / 2 - e + w)
-            return SH.prof_solid(min(x0, x1), max(x0, x1), yc - 0.03 * D, D * ds, z0, h * hs, prof(ps), wtop=ws_top, e=0.03 * Hm, k=0.9)
+            return SH.prof_solid(min(x0, x1), max(x0, x1), yc - 0.03 * D, D * ds * dk, z0, h * hs, prof(ps), wtop=ws_top, e=0.03 * Hm, k=0.9)
         ws = 0.12 * Hm * _fit_scale(lambda s_: st(0.12 * Hm * s_), tgt[zone])
-        out[zone] = st(ws)
+        if wc / 2 - e + ws < min_outer:                  # widen to reach the shoulder line, then thin the depth to keep the volume
+            ws = min_outer - (wc / 2 - e)
+            dk = max(0.45, min(1.0, _fit_scale(lambda s_: st(ws, s_), tgt[zone])))
+            out[zone] = st(ws, dk)
+        else:
+            out[zone] = st(ws)
     return out
 
 
@@ -588,12 +618,16 @@ def body_humanoid(cx):
         s = fit(lambda s_: leg(s_, sg)[0], max(0.4 * env[zone], env[zone] - cx.hipv[zone]), vol)
         legs[zone] = leg(s, sg)
     hx = max(l[1] for l in legs.values()) * 1.15 + 0.035 * Hm
-    _hips(cx, legs, hx, zh0, out)
+    ptop = _hips(cx, legs, hx, zh0, out)
     _jl, lean = pose_joints(b_pose, 1, zh0, Hm)
     zh = max(l[3]["hip"][2] for l in legs.values())
+    yc = 0.0
+    wtop_, wv_ = _waist(cx, out, ptop, yc, env["Center Torso"])
 
-    # torso: one solid (the torso block), deep (0.30 of the height), cut into left / centre / right by each location's budget
-    z0, yc = zh + 0.01 * Hm, 0.0
+    # torso: three parts on the waist, deep (0.36 of the height), each part fitted to its own location's budget
+    z0 = wtop_ - 0.015 * Hm
+    env = dict(env)
+    env["Center Torso"] = max(0.4 * env["Center Torso"], env["Center Torso"] - wv_)
     b_tor, b_hous, b_miss = pick(cx, "torso"), pick(cx, "housing"), pick(cx, "missiles")
     h, D = 0.27 * Hm * m.get("bodyh", 1.0), 0.36 * Hm * m.get("bodyd", 1.0)        # deep: wide side torsos (structure-point bulk) must not balloon sideways
 
@@ -626,7 +660,12 @@ def body_humanoid(cx):
         if z == hz:
             tgt[z] -= hous_dims[0] * hous_dims[1] * hous_dims[2] * 0.8
         tgt[z] = max(0.35 * env[z], tgt[z])
-    pieces = torso_pieces(b_tor, tgt, D, h, z0, yc, Hm, notch=(m.get("head_mount") == "notch"))
+    # shoulders outside the hips (Daniel, 2026-11-04: "shoulder joints should generally be farther out than the hip joints"; tiny
+    # arms excepted): the side torsos reach far enough out, and get shallower rather than bigger to keep their volume
+    hip_out = hx + max(l[1] for l in legs.values()) * 1.05
+    wa_est = 0.032 * Hm * m.get("armscale", 1.0) ** 0.5
+    min_out = 0.0 if m.get("arm_style") == "tiny" else 1.22 * hip_out - 1.15 * wa_est
+    pieces = torso_pieces(b_tor, tgt, D, h, z0, yc, Hm, notch=(m.get("head_mount") == "notch"), min_outer=min_out)
     for zone, pp in pieces.items():
         out.append((pp, "t2" if zone == "Center Torso" else "t1", "core", "chest" if zone == "Center Torso" else "side", zone))
     tpts = np.vstack(list(pieces.values()))
@@ -867,27 +906,28 @@ def _line(cx, zone, rail, items):
 
 
 def _bay(cx, zone, rail, miss):
-    """Missile racks set into the top of a side torso, their tube faces looking up and forward, each under a protective door raised
-    behind it (Daniel, 2026-11-04: the Archer's tall boxes are these doors, open)."""
+    """Missile racks set into the upper front of a side torso, aimed at the enemy and angled up for the ballistic arc, each behind a
+    protective door hinged at the top of its opening and swung up (Daniel, 2026-11-04: missiles point at the enemy, sometimes
+    angled up, as on the Archer; the Archer's tall 'boxes' are these doors, raised)."""
     so, Hm = rail.solid, cx.Hm
     lo, hi = so.pts.min(0), so.pts.max(0)
-    aim = _u((0, 0.45, 1.0))                                # the racks fire up and forward
+    aim = _u((0, 1.0, 0.36))                                 # about 20 degrees up
     widths = [cx.geoms[id(it)][1] for it in miss]
     x = (lo[0] + hi[0]) / 2 - (sum(widths) + 0.15 * (len(miss) - 1)) / 2
     for it, W in zip(miss, widths):
         L, _W, Hh, _g = cx.geoms[id(it)]
         x += W / 2
-        top, n = so.hit(np.array([x, (lo[1] + hi[1]) / 2 - 0.05 * Hm, (lo[2] + hi[2]) / 2]), (0, 0, 1))
-        fr = Frame(top - aim * (L - 0.06), aim, (0, 1, 0))          # local z = toward the front of the face
+        zc = lo[2] + 0.74 * (hi[2] - lo[2])
+        pt, n = so.hit(np.array([x, (lo[1] + hi[1]) / 2, zc]), (0, 1, 0))
+        fr = Frame(pt - aim * (L - 0.06), aim, (0, 0, 1))
         _emit(cx, zone, it, Frame(fr.o - fr.z * (Hh / 2), aim, fr.z))
-        # the door: hinged at the rear edge of the opening, raised nearly upright, a little wider than the rack
-        hinge = top - fr.z * (Hh / 2 + 0.06)
-        up = _u(aim * 0.95 - fr.z * 0.3)
-        dh = Hh + 0.25
-        nrm = _u(np.cross(fr.l, up))
+        hinge = pt + fr.z * (Hh / 2 + 0.05) - aim * 0.12
+        up = _u((0, -0.28, 1.0))                             # the door stands up over the opening, leaning back a little
+        dh = Hh + 0.3
+        nrm = _u(np.cross(np.array([1.0, 0, 0]), up))
         if nrm[1] < 0:
             nrm = -nrm
-        cx.S.add(SH.slab(hinge + up * (dh / 2 - 0.15), nrm, up, W + 0.2, dh, 0.14), "t3", zone, "item", "w")      # its lower edge set into the torso top
+        cx.S.add(SH.slab(hinge + up * (dh / 2 - 0.12), nrm, up, W + 0.2, dh, 0.14), "t3", zone, "item", "w")
         x += W / 2 + 0.15
 
 

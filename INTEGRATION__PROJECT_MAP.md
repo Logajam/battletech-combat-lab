@@ -1685,6 +1685,12 @@ turn's score, so a decision sees what it gives up.
 
 ## 7. STANDING PROMPTS
 
+- (Daniel, 2026-11-04) **Art changes run only the art checks.** "I'd also stop with the 50 checks. We're not messing with the
+  core code, we're messing with visual assets that would plug into the program, but are otherwise separate. Run only checks
+  that are related to that." For Combat Lab visuals (INTEGRATION__tokens / token_mesh / shell / shell_items / shell_facet,
+  tools/token_*, data/token_*): tests/test_token_shell.py, test_token_joined.py, test_token_volume.py. Engine changes still run
+  tests/run_checks.py.
+
 - (Daniel, 2026-10-28) **Label every session's work for review.** "Label the
   work you did today with a note to have a higher level model review it when
   there are spare cycles, make that a standard order going forward." At the
@@ -1794,6 +1800,21 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-11-04 (Claude), session 18 - SHOULDERS OUT, WAIST AND PELVIS, FORWARD MISSILE BAYS** (Daniel: "shoulder joints should
+  generally be farther out then the hip joints ... inflating the torso to push the arms back out will have the added benefit of
+  reducing the 'Sandwich mounted sideways on legs' look"; "missiles tend to point towards enemy in battletech. Sometimes they're
+  angled upwards"; "the ability to torso twist has been visually lost. we're using twin hip blocks, and are missing the Hips to
+  waist actuator system"; and: run only the art checks for art work, Section 7). REVIEW PENDING (higher-level model). Art only;
+  the three art checks pass.
+  - `INTEGRATION__shell_facet`: `_hips` builds a pelvis block between the hips (two halves meeting at the centre line, sized by
+    the hip actuators) with a hip joint drum at each side; `_waist` adds a vertical drum on the pelvis (the torso-twist
+    actuator, part of the centre torso) that the torso stands on; bird body too.
+  - Shoulder rule in `torso_pieces(min_outer)`: each side torso reaches far enough that the shoulder joint sits at least 1.22
+    times the hip's outer edge out (tiny arms excepted), and thins its depth to keep its volume. Shoulder joints now 1.7 to 2.8
+    times the hip joints' distance from the centre line.
+  - `_bay`: racks in the side torso's upper front, aimed forward and about 20 degrees up, each under a door hinged at the top of
+    its opening and swung up.
 
 - **2026-11-04 (Claude), session 18 - LEG MYOMER FACTOR** (Daniel: "Give them a factor. This is where paying attention to the
   myomers would matter. Legs would tend to have more of them to support the entire mass of the mech."). REVIEW PENDING
