@@ -217,6 +217,10 @@ class Solid:
         return float(pr.min()), float(pr.max())
 
 
+LAYER_OF = {"core": "armor", "plate": "armor", "cover": "armor", "item": "equipment", "detail": "equipment", "internal": "equipment",
+            "bone": "skeleton", "muscle": "myomer"}
+
+
 class Sink:
     """Writes solids (metres) into a B3 as raw part groups (divided by the height), tagged by location and role."""
 
@@ -230,7 +234,7 @@ class Sink:
             return None
         self.zmax = max(self.zmax, float(pts[:, 2].max()))
         self.b.parts.append({"groups": [[(tuple(float(x) * self.s for x in p), 0.0) for p in pts]], "cls": cls, "vis": None, "tag": tag,
-                             "vol": 0.0, "loc": loc, "role": role})
+                             "vol": 0.0, "loc": loc, "role": role, "layer": LAYER_OF.get(role, "armor")})
         return Solid(pts)
 
 
@@ -820,6 +824,116 @@ def build_rails(cx):
         cx.rails[zone] = [Rail(sol, sol.pts.mean(0), np.array([0.0, 0, -1]), (sg, 0, 0), c, fill="fwd", over=0.0), Rail(sol, sol.pts.mean(0), np.array([0.0, 0, -1]), fwd, c, fill="fwd", over=0.0)]
 
 
+# ------------------------------------------------------------------------------------------- the layers under the armor
+
+def spindle(p0, p1, r, n=8):
+    """A muscle: a fat spindle from p0 to p1, thick in the middle, tapering at both ends (myomer bundle)."""
+    p0, p1 = np.asarray(p0, float), np.asarray(p1, float)
+    a = _u(p1 - p0)
+    ref = np.array([1.0, 0, 0]) if abs(a[0]) < 0.9 else np.array([0, 1.0, 0])
+    u = _u(np.cross(a, ref))
+    v = np.cross(a, u)
+    pts = [p0, p1]
+    for t, k in ((0.2, 0.75), (0.5, 1.0), (0.8, 0.75)):
+        c = p0 + (p1 - p0) * t
+        for i in range(n):
+            ang = 2 * math.pi * (i + 0.5) / n
+            pts.append(c + (math.cos(ang) * u + math.sin(ang) * v) * r * k)
+    return np.array(pts)
+
+
+def build_layers(cx, hd, hx, zh, z0):
+    """Skeleton (bones and ball joints), myomer (spindle bundles around each bone) and the internal equipment (engine, gyro, cockpit,
+    ammo bins, other unseen items), all INSIDE the armor shell. Spec: they are not visible frame (no exposed internals); they exist
+    to place and size things, and the viewer's layer switches can show them. Each part carries its layer (LAYER_OF)."""
+    S, Hm, P, tor = cx.S, cx.Hm, cx.P, cx.tor
+    br = 0.012 * Hm                                               # bone radius
+
+    def bone(a, b, r=br, zone="Frame"):               # the spine, hip, shoulder and rib bars belong to no one location
+        S.add(cyl(a, b, r, None, 8), "bn", zone, "bone")
+
+    def ball(c, r, zone):
+        S.add(ellipsoid(c, (r, r, r), 24), "bn", zone, "bone")
+
+    def muscles(p0, p1, w, d, zone, n=4, k=0.5):
+        a, ex, ey = limb_axes(p0, p1)
+        for i in range(n):
+            ang = 2 * math.pi * i / n + math.pi / 4
+            off = ex * math.cos(ang) * w * k + ey * math.sin(ang) * d * k
+            S.add(spindle(p0 + off + (p1 - p0) * 0.06, p1 + off - (p1 - p0) * 0.06, 0.3 * min(w, d)), "my", zone, "muscle")
+    for side, zone in (("L", "Left Leg"), ("R", "Right Leg")):
+        J, segs = cx.leg_j[side]
+        names = [k for k in ("hip", "knee", "hock", "ankle") if k in J]
+        for a, b in zip(names, names[1:]):
+            bone(J[a], J[b], br, zone)
+        for k in names:
+            ball(J[k], br * 1.5, zone)
+        toe = J["ankle"] + np.array([0, 0.1 * Hm, 0])
+        toe[2] = 0.03 * Hm
+        bone(J["ankle"], toe, br * 0.9, zone)
+        for p0, p1, w0, d0, w1, d1 in segs:
+            muscles(p0, p1, (w0 + w1) / 2, (d0 + d1) / 2, zone)
+    for side, zone in (("L", "Left Arm"), ("R", "Right Arm")):
+        j = cx.arm_j[side]
+        bone(j["S"], j["E"], br * 0.9, zone)
+        bone(j["E"], j["W"], br * 0.9, zone)
+        for k in ("S", "E", "W"):
+            ball(j[k], br * 1.3, zone)
+        muscles(j["S"], j["E"], j["wa"], j["da"], zone)
+        muscles(j["E"], j["W"], j["wa"] * 0.8, j["da"] * 0.8, zone)
+    # spine, hip bar, shoulder bar, ribs, skull
+    yc, h = tor["yc"], tor["h"]
+    hips = [cx.leg_j[x][0]["hip"] for x in "LR"]
+    bone(hips[0], hips[1], br * 1.1)
+    neck = np.array([0, hd["yh"], hd["z0"]])
+    bone(np.array([0, yc, zh]), neck, br * 1.3)
+    sh = [cx.arm_j[x]["S"] for x in "LR"]
+    bone(sh[0], sh[1], br * 1.1)
+    for fz in (0.25, 0.5, 0.75):
+        wid = tor["W"] * 0.42
+        bone(np.array([-wid, yc, z0 + fz * h]), np.array([wid, yc, z0 + fz * h]), br * 0.7)
+    S.add(ellipsoid((0, hd["yh"], hd["z0"] + hd["hh"] * 0.5), (hd["hw"] * 0.6, hd["hd"] * 0.4, hd["hh"] * 0.4), 30), "bn", "Head", "bone")
+    # torso muscle: vertical bundles front and back of each section
+    for zone, (sol, xm, w, d) in cx.sec.items():
+        for sy in (-1, 1):
+            for sx in (-1, 1):
+                a = np.array([xm + sx * 0.2 * w, yc + sy * 0.22 * d, z0 + 0.1 * h])
+                S.add(spindle(a, a + np.array([0, 0, 0.8 * h]), 0.16 * min(w, d)), "my", zone, "muscle")
+    # internal equipment: engine and gyro in the centre torso, the cockpit in the head, ammo and other unseen items in their location
+    solids = {"Center Torso": cx.sec["Center Torso"][0], "Left Torso": cx.sec["Left Torso"][0], "Right Torso": cx.sec["Right Torso"][0],
+              "Head": cx.solids["head"], "Left Arm": cx.solids["arm_L_up"], "Right Arm": cx.solids["arm_R_up"],
+              "Left Leg": cx.solids["leg_L_thigh"], "Right Leg": cx.solids["leg_R_thigh"]}
+    for zone, sol in solids.items():
+        lo, hi = sol.pts.min(0), sol.pts.max(0)
+        ctr, ext = (lo + hi) / 2, (hi - lo)
+        pieces = []                                                # (volume, class, shape)
+        for name, v in P["parts"][zone].items():
+            if name in ("engine", "gyro", "cockpit") and v > 0:
+                pieces.append((v, {"engine": "tm", "gyro": "hl", "cockpit": "t3"}[name], name))
+        for it in P["items"].get(zone, []):
+            if not it["visible"] and it["vol"] > 0:
+                pieces.append((it["vol"], "wb" if it["kind"] == "ammo" else "t3", it["kind"]))
+        if not pieces:
+            continue
+        axis = int(np.argmax(ext))
+        cursor, total = 0.0, sum(v for v, _c, _n in pieces)
+        for v, cls, name in pieces:
+            frac = v / total
+            cell = ext[axis] * 0.7 * frac
+            side = (v / max(cell, 1e-3)) ** 0.5
+            dims = np.minimum(np.array([side, side, side]), ext * 0.62)
+            dims[axis] = max(cell * 0.92, 0.05)
+            c = ctr.copy()
+            c[axis] = lo[axis] + ext[axis] * 0.15 + cursor + cell / 2
+            cursor += cell
+            if name == "gyro":
+                S.add(ellipsoid(c, tuple(dims / 2), 30), cls, zone, "internal")
+            elif name == "engine":
+                S.add(cyl(c - np.array([0, dims[1] / 2, 0]), c + np.array([0, dims[1] / 2, 0]), min(dims[0], dims[2]) / 2, None, 12), cls, zone, "internal")
+            else:
+                S.add(lbox(c, tuple(dims), bev=0.02 * min(dims)), cls, zone, "internal")
+
+
 # ------------------------------------------------------------------------------------------------------------ assembly
 
 def emit(cx, items, loc=None):
@@ -879,6 +993,8 @@ def assemble(model, P, S, Hm):
     for zone, (items, J, segs, h_in, h_out, sg) in legs.items():
         sol = emit(cx, shift(items, (sg * hx, 0, 0)), zone)
         side = "L" if sg < 0 else "R"
+        cx.leg_j = getattr(cx, "leg_j", {})
+        cx.leg_j[side] = ({k: v + np.array([sg * hx, 0, 0]) for k, v in J.items()}, [(sg_[0] + np.array([sg * hx, 0, 0]), sg_[1] + np.array([sg * hx, 0, 0])) + tuple(sg_[2:]) for sg_ in segs])
         cx.solids[f"leg_{side}_thigh"] = sol[(zone, "leg0")]
         cx.solids[f"leg_{side}_shin"] = sol[(zone, "leg1")]
     # 3. torso
@@ -922,6 +1038,8 @@ def assemble(model, P, S, Hm):
         sx = (-1 if i % 2 == 0 else 1) * (0.45 if model.get("antennas", 0) > 1 else 0.0) * hd["hw"]
         base = np.array([sx, hd["yh"] - hd["hd"] * 0.3, hd["z0"] + hd["hh"] * 0.85])
         cx.S.add(cyl(base, base + np.array([sx * 0.4, -0.02 * Hm, 0.11 * Hm]), 0.035 * Hm / 12 * 3, 0.018, 6), "t4", "Head", "detail")
+    # 6b. the layers under the armor: skeleton, myomer, internal equipment (drawn inside the shell; the viewer can show each alone)
+    build_layers(cx, hd, hx, zh, z0)
     # 7. mounts: rails for weapons, fixed spots for vents, nozzles and domes
     build_rails(cx)
     for zone, placed in P["plan"].items():

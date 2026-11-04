@@ -1808,6 +1808,12 @@ turn's score, so a decision sees what it gives up.
     `tests/test_token_shell.py`, a clip measure in `tools/token_audit.py`, the dictionary mapping
     (`data/token_dictionary.json` `shell_mapping`: every tag term expressed, approximated or FLAGGED), a third "Old blocks"
     variant in the viewer.
+  - **Layers (Daniel's follow-up, same day):** every part carries a layer (`shell.LAYER_OF`): armor (core, plates, covers),
+    equipment (visible mounts plus the unseen engine, gyro, cockpit, ammo and other items drawn INSIDE the shell), myomer
+    (spindle bundles round each bone and the torso) and skeleton (bones and ball joints). The viewer has a switch per layer,
+    presets (all / armor / equipment / myomer / skeleton only) and an X-ray armor option; the default view (armor + equipment)
+    is unchanged, so no internals are exposed. `unit_mesh` parts carry `ly`. Skeleton and myomer are placement geometry:
+    their volume is not part of any location's budget (the spine, hip, shoulder and rib bars count to no location).
   - **Range (phase 1):** Atlas, Mad Cat / Timber Wolf, Locust, Hunchback, Archer, JagerMech, UrbanMech, and Wendigo (a
     torso-mounted cockpit, weapon and ammo in the head; name hash only). `tokens.build_model(..., shell=True)` routes them to the
     shell builder; every other unit still uses the old block builder `_build` until phase 2, which is why `_build` and
