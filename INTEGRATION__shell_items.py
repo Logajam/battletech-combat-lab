@@ -102,7 +102,7 @@ def _classify(raw, entry):
     if cat == "weapon":
         if "anti-missile" in nm or nm.startswith("ams") or "ams" in nm.split():
             return "ams", ""
-        fam, _sz = T.weapon_fam(cname)
+        fam, _sz = T.weapon_fam(T.clean_weapon_name(cname))           # "CLMG" -> "MG": the tech-base prefix hid the family
         if fam in WEAPON_FAMS:
             return WEAPON_FAMS[fam], fam
         return "misc", ""
@@ -166,7 +166,7 @@ def parse_items(unit):
             rho = DENS["density"][kind]["t_per_m3"]
             gr = {}
             if kind in WEAPON_FAMS.values():
-                _f, sz = T.weapon_fam(cname)
+                _f, sz = T.weapon_fam(T.clean_weapon_name(cname))
                 gr = {"fam": _f, "size": sz, "er": bool(re.search(r"\ber\b|extended", cname.lower())), "pulse": "pulse" in cname.lower(),
                       "tubes": int(re.search(r"(\d+)", cname).group(1)) if kind == "missile" and re.search(r"(\d+)", cname) else 0,
                       "name": cname}

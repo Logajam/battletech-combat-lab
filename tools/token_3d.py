@@ -58,6 +58,10 @@ def main_range(root, out, glb=None):
              "rules": mr["rules_levels"], "config": mr["config"], "note": tag.get("note", "Named-unit override (data/token_overrides.json): digitigrade legs, canopy torso with wing bays, from the Timber Wolf kit study." if key == "mad cat" else "No reference tags: the name hash alone picks its features."),
              "source": tag.get("source", "override file" if key == "mad cat" else "name hash"), "stealth": bool(mr.get("stealth")), "confidence": tag.get("confidence", ""),
              "ref": M.unit_mesh(mr), "hash": M.unit_mesh(mh), "old": M.unit_mesh(mo), "tags": {"ref": tags(mr), "hash": tags(mh)}}
+        if key == "mad cat":                                     # the faceted-look experiment
+            mf = T.build_model(u, overrides=ref, style="facet")
+            e["facet"] = M.unit_mesh(mf)
+            e["tags"]["facet"] = tags(mf)
         units.append(e)
         print(label, mr["shell"], len(e["ref"]["parts"]), "parts", round(mr.get("shell_height_m", 0), 2), "m")
         if glb:

@@ -320,7 +320,7 @@ def armor_thinness(unit, tons):
     return out
 
 
-def build_model(unit, overrides=None, hash_only=False, shell=True):
+def build_model(unit, overrides=None, hash_only=False, shell=True, style="plated"):
     """The part model: a plain dict a renderer (or a person) can read and edit.
     `overrides` (name -> features) is added to data/token_overrides.json; `hash_only`
     ignores every override, to show what the name hash alone gives. `shell=False` forces the old block builder
@@ -439,6 +439,10 @@ def build_model(unit, overrides=None, hash_only=False, shell=True):
     if model["shell"]:
         model["_unit"] = unit
         model["nocap"] = True
+        if style == "facet":                                    # the faceted-look experiment (INTEGRATION__shell_facet), Mad Cat only
+            import INTEGRATION__shell_facet as _facet
+            if _facet.use_facet(unit):
+                model["style"] = "facet"
     return model
 
 
@@ -893,6 +897,9 @@ def _pod(b, c, tubes, tone="3", flush=False, fam=""):
 def _build(model, f, k):
     """All the parts of one unit. Returns a B3."""
     if model.get("shell"):                                      # the skeleton-and-shell builder (phase 1 test range)
+        if model.get("style") == "facet":
+            import INTEGRATION__shell_facet as _facet
+            return _facet.build(model, k)
         import INTEGRATION__shell as _shell
         return _shell.build(model, k)
     b = B3(f, k)

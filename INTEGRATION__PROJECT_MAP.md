@@ -1795,6 +1795,19 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-04 (Claude), session 18 - FACETED-LOOK EXPERIMENT, MAD CAT** (Daniel: "Lets experiment with the madcat. See if its
+  worth pursuing", after a low-poly Mad Cat print). REVIEW PENDING (higher-level model). Art only, 50 of 50 checks.
+  - New `INTEGRATION__shell_facet.py`, used only for the Mad Cat / Timber Wolf and only when `build_model(..., style="facet")`:
+    one faceted solid per part (octagonal prisms with chamfered ends, drums across the knee, hock, hip, shoulder and elbow, a
+    teardrop canopy torso with the cockpit nose as the Head location, side blocks, gun-pod forearms aimed forward, claw feet),
+    launchers on posts over the side torsos, a forward-pitched body and wide stance. 35 body solids against about 140 in the
+    plated builder. Shares the budgets, hardpoints, layers and rules height; every location within 10 percent of its budget, 0
+    floating, nothing below ground, clip 0 (tagged and name-hash builds). Viewer: a "Faceted (experiment)" variant on the
+    Timber Wolf, edges drawn by default.
+  - Fix found on the way: Clan weapons whose canonical name keeps the tech prefix (`CLMG`) were classed "misc", not weapons
+    (`shell_items._classify` now reads the family from the cleaned name).
+  - Not covered by tests yet (the experiment is not in `tests/test_token_shell.py`); Daniel decides whether it replaces the plated look.
+
 - **2026-11-04 (Claude), session 18 - SHELL BUILDER: KIT CALIBRATION, NO STEPPED PLATES** (Daniel sent the MWO Atlas and
   Timber Wolf kit models: "skinny legs that are almost all bone, with mini ziggurats built up on their faces ... looks like it was
   built in minecraft"). REVIEW PENDING (higher-level model). Art only, 50 of 50 checks, reference logs identical.
