@@ -1795,6 +1795,22 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-04 (Claude), session 18 - FACETED LOOK: ATLAS, HARDPOINT RAILS** (Daniel: "Core shape is good, the length of those
+  arms could easily be made a variable based on how much stuff is in them ... where all the hard point spots on that model would
+  be located to deal with other configurations. And certainly go ahead with the Atlas."). REVIEW PENDING (higher-level model).
+  Art only, 50 of 50 checks.
+  - `INTEGRATION__shell_facet.py` restructured: a body per archetype (`body_bird` for the Mad Cat, new `body_humanoid` for the
+    Atlas), each declaring its HARDPOINT RAILS (`FRail`: face, line or post; the same rail counts per location as the plated
+    builder, so the shuffled `place_items` plan drives any loadout), one placement step (`mount_rails`): a face rail lays its guns
+    out as a grid centred on the face, a line rail as a run centred along the part, a post rail puts every missile rack in one
+    launcher on a post (a chassis with posts always uses them). Vents, nozzles and domes keep the plated builder's spots.
+  - Mad Cat gun-pod length follows the arm's fullest rail (0.17 of the height + 0.4 m a slot, at most 0.40).
+  - Atlas: straight legs on big knee drums, heel-and-toe feet, a V-shaped chest whose side torsos stand taller than the centre
+    (the head's notch), a skull with two eye slots and a jaw, box pauldrons over the shoulders, forearms with fists, guns under
+    the forearms. Every location within 10 percent of its budget (name hash within 10 of 0.90), 0 floating, nothing below
+    ground, clip 0. Still narrower in the chest than the kit (convex sections at the budget's volume).
+  - `build_layers`: torso myomer sized from each section's own box (it floated out of the Mad Cat's small side blocks).
+
 - **2026-11-04 (Claude), session 18 - FACETED-LOOK EXPERIMENT, MAD CAT** (Daniel: "Lets experiment with the madcat. See if its
   worth pursuing", after a low-poly Mad Cat print). REVIEW PENDING (higher-level model). Art only, 50 of 50 checks.
   - New `INTEGRATION__shell_facet.py`, used only for the Mad Cat / Timber Wolf and only when `build_model(..., style="facet")`:

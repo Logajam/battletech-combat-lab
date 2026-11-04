@@ -893,10 +893,12 @@ def build_layers(cx, hd, hx, zh, z0):
     S.add(ellipsoid((0, hd["yh"], hd["z0"] + hd["hh"] * 0.5), (hd["hw"] * 0.6, hd["hd"] * 0.4, hd["hh"] * 0.4), 30), "bn", "Head", "bone")
     # torso muscle: vertical bundles front and back of each section
     for zone, (sol, xm, w, d) in cx.sec.items():
+        lo, hi = sol.pts.min(0), sol.pts.max(0)                       # each section's own box (sections differ in height)
+        ys, hz = (lo[1] + hi[1]) / 2, hi[2] - lo[2]
         for sy in (-1, 1):
             for sx in (-1, 1):
-                a = np.array([xm + sx * 0.2 * w, yc + sy * 0.22 * d, z0 + 0.1 * h])
-                S.add(spindle(a, a + np.array([0, 0, 0.8 * h]), 0.16 * min(w, d)), "my", zone, "muscle")
+                a = np.array([xm + sx * 0.2 * w, ys + sy * 0.22 * d, lo[2] + 0.15 * hz])
+                S.add(spindle(a, a + np.array([0, 0, 0.7 * hz]), 0.16 * min(w, d, hz)), "my", zone, "muscle")
     # internal equipment: engine and gyro in the centre torso, the cockpit in the head, ammo and other unseen items in their location
     solids = {"Center Torso": cx.sec["Center Torso"][0], "Left Torso": cx.sec["Left Torso"][0], "Right Torso": cx.sec["Right Torso"][0],
               "Head": cx.solids["head"], "Left Arm": cx.solids["arm_L_up"], "Right Arm": cx.solids["arm_R_up"],
