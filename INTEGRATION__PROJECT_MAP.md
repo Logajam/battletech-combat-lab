@@ -1801,6 +1801,17 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-04 (Claude), session 18 - HEAD BLOCK LIBRARY** (Daniel: "Start a pass of designing a group of heads blocks. Think we'll
+  tackle one location at a time and build a library of interchangeable blocks."). REVIEW PENDING (higher-level model). Art only;
+  the three art checks pass.
+  - `INTEGRATION__shell_facet.head_block`: box, skull, dome, wedge, bubble, visor, turret, hood (`BLOCKS["head"]`, sizes
+    `HEAD_SIZE`, mount depth `HEAD_DROP`); tags pick them (head_mount built_in -> hood; head_shape -> its block), else the name
+    hash. `pick` honours `model["force_blocks"]` for lineups and tests.
+  - New `tools/token_heads.py`: every block of a slot on one 'Mech, 3/4 front and rear close-ups, with the joined / ground / clip /
+    clear-muzzle checks per block (all eight heads pass on the Atlas). Its renderer sorts all faces in one collection (thin glass
+    plates vanished under the head otherwise).
+  - Seen on the way, not changed: the Atlas's left side torso missile-bay door stands up in front of its head.
+
 - **2026-11-04 (Claude), session 18 - CT DEPTH RATIO, ROUND TORSO, CLEAR MUZZLES** (Daniel: keep the centre torso within a ratio
   of the side torsos' depth "otherwise we could see a distinct cross shape from overhead"; "Archer needs a geometry pass. Could put
   negative space in front of weapons to prevent them from being blocked by clipping ... Solution might be the Round blocks used on

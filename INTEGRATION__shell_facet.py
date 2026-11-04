@@ -21,7 +21,7 @@ import numpy as np
 import INTEGRATION__tokens as T
 import INTEGRATION__shell as SH
 import INTEGRATION__shell_items as I
-from INTEGRATION__shell import Frame, lbox, cyl, Solid, Sink, fit, hull_vol, item_dims, item_geometry, _u
+from INTEGRATION__shell import Frame, lbox, cyl, ellipsoid, Solid, Sink, fit, hull_vol, item_dims, item_geometry, _u
 
 FACET_RANGE = SH.SHELL_RANGE                     # every chassis of the phase 1 test range
 
@@ -343,6 +343,7 @@ BLOCKS = {
     "knee": ("drum", "cap", "guard"),
     "foot": ("heel_toe", "wedge", "three_toe"),
     "pauldron": ("box", "slant", "drum", "collar"),
+    "head": ("box", "skull", "dome", "wedge", "bubble", "visor", "turret", "hood"),
     "forearm": ("octagon", "square", "round"),
 }
 
@@ -366,6 +367,11 @@ def TAG_PICKS(m):
         t["housing"] = "housing"
     if m.get("kit") in ("tall_launchers", "launchers"):
         t["missiles"] = "bay"                            # the Archer: racks in the torso top under raised doors (Daniel, 2026-11-04)
+    hs_, hm_ = m.get("head_shape"), m.get("head_mount")
+    if hm_ == "built_in":
+        t["head"] = "hood"                               # a cockpit built into the torso: a low armoured cowl
+    elif hs_ in ("box", "skull", "dome", "wedge", "visor"):
+        t["head"] = hs_
     if m.get("arm_style") == "long_barrel":
         t["arm"] = "straight"                            # the JagerMech: gun and upper arm in one line from the shoulder
     legs = m.get("legs")
@@ -389,7 +395,10 @@ def TAG_PICKS(m):
 def pick(cx, slot):
     """The block for a slot: the tag's choice, else the name hash's (a byte of the hash per slot)."""
     tagged = TAG_PICKS(cx.m) if not cx.m.get("hash_only") else {}
-    if slot in tagged:
+    forced = cx.m.get("force_blocks") or {}               # a lineup or a test can force a block (tools/token_heads.py)
+    if slot in forced:
+        choice, why = forced[slot], "forced"
+    elif slot in tagged:
         choice, why = tagged[slot], "tag"
     else:
         opts = BLOCKS[slot]
@@ -599,6 +608,74 @@ def lean_pts(p, pivot, ang):
 
 
 
+# ----------------------------------------------------------------------------------------------------------- head blocks
+# One shaped solid each, with its cockpit glass and a detail or two. (width, depth, height) factors on the base head size; every
+# head is fitted to the Head location's budget. The glass is class "ck" (blue), placed where a ray from the head's centre leaves it.
+HEAD_SIZE = {"box": (1.0, 1.0, 1.0), "skull": (1.0, 1.0, 1.05), "dome": (1.05, 1.05, 0.95), "wedge": (0.95, 1.2, 0.85),
+             "bubble": (1.0, 1.0, 0.9), "visor": (1.1, 1.0, 0.85), "turret": (0.9, 0.9, 1.1), "hood": (1.4, 1.1, 0.6)}
+HEAD_DROP = {"notch": 0.55, "built_in": 0.62, "front": 0.8}                 # how deep the head sits in the torso, by mount
+
+
+def head_block(kind, hw, hdp, hh, yh, zb, Hm):
+    """[(pts, cls, role, name)] of a head block; the first entry is the head's own solid (the Head location's core)."""
+    e = 0.02 * Hm
+    out = []
+
+    def glass(sol, p_in, d, w, h, up=(0, 0, 1), t=0.07):
+        pt, n = sol.hit(np.asarray(p_in, float), d)
+        out.append((SH.slab(pt - n * 0.02, n, up, w, h, t), "ck", "cover", "glass"))
+
+    c = np.array([0.0, yh, zb + hh * 0.5])
+    if kind == "dome":                                    # a rounded cap; a band of three windows round the front
+        pts = []
+        for v, f in ((0.0, 0.92), (0.35, 1.0), (0.6, 0.9), (0.8, 0.66), (0.94, 0.36), (1.0, 0.12)):
+            for i in range(10):
+                a_ = 2 * math.pi * (i + 0.5) / 10
+                pts.append((hw * f * math.cos(a_), yh + hdp * f * math.sin(a_), zb + v * hh))
+        main = np.array(pts)
+        out.append((main, "t3", "core", "head"))
+        so = Solid(main)
+        for ang in (-38, 0, 38):
+            d = np.array([math.sin(math.radians(ang)), math.cos(math.radians(ang)), 0.0])
+            glass(so, c + np.array([0, 0, hh * 0.05]), d, hw * 0.5, hh * 0.2)
+    elif kind == "bubble":                                # an armoured collar with a glass canopy on it
+        main = prism(np.array([0, yh, zb]), np.array([0, yh, zb + hh * 0.45]), hw, hdp, hw * 0.92, hdp * 0.92, n=10, lat=(1, 0, 0))
+        out.append((main, "t3", "core", "head"))
+        out.append((ellipsoid((0, yh + hdp * 0.12, zb + hh * 0.45), (hw * 0.8, hdp * 0.85, hh * 0.55), 40), "ck", "cover", "canopy"))
+    elif kind == "turret":                                # an eight-sided turret, a vertical slit, two sensor ears
+        main = prism(np.array([0, yh, zb]), np.array([0, yh, zb + hh]), hw, hdp, hw * 0.9, hdp * 0.9, n=8, ch=0.1, lat=(1, 0, 0))
+        out.append((main, "t3", "core", "head"))
+        so = Solid(main)
+        glass(so, c, (0, 1, 0), hw * 0.28, hh * 0.6)
+        for sx in (-1, 1):
+            out.append((prism(np.array([sx * hw * 0.8, yh - hdp * 0.1, zb + hh * 0.55]), np.array([sx * hw * 1.35, yh - hdp * 0.1, zb + hh * 0.6]),
+                              hh * 0.12, hh * 0.18, n=6, lat=(0, 1, 0)), "t4", "cover", "ear"))
+    else:
+        prof = {"box": T.PROFILES["upright"], "skull": SH.HEAD_PROF["skull"], "wedge": [(-1, 0), (1, 0), (1, .3), (-.35, 1), (-1, 1)],
+                "visor": T.PROFILES["upright"], "hood": [(-1, 0), (1, 0), (1, .42), (.35, 1), (-1, .8)]}[kind]
+        main = SH.prof_solid(-hw, hw, yh, 2 * hdp, zb, hh, prof, wtop=0.86 if kind != "hood" else 0.95, e=e, k=0.88)
+        out.append((main, "t3", "core", "head"))
+        so = Solid(main)
+        if kind == "box":                                 # one wide visor strip
+            glass(so, c + np.array([0, 0, hh * 0.12]), (0, 1, 0), hw * 1.5, hh * 0.16)
+        elif kind == "skull":                             # two eye sockets and a jaw plate
+            for sx in (-1, 1):
+                glass(so, c + np.array([sx * hw * 0.42, 0, hh * 0.12]), (0, 1, 0), hw * 0.5, hh * 0.14)
+            pt, n = so.hit(c - np.array([0, 0, hh * 0.32]), (0, 1, 0))
+            out.append((SH.slab(pt - n * 0.04, n, (0, 0, 1), hw * 0.9, hh * 0.24, 0.12), "t4", "cover", "jaw"))
+        elif kind == "wedge":                             # the glass lies on the sloped front
+            d = _u((0, 0.75, 0.66))
+            pt, n = so.hit(c, d)
+            out.append((SH.slab(pt - n * 0.02, n, _u(np.cross(n, (1, 0, 0))) * -1, hw * 1.4, hh * 0.5, 0.07), "ck", "cover", "glass"))
+        elif kind == "visor":                             # a heavy brow over a recessed slit
+            pt, n = so.hit(c + np.array([0, 0, hh * 0.32]), (0, 1, 0))
+            out.append((Frame(pt + np.array([0, hdp * 0.12, 0]), (0, 1, 0)).pp(lbox((0, 0, 0), (hw * 2.1, hdp * 0.5, hh * 0.18), bev=0.03, tap=(0.95, 0.7))), "t4", "cover", "brow"))
+            glass(so, c, (0, 1, 0), hw * 1.6, hh * 0.12)
+        elif kind == "hood":                              # a low cowl: a long thin slot across its front
+            glass(so, c + np.array([0, 0, hh * 0.05]), (0, 1, 0), hw * 1.4, hh * 0.18)
+    return out
+
+
 # --------------------------------------------------------------------------------------------------- humanoid (Atlas)
 
 # side view of a chest section: the belly pulled in, deep at the chest, the top cut back (the kit's V-shaped chest)
@@ -691,28 +768,22 @@ def body_humanoid(cx):
         hp = Frame(c, (0, 1, 0)).pp(lbox((0, 0, 0), hous_dims, bev=0.03 * Hm, tap=(0.9, 0.82)))
         out.append((hp, "t2", "core", "hump", hz))
         cx.hump = (hz, hp)
-    # head
-    shape = m.get("head_shape", "box")
+    # head: a block from the head library, set into the torso by its mount, fitted to the Head location's budget
+    b_head = pick(cx, "head")
     ztop = float(tpts[:, 2].max())
+    mount = m.get("head_mount", "top")
+    hk = HEAD_SIZE[b_head]
 
-    def skull(s_):
-        hw, hdp, hh = 0.07 * Hm * s_, 0.085 * Hm * s_, 0.10 * Hm * s_
-        mount = m.get("head_mount", "top")
+    def head_of(s_):
+        hw, hdp, hh = 0.07 * Hm * s_ * hk[0], 0.085 * Hm * s_ * hk[1], 0.10 * Hm * s_ * hk[2]
         yh = yc + D * {"notch": 0.24, "built_in": 0.2, "front": 0.36}.get(mount, 0.0)
-        zb = ztop - hh * {"notch": 0.55, "built_in": 0.62, "front": 0.8}.get(mount, 0.08)
-        prof = SH.HEAD_PROF.get(shape, SH.HEAD_PROF["box"])
-        return SH.prof_solid(-hw, hw, yh, 2 * hdp, zb, hh, prof, wtop=0.86, e=0.02 * Hm, k=0.88), (hw, hdp, hh, yh, zb)
+        zb = ztop - hh * HEAD_DROP.get(mount, 0.08)
+        return head_block(b_head, hw, hdp, hh, yh, zb, Hm), (hw, hdp, hh, yh, zb)
 
-    s_h = _fit_scale(lambda s_: skull(s_)[0], env["Head"])
-    hpts, (hw, hdp, hh, yh, zb) = skull(s_h)
-    out.append((hpts, "t3", "core", "head", "Head"))
-    hsol = Solid(hpts)
-    for sx in (-1, 1):                                              # two eye slots of cockpit glass
-        pt, n = hsol.hit(np.array([sx * hw * 0.42, yh, zb + hh * 0.62]), (0, 1, 0))
-        out.append((SH.slab(pt - n * 0.02, n, (0, 0, 1), hw * 0.5, hh * 0.14, 0.07), "ck", "cover", "eye", "Head"))
-    if shape == "skull":
-        pt, n = hsol.hit(np.array([0, yh, zb + hh * 0.18]), (0, 1, 0))
-        out.append((SH.slab(pt - n * 0.04, n, (0, 0, 1), hw * 0.9, hh * 0.24, 0.12), "t4", "cover", "jaw", "Head"))
+    s_h = _fit_scale(lambda s_: head_of(s_)[0][0][0], env["Head"])
+    hparts, (hw, hdp, hh, yh, zb) = head_of(s_h)
+    out += [(p, c, r, nm, "Head") for p, c, r, nm in hparts]
+    hsol = Solid(hparts[0][0])
     sides = {z: Solid(p) for p, c, r, nm, z in out if nm == "side"}
     _antennas(cx, out, hsol)
 

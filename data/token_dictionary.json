@@ -615,7 +615,8 @@
       "arm": "for arms without a hand actuator: pod (upper arm down, the forearm a gun pod aimed forward) / straight (the gun lines up with the upper arm straight out of the shoulder: the JagerMech, per Daniel). Tag: arm_style long_barrel -> straight. Arms with hands are always bent with a fist.",
       "hips_and_waist": "Not a slot: every faceted 'Mech has a pelvis block between the hips (two halves, by the hip actuators), a hip joint drum at each side, and a vertical waist drum (the torso-twist actuator) that the torso stands on.",
       "shoulder_rule": "Not a slot: shoulder joints at least 1.22 times the hips' outer edge from the centre line (tiny arms excepted); a side torso widens to reach that and gets shallower to keep its volume.",
-      "weapon_clearance": "Not a slot: the space ahead of every muzzle (1.2 m) must be clear of the body; a blocked weapon slides forward, then moves to another rail of its location."
+      "weapon_clearance": "Not a slot: the space ahead of every muzzle (1.2 m) must be clear of the body; a blocked weapon slides forward, then moves to another rail of its location.",
+      "head": "Head library (2026-11-04, Daniel: 'Start a pass of designing a group of heads blocks ... one location at a time'): box (cab, one wide visor strip) / skull (cranium, two eye sockets, jaw plate: the Atlas) / dome (rounded cap, three windows round the front) / wedge (steep sloped front, the glass on the slope) / bubble (armoured collar, glass canopy) / visor (heavy brow over a recessed slit) / turret (eight-sided, a vertical slit, two sensor ears) / hood (a low cowl with a slot, for cockpits built into the torso). Each is fitted to the Head location's budget and set into the torso by head_mount (top / notch / built_in / front). Tags: head_mount built_in -> hood; head_shape box / skull / dome / wedge / visor -> that block. A lineup: tools/token_heads.py."
     }
   }
 }
