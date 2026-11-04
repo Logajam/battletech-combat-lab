@@ -773,6 +773,9 @@ Princess, decision by decision, the latest battery and why Gladiator loses.
    `tools/token_3d.py` (viewer), `tools/token_audit.py` (geometry audit, 2026-11-04), data in
    `data/token_*.json`. Output only; no engine code. Next steps are in the doc (the review pass's
    "what is left" list: skeleton-and-shell rebuild, bevels / smooth shading, decals, an overlap audit).
+   **The skeleton-and-shell rebuild has a build spec (Daniel's answers, 2026-11-04):
+   `INTEGRATION__COMBAT_LAB_SKELETON.md`** - replaces every block, no exposed internals, hardpoints from the
+   critical slots, items sized by slots and mass per slot, volume a sanity band, tags kept, phased from a test range.
 14. **MegaMek save import - test it (Daniel, 2026-10-31: "test it and see",
    later, spare cycles):** get sample MegaMek `.sav` files from Daniel, check what a
    save holds and how hard the mapping is (COMBAT_LAB.md, Part A). Last in the Combat Lab order.

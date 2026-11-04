@@ -691,6 +691,8 @@ needs no GUI change.
     showing the frame); (2) bevelled panels with smooth-shaded normals instead of flat-shaded hulls; (3) panel breakup
     and decals (unit number, hazard stripes) on the larger plates. An audit for ugly overlaps (blocks passing through
     each other at odd angles) is the natural extension of `token_audit.py`.
+  - **Skeleton-and-shell rebuild: build spec in `INTEGRATION__COMBAT_LAB_SKELETON.md`** (Daniel's decisions,
+    2026-11-04). It supersedes the "what is left" list above and the next-steps list below where they differ.
   - **Next art steps (not built):** chicken legs (done above); stacked-slab shins with a high hock; the forward-slung wedge torso;
     the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
     pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits
