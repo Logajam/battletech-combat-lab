@@ -76,8 +76,9 @@ def _hull(points):
     return m if len(m.faces) else None
 
 
-def _raw_parts(model, drop=()):
-    """[(cls, vertices (n,3), faces (m,3), tag)] for every convex solid of the unit, in levels, at the model's current fit."""
+def _raw_parts(model, drop=(), with_src=False):
+    """[(cls, vertices (n,3), faces (m,3), tag)] for every convex solid of the unit, in levels, at the model's current fit.
+    with_src: [(cls, tag, src, vertices, faces)] instead, src = the builder line that made the part (tools/token_audit.py)."""
     b, k = T._views(model, model["drawn_levels"] * T.LEVEL)
     s = k / T.LEVEL
     sph, slab = _sphere_points(), _slab_points()
@@ -112,7 +113,11 @@ def _raw_parts(model, drop=()):
                     w = _to_world(p, k)
                     pts += [w] if not r else list(w + (sph if part["tag"] == "w" else slab) * (r * s))
             m = _hull(pts)
-            if m is not None:
+            if m is None:
+                continue
+            if with_src:
+                out.append((part["cls"], part["tag"], part.get("src", ""), np.asarray(m.vertices), np.asarray(m.faces)))
+            else:
                 out.append((part["cls"], np.asarray(m.vertices), np.asarray(m.faces), part["tag"]))
     return out
 

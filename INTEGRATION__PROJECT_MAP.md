@@ -56,6 +56,11 @@ one-pool RNG (`config.active_rng`), `tests/test_saved_state.py`, `tests/test_rng
 (j) SESSION 17 (Change Record "WEAPON-CHOICE LOOKUP TABLES..."): `FireTable`, `fire_state` (is anything a
 weapon choice reads missing from it?), `shared_fire_table`'s key, the `select_weapons_to_fire` split,
 `fastcore.knapsack_levels`, `tests/test_fire_tables.py`.
+(k) COMBAT LAB 3D ART REVIEW PASS (Change Record "COMBAT LAB 3D - REVIEW PASS..."), 2026-11-04: this pass
+reviewed the session 16 3D-art queue items (the "3D model pipeline" bullets in INTEGRATION__COMBAT_LAB.md)
+and fixed what it found; its own changes to `INTEGRATION__tokens.py` (snap helpers `B3.extent` / `shift`,
+`profile_vspan`, `pv` / `side_h` / `top_at` / `sit` / `ell_top` / `ell_rear`, the arm placement),
+`tools/token_audit.py` and the viewer's lighting are open for review in turn.
 When a review is done, move its line out of this queue and note it in the
 Change Record.
 
@@ -1779,6 +1784,44 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-11-04 (Claude), session 18 - COMBAT LAB 3D - REVIEW PASS (Daniel: "a higher tier pass at the combat lab 3d
+  assets; see what problems you can find and fix").** REVIEW PENDING (higher-level model). Art only: no engine code, every
+  reference log identical, 49 of 49 checks.
+  - **Measured, not eyeballed:** new `tools/token_audit.py` builds every chart unit and measures the meshes the viewer
+    shows: exact distances between the convex blocks (python-fcl), so a block that touches nothing joined to the body is
+    FLOATING, named by the builder line that made it; parts below the ground; mirror symmetry. Before: 368 floating parts
+    over the 48 reference-tag models, 351 more on the name-hash models (the look every untagged unit in the library gets).
+    After: 0 and 0. New `tests/test_token_joined.py` (12 models that each had a different fault; it fails on the old code).
+  - **Bugs found and fixed** (`INTEGRATION__tokens.py`): (1) clamped arm guns hung 2-3 cm clear of the forearm (166
+    parts): each gun is now built on the forearm's axis and slid out until it seats on the forearm (or on the gun before
+    it), with a clamp block; side-by-side guns touch instead of sitting 8 px apart whatever their size. (2) Wing-bay tube
+    mouths (Mad Cat, Stalker) were laid on a vertical plane in front of the bay's slanted face (92 parts): they follow the
+    face and start inside it. (3) Things on the back (fins, brackets, jump jets) used the centre torso's depth, but the side
+    torsos are 0.96 deep. (4) A "stepped" panel set builds the centre torso 0.03 taller, but every lookup of the front face
+    used the shorter height: chest vents, plates and guns stood off sloped chests (`pv`, and `side=True` for side-torso
+    mounts). (5) Gauss rifles: `B3.prism` never applied the width fit to x / y, so every Gauss barrel stood off its mount.
+    (6) Box / wedge / visor heads ignored their mount depth (`extrude` had no `cy`): every "front" or "boom" head was built
+    at the torso centre, sunk in it, with its glass floating out front (the Locust's wedge head now stands out front, as
+    tagged). (7) ARM PLACEMENT: the old formula scaled the whole torso half-width by the top taper, but each section
+    tapers about its own centre: arms beside top-wide torsos (narrow, winged) hung in the air, beside top-narrow ones
+    (ovoid) clipped in - likely the root of the JagerMech clipping. Now the side torso's real outer face, and a shoulder gap
+    that grows with the arm's girth (a fixed 5.8 cm put every heavy upper arm inside the torso): arm-into-torso
+    penetration 6 of 94 models (up to 3.5 cm) to 0. (8) Shoulders, heads, antennas, cockpit blisters, turrets, ECM / probe /
+    C3, fins and shoulder-barrel cradles were placed at `ztop` even where the top leans or curves: they now sit on the real
+    top (`top_at`, `sit`; ellipsoid surfaces for dome / canopy torsos). (9) Martian, quad and tripod legs ended 6 mm above
+    the foot. (10) Smaller: chest bolts off wedge-plan faces, a hatchet spike and sword tip off their shafts, ear pods
+    beside top-narrow torsos.
+  - **Viewer (semi-realistic look):** sRGB output with a filmic (ACES) tone map (light paint schemes such as arctic no
+    longer blow out to white), an image-based studio environment so metal reflects, a warm key / cool fill / rim light
+    set, 2048 shadows, materials by class (satin painted plate, darker reflective frame and weapon metal, glass cockpit,
+    matte panel lines), the black outline on every block off by default (an "Edges" button turns it back on: it made the
+    models read as toys), and a `<meta charset>` (the badge showed "Â·").
+  - **Visible changes:** arms move a little in or out on most units, the shoulders of leaning torsos are lower, heads on
+    front / boom mounts move forward, arm guns sit against the forearm. Volume calibration still within 8 percent.
+  - **Still open (not done here):** the skeleton-and-shell rebuild of torsos and limbs (still boxes) remains the biggest
+    step toward "military hardware"; surfaces are flat-shaded convex hulls with no bevels or decals; the audit counts
+    floating, not ugly overlaps between non-arm blocks.
 
 - **2026-11-03 (Claude), session 17 - WEAPON-CHOICE LOOKUP TABLES (Daniel's design).** REVIEW PENDING
   (higher-level model). Daniel: "Choice should be: 'For that target, what is the base TN, and what is

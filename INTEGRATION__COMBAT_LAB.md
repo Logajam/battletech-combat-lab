@@ -673,6 +673,24 @@ needs no GUI change.
     fails above 0.25 m. MRM rack weight is 0.25 t per missile (art only). Not done: SRM and LRM missiles at their true
     LENGTH (tube depth is still a drawn convention), and weapon barrel diameters at real scale (a large laser, a PPC, a
     Gauss, an AC/20 should get the same meters-based check).
+  - **Review pass (2026-11-04, session 18). REVIEW PENDING (higher-level model).** Measured instead of eyeballed:
+    `python -I tools/token_audit.py <meks folder> [--detail]` reports, per unit, the blocks that touch nothing joined to the
+    body (exact distances, python-fcl), each named by its builder line, plus parts below the ground and a mirror score.
+    368 floating blocks on the tagged models and 351 on the name-hash models (what an untagged unit gets) went to 0 and 0;
+    arm-into-torso clipping 6 of 94 models to 0. Root causes, each fixed: arm guns clamped beside (not on) the forearm;
+    wing-bay tubes in front of a slanted face; rear parts on the centre torso's depth, not the side torsos'; front-face
+    lookups that ignored the stepped torso's extra height; Gauss barrels built without the width fit; box / wedge / visor
+    heads always built at the torso centre (front and boom mounts ignored); the arm-placement formula (it tapered the
+    whole torso width; each section tapers about its own centre) and a fixed shoulder gap that heavy arms outgrew; parts
+    set at `ztop` over leaning or domed tops; martian / quad / tripod legs short of the foot. Viewer: filmic tone map,
+    sRGB, a studio environment for reflections, materials by class, block outlines off by default ("Edges" toggle).
+    Test: `tests/test_token_joined.py`. Details in PROJECT_MAP Change Record, 2026-11-04.
+    **Claude's read of what is left for "semi-realistic military hardware":** the blocks are now joined and lit
+    properly, but they are still mostly plain chamfered boxes. The next steps with the most effect: (1) the
+    skeleton-and-shell rebuild (a frame of joints and actuators, armour panels with real thickness laid over it, gaps
+    showing the frame); (2) bevelled panels with smooth-shaded normals instead of flat-shaded hulls; (3) panel breakup
+    and decals (unit number, hazard stripes) on the larger plates. An audit for ugly overlaps (blocks passing through
+    each other at odd angles) is the natural extension of `token_audit.py`.
   - **Next art steps (not built):** chicken legs (done above); stacked-slab shins with a high hock; the forward-slung wedge torso;
     the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
     pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits
