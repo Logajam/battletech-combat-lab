@@ -663,6 +663,16 @@ needs no GUI change.
     applied (width and depth scale together, so volume wins); shaping it at constant volume would need separate
     width and depth factors. Side effects: heavy 'Mechs now look taller and slimmer; the Locust and the Flea
     (both 20 t, same volume) still look alike. The 2D sheets keep the older estimate.
+  - **Real scale for missile tubes (Daniel, 2026-11-03: "the Atlas is 12 m tall; LRM tubes are at most 0.2 m, SRMs 0.25").**
+    1 level = 6 m, so 10 px = 1 m. `tube_px(fam)` gives the mouth radius and pitch from meters: LRM 0.18 m / 0.21 m, SRM
+    0.23 / 0.27, MRM 0.143 / 0.167 (an MRM missile is half an LRM's mass: diameter x 0.794; Daniel's second note). Used by
+    `_pod`, and by the new `rack_cells`, which fills a face with as many real tubes as fit: the Archer's tall boxes, the
+    Mauler's shoulder launchers and the Mad Cat's wing bays used to size tubes to the box (the Archer's were 0.44 m across).
+    `_pod` also corrects its spacing for the width fit. Centre-torso weapons are real models now (the Dragon's MRM-10 was a
+    5 mm placeholder box). Measured on the meshes: LRM mouths 0.174 m, SRM 0.222 m, MRM 0.138 m; `tests/test_token_volume.py`
+    fails above 0.25 m. MRM rack weight is 0.25 t per missile (art only). Not done: SRM and LRM missiles at their true
+    LENGTH (tube depth is still a drawn convention), and weapon barrel diameters at real scale (a large laser, a PPC, a
+    Gauss, an AC/20 should get the same meters-based check).
   - **Next art steps (not built):** chicken legs (done above); stacked-slab shins with a high hock; the forward-slung wedge torso;
     the Catapult's "ears" torso; stacked-slab shins; three-toe claw feet; skull head and dome
     pauldron for the Atlas; panel-line and vent detail; team colors; more chassis (the part kits

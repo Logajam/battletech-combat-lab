@@ -6,7 +6,8 @@ tests/test_token_volume.py - the Combat Lab art follows the scaling law: equal m
 
 Each generated 'Mech's body volume (every part but weapons, the union of the convex solids on a grid) must equal
 INTEGRATION__token_mesh.DENSITY x tonnage, within 8 percent; and its drawn height must be the rules curve
-(2 x (tons/100)^(1/3) levels, 3 x (tons/200)^(1/3) for a superheavy). Needs numpy, scipy and trimesh (art tools);
+(2 x (tons/100)^(1/3) levels, 3 x (tons/200)^(1/3) for a superheavy). Real scale (Daniel: the Atlas is 12 m tall, so 1 level =
+6 m): no missile tube mouth is wider than 0.2 m (LRM) or 0.25 m (SRM / MRM). Needs numpy, scipy and trimesh (art tools);
 without them the check says so and passes. Uses the unit files in data/meks.zip.
 """
 
@@ -26,6 +27,7 @@ try:
 except ImportError:
     HAVE = False
 
+TUBE_UNITS = ["Thunderbolt TDR-5S", "Atlas AS7-D", "Hunchback HBK-4G", "Archer ARC-2R"]
 UNITS = ["Flea FLE-4", "Locust LCT-1V", "Awesome AWS-8Q", "Victor VTR-9B", "Atlas AS7-D", "King Crab KGC-000", "Urbanmech UM-R60"]
 
 
@@ -58,6 +60,23 @@ def main():
             bad.append(f"{u}: volume {vol:.3f} v {want:.3f}")
         if abs(height / model["drawn_levels"] - 1) > 0.06:
             bad.append(f"{u}: height {height:.2f} v rules curve {model['drawn_levels']:.2f}")
+    for u in TUBE_UNITS:                                   # real-scale missile tubes
+        key = (u + ".mtf").lower()
+        if key not in names:
+            continue
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, os.path.basename(names[key]))
+            open(path, "wb").write(z.read(names[key]))
+            model = T.build_model(T.read_unit(path))
+        M.calibrate(model)
+        dias = []
+        for cls, v, _f, tag in M._raw_parts(model):
+            if cls == "wm" and tag == "w":
+                ex = v.max(0) - v.min(0)
+                if min(ex[0], ex[1]) * 6.0 > 0.1:                          # skip the thin top stripe
+                    dias.append(min(ex[0], ex[1]) * 6.0)
+        if dias and max(dias) > 0.25:
+            bad.append(f"{u}: a missile tube is {max(dias):.2f} m across (limit 0.25)")
     if bad or not seen:
         print("FAIL  " + ("; ".join(bad) or "no unit files found"))
         return 1
