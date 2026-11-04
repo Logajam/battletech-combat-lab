@@ -368,7 +368,7 @@ def build_model(unit, overrides=None, hash_only=False, shell=True, style="plated
         "shoulders": ("flush", "boom")[hc[6] % 2],
         "antenna": hc[7] % 3 == 0,
         "jets": min(unit["jets"], 6), "jets_by": dict(unit.get("jets_by", {})),
-        "overridden": [],
+        "overridden": [], "hash_only": bool(hash_only),
     }
     head_slots = unit["slots"].get("Head")
     if head_slots and not any("Cockpit" in x for x in head_slots):

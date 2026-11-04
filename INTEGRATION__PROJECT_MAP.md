@@ -1795,6 +1795,16 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-04 (Claude), session 18 - FACETED BLOCK LIBRARY** (Daniel: "Go ahead" on giving the humanoids their own identities).
+  REVIEW PENDING (higher-level model). Art only, 50 of 50 checks.
+  - `INTEGRATION__shell_facet.py`: `BLOCKS` per slot (leg prism / slab / pillar / greave; knee drum / cap / guard; foot heel_toe /
+    wedge / three_toe; pauldron box / slant / drum / collar; forearm octagon / square / round), `TAG_PICKS` (tags that force a
+    block), `pick` (tag, else a byte of the name hash per slot; recorded in `model["blocks"]`, shown in the viewer's info panel).
+    The mapping is in `data/token_dictionary.json` `shell_mapping.facet_blocks`. `build_model` records `hash_only`.
+  - All eight range chassis still within the volume band, 0 floating, nothing below ground, clip 0 (tests/test_token_shell.py).
+  - Next: blocks for the torso (the UrbanMech's dome reads as a box from the front), heads and the bird body; then the 47 chart
+    chassis (phase 2).
+
 - **2026-11-04 (Claude), session 18 - FACETED LOOK ON THE WHOLE TEST RANGE** (Daniel: "what about extending this style to the
   other models?"; on the Atlas chest width: "similar, not perfect"). REVIEW PENDING (higher-level model). Art only, 50 of 50 checks.
   - `INTEGRATION__shell_facet.py` now builds all eight range chassis (`FACET_RANGE` = `SHELL_RANGE`). New tag-driven blocks in

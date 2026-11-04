@@ -598,6 +598,15 @@
     "crouch": "expressed: legs 0.93 of the height, knees forward x2.2",
     "feet": "FLAGGED: thrusters; every foot is a plain heel-to-toe block with a top plate",
     "arms_flex / tilt / arms_up": "FLAGGED",
-    "physical": "FLAGGED: hand weapons (hatchet, sword) are not drawn by the shell builder yet"
+    "physical": "FLAGGED: hand weapons (hatchet, sword) are not drawn by the shell builder yet",
+    "facet_blocks": {
+      "_about": "Faceted look (INTEGRATION__shell_facet.py, 2026-11-04): the humanoid's block library. A tag picks a block where it says something (TAG_PICKS); otherwise a byte of the name hash per slot picks, so untagged units still get a stable combination. The choice is in model['blocks'] and the viewer's info panel.",
+      "leg": "prism (eight-sided) / slab (six-sided, wide and shallow) / pillar (twelve-sided, even) / greave (flared armoured shin). Tags: legs slab -> slab, pillar -> pillar, heavy -> greave; kit round_blocks -> pillar.",
+      "knee": "drum / cap (a small plate over the knee front) / guard (a tall plate, the Atlas kit's knee). Tag: legs slab -> guard.",
+      "foot": "heel_toe (heel block and two toes) / wedge (one block, low at the toe) / three_toe. Tags: feet thrusters or legs pillar -> wedge.",
+      "pauldron": "box / slant (a pad sloping outward and down) / drum (across the joint) / collar (no pauldron). Tags: kit pauldrons -> box, kit round_blocks -> drum, shoulders flush -> collar.",
+      "forearm": "octagon / square / round (the forearm's section). Tag: kit round_blocks -> round.",
+      "torso, head, launchers, hump, gun pods": "not slot blocks yet: chosen by profile, head_mount / head_shape, kit tall_launchers / launchers, profile hunch / stepped, and arms without hand actuators (body_humanoid)."
+    }
   }
 }

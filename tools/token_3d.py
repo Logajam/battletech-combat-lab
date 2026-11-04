@@ -35,6 +35,8 @@ def tags(m):
         if m.get(key):
             t.append((label, "crouched" if m[key] is True else str(m[key]).replace("_", " ")))
     t.append(("cockpit", f"{m['cockpit_tons']:g} t of {m['tons']} t (head scale x{(m['cockpit_tons'] / max(10, m['tons'])) ** (1 / 3) / (3 / 50) ** (1 / 3):.2f})"))
+    if m.get("blocks"):                       # the faceted look's block per slot, and what picked it (a tag or the name hash)
+        t.append(("blocks", ", ".join(f"{k} {v[0].replace('_', ' ')}{' (tag)' if v[1] == 'tag' else ''}" for k, v in m["blocks"].items())))
     t.append(("weapons", ", ".join(f"{k.replace('_', ' ')} x{v}" for k, v in sorted(hp.items())) or "none"))
     return t
 
@@ -60,7 +62,7 @@ def main_range(root, out, glb=None):
              "ref": M.unit_mesh(mr), "hash": M.unit_mesh(mh), "old": M.unit_mesh(mo), "tags": {"ref": tags(mr), "hash": tags(mh)}}
         if True:                                                 # the faceted look, on every chassis of the range
             mf = T.build_model(u, overrides=ref, style="facet")
-            e["facet"] = M.unit_mesh(mf)
+            e["facet"] = M.unit_mesh(mf)                         # built first: the blocks are picked while building
             e["tags"]["facet"] = tags(mf)
         units.append(e)
         print(label, mr["shell"], len(e["ref"]["parts"]), "parts", round(mr.get("shell_height_m", 0), 2), "m")
