@@ -1795,6 +1795,19 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-04 (Claude), session 18 - FACETED LOOK ON THE WHOLE TEST RANGE** (Daniel: "what about extending this style to the
+  other models?"; on the Atlas chest width: "similar, not perfect"). REVIEW PENDING (higher-level model). Art only, 50 of 50 checks.
+  - `INTEGRATION__shell_facet.py` now builds all eight range chassis (`FACET_RANGE` = `SHELL_RANGE`). New tag-driven blocks in
+    the humanoid body: chest profile from `profile` (dome, bell, prow, ... else the V-chest), `tall_slab` / slab torsos taller,
+    a HUMP block for `hunch` / `stepped` on the side torso with the heaviest guns (its face rail takes the heaviest gun, rail
+    `prefer="heavy"`), launcher POSTS for `kit` tall_launchers / launchers, GUN-POD forearms for any arm without a hand
+    actuator (length by contents; `long_barrel` x1.2), head position by `head_mount` (top, built_in, front, notch), antennas,
+    rounder arms for `round_blocks`, squat legs under a dome torso. The bird body: `narrow` torsos, antennas.
+  - The ribs are clamped inside the side torsos (`build_layers`; the faceted Atlas had them running into the arms).
+  - `tests/test_token_shell.py` now checks the faceted builds too (32 models: volume band, height, plate minimum, and the joined /
+    ground / clip audit for the faceted ones). The viewer has a "Faceted (experiment)" variant on every range chassis.
+  - Known: the humanoids still share one leg, foot and pauldron set (the block library would give them choices).
+
 - **2026-11-04 (Claude), session 18 - FACETED LOOK: ATLAS, HARDPOINT RAILS** (Daniel: "Core shape is good, the length of those
   arms could easily be made a variable based on how much stuff is in them ... where all the hard point spots on that model would
   be located to deal with other configurations. And certainly go ahead with the Atlas."). REVIEW PENDING (higher-level model).

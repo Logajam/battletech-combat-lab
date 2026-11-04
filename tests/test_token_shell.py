@@ -5,7 +5,9 @@ tests/test_token_shell.py - the skeleton-and-shell builder's acceptance checks (
 
 1. HARDPOINTS, over EVERY unit file in data/meks.zip that loads: every crit-holding item is placed, none twice, no
    location over its hardpoint capacity, and the shuffle is stable (the same unit, placed twice, gives the same layout).
-2. On the phase 1 test range (the chassis in INTEGRATION__shell.SHELL_RANGE; needs numpy, scipy, trimesh): each LOCATION's
+2. On the phase 1 test range (the chassis in INTEGRATION__shell.SHELL_RANGE; needs numpy, scipy, trimesh), in both looks (the
+   plated INTEGRATION__shell and the faceted INTEGRATION__shell_facet; the faceted one also gets the joined / ground / clip audit
+   of tools/token_audit.py when python-fcl is installed): each LOCATION's
    drawn volume is within VOLUME_BAND of its mass budget (spec section 4: a sanity check; the band is Claude's guess and is
    tuned here), the height is on the rules curve (3 percent), and no armor plate is thinner than the minimum.
 Art only: nothing here touches a battle. Without the art tools, part 2 says so and passes.
@@ -64,6 +66,11 @@ def shell_checks(z):
     ref = json.load(open(os.path.join(REPO_ROOT, "data", "token_reference_tags.json"), encoding="utf-8"))
     names = {os.path.basename(n).lower(): n for n in z.namelist() if n.lower().endswith(".mtf")}
     bad, seen = [], 0
+    try:                                                              # the joined / clip audit needs python-fcl
+        sys.path.insert(0, os.path.join(REPO_ROOT, "tools"))
+        import token_audit as audit
+    except ImportError:
+        audit = None
     for u in RANGE_FILES:
         key = (u + ".mtf").lower()
         if key not in names:
@@ -72,14 +79,19 @@ def shell_checks(z):
             path = os.path.join(d, "u.mtf")
             open(path, "wb").write(z.read(names[key]))
             unit = T.read_unit(path)
-        for hash_only in (False, True):
-            model = T.build_model(unit, overrides=ref, hash_only=hash_only)
+        for hash_only, style in ((False, "plated"), (True, "plated"), (False, "facet"), (True, "facet")):
+            model = T.build_model(unit, overrides=ref, hash_only=hash_only, style=style)
             if not model.get("shell"):
                 bad.append(f"{u}: not built by the shell builder")
                 continue
             parts = M._raw_parts(model, with_src=True)
             seen += 1
-            tag = u + (" (hash)" if hash_only else "")
+            tag = u + (" (hash)" if hash_only else "") + (" [faceted]" if style == "facet" else "")
+            if style == "facet" and audit is not None:                    # the faceted look: joined, above ground, no clipping
+                r = audit.audit(model)
+                nf = sum(len(c) for c in r["floating"])
+                if nf or r["ground"] or r["clip"][0] * 6.0 > 0.005:
+                    bad.append(f"{tag}: {nf} floating, {len(r['ground'])} below ground, clip {r['clip'][0] * 6:.3f} m")
             top = max(v[:, 1].max() for _c, _t, _s, v, _f, _l, _r in parts)
             if abs(top / model["drawn_levels"] - 1) > 0.03:
                 bad.append(f"{tag}: height {top:.3f} v rules curve {model['drawn_levels']:.3f}")
@@ -116,7 +128,7 @@ def main():
     if bad or not seen:
         print("FAIL  " + ("; ".join(bad[:10]) or "no test-range unit files found"))
         return 1
-    print(f"PASS  {msg}; {seen} shell models: location volumes within {VOLUME_BAND:.0%} of budget, height on the rules curve, no plate under {0.05} m")
+    print(f"PASS  {msg}; {seen} shell models (plated and faceted): location volumes within {VOLUME_BAND:.0%} of budget, height on the rules curve, no plate under {0.05} m")
     return 0
 
 

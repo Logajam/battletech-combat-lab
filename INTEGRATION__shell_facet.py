@@ -23,7 +23,7 @@ import INTEGRATION__shell as SH
 import INTEGRATION__shell_items as I
 from INTEGRATION__shell import Frame, lbox, cyl, Solid, Sink, fit, hull_vol, item_dims, item_geometry, _u
 
-FACET_RANGE = ("mad cat", "timber wolf", "atlas")
+FACET_RANGE = SH.SHELL_RANGE                     # every chassis of the phase 1 test range
 
 
 def use_facet(unit):
@@ -88,8 +88,8 @@ class FRail:
     'line': items lie along a surface line, pointing along `axis`, seated where the ray `dr` leaves the solid (a run centred on
     the rail); 'post': missile launchers on a post above the solid, one housing for all of them, other items as on a line."""
 
-    def __init__(self, kind, solid, o, axis, dr=None, lat=(1, 0, 0), up=(0, 0, 1), embed=0.5):
-        self.kind, self.solid, self.o, self.a = kind, solid, np.asarray(o, float), _u(axis)
+    def __init__(self, kind, solid, o, axis, dr=None, lat=(1, 0, 0), up=(0, 0, 1), embed=0.5, prefer=None):
+        self.kind, self.solid, self.o, self.a, self.prefer = kind, solid, np.asarray(o, float), _u(axis), prefer
         self.dr = _u(dr if dr is not None else axis)
         self.lat, self.up, self.embed = _u(lat), _u(up), embed
 
@@ -137,6 +137,16 @@ def _hips(cx, legs, hx, zh, out, y=0.0):
             out.append((p, cls, role, name, zone))
         J = {k: v + mv for k, v in J0.items()}
         cx.leg_j["L" if sg < 0 else "R"] = (J, [(J[a], J[b], w0, d0, w1, d1) for a, b, w0, d0, w1, d1 in segs0])
+
+
+def _antennas(cx, out, hsol):
+    """Thin faceted masts on the head (the `antennas` tag)."""
+    n_a = int(cx.m.get("antennas") or 0) or (1 if cx.m.get("antenna") else 0)
+    lo, hi = hsol.pts.min(0), hsol.pts.max(0)
+    for i in range(n_a):
+        x = (lo[0] + hi[0]) / 2 + (0 if n_a == 1 else (-1 if i % 2 == 0 else 1) * 0.3 * (hi[0] - lo[0]))
+        top, _n = hsol.hit(np.array([x, lo[1] * 0.4 + hi[1] * 0.6 - 0.25 * (hi[1] - lo[1]), (lo[2] + hi[2]) / 2]), (0, 0, 1))
+        out.append((prism(top - np.array([0, 0, 0.05]), top + np.array([0, -0.015 * cx.Hm, 0.11 * cx.Hm]), 0.05, 0.05, 0.02, 0.02, n=6, ch=0.1), "t4", "detail", "antenna", "Head"))
 
 
 def _fit_scale(make, target, iters=6):
@@ -193,8 +203,10 @@ def body_bird(cx):
     hous = {z: sum(a * b * c for a, b, c in (housing(it) for it in P["items"].get(z, []) if it["kind"] == "missile" and it["visible"]))
             for z in ("Left Torso", "Right Torso")}
 
+    wk = 0.8 if cx.m.get("torso") == "narrow" else 1.0
+
     def body(s):
-        Lb, Wb, Hb = 0.52 * Hm * s, 0.30 * Hm * s, 0.30 * Hm * s
+        Lb, Wb, Hb = 0.52 * Hm * s, 0.30 * Hm * s * wk, 0.30 * Hm * s * cx.m.get("bodyh", 1.0) ** 0.5
         return canopy(yc, z0, Lb, Wb, Hb, pitch), (Lb, Wb, Hb)
 
     s_c = _fit_scale(lambda s_: body(s_)[0], env["Center Torso"])
@@ -232,6 +244,7 @@ def body_bird(cx):
     pt, n = hsol.hit(nose.mean(0), _u((0, 0.55, 1)))
     out.append((SH.slab(pt - n * 0.02, n, (0, 1, 0.3), Wb * 0.32, 0.07 * Hm, 0.08), "ck", "cover", "glass", "Head"))
     sides = {z: Solid(p) for p, c, r, nm, z in out if nm == "side"}
+    _antennas(cx, out, hsol)
 
     # arms: a short upper arm from a shoulder drum; the forearm is a gun pod aimed forward, as long as its guns need
     for sg, zone, sd_ in ((-1, "Left Arm", "L"), (1, "Right Arm", "R")):
@@ -301,8 +314,8 @@ def body_humanoid(cx):
     pauldrons, legs slab / pillar."""
     P, S, Hm, env, m = cx.P, cx.S, cx.Hm, cx.env, cx.m
     out, vol = [], SH.vol_of
-    zh = 0.50 * Hm
-    J0 = {"hip": np.array([0, 0.0, zh]), "knee": np.array([0, 0.03 * Hm, 0.27 * Hm]), "ankle": np.array([0, 0.0, 0.085 * Hm])}
+    zh = (0.42 if m.get("profile") == "dome" else 0.50) * Hm * m.get("legscale", 1.0) ** 0.5
+    J0 = {"hip": np.array([0, 0.0, zh]), "knee": np.array([0, 0.03 * Hm, zh * 0.54]), "ankle": np.array([0, 0.0, 0.085 * Hm])}
     asp = 1.0 if m.get("legs") in ("slab", "pillar") else 1.15
 
     def leg(s):
@@ -328,31 +341,62 @@ def body_humanoid(cx):
     hx = max(l[1] for l in legs.values()) * 1.15 + 0.035 * Hm
     _hips(cx, legs, hx, zh, out)
 
-    # chest: three sections fitted to their budgets by width; the side torsos stand taller than the centre (the head's notch)
+    # chest: three sections fitted to their budgets by width; profile from the `profile` tag; a notch for a `notch` head; a hump
     z0, yc = zh + 0.01 * Hm, 0.0
-    h, D = 0.27 * Hm, 0.21 * Hm * m.get("bodyd", 1.0)          # wide and squat (Atlas kit chest 5.3 x 3.9 x 4.3 m with its recesses)
-    notch = m.get("head_mount") in ("notch", "built_in")
+    pk = m.get("profile", "upright")
+    prof = T.PROFILES[pk] if pk in ("dome", "bell", "prow", "shoulder", "wedge_up", "lean", "sloped") else CHEST
+    tall = 1.12 if (pk == "tall_slab" or m.get("torso") == "slab") else 1.0
+    wtop = 1.28 if prof is CHEST else 0.92 if pk == "dome" else 1.08
+    h, D = 0.27 * Hm * tall * m.get("bodyh", 1.0), 0.21 * Hm * m.get("bodyd", 1.0) * (1.25 if pk == "dome" else 1.0)
+    notch = m.get("head_mount") == "notch"
     hct = h * (0.86 if notch else 1.0)
+    cx.hump = None
 
     def section(x0, x1, d, hh):
-        return SH.prof_solid(x0, x1, yc, d, z0, hh, CHEST, wtop=1.28, e=0.03 * Hm, k=0.9)       # wider at the top: broad shoulders, narrow waist
+        return SH.prof_solid(x0, x1, yc, d, z0, hh, prof, wtop=wtop, e=0.03 * Hm, k=0.9)
 
-    wc = _fit_scale(lambda w_: section(-w_ / 2, w_ / 2, D, hct), env["Center Torso"]) * 1.0
-    wc = max(0.12 * Hm, min(0.3 * Hm, wc))
-    cpts = section(-wc / 2, wc / 2, D, hct)
-    out.append((cpts, "t2", "core", "chest", "Center Torso"))
+    wc = _fit_scale(lambda w_: section(-w_ / 2, w_ / 2, D, hct), env["Center Torso"])
+    wc = max(0.05 * Hm, min(0.3 * Hm, wc))
+    out.append((section(-wc / 2, wc / 2, D, hct), "t2", "core", "chest", "Center Torso"))
+    # side torsos with launcher posts (`tall_launchers` / `launchers`, the Archer and Mauler) give their launchers' volume to them
+    posts = m.get("kit") in ("tall_launchers", "launchers")
+
+    def housing(it):
+        L, W, Hh, _g = cx.geoms[id(it)]
+        return W + 0.4, max(L, 0.14 * Hm), Hh + 0.4
+    cx.housing = housing
+    cx.posts = posts
+    # the hump (`hunch` / `stepped`, the Hunchback): a raised block on the side torso with the heaviest gun
+    hump_zone = None
+    if pk in ("hunch", "stepped"):
+        tons = {z: sum(it["tons"] for it in P["items"].get(z, []) if it["visible"] and it["kind"] in SH.RAILKINDS) for z in ("Left Torso", "Right Torso")}
+        hump_zone = max(tons, key=tons.get)
     for sg, zone in ((-1, "Left Torso"), (1, "Right Torso")):
         e = 0.015 * Hm
-        ws = _fit_scale(lambda w_: section(0, w_, D * 0.94, h), env[zone])
+        tgt = env[zone]
+        if posts:
+            tgt -= sum(a * b * c for a, b, c in (housing(it) for it in P["items"].get(zone, []) if it["kind"] == "missile" and it["visible"]))
+        hump_v = (0.16 * Hm) * (D * 0.85) * (0.13 * Hm) * 0.8 if zone == hump_zone else 0.0
+        tgt = max(0.35 * env[zone], tgt - hump_v)
+        ws = _fit_scale(lambda w_: section(0, w_, D * 0.94, h), tgt)
         x0, x1 = sg * (wc / 2 - e), sg * (wc / 2 - e + ws)
-        out.append((section(min(x0, x1), max(x0, x1), D * 0.94, h), "t1", "core", "side", zone))
+        sp = section(min(x0, x1), max(x0, x1), D * 0.94, h)
+        out.append((sp, "t1", "core", "side", zone))
+        if zone == hump_zone:
+            top = float(sp[:, 2].max())
+            hw_ = 0.16 * Hm                                 # the size the side torso's target set aside for it
+            c = np.array([sg * (wc / 2 + ws * 0.45), yc + 0.02 * Hm, top + 0.05 * Hm])
+            hp = Frame(c, (0, 1, 0)).pp(lbox((0, 0, 0), (hw_, D * 0.85, 0.13 * Hm), bev=0.03 * Hm, tap=(0.9, 0.8)))
+            out.append((hp, "t2", "core", "hump", zone))
+            cx.hump = (zone, hp)
     # head: a skull sunk in the notch (or a box head on top), the cockpit glass in its face
     shape = m.get("head_shape", "box")
 
     def skull(s_):
         hw, hdp, hh = 0.07 * Hm * s_, 0.085 * Hm * s_, 0.10 * Hm * s_
-        yh = yc + D * (0.22 if notch else 0.0)
-        zb = z0 + hct - hh * (0.45 if notch else 0.05)
+        mount = m.get("head_mount", "top")
+        yh = yc + D * {"notch": 0.22, "built_in": 0.2, "front": 0.38}.get(mount, 0.0)
+        zb = z0 + hct - hh * {"notch": 0.45, "built_in": 0.62, "front": 0.75}.get(mount, 0.05)
         prof = SH.HEAD_PROF.get(shape, SH.HEAD_PROF["box"])
         return SH.prof_solid(-hw, hw, yh, 2 * hdp, zb, hh, prof, wtop=0.86, e=0.02 * Hm, k=0.88), (hw, hdp, hh, yh, zb)
 
@@ -367,6 +411,7 @@ def body_humanoid(cx):
         pt, n = hsol.hit(np.array([0, yh, zb + hh * 0.18]), (0, 1, 0))
         out.append((SH.slab(pt - n * 0.04, n, (0, 0, 1), hw * 0.9, hh * 0.24, 0.12), "t4", "cover", "jaw", "Head"))
     sides = {z: Solid(p) for p, c, r, nm, z in out if nm == "side"}
+    _antennas(cx, out, hsol)
 
     # arms: shoulder drum under a box pauldron, upper arm, elbow drum, a forearm reaching forward, a fist
     kp = 1.0 + (0.25 if m.get("kit") == "pauldrons" else 0.0) + (0.12 if m.get("shoulders") == "boom" else 0.0)
@@ -376,22 +421,27 @@ def body_humanoid(cx):
         hand = (m.get("arms") or {}).get(sd_, "hand") == "hand"
 
         def arm(s, sg=sg, xo=xo, hand=hand):
-            wa = 0.032 * Hm * s
+            wa = 0.032 * Hm * s * m.get("armscale", 1.0) ** 0.5
             S_ = np.array([sg * (xo + wa * 1.15), yc, z0 + h * 0.82])
             E_ = S_ + np.array([0, 0.01 * Hm, -0.15 * Hm])
-            pitch = math.radians(38)
-            W_ = E_ + 0.16 * Hm * np.array([0, math.sin(pitch), -math.cos(pitch)])
+            if hand:
+                pitch = math.radians(38)
+                W_ = E_ + 0.16 * Hm * np.array([0, math.sin(pitch), -math.cos(pitch)])
+            else:                       # no hand actuator: the forearm is a gun pod aimed forward, as long as its guns need
+                Lpod = min(0.40 * Hm, (0.13 * Hm + _arm_used(P, zone)) * (1.2 if m.get("arm_style") == "long_barrel" else 1.0))
+                W_ = E_ + np.array([0, Lpod, 0.01 * Hm])
             a = _u(W_ - E_)
+            nf = 12 if m.get("kit") == "round_blocks" else 8
             o = [(prism(S_ - np.array([sg * wa * 1.2, 0, 0]), S_ + np.array([sg * wa * 0.8, 0, 0]), wa * 0.9, wa * 0.9, n=8, lat=(0, 1, 0)), "t4", "cover", "shoulder"),
-                 (prism(S_, E_, wa * 0.85, wa * 0.9, wa * 0.8, wa * 0.85, 8), "t1", "core", "upper"),
+                 (prism(S_, E_, wa * 0.85, wa * 0.9, wa * 0.8, wa * 0.85, nf), "t1", "core", "upper"),
                  (prism(E_ - np.array([wa * 0.95, 0, 0]), E_ + np.array([wa * 0.95, 0, 0]), wa * 0.85, wa * 0.85, n=8, lat=(0, 1, 0)), "t4", "cover", "elbow"),
-                 (prism(E_ - a * 0.02 * Hm, W_, wa * 1.1, wa * 1.2, wa * 1.0, wa * 1.05, 8), "t2", "core", "fore")]
+                 (prism(E_ - a * (0.02 if hand else 0.05) * Hm, W_, wa * 1.1, wa * 1.2, wa * 1.0, wa * 1.05, nf), "t2", "core", "fore")]
             if hand:
                 o.append((prism(W_ - a * 0.01 * Hm, W_ + a * 0.09 * Hm, wa * 0.95, wa * 1.0, wa * 0.85, wa * 0.85, 6, ch=0.2), "t1", "core", "fist"))
             # the pauldron: a faceted box over the joint, wider than the arm, overhanging outward (Atlas kit: 2.6 m)
             pc = S_ + np.array([sg * wa * 0.2, 0, wa * 0.45])
             o.append((Frame(pc, (0, 1, 0)).pp(lbox((0, 0, 0), (2.2 * wa * kp, 2.5 * wa * kp, 2.3 * wa * kp), bev=0.4 * wa, tap=(0.8, 0.72))), "t3", "cover", "pauldron"))
-            return o, dict(S=S_, E=E_, W=W_, wa=wa, da=wa * 1.1)
+            return o, dict(S=S_, E=E_, W=W_, wa=wa, da=wa * 1.1, hand=hand)
 
         s_a = fit(lambda s_: arm(s_)[0], env[zone], vol)
         o, j = arm(s_a)
@@ -410,7 +460,10 @@ def rails_humanoid(cx):
         j, fo = cx.arm_j[side], cx.solids[f"arm_{side}_fore"]
         a, ex, ey = SH.limb_axes(j["E"], j["W"])
         mid = (j["E"] + j["W"]) / 2
-        R[zone] = [FRail("line", fo, mid, a, -ey), FRail("line", fo, mid, a, sg * ex), FRail("line", fo, mid, a, ey)]   # under (the kit's arm lasers), outer, top
+        if j.get("hand", True):
+            R[zone] = [FRail("line", fo, mid, a, -ey), FRail("line", fo, mid, a, sg * ex), FRail("line", fo, mid, a, ey)]   # under (the kit's arm lasers), outer, top
+        else:                                                                                            # a gun pod: its muzzle, its top, its outer side
+            R[zone] = [FRail("face", fo, j["W"] - a * 0.3, a, lat=ex, up=ey), FRail("line", fo, mid, a, ey), FRail("line", fo, mid, a, sg * ex)]
     for zone in ("Left Torso", "Right Torso"):
         sg = -1 if zone.startswith("Left") else 1
         so = cx.sec[zone][0]
@@ -418,6 +471,11 @@ def rails_humanoid(cx):
         c = (lo + hi) / 2
         R[zone] = [FRail("face", so, c + np.array([0, 0, 0.12 * (hi[2] - lo[2])]), (0, 1, 0), embed=0.55), FRail("line", so, c, (0, 1, 0), (sg, 0, 0)),
                    FRail("line", so, c, (0, 1, 0), (0, 0, 1)), FRail("face", so, c - np.array([0, 0, 0.22 * (hi[2] - lo[2])]), (0, 1, 0), embed=0.55)]
+        if getattr(cx, "posts", False):                                        # launchers on posts above the shoulder
+            R[zone][2] = FRail("post", so, c, (0, 1, 0), (0, 0, 1))
+        if cx.hump and cx.hump[0] == zone:                                     # the hump's front face takes the heaviest gun
+            hs_ = Solid(cx.hump[1])
+            R[zone][0] = FRail("face", hs_, hs_.pts.mean(0), (0, 1, 0), embed=0.45, prefer="heavy")
     ct = cx.sec["Center Torso"][0]
     lo, hi = ct.pts.min(0), ct.pts.max(0)
     c = (lo + hi) / 2
@@ -446,7 +504,13 @@ def mount_rails(cx, rails):
             continue
         rl = rails[zone]
         groups, pegs = {}, {}
+        heavy = next((i for i, x in enumerate(rl) if x.prefer == "heavy"), None)
+        guns = [it for it, r, c in placed if it["visible"] and it["kind"] in SH.RAILKINDS and it["kind"] != "missile"]
+        big = max(guns, key=lambda it: it["tons"]) if (heavy is not None and guns) else None
         for it, r, c in sorted(placed, key=lambda q: (q[1], q[2])):
+            if it is big:                                              # the hump carries the side torso's heaviest gun
+                groups.setdefault(heavy, []).append(it)
+                continue
             if not it["visible"]:
                 continue
             if it["kind"] in SH.RAILKINDS:
