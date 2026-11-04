@@ -152,10 +152,11 @@ def _hips(cx, legs, hx, zh, out, y=0.0):
 
 
 def _waist(cx, out, top, yc, env_ct):
-    """The waist: a vertical drum on the pelvis that the torso turns on (the torso-twist actuator). Part of the centre torso;
-    returns (its top, its volume)."""
+    """The waist: the torso-twist actuator the torso turns on, part of the centre torso; a block (BLOCKS["waist"]): a drum, a wide
+    flat ring, or a tall narrow column. Returns (its top, its volume)."""
     Hm = cx.Hm
-    r, hw = 0.075 * Hm, 0.05 * Hm
+    r, hw = {"drum": (0.075, 0.05), "ring": (0.1, 0.03), "column": (0.055, 0.075)}[pick(cx, "waist")]
+    r, hw = r * Hm, hw * Hm
     pts = prism(np.array([0, yc, top - 0.02 * Hm]), np.array([0, yc, top + hw]), r, r * 0.9, r * 0.95, r * 0.85, n=12, lat=(1, 0, 0))
     out.append((pts, "t4", "core", "waist", "Center Torso"))
     return top + hw, hull_vol(pts)
@@ -339,12 +340,14 @@ BLOCKS = {
     "housing": ("none", "housing"),
     "missiles": ("face", "bay"),
     "arm": ("pod", "straight"),
-    "leg": ("prism", "slab", "pillar", "greave"),
-    "knee": ("drum", "cap", "guard"),
-    "foot": ("heel_toe", "wedge", "three_toe"),
-    "pauldron": ("box", "slant", "drum", "collar"),
+    "hand": ("fist", "block", "claw", "ball"),
+    "waist": ("drum", "ring", "column"),
+    "leg": ("prism", "slab", "pillar", "greave", "box", "tapered"),
+    "knee": ("drum", "cap", "guard", "spike", "twin"),
+    "foot": ("heel_toe", "wedge", "three_toe", "claw", "pad"),
+    "pauldron": ("box", "slant", "drum", "collar", "fin", "shell"),
     "head": ("box", "skull", "dome", "wedge", "bubble", "visor", "turret", "hood"),
-    "forearm": ("octagon", "square", "round"),
+    "forearm": ("octagon", "square", "round", "hex", "tapered"),
 }
 
 
@@ -372,6 +375,10 @@ def TAG_PICKS(m):
         t["head"] = "hood"                               # a cockpit built into the torso: a low armoured cowl
     elif hs_ in ("box", "skull", "dome", "wedge", "visor"):
         t["head"] = hs_
+    if m.get("hands") == "pincer" or m.get("arm_style") == "claw":
+        t["hand"] = "claw"
+    elif m.get("hands") == "ball" or m.get("arm_style") == "ball":
+        t["hand"] = "ball"
     if m.get("arm_style") == "long_barrel":
         t["arm"] = "straight"                            # the JagerMech: gun and upper arm in one line from the shoulder
     legs = m.get("legs")
@@ -417,6 +424,10 @@ def leg_block(kind, J0, w, d):
         tw, td, sw0, sd0, sw1, sd1, n = (w, d, w, d, w * 0.92, d * 0.92, 12)
     elif kind == "greave":                               # a flared armoured shin, wide under the knee, narrow at the ankle
         tw, td, sw0, sd0, sw1, sd1, n = (w * 0.95, d * 0.95, w * 1.12, d * 1.28, w * 0.66, d * 0.7, 8)
+    elif kind == "box":                                  # square sections: a blunt, blocky leg
+        tw, td, sw0, sd0, sw1, sd1, n = (w * 0.92, d * 0.92, w * 0.88, d * 0.95, w * 0.78, d * 0.82, 4)
+    elif kind == "tapered":                              # a heavy thigh over a slim, fast shin
+        tw, td, sw0, sd0, sw1, sd1, n = (w * 1.18, d * 1.12, w * 0.8, d * 0.88, w * 0.58, d * 0.62, 8)
     else:
         tw, td, sw0, sd0, sw1, sd1, n = (w, d, w * 0.95, d * 1.08, w * 0.78, d * 0.84, 8)
     o = [(prism(hip + up * 0.03 * np.linalg.norm(hip - knee), knee, tw, td, tw * 0.9, td * 0.92, n, ch=0.15), "t2", "core", "thigh"),
@@ -430,6 +441,13 @@ def knee_block(kind, J0, w, d, Hm):
     o = [(prism(ankle - np.array([w * 0.95, 0, 0]), ankle + np.array([w * 0.95, 0, 0]), d * 0.6, d * 0.6, n=8, lat=(0, 1, 0)), "t4", "cover", "ankle_drum")]
     r = d * (0.95 if kind == "drum" else 0.75)
     o.append((prism(knee - np.array([w * 1.12, 0, 0]), knee + np.array([w * 1.12, 0, 0]), r, r, n=8, lat=(0, 1, 0)), "t4", "cover", "knee_drum"))
+    if kind == "spike":                                  # a pointed knee: a wedge driving forward off the joint
+        o.append((prism(knee + np.array([0, d * 0.5, 0]), knee + np.array([0, d * 1.7, -0.02 * Hm]), w * 0.75, d * 0.55, w * 0.12, d * 0.12, n=4, ch=0.1),
+                  "t3", "cover", "knee_spike"))
+    if kind == "twin":                                   # two discs, one each side of the joint
+        for sx in (-1, 1):
+            o.append((prism(knee + np.array([sx * w * 0.75, 0, 0]), knee + np.array([sx * w * 1.2, 0, 0]), d * 1.05, d * 1.05, n=10, lat=(0, 1, 0)),
+                      "t3", "cover", "knee_disc"))
     if kind in ("cap", "guard"):                         # a plate over the front of the knee (the Atlas kit's knee guard)
         hk = (0.07 if kind == "cap" else 0.12) * Hm
         c = knee + np.array([0, d * 0.95, -0.15 * hk])
@@ -443,6 +461,17 @@ def foot_block(kind, J0, w, s, Hm):
     fr = Frame((0, heel, 0), (0, 1, 0))
     if kind == "wedge":                                  # one block, low at the toe
         return [(fr.pp(lbox((0, Lf * 0.48, hf / 2), (2 * wf, Lf * 0.96, hf), bev=0.2 * hf, tap=(0.85, 0.45))), "t1", "core", "foot")]
+    if kind == "pad":                                    # a round pad, like an elephant's foot
+        c = np.array([0, heel + Lf * 0.5, 0])
+        return [(prism(c, c + np.array([0, 0, hf]), wf * 1.05, Lf * 0.42, wf * 0.92, Lf * 0.36, n=10, ch=0.2, lat=(1, 0, 0)), "t1", "core", "foot")]
+    if kind == "claw":                                   # a hub, three claws fanned forward, a spur behind
+        hub = np.array([0, heel + Lf * 0.35, hf * 0.58])                 # the hub rests on the ground
+        o = [(prism(hub - np.array([wf, 0, 0]), hub + np.array([wf, 0, 0]), Lf * 0.22, hf * 0.55, n=6, lat=(0, 1, 0)), "t1", "core", "foot")]
+        for ang in (-0.35, 0.0, 0.35):
+            tip = np.array([math.sin(ang) * Lf * 0.75, hub[1] + math.cos(ang) * Lf * 0.7, 0.18 * hf])
+            o.append((prism(hub + np.array([0, Lf * 0.05, -hf * 0.1]), tip, wf * 0.32, hf * 0.36, wf * 0.12, hf * 0.16, n=6, ch=0.3), "t2", "core", "toe"))
+        o.append((prism(hub, np.array([0, hub[1] - Lf * 0.42, 0.18 * hf]), wf * 0.3, hf * 0.32, wf * 0.12, hf * 0.16, n=6, ch=0.3), "t2", "core", "spur"))
+        return o
     o = [(fr.pp(lbox((0, Lf * 0.3, hf / 2), (2 * wf, Lf * 0.6, hf), bev=0.2 * hf, tap=(0.95, 0.8))), "t1", "core", "foot")]
     toes = (-1, 1) if kind == "heel_toe" else (-1, 0, 1)
     tw = 2 * wf / len(toes)
@@ -453,7 +482,18 @@ def foot_block(kind, J0, w, s, Hm):
 
 
 def pauldron_block(kind, S_, sg, wa, kp):
-    """Over the shoulder joint: a box, a pad sloping outward and down, a drum across the joint, or only a collar."""
+    """Over the shoulder joint: a box, a pad sloping outward and down, a drum across the joint, only a collar, a box with an
+    upright fin, or a rounded shell."""
+    if kind == "fin":
+        pc = S_ + np.array([sg * wa * 0.2, 0, wa * 0.4])
+        o = [(Frame(pc, (0, 1, 0)).pp(lbox((0, 0, 0), (2.0 * wa * kp, 2.3 * wa * kp, 1.8 * wa * kp), bev=0.35 * wa, tap=(0.85, 0.75))), "t3", "cover", "pauldron")]
+        fc = pc + np.array([sg * wa * 0.55 * kp, -wa * 0.2, 1.2 * wa * kp])
+        o.append((Frame(fc, (0, 1, 0)).pp(lbox((0, 0, 0), (0.28 * wa, 2.0 * wa * kp, 1.4 * wa * kp), bev=0.08 * wa, tap=(1.0, 0.45))), "t4", "cover", "fin"))
+        return o
+    if kind == "shell":                                  # the upper half of a faceted egg over the joint
+        e_ = ellipsoid(S_ + np.array([sg * wa * 0.25, 0, wa * 0.25]), (1.45 * wa * kp, 1.4 * wa * kp, 1.35 * wa * kp), 36)
+        e_ = e_[e_[:, 2] >= S_[2] - wa * 0.35]
+        return [(e_, "t3", "cover", "pauldron")]
     if kind == "drum":
         return [(prism(S_ - np.array([sg * wa * 0.6, 0, 0]), S_ + np.array([sg * wa * 1.7 * kp, 0, 0]), 1.25 * wa * kp, 1.25 * wa * kp, n=10, lat=(0, 1, 0)), "t3", "cover", "pauldron")]
     if kind == "collar":
@@ -466,7 +506,31 @@ def pauldron_block(kind, S_, sg, wa, kp):
     return [(Frame(pc, (0, 1, 0)).pp(lbox((0, 0, 0), (2.2 * wa * kp, 2.5 * wa * kp, 2.3 * wa * kp), bev=0.4 * wa, tap=(0.8, 0.72))), "t3", "cover", "pauldron")]
 
 
-FOREARM_N = {"octagon": 8, "square": 4, "round": 12}
+FOREARM_N = {"octagon": 8, "square": 4, "round": 12, "hex": 6, "tapered": 8}
+FOREARM_TAPER = {"tapered": 0.68}                         # the wrist end against the elbow end
+
+def hand_block(kind, W_, a, wa, Hm):
+    """The hand at the wrist: a fist, a square block fist with a knuckle plate, a three-pronged claw with a thumb, or a ball."""
+    a = _u(a)
+    # every hand stays within the forearm's section, so guns lying along the forearm fire past it (the clear-muzzle rule)
+    if kind == "ball":
+        r = wa * 0.98
+        return [(ellipsoid(W_ + a * r * 0.75, (r, r, r), 36), "t1", "core", "fist")]
+    if kind == "block":
+        c = W_ + a * 0.05 * Hm
+        o = [(Frame(c, a, (0, 0, 1)).pp(lbox((0, 0, 0), (1.9 * wa, 0.1 * Hm, 1.8 * wa), bev=0.25 * wa)), "t1", "core", "fist")]
+        o.append((Frame(c + a * 0.045 * Hm, a, (0, 0, 1)).pp(lbox((0, 0, 0), (1.9 * wa, 0.03 * Hm, 1.1 * wa), bev=0.1 * wa)), "t4", "cover", "knuckles"))
+        return o
+    if kind == "claw":
+        o = [(prism(W_ - a * 0.01 * Hm, W_ + a * 0.05 * Hm, wa * 0.9, wa * 0.95, wa * 0.85, wa * 0.85, 6, ch=0.2), "t1", "core", "fist")]
+        _a, ex, ey = SH.limb_axes(W_, W_ + a)
+        base = W_ + a * 0.04 * Hm
+        for d in (ex * 0.55 + ey * 0.4, -ex * 0.55 + ey * 0.4, -ey * 0.7):
+            tip = base + a * 0.08 * Hm + d * wa * 0.9
+            o.append((prism(base + d * wa * 0.45, tip, wa * 0.28, wa * 0.28, wa * 0.08, wa * 0.08, n=4, ch=0.1), "t4", "cover", "claw"))
+        return o
+    return [(prism(W_ - a * 0.01 * Hm, W_ + a * 0.09 * Hm, wa * 0.95, wa * 1.0, wa * 0.85, wa * 0.85, 6, ch=0.2), "t1", "core", "fist")]
+
 
 def clip_x(pts, x0=None, x1=None):
     """The vertices of the part of a convex solid between the planes x = x0 and x = x1 (either may be None): how one torso solid
@@ -814,6 +878,7 @@ def body_humanoid(cx):
     b_paul, b_fore = pick(cx, "pauldron"), pick(cx, "forearm")
     hands = [(m.get("arms") or {}).get(x, "hand") == "hand" for x in "LR"]
     b_arm = pick(cx, "arm") if not all(hands) else None
+    b_hand = pick(cx, "hand") if any(hands) else None
     for sg, zone, sd_ in ((-1, "Left Arm", "L"), (1, "Right Arm", "R")):
         sd = sides["Left Torso" if sg < 0 else "Right Torso"]
         z_sh = z0 + h * 0.82
@@ -847,9 +912,10 @@ def body_humanoid(cx):
             o = [(prism(S_ - np.array([sg * reach, 0, 0]), S_ + np.array([sg * wa * 0.8, 0, 0]), wa * 0.9, wa * 0.9, n=8, lat=(0, 1, 0)), "t4", "cover", "shoulder"),
                  (prism(S_, E_, wa * 0.85, wa * 0.9, wa * 0.8, wa * 0.85, nf), "t1", "core", "upper"),
                  (prism(E_ - np.array([wa * 0.95, 0, 0]), E_ + np.array([wa * 0.95, 0, 0]), wa * 0.85, wa * 0.85, n=8, lat=(0, 1, 0)), "t4", "cover", "elbow"),
-                 (prism(E_ - a * (0.02 if hand else 0.05) * Hm, W_, wa * 1.1, wa * 1.2, wa * 1.0, wa * 1.05, nf), "t2", "core", "fore")]
+                 (prism(E_ - a * (0.02 if hand else 0.05) * Hm, W_, wa * 1.1 * (1.12 if b_fore == "tapered" else 1.0), wa * 1.2,
+                        wa * 1.0 * FOREARM_TAPER.get(b_fore, 1.0), wa * 1.05 * FOREARM_TAPER.get(b_fore, 1.0), nf), "t2", "core", "fore")]
             if hand:
-                o.append((prism(W_ - a * 0.01 * Hm, W_ + a * 0.09 * Hm, wa * 0.95, wa * 1.0, wa * 0.85, wa * 0.85, 6, ch=0.2), "t1", "core", "fist"))
+                o += hand_block(b_hand, W_, a, wa, Hm)
             o += pauldron_block(b_paul, S_, sg, wa, kp)
             return o, dict(S=S_, E=E_, W=W_, wa=wa, da=wa * 1.1, hand=hand)
 

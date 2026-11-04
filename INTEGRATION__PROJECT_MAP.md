@@ -1801,6 +1801,16 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-04 (Claude), session 18 - BLOCK VARIANTS FOR EVERY BODY PART** (Daniel: "systematically add variant blocks for each
+  body part. Lets try to build up the dictionary before regenerating the full list of mechs. I will want to look at each set of
+  parts as seperate pieces."). REVIEW PENDING (higher-level model). Art only; the three art checks pass.
+  - New blocks: legs box / tapered; knees spike / twin; feet claw / pad; pauldrons fin / shell; forearms hex / tapered. New slots:
+    hand (fist / block / claw / ball, sized within the forearm so arm guns fire past) and waist (drum / ring / column).
+    `data/token_dictionary.json` `shell_mapping.facet_blocks` lists every block and the tag that forces it.
+  - Lineups of all 13 slots (tools/token_lineup.py): every block passes joined / ground / clip / clear-muzzle. Fixed on the way:
+    the claw foot's hub sat below the ground; a ball or block hand blocked guns lying along the forearm.
+  - The 47 chart chassis are NOT regenerated yet (Daniel: build the dictionary first).
+
 - **2026-11-04 (Claude), session 18 - BAY HOUSINGS, ATTACHED SHOULDERS, PART LINEUP TOOL** (Daniel: "Doors on the atlas are
   overshadowed by the missile launchers clipping. Archers arms are also not attatched and the missiles are still clipping";
   "I will want to look at each set of parts as seperate pieces. Parts that have mounting brackets should indicate where those

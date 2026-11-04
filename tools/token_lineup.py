@@ -58,7 +58,7 @@ def main(root, out, slot="head", unit="Atlas AS7-D", show_body=False):
         hv = [np.stack([v[:, 0], -v[:, 2], v[:, 1]], 1) * 6 for c, v, f, l in parts]        # metres, z up, front to -y
         sel = [k for k, p in enumerate(parts) if locs is None or p[3] in locs]
         allh = np.vstack([hv[k] for k in sel])
-        cen, R = (allh.max(0) + allh.min(0)) / 2, np.ptp(allh, 0).max() / 2 * 1.2
+        cen, R = (allh.max(0) + allh.min(0)) / 2, np.ptp(allh, 0).max() / 2 * 0.95
         nf = sum(len(c) for c in r["floating"])
         bad = nf or r["ground"] or r["clip"][0] > 0.001 or m.get("blocked_muzzles")
         ok = "ok" if not bad else f"float {nf} clip {r['clip'][0] * 6:.2f} blocked {m.get('blocked_muzzles')}"
@@ -66,6 +66,7 @@ def main(root, out, slot="head", unit="Atlas AS7-D", show_body=False):
         br = m.get("_brackets") or {"joints": [], "rails": []}
         for j, (el, az) in enumerate(views):
             ax = fig.add_subplot(2, len(blocks), j * len(blocks) + i + 1, projection="3d")
+            ax.computed_zorder = False                    # the brackets are drawn over the parts (a socket sits inside its joint)
             polys, cols = [], []                          # one collection: matplotlib then sorts face by face
             for k, ((c, v, f, l), h) in enumerate(zip(parts, hv)):
                 if k not in sel and not show_body:
@@ -80,11 +81,13 @@ def main(root, out, slot="head", unit="Atlas AS7-D", show_body=False):
                     fc = [(0.75 * q, 0.72 * q, 0.68 * q) for q in sh]
                 polys += list(h[f])
                 cols += list(fc)
-            ax.add_collection3d(Poly3DCollection(polys, facecolors=cols, edgecolor=(0.1, 0.1, 0.1, 0.3), linewidths=0.25, alpha=0.92))
+            pc = Poly3DCollection(polys, facecolors=cols, edgecolor=(0.1, 0.1, 0.1, 0.3), linewidths=0.25)
+            pc.set_zorder(1)
+            ax.add_collection3d(pc)
             for zone, name, p in br["joints"]:            # joint sockets
                 if locs is None or zone in locs:
                     q = to_plot(p)
-                    ax.scatter([q[0]], [q[1]], [q[2]], s=46, c="#1faa4a", depthshade=False, edgecolors="k", linewidths=0.4, zorder=10)
+                    ax.scatter([q[0]], [q[1]], [q[2]], s=70, c="#1faa4a", depthshade=False, edgecolors="k", linewidths=0.4, zorder=10)
             for zone, kind, p, d, idx in br["rails"]:      # hardpoint rails
                 if locs is not None and zone not in locs:
                     continue
