@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Combat Lab Model Viewer</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Barlow:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -117,7 +118,7 @@ const SCHEMES = {
 };
 const SCHEME_NAMES = Object.keys(SCHEMES);
 const state = { unit: UNITS.find(u => u.id === "timber-wolf") || UNITS.find(u => u.id === "stalker") || UNITS[0], variant: "ref",
-  ortho: false, spin: !reduce, card: true, team: "none", paint: "auto", theta: 0.65, phi: 1.28, dist: 4.8 };
+  ortho: false, spin: !reduce, card: true, edges: false, team: "none", paint: "auto", theta: 0.65, phi: 1.28, dist: 4.8 };
 state.dist = 2.7 + 1.15 * state.unit.levels;
 let saved; try { saved = JSON.parse(localStorage.getItem("cl3d") || "null"); } catch (e) { saved = null; }
 try { const pt = localStorage.getItem("cl3dpaint"); if (pt && (pt === "auto" || SCHEMES[pt] !== undefined)) state.paint = pt; } catch (e) {}
@@ -130,14 +131,32 @@ const cv = document.getElementById("cv"), stage = document.getElementById("stage
 const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+// Semi-realistic look (review 2026-11-04): colours are sRGB, lighting is linear, a filmic tone map rolls off the highlights (light
+// paint schemes no longer blow out to white), and an image-based environment gives metal something to reflect.
+renderer.outputEncoding = THREE.sRGBEncoding; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.85;
+const lin = c => new THREE.Color(c).convertSRGBToLinear();
 const scene = new THREE.Scene();
+scene.environment = (() => {             // a studio sky: bright overhead, a warm key panel, a cool fill panel, a dark floor
+  const env = new THREE.Scene(), g = new THREE.SphereGeometry(10, 32, 16), col = [];
+  for (let i = 0; i < g.attributes.position.count; i++) {
+    const y = g.attributes.position.getY(i) / 10, t = Math.max(0, y);
+    const c = new THREE.Color(0x2a2f36).lerp(new THREE.Color(0xc9d3e0), Math.pow(t, 0.6)); if (y < 0) c.setRGB(0.10, 0.10, 0.11);
+    col.push(c.r, c.g, c.b);
+  }
+  g.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+  env.add(new THREE.Mesh(g, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide })));
+  const panel = (w, h, c, x, y, z) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: c, side: THREE.DoubleSide })); m.position.set(x, y, z); m.lookAt(0, 0, 0); env.add(m); };
+  panel(6, 4, 0xfff1dc, 5, 7, 5); panel(5, 3, 0x9fb6ff, -7, 3, -3); panel(8, 1.5, 0xffffff, 0, 2, -9);
+  const pm = new THREE.PMREMGenerator(renderer), rt = pm.fromScene(env, 0.04); pm.dispose(); return rt.texture;
+})();
 const persp = new THREE.PerspectiveCamera(28, 1, 0.1, 100);
 const orthoCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 100);
-scene.add(new THREE.HemisphereLight(0xffffff, 0x4a5568, 0.85));
-const sun = new THREE.DirectionalLight(0xffffff, 0.95); sun.position.set(2.5, 5, 3.5); sun.castShadow = true;
-sun.shadow.mapSize.set(1024, 1024); Object.assign(sun.shadow.camera, { left: -3, right: 3, top: 3, bottom: -3, near: 0.5, far: 14 }); sun.shadow.bias = -0.0005;
+scene.add(new THREE.HemisphereLight(0xdfe8ff, 0x3a3f47, 0.15));
+const sun = new THREE.DirectionalLight(0xfff4e6, 1.45); sun.position.set(2.5, 5, 3.5); sun.castShadow = true;      // the key light (warm)
+sun.shadow.mapSize.set(2048, 2048); sun.shadow.normalBias = 0.01; Object.assign(sun.shadow.camera, { left: -3, right: 3, top: 3, bottom: -3, near: 0.5, far: 14 }); sun.shadow.bias = -0.0005;
 scene.add(sun);
-const fill = new THREE.DirectionalLight(0xbcd0ff, 0.35); fill.position.set(-4, 2, -3); scene.add(fill);
+const fill = new THREE.DirectionalLight(0xbcd0ff, 0.3); fill.position.set(-4, 2, -3); scene.add(fill);
+const rim = new THREE.DirectionalLight(0xffffff, 0.45); rim.position.set(-1.5, 3, -5); scene.add(rim);            // separates the silhouette from the stage
 let modelGroup = new THREE.Group(); scene.add(modelGroup);
 const ground = new THREE.Group(); scene.add(ground);
 const shadowPlane = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.ShadowMaterial({ opacity: 0.28 }));
@@ -151,12 +170,12 @@ function schemeFor(u) {
   return pool[h % pool.length];                    // auto never picks bare steel
 }
 function palette() {
-  const p = {}; for (const c of ["t1", "t2", "t3", "t4", "we", "wb", "wm", "hl", "ln", "tm", "gm", "ck"]) p[c] = new THREE.Color(css("--m-" + c));
+  const p = {}; for (const c of ["t1", "t2", "t3", "t4", "we", "wb", "wm", "hl", "ln", "tm", "gm", "ck"]) p[c] = lin(css("--m-" + c));
   const sch = SCHEMES[schemeFor(state.unit)];
-  if (sch) for (const c in sch) p[c] = new THREE.Color(sch[c]);
+  if (sch) for (const c in sch) p[c] = lin(sch[c]);
   const tc = TEAMS[state.team];
   if (tc) {                                               // the team color paints the accent plates and tints the armor a little
-    const t = new THREE.Color(tc); p.tm = t.clone();
+    const t = lin(tc); p.tm = t.clone();
     for (const c of ["t1", "t2", "t3"]) p[c].lerp(t, 0.09);
   }
   return p;
@@ -165,26 +184,31 @@ function buildGround() {
   while (ground.children.length > 1) { const o = ground.children.pop(); o.geometry && o.geometry.dispose(); }
   const R = 0.87, pts = [];
   for (let a = 0; a <= 6; a++) pts.push(new THREE.Vector3(R * Math.cos(a * Math.PI / 3), 0.002, R * Math.sin(a * Math.PI / 3)));
-  const hex = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: new THREE.Color(css("--hexline")) }));
-  const disc = new THREE.Mesh(new THREE.CircleGeometry(R, 6), new THREE.MeshBasicMaterial({ color: new THREE.Color(css("--ground")) }));
+  const hex = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: lin(css("--hexline")), toneMapped: false }));
+  const disc = new THREE.Mesh(new THREE.CircleGeometry(R, 6), new THREE.MeshBasicMaterial({ color: lin(css("--ground")), toneMapped: false }));
   disc.rotation.x = -Math.PI / 2; disc.rotation.z = 0; disc.position.y = 0.001; ground.add(disc, hex);
   // arrow showing the facing (+Z)
-  const ar = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.16, 3), new THREE.MeshBasicMaterial({ color: new THREE.Color(css("--accent")) }));
+  const ar = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.16, 3), new THREE.MeshBasicMaterial({ color: lin(css("--accent")), toneMapped: false }));
   ar.rotation.x = Math.PI / 2; ar.position.set(0, 0.01, R + 0.1); ar.rotation.z = 0; ar.rotation.y = 0; ground.add(ar);
 }
 function buildCard(u) {
   const rl = u.rules, w = 40 * rl / 60, h = rl, d = 0.02;
   const g = new THREE.BoxGeometry(w, h, d); const e = new THREE.EdgesGeometry(g);
-  const l = new THREE.LineSegments(e, new THREE.LineDashedMaterial({ color: new THREE.Color(css("--hexline")), dashSize: 0.05, gapSize: 0.05 }));
+  const l = new THREE.LineSegments(e, new THREE.LineDashedMaterial({ color: lin(css("--hexline")), dashSize: 0.05, gapSize: 0.05, toneMapped: false }));
   l.computeLineDistances(); l.position.set(0, h / 2, 0); l.name = "card"; l.visible = state.card; return l;
 }
 function buildModel() {
   scene.remove(modelGroup); modelGroup.traverse(o => { if (o.geometry) o.geometry.dispose(); });
   modelGroup = new THREE.Group();
   const pal = palette(), mats = {}, mesh = state.unit[state.variant];
-  const edgeMat = new THREE.LineBasicMaterial({ color: new THREE.Color(css("--edge")), transparent: true, opacity: 0.5 });
-  for (const c in pal) mats[c] = new THREE.MeshStandardMaterial({ color: pal[c], roughness: c === "hl" ? 0.25 : 0.62, metalness: c === "t4" || c === "gm" ? 0.5 : 0.18, flatShading: true, vertexColors: true,
-    emissive: (c === "hl" || c === "ck") ? pal[c] : 0x000000, emissiveIntensity: c === "ck" ? 0.35 : c === "hl" ? 0.12 : 0 });
+  const edgeMat = new THREE.LineBasicMaterial({ color: lin(css("--edge")), transparent: true, opacity: 0.22 });
+  // materials by class: painted armour plate (satin), bare metal for joints / weapons / frame (darker, more reflective), glass
+  // for the cockpit, emissive for lit details, matte black for panel lines and bores
+  const MAT = { t1: [0.52, 0.22], t2: [0.52, 0.22], t3: [0.48, 0.25], tm: [0.45, 0.2], t4: [0.36, 0.72], gm: [0.34, 0.78],
+    we: [0.4, 0.5], wb: [0.4, 0.5], wm: [0.4, 0.5], hl: [0.2, 0.1], ck: [0.06, 0.2], ln: [0.92, 0.0] };
+  for (const c in pal) { const [ro, me] = MAT[c] || [0.5, 0.3];
+    mats[c] = new THREE.MeshStandardMaterial({ color: pal[c], roughness: ro, metalness: me, flatShading: true, vertexColors: true, envMapIntensity: c === "ln" ? 0.1 : 0.42,
+      emissive: (c === "hl" || c === "ck") ? pal[c] : 0x000000, emissiveIntensity: c === "ck" ? 0.55 : c === "hl" ? 0.5 : 0 }); }
   for (const part of mesh.parts) {
     const v = part.v, f = part.f, pos = new Float32Array(f.length * 3);
     for (let i = 0; i < f.length; i++) { pos[i * 3] = v[f[i] * 3]; pos[i * 3 + 1] = v[f[i] * 3 + 1]; pos[i * 3 + 2] = v[f[i] * 3 + 2]; }
@@ -198,7 +222,7 @@ function buildModel() {
     }
     g.setAttribute("color", new THREE.BufferAttribute(col, 3));
     const m = new THREE.Mesh(g, mats[part.cls] || mats.t1); m.castShadow = true; m.receiveShadow = true; modelGroup.add(m);
-    if (part.cls !== "ln") modelGroup.add(new THREE.LineSegments(new THREE.EdgesGeometry(g, 24), edgeMat));
+    if (state.edges && part.cls !== "ln") modelGroup.add(new THREE.LineSegments(new THREE.EdgesGeometry(g, 30), edgeMat));
   }
   modelGroup.add(buildCard(state.unit));
   scene.add(modelGroup); buildGround();
@@ -243,8 +267,9 @@ function syncOpts() {
   optsEl.replaceChildren(
     mk("button", { type: "button", textContent: "Orthographic", onclick: () => { state.ortho = !state.ortho; syncOpts(); placeCamera(); } }),
     mk("button", { type: "button", textContent: "Standee card", onclick: () => { state.card = !state.card; const c = modelGroup.getObjectByName("card"); if (c) c.visible = state.card; syncOpts(); } }),
-    mk("button", { type: "button", textContent: "Turntable", onclick: () => { state.spin = !state.spin; syncOpts(); } }));
-  [state.ortho, state.card, state.spin].forEach((on, i) => optsEl.children[i].setAttribute("aria-pressed", on));
+    mk("button", { type: "button", textContent: "Turntable", onclick: () => { state.spin = !state.spin; syncOpts(); } }),
+    mk("button", { type: "button", textContent: "Edges", onclick: () => { state.edges = !state.edges; syncOpts(); buildModel(); } }));
+  [state.ortho, state.card, state.spin, state.edges].forEach((on, i) => optsEl.children[i].setAttribute("aria-pressed", on));
 }
 function renderList() {
   const listEl = document.getElementById("list"), bands = [["Light", 0, 35], ["Medium", 36, 55], ["Heavy", 56, 75], ["Assault", 76, 999]], out = [];
