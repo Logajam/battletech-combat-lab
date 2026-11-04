@@ -185,6 +185,10 @@ def read_unit(path):
             unit["heat_sinks"] = int(m.group(1)) if m else 10
         elif key == "cockpit":
             unit["cockpit"] = val.strip()
+        elif key == "engine":                                    # skeleton-and-shell builder: the engine's rating and type size the centre torso
+            unit["engine"] = val.strip()
+        elif key == "structure":
+            unit["structure"] = val.strip()
         elif key == "walk mp":
             unit["walk"] = int(val or 0) if val.strip().isdigit() else 0
         elif key == "armor":
@@ -316,10 +320,11 @@ def armor_thinness(unit, tons):
     return out
 
 
-def build_model(unit, overrides=None, hash_only=False):
+def build_model(unit, overrides=None, hash_only=False, shell=True):
     """The part model: a plain dict a renderer (or a person) can read and edit.
     `overrides` (name -> features) is added to data/token_overrides.json; `hash_only`
-    ignores every override, to show what the name hash alone gives."""
+    ignores every override, to show what the name hash alone gives. `shell=False` forces the old block builder
+    (phase 1 keeps it beside the skeleton-and-shell builder so the two can be compared)."""
     tons = unit["tons"]
     chassis = unit.get("clanname") or unit.get("chassis", "?")
     names = {unit.get("chassis", "").lower(), unit.get("clanname", "").lower()}
@@ -427,6 +432,13 @@ def build_model(unit, overrides=None, hash_only=False):
     big_side = [z for z in ("Left Torso", "Right Torso") for g in per_zone.get(z, []) if g["big"]]
     model["head_offset"] = 0 if len(big_side) != 1 else (1 if big_side[0] == "Left Torso" else -1)   # figure's right = +1
 
+    # skeleton-and-shell builder (INTEGRATION__shell, 2026-11-04): the units it covers are built by it, the rest still by the block
+    # builder `_build` below until phase 2 widens the range (INTEGRATION__COMBAT_LAB_SKELETON.md section 6)
+    import INTEGRATION__shell as _shell
+    model["shell"] = bool(shell and _shell.enabled(unit) and model["archetype"] in _shell.ARCH)
+    if model["shell"]:
+        model["_unit"] = unit
+        model["nocap"] = True
     return model
 
 
@@ -880,6 +892,9 @@ def _pod(b, c, tubes, tone="3", flush=False, fam=""):
 
 def _build(model, f, k):
     """All the parts of one unit. Returns a B3."""
+    if model.get("shell"):                                      # the skeleton-and-shell builder (phase 1 test range)
+        import INTEGRATION__shell as _shell
+        return _shell.build(model, k)
     b = B3(f, k)
     arche = model["archetype"]
     A = dict(TRIPOD3 if model["tripod"] else ARCH3[arche])
@@ -1769,6 +1784,8 @@ def _views(model, height_px):
     # `fit` (set by INTEGRATION__token_mesh.calibrate) is the width / depth factor that makes the MEASURED body volume equal
     # density x tonnage: two 'Mechs of one mass fill one volume (Daniel, 2026-11-03). Without it (the 2D sheets) the older
     # estimate below is used.
+    if model.get("shell"):                                      # built in metres at the rules height: no width fit, no loop
+        return _build(model, 1.0, height_px), height_px
     f = model["fit"] if model.get("fit") else _mass_factor(model) * (0.90 + 0.24 * min(model["tons"], 100) / 100.0)
     k = height_px
     for _ in range(3):

@@ -32,6 +32,7 @@ except ImportError:
 # (unit file, hash_only)
 CASES = [("Atlas AS7-H", False), ("Locust LCT-3V", False), ("Mad Cat (Timber Wolf) Prime", False), ("Highlander HGN-694", False),
          ("Cataphract CTF-0X", False), ("Vindicator VND-5L", False), ("Awesome AWS-9M", False), ("Panther PNT-8Z", False),
+         ("Archer ARC-1A", False), ("JagerMech JM7-G", False), ("UrbanMech UM-R93", False), ("Wendigo (Prime)", True),
          ("Trebuchet TBT-3C", True), ("Crab CRB-27", True), ("Hunchback HBK-7S", True), ("Wolverine WVR-1R", True)]
 
 
@@ -61,6 +62,8 @@ def main():
         if nf:
             srcs = sorted({q[2] for c in r["floating"] for q in c})
             bad.append(f"{u}{' (hash)' if hash_only else ''}: {nf} floating parts ({', '.join(srcs)[:160]})")
+        if r.get("clip", (0.0, ""))[0] * 6.0 > 0.005:                      # arm / torso and leg / leg penetration (spec section 7), metres
+            bad.append(f"{u}: clip {r['clip'][0] * 6:.3f} m ({r['clip'][1]})")
         if r["ground"]:
             bad.append(f"{u}: {len(r['ground'])} parts below the ground")
     if bad or not seen:

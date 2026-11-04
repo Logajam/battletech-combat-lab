@@ -78,7 +78,8 @@ def _hull(points):
 
 def _raw_parts(model, drop=(), with_src=False):
     """[(cls, vertices (n,3), faces (m,3), tag)] for every convex solid of the unit, in levels, at the model's current fit.
-    with_src: [(cls, tag, src, vertices, faces)] instead, src = the builder line that made the part (tools/token_audit.py)."""
+    with_src: [(cls, tag, src, vertices, faces, loc, role)] instead, src = the builder line that made the part (tools/token_audit.py),
+    loc / role = the location and role (core, plate, cover, item, detail) the shell builder gave it."""
     b, k = T._views(model, model["drawn_levels"] * T.LEVEL)
     s = k / T.LEVEL
     sph, slab = _sphere_points(), _slab_points()
@@ -116,7 +117,7 @@ def _raw_parts(model, drop=(), with_src=False):
             if m is None:
                 continue
             if with_src:
-                out.append((part["cls"], part["tag"], part.get("src", ""), np.asarray(m.vertices), np.asarray(m.faces)))
+                out.append((part["cls"], part["tag"], part.get("src", ""), np.asarray(m.vertices), np.asarray(m.faces), part.get("loc", ""), part.get("role", "")))
             else:
                 out.append((part["cls"], np.asarray(m.vertices), np.asarray(m.faces), part["tag"]))
     return out
@@ -157,6 +158,9 @@ def calibrate(model):
     """Set model["fit"] so that body volume = DENSITY x tons (two secant steps on f, volume ~ f^2). The 'Mech's height is
     already the rules curve; only its width and depth change. Heavy and light, crouched and upright: one density."""
     if model.get("_cal"):
+        return
+    if model.get("shell"):                                   # the shell builder's volume comes from its parts (INTEGRATION__shell), not a rescale
+        model["_cal"] = True
         return
     model["nocap"] = True
     f0 = T._mass_factor(model) * (0.90 + 0.24 * min(model["tons"], 100) / 100.0)

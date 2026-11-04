@@ -287,13 +287,16 @@ function renderInfo() {
   document.getElementById("umeta").replaceChildren(...[u.tons + " t", u.config, "rules " + u.rules + " lv", "drawn " + u.levels.toFixed(2) + " lv", "tags: " + u.source + (u.confidence ? " (" + u.confidence + ")" : "")].map(t => mk("span", { textContent: t })));
   document.getElementById("variant").replaceChildren(
     mk("button", { type: "button", textContent: "Reference tags", onclick: () => { state.variant = "ref"; refresh(); } }),
-    mk("button", { type: "button", textContent: "Name hash only", onclick: () => { state.variant = "hash"; refresh(); } }));
+    mk("button", { type: "button", textContent: "Name hash only", onclick: () => { state.variant = "hash"; refresh(); } }),
+    ...(u.old ? [mk("button", { type: "button", textContent: "Old blocks (before)", onclick: () => { state.variant = "old"; refresh(); } })] : []));
   document.getElementById("variant").children[0].setAttribute("aria-pressed", state.variant === "ref");
   document.getElementById("variant").children[1].setAttribute("aria-pressed", state.variant === "hash");
-  document.getElementById("unote").textContent = state.variant === "ref" ? (u.note || "No reference note for this unit.") : "Only what the chassis name hash picks: how an unlisted unit would look.";
+  if (u.old) document.getElementById("variant").children[2].setAttribute("aria-pressed", state.variant === "old");
+  if (state.variant === "old" && !u.old) state.variant = "ref";
+  document.getElementById("unote").textContent = state.variant === "ref" ? (u.note || "No reference note for this unit.") : state.variant === "old" ? "The previous block generator, for comparison with the skeleton-and-shell model." : "Only what the chassis name hash picks: how an unlisted unit would look.";
   const dl = document.getElementById("utags"); dl.replaceChildren();
-  u.tags[state.variant].forEach(([k, v]) => { dl.append(mk("dt", { textContent: k }), mk("dd", { textContent: v })); });
-  document.getElementById("badge").textContent = u.name + " · " + (state.variant === "ref" ? "reference tags" : "name hash");
+  u.tags[state.variant === "old" ? "ref" : state.variant].forEach(([k, v]) => { dl.append(mk("dt", { textContent: k }), mk("dd", { textContent: v })); });
+  document.getElementById("badge").textContent = u.name + " · " + (state.variant === "ref" ? "reference tags" : state.variant === "old" ? "old block model" : "name hash");
 }
 function renderTeam() {
   const el = document.getElementById("team");

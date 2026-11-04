@@ -123,3 +123,10 @@ system can't express is flagged for Daniel. It is never dropped silently.
 
 Whether it reads as military hardware; shuffle variety vs chassis identity (a Hunchback must still read as a
 Hunchback); plate thickness and layering; how the joint covers look.
+
+## 9. Status (2026-11-04, end of phase 1)
+
+Phase 1 is built and published for Daniel's review (Change Record "SKELETON-AND-SHELL BUILDER, PHASE 1"). Departures from this
+spec, all recorded there: the volume band is 30 percent (25 failed on the pelvis plates and narrow side torsos); the old `_build`
+and `calibrate` stay for units outside the range until phase 2; the 2D tokens of shell models project the same convex solids
+the mesh uses. Phase 2 waits for Daniel's verdict.

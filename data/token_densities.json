@@ -1,0 +1,44 @@
+{
+  "_about": "Combat Lab ART values (Claude, 2026-11-04), NOT rules. Tons per cubic metre at 6 m a level, used by INTEGRATION__shell.py to turn a mass into a drawn volume (volume = mass / density) for the skeleton-and-shell model. They are tuned so that the whole of a 'Mech comes to about 0.8 cubic metres a ton (the old 0.0037 levels^3 per ton) and so that a dense 1-slot item is short and thick while a light many-slot item is long and slim. Daniel (2026-11-04): different equipment may have different densities; volume is only a sanity check. Change a number here and the models change; nothing in a battle reads this file.",
+  "slot_length_m": 0.4,
+  "slot_length_why": "One critical slot is 0.4 m of an item's length along its mount: a 12-slot arm is 4.8 m, near a 100-ton 'Mech's real arm; a 10-slot AC/20 is a 4 m gun.",
+  "min_plate_m": 0.05,
+  "min_plate_why": "No shell plate is drawn thinner than 5 cm at scale (the test fails below it).",
+  "density": {
+    "laser":        {"t_per_m3": 9.0, "why": "lens stack, capacitor and cooling block: compact and heavy for its size"},
+    "ppc":          {"t_per_m3": 8.0, "why": "accelerator coils around a short barrel: dense"},
+    "ac":           {"t_per_m3": 7.0, "why": "a steel barrel and breech: close to solid metal"},
+    "lbx":          {"t_per_m3": 7.0, "why": "same as the autocannon: steel barrel, breech and choke"},
+    "uac":          {"t_per_m3": 7.0, "why": "twin steel barrels and a feed: same as the autocannon"},
+    "rotary":       {"t_per_m3": 7.0, "why": "barrel cluster and motor drum: same as the autocannon"},
+    "gauss":        {"t_per_m3": 6.0, "why": "long coils with air gaps between them: lighter than a cannon, so longer and slimmer"},
+    "mg":           {"t_per_m3": 6.0, "why": "small steel gun"},
+    "flamer":       {"t_per_m3": 4.0, "why": "a fuel tank and a nozzle"},
+    "plasma":       {"t_per_m3": 5.0, "why": "containment bulb and field coils"},
+    "missile":      {"t_per_m3": 3.0, "why": "a bundle of 25 kg missiles in tubes: mostly air between the rounds"},
+    "ammo":         {"t_per_m3": 3.5, "why": "a bin of packed shells or missiles"},
+    "heatsink_single": {"t_per_m3": 1.2, "why": "fin stacks: mostly gaps"},
+    "heatsink_double": {"t_per_m3": 1.6, "why": "finer fins and a coolant loop: a little denser than a single"},
+    "jumpjet":      {"t_per_m3": 3.0, "why": "a thrust chamber and nozzle"},
+    "ecm":          {"t_per_m3": 2.0, "why": "electronics in a dome or dish"},
+    "probe":        {"t_per_m3": 2.0, "why": "electronics in a dome or dish"},
+    "c3":           {"t_per_m3": 2.0, "why": "electronics in a dome or dish"},
+    "ams":          {"t_per_m3": 4.0, "why": "a small rapid-fire gun and its ammo feed"},
+    "case":         {"t_per_m3": 2.0, "why": "a bulkhead and blow-out panel"},
+    "misc":         {"t_per_m3": 2.0, "why": "equipment with no face: MASC, TSM, targeting computer, other electronics"},
+    "structure_slot": {"t_per_m3": 1.0, "why": "an endo-steel or ferro-fibrous filler slot: its mass is already in structure or armor, so it adds none (tons 0)"},
+    "engine":       {"t_per_m3": 2.0, "why": "reactor, shielding and a coolant plant"},
+    "gyro":         {"t_per_m3": 3.0, "why": "a heavy flywheel"},
+    "cockpit":      {"t_per_m3": 1.2, "why": "a pilot's cabin: mostly space"},
+    "structure":    {"t_per_m3": 0.35, "why": "frame and myomer bundles: a limb or torso is mostly muscle with air around it"},
+    "armor":        {"t_per_m3": 0.9, "why": "layered plate with air gaps between the layers"}
+  },
+  "fallback_tons": {
+    "_note": "Used only when mechsim/equipment.json has no tonnage for an item and MegaMek's value was not looked up: the item is counted in INTEGRATION__shell.FALLBACKS so a report can list it. Heat sinks 1 t, ammo 1 t per slot, a jump jet by the 'Mech's mass, anything else 0.5 t a slot.",
+    "heatsink": 1.0, "ammo_per_slot": 1.0, "per_slot": 0.5
+  },
+  "engine_tons": {
+    "_note": "Standard fusion engine mass by rating (Claude's recall of the construction table, art only; log-interpolated between rows). XL x0.5, Light x0.75, Compact x1.5.",
+    "50": 1.5, "100": 3.0, "150": 5.5, "200": 8.5, "250": 12.5, "300": 19.0, "350": 29.5, "400": 52.5
+  }
+}

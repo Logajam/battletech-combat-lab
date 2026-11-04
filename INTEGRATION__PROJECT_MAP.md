@@ -56,6 +56,9 @@ one-pool RNG (`config.active_rng`), `tests/test_saved_state.py`, `tests/test_rng
 (j) SESSION 17 (Change Record "WEAPON-CHOICE LOOKUP TABLES..."): `FireTable`, `fire_state` (is anything a
 weapon choice reads missing from it?), `shared_fire_table`'s key, the `select_weapons_to_fire` split,
 `fastcore.knapsack_levels`, `tests/test_fire_tables.py`.
+(l) SESSION 18 (Change Record "SKELETON-AND-SHELL BUILDER, PHASE 1"): `INTEGRATION__shell.py`,
+`INTEGRATION__shell_items.py`, `data/token_densities.json`, `tests/test_token_shell.py`, the audit's clip measure. Art only;
+waiting on Daniel's verdict on the look before phase 2.
 (k) COMBAT LAB 3D ART REVIEW PASS (Change Record "COMBAT LAB 3D - REVIEW PASS..."), 2026-11-04: this pass
 reviewed the session 16 3D-art queue items (the "3D model pipeline" bullets in INTEGRATION__COMBAT_LAB.md)
 and fixed what it found; its own changes to `INTEGRATION__tokens.py` (snap helpers `B3.extent` / `shift`,
@@ -1791,6 +1794,34 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-11-04 (Claude), session 18 - SKELETON-AND-SHELL BUILDER, PHASE 1 (TEST RANGE)** (spec:
+  `INTEGRATION__COMBAT_LAB_SKELETON.md`). REVIEW PENDING (higher-level model). Art only: no engine code, every reference
+  log identical, 50 of 50 checks. STOPPED for Daniel's verdict on the look before phase 2.
+  - **Built:** `INTEGRATION__shell_items.py` (the data half: every crit line becomes an item with kind, slots, tons from
+    `mechsim/equipment.json` with a flagged fallback, volume = tons / density; hardpoint capacity read from `unit["slots"]`;
+    the name-hash shuffle onto rails; location volume budgets from items, structure, armor, engine, gyro, cockpit),
+    `INTEGRATION__shell.py` (skeleton joints from the rules height, location envelopes sized from the budgets, bevelled armor
+    plates of real thickness layered by armor ratio, joint covers that overlap so no gap shows, shoulder sockets, visible
+    mounts: weapons on rails, heat-sink vents, jump-jet nozzles, sensor domes, real-scale missile tubes),
+    `data/token_densities.json` (art densities with a reason each, slot length 0.4 m, 5 cm plate minimum),
+    `tests/test_token_shell.py`, a clip measure in `tools/token_audit.py`, the dictionary mapping
+    (`data/token_dictionary.json` `shell_mapping`: every tag term expressed, approximated or FLAGGED), a third "Old blocks"
+    variant in the viewer.
+  - **Range (phase 1):** Atlas, Mad Cat / Timber Wolf, Locust, Hunchback, Archer, JagerMech, UrbanMech, and Wendigo (a
+    torso-mounted cockpit, weapon and ammo in the head; name hash only). `tokens.build_model(..., shell=True)` routes them to the
+    shell builder; every other unit still uses the old block builder `_build` until phase 2, which is why `_build` and
+    `calibrate` are not yet deleted (the spec's "retire" lands with the last phase).
+  - **Checks:** hardpoints over all 4,227 unit files (115,951 items placed once each, none over capacity, shuffle stable);
+    location volume within a band of its budget (spec 25 percent; tuned to **30 percent**: the pelvis plates and clamped
+    narrow side torsos need it); height on the rules curve (3 percent); no plate under 5 cm; 0 floating blocks, nothing below
+    the ground, arm / torso and leg / leg clip 0 on 16 models. `test_token_volume.py` skips the old density law for shell models.
+  - **2D from 3D:** for shell models the 2D tokens already project the very convex solids the mesh hulls, so they cannot
+    disagree; the old 2D path stays for old-builder units until phase 2.
+  - **Not done / for Daniel's eye:** the look. Known weak points (FLAGGED in the dictionary mapping): no Hunchback hump, no
+    Archer tall launcher boxes, no Atlas notch, no Mad Cat wing bays, plates read stepped on steep limbs, physical weapons,
+    martian / quad / tripod skeletons (phase 3). Weapon masses with no table value use the fallback list
+    (`INTEGRATION__shell_items.FALLBACKS`: mostly ammo and heat sinks).
 
 - **2026-11-04 (Claude), session 18 - COMBAT LAB 3D - REVIEW PASS (Daniel: "a higher tier pass at the combat lab 3d
   assets; see what problems you can find and fix").** REVIEW PENDING (higher-level model). Art only: no engine code, every

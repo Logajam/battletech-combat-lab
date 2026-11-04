@@ -29,6 +29,8 @@ TOUCH = 0.004          # levels (2.4 cm at 6 m a level): closer than this counts
 SINK = 0.004           # levels: deeper than this below the ground is a fault
 _B3_METHODS = {n for n, _ in inspect.getmembers(T.B3, inspect.isfunction)}
 _TOKENS_FILE = os.path.abspath(T.__file__)
+import INTEGRATION__shell as _SH                            # the skeleton-and-shell builder's frames are named too
+_SHELL_FILE = os.path.abspath(_SH.__file__)
 
 
 class _TrackedParts(list):
@@ -37,9 +39,10 @@ class _TrackedParts(list):
     def append(self, part):
         src = []
         for fr in inspect.stack()[1:]:
-            if os.path.abspath(fr.filename) == _TOKENS_FILE and fr.function not in _B3_METHODS:
+            fn = os.path.abspath(fr.filename)
+            if (fn == _TOKENS_FILE and fr.function not in _B3_METHODS) or (fn == _SHELL_FILE and fr.function not in ("add", "emit", "<lambda>", "wrapped")):
                 src.append(f"{fr.function}:{fr.lineno}")
-                if fr.function == "_build":
+                if fr.function in ("_build", "assemble"):
                     break
         part["src"] = " < ".join(src)
         super().append(part)
@@ -131,6 +134,34 @@ def symmetry(parts):
     return float(d.mean())
 
 
+def clip(parts, limit=0.0):
+    """CLIP measure (2026-11-04 review, spec section 7): the deepest overlap, in levels, between solids that must only touch.
+    Arm cores and plates against the torso's solids, and one leg's solids against the other leg's. Joint covers (role `cover`: a
+    pauldron, a disc, a collar) overlap by design and are left out, as are items. Exact: python-fcl penetration depth."""
+    import fcl
+    pairs = []
+    idx = {i: p for i, p in enumerate(parts)}
+    objs = {i: _fcl_obj(p[3], p[4]) for i, p in idx.items() if p[6] in ("core", "plate")}
+    groups = [("Left Arm", "Center Torso"), ("Left Arm", "Left Torso"), ("Left Arm", "Right Torso"), ("Right Arm", "Center Torso"),
+              ("Right Arm", "Left Torso"), ("Right Arm", "Right Torso"), ("Left Leg", "Right Leg")]
+    worst = (0.0, "")
+    req = fcl.CollisionRequest(num_max_contacts=4, enable_contact=True)
+    for la, lb in groups:
+        A = [i for i in objs if idx[i][5] == la]
+        B = [i for i in objs if idx[i][5] == lb]
+        for i in A:
+            lo, hi = idx[i][3].min(0), idx[i][3].max(0)
+            for j in B:
+                if np.any(idx[j][3].min(0) > hi) or np.any(idx[j][3].max(0) < lo):
+                    continue
+                res = fcl.CollisionResult()
+                if fcl.collide(objs[i], objs[j], req, res):
+                    d = max((c.penetration_depth for c in res.contacts), default=0.0)
+                    if d > worst[0]:
+                        worst = (d, f"{la}:{idx[i][2]} v {lb}:{idx[j][2]}")
+    return worst
+
+
 def audit(model):
     parts = solids(model)
     adj = contact_graph(parts)
@@ -138,7 +169,7 @@ def audit(model):
     floating = [[parts[i] for i in c] for c in comps[1:]]
     ground = [p for p in parts if p[3][:, 1].min() < -SINK]
     return {"name": model["name"], "parts": len(parts), "floating": floating, "ground": ground,
-            "sym": symmetry(parts), "asym": bool(model.get("asym"))}
+            "sym": symmetry(parts), "asym": bool(model.get("asym")), "clip": clip(parts) if model.get("shell") else (0.0, "")}
 
 
 def main(argv):
@@ -160,7 +191,7 @@ def main(argv):
         total_float += nf
         total_ground += len(r["ground"])
         print(f"{r['name']:<34} parts {r['parts']:4d}  floating {nf:3d} in {len(r['floating']):2d} clusters  below ground {len(r['ground']):2d}"
-              f"  mirror {r['sym']:.4f}{' (asym tag)' if r['asym'] else ''}")
+              f"  mirror {r['sym']:.4f}{' (asym tag)' if r['asym'] else ''}  clip {r['clip'][0] * 6:.3f} m")
         if detail:
             for c in r["floating"]:
                 srcs = sorted({q[2] for q in c})
