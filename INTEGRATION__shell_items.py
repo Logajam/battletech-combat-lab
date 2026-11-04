@@ -297,6 +297,12 @@ def budgets(unit, items):
         v = {"structure": st[zone] / d["structure"]["t_per_m3"],
              "armor": (unit.get("armor_by") or {}).get(zone, 0) / 16.0 / d["armor"]["t_per_m3"],
              "items": sum(i["vol"] for i in items.get(zone, []))}
+        acts = DENS["actuator_tons"]
+        for line in unit["slots"].get(zone, [])[:SLOTS_IN.get(zone, 12)]:     # actuators give the limbs their bulk (art mass)
+            key = _strip(line).lower()
+            if key in acts and not key.startswith("_"):
+                v["hip" if key == "hip" else "actuators"] = v.get("hip" if key == "hip" else "actuators", 0.0) + \
+                    unit["tons"] * acts[key] / d["actuator"]["t_per_m3"]
         if zone == "Center Torso":
             v["engine"] = et * (0.5 if xl else 1.0) / d["engine"]["t_per_m3"]
             v["gyro"] = gyro_t / d["gyro"]["t_per_m3"]

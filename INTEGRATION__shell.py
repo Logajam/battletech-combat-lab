@@ -32,9 +32,9 @@ M_LEVEL = 6.0
 MIN_PLATE = I.DENS["min_plate_m"]
 OVERLAP = 0.80                       # sum of hull volumes x this = the union's volume (parts overlap); tuned on the test range
 ARCH = {                             # fractions of the height; leg length, torso height
-    "humanoid": dict(leg=0.46, torso=0.32, fwd=0.0),
-    "bird": dict(leg=0.50, torso=0.29, fwd=0.035),
-    "martian": dict(leg=0.54, torso=0.28, fwd=0.0),
+    "humanoid": dict(leg=0.52, torso=0.29, fwd=0.0),
+    "bird": dict(leg=0.53, torso=0.27, fwd=0.035),
+    "martian": dict(leg=0.56, torso=0.27, fwd=0.0),
 }
 
 
@@ -253,11 +253,13 @@ def fit(make, target, vol_of, iters=7, lo=0.35, hi=3.0):
 
 def plate_t(ratio, Hm):
     """Plate thickness in metres from the location's armor ratio (0 thin .. 1 full) and the 'Mech's size."""
-    return max(MIN_PLATE, (0.07 + 0.15 * ratio) * math.sqrt(Hm / 12.0))
+    return max(MIN_PLATE, (0.08 + 0.22 * ratio) * math.sqrt(Hm / 12.0))
 
 
 def n_layers(ratio):
-    return 1 + (ratio > 0.5) + (ratio > 0.85)
+    """One plate per face (Daniel, 2026-11-04: stacked shrinking plates read as 'mini ziggurats ... built in minecraft'). Thick
+    armor shows as a THICKER plate (plate_t), never as steps."""
+    return 1
 
 
 class Ctx:
@@ -403,7 +405,7 @@ LAYER_CLS = ("t2", "t3", "t1")
 
 def seg_plates(p0, p1, w0, d0, w1, d1, ratio, Hm, sg, faces=("front", "outer", "rear"), spec=None):
     """Armor plates over a limb segment (the frustum p0..p1): [(pts, cls, role)]. Plates are real thickness (plate_t) and lie
-    on the front, the outer side and the back; where the location carries more armor a second and third layer steps up on them.
+    on the faces asked for, one plate each; where the location carries more armor the plate is thicker (no stepped layers).
     No plate overhangs the inner face (legs and arms must not touch their neighbours)."""
     a, ex, ey = limb_axes(p0, p1)
     p0, p1 = np.asarray(p0, float), np.asarray(p1, float)
@@ -436,7 +438,8 @@ def leg_make(cx, sg, s):
     bird = arch == "bird" or m.get("legs") == "digitigrade"
     ratio = cx.P["ratio"]["Left Leg" if sg < 0 else "Right Leg"]
     slab_legs = m.get("legs") in ("slab", "pillar", "heavy")
-    asp = 1.6 if m.get("legs") == "slab" else 1.0 if m.get("legs") == "pillar" else 1.25
+    # width / depth: both MWO kits have legs deeper front-to-back than wide (Atlas shin 1.9 x 2.5 m, Timber Wolf 1.7 x 2.9 m)
+    asp = 0.72 if bird else 0.95 if m.get("legs") == "slab" else 0.9 if m.get("legs") == "pillar" else 0.8
     legs_k = m.get("legscale", 1.0) * (1.25 if m.get("legs") == "heavy" else 1.0)
     A = ARCH[arch]
     zh, fwd = A["leg"] * Hm * (0.93 if m.get("crouch") else 1.0), A["fwd"] * Hm
@@ -449,7 +452,8 @@ def leg_make(cx, sg, s):
     dt = wt / asp
     out = []
     chain = ["hip", "knee", "hock", "ankle"] if bird else ["hip", "knee", "ankle"]
-    sizes = {"hip": (1.0, 1.0), "knee": (0.88, 0.9), "hock": (0.62, 0.7), "ankle": (0.6, 0.65)} if bird else {"hip": (1.0, 1.0), "knee": (0.88, 0.9), "ankle": (0.62, 0.66)}
+    # the lower leg stays nearly as big as the thigh (both kits: Atlas shin 1.9 x 2.5 m against a 2.2 x 1.8 m thigh)
+    sizes = {"hip": (1.0, 1.0), "knee": (0.96, 1.0), "hock": (0.88, 0.95), "ankle": (0.74, 0.8)} if bird else {"hip": (1.0, 1.0), "knee": (0.96, 0.98), "ankle": (0.8, 0.84)}
     segs = []
     for i in range(len(chain) - 1):
         a_, b_ = chain[i], chain[i + 1]
@@ -460,21 +464,24 @@ def leg_make(cx, sg, s):
         w1, d1 = wt * sb[0], dt * sb[1]
         w0, d0 = (wt, dt) if i == 0 else (segs[-1][4], segs[-1][5])          # each segment starts as wide as the one above ends
         segs.append((p0, p1, w0, d0, w1, d1))
-        out.append((frustum(p0, p1, w0, d0, w1, d1, ch=0.25, end=0.04 * Hm * 0.5), "t1", "core", f"leg{i}"))
-    # the foot: a block from heel to toe, the toe narrower; the shin ends inside it
-    wf = segs[-1][4] * 1.35
-    Lf = 0.17 * Hm * (1.3 if bird else 1.0)
-    hf = 0.065 * Hm
-    heel = J["ankle"][1] - 0.06 * Hm
+        out.append((frustum(p0, p1, w0, d0, w1, d1, ch=0.3, end=0.06 * min(w0, d0) * 2), "t1", "core", f"leg{i}"))
+    # the foot: a heel block and two toes (Atlas kit foot 2.1 m wide, 3.6 m long, 1.2 m high at 12 m); the shin ends inside it
+    aw0 = segs[-1][4]
+    wf = min(max(aw0 * 1.15, 0.07 * Hm), 0.095 * Hm)          # half-width: the kit Atlas foot is 2.1 m wide at 12 m
+    Lf = (0.24 if bird else 0.28) * Hm
+    hf = (0.1 if bird else 0.09) * Hm
+    heel = J["ankle"][1] - (0.07 if bird else 0.1) * Hm
     fr = Frame((0, heel, 0), (0, 1, 0))
-    out.append((fr.pp(lbox((0, Lf / 2, hf / 2), (2 * wf, Lf, hf), bev=0.1 * hf * 2, tap=(0.7, 0.45))), "t1", "core", "foot"))
-    out.append((slab((0, heel + Lf * 0.4, hf + 0.01), (0, 0, 1), (0, 1, 0), 2 * wf * 0.8, Lf * 0.62, max(MIN_PLATE, 0.5 * plate_t(ratio, Hm))), "t2", "plate", "foot_top"))
-    # armor plates on every segment
+    out.append((fr.pp(lbox((0, Lf * 0.3, hf / 2), (2 * wf, Lf * 0.6, hf), bev=0.22 * hf)), "t1", "core", "foot"))
+    gap = 0.05
+    for sx in (-1, 1):                                    # two low toes ahead of the heel block, split down the middle
+        out.append((fr.pp(lbox((sx * (wf / 2 + gap / 2) * 0.9, Lf * 0.72, hf * 0.27), (wf * 0.82 - gap, Lf * 0.44, hf * 0.54), bev=0.18 * hf, tap=(0.9, 0.55))), "t2", "core", "toe"))
+    out.append((slab((0, heel + Lf * 0.3, hf + 0.01), (0, 0, 1), (0, 1, 0), 2 * wf * 0.86, Lf * 0.5, plate_t(ratio, Hm)), "t2", "plate", "foot_top"))
+    # armor: one plate per face - a broad guard on the thigh's front and outer side, a shin guard on the front of the lower leg
     for i, sg_ in enumerate(segs):
-        spec = None
-        if slab_legs:
-            spec = {"front": (0.5, 1.0, 0.82), "outer": (0.5, 0.95, 0.8), "rear": (0.5, 0.9, 0.55)}
-        for pts, cls, role in seg_plates(sg_[0], sg_[1], sg_[2], sg_[3], sg_[4], sg_[5], ratio, Hm, sg, spec=spec, faces=("front", "outer", "rear") if i < len(segs) - 0 else ("front", "outer")):
+        spec = {"front": (0.5, 0.96, 0.8), "outer": (0.5, 0.9, 0.72), "rear": (0.5, 0.86, 0.6)}
+        faces = ("front", "outer") if i == 0 else ("front",) if i == len(segs) - 1 else ("rear",) if bird else ("front",)
+        for pts, cls, role in seg_plates(sg_[0], sg_[1], sg_[2], sg_[3], sg_[4], sg_[5], ratio, Hm, sg, spec=spec, faces=faces):
             out.append((pts, cls, role, f"leg{i}_plate"))
     # joint covers: a knee disc (and a hock disc), a hip collar, an ankle collar: overlapping plates, no gap shows the inside
     for jn in chain[1:-1]:
@@ -482,7 +489,6 @@ def leg_make(cx, sg, s):
         w_, d_ = segs[i][4], segs[i][5]
         rk = max(d_, w_ * 0.75) * 1.0
         out.append((cyl(J[jn] - np.array([w_ * 1.04, 0, 0]), J[jn] + np.array([w_ * 1.04, 0, 0]), rk, None, 12), "t4", "cover", f"{jn}_disc"))
-    out.append((frustum(J["hip"] + np.array([0, 0, 0.03 * Hm]), J["hip"] - np.array([0, 0, 0.045 * Hm]), wt * 1.08, dt * 1.1, wt * 1.04, dt * 1.06, ch=0.3), "t4", "cover", "hip_collar"))
     aw, ad = segs[-1][4], segs[-1][5]
     out.append((frustum(J["ankle"] + np.array([0, 0, 0.05 * Hm]), J["ankle"] - np.array([0, 0, 0.012 * Hm]), aw * 1.18, ad * 1.2, aw * 1.3, ad * 1.3, ch=0.3), "t4", "cover", "ankle_collar"))
     return out, J, segs
@@ -545,8 +551,7 @@ def sec_plates(cx, sol, xm, yc, z0, h, w, D, ratio, sg, kind):
             cen = pt + n * (t / 2 - 0.4 * t + li * 0.75 * t)
             out.append((slab(cen, n, up, wd * k, hh * k, t), LAYER_CLS[li], "plate", name))
 
-    face((xm, yc, z0 + 0.7 * h), (0, 1, 0), 0.86 * w, 0.46 * h, z, "front_hi")
-    face((xm, yc, z0 + 0.27 * h), (0, 1, 0), 0.8 * w, 0.3 * h, z, "front_lo", layers=1)
+    face((xm, yc, z0 + 0.62 * h), (0, 1, 0), 0.9 * w, 0.62 * h, z, "front")
     face((xm, yc, z0 + 0.58 * h), (0, -1, 0), 0.82 * w, 0.62 * h, z, "rear")
     if kind == "side":
         face((xm, yc, z0 + 0.5 * h), (0, 0, 1), 0.9 * w, 0.62 * D, np.array([0, 1.0, 0]), "deck")
@@ -556,14 +561,14 @@ def sec_plates(cx, sol, xm, yc, z0, h, w, D, ratio, sg, kind):
     return out
 
 
-def torso_make(cx, s, spec, z0, pelvis_half, env):
+def torso_make(cx, s, spec, z0, pelvis_half, env, share=None):
     """The three torso sections, their plates, the pelvis and its skirt plates: [(pts, cls, role, name, loc)] and the solids."""
     Hm = cx.Hm
     h = spec["h"] * Hm
     W, D = 0.40 * Hm * spec["wmul"] * s, 0.40 * Hm * spec["wmul"] * spec["asp"] * s
     v = {z: max(env[z], 0.05) for z in ("Left Torso", "Center Torso", "Right Torso")}
     tot = sum(v.values())
-    fr = {z: max(0.06, v[z] / tot) for z in v}
+    fr = {z: max(0.06, v[z] / tot) * (share or {}).get(z, 1.0) for z in v}
     ft = sum(fr.values())
     wl, wc, wr = (W * fr["Left Torso"] / ft, W * fr["Center Torso"] / ft, W * fr["Right Torso"] / ft)
     yc = spec["yc"]
@@ -580,17 +585,6 @@ def torso_make(cx, s, spec, z0, pelvis_half, env):
         out.append((pts, "t1", "core", "section", zone))
         for pp, cls, role, name in sec_plates(cx, sol, (x0 + x1) / 2, yc, z0, h, x1 - x0, d, cx.P["ratio"][zone], sg, "side" if side else "center"):
             out.append((pp, cls, role, name, zone))
-    # pelvis: a belt block between the torso and the legs, with skirt plates that cover the hip joints (overlapping the thighs)
-    pw = max(pelvis_half, wc / 2 * 1.05)
-    zp = z0 - 0.045 * Hm
-    out.append((frustum((0, yc, zp), (0, yc, z0 + 0.02 * Hm), pw, D * 0.5, pw * 0.96, D * 0.5, ch=0.25, end=0.02 * Hm), "t1", "core", "pelvis", "Center Torso"))
-    tp = plate_t(cx.P["ratio"]["Center Torso"], Hm)
-    for nm, n, off, wd in (("skirt_front", (0, 1, 0), D * 0.5, 2 * pw * 0.9), ("skirt_rear", (0, -1, 0), D * 0.5, 2 * pw * 0.9)):
-        n = np.array(n, float)
-        out.append((slab(np.array([0, yc, zp - 0.012 * Hm]) + n * (off - 0.4 * tp + tp / 2), n, (0, 0, 1), wd, 0.06 * Hm, tp), "t3", "plate", nm, "Center Torso"))
-    for sx in (-1, 1):
-        n = np.array([sx, 0, 0.0])
-        out.append((slab(np.array([0, yc, zp - 0.012 * Hm]) + n * (pw - 0.4 * tp + tp / 2), n, (0, 0, 1), D * 0.7, 0.06 * Hm, tp), "t3", "plate", "skirt_side", "Center Torso"))
     return out, sols, dict(W=W, D=D, wc=wc, wl=wl, wr=wr, h=h, z0=z0, yc=yc)
 
 
@@ -694,7 +688,11 @@ def arm_make(cx, sg, s, x_a, z_s, yc, zone, x_torso=None):
             out.append((frustum(W_ - a_ * 0.01 * Hm, W_ + a_ * 0.045 * Hm, wf * 0.95, wf * 0.95, wf * 0.8, wf * 0.8, ch=0.3), "t2", "core", "muzzle_collar"))
     # shoulder: a dome of plate over the joint, bigger on `boom` shoulders and the pauldron kit
     kp = (1.0 + (0.22 if m.get("shoulders") == "boom" else 0.0) + (0.3 if m.get("kit") == "pauldrons" else 0.0))
-    out.append((ellipsoid(S_ + np.array([0, 0, 0.008 * Hm]), (wa * 1.3 * kp, da * 1.3 * kp, wa * 1.0 * kp), 46), "t3", "cover", "pauldron"))
+    # shoulder: a faceted box of plate over the joint (both kits: angular pauldrons wider than the upper arm, 2.6 m on the Atlas),
+    # bigger on `boom` shoulders and the pauldron kit; it overhangs outward and sits low over the arm's top
+    pw_, pd_, ph_ = wa * 1.45 * kp, max(da, wa) * 1.35 * kp, wa * 1.05 * kp
+    fr_p = Frame(S_ + np.array([sg * wa * 0.18 * kp, 0, 0.02 * Hm]), (0, 1, 0))
+    out.append((fr_p.pp(lbox((0, 0, 0), (2 * pw_, 2 * pd_, 2 * ph_), bev=0.32 * ph_, tap=(0.92, 0.7))), "t3", "cover", "pauldron"))
     if x_torso is not None:                      # the shoulder socket: a collar from the torso's side into the arm, so the joint is closed
         out.append((cyl(np.array([sg * (x_torso - 0.03 * Hm), yc, z_s]), np.array([sg * x_a, yc, z_s]), wa * 0.8, wa * 0.9, 10), "t4", "cover", "socket"))
     return out, dict(S=S_, E=E_, W=W_, wa=wa, da=da, kind=kind)
@@ -979,8 +977,9 @@ def assemble(model, P, S, Hm):
     cx.env, cx.ext = env, ext
     # 2. legs (built at x = 0, then moved apart so their plates never touch)
     legs = {}
+    hipv = {z: P["parts"][z].get("hip", 0.0) for z in ("Left Leg", "Right Leg")}
     for sg, zone in ((-1, "Left Leg"), (1, "Right Leg")):
-        s = fit(lambda s_: leg_make(cx, sg, s_)[0], env[zone], vol_of)
+        s = fit(lambda s_: leg_make(cx, sg, s_)[0], max(0.4 * env[zone], env[zone] - hipv[zone]), vol_of)
         items, J, segs = leg_make(cx, sg, s)
         allp = np.vstack([i[0] for i in items])
         h_in = float((allp[:, 0] * -sg).max())
@@ -989,7 +988,18 @@ def assemble(model, P, S, Hm):
     g = 0.03 * Hm
     hx = max(l[3] for l in legs.values()) + g / 2
     zh = legs["Left Leg"][1]["hip"][2]
-    pelvis_half = hx + max(l[4] for l in legs.values())
+    # the pelvis: one block per hip, sized by the hip actuator's volume, meeting at the centre line with a seam (Atlas kit pelvis
+    # 10.5 m3, 3.9 m wide); the thighs hang from it and the torso sits on it
+    hp = 0.11 * Hm
+    for zone, (items, J, segs, h_in, h_out, sg) in legs.items():
+        wx = hx + segs[0][2] * 0.7 - 0.01
+        dp = min(max(hipv[zone] / (wx * hp * 0.85), segs[0][3] * 2.0), 0.42 * Hm)
+        cxp = sg * (0.01 + wx / 2)
+        fr = Frame((cxp, J["hip"][1], zh + 0.01 * Hm), (0, 1, 0))
+        items.append((fr.pp(lbox((0, 0, 0), (wx, dp, hp), bev=0.18 * hp, tap=(1.0, 0.8))) - np.array([sg * hx, 0, 0]), "t2", "core", "pelvis"))
+        items.append((cyl(np.array([sg * (hx * 0.0 + segs[0][2] * 1.05), J["hip"][1], zh]) - np.array([sg * 0.0, 0, 0]),
+                          np.array([-sg * segs[0][2] * 1.05, J["hip"][1], zh]), min(dp, hp) * 0.48, None, 12), "t4", "cover", "hip_drum"))
+    pelvis_half = hx + max(max(l[4] for l in legs.values()), max(l[2][0][2] for l in legs.values()) * 0.7)
     for zone, (items, J, segs, h_in, h_out, sg) in legs.items():
         sol = emit(cx, shift(items, (sg * hx, 0, 0)), zone)
         side = "L" if sg < 0 else "R"
@@ -1000,8 +1010,15 @@ def assemble(model, P, S, Hm):
     # 3. torso
     spec = torso_spec(cx)
     z0 = zh + 0.005 * Hm
-    s_t = fit(lambda s_: torso_make(cx, s_, spec, z0, pelvis_half, env)[0], sum(env[z] for z in ("Left Torso", "Center Torso", "Right Torso")) - 0.3 * env["Center Torso"], vol_of)
-    items, sols, tor = torso_make(cx, s_t, spec, z0, pelvis_half, env)
+    # fit the whole torso, then balance each section's width against its own budget (a narrow side torso carries proportionally
+    # more plate, so equal widths per volume overfill it)
+    share = {}
+    tz = ("Left Torso", "Center Torso", "Right Torso")
+    for _ in range(4):
+        s_t = fit(lambda s_: torso_make(cx, s_, spec, z0, pelvis_half, env, share)[0], sum(env[z] for z in tz), vol_of)
+        items, sols, tor = torso_make(cx, s_t, spec, z0, pelvis_half, env, share)
+        got = {z: sum(hull_vol(i[0]) for i in items if i[4] == z) * OVERLAP for z in tz}
+        share = {z: share.get(z, 1.0) * (env[z] / max(got[z], 1e-6)) ** 0.8 for z in tz}
     emit(cx, items)
     cx.sec = sols
     cx.tor = tor

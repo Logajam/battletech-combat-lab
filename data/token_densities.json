@@ -5,40 +5,145 @@
   "min_plate_m": 0.05,
   "min_plate_why": "No shell plate is drawn thinner than 5 cm at scale (the test fails below it).",
   "density": {
-    "laser":        {"t_per_m3": 9.0, "why": "lens stack, capacitor and cooling block: compact and heavy for its size"},
-    "ppc":          {"t_per_m3": 8.0, "why": "accelerator coils around a short barrel: dense"},
-    "ac":           {"t_per_m3": 7.0, "why": "a steel barrel and breech: close to solid metal"},
-    "lbx":          {"t_per_m3": 7.0, "why": "same as the autocannon: steel barrel, breech and choke"},
-    "uac":          {"t_per_m3": 7.0, "why": "twin steel barrels and a feed: same as the autocannon"},
-    "rotary":       {"t_per_m3": 7.0, "why": "barrel cluster and motor drum: same as the autocannon"},
-    "gauss":        {"t_per_m3": 6.0, "why": "long coils with air gaps between them: lighter than a cannon, so longer and slimmer"},
-    "mg":           {"t_per_m3": 6.0, "why": "small steel gun"},
-    "flamer":       {"t_per_m3": 4.0, "why": "a fuel tank and a nozzle"},
-    "plasma":       {"t_per_m3": 5.0, "why": "containment bulb and field coils"},
-    "missile":      {"t_per_m3": 3.0, "why": "a bundle of 25 kg missiles in tubes: mostly air between the rounds"},
-    "ammo":         {"t_per_m3": 3.5, "why": "a bin of packed shells or missiles"},
-    "heatsink_single": {"t_per_m3": 1.2, "why": "fin stacks: mostly gaps"},
-    "heatsink_double": {"t_per_m3": 1.6, "why": "finer fins and a coolant loop: a little denser than a single"},
-    "jumpjet":      {"t_per_m3": 3.0, "why": "a thrust chamber and nozzle"},
-    "ecm":          {"t_per_m3": 2.0, "why": "electronics in a dome or dish"},
-    "probe":        {"t_per_m3": 2.0, "why": "electronics in a dome or dish"},
-    "c3":           {"t_per_m3": 2.0, "why": "electronics in a dome or dish"},
-    "ams":          {"t_per_m3": 4.0, "why": "a small rapid-fire gun and its ammo feed"},
-    "case":         {"t_per_m3": 2.0, "why": "a bulkhead and blow-out panel"},
-    "misc":         {"t_per_m3": 2.0, "why": "equipment with no face: MASC, TSM, targeting computer, other electronics"},
-    "structure_slot": {"t_per_m3": 1.0, "why": "an endo-steel or ferro-fibrous filler slot: its mass is already in structure or armor, so it adds none (tons 0)"},
-    "engine":       {"t_per_m3": 2.0, "why": "reactor, shielding and a coolant plant"},
-    "gyro":         {"t_per_m3": 3.0, "why": "a heavy flywheel"},
-    "cockpit":      {"t_per_m3": 1.2, "why": "a pilot's cabin: mostly space"},
-    "structure":    {"t_per_m3": 0.35, "why": "frame and myomer bundles: a limb or torso is mostly muscle with air around it"},
-    "armor":        {"t_per_m3": 0.9, "why": "layered plate with air gaps between the layers"}
+    "laser": {
+      "t_per_m3": 9.0,
+      "why": "lens stack, capacitor and cooling block: compact and heavy for its size"
+    },
+    "ppc": {
+      "t_per_m3": 8.0,
+      "why": "accelerator coils around a short barrel: dense"
+    },
+    "ac": {
+      "t_per_m3": 7.0,
+      "why": "a steel barrel and breech: close to solid metal"
+    },
+    "lbx": {
+      "t_per_m3": 7.0,
+      "why": "same as the autocannon: steel barrel, breech and choke"
+    },
+    "uac": {
+      "t_per_m3": 7.0,
+      "why": "twin steel barrels and a feed: same as the autocannon"
+    },
+    "rotary": {
+      "t_per_m3": 7.0,
+      "why": "barrel cluster and motor drum: same as the autocannon"
+    },
+    "gauss": {
+      "t_per_m3": 6.0,
+      "why": "long coils with air gaps between them: lighter than a cannon, so longer and slimmer"
+    },
+    "mg": {
+      "t_per_m3": 6.0,
+      "why": "small steel gun"
+    },
+    "flamer": {
+      "t_per_m3": 4.0,
+      "why": "a fuel tank and a nozzle"
+    },
+    "plasma": {
+      "t_per_m3": 5.0,
+      "why": "containment bulb and field coils"
+    },
+    "missile": {
+      "t_per_m3": 3.0,
+      "why": "a bundle of 25 kg missiles in tubes: mostly air between the rounds"
+    },
+    "ammo": {
+      "t_per_m3": 3.5,
+      "why": "a bin of packed shells or missiles"
+    },
+    "heatsink_single": {
+      "t_per_m3": 1.2,
+      "why": "fin stacks: mostly gaps"
+    },
+    "heatsink_double": {
+      "t_per_m3": 1.6,
+      "why": "finer fins and a coolant loop: a little denser than a single"
+    },
+    "jumpjet": {
+      "t_per_m3": 3.0,
+      "why": "a thrust chamber and nozzle"
+    },
+    "ecm": {
+      "t_per_m3": 2.0,
+      "why": "electronics in a dome or dish"
+    },
+    "probe": {
+      "t_per_m3": 2.0,
+      "why": "electronics in a dome or dish"
+    },
+    "c3": {
+      "t_per_m3": 2.0,
+      "why": "electronics in a dome or dish"
+    },
+    "ams": {
+      "t_per_m3": 4.0,
+      "why": "a small rapid-fire gun and its ammo feed"
+    },
+    "case": {
+      "t_per_m3": 2.0,
+      "why": "a bulkhead and blow-out panel"
+    },
+    "misc": {
+      "t_per_m3": 2.0,
+      "why": "equipment with no face: MASC, TSM, targeting computer, other electronics"
+    },
+    "structure_slot": {
+      "t_per_m3": 1.0,
+      "why": "an endo-steel or ferro-fibrous filler slot: its mass is already in structure or armor, so it adds none (tons 0)"
+    },
+    "engine": {
+      "t_per_m3": 2.0,
+      "why": "reactor, shielding and a coolant plant"
+    },
+    "gyro": {
+      "t_per_m3": 3.0,
+      "why": "a heavy flywheel"
+    },
+    "cockpit": {
+      "t_per_m3": 1.2,
+      "why": "a pilot's cabin: mostly space"
+    },
+    "structure": {
+      "t_per_m3": 0.35,
+      "why": "frame and myomer bundles: a limb or torso is mostly muscle with air around it"
+    },
+    "armor": {
+      "t_per_m3": 0.9,
+      "why": "layered plate with air gaps between the layers"
+    },
+    "actuator": {
+      "t_per_m3": 0.5,
+      "why": "a joint drive: myomer anchor, bearings and the armored housing round them; mostly the housing's air"
+    }
   },
   "fallback_tons": {
     "_note": "Used only when mechsim/equipment.json has no tonnage for an item and MegaMek's value was not looked up: the item is counted in INTEGRATION__shell.FALLBACKS so a report can list it. Heat sinks 1 t, ammo 1 t per slot, a jump jet by the 'Mech's mass, anything else 0.5 t a slot.",
-    "heatsink": 1.0, "ammo_per_slot": 1.0, "per_slot": 0.5
+    "heatsink": 1.0,
+    "ammo_per_slot": 1.0,
+    "per_slot": 0.5
   },
   "engine_tons": {
     "_note": "Standard fusion engine mass by rating (Claude's recall of the construction table, art only; log-interpolated between rows). XL x0.5, Light x0.75, Compact x1.5.",
-    "50": 1.5, "100": 3.0, "150": 5.5, "200": 8.5, "250": 12.5, "300": 19.0, "350": 29.5, "400": 52.5
+    "50": 1.5,
+    "100": 3.0,
+    "150": 5.5,
+    "200": 8.5,
+    "250": 12.5,
+    "300": 19.0,
+    "350": 29.5,
+    "400": 52.5
+  },
+  "actuator_tons": {
+    "_note": "ART mass of each actuator as a fraction of the 'Mech's tonnage (the construction rules fold actuators into structure; these exist only to give limbs their bulk). Calibrated 2026-11-04 on Daniel's two MWO kit models (Atlas, Timber Wolf): with them the legs, pelvis and arms come to within about 20 percent of the kits' volumes at scale. The hip's volume builds the pelvis.",
+    "hip": 0.03,
+    "upper leg actuator": 0.0115,
+    "lower leg actuator": 0.0115,
+    "foot actuator": 0.0115,
+    "shoulder": 0.005,
+    "upper arm actuator": 0.005,
+    "lower arm actuator": 0.005,
+    "hand actuator": 0.005
   }
 }

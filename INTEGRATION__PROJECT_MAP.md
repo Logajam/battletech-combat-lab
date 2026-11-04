@@ -1795,6 +1795,17 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-04 (Claude), session 18 - SHELL BUILDER: KIT CALIBRATION, NO STEPPED PLATES** (Daniel sent the MWO Atlas and
+  Timber Wolf kit models: "skinny legs that are almost all bone, with mini ziggurats built up on their faces ... looks like it was
+  built in minecraft"). REVIEW PENDING (higher-level model). Art only, 50 of 50 checks, reference logs identical.
+  - Measured both kits at scale (STL volumes): our torsos and arms matched, legs were half the kits', the pelvis a fifth. Cause:
+    actuators had no mass in the budgets. Now `data/token_densities.json` `actuator_tons` (art mass per actuator, calibrated on
+    the two kits; the hip's volume builds the pelvis). Atlas now 112 m3 v the kit's 112, Timber Wolf 90 v 80.
+  - One plate per face (`n_layers` = 1); thick armor shows as a thicker plate. Legs deeper than wide (both kits), lower legs nearly
+    as big as thighs, legs 0.52 / 0.53 of the height, feet a heel block with two toes, a pelvis block per hip, faceted box
+    pauldrons in place of the domes, torso section widths balanced against their own budgets.
+  - Daniel then sent a low-poly Mad Cat print that reads better than this: the next step is his call (see the reply that day).
+
 - **2026-11-04 (Claude), session 18 - SKELETON-AND-SHELL BUILDER, PHASE 1 (TEST RANGE)** (spec:
   `INTEGRATION__COMBAT_LAB_SKELETON.md`). REVIEW PENDING (higher-level model). Art only: no engine code, every reference
   log identical, 50 of 50 checks. STOPPED for Daniel's verdict on the look before phase 2.
