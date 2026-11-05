@@ -11,7 +11,7 @@ if not defined PY (
   exit /b 1
 )
 echo Checking the libraries the builder needs ^(the first time this downloads them; it can take a few minutes^)...
-%PY% -m pip install --quiet --disable-pip-version-check numpy scipy trimesh python-fcl
+%PY% -m pip install --quiet --disable-pip-version-check --no-warn-script-location numpy scipy trimesh python-fcl
 if errorlevel 1 (
   echo Some libraries did not install. The workbench may still run; the "Run checks" button needs python-fcl.
 )
