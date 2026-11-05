@@ -1267,6 +1267,8 @@ def _arm_grid(cx, zone, items):
         L, W, Hh, _g = cx.geoms[id(it)]
         hx, hy = g["half"]
         ring_cell = any(1 <= i <= 4 and 1 <= k <= 4 for i, k in rect) and not rect <= INNER
+        if ring_cell and math.hypot(x, y) < 1e-6:          # a block centred on the arm (a bulky gun over the whole end): no direction to seat along
+            ring_cell = False
         if ring_cell:                                     # in the ring: pulled in along its own direction until it seats on the forearm
             d = np.array([x, y]) / max(math.hypot(x, y), 1e-9)
             fo = cx.solids[f"arm_{side}_fore"]

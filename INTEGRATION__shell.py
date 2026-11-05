@@ -208,6 +208,8 @@ class Solid:
         d = _u(d)
         nd = eq[:, :3] @ d
         m = nd > 1e-9
+        if not m.any():                                   # no direction (a zero vector): nothing to leave through; stay put
+            return np.asarray(p, float), d if np.linalg.norm(d) > 0 else np.array([0.0, 0, 1])
         t = -(eq[m, :3] @ np.asarray(p, float) + eq[m, 3]) / nd[m]
         i = int(np.argmin(np.where(t > -1e-9, t, np.inf)))
         return np.asarray(p, float) + d * max(float(t[i]), 0.0), eq[m][i, :3] / np.linalg.norm(eq[m][i, :3])

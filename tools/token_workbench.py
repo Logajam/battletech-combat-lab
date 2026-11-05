@@ -4,6 +4,7 @@ mobility, and drop down menus for weapon loadouts with the ability to control wh
 any combination. Which will let me systematically do testing.").
 
     python -I tools/token_workbench.py [--port 8765] [--host 0.0.0.0] [--meks <unzipped data/meks.zip folder>]
+    python -I tools/token_workbench.py --code CLW1....        (rebuild a setting copied from the page, with the checks)
 
 On Windows, without this repository: tools/make_workbench_bundle.py builds a zip with these files, the data they read and a
 double-click starter (start_workbench.bat).
@@ -220,6 +221,45 @@ def run_checks(m):
     return res
 
 
+# ------------------------------------------------------------------------------------------------------- shareable code
+# Daniel, 2026-11-05: "a copyable code that I can paste so you can plug it back in and see what I'm doing". The page's whole
+# setting, as compact JSON, zlib-packed, base64 (URL-safe), behind a version prefix. `python tools/token_workbench.py --code <code>`
+# rebuilds it here with the checks and prints what came out.
+CODE_PREFIX = "CLW1."
+
+
+def encode(cfg):
+    import base64
+    import zlib
+    raw = json.dumps(cfg, separators=(",", ":"), sort_keys=True).encode()
+    return CODE_PREFIX + base64.urlsafe_b64encode(zlib.compress(raw, 9)).decode().rstrip("=")
+
+
+def decode(code):
+    import base64
+    import zlib
+    code = "".join(code.split())
+    if not code.startswith(CODE_PREFIX):
+        raise ValueError("not a workbench code (it starts with " + CODE_PREFIX + ")")
+    body = code[len(CODE_PREFIX):]
+    return json.loads(zlib.decompress(base64.urlsafe_b64decode(body + "=" * (-len(body) % 4))))
+
+
+def replay(code):
+    """Build a pasted code with the checks; print the settings, what the builder chose and the checks (or the error)."""
+    cfg = decode(code)
+    print(json.dumps(cfg, indent=1))
+    try:
+        r = build(cfg, checks=True)
+    except Exception:
+        traceback.print_exc()
+        return
+    print("blocks:", {k: v[0] for k, v in r["blocks"].items()})
+    print("placed:", [(p["zone"], p["name"], p["rail"]) for p in r["placed"] if p["visible"]])
+    print("errors:", r["errors"], "| checks:", {k: v for k, v in r["checks"].items() if k != "volume"})
+    print("volume:", {z: f'{v["drawn"]}/{v["budget"]}' for z, v in r["checks"]["volume"].items()})
+
+
 # ------------------------------------------------------------------------------------------------------------- server
 
 class Handler(BaseHTTPRequestHandler):
@@ -248,7 +288,19 @@ class Handler(BaseHTTPRequestHandler):
             n = int(self.headers.get("Content-Length") or 0)
             req = json.loads(self.rfile.read(n) or b"{}")
             if self.path == "/api/build":
-                self._send(200, build(req.get("cfg") or {}, checks=bool(req.get("checks"))))
+                try:
+                    self._send(200, build(req.get("cfg") or {}, checks=bool(req.get("checks"))))
+                except Exception as e:                    # the page shows the error with this setting's code, to send to Claude
+                    tb = traceback.format_exc()
+                    print(tb, flush=True)
+                    self._send(500, {"error": str(e), "code": encode(req.get("cfg") or {}), "trace": tb[-1500:]})
+            elif self.path == "/api/encode":
+                self._send(200, {"code": encode(req.get("cfg") or {})})
+            elif self.path == "/api/decode":
+                try:
+                    self._send(200, {"cfg": decode(req.get("code") or "")})
+                except Exception as e:
+                    self._send(400, {"error": f"that code could not be read: {e}"})
             elif self.path == "/api/load":
                 name = req.get("unit", "")
                 path = None
@@ -268,6 +320,15 @@ class Handler(BaseHTTPRequestHandler):
 
 def main(argv):
     global MEKS
+    if "--code" in argv:                                  # rebuild a code pasted from the page, here, with the checks
+        for sub in ("mechsim", "pathfinder"):
+            p = os.path.join(HERE, "..", sub)
+            if p not in sys.path:
+                sys.path.append(p)
+        if "--meks" in argv:
+            MEKS = argv[argv.index("--meks") + 1]
+        replay(argv[argv.index("--code") + 1])
+        return
     port = int(argv[argv.index("--port") + 1]) if "--port" in argv else 8765
     host = argv[argv.index("--host") + 1] if "--host" in argv else "0.0.0.0"     # 127.0.0.1 on a desktop: only this computer
     if "--meks" in argv:

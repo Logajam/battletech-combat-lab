@@ -1801,6 +1801,16 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-05 (Claude), session 18 - WORKBENCH: SHAREABLE CODES; A CRASH GUARD** (Daniel: "error: attempt to get argmin of an
+  empty sequence" - a Clan LB 20-X on an arm with no lower arm or hand actuator; "as a feature, a copyable code that I can paste so
+  you can plug it back in and see what I'm doing"). REVIEW PENDING (higher-level model). Art only; the art checks pass.
+  - Not reproduced here (360 combinations of tonnage, body, arm block, side and rail on that gun all built), so the cause is
+    unconfirmed. Guarded: `Solid.hit` returns the start point when no face can be left through (a zero direction made the
+    argmin empty); `_arm_grid` does not seat a block centred on the arm along a direction it does not have.
+  - Codes: `token_workbench.encode` / `decode` (the page's whole setting, JSON, zlib, URL-safe base64, prefix "CLW1."). The page
+    has "Copy code" and "Load pasted code"; a failed build puts its code in the box. `python -I tools/token_workbench.py --code
+    <code>` rebuilds a pasted code here with the checks. The server prints the full error of a failed build.
+
 - **2026-11-05 (Claude), session 18 - THE ARM HARDPOINT GRID; WEAPONS BLOCK WEAPONS** (Daniel, from a workbench test: an Atlas
   with 8 medium lasers pinned to one rail of its right arm showed "6 in line with each other, most of which shots would be blocked
   by the one in front of it and a 7th off on its own. No idea where laser 8 is." His fix: "a 6x6 grid laid over the end of the
