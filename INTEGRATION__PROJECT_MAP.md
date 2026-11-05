@@ -1801,6 +1801,15 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-05 (Claude), session 18 - WORKBENCH BUNDLE FOR A WINDOWS DESKTOP** (Daniel: "So? no link to it?" - the cloud
+  preview never reached him; "D:\Claude\Model viewer. You have permission to push the required files into that folder"). This
+  cloud session cannot reach his computer (no folder shared), so the workbench ships as a zip he unzips there.
+  REVIEW PENDING (higher-level model). Art only.
+  - `tools/make_workbench_bundle.py <out.zip>`: the workbench, the ten modules it imports, the token data, equipment.json,
+    meks.zip, and `tools/workbench_windows/` (start_workbench.bat: finds Python, installs numpy / scipy / trimesh / python-fcl,
+    starts the server on 127.0.0.1:8765, opens the browser; README.txt). Tested unzipped on Linux; the .bat is untested.
+  - `token_workbench.py --host` (127.0.0.1 on a desktop; 0.0.0.0 stays the default for the cloud preview).
+
 - **2026-11-04 (Claude), session 18 - COMBAT LAB WORKBENCH** (Daniel: "a viewer that lets me manually set what blocks are being
   used. Sliders for tonnage and mobility, and drop down menus for weapon loadouts with the ability to control which mounts they
   use. Basically full control over any combination. Which will let me systematically do testing."). REVIEW PENDING

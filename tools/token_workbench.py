@@ -3,7 +3,10 @@ by hand and looked at (Daniel, 2026-11-04: "a viewer that lets me manually set w
 mobility, and drop down menus for weapon loadouts with the ability to control which mounts they use. Basically full control over
 any combination. Which will let me systematically do testing.").
 
-    python -I tools/token_workbench.py [--port 8765] [--meks <unzipped data/meks.zip folder>]
+    python -I tools/token_workbench.py [--port 8765] [--host 0.0.0.0] [--meks <unzipped data/meks.zip folder>]
+
+On Windows, without this repository: tools/make_workbench_bundle.py builds a zip with these files, the data they read and a
+double-click starter (start_workbench.bat).
 
 then open http://localhost:8765 (in a cloud session: the app's preview of that port). The page (tools/token_workbench.html) sends
 its settings; the server builds the 'Mech with the real builder (INTEGRATION__shell_facet) and sends back the meshes, the blocks
@@ -266,6 +269,7 @@ class Handler(BaseHTTPRequestHandler):
 def main(argv):
     global MEKS
     port = int(argv[argv.index("--port") + 1]) if "--port" in argv else 8765
+    host = argv[argv.index("--host") + 1] if "--host" in argv else "0.0.0.0"     # 127.0.0.1 on a desktop: only this computer
     if "--meks" in argv:
         MEKS = argv[argv.index("--meks") + 1]
     else:                                                  # unzip the library once, beside the system temp files
@@ -277,8 +281,8 @@ def main(argv):
         p = os.path.join(HERE, "..", sub)
         if p not in sys.path:
             sys.path.append(p)
-    srv = ThreadingHTTPServer(("0.0.0.0", port), Handler)
-    print(f"workbench on http://localhost:{port}  (units from {MEKS})", flush=True)
+    srv = ThreadingHTTPServer((host, port), Handler)
+    print(f"workbench on http://localhost:{port}  (units from {MEKS})  - keep this window open; close it to stop", flush=True)
     srv.serve_forever()
 
 
