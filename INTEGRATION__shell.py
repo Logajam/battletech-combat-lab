@@ -228,6 +228,7 @@ class Sink:
         self.b, self.s = b, 1.0 / scale
         self.zmax = 0.0
         self.body = []                                   # the body's solids (core, plate, cover): what a weapon must not fire into
+        self.items = []                                  # the items already drawn: a weapon must not fire into them either
 
     def add(self, pts, cls, loc, role="core", tag="b"):
         pts = np.asarray(pts, float)
@@ -240,6 +241,8 @@ class Sink:
         so.loc, so.role = loc, role
         if role in ("core", "plate", "cover"):
             self.body.append(so)
+        elif role == "item":
+            self.items.append(so)
         return so
 
 

@@ -186,8 +186,10 @@ def name_hash(unit):
 
 def rail_count(zone):
     """How many mounting rails a location has (INTEGRATION__shell lays them out on the shell). Each rail is as long as the
-    location has hardpoints, so any combination the critical slots allow fits (spec section 3)."""
-    return {"Left Arm": 3, "Right Arm": 3, "Left Torso": 4, "Right Torso": 4, "Center Torso": 3, "Head": 2,
+    location has hardpoints, so any combination the critical slots allow fits (spec section 3). An arm has 12: the middle ring of
+    the 6 x 6 hardpoint grid over the end of the forearm (Daniel, 2026-11-05; INTEGRATION__shell_facet._arm_grid); the plated
+    builder folds them onto its three forearm rails."""
+    return {"Left Arm": 12, "Right Arm": 12, "Left Torso": 4, "Right Torso": 4, "Center Torso": 3, "Head": 2,
             "Left Leg": 2, "Right Leg": 2}.get(zone, 2)
 
 

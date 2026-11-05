@@ -1801,6 +1801,29 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-05 (Claude), session 18 - THE ARM HARDPOINT GRID; WEAPONS BLOCK WEAPONS** (Daniel, from a workbench test: an Atlas
+  with 8 medium lasers pinned to one rail of its right arm showed "6 in line with each other, most of which shots would be blocked
+  by the one in front of it and a 7th off on its own. No idea where laser 8 is." His fix: "a 6x6 grid laid over the end of the
+  arm. The inner 4 squares tend to be reserved for the hand, the middle ring of 12 are the normal weapon slots and the outer ring
+  of 18 are virtual slots that give space for bulky weapons to expand into. Groups of squares can be combined to use their average
+  center of gravity as a hard point. (For example on a mech with no hands the 4 center squares would be merged into one bigger
+  square to fit a single weapon.)"; also equipment hardpoints facing other directions - shields, electronics, turret pods such as
+  the Catapult's box launchers on its shoulders). REVIEW PENDING (higher-level model). Art only; the art checks pass.
+  - Cause: the clear-muzzle check only tested against the body, never against other weapons, and line rails queued weapons one
+    behind another.
+  - `INTEGRATION__shell_facet._arm_grid` / `_arm_grid_geom`: the grid over the end of each forearm, the four centre cells the
+    forearm's own section (the hand, or with no hand one big port), the middle ring of 12 around the outside of the forearm, the
+    outer ring of 18 for bulky weapons. Each weapon takes a block of cells sized to its cross-section, as near its preferred ring
+    position as the free cells allow (bulky weapons first); its hardpoint is the block's centre. Ring weapons are pulled in along
+    their own direction until they seat on the forearm; one wholly in the outer ring gets a mounting bracket. An arm now has 12
+    "rails" (`shell_items.rail_count`): the ring positions, which the workbench's rail menu pins. Brackets show the 12 and the
+    centre (H = hand, C = centre port).
+  - Weapons count as obstacles in the clear-muzzle check (`Sink.items`); line rails place their items SIDE BY SIDE.
+  - New missile mount "post" for the humanoid (launcher pods on top of the side torsos: the Catapult). Shields and electronics
+    facing other directions are not built yet.
+  - Daniel's test now: 8 medium lasers with a hand ring the wrist; without a hand they make a grid of ports over the arm's end;
+    0 floating, 0 clipping, 0 blocked muzzles (also 3 large lasers, 2 PPCs, an AC/20).
+
 - **2026-11-05 (Claude), session 18 - WORKBENCH BUNDLE FOR A WINDOWS DESKTOP** (Daniel: "So? no link to it?" - the cloud
   preview never reached him; "D:\Claude\Model viewer. You have permission to push the required files into that folder"). This
   cloud session cannot reach his computer (no folder shared), so the workbench ships as a zip he unzips there.

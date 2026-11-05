@@ -338,7 +338,7 @@ BLOCKS = {
     "pose": ("stride", "ready", "crouch"),
     "torso": ("v_chest", "box", "slab", "wedge", "round"),
     "housing": ("none", "housing"),
-    "missiles": ("face", "bay"),
+    "missiles": ("face", "bay", "post"),
     "arm": ("pod", "straight"),
     "hand": ("fist", "block", "claw", "ball"),
     "waist": ("drum", "ring", "column"),
@@ -1012,7 +1012,16 @@ def _record_brackets(cx, rails):
         lo = cx.sec["Center Torso"][0].pts.min(0)
         joints.append(("Center Torso", "waist", [0.0, float(cx.tor.get("yc", 0.0)), float(lo[2])]))
     rl = []
+    for side in cx.arm_j:                                  # the arm grid: its 12 ring hardpoints and the centre (hand, or one big slot)
+        zone = "Left Arm" if side == "L" else "Right Arm"
+        g = _arm_grid_geom(cx, side)
+        for idx, c in enumerate(g["ring"]):
+            x, y = g["cells"][c]
+            rl.append((zone, "face", [float(v) for v in g["end"] + g["ex"] * x + g["ey"] * y], [float(v) for v in g["a"]], idx))
+        rl.append((zone, "face" if not g["hand"] else "hand", [float(v) for v in g["end"]], [float(v) for v in g["a"]], "C" if not g["hand"] else "H"))
     for zone, lst in rails.items():
+        if zone.endswith("Arm"):
+            continue
         for i, r in enumerate(lst):
             try:
                 if r.kind == "face":
@@ -1038,6 +1047,16 @@ def mount_rails(cx, rails):
     S, Hm, P = cx.S, cx.Hm, cx.P
     for zone, placed in P["plan"].items():
         if zone not in rails:
+            continue
+        if zone.endswith("Arm"):                          # an arm's weapons go to the grid over the end of its forearm
+            _arm_grid(cx, zone, [(it, r) for it, r, c in placed if it["visible"] and it["kind"] in SH.RAILKINDS])
+            pegs = {}
+            for it, r, c in placed:
+                if it["visible"] and it["kind"] not in SH.RAILKINDS:
+                    pegs.setdefault(it["kind"], []).append(it)
+            for kind, lst in pegs.items():
+                for idx, it in enumerate(lst[:6]):
+                    SH.mount_peg(cx, zone, it, idx, min(6, len(lst)))
             continue
         rl = rails[zone]
         groups, pegs = {}, {}
@@ -1094,7 +1113,7 @@ def _muzzle_blocked(cx, it, fr, reach=1.2):
     c = fr.o + fr.a * L + fr.z * (Hh / 2)                 # the bore: the line ahead of the muzzle, a little of its width
     r = 0.12 * min(W, Hh)
     pts = np.array([c + fr.a * t + fr.l * dx + fr.z * dz for t in np.linspace(0.05, reach, 8) for dx, dz in ((0, 0), (-r, 0), (r, 0), (0, -r), (0, r))])
-    for so in cx.S.body:
+    for so in cx.S.body + cx.S.items:                    # the body and every item already drawn (weapons block weapons)
         if so.hull is None:
             continue
         eq = so.hull.equations
@@ -1162,23 +1181,109 @@ def _face(cx, zone, rail, items):
 
 
 def _line(cx, zone, rail, items):
-    """Items lying along a surface, one behind the other along the rail, the run centred on the rail's middle. Returns the items
-    that could not be placed with a clear muzzle (when cx.try_only)."""
+    """Items lying on a surface, SIDE BY SIDE across it, all pointing along the rail, the row centred on the rail (Daniel,
+    2026-11-05: items queued one behind another fire into each other). Returns the items that could not be placed with a clear
+    muzzle (when cx.try_only)."""
     failed = []
     so, a = rail.solid, rail.a
     lo, hi = so.extent(a)
+    lat = _u(np.cross(a, rail.dr))
     gap = 0.08
-    run = sum(cx.geoms[id(it)][0] for it in items) + gap * (len(items) - 1)
+    widths = [cx.geoms[id(it)][1] for it in items]
+    x = -(sum(widths) + gap * (len(items) - 1)) / 2
     mid = float(rail.o @ a)
-    start = mid - run / 2 + 0.25 * min(run, hi - lo)                       # the run leans forward: muzzles past the front
-    for it in items:
-        L, W, Hh, _g = cx.geoms[id(it)]
+    for it, W in zip(items, widths):
+        L, _W, Hh, _g = cx.geoms[id(it)]
+        x += W / 2
+        start = mid - L / 2 + 0.25 * min(L, hi - lo)                          # leaning forward: the muzzle past the middle
         sc = SH._clamp(start + L / 2, lo + 0.08, hi - 0.08)
-        pt, nrm = so.hit(rail.o + a * (sc - mid), rail.dr)
+        pt, nrm = so.hit(rail.o + lat * x + a * (sc - mid), rail.dr)
         if not _emit(cx, zone, it, Frame(pt + a * (start - sc) - nrm * (0.3 * Hh), a, nrm)):
             failed.append(it)
-        start += L + gap
+        x += W / 2 + gap
     return failed
+
+
+# ---------------------------------------------------------------------------------------------------- the arm grid
+# Daniel, 2026-11-05: "a 6x6 grid laid over the end of the arm. The inner 4 squares tend to be reserved for the hand, the middle
+# ring of 12 are the normal weapon slots, and the outer ring of 18 are virtual slots that give space for bulky weapons to expand
+# into. Groups of squares can be combined to use their average center of gravity as a hard point. (On a mech with no hands the 4
+# center squares would be merged into one bigger square to fit a single weapon.)"
+INNER = {(2, 2), (2, 3), (3, 2), (3, 3)}
+
+
+def _arm_grid_geom(cx, side):
+    """The grid over the end of one forearm: its frame (axis forward along the forearm, ex across, ey up), the end-face centre, the
+    cell size (the four centre cells are the forearm's section: the hand, or with no hand one big port), every cell's centre, and the
+    middle ring (around the outside of the forearm) in clockwise order from the top."""
+    j, fo = cx.arm_j[side], cx.solids[f"arm_{side}_fore"]
+    a, ex, ey = SH.limb_axes(j["E"], j["W"])
+    along = (fo.pts - j["W"]) @ a
+    near = fo.pts[along > along.max() - 0.3 * (along.max() - along.min())]
+    hx = float(np.abs((near - j["W"]) @ ex).max())
+    hy = float(np.abs((near - j["W"]) @ ey).max())
+    cs = (hx, hy)                                         # the four centre cells are the forearm's own end: the hand, or one big port
+    g_half = (hx, hy)
+    end = j["W"] + a * float(min(along.max(), 0.0) if j.get("hand", False) else along.max())
+    cells = {(i, k): ((i - 2.5) * cs[0], (k - 2.5) * cs[1]) for i in range(6) for k in range(6)}
+    ring = [c for c in cells if 1 <= c[0] <= 4 and 1 <= c[1] <= 4 and c not in INNER]
+    ring.sort(key=lambda c: math.atan2(cells[c][0] * (1 if side == "R" else -1), cells[c][1]) % (2 * math.pi))
+    return dict(a=a, ex=ex, ey=ey, end=end, cs=cs, cells=cells, ring=ring, hand=bool(j.get("hand", False)), half=g_half)
+
+
+def _arm_grid(cx, zone, items):
+    """Place an arm's weapons on its grid. items: [(item, preferred ring position 0-11)]. Each weapon takes a block of cells sized
+    to its cross-section, as near its preferred position as the free cells allow, the middle ring first, the outer ring when it
+    must, the four centre cells when there is no hand; its hardpoint is the block's centre. Bulky weapons first, so they get room."""
+    side = "L" if zone.startswith("Left") else "R"
+    g = _arm_grid_geom(cx, side)
+    cs, cells = g["cs"], g["cells"]
+    used = set(INNER) if g["hand"] else set()
+    out = []
+
+    def need(it):
+        L, W, Hh, _g = cx.geoms[id(it)]
+        return max(1, math.ceil(W / cs[0] - 0.25)), max(1, math.ceil(Hh / cs[1] - 0.25))
+    for it, pref in sorted(items, key=lambda q: -need(q[0])[0] * need(q[0])[1]):
+        nw, nh = need(it)
+        tx, ty = cells[g["ring"][pref % 12]]
+        best = None
+        for span in (range(0, 7 - nw), range(-2, 9 - nw)):          # the 6 x 6 grid; if nothing fits, room beyond it
+            for i0 in span:
+                for k0 in (range(0, 7 - nh) if span.start == 0 else range(-2, 9 - nh)):
+                    rect = {(i, k) for i in range(i0, i0 + nw) for k in range(k0, k0 + nh)}
+                    if rect & used:
+                        continue
+                    cxy = np.mean([((i - 2.5) * cs[0], (k - 2.5) * cs[1]) for i, k in rect], axis=0)
+                    outer = sum(1 for i, k in rect if not (1 <= i <= 4 and 1 <= k <= 4))
+                    centre = (not g["hand"]) and bool(rect & INNER)
+                    cost = math.hypot(cxy[0] - tx, cxy[1] - ty) + 0.7 * cs[0] * outer - (0.6 * cs[0] * nw * nh if centre and nw * nh > 1 else 0)
+                    if best is None or cost < best[0]:
+                        best = (cost, rect, cxy)
+            if best:
+                break
+        _c, rect, (x, y) = best
+        used |= rect
+        L, W, Hh, _g = cx.geoms[id(it)]
+        hx, hy = g["half"]
+        ring_cell = any(1 <= i <= 4 and 1 <= k <= 4 for i, k in rect) and not rect <= INNER
+        if ring_cell:                                     # in the ring: pulled in along its own direction until it seats on the forearm
+            d = np.array([x, y]) / max(math.hypot(x, y), 1e-9)
+            fo = cx.solids[f"arm_{side}_fore"]
+            axis_pt = g["end"] - g["a"] * min(0.3 * L, 0.5 * np.linalg.norm(cx.arm_j[side]["W"] - cx.arm_j[side]["E"]))
+            pt, _n = fo.hit(axis_pt, g["ex"] * d[0] + g["ey"] * d[1])
+            rd = float(np.linalg.norm((pt - axis_pt) - g["a"] * ((pt - axis_pt) @ g["a"])))
+            reach = abs(d[0]) * W / 2 + abs(d[1]) * Hh / 2           # the weapon's half-size towards the forearm
+            r_new = min(math.hypot(x, y), rd + reach - 0.04)
+            x, y = d[0] * r_new, d[1] * r_new
+        o = g["end"] + g["ex"] * x + g["ey"] * y - g["a"] * (0.7 * L) - g["ey"] * (Hh / 2)
+        _emit(cx, zone, it, Frame(o, g["a"], g["ey"]))
+        if not ring_cell and not rect <= INNER:           # out in the outer ring: a mounting bracket back to the forearm
+            c = g["end"] + g["ex"] * x + g["ey"] * y - g["a"] * (0.45 * L)
+            to = g["end"] - g["a"] * (0.45 * L)
+            cx.S.add(prism(c, to, 0.12 * min(W, Hh) + 0.04, 0.12 * min(W, Hh) + 0.04, n=6, lat=g["a"]), "t4", zone, "item", "w")
+        out.append((it, rect))
+    return out
 
 
 def _bay(cx, zone, rail, miss):
