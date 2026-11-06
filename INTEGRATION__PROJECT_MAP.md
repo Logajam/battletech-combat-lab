@@ -20,16 +20,22 @@ GUI; Combat Lab functionality; 3D art for the Combat Lab (art paused: "We've spe
 3d"; its next step stays the weapon-block stockpile). Also raised by Claude and open: the unbuilt rules
 (buildings / bridges, crippled + forced withdrawal, spotting / indirect fire, C3, special munitions),
 refreshing the rules zip with TO:AUE / TO:AR, the anti-stall rule, other unit types, scenario features
-(objectives, fog of war), the engine port. **OUTPUT** - what the Monte Carlo should report (win rates,
-lethality, comparisons, charts) - Daniel: "a good topic. One which I'll have to think about." Ask him
-about it before building anything there.
-Session 19 (2026-11-06) was review work by the higher-level model: the queue below is empty, the map
+(objectives, fog of war), the engine port. **OUTPUT** - STARTED 2026-11-06 (session 20): the battle statistics report is built, stages 1-3 of 5
+(Change Record "BATTLE STATISTICS", Section 5 "Battle statistics"); what is left is listed there. Daniel was asked
+what the Monte Carlo should report and sorted three AIs' lists with Claude.
+Session 19 (2026-11-06) was review work by the higher-level model: the queue was empty then, the map
 seams follow MegaMek, the baseline battery moved to the 32 x 17 field (INTEGRATION__BOTS.md).
 
 **REVIEW QUEUE - needs a higher-level model's review when there are spare
-cycles** (Daniel's standing order, 2026-10-28; Section 7). EMPTY: every item, (a) to (l), was reviewed
+cycles** (Daniel's standing order, 2026-10-28; Section 7). Items (a) to (l) were reviewed
 2026-11-06 (Change Record "REVIEW: KILL CURVE, RUST, FIRE TABLES; MEGAMEK MAP SEAMS" and "REVIEW QUEUE
-CLEARED"). New work from here on goes into this queue again.
+CLEARED"). New work goes into this queue:
+  - **(m) BATTLE STATISTICS** (session 20, 2026-11-06; Change Record "BATTLE STATISTICS"). Review: the three
+    engine hooks only read (`attack_resolution.run_ranged_phase`, `physical.run_physical_units`, the
+    orchestrator's turn loop); the per-attack damage is a total-HP difference around each attack (so a hit that
+    sets off an ammo explosion counts the explosion); kill credit = first attack that leaves the target
+    destroyed; the analysis in `INTEGRATION__stats_report.py` (Wilson interval, percentiles, the "held at its
+    final state" curves); and the page (`INTEGRATION__stats_viewer.html`).
 When a review is done, move its line out of this queue and note it in the
 Change Record.
 
@@ -1215,6 +1221,14 @@ forward arc, kicks included, never into a side arc.
 
 ## 5. DECISIONS LOG (Daniel's calls — implementation may not override)
 
+- **Battle statistics (Daniel, 2026-11-06):** the report is an HTML page (like the replays), one per batch.
+  Teams get a limited set (win / loss, units standing and force remaining over time, survivors at the end, first
+  kill timing, focus fire), the per-unit detail stays per unit. "Technically stats are useful even in a single
+  game just to get a summary of events", so it is on for every battle by default (`config.STATS`), and it is
+  switched off for the reference-battle checks and the speed benchmark. Dropped from the lists the other AIs
+  gave: damage per ton and the other generic efficiency numbers ("an artifact of the other AI's generalizing");
+  BV-based efficiency stays only in team / matchup views.
+
 - **Map seams (Daniel, 2026-11-06):** "It should follow Megamek's
   conventions." Stitched boards abut (MegaMek BoardUtilities.combine); only an
   odd-width board gets one blank column after it. Replaces the 2026-07-20 rule
@@ -1784,6 +1798,36 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-11-06 (Claude, session 20), BATTLE STATISTICS - REVIEW PENDING (higher-level model).** Daniel asked what
+  the Monte Carlo should output; he and Claude sorted three AIs' lists (his answers: Section 5 "Battle statistics").
+  Built (stages 1-3 of 5):
+  - `INTEGRATION__stats.py`, the COLLECTOR: a per-battle event log (one row per ranged shot with range, TN, roll,
+    hit and damage; one per physical attack, charge and DFA; every unit's state at each turn's end - HP, hex,
+    heat, prone, shutdown, locations lost, engine / gyro / cockpit hits, explosions, pilot hits; the turn, phase
+    and cause of each death; who landed each killing blow). It rides on `BattleResult.stats`. It only reads.
+  - `INTEGRATION__stats_report.py`, the ANALYSIS: outcome (win / draw with a 95% Wilson interval, how draws
+    ended, battle length, the running win rate, shortest / longest battles with seeds), per unit (survival,
+    death turn / cause / phase, killer, damage dealt and taken as mean / median / p10 / p90, kills per game,
+    damage by weapon and by physical attack, shots and hit % by range, locations lost, criticals, heat, prone and
+    shutdown turns), per team (units standing and force remaining by turn with a p10-p90 band, survivors at the
+    end, first / second kill turn, focus fire, spread, each unit's share of the team's damage), and curves by
+    turn. `INTEGRATION__stats_viewer.html` draws it (inline SVG, no libraries, light / dark); the page and its
+    JSON go to `stats/` (git-ignored) at the end of every batch (`config.STATS`, `STATS_DIR`).
+  - Hooks: `attack_resolution.run_ranged_phase` (every shot, and pooled cluster lumps), `physical.run_physical_units`
+    (every physical attack), the orchestrator (turn snapshots, deaths by phase, start / finish). 30 test files
+    set `config.STATS = False` (they compare output or run batteries); `check_reference_logs.py` and
+    `test_parallel_batch.py` add it to their scenario code. New: `tests/test_stats.py` (logging changes nothing;
+    the log agrees with the result; a 2 v 2 batch analyzes; the page carries the analysis).
+  - Checks: `python tests/run_checks.py --bench`: 51 of 51 pass, every reference log identical (no `--update`),
+    the benchmark's "resolving hits and damage" unchanged at 0.0 s. A 30-battle Kontio v Hammerhead batch (6.5 s
+    a battle, 8 workers) and a 16-battle 2 v 2 batch both write a page that loads with no errors and no sideways
+    scroll at 400 px.
+  - LEFT (stages 4-5): wasted damage / overkill and critical slots (need a hook inside `apply_damage`); PSR
+    counts; BV-weighted force value by turn; paired comparisons with a confidence interval (`ab_batches.py`);
+    initiative advantage; matchup and terrain tables; the bots' predicted v actual (calibration, regret) in the
+    report (`legate_probe` has the data); outliers linked to replays. Pushes show in the turn totals, not as a
+    damage row.
 
 - **2026-11-06 (Claude), REVIEW QUEUE CLEARED: LEGATE, SAVED STATES, COMBAT LAB ART.** Review of queue items
   (d), (e), (f), (h), (g), (k), (l) by the higher-level model (Daniel: "clear the rest of the review board").

@@ -28,6 +28,7 @@ sys.path.insert(0, REPO); sys.path.insert(0, os.path.join(REPO, "tests"))
 os.chdir(REPO)
 os.environ.setdefault("INTEGRATION_DATA_DIR", "./data")
 import INTEGRATION__config as config
+config.STATS = False  # event log + report off: not part of a test or battery (2026-11-06)
 import INTEGRATION__orchestrator as orchestrator
 import INTEGRATION__legate as legate
 import INTEGRATION__movement_selection as ms

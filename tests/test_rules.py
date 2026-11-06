@@ -20,6 +20,7 @@ sys.path.insert(0, os.path.join(REPO_ROOT, "tests"))
 os.chdir(REPO_ROOT)
 
 import INTEGRATION__config as config  # noqa: E402
+config.STATS = False  # event log + report off: not part of a test or battery (2026-11-06)
 import INTEGRATION__orchestrator as orchestrator  # noqa: E402
 import INTEGRATION__attack_resolution as attack_resolution  # noqa: E402
 import INTEGRATION__ranged_combat as ranged_combat  # noqa: E402

@@ -79,6 +79,7 @@ class BattleResult:
     active_stubs: Dict[str, int] = field(default_factory=dict)
     seed: Optional[int] = None   # this battle's own seed: SEED = seed, NUM_SIMULATIONS = 1 replays it
     replay: Optional[dict] = None  # INTEGRATION__replay data when config.REPLAY_BATTLES covered this battle
+    stats: Optional[dict] = None   # INTEGRATION__stats event log when config.STATS is on
     timing: Optional[dict] = None  # INTEGRATION__timing section totals (config.TIMING)
     turn_cap: Optional[int] = None  # the max_turns this battle ran under
     profile: Optional[dict] = None  # raw cProfile stats (config.PROFILE_FUNCTIONS > 0)

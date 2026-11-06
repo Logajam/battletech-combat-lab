@@ -19,6 +19,7 @@ sys.path.insert(0, REPO_ROOT)
 os.chdir(REPO_ROOT)
 
 import INTEGRATION__config as config  # noqa: E402
+config.STATS = False  # event log + report off: not part of a test or battery (2026-11-06)
 import INTEGRATION__movement_attacks as movement_attacks  # noqa: E402
 import board_parser  # noqa: E402
 import terrain_rules  # noqa: E402

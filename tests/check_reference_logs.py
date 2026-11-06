@@ -159,6 +159,7 @@ def run_scenario(overrides, round_trip=False):
     code = "\n".join(
         ["import INTEGRATION__config as config",
          "config.TIMING = False",      # run times differ every run - not part of a saved log
+         "config.STATS = False",       # the event log / report page is not part of a saved log (2026-11-06)
          f"config.MAX_TURNS = {TEST_BATTLE_MAX_TURNS}"]
         + overrides
         + (["config.SAVE_STATE_ROUND_TRIP = True"] if round_trip else [])

@@ -81,6 +81,7 @@ import INTEGRATION__structure_weight as structure_weight
 import INTEGRATION__water as water
 import INTEGRATION__physical_gear as gear
 import INTEGRATION__stubs as stubs
+import INTEGRATION__stats as stats  # event log, read-only (2026-11-06)
 from mech_state import pilot_hit, head_hit_hurts_pilot, has_torso_cockpit, torso_cockpit_sensor_penalty  # p.203
 from mech_state import physical_attacker_modifier, is_superheavy  # pp.236, 240
 from mech_state import (DamageType, is_destroyed, is_immobile, mark_consciousness_check_pending,
@@ -917,9 +918,11 @@ def run_physical_units(order, target_of, terrain_map, reports):
     triggers = defaultdict(list)             # PSR triggers by unit label (a charge's target may have just fallen)
     pushes = []
     for attacker, target, o, hit, side in declared:
+        stats_before = stats.hp_before(target)             # None unless config.STATS is logging
         if o.get("push"):
             if hit:
                 pushes.append((attacker, target))
+            stats.physical(attacker, target, o["name"], hit, stats_before)   # the push's own fall is logged by the turn's HP
             continue
         if hit:
             loc = _location(o["table"], side, target)
@@ -952,13 +955,18 @@ def run_physical_units(order, target_of, terrain_map, reports):
             config.log(f"    The flail hits {attacker.side_name}'s own {loc} for {FLAIL_FUMBLE_DAMAGE} (TO:AUE p.101).")
             apply_damage(attacker, loc, FLAIL_FUMBLE_DAMAGE, damage_type=DamageType.PHYSICAL)
             triggers[attacker.side_name].append(("hit itself with a flail", 0))
+        stats.physical(attacker, target, o["name"], hit, stats_before)
     _resolve_pushes(pushes, triggers, terrain_map)
     for attacker, target in charges:                     # damage, then displacement (p.78, p.113)
+        stats_before = stats.hp_before(target)
         for name, extra in charge.resolve_hit(attacker, target, terrain_map).items():
             triggers[name].extend(extra)
+        stats.physical(attacker, target, "Charge", True, stats_before)
     for attacker, target, hit in dfas:                   # damage, landing, displacement (p.80)
+        stats_before = stats.hp_before(target)
         for name, extra in dfa.resolve(attacker, target, hit, terrain_map).items():
             triggers[name].extend(extra)
+        stats.physical(attacker, target, "DFA", hit, stats_before)
     import INTEGRATION__movement_attacks as movement_attacks
     for m in order:
         gear.lower(m)                                    # a raised shield lowers at the end of the phase
