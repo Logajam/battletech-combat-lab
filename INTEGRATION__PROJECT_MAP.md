@@ -1799,6 +1799,22 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-06 (Claude, session 20), RUST PORT - PROFILE AND PLAN. REVIEW PENDING (higher-level model).** Daniel:
+  20 battles an hour (the 12 v 12 baseline battery, ~3 min a battle on one core) is too slow to iterate on bot
+  logic; "Go for stage 2 [the compiled scoring]. If nothing else, slowly port over to rust one section at a time."
+  No code changed yet. Profile (cProfile, 12 v 12 Gladiator, Legate on, 3 turns, 176 s; real time is ~half):
+  `evaluate` 50% cumulative (88 s) of which the weapon choice (`FireTable.choose` 46 s, `fire_candidates` 34 s,
+  fire_modes planner 25 s, knapsack 6 s) is most; `reduced_options` / `_movement_options` 15% (27 s);
+  `build_movement_table` + `_build_terrain_psr` 11% (19 s); LOS (`los.walk`, `hex_distance`) ~5%; Legate
+  `future_damage` ~9%. The spread is FLAT: no section is over ~26%, so one section alone gains 1.1-1.4x (Amdahl);
+  the 30x Daniel hopes for needs most of the engine in Rust. CORRECTION to the 2026-11-06 estimate "20 battles in
+  well under 10 minutes from stage 2 alone": that held for the exhaustive search, not the grid default.
+  Section order, easiest boundary first (each one keeps the reference logs byte-identical, Python stays the
+  fallback and the spec, as `fastcore/` does): (1) pathfinder movement table (flat data: step costs per hex /
+  direction in, table out; ~11%); (2) LOS and hex distance (~5%); (3) weapon pricing: per-weapon rows, fire table,
+  knapsack (~26%; the fire_modes planner for missiles is the hard part); (4) reduced_options / spot hazards;
+  (5) Legate future damage; then the movement score itself. Estimate: ~6-10M tokens for all of it.
+
 - **2026-11-06 (Claude, session 20), BATTLE STATISTICS - REVIEW PENDING (higher-level model).** Daniel asked what
   the Monte Carlo should output; he and Claude sorted three AIs' lists (his answers: Section 5 "Battle statistics").
   Built (stages 1-3 of 5):
