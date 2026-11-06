@@ -1799,6 +1799,21 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-06 (Claude, session 20), RUST PORT STEP 2: MISSILE / SPECIAL WEAPON PRICING IN THE RUST TABLE. REVIEW
+  PENDING (higher-level model).** Speed only: 51 of 51 checks with and without the Rust built, reference logs
+  identical, benchmark 501 / 495. `fire_modes.Planner.price_spec` describes a special weapon in numbers when it has
+  ONE shot plan (a single ammunition kind) and is an ordinary attack: the range modifier and bracket by distance,
+  the TN change and the hit worth (`Planner._hit_worth`, split out of `value()` unchanged) by bracket, and the
+  heat. `FastTable` kind 3 then prices the (distance, pre-TN) rows itself: hit_probability(TN) x worth, the same
+  float operations as `value()`. An Ultra / Rotary AC is covered too when `STUB_RATE_OF_FIRE` is "max" (default) or
+  "single" (the rate does not depend on the row); "greedy" asks the planner row by row. Still asked row by row
+  (kind 2): LB-X with two ammunition kinds, Narc beacons, MML / ATM with several kinds, anything with more than one
+  plan. `config.FASTCORE_PRICING` (on) switches the step off. Checks: `FIRE_TABLE_VERIFY` compares every Rust
+  answer with Python's; `the_rust_fire_table_is_really_used_when_built` also fails if no weapon was priced in Rust.
+  Result, 12 v 12 Gladiator, 2 turns: 24.0 s -> 21.1 s; with step 1, 29.3 s -> 21.1 s (28% less) in all. Planner
+  callbacks 135k -> 36k. Next by the profile: the rest of `evaluate` (the per-spot loop and its memos, ~25% of a run),
+  `reduced_options` and the movement table (~25%), Legate future damage (~9%).
+
 - **2026-11-06 (Claude, session 20), RUST PORT STEP 1: THE WEAPON CHOICE TABLE (`fastcore.FastTable`). REVIEW PENDING
   (higher-level model).** Daniel: "Lets start with weapon pricing. See how much of an improvement we can get."
   Speed only: 51 of 51 checks with and without the Rust built, every reference log identical, benchmark 501 / 495.

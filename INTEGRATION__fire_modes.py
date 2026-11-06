@@ -541,6 +541,7 @@ class Planner:
         self.hex_offset = hex_offset
         self._kinds = {}
         self._memo = {}
+        self._specs = {}        # id(weapon) -> price_spec
 
     def damage_bracket(self, weapon, b):
         """The bracket the shot's damage uses: an energy weapon firing from
@@ -584,6 +585,12 @@ class Planner:
             worth = (ammo.EXPLOSIVE_POD_DAMAGE.get(weapon.ammo_key, 0) if plan.munition == "explosive"
                      else self.pod_values.get(id(weapon), 0.0))
             return p * worth, tn
+        return p * self._hit_worth(weapon, plan), tn
+
+    def _hit_worth(self, weapon, plan):
+        """What one hit of an ordinary attack (not a hex, homing, artillery or Narc attack) is worth:
+        expected damage after the target's AMS, plus the effects on the target. value() multiplies it by
+        the chance to hit; it depends on the plan (and its damage bracket), not on the distance or the TN."""
         hit = expected_hit(weapon, plan)
         if self.ams_share and weapon.damage_type == "Missile" and "MORTAR" not in _cn(weapon) and hit > 0:   # TO:AUE p.136
             hit -= self.ams_share * (hit - expected_hit(weapon, plan, ams_engaged=True))
@@ -591,7 +598,64 @@ class Planner:
         if "TASER" in _cn(weapon) and (getattr(self.target, "mass", 0) or 0) <= 100:
             hit += config.TASER_EFFECT_WORTH          # shutdown / interference (TO:AUE p.158) - placeholder worth
         hit += self._advanced_worth(weapon, plan)
-        return p * hit, tn
+        return hit
+
+    def price_spec(self, weapon):
+        """What the Rust fire table (fastcore.FastTable) needs to price `weapon` itself, or None when it
+        must ask __call__ (2026-11-06). Only the plain case: ONE shot plan (a single ammunition kind, one
+        rate), an ordinary attack - then value(distance, pre_tn) = hit_probability(TN) x the plan's hit
+        worth, with the TN = pre_tn + range modifier + adjust(bracket) + the plan's TN change, and the
+        worth, the adjust and the heat fixed for the weapon. Returns (range modifier by distance with
+        None = out of range, bracket number 0-2 by distance, TN change by bracket, hit worth by bracket,
+        heat); the same numbers value() and heat() give, worked out once instead of at every row."""
+        got = self._specs.get(id(weapon), False)
+        if got is False:
+            got = self._specs[id(weapon)] = self._price_spec(weapon)
+        return got
+
+    def _price_spec(self, weapon):
+        plans = self.kinds(weapon)
+        if len(plans) != 1:
+            return None
+        plan = plans[0]
+        if (plan.hex_attack or plan.kind in ("homing", "artillery") or plan.shots != 1
+                or wp.is_art_cannon(weapon) or electronics.is_narc(weapon) or wp.is_mga(weapon)
+                or wp.is_bombast(weapon)):
+            return None
+        rates = rate_options(self.attacker, weapon, plan)
+        if len(rates) > 1:                    # an Ultra / Rotary AC: stubs.stub_rate_of_fire picks the rate
+            policy = config.STUB_RATE_OF_FIRE
+            if policy == "greedy":
+                return None                   # the best rate depends on the distance and TN: ask row by row
+            plan = plan._replace(shots=rates[0] if policy == "single" else rates[-1])   # as the stub: first / last
+        wr = weapon_range(weapon, plan)
+        if wr is None or wr.get("short") is None or "floor" in wr or type(wr.get("long")) is not int:
+            return None
+        cache = getattr(weapon, "_range_cache", None)
+        if cache is None:
+            cache = {}
+            try:
+                weapon._range_cache = cache
+            except AttributeError:
+                pass
+        ranges = cache.get(plan.kind)
+        if ranges is None:
+            rm, bn = [], []
+            for d in range(wr["long"] + 1):
+                r = range_mod(weapon, plan, d)
+                rm.append(None if r is None else r)
+                bn.append(("short", "medium", "long").index(bracket(weapon, plan, d)) if r is not None else 0)
+            ranges = cache[plan.kind] = (rm, bn)
+        adjust, hits = [], []
+        for name in ("short", "medium", "long"):
+            dplan = plan._replace(bracket=self.damage_bracket(weapon, name))
+            adjust.append(self.adjust(weapon, name, dplan) + dplan.tn + area_immobile_fix(weapon, self.target))
+            hits.append(self._hit_worth(weapon, dplan))
+        cost = heat(weapon, plan)
+        if (any(type(r) is not int for r in ranges[0] if r is not None) or any(type(a) is not int for a in adjust)
+                or type(cost) is not int or any(not isinstance(h, (int, float)) for h in hits)):
+            return None
+        return ranges[0], ranges[1], adjust, [float(h) for h in hits], cost
 
     def _advanced_worth(self, weapon, plan):
         """Interstellar Operations / MegaMek weapons (2026-10-28): a TSEMP hit's

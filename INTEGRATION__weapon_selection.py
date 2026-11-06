@@ -277,6 +277,9 @@ except ImportError:
     _fastcore = None
 
 
+_AT_LEAST = [hit_probability(tn) for tn in range(3, 13)]   # P(2d6 >= tn) for tn 3..12 - fastcore prices a planner weapon with it
+
+
 def best_subset(values, heats, heat_budget):
     """Phase 1's knapsack: Rust when built and switched on (config.USE_FASTCORE), else Python."""
     if _fastcore is not None and INTEGRATION__config.USE_FASTCORE:
@@ -472,6 +475,7 @@ class FireTable:
         self._fast = None          # fastcore.FastTable once built; False = this table can't use it
         self._fast_args = None     # (min_heat, max_heat, dissipation, other_heat) it was built for
         self._fast_sides = {}      # side -> its scale id in the FastTable
+        self.fast_priced = 0
 
     def choose_value(self, distance, pre_tn, side, value_scale, min_heat, max_heat, dissipation, movement_heat,
                      other_heat):
@@ -514,18 +518,24 @@ class FireTable:
         if len(weapons) > 64 or any(type(v) is not int for v in ints) or "flat" not in table:
             return False
         max_distance, flat = table["flat"]
-        kind, heat, energy, ranges, adj, grids = [], [], [], [], [], []
+        kind, heat, energy, ranges, adj, grids, specs = [], [], [], [], [], [], []
         for w in weapons:
             k = 1
+            spec = None
             if id(w) in self.unavailable:
                 k = 0
             elif planner is not None and fire_modes.special(w):
                 k = 0 if (w.heat is None and not fire_modes.has_profile(w)) else 2
+                if k == 2 and INTEGRATION__config.FASTCORE_PRICING:
+                    spec = planner.price_spec(w)         # None: the Rust asks the planner row by row
+                    if spec is not None:
+                        k = 3
             elif w.heat is None or id(w) not in flat:
                 k = 0                                  # no confirmed heat / damage: never a candidate
             if k and (type(w.heat) is not int):
                 return False                           # Phase 2 reads every candidate's own heat
             kind.append(k)
+            specs.append(spec and (spec[0], spec[1], spec[2], spec[3], spec[4]))
             heat.append(w.heat if k else 0)
             energy.append(w.damage_type == "Energy")
             wr = w.weapon_range or {}
@@ -549,11 +559,12 @@ class FireTable:
             def callback(i, distance, pre_tn, planner=planner, weapons=weapons):
                 got = planner(weapons[i], distance, pre_tn)
                 return None if got is None else (got[0], got[1])
+        self.fast_priced = kind.count(3)               # special weapons the Rust prices itself (a test reads it)
         try:
             self._fast_args = (min_heat, max_heat, dissipation, other_heat)
             return _fastcore.FastTable(kind, heat, energy, ranges, adj, self.tn_adjust is not None, grids,
                                        max_distance, self.mech.current_heat, min_heat, max_heat, dissipation,
-                                       other_heat, callback)
+                                       other_heat, callback, specs, _AT_LEAST)
         except (TypeError, ValueError, OverflowError):
             return False
 
