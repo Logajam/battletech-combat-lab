@@ -119,6 +119,8 @@ def the_rust_fire_table_is_really_used_when_built():
         ws.FireTable.__init__ = original
     fast = sum(1 for t in made if t._fast not in (None, False))
     assert made and fast >= 0.9 * len(made), f"only {fast} of {len(made)} fire tables used the Rust table"
+    if config.FASTCORE_PRICING:      # missile / Ultra / Rotary weapons (fire_modes.Planner.price_spec) priced in Rust too
+        assert sum(t.fast_priced for t in made) > 0, "no special weapon was priced by the Rust table"
 
 
 def run_all():

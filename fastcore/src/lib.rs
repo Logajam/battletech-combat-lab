@@ -98,9 +98,26 @@ fn solve(values: &[f64], heats: &[i64], heat_budget: i64) -> PyResult<(Vec<i64>,
 // last bit: candidates in weapon order, values = table value x the side's scale, the same sums in the
 // same order, the same ties.
 //   kind: 0 = never a candidate, 1 = a plain weapon (priced from its grid), 2 = a special weapon,
-//   priced by the Python planner through `special(i, distance, pre_tn) -> None | (value, heat)`.
+//   priced by the Python planner through `special(i, distance, pre_tn) -> None | (value, heat)`,
+//   3 = a special weapon the planner could describe in numbers (fire_modes.Planner.price_spec): priced here as
+//   hit_probability(pre_tn + range modifier + TN change) x its hit worth.
 // ---------------------------------------------------------------------------------------------
 const STRIDE: usize = 17; // pre-TN 0..=16 (weapon_selection.PRE_TN_MIN / MAX)
+
+/// fire_modes.Planner.price_spec: range modifier and bracket number by distance, then by bracket
+/// (short, medium, long) the TN change and the hit worth, and the heat.
+struct Spec {
+    rm: Vec<Option<i64>>,
+    bracket: Vec<u8>,
+    tn_change: [i64; 3],
+    hit: [f64; 3],
+    heat: i64,
+}
+
+/// combat.hit_probability: P(2d6 >= tn); tn <= 2 always hits, tn > 12 never; `at_least[tn - 3]` for 3..=12.
+fn hit_probability(at_least: &[f64], tn: i64) -> f64 {
+    if tn <= 2 { 1.0 } else if tn > 12 { 0.0 } else { at_least[(tn - 3) as usize] }
+}
 
 struct Row {
     cand: Vec<usize>,          // weapon index of each candidate, in weapon order
@@ -127,6 +144,8 @@ struct FastTable {
     dissipation: i64,
     other_heat: i64,
     special: Option<Py<PyAny>>,
+    specs: Vec<Option<Spec>>,
+    at_least: Vec<f64>,
     scales: Vec<Option<Vec<f64>>>, // by side id; id 0 = no scale
     rows: HashMap<(i64, i64, u32), Row>,
 }
@@ -134,20 +153,23 @@ struct FastTable {
 #[pymethods]
 impl FastTable {
     #[new]
-    #[pyo3(signature = (kind, heat, energy, ranges, adj, adjust, grids, max_distance, current_heat, min_heat, max_heat, dissipation, other_heat, special))]
+    #[pyo3(signature = (kind, heat, energy, ranges, adj, adjust, grids, max_distance, current_heat, min_heat, max_heat, dissipation, other_heat, special, specs, at_least))]
     #[allow(clippy::too_many_arguments)]
     fn new(
         kind: Vec<u8>, heat: Vec<i64>, energy: Vec<bool>, ranges: Vec<[i64; 3]>, adj: Vec<[i64; 3]>, adjust: bool,
         grids: Vec<Vec<f64>>, max_distance: i64, current_heat: i64, min_heat: i64, max_heat: i64,
         dissipation: i64, other_heat: i64, special: Option<Py<PyAny>>,
+        specs: Vec<Option<(Vec<Option<i64>>, Vec<u8>, [i64; 3], [f64; 3], i64)>>, at_least: Vec<f64>,
     ) -> PyResult<Self> {
         let n = kind.len();
-        if n > 64 || heat.len() != n || energy.len() != n || ranges.len() != n || adj.len() != n || grids.len() != n {
+        if n > 64 || heat.len() != n || energy.len() != n || ranges.len() != n || adj.len() != n || grids.len() != n
+            || specs.len() != n || at_least.len() != 10 {
             return Err(pyo3::exceptions::PyValueError::new_err("FastTable: bad weapon lists"));
         }
         Ok(FastTable {
             kind, heat, energy, ranges, adj, adjust, grids, max_distance, current_heat, min_heat, max_heat,
-            dissipation, other_heat, special, scales: vec![None], rows: HashMap::new(),
+            dissipation, other_heat, special, scales: vec![None], rows: HashMap::new(), at_least,
+            specs: specs.into_iter().map(|o| o.map(|(rm, bracket, tn_change, hit, heat)| Spec { rm, bracket, tn_change, hit, heat })).collect(),
         })
     }
 
@@ -190,6 +212,19 @@ impl FastTable {
                     }
                     let (v, h): (f64, i64) = got.extract(py)?;
                     (match scale { Some(s) => v * s[i], None => v }, h)
+                }
+                3 => {
+                    let sp = self.specs[i].as_ref().ok_or_else(|| {
+                        pyo3::exceptions::PyValueError::new_err("FastTable: kind 3 with no spec")
+                    })?;
+                    if distance < 0 || distance as usize >= sp.rm.len() {
+                        continue;
+                    }
+                    let rm = match sp.rm[distance as usize] { Some(r) => r, None => continue };
+                    let b = sp.bracket[distance as usize] as usize;
+                    let tn = pre_tn + rm + sp.tn_change[b];
+                    let v = hit_probability(&self.at_least, tn) * sp.hit[b];
+                    (match scale { Some(sc) => v * sc[i], None => v }, sp.heat)
                 }
                 _ => {
                     if distance < 0 || distance > self.max_distance {
