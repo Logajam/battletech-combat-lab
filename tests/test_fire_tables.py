@@ -97,6 +97,30 @@ def heat_gear_and_structure_weighting_get_the_fresh_answer_too():
     assert result.turns_taken >= 2
 
 
+@check
+def the_rust_fire_table_is_really_used_when_built():
+    """With fastcore built, the tables of a verified battle run on the Rust FastTable (each answer is
+    compared with Python's, step by step, inside FireTable.choose_value) - a silent fall back to
+    Python would let every other check pass while testing nothing. Skips when not built."""
+    if not (ws._fastcore is not None and hasattr(ws._fastcore, "FastTable")):
+        print("      (fastcore not built: skipped)")
+        return
+    made = []
+    original = ws.FireTable.__init__
+
+    def counting(self, *a, **k):
+        original(self, *a, **k)
+        made.append(self)
+    ws.FireTable.__init__ = counting
+    try:
+        battle([{"team": "Red", "mtf": "Cataphract CTF-3D.mtf", "count": 1},
+                {"team": "Blue", "mtf": "Archer ARC-2R.mtf", "count": 1}], seed=3, turns=3)
+    finally:
+        ws.FireTable.__init__ = original
+    fast = sum(1 for t in made if t._fast not in (None, False))
+    assert made and fast >= 0.9 * len(made), f"only {fast} of {len(made)} fire tables used the Rust table"
+
+
 def run_all():
     failed = 0
     for fn in CHECKS:

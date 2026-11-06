@@ -171,6 +171,8 @@ def build_expected_damage_table(mech):
             max_distance = max(max_distance, w.weapon_range["long"])
 
     table = {}
+    flat = {}          # id(weapon) -> value[distance * 17 + pre_tn], NaN = no row (fastcore.FastTable reads it)
+    nan = float("nan")
     for w in weapons:
         wid = id(w)
         table[wid] = {}
@@ -195,6 +197,11 @@ def build_expected_damage_table(mech):
                 tn = pre_tn + range_mod
                 row[pre_tn] = ed_per_hit * hit_probability(tn)
             table[wid][distance] = row
+            grid = flat.get(wid)
+            if grid is None:
+                grid = flat[wid] = [nan] * ((max_distance + 1) * (PRE_TN_MAX + 1))
+            grid[distance * (PRE_TN_MAX + 1):(distance + 1) * (PRE_TN_MAX + 1)] = [row[t] for t in range(PRE_TN_MIN, PRE_TN_MAX + 1)]
+    table["flat"] = (max_distance, flat)       # a str key: never collides with an id(weapon)
 
     # Cap the number of cached (heat, weapon-set) states kept per mech - a
     # mech's heat only takes a handful of distinct values across a real
@@ -462,6 +469,93 @@ class FireTable:
         self.mech, self.tn_adjust, self.unavailable = mech, tn_adjust, unavailable
         self.weapons, self.table, self.planner = weapons, table, planner
         self._rows = {}            # (distance, pre_tn, side) -> [candidates, levels or None, levels' budget]
+        self._fast = None          # fastcore.FastTable once built; False = this table can't use it
+        self._fast_args = None     # (min_heat, max_heat, dissipation, other_heat) it was built for
+        self._fast_sides = {}      # side -> its scale id in the FastTable
+
+    def choose_value(self, distance, pre_tn, side, value_scale, min_heat, max_heat, dissipation, movement_heat,
+                     other_heat):
+        """choose()'s expected damage (all the movement scorer reads), from the Rust FastTable when
+        it can take this table (2026-11-06; the same answer - FIRE_TABLE_VERIFY checks it)."""
+        fast = self._fast
+        if fast is None:
+            fast = self._fast = self._build_fast(min_heat, max_heat, dissipation, other_heat)
+        if fast is not False and self._fast_args == (min_heat, max_heat, dissipation, other_heat) \
+                and type(movement_heat) is int:
+            sid = 0
+            if value_scale is not None:
+                sid = self._fast_sides.get(side)
+                if sid is None:
+                    sid = self._fast_sides[side] = fast.add_scale([value_scale.get(id(w), 1.0) for w in self.weapons])
+            try:
+                value = fast.choose_value(distance, pre_tn, sid, movement_heat)
+            except (TypeError, ValueError, OverflowError):      # something the Rust can't take (a planner's non-integer heat)
+                self._fast = False
+            else:
+                if INTEGRATION__config.FIRE_TABLE_VERIFY:
+                    got = fast.choose_full(distance, pre_tn, sid, movement_heat)
+                    weapons, v, h = self.choose(distance, pre_tn, side, value_scale, min_heat, max_heat, dissipation,
+                                                movement_heat, other_heat)
+                    mine = [i for i, w in enumerate(self.weapons) if w in weapons]
+                    if (v, h, mine) != (got[0], got[1], got[2]):
+                        raise AssertionError(f"Rust fire table for {self.mech.side_name}: {got} but Python "
+                                             f"{(v, h, mine)} (distance {distance}, pre-TN {pre_tn}, heat {movement_heat})")
+                return value
+        return self.choose(distance, pre_tn, side, value_scale, min_heat, max_heat, dissipation, movement_heat,
+                           other_heat)[1]
+
+    def _build_fast(self, min_heat, max_heat, dissipation, other_heat):
+        """The fastcore.FastTable for this table's weapons, or False when it is not built / switched
+        off / this table has something it doesn't take (non-integer heat, more than 64 weapons...)."""
+        if _fastcore is None or not INTEGRATION__config.USE_FASTCORE or not hasattr(_fastcore, "FastTable"):
+            return False
+        weapons, table, planner = self.weapons, self.table, self.planner
+        ints = (min_heat, max_heat, dissipation, other_heat, self.mech.current_heat)
+        if len(weapons) > 64 or any(type(v) is not int for v in ints) or "flat" not in table:
+            return False
+        max_distance, flat = table["flat"]
+        kind, heat, energy, ranges, adj, grids = [], [], [], [], [], []
+        for w in weapons:
+            k = 1
+            if id(w) in self.unavailable:
+                k = 0
+            elif planner is not None and fire_modes.special(w):
+                k = 0 if (w.heat is None and not fire_modes.has_profile(w)) else 2
+            elif w.heat is None or id(w) not in flat:
+                k = 0                                  # no confirmed heat / damage: never a candidate
+            if k and (type(w.heat) is not int):
+                return False                           # Phase 2 reads every candidate's own heat
+            kind.append(k)
+            heat.append(w.heat if k else 0)
+            energy.append(w.damage_type == "Energy")
+            wr = w.weapon_range or {}
+            rng = [wr.get("short"), wr.get("medium"), wr.get("long")]
+            if k == 1:
+                if any(type(v) is not int for v in rng):
+                    return False
+                grids.append(flat[id(w)])
+                a = []
+                for name in ("short", "medium", "long"):
+                    a.append(self.tn_adjust(w, name) if self.tn_adjust is not None else 0)
+                if any(type(v) is not int for v in a):
+                    return False
+                adj.append(a)
+            else:
+                grids.append([])
+                adj.append([0, 0, 0])
+            ranges.append(rng if k == 1 else [0, 0, 0])
+        callback = None
+        if planner is not None:
+            def callback(i, distance, pre_tn, planner=planner, weapons=weapons):
+                got = planner(weapons[i], distance, pre_tn)
+                return None if got is None else (got[0], got[1])
+        try:
+            self._fast_args = (min_heat, max_heat, dissipation, other_heat)
+            return _fastcore.FastTable(kind, heat, energy, ranges, adj, self.tn_adjust is not None, grids,
+                                       max_distance, self.mech.current_heat, min_heat, max_heat, dissipation,
+                                       other_heat, callback)
+        except (TypeError, ValueError, OverflowError):
+            return False
 
     def choose(self, distance, pre_tn, side, value_scale, min_heat, max_heat, dissipation, movement_heat,
                other_heat):

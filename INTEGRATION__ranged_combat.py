@@ -215,7 +215,7 @@ def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_fo
                 if scale is None:
                     scale = scales[side] = scale_for_side(side)
             if weapon_selection._FIRE_CONTROL is None:
-                _, cached, _ = fire_table.choose(distance, pre_tn, side, scale, mech.min_heat, mech.max_heat,
+                cached = fire_table.choose_value(distance, pre_tn, side, scale, mech.min_heat, mech.max_heat,
                                                  dissipation, move_heat, other)
                 if config.FIRE_TABLE_VERIFY:              # test switch: the table must give the fresh answer
                     _, fresh, _ = weapon_selection.select_weapons_to_fire(

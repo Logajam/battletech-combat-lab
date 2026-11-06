@@ -235,7 +235,8 @@ def magma_heat_is_uncapped():
     m.magma_entered = [("0806", "2")]
     m.outside_heat = 40
     m.movement_heat, m.current_heat = 0, 0
-    heat.resolve_heat_phase(m, 0)
+    with ScriptedDice([12, 12]):   # 30+ heat rolls to avoid shutdown / an ammo explosion: scripted, so the check never flakes
+        heat.resolve_heat_phase(m, 0)
     sinks = heat.compute_heat_dissipation(m)
     assert m.current_heat == max(0, 15 + 5 + 10 - sinks + heat.engine_heat(m)), m.current_heat
 
