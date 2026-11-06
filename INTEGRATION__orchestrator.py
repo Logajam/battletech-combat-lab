@@ -161,7 +161,8 @@ def _load_map():
     """Loads config.DEFAULT_BOARD_PATH as a single board - or, with
     config.STITCH_MAPS, the config.STITCH_BOARDS laid out in a
     STITCH_GRID_COLS x STITCH_GRID_ROWS grid as one big board
-    (board_parser.stitch_boards: a blank hex row / column at every seam).
+    (board_parser.stitch_boards: boards abut, MegaMek-style; a blank column
+    only after an odd-width board).
     A map name is a file under config.DATA_DIR or a map in the data/maps.zip
     pack (INTEGRATION__map_picker.resolve_board). With config.PROMPT_FOR_MAP a
     person is asked first (INTEGRATION__map_picker.choose_map; the answer is

@@ -276,8 +276,10 @@ def no_start_hex_ends_the_battle():
 @check
 def stitched_map_loads_and_crosses_the_seam():
     """Map stitching (2026-10-28): config.STITCH_MAPS lays STITCH_BOARDS out
-    row-major with a blank hex column / row at every seam (Daniel, 2026-07-20),
-    keeps the first board's numbering, and a 'Mech can walk across the seam."""
+    row-major; seams follow MegaMek (Daniel, 2026-11-06): 16-wide boards abut
+    with no gap (column parity kept, so each board sits as drawn), rows abut,
+    and only an odd-width board gets one blank column after it. It keeps the
+    first board's numbering, and a 'Mech can walk across the seam."""
     import INTEGRATION__orchestrator as orchestrator
     saved = (config.STITCH_MAPS, config.STITCH_BOARDS, config.STITCH_GRID_COLS, config.STITCH_GRID_ROWS)
     try:
@@ -285,12 +287,27 @@ def stitched_map_loads_and_crosses_the_seam():
         config.STITCH_BOARDS = ["16x17_Grassland_1.board", "16x17_Scattered_Woods.board",
                                 "16x17_Hilltops_1.board", "16x17_Grassland_1.board"]
         tm = orchestrator._load_map()
-        assert (tm["width"], tm["height"]) == (33, 35), (tm["width"], tm["height"])
+        assert (tm["width"], tm["height"]) == (32, 34), (tm["width"], tm["height"])
         single = board_parser.parse_board_file(config.data_path("16x17_Grassland_1.board"))
+        woods = board_parser.parse_board_file(config.data_path("16x17_Scattered_Woods.board"))
+        hills = board_parser.parse_board_file(config.data_path("16x17_Hilltops_1.board"))
         assert tm["hexes"]["0305"]["level"] == single["hexes"]["0305"]["level"]   # first board: native labels
-        assert tm["hexes"]["1705"]["level"] == 0 and not tm["hexes"]["1705"]["features"]   # the seam column
-        assert tm["hexes"]["1806"] is not tm["hexes"]["0206"]                     # second board is its own data
-        # Walk east across the seam column on row 5: 1 MP a clear hex.
+        # No seam column or row: every hex of boards 2 and 3 sits exactly 16 columns / 17 rows on.
+        for c in range(1, 17):
+            for r in range(1, 18):
+                for got, want in ((tm["hexes"][f"{16 + c:02d}{r:02d}"], woods["hexes"][f"{c:02d}{r:02d}"]),
+                                  (tm["hexes"][f"{c:02d}{17 + r:02d}"], hills["hexes"][f"{c:02d}{r:02d}"])):
+                    assert (got["features"], got["impassable"]) == (want["features"], want["impassable"]), (c, r)
+        # An odd width (MegaMek): one blank column after the board keeps the next one's parity.
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            odd = os.path.join(d, "odd.board")
+            with open(odd, "w") as f:
+                f.write("size 15 3\n" + "".join(f'hex {c:02d}{r:02d} 1 "" ""\n' for c in range(1, 16) for r in range(1, 4)) + "end\n")
+            tm_odd = board_parser.stitch_boards([odd, odd], 2, 1)
+            assert (tm_odd["width"], tm_odd["height"]) == (31, 3), (tm_odd["width"], tm_odd["height"])
+            assert tm_odd["hexes"]["1602"]["level"] == 0 and tm_odd["hexes"]["1702"]["level"] == 1
+        # Walk east across the seam on row 5.
         x, y = parse_hex_label("1405")
         table = build_movement_table(x, y, compass_to_facing("NE"), 6, terrain_map=tm)
         assert any(sx >= parse_hex_label("1805")[0] for sx, _, _ in table), "never crossed the seam"

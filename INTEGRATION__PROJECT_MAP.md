@@ -18,16 +18,9 @@ source project's file overwrite the other's same-named file.
 **REVIEW QUEUE - needs a higher-level model's review when there are spare
 cycles** (Daniel's standing order, 2026-10-28; Section 7). Sessions 12-13 were
 reviewed 2026-10-29 (Change Record): one bug fixed (the movement cache kept a
-broken magma crust's old step cost). Still open from that review: (a) MAP SEAMS -
-Daniel's call: a 16-wide board plus the one blank seam column moves the next
-board 17 columns, an odd number, which flips its column parity, so every other
-column of that board slides half a hex against its neighbours (the board's
-terrain no longer joins up as drawn; rows are fine - 17 + 1 is even). Two blank
-columns (or none, as MegaMek abuts boards) would keep the board as drawn.
-(b) BATTLE VALUE - 26 more units match the published values the reviewer
-recalled. The Archer ARC-2R is SETTLED: Daniel's BV breakdown (2026-11-03) gives
-1,477, ours exactly (the recalled 1415 was wrong; now a test). The Crusader CRD-3R (ours 1317, recalled 1294) is
-SETTLED too: Daniel, 2026-11-06 - our calculated value matches Mordel, so the recalled figure was the error.
+broken magma crust's old step cost). Items (a) map seams, (b) Battle Value, (c) session 14,
+(i) the Rust trial and (j) the weapon-choice tables were closed 2026-11-06 (Change Record
+"REVIEW: KILL CURVE, RUST, FIRE TABLES; MEGAMEK MAP SEAMS").
 (d) SESSION 14 cont. (Change Record "TEAM AWARENESS..."): `legate.fire_share` (on by default since
 session 15), `_Herd`, `_TeamFire` (the greedy fire distribution both ways, the team value and its
 conversion into the objective's PSR cost - `Extras.team_cost`), off by default.
@@ -36,9 +29,6 @@ conversion into the objective's PSR cost - `Extras.team_cost`), off by default.
 (e) SESSION 15 (Change Record "LEGATE DIAGNOSIS..."): `legate.now_share` (the this-turn fire
 split, now default with LEGATE_FIRE_SPLIT "proportional") and the probe battery
 `tests/legate_probe.py` / `legate_probe_report.py` (its monkeypatches must leave battles untouched).
-(c) SESSION 14 (Change Record "KILL CURVE, FIRE DIRECTOR..."): `INTEGRATION__kill_curve`
-(the trials' dice swap and caching; the fire director's score), `bots.fire_pick`,
-the `domino.advance_into` crash fix in charge / push / DFA, `princess.direction`.
 (g) SESSION 16 (Change Record "COMBAT LAB TOKENS v4..."): `INTEGRATION__tokens.py` plan / profile /
 hips features, per-location armor thinning, the armor-parser fix, and the block library
 (`data/token_blocks.json`; canopy torso, pod arm, knee discs, weapon sections). Output only: no
@@ -49,12 +39,6 @@ cheap; held. Priorities are his call (see INTEGRATION__COMBAT_LAB.md).
 to rebuild), the orchestrator split (`Battle`, `_start_battle`, `play_on`, `_play_turn`, `_finish`), the
 one-pool RNG (`config.active_rng`), `tests/test_saved_state.py`, `tests/test_rng.py`,
 `check_reference_logs.py --round-trip`. Engine results unchanged (logs identical).
-(i) SESSION 17 (Change Record "RUST TRIAL..."): `fastcore/src/lib.rs` (`best_subset` v
-`weapon_selection._best_subset_python` - tie order), the knapsack extraction, the `special` /
-`has_profile` caches on weapons (static? a weapon whose data changes mid-battle would keep a stale answer).
-(j) SESSION 17 (Change Record "WEAPON-CHOICE LOOKUP TABLES..."): `FireTable`, `fire_state` (is anything a
-weapon choice reads missing from it?), `shared_fire_table`'s key, the `select_weapons_to_fire` split,
-`fastcore.knapsack_levels`, `tests/test_fire_tables.py`.
 (l) SESSION 18, 2026-11-04 to 11-06 (Change Record, the entries from "SKELETON-AND-SHELL BUILDER, PHASE 1" to "WORKBENCH:
 SHAREABLE CODES"): the skeleton-and-shell builders - `INTEGRATION__shell.py` (plated look), `INTEGRATION__shell_items.py` (items,
 budgets with the structure-point bulk rule and leg myomer factor, hardpoint placement with rail pins), `INTEGRATION__shell_facet.py`
@@ -1251,6 +1235,11 @@ forward arc, kicks included, never into a side arc.
 
 ## 5. DECISIONS LOG (Daniel's calls — implementation may not override)
 
+- **Map seams (Daniel, 2026-11-06):** "It should follow Megamek's
+  conventions." Stitched boards abut (MegaMek BoardUtilities.combine); only an
+  odd-width board gets one blank column after it. Replaces the 2026-07-20 rule
+  (a blank row / column at every seam).
+
 - **Multi-unit battles (Daniel, 2026-10-28):** "Multiple units that can be
   assigned to multiple teams. The ideal ranges would probably be a 4 unit
   lance and a 12 unit company vs like forces. But a 20 unit free for all or a
@@ -1815,6 +1804,46 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-11-06 (Claude), REVIEW: KILL CURVE, RUST, FIRE TABLES; MEGAMEK MAP SEAMS.** Review of queue items
+  (c), (i), (j) by the higher-level model, and Daniel's map-seam call. 50 of 50 checks, every reference log
+  identical, benchmark 501 / 495 - with the Rust built and without.
+  - MAP SEAMS (Daniel: "It should follow Megamek's conventions"; MegaMek BoardUtilities.combine, master):
+    stitched boards now ABUT - no gap between rows, none after an even-width board (16-wide sheets keep
+    their column parity and join up as drawn). Only after an odd-width board (the pack has 15- and 45-wide
+    maps) one blank column, MegaMek's default padding, restores the parity. MegaMek fills that column with
+    terrain blended from both sides (random woods / rough); ours stays blank. A 2 x 1 field is now 32 x 17
+    (was 33 x 17: `tests/baseline_battery.py`'s field is one column narrower, so its battles change). Test:
+    `test_terrain.stitched_map_loads_and_crosses_the_seam` checks every hex of the second and third boards
+    sits exactly 16 columns / 17 rows on, and the odd-width padding.
+  - (c) Sound: the kill curve's own dice (every roll in the damage path goes through config.roll_2d6 /
+    pick_number, looked up at call time; mechsim's `config` is the same module), its trials write nothing
+    outside their copy (quiet() also silences the replay's sink), the fire director's dry run changes
+    nothing, `fire_pick`'s ranking, the advance-into-an-occupied-hex fix, and `princess.direction`'s 5 for
+    the same hex (checked against MegaMek's Coords.radian: equal x and y give 1.5 pi, / (pi/3) = 4.5, Java
+    rounds to 5). Fixed (no result change): the kill-curve cache outlives a battle and is keyed by
+    `id(mech)`, which Python reuses; the state signature can't tell armor types apart (hardened armor has no
+    slots), so a freed unit's id reused by another design could have found its curve - the armor and
+    structure types are now in the key. Doc fix: the trials' seed has no design name in it (a 'Mech has no
+    `name`), only the side and the damage state.
+  - (i) Sound: the Rust knapsack is the Python's step for step (levels visited high to low, strictly better
+    replaces, new levels at the end, first highest wins, the same float sums). Built here and compared on
+    60,000 random knapsacks (heavy ties, zero-heat weapons, up to 64 candidates): the same winner, heat and
+    weapons, and the same `knapsack_levels` in the same order. The one difference (a sorted list v a Python
+    set of indices, which isn't always in ascending order) can't matter: every caller turns it into a set of
+    weapons and walks the weapons in their own order. The `special` / `has_profile` caches read only the
+    weapon's name and fixed data (missile, Ultra / Rotary, profiles, flamers / plasma by name), so a cached
+    answer can't go stale. Fixed (latent crash, no result change): `knapsack_levels` sent a non-integer heat
+    budget to the Rust, which raises TypeError there (`best_subset` catches it; this one didn't) - it now
+    checks the budget first.
+  - (j) Sound: solving once at the largest budget and filtering gives exactly a smaller budget's answer
+    (levels at or below a budget are built only from lower ones, in the same insertion order, when no heat
+    cost is negative - the table checks that) - also run against fresh solves at every budget in the
+    60,000 cases above. The shared table's key covers what the first caller's tn_adjust / Planner / scale
+    read: attacker and target state (`fire_state`, incl. active stealth, which ECM positions can change in
+    mid-movement - it is in the key each time a scorer is made), aim, AMS count, water, unavailable weapons
+    (ammo, jams, arcs, held limbs), the weighting switch, and the role; cleared every turn and on a load.
+    Nothing missing found.
 
 - **2026-11-06 (Claude), BV REVIEW ITEM (b) CLOSED** (Daniel: "the BV difference was a non issue. Calculated value matches Mordel"). Crusader CRD-3R stays at 1317; review item (b) removed from the queue. Docs only.
 

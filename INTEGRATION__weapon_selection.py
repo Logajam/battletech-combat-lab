@@ -535,7 +535,9 @@ def shared_fire_table(share, mech, tn_adjust, unavailable, weapons, table, plann
 def knapsack_levels(values, heats, heat_budget):
     """_knapsack_levels_python, in Rust when built and switched on (config.USE_FASTCORE)."""
     if (_fastcore is not None and INTEGRATION__config.USE_FASTCORE and len(values) <= 64
-            and all(type(h) is int for h in heats)):
+            and all(type(h) is int for h in heats) and type(heat_budget) is int):
+        # (the Rust takes whole numbers only; best_subset falls back on its TypeError, this checks
+        # first - review 2026-11-06: a float budget raised out of here)
         return _fastcore.knapsack_levels(values, heats, heat_budget)
     return _knapsack_levels_python(values, heats, heat_budget)
 

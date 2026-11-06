@@ -154,6 +154,12 @@ def parse_board_file(filepath: str) -> Dict[str, object]:
     return {"width": width, "height": height, "hexes": hexes}
 
 
+# MegaMek's columnPaddingWidth default (BoardUtilities.combine): the blank
+# columns after an odd-width board. Must be odd, so the next board keeps its
+# column parity.
+ODD_WIDTH_PADDING = 1
+
+
 def stitch_boards(board_paths: List[str], cols: int, rows: int) -> Dict[str, object]:
     """
     Combine multiple .board files into a single terrain_map, arranged in a
@@ -163,12 +169,19 @@ def stitch_boards(board_paths: List[str], cols: int, rows: int) -> Dict[str, obj
     native CCRR numbering; every other board is renumbered with a column/row
     offset so the whole thing forms one continuous coordinate space.
 
-    A single blank hex row/column (BigBlank.board style: level 0, no
-    features, no theme) is ALWAYS inserted at every internal seam -- between
-    adjacent columns and between adjacent rows -- per Daniel's instruction
-    (2026-07-20): this is a visual convention (half-hexes at a square map's
-    edge lining up when boards are pushed together), not a computed/optional
-    rule, so it's unconditional here, not a per-call toggle.
+    Seams follow MegaMek's convention (Daniel, 2026-11-06: "It should follow
+    Megamek's conventions"; MegaMek BoardUtilities.combine, master 2026-11):
+    boards ABUT - no gap between grid rows, and none between grid columns
+    whose board width is even (a 16-wide sheet keeps the next board's column
+    parity, so its terrain joins up as drawn). Only after a column of ODD
+    width is one padding column inserted (MegaMek's default columnPaddingWidth
+    of 1, kept odd), which restores the parity an odd width would flip.
+    (Before this, Daniel's 2026-07-20 rule put a blank row / column at EVERY
+    seam: 16 + 1 = 17 flipped every second board half a hex.)
+    Difference from MegaMek: it fills the padding column with terrain blended
+    from both neighbours (interpolated level and water, a random pick of
+    their woods / rough...); here the padding is blank (level 0, no
+    features), since that fill uses dice outside the battle's.
 
     Size rule (Daniel, 2026-07-20): every board in the same grid ROW must
     share the same height (they sit side by side and must align top/bottom);
@@ -220,21 +233,26 @@ def stitch_boards(board_paths: List[str], cols: int, rows: int) -> Dict[str, obj
             )
         col_widths[grid_col] = widths_in_col.pop()
 
-    # --- Offsets: cumulative size of prior columns/rows + 1 gap hex per prior seam ---
+    # --- Offsets (MegaMek seams): rows abut; a column abuts the next unless its
+    #     width is odd, which adds ODD_WIDTH_PADDING blank columns after it ---
+    def _pad_after(grid_col: int) -> int:
+        if grid_col == cols - 1:
+            return 0
+        return ODD_WIDTH_PADDING if col_widths[grid_col] % 2 else 0
+
     col_offset: Dict[int, int] = {}
     running = 0
     for grid_col in range(cols):
         col_offset[grid_col] = running
-        running += col_widths[grid_col] + 1
+        running += col_widths[grid_col] + _pad_after(grid_col)
+    total_width = running
 
     row_offset: Dict[int, int] = {}
     running = 0
     for grid_row in range(rows):
         row_offset[grid_row] = running
-        running += row_heights[grid_row] + 1
-
-    total_width = sum(col_widths.values()) + (cols - 1)
-    total_height = sum(row_heights.values()) + (rows - 1)
+        running += row_heights[grid_row]
+    total_height = running
 
     if total_width > 99 or total_height > 99:
         print(
