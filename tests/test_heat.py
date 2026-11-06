@@ -26,6 +26,7 @@ sys.path.insert(0, REPO_ROOT)
 os.chdir(REPO_ROOT)
 
 import INTEGRATION__config as config  # noqa: E402 - registers bare "config" first
+config.STATS = False  # event log + report off: not part of a test or battery (2026-11-06)
 import INTEGRATION__orchestrator as orchestrator  # noqa: E402 - puts pathfinder/ on sys.path
 import INTEGRATION__heat as heat  # noqa: E402
 import INTEGRATION__attack_resolution as attack_resolution  # noqa: E402

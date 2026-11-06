@@ -75,6 +75,13 @@ WORKERS = 0
 # heat, and the log of each step. 0 = none.
 REPLAY_BATTLES = 0
 REPLAY_DIR = "replays"
+# Battle statistics (2026-11-06, INTEGRATION__stats): every battle keeps an event log
+# (each shot and physical attack, each unit's state at every turn's end, deaths) and
+# the batch writes one HTML report from them (INTEGRATION__stats_report) into
+# STATS_DIR (relative = under the repo root). It only reads the battle, so results are
+# identical on or off; the reference-battle checks and the benchmark switch it off.
+STATS = True
+STATS_DIR = "stats"
 # Saved states (2026-11-03, INTEGRATION__saved_state): at the end of the turns
 # listed, battles 1..SAVE_STATE_BATTLES of a run each write a file to
 # SAVE_STATE_DIR holding everything needed to play on from there - the units,

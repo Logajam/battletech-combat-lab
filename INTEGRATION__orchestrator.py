@@ -141,6 +141,8 @@ import INTEGRATION__attack_resolution as attack_resolution  # noqa: E402
 import INTEGRATION__arcs as arcs  # noqa: E402
 import INTEGRATION__clubs as clubs  # noqa: E402
 import INTEGRATION__replay as replay  # noqa: E402
+import INTEGRATION__stats as stats  # noqa: E402 - the battle's event log (2026-11-06)
+import INTEGRATION__stats_report as stats_report  # noqa: E402 - its batch report page
 import INTEGRATION__timing as timing  # noqa: E402
 import INTEGRATION__water as water  # noqa: E402
 import INTEGRATION__advanced_weapons as adv  # noqa: E402 - TO:AUE weapons (2026-10-27)
@@ -866,6 +868,7 @@ def _start_battle(battle):
     for m in units:
         m.hp_log = []
         movement_selection.record_hp(m)      # the history blend's record (config.MOVEMENT_LIFETIME_HISTORY_K)
+    stats.snapshot(0, units)
     replay.mark(0, "Deployment")
 
 
@@ -887,6 +890,7 @@ def _play_turn(battle, turn) -> bool:
     units, terrain_map, battle_rng = battle.units, battle.terrain_map, battle.battle_rng
     result, unit_stats, team_list = battle.result, battle.unit_stats, battle.team_list
     config.log(f"\n=== TURN {turn} ===")
+    stats.set_turn(turn)
     if not config.FIRE_TABLE_VERIFY:            # (the check keeps them, to test the key across turns)
         weapon_selection.reset_shared_tables()  # stealth / equipment switch at the start of a turn
     alive = forces.standing(units)
@@ -937,6 +941,7 @@ def _play_turn(battle, turn) -> bool:
         reports = attack_resolution.run_ranged_phase(fighters, lambda u: bots.choose_target(u, units, terrain_map),
                                                      terrain_map, battle_rng)
     _after_phase(*units)
+    stats.note_deaths(units, "ranged attacks")
     replay.mark(turn, "Ranged attacks")
     for side, rep in reports.items():
         unit_stats[side].attacks += rep.attacks
@@ -952,6 +957,7 @@ def _play_turn(battle, turn) -> bool:
 
         physical.run_physical_units(scrappers, physical_target, terrain_map, reports)
     _after_phase(*units)
+    stats.note_deaths(units, "physical attacks")
     replay.mark(turn, "Physical attacks")
     with timing.section("heat phase"):
         _phase_heat(units, reports)
@@ -965,6 +971,8 @@ def _play_turn(battle, turn) -> bool:
         config.log(f"  -- end of turn {turn}: {_status_line(m)}")
     for m in units:
         movement_selection.record_hp(m)
+    stats.note_deaths(units, "heat and end phase")
+    stats.snapshot(turn, units)
     replay.mark(turn, "Heat and end phase")
 
     result.turns_taken = turn
@@ -1082,6 +1090,8 @@ def _run_one_roster(sim, num_simulations, seed, max_turns, roster, terrain_map):
     recording = sim <= config.REPLAY_BATTLES
     if recording:
         replay.start(units, terrain_map, sim_seed, sim)
+    if config.STATS:
+        stats.start(units, sim)
     timing.take()                          # nothing carried over from outside this battle
     prof = timing.start_profile()
     with timing.section("battle"):
@@ -1091,6 +1101,8 @@ def _run_one_roster(sim, num_simulations, seed, max_turns, roster, terrain_map):
     result.timing = timing.take() if config.TIMING else None
     result.active_stubs = stubs.active_stubs()
     result.seed = sim_seed
+    if config.STATS:
+        result.stats = stats.finish()
     if recording:
         result.replay = replay.finish(result)
     return result
@@ -1195,6 +1207,8 @@ def run_batch(num_simulations: Optional[int] = None, seed: Optional[int] = None,
     for result in results:
         if result.replay is not None:
             print(f"Replay saved: {replay.write(result.replay)}")
+    if config.STATS:
+        stats_report.report(results)
     return results
 
 

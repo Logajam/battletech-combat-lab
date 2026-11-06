@@ -53,6 +53,7 @@ os.chdir(REPO_ROOT)
 os.environ.setdefault("INTEGRATION_DATA_DIR", "./data")
 
 import INTEGRATION__config as config  # noqa: E402
+config.STATS = False  # event log + report off: not part of a test or battery (2026-11-06)
 import INTEGRATION__orchestrator as orchestrator  # noqa: E402
 
 def _side(side, own, assumes):

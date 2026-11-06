@@ -112,6 +112,7 @@ import INTEGRATION__water as water
 import INTEGRATION__hazards as hazards
 import INTEGRATION__advanced_weapons as adv
 import INTEGRATION__smoke as smoke
+import INTEGRATION__stats as stats  # event log, read-only (2026-11-06)
 from mech_state import target_size_modifier, is_superheavy  # noqa: E402 - Core p.240 (2026-10-28)
 from mech_state import pilot_hit, head_hit_hurts_pilot, tripod_gunner_modifier, is_destroyed, all_crew_unconscious  # noqa: E402 - pp.203, 236
 from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capability, \
@@ -162,6 +163,13 @@ class SideReport:
     damage_dealt: float = 0.0
     weapon_heat: int = 0
     attacks_list: List[DeclaredAttack] = field(default_factory=list)
+
+
+def forces_distance(a, b):
+    """Hexes between two units (None if one is off the board) - for the stats log only."""
+    if a.hex is None or b.hex is None:
+        return None
+    return hex_distance(hex_geometry.parse_hex_label(a.hex), hex_geometry.parse_hex_label(b.hex))
 
 
 def total_hp(mech):
@@ -1224,12 +1232,17 @@ def run_ranged_phase(order, target_of, terrain_map, battle_rng):
             rep = reports[attacker.side_name]
             hp_before = total_hp(target)
             pool = {} if config.POOL_CLUSTER_DAMAGE else None
+            shot_range = None
             for attack in rep.attacks_list:
+                before = stats.hp_before(target)              # None unless config.STATS is logging
+                if before is not None and shot_range is None:
+                    shot_range = forces_distance(attacker, target)
                 if attack.hit:
                     rep.hits += 1
                     if adv.is_tsemp(attack.weapon):           # no damage - an effects roll (IO pp.90-91)
                         config.log(f"    {attack.weapon.name} hit:")
                         adv.tsemp_hit(attacker, target, getattr(attacker, "turn_number", 0))
+                        stats.shot(attacker, target, attack, before, shot_range)
                         continue
                     _resolve_one_attack(attacker, target, attack, battle_rng, pool)
                     if adv.is_taser(attack.weapon):           # TO:AUE pp.157-158
@@ -1240,14 +1253,17 @@ def run_ranged_phase(order, target_of, terrain_map, battle_rng):
                     _resolve_area(target, weapon_profiles.HOMING_AE, attack.side, attack.cover)
                 elif (attack.fire is not None and attack.fire.kind == "artillery") or weapon_profiles.is_art_cannon(attack.weapon):
                     _resolve_area_miss(attacker, target, attack, terrain_map)
+                stats.shot(attacker, target, attack, before, shot_range)
             for (size, dtype, side, cover), parts in (pool or {}).items():
                 total = sum(d for _, d in parts)
+                lump_before = stats.hp_before(target)
                 if len(parts) > 1:
                     config.log(f"    Cluster damage pooled ({size}-point groupings): "
                                f"{' + '.join(f'{n} {d}' for n, d in parts)} = {total}.")
                 else:
                     config.log(f"    {parts[0][0]}: {total} damage in {size}-point groupings.")
                 _apply_groups(target, total, size, dtype, side, cover)
+                stats.pooled(attacker, target, "pooled cluster", lump_before)
             rep.damage_dealt += hp_before - total_hp(target)
 
     for m in order:

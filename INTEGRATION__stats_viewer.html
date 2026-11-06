@@ -1,0 +1,323 @@
+<title>Battle Statistics</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one long, scannable report. Outcome first (the batch in one screen), then each team,
+   then one card per unit. Tables carry the exact numbers; charts carry the shape. */
+:root {
+  --bg: #f4f5f7;          /* cool paper */
+  --surface: #ffffff;
+  --ink: #14181f;
+  --ink-2: #4a5260;
+  --ink-3: #6f7886;
+  --line: #dde1e7;
+  --grid: #e8ebef;
+  --accent: #184f95;
+  --red: #e34948;         /* categorical slot 8 */
+  --blue: #2a78d6;        /* categorical slot 1 */
+  --c3: #1baf7a;
+  --c2: #eb6834;
+  --c4: #eda100;
+  --c7: #6250d6;
+  --ok: #0ca30c;
+  --bad: #d03b3b;
+  --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101318; --surface: #181c23; --ink: #eceef2; --ink-2: #b4bbc7; --ink-3: #8b94a3;
+    --line: #2b313b; --grid: #232830; --accent: #86b6ef;
+    --red: #e66767; --blue: #3987e5; --c3: #199e70; --c2: #d95926; --c4: #c98500; --c7: #9085e9;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101318; --surface: #181c23; --ink: #eceef2; --ink-2: #b4bbc7; --ink-3: #8b94a3;
+  --line: #2b313b; --grid: #232830; --accent: #86b6ef;
+  --red: #e66767; --blue: #3987e5; --c3: #199e70; --c2: #d95926; --c4: #c98500; --c7: #9085e9;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 400 14px/1.5 var(--font-body); }
+.wrap { max-width: 1080px; margin: 0 auto; padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 56px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: .01em; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(30px, 6vw, 46px); line-height: 1.05; }
+h2 { font-size: 26px; margin-top: 44px; padding-bottom: 6px; border-bottom: 2px solid var(--ink); }
+h3 { font-size: 19px; margin-bottom: 8px; }
+.sub { color: var(--ink-2); margin: 6px 0 0; }
+.mono, td.n, th.n { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+nav { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 16px; font-family: var(--font-display); font-size: 17px; letter-spacing: .03em; text-transform: uppercase; }
+nav a { color: var(--accent); text-decoration: none; }
+nav a:hover, nav a:focus-visible { text-decoration: underline; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 20px; }
+.panel { background: var(--surface); border: 1px solid var(--line); padding: 16px; min-width: 0; }
+.panel h3 { margin-top: 0; }
+.note { color: var(--ink-3); font-size: 12.5px; margin: 6px 0 0; }
+.tiles { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 12px 0 4px; }
+.tile .v { font: 500 26px/1.1 var(--font-data); font-variant-numeric: tabular-nums; }
+.tile .l { color: var(--ink-3); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th { text-align: left; font-weight: 500; color: var(--ink-3); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; padding: 5px 10px 5px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 5px 10px 5px 0; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+td.n, th.n { text-align: right; }
+td.wrap-ok { white-space: normal; }
+svg { display: block; max-width: 100%; height: auto; }
+svg text { fill: var(--ink-2); font: 11px var(--font-data); }
+svg .grid { stroke: var(--grid); stroke-width: 1; }
+svg .axis { stroke: var(--ink-3); stroke-width: 1; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 8px; font-size: 12.5px; color: var(--ink-2); }
+.sw { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
+.bar { display: grid; grid-template-columns: minmax(90px, 200px) 1fr minmax(0, 210px); gap: 10px; align-items: center; padding: 3px 0; font-size: 13px; }
+.bar .track { position: relative; height: 14px; background: var(--grid); }
+.bar .fill { position: absolute; inset: 0 auto 0 0; }
+.bar .whisker { position: absolute; top: 3px; height: 8px; border-left: 2px solid var(--ink); border-right: 2px solid var(--ink); }
+.bar .whisker::after { content: ""; position: absolute; left: 0; right: 0; top: 3px; border-top: 2px solid var(--ink); }
+.bar .lab { overflow-wrap: anywhere; }
+details.unit { background: var(--surface); border: 1px solid var(--line); margin-top: 16px; }
+details.unit > summary { cursor: pointer; padding: 14px 16px; list-style: none; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+details.unit > summary::-webkit-details-marker { display: none; }
+details.unit > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+details.unit > summary h3 { margin: 0; font-size: 22px; }
+details.unit > summary .meta { color: var(--ink-3); font-size: 13px; }
+details.unit > summary::before { content: "+"; font: 500 18px var(--font-data); width: 14px; color: var(--ink-3); }
+details.unit[open] > summary::before { content: "\2212"; }
+.unit-body { padding: 4px 16px 18px; display: grid; gap: 20px; border-top: 1px solid var(--line); }
+.chip { display: inline-block; padding: 1px 8px; font-size: 12px; border: 1px solid var(--line); color: var(--ink-2); }
+.theme { margin-left: auto; }
+button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); padding: 3px 10px; cursor: pointer; }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+header { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; }
+header > div { flex: 1 1 320px; min-width: 0; }
+code { font-family: var(--font-data); font-size: 12.5px; }
+@media (prefers-reduced-motion: no-preference) { details.unit > .unit-body { animation: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1 id="title"></h1>
+      <p class="sub" id="subtitle"></p>
+    </div>
+    <button class="theme" id="theme" type="button" aria-label="Switch between light and dark">Light / dark</button>
+  </header>
+  <nav id="nav"></nav>
+  <main id="main"></main>
+</div>
+
+<script id="data" type="application/json">__STATS_JSON__</script>
+<script>
+"use strict";
+const D = JSON.parse(document.getElementById("data").textContent);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const f0 = x => Math.round(x).toLocaleString();
+const f1 = x => (Math.round(x * 10) / 10).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const pc = x => f1(100 * x) + "%";
+const TEAM_COLORS = { Red: "var(--red)", Blue: "var(--blue)" };
+const SPARE = ["var(--c3)", "var(--c2)", "var(--c4)", "var(--c7)"];
+const teamColor = t => TEAM_COLORS[t] || SPARE[Math.max(0, D.team_order.indexOf(t)) % SPARE.length];
+const unitColor = u => teamColor(D.units[u].team);
+const unitName = u => D.units[u].name + (D.labels.length > 2 || D.units[u].name === D.units[D.labels[0]].name && D.labels.length > 1 && D.labels.some(x => x !== u && D.units[x].name === D.units[u].name) ? " (" + u + ")" : "");
+const teamName = t => {
+  const m = D.teams_members[t];
+  return m.length === 1 ? D.units[m[0]].name : t + " (" + m.length + " units)";
+};
+const sideName = t => D.teams_members[t].length === 1 ? D.units[D.teams_members[t][0]].name : t;
+
+// ---------- SVG charts ----------
+function niceMax(v) {
+  if (v <= 0) return 1;
+  const p = Math.pow(10, Math.floor(Math.log10(v))), m = v / p;
+  return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * p;
+}
+function svgBars(items, o = {}) {
+  // items: [{label, value, tip}] - vertical bars on one value axis from zero.
+  const W = o.w || 420, H = o.h || 150, L = 38, R = 6, T = 8, B = 26;
+  if (!items.length) return '<p class="note">No data.</p>';
+  const top = Math.max(...items.map(i => i.value));
+  const max = o.max || (o.int ? Math.max(4, Math.ceil(top / 4) * 4) : niceMax(top));
+  const bw = (W - L - R) / items.length, y = v => T + (H - T - B) * (1 - v / max);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.aria || "bar chart")}">`;
+  for (let k = 0; k <= 4; k++) {
+    const v = max * k / 4;
+    s += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 5}" y="${y(v) + 4}" text-anchor="end">${o.fmt ? o.fmt(v) : (v % 1 ? f1(v) : f0(v))}</text>`;
+  }
+  const every = Math.ceil(items.length / 12);
+  items.forEach((it, i) => {
+    const x = L + i * bw + Math.min(2, bw * 0.12), w = Math.max(1, bw - 2 * Math.min(2, bw * 0.12));
+    s += `<rect x="${x}" y="${y(it.value)}" width="${w}" height="${Math.max(0, y(0) - y(it.value))}" fill="${o.color || "var(--blue)"}"><title>${esc(it.tip || it.label + ": " + it.value)}</title></rect>`;
+    if (i % every === 0) s += `<text x="${x + w / 2}" y="${H - 8}" text-anchor="middle">${esc(it.label)}</text>`;
+  });
+  return s + `<line class="axis" x1="${L}" x2="${W - R}" y1="${y(0)}" y2="${y(0)}"/></svg>`;
+}
+function svgHist(h, o = {}) {
+  if (!h || !h.counts.length) return '<p class="note">No data.</p>';
+  const whole = h.edges.every(e => Number.isInteger(e)) && h.edges[1] - h.edges[0] === 1;
+  const total = h.counts.reduce((a, b) => a + b, 0);
+  const items = h.counts.map((c, i) => {
+    const a = h.edges[i], b = h.edges[i + 1];
+    const label = whole ? String(a) : f0(a);
+    const range = whole ? String(a) : f1(a) + " to " + f1(b);
+    return { label, value: c, tip: `${range}: ${c} of ${total} battles (${pc(c / total)})` };
+  });
+  return svgBars(items, { color: o.color, aria: o.aria, w: o.w, h: o.h, int: true });
+}
+function svgLines(series, o = {}) {
+  // series: [{name, color, mean[], lo[], hi[], dash}], x = turn index. One y axis, from zero.
+  const W = o.w || 520, H = o.h || 210, L = 40, R = 96, T = 10, B = 26;
+  const n = series[0].mean.length, max = o.max || niceMax(Math.max(...series.map(s => Math.max(...s.hi || s.mean))));
+  const x = i => L + (W - L - R) * (n > 1 ? i / (n - 1) : 0), y = v => T + (H - T - B) * (1 - v / max);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.aria || "line chart")}">`;
+  for (let k = 0; k <= 4; k++) {
+    const v = max * k / 4;
+    s += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 5}" y="${y(v) + 4}" text-anchor="end">${o.fmt ? o.fmt(v) : (v % 1 ? f1(v) : f0(v))}</text>`;
+  }
+  const step = Math.ceil(n / 10);
+  for (let i = 0; i < n; i += step) s += `<text x="${x(i)}" y="${H - 8}" text-anchor="middle">${i}</text>`;
+  s += `<text x="${W - R + 18}" y="${H - 8}">${o.xlabel || "turn"}</text>`;
+  const labelYs = [];
+  series.forEach(se => {
+    const pts = se.mean.map((v, i) => v == null ? null : [x(i), y(v)]).filter(Boolean);
+    if (se.lo && se.hi) {
+      const up = se.hi.map((v, i) => [x(i), y(v)]), dn = se.lo.map((v, i) => [x(i), y(v)]).reverse();
+      s += `<polygon points="${up.concat(dn).map(p => p.join(",")).join(" ")}" fill="${se.color}" opacity="0.16"/>`;
+    }
+    s += `<polyline points="${pts.map(p => p.join(",")).join(" ")}" fill="none" stroke="${se.color}" stroke-width="2" ${se.dash ? 'stroke-dasharray="5 4"' : ""} stroke-linejoin="round"/>`;
+    const last = pts[pts.length - 1];
+    let ly = last[1] + 4;
+    while (labelYs.some(v => Math.abs(v - ly) < 12)) ly += 12;      // keep direct labels apart
+    labelYs.push(ly);
+    s += `<circle cx="${last[0]}" cy="${last[1]}" r="3" fill="${se.color}"/><text x="${last[0] + 7}" y="${ly}" style="fill:var(--ink)">${esc(se.name)}</text>`;
+  });
+  // hover columns: one tooltip per turn listing every series
+  for (let i = 0; i < n; i++) {
+    const tip = `Turn ${i}\n` + series.map(se => `${se.name}: ${se.mean[i] == null ? "-" : (o.fmt ? o.fmt(se.mean[i]) : f1(se.mean[i]))}` +
+      (se.lo ? ` (p10 ${o.fmt ? o.fmt(se.lo[i]) : f1(se.lo[i])}, p90 ${o.fmt ? o.fmt(se.hi[i]) : f1(se.hi[i])})` : "")).join("\n");
+    const w = (W - L - R) / Math.max(1, n - 1);
+    s += `<rect x="${x(i) - w / 2}" y="${T}" width="${w}" height="${H - T - B}" fill="transparent"><title>${esc(tip)}</title></rect>`;
+  }
+  return s + `<line class="axis" x1="${L}" x2="${W - R}" y1="${y(0)}" y2="${y(0)}"/></svg>`;
+}
+function distBar(d, max, color) {
+  // p10-p90 whisker, p25-p75 box, median tick, mean dot - one row, scaled 0..max.
+  const W = 200, H = 16, x = v => 2 + (W - 4) * Math.min(1, v / (max || 1));
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" role="img" aria-label="spread"><title>p10 ${f1(d.p10)}, p25 ${f1(d.p25)}, median ${f1(d.median)}, p75 ${f1(d.p75)}, p90 ${f1(d.p90)}, mean ${f1(d.mean)}</title>` +
+    `<line x1="${x(d.p10)}" x2="${x(d.p90)}" y1="8" y2="8" stroke="${color}" stroke-width="2"/>` +
+    `<rect x="${x(d.p25)}" y="3" width="${Math.max(1, x(d.p75) - x(d.p25))}" height="10" fill="${color}" opacity="0.35"/>` +
+    `<line x1="${x(d.median)}" x2="${x(d.median)}" y1="2" y2="14" stroke="${color}" stroke-width="3"/>` +
+    `<circle cx="${x(d.mean)}" cy="8" r="2.5" fill="var(--bg)" stroke="${color}" stroke-width="1.5"/></svg>`;
+}
+function bars(obj, total, color, o = {}) {
+  const rows = Object.entries(obj);
+  if (!rows.length) return '<p class="note">None.</p>';
+  const max = Math.max(...rows.map(r => r[1]));
+  return rows.map(([k, v]) => `<div class="bar"><span class="lab">${esc(k)}</span><span class="track"><span class="fill" style="width:${100 * v / (o.scale || max)}%;background:${color}"></span></span><span class="mono">${o.pct ? f1(v) + "%" : f0(v) + (total ? " (" + pc(v / total) + ")" : "")}</span></div>`).join("");
+}
+function winBar(p, color, label) {
+  return `<div class="bar" title="95% confidence interval ${pc(p.lo)} to ${pc(p.hi)}"><span class="lab">${esc(label)}</span><span class="track"><span class="fill" style="width:${100 * p.p}%;background:${color}"></span><span class="whisker" style="left:${100 * p.lo}%;width:${100 * (p.hi - p.lo)}%"></span></span><span class="mono">${pc(p.p)} <span style="color:var(--ink-3)">(${pc(p.lo)} to ${pc(p.hi)})</span></span></div>`;
+}
+const desc = (d, fmt = f1) => `<td class="n">${fmt(d.mean)}</td><td class="n">${fmt(d.median)}</td><td class="n">${fmt(d.p10)}</td><td class="n">${fmt(d.p90)}</td><td class="n">${fmt(d.sd)}</td>`;
+const legend = items => `<div class="legend">${items.map(i => `<span><span class="sw" style="background:${i.color}"></span>${esc(i.name)}</span>`).join("")}</div>`;
+
+// ---------- sections ----------
+function outcomeSection() {
+  const o = D.outcome, n = D.n;
+  let s = `<h2 id="outcome">Outcome</h2><div class="grid2" style="margin-top:16px">`;
+  s += `<div class="panel"><h3>Who won</h3>` + D.team_order.map(t => winBar(o.wins[t], teamColor(t), sideName(t))).join("") + winBar(o.draws, "var(--ink-3)", "Draw");
+  const drawBits = [];
+  if (o.draws_all_destroyed) drawBits.push(`${o.draws_all_destroyed} with everyone destroyed`);
+  if (o.draws_turn_cap) drawBits.push(`${o.draws_turn_cap} at the turn cap`);
+  s += `<p class="note">${n} battle${n === 1 ? "" : "s"}. Bars show the win rate; the whisker is the 95% confidence interval (Wilson). ${n < 100 ? "With this few battles the interval is wide: treat gaps smaller than it as noise. " : ""}${drawBits.length ? "Draws: " + drawBits.join(", ") + "." : ""}</p></div>`;
+  s += `<div class="panel"><h3>How long battles last</h3><div class="tiles"><div class="tile"><div class="v">${f1(o.turns.median)}</div><div class="l">median turns</div></div><div class="tile"><div class="v">${f1(o.turns.mean)}</div><div class="l">mean</div></div><div class="tile"><div class="v">${f0(o.turns.p10)}&ndash;${f0(o.turns.p90)}</div><div class="l">p10&ndash;p90</div></div></div>${svgHist(o.turns_hist, { aria: "battle length in turns" })}<p class="note">Turns per battle, one bar per count of turns.</p></div>`;
+  s += `</div><div class="grid2" style="margin-top:20px">`;
+  if (n > 1) {
+    const ser = D.team_order.map(t => ({ name: sideName(t), color: teamColor(t), mean: o.running_win_rate[t].map(v => 100 * v) }));
+    s += `<div class="panel"><h3>Is the batch big enough?</h3>${svgLines(ser, { max: 100, fmt: v => f0(v) + "%", aria: "running win rate", h: 190, xlabel: "battle" })}<p class="note">Win rate after each battle (the x axis counts battles). Once the lines stop moving, more battles will not change the answer.</p></div>`;
+  }
+  const row = e => `<tr><td class="n">${e.turns}</td><td>${esc(e.winner)}</td><td class="n">${e.seed}</td></tr>`;
+  s += `<div class="panel"><h3>Shortest and longest battles</h3><div class="scroll"><table><tr><th class="n">Turns</th><th>Winner</th><th class="n">Seed</th></tr>${o.shortest.map(row).join("")}<tr><td colspan="3" style="color:var(--ink-3)">&hellip;</td></tr>${o.longest.map(row).join("")}</table></div><p class="note">Run a seed on its own (<code>SEED = n, NUM_SIMULATIONS = 1</code>) to replay that battle.</p></div></div>`;
+  return s;
+}
+
+function teamSection() {
+  if (!D.multi) return "";
+  let s = `<h2 id="teams">Teams</h2><div class="grid2" style="margin-top:16px">`;
+  const ct = D.curves.team, H = D.curves.horizon;
+  const mk = (key, o) => D.team_order.map(t => ({ name: sideName(t), color: teamColor(t), mean: ct[t][key + "_mean"], lo: ct[t][key + "_p10"], hi: ct[t][key + "_p90"] }));
+  const maxUnits = Math.max(...D.team_order.map(t => ct[t].units));
+  s += `<div class="panel"><h3>Units standing, by turn</h3>${svgLines(mk("standing"), { max: maxUnits, aria: "units standing by turn" })}<p class="note">Line = mean, shaded band = p10 to p90 across battles. A battle that ended is held at its final state.</p></div>`;
+  s += `<div class="panel"><h3>Force remaining, by turn</h3>${svgLines(mk("force"), { max: 100, fmt: v => f0(v) + "%", aria: "force armor and structure remaining by turn" })}<p class="note">Armor plus structure of the whole team as a share of its starting total. Shows a team being worn down while every unit still stands.</p></div></div>`;
+  s += `<div class="panel" style="margin-top:20px"><h3>Team detail</h3><div class="scroll"><table><tr><th>Team</th><th class="n">Units</th><th class="n">Survivors (mean)</th><th class="n">First enemy kill (median turn)</th><th class="n">Second kill</th><th class="n">Focus fire</th><th class="n">Top target's share of damage</th><th class="n">Spread (hexes)</th></tr>`;
+  D.team_order.forEach(t => {
+    const x = D.team[t];
+    s += `<tr><td><span class="sw" style="background:${teamColor(t)}"></span>${esc(t)}</td><td class="n">${x.units}</td><td class="n">${f1(x.survivors.mean)}</td><td class="n">${x.first_kill_turn.n ? f1(x.first_kill_turn.median) : "-"}</td><td class="n">${x.second_kill_turn.n ? f1(x.second_kill_turn.median) : "-"}</td><td class="n">${x.focus_fire_pct == null ? "-" : f0(x.focus_fire_pct) + "%"}</td><td class="n">${x.top_target_damage_share.n ? f0(x.top_target_damage_share.median) + "%" : "-"}</td><td class="n">${x.cohesion.n ? f1(x.cohesion.mean) : "-"}</td></tr>`;
+  });
+  s += `</table></div><p class="note">Focus fire = of the turns when two or more of the team's units shot, the share when at least two picked the same target. Spread = mean distance between the team's standing units.</p></div>`;
+  s += `<div class="grid2" style="margin-top:20px">` + D.team_order.map(t => {
+    const x = D.team[t], total = D.n;
+    return `<div class="panel"><h3 style="color:var(--ink)"><span class="sw" style="background:${teamColor(t)}"></span>${esc(t)}: units alive at the end</h3>${bars(Object.fromEntries(Object.entries(x.survivors_counts).map(([k, v]) => [k + (k === "1" ? " unit" : " units"), v])), total, teamColor(t))}` +
+      `<h3 style="margin-top:14px">Share of the team's damage, per unit</h3><div class="scroll"><table><tr><th>Unit</th><th class="n">Median</th><th class="n">p10</th><th class="n">p90</th></tr>${D.teams_members[t].map(u => `<tr><td>${esc(unitName(u))}</td><td class="n">${f0(x.damage_share[u].median)}%</td><td class="n">${f0(x.damage_share[u].p10)}%</td><td class="n">${f0(x.damage_share[u].p90)}%</td></tr>`).join("")}</table></div></div>`;
+  }).join("") + `</div>`;
+  return s;
+}
+
+function unitCard(u, open) {
+  const x = D.unit[u], info = D.units[u], c = unitColor(u), cu = D.curves.unit[u];
+  const totalW = x.weapons.reduce((a, w) => a + w.damage, 0) + x.physical.reduce((a, w) => a + w.damage, 0) || 1;
+  let s = `<details class="unit" id="u-${esc(u)}" ${open ? "open" : ""}><summary><span class="sw" style="background:${c};width:14px;height:14px"></span><h3>${esc(unitName(u))}</h3><span class="meta">${esc(u)} &middot; ${info.tons} t &middot; ${esc(info.bot)} bot &middot; destroyed in ${pc(x.died.p)} of battles</span></summary><div class="unit-body">`;
+  s += `<div class="tiles"><div class="tile"><div class="v">${pc(1 - x.died.p)}</div><div class="l">survives the battle</div></div><div class="tile"><div class="v">${f1(x.kills_per_game)}</div><div class="l">kills per game</div></div><div class="tile"><div class="v">${f0(x.damage_dealt.median)}</div><div class="l">median damage dealt</div></div><div class="tile"><div class="v">${f0(x.damage_taken.median)}</div><div class="l">median damage taken</div></div><div class="tile"><div class="v">${x.range_mean ? f1(x.range_mean) : "-"}</div><div class="l">mean shot range (hexes)</div></div></div>`;
+  // spread table
+  const rows = [["Damage dealt", x.damage_dealt, f0], ["Damage taken", x.damage_taken, f0], ["Turns active", x.lifespan, f1], ["Kills", x.kills, f1], ["Mean heat", x.heat_mean, f1], ["Peak heat", x.heat_peak, f1], ["Turns prone", x.prone_turns, f1], ["Turns shut down", x.shutdown_turns, f1]];
+  s += `<div class="panel"><h3>How much it varies</h3><div class="scroll"><table><tr><th>Per battle</th><th>Spread (p10 to p90, box p25 to p75, bar = median, dot = mean)</th><th class="n">Mean</th><th class="n">Median</th><th class="n">p10</th><th class="n">p90</th><th class="n">Std dev</th></tr>` +
+    rows.map(([n, d, fm]) => `<tr><td>${n}</td><td>${distBar(d, d.max, c)}</td>${desc(d, fm)}</tr>`).join("") + `</table></div><p class="note">Damage is armor plus structure removed from the target. Damage taken counts every source: weapons, physical attacks, falls and explosions.</p></div>`;
+  // death
+  s += `<div class="grid2"><div class="panel"><h3>Why it died</h3>${bars(x.causes, D.n, c)}<h3 style="margin-top:14px">In which phase</h3>${bars(x.death_phase, x.died.k, c)}` +
+    (Object.keys(x.killed_by).length ? `<h3 style="margin-top:14px">Finished off by</h3>${bars(x.killed_by, x.died.k, c)}` : "") + `</div>`;
+  s += `<div class="panel"><h3>When it died</h3>${x.died.k ? svgHist(x.death_turn_hist, { color: c, aria: "turn of death" }) + `<p class="note">Turn of death, over the ${x.died.k} battle${x.died.k === 1 ? "" : "s"} it was destroyed in: median ${f1(x.death_turn.median)}, p10 ${f1(x.death_turn.p10)}, p90 ${f1(x.death_turn.p90)}.</p>` : '<p class="note">Never destroyed.</p>'}</div></div>`;
+  // curves
+  s += `<div class="grid2"><div class="panel"><h3>Armor and structure left, by turn</h3>${svgLines([{ name: "mean", color: c, mean: cu.hp_mean, lo: cu.hp_p10, hi: cu.hp_p90 }], { max: 100, fmt: v => f0(v) + "%", h: 190, aria: "HP remaining by turn" })}<p class="note">Band = p10 to p90.</p></div>` +
+    `<div class="panel"><h3>Chance it is still standing, by turn</h3>${svgLines([{ name: "alive", color: c, mean: cu.alive.map(v => 100 * v) }], { max: 100, fmt: v => f0(v) + "%", h: 190, aria: "survival by turn" })}</div></div>`;
+  // weapons
+  s += `<div class="panel"><h3>Damage by weapon</h3><div class="scroll"><table><tr><th>Weapon</th><th class="n">Shots</th><th class="n">Hit %</th><th class="n">Damage</th><th class="n">Share</th><th class="n">Per battle (median)</th><th class="n">p10 to p90</th><th class="n">Per hit</th><th class="n">Biggest hit</th></tr>` +
+    x.weapons.map(w => `<tr><td>${esc(w.name)}</td><td class="n">${f0(w.shots)}</td><td class="n">${w.shots ? f0(w.hit_pct) + "%" : "-"}</td><td class="n">${f0(w.damage)}</td><td class="n">${f0(100 * w.damage / totalW)}%</td><td class="n">${f1(w.per_battle.median)}</td><td class="n">${f1(w.per_battle.p10)} to ${f1(w.per_battle.p90)}</td><td class="n">${f1(w.dmg_per_hit)}</td><td class="n">${f0(w.max_hit)}</td></tr>`).join("") +
+    `</table></div><p class="note">Totals over all ${D.n} battles; "per battle" shows the spread of one battle's total. A weapon with a wide p10 to p90 range is streaky.</p>` +
+    (x.physical.length ? `<h3 style="margin-top:16px">Physical attacks</h3><div class="scroll"><table><tr><th>Attack</th><th class="n">Tries</th><th class="n">Hit %</th><th class="n">Damage</th><th class="n">Share</th></tr>${x.physical.map(w => `<tr><td>${esc(w.name)}</td><td class="n">${f0(w.tries)}</td><td class="n">${f0(w.hit_pct)}%</td><td class="n">${f0(w.damage)}</td><td class="n">${f0(100 * w.damage / totalW)}%</td></tr>`).join("")}</table></div>` : "") + `</div>`;
+  // range
+  const r = x.ranges;
+  if (r.length) {
+    s += `<div class="grid2"><div class="panel"><h3>Shots by range</h3>${svgBars(r.map(q => ({ label: String(q.range), value: q.shots, tip: `${q.range} hex${q.range === 1 ? "" : "es"}: ${q.shots} shots, ${f0(q.hit_pct)}% hit, ${f0(q.damage)} damage` })), { color: c, aria: "shots by range", int: true })}<p class="note">Range to the target, in hexes. Mean ${f1(x.range_mean)}, longest ${x.range_max}.</p></div>` +
+      `<div class="panel"><h3>Hit rate by range</h3>${svgBars(r.map(q => ({ label: String(q.range), value: q.shots >= 5 ? q.hit_pct : 0, tip: `${q.range} hexes: ${f0(q.hit_pct)}% of ${q.shots} shots` })), { color: c, max: 100, fmt: v => f0(v) + "%", aria: "hit rate by range" })}<p class="note">Ranges with fewer than 5 shots are left blank.</p></div></div>`;
+  }
+  // locations and crits
+  const loc = Object.entries(x.locations_lost), cr = Object.entries(x.criticals);
+  s += `<div class="grid2"><div class="panel"><h3>Locations lost</h3>${loc.length ? `<div class="scroll"><table><tr><th>Location</th><th class="n">Battles</th><th class="n">Mean turn lost</th></tr>${loc.map(([k, v]) => `<tr><td>${esc(k)}</td><td class="n">${f0(v.pct)}%</td><td class="n">${f1(v.mean_turn)}</td></tr>`).join("")}</table></div>` : '<p class="note">No location was ever destroyed.</p>'}</div>` +
+    `<div class="panel"><h3>Damage taken to the vitals</h3>${cr.length ? bars(Object.fromEntries(cr), 0, c, { pct: true, scale: 100 }) : '<p class="note">No engine, gyro, cockpit, pilot or explosion events.</p>'}<p class="note">Share of battles in which each happened at least once.</p></div></div>`;
+  return s + `</div></details>`;
+}
+
+function unitsSection() {
+  const many = D.labels.length > 4;
+  return `<h2 id="units">Units</h2>` + D.labels.map((u, i) => unitCard(u, !many || i === 0)).join("");
+}
+
+function notesSection() {
+  return `<h2 id="notes">How to read this</h2><div class="panel" style="margin-top:16px"><p style="margin-top:0"><b>Damage</b> is armor plus structure removed, the simulator's usual measure. <b>Kills</b> credit the attack that left the target destroyed; a unit lost to a fall, heat or an explosion has no killer. <b>Curves</b> show the state at turn <i>t</i>, and a battle that ended earlier counts at its final state, so every point covers the same battles; they stop at the turn 90% of the battles had ended by. Percentiles say how a typical battle went: p10 to p90 holds the middle 80%.</p><p class="note">With cluster damage pooling on, a cluster weapon's damage lands as one lump listed as "pooled cluster" and its individual shots read 0. Physical-attack damage from pushes comes through the fall's effect on the turn totals rather than the attack row. Not yet recorded: overkill, individual critical slots, piloting rolls, and the bot's own predictions.</p></div>`;
+}
+
+// ---------- page ----------
+(function () {
+  const names = D.team_order.map(sideName);
+  document.title = names.join(" vs ") + " statistics";
+  document.getElementById("title").textContent = names.join(" vs ");
+  document.getElementById("subtitle").textContent = (D.title ? D.title + " - " : "") + D.n + " battle" + (D.n === 1 ? "" : "s") + (D.seed != null ? ", seed " + D.seed : "") + (D.n === 1 ? ". Statistics of a single battle are a summary of its events, not a distribution." : ".");
+  const links = [["outcome", "Outcome"]].concat(D.multi ? [["teams", "Teams"]] : []).concat([["units", "Units"], ["notes", "Notes"]]);
+  document.getElementById("nav").innerHTML = links.map(l => `<a href="#${l[0]}">${l[1]}</a>`).join("");
+  document.getElementById("main").innerHTML = outcomeSection() + teamSection() + unitsSection() + notesSection();
+  document.getElementById("theme").addEventListener("click", () => {
+    const root = document.documentElement, dark = root.getAttribute("data-theme") === "dark" || (!root.getAttribute("data-theme") && matchMedia("(prefers-color-scheme: dark)").matches);
+    root.setAttribute("data-theme", dark ? "light" : "dark");
+  });
+})();
+</script>
