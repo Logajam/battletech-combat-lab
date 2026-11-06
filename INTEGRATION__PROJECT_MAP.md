@@ -1799,6 +1799,14 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-06 (Claude, session 20), DECISION (Daniel): speed work stops here; "maybe go for the full rebuild next week".**
+  His reading: the time now lost is translating between the two codes - which the measurements back (the Python /
+  Rust boundary, MovementCandidate objects, per-option passes: see the entry below). If the full Rust rebuild is
+  taken up, design it so that nothing crosses per option: units, options, hex rows, arc classes and the fire tables all
+  live in Rust, and Python (the bots' decisions, config, reports) calls it once per question with whole batches.
+  Where things stand: `fastcore/` holds the weapon choice table (+ missile pricing), the movement search, line of
+  sight and hex distance, all with the Python as fallback and specification; 12 v 12, 5 turns: 59 s -> 19 s, same battle.
+
 - **2026-11-06 (Claude, session 20), RUST EVALUATE LOOP: TRIED, MEASURED, NOT KEPT. REVIEW PENDING (higher-level model).**
   Daniel: "Go for it" (the `evaluate` rewrite). Built `fastcore.EvalCore`: the per-option arithmetic of
   `MoveEvaluator.evaluate` (to-hit numbers, the best-twist memo, the max over an arc class's FastTables) in Rust on a
