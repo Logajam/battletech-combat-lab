@@ -103,6 +103,10 @@ USE_FASTCORE = True
 # describe it in numbers (fire_modes.Planner.price_spec), instead of asking the planner row by row
 # (2026-11-06; same answers - FIRE_TABLE_VERIFY checks). False = the Rust calls the planner back.
 FASTCORE_PRICING = True
+# With fastcore: the walking end states of a mover (ranged_combat._movement_options: the movement
+# table, its states and their terrain PSRs) come from the Rust search (fastcore.PathBoard) on a board
+# with terrain PSRs and no live hazards. 2026-11-06; same answers - tests/test_fastcore.py compares.
+FASTCORE_MOVEMENT = True
 # Test switch (tests/test_fire_tables.py): every weapon choice a shared fire table
 # answers in movement scoring is recomputed from scratch and must match (slow); the
 # tables are also kept from turn to turn, so the key must catch every change of state.

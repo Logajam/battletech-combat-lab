@@ -238,6 +238,82 @@ def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_fo
     return score
 
 
+try:
+    import fastcore as _fastcore                        # compiled hot loops (fastcore/, config.USE_FASTCORE)
+    if not hasattr(_fastcore, "PathBoard"):             # the repo's own fastcore/ folder imports as an EMPTY package
+        _fastcore = None                                # when the wheel is not built: that means "not built"
+except ImportError:
+    _fastcore = None
+
+
+def _rust_board(terrain_map, level_limit):
+    """The fastcore.PathBoard of this board for a mover's level limit, or None when the Python search must be
+    used (not built / switched off, a board with no terrain PSRs, or live hazards). Its step data is the
+    pathfinder's own (board.extra / board.turn), filled once per board and limit class and kept on the
+    board's cache, so a board that changes (forget_board) loses it too."""
+    if _fastcore is None or not config.USE_FASTCORE or not config.FASTCORE_MOVEMENT:
+        return None
+    board = pathfinder._board(terrain_map)
+    limit_key = (int(level_limit), getattr(level_limit, "superheavy", False))
+    got = board.rust.get(limit_key)
+    if got is None:
+        got = board.rust[limit_key] = _build_rust_board(board, terrain_map, level_limit) or False
+    return got or None            # (PathBoard, has PSR terrain) or None
+
+
+def _build_rust_board(board, terrain_map, level_limit):
+    if board.hazardous:
+        return None
+    has_psr = terrain_rules.has_psr_terrain(terrain_map)    # False: pathfinder._build_terrain_aware (no PSR counts)
+    coords = [hex_geometry.parse_hex_label(label) for label in board.hexes]
+    xmin, xmax = min(c[0] for c in coords), max(c[0] for c in coords)
+    ymin, ymax = min(c[1] for c in coords), max(c[1] for c in coords)
+    width, height = xmax - xmin + 1, ymax - ymin + 1
+    present = [False] * (width * height)
+    fwd = [[-1, 0, 0] for _ in range(width * height * 6)]
+    bwd = [[-1, 0, 0] for _ in range(width * height * 6)]
+    turn = [[0, 0] for _ in range(width * height)]
+    for x, y in coords:
+        present[(x - xmin) * height + (y - ymin)] = True
+    for x, y in coords:
+        here = (x - xmin) * height + (y - ymin)
+        turn[here] = list(board.turn(x, y))
+        for facing in range(6):
+            dx, dy = hex_geometry.FACING_DELTAS[facing]
+            for sign, rows, backward in ((1, fwd, False), (-1, bwd, True)):
+                tx, ty = x + sign * dx, y + sign * dy
+                if board.info(tx, ty) is None:
+                    continue
+                cost, always, run_only = board.extra(level_limit, x, y, tx, ty, backward)
+                if cost is None:
+                    continue
+                if not has_psr:
+                    # _build_terrain_aware: no PSRs, and a backward step only onto the same level
+                    always = run_only = 0
+                    if backward and board.info(tx, ty)["level"] != board.info(x, y)["level"]:
+                        continue
+                rows[here * 6 + facing] = [cost, always, run_only]
+    if not has_psr:
+        turn = [[0, 0] for _ in turn]
+    try:
+        return _fastcore.PathBoard(xmin, ymin, width, height, present, fwd, bwd, turn), has_psr
+    except (TypeError, ValueError, OverflowError):
+        return None
+
+
+class _LazySeen:
+    """`key in seen` for _minimum_move over the walking states, building the set only if it is asked."""
+    __slots__ = ("keys", "_set")
+
+    def __init__(self, keys):
+        self.keys, self._set = keys, None
+
+    def __contains__(self, key):
+        if self._set is None:
+            self._set = set(self.keys)
+        return key in self._set
+
+
 def movement_options(mover, terrain_map, standup_mp=None, entry_edge=None, backward=True):
     """_movement_options, except that a mech trying to unjam a Rotary AC this
     turn may only stand still or walk (Core p.183; fire_modes.declare_unjams,
@@ -301,6 +377,33 @@ def _movement_options(mover, terrain_map, standup_mp=None, entry_edge=None, back
         # Bogged down after ground movement (TO:AR p.60): stay, or jump out.
         starts, standup_mp = [], 0
         yield (sx, sy, start_facing, 0, mode_for(0), 0)
+    rust = _rust_board(terrain_map, level_limit) if (standup_mp is None and starts) else None
+    if rust is not None and not rust[1]:
+        info = terrain_map["hexes"].get(mover.hex)
+        if info is None or info["impassable"]:
+            rust = None                                  # the Python search raises its error for these
+    if rust is not None:
+        # The Rust search (fastcore.PathBoard.walk_states): the same states in the same order, and each one's
+        # terrain PSRs - the Python loop below, done in one call (2026-11-06).
+        try:
+            keys, counts = rust[0].walk_states(sx, sy, start_facing, run_budget, backward_mp,
+                                               list(_blocked_hexes(mover)), walk, rust[1])
+        except (TypeError, ValueError, OverflowError):
+            keys = None
+        if keys is not None:
+            notes = mover.path_psrs
+            if not rust[1]:
+                pass                                    # no PSR terrain: _note_psrs is never called
+            elif notes:                                 # keep the fewest, as _note_psrs
+                for key, n in zip(keys, counts):
+                    old = notes.get(key)
+                    if old is None or n < old:
+                        notes[key] = n
+            else:
+                notes.update(zip(keys, counts))
+            seen = _LazySeen(keys)
+            yield from keys
+            starts = ()
     for f0 in starts:
         table = build_movement_table(sx, sy, f0, run_budget, terrain_map=terrain_map, backward_mp=backward_mp,
                                      level_limit=level_limit, blocked=getattr(mover, "blocked_hex", None))
@@ -388,6 +491,42 @@ def _entry_options(mover, terrain_map, edge_labels):
     walk, run = compute_walk_mp(mover), compute_running_mp(mover)
     seen = set()
     blocked = _blocked_hexes(mover)
+    level_limit = terrain_rules.max_level_change(ground_level_limited(mover), is_superheavy(mover))
+    rust = _rust_board(terrain_map, level_limit)
+    if rust is not None:
+        # The Rust search (fastcore.PathBoard.entry_states), the loop below in one call (2026-11-06).
+        starts = []
+        for label in edge_labels:
+            info = terrain_map["hexes"].get(label)
+            if info is None or hex_geometry.parse_hex_label(label) in blocked:
+                continue
+            cost = terrain_rules.step_cost(None, info)
+            if cost is None or cost > run:
+                continue
+            ex, ey = hex_geometry.parse_hex_label(label)
+            a, r = terrain_rules.step_psrs(None, info) if rust[1] else (0, 0)
+            starts.append((ex, ey, cost, a, r))
+        try:
+            keys, first, fewest = rust[0].entry_states(starts, run, walk, list(blocked), rust[1])
+        except (TypeError, ValueError, OverflowError):
+            keys = None
+        if keys is not None:
+            if not rust[1]:
+                yield from keys
+                return
+            # _note_psrs runs as each state is yielded, and movement_selection.reduced_options reads the count
+            # then - so a state reached again by a way with fewer PSRs is read with the first count, and holds the
+            # fewest only afterwards. Done the same way here.
+            notes = mover.path_psrs
+            for key, n in zip(keys, first):
+                old = notes.get(key)
+                if old is None or n < old:
+                    notes[key] = n
+                yield key
+            for key, n in zip(keys, fewest):
+                if n < notes[key]:
+                    notes[key] = n
+            return
     for label in edge_labels:
         info = terrain_map["hexes"].get(label)
         if info is None or hex_geometry.parse_hex_label(label) in blocked:
