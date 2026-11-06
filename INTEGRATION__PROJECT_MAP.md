@@ -56,9 +56,12 @@ one-pool RNG (`config.active_rng`), `tests/test_saved_state.py`, `tests/test_rng
 (j) SESSION 17 (Change Record "WEAPON-CHOICE LOOKUP TABLES..."): `FireTable`, `fire_state` (is anything a
 weapon choice reads missing from it?), `shared_fire_table`'s key, the `select_weapons_to_fire` split,
 `fastcore.knapsack_levels`, `tests/test_fire_tables.py`.
-(l) SESSION 18 (Change Record "SKELETON-AND-SHELL BUILDER, PHASE 1"): `INTEGRATION__shell.py`,
-`INTEGRATION__shell_items.py`, `data/token_densities.json`, `tests/test_token_shell.py`, the audit's clip measure. Art only;
-waiting on Daniel's verdict on the look before phase 2.
+(l) SESSION 18, 2026-11-04 to 11-06 (Change Record, the entries from "SKELETON-AND-SHELL BUILDER, PHASE 1" to "WORKBENCH:
+SHAREABLE CODES"): the skeleton-and-shell builders - `INTEGRATION__shell.py` (plated look), `INTEGRATION__shell_items.py` (items,
+budgets with the structure-point bulk rule and leg myomer factor, hardpoint placement with rail pins), `INTEGRATION__shell_facet.py`
+(the faceted look: per-archetype bodies, the block library and `pick`, three-part torso, pose, waist and pelvis, the arm hardpoint
+grid, bays / posts / housings, the clear-muzzle rule), `data/token_densities.json`, the layers, `tests/test_token_shell.py`, the
+audit's clip measure, `tools/token_lineup.py`, `tools/token_workbench.py` (+ .html, the Windows bundle). Art only: no engine code.
 (k) COMBAT LAB 3D ART REVIEW PASS (Change Record "COMBAT LAB 3D - REVIEW PASS..."), 2026-11-04: this pass
 reviewed the session 16 3D-art queue items (the "3D model pipeline" bullets in INTEGRATION__COMBAT_LAB.md)
 and fixed what it found; its own changes to `INTEGRATION__tokens.py` (snap helpers `B3.extent` / `shift`,
@@ -67,7 +70,20 @@ and fixed what it found; its own changes to `INTEGRATION__tokens.py` (snap helpe
 When a review is done, move its line out of this queue and note it in the
 Change Record.
 
-Latest art work: **Session 18 - COMBAT LAB 3D REVIEW PASS** (2026-11-04, Change Record): a measured audit of the generated models (`tools/token_audit.py`), every floating block fixed (368 + 351 to 0), arm placement and clipping fixed, semi-realistic lighting in the viewer. Art only; REVIEW QUEUE (k).
+Latest art work: **Session 18 - SKELETON-AND-SHELL MODELS, THE FACETED LOOK, THE WORKBENCH** (2026-11-04 to 11-06, Change
+Record; REVIEW QUEUE (l)). The 'Mech art is now built from the units' own data: each location's volume from its mass (bulk by
+structure points, legs x1.6 for their myomer, actuators as art mass), a skeleton, myomer and internal equipment inside an armor
+shell, every crit-holding item on a hardpoint. Daniel chose the FACETED look (one shaped solid per part, after a low-poly Mad Cat
+print) over the plated one; it is built from a library of interchangeable blocks (13 slots: pose, torso, waist, head, gun
+housing, missile mount, pauldron, arm, forearm, hand, leg, knee, foot; tags pick them, else a per-slot name hash) on the eight-
+chassis test range (`tools/token_3d.py --range`, the published viewer). Each slot can be reviewed alone with its mounting brackets
+(`tools/token_lineup.py`), and any combination can be set by hand in the WORKBENCH (`tools/token_workbench.py`; Daniel runs it on
+his PC from the bundle `tools/make_workbench_bundle.py`; a setting comes back to Claude as a "CLW1." code: `--code`).
+**NEXT on the 3D side (Daniel, 2026-11-06): a stockpile of WEAPON BLOCKS** - the weapon models are still the first-pass ones
+(`INTEGRATION__shell.item_geometry`); build interchangeable weapon blocks per family (lasers, PPCs, autocannons, Gauss, missile
+racks, machine guns, flamers, plasma...) in the same library style, reviewed by lineup and in the workbench. Then: torso / head
+blocks for the bird body, the 47 chart chassis (phase 2, after the dictionary is built up), directional equipment hardpoints
+(shields, electronics). Art checks only for this work (Section 7).
 
 Latest engine work: **Session 17 - SAVED STATES** (Daniel, 2026-11-03: the board, the units and their state,
 and the dice, so "the engine will just continue from there"; branches keep the same dice by default,

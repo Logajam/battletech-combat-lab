@@ -130,3 +130,10 @@ Phase 1 is built and published for Daniel's review (Change Record "SKELETON-AND-
 spec, all recorded there: the volume band is 30 percent (25 failed on the pelvis plates and narrow side torsos); the old `_build`
 and `calibrate` stay for units outside the range until phase 2; the 2D tokens of shell models project the same convex solids
 the mesh uses. Phase 2 waits for Daniel's verdict.
+
+## 10. Status (2026-11-06, end of session 18)
+
+Phase 1 went further than this spec: after Daniel's reviews the faceted look (INTEGRATION__shell_facet.py) replaced the plated
+shell as the direction, built from a block library with per-slot lineups and a hand-set workbench (PROJECT_MAP Section 0 and the
+Change Record). Next on the 3D side (Daniel, 2026-11-06): a stockpile of weapon blocks. Phase 2 (the 47 chart chassis) waits
+until the block dictionary is built up.
