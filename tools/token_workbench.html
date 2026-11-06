@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Combat Lab Workbench</title>
+<style>
+:root {
+  --bg: #e9ecef; --panel: #f7f8f9; --ink: #1d232b; --muted: #5d6773; --line: #cfd5dc; --accent: #c4561a; --ok: #1f8a46; --bad: #b42318;
+  --field: #ffffff; --stage: #dfe4ea;
+  --m-t1: #5d6877; --m-t2: #7a8596; --m-t3: #97a2b3; --m-t4: #3b4350; --m-we: #d9483b; --m-wb: #dc9a2e; --m-wm: #8a5fd6;
+  --m-ck: #3d8fe8; --m-hl: #c8d3e0; --m-ln: #20262f; --m-tm: #aeb7c4; --m-gm: #3a414c; --m-my: #a04848; --m-bn: #d6d0be;
+  font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #15191e; --panel: #1c2128; --ink: #e5e9ee; --muted: #98a2ae; --line: #2f3742; --field: #11151a; --stage: #20262e;
+  --m-t1: #8a95a6; --m-t2: #a2adbd; --m-t3: #bcc6d4; --m-t4: #566070; --m-ck: #5aa8ff; color-scheme: dark; } }
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; background: var(--bg); color: var(--ink); }
+.app { display: grid; grid-template-columns: minmax(330px, 420px) 1fr; height: 100%; }
+@media (max-width: 760px) { .app { grid-template-columns: 1fr; grid-template-rows: auto 60vh; height: auto; } }
+aside { background: var(--panel); border-right: 1px solid var(--line); overflow-y: auto; padding: 12px 14px 40px; }
+h1 { font-size: 17px; margin: 0 0 2px; letter-spacing: .02em; }
+.sub { color: var(--muted); margin: 0 0 10px; }
+section { border-top: 1px solid var(--line); padding: 10px 0 8px; }
+h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); margin: 0 0 8px; }
+.row { display: grid; grid-template-columns: 112px 1fr auto; gap: 8px; align-items: center; margin: 4px 0; }
+.row label { color: var(--muted); }
+.val { font-variant-numeric: tabular-nums; min-width: 42px; text-align: right; }
+input[type=range] { width: 100%; }
+select, input[type=text] { width: 100%; background: var(--field); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 3px 5px; font: inherit; }
+button { font: inherit; border: 1px solid var(--line); background: var(--field); color: var(--ink); border-radius: 4px; padding: 4px 9px; cursor: pointer; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.why { color: var(--muted); font-size: 11px; white-space: nowrap; }
+table { width: 100%; border-collapse: collapse; }
+td { padding: 2px 2px; vertical-align: middle; }
+td.x { width: 24px; }
+.items select { font-size: 12px; }
+.err { color: var(--bad); }
+.ok { color: var(--ok); }
+.checks div { font-variant-numeric: tabular-nums; }
+.stage { position: relative; background: var(--stage); min-height: 300px; }
+canvas { display: block; width: 100%; height: 100%; }
+.hud { position: absolute; left: 10px; top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+.status { position: absolute; right: 10px; top: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 4px 8px; color: var(--muted); }
+.legend { position: absolute; left: 10px; bottom: 10px; color: var(--muted); font-size: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 4px 8px; }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; vertical-align: -1px; margin-right: 3px; }
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+  <h1>Combat Lab Workbench</h1>
+  <p class="sub">Set every part by hand. Each change rebuilds the 'Mech with the real builder.</p>
+
+  <section>
+    <h2>Start from</h2>
+    <div class="row"><label for="unitpick">Unit file</label><input type="text" id="unitpick" list="unitlist" placeholder="type to search 4,000+ units"><button id="load">Load</button></div>
+    <datalist id="unitlist"></datalist>
+    <div class="btns" id="rangebtns"></div>
+  </section>
+
+  <section>
+    <h2>Share a setting</h2>
+    <div class="row"><label for="code">Code</label><input type="text" id="code" placeholder="paste a code here, or copy this one" spellcheck="false"><span></span></div>
+    <div class="btns"><button id="copycode">Copy code</button><button id="loadcode">Load pasted code</button><span id="codemsg" class="why"></span></div>
+  </section>
+
+  <section>
+    <h2>Unit</h2>
+    <div class="row"><label for="name">Name (hash seed)</label><input type="text" id="name" value="Workbench WB-1"><span></span></div>
+    <div class="row"><label for="tons">Tonnage</label><input type="range" id="tons" min="20" max="100" step="5" value="55"><span class="val" id="tons_v"></span></div>
+    <div class="row"><label for="walk">Walk MP</label><input type="range" id="walk" min="1" max="10" step="1" value="5"><span class="val" id="walk_v"></span></div>
+    <div class="row"><label for="jump">Jump MP</label><input type="range" id="jump" min="0" max="8" step="1" value="0"><span class="val" id="jump_v"></span></div>
+    <div class="row"><label for="armor">Armor</label><input type="range" id="armor" min="0.1" max="1" step="0.05" value="0.85"><span class="val" id="armor_v"></span></div>
+    <div class="row"><label for="engine">Engine</label><select id="engine"><option>Fusion</option><option>XL</option><option>Light</option><option>Compact</option></select><span></span></div>
+    <div class="row"><label for="cockpit">Cockpit</label><select id="cockpit"><option>Standard Cockpit</option><option>Small Cockpit</option><option>Torso-Mounted Cockpit</option></select><span></span></div>
+    <div class="row"><label for="archetype">Body</label><select id="archetype"><option value="auto">auto (name hash)</option><option>humanoid</option><option>bird</option></select><span></span></div>
+    <div class="row"><label for="head_mount">Head mount</label><select id="head_mount"><option value="auto">auto</option><option>top</option><option>notch</option><option>built_in</option><option>front</option></select><span></span></div>
+    <div class="row"><label for="use_tags">Reference tags</label><input type="checkbox" id="use_tags"><span class="why">use the chart tags for a known chassis</span></div>
+    <div class="row"><label>Left arm</label><span><label><input type="checkbox" id="L_lower" checked> lower arm</label> <label><input type="checkbox" id="L_hand" checked> hand</label></span><span></span></div>
+    <div class="row"><label>Right arm</label><span><label><input type="checkbox" id="R_lower" checked> lower arm</label> <label><input type="checkbox" id="R_hand" checked> hand</label></span><span></span></div>
+  </section>
+
+  <section>
+    <h2>Blocks</h2>
+    <div id="blocks"></div>
+  </section>
+
+  <section>
+    <h2>Loadout</h2>
+    <table class="items"><tbody id="items"></tbody></table>
+    <div class="btns" style="margin-top:6px"><button id="additem">Add item</button><button id="clearitems">Clear</button></div>
+    <div id="errors" class="err"></div>
+  </section>
+
+  <section>
+    <h2>Display</h2>
+    <div class="btns">
+      <label><input type="checkbox" class="ly" value="armor" checked> armor</label>
+      <label><input type="checkbox" class="ly" value="equipment" checked> equipment</label>
+      <label><input type="checkbox" class="ly" value="myomer"> myomer</label>
+      <label><input type="checkbox" class="ly" value="skeleton"> skeleton</label>
+      <label><input type="checkbox" id="xray"> X-ray</label>
+      <label><input type="checkbox" id="brackets" checked> brackets</label>
+      <label><input type="checkbox" id="edges" checked> edges</label>
+    </div>
+  </section>
+
+  <section>
+    <h2>Build</h2>
+    <div class="btns"><button class="primary" id="build">Build</button><label><input type="checkbox" id="auto" checked> rebuild on every change</label><button id="check">Run checks</button></div>
+    <div class="checks" id="checks"></div>
+    <h2 style="margin-top:10px">Where everything went</h2>
+    <div id="placed" class="why" style="white-space:normal"></div>
+  </section>
+</aside>
+<div class="stage" id="stage">
+  <canvas id="cv"></canvas>
+  <div class="hud"><button data-v="34">3/4</button><button data-v="front">Front</button><button data-v="side">Side</button><button data-v="rear">Rear</button><button data-v="top">Top</button></div>
+  <div class="status" id="status">loading…</div>
+  <div class="legend"><span class="dot" style="background:#1faa4a"></span>joint socket &nbsp; <span class="dot" style="background:#e07b16"></span>hardpoint rail (number = rail)</div>
+</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let OPT = null, LAST = null, busy = false, again = false;
+const SLOT_ORDER = ["pose", "torso", "waist", "head", "housing", "missiles", "pauldron", "arm", "forearm", "hand", "leg", "knee", "foot"];
+
+// ---------- the 3D stage
+const renderer = new THREE.WebGLRenderer({ canvas: $("cv"), antialias: true });
+renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue("--stage").trim() || "#dfe4ea");
+const cam = new THREE.PerspectiveCamera(30, 1, 0.05, 100);
+const ctl = new THREE.OrbitControls(cam, renderer.domElement);
+ctl.target.set(0, 1, 0); cam.position.set(3.2, 2.2, 4.2); ctl.update();
+scene.add(new THREE.HemisphereLight(0xe8eeff, 0x40464f, 0.7));
+const sun = new THREE.DirectionalLight(0xfff4e6, 0.9); sun.position.set(3, 6, 4); scene.add(sun);
+const fill = new THREE.DirectionalLight(0xbcd0ff, 0.35); fill.position.set(-4, 2, -3); scene.add(fill);
+const grid = new THREE.GridHelper(4, 24, 0x8a929c, 0xb9c0c8); scene.add(grid);
+let group = new THREE.Group(); scene.add(group);
+function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim() || "#888"; }
+function resize() { const s = $("stage"); renderer.setSize(s.clientWidth, s.clientHeight, false); cam.aspect = s.clientWidth / Math.max(1, s.clientHeight); cam.updateProjectionMatrix(); }
+new ResizeObserver(resize).observe($("stage"));
+(function loop() { requestAnimationFrame(loop); ctl.update(); renderer.render(scene, cam); })();
+document.querySelectorAll(".hud button").forEach(b => b.onclick = () => {
+  const h = LAST ? LAST.mesh.levels : 1.6, t = new THREE.Vector3(0, h * 0.5, 0), d = 2.3 + h * 1.2;
+  const p = { "34": [d * 0.65, h * 0.75, d * 0.8], front: [0, h * 0.5, d], side: [d, h * 0.5, 0], rear: [0, h * 0.5, -d], top: [0, d * 1.2, 0.001] }[b.dataset.v];
+  ctl.target.copy(t); cam.position.set(p[0], p[1], p[2]); ctl.update();
+});
+
+function draw() {
+  if (!LAST) return;
+  scene.remove(group); group.traverse(o => { if (o.geometry) o.geometry.dispose(); });
+  group = new THREE.Group();
+  const layers = new Set([...document.querySelectorAll(".ly:checked")].map(x => x.value));
+  const xray = $("xray").checked, mats = {};
+  const mat = (cls, ly) => {
+    const k = cls + (xray && ly === "armor" ? "x" : "");
+    if (!mats[k]) mats[k] = new THREE.MeshStandardMaterial({ color: new THREE.Color(css("--m-" + cls)), roughness: cls === "ck" ? 0.1 : 0.55,
+      metalness: (cls === "t4" || cls === "gm") ? 0.5 : 0.2, flatShading: true, transparent: xray && ly === "armor", opacity: xray && ly === "armor" ? 0.22 : 1,
+      depthWrite: !(xray && ly === "armor"), emissive: cls === "ck" ? new THREE.Color(css("--m-ck")) : new THREE.Color(0), emissiveIntensity: cls === "ck" ? 0.4 : 0 });
+    return mats[k];
+  };
+  const edgeMat = new THREE.LineBasicMaterial({ color: 0x14181d, transparent: true, opacity: 0.35 });
+  for (const p of LAST.mesh.parts) {
+    const ly = p.ly || "armor";
+    if (!layers.has(ly)) continue;
+    const pos = new Float32Array(p.f.length * 3);
+    for (let i = 0; i < p.f.length; i++) { pos[i * 3] = p.v[p.f[i] * 3]; pos[i * 3 + 1] = p.v[p.f[i] * 3 + 1]; pos[i * 3 + 2] = p.v[p.f[i] * 3 + 2]; }
+    const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(pos, 3)); g.computeVertexNormals();
+    group.add(new THREE.Mesh(g, mat(p.cls, ly)));
+    if ($("edges").checked && p.cls !== "ln") group.add(new THREE.LineSegments(new THREE.EdgesGeometry(g, 25), edgeMat));
+  }
+  if ($("brackets").checked) {                         // model metres (x right, y forward, z up) -> the stage (X left, Y up, Z forward), levels
+    const w = p => new THREE.Vector3(-p[0] / 6, p[2] / 6, p[1] / 6);
+    const jm = new THREE.MeshBasicMaterial({ color: 0x1faa4a, depthTest: false }), rm = new THREE.LineBasicMaterial({ color: 0xe07b16, depthTest: false });
+    const sg = new THREE.SphereGeometry(0.022, 10, 8);
+    for (const [zone, name, p] of LAST.brackets.joints) { const s = new THREE.Mesh(sg, jm); s.position.copy(w(p)); s.renderOrder = 10; group.add(s); }
+    for (const [zone, kind, p, d, idx] of LAST.brackets.rails) {
+      const a = w(p), dv = new THREE.Vector3(-d[0] / 6, d[2] / 6, d[1] / 6);
+      const b = kind === "line" ? a.clone().add(dv) : a.clone().add(dv.clone().normalize().multiplyScalar(0.12));
+      const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints([a, b]), rm); l.renderOrder = 10; group.add(l);
+      const s = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 0.03), new THREE.MeshBasicMaterial({ color: 0xe07b16, depthTest: false })); s.position.copy(a); s.renderOrder = 10; group.add(s);
+      const c = document.createElement("canvas"); c.width = 64; c.height = 64; const x = c.getContext("2d");
+      x.font = "bold 44px system-ui"; x.fillStyle = "#b05a08"; x.textAlign = "center"; x.fillText(String(idx), 32, 46);
+      const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false })); sp.scale.set(0.07, 0.07, 1); sp.position.copy(a).add(new THREE.Vector3(0, 0.05, 0)); sp.renderOrder = 11; group.add(sp);
+    }
+  }
+  scene.add(group);
+}
+
+// ---------- the settings
+function cfg() {
+  const blocks = {}; document.querySelectorAll("#blocks select").forEach(s => blocks[s.dataset.slot] = s.value);
+  const items = [...document.querySelectorAll("#items tr")].map(tr => ({ name: tr.querySelector(".it").value, zone: tr.querySelector(".zn").value, rail: tr.querySelector(".rl").value }));
+  return { name: $("name").value, tons: +$("tons").value, walk: +$("walk").value, jump: +$("jump").value, armor: +$("armor").value, engine: $("engine").value,
+    cockpit: $("cockpit").value, archetype: $("archetype").value, head_mount: $("head_mount").value, use_tags: $("use_tags").checked,
+    arms: { L: { lower: $("L_lower").checked, hand: $("L_hand").checked }, R: { lower: $("R_lower").checked, hand: $("R_hand").checked } }, blocks, items };
+}
+function sliderLabels() { $("tons_v").textContent = $("tons").value + " t"; $("walk_v").textContent = $("walk").value; $("jump_v").textContent = $("jump").value; $("armor_v").textContent = Math.round($("armor").value * 100) + "%"; }
+
+function itemSelect(sel) {
+  const s = document.createElement("select"); s.className = "it"; s.setAttribute("aria-label", "item");
+  const groups = {};
+  for (const e of OPT.equipment) { (groups[e.kind] = groups[e.kind] || []).push(e); }
+  for (const k of Object.keys(groups).sort()) {
+    const og = document.createElement("optgroup"); og.label = k.replace("_", " ");
+    for (const e of groups[k]) { const o = document.createElement("option"); o.value = e.name; o.textContent = `${e.name}  (${e.slots} slot${e.slots > 1 ? "s" : ""}${e.tons != null ? ", " + e.tons + " t" : ""})`; og.append(o); }
+    s.append(og);
+  }
+  s.value = sel || "Medium Laser"; return s;
+}
+function railSelect(zone, val) {
+  const s = document.createElement("select"); s.className = "rl"; s.setAttribute("aria-label", "rail");
+  const n = OPT.rails[zone] || 2;
+  const kinds = {}; if (LAST) for (const [z, kind, p, d, idx] of LAST.brackets.rails) if (z === zone) kinds[idx] = kind;
+  s.append(new Option("rail: auto", "auto"));
+  for (let i = 0; i < n; i++) s.append(new Option(`rail ${i}${kinds[i] ? " (" + kinds[i] + ")" : ""}`, String(i)));
+  s.value = val == null ? "auto" : String(val); return s;
+}
+function addItem(row) {
+  row = row || { name: "Medium Laser", zone: "Right Arm", rail: "auto" };
+  const tr = document.createElement("tr");
+  const z = document.createElement("select"); z.className = "zn"; z.setAttribute("aria-label", "location");
+  for (const zn of OPT.zones) z.append(new Option(zn, zn)); z.value = row.zone;
+  const td = (el, cls) => { const t = document.createElement("td"); if (cls) t.className = cls; t.append(el); return t; };
+  const x = document.createElement("button"); x.textContent = "×"; x.setAttribute("aria-label", "remove item"); x.onclick = () => { tr.remove(); changed(); };
+  const it = itemSelect(row.name), rl = railSelect(row.zone, row.rail);
+  z.onchange = () => { const r = railSelect(z.value, "auto"); tr.children[2].replaceChildren(r); r.onchange = changed; changed(); };
+  it.onchange = changed; rl.onchange = changed;
+  tr.append(td(it), td(z), td(rl), td(x, "x")); $("items").append(tr);
+}
+function buildBlockMenus() {
+  const box = $("blocks"); box.replaceChildren();
+  for (const slot of SLOT_ORDER) {
+    if (!OPT.blocks[slot]) continue;
+    const r = document.createElement("div"); r.className = "row";
+    const l = document.createElement("label"); l.textContent = slot; l.htmlFor = "b_" + slot;
+    const s = document.createElement("select"); s.id = "b_" + slot; s.dataset.slot = slot; s.append(new Option("auto", "auto"));
+    for (const b of OPT.blocks[slot]) s.append(new Option(b.replace("_", " "), b));
+    s.onchange = changed;
+    const w = document.createElement("span"); w.className = "why"; w.id = "w_" + slot;
+    r.append(l, s, w); box.append(r);
+  }
+}
+function setCfg(c) {
+  $("name").value = c.name || "Workbench"; $("tons").value = c.tons; $("walk").value = c.walk || 4; $("jump").value = c.jump || 0; $("armor").value = c.armor || 0.8;
+  $("engine").value = c.engine || "Fusion"; $("cockpit").value = /torso/i.test(c.cockpit || "") ? "Torso-Mounted Cockpit" : /small/i.test(c.cockpit || "") ? "Small Cockpit" : "Standard Cockpit";
+  for (const s of ["L", "R"]) { $(s + "_lower").checked = c.arms[s].lower; $(s + "_hand").checked = c.arms[s].hand; }
+  $("use_tags").checked = !!c.use_tags; $("archetype").value = "auto"; $("head_mount").value = "auto";
+  $("items").replaceChildren(); for (const r of c.items) addItem(r);
+  document.querySelectorAll("#blocks select").forEach(s => s.value = "auto");
+  sliderLabels(); changed(true);
+}
+
+// ---------- talking to the builder
+async function post(url, body) { const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }); const j = await r.json(); if (!r.ok) { const e = new Error(j.error || r.status); e.code = j.code; throw e; } return j; }
+async function copyCode() {
+  try {
+    const { code } = await post("/api/encode", { cfg: cfg() });
+    $("code").value = code;
+    try { await navigator.clipboard.writeText(code); $("codemsg").textContent = "copied: paste it to Claude"; }
+    catch (e) { $("code").select(); $("codemsg").textContent = "selected: press Ctrl+C"; }
+  } catch (e) { $("codemsg").textContent = "error: " + e.message; }
+}
+async function loadCode() {
+  try {
+    const { cfg: c } = await post("/api/decode", { code: $("code").value });
+    setCfg(c);
+    if (c.blocks) document.querySelectorAll("#blocks select").forEach(s => { if (c.blocks[s.dataset.slot]) s.value = c.blocks[s.dataset.slot]; });
+    for (const k of ["archetype", "head_mount"]) if (c[k]) $(k).value = c[k];
+    $("use_tags").checked = !!c.use_tags;
+    $("codemsg").textContent = "loaded"; changed(true);
+  } catch (e) { $("codemsg").textContent = e.message; }
+}
+async function rebuild(checks) {
+  if (busy) { again = true; return; }
+  busy = true; $("status").textContent = checks ? "building and checking…" : "building…";
+  try {
+    const t = performance.now();
+    LAST = await post("/api/build", { cfg: cfg(), checks: !!checks });
+    draw();
+    for (const slot of SLOT_ORDER) { const w = $("w_" + slot); if (w) { const b = LAST.blocks[slot]; w.textContent = b ? `${b[0].replace("_", " ")} · ${b[1]}` : "not used"; } }
+    $("errors").textContent = LAST.errors.join("; ");
+    $("placed").textContent = LAST.placed.filter(p => p.kind !== "structure_slot").map(p => `${p.zone}: ${p.name} → rail ${p.rail}, cell ${p.cell}${p.visible ? "" : " (inside)"}`).join(" · ");
+    document.querySelectorAll("#items tr").forEach(tr => { const z = tr.querySelector(".zn").value, v = tr.querySelector(".rl").value, r = railSelect(z, v); r.onchange = changed; tr.children[2].replaceChildren(r); });
+    if (checks && LAST.checks) showChecks(LAST.checks); else if (!checks) $("checks").textContent = "";
+    $("status").textContent = `${LAST.mesh.parts.length} parts · ${LAST.height_m} m · ${Math.round(performance.now() - t)} ms${LAST.blocked_muzzles ? " · " + LAST.blocked_muzzles + " blocked muzzles" : ""}`;
+  } catch (e) {
+    $("status").textContent = "error: " + e.message + (e.code ? " · the code below is this setting: copy it to Claude" : "");
+    if (e.code) { $("code").value = e.code; $("codemsg").textContent = "this setting failed: copy the code and send it to Claude"; }
+  }
+  busy = false;
+  if (again) { again = false; rebuild(); }
+}
+function showChecks(c) {
+  const box = $("checks"); box.replaceChildren();
+  const add = (txt, ok) => { const d = document.createElement("div"); d.textContent = txt; d.className = ok ? "ok" : "err"; box.append(d); };
+  if (c.audit_error) add("audit unavailable: " + c.audit_error, false);
+  else {
+    add(`floating parts: ${c.floating}`, c.floating === 0); add(`below the ground: ${c.below_ground}`, c.below_ground === 0);
+    add(`clipping: ${c.clip_m} m${c.clip_between ? " (" + c.clip_between + ")" : ""}`, c.clip_m <= 0.005);
+  }
+  add(`blocked muzzles: ${c.blocked_muzzles}`, c.blocked_muzzles === 0);
+  for (const [z, v] of Object.entries(c.volume)) { const r = v.budget ? v.drawn / v.budget : 0; add(`${z}: ${v.drawn} m³ of ${v.budget} (${Math.round(r * 100)}%)`, Math.abs(r - 1) <= 0.3); }
+}
+let timer = null;
+function changed(now) { sliderLabels(); if (!$("auto").checked && now !== true) return; clearTimeout(timer); timer = setTimeout(() => rebuild(false), now === true ? 0 : 250); }
+
+// ---------- start
+(async function start() {
+  OPT = await (await fetch("/api/options")).json();
+  const dl = $("unitlist"); for (const u of OPT.units) dl.append(new Option(u));
+  for (const u of OPT.range) { const b = document.createElement("button"); b.textContent = u.split(" (")[0].split(" ").slice(0, 2).join(" "); b.title = u; b.onclick = () => load(u); $("rangebtns").append(b); }
+  buildBlockMenus();
+  document.querySelectorAll("aside input, aside select").forEach(el => { if (!el.closest("#items") && !el.closest("#blocks") && el.id !== "unitpick") el.addEventListener("input", changed); });
+  document.querySelectorAll(".ly, #xray, #brackets, #edges").forEach(el => el.addEventListener("change", draw));
+  $("build").onclick = () => rebuild(false); $("check").onclick = () => rebuild(true);
+  $("additem").onclick = () => { addItem(); changed(); }; $("clearitems").onclick = () => { $("items").replaceChildren(); changed(); };
+  $("load").onclick = () => load($("unitpick").value);
+  $("copycode").onclick = copyCode; $("loadcode").onclick = loadCode;
+  addItem({ name: "Large Laser", zone: "Right Arm", rail: "auto" }); addItem({ name: "LRM 10", zone: "Left Torso", rail: "auto" }); addItem({ name: "Medium Laser", zone: "Center Torso", rail: "auto" });
+  sliderLabels(); resize(); rebuild(false);
+})();
+async function load(u) {
+  if (!u) return; $("status").textContent = "loading " + u + "…";
+  try { const c = await post("/api/load", { unit: u }); setCfg(c); } catch (e) { $("status").textContent = "error: " + e.message; }
+}
+</script>
+</body>
+</html>

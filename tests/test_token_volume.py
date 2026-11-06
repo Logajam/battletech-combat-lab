@@ -50,8 +50,12 @@ def main():
             open(path, "wb").write(z.read(names[key]))
             model = T.build_model(T.read_unit(path))
         M.calibrate(model)
-        vol = M.body_volume(model)
-        want = M.DENSITY * model["tons"]
+        if model.get("shell"):                       # the shell builder has no volume law: its parts' budgets are tested by tests/test_token_shell.py
+            vol = want = 1.0
+            M.DENSITY_SKIP = True
+        else:
+            vol = M.body_volume(model)
+        want = want if model.get("shell") else M.DENSITY * model["tons"]
         parts = M._raw_parts(model)
         import numpy as np
         height = np.vstack([v for _, v, _f, _t in parts])[:, 1].max()

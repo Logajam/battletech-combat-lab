@@ -29,7 +29,7 @@ import INTEGRATION__tokens as T
 
 # class -> RGB (0-255) for the .glb file; the web viewer uses its own theme-aware table
 GLB_COLORS = {"t1": (88, 96, 108), "t2": (112, 121, 134), "t3": (138, 148, 162), "t4": (52, 58, 68),
-              "we": (222, 74, 62), "wb": (226, 160, 52), "wm": (142, 96, 214), "hl": (176, 190, 206), "ln": (30, 34, 42), "tm": (196, 200, 208), "gm": (58, 64, 74), "ck": (70, 150, 235)}
+              "we": (222, 74, 62), "wb": (226, 160, 52), "wm": (142, 96, 214), "hl": (176, 190, 206), "ln": (30, 34, 42), "my": (160, 72, 72), "bn": (214, 208, 190), "tm": (196, 200, 208), "gm": (58, 64, 74), "ck": (70, 150, 235)}
 
 _SPHERE = None
 
@@ -76,9 +76,10 @@ def _hull(points):
     return m if len(m.faces) else None
 
 
-def _raw_parts(model, drop=(), with_src=False):
+def _raw_parts(model, drop=(), with_src=False, with_layer=False):
     """[(cls, vertices (n,3), faces (m,3), tag)] for every convex solid of the unit, in levels, at the model's current fit.
-    with_src: [(cls, tag, src, vertices, faces)] instead, src = the builder line that made the part (tools/token_audit.py)."""
+    with_src: [(cls, tag, src, vertices, faces, loc, role)] instead, src = the builder line that made the part (tools/token_audit.py),
+    loc / role = the location and role (core, plate, cover, item, detail) the shell builder gave it."""
     b, k = T._views(model, model["drawn_levels"] * T.LEVEL)
     s = k / T.LEVEL
     sph, slab = _sphere_points(), _slab_points()
@@ -116,7 +117,9 @@ def _raw_parts(model, drop=(), with_src=False):
             if m is None:
                 continue
             if with_src:
-                out.append((part["cls"], part["tag"], part.get("src", ""), np.asarray(m.vertices), np.asarray(m.faces)))
+                out.append((part["cls"], part["tag"], part.get("src", ""), np.asarray(m.vertices), np.asarray(m.faces), part.get("loc", ""), part.get("role", "")))
+            elif with_layer:
+                out.append((part["cls"], np.asarray(m.vertices), np.asarray(m.faces), part["tag"], part.get("layer", "armor")))
             else:
                 out.append((part["cls"], np.asarray(m.vertices), np.asarray(m.faces), part["tag"]))
     return out
@@ -158,6 +161,9 @@ def calibrate(model):
     already the rules curve; only its width and depth change. Heavy and light, crouched and upright: one density."""
     if model.get("_cal"):
         return
+    if model.get("shell"):                                   # the shell builder's volume comes from its parts (INTEGRATION__shell), not a rescale
+        model["_cal"] = True
+        return
     model["nocap"] = True
     f0 = T._mass_factor(model) * (0.90 + 0.24 * min(model["tons"], 100) / 100.0)
     model["fit"] = f0
@@ -183,11 +189,13 @@ def part_meshes(model, drop=()):
 
 
 def unit_mesh(model, digits=3):
-    """The JSON-ready mesh: {"name", "tons", "levels", "rules_levels", "parts": [{"cls", "v", "f"}]}
+    """The JSON-ready mesh: {"name", "tons", "levels", "rules_levels", "parts": [{"cls", "ly", "v", "f"}]}, ly = the layer (armor,
+    equipment, myomer, skeleton: INTEGRATION__shell.LAYER_OF; the old block builder's parts are all "armor")
     with vertices rounded to `digits` decimals (levels), flat lists."""
     parts = []
-    for cls, v, f in part_meshes(model):
-        parts.append({"cls": cls, "v": [round(float(x), digits) for x in v.reshape(-1)],
+    calibrate(model)
+    for cls, v, f, _tag, layer in _raw_parts(model, with_layer=True):
+        parts.append({"cls": cls, "ly": layer, "v": [round(float(x), digits) for x in v.reshape(-1)],
                       "f": [int(i) for i in f.reshape(-1)]})
     return {"name": model["name"], "tons": model["tons"], "levels": model["drawn_levels"],
             "rules_levels": model["rules_levels"], "parts": parts}

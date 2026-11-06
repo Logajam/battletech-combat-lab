@@ -44,6 +44,11 @@ GitHub logistics.
   Work on the session branch, commit, push, open a PR to `main`, and merge it
   once every test passes. Daniel doesn't use GitHub, so tell him in plain words
   what changed.
+- **Combat Lab art (visual assets only):** run only the art checks
+  (`tests/test_token_shell.py`, `test_token_joined.py`, `test_token_volume.py`),
+  not the whole suite (Daniel, 2026-11-04: "We're not messing with the core
+  code, we're messing with visual assets ... Run only checks that are related").
+  A change that touches engine code still runs everything below.
 - **After every change:**
   - Run `python tests/run_checks.py` (about 1 min): every `tests/test_*.py`
     plus every reference battle, side by side, one line each. All must pass.

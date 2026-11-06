@@ -10,7 +10,7 @@
   --accent: #c4571c; --accent-ink: #ffffff;
   --stage-top: #dfe4ec; --stage-bot: #b9c1cd; --ground: #c9d0da; --hexline: #7d8899; --edge: #151a22;
   --m-t1: #5d6877; --m-t2: #7a8596; --m-t3: #97a2b3; --m-t4: #3b4350;
-  --m-we: #d9483b; --m-wb: #dc9a2e; --m-wm: #8a5fd6; --m-ck: #3d8fe8; --m-hl: #c8d3e0; --m-ln: #20262f; --m-tm: #aeb7c4; --m-gm: #3a414c;
+  --m-we: #d9483b; --m-wb: #dc9a2e; --m-wm: #8a5fd6; --m-ck: #3d8fe8; --m-hl: #c8d3e0; --m-ln: #20262f; --m-tm: #aeb7c4; --m-gm: #3a414c; --m-my: #a04848; --m-bn: #d6d0be;
   --display: "Barlow Condensed", "Arial Narrow", sans-serif; --body: "Barlow", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, monospace;
 }
@@ -19,13 +19,13 @@
   --accent: #f08a45; --accent-ink: #1a1208;
   --stage-top: #2a323e; --stage-bot: #12161c; --ground: #1d232c; --hexline: #566274; --edge: #0b0e12;
   --m-t1: #8a95a6; --m-t2: #a2adbd; --m-t3: #bcc6d4; --m-t4: #566070;
-  --m-we: #f0675a; --m-wb: #efb04c; --m-wm: #a07ff0; --m-ck: #5aa8ff; --m-hl: #e6edf6; --m-ln: #0f1318; --m-tm: #c3ccd9; --m-gm: #5a636f; color-scheme: dark; } }
+  --m-we: #f0675a; --m-wb: #efb04c; --m-wm: #a07ff0; --m-ck: #5aa8ff; --m-hl: #e6edf6; --m-ln: #0f1318; --m-tm: #c3ccd9; --m-gm: #5a636f; --m-my: #c25a5a; --m-bn: #e6e0cf; color-scheme: dark; } }
 :root[data-theme="dark"] {
   --bg: #11151b; --panel: #181d25; --ink: #e5e9f0; --mute: #98a3b5; --line: #2b3441;
   --accent: #f08a45; --accent-ink: #1a1208;
   --stage-top: #2a323e; --stage-bot: #12161c; --ground: #1d232c; --hexline: #566274; --edge: #0b0e12;
   --m-t1: #8a95a6; --m-t2: #a2adbd; --m-t3: #bcc6d4; --m-t4: #566070;
-  --m-we: #f0675a; --m-wb: #efb04c; --m-wm: #a07ff0; --m-ck: #5aa8ff; --m-hl: #e6edf6; --m-ln: #0f1318; --m-tm: #c3ccd9; --m-gm: #5a636f; color-scheme: dark; }
+  --m-we: #f0675a; --m-wb: #efb04c; --m-wm: #a07ff0; --m-ck: #5aa8ff; --m-hl: #e6edf6; --m-ln: #0f1318; --m-tm: #c3ccd9; --m-gm: #5a636f; --m-my: #c25a5a; --m-bn: #e6e0cf; color-scheme: dark; }
 * { box-sizing: border-box; }
 body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5;
   padding-block: 24px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
@@ -91,6 +91,7 @@ dd { margin: 0; overflow-wrap: anywhere; }
           <h2 id="uname"></h2>
           <div class="meta" id="umeta"></div>
           <div class="seg" id="variant"></div>
+          <div class="seg" id="layers" role="group" aria-label="Layers"></div>
         <div class="seg" id="team" role="group" aria-label="Team color"></div>
         <div class="seg" id="paint" role="group" aria-label="Paint scheme"></div>
           <p class="note" id="unote"></p>
@@ -118,7 +119,7 @@ const SCHEMES = {
 };
 const SCHEME_NAMES = Object.keys(SCHEMES);
 const state = { unit: UNITS.find(u => u.id === "timber-wolf") || UNITS.find(u => u.id === "stalker") || UNITS[0], variant: "ref",
-  ortho: false, spin: !reduce, card: true, edges: false, team: "none", paint: "auto", theta: 0.65, phi: 1.28, dist: 4.8 };
+  layers: { armor: true, equipment: true, myomer: false, skeleton: false }, xray: false, ortho: false, spin: !reduce, card: true, edges: false, team: "none", paint: "auto", theta: 0.65, phi: 1.28, dist: 4.8 };
 state.dist = 2.7 + 1.15 * state.unit.levels;
 let saved; try { saved = JSON.parse(localStorage.getItem("cl3d") || "null"); } catch (e) { saved = null; }
 try { const pt = localStorage.getItem("cl3dpaint"); if (pt && (pt === "auto" || SCHEMES[pt] !== undefined)) state.paint = pt; } catch (e) {}
@@ -170,7 +171,7 @@ function schemeFor(u) {
   return pool[h % pool.length];                    // auto never picks bare steel
 }
 function palette() {
-  const p = {}; for (const c of ["t1", "t2", "t3", "t4", "we", "wb", "wm", "hl", "ln", "tm", "gm", "ck"]) p[c] = lin(css("--m-" + c));
+  const p = {}; for (const c of ["t1", "t2", "t3", "t4", "we", "wb", "wm", "hl", "ln", "tm", "gm", "ck", "my", "bn"]) p[c] = lin(css("--m-" + c));
   const sch = SCHEMES[schemeFor(state.unit)];
   if (sch) for (const c in sch) p[c] = lin(sch[c]);
   const tc = TEAMS[state.team];
@@ -205,11 +206,14 @@ function buildModel() {
   // materials by class: painted armour plate (satin), bare metal for joints / weapons / frame (darker, more reflective), glass
   // for the cockpit, emissive for lit details, matte black for panel lines and bores
   const MAT = { t1: [0.52, 0.22], t2: [0.52, 0.22], t3: [0.48, 0.25], tm: [0.45, 0.2], t4: [0.36, 0.72], gm: [0.34, 0.78],
-    we: [0.4, 0.5], wb: [0.4, 0.5], wm: [0.4, 0.5], hl: [0.2, 0.1], ck: [0.06, 0.2], ln: [0.92, 0.0] };
+    we: [0.4, 0.5], wb: [0.4, 0.5], wm: [0.4, 0.5], hl: [0.2, 0.1], ck: [0.06, 0.2], ln: [0.92, 0.0], my: [0.7, 0.05], bn: [0.5, 0.1] };
   for (const c in pal) { const [ro, me] = MAT[c] || [0.5, 0.3];
     mats[c] = new THREE.MeshStandardMaterial({ color: pal[c], roughness: ro, metalness: me, flatShading: true, vertexColors: true, envMapIntensity: c === "ln" ? 0.1 : 0.42,
       emissive: (c === "hl" || c === "ck") ? pal[c] : 0x000000, emissiveIntensity: c === "ck" ? 0.55 : c === "hl" ? 0.5 : 0 }); }
+  const xm = {};
   for (const part of mesh.parts) {
+    const ly = part.ly || "armor";
+    if (!state.layers[ly]) continue;
     const v = part.v, f = part.f, pos = new Float32Array(f.length * 3);
     for (let i = 0; i < f.length; i++) { pos[i * 3] = v[f[i] * 3]; pos[i * 3 + 1] = v[f[i] * 3 + 1]; pos[i * 3 + 2] = v[f[i] * 3 + 2]; }
     const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(pos, 3)); g.computeVertexNormals();
@@ -221,7 +225,9 @@ function buildModel() {
       col[i] = col[i + 1] = col[i + 2] = k;
     }
     g.setAttribute("color", new THREE.BufferAttribute(col, 3));
-    const m = new THREE.Mesh(g, mats[part.cls] || mats.t1); m.castShadow = true; m.receiveShadow = true; modelGroup.add(m);
+    let mt = mats[part.cls] || mats.t1;
+    if (state.xray && ly === "armor") { const k = part.cls; xm[k] = xm[k] || Object.assign(mt.clone(), { transparent: true, opacity: 0.22, depthWrite: false }); mt = xm[k]; }
+    const m = new THREE.Mesh(g, mt); m.castShadow = !(state.xray && ly === "armor"); m.receiveShadow = true; modelGroup.add(m);
     if (state.edges && part.cls !== "ln") modelGroup.add(new THREE.LineSegments(new THREE.EdgesGeometry(g, 30), edgeMat));
   }
   modelGroup.add(buildCard(state.unit));
@@ -287,13 +293,20 @@ function renderInfo() {
   document.getElementById("umeta").replaceChildren(...[u.tons + " t", u.config, "rules " + u.rules + " lv", "drawn " + u.levels.toFixed(2) + " lv", "tags: " + u.source + (u.confidence ? " (" + u.confidence + ")" : "")].map(t => mk("span", { textContent: t })));
   document.getElementById("variant").replaceChildren(
     mk("button", { type: "button", textContent: "Reference tags", onclick: () => { state.variant = "ref"; refresh(); } }),
-    mk("button", { type: "button", textContent: "Name hash only", onclick: () => { state.variant = "hash"; refresh(); } }));
+    mk("button", { type: "button", textContent: "Name hash only", onclick: () => { state.variant = "hash"; refresh(); } }),
+    ...(u.old ? [mk("button", { type: "button", textContent: "Old blocks (before)", onclick: () => { state.variant = "old"; refresh(); } })] : []),
+    ...(u.facet ? [mk("button", { type: "button", textContent: "Faceted (experiment)", onclick: () => { state.variant = "facet"; state.edges = true; syncOpts(); refresh(); } })] : []),
+    ...(u.facet_hash ? [mk("button", { type: "button", textContent: "Faceted, name hash", onclick: () => { state.variant = "facet_hash"; state.edges = true; syncOpts(); refresh(); } })] : []));
   document.getElementById("variant").children[0].setAttribute("aria-pressed", state.variant === "ref");
   document.getElementById("variant").children[1].setAttribute("aria-pressed", state.variant === "hash");
-  document.getElementById("unote").textContent = state.variant === "ref" ? (u.note || "No reference note for this unit.") : "Only what the chassis name hash picks: how an unlisted unit would look.";
+  if (u.old) document.getElementById("variant").children[2].setAttribute("aria-pressed", state.variant === "old");
+  if (u.facet) document.getElementById("variant").children[3].setAttribute("aria-pressed", state.variant === "facet");
+  if (u.facet_hash) document.getElementById("variant").children[4].setAttribute("aria-pressed", state.variant === "facet_hash");
+  if ((state.variant === "old" && !u.old) || (state.variant === "facet" && !u.facet) || (state.variant === "facet_hash" && !u.facet_hash)) state.variant = "ref";
+  document.getElementById("unote").textContent = state.variant === "ref" ? (u.note || "No reference note for this unit.") : state.variant === "old" ? "The previous block generator, for comparison with the skeleton-and-shell model." : state.variant === "facet_hash" ? "The faceted look from the chassis name hash alone (no reference tags): what an unlisted unit would get." : state.variant === "facet" ? "Experiment: one faceted solid per part, silhouette and pose first (after Daniel\u2019s low-poly Mad Cat print). Same mass budgets, hardpoints and layers." : "Only what the chassis name hash picks: how an unlisted unit would look.";
   const dl = document.getElementById("utags"); dl.replaceChildren();
-  u.tags[state.variant].forEach(([k, v]) => { dl.append(mk("dt", { textContent: k }), mk("dd", { textContent: v })); });
-  document.getElementById("badge").textContent = u.name + " · " + (state.variant === "ref" ? "reference tags" : "name hash");
+  (u.tags[state.variant] || u.tags.ref).forEach(([k, v]) => { dl.append(mk("dt", { textContent: k }), mk("dd", { textContent: v })); });
+  document.getElementById("badge").textContent = u.name + " · " + (state.variant === "ref" ? "reference tags" : state.variant === "old" ? "old block model" : state.variant === "facet" ? "faceted experiment" : state.variant === "facet_hash" ? "faceted, name hash" : "name hash");
 }
 function renderTeam() {
   const el = document.getElementById("team");
@@ -308,7 +321,20 @@ function renderPaint() {
       b.setAttribute("aria-pressed", state.paint === k); return b; }));
 }
 function select(u) { state.unit = u; state.dist = fitDist(u); refresh(); }
-function refresh() { persist(); buildModel(); renderInfo(); renderTeam(); renderPaint(); placeCamera(); }
+const LAYERS = [["armor", "Armor"], ["equipment", "Equipment"], ["myomer", "Myomer"], ["skeleton", "Skeleton"]];
+const PRESETS = [["All", ["armor", "equipment", "myomer", "skeleton"]], ["Armor only", ["armor"]], ["Equipment only", ["equipment"]], ["Myomer only", ["myomer"]], ["Skeleton only", ["skeleton"]]];
+function renderLayers() {
+  const has = !!(state.unit[state.variant].parts.some(p => p.ly && p.ly !== "armor"));
+  const box = document.getElementById("layers");
+  const lay = (names) => { for (const [k] of LAYERS) state.layers[k] = names.includes(k); renderLayers(); buildModel(); };
+  box.replaceChildren(
+    ...LAYERS.map(([k, n]) => mk("button", { type: "button", textContent: n, disabled: !has && k !== "armor", onclick: () => { state.layers[k] = !state.layers[k]; renderLayers(); buildModel(); } })),
+    mk("button", { type: "button", textContent: "X-ray armor", disabled: !has, onclick: () => { state.xray = !state.xray; renderLayers(); buildModel(); } }),
+    ...PRESETS.map(([n, names]) => mk("button", { type: "button", textContent: n, disabled: !has, onclick: () => lay(names) })));
+  [...box.children].slice(0, 4).forEach((b, i) => b.setAttribute("aria-pressed", !!state.layers[LAYERS[i][0]]));
+  box.children[4].setAttribute("aria-pressed", state.xray);
+}
+function refresh() { renderLayers(); persist(); buildModel(); renderInfo(); renderTeam(); renderPaint(); placeCamera(); }
 
 new MutationObserver(() => { buildModel(); }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => buildModel());

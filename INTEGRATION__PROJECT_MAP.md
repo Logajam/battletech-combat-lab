@@ -56,6 +56,12 @@ one-pool RNG (`config.active_rng`), `tests/test_saved_state.py`, `tests/test_rng
 (j) SESSION 17 (Change Record "WEAPON-CHOICE LOOKUP TABLES..."): `FireTable`, `fire_state` (is anything a
 weapon choice reads missing from it?), `shared_fire_table`'s key, the `select_weapons_to_fire` split,
 `fastcore.knapsack_levels`, `tests/test_fire_tables.py`.
+(l) SESSION 18, 2026-11-04 to 11-06 (Change Record, the entries from "SKELETON-AND-SHELL BUILDER, PHASE 1" to "WORKBENCH:
+SHAREABLE CODES"): the skeleton-and-shell builders - `INTEGRATION__shell.py` (plated look), `INTEGRATION__shell_items.py` (items,
+budgets with the structure-point bulk rule and leg myomer factor, hardpoint placement with rail pins), `INTEGRATION__shell_facet.py`
+(the faceted look: per-archetype bodies, the block library and `pick`, three-part torso, pose, waist and pelvis, the arm hardpoint
+grid, bays / posts / housings, the clear-muzzle rule), `data/token_densities.json`, the layers, `tests/test_token_shell.py`, the
+audit's clip measure, `tools/token_lineup.py`, `tools/token_workbench.py` (+ .html, the Windows bundle). Art only: no engine code.
 (k) COMBAT LAB 3D ART REVIEW PASS (Change Record "COMBAT LAB 3D - REVIEW PASS..."), 2026-11-04: this pass
 reviewed the session 16 3D-art queue items (the "3D model pipeline" bullets in INTEGRATION__COMBAT_LAB.md)
 and fixed what it found; its own changes to `INTEGRATION__tokens.py` (snap helpers `B3.extent` / `shift`,
@@ -64,7 +70,20 @@ and fixed what it found; its own changes to `INTEGRATION__tokens.py` (snap helpe
 When a review is done, move its line out of this queue and note it in the
 Change Record.
 
-Latest art work: **Session 18 - COMBAT LAB 3D REVIEW PASS** (2026-11-04, Change Record): a measured audit of the generated models (`tools/token_audit.py`), every floating block fixed (368 + 351 to 0), arm placement and clipping fixed, semi-realistic lighting in the viewer. Art only; REVIEW QUEUE (k).
+Latest art work: **Session 18 - SKELETON-AND-SHELL MODELS, THE FACETED LOOK, THE WORKBENCH** (2026-11-04 to 11-06, Change
+Record; REVIEW QUEUE (l)). The 'Mech art is now built from the units' own data: each location's volume from its mass (bulk by
+structure points, legs x1.6 for their myomer, actuators as art mass), a skeleton, myomer and internal equipment inside an armor
+shell, every crit-holding item on a hardpoint. Daniel chose the FACETED look (one shaped solid per part, after a low-poly Mad Cat
+print) over the plated one; it is built from a library of interchangeable blocks (13 slots: pose, torso, waist, head, gun
+housing, missile mount, pauldron, arm, forearm, hand, leg, knee, foot; tags pick them, else a per-slot name hash) on the eight-
+chassis test range (`tools/token_3d.py --range`, the published viewer). Each slot can be reviewed alone with its mounting brackets
+(`tools/token_lineup.py`), and any combination can be set by hand in the WORKBENCH (`tools/token_workbench.py`; Daniel runs it on
+his PC from the bundle `tools/make_workbench_bundle.py`; a setting comes back to Claude as a "CLW1." code: `--code`).
+**NEXT on the 3D side (Daniel, 2026-11-06): a stockpile of WEAPON BLOCKS** - the weapon models are still the first-pass ones
+(`INTEGRATION__shell.item_geometry`); build interchangeable weapon blocks per family (lasers, PPCs, autocannons, Gauss, missile
+racks, machine guns, flamers, plasma...) in the same library style, reviewed by lineup and in the workbench. Then: torso / head
+blocks for the bird body, the 47 chart chassis (phase 2, after the dictionary is built up), directional equipment hardpoints
+(shields, electronics). Art checks only for this work (Section 7).
 
 Latest engine work: **Session 17 - SAVED STATES** (Daniel, 2026-11-03: the board, the units and their state,
 and the dice, so "the engine will just continue from there"; branches keep the same dice by default,
@@ -1682,6 +1701,12 @@ turn's score, so a decision sees what it gives up.
 
 ## 7. STANDING PROMPTS
 
+- (Daniel, 2026-11-04) **Art changes run only the art checks.** "I'd also stop with the 50 checks. We're not messing with the
+  core code, we're messing with visual assets that would plug into the program, but are otherwise separate. Run only checks
+  that are related to that." For Combat Lab visuals (INTEGRATION__tokens / token_mesh / shell / shell_items / shell_facet,
+  tools/token_*, data/token_*): tests/test_token_shell.py, test_token_joined.py, test_token_volume.py. Engine changes still run
+  tests/run_checks.py.
+
 - (Daniel, 2026-10-28) **Label every session's work for review.** "Label the
   work you did today with a note to have a higher level model review it when
   there are spare cycles, make that a standard order going forward." At the
@@ -1791,6 +1816,277 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-11-05 (Claude), session 18 - WORKBENCH: SHAREABLE CODES; A CRASH GUARD** (Daniel: "error: attempt to get argmin of an
+  empty sequence" - a Clan LB 20-X on an arm with no lower arm or hand actuator; "as a feature, a copyable code that I can paste so
+  you can plug it back in and see what I'm doing"). REVIEW PENDING (higher-level model). Art only; the art checks pass.
+  - Not reproduced here (360 combinations of tonnage, body, arm block, side and rail on that gun all built), so the cause is
+    unconfirmed. Guarded: `Solid.hit` returns the start point when no face can be left through (a zero direction made the
+    argmin empty); `_arm_grid` does not seat a block centred on the arm along a direction it does not have.
+  - Codes: `token_workbench.encode` / `decode` (the page's whole setting, JSON, zlib, URL-safe base64, prefix "CLW1."). The page
+    has "Copy code" and "Load pasted code"; a failed build puts its code in the box. `python -I tools/token_workbench.py --code
+    <code>` rebuilds a pasted code here with the checks. The server prints the full error of a failed build.
+
+- **2026-11-05 (Claude), session 18 - THE ARM HARDPOINT GRID; WEAPONS BLOCK WEAPONS** (Daniel, from a workbench test: an Atlas
+  with 8 medium lasers pinned to one rail of its right arm showed "6 in line with each other, most of which shots would be blocked
+  by the one in front of it and a 7th off on its own. No idea where laser 8 is." His fix: "a 6x6 grid laid over the end of the
+  arm. The inner 4 squares tend to be reserved for the hand, the middle ring of 12 are the normal weapon slots and the outer ring
+  of 18 are virtual slots that give space for bulky weapons to expand into. Groups of squares can be combined to use their average
+  center of gravity as a hard point. (For example on a mech with no hands the 4 center squares would be merged into one bigger
+  square to fit a single weapon.)"; also equipment hardpoints facing other directions - shields, electronics, turret pods such as
+  the Catapult's box launchers on its shoulders). REVIEW PENDING (higher-level model). Art only; the art checks pass.
+  - Cause: the clear-muzzle check only tested against the body, never against other weapons, and line rails queued weapons one
+    behind another.
+  - `INTEGRATION__shell_facet._arm_grid` / `_arm_grid_geom`: the grid over the end of each forearm, the four centre cells the
+    forearm's own section (the hand, or with no hand one big port), the middle ring of 12 around the outside of the forearm, the
+    outer ring of 18 for bulky weapons. Each weapon takes a block of cells sized to its cross-section, as near its preferred ring
+    position as the free cells allow (bulky weapons first); its hardpoint is the block's centre. Ring weapons are pulled in along
+    their own direction until they seat on the forearm; one wholly in the outer ring gets a mounting bracket. An arm now has 12
+    "rails" (`shell_items.rail_count`): the ring positions, which the workbench's rail menu pins. Brackets show the 12 and the
+    centre (H = hand, C = centre port).
+  - Weapons count as obstacles in the clear-muzzle check (`Sink.items`); line rails place their items SIDE BY SIDE.
+  - New missile mount "post" for the humanoid (launcher pods on top of the side torsos: the Catapult). Shields and electronics
+    facing other directions are not built yet.
+  - Daniel's test now: 8 medium lasers with a hand ring the wrist; without a hand they make a grid of ports over the arm's end;
+    0 floating, 0 clipping, 0 blocked muzzles (also 3 large lasers, 2 PPCs, an AC/20).
+
+- **2026-11-05 (Claude), session 18 - WORKBENCH BUNDLE FOR A WINDOWS DESKTOP** (Daniel: "So? no link to it?" - the cloud
+  preview never reached him; "D:\Claude\Model viewer. You have permission to push the required files into that folder"). This
+  cloud session cannot reach his computer (no folder shared), so the workbench ships as a zip he unzips there.
+  REVIEW PENDING (higher-level model). Art only.
+  - `tools/make_workbench_bundle.py <out.zip>`: the workbench, the ten modules it imports, the token data, equipment.json,
+    meks.zip, and `tools/workbench_windows/` (start_workbench.bat: finds Python, installs numpy / scipy / trimesh / python-fcl,
+    starts the server on 127.0.0.1:8765, opens the browser; README.txt). Tested unzipped on Linux; the .bat is untested.
+  - `token_workbench.py --host` (127.0.0.1 on a desktop; 0.0.0.0 stays the default for the cloud preview).
+
+- **2026-11-04 (Claude), session 18 - COMBAT LAB WORKBENCH** (Daniel: "a viewer that lets me manually set what blocks are being
+  used. Sliders for tonnage and mobility, and drop down menus for weapon loadouts with the ability to control which mounts they
+  use. Basically full control over any combination. Which will let me systematically do testing."). REVIEW PENDING
+  (higher-level model). Art only; the shell test passes.
+  - `tools/token_workbench.py` (a small web server, stdlib only) + `tools/token_workbench.html`: start with
+    `python -I tools/token_workbench.py --port 8765 [--meks <unzipped meks folder>]`, open the port (in a cloud session the app's
+    preview). Each change rebuilds the 'Mech with the real faceted builder. Controls: tonnage, walk and jump MP, armor level,
+    engine and cockpit type, body (humanoid / bird), head mount, reference tags on / off, arm actuators; a menu per block slot
+    (auto = tag or name hash; the page shows what each slot resolved to and why); a loadout table (any of 686 items, its
+    location, its rail or auto); load any of 4,225 unit files and change it; layers, X-ray, edges, mounting brackets; "Run
+    checks" (volume by location against its budget, floating, below ground, clipping, blocked muzzles). Not an Artifact on
+    purpose: a published page cannot run the Python builder.
+  - `INTEGRATION__shell_items.place_items` honours `unit["force_rails"]` ({zone: {item index: rail}}) for the workbench's rail
+    pins; the shuffle is unchanged otherwise.
+
+- **2026-11-04 (Claude), session 18 - TEST RANGE FACETED FROM THE NAME HASH; PER-SLOT HASH FIX** (Daniel: "go ahead and generate
+  our smaller test batch's hash values as faceted"). REVIEW PENDING (higher-level model). Art only; the three art checks pass.
+  - The viewer gets a fifth variant, "Faceted, name hash" (`tools/token_3d.py --range`, `facet_hash`): each range chassis built
+    with no reference tags, as an untagged unit would be.
+  - BUG found and fixed: `pick` read the slot's block from a byte of the 8-byte name hash, so every slot after the eighth always
+    took its first block (every name-hash unit had prism legs, drum knees, heel-and-toe feet, a box head, box pauldrons, octagon
+    forearms). Each slot now hashes the unit's name with the slot's name. Tagged slots are unchanged; untagged slots of tagged
+    units change look too.
+  - Heads are fitted to the Head budget as a whole (glass, canopy and ears included: the bubble head was 1.7x over); the bird
+    body's nose cockpit may scale 0.6-1.6 (the Locust's was capped short).
+  - Seen, not changed (for Daniel): the name-hash Archer has a missile rack standing at an odd angle off its round torso's top
+    edge; the name-hash JagerMech (a bird body) shows an amber plate on its canopy.
+
+- **2026-11-04 (Claude), session 18 - BLOCK VARIANTS FOR EVERY BODY PART** (Daniel: "systematically add variant blocks for each
+  body part. Lets try to build up the dictionary before regenerating the full list of mechs. I will want to look at each set of
+  parts as seperate pieces."). REVIEW PENDING (higher-level model). Art only; the three art checks pass.
+  - New blocks: legs box / tapered; knees spike / twin; feet claw / pad; pauldrons fin / shell; forearms hex / tapered. New slots:
+    hand (fist / block / claw / ball, sized within the forearm so arm guns fire past) and waist (drum / ring / column).
+    `data/token_dictionary.json` `shell_mapping.facet_blocks` lists every block and the tag that forces it.
+  - Lineups of all 13 slots (tools/token_lineup.py): every block passes joined / ground / clip / clear-muzzle. Fixed on the way:
+    the claw foot's hub sat below the ground; a ball or block hand blocked guns lying along the forearm.
+  - The 47 chart chassis are NOT regenerated yet (Daniel: build the dictionary first).
+
+- **2026-11-04 (Claude), session 18 - BAY HOUSINGS, ATTACHED SHOULDERS, PART LINEUP TOOL** (Daniel: "Doors on the atlas are
+  overshadowed by the missile launchers clipping. Archers arms are also not attatched and the missiles are still clipping";
+  "I will want to look at each set of parts as seperate pieces. Parts that have mounting brackets should indicate where those
+  are."). REVIEW PENDING (higher-level model). Art only; the three art checks pass.
+  - Missile bays get a HOUSING: a flat-fronted box set into the side torso's upper front, aimed forward and about 20 degrees up,
+    its volume booked to the side torso; the racks sit flush in its face, each door hinged at its top edge and raised (`_bay`).
+    The racks no longer poke out of curved or sloped torsos.
+  - Shoulders: the side torso's outer face is found AT shoulder height (a round body narrows up top), the arm hangs clear of the
+    torso's widest point below it (bay housings included), and the shoulder drum reaches in to the face, so the arm is held.
+  - New `tools/token_lineup.py` (replaces token_heads.py): every block of a slot on one 'Mech, the slot's locations drawn alone,
+    with the MOUNTING BRACKETS marked (green: joint sockets; orange: hardpoint rails, numbered) and the checks per block.
+    The brackets come from `_record_brackets` (model["_brackets"]).
+
+- **2026-11-04 (Claude), session 18 - HEAD BLOCK LIBRARY** (Daniel: "Start a pass of designing a group of heads blocks. Think we'll
+  tackle one location at a time and build a library of interchangeable blocks."). REVIEW PENDING (higher-level model). Art only;
+  the three art checks pass.
+  - `INTEGRATION__shell_facet.head_block`: box, skull, dome, wedge, bubble, visor, turret, hood (`BLOCKS["head"]`, sizes
+    `HEAD_SIZE`, mount depth `HEAD_DROP`); tags pick them (head_mount built_in -> hood; head_shape -> its block), else the name
+    hash. `pick` honours `model["force_blocks"]` for lineups and tests.
+  - New `tools/token_heads.py`: every block of a slot on one 'Mech, 3/4 front and rear close-ups, with the joined / ground / clip /
+    clear-muzzle checks per block (all eight heads pass on the Atlas). Its renderer sorts all faces in one collection (thin glass
+    plates vanished under the head otherwise).
+  - Seen on the way, not changed: the Atlas's left side torso missile-bay door stands up in front of its head.
+
+- **2026-11-04 (Claude), session 18 - CT DEPTH RATIO, ROUND TORSO, CLEAR MUZZLES** (Daniel: keep the centre torso within a ratio
+  of the side torsos' depth "otherwise we could see a distinct cross shape from overhead"; "Archer needs a geometry pass. Could put
+  negative space in front of weapons to prevent them from being blocked by clipping ... Solution might be the Round blocks used on
+  the 'Old blocks' variant of the urbanmech"). REVIEW PENDING (higher-level model). Art only; the three art checks pass.
+  - `torso_pieces`: the centre torso's depth is at most `CT_RATIO` (1.25) x the shallower side torso's; when the shoulder rule
+    thins a side torso, the centre gets shallower and wider to keep its volume (`_torso_parts`, up to 4 rounds).
+  - Torso block `round` (a faceted ovoid, the old blocks' UrbanMech body) replaces `dome`; tags torso dome / ovoid, profile dome,
+    kit round_blocks pick it.
+  - Negative space in front of every weapon: `_muzzle_blocked` tests the bore line 1.2 m ahead against the body's solids
+    (`Sink.body`); a blocked weapon slides forward (up to 0.7 of its length), then tries the location's other rails; one still
+    blocked is drawn and counted (`model["blocked_muzzles"]`, which tests/test_token_shell.py requires to be 0). All eight range
+    chassis: 0.
+
+- **2026-11-04 (Claude), session 18 - SHOULDERS OUT, WAIST AND PELVIS, FORWARD MISSILE BAYS** (Daniel: "shoulder joints should
+  generally be farther out then the hip joints ... inflating the torso to push the arms back out will have the added benefit of
+  reducing the 'Sandwich mounted sideways on legs' look"; "missiles tend to point towards enemy in battletech. Sometimes they're
+  angled upwards"; "the ability to torso twist has been visually lost. we're using twin hip blocks, and are missing the Hips to
+  waist actuator system"; and: run only the art checks for art work, Section 7). REVIEW PENDING (higher-level model). Art only;
+  the three art checks pass.
+  - `INTEGRATION__shell_facet`: `_hips` builds a pelvis block between the hips (two halves meeting at the centre line, sized by
+    the hip actuators) with a hip joint drum at each side; `_waist` adds a vertical drum on the pelvis (the torso-twist
+    actuator, part of the centre torso) that the torso stands on; bird body too.
+  - Shoulder rule in `torso_pieces(min_outer)`: each side torso reaches far enough that the shoulder joint sits at least 1.22
+    times the hip's outer edge out (tiny arms excepted), and thins its depth to keep its volume. Shoulder joints now 1.7 to 2.8
+    times the hip joints' distance from the centre line.
+  - `_bay`: racks in the side torso's upper front, aimed forward and about 20 degrees up, each under a door hinged at the top of
+    its opening and swung up.
+
+- **2026-11-04 (Claude), session 18 - LEG MYOMER FACTOR** (Daniel: "Give them a factor. This is where paying attention to the
+  myomers would matter. Legs would tend to have more of them to support the entire mass of the mech."). REVIEW PENDING
+  (higher-level model). Art only, 50 of 50 checks, reference logs identical.
+  - `bulk_rule.leg_factor` 1.6 (data/token_densities.json): each leg's structure points count 1.6 times in the bulk share, as the
+    head's count 1.5. Calibrated on the MWO Atlas kit (each leg with half the pelvis about 22 m3, each arm about 10: ours 19.4
+    and 9.9). Volume below half height v the Syllogy (MWO) kits: Hunchback 36 v 35 percent, JagerMech 38 v 45, Archer 38 v 43,
+    UrbanMech 33 v 49, Locust 25 v 43 (the Locust's long legs are a bird-body shape question, not a budget one).
+  - The myomer layer shows it: six thicker bundles round each leg segment, four on the arms (`build_layers`).
+  - Fixes the factor exposed: racks in a missile bay sit inside the side torso, so their volume goes back to the torso block
+    (it was taken out twice); the gun housing never takes more than 45 percent of its side torso.
+
+- **2026-11-04 (Claude), session 18 - BULK BY STRUCTURE POINTS, THREE-PART TORSO** (Daniel: "sometimes the torso feels like its
+  just the center torso. The torso of any mech should have 3 parts that fit together. The relative bulk, before considering
+  weapons and equipment also in that location should be based on the number of structural points in that location (Head counts
+  at 1.5 its structure). This will probably require more depth"; test candidates JagerMech, Atlas, Hunchback). REVIEW PENDING
+  (higher-level model). Art only, 50 of 50 checks, reference logs identical.
+  - `INTEGRATION__shell_items.budgets`: rule `structure_points` (data/token_densities.json `bulk_rule`, head factor 1.5; rule
+    `parts` keeps the old per-part budgets). The 'Mech's base volume is kept and shared by structure points; each location's
+    parts keep their proportions (the hip still builds the pelvis). Atlas: side torsos 12.2 / 8.7 -> 19.0 / 15.5 m3, legs 21.4
+    -> 14.6, head 4.9 -> 3.6. Applies to both looks.
+  - `INTEGRATION__shell_facet.torso_pieces`: three blocks per torso (`TORSO_PARTS`), the centre forward, the sides set back, cut
+    edges so the seams show, each fitted to its own budget; depth 0.36 of the height. The dome stays one solid cut in three.
+  - Measured against the Syllogy (MWO) kits: JagerMech depth 0.73 (kit 0.73), width 0.54 (0.73); Hunchback depth 0.44 (0.54),
+    width 0.50 (0.85). Legs now hold less of the volume than the kits' (JagerMech 30 percent below half height v the kit's 45):
+    the structure-point rule gives the legs a smaller share than the actuator calibration did.
+
+- **2026-11-04 (Claude), session 18 - FACETED BLOCKS: POSE, TORSO, HOUSING, MISSILE BAY, STRAIGHT GUN ARM** (Daniel, after the
+  Syllogy kit comparison - Syllogy's models are MWO's: "Archer does not have launchers above the head. Those are the protective
+  doors for the launchers in the torso in a raised position"; "Jagermech: the guns simply line up with the upper arm coming
+  straight from the shoulder"; yes to pose, deeper torsos, a torso slot; "Hunchback only gets a bigger hump if it becomes a
+  standard block. I'd prefer to minimize one off custom solutions."). REVIEW PENDING (higher-level model). Art only, 50 of 50.
+  - New slots in `INTEGRATION__shell_facet.BLOCKS`: pose (stride / ready / crouch; legs per side via `pose_joints`, the upper body
+    leans about the hip line, `lean_pts`), torso (v_chest / box / slab / wedge / dome: ONE solid 0.30 of the height deep, cut into
+    the three locations by `clip_x` / `split_x` so each piece holds its budget), housing (the hump as a standard block, sized by
+    the side torso's heaviest gun), missiles (face / bay: racks in the torso top under raised doors, `_bay`), arm (pod /
+    straight). The bird body uses the pose slot too. The old per-section chest and the one-off hump are gone.
+  - All eight range chassis within the volume band, 0 floating, nothing below ground, clip 0. Against the Syllogy (MWO) kits:
+    depth up (JagerMech 0.69 v the kit's 0.73, Hunchback 0.37 v 0.54), poses now bent and leaning. Still narrower and less bulky
+    than the medium / heavy kits (Hunchback width 0.52 v 0.85, bulk 0.067 v 0.107); since the kits are MWO's and the MWO Atlas /
+    Timber Wolf matched our budgets, the remaining gap is either our volume budgets or our height curve against MWO's heights:
+    Daniel's call.
+
+- **2026-11-04 (Claude), session 18 - FACETED BLOCK LIBRARY** (Daniel: "Go ahead" on giving the humanoids their own identities).
+  REVIEW PENDING (higher-level model). Art only, 50 of 50 checks.
+  - `INTEGRATION__shell_facet.py`: `BLOCKS` per slot (leg prism / slab / pillar / greave; knee drum / cap / guard; foot heel_toe /
+    wedge / three_toe; pauldron box / slant / drum / collar; forearm octagon / square / round), `TAG_PICKS` (tags that force a
+    block), `pick` (tag, else a byte of the name hash per slot; recorded in `model["blocks"]`, shown in the viewer's info panel).
+    The mapping is in `data/token_dictionary.json` `shell_mapping.facet_blocks`. `build_model` records `hash_only`.
+  - All eight range chassis still within the volume band, 0 floating, nothing below ground, clip 0 (tests/test_token_shell.py).
+  - Next: blocks for the torso (the UrbanMech's dome reads as a box from the front), heads and the bird body; then the 47 chart
+    chassis (phase 2).
+
+- **2026-11-04 (Claude), session 18 - FACETED LOOK ON THE WHOLE TEST RANGE** (Daniel: "what about extending this style to the
+  other models?"; on the Atlas chest width: "similar, not perfect"). REVIEW PENDING (higher-level model). Art only, 50 of 50 checks.
+  - `INTEGRATION__shell_facet.py` now builds all eight range chassis (`FACET_RANGE` = `SHELL_RANGE`). New tag-driven blocks in
+    the humanoid body: chest profile from `profile` (dome, bell, prow, ... else the V-chest), `tall_slab` / slab torsos taller,
+    a HUMP block for `hunch` / `stepped` on the side torso with the heaviest guns (its face rail takes the heaviest gun, rail
+    `prefer="heavy"`), launcher POSTS for `kit` tall_launchers / launchers, GUN-POD forearms for any arm without a hand
+    actuator (length by contents; `long_barrel` x1.2), head position by `head_mount` (top, built_in, front, notch), antennas,
+    rounder arms for `round_blocks`, squat legs under a dome torso. The bird body: `narrow` torsos, antennas.
+  - The ribs are clamped inside the side torsos (`build_layers`; the faceted Atlas had them running into the arms).
+  - `tests/test_token_shell.py` now checks the faceted builds too (32 models: volume band, height, plate minimum, and the joined /
+    ground / clip audit for the faceted ones). The viewer has a "Faceted (experiment)" variant on every range chassis.
+  - Known: the humanoids still share one leg, foot and pauldron set (the block library would give them choices).
+
+- **2026-11-04 (Claude), session 18 - FACETED LOOK: ATLAS, HARDPOINT RAILS** (Daniel: "Core shape is good, the length of those
+  arms could easily be made a variable based on how much stuff is in them ... where all the hard point spots on that model would
+  be located to deal with other configurations. And certainly go ahead with the Atlas."). REVIEW PENDING (higher-level model).
+  Art only, 50 of 50 checks.
+  - `INTEGRATION__shell_facet.py` restructured: a body per archetype (`body_bird` for the Mad Cat, new `body_humanoid` for the
+    Atlas), each declaring its HARDPOINT RAILS (`FRail`: face, line or post; the same rail counts per location as the plated
+    builder, so the shuffled `place_items` plan drives any loadout), one placement step (`mount_rails`): a face rail lays its guns
+    out as a grid centred on the face, a line rail as a run centred along the part, a post rail puts every missile rack in one
+    launcher on a post (a chassis with posts always uses them). Vents, nozzles and domes keep the plated builder's spots.
+  - Mad Cat gun-pod length follows the arm's fullest rail (0.17 of the height + 0.4 m a slot, at most 0.40).
+  - Atlas: straight legs on big knee drums, heel-and-toe feet, a V-shaped chest whose side torsos stand taller than the centre
+    (the head's notch), a skull with two eye slots and a jaw, box pauldrons over the shoulders, forearms with fists, guns under
+    the forearms. Every location within 10 percent of its budget (name hash within 10 of 0.90), 0 floating, nothing below
+    ground, clip 0. Still narrower in the chest than the kit (convex sections at the budget's volume).
+  - `build_layers`: torso myomer sized from each section's own box (it floated out of the Mad Cat's small side blocks).
+
+- **2026-11-04 (Claude), session 18 - FACETED-LOOK EXPERIMENT, MAD CAT** (Daniel: "Lets experiment with the madcat. See if its
+  worth pursuing", after a low-poly Mad Cat print). REVIEW PENDING (higher-level model). Art only, 50 of 50 checks.
+  - New `INTEGRATION__shell_facet.py`, used only for the Mad Cat / Timber Wolf and only when `build_model(..., style="facet")`:
+    one faceted solid per part (octagonal prisms with chamfered ends, drums across the knee, hock, hip, shoulder and elbow, a
+    teardrop canopy torso with the cockpit nose as the Head location, side blocks, gun-pod forearms aimed forward, claw feet),
+    launchers on posts over the side torsos, a forward-pitched body and wide stance. 35 body solids against about 140 in the
+    plated builder. Shares the budgets, hardpoints, layers and rules height; every location within 10 percent of its budget, 0
+    floating, nothing below ground, clip 0 (tagged and name-hash builds). Viewer: a "Faceted (experiment)" variant on the
+    Timber Wolf, edges drawn by default.
+  - Fix found on the way: Clan weapons whose canonical name keeps the tech prefix (`CLMG`) were classed "misc", not weapons
+    (`shell_items._classify` now reads the family from the cleaned name).
+  - Not covered by tests yet (the experiment is not in `tests/test_token_shell.py`); Daniel decides whether it replaces the plated look.
+
+- **2026-11-04 (Claude), session 18 - SHELL BUILDER: KIT CALIBRATION, NO STEPPED PLATES** (Daniel sent the MWO Atlas and
+  Timber Wolf kit models: "skinny legs that are almost all bone, with mini ziggurats built up on their faces ... looks like it was
+  built in minecraft"). REVIEW PENDING (higher-level model). Art only, 50 of 50 checks, reference logs identical.
+  - Measured both kits at scale (STL volumes): our torsos and arms matched, legs were half the kits', the pelvis a fifth. Cause:
+    actuators had no mass in the budgets. Now `data/token_densities.json` `actuator_tons` (art mass per actuator, calibrated on
+    the two kits; the hip's volume builds the pelvis). Atlas now 112 m3 v the kit's 112, Timber Wolf 90 v 80.
+  - One plate per face (`n_layers` = 1); thick armor shows as a thicker plate. Legs deeper than wide (both kits), lower legs nearly
+    as big as thighs, legs 0.52 / 0.53 of the height, feet a heel block with two toes, a pelvis block per hip, faceted box
+    pauldrons in place of the domes, torso section widths balanced against their own budgets.
+  - Daniel then sent a low-poly Mad Cat print that reads better than this: the next step is his call (see the reply that day).
+
+- **2026-11-04 (Claude), session 18 - SKELETON-AND-SHELL BUILDER, PHASE 1 (TEST RANGE)** (spec:
+  `INTEGRATION__COMBAT_LAB_SKELETON.md`). REVIEW PENDING (higher-level model). Art only: no engine code, every reference
+  log identical, 50 of 50 checks. STOPPED for Daniel's verdict on the look before phase 2.
+  - **Built:** `INTEGRATION__shell_items.py` (the data half: every crit line becomes an item with kind, slots, tons from
+    `mechsim/equipment.json` with a flagged fallback, volume = tons / density; hardpoint capacity read from `unit["slots"]`;
+    the name-hash shuffle onto rails; location volume budgets from items, structure, armor, engine, gyro, cockpit),
+    `INTEGRATION__shell.py` (skeleton joints from the rules height, location envelopes sized from the budgets, bevelled armor
+    plates of real thickness layered by armor ratio, joint covers that overlap so no gap shows, shoulder sockets, visible
+    mounts: weapons on rails, heat-sink vents, jump-jet nozzles, sensor domes, real-scale missile tubes),
+    `data/token_densities.json` (art densities with a reason each, slot length 0.4 m, 5 cm plate minimum),
+    `tests/test_token_shell.py`, a clip measure in `tools/token_audit.py`, the dictionary mapping
+    (`data/token_dictionary.json` `shell_mapping`: every tag term expressed, approximated or FLAGGED), a third "Old blocks"
+    variant in the viewer.
+  - **Layers (Daniel's follow-up, same day):** every part carries a layer (`shell.LAYER_OF`): armor (core, plates, covers),
+    equipment (visible mounts plus the unseen engine, gyro, cockpit, ammo and other items drawn INSIDE the shell), myomer
+    (spindle bundles round each bone and the torso) and skeleton (bones and ball joints). The viewer has a switch per layer,
+    presets (all / armor / equipment / myomer / skeleton only) and an X-ray armor option; the default view (armor + equipment)
+    is unchanged, so no internals are exposed. `unit_mesh` parts carry `ly`. Skeleton and myomer are placement geometry:
+    their volume is not part of any location's budget (the spine, hip, shoulder and rib bars count to no location).
+  - **Range (phase 1):** Atlas, Mad Cat / Timber Wolf, Locust, Hunchback, Archer, JagerMech, UrbanMech, and Wendigo (a
+    torso-mounted cockpit, weapon and ammo in the head; name hash only). `tokens.build_model(..., shell=True)` routes them to the
+    shell builder; every other unit still uses the old block builder `_build` until phase 2, which is why `_build` and
+    `calibrate` are not yet deleted (the spec's "retire" lands with the last phase).
+  - **Checks:** hardpoints over all 4,227 unit files (115,951 items placed once each, none over capacity, shuffle stable);
+    location volume within a band of its budget (spec 25 percent; tuned to **30 percent**: the pelvis plates and clamped
+    narrow side torsos need it); height on the rules curve (3 percent); no plate under 5 cm; 0 floating blocks, nothing below
+    the ground, arm / torso and leg / leg clip 0 on 16 models. `test_token_volume.py` skips the old density law for shell models.
+  - **2D from 3D:** for shell models the 2D tokens already project the very convex solids the mesh hulls, so they cannot
+    disagree; the old 2D path stays for old-builder units until phase 2.
+  - **Not done / for Daniel's eye:** the look. Known weak points (FLAGGED in the dictionary mapping): no Hunchback hump, no
+    Archer tall launcher boxes, no Atlas notch, no Mad Cat wing bays, plates read stepped on steep limbs, physical weapons,
+    martian / quad / tripod skeletons (phase 3). Weapon masses with no table value use the fallback list
+    (`INTEGRATION__shell_items.FALLBACKS`: mostly ammo and heat sinks).
 
 - **2026-11-04 (Claude), session 18 - COMBAT LAB 3D - REVIEW PASS (Daniel: "a higher tier pass at the combat lab 3d
   assets; see what problems you can find and fix").** REVIEW PENDING (higher-level model). Art only: no engine code, every
