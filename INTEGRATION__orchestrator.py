@@ -122,6 +122,7 @@ import combat  # noqa: E402 - PATHFINDER; build_jump_states/classify_movement_mo
 
 from INTEGRATION__rng import BattleRNG  # noqa: E402
 import INTEGRATION__weapon_selection as weapon_selection  # noqa: E402
+from damage_resolution import weapons_cache  # noqa: E402 - MECHSIM: get_weapons keeps its answer during a battle (2026-11-06)
 import INTEGRATION__heat as heat  # noqa: E402
 import INTEGRATION__equipment_systems as equip  # noqa: E402
 import INTEGRATION__ammo as ammo  # noqa: E402
@@ -876,12 +877,16 @@ def play_on(battle, after_turn=None) -> BattleResult:
     """Plays turns from battle.turn + 1 to the cap or the end of the battle, then
     totals the result. A fresh battle starts at turn 1; a loaded saved state
     (INTEGRATION__saved_state.load) at the turn after the one it was saved at."""
-    while not battle.over and battle.turn < battle.max_turns:
-        turn = battle.turn + 1
-        battle.over = _play_turn(battle, turn)
-        battle.turn = turn
-        if not battle.over and after_turn is not None:
-            battle = after_turn(battle) or battle     # it may hand back a reloaded copy to play on with
+    weapons_cache(True)                    # damage_resolution.get_weapons keeps its answer between slot losses
+    try:
+        while not battle.over and battle.turn < battle.max_turns:
+            turn = battle.turn + 1
+            battle.over = _play_turn(battle, turn)
+            battle.turn = turn
+            if not battle.over and after_turn is not None:
+                battle = after_turn(battle) or battle     # it may hand back a reloaded copy to play on with
+    finally:
+        weapons_cache(False)
     return _finish(battle)
 
 

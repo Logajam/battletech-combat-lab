@@ -589,11 +589,249 @@ impl PathBoard {
     }
 }
 
+
+// ---------------------------------------------------------------------------------------------
+// LosBoard (2026-11-06, session 20): a Rust copy of pathfinder/los._evaluate (Core pp.56-58, 66, 124, 240;
+// TO:AR pp.29, 36, 38) - the line of sight between two hexes - and the hex line it walks, for
+// INTEGRATION__los_cache.pair_info. Same float operations (the line from (0, 0), Python's round half to
+// even = round_ties_even) so the line, every tie and every modifier are the Python's. Python hands over
+// a snapshot of the board (levels, depths, woods / fields / smoke) and rebuilds it when smoke changes.
+// ---------------------------------------------------------------------------------------------
+fn cube(x: i32, y: i32) -> (f64, f64, f64) {
+    let q = x as f64;
+    let r = (y - x) as f64 / 2.0;
+    (q, r, -q - r)
+}
+
+fn geo_distance(a: (i32, i32), b: (i32, i32)) -> i32 {
+    let (aq, ar, as_) = cube(a.0, a.1);
+    let (bq, br, bs) = cube(b.0, b.1);
+    (aq - bq).abs().max((ar - br).abs()).max((as_ - bs).abs()).round_ties_even() as i32
+}
+
+fn cube_round(q: f64, r: f64, s: f64) -> (i64, i64, i64) {
+    let (rq, rr, rs) = (q.round_ties_even(), r.round_ties_even(), s.round_ties_even());
+    let (dq, dr, ds) = ((rq - q).abs(), (rr - r).abs(), (rs - s).abs());
+    if dq > dr && dq > ds {
+        ((-rr - rs) as i64, rr as i64, rs as i64)
+    } else if dr > ds {
+        (rq as i64, (-rq - rs) as i64, rs as i64)
+    } else {
+        (rq as i64, rr as i64, (-rq - rr) as i64)
+    }
+}
+
+/// pathfinder/los._hex_line_direct from (0, 0) to (dx, dy): per step the candidate hexes (one, or two on an edge).
+fn hex_line_shape(dx: i32, dy: i32) -> Vec<Vec<(i32, i32)>> {
+    let n = geo_distance((0, 0), (dx, dy));
+    let (aq, ar, as_) = cube(0, 0);
+    let (bq, br, bs) = cube(dx, dy);
+    if n == 0 {
+        return vec![vec![(0, 0)]];
+    }
+    let (nq, nr, ns) = (1e-6_f64, 2e-6_f64, -3e-6_f64);
+    let mut path = Vec::with_capacity(n as usize + 1);
+    for i in 0..=n {
+        let t = i as f64 / n as f64;
+        let q = aq + (bq - aq) * t;
+        let r = ar + (br - ar) * t;
+        let s = as_ + (bs - as_) * t;
+        let first = cube_round(q + nq, r + nr, s + ns);
+        let second = cube_round(q - nq, r - nr, s - ns);
+        let from = |c: (i64, i64, i64)| -> (i32, i32) {
+            let x = c.0;
+            let y = (2.0 * (c.1 as f64) + x as f64).round_ties_even() as i64;
+            (x as i32, y as i32)
+        };
+        if first == second { path.push(vec![from(first)]); } else { path.push(vec![from(first), from(second)]); }
+    }
+    path
+}
+
+struct LosHex {
+    level: i32,
+    depth: i32,        // 0 when the hex has none
+    surface: i32,      // surface_level, else level
+    woods: u8,         // 0 none; else the density: 1, 2, 3, 9 = another
+    fields: bool,
+    smoke_here: bool,  // "smoke" in info
+    smoke_points: i32, // SMOKE_POINTS of its density, 0 when the smoke entry is empty
+}
+
+#[pyclass]
+struct LosBoard {
+    xmin: i32,
+    ymin: i32,
+    height: i32,
+    width: i32,
+    hexes: Vec<Option<LosHex>>,
+    shapes: HashMap<(i32, i32), std::sync::Arc<Vec<Vec<(i32, i32)>>>>,
+}
+
+fn smoke_share(h: &LosHex, woods_points: i32) -> i32 {
+    if h.smoke_points == 0 {
+        return 0; // no smoke (or an empty entry); densities are 1 or 2
+    }
+    std::cmp::max(0, std::cmp::min(2, woods_points + h.smoke_points) - woods_points)
+}
+
+fn woods_points(code: u8) -> i32 { match code { 1 => 1, 2 => 2, _ => 0 } }
+
+impl LosBoard {
+    fn at(&self, x: i32, y: i32) -> Option<&LosHex> {
+        let (cx, cy) = (x - self.xmin, y - self.ymin);
+        if cx < 0 || cy < 0 || cx >= self.width || cy >= self.height {
+            return None;
+        }
+        self.hexes[(cx * self.height + cy) as usize].as_ref()
+    }
+}
+
+#[pymethods]
+impl LosBoard {
+    #[new]
+    #[allow(clippy::type_complexity)]
+    fn new(xmin: i32, ymin: i32, width: i32, height: i32,
+           hexes: Vec<Option<(i32, i32, i32, u8, bool, bool, i32)>>) -> PyResult<Self> {
+        if hexes.len() != (width * height) as usize {
+            return Err(pyo3::exceptions::PyValueError::new_err("LosBoard: bad hex list"));
+        }
+        Ok(LosBoard {
+            xmin, ymin, width, height, shapes: HashMap::new(),
+            hexes: hexes.into_iter().map(|o| o.map(|(level, depth, surface, woods, fields, smoke_here, smoke_points)| {
+                LosHex { level, depth, surface, woods, fields, smoke_here, smoke_points }
+            })).collect(),
+        })
+    }
+
+    /// los._evaluate's answer for the line a -> t: (line of sight, modifier, distance, the hex the line enters the
+    /// target's from, or the target's own hex when the two are the same, hex distance). Heights: (LOS levels,
+    /// standing, superheavy). ValueError when a hex is off the board or no side of the line is on it.
+    fn pair(&mut self, ax: i32, ay: i32, tx: i32, ty: i32, a_height: (i32, bool, bool), t_height: (i32, bool, bool))
+        -> PyResult<(bool, i32, i32, i32, i32, i32)> {
+        let err = |m: &str| pyo3::exceptions::PyValueError::new_err(m.to_string());
+        let (dx, dy) = (tx - ax, ty - ay);
+        let shape = match self.shapes.get(&(dx, dy)) {
+            Some(s) => s.clone(),
+            None => {
+                let s = std::sync::Arc::new(hex_line_shape(dx, dy));
+                if self.shapes.len() > 200_000 { self.shapes.clear(); }
+                self.shapes.insert((dx, dy), s.clone());
+                s
+            }
+        };
+        let a_info = self.at(ax, ay).ok_or_else(|| err("LOS attacker hex is not on the loaded board."))?;
+        let b_info = self.at(tx, ty).ok_or_else(|| err("LOS target hex is not on the loaded board."))?;
+        let distance_geo = geo_distance((ax, ay), (tx, ty));
+        let (a_level, b_level) = (a_info.level, b_info.level);
+        let (a_los, b_los) = (a_level + a_height.0, b_level + t_height.0);
+        let n = shape.len() as i32 - 1;
+        if n == 0 {
+            return Ok((true, 0, 0, ax, ay, distance_geo));
+        }
+        let shifted = |i: usize, pick: usize| -> (i32, i32) {
+            let c = if pick == 0 { shape[i][0] } else { *shape[i].last().unwrap() };
+            (ax + c.0, ay + c.1)
+        };
+        let intervenes = |top: i32, i: i32| -> bool {
+            (top >= a_los && top >= b_los) || (i == 1 && top >= a_los) || (i == n - 1 && top >= b_los)
+        };
+        // the sides of the line: each a list of intervening hexes
+        let mut sides: Vec<Vec<(i32, i32)>> = Vec::new();
+        for pick in 0..2usize {
+            let on: Vec<(i32, i32)> = (1..n as usize).map(|i| shifted(i, pick)).collect();
+            if on.iter().all(|h| self.at(h.0, h.1).is_some()) {
+                sides.push(on);
+            }
+            if (1..n as usize).all(|i| shape[i].len() == 1) {
+                break;
+            }
+        }
+        if sides.is_empty() {
+            return Err(err("LOS line runs off the loaded board."));
+        }
+        let t_standing = t_height.1;
+        let mut walked: Vec<(Option<i32>, i32)> = Vec::new();   // (blocked_at, modifier incl. cover) per side
+        let mut covers: Vec<i32> = Vec::new();
+        for on in sides.iter() {
+            let (mut woods, mut fields, mut blocked_at) = (0i32, 0i32, None::<i32>);
+            for (k, h) in on.iter().enumerate() {
+                let i = k as i32 + 1;
+                let info = self.at(h.0, h.1).unwrap();
+                if blocked_at.is_some() {
+                    continue;
+                }
+                let level = info.level;
+                let mut contrib = 0i32;
+                let mut blocks = intervenes(level, i);
+                let density = info.woods;
+                if !blocks && density == 3 {
+                    blocks = intervenes(level + 3, i);
+                } else if !blocks && density != 0 && intervenes(level + 2, i) {
+                    contrib = woods_points(density);
+                    woods += contrib;
+                    blocks = woods >= 3;
+                }
+                if !blocks && info.smoke_here && intervenes(info.surface + 2, i) {
+                    let smoke = smoke_share(info, contrib);
+                    contrib += smoke;
+                    woods += smoke;
+                    blocks = woods >= 3;
+                }
+                if !blocks && info.fields && intervenes(level + 1, i) {
+                    fields += 1;
+                    contrib += if fields % 2 == 0 { 1 } else { 0 };
+                    blocks = fields >= 6;
+                }
+                let _ = contrib;
+                if blocks {
+                    blocked_at = Some(i);
+                }
+            }
+            let mut cover = 0;
+            if blocked_at.is_none() && t_standing {
+                let step = if t_height.2 { 2 } else { 1 };
+                if n >= 2 {
+                    let last = self.at(on[on.len() - 1].0, on[on.len() - 1].1).unwrap();
+                    if last.level == b_level + step && last.depth == 0 && a_los <= b_los {
+                        cover = 1;
+                    }
+                }
+                let a_depth = a_info.depth - if a_height.2 { 1 } else { 0 };
+                let a_submerged = a_depth >= 2 || (a_depth >= 1 && !a_height.1);
+                if b_info.depth == step && !a_submerged {
+                    cover = 1;
+                }
+            }
+            walked.push((blocked_at, woods + fields / 2 + cover));
+            covers.push(cover);
+        }
+        // the target's choice: a blocked line if it can, else the higher modifier (the first of equals)
+        let mut best = 0usize;
+        for k in 1..walked.len() {
+            let (a, b) = ((walked[k].0.is_some(), walked[k].1), (walked[best].0.is_some(), walked[best].1));
+            if a > b {
+                best = k;
+            }
+        }
+        let (blocked_at, mut modifier) = walked[best];
+        if blocked_at.is_none() {
+            let t_woods = match b_info.woods { 1 => 1, 2 => 2, 3 => 3, _ => 0 };
+            let t_smoke = smoke_share(b_info, t_woods);
+            modifier += t_woods + t_smoke;
+        }
+        let distance = if blocked_at.is_none() { n } else { blocked_at.unwrap() };
+        let prev = *sides[best].last().unwrap_or(&(ax, ay));
+        Ok((blocked_at.is_none(), modifier, distance, prev.0, prev.1, distance_geo))
+    }
+}
+
 #[pymodule]
 fn fastcore(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(best_subset, m)?)?;
     m.add_function(wrap_pyfunction!(knapsack_levels, m)?)?;
     m.add_class::<FastTable>()?;
     m.add_class::<PathBoard>()?;
+    m.add_class::<LosBoard>()?;
     Ok(())
 }

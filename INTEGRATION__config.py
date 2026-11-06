@@ -107,6 +107,12 @@ FASTCORE_PRICING = True
 # table, its states and their terrain PSRs) come from the Rust search (fastcore.PathBoard) on a board
 # with terrain PSRs and no live hazards. 2026-11-06; same answers - tests/test_fastcore.py compares.
 FASTCORE_MOVEMENT = True
+# Test switch (tests/test_fire_tables.py): every damage_resolution.get_weapons answer that comes from its cache
+# is compared with a fresh scan of the mech's slots (2026-11-06).
+WEAPONS_CACHE_VERIFY = False
+# With fastcore: the line of sight between two hexes (los_cache.pair_info's trace, Core pp.56-58) comes from
+# the Rust copy (fastcore.LosBoard). 2026-11-06; same answers - tests/test_fastcore.py compares every pair.
+FASTCORE_LOS = True
 # Test switch (tests/test_fire_tables.py): every weapon choice a shared fire table
 # answers in movement scoring is recomputed from scratch and must match (slow); the
 # tables are also kept from turn to turn, so the key must catch every change of state.
