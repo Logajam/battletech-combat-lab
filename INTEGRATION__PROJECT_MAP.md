@@ -1799,6 +1799,22 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-06 (Claude, session 20), RUST EVALUATE LOOP: TRIED, MEASURED, NOT KEPT. REVIEW PENDING (higher-level model).**
+  Daniel: "Go for it" (the `evaluate` rewrite). Built `fastcore.EvalCore`: the per-option arithmetic of
+  `MoveEvaluator.evaluate` (to-hit numbers, the best-twist memo, the max over an arc class's FastTables) in Rust on a
+  dry board with no AMS, Python keeping the hex rows, arc classes and results (two passes over the options). It gave the
+  same battle (reference logs identical, 51 of 51) and NO speedup: 12 v 12, 5 turns, 19.2 s before and 20.0 s with it.
+  Reverted (no code kept). Why, measured in real time (not cProfile) on 838,000 options in 4 turns of 12 v 12:
+  `evaluate` is 8.7 s of an 18 s run, ~10 us an option, and the Rust-able part (memo + fire-table calls) is only ~1.7 s of
+  it; the rest is Python that stays when only the arithmetic moves: building the 627,000 MovementCandidates
+  (~0.8 s), 221,000 hex rows (1.3 s), registering ~18,000 scorer groups (1.85 s), the adjacent-hex physical attacks
+  (0.9 s, 43,000 calls), and the two passes over the options themselves (~2.5 s). Also tried and dropped (no gain):
+  one tuple of scorers per arc class; calling the Rust fire table straight from `score`. What would still help is
+  not another kernel: keep each mover's options, hex rows and arc classes alive in Rust between calls (a persistent
+  option set), so Python never touches an option per call - a redesign of `evaluate`, Legate's `rows` / `combine` and
+  the consumers of MovementCandidate together (movement_selection, Legate, Princess, movement_attacks), estimated
+  at <= 1.3x for several million tokens. Running more battles at once (cores / sessions) scales better.
+
 - **2026-11-06 (Claude, session 20), RUST PORT STEP 6: SCORER CONTEXT, AND A CORRECTED CEILING. REVIEW PENDING (higher-level
   model).** Daniel: "Go for it" (the `evaluate` / Legate `combine` rewrite). Speed only: 51 of 51 checks, reference logs
   identical. `ranged_combat._ScorerContext`: the firer's dissipation, weapons, damage table, other heat and the two
