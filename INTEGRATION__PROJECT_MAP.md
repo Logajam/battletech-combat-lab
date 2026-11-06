@@ -16,7 +16,7 @@ source project's file overwrite the other's same-named file.
 ## 0. WHERE WE ARE (2026-11-06, end of session 19) — read this first
 
 **NEXT TOPICS (Daniel, 2026-11-06)** - his list: individual bot logic; group bot logic; more speed;
-GUI; Combat Lab functionality; 3D art for the Combat Lab (art paused: "We've spent most of the week on
+GUI; Combat Lab functionality; (speed: done for now - 12 v 12 about 3x faster, Daniel may go for a full Rust rebuild next week, see Change Record "DECISION"); 3D art for the Combat Lab (art paused: "We've spent most of the week on
 3d"; its next step stays the weapon-block stockpile). Also raised by Claude and open: the unbuilt rules
 (buildings / bridges, crippled + forced withdrawal, spotting / indirect fire, C3, special munitions),
 refreshing the rules zip with TO:AUE / TO:AR, the anti-stall rule, other unit types, scenario features
@@ -36,6 +36,17 @@ CLEARED"). New work goes into this queue:
     sets off an ammo explosion counts the explosion); kill credit = first attack that leaves the target
     destroyed; the analysis in `INTEGRATION__stats_report.py` (Wilson interval, percentiles, the "held at its
     final state" curves); and the page (`INTEGRATION__stats_viewer.html`).
+  - **(n) RUST SPEED WORK** (session 20, 2026-11-06; Change Records "RUST PORT STEP 1" to "STEP 6", "RUST EVALUATE
+    LOOP: TRIED, MEASURED, NOT KEPT" and "DECISION"). Review: each Rust copy is the Python's step for step -
+    `fastcore.FastTable` (`weapon_selection.FireTable.choose`; `fire_modes.Planner.price_spec`), `PathBoard`
+    (`pathfinder._build_terrain_psr` and `ranged_combat._movement_options`, incl. the entry-order quirk where the picker
+    reads a state's FIRST PSR count), `LosBoard` (`los._evaluate`) and `hex_distance` (round half to even); the
+    Python caches (`damage_resolution.get_weapons` / `derived`, `structure_weight.multipliers`, `_ScorerContext`,
+    `fire_state`'s `_damage_state`) invalidate on the right events (slot loss, turn start, battle start; smoke for the
+    LOS snapshot); the new tests (`test_fastcore.py`, `test_fire_tables.py` with `FIRE_TABLE_VERIFY` and
+    `WEAPONS_CACHE_VERIFY`) really exercise the Rust (they fail on a silent fall back, except as noted in the
+    movement-search entry). Everything has the Python as fallback (`config.USE_FASTCORE`, `FASTCORE_PRICING` /
+    `_MOVEMENT` / `_LOS`).
 When a review is done, move its line out of this queue and note it in the
 Change Record.
 
@@ -734,7 +745,8 @@ Princess, decision by decision, the latest battery and why Gladiator loses.
    v. HTML front end (Daniel 2026-10-31: HTML, like MekBay - click the `.exe`, the
    browser shows it, works offline on his own PC); `.blk` later (orbital fire
    support, thousands of units), 'Mechs stay `.mtf`.
-13. **NEXT WEEK (Daniel, 2026-10-31): condense the physics core into something
+13. **(2026-11-06: PARTLY DONE - see Change Records "RUST PORT STEP 1-6"; the full rebuild is Daniel's maybe for the
+   week after, "DECISION" entry.) NEXT WEEK (Daniel, 2026-10-31): condense the physics core into something
    faster.** The game physics are essentially complete (changes only for bugs);
    ongoing work is bot behaviour, which can stay in Python. Plan: survey the
    hot path first (`INTEGRATION__timing`; `MoveEvaluator.evaluate`, LOS,
