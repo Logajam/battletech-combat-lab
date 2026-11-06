@@ -210,6 +210,8 @@ def spot_hazard(mech, mode, fc, hex_label, facing, mp):
     board = water.board()
     if board is None or not terrain_rules.has_psr_terrain(board):
         return 0.0
+    if not terrain_rules.has_hazard_terrain(board):
+        return 0.0                                 # no hex has a hazard: step_hazard and path_hazard are all 0.0
     info = board["hexes"].get(hex_label)
     if info is None:
         return 0.0
@@ -229,7 +231,8 @@ def _safest(mech, options):
     them on a board without hazards. The closing fallback picks among these:
     closing in is never worth walking into lava (2026-10-27)."""
     board = water.board()
-    if not options or board is None or not terrain_rules.has_psr_terrain(board):
+    if (not options or board is None or not terrain_rules.has_psr_terrain(board)
+            or not terrain_rules.has_hazard_terrain(board)):
         return options
     priced = [(round(spot_hazard(mech, o.mode, o.fc, o.label, o.facing, o.mp_spent), 6), o) for o in options]
     low = min(h for h, _ in priced)

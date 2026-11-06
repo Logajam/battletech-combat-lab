@@ -156,6 +156,14 @@ def hex_distance(a: Hex, b: Hex) -> int:
     return round(max(abs(aq - bq), abs(ar - br), abs(as_ - bs)))
 
 
+try:
+    import fastcore as _fastcore          # compiled hot loops (fastcore/)
+    if hasattr(_fastcore, "hex_distance"):        # (the repo's own fastcore/ folder imports as an EMPTY package when not built)
+        hex_distance = _fastcore.hex_distance     # same float operations (round half to even), ~10x quicker
+except ImportError:
+    pass
+
+
 def _cube_round(q: float, r: float, s: float) -> Tuple[int, int, int]:
     """The hex a fractional cube coordinate is in (standard cube rounding)."""
     rq, rr, rs = round(q), round(r), round(s)

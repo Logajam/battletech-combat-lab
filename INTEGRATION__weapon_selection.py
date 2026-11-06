@@ -96,6 +96,8 @@ def reset_table_cache():
     """Clear all memoized tables - see module docstring's caching note."""
     _TABLE_CACHE.clear()
     reset_weapons_cache()
+    import INTEGRATION__structure_weight as structure_weight
+    structure_weight.reset_cache()
 
 
 def _min_range_penalty(minimum, distance):
@@ -609,6 +611,8 @@ _SHARED_TABLES = {}
 
 def reset_shared_tables():
     _SHARED_TABLES.clear()
+    import INTEGRATION__structure_weight as structure_weight
+    structure_weight.reset_cache()
 
 
 def fire_state(mech):

@@ -826,6 +826,13 @@ impl LosBoard {
     }
 }
 
+
+/// pathfinder/los.hex_distance: the straight-line hex distance between two doubled-coordinate hexes.
+#[pyfunction]
+fn hex_distance(a: (i32, i32), b: (i32, i32)) -> i32 {
+    geo_distance(a, b)
+}
+
 #[pymodule]
 fn fastcore(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(best_subset, m)?)?;
@@ -833,5 +840,6 @@ fn fastcore(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<FastTable>()?;
     m.add_class::<PathBoard>()?;
     m.add_class::<LosBoard>()?;
+    m.add_function(wrap_pyfunction!(hex_distance, m)?)?;
     Ok(())
 }

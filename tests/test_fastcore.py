@@ -220,6 +220,25 @@ def the_rust_line_of_sight_matches_the_python_on_real_boards():
     assert pairs >= 6000 and errors >= 20 and blocked >= 300 and modified >= 300, (pairs, errors, blocked, modified)
 
 
+@check
+def the_rust_hex_distance_matches_the_python():
+    """fastcore.hex_distance against los.hex_distance's own formula (cube coordinates, round half to even),
+    for valid hex centres and for any pair of integers (a half-way maximum rounds to even)."""
+    import los
+    if not hasattr(fastcore, "hex_distance"):
+        return
+    rng = random.Random(5)
+
+    def python(a, b):
+        aq, ar, as_ = los._to_cube(a)
+        bq, br, bs = los._to_cube(b)
+        return round(max(abs(aq - bq), abs(ar - br), abs(as_ - bs)))
+    for _ in range(50000):
+        a = (rng.randint(-5, 70), rng.randint(-5, 120))
+        b = (rng.randint(-5, 70), rng.randint(-5, 120))
+        assert fastcore.hex_distance(a, b) == python(a, b), (a, b)
+
+
 def run_all():
     if fastcore is None:
         print("SKIP  fastcore is not built here (pure Python is used) - see this file's docstring")

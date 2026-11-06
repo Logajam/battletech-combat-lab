@@ -117,10 +117,30 @@ def weapon_groups(weapon):
     return weapon_rules.damage_groupings(weapon, total)
 
 
+_MULTIPLIERS = {}      # (weapons, target's damage, side, k) -> the multipliers dict (read-only: callers only .get)
+
+
+def reset_cache():
+    _MULTIPLIERS.clear()
+
+
 def multipliers(attacker_weapons, target, side):
     """{id(weapon): multiplier} of `attacker_weapons` fired at `target`'s
-    `side`. Weapons with no confirmed damage are left out (they never fire)."""
+    `side`. Weapons with no confirmed damage are left out (they never fire).
+    Kept for as long as the weapons and the target's armor / structure stay the same (2026-11-06, speed: the
+    movement scorers asked ~50 000 times in 4 turns of a 12 v 12 battle, nearly all the same question);
+    emptied every turn and at every battle start (weapon_selection.reset_shared_tables / reset_table_cache)."""
     k = config.MOVEMENT_STRUCTURE_WEIGHT
+    key = (tuple((id(w), w.damage_per_shot) for w in attacker_weapons), id(target), side, k,   # (a charged PPC reads 5 higher)
+           tuple((v.get("armor"), v.get("rear_armor"), v.get("structure"), v.get("destroyed"))
+                 for v in target.locations.values()))
+    got = _MULTIPLIERS.get(key)
+    if got is None:
+        got = _MULTIPLIERS[key] = _multipliers(attacker_weapons, target, side, k)
+    return got
+
+
+def _multipliers(attacker_weapons, target, side, k):
     spread = hit_spread(target, side)
     result = {}
     for w in attacker_weapons:

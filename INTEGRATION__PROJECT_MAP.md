@@ -1799,6 +1799,27 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-06 (Claude, session 20), RUST PORT STEP 4: LINE OF SIGHT, HEX DISTANCE, AND THREE PYTHON CACHES. REVIEW
+  PENDING (higher-level model).** Speed only: 51 of 51 checks with and without the Rust built, every reference log
+  identical, benchmark 501 / 495.
+  - `fastcore.LosBoard` (Rust): a copy of `pathfinder/los._evaluate` (Core pp.56-58, 66, 124, 240; TO:AR pp.29, 36, 38)
+    for `los_cache.pair_info` - the hex line (from (0, 0), the same float operations, Python's round half to even), both
+    sides of a border line, woods / ultra-heavy / smoke / fields, partial cover, the target's woods. Python hands it a
+    snapshot of the board (`los_cache._build_rust_los`); `INTEGRATION__smoke` drops it whenever the smoke changes (a
+    trace reads the live board). `config.FASTCORE_LOS`. `los.hex_distance` is the Rust function when built.
+  - `damage_resolution.get_weapons` keeps its answer while the mech's `destroyed_slot_info` keeps its length (every
+    writer of `crits` / `destroyed_slot_info` adds an entry), only while a battle is played (`play_on` switches it on:
+    tests that edit `mech.crits` by hand outside a battle see their edit). `config.WEAPONS_CACHE_VERIFY` compares every
+    cached answer with a fresh scan (on in `tests/test_fire_tables.py`).
+  - `structure_weight.multipliers` kept per (weapons and their damage, target's armor / structure, side, k), emptied each
+    turn; `movement_selection.spot_hazard` / `_safest` return 0.0 at once on a board with no hazard hex
+    (`terrain_rules.has_hazard_terrain`).
+  - Checks: `tests/test_fastcore.py` compares Rust v Python line of sight on 7 boards x with / without smoke x 4 height
+    codes (14,000 pairs: results, entry directions, distances, arcs, off-board errors) and `hex_distance` on 50,000 pairs.
+  - Result, 12 v 12 Gladiator (Legate on), 5 turns: 62.2 s (no Rust, no caches) -> 36.5 s (steps 1-3) -> 23.3 s (now),
+    the same battle: 63% less, 2.7x. Left, by the profile: the `evaluate` loop and Legate's `combine` (Python plumbing
+    around the scorers, ~40%), `future_damage` (~9%), `arcs` (~4%).
+
 - **2026-11-06 (Claude, session 20), RUST PORT STEP 3: THE REACHABLE-SPOT SEARCH (`fastcore.PathBoard`). REVIEW PENDING
   (higher-level model).** Daniel: "Go ahead and do all three" (evaluate loop, reachable spots / movement table, Legate
   future damage). This is the second. Speed only: 51 of 51 checks with and without the Rust built, every reference log
