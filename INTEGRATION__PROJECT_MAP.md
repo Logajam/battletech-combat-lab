@@ -16,40 +16,9 @@ source project's file overwrite the other's same-named file.
 ## 0. WHERE WE ARE (2026-10-30, end of session 15) — read this first
 
 **REVIEW QUEUE - needs a higher-level model's review when there are spare
-cycles** (Daniel's standing order, 2026-10-28; Section 7). Sessions 12-13 were
-reviewed 2026-10-29 (Change Record): one bug fixed (the movement cache kept a
-broken magma crust's old step cost). Items (a) map seams, (b) Battle Value, (c) session 14,
-(i) the Rust trial and (j) the weapon-choice tables were closed 2026-11-06 (Change Record
-"REVIEW: KILL CURVE, RUST, FIRE TABLES; MEGAMEK MAP SEAMS").
-(d) SESSION 14 cont. (Change Record "TEAM AWARENESS..."): `legate.fire_share` (on by default since
-session 15), `_Herd`, `_TeamFire` (the greedy fire distribution both ways, the team value and its
-conversion into the objective's PSR cost - `Extras.team_cost`), off by default.
-(f) SESSION 15 cont. (Change Record "COHESION REWARD..."): `legate._Cohesion`, `legate.brackets`
-(off by default).
-(e) SESSION 15 (Change Record "LEGATE DIAGNOSIS..."): `legate.now_share` (the this-turn fire
-split, now default with LEGATE_FIRE_SPLIT "proportional") and the probe battery
-`tests/legate_probe.py` / `legate_probe_report.py` (its monkeypatches must leave battles untouched).
-(g) SESSION 16 (Change Record "COMBAT LAB TOKENS v4..."): `INTEGRATION__tokens.py` plan / profile /
-hips features, per-location armor thinning, the armor-parser fix, and the block library
-(`data/token_blocks.json`; canopy torso, pod arm, knee discs, weapon sections). Output only: no
-engine or battle result changes. Daniel's verdict 2026-11-03: better Mad Cat properties, still reads as
-cheap; held. Priorities are his call (see INTEGRATION__COMBAT_LAB.md).
-(h) SESSION 17 (Change Record "SAVED STATES..." and "RNG CLEAN-UP..."): `INTEGRATION__saved_state.py`
-(what it saves, the id remapping - units by name, destroyed components re-pointed - and what it leaves
-to rebuild), the orchestrator split (`Battle`, `_start_battle`, `play_on`, `_play_turn`, `_finish`), the
-one-pool RNG (`config.active_rng`), `tests/test_saved_state.py`, `tests/test_rng.py`,
-`check_reference_logs.py --round-trip`. Engine results unchanged (logs identical).
-(l) SESSION 18, 2026-11-04 to 11-06 (Change Record, the entries from "SKELETON-AND-SHELL BUILDER, PHASE 1" to "WORKBENCH:
-SHAREABLE CODES"): the skeleton-and-shell builders - `INTEGRATION__shell.py` (plated look), `INTEGRATION__shell_items.py` (items,
-budgets with the structure-point bulk rule and leg myomer factor, hardpoint placement with rail pins), `INTEGRATION__shell_facet.py`
-(the faceted look: per-archetype bodies, the block library and `pick`, three-part torso, pose, waist and pelvis, the arm hardpoint
-grid, bays / posts / housings, the clear-muzzle rule), `data/token_densities.json`, the layers, `tests/test_token_shell.py`, the
-audit's clip measure, `tools/token_lineup.py`, `tools/token_workbench.py` (+ .html, the Windows bundle). Art only: no engine code.
-(k) COMBAT LAB 3D ART REVIEW PASS (Change Record "COMBAT LAB 3D - REVIEW PASS..."), 2026-11-04: this pass
-reviewed the session 16 3D-art queue items (the "3D model pipeline" bullets in INTEGRATION__COMBAT_LAB.md)
-and fixed what it found; its own changes to `INTEGRATION__tokens.py` (snap helpers `B3.extent` / `shift`,
-`profile_vspan`, `pv` / `side_h` / `top_at` / `sit` / `ell_top` / `ell_rear`, the arm placement),
-`tools/token_audit.py` and the viewer's lighting are open for review in turn.
+cycles** (Daniel's standing order, 2026-10-28; Section 7). EMPTY: every item, (a) to (l), was reviewed
+2026-11-06 (Change Record "REVIEW: KILL CURVE, RUST, FIRE TABLES; MEGAMEK MAP SEAMS" and "REVIEW QUEUE
+CLEARED"). New work from here on goes into this queue again.
 When a review is done, move its line out of this queue and note it in the
 Change Record.
 
@@ -1804,6 +1773,38 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-11-06 (Claude), REVIEW QUEUE CLEARED: LEGATE, SAVED STATES, COMBAT LAB ART.** Review of queue items
+  (d), (e), (f), (h), (g), (k), (l) by the higher-level model (Daniel: "clear the rest of the review board").
+  - (d) / (f) Legate team options: `fire_share` / `now_share`, `MultiLifetime`, `_Herd`, `_Cohesion`,
+    `brackets`, `_TeamFire` read through; the team-value arithmetic checked (the score comes out as dealt +
+    the team's future damage, as documented; with the exchange, as documented). Two fixes:
+    (1) `_FRIEND_DMG` (team fire, LEGATE_TEAM_VALUE - off by default) is now emptied every Movement Phase:
+    keyed by positions only, a teammate standing where it stood on an earlier turn reused damage worked out
+    before either unit was hurt. (2) BOT CHANGE: `Extras.adjust` left out the fire of an enemy whose
+    ESTIMATED end hex is the spot being scored, so those spots looked safer than they are; that enemy now
+    shoots from where it stands (it will end somewhere else). About 1% of Gladiator moves (2 of 198 in a
+    probe battle). A/B, same 20 seeds, baseline battery (Princess wins / draws / Gladiator wins; 'Mechs left
+    P / G; damage dealt P / G; turns; battles at the cap): without 11 / 1 / 8, 2.60 / 1.75, 1529 / 1378, 37.6,
+    2; with 11 / 1 / 8, 2.55 / 1.95, 1508 / 1345, 36.5, 1 (7 battles identical) - level within the noise,
+    kept as the correct score. These are also the first battery numbers on the MegaMek-seam field (32 x 17):
+    the new BASELINE (the older ones, 8 / 4 / 8 and before, were on 33 x 17).
+  - (e) The probe battery's monkeypatches (wrappers that record and pass the original answer through):
+    battle 1 with `--calib` gives exactly the battery's battle 1 (Red after 40 turns, 4 left, 1750 / 1177
+    dealt). One harmless quirk: `--calib`'s raw (k = 1.0) pass can reuse a physical-attack Worth built under
+    the configured weight (`movement_attacks._WORTH` keys by unit and HP, not the weight) - the diagnostic's
+    raw column only, never the battle.
+  - (h) Saved states: the round-trip check passes (every reference battle saved, reloaded and played on
+    after every turn, byte for byte); module caches not emptied on a load (`_WORTH`, the LOS / hex-property
+    boards) key by an object they hold or compare, so a reused id can't hit them. Nothing to fix.
+  - (g) / (k) / (l) Combat Lab art (art checks only, Section 7): the workbench is safe (codes are JSON, a
+    unit name only matches a file in the library, the Windows starter binds 127.0.0.1); the argmin guard
+    covers the reported crash; pyflakes clean; 300 random library units built in all three bodies with no
+    failure. Fixed: `tokens.read_unit` skipped PATCHWORK armor lines ("LA armor:IS Reactive(Inner
+    Sphere):8"), drawing those units (e.g. the Spindrift SDT-1) with no armor - the points are now read after
+    the last colon. Found: `tests/test_token_shell.py` prints PASS but SKIPS its geometry checks when scipy /
+    trimesh are missing - they were missing in this container; `requirements.txt` now lists them (art only).
+  - Checks: 50 of 50, reference logs identical, the round trip identical.
 
 - **2026-11-06 (Claude), REVIEW: KILL CURVE, RUST, FIRE TABLES; MEGAMEK MAP SEAMS.** Review of queue items
   (c), (i), (j) by the higher-level model, and Daniel's map-seam call. 50 of 50 checks, every reference log
