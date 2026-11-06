@@ -171,8 +171,24 @@ class MovementCandidate:
     attack: str = ""            # "charge" / "dfa" for an attack declared in movement (INTEGRATION__movement_attacks)
 
 
+class _ScorerContext:
+    """What every scorer of one (firer, target) pair reads of the units and none of them changes while an evaluator
+    lives (2026-11-06, speed: ~20,000 scorers were each reading them again in a 4-turn 12 v 12 battle): the
+    firer's heat dissipation, weapons, damage table and other heat, and the two units' states for the shared
+    fire tables' key."""
+    __slots__ = ("dissipation", "weapons", "table", "other", "states")
+
+    def __init__(self, mech, target):
+        self.dissipation = compute_heat_dissipation(mech)
+        self.weapons = get_weapons(mech)
+        self.table = weapon_selection.build_expected_damage_table(mech)
+        self.other = heat.other_heat(mech)
+        self.states = (weapon_selection.fire_state(mech),
+                       weapon_selection.fire_state(target) if target is not None else None)
+
+
 def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_for_side=None, planner=None,
-                              extra_dissipation=0, share=None):
+                              extra_dissipation=0, share=None, context=None):
     """Returns score(distance, pre_tn, move_heat) -> expected damage of the
     weapons select_weapons_to_fire() would actually fire, memoized for this
     call. Dissipation and other heat are read once (they can't change
@@ -190,11 +206,15 @@ def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_fo
     share (2026-11-03): what else, besides the units' state, makes this scorer's
     answers what they are (its role: aimed or not, AMS, water) - scorers with the
     same share and state use one weapon_selection.FireTable. None = a private one."""
-    dissipation = compute_heat_dissipation(mech) + extra_dissipation
-    weapons = get_weapons(mech)                                   # fixed for the scorer's life
-    table = weapon_selection.build_expected_damage_table(mech)
+    if context is None:
+        dissipation = compute_heat_dissipation(mech) + extra_dissipation
+        weapons = get_weapons(mech)                                   # fixed for the scorer's life
+        table = weapon_selection.build_expected_damage_table(mech)
+        other = heat.other_heat(mech)
+    else:                                                             # the same, read once for the pair
+        dissipation = context.dissipation + extra_dissipation
+        weapons, table, other = context.weapons, context.table, context.other
     scales: Dict[str, dict] = {}
-    other = heat.other_heat(mech)
     memo: Dict[tuple, float] = {}
     # The weapon choice by (distance, pre-TN, side), whatever the movement heat (2026-11-03,
     # Daniel's lookup table - weapon_selection.FireTable). Another bot's fire control
@@ -203,7 +223,8 @@ def _make_heat_limited_scorer(mech, tn_adjust, unavailable=frozenset(), scale_fo
         fire_table = weapon_selection.FireTable(mech, tn_adjust, unavailable, weapons, table, planner)
     else:
         fire_table = weapon_selection.shared_fire_table(share, mech, tn_adjust, unavailable, weapons, table, planner,
-                                                        dissipation, other, scale_for_side is not None)
+                                                        dissipation, other, scale_for_side is not None,
+                                                        None if context is None else context.states)
 
     def score(distance: int, pre_tn: int, move_heat: int, side: str = "") -> float:
         key = (distance, pre_tn, move_heat, side)
@@ -702,6 +723,7 @@ class MoveEvaluator:
             torpedoes = frozenset(id(w) for w in usable if weapon_rules.is_torpedo(w))   # underwater only (p.187)
             planners: Dict[tuple, object] = {}     # fire_modes.Planner per (AMS count, water) (shares its memo)
             w_locs = weapon_locations(who)
+            pair = []                               # the _ScorerContext of this pair, made at the first scorer
 
             def get(key, held=frozenset(), ams_k=0, wet=None):
                 # held: weapons kept back because their limb attacks in the Physical phase
@@ -723,9 +745,11 @@ class MoveEvaluator:
                             w_adjust = water.range_adjuster(who, w_locs, w_state, adjust)
                             planner = planners[(ams_k, w_state)] = fire_modes.Planner(
                                 who, target, w_adjust, fire_modes.ams_share(ams_k, usable))
+                        if not pair:
+                            pair.append(_ScorerContext(who, target))
                         scorer = by_unavailable[(unavailable, ams_k, w_state, bonus)] = _make_heat_limited_scorer(
                             who, planner.adjust, unavailable, scale, planner, bonus,
-                            share=(role, ams_k, w_state, bonus))
+                            share=(role, ams_k, w_state, bonus), context=pair[0])
                     cache[(key, held, ams_k, wet)] = scorer
                 return scorer
             return get
