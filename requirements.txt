@@ -1,1 +1,7 @@
 numpy
+# Combat Lab 3D art only (the engine needs none of these). Without them tests/test_token_shell.py
+# still prints PASS but skips its geometry checks (review 2026-11-06); python-fcl is the workbench's
+# "Run checks" button.
+scipy
+trimesh
+python-fcl
