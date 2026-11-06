@@ -1799,6 +1799,47 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-06 (Claude, session 20), RUST PORT STEP 1: THE WEAPON CHOICE TABLE (`fastcore.FastTable`). REVIEW PENDING
+  (higher-level model).** Daniel: "Lets start with weapon pricing. See how much of an improvement we can get."
+  Speed only: 51 of 51 checks with and without the Rust built, every reference log identical, benchmark 501 / 495.
+  - `fastcore/src/lib.rs`: `FastTable`, a copy of `weapon_selection.FireTable.choose` - candidates in weapon order,
+    value = table value x the side's structure-weight scale, the row cache, the knapsack levels solved again only at
+    a larger budget, Phase 2 padding. Same sums in the same order, so the same answer to the last bit. Plain weapons
+    are priced from flat grids (`build_expected_damage_table` now keeps one per weapon, `table["flat"]`); missiles
+    and other special weapons call back into the Python planner (`fire_modes.Planner`) for their value and heat -
+    that part is NOT ported yet.
+  - `weapon_selection.FireTable.choose_value` (what the movement scorer reads - the value only) builds the
+    FastTable on first use (`_build_fast`; falls back to Python when not built, `config.USE_FASTCORE` off, a
+    non-integer heat, more than 64 weapons, or a planner heat the Rust can't take). `ranged_combat` `score()` calls it.
+  - Checks: `config.FIRE_TABLE_VERIFY` now also compares the Rust answer (value, heat, chosen weapons) with
+    Python's on every call (`tests/test_fire_tables.py`, all 3717 tables of a 12 v 12 matched);
+    `the_rust_fire_table_is_really_used_when_built` fails if the tables silently fall back to Python.
+  - Result, 12 v 12 Gladiator (Legate on), 2 turns: 29.3 s -> 24.0 s (18% less), same battle. What is left of weapon
+    pricing in the profile: the planner callbacks (135k in those 2 turns, ~16% of a profiled run); to port them
+    the planner's per-weapon constants (bracket TN offsets, expected hit worth per bracket) go over once per table
+    and the Rust prices the (distance, pre-TN) grid and picks the munition / rate itself (stubs' policy: best
+    value, ties to the plain kind; rate: STUB_RATE_OF_FIRE).
+  - `tests/test_hazards.py` `magma_heat_is_uncapped` failed ~3 runs in 100 with no code change (a heat-phase
+    ammo-explosion roll at 30+ heat was unseeded); it now scripts the dice.
+  - Build: `cd fastcore && maturin build --release && pip install --force-reinstall target/wheels/*.whl`
+    (needs `pip install maturin`; `tests/test_fastcore.py` skips when not built).
+
+- **2026-11-06 (Claude, session 20), RUST PORT - PROFILE AND PLAN. REVIEW PENDING (higher-level model).** Daniel:
+  20 battles an hour (the 12 v 12 baseline battery, ~3 min a battle on one core) is too slow to iterate on bot
+  logic; "Go for stage 2 [the compiled scoring]. If nothing else, slowly port over to rust one section at a time."
+  No code changed yet. Profile (cProfile, 12 v 12 Gladiator, Legate on, 3 turns, 176 s; real time is ~half):
+  `evaluate` 50% cumulative (88 s) of which the weapon choice (`FireTable.choose` 46 s, `fire_candidates` 34 s,
+  fire_modes planner 25 s, knapsack 6 s) is most; `reduced_options` / `_movement_options` 15% (27 s);
+  `build_movement_table` + `_build_terrain_psr` 11% (19 s); LOS (`los.walk`, `hex_distance`) ~5%; Legate
+  `future_damage` ~9%. The spread is FLAT: no section is over ~26%, so one section alone gains 1.1-1.4x (Amdahl);
+  the 30x Daniel hopes for needs most of the engine in Rust. CORRECTION to the 2026-11-06 estimate "20 battles in
+  well under 10 minutes from stage 2 alone": that held for the exhaustive search, not the grid default.
+  Section order, easiest boundary first (each one keeps the reference logs byte-identical, Python stays the
+  fallback and the spec, as `fastcore/` does): (1) pathfinder movement table (flat data: step costs per hex /
+  direction in, table out; ~11%); (2) LOS and hex distance (~5%); (3) weapon pricing: per-weapon rows, fire table,
+  knapsack (~26%; the fire_modes planner for missiles is the hard part); (4) reduced_options / spot hazards;
+  (5) Legate future damage; then the movement score itself. Estimate: ~6-10M tokens for all of it.
+
 - **2026-11-06 (Claude, session 20), BATTLE STATISTICS - REVIEW PENDING (higher-level model).** Daniel asked what
   the Monte Carlo should output; he and Claude sorted three AIs' lists (his answers: Section 5 "Battle statistics").
   Built (stages 1-3 of 5):

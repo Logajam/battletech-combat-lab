@@ -87,9 +87,220 @@ fn solve(values: &[f64], heats: &[i64], heat_budget: i64) -> PyResult<(Vec<i64>,
     Ok((heat_of, value_of, mask_of))
 }
 
+
+// ---------------------------------------------------------------------------------------------
+// FastTable (2026-11-06, session 20): a Rust copy of weapon_selection.FireTable.choose.
+//
+// Python builds one per FireTable from flat per-weapon data (see weapon_selection._build_fast) and
+// asks it for the weapon choice at (distance, pre-TN, side, movement heat). What it does is exactly
+// weapon_selection.fire_candidates -> knapsack (levels cached per row, solved again only at a larger
+// budget) -> _finish_choice (Phase 2 padding), step for step, so the answer is the Python's to the
+// last bit: candidates in weapon order, values = table value x the side's scale, the same sums in the
+// same order, the same ties.
+//   kind: 0 = never a candidate, 1 = a plain weapon (priced from its grid), 2 = a special weapon,
+//   priced by the Python planner through `special(i, distance, pre_tn) -> None | (value, heat)`.
+// ---------------------------------------------------------------------------------------------
+const STRIDE: usize = 17; // pre-TN 0..=16 (weapon_selection.PRE_TN_MIN / MAX)
+
+struct Row {
+    cand: Vec<usize>,          // weapon index of each candidate, in weapon order
+    values: Vec<f64>,
+    heats: Vec<i64>,
+    has_negative: bool,
+    levels: Vec<(i64, f64, u64)>,
+    budget: i64,
+}
+
+#[pyclass]
+struct FastTable {
+    kind: Vec<u8>,
+    heat: Vec<i64>,            // weapon.heat (a plain weapon's cost; Phase 2 pads with it for every kind)
+    energy: Vec<bool>,
+    ranges: Vec<[i64; 3]>,     // short, medium, long
+    adj: Vec<[i64; 3]>,        // tn_adjust(weapon, bracket) for short, medium, long
+    adjust: bool,              // False: tn_adjust was None
+    grids: Vec<Vec<f64>>,      // value[distance * 17 + pre_tn], NaN = no row at that distance
+    max_distance: i64,
+    current_heat: i64,
+    min_heat: i64,
+    max_heat: i64,
+    dissipation: i64,
+    other_heat: i64,
+    special: Option<Py<PyAny>>,
+    scales: Vec<Option<Vec<f64>>>, // by side id; id 0 = no scale
+    rows: HashMap<(i64, i64, u32), Row>,
+}
+
+#[pymethods]
+impl FastTable {
+    #[new]
+    #[pyo3(signature = (kind, heat, energy, ranges, adj, adjust, grids, max_distance, current_heat, min_heat, max_heat, dissipation, other_heat, special))]
+    #[allow(clippy::too_many_arguments)]
+    fn new(
+        kind: Vec<u8>, heat: Vec<i64>, energy: Vec<bool>, ranges: Vec<[i64; 3]>, adj: Vec<[i64; 3]>, adjust: bool,
+        grids: Vec<Vec<f64>>, max_distance: i64, current_heat: i64, min_heat: i64, max_heat: i64,
+        dissipation: i64, other_heat: i64, special: Option<Py<PyAny>>,
+    ) -> PyResult<Self> {
+        let n = kind.len();
+        if n > 64 || heat.len() != n || energy.len() != n || ranges.len() != n || adj.len() != n || grids.len() != n {
+            return Err(pyo3::exceptions::PyValueError::new_err("FastTable: bad weapon lists"));
+        }
+        Ok(FastTable {
+            kind, heat, energy, ranges, adj, adjust, grids, max_distance, current_heat, min_heat, max_heat,
+            dissipation, other_heat, special, scales: vec![None], rows: HashMap::new(),
+        })
+    }
+
+    /// Register the per-weapon multipliers of a side (structure weighting); returns its id (>= 1).
+    fn add_scale(&mut self, scale: Vec<f64>) -> PyResult<u32> {
+        if scale.len() != self.kind.len() {
+            return Err(pyo3::exceptions::PyValueError::new_err("FastTable: bad scale list"));
+        }
+        self.scales.push(Some(scale));
+        Ok((self.scales.len() - 1) as u32)
+    }
+
+    /// The expected damage of the weapon choice (what the movement scorer reads).
+    fn choose_value(&mut self, py: Python<'_>, distance: i64, pre_tn: i64, side: u32, movement_heat: i64) -> PyResult<f64> {
+        Ok(self.choose_inner(py, distance, pre_tn, side, movement_heat)?.0)
+    }
+
+    /// (expected damage, heat, chosen weapon indices in weapon order) - for the equality checks.
+    fn choose_full(&mut self, py: Python<'_>, distance: i64, pre_tn: i64, side: u32, movement_heat: i64)
+        -> PyResult<(f64, i64, Vec<usize>)> {
+        let (v, h, mask) = self.choose_inner(py, distance, pre_tn, side, movement_heat)?;
+        Ok((v, h, (0..self.kind.len()).filter(|&i| mask & (1u64 << i) != 0).collect()))
+    }
+}
+
+impl FastTable {
+    fn build_row(&self, py: Python<'_>, distance: i64, pre_tn: i64, side: u32) -> PyResult<Row> {
+        let scale = self.scales[side as usize].as_ref();
+        let mut row = Row { cand: vec![], values: vec![], heats: vec![], has_negative: false, levels: vec![], budget: -1 };
+        for i in 0..self.kind.len() {
+            let (value, heat) = match self.kind[i] {
+                0 => continue,
+                2 => {
+                    let cb = self.special.as_ref().ok_or_else(|| {
+                        pyo3::exceptions::PyValueError::new_err("FastTable: a special weapon with no planner")
+                    })?;
+                    let got = cb.call1(py, (i, distance, pre_tn))?;
+                    if got.is_none(py) {
+                        continue;
+                    }
+                    let (v, h): (f64, i64) = got.extract(py)?;
+                    (match scale { Some(s) => v * s[i], None => v }, h)
+                }
+                _ => {
+                    if distance < 0 || distance > self.max_distance {
+                        continue;
+                    }
+                    let [short, medium, long] = self.ranges[i];
+                    let b = if distance <= short { 0 } else if distance <= medium { 1 } else if distance <= long { 2 } else { continue };
+                    let mut tn = pre_tn;
+                    if self.adjust {
+                        tn = (pre_tn + self.adj[i][b]).clamp(0, (STRIDE - 1) as i64);
+                    }
+                    if tn < 0 || tn >= STRIDE as i64 {
+                        return Err(pyo3::exceptions::PyValueError::new_err("FastTable: pre-TN out of range"));
+                    }
+                    let v = self.grids[i][distance as usize * STRIDE + tn as usize];
+                    if v.is_nan() {
+                        continue; // no row at this distance
+                    }
+                    (match scale { Some(s) => v * s[i], None => v }, self.heat[i])
+                }
+            };
+            row.cand.push(i);
+            row.values.push(value);
+            row.heats.push(heat);
+            if heat < 0 {
+                row.has_negative = true;
+            }
+        }
+        Ok(row)
+    }
+
+    fn choose_inner(&mut self, py: Python<'_>, distance: i64, pre_tn: i64, side: u32, movement_heat: i64)
+        -> PyResult<(f64, i64, u64)> {
+        let others = self.current_heat + movement_heat + self.other_heat;
+        let heat_budget = std::cmp::max(0, self.max_heat + self.dissipation - others);
+        let min_weapon_heat = self.min_heat + self.dissipation - others;
+        let key = (distance, pre_tn, side);
+        if !self.rows.contains_key(&key) {
+            let row = self.build_row(py, distance, pre_tn, side)?;
+            self.rows.insert(key, row);
+        }
+        let row = self.rows.get_mut(&key).unwrap();
+        // Phase 1: the knapsack (FireTable.choose).
+        let (mut total_ed, mut total_heat, picked): (f64, i64, u64);
+        if row.has_negative {
+            let (heat_of, value_of, mask_of) = solve(&row.values, &row.heats, heat_budget)?;
+            let mut best = 0;
+            for k in 1..value_of.len() {
+                if value_of[k] > value_of[best] {
+                    best = k;
+                }
+            }
+            total_ed = value_of[best];
+            total_heat = heat_of[best];
+            picked = mask_of[best];
+        } else {
+            if heat_budget > row.budget {
+                let (heat_of, value_of, mask_of) = solve(&row.values, &row.heats, heat_budget)?;
+                row.levels = (0..heat_of.len()).map(|k| (heat_of[k], value_of[k], mask_of[k])).collect();
+                row.budget = heat_budget;
+            }
+            // best_within: the first level, in insertion order, with the highest value within the budget.
+            let mut best: Option<(i64, f64, u64)> = None;
+            for &(h, v, m) in row.levels.iter() {
+                if h <= heat_budget && (best.is_none() || v > best.unwrap().1) {
+                    best = Some((h, v, m));
+                }
+            }
+            let (h, v, m) = best.unwrap_or((0, 0.0, 0));
+            total_ed = v;
+            total_heat = h;
+            picked = m;
+        }
+        // The chosen candidates' weapon bits (picked is a mask over candidates).
+        let mut selected: u64 = 0;
+        for (c, &w) in row.cand.iter().enumerate() {
+            if picked & (1u64 << c) != 0 {
+                selected |= 1u64 << w;
+            }
+        }
+        // Phase 2: pad toward the min_heat floor with unfired energy weapons (_finish_choice).
+        if self.min_heat > 0 && total_heat < min_weapon_heat {
+            let remaining = heat_budget - total_heat;
+            let mut leftovers: Vec<(usize, f64)> = Vec::new();
+            for (c, &w) in row.cand.iter().enumerate() {
+                if selected & (1u64 << w) == 0 && self.energy[w] && self.heat[w] <= remaining {
+                    leftovers.push((w, row.values[c]));
+                }
+            }
+            // sort(key=ed, reverse=True) is stable: equal values keep their candidate order.
+            leftovers.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+            for (w, ed) in leftovers {
+                if total_heat >= min_weapon_heat {
+                    break;
+                }
+                if self.heat[w] > heat_budget - total_heat {
+                    continue;
+                }
+                selected |= 1u64 << w;
+                total_heat += self.heat[w];
+                total_ed += ed;
+            }
+        }
+        Ok((total_ed, total_heat, selected))
+    }
+}
+
 #[pymodule]
 fn fastcore(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(best_subset, m)?)?;
     m.add_function(wrap_pyfunction!(knapsack_levels, m)?)?;
+    m.add_class::<FastTable>()?;
     Ok(())
 }
