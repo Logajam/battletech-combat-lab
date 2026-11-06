@@ -165,6 +165,80 @@ def the_rust_movement_search_matches_the_python_on_real_boards():
     assert compared >= 120 and psr_boards >= 60 and rust_used == compared, (compared, psr_boards, rust_used)
 
 
+@check
+def the_rust_line_of_sight_matches_the_python_on_real_boards():
+    """fastcore.LosBoard against the Python trace (los_cache.pair_info): the same LOSResult, entry direction,
+    distance and arcs for random pairs on boards with woods, hills, water, buildings and fields, standing, prone
+    and superheavy heights, with and without smoke - and the same ValueError for a line off the board."""
+    import INTEGRATION__config as config
+    import INTEGRATION__los_cache as geo_cache
+    import hex_geometry
+    import los
+    from board_parser import parse_board_file
+    if geo_cache._fastcore is None:
+        print("      (LosBoard not built: skipped)")
+        return
+    rng = random.Random(77)
+    heights = [2, 1, los.SUPERHEAVY_STANDING, los.SUPERHEAVY_PRONE]
+    pairs = errors = blocked = modified = 0
+    for board_name in ("16x17_Desert_Hills.board", "16x17_Hilltops_1.board", "16x17_Large_Lakes_1.board",
+                       "16x17_Scattered_Woods.board", "16x17_Military_Base_1.board", "16x17_Grassland_1.board",
+                       "16x17_Badlands_2_Hazardous_Liquid.board"):
+        for smoky in (False, True):
+            terrain = parse_board_file(config.data_path(board_name))
+            labels = sorted(terrain["hexes"])
+            if smoky:
+                for label in rng.sample(labels, 25):
+                    terrain["hexes"][label]["smoke"] = {"density": rng.choice("12"), "until": 9}
+            coords = [hex_geometry.parse_hex_label(lb) for lb in labels]
+            asked = []
+            for _ in range(500):
+                a, t = rng.choice(coords), rng.choice(coords)
+                if rng.random() < 0.02:
+                    t = (t[0] + 40, t[1])                              # off the board
+                asked.append((a, t, rng.choice(heights), rng.choice(heights)))
+
+            def answers(fast):
+                config.FASTCORE_LOS = fast
+                geo_cache.reset()
+                geo_cache.invalidate_rust()
+                out = []
+                for a, t, ah, th in asked:
+                    try:
+                        out.append(geo_cache.pair_info(a, t, terrain, ah, th))
+                    except ValueError:
+                        out.append("off the board")
+                return out
+            python, rust = answers(False), answers(True)
+            config.FASTCORE_LOS = True
+            assert geo_cache._rust_los(terrain) is not None      # (a silent fall back would pass the rest)
+            assert python == rust, [(q, p, r) for q, p, r in zip(asked, python, rust) if p != r][:3]
+            pairs += len(asked)
+            errors += python.count("off the board")
+            blocked += sum(1 for r in python if r != "off the board" and not r[0].los)
+            modified += sum(1 for r in python if r != "off the board" and r[0].modifier)
+    assert pairs >= 6000 and errors >= 20 and blocked >= 300 and modified >= 300, (pairs, errors, blocked, modified)
+
+
+@check
+def the_rust_hex_distance_matches_the_python():
+    """fastcore.hex_distance against los.hex_distance's own formula (cube coordinates, round half to even),
+    for valid hex centres and for any pair of integers (a half-way maximum rounds to even)."""
+    import los
+    if not hasattr(fastcore, "hex_distance"):
+        return
+    rng = random.Random(5)
+
+    def python(a, b):
+        aq, ar, as_ = los._to_cube(a)
+        bq, br, bs = los._to_cube(b)
+        return round(max(abs(aq - bq), abs(ar - br), abs(as_ - bs)))
+    for _ in range(50000):
+        a = (rng.randint(-5, 70), rng.randint(-5, 120))
+        b = (rng.randint(-5, 70), rng.randint(-5, 120))
+        assert fastcore.hex_distance(a, b) == python(a, b), (a, b)
+
+
 def run_all():
     if fastcore is None:
         print("SKIP  fastcore is not built here (pure Python is used) - see this file's docstring")

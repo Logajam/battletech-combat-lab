@@ -46,9 +46,11 @@ def set_board(terrain_map):
             _BOARD["hexes"][label].pop("smoke", None)
     _SMOKY.clear()
     _BOARD = terrain_map
+    geo_cache.invalidate_rust()           # the Rust line of sight reads a snapshot of the board's smoke
 
 
 def _changed():
+    geo_cache.invalidate_rust()
     if _BOARD is not None:
         geo_cache.board(_BOARD).clear()
 

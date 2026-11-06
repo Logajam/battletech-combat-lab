@@ -59,10 +59,11 @@ def one_large_knapsack_filtered_is_the_small_knapsack():
 
 
 def battle(entries, seed, turns, **settings):
-    names = ["FORCES", "DEPLOYMENT_DEPTH", "WORKERS", "REPLAY_BATTLES", "FIRE_TABLE_VERIFY"] + list(settings)
+    names = ["FORCES", "DEPLOYMENT_DEPTH", "WORKERS", "REPLAY_BATTLES", "FIRE_TABLE_VERIFY", "WEAPONS_CACHE_VERIFY"] + list(settings)
     saved = {n: getattr(config, n) for n in names}
     config.FORCES, config.DEPLOYMENT_DEPTH, config.WORKERS, config.REPLAY_BATTLES = entries, 0, 1, 0
     config.FIRE_TABLE_VERIFY = True
+    config.WEAPONS_CACHE_VERIFY = True
     for n, v in settings.items():
         setattr(config, n, v)
     try:

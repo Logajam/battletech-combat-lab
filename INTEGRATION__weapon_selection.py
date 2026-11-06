@@ -71,7 +71,7 @@ import INTEGRATION__config  # noqa: E402,F401 - ensures bare "config" is registe
 import INTEGRATION__expected_damage as expected_damage  # noqa: E402
 import INTEGRATION__weapon_rules as weapon_rules  # noqa: E402
 import INTEGRATION__fire_modes as fire_modes  # noqa: E402
-from damage_resolution import get_weapons  # noqa: E402 - MECHSIM
+from damage_resolution import get_weapons, reset_weapons_cache  # noqa: E402 - MECHSIM
 from combat import hit_probability  # noqa: E402 - PATHFINDER; reuse the confirmed P(2d6>=tn) table, don't reimplement it
 
 # --- Range-bracket TN modifiers - same values PATHFINDER__combat.py uses
@@ -95,6 +95,9 @@ _TABLE_CACHE = {}  # (mech id, cache key) -> table dict
 def reset_table_cache():
     """Clear all memoized tables - see module docstring's caching note."""
     _TABLE_CACHE.clear()
+    reset_weapons_cache()
+    import INTEGRATION__structure_weight as structure_weight
+    structure_weight.reset_cache()
 
 
 def _min_range_penalty(minimum, distance):
@@ -608,6 +611,8 @@ _SHARED_TABLES = {}
 
 def reset_shared_tables():
     _SHARED_TABLES.clear()
+    import INTEGRATION__structure_weight as structure_weight
+    structure_weight.reset_cache()
 
 
 def fire_state(mech):

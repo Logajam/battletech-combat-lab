@@ -347,6 +347,16 @@ def step_hazard(info, legs: int = 2) -> float:
     return out
 
 
+def has_hazard_terrain(terrain_map) -> bool:
+    """Does any hex of this board carry a hazard feature (magma, hazardous liquid)? Cached on the board;
+    without one every step_hazard is 0.0 (2026-11-06, speed: movement scoring asks per spot)."""
+    flag = terrain_map.get("_hazard_terrain")
+    if flag is None:
+        flag = terrain_map["_hazard_terrain"] = any(
+            f in info["features"] for info in terrain_map["hexes"].values() for f in HAZARD_FEATURES)
+    return flag
+
+
 def has_psr_terrain(terrain_map) -> bool:
     """Can any step on this board force a terrain PSR - rubble, sand, mud,
     depth 1+ water, or a level change (a backward level change)? Or hurt -

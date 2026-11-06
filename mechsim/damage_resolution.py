@@ -67,6 +67,7 @@ the corrected rule.
 """
 
 import math
+import weakref
 
 import re
 
@@ -726,6 +727,42 @@ def get_weapons(mech):
     Returns a plain list of Equipment instances (category == "weapon" only).
     Does not distinguish ammo state, heat-scale effects, or anything else -
     just "which weapon objects can still theoretically fire.\""""
+    # Kept for as long as the mech's destroyed-slot record keeps its length (2026-11-06, speed: this was called
+    # ~90 times a second in a 12 v 12 battle): every writer of mech.crits or destroyed_slot_info in the code adds
+    # an entry there, so a new length is the signal that a slot was lost. Cleared with the weapon tables
+    # (reset_weapons_cache, from weapon_selection.reset_table_cache) and checked against a fresh scan by
+    # config.WEAPONS_CACHE_VERIFY (tests/test_fire_tables.py).
+    if not _CACHE_ON:
+        return _scan_weapons(mech)
+    n = len(mech.destroyed_slot_info)
+    hit = _WEAPONS.get(id(mech))
+    if hit is not None and hit[1] == n and hit[0]() is mech:
+        got = hit[2]
+    else:
+        got = tuple(_scan_weapons(mech))
+        _WEAPONS[id(mech)] = (weakref.ref(mech, lambda _, key=id(mech): _WEAPONS.pop(key, None)), n, got)
+    if config.WEAPONS_CACHE_VERIFY and got != tuple(_scan_weapons(mech)):
+        raise AssertionError(f"get_weapons cache is stale for {getattr(mech, 'side_name', mech)}")
+    return list(got)
+
+
+_WEAPONS = {}     # id(mech) -> (weakref to the mech, len(destroyed_slot_info), tuple of its live weapons)
+_CACHE_ON = False  # only while a battle is played (orchestrator.play_on): a test that edits mech.crits by hand and
+                   # calls get_weapons outside a battle must see its edit
+
+
+def reset_weapons_cache():
+    _WEAPONS.clear()
+
+
+def weapons_cache(on):
+    """Switch the get_weapons cache on (a battle starts or resumes) or off, emptied either way."""
+    global _CACHE_ON
+    _CACHE_ON = bool(on)
+    _WEAPONS.clear()
+
+
+def _scan_weapons(mech):
     destroyed_ids = {info["instance_id"] for info in mech.destroyed_slot_info.values()
                       if info["instance_id"] is not None}
     seen_ids = set()
