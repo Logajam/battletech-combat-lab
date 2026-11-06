@@ -26,9 +26,8 @@ terrain no longer joins up as drawn; rows are fine - 17 + 1 is even). Two blank
 columns (or none, as MegaMek abuts boards) would keep the board as drawn.
 (b) BATTLE VALUE - 26 more units match the published values the reviewer
 recalled. The Archer ARC-2R is SETTLED: Daniel's BV breakdown (2026-11-03) gives
-1,477, ours exactly (the recalled 1415 was wrong; now a test). Still open: the
-Crusader CRD-3R (ours 1317, recalled 1294) - recalled from memory, so check it
-against a breakdown or MegaMek before changing anything.
+1,477, ours exactly (the recalled 1415 was wrong; now a test). The Crusader CRD-3R (ours 1317, recalled 1294) is
+SETTLED too: Daniel, 2026-11-06 - our calculated value matches Mordel, so the recalled figure was the error.
 (d) SESSION 14 cont. (Change Record "TEAM AWARENESS..."): `legate.fire_share` (on by default since
 session 15), `_Herd`, `_TeamFire` (the greedy fire distribution both ways, the team value and its
 conversion into the objective's PSR cost - `Extras.team_cost`), off by default.
@@ -1816,6 +1815,8 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-11-06 (Claude), BV REVIEW ITEM (b) CLOSED** (Daniel: "the BV difference was a non issue. Calculated value matches Mordel"). Crusader CRD-3R stays at 1317; review item (b) removed from the queue. Docs only.
 
 - **2026-11-05 (Claude), session 18 - WORKBENCH: SHAREABLE CODES; A CRASH GUARD** (Daniel: "error: attempt to get argmin of an
   empty sequence" - a Clan LB 20-X on an arm with no lower arm or hand actuator; "as a feature, a copyable code that I can paste so
