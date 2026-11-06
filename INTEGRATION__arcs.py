@@ -138,7 +138,13 @@ MECH_TURRET_NAMES = ("SHOULDERTURRET", "HEADTURRET")
 
 def mech_turrets(mech):
     """{location: "shoulder" / "head"} for the 'Mech's shoulder and head
-    turrets (TO:AUE p.159), whether working or locked."""
+    turrets (TO:AUE p.159), whether working or locked. Shared and kept while no
+    slot is lost (damage_resolution.derived, 2026-11-06): do not edit it."""
+    from damage_resolution import derived        # (MECHSIM; imported here: this module sits below it)
+    return derived(mech, "mech_turrets", _mech_turrets)
+
+
+def _mech_turrets(mech):
     out = {}
     for loc, slots in mech.crits.items():
         for s in slots:

@@ -1799,6 +1799,23 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-06 (Claude, session 20), RUST PORT STEP 5: MORE CACHES, AND WHERE THE TIME IS NOW. REVIEW PENDING (higher-level
+  model).** Speed only: 51 of 51 checks with and without the Rust built, every reference log identical, benchmark
+  501 / 495.
+  - `damage_resolution.derived` (the `get_weapons` cache's sibling: kept while a battle is played and no slot is lost)
+    for `attack_resolution.weapon_locations` and `arcs.mech_turrets`; `future_damage` works out its arc key, blocked
+    set and to-hit base once, not at each of ~30 distances; `weapon_selection.fire_state` uses its own cheaper copy of
+    the damage signature (`_damage_state`; `kill_curve._signature` itself is untouched - its text seeds the kill
+    curve's dice).
+  - Honest total, 12 v 12 Gladiator v Gladiator (Legate on), same battle (HP identical), 5 turns, one core:
+    59 s before this session's Rust work (main at the statistics PR) -> 20 s now = 2.9x. (Daniel's hope was ~30x: a
+    full port; a handful of sections gives ~3x because the time is spread thin.)
+  - Where the time is now (4-turn cProfile, 59 s profiled): `evaluate` + Legate `combine` ~49% (its own loop 5%, the
+    scorer memo calls ~18%, `_with_physical` 6%, `_hex_row` 5%, the Rust fire table itself ~5%), `fire_state` keys ~5%,
+    `future_damage` ~6%, `reduced_options` ~4%. Nothing above 10% is left that has a clean boundary: what is left is
+    Python plumbing around many small calls, so the next gain is moving whole loops (the `evaluate` per-option loop with
+    its memos, Legate's `combine`) with their data flat in Rust - a rewrite of those two, not another kernel.
+
 - **2026-11-06 (Claude, session 20), RUST PORT STEP 4: LINE OF SIGHT, HEX DISTANCE, AND THREE PYTHON CACHES. REVIEW
   PENDING (higher-level model).** Speed only: 51 of 51 checks with and without the Rust built, every reference log
   identical, benchmark 501 / 495.
