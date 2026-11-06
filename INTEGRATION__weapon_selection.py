@@ -615,6 +615,18 @@ def reset_shared_tables():
     structure_weight.reset_cache()
 
 
+def _damage_state(mech):
+    """kill_curve._signature's information - armor, structure and destroyed per location, each critical slot's
+    name and the rounds left in it, the hit counters - in a cheaper form (2026-11-06, speed: a shared fire
+    table's key asks it twice for every scorer). Not kill_curve's: that one seeds the kill curve's dice, and
+    its text must stay as it is."""
+    locs = tuple((name, v.get("armor", 0), v.get("rear_armor", 0), v.get("structure", 0), v.get("destroyed", False))
+                 for name, v in mech.locations.items())
+    crits = tuple(tuple([s if type(s) is str else (s.name, getattr(s, "shots_left", None)) for s in slots])
+                  for slots in mech.crits.values())
+    return (locs, crits, mech.pilot_hits, mech.engine_hits, mech.gyro_hits, getattr(mech, "cockpit_hit", False))
+
+
 def fire_state(mech):
     """What a weapon choice reads of a unit beyond its weapons list: its damage (armor,
     structure, every slot, the rounds in each bin, hit counters - kill_curve's signature),
@@ -624,7 +636,7 @@ def fire_state(mech):
     import INTEGRATION__equipment_systems as equip
     import INTEGRATION__advanced_weapons as adv
     pods = tuple((p.get("location"), p.get("owner"), p.get("effective")) for p in getattr(mech, "narc_pods", ()))
-    return (kill_curve._signature(mech), mech.current_heat, getattr(mech, "heat_fire_modifier", 0), mech.prone,
+    return (_damage_state(mech), mech.current_heat, getattr(mech, "heat_fire_modifier", 0), mech.prone,
             mech.shutdown, getattr(mech, "tag_designated", False), pods, tuple(equip.active_stealth(mech)),
             adv.as_if_jammed(mech), adv.imp_level(mech), getattr(mech, "deactivated_heat_sinks", 0),
             mech.min_heat, mech.max_heat)
