@@ -643,11 +643,13 @@ def fire_state(mech):
 
 
 def shared_fire_table(share, mech, tn_adjust, unavailable, weapons, table, planner, dissipation, other_heat,
-                      weighted):
-    """The FireTable for this question, shared with every scorer that asks the same one."""
+                      weighted, states=None):
+    """The FireTable for this question, shared with every scorer that asks the same one.
+    states: (fire_state(mech), fire_state(target)) when the caller has them already (2026-11-06, speed)."""
     target = planner.target if planner is not None else None
-    key = (share, id(mech), fire_state(mech), id(target), fire_state(target) if target is not None else None,
-           unavailable, dissipation, other_heat, weighted)
+    if states is None:
+        states = (fire_state(mech), fire_state(target) if target is not None else None)
+    key = (share, id(mech), states[0], id(target), states[1], unavailable, dissipation, other_heat, weighted)
     got = _SHARED_TABLES.get(key)
     if got is None:
         got = _SHARED_TABLES[key] = FireTable(mech, tn_adjust, unavailable, weapons, table, planner)

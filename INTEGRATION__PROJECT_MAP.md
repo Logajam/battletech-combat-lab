@@ -1799,6 +1799,17 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-06 (Claude, session 20), RUST PORT STEP 6: SCORER CONTEXT, AND A CORRECTED CEILING. REVIEW PENDING (higher-level
+  model).** Daniel: "Go for it" (the `evaluate` / Legate `combine` rewrite). Speed only: 51 of 51 checks, reference logs
+  identical. `ranged_combat._ScorerContext`: the firer's dissipation, weapons, damage table, other heat and the two
+  units' `fire_state`s are read once per (firer, target) pair instead of once per scorer (~20,000 scorers in a 4-turn
+  12 v 12); `weapon_selection.shared_fire_table` takes the states. 12 v 12, 5 turns: 20.1 -> 19.2 s.
+  CORRECTION to the estimate given when asking for the go-ahead ("a second 2.9x"): the region the rewrite would replace
+  (`evaluate`, the scorer memo calls, `_hex_row`, Legate `rows` / `combine`) is ~44% of the profiled time (24 of 55 s);
+  even a 10x faster Rust version of all of it leaves 33 s of 55: at most ~1.7x more, and only after moving the
+  results (MovementCandidate objects, Legate's rows) into flat arrays too. What remains outside it is spread over
+  ~40 functions of 1-4% each. So the rewrite is a large, risky change for <= 1.7x; not started - Daniel's call.
+
 - **2026-11-06 (Claude, session 20), RUST PORT STEP 5: MORE CACHES, AND WHERE THE TIME IS NOW. REVIEW PENDING (higher-level
   model).** Speed only: 51 of 51 checks with and without the Rust built, every reference log identical, benchmark
   501 / 495.
