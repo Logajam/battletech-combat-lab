@@ -13,7 +13,18 @@ source project's file overwrite the other's same-named file.
 
 ---
 
-## 0. WHERE WE ARE (2026-10-30, end of session 15) — read this first
+## 0. WHERE WE ARE (2026-11-06, end of session 19) — read this first
+
+**NEXT TOPICS (Daniel, 2026-11-06)** - his list: individual bot logic; group bot logic; more speed;
+GUI; Combat Lab functionality; 3D art for the Combat Lab (art paused: "We've spent most of the week on
+3d"; its next step stays the weapon-block stockpile). Also raised by Claude and open: the unbuilt rules
+(buildings / bridges, crippled + forced withdrawal, spotting / indirect fire, C3, special munitions),
+refreshing the rules zip with TO:AUE / TO:AR, the anti-stall rule, other unit types, scenario features
+(objectives, fog of war), the engine port. **OUTPUT** - what the Monte Carlo should report (win rates,
+lethality, comparisons, charts) - Daniel: "a good topic. One which I'll have to think about." Ask him
+about it before building anything there.
+Session 19 (2026-11-06) was review work by the higher-level model: the queue below is empty, the map
+seams follow MegaMek, the baseline battery moved to the 32 x 17 field (INTEGRATION__BOTS.md).
 
 **REVIEW QUEUE - needs a higher-level model's review when there are spare
 cycles** (Daniel's standing order, 2026-10-28; Section 7). EMPTY: every item, (a) to (l), was reviewed
