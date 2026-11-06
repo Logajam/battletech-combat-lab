@@ -193,10 +193,14 @@ def read_unit(path):
             unit["walk"] = int(val or 0) if val.strip().isdigit() else 0
         elif key == "armor":
             unit["armor_type"] = val.strip()
-        elif key.endswith(" armor") and key.split()[0].upper() in ARMOR_CODES and val.strip().isdigit():
+        elif (key.endswith(" armor") and key.split()[0].upper() in ARMOR_CODES
+              and val.strip().rsplit(":", 1)[-1].strip().isdigit()):
+            # Patchwork armor puts the type before the points ("LA armor:IS Reactive(Inner Sphere):8"):
+            # the points are after the last colon (review 2026-11-06 - those units were drawn with no armor).
+            points = int(val.strip().rsplit(":", 1)[-1])
             zone = ARMOR_CODES[key.split()[0].upper()]         # front armor only (RTL / RTR / RTC are rear and not listed)
-            unit.setdefault("armor_by", {})[zone] = int(val)
-            unit["armor"] = unit.get("armor", 0) + int(val)
+            unit.setdefault("armor_by", {})[zone] = points
+            unit["armor"] = unit.get("armor", 0) + points
         elif key == "weapons":
             in_weapons = True
         elif line[:-1] in SLOT_HEADERS and line.endswith(":"):

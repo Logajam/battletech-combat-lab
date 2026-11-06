@@ -214,6 +214,20 @@ fire-support unit behind a brawler is in position too). Same 20 seeds:
 
 It groups the force as intended, but no setting beats none.
 
+## Current baseline (2026-11-06): the MegaMek-seam field
+
+The stitched field is now 32 x 17 (boards abut, as in MegaMek; the batteries above ran on 33 x 17), and a
+Gladiator no longer leaves out the fire of an enemy whose estimated end hex it would take (review fix).
+Same 20 seeds, defaults:
+
+| Setting | Princess / draws / Gladiator | 'Mechs left P / G | Damage dealt P / G |
+|---|---|---|---|
+| Defaults, before the review fix | 11 / 1 / 8 | 2.60 / 1.75 | 1529 / 1378 |
+| **Defaults (now)** | **11 / 1 / 8** | **2.55 / 1.95** | **1508 / 1345** |
+
+The narrower field ends more battles (1 draw v 4 on 33 x 17) and Princess wins more of them; compare new
+settings against this row.
+
 ## Next steps (PROJECT_MAP "Pick up here" 00000 and 0000)
 
 - Why grouping doesn't win: the cohesion reward matches Princess's spread but

@@ -78,6 +78,9 @@ def end_phase() -> None:
     _PLANS.clear()
     _RATES.clear()
     _SHARES.clear()
+    # The team-fire table too (review 2026-11-06): its key is positions only, so a teammate standing on
+    # the same spot a later turn found damage worked out before either unit had been hurt.
+    _FRIEND_DMG.clear()
 
 
 def _key(o) -> Tuple[str, str, str, int, int]:
@@ -515,11 +518,14 @@ class Extras:
         with timing.section("Legate extras"):
             d, r = dealt * dealt_mult, received * received_mult
             on_me = {id(self.primary): r}                  # (unshared: _TeamFire distributes the fire itself)
-            r *= now_share(self.primary, self.mover)       # LEGATE_SPLIT_THIS_TURN, else 1                  # each enemy's damage on the mover at o
+            r *= now_share(self.primary, self.mover)       # LEGATE_SPLIT_THIS_TURN, else 1
             on_them = {id(self.primary): d}                # the mover's damage on each enemy at o
             for foe, st in self.entries:
                 if st[0] == o.label:
-                    continue
+                    # The mover would take the hex this enemy is estimated to end in: the enemy then ends
+                    # somewhere else and still shoots - taken from where it stands now (review 2026-11-06;
+                    # before, its fire was left out, so these spots looked safer than they are).
+                    st = _hold(foe.mech)
                 cand = self.unit.rows(foe.mech, st, [o]).get(_key(o))
                 if cand is None:
                     continue

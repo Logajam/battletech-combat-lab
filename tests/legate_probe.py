@@ -149,7 +149,7 @@ def adjust(self, o, dealt, received, dealt_mult, received_mult):
     on_them = {name(self.primary): dealt}
     for foe, st in self.entries:
         if st[0] == o.label:
-            continue
+            st = legate._hold(foe.mech)                  # as Extras.adjust (2026-11-06)
         cand = self.unit.rows(foe.mech, st, [o]).get(legate._key(o))
         if cand is None:
             continue
