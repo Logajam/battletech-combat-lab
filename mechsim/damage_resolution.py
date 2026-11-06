@@ -746,6 +746,27 @@ def get_weapons(mech):
     return list(got)
 
 
+def derived(mech, tag, build):
+    """build(mech), kept like get_weapons' answer: while a battle is played and the mech's destroyed-slot record keeps
+    its length (2026-11-06, speed). For what is read from the slots and the record alone (weapon_locations,
+    mech_turrets) - never for anything that changes without losing a slot (ammo, heat). The answer is shared, so
+    callers must not edit it; config.WEAPONS_CACHE_VERIFY compares it with a fresh build."""
+    if not _CACHE_ON:
+        return build(mech)
+    key = (id(mech), tag)
+    n = len(mech.destroyed_slot_info)
+    hit = _DERIVED.get(key)
+    if hit is not None and hit[1] == n and hit[0]() is mech:
+        got = hit[2]
+    else:
+        got = build(mech)
+        _DERIVED[key] = (weakref.ref(mech, lambda _, key=key: _DERIVED.pop(key, None)), n, got)
+    if config.WEAPONS_CACHE_VERIFY and got != build(mech):
+        raise AssertionError(f"derived {tag!r} cache is stale for {getattr(mech, 'side_name', mech)}")
+    return got
+
+
+_DERIVED = {}     # (id(mech), tag) -> (weakref to the mech, len(destroyed_slot_info), the answer)
 _WEAPONS = {}     # id(mech) -> (weakref to the mech, len(destroyed_slot_info), tuple of its live weapons)
 _CACHE_ON = False  # only while a battle is played (orchestrator.play_on): a test that edits mech.crits by hand and
                    # calls get_weapons outside a battle must see its edit
@@ -753,6 +774,7 @@ _CACHE_ON = False  # only while a battle is played (orchestrator.play_on): a tes
 
 def reset_weapons_cache():
     _WEAPONS.clear()
+    _DERIVED.clear()
 
 
 def weapons_cache(on):
@@ -760,6 +782,7 @@ def weapons_cache(on):
     global _CACHE_ON
     _CACHE_ON = bool(on)
     _WEAPONS.clear()
+    _DERIVED.clear()
 
 
 def _scan_weapons(mech):

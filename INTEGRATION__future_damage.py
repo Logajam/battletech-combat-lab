@@ -91,15 +91,27 @@ def future_damage(attacker, target):
 
     cond = firing_conditions(attacker)
     scorers = {}
+    # What does not change from one distance to the next (2026-11-06, speed: this ran for each of ~30 distances):
+    # the target is straight north at every distance, so its arc key is the same, and so are the weapons that
+    # can't fire, the to-hit base and the sets of weapons held back.
+    fixed = {}
 
     def ranged(distance, held=frozenset()):
         """Best heat-limited expected damage at this distance (0 if it can't fire)."""
         if cond is None:
             return 0.0
-        target_xy = (_ORIGIN[0], _ORIGIN[1] + 2 * distance)          # straight north
-        key = arcs.key_for(arcs.arcs_between(_ORIGIN, target_xy), _FACING, arcs.NO_ACTION, legs)
-        unavailable = (cond[1] | ammo.unavailable_weapons(attacker) | fire_modes.jammed_ids(attacker)
-                       | weapon_profiles.array_gun_ids(attacker) | arc_unavailable(attacker, key) | held)
+        if not fixed:
+            target_xy = (_ORIGIN[0], _ORIGIN[1] + 2 * distance)          # straight north
+            key = arcs.key_for(arcs.arcs_between(_ORIGIN, target_xy), _FACING, arcs.NO_ACTION, legs)
+            fixed["blocked"] = (cond[1] | ammo.unavailable_weapons(attacker) | fire_modes.jammed_ids(attacker)
+                                | weapon_profiles.array_gun_ids(attacker) | arc_unavailable(attacker, key))
+            fixed["by_held"] = {}
+            pre = (attacker.gunnery + amm + tmm + attacker.heat_fire_modifier + cond[0]
+                   + equip.own_attack_modifier(attacker))
+            fixed["pre_tn"] = max(weapon_selection.PRE_TN_MIN, min(weapon_selection.PRE_TN_MAX, pre))
+        unavailable = fixed["by_held"].get(held)
+        if unavailable is None:
+            unavailable = fixed["by_held"][held] = fixed["blocked"] | held
         scorer = scorers.get(unavailable)
         if scorer is None:
             adjust = tn_adjuster(attacker, target)
@@ -109,10 +121,7 @@ def future_damage(attacker, target):
             planner = fire_modes.Planner(attacker, target, adjust, fire_modes.ams_share(0, usable))
             scorer = scorers[unavailable] = _make_heat_limited_scorer(attacker, adjust, unavailable, scale, planner,
                                                                       share=("future damage",))
-        pre_tn = (attacker.gunnery + amm + tmm + attacker.heat_fire_modifier + cond[0]
-                  + equip.own_attack_modifier(attacker))
-        pre_tn = max(weapon_selection.PRE_TN_MIN, min(weapon_selection.PRE_TN_MAX, pre_tn))
-        return scorer(distance, pre_tn, move_heat, "front")
+        return scorer(distance, fixed["pre_tn"], move_heat, "front")
 
     best = max(ranged(d) for d in range(1, _max_distance(weapons) + 1))
 

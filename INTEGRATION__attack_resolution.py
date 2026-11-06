@@ -119,7 +119,7 @@ from mech_state import DamageType, ArmorType, is_immobile, snapshot_round_capabi
     mark_consciousness_check_pending, compute_heat_dissipation, arm_aes_working
 import armor_rules
 from hit_location import resolve_hit_location
-from damage_resolution import apply_damage, check_critical, cluster_hits_count, get_weapons, TRANSFER_MAP
+from damage_resolution import apply_damage, check_critical, cluster_hits_count, get_weapons, derived, TRANSFER_MAP
 import piloting_rolls
 
 import hex_geometry
@@ -253,7 +253,12 @@ PRONE_TARGET_FAR = 1
 
 
 def weapon_locations(mech):
-    """{id(weapon): set of locations its slots sit in} - live and destroyed slots."""
+    """{id(weapon): set of locations its slots sit in} - live and destroyed slots. Shared and kept while no
+    slot is lost (damage_resolution.derived): do not edit it."""
+    return derived(mech, "weapon_locations", _weapon_locations)
+
+
+def _weapon_locations(mech):
     locs = {}
     for location, slots in mech.crits.items():
         for slot in slots:
