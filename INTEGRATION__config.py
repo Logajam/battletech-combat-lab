@@ -377,9 +377,10 @@ PROMPT_FOR_MAP = False
 DEFAULT_BOARD_PATH = "16x17_Grassland_1.board"
 STITCH_MAPS = False
 # Board files (under DATA_DIR), row-major: left to right, then down. Same-row
-# boards must share a height and same-column boards a width; a blank hex row /
-# column is inserted at every seam (Daniel, 2026-07-20). Use one name several
-# times for a repeated board. Example, a 2 x 1 field of two 16x17 maps:
+# boards must share a height and same-column boards a width. Seams follow
+# MegaMek (Daniel, 2026-11-06): boards abut; only after an odd-width board is
+# one blank column inserted, to keep the column parity. Use one name several
+# times for a repeated board. Example, a 2 x 1 field (32 x 17) of two 16x17 maps:
 #   STITCH_MAPS = True; STITCH_GRID_COLS, STITCH_GRID_ROWS = 2, 1
 #   STITCH_BOARDS = ["16x17_Grassland_1.board", "16x17_Scattered_Woods.board"]
 STITCH_BOARDS = []

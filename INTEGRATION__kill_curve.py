@@ -37,7 +37,8 @@ stub, config.STUB_MISSION_KILL:
                          fire (destroyed weapons, or bins gone).
 
 The trials use their own dice (a private INTEGRATION__rng.BattleRNG seeded by
-the design, side and state, standing in for config.roll_2d6 / pick_number
+the side and damage state - a 'Mech has no `name`, so the name in the seed is
+always "" (review 2026-11-06; kept, so the curves don't change), standing in for config.roll_2d6 / pick_number
 while they run), so building a curve never moves the battle's dice
 and the same state always gives the same curve. Curves are cached per unit,
 side and damage state: a 'Mech that wasn't hit keeps its curves.
@@ -100,7 +101,13 @@ def kills_at(mech, side):
     reached KILL_CURVE_MAX_DAMAGE alive is left out). Cached."""
     import INTEGRATION__attack_resolution as attack_resolution     # attack_resolution imports the bots
     sig = _signature(mech)
-    key = (id(mech), side, sig, _settings())
+    # The armor / structure types go in the key too (review 2026-11-06): the signature can't tell
+    # e.g. hardened armor (no critical slots) from standard, and the cache outlives a battle, so
+    # a freed unit's id reused by another design must not find its curve. (Not in the seed, so
+    # every curve is the same as before.)
+    kinds = (tuple(sorted((loc, str(t)) for loc, t in getattr(mech, "armor_type", {}).items())),
+             str(getattr(mech, "structure_type", "")))
+    key = (id(mech), side, sig, kinds, _settings())
     got = _CACHE.get(key)
     if got is not None:
         return got

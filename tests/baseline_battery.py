@@ -7,7 +7,7 @@ will be recorded as a yard stick for future tests.").
     python tests/baseline_battery.py pg 3 --seed 7     # Princess (Red) vs Gladiator (Blue), 3 battles
     python tests/baseline_battery.py gg 3              # Gladiator vs Gladiator
 
-The field: TWO 16x17 boards stitched 2 x 1 (a 33 x 17 field; Daniel: "drop down to a 2x1 map size. Give the bots less room to hide in" - the first try was four boards, 2 x 2, and ran 50 turns with no result), 12 'Mechs a side, mirrored -
+The field: TWO 16x17 boards stitched 2 x 1 (a 32 x 17 field - 33 x 17 before the MegaMek seams of 2026-11-06; Daniel: "drop down to a 2x1 map size. Give the bots less room to hide in" - the first try was four boards, 2 x 2, and ran 50 turns with no result), 12 'Mechs a side, mirrored -
 the same twelve on each side: 3 assault (Atlas AS7-K 100t, Emperor EMP-6D 90t, Awesome
 AWS-8Q 80t), 3 heavy (Archer ARC-2R 70t, Cataphract CTF-3D 70t, Catapult CPLT-C1 65t),
 3 medium (Kintaro KTO-19 55t, Griffin GRF-1N 55t, Hunchback HBK-4G 50t), 3 light (Jenner
