@@ -1799,6 +1799,29 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-06 (Claude, session 20), RUST PORT STEP 3: THE REACHABLE-SPOT SEARCH (`fastcore.PathBoard`). REVIEW PENDING
+  (higher-level model).** Daniel: "Go ahead and do all three" (evaluate loop, reachable spots / movement table, Legate
+  future damage). This is the second. Speed only: 51 of 51 checks with and without the Rust built, every reference log
+  identical, benchmark 501 / 495.
+  - `fastcore.PathBoard` (Rust): a copy of `pathfinder._build_terrain_psr` (the Dial's-algorithm sweep: same buckets
+    in the same insertion order, the same "strictly better (forward count, fewer PSRs) replaces" rule) plus the state
+    lists `ranged_combat._movement_options` builds from it: `walk_states` (a mover walking from its own hex) and
+    `entry_states` (turn 1, entering from the edge: every edge hex x 6 facings). Python gives it the board's step data
+    once per board and level-limit class (`ranged_combat._rust_board`, kept on the board's cache so `forget_board` drops
+    it); finished tables are cached in the Rust like `board.tables`. Boards with no PSR terrain use the same search (a
+    backward step only onto the same level, no PSR counts, as `_build_terrain_aware`). Boards with live hazards (magma
+    crust), `standup_mp` and `keep_parents` paths stay in Python. `config.FASTCORE_MOVEMENT` (on) switches it off.
+  - A quirk the Rust copies on purpose: while a mech ENTERS the board `_note_psrs` runs as each state is yielded and the
+    reduction (`movement_selection.reduced_options`) reads the PSR count then, so a state reached again by a way with
+    fewer PSRs is read with its FIRST count and holds the fewest only afterwards. The first version returned the final
+    counts and changed one reference battle (LargeLakes1: 92 v 93 spots); `entry_states` now returns both.
+  - Checks: `tests/test_fastcore.py` `the_rust_movement_search_matches_the_python_on_real_boards` (6 boards, 5 'Mechs,
+    random starts / facings / blocked hexes / destroyed hips: states, order, PSR counts, entry states, and the reduced
+    states the picker reads, Rust v Python). It did not catch the entry-order quirk by itself (a mutation test
+    passed); the LargeLakes1 reference battle does.
+  - Result, 12 v 12 Gladiator (Legate on): 2 turns 21.1 -> 15.0 s (turn 1 is the entry search); 5 turns 62.2 s with no
+    Rust at all -> 36.5 s with all three Rust steps (41% less), same battle. Next: the rest of `evaluate`, Legate.
+
 - **2026-11-06 (Claude, session 20), RUST PORT STEP 2: MISSILE / SPECIAL WEAPON PRICING IN THE RUST TABLE. REVIEW
   PENDING (higher-level model).** Speed only: 51 of 51 checks with and without the Rust built, reference logs
   identical, benchmark 501 / 495. `fire_modes.Planner.price_spec` describes a special weapon in numbers when it has

@@ -332,10 +332,268 @@ impl FastTable {
     }
 }
 
+
+// ---------------------------------------------------------------------------------------------
+// PathBoard (2026-11-06, session 20): a Rust copy of pathfinder._build_terrain_psr (the movement table
+// of a board where steps can force terrain PSRs) plus the walking states ranged_combat._movement_options
+// builds from it. Python hands over the board's step data once per mover level-limit class (cost and
+// PSR counts of stepping from each hex in each of the 6 directions, forward and backward, and the PSRs
+// of turning in each hex); the search is the Dial's-algorithm sweep of the Python, step for step: the
+// same buckets in the same insertion order, the same "strictly better (hazard, forward count, -PSRs)
+// replaces" rule, so the table, its order and every tie are the Python's. Boards with live hazards
+// (magma crust) and paths that must be kept (keep_parents) stay in Python.
+// ---------------------------------------------------------------------------------------------
+const FACING: [(i32, i32); 6] = [(0, 2), (1, 1), (1, -1), (0, -2), (-1, -1), (-1, 1)];
+
+type SKey = (i32, i32, u8, i8, bool); // x, y, facing, last direction (0 / +1 / -1), moved backward yet
+
+#[derive(Clone, Copy)]
+struct SVal {
+    fc: i32,
+    neg: i32,
+    always: i32,
+    run_only: i32,
+}
+
+#[derive(Default)]
+struct Bucket {
+    keys: Vec<SKey>,
+    vals: Vec<SVal>,
+    index: HashMap<SKey, usize>,
+}
+
+impl Bucket {
+    /// pathfinder's push: a strictly better (forward count, then fewer PSRs) value replaces the old one in place.
+    fn push(&mut self, key: SKey, val: SVal) {
+        match self.index.get(&key) {
+            None => {
+                self.index.insert(key, self.keys.len());
+                self.keys.push(key);
+                self.vals.push(val);
+            }
+            Some(&at) => {
+                let old = self.vals[at];
+                if (val.fc, val.neg) > (old.fc, old.neg) {
+                    self.vals[at] = val;
+                }
+            }
+        }
+    }
+}
+
+/// The finished table: states in first-seen order, each with its (mp, forward count, always, run-only) columns in order.
+struct Table {
+    states: Vec<(i32, i32, u8)>,
+    cols: Vec<Vec<(i32, i32, i32, i32)>>,
+}
+
+#[pyclass]
+struct PathBoard {
+    xmin: i32,
+    ymin: i32,
+    height: i32,
+    width: i32,
+    present: Vec<bool>,
+    fwd: Vec<[i32; 3]>,  // [idx * 6 + facing] -> cost (-1 = not allowed), always, run-only
+    bwd: Vec<[i32; 3]>,
+    turn: Vec<[i32; 2]>, // [idx] -> always, run-only
+    tables: HashMap<(i32, i32, u8, i32, i32, Vec<(i32, i32)>), std::sync::Arc<Table>>,
+}
+
+impl PathBoard {
+    fn idx(&self, x: i32, y: i32) -> Option<usize> {
+        let (cx, cy) = (x - self.xmin, y - self.ymin);
+        if cx < 0 || cy < 0 || cx >= self.width || cy >= self.height {
+            return None;
+        }
+        let i = (cx * self.height + cy) as usize;
+        if self.present[i] { Some(i) } else { None }
+    }
+
+    fn search(&self, sx: i32, sy: i32, facing: u8, budget: i32, backward_mp: Option<i32>, blocked: &[(i32, i32)])
+        -> PyResult<Table> {
+        let usable = |x: i32, y: i32| -> Option<usize> {
+            if blocked.contains(&(x, y)) { None } else { self.idx(x, y) }
+        };
+        if usable(sx, sy).is_none() {
+            return Err(pyo3::exceptions::PyValueError::new_err("PathBoard: start hex is not on the board"));
+        }
+        let mut buckets: Vec<Bucket> = (0..=budget.max(0)).map(|_| Bucket::default()).collect();
+        buckets[0].push((sx, sy, facing, 0, false), SVal { fc: 0, neg: 0, always: 0, run_only: 0 });
+        let mut states: Vec<(i32, i32, u8)> = Vec::new();
+        let mut cols: Vec<Vec<(i32, i32, i32, i32)>> = Vec::new();
+        let mut state_at: HashMap<(i32, i32, u8), usize> = HashMap::new();
+        for mp in 0..=budget {
+            let n = buckets[mp as usize].keys.len();
+            for k in 0..n {
+                let key = buckets[mp as usize].keys[k];
+                let val = buckets[mp as usize].vals[k];
+                let (x, y, f, last, used_back) = key;
+                // the table entry (a strictly better path to the same state and MP replaces the earlier one)
+                let st = (x, y, f);
+                let si = *state_at.entry(st).or_insert_with(|| {
+                    states.push(st);
+                    cols.push(Vec::new());
+                    states.len() - 1
+                });
+                match cols[si].iter().position(|c| c.0 == mp) {
+                    None => cols[si].push((mp, val.fc, val.always, val.run_only)),
+                    Some(at) => {
+                        let old = cols[si][at];
+                        if (val.fc, val.neg) > (old.1, -(old.2 + old.3)) {
+                            cols[si][at] = (mp, val.fc, val.always, val.run_only);
+                        }
+                    }
+                }
+                let limit = if used_back { backward_mp.unwrap_or(budget) } else { budget };
+                let here = match self.idx(x, y) { Some(i) => i, None => continue };
+                let (dx, dy) = FACING[f as usize];
+                // 1. forward
+                if usable(x + dx, y + dy).is_some() {
+                    let [cost, a, r] = self.fwd[here * 6 + f as usize];
+                    if cost >= 0 && mp + cost <= limit {
+                        buckets[(mp + cost) as usize].push(
+                            (x + dx, y + dy, f, 1, used_back),
+                            SVal { fc: if last >= 0 { val.fc + 1 } else { 1 }, neg: val.neg - a - r,
+                                   always: val.always + a, run_only: val.run_only + r });
+                    }
+                }
+                // 2. backward (walking only)
+                if let Some(bm) = backward_mp {
+                    if usable(x - dx, y - dy).is_some() {
+                        let [cost, a, r] = self.bwd[here * 6 + f as usize];
+                        if cost >= 0 && mp + cost <= bm {
+                            buckets[(mp + cost) as usize].push(
+                                (x - dx, y - dy, f, -1, true),
+                                SVal { fc: if last <= 0 { val.fc + 1 } else { 1 }, neg: val.neg - a - r,
+                                       always: val.always + a, run_only: val.run_only + r });
+                        }
+                    }
+                }
+                // 3. / 4. turning
+                if mp + 1 <= limit {
+                    let [a, r] = self.turn[here];
+                    for nf in [((f as i32 + 5) % 6) as u8, ((f as i32 + 1) % 6) as u8] {
+                        buckets[(mp + 1) as usize].push(
+                            (x, y, nf, last, used_back),
+                            SVal { fc: val.fc, neg: val.neg - a - r, always: val.always + a, run_only: val.run_only + r });
+                    }
+                }
+            }
+        }
+        Ok(Table { states, cols })
+    }
+}
+
+#[pymethods]
+impl PathBoard {
+    #[new]
+    #[allow(clippy::too_many_arguments)]
+    fn new(xmin: i32, ymin: i32, width: i32, height: i32, present: Vec<bool>, fwd: Vec<[i32; 3]>, bwd: Vec<[i32; 3]>,
+           turn: Vec<[i32; 2]>) -> PyResult<Self> {
+        let n = (width * height) as usize;
+        if present.len() != n || fwd.len() != n * 6 || bwd.len() != n * 6 || turn.len() != n {
+            return Err(pyo3::exceptions::PyValueError::new_err("PathBoard: bad board lists"));
+        }
+        Ok(PathBoard { xmin, ymin, height, width, present, fwd, bwd, turn, tables: HashMap::new() })
+    }
+
+    /// ranged_combat._movement_options for a mover that walks from its own hex: the end states
+    /// (x, y, facing, forward count, mode, MP spent) in the Python's order and, in the same order, the
+    /// terrain PSRs of the way there (_note_psrs: always + run-only for a Run).
+    fn walk_states(&mut self, sx: i32, sy: i32, facing: u8, run_budget: i32, backward_mp: Option<i32>,
+                   blocked: Vec<(i32, i32)>, walk: i32, want_psrs: bool)
+        -> PyResult<(Vec<(i32, i32, i32, i32, &'static str, i32)>, Vec<i32>)> {
+        let mut near: Vec<(i32, i32)> = blocked.iter().copied()
+            .filter(|b| (b.0 - sx).abs() <= run_budget && (b.1 - sy).abs() <= 2 * run_budget).collect();
+        near.sort();
+        near.dedup();
+        let key = (sx, sy, facing, run_budget, backward_mp.unwrap_or(-1), near.clone());
+        let table = match self.tables.get(&key) {
+            Some(t) => t.clone(),
+            None => {
+                let t = std::sync::Arc::new(self.search(sx, sy, facing, run_budget, backward_mp, &near)?);
+                if self.tables.len() >= 600 {
+                    self.tables.clear();
+                }
+                self.tables.insert(key, t.clone());
+                t
+            }
+        };
+        let mut keys = Vec::new();
+        let mut psrs = Vec::new();
+        for (st, col) in table.states.iter().zip(table.cols.iter()) {
+            for &(mp, fc, always, run_only) in col.iter() {
+                let mode: &'static str = if mp == 0 { "Stand Still" } else if mp <= walk { "Walk" } else { "Run" };
+                keys.push((st.0, st.1, st.2 as i32, fc, mode, mp));
+                if want_psrs {
+                    psrs.push(always + if mode == "Run" { run_only } else { 0 });
+                }
+            }
+        }
+        Ok((keys, psrs))
+    }
+
+    /// ranged_combat._entry_options: a mech entering the board from its home edge. `starts` lists the edge hexes it can
+    /// step onto as (x, y, entry cost, entry always-PSRs, entry run-only PSRs), in the Python's order; each is searched
+    /// from all 6 facings with the MP left, and a state reached more than once keeps its first place in the order and
+    /// its fewest PSRs (_note_psrs). Returns the states (x, y, facing, forward count + 1, mode, total MP), the PSR count of
+    /// each when it was FIRST reached (the Python notes a state's PSRs as it yields it, and the reduction reads them then),
+    /// and the fewest over all the ways to reach it (what the dict holds in the end).
+    fn entry_states(&mut self, starts: Vec<(i32, i32, i32, i32, i32)>, run: i32, walk: i32, blocked: Vec<(i32, i32)>,
+                    want_psrs: bool) -> PyResult<(Vec<(i32, i32, i32, i32, &'static str, i32)>, Vec<i32>, Vec<i32>)> {
+        let mut keys: Vec<(i32, i32, i32, i32, &'static str, i32)> = Vec::new();
+        let mut psrs: Vec<i32> = Vec::new();
+        let mut first: Vec<i32> = Vec::new();
+        let mut at: HashMap<(i32, i32, i32, i32, &'static str, i32), usize> = HashMap::new();
+        for &(ex, ey, cost, ea, er) in starts.iter() {
+            for f0 in 0..6u8 {
+                let budget = run - cost;
+                let mut near: Vec<(i32, i32)> = blocked.iter().copied()
+                    .filter(|b| (b.0 - ex).abs() <= budget && (b.1 - ey).abs() <= 2 * budget).collect();
+                near.sort();
+                near.dedup();
+                let key = (ex, ey, f0, budget, -1, near.clone());
+                let table = match self.tables.get(&key) {
+                    Some(t) => t.clone(),
+                    None => {
+                        let t = std::sync::Arc::new(self.search(ex, ey, f0, budget, None, &near)?);
+                        if self.tables.len() >= 600 {
+                            self.tables.clear();
+                        }
+                        self.tables.insert(key, t.clone());
+                        t
+                    }
+                };
+                for (st, col) in table.states.iter().zip(table.cols.iter()) {
+                    for &(spent, fc, always, run_only) in col.iter() {
+                        let total = spent + cost;
+                        let mode: &'static str = if total == 0 { "Stand Still" } else if total <= walk { "Walk" } else { "Run" };
+                        let k = (st.0, st.1, st.2 as i32, fc + 1, mode, total);
+                        let n = (always + ea) + if mode == "Run" { run_only + er } else { 0 };
+                        match at.get(&k) {
+                            None => {
+                                at.insert(k, keys.len());
+                                keys.push(k);
+                                if want_psrs { psrs.push(n); first.push(n); }
+                            }
+                            Some(&i) => {
+                                if want_psrs && n < psrs[i] { psrs[i] = n; }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        Ok((keys, first, psrs))
+    }
+}
+
 #[pymodule]
 fn fastcore(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(best_subset, m)?)?;
     m.add_function(wrap_pyfunction!(knapsack_levels, m)?)?;
     m.add_class::<FastTable>()?;
+    m.add_class::<PathBoard>()?;
     Ok(())
 }

@@ -81,7 +81,7 @@ class _BoardCache:
     finds them already done. Blocked hexes are NOT cached (they change turn
     to turn); the searches test them before asking."""
 
-    __slots__ = ("hexes", "info_xy", "steps", "extras", "turns", "tables", "hazardous")
+    __slots__ = ("hexes", "info_xy", "steps", "extras", "turns", "tables", "hazardous", "rust")
 
     def __init__(self, terrain_map):
         self.hexes = terrain_map["hexes"]
@@ -94,6 +94,7 @@ class _BoardCache:
         self.extras = {}      # {limit key: {(fx, fy, tx, ty, backward): (cost, always, run_only)}}
         self.tables = {}      # finished movement tables, see build_movement_table
         self.turns = {}       # {(x, y): (always, run_only)} PSRs a facing change forces there
+        self.rust = {}        # {limit key: fastcore.PathBoard or False} (ranged_combat._rust_board); dies with the board cache
 
     def info(self, x, y):
         try:

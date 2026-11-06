@@ -78,6 +78,93 @@ def what_rust_does_not_take_falls_back_to_python():
     assert same(ws._best_subset_rust(values, heats, 5), ws._best_subset_python(values, heats, 5))
 
 
+@check
+def the_rust_movement_search_matches_the_python_on_real_boards():
+    """fastcore.PathBoard (the movement table and the walking states) against the Python search: the
+    same states in the same order and the same terrain PSR counts, on boards with PSR terrain and on
+    a flat one, for several 'Mechs, start hexes, facings, blocked hexes and level limits (a destroyed hip).
+    One quirk this random check did NOT find on its own: while a mech enters the board, _note_psrs runs as each
+    state is yielded and the picker's reduction reads the count then, so a state reached again by a way with
+    fewer PSRs is read with the FIRST count (the Rust returns both). The Large Lakes reference battle
+    (tests/check_reference_logs.py) catches that one."""
+    import io
+    from contextlib import redirect_stdout
+    import INTEGRATION__config as config
+    import INTEGRATION__ranged_combat as rc
+    import INTEGRATION__orchestrator as orchestrator
+    import INTEGRATION__movement_selection as ms
+    import hex_geometry
+    import los
+    from board_parser import parse_board_file
+    from mech_state import clone_mech, ground_level_limited, is_superheavy
+    from mtf_parser import parse_mtf
+    import terrain_rules
+    if not hasattr(rc, "_rust_board") or rc._fastcore is None:
+        print("      (PathBoard not built: skipped)")
+        return
+    config.VERBOSE = False
+    rng = random.Random(4242)
+    templates = [parse_mtf(config.data_path(n)) for n in
+                 ("Asymptote II iJ Mpulse.mtf", "Kontio.mtf", "Hammerhead.mtf", "Atlas AS7-K.mtf", "Locust LCT-1V.mtf")]
+    compared = psr_boards = rust_used = 0
+    for board_name in ("16x17_Desert_Hills.board", "16x17_Hilltops_1.board", "16x17_Large_Lakes_1.board",
+                       "16x17_Scattered_Woods.board", "16x17_Military_Base_1.board", "16x17_Grassland_1.board"):
+        terrain = parse_board_file(config.data_path(board_name))
+        labels = sorted(terrain["hexes"])
+        for _ in range(24):
+            template = rng.choice(templates)
+            start = rng.choice(labels)
+            mover = clone_mech(template)
+            with redirect_stdout(io.StringIO()):
+                orchestrator._attach_mech_config(mover, {"hex": start, "facing": rng.choice("N NE SE S SW NW".split()),
+                                                         "gunnery": 4, "piloting": 5, "min_heat": 0, "max_heat": 4}, "T")
+            blocked = {hex_geometry.parse_hex_label(rng.choice(labels)) for _ in range(rng.randint(0, 6))}
+            blocked.discard(hex_geometry.parse_hex_label(start))
+            mover.blocked_hex = blocked or None
+            if rng.random() < 0.3:
+                mover.destroyed_hip_locations = ["Left Leg"]        # a destroyed hip: one level at a time (pp.46-47)
+            backward = rng.random() < 0.8
+            runs = {}
+            for fast in (False, True):
+                config.FASTCORE_MOVEMENT = fast
+                mover.path_psrs, mover.path_hazard = {}, {}
+                runs[fast] = (list(rc.movement_options(mover, terrain, backward=backward)), dict(mover.path_psrs),
+                              dict(mover.path_hazard))
+            # an edge: a column of hexes, or a cluster of neighbours (their searches overlap, so a state is reached
+            # by several ways with different PSR counts - the case the first-count order matters in)
+            near = rng.choice(labels)
+            cluster = [lb for lb in labels if los.hex_distance(hex_geometry.parse_hex_label(lb),
+                                                               hex_geometry.parse_hex_label(near)) <= 3]
+            side = rng.random()
+            edge = cluster if side < 0.4 else [lb for lb in labels if lb.startswith("01")] if side < 0.7 else \
+                [lb for lb in labels if lb.startswith("16")]
+            for fast in (False, True):                      # entering the board from an edge (turn 1)
+                config.FASTCORE_MOVEMENT = fast
+                mover.path_psrs, mover.path_hazard = {}, {}
+                runs[("entry", fast)] = (list(rc.movement_options(mover, terrain, entry_edge=edge)),
+                                         dict(mover.path_psrs))
+            config.FASTCORE_MOVEMENT = True
+            assert runs[("entry", False)] == runs[("entry", True)], (board_name, start, "entry states differ")
+            # what the picker really reads: the reduced states. (_note_psrs runs as each state is yielded and the
+            # reduction reads the count then - a state reached again with fewer PSRs reads the first count.)
+            for entry in (None, edge):
+                for fast in (False, True):
+                    config.FASTCORE_MOVEMENT = fast
+                    runs[("reduced", entry is None, fast)] = ms.reduced_options(mover, terrain, entry_edge=entry)
+                assert runs[("reduced", entry is None, False)] == runs[("reduced", entry is None, True)], \
+                    (board_name, start, entry, "reduced states differ")
+            config.FASTCORE_MOVEMENT = True
+            assert runs[False][0] == runs[True][0], (board_name, start, "states differ")
+            # the Rust fills a count for every state (as _note_psrs); a board with no PSR terrain has none
+            assert runs[False][1] == runs[True][1], (board_name, start, "terrain PSR counts differ")
+            assert runs[False][2] == runs[True][2], (board_name, start, "hazards differ")
+            compared += 1
+            psr_boards += bool(runs[True][1])
+            limit = terrain_rules.max_level_change(ground_level_limited(mover), is_superheavy(mover))
+            rust_used += rc._rust_board(terrain, limit) is not None     # (a silent fall back would pass the rest)
+    assert compared >= 120 and psr_boards >= 60 and rust_used == compared, (compared, psr_boards, rust_used)
+
+
 def run_all():
     if fastcore is None:
         print("SKIP  fastcore is not built here (pure Python is used) - see this file's docstring")
