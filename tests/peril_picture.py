@@ -95,6 +95,7 @@ svg{display:block;max-width:100%;height:auto}
 #info{font-size:13px;color:var(--muted);min-height:20px;margin-top:6px}
 </style></head><body><main>
 <h1>Peril heat map</h1><p class="sub" id="title"></p>
+<p class="sub">Pick a unit of one side and you see the Peril it stands in from the other side; pick a unit of the other side and you see the mirror image: what your side could do to it on each hex.</p>
 <div class="bar">
 <label>Damage figured against<select id="target"></select></label>
 <label>From<select id="from"></select></label>

@@ -540,6 +540,15 @@ PERIL_BLEND = 1.0
 STACK = False
 STACK_WEIGHT = 1.0
 STACK_QUANTILE = None
+
+# TRIAGE (2026-11-07, Daniel: peril / toughness tiers; INTEGRATION__triage): each unit's peril (the damage the enemy side could
+# bring to its hex) / its toughness, ranked over the team. The TRIAGE_FRACTION highest are HOT: the damage a spot would take
+# counts TRIAGE_HOT_RECEIVED times. The same share at the bottom are COOL: the damage a spot would deal counts
+# TRIAGE_COOL_DEALT times. Only with Legate on and three or more units. Placeholder weights; off by default.
+TRIAGE = False
+TRIAGE_FRACTION = 0.25
+TRIAGE_HOT_RECEIVED = 2.0
+TRIAGE_COOL_DEALT = 1.5
 GLADIATOR_FIRE_ORDER = "big_guns_first"
 # (STUB_REAR_MOUNTED removed 2026-10-19: mtf_parser keeps the "(R)" tag as
 # Equipment.rear_mounted; those weapons fire only into the rear arc - Core p.60.)
