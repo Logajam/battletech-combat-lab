@@ -79,6 +79,8 @@ def main():
                     help="config.LEGATE_TEAM_VALUE: score a move by the whole team's future damage")
     ap.add_argument("--move-order", choices=("index", "random", "reverse"), default=config.MOVE_ORDER,
                     help="config.MOVE_ORDER: which unit of a side moves next (2026-11-07)")
+    ap.add_argument("--fresh", action="store_true",
+                    help="ignore the saved battles and run every one again (default: a battle already saved for these settings is skipped)")
     args = ap.parse_args()
     red_bot, blue_bot, title = SETUPS[args.setup]
     config.FORCES = forces(red_bot, blue_bot)
@@ -104,26 +106,49 @@ def main():
         roster = config.load_roster()
     print(f"{title}{' + Legate' if args.legate else ''}, Gladiator targets: {args.target}, {tag}: 12 v 12 on a 2 x 1 stitched field, {args.battles} battle(s), cap {args.turns} turns, seed {args.seed}")
     rows = []
+    # RESUMABLE (2026-11-07, Daniel: "write the driver and make it standard equipment"): every finished battle is
+    # saved at once under run_stats/baseline/saved/<these settings>/, so a restart of the machine costs only the
+    # battle in progress - run the same command again and the saved battles are skipped. A battle's seed depends
+    # only on its number, so saved and fresh battles are interchangeable. --fresh ignores the saved ones.
+    run_key = f"{args.setup}{'_legate' if args.legate else ''}_{args.target}_{tag}_seed{args.seed}_turns{args.turns}"
+    save_dir = os.path.join(REPO_ROOT, "run_stats", "baseline", "saved", run_key)
+    os.makedirs(save_dir, exist_ok=True)
     for n in range(args.first, (args.last or args.battles) + 1):
-        timing.reset() if hasattr(timing, "reset") else None
-        t0 = time.time()
-        with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
-            result = orchestrator._run_one_roster(n, args.battles, args.seed, args.turns, roster, terrain)
-        wall = time.time() - t0
-        if getattr(result, "replay", None):
-            print(f"  replay -> {replay.write(result.replay)}")
-        teams = {name: (s.units - s.units_lost, round(s.final_hp), round(s.max_hp), round(s.damage_dealt))
-                 for name, s in result.teams.items()}
-        row = {"battle": n, "seed": result.seed, "winner": result.winner, "turns": result.turns_taken,
-               "teams": teams, "seconds": round(wall, 1), "seconds_per_turn": round(wall / max(1, result.turns_taken), 2),
-               "timing": result.timing}
+        saved_path = os.path.join(save_dir, f"battle_{n:03d}.json")
+        row = None
+        if not args.fresh and os.path.exists(saved_path):
+            try:
+                with open(saved_path) as f:
+                    row = json.load(f)
+                row["teams"] = {k: tuple(v) for k, v in row["teams"].items()}
+                row["from_saved"] = True
+            except (OSError, ValueError, KeyError):
+                row = None            # a half-written file from a crash: run the battle again
+        if row is None:
+            timing.reset() if hasattr(timing, "reset") else None
+            t0 = time.time()
+            with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+                result = orchestrator._run_one_roster(n, args.battles, args.seed, args.turns, roster, terrain)
+            wall = time.time() - t0
+            if getattr(result, "replay", None):
+                print(f"  replay -> {replay.write(result.replay)}")
+            teams = {name: (s.units - s.units_lost, round(s.final_hp), round(s.max_hp), round(s.damage_dealt))
+                     for name, s in result.teams.items()}
+            row = {"battle": n, "seed": result.seed, "winner": result.winner, "turns": result.turns_taken,
+                   "teams": teams, "seconds": round(wall, 1), "seconds_per_turn": round(wall / max(1, result.turns_taken), 2),
+                   "timing": result.timing}
+            tmp = saved_path + ".tmp"
+            with open(tmp, "w") as f:                     # write whole, then rename: never a half file
+                json.dump(row, f, default=str)
+            os.replace(tmp, saved_path)
         rows.append(row)
-        print(f"  battle {n}: {result.winner} after {result.turns_taken} turns"
-              f"{' (hit the cap)' if result.turns_taken >= args.turns else ''} | "
+        teams, wall = row["teams"], row["seconds"]
+        print(f"  battle {n}: {row['winner']} after {row['turns']} turns"
+              f"{' (hit the cap)' if row['turns'] >= args.turns else ''} | "
               + " | ".join(f"{t}: {alive}/12 left, HP {hp}/{mx}, dealt {dealt}" for t, (alive, hp, mx, dealt) in teams.items())
-              + f" | {wall:.0f} s ({row['seconds_per_turn']} s a turn)")
-        if result.timing:
-            secs = {k: (v[0] if isinstance(v, (list, tuple)) else v) for k, v in result.timing.items()}
+              + f" | {wall:.0f} s ({row['seconds_per_turn']} s a turn){' [saved]' if row.get('from_saved') else ''}")
+        if row.get("timing") and not row.get("from_saved"):
+            secs = {k: (v[0] if isinstance(v, (list, tuple)) else v) for k, v in row["timing"].items()}
             print("    time: " + ", ".join(f"{k} {v:.0f}s" for k, v in sorted(secs.items(), key=lambda kv: -kv[1])[:8]))
     out_dir = os.path.join(REPO_ROOT, "run_stats", "baseline")
     os.makedirs(out_dir, exist_ok=True)
