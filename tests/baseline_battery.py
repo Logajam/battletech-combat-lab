@@ -79,6 +79,11 @@ def main():
                     help="config.LEGATE_TEAM_VALUE: score a move by the whole team's future damage")
     ap.add_argument("--move-order", choices=("index", "random", "reverse"), default=config.MOVE_ORDER,
                     help="config.MOVE_ORDER: which unit of a side moves next (2026-11-07)")
+    ap.add_argument("--exchange", action=argparse.BooleanOptionalAction, default=config.LEGATE_TEAM_EXCHANGE,
+                    help="config.LEGATE_TEAM_EXCHANGE: with a team value, also count the enemy damage our fire removes")
+    ap.add_argument("--stats", action="store_true",
+                    help="also record every battle's event log (INTEGRATION__stats: each shot, physical attack, unit snapshot "
+                         "and death) in its saved file; then `python tests/battery_stats.py <name>` makes the statistics page")
     ap.add_argument("--fresh", action="store_true",
                     help="ignore the saved battles and run every one again (default: a battle already saved for these settings is skipped)")
     args = ap.parse_args()
@@ -98,8 +103,10 @@ def main():
     config.GLADIATOR_FIRE_ORDER = args.fire_order
     config.LEGATE_TEAM_VALUE = args.team_value
     config.MOVE_ORDER = args.move_order
+    config.STATS = args.stats        # off by default: a little time a shot (the reference checks switch it off too)
+    config.LEGATE_TEAM_EXCHANGE = args.exchange
     tag = (f"split-{args.fire_split}{'-now' if args.split_now else ''}{'_herd' if args.herding else ''}{f'_coh{args.cohesion}' if args.cohesion is not None else ''}_{args.fire_order}"
-           f"{f'_team-{args.team_value}' if args.team_value else ''}{f'_order-{args.move_order}' if args.move_order != 'index' else ''}")
+           f"{f'_team-{args.team_value}{"" if args.exchange else "-noexch"}' if args.team_value else ''}{f'_order-{args.move_order}' if args.move_order != 'index' else ''}")
     config.REPLAY_BATTLES = 1 if args.replay else 0
     with redirect_stdout(io.StringIO()):
         terrain = orchestrator._load_map()
@@ -110,7 +117,7 @@ def main():
     # saved at once under run_stats/baseline/saved/<these settings>/, so a restart of the machine costs only the
     # battle in progress - run the same command again and the saved battles are skipped. A battle's seed depends
     # only on its number, so saved and fresh battles are interchangeable. --fresh ignores the saved ones.
-    run_key = f"{args.setup}{'_legate' if args.legate else ''}_{args.target}_{tag}_seed{args.seed}_turns{args.turns}"
+    run_key = f"{args.setup}{'_legate' if args.legate else ''}_{args.target}_{tag}_seed{args.seed}_turns{args.turns}{'_stats' if args.stats else ''}"
     save_dir = os.path.join(REPO_ROOT, "run_stats", "baseline", "saved", run_key)
     os.makedirs(save_dir, exist_ok=True)
     for n in range(args.first, (args.last or args.battles) + 1):
@@ -137,6 +144,9 @@ def main():
             row = {"battle": n, "seed": result.seed, "winner": result.winner, "turns": result.turns_taken,
                    "teams": teams, "seconds": round(wall, 1), "seconds_per_turn": round(wall / max(1, result.turns_taken), 2),
                    "timing": result.timing}
+            if args.stats and getattr(result, "stats", None):
+                row["stats"] = result.stats
+                row["destroyed"], row["turn_cap"] = getattr(result, "destroyed", None), getattr(result, "turn_cap", None)
             tmp = saved_path + ".tmp"
             with open(tmp, "w") as f:                     # write whole, then rename: never a half file
                 json.dump(row, f, default=str)

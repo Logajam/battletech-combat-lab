@@ -233,9 +233,16 @@ settings against this row.
 - Why grouping doesn't win: the cohesion reward matches Princess's spread but
   not her results - check with `tests/legate_probe.py` whether moves spent on
   cohesion cost firing spots (damage dealt, regret).
-- Gladiator rates its own damage ~25% high (incoming is right): find where the
-  movement model and the fire phase's dry run part.
-- Re-test team value / exchange on the new fire-split default (they were built
-  on the old over-count).
+- Gladiator's own damage "~25% high" (2026-11-07, SETTLED, 13 battles, 2,693 Gladiator attacks): at range 2 and
+  beyond the movement model, the fire phase's dry run and the shots that really landed agree to within a few percent
+  (7.27 raw v 6.08 actual overall; Princess's attacks 5.74 v 5.69). The whole gap is attacks from an ADJACENT hex
+  (model 21 v 9 ranged): the model adds the physical attack that follows (kick / punch about 6 raw points v about 3
+  that really landed per adjacent attack, 96 attacks) and pushes, valued as the target's whole HP when it would be
+  pushed off the board (11 of 304 adjacent attacks, 100-250 points each; a push that works shows as 0 damage in the
+  battle log because the target is removed, not damaged). Not an error in the damage math; ordinary physical value
+  looks about 2x high (open, small).
+- Team value / exchange re-tested on the fire-split default (2026-11-07, 20 battles, Princess / draws / Gladiator):
+  "sum" + exchange 18 / 1 / 1, "sum" 14 / 0 / 6, "product" 11 / 1 / 8 (baseline 11 / 1 / 8): none beats the baseline,
+  left off.
 - Movement order hierarchy; active choices in one currency; indirect fire and
   spotting (which also settles STUB_MISSION_KILL); ammo conservation.
