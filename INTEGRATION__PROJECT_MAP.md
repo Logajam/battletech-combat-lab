@@ -492,7 +492,7 @@ rebuild it with one full run). Numbers: Change Record.
 Princess, decision by decision, the latest battery and why Gladiator loses.
 
 **Pick up here (open, roughly in priority order):**
-000000. **THE PERIL HEAT MAP (the top-down approach; Daniel, 2026-11-07) - IN PROGRESS, start here.** Where things stand
+000000. **THE PERIL HEAT MAP (the top-down approach; Daniel, 2026-11-07) - IN PROGRESS, start here. STAGES 1-4 DONE (2026-11-07): `INTEGRATION__vision` (the table, ordered pairs because the to-hit modifier is NOT symmetric: 14% of random pairs differ, LOS itself is; 2.1 s for the 544-hex field), `INTEGRATION__peril` (`unit_field` / `team_field`, peak and mean; 0.07 s for a 10-unit side), `tests/test_peril.py` (5 checks), `tests/peril_picture.py` (a page per saved turn). Next: 5 (shortcut accuracy tests), 6 (Legate's move score uses the field; switch; A/B). Not done yet: arcs for stand-still units, disk cache of the table, smoke refresh call (`vision.invalidate` exists, nothing calls it).** Where things stand
    (the pivot after the tiered order proved uninformative): Daniel's design - for every unit, its weapons' damage-over-range
    table is projected from it (the damage at each distance), the firing arcs are covered by rotating it (a unit that can move
    chooses its facing at the end, so for it the damage reaches every direction; arcs bind only a unit that cannot turn - start
@@ -507,8 +507,7 @@ Princess, decision by decision, the latest battery and why Gladiator loses.
    7 us a pair under load) and the per-turn lookups, not a per-turn LOS cost; the corner-sampling shortcut changes ACCURACY,
    so build the exact version first and score each shortcut against it. Stages: (1) the visibility + modifier table per board
    (numpy; `los_cache.pair_info`; cache on disk; refresh when smoke changes); (2) per-unit damage-by-range profiles -
-   `future_damage.range_profile(attacker, target, extra_tn)` is DONE (a refactor of `future_damage`, 52 / 52 checks and every
-   reference log unchanged, NOT committed before this note); (3) the exact peril field, `INTEGRATION__peril` (new): uses
+   `future_damage.range_profile(attacker, target, extra_tn)` is DONE (a refactor of `future_damage`, committed); (3) the exact peril field, `INTEGRATION__peril` (new): uses
    `tiers.footprint` for the spots; peak and expected versions; modifier classes 0-3 from the visibility table; one unit at a
    time so memory is one N x N table; (4) a picture: heat maps from a saved battle turn (`tests/turn_inspector.py`
    `make_state` gives the states) as an Artifact page; (5) the shortcut accuracy tests; (6) Legate's move score uses the
@@ -1836,6 +1835,14 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-11-07 (Claude), PERIL HEAT MAP: STAGES 1-4 (visibility table, exact Peril field, tests, picture). REVIEW PENDING (higher-level model).**
+  New `INTEGRATION__vision.py`: per-board N x N arrays (seen, to-hit modifier clipped 0..3, distance) from `los_cache.pair_info`, built once per board
+  (ordered pairs: the modifier differs with direction on ~14% of pairs, line of sight does not). New `INTEGRATION__peril.py`: for each attacker, its
+  `future_damage.range_profile` per modifier class laid over its `tiers.footprint` spots and filtered by the table; `peak` (worst case from any reachable
+  spot) and `mean` per hex; `team_field` adds them. Arcs ignored (a mover chooses its facing). `tests/test_peril.py` (5 checks, in run_checks: 53 / 53 pass,
+  reference logs unchanged: nothing in the battle uses it yet) and `tests/peril_picture.py` (the heat map of a saved battle turn as a page, pick the target
+  and the attacker). Nothing is wired into Legate yet (stage 6).
 
 - **2026-11-07 (Claude), PERIL HEAT MAP: DESIGN AND FIRST STEP (Pick up here 000000). REVIEW PENDING (higher-level model).** Daniel let
   the tiered order rest and chose the top-down peril heat map. First step done: `INTEGRATION__future_damage._ranged_for` and
