@@ -1811,6 +1811,26 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-07 (Claude), TURN INSPECTOR; THE "25% HIGH" DAMAGE ESTIMATE SETTLED; MOVE ORDER AND TEAM VALUE RESULTS. REVIEW PENDING
+  (higher-level model).** (1) `tests/turn_inspector.py <pp|pg|gg> <battle> <turn> [--unit NAME] [--set NAME=VALUE]
+  [--json FILE]` (Daniel: "select a turn in a match, and get a read back of all the math ... a feature and for trouble
+  shooting"): plays battle N of the baseline battery to the end of turn T-1 once and keeps the saved state
+  (`run_stats/inspector/`), then loads it and plays only turn T with the recorders on - same dice, so the turn is exact
+  (checked: battle 1 turn 12, all 24 units' HP and hexes and all 29 shots identical to the batch) and repeatable in
+  seconds, or under a changed setting (a one-turn A/B). Prints Legate's estimate v where units ended, each move's
+  predicted v real-spot score and regret, each attack's movement-model value v the fire phase's dry run v the ranged
+  and physical damage that landed, every shot and physical attack, HP before / after. The recorders moved from
+  `legate_probe.py` into `tests/probe_hooks.py` (same output: battle 6 compared turn by turn). (2) The "Gladiator
+  rates its own damage ~25% high" item (Pick up here 0000): NOT an error in the damage math (see INTEGRATION__BOTS.md
+  Next steps): the ~25% compared structure-weighted points with raw ones, and on 13 battles the model is within a few
+  percent at range 2+; the gap is attacks from an adjacent hex (the physical attack that follows, ordinary value about
+  2x the real 3 points, and pushes valued at the target's whole HP). Also found: the battle log's damage counters read
+  0 for a push that removes the target off the board, and `damage_dealt` counts ranged fire only. (3) Movement order
+  (20 battles, Princess v Gladiator): index 11 / 1 / 8, random 10 / 2 / 8, reverse 9 / 6 / 5 - order alone barely
+  matters; Daniel wants the tiered order (stand-still first, then out-of-footprint, may-intersect, cannot-escape) built as
+  a switch to guard against a strong opponent. (4) Team value re-test: none beats the baseline (BOTS.md). Also
+  `baseline_battery.py --exchange / --stats`, `tests/battery_stats.py`.
+
 - **2026-11-07 (Claude), RESUMABLE BATTERIES + MOVEMENT-ORDER SWITCH. REVIEW PENDING (higher-level model).** Daniel: "write the
   driver and make it standard equipment". The sandbox restarted twice during the first movement-order batteries and killed
   them mid-run. `tests/baseline_battery.py` now saves every finished battle at once (whole file, then rename, so never a
