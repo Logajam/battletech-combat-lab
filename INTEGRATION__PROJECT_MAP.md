@@ -492,6 +492,31 @@ rebuild it with one full run). Numbers: Change Record.
 Princess, decision by decision, the latest battery and why Gladiator loses.
 
 **Pick up here (open, roughly in priority order):**
+000000. **THE PERIL HEAT MAP (the top-down approach; Daniel, 2026-11-07) - IN PROGRESS, start here.** Where things stand
+   (the pivot after the tiered order proved uninformative): Daniel's design - for every unit, its weapons' damage-over-range
+   table is projected from it (the damage at each distance), the firing arcs are covered by rotating it (a unit that can move
+   chooses its facing at the end, so for it the damage reaches every direction; arcs bind only a unit that cannot turn - start
+   omnidirectional, add arcs for stand-still units), the table is SMEARED over the unit's movement footprint (the outer
+   perimeter of each movement mode: peak damage it could bring to a hex from any spot it can reach, or the same weighted by how
+   likely each spot is), and a LINE-OF-SIGHT map filters it (no LOS: nothing; woods / partial cover: the to-hit modifier
+   scales the damage). One field a unit; a team's Peril is their sum; when a unit moves its own movement interacts with the
+   field ("super position of movement x damage x counter movement collapsing to the best spot"). Daniel's refinements:
+   SMART LOS BLOCKING (a hex that blocks a line blocks everything past it at the same or lower level) and PARTIAL LOS TESTING
+   (test only the footprint's corners, or the short list). My reading, measured on 2026-11-07: the per-board visibility table
+   is STATIC, so those two refinements speed the one-time build (2 s on the 544-hex field, ~42 s for 3 x 3 boards at
+   7 us a pair under load) and the per-turn lookups, not a per-turn LOS cost; the corner-sampling shortcut changes ACCURACY,
+   so build the exact version first and score each shortcut against it. Stages: (1) the visibility + modifier table per board
+   (numpy; `los_cache.pair_info`; cache on disk; refresh when smoke changes); (2) per-unit damage-by-range profiles -
+   `future_damage.range_profile(attacker, target, extra_tn)` is DONE (a refactor of `future_damage`, 52 / 52 checks and every
+   reference log unchanged, NOT committed before this note); (3) the exact peril field, `INTEGRATION__peril` (new): uses
+   `tiers.footprint` for the spots; peak and expected versions; modifier classes 0-3 from the visibility table; one unit at a
+   time so memory is one N x N table; (4) a picture: heat maps from a saved battle turn (`tests/turn_inspector.py`
+   `make_state` gives the states) as an Artifact page; (5) the shortcut accuracy tests; (6) Legate's move score uses the
+   fields (a switch), A/B on the 100-battle baseline (INTEGRATION__BOTS.md). Later (Daniel): Legate reads the board for good
+   terrain (cover that sees: only partial cover, elevation, arcs and range differences are asymmetric, since LOS itself is
+   symmetric); Legate holds back until most of its combat power can engage at once. Numbers: the cost per turn is about
+   spots x targets in range lookups (~1 M a side on the current field), tens of ms with numpy, 1.5 s or more in plain Python;
+   memory is one table at a time (24 MB at 2,448 hexes) - NOT the limit.
 00000. **Cohesion and the open biases** (session 15 diagnosis, Change Record 2026-10-30): Gladiator's
    units end alone about twice as often as Princess's, worse late (47% v 22% with no friend within 4
    hexes). The cohesion reward (`LEGATE_COHESION`, Daniel's design, off) fixes the spread - "either"
@@ -1811,6 +1836,12 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-11-07 (Claude), PERIL HEAT MAP: DESIGN AND FIRST STEP (Pick up here 000000). REVIEW PENDING (higher-level model).** Daniel let
+  the tiered order rest and chose the top-down peril heat map. First step done: `INTEGRATION__future_damage._ranged_for` and
+  `range_profile(attacker, target, extra_tn)` (the damage at every distance, with a to-hit modifier option) split out of
+  `future_damage` with no change in results (52 / 52 checks, reference logs identical). The rest of the plan, the reasoning on
+  Daniel's two refinements, and the cost figures are in Pick up here 000000.
 
 - **2026-11-07 (Claude), TIERED MOVEMENT ORDER. REVIEW PENDING (higher-level model).** Daniel's design (Ideas phase, same day):
   "units whose movement footprint is completely outside the enemies' ... move first; may intersect ... second; can not

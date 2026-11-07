@@ -77,11 +77,10 @@ def _max_distance(weapons):
     return min(longest, 30)
 
 
-def future_damage(attacker, target):
-    """attacker's future damage per turn against target (see the module
-    docstring), in movement-score units."""
-    if attacker.shutdown or is_immobile(attacker):
-        return 0.0
+def _ranged_for(attacker, target, extra_tn=0):
+    """The pieces future_damage and range_profile share: ranged(distance, held) - the best heat-limited expected
+    damage at that distance, target dead ahead (extra_tn: a to-hit modifier on top, e.g. woods in the way) - with
+    the weapons, leg offsets, attacker's movement modifier and the target's best TMM."""
     mode = config.MOVEMENT_LIFETIME_ATTACKER_MODE
     amm = combat.MODE_TO_AMM[mode]
     move_heat = heat.movement_heat(attacker, mode, 1)
@@ -108,7 +107,7 @@ def future_damage(attacker, target):
             fixed["by_held"] = {}
             pre = (attacker.gunnery + amm + tmm + attacker.heat_fire_modifier + cond[0]
                    + equip.own_attack_modifier(attacker))
-            fixed["pre_tn"] = max(weapon_selection.PRE_TN_MIN, min(weapon_selection.PRE_TN_MAX, pre))
+            fixed["pre_tn"] = max(weapon_selection.PRE_TN_MIN, min(weapon_selection.PRE_TN_MAX, pre + extra_tn))
         unavailable = fixed["by_held"].get(held)
         if unavailable is None:
             unavailable = fixed["by_held"][held] = fixed["blocked"] | held
@@ -123,6 +122,15 @@ def future_damage(attacker, target):
                                                                       share=("future damage",))
         return scorer(distance, fixed["pre_tn"], move_heat, "front")
 
+    return ranged, weapons, legs, amm, tmm
+
+
+def future_damage(attacker, target):
+    """attacker's future damage per turn against target (see the module
+    docstring), in movement-score units."""
+    if attacker.shutdown or is_immobile(attacker):
+        return 0.0
+    ranged, weapons, legs, amm, tmm = _ranged_for(attacker, target)
     best = max(ranged(d) for d in range(1, _max_distance(weapons) + 1))
 
     # Range 1 with a kick / punch / physical weapon on top (pp.76-83).
@@ -133,3 +141,14 @@ def future_damage(attacker, target):
         best = _with_physical(max(best, ranged(1)), planner, (arcs.NO_ACTION,), legs, pair, _FACING, 0, False,
                               base, "front", lambda key, held: ranged(1, held))
     return config.MOVEMENT_LIFETIME_INITIATIVE * best
+
+
+def range_profile(attacker, target, extra_tn=0):
+    """[damage at distance 0, 1, 2, ...]: attacker's heat-limited expected damage on target at each distance, target
+    dead ahead, in movement-score units (the table future_damage takes the best of). extra_tn: a to-hit modifier on
+    top of the usual (a line through woods). Range 1 is the ranged part only (no kick / punch). Empty for a unit
+    that can't fire (INTEGRATION__peril, 2026-11-07)."""
+    if attacker.shutdown or is_immobile(attacker):
+        return []
+    ranged, weapons, _, _, _ = _ranged_for(attacker, target, extra_tn)
+    return [0.0] + [ranged(d) for d in range(1, _max_distance(weapons) + 1)]
