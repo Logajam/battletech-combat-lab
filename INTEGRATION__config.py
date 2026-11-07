@@ -524,6 +524,14 @@ KILL_CURVE_PROGRESS_WEIGHT = 1.0
 # cannot escape (slower first inside a tier); tiers 2 and 3 plan their two-ply against the highest-threat enemy that
 # could flank them; applies when entering the battlefield too.
 MOVE_ORDER = "index"
+
+# PERIL (2026-11-07, Daniel's peril heat map; INTEGRATION__peril): how Legate prices the damage a spot takes from the
+# enemies OTHER than the mover's foe. "off" (default): each at the one spot Legate estimates it ends in (or its real
+# spot once it has moved). "peak" / "mean": from the whole of where it COULD end (its movement footprint, line of sight and
+# cover applied) - the most any one spot would deal there, or the average over its spots. PERIL_BLEND = the share the
+# field takes, the point estimate the rest (1.0 = the field only). Placeholder weights; only with Legate on.
+PERIL = "off"
+PERIL_BLEND = 1.0
 GLADIATOR_FIRE_ORDER = "big_guns_first"
 # (STUB_REAR_MOUNTED removed 2026-10-19: mtf_parser keeps the "(R)" tag as
 # Equipment.rear_mounted; those weapons fire only into the rear arc - Core p.60.)

@@ -48,6 +48,7 @@ import INTEGRATION__config as config
 import INTEGRATION__forces as forces
 import INTEGRATION__future_damage as future_damage
 import INTEGRATION__movement_selection as movement_selection
+import INTEGRATION__peril as peril
 import INTEGRATION__ranged_combat as ranged_combat
 import INTEGRATION__timing as timing
 import hex_geometry  # noqa: E402 - PATHFINDER
@@ -70,6 +71,7 @@ def reset() -> None:
     _RATES.clear()
     _SHARES.clear()
     _FRIEND_DMG.clear()
+    peril.reset()
 
 
 def end_phase() -> None:
@@ -81,6 +83,7 @@ def end_phase() -> None:
     # The team-fire table too (review 2026-11-06): its key is positions only, so a teammate standing on
     # the same spot a later turn found damage worked out before either unit had been hurt.
     _FRIEND_DMG.clear()
+    peril.reset()
 
 
 def _key(o) -> Tuple[str, str, str, int, int]:
@@ -498,6 +501,7 @@ class Extras:
         self.entries = [(_Unit(f, units, terrain_map, lite=True), foe_state(mover.team, f)) for f in self.others]
         self.unit = _Unit(mover, units, terrain_map, lite=True, side=me_side)
         self.count = len(self.entries)
+        self.peril = config.PERIL if config.PERIL in ("peak", "mean") else None
         self.herd = _Herd(mover, units, terrain_map) if config.LEGATE_HERDING else None
         self.cohesion = _Cohesion(mover, units) if config.LEGATE_COHESION else None
         self.primary = primary
@@ -534,6 +538,9 @@ class Extras:
                     continue
                 d = max(d, cand.dealt * foe.side.exposure[cand.side_on_defender])
                 taken = cand.received * self.unit.side.exposure[cand.side_on_mover]
+                if self.peril:                              # config.PERIL: from everywhere it could end, not one spot
+                    field = peril.field_for(foe.mech, self.mover, self.terrain_map).at(o.hex_xy, self.peril)
+                    taken = (1.0 - config.PERIL_BLEND) * taken + config.PERIL_BLEND * field
                 r += taken * now_share(foe.mech, self.mover)
                 on_me[id(foe.mech)] = taken
                 on_them[id(foe.mech)] = cand.dealt * foe.side.exposure[cand.side_on_defender]

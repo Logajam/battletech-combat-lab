@@ -24,6 +24,8 @@ Nothing is cached across turns: a unit's footprint changes every turn.
 
 import numpy as np
 
+import hex_geometry
+
 import INTEGRATION__tiers as tiers
 import INTEGRATION__vision as vision
 import INTEGRATION__future_damage as future_damage
@@ -86,3 +88,32 @@ def team_field(attackers, target, terrain_map, vt=None):
     for a in attackers:
         total = total + unit_field(a, target, terrain_map, vt=vt)
     return total
+
+
+# -----------------------------------------------------------------------------------------------------------
+# Used by Legate (INTEGRATION__legate.Extras, config.PERIL): one attacker's field against one mover, remembered for
+# the Movement Phase (an unmoved enemy's footprint cannot change until it moves; once it has, its field is its real
+# spot alone). legate.end_phase / reset call `reset`.
+_FIELDS = {}                      # (id(attacker), id(target), moved) -> Field
+_FOOT = {}                        # id(attacker) -> its footprint, this phase
+
+
+def reset():
+    _FIELDS.clear()
+    _FOOT.clear()
+
+
+def field_for(attacker, target, terrain_map, vt=None):
+    """The attacker's Field on `target` for the phase in progress (see above)."""
+    moved = bool(getattr(attacker, "moved_this_turn", False))
+    key = (id(attacker), id(target), moved)
+    f = _FIELDS.get(key)
+    if f is None:
+        if moved and attacker.hex is not None:
+            spots = [hex_geometry.parse_hex_label(attacker.hex)]
+        else:
+            spots = _FOOT.get(id(attacker))
+            if spots is None:
+                spots = _FOOT[id(attacker)] = tiers.footprint(attacker, terrain_map)
+        f = _FIELDS[key] = unit_field(attacker, target, terrain_map, spots=spots, vt=vt)
+    return f
