@@ -117,7 +117,7 @@ def main():
     # saved at once under run_stats/baseline/saved/<these settings>/, so a restart of the machine costs only the
     # battle in progress - run the same command again and the saved battles are skipped. A battle's seed depends
     # only on its number, so saved and fresh battles are interchangeable. --fresh ignores the saved ones.
-    run_key = f"{args.setup}{'_legate' if args.legate else ''}_{args.target}_{tag}_seed{args.seed}_turns{args.turns}"
+    run_key = f"{args.setup}{'_legate' if args.legate else ''}_{args.target}_{tag}_seed{args.seed}_turns{args.turns}{'_stats' if args.stats else ''}"
     save_dir = os.path.join(REPO_ROOT, "run_stats", "baseline", "saved", run_key)
     os.makedirs(save_dir, exist_ok=True)
     for n in range(args.first, (args.last or args.battles) + 1):
