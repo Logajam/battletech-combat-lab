@@ -79,6 +79,8 @@ def main():
                     help="config.LEGATE_TEAM_VALUE: score a move by the whole team's future damage")
     ap.add_argument("--move-order", choices=("index", "random", "reverse"), default=config.MOVE_ORDER,
                     help="config.MOVE_ORDER: which unit of a side moves next (2026-11-07)")
+    ap.add_argument("--exchange", action=argparse.BooleanOptionalAction, default=config.LEGATE_TEAM_EXCHANGE,
+                    help="config.LEGATE_TEAM_EXCHANGE: with a team value, also count the enemy damage our fire removes")
     ap.add_argument("--fresh", action="store_true",
                     help="ignore the saved battles and run every one again (default: a battle already saved for these settings is skipped)")
     args = ap.parse_args()
@@ -98,8 +100,9 @@ def main():
     config.GLADIATOR_FIRE_ORDER = args.fire_order
     config.LEGATE_TEAM_VALUE = args.team_value
     config.MOVE_ORDER = args.move_order
+    config.LEGATE_TEAM_EXCHANGE = args.exchange
     tag = (f"split-{args.fire_split}{'-now' if args.split_now else ''}{'_herd' if args.herding else ''}{f'_coh{args.cohesion}' if args.cohesion is not None else ''}_{args.fire_order}"
-           f"{f'_team-{args.team_value}' if args.team_value else ''}{f'_order-{args.move_order}' if args.move_order != 'index' else ''}")
+           f"{f'_team-{args.team_value}{"" if args.exchange else "-noexch"}' if args.team_value else ''}{f'_order-{args.move_order}' if args.move_order != 'index' else ''}")
     config.REPLAY_BATTLES = 1 if args.replay else 0
     with redirect_stdout(io.StringIO()):
         terrain = orchestrator._load_map()
