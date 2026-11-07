@@ -77,6 +77,8 @@ def main():
                     help="config.GLADIATOR_FIRE_ORDER")
     ap.add_argument("--team-value", choices=("sum", "product"), default=config.LEGATE_TEAM_VALUE,
                     help="config.LEGATE_TEAM_VALUE: score a move by the whole team's future damage")
+    ap.add_argument("--move-order", choices=("index", "random", "reverse"), default=config.MOVE_ORDER,
+                    help="config.MOVE_ORDER: which unit of a side moves next (2026-11-07)")
     args = ap.parse_args()
     red_bot, blue_bot, title = SETUPS[args.setup]
     config.FORCES = forces(red_bot, blue_bot)
@@ -93,8 +95,9 @@ def main():
         config.LEGATE_COHESION, config.LEGATE_COHESION_SCALE = True, args.cohesion
     config.GLADIATOR_FIRE_ORDER = args.fire_order
     config.LEGATE_TEAM_VALUE = args.team_value
+    config.MOVE_ORDER = args.move_order
     tag = (f"split-{args.fire_split}{'-now' if args.split_now else ''}{'_herd' if args.herding else ''}{f'_coh{args.cohesion}' if args.cohesion is not None else ''}_{args.fire_order}"
-           f"{f'_team-{args.team_value}' if args.team_value else ''}")
+           f"{f'_team-{args.team_value}' if args.team_value else ''}{f'_order-{args.move_order}' if args.move_order != 'index' else ''}")
     config.REPLAY_BATTLES = 1 if args.replay else 0
     with redirect_stdout(io.StringIO()):
         terrain = orchestrator._load_map()
