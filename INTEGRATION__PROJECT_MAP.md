@@ -1837,6 +1837,13 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-07 (Claude), PERIL / TOUGHNESS TIERS (`config.TRIAGE`, `TRIAGE_FRACTION`, `TRIAGE_HOT_RECEIVED`, `TRIAGE_COOL_DEALT`; `INTEGRATION__triage`) AND THE MIRROR MAP (`triage.reach_on`, shown by the heat-map page); default off. REVIEW PENDING (higher-level model).**
+  Per unit: peril (peak damage from every enemy's reachable spots at its hex) / effective HP, ranked over the team; the top 25% HOT (damage taken x2), the bottom 25% COOL (damage dealt x1.5); needs 3+ units.
+  `tests/test_triage.py` (3 checks); 55 / 55 pass. First A/B, same 20 battles (Blue wins / Red / draws, 'Mechs left Blue / Red, dealt, turns): baseline 8 / 11 / 1, 1.95 / 2.55, 1345 / 1508, 36.5;
+  both halves (hot x2, cool x1.5) 5 / 8 / 7, 2.45 / 2.65, 1414 / 1525, 42.1; hot only (x2) 4 / 12 / 4, 1.00 / 3.45, 1282 / 1614, 40.0; cool only (x1.5) 5 / 13 / 2, 1.35 / 3.90, 1295 / 1576, 36.3.
+  Both halves together make the closest fight (left 2.45 v 2.65, damage 1414 v 1525, a third of the battles drawn at the cap) but win fewer battles than the baseline; either half alone is worse. Default stays off.
+  Open: the fraction (25%), the weights, peak v mean in the ratio, and 40 battles of the both-halves arm to see if the draw pile is a real shift.
+
 - **2026-11-07 (Claude), STACKED COVERAGE (Daniel's "stack the damage maps on a target's movement profile up to what kills it"; `config.STACK`, `STACK_WEIGHT`, `STACK_QUANTILE`; `INTEGRATION__stack`; default off) AND ITS FIRST A/B. REVIEW PENDING (higher-level model).**
   Built: per enemy, the teammates' peak damage fields summed over the enemy's footprint, capped at its effective HP ("full kill", Daniel), read as the mean (or a quantile) over the footprint;
   a candidate spot earns STACK_WEIGHT x the coverage it adds, joined to its damage dealt. `tests/test_stack.py` (3 checks); 54 / 54 pass, reference logs unchanged (default off).
