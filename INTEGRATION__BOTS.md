@@ -228,6 +228,22 @@ Same 20 seeds, defaults:
 The narrower field ends more battles (1 draw v 4 on 33 x 17) and Princess wins more of them; compare new
 settings against this row.
 
+**The 100-battle baseline (2026-11-07), defaults, Princess Red v Gladiator Blue, 5 seeds x 20 battles**
+(`baseline_battery.py pg 20 --seed S --stats`; saved under `run_stats/baseline/saved/`, table by
+`tests/battery_summary.py`). Use this row, not a single 20-battle batch, as the yardstick:
+
+| Seed | Princess / draws / Gladiator | 'Mechs left P / G | Damage dealt P / G | Turns |
+|---|---|---|---|---|
+| 12345 | 11 / 1 / 8 | 2.55 / 1.95 | 1508 / 1345 | 36.5 |
+| 2468 | 9 / 4 / 7 | 2.85 / 1.55 | 1554 / 1353 | 44.4 |
+| 1357 | 9 / 4 / 7 | 2.20 / 2.00 | 1470 / 1338 | 37.5 |
+| 8642 | 7 / 5 / 8 | 2.60 / 2.50 | 1478 / 1334 | 37.7 |
+| 9753 | 11 / 6 / 3 | 3.70 / 1.25 | 1594 / 1245 | 38.9 |
+| **All 100** | **47 / 20 / 33** | **2.78 / 1.85** | **1521 / 1323** | **39.0** |
+
+Princess wins 47% (+/- 10 at 95%), Gladiator 33% (+/- 9), 20% draws. A 20-battle batch swings several wins either
+way (Gladiator 3 to 8 wins, Princess 7 to 11); damage dealt is steady (Princess 1470-1594, Gladiator 1245-1353).
+
 ## Next steps (PROJECT_MAP "Pick up here" 00000 and 0000)
 
 - Why grouping doesn't win: the cohesion reward matches Princess's spread but
