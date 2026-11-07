@@ -245,6 +245,19 @@ def run_ranged_phase(order, target_of, terrain_map, battle_rng):
 ar.run_ranged_phase = run_ranged_phase
 orchestrator.attack_resolution.run_ranged_phase = run_ranged_phase
 
+# --- the Physical Attack Phase (2026-11-07): the damage each unit deals in it, so the movement model's range-1
+# figure (ranged + the physical attack that follows, ranged_combat._with_physical) can be compared with what both
+# phases really deal. T["phys"] = each unit's damage in the physical phase only.
+import INTEGRATION__physical as _physical
+_rpu = _physical.run_physical_units
+def run_physical_units(order, target_of, terrain_map, reports):
+    before = {k: r.damage_dealt for k, r in reports.items()}
+    out = _rpu(order, target_of, terrain_map, reports)
+    if T is not None:
+        T["phys"] = {k: r.damage_dealt - before.get(k, 0.0) for k, r in reports.items()}
+    return out
+_physical.run_physical_units = run_physical_units
+
 with redirect_stdout(io.StringIO()):
     terrain = orchestrator._load_map()
     roster = config.load_roster()
