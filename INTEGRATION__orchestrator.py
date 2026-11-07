@@ -135,6 +135,7 @@ import INTEGRATION__movement_selection as movement_selection  # noqa: E402
 import INTEGRATION__saved_state as saved_state  # noqa: E402
 import INTEGRATION__bots as bots  # noqa: E402 - which bot decides for each unit (2026-10-27)
 import INTEGRATION__legate as legate  # noqa: E402 - Gladiator's view of the whole enemy force (2026-10-28)
+import INTEGRATION__tiers as tiers  # noqa: E402 - tiered movement order (2026-11-07)
 import INTEGRATION__princess_memory as princess_memory  # noqa: E402 - what Princess remembers of its force (2026-10-28)
 import INTEGRATION__ranged_combat as ranged_combat  # noqa: E402
 import INTEGRATION__stubs as stubs  # noqa: E402
@@ -913,6 +914,7 @@ def _play_turn(battle, turn) -> bool:
     for m in in_order:
         fire_modes.declare_unjams(m)     # Rotary AC unjam attempts are declared in the Movement Phase (p.183)
     legate.plan_turn(units, terrain_map)        # Legate estimates where each side's enemies will move
+    tiers.plan_phase(units, terrain_map)        # MOVE_ORDER "tiered": each unit's tier (a no-op otherwise)
     for mover in forces.movement_order(units, order):
         foe = bots.choose_foe(mover, units, terrain_map)
         start_hex = mover.hex
@@ -923,6 +925,7 @@ def _play_turn(battle, turn) -> bool:
         princess_memory.unit_moved(mover, start_hex)       # a Princess unit credits where it ended
         replay.mark(turn, f"{mover.side_name} moves")
     legate.end_phase()
+    tiers.reset()
 
     if any(m.hex is None for m in units):
         # A mech that couldn't enter the battlefield is destroyed (p.37) and

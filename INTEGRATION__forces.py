@@ -246,7 +246,14 @@ def movement_order(units, teams_in_order) -> Iterator[object]:
     """The Movement Phase's selections, one unit at a time (see
     activation_sequence); each side's next unit is its highest move_index."""
     mode = config.MOVE_ORDER
-    if mode == "index":
+    if mode == "tiered":
+        # Daniel's tiered order (INTEGRATION__tiers): for Gladiator units; any other unit keeps the move index.
+        import INTEGRATION__tiers as tiers
+
+        def pick(c):
+            gladiators = [u for u in c if getattr(u, "bot", None) == "gladiator"]
+            return tiers.pick(gladiators) if gladiators else max(c, key=lambda u: move_index(u, units))
+    elif mode == "index":
         pick = lambda c: max(c, key=lambda u: move_index(u, units))
     elif mode == "reverse":
         pick = lambda c: min(c, key=lambda u: move_index(u, units))
@@ -256,7 +263,7 @@ def movement_order(units, teams_in_order) -> Iterator[object]:
             seed = zlib.crc32(repr(sorted((str(u.side_name), str(u.hex)) for u in c)).encode())
             return random.Random(seed).choice(c)
     else:
-        raise ValueError(f"Unknown MOVE_ORDER {mode!r} - choose 'index', 'random' or 'reverse'.")
+        raise ValueError(f"Unknown MOVE_ORDER {mode!r} - choose 'index', 'tiered', 'random' or 'reverse'.")
     return activation_sequence(units, teams_in_order, can_select_move, pick=pick)
 
 
