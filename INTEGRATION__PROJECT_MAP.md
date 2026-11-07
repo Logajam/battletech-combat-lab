@@ -1837,6 +1837,13 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-07 (Claude), STACKED COVERAGE (Daniel's "stack the damage maps on a target's movement profile up to what kills it"; `config.STACK`, `STACK_WEIGHT`, `STACK_QUANTILE`; `INTEGRATION__stack`; default off) AND ITS FIRST A/B. REVIEW PENDING (higher-level model).**
+  Built: per enemy, the teammates' peak damage fields summed over the enemy's footprint, capped at its effective HP ("full kill", Daniel), read as the mean (or a quantile) over the footprint;
+  a candidate spot earns STACK_WEIGHT x the coverage it adds, joined to its damage dealt. `tests/test_stack.py` (3 checks); 54 / 54 pass, reference logs unchanged (default off).
+  First A/B, same 20 battles (Blue = Gladiator + Legate wins / Red / draws, 'Mechs left Blue / Red, turns): baseline 8 / 11 / 1, 1.95 / 2.55, 36.5; stack 1.0 mean 6 / 13 / 1, 0.95 / 3.55, 27.6;
+  stack 1.0 at the 25th percentile 8 / 12 / 0, 2.00 / 3.10, 25.6; stack 3.0 mean 8 / 12 / 0, 1.50 / 3.55, 23.1. No gain in wins, Red keeps more 'Mechs, but battles end 10+ turns sooner (draws gone):
+  the term makes Blue commit harder, not smarter. Default stays off. Next: the mirror-image map as its own piece, peril / toughness tiers (Pick up here 000000 NEXT list), and a look at WHY (inspector on a stack battle).
+
 - **2026-11-07 (Claude), PERIL HEAT MAP IN LEGATE'S MOVE SCORE: FIRST A/B (stage 6; `config.PERIL` off / peak / mean, `PERIL_BLEND`; default off). REVIEW PENDING (higher-level model).**
   The field replaces the damage taken from the OTHER enemies (not the foe) in `legate.Extras.adjust`; `peril.field_for` caches footprints and fields for the phase. Princess (Red) v Gladiator + Legate (Blue), the baseline's first 20 battles, seed 12345:
   baseline 8 / 11 / 1 draw (Blue wins / Red / draws), left 1.95 / 2.55, dealt 1345 / 1508; peak x1.0: 5 / 13 / 2, left 1.10 / 3.45; mean x1.0: 7 / 11 / 2, left 1.45 / 3.15;
