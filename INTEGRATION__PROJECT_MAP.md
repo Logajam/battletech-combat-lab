@@ -1820,7 +1820,7 @@ turn's score, so a decision sees what it gives up.
   damage dealt, turns) and can read old console logs (`--log`). Also `config.MOVE_ORDER` ("index" default = Princess's
   move index; "random" = a deterministic shuffle seeded from the units' names and hexes, never the battle dice;
   "reverse" = lowest index first) and `baseline_battery.py --move-order`, to measure how much the order within a side
-  matters (Daniel's tiered-order ideas, 2026-11-07, are Ideas phase). Default behaviour unchanged: all 51 checks pass.
+  matters (Daniel's tiered-order ideas, 2026-11-07, are Ideas phase). Default behaviour unchanged: all 51 checks pass. `--stats` (same day, Daniel: "record everything and generate end of game stats for every unit") saves each battle's INTEGRATION__stats event log in its saved file; `tests/battery_stats.py <name>` builds the per-unit statistics page from them (no measurable time cost: 4.85 v 4.88 s a turn on a 3-turn Gladiator v Gladiator test).
 
 - **2026-11-06 (Claude, session 20), DECISION (Daniel): speed work stops here; "maybe go for the full rebuild next week".**
   His reading: the time now lost is translating between the two codes - which the measurements back (the Python /
