@@ -1820,8 +1820,15 @@ turn's score, so a decision sees what it gives up.
   docstring has the full rule), `config.MOVE_ORDER = "tiered"` (default "index"), Gladiator units only (Princess keeps the
   move index), `baseline_battery.py --move-order tiered`, `tests/test_tiers.py` (8 checks; 52 of 52 pass, default and
   reference logs unchanged). Footprint = every hex `movement_options` gives; enemy footprint = the union over the enemy
-  side; "could flank" = the enemy's footprint reaches a hex next to one the unit could end on. Results: see below / the
-  next entry. Future (Daniel): teach Legate to read the battlefield for good terrain; hold back until most of the
+  side; "could flank" = the enemy's footprint reaches a hex next to one the unit could end on. FIRST RESULT (40 battles,
+  Princess v Gladiator, seeds 12345 and 2468, v the baseline on the same seeds; Princess / draws / Gladiator): 20 / 8 / 12
+  against 20 / 5 / 15, 'Mechs left 3.48 / 1.52 against 2.70 / 1.75, Gladiator damage 1288 against 1349 (seed 12345 4 wins
+  v 8, seed 2468 8 v 7): NOT BETTER, inside the noise. Gladiator units lost in turns 1-6 (seed 2468): 2.8 a battle v 2.2;
+  units with no friend within 4 hexes about the same. WHY (one battle, Blue's tiers by turn): turn 1 25% safe / 75% may be
+  flanked; turns 2-10 about 35% stand still, 50-56% may be flanked, 0-4% safe, 9-12% trapped - the union of twelve enemy
+  footprints covers nearly the whole field, so the tiers barely separate units and the order falls back to slowest first.
+  The two parts (order, flanker foe) were not tested apart. Next: refine the footprint rule (per enemy, or by how many
+  enemies reach), then test order-only and foe-only. Future (Daniel): teach Legate to read the battlefield for good terrain; hold back until most of the
   combat power can engage at once.
 
 - **2026-11-07 (Claude), TURN INSPECTOR; THE "25% HIGH" DAMAGE ESTIMATE SETTLED; MOVE ORDER AND TEAM VALUE RESULTS. REVIEW PENDING
