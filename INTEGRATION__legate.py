@@ -49,6 +49,7 @@ import INTEGRATION__forces as forces
 import INTEGRATION__future_damage as future_damage
 import INTEGRATION__movement_selection as movement_selection
 import INTEGRATION__peril as peril
+import INTEGRATION__stack as stack
 import INTEGRATION__ranged_combat as ranged_combat
 import INTEGRATION__timing as timing
 import hex_geometry  # noqa: E402 - PATHFINDER
@@ -502,6 +503,8 @@ class Extras:
         self.unit = _Unit(mover, units, terrain_map, lite=True, side=me_side)
         self.count = len(self.entries)
         self.peril = config.PERIL if config.PERIL in ("peak", "mean") else None
+        self.stack = (stack.Stack(mover, [primary] + self.others, forces.friends_of(mover, units), terrain_map)
+                      if config.STACK else None)
         self.herd = _Herd(mover, units, terrain_map) if config.LEGATE_HERDING else None
         self.cohesion = _Cohesion(mover, units) if config.LEGATE_COHESION else None
         self.primary = primary
@@ -544,6 +547,8 @@ class Extras:
                 r += taken * now_share(foe.mech, self.mover)
                 on_me[id(foe.mech)] = taken
                 on_them[id(foe.mech)] = cand.dealt * foe.side.exposure[cand.side_on_defender]
+            if self.stack is not None:                      # config.STACK: coverage the spot adds to the team's stack
+                d += self.stack.gain(o.hex_xy)
             if self.team is not None:
                 # LEGATE_TEAM_VALUE: the damage the mover actually draws when the enemy's fire is
                 # distributed over the whole team, and the team's future damage carried as a cost.

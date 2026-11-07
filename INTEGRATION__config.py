@@ -532,6 +532,14 @@ MOVE_ORDER = "index"
 # field takes, the point estimate the rest (1.0 = the field only). Placeholder weights; only with Legate on.
 PERIL = "off"
 PERIL_BLEND = 1.0
+
+# STACK (2026-11-07, Daniel: stack the team's damage maps on a target's movement profile up to what kills it;
+# INTEGRATION__stack): a candidate spot earns STACK_WEIGHT x the coverage it adds - the team's summed damage over each
+# enemy's footprint, capped at that enemy's HP, averaged (STACK_QUANTILE None) or read at a low quantile - on top of the
+# damage it deals. Only with Legate on. Placeholder weight; off by default.
+STACK = False
+STACK_WEIGHT = 1.0
+STACK_QUANTILE = None
 GLADIATOR_FIRE_ORDER = "big_guns_first"
 # (STUB_REAR_MOUNTED removed 2026-10-19: mtf_parser keeps the "(R)" tag as
 # Equipment.rear_mounted; those weapons fire only into the rear arc - Core p.60.)

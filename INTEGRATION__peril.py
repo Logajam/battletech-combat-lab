@@ -103,17 +103,22 @@ def reset():
     _FOOT.clear()
 
 
+def footprint_for(attacker, terrain_map):
+    """Where the attacker could end this phase as (x, y) hexes: its real spot once it has moved, else its footprint
+    (worked out once a phase)."""
+    if getattr(attacker, "moved_this_turn", False) and attacker.hex is not None:
+        return [hex_geometry.parse_hex_label(attacker.hex)]
+    spots = _FOOT.get(id(attacker))
+    if spots is None:
+        spots = _FOOT[id(attacker)] = tiers.footprint(attacker, terrain_map)
+    return spots
+
+
 def field_for(attacker, target, terrain_map, vt=None):
     """The attacker's Field on `target` for the phase in progress (see above)."""
     moved = bool(getattr(attacker, "moved_this_turn", False))
     key = (id(attacker), id(target), moved)
     f = _FIELDS.get(key)
     if f is None:
-        if moved and attacker.hex is not None:
-            spots = [hex_geometry.parse_hex_label(attacker.hex)]
-        else:
-            spots = _FOOT.get(id(attacker))
-            if spots is None:
-                spots = _FOOT[id(attacker)] = tiers.footprint(attacker, terrain_map)
-        f = _FIELDS[key] = unit_field(attacker, target, terrain_map, spots=spots, vt=vt)
+        f = _FIELDS[key] = unit_field(attacker, target, terrain_map, spots=footprint_for(attacker, terrain_map), vt=vt)
     return f
