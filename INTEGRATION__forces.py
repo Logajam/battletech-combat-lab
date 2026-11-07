@@ -48,6 +48,8 @@ This module holds the choices that only exist with more than two units:
 """
 
 import math
+import random
+import zlib
 from typing import Callable, Dict, Iterator, List, Optional
 
 import INTEGRATION__config as config
@@ -243,8 +245,19 @@ def can_select_fire(unit) -> bool:
 def movement_order(units, teams_in_order) -> Iterator[object]:
     """The Movement Phase's selections, one unit at a time (see
     activation_sequence); each side's next unit is its highest move_index."""
-    return activation_sequence(units, teams_in_order, can_select_move,
-                               pick=lambda c: max(c, key=lambda u: move_index(u, units)))
+    mode = config.MOVE_ORDER
+    if mode == "index":
+        pick = lambda c: max(c, key=lambda u: move_index(u, units))
+    elif mode == "reverse":
+        pick = lambda c: min(c, key=lambda u: move_index(u, units))
+    elif mode == "random":
+        # deterministic: seeded from who is left and where they stand, never from the battle's dice
+        def pick(c):
+            seed = zlib.crc32(repr(sorted((str(u.side_name), str(u.hex)) for u in c)).encode())
+            return random.Random(seed).choice(c)
+    else:
+        raise ValueError(f"Unknown MOVE_ORDER {mode!r} - choose 'index', 'random' or 'reverse'.")
+    return activation_sequence(units, teams_in_order, can_select_move, pick=pick)
 
 
 def fire_order(units, teams_in_order, pick=None) -> List[object]:

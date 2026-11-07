@@ -515,6 +515,11 @@ KILL_CURVE_PROGRESS_WEIGHT = 1.0
 # Gladiator's firing order within its side's selections (2026-10-29, Daniel: "Big guns first followed by
 # smaller guns. Its the same rule used on a mech, just applied to the entire formation."):
 # "big_guns_first" (most expected damage at any enemy now declares first) or "roster" (list order).
+# Which of a side's units takes its Movement Phase selection next (Daniel, 2026-11-07: "how much does order
+# matter at all"). "index" (default): Princess's move index, the higher first (forces.move_index). "random": a
+# deterministic shuffle (seeded from the units' names and hexes, so it never touches the battle's dice).
+# "reverse": the LOWEST index first. A test switch, for baseline_battery.py --move-order.
+MOVE_ORDER = "index"
 GLADIATOR_FIRE_ORDER = "big_guns_first"
 # (STUB_REAR_MOUNTED removed 2026-10-19: mtf_parser keeps the "(R)" tag as
 # Equipment.rear_mounted; those weapons fire only into the rear arc - Core p.60.)

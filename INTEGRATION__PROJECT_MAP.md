@@ -1811,6 +1811,17 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-07 (Claude), RESUMABLE BATTERIES + MOVEMENT-ORDER SWITCH. REVIEW PENDING (higher-level model).** Daniel: "write the
+  driver and make it standard equipment". The sandbox restarted twice during the first movement-order batteries and killed
+  them mid-run. `tests/baseline_battery.py` now saves every finished battle at once (whole file, then rename, so never a
+  half file) under `run_stats/baseline/saved/<setup, Legate, target, settings, seed, turn cap>/battle_NNN.json` and skips
+  a saved battle when the same command is run again (a battle's seed depends only on its number, so saved and fresh are
+  interchangeable; `--fresh` ignores them). `tests/battery_summary.py` prints one line a set (wins, draws, 'Mechs left,
+  damage dealt, turns) and can read old console logs (`--log`). Also `config.MOVE_ORDER` ("index" default = Princess's
+  move index; "random" = a deterministic shuffle seeded from the units' names and hexes, never the battle dice;
+  "reverse" = lowest index first) and `baseline_battery.py --move-order`, to measure how much the order within a side
+  matters (Daniel's tiered-order ideas, 2026-11-07, are Ideas phase). Default behaviour unchanged: all 51 checks pass.
+
 - **2026-11-06 (Claude, session 20), DECISION (Daniel): speed work stops here; "maybe go for the full rebuild next week".**
   His reading: the time now lost is translating between the two codes - which the measurements back (the Python /
   Rust boundary, MovementCandidate objects, per-option passes: see the entry below). If the full Rust rebuild is
