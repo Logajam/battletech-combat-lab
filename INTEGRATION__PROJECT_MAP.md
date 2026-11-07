@@ -1836,6 +1836,13 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-07 (Claude), PERIL HEAT MAP IN LEGATE'S MOVE SCORE: FIRST A/B (stage 6; `config.PERIL` off / peak / mean, `PERIL_BLEND`; default off). REVIEW PENDING (higher-level model).**
+  The field replaces the damage taken from the OTHER enemies (not the foe) in `legate.Extras.adjust`; `peril.field_for` caches footprints and fields for the phase. Princess (Red) v Gladiator + Legate (Blue), the baseline's first 20 battles, seed 12345:
+  baseline 8 / 11 / 1 draw (Blue wins / Red / draws), left 1.95 / 2.55, dealt 1345 / 1508; peak x1.0: 5 / 13 / 2, left 1.10 / 3.45; mean x1.0: 7 / 11 / 2, left 1.45 / 3.15;
+  peak x0.5: 6 / 10 / 4, left 1.50 / 3.15. None beats the baseline (all a little worse, within the noise of 20 battles); peak is worst. Default stays off. Likely reasons to look at
+  next: the field ignores which side of the unit is hit and each enemy's real chance of ending on a spot (peak assumes the worst spot, mean a flat spread); it replaces only the
+  other enemies, so the foe term and the field disagree on scale. Not yet tried: weighting the spots (closer to Legate's estimate), arcs, a 40-battle run of the best arm.
+
 - **2026-11-07 (Claude), PERIL HEAT MAP: STAGES 1-4 (visibility table, exact Peril field, tests, picture). REVIEW PENDING (higher-level model).**
   New `INTEGRATION__vision.py`: per-board N x N arrays (seen, to-hit modifier clipped 0..3, distance) from `los_cache.pair_info`, built once per board
   (ordered pairs: the modifier differs with direction on ~14% of pairs, line of sight does not). New `INTEGRATION__peril.py`: for each attacker, its
