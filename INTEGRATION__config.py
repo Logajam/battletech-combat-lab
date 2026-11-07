@@ -519,6 +519,10 @@ KILL_CURVE_PROGRESS_WEIGHT = 1.0
 # matter at all"). "index" (default): Princess's move index, the higher first (forces.move_index). "random": a
 # deterministic shuffle (seeded from the units' names and hexes, so it never touches the battle's dice).
 # "reverse": the LOWEST index first. A test switch, for baseline_battery.py --move-order.
+# "tiered" (Daniel's design, 2026-11-07, INTEGRATION__tiers): for Gladiator units - stand-still units first (farthest
+# first), then units whose movement footprint is outside the enemy's, then units that may be flanked, then units that
+# cannot escape (slower first inside a tier); tiers 2 and 3 plan their two-ply against the highest-threat enemy that
+# could flank them; applies when entering the battlefield too.
 MOVE_ORDER = "index"
 GLADIATOR_FIRE_ORDER = "big_guns_first"
 # (STUB_REAR_MOUNTED removed 2026-10-19: mtf_parser keeps the "(R)" tag as

@@ -451,6 +451,9 @@ def foe_for(mover, units, terrain_map):
     pool = waiting or foes
     if not pool:
         return None
+    if config.MOVE_ORDER == "tiered":                    # a unit that may be (or is) flanked plans against a flanker
+        import INTEGRATION__tiers as tiers
+        pool = tiers.flankers_of(mover, pool)
     with timing.section("Legate foe choice"):
         best = None
         hold = ranged_combat.prepare_options(mover, [(*_xy(mover.hex), hex_geometry.compass_to_facing(mover.facing),

@@ -77,7 +77,7 @@ def main():
                     help="config.GLADIATOR_FIRE_ORDER")
     ap.add_argument("--team-value", choices=("sum", "product"), default=config.LEGATE_TEAM_VALUE,
                     help="config.LEGATE_TEAM_VALUE: score a move by the whole team's future damage")
-    ap.add_argument("--move-order", choices=("index", "random", "reverse"), default=config.MOVE_ORDER,
+    ap.add_argument("--move-order", choices=("index", "tiered", "random", "reverse"), default=config.MOVE_ORDER,
                     help="config.MOVE_ORDER: which unit of a side moves next (2026-11-07)")
     ap.add_argument("--exchange", action=argparse.BooleanOptionalAction, default=config.LEGATE_TEAM_EXCHANGE,
                     help="config.LEGATE_TEAM_EXCHANGE: with a team value, also count the enemy damage our fire removes")
