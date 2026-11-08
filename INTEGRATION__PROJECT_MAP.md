@@ -1838,6 +1838,14 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-08 (Claude), TRIAGE: THE 40-BATTLE COMPARISON AT A 100-TURN CAP. REVIEW PENDING (higher-level model).**
+  Princess (Red) v Gladiator + Legate (Blue); two sets of 20 battles (seeds 12345 and 2468), 100-turn cap (battles that ended inside 50 turns are identical at either cap, so only the draws were re-played at 100).
+  BASELINE (triage off): seed 12345 8 / 11 / 1 (Blue wins / Red / draws); seed 2468 8 / 12 / 0; BOTH 16 / 23 / 1, 'Mechs left 1.48 / 2.58, damage dealt 1359 / 1557, 43.3 turns.
+  TRIAGE both halves (25%, hot x2, cool x1.5): seed 12345 9 / 10 / 1; seed 2468 11 / 9 / 0; BOTH 20 / 19 / 1, 'Mechs left 2.45 / 2.15, damage 1440 / 1490, 43.6 turns.
+  Blue's wins 16 -> 20 of 40 and the 'Mechs-left balance turns round (Blue 1.48 -> 2.45, Red 2.58 -> 2.15); the same direction in both seed sets. 20 v 16 wins is inside the noise of 40 battles (so is any
+  win-count difference this size); the 'Mechs-left and damage figures move more clearly. First setting of anything in the peril / stack / triage line that beats the baseline. Default is still off (Daniel's call to
+  turn it on); knobs untried: the fraction (25%), the two weights, peak v mean in the ratio. Next candidates: more battles (another 40 of each at 100 turns), the "finish the last enemy" mode.
+
 - **2026-11-08 (Claude), TRIAGE RE-RUN (tie-break fixed) AND THE 100-TURN CAP. REVIEW PENDING (higher-level model).**
   Bug found and fixed: `triage.tier_of` broke ties between equal peril / toughness (several far-off units at 0) by `id()`, a memory address, so the same battle gave different results depending on what ran before it
   in the process (battle 10: 4 v 4 left in a 6-10 batch, 5 v 2 alone). Now roster order; a test covers it; batch and alone runs agree. The first triage tables (5/8/7 etc.) used the bad tie-break and were discarded
