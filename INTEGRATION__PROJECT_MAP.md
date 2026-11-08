@@ -1838,6 +1838,16 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-08 (Claude), TRIAGE RE-RUN (tie-break fixed) AND THE 100-TURN CAP. REVIEW PENDING (higher-level model).**
+  Bug found and fixed: `triage.tier_of` broke ties between equal peril / toughness (several far-off units at 0) by `id()`, a memory address, so the same battle gave different results depending on what ran before it
+  in the process (battle 10: 4 v 4 left in a 6-10 batch, 5 v 2 alone). Now roster order; a test covers it; batch and alone runs agree. The first triage tables (5/8/7 etc.) used the bad tie-break and were discarded
+  (kept in run_stats/baseline/old_triage_tiebreak/, not in git). Re-run, 20 battles, 50-turn cap (Blue wins / Red / draws, left Blue / Red, dealt): baseline 8 / 11 / 1, 1.95 / 2.55, 1345 / 1508;
+  both halves (hot x2, cool x1.5) 7 / 8 / 5, 2.70 / 2.40, 1431 / 1493; hot only 4 / 12 / 4, 1.00 / 3.45; cool only 5 / 12 / 3, 1.40 / 3.75.
+  The draws re-played at a 100-turn cap: both halves' five draws (battles 2, 8, 10, 14, 18) finished Blue at turn 54, Red at 83, still a draw at 100 (Red 1 v Blue 2 left), Blue at 67, Red at 51, so the both-halves arm is
+  9 / 10 / 1 against the baseline's 8 / 11 / 1 (its one draw, battle 11, is still a draw at 100 turns, Red 1 v Blue 2 left): a slight edge in wins, inside the noise of 20 battles, and the best 'Mechs-left
+  and damage balance of anything tried (Blue now ends ahead on 'Mechs). Default stays off. Both unresolved-at-100 battles (10 and baseline 11) are the SAME shape: 1 v 2 left, a kiting stand-off
+  (Legate is off with one enemy, so each Gladiator plays its own duel at range) - the "finish the last enemy" candidate above. Open: 40 battles of both halves at a 100-turn cap against a 100-turn baseline.
+
 - **2026-11-07 (Claude), PERIL / TOUGHNESS TIERS (`config.TRIAGE`, `TRIAGE_FRACTION`, `TRIAGE_HOT_RECEIVED`, `TRIAGE_COOL_DEALT`; `INTEGRATION__triage`) AND THE MIRROR MAP (`triage.reach_on`, shown by the heat-map page); default off. REVIEW PENDING (higher-level model).**
   Per unit: peril (peak damage from every enemy's reachable spots at its hex) / effective HP, ranked over the team; the top 25% HOT (damage taken x2), the bottom 25% COOL (damage dealt x1.5); needs 3+ units.
   `tests/test_triage.py` (3 checks); 55 / 55 pass. First A/B, same 20 battles (Blue wins / Red / draws, 'Mechs left Blue / Red, dealt, turns): baseline 8 / 11 / 1, 1.95 / 2.55, 1345 / 1508, 36.5;
