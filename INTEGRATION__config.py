@@ -545,7 +545,7 @@ STACK_QUANTILE = None
 # bring to its hex) / its toughness, ranked over the team. The TRIAGE_FRACTION highest are HOT: the damage a spot would take
 # counts TRIAGE_HOT_RECEIVED times. The same share at the bottom are COOL: the damage a spot would deal counts
 # TRIAGE_COOL_DEALT times. Only with Legate on and three or more units. Placeholder weights; off by default.
-TRIAGE = False
+TRIAGE = True                  # default since 2026-11-08 (Daniel): 51 v 42 wins and 2.32 v 1.62 'Mechs left over 100 battles at a 100-turn cap (Change Record)
 TRIAGE_FRACTION = 0.25
 TRIAGE_HOT_RECEIVED = 2.0
 TRIAGE_COOL_DEALT = 1.5

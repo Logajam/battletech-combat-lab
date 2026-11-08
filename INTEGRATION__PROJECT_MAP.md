@@ -492,33 +492,20 @@ rebuild it with one full run). Numbers: Change Record.
 Princess, decision by decision, the latest battery and why Gladiator loses.
 
 **Pick up here (open, roughly in priority order):**
-000000. **THE PERIL HEAT MAP (the top-down approach; Daniel, 2026-11-07) - IN PROGRESS, start here. STAGES 1-4 DONE (2026-11-07): `INTEGRATION__vision` (the table, ordered pairs because the to-hit modifier is NOT symmetric: 14% of random pairs differ, LOS itself is; 2.1 s for the 544-hex field), `INTEGRATION__peril` (`unit_field` / `team_field`, peak and mean; 0.07 s for a 10-unit side), `tests/test_peril.py` (5 checks), `tests/peril_picture.py` (a page per saved turn). Next: 5 (shortcut accuracy tests), 6 (Legate's move score uses the field; switch; A/B). Not done yet: arcs for stand-still units, disk cache of the table, smoke refresh call (`vision.invalidate` exists, nothing calls it).** Where things stand
-   (the pivot after the tiered order proved uninformative): Daniel's design - for every unit, its weapons' damage-over-range
-   table is projected from it (the damage at each distance), the firing arcs are covered by rotating it (a unit that can move
-   chooses its facing at the end, so for it the damage reaches every direction; arcs bind only a unit that cannot turn - start
-   omnidirectional, add arcs for stand-still units), the table is SMEARED over the unit's movement footprint (the outer
-   perimeter of each movement mode: peak damage it could bring to a hex from any spot it can reach, or the same weighted by how
-   likely each spot is), and a LINE-OF-SIGHT map filters it (no LOS: nothing; woods / partial cover: the to-hit modifier
-   scales the damage). One field a unit; a team's Peril is their sum; when a unit moves its own movement interacts with the
-   field ("super position of movement x damage x counter movement collapsing to the best spot"). Daniel's refinements:
-   SMART LOS BLOCKING (a hex that blocks a line blocks everything past it at the same or lower level) and PARTIAL LOS TESTING
-   (test only the footprint's corners, or the short list). My reading, measured on 2026-11-07: the per-board visibility table
-   is STATIC, so those two refinements speed the one-time build (2 s on the 544-hex field, ~42 s for 3 x 3 boards at
-   7 us a pair under load) and the per-turn lookups, not a per-turn LOS cost; the corner-sampling shortcut changes ACCURACY,
-   so build the exact version first and score each shortcut against it. Stages: (1) the visibility + modifier table per board
-   (numpy; `los_cache.pair_info`; cache on disk; refresh when smoke changes); (2) per-unit damage-by-range profiles -
-   `future_damage.range_profile(attacker, target, extra_tn)` is DONE (a refactor of `future_damage`, committed); (3) the exact peril field, `INTEGRATION__peril` (new): uses
-   `tiers.footprint` for the spots; peak and expected versions; modifier classes 0-3 from the visibility table; one unit at a
-   time so memory is one N x N table; (4) a picture: heat maps from a saved battle turn (`tests/turn_inspector.py`
-   `make_state` gives the states) as an Artifact page; (5) the shortcut accuracy tests; (6) Legate's move score uses the
-   fields (a switch), A/B on the 100-battle baseline (INTEGRATION__BOTS.md). Later (Daniel): Legate reads the board for good
-   terrain (cover that sees: only partial cover, elevation, arcs and range differences are asymmetric, since LOS itself is
-   symmetric); Legate holds back until most of its combat power can engage at once. Numbers: the cost per turn is about
-   spots x targets in range lookups (~1 M a side on the current field), tens of ms with numpy, 1.5 s or more in plain Python;
-   memory is one table at a time (24 MB at 2,448 hexes) - NOT the limit.
-   DANIEL, 2026-11-08: the "finish the last enemy" mode is NOT wanted. The stand-off is a PICKER problem in general: the bot does not realise it can win the fight and close in. (So the fix belongs in how the picker values closing the distance when it is winning, not in a special mode.)
-   BATTERY TURN CAP (Daniel, 2026-11-08): future batteries use `--turns 100`, not 50. Three battles that hit the 50-turn cap under the triage setting finished at turns 59, 59 and 67 when extended, so a 100-turn cap leaves almost no draws. The saved 50-turn sets (the 100-battle baseline) are keyed by turns, so a 100-turn run is a separate set: re-run the baseline's first 20 at 100 turns before comparing across caps. Also seen in those runs: a side far ahead takes 35+ turns to kill its last unit (Legate is off with one enemy left, so each Gladiator plays its own duel and keeps its range) - candidate: a "finish the last enemy" mode.
-   NEXT, after the first Peril A/B (Daniel, 2026-11-07, questions on the score): (1) MY damage map, the mirror image (my footprint over their reachable hexes), so the score is my map against theirs; (2) STACKED COVERAGE (Daniel: "Gladiator needs a tendency to stack their damage heat maps v a target's movement profile up to the limit of damage needed to take out that target's toughness"): for each enemy, the team's summed damage fields taken over the ENEMY's footprint, read at its best escape hex (the minimum over the footprint, since it picks where to go), capped at its toughness; a move scores by what it adds below the cap, so overkill earns nothing and the unit goes to cover another enemy; (3) PERIL / TOUGHNESS per unit, ranked across the team (also gives "keep units at similar peril so the enemy splits fire"); (4) TIERS by that rank (top ~10%: weight incoming damage / fall back; bottom: draw fire or push damage), a switch; (5) A/B each on the baseline's first 20 battles. The first A/B (peak / mean in the one-term replacement) was not better, so these are tried as separate switches.
+000000. **THE PERIL LINE - STATE AT THE PIVOT (2026-11-08).** BUILT, all committed: `INTEGRATION__vision` (per-board visibility / modifier / distance table), `INTEGRATION__peril` (per-unit and per-side damage fields over
+   the board: peak and mean, from each unit's footprint, LOS and cover applied; `field_for` caches per phase), `INTEGRATION__stack` (stacked coverage up to an enemy's HP, `config.STACK`, off: no gain),
+   `INTEGRATION__triage` (peril / toughness tiers, `config.TRIAGE`, **ON by default since 2026-11-08**: 51 v 42 wins over 100 battles at a 100-turn cap, 'Mechs left 2.32 v 1.62) and the mirror map (`triage.reach_on`);
+   `config.PERIL` (field replaces the other enemies' damage in the move score, off: not better); `tests/peril_picture.py` (the heat map of a saved turn as a page); tests `test_peril`, `test_stack`, `test_triage`.
+   DANIEL'S DESIGN (kept for reference): every unit's weapons-over-range table projected from it, covering its arcs (a mover picks its facing at the end, so arcs bind only a unit that stands still), smeared over its
+   movement footprint, filtered by line of sight (no LOS: nothing; woods / partial cover: the to-hit modifier), one field a unit; a side's Peril is the sum; "super position of movement x damage x counter movement
+   collapsing to the best spot". His refinements: smart LOS blocking (a hex that blocks a line blocks everything past it at the same level), partial LOS testing (corners / short list). Both speed the build or change
+   accuracy only; the table is static, so they were not needed (2 s for the 544-hex field).
+   OPEN, in the order I would take them: (a) THE PICKER does not see that it can win and close in (Daniel, 2026-11-08: the end-game stand-off, 1 v 2 left at 100 turns, is a picker problem, not a special mode);
+   (b) TRIAGE KNOBS: the 25% share, the two weights (hot x2, cool x1.5), peak v mean in the ratio - each a 20-battle A/B at `--turns 100` against the five triage sets; (c) arcs for units that stand still;
+   (d) the accuracy tests of the two shortcuts against the exact field (only worth it for a board too big to build exactly: 3 x 3 boards ~42 s); (e) disk cache of the visibility table and a rebuild on smoke
+   (`vision.invalidate` exists; nothing calls it); (f) speed: the new terms cost about 2x a turn (1.5 to 3.4 s); (g) Legate reads the board for good terrain (cover that sees: only partial cover, elevation, arcs and
+   range differences are asymmetric, since LOS itself is symmetric); (h) Legate holds back until most of its combat power can engage at once; (i) tiered movement order refinements (resting); (j) ordinary
+   physical-attack value in the movement model looks about 2x high. A BATTERY: `python tests/baseline_battery.py pg 20 --legate --turns 100 --seed N [--stats] --first A --last B` (resumable; `--no-triage` = the old baseline).
 00000. **Cohesion and the open biases** (session 15 diagnosis, Change Record 2026-10-30): Gladiator's
    units end alone about twice as often as Princess's, worse late (47% v 22% with no friend within 4
    hexes). The cohesion reward (`LEGATE_COHESION`, Daniel's design, off) fixes the spread - "either"
@@ -1838,6 +1825,11 @@ turn's score, so a decision sees what it gives up.
 ## 8. CHANGE RECORD
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
+
+- **2026-11-08 (Claude), TRIAGE IS NOW THE DEFAULT (`config.TRIAGE = True`; Daniel: "Turn them on"). REVIEW PENDING (higher-level model).**
+  Basis: the 100-battle comparison at a 100-turn cap (51 v 42 wins, 'Mechs left 2.32 v 1.62; entry above). Only acts for Gladiator + Legate in team battles of 3+ units; 55 / 55 checks pass, reference logs unchanged.
+  `tests/baseline_battery.py`: `--no-triage` runs the old baseline (key without the `_triage-` tag); a default run now carries the triage tag. The NEW DEFAULT BASELINE is the five triage sets in run_stats/baseline/saved (seeds 12345,
+  2468, 1357, 8642, 9753; 100-turn cap). Use `--turns 100` from now on (Daniel). Pick up here 000000 lists what is left of the Peril line.
 
 - **2026-11-08 (Claude), TRIAGE: THE 100-BATTLE COMPARISON AT A 100-TURN CAP (five seed sets of 20). REVIEW PENDING (higher-level model).**
   Princess (Red) v Gladiator + Legate (Blue); battles that ended inside 50 turns are identical at either cap, so only the baseline's / triage's cap-draws were re-played at 100.

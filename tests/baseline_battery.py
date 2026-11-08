@@ -85,6 +85,7 @@ def main():
     ap.add_argument("--stack", type=float, default=None, help="stacked coverage weight (INTEGRATION__stack); off when absent")
     ap.add_argument("--stack-quantile", type=float, default=None, help="read coverage at this quantile of the enemy footprint (default: the mean)")
     ap.add_argument("--triage", type=float, default=None, help="peril / toughness tiers: the fraction of the team in each of the hot and cool tiers (INTEGRATION__triage)")
+    ap.add_argument("--no-triage", action="store_true", help="switch the tiers off (the old baseline; they are on by default since 2026-11-08)")
     ap.add_argument("--triage-hot", type=float, default=config.TRIAGE_HOT_RECEIVED, help="hot tier: damage taken counts this many times")
     ap.add_argument("--triage-cool", type=float, default=config.TRIAGE_COOL_DEALT, help="cool tier: damage dealt counts this many times")
     ap.add_argument("--exchange", action=argparse.BooleanOptionalAction, default=config.LEGATE_TEAM_EXCHANGE,
@@ -114,13 +115,15 @@ def main():
     config.PERIL, config.PERIL_BLEND = args.peril, args.peril_blend
     if args.triage is not None:
         config.TRIAGE, config.TRIAGE_FRACTION = True, args.triage
-        config.TRIAGE_HOT_RECEIVED, config.TRIAGE_COOL_DEALT = args.triage_hot, args.triage_cool
+    config.TRIAGE_HOT_RECEIVED, config.TRIAGE_COOL_DEALT = args.triage_hot, args.triage_cool
+    if args.no_triage:
+        config.TRIAGE = False
     if args.stack is not None:
         config.STACK, config.STACK_WEIGHT, config.STACK_QUANTILE = True, args.stack, args.stack_quantile
     config.STATS = args.stats        # off by default: a little time a shot (the reference checks switch it off too)
     config.LEGATE_TEAM_EXCHANGE = args.exchange
     tag = (f"split-{args.fire_split}{'-now' if args.split_now else ''}{'_herd' if args.herding else ''}{f'_coh{args.cohesion}' if args.cohesion is not None else ''}_{args.fire_order}"
-           f"{f'_team-{args.team_value}{"" if args.exchange else "-noexch"}' if args.team_value else ''}{f'_order-{args.move_order}' if args.move_order != 'index' else ''}{f'_peril-{args.peril}-{args.peril_blend:g}' if args.peril != 'off' else ''}{f'_triage-{args.triage:g}-h{args.triage_hot:g}-c{args.triage_cool:g}' if args.triage is not None else ''}{f'_stack-{args.stack:g}{"" if args.stack_quantile is None else f"q{args.stack_quantile:g}"}' if args.stack is not None else ''}")
+           f"{f'_team-{args.team_value}{"" if args.exchange else "-noexch"}' if args.team_value else ''}{f'_order-{args.move_order}' if args.move_order != 'index' else ''}{f'_peril-{args.peril}-{args.peril_blend:g}' if args.peril != 'off' else ''}{f'_triage-{config.TRIAGE_FRACTION:g}-h{config.TRIAGE_HOT_RECEIVED:g}-c{config.TRIAGE_COOL_DEALT:g}' if config.TRIAGE else ''}{f'_stack-{args.stack:g}{"" if args.stack_quantile is None else f"q{args.stack_quantile:g}"}' if args.stack is not None else ''}")
     config.REPLAY_BATTLES = 1 if args.replay else 0
     with redirect_stdout(io.StringIO()):
         terrain = orchestrator._load_map()
