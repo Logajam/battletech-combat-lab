@@ -492,6 +492,20 @@ rebuild it with one full run). Numbers: Change Record.
 Princess, decision by decision, the latest battery and why Gladiator loses.
 
 **Pick up here (open, roughly in priority order):**
+000000. **THE PERIL LINE - STATE AT THE PIVOT (2026-11-08).** BUILT, all committed: `INTEGRATION__vision` (per-board visibility / modifier / distance table), `INTEGRATION__peril` (per-unit and per-side damage fields over
+   the board: peak and mean, from each unit's footprint, LOS and cover applied; `field_for` caches per phase), `INTEGRATION__stack` (stacked coverage up to an enemy's HP, `config.STACK`, off: no gain),
+   `INTEGRATION__triage` (peril / toughness tiers, `config.TRIAGE`, **ON by default since 2026-11-08**: 51 v 42 wins over 100 battles at a 100-turn cap, 'Mechs left 2.32 v 1.62) and the mirror map (`triage.reach_on`);
+   `config.PERIL` (field replaces the other enemies' damage in the move score, off: not better); `tests/peril_picture.py` (the heat map of a saved turn as a page); tests `test_peril`, `test_stack`, `test_triage`.
+   DANIEL'S DESIGN (kept for reference): every unit's weapons-over-range table projected from it, covering its arcs (a mover picks its facing at the end, so arcs bind only a unit that stands still), smeared over its
+   movement footprint, filtered by line of sight (no LOS: nothing; woods / partial cover: the to-hit modifier), one field a unit; a side's Peril is the sum; "super position of movement x damage x counter movement
+   collapsing to the best spot". His refinements: smart LOS blocking (a hex that blocks a line blocks everything past it at the same level), partial LOS testing (corners / short list). Both speed the build or change
+   accuracy only; the table is static, so they were not needed (2 s for the 544-hex field).
+   OPEN, in the order I would take them: (a) THE PICKER does not see that it can win and close in (Daniel, 2026-11-08: the end-game stand-off, 1 v 2 left at 100 turns, is a picker problem, not a special mode);
+   (b) TRIAGE KNOBS: the 25% share, the two weights (hot x2, cool x1.5), peak v mean in the ratio - each a 20-battle A/B at `--turns 100` against the five triage sets; (c) arcs for units that stand still;
+   (d) the accuracy tests of the two shortcuts against the exact field (only worth it for a board too big to build exactly: 3 x 3 boards ~42 s); (e) disk cache of the visibility table and a rebuild on smoke
+   (`vision.invalidate` exists; nothing calls it); (f) speed: the new terms cost about 2x a turn (1.5 to 3.4 s); (g) Legate reads the board for good terrain (cover that sees: only partial cover, elevation, arcs and
+   range differences are asymmetric, since LOS itself is symmetric); (h) Legate holds back until most of its combat power can engage at once; (i) tiered movement order refinements (resting); (j) ordinary
+   physical-attack value in the movement model looks about 2x high. A BATTERY: `python tests/baseline_battery.py pg 20 --legate --turns 100 --seed N [--stats] --first A --last B` (resumable; `--no-triage` = the old baseline).
 00000. **Cohesion and the open biases** (session 15 diagnosis, Change Record 2026-10-30): Gladiator's
    units end alone about twice as often as Princess's, worse late (47% v 22% with no friend within 4
    hexes). The cohesion reward (`LEGATE_COHESION`, Daniel's design, off) fixes the spread - "either"
@@ -1812,6 +1826,73 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-08 (Claude), TRIAGE IS NOW THE DEFAULT (`config.TRIAGE = True`; Daniel: "Turn them on"). REVIEW PENDING (higher-level model).**
+  Basis: the 100-battle comparison at a 100-turn cap (51 v 42 wins, 'Mechs left 2.32 v 1.62; entry above). Only acts for Gladiator + Legate in team battles of 3+ units; 55 / 55 checks pass, reference logs unchanged.
+  `tests/baseline_battery.py`: `--no-triage` runs the old baseline (key without the `_triage-` tag); a default run now carries the triage tag. The NEW DEFAULT BASELINE is the five triage sets in run_stats/baseline/saved (seeds 12345,
+  2468, 1357, 8642, 9753; 100-turn cap). Use `--turns 100` from now on (Daniel). Pick up here 000000 lists what is left of the Peril line.
+
+- **2026-11-08 (Claude), TRIAGE: THE 100-BATTLE COMPARISON AT A 100-TURN CAP (five seed sets of 20). REVIEW PENDING (higher-level model).**
+  Princess (Red) v Gladiator + Legate (Blue); battles that ended inside 50 turns are identical at either cap, so only the baseline's / triage's cap-draws were re-played at 100.
+  Seed sets (Blue wins / Red / draws, 'Mechs left Blue / Red), baseline then tiers: 12345: 8 / 11 / 1, 1.90 / 2.50 then 9 / 10 / 1, 2.30 / 2.05; 2468: 8 / 12 / 0, 1.05 / 2.65 then 11 / 9 / 0, 2.60 / 2.25;
+  1357: 9 / 10 / 1, 1.85 / 1.95 then 11 / 9 / 0, 2.45 / 2.20; 8642: 10 / 10 / 0, 2.30 / 2.35 then 10 / 9 / 1, 2.30 / 2.60; 9753: 7 / 13 / 0, 1.00 / 3.45 then 10 / 10 / 0, 1.95 / 2.85.
+  ALL 100: BASELINE 42 / 56 / 2, left 1.62 / 2.58, dealt 1338 / 1546, 42.3 turns; TIERS (25%, hot x2, cool x1.5) 51 / 47 / 2, left 2.32 / 2.39, dealt 1392 / 1493, 43.1 turns.
+  Tiers win more in 4 of 5 sets (one level) and Blue keeps more 'Mechs in 4 of 5 (one level). +9 wins in 100 is about 1.3 standard deviations (not proven on wins alone); the 'Mechs-left and damage shifts are the steadier
+  signal. This is the DEEP BASELINE for the new default (Daniel, 2026-11-08: "get a deep baseline for what will become the new default if it wins"). Default still off pending Daniel's go-ahead.
+  Knobs untried: fraction, weights, peak v mean ratio. Daniel's note: the end-game stand-off is a picker problem (not closing in when winning), not a special mode.
+
+- **2026-11-08 (Claude), TRIAGE: THE 40-BATTLE COMPARISON AT A 100-TURN CAP. REVIEW PENDING (higher-level model).**
+  Princess (Red) v Gladiator + Legate (Blue); two sets of 20 battles (seeds 12345 and 2468), 100-turn cap (battles that ended inside 50 turns are identical at either cap, so only the draws were re-played at 100).
+  BASELINE (triage off): seed 12345 8 / 11 / 1 (Blue wins / Red / draws); seed 2468 8 / 12 / 0; BOTH 16 / 23 / 1, 'Mechs left 1.48 / 2.58, damage dealt 1359 / 1557, 43.3 turns.
+  TRIAGE both halves (25%, hot x2, cool x1.5): seed 12345 9 / 10 / 1; seed 2468 11 / 9 / 0; BOTH 20 / 19 / 1, 'Mechs left 2.45 / 2.15, damage 1440 / 1490, 43.6 turns.
+  Blue's wins 16 -> 20 of 40 and the 'Mechs-left balance turns round (Blue 1.48 -> 2.45, Red 2.58 -> 2.15); the same direction in both seed sets. 20 v 16 wins is inside the noise of 40 battles (so is any
+  win-count difference this size); the 'Mechs-left and damage figures move more clearly. First setting of anything in the peril / stack / triage line that beats the baseline. Default is still off (Daniel's call to
+  turn it on); knobs untried: the fraction (25%), the two weights, peak v mean in the ratio. Next candidates: more battles (another 40 of each at 100 turns), the "finish the last enemy" mode.
+
+- **2026-11-08 (Claude), TRIAGE RE-RUN (tie-break fixed) AND THE 100-TURN CAP. REVIEW PENDING (higher-level model).**
+  Bug found and fixed: `triage.tier_of` broke ties between equal peril / toughness (several far-off units at 0) by `id()`, a memory address, so the same battle gave different results depending on what ran before it
+  in the process (battle 10: 4 v 4 left in a 6-10 batch, 5 v 2 alone). Now roster order; a test covers it; batch and alone runs agree. The first triage tables (5/8/7 etc.) used the bad tie-break and were discarded
+  (kept in run_stats/baseline/old_triage_tiebreak/, not in git). Re-run, 20 battles, 50-turn cap (Blue wins / Red / draws, left Blue / Red, dealt): baseline 8 / 11 / 1, 1.95 / 2.55, 1345 / 1508;
+  both halves (hot x2, cool x1.5) 7 / 8 / 5, 2.70 / 2.40, 1431 / 1493; hot only 4 / 12 / 4, 1.00 / 3.45; cool only 5 / 12 / 3, 1.40 / 3.75.
+  The draws re-played at a 100-turn cap: both halves' five draws (battles 2, 8, 10, 14, 18) finished Blue at turn 54, Red at 83, still a draw at 100 (Red 1 v Blue 2 left), Blue at 67, Red at 51, so the both-halves arm is
+  9 / 10 / 1 against the baseline's 8 / 11 / 1 (its one draw, battle 11, is still a draw at 100 turns, Red 1 v Blue 2 left): a slight edge in wins, inside the noise of 20 battles, and the best 'Mechs-left
+  and damage balance of anything tried (Blue now ends ahead on 'Mechs). Default stays off. Both unresolved-at-100 battles (10 and baseline 11) are the SAME shape: 1 v 2 left, a kiting stand-off
+  (Legate is off with one enemy, so each Gladiator plays its own duel at range) - the "finish the last enemy" candidate above. Open: 40 battles of both halves at a 100-turn cap against a 100-turn baseline.
+
+- **2026-11-07 (Claude), PERIL / TOUGHNESS TIERS (`config.TRIAGE`, `TRIAGE_FRACTION`, `TRIAGE_HOT_RECEIVED`, `TRIAGE_COOL_DEALT`; `INTEGRATION__triage`) AND THE MIRROR MAP (`triage.reach_on`, shown by the heat-map page); default off. REVIEW PENDING (higher-level model).**
+  Per unit: peril (peak damage from every enemy's reachable spots at its hex) / effective HP, ranked over the team; the top 25% HOT (damage taken x2), the bottom 25% COOL (damage dealt x1.5); needs 3+ units.
+  `tests/test_triage.py` (3 checks); 55 / 55 pass. First A/B, same 20 battles (Blue wins / Red / draws, 'Mechs left Blue / Red, dealt, turns): baseline 8 / 11 / 1, 1.95 / 2.55, 1345 / 1508, 36.5;
+  both halves (hot x2, cool x1.5) 5 / 8 / 7, 2.45 / 2.65, 1414 / 1525, 42.1; hot only (x2) 4 / 12 / 4, 1.00 / 3.45, 1282 / 1614, 40.0; cool only (x1.5) 5 / 13 / 2, 1.35 / 3.90, 1295 / 1576, 36.3.
+  Both halves together make the closest fight (left 2.45 v 2.65, damage 1414 v 1525, a third of the battles drawn at the cap) but win fewer battles than the baseline; either half alone is worse. Default stays off.
+  Open: the fraction (25%), the weights, peak v mean in the ratio, and 40 battles of the both-halves arm to see if the draw pile is a real shift.
+
+- **2026-11-07 (Claude), STACKED COVERAGE (Daniel's "stack the damage maps on a target's movement profile up to what kills it"; `config.STACK`, `STACK_WEIGHT`, `STACK_QUANTILE`; `INTEGRATION__stack`; default off) AND ITS FIRST A/B. REVIEW PENDING (higher-level model).**
+  Built: per enemy, the teammates' peak damage fields summed over the enemy's footprint, capped at its effective HP ("full kill", Daniel), read as the mean (or a quantile) over the footprint;
+  a candidate spot earns STACK_WEIGHT x the coverage it adds, joined to its damage dealt. `tests/test_stack.py` (3 checks); 54 / 54 pass, reference logs unchanged (default off).
+  First A/B, same 20 battles (Blue = Gladiator + Legate wins / Red / draws, 'Mechs left Blue / Red, turns): baseline 8 / 11 / 1, 1.95 / 2.55, 36.5; stack 1.0 mean 6 / 13 / 1, 0.95 / 3.55, 27.6;
+  stack 1.0 at the 25th percentile 8 / 12 / 0, 2.00 / 3.10, 25.6; stack 3.0 mean 8 / 12 / 0, 1.50 / 3.55, 23.1. No gain in wins, Red keeps more 'Mechs, but battles end 10+ turns sooner (draws gone):
+  the term makes Blue commit harder, not smarter. Default stays off. Next: the mirror-image map as its own piece, peril / toughness tiers (Pick up here 000000 NEXT list), and a look at WHY (inspector on a stack battle).
+
+- **2026-11-07 (Claude), PERIL HEAT MAP IN LEGATE'S MOVE SCORE: FIRST A/B (stage 6; `config.PERIL` off / peak / mean, `PERIL_BLEND`; default off). REVIEW PENDING (higher-level model).**
+  The field replaces the damage taken from the OTHER enemies (not the foe) in `legate.Extras.adjust`; `peril.field_for` caches footprints and fields for the phase. Princess (Red) v Gladiator + Legate (Blue), the baseline's first 20 battles, seed 12345:
+  baseline 8 / 11 / 1 draw (Blue wins / Red / draws), left 1.95 / 2.55, dealt 1345 / 1508; peak x1.0: 5 / 13 / 2, left 1.10 / 3.45; mean x1.0: 7 / 11 / 2, left 1.45 / 3.15;
+  peak x0.5: 6 / 10 / 4, left 1.50 / 3.15. None beats the baseline (all a little worse, within the noise of 20 battles); peak is worst. Default stays off. Likely reasons to look at
+  next: the field ignores which side of the unit is hit and each enemy's real chance of ending on a spot (peak assumes the worst spot, mean a flat spread); it replaces only the
+  other enemies, so the foe term and the field disagree on scale. Not yet tried: weighting the spots (closer to Legate's estimate), arcs, a 40-battle run of the best arm.
+
+- **2026-11-07 (Claude), PERIL HEAT MAP: STAGES 1-4 (visibility table, exact Peril field, tests, picture). REVIEW PENDING (higher-level model).**
+  New `INTEGRATION__vision.py`: per-board N x N arrays (seen, to-hit modifier clipped 0..3, distance) from `los_cache.pair_info`, built once per board
+  (ordered pairs: the modifier differs with direction on ~14% of pairs, line of sight does not). New `INTEGRATION__peril.py`: for each attacker, its
+  `future_damage.range_profile` per modifier class laid over its `tiers.footprint` spots and filtered by the table; `peak` (worst case from any reachable
+  spot) and `mean` per hex; `team_field` adds them. Arcs ignored (a mover chooses its facing). `tests/test_peril.py` (5 checks, in run_checks: 53 / 53 pass,
+  reference logs unchanged: nothing in the battle uses it yet) and `tests/peril_picture.py` (the heat map of a saved battle turn as a page, pick the target
+  and the attacker). Nothing is wired into Legate yet (stage 6).
+
+- **2026-11-07 (Claude), PERIL HEAT MAP: DESIGN AND FIRST STEP (Pick up here 000000). REVIEW PENDING (higher-level model).** Daniel let
+  the tiered order rest and chose the top-down peril heat map. First step done: `INTEGRATION__future_damage._ranged_for` and
+  `range_profile(attacker, target, extra_tn)` (the damage at every distance, with a to-hit modifier option) split out of
+  `future_damage` with no change in results (52 / 52 checks, reference logs identical). The rest of the plan, the reasoning on
+  Daniel's two refinements, and the cost figures are in Pick up here 000000.
+
 - **2026-11-07 (Claude), TIERED MOVEMENT ORDER. REVIEW PENDING (higher-level model).** Daniel's design (Ideas phase, same day):
   "units whose movement footprint is completely outside the enemies' ... move first; may intersect ... second; can not
   escape ... last"; slower first; units that will stand still first, farthest first; the tiers also on entering the
@@ -1820,8 +1901,15 @@ turn's score, so a decision sees what it gives up.
   docstring has the full rule), `config.MOVE_ORDER = "tiered"` (default "index"), Gladiator units only (Princess keeps the
   move index), `baseline_battery.py --move-order tiered`, `tests/test_tiers.py` (8 checks; 52 of 52 pass, default and
   reference logs unchanged). Footprint = every hex `movement_options` gives; enemy footprint = the union over the enemy
-  side; "could flank" = the enemy's footprint reaches a hex next to one the unit could end on. Results: see below / the
-  next entry. Future (Daniel): teach Legate to read the battlefield for good terrain; hold back until most of the
+  side; "could flank" = the enemy's footprint reaches a hex next to one the unit could end on. FIRST RESULT (40 battles,
+  Princess v Gladiator, seeds 12345 and 2468, v the baseline on the same seeds; Princess / draws / Gladiator): 20 / 8 / 12
+  against 20 / 5 / 15, 'Mechs left 3.48 / 1.52 against 2.70 / 1.75, Gladiator damage 1288 against 1349 (seed 12345 4 wins
+  v 8, seed 2468 8 v 7): NOT BETTER, inside the noise. Gladiator units lost in turns 1-6 (seed 2468): 2.8 a battle v 2.2;
+  units with no friend within 4 hexes about the same. WHY (one battle, Blue's tiers by turn): turn 1 25% safe / 75% may be
+  flanked; turns 2-10 about 35% stand still, 50-56% may be flanked, 0-4% safe, 9-12% trapped - the union of twelve enemy
+  footprints covers nearly the whole field, so the tiers barely separate units and the order falls back to slowest first.
+  The two parts (order, flanker foe) were not tested apart. Next: refine the footprint rule (per enemy, or by how many
+  enemies reach), then test order-only and foe-only. Future (Daniel): teach Legate to read the battlefield for good terrain; hold back until most of the
   combat power can engage at once.
 
 - **2026-11-07 (Claude), TURN INSPECTOR; THE "25% HIGH" DAMAGE ESTIMATE SETTLED; MOVE ORDER AND TEAM VALUE RESULTS. REVIEW PENDING

@@ -524,6 +524,31 @@ KILL_CURVE_PROGRESS_WEIGHT = 1.0
 # cannot escape (slower first inside a tier); tiers 2 and 3 plan their two-ply against the highest-threat enemy that
 # could flank them; applies when entering the battlefield too.
 MOVE_ORDER = "index"
+
+# PERIL (2026-11-07, Daniel's peril heat map; INTEGRATION__peril): how Legate prices the damage a spot takes from the
+# enemies OTHER than the mover's foe. "off" (default): each at the one spot Legate estimates it ends in (or its real
+# spot once it has moved). "peak" / "mean": from the whole of where it COULD end (its movement footprint, line of sight and
+# cover applied) - the most any one spot would deal there, or the average over its spots. PERIL_BLEND = the share the
+# field takes, the point estimate the rest (1.0 = the field only). Placeholder weights; only with Legate on.
+PERIL = "off"
+PERIL_BLEND = 1.0
+
+# STACK (2026-11-07, Daniel: stack the team's damage maps on a target's movement profile up to what kills it;
+# INTEGRATION__stack): a candidate spot earns STACK_WEIGHT x the coverage it adds - the team's summed damage over each
+# enemy's footprint, capped at that enemy's HP, averaged (STACK_QUANTILE None) or read at a low quantile - on top of the
+# damage it deals. Only with Legate on. Placeholder weight; off by default.
+STACK = False
+STACK_WEIGHT = 1.0
+STACK_QUANTILE = None
+
+# TRIAGE (2026-11-07, Daniel: peril / toughness tiers; INTEGRATION__triage): each unit's peril (the damage the enemy side could
+# bring to its hex) / its toughness, ranked over the team. The TRIAGE_FRACTION highest are HOT: the damage a spot would take
+# counts TRIAGE_HOT_RECEIVED times. The same share at the bottom are COOL: the damage a spot would deal counts
+# TRIAGE_COOL_DEALT times. Only with Legate on and three or more units. Placeholder weights; off by default.
+TRIAGE = True                  # default since 2026-11-08 (Daniel): 51 v 42 wins and 2.32 v 1.62 'Mechs left over 100 battles at a 100-turn cap (Change Record)
+TRIAGE_FRACTION = 0.25
+TRIAGE_HOT_RECEIVED = 2.0
+TRIAGE_COOL_DEALT = 1.5
 GLADIATOR_FIRE_ORDER = "big_guns_first"
 # (STUB_REAR_MOUNTED removed 2026-10-19: mtf_parser keeps the "(R)" tag as
 # Equipment.rear_mounted; those weapons fire only into the rear arc - Core p.60.)

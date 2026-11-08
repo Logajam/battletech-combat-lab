@@ -244,6 +244,14 @@ settings against this row.
 Princess wins 47% (+/- 10 at 95%), Gladiator 33% (+/- 9), 20% draws. A 20-battle batch swings several wins either
 way (Gladiator 3 to 8 wins, Princess 7 to 11); damage dealt is steady (Princess 1470-1594, Gladiator 1245-1353).
 
+## Peril, stacked coverage and the tiers (2026-11-07 / 08) - triage is now the default
+
+`INTEGRATION__peril` lays each enemy's damage-by-range table over every hex it could end on (line of sight and cover applied, `INTEGRATION__vision`). Three uses were tried against the baseline (Princess v Gladiator + Legate, 20-battle sets):
+the field in place of the other enemies' damage in the move score (`config.PERIL`: not better); stacked coverage up to an enemy's HP (`config.STACK`: battles end sooner, no more wins); and **triage tiers** (`config.TRIAGE`):
+each unit's peril / toughness ranked across the team, the top 25% weigh damage taken x2 (fall back), the bottom 25% weigh damage dealt x1.5 (push in). Triage **is on by default since 2026-11-08**: over 100 battles at a
+100-turn cap, 51 / 47 / 2 (Blue wins / Red / draws) against the old 42 / 56 / 2, 'Mechs left 2.32 / 2.39 against 1.62 / 2.58 (five seed sets, better in four, level in one). Run `--no-triage` for the old behaviour.
+The end-game stand-off (1 v 2 left at 100 turns) is a picker problem: the bot does not see that it can win and close in. See PROJECT_MAP Pick up here 000000 for what is left.
+
 ## Next steps (PROJECT_MAP "Pick up here" 00000 and 0000)
 
 - Why grouping doesn't win: the cohesion reward matches Princess's spread but

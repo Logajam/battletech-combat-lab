@@ -79,6 +79,15 @@ def main():
                     help="config.LEGATE_TEAM_VALUE: score a move by the whole team's future damage")
     ap.add_argument("--move-order", choices=("index", "tiered", "random", "reverse"), default=config.MOVE_ORDER,
                     help="config.MOVE_ORDER: which unit of a side moves next (2026-11-07)")
+    ap.add_argument("--peril", choices=("off", "peak", "mean"), default=config.PERIL,
+                    help="how Legate prices the other enemies' fire: from the one estimated spot (off) or the whole field (INTEGRATION__peril)")
+    ap.add_argument("--peril-blend", type=float, default=config.PERIL_BLEND, help="the share the peril field takes (1.0 = only it)")
+    ap.add_argument("--stack", type=float, default=None, help="stacked coverage weight (INTEGRATION__stack); off when absent")
+    ap.add_argument("--stack-quantile", type=float, default=None, help="read coverage at this quantile of the enemy footprint (default: the mean)")
+    ap.add_argument("--triage", type=float, default=None, help="peril / toughness tiers: the fraction of the team in each of the hot and cool tiers (INTEGRATION__triage)")
+    ap.add_argument("--no-triage", action="store_true", help="switch the tiers off (the old baseline; they are on by default since 2026-11-08)")
+    ap.add_argument("--triage-hot", type=float, default=config.TRIAGE_HOT_RECEIVED, help="hot tier: damage taken counts this many times")
+    ap.add_argument("--triage-cool", type=float, default=config.TRIAGE_COOL_DEALT, help="cool tier: damage dealt counts this many times")
     ap.add_argument("--exchange", action=argparse.BooleanOptionalAction, default=config.LEGATE_TEAM_EXCHANGE,
                     help="config.LEGATE_TEAM_EXCHANGE: with a team value, also count the enemy damage our fire removes")
     ap.add_argument("--stats", action="store_true",
@@ -103,10 +112,18 @@ def main():
     config.GLADIATOR_FIRE_ORDER = args.fire_order
     config.LEGATE_TEAM_VALUE = args.team_value
     config.MOVE_ORDER = args.move_order
+    config.PERIL, config.PERIL_BLEND = args.peril, args.peril_blend
+    if args.triage is not None:
+        config.TRIAGE, config.TRIAGE_FRACTION = True, args.triage
+    config.TRIAGE_HOT_RECEIVED, config.TRIAGE_COOL_DEALT = args.triage_hot, args.triage_cool
+    if args.no_triage:
+        config.TRIAGE = False
+    if args.stack is not None:
+        config.STACK, config.STACK_WEIGHT, config.STACK_QUANTILE = True, args.stack, args.stack_quantile
     config.STATS = args.stats        # off by default: a little time a shot (the reference checks switch it off too)
     config.LEGATE_TEAM_EXCHANGE = args.exchange
     tag = (f"split-{args.fire_split}{'-now' if args.split_now else ''}{'_herd' if args.herding else ''}{f'_coh{args.cohesion}' if args.cohesion is not None else ''}_{args.fire_order}"
-           f"{f'_team-{args.team_value}{"" if args.exchange else "-noexch"}' if args.team_value else ''}{f'_order-{args.move_order}' if args.move_order != 'index' else ''}")
+           f"{f'_team-{args.team_value}{"" if args.exchange else "-noexch"}' if args.team_value else ''}{f'_order-{args.move_order}' if args.move_order != 'index' else ''}{f'_peril-{args.peril}-{args.peril_blend:g}' if args.peril != 'off' else ''}{f'_triage-{config.TRIAGE_FRACTION:g}-h{config.TRIAGE_HOT_RECEIVED:g}-c{config.TRIAGE_COOL_DEALT:g}' if config.TRIAGE else ''}{f'_stack-{args.stack:g}{"" if args.stack_quantile is None else f"q{args.stack_quantile:g}"}' if args.stack is not None else ''}")
     config.REPLAY_BATTLES = 1 if args.replay else 0
     with redirect_stdout(io.StringIO()):
         terrain = orchestrator._load_map()
