@@ -1839,6 +1839,15 @@ turn's score, so a decision sees what it gives up.
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-08 (Claude), TRIAGE: THE 100-BATTLE COMPARISON AT A 100-TURN CAP (five seed sets of 20). REVIEW PENDING (higher-level model).**
+  Princess (Red) v Gladiator + Legate (Blue); battles that ended inside 50 turns are identical at either cap, so only the baseline's / triage's cap-draws were re-played at 100.
+  Seed sets (Blue wins / Red / draws, 'Mechs left Blue / Red), baseline then tiers: 12345: 8 / 11 / 1, 1.90 / 2.50 then 9 / 10 / 1, 2.30 / 2.05; 2468: 8 / 12 / 0, 1.05 / 2.65 then 11 / 9 / 0, 2.60 / 2.25;
+  1357: 9 / 10 / 1, 1.85 / 1.95 then 11 / 9 / 0, 2.45 / 2.20; 8642: 10 / 10 / 0, 2.30 / 2.35 then 10 / 9 / 1, 2.30 / 2.60; 9753: 7 / 13 / 0, 1.00 / 3.45 then 10 / 10 / 0, 1.95 / 2.85.
+  ALL 100: BASELINE 42 / 56 / 2, left 1.62 / 2.58, dealt 1338 / 1546, 42.3 turns; TIERS (25%, hot x2, cool x1.5) 51 / 47 / 2, left 2.32 / 2.39, dealt 1392 / 1493, 43.1 turns.
+  Tiers win more in 4 of 5 sets (one level) and Blue keeps more 'Mechs in 4 of 5 (one level). +9 wins in 100 is about 1.3 standard deviations (not proven on wins alone); the 'Mechs-left and damage shifts are the steadier
+  signal. This is the DEEP BASELINE for the new default (Daniel, 2026-11-08: "get a deep baseline for what will become the new default if it wins"). Default still off pending Daniel's go-ahead.
+  Knobs untried: fraction, weights, peak v mean ratio. Daniel's note: the end-game stand-off is a picker problem (not closing in when winning), not a special mode.
+
 - **2026-11-08 (Claude), TRIAGE: THE 40-BATTLE COMPARISON AT A 100-TURN CAP. REVIEW PENDING (higher-level model).**
   Princess (Red) v Gladiator + Legate (Blue); two sets of 20 battles (seeds 12345 and 2468), 100-turn cap (battles that ended inside 50 turns are identical at either cap, so only the draws were re-played at 100).
   BASELINE (triage off): seed 12345 8 / 11 / 1 (Blue wins / Red / draws); seed 2468 8 / 12 / 0; BOTH 16 / 23 / 1, 'Mechs left 1.48 / 2.58, damage dealt 1359 / 1557, 43.3 turns.
