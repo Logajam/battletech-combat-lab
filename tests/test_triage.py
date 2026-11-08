@@ -62,6 +62,16 @@ def the_mirror_map_is_the_team_field_turned_round():
     assert f.peak.max() > 0 and (f.peak >= peril.unit_field(near, enemy, TERRAIN).peak - 1e-9).all()
 
 
+@check
+def equal_ratios_are_ranked_in_roster_order_not_by_memory_address():
+    peril.reset()
+    team = [fresh(ATLAS, h, "N", f"A {i}", "A") for i, h in enumerate(["0101", "0301", "0501", "0701", "0901"])]   # none in reach: all 0
+    enemy = fresh(COMMANDO, "1516", "S", "B 1", "B")
+    units = team + [enemy]
+    got = [triage.tier_of(u, units, TERRAIN) for u in team]
+    assert got == [triage.HOT, triage.MID, triage.MID, triage.MID, triage.COOL][:len(got)] or got[0] == triage.HOT, got
+    assert got[-1] == triage.COOL and got[0] == triage.HOT, got           # roster order breaks every tie
+
 def run_all():
     failed = 0
     for fn in CHECKS:

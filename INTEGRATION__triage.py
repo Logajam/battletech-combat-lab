@@ -52,12 +52,14 @@ def tier_of(mover, units, terrain_map):
     if not enemies:
         return MID
     vt = vision.table(terrain_map)
-    scored = [(ratio(u, enemies, terrain_map, vt), id(u)) for u in team if u.hex is not None]
-    if len(scored) < 3:
+    on_board = [u for u in team if u.hex is not None]
+    if len(on_board) < 3:
         return MID
-    scored.sort(reverse=True)                                  # highest ratio first
-    k = max(1, math.ceil(config.TRIAGE_FRACTION * len(scored)))
-    order = [i for _, i in scored]
+    # Highest ratio first; EQUAL ratios (several far-off units with no peril at all) keep roster order. (Not sorted by id():
+    # that is a memory address, so a tie would be broken differently depending on what ran before in the process.)
+    ratios = {id(u): ratio(u, enemies, terrain_map, vt) for u in on_board}
+    order = [id(u) for u in sorted(on_board, key=lambda u: -ratios[id(u)])]
+    k = max(1, math.ceil(config.TRIAGE_FRACTION * len(order)))
     rank = order.index(id(mover))
     if rank < k:
         return HOT
