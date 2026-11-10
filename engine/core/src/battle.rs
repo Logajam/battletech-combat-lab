@@ -96,10 +96,16 @@ pub struct Battle {
     /// clubs.py: hex label -> severed limbs lying there
     pub limbs_on_ground: IndexMap<String, i64>,
     pub turn: i64,
+    /// config.PILOTING as piloting_rolls reads it: the Python sets the one global to a mech's own skill around each call
+    /// (attack_resolution._with_piloting)
+    pub piloting: i64,
+    /// hazards._IN_PHASE
+    pub hazards_in_phase: bool,
 }
 
 impl Battle {
     pub fn new(cfg: Config, board: Board, units: Vec<Mech>, dice: Box<dyn Dice>) -> Battle {
+        let piloting = if cfg.has("PILOTING") { cfg.i("PILOTING") } else { 5 };
         Battle {
             cfg,
             db: EquipmentDb::load(),
@@ -112,6 +118,8 @@ impl Battle {
             broken_crust: Vec::new(),
             limbs_on_ground: IndexMap::new(),
             turn: 0,
+            piloting,
+            hazards_in_phase: false,
         }
     }
 
@@ -140,5 +148,16 @@ impl Battle {
     }
     pub fn unit_index(&self, side_name: &str) -> UnitId {
         self.units.iter().position(|u| u.side_name.as_deref() == Some(side_name)).unwrap_or_else(|| panic!("no unit {}", side_name))
+    }
+}
+
+impl Battle {
+    /// `_with_piloting(mech, fn)`: piloting_rolls reads one global PILOTING; set it to this mech's own skill for the call.
+    pub fn with_piloting<R>(&mut self, u: UnitId, f: impl FnOnce(&mut Battle) -> R) -> R {
+        let saved = self.piloting;
+        self.piloting = self.units[u].piloting;
+        let r = f(self);
+        self.piloting = saved;
+        r
     }
 }

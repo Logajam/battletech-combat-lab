@@ -371,6 +371,33 @@ pub struct Mech {
     pub tsemp_interference_until: Option<Option<i64>>,
     pub mech_turret_dir: Option<IndexMap<String, i64>>,
     pub home_edge_row: Option<Vec<String>>,
+    /// bogged down (TO:AR p.60): the attribute is absent until a 'Mech is first stuck; present-None after it frees itself
+    pub stuck: Option<Option<Stuck>>,
+}
+
+/// mech.stuck = {"rolls", "prone_stage", "by_jump", and once freed from the prone stage "stand_only"}
+#[derive(Clone, Debug, PartialEq)]
+pub struct Stuck {
+    pub rolls: i64,
+    pub prone_stage: bool,
+    pub by_jump: bool,
+    pub stand_only: Option<bool>,
+}
+
+impl Stuck {
+    pub fn to_json(&self) -> Value {
+        let mut m = Map::new();
+        m.insert("rolls".into(), json!(self.rolls));
+        m.insert("prone_stage".into(), json!(self.prone_stage));
+        m.insert("by_jump".into(), json!(self.by_jump));
+        if let Some(s) = self.stand_only {
+            m.insert("stand_only".into(), json!(s));
+        }
+        Value::Object(m)
+    }
+    pub fn from_json(v: &Value) -> Stuck {
+        Stuck { rolls: v["rolls"].as_i64().unwrap(), prone_stage: v["prone_stage"].as_bool().unwrap(), by_jump: v["by_jump"].as_bool().unwrap(), stand_only: v.get("stand_only").and_then(|x| x.as_bool()) }
+    }
 }
 
 /// A twist / arm-flip / turret action (arcs.ArcAction).
@@ -644,6 +671,7 @@ impl Mech {
             tsemp_interference_until: None,
             mech_turret_dir: None,
             home_edge_row: None,
+            stuck: None,
         };
         snapshot_round_capability(&mut m);
         m

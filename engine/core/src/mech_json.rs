@@ -335,6 +335,9 @@ impl Mech {
         if let Some(v) = &self.home_edge_row {
             put!("home_edge_row", json!(v));
         }
+        if let Some(v) = &self.stuck {
+            put!("stuck", v.as_ref().map_or(Value::Null, |s| s.to_json()));
+        }
         Value::Object(m)
     }
 
@@ -591,6 +594,7 @@ impl Mech {
         m.tsemp_interference_until = v.get("tsemp_interference_until").map(|x| x.as_i64());
         m.mech_turret_dir = v.get("mech_turret_dir").map(ints);
         m.home_edge_row = v.get("home_edge_row").map(strs);
+        m.stuck = v.get("stuck").map(|x| if x.is_null() { None } else { Some(Stuck::from_json(x)) });
         m
     }
 }

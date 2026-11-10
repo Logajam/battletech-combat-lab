@@ -37,6 +37,18 @@ GROUPS = {
               "mech_state.mech_shields", "mech_state.hip_effects", "mech_state.ground_level_limited",
               "mech_state.torso_cockpit_sensor_penalty", "mech_state.physical_attacker_modifier",
               "mech_state.is_immobile", "damage_resolution.compute_tmm", "damage_resolution.get_weapons"],
+    "piloting": ["piloting_rolls.preexisting_modifier", "piloting_rolls.special_case_modifier",
+                 "piloting_rolls.snapshot_preexisting_damage", "piloting_rolls.snapshot_pre_attack_phase",
+                 "piloting_rolls.resolve_fall", "piloting_rolls.roll_psrs", "piloting_rolls.can_stand",
+                 "piloting_rolls.movement_psr_trigger", "piloting_rolls.movement_psr_count",
+                 "piloting_rolls.check_movement_psr", "piloting_rolls.resolve_stand_up",
+                 "piloting_rolls.resolve_movement_phase", "piloting_rolls.resolve_attack_phase_psr",
+                 "piloting_rolls.resolve_consciousness_checks", "piloting_rolls.resolve_end_phase_wakeup",
+                 "piloting_rolls.movement_psr_target_number", "piloting_rolls.hd_gyro_jump_adjust",
+                 "hazards.magma_burn", "hazards.pool_damage", "hazards.enter_hex", "hazards.free_roll",
+                 "hazards.bog_down_roll", "hazards.start_of_movement", "hazards.end_of_movement",
+                 "hazards.magma_heat", "hazards.after_fall", "water.check_breach", "water.auto_breaches",
+                 "water.drowning", "water.dissipation_bonus", "water.jump_mp"],
     "damage": ["damage_resolution.apply_damage", "damage_resolution.check_critical", "damage_resolution.resolve_critical",
                "damage_resolution.resolve_slot_hit", "damage_resolution.apply_explosion",
                "damage_resolution.mark_all_crits_destroyed", "damage_resolution.cluster_hits_count",
@@ -170,7 +182,7 @@ class Tap:
         self.counts[target] = self.counts.get(target, 0) + 1
         self.records.append({"fn": target, "fixture": self.fixture, "args": enc_args, "kwargs": enc_kw, "units": before,
                              "dice": self.rng.calls[dice0:self.rng.pos], "ret": enc_ret, "after": after, "log": lines,
-                             "stubs": warns, "board": board, "roster": [u.side_name for u in units]})
+                             "stubs": warns, "board": board, "piloting": config.PILOTING, "roster": [u.side_name for u in units]})
         return ret
 
 
