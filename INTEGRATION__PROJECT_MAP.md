@@ -5,7 +5,8 @@ Section 0 = where we are and the open work (read first). Sections 1-3 = scope, t
 piles. Section 4 / 4a = open items and readings by topic, arcs. Section 5 = Daniel's decisions
 (implementation may not override). Section 6 = every bot decision point, the Princess clone, the Memo.
 Section 7 = standing instructions. The Change Record is `INTEGRATION__CHANGE_RECORD.md`; the session
-history is `INTEGRATION__HISTORY.md`; task write-ups are `INTEGRATION__TASK_SPECS.md`.
+history is `INTEGRATION__HISTORY.md`; task write-ups are `INTEGRATION__TASK_SPECS.md`; the Rust translation plan
+is `INTEGRATION__RUST_PORT.md`; what a battle's state is: `INTEGRATION__STATE.md`.
 
 **Naming:** `mechsim/` and `pathfinder/` hold the two source projects' modules; `INTEGRATION__*` = this
 project's files. Never let one source project's file overwrite the other's same-named file.
@@ -107,11 +108,14 @@ standoff, sprinting, multi-target fire, unit orders. Open call (Daniel): Short-S
 - C6. Other unit types; scenario features (objectives, fog of war).
 
 **D. Engine, speed, state**
-- D1. Rust: step 1-6 done, back burner (Daniel: "diminishing returns"); a full rebuild is Daniel's maybe. Review
-  advice 2026-11-10: the time goes to the bots scoring spots, so the step that pays is many spots per call on
-  flat data, after D2 - not a port of the physics [13, 1, 1a].
+- **D1. THE RUST TRANSLATION - Daniel's next step (2026-11-10: "have Sonnet translate the monte carlo into
+  rust. Just bite the bullet and remove translation as a source of slowdown").** Plan, traps, stages and the
+  stage log: `INTEGRATION__RUST_PORT.md` (spec T11). The Python stays as the answer key and its behaviour is
+  FROZEN while the port runs - so decide T8 and build or park T1 first. Engine and both bots go to Rust; output
+  pages and the art stay Python [13, 1, 1a].
 - D2. One battle-state object and stable unit numbers in place of memory-address keys (about 300 `id()` uses; two
-  real bugs came from them). Needed by D1, D3 and the Combat Lab (design T5, then the change T6).
+  real bugs came from them). Design DONE: `INTEGRATION__STATE.md`. The Rust translation builds it directly; the
+  Python is changed (T6) only if the translation is dropped.
 - D3. Saved states [16]: saves inside a turn; a replay from a loaded state; a readable state; `--round-trip` in
   run_checks.
 - D4. Tidy the switches (148 settings): move the experiments that lost out of the scoring path - Daniel's call
@@ -153,6 +157,8 @@ remove the line and note it in the Change Record.
 - **(p) THE PERIL LINE** (2026-11-07 / 08: `INTEGRATION__vision`, `_peril`, `_stack`, `_triage`; triage on by
   default). Its Change Record entries are marked REVIEW PENDING; it had no queue line until this clean-up.
 - (q) THE MAP CLEAN-UP itself (2026-11-10): documents only, no code; check nothing was lost in the move.
+- (r) THE PLANS written 2026-11-10: `INTEGRATION__RUST_PORT.md`, `INTEGRATION__STATE.md`, spec T1's formula
+  (`INTEGRATION__TASK_SPECS.md`). Worth a second look before a long build starts on them.
 
 ---
 
