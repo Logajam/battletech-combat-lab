@@ -24,6 +24,7 @@ fn close(a: f64, b: f64) -> bool {
 pub struct ReplayBots {
     pub check_gladiator_declaration: bool,
     pub check_gladiator_physical: bool,
+    pub check_simple_foe_target: bool,
     pub checked: std::collections::BTreeMap<String, (usize, usize)>,
     pub mismatches: Vec<String>,
 }
@@ -119,13 +120,23 @@ impl BotSet for ReplayBots {
     fn choose_foe(&mut self, b: &mut Battle, mover: UnitId) -> Option<UnitId> {
         let who = nm(b, mover);
         let v = b.decide("foe", &who);
-        unit_named(b, &v)
+        let rec = unit_named(b, &v);
+        if self.check_simple_foe_target && crate::forces::enemies_of(b, mover).len() == 1 {
+            let mine = crate::forces::choose_foe(b, mover);
+            self.note("foe(1 enemy)", mine == rec, format!("{}: {:?} v {:?}", who, mine, rec));
+        }
+        rec
     }
 
     fn choose_target(&mut self, b: &mut Battle, attacker: UnitId) -> Option<UnitId> {
         let who = nm(b, attacker);
         let v = b.decide("target", &who);
-        unit_named(b, &v)
+        let rec = unit_named(b, &v);
+        if self.check_simple_foe_target && crate::forces::enemies_of(b, attacker).len() == 1 {
+            let mine = crate::forces::choose_target(b, attacker, true, false);
+            self.note("target(1 enemy)", mine == rec, format!("{}: {:?} v {:?}", who, mine, rec));
+        }
+        rec
     }
 
     fn fire_pick_active(&mut self, b: &mut Battle) -> bool {

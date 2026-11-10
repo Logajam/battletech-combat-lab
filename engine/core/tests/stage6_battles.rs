@@ -152,7 +152,7 @@ fn run_fixture(dir: PathBuf) -> Result<usize, String> {
         let mut play = start_battle(&mut b, max_turns, &mut marks);
         if failure_c.borrow().is_none() {
             let check = std::env::var("CHECK").unwrap_or_default();
-            let mut bots = ReplayBots { check_gladiator_declaration: check.contains("declaration"), check_gladiator_physical: check.contains("physical"), ..Default::default() };
+            let mut bots = ReplayBots { check_gladiator_declaration: check.contains("declaration"), check_gladiator_physical: check.contains("physical"), check_simple_foe_target: check.contains("simple"), ..Default::default() };
             play_on(&mut b, &mut bots, &mut play, &mut marks);
             checked_c.replace((bots.checked.clone(), bots.mismatches.clone()));
         }
