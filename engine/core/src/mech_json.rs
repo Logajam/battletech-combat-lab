@@ -241,7 +241,7 @@ impl Mech {
             put!("capacitors", Value::Array(self.capacitors.iter().map(|i| self.item_json(*i, 1)).collect()));
             put!("capacitor_heat", json!(self.capacitor_heat));
             put!("modular_armor", Value::Array(self.modular_armor.iter().map(|i| self.item_json(*i, 1)).collect()));
-            put!("tag_designated", json!(self.tag_designated));
+            put!("tag_designated", match &self.tag_designated { Some(s) => json!(s), None => json!(false) });
             put!("move_mode", json!(self.move_mode));
             put!("move_fc", json!(self.move_fc));
             put!("mp_spent", json!(self.mp_spent));
@@ -576,7 +576,7 @@ impl Mech {
             m.capacitors = refs(&v["capacitors"]);
             m.capacitor_heat = v["capacitor_heat"].as_i64().unwrap();
             m.modular_armor = refs(&v["modular_armor"]);
-            m.tag_designated = v["tag_designated"].as_bool().unwrap();
+            m.tag_designated = v["tag_designated"].as_str().map(|s| s.to_string());
             m.move_mode = v["move_mode"].as_str().unwrap().to_string();
             m.move_fc = v["move_fc"].as_i64().unwrap();
             m.mp_spent = v["mp_spent"].as_i64().unwrap();

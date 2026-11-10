@@ -92,6 +92,8 @@ pub struct Equipment {
     pub charging: Option<bool>,
     pub firing: Option<bool>,
     pub linked_ppc: Option<ItemId>,
+    /// an MRM's linked Apollo FCS (fire_modes.attach)
+    pub apollo: Option<ItemId>,
     pub base_damage: Option<i64>,
     pub base_heat: Option<i64>,
     pub capacitor: Option<ItemId>,
@@ -172,6 +174,7 @@ impl Equipment {
             charging: None,
             firing: None,
             linked_ppc: None,
+            apollo: None,
             base_damage: None,
             base_heat: None,
             capacitor: None,
@@ -249,6 +252,9 @@ impl Equipment {
         }
         opt!("base_damage", self.base_damage);
         opt!("base_heat", self.base_heat);
+        if let Some(i) = self.apollo {
+            m.insert("apollo".into(), ref_json(i, depth + 1));
+        }
         if let Some(i) = self.capacitor {
             m.insert("capacitor".into(), ref_json(i, depth + 1));
         }
@@ -317,6 +323,7 @@ impl Equipment {
         e.charging = gb("charging");
         e.firing = gb("firing");
         e.linked_ppc = nested("linked_ppc");
+        e.apollo = nested("apollo");
         e.base_damage = gi("base_damage");
         e.base_heat = gi("base_heat");
         e.capacitor = nested("capacitor");

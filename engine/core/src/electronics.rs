@@ -222,3 +222,63 @@ pub fn control_for(b: &mut Battle, attacker: UnitId, weapon: ItemId, target: Uni
     }
     FireControl { munition: munition.to_string(), tn, cluster, streak_lock: lock, note }
 }
+
+/// A homing pod's worth to `owner` (one-turn gain of its Narc-capable launchers).
+pub fn pod_value(b: &mut Battle, owner: UnitId, target: UnitId, distance: i64, pre_tn: i64, adjust: &dyn crate::fire_modes::TnAdjust) -> f64 {
+    use crate::fire_modes::{Planner, ShotPlan};
+    let owner_side = b.units[owner].side_name.clone().unwrap_or_default();
+    if narc_blocked(&b.units[target]) || live_pod_exists(&b.units[target], &owner_side, false) {
+        return 0.0;
+    }
+    let mut planner = Planner::new(owner, target, adjust, 0.0, Default::default(), None);
+    let mut blocked = crate::ammo::unavailable_weapons(&b.units[owner]);
+    blocked.extend(crate::fire_modes::jammed_ids(&b.units[owner]));
+    let mut total = 0.0;
+    for w in crate::damage_resolution::get_weapons(&b.units[owner]) {
+        if blocked.contains(&w) || b.units[owner].items[w].damage_type.as_deref() != Some("Missile") || is_narc(b, owner, w) {
+            continue;
+        }
+        let plans = planner.kinds(b, w);
+        let narc: Vec<&ShotPlan> = plans.iter().filter(|p| p.munition() == "narc").collect();
+        if narc.is_empty() {
+            continue;
+        }
+        let mut now = 0.0f64;
+        let mut first = true;
+        for p in &plans {
+            if let Some(v) = planner.value(b, w, p, distance, pre_tn) {
+                if first || v.0 > now {
+                    now = v.0;
+                    first = false;
+                }
+            }
+        }
+        if first {
+            now = 0.0;
+        }
+        let mut homing = narc[0].clone();
+        homing.guidance = FireControl { munition: "narc".into(), tn: NARC_TN, cluster: if is_cluster(b, owner, w) { NARC_CLUSTER } else { 0 }, streak_lock: narc[0].guidance.streak_lock, note: "Narc homing".into() };
+        if let Some(got) = planner.value(b, w, &homing, distance, pre_tn) {
+            total += 0.0f64.max(got.0 - now);
+        }
+    }
+    total
+}
+
+/// One log line naming each fired weapon's shot plan, when it isn't plain.
+pub fn log_controls(b: &mut Battle, name: &str, plans: &[(ItemId, crate::fire_modes::ShotPlan)], weapons: &[ItemId], u: UnitId) {
+    let mut notes: Vec<String> = Vec::new();
+    for w in weapons {
+        if let Some((_, p)) = plans.iter().find(|(x, _)| x == w) {
+            let n = p.note();
+            if !n.is_empty() {
+                notes.push(format!("{}: {}", b.units[u].items[*w].name, n));
+            }
+        }
+    }
+    notes.sort();
+    notes.dedup();
+    if !notes.is_empty() {
+        b.log(format!("    [{} fire control] {}", name, notes.join("; ")));
+    }
+}

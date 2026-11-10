@@ -115,3 +115,90 @@ pub fn stub_heat_explosion_bin(b: &mut Battle, mech_name: &str, tied: &[(String,
     b.warn_stub("heat_explosion_bin", &format!("{}: {} -> {} in {}", mech_name, notes.join("; "), tied[pick].1, tied[pick].0));
     pick
 }
+
+fn round9(x: f64) -> f64 {
+    format!("{:.9}", x).parse().unwrap()
+}
+
+/// Which ammunition kind / guidance / Apollo mode `weapon` fires. Knob: STUB_MUNITION_POLICY.
+pub fn stub_munition_choice(b: &mut Battle, mech_name: &str, weapon: usize, unit: usize, options: &[(crate::fire_modes::ShotPlan, f64)], warn: bool) -> crate::fire_modes::ShotPlan {
+    let policy = b.cfg.s("STUB_MUNITION_POLICY").to_string();
+    let plain = |p: &crate::fire_modes::ShotPlan| (p.munition() == "standard" || p.munition() == "homing") && (p.kind.is_empty() || p.kind == "standard");
+    let plan = if policy == "random" {
+        let k = b.pick_number(options.len() as i64) as usize;
+        options[k - 1].0.clone()
+    } else if policy == "standard" {
+        options.iter().find(|(p, _)| plain(p)).map_or(options[0].0.clone(), |(p, _)| p.clone())
+    } else {
+        let mut best = &options[0];
+        for o in &options[1..] {
+            let (kb, ko) = ((round9(best.1), plain(&best.0)), (round9(o.1), plain(&o.0)));
+            if ko > kb {
+                best = o;
+            }
+        }
+        best.0.clone()
+    };
+    if warn {
+        let wname = b.units[unit].items[weapon].name.clone();
+        let shown: Vec<String> = options.iter().map(|(p, v)| format!("{} {:.2}", if p.note().is_empty() { p.munition().to_string() } else { p.note() }, v)).collect();
+        let to = if plan.note().is_empty() { plan.munition().to_string() } else { plan.note() };
+        b.warn_stub("munition_choice", &format!("{}'s {}: {} -> {} (policy {})", mech_name, wname, shown.join(", "), to, policy));
+    }
+    plan
+}
+
+/// Shots an Ultra / Rotary AC fires ([(shots, expected damage)]). Knob: STUB_RATE_OF_FIRE.
+pub fn stub_rate_of_fire(b: &mut Battle, mech_name: &str, unit: usize, weapon: usize, priced: &[(i64, f64)], warn: bool) -> i64 {
+    let policy = b.cfg.s("STUB_RATE_OF_FIRE").to_string();
+    let shots = if policy == "single" {
+        priced[0].0
+    } else if policy == "greedy" {
+        let mut best = priced[0];
+        for o in &priced[1..] {
+            // key (round(value, 9), -shots): the larger wins, first of equals
+            if (round9(o.1), -o.0 as f64) > (round9(best.1), -best.0 as f64) {
+                best = *o;
+            }
+        }
+        best.0
+    } else {
+        priced[priced.len() - 1].0
+    };
+    if warn {
+        let wname = b.units[unit].items[weapon].name.clone();
+        b.warn_stub("rate_of_fire", &format!("{}'s {}: {} rates possible -> {} shot{} (policy {})", mech_name, wname, priced.len(), shots, if shots > 1 { "s" } else { "" }, policy));
+    }
+    shots
+}
+
+/// Try to unjam a jammed Rotary AC this turn. Knob: STUB_UNJAM (never while prone).
+pub fn stub_unjam(b: &mut Battle, mech_name: &str, weapon_name: &str, prone: bool) -> bool {
+    let attempt = b.cfg.get("STUB_UNJAM").as_bool().unwrap_or_else(|| b.cfg.get("STUB_UNJAM").as_i64().unwrap_or(0) != 0) && !prone;
+    b.warn_stub("unjam", &format!("{}'s {} is jammed -> {}", mech_name, weapon_name, if attempt { "tries to unjam" } else { "stays jammed" }));
+    attempt
+}
+
+/// Makes weapon_selection's silent skip of weapons with null damage / heat / range loud. They never fire.
+pub fn stub_unconfirmed_weapon_data(b: &mut Battle, u: usize) {
+    for w in crate::damage_resolution::get_weapons(&b.units[u]) {
+        if crate::fire_modes::has_profile(b, u, w) {
+            continue;
+        }
+        let it = &b.units[u].items[w];
+        let mut missing: Vec<&str> = Vec::new();
+        if it.damage_per_shot.is_none() {
+            missing.push("damage_per_shot");
+        }
+        if it.heat.is_none() {
+            missing.push("heat");
+        }
+        if it.weapon_range.is_none() {
+            missing.push("weapon_range");
+        }
+        if !missing.is_empty() {
+            let line = format!("{}'s {} can't fire - null {}", b.units[u].side_name.clone().unwrap_or_default(), it.name, missing.join(", "));
+            b.warn_stub("unconfirmed_weapon_data", &line);
+        }
+    }
+}

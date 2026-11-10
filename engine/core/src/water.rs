@@ -218,3 +218,174 @@ pub fn physical_damage(b: &Battle, u: UnitId, location: &str, damage: i64) -> i6
         damage
     }
 }
+
+// ---- ranged attacks (stage 5) --------------------------------------------------------------------------------------
+use std::collections::{HashMap, HashSet};
+
+use crate::equipment::ItemId;
+
+/// {weapon: locations its slots sit in} (attack_resolution.weapon_locations), locations sorted.
+pub type WeaponLocs = HashMap<ItemId, Vec<String>>;
+
+pub const CANT_FIRE_TN: i64 = 99;
+
+pub fn underwater_bracket_tn(bracket: &str) -> i64 {
+    match bracket {
+        "short" | "medium" => 2,
+        _ => CANT_FIRE_TN,
+    }
+}
+
+/// p.127: one bracket longer ("" = none).
+pub fn shifted_bracket(bracket: &str) -> &'static str {
+    match bracket {
+        "short" => "medium",
+        "medium" => "long",
+        "long" => "",
+        other => panic!("KeyError: {}", other),
+    }
+}
+
+fn combat_state(s: &str) -> &str {
+    if s == WADING { GROUND } else { s }
+}
+
+fn locs_of<'a>(w: &'a WeaponLocs, id: ItemId) -> &'a [String] {
+    w.get(&id).map(|v| v.as_slice()).unwrap_or(&[])
+}
+
+/// True when the line from a_label to t_label runs entirely through water of depth 1 or deeper, both ends included.
+pub fn water_line(board: &Board, a_label: &str, t_label: &str) -> bool {
+    let a = crate::hex_geometry::parse_hex_label(a_label).unwrap();
+    let t = crate::hex_geometry::parse_hex_label(t_label).unwrap();
+    crate::los::hex_line(a, t).iter().all(|step| step.iter().all(|h| depth_at(board, Some(&crate::hex_geometry::hex_label(h.0, h.1).unwrap())) >= 1))
+}
+
+/// ids of the attacker's weapons that can't fire at a target in t_state from a_state, or None when no attack can be made.
+pub fn blocked_weapon_ids(attacker: &Mech, weapons: &[ItemId], weapon_locs: &WeaponLocs, a_state: &str, t_state: &str, torpedo_line: bool) -> Option<HashSet<ItemId>> {
+    let torpedoes: HashSet<ItemId> = weapons.iter().copied().filter(|w| crate::weapon_rules::is_torpedo(attacker, *w)).collect();
+    if a_state == WADING && (t_state == PARTIAL || t_state == SUBMERGED) {
+        return None;
+    }
+    if t_state == WADING && (a_state == PARTIAL || a_state == SUBMERGED) {
+        let under = submerged_locations(attacker, a_state);
+        return Some(
+            weapons
+                .iter()
+                .copied()
+                .filter(|w| torpedoes.contains(w) || (locs_of(weapon_locs, *w).iter().any(|l| under.contains(l)) && attacker.items[*w].damage_type.as_deref() != Some("Energy")))
+                .collect(),
+        );
+    }
+    let (a_state, t_state) = (combat_state(a_state), combat_state(t_state));
+    if a_state == GROUND && t_state == GROUND {
+        return Some(torpedoes);
+    }
+    if (a_state == GROUND && t_state == SUBMERGED) || (a_state == SUBMERGED && t_state == GROUND) {
+        return None;
+    }
+    let legs: HashSet<&String> = attacker.leg_locations.iter().collect();
+    let under = submerged_locations(attacker, a_state);
+    let mut blocked = HashSet::new();
+    for &w in weapons {
+        let locs = locs_of(weapon_locs, w);
+        let in_leg = locs.iter().any(|l| legs.contains(l));
+        let energy = attacker.items[w].damage_type.as_deref() == Some("Energy");
+        if torpedoes.contains(&w) {
+            if !(!locs.is_empty() && locs.iter().all(|l| under.contains(l)) && t_state != GROUND && torpedo_line) {
+                blocked.insert(w);
+            }
+        } else if a_state == PARTIAL && t_state == GROUND && in_leg {
+            blocked.insert(w);
+        } else if a_state == PARTIAL && t_state == SUBMERGED && !in_leg {
+            blocked.insert(w);
+        } else if locs.iter().any(|l| under.contains(l)) && !energy {
+            blocked.insert(w);
+        }
+    }
+    Some(blocked)
+}
+
+/// ids of the attacker's weapons whose hits on a target standing in depth 1 use the Kick Location Table.
+pub fn kick_table_weapon_ids(attacker: &Mech, weapons: &[ItemId], weapon_locs: &WeaponLocs, a_state: &str, t_state: &str) -> HashSet<ItemId> {
+    if t_state == WADING {
+        let under = if a_state == PARTIAL || a_state == SUBMERGED { submerged_locations(attacker, a_state) } else { BTreeSet::new() };
+        return weapons.iter().copied().filter(|w| locs_of(weapon_locs, *w).iter().any(|l| under.contains(l)) || a_state == SUBMERGED).collect();
+    }
+    if t_state != PARTIAL {
+        return HashSet::new();
+    }
+    if a_state == SUBMERGED {
+        return weapons.iter().copied().collect();
+    }
+    if a_state == PARTIAL {
+        let legs: HashSet<&String> = attacker.leg_locations.iter().collect();
+        return weapons.iter().copied().filter(|w| locs_of(weapon_locs, *w).iter().any(|l| legs.contains(l))).collect();
+    }
+    HashSet::new()
+}
+
+/// The ids of the weapons the underwater range shift touches (None: nothing is submerged, no wrapper).
+pub fn submerged_weapon_ids(attacker: &Mech, weapon_locs: &WeaponLocs, a_state: &str) -> Option<HashSet<ItemId>> {
+    let under = submerged_locations(attacker, a_state);
+    if under.is_empty() {
+        return None;
+    }
+    Some(weapon_locs.iter().filter(|(_, locs)| locs.iter().any(|l| under.contains(l))).map(|(w, _)| *w).collect())
+}
+
+/// {label: depth} of the board's water hexes of depth 1+.
+pub fn hexes_by_depth(board: &Board) -> indexmap::IndexMap<String, i64> {
+    board.hexes.iter().filter_map(|(l, h)| match h.depth { Some(d) if d >= 1 => Some((l.clone(), d)), _ => None }).collect()
+}
+
+/// Physical attacks an attacker in a_state may make on a target in t_state (p.77): None = any; else the kinds allowed.
+pub fn physical_allowed(a_state: &str, t_state: &str) -> Option<Vec<&'static str>> {
+    if a_state == WADING && (t_state == PARTIAL || t_state == SUBMERGED) {
+        return Some(vec![]);
+    }
+    let (a_state, t_state) = (combat_state(a_state), combat_state(t_state));
+    if t_state == SUBMERGED {
+        if a_state == SUBMERGED {
+            return None;
+        }
+        return Some(if a_state == PARTIAL { vec!["kick"] } else { vec![] });
+    }
+    if a_state == SUBMERGED && t_state == GROUND {
+        return Some(vec![]);
+    }
+    None
+}
+
+/// P(a standard-table hit lands on a leg), p.74 - a quad's arm results are its front legs.
+fn leg_share(target: &Mech, side: &str) -> f64 {
+    let table: &[(i64, &str)] = match side {
+        "left" => &crate::hit_location::HIT_TABLE_LEFT_SIDE,
+        "right" => &crate::hit_location::HIT_TABLE_RIGHT_SIDE,
+        _ => &crate::hit_location::HIT_TABLE_FRONT_REAR,
+    };
+    let quad = target.mech_type == "quad" || target.mech_type == "quadvee";
+    let mut sum = 0.0;
+    for r in 2..=12i64 {
+        let p = (6 - (7 - r).abs()) as f64 / 36.0;
+        let name = table.iter().find(|(k, _)| *k == r).unwrap().1;
+        if name.contains("Leg") || (quad && name.contains("Arm")) {
+            sum += p;
+        }
+    }
+    sum
+}
+
+/// How much of a physical attack's damage lands at full strength, for movement scoring.
+pub fn physical_value_factor(target: &Mech, t_state: &str, table: &str, side: &str) -> f64 {
+    if t_state == GROUND || table == "displacement" {
+        return 1.0;
+    }
+    if t_state == SUBMERGED || table == "kick" {
+        return 0.5;
+    }
+    if table == "punch" {
+        return 1.0;
+    }
+    1.0 - 0.5 * leg_share(target, side)
+}

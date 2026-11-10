@@ -393,3 +393,46 @@ pub fn as_if_jammed(m: &crate::mech_state::Mech) -> bool {
 pub fn own_attack_modifier(m: &crate::mech_state::Mech, physical: bool) -> i64 {
     interference(m) + if physical { 0 } else { tsemp_interference(m) } + imp_level(m)
 }
+
+
+/// Expected damage of a nail gun hit: 3.5 times the chance the hit lands on a location with no armor left.
+pub fn nail_worth(target: &crate::mech_state::Mech, side: &str) -> f64 {
+    let table: &[(i64, &str)] = match side {
+        "left" => &crate::hit_location::HIT_TABLE_LEFT_SIDE,
+        "right" => &crate::hit_location::HIT_TABLE_RIGHT_SIDE,
+        _ => &crate::hit_location::HIT_TABLE_FRONT_REAR,
+    };
+    let rear = side == "rear";
+    let mut bare = 0.0;
+    for (roll, p) in crate::expected_damage::p_2d6_exact() {
+        let Some((_, loc)) = table.iter().find(|(k, _)| *k == roll) else { continue };
+        if let Some(info) = target.locations.get(*loc) {
+            let armor = if rear { info.rear_armor.unwrap_or(info.armor) } else { info.armor };
+            if !info.destroyed && armor <= crate::pyfmt::Num::I(0) {
+                bare += p;
+            }
+        }
+    }
+    NAIL_EXPECTED * bare
+}
+
+/// Heavy smoke in the hex behind the firer (module docstring).
+pub fn hvac_smoke(b: &mut Battle, attacker: UnitId, target: UnitId, turn: i64) {
+    use crate::hex_geometry as hg;
+    let ahex = b.units[attacker].hex.clone().unwrap();
+    let a_xy = hg::parse_hex_label(&ahex).unwrap();
+    let t_xy = hg::parse_hex_label(b.units[target].hex.as_deref().unwrap()).unwrap();
+    let away = crate::combat::direction_facing(t_xy, a_xy).unwrap();
+    let (dx, dy) = hg::FACING_DELTAS[away as usize];
+    let here_level = b.board.hexes[&ahex].level;
+    let mut label = ahex.clone();
+    let behind = hg::hex_label(a_xy.0 + dx, a_xy.1 + dy).ok();
+    let info_level = behind.as_ref().and_then(|l| b.board.hexes.get(l)).map(|i| i.level);
+    match (&behind, info_level) {
+        (Some(bl), Some(lv)) if lv <= here_level => label = bl.clone(),
+        (_, None) => return,
+        _ => {}
+    }
+    let name = b.units[attacker].side_name.clone().unwrap_or_default();
+    crate::smoke::add(b, &label, crate::smoke::HEAVY, turn + 1, &format!("{}'s HVAC fire", name));
+}

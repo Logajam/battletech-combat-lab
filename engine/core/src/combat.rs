@@ -47,3 +47,26 @@ pub fn fc_to_tmm(fc: i64, jumped: bool) -> Result<i64, String> {
     }
     Ok(tmm + if jumped { 1 } else { 0 })
 }
+
+/// Nearest of the 6 facings pointing from from_hex toward to_hex (cube dot-product against each facing's unit vector).
+pub fn direction_facing(from_hex: (i64, i64), to_hex: (i64, i64)) -> Result<i64, String> {
+    if from_hex == to_hex {
+        return Err(format!("Cannot determine a direction from hex ({}, {}) to itself.", from_hex.0, from_hex.1));
+    }
+    let (dx, dy) = (to_hex.0 - from_hex.0, to_hex.1 - from_hex.1);
+    let q = dx as f64;
+    let r = (dy - dx) as f64 / 2.0;
+    let s = -q - r;
+    let mut best_facing = 0;
+    let mut best_dot = f64::NEG_INFINITY;
+    for (facing, (fx, fy)) in crate::hex_geometry::FACING_DELTAS.iter().enumerate() {
+        let (vq, vr) = (*fx as f64, (*fy - *fx) as f64 / 2.0);
+        let vs = -vq - vr;
+        let dot = q * vq + r * vr + s * vs;
+        if dot > best_dot {
+            best_dot = dot;
+            best_facing = facing as i64;
+        }
+    }
+    Ok(best_facing)
+}

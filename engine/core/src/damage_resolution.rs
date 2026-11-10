@@ -724,7 +724,7 @@ fn case_contains(b: &mut Battle, u: UnitId, location: &str, tier: &str, incoming
     b.log(format!("    {} contains the explosion. No further transfer.", tier));
 }
 
-fn explosion_structure(b: &mut Battle, u: UnitId, location: &str, struct_dmg: Num, crit_modifier: i64) -> bool {
+pub fn explosion_structure(b: &mut Battle, u: UnitId, location: &str, struct_dmg: Num, crit_modifier: i64) -> bool {
     let new_struct = b.units[u].locations[location].structure - struct_dmg;
     b.units[u].locations.get_mut(location).unwrap().structure = new_struct;
     let destroyed_this_hit = new_struct <= Num::I(0);

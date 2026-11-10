@@ -332,7 +332,8 @@ pub struct Mech {
     pub unjamming: Vec<ItemId>,
     pub capacitors: Vec<ItemId>,
     pub capacitor_heat: i64,
-    pub tag_designated: bool,
+    /// False (None), "mech" or "hex"
+    pub tag_designated: Option<String>,
     pub move_mode: String,
     pub move_fc: i64,
     pub mp_spent: i64,
@@ -639,7 +640,7 @@ impl Mech {
             unjamming: Vec::new(),
             capacitors: Vec::new(),
             capacitor_heat: 0,
-            tag_designated: false,
+            tag_designated: None,
             move_mode: "Stand Still".to_string(),
             move_fc: 0,
             mp_spent: 0,
@@ -780,7 +781,7 @@ pub fn mech_shields(mech: &Mech) -> Vec<(String, ItemId, &'static str)> {
     out
 }
 
-fn shield_row(size: &str) -> (&'static str, i64, i64, i64, bool) {
+pub fn shield_row(size: &str) -> (&'static str, i64, i64, i64, bool) {
     *SHIELD_SIZES.iter().find(|r| r.0 == size).unwrap()
 }
 
