@@ -67,6 +67,6 @@ stderr and appears in the summary banner.
 
 New to the project (or a new Claude session)? Start with `CLAUDE.md`, then Section 0 of `INTEGRATION__PROJECT_MAP.md`.
 
-Project status, open items and decisions: `INTEGRATION__PROJECT_MAP.md` (torso twists and firing arcs: its Section 4a).
+Project status, open items and decisions: `INTEGRATION__PROJECT_MAP.md` (torso twists and firing arcs: its Section 4a). Every change, newest first: `INTEGRATION__CHANGE_RECORD.md`. Session history: `INTEGRATION__HISTORY.md`. Task write-ups for later sessions: `INTEGRATION__TASK_SPECS.md`.
 Core Rulebook vs code (fixed, gaps, questions for Daniel): `INTEGRATION__RULES_REVIEW.md`.
 Import structure: `INTEGRATION__CALL_GRAPH.md`.

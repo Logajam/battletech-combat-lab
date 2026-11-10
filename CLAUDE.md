@@ -8,11 +8,16 @@ GitHub logistics.
 ## Start here
 
 1. Read `INTEGRATION__PROJECT_MAP.md` **Section 0** ("read this first"): what's
-   built, how to run and test, and the "Pick up here" list of open work.
+   built, how to run and test, the backlog of open work and the REVIEW QUEUE.
+   Keep it short: finished work goes to the Change Record, not into Section 0.
 2. Section 7 of the same file holds Daniel's standing instructions. Section 5
    holds his decisions (implementation may not override them). Section 6 lists
-   every bot decision point and the future-capability Memo. Section 8 is the
-   Change Record, newest first.
+   every bot decision point and the future-capability Memo.
+   `INTEGRATION__CHANGE_RECORD.md` is the Change Record, newest first (new
+   entries at the top). `INTEGRATION__HISTORY.md` is the session history and
+   the old "Pick up here" list, word for word (code comments that cite "Pick
+   up here N" mean that list). `INTEGRATION__TASK_SPECS.md` holds task
+   write-ups and which model each suits.
 3. `INTEGRATION__RULES_REVIEW.md` is the Core Rulebook vs code review: fixed
    items, the gap list to build, and open questions for Daniel.
 4. `INTEGRATION__CALL_GRAPH.md` shows the import structure, and `README.md` the
