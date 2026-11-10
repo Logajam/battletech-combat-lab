@@ -25,6 +25,7 @@ pub struct ReplayBots {
     pub check_gladiator_declaration: bool,
     pub check_gladiator_physical: bool,
     pub check_simple_foe_target: bool,
+    pub check_gladiator_move: bool,
     pub checked: std::collections::BTreeMap<String, (usize, usize)>,
     pub mismatches: Vec<String>,
 }
@@ -57,6 +58,40 @@ impl ReplayBots {
             }
         }
     }
+}
+
+/// The notes of a move decision print numbers to 2-3 places: two notes agree when their text is the same and every
+/// number is within one unit of the last place printed (a 1-ulp float difference can tip a rounding, Daniel 2026-11-10).
+fn notes_agree(a: &str, b: &str) -> bool {
+    let split = |s: &str| -> (String, Vec<(f64, usize)>) {
+        let mut skel = String::new();
+        let mut nums = Vec::new();
+        let chars: Vec<char> = s.chars().collect();
+        let mut i = 0;
+        while i < chars.len() {
+            let c = chars[i];
+            if c.is_ascii_digit() {
+                let mut j = i;
+                while j < chars.len() && (chars[j].is_ascii_digit() || chars[j] == '.') {
+                    j += 1;
+                }
+                let t: String = chars[i..j].iter().collect();
+                if t.contains('.') {
+                    nums.push((t.parse::<f64>().unwrap(), t.len() - t.find('.').unwrap() - 1));
+                    skel.push('#');
+                } else {
+                    skel.push_str(&t);
+                }
+                i = j;
+            } else {
+                skel.push(c);
+                i += 1;
+            }
+        }
+        (skel, nums)
+    };
+    let ((sa, na), (sb, nb)) = (split(a), split(b));
+    sa == sb && na.len() == nb.len() && na.iter().zip(&nb).all(|((x, dx), (y, dy))| (x - y).abs() <= 1.01 * 10f64.powi(-(*dx.min(dy) as i32)))
 }
 
 fn nm(b: &Battle, u: UnitId) -> String {
@@ -196,7 +231,7 @@ impl BotSet for ReplayBots {
         recorded
     }
 
-    fn choose_movement(&mut self, b: &mut Battle, mover: UnitId, _other: UnitId, _moves_first: bool, _standup_mp: Option<i64>, _entry_edge: Option<&[String]>) -> (Option<Pick>, String, PathGate) {
+    fn choose_movement(&mut self, b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, standup_mp: Option<i64>, entry_edge: Option<&[String]>) -> (Option<Pick>, String, PathGate) {
         let who = nm(b, mover);
         let v = b.decide("move", &who);
         let t = t_list(&v);
@@ -214,6 +249,15 @@ impl BotSet for ReplayBots {
                 dfa: p.get("dfa").and_then(|x| x.as_bool()).unwrap_or(false),
             })
         };
+        if self.check_gladiator_move && b.units[mover].bot == "gladiator" && crate::forces::enemies_of(b, mover).len() == 1 {
+            let saved = b.stub_counts.clone();
+            let mut ties = crate::move_select::Ties { recorded: pick.as_ref(), missed: false };
+            let (mine, note) = crate::move_select::choose(b, mover, other, moves_first, standup_mp, entry_edge, &mut ties);
+            b.stub_counts = saved;
+            let same = mine == pick && notes_agree(&note, t[1].as_str().unwrap()) && !ties.missed;
+            let what = format!("turn {} {}: rust {:?} {:?} v python {:?} {:?}", b.units[mover].turn_number, who, mine, note, pick, t[1].as_str().unwrap());
+            self.note("move", same, what);
+        }
         let gate = PathGate { psrs: t[2].as_i64(), hazard: t[3].as_f64() };
         (pick, t[1].as_str().unwrap().to_string(), gate)
     }

@@ -179,9 +179,16 @@ pub fn finish_choice(b: &Battle, attacker: UnitId, candidates: &[Candidate], wea
 /// Gladiator's weapon choice (select_weapons_to_fire with no other bot's fire control): the heat-constrained knapsack.
 #[allow(clippy::too_many_arguments)]
 pub fn select_weapons_to_fire(b: &mut Battle, attacker: UnitId, distance: i64, pre_tn: i64, min_heat: i64, max_heat: i64, dissipation: i64, movement_heat: i64, other_heat: i64, tn_adjust: Option<&dyn TnAdjust>, unavailable: &HashSet<ItemId>, planner: Option<&mut Planner>) -> (Vec<ItemId>, f64, i64) {
+    select_weapons_scaled(b, attacker, distance, pre_tn, min_heat, max_heat, dissipation, movement_heat, other_heat, tn_adjust, unavailable, None, planner)
+}
+
+/// select_weapons_to_fire with value_scale (movement scoring): {weapon: multiplier} applied to each weapon's expected
+/// damage before the choice, so the total is WORTH.
+#[allow(clippy::too_many_arguments)]
+pub fn select_weapons_scaled(b: &mut Battle, attacker: UnitId, distance: i64, pre_tn: i64, min_heat: i64, max_heat: i64, dissipation: i64, movement_heat: i64, other_heat: i64, tn_adjust: Option<&dyn TnAdjust>, unavailable: &HashSet<ItemId>, value_scale: Option<&HashMap<ItemId, f64>>, planner: Option<&mut Planner>) -> (Vec<ItemId>, f64, i64) {
     let weapons = get_weapons(&b.units[attacker]);
     let (heat_budget, min_weapon_heat) = heat_limits(b.units[attacker].current_heat, min_heat, max_heat, dissipation, movement_heat, other_heat);
-    let candidates = fire_candidates(b, attacker, distance, pre_tn, tn_adjust, unavailable, None, &weapons, planner);
+    let candidates = fire_candidates(b, attacker, distance, pre_tn, tn_adjust, unavailable, value_scale, &weapons, planner);
     if std::env::var("BT_DEBUG").is_ok() {
         for c in &candidates {
             eprintln!("  cand {} value {:?} heat {}", b.units[attacker].items[c.w].name, c.value, c.heat);

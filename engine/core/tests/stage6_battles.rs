@@ -110,7 +110,16 @@ fn run_fixture(dir: PathBuf) -> Result<usize, String> {
     let units: Vec<Mech> = names.iter().map(|n| Mech::from_json(&units_json[n], &idx)).collect();
     let dice = TapeDice::from_json(&read_json(&dir.join("dice.json")));
     let mut b = Battle::new(cfg, board, units, Box::new(dice));
-    b.replay = Some(Replay { records: read_json(&dir.join("decisions.json")).as_array().unwrap().clone(), cursor: 0 });
+    let own_bots = std::env::var("BOTS").map_or(false, |v| v == "rust");
+    if own_bots {
+        // the Rust Gladiator plays alone: duels between Gladiators only (the rest is not translated yet)
+        let duel_of_gladiators = names.len() == 2 && b.units.iter().all(|u| u.bot == "gladiator");
+        if !duel_of_gladiators {
+            return Ok(0);
+        }
+    } else {
+        b.replay = Some(Replay { records: read_json(&dir.join("decisions.json")).as_array().unwrap().clone(), cursor: 0 });
+    }
 
     let trace: Vec<Value> = BufReader::new(fs::File::open(dir.join("trace.jsonl")).unwrap()).lines().map(|l| serde_json::from_str(&l.unwrap()).unwrap()).collect();
     let seen_c = std::cell::Cell::new(0usize);
@@ -152,8 +161,13 @@ fn run_fixture(dir: PathBuf) -> Result<usize, String> {
         let mut play = start_battle(&mut b, max_turns, &mut marks);
         if failure_c.borrow().is_none() {
             let check = std::env::var("CHECK").unwrap_or_default();
-            let mut bots = ReplayBots { check_gladiator_declaration: check.contains("declaration"), check_gladiator_physical: check.contains("physical"), check_simple_foe_target: check.contains("simple"), ..Default::default() };
-            play_on(&mut b, &mut bots, &mut play, &mut marks);
+            let mut gbots = btsim_core::gladiator_bots::GladiatorBots;
+            let mut bots = ReplayBots { check_gladiator_declaration: check.contains("declaration"), check_gladiator_physical: check.contains("physical"), check_simple_foe_target: check.contains("simple"), check_gladiator_move: check.contains("move"), ..Default::default() };
+            if own_bots {
+                play_on(&mut b, &mut gbots, &mut play, &mut marks);
+            } else {
+                play_on(&mut b, &mut bots, &mut play, &mut marks);
+            }
             checked_c.replace((bots.checked.clone(), bots.mismatches.clone()));
         }
     }

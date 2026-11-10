@@ -1072,3 +1072,115 @@ pub fn choose_attack(b: &mut Battle, attacker: UnitId, target: UnitId) -> Option
     }
     best
 }
+
+// =============================================================================================================
+// physical.Planner: physical plans for positions that do not exist yet (movement scoring, the ranged phase's look-ahead)
+// =============================================================================================================
+pub type PlanCase = (Reach, i64, bool);
+
+/// Physical plans for one mech before anything has fired this turn. The options only depend on the Reach signature,
+/// the level difference and whether the target is prone, so they are built once per case.
+pub struct PhysPlanner {
+    pub mech: UnitId,
+    pub worth: Option<Worth>,
+    pub target_superheavy: bool,
+    options: HashMap<PlanCase, Opts>,
+    plans: HashMap<(PlanCase, i64, String, Option<Vec<&'static str>>, Option<&'static str>), Vec<Plan>>,
+    held: HashMap<Vec<String>, HashSet<ItemId>>,
+    push_target: Option<UnitId>,
+    push_values: HashMap<(String, i64), Num>,
+}
+
+impl PhysPlanner {
+    pub fn new(b: &Battle, mech: UnitId, worth: Option<Worth>) -> PhysPlanner {
+        let target_superheavy = worth.as_ref().map_or(false, |w| is_superheavy(&b.units[w.target]));
+        PhysPlanner { mech, worth, target_superheavy, options: HashMap::new(), plans: HashMap::new(), held: HashMap::new(), push_target: None, push_values: HashMap::new() }
+    }
+
+    fn plans_for(&mut self, b: &mut Battle, reach: Reach, diff: i64, target_prone: bool, base: i64, side: &str, allowed: &Option<Vec<&'static str>>, t_water: Option<&'static str>) -> Vec<Plan> {
+        let case = (reach, diff, target_prone);
+        let side = if self.worth.is_some() { side } else { "front" };
+        let key = (case, base, side.to_string(), allowed.clone(), t_water);
+        if let Some(got) = self.plans.get(&key) {
+            return got.clone();
+        }
+        if !self.options.contains_key(&case) {
+            let o = options(b, self.mech, &reach, diff, target_prone, &HashSet::new(), self.target_superheavy);
+            self.options.insert(case, o);
+        }
+        let mut opts = water_filter(self.options[&case].clone(), allowed.as_deref());
+        if let Some(tw) = t_water {
+            if tw != crate::water::GROUND {
+                let quad = self.worth.as_ref().map_or(false, |w| {
+                    let t = &b.units[w.target];
+                    t.mech_type == "quad" || t.mech_type == "quadvee"
+                });
+                opts = opts
+                    .into_iter()
+                    .map(|(k, v)| {
+                        (
+                            k,
+                            v.into_iter()
+                                .map(|mut o| {
+                                    let f = crate::water::physical_value_factor_q(quad, tw, &o.table, side);
+                                    o.damage = Num::F(o.damage.f() * f);
+                                    o
+                                })
+                                .collect(),
+                        )
+                    })
+                    .collect();
+            }
+        }
+        let got = plans(b, &opts, base, self.worth.as_mut(), side);
+        self.plans.insert(key, got.clone());
+        got
+    }
+
+    /// The distinct (ArcKey, reach signature) pairs `actions` give against an adjacent target.
+    pub fn cases(&self, b: &Battle, pair_arcs: &[i64; 6], facing: i64, actions: &[ArcAction], legs: &[(String, i64)]) -> Vec<(arcs::ArcKey, Reach)> {
+        let mut out: Vec<(arcs::ArcKey, Reach)> = Vec::new();
+        for a in actions {
+            let c = (arcs::key_for(pair_arcs, facing, a, legs), Reach::new(&b.units[self.mech], facing, a, pair_arcs));
+            if !out.contains(&c) {
+                out.push(c);
+            }
+        }
+        out
+    }
+
+    pub fn plans_in_case(&mut self, b: &mut Battle, reach: Reach, diff: i64, target_prone: bool, base: i64, side: &str, allowed: &Option<Vec<&'static str>>, t_water: Option<&'static str>) -> Vec<Plan> {
+        if reachable(diff, self.target_superheavy) { self.plans_for(b, reach, diff, target_prone, base, side, allowed, t_water) } else { vec![] }
+    }
+
+    /// [(value, limbs, option)] for the push from this spot, or None.
+    #[allow(clippy::too_many_arguments)]
+    pub fn push_plan(&mut self, b: &mut Battle, a_xy: (i64, i64), a_facing: i64, a_level: i64, target: UnitId, t_label: &str, t_level: i64, base: i64, side: &str) -> Option<(f64, PhysOption)> {
+        if self.push_target != Some(target) {
+            self.push_target = Some(target);
+            self.push_values.clear();
+        }
+        let values = &mut self.push_values;
+        let mut value_for = |b: &mut Battle, label: &str, direction: i64| -> f64 {
+            let key = (label.to_string(), direction);
+            if let Some(v) = values.get(&key) {
+                return v.f();
+            }
+            let v = push_value(b, target, label, direction);
+            values.insert(key, v);
+            v.f()
+        };
+        let o = push_option_valued(b, self.mech, a_xy, a_facing, a_level, target, t_label, t_level, &HashSet::new(), &mut value_for)?;
+        let v = expected_damage_of(b, base, std::slice::from_ref(&o), self.worth.as_mut(), side);
+        if v > 0.0 { Some((v, o)) } else { None }
+    }
+
+    pub fn held(&mut self, b: &Battle, limbs: &[String]) -> HashSet<ItemId> {
+        if let Some(g) = self.held.get(limbs) {
+            return g.clone();
+        }
+        let g = limb_weapon_ids(&b.units[self.mech], limbs);
+        self.held.insert(limbs.to_vec(), g.clone());
+        g
+    }
+}

@@ -624,11 +624,27 @@ pub fn has_profile(b: &mut Battle, u: UnitId, w: ItemId) -> bool {
         || wp::is_infantry_pod(b, u, w)
 }
 
+/// The adjuster a Planner reads: borrowed (a one-off planner) or shared (a long-lived one).
+pub enum AdjustRef<'a> {
+    Borrowed(&'a dyn TnAdjust),
+    Shared(std::rc::Rc<dyn TnAdjust>),
+}
+
+impl<'a> std::ops::Deref for AdjustRef<'a> {
+    type Target = dyn TnAdjust + 'a;
+    fn deref(&self) -> &(dyn TnAdjust + 'a) {
+        match self {
+            AdjustRef::Borrowed(r) => *r,
+            AdjustRef::Shared(r) => &**r,
+        }
+    }
+}
+
 /// Prices one attacker's special weapons against one target.
 pub struct Planner<'a> {
     pub attacker: UnitId,
     pub target: UnitId,
-    pub adjust: &'a dyn TnAdjust,
+    pub adjust: AdjustRef<'a>,
     pub ams_share: f64,
     pub pod_values: HashMap<ItemId, f64>,
     pub hex_offset: Option<i64>,
@@ -638,7 +654,12 @@ pub struct Planner<'a> {
 
 impl<'a> Planner<'a> {
     pub fn new(attacker: UnitId, target: UnitId, adjust: &'a dyn TnAdjust, ams_share: f64, pod_values: HashMap<ItemId, f64>, hex_offset: Option<i64>) -> Planner<'a> {
-        Planner { attacker, target, adjust, ams_share, pod_values, hex_offset, kinds_cache: HashMap::new(), memo: HashMap::new() }
+        Planner { attacker, target, adjust: AdjustRef::Borrowed(adjust), ams_share, pod_values, hex_offset, kinds_cache: HashMap::new(), memo: HashMap::new() }
+    }
+
+    /// A planner that shares its adjuster (movement scoring keeps one adjuster for many planners).
+    pub fn new_shared(attacker: UnitId, target: UnitId, adjust: std::rc::Rc<dyn TnAdjust>, ams_share: f64) -> Planner<'static> {
+        Planner { attacker, target, adjust: AdjustRef::Shared(adjust), ams_share, pod_values: HashMap::new(), hex_offset: None, kinds_cache: HashMap::new(), memo: HashMap::new() }
     }
 
     /// The bracket the shot's damage uses: an energy weapon firing from under water fires one bracket longer.

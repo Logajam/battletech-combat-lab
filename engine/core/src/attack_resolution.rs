@@ -92,7 +92,7 @@ pub fn target_tmm(m: &Mech) -> i64 {
     combat::fc_to_tmm(m.move_fc, m.move_mode == "Jump").unwrap() + stuck
 }
 
-fn side_by_relative_hexside(r: i64) -> &'static str {
+pub fn side_by_relative_hexside(r: i64) -> &'static str {
     match r {
         0 => "front",
         1 | 2 => "right",
@@ -306,6 +306,7 @@ pub fn firing_conditions(b: &mut Battle, attacker: UnitId) -> Option<(i64, HashS
 }
 
 /// attack_resolution.tn_adjuster (and water.range_adjuster around it): the per-weapon TN change.
+#[derive(Clone)]
 pub struct Adjuster {
     pub attacker: UnitId,
     pub stealth: [(&'static str, i64); 3],
