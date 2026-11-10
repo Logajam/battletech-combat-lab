@@ -47,11 +47,20 @@ pub struct Hex {
     pub ground_level: Option<i64>,
     /// a passive building: set True by prepare_board
     pub building: bool,
+    /// smoke in the hex (INTEGRATION__smoke): density "1" light / "2" heavy, and the turn it lasts to
+    pub smoke: Option<Smoke>,
+}
+
+/// info["smoke"]: {"density": "1" | "2", "until": turn}
+#[derive(Clone, Debug, PartialEq)]
+pub struct Smoke {
+    pub density: String,
+    pub until: i64,
 }
 
 impl Hex {
     pub fn new(level: i64, features: Features) -> Hex {
-        Hex { level, features, impassable: false, surface_level: None, depth: None, ground_level: None, building: false }
+        Hex { level, features, impassable: false, surface_level: None, depth: None, ground_level: None, building: false, smoke: None }
     }
 
     /// The hex as the Python's dict, key order included (level, features, impassable, surface_level, depth,
@@ -76,6 +85,9 @@ impl Hex {
         }
         if self.building {
             m.insert("building".into(), json!(true));
+        }
+        if let Some(sm) = &self.smoke {
+            m.insert("smoke".into(), json!({"density": sm.density, "until": sm.until}));
         }
         Value::Object(m)
     }
