@@ -92,3 +92,8 @@ pub fn stub_tag_aim(b: &mut Battle, mech_name: &str, tn_mech: Option<i64>, tn_he
     b.warn_stub("tag_aim", &format!("{}: TAG the {} (needs mech {}, hex {}; policy {})", mech_name, if aim == "hex" { "ground" } else { "Mech" }, opt(tn_mech), opt(tn_hex), policy));
     aim
 }
+
+/// This weapon's shots per ton isn't in equipment.json: its ammo is unlimited. Warns each time it fires.
+pub fn stub_ammo_data(b: &mut Battle, mech_name: &str, weapon_name: &str) {
+    b.warn_stub("ammo_data", &format!("{}'s {} fired with unlimited ammo (no shots-per-ton data)", mech_name, weapon_name));
+}

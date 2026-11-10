@@ -53,6 +53,8 @@ GROUPS = {
                "damage_resolution.resolve_slot_hit", "damage_resolution.apply_explosion",
                "damage_resolution.mark_all_crits_destroyed", "damage_resolution.cluster_hits_count",
                "hit_location.resolve_hit_location"],
+    "ammo": ["ammo.parse_bin", "ammo.attach_ammo", "ammo.bins_for", "ammo.unavailable_weapons", "ammo.take",
+             "ammo.inferno_heat", "ammo._update_explosion", "ammo.is_one_shot", "ammo.damage_per_shot"],
 }
 
 
@@ -131,9 +133,17 @@ class Tap:
         units = forces.battle()
         names = {id(u): u.side_name for u in units}
         mechs = []
+        owner = None
         for a in list(args) + list(kwargs.values()):
             if id(a) in names and a not in mechs:
                 mechs.append(a)
+            elif hasattr(a, "slots_occupied") and not any(m for m in mechs if any(
+                    s is a for sl in m.crits.values() for s in sl)):
+                if owner is None:       # an item given without its mech: the unit that carries it joins the call
+                    owner = {id(s): u for u in units for sl in u.crits.values() for s in sl}
+                u = owner.get(id(a))
+                if u is not None and u not in mechs:
+                    mechs.append(u)
         try:
             enc_args, enc_kw = encode_args(args, kwargs, units)
         except TypeError:
@@ -176,7 +186,14 @@ class Tap:
             builtins.print = print0
         after = {m.side_name: pr.dump_unit(m, names, pr.ID_MEMORY.setdefault(m.side_name, pr.id_table(m))) for m in mechs}
         try:
-            enc_ret = pr.rt_encode(ret, units, None)
+            if isinstance(ret, frozenset) and ret and all(isinstance(x, int) for x in ret):
+                table = pr.item_table(units)            # a set of id()s of items (ammo.unavailable_weapons)
+                enc_ret = {"_fs": sorted(({"_item": table[i][0], "of": table[i][1]} for i in ret),
+                                         key=lambda x: json.dumps(x, sort_keys=True))}
+            elif isinstance(ret, frozenset) and not ret:
+                enc_ret = {"_fs": []}
+            else:
+                enc_ret = pr.rt_encode(ret, units, None)
         except TypeError:
             enc_ret = {"_unencodable": type(ret).__name__}
         self.counts[target] = self.counts.get(target, 0) + 1

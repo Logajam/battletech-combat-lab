@@ -21,6 +21,8 @@ pub mod stubs;
 pub mod weapon_rules;
 pub mod weapon_profiles;
 pub mod advanced_weapons;
+pub mod fire_modes;
+pub mod ammo;
 pub mod piloting_rolls;
 pub mod hazards;
 pub mod mtf_parser;
