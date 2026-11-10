@@ -15,9 +15,15 @@ use crate::ranged_combat::Pick;
 /// Replays the recorded decisions; with the `check_*` switches on it ALSO computes that decision with the Rust bot and
 /// notes every difference from the recorded answer in `mismatches` (then carries on with the recorded answer, so one
 /// battle reports all its differences).
+/// Daniel (2026-11-10): last-digit float differences are not worth chasing; compare to 1e-12 relative.
+fn close(a: f64, b: f64) -> bool {
+    a == b || (a - b).abs() <= 1e-12 * a.abs().max(b.abs()).max(1.0)
+}
+
 #[derive(Default)]
 pub struct ReplayBots {
     pub check_gladiator_declaration: bool,
+    pub check_gladiator_physical: bool,
     pub checked: std::collections::BTreeMap<String, (usize, usize)>,
     pub mismatches: Vec<String>,
 }
@@ -145,12 +151,12 @@ impl BotSet for ReplayBots {
         if self.check_gladiator_declaration && b.units[attacker].bot == "gladiator" {
             let mine = crate::gladiator::choose_declaration(b, ctx, planner, attacker, target);
             let same = mine.weapons == recorded.weapons
-                && mine.exp_dmg == recorded.exp_dmg
+                && close(mine.exp_dmg, recorded.exp_dmg)
                 && mine.weapon_heat == recorded.weapon_heat
                 && mine.key_torso_arc == recorded.key_torso_arc
                 && mine.action == recorded.action
                 && mine.phys_names == recorded.phys_names
-                && mine.phys_value == recorded.phys_value
+                && close(mine.phys_value, recorded.phys_value)
                 && mine.held == recorded.held;
             let what = format!("turn {} {}: rust {:?} v python {:?}", b.units[attacker].turn_number, who, mine, recorded);
             self.note("declaration", same, what);
@@ -161,11 +167,22 @@ impl BotSet for ReplayBots {
     fn choose_physical(&mut self, b: &mut Battle, attacker: UnitId, target: UnitId) -> Option<(i64, Vec<PhysOption>, ArcAction)> {
         let who = format!("{}>{}", nm(b, attacker), nm(b, target));
         let v = b.decide("physical", &who);
-        if v.is_null() {
-            return None;
+        let recorded = if v.is_null() {
+            None
+        } else {
+            let t = t_list(&v);
+            Some((t[0].as_i64().unwrap(), t[1].as_array().unwrap().iter().map(phys_option).collect::<Vec<PhysOption>>(), action_of(&t[2])))
+        };
+        if self.check_gladiator_physical && b.units[attacker].bot == "gladiator" {
+            let mine = crate::physical::choose_attack(b, attacker, target);
+            let same = match (&mine, &recorded) {
+                (None, None) => true,
+                (Some(m), Some(r)) => m.0 == r.0 && m.2 == r.2 && m.1.len() == r.1.len() && m.1.iter().zip(&r.1).all(|(x, y)| x.name == y.name && x.mod_ == y.mod_ && x.table == y.table && x.limb == y.limb && close(x.damage.f(), y.damage.f())),
+                _ => false,
+            };
+            self.note("physical", same, format!("{}: rust {:?} v python {:?}", who, mine, recorded));
         }
-        let t = t_list(&v);
-        Some((t[0].as_i64().unwrap(), t[1].as_array().unwrap().iter().map(phys_option).collect(), action_of(&t[2])))
+        recorded
     }
 
     fn choose_movement(&mut self, b: &mut Battle, mover: UnitId, _other: UnitId, _moves_first: bool, _standup_mp: Option<i64>, _entry_edge: Option<&[String]>) -> (Option<Pick>, String, PathGate) {
