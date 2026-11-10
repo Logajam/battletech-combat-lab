@@ -4,6 +4,8 @@ tools/port_stage2.py - RUST PORT stage 2 fixtures: sight and movement (INTEGRATI
     python tools/port_stage2.py [OUT_DIR]        # default engine/fixtures/stage2
 
 Needs engine/fixtures/_boards (python tools/port_stage1.py makes it). Writes, from the Python answer key:
+  pathfinder.json  build_movement_table: flat, terrain, terrain + PSR/hazard, with parents - starts, budgets, backward
+               MP, level limits, blocked hexes, refusals
   los.json     hex_line on 30k pairs; trace_los_path on ~30k (pair, heights) cases over 14 boards, each also with a
                random smoke layer; target_hex_modifier; the refusals for off-board hexes
 """
@@ -24,6 +26,7 @@ import INTEGRATION__orchestrator  # noqa: E402,F401 - puts MECHSIM and PATHFINDE
 import board_parser  # noqa: E402
 import hex_geometry  # noqa: E402
 import los  # noqa: E402
+import pathfinder  # noqa: E402
 import terrain_rules  # noqa: E402
 
 BOARDS_DIR = os.path.join("engine", "fixtures", "_boards")
@@ -81,6 +84,66 @@ def interesting_boards(rng):
         if must not in chosen:
             chosen.append(must)
     return chosen
+
+
+def table_json(t):
+    out = {"entries": [[list(st), [[mp, fc] for mp, fc in col.items()]] for st, col in t.items()]}
+    if hasattr(t, "psrs"):
+        out["psrs"] = [[list(st), [[mp, list(v)] for mp, v in col.items()]] for st, col in t.psrs.items()]
+        out["hazards"] = [[list(st), [[mp, v] for mp, v in col.items()]] for st, col in t.hazards.items()]
+    return out
+
+
+def pathfinder_cases(rng):
+    names = ["data__32x17_Caustic_Valley_Lava.board", "data__16x17_Badlands_2_Hazardous_Liquid.board",
+             "data__16x17_Large_Lakes_1.board", "data__16x17_Military_Base_1.board", "data__16x17_Grassland_1.board",
+             "data__16x17_Scattered_Woods.board", "data__16x17_Desert_Hills.board",
+             "data__16x17_Grasslands_Rolling_Hills_1.board", "data__16x17_Hilltops_1.board"]
+    names += [n for n in interesting_boards(rng)[:5] if n not in names]
+    cases = []
+    flat = []
+    for _ in range(25):
+        st = (rng.randrange(0, 10), rng.randrange(0, 10), rng.randrange(6))
+        budget = rng.randrange(0, 7)
+        flat.append([list(st), budget, table_json(pathfinder.build_movement_table(*st[:2], st[2], budget))])
+    cases.append(["flat", flat])
+    for name in names:
+        board = load(name)
+        labels = list(board["hexes"])
+        rows = []
+        for k in range(70):
+            label = rng.choice(labels) if k % 25 else "9999"
+            try:
+                x, y = hex_geometry.parse_hex_label(label)
+            except ValueError:
+                x, y = 200, 200
+            facing = rng.randrange(6)
+            budget = rng.randrange(1, 11)
+            backward = rng.choice([None, None, budget, max(0, budget - 2)])
+            limit = rng.choice([(2, False), (2, False), (1, False), (2, True)])
+            blocked = []
+            for _ in range(rng.choice([0, 0, 1, 2, 4])):
+                dx, dy = rng.randrange(-4, 5), rng.randrange(-8, 9)
+                blocked.append((x + dx, y + dy))
+            keep = rng.random() < 0.3
+            lim = terrain_rules.GroundLimit(limit[0], limit[1])
+            args = {"start": [x, y, facing], "budget": budget, "backward": backward, "limit": list(limit),
+                    "blocked": [list(b) for b in blocked], "keep": keep}
+            try:
+                t = pathfinder.build_movement_table(x, y, facing, budget, board, backward, lim, keep,
+                                                    blocked if blocked else None)
+                args["table"] = table_json(t)
+                if keep:
+                    samples = []
+                    for st in rng.sample(list(t), min(12, len(t))):
+                        for mp in list(t[st])[:2]:
+                            samples.append([list(st), mp, [[step, list(s2), m] for step, s2, m in t.path(st, mp)]])
+                    args["paths"] = samples
+            except ValueError as e:
+                args["error"] = "ValueError: " + str(e)
+            rows.append(args)
+        cases.append([name, rows])
+    return cases
 
 
 def main(argv):
@@ -152,6 +215,8 @@ def main(argv):
                 res = {"error": "ValueError: " + str(e)}
             result["los"].append(["data__16x17_Grassland_1.board", False, list(a), list(t), [False, False], [False, False], res])
 
+    with open(os.path.join(out, "pathfinder.json"), "w", encoding="utf-8", newline="\n") as f:
+        json.dump(pathfinder_cases(random.Random(3)), f)
     with open(os.path.join(out, "los.json"), "w", encoding="utf-8", newline="\n") as f:
         json.dump(result, f)
     print(f"{len(result['lines'])} lines, {len(result['los'])} los cases on {len(result['boards'])} boards")

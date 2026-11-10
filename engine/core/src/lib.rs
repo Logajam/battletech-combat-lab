@@ -5,3 +5,4 @@ pub mod hex_geometry;
 pub mod board_parser;
 pub mod terrain_rules;
 pub mod los;
+pub mod pathfinder;

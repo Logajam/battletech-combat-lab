@@ -376,3 +376,14 @@ pub fn stitch_boards(boards: &[(String, String)], cols: i64, rows: i64, out: &mu
 fn py_int_list(v: &[i64]) -> String {
     format!("[{}]", v.iter().map(|n| n.to_string()).collect::<Vec<_>>().join(", "))
 }
+
+impl Board {
+    /// The hex at doubled coordinates (x, y), None if off the board or not a hex center (Python's
+    /// `hexes.get(hex_label(x, y))` with a ValueError read as "not there").
+    pub fn info_xy(&self, x: i64, y: i64) -> Option<&Hex> {
+        match crate::hex_geometry::hex_label(x, y) {
+            Ok(label) => self.hexes.get(&label),
+            Err(_) => None,
+        }
+    }
+}
