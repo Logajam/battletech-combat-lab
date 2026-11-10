@@ -4,7 +4,7 @@ Started 2026-10-20 (Claude). The code checked against the Core Rulebook in
 `rules/Battletech_Rule_Reference_Index.zip` (`base/core-rules/*.md`, summaries
 in `summary/core-rules/*.yaml`). Every entry cites the page. Status words:
 
-- **FIXED** — clear rule, now in the code (Change Record, Section 8 of the
+- **FIXED** — clear rule, now in the code (Change Record, `INTEGRATION__CHANGE_RECORD.md`, once Section 8 of the
   PROJECT_MAP).
 - **GAP** — clear rule, not built yet; Claude's to build.
 - **DANIEL** — the code follows a project rule (MECHSIM / PATHFINDER / an

@@ -3,7 +3,7 @@
 Written for Daniel and the next session: what Gladiator (this project's bot)
 does now, and what Princess (the MegaMek clone) does differently. The details
 and every setting are in PROJECT_MAP Section 6; the history is in the Change
-Record (Section 8). Where the numbers below come from: the 20-battle 12 v 12
+Record (`INTEGRATION__CHANGE_RECORD.md`). Where the numbers below come from: the 20-battle 12 v 12
 battery (Princess Red v Gladiator Blue, stitched 2 x 1 field, seed 12345, cap 50
 turns).
 
@@ -252,7 +252,7 @@ each unit's peril / toughness ranked across the team, the top 25% weigh damage t
 100-turn cap, 51 / 47 / 2 (Blue wins / Red / draws) against the old 42 / 56 / 2, 'Mechs left 2.32 / 2.39 against 1.62 / 2.58 (five seed sets, better in four, level in one). Run `--no-triage` for the old behaviour.
 The end-game stand-off (1 v 2 left at 100 turns) is a picker problem: the bot does not see that it can win and close in. See PROJECT_MAP Pick up here 000000 for what is left.
 
-## Next steps (PROJECT_MAP "Pick up here" 00000 and 0000)
+## Next steps (PROJECT_MAP Section 0, backlog A; the old "Pick up here" 00000 and 0000 in `INTEGRATION__HISTORY.md`)
 
 - Why grouping doesn't win: the cohesion reward matches Princess's spread but
   not her results - check with `tests/legate_probe.py` whether moves spent on
