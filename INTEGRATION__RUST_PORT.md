@@ -218,7 +218,7 @@ The 23 LAMs and anything `prepare_board` refuses are refused the same way in Rus
 | Stage | State | Session / date | Notes |
 |---|---|---|---|
 | T8 archive decision | waiting on Daniel | | |
-| 0 Comparison tools | not started | | |
+| 0 Comparison tools | IN PROGRESS: 0a done (dice tape, per-phase state trace, config / units / board / log, `port_diff.py`, `tests/test_port_record.py`). 0b to do: `decisions.json` and the Python self-replay (needs a decision seam in the engine; the fire declaration in `attack_resolution._declare` picks arc action + weapons + per-weapon plans inline, so replay needs a small `decide(kind, key, compute)` wrapper at each choice site - a pass-through when not recording). 0c to do: fixture set, coverage list | session 22, 2026-11-10 | |
 | 1 Geometry and board | not started | | |
 | 2 Sight and movement | not started | | parts exist in `fastcore/` (PathBoard, LosBoard, hex_distance) - reuse after checking against the fixtures |
 | 3 Units | not started | | |

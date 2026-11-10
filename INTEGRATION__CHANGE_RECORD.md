@@ -6,6 +6,17 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-10 (Claude, session 22), RUST PORT STAGE 0a: THE RECORDER AND THE FIRST-DIFFERENCE FINDER. New tools and one new test; no engine file touched. REVIEW PENDING (higher-level model).**
+  Daniel: "Its time to convert the monte carlo into rust." NEW `tools/port_record.py`: plays battle 1 of a batch under a reference scenario (or a JSON list of
+  config statements) with read-only hooks and writes a fixture folder: `config.json`, `units.json` and `board.json` (before turn 1), `dice.json` (the dice tape:
+  every `roll_2d6` / `pick_number(n)` result in call order, taken by wrapping `BattleRNG` on the class), `trace.jsonl` (one line per phase - hooked on
+  `replay.mark` - with the dice used so far, EVERY attribute of every unit dumped by reflection, so fields hung on a mech later are caught, plus smoke / severed
+  limbs / broken crust) and `log.txt`. Memory addresses are replaced by slot names ("Center Torso#10"): `weapons_fired_this_turn` and `destroyed_slot_info`
+  hold `id()`s; the recorder remembers each Equipment object's slot address from before it is destroyed. NEW `tools/port_diff.py`: first differing line, unit
+  and field with both values, last identical phase and the dice drawn. NEW `tests/test_port_record.py` (10 checks: recording leaves the log identical, two
+  recordings are byte-identical, no raw addresses, the diff tool finds a planted difference). run_checks before: 55 of 55. NOT DONE (stage 0b/0c, see
+  RUST_PORT stage log): the decisions list and its Python self-replay, the fixture set (reference, team, coverage battles) and the coverage list.
+
 - **2026-11-10 (Claude, session 21), PLANS SAVED FOR LOWER MODELS: THE RUST TRANSLATION, THE BATTLE STATE, THE MOVE SCORE. Documents only. REVIEW PENDING (higher-level model).**
   Daniel: "Go ahead and save your recommendations ... your Fable form is only temporary, So I'll probably be making do with lower models. For my next trick. Going
   to have Sonnet translate the monte carlo into rust. Just bite the bullet and remove translation as a source of slowdown." NEW `INTEGRATION__RUST_PORT.md`: the
