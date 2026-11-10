@@ -64,6 +64,20 @@ GROUPS = {
              "arcs.key_for", "arcs.weapon_class", "arcs.mech_turrets", "arcs.has_quad_turret", "arcs.declare",
              "arcs.end_turn", "arcs.current_action", "arcs.turret_locked", "arcs.mech_turret_locked",
              "arcs.note_mech_turret_fire"],
+    "attack": ["attack_resolution._resolve_hit", "attack_resolution._apply_groups", "attack_resolution._resolve_area",
+               "attack_resolution._tac_check", "attack_resolution._target_heat", "attack_resolution._target_tmm",
+               "attack_resolution.prone_fire", "attack_resolution.firing_conditions",
+               "attack_resolution.sensor_modifier", "attack_resolution.arm_actuator_modifier",
+               "attack_resolution.arm_aes_modifier", "attack_resolution.has_targeting_computer",
+               "attack_resolution.prone_target_modifier", "attack_resolution.total_hp",
+               "attack_resolution._protected", "attack_resolution._heat_armor_damage",
+               "attack_resolution.shielded_weapon_ids", "attack_resolution.has_heat_dissipating_armor",
+               "physical_gear.shield_absorb", "physical_gear.declare_raise", "physical_gear.lower",
+               "physical_gear.raised_blocks", "physical_gear.talon_legs", "physical_gear.dfa_talons",
+               "physical_gear.spike_reduce", "physical_gear.spike_retaliation", "physical_gear.spike_wear",
+               "physical_gear.lance_ap_check", "physical_gear.shield_bash", "physical_gear.covered",
+               "physical_gear.use_spikes_in_charge", "physical_gear.snapshot", "physical_gear.armor_only",
+               "smoke.probe", "smoke.add", "smoke.end_phase", "physical._location"],
     "electronics": ["electronics.artemis_kind", "electronics.live_ecm", "electronics.hostile_field",
                     "electronics.angel_field", "electronics.as_if_jammed", "electronics.artemis_blocked",
                     "electronics.narc_blocked", "electronics.homing_working", "electronics.control_for",
@@ -200,14 +214,18 @@ class Tap:
             builtins.print = print0
         after = {m.side_name: pr.dump_unit(m, names, pr.ID_MEMORY.setdefault(m.side_name, pr.id_table(m))) for m in mechs}
         try:
-            if isinstance(ret, frozenset) and ret and all(isinstance(x, int) for x in ret):
-                table = pr.item_table(units)            # a set of id()s of items (ammo.unavailable_weapons)
-                enc_ret = {"_fs": sorted(({"_item": table[i][0], "of": table[i][1]} for i in ret),
-                                         key=lambda x: json.dumps(x, sort_keys=True))}
-            elif isinstance(ret, frozenset) and not ret:
-                enc_ret = {"_fs": []}
-            else:
-                enc_ret = pr.rt_encode(ret, units, None)
+            by_id = {id(s): s for u in units for sl in u.crits.values() for s in sl if hasattr(s, "slots_occupied")}
+
+            def fix_ids(obj):
+                """a (nested) set of id()s of items -> the items themselves, so rt_encode names them by address"""
+                if isinstance(obj, frozenset) and obj and all(isinstance(x, int) and x in by_id for x in obj):
+                    return frozenset(by_id[x] for x in obj)
+                if isinstance(obj, tuple) and not hasattr(obj, "_fields"):
+                    return tuple(fix_ids(x) for x in obj)
+                if isinstance(obj, list):
+                    return [fix_ids(x) for x in obj]
+                return obj
+            enc_ret = pr.rt_encode(fix_ids(ret), units, None)
         except TypeError:
             enc_ret = {"_unencodable": type(ret).__name__}
         self.counts[target] = self.counts.get(target, 0) + 1

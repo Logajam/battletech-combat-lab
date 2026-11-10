@@ -314,7 +314,11 @@ impl Mech {
             put!("severed_limbs", json!(v));
         }
         if let Some(v) = &self.severed_seen {
-            put!("severed_seen", json!(v));
+            {
+                let mut sorted = v.clone(); // a Python set: dumped sorted
+                sorted.sort();
+                put!("severed_seen", json!(sorted));
+            }
         }
         if let Some(v) = self.bv_built {
             put!("_bv_built", json!(v));

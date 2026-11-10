@@ -494,7 +494,7 @@ fn d6(b: &mut Battle, n: i64) -> i64 {
 }
 
 /// A heat-causing weapon's hit (flamers, plasma): outside heat on the target (at most 15 a turn) in its Heat Phase.
-fn target_heat(b: &mut Battle, target: UnitId, attacker: UnitId, weapon: ItemId) {
+pub fn target_heat(b: &mut Battle, target: UnitId, attacker: UnitId, weapon: ItemId) {
     let mut roll = |b: &mut Battle, n: i64| d6(b, n);
     let got = wp::target_heat(b, attacker, weapon, &mut roll);
     let wn = b.units[attacker].items[weapon].name.clone();
@@ -585,7 +585,7 @@ pub fn resolve_hit(b: &mut Battle, target: UnitId, damage: i64, damage_type: Dam
 }
 
 /// The Through-Armor Critical's own critical-hit check at `loc` (p.91).
-fn tac_check(b: &mut Battle, target: UnitId, loc: &str, armor_field: &str, damage_type: DamageType, location_destroyed: bool) {
+pub fn tac_check(b: &mut Battle, target: UnitId, loc: &str, armor_field: &str, damage_type: DamageType, location_destroyed: bool) {
     let st = &b.units[target].locations[loc];
     let armor_val = if armor_field == "rear_armor" && st.rear_armor.is_some() { st.rear_armor.unwrap() } else { st.armor };
     let armor_type = if damage_type == DamageType::Reengineered { ArmorType::Standard } else { *b.units[target].armor_type.get(loc).unwrap_or(&ArmorType::Standard) };
@@ -1410,4 +1410,132 @@ pub fn finish_declaration(
             pod_value: ctx.pod_values.get(&w).copied().unwrap_or(0.0),
         });
     }
+}
+
+// =============================================================================================================
+// The phase
+// =============================================================================================================
+/// What the Ranged Attack Phase asks of a bot: whom each unit fires at, and the weapon / twist choice itself
+/// (`choose` is THE decision of a declaration; Stage 6 reads it from decisions.json, Stages 7-8 compute it).
+pub trait RangedBot {
+    /// Princess's damage map starts the phase empty.
+    fn reset_assigned(&mut self, _b: &mut Battle) {}
+    /// The one enemy a unit fires at (None: nothing to shoot), picked as each unit's turn comes.
+    fn target_of(&mut self, b: &mut Battle, attacker: UnitId) -> Option<UnitId>;
+    fn choose(&mut self, b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId) -> DeclChoice;
+    fn records_declared_damage(&self, _b: &Battle, _attacker: UnitId) -> bool {
+        false
+    }
+    fn assign_damage(&mut self, _b: &mut Battle, _attacker: UnitId, _target: UnitId, _dmg: f64) {}
+}
+
+/// Step 2 for one attacker. Rolls to-hit for every selected weapon and fills `report`.
+pub fn declare_attacks(b: &mut Battle, attacker: UnitId, target: UnitId, report: &mut SideReport, bot: &mut dyn RangedBot) {
+    let Prep::Ready(ctx) = prepare_declaration(b, attacker, target, false) else { return };
+    let mut planner = Planner::new(attacker, target, &ctx.adjust, ctx.ams_share, ctx.pod_values.clone(), Some(ctx.hex_offset));
+    let choice = bot.choose(b, &ctx, &mut planner, attacker, target);
+    let records = bot.records_declared_damage(b, attacker) && !choice.weapons.is_empty();
+    if records {
+        let mut rec = |b: &mut Battle, d: f64| bot.assign_damage(b, attacker, target, d);
+        finish_declaration(b, &ctx, &mut planner, &choice, report, Some(&mut rec));
+    } else {
+        finish_declaration(b, &ctx, &mut planner, &choice, report, None);
+    }
+}
+
+/// Whole phase for any number of units: `order` is the units in declaration / resolution order. Returns the reports,
+/// parallel to `order`.
+pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBot) -> Vec<SideReport> {
+    let mut reports: Vec<SideReport> = order.iter().map(|_| SideReport::default()).collect();
+    let idx = |u: UnitId| order.iter().position(|x| *x == u).unwrap();
+    bot.reset_assigned(b);
+    for &m in order {
+        b.units[m].ams_used = Some(serde_json::json!({}));
+    }
+    for &m in order {
+        snapshot_round_capability(&mut b.units[m]);
+        crate::piloting_rolls::snapshot_pre_attack_phase(&mut b.units[m]);
+        if !b.is_destroyed(m) {
+            gear::declare_raise(b, m, "Ranged");
+        }
+    }
+    let mut pairs: Vec<(UnitId, UnitId)> = Vec::new();
+    for &attacker in order {
+        let Some(target) = bot.target_of(b, attacker) else { continue };
+        pairs.push((attacker, target));
+        let mut rep = std::mem::take(&mut reports[idx(attacker)]);
+        declare_attacks(b, attacker, target, &mut rep, bot);
+        let fired = !rep.attacks_list.is_empty();
+        let firing: Vec<ItemId> = rep.attacks_list.iter().map(|a| a.weapon).collect();
+        reports[idx(attacker)] = rep;
+        crate::clubs::maybe_pick_up(b, attacker, fired);
+        let can_act = !(b.is_destroyed(attacker) || b.units[attacker].shutdown || all_crew_unconscious(&b.units[attacker]));
+        crate::capacitor::declare(b, attacker, &firing, can_act);
+    }
+    // AMS (p.206): engaged right after the attack rolls, before any damage lands.
+    for &(attacker, target) in &pairs {
+        let mut attacks = std::mem::take(&mut reports[idx(attacker)].attacks_list);
+        let mut trep = std::mem::take(&mut reports[idx(target)]);
+        crate::ams::engage(b, target, attacker, &mut attacks, &mut trep);
+        reports[idx(target)] = trep;
+        reports[idx(attacker)].attacks_list = attacks;
+    }
+    for &(attacker, target) in &pairs {
+        let hp_before = total_hp(&b.units[target]);
+        let mut pool: Option<Pool> = if b.cfg.b("POOL_CLUSTER_DAMAGE") { Some(Pool::default()) } else { None };
+        let attacks = reports[idx(attacker)].attacks_list.clone();
+        for attack in &attacks {
+            let w = attack.weapon;
+            let wname = b.units[attacker].items[w].name.clone();
+            let tname = b.units[target].side_name.clone().unwrap_or_default();
+            if attack.hit {
+                reports[idx(attacker)].hits += 1;
+                if adv::is_tsemp(b, attacker, w) {
+                    b.log(format!("    {} hit:", wname));
+                    let turn = b.units[attacker].turn_number;
+                    adv::tsemp_hit(b, attacker, target, turn);
+                    continue;
+                }
+                resolve_one_attack(b, attacker, target, attack, &mut pool);
+                if adv::is_taser(b, attacker, w) {
+                    let turn = b.units[attacker].turn_number;
+                    adv::taser_hit(b, attacker, target, turn);
+                }
+            } else if attack.fire.as_ref().is_some_and(|f| f.kind == "homing") {
+                b.log(format!("    {} homing missile misses (rolled {}): it strikes {}'s hex for {} area-effect damage (p.190).", wname, attack.roll, tname, wp::HOMING_AE));
+                resolve_area(b, target, wp::HOMING_AE, &attack.side, attack.cover);
+            } else if attack.fire.as_ref().is_some_and(|f| f.kind == "artillery") || wp::is_art_cannon(b, attacker, w) {
+                resolve_area_miss(b, attacker, target, attack);
+            }
+        }
+        if let Some(p) = pool {
+            for ((size, dtype, side, cover), parts) in p.entries {
+                let total: i64 = parts.iter().map(|(_, d)| *d).sum();
+                if parts.len() > 1 {
+                    let list: Vec<String> = parts.iter().map(|(n, d)| format!("{} {}", n, d)).collect();
+                    b.log(format!("    Cluster damage pooled ({}-point groupings): {} = {}.", size, list.join(" + "), total));
+                } else {
+                    b.log(format!("    {}: {} damage in {}-point groupings.", parts[0].0, total, size));
+                }
+                apply_groups(b, target, total, size, dtype, &side, cover, "");
+            }
+        }
+        let dealt = hp_before - total_hp(&b.units[target]);
+        reports[idx(attacker)].damage_dealt += match dealt {
+            Num::I(i) => i as f64,
+            Num::F(f) => f,
+        };
+    }
+    for &m in order {
+        b.units[m].ams_used = None;
+        gear::lower(&mut b.units[m]);
+        electronics::activate_pods(&mut b.units[m]);
+        fire_modes::resolve_unjams(b, m);
+        crate::capacitor::end_phase(b, m);
+    }
+    for &m in order {
+        b.with_piloting(m, |b| crate::piloting_rolls::resolve_attack_phase_psr(b, m, &[]));
+        crate::piloting_rolls::resolve_consciousness_checks(b, m, "Attack Phase");
+    }
+    reports
 }
