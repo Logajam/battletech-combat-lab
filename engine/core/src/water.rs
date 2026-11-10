@@ -358,13 +358,12 @@ pub fn physical_allowed(a_state: &str, t_state: &str) -> Option<Vec<&'static str
 }
 
 /// P(a standard-table hit lands on a leg), p.74 - a quad's arm results are its front legs.
-fn leg_share(target: &Mech, side: &str) -> f64 {
+fn leg_share_q(quad: bool, side: &str) -> f64 {
     let table: &[(i64, &str)] = match side {
         "left" => &crate::hit_location::HIT_TABLE_LEFT_SIDE,
         "right" => &crate::hit_location::HIT_TABLE_RIGHT_SIDE,
         _ => &crate::hit_location::HIT_TABLE_FRONT_REAR,
     };
-    let quad = target.mech_type == "quad" || target.mech_type == "quadvee";
     let mut sum = 0.0;
     for r in 2..=12i64 {
         let p = (6 - (7 - r).abs()) as f64 / 36.0;
@@ -378,6 +377,10 @@ fn leg_share(target: &Mech, side: &str) -> f64 {
 
 /// How much of a physical attack's damage lands at full strength, for movement scoring.
 pub fn physical_value_factor(target: &Mech, t_state: &str, table: &str, side: &str) -> f64 {
+    physical_value_factor_q(target.mech_type == "quad" || target.mech_type == "quadvee", t_state, table, side)
+}
+
+pub fn physical_value_factor_q(quad: bool, t_state: &str, table: &str, side: &str) -> f64 {
     if t_state == GROUND || table == "displacement" {
         return 1.0;
     }
@@ -387,5 +390,5 @@ pub fn physical_value_factor(target: &Mech, t_state: &str, table: &str, side: &s
     if table == "punch" {
         return 1.0;
     }
-    1.0 - 0.5 * leg_share(target, side)
+    1.0 - 0.5 * leg_share_q(quad, side)
 }

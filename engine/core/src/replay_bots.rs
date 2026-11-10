@@ -12,7 +12,45 @@ use crate::physical::PhysOption;
 use crate::pyfmt::Num;
 use crate::ranged_combat::Pick;
 
-pub struct ReplayBots;
+/// Replays the recorded decisions; with the `check_*` switches on it ALSO computes that decision with the Rust bot and
+/// notes every difference from the recorded answer in `mismatches` (then carries on with the recorded answer, so one
+/// battle reports all its differences).
+#[derive(Default)]
+pub struct ReplayBots {
+    pub check_gladiator_declaration: bool,
+    pub checked: std::collections::BTreeMap<String, (usize, usize)>,
+    pub mismatches: Vec<String>,
+}
+
+impl ReplayBots {
+    fn decode_declaration(b: &Battle, attacker: UnitId, v: &Value) -> DeclChoice {
+        let t = t_list(v);
+        let picked = t_list(&t[1]);
+        let weapons: Vec<ItemId> = picked[0].as_array().unwrap().iter().map(|w| item_ref(b, w)).collect();
+        let held = t[6].as_array().unwrap().iter().map(|a| item_at(b, attacker, a.as_str().unwrap())).collect();
+        DeclChoice {
+            weapons,
+            exp_dmg: picked[1].as_f64().unwrap(),
+            weapon_heat: picked[2].as_i64().unwrap(),
+            key_torso_arc: t[2]["torso_arc"].as_i64().unwrap(),
+            action: action_of(&t[3]),
+            phys_names: t[4].as_array().unwrap().iter().map(|o| o["name"].as_str().unwrap().to_string()).collect(),
+            phys_value: t[5].as_f64().unwrap(),
+            held,
+        }
+    }
+
+    fn note(&mut self, kind: &str, ok: bool, what: String) {
+        let e = self.checked.entry(kind.to_string()).or_insert((0, 0));
+        e.0 += 1;
+        if !ok {
+            e.1 += 1;
+            if self.mismatches.len() < 40 {
+                self.mismatches.push(what);
+            }
+        }
+    }
+}
 
 fn nm(b: &Battle, u: UnitId) -> String {
     b.units[u].side_name.clone().unwrap_or_default()
@@ -100,23 +138,24 @@ impl BotSet for ReplayBots {
         unit_named(b, &v).expect("a fire pick")
     }
 
-    fn choose_declaration(&mut self, b: &mut Battle, _ctx: &DeclCtx, _planner: &mut Planner, attacker: UnitId, target: UnitId) -> DeclChoice {
+    fn choose_declaration(&mut self, b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId) -> DeclChoice {
         let who = format!("{}>{}", nm(b, attacker), nm(b, target));
         let v = b.decide("declaration", &who);
-        let t = t_list(&v);
-        let picked = t_list(&t[1]);
-        let weapons: Vec<ItemId> = picked[0].as_array().unwrap().iter().map(|w| item_ref(b, w)).collect();
-        let held = t[6].as_array().unwrap().iter().map(|a| item_at(b, attacker, a.as_str().unwrap())).collect();
-        DeclChoice {
-            weapons,
-            exp_dmg: picked[1].as_f64().unwrap(),
-            weapon_heat: picked[2].as_i64().unwrap(),
-            key_torso_arc: t[2]["torso_arc"].as_i64().unwrap(),
-            action: action_of(&t[3]),
-            phys_names: t[4].as_array().unwrap().iter().map(|o| o["name"].as_str().unwrap().to_string()).collect(),
-            phys_value: t[5].as_f64().unwrap(),
-            held,
+        let recorded = Self::decode_declaration(b, attacker, &v);
+        if self.check_gladiator_declaration && b.units[attacker].bot == "gladiator" {
+            let mine = crate::gladiator::choose_declaration(b, ctx, planner, attacker, target);
+            let same = mine.weapons == recorded.weapons
+                && mine.exp_dmg == recorded.exp_dmg
+                && mine.weapon_heat == recorded.weapon_heat
+                && mine.key_torso_arc == recorded.key_torso_arc
+                && mine.action == recorded.action
+                && mine.phys_names == recorded.phys_names
+                && mine.phys_value == recorded.phys_value
+                && mine.held == recorded.held;
+            let what = format!("turn {} {}: rust {:?} v python {:?}", b.units[attacker].turn_number, who, mine, recorded);
+            self.note("declaration", same, what);
         }
+        recorded
     }
 
     fn choose_physical(&mut self, b: &mut Battle, attacker: UnitId, target: UnitId) -> Option<(i64, Vec<PhysOption>, ArcAction)> {

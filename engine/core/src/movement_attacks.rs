@@ -135,3 +135,28 @@ pub fn end_of_movement_triggers(b: &mut Battle, u: UnitId) -> Vec<(String, i64)>
     }
     out
 }
+
+/// Worth of `damage` in 5-point groups rolled on `table` against `side`.
+pub fn table_worth(b: &Battle, damage: i64, mech: UnitId, table: &str, side: &str) -> f64 {
+    let mut w = crate::physical::Worth::new(b, mech, false);
+    let mut sum = 0.0;
+    for g in groupings(damage) {
+        sum += g as f64 * w.factor(b, table, side, g as f64);
+    }
+    sum
+}
+
+/// What being pushed this way costs the target: its whole remaining armor + structure off the board, the fall's worth
+/// 2+ levels down (p.115), else 0.
+pub fn displacement_worth(b: &Battle, target: UnitId, from_label: &str, direction: i64) -> Num {
+    let (kind, _, drop) = displacement(b, from_label, direction);
+    if kind == "off" {
+        return crate::attack_resolution::total_hp(&b.units[target]);
+    }
+    if kind == "moved" && drop >= 2 {
+        let mass = b.units[target].mass.unwrap_or(0);
+        let dmg = -((-mass).div_euclid(10)) * (drop + 1);
+        return Num::F(table_worth(b, dmg, target, "standard", "front"));
+    }
+    Num::F(0.0)
+}

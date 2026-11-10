@@ -814,3 +814,261 @@ pub fn run_physical_units(b: &mut Battle, order: &[UnitId], reports: &mut [SideR
         crate::piloting_rolls::resolve_consciousness_checks(b, m, "Physical Attack Phase");
     }
 }
+
+// =============================================================================================================
+// Planning (the bot's side of physical attacks): Worth, plans, the Planner, choose_attack
+// =============================================================================================================
+use std::collections::HashMap;
+
+use crate::structure_weight as sw;
+
+/// How much a point of physical damage on each hit table counts against `target` (the table's own armor exposure times
+/// the structure bonus). relative=True divides out the standard-table exposure for that side.
+pub struct Worth {
+    pub target: UnitId,
+    pub relative: bool,
+    front: f64,
+    memo: HashMap<(String, String, u64), f64>,
+}
+
+impl Worth {
+    pub fn new(b: &Battle, target: UnitId, relative: bool) -> Worth {
+        let t = &b.units[target];
+        let front = sw::vulnerability(t, &sw::hit_spread(t, "front", None));
+        Worth { target, relative, front, memo: HashMap::new() }
+    }
+
+    fn exposure(&self, b: &Battle, spread: &sw::Spread) -> f64 {
+        if !b.cfg.b("MOVEMENT_EXPOSURE_WEIGHTING") || self.front <= 0.0 {
+            return 1.0;
+        }
+        let v = sw::vulnerability(&b.units[self.target], spread) / self.front;
+        b.cfg.f("MOVEMENT_EXPOSURE_MIN").max(b.cfg.f("MOVEMENT_EXPOSURE_MAX").min(v))
+    }
+
+    pub fn factor(&mut self, b: &Battle, table: &str, side: &str, damage: f64) -> f64 {
+        let t = &b.units[self.target];
+        if table == "displacement" {
+            if !self.relative || side == "front" {
+                return 1.0;
+            }
+            return 1.0 / self.exposure(b, &sw::hit_spread(t, side, None));
+        }
+        let key = (table.to_string(), side.to_string(), damage.to_bits());
+        if let Some(g) = self.memo.get(&key) {
+            return *g;
+        }
+        let rolls = table_rolls(table, side, t);
+        let spread = sw::hit_spread(t, side, rolls.as_deref());
+        let mut got = self.exposure(b, &spread);
+        if self.relative {
+            let standard = if side == "front" { 1.0 } else { self.exposure(b, &sw::hit_spread(t, side, None)) };
+            got /= standard;
+        }
+        if damage > 0.0 {
+            got *= sw::spread_worth(t, &spread, damage, b.cfg.f("MOVEMENT_STRUCTURE_WEIGHT")) / damage;
+        }
+        self.memo.insert(key, got);
+        got
+    }
+}
+
+/// Expected damage of the picks; with a Worth, their worth on `side`.
+pub fn expected_damage_of(b: &Battle, base: i64, picks: &[PhysOption], worth: Option<&mut Worth>, side: &str) -> f64 {
+    match worth {
+        None => {
+            let mut sum = 0.0;
+            for o in picks {
+                sum += crate::combat::hit_probability(base + o.mod_) * o.damage.f();
+            }
+            sum
+        }
+        Some(w) => {
+            let mut sum = 0.0;
+            for o in picks {
+                sum += crate::combat::hit_probability(base + o.mod_) * o.damage.f() * w.factor(b, &o.table, side, o.damage.f());
+            }
+            sum
+        }
+    }
+}
+
+/// One planned physical attack: (expected damage, the limbs it uses, the options).
+#[derive(Clone, Debug)]
+pub struct Plan {
+    pub value: f64,
+    pub limbs: Vec<String>,
+    pub picks: Vec<PhysOption>,
+}
+
+/// Every physical attack the mech could plan with these options, best first; the empty plan is always included.
+pub fn plans(b: &Battle, options: &Opts, base: i64, mut worth: Option<&mut Worth>, side: &str) -> Vec<Plan> {
+    let mut out = vec![Plan { value: 0.0, limbs: vec![], picks: vec![] }];
+    for (kind, opts) in options {
+        let groups: Vec<Vec<PhysOption>> = if *kind == "punch" {
+            let mut g: Vec<Vec<PhysOption>> = opts.iter().map(|o| vec![o.clone()]).collect();
+            if opts.len() > 1 {
+                g.push(opts.clone());
+            }
+            g
+        } else {
+            opts.iter().map(|o| vec![o.clone()]).collect()
+        };
+        for g in groups {
+            let v = expected_damage_of(b, base, &g, worth.as_deref_mut(), side);
+            if v > 0.0 {
+                let limbs: Vec<String> = g.iter().flat_map(|o| o.limb.clone()).collect();
+                out.push(Plan { value: v, limbs, picks: g });
+            }
+        }
+    }
+    out.sort_by(|x, y| (-x.value).partial_cmp(&(-y.value)).unwrap());
+    out
+}
+
+fn push_value(b: &Battle, target: UnitId, label: &str, direction: i64) -> Num {
+    crate::movement_attacks::displacement_worth(b, target, label, direction)
+}
+
+/// attack_options: {"type": [option, ...]} the attacker could make this phase with arc action `action`.
+pub fn attack_options(b: &mut Battle, attacker: UnitId, target: UnitId, action: Option<&crate::mech_state::ArcAction>) -> Opts {
+    if b.units[attacker].prone || is_immobile(&b.units[attacker]) || b.is_destroyed(attacker) || b.is_destroyed(target) {
+        return IndexMap::new();
+    }
+    let a_xy = crate::hex_geometry::parse_hex_label(b.units[attacker].hex.as_deref().unwrap()).unwrap();
+    let a_facing = crate::hex_geometry::compass_to_facing(&b.units[attacker].facing).unwrap();
+    let (ah, th) = (b.units[attacker].hex.clone().unwrap(), b.units[target].hex.clone().unwrap());
+    let (a_level, t_level) = (b.board.hexes[&ah].level, b.board.hexes[&th].level);
+    let fired: HashSet<ItemId> = b.units[attacker].weapons_fired_this_turn.clone().map(|s| s.into_iter().collect()).unwrap_or_default();
+    let cur = arcs::current_action(&b.units[attacker]);
+    let act = action.cloned().unwrap_or_else(|| cur.clone());
+    let t_xy = crate::hex_geometry::parse_hex_label(&th).unwrap();
+    let prone = b.units[target].prone;
+    let sup = is_superheavy(&b.units[target]);
+    let mut opts = options_at(b, attacker, a_xy, a_facing, a_level, t_xy, t_level, prone, &fired, &act, sup);
+    if !act.flip {
+        let mut value = |b: &mut Battle, label: &str, direction: i64| push_value(b, target, label, direction).f();
+        if let Some(push) = push_option_valued(b, attacker, a_xy, a_facing, a_level, target, &th, t_level, &fired, &mut value) {
+            opts.insert("push", vec![push]);
+        }
+    }
+    let allowed = crate::water::physical_allowed(crate::water::state(b, attacker), crate::water::state(b, target));
+    opts = water_filter(opts, allowed.as_deref());
+    let blocked = gear::raised_blocks(&b.units[attacker]);
+    if !blocked.is_empty() {
+        let free = |o: &PhysOption| !o.limb.iter().any(|l| blocked.contains(l));
+        opts = opts.into_iter().map(|(k, v)| (k, v.into_iter().filter(|o| free(o)).collect::<Vec<_>>())).filter(|(_, v)| !v.is_empty()).collect();
+    }
+    opts
+}
+
+/// push_option with the displacement value coming from a closure that also reports the exact Num (so an int HP value
+/// keeps printing as an int).
+#[allow(clippy::too_many_arguments)]
+fn push_option_valued(b: &mut Battle, attacker: UnitId, a_xy: (i64, i64), a_facing: i64, a_level: i64, target: UnitId, t_label: &str, t_level: i64, fired: &HashSet<ItemId>, value: &mut dyn FnMut(&mut Battle, &str, i64) -> f64) -> Option<PhysOption> {
+    let mut o = push_option(b, attacker, a_xy, a_facing, a_level, target, t_label, t_level, fired, value)?;
+    // the option's damage is the displacement worth as the Python computed it (an int total HP stays an int)
+    o.damage = push_value(b, target, t_label, a_facing);
+    Some(o)
+}
+
+/// base TN of an attack on the adjacent target (p.76), from where the attacker stands.
+pub fn base_tn_for(b: &Battle, attacker: UnitId, target: UnitId) -> i64 {
+    let a_hex = crate::hex_geometry::parse_hex_label(b.units[attacker].hex.as_deref().unwrap()).unwrap();
+    let t_hex = crate::hex_geometry::parse_hex_label(b.units[target].hex.as_deref().unwrap()).unwrap();
+    let h = crate::attack_resolution::standing();
+    let modifier = crate::los::has_los(a_hex, t_hex, &b.board, h, h).unwrap().modifier;
+    base_tn(
+        &b.units[attacker],
+        crate::combat::mode_to_amm(&b.units[attacker].move_mode),
+        crate::attack_resolution::target_tmm(&b.units[target]),
+        modifier,
+        crate::attack_resolution::prone_target_modifier(&b.units[target], 1),
+    )
+}
+
+/// Pile 4: the arc action (a twist, if it may still declare one) and attack type with the most expected damage,
+/// weighted by where each table lands. Returns (base TN, [options], ArcAction) or None.
+pub fn choose_attack(b: &mut Battle, attacker: UnitId, target: UnitId) -> Option<(i64, Vec<PhysOption>, crate::mech_state::ArcAction)> {
+    if b.is_destroyed(attacker) || b.is_destroyed(target) || b.units[attacker].hex == b.units[target].hex {
+        return None;
+    }
+    let turret = arcs::current_action(&b.units[attacker]).turret;
+    let mut actions: Vec<crate::mech_state::ArcAction> = Vec::new();
+    for a in arcs::arc_options(&b.units[attacker], "physical") {
+        let a = crate::mech_state::ArcAction { twist: a.twist, flip: a.flip, turret: turret.clone() };
+        if !actions.contains(&a) {
+            actions.push(a);
+        }
+    }
+    let a_xy = crate::hex_geometry::parse_hex_label(b.units[attacker].hex.as_deref().unwrap()).unwrap();
+    let t_xy = crate::hex_geometry::parse_hex_label(b.units[target].hex.as_deref().unwrap()).unwrap();
+    let tf = crate::hex_geometry::compass_to_facing(&b.units[target].facing).unwrap();
+    let side = crate::attack_resolution::attack_side(b, a_xy, t_xy, tf, crate::attack_resolution::standing(), crate::attack_resolution::standing()).to_string();
+    let mut worth = Worth::new(b, target, false);
+    let mut base: Option<i64> = None;
+    let t_water = crate::water::state(b, target);
+    let quad = b.units[target].mech_type == "quad" || b.units[target].mech_type == "quadvee";
+    let mut best: Option<(i64, Vec<PhysOption>, crate::mech_state::ArcAction)> = None;
+    let value = |b: &Battle, worth: &mut Worth, base: i64, opts: &[PhysOption]| -> f64 {
+        if t_water != crate::water::GROUND {
+            let scaled: Vec<PhysOption> = opts
+                .iter()
+                .map(|o| {
+                    let mut o = o.clone();
+                    o.damage = Num::F(o.damage.f() * crate::water::physical_value_factor_q(quad, t_water, &o.table, &side));
+                    o
+                })
+                .collect();
+            return expected_damage_of(b, base, &scaled, Some(worth), &side);
+        }
+        expected_damage_of(b, base, opts, Some(worth), &side)
+    };
+    for action in actions {
+        let options = attack_options(b, attacker, target, Some(&action));
+        if options.is_empty() {
+            continue;
+        }
+        if base.is_none() {
+            base = Some(base_tn_for(b, attacker, target));
+        }
+        let base = base.unwrap();
+        let mut picks_by_kind: Vec<(&'static str, Vec<PhysOption>)> = Vec::new();
+        for (k, opts) in &options {
+            let pick = if *k == "punch" {
+                opts.clone()
+            } else {
+                let mut best_o = &opts[0];
+                let mut best_v = value(b, &mut worth, base, std::slice::from_ref(&opts[0]));
+                for o in &opts[1..] {
+                    let v = value(b, &mut worth, base, std::slice::from_ref(o));
+                    if v > best_v {
+                        best_v = v;
+                        best_o = o;
+                    }
+                }
+                vec![best_o.clone()]
+            };
+            picks_by_kind.push((k, pick));
+        }
+        let mut kind_i = 0;
+        let mut kind_v = value(b, &mut worth, base, &picks_by_kind[0].1);
+        for (i, (_, p)) in picks_by_kind.iter().enumerate().skip(1) {
+            let v = value(b, &mut worth, base, p);
+            if v > kind_v {
+                kind_v = v;
+                kind_i = i;
+            }
+        }
+        let picks = picks_by_kind[kind_i].1.clone();
+        let pv = value(b, &mut worth, base, &picks);
+        let better = match &best {
+            None => true,
+            Some((_, bp, _)) => pv > value(b, &mut worth, base, bp) + 1e-12,
+        };
+        if pv > 0.0 && better {
+            best = Some((base, picks, action));
+        }
+    }
+    best
+}

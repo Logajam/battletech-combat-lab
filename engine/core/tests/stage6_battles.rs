@@ -115,6 +115,7 @@ fn run_fixture(dir: PathBuf) -> Result<usize, String> {
     let trace: Vec<Value> = BufReader::new(fs::File::open(dir.join("trace.jsonl")).unwrap()).lines().map(|l| serde_json::from_str(&l.unwrap()).unwrap()).collect();
     let seen_c = std::cell::Cell::new(0usize);
     let failure_c: std::cell::RefCell<Option<String>> = std::cell::RefCell::new(None);
+    let checked_c: std::cell::RefCell<(std::collections::BTreeMap<String, (usize, usize)>, Vec<String>)> = Default::default();
     let nms = names.clone();
     {
         let mut marks = |b: &mut Battle, turn: i64, phase: &str| {
@@ -150,11 +151,20 @@ fn run_fixture(dir: PathBuf) -> Result<usize, String> {
         };
         let mut play = start_battle(&mut b, max_turns, &mut marks);
         if failure_c.borrow().is_none() {
-            let mut bots = ReplayBots;
+            let check = std::env::var("CHECK").unwrap_or_default();
+            let mut bots = ReplayBots { check_gladiator_declaration: check.contains("declaration"), ..Default::default() };
             play_on(&mut b, &mut bots, &mut play, &mut marks);
+            checked_c.replace((bots.checked.clone(), bots.mismatches.clone()));
         }
     }
     let failure = failure_c.into_inner();
+    let (checked, mismatches) = checked_c.into_inner();
+    if !checked.is_empty() {
+        eprintln!("{} checked (decisions, wrong): {:?}", name, checked);
+    }
+    if !mismatches.is_empty() {
+        return Err(format!("{}: {} decision(s) differ; first: {}", name, mismatches.len(), mismatches[0]));
+    }
     let seen = seen_c.get();
     let (want_log, want_err) = expected_log(&dir);
     let want_log = normalize(want_log);

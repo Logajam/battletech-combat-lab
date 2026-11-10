@@ -51,3 +51,5 @@ pub mod results;
 pub mod orchestrator;
 pub mod replay_bots;
 pub mod setup;
+pub mod structure_weight;
+pub mod gladiator;
