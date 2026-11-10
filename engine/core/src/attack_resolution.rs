@@ -1527,7 +1527,7 @@ pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBo
         };
     }
     for &m in order {
-        b.units[m].ams_used = None;
+        b.units[m].ams_used = Some(serde_json::Value::Null);
         gear::lower(&mut b.units[m]);
         electronics::activate_pods(&mut b.units[m]);
         fire_modes::resolve_unjams(b, m);

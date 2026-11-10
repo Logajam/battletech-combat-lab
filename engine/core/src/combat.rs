@@ -70,3 +70,66 @@ pub fn direction_facing(from_hex: (i64, i64), to_hex: (i64, i64)) -> Result<i64,
     }
     Ok(best_facing)
 }
+
+/// 'Walk' if mp_spent fits within the Walking MP budget, else 'Run'.
+pub fn classify_movement_mode(mp_spent: i64, walking_mp: i64) -> &'static str {
+    if mp_spent == 0 {
+        return "Stand Still";
+    }
+    if mp_spent <= walking_mp { "Walk" } else { "Run" }
+}
+
+pub const JUMP_BLOCK_MARGIN: i64 = 1;
+
+/// Every (x, y, facing) state reachable by jumping, given jump_mp: {state: forward_count} in board-hex order.
+pub fn build_jump_states(board: &crate::board_parser::Board, start_x: i64, start_y: i64, jump_mp: i64) -> Result<indexmap::IndexMap<(i64, i64, i64), i64>, String> {
+    use crate::hex_geometry::{hex_label, parse_hex_label};
+    use crate::los::{hex_distance, hex_line};
+    let hex_info = |h: (i64, i64)| -> Option<&crate::board_parser::Hex> { hex_label(h.0, h.1).ok().and_then(|l| board.hexes.get(&l)) };
+    let start_hex = (start_x, start_y);
+    let start_info = hex_info(start_hex).ok_or_else(|| format!("Jump start hex {} is not on the loaded board.", crate::pyfmt::py_repr_str(&hex_label(start_x, start_y).unwrap_or_default())))?;
+    if start_info.impassable {
+        return Err(format!("Jump start hex {} is marked impassable.", crate::pyfmt::py_repr_str(&hex_label(start_x, start_y).unwrap())));
+    }
+    let block_threshold = start_info.level + jump_mp + JUMP_BLOCK_MARGIN;
+    let mut states = indexmap::IndexMap::new();
+    for (label, info) in &board.hexes {
+        if info.impassable {
+            continue;
+        }
+        let cand = parse_hex_label(label).unwrap();
+        if cand == start_hex {
+            continue;
+        }
+        let dist = hex_distance(start_hex, cand);
+        if dist > jump_mp {
+            continue;
+        }
+        if info.level >= block_threshold {
+            continue;
+        }
+        let path = hex_line(start_hex, cand);
+        let mut blocked = false;
+        if path.len() > 2 {
+            for step in &path[1..path.len() - 1] {
+                let infos: Vec<Option<&crate::board_parser::Hex>> = step.iter().map(|h| hex_info(*h)).collect();
+                if infos.iter().any(|i| i.is_none()) {
+                    blocked = true;
+                    break;
+                }
+                let chosen = infos.iter().map(|i| i.unwrap().level).min().unwrap();
+                if chosen >= block_threshold {
+                    blocked = true;
+                    break;
+                }
+            }
+        }
+        if blocked {
+            continue;
+        }
+        for facing in 0..6 {
+            states.insert((cand.0, cand.1, facing), dist);
+        }
+    }
+    Ok(states)
+}

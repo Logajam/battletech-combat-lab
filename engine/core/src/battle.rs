@@ -20,6 +20,10 @@ pub trait Dice {
     fn pick_number(&mut self, n: i64) -> i64;
     /// how many draws so far (the trace's `dice_used`)
     fn used(&self) -> usize;
+    /// dice a bot drew while thinking, in a replay (its decision was recorded, so it does not think now)
+    fn skip(&mut self, _count: usize) {
+        panic!("this dice source cannot skip draws");
+    }
 }
 
 /// Plays a recorded dice tape back (`["r", 0, sum]` / `["p", n, k]`); asking for a different kind of draw or a
@@ -59,6 +63,9 @@ impl Dice for TapeDice {
     }
     fn used(&self) -> usize {
         self.pos
+    }
+    fn skip(&mut self, count: usize) {
+        self.pos += count;
     }
 }
 
@@ -101,6 +108,14 @@ pub struct Battle {
     pub piloting: i64,
     /// hazards._IN_PHASE
     pub hazards_in_phase: bool,
+    /// the decision seam in replay mode (INTEGRATION__decisions): the recorded bot answers
+    pub replay: Option<Replay>,
+}
+
+/// decisions.json played back: each bot decision of the battle, in the order the engine asks for them.
+pub struct Replay {
+    pub records: Vec<serde_json::Value>,
+    pub cursor: usize,
 }
 
 impl Battle {
@@ -120,6 +135,7 @@ impl Battle {
             turn: 0,
             piloting,
             hazards_in_phase: false,
+            replay: None,
         }
     }
 
@@ -148,6 +164,31 @@ impl Battle {
     }
     pub fn unit_index(&self, side_name: &str) -> UnitId {
         self.units.iter().position(|u| u.side_name.as_deref() == Some(side_name)).unwrap_or_else(|| panic!("no unit {}", side_name))
+    }
+}
+
+impl Battle {
+    /// `decisions.decide(kind, ctx, compute)` in REPLAY mode: the recorded answer for the next decision (checked against
+    /// the kind and who it is about), after skipping the dice the bot drew and printing the log lines and stub warnings
+    /// its thinking printed. Returns the recorded value (JSON, rt-encoded).
+    pub fn decide(&mut self, kind: &str, who: &str) -> serde_json::Value {
+        let rp = self.replay.as_mut().expect("no replay loaded");
+        let n = rp.cursor;
+        assert!(n < rp.records.len(), "decision {}: asked for {} {} but the record has ended", n + 1, kind, who);
+        let rec = rp.records[n].clone();
+        if rec["kind"].as_str().unwrap() != kind || rec["who"].as_str().unwrap() != who {
+            panic!("decision {}: asked for {} {}, record has {} {} (phase {})", n + 1, kind, who, rec["kind"], rec["who"], rec["phase"]);
+        }
+        rp.cursor += 1;
+        self.dice.skip(rec["dice_drawn"].as_u64().unwrap() as usize);
+        for line in rec["log"].as_array().unwrap() {
+            self.log(line.as_str().unwrap());
+        }
+        for s in rec["stubs"].as_array().unwrap() {
+            let (name, msg) = (s[0].as_str().unwrap().to_string(), s[1].as_str().unwrap().to_string());
+            self.warn_stub(&name, &msg);
+        }
+        rec["value"].clone()
     }
 }
 
