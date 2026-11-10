@@ -35,3 +35,47 @@ pub fn get_weapons(mech: &Mech) -> Vec<ItemId> {
 pub fn is_partial_wing(mech: &Mech, id: ItemId) -> bool {
     mech.items[id].name.replace(' ', "").replace('-', "").to_uppercase().contains("PARTIALWING")
 }
+
+pub fn tmm_from_mp(mp: i64) -> i64 {
+    if mp <= 2 {
+        0
+    } else if mp <= 4 {
+        1
+    } else if mp <= 6 {
+        2
+    } else if mp <= 9 {
+        3
+    } else if mp <= 17 {
+        4
+    } else {
+        5
+    }
+}
+
+/// TMM: the higher of the Running-MP value or the Jump-MP value (+1) this turn (also jump booster); records the
+/// winning movement mode on the mech.
+pub fn compute_tmm(mech: &mut Mech) -> i64 {
+    use crate::mech_state::*;
+    let running_mp = compute_running_mp(mech);
+    let mut tmm = tmm_from_mp(running_mp);
+    mech.movement_mode_this_turn = "running".to_string();
+    let jump_mp = compute_jump_mp(mech);
+    if jump_mp > 0 {
+        let jump_tmm = tmm_from_mp(jump_mp) + 1;
+        if jump_tmm > tmm {
+            tmm = jump_tmm;
+            mech.movement_mode_this_turn = "jump".to_string();
+        }
+    }
+    if mech.base_mechanical_jump_booster_mp > 0 {
+        let booster_mp = compute_mechanical_jump_booster_mp(mech);
+        if booster_mp > 0 {
+            let booster_tmm = tmm_from_mp(booster_mp) + 1;
+            if booster_tmm > tmm {
+                tmm = booster_tmm;
+                mech.movement_mode_this_turn = "jump".to_string();
+            }
+        }
+    }
+    tmm
+}

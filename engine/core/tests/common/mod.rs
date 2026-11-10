@@ -158,9 +158,16 @@ pub fn fixture_board(fixture: &str) -> Board {
 pub fn make_battle(rec: &Value) -> (Battle, Vec<String>) {
     let fixture = rec["fixture"].as_str().unwrap();
     let units = rec["units"].as_object().unwrap();
-    let names: Vec<String> = units.keys().cloned().collect();
-    let idx = |n: &str| names.iter().position(|x| x == n).unwrap_or(usize::MAX);
-    let mechs: Vec<Mech> = units.values().map(|d| Mech::from_json(d, &idx)).collect();
+    let names: Vec<String> = rec["roster"].as_array().unwrap().iter().map(|n| n.as_str().unwrap().to_string()).collect();
+    let idx = |n: &str| names.iter().position(|x| x == n).unwrap();
+    // the whole roster, in battle order; units the call did not touch are placeholders
+    let mechs: Vec<Mech> = names
+        .iter()
+        .map(|n| match units.get(n) {
+            Some(d) => Mech::from_json(d, &idx),
+            None => Mech::new("biped"),
+        })
+        .collect();
     let b = Battle::new(fixture_config(fixture), fixture_board(fixture), mechs, Box::new(TapeDice::from_json(&rec["dice"])));
     (b, names)
 }
@@ -210,6 +217,9 @@ pub fn first_diff(a: &Value, b: &Value, path: &str) -> Option<String> {
 pub fn check_after(rec: &Value, b: &Battle, names: &[String], what: &str) {
     let name_of = |i: usize| names.get(i).cloned().unwrap_or_default();
     for (i, n) in names.iter().enumerate() {
+        if rec["after"].get(n).is_none() {
+            continue;
+        }
         let got = b.units[i].to_json(&name_of);
         if let Some(d) = first_diff(&got, &rec["after"][n], "") {
             panic!("{} [{}] unit {}: {}", what, rec["fixture"], n, d);

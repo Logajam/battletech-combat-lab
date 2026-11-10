@@ -153,7 +153,7 @@ class Tap:
         self.counts[target] = self.counts.get(target, 0) + 1
         self.records.append({"fn": target, "fixture": self.fixture, "args": enc_args, "kwargs": enc_kw, "units": before,
                              "dice": self.rng.calls[dice0:self.rng.pos], "ret": enc_ret, "after": after, "log": lines,
-                             "stubs": warns, "board": board})
+                             "stubs": warns, "board": board, "roster": [u.side_name for u in units]})
         return ret
 
 
