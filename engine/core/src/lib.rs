@@ -17,6 +17,7 @@ pub mod advanced_equipment;
 pub mod equipment_systems;
 pub mod capacitor;
 pub mod water;
+pub mod stubs;
 pub mod piloting_rolls;
 pub mod hazards;
 pub mod mtf_parser;
