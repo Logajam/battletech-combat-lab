@@ -394,3 +394,57 @@ mod tests {
         assert_eq!(py_int("x").unwrap_err(), "invalid literal for int() with base 10: 'x'");
     }
 }
+
+/// Python's `f"{x:.{n}f}"`: the exact binary value rounded half to even (Rust's own formatter breaks exact ties the
+/// other way: 3.375 prints 3.37 there, 3.38 in Python).
+pub fn fixed(x: f64, n: usize) -> String {
+    let plain = format!("{:.*}", n, x);
+    if !x.is_finite() {
+        return plain;
+    }
+    let long = format!("{:.*}", n + 30, x);
+    let (int_part, frac) = long.split_once('.').unwrap();
+    let tail = &frac[n..];
+    if !(tail.starts_with('5') && tail[1..].chars().all(|c| c == '0')) {
+        return plain;
+    }
+    // an exact tie: round to the even last digit (truncated value keeps its digit when that is even)
+    let kept = format!("{}.{}", int_part, &frac[..n]);
+    let kept = if n == 0 { int_part.to_string() } else { kept };
+    let last = kept.chars().rev().find(|c| c.is_ascii_digit()).unwrap().to_digit(10).unwrap();
+    if last % 2 == 0 { kept } else { plain_up(&kept, n) }
+}
+
+fn plain_up(kept: &str, n: usize) -> String {
+    // add one unit in the last place to a truncated decimal string
+    let neg = kept.starts_with('-');
+    let digits: Vec<char> = kept.trim_start_matches('-').chars().collect();
+    let mut out: Vec<char> = digits.clone();
+    let mut i = out.len();
+    loop {
+        if i == 0 {
+            out.insert(0, '1');
+            break;
+        }
+        i -= 1;
+        if out[i] == '.' {
+            continue;
+        }
+        if out[i] == '9' {
+            out[i] = '0';
+        } else {
+            out[i] = (out[i] as u8 + 1) as char;
+            break;
+        }
+    }
+    let _ = n;
+    format!("{}{}", if neg { "-" } else { "" }, out.into_iter().collect::<String>())
+}
+
+/// `{}` of Fx(x, n) prints Python's `{x:.nf}`.
+pub struct Fx(pub f64, pub usize);
+impl std::fmt::Display for Fx {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&fixed(self.0, self.1))
+    }
+}

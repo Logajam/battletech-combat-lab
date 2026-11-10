@@ -141,7 +141,7 @@ pub fn stub_munition_choice(b: &mut Battle, mech_name: &str, weapon: usize, unit
     };
     if warn {
         let wname = b.units[unit].items[weapon].name.clone();
-        let shown: Vec<String> = options.iter().map(|(p, v)| format!("{} {:.2}", if p.note().is_empty() { p.munition().to_string() } else { p.note() }, v)).collect();
+        let shown: Vec<String> = options.iter().map(|(p, v)| format!("{} {}", if p.note().is_empty() { p.munition().to_string() } else { p.note() }, crate::pyfmt::Fx(*v, 2))).collect();
         let to = if plan.note().is_empty() { plan.munition().to_string() } else { plan.note() };
         b.warn_stub("munition_choice", &format!("{}'s {}: {} -> {} (policy {})", mech_name, wname, shown.join(", "), to, policy));
     }

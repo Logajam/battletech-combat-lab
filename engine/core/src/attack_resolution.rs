@@ -1208,10 +1208,10 @@ pub fn table_value(b: &mut Battle, attacker: UnitId, w: ItemId, distance: i64, p
 
 fn choice_note(b: &mut Battle, attacker: UnitId, weapons: &[ItemId], value: f64, planner: &mut Planner, distance: i64, pre_tn: i64) -> String {
     if b.units[attacker].bot != "princess" {
-        return format!("expected dmg {:.2}", value);
+        return format!("expected dmg {}", crate::pyfmt::Fx(value, 2));
     }
     let damage = plan_damage(b, attacker, weapons, planner, distance, pre_tn);
-    format!("Princess plan utility {:.2}, about {:.2} expected dmg", value, damage)
+    format!("Princess plan utility {}, about {} expected dmg", crate::pyfmt::Fx(value, 2), crate::pyfmt::Fx(damage, 2))
 }
 
 /// `_declare` after the choice: declares the arc action, logs the attack line, rolls to hit for each selected weapon
@@ -1248,11 +1248,11 @@ pub fn finish_declaration(
     held_names.dedup();
     if !choice.phys_names.is_empty() && !held_names.is_empty() {
         b.log(format!(
-            "  [Ranged] {} holds {} back for the Physical phase (plans {}, expected {:.2}).",
+            "  [Ranged] {} holds {} back for the Physical phase (plans {}, expected {}).",
             a_name,
             crate::damage_resolution::py_str_list(&held_names),
             choice.phys_names.join(", "),
-            choice.phys_value
+            crate::pyfmt::Fx(choice.phys_value, 2)
         ));
     }
     if let Some(rec) = record_damage {

@@ -248,7 +248,7 @@ pub fn scored_options(b: &mut Battle, mover: UnitId, target: UnitId, pose: &Pose
         cand.attack = if state.charge { "charge" } else { "dfa" };
         let score = objective(cand.dealt, cand.received, t_mult, m_mult, psr_cost(b, &state.mode, state.fc, &state.hex, &state.facing, state.mp_spent));
         let kind = if state.charge { "CHARGE" } else { "DFA" };
-        out.push((score, cand, state, format!("{} (TN {}, P {:.2}, {} dmg)", kind, tn, p, dmg)));
+        out.push((score, cand, state, format!("{} (TN {}, P {}, {} dmg)", kind, tn, crate::pyfmt::Fx(p, 2), dmg)));
     }
     out.sort_by(|a, c| (-a.0).partial_cmp(&(-c.0)).unwrap());
     out

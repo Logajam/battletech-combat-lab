@@ -185,7 +185,7 @@ fn do_engage(b: &mut Battle, defender: UnitId, attacker: UnitId, attacks: &mut [
             }
             let cut = attack_prevented(b, attacker, &attacks[ai]);
             let att_name = b.units[attacker].side_name.clone().unwrap_or_default();
-            b.log(format!("  [AMS] {}'s {} engages {}'s {} (cuts {:.2} expected; +{} heat{}).", name, wname, att_name, aw_name, cut, wheat, if note.is_empty() { String::new() } else { format!("; {}", note) }));
+            b.log(format!("  [AMS] {}'s {} engages {}'s {} (cuts {} expected; +{} heat{}).", name, wname, att_name, aw_name, crate::pyfmt::Fx(cut, 2), wheat, if note.is_empty() { String::new() } else { format!("; {}", note) }));
             break;
         }
     }

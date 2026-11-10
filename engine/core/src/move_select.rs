@@ -16,6 +16,7 @@ use crate::move_eval::{Candidate, MoveEvaluator};
 use crate::move_options::{self, Opt, PathNotes, StateKey};
 use crate::physical::{PhysPlanner, Worth};
 use crate::ranged_combat::Pick;
+use crate::pyfmt::Fx;
 use crate::structure_weight as sw;
 
 pub const SIDES: [&str; 4] = ["front", "left", "right", "rear"];
@@ -318,11 +319,11 @@ impl Side {
         match &self.objective {
             Objective::Ratio => {
                 let score = self.obj(dealt, received, dealt_mult, received_mult, extras);
-                format!("score {:.3} = dealt {:.2} x{:.2} / (received {:.2} x{:.2} + PSR {:.2} + {}) [{}]", score, dealt, dealt_mult, received, received_mult, extras, crate::pyfmt::py_float_str(self.eps), how)
+                format!("score {} = dealt {} x{} / (received {} x{} + PSR {} + {}) [{}]", Fx(score, 3), Fx(dealt, 2), Fx(dealt_mult, 2), Fx(received, 2), Fx(received_mult, 2), Fx(extras, 2), crate::pyfmt::py_float_str(self.eps), how)
             }
             Objective::Lifetime { hp, mine, theirs } => {
                 let score = self.obj(dealt, received, dealt_mult, received_mult, extras);
-                format!("score {:.3} = dealt {:.2} x{:.2} + (HP {:.1} - received {:.2} x{:.2} - PSR {:.2}) / enemy future {:.2} x my future {:.2} [{}]", score, dealt, dealt_mult, hp, received, received_mult, extras, theirs, mine, how)
+                format!("score {} = dealt {} x{} + (HP {} - received {} x{} - PSR {}) / enemy future {} x my future {} [{}]", Fx(score, 3), Fx(dealt, 2), Fx(dealt_mult, 2), Fx(*hp, 1), Fx(received, 2), Fx(received_mult, 2), Fx(extras, 2), Fx(*theirs, 2), Fx(*mine, 2), how)
             }
         }
     }
@@ -950,14 +951,14 @@ fn movement_attack_pick(b: &mut Battle, mover: UnitId, other: UnitId, standup_mp
     }
     let beats = match normal_score {
         None => "nothing".to_string(),
-        Some(ns) => format!("{:.3}", ns),
+        Some(ns) => Fx(ns, 3).to_string(),
     };
     let other_name = b.units[other].side_name.clone().unwrap_or_default();
     let psr = me.psr_for_pick(b, &state);
     let note = if !matches!(me.objective, Objective::Ratio) {
         format!("{} on {}: {} beats {}", what, other_name, me.note(cand.dealt, cand.received, them.exp(cand.side_on_defender), me.exp(cand.side_on_mover), psr, "incl. self-damage"), beats)
     } else {
-        format!("{} on {}: score {:.3} = dealt {:.2} x{:.2} / (received {:.2} incl. self-damage x{:.2} + PSR {:.2}) beats {}", what, other_name, score, cand.dealt, them.exp(cand.side_on_defender), cand.received, me.exp(cand.side_on_mover), psr, beats)
+        format!("{} on {}: score {} = dealt {} x{} / (received {} incl. self-damage x{} + PSR {}) beats {}", what, other_name, Fx(score, 3), Fx(cand.dealt, 2), Fx(them.exp(cand.side_on_defender), 2), Fx(cand.received, 2), Fx(me.exp(cand.side_on_mover), 2), Fx(psr, 2), beats)
     };
     Some((Some(state), note))
 }
