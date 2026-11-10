@@ -301,6 +301,29 @@ encodable arguments, run the Rust test):
    `pathfinder/combat.py` that the movement scoring uses, `ranged_combat` scoring, `movement_selection`, princess*, bots,
    legate, tiers, peril, stack, kill_curve, battle_value, future_damage.
 
+## Where it stands at the end of session 22 (2026-11-10, later)
+
+DONE and checked against the Python: everything the engine does with the bots' answers given - `cargo test --release --test
+stage6_battles` replays all 63 fixture battles exactly (state after every phase, dice used, log, stub warnings) and
+`--test stage6_attach` rebuilds every fixture's units from their .mtf (parse + attach) equal to units.json. All function
+taps pass (`armor state damage piloting ammo heat electronics arcs attack`).
+
+STARTED, bot side: `gladiator.rs` (choose_declaration), `weapon_selection.rs` (knapsack), `structure_weight.rs`, physical
+planning (`Worth`, `plans`, `choose_attack`, `attack_options`), `movement_attacks::displacement_worth`. Check them with
+`CHECK=declaration cargo test --release --test stage6_battles -- --nocapture` (computes Gladiator's declaration and compares
+it with decisions.json; carries on with the recorded one). Result now: about 92% of Gladiator declarations equal; the rest
+differ in the LAST DIGIT of a planner-priced missile value (e.g. 0.043981481481481476 v 0.04398148148148147, an ISLRM5 at
+distance 19 / pre-TN 8, Kintaro v Atlas turn 12; `BT_DEBUG=1` prints Rust's candidates). Not yet found: the Python's
+planner (fire_modes.Planner.value / _hit_worth, possibly via fastcore's price_spec path, config.FASTCORE_PRICING) gives one
+unit less in the last place. A Python-side print of the candidates (hook weapon_selection.fire_candidates during
+`port_record.replay_fixture`; the replay never calls compute() unless the hook calls it itself) would settle it.
+
+NOT STARTED: the other decisions' Rust bots (foe: legate; target: princess_group / kill_curve; fire_pick; physical for
+Princess: princess_fire; move: movement_selection + ranged_combat scoring (Gladiator), princess_modern / princess (Princess)),
+battle_value, peril, stack, herding, cohesion, tiers, future_damage; Stage 9 (PcgDice, rayon batches, ENGINE switch, results
+printing, statistical check, speed work, retiring `fastcore/`). Each bot decision is checked the same way: add a `check_*`
+switch to `replay_bots.rs`, compute with the Rust bot, compare with the recorded answer.
+
 ## Stage log (update as stages finish)
 
 | Stage | State | Session / date | Notes |
