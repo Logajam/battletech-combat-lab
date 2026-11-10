@@ -373,6 +373,11 @@ pub struct Mech {
     pub home_edge_row: Option<Vec<String>>,
     /// bogged down (TO:AR p.60): the attribute is absent until a 'Mech is first stuck; present-None after it frees itself
     pub stuck: Option<Option<Stuck>>,
+    pub tsemp_shutdown_until: Option<Option<i64>>,
+    pub imp_until: Option<Option<i64>>,
+    pub imp_level: Option<i64>,
+    pub imp_started: Option<Option<i64>>,
+    pub imp_missiles: Option<(Option<i64>, i64)>,
 }
 
 /// mech.stuck = {"rolls", "prone_stage", "by_jump", and once freed from the prone stage "stand_only"}
@@ -672,6 +677,11 @@ impl Mech {
             mech_turret_dir: None,
             home_edge_row: None,
             stuck: None,
+            tsemp_shutdown_until: None,
+            imp_until: None,
+            imp_level: None,
+            imp_started: None,
+            imp_missiles: None,
         };
         snapshot_round_capability(&mut m);
         m

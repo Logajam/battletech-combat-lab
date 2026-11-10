@@ -335,6 +335,21 @@ impl Mech {
         if let Some(v) = &self.home_edge_row {
             put!("home_edge_row", json!(v));
         }
+        if let Some(v) = &self.tsemp_shutdown_until {
+            put!("tsemp_shutdown_until", json!(v));
+        }
+        if let Some(v) = &self.imp_until {
+            put!("imp_until", json!(v));
+        }
+        if let Some(v) = self.imp_level {
+            put!("imp_level", json!(v));
+        }
+        if let Some(v) = &self.imp_started {
+            put!("imp_started", json!(v));
+        }
+        if let Some((t, c)) = &self.imp_missiles {
+            put!("imp_missiles", json!([t, c]));
+        }
         if let Some(v) = &self.stuck {
             put!("stuck", v.as_ref().map_or(Value::Null, |s| s.to_json()));
         }
@@ -594,6 +609,11 @@ impl Mech {
         m.tsemp_interference_until = v.get("tsemp_interference_until").map(|x| x.as_i64());
         m.mech_turret_dir = v.get("mech_turret_dir").map(ints);
         m.home_edge_row = v.get("home_edge_row").map(strs);
+        m.tsemp_shutdown_until = v.get("tsemp_shutdown_until").map(|x| x.as_i64());
+        m.imp_until = v.get("imp_until").map(|x| x.as_i64());
+        m.imp_level = v.get("imp_level").and_then(|x| x.as_i64());
+        m.imp_started = v.get("imp_started").map(|x| x.as_i64());
+        m.imp_missiles = v.get("imp_missiles").map(|x| (x[0].as_i64(), x[1].as_i64().unwrap()));
         m.stuck = v.get("stuck").map(|x| if x.is_null() { None } else { Some(Stuck::from_json(x)) });
         m
     }
