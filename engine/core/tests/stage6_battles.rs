@@ -57,11 +57,14 @@ fn read_json(p: &PathBuf) -> Value {
 /// The battle's own lines of log.txt: from after the SIMULATION header to the batch summary.
 fn expected_log(dir: &PathBuf) -> (Vec<String>, Vec<String>) {
     let text = fs::read_to_string(dir.join("log.txt")).unwrap();
-    let (err_part, out_part) = text.split_once("# stdout\n").unwrap();
-    let stderr: Vec<String> = err_part.lines().skip(1).map(|s| s.to_string()).collect();
+    let (out_part, err_part) = text.split_once("\n# stderr (stub warnings)\n").unwrap_or((text.as_str(), ""));
+    let out_part = out_part.strip_prefix("# stdout\n").unwrap_or(out_part);
+    let stderr: Vec<String> = err_part.lines().map(|s| s.to_string()).collect();
     let lines: Vec<&str> = out_part.split('\n').collect();
     let sim = lines.iter().position(|l| l.contains("=== SIMULATION 1/1 ===")).expect("simulation header");
-    let start = sim + 1; // the "=====" line after it
+    // the attach step's own lines (triple-strength myomer notes...) come first: the units here start attached
+    let battle_start = lines[sim + 1..].iter().position(|l| l.starts_with("  Deployment:") || *l == "=== TURN 1 ===").expect("battle start") + sim + 1;
+    let start = if lines[battle_start] == "=== TURN 1 ===" { battle_start - 2 } else { battle_start - 1 };
     let end = lines.iter().position(|l| l.starts_with("!!!!!!") || l.starts_with("######")).unwrap_or(lines.len());
     // the summary block is preceded by a blank line
     let mut body: Vec<String> = lines[start + 1..end].iter().map(|s| s.to_string()).collect();
@@ -69,6 +72,30 @@ fn expected_log(dir: &PathBuf) -> (Vec<String>, Vec<String>) {
         body.pop();
     }
     (body, stderr)
+}
+
+/// Smoke that clears in one End Phase prints in hash order in Python (INTEGRATION__RUST_PORT.md "Found on the way" 1):
+/// compare each run of those lines sorted.
+fn normalize(lines: Vec<String>) -> Vec<String> {
+    let is_clear = |l: &str| l.starts_with("  [End] The smoke at ") && l.ends_with(" clears.");
+    let mut out: Vec<String> = Vec::new();
+    let mut i = 0;
+    while i < lines.len() {
+        if is_clear(&lines[i]) {
+            let mut j = i;
+            while j < lines.len() && is_clear(&lines[j]) {
+                j += 1;
+            }
+            let mut run = lines[i..j].to_vec();
+            run.sort();
+            out.extend(run);
+            i = j;
+        } else {
+            out.push(lines[i].clone());
+            i += 1;
+        }
+    }
+    out
 }
 
 fn run_fixture(dir: PathBuf) -> Result<usize, String> {
@@ -109,7 +136,13 @@ fn run_fixture(dir: PathBuf) -> Result<usize, String> {
             }
             for (i, n) in nms.iter().enumerate() {
                 let got = b.units[i].to_json(&name_of);
-                if let Some(d) = first_diff(&got, &want["units"][n], "") {
+                let mut w = want["units"][n].clone();
+                w.as_object_mut().unwrap().remove("_bv_built"); // the bots' battle-value cache (stage 7)
+                // the bots' scratch attribute: the Python's movement scoring leaves `blocked_hex` = None on units it modeled
+                if w.get("blocked_hex") == Some(&Value::Null) && got.get("blocked_hex").is_none() {
+                    w.as_object_mut().unwrap().remove("blocked_hex");
+                }
+                if let Some(d) = first_diff(&got, &w, "") {
                     failure(format!("after {} turn {} (unit {}): {}", phase, turn, n, d));
                     return;
                 }
@@ -124,7 +157,8 @@ fn run_fixture(dir: PathBuf) -> Result<usize, String> {
     let failure = failure_c.into_inner();
     let seen = seen_c.get();
     let (want_log, want_err) = expected_log(&dir);
-    let got_log: Vec<String> = b.log.lines.join("\n").split('\n').map(|s| s.to_string()).collect();
+    let want_log = normalize(want_log);
+    let got_log: Vec<String> = normalize(b.log.lines.join("\n").split('\n').map(|s| s.to_string()).collect());
     // smoke-clearing lines of one turn print in hash order in Python: compare them sorted
     if let Some(f) = failure {
         // show the first log difference as well: it usually names the cause
@@ -142,7 +176,8 @@ fn run_fixture(dir: PathBuf) -> Result<usize, String> {
     }
     let got_err: Vec<String> = b.log.stderr.clone();
     let want_err: Vec<String> = want_err.into_iter().filter(|l| !l.is_empty()).collect();
-    if got_err != want_err {
+    // the attach step's stub warnings (capacitor start, ...) come first in Python: the units here start attached
+    if !want_err.ends_with(&got_err) {
         return Err(format!("{}: stub warnings differ: rust {} lines, python {}", name, got_err.len(), want_err.len()));
     }
     Ok(trace.len())

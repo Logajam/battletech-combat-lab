@@ -312,7 +312,7 @@ encodable arguments, run the Rust test):
 | 3 Units | not started | | |
 | 4 Damage and piloting | not started | | |
 | 5 Attacks | not started | | |
-| 6 Turn loop, bots off | not started | | |
+| 6 Turn loop, bots off | DONE (session 22, 2026-11-10): `cargo test --release --test stage6_battles` plays 62 of the 63 fixture battles (all but the 12 v 12 ones, as in the taps) from units.json + dice.json with the bots' answers read from decisions.json (`replay_bots`); every phase's state, the dice used, the log and the stub warnings equal the Python's. Test normalizations: smoke-clear lines sorted; the bots' `_bv_built` / `blocked_hex` scratch attributes ignored; the attach step's own log lines and stub warnings not compared (units start attached) | session 22 | the step between: `_attach_mech_config` from the parsed .mtf (compare with units.json) |
 | 7 Princess | not started | | |
 | 8 Gladiator | not started | | |
 | 9 Cut over, speed | not started | | |
