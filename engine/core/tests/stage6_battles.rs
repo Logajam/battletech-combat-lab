@@ -191,7 +191,7 @@ fn battles_replay_exactly() {
         .unwrap()
         .filter_map(|e| e.ok())
         .map(|e| e.path())
-        .filter(|p| p.join("decisions.json").exists() && !p.file_name().unwrap().to_string_lossy().starts_with("team_12"))
+        .filter(|p| p.join("decisions.json").exists())
         .filter(|p| only.as_ref().map_or(true, |o| o.contains(&p.file_name().unwrap().to_string_lossy().to_string())))
         .collect();
     dirs.sort();
