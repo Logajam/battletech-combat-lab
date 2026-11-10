@@ -6,6 +6,19 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-10 (Claude, session 21), PLANS SAVED FOR LOWER MODELS: THE RUST TRANSLATION, THE BATTLE STATE, THE MOVE SCORE. Documents only. REVIEW PENDING (higher-level model).**
+  Daniel: "Go ahead and save your recommendations ... your Fable form is only temporary, So I'll probably be making do with lower models. For my next trick. Going
+  to have Sonnet translate the monte carlo into rust. Just bite the bullet and remove translation as a source of slowdown." NEW `INTEGRATION__RUST_PORT.md`: the
+  Python stays untouched as the answer key; stage 0 builds the comparison tools first (a dice tape instead of re-creating NumPy's generator, a list of every bot
+  and stub decision, a state dump after every phase, a first-difference finder, a Python self-replay test that proves the decision list complete); stages 1-6 the
+  engine, proven by replaying recorded decisions byte for byte with the bots off; 7 Princess, 8 Gladiator (same decisions as the Python); 9 cut over and speed.
+  Ten traps (dice, dict order, ties, floats, printing, globals, dynamic attributes, settings, caches, stubs). Output pages and art stay Python. NEW
+  `INTEGRATION__STATE.md` (task T5 done): true state v phase scratch v pure caches for every module-level table, names instead of `id()`, the Battle shape, the
+  engine boundary. `INTEGRATION__TASK_SPECS.md`: models re-assigned for work without the top model; T1 written out in full - the "race" score = lifetime with a
+  per-turn discount (the clock), a cap at the enemy's remaining HP with left-over life at a reduced weight, and a delay for spots out of range; with neutral
+  settings it must reproduce the reference logs byte for byte (the wiring test). T6 only if the port is dropped; T11 = the port. Advice recorded: decide T8 and
+  build or park T1 before the port freezes the Python.
+
 - **2026-11-10 (Claude, session 21), TOP-LEVEL REVIEW; THE PROJECT MAP CLEANED UP; TASK SPECS. Documents only, no code. REVIEW PENDING (higher-level model).**
   Daniel: "Please review the monte carlo project ... what could be improved about it, and if you have any ideas for problems currently in the basket", then
   "Please clean up the project map" and "write up the spec sheet". REVIEW (run_checks: 55 of 55 before any change): the end-game stand-off, the mirror stall and

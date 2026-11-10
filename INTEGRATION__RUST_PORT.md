@@ -1,0 +1,234 @@
+# The Rust translation - plan for the model that does it
+
+Written 2026-11-10 (session 21) by the top-level review, for Daniel's decision the same day: "have Sonnet
+translate the monte carlo into rust. Just bite the bullet and remove translation as a source of slowdown."
+This file is the plan and the rules of the road. It is written so a smaller model can follow it one stage at a
+time, a fresh session per stage. Read `CLAUDE.md` first, then all of this, then only the stage you are on.
+
+## The one idea that makes this safe
+
+**The Python stays, untouched, as the answer key.** Every stage ends with the Rust producing EXACTLY what the
+Python produces for the same input - not "close", not "the same winner": the same text, the same numbers. A
+translation by a smaller model will contain mistakes; the plan does not depend on avoiding them, it depends on
+FINDING them, and on finding the first one, not the thousandth symptom. So the comparison tools (stage 0) come
+before any translation, and no stage is "done" on the translator's say-so - only on the comparison.
+
+Three rules follow, and they are not negotiable:
+1. **Translate, don't improve.** Same steps in the same order, the same names, the page cites and comments
+   carried over. A cleverer algorithm, a tidier structure, a "fix" for something that looks wrong in the Python:
+   NOT during the port. If the Python looks wrong, write it in "Found on the way" at the bottom of this file and
+   copy its behaviour anyway. (Speed comes after the port passes - stage 9.)
+2. **No change to the Python's behaviour while the port runs.** Bot work, rule fixes and new equipment wait, or
+   the answer key moves under the translator. The only Python changes allowed are the stage 0 recorders, which
+   must leave all 55 checks and every reference log identical.
+3. **When the comparison fails, find the first difference and fix that.** Never adjust the Rust until the final
+   numbers happen to match, never loosen a comparison, never regenerate the Python's logs to match the Rust.
+
+## What gets translated and what stays Python
+
+About 34,500 lines of Python (tests and tools not counted):
+
+| Part | Lines | Goes to Rust? |
+|---|---|---|
+| Rules engine: `pathfinder/`, `mechsim/`, and the `INTEGRATION__` rules modules (orchestrator, attack_resolution, ranged_combat, physical, heat, water, hazards, arcs, ammo, ams, electronics, fire_modes, weapon_profiles / _rules, advanced_*, equipment_systems, capacitor, charge, dfa, clubs, domino, deployment, forces, smoke, tag, expected_damage, structure_weight, stubs, rng, config) | ~20,000 | Yes - stages 1-6 |
+| Bots: Gladiator (`movement_selection`, `weapon_selection`, `future_damage`, `movement_attacks`, `legate`, `triage`, `tiers`, `kill_curve`, `vision`, `peril`), Princess (`princess*`, `battle_value`), `bots` | ~7,000 | Yes - stages 7-8. This is where the run time is |
+| Output: results, stats, replay, saved state, timing, the two pickers, main | ~2,000 | No. Rust writes JSON; these read it (stage 6 / 9) |
+| Combat Lab art: tokens, shell, token_mesh, `tools/token_*` | ~5,000 | No. Never touched by the port |
+| Tests | ~14,000 | Not translated. The comparison tools replace them for the Rust; the Python tests keep guarding the answer key |
+
+Before stage 1, shrink the job: get Daniel's word on `INTEGRATION__TASK_SPECS.md` T8 (archive the experiments
+that lost: Peril in the move score, stack, herding, cohesion, team value, exchange). Anything archived is not
+translated. `config.FIGHT_TO_THE_DEATH` and the other OPTIONAL RULES switches ARE translated, both settings.
+
+## Layout
+
+A new Cargo workspace `engine/` beside `fastcore/` (which stays as it is until stage 9):
+
+    engine/
+      Cargo.toml                 workspace
+      core/                      the library: one Rust module per Python module, SAME NAME
+        src/hex_geometry.rs      <- pathfinder/hex_geometry.py
+        src/damage_resolution.rs <- mechsim/damage_resolution.py
+        src/attack_resolution.rs <- INTEGRATION__attack_resolution.py   (drop the INTEGRATION__ prefix)
+        ...
+      cli/                       `btsim`: runs battles / batches from a JSON settings file, prints the log
+      py/                        PyO3 wrapper (maturin), so Python tools and tests can call the Rust
+      tests/                     the comparison tests (read files under engine/fixtures/)
+      fixtures/                  recorded by Python in stage 0 (git-ignored if large; a small set committed)
+
+No `unsafe`. No clever generics. `cargo clippy` clean is nice, not required. Each Rust file starts with a
+comment naming the Python file and commit it was translated from.
+
+## The traps (read before writing any Rust)
+
+Each of these silently breaks exact matching. Stage 0's tools find them; knowing them saves days.
+
+1. **Dice.** `INTEGRATION__rng.BattleRNG` is NumPy's generator: blocks of 10,000 2d6 sums, plus single
+   `pick_number(n)` draws mixed in between. Do NOT try to re-create NumPy's generator in Rust. Stage 0 records a
+   **dice tape** for each fixture battle: the result of every `roll_2d6()` and `pick_number(n)` call, in call
+   order, with `n`. The Rust `Dice` trait has two implementations: `TapeDice` (replays the tape; panics with the
+   call number if asked for a different kind of draw or a different `n` than the tape holds - that panic IS the
+   first-difference detector) and, from stage 9, `PcgDice` (its own generator). Same seed giving the same battle
+   in Python and Rust is NOT a goal after the port; same rules and same decisions on the same dice is.
+2. **Dictionary and set order.** Python dicts keep insertion order and much of the code relies on it (which unit
+   is first, which location is hit first, which tie wins). Use `indexmap::IndexMap` / `IndexSet` wherever the
+   Python uses a dict or set that is ever looped over; `Vec` where order is positional. Never `HashMap` for
+   anything iterated. Python `set` iteration order is arbitrary but stable in a run - where the Python loops over
+   a set and the result depends on the order, note it under "Found on the way" and match what the Python does on
+   the fixtures (usually via a sort that should have been there).
+3. **Ties.** `max()` and `min()` keep the FIRST best item; `sorted()` is stable. Rust's `max_by` keeps the LAST
+   of equals - write the loop out (`if score > best`) exactly as the Python's comparison reads (`>` v `>=`).
+   `sort_by` is stable; `sort_unstable*` is forbidden.
+4. **Floats.** Rust `f64` and Python floats are the same numbers IF the operations are the same in the same
+   order. So: keep the order of additions and multiplications as written (no "simplifying" `a*b + a*c`); `sum()`
+   adds left to right from 0.0; no `mul_add`; `x ** 0.5` -> `sqrt()`, other powers -> `powf` (check on
+   fixtures); `round()` in Python rounds half to EVEN (`fastcore` already has this for hex distance) - Rust's
+   `round()` rounds half away from zero, so write a `py_round`. Integer division `//` and `%` floor toward
+   negative infinity in Python: use `div_euclid` / `rem_euclid` or a `py_floordiv`, and check every use with a
+   negative operand. Python ints do not overflow: use `i64`.
+5. **Printing.** The battle log is the answer key, so number formatting must match: `f"{x:.2f}"` ->
+   `format!("{:.2}", x)` agrees for ordinary values; `str(float)` / `repr` (shortest round-trip, `1.0`, `1e-05`)
+   needs a `py_float_str` helper (the `ryu` crate plus Python's rules for when to use an exponent). `True` /
+   `False` / `None` print capitalised. Write `engine/core/src/pyfmt.rs` once, test it against a file of values
+   Python printed, use it everywhere.
+6. **State that lives outside the units.** The Python keeps battle state in module-level tables (list in
+   `INTEGRATION__STATE.md`). In Rust there are NO globals: one `Battle` struct owns the units, the board, the
+   dice and those tables; functions take `&mut Battle` or the parts they need. Units are referred to by a
+   `UnitId(usize)` (index in `battle.units`), weapons by `(UnitId, slot index)` - never by reference or pointer.
+   This also removes the Python's `id()` traps instead of translating them.
+7. **Dynamic attributes.** The Python hangs fields on a mech as it goes (`mech.hp_log`, `getattr(mech, "x",
+   default)`). Before translating `mech_state.py`, grep every `getattr(` / `setattr(` / `hasattr(` and every
+   `mech.<name> =` outside it, and put them all in the Rust `Mech` struct as `Option<...>` or with the default.
+   `INTEGRATION__saved_state.py`'s docstring and its pickle of a Battle are the full list of what state exists.
+8. **Settings.** `INTEGRATION__config.py` is ~150 module variables that code reads live, and tests change them
+   mid-run. In Rust: one `Config` struct, loaded from JSON (stage 0 writes `config.json` from the Python's
+   values, UPPERCASE names kept as snake_case fields), owned by the `Battle`. No statics.
+9. **Caches.** Many Python caches exist only for speed (weapon tables, LOS lines, path tables, kill curves) and
+   are designed to return the value a fresh computation would. Translate the computation FIRST with no cache;
+   add a cache only in stage 9, and only if the comparison still passes. Exception: a "cache" whose stale value
+   the Python actually uses is state, not a cache - if results differ without it, that is a finding to write
+   down, then copy.
+10. **Stubs and warnings.** `INTEGRATION__stubs.py` prints loud warnings and counts them; those lines are in the
+    log. Translate them as they are.
+
+## Stage 0 - the comparison tools (Python only; Opus if available, else Sonnet with care)
+
+The whole port rests on this stage. It changes no behaviour: all 55 checks and the benchmark must be identical
+afterwards.
+
+Build `tools/port_record.py`, which runs a battle from a settings file and writes a fixture folder:
+- `config.json` - every UPPERCASE setting in force; `units.json` - each unit as parsed (the full mech state after
+  loading, as JSON: locations, armor, structure, crit slots, weapons, ammo bins, MPs, skills); `board.json` - the
+  parsed board (every hex's level and terrain);
+- `dice.json` - the dice tape (trap 1);
+- `decisions.json` - **every choice a bot or stub made, in order**: the move picked (unit, hex, facing, mode,
+  path, MP), the foe / target chosen, the weapons fired with mode / ammo / aimed location, twist or arm flip, the
+  physical attack, every stub's answer (rate of fire, munition, MASC, unjam, capacitor, shield, TAG, heat
+  explosion bin...), the order units moved and declared in. Each record carries a running number and the phase;
+- `trace.jsonl` - after EVERY phase of every turn, one line: turn, phase, and a full dump of every unit's state
+  (position, facing, heat, every location's armor / structure, crit slots hit, ammo left, pilot hits, prone,
+  shutdown, pending PSRs...) plus the board's changed hexes (smoke, broken crust), plus how many dice have been
+  used. Keys sorted, floats printed with `repr`;
+- `log.txt` - the battle log as printed today.
+To get the decisions and state out, add recorder hooks the way `INTEGRATION__stats` and `tests/probe_hooks.py`
+already do (hooks that only read). Add `tests/test_port_record.py`: recording changes nothing (same log with and
+without), and a recorded battle REPLAYED IN PYTHON from `decisions.json` + `dice.json` with both bots switched
+off gives the same `trace.jsonl` - this proves the decision list is complete before any Rust exists. If it does
+not replay, a decision is missing from the list: find it.
+
+Fixtures to record: the 15 reference battles; 6 team battles (4 v 4 and 12 v 12; Princess v Gladiator, Gladiator
+v Gladiator, Princess v Princess; one 3-way); and a **coverage set**: short battles (10 turns) picked so that
+between them every weapon family, every equipment module, water, magma, buildings, a fall, an ammo explosion, a
+shutdown, a charge, a DFA, a push, a club, AMS, ECM / Narc / Artemis, TAG / Arrow IV, a superheavy, a quad, a
+tripod all happen at least once. Check coverage by running the set under `coverage.py` on the engine modules
+and listing the functions never reached; add battles (or tiny scripted set-ups from the existing tests) until
+the list is short and explained. A function the fixtures never reach is a function whose translation is
+unchecked - list those in this file.
+
+Also build `tools/port_diff.py <python trace> <rust trace>`: prints the FIRST line that differs - turn, phase,
+unit, field, both values - and the last decision and dice call before it. This is the tool the translator lives in.
+
+**Done when:** fixtures recorded, the Python self-replay test passes on all of them, the coverage list is in this
+file, 55 checks identical.
+
+## Stages 1-8 (each: translate, compare, commit; a fresh session per stage or per module group)
+
+For every module: read the Python file fully; translate top to bottom; `cargo build`; write a comparison test
+that feeds the Rust the SAME inputs as recorded from Python and checks the outputs. Where a stage has no whole-
+battle comparison yet, record function-level fixtures: a small Python script calls the function on a few
+thousand inputs (taken from real battles, not made up) and writes input / output pairs as JSON for the Rust
+test to replay. `fastcore`'s `tests/test_fastcore.py` is the model for this.
+
+| Stage | Translate | Compared against | Done when |
+|---|---|---|---|
+| 1 Geometry and board | `hex_geometry`, `board_parser`, `terrain_rules` (incl. `prepare_board`), stitched maps (`map_picker` stitching only) | `board.json` for every map in `data/maps.zip` that plays (174); distance / neighbours / lines on 100k random pairs | every board identical |
+| 2 Sight and movement | `los`, `los_cache` logic (no cache), `pathfinder`, `combat` (movement pieces), `ranged_combat._movement_options`, `water` / `hazards` movement parts, `deployment` | LOS result for every hex pair on 10 boards; reachable-state tables for 2,000 recorded (unit, hex, MP) requests | identical sets, same order |
+| 3 Units | `mtf_parser`, `equipment` + its JSON, `armor_rules`, `mech_state`, `structure_weight`, superheavy / ultralight tables | `units.json` for ALL 4,204 units in `data/meks.zip` | every unit identical |
+| 4 Damage and piloting | `rng` (TapeDice), `hit_location`, `damage_resolution`, `piloting_rolls`, `heat`, `equipment_systems`, `ammo`, `domino`, falls | function-level fixtures driven by the dice tape: (state before, call, dice) -> state after | identical states and log lines |
+| 5 Attacks | `expected_damage`, `weapon_profiles`, `weapon_rules`, `fire_modes`, `ams`, `electronics`, `arcs`, `advanced_weapons`, `advanced_equipment`, `capacitor`, `tag`, `smoke`, `attack_resolution`; then `physical`, `physical_gear`, `clubs`, `charge`, `dfa`, `movement_attacks` (the resolution parts) | per-phase: state before a phase + that phase's decisions + dice -> `trace.jsonl` line after it | identical for every recorded phase |
+| 6 The turn loop, bots off | `orchestrator`, `forces`, `stubs`, `config`, the log text, `results` as JSON; `cli` replays `decisions.json` | **whole battles**: `trace.jsonl` and `log.txt` for every fixture | every fixture byte for byte. THE ENGINE IS NOW PROVEN |
+| 7 Princess | `princess_fire`, `princess`, `princess_modern`, `princess_group`, `princess_memory`, `battle_value`, `bots` | bots ON for Princess units: the Rust must make the SAME decisions as `decisions.json` at every point (compare decision by decision; on the first mismatch dump both score lists) | Princess v Princess fixtures match with no decision file |
+| 8 Gladiator | `weapon_selection`, `future_damage`, `ranged_combat.MoveEvaluator`, `movement_selection` (all searches), `kill_curve`, `vision`, `peril`, `triage`, `tiers`, `legate` | as stage 7. Float order matters most here (trap 4): on a mismatch compare the two spots' score PARTS, find the first term that differs | every fixture plays from settings + dice alone and matches byte for byte |
+
+Stage 7 before 8 because Princess is simpler and has no look-ahead; it shakes out the decision plumbing.
+The 23 LAMs and anything `prepare_board` refuses are refused the same way in Rust (same message).
+
+## Stage 9 - cut over, then speed (only after stage 8 passes)
+
+1. `PcgDice`; `btsim` runs batches in parallel (`rayon`, one battle a thread, each battle its own seed as
+   `orchestrator.battle_seed` does) and writes results / stats / replay data as JSON in the shapes the Python
+   output modules read. `INTEGRATION__main.py` gains `config.ENGINE = "python" | "rust"`.
+2. A statistical check that the two engines are the same game on their own dice: 200 battles each of two duels
+   and one 12 v 12; wins, turns, damage dealt must agree within the T2 margin tool's interval.
+3. Measure. Then, and only then, speed work, one change at a time with every fixture still matching: the caches
+   the Python had (trap 9), flat arrays for board and unit data, no cloning in the scoring loops. The scoring
+   of spots (`MoveEvaluator.evaluate`, the reply look-ahead, Legate's estimate) is where the time is.
+4. Retire `fastcore/` (its code is now inside `engine/`). The Python engine stays in the repo as the reference
+   until Daniel says otherwise; new rules and bot work then happen in Rust, with the Python frozen.
+
+## How to work (for the translating model)
+
+- One stage, or one module group of a stage, per session. Start by reading this file and the stage row; end
+  with a commit, a Change Record entry and the stage table below updated. Do not start the next stage in the
+  same session if context is more than half used.
+- Order inside a stage: follow `INTEGRATION__CALL_GRAPH.md` - a module is translated after everything it imports.
+- A file over ~800 lines (`attack_resolution`, `orchestrator`, `movement_selection`, `mech_state`, `ranged_combat`,
+  `physical`, `damage_resolution`) is translated in pieces, section banner by section banner, building as you go.
+- When a comparison fails: run `tools/port_diff.py`, read the Python for that exact step, read your Rust for
+  that step, fix. If three attempts on the same difference fail, stop and write what you found under "Found on
+  the way" - do not work around it.
+- Never mark a stage done with a comparison skipped, shortened or made approximate. A stage that is 95%
+  matching is not done; say exactly which fixtures fail and where.
+- Rules questions do not arise in a translation: the Python is the rule. If something looks like a rules error,
+  write it down for Daniel; do not fix it on either side.
+- The Python's 55 checks must still pass at the end of every session (nothing but stage 0 touches the Python).
+
+## What to expect (estimates, not measurements)
+
+- **Speed.** Faithful Rust of this kind of code usually runs some tens of times faster than Python before any
+  tuning; how much here is unknown until stage 8 - the bots' scoring loops lean on dictionaries and small
+  objects, which translate to slower Rust than flat arrays would. Stage 9's tuning is where most of the gain
+  over the current Python-plus-fastcore build will come from. Measure, don't promise.
+- **Size.** ~27,000 lines of Python to translate. Stages 5, 6 and 8 are the big ones.
+- **Risk.** The likely failure is not a stage that cannot be done; it is a stage declared done that is not.
+  The whole-battle comparison at stages 6 and 8 is the protection - keep it exact.
+
+## Stage log (update as stages finish)
+
+| Stage | State | Session / date | Notes |
+|---|---|---|---|
+| T8 archive decision | waiting on Daniel | | |
+| 0 Comparison tools | not started | | |
+| 1 Geometry and board | not started | | |
+| 2 Sight and movement | not started | | parts exist in `fastcore/` (PathBoard, LosBoard, hex_distance) - reuse after checking against the fixtures |
+| 3 Units | not started | | |
+| 4 Damage and piloting | not started | | |
+| 5 Attacks | not started | | |
+| 6 Turn loop, bots off | not started | | |
+| 7 Princess | not started | | |
+| 8 Gladiator | not started | | |
+| 9 Cut over, speed | not started | | |
+
+## Found on the way (Python behaviour that looked wrong, or order-dependent; copied as is)
+
+(none yet)

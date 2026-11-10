@@ -18,6 +18,9 @@ GitHub logistics.
    the old "Pick up here" list, word for word (code comments that cite "Pick
    up here N" mean that list). `INTEGRATION__TASK_SPECS.md` holds task
    write-ups and which model each suits.
+   **Working on the Rust translation?** `INTEGRATION__RUST_PORT.md` is the
+   plan and its rules (the Python is the answer key and is frozen; exact
+   match or not done); `INTEGRATION__STATE.md` says what a battle's state is.
 3. `INTEGRATION__RULES_REVIEW.md` is the Core Rulebook vs code review: fixed
    items, the gap list to build, and open questions for Daniel.
 4. `INTEGRATION__CALL_GRAPH.md` shows the import structure, and `README.md` the
