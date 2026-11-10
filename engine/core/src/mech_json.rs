@@ -26,7 +26,7 @@ fn strs(v: &Value) -> Vec<String> {
     v.as_array().unwrap().iter().map(|x| x.as_str().unwrap().to_string()).collect()
 }
 
-fn armor_type_from(s: &str) -> ArmorType {
+pub fn armor_type_from(s: &str) -> ArmorType {
     match s {
         "ArmorType.STANDARD" => ArmorType::Standard,
         "ArmorType.REACTIVE" => ArmorType::Reactive,
@@ -41,7 +41,7 @@ fn armor_type_from(s: &str) -> ArmorType {
     }
 }
 
-fn structure_type_from(s: &str) -> StructureType {
+pub fn structure_type_from(s: &str) -> StructureType {
     match s {
         "StructureType.STANDARD" => StructureType::Standard,
         "StructureType.REINFORCED" => StructureType::Reinforced,

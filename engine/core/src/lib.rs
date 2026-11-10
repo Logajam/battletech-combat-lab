@@ -11,5 +11,6 @@ pub mod battle;
 pub mod mech_state;
 pub mod mech_json;
 pub mod damage_resolution;
+pub mod armor_rules;
 pub mod mtf_parser;
 pub mod pathfinder;

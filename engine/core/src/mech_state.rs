@@ -9,6 +9,42 @@ use crate::config::Config;
 use crate::equipment::{is_crit_target, Equipment, ItemId, Slot};
 use crate::pyfmt::Num;
 
+/// How damage is classed for the armor-type dispatch (mech_state.DamageType).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum DamageType {
+    Ballistic,
+    Energy,
+    Missile,
+    AreaEffect,
+    Physical,
+    Reengineered,
+}
+
+impl DamageType {
+    /// the Python enum member's `.name` (used in log lines)
+    pub fn name(&self) -> &'static str {
+        match self {
+            DamageType::Ballistic => "BALLISTIC",
+            DamageType::Energy => "ENERGY",
+            DamageType::Missile => "MISSILE",
+            DamageType::AreaEffect => "AREA_EFFECT",
+            DamageType::Physical => "PHYSICAL",
+            DamageType::Reengineered => "REENGINEERED",
+        }
+    }
+    pub fn from_name(n: &str) -> DamageType {
+        match n {
+            "BALLISTIC" => DamageType::Ballistic,
+            "ENERGY" => DamageType::Energy,
+            "MISSILE" => DamageType::Missile,
+            "AREA_EFFECT" => DamageType::AreaEffect,
+            "PHYSICAL" => DamageType::Physical,
+            "REENGINEERED" => DamageType::Reengineered,
+            other => panic!("damage type {}", other),
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum StructureType {
     Standard,
@@ -17,6 +53,12 @@ pub enum StructureType {
 }
 
 impl StructureType {
+    pub fn name(&self) -> &'static str {
+        &self.dump()[14..]
+    }
+    pub fn from_dump(s: &str) -> StructureType {
+        crate::mech_json::structure_type_from(s)
+    }
     pub fn dump(&self) -> &'static str {
         match self {
             StructureType::Standard => "StructureType.STANDARD",
@@ -40,6 +82,12 @@ pub enum ArmorType {
 }
 
 impl ArmorType {
+    pub fn name(&self) -> &'static str {
+        &self.dump()[10..]
+    }
+    pub fn from_dump(s: &str) -> ArmorType {
+        crate::mech_json::armor_type_from(s)
+    }
     pub fn dump(&self) -> &'static str {
         match self {
             ArmorType::Standard => "ArmorType.STANDARD",

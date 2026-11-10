@@ -387,3 +387,31 @@ impl Board {
         }
     }
 }
+
+impl Hex {
+    /// Reads back `to_json` (a fixture's board.json).
+    pub fn from_json(v: &Value) -> Hex {
+        let mut features = Features::default();
+        for (k, p) in v["features"].as_object().unwrap() {
+            features.0.insert(k.clone(), p.as_array().unwrap().iter().map(|x| x.as_str().unwrap().to_string()).collect());
+        }
+        let mut h = Hex::new(v["level"].as_i64().unwrap(), features);
+        h.impassable = v["impassable"].as_bool().unwrap();
+        h.surface_level = v.get("surface_level").and_then(|x| x.as_i64());
+        h.depth = v.get("depth").and_then(|x| x.as_i64());
+        h.ground_level = v.get("ground_level").and_then(|x| x.as_i64());
+        h.building = v.get("building").and_then(|x| x.as_bool()).unwrap_or(false);
+        h.smoke = v.get("smoke").map(|s| Smoke { density: s["density"].as_str().unwrap().to_string(), until: s["until"].as_i64().unwrap() });
+        h
+    }
+}
+
+impl Board {
+    pub fn from_json(v: &Value) -> Board {
+        Board {
+            width: v["width"].as_i64().unwrap(),
+            height: v["height"].as_i64().unwrap(),
+            hexes: v["hexes"].as_object().unwrap().iter().map(|(k, h)| (k.clone(), Hex::from_json(h))).collect(),
+        }
+    }
+}
