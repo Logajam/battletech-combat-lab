@@ -97,3 +97,21 @@ pub fn stub_tag_aim(b: &mut Battle, mech_name: &str, tn_mech: Option<i64>, tn_he
 pub fn stub_ammo_data(b: &mut Battle, mech_name: &str, weapon_name: &str) {
     b.warn_stub("ammo_data", &format!("{}'s {} fired with unlimited ammo (no shots-per-ton data)", mech_name, weapon_name));
 }
+
+/// Which ammo bin explodes from heat among the tied ones: a seeded random pick. `tied`: (location, bin name) pairs;
+/// returns the index picked.
+pub fn stub_heat_explosion_bin(b: &mut Battle, mech_name: &str, tied: &[(String, String)], damage_value: i64, unknown_names: &[String]) -> usize {
+    let pick = (b.pick_number(tied.len() as i64) - 1) as usize;
+    let mut notes: Vec<String> = Vec::new();
+    if !unknown_names.is_empty() {
+        let mut names: Vec<String> = unknown_names.to_vec();
+        names.sort();
+        names.dedup();
+        notes.push(format!("unknown damage value for {} (counted as 0)", crate::damage_resolution::py_str_list(&names)));
+    }
+    if tied.len() > 1 {
+        notes.push(format!("{} bins tie at damage value {} and shots left; controller's choice made at random", tied.len(), damage_value));
+    }
+    b.warn_stub("heat_explosion_bin", &format!("{}: {} -> {} in {}", mech_name, notes.join("; "), tied[pick].1, tied[pick].0));
+    pick
+}

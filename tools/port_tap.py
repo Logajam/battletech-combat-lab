@@ -55,6 +55,16 @@ GROUPS = {
                "hit_location.resolve_hit_location"],
     "ammo": ["ammo.parse_bin", "ammo.attach_ammo", "ammo.bins_for", "ammo.unavailable_weapons", "ammo.take",
              "ammo.inferno_heat", "ammo._update_explosion", "ammo.is_one_shot", "ammo.damage_per_shot"],
+    "heat": ["heat.resolve_heat_phase", "heat.movement_heat", "heat.engine_heat", "heat.other_heat",
+             "heat.weapon_heat_budget", "heat.choose_heat_sink_deactivation", "heat.apply_heat_effects",
+             "heat.choose_exploding_bin", "heat.live_ammo_bins", "heat.max_movement_heat", "heat.max_weapon_heat",
+             "heat.planned_cooling", "heat.weapon_fire_surcharge", "heat._extra_cooling", "heat._check_shutdown",
+             "heat._try_restart", "heat._check_ammo_explosion", "heat._life_support_hits", "heat.attach_heat_traits"],
+    "electronics": ["electronics.artemis_kind", "electronics.live_ecm", "electronics.hostile_field",
+                    "electronics.angel_field", "electronics.as_if_jammed", "electronics.artemis_blocked",
+                    "electronics.narc_blocked", "electronics.homing_working", "electronics.control_for",
+                    "electronics.munitions", "electronics.attach_pod", "electronics.activate_pods",
+                    "electronics.attach"],
 }
 
 

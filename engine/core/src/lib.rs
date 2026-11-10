@@ -27,3 +27,5 @@ pub mod piloting_rolls;
 pub mod hazards;
 pub mod mtf_parser;
 pub mod pathfinder;
+pub mod electronics;
+pub mod heat;

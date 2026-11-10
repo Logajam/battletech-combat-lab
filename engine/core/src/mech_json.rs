@@ -222,7 +222,12 @@ impl Mech {
             put!("has_stealth_armor", json!(self.has_stealth_armor));
             put!("torso_cockpit", json!(self.torso_cockpit));
             put!("escalating_turns", json!(self.escalating_turns));
-            put!("systems_used_this_turn", json!(self.systems_used_this_turn));
+            {
+                // a Python set: dumped sorted
+                let mut used = self.systems_used_this_turn.clone();
+                used.sort();
+                put!("systems_used_this_turn", json!(used));
+            }
             put!("turn_number", json!(self.turn_number));
             put!("pfd_active", json!(self.pfd_active));
             put!("pfd_turns_used", json!(self.pfd_turns_used));
