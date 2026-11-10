@@ -277,24 +277,29 @@ is `b.log.quiet += 1`.
 
 Translated and checked (function taps match the Python on every recorded call): pyfmt, hex_geometry, board_parser,
 terrain_rules, los, pathfinder, equipment, mtf_parser, mech_state (+ `mech_json`: every attribute, round-trips every recorded
-state), armor_rules, damage_resolution, hit_location, piloting_rolls, hazards, water (state parts), advanced_equipment,
-capacitor (crit_hit), equipment_systems, ammo (`fancy-regex`), heat, electronics, arcs (taps `armor state damage piloting
-ammo heat electronics arcs`; a Rust test per group in `engine/core/tests/tap_*.rs`).
-Compiled but NOT yet tapped: stubs (partial), weapon_rules, weapon_profiles, advanced_weapons, fire_modes (tables and
-predicates only), expected_damage, combat (hit_probability, fc_to_tmm; the rest of `pathfinder/combat.py` is dead code).
+state), armor_rules, damage_resolution, hit_location, piloting_rolls, hazards, water, advanced_equipment, capacitor (crit_hit),
+equipment_systems, ammo (`fancy-regex`), heat, electronics, arcs, attack_resolution (the resolution parts: hits, TAC, groupings,
+conditions), physical_gear, smoke.probe, physical._location. Taps: `armor state damage piloting ammo heat electronics arcs
+attack` (`python tools/port_tap.py GROUP [--limit N]`; keep a group's JSON under ~400 MB or the Rust test runs out of memory:
+`attack` uses `--limit 8`); a Rust test per group in `engine/core/tests/tap_*.rs`.
+Compiled but NOT yet checked against the Python: stubs (partial), weapon_rules, weapon_profiles, advanced_weapons,
+fire_modes (shot plan, options, `Planner`), expected_damage, combat (hit_probability, fc_to_tmm, direction_facing), ams,
+attack_resolution (`prepare_declaration` / `finish_declaration` / `run_ranged_phase`, the weapon CHOICE is a `RangedBot`),
+clubs, capacitor (attach / declare / end_phase), domino, charge, dfa, movement_attacks (displacement, groupings),
+physical (options, push, `run_physical_units`; the choice is a `PhysicalBot`), forces (`unit_in_hex` only), weapon_selection
+(range terms, heat limits). These are checked by Stage 6's whole-battle comparison (the first-difference tool says where).
 
-Next, in order (each: read the Python module fully, translate, add its functions to a tap GROUP, run the Rust test):
-1. `fire_modes` rest (ShotPlan, damage_per, column, grouping, expected_hit, kind_options, Planner - the Planner takes an
-   `Adjuster` struct standing for attack_resolution's `tn_adjuster` closure), `ams`, `physical_gear` (shields: `_protected`
-   needs `gear.shield_absorb` / `raised_blocks`), `domino`, `structure_weight` (bots).
-2. Stage 5: `weapon_selection` (the pure parts: `range_bracket`, `_weapon_range_mod`, `heat_limits`, knapsack; the fire
-   candidates need the Planner), `attack_resolution` (1,291 lines; read in full; `declare_attacks` ends in
-   `decisions.decide("declaration")`; skip `stats.*` and `timing.*`, they only log), `physical`, `clubs`, `charge`, `dfa`,
-   `movement_attacks`, `tag`, `smoke`, `deployment`, `ranged_combat` (movement options).
-3. Stage 6: `orchestrator`, `forces`, remaining `stubs`, the attach step (`_attach_mech_config`: compare Rust parse + attach
-   with `units.json`), `results`; then replay every fixture's `decisions.json` + `dice.json` and compare `trace.jsonl`
-   and `log.txt` (`tools/port_diff.py`).
-4. Stages 7-8: bots (all decision seams are in `INTEGRATION__bots.py`; `decisions.json` is the answer key).
+Next, in order (each: read the Python module fully, translate, add its functions to a tap GROUP when it takes only
+encodable arguments, run the Rust test):
+1. Stage 6 pieces: `forces` (initiative, movement / fire order, team lists, blocked hexes), `deployment`, `tag`, `results`,
+   `ranged_combat` (`movement_options`, `path_to`: the engine walks the bot's pick), the remaining `equipment_systems` /
+   `hazards` calls the orchestrator makes, then `orchestrator` itself (`_play_turn`, `_move`, `_walk_path`,
+   `_after_fall_midmove`, `_phase_heat`, `_phase_end`, `_finish`), a `Replayer` that reads `decisions.json` (kind, who, value,
+   dice_drawn to skip, log lines and stub warnings to re-emit), and a test per fixture comparing `log.txt` and `trace.jsonl`.
+2. Bot side (stages 7-8): `weapon_selection` (knapsack, fire candidates), `structure_weight`, the rest of `physical`
+   (`Worth`, `Planner`, `choose_attack`), `movement_attacks` (`MoverIndex`, `scored_options`, `displacement_worth`), the rest of
+   `pathfinder/combat.py` that the movement scoring uses, `ranged_combat` scoring, `movement_selection`, princess*, bots,
+   legate, tiers, peril, stack, kill_curve, battle_value, future_damage.
 
 ## Stage log (update as stages finish)
 
