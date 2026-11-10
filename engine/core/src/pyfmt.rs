@@ -180,6 +180,14 @@ impl Num {
             Num::F(f) => panic!("expected an int, got {}", f),
         }
     }
+    /// the value as an int (an int stays; a float that is a whole number is truncated) - for places the Python keeps a
+    /// quantity that is an int whenever its inputs were
+    pub fn as_int_or_trunc(self) -> i64 {
+        match self {
+            Num::I(i) => i,
+            Num::F(f) => f as i64,
+        }
+    }
     pub fn is_int(self) -> bool {
         matches!(self, Num::I(_))
     }

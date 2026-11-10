@@ -260,7 +260,12 @@ def _live_units():
 
 def item_table(units):
     """{id(item): (address, side_name)} for every Equipment object on every unit's crit table."""
-    return {i: (a, u.side_name) for u in units for i, a in id_table(u).items()}
+    out = {}
+    for u in units:
+        mem = ID_MEMORY.get(u.side_name, {})
+        for i, a in id_table(u).items():
+            out[i] = (mem.get(i, a), u.side_name)       # an item keeps the address it had when the battle started
+    return out
 
 
 def rt_encode(obj, units, table=None):

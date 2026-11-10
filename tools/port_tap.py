@@ -140,11 +140,28 @@ class Tap:
         def warn(name, msg):
             warns.append([name, msg])
             return warn0(name, msg)
-        config.log, stubs._warn = log, warn
+        import builtins
+        print0 = builtins.print
+        flag = {"in_log": False}
+
+        def log_flagged(msg=""):
+            flag["in_log"] = True
+            try:
+                return log(msg)
+            finally:
+                flag["in_log"] = False
+
+        def print_tap(*a, **kw):
+            if not flag["in_log"] and kw.get("file") is None:
+                lines.append(kw.get("sep", " ").join(str(x) for x in a))   # a bare print: part of stdout, never quiet
+            return print0(*a, **kw)
+        config.log, stubs._warn = log_flagged, warn
+        builtins.print = print_tap
         try:
             ret = orig(*args, **kwargs)
         finally:
             config.log, stubs._warn = log0, warn0
+            builtins.print = print0
         after = {m.side_name: pr.dump_unit(m, names, pr.ID_MEMORY.setdefault(m.side_name, pr.id_table(m))) for m in mechs}
         try:
             enc_ret = pr.rt_encode(ret, units, None)

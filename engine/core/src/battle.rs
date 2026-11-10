@@ -124,10 +124,19 @@ impl Battle {
     pub fn log(&mut self, msg: impl Into<String>) {
         self.log.log(msg);
     }
+    /// a bare `print` (not config.log): never dropped by a dry run's quiet
+    pub fn print(&mut self, msg: impl Into<String>) {
+        self.log.lines.push(msg.into());
+    }
     /// `stubs._warn`: counts the stub and prints its warning to stderr.
     pub fn warn_stub(&mut self, name: &str, msg: &str) {
         *self.stub_counts.entry(name.to_string()).or_insert(0) += 1;
         self.log.stderr.push(format!("STUB: {} - {}", name, msg));
+    }
+    /// `mech_state.is_destroyed(mech)` (reads config.FIGHT_TO_THE_DEATH).
+    pub fn is_destroyed(&mut self, u: UnitId) -> bool {
+        let ttd = self.cfg.has("FIGHT_TO_THE_DEATH") && self.cfg.b("FIGHT_TO_THE_DEATH");
+        crate::mech_state::is_destroyed(&mut self.units[u], ttd)
     }
     pub fn unit_index(&self, side_name: &str) -> UnitId {
         self.units.iter().position(|u| u.side_name.as_deref() == Some(side_name)).unwrap_or_else(|| panic!("no unit {}", side_name))

@@ -19,8 +19,7 @@ fn state_queries_match_python() {
         let ret = decode(&rec["ret"]);
         match f {
             "mech_state.is_destroyed" => {
-                let cfg = b.cfg.clone();
-                assert_eq!(is_destroyed(&mut b.units[u], &cfg), ret.bool(), "{}", f);
+                assert_eq!(b.is_destroyed(u), ret.bool(), "{}", f);
             }
             "mech_state.is_crippled" => assert_eq!(is_crippled(&b.units[u]), ret.bool()),
             "mech_state.compute_walk_mp" => assert_eq!(compute_walk_mp(&b.units[u]), ret.int()),

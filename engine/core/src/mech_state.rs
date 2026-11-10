@@ -5,7 +5,6 @@
 use indexmap::{IndexMap, IndexSet};
 use serde_json::{json, Map, Value};
 
-use crate::config::Config;
 use crate::equipment::{is_crit_target, Equipment, ItemId, Slot};
 use crate::pyfmt::Num;
 
@@ -888,7 +887,7 @@ fn has_ranged_weapon(mech: &Mech) -> bool {
 }
 
 /// True if the 'Mech is destroyed (and records the cause the first time). Reads config.FIGHT_TO_THE_DEATH.
-pub fn is_destroyed(mech: &mut Mech, cfg: &Config) -> bool {
+pub fn is_destroyed(mech: &mut Mech, to_the_death: bool) -> bool {
     if mech.destroyed {
         return true;
     }
@@ -902,7 +901,6 @@ pub fn is_destroyed(mech: &mut Mech, cfg: &Config) -> bool {
         mech.cause_of_death = Some("Head Destroyed".into());
         return true;
     }
-    let to_the_death = cfg.has("FIGHT_TO_THE_DEATH") && cfg.b("FIGHT_TO_THE_DEATH");
     if !to_the_death && legs_gone(mech) {
         mech.destroyed = true;
         mech.cause_of_death = Some("Legs Destroyed".into());
