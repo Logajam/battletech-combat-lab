@@ -6,6 +6,22 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-10 (Claude, session 22), RUST PORT STAGE 0 DONE: THE COMPARISON TOOLS. New tools and tests; a pass-through seam in two engine files; no behaviour change. REVIEW PENDING (higher-level model).**
+  Daniel: "Its time to convert the monte carlo into rust" and "Go ahead. This is a work until its done project." Built, per `INTEGRATION__RUST_PORT.md` stage 0:
+  NEW `tools/port_record.py` (plays battle 1 under a scenario with read-only hooks; writes config / units / board / dice tape / decisions / per-phase state
+  trace / log; `--replay` plays it back from dice + decisions with every bot switched off), `tools/port_diff.py` (first differing line, unit and field, with the
+  dice drawn; `normalize_log`), `tools/port_scenarios.py` (63 fixture battles: the 15 reference, 6 team - 4 v 4 and 12 v 12, Princess / Gladiator mixes, a 3-way -
+  and 42 coverage battles of units unpacked from data/meks.zip), `tools/port_fixtures.py` (records every scenario and replays it in Python: trace, dice position,
+  stdout and stub warnings must be identical), `tools/port_coverage.py` (coverage.py over the fixtures; per-scenario data kept, so a new scenario costs one run),
+  `tests/test_port_record.py` (14 checks; the self-replay of four fixtures). NEW `INTEGRATION__decisions.py`: the decision seam - `decide(kind, ctx, compute)` is a
+  plain call of `compute()` in normal play. ENGINE EDITS (behaviour-neutral, all 56 checks and the benchmark 501 / 495 identical): `INTEGRATION__bots.py` routes
+  `choose_movement`, `choose_foe`, `choose_target`, the firing-order pick and `choose_physical` through it; `INTEGRATION__attack_resolution._declare` wraps the
+  weapon / twist choice (`choose_declaration`, same code moved into a local function). RESULT: all 63 fixtures replay exactly. Coverage: 182 of 1,327 engine
+  functions are not reached; `engine/COVERAGE_GAPS.md` sorts them (experiments T8 would archive 50; entry points, dead code and glue 47; rules the bots rarely
+  trigger - DFA, domino, bogging, harjel and similar - 71, to be covered by scripted function-level fixtures in stages 4-5; Princess branches 14). FOUND ON THE WAY
+  (RUST_PORT "Found on the way"): smoke-clear lines print in set order; Gladiator's bot draws dice; the engine reads the move search's PSR table; dead code in
+  `pathfinder/combat.py`. The fixture format is written up in RUST_PORT "The fixture format". Open for Daniel before stage 1: T8 (archive the experiments).
+
 - **2026-11-10 (Claude, session 21), PLANS SAVED FOR LOWER MODELS: THE RUST TRANSLATION, THE BATTLE STATE, THE MOVE SCORE. Documents only. REVIEW PENDING (higher-level model).**
   Daniel: "Go ahead and save your recommendations ... your Fable form is only temporary, So I'll probably be making do with lower models. For my next trick. Going
   to have Sonnet translate the monte carlo into rust. Just bite the bullet and remove translation as a source of slowdown." NEW `INTEGRATION__RUST_PORT.md`: the

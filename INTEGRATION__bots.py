@@ -29,6 +29,7 @@ rate of fire, MASC, AMS, heat sinks...) is shared by both bots.
 import contextlib
 
 import INTEGRATION__config as config
+import INTEGRATION__decisions as decisions      # the decision seam (RUST PORT stage 0b): a pass-through in normal play
 import INTEGRATION__stubs as stubs
 import INTEGRATION__movement_selection as movement_selection
 import INTEGRATION__forces as forces
@@ -62,6 +63,11 @@ def bot_for(cfg):
 def choose_movement(mover, other, terrain_map, battle_rng, moves_first, standup_mp=None, entry_edge=None):
     """The mover's end-of-movement pick, from the mover's own bot. Same
     arguments and return as movement_selection.choose: (pick, note)."""
+    return decisions.decide("move", (mover, other, standup_mp, entry_edge), lambda: _choose_movement(
+        mover, other, terrain_map, battle_rng, moves_first, standup_mp, entry_edge))
+
+
+def _choose_movement(mover, other, terrain_map, battle_rng, moves_first, standup_mp, entry_edge):
     if mover.bot == PRINCESS and config.PRINCESS_VERSION == "modern":
         return princess_modern.choose(mover, other, terrain_map, battle_rng, moves_first,
                                       standup_mp=standup_mp, entry_edge=entry_edge)
@@ -76,6 +82,10 @@ def choose_foe(mover, units, terrain_map):
     """The enemy this unit's movement is planned against: for a Gladiator with Legate on, the enemy
     expected to score highest against it among those yet to move (INTEGRATION__legate.foe_for); else the
     nearest (forces.choose_foe)."""
+    return decisions.decide("foe", (mover,), lambda: _choose_foe(mover, units, terrain_map))
+
+
+def _choose_foe(mover, units, terrain_map):
     if mover.bot == GLADIATOR:
         foe = legate.foe_for(mover, units, terrain_map)
         if foe is not None:
@@ -84,6 +94,10 @@ def choose_foe(mover, units, terrain_map):
 
 
 def choose_target(attacker, units, terrain_map):
+    return decisions.decide("target", (attacker,), lambda: _choose_target(attacker, units, terrain_map))
+
+
+def _choose_target(attacker, units, terrain_map):
     """The one enemy this unit's bot fires at in the Ranged Attack Phase:
     Princess takes the enemy its firing plans rate highest, with the damage
     its friends have already declared counted (INTEGRATION__princess_group).
@@ -141,11 +155,13 @@ def fire_pick(units, terrain_map):
         return (1, guns[id(u)])
 
     def pick(candidates):
-        best = max(candidates, key=rank)            # max keeps the first of equals: roster order
-        if best.bot != PRINCESS and len(candidates) > 1:
-            config.log(f"  [Ranged] Firing order: {best.side_name} declares next "
-                       f"(big guns first: expected {guns[id(best)]:.1f}).")
-        return best
+        def compute():
+            best = max(candidates, key=rank)            # max keeps the first of equals: roster order
+            if best.bot != PRINCESS and len(candidates) > 1:
+                config.log(f"  [Ranged] Firing order: {best.side_name} declares next "
+                           f"(big guns first: expected {guns[id(best)]:.1f}).")
+            return best
+        return decisions.decide("fire_pick", (tuple(candidates),), compute)
     return pick
 
 
@@ -195,6 +211,10 @@ def plans_physical_with_fire(attacker):
 
 def choose_physical(attacker, target, terrain_map):
     """The attacker's physical attack: (base TN, [options], arc action) or None."""
+    return decisions.decide("physical", (attacker, target), lambda: _choose_physical(attacker, target, terrain_map))
+
+
+def _choose_physical(attacker, target, terrain_map):
     if attacker.bot == PRINCESS:
         return princess_fire.choose_physical(attacker, target, terrain_map)
     import INTEGRATION__physical as physical          # physical imports the attack modules

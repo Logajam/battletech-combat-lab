@@ -151,6 +151,53 @@ unit, field, both values - and the last decision and dice call before it. This i
 **Done when:** fixtures recorded, the Python self-replay test passes on all of them, the coverage list is in this
 file, 55 checks identical.
 
+## The fixture format (what stage 0 built - the Rust tests read this)
+
+`python tools/port_fixtures.py` writes one folder per scenario of `tools/port_scenarios.py` under `engine/fixtures/`
+(git-ignored; recording is byte-for-byte repeatable, so any session rebuilds it; run with `PYTHONHASHSEED=0`, which the
+tool sets). Units that are not in `data/` are unpacked from `data/meks.zip` into `engine/fixtures/_units/`.
+
+| File | Holds |
+|---|---|
+| `overrides.json` | the config statements and turn cap the battle ran under (replay reads this) |
+| `config.json` | every UPPERCASE setting in force (the Rust `Config` is loaded from this) |
+| `units.json` | each unit as loaded, before turn 1: EVERY attribute of the Python mech, by reflection, in insertion order. Equipment objects are `{"_type": "Equipment", ...}`; ids are written as slot addresses |
+| `board.json` | the parsed board (after `prepare_board`) |
+| `dice.json` | the dice tape: `["r", 0, sum]` = `roll_2d6`, `["p", n, k]` = `pick_number(n)`, in call order |
+| `decisions.json` | every bot decision, in order (below) |
+| `trace.jsonl` | one line per phase mark (Deployment, each unit's move, Ranged attacks, Physical attacks, Heat and end phase): turn, phase, `dice_used`, every unit's full state, the board's changes (smoke, severed limbs, broken crust). Keys sorted |
+| `log.txt` | `# stdout`, the log, then `# stderr (stub warnings)`; the same layout as `reference_logs/` |
+
+**Locations and slot addresses.** A critical slot / item / weapon is written `"<Location>#<slot index>"`, the FIRST
+slot holding the item ("Right Arm#3"). Units are written as their `side_name`.
+
+**Decision records** (`decisions.json`, a list): `{"n", "kind", "who", "phase", "dice_before", "dice_drawn", "log",
+"stubs", "value"}`. Kinds: `foe` (a unit name), `target` (unit name or null), `fire_pick` (the unit that declares next
+among the candidates), `move` ((pick, note, psr count at the pick, hazard at the pick)), `physical` (the physical attack
+or null), `declaration` (the ranged declaration: value, (weapons, expected damage, weapon heat), arc key, arc action,
+the physical plan declared alongside, the limbs' weapons held back as slot addresses). `dice_drawn` is the number of dice
+the BOT itself drew while deciding (Gladiator's tie-breaks do: `pick_number` in `movement_selection`); those dice are on
+the tape at that place, so the Rust bot must draw them at the same place (stage 8). `log` and `stubs` are the log
+lines and stub warnings printed while deciding: a replay prints them again. Only the OUTERMOST decision is recorded
+(a bot's dry runs inside it are its own thinking).
+
+**Value encoding (`rt_encode`)**: JSON has no tuple, set or enum, so: `{"_t": [...]}` tuple, `{"_fs": [...]}` frozenset
+(sorted), `{"_nt": "ArcAction", field: ...}` namedtuple, `{"_enum": "Cls.NAME"}`, `{"_d": [[k, v], ...]}` a dict with
+non-text keys, `{"_unit": name}`, `{"_item": address, "of": unit}` an Equipment object.
+
+**The seam**: `INTEGRATION__decisions.decide(kind, ctx, compute)` wraps those decisions in the engine (`bots.py`, and the
+declaration inside `attack_resolution._declare`). In normal play it only calls `compute()`; the recorder sets
+`decisions.MODE = "record"`, `tools/port_record.py --replay DIR OUT` sets `"replay"` (nothing computes; recorded
+answers, dice and the lines printed are played back). Bot SCRATCH that the engine reads afterwards rides in the
+decision: the move search's `path_psrs` / `path_hazard` tables are kept out of the trace (the pick's entries are in the
+`move` record). Equipment and mech memos set on first use (`_special`, `_has_profile`, `_no_shields`, `_aes_cache`)
+are not dumped.
+
+**Not recorded because the engine re-computes them from state**: stub answers (rate of fire, munition, MASC use, unjam,
+capacitor, shields, TAG, heat-explosion bin...) are pure functions of state and config - the Rust translates the stubs
+themselves; their warnings are in the log. Decisions a unit's bot makes only when `config.LEGATE`, `TIERS` or the Princess
+group switches ask (Legate's estimate, tiers, memory) are bot-internal: they matter in stages 7-8.
+
 ## Stages 1-8 (each: translate, compare, commit; a fresh session per stage or per module group)
 
 For every module: read the Python file fully; translate top to bottom; `cargo build`; write a comparison test
@@ -218,7 +265,7 @@ The 23 LAMs and anything `prepare_board` refuses are refused the same way in Rus
 | Stage | State | Session / date | Notes |
 |---|---|---|---|
 | T8 archive decision | waiting on Daniel | | |
-| 0 Comparison tools | not started | | |
+| 0 Comparison tools | DONE (session 22, 2026-11-10): 63 fixtures (15 reference, 6 team, 42 coverage) record and replay in Python exactly (trace, dice position, stdout, stub warnings); 182 of 1,327 engine functions are not reached - listed and sorted in `engine/COVERAGE_GAPS.md`. 56 of 56 checks, benchmark 501 / 495 unchanged | session 22, 2026-11-10 | `python tools/port_fixtures.py` rebuilds `engine/fixtures/` (git-ignored, about 0.5 GB, several minutes on 4 cores) |
 | 1 Geometry and board | not started | | |
 | 2 Sight and movement | not started | | parts exist in `fastcore/` (PathBoard, LosBoard, hex_distance) - reuse after checking against the fixtures |
 | 3 Units | not started | | |
@@ -231,4 +278,17 @@ The 23 LAMs and anything `prepare_board` refuses are refused the same way in Rus
 
 ## Found on the way (Python behaviour that looked wrong, or order-dependent; copied as is)
 
-(none yet)
+1. **Smoke clears in hash order** (`smoke.end_phase` loops over a `set` of labels). Two clouds that end the same turn print
+   their "[End] The smoke at XXXX clears." lines in either order from one process to the next (string hashing). State
+   is unaffected. The Rust prints them sorted by label; `tools/port_diff.normalize_log` sorts such runs before comparing.
+2. **Gladiator's bot draws dice** for tie-breaks (`movement_selection` lines ~489 and ~499, `rng.pick_number`): the
+   decision records say how many (`dice_drawn`). The dice tape position after a move depends on it.
+3. **The move search's tables are read by the engine** (`mover.path_psrs` / `path_hazard`: `orchestrator._walk_path`
+   asks the search's table whether the walk has terrain PSRs or hazards). The Rust engine should derive that from the
+   path itself (stage 2), and must give the same answer as the search's table at the picked state.
+4. **`hp_log`, `armor_at_turn_start` and `preexisting_damage_snapshot`** live on the mech and feed bot scoring; they are
+   in the unit dump, so the Rust `Mech` carries them.
+5. **Dead code in `pathfinder/combat.py`**: `compute_score`, `evaluate_combat_hexes`, `validate_profiles` and the legacy
+   evaluator are not called by the integrated engine (the file's movement pieces are). Not translated.
+6. **A mixed-in `weapon_locations` quirk**: it lists destroyed weapons' instance ids too (`destroyed_slot_info`), and the
+   ranged declaration's "held" set can name them; the decision records write them as the slot addresses the items had.
