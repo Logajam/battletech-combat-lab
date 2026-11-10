@@ -208,7 +208,7 @@ test to replay. `fastcore`'s `tests/test_fastcore.py` is the model for this.
 
 | Stage | Translate | Compared against | Done when |
 |---|---|---|---|
-| 1 Geometry and board | `hex_geometry`, `board_parser`, `terrain_rules` (incl. `prepare_board`), stitched maps (`map_picker` stitching only) | `board.json` for every map in `data/maps.zip` that plays (174); distance / neighbours / lines on 100k random pairs | every board identical |
+| 1 Geometry and board | DONE (session 22): `engine/` workspace, crate `btsim_core`: `pyfmt`, `hex_geometry`, `los::hex_distance`, `board_parser` (incl. stitching), `terrain_rules`. `cargo test --release` (from `engine/`) after `python tools/port_stage1.py`: all 356 boards load or are refused with the Python's exact message and warnings (passive and full buildings), 100k label round trips and 100k hex distances, 20 stitched grids and refusals, 60k terrain-rule cases (step_cost, psrs, hazards) identical | session 22, 2026-11-10 | |
 | 2 Sight and movement | `los`, `los_cache` logic (no cache), `pathfinder`, `combat` (movement pieces), `ranged_combat._movement_options`, `water` / `hazards` movement parts, `deployment` | LOS result for every hex pair on 10 boards; reachable-state tables for 2,000 recorded (unit, hex, MP) requests | identical sets, same order |
 | 3 Units | `mtf_parser`, `equipment` + its JSON, `armor_rules`, `mech_state`, `structure_weight`, superheavy / ultralight tables | `units.json` for ALL 4,204 units in `data/meks.zip` | every unit identical |
 | 4 Damage and piloting | `rng` (TapeDice), `hit_location`, `damage_resolution`, `piloting_rolls`, `heat`, `equipment_systems`, `ammo`, `domino`, falls | function-level fixtures driven by the dice tape: (state before, call, dice) -> state after | identical states and log lines |
@@ -264,7 +264,7 @@ The 23 LAMs and anything `prepare_board` refuses are refused the same way in Rus
 
 | Stage | State | Session / date | Notes |
 |---|---|---|---|
-| T8 archive decision | waiting on Daniel | | |
+| T8 archive decision | DECIDED by Daniel 2026-11-10: NOTHING is archived - Peril, stack, herding, cohesion, team value, exchange, kill curve, tiers stay ("active research into bot logic") and are translated like everything else | session 22 | |
 | 0 Comparison tools | DONE (session 22, 2026-11-10): 63 fixtures (15 reference, 6 team, 42 coverage) record and replay in Python exactly (trace, dice position, stdout, stub warnings); 182 of 1,327 engine functions are not reached - listed and sorted in `engine/COVERAGE_GAPS.md`. 56 of 56 checks, benchmark 501 / 495 unchanged | session 22, 2026-11-10 | `python tools/port_fixtures.py` rebuilds `engine/fixtures/` (git-ignored, about 0.5 GB, several minutes on 4 cores) |
 | 1 Geometry and board | not started | | |
 | 2 Sight and movement | not started | | parts exist in `fastcore/` (PathBoard, LosBoard, hex_distance) - reuse after checking against the fixtures |
