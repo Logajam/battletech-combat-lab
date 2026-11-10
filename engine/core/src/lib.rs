@@ -18,6 +18,8 @@ pub mod equipment_systems;
 pub mod capacitor;
 pub mod water;
 pub mod stubs;
+pub mod weapon_rules;
+pub mod weapon_profiles;
 pub mod piloting_rolls;
 pub mod hazards;
 pub mod mtf_parser;

@@ -260,6 +260,37 @@ The 23 LAMs and anything `prepare_board` refuses are refused the same way in Rus
 - **Risk.** The likely failure is not a stage that cannot be done; it is a stage declared done that is not.
   The whole-battle comparison at stages 6 and 8 is the protection - keep it exact.
 
+
+## Where the translation stands and how to continue (written session 22, 2026-11-10)
+
+Rust crate: `engine/core` (`btsim_core`). Run everything from `engine/`: `cargo test --release`. The tests read
+`engine/fixtures/` (git-ignored): `python tools/port_fixtures.py --no-replay` (63 battles), `python tools/port_stage1.py`,
+`python tools/port_stage2.py`, `python tools/port_stage3.py`, and `python tools/port_tap.py GROUP` for the function-level
+groups (`armor state damage piloting`; add groups in `tools/port_tap.py` `GROUPS`).
+
+Design that every module follows (see `battle.rs`): NO globals. `Battle` owns config, dice (`Dice` trait; `TapeDice`
+replays a recorded tape), log (`Log`: stdout lines + stub warnings), the board, `units: Vec<Mech>` and the tables the Python
+keeps in modules. Functions are `fn f(b: &mut Battle, u: UnitId, ...)`. A mech owns its Equipment arena (`items`, `ItemId`);
+slots are `Slot::Name | Slot::Item(id)`. Armor / structure / damage are `pyfmt::Num` (Python int-or-float, printed like
+Python). Log text must match the Python exactly (`b.log(...)`; a bare `print` is `b.print(...)`, never quiet). A dry run
+is `b.log.quiet += 1`.
+
+Translated and checked: pyfmt, hex_geometry, board_parser, terrain_rules, los, pathfinder, equipment, mtf_parser,
+mech_state (+ `mech_json`: every attribute, round-trips every recorded state), armor_rules, damage_resolution,
+hit_location, piloting_rolls, hazards, water (state parts), advanced_equipment, capacitor (crit_hit), equipment_systems,
+stubs (partial), weapon_rules, weapon_profiles (compiled, not yet tapped).
+
+Next, in order (each: read the Python module fully, translate, add its functions to a tap GROUP, run the Rust test):
+1. `ammo` (needs the `fancy-regex` crate: its patterns use lookaheads), `advanced_weapons` (read to line 200 so far),
+   `fire_modes`, `expected_damage`, `electronics`, `ams`, `heat` (read in full), `domino`, `structure_weight`.
+2. Stage 5: `arcs`, `weapon_selection`, `attack_resolution` (1,291 lines; the tap will need `Planner` etc.), `physical`,
+   `physical_gear`, `clubs`, `charge`, `dfa`, `movement_attacks`, `tag`, `smoke`, `deployment`, `ranged_combat`
+   (movement options) and the movement parts of `pathfinder/combat.py`.
+3. Stage 6: `orchestrator`, `forces`, remaining `stubs`, the attach step (`_attach_mech_config`: compare Rust parse + attach
+   with `units.json`), `results`; then replay every fixture's `decisions.json` + `dice.json` and compare `trace.jsonl`
+   and `log.txt` (`tools/port_diff.py`).
+4. Stages 7-8: bots (all decision seams are in `INTEGRATION__bots.py`; `decisions.json` is the answer key).
+
 ## Stage log (update as stages finish)
 
 | Stage | State | Session / date | Notes |
