@@ -12,6 +12,20 @@ import json
 import sys
 
 
+def normalize_log(text):
+    """The log with every run of consecutive '[End] The smoke at XXXX clears.' lines sorted by label: smoke.end_phase
+    loops over a Python set of labels, so which cloud clears first changes from process to process (string hashing is
+    randomised) - "Found on the way" in INTEGRATION__RUST_PORT.md. Nothing else in a log is order-free."""
+    out, run = [], []
+    for line in text.split("\n"):
+        if line.startswith("  [End] The smoke at ") and line.endswith(" clears."):
+            run.append(line)
+            continue
+        out += sorted(run) + [line]
+        run = []
+    return "\n".join(out + sorted(run))
+
+
 def first_diff(a, b, path=""):
     """(path, a_value, b_value) of the first difference, walking dicts in sorted key order; None if equal."""
     if isinstance(a, dict) and isinstance(b, dict):

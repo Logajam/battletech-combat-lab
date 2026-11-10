@@ -93,6 +93,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 import INTEGRATION__config as config
+import INTEGRATION__decisions as decisions     # the decision seam (RUST PORT stage 0b): a pass-through in normal play
 import INTEGRATION__stubs as stubs
 import INTEGRATION__weapon_selection as weapon_selection
 import INTEGRATION__heat as heat
@@ -616,25 +617,31 @@ def _declare(attacker, target, terrain_map, report, dry):
                  if distance == 1 and bots.plans_physical_with_fire(attacker) else None)
     # Which bot's fire control picks the weapons (2026-10-27, INTEGRATION__bots).
     fire_context, chooser = bots.fire_control(attacker)
-    actions = arcs.arc_options(attacker) if plans_for else tuple(a for _, a in arc_choices)
-    legs = arcs.leg_offsets(attacker)
-    picked_cache = {}
-    best = None
-    with fire_context:
-        for action in actions:
-            key = arcs.key_for(pair_arcs, a_facing, action, legs)
-            for phys_value, limbs, phys_picks in (plans_for(action) if plans_for else ((0.0, (), []),)):
-                held = physical.limb_weapon_ids(attacker, limbs) if limbs else frozenset()
-                picked = picked_cache.get((key, held))
-                if picked is None:
-                    picked = picked_cache[(key, held)] = weapon_selection.select_weapons_to_fire(
-                        attacker, distance, sel_pre_tn, attacker.min_heat, attacker.max_heat,
-                        dissipation=dissipation, movement_heat=attacker.movement_heat, other_heat=other,
-                        tn_adjust=adjust, unavailable=unavailable | arc_unavailable(attacker, key) | held,
-                        planner=planner, side=side)
-                total = picked[1] + phys_value
-                if best is None or total > best[0] + 1e-12:
-                    best = (total, picked, key, action, phys_picks, phys_value, held)
+    def choose_declaration():
+        """The bot's choice: (value, (weapons, expected damage, weapon heat), arc key, arc action, the physical
+        attack planned alongside, its value, the limbs' weapons held back). THE decision of this declaration,
+        so it goes through the decision seam (RUST PORT stage 0b) when it is real, not a dry run."""
+        actions = arcs.arc_options(attacker) if plans_for else tuple(a for _, a in arc_choices)
+        legs = arcs.leg_offsets(attacker)
+        picked_cache = {}
+        best = None
+        with fire_context:
+            for action in actions:
+                key = arcs.key_for(pair_arcs, a_facing, action, legs)
+                for phys_value, limbs, phys_picks in (plans_for(action) if plans_for else ((0.0, (), []),)):
+                    held = physical.limb_weapon_ids(attacker, limbs) if limbs else frozenset()
+                    picked = picked_cache.get((key, held))
+                    if picked is None:
+                        picked = picked_cache[(key, held)] = weapon_selection.select_weapons_to_fire(
+                            attacker, distance, sel_pre_tn, attacker.min_heat, attacker.max_heat,
+                            dissipation=dissipation, movement_heat=attacker.movement_heat, other_heat=other,
+                            tn_adjust=adjust, unavailable=unavailable | arc_unavailable(attacker, key) | held,
+                            planner=planner, side=side)
+                    total = picked[1] + phys_value
+                    if best is None or total > best[0] + 1e-12:
+                        best = (total, picked, key, action, phys_picks, phys_value, held)
+        return best
+    best = choose_declaration() if dry else decisions.decide("declaration", (attacker, target), choose_declaration)
     _, (weapons, exp_dmg, weapon_heat), chosen_key, chosen, phys_picks, phys_value, held = best
     if dry:
         return (exp_dmg, _plan_damage(attacker, weapons, planner, distance, sel_pre_tn), side) if weapons else None

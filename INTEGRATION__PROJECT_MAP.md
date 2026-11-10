@@ -108,7 +108,7 @@ standoff, sprinting, multi-target fire, unit orders. Open call (Daniel): Short-S
 - C6. Other unit types; scenario features (objectives, fog of war).
 
 **D. Engine, speed, state**
-- **D1. THE RUST TRANSLATION - Daniel's next step (2026-11-10: "have Sonnet translate the monte carlo into
+- **D1. THE RUST TRANSLATION (stage 0 DONE, session 22; next stage 1 after Daniel's T8 call) - Daniel's next step (2026-11-10: "have Sonnet translate the monte carlo into
   rust. Just bite the bullet and remove translation as a source of slowdown").** Plan, traps, stages and the
   stage log: `INTEGRATION__RUST_PORT.md` (spec T11). The Python stays as the answer key and its behaviour is
   FROZEN while the port runs - so decide T8 and build or park T1 first. Engine and both bots go to Rust; output
@@ -136,6 +136,10 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(o) RUST PORT STAGE 0** (session 22; Change Record "RUST PORT STAGE 0 DONE"). Review: the decision seam changes nothing in
+  normal play (`INTEGRATION__decisions.decide` calls `compute()`; the `choose_declaration` move in `attack_resolution._declare`
+  is the same code); the recorder's hooks only read; the replay's completeness argument (an exact replay with the bots off proves
+  the decision list holds everything the engine needs from them); the coverage list `engine/COVERAGE_GAPS.md`.
 - **(m) BATTLE STATISTICS** (session 20). Review: the three engine hooks only read (`attack_resolution.
   run_ranged_phase`, `physical.run_physical_units`, the orchestrator's turn loop); per-attack damage is a total-HP
   difference around each attack (a hit that sets off an ammo explosion counts the explosion); kill credit = the

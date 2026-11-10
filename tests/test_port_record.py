@@ -6,7 +6,10 @@ tests/test_port_record.py - RUST PORT, STAGE 0 (INTEGRATION__RUST_PORT.md): chec
 3. The trace has no raw memory addresses, and one line per phase, and the tape length matches the last line.
 4. port_diff finds a planted difference and names it.
 
-NOT YET (stage 0b, in INTEGRATION__RUST_PORT.md's stage log): the decisions list and its Python self-replay.
+5. The Python self-replay (stage 0b): a recorded battle played again from dice.json + decisions.json alone, no bot
+   thinking, gives the same trace, dice position, log and stub warnings - so the decision list is complete. A few
+   quick fixtures here (a duel, a missile duel, a 4 v 4 of Princess, a melee); `python tools/port_fixtures.py`
+   does all 48.
 """
 import json
 import os
@@ -22,7 +25,7 @@ NAME = "Kontio_vs_Hammerhead_seed12345.txt"
 
 
 def record(out_dir):
-    env = dict(os.environ, INTEGRATION_DATA_DIR="./data", PYTHONIOENCODING="utf-8")
+    env = dict(os.environ, INTEGRATION_DATA_DIR="./data", PYTHONIOENCODING="utf-8", PYTHONHASHSEED="0")
     subprocess.run([sys.executable, "tools/port_record.py", "--reference", NAME, out_dir],
                    cwd=REPO_ROOT, env=env, check=True, capture_output=True)
 
@@ -58,6 +61,14 @@ def main():
         proc = subprocess.run([sys.executable, "tools/port_diff.py", os.path.join(a, "trace.jsonl"),
                                os.path.join(b, "bad.jsonl")], cwd=REPO_ROOT, capture_output=True, text=True)
         check("port_diff names a planted difference", proc.returncode == 1 and "FIRST DIFFERENCE" in proc.stdout)
+    sys.path.insert(0, os.path.join(REPO_ROOT, "tools"))
+    import port_fixtures
+    with tempfile.TemporaryDirectory() as out:
+        for name in ("ref_Atlas_AS7-K_vs_Archer_ARC-2R_seed2", "ref_Kintaro_KTO-19_vs_Atlas_AS7-K_seed2",
+                     "team_4v4_princess_v_princess", "cov_melee_mace_sword"):
+            _, ok, _, note = port_fixtures.one(name, out)
+            print(("PASS  " if ok else "FAIL  ") + f"self-replay of {name}: {note.splitlines()[0]}")
+            failed += not ok
     print()
     print("All port_record checks passed." if not failed else f"{failed} port_record check(s) FAILED.")
     return 1 if failed else 0
