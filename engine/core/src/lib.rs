@@ -30,3 +30,5 @@ pub mod pathfinder;
 pub mod electronics;
 pub mod heat;
 pub mod arcs;
+pub mod combat;
+pub mod expected_damage;

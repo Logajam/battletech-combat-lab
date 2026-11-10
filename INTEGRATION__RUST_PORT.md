@@ -275,17 +275,22 @@ slots are `Slot::Name | Slot::Item(id)`. Armor / structure / damage are `pyfmt::
 Python). Log text must match the Python exactly (`b.log(...)`; a bare `print` is `b.print(...)`, never quiet). A dry run
 is `b.log.quiet += 1`.
 
-Translated and checked: pyfmt, hex_geometry, board_parser, terrain_rules, los, pathfinder, equipment, mtf_parser,
-mech_state (+ `mech_json`: every attribute, round-trips every recorded state), armor_rules, damage_resolution,
-hit_location, piloting_rolls, hazards, water (state parts), advanced_equipment, capacitor (crit_hit), equipment_systems,
-stubs (partial), weapon_rules, weapon_profiles (compiled, not yet tapped).
+Translated and checked (function taps match the Python on every recorded call): pyfmt, hex_geometry, board_parser,
+terrain_rules, los, pathfinder, equipment, mtf_parser, mech_state (+ `mech_json`: every attribute, round-trips every recorded
+state), armor_rules, damage_resolution, hit_location, piloting_rolls, hazards, water (state parts), advanced_equipment,
+capacitor (crit_hit), equipment_systems, ammo (`fancy-regex`), heat, electronics, arcs (taps `armor state damage piloting
+ammo heat electronics arcs`; a Rust test per group in `engine/core/tests/tap_*.rs`).
+Compiled but NOT yet tapped: stubs (partial), weapon_rules, weapon_profiles, advanced_weapons, fire_modes (tables and
+predicates only), expected_damage, combat (hit_probability, fc_to_tmm; the rest of `pathfinder/combat.py` is dead code).
 
 Next, in order (each: read the Python module fully, translate, add its functions to a tap GROUP, run the Rust test):
-1. `ammo` (needs the `fancy-regex` crate: its patterns use lookaheads), `advanced_weapons` (read to line 200 so far),
-   `fire_modes`, `expected_damage`, `electronics`, `ams`, `heat` (read in full), `domino`, `structure_weight`.
-2. Stage 5: `arcs`, `weapon_selection`, `attack_resolution` (1,291 lines; the tap will need `Planner` etc.), `physical`,
-   `physical_gear`, `clubs`, `charge`, `dfa`, `movement_attacks`, `tag`, `smoke`, `deployment`, `ranged_combat`
-   (movement options) and the movement parts of `pathfinder/combat.py`.
+1. `fire_modes` rest (ShotPlan, damage_per, column, grouping, expected_hit, kind_options, Planner - the Planner takes an
+   `Adjuster` struct standing for attack_resolution's `tn_adjuster` closure), `ams`, `physical_gear` (shields: `_protected`
+   needs `gear.shield_absorb` / `raised_blocks`), `domino`, `structure_weight` (bots).
+2. Stage 5: `weapon_selection` (the pure parts: `range_bracket`, `_weapon_range_mod`, `heat_limits`, knapsack; the fire
+   candidates need the Planner), `attack_resolution` (1,291 lines; read in full; `declare_attacks` ends in
+   `decisions.decide("declaration")`; skip `stats.*` and `timing.*`, they only log), `physical`, `clubs`, `charge`, `dfa`,
+   `movement_attacks`, `tag`, `smoke`, `deployment`, `ranged_combat` (movement options).
 3. Stage 6: `orchestrator`, `forces`, remaining `stubs`, the attach step (`_attach_mech_config`: compare Rust parse + attach
    with `units.json`), `results`; then replay every fixture's `decisions.json` + `dice.json` and compare `trace.jsonl`
    and `log.txt` (`tools/port_diff.py`).
