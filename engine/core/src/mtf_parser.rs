@@ -7,7 +7,7 @@ use std::collections::BTreeSet;
 use crate::damage_resolution::is_partial_wing;
 use crate::equipment::*;
 use crate::mech_state::*;
-use crate::pyfmt::{py_int, py_repr_str, py_strip};
+use crate::pyfmt::{py_int, py_repr_str, py_strip, Num};
 
 /// Normalized (lowercase, whitespace / hyphens stripped) armor-type text -> ArmorType.
 fn armor_type_by_name(norm: &str) -> Option<ArmorType> {
@@ -712,11 +712,11 @@ pub fn parse_mtf(db: &EquipmentDb, text: &str, out: &mut String) -> Result<Mech,
             out.push_str(&format!("WARNING: no armor value found for {} in .mtf file - defaulting to 0.\n", loc));
         }
         let entry = mech.locations.get_mut(loc).unwrap();
-        entry.armor = front_armor.get(loc).copied().unwrap_or(0);
+        entry.armor = Num::I(front_armor.get(loc).copied().unwrap_or(0));
         if entry.rear_armor.is_some() {
-            entry.rear_armor = Some(rear_armor.get(loc).copied().unwrap_or(0));
+            entry.rear_armor = Some(Num::I(rear_armor.get(loc).copied().unwrap_or(0)));
         }
-        entry.structure = structure[loc.as_str()];
+        entry.structure = Num::I(structure[loc.as_str()]);
         if !location_armor_type.contains_key(loc) {
             out.push_str(&format!("WARNING: no armor type found for {} in .mtf file - defaulting to Standard.\n", loc));
         }
@@ -742,9 +742,9 @@ pub fn parse_mtf(db: &EquipmentDb, text: &str, out: &mut String) -> Result<Mech,
 
     mech.partial_wing_active = mech.crits.values().any(|slots| slots.iter().any(|s| matches!(s, Slot::Item(id) if is_partial_wing(&mech, *id))));
 
-    mech.max_armor = mech.locations.iter().map(|(l, v)| (l.clone(), v.armor)).collect();
-    mech.max_rear_armor = mech.locations.iter().filter_map(|(l, v)| v.rear_armor.map(|r| (l.clone(), r))).collect();
-    mech.max_structure = mech.locations.iter().map(|(l, v)| (l.clone(), v.structure)).collect();
+    mech.max_armor = mech.locations.iter().map(|(l, v)| (l.clone(), v.armor.as_int())).collect();
+    mech.max_rear_armor = mech.locations.iter().filter_map(|(l, v)| v.rear_armor.map(|r| (l.clone(), r.as_int()))).collect();
+    mech.max_structure = mech.locations.iter().map(|(l, v)| (l.clone(), v.structure.as_int())).collect();
     mech.initial_sensor_slots = mech.crits.get("Head").map_or(0, |h| h.iter().filter(|s| s.is_name("Sensors")).count() as i64);
     snapshot_round_capability(&mut mech);
 

@@ -157,6 +157,163 @@ pub fn py_float_str(x: f64) -> String {
     out
 }
 
+/// A Python number: `int` or `float`, kept apart because the Python mixes them (an armor pool is an int until a hardened
+/// point makes it 7.5) and prints them differently. Arithmetic follows Python: int op int is int (except `/`), anything
+/// with a float is a float.
+#[derive(Clone, Copy, Debug)]
+pub enum Num {
+    I(i64),
+    F(f64),
+}
+
+impl Num {
+    pub fn f(self) -> f64 {
+        match self {
+            Num::I(i) => i as f64,
+            Num::F(f) => f,
+        }
+    }
+    /// The int inside (panics on a float): for values that are ints by construction, like maximum armor.
+    pub fn as_int(self) -> i64 {
+        match self {
+            Num::I(i) => i,
+            Num::F(f) => panic!("expected an int, got {}", f),
+        }
+    }
+    pub fn is_int(self) -> bool {
+        matches!(self, Num::I(_))
+    }
+    /// `a / b` (true division: always a float)
+    pub fn div(self, o: Num) -> Num {
+        Num::F(self.f() / o.f())
+    }
+    /// `a // b`
+    pub fn floordiv(self, o: Num) -> Num {
+        match (self, o) {
+            (Num::I(a), Num::I(b)) => Num::I(py_floordiv(a, b)),
+            _ => Num::F((self.f() / o.f()).floor()),
+        }
+    }
+    pub fn to_json(self) -> serde_json::Value {
+        match self {
+            Num::I(i) => serde_json::json!(i),
+            Num::F(f) => serde_json::json!(f),
+        }
+    }
+    pub fn from_json(v: &serde_json::Value) -> Num {
+        if let Some(i) = v.as_i64() {
+            if v.is_i64() || v.is_u64() {
+                return Num::I(i);
+            }
+        }
+        Num::F(v.as_f64().expect("a number"))
+    }
+    /// Python's `str(x)`
+    pub fn py_str(self) -> String {
+        match self {
+            Num::I(i) => i.to_string(),
+            Num::F(f) => py_float_str(f),
+        }
+    }
+    /// Python's `format(x, "g")`
+    pub fn fmt_g(self) -> String {
+        py_fmt_g(self.f())
+    }
+}
+
+impl PartialEq for Num {
+    fn eq(&self, o: &Num) -> bool {
+        self.f() == o.f()
+    }
+}
+impl PartialOrd for Num {
+    fn partial_cmp(&self, o: &Num) -> Option<std::cmp::Ordering> {
+        match (self, o) {
+            (Num::I(a), Num::I(b)) => a.partial_cmp(b),
+            _ => self.f().partial_cmp(&o.f()),
+        }
+    }
+}
+impl std::ops::Add for Num {
+    type Output = Num;
+    fn add(self, o: Num) -> Num {
+        match (self, o) {
+            (Num::I(a), Num::I(b)) => Num::I(a + b),
+            _ => Num::F(self.f() + o.f()),
+        }
+    }
+}
+impl std::ops::Sub for Num {
+    type Output = Num;
+    fn sub(self, o: Num) -> Num {
+        match (self, o) {
+            (Num::I(a), Num::I(b)) => Num::I(a - b),
+            _ => Num::F(self.f() - o.f()),
+        }
+    }
+}
+impl std::ops::Mul for Num {
+    type Output = Num;
+    fn mul(self, o: Num) -> Num {
+        match (self, o) {
+            (Num::I(a), Num::I(b)) => Num::I(a * b),
+            _ => Num::F(self.f() * o.f()),
+        }
+    }
+}
+impl From<i64> for Num {
+    fn from(i: i64) -> Num {
+        Num::I(i)
+    }
+}
+
+/// Python's `max(a, b)`: the first of equals.
+pub fn py_max(a: Num, b: Num) -> Num {
+    if b > a {
+        b
+    } else {
+        a
+    }
+}
+
+/// Python's `min(a, b)`: the first of equals.
+pub fn py_min(a: Num, b: Num) -> Num {
+    if b < a {
+        b
+    } else {
+        a
+    }
+}
+
+/// Python's `format(x, "g")` for a float: 6 significant digits, trailing zeros removed, exponent form when the
+/// exponent is < -4 or >= 6.
+pub fn py_fmt_g(x: f64) -> String {
+    if x.is_nan() {
+        return "nan".to_string();
+    }
+    if x.is_infinite() {
+        return if x > 0.0 { "inf" } else { "-inf" }.to_string();
+    }
+    if x == 0.0 {
+        return if x.is_sign_negative() { "-0" } else { "0" }.to_string();
+    }
+    let e = format!("{:.5e}", x); // d.dddddde<exp>, correctly rounded to 6 significant digits
+    let (mant, exp) = e.split_once('e').unwrap();
+    let exp: i32 = exp.parse().unwrap();
+    if (-4..6).contains(&exp) {
+        let decimals = (5 - exp).max(0) as usize;
+        let s = format!("{:.*}", decimals, x);
+        if s.contains('.') {
+            s.trim_end_matches('0').trim_end_matches('.').to_string()
+        } else {
+            s
+        }
+    } else {
+        let m = if mant.contains('.') { mant.trim_end_matches('0').trim_end_matches('.') } else { mant };
+        format!("{}e{}{:02}", m, if exp < 0 { '-' } else { '+' }, exp.abs())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -194,6 +351,30 @@ mod tests {
         assert_eq!(py_float_str(5.347222222222222), "5.347222222222222");
         assert_eq!(py_float_str(100.0), "100.0");
         assert_eq!(py_float_str(1e22), "1e+22");
+    }
+
+    #[test]
+    fn g_format_matches_python() {
+        assert_eq!(py_fmt_g(5.0), "5");
+        assert_eq!(py_fmt_g(7.5), "7.5");
+        assert_eq!(py_fmt_g(0.1), "0.1");
+        assert_eq!(py_fmt_g(123456.0), "123456");
+        assert_eq!(py_fmt_g(1234567.0), "1.23457e+06");
+        assert_eq!(py_fmt_g(0.0001), "0.0001");
+        assert_eq!(py_fmt_g(0.00001), "1e-05");
+        assert_eq!(py_fmt_g(3.14159265), "3.14159");
+        assert_eq!(py_fmt_g(-2.5), "-2.5");
+        assert_eq!(py_fmt_g(100.0), "100");
+    }
+
+    #[test]
+    fn num_arithmetic_keeps_python_types() {
+        assert_eq!((Num::I(5) - Num::I(2)).py_str(), "3");
+        assert_eq!((Num::I(5) - Num::F(2.0)).py_str(), "3.0");
+        assert_eq!(Num::I(5).div(Num::I(2)).py_str(), "2.5");
+        assert_eq!(Num::I(7).floordiv(Num::I(2)).py_str(), "3");
+        assert_eq!(py_max(Num::I(0), Num::F(0.0)).py_str(), "0");
+        assert_eq!(py_min(Num::F(2.0), Num::I(2)).py_str(), "2.0");
     }
 
     #[test]

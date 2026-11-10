@@ -23,7 +23,7 @@ fn every_unit_parses_like_python() {
         assert_eq!(out, e["stdout"].as_str().unwrap(), "{}: printed text", file);
         match (got, e.get("unit"), e.get("error")) {
             (Ok(m), Some(w), None) => {
-                let j = m.to_json();
+                let j = m.to_json(&|_| String::new());
                 if j != *w {
                     // name the first differing key
                     for (k, v) in w.as_object().unwrap() {

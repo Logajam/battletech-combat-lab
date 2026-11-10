@@ -98,6 +98,8 @@ def dump(obj, ids, units_by_id, path="", depth=0):
         return [dump(x, ids, units_by_id, path, depth + 1) for x in obj]
     if hasattr(obj, "__dict__"):
         d = {"_type": type(obj).__name__}
+        if id(obj) in ids:
+            d["_addr"] = ids[id(obj)]         # an Equipment's identity: the address of its first slot ("Right Arm#3")
         for k, v in vars(obj).items():
             if k in CACHE_ATTRS:
                 continue

@@ -68,8 +68,42 @@ pub struct Equipment {
     /// superheavy slots hold two items: each points at the other; the second is `partner_of_slot` of the first
     pub partner: Option<ItemId>,
     pub partner_of_slot: Option<ItemId>,
+    /// identity: the address of its first slot ("Right Arm#3"), fixed when a battle starts (tools/port_record.dump's `_addr`)
+    pub addr: Option<String>,
+    // ---- attributes later modules attach (None = the Python attribute does not exist) ----
+    pub canonical: Option<String>,        // "_canonical"
+    pub ammo_key: Option<String>,
+    pub ammo_unknown: Option<bool>,
+    pub needs_ammo: Option<bool>,
+    pub one_shot: Option<bool>,
+    pub torpedo: Option<bool>,
+    pub fired_once: Option<bool>,
+    pub jammed: Option<bool>,
+    pub feeds: Option<String>,
+    pub kind: Option<String>,
+    pub missiles_per_shot: Option<i64>,
+    pub munition: Option<String>,
+    /// present-but-None is possible (the attribute exists, holding None)
+    pub shot_damage: Option<Option<i64>>,
+    pub shots_left: Option<i64>,
+    /// (the Artemis IV / V item, its kind 4 or 5) - Python's `w.artemis = (slot, kind)`
+    pub artemis: Option<(ItemId, i64)>,
+    pub charged: Option<bool>,
+    pub charging: Option<bool>,
+    pub firing: Option<bool>,
+    pub linked_ppc: Option<ItemId>,
+    pub base_damage: Option<i64>,
+    pub base_heat: Option<i64>,
+    pub capacitor: Option<ItemId>,
+    pub pod_used: Option<bool>,
+    pub modular_field: Option<String>,
+    pub modular_location: Option<String>,
     /// modular armor (TO:AUE p.93): points of armor left in the module (set by equipment_systems)
     pub modular_points: Option<i64>,
+    pub shield_dc: Option<i64>,
+    pub tsemp_recharge_until: Option<Option<i64>>,
+    /// a machine gun array's guns
+    pub mga_guns: Option<Vec<ItemId>>,
 }
 
 impl Equipment {
@@ -118,7 +152,36 @@ impl Equipment {
             slots_needed: None,
             partner: None,
             partner_of_slot: None,
+            addr: None,
+            canonical: None,
+            ammo_key: None,
+            ammo_unknown: None,
+            needs_ammo: None,
+            one_shot: None,
+            torpedo: None,
+            fired_once: None,
+            jammed: None,
+            feeds: None,
+            kind: None,
+            missiles_per_shot: None,
+            munition: None,
+            shot_damage: None,
+            shots_left: None,
+            artemis: None,
+            charged: None,
+            charging: None,
+            firing: None,
+            linked_ppc: None,
+            base_damage: None,
+            base_heat: None,
+            capacitor: None,
+            pod_used: None,
+            modular_field: None,
+            modular_location: None,
             modular_points: None,
+            shield_dc: None,
+            tsemp_recharge_until: None,
+            mga_guns: None,
         }
     }
 
@@ -127,11 +190,14 @@ impl Equipment {
         Equipment::new(name, slots_occupied, is_explosive, explosion_damage, crit_eligible, None, false, None, None, None, None, None, None, None, None)
     }
 
-    /// The reflective dump of this object as tools/port_record.dump writes it (key order of the Python __dict__).
-    /// `partner_json` renders a partner (its depth is one deeper); None = the partner is not dumped (depth limit).
-    pub fn to_json(&self, partner_json: &dyn Fn(ItemId) -> Value) -> Value {
+    /// The reflective dump of this object as tools/port_record.dump writes it. `ref_json(id)` renders a nested
+    /// Equipment (the caller supplies the depth rule: past depth 12 the Python cuts the chain off).
+    pub fn to_json(&self, depth: i64, ref_json: &dyn Fn(ItemId, i64) -> Value) -> Value {
         let mut m = Map::new();
         m.insert("_type".into(), json!("Equipment"));
+        if let Some(a) = &self.addr {
+            m.insert("_addr".into(), json!(a));
+        }
         m.insert("name".into(), json!(self.name));
         m.insert("slots_occupied".into(), json!(self.slots_occupied));
         m.insert("is_explosive".into(), json!(self.is_explosive));
@@ -140,7 +206,7 @@ impl Equipment {
         m.insert("special_rules".into(), json!(self.special_rules));
         m.insert("special_rules_ref".into(), json!(self.special_rules_ref));
         m.insert("category".into(), json!(self.category));
-        m.insert("weapon_range".into(), self.weapon_range.as_ref().map_or(Value::Null, |r| r.to_json()));
+        m.insert("weapon_range".into(), self.weapon_range.as_ref().map_or(Value::Null, |r| if depth + 1 > 12 { json!({"_deep": "dict"}) } else { r.to_json() }));
         m.insert("damage_per_shot".into(), json!(self.damage_per_shot));
         m.insert("heat".into(), json!(self.heat));
         m.insert("battle_value".into(), json!(self.battle_value));
@@ -150,16 +216,120 @@ impl Equipment {
         m.insert("exploded".into(), json!(self.exploded));
         m.insert("rear_mounted".into(), json!(self.rear_mounted));
         m.insert("turret_mounted".into(), json!(self.turret_mounted));
-        if let Some(n) = self.slots_needed {
-            m.insert("slots_needed".into(), json!(n));
+        macro_rules! opt {
+            ($key:expr, $field:expr) => {
+                if let Some(v) = &$field {
+                    m.insert($key.into(), json!(v));
+                }
+            };
         }
-        if let Some(p) = self.partner {
-            m.insert("partner".into(), partner_json(p));
+        opt!("slots_needed", self.slots_needed);
+        opt!("_canonical", self.canonical);
+        opt!("ammo_key", self.ammo_key);
+        opt!("ammo_unknown", self.ammo_unknown);
+        opt!("needs_ammo", self.needs_ammo);
+        opt!("one_shot", self.one_shot);
+        opt!("torpedo", self.torpedo);
+        opt!("fired_once", self.fired_once);
+        opt!("jammed", self.jammed);
+        opt!("feeds", self.feeds);
+        opt!("kind", self.kind);
+        opt!("missiles_per_shot", self.missiles_per_shot);
+        opt!("munition", self.munition);
+        opt!("shot_damage", self.shot_damage);
+        opt!("shots_left", self.shots_left);
+        if let Some((item, kind)) = &self.artemis {
+            m.insert("artemis".into(), if depth + 1 > 12 { json!({"_deep": "list"}) } else { Value::Array(vec![ref_json(*item, depth + 2), json!(kind)]) });
         }
-        if let Some(p) = self.partner_of_slot {
-            m.insert("partner_of_slot".into(), partner_json(p));
+        opt!("charged", self.charged);
+        opt!("charging", self.charging);
+        opt!("firing", self.firing);
+        if let Some(i) = self.linked_ppc {
+            m.insert("linked_ppc".into(), ref_json(i, depth + 1));
+        }
+        opt!("base_damage", self.base_damage);
+        opt!("base_heat", self.base_heat);
+        if let Some(i) = self.capacitor {
+            m.insert("capacitor".into(), ref_json(i, depth + 1));
+        }
+        opt!("pod_used", self.pod_used);
+        opt!("modular_field", self.modular_field);
+        opt!("modular_location", self.modular_location);
+        opt!("modular_points", self.modular_points);
+        opt!("shield_dc", self.shield_dc);
+        if let Some(i) = self.partner {
+            m.insert("partner".into(), ref_json(i, depth + 1));
+        }
+        if let Some(i) = self.partner_of_slot {
+            m.insert("partner_of_slot".into(), ref_json(i, depth + 1));
+        }
+        opt!("tsemp_recharge_until", self.tsemp_recharge_until);
+        if let Some(list) = &self.mga_guns {
+            m.insert("mga_guns".into(), if depth + 1 > 12 { json!({"_deep": "list"}) } else { Value::Array(list.iter().map(|i| ref_json(*i, depth + 2)).collect()) });
         }
         Value::Object(m)
+    }
+
+    /// Reads back a dump. `resolve(addr)` maps a nested object's `_addr` to its ItemId in the arena.
+    pub fn from_json(v: &Value, resolve: &dyn Fn(&str) -> ItemId) -> Equipment {
+        let gs = |k: &str| v.get(k).and_then(|x| x.as_str()).map(|s| s.to_string());
+        let gi = |k: &str| v.get(k).and_then(|x| x.as_i64());
+        let gb = |k: &str| v.get(k).and_then(|x| x.as_bool());
+        let nested = |k: &str| v.get(k).filter(|x| x.is_object()).and_then(|x| x.get("_addr")).and_then(|a| a.as_str()).map(|a| resolve(a));
+        let mut e = Equipment::new(
+            v["name"].as_str().unwrap(),
+            v["slots_occupied"].as_i64().unwrap(),
+            v["is_explosive"].as_bool().unwrap(),
+            Some(v["explosion_damage"].as_i64().unwrap()),
+            v["crit_eligible"].as_bool().unwrap(),
+            gs("damage_type"),
+            v["special_rules"].as_bool().unwrap(),
+            gs("special_rules_ref"),
+            gs("category"),
+            v.get("weapon_range").filter(|w| w.is_object()).map(WeaponRange::from_json),
+            gi("damage_per_shot"),
+            gi("heat"),
+            gi("battle_value"),
+            v.get("tonnage").and_then(|t| t.as_f64()),
+            gi("rack_size"),
+        );
+        e.addr = gs("_addr");
+        e.exploded = v["exploded"].as_bool().unwrap();
+        e.rear_mounted = v["rear_mounted"].as_bool().unwrap();
+        e.turret_mounted = v["turret_mounted"].as_bool().unwrap();
+        e.slots_needed = gi("slots_needed");
+        e.canonical = gs("_canonical");
+        e.ammo_key = gs("ammo_key");
+        e.ammo_unknown = gb("ammo_unknown");
+        e.needs_ammo = gb("needs_ammo");
+        e.one_shot = gb("one_shot");
+        e.torpedo = gb("torpedo");
+        e.fired_once = gb("fired_once");
+        e.jammed = gb("jammed");
+        e.feeds = gs("feeds");
+        e.kind = gs("kind");
+        e.missiles_per_shot = gi("missiles_per_shot");
+        e.munition = gs("munition");
+        e.shot_damage = v.get("shot_damage").map(|x| x.as_i64());
+        e.shots_left = gi("shots_left");
+        e.artemis = v.get("artemis").and_then(|a| a.as_array()).filter(|a| a[0].get("_addr").is_some()).map(|a| (resolve(a[0]["_addr"].as_str().unwrap()), a[1].as_i64().unwrap()));
+        e.charged = gb("charged");
+        e.charging = gb("charging");
+        e.firing = gb("firing");
+        e.linked_ppc = nested("linked_ppc");
+        e.base_damage = gi("base_damage");
+        e.base_heat = gi("base_heat");
+        e.capacitor = nested("capacitor");
+        e.pod_used = gb("pod_used");
+        e.modular_field = gs("modular_field");
+        e.modular_location = gs("modular_location");
+        e.modular_points = gi("modular_points");
+        e.shield_dc = gi("shield_dc");
+        e.partner = nested("partner");
+        e.partner_of_slot = nested("partner_of_slot");
+        e.tsemp_recharge_until = v.get("tsemp_recharge_until").map(|x| x.as_i64());
+        e.mga_guns = v.get("mga_guns").and_then(|a| a.as_array()).map(|a| a.iter().filter_map(|x| x.get("_addr").and_then(|a| a.as_str())).map(|a| resolve(a)).collect());
+        e
     }
 }
 

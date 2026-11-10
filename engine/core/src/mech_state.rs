@@ -7,6 +7,7 @@ use serde_json::{json, Map, Value};
 
 use crate::config::Config;
 use crate::equipment::{is_crit_target, Equipment, ItemId, Slot};
+use crate::pyfmt::Num;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum StructureType {
@@ -116,28 +117,55 @@ pub fn structure_for_tonnage(mass: i64, mech_type: &str) -> Result<IndexMap<Stri
     Ok(out)
 }
 
+/// One location's damage state. armor / structure are `Num`: an int until a hardened or reinforced point makes one a
+/// float (the Python mixes them, and prints them differently).
 #[derive(Clone, Debug, PartialEq)]
 pub struct Location {
-    pub armor: i64,
+    pub armor: Num,
     /// only torsos carry rear armor
-    pub rear_armor: Option<i64>,
-    pub structure: i64,
+    pub rear_armor: Option<Num>,
+    pub structure: Num,
     pub destroyed: bool,
 }
 
 impl Location {
     fn new(armor: i64, rear: Option<i64>, structure: i64) -> Location {
-        Location { armor, rear_armor: rear, structure, destroyed: false }
+        Location { armor: Num::I(armor), rear_armor: rear.map(Num::I), structure: Num::I(structure), destroyed: false }
     }
     pub fn to_json(&self) -> Value {
         let mut m = Map::new();
-        m.insert("armor".into(), json!(self.armor));
+        m.insert("armor".into(), self.armor.to_json());
         if let Some(r) = self.rear_armor {
-            m.insert("rear_armor".into(), json!(r));
+            m.insert("rear_armor".into(), r.to_json());
         }
-        m.insert("structure".into(), json!(self.structure));
+        m.insert("structure".into(), self.structure.to_json());
         m.insert("destroyed".into(), json!(self.destroyed));
         Value::Object(m)
+    }
+    pub fn from_json(v: &Value) -> Location {
+        Location {
+            armor: Num::from_json(&v["armor"]),
+            rear_armor: v.get("rear_armor").map(Num::from_json),
+            structure: Num::from_json(&v["structure"]),
+            destroyed: v["destroyed"].as_bool().unwrap(),
+        }
+    }
+    /// `loc[field]` for field "armor" / "rear_armor" / "structure".
+    pub fn field(&self, name: &str) -> Num {
+        match name {
+            "armor" => self.armor,
+            "rear_armor" => self.rear_armor.expect("rear_armor"),
+            "structure" => self.structure,
+            other => panic!("KeyError: {}", other),
+        }
+    }
+    pub fn set_field(&mut self, name: &str, v: Num) {
+        match name {
+            "armor" => self.armor = v,
+            "rear_armor" => self.rear_armor = Some(v),
+            "structure" => self.structure = v,
+            other => panic!("KeyError: {}", other),
+        }
     }
 }
 
@@ -223,7 +251,118 @@ pub struct Mech {
     pub primary_dead: Option<bool>,
     pub imp_mp: Option<i64>,
     pub modular_armor: Vec<ItemId>,
+    // ---- attached when a battle is set up (orchestrator._attach_mech_config, ammo, electronics, equipment_systems...) ----
+    /// false for a freshly parsed mech: the attributes below do not exist yet
+    pub attached: bool,
     pub side_name: Option<String>,
+    pub team: Option<String>,
+    pub moved_this_turn: bool,
+    pub hex: Option<String>,
+    pub facing: String,
+    pub home_edge: Option<Vec<String>>,
+    pub gunnery: i64,
+    pub piloting: i64,
+    pub min_heat: i64,
+    pub max_heat: i64,
+    pub move_search: Option<String>,
+    pub assumes_enemy_search: Option<String>,
+    pub bot: String,
+    pub has_improved_jump_jets: bool,
+    pub has_xxl_engine: bool,
+    pub has_supercooled_myomer: bool,
+    pub equipment_systems: IndexMap<String, Vec<ItemId>>,
+    pub has_tsm: bool,
+    pub has_stealth_armor: bool,
+    pub torso_cockpit: bool,
+    pub escalating_turns: IndexMap<String, i64>,
+    pub systems_used_this_turn: Vec<String>,
+    pub turn_number: i64,
+    pub pfd_active: bool,
+    pub pfd_turns_used: i64,
+    pub pfd_failed: bool,
+    pub narc_pods: Vec<NarcPod>,
+    pub ecm_suites: Vec<ItemId>,
+    pub unjamming: Vec<ItemId>,
+    pub capacitors: Vec<ItemId>,
+    pub capacitor_heat: i64,
+    pub tag_designated: bool,
+    pub move_mode: String,
+    pub move_fc: i64,
+    pub mp_spent: i64,
+    pub movement_heat: i64,
+    /// the unit it declared a charge / DFA against (index in the battle's roster)
+    pub charging: Option<usize>,
+    pub dfa: Option<usize>,
+    pub deferred_end_of_move: Option<Value>,
+    // ---- attributes that only appear during a battle (Option = the attribute does not exist yet) ----
+    pub ams_used: Option<Value>,
+    pub arc_action: Option<ArcAction>,
+    pub arc_action_locked: Option<bool>,
+    pub armor_at_turn_start: Option<IndexMap<String, Vec<Num>>>,
+    pub arms_flipped: Option<bool>,
+    pub blocked_hex: Option<Value>,
+    pub breached_locations: Option<IndexSet<String>>,
+    pub hp_log: Option<Vec<f64>>,
+    pub jump_only: Option<bool>,
+    pub magma_entered: Option<Vec<(String, String)>>,
+    pub other_unit_hexes: Option<Value>,
+    pub outside_heat: Option<i64>,
+    pub shield_raised: Option<Value>,
+    pub started_in_liquid: Option<bool>,
+    pub torso_twist: Option<i64>,
+    pub weapons_fired_this_turn: Option<IndexSet<ItemId>>,
+    pub club: Option<Option<String>>,
+    pub breached_slot_set: Option<IndexSet<(String, usize)>>,
+    pub autocannon_crits: Option<IndexSet<ItemId>>,
+    pub severed_limbs: Option<Vec<String>>,
+    pub severed_seen: Option<Vec<String>>,
+    pub bv_built: Option<i64>,
+    pub turret_last_offset: Option<i64>,
+    pub taser_interference_until: Option<Option<i64>>,
+    pub taser_shutdown_until: Option<Option<i64>>,
+    pub tsemp_hits: Option<Vec<i64>>,
+    pub tsemp_interference_until: Option<Option<i64>>,
+    pub mech_turret_dir: Option<IndexMap<String, i64>>,
+    pub home_edge_row: Option<Vec<String>>,
+}
+
+/// A twist / arm-flip / turret action (arcs.ArcAction).
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct ArcAction {
+    pub twist: i64,
+    pub flip: bool,
+    pub turret: Option<Turret>,
+}
+
+/// A turret's setting in an ArcAction: an offset (an int) or a name - the Python uses both.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub enum Turret {
+    Offset(i64),
+    Name(String),
+}
+
+impl Turret {
+    pub fn to_json(&self) -> Value {
+        match self {
+            Turret::Offset(i) => json!(i),
+            Turret::Name(s) => json!(s),
+        }
+    }
+    pub fn from_json(v: &Value) -> Option<Turret> {
+        if let Some(i) = v.as_i64() {
+            Some(Turret::Offset(i))
+        } else {
+            v.as_str().map(|s| Turret::Name(s.to_string()))
+        }
+    }
+}
+
+/// An enemy Narc pod stuck to this 'Mech.
+#[derive(Clone, Debug, PartialEq)]
+pub struct NarcPod {
+    pub effective: bool,
+    pub location: String,
+    pub owner: String,
 }
 
 pub const QUAD_TYPES: [&str; 2] = ["quad", "quadvee"];
@@ -315,9 +454,9 @@ impl Mech {
             (legs, limbs, st)
         };
 
-        let max_armor = locations.iter().map(|(l, v)| (l.clone(), v.armor)).collect();
-        let max_rear_armor = locations.iter().filter_map(|(l, v)| v.rear_armor.map(|r| (l.clone(), r))).collect();
-        let max_structure = locations.iter().map(|(l, v)| (l.clone(), v.structure)).collect();
+        let max_armor = locations.iter().map(|(l, v)| (l.clone(), v.armor.as_int())).collect();
+        let max_rear_armor = locations.iter().filter_map(|(l, v)| v.rear_armor.map(|r| (l.clone(), r.as_int()))).collect();
+        let max_structure = locations.iter().map(|(l, v)| (l.clone(), v.structure.as_int())).collect();
         let armor_type = locations.keys().map(|l| (l.clone(), ArmorType::Standard)).collect();
         let destroyed_leg_actuators = leg_locations.iter().map(|l| (l.clone(), 0)).collect();
         let crew_roles: Vec<&str> = if mech_type == "tripod" || mech_type == "quadvee" { vec!["pilot", "gunner"] } else { vec!["pilot"] };
@@ -389,120 +528,78 @@ impl Mech {
             primary_dead: None,
             imp_mp: None,
             modular_armor: Vec::new(),
+            attached: false,
             side_name: None,
+            team: None,
+            moved_this_turn: false,
+            hex: None,
+            facing: "N".to_string(),
+            home_edge: None,
+            gunnery: 4,
+            piloting: 5,
+            min_heat: 0,
+            max_heat: 4,
+            move_search: None,
+            assumes_enemy_search: None,
+            bot: "gladiator".to_string(),
+            has_improved_jump_jets: false,
+            has_xxl_engine: false,
+            has_supercooled_myomer: false,
+            equipment_systems: IndexMap::new(),
+            has_tsm: false,
+            has_stealth_armor: false,
+            torso_cockpit: false,
+            escalating_turns: IndexMap::new(),
+            systems_used_this_turn: Vec::new(),
+            turn_number: 0,
+            pfd_active: false,
+            pfd_turns_used: 0,
+            pfd_failed: false,
+            narc_pods: Vec::new(),
+            ecm_suites: Vec::new(),
+            unjamming: Vec::new(),
+            capacitors: Vec::new(),
+            capacitor_heat: 0,
+            tag_designated: false,
+            move_mode: "Stand Still".to_string(),
+            move_fc: 0,
+            mp_spent: 0,
+            movement_heat: 0,
+            charging: None,
+            dfa: None,
+            deferred_end_of_move: None,
+            ams_used: None,
+            arc_action: None,
+            arc_action_locked: None,
+            armor_at_turn_start: None,
+            arms_flipped: None,
+            blocked_hex: None,
+            breached_locations: None,
+            hp_log: None,
+            jump_only: None,
+            magma_entered: None,
+            other_unit_hexes: None,
+            outside_heat: None,
+            shield_raised: None,
+            started_in_liquid: None,
+            torso_twist: None,
+            weapons_fired_this_turn: None,
+            club: None,
+            breached_slot_set: None,
+            autocannon_crits: None,
+            severed_limbs: None,
+            severed_seen: None,
+            bv_built: None,
+            turret_last_offset: None,
+            taser_interference_until: None,
+            taser_shutdown_until: None,
+            tsemp_hits: None,
+            tsemp_interference_until: None,
+            mech_turret_dir: None,
+            home_edge_row: None,
         };
         snapshot_round_capability(&mut m);
         m
-    }
-
-    /// Render the Equipment at `id` at dump depth `depth` (tools/port_record.dump: past depth 12 it is cut off).
-    pub fn item_json(&self, id: ItemId, depth: i64) -> Value {
-        if depth > 12 {
-            return json!({"_deep": "Equipment"});
-        }
-        self.items[id].to_json(&|p| self.item_json(p, depth + 1))
-    }
-
-    /// The reflective dump of this mech's parse-time state (tools/port_record.dump_unit): same keys and values;
-    /// order-insensitive comparison, so key order is free.
-    pub fn to_json(&self) -> Value {
-        let mut m = Map::new();
-        m.insert("mech_type".into(), json!(self.mech_type));
-        m.insert("chassis".into(), json!(self.chassis));
-        m.insert("model".into(), json!(self.model));
-        let locs: Map<String, Value> = self.locations.iter().map(|(k, v)| (k.clone(), v.to_json())).collect();
-        m.insert("locations".into(), Value::Object(locs));
-        let mut crits = Map::new();
-        for (k, slots) in &self.crits {
-            let v: Vec<Value> = slots
-                .iter()
-                .map(|s| match s {
-                    Slot::Name(n) => json!(n),
-                    Slot::Item(id) => self.item_json(*id, 2),
-                })
-                .collect();
-            crits.insert(k.clone(), Value::Array(v));
-        }
-        m.insert("crits".into(), Value::Object(crits));
-        m.insert("leg_locations".into(), json!(self.leg_locations));
-        m.insert("limb_locations".into(), json!(self.limb_locations));
-        m.insert("side_torso_child".into(), json!(self.side_torso_child));
-        m.insert("max_armor".into(), json!(self.max_armor));
-        m.insert("max_rear_armor".into(), json!(self.max_rear_armor));
-        m.insert("max_structure".into(), json!(self.max_structure));
-        let at: Map<String, Value> = self.armor_type.iter().map(|(k, v)| (k.clone(), json!(v.dump()))).collect();
-        m.insert("armor_type".into(), Value::Object(at));
-        m.insert("structure_type".into(), json!(self.structure_type.dump()));
-        m.insert("base_walk_mp".into(), json!(self.base_walk_mp));
-        m.insert("base_jump_mp".into(), json!(self.base_jump_mp));
-        m.insert("destroyed_leg_actuators".into(), json!(self.destroyed_leg_actuators));
-        let mut hips: Vec<&String> = self.destroyed_hip_locations.iter().collect();
-        hips.sort();
-        m.insert("destroyed_hip_locations".into(), json!(hips));
-        m.insert("destroyed_jump_jet_ids".into(), json!(Vec::<i64>::new()));
-        m.insert("base_heat_sinks".into(), json!(self.base_heat_sinks));
-        m.insert("heat_sink_type".into(), json!(self.heat_sink_type));
-        m.insert("current_heat".into(), json!(self.current_heat));
-        m.insert("heat_mp_penalty".into(), json!(self.heat_mp_penalty));
-        m.insert("heat_fire_modifier".into(), json!(self.heat_fire_modifier));
-        m.insert("shutdown".into(), json!(self.shutdown));
-        m.insert("tsm_active".into(), json!(self.tsm_active));
-        m.insert("deactivated_heat_sinks".into(), json!(self.deactivated_heat_sinks));
-        m.insert("run_mp_multiplier".into(), json!(self.run_mp_multiplier));
-        m.insert("myomer".into(), json!(self.myomer));
-        m.insert("destroyed_heat_sinks".into(), json!({}));
-        m.insert("destroyed_slot_info".into(), json!({}));
-        m.insert("armored_slots".into(), {
-            let mut v: Vec<Value> = self.armored_slots.iter().map(|(l, i)| json!([l, i])).collect();
-            v.sort_by_key(|x| serde_json::to_string(x).unwrap());
-            Value::Array(v)
-        });
-        m.insert("base_mechanical_jump_booster_mp".into(), json!(self.base_mechanical_jump_booster_mp));
-        m.insert("mechanical_jump_booster_disabled".into(), json!(self.mechanical_jump_booster_disabled));
-        m.insert("partial_wing_active".into(), json!(self.partial_wing_active));
-        m.insert("pilot_hits".into(), json!(self.pilot_hits));
-        let crew: Map<String, Value> = self
-            .crew
-            .iter()
-            .map(|(k, c)| (k.clone(), json!({"unconscious": c.unconscious, "check_pending": c.check_pending, "went_out_this_turn": c.went_out_this_turn})))
-            .collect();
-        m.insert("crew".into(), Value::Object(crew));
-        m.insert("engine_hits".into(), json!(self.engine_hits));
-        m.insert("gyro_hits".into(), json!(self.gyro_hits));
-        m.insert("cockpit_hit".into(), json!(self.cockpit_hit));
-        m.insert("explosions".into(), json!(self.explosions));
-        m.insert("destroyed".into(), json!(self.destroyed));
-        m.insert("cause_of_death".into(), json!(self.cause_of_death));
-        m.insert("crippled".into(), json!(self.crippled));
-        m.insert("crippled_at".into(), json!(self.crippled_at));
-        m.insert("prone".into(), json!(self.prone));
-        m.insert("preexisting_damage_snapshot".into(), json!({}));
-        m.insert("pre_attack_phase_snapshot".into(), json!({}));
-        m.insert("movement_mode_this_turn".into(), json!(self.movement_mode_this_turn));
-        m.insert("round_capable".into(), json!(self.round_capable));
-        m.insert("initial_sensor_slots".into(), json!(self.initial_sensor_slots));
-        if let Some(v) = self.mass {
-            m.insert("mass".into(), json!(v));
-        }
-        for (k, v) in [
-            ("engine_desc", &self.engine_desc),
-            ("cockpit_type", &self.cockpit_type),
-            ("gyro_type", &self.gyro_type),
-            ("armor_desc", &self.armor_desc),
-        ] {
-            if let Some(s) = v {
-                m.insert(k.into(), json!(s));
-            }
-        }
-        if let Some(b) = self.is_industrial {
-            m.insert("is_industrial".into(), json!(b));
-        }
-        for (k, v) in [("structure_desc", &self.structure_desc), ("tech_base", &self.tech_base)] {
-            if let Some(s) = v {
-                m.insert(k.into(), json!(s));
-            }
-        }
-        Value::Object(m)
     }
 }
 
@@ -821,7 +918,7 @@ pub fn is_crippled(mech: &Mech) -> bool {
     let mut damaged_limbs = 0;
     for limb in &mech.limb_locations {
         let v = &mech.locations[limb.as_str()];
-        if v.destroyed || v.structure < mech.max_structure[limb.as_str()] {
+        if v.destroyed || v.structure < Num::I(mech.max_structure[limb.as_str()]) {
             damaged_limbs += 1;
         }
     }
@@ -831,7 +928,7 @@ pub fn is_crippled(mech: &Mech) -> bool {
     let mut damaged_torsos = 0;
     for t in ["Left Torso", "Right Torso", "Center Torso"] {
         let v = &mech.locations[t];
-        if v.armor <= 0 && v.structure < mech.max_structure[t] {
+        if v.armor <= Num::I(0) && v.structure < Num::I(mech.max_structure[t]) {
             damaged_torsos += 1;
         }
     }
