@@ -160,6 +160,7 @@ fn enter_hex_inner(b: &mut Battle, u: UnitId, label: &str, jumped: bool, why: Op
         let roll = d6(b);
         if roll >= if jumped { CRUST_BREAKS_JUMP } else { CRUST_BREAKS_GROUND } {
             b.board.hexes.get_mut(label).unwrap().features.0.insert("magma".to_string(), vec![MAGMA_LIQUID.to_string()]);
+            b.board_changed();
             b.broken_crust.push(label.to_string());
             state = Some(MAGMA_LIQUID.to_string());
             let name = b.units[u].side_name.clone().unwrap_or_default();

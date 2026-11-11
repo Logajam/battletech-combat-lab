@@ -444,7 +444,7 @@ fn physical_options(b: &mut Battle, attacker: UnitId, a_xy: (i64, i64), a_label:
     if opts.is_empty() {
         return None;
     }
-    let los_mod = crate::los::has_los(a_xy, t_xy, &b.board, crate::los::mech_height(false, false), crate::los::mech_height(target_prone, false)).unwrap().modifier;
+    let los_mod = crate::move_eval::pair_info(b, a_xy, t_xy, crate::los::mech_height(false, false), crate::los::mech_height(target_prone, false)).unwrap().los.modifier;
     let base = physical::base_tn(&b.units[attacker], a_amm, target_tmm, los_mod, if target_prone { ar::prone_target_modifier(&b.units[target], 1) } else { 0 });
     let h = ar::standing();
     let side = ar::attack_side(b, a_xy, t_xy, t_facing, h, h);

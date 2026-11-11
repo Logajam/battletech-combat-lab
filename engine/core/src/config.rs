@@ -9,11 +9,14 @@ use serde_json::Value;
 #[derive(Clone, Debug, Default)]
 pub struct Config {
     pub values: IndexMap<String, Value>,
+    /// CLUSTER_HITS_TABLE as numbers, (roll, shots) -> hits, read out of `values` on first use (speed only; `set`
+    /// drops it)
+    cluster: std::sync::OnceLock<crate::fasthash::HashMap<(i64, i64), i64>>,
 }
 
 impl Config {
     pub fn from_json(v: &Value) -> Config {
-        Config { values: v.as_object().unwrap().iter().map(|(k, v)| (k.clone(), v.clone())).collect() }
+        Config { values: v.as_object().unwrap().iter().map(|(k, v)| (k.clone(), v.clone())).collect(), cluster: Default::default() }
     }
     pub fn get(&self, name: &str) -> &Value {
         self.values.get(name).unwrap_or_else(|| panic!("config has no setting {}", name))
@@ -35,5 +38,26 @@ impl Config {
     }
     pub fn set(&mut self, name: &str, v: Value) {
         self.values.insert(name.to_string(), v);
+        self.cluster = Default::default();
+    }
+    /// CLUSTER_HITS_TABLE[roll][shots], None when the table has no such row or column (or is not all numbers).
+    pub fn cluster_hits(&self, roll: i64, shots: i64) -> Option<i64> {
+        let table = self.cluster.get_or_init(|| {
+            let mut out = crate::fasthash::HashMap::default();
+            if let Some(rows) = self.values.get("CLUSTER_HITS_TABLE").and_then(|t| t.as_object()) {
+                for (r_text, row) in rows {
+                    for (c_text, v) in row.as_object().into_iter().flatten() {
+                        // only keys the text lookup finds too ("7", never "07")
+                        if let (Ok(r), Ok(c), Some(v)) = (r_text.parse::<i64>(), c_text.parse::<i64>(), v.as_i64()) {
+                            if r.to_string() == *r_text && c.to_string() == *c_text {
+                                out.insert((r, c), v);
+                            }
+                        }
+                    }
+                }
+            }
+            out
+        });
+        table.get(&(roll, shots)).copied()
     }
 }

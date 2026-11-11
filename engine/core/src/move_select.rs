@@ -537,7 +537,7 @@ pub fn closing_fallback(b: &mut Battle, mover: UnitId, other: UnitId, side: &Sid
         if bracket(hex_distance(cell, enemy_xy), &weapon) < initial_bracket {
             continue;
         }
-        let Ok(l) = crate::los::has_los(cell, enemy_xy, &b.board, crate::los::mech_height(false, false), crate::los::mech_height(other_prone, false)) else { continue };
+        let Some(l) = crate::move_eval::pair_info(b, cell, enemy_xy, crate::los::mech_height(false, false), crate::los::mech_height(other_prone, false)).map(|p| p.los) else { continue };
         if !l.los {
             continue;
         }

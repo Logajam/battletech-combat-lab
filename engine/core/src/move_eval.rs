@@ -146,7 +146,7 @@ impl FireSide {
 }
 
 /// The LOS facts of one line a -> t: (LOS result, entry hexside at t, distance, the arcs of a -> t).
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct PairInfo {
     pub los: los::LOSResult,
     pub entry_dir: i64,
@@ -155,11 +155,31 @@ pub struct PairInfo {
 }
 
 pub fn pair_info(b: &Battle, a: (i64, i64), t: (i64, i64), ah: Height, th: Height) -> Option<PairInfo> {
-    let trace = los::trace_los_path(a, t, &b.board, ah, th).ok()?;
-    let steps = &trace.steps;
-    let entry_dir = if steps.len() >= 2 { crate::combat::direction_facing(t, steps[steps.len() - 2].hex).unwrap() } else { 0 };
-    Some(PairInfo { los: trace.result.clone(), entry_dir, distance: hex_distance(a, t), arcs: arcs::arcs_between(a, t) })
+    // INTEGRATION__los_cache.pair_info: each line is traced once and remembered until the smoke changes (Battle::
+    // board_changed empties the table). The Python keeps one table per height pair and empties only the standing /
+    // standing one when smoke changes; this empties them all (RUST_PORT "Found on the way" 7).
+    let key = (a, t, ah, th);
+    if let Some(hit) = b.los_memo.borrow().get(&key) {
+        return *hit;
+    }
+    let info = match los::trace_los_path(a, t, &b.board, ah, th) {
+        Ok(trace) => {
+            let steps = &trace.steps;
+            let entry_dir = if steps.len() >= 2 { crate::combat::direction_facing(t, steps[steps.len() - 2].hex).unwrap() } else { 0 };
+            Some(PairInfo { los: trace.result, entry_dir, distance: hex_distance(a, t), arcs: arcs::arcs_between(a, t) })
+        }
+        Err(_) => None,
+    };
+    let mut memo = b.los_memo.borrow_mut();
+    if memo.len() >= LOS_MEMO_MAX {
+        memo.clear();
+    }
+    memo.insert(key, info);
+    info
 }
+
+/// The most lines `Battle::los_memo` holds before it is emptied (it just refills): bounds memory on big boards.
+pub const LOS_MEMO_MAX: usize = 250_000;
 
 /// ams.Coverage: how many attacks one mech's AMS could engage from a shooter in each arc.
 pub struct Coverage {

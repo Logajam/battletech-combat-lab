@@ -137,6 +137,10 @@ pub const NON_TORSO_LOCATIONS: [&str; 10] = [
 
 /// Number of shots that connect, from config.CLUSTER_HITS_TABLE (roll row, shots column).
 pub fn cluster_hits_count(b: &Battle, shots: i64, roll: i64) -> Result<i64, String> {
+    if let Some(hits) = b.cfg.cluster_hits(roll, shots) {
+        return Ok(hits);
+    }
+    // not in the table (or not a number): the text lookup below words the error
     let table = b.cfg.get("CLUSTER_HITS_TABLE").as_object().unwrap();
     let row = match table.get(&roll.to_string()) {
         Some(r) => r.as_object().unwrap(),

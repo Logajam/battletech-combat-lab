@@ -18,6 +18,7 @@ pub fn add(b: &mut Battle, label: &str, density: &str, until: i64, source: &str)
         Some(o) => Smoke { density: HEAVY.to_string(), until: o.until.max(until) },
     };
     info.smoke = Some(new.clone());
+    b.board_changed();
     b.smoky.insert(label.to_string());
     if Some(&new) == old.as_ref() {
         return;
@@ -31,6 +32,7 @@ pub fn end_phase(b: &mut Battle, turn: i64) {
     gone.sort();
     for label in gone {
         b.board.hexes.get_mut(&label).unwrap().smoke = None;
+        b.board_changed();
         b.smoky.shift_remove(&label);
         b.log(format!("  [End] The smoke at {} clears.", label));
     }

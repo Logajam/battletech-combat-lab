@@ -19,7 +19,7 @@ pub fn target_woods_modifier(density: Option<&str>) -> i64 {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct LOSResult {
     pub los: bool,
     pub modifier: i64,

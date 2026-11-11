@@ -119,6 +119,9 @@ pub struct Battle {
     /// weapon_selection._FIRE_CONTROL: another bot's fire control while it thinks
     pub fire_ctl: Option<crate::princess_fire::FireControl>,
     pub princess: crate::princess_fire::PrincessState,
+    /// INTEGRATION__los_cache: lines of sight the bots asked about, (from, to, heights) -> answer (None = the line runs
+    /// off the board). Speed only: emptied whenever the board changes (`board_changed`).
+    pub los_memo: std::cell::RefCell<crate::fasthash::HashMap<((i64, i64), (i64, i64), crate::los::Height, crate::los::Height), Option<crate::move_eval::PairInfo>>>,
 }
 
 /// decisions.json played back: each bot decision of the battle, in the order the engine asks for them.
@@ -128,6 +131,11 @@ pub struct Replay {
 }
 
 impl Battle {
+    /// Call after any change to a hex of the board (smoke, magma crust): remembered lines of sight are dropped.
+    pub fn board_changed(&mut self) {
+        self.los_memo.borrow_mut().clear();
+    }
+
     pub fn new(cfg: Config, board: Board, units: Vec<Mech>, dice: Box<dyn Dice>) -> Battle {
         let piloting = if cfg.has("PILOTING") { cfg.i("PILOTING") } else { 5 };
         Battle {
@@ -149,6 +157,7 @@ impl Battle {
             legate: Default::default(),
             fire_ctl: None,
             princess: Default::default(),
+            los_memo: Default::default(),
         }
     }
 
