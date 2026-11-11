@@ -79,11 +79,14 @@ boldness when winning and care when losing, and ignoring an enemy that will not 
   - **cost** = my own price x the damage each enemy would deal me, each enemy counted by the share
     of its attention I would get (an enemy has one target; friends near me share the load);
   - **risk** = my own price x expected damage from falls and hazards on the way.
-- **The team's exchange.** The spot's score is what it does to the whole team's rate of exchange:
-  (what the rest of the team deals + gain) / (what the rest of the team takes + cost + risk).
-  Alone, that is the unit's own dealt-to-received rate. In a big force it asks "is this trade better
-  than the team's average?". Why a rate and not gain minus cost: a battle fought to the end is decided
-  by the rate; gain minus cost made an outmatched unit stall for 50 turns (first trials).
+- **The score** of a spot = gain - resolve x (cost + risk). Prices already put both sides' damage on
+  one scale, so at resolve 1 the score asks "does this trade move the forecast my way".
+- **Resolve.** When the Forecast says my team is losing, resolve drops below 1 (down to 0.25): a
+  losing side that waits only loses later, so it takes the trades that hurt the enemy most ("sell
+  dearly") instead of stalling to the turn limit.
+- Tried and dropped (2026-11-11, keep for the record): scoring by the rate dealt / received. It
+  cured stalling but made Hydra too picky in an even fight; an agile mirror duel went 19 to 54
+  against Gladiator. With the score above the same duel is 30 to 35.
 - **The reply.** An enemy that has not moved will answer. The best few spots (one per hex) are scored
   again against the best answer of the unmoved enemy that weighs most on them (the rival). The number
   of spots re-scored shrinks as more enemies are weighed, so the cost stays level in a big battle.

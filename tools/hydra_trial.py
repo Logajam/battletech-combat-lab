@@ -33,7 +33,7 @@ def main(argv):
     seed = int(option(argv, "--seed", "1"))
     threads = option(argv, "--threads", None)
     folders = [a for i, a in enumerate(argv) if not a.startswith("--") and (i == 0 or not argv[i - 1].startswith("--"))]
-    edges = []
+    edges, heads = [], []
     for folder in folders:
         units = json.load(open(os.path.join(folder, "units.json")))
         teams = []
@@ -53,11 +53,17 @@ def main(argv):
             # strength left: a team's final armor + structure as a share of what it began with, minus the other team's
             left = {t: sum(r["teams"][t]["final_hp"] / max(r["teams"][t]["max_hp"], 1) for r in out["results"]) / battles for t in teams}
             margin[label] = {t: left[t] - sum(left[o] for o in teams if o != t) / max(len(teams) - 1, 1) for t in teams}
+        # head to head: Hydra's wins against the house bot's, both seatings together
+        h = sum(round(share[f"Hydra={t}"][t] * battles) for t in teams)
+        o = sum(round(share[f"Hydra={t}"][x] * battles) for t in teams for x in teams if x != t)
+        print(f"  HEAD TO HEAD: Hydra {h}, house bot {o}, no winner {len(teams) * battles - h - o}")
+        heads.append((h, o))
         edge = sum(share[f"Hydra={t}"][t] - share["baseline"][t] for t in teams) / len(teams)
         gain = sum(margin[f"Hydra={t}"][t] - margin["baseline"][t] for t in teams) / len(teams)
         print(f"  Hydra over the house bot: win share {edge:+.2f}, strength-left margin {gain:+.3f} (0 = no better)")
         edges.append((edge, gain))
     if len(edges) > 1:
+        print(f"ALL {len(edges)} scenarios, head to head: Hydra {sum(h for h, _ in heads)}, house bot {sum(o for _, o in heads)}")
         print(f"ALL {len(edges)} scenarios: mean win-share edge {sum(e for e, _ in edges) / len(edges):+.3f}, mean margin gain {sum(g for _, g in edges) / len(edges):+.3f}")
 
 

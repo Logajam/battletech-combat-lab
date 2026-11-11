@@ -164,11 +164,10 @@ fn range_factor(dist: i64) -> f64 {
 
 /// THE REPLY's budget: about this many "what would it answer" searches per move, shared out over the enemies weighed, and
 /// never more than REPLY_MAX spots re-scored. Under 2 spots the reply is skipped (a big battle: the table speaks alone).
-/// One priced point of damage: keeps a rate finite where a spot takes no fire, and keeps a big clean trade ahead of a
-/// tiny free one.
-const RATE_EPS: f64 = 1.0;
-const REPLY_BUDGET: usize = 12;
-const REPLY_MAX: usize = 8;
+/// The least a losing side discounts its own damage to (see THE SCORE in the Mover).
+const RESOLVE_MIN: f64 = 0.25;
+const REPLY_BUDGET: usize = 32;
+const REPLY_MAX: usize = 32;
 
 fn xy(b: &Battle, u: UnitId) -> Option<(i64, i64)> {
     b.units[u].hex.as_deref().and_then(|h| hex_geometry::parse_hex_label(h).ok())
@@ -286,13 +285,13 @@ pub fn choose_movement(b: &mut Battle, mover: UnitId, other: UnitId, moves_first
         (gain, on, cost)
     };
     let risks: Vec<f64> = prepared.iter().map(|o| my_price * me.psr_for_opt(b, o)).collect();
-    // THE TEAM'S EXCHANGE: what the rest of my team deals (d0) and takes (r0) in a turn, priced. A spot is scored by what it
-    // does to the team's rate of exchange, (d0 + gain) / (r0 + cost + risk): alone (a duel) that is this unit's own
-    // dealt-to-received rate; in a big force it asks "is this trade better than the team's average?".
-    let mean = |side: &[Entry]| side.iter().map(|e| price.get(&e.unit).copied().unwrap_or(1.0)).sum::<f64>() / side.len().max(1) as f64;
-    let d0 = STEP_FIRE * mean(&theirs) * mine.iter().filter(|e| e.unit != mover).map(|e| e.guns).sum::<f64>();
-    let r0 = STEP_FIRE * mean(&mine) * theirs.iter().map(|e| e.guns).sum::<f64>() * (mine.len().saturating_sub(1)) as f64 / mine.len().max(1) as f64;
-    let rate = |g: f64, c: f64, risk: f64| (d0 + g) / (r0 + c + risk + RATE_EPS);
+    // THE SCORE of a spot: gain - resolve x (cost + risk). Prices already put both sides' damage on one scale, so at
+    // resolve 1 this is "does the trade move the forecast my way". When the forecast says my team is losing, resolve
+    // drops below 1: a losing side that waits only loses later, so it takes the trades that hurt the enemy most
+    // ("sell dearly") instead of stalling to the turn limit.
+    let margin = forecast(&mine.iter().map(|e| (e.life, e.guns)).collect::<Vec<_>>(), &theirs.iter().map(|e| (e.life, e.guns)).collect::<Vec<_>>());
+    let resolve = (1.0 + margin).clamp(RESOLVE_MIN, 1.0);
+    let rate = |g: f64, c: f64, risk: f64| g - resolve * (c + risk);
     let mut scored: Vec<(f64, usize)> = Vec::new();
     let mut cost = vec![0.0f64; n];
     for i in 0..n {
@@ -333,10 +332,10 @@ pub fn choose_movement(b: &mut Battle, mover: UnitId, other: UnitId, moves_first
         best = None;
         for &i in &short {
             let o = &prepared[i];
-            // the rival's answer: its own best rate of exchange (damage on me at my price over damage on it at its price)
+            // the rival's answer: the most (damage on me at my price - damage on it at its price), seen from its seat
             let mut answer: Option<(f64, (f64, f64))> = None;
             for c in ev2.evaluate(b, &o.label, o.facing_compass, o.fc, o.mode, o.mp_spent, &prepared2, true) {
-                let v = (my_price * c.dealt) / (p_r * c.received + RATE_EPS);
+                let v = my_price * c.dealt - p_r * c.received;
                 if answer.map_or(true, |(a, _)| v > a) {
                     answer = Some((v, (c.received, c.dealt)));
                 }
@@ -354,7 +353,7 @@ pub fn choose_movement(b: &mut Battle, mover: UnitId, other: UnitId, moves_first
         let o = &prepared[i];
         let (g, on, c) = weigh(i, instead);
         let on = on.map_or("nobody".to_string(), |e| b.units[e].side_name.clone().unwrap_or_default());
-        let note = format!("Hydra: rate {:.2} = (team {:.1} + gain {:.2} on {}) / (team {:.1} + cost {:.2} + risk {:.2}) ({} of {} enemies weighed, {} spots{})", score, d0, g, on, r0, c, risks[i], relevant.len(), enemies.len(), n, reply_note);
+        let note = format!("Hydra: score {:.2} = gain {:.2} on {} - resolve {:.2} x (cost {:.2} + risk {:.2}) ({} of {} enemies weighed, {} spots{})", score, g, on, resolve, c, risks[i], relevant.len(), enemies.len(), n, reply_note);
         return (Some(o.pick()), note);
     }
 
