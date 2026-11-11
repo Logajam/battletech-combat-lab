@@ -152,6 +152,38 @@ rests on guessing the enemy's answer, and Hydra's guess (one rival, scored on Hy
 poor: in the brawler duel it predicted "I deal 2.9, take 8.0" and still had to go. Stage S5a below is
 aimed at exactly this.
 
+### Second pass (2026-11-11, later the same day): three changes kept, four tried and dropped
+
+Kept (all in the Mover; each judged on the same seeds, 40 battles a seating):
+- **Where damage lands.** Every damage figure in an exchange is multiplied by the engine's exposure factor of the
+  side it arrives on (front / left / right / rear, from the armor and structure left there).
+  2 v 2 + 4 v 4 woods: 69 - 64 with it, 59 - 70 without.
+- **A unit alone may hide.** When Hydra must move first and no friend is in any weighed enemy's reach, the
+  spots sent to the reply include those that deal nothing. A unit with friends may NOT: hiding leaves them
+  the fire (tried for everyone: 4 v 4 woods fell from winning to 28 - 36).
+- **Reply budget 64** (was 32). 128 and 256 gave nothing more.
+
+| Match-up | Before | After |
+|---|---|---|
+| duel, Griffin | 33 - 34 - 13 | 38 - 26 - 16 |
+| duel, Hunchback, woods | 23 - 47 - 10 | 29 - 38 - 13 (still the weak spot) |
+| 2 v 2 | 32 - 45 - 3 | 34 - 34 - 12 |
+| 4 v 4 lance, woods | 41 - 28 - 11 | 35 - 30 - 15 (within the noise of 80 battles) |
+
+NOT re-run after the changes: Awesome duel, 4 v 4 grass (37 - 31 - 12 in a mid-way build), 4 v 4 heavies,
+8 v 8, 12 v 12, and speed. Run the whole table before building on this.
+
+Tried and dropped (no gain, so the code does not carry them):
+- pressing harder when ahead (judging trades as if level; discounting damage taken by the lead): flat;
+- more or less weight on the team's typical turn in the score (x 0.3, x 3): flat;
+- counting the fire a friend takes when I hide as my cost: much worse (74 - 130 over three match-ups);
+- a deeper reply alone (128 spots, dealing spots only): flat.
+
+What was learned: a split trial (Hydra only when moving first / only when moving second, the house pilot
+otherwise) put the gap in MOVING FIRST: 23 - 42 with Hydra's first move, 30 - 38 with Gladiator's. Hydra's
+duels ended in 17 turns against 28 for Gladiator v Gladiator: it walked into trades. S5a is still the cure.
+One battle in ten or so is about 80 battles' noise here (+/- 6 wins): judge on 3 or more match-ups together.
+
 ## 6. Stage S5: play-outs (the plan; nothing built)
 
 Purpose: replace the Mover's weakest guess - "what happens after I move" - with a measurement.

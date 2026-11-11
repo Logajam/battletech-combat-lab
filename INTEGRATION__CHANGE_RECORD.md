@@ -6,6 +6,13 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-11 (Claude, session 24), HYDRA SECOND PASS: where damage lands, a lone unit may hide, reply budget 64. REVIEW PENDING (higher-level model).**
+  Daniel: "Improve Hydra." `engine/core/src/hydra.rs` only (Hydra units only; no other bot or rule touched). (1) exchange figures are multiplied
+  by the engine's exposure factor of the side the damage arrives on (`Side::exposure`); (2) when moving first with no friend in any weighed
+  enemy's reach, the reply also looks at spots that deal nothing; (3) REPLY_BUDGET / REPLY_MAX 32 -> 64. Mirror trials, Hydra - Gladiator - none,
+  before -> after: Griffin duel 33-34-13 -> 38-26-16; Hunchback woods duel 23-47-10 -> 29-38-13; 2 v 2 32-45-3 -> 34-34-12; 4 v 4 woods
+  41-28-11 -> 35-30-15. The rest of the table and the speed were NOT re-run (time ran out). Four ideas tried and dropped, and the finding that the
+  gap is in moving first, are in `INTEGRATION__HYDRA.md` Section 5 "Second pass". Checks: engine tests as before (73 reference battles exact, the same 2 known lookahead-dice cases differ); Hydra unit tests pass.
 - **2026-11-11 (Claude, session 24), COMBAT LAB ART: ADVICE ON INTERCHANGEABLE ARMS AND TORSOS (sheet A9). Document only.**
   Daniel: "advice you could give future you on how to create arms and torsos that are interchangeable, and contain a known variety of weapon and
   equipment slots?" `INTEGRATION__COMBAT_LAB_ART_SPECS.md` A9: design the joins and the bays first and the shape last - a socket standard with size
