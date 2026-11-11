@@ -79,8 +79,17 @@ boldness when winning and care when losing, and ignoring an enemy that will not 
   - **cost** = my own price x the damage each enemy would deal me, each enemy counted by the share
     of its attention I would get (an enemy has one target; friends near me share the load);
   - **risk** = my own price x expected damage from falls and hazards on the way.
-  - score = gain - cost - risk. Highest score wins.
-- No position deals damage: close on the enemy with the highest price, by the safest route.
+- **The team's exchange.** The spot's score is what it does to the whole team's rate of exchange:
+  (what the rest of the team deals + gain) / (what the rest of the team takes + cost + risk).
+  Alone, that is the unit's own dealt-to-received rate. In a big force it asks "is this trade better
+  than the team's average?". Why a rate and not gain minus cost: a battle fought to the end is decided
+  by the rate; gain minus cost made an outmatched unit stall for 50 turns (first trials).
+- **The reply.** An enemy that has not moved will answer. The best few spots (one per hex) are scored
+  again against the best answer of the unmoved enemy that weighs most on them (the rival). The number
+  of spots re-scored shrinks as more enemies are weighed, so the cost stays level in a big battle.
+- **Never refuses battle.** If any spot deals damage, a spot that deals damage is chosen. (Purpose:
+  the simulator exists to resolve the fight. A later stage may let a unit wait for its friends.)
+- No position deals damage: close on the highest-priced enemy among the nearest, by the safest route.
 - Only enemies that can matter this turn are asked about (reach + weapon range), so a 12 v 12 does
   not cost 12 times a duel for every unit.
 
@@ -100,6 +109,9 @@ boldness when winning and care when losing, and ignoring an enemy that will not 
 - Hydra's memory for a battle (ledger, prices, the phase's fire plan) lives in `Battle::hydra`.
 - Run: `btsim SCENARIO_DIR --hydra TEAM` makes every unit of that team a Hydra (the scenario files
   still come from the old tools).
+- Trials: `python tools/hydra_scenarios.py` builds the mirror match-ups (same 'Mechs both sides) into
+  `engine/fixtures/hy_*`; `python tools/hydra_trial.py engine/fixtures/hy_* --battles 40` plays each
+  three ways (nobody Hydra, first team Hydra, second team Hydra) and prints the comparison.
 
 ## 4. How it is judged
 
