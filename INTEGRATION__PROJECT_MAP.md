@@ -344,7 +344,11 @@ remaining HP (or a push off the board) ranks below every other spot;
 when dealt is 0; (c) a difference, dealt - received. Replay of that battle:
 https://claude.ai/artifact/NJUknRiK1fcZzUv4A1fndX
 
-**Known issues found by the Rust review (session 24, 2026-11-11; the Python is frozen during the port, so none is changed - Daniel's call):**
+**Known issues found by the Rust review (session 24, 2026-11-11; the Python is frozen during the port, so none is changed).**
+**DANIEL, 2026-11-11: fix these in the Python AFTER the port is otherwise complete ("We'll leave correcting the python code for future you"); the
+lookahead dice are not a worry as long as both engines are wired the same way (they are: the Rust copies the quirk and draws from the battle's dice
+too - only the number of draws differs, which shows in an exact replay and not in batch statistics). The switches that are off by default stay
+untranslated "until they're actually needed". What is left of the port is finishing work for smaller models.**
 - A bot's lookahead rolls REAL dice: `structure_weight.hit_spread` calls `hit_location.resolve_hit_location`, which re-rolls a head result on a unit
   whose head is destroyed and whose cockpit is in the torso (Core p.203) with `config.roll_2d6` and logs each re-roll. So a bot that is only thinking
   uses up battle dice and prints dozens of "Head already destroyed ... re-rolled" lines (fixture `fza_240`: 47 in one move). Suggested fix: in the
