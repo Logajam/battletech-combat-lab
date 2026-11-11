@@ -35,7 +35,9 @@ impl BotSet for GladiatorBots {
                 return Some(f);
             }
         }
-        crate::forces::choose_foe(b, mover)
+        // forces.choose_foe(...) or forces.any_enemy(...): the foe a unit still plans against when its last enemy fell earlier in
+        // the same phase (destroyed or not)
+        crate::forces::choose_foe(b, mover).or_else(|| (0..b.units.len()).find(|u| b.units[*u].team != b.units[mover].team))
     }
 
     #[allow(unused)]

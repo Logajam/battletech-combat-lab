@@ -11,6 +11,7 @@ pub mod battle;
 pub mod mech_state;
 pub mod mech_json;
 pub mod damage_resolution;
+pub mod dice;
 pub mod armor_rules;
 pub mod hit_location;
 pub mod advanced_equipment;
@@ -66,3 +67,5 @@ pub mod replay_bots;
 pub mod setup;
 pub mod structure_weight;
 pub mod gladiator;
+
+pub mod scenario;
