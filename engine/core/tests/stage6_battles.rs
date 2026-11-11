@@ -192,7 +192,10 @@ fn run_fixture(dir: PathBuf) -> Result<usize, String> {
     if seen != trace.len() {
         return Err(format!("{}: {} marks played, the trace has {}", name, seen, trace.len()));
     }
-    if let Some(i) = got_log.iter().zip(&want_log).position(|(a, b2)| a != b2) {
+    // movement notes print scores to 2-3 places: a 1-ulp float difference (Daniel, 2026-11-10: not worth chasing) can tip
+    // the last digit, so those lines agree when their numbers are within one unit of the last place printed
+    let same_line = |a: &String, b2: &String| a == b2 || (a.contains("[Movement select]") && btsim_core::replay_bots::notes_agree(a, b2));
+    if let Some(i) = got_log.iter().zip(&want_log).position(|(a, b2)| !same_line(a, b2)) {
         return Err(format!("{}: log line {}:\n  rust:   {}\n  python: {}", name, i + 1, got_log[i], want_log[i]));
     }
     if got_log.len() != want_log.len() {

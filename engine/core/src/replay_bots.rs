@@ -62,7 +62,7 @@ impl ReplayBots {
 
 /// The notes of a move decision print numbers to 2-3 places: two notes agree when their text is the same and every
 /// number is within one unit of the last place printed (a 1-ulp float difference can tip a rounding, Daniel 2026-11-10).
-fn notes_agree(a: &str, b: &str) -> bool {
+pub fn notes_agree(a: &str, b: &str) -> bool {
     let split = |s: &str| -> (String, Vec<(f64, usize)>) {
         let mut skel = String::new();
         let mut nums = Vec::new();
