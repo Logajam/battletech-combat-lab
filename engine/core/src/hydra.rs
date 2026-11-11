@@ -164,8 +164,6 @@ fn range_factor(dist: i64) -> f64 {
 
 /// THE REPLY's budget: about this many "what would it answer" searches per move, shared out over the enemies weighed, and
 /// never more than REPLY_MAX spots re-scored. Under 2 spots the reply is skipped (a big battle: the table speaks alone).
-/// The least a losing side discounts its own damage to (see THE SCORE in the Mover).
-const RESOLVE_MIN: f64 = 0.25;
 const REPLY_BUDGET: usize = 32;
 const REPLY_MAX: usize = 32;
 
@@ -285,13 +283,16 @@ pub fn choose_movement(b: &mut Battle, mover: UnitId, other: UnitId, moves_first
         (gain, on, cost)
     };
     let risks: Vec<f64> = prepared.iter().map(|o| my_price * me.psr_for_opt(b, o)).collect();
-    // THE SCORE of a spot: gain - resolve x (cost + risk). Prices already put both sides' damage on one scale, so at
-    // resolve 1 this is "does the trade move the forecast my way". When the forecast says my team is losing, resolve
-    // drops below 1: a losing side that waits only loses later, so it takes the trades that hurt the enemy most
-    // ("sell dearly") instead of stalling to the turn limit.
-    let margin = forecast(&mine.iter().map(|e| (e.life, e.guns)).collect::<Vec<_>>(), &theirs.iter().map(|e| (e.life, e.guns)).collect::<Vec<_>>());
-    let resolve = (1.0 + margin).clamp(RESOLVE_MIN, 1.0);
-    let rate = |g: f64, c: f64, risk: f64| g - resolve * (c + risk);
+    // THE SCORE of a spot: what it does to my team's rate of exchange over a typical turn,
+    //     (d0 + gain) / (r0 + cost + risk)
+    // d0 / r0 = what my whole team (this unit included) deals / takes in a typical turn, priced. In a big force one
+    // unit's trade is small next to d0 and r0, and the score asks "is this trade better than the team's average?". In a
+    // duel d0 and r0 are this unit's own typical turn, which keeps the score from chasing a tiny free shot over a solid
+    // trade. A side that waits scores d0 / r0, so stalling never beats a fair trade.
+    let mean = |side: &[Entry]| side.iter().map(|e| price.get(&e.unit).copied().unwrap_or(1.0)).sum::<f64>() / side.len().max(1) as f64;
+    let d0 = STEP_FIRE * mean(&theirs) * mine.iter().map(|e| e.guns).sum::<f64>();
+    let r0 = STEP_FIRE * mean(&mine) * theirs.iter().map(|e| e.guns).sum::<f64>();
+    let rate = |g: f64, c: f64, risk: f64| (d0 + g) / (r0 + c + risk).max(1e-9);
     let mut scored: Vec<(f64, usize)> = Vec::new();
     let mut cost = vec![0.0f64; n];
     for i in 0..n {
@@ -353,7 +354,7 @@ pub fn choose_movement(b: &mut Battle, mover: UnitId, other: UnitId, moves_first
         let o = &prepared[i];
         let (g, on, c) = weigh(i, instead);
         let on = on.map_or("nobody".to_string(), |e| b.units[e].side_name.clone().unwrap_or_default());
-        let note = format!("Hydra: score {:.2} = gain {:.2} on {} - resolve {:.2} x (cost {:.2} + risk {:.2}) ({} of {} enemies weighed, {} spots{})", score, g, on, resolve, c, risks[i], relevant.len(), enemies.len(), n, reply_note);
+        let note = format!("Hydra: rate {:.3} = (team {:.1} + gain {:.2} on {}) / (team {:.1} + cost {:.2} + risk {:.2}) ({} of {} enemies weighed, {} spots{})", score, d0, g, on, r0, c, risks[i], relevant.len(), enemies.len(), n, reply_note);
         return (Some(o.pick()), note);
     }
 
