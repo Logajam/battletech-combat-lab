@@ -179,7 +179,7 @@ fn movement_options_all(b: &Battle, u: UnitId, standup_mp: Option<i64>, entry_ed
         out.push(((sx, sy, start_facing, 0, mode_for(0, false), 0), 0, 0.0));
     }
     for f0 in &starts {
-        let table = build_movement_table(sx, sy, *f0, run_budget, Some(&b.board), backward_mp, level_limit, false, &blocked).unwrap();
+        let table = b.movement_table(sx, sy, *f0, run_budget, backward_mp, level_limit, &blocked);
         for ((x, y, facing), col) in &table.entries {
             let psrs = table.psrs.as_ref().and_then(|p| p.get(&(*x, *y, *facing)));
             let hz = table.hazards.get(&(*x, *y, *facing));
@@ -238,7 +238,7 @@ fn entry_options(b: &Battle, u: UnitId, edge: &[String], notes: &mut PathNotes) 
         let (ea, er) = terrain_rules::step_psrs(None, info, false);
         let eh = terrain_rules::step_hazard(info, 2);
         for f0 in 0..6 {
-            let table = build_movement_table(ex, ey, f0, run - cost, Some(&b.board), None, level_limit, false, &blocked).unwrap();
+            let table = b.movement_table(ex, ey, f0, run - cost, None, level_limit, &blocked);
             for ((x, y, facing), col) in &table.entries {
                 let psrs = table.psrs.as_ref().and_then(|p| p.get(&(*x, *y, *facing)));
                 let hz = table.hazards.get(&(*x, *y, *facing));

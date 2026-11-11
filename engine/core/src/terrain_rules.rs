@@ -148,7 +148,7 @@ pub fn is_paved(info: &Hex) -> bool {
 }
 
 /// A mover's level limit that also says whether the mover is a superheavy (Python's GroundLimit(int)).
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct GroundLimit {
     pub value: i64,
     pub superheavy: bool,
@@ -282,13 +282,17 @@ pub fn step_hazard(info: &Hex, legs: i64) -> f64 {
     out
 }
 
-/// Does any hex of this board carry a hazard feature? (The Python caches this on the board; no cache here yet.)
+/// Does any hex of this board carry a hazard feature? (Answered once per board, as the Python caches it.)
 pub fn has_hazard_terrain(board: &Board) -> bool {
-    board.hexes.values().any(|info| HAZARD_FEATURES.iter().any(|f| info.features.has(f)))
+    *board.hazard_terrain.get_or_init(|| board.hexes.values().any(|info| HAZARD_FEATURES.iter().any(|f| info.features.has(f))))
 }
 
-/// Can any step on this board force a terrain PSR, or hurt?
+/// Can any step on this board force a terrain PSR, or hurt? (Answered once per board.)
 pub fn has_psr_terrain(board: &Board) -> bool {
+    *board.psr_terrain.get_or_init(|| psr_terrain_scan(board))
+}
+
+fn psr_terrain_scan(board: &Board) -> bool {
     let mut levels: Vec<i64> = board.hexes.values().map(|h| h.level).collect();
     levels.sort();
     levels.dedup();

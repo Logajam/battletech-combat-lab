@@ -121,8 +121,15 @@ pub struct Battle {
     pub princess: crate::princess_fire::PrincessState,
     /// INTEGRATION__los_cache: lines of sight the bots asked about, (from, to, heights) -> answer (None = the line runs
     /// off the board). Speed only: emptied whenever the board changes (`board_changed`).
+    /// finished movement tables (`movement_table`); speed only, emptied when the board changes
+    pub table_memo: std::cell::RefCell<crate::fasthash::HashMap<TableKey, std::sync::Arc<crate::pathfinder::MovementTable>>>,
     pub los_memo: std::cell::RefCell<crate::fasthash::HashMap<((i64, i64), (i64, i64), crate::los::Height, crate::los::Height), Option<crate::move_eval::PairInfo>>>,
 }
+
+/// `Battle::table_memo`'s key: (x, y, facing, MP budget, backward MP, level limit, blocked hexes sorted).
+pub type TableKey = (i64, i64, i64, i64, Option<i64>, crate::terrain_rules::GroundLimit, Vec<(i64, i64)>);
+/// The most tables `Battle::table_memo` holds before it is emptied (it just refills).
+pub const TABLE_MEMO_MAX: usize = 400;
 
 /// decisions.json played back: each bot decision of the battle, in the order the engine asks for them.
 pub struct Replay {
@@ -134,6 +141,28 @@ impl Battle {
     /// Call after any change to a hex of the board (smoke, magma crust): remembered lines of sight are dropped.
     pub fn board_changed(&mut self) {
         self.los_memo.borrow_mut().clear();
+        self.table_memo.borrow_mut().clear();
+        self.board.psr_terrain = Default::default();
+        self.board.hazard_terrain = Default::default();
+    }
+
+    /// pathfinder.build_movement_table on this battle's board (no parent links), each distinct search done once and
+    /// kept until the board changes - the Python's finished-table cache. The blocked hexes are part of the key.
+    #[allow(clippy::too_many_arguments)]
+    pub fn movement_table(&self, x: i64, y: i64, facing: i64, budget: i64, backward_mp: Option<i64>, level_limit: crate::terrain_rules::GroundLimit, blocked: &crate::fasthash::HashSet<(i64, i64)>) -> std::sync::Arc<crate::pathfinder::MovementTable> {
+        let mut hexes: Vec<(i64, i64)> = blocked.iter().copied().collect();
+        hexes.sort();
+        let key = (x, y, facing, budget, backward_mp, level_limit, hexes);
+        if let Some(t) = self.table_memo.borrow().get(&key) {
+            return t.clone();
+        }
+        let table = std::sync::Arc::new(crate::pathfinder::build_movement_table(x, y, facing, budget, Some(&self.board), backward_mp, level_limit, false, blocked).unwrap());
+        let mut memo = self.table_memo.borrow_mut();
+        if memo.len() >= TABLE_MEMO_MAX {
+            memo.clear();
+        }
+        memo.insert(key, table.clone());
+        table
     }
 
     pub fn new(cfg: Config, board: Board, units: Vec<Mech>, dice: Box<dyn Dice>) -> Battle {
@@ -158,6 +187,7 @@ impl Battle {
             fire_ctl: None,
             princess: Default::default(),
             los_memo: Default::default(),
+            table_memo: Default::default(),
         }
     }
 

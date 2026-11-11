@@ -107,6 +107,9 @@ pub struct Board {
     /// (column, row) -> the hex's position in `hexes`, built on first use (`info_xy`). Speed only: hexes are never
     /// added or removed after a board is built, only their contents change.
     pub grid: std::sync::OnceLock<Grid>,
+    /// terrain_rules.has_psr_terrain / has_hazard_terrain, answered once (speed only; `Battle::board_changed` drops them)
+    pub psr_terrain: std::sync::OnceLock<bool>,
+    pub hazard_terrain: std::sync::OnceLock<bool>,
 }
 
 /// `Board::grid`: positions in `hexes` by column and row (u32::MAX = no such hex).
@@ -285,7 +288,7 @@ pub fn parse_board_file(path: &str, text: &str, out: &mut String) -> Result<Boar
     if !seen_end {
         return Err(format!("Board file {} never had a terminating 'end' line.", py_repr_str(path)));
     }
-    Ok(Board { width, height, hexes, grid: Default::default() })
+    Ok(Board { width, height, hexes, grid: Default::default(), psr_terrain: Default::default(), hazard_terrain: Default::default() })
 }
 
 /// MegaMek's columnPaddingWidth default: the blank columns after an odd-width board.
@@ -385,7 +388,7 @@ pub fn stitch_boards(boards: &[(String, String)], cols: i64, rows: i64, out: &mu
             }
         }
     }
-    Ok(Board { width: total_width, height: total_height, hexes, grid: Default::default() })
+    Ok(Board { width: total_width, height: total_height, hexes, grid: Default::default(), psr_terrain: Default::default(), hazard_terrain: Default::default() })
 }
 
 /// Python's `str(sorted(set_of_ints))`: [15, 16]
@@ -454,6 +457,8 @@ impl Board {
             height: v["height"].as_i64().unwrap(),
             hexes: v["hexes"].as_object().unwrap().iter().map(|(k, h)| (k.clone(), Hex::from_json(h))).collect(),
             grid: Default::default(),
+            psr_terrain: Default::default(),
+            hazard_terrain: Default::default(),
         }
     }
 }

@@ -165,7 +165,7 @@ pub fn path_notes(b: &Battle, u: UnitId, pick: &Pick, standup_mp: Option<i64>, e
             let (ea, er) = terrain_rules::step_psrs(None, info, false);
             let eh = terrain_rules::step_hazard(info, 2);
             for f0 in 0..6 {
-                let table = build_movement_table(ex, ey, f0, run - cost, Some(&b.board), None, level_limit, false, &blocked).unwrap();
+                let table = b.movement_table(ex, ey, f0, run - cost, None, level_limit, &blocked);
                 for ((sx, sy, sf), col) in &table.entries {
                     for (spent, fc) in col {
                         let total = spent + cost;
@@ -191,7 +191,7 @@ pub fn path_notes(b: &Battle, u: UnitId, pick: &Pick, standup_mp: Option<i64>, e
         Some(s) => ((0..6).collect(), s, None, 0),
     };
     for f0 in starts {
-        let table = build_movement_table(sx, sy, f0, run_budget, Some(&b.board), backward_mp, level_limit, false, &blocked).unwrap();
+        let table = b.movement_table(sx, sy, f0, run_budget, backward_mp, level_limit, &blocked);
         if let Some(col) = table.entries.get(&(x, y, facing)) {
             for (spent, fc) in col {
                 let mode = if standup_mp.is_none() { classify_movement_mode(*spent, walk) } else { "Run" };

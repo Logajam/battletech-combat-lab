@@ -366,7 +366,7 @@ fn needs_backward_move(b: &Battle, mover: UnitId, pick: &Pick, standup_mp: Optio
     let (sx, sy, start_facing) = hex_geometry::state_from_label(m.hex.as_deref().unwrap(), &m.facing).unwrap();
     let level_limit = terrain_rules::max_level_change(ground_level_limited(m), is_superheavy(m));
     let blocked = crate::ranged_combat::blocked_set(&m.blocked_hex);
-    let table = crate::pathfinder::build_movement_table(sx, sy, start_facing, compute_running_mp(m), Some(&b.board), None, level_limit, false, &blocked).unwrap();
+    let table = b.movement_table(sx, sy, start_facing, compute_running_mp(m), None, level_limit, &blocked);
     let in_forward = table.entries.get(&(x, y, facing)).and_then(|c| c.get(&pick.mp_spent)) == Some(&pick.fc);
     !in_forward
 }
