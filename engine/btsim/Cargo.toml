@@ -7,4 +7,5 @@ description = "BattleTech Monte Carlo: runs batches of battles on the Rust engin
 [dependencies]
 btsim_core = { path = "../core" }
 rayon = "1"
+mimalloc = { version = "0.1", default-features = false }
 serde_json = { version = "1", features = ["preserve_order"] }

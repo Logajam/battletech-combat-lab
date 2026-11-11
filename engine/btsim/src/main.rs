@@ -9,6 +9,11 @@ use btsim_core::scenario::Scenario;
 use rayon::prelude::*;
 use serde_json::{json, Value};
 
+/// The engine makes millions of small, short-lived allocations a battle: mimalloc handles those much faster than the
+/// system allocator, above all with several battles running side by side.
+#[global_allocator]
+static ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
 fn arg(args: &[String], name: &str) -> Option<String> {
     args.iter().position(|a| a == name).and_then(|i| args.get(i + 1)).cloned()
 }

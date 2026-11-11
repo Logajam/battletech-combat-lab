@@ -89,7 +89,8 @@ impl Log {
 
 pub struct Battle {
     pub cfg: Config,
-    pub db: EquipmentDb,
+    /// equipment.json: a read-only table, parsed once for the whole process and shared by every battle
+    pub db: &'static EquipmentDb,
     pub log: Log,
     pub dice: std::cell::RefCell<Box<dyn Dice>>,
     /// log lines a lookahead's dice quirk printed (a destroyed torso-cockpit head re-rolled while a bot was only thinking):
@@ -131,7 +132,7 @@ impl Battle {
         let piloting = if cfg.has("PILOTING") { cfg.i("PILOTING") } else { 5 };
         Battle {
             cfg,
-            db: EquipmentDb::load(),
+            db: EquipmentDb::shared(),
             log: Log::default(),
             dice: std::cell::RefCell::new(dice),
             lookahead_log: Default::default(),

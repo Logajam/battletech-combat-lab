@@ -192,8 +192,9 @@ pub fn arm_actuator_modifier(mech: &Mech, locations: &[String]) -> i64 {
 }
 
 pub fn arm_aes_modifier(mech: &Mech, locations: &[String]) -> i64 {
-    let set: std::collections::BTreeSet<&String> = locations.iter().collect();
-    if set.len() == 1 && ARM_LOCATIONS.contains(&set.iter().next().unwrap().as_str()) && arm_aes_working(mech, set.iter().next().unwrap()) {
+    // one location (however many slots), and it is an arm with working AES
+    let Some(first) = locations.first() else { return 0 };
+    if locations.iter().all(|l| l == first) && ARM_LOCATIONS.contains(&first.as_str()) && arm_aes_working(mech, first) {
         -1
     } else {
         0

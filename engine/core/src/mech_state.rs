@@ -1061,6 +1061,27 @@ pub fn compute_running_mp(mech: &Mech) -> i64 {
 }
 
 fn is_aes(name: &str) -> bool {
+    if name.is_ascii() {
+        // the same test without building the string: spaces and hyphens dropped, upper case
+        let mut buf = [0u8; 96];
+        let mut n = 0;
+        for c in name.bytes() {
+            if c == b' ' || c == b'-' {
+                continue;
+            }
+            if n == buf.len() {
+                return is_aes_slow(name);
+            }
+            buf[n] = c.to_ascii_uppercase();
+            n += 1;
+        }
+        let t = &buf[..n];
+        return t.ends_with(b"AES") || t.windows(19).any(|w| w == b"ACTUATORENHANCEMENT");
+    }
+    is_aes_slow(name)
+}
+
+fn is_aes_slow(name: &str) -> bool {
     let n = name.replace(' ', "").replace('-', "").to_uppercase();
     n.ends_with("AES") || n.contains("ACTUATORENHANCEMENT")
 }
@@ -1089,7 +1110,9 @@ fn aes_by_location(mech: &Mech) -> IndexMap<String, bool> {
 }
 
 pub fn arm_aes_working(mech: &Mech, arm: &str) -> bool {
-    aes_by_location(mech).get(arm) == Some(&true)
+    // `aes_by_location(mech).get(arm) == Some(&true)`, looking at this one location only
+    let mounted = mech.crits.get(arm).is_some_and(|slots| slots.iter().any(|s| is_aes(slot_name(mech, s))));
+    mounted && !mech.destroyed_slot_info.iter().any(|((loc, _), info)| loc == arm && is_aes(&info.name))
 }
 
 pub fn leg_aes_working(mech: &Mech) -> bool {

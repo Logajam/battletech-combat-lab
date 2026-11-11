@@ -99,6 +99,17 @@ pub struct Board {
     pub width: i64,
     pub height: i64,
     pub hexes: IndexMap<String, Hex>,
+    /// (column, row) -> the hex's position in `hexes`, built on first use (`info_xy`). Speed only: hexes are never
+    /// added or removed after a board is built, only their contents change.
+    pub grid: std::sync::OnceLock<Grid>,
+}
+
+/// `Board::grid`: positions in `hexes` by column and row (u32::MAX = no such hex).
+#[derive(Clone, Debug, Default)]
+pub struct Grid {
+    cols: i64,
+    rows: i64,
+    at: Vec<u32>,
 }
 
 impl Board {
@@ -269,7 +280,7 @@ pub fn parse_board_file(path: &str, text: &str, out: &mut String) -> Result<Boar
     if !seen_end {
         return Err(format!("Board file {} never had a terminating 'end' line.", py_repr_str(path)));
     }
-    Ok(Board { width, height, hexes })
+    Ok(Board { width, height, hexes, grid: Default::default() })
 }
 
 /// MegaMek's columnPaddingWidth default: the blank columns after an odd-width board.
@@ -369,7 +380,7 @@ pub fn stitch_boards(boards: &[(String, String)], cols: i64, rows: i64, out: &mu
             }
         }
     }
-    Ok(Board { width: total_width, height: total_height, hexes })
+    Ok(Board { width: total_width, height: total_height, hexes, grid: Default::default() })
 }
 
 /// Python's `str(sorted(set_of_ints))`: [15, 16]
@@ -381,10 +392,35 @@ impl Board {
     /// The hex at doubled coordinates (x, y), None if off the board or not a hex center (Python's
     /// `hexes.get(hex_label(x, y))` with a ValueError read as "not there").
     pub fn info_xy(&self, x: i64, y: i64) -> Option<&Hex> {
-        match crate::hex_geometry::hex_label(x, y) {
-            Ok(label) => self.hexes.get(&label),
-            Err(_) => None,
+        let (col, row) = crate::hex_geometry::col_row(x, y)?;
+        let grid = self.grid.get_or_init(|| self.build_grid());
+        if col >= grid.cols || row >= grid.rows {
+            return None;
         }
+        match grid.at[(col * grid.rows + row) as usize] {
+            u32::MAX => None,
+            i => self.hexes.get_index(i as usize).map(|(_, h)| h),
+        }
+    }
+
+    fn build_grid(&self) -> Grid {
+        // only labels that `hex_label` itself would write ("CCRR") can be found by coordinates
+        let mut cells: Vec<(i64, i64, u32)> = Vec::new();
+        for (i, label) in self.hexes.keys().enumerate() {
+            if let Ok((x, y)) = crate::hex_geometry::parse_hex_label(label) {
+                if crate::hex_geometry::hex_label(x, y).as_deref() == Ok(label.as_str()) {
+                    let (col, row) = crate::hex_geometry::col_row(x, y).unwrap();
+                    cells.push((col, row, i as u32));
+                }
+            }
+        }
+        let cols = cells.iter().map(|c| c.0).max().unwrap_or(0) + 1;
+        let rows = cells.iter().map(|c| c.1).max().unwrap_or(0) + 1;
+        let mut at = vec![u32::MAX; (cols * rows) as usize];
+        for (col, row, i) in cells {
+            at[(col * rows + row) as usize] = i;
+        }
+        Grid { cols, rows, at }
     }
 }
 
@@ -412,6 +448,7 @@ impl Board {
             width: v["width"].as_i64().unwrap(),
             height: v["height"].as_i64().unwrap(),
             hexes: v["hexes"].as_object().unwrap().iter().map(|(k, h)| (k.clone(), Hex::from_json(h))).collect(),
+            grid: Default::default(),
         }
     }
 }

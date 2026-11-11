@@ -226,10 +226,7 @@ pub fn woods_density(info: &HexInfo) -> Option<String> {
 }
 
 fn hex_info<'a>(board: &'a Board, h: Hex) -> Option<&'a HexInfo> {
-    match hex_label(h.0, h.1) {
-        Ok(label) => board.hexes.get(&label),
-        Err(_) => None,
-    }
+    board.info_xy(h.0, h.1)
 }
 
 fn fmt_hex(h: Hex) -> String {

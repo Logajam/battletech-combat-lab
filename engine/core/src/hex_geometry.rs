@@ -40,7 +40,31 @@ pub fn hex_label(x: i64, y: i64) -> Result<String, String> {
     if col < 1 || row < 1 {
         return Err(format!("({}, {}) maps to non-positive col/row ({}, {})", x, y, col, row));
     }
+    if col < 100 && row < 100 {
+        // the usual case, written without the formatter (this is called millions of times a battle)
+        let d = |n: i64| (b'0' + n as u8) as char;
+        let mut out = String::with_capacity(4);
+        out.push(d(col / 10));
+        out.push(d(col % 10));
+        out.push(d(row / 10));
+        out.push(d(row % 10));
+        return Ok(out);
+    }
     Ok(format!("{:02}{:02}", col, row))
+}
+
+/// (column, row) of the hex at doubled coordinates, None where `hex_label` would be an error.
+pub fn col_row(x: i64, y: i64) -> Option<(i64, i64)> {
+    let offset = row_parity_offset(x);
+    if py_mod(y - offset, 2) != 0 {
+        return None;
+    }
+    let col = x + 1;
+    let row = 1 - py_floordiv(y - offset, 2);
+    if col < 1 || row < 1 {
+        return None;
+    }
+    Some((col, row))
 }
 
 /// BT-style 'CCRR' hex label -> internal doubled coords (x, y).

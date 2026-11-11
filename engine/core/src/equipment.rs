@@ -402,6 +402,13 @@ pub struct EquipmentDb {
 }
 
 impl EquipmentDb {
+    /// The one parsed copy of equipment.json (it never changes; parsing it for every battle cost about a tenth of a
+    /// short duel's time).
+    pub fn shared() -> &'static EquipmentDb {
+        static DB: std::sync::OnceLock<EquipmentDb> = std::sync::OnceLock::new();
+        DB.get_or_init(EquipmentDb::load)
+    }
+
     pub fn load() -> EquipmentDb {
         let v: Value = serde_json::from_str(EQUIPMENT_JSON).expect("equipment.json");
         let entries = v["entries"].as_object().unwrap().iter().map(|(k, e)| (k.clone(), Entry(e.clone()))).collect();

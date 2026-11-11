@@ -113,7 +113,7 @@ pub fn artillery_kind(b: &mut Battle, u: UnitId, w: ItemId) -> Option<&'static s
     if n.contains("ARROWIV") {
         return Some("ARROWIV");
     }
-    ["SNIPER", "THUMPER"].into_iter().find(|k| n.ends_with(k) || n.ends_with(&format!("{}ARTILLERY", k)))
+    [("SNIPER", "SNIPERARTILLERY"), ("THUMPER", "THUMPERARTILLERY")].into_iter().find(|(k, long)| n.ends_with(k) || n.ends_with(long)).map(|(k, _)| k)
 }
 
 pub fn is_arrow(b: &mut Battle, u: UnitId, w: ItemId) -> bool {
