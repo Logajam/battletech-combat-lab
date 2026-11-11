@@ -113,7 +113,7 @@ fn run_fixture(dir: PathBuf) -> Result<usize, String> {
     let own_bots = std::env::var("BOTS").map_or(false, |v| v == "rust");
     if own_bots {
         // the Rust Gladiator plays alone: duels between Gladiators only (the rest is not translated yet)
-        let duel_of_gladiators = names.len() == 2 && b.units.iter().all(|u| u.bot == "gladiator");
+        let duel_of_gladiators = b.units.iter().all(|u| u.bot == "gladiator");
         if !duel_of_gladiators {
             return Ok(0);
         }
