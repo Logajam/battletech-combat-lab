@@ -108,7 +108,7 @@ standoff, sprinting, multi-target fire, unit orders. Open call (Daniel): Short-S
 - C6. Other unit types; scenario features (objectives, fog of war).
 
 **D. Engine, speed, state**
-- **D1. THE RUST TRANSLATION (stage 0 DONE, session 22; next stage 1 after Daniel's T8 call) - Daniel's next step (2026-11-10: "have Sonnet translate the monte carlo into
+- **D1. THE RUST TRANSLATION (engine and default bots DONE and reviewed, sessions 22-24: `engine/`, `btsim` runs batches about 10x the Python's speed on one core; left: the switches off by default, a `config.ENGINE` switch, retiring `fastcore/`; check any Rust change with `python tools/port_fuzz.py exact ...`) - Daniel's next step (2026-11-10: "have Sonnet translate the monte carlo into
   rust. Just bite the bullet and remove translation as a source of slowdown").** Plan, traps, stages and the
   stage log: `INTEGRATION__RUST_PORT.md` (spec T11). The Python stays as the answer key and its behaviour is
   FROZEN while the port runs - so decide T8 and build or park T1 first. Engine and both bots go to Rust; output
@@ -136,10 +136,9 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
-- **(p) RUST PORT STAGES 1-9, FIRST CUT** (session 23; Change Record "RUST PORT STAGES 1-9 FIRST CUT"; brief in `engine/REVIEW_BRIEF.md`).
-  Review: bugs (the Rust is a step-for-step copy, so a bug is usually a difference from the Python in a path no fixture reaches), the
-  places the port made a choice (RefCell dice for the lookahead quirk, `unsafe` pointer in `ranged_combat::path_to_cached`, path tables
-  and caches), and speed (profile `btsim` first; leads in the brief).
+- **(p) RUST PORT STAGES 1-9** - REVIEWED in session 24 (Change Record "RUST ENGINE REVIEWED"): two engine bugs fixed, 3-5x faster, random-battle
+  check added. What is left of it for a later look: the five Python findings below it in Section 4 (Daniel's call), and the session-24 changes
+  themselves (the caches `los_memo` / `table_memo` / `Equipment::memo` and when `Battle::board_changed` empties them; `pyfmt::py_sum`).
 - **(o) RUST PORT STAGE 0** (session 22; Change Record "RUST PORT STAGE 0 DONE"). Review: the decision seam changes nothing in
   normal play (`INTEGRATION__decisions.decide` calls `compute()`; the `choose_declaration` move in `attack_resolution._declare`
   is the same code); the recorder's hooks only read; the replay's completeness argument (an exact replay with the bots off proves
@@ -344,6 +343,19 @@ remaining HP (or a push off the board) ranks below every other spot;
 (b) a smoothed ratio (dealt + k) / (received + k), so received still counts
 when dealt is 0; (c) a difference, dealt - received. Replay of that battle:
 https://claude.ai/artifact/NJUknRiK1fcZzUv4A1fndX
+
+**Known issues found by the Rust review (session 24, 2026-11-11; the Python is frozen during the port, so none is changed - Daniel's call):**
+- A bot's lookahead rolls REAL dice: `structure_weight.hit_spread` calls `hit_location.resolve_hit_location`, which re-rolls a head result on a unit
+  whose head is destroyed and whose cockpit is in the torso (Core p.203) with `config.roll_2d6` and logs each re-roll. So a bot that is only thinking
+  uses up battle dice and prints dozens of "Head already destroyed ... re-rolled" lines (fixture `fza_240`: 47 in one move). Suggested fix: in the
+  lookahead, spread a head result over the other rolls instead of rolling.
+- Crash: `weapon_selection._finish_choice` compares `w.heat <= remaining_budget` for a weapon whose heat is None (a profile weapon priced by the
+  Planner, in the min-heat padding). Met with Parash 2 (Princess) v Uraeus UAE-7R (Gladiator), `tools/port_fuzz.py exact 182 1`.
+- Crash: `capacitor.set_charged` adds to `ppc.base_damage` when it is None (Phoenix Hawk PXH-7KJ "Jasmine"), `tools/port_fuzz.py exact 242 1`.
+- Crash (read from the code; the Rust had the same and is fixed): `ranged_combat.path_to` with `entry_edge` builds a table from an edge hex an
+  enemy stands on - "Start hex ... is not on the loaded board".
+- `smoke._changed` empties only the standing / standing LOS cache (`geo_cache.board(_BOARD)`): lines cached for a prone attacker or target keep
+  their pre-smoke answer.
 
 **Known issues to fix later (found session 13, Claude):**
 - ~~FLAKY CHECK~~ FIXED 2026-10-29 (Claude): it was `test_superheavy.py`

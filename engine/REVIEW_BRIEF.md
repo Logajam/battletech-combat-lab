@@ -1,4 +1,9 @@
-# Review brief for the Rust engine (written 2026-11-11, session 23)
+# Review brief for the Rust engine (written 2026-11-11, session 23; reviewed session 24)
+
+**Session 24 review, in short** (Change Record "RUST ENGINE REVIEWED"): done - the batch panic hunt and an exact random-battle check
+(`tools/port_fuzz.py`), the debug leftovers, the per-battle equipment load, the hashing, LOS and movement-table caches, name-fact memos. Both
+`unsafe` sites were read and are sound as used (`path_to_cached`: each pointer is used before the next insert; `legate::proposals_for`: `units`
+is not touched while the closure runs). What is still true below is marked; the rest is history.
 
 Read first: `INTEGRATION__RUST_PORT.md` (plan and rules: the Python is the answer key, exact match or not done) and the Change
 Record entry "RUST PORT STAGES 1-9 FIRST CUT". Branch `claude/zen-cerf-ngyndx`, no PR yet.
@@ -26,7 +31,16 @@ Record entry "RUST PORT STAGES 1-9 FIRST CUT". Branch `claude/zen-cerf-ngyndx`, 
 5. `legate.rs`: caches keyed by `moved` (a stale profile once broke a decision), `unsafe` in `proposals_for` (`units_ptr`).
 6. `ranged_combat::path_to_cached`: raw pointer into a HashMap value; valid only while no later insert happens before use.
 
-## Optimisation leads (measure first: `btsim` on a duel, `perf`/flamegraph)
+## Speed: where it stands after session 24, and what is left
+- Measured on one core: 40 duels 4.3 s (was 21.6), two 4 v 4 4.7 s (was 17.9), two 12 v 12 of 10 turns 21 s (was 67). No `perf` in the cloud
+  container: `valgrind --tool=callgrind` on a build with `CARGO_PROFILE_RELEASE_DEBUG=true` and LTO off, one battle, `callgrind_annotate
+  --inclusive=yes`.
+- Left, team battles first: `MoveEvaluator::evaluate` / `FireSide::score` / `select_weapons_scaled` (a third of a 4 v 4: the Python's `FireTable`
+  idea - price each weapon per distance and TN once - is not built; an evaluator is still made per (unit, foe) by Legate); `Opt` carries its hex as
+  a `String` and is cloned and hashed everywhere (make the label a small Copy value); `Classes::of`, `with_physical`, `arcs::key_for`;
+  `Scenario::battle` re-reads units and board from JSON per battle.
+
+## Optimisation leads as written in session 23 (most are done: see above)
 - Rust is only ~2x the Python+fastcore. Obvious costs: `Battle::new` loads `equipment.json` per battle (`EquipmentDb::load`; make it a shared
   `OnceLock`); `Mech` clones in scoring loops (`options(...)` clones the whole unit); `FireSide::score` and `MoveEvaluator::evaluate`
   clone `Vec`/`HashSet` per call; `select_weapons_scaled` recomputes `get_weapons`/table values per call (the Python cached a table:

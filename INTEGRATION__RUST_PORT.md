@@ -80,8 +80,9 @@ Each of these silently breaks exact matching. Stage 0's tools find them; knowing
    of equals - write the loop out (`if score > best`) exactly as the Python's comparison reads (`>` v `>=`).
    `sort_by` is stable; `sort_unstable*` is forbidden.
 4. **Floats.** Rust `f64` and Python floats are the same numbers IF the operations are the same in the same
-   order. So: keep the order of additions and multiplications as written (no "simplifying" `a*b + a*c`); `sum()`
-   adds left to right from 0.0; no `mul_add`; `x ** 0.5` -> `sqrt()`, other powers -> `powf` (check on
+   order. So: keep the order of additions and multiplications as written (no "simplifying" `a*b + a*c`); `sum()` of
+   floats is NOT a running total: since Python 3.12 it is compensated (Neumaier) summation - use `pyfmt::py_sum` /
+   `py_sum_num` for every Python `sum(...)` of floats, a plain loop only where the Python has a `+=` loop (session 24); no `mul_add`; `x ** 0.5` -> `sqrt()`, other powers -> `powf` (check on
    fixtures); `round()` in Python rounds half to EVEN (`fastcore` already has this for hex distance) - Rust's
    `round()` rounds half away from zero, so write a `py_round`. Integer division `//` and `%` floor toward
    negative infinity in Python: use `div_euclid` / `rem_euclid` or a `py_floordiv`, and check every use with a
@@ -337,7 +338,7 @@ switch to `replay_bots.rs`, compute with the Rust bot, compare with the recorded
 | 6 Turn loop, bots off | DONE (session 22, 2026-11-10): `cargo test --release --test stage6_battles` plays 62 of the 63 fixture battles (all but the 12 v 12 ones, as in the taps) from units.json + dice.json with the bots' answers read from decisions.json (`replay_bots`); every phase's state, the dice used, the log and the stub warnings equal the Python's. Test normalizations: smoke-clear lines sorted; the bots' `_bv_built` / `blocked_hex` scratch attributes ignored; the attach step's own log lines and stub warnings not compared (units start attached) | session 22 | the step between: `_attach_mech_config` from the parsed .mtf (compare with units.json) |
 | 7 Princess | not started | | |
 | 8 Gladiator | not started | | |
-| 9 Cut over, speed | not started | | |
+| 9 Cut over, speed | PcgDice, `btsim`, statistics check: session 23. Review, speed (3-5x; about 10x the Python on one core) and `tools/port_fuzz.py`: session 24. OPEN: `config.ENGINE` switch, retiring `fastcore/`, the untranslated switches | sessions 23-24, 2026-11-11 | rows 1-8 above this one are DONE too (session 23; see "Where it stands") |
 
 ## Found on the way (Python behaviour that looked wrong, or order-dependent; copied as is)
 
@@ -355,3 +356,29 @@ switch to `replay_bots.rs`, compute with the Rust bot, compare with the recorded
    evaluator are not called by the integrated engine (the file's movement pieces are). Not translated.
 6. **A mixed-in `weapon_locations` quirk**: it lists destroyed weapons' instance ids too (`destroyed_slot_info`), and the
    ranged declaration's "held" set can name them; the decision records write them as the slot addresses the items had.
+7. **The LOS cache and smoke** (`smoke._changed`): the Python empties only the standing / standing cache when smoke
+   changes; lines cached for a prone 'Mech keep their old answer. The Rust's `Battle::los_memo` is emptied whole
+   (`board_changed`), so the two can differ for a prone unit after smoke appears or clears. Not met in ~830 random battles.
+8. **A bot's lookahead rolls real dice** (session 23 translated it; session 24 found the counts still differ): a head
+   result on a unit with a destroyed head and a torso cockpit is re-rolled with the battle's dice inside
+   `structure_weight.hit_spread`. How many re-rolls happen depends on which of the Python's caches hit, so the Rust
+   draws a different number (`fza_240`, `fzc_7054`: "dice call N: asked for (r, 0), tape has (p, ...)"). A Python bug
+   (PROJECT_MAP Section 4); once it is fixed there the Rust's `resolve_hit_location_shared` and `lookahead_log` go.
+9. **Entering the board with an enemy on an entry-edge hex**: `ranged_combat.path_to` raises ValueError in the Python;
+   the Rust skips the blocked edge hex (`path_to_cached`).
+10. **Two Python crashes on particular units** (heat None in `_finish_choice`; `base_damage` None in
+    `capacitor.set_charged`): PROJECT_MAP Section 4. The Rust copies those lines (`unwrap()`), so it most likely panics there too; not tried.
+11. **Present-but-None attributes**: every ammo bin has `feeds` / `kind` / `munition` / `shots_left` in the Python even
+    when None; `Equipment::to_json` writes them as null for a bin (`missiles_per_shot` set).
+
+## Session 24 (2026-11-11): the review - what changed and how to check a change
+
+- Speed work and its rules: `engine/REVIEW_BRIEF.md`. Caches added: `Board::grid` (never stale: hexes are not added or
+  removed), `Equipment::memo` (name-only facts), `Battle::los_memo` and `Battle::table_memo` and `Board::psr_terrain` /
+  `hazard_terrain` (emptied by `Battle::board_changed` - call it after ANY change to a hex), `Config::cluster_hits`
+  (dropped by `Config::set`).
+- Maps and sets come from `crate::fasthash` (FxHash; build with `default()`, not `new()`).
+- Checking a change, in order of cost: `BOTS=rust cargo test --release --test stage6_battles` (63 fixtures; `FIXTURES=`
+  to limit), then `python tools/port_fuzz.py exact START COUNT` (random battles, exact; a few hundred take some
+  minutes a core) and `python tools/port_fuzz.py crash START COUNT` (panics, repeatability).
+
