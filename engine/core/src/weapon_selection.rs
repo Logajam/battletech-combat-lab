@@ -179,13 +179,20 @@ pub fn finish_choice(b: &Battle, attacker: UnitId, candidates: &[Candidate], wea
 /// Gladiator's weapon choice (select_weapons_to_fire with no other bot's fire control): the heat-constrained knapsack.
 #[allow(clippy::too_many_arguments)]
 pub fn select_weapons_to_fire(b: &mut Battle, attacker: UnitId, distance: i64, pre_tn: i64, min_heat: i64, max_heat: i64, dissipation: i64, movement_heat: i64, other_heat: i64, tn_adjust: Option<&dyn TnAdjust>, unavailable: &HashSet<ItemId>, planner: Option<&mut Planner>) -> (Vec<ItemId>, f64, i64) {
-    select_weapons_scaled(b, attacker, distance, pre_tn, min_heat, max_heat, dissipation, movement_heat, other_heat, tn_adjust, unavailable, None, planner)
+    select_weapons_scaled(b, attacker, distance, pre_tn, min_heat, max_heat, dissipation, movement_heat, other_heat, tn_adjust, unavailable, None, planner, None)
 }
 
 /// select_weapons_to_fire with value_scale (movement scoring): {weapon: multiplier} applied to each weapon's expected
 /// damage before the choice, so the total is WORTH.
 #[allow(clippy::too_many_arguments)]
-pub fn select_weapons_scaled(b: &mut Battle, attacker: UnitId, distance: i64, pre_tn: i64, min_heat: i64, max_heat: i64, dissipation: i64, movement_heat: i64, other_heat: i64, tn_adjust: Option<&dyn TnAdjust>, unavailable: &HashSet<ItemId>, value_scale: Option<&HashMap<ItemId, f64>>, planner: Option<&mut Planner>) -> (Vec<ItemId>, f64, i64) {
+pub fn select_weapons_scaled(b: &mut Battle, attacker: UnitId, distance: i64, pre_tn: i64, min_heat: i64, max_heat: i64, dissipation: i64, movement_heat: i64, other_heat: i64, tn_adjust: Option<&dyn TnAdjust>, unavailable: &HashSet<ItemId>, value_scale: Option<&HashMap<ItemId, f64>>, planner: Option<&mut Planner>, side: Option<&str>) -> (Vec<ItemId>, f64, i64) {
+    if let Some(fc) = b.fire_ctl.take() {
+        // another bot's fire control (weapon_selection._FIRE_CONTROL): it chooses from the same candidates
+        let mut fc = fc;
+        let r = other_fire_control(b, &mut fc, attacker, distance, pre_tn, dissipation, other_heat, tn_adjust, unavailable, planner, side.unwrap_or(""), movement_heat);
+        b.fire_ctl = Some(fc);
+        return r;
+    }
     let weapons = get_weapons(&b.units[attacker]);
     let (heat_budget, min_weapon_heat) = heat_limits(b.units[attacker].current_heat, min_heat, max_heat, dissipation, movement_heat, other_heat);
     let candidates = fire_candidates(b, attacker, distance, pre_tn, tn_adjust, unavailable, value_scale, &weapons, planner);
@@ -199,4 +206,38 @@ pub fn select_weapons_scaled(b: &mut Battle, attacker: UnitId, distance: i64, pr
     let heats: Vec<i64> = candidates.iter().map(|c| c.heat).collect();
     let (best_value, best_heat_used, picked) = best_subset_python(&values, &heats, heat_budget);
     finish_choice(b, attacker, &candidates, &weapons, best_value, best_heat_used, &picked, heat_budget, min_heat, min_weapon_heat)
+}
+
+/// _other_fire_control: the candidates Gladiator's knapsack sees (in range, heat known, the planner pricing special weapons),
+/// unscaled, each with its to-hit number, handed to the other bot's fire control to choose from.
+#[allow(clippy::too_many_arguments)]
+fn other_fire_control(b: &mut Battle, fc: &mut crate::princess_fire::FireControl, attacker: UnitId, distance: i64, pre_tn: i64, dissipation: i64, other_heat: i64, tn_adjust: Option<&dyn TnAdjust>, unavailable: &HashSet<ItemId>, mut planner: Option<&mut Planner>, side: &str, movement_heat: i64) -> (Vec<ItemId>, f64, i64) {
+    let weapons = get_weapons(&b.units[attacker]);
+    let mut candidates: Vec<(ItemId, f64, i64, i64)> = Vec::new();
+    for &w in &weapons {
+        if unavailable.contains(&w) {
+            continue;
+        }
+        if planner.is_some() && fire_modes::special(b, attacker, w) {
+            if b.units[attacker].items[w].heat.is_none() && !fire_modes::has_profile(b, attacker, w) {
+                continue;
+            }
+            let Some((value, heat_cost, plan)) = planner.as_deref_mut().unwrap().plan_for(b, w, distance, pre_tn) else { continue };
+            let tn = planner.as_deref_mut().unwrap().value(b, w, &plan, distance, pre_tn).unwrap().1;
+            candidates.push((w, value, heat_cost, tn));
+            continue;
+        }
+        let Some(_) = crate::attack_resolution::table_value(b, attacker, w, distance, 0) else { continue };
+        let Some(heat) = b.units[attacker].items[w].heat else { continue };
+        let mut tn = pre_tn;
+        if let Some(adj) = tn_adjust {
+            let br = range_bracket(b, attacker, w, distance);
+            tn = PRE_TN_MIN.max(PRE_TN_MAX.min(pre_tn + adj.adjust(b, w, br, None)));
+        }
+        let value = crate::attack_resolution::table_value(b, attacker, w, distance, tn).unwrap();
+        let rm = weapon_range_mod(b, attacker, w, distance).unwrap();
+        candidates.push((w, value, heat, tn + rm));
+    }
+    let target = planner.as_ref().map(|p| p.target);
+    fc.choose(b, attacker, &candidates, dissipation, other_heat, target, side, movement_heat)
 }

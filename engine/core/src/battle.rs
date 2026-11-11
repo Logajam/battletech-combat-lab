@@ -112,6 +112,9 @@ pub struct Battle {
     pub replay: Option<Replay>,
     /// legate.py's module state (plans, rates, shares, peril caches)
     pub legate: crate::legate::LegateState,
+    /// weapon_selection._FIRE_CONTROL: another bot's fire control while it thinks
+    pub fire_ctl: Option<crate::princess_fire::FireControl>,
+    pub princess: crate::princess_fire::PrincessState,
 }
 
 /// decisions.json played back: each bot decision of the battle, in the order the engine asks for them.
@@ -139,6 +142,8 @@ impl Battle {
             hazards_in_phase: false,
             replay: None,
             legate: Default::default(),
+            fire_ctl: None,
+            princess: Default::default(),
         }
     }
 

@@ -171,7 +171,14 @@ impl BotSet for ReplayBots {
         let who = nm(b, attacker);
         let v = b.decide("target", &who);
         let rec = unit_named(b, &v);
-        if self.check_simple_foe_target && crate::forces::enemies_of(b, attacker).len() == 1 {
+        if self.check_legate && b.units[attacker].bot == "gladiator" {
+            let saved = b.stub_counts.clone();
+            let saved_err = b.log.stderr.len();
+            let mine = crate::bot_targets::gladiator_choose_target(b, attacker);
+            b.stub_counts = saved;
+            b.log.stderr.truncate(saved_err);
+            self.note("target(gladiator)", mine == rec, format!("turn {} {}: {:?} v {:?}", b.units[attacker].turn_number, who, mine, rec));
+        } else if self.check_simple_foe_target && crate::forces::enemies_of(b, attacker).len() == 1 {
             let mine = crate::forces::choose_target(b, attacker, true, false);
             self.note("target(1 enemy)", mine == rec, format!("{}: {:?} v {:?}", who, mine, rec));
         }
@@ -278,7 +285,18 @@ impl BotSet for ReplayBots {
         }
     }
 
-    fn records_declared_damage(&self, _b: &Battle, _attacker: UnitId) -> bool {
-        false // Princess's damage map is the bot's own state; nothing the engine prints depends on it
+    fn records_declared_damage(&self, b: &Battle, attacker: UnitId) -> bool {
+        // bots.records_declared_damage: Princess always; a Gladiator when it borrows Princess's target choice or runs the
+        // kill-curve director
+        b.units[attacker].bot == "princess" || matches!(b.cfg.s("STUB_GLADIATOR_TARGET"), "princess_plan" | "kill_curve")
+    }
+
+    fn reset_assigned(&mut self, b: &mut Battle) {
+        crate::princess_fire::reset_assigned(b);
+    }
+
+    fn assign_damage(&mut self, b: &mut Battle, attacker: UnitId, target: UnitId, dmg: f64) {
+        let team = b.units[attacker].team.clone().unwrap_or_default();
+        crate::princess_fire::assign_damage(b, &team, target, dmg);
     }
 }

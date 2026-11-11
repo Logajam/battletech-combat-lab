@@ -91,7 +91,21 @@ impl PhysPlans {
 /// attack_resolution.choose_declaration for Gladiator: the (twist / flip / turret, weapons, physical attack) with the most
 /// expected damage; no change wins ties.
 pub fn choose_declaration(b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId) -> DeclChoice {
-    let plans_for = if ctx.distance == 1 { physical_planner(b, attacker, target) } else { None };
+    choose_declaration_with(b, ctx, planner, attacker, target, true)
+}
+
+/// The same choice with Princess's fire control picking the weapons (bots.fire_control / princess_eyes): her plan's
+/// utility stands in for expected damage, and the physical attack is not planned together with the fire (she throws it in
+/// the Physical phase).
+pub fn choose_declaration_princess(b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId) -> DeclChoice {
+    b.fire_ctl = Some(crate::princess_fire::FireControl::new(false, None));
+    let r = choose_declaration_with(b, ctx, planner, attacker, target, false);
+    b.fire_ctl = None;
+    r
+}
+
+fn choose_declaration_with(b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId, plans_physical: bool) -> DeclChoice {
+    let plans_for = if ctx.distance == 1 && plans_physical { physical_planner(b, attacker, target) } else { None };
     let actions: Vec<ArcAction> = if plans_for.is_some() { arcs::arc_options(&b.units[attacker], "ranged") } else { ctx.arc_choices.iter().map(|(_, a)| a.clone()).collect() };
     let legs = arcs::leg_offsets(&b.units[attacker]);
     let mut cache: HashMap<(arcs::ArcKey, Vec<ItemId>), (Vec<ItemId>, f64, i64)> = HashMap::new();
@@ -112,7 +126,7 @@ pub fn choose_declaration(b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, 
                     let mut unavail = ctx.unavailable.clone();
                     unavail.extend(arc_unavailable(&b.units[attacker], &key));
                     unavail.extend(held.iter().copied());
-                    let p = select_weapons_to_fire(b, attacker, ctx.distance, ctx.sel_pre_tn, b.units[attacker].min_heat, b.units[attacker].max_heat, ctx.dissipation, b.units[attacker].movement_heat, ctx.other, Some(&ctx.adjust), &unavail, Some(planner));
+                    let p = crate::weapon_selection::select_weapons_scaled(b, attacker, ctx.distance, ctx.sel_pre_tn, b.units[attacker].min_heat, b.units[attacker].max_heat, ctx.dissipation, b.units[attacker].movement_heat, ctx.other, Some(&ctx.adjust), &unavail, None, Some(planner), Some(&ctx.side));
                     cache.insert(ck, p.clone());
                     p
                 }

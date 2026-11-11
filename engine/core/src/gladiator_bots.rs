@@ -84,7 +84,18 @@ impl BotSet for GladiatorBots {
         crate::legate::end_phase(b);
     }
 
-    fn records_declared_damage(&self, _b: &Battle, _attacker: UnitId) -> bool {
-        false // the damage map only matters to several-enemy targeting (not translated); nothing the engine prints depends on it
+    fn records_declared_damage(&self, b: &Battle, attacker: UnitId) -> bool {
+        // bots.records_declared_damage: Princess always; a Gladiator when it borrows Princess's target choice or runs the
+        // kill-curve director
+        b.units[attacker].bot == "princess" || matches!(b.cfg.s("STUB_GLADIATOR_TARGET"), "princess_plan" | "kill_curve")
+    }
+
+    fn reset_assigned(&mut self, b: &mut Battle) {
+        crate::princess_fire::reset_assigned(b);
+    }
+
+    fn assign_damage(&mut self, b: &mut Battle, attacker: UnitId, target: UnitId, dmg: f64) {
+        let team = b.units[attacker].team.clone().unwrap_or_default();
+        crate::princess_fire::assign_damage(b, &team, target, dmg);
     }
 }

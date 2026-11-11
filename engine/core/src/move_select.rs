@@ -136,7 +136,7 @@ impl RangedFor {
         let (min_heat, max_heat) = (b.units[self.attacker].min_heat, b.units[self.attacker].max_heat);
         let scale = if self.scale_on { self.scales.as_ref() } else { None };
         let adj = self.adjust.clone();
-        let got = crate::weapon_selection::select_weapons_scaled(b, self.attacker, distance, pre_tn, min_heat, max_heat, self.dissipation, self.move_heat, self.other, Some(&*adj), &unavail, scale, Some(&mut self.planner)).1;
+        let got = crate::weapon_selection::select_weapons_scaled(b, self.attacker, distance, pre_tn, min_heat, max_heat, self.dissipation, self.move_heat, self.other, Some(&*adj), &unavail, scale, Some(&mut self.planner), Some("front")).1;
         self.memo.insert(mk, got);
         got
     }

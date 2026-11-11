@@ -139,7 +139,7 @@ impl FireSide {
         let adj: Rc<Adjuster> = adj.clone();
         let unavail_set: HashSet<ItemId> = unavailable.iter().copied().collect();
         let (min_heat, max_heat) = (b.units[self.who].min_heat, b.units[self.who].max_heat);
-        let got = crate::weapon_selection::select_weapons_scaled(b, self.who, distance, pre_tn, min_heat, max_heat, self.dissipation + bonus, move_heat, self.other, Some(&*adj), &unavail_set, scale, Some(planner)).1;
+        let got = crate::weapon_selection::select_weapons_scaled(b, self.who, distance, pre_tn, min_heat, max_heat, self.dissipation + bonus, move_heat, self.other, Some(&*adj), &unavail_set, scale, Some(planner), Some(side)).1;
         self.memo.insert(mk, got);
         got
     }
