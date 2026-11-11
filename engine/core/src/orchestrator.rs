@@ -31,6 +31,9 @@ pub trait BotSet {
     fn choose_movement(&mut self, b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, standup_mp: Option<i64>, entry_edge: Option<&[String]>) -> (Option<Pick>, String, PathGate);
     fn records_declared_damage(&self, b: &Battle, attacker: UnitId) -> bool;
     fn reset_assigned(&mut self, _b: &mut Battle) {}
+    /// The Movement Phase begins (legate.plan_turn) / ends (legate.end_phase)
+    fn start_movement(&mut self, _b: &mut Battle) {}
+    fn end_movement(&mut self, _b: &mut Battle) {}
     fn assign_damage(&mut self, _b: &mut Battle, _attacker: UnitId, _target: UnitId, _dmg: f64) {}
 }
 
@@ -768,6 +771,7 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
     for &m in &in_order {
         fire_modes::declare_unjams(b, m);
     }
+    bots.start_movement(b);
     // the movement phase: MOVE_ORDER "index" (forces.movement_order; "tiered" is Gladiator's, stage 8)
     assert!(b.cfg.s("MOVE_ORDER") == "index", "MOVE_ORDER other than 'index' needs the tiers module (stage 8)");
     let mut act = forces::Activation::new(b, &order, forces::can_select_move);
@@ -793,6 +797,7 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
         marks(b, turn, &label);
     }
 
+    bots.end_movement(b);
     if (0..b.units.len()).any(|u| b.units[u].hex.is_none()) && forces::teams_standing(b).len() < 2 {
         play.result.turns_taken = turn;
         conclude(b, play);

@@ -41,6 +41,7 @@ pub mod physical;
 pub mod clubs;
 pub mod forces;
 pub mod gladiator_bots;
+pub mod legate;
 pub mod move_eval;
 pub mod move_attacks;
 pub mod move_options;

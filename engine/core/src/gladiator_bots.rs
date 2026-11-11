@@ -29,8 +29,7 @@ fn require_duel(b: &mut Battle, u: UnitId, what: &str) {
 impl BotSet for GladiatorBots {
     fn choose_foe(&mut self, b: &mut Battle, mover: UnitId) -> Option<UnitId> {
         require_gladiator(b, mover, "choose_foe");
-        require_duel(b, mover, "choose_foe");
-        crate::forces::choose_foe(b, mover)
+        crate::legate::foe_for(b, mover).or_else(|| crate::forces::choose_foe(b, mover))
     }
 
     fn choose_target(&mut self, b: &mut Battle, attacker: UnitId) -> Option<UnitId> {
@@ -65,7 +64,6 @@ impl BotSet for GladiatorBots {
 
     fn choose_movement(&mut self, b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, standup_mp: Option<i64>, entry_edge: Option<&[String]>) -> (Option<Pick>, String, PathGate) {
         require_gladiator(b, mover, "choose_movement");
-        require_duel(b, mover, "choose_movement");
         let mut ties = Ties { recorded: None, missed: false };
         let (pick, note) = move_select::choose(b, mover, other, moves_first, standup_mp, entry_edge, &mut ties);
         let gate = match &pick {
@@ -76,6 +74,14 @@ impl BotSet for GladiatorBots {
             None => PathGate::default(),
         };
         (pick, note, gate)
+    }
+
+    fn start_movement(&mut self, b: &mut Battle) {
+        crate::legate::plan_turn(b);
+    }
+
+    fn end_movement(&mut self, b: &mut Battle) {
+        crate::legate::end_phase(b);
     }
 
     fn records_declared_damage(&self, _b: &Battle, _attacker: UnitId) -> bool {

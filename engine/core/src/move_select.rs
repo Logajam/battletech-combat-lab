@@ -167,6 +167,22 @@ pub fn future_damage(b: &mut Battle, attacker: UnitId, target: UnitId) -> f64 {
     b.cfg.f("MOVEMENT_LIFETIME_INITIATIVE") * best
 }
 
+/// range_profile: [damage at distance 0, 1, 2, ...] on `target`, target dead ahead, in movement-score units; empty for a
+/// unit that cannot fire. extra_tn: a to-hit modifier on top of the usual.
+pub fn range_profile(b: &mut Battle, attacker: UnitId, target: UnitId, extra_tn: i64) -> Vec<f64> {
+    if b.units[attacker].shutdown || is_immobile(&b.units[attacker]) {
+        return vec![];
+    }
+    let mut rf = RangedFor::new(b, attacker, target, extra_tn);
+    let weapons = get_weapons(&b.units[attacker]);
+    let none = HashSet::new();
+    let mut out = vec![0.0];
+    for d in 1..=max_distance(b, attacker, &weapons) {
+        out.push(rf.ranged(b, d, &none));
+    }
+    out
+}
+
 // =============================================================================================================
 // exposure, PSR costs, the objective
 // =============================================================================================================
@@ -215,10 +231,25 @@ fn terrain_psr_odds(b: &Battle, u: UnitId) -> Option<(f64, f64)> {
 /// How a side scores its own spots (config.MOVEMENT_OBJECTIVE).
 #[derive(Clone, Debug)]
 pub enum Objective {
-    Ratio,
+    Ratio { eps: f64 },
     Lifetime { hp: f64, mine: f64, theirs: f64 },
+    /// legate.MultiLifetime: the same score against several foes
+    Multi { hp: f64, mine: f64, theirs: f64 },
 }
 
+impl Objective {
+    pub fn score(&self, dealt: f64, received: f64, dealt_mult: f64, received_mult: f64, extras: f64) -> f64 {
+        match self {
+            Objective::Ratio { eps } => (dealt * dealt_mult) / (received * received_mult + extras + eps),
+            Objective::Lifetime { hp, mine, theirs } | Objective::Multi { hp, mine, theirs } => {
+                let left = hp - (received * received_mult + extras);
+                dealt * dealt_mult + if left > 0.0 { left / theirs * mine } else { 0.0 }
+            }
+        }
+    }
+}
+
+#[derive(Clone)]
 pub struct Side {
     pub unit: UnitId,
     pub exposure: [f64; 4],
@@ -238,7 +269,7 @@ impl Side {
         let terrain = if psr_applies { terrain_psr_odds(b, u) } else { None };
         let psr_terrain = crate::terrain_rules::has_psr_terrain(&b.board);
         let hazard_terrain = psr_terrain && crate::terrain_rules::has_hazard_terrain(&b.board);
-        Side { unit: u, exposure: exposure_factors(b, u), psr_run, psr_jump, terrain, notes: PathNotes::default(), objective: Objective::Ratio, psr_terrain, hazard_terrain, eps: b.cfg.f("MOVEMENT_RATIO_EPSILON") }
+        Side { unit: u, exposure: exposure_factors(b, u), psr_run, psr_jump, terrain, notes: PathNotes::default(), objective: Objective::Ratio { eps: b.cfg.f("MOVEMENT_RATIO_EPSILON") }, psr_terrain, hazard_terrain, eps: b.cfg.f("MOVEMENT_RATIO_EPSILON") }
     }
 
     pub fn exp(&self, side: &str) -> f64 {
@@ -306,24 +337,20 @@ impl Side {
 
     /// The objective: score of (dealt, received) with their exposure multipliers and the PSR / extras term.
     pub fn obj(&self, dealt: f64, received: f64, dealt_mult: f64, received_mult: f64, extras: f64) -> f64 {
-        match &self.objective {
-            Objective::Ratio => (dealt * dealt_mult) / (received * received_mult + extras + self.eps),
-            Objective::Lifetime { hp, mine, theirs } => {
-                let left = hp - (received * received_mult + extras);
-                dealt * dealt_mult + if left > 0.0 { left / theirs * mine } else { 0.0 }
-            }
-        }
+        self.objective.score(dealt, received, dealt_mult, received_mult, extras)
     }
 
     pub fn note(&self, dealt: f64, received: f64, dealt_mult: f64, received_mult: f64, extras: f64, how: &str) -> String {
+        let score = self.obj(dealt, received, dealt_mult, received_mult, extras);
         match &self.objective {
-            Objective::Ratio => {
-                let score = self.obj(dealt, received, dealt_mult, received_mult, extras);
-                format!("score {} = dealt {} x{} / (received {} x{} + PSR {} + {}) [{}]", Fx(score, 3), Fx(dealt, 2), Fx(dealt_mult, 2), Fx(received, 2), Fx(received_mult, 2), Fx(extras, 2), crate::pyfmt::py_float_str(self.eps), how)
+            Objective::Ratio { eps } => {
+                format!("score {} = dealt {} x{} / (received {} x{} + PSR {} + {}) [{}]", Fx(score, 3), Fx(dealt, 2), Fx(dealt_mult, 2), Fx(received, 2), Fx(received_mult, 2), Fx(extras, 2), crate::pyfmt::py_float_str(*eps), how)
             }
             Objective::Lifetime { hp, mine, theirs } => {
-                let score = self.obj(dealt, received, dealt_mult, received_mult, extras);
                 format!("score {} = dealt {} x{} + (HP {} - received {} x{} - PSR {}) / enemy future {} x my future {} [{}]", Fx(score, 3), Fx(dealt, 2), Fx(dealt_mult, 2), Fx(*hp, 1), Fx(received, 2), Fx(received_mult, 2), Fx(extras, 2), Fx(*theirs, 2), Fx(*mine, 2), how)
+            }
+            Objective::Multi { hp, mine, theirs } => {
+                format!("score {} = dealt {} x{} + (HP {} - received {} x{} - PSR {}) / enemies' future on me {} x my best future {} [{}]", Fx(score, 3), Fx(dealt, 2), Fx(dealt_mult, 2), Fx(*hp, 1), Fx(received, 2), Fx(received_mult, 2), Fx(extras, 2), Fx(*theirs, 2), Fx(*mine, 2), how)
             }
         }
     }
@@ -342,7 +369,7 @@ pub fn effective_hp(b: &Battle, u: UnitId) -> f64 {
 }
 
 /// battle_record: (HP the enemy has really lost, HP I have really lost, turns fought) so far.
-fn battle_record(b: &Battle, me: UnitId, them: UnitId) -> (f64, f64, i64) {
+pub fn battle_record(b: &Battle, me: UnitId, them: UnitId) -> (f64, f64, i64) {
     let (mine, theirs) = (b.units[me].hp_log.as_ref(), b.units[them].hp_log.as_ref());
     let (Some(mine), Some(theirs)) = (mine, theirs) else { return (0.0, 0.0, 0) };
     if mine.is_empty() || theirs.is_empty() {
@@ -434,7 +461,7 @@ fn weapon_ranges(b: &mut Battle, u: UnitId) -> Vec<(usize, crate::equipment::Wea
     out
 }
 
-fn max_range(b: &mut Battle, u: UnitId) -> i64 {
+pub fn max_range(b: &mut Battle, u: UnitId) -> i64 {
     weapon_ranges(b, u).iter().map(|(_, r)| r.long).max().unwrap_or(0)
 }
 
@@ -666,7 +693,7 @@ fn own_short_list(b: &mut Battle, mover: UnitId, other: UnitId, prepared: &[Opt]
     if kept.is_empty() { prepared.to_vec() } else { kept }
 }
 
-fn search_start(b: &Battle, mover: UnitId, prepared: &[Opt]) -> (i64, i64) {
+pub fn search_start(b: &Battle, mover: UnitId, prepared: &[Opt]) -> (i64, i64) {
     match &b.units[mover].hex {
         Some(h) if !h.is_empty() => hex_geometry::parse_hex_label(h).unwrap(),
         _ => prepared[0].hex_xy(),
@@ -727,7 +754,7 @@ fn short_list_states(b: &mut Battle, cache: &mut ShortListCache, c: &Opt, prepar
 // =============================================================================================================
 type PsrMap = HashMap<(String, &'static str, &'static str, i64, i64), f64>;
 
-fn psr_by_state(b: &Battle, side: &Side, prepared: &[Opt]) -> PsrMap {
+pub fn psr_by_state(b: &Battle, side: &Side, prepared: &[Opt]) -> PsrMap {
     prepared.iter().map(|o| ((o.label.clone(), o.facing_compass, o.mode, o.fc, o.mp_spent), side.psr_for_opt(b, o))).collect()
 }
 
@@ -736,7 +763,7 @@ fn cand_psr_key(c: &Candidate) -> (String, &'static str, &'static str, i64, i64)
 }
 
 /// _opponent_options: the reachable states a modeled second mover could end in. Fills `them.notes`.
-fn opponent_options(b: &mut Battle, other: UnitId, them: &mut Side) -> Vec<StateKey> {
+pub fn opponent_options(b: &mut Battle, other: UnitId, them: &mut Side) -> Vec<StateKey> {
     let (x, y, facing) = hex_geometry::state_from_label(b.units[other].hex.as_deref().unwrap(), &b.units[other].facing).unwrap();
     if is_immobile(&b.units[other]) || matches!(b.units[other].stuck, Some(Some(_))) {
         return vec![(x, y, facing, 0, "Stand Still", 0)];
@@ -955,7 +982,7 @@ fn movement_attack_pick(b: &mut Battle, mover: UnitId, other: UnitId, standup_mp
     };
     let other_name = b.units[other].side_name.clone().unwrap_or_default();
     let psr = me.psr_for_pick(b, &state);
-    let note = if !matches!(me.objective, Objective::Ratio) {
+    let note = if !matches!(me.objective, Objective::Ratio { .. }) {
         format!("{} on {}: {} beats {}", what, other_name, me.note(cand.dealt, cand.received, them.exp(cand.side_on_defender), me.exp(cand.side_on_mover), psr, "incl. self-damage"), beats)
     } else {
         format!("{} on {}: score {} = dealt {} x{} / (received {} incl. self-damage x{} + PSR {}) beats {}", what, other_name, Fx(score, 3), Fx(cand.dealt, 2), Fx(them.exp(cand.side_on_defender), 2), Fx(cand.received, 2), Fx(me.exp(cand.side_on_mover), 2), Fx(psr, 2), beats)
@@ -989,6 +1016,11 @@ fn choose_normal(b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool
 
     let mut them = Side::new(b, other, true);
     link(b, &mut me, &mut them);
+    // Legate's view of the enemies other than `other` (duel / Princess / Legate off / no plan: None)
+    let mut lx = crate::legate::Extras::for_pick(b, mover, other, &me);
+    if let Some(l) = &lx {
+        me.objective = l.objective(b, other);
+    }
     let enemy_label = b.units[other].hex.clone().unwrap();
     let enemy_xy = hex_geometry::parse_hex_label(&enemy_label).unwrap();
     let mut ev1 = MoveEvaluator::new(b, mover, other);
@@ -1041,14 +1073,20 @@ fn choose_normal(b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool
     let other_name = b.units[other].side_name.clone().unwrap_or_default();
 
     if !two_ply {
-        let scored: Vec<(f64, Opt, Candidate)> = static_cands
-            .iter()
-            .map(|cand| {
-                let o = prepared1[prepared_by_key[&cand.key4()]].clone();
-                let psr = me.psr_for_cand(b, cand);
-                (me.obj(cand.dealt, cand.received, them.exp(cand.side_on_defender), me.exp(cand.side_on_mover), psr), o, cand.clone())
-            })
-            .collect();
+        let mut scored: Vec<(f64, Opt, Candidate)> = Vec::new();
+        for cand in &static_cands {
+            let o = prepared1[prepared_by_key[&cand.key4()]].clone();
+            let (dm, rm) = (them.exp(cand.side_on_defender), me.exp(cand.side_on_mover));
+            let mut c2 = cand.clone();
+            if let Some(l) = lx.as_mut() {
+                // the other enemies' damage folded into each candidate, so every later use of it agrees
+                let (d, r, _, _) = l.adjust(b, &o, cand.dealt, cand.received, dm, rm);
+                c2.dealt = d / dm;
+                c2.received = r / rm;
+            }
+            let psr = me.psr_for_cand(b, &c2);
+            scored.push((me.obj(c2.dealt, c2.received, dm, rm, psr), o, c2));
+        }
         if !scored.is_empty() && scored.iter().any(|(_, _, c)| c.dealt > 0.0) {
             let (o, cand) = best_by_score(b, &scored, enemy_xy, ties);
             let psr = me.psr_for_cand(b, &cand);
@@ -1093,7 +1131,16 @@ fn choose_normal(b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool
                     received_mult = me.exp(r.side_on_defender);
                 }
             }
-            let psr = me.psr_for_opt(b, c);
+            let mut psr = me.psr_for_opt(b, c);
+            let (mut dealt, mut received, mut dealt_mult, mut received_mult) = (dealt, received, dealt_mult, received_mult);
+            if let Some(l) = lx.as_mut() {
+                let (d, r, dm, rm) = l.adjust(b, c, dealt, received, dealt_mult, received_mult);
+                dealt = d;
+                received = r;
+                dealt_mult = dm;
+                received_mult = rm;
+                psr += 0.0; // Legate's team term (LEGATE_TEAM_VALUE, not translated): 0
+            }
             (me.obj(dealt, received, dealt_mult, received_mult, psr), c.clone(), (dealt, received, dealt_mult, received_mult, psr, reply))
         };
         if own_s == "short_list" {

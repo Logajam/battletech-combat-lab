@@ -110,6 +110,8 @@ pub struct Battle {
     pub hazards_in_phase: bool,
     /// the decision seam in replay mode (INTEGRATION__decisions): the recorded bot answers
     pub replay: Option<Replay>,
+    /// legate.py's module state (plans, rates, shares, peril caches)
+    pub legate: crate::legate::LegateState,
 }
 
 /// decisions.json played back: each bot decision of the battle, in the order the engine asks for them.
@@ -136,6 +138,7 @@ impl Battle {
             piloting,
             hazards_in_phase: false,
             replay: None,
+            legate: Default::default(),
         }
     }
 

@@ -26,6 +26,7 @@ pub struct ReplayBots {
     pub check_gladiator_physical: bool,
     pub check_simple_foe_target: bool,
     pub check_gladiator_move: bool,
+    pub check_legate: bool,
     pub checked: std::collections::BTreeMap<String, (usize, usize)>,
     pub mismatches: Vec<String>,
 }
@@ -156,7 +157,10 @@ impl BotSet for ReplayBots {
         let who = nm(b, mover);
         let v = b.decide("foe", &who);
         let rec = unit_named(b, &v);
-        if self.check_simple_foe_target && crate::forces::enemies_of(b, mover).len() == 1 {
+        if self.check_legate && b.units[mover].bot == "gladiator" {
+            let mine = crate::legate::foe_for(b, mover).or_else(|| crate::forces::choose_foe(b, mover));
+            self.note("foe(legate)", mine == rec, format!("{}: {:?} v {:?}", who, mine, rec));
+        } else if self.check_simple_foe_target && crate::forces::enemies_of(b, mover).len() == 1 {
             let mine = crate::forces::choose_foe(b, mover);
             self.note("foe(1 enemy)", mine == rec, format!("{}: {:?} v {:?}", who, mine, rec));
         }
@@ -249,7 +253,7 @@ impl BotSet for ReplayBots {
                 dfa: p.get("dfa").and_then(|x| x.as_bool()).unwrap_or(false),
             })
         };
-        if self.check_gladiator_move && b.units[mover].bot == "gladiator" && crate::forces::enemies_of(b, mover).len() == 1 {
+        if self.check_gladiator_move && b.units[mover].bot == "gladiator" && (self.check_legate || crate::forces::enemies_of(b, mover).len() == 1) {
             let saved = b.stub_counts.clone();
             let mut ties = crate::move_select::Ties { recorded: pick.as_ref(), missed: false };
             let (mine, note) = crate::move_select::choose(b, mover, other, moves_first, standup_mp, entry_edge, &mut ties);
@@ -260,6 +264,18 @@ impl BotSet for ReplayBots {
         }
         let gate = PathGate { psrs: t[2].as_i64(), hazard: t[3].as_f64() };
         (pick, t[1].as_str().unwrap().to_string(), gate)
+    }
+
+    fn start_movement(&mut self, b: &mut Battle) {
+        if self.check_legate {
+            crate::legate::plan_turn(b);
+        }
+    }
+
+    fn end_movement(&mut self, b: &mut Battle) {
+        if self.check_legate {
+            crate::legate::end_phase(b);
+        }
     }
 
     fn records_declared_damage(&self, _b: &Battle, _attacker: UnitId) -> bool {

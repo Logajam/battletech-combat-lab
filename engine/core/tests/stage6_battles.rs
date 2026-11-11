@@ -162,7 +162,7 @@ fn run_fixture(dir: PathBuf) -> Result<usize, String> {
         if failure_c.borrow().is_none() {
             let check = std::env::var("CHECK").unwrap_or_default();
             let mut gbots = btsim_core::gladiator_bots::GladiatorBots;
-            let mut bots = ReplayBots { check_gladiator_declaration: check.contains("declaration"), check_gladiator_physical: check.contains("physical"), check_simple_foe_target: check.contains("simple"), check_gladiator_move: check.contains("move"), ..Default::default() };
+            let mut bots = ReplayBots { check_gladiator_declaration: check.contains("declaration"), check_gladiator_physical: check.contains("physical"), check_simple_foe_target: check.contains("simple"), check_gladiator_move: check.contains("move"), check_legate: check.contains("legate"), ..Default::default() };
             if own_bots {
                 play_on(&mut b, &mut gbots, &mut play, &mut marks);
             } else {
