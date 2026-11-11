@@ -164,8 +164,25 @@ fn range_factor(dist: i64) -> f64 {
 
 /// THE REPLY's budget: about this many "what would it answer" searches per move, shared out over the enemies weighed, and
 /// never more than REPLY_MAX spots re-scored. Under 2 spots the reply is skipped (a big battle: the table speaks alone).
-const REPLY_BUDGET: usize = 32;
-const REPLY_MAX: usize = 32;
+const REPLY_BUDGET: usize = 64;
+const REPLY_MAX: usize = 64;
+
+
+/// WHERE DAMAGE LANDS: the engine's exposure factors of a unit, in the order front / left / right / rear: how much worse
+/// a hit from that side is than one from the front, from the armor and structure left there. Every damage figure in an
+/// exchange is multiplied by the factor of the side it arrives on, so a unit turns its weak side away and seeks the
+/// enemy's. (2026-11-11 trial, 2 v 2 and 4 v 4 woods, 80 battles each: 69-64 with it, 59-70 without.)
+fn soft(e: [f64; 4]) -> [f64; 4] {
+    e
+}
+fn side_ix(s: &str) -> usize {
+    match s {
+        "front" => 0,
+        "left" => 1,
+        "right" => 2,
+        _ => 3,
+    }
+}
 
 fn xy(b: &Battle, u: UnitId) -> Option<(i64, i64)> {
     b.units[u].hex.as_deref().and_then(|h| hex_geometry::parse_hex_label(h).ok())
@@ -174,7 +191,7 @@ fn xy(b: &Battle, u: UnitId) -> Option<(i64, i64)> {
 /// The EXCHANGE ORACLE for one enemy: per prepared option, (damage I deal it, damage it deals me). An enemy that has
 /// moved is taken where it stands (fixed pose); one that has not is a ghost: in its hex, having walked, turned to face
 /// each option.
-fn exchange(b: &mut Battle, mover: UnitId, enemy: UnitId, prepared: &[Opt], index: &HashMap<(String, &'static str, &'static str, i64), usize>) -> Vec<(f64, f64)> {
+fn exchange(b: &mut Battle, mover: UnitId, enemy: UnitId, prepared: &[Opt], index: &HashMap<(String, &'static str, &'static str, i64), usize>, my_exp: &[f64; 4], its_exp: &[f64; 4]) -> Vec<(f64, f64)> {
     let mut out = vec![(0.0, 0.0); prepared.len()];
     let label = b.units[enemy].hex.clone().unwrap();
     let e_xy = hex_geometry::parse_hex_label(&label).unwrap();
@@ -183,7 +200,7 @@ fn exchange(b: &mut Battle, mover: UnitId, enemy: UnitId, prepared: &[Opt], inde
     let mut put = |cands: Vec<crate::move_eval::Candidate>| {
         for c in cands {
             if let Some(&i) = index.get(&c.key4()) {
-                out[i] = (c.dealt, c.received);
+                out[i] = (c.dealt * its_exp[side_ix(c.side_on_defender)], c.received * my_exp[side_ix(c.side_on_mover)]);
             }
         }
     };
@@ -247,11 +264,13 @@ pub fn choose_movement(b: &mut Battle, mover: UnitId, other: UnitId, moves_first
     }
 
     let n = prepared.len();
+    let my_exp = soft(me.exposure);
     let friends: Vec<UnitId> = mine.iter().map(|e| e.unit).filter(|u| *u != mover && b.units[*u].hex.is_some()).collect();
     // one exchange table per enemy weighed: (enemy, its price, what else it could shoot at, per option (dealt, received))
     let mut tables: Vec<(UnitId, f64, f64, Vec<(f64, f64)>)> = Vec::new();
     for &e in &relevant {
-        let table = exchange(b, mover, e, &prepared, &index);
+        let its_exp = soft(Side::new(b, e, true).exposure);
+        let table = exchange(b, mover, e, &prepared, &index, &my_exp, &its_exp);
         let p_e = price.get(&e).copied().unwrap_or(1.0);
         // what else this enemy could be shooting at: its best friend-target, roughly
         let e_xy = xy(b, e).unwrap();
@@ -294,6 +313,7 @@ pub fn choose_movement(b: &mut Battle, mover: UnitId, other: UnitId, moves_first
     let r0 = STEP_FIRE * mean(&mine) * theirs.iter().map(|e| e.guns).sum::<f64>();
     let rate = |g: f64, c: f64, risk: f64| (d0 + g) / (r0 + c + risk).max(1e-9);
     let mut scored: Vec<(f64, usize)> = Vec::new();
+    let mut ranked: Vec<(f64, usize)> = Vec::new();
     let mut cost = vec![0.0f64; n];
     for i in 0..n {
         let (g, _, c) = weigh(i, None);
@@ -301,7 +321,9 @@ pub fn choose_movement(b: &mut Battle, mover: UnitId, other: UnitId, moves_first
         if g > 0.0 {
             scored.push((rate(g, c, risks[i]), i));
         }
+        ranked.push((rate(g, c, risks[i]), i));
     }
+    ranked.sort_by(|x, y| y.0.partial_cmp(&x.0).unwrap().then(x.1.cmp(&y.1)));
     scored.sort_by(|x, y| y.0.partial_cmp(&x.0).unwrap().then(x.1.cmp(&y.1)));
 
     // THE REPLY: an enemy that has not moved will answer this move. For the best few spots (one per hex), the unmoved
@@ -312,7 +334,9 @@ pub fn choose_movement(b: &mut Battle, mover: UnitId, other: UnitId, moves_first
     let depth = (REPLY_BUDGET / relevant.len().max(1)).min(REPLY_MAX);
     if !unmoved.is_empty() && depth >= 2 && !scored.is_empty() {
         let mut short: Vec<usize> = Vec::new();
-        for (_, i) in &scored {
+        // a unit alone (no friend any weighed enemy could turn on) may also stand where it deals nothing
+        let alone = tables.iter().all(|t| t.2 <= 0.0);
+        for (_, i) in if alone { &ranked } else { &scored } {
             if !short.iter().any(|j| prepared[*j].hex_xy() == prepared[*i].hex_xy()) {
                 short.push(*i);
                 if short.len() == depth {
@@ -327,6 +351,7 @@ pub fn choose_movement(b: &mut Battle, mover: UnitId, other: UnitId, moves_first
         let rival = unmoved.iter().copied().max_by(|x, y| weight_of(*x).partial_cmp(&weight_of(*y)).unwrap().then(y.cmp(x))).unwrap();
         let p_r = price.get(&rival).copied().unwrap_or(1.0);
         let mut them = Side::new(b, rival, true);
+        let rival_exp = soft(them.exposure);
         let replies = move_select::opponent_options(b, rival, &mut them);
         let mut ev2 = MoveEvaluator::new(b, rival, mover);
         let prepared2 = ev2.prepare(b, &replies);
@@ -336,9 +361,10 @@ pub fn choose_movement(b: &mut Battle, mover: UnitId, other: UnitId, moves_first
             // the rival's answer: the most (damage on me at my price - damage on it at its price), seen from its seat
             let mut answer: Option<(f64, (f64, f64))> = None;
             for c in ev2.evaluate(b, &o.label, o.facing_compass, o.fc, o.mode, o.mp_spent, &prepared2, true) {
-                let v = my_price * c.dealt - p_r * c.received;
+                let (hits_me, hits_it) = (c.dealt * my_exp[side_ix(c.side_on_defender)], c.received * rival_exp[side_ix(c.side_on_mover)]);
+                let v = my_price * hits_me - p_r * hits_it;
                 if answer.map_or(true, |(a, _)| v > a) {
-                    answer = Some((v, (c.received, c.dealt)));
+                    answer = Some((v, (hits_it, hits_me)));
                 }
             }
             let instead = Some((rival, answer.map_or((0.0, 0.0), |(_, x)| x)));

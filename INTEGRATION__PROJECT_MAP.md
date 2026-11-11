@@ -139,7 +139,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
-- **(q) HYDRA, THE THIRD BOT** (session 24, Rust only) - plan `INTEGRATION__HYDRA.md`, code `engine/core/src/hydra.rs`. First version built and
+- **(q) HYDRA, THE THIRD BOT** (session 24, Rust only) - plan `INTEGRATION__HYDRA.md`, code `engine/core/src/hydra.rs`. Second pass 2026-11-11 (exposure, lone unit may hide, reply 64; full table NOT re-run). First version built and
   measured (Change Record "HYDRA"); NEXT WORK is the movement play-out, plan Section 6 (S5a), then Section 7. To review: the Forecast and Prices,
   the Mover's score, the Fire Plan's overkill rule.
 - **(p) RUST PORT STAGES 1-9** - REVIEWED in session 24 (Change Record "RUST ENGINE REVIEWED"): two engine bugs fixed, 3-5x faster, random-battle
