@@ -57,9 +57,9 @@ pub fn location(b: &mut Battle, table: &str, side: &str, target: UnitId) -> Stri
 // =============================================================================================================
 // Options (what a mech could do), Reach, base TN
 // =============================================================================================================
-use std::collections::HashSet;
+use crate::fasthash::HashSet;
 
-use indexmap::IndexMap;
+use crate::fasthash::IndexMap;
 
 use crate::arcs;
 use crate::attack_resolution::weapon_locations;
@@ -427,7 +427,7 @@ fn keep(opts: Opts) -> Opts {
 }
 
 fn superheavy_options(b: &mut Battle, u: UnitId, rel: &Reach, diff: i64, target_prone: bool, fired: &HashSet<ItemId>) -> Opts {
-    let mut opts: Opts = IndexMap::new();
+    let mut opts: Opts = IndexMap::default();
     let m = b.units[u].clone();
     if !target_prone {
         if diff == 1 {
@@ -461,7 +461,7 @@ pub fn options(b: &mut Battle, u: UnitId, rel: &Reach, diff: i64, target_prone: 
     if target_superheavy && diff != 0 {
         return superheavy_options(b, u, rel, diff, target_prone, fired);
     }
-    let mut opts: Opts = IndexMap::new();
+    let mut opts: Opts = IndexMap::default();
     let m = b.units[u].clone();
     if target_prone {
         if diff == 0 {
@@ -502,11 +502,11 @@ pub fn water_filter(opts: Opts, allowed: Option<&[&str]>) -> Opts {
 #[allow(clippy::too_many_arguments)]
 pub fn options_at(b: &mut Battle, u: UnitId, a_hex: (i64, i64), a_facing: i64, a_level: i64, t_hex: (i64, i64), t_level: i64, target_prone: bool, fired: &HashSet<ItemId>, action: &ArcAction, target_superheavy: bool) -> Opts {
     if crate::los::hex_distance(a_hex, t_hex) != 1 {
-        return IndexMap::new();
+        return IndexMap::default();
     }
     let diff = t_level - a_level;
     if !reachable(diff, target_superheavy) {
-        return IndexMap::new();
+        return IndexMap::default();
     }
     let pair = arcs::arcs_between(a_hex, t_hex);
     let rel = Reach::new(&b.units[u], a_facing, action, &pair);
@@ -650,7 +650,7 @@ fn whip_trip(b: &mut Battle, attacker: UnitId, target: UnitId, o: &PhysOption, t
 pub fn run_physical_units(b: &mut Battle, order: &[UnitId], reports: &mut [SideReport], bot: &mut dyn PhysicalBot) {
     let idx = |u: UnitId| order.iter().position(|x| *x == u);
     for &m in order {
-        let fired: indexmap::IndexSet<ItemId> = match idx(m) {
+        let fired: crate::fasthash::IndexSet<ItemId> = match idx(m) {
             Some(i) => reports[i].attacks_list.iter().map(|a| a.weapon).collect(),
             None => Default::default(),
         };
@@ -736,7 +736,7 @@ pub fn run_physical_units(b: &mut Battle, order: &[UnitId], reports: &mut [SideR
             declared.push((attacker, target, o, hit, side.clone()));
         }
     }
-    let mut triggers: Triggers = indexmap::IndexMap::new();
+    let mut triggers: Triggers = crate::fasthash::IndexMap::default();
     let mut pushes: Vec<(UnitId, UnitId)> = Vec::new();
     for (attacker, target, o, hit, side) in declared {
         if o.push {
@@ -818,7 +818,7 @@ pub fn run_physical_units(b: &mut Battle, order: &[UnitId], reports: &mut [SideR
 // =============================================================================================================
 // Planning (the bot's side of physical attacks): Worth, plans, the Planner, choose_attack
 // =============================================================================================================
-use std::collections::HashMap;
+use crate::fasthash::HashMap;
 
 use crate::structure_weight as sw;
 
@@ -835,7 +835,7 @@ impl Worth {
     pub fn new(b: &Battle, target: UnitId, relative: bool) -> Worth {
         let t = &b.units[target];
         let front = sw::vulnerability(t, &sw::hit_spread(b, target, "front", None));
-        Worth { target, relative, front, memo: HashMap::new() }
+        Worth { target, relative, front, memo: HashMap::default() }
     }
 
     fn exposure(&self, b: &Battle, spread: &sw::Spread) -> f64 {
@@ -933,7 +933,7 @@ fn push_value(b: &Battle, target: UnitId, label: &str, direction: i64) -> Num {
 /// attack_options: {"type": [option, ...]} the attacker could make this phase with arc action `action`.
 pub fn attack_options(b: &mut Battle, attacker: UnitId, target: UnitId, action: Option<&crate::mech_state::ArcAction>) -> Opts {
     if b.units[attacker].prone || is_immobile(&b.units[attacker]) || b.is_destroyed(attacker) || b.is_destroyed(target) {
-        return IndexMap::new();
+        return IndexMap::default();
     }
     let a_xy = crate::hex_geometry::parse_hex_label(b.units[attacker].hex.as_deref().unwrap()).unwrap();
     let a_facing = crate::hex_geometry::compass_to_facing(&b.units[attacker].facing).unwrap();
@@ -1094,7 +1094,7 @@ pub struct PhysPlanner {
 impl PhysPlanner {
     pub fn new(b: &Battle, mech: UnitId, worth: Option<Worth>) -> PhysPlanner {
         let target_superheavy = worth.as_ref().map_or(false, |w| is_superheavy(&b.units[w.target]));
-        PhysPlanner { mech, worth, target_superheavy, options: HashMap::new(), plans: HashMap::new(), held: HashMap::new(), push_target: None, push_values: HashMap::new() }
+        PhysPlanner { mech, worth, target_superheavy, options: HashMap::default(), plans: HashMap::default(), held: HashMap::default(), push_target: None, push_values: HashMap::default() }
     }
 
     fn plans_for(&mut self, b: &mut Battle, reach: Reach, diff: i64, target_prone: bool, base: i64, side: &str, allowed: &Option<Vec<&'static str>>, t_water: Option<&'static str>) -> Vec<Plan> {
@@ -1105,7 +1105,7 @@ impl PhysPlanner {
             return got.clone();
         }
         if !self.options.contains_key(&case) {
-            let o = options(b, self.mech, &reach, diff, target_prone, &HashSet::new(), self.target_superheavy);
+            let o = options(b, self.mech, &reach, diff, target_prone, &HashSet::default(), self.target_superheavy);
             self.options.insert(case, o);
         }
         let mut opts = water_filter(self.options[&case].clone(), allowed.as_deref());
@@ -1170,7 +1170,7 @@ impl PhysPlanner {
             values.insert(key, v);
             v.f()
         };
-        let o = push_option_valued(b, self.mech, a_xy, a_facing, a_level, target, t_label, t_level, &HashSet::new(), &mut value_for)?;
+        let o = push_option_valued(b, self.mech, a_xy, a_facing, a_level, target, t_label, t_level, &HashSet::default(), &mut value_for)?;
         let v = expected_damage_of(b, base, std::slice::from_ref(&o), self.worth.as_mut(), side);
         if v > 0.0 { Some((v, o)) } else { None }
     }

@@ -1,5 +1,5 @@
 // Translated from INTEGRATION__ams.py (session 22): Anti-Missile Systems (Core p.206).
-use std::collections::HashMap;
+use crate::fasthash::HashMap;
 
 use crate::ammo;
 use crate::attack_resolution::{self as ar, DeclaredAttack, SideReport};
@@ -154,7 +154,7 @@ fn do_engage(b: &mut Battle, defender: UnitId, attacker: UnitId, attacks: &mut [
     // engagements spent so far this phase, shared by every attacker on this defender (the phase sets ams_used)
     let mut used: HashMap<ItemId, i64> = match &b.units[defender].ams_used {
         Some(serde_json::Value::Object(o)) => o.iter().map(|(k, v)| (k.parse().unwrap(), v.as_i64().unwrap())).collect(),
-        _ => HashMap::new(),
+        _ => HashMap::default(),
     };
     let shared = matches!(b.units[defender].ams_used, Some(serde_json::Value::Object(_)));
     let mut order: Vec<(usize, f64)> = hits.iter().map(|i| (*i, attack_prevented(b, attacker, &attacks[*i]))).collect();

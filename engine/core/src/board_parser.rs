@@ -2,7 +2,7 @@
 //! Parses MegaMek `.board` files into a per-hex lookup structure, and stitches boards. Schema only: costs are
 //! terrain_rules', pathfinding is pathfinder's. Text the Python PRINTS (parser warnings) is appended to `out`.
 
-use indexmap::IndexMap;
+use crate::fasthash::IndexMap;
 use serde_json::{json, Map, Value};
 
 use crate::pyfmt::{py_is_space, py_repr_str, py_strip};
@@ -234,7 +234,7 @@ fn universal_lines(text: &str) -> Vec<String> {
 pub fn parse_board_file(path: &str, text: &str, out: &mut String) -> Result<Board, String> {
     let mut width: Option<i64> = None;
     let mut height: Option<i64> = None;
-    let mut hexes: IndexMap<String, Hex> = IndexMap::new();
+    let mut hexes: IndexMap<String, Hex> = IndexMap::default();
     let mut seen_end = false;
 
     for (i, raw_line) in universal_lines(text).iter().enumerate() {
@@ -361,7 +361,7 @@ pub fn stitch_boards(boards: &[(String, String)], cols: i64, rows: i64, out: &mu
             total_width, total_height
         ));
     }
-    let mut hexes: IndexMap<String, Hex> = IndexMap::new();
+    let mut hexes: IndexMap<String, Hex> = IndexMap::default();
     for col in 1..=total_width {
         for row in 1..=total_height {
             hexes.insert(format!("{:02}{:02}", col, row), Hex::new(0, Features::default()));

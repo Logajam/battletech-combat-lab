@@ -56,7 +56,7 @@ pub fn submerged_locations(mech: &Mech, water_state: &str) -> BTreeSet<String> {
     }
 }
 
-fn breached(m: &mut Mech) -> &mut indexmap::IndexSet<String> {
+fn breached(m: &mut Mech) -> &mut crate::fasthash::IndexSet<String> {
     m.breached_locations.get_or_insert_with(Default::default)
 }
 
@@ -220,7 +220,7 @@ pub fn physical_damage(b: &Battle, u: UnitId, location: &str, damage: i64) -> i6
 }
 
 // ---- ranged attacks (stage 5) --------------------------------------------------------------------------------------
-use std::collections::{HashMap, HashSet};
+use crate::fasthash::{HashMap, HashSet};
 
 use crate::equipment::ItemId;
 
@@ -286,7 +286,7 @@ pub fn blocked_weapon_ids(attacker: &Mech, weapons: &[ItemId], weapon_locs: &Wea
     }
     let legs: HashSet<&String> = attacker.leg_locations.iter().collect();
     let under = submerged_locations(attacker, a_state);
-    let mut blocked = HashSet::new();
+    let mut blocked = HashSet::default();
     for &w in weapons {
         let locs = locs_of(weapon_locs, w);
         let in_leg = locs.iter().any(|l| legs.contains(l));
@@ -313,7 +313,7 @@ pub fn kick_table_weapon_ids(attacker: &Mech, weapons: &[ItemId], weapon_locs: &
         return weapons.iter().copied().filter(|w| locs_of(weapon_locs, *w).iter().any(|l| under.contains(l)) || a_state == SUBMERGED).collect();
     }
     if t_state != PARTIAL {
-        return HashSet::new();
+        return HashSet::default();
     }
     if a_state == SUBMERGED {
         return weapons.iter().copied().collect();
@@ -322,7 +322,7 @@ pub fn kick_table_weapon_ids(attacker: &Mech, weapons: &[ItemId], weapon_locs: &
         let legs: HashSet<&String> = attacker.leg_locations.iter().collect();
         return weapons.iter().copied().filter(|w| locs_of(weapon_locs, *w).iter().any(|l| legs.contains(l))).collect();
     }
-    HashSet::new()
+    HashSet::default()
 }
 
 /// The ids of the weapons the underwater range shift touches (None: nothing is submerged, no wrapper).
@@ -335,7 +335,7 @@ pub fn submerged_weapon_ids(attacker: &Mech, weapon_locs: &WeaponLocs, a_state: 
 }
 
 /// {label: depth} of the board's water hexes of depth 1+.
-pub fn hexes_by_depth(board: &Board) -> indexmap::IndexMap<String, i64> {
+pub fn hexes_by_depth(board: &Board) -> crate::fasthash::IndexMap<String, i64> {
     board.hexes.iter().filter_map(|(l, h)| match h.depth { Some(d) if d >= 1 => Some((l.clone(), d)), _ => None }).collect()
 }
 

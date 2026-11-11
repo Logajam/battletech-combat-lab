@@ -1,6 +1,7 @@
 // Translated from INTEGRATION__deployment.py (session 22): where a mech may start its movement when it enters from its
 // home edge.
-use std::collections::{HashMap, HashSet, VecDeque};
+use crate::fasthash::{HashMap, HashSet};
+use std::collections::{VecDeque};
 
 use crate::battle::{Battle, UnitId};
 use crate::hex_geometry;
@@ -55,7 +56,7 @@ fn neighbours(b: &Battle, label: &str) -> Vec<String> {
 
 fn moves(b: &Battle, u: UnitId, label: &str, level_limit: terrain_rules::GroundLimit, jumping: bool) -> HashSet<String> {
     let info = &b.board.hexes[label];
-    let mut out = HashSet::new();
+    let mut out = HashSet::default();
     for n in neighbours(b, label) {
         if terrain_rules::step_cost(Some(info), &b.board.hexes[&n], level_limit, false).is_some() {
             out.insert(n);
@@ -79,7 +80,7 @@ pub fn reaches(b: &Battle, u: UnitId, start: &str, goal: &HashSet<String>, cache
         if jumping && compute_jump_mp(m) <= 0 {
             break;
         }
-        let mut seen: HashSet<String> = HashSet::new();
+        let mut seen: HashSet<String> = HashSet::default();
         seen.insert(start.to_string());
         let mut queue: VecDeque<String> = VecDeque::new();
         queue.push_back(start.to_string());
@@ -111,8 +112,8 @@ pub fn start_hexes(b: &Battle, u: UnitId, edge: &str) -> StartHexes {
     let dd = b.cfg.i("DEPLOYMENT_DEPTH");
     let sd = b.cfg.i("DEPLOYMENT_STUCK_DEPTH");
     let far: HashSet<String> = band(b, opposite_edge(edge), sd.max(dd)).into_iter().collect();
-    let mut good_cache: HashMap<String, bool> = HashMap::new();
-    let mut moves_cache: HashMap<(String, bool), HashSet<String>> = HashMap::new();
+    let mut good_cache: HashMap<String, bool> = HashMap::default();
+    let mut moves_cache: HashMap<(String, bool), HashSet<String>> = HashMap::default();
     let mut usable = |depth: i64| -> (Vec<String>, Vec<String>) {
         let (mut ok, mut stuck) = (Vec::new(), Vec::new());
         for label in band(b, edge, depth) {

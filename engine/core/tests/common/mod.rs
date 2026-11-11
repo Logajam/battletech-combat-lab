@@ -1,7 +1,7 @@
 //! Shared by the function-level tests (tap_*.rs): rebuild a recorded call's Battle, decode its arguments, compare the
 //! state, the dice used, the log and the stub warnings. Fixtures: `python tools/port_tap.py GROUP`.
 #![allow(dead_code)]
-use std::collections::HashMap;
+use btsim_core::fasthash::HashMap;
 use std::fs;
 use std::path::PathBuf;
 
@@ -10,7 +10,7 @@ use btsim_core::board_parser::Board;
 use btsim_core::config::Config;
 use btsim_core::mech_state::Mech;
 use btsim_core::pyfmt::Num;
-use indexmap::IndexMap;
+use btsim_core::fasthash::IndexMap;
 use serde_json::Value;
 
 pub fn root() -> PathBuf {
@@ -129,8 +129,8 @@ impl A {
 }
 
 thread_local! {
-    static CONFIGS: std::cell::RefCell<HashMap<String, Config>> = std::cell::RefCell::new(HashMap::new());
-    static BOARDS: std::cell::RefCell<HashMap<String, Value>> = std::cell::RefCell::new(HashMap::new());
+    static CONFIGS: std::cell::RefCell<HashMap<String, Config>> = std::cell::RefCell::new(HashMap::default());
+    static BOARDS: std::cell::RefCell<HashMap<String, Value>> = std::cell::RefCell::new(HashMap::default());
 }
 
 pub fn fixture_config(fixture: &str) -> Config {
@@ -225,7 +225,7 @@ pub fn check_after(rec: &Value, b: &Battle, names: &[String], what: &str) {
             panic!("{} [{}] unit {}: {}", what, rec["fixture"], n, d);
         }
     }
-    assert_eq!(b.dice.used(), rec["dice"].as_array().unwrap().len(), "{} [{}]: dice used", what, rec["fixture"]);
+    assert_eq!(b.dice.borrow().used(), rec["dice"].as_array().unwrap().len(), "{} [{}]: dice used", what, rec["fixture"]);
     let want_log: Vec<String> = rec["log"].as_array().unwrap().iter().map(|x| x.as_str().unwrap().to_string()).collect();
     assert_eq!(b.log.lines, want_log, "{} [{}]: log", what, rec["fixture"]);
     let want_err: Vec<String> = rec["stubs"].as_array().unwrap().iter().map(|s| format!("STUB: {} - {}", s[0].as_str().unwrap(), s[1].as_str().unwrap())).collect();

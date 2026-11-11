@@ -83,7 +83,7 @@ pub fn max_shots(b: &mut Battle, u: UnitId, w: ItemId) -> i64 {
 // =============================================================================================================
 // The shot plan, damage / range / column / grouping per plan, options and the Planner.
 // =============================================================================================================
-use std::collections::{HashMap, HashSet};
+use crate::fasthash::{HashMap, HashSet};
 
 use crate::ammo;
 use crate::damage_resolution::{cluster_hits_count, get_weapons};
@@ -418,9 +418,9 @@ pub fn apollo_live(mech: &crate::mech_state::Mech, weapon: ItemId) -> bool {
 pub fn attach(b: &mut Battle, u: UnitId) {
     b.units[u].unjamming = Vec::new();
     wp::link_arrays(b, u);
-    let mut seen: HashSet<ItemId> = HashSet::new();
-    let mut fcs_by_loc: indexmap::IndexMap<String, Vec<ItemId>> = indexmap::IndexMap::new();
-    let mut mrm_by_loc: indexmap::IndexMap<String, Vec<ItemId>> = indexmap::IndexMap::new();
+    let mut seen: HashSet<ItemId> = HashSet::default();
+    let mut fcs_by_loc: crate::fasthash::IndexMap<String, Vec<ItemId>> = crate::fasthash::IndexMap::default();
+    let mut mrm_by_loc: crate::fasthash::IndexMap<String, Vec<ItemId>> = crate::fasthash::IndexMap::default();
     let locs: Vec<String> = b.units[u].crits.keys().cloned().collect();
     for loc in &locs {
         let slots: Vec<ItemId> = b.units[u].crits[loc].iter().filter_map(|s| if let Slot::Item(i) = s { Some(*i) } else { None }).collect();
@@ -654,12 +654,12 @@ pub struct Planner<'a> {
 
 impl<'a> Planner<'a> {
     pub fn new(attacker: UnitId, target: UnitId, adjust: &'a dyn TnAdjust, ams_share: f64, pod_values: HashMap<ItemId, f64>, hex_offset: Option<i64>) -> Planner<'a> {
-        Planner { attacker, target, adjust: AdjustRef::Borrowed(adjust), ams_share, pod_values, hex_offset, kinds_cache: HashMap::new(), memo: HashMap::new() }
+        Planner { attacker, target, adjust: AdjustRef::Borrowed(adjust), ams_share, pod_values, hex_offset, kinds_cache: HashMap::default(), memo: HashMap::default() }
     }
 
     /// A planner that shares its adjuster (movement scoring keeps one adjuster for many planners).
     pub fn new_shared(attacker: UnitId, target: UnitId, adjust: std::rc::Rc<dyn TnAdjust>, ams_share: f64) -> Planner<'static> {
-        Planner { attacker, target, adjust: AdjustRef::Shared(adjust), ams_share, pod_values: HashMap::new(), hex_offset: None, kinds_cache: HashMap::new(), memo: HashMap::new() }
+        Planner { attacker, target, adjust: AdjustRef::Shared(adjust), ams_share, pod_values: HashMap::default(), hex_offset: None, kinds_cache: HashMap::default(), memo: HashMap::default() }
     }
 
     /// The bracket the shot's damage uses: an energy weapon firing from under water fires one bracket longer.

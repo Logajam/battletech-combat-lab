@@ -1,7 +1,7 @@
 // Translated from INTEGRATION__ammo.py (session 22): ammunition bins, shots, explosion sizes.
 use fancy_regex::Regex;
 use serde_json::Value;
-use std::collections::HashSet;
+use crate::fasthash::HashSet;
 use std::sync::OnceLock;
 
 use crate::battle::{Battle, UnitId};
@@ -174,7 +174,7 @@ pub fn is_one_shot(b: &Battle, name: &str) -> bool {
 
 /// Once per battle (fresh clone): link bins to weapons and fill them.
 pub fn attach_ammo(b: &mut Battle, u: UnitId) {
-    let mut seen: HashSet<ItemId> = HashSet::new();
+    let mut seen: HashSet<ItemId> = HashSet::default();
     let slots: Vec<ItemId> = b.units[u].crits.values().flat_map(|v| v.iter()).filter_map(|s| if let Slot::Item(i) = s { Some(*i) } else { None }).collect();
     for id in slots {
         if !seen.insert(id) {
@@ -279,7 +279,7 @@ fn dead_ids(mech: &Mech) -> HashSet<ItemId> {
 pub fn bins_for(mech: &Mech, weapon: ItemId) -> Vec<ItemId> {
     let dead = dead_ids(mech);
     let w = &mech.items[weapon];
-    let mut seen: HashSet<ItemId> = HashSet::new();
+    let mut seen: HashSet<ItemId> = HashSet::default();
     let mut out = Vec::new();
     for slots in mech.crits.values() {
         for s in slots {
@@ -304,8 +304,8 @@ pub fn bins_for(mech: &Mech, weapon: ItemId) -> Vec<ItemId> {
 
 /// Weapons that can't fire for lack of ammo, as ItemIds (Python: a frozenset of id()).
 pub fn unavailable_weapons(mech: &Mech) -> HashSet<ItemId> {
-    let mut out = HashSet::new();
-    let mut by_key: indexmap::IndexMap<Option<String>, Vec<ItemId>> = indexmap::IndexMap::new();
+    let mut out = HashSet::default();
+    let mut by_key: crate::fasthash::IndexMap<Option<String>, Vec<ItemId>> = crate::fasthash::IndexMap::default();
     for w in get_weapons(mech) {
         let it = &mech.items[w];
         if matches!(it.tsemp_recharge_until, Some(Some(_))) {

@@ -1,9 +1,9 @@
 // Translated from INTEGRATION__movement_selection.py and INTEGRATION__future_damage.py: where Gladiator ends its
 // Movement Phase. Objective, exposure, PSR costs, the two-ply look-ahead with its short-list / grid reply model, the
 // closing fallback. Legate's view of the other enemies (INTEGRATION__legate) is not here (several-enemy battles).
-use std::collections::{HashMap, HashSet};
+use crate::fasthash::{HashMap, HashSet};
 
-use indexmap::IndexMap;
+use crate::fasthash::IndexMap;
 
 use crate::arcs;
 use crate::battle::{Battle, UnitId};
@@ -103,7 +103,7 @@ impl RangedFor {
         if std::env::var("BT_DUMP_TIER").is_ok() && extra_tn == 0 && b.units[attacker].side_name.as_deref() == Some("Blue 4") && b.units[target].side_name.as_deref() == Some("Red 3") {
             eprintln!("RF {} gun {} hfm {} cond {:?} own {} amm {} tmm {} heat {} tgt armor {} att weapons {}", b.units[attacker].turn_number, b.units[attacker].gunnery, b.units[attacker].heat_fire_modifier, cond.as_ref().map(|c| c.0), crate::equipment_systems::own_attack_modifier(&b.units[attacker]), amm, tmm, b.units[attacker].current_heat, b.units[target].locations.values().map(|v| v.armor.f()).sum::<f64>(), get_weapons(&b.units[attacker]).len());
         }
-        RangedFor { attacker, target, cond, fixed: None, adjust, planner, scale_on, scales: None, memo: HashMap::new(), move_heat, amm, tmm, legs, extra_tn, dissipation, other }
+        RangedFor { attacker, target, cond, fixed: None, adjust, planner, scale_on, scales: None, memo: HashMap::default(), move_heat, amm, tmm, legs, extra_tn, dissipation, other }
     }
 
     fn ranged(&mut self, b: &mut Battle, distance: i64, held: &HashSet<usize>) -> f64 {
@@ -149,7 +149,7 @@ pub fn future_damage(b: &mut Battle, attacker: UnitId, target: UnitId) -> f64 {
     }
     let mut rf = RangedFor::new(b, attacker, target, 0);
     let weapons = get_weapons(&b.units[attacker]);
-    let none = HashSet::new();
+    let none = HashSet::default();
     let mut best = f64::NEG_INFINITY;
     for d in 1..=max_distance(b, attacker, &weapons) {
         let v = rf.ranged(b, d, &none);
@@ -178,7 +178,7 @@ pub fn range_profile(b: &mut Battle, attacker: UnitId, target: UnitId, extra_tn:
     }
     let mut rf = RangedFor::new(b, attacker, target, extra_tn);
     let weapons = get_weapons(&b.units[attacker]);
-    let none = HashSet::new();
+    let none = HashSet::default();
     let mut out = vec![0.0];
     for d in 1..=max_distance(b, attacker, &weapons) {
         out.push(rf.ranged(b, d, &none));
@@ -577,11 +577,11 @@ pub fn assumed_enemy_search(b: &Battle, u: UnitId) -> String {
 /// Daniel's "guess and follow": the rows of a search over the reachable HEXES instead of every state.
 #[allow(clippy::too_many_arguments)]
 pub fn grid_search<R>(b: &mut Battle, prepared: &[Opt], score_hex: &mut dyn FnMut(&mut Battle, &[Opt]) -> Vec<(f64, R)>, start_xy: (i64, i64), starts: usize, target_xy: Option<(i64, i64)>) -> Vec<(f64, R)> {
-    let mut by_hex: IndexMap<(i64, i64), Vec<Opt>> = IndexMap::new();
+    let mut by_hex: IndexMap<(i64, i64), Vec<Opt>> = IndexMap::default();
     for c in prepared {
         by_hex.entry(c.hex_xy()).or_default().push(c.clone());
     }
-    let mut hex_best: IndexMap<(i64, i64), f64> = IndexMap::new();
+    let mut hex_best: IndexMap<(i64, i64), f64> = IndexMap::default();
     let mut scored: Vec<(f64, R)> = Vec::new();
     let mut look = |b: &mut Battle, h: (i64, i64), hex_best: &mut IndexMap<(i64, i64), f64>, scored: &mut Vec<(f64, R)>| {
         if hex_best.contains_key(&h) || !by_hex.contains_key(&h) {
@@ -650,7 +650,7 @@ fn damage_drops(b: &mut Battle, u: UnitId, count: usize) -> HashSet<i64> {
             max_distance = max_distance.max(r.long);
         }
     }
-    let mut by_distance: IndexMap<i64, f64> = IndexMap::new();
+    let mut by_distance: IndexMap<i64, f64> = IndexMap::default();
     for &w in &weapons {
         for d in 0..=max_distance {
             if let Some(v) = crate::attack_resolution::table_value(b, u, w, d, pre_tn) {
@@ -659,7 +659,7 @@ fn damage_drops(b: &mut Battle, u: UnitId, count: usize) -> HashSet<i64> {
         }
     }
     if by_distance.is_empty() {
-        return HashSet::new();
+        return HashSet::default();
     }
     let top = *by_distance.keys().max().unwrap();
     let mut drops: Vec<(f64, i64)> = (1..=top).map(|d| (by_distance.get(&d).copied().unwrap_or(0.0) - by_distance.get(&(d + 1)).copied().unwrap_or(0.0), d)).collect();
@@ -669,7 +669,7 @@ fn damage_drops(b: &mut Battle, u: UnitId, count: usize) -> HashSet<i64> {
 
 fn short_list_distances(b: &mut Battle, replier: UnitId, first_mover: UnitId) -> HashSet<i64> {
     let count = b.cfg.i("MOVEMENT_SHORT_LIST_DROPS") as usize;
-    let mut out: HashSet<i64> = HashSet::new();
+    let mut out: HashSet<i64> = HashSet::default();
     out.insert(1);
     out.extend(damage_drops(b, replier, count));
     out.extend(damage_drops(b, first_mover, count).into_iter().map(|d| d + 1));
@@ -679,7 +679,7 @@ fn short_list_distances(b: &mut Battle, replier: UnitId, first_mover: UnitId) ->
 fn own_short_list(b: &mut Battle, mover: UnitId, other: UnitId, prepared: &[Opt], enemy_xy: (i64, i64)) -> Vec<Opt> {
     let distances = short_list_distances(b, mover, other);
     let my_hex = b.units[mover].hex.clone();
-    let mut best: IndexMap<(String, &'static str), ((i64, i64, i64), Opt)> = IndexMap::new();
+    let mut best: IndexMap<(String, &'static str), ((i64, i64, i64), Opt)> = IndexMap::default();
     for o in prepared {
         if Some(&o.label) != my_hex.as_ref() && !distances.contains(&hex_distance(o.hex_xy(), enemy_xy)) {
             continue;
@@ -715,7 +715,7 @@ struct ShortListCache {
 /// short_list_states: the reply states the first mover looks at when it ends at state c.
 fn short_list_states(b: &mut Battle, cache: &mut ShortListCache, c: &Opt, prepared2: &[Opt], other: UnitId, first_mover: UnitId, them: &Side, psr: &mut HashMap<(String, &'static str, &'static str, i64, i64), f64>) -> Vec<Opt> {
     if !cache.built {
-        let mut best: IndexMap<(String, &'static str), Opt> = IndexMap::new();
+        let mut best: IndexMap<(String, &'static str), Opt> = IndexMap::default();
         for o in prepared2 {
             let k = (o.label.clone(), o.mode);
             if !best.contains_key(&k) || (o.fc, -o.mp_spent) > (best[&k].fc, -best[&k].mp_spent) {
@@ -778,7 +778,7 @@ pub fn opponent_options(b: &mut Battle, other: UnitId, them: &mut Side) -> Vec<S
     let mult = crate::equipment_systems::boost_multiplier(b, other, true);
     let saved = b.units[other].run_mp_multiplier;
     b.units[other].run_mp_multiplier = mult;
-    let (opts, notes) = move_options::reduced_options(b, other, &HashSet::new(), None, None);
+    let (opts, notes) = move_options::reduced_options(b, other, &HashSet::default(), None, None);
     b.units[other].run_mp_multiplier = saved;
     them.notes = notes;
     opts
@@ -864,7 +864,7 @@ fn modeled_reply(b: &mut Battle, c: &Opt, rc: &mut ReplyCtx, them: &mut Side, me
         return best;
     }
     // Nothing deals damage from here: the second mover would fall back to closing.
-    let mut by_key: HashMap<(String, &'static str, &'static str, i64), Candidate> = HashMap::new();
+    let mut by_key: HashMap<(String, &'static str, &'static str, i64), Candidate> = HashMap::default();
     for c2 in &cands {
         by_key.insert(c2.key4(), c2.clone());
     }
@@ -1031,7 +1031,7 @@ fn choose_normal(b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool
     if prepared1.is_empty() {
         return (None, "no reachable spot".into(), None, None);
     }
-    let mut prepared_by_key: HashMap<(String, &'static str, &'static str, i64), usize> = HashMap::new();
+    let mut prepared_by_key: HashMap<(String, &'static str, &'static str, i64), usize> = HashMap::default();
     for (i, o) in prepared1.iter().enumerate() {
         prepared_by_key.insert((o.label.clone(), o.facing_compass, o.mode, o.fc), i);
     }

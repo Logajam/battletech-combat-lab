@@ -10,7 +10,7 @@ use crate::mech_state::*;
 use crate::movement_attacks as ma;
 use crate::physical_gear as gear;
 use crate::piloting_rolls as pr;
-use indexmap::IndexMap;
+use crate::fasthash::IndexMap;
 
 pub const DFA_PSR_MODIFIER: i64 = 2;
 pub const JUMP_MODIFIER: i64 = 3;
@@ -147,7 +147,7 @@ fn displace(b: &mut Battle, target: UnitId, kind: &str, label: Option<String>, d
 pub fn resolve(b: &mut Battle, attacker: UnitId, target: UnitId, hit: bool) -> Triggers {
     let a_name = b.units[attacker].side_name.clone().unwrap_or_default();
     let t_name = b.units[target].side_name.clone().unwrap_or_default();
-    let mut triggers: Triggers = IndexMap::new();
+    let mut triggers: Triggers = IndexMap::default();
     triggers.insert(a_name.clone(), vec![]);
     triggers.insert(t_name.clone(), vec![]);
     let a_xy = hex_geometry::parse_hex_label(b.units[attacker].hex.as_deref().unwrap()).unwrap();

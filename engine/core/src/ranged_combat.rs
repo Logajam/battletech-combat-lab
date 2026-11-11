@@ -1,7 +1,7 @@
 // Translated from INTEGRATION__ranged_combat.py (session 22). Part 1 (the engine's): the ground path to a picked end
 // state (`path_to`) and the terrain PSRs / hazard damage the search noted for it (`path_notes`), which gate the
 // movement subphase. The scoring (MoveEvaluator, option lists) follows with the bots.
-use std::collections::HashSet;
+use crate::fasthash::HashSet;
 
 use serde_json::Value;
 
@@ -26,7 +26,7 @@ pub struct Pick {
 
 /// pathfinder._blocked_set(mover.blocked_hex): None, one (x, y), or a set of them.
 pub fn blocked_set(v: &Option<Value>) -> HashSet<Hex> {
-    let mut out = HashSet::new();
+    let mut out = HashSet::default();
     match v {
         Some(Value::Array(a)) if !a.is_empty() => {
             if a[0].is_i64() {
@@ -70,10 +70,10 @@ pub fn minimum_move(b: &Battle, u: UnitId, sx: i64, sy: i64, facing: i64, run_bu
 
 /// The ground path to a picked end state: [(step, (x, y, facing), mp after)] - step "enter" (onto the board, first),
 /// "forward", "backward" or "turn" - or None when no such path is found.
-pub type TableCache = std::collections::HashMap<(i64, i64, i64, i64, Option<i64>), crate::pathfinder::MovementTable>;
+pub type TableCache = crate::fasthash::HashMap<(i64, i64, i64, i64, Option<i64>), crate::pathfinder::MovementTable>;
 
 pub fn path_to(b: &Battle, u: UnitId, pick: &Pick, standup_mp: Option<i64>, entry_edge: Option<&[String]>) -> Option<Vec<(&'static str, State, i64)>> {
-    path_to_cached(b, u, pick, standup_mp, entry_edge, &mut TableCache::new())
+    path_to_cached(b, u, pick, standup_mp, entry_edge, &mut TableCache::default())
 }
 
 /// path_to with the searched tables kept in `cache` (PathBook): asking for many picks from one spot searches once.
@@ -116,7 +116,7 @@ pub fn path_to_cached(b: &Battle, u: UnitId, pick: &Pick, standup_mp: Option<i64
     };
     if standup_mp.is_none() {
         let (dx, dy) = hex_geometry::FACING_DELTAS[start_facing as usize];
-        if fc == 1 && pick.mode == "Run" && state == (sx + dx, sy + dy, start_facing) && mp == budget && minimum_move(b, u, sx, sy, start_facing, budget, &HashSet::new(), level_limit).is_some() {
+        if fc == 1 && pick.mode == "Run" && state == (sx + dx, sy + dy, start_facing) && mp == budget && minimum_move(b, u, sx, sy, start_facing, budget, &HashSet::default(), level_limit).is_some() {
             return Some(vec![("forward", state, mp)]);
         }
     }
@@ -207,7 +207,7 @@ pub fn path_notes(b: &Battle, u: UnitId, pick: &Pick, standup_mp: Option<i64>, e
     }
     // Minimum Movement's one step notes its own terrain PSRs (when the board has any)
     if standup_mp.is_none() && psrs.is_none() {
-        if let Some(key) = minimum_move(b, u, sx, sy, start_facing, run_budget, &HashSet::new(), level_limit) {
+        if let Some(key) = minimum_move(b, u, sx, sy, start_facing, run_budget, &HashSet::default(), level_limit) {
             if key == (x, y, facing, pick.fc, pick.mode.clone(), pick.mp_spent) && terrain_rules::has_psr_terrain(&b.board) {
                 let here = &b.board.hexes[m.hex.as_deref().unwrap()];
                 let info = &b.board.hexes[&pick.hex];

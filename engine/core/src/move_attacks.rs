@@ -1,8 +1,8 @@
 // Translated from INTEGRATION__movement_attacks.py: the attacks a mech declares in the Movement Phase (charges, death
 // from above) as movement-picker options - Pose, MoverIndex, values, scored_options, best_by_mode.
-use std::collections::{HashMap, HashSet};
+use crate::fasthash::{HashMap, HashSet};
 
-use indexmap::IndexMap;
+use crate::fasthash::IndexMap;
 
 use crate::battle::{Battle, UnitId};
 use crate::hex_geometry;
@@ -74,7 +74,7 @@ impl MoverIndex {
         let walk = compute_walk_mp(m);
         let budget = if standup_mp.is_none() { compute_running_mp(m) } else { standup_mp.unwrap() };
         let level_limit = terrain_rules::max_level_change(ground_level_limited(m), is_superheavy(m));
-        let mut ground: IndexMap<(i64, i64, i64), Vec<(i64, i64)>> = IndexMap::new();
+        let mut ground: IndexMap<(i64, i64, i64), Vec<(i64, i64)>> = IndexMap::default();
         for (x, y, facing, fc, mode, mp) in move_options::movement_options(b, mover, standup_mp, None, false, notes) {
             if mode != "Jump" {
                 ground.entry((x, y, facing)).or_default().push((fc, mp));
@@ -83,7 +83,7 @@ impl MoverIndex {
         let jump_mp = if standup_mp.is_none() && !m.prone { water::jump_mp(b, mover) } else { 0 };
         let start_label = m.hex.clone();
         let start_xy = start_label.as_deref().map(|h| hex_geometry::parse_hex_label(h).unwrap());
-        let mut jump_hexes = HashSet::new();
+        let mut jump_hexes = HashSet::default();
         if jump_mp > 0 && start_label.is_some() {
             let (sx, sy) = start_xy.unwrap();
             jump_hexes = crate::combat::build_jump_states(&b.board, sx, sy, jump_mp).unwrap().keys().map(|(x, y, _)| (*x, *y)).collect();
@@ -97,7 +97,7 @@ impl MoverIndex {
     pub fn charge_states(&self, b: &Battle, pose: &Pose) -> Vec<Pick> {
         let hexes = &b.board.hexes;
         let t_info = &hexes[&pose.label];
-        let mut best: IndexMap<(String, i64, &'static str), (i64, i64)> = IndexMap::new();
+        let mut best: IndexMap<(String, i64, &'static str), (i64, i64)> = IndexMap::default();
         for d in 0..6 {
             let Some(n) = ma::neighbour(&pose.label, d) else { continue };
             if !hexes.contains_key(&n) {
@@ -199,7 +199,7 @@ fn side_ix(s: &str) -> usize {
 }
 
 pub fn best_by_mode(cands: &[Candidate], target_exposure: &[f64; 4]) -> HashMap<&'static str, f64> {
-    let mut best: HashMap<&'static str, f64> = HashMap::new();
+    let mut best: HashMap<&'static str, f64> = HashMap::default();
     for c in cands {
         let v = c.dealt * target_exposure[side_ix(c.side_on_defender)];
         if v > best.get(c.mode).copied().unwrap_or(0.0) {

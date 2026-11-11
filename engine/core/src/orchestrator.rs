@@ -1,7 +1,7 @@
 // Translated from INTEGRATION__orchestrator.py (session 22): the turn loop. The bots' choices come through `BotSet`
 // (Stage 6 plays them back from decisions.json: `replay_bots`; Stages 7-8 compute them). Observers the Python has
 // (stats, replay pages, timing) are not here; the test hook `Marks` stands where `replay.mark(...)` is.
-use indexmap::IndexMap;
+use crate::fasthash::IndexMap;
 
 use crate::attack_resolution::{self as ar, DeclChoice, DeclCtx, RangedBot, SideReport};
 use crate::battle::{Battle, UnitId};
@@ -637,7 +637,7 @@ fn edges_for_teams(first_edge: &str, count: usize) -> Vec<&'static str> {
 fn deploy_teams(b: &mut Battle) {
     let all: Vec<UnitId> = (0..b.units.len()).collect();
     let teams = forces::team_names(b, &all);
-    let mut rolls: IndexMap<String, i64> = IndexMap::new();
+    let mut rolls: IndexMap<String, i64> = IndexMap::default();
     let order = forces::initiative_order(b, &teams, Some(&mut rolls));
     let choice = b.cfg.s("HOME_EDGE_CHOICE").to_string();
     let edge: &str = if choice == "random" {
@@ -725,7 +725,7 @@ pub fn start_battle(b: &mut Battle, max_turns: i64, marks: Marks) -> Play {
     marks(b, 0, "Deployment");
     let all: Vec<UnitId> = (0..b.units.len()).collect();
     let team_list = forces::team_names(b, &all);
-    let mut unit_stats = IndexMap::new();
+    let mut unit_stats = IndexMap::default();
     for u in 0..b.units.len() {
         let m = &b.units[u];
         let hp = match ar::total_hp(m) {
@@ -886,7 +886,7 @@ fn finish(b: &mut Battle, play: &mut Play) {
         s.final_hex = b.units[u].hex.clone();
     }
     play.result.units = play.unit_stats.clone();
-    let mut teams = IndexMap::new();
+    let mut teams = IndexMap::default();
     for t in &play.team_list {
         let members: Vec<SideStats> = (0..b.units.len()).filter(|u| b.units[*u].team.as_deref() == Some(t.as_str())).map(|u| play.unit_stats[&name(b, u)].clone()).collect();
         teams.insert(t.clone(), team_totals(t, &members));

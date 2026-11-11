@@ -552,10 +552,10 @@ pub fn parse_mtf(db: &EquipmentDb, text: &str, out: &mut String) -> Result<Mech,
     let mut myomer_line = "Standard".to_string();
     let (mut walk_mp, mut jump_mp): (Option<i64>, Option<i64>) = (None, None);
     let (mut heat_sink_count, mut heat_sink_type): (Option<i64>, Option<String>) = (None, None);
-    let mut front_armor: indexmap::IndexMap<String, i64> = indexmap::IndexMap::new();
-    let mut rear_armor: indexmap::IndexMap<String, i64> = indexmap::IndexMap::new();
-    let mut location_armor_type: indexmap::IndexMap<String, ArmorType> = indexmap::IndexMap::new();
-    let mut location_lines: indexmap::IndexMap<String, Vec<String>> = indexmap::IndexMap::new();
+    let mut front_armor: crate::fasthash::IndexMap<String, i64> = crate::fasthash::IndexMap::default();
+    let mut rear_armor: crate::fasthash::IndexMap<String, i64> = crate::fasthash::IndexMap::default();
+    let mut location_armor_type: crate::fasthash::IndexMap<String, ArmorType> = crate::fasthash::IndexMap::default();
+    let mut location_lines: crate::fasthash::IndexMap<String, Vec<String>> = crate::fasthash::IndexMap::default();
 
     let mut i = 0;
     let n = raw_lines.len();

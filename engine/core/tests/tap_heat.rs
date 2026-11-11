@@ -13,7 +13,7 @@ fn items(b: &btsim_core::battle::Battle, a: &A) -> Vec<usize> {
     a.list().iter().map(|x| match x { A::Item { unit, addr } => item_id(b, b.unit_index(unit), addr), o => panic!("{:?}", o) }).collect()
 }
 
-fn arg<'a>(args: &'a [A], kw: &'a std::collections::HashMap<String, A>, i: usize, name: &str) -> Option<&'a A> {
+fn arg<'a>(args: &'a [A], kw: &'a btsim_core::fasthash::HashMap<String, A>, i: usize, name: &str) -> Option<&'a A> {
     args.get(i).or_else(|| kw.get(name))
 }
 
@@ -28,7 +28,7 @@ fn heat_matches_python() {
         let (mut b, names) = make_battle(rec);
         b.piloting = rec["piloting"].as_i64().unwrap();
         let args: Vec<A> = rec["args"].as_array().unwrap().iter().map(decode).collect();
-        let kw: std::collections::HashMap<String, A> = rec["kwargs"].as_object().unwrap().iter().map(|(k, v)| (k.clone(), decode(v))).collect();
+        let kw: btsim_core::fasthash::HashMap<String, A> = rec["kwargs"].as_object().unwrap().iter().map(|(k, v)| (k.clone(), decode(v))).collect();
         let ret = decode(&rec["ret"]);
         let u = unit_of(&names, args[0].unit());
         match f {

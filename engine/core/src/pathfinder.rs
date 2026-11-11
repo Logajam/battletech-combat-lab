@@ -2,9 +2,9 @@
 // finished-table cache and `forget_board` are speed only and come back in stage 9.
 //! The DP engine: the table of (x, y, facing, mp_spent) -> most forward moves achievable landing in that state.
 
-use std::collections::HashSet;
+use crate::fasthash::HashSet;
 
-use indexmap::IndexMap;
+use crate::fasthash::IndexMap;
 
 use crate::board_parser::Board;
 use crate::hex_geometry::{hex_label, State, FACING_DELTAS};
@@ -44,10 +44,10 @@ fn build_flat(start_x: i64, start_y: i64, start_facing: i64, mp_budget: i64) -> 
     let mut table = MovementTable::default();
     let start_state = (start_x, start_y, start_facing);
     record(&mut table, start_state, 0, 0);
-    let mut layer: IndexMap<State, i64> = IndexMap::new();
+    let mut layer: IndexMap<State, i64> = IndexMap::default();
     layer.insert(start_state, 0);
     for mp in 0..mp_budget {
-        let mut next_layer: IndexMap<State, i64> = IndexMap::new();
+        let mut next_layer: IndexMap<State, i64> = IndexMap::default();
         let mut push = |state: State, forward_count: i64, next_layer: &mut IndexMap<State, i64>| match next_layer.get(&state) {
             Some(&e) if forward_count <= e => {}
             _ => {
@@ -105,7 +105,7 @@ fn build_terrain_aware(
         return Err(format!("Start hex {} is marked impassable.", start_label(start_x, start_y)?));
     }
     let start_key: SearchKey = (start_x, start_y, start_facing, 0, false);
-    let mut buckets: IndexMap<i64, IndexMap<SearchKey, i64>> = IndexMap::new();
+    let mut buckets: IndexMap<i64, IndexMap<SearchKey, i64>> = IndexMap::default();
     buckets.entry(0).or_default().insert(start_key, 0);
 
     fn push(buckets: &mut IndexMap<i64, IndexMap<SearchKey, i64>>, mp: i64, key: SearchKey, fc: i64) {
@@ -200,15 +200,15 @@ fn build_terrain_psr(
     };
 
     let mut table = MovementTable::default();
-    table.psrs = Some(IndexMap::new());
+    table.psrs = Some(IndexMap::default());
     if keep_parents {
-        table.parents = Some(IndexMap::new());
+        table.parents = Some(IndexMap::default());
     }
     if hex_info(board, blocked, start_x, start_y).is_none() {
         return Err(format!("Start hex {} is not on the loaded board.", start_label(start_x, start_y)?));
     }
     let start_key: SearchKey = (start_x, start_y, start_facing, 0, false);
-    let mut buckets: IndexMap<i64, IndexMap<SearchKey, PsrValue>> = IndexMap::new();
+    let mut buckets: IndexMap<i64, IndexMap<SearchKey, PsrValue>> = IndexMap::default();
     buckets.entry(0).or_default().insert(start_key, (0.0, 0, 0, 0, 0));
 
     #[allow(clippy::too_many_arguments)]

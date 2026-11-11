@@ -3,7 +3,7 @@
 //! of a multi-slot item; here a mech owns an arena `items: Vec<Equipment>` and slots hold `ItemId`s, so sharing,
 //! copying a mech and "id()" are all plain indices (RUST_PORT trap 6).
 
-use indexmap::IndexMap;
+use crate::fasthash::IndexMap;
 use serde_json::{json, Map, Value};
 
 use crate::pyfmt::py_strip;

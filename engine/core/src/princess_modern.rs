@@ -1,6 +1,6 @@
 // Translated from INTEGRATION__princess_modern.py and the Group / posture parts of INTEGRATION__princess_group.py: the
 // modern Princess's movement ranker (BasicPathRanker.rankPath) and what she knows because there is a battle around her.
-use std::collections::HashMap;
+use crate::fasthash::HashMap;
 
 use crate::attack_resolution as ar;
 use crate::battle::{Battle, UnitId};
@@ -433,14 +433,14 @@ fn std_odds(side: &str) -> [f64; 8] {
     o
 }
 
-type Opts = indexmap::IndexMap<&'static str, Vec<PhysOption>>;
+type Opts = crate::fasthash::IndexMap<&'static str, Vec<PhysOption>>;
 
 #[allow(clippy::too_many_arguments)]
 fn physical_options(b: &mut Battle, attacker: UnitId, a_xy: (i64, i64), a_label: &str, a_facing: i64, a_amm: i64, target: UnitId, t_xy: (i64, i64), t_label: &str, t_facing: i64, target_tmm: i64, target_prone: bool) -> Option<(i64, Opts, &'static str)> {
     let (a_level, t_level) = (b.board.hexes[a_label].level, b.board.hexes[t_label].level);
     let action = crate::arcs::current_action(&b.units[attacker]);
     let sup = is_superheavy(&b.units[target]);
-    let opts = physical::options_at(b, attacker, a_xy, a_facing, a_level, t_xy, t_level, target_prone, &std::collections::HashSet::new(), &action, sup);
+    let opts = physical::options_at(b, attacker, a_xy, a_facing, a_level, t_xy, t_level, target_prone, &crate::fasthash::HashSet::default(), &action, sup);
     if opts.is_empty() {
         return None;
     }
@@ -526,7 +526,7 @@ fn moved_estimates(b: &mut Battle, mover: UnitId, other: UnitId, prepared: &[Opt
     let attacks_back = !(b.units[other].shutdown || b.units[other].prone || is_immobile(&b.units[other]));
     let can_attack = !(b.units[mover].shutdown || is_immobile(&b.units[mover]));
     let other_prone = b.units[other].prone;
-    let mut out = HashMap::new();
+    let mut out = HashMap::default();
     for o in prepared {
         let c = cands.get(&(o.label.clone(), o.facing_compass, o.mode, o.fc));
         let (mine, mut theirs) = c.map_or((0.0, 0.0), |c| (c.dealt, c.received));
@@ -547,7 +547,7 @@ fn moved_estimates(b: &mut Battle, mover: UnitId, other: UnitId, prepared: &[Opt
 fn unmoved_estimates(b: &mut Battle, mover: UnitId, other: UnitId, prepared: &[Opt]) -> HashMap<Key5, Est> {
     let parts = princess::unmoved_parts(b, mover, other, prepared);
     let by_key: HashMap<Key5, &Opt> = prepared.iter().map(|o| (key_of(o), o)).collect();
-    let mut out = HashMap::new();
+    let mut out = HashMap::default();
     for (k, (mine, theirs, flank)) in parts {
         let o = by_key[&k];
         out.insert(k, (mine * odds_ratio(o.amm), 0.0, theirs * terrain_discount(b, &o.label) + flank));
@@ -649,8 +649,8 @@ fn rank(b: &mut Battle, mover: UnitId, group: &Group, prepared: &[Opt], estimate
     let cap = if stance == DEFEND { HOLD_CREDIT_DEFEND_CAP_FACTOR } else { HOLD_CREDIT_ATTACK_CAP_FACTOR };
     let hazard_board = princess::hazard_board(b);
     let mover_hex = b.units[mover].hex.clone();
-    let mut max_at: HashMap<i64, i64> = HashMap::new();
-    let mut tables = crate::ranged_combat::TableCache::new();
+    let mut max_at: HashMap<i64, i64> = HashMap::default();
+    let mut tables = crate::ranged_combat::TableCache::default();
     #[allow(clippy::type_complexity)]
     let mut best: Option<(f64, &Opt, f64, f64, f64, f64, f64, f64, f64, f64, f64, f64, f64)> = None;
     for o in &pool {

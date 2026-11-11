@@ -1,5 +1,5 @@
 // Translated from INTEGRATION__heat.py (session 22): every heat rule the battle loop uses.
-use std::collections::HashSet;
+use crate::fasthash::HashSet;
 
 use crate::ammo;
 use crate::battle::{Battle, UnitId};
@@ -380,7 +380,7 @@ pub fn is_inferno_bin(m: &Mech, bin: ItemId) -> bool {
 /// keeps only inferno / non-inferno bins.
 pub fn live_ammo_bins(mech: &Mech, inferno: Option<bool>) -> Vec<(String, ItemId)> {
     let destroyed: HashSet<ItemId> = mech.destroyed_slot_info.values().filter_map(|i| i.instance_id).collect();
-    let mut seen: HashSet<ItemId> = HashSet::new();
+    let mut seen: HashSet<ItemId> = HashSet::default();
     let mut bins = Vec::new();
     for (location, slots) in &mech.crits {
         for slot in slots {

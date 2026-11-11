@@ -1,6 +1,6 @@
 // Gladiator's choices (INTEGRATION__bots -> attack_resolution.choose_declaration, physical.choose_attack ...), computed.
 // Each is checked against the recorded decision (decisions.json) in tests/stage8_*.rs.
-use std::collections::{HashMap, HashSet};
+use crate::fasthash::{HashMap, HashSet};
 
 use crate::arcs;
 use crate::attack_resolution::{arc_unavailable, DeclChoice, DeclCtx};
@@ -39,7 +39,7 @@ pub fn physical_planner(b: &mut Battle, attacker: UnitId, target: UnitId) -> Opt
     let t_water = crate::water::state(b, target);
     let allowed = crate::water::physical_allowed(crate::water::state(b, attacker), t_water);
     let mut value = |b: &mut Battle, label: &str, direction: i64| crate::movement_attacks::displacement_worth(b, target, label, direction).f();
-    let fired: HashSet<ItemId> = HashSet::new();
+    let fired: HashSet<ItemId> = HashSet::default();
     let mut push: Vec<Plan> = Vec::new();
     if let Some(mut o) = physical::push_option(b, attacker, a_hex, a_facing, a_level, target, &th, t_level, &fired, &mut value) {
         o.damage = crate::movement_attacks::displacement_worth(b, target, &th, a_facing);
@@ -65,7 +65,7 @@ impl PhysPlans {
         if physical::reachable(diff, sup) && crate::los::hex_distance(self.a_hex, self.t_hex) == 1 {
             let pair = arcs::arcs_between(self.a_hex, self.t_hex);
             let rel = physical::Reach::new(&b.units[attacker], self.a_facing, action, &pair);
-            let none: HashSet<ItemId> = HashSet::new();
+            let none: HashSet<ItemId> = HashSet::default();
             let mut options = physical::options(b, attacker, &rel, diff, b.units[target].prone, &none, sup);
             options = physical::water_filter(options, self.allowed.as_deref());
             if self.t_water != crate::water::GROUND {
@@ -108,7 +108,7 @@ fn choose_declaration_with(b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner,
     let plans_for = if ctx.distance == 1 && plans_physical { physical_planner(b, attacker, target) } else { None };
     let actions: Vec<ArcAction> = if plans_for.is_some() { arcs::arc_options(&b.units[attacker], "ranged") } else { ctx.arc_choices.iter().map(|(_, a)| a.clone()).collect() };
     let legs = arcs::leg_offsets(&b.units[attacker]);
-    let mut cache: HashMap<(arcs::ArcKey, Vec<ItemId>), (Vec<ItemId>, f64, i64)> = HashMap::new();
+    let mut cache: HashMap<(arcs::ArcKey, Vec<ItemId>), (Vec<ItemId>, f64, i64)> = HashMap::default();
     let mut best: Option<(f64, (Vec<ItemId>, f64, i64), arcs::ArcKey, ArcAction, Plan, Vec<ItemId>)> = None;
     for action in actions {
         let key = arcs::key_for(&ctx.pair_arcs, ctx.a_facing, &action, &legs);

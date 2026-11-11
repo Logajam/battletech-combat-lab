@@ -1,5 +1,5 @@
 // Translated from INTEGRATION__equipment_systems.py (session 22).
-use std::collections::HashSet;
+use crate::fasthash::HashSet;
 
 use crate::battle::{Battle, UnitId};
 use crate::equipment::{ItemId, Slot};
@@ -174,7 +174,7 @@ pub fn kind_of(mech: &Mech, slot: &Slot) -> Option<&'static str> {
 
 /// Once per battle per mech: finds every system, keyed by kind -> Equipment instances.
 pub fn attach_equipment(b: &mut Battle, u: UnitId) {
-    let mut found: indexmap::IndexMap<String, Vec<ItemId>> = indexmap::IndexMap::new();
+    let mut found: crate::fasthash::IndexMap<String, Vec<ItemId>> = crate::fasthash::IndexMap::default();
     let mut seen: Vec<ItemId> = Vec::new();
     {
         let m = &b.units[u];

@@ -1,5 +1,5 @@
 //! Stage 2a: line of sight against the Python (`python tools/port_stage2.py` after `python tools/port_stage1.py`).
-use std::collections::HashMap;
+use btsim_core::fasthash::HashMap;
 use std::fs;
 use std::path::PathBuf;
 
@@ -47,11 +47,11 @@ fn step_json(s: &LOSStep) -> Value {
 #[test]
 fn line_of_sight_traces_match_python() {
     let d = load_json("stage2/los.json");
-    let mut smoke_by_board: HashMap<String, Value> = HashMap::new();
+    let mut smoke_by_board: HashMap<String, Value> = HashMap::default();
     for b in d["boards"].as_array().unwrap() {
         smoke_by_board.insert(b[0].as_str().unwrap().to_string(), b[1].clone());
     }
-    let mut cache: HashMap<(String, bool), Board> = HashMap::new();
+    let mut cache: HashMap<(String, bool), Board> = HashMap::default();
     let mut n = 0;
     for c in d["los"].as_array().unwrap() {
         let name = c[0].as_str().unwrap().to_string();
@@ -92,7 +92,7 @@ fn line_of_sight_traces_match_python() {
 #[test]
 fn target_hex_modifier_matches_python() {
     let d = load_json("stage2/los.json");
-    let mut smoke_by_board: HashMap<String, Value> = HashMap::new();
+    let mut smoke_by_board: HashMap<String, Value> = HashMap::default();
     for b in d["boards"].as_array().unwrap() {
         smoke_by_board.insert(b[0].as_str().unwrap().to_string(), b[1].clone());
     }

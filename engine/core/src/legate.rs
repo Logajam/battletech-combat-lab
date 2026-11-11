@@ -2,7 +2,7 @@
 // the battlefield-keeping layer that gives a Gladiator the whole enemy force. Switches whose research layers are not
 // translated (herding, cohesion, team value, stack, peril blending, tiered move order) must be off: asking for one is a
 // loud panic, never a quiet default.
-use std::collections::{HashMap, HashSet};
+use crate::fasthash::{HashMap, HashSet};
 
 use crate::battle::{Battle, UnitId};
 use crate::hex_geometry;
@@ -202,7 +202,7 @@ impl Unit {
             prepared = crate::move_options::prepare_options(b, id, &options);
         }
         let state = hold(b, id);
-        Unit { id, side, prepared, state, locked: false, tried: HashSet::new(), best: None, evals: HashMap::new(), rows: HashMap::new() }
+        Unit { id, side, prepared, state, locked: false, tried: HashSet::default(), best: None, evals: HashMap::default(), rows: HashMap::default() }
     }
 
     /// {state key: candidate} for each of `states` against `foe` standing at foe_state - None without line of sight.
@@ -264,8 +264,8 @@ fn resolve(proposals: &[(usize, Vec<(f64, Opt)>)], locked: &HashMap<usize, Strin
     let reserved: HashSet<&String> = locked.values().collect();
     let mut pointer: HashMap<usize, usize> = proposals.iter().map(|(u, _)| (*u, 0)).collect();
     let lists: HashMap<usize, &Vec<(f64, Opt)>> = proposals.iter().map(|(u, r)| (*u, r)).collect();
-    let mut holder: HashMap<String, usize> = HashMap::new();
-    let mut placed: HashMap<usize, (f64, Opt)> = HashMap::new();
+    let mut holder: HashMap<String, usize> = HashMap::default();
+    let mut placed: HashMap<usize, (f64, Opt)> = HashMap::default();
     let mut pending: std::collections::VecDeque<usize> = proposals.iter().map(|(u, _)| *u).collect();
     while let Some(unit) = pending.pop_front() {
         let rows = lists[&unit];
@@ -353,7 +353,7 @@ fn proposals_for(b: &mut Battle, units: &mut [Unit], unit: usize, opposing: &[us
             rows = ranked.into_iter().take(8).map(|o| (-1.0e6 - hex_distance(o.hex_xy(), target_xy) as f64, o, (0.0, 0.0))).collect();
         }
     }
-    let mut best_by_hex: indexmap::IndexMap<String, (f64, Opt)> = indexmap::IndexMap::new();
+    let mut best_by_hex: crate::fasthash::IndexMap<String, (f64, Opt)> = crate::fasthash::IndexMap::default();
     for (score, o, _) in rows {
         let better = best_by_hex.get(&o.label).map_or(true, |(s, _)| score > *s);
         if better {
@@ -445,7 +445,7 @@ fn estimate(b: &mut Battle, mine: &[UnitId], theirs: &[UnitId]) -> (HashMap<Unit
     }
     let asking: Vec<usize> = (0..mine.len()).collect();
     let enemy: Vec<usize> = (mine.len()..mine.len() + theirs.len()).collect();
-    let mut objectives: HashMap<usize, Objective> = HashMap::new();
+    let mut objectives: HashMap<usize, Objective> = HashMap::default();
     for _ in 0..b.cfg.i("LEGATE_ITERATIONS").max(0) {
         half_round(b, &mut units, &enemy, &asking, &mut objectives, &asking);
         if enemy.iter().all(|u| units[*u].locked) {
@@ -648,7 +648,7 @@ fn footprint(b: &mut Battle, attacker: UnitId) -> Vec<(i64, i64)> {
     let blocked = b.units[attacker].blocked_hex.clone();
     let states = crate::move_options::movement_options(b, attacker, None, edge.as_deref(), true, &mut notes);
     b.units[attacker].blocked_hex = blocked;
-    let mut seen = HashSet::new();
+    let mut seen = HashSet::default();
     states.into_iter().map(|s| (s.0, s.1)).filter(|p| seen.insert(*p)).collect()
 }
 
@@ -732,7 +732,7 @@ pub fn tier_of(b: &mut Battle, mover: UnitId) -> Tier {
     if on_board.len() < 3 {
         return Tier::Mid;
     }
-    let mut ratios: HashMap<UnitId, f64> = HashMap::new();
+    let mut ratios: HashMap<UnitId, f64> = HashMap::default();
     for u in &on_board {
         let hxy = xy(b.units[*u].hex.as_deref().unwrap());
         let mut peril_here = 0.0;

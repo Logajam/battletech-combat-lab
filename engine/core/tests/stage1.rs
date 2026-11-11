@@ -144,7 +144,7 @@ fn stitched_boards_match_python() {
 fn terrain_rules_match_python() {
     let t = load("terrain.json");
     let boards = load("boards.json");
-    let mut cache: std::collections::HashMap<String, Board> = std::collections::HashMap::new();
+    let mut cache: btsim_core::fasthash::HashMap<String, Board> = btsim_core::fasthash::HashMap::default();
     let mut get = |name: &str| -> Board {
         cache
             .entry(name.to_string())

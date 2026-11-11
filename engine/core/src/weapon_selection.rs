@@ -55,9 +55,9 @@ pub fn heat_limits(current_heat: i64, min_heat: i64, max_heat: i64, dissipation:
 }
 
 // ---- the knapsack and the candidates ---------------------------------------------------------------------------------
-use std::collections::{HashMap, HashSet};
+use crate::fasthash::{HashMap, HashSet};
 
-use indexmap::IndexMap;
+use crate::fasthash::IndexMap;
 
 use crate::attack_resolution::table_value;
 use crate::damage_resolution::get_weapons;
@@ -75,7 +75,7 @@ pub struct Candidate {
 /// of the chosen candidates). dp[h] = (best value using exactly heat h, chosen indices); ties go to the first heat level
 /// reached (insertion order).
 pub fn best_subset_python(values: &[f64], heats: &[i64], heat_budget: i64) -> (f64, i64, Vec<usize>) {
-    let mut dp: IndexMap<i64, (f64, Vec<usize>)> = IndexMap::new();
+    let mut dp: IndexMap<i64, (f64, Vec<usize>)> = IndexMap::default();
     dp.insert(0, (0.0, vec![]));
     for (i, (ed, heat_cost)) in values.iter().zip(heats).enumerate() {
         let mut keys: Vec<i64> = dp.keys().copied().collect();

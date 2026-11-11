@@ -1,7 +1,7 @@
 // Translated from INTEGRATION__attack_resolution.py (session 22): the Ranged Attack Phase. The weapon choice itself is
 // the bot's (a `DeclChoice` handed in; Stage 7-8 computes it, Stage 6 reads it from decisions.json); everything else is
 // here: the to-hit numbers, the rolls, the hits and damage, AMS, ammo, heat. (`stats.*` and `timing.*` only log: skipped.)
-use std::collections::{HashMap, HashSet};
+use crate::fasthash::{HashMap, HashSet};
 
 use crate::advanced_weapons as adv;
 use crate::ammo;
@@ -138,7 +138,7 @@ pub fn aimed_tn_adjust(aim: &str, cover_modifier: i64) -> i64 {
 
 /// {weapon: locations its slots sit in} - live and destroyed slots; locations sorted.
 pub fn weapon_locations(mech: &Mech) -> WeaponLocs {
-    let mut locs: HashMap<ItemId, std::collections::BTreeSet<String>> = HashMap::new();
+    let mut locs: HashMap<ItemId, std::collections::BTreeSet<String>> = HashMap::default();
     for (location, slots) in &mech.crits {
         for slot in slots {
             if let Slot::Item(i) = slot {
@@ -229,7 +229,7 @@ fn weapon_value(b: &mut Battle, u: UnitId, w: ItemId) -> i64 {
 /// (TN modifier, weapons that can't fire), or None if a prone mech can't fire at all (p.67, p.231).
 pub fn prone_fire(b: &mut Battle, u: UnitId) -> Option<(i64, HashSet<ItemId>)> {
     if !b.units[u].prone {
-        return Some((0, HashSet::new()));
+        return Some((0, HashSet::default()));
     }
     let locs = weapon_locations(&b.units[u]);
     let weapons = get_weapons(&b.units[u]);
@@ -242,7 +242,7 @@ pub fn prone_fire(b: &mut Battle, u: UnitId) -> Option<(i64, HashSet<ItemId>)> {
     let mech_type = m.mech_type.clone();
     if mech_type == "quad" || mech_type == "quadvee" {
         if legs_ok {
-            return Some((0, HashSet::new()));
+            return Some((0, HashSet::default()));
         }
         let usable: Vec<&String> = legs.iter().filter(|l| !b.units[u].locations[l.as_str()].destroyed).collect();
         // min(): the first of equals, in the legs' set order (hash order in Python: the legs are listed in leg order)
@@ -479,7 +479,7 @@ fn heat_armor_damage(b: &mut Battle, target: UnitId, loc: &str, damage: i64, hea
 pub fn shielded_weapon_ids(mech: &Mech) -> HashSet<ItemId> {
     let blocked = gear::raised_blocks(mech);
     if blocked.is_empty() {
-        return HashSet::new();
+        return HashSet::default();
     }
     let locs = weapon_locations(mech);
     get_weapons(mech).into_iter().filter(|w| locs.get(w).map_or(false, |l| l.iter().any(|x| blocked.contains(x))) && !mech.items[*w].rear_mounted).collect()
@@ -1133,7 +1133,7 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
     } else {
         0
     };
-    let mut pod_values: HashMap<ItemId, f64> = HashMap::new();
+    let mut pod_values: HashMap<ItemId, f64> = HashMap::default();
     let narcs: Vec<ItemId> = usable.iter().copied().filter(|w| electronics::is_narc(b, attacker, *w)).collect();
     if !narcs.is_empty() {
         let worth = electronics::pod_value(b, attacker, target, distance, sel_pre_tn, &adjust);

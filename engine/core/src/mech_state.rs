@@ -2,7 +2,7 @@
 //! "What a mech IS": the state container and the pure state-query functions. Attributes the Python hangs on a mech
 //! later (RUST_PORT trap 7) are fields here; those that exist only once a later module has set them are `Option`s.
 
-use indexmap::{IndexMap, IndexSet};
+use crate::fasthash::{IndexMap, IndexSet};
 use serde_json::{json, Map, Value};
 
 use crate::equipment::{is_crit_target, Equipment, ItemId, Slot};
@@ -145,7 +145,7 @@ pub fn structure_for_tonnage(mass: i64, mech_type: &str) -> Result<IndexMap<Stri
         .find(|r| r.0 == mass)
         .ok_or_else(|| format!("No internal structure table entry for {} tons (10-200 in 5-ton steps are supported).", mass))?;
     let (_, ct, st, arm, leg) = *row;
-    let mut out = IndexMap::new();
+    let mut out = IndexMap::default();
     out.insert("Head".to_string(), if mass >= SUPERHEAVY_MIN_TONS { SUPERHEAVY_HEAD } else { 3 });
     out.insert("Center Torso".to_string(), ct);
     out.insert("Left Torso".to_string(), st);
@@ -465,13 +465,13 @@ impl Mech {
         };
         let names = |v: &[&str]| -> Vec<Slot> { v.iter().map(|s| Slot::name(s)).collect() };
 
-        let mut locations: IndexMap<String, Location> = IndexMap::new();
+        let mut locations: IndexMap<String, Location> = IndexMap::default();
         locations.insert(loc("Head"), Location::new(9, None, 3));
         locations.insert(loc("Center Torso"), Location::new(30, Some(14), 31));
         locations.insert(loc("Left Torso"), Location::new(20, Some(10), 21));
         locations.insert(loc("Right Torso"), Location::new(20, Some(10), 21));
 
-        let mut crits: IndexMap<String, Vec<Slot>> = IndexMap::new();
+        let mut crits: IndexMap<String, Vec<Slot>> = IndexMap::default();
         crits.insert(loc("Head"), names(&["Cockpit", "Sensors", "Life Support", "Padding", "Padding"]));
         crits.insert(loc("Center Torso"), names(&["Engine", "Engine", "Engine", "Gyro", "Gyro", "Gyro", "Gyro", "Engine", "Engine", "Engine", "Padding", "Padding"]));
         let mut lt = names(&["Engine", "Engine", "Padding", "Padding", "Padding", "Padding", "Padding", "Padding"]);
@@ -517,7 +517,7 @@ impl Mech {
 
         let (leg_locations, limb_locations, side_torso_child): (Vec<String>, Vec<String>, IndexMap<String, String>) = if quad {
             let legs: Vec<String> = ["Front Left Leg", "Front Right Leg", "Rear Left Leg", "Rear Right Leg"].iter().map(|s| s.to_string()).collect();
-            let mut st = IndexMap::new();
+            let mut st = IndexMap::default();
             st.insert(loc("Left Torso"), loc("Front Left Leg"));
             st.insert(loc("Right Torso"), loc("Front Right Leg"));
             (legs.clone(), legs, st)
@@ -528,7 +528,7 @@ impl Mech {
             }
             let mut limbs = vec![loc("Left Arm"), loc("Right Arm")];
             limbs.extend(legs.iter().cloned());
-            let mut st = IndexMap::new();
+            let mut st = IndexMap::default();
             st.insert(loc("Left Torso"), loc("Left Arm"));
             st.insert(loc("Right Torso"), loc("Right Arm"));
             (legs, limbs, st)
@@ -561,8 +561,8 @@ impl Mech {
             base_walk_mp: 4,
             base_jump_mp: 0,
             destroyed_leg_actuators,
-            destroyed_hip_locations: IndexSet::new(),
-            destroyed_jump_jet_ids: IndexSet::new(),
+            destroyed_hip_locations: IndexSet::default(),
+            destroyed_jump_jet_ids: IndexSet::default(),
             base_heat_sinks: 0,
             heat_sink_type: "Single".to_string(),
             current_heat: 0,
@@ -573,9 +573,9 @@ impl Mech {
             deactivated_heat_sinks: 0,
             run_mp_multiplier: 1.5,
             myomer: "Standard".to_string(),
-            destroyed_heat_sinks: IndexMap::new(),
-            destroyed_slot_info: IndexMap::new(),
-            armored_slots: IndexSet::new(),
+            destroyed_heat_sinks: IndexMap::default(),
+            destroyed_slot_info: IndexMap::default(),
+            armored_slots: IndexSet::default(),
             base_mechanical_jump_booster_mp: 0,
             mechanical_jump_booster_disabled: false,
             partial_wing_active: false,
@@ -590,10 +590,10 @@ impl Mech {
             crippled: false,
             crippled_at: None,
             prone: false,
-            preexisting_damage_snapshot: IndexMap::new(),
-            pre_attack_phase_snapshot: IndexMap::new(),
+            preexisting_damage_snapshot: IndexMap::default(),
+            pre_attack_phase_snapshot: IndexMap::default(),
             movement_mode_this_turn: "running".to_string(),
-            round_capable: IndexMap::new(),
+            round_capable: IndexMap::default(),
             initial_sensor_slots,
             mass: None,
             engine_desc: None,
@@ -625,11 +625,11 @@ impl Mech {
             has_improved_jump_jets: false,
             has_xxl_engine: false,
             has_supercooled_myomer: false,
-            equipment_systems: IndexMap::new(),
+            equipment_systems: IndexMap::default(),
             has_tsm: false,
             has_stealth_armor: false,
             torso_cockpit: false,
-            escalating_turns: IndexMap::new(),
+            escalating_turns: IndexMap::default(),
             systems_used_this_turn: Vec::new(),
             turn_number: 0,
             pfd_active: false,
@@ -690,7 +690,7 @@ impl Mech {
 }
 
 pub fn snapshot_round_capability(mech: &mut Mech) {
-    let mut rc = IndexMap::new();
+    let mut rc = IndexMap::default();
     for (l, slots) in &mech.crits {
         rc.insert(l.clone(), slots.iter().any(|s| is_crit_target(s, &mech.items)));
     }
@@ -1095,7 +1095,7 @@ fn slot_name<'a>(mech: &'a Mech, s: &'a Slot) -> &'a str {
 
 /// {location: true (working) / false (an AES slot there was hit)} for every location that mounts AES.
 fn aes_by_location(mech: &Mech) -> IndexMap<String, bool> {
-    let mut status = IndexMap::new();
+    let mut status = IndexMap::default();
     for (loc, slots) in &mech.crits {
         if slots.iter().any(|s| is_aes(slot_name(mech, s))) {
             status.insert(loc.clone(), true);

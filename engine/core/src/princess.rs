@@ -1,7 +1,7 @@
 // Translated from INTEGRATION__princess.py (the v0.50.07 clone's shared pieces the modern ranker reuses): the chance a move's
 // piloting rolls all succeed, the hazard prices of the hexes a path enters, the armor bias, MegaMek's direction, and the
 // estimate of an enemy that has not moved yet.
-use std::collections::HashMap;
+use crate::fasthash::HashMap;
 
 use crate::battle::{Battle, UnitId};
 use crate::combat::hit_probability;
@@ -223,12 +223,12 @@ pub fn unmoved_parts(b: &mut Battle, mover: UnitId, other: UnitId, prepared: &[O
     let mut them = crate::move_select::Side::new(b, other, true);
     let reach = crate::move_select::opponent_options(b, other, &mut them);
     let area = ConvexBoardArea::new(&reach.iter().map(|s| mm((s.0, s.1))).collect::<Vec<_>>());
-    let potential: std::collections::HashSet<((i64, i64), i64)> = reach.iter().map(|s| (mm((s.0, s.1)), s.2)).collect();
+    let potential: crate::fasthash::HashSet<((i64, i64), i64)> = reach.iter().map(|s| (mm((s.0, s.1)), s.2)).collect();
     let can_twist = crate::arcs::twist_offsets(&b.units[mover]).len() > 1;
     let kick = (b.units[other].mass.unwrap_or(0) as f64 / 5.0).ceil() * UNMOVED_DAMAGE_DISCOUNT;
-    let mut mine_at: HashMap<i64, f64> = HashMap::new();
-    let mut theirs_at: HashMap<i64, f64> = HashMap::new();
-    let mut out = HashMap::new();
+    let mut mine_at: HashMap<i64, f64> = HashMap::default();
+    let mut theirs_at: HashMap<i64, f64> = HashMap::default();
+    let mut out = HashMap::default();
     for o in prepared {
         let here = mm(o.hex_xy());
         let f = o.facing;

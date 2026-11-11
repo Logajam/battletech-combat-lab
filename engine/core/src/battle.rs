@@ -2,7 +2,7 @@
 //! (RUST_PORT trap 6): the units, the board, the dice, the settings, the log and every table the Python keeps in a
 //! module live here, and the engine's functions take `&mut Battle` and a `UnitId`.
 
-use indexmap::{IndexMap, IndexSet};
+use crate::fasthash::{IndexMap, IndexSet};
 
 use crate::board_parser::Board;
 use crate::config::Config;
@@ -138,10 +138,10 @@ impl Battle {
             lookahead_log: Default::default(),
             units,
             board,
-            stub_counts: IndexMap::new(),
-            smoky: IndexSet::new(),
+            stub_counts: IndexMap::default(),
+            smoky: IndexSet::default(),
             broken_crust: Vec::new(),
-            limbs_on_ground: IndexMap::new(),
+            limbs_on_ground: IndexMap::default(),
             turn: 0,
             piloting,
             hazards_in_phase: false,

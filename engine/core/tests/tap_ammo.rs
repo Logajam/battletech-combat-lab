@@ -22,7 +22,7 @@ fn ammo_matches_python() {
         seen.insert(f.to_string());
         let (mut b, names) = make_battle(rec);
         let args: Vec<A> = rec["args"].as_array().unwrap().iter().map(decode).collect();
-        let kw: std::collections::HashMap<String, A> = rec["kwargs"].as_object().unwrap().iter().map(|(k, v)| (k.clone(), decode(v))).collect();
+        let kw: btsim_core::fasthash::HashMap<String, A> = rec["kwargs"].as_object().unwrap().iter().map(|(k, v)| (k.clone(), decode(v))).collect();
         let ret = decode(&rec["ret"]);
         let unit_item = |a: &A| match a { A::Item { unit, addr } => { let u = unit_of(&names, unit); (u, item_id(&b, u, addr)) } o => panic!("{:?}", o) };
         match f {

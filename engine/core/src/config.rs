@@ -3,7 +3,7 @@
 //! battle. No statics (RUST_PORT trap 8). Settings are read by name through typed getters; hot ones get cached typed
 //! fields in stage 9.
 
-use indexmap::IndexMap;
+use crate::fasthash::IndexMap;
 use serde_json::Value;
 
 #[derive(Clone, Debug, Default)]

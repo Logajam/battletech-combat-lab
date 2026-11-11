@@ -16,7 +16,7 @@ fn piloting_hazards_water_match_python() {
         let (mut b, names) = make_battle(rec);
         b.piloting = rec["piloting"].as_i64().unwrap();
         let args: Vec<A> = rec["args"].as_array().unwrap().iter().map(decode).collect();
-        let kw: std::collections::HashMap<String, A> = rec["kwargs"].as_object().unwrap().iter().map(|(k, v)| (k.clone(), decode(v))).collect();
+        let kw: btsim_core::fasthash::HashMap<String, A> = rec["kwargs"].as_object().unwrap().iter().map(|(k, v)| (k.clone(), decode(v))).collect();
         let get = |i: usize, name: &str| -> Option<A> { args.get(i).cloned().or_else(|| kw.get(name).cloned()) };
         let u = unit_of(&names, args[0].unit());
         let ret = decode(&rec["ret"]);

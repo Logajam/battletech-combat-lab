@@ -37,7 +37,7 @@ fn destroyed_legs_set(m: &Mech) -> BTreeSet<String> {
 }
 
 pub fn snapshot_preexisting_damage(m: &mut Mech) {
-    let mut snap = indexmap::IndexMap::new();
+    let mut snap = crate::fasthash::IndexMap::default();
     snap.insert("gyro_hits".to_string(), json!(m.gyro_hits));
     snap.insert("destroyed_leg_actuators".to_string(), json!(m.destroyed_leg_actuators));
     snap.insert("destroyed_legs".to_string(), sorted_set_json(destroyed_legs_set(m).into_iter()));
@@ -50,7 +50,7 @@ pub fn snapshot_pre_attack_phase(m: &mut Mech) {
     for v in m.locations.values() {
         total = total + v.armor + v.rear_armor.unwrap_or(Num::I(0)) + v.structure;
     }
-    let mut snap = indexmap::IndexMap::new();
+    let mut snap = crate::fasthash::IndexMap::default();
     snap.insert("total_armor_structure".to_string(), total.to_json());
     snap.insert("gyro_hits".to_string(), json!(m.gyro_hits));
     snap.insert("destroyed_leg_actuators".to_string(), json!(m.destroyed_leg_actuators));

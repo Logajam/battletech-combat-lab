@@ -1,6 +1,6 @@
 // Translated from INTEGRATION__princess_fire.py: MegaMek's Princess fire control (firing-plan utility) and the damage map
 // her friends have already declared. Handed to weapon_selection through `Battle::fire_ctl` (the `_FIRE_CONTROL` hook).
-use std::collections::{HashMap, HashSet};
+use crate::fasthash::{HashMap, HashSet};
 
 use crate::battle::{Battle, UnitId};
 use crate::damage_resolution::get_weapons;
@@ -77,7 +77,7 @@ pub struct PrincessState {
     /// bots.fire_pick's firepower cache for the phase
     pub guns: HashMap<UnitId, f64>,
     /// princess_memory: one TeamMemory per team, and the BV of each unit (as built, cached)
-    pub teams: indexmap::IndexMap<String, crate::princess_memory::TeamMemory>,
+    pub teams: crate::fasthash::IndexMap<String, crate::princess_memory::TeamMemory>,
     pub bv: HashMap<UnitId, i64>,
 }
 
@@ -229,7 +229,7 @@ type Plan = (HashSet<ItemId>, f64, f64, f64, i64);
 
 impl FireControl {
     pub fn new(guess: bool, self_mech: Option<UnitId>) -> FireControl {
-        FireControl { guess, self_mech, target: HashMap::new(), last: None }
+        FireControl { guess, self_mech, target: HashMap::default(), last: None }
     }
 
     fn target_terms(&mut self, b: &mut Battle, target: UnitId) -> (f64, f64) {
@@ -298,7 +298,7 @@ impl FireControl {
             ids.insert(info.0);
             (ids, plan.1 + info.1, plan.2 + info.3, plan.3 * (1.0 - info.4), plan.4 + info.2)
         };
-        let empty: Plan = (HashSet::new(), 0.0, 0.0, 1.0, 0);
+        let empty: Plan = (HashSet::default(), 0.0, 0.0, 1.0, 0);
         let mut alpha = empty.clone();
         for info in &infos {
             alpha = add(&alpha, info);

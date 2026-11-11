@@ -1,6 +1,6 @@
 // Translated from INTEGRATION__electronics.py (session 22): Artemis IV / V, Narc pods, ECM. (pod_value, which prices
 // with the Planner, and log_controls come with fire_modes.)
-use std::collections::HashSet;
+use crate::fasthash::HashSet;
 
 use crate::battle::{Battle, UnitId};
 use crate::equipment::{ItemId, Slot};
@@ -76,9 +76,9 @@ fn is_ecm(m: &Mech, slot: ItemId) -> bool {
 pub fn attach(b: &mut Battle, u: UnitId) {
     b.units[u].narc_pods = Vec::new();
     b.units[u].ecm_suites = Vec::new();
-    let mut seen: HashSet<ItemId> = HashSet::new();
-    let mut fcs_by_loc: indexmap::IndexMap<String, Vec<(ItemId, i64)>> = indexmap::IndexMap::new();
-    let mut launchers_by_loc: indexmap::IndexMap<String, Vec<ItemId>> = indexmap::IndexMap::new();
+    let mut seen: HashSet<ItemId> = HashSet::default();
+    let mut fcs_by_loc: crate::fasthash::IndexMap<String, Vec<(ItemId, i64)>> = crate::fasthash::IndexMap::default();
+    let mut launchers_by_loc: crate::fasthash::IndexMap<String, Vec<ItemId>> = crate::fasthash::IndexMap::default();
     let locs: Vec<String> = b.units[u].crits.keys().cloned().collect();
     for loc in &locs {
         let slots: Vec<ItemId> = b.units[u].crits[loc].iter().filter_map(|s| if let Slot::Item(i) = s { Some(*i) } else { None }).collect();

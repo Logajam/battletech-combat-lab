@@ -7,7 +7,8 @@ use btsim_core::mech_state::DamageType;
 use btsim_core::physical_gear as gear;
 use btsim_core::smoke;
 use common::*;
-use std::collections::{BTreeSet, HashMap};
+use btsim_core::fasthash::{HashMap};
+use std::collections::{BTreeSet};
 
 fn item_id(b: &btsim_core::battle::Battle, u: usize, addr: &str) -> usize {
     b.units[u].items.iter().position(|e| e.addr.as_deref() == Some(addr)).unwrap_or_else(|| panic!("no item {}", addr))

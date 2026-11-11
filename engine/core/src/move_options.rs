@@ -1,9 +1,9 @@
 // Translated from INTEGRATION__ranged_combat.py (movement_options, _entry_options, prepare_options, turned_option) and
 // INTEGRATION__movement_selection.py (reduced_options, occupied_hexes): the end states a mover can reach this turn,
 // the Section 5c reduction, and what each state carries that does not depend on where the enemy is.
-use std::collections::{HashMap, HashSet};
+use crate::fasthash::{HashMap, HashSet};
 
-use indexmap::IndexMap;
+use crate::fasthash::IndexMap;
 
 use crate::battle::{Battle, UnitId};
 use crate::combat::{classify_movement_mode, fc_to_tmm, mode_to_amm};
@@ -167,7 +167,7 @@ fn movement_options_all(b: &Battle, u: UnitId, standup_mp: Option<i64>, entry_ed
     };
     let standup_flag = standup_mp.is_some();
     let level_limit = terrain_rules::max_level_change(ground_level_limited(m), is_superheavy(m));
-    let mut seen: HashSet<StateKey> = HashSet::new();
+    let mut seen: HashSet<StateKey> = HashSet::default();
     let blocked = blocked_hexes(b, u);
     let mut mode_standup_flag = standup_flag;
     if m.jump_only == Some(true) {
@@ -224,7 +224,7 @@ fn movement_options_all(b: &Battle, u: UnitId, standup_mp: Option<i64>, entry_ed
 fn entry_options(b: &Battle, u: UnitId, edge: &[String], notes: &mut PathNotes) -> Vec<Yielded> {
     let m = &b.units[u];
     let (walk, run) = (compute_walk_mp(m), compute_running_mp(m));
-    let mut seen: HashSet<StateKey> = HashSet::new();
+    let mut seen: HashSet<StateKey> = HashSet::default();
     let mut out = Vec::new();
     let blocked = blocked_hexes(b, u);
     let level_limit = terrain_rules::max_level_change(ground_level_limited(m), is_superheavy(m));
@@ -266,10 +266,10 @@ pub fn reduced_options(b: &Battle, u: UnitId, exclude: &HashSet<(i64, i64)>, sta
     let mut notes = PathNotes::default();
     // best: IndexMap keyed (x, y, facing, mode, fc>0 | (fc, mp), hazard, psrs)
     type K = (i64, i64, i64, &'static str, i64, i64, u64, i64);
-    let mut best: IndexMap<K, StateKey> = IndexMap::new();
+    let mut best: IndexMap<K, StateKey> = IndexMap::default();
     let all = movement_options_snap(b, u, standup_mp, entry_edge, true, &mut notes);
     // the notes as they stand when each state is read (see Yielded), kept for the dominance step below
-    let mut snap: HashMap<StateKey, (i64, f64)> = HashMap::new();
+    let mut snap: HashMap<StateKey, (i64, f64)> = HashMap::default();
     for (st, n, h) in all {
         snap.insert(st, (n, h));
         let (x, y, facing, fc, mode, mp_spent) = st;
@@ -290,7 +290,7 @@ pub fn reduced_options(b: &Battle, u: UnitId, exclude: &HashSet<(i64, i64)>, sta
         return (best.into_values().collect(), notes);
     }
     // by base (everything but hazard and PSR count): a path with fewer PSRs and no more hazard is no worse
-    let mut by_base: IndexMap<(i64, i64, i64, &'static str, i64, i64), Vec<((f64, i64), StateKey)>> = IndexMap::new();
+    let mut by_base: IndexMap<(i64, i64, i64, &'static str, i64, i64), Vec<((f64, i64), StateKey)>> = IndexMap::default();
     for (key, st) in &best {
         let h = snap[st].1;
         by_base.entry((key.0, key.1, key.2, key.3, key.4, key.5)).or_default().push(((h, key.7), *st));

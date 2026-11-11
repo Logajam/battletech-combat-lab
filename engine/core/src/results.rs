@@ -1,6 +1,6 @@
 // Translated from INTEGRATION__results.py (session 22): one battle's outcome. (The batch summary's printing is
 // reporting, not rules: it comes with the batch driver, stage 9.)
-use indexmap::IndexMap;
+use crate::fasthash::IndexMap;
 
 #[derive(Clone, Debug, Default)]
 pub struct SideStats {
@@ -36,7 +36,7 @@ pub struct BattleResult {
 
 impl BattleResult {
     pub fn new(turn_cap: Option<i64>) -> BattleResult {
-        BattleResult { turns_taken: 0, destroyed: None, winner: "Draw".into(), teams: IndexMap::new(), units: IndexMap::new(), turn_cap }
+        BattleResult { turns_taken: 0, destroyed: None, winner: "Draw".into(), teams: IndexMap::default(), units: IndexMap::default(), turn_cap }
     }
 }
 

@@ -42,7 +42,7 @@ fn norm(name: &str) -> String {
 
 /// (range, is_bloodhound) of the 'Mech's working active probe, or None.
 pub fn probe(mech: &Mech) -> Option<(i64, bool)> {
-    let dead: std::collections::HashSet<usize> = mech.destroyed_slot_info.values().filter_map(|i| i.instance_id).collect();
+    let dead: crate::fasthash::HashSet<usize> = mech.destroyed_slot_info.values().filter_map(|i| i.instance_id).collect();
     let mut best: Option<(i64, bool)> = None;
     for slots in mech.crits.values() {
         for s in slots {

@@ -1,5 +1,5 @@
 //! Stage 2b: the movement DP against the Python (`python tools/port_stage2.py`).
-use std::collections::HashSet;
+use btsim_core::fasthash::HashSet;
 use std::fs;
 use std::path::PathBuf;
 
@@ -57,7 +57,7 @@ fn movement_tables_match_python() {
             for c in group[1].as_array().unwrap() {
                 let st = &c[0];
                 let t = build_movement_table(st[0].as_i64().unwrap(), st[1].as_i64().unwrap(), st[2].as_i64().unwrap(), c[1].as_i64().unwrap(),
-                    None, None, GroundLimit { value: 2, superheavy: false }, false, &HashSet::new()).unwrap();
+                    None, None, GroundLimit { value: 2, superheavy: false }, false, &HashSet::default()).unwrap();
                 assert_eq!(table_json(&t), c[2], "flat {:?}", c);
                 n += 1;
             }

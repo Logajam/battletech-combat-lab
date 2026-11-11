@@ -1,7 +1,7 @@
 // Translated from INTEGRATION__ranged_combat.py: MoveEvaluator (what a mover's end states are worth against a defender
 // pinned at any hex), the heat-limited scorer it uses, and _with_physical. The Python's FireTable / scorer sharing and
 // speed memos are caches of pure functions: here one memo per side stands in for them.
-use std::collections::{HashMap, HashSet};
+use crate::fasthash::{HashMap, HashSet};
 use std::rc::Rc;
 
 use crate::arcs::{self, ArcKey};
@@ -86,7 +86,7 @@ impl FireSide {
         let w_locs = ar::weapon_locations(&b.units[who]);
         let dissipation = compute_heat_dissipation(&b.units[who]);
         let other = crate::heat::other_heat(b, who);
-        FireSide { who, target, base_adjust: adjust, blocked, scale_on, usable, torpedoes, w_locs, dissipation, other, planners: HashMap::new(), scales: HashMap::new(), memo: HashMap::new(), unavail: HashMap::new() }
+        FireSide { who, target, base_adjust: adjust, blocked, scale_on, usable, torpedoes, w_locs, dissipation, other, planners: HashMap::default(), scales: HashMap::default(), memo: HashMap::default(), unavail: HashMap::default() }
     }
 
     /// scorer(key, held, ams_k, wet)(distance, pre_tn, move_heat, side) -> expected damage (worth) of the weapons the
@@ -174,8 +174,8 @@ pub struct Coverage {
 impl Coverage {
     pub fn new(b: &mut Battle, u: UnitId) -> Coverage {
         let ams = if crate::ams::can_engage(&b.units[u]) { crate::ams::systems(b, u) } else { vec![] };
-        let locs: HashMap<ItemId, Vec<String>> = if ams.is_empty() { HashMap::new() } else { ar::weapon_locations(&b.units[u]).into_iter().collect() };
-        Coverage { ams, locs, legs: arcs::leg_offsets(&b.units[u]), action: arcs::current_action(&b.units[u]), memo: HashMap::new(), mech: u }
+        let locs: HashMap<ItemId, Vec<String>> = if ams.is_empty() { HashMap::default() } else { ar::weapon_locations(&b.units[u]).into_iter().collect() };
+        Coverage { ams, locs, legs: arcs::leg_offsets(&b.units[u]), action: arcs::current_action(&b.units[u]), memo: HashMap::default(), mech: u }
     }
     pub fn any(&self) -> bool {
         !self.ams.is_empty()
@@ -224,7 +224,7 @@ pub struct MoveEvaluator {
     defender_cond: Option<(i64, HashSet<ItemId>, String)>,
     mover_side: FireSide,
     defender_side: FireSide,
-    water_depths: Option<indexmap::IndexMap<String, i64>>,
+    water_depths: Option<crate::fasthash::IndexMap<String, i64>>,
     wet_cases: Vec<WetCase>,
     wet_index: HashMap<(bool, i64, bool, i64, bool, bool), Wet>,
     mover_arcs: (Vec<ArcAction>, Vec<(String, i64)>),
@@ -301,15 +301,15 @@ impl MoveEvaluator {
             defender_side,
             water_depths,
             wet_cases: vec![],
-            wet_index: HashMap::new(),
+            wet_index: HashMap::default(),
             mover_arcs,
             defender_arcs,
             mover_physical,
             defender_physical,
             mover_planner,
             defender_planner,
-            best_dealt: HashMap::new(),
-            best_received: HashMap::new(),
+            best_dealt: HashMap::default(),
+            best_received: HashMap::default(),
             mover_classes: Classes::default(),
             defender_classes: Classes::default(),
             mover_own,
@@ -392,7 +392,7 @@ impl MoveEvaluator {
         let mover_ams_on = self.mover_ams.any();
         let defender_ams_on = self.defender_ams.any();
         let mut results: Vec<Candidate> = Vec::new();
-        let mut per_hex: HashMap<String, Option<HexRow>> = HashMap::new();
+        let mut per_hex: HashMap<String, Option<HexRow>> = HashMap::default();
         let mover_actions = self.mover_arcs.0.clone();
         let mover_legs = self.mover_arcs.1.clone();
         let defender_actions = self.defender_arcs.0.clone();
@@ -423,7 +423,7 @@ impl MoveEvaluator {
                     None => {
                         let mut best = f64::NEG_INFINITY;
                         for key in keys.iter() {
-                            let v = self.mover_side.score(b, &self.wet_cases, key, &HashSet::new(), k_def, wet_dealt, distance, pre_tn, o.move_heat, side_on_def);
+                            let v = self.mover_side.score(b, &self.wet_cases, key, &HashSet::default(), k_def, wet_dealt, distance, pre_tn, o.move_heat, side_on_def);
                             if v > best {
                                 best = v;
                             }
@@ -445,7 +445,7 @@ impl MoveEvaluator {
                     None => {
                         let mut best = f64::NEG_INFINITY;
                         for key in h.r_keys.iter() {
-                            let v = self.defender_side.score(b, &self.wet_cases, key, &HashSet::new(), k_mov, wet_received, distance, pre_tn2, def_move_heat, side_on_mover);
+                            let v = self.defender_side.score(b, &self.wet_cases, key, &HashSet::default(), k_mov, wet_received, distance, pre_tn2, def_move_heat, side_on_mover);
                             if v > best {
                                 best = v;
                             }

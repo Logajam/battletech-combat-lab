@@ -1,10 +1,10 @@
 // Translated from INTEGRATION__battle_value.py: Battle Value (BV 2.0) of a 'Mech as built, from MegaMek's BV calculators
 // (item BVs from mechsim/equipment_bv.json). Princess's heat map weighs her units by it. Only the as-built number with the
 // pilot's skill is translated (current=False, skill=True): the report lines and the "as it stands now" form are not.
-use std::collections::{HashMap, HashSet};
+use crate::fasthash::{HashMap, HashSet};
 use std::sync::OnceLock;
 
-use indexmap::IndexMap;
+use crate::fasthash::IndexMap;
 use serde_json::Value;
 
 use crate::battle::{Battle, UnitId};
@@ -106,7 +106,7 @@ impl Item {
 
 fn equipment_items(b: &Battle, u: UnitId) -> Vec<Item> {
     let m = &b.units[u];
-    let mut seen: HashMap<usize, usize> = HashMap::new();
+    let mut seen: HashMap<usize, usize> = HashMap::default();
     let mut items: Vec<Item> = Vec::new();
     for (location, slots) in &m.crits {
         for slot in slots {
@@ -121,7 +121,7 @@ fn equipment_items(b: &Battle, u: UnitId) -> Vec<Item> {
             let canonical = entry.map(|e| e.canonical_name().to_lowercase()).unwrap_or_default();
             let flags: HashSet<String> = record.and_then(|r| r["flags"].as_array()).map(|a| a.iter().filter_map(|x| x.as_str().map(|s| s.to_string())).collect()).unwrap_or_default();
             let g = |k: &str| record.and_then(|r| r.get(k));
-            let mut sbl = IndexMap::new();
+            let mut sbl = IndexMap::default();
             sbl.insert(location.clone(), 1);
             seen.insert(*id, items.len());
             items.push(Item {
@@ -600,8 +600,8 @@ impl<'a> Calc<'a> {
     }
 
     fn ammunition(&mut self) {
-        let mut ammo_bv: IndexMap<String, f64> = IndexMap::new();
-        let mut weapon_bv: HashMap<String, f64> = HashMap::new();
+        let mut ammo_bv: IndexMap<String, f64> = IndexMap::default();
+        let mut weapon_bv: HashMap<String, f64> = HashMap::default();
         for i in &self.items {
             if i.kind.as_deref() != Some("ammo") {
                 continue;

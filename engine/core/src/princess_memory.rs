@@ -1,6 +1,6 @@
 // Translated from INTEGRATION__princess_memory.py: what Princess remembers - a heat map of where her team's units have
 // stood (the anchor of mutual support) and her force's posture record. One map per TEAM; only Princess units add to it.
-use indexmap::IndexMap;
+use crate::fasthash::IndexMap;
 
 use crate::battle::{Battle, UnitId};
 use crate::hex_geometry;
@@ -27,7 +27,7 @@ pub struct TeamMemory {
 
 impl Default for TeamMemory {
     fn default() -> Self {
-        TeamMemory { heat: HeatMap::default(), mean_distance_by_round: IndexMap::new(), posture: "ATTACK".to_string(), posture_round: None }
+        TeamMemory { heat: HeatMap::default(), mean_distance_by_round: IndexMap::default(), posture: "ATTACK".to_string(), posture_round: None }
     }
 }
 
@@ -96,7 +96,7 @@ pub fn end_of_turn(b: &mut Battle) {
         for u in gone {
             team(b, &name).heat.last_known.shift_remove(&u);
         }
-        let mut held: std::collections::HashSet<String> = std::collections::HashSet::new();
+        let mut held: crate::fasthash::HashSet<String> = crate::fasthash::HashSet::default();
         for u in &mine {
             let lk = team(b, &name).heat.last_known.get(u).cloned();
             if let Some(l) = lk {

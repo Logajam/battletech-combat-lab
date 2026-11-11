@@ -1,5 +1,5 @@
 // Translated from INTEGRATION__charge.py (session 22): charges (Core p.78), resolved in the Physical phase.
-use indexmap::IndexMap;
+use crate::fasthash::IndexMap;
 
 use crate::attack_resolution::target_tmm;
 use crate::battle::{Battle, UnitId};
@@ -136,7 +136,7 @@ pub fn resolve_hit(b: &mut Battle, attacker: UnitId, target: UnitId) -> Triggers
     let onto = gear::raised_arm(&b.units[attacker]);
     ma::apply_groups(b, attacker, taken, "standard", "front", "Charge (attacker)", spikes, onto.as_deref());
 
-    let mut triggers: Triggers = IndexMap::new();
+    let mut triggers: Triggers = IndexMap::default();
     triggers.insert(a_name.clone(), vec![]);
     triggers.insert(t_name.clone(), vec![]);
     if !b.is_destroyed(attacker) {

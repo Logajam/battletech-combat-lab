@@ -71,8 +71,8 @@ pub fn blocked_xy(b: &mut Battle, unit: UnitId) -> Vec<(i64, i64)> {
 
 /// Every team rolls 2D6 for Initiative (p.39); returns the teams LOWEST roll first. Tied teams re-roll among themselves.
 /// `rolls`, if given, is filled with each team's last (deciding) roll.
-pub fn initiative_order(b: &mut Battle, teams: &[String], mut rolls: Option<&mut indexmap::IndexMap<String, i64>>) -> Vec<String> {
-    fn settle(b: &mut Battle, group: &[String], rolls: &mut Option<&mut indexmap::IndexMap<String, i64>>) -> Vec<String> {
+pub fn initiative_order(b: &mut Battle, teams: &[String], mut rolls: Option<&mut crate::fasthash::IndexMap<String, i64>>) -> Vec<String> {
+    fn settle(b: &mut Battle, group: &[String], rolls: &mut Option<&mut crate::fasthash::IndexMap<String, i64>>) -> Vec<String> {
         if group.len() == 1 {
             return group.to_vec();
         }
@@ -130,13 +130,13 @@ pub type Pick<'a> = &'a mut dyn FnMut(&mut Battle, &[UnitId]) -> UnitId;
 /// unit at a time from the live units: call `next` repeatedly until it returns None.
 pub struct Activation {
     teams: Vec<String>,
-    eligible: indexmap::IndexMap<String, Vec<UnitId>>,
-    idle: indexmap::IndexMap<String, Vec<UnitId>>,
+    eligible: crate::fasthash::IndexMap<String, Vec<UnitId>>,
+    idle: crate::fasthash::IndexMap<String, Vec<UnitId>>,
     queue: std::collections::VecDeque<UnitId>,
     round_open: bool,
     can_select: fn(&Mech) -> bool,
     started: bool,
-    round_tally: indexmap::IndexMap<String, i64>,
+    round_tally: crate::fasthash::IndexMap<String, i64>,
     team_cursor: usize,
     pending_takes: i64,
     pending_team: Option<String>,
@@ -145,8 +145,8 @@ pub struct Activation {
 impl Activation {
     pub fn new(b: &mut Battle, teams_in_order: &[String], can_select: fn(&Mech) -> bool) -> Activation {
         let live = standing(b);
-        let mut eligible = indexmap::IndexMap::new();
-        let mut idle = indexmap::IndexMap::new();
+        let mut eligible = crate::fasthash::IndexMap::default();
+        let mut idle = crate::fasthash::IndexMap::default();
         for t in teams_in_order {
             eligible.insert(t.clone(), live.iter().copied().filter(|u| b.units[*u].team.as_deref() == Some(t) && can_select(&b.units[*u])).collect::<Vec<_>>());
             idle.insert(t.clone(), live.iter().copied().filter(|u| b.units[*u].team.as_deref() == Some(t) && !can_select(&b.units[*u])).collect::<Vec<_>>());

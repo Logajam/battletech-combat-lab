@@ -26,7 +26,7 @@ fn battle_value_matches_the_python() {
         let dice = TapeDice::from_json(&serde_json::from_str(&fs::read_to_string(dir.join("dice.json")).unwrap()).unwrap());
         let b = Battle::new(cfg, board, units, Box::new(dice));
         // the Python computed BV during play: `_bv_built` shows in the states of the trace
-        let mut built: std::collections::HashMap<String, i64> = Default::default();
+        let mut built: btsim_core::fasthash::HashMap<String, i64> = Default::default();
         if let Ok(text) = fs::read_to_string(dir.join("trace.jsonl")) {
             for line in text.lines() {
                 let v: Value = serde_json::from_str(line).unwrap();

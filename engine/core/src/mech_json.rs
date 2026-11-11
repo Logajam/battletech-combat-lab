@@ -4,7 +4,7 @@
 //! addresses. Items that no longer sit in a crit slot (destroyed) cannot be rebuilt from a dump except as placeholders
 //! named in `destroyed_slot_info`; a live battle keeps its arena.
 
-use indexmap::{IndexMap, IndexSet};
+use crate::fasthash::{IndexMap, IndexSet};
 use serde_json::{json, Map, Value};
 
 use crate::equipment::*;
@@ -53,7 +53,7 @@ pub fn structure_type_from(s: &str) -> StructureType {
 impl Mech {
     /// The address of an item: its first slot ("Right Arm#3"), computed from the crit table now.
     pub fn item_addresses(&self) -> IndexMap<ItemId, String> {
-        let mut t = IndexMap::new();
+        let mut t = IndexMap::default();
         for (loc, slots) in &self.crits {
             for (i, s) in slots.iter().enumerate() {
                 if let Slot::Item(id) = s {
@@ -373,8 +373,8 @@ impl Mech {
         m.model = v["model"].as_str().unwrap().to_string();
 
         // -- the Equipment arena: every object with an `_addr` anywhere in the dump, plus placeholders --
-        let mut ids: IndexMap<String, ItemId> = IndexMap::new();
-        let mut dumps: IndexMap<String, &Value> = IndexMap::new();
+        let mut ids: IndexMap<String, ItemId> = IndexMap::default();
+        let mut dumps: IndexMap<String, &Value> = IndexMap::default();
         fn collect<'a>(v: &'a Value, ids: &mut IndexMap<String, ItemId>, dumps: &mut IndexMap<String, &'a Value>, top: bool) {
             match v {
                 Value::Object(o) => {
@@ -424,7 +424,7 @@ impl Mech {
         for a in v["destroyed_heat_sinks"].as_object().unwrap().keys() {
             note(a, &mut ids);
         }
-        let mut placeholder_names: IndexMap<String, String> = IndexMap::new();
+        let mut placeholder_names: IndexMap<String, String> = IndexMap::default();
         for info in v["destroyed_slot_info"].as_object().unwrap().values() {
             if let Some(a) = info["instance_id"].as_str() {
                 note(a, &mut ids);

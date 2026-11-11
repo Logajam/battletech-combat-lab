@@ -2,7 +2,7 @@
 //! "What happens TO a mech": damage application, critical hit resolution and explosions. Everything takes the battle
 //! and a unit (`b.units[u]`); caches (get_weapons, derived) are speed only and come back in stage 9.
 
-use std::collections::HashSet;
+use crate::fasthash::HashSet;
 
 use crate::armor_rules;
 use crate::battle::{Battle, UnitId};
@@ -20,7 +20,7 @@ fn norm_name(name: &str) -> String {
 /// was hit).
 pub fn get_weapons(mech: &Mech) -> Vec<ItemId> {
     let destroyed_ids: HashSet<ItemId> = mech.destroyed_slot_info.values().filter_map(|i| i.instance_id).collect();
-    let mut seen: HashSet<ItemId> = HashSet::new();
+    let mut seen: HashSet<ItemId> = HashSet::default();
     let mut weapons = Vec::new();
     for slots in mech.crits.values() {
         for slot in slots {

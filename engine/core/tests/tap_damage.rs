@@ -20,7 +20,7 @@ fn damage_functions_match_python() {
         seen.insert(f.to_string());
         let (mut b, names) = make_battle(rec);
         let args: Vec<A> = rec["args"].as_array().unwrap().iter().map(decode).collect();
-        let kw: std::collections::HashMap<String, A> = rec["kwargs"].as_object().unwrap().iter().map(|(k, v)| (k.clone(), decode(v))).collect();
+        let kw: btsim_core::fasthash::HashMap<String, A> = rec["kwargs"].as_object().unwrap().iter().map(|(k, v)| (k.clone(), decode(v))).collect();
         let get = |i: usize, name: &str| -> Option<A> { args.get(i).cloned().or_else(|| kw.get(name).cloned()) };
         let ret = decode(&rec["ret"]);
         match f {

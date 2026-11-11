@@ -1,7 +1,8 @@
 // Translated from INTEGRATION__arcs.py (session 22): firing arcs, torso twists, flipped arms, turrets.
-use std::collections::{BTreeSet, HashMap, HashSet};
+use crate::fasthash::{HashMap, HashSet};
+use std::collections::{BTreeSet};
 
-use indexmap::IndexMap;
+use crate::fasthash::IndexMap;
 
 use crate::equipment::{ItemId, Slot};
 use crate::mech_state::{ArcAction, Mech, Turret};
@@ -77,7 +78,7 @@ pub fn has_quad_turret(mech: &Mech) -> bool {
 
 /// {location: "shoulder" / "head"}
 pub fn mech_turrets(mech: &Mech) -> IndexMap<String, &'static str> {
-    let mut out: IndexMap<String, &'static str> = IndexMap::new();
+    let mut out: IndexMap<String, &'static str> = IndexMap::default();
     for (loc, slots) in &mech.crits {
         for s in slots {
             let n = norm(slot_name(mech, s));
@@ -136,7 +137,7 @@ pub fn can_flip_arms(mech: &Mech) -> bool {
             return false;
         }
     }
-    let mut seen: IndexMap<ItemId, BTreeSet<&str>> = IndexMap::new();
+    let mut seen: IndexMap<ItemId, BTreeSet<&str>> = IndexMap::default();
     for (loc, slots) in &mech.crits {
         for s in slots {
             if let Slot::Item(i) = s {
@@ -276,7 +277,7 @@ pub fn weapon_class(mech: &Mech, weapon: ItemId, locations: &[String]) -> String
 
 /// Ids of `weapons` that cannot fire at a target seen as `key`.
 pub fn unavailable(mech: &Mech, weapons: &[ItemId], locations_by_weapon: &HashMap<ItemId, Vec<String>>, key: &ArcKey) -> HashSet<ItemId> {
-    let mut blocked = HashSet::new();
+    let mut blocked = HashSet::default();
     let torso_arc = key.torso_arc;
     let empty: Vec<String> = Vec::new();
     for &w in weapons {
@@ -322,7 +323,7 @@ pub fn note_mech_turret_fire(mech: &mut Mech, weapon: ItemId, locations: &[Strin
     let kind = weapon_class(mech, weapon, locations);
     if let Some(loc) = kind.strip_prefix("turret:") {
         if !mech_turret_locked(mech, loc) {
-            mech.mech_turret_dir.get_or_insert_with(IndexMap::new).insert(loc.to_string(), target_offset.rem_euclid(6));
+            mech.mech_turret_dir.get_or_insert_with(IndexMap::default).insert(loc.to_string(), target_offset.rem_euclid(6));
         }
     }
 }
