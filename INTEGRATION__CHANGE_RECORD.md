@@ -6,6 +6,12 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-11 (Claude, session 24), COMBAT LAB SPEC SHEETS. Documents only; nothing built, no code changed.**
+  Daniel: "write spec sheets for future you to follow to improve that side of the project." `INTEGRATION__COMBAT_LAB_SPECS.md`: Part B of
+  `INTEGRATION__COMBAT_LAB.md` turned into nine jobs on the Rust engine (CL1 a battle set up from files in Rust, CL2 the battle history, CL3 the
+  Lab server, CL4 setup and results pages, CL5 replay page, CL6 a battle restarted from a saved state - shared with Hydra's dice play-out, CL7
+  analysis overlays, CL8 branching, CL9 art pointer), each with what exists, what to build, how to know it is done, and the traps. Items the
+  writer did not verify are marked CHECK FIRST. Linked from PROJECT_MAP E2 and TASK_SPECS T12 / T13.
 - **2026-11-11 (Claude, session 24), HYDRA: A THIRD BOT, DESIGNED FROM FIRST PRINCIPLES, FIRST VERSION BUILT; THE PLAY-OUT STAGE PLANNED. Rust only (Daniel: "Rust only. Python will be effectively retired from here on out"). REVIEW PENDING (higher-level model).**
   Daniel: "start from first principles on your own bot - entirely envisioned and designed by you ... effective from 1 on 1 to large force engagements
   12 on 12 or possibly higher", and "the plan of what its supposed to do may be more important then the details". THE PLAN is `INTEGRATION__HYDRA.md`
