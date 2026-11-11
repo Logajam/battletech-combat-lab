@@ -70,3 +70,4 @@ pub mod structure_weight;
 pub mod gladiator;
 
 pub mod scenario;
+pub mod hydra;

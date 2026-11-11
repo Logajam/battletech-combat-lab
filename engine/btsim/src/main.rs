@@ -1,4 +1,4 @@
-//! btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE]
+//! btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]]
 //! Plays N battles of a scenario (tools/port_scenario.py writes one) in parallel, one battle a thread, each on its own seed
 //! (battle 1 on S, later ones mixed from S and the number), and prints a JSON summary: wins per team, turns, damage.
 use std::path::PathBuf;
@@ -30,7 +30,7 @@ fn battle_json(sim: u64, seed: u64, r: &BattleResult) -> Value {
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let Some(dir) = args.first().filter(|a| !a.starts_with("--")) else {
-        eprintln!("usage: btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE]");
+        eprintln!("usage: btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]]");
         std::process::exit(2);
     };
     let battles: u64 = arg(&args, "--battles").map_or(1, |v| v.parse().expect("--battles"));
@@ -39,7 +39,11 @@ fn main() {
     if let Some(t) = arg(&args, "--threads") {
         rayon::ThreadPoolBuilder::new().num_threads(t.parse().expect("--threads")).build_global().unwrap();
     }
-    let scenario = Scenario::load(&PathBuf::from(dir));
+    let mut scenario = Scenario::load(&PathBuf::from(dir));
+    // --hydra TEAM[,TEAM]: those teams are driven by Hydra (INTEGRATION__HYDRA.md)
+    if let Some(t) = arg(&args, "--hydra") {
+        scenario.hydra_teams = t.split(',').map(|x| x.to_string()).collect();
+    }
     let started = std::time::Instant::now();
     let runs: Vec<(u64, u64, BattleResult, Vec<String>)> = (1..=battles)
         .into_par_iter()

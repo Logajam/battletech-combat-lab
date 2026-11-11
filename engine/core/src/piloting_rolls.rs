@@ -516,6 +516,16 @@ pub fn resolve_consciousness_checks(b: &mut Battle, u: UnitId, phase_label: &str
         }
         b.units[u].crew.get_mut(&role).unwrap().check_pending = false;
         let hits = b.units[u].pilot_hits;
+        if hits >= 6 {
+            // Found by Hydra's first trials (2026-11-11): a unit with several crew can reach 6 hits and still be standing
+            // (is_destroyed did not end it); the Python raised here. Loud placeholder until Daniel rules: that crew
+            // member is out for good, no roll.
+            let nm = b.units[u].side_name.clone().unwrap_or_default();
+            b.warn_stub("crew_six_hits", &format!("{}: {} has {} hits and the unit still stands - counted as out, no consciousness roll", nm, role, hits));
+            b.units[u].crew.get_mut(&role).unwrap().unconscious = true;
+            b.log(format!("{} consciousness check ({}, {} pilot hits): no roll, out for the battle.", phase_label, role, hits));
+            continue;
+        }
         let needed = consciousness_target_number(hits).unwrap_or_else(|e| panic!("{}", e));
         let roll = b.roll_2d6();
         b.log(format!("{} consciousness check ({}, {} pilot hits): needs {}. Rolled {}.", phase_label, role, hits, needed, roll));

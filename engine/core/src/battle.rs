@@ -119,6 +119,8 @@ pub struct Battle {
     /// weapon_selection._FIRE_CONTROL: another bot's fire control while it thinks
     pub fire_ctl: Option<crate::princess_fire::FireControl>,
     pub princess: crate::princess_fire::PrincessState,
+    /// hydra.rs: the third bot's memory for this battle
+    pub hydra: crate::hydra::HydraState,
     /// INTEGRATION__los_cache: lines of sight the bots asked about, (from, to, heights) -> answer (None = the line runs
     /// off the board). Speed only: emptied whenever the board changes (`board_changed`).
     /// finished movement tables (`movement_table`); speed only, emptied when the board changes
@@ -186,6 +188,7 @@ impl Battle {
             legate: Default::default(),
             fire_ctl: None,
             princess: Default::default(),
+            hydra: Default::default(),
             los_memo: Default::default(),
             table_memo: Default::default(),
         }

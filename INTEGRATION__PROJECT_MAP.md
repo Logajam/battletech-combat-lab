@@ -136,6 +136,9 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(q) HYDRA, THE THIRD BOT** (session 24, Rust only) - plan `INTEGRATION__HYDRA.md`, code `engine/core/src/hydra.rs`. First version built and
+  measured (Change Record "HYDRA"); NEXT WORK is the movement play-out, plan Section 6 (S5a), then Section 7. To review: the Forecast and Prices,
+  the Mover's score, the Fire Plan's overkill rule.
 - **(p) RUST PORT STAGES 1-9** - REVIEWED in session 24 (Change Record "RUST ENGINE REVIEWED"): two engine bugs fixed, 3-5x faster, random-battle
   check added. What is left of it for a later look: the five Python findings below it in Section 4 (Daniel's call), and the session-24 changes
   themselves (the caches `los_memo` / `table_memo` / `Equipment::memo` and when `Battle::board_changed` empties them; `pyfmt::py_sum`).
@@ -343,6 +346,10 @@ remaining HP (or a push off the board) ranks below every other spot;
 (b) a smoothed ratio (dealt + k) / (received + k), so received still counts
 when dealt is 0; (c) a difference, dealt - received. Replay of that battle:
 https://claude.ai/artifact/NJUknRiK1fcZzUv4A1fndX
+
+**Crew at 6 hits with the unit still standing (found by Hydra's trials, 2026-11-11).** A unit with several crew can reach 6 crew hits and not be
+destroyed; the consciousness check then had no table entry and crashed. Placeholder (stub `crew_six_hits`, `piloting_rolls.rs`): that crew member is
+out for the battle, no roll. Daniel to rule what the book says.
 
 **Known issues found by the Rust review (session 24, 2026-11-11; the Python is frozen during the port, so none is changed).**
 **DANIEL, 2026-11-11: fix these in the Python AFTER the port is otherwise complete ("We'll leave correcting the python code for future you"); the
