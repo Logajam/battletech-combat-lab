@@ -6,6 +6,11 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-11 (Claude, session 24), COMBAT LAB ART: ADVICE ON INTERCHANGEABLE ARMS AND TORSOS (sheet A9). Document only.**
+  Daniel: "advice you could give future you on how to create arms and torsos that are interchangeable, and contain a known variety of weapon and
+  equipment slots?" `INTEGRATION__COMBAT_LAB_ART_SPECS.md` A9: design the joins and the bays first and the shape last - a socket standard with size
+  classes, one owner per joint cover, a bay table per block as data (the "known variety", published as a catalogue), worst-case loads as a test,
+  bays that grow with the shell laid after, a few named layouts, rear mounts, right-hand parts mirrored, and an every-pair test.
 - **2026-11-11 (Claude, session 24), COMBAT LAB ART: A DIAGNOSIS AND SPEC SHEETS A1-A8. Documents only; nothing built, no code changed.**
   Daniel: "they're still just shaped blocks stacked on each other ... Do what you can to help there." `INTEGRATION__COMBAT_LAB_ART_SPECS.md`: six
   reasons the models read as blocks (all bulging lumps with no hollows; parts touch and do not interlock; one size of detail; variants that do not

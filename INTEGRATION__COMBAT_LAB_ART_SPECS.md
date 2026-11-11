@@ -45,6 +45,7 @@ slot or per chassis. Hence the order below.
 | A6 | The small-detail kit | 3 | every 'Mech | medium |
 | A7 | Weapons that look like weapons | 3 | per weapon family | open-ended (Daniel's stockpile) |
 | A8 | Paint: schemes, stripes, numbers | 6 | every 'Mech | small |
+| A9 | Interchangeable arms and torsos, known slots (advice) | - | the block library | read before adding blocks |
 
 Every sheet ends the same way: publish before / after pages of the same six 'Mechs for Daniel
 (suggested: Locust, Jenner, Hunchback, Marauder, Catapult, Atlas: light to assault, humanoid and
@@ -191,6 +192,58 @@ colour, so Daniel can add a regiment's scheme without code.
 **Done when.** The six 'Mechs in three schemes, published.
 
 ---
+
+## A9. Interchangeable arms and torsos with a known variety of slots (advice, Daniel's question 2026-11-11)
+
+Daniel: "advice you could give future you on how to create arms and torsos that are interchangeable, and
+contain a known variety of weapon and equipment slots?" The hardpoint rules themselves are his and are in
+`INTEGRATION__COMBAT_LAB_SKELETON.md` section 3 (every location can mount ANY combination its critical
+slots allow; items take hardpoints by their critical slots; placement shuffled). This sheet is about how to
+build blocks so those rules hold for every pairing. CHECK FIRST how much of it `INTEGRATION__shell_facet.py`
+(BLOCKS, the joint sockets) and `INTEGRATION__shell_items.py` (rails, `rail_count`) already do.
+
+**The one idea: design the joins and the bays first, the shapes last.** A block is three things, in this
+order: its SOCKETS (how it joins), its BAYS (what it can carry), its SHAPE (what covers them). Blocks
+are interchangeable when the first two are standard and only the third is free.
+
+1. **A socket standard.** Each joint kind (shoulder, neck, waist, hip, elbow, wrist) has one definition:
+   where it is, which way its axis points, and a SIZE CLASS (four classes by tonnage band are enough).
+   Every arm block is drawn in its own frame with the shoulder socket at the origin; every torso block
+   lists where its shoulder, neck and waist sockets are. Same class = fits, always. A different class
+   fits through a scaling ring, never by reshaping either block.
+2. **One owner for each joint cover.** Decide once which side brings the cover (suggest: the body-side
+   part brings the recess or collar, the limb-side part brings the cap). Otherwise some pairings get two
+   covers and some get none. This is A5's interlock, made part of the standard.
+3. **A bay list for every block, as data.** Each block declares its bays in a table a person can read:
+   bay number, kind (a face cell, a line along the part, a post on top, an inside bay), how many critical
+   slots it holds (a range, smallest to largest), which way it faces (front, rear, up, side), what it
+   accepts (energy, ballistic, missile, equipment with a face, hidden equipment), and how far an item may
+   stick out. The table is the "known variety": publish it as a catalogue page with the bays numbered on
+   the picture (the lineup tool already numbers the rails).
+4. **The bay list must cover the worst cases, by test, not by eye.** For a location the rules give the
+   free slots (arms 8-10, side torsos 12, centre torso 2-7, head up to 4, legs 2). A block passes only if
+   it places all of: the largest single item legal there (so one long unbroken bay is needed), the most
+   one-slot items, and a set of mixed loads taken from real unit files. Every item placed, none twice,
+   every muzzle clear. A block that fails is not in the library.
+5. **Bays grow; shapes follow.** A bay has a resting size (empty: a flush blanking plate) and a stated
+   direction it grows when filled (outward, rearward, along the limb). The shell (A2's plates) is laid
+   AFTER the items are placed, with a collar or cut-out for each item that has a face. So no block has a
+   weapon baked into its shape, and a heavy load shows as a bulge where the bay said it would.
+6. **A small set of named layouts instead of endless blocks.** Arms: gun arm (one long forearm line bay
+   and two face cells), hand arm (forearm bay over the wrist, upper-arm bay, shoulder post), pod arm (a
+   box of face cells, for racks), trunk arm. Side torsos: rack (a grid of face cells in front, vents
+   behind), shoulder mount (a post on top carrying a long weapon over the shoulder), chest bay (a line
+   bay through the torso, muzzle in front), rear deck (jets and vents). Variety then comes from layout x
+   shape x load, and each layout is one bay table to test.
+7. **Rear and turret mounts are bays too.** A unit file can mount a torso weapon facing the rear; a torso
+   block therefore needs rear-facing bays, or the game truth and the model disagree.
+8. **Build right-hand parts only** and mirror them; asymmetry comes from the load, not from the block.
+9. **The pairing test.** Every torso block x every arm block x every size class: joined, no clipping
+   through the joint's full swing, and the worst-case loads of point 4 on both. Run it as a table in the
+   art checks; a red cell names the pair.
+
+**Do not:** fuse an arm and a torso into one special block for a chassis (it breaks every pairing); let a
+bay's capacity depend on which neighbour is fitted; hide a failed placement by shrinking the item.
 
 ## What I would not do yet
 
