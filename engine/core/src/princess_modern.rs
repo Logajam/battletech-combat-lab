@@ -569,6 +569,7 @@ pub fn choose(b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, s
     if b.units[other].hex.is_none() {
         return crate::move_select::choose(b, mover, other, moves_first, standup_mp, entry_edge, ties);
     }
+    let t0 = std::time::Instant::now();
     let group = Group::new(b, mover, Some(other), moves_first);
     let stance = force_posture(b, mover, &group);
     let exclude = move_options::occupied_hexes(b, mover, other);
@@ -609,6 +610,9 @@ pub fn choose(b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, s
         prepared = Some(p);
     }
     b.fire_ctl = None;
+    if std::env::var("BT_TIME").is_ok() {
+        eprintln!("TIME princess estimates {:?} (foes {}, spots {})", t0.elapsed(), group.foes.len(), prepared.as_ref().map_or(0, |p| p.len()));
+    }
     rank(b, mover, &group, &prepared.unwrap(), &estimate.unwrap(), standup_mp, entry_edge, &notes, moved, &stance)
 }
 
@@ -646,6 +650,7 @@ fn rank(b: &mut Battle, mover: UnitId, group: &Group, prepared: &[Opt], estimate
     let hazard_board = princess::hazard_board(b);
     let mover_hex = b.units[mover].hex.clone();
     let mut max_at: HashMap<i64, i64> = HashMap::new();
+    let mut tables = crate::ranged_combat::TableCache::new();
     #[allow(clippy::type_complexity)]
     let mut best: Option<(f64, &Opt, f64, f64, f64, f64, f64, f64, f64, f64, f64, f64, f64)> = None;
     for o in &pool {
@@ -653,7 +658,7 @@ fn rank(b: &mut Battle, mover: UnitId, group: &Group, prepared: &[Opt], estimate
         let p = success[&k];
         let (mine, physical_mine, theirs) = estimate[&k];
         let done = mine + physical_mine;
-        let hazard = if hazard_board { path_hazard(b, mover, o, fall_odds, standup_mp, entry_edge, mover_hex.as_deref()) } else { 0.0 };
+        let hazard = if hazard_board { path_hazard(b, mover, o, fall_odds, standup_mp, entry_edge, mover_hex.as_deref(), &mut tables) } else { 0.0 };
         let taken = theirs + hazard;
         let fail = 1.0 - p;
         let fall_mod = fail * if fail == 1.0 { UNIT_DESTRUCTION_FACTOR } else { fall_shame };
@@ -704,11 +709,11 @@ fn rank(b: &mut Battle, mover: UnitId, group: &Group, prepared: &[Opt], estimate
 }
 
 /// hazards (modern): classic.path_hazards with waterHazard; a move with no steps prices the water it stays in.
-fn path_hazard(b: &mut Battle, mover: UnitId, o: &Opt, fall_odds: f64, standup_mp: Option<i64>, entry_edge: Option<&[String]>, mover_hex: Option<&str>) -> f64 {
+fn path_hazard(b: &mut Battle, mover: UnitId, o: &Opt, fall_odds: f64, standup_mp: Option<i64>, entry_edge: Option<&[String]>, mover_hex: Option<&str>, cache: &mut crate::ranged_combat::TableCache) -> f64 {
     let p_fall = if o.mode == "Run" { fall_odds } else { 0.0 };
     let moves = o.fc != 0 || o.mp_spent != 0;
     let steps: Option<Vec<(i64, i64)>> = if moves && o.mode != "Jump" {
-        crate::ranged_combat::path_to(b, mover, &o.pick(), standup_mp, entry_edge).map(|s| s.into_iter().map(|(_, st, _)| (st.0, st.1)).collect())
+        crate::ranged_combat::path_to_cached(b, mover, &o.pick(), standup_mp, entry_edge, cache).map(|s| s.into_iter().map(|(_, st, _)| (st.0, st.1)).collect())
     } else {
         None
     };

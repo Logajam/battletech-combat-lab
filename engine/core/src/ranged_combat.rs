@@ -70,14 +70,24 @@ pub fn minimum_move(b: &Battle, u: UnitId, sx: i64, sy: i64, facing: i64, run_bu
 
 /// The ground path to a picked end state: [(step, (x, y, facing), mp after)] - step "enter" (onto the board, first),
 /// "forward", "backward" or "turn" - or None when no such path is found.
+pub type TableCache = std::collections::HashMap<(i64, i64, i64, i64, Option<i64>), crate::pathfinder::MovementTable>;
+
 pub fn path_to(b: &Battle, u: UnitId, pick: &Pick, standup_mp: Option<i64>, entry_edge: Option<&[String]>) -> Option<Vec<(&'static str, State, i64)>> {
+    path_to_cached(b, u, pick, standup_mp, entry_edge, &mut TableCache::new())
+}
+
+/// path_to with the searched tables kept in `cache` (PathBook): asking for many picks from one spot searches once.
+pub fn path_to_cached(b: &Battle, u: UnitId, pick: &Pick, standup_mp: Option<i64>, entry_edge: Option<&[String]>, cache: &mut TableCache) -> Option<Vec<(&'static str, State, i64)>> {
     let m = &b.units[u];
     let blocked = blocked_set(&m.blocked_hex);
     let (x, y) = hex_geometry::parse_hex_label(&pick.hex).unwrap();
     let state: State = (x, y, hex_geometry::compass_to_facing(&pick.facing).unwrap());
     let (fc, mp) = (pick.fc, pick.mp_spent);
     let level_limit = terrain_rules::max_level_change(ground_level_limited(m), is_superheavy(m));
-    let table_for = |x0: i64, y0: i64, f0: i64, budget: i64, backward_mp: Option<i64>| build_movement_table(x0, y0, f0, budget, Some(&b.board), backward_mp, level_limit, true, &blocked).unwrap();
+    let mut table_for = |x0: i64, y0: i64, f0: i64, budget: i64, backward_mp: Option<i64>| -> *const crate::pathfinder::MovementTable {
+        let e = cache.entry((x0, y0, f0, budget, backward_mp)).or_insert_with(|| build_movement_table(x0, y0, f0, budget, Some(&b.board), backward_mp, level_limit, true, &blocked).unwrap());
+        e as *const _
+    };
     if let Some(edge) = entry_edge {
         let run = compute_running_mp(m);
         for label in edge {
@@ -86,7 +96,7 @@ pub fn path_to(b: &Battle, u: UnitId, pick: &Pick, standup_mp: Option<i64>, entr
             let Some(cost) = cost.filter(|c| *c <= mp) else { continue };
             let (ex, ey) = hex_geometry::parse_hex_label(label).unwrap();
             for f0 in 0..6 {
-                let table = table_for(ex, ey, f0, run - cost, None);
+                let table = unsafe { &*table_for(ex, ey, f0, run - cost, None) };
                 if table.entries.get(&state).and_then(|c| c.get(&(mp - cost))) == Some(&(fc - 1)) {
                     let mut out = vec![("enter", (ex, ey, f0), cost)];
                     out.extend(table.path(state, mp - cost).into_iter().map(|(s, st, mm)| (s, st, mm + cost)));
@@ -111,7 +121,7 @@ pub fn path_to(b: &Battle, u: UnitId, pick: &Pick, standup_mp: Option<i64>, entr
         }
     }
     for f0 in starts {
-        let table = table_for(sx, sy, f0, budget, backward_mp);
+        let table = unsafe { &*table_for(sx, sy, f0, budget, backward_mp) };
         if table.entries.get(&state).and_then(|c| c.get(&mp)) == Some(&fc) {
             return Some(table.path(state, mp));
         }

@@ -27,7 +27,9 @@ fn require_duel(b: &mut Battle, u: UnitId, what: &str) {
 }
 
 impl BotSet for GladiatorBots {
+    #[allow(unused)]
     fn choose_foe(&mut self, b: &mut Battle, mover: UnitId) -> Option<UnitId> {
+        if std::env::var("BT_TRACE").is_ok() { eprintln!("TRACE choose_foe {}", b.units[mover].side_name.clone().unwrap_or_default()); }
         if b.units[mover].bot == "gladiator" {
             if let Some(f) = crate::legate::foe_for(b, mover) {
                 return Some(f);
@@ -36,6 +38,7 @@ impl BotSet for GladiatorBots {
         crate::forces::choose_foe(b, mover)
     }
 
+    #[allow(unused)]
     fn choose_target(&mut self, b: &mut Battle, attacker: UnitId) -> Option<UnitId> {
         if b.units[attacker].bot == "princess" {
             return crate::bot_targets::princess_choose_target(b, attacker);
@@ -51,6 +54,7 @@ impl BotSet for GladiatorBots {
         crate::bot_targets::fire_pick(b, candidates)
     }
 
+    #[allow(unused)]
     fn choose_declaration(&mut self, b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId) -> DeclChoice {
         if b.units[attacker].bot == "princess" {
             return crate::gladiator::choose_declaration_princess(b, ctx, planner, attacker, target);
@@ -58,6 +62,7 @@ impl BotSet for GladiatorBots {
         crate::gladiator::choose_declaration(b, ctx, planner, attacker, target)
     }
 
+    #[allow(unused)]
     fn choose_physical(&mut self, b: &mut Battle, attacker: UnitId, target: UnitId) -> Option<(i64, Vec<PhysOption>, ArcAction)> {
         if b.units[attacker].bot == "princess" {
             return crate::princess_fire::choose_physical(b, attacker, target);
@@ -65,7 +70,9 @@ impl BotSet for GladiatorBots {
         crate::physical::choose_attack(b, attacker, target)
     }
 
+    #[allow(unused)]
     fn choose_movement(&mut self, b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, standup_mp: Option<i64>, entry_edge: Option<&[String]>) -> (Option<Pick>, String, PathGate) {
+        if std::env::var("BT_TRACE").is_ok() { eprintln!("TRACE choose_movement {}", b.units[mover].side_name.clone().unwrap_or_default()); }
         let mut ties = Ties { recorded: None, missed: false };
         let (pick, note) = if b.units[mover].bot == "princess" {
             assert!(b.cfg.s("PRINCESS_VERSION") == "modern", "the v0.50.07 Princess is not translated yet");
@@ -91,7 +98,9 @@ impl BotSet for GladiatorBots {
         crate::princess_memory::end_of_turn(b);
     }
 
+    #[allow(unused)]
     fn start_movement(&mut self, b: &mut Battle) {
+        if std::env::var("BT_TRACE").is_ok() { eprintln!("TRACE start_movement"); }
         crate::legate::plan_turn(b);
     }
 
