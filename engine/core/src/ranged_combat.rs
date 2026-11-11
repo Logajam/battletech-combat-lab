@@ -95,6 +95,12 @@ pub fn path_to_cached(b: &Battle, u: UnitId, pick: &Pick, standup_mp: Option<i64
             let cost = info.and_then(|i| terrain_rules::step_cost(None, i, terrain_rules::max_level_change(false, false), false));
             let Some(cost) = cost.filter(|c| *c <= mp) else { continue };
             let (ex, ey) = hex_geometry::parse_hex_label(label).unwrap();
+            if blocked.contains(&(ex, ey)) {
+                // An enemy stands on this edge hex: nothing enters there (the options and path_notes skip it too).
+                // The Python has no such check and raises ValueError here ("Start hex ... is not on the loaded
+                // board") - found by a random batch, RUST_PORT "Found on the way" 9.
+                continue;
+            }
             for f0 in 0..6 {
                 let table = unsafe { &*table_for(ex, ey, f0, run - cost, None) };
                 if table.entries.get(&state).and_then(|c| c.get(&(mp - cost))) == Some(&(fc - 1)) {
