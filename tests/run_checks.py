@@ -15,6 +15,7 @@ because its time only means something on a quiet machine.
 """
 
 import glob
+import shutil
 import os
 import subprocess
 import sys
@@ -57,6 +58,12 @@ def main():
                 for name, overrides in check_reference_logs.SCENARIOS.items()]
         jobs += [(f"test       {os.path.basename(path)}", pool.submit(run_test_file, path))
                  for path in tests]
+        # The Rust engine's own reference battles (session 25; tests/check_rust_reference.py), when cargo is here.
+        if shutil.which("cargo"):
+            jobs.append(("rust       check_rust_reference.py (79 battles)",
+                         pool.submit(run_test_file, os.path.join(REPO_ROOT, "tests", "check_rust_reference.py"))))
+        else:
+            print("NOTE: no cargo on this machine - the Rust reference battles were not run")
         failed = 0
         for label, job in jobs:
             ok, seconds, output = job.result()

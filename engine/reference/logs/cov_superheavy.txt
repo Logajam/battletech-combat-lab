@@ -1,0 +1,707 @@
+# scenario cov_superheavy
+# seed 1: winner Red, 7 turns
+#   Red: 491.0 of 659.0 armor + structure left, team destroyed False, units 1, 34 hits of 35 attacks, 433.0 damage dealt
+#   Blue: 379.0 of 874.0 armor + structure left, team destroyed True, units 1, 14 hits of 25 attacks, 126.0 damage dealt
+# log
+
+=== TURN 1 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 1416.978 = dealt 56.69 x1.00 + (HP 1172.0 - received 63.44 x1.00 - PSR 0.00) / enemy future 23.56 x my future 28.91 [two-ply, 28 of 36 spots (grid search) x 36 replies (short list); modeled reply Red -> 0505 S Stand Still]
+  [Movement] Blue: 0509 N -> 0509 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 2 / run 3 / jump 0)
+  [Movement select] Red: score 739.281 = dealt 63.44 x1.00 + (HP 886.0 - received 56.69 x1.00 - PSR 0.00) / enemy future 28.91 x my future 23.56 [enemy held at 0509; 29 spots with LOS]
+  [Movement] Red: 0505 S -> 0505 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 2 / run 3 / jump 0)
+  [Ranged] Blue -> Red: range 4, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM -1 + LOS 2 + heat 0); firing ['SRM 6', 'ISSmallXPulseLaser', 'LRM 20', 'ISERPPC', 'ISERPPC', 'ISGaussRifle', 'ISERLargeLaser', 'ISSniperCannon'] (weapon heat 66 of budget 68 = max 30 + sink 38 - current 0 - movement 0 - other 0; expected dmg 56.62)
+    SRM 6: needs 7 (range mod +2), rolled 7 -> HIT [IS Ammo SRM-6: 14 shots left]
+    ISSmallXPulseLaser: needs 5 (range mod +2, modifiers -2), rolled 9 -> HIT
+    LRM 20: needs 8 (range mod +3), rolled 7 -> miss [IS Ammo LRM-20: 5 shots left]
+    ISERPPC: needs 5 (range mod +0), rolled 3 -> miss
+    ISERPPC: needs 5 (range mod +0), rolled 10 -> HIT
+    ISGaussRifle: needs 5 (range mod +0), rolled 10 -> HIT [IS Gauss Ammo: 7 shots left]
+    ISERLargeLaser: needs 5 (range mod +0), rolled 6 -> HIT
+    ISSniperCannon: needs 5 (range mod +0), rolled 3 -> miss [ISSniperCannonAmmo: 9 shots left]
+  [Ranged] Red -> Blue: range 4, base TN 3 (gunnery 4 + AMM 0 [Stand Still] + TMM -1 + LOS 0 + heat 0); firing ['Heavy PPC', 'Heavy PPC', 'Heavy PPC', 'ISLBXAC10', 'ISLBXAC10'] (weapon heat 49 of budget 76 = max 30 + sink 46 - current 0 - movement 0 - other 0; expected dmg 63.19)
+    Heavy PPC: needs 3 (range mod +0), rolled 7 -> HIT
+    Heavy PPC: needs 3 (range mod +0), rolled 6 -> HIT
+    Heavy PPC: needs 3 (range mod +0), rolled 7 -> HIT
+    ISLBXAC10: needs 3 (range mod +0), rolled 7 -> HIT [IS LB 10-X AC Ammo: 9 shots left]
+    ISLBXAC10: needs 3 (range mod +0), rolled 12 -> HIT [IS LB 10-X AC Ammo: 8 shots left]
+    SRM 6 hit: cluster roll 9 on the 6-column table -> 5 connect (10 dmg).
+      Group 1/5: Hit location roll 8 (front table): Left Torso.
+2 damage (MISSILE) incoming to Left Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (45 -> 43 remaining).
+      Group 2/5: Hit location roll 6 (front table): Right Torso.
+2 damage (MISSILE) incoming to Right Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (45 -> 43 remaining).
+      Group 3/5: Hit location roll 4 (front table): Right Arm.
+2 damage (MISSILE) incoming to Right Arm (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (44 -> 42 remaining).
+      Group 4/5: Hit location roll 11 (front table): Left Arm.
+2 damage (MISSILE) incoming to Left Arm (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (44 -> 42 remaining).
+      Group 5/5: Hit location roll 9 (front table): Left Leg.
+2 damage (MISSILE) incoming to Left Leg (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (62 -> 60 remaining).
+    ISSmallXPulseLaser hit for 3:
+      Hit location roll 5 (front table): Right Leg.
+3 damage (ENERGY) incoming to Right Leg (armor).
+  [STANDARD/ENERGY] 3 armor pts destroyed at armor (62 -> 59 remaining).
+    ISERPPC hit for 10:
+      Hit location roll 8 (front table): Left Torso.
+10 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (43 -> 33 remaining).
+    ISGaussRifle hit for 15:
+      Hit location roll 10 (front table): Left Arm.
+15 damage (BALLISTIC) incoming to Left Arm (armor).
+  [STANDARD/BALLISTIC] 15 armor pts destroyed at armor (42 -> 27 remaining).
+    ISERLargeLaser hit for 8:
+      Hit location roll 11 (front table): Left Arm.
+8 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 8 armor pts destroyed at armor (27 -> 19 remaining).
+    ISSniperCannon missed - the shell lands 1 hex away from Red (no splash).
+    Heavy PPC hit for 15:
+      Hit location roll 8 (front table): Left Torso.
+15 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 15 armor pts destroyed at armor (61 -> 46 remaining).
+    Heavy PPC hit for 15:
+      Hit location roll 5 (front table): Right Leg.
+15 damage (ENERGY) incoming to Right Leg (armor).
+  [STANDARD/ENERGY] 15 armor pts destroyed at armor (80 -> 65 remaining).
+    Heavy PPC hit for 15:
+      Hit location roll 8 (front table): Left Torso.
+15 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 15 armor pts destroyed at armor (46 -> 31 remaining).
+    ISLBXAC10 hit for 10:
+      Hit location roll 4 (front table): Right Arm.
+10 damage (BALLISTIC) incoming to Right Arm (armor).
+  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (61 -> 51 remaining).
+    ISLBXAC10 hit for 10:
+      Hit location roll 5 (front table): Right Leg.
+10 damage (BALLISTIC) incoming to Right Leg (armor).
+  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (65 -> 55 remaining).
+PSR trigger: 65 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
+  Succeeded - remains standing.
+PSR trigger: 46 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 5.
+  Failed - falls.
+FALL (failed Attack Phase PSR): Omega SHP-5R takes 15 falling damage (1D6 2: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 6 -> Right Torso
+5 damage (PHYSICAL) incoming to Right Torso (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (43 -> 38 remaining).
+  Fall cluster (5 dmg): rolled 8 -> Left Torso
+5 damage (PHYSICAL) incoming to Left Torso (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (33 -> 28 remaining).
+  Fall cluster (5 dmg): rolled 10 -> Left Arm
+5 damage (PHYSICAL) incoming to Left Arm (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (19 -> 14 remaining).
+  Seatbelt check: needs 5. Rolled 7. Pilot unharmed.
+  [Heat] Red: 0 + movement 0 + weapons 49 + engine 0 - sinks 46 -> 3
+  [Heat] Blue: 0 + movement 0 + weapons 66 + engine 0 - sinks 38 -> 28
+  [Heat] Blue: SHUT DOWN (heat 28, shutdown avoid roll needs 10, rolled 2).
+  [Heat] Blue: ammo explosion avoid roll at heat 28: needs 8, rolled 6 - IS Ammo LRM-20 in Left Torso EXPLODES.
+    IS Ammo LRM-20 shares the superheavy slot - it explodes too (+100; one MechWarrior hit, Core p.240).
+    IS Ammo LRM-20 destroyed at Left Torso - EXPLOSION (220 dmg)! Pilot takes 1 hit (1/6).
+    Explosion reaches Left Torso. CASE II present - at most 1 structure damage.
+    1 structure damage taken (41/42 remaining).
+  Check for possible critical. Roll a 11 (12 -1).
+    2 critical hit(s).
+  Critical hit pool at Left Torso:
+    1: Engine (slot 1)
+    2: Engine (slot 2)
+    3: LRM 20 (slot 3)
+    4: LRM 20 (slot 4)
+    5: LRM 20 (slot 5)
+    6: ISERPPC (slot 6)
+    7: ISERPPC (slot 7)
+    8: IS Ammo LRM-20 (slot 9)
+    9: IS Ammo SRM-6 (slot 10)
+    10: IS Gauss Ammo (slot 11)
+    1/2 Criticals: LRM 20 slot hit.
+      Current crit slots in Left Torso: ['Engine', 'Engine', 'DESTROYED', 'LRM 20', 'LRM 20', 'ISERPPC', 'ISERPPC', 'DESTROYED', 'IS Ammo LRM-20', 'IS Ammo SRM-6', 'IS Gauss Ammo', 'ISCASEII', 'DESTROYED', 'IS Ammo SRM-6', 'IS Gauss Ammo']
+  Critical hit pool at Left Torso:
+    1: Engine (slot 1)
+    2: Engine (slot 2)
+    3: LRM 20 (slot 4)
+    4: LRM 20 (slot 5)
+    5: ISERPPC (slot 6)
+    6: ISERPPC (slot 7)
+    7: IS Ammo LRM-20 (slot 9)
+    8: IS Ammo SRM-6 (slot 10)
+    9: IS Gauss Ammo (slot 11)
+    2/2 Criticals: Engine hit.
+      Current crit slots in Left Torso: ['DESTROYED', 'Engine', 'DESTROYED', 'LRM 20', 'LRM 20', 'ISERPPC', 'ISERPPC', 'DESTROYED', 'IS Ammo LRM-20', 'IS Ammo SRM-6', 'IS Gauss Ammo', 'ISCASEII', 'DESTROYED', 'IS Ammo SRM-6', 'IS Gauss Ammo']
+      Engine hit (1/3).
+    CASE II vents the excess: Left Torso loses 10 rear armor (10 left).
+    CASE II contains the explosion. No further transfer.
+Heat Phase (ammo explosion) consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
+  Pilot stays conscious.
+  [Heat] Blue: heat 28 -> next turn -5 Walking MP, +4 to ranged attacks.
+  -- end of turn 1: Red @ 0505 S: HP 598, pilot hits 0, engine 0, gyro 0, heat 3 [PRONE]
+  -- end of turn 1: Blue @ 0509 N: HP 798, pilot hits 1, engine 1, gyro 0, heat 28 [SHUT DOWN]
+
+=== TURN 2 ===
+  Initiative: Red lost the roll, moves first.
+Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 6.
+  Success - Omega SHP-5R is standing (remaining running MP 1).
+  [Movement select] Red: score 2168.641 = dealt 54.38 x1.00 + (HP 825.0 - received 11.99 x0.97 - PSR 0.00) / enemy future 15.25 x my future 39.64 [two-ply, 12 spots x 1 replies (short list); modeled reply Blue -> 0509 N Stand Still]
+  [Movement] Red: 0505 S -> 0505 NE, Run (0 MP, 0 hexes, 2 heat; budget walk 2 / run 3 / jump 0; stood up with 1 MP left)
+  [Movement] Blue: shut down - skips movement (immobile).
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 4, base TN 1 (gunnery 4 + AMM 2 [Run] + TMM -5 + LOS 0 + heat 0); firing ['Heavy PPC', 'Heavy PPC', 'Heavy PPC', 'ISLBXAC10', 'ISLBXAC10'] (aimed at Center Torso) (weapon heat 49 of budget 71 = max 30 + sink 46 - current 3 - movement 2 - other 0; expected dmg 65.00)
+    Heavy PPC: needs 1 (range mod +0) aimed at Center Torso, rolled 8 -> HIT
+    Heavy PPC: needs 1 (range mod +0) aimed at Center Torso, rolled 8 -> HIT
+    Heavy PPC: needs 1 (range mod +0) aimed at Center Torso, rolled 11 -> HIT
+    ISLBXAC10: needs 1 (range mod +0) aimed at Center Torso, rolled 2 -> HIT [IS LB 10-X AC Ammo: 7 shots left]
+    ISLBXAC10: needs 1 (range mod +0) aimed at Center Torso, rolled 6 -> HIT [IS LB 10-X AC Ammo: 6 shots left]
+  [Ranged] Blue: shut down - no attacks.
+    Heavy PPC hit for 15: aimed at Center Torso, 1D6 2 - rolls for location.
+      Hit location roll 10 (front table): Left Arm.
+15 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 15 armor pts destroyed at armor (61 -> 46 remaining).
+    Heavy PPC hit for 15: aimed at Center Torso, 1D6 2 - rolls for location.
+      Hit location roll 11 (front table): Left Arm.
+15 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 15 armor pts destroyed at armor (46 -> 31 remaining).
+    Heavy PPC hit for 15: aimed at Center Torso, 1D6 2 - rolls for location.
+      Hit location roll 8 (front table): Left Torso.
+15 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 15 armor pts destroyed at armor (31 -> 16 remaining).
+    ISLBXAC10 hit for 10: aimed at Center Torso, 1D6 1 - rolls for location.
+      Hit location roll 3 (front table): Right Arm.
+10 damage (BALLISTIC) incoming to Right Arm (armor).
+  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (51 -> 41 remaining).
+    ISLBXAC10 hit for 10: aimed at Center Torso, 1D6 2 - rolls for location.
+      Hit location roll 7 (front table): Center Torso.
+10 damage (BALLISTIC) incoming to Center Torso (armor).
+  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (90 -> 80 remaining).
+PSR trigger: 65 armor+structure lost this phase (>=20) -> +1.
+Shut down - Attack Phase PSR auto-fails.
+FALL (auto-fail (shut down)): Orca OC-1X takes 20 falling damage (1D6 2: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 9 -> Left Leg
+5 damage (PHYSICAL) incoming to Left Leg (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (80 -> 75 remaining).
+  Fall cluster (5 dmg): rolled 10 -> Left Arm
+5 damage (PHYSICAL) incoming to Left Arm (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (31 -> 26 remaining).
+  Fall cluster (5 dmg): rolled 12 -> Head
+5 damage (PHYSICAL) incoming to Head (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (12 -> 7 remaining).
+  Fall cluster (5 dmg): rolled 3 -> Right Arm
+5 damage (PHYSICAL) incoming to Right Arm (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (41 -> 36 remaining).
+  Seatbelt check: immobile - pilot takes 1 hit automatically (2/6).
+Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 10.
+  Pilot stays conscious.
+  [Heat] Red: 3 + movement 2 + weapons 49 + engine 0 - sinks 46 -> 8
+  [Heat] Red: heat 8 -> next turn -1 Walking MP, +1 to ranged attacks.
+  [Heat] Blue: 28 + movement 0 + weapons 0 + engine 0 - sinks 38 -> 0
+  [Heat] Blue: heat 0 is below 14 - power plant restarts automatically.
+  -- end of turn 2: Red @ 0505 NE: HP 598, pilot hits 0, engine 0, gyro 0, heat 8
+  -- end of turn 2: Blue @ 0509 N: HP 713, pilot hits 2, engine 1, gyro 0, heat 0 [PRONE]
+
+=== TURN 3 ===
+  Initiative: Blue lost the roll, moves first.
+Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
+  Success - Orca OC-1X is standing (remaining running MP 1).
+  [Movement select] Blue: score 742.560 = dealt 37.46 x1.00 + (HP 1010.0 - received 56.26 x1.00 - PSR 0.00) / enemy future 43.86 x my future 32.43 [two-ply, 12 spots x 13 replies (short list); modeled reply Red -> 0505 S Stand Still]
+  [Movement] Blue: 0509 N -> 0508 N, Run (1 MP, 1 hexes, 2 heat; budget walk 2 / run 3 / jump 0; stood up with 1 MP left)
+  [Movement select] Red: score 1123.085 = dealt 56.26 x1.00 + (HP 825.0 - received 37.43 x0.97 - PSR 0.00) / enemy future 32.43 x my future 43.86 [enemy held at 0508; 12 spots with LOS]
+  [Movement] Red: 0505 NE -> 0505 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 1 / run 2 / jump 0)
+  [Ranged] Blue -> Red: range 3, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM -1 + LOS 2 + heat 0); firing ['SRM 6', 'ISSmallXPulseLaser', 'ISERPPC', 'ISERPPC', 'ISGaussRifle', 'ISERLargeLaser', 'ISSniperCannon'] (weapon heat 60 of budget 61 = max 30 + sink 38 - current 0 - movement 2 - other 5; expected dmg 37.33)
+    SRM 6: needs 7 (range mod +0), rolled 6 -> miss [IS Ammo SRM-6: 13 shots left]
+    ISSmallXPulseLaser: needs 7 (range mod +2, modifiers -2), rolled 6 -> miss
+    ISERPPC: needs 7 (range mod +0), rolled 6 -> miss
+    ISERPPC: needs 7 (range mod +0), rolled 7 -> HIT
+    ISGaussRifle: needs 7 (range mod +0), rolled 7 -> HIT [IS Gauss Ammo: 6 shots left]
+    ISERLargeLaser: needs 7 (range mod +0), rolled 7 -> HIT
+    ISSniperCannon: needs 7 (range mod +0), rolled 4 -> miss [ISSniperCannonAmmo: 8 shots left]
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 3, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM -1 + LOS 0 + heat 1); firing ['Heavy PPC', 'Heavy PPC', 'Heavy PPC', 'ISLBXAC10', 'ISLBXAC10'] (weapon heat 49 of budget 68 = max 30 + sink 46 - current 8 - movement 0 - other 0; expected dmg 55.83)
+    Heavy PPC: needs 5 (range mod +1), rolled 10 -> HIT
+    Heavy PPC: needs 5 (range mod +1), rolled 8 -> HIT
+    Heavy PPC: needs 5 (range mod +1), rolled 5 -> HIT
+    ISLBXAC10: needs 4 (range mod +0), rolled 7 -> HIT [IS LB 10-X AC Ammo: 5 shots left]
+    ISLBXAC10: needs 4 (range mod +0), rolled 5 -> HIT [IS LB 10-X AC Ammo: 4 shots left]
+    ISERPPC hit for 10:
+      Hit location roll 8 (right table): Center Torso.
+10 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (60 -> 50 remaining).
+    ISGaussRifle hit for 15:
+      Hit location roll 4 (right table): Right Arm.
+15 damage (BALLISTIC) incoming to Right Arm (armor).
+  [STANDARD/BALLISTIC] 15 armor pts destroyed at armor (42 -> 27 remaining).
+    ISERLargeLaser hit for 8:
+      Hit location roll 5 (right table): Right Arm.
+8 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 8 armor pts destroyed at armor (27 -> 19 remaining).
+    ISSniperCannon missed - the shell lands 2 hexes away from Red (no splash).
+    Heavy PPC hit for 15:
+      Hit location roll 5 (front table): Right Leg.
+15 damage (ENERGY) incoming to Right Leg (armor).
+  [STANDARD/ENERGY] 15 armor pts destroyed at armor (55 -> 40 remaining).
+    Heavy PPC hit for 15:
+      Hit location roll 6 (front table): Right Torso.
+15 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 15 armor pts destroyed at armor (61 -> 46 remaining).
+    Heavy PPC hit for 15:
+      Hit location roll 7 (front table): Center Torso.
+15 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 15 armor pts destroyed at armor (80 -> 65 remaining).
+    ISLBXAC10 hit for 10:
+      Hit location roll 10 (front table): Left Arm.
+10 damage (BALLISTIC) incoming to Left Arm (armor).
+  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (26 -> 16 remaining).
+    ISLBXAC10 hit for 10:
+      Hit location roll 6 (front table): Right Torso.
+10 damage (BALLISTIC) incoming to Right Torso (armor).
+  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (46 -> 36 remaining).
+PSR trigger: 65 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
+  Succeeded - remains standing.
+PSR trigger: 33 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
+  Succeeded - remains standing.
+  [Heat] Red: 8 + movement 0 + weapons 49 + engine 0 - sinks 46 -> 11
+  [Heat] Red: heat 11 -> next turn -2 Walking MP, +1 to ranged attacks.
+  [Heat] Blue: 0 + movement 2 + weapons 60 + engine 5 - sinks 38 -> 29
+  [Heat] Blue: SHUT DOWN (heat 29, shutdown avoid roll needs 10, rolled 7).
+  [Heat] Blue: ammo explosion avoid roll at heat 29: needs 8, rolled 4 - IS Ammo LRM-20 in Left Torso EXPLODES.
+    IS Ammo LRM-20 destroyed at Left Torso - EXPLOSION (120 dmg)! Pilot takes 1 hit (3/6).
+    Explosion reaches Left Torso. CASE II present - at most 1 structure damage.
+    1 structure damage taken (40/42 remaining).
+  Check for possible critical. Roll a 6 (7 -1).
+    No critical hit.
+    CASE II vents the excess: Left Torso loses 10 rear armor (0 left).
+    CASE II contains the explosion. No further transfer.
+Heat Phase (ammo explosion) consciousness check (pilot, 3 pilot hits): needs 7. Rolled 6.
+  Pilot knocked unconscious.
+  [Heat] Blue: heat 29 -> next turn -5 Walking MP, +4 to ranged attacks.
+  -- end of turn 3: Red @ 0505 NE: HP 565, pilot hits 0, engine 0, gyro 0, heat 11
+  -- end of turn 3: Blue @ 0508 N: HP 637, pilot hits 3, engine 1, gyro 0, heat 29 [SHUT DOWN, UNCONSCIOUS]
+
+=== TURN 4 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement] Blue: shut down - skips movement (immobile).
+  [Movement select] Red: score 2677.064 = dealt 65.50 x1.00 + (HP 792.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 15.67 x my future 51.66 [enemy held at 0508; 1 spots with LOS]
+  [Movement] Red: 0505 NE -> 0505 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 0 / run 0 / jump 0)
+  [Ranged] Blue: shut down - no attacks.
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 3, base TN 0 (gunnery 4 + AMM 0 [Stand Still] + TMM -5 + LOS 0 + heat 1); firing ['Heavy PPC', 'Heavy PPC', 'Heavy PPC', 'ISLBXAC10', 'ISLBXAC10'] (aimed at Center Torso) (weapon heat 49 of budget 65 = max 30 + sink 46 - current 11 - movement 0 - other 0; expected dmg 65.00)
+    Heavy PPC: needs 1 (range mod +1) aimed at Center Torso, rolled 5 -> HIT
+    Heavy PPC: needs 1 (range mod +1) aimed at Center Torso, rolled 6 -> HIT
+    Heavy PPC: needs 1 (range mod +1) aimed at Center Torso, rolled 6 -> HIT
+    ISLBXAC10: needs 0 (range mod +0) aimed at Center Torso, rolled 6 -> HIT [IS LB 10-X AC Ammo: 3 shots left]
+    ISLBXAC10: needs 0 (range mod +0) aimed at Center Torso, rolled 4 -> HIT [IS LB 10-X AC Ammo: 2 shots left]
+    Heavy PPC hit for 15: aimed at Center Torso, 1D6 1 - rolls for location.
+      Hit location roll 3 (front table): Right Arm.
+15 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 15 armor pts destroyed at armor (36 -> 21 remaining).
+    Heavy PPC hit for 15: aimed at Center Torso, 1D6 5 - on target.
+15 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 15 armor pts destroyed at armor (65 -> 50 remaining).
+    Heavy PPC hit for 15: aimed at Center Torso, 1D6 5 - on target.
+15 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 15 armor pts destroyed at armor (50 -> 35 remaining).
+    ISLBXAC10 hit for 10: aimed at Center Torso, 1D6 2 - rolls for location.
+      Hit location roll 8 (front table): Left Torso.
+10 damage (BALLISTIC) incoming to Left Torso (armor).
+  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (16 -> 6 remaining).
+    ISLBXAC10 hit for 10: aimed at Center Torso, 1D6 1 - rolls for location.
+      Hit location roll 5 (front table): Right Leg.
+10 damage (BALLISTIC) incoming to Right Leg (armor).
+  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (40 -> 30 remaining).
+PSR trigger: 65 armor+structure lost this phase (>=20) -> +1.
+Shut down - Attack Phase PSR auto-fails.
+FALL (auto-fail (shut down)): Orca OC-1X takes 20 falling damage (1D6 6: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 6 -> Right Torso
+5 damage (PHYSICAL) incoming to Right Torso (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (36 -> 31 remaining).
+  Fall cluster (5 dmg): rolled 7 -> Center Torso
+5 damage (PHYSICAL) incoming to Center Torso (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (35 -> 30 remaining).
+  Fall cluster (5 dmg): rolled 5 -> Right Leg
+5 damage (PHYSICAL) incoming to Right Leg (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (30 -> 25 remaining).
+  Fall cluster (5 dmg): rolled 8 -> Left Torso
+5 damage (PHYSICAL) incoming to Left Torso (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (6 -> 1 remaining).
+  Seatbelt check: immobile - pilot takes 1 hit automatically (4/6).
+  [Heat] Red: 11 + movement 0 + weapons 49 + engine 0 - sinks 46 -> 14
+  [Heat] Red: shutdown avoid roll at heat 14: needs 4, rolled 9 - avoided.
+  [Heat] Red: heat 14 -> next turn -2 Walking MP, +2 to ranged attacks.
+  [Heat] Blue: 29 + movement 0 + weapons 0 + engine 0 - sinks 38 -> 0
+  [Heat] Blue: heat 0 is below 14 - power plant restarts automatically.
+End Phase wake-up check (pilot, 4 pilot hits): needs 10. Rolled 3.
+  Pilot remains unconscious.
+  [End] Blue is now CRIPPLED (BattleMech Manual definition).
+  -- end of turn 4: Red @ 0505 NE: HP 565, pilot hits 0, engine 0, gyro 0, heat 14
+  -- end of turn 4: Blue @ 0508 N: HP 552, pilot hits 4, engine 1, gyro 0, heat 0 [PRONE, UNCONSCIOUS]
+
+=== TURN 5 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement] Blue: all crew unconscious - skips movement (immobile).
+  [Movement select] Red: score 3097.479 = dealt 72.41 x1.00 + (HP 792.0 - received 23.92 x0.99 - PSR 0.00) / enemy future 13.43 x my future 52.88 [enemy held at 0508; 1 spots with LOS]
+  [Movement] Red: 0505 NE -> 0505 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 0 / run 0 / jump 0)
+  [Ranged] Blue -> Red: range 3, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM -1 + LOS 2 + heat 0 + prone +2); firing ['SRM 6', 'ISSmallXPulseLaser', 'ISERPPC', 'ISERPPC', 'ISSniperCannon'] (weapon heat 47 of budget 63 = max 30 + sink 38 - current 0 - movement 0 - other 5; expected dmg 23.92)
+    SRM 6: needs 7 (range mod +0), rolled 9 -> HIT [IS Ammo SRM-6: 12 shots left]
+    ISSmallXPulseLaser: needs 7 (range mod +2, modifiers -2), rolled 5 -> miss
+    ISERPPC: needs 7 (range mod +0), rolled 12 -> HIT
+    ISERPPC: needs 7 (range mod +0), rolled 10 -> HIT
+    ISSniperCannon: needs 7 (range mod +0), rolled 4 -> miss [ISSniperCannonAmmo: 7 shots left]
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 3, base TN 2 (gunnery 4 + AMM 0 [Stand Still] + TMM -5 + LOS 0 + heat 2 + prone target 1); firing ['Heavy PPC', 'Heavy PPC', 'Heavy PPC', 'ISLBXAC10', 'ISLBXAC10'] (aimed at Center Torso) (weapon heat 49 of budget 62 = max 30 + sink 46 - current 14 - movement 0 - other 0; expected dmg 63.75)
+    Heavy PPC: needs 3 (range mod +1) aimed at Center Torso, rolled 6 -> HIT
+    Heavy PPC: needs 3 (range mod +1) aimed at Center Torso, rolled 8 -> HIT
+    Heavy PPC: needs 3 (range mod +1) aimed at Center Torso, rolled 5 -> HIT
+    ISLBXAC10: needs 2 (range mod +0) aimed at Center Torso, rolled 11 -> HIT [IS LB 10-X AC Ammo: 1 shots left]
+    ISLBXAC10: needs 2 (range mod +0) aimed at Center Torso, rolled 12 -> HIT [IS LB 10-X AC Ammo: 0 shots left]
+    SRM 6 hit: cluster roll 4 on the 6-column table -> 3 connect (6 dmg).
+      Group 1/3: Hit location roll 11 (right table): Left Leg.
+2 damage (MISSILE) incoming to Left Leg (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (60 -> 58 remaining).
+      Group 2/3: Hit location roll 7 (right table): Right Torso.
+2 damage (MISSILE) incoming to Right Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (38 -> 36 remaining).
+      Group 3/3: Hit location roll 7 (right table): Right Torso.
+2 damage (MISSILE) incoming to Right Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (36 -> 34 remaining).
+    ISERPPC hit for 10:
+      Hit location roll 8 (right table): Center Torso.
+10 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (50 -> 40 remaining).
+    ISERPPC hit for 10:
+      Hit location roll 8 (right table): Center Torso.
+10 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (40 -> 30 remaining).
+    ISSniperCannon missed - the shell lands 2 hexes away from Red (no splash).
+    Heavy PPC hit for 15: aimed at Center Torso, 1D6 6 - on target.
+15 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 15 armor pts destroyed at armor (30 -> 15 remaining).
+    Heavy PPC hit for 15: aimed at Center Torso, 1D6 5 - on target.
+15 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 15 armor pts destroyed at armor (15 -> 0 remaining).
+    Heavy PPC hit for 15: aimed at Center Torso, 1D6 4 - on target.
+15 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 15 damage applied to structure [STANDARD] (60 -> 45/60 remaining).
+  Check for possible critical. Roll a 7.
+    No critical hit.
+    ISLBXAC10 hit for 10: aimed at Center Torso, 1D6 1 - rolls for location.
+      Hit location roll 11 (front table): Left Arm.
+10 damage (BALLISTIC) incoming to Left Arm (armor).
+  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (16 -> 6 remaining).
+    ISLBXAC10 hit for 10: aimed at Center Torso, 1D6 2 - rolls for location.
+      Hit location roll 6 (front table): Right Torso.
+10 damage (BALLISTIC) incoming to Right Torso (armor).
+  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (31 -> 21 remaining).
+PSR trigger: 26 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
+  Succeeded - remains standing.
+  [Heat] Red: 14 + movement 0 + weapons 49 + engine 0 - sinks 46 -> 17
+  [Heat] Red: shutdown avoid roll at heat 17: needs 4, rolled 10 - avoided.
+  [Heat] Red: heat 17 -> next turn -3 Walking MP, +3 to ranged attacks.
+  [Heat] Blue: 0 + movement 0 + weapons 47 + engine 5 - sinks 38 -> 14
+  [Heat] Blue: SHUT DOWN (heat 14, MechWarrior unconscious - can't override).
+  [Heat] Blue: heat 14 -> next turn -2 Walking MP, +2 to ranged attacks.
+End Phase wake-up check (pilot, 4 pilot hits): needs 10. Rolled 5.
+  Pilot remains unconscious.
+  -- end of turn 5: Red @ 0505 NE: HP 539, pilot hits 0, engine 0, gyro 0, heat 17
+  -- end of turn 5: Blue @ 0508 N: HP 487, pilot hits 4, engine 1, gyro 0, heat 14 [SHUT DOWN, PRONE, UNCONSCIOUS]
+
+=== TURN 6 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 3024.626 = dealt 57.12 x1.00 + (HP 766.0 - received 11.39 x0.99 - PSR 0.00) / enemy future 15.00 x my future 58.98 [two-ply, 1 spots x 1 replies (short list); modeled reply Blue -> 0508 N Stand Still]
+  [Movement] Red: 0505 NE -> 0505 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 0 / run 0 / jump 0)
+  [Movement] Blue: shut down - skips movement (immobile).
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 3, base TN 3 (gunnery 4 + AMM 0 [Stand Still] + TMM -5 + LOS 0 + heat 3 + prone target 1); firing ['Heavy PPC', 'Heavy PPC', 'Heavy PPC', 'ISLBXAC10', 'ISLBXAC10'] (aimed at Center Torso) (weapon heat 49 of budget 59 = max 30 + sink 46 - current 17 - movement 0 - other 0; expected dmg 60.69)
+    Heavy PPC: needs 4 (range mod +1) aimed at Center Torso, rolled 8 -> HIT
+    Heavy PPC: needs 4 (range mod +1) aimed at Center Torso, rolled 5 -> HIT
+    Heavy PPC: needs 4 (range mod +1) aimed at Center Torso, rolled 11 -> HIT
+    ISLBXAC10: needs 3 (range mod +0) aimed at Center Torso, rolled 6 -> HIT [IS LB 10-X AC Ammo: 9 shots left]
+    ISLBXAC10: needs 3 (range mod +0) aimed at Center Torso, rolled 6 -> HIT [IS LB 10-X AC Ammo: 8 shots left]
+  [Ranged] Blue: shut down - no attacks.
+    Heavy PPC hit for 15: aimed at Center Torso, 1D6 3 - rolls for location.
+      Hit location roll 11 (front table): Left Arm.
+15 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (6 -> 0 remaining). 9 damage applied to structure [STANDARD] (33 -> 24/33 remaining).
+  Check for possible critical. Roll a 11.
+    2 critical hit(s).
+  Critical hit pool at Left Arm:
+    1: Shoulder (slot 1)
+    2: Upper Arm Actuator (slot 2)
+    3: Lower Arm Actuator (slot 3)
+    4: Hand Actuator (slot 4)
+    5: ISGaussRifle (slot 5)
+    6: ISGaussRifle (slot 6)
+    7: ISGaussRifle (slot 7)
+    8: ISGaussRifle (slot 8)
+    9: ISERLargeLaser (slot 9)
+    1/2 Criticals: Upper Arm Actuator hit.
+      Current crit slots in Left Arm: ['Shoulder', 'DESTROYED', 'Lower Arm Actuator', 'Hand Actuator', 'ISGaussRifle', 'ISGaussRifle', 'ISGaussRifle', 'ISGaussRifle', 'ISERLargeLaser', '-Empty-', '-Empty-', '-Empty-']
+  Critical hit pool at Left Arm:
+    1: Shoulder (slot 1)
+    2: Lower Arm Actuator (slot 3)
+    3: Hand Actuator (slot 4)
+    4: ISGaussRifle (slot 5)
+    5: ISGaussRifle (slot 6)
+    6: ISGaussRifle (slot 7)
+    7: ISGaussRifle (slot 8)
+    8: ISERLargeLaser (slot 9)
+    2/2 Criticals: ISGaussRifle slot hit.
+      Current crit slots in Left Arm: ['Shoulder', 'DESTROYED', 'Lower Arm Actuator', 'Hand Actuator', 'ISGaussRifle', 'ISGaussRifle', 'ISGaussRifle', 'DESTROYED', 'ISERLargeLaser', '-Empty-', '-Empty-', '-Empty-']
+    ISGaussRifle destroyed at Left Arm - EXPLOSION (8 dmg)! Pilot takes 1 hit (5/6).
+    Explosion reaches Left Arm. No CASE present - 8 damage to structure.
+    8 structure damage taken (16/33 remaining).
+  Check for possible critical. Roll a 11.
+    2 critical hit(s).
+  Critical hit pool at Left Arm:
+    1: Shoulder (slot 1)
+    2: Lower Arm Actuator (slot 3)
+    3: Hand Actuator (slot 4)
+    4: ISGaussRifle (slot 5)
+    5: ISGaussRifle (slot 6)
+    6: ISGaussRifle (slot 7)
+    7: ISERLargeLaser (slot 9)
+    1/2 Criticals: ISGaussRifle slot hit.
+      Current crit slots in Left Arm: ['Shoulder', 'DESTROYED', 'Lower Arm Actuator', 'Hand Actuator', 'ISGaussRifle', 'ISGaussRifle', 'DESTROYED', 'DESTROYED', 'ISERLargeLaser', '-Empty-', '-Empty-', '-Empty-']
+      ISGaussRifle already exploded - this slot destroyed, no further effect.
+  Critical hit pool at Left Arm:
+    1: Shoulder (slot 1)
+    2: Lower Arm Actuator (slot 3)
+    3: Hand Actuator (slot 4)
+    4: ISGaussRifle (slot 5)
+    5: ISGaussRifle (slot 6)
+    6: ISERLargeLaser (slot 9)
+    2/2 Criticals: ISERLargeLaser slot hit.
+      Current crit slots in Left Arm: ['Shoulder', 'DESTROYED', 'Lower Arm Actuator', 'Hand Actuator', 'ISGaussRifle', 'ISGaussRifle', 'DESTROYED', 'DESTROYED', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-']
+    Heavy PPC hit for 15: aimed at Center Torso, 1D6 1 - rolls for location.
+      Hit location roll 6 (front table): Right Torso.
+15 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 15 armor pts destroyed at armor (21 -> 6 remaining).
+    Heavy PPC hit for 15: aimed at Center Torso, 1D6 3 - rolls for location.
+      Hit location roll 4 (front table): Right Arm.
+15 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 15 armor pts destroyed at armor (21 -> 6 remaining).
+    ISLBXAC10 hit for 10: aimed at Center Torso, 1D6 5 - on target.
+10 damage (BALLISTIC) incoming to Center Torso (armor).
+  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 10 damage applied to structure [STANDARD] (45 -> 35/60 remaining).
+  Check for possible critical. Roll a 9.
+    1 critical hit(s).
+  Critical hit pool at Center Torso:
+    1: Engine (slot 1)
+    2: Engine (slot 2)
+    3: Engine (slot 3)
+    4: Gyro (slot 4)
+    5: Gyro (slot 5)
+    6: ISDoubleHeatSink (slot 6)
+    7: ISDoubleHeatSink (slot 7)
+    8: ISDoubleHeatSink (slot 8)
+    9: ISDoubleHeatSink (slot 9)
+    10: SRM 6 (slot 10)
+    11: ISSmallXPulseLaser (slot 11)
+    1/1 Criticals: Engine hit.
+      Current crit slots in Center Torso: ['Engine', 'DESTROYED', 'Engine', 'Gyro', 'Gyro', 'ISDoubleHeatSink', 'ISDoubleHeatSink', 'ISDoubleHeatSink', 'ISDoubleHeatSink', 'SRM 6', 'ISSmallXPulseLaser', '-Empty-']
+      Engine hit (2/3).
+    ISLBXAC10 hit for 10: aimed at Center Torso, 1D6 5 - on target.
+10 damage (BALLISTIC) incoming to Center Torso (armor).
+  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 10 damage applied to structure [STANDARD] (35 -> 25/60 remaining).
+  Check for possible critical. Roll a 2.
+    No critical hit.
+  [Heat] Red: 17 + movement 0 + weapons 49 + engine 0 - sinks 46 -> 20
+  [Heat] Red: shutdown avoid roll at heat 20: needs 6, rolled 12 - avoided.
+  [Heat] Red: ammo explosion avoid roll at heat 20: needs 4, rolled 3 - IS LB 10-X AC Ammo in Left Arm EXPLODES.
+    IS LB 10-X AC Ammo destroyed at Left Arm - EXPLOSION (80 dmg)! Pilot takes 1 hit (1/6).
+    Explosion reaches Left Arm. CASE II present - at most 1 structure damage.
+    1 structure damage taken (24/25 remaining).
+  Check for possible critical. Roll a 7 (8 -1).
+    No critical hit.
+    CASE II vents the excess: Left Arm loses 10 armor (4 left).
+    CASE II contains the explosion. No further transfer.
+Heat Phase (ammo explosion) consciousness check (pilot, 1 pilot hits): needs 3. Rolled 6.
+  Pilot stays conscious.
+  [Heat] Red: heat 20 -> next turn -4 Walking MP, +3 to ranged attacks.
+  [Heat] Blue: 14 + movement 0 + weapons 0 + engine 0 - sinks 38 -> 0
+  [Heat] Blue: heat 0 is below 14 - power plant restarts automatically.
+End Phase wake-up check (pilot, 5 pilot hits): needs 11. Rolled 7.
+  Pilot remains unconscious.
+  -- end of turn 6: Red @ 0505 NE: HP 528, pilot hits 1, engine 0, gyro 0, heat 20
+  -- end of turn 6: Blue @ 0508 N: HP 414, pilot hits 5, engine 2, gyro 0, heat 0 [PRONE, UNCONSCIOUS]
+
+=== TURN 7 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 3171.870 = dealt 59.55 x1.00 + (HP 754.0 - received 24.79 x0.96 - PSR 0.00) / enemy future 14.67 x my future 62.51 [two-ply, 1 spots x 1 replies (short list); modeled reply Blue -> 0508 N Stand Still]
+  [Movement] Red: 0505 NE -> 0505 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 0 / run 0 / jump 0)
+  [Movement] Blue: all crew unconscious - skips movement (immobile).
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 3, base TN 3 (gunnery 4 + AMM 0 [Stand Still] + TMM -5 + LOS 0 + heat 3 + prone target 1); firing ['Heavy PPC', 'Heavy PPC', 'Heavy PPC', 'ISLBXAC10', 'ISLBXAC10'] (aimed at Center Torso) (weapon heat 49 of budget 56 = max 30 + sink 46 - current 20 - movement 0 - other 0; expected dmg 53.86)
+    [Red fire control] ISLBXAC10: LB-X cluster rounds
+    Heavy PPC: needs 4 (range mod +1) aimed at Center Torso, rolled 3 -> miss
+    Heavy PPC: needs 4 (range mod +1) aimed at Center Torso, rolled 9 -> HIT
+    Heavy PPC: needs 4 (range mod +1) aimed at Center Torso, rolled 11 -> HIT
+    ISLBXAC10: needs 2 (range mod +0, modifiers -1), rolled 8 -> HIT [IS LB 10-X Cluster Ammo: 9 shots left]
+    ISLBXAC10: needs 2 (range mod +0, modifiers -1), rolled 8 -> HIT [IS LB 10-X Cluster Ammo: 8 shots left]
+  [Ranged] Blue -> Red: range 3, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM -1 + LOS 2 + heat 0 + prone +2); firing ['SRM 6', 'ISSmallXPulseLaser', 'ISERPPC', 'ISERPPC', 'ISSniperCannon'] (weapon heat 47 of budget 58 = max 30 + sink 38 - current 0 - movement 0 - other 10; expected dmg 23.92)
+    SRM 6: needs 7 (range mod +0), rolled 8 -> HIT [IS Ammo SRM-6: 11 shots left]
+    ISSmallXPulseLaser: needs 7 (range mod +2, modifiers -2), rolled 9 -> HIT
+    ISERPPC: needs 7 (range mod +0), rolled 7 -> HIT
+    ISERPPC: needs 7 (range mod +0), rolled 5 -> miss
+    ISSniperCannon: needs 7 (range mod +0), rolled 3 -> miss [ISSniperCannonAmmo: 6 shots left]
+    Heavy PPC hit for 15: aimed at Center Torso, 1D6 5 - on target.
+15 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 15 damage applied to structure [STANDARD] (25 -> 10/60 remaining).
+  Check for possible critical. Roll a 6.
+    No critical hit.
+    Heavy PPC hit for 15: aimed at Center Torso, 1D6 5 - on target.
+15 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 10 damage applied to structure [STANDARD] (10 -> 0/60 remaining).
+  Center Torso destroyed with no live explosive components - no critical roll.
+  Center Torso DESTROYED!
+    Engine hit (3/3) from Center Torso destruction.
+    Engine hit (4/3) from Center Torso destruction.
+    Gyro hit (1/4) from Center Torso destruction.
+    Gyro hit (2/4) from Center Torso destruction.
+    Heat sink destroyed (ISDoubleHeatSink) from Center Torso destruction - heat dissipation reduced (now 36).
+    Heat sink destroyed (ISDoubleHeatSink) from Center Torso destruction - heat dissipation reduced (now 34).
+    Heat sink destroyed (ISDoubleHeatSink) from Center Torso destruction - heat dissipation reduced (now 32).
+    Heat sink destroyed (ISDoubleHeatSink) from Center Torso destruction - heat dissipation reduced (now 30).
+  All critical slots in Center Torso marked DESTROYED.
+  5 damage remains, transfers to nowhere (attack finished).
+    ISLBXAC10 hit: cluster roll 6 (LB-X cluster rounds) on the 10-column table -> 6 connect (6 dmg).
+      Group 1/6: Hit location roll 5 (front table): Right Leg.
+1 damage (BALLISTIC) incoming to Right Leg (armor).
+  [STANDARD/BALLISTIC] 1 armor pts destroyed at armor (25 -> 24 remaining).
+      Group 2/6: Hit location roll 9 (front table): Left Leg.
+1 damage (BALLISTIC) incoming to Left Leg (armor).
+  [STANDARD/BALLISTIC] 1 armor pts destroyed at armor (75 -> 74 remaining).
+      Group 3/6: Hit location roll 10 (front table): Left Arm.
+1 damage (BALLISTIC) incoming to Left Arm (armor).
+  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 1 damage applied to structure [STANDARD] (16 -> 15/33 remaining).
+  Check for possible critical. Roll a 9.
+    1 critical hit(s).
+  Critical hit pool at Left Arm:
+    1: Shoulder (slot 1)
+    2: Lower Arm Actuator (slot 3)
+    3: Hand Actuator (slot 4)
+    4: ISGaussRifle (slot 5)
+    5: ISGaussRifle (slot 6)
+    1/1 Criticals: Shoulder hit.
+      Current crit slots in Left Arm: ['DESTROYED', 'DESTROYED', 'Lower Arm Actuator', 'Hand Actuator', 'ISGaussRifle', 'ISGaussRifle', 'DESTROYED', 'DESTROYED', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-']
+      Group 4/6: Hit location roll 5 (front table): Right Leg.
+1 damage (BALLISTIC) incoming to Right Leg (armor).
+  [STANDARD/BALLISTIC] 1 armor pts destroyed at armor (24 -> 23 remaining).
+      Group 5/6: Hit location roll 9 (front table): Left Leg.
+1 damage (BALLISTIC) incoming to Left Leg (armor).
+  [STANDARD/BALLISTIC] 1 armor pts destroyed at armor (74 -> 73 remaining).
+      Group 6/6: Hit location roll 5 (front table): Right Leg.
+1 damage (BALLISTIC) incoming to Right Leg (armor).
+  [STANDARD/BALLISTIC] 1 armor pts destroyed at armor (23 -> 22 remaining).
+    ISLBXAC10 hit: cluster roll 8 (LB-X cluster rounds) on the 10-column table -> 6 connect (6 dmg).
+      Group 1/6: Hit location roll 7 (front table): Center Torso.
+1 damage (BALLISTIC) incoming to Center Torso (armor).
+  Center Torso already destroyed - damage transfers to nowhere (attack finished).
+      Group 2/6: Hit location roll 7 (front table): Center Torso.
+1 damage (BALLISTIC) incoming to Center Torso (armor).
+  Center Torso already destroyed - damage transfers to nowhere (attack finished).
+      Group 3/6: Hit location roll 8 (front table): Left Torso.
+1 damage (BALLISTIC) incoming to Left Torso (armor).
+  [STANDARD/BALLISTIC] 1 armor pts destroyed at armor (1 -> 0 remaining).
+      Group 4/6: Hit location roll 11 (front table): Left Arm.
+1 damage (BALLISTIC) incoming to Left Arm (armor).
+  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 1 damage applied to structure [STANDARD] (15 -> 14/33 remaining).
+  Check for possible critical. Roll a 8.
+    1 critical hit(s).
+  Critical hit pool at Left Arm:
+    1: Lower Arm Actuator (slot 3)
+    2: Hand Actuator (slot 4)
+    3: ISGaussRifle (slot 5)
+    4: ISGaussRifle (slot 6)
+    1/1 Criticals: ISGaussRifle slot hit.
+      Current crit slots in Left Arm: ['DESTROYED', 'DESTROYED', 'Lower Arm Actuator', 'Hand Actuator', 'DESTROYED', 'ISGaussRifle', 'DESTROYED', 'DESTROYED', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-']
+      ISGaussRifle already exploded - this slot destroyed, no further effect.
+      Group 5/6: Hit location roll 10 (front table): Left Arm.
+1 damage (BALLISTIC) incoming to Left Arm (armor).
+  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 1 damage applied to structure [STANDARD] (14 -> 13/33 remaining).
+  Check for possible critical. Roll a 5.
+    No critical hit.
+      Group 6/6: Hit location roll 6 (front table): Right Torso.
+1 damage (BALLISTIC) incoming to Right Torso (armor).
+  [STANDARD/BALLISTIC] 1 armor pts destroyed at armor (6 -> 5 remaining).
+    SRM 6 hit: cluster roll 8 on the 6-column table -> 4 connect (8 dmg).
+      Group 1/4: Hit location roll 4 (right table): Right Arm.
+2 damage (MISSILE) incoming to Right Arm (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (19 -> 17 remaining).
+      Group 2/4: Hit location roll 4 (right table): Right Arm.
+2 damage (MISSILE) incoming to Right Arm (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (17 -> 15 remaining).
+      Group 3/4: Hit location roll 5 (right table): Right Arm.
+2 damage (MISSILE) incoming to Right Arm (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (15 -> 13 remaining).
+      Group 4/4: Hit location roll 4 (right table): Right Arm.
+2 damage (MISSILE) incoming to Right Arm (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (13 -> 11 remaining).
+    ISSmallXPulseLaser hit for 3:
+      Hit location roll 2 (right table): Right Torso.
+      Roll of 2 - Through-Armor Critical (floating) triggered.
+      Floating TAC re-roll: 4 -> Right Arm
+3 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 3 armor pts destroyed at armor (11 -> 8 remaining).
+      Additional critical hit due to TAC.
+  Check for possible critical. Roll a 5.
+    No critical hit.
+    ISERPPC hit for 10:
+      Hit location roll 6 (right table): Right Leg.
+10 damage (ENERGY) incoming to Right Leg (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (59 -> 49 remaining).
+    ISSniperCannon missed - the shell lands 2 hexes away from Red (no splash).
+PSR trigger: 21 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 4.
+  Failed - falls.
+FALL (failed Attack Phase PSR): Omega SHP-5R takes 15 falling damage (1D6 5: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 7 -> Center Torso
+5 damage (PHYSICAL) incoming to Center Torso (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (30 -> 25 remaining).
+  Fall cluster (5 dmg): rolled 4 -> Right Arm
+5 damage (PHYSICAL) incoming to Right Arm (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (8 -> 3 remaining).
+  Fall cluster (5 dmg): rolled 3 -> Right Arm
+5 damage (PHYSICAL) incoming to Right Arm (armor).
+  [STANDARD/PHYSICAL] 3 armor pts destroyed at armor (3 -> 0 remaining). 2 damage applied to structure [STANDARD] (25 -> 23/25 remaining).
+  Check for possible critical. Roll a 11.
+    2 critical hit(s).
+  Critical hit pool at Right Arm:
+    1: Shoulder (slot 1)
+    2: Upper Arm Actuator (slot 2)
+    3: Lower Arm Actuator (slot 3)
+    4: ISLBXAC10 (slot 4)
+    5: ISLBXAC10 (slot 5)
+    6: ISLBXAC10 (slot 6)
+    7: IS LB 10-X Cluster Ammo (slot 7)
+    1/2 Criticals: Shoulder hit.
+      Current crit slots in Right Arm: ['DESTROYED', 'Upper Arm Actuator', 'Lower Arm Actuator', 'ISLBXAC10', 'ISLBXAC10', 'ISLBXAC10', 'IS LB 10-X Cluster Ammo', 'ISCASEII', '-Empty-', '-Empty-', '-Empty-', '-Empty-', 'IS LB 10-X Cluster Ammo']
+  Critical hit pool at Right Arm:
+    1: Upper Arm Actuator (slot 2)
+    2: Lower Arm Actuator (slot 3)
+    3: ISLBXAC10 (slot 4)
+    4: ISLBXAC10 (slot 5)
+    5: ISLBXAC10 (slot 6)
+    6: IS LB 10-X Cluster Ammo (slot 7)
+    2/2 Criticals: ISLBXAC10 slot hit - an autocannon's first critical hit doesn't destroy it (p.183); it still fires.
+  Seatbelt check: needs 5. Rolled 6. Pilot unharmed.
+  [Heat] Red: 20 + movement 0 + weapons 49 + engine 0 - sinks 46 -> 23
+  [Heat] Red: SHUT DOWN (heat 23, shutdown avoid roll needs 8, rolled 3).
+  [Heat] Red: ammo explosion avoid roll at heat 23: needs 6, rolled 4 - IS LB 10-X Cluster Ammo in Right Arm EXPLODES.
+    IS LB 10-X Cluster Ammo shares the superheavy slot - it explodes too (+80; one MechWarrior hit, Core p.240).
+    IS LB 10-X Cluster Ammo destroyed at Right Arm - EXPLOSION (180 dmg)! Pilot takes 1 hit (2/6).
+    Explosion reaches Right Arm. CASE II present - at most 1 structure damage.
+    1 structure damage taken (22/25 remaining).
+  Check for possible critical. Roll a 4 (5 -1).
+    No critical hit.
+    CASE II vents the excess: Right Arm loses 0 armor (0 left).
+    CASE II contains the explosion. No further transfer.
+Heat Phase (ammo explosion) consciousness check (pilot, 2 pilot hits): needs 5. Rolled 3.
+  Pilot knocked unconscious.
+  [Heat] Red: heat 23 -> next turn -4 Walking MP, +3 to ranged attacks.
+  -- end of turn 7: Red @ 0505 NE: HP 491, pilot hits 2, engine 0, gyro 0, heat 23 [SHUT DOWN, PRONE, UNCONSCIOUS]
+  -- end of turn 7: Blue @ 0508 N: HP 379, pilot hits 5, engine 4, gyro 2, heat 0 [PRONE, UNCONSCIOUS, DESTROYED (Center Torso Destroyed)]
+
+>>> Battle over on turn 7: Blue destroyed. <<<

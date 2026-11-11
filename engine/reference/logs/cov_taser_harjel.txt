@@ -1,0 +1,170 @@
+# scenario cov_taser_harjel
+# seed 1: winner Red, 4 turns
+#   Red: 244.0 of 244.0 armor + structure left, team destroyed False, units 1, 4 hits of 4 attacks, 4.0 damage dealt
+#   Blue: 90.0 of 154.0 armor + structure left, team destroyed True, units 1, 0 hits of 2 attacks, 0.0 damage dealt
+# log
+
+=== TURN 1 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 146.016 = dealt 1.67 x1.00 + (HP 212.0 - received 7.36 x1.30 - PSR 0.00) / enemy future 4.23 x my future 3.02 [two-ply, 56 of 256 spots (grid search) x 815 replies (short list); modeled reply Red -> 0411 NE Run]
+  [Movement] Blue: 0508 N -> 0511 NE, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
+  [Movement select] Red: score 465.827 = dealt 7.36 x1.30 + (HP 327.0 - received 1.67 x1.01 - PSR 0.00) / enemy future 3.02 x my future 4.23 [enemy held at 0511; 126 spots with LOS]
+  [Movement] Red: 0505 S -> 0411 S, Run (9 MP, 7 hexes, 2 heat; budget walk 6 / run 9 / jump 0)
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's right side arc after that).
+  [Ranged] Blue -> Red: range 1, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 0 + heat 0); firing ['Mek Taser'] (weapon heat 6 of budget 39 = max 30 + sink 10 - current 0 - movement 1 - other 0; expected dmg 1.67)
+    Mek Taser: needs 9 (range mod +0, modifiers +1), rolled 6 -> miss [Taser Ammo: 4 shots left]
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 1, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['Mek Taser'] (weapon heat 6 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 2.50)
+    Mek Taser: needs 8 (range mod +0, modifiers +1), rolled 10 -> HIT [Taser Ammo: 4 shots left]
+    Mek Taser hit for 1:
+      Hit location roll 3 (rear table): Right Arm.
+1 damage (BALLISTIC) incoming to Right Arm (rear_armor).
+  [STANDARD/BALLISTIC] 1 armor pts destroyed at armor (10 -> 9 remaining).
+      Taser effect roll 7 (shutdown needs 8): interference - +2 to Blue's Piloting and Gunnery target numbers and 5 heat a turn through turn 5 (TO:AUE p.158).
+  [Physical] Red -> Blue: IS Flail (Right Arm) needs 8 (piloting 5 + base 3 + attack +0), rolled 10 -> HIT (9 dmg, rear side)
+    IS Flail (Right Arm) hits Blue's Left Leg for 9.
+9 damage (PHYSICAL) incoming to Left Leg (rear_armor).
+  [STANDARD/PHYSICAL] 9 armor pts destroyed at armor (10 -> 1 remaining).
+  [Heat] Red: 0 + movement 2 + weapons 6 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 6 + engine 0 + Taser 5 - sinks 10 -> 2
+  -- end of turn 1: Red @ 0411 S: HP 244, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 1: Blue @ 0511 NE: HP 144, pilot hits 0, engine 0, gyro 0, heat 2
+
+=== TURN 2 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 25.809 = dealt 1.67 x1.00 + (HP 202.0 - received 14.41 x1.26 - PSR 0.00) / enemy future 7.61 x my future 1.00 [two-ply, 99 of 287 spots (grid search) x 792 replies (short list); modeled reply Red -> 0411 NE Run]
+  [Movement] Blue: 0511 NE -> 0511 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red: score 2494.860 = dealt 14.41 x1.26 + (HP 327.0 - received 1.67 x1.01 - PSR 0.00) / enemy future 1.00 x my future 7.61 [enemy held at 0511; 211 spots with LOS]
+  [Movement] Red: 0411 S -> 0411 N, Run (9 MP, 6 hexes, 2 heat; budget walk 6 / run 9 / jump 0)
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's right side arc after that).
+  [Ranged] Blue -> Red: range 1, base TN 8 (gunnery 4 + AMM 0 [Stand Still] + TMM 2 + LOS 0 + heat 0 + stealth 2); firing ['Mek Taser'] (weapon heat 6 of budget 38 = max 30 + sink 10 - current 2 - movement 0 - other 0; expected dmg 1.67)
+    Mek Taser: needs 9 (range mod +0, modifiers +1), rolled 8 -> miss [Taser Ammo: 3 shots left]
+  [Ranged] Red -> Blue: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['Mek Taser'] (weapon heat 6 of budget 48 = max 30 + sink 20 - current 0 - movement 2 - other 0; expected dmg 3.50)
+    Mek Taser: needs 7 (range mod +0, modifiers +1), rolled 9 -> HIT [Taser Ammo: 3 shots left]
+    Mek Taser hit for 1:
+      Hit location roll 6 (rear table): Right Torso.
+1 damage (BALLISTIC) incoming to Right Torso (rear_armor).
+  [STANDARD/BALLISTIC] 1 armor pts destroyed at rear_armor (3 -> 2 remaining).
+      Taser effect roll 9 (needs 8): Blue SHUTS DOWN through turn 6 (TO:AUE p.158).
+  [Physical] Red -> Blue: kick (Left Leg) needs 2 (piloting 5 + base -2 + attack -1), rolled 9 -> HIT (10 dmg, rear side)
+    kick (Left Leg) hits Blue's Left Leg for 10.
+10 damage (PHYSICAL) incoming to Left Leg (rear_armor).
+  [STANDARD/PHYSICAL] 1 armor pts destroyed at armor (1 -> 0 remaining). 8 damage applied to structure [STANDARD] (8 -> 0/8 remaining).
+  Left Leg destroyed with no live explosive components - no critical roll.
+  Left Leg DESTROYED!
+    Hip specifically destroyed at Left Leg from Left Leg destruction.
+    Heat sink destroyed (Heat Sink) from Left Leg destruction - heat dissipation reduced (now 9).
+  All critical slots in Left Leg marked DESTROYED.
+  1 damage remains, transfers to Left Torso.
+  [STANDARD/PHYSICAL] 1 armor pts destroyed at armor (10 -> 9 remaining).
+PSR trigger: Left Leg destroyed this phase -> automatic fall.
+PSR trigger: kicked -> +0.
+Automatic fall this phase.
+FALL (automatic fall): Peacemaker PM-6 PoliceMech takes 4 falling damage (1D6 3: front table, 5-pt clusters).
+  Fall cluster (4 dmg): rolled 10 -> Left Arm
+4 damage (PHYSICAL) incoming to Left Arm (armor).
+  [STANDARD/PHYSICAL] 4 armor pts destroyed at armor (10 -> 6 remaining).
+  Seatbelt check: immobile - pilot takes 1 hit automatically (1/6).
+Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 4.
+  Pilot stays conscious.
+  [Heat] Red: 0 + movement 2 + weapons 6 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 2 + movement 0 + weapons 6 + engine 0 + Taser 5 - sinks 9 -> 4
+  [Heat] Blue: shut down by a Taser - no restart before the effect ends (TO:AUE p.158).
+  -- end of turn 2: Red @ 0411 N: HP 244, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 2: Blue @ 0511 NE: HP 129, pilot hits 1, engine 0, gyro 0, heat 4 [SHUT DOWN, PRONE]
+
+=== TURN 3 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 3442.374 = dealt 16.46 x1.35 + (HP 327.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.00 x my future 10.46 [two-ply, 177 of 755 spots (grid search) x 1 replies (short list); modeled reply Blue -> 0511 NE Stand Still]
+  [Movement] Red: 0411 N -> 0411 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 6 / run 9 / jump 0)
+  [Movement] Blue: shut down - skips movement (immobile).
+  [Ranged] Red -> Blue: range 1, base TN -2 (gunnery 4 + AMM 0 [Stand Still] + TMM -4 + LOS 0 + heat 0 + prone target -2); firing ['Mek Taser'] (aimed at Center Torso) (weapon heat 6 of budget 50 = max 30 + sink 20 - current 0 - movement 0 - other 0; expected dmg 6.00)
+    Mek Taser: needs -1 (range mod +0, modifiers +1) aimed at Center Torso, rolled 6 -> HIT [Taser Ammo: 2 shots left]
+  [Ranged] Blue: shut down - no attacks.
+    Mek Taser hit for 1: aimed at Center Torso, 1D6 4 - on target.
+1 damage (BALLISTIC) incoming to Center Torso (rear_armor).
+  [STANDARD/BALLISTIC] 1 armor pts destroyed at rear_armor (4 -> 3 remaining).
+      Taser effect roll 8: Blue is already shut down.
+  [Physical] Red -> Blue: kick (Left Leg) needs -2 (piloting 5 + base -6 + attack -1), rolled 10 -> HIT (10 dmg, rear side)
+    kick (Left Leg) hits Blue's Left Arm for 10.
+10 damage (PHYSICAL) incoming to Left Arm (rear_armor).
+  [STANDARD/PHYSICAL] 6 armor pts destroyed at armor (6 -> 0 remaining). 4 damage applied to structure [STANDARD] (6 -> 2/6 remaining).
+  Check for possible critical. Roll a 10.
+    2 critical hit(s).
+  Critical hit pool at Left Arm:
+    1: Shoulder (slot 1)
+    2: Upper Arm Actuator (slot 2)
+    3: Lower Arm Actuator (slot 3)
+    4: Machine Gun (slot 4)
+    5: IS Machine Gun Ammo - Half (slot 5)
+    6: Environmental Sealing (slot 6)
+    1/2 Criticals: Lower Arm Actuator hit.
+      Current crit slots in Left Arm: ['Shoulder', 'Upper Arm Actuator', 'DESTROYED', 'Machine Gun', 'IS Machine Gun Ammo - Half', 'Environmental Sealing', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  Critical hit pool at Left Arm:
+    1: Shoulder (slot 1)
+    2: Upper Arm Actuator (slot 2)
+    3: Machine Gun (slot 4)
+    4: IS Machine Gun Ammo - Half (slot 5)
+    5: Environmental Sealing (slot 6)
+    2/2 Criticals: Shoulder hit.
+      Current crit slots in Left Arm: ['DESTROYED', 'Upper Arm Actuator', 'DESTROYED', 'Machine Gun', 'IS Machine Gun Ammo - Half', 'Environmental Sealing', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  [Heat] Red: 0 + movement 0 + weapons 6 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 4 + movement 0 + weapons 0 + engine 0 + Taser 5 - sinks 9 -> 0
+  [Heat] Blue: shut down by a Taser - no restart before the effect ends (TO:AUE p.158).
+  -- end of turn 3: Red @ 0411 N: HP 244, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 3: Blue @ 0511 NE: HP 118, pilot hits 1, engine 0, gyro 0, heat 0 [SHUT DOWN, PRONE]
+
+=== TURN 4 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement] Blue: shut down - skips movement (immobile).
+  [Movement select] Red: score 3594.344 = dealt 21.53 x1.18 + (HP 327.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.00 x my future 10.91 [enemy held at 0511; 212 spots with LOS]
+  [Movement] Red: 0411 N -> 0411 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 6 / run 9 / jump 0)
+  [Ranged] Blue: shut down - no attacks.
+  [Ranged] Red -> Blue: range 1, base TN -2 (gunnery 4 + AMM 0 [Stand Still] + TMM -4 + LOS 0 + heat 0 + prone target -2); firing ['Mek Taser'] (aimed at Center Torso) (weapon heat 6 of budget 50 = max 30 + sink 20 - current 0 - movement 0 - other 0; expected dmg 6.00)
+    Mek Taser: needs -1 (range mod +0, modifiers +1) aimed at Center Torso, rolled 5 -> HIT [Taser Ammo: 1 shots left]
+    Mek Taser hit for 1: aimed at Center Torso, 1D6 4 - on target.
+1 damage (BALLISTIC) incoming to Center Torso (rear_armor).
+  [STANDARD/BALLISTIC] 1 armor pts destroyed at rear_armor (3 -> 2 remaining).
+      Taser effect roll 5 (shutdown needs 8): interference - +2 to Blue's Piloting and Gunnery target numbers and 5 heat a turn through turn 8 (TO:AUE p.158).
+  [Physical] Red -> Blue: kick (Left Leg) needs -2 (piloting 5 + base -6 + attack -1), rolled 6 -> HIT (10 dmg, rear side)
+    kick (Left Leg) hits Blue's Right Torso for 10.
+10 damage (PHYSICAL) incoming to Right Torso (rear_armor).
+  [STANDARD/PHYSICAL] 2 armor pts destroyed at rear_armor (2 -> 0 remaining). 8 damage applied to structure [STANDARD] (8 -> 0/8 remaining).
+  Check for possible critical. Roll a 8.
+    1 critical hit(s).
+    1/1 Criticals: IS Ammo SRM-2 slot hit.
+      Current crit slots in Right Torso: ['Heat Sink', 'SRM 2', 'DESTROYED', 'Environmental Sealing', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+    IS Ammo SRM-2 destroyed at Right Torso - EXPLOSION (200 dmg)! Pilot takes 1 hit (2/6).
+    Explosion reaches Right Torso. No CASE present - 20 damage to structure.
+    0 structure damage taken (0/8 remaining).
+    Right Torso DESTROYED! (explosion)
+    Heat sink destroyed (Heat Sink) from Right Torso destruction - heat dissipation reduced (now 8).
+  All critical slots in Right Torso marked DESTROYED.
+  Right Arm also destroyed (side torso rule).
+  All critical slots in Right Arm marked DESTROYED.
+    20 explosion damage remains, transfers to Center Torso.
+    Explosion reaches Center Torso. No CASE present - 20 damage to structure.
+    11 structure damage taken (0/11 remaining).
+  Center Torso destroyed with no live explosive components - no critical roll.
+    Center Torso DESTROYED! (explosion)
+    Engine hit (1/3) from Center Torso destruction.
+    Engine hit (2/3) from Center Torso destruction.
+    Engine hit (3/3) from Center Torso destruction.
+    Gyro hit (1/2) from Center Torso destruction.
+    Gyro hit (2/2) from Center Torso destruction.
+    Gyro hit (3/2) from Center Torso destruction.
+    Gyro hit (4/2) from Center Torso destruction.
+    Engine hit (4/3) from Center Torso destruction.
+    Engine hit (5/3) from Center Torso destruction.
+    Engine hit (6/3) from Center Torso destruction.
+  All critical slots in Center Torso marked DESTROYED.
+  Right Torso DESTROYED!
+  All critical slots in Right Torso marked DESTROYED.
+  Right Arm also destroyed (side torso rule).
+  All critical slots in Right Arm marked DESTROYED.
+  0 damage remains, transfers to Center Torso.
+  [Heat] Red: 0 + movement 0 + weapons 6 + engine 0 - sinks 20 -> 0
+  -- end of turn 4: Red @ 0411 N: HP 244, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 4: Blue @ 0511 NE: HP 90, pilot hits 2, engine 6, gyro 4, heat 0 [SHUT DOWN, PRONE, DESTROYED (Center Torso Destroyed)]
+
+>>> Battle over on turn 4: Blue destroyed. <<<
