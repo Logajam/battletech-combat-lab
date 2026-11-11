@@ -1,0 +1,219 @@
+# scenario cov_melee_hatchet_jump_dfa
+# seed 1: winner Red, 9 turns
+#   Red: 212.0 of 227.0 armor + structure left, team destroyed False, units 1, 5 hits of 37 attacks, 29.0 damage dealt
+#   Blue: 230.0 of 259.0 armor + structure left, team destroyed True, units 1, 2 hits of 18 attacks, 15.0 damage dealt
+# log
+
+=== TURN 1 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 104.504 = dealt 1.67 x1.00 + (HP 358.0 - received 7.50 x1.01 - PSR 0.00) / enemy future 13.88 x my future 4.07 [two-ply, 172 of 907 spots (grid search) x 1060 replies (short list); modeled reply Red -> 1009 N Run]
+  [Movement] Blue: 0507 N -> 1107 NW, Jump (6 MP, 6 hexes, 3 heat; budget walk 4 / run 6 / jump 6)
+  [Movement select] Red: score 1029.081 = dealt 0.00 x1.01 + (HP 302.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 4.07 x my future 13.88 [enemy held at 1107; 144 spots with LOS]
+  [Movement] Red: 0505 S -> 0512 SE, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue -> Red: range 8, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 42 = max 30 + sink 15 - current 0 - movement 3 - other 0; expected dmg 0.00)
+  [Ranged] Blue picks up a tree club in 1107 instead of firing (p.79).
+  [Ranged] Red -> Blue: range 8, base TN 12 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 3 + heat 0); firing nothing (weapon heat 0 of budget 52 = max 30 + sink 24 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 24 -> 0
+  [Heat] Blue: 0 + movement 3 + weapons 0 + engine 0 - sinks 15 -> 0
+  -- end of turn 1: Red @ 0512 SE: HP 227, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 1: Blue @ 1107 NW: HP 259, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 2 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 105.061 = dealt 0.00 x1.00 + (HP 358.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 13.88 x my future 4.07 [two-ply, 170 of 914 spots (grid search) x 1122 replies (short list); modeled reply Red -> 0113 N Run]
+  [Movement] Blue: 1107 NW -> 0703 SE, Jump (6 MP, 6 hexes, 3 heat; budget walk 4 / run 6 / jump 6)
+  [Movement select] Red: score 1029.249 = dealt 0.17 x1.01 + (HP 302.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 4.07 x my future 13.88 [enemy held at 0703; 195 spots with LOS]
+  [Movement] Red: 0512 SE -> 0310 NW, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue -> Red: range 9, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 42 = max 30 + sink 15 - current 0 - movement 3 - other 0; expected dmg 0.00)
+  [Ranged] Red -> Blue: range 9, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 2 + heat 0); firing ['ISMediumXPulseLaser'] (weapon heat 6 of budget 52 = max 30 + sink 24 - current 0 - movement 2 - other 0; expected dmg 0.17)
+    ISMediumXPulseLaser: needs 12 (range mod +4, modifiers -3), rolled 7 -> miss
+  [Heat] Red: 0 + movement 2 + weapons 6 + engine 0 - sinks 24 -> 0
+  [Heat] Blue: 0 + movement 3 + weapons 0 + engine 0 - sinks 15 -> 0
+  -- end of turn 2: Red @ 0310 NW: HP 227, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 2: Blue @ 0703 SE: HP 259, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 3 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 106.425 = dealt 2.59 x1.00 + (HP 358.0 - received 4.17 x1.00 - PSR 0.00) / enemy future 13.88 x my future 4.07 [two-ply, 158 of 841 spots (grid search) x 867 replies (short list); modeled reply Red -> 0307 N Run]
+  [Movement] Blue: 0703 SE -> 0501 S, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 6) - includes a backward move
+  [Movement select] Red: score 1023.546 = dealt 4.17 x1.01 + (HP 302.0 - received 2.86 x1.00 - PSR 0.00) / enemy future 4.07 x my future 13.88 [enemy held at 0501; 124 spots with LOS]
+  [Movement] Red: 0310 NW -> 0107 N, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue -> Red: range 8, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 1 + heat 0); firing ['LRM 10', 'Medium Laser', 'PPC'] (weapon heat 17 of budget 44 = max 30 + sink 15 - current 0 - movement 1 - other 0; expected dmg 2.86)
+    LRM 10: needs 10 (range mod +2), rolled 4 -> miss [IS Ammo LRM-10: 11 shots left]
+    Medium Laser: needs 12 (range mod +4), rolled 2 -> miss
+    PPC: needs 10 (range mod +2), rolled 8 -> miss
+  [Ranged] Red -> Blue: range 8, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 1 + heat 0); firing ['ISMediumXPulseLaser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 24 of budget 52 = max 30 + sink 24 - current 0 - movement 2 - other 0; expected dmg 4.17)
+    ISMediumXPulseLaser: needs 9 (range mod +4, modifiers -3), rolled 9 -> HIT
+    Medium Laser: needs 11 (range mod +4, modifiers -1), rolled 6 -> miss
+    Medium Laser: needs 11 (range mod +4, modifiers -1), rolled 9 -> miss
+    Medium Laser: needs 11 (range mod +4, modifiers -1), rolled 9 -> miss
+    Medium Laser: needs 11 (range mod +4, modifiers -1), rolled 9 -> miss
+    Medium Laser: needs 11 (range mod +4, modifiers -1), rolled 10 -> miss
+    Medium Laser: needs 11 (range mod +4, modifiers -1), rolled 4 -> miss
+    ISMediumXPulseLaser hit for 6:
+      Hit location roll 6 (right table): Right Leg.
+6 damage (ENERGY) incoming to Right Leg (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (18 -> 12 remaining).
+  [Heat] Red: 0 + movement 2 + weapons 24 + engine 0 - sinks 24 -> 2
+  [Heat] Blue: 0 + movement 1 + weapons 17 + engine 0 - sinks 15 -> 3
+  -- end of turn 3: Red @ 0107 N: HP 227, pilot hits 0, engine 0, gyro 0, heat 2
+  -- end of turn 3: Blue @ 0501 S: HP 253, pilot hits 0, engine 0, gyro 0, heat 3
+
+=== TURN 4 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 90.286 = dealt 0.00 x1.00 + (HP 352.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 11.91 x my future 3.05 [two-ply, 122 of 485 spots (grid search) x 636 replies (short list); modeled reply Red -> 0112 NE Jump]
+  [Movement] Blue: 0501 S -> 1003 S, Jump (6 MP, 5 hexes, 3 heat; budget walk 4 / run 6 / jump 6)
+  [Movement select] Red: score 1178.446 = dealt 4.17 x1.03 + (HP 302.0 - received 0.84 x1.00 - PSR 0.00) / enemy future 3.05 x my future 11.91 [enemy held at 1003; 122 spots with LOS]
+  [Movement] Red: 0107 N -> 0504 NE, Run (7 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue -> Red: range 5, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 2 + heat 0); firing ['PPC'] (weapon heat 10 of budget 39 = max 30 + sink 15 - current 3 - movement 3 - other 0; expected dmg 0.83)
+    PPC: needs 11 (range mod +0), rolled 11 -> HIT
+  [Ranged] Red -> Blue: range 5, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 1 + heat 0); firing ['ISMediumXPulseLaser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 24 of budget 50 = max 30 + sink 24 - current 2 - movement 2 - other 0; expected dmg 4.17)
+    ISMediumXPulseLaser: needs 9 (range mod +2, modifiers -3), rolled 10 -> HIT
+    Medium Laser: needs 11 (range mod +2, modifiers -1), rolled 10 -> miss
+    Medium Laser: needs 11 (range mod +2, modifiers -1), rolled 8 -> miss
+    Medium Laser: needs 11 (range mod +2, modifiers -1), rolled 5 -> miss
+    Medium Laser: needs 11 (range mod +2, modifiers -1), rolled 8 -> miss
+    Medium Laser: needs 11 (range mod +2, modifiers -1), rolled 4 -> miss
+    Medium Laser: needs 11 (range mod +2, modifiers -1), rolled 5 -> miss
+    PPC hit for 10:
+      Hit location roll 8 (front table): Left Torso.
+10 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (16 -> 6 remaining).
+    ISMediumXPulseLaser hit for 6:
+      Hit location roll 5 (right table): Right Arm.
+6 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (14 -> 8 remaining).
+  [Heat] Red: 2 + movement 2 + weapons 24 + engine 0 - sinks 24 -> 4
+  [Heat] Blue: 3 + movement 3 + weapons 10 + engine 0 - sinks 15 -> 1
+  -- end of turn 4: Red @ 0504 NE: HP 217, pilot hits 0, engine 0, gyro 0, heat 4
+  -- end of turn 4: Blue @ 1003 S: HP 247, pilot hits 0, engine 0, gyro 0, heat 1
+
+=== TURN 5 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 717.819 = dealt 0.17 x1.00 + (HP 292.0 - received 0.29 x1.00 - PSR 0.00) / enemy future 4.37 x my future 10.75 [two-ply, 196 of 905 spots (grid search) x 890 replies (short list); modeled reply Blue -> 0503 SE Jump]
+  [Movement] Red: 0504 NE -> 1006 NW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Blue: score 140.867 = dealt 0.29 x1.00 + (HP 346.0 - received 0.17 x0.98 - PSR 0.00) / enemy future 10.75 x my future 4.37 [enemy held at 1006; 207 spots with LOS]
+  [Movement] Blue: 1003 S -> 0503 S, Jump (6 MP, 5 hexes, 3 heat; budget walk 4 / run 6 / jump 6)
+  [Ranged] Red -> Blue: range 6, base TN 13 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 3 + heat 0); firing ['ISMediumXPulseLaser'] (weapon heat 6 of budget 45 = max 30 + sink 24 - current 4 - movement 5 - other 0; expected dmg 0.17)
+    ISMediumXPulseLaser: needs 12 (range mod +2, modifiers -3), rolled 10 -> miss
+  [Ranged] Blue -> Red: range 6, base TN 12 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 2 + heat 0); firing ['LRM 10', 'Medium Laser', 'PPC'] (weapon heat 17 of budget 41 = max 30 + sink 15 - current 1 - movement 3 - other 0; expected dmg 0.28)
+    LRM 10: needs 13 (range mod +1), rolled 7 -> miss [IS Ammo LRM-10: 10 shots left]
+    Medium Laser: needs 14 (range mod +2), rolled 2 -> miss
+    PPC: needs 12 (range mod +0), rolled 6 -> miss
+  [Heat] Red: 4 + movement 5 + weapons 6 + engine 0 - sinks 24 -> 0
+  [Heat] Blue: 1 + movement 3 + weapons 17 + engine 0 - sinks 15 -> 6
+  [Heat] Blue: heat 6 -> next turn -1 Walking MP, +0 to ranged attacks.
+  -- end of turn 5: Red @ 1006 NW: HP 217, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 5: Blue @ 0503 S: HP 247, pilot hits 0, engine 0, gyro 0, heat 6
+
+=== TURN 6 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 139.927 = dealt 2.95 x1.00 + (HP 346.0 - received 9.02 x1.00 - PSR 0.00) / enemy future 8.96 x my future 3.64 [two-ply, 110 of 579 spots (grid search) x 1098 replies (short list); modeled reply Red -> 0408 NW Run]
+  [Movement] Blue: 0503 S -> 0308 SE, Jump (6 MP, 6 hexes, 3 heat; budget walk 3 / run 5 / jump 6)
+  [Movement select] Red: score 723.295 = dealt 7.50 x1.05 + (HP 292.0 - received 1.21 x0.99 - PSR 0.00) / enemy future 3.64 x my future 8.96 [enemy held at 0308; 148 spots with LOS]
+  [Movement] Red: 1006 NW -> 0310 SW, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue -> Red: range 2, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 0 + heat 0); firing ['Small Laser', 'LRM 10', 'Medium Laser', 'PPC'] (weapon heat 18 of budget 36 = max 30 + sink 15 - current 6 - movement 3 - other 0; expected dmg 1.19)
+    Small Laser: needs 12 (range mod +2), rolled 4 -> miss
+    LRM 10: needs 15 (range mod +5), rolled 7 -> miss [IS Ammo LRM-10: 9 shots left]
+    Medium Laser: needs 10 (range mod +0), rolled 11 -> HIT
+    PPC: needs 12 (range mod +2), rolled 7 -> miss
+  [Ranged] Red -> Blue: range 2, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 2 + heat 0); firing ['ISMediumXPulseLaser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 24 of budget 52 = max 30 + sink 24 - current 0 - movement 2 - other 0; expected dmg 7.50)
+    ISMediumXPulseLaser: needs 8 (range mod +0, modifiers -3), rolled 8 -> HIT
+    Medium Laser: needs 10 (range mod +0, modifiers -1), rolled 8 -> miss
+    Medium Laser: needs 10 (range mod +0, modifiers -1), rolled 8 -> miss
+    Medium Laser: needs 10 (range mod +0, modifiers -1), rolled 11 -> HIT
+    Medium Laser: needs 10 (range mod +0, modifiers -1), rolled 2 -> miss
+    Medium Laser: needs 10 (range mod +0, modifiers -1), rolled 6 -> miss
+    Medium Laser: needs 10 (range mod +0, modifiers -1), rolled 6 -> miss
+    Medium Laser hit for 5:
+      Hit location roll 8 (right table): Center Torso.
+5 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (21 -> 16 remaining).
+    ISMediumXPulseLaser hit for 6:
+      Hit location roll 11 (right table): Left Leg.
+6 damage (ENERGY) incoming to Left Leg (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (18 -> 12 remaining).
+    Medium Laser hit for 5:
+      Hit location roll 5 (right table): Right Arm.
+5 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (8 -> 3 remaining).
+  [Heat] Red: 0 + movement 2 + weapons 24 + engine 0 - sinks 24 -> 2
+  [Heat] Blue: 6 + movement 3 + weapons 18 + engine 0 - sinks 15 -> 12
+  [Heat] Blue: heat 12 -> next turn -2 Walking MP, +1 to ranged attacks.
+  -- end of turn 6: Red @ 0310 SW: HP 212, pilot hits 0, engine 0, gyro 0, heat 2
+  -- end of turn 6: Blue @ 0308 SE: HP 236, pilot hits 0, engine 0, gyro 0, heat 12
+
+=== TURN 7 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 125.480 = dealt 0.71 x1.00 + (HP 335.0 - received 4.32 x0.97 - PSR 0.00) / enemy future 9.62 x my future 3.63 [two-ply, 117 of 575 spots (grid search) x 867 replies (short list); modeled reply Red -> 0204 NE Run]
+  [Movement] Blue: 0308 SE -> 0503 N, Jump (6 MP, 6 hexes, 3 heat; budget walk 2 / run 3 / jump 6)
+  [Movement select] Red: score 763.310 = dealt 4.32 x0.97 + (HP 287.0 - received 0.71 x0.99 - PSR 0.00) / enemy future 3.63 x my future 9.62 [enemy held at 0503; 72 spots with LOS]
+  [Movement] Red: 0310 SW -> 0204 N, Run (8 MP, 6 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
+  [Ranged] Blue -> Red: range 3, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 1 + heat 1); firing ['Small Laser', 'LRM 10', 'Medium Laser', 'PPC'] (weapon heat 18 of budget 30 = max 30 + sink 15 - current 12 - movement 3 - other 0; expected dmg 0.69)
+    Small Laser: needs 15 (range mod +4), rolled 6 -> miss
+    LRM 10: needs 15 (range mod +4), rolled 5 -> miss [IS Ammo LRM-10: 8 shots left]
+    Medium Laser: needs 11 (range mod +0), rolled 9 -> miss
+    PPC: needs 12 (range mod +1), rolled 10 -> miss
+  [Ranged] Red -> Blue: range 3, base TN 12 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 3 + heat 0); firing ['ISMediumXPulseLaser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 24 of budget 50 = max 30 + sink 24 - current 2 - movement 2 - other 0; expected dmg 4.17)
+    ISMediumXPulseLaser: needs 9 (range mod +0, modifiers -3), rolled 12 -> HIT
+    Medium Laser: needs 11 (range mod +0, modifiers -1), rolled 3 -> miss
+    Medium Laser: needs 11 (range mod +0, modifiers -1), rolled 10 -> miss
+    Medium Laser: needs 11 (range mod +0, modifiers -1), rolled 10 -> miss
+    Medium Laser: needs 11 (range mod +0, modifiers -1), rolled 8 -> miss
+    Medium Laser: needs 11 (range mod +0, modifiers -1), rolled 9 -> miss
+    Medium Laser: needs 11 (range mod +0, modifiers -1), rolled 6 -> miss
+    ISMediumXPulseLaser hit for 6:
+      Hit location roll 6 (left table): Left Leg.
+6 damage (ENERGY) incoming to Left Leg (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (12 -> 6 remaining).
+  [Heat] Red: 2 + movement 2 + weapons 24 + engine 0 - sinks 24 -> 4
+  [Heat] Blue: 12 + movement 3 + weapons 18 + engine 0 - sinks 15 -> 18
+  [Heat] Blue: shutdown avoid roll at heat 18: needs 6, rolled 6 - avoided.
+  [Heat] Blue: heat 18 -> next turn -3 Walking MP, +3 to ranged attacks.
+  -- end of turn 7: Red @ 0204 N: HP 212, pilot hits 0, engine 0, gyro 0, heat 4
+  -- end of turn 7: Blue @ 0503 N: HP 230, pilot hits 0, engine 0, gyro 0, heat 18
+
+=== TURN 8 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 107.004 = dealt 0.00 x1.00 + (HP 329.0 - received 7.77 x0.99 - PSR 0.00) / enemy future 9.20 x my future 3.06 [two-ply, 102 of 492 spots (grid search) x 698 replies (short list); modeled reply Red -> 0503 NE Run]
+  [Movement] Blue: 0503 N -> 1101 N, Jump (6 MP, 6 hexes, 3 heat; budget walk 1 / run 2 / jump 6)
+  [Movement select] Red: score 868.624 = dealt 7.77 x0.99 + (HP 287.0 - received 0.29 x0.99 - PSR 0.00) / enemy future 3.06 x my future 9.20 [enemy held at 1101; 101 spots with LOS]
+  [Movement] Red: 0204 N -> 0701 NE, Run (8 MP, 6 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
+  [Ranged] Blue -> Red: range 4, base TN 12 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 0 + heat 3); firing ['LRM 10', 'Medium Laser', 'PPC'] (weapon heat 17 of budget 24 = max 30 + sink 15 - current 18 - movement 3 - other 0; expected dmg 0.28)
+    LRM 10: needs 15 (range mod +3), rolled 11 -> miss [IS Ammo LRM-10: 7 shots left]
+    Medium Laser: needs 14 (range mod +2), rolled 6 -> miss
+    PPC: needs 12 (range mod +0), rolled 6 -> miss
+  [Ranged] Red -> Blue: range 4, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['ISMediumXPulseLaser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 24 of budget 48 = max 30 + sink 24 - current 4 - movement 2 - other 0; expected dmg 7.50)
+    ISMediumXPulseLaser: needs 8 (range mod +2, modifiers -3), rolled 5 -> miss
+    Medium Laser: needs 10 (range mod +2, modifiers -1), rolled 8 -> miss
+    Medium Laser: needs 10 (range mod +2, modifiers -1), rolled 5 -> miss
+    Medium Laser: needs 10 (range mod +2, modifiers -1), rolled 5 -> miss
+    Medium Laser: needs 10 (range mod +2, modifiers -1), rolled 8 -> miss
+    Medium Laser: needs 10 (range mod +2, modifiers -1), rolled 5 -> miss
+    Medium Laser: needs 10 (range mod +2, modifiers -1), rolled 6 -> miss
+  [Heat] Red: 4 + movement 2 + weapons 24 + engine 0 - sinks 24 -> 6
+  [Heat] Red: heat 6 -> next turn -1 Walking MP, +0 to ranged attacks.
+  [Heat] Blue: 18 + movement 3 + weapons 17 + engine 0 - sinks 15 -> 23
+  [Heat] Blue: SHUT DOWN (heat 23, shutdown avoid roll needs 8, rolled 7).
+  [Heat] Blue: ammo explosion avoid roll at heat 23: needs 6, rolled 10 - avoided.
+  [Heat] Blue: heat 23 -> next turn -4 Walking MP, +3 to ranged attacks.
+  -- end of turn 8: Red @ 0701 NE: HP 212, pilot hits 0, engine 0, gyro 0, heat 6
+  -- end of turn 8: Blue @ 1101 N: HP 230, pilot hits 0, engine 0, gyro 0, heat 23 [SHUT DOWN]
+
+=== TURN 9 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 1568.258 = dealt 158.73 x1.05 + (HP 287.0 - received 1.33 x1.00 - PSR 0.00) / enemy future 1.67 x my future 8.18 [two-ply, 92 of 404 spots (grid search) x 1 replies (short list); modeled reply Blue -> 1101 N Stand Still]
+  [Movement] Red: 0701 NE -> 1201 NW, Jump (5 MP, 5 hexes, 5 heat; budget walk 4 / run 6 / jump 5)
+  [Movement] Blue: shut down - skips movement (immobile).
+  [Ranged] Red holds ['ISMediumXPulseLaser', 'Medium Laser'] back for the Physical phase (plans push, expected 230.00).
+  [Ranged] Red -> Blue: range 1, base TN 3 (gunnery 4 + AMM 3 [Jump] + TMM -4 + LOS 0 + heat 0); firing nothing (aimed at Center Torso) (weapon heat 0 of budget 43 = max 30 + sink 24 - current 6 - movement 5 - other 0; expected dmg 0.00)
+  [Ranged] Blue: shut down - no attacks.
+  [Physical] Red -> Blue: push needs 2 (piloting 5 + base -1 + attack -2), rolled 7 -> HIT (230 dmg, right side)
+    Blue is pushed off the battlefield - destroyed (p.83).
+  [Heat] Red: 6 + movement 5 + weapons 0 + engine 0 - sinks 24 -> 0
+  -- end of turn 9: Red @ 1101 NW: HP 212, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 9: Blue @ 1101 N: HP 230, pilot hits 0, engine 0, gyro 0, heat 23 [SHUT DOWN, DESTROYED (Pushed off the battlefield)]
+
+>>> Battle over on turn 9: Blue destroyed. <<<

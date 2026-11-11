@@ -6,6 +6,15 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-11 (Claude, session 25), RUST REFERENCE BATTLES: THE RUST CHECKS ITSELF. New test tool and data; no engine change. REVIEW PENDING (higher-level model).**
+  Daniel: "Go ahead and start the battery of Rust reference battles" (after: the Python is "effectively dead code now"). NEW
+  `tests/check_rust_reference.py`: 79 battles played by `btsim` on its own dice (seed 1), each compared byte for byte with its saved log in
+  `engine/reference/logs/` (a result block - winner, turns, each team's armor + structure left, hits, damage - then the battle log). Inputs: the
+  72 port scenarios (15 reference, 6 team, 42 coverage, 9 Hydra mirrors) frozen into `engine/reference/scenarios.zip` (1.2 MB) so the Python is
+  no longer needed to make them; plus 7 plays with Hydra on one or both sides (Hydra had no answer key at all). `run_checks.py` runs it as one
+  line when cargo is installed (57 checks). Two runs agree (79 of 79). 8 reach the 50-turn cap: the Asymptote mirror (as in the Python),
+  `cov_magma_board`, `cov_melee_mace_sword`, three Hydra mirror scenarios with Gladiator on both sides (4 v 4 woods, 8 v 8, 12 v 12) and two with Hydra
+  on Red (4 v 4 woods, 12 v 12). Two runs take about 40 s on 4 cores.
 - **2026-11-11 (Claude, session 25), SESSION 25 TIDY-UP: THE LOOKAHEAD NO LONGER ROLLS BATTLE DICE; SIX CREW HITS BY THE BOOK; HYDRA TABLE RE-RUN; WARNINGS; SECTION 0. REVIEW PENDING (higher-level model).**
   Daniel: "lets see what you can tidy up on its todo list" and "there was a free floating dice outside of the seed". (1) LOOKAHEAD DICE, both
   engines (`INTEGRATION__structure_weight.hit_spread`, `engine/core/src/structure_weight.rs`): a bot estimating hits on a torso-cockpit 'Mech

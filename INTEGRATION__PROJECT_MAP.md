@@ -39,8 +39,10 @@ and the GitHub logistics (Section 7).
 - MegaMek's source, when a rule or the Princess clone needs it: `git clone --depth 1 --filter=blob:none --sparse
   https://github.com/MegaMek/megamek.git` works through the proxy (Section 6, "Princess clone").
 - Run: `python INTEGRATION__main.py`; every setting is in `INTEGRATION__config.py`.
-- **After any change:** `python tests/run_checks.py` - 55 checks today (40 test files + 15 reference battles),
-  1-2 minutes, all must pass. The Asymptote mirror prints a NOTE at the 50-turn cap (the stall, backlog A1).
+- **After any change:** `python tests/run_checks.py` - 57 checks today (41 test files + 15 reference battles + the
+  Rust reference set as one line), 1-2 minutes, all must pass. The Rust set (session 25): `python tests/check_rust_reference.py`
+  plays 79 battles with `btsim` (inputs frozen in `engine/reference/scenarios.zip`, logs in `engine/reference/logs/`;
+  `--update` for a Rust change meant to alter results) - the Rust's own answer key, no Python needed. The Asymptote mirror prints a NOTE at the 50-turn cap (the stall, backlog A1).
   `--bench` for anything on the hot path: a speed-only change must keep the benchmark's HP totals (501 / 495) and
   every reference log. A change MEANT to alter results: `python tests/check_reference_logs.py --update`, and say
   so in the Change Record. Art-only work runs only the three token tests (Section 7).
@@ -145,6 +147,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(w) RUST REFERENCE BATTLES** (session 25): `tests/check_rust_reference.py`, the frozen inputs, the hook in `run_checks.py`.
 - **(v) SESSION 25 TIDY-UP** (2026-11-11; Change Record "SESSION 25"): the lookahead-dice fix in both engines
   (`structure_weight.hit_spread`, `structure_weight.rs`), the six-crew-hits rule (`piloting_rolls.rs`), the warning clean-up.
 - **(u) HYDRA, THE THIRD BOT** (session 24, Rust only) - plan `INTEGRATION__HYDRA.md`, code `engine/core/src/hydra.rs`. Second pass 2026-11-11 (exposure, lone unit may hide, reply 64; full table re-run in session 25: 285 - 245 head to head, HYDRA.md Section 5). First version built and

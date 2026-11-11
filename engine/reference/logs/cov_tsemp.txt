@@ -1,0 +1,202 @@
+# scenario cov_tsemp
+# seed 1: winner Red, 8 turns
+#   Red: 167.0 of 170.0 armor + structure left, team destroyed False, units 1, 0 hits of 3 attacks, 0.0 damage dealt
+#   Blue: 101.0 of 123.0 armor + structure left, team destroyed True, units 1, 1 hits of 3 attacks, 0.0 damage dealt
+# log
+
+=== TURN 1 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 130.031 = dealt 0.83 x1.00 + (HP 166.0 - received 0.83 x1.37 - PSR 0.00) / enemy future 1.65 x my future 1.29 [two-ply, 404 of 2311 spots (grid search) x 1973 replies (short list); modeled reply Red -> 1013 SE Run]
+  [Movement] Blue: 0509 N -> 1114 SE, Run (15 MP, 10 hexes, 2 heat; budget walk 10 / run 15 / jump 0)
+    Red: Supercharger (turn 1 in a row) needs 3, rolled 6 - works.
+  [Movement select] Red: score 292.068 = dealt 0.83 x1.37 + (HP 228.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.29 x my future 1.65 [enemy held at 1114; 357 spots with LOS]
+  [Movement] Red: 0505 S -> 0711 SE, Walk (8 MP, 7 hexes, 1 heat; budget walk 8 / run 16 / jump 0)
+  [Ranged] Blue: no weapon can bear on Red (rear arc) - can't fire.
+  [Ranged] Red -> Blue: range 5, base TN 10 (gunnery 4 + AMM 1 [Walk] + TMM 4 + LOS 1 + heat 0); firing ['TSEMP Cannon'] (weapon heat 10 of budget 39 = max 30 + sink 10 - current 0 - movement 1 - other 0; expected dmg 0.83)
+    TSEMP Cannon: needs 10 (range mod +0), rolled 7 -> miss
+      Red fired its TSEMP Cannon: TSEMP interference on Red through turn 2 - +2 to hit with weapons, as if inside hostile ECM (IO p.91).
+  [Heat] Red: 0 + movement 1 + weapons 10 + engine 0 - sinks 10 -> 1
+  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 + stealth 10 - sinks 12 -> 0
+  -- end of turn 1: Red @ 0711 SE: HP 170, pilot hits 0, engine 0, gyro 0, heat 1
+  -- end of turn 1: Blue @ 1114 SE: HP 123, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 2 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 176.310 = dealt 0.00 x1.01 + (HP 228.0 - received 0.00 x1.28 - PSR 0.00) / enemy future 1.29 x my future 1.00 [two-ply, 256 of 1715 spots (grid search) x 1909 replies (short list); modeled reply Blue -> 1013 SE Walk]
+  [Movement] Red: 0711 SE -> 0902 N, Run (12 MP, 10 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
+  [Movement select] Blue: score 216.448 = dealt 1.39 x1.28 + (HP 166.0 - received 0.00 x1.37 - PSR 0.00) / enemy future 1.00 x my future 1.29 [enemy held at 0902; 247 spots with LOS]
+  [Movement] Blue: 1114 SE -> 0906 S, Walk (10 MP, 9 hexes, 1 heat; budget walk 10 / run 15 / jump 0) - includes a backward move
+  [Ranged] Red -> Blue: range 4, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0 + stealth 2); firing nothing (weapon heat 0 of budget 37 = max 30 + sink 10 - current 1 - movement 2 - other 0; expected dmg 0.00)
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's right side arc after that).
+  [Ranged] Blue -> Red: range 4, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 4 + LOS 0 + heat 0); firing ['TSEMP Cannon'] (weapon heat 10 of budget 31 = max 30 + sink 12 - current 0 - movement 1 - other 10; expected dmg 1.39)
+    TSEMP Cannon: needs 9 (range mod +0), rolled 9 -> HIT
+      Blue fired its TSEMP Cannon: TSEMP interference on Blue through turn 3 - +2 to hit with weapons, as if inside hostile ECM (IO p.91).
+    TSEMP Cannon hit:
+      TSEMP effects roll 4 = 4 (BattleMech): no effect.
+  [Heat] Red: 1 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 10 + engine 0 + stealth 10 - sinks 12 -> 9
+  [Heat] Blue: heat 9 -> next turn -1 Walking MP, +1 to ranged attacks, TSM active (+2 Walking MP).
+  [End] Red: TSEMP interference ends.
+  -- end of turn 2: Red @ 0902 N: HP 170, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 2: Blue @ 0906 S: HP 123, pilot hits 0, engine 0, gyro 0, heat 9
+
+=== TURN 3 ===
+  Initiative: Red lost the roll, moves first.
+    Red: Supercharger (turn 1 in a row) needs 3, rolled 9 - works.
+  [Movement select] Red: score 247.204 = dealt 0.83 x1.00 + (HP 228.0 - received 0.75 x1.01 - PSR 0.00) / enemy future 1.52 x my future 1.65 [two-ply, 250 of 1323 spots (grid search) x 2709 replies (short list); modeled reply Blue -> 0504 S Walk]
+  [Movement] Red: 0902 N -> 0505 SW, Run (16 MP, 10 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
+  [Movement select] Blue: score 153.110 = dealt 0.00 x1.01 + (HP 166.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.65 x my future 1.52 [enemy held at 0505; 440 spots with LOS]
+  [Movement] Blue: 0906 S -> 1108 SW, Run (17 MP, 12 hexes, 2 heat; budget walk 11 / run 17 / jump 0)
+  [Ranged] Red -> Blue: range 6, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Ranged] Blue -> Red: range 6, base TN 16 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 3 + heat 1 + stealth 2); firing nothing (weapon heat 0 of budget 21 = max 30 + sink 12 - current 9 - movement 2 - other 10; expected dmg 0.00)
+  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
+  [Heat] Blue: 9 + movement 2 + weapons 0 + engine 0 + stealth 10 - sinks 12 -> 9
+  [Heat] Blue: heat 9 -> next turn -1 Walking MP, +1 to ranged attacks, TSM active (+2 Walking MP).
+  [End] Blue: TSEMP interference ends.
+  -- end of turn 3: Red @ 0505 SW: HP 170, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 3: Blue @ 1108 SW: HP 123, pilot hits 0, engine 0, gyro 0, heat 9
+
+=== TURN 4 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 231.361 = dealt 1.17 x1.00 + (HP 228.0 - received 2.20 x1.28 - PSR 0.00) / enemy future 1.61 x my future 1.65 [two-ply, 271 of 1362 spots (grid search) x 2662 replies (short list); modeled reply Blue -> 0202 SE Run (CHARGE)]
+  [Movement] Red: 0505 SW -> 0303 SE, Run (12 MP, 7 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
+  [Movement select] Blue: CHARGE (TN 11, P 0.08, 25 dmg) on Red: score 164.062 = dealt 2.20 x1.28 + (HP 166.0 - received 1.17 x1.00 - PSR 0.00) / enemy future 1.65 x my future 1.61 [incl. self-damage] beats 164.040
+  [Movement] Blue declares a CHARGE against Red (stops adjacent; 12 hexes counting the target's hex).
+  [Movement] Blue: 1108 SW -> 0202 SE, Run (17 MP, 12 hexes, 2 heat; budget walk 11 / run 17 / jump 0)
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's right side arc after that).
+  [Ranged] Red -> Blue: range 1, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 0 + heat 0); firing ['TSEMP Cannon'] (weapon heat 10 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.83)
+    TSEMP Cannon: needs 10 (range mod +0), rolled 9 -> miss
+      Red fired its TSEMP Cannon: TSEMP interference on Red through turn 5 - +2 to hit with weapons, as if inside hostile ECM (IO p.91).
+  [Ranged] Blue: charging Red - no ranged attacks this turn (pp.78-79).
+  [Physical] Blue -> Red: CHARGE needs 11 (piloting 5 + AMM 2 + TMM 3 + terrain 1 + comparative +0), rolled 8 -> miss
+  [Heat] Red: 0 + movement 2 + weapons 10 + engine 0 - sinks 10 -> 2
+  [Heat] Blue: 9 + movement 2 + weapons 0 + engine 0 + stealth 10 - sinks 12 -> 9
+  [Heat] Blue: heat 9 -> next turn -1 Walking MP, +1 to ranged attacks, TSM active (+2 Walking MP).
+  [End] Blue: heat sinks switched off 4 -> 0 of 10 (min_heat 9).
+  -- end of turn 4: Red @ 0303 SE: HP 170, pilot hits 0, engine 0, gyro 0, heat 2
+  -- end of turn 4: Blue @ 0202 SE: HP 123, pilot hits 0, engine 0, gyro 0, heat 9
+
+=== TURN 5 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 267.950 = dealt 1.85 x1.00 + (HP 166.0 - received 1.13 x1.01 - PSR 0.00) / enemy future 1.00 x my future 1.61 [two-ply, 236 of 1472 spots (grid search) x 1277 replies (short list); modeled reply Red -> 0214 S Run]
+  [Movement] Blue: 0202 SE -> 0215 NW, Run (17 MP, 13 hexes, 2 heat; budget walk 11 / run 17 / jump 0)
+    Red: Supercharger (turn 1 in a row) needs 3, rolled 11 - works.
+  [Movement select] Red: score 141.252 = dealt 0.00 x1.01 + (HP 228.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.61 x my future 1.00 [enemy held at 0215; 159 spots with LOS]
+  [Movement] Red: 0303 SE -> 0310 NE, Run (16 MP, 11 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
+  [Ranged] Blue -> Red: range 6, base TN 13 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 2 + heat 1); firing ['TSEMP Cannon'] (weapon heat 10 of budget 29 = max 30 + sink 20 - current 9 - movement 2 - other 10; expected dmg 0.00)
+    TSEMP Cannon: needs 15 (range mod +2), rolled 6 -> miss
+      Blue fired its TSEMP Cannon: TSEMP interference on Blue through turn 6 - +2 to hit with weapons, as if inside hostile ECM (IO p.91).
+  [Ranged] Red -> Blue: range 6, base TN 14 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 2 + heat 0 + stealth 2); firing nothing (weapon heat 0 of budget 36 = max 30 + sink 10 - current 2 - movement 2 - other 0; expected dmg 0.00)
+  [Heat] Red: 2 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
+  [Heat] Blue: 9 + movement 2 + weapons 10 + engine 0 + stealth 10 - sinks 20 -> 11
+  [Heat] Blue: heat 11 -> next turn -2 Walking MP, +1 to ranged attacks, TSM active (+2 Walking MP).
+  [End] Red: TSEMP interference ends.
+  [End] Blue: heat sinks switched off 0 -> 3 of 10 (min_heat 9).
+  -- end of turn 5: Red @ 0310 NE: HP 170, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 5: Blue @ 0215 NW: HP 123, pilot hits 0, engine 0, gyro 0, heat 11
+
+=== TURN 6 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 247.334 = dealt 0.14 x1.00 + (HP 228.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.52 x my future 1.65 [two-ply, 214 of 1379 spots (grid search) x 1268 replies (short list); modeled reply Blue -> 0305 NE Run]
+  [Movement] Red: 0310 NE -> 0802 N, Run (11 MP, 10 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
+  [Movement select] Blue: no spot deals damage - closing fallback
+  [Movement] Blue: 0215 NW -> 0305 NE, Run (14 MP, 12 hexes, 2 heat; budget walk 10 / run 15 / jump 0)
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 5, base TN 12 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 2 + heat 0); firing ['TSEMP Cannon'] (weapon heat 10 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.14)
+    TSEMP Cannon: needs 12 (range mod +0), rolled 11 -> miss
+      Red fired its TSEMP Cannon: TSEMP interference on Red through turn 7 - +2 to hit with weapons, as if inside hostile ECM (IO p.91).
+  [Ranged] Blue -> Red: range 5, base TN 15 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 2 + heat 1 + stealth 2); firing nothing (weapon heat 0 of budget 21 = max 30 + sink 14 - current 11 - movement 2 - other 10; expected dmg 0.00)
+  [Heat] Red: 0 + movement 2 + weapons 10 + engine 0 - sinks 10 -> 2
+  [Heat] Blue: 11 + movement 2 + weapons 0 + engine 0 + stealth 10 - sinks 14 -> 9
+  [Heat] Blue: heat 9 -> next turn -1 Walking MP, +1 to ranged attacks, TSM active (+2 Walking MP).
+  [End] Blue: heat sinks switched off 3 -> 4 of 10 (min_heat 9).
+  [End] Blue: TSEMP interference ends.
+  -- end of turn 6: Red @ 0802 N: HP 170, pilot hits 0, engine 0, gyro 0, heat 2
+  -- end of turn 6: Blue @ 0305 NE: HP 123, pilot hits 0, engine 0, gyro 0, heat 9
+
+=== TURN 7 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 268.368 = dealt 0.42 x1.01 + (HP 166.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.00 x my future 1.61 [two-ply, 303 of 1995 spots (grid search) x 1457 replies (short list); modeled reply Red -> 0713 S Run]
+  [Movement] Blue: 0305 NE -> 0416 NW, Run (17 MP, 13 hexes, 2 heat; budget walk 11 / run 17 / jump 0)
+    Red: Supercharger (turn 1 in a row) needs 3, rolled 8 - works.
+  [Movement select] Red: no spot deals damage - closing fallback
+  [Movement] Red: 0802 N -> 0713 S, Run (16 MP, 13 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
+  [Ranged] Blue -> Red: range 5, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 0 + heat 1); firing ['TSEMP Cannon'] (weapon heat 10 of budget 21 = max 30 + sink 12 - current 9 - movement 2 - other 10; expected dmg 0.42)
+    TSEMP Cannon: needs 11 (range mod +0), rolled 4 -> miss
+      Blue fired its TSEMP Cannon: TSEMP interference on Blue through turn 8 - +2 to hit with weapons, as if inside hostile ECM (IO p.91).
+  [Ranged] Red -> Blue: range 5, base TN 12 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 0 + heat 0 + stealth 2); firing nothing (weapon heat 0 of budget 36 = max 30 + sink 10 - current 2 - movement 2 - other 0; expected dmg 0.00)
+  [Heat] Red: 2 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
+  [Heat] Blue: 9 + movement 2 + weapons 10 + engine 0 + stealth 10 - sinks 12 -> 19
+  [Heat] Blue: SHUT DOWN (heat 19, shutdown avoid roll needs 6, rolled 5).
+  [Heat] Blue: heat 19 -> next turn -3 Walking MP, +3 to ranged attacks, TSM active (+2 Walking MP).
+  [End] Red: TSEMP interference ends.
+  [End] Blue: heat sinks switched off 4 -> 0 of 10 (min_heat 9).
+  -- end of turn 7: Red @ 0713 S: HP 170, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 7: Blue @ 0416 NW: HP 123, pilot hits 0, engine 0, gyro 0, heat 19 [SHUT DOWN]
+
+=== TURN 8 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement] Blue: shut down - skips movement (immobile).
+  [Movement select] Red: CHARGE (TN 4, P 0.92, 28 dmg) on Blue: score 414.969 = dealt 31.52 x1.37 + (HP 228.0 - received 2.75 x1.00 - PSR 0.00) / enemy future 1.00 x my future 1.65 [incl. self-damage] beats 389.964
+  [Movement] Red declares a CHARGE against Blue (stops adjacent; 7 hexes counting the target's hex).
+  [Movement] Red: 0713 S -> 0517 NW, Run (10 MP, 7 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
+  [Ranged] Blue: shut down - no attacks.
+  [Ranged] Red: charging Blue - no ranged attacks this turn (pp.78-79).
+  [Physical] Red -> Blue: CHARGE needs 4 (piloting 5 + AMM 2 + TMM -4 + terrain 0 + comparative +1), rolled 6 -> HIT
+    Charge: Blue takes 28 (rear), Red takes 3.
+    Charge: 5 to Blue's Left Torso.
+5 damage (PHYSICAL) incoming to Left Torso (rear_armor).
+  [STANDARD/PHYSICAL] 2 armor pts destroyed at rear_armor (2 -> 0 remaining). 3 damage applied to structure [STANDARD] (6 -> 3/6 remaining).
+  Check for possible critical. Roll a 10.
+    2 critical hit(s).
+  Critical hit pool at Left Torso:
+    1: Engine (slot 1)
+    2: Engine (slot 2)
+    3: Engine (slot 3)
+    4: ISGuardianECMSuite (slot 4)
+    5: ISGuardianECMSuite (slot 5)
+    6: IS Stealth (slot 8)
+    7: IS Stealth (slot 9)
+    1/2 Criticals: Engine hit.
+      Current crit slots in Left Torso: ['Engine', 'DESTROYED', 'Engine', 'ISGuardianECMSuite', 'ISGuardianECMSuite', 'IS Endo Steel', 'IS Endo Steel', 'IS Stealth', 'IS Stealth', 'TSM', 'TSM', 'TSM']
+      Engine hit (1/3).
+  Critical hit pool at Left Torso:
+    1: Engine (slot 1)
+    2: Engine (slot 3)
+    3: ISGuardianECMSuite (slot 4)
+    4: ISGuardianECMSuite (slot 5)
+    5: IS Stealth (slot 8)
+    6: IS Stealth (slot 9)
+    2/2 Criticals: IS Stealth slot hit.
+      Current crit slots in Left Torso: ['Engine', 'DESTROYED', 'Engine', 'ISGuardianECMSuite', 'ISGuardianECMSuite', 'IS Endo Steel', 'IS Endo Steel', 'DESTROYED', 'IS Stealth', 'TSM', 'TSM', 'TSM']
+    Charge: 5 to Blue's Center Torso.
+5 damage (PHYSICAL) incoming to Center Torso (rear_armor).
+  [STANDARD/PHYSICAL] 3 armor pts destroyed at rear_armor (3 -> 0 remaining). 2 damage applied to structure [STANDARD] (8 -> 6/8 remaining).
+  Check for possible critical. Roll a 6.
+    No critical hit.
+    Charge: 5 to Blue's Head.
+5 damage (PHYSICAL) incoming to Head (rear_armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (7 -> 2 remaining).
+    Charge: 5 to Blue's Left Torso.
+5 damage (PHYSICAL) incoming to Left Torso (rear_armor).
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at rear_armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (3 -> 0/6 remaining).
+  Left Torso destroyed with no live explosive components - no critical roll.
+  Left Torso DESTROYED!
+    Engine hit (2/3) from Left Torso destruction.
+    Engine hit (3/3) from Left Torso destruction.
+  All critical slots in Left Torso marked DESTROYED.
+  Left Arm also destroyed (side torso rule).
+  All critical slots in Left Arm marked DESTROYED.
+  2 damage remains, transfers to Center Torso.
+    Charge (attacker): 3 to Red's Right Arm.
+3 damage (PHYSICAL) incoming to Right Arm (armor).
+  [STANDARD/PHYSICAL] 3 armor pts destroyed at armor (10 -> 7 remaining).
+PSR trigger: charged (attacker) -> +2.
+Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 7.
+  Succeeded - remains standing.
+  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
+  [End] Blue: TSEMP interference ends.
+  -- end of turn 8: Red @ 0416 NW: HP 167, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 8: Blue @ 0416 NW: HP 101, pilot hits 1, engine 3, gyro 0, heat 19 [SHUT DOWN, DESTROYED (Engine Destroyed)]
+
+>>> Battle over on turn 8: Blue destroyed. <<<

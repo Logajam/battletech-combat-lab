@@ -1,0 +1,103 @@
+# scenario ref_Kintaro_KTO-19_vs_Atlas_AS7-K_seed2
+# seed 1: winner Blue, 1 turns
+#   Red: 218.0 of 270.0 armor + structure left, team destroyed True, units 1, 0 hits of 1 attacks, 0.0 damage dealt
+#   Blue: 456.0 of 456.0 armor + structure left, team destroyed False, units 1, 2 hits of 3 attacks, 52.0 damage dealt
+# log
+  Deployment: Blue home edge W (0101-0117).
+  Deployment: Red home edge E (1601-1617).
+  Deployment roll: Red 5, Blue 4 - Blue chose its edge.
+
+=== TURN 1 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: no enemy on the board yet - heads for its home edge near 0109 (closing fallback)
+  [Movement] Red: off the board -> 1502 SW, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
+  [Movement select] Blue: score 526.982 = dealt 14.91 x1.00 + (HP 608.0 - received 0.88 x1.00 - PSR 0.00) / enemy future 8.84 x my future 7.45 [enemy held at 1502; 110 spots with LOS]
+  [Movement] Blue: off the board -> 0310 NE, Walk (3 MP, 3 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
+  [Ranged] Red -> Blue: range 14, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['ISLRM5'] (weapon heat 2 of budget 13 = max 4 + sink 10 - current 0 - movement 1 - other 0; expected dmg 0.88)
+    ISLRM5: needs 8 (range mod +2), rolled 3 -> miss [ISLRM5 Ammo Narc-capable: 23 shots left]
+  [Ranged] Blue -> Red: range 14, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['ISLRM20', 'ISGaussRifle', 'ISERLargeLaser'] (weapon heat 19 of budget 23 = max 4 + sink 20 - current 0 - movement 1 - other 0; expected dmg 14.87)
+    ISLRM20: needs 8 (range mod +2), rolled 7 -> miss [ISLRM20 Ammo: 5 shots left]
+    ISGaussRifle: needs 8 (range mod +2), rolled 10 -> HIT [ISGauss Ammo: 7 shots left]
+    ISERLargeLaser: needs 8 (range mod +2), rolled 9 -> HIT
+    ISGaussRifle hit for 15:
+      Hit location roll 4 (front table): Right Arm.
+15 damage (BALLISTIC) incoming to Right Arm (armor).
+  [STANDARD/BALLISTIC] 15 armor pts destroyed at armor (18 -> 3 remaining).
+    ISERLargeLaser hit for 8:
+      Hit location roll 2 (front table): Center Torso.
+      Roll of 2 - Through-Armor Critical (floating) triggered.
+      Floating TAC re-roll: 8 -> Left Torso
+8 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 8 armor pts destroyed at armor (18 -> 10 remaining).
+      Additional critical hit due to TAC.
+  Check for possible critical. Roll a 9.
+    1 critical hit(s).
+  Critical hit pool at Left Torso:
+    1: ISLRM5 Ammo Narc-capable (slot 1)
+    2: ISSRM6 Ammo Narc-capable (slot 2)
+    1/1 Criticals: ISLRM5 Ammo Narc-capable slot hit.
+      Current crit slots in Left Torso: ['DESTROYED', 'ISSRM6 Ammo Narc-capable', 'Ferro-Fibrous', 'Ferro-Fibrous', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+    ISLRM5 Ammo Narc-capable destroyed at Left Torso - EXPLOSION (115 dmg)! Pilot takes 1 hit (1/6).
+    Explosion reaches Left Torso. No CASE present - 20 damage to structure.
+    13 structure damage taken (0/13 remaining).
+  Check for possible critical. Roll a 7.
+    No critical hit.
+    Left Torso DESTROYED! (explosion)
+  All critical slots in Left Torso marked DESTROYED.
+  Left Arm also destroyed (side torso rule).
+  All critical slots in Left Arm marked DESTROYED.
+    7 explosion damage remains, transfers to Center Torso.
+    Explosion reaches Center Torso. No CASE present - 7 damage to structure.
+    7 structure damage taken (11/18 remaining).
+  Check for possible critical. Roll a 12.
+    Roll of 12 on torso: rolling 3 critical hits instead of destruction.
+    3 critical hit(s).
+  Critical hit pool at Center Torso:
+    1: Engine (slot 1)
+    2: Engine (slot 2)
+    3: Engine (slot 3)
+    4: Gyro (slot 4)
+    5: Gyro (slot 5)
+    6: Gyro (slot 6)
+    7: Gyro (slot 7)
+    8: Engine (slot 8)
+    9: Engine (slot 9)
+    10: Engine (slot 10)
+    11: ISNarcBeacon (slot 11)
+    12: ISNarcBeacon (slot 12)
+    1/3 Criticals: Gyro hit.
+      Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'DESTROYED', 'Gyro', 'Engine', 'Engine', 'Engine', 'ISNarcBeacon', 'ISNarcBeacon']
+      Gyro hit (1/2).
+  Critical hit pool at Center Torso:
+    1: Engine (slot 1)
+    2: Engine (slot 2)
+    3: Engine (slot 3)
+    4: Gyro (slot 4)
+    5: Gyro (slot 5)
+    6: Gyro (slot 7)
+    7: Engine (slot 8)
+    8: Engine (slot 9)
+    9: Engine (slot 10)
+    10: ISNarcBeacon (slot 11)
+    11: ISNarcBeacon (slot 12)
+    2/3 Criticals: ISNarcBeacon slot hit.
+      Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'DESTROYED', 'Gyro', 'Engine', 'Engine', 'Engine', 'ISNarcBeacon', 'DESTROYED']
+  Critical hit pool at Center Torso:
+    1: Engine (slot 1)
+    2: Engine (slot 2)
+    3: Engine (slot 3)
+    4: Gyro (slot 4)
+    5: Gyro (slot 5)
+    6: Gyro (slot 7)
+    7: Engine (slot 8)
+    8: Engine (slot 9)
+    9: Engine (slot 10)
+    10: ISNarcBeacon (slot 11)
+    3/3 Criticals: Gyro hit.
+      Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'DESTROYED', 'DESTROYED', 'Gyro', 'Engine', 'Engine', 'Engine', 'ISNarcBeacon', 'DESTROYED']
+      Gyro hit (2/2).
+  [Heat] Blue: 0 + movement 1 + weapons 19 + engine 0 - sinks 20 -> 0
+  -- end of turn 1: Red @ 1502 SW: HP 218, pilot hits 1, engine 0, gyro 2, heat 0 [DESTROYED (Gyro Destroyed)]
+  -- end of turn 1: Blue @ 0310 NE: HP 456, pilot hits 0, engine 0, gyro 0, heat 0
+
+>>> Battle over on turn 1: Red destroyed. <<<
