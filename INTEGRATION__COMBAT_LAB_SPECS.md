@@ -218,7 +218,8 @@ panic, on three fixtures.
 
 ## CL9. Art: the weapon-block stockpile
 
-Not specified here. The art has its own spec and status: `INTEGRATION__COMBAT_LAB_SKELETON.md`
+Spec sheets for the art (why the models read as stacked blocks, and jobs A1-A8): `INTEGRATION__COMBAT_LAB_ART_SPECS.md`.
+The rest of this section is the pointer written before those existed. The art has its own spec and status: `INTEGRATION__COMBAT_LAB_SKELETON.md`
 (Section 10: "Next on the 3D side (Daniel, 2026-11-06): a stockpile of weapon blocks. Phase 2 (the
 47 chart chassis) waits until the block dictionary is built up") and PROJECT_MAP Section 0 item E3.
 The art code is Python (`INTEGRATION__tokens.py`, `_shell*.py`, `tools/token_*`) and is not part of
