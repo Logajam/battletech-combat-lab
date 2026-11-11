@@ -569,7 +569,6 @@ pub fn choose(b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, s
     if b.units[other].hex.is_none() {
         return crate::move_select::choose(b, mover, other, moves_first, standup_mp, entry_edge, ties);
     }
-    let t0 = std::time::Instant::now();
     let group = Group::new(b, mover, Some(other), moves_first);
     let stance = force_posture(b, mover, &group);
     let exclude = move_options::occupied_hexes(b, mover, other);
@@ -610,9 +609,6 @@ pub fn choose(b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, s
         prepared = Some(p);
     }
     b.fire_ctl = None;
-    if std::env::var("BT_TIME").is_ok() {
-        eprintln!("TIME princess estimates {:?} (foes {}, spots {})", t0.elapsed(), group.foes.len(), prepared.as_ref().map_or(0, |p| p.len()));
-    }
     rank(b, mover, &group, &prepared.unwrap(), &estimate.unwrap(), standup_mp, entry_edge, &notes, moved, &stance)
 }
 

@@ -29,7 +29,6 @@ fn require_duel(b: &mut Battle, u: UnitId, what: &str) {
 impl BotSet for GladiatorBots {
     #[allow(unused)]
     fn choose_foe(&mut self, b: &mut Battle, mover: UnitId) -> Option<UnitId> {
-        if std::env::var("BT_TRACE").is_ok() { eprintln!("TRACE choose_foe {}", b.units[mover].side_name.clone().unwrap_or_default()); }
         if b.units[mover].bot == "gladiator" {
             if let Some(f) = crate::legate::foe_for(b, mover) {
                 return Some(f);
@@ -74,7 +73,6 @@ impl BotSet for GladiatorBots {
 
     #[allow(unused)]
     fn choose_movement(&mut self, b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, standup_mp: Option<i64>, entry_edge: Option<&[String]>) -> (Option<Pick>, String, PathGate) {
-        if std::env::var("BT_TRACE").is_ok() { eprintln!("TRACE choose_movement {}", b.units[mover].side_name.clone().unwrap_or_default()); }
         let mut ties = Ties { recorded: None, missed: false };
         let (pick, note) = if b.units[mover].bot == "princess" {
             assert!(b.cfg.s("PRINCESS_VERSION") == "modern", "the v0.50.07 Princess is not translated yet");
@@ -102,7 +100,6 @@ impl BotSet for GladiatorBots {
 
     #[allow(unused)]
     fn start_movement(&mut self, b: &mut Battle) {
-        if std::env::var("BT_TRACE").is_ok() { eprintln!("TRACE start_movement"); }
         crate::legate::plan_turn(b);
     }
 

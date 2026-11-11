@@ -196,12 +196,6 @@ pub fn select_weapons_scaled(b: &mut Battle, attacker: UnitId, distance: i64, pr
     let weapons = get_weapons(&b.units[attacker]);
     let (heat_budget, min_weapon_heat) = heat_limits(b.units[attacker].current_heat, min_heat, max_heat, dissipation, movement_heat, other_heat);
     let candidates = fire_candidates(b, attacker, distance, pre_tn, tn_adjust, unavailable, value_scale, &weapons, planner);
-    if std::env::var("BT_DEBUG").is_ok() {
-        for c in &candidates {
-            eprintln!("  cand {} value {:?} heat {}", b.units[attacker].items[c.w].name, c.value, c.heat);
-        }
-        eprintln!("  distance {} pre_tn {} budget {:?}", distance, pre_tn, heat_limits(b.units[attacker].current_heat, min_heat, max_heat, dissipation, movement_heat, other_heat));
-    }
     let values: Vec<f64> = candidates.iter().map(|c| c.value).collect();
     let heats: Vec<i64> = candidates.iter().map(|c| c.heat).collect();
     let (best_value, best_heat_used, picked) = best_subset_python(&values, &heats, heat_budget);

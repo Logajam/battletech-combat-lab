@@ -674,9 +674,6 @@ fn peak_at(b: &mut Battle, attacker: UnitId, target: UnitId, hex: (i64, i64)) ->
     }
     let value = (|| {
         let table = profile_table(b, attacker, target)?;
-        if std::env::var("BT_DUMP_TIER").is_ok() && b.units[attacker].side_name.as_deref() == Some("Blue 4") && b.units[target].side_name.as_deref() == Some("Red 3") {
-            eprintln!("PROF {:?} {:?} {:?}", b.units[attacker].hex, table[0].iter().map(|x| (x * 1000.0).round() / 1000.0).collect::<Vec<_>>(), table[1].iter().map(|x| (x * 1000.0).round() / 1000.0).collect::<Vec<_>>());
-        }
         let spots: Vec<(i64, i64)> = if moved && b.units[attacker].hex.is_some() {
             vec![xy(b.units[attacker].hex.as_deref().unwrap())]
         } else {
@@ -706,18 +703,12 @@ fn peak_at(b: &mut Battle, attacker: UnitId, target: UnitId, hex: (i64, i64)) ->
         best
     })()
     .unwrap_or(0.0);
-    if std::env::var("BT_DUMP_TIER").is_ok() {
-        eprintln!("PEAK {} {} {} {:?} {} {}", b.units[attacker].side_name.clone().unwrap_or_default(), b.units[target].side_name.clone().unwrap_or_default(), moved, hex, value, b.legate.footprints.get(&attacker).map_or(0, |f| f.len()));
-    }
     b.legate.peaks.insert(key, value);
     value
 }
 
 /// HOT, MID or COOL for the mover among its team.
 pub fn tier_of(b: &mut Battle, mover: UnitId) -> Tier {
-    if std::env::var("BT_DUMP_TIER").is_ok() {
-        eprintln!("TIER_FOR {} {}", b.units[mover].side_name.clone().unwrap_or_default(), b.units[mover].turn_number);
-    }
     let team_name = b.units[mover].team.clone();
     let standing = crate::forces::standing(b);
     let team: Vec<UnitId> = standing.iter().copied().filter(|u| b.units[*u].team == team_name).collect();
@@ -740,9 +731,6 @@ pub fn tier_of(b: &mut Battle, mover: UnitId) -> Tier {
             peril_here += peak_at(b, *e, *u, hxy);
         }
         ratios.insert(*u, peril_here / move_select::effective_hp(b, *u).max(1.0));
-        if std::env::var("BT_DUMP_TIER").is_ok() {
-            eprintln!("RATIO {} {:?}", b.units[*u].side_name.clone().unwrap_or_default(), ratios[u]);
-        }
     }
     let mut order = on_board.clone();
     order.sort_by(|a, c| (-ratios[a]).partial_cmp(&(-ratios[c])).unwrap());

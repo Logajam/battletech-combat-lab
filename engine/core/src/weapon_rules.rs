@@ -53,7 +53,7 @@ pub fn damage_groupings(b: &Battle, u: UnitId, w: ItemId, total_damage: Num) -> 
 }
 
 /// equipment.json canonical name for a weapon instance (cached on it, as the Python caches `_canonical`).
-pub fn canonical_name(b: &mut Battle, u: UnitId, w: ItemId) -> String {
+pub fn canonical_name(b: &mut Battle, u: UnitId, w: ItemId) -> std::sync::Arc<str> {
     if let Some(c) = &b.units[u].items[w].canonical {
         return c.clone();
     }
@@ -62,7 +62,7 @@ pub fn canonical_name(b: &mut Battle, u: UnitId, w: ItemId) -> String {
         Some(entry) => entry.canonical_name().to_string(),
         None => name,
     };
-    let cached = norm(&c);
+    let cached: std::sync::Arc<str> = norm(&c).into();
     b.units[u].items[w].canonical = Some(cached.clone());
     cached
 }
@@ -78,10 +78,24 @@ pub fn vsp_modifier(bracket: Option<&str>) -> i64 {
 
 /// The weapon's own to-hit modifier (p.185 lasers, p.184 silver bullet, p.187 rockets, p.189 M-pods).
 pub fn weapon_tn_modifier(b: &mut Battle, u: UnitId, w: ItemId, bracket: Option<&str>) -> i64 {
-    let n = canonical_name(b, u, w);
-    if n.contains("VSP") {
-        return vsp_modifier(bracket);
+    // the name decides it: kept on the item after the first asking
+    let fixed = match b.units[u].items[w].memo.tn_modifier {
+        Some(f) => f,
+        None => {
+            let f = if canonical_name(b, u, w).contains("VSP") { None } else { Some(fixed_tn_modifier(b, u, w)) };
+            b.units[u].items[w].memo.tn_modifier = Some(f);
+            f
+        }
+    };
+    match fixed {
+        Some(n) => n,
+        None => vsp_modifier(bracket),
     }
+}
+
+/// weapon_tn_modifier for every weapon but the VSP lasers (whose modifier goes by range bracket).
+fn fixed_tn_modifier(b: &mut Battle, u: UnitId, w: ItemId) -> i64 {
+    let n = canonical_name(b, u, w);
     if n.contains("XPULSE") {
         return -2;
     }
@@ -130,8 +144,13 @@ pub fn is_pulse(b: &mut Battle, u: UnitId, w: ItemId) -> bool {
 }
 
 pub fn is_ams(b: &mut Battle, u: UnitId, w: ItemId) -> bool {
+    if let Some(a) = b.units[u].items[w].memo.is_ams {
+        return a;
+    }
     let n = canonical_name(b, u, w);
-    n.contains("ANTIMISSILESYSTEM") || n.contains("APDS")
+    let a = n.contains("ANTIMISSILESYSTEM") || n.contains("APDS");
+    b.units[u].items[w].memo.is_ams = Some(a);
+    a
 }
 
 pub fn is_apds(b: &mut Battle, u: UnitId, w: ItemId) -> bool {

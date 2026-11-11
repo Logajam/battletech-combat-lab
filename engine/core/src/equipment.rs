@@ -71,7 +71,7 @@ pub struct Equipment {
     /// identity: the address of its first slot ("Right Arm#3"), fixed when a battle starts (tools/port_record.dump's `_addr`)
     pub addr: Option<String>,
     // ---- attributes later modules attach (None = the Python attribute does not exist) ----
-    pub canonical: Option<String>,        // "_canonical"
+    pub canonical: Option<std::sync::Arc<str>>, // "_canonical" (shared text: it is read millions of times a battle)
     pub ammo_key: Option<String>,
     pub ammo_unknown: Option<bool>,
     pub needs_ammo: Option<bool>,
@@ -106,6 +106,21 @@ pub struct Equipment {
     pub tsemp_recharge_until: Option<Option<i64>>,
     /// a machine gun array's guns
     pub mga_guns: Option<Vec<ItemId>>,
+    /// answers that depend only on the item's name and damage type, kept after the first asking (speed only)
+    pub memo: NameMemo,
+}
+
+/// `Equipment::memo`: None = not asked yet.
+#[derive(Clone, Copy, Debug, Default)]
+pub struct NameMemo {
+    /// fire_modes.special
+    pub special: Option<bool>,
+    /// fire_modes.has_profile
+    pub has_profile: Option<bool>,
+    /// weapon_rules.weapon_tn_modifier: Some(None) = by range bracket (a VSP laser), Some(Some(n)) = always n
+    pub tn_modifier: Option<Option<i64>>,
+    /// weapon_rules.is_ams
+    pub is_ams: Option<bool>,
 }
 
 impl Equipment {
@@ -185,6 +200,7 @@ impl Equipment {
             shield_dc: None,
             tsemp_recharge_until: None,
             mga_guns: None,
+            memo: NameMemo::default(),
         }
     }
 
@@ -227,7 +243,7 @@ impl Equipment {
             };
         }
         opt!("slots_needed", self.slots_needed);
-        opt!("_canonical", self.canonical);
+        opt!("_canonical", self.canonical.as_deref());
         opt!("ammo_key", self.ammo_key);
         opt!("ammo_unknown", self.ammo_unknown);
         opt!("needs_ammo", self.needs_ammo);
@@ -304,7 +320,7 @@ impl Equipment {
         e.rear_mounted = v["rear_mounted"].as_bool().unwrap();
         e.turret_mounted = v["turret_mounted"].as_bool().unwrap();
         e.slots_needed = gi("slots_needed");
-        e.canonical = gs("_canonical");
+        e.canonical = gs("_canonical").map(|c| c.into());
         e.ammo_key = gs("ammo_key");
         e.ammo_unknown = gb("ammo_unknown");
         e.needs_ammo = gb("needs_ammo");

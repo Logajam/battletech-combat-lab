@@ -100,9 +100,6 @@ impl RangedFor {
         let scale_on = b.cfg.f("MOVEMENT_STRUCTURE_WEIGHT") != 1.0;
         let dissipation = compute_heat_dissipation(&b.units[attacker]);
         let other = crate::heat::other_heat(b, attacker);
-        if std::env::var("BT_DUMP_TIER").is_ok() && extra_tn == 0 && b.units[attacker].side_name.as_deref() == Some("Blue 4") && b.units[target].side_name.as_deref() == Some("Red 3") {
-            eprintln!("RF {} gun {} hfm {} cond {:?} own {} amm {} tmm {} heat {} tgt armor {} att weapons {}", b.units[attacker].turn_number, b.units[attacker].gunnery, b.units[attacker].heat_fire_modifier, cond.as_ref().map(|c| c.0), crate::equipment_systems::own_attack_modifier(&b.units[attacker]), amm, tmm, b.units[attacker].current_heat, b.units[target].locations.values().map(|v| v.armor.f()).sum::<f64>(), get_weapons(&b.units[attacker]).len());
-        }
         RangedFor { attacker, target, cond, fixed: None, adjust, planner, scale_on, scales: None, memo: HashMap::default(), move_heat, amm, tmm, legs, extra_tn, dissipation, other }
     }
 
@@ -1062,11 +1059,6 @@ fn choose_normal(b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool
             static_cands = grid_search(b, &prepared1, &mut f, start, starts, Some(enemy_xy)).into_iter().map(|(_, c)| c).collect();
         } else {
             static_cands = ev1.evaluate(b, &enemy_label, &o_facing, o_fc, &o_mode, o_mp, &prepared1, true);
-        }
-    }
-    if std::env::var("BT_DUMP_STATIC").is_ok() {
-        for c in &static_cands {
-            eprintln!("STATIC {} {} {} {} {} {:?} {:?}", c.hex, c.facing, c.mode, c.fc, c.mp_spent, c.dealt, c.received);
         }
     }
     let static_dealt: HashMap<(String, &'static str, &'static str, i64), f64> = static_cands.iter().map(|c| (c.key4(), c.dealt)).collect();

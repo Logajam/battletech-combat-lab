@@ -596,6 +596,16 @@ pub trait TnAdjust {
 
 /// Weapons the Planner prices (anything that isn't a plain single shot).
 pub fn special(b: &mut Battle, u: UnitId, w: ItemId) -> bool {
+    // the name and damage type decide it: kept on the item after the first asking
+    if let Some(s) = b.units[u].items[w].memo.special {
+        return s;
+    }
+    let s = special_by_name(b, u, w);
+    b.units[u].items[w].memo.special = Some(s);
+    s
+}
+
+fn special_by_name(b: &mut Battle, u: UnitId, w: ItemId) -> bool {
     let dt_missile = b.units[u].items[w].damage_type.as_deref() == Some("Missile");
     let cn = canonical_name(b, u, w);
     dt_missile
@@ -614,6 +624,15 @@ pub fn special(b: &mut Battle, u: UnitId, w: ItemId) -> bool {
 }
 
 pub fn has_profile(b: &mut Battle, u: UnitId, w: ItemId) -> bool {
+    if let Some(p) = b.units[u].items[w].memo.has_profile {
+        return p;
+    }
+    let p = has_profile_by_name(b, u, w);
+    b.units[u].items[w].memo.has_profile = Some(p);
+    p
+}
+
+fn has_profile_by_name(b: &mut Battle, u: UnitId, w: ItemId) -> bool {
     is_mml(b, u, w)
         || wp::variable_damage(b, u, w).is_some()
         || wp::is_hag(b, u, w)
