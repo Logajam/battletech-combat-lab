@@ -259,6 +259,15 @@ impl Equipment {
         opt!("munition", self.munition);
         opt!("shot_damage", self.shot_damage);
         opt!("shots_left", self.shots_left);
+        if self.missiles_per_shot.is_some() {
+            // an ammo bin (ammo.attach_ammo ran over it): the Python sets these four attributes on every bin, None
+            // included (a bin that feeds nothing known, shots unknown = unlimited), so the dump shows them as null
+            for key in ["feeds", "kind", "munition", "shots_left"] {
+                if !m.contains_key(key) {
+                    m.insert(key.into(), Value::Null);
+                }
+            }
+        }
         if let Some((item, kind)) = &self.artemis {
             m.insert("artemis".into(), if depth + 1 > 12 { json!({"_deep": "list"}) } else { Value::Array(vec![ref_json(*item, depth + 2), json!(kind)]) });
         }

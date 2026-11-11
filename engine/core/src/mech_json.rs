@@ -280,6 +280,20 @@ impl Mech {
         if let Some(v) = self.jump_only {
             put!("jump_only", json!(v));
         }
+        // the command console's second warrior (p.203) and the IMP's MP loss: attributes the Python adds when they
+        // first happen (they were missing from this dump until a random-battle check met a superheavy tripod)
+        if let Some(v) = self.secondary_hits {
+            put!("secondary_hits", json!(v));
+        }
+        if let Some(v) = self.console_lost {
+            put!("console_lost", json!(v));
+        }
+        if let Some(v) = self.primary_dead {
+            put!("primary_dead", json!(v));
+        }
+        if let Some(v) = self.imp_mp {
+            put!("imp_mp", json!(v));
+        }
         if let Some(v) = &self.magma_entered {
             put!("magma_entered", json!(v));
         }
@@ -598,6 +612,10 @@ impl Mech {
         m.breached_locations = v.get("breached_locations").map(|x| strs(x).into_iter().collect());
         m.hp_log = v.get("hp_log").map(|x| x.as_array().unwrap().iter().map(|n| n.as_f64().unwrap()).collect());
         m.jump_only = v.get("jump_only").and_then(|x| x.as_bool());
+        m.secondary_hits = v.get("secondary_hits").and_then(|x| x.as_i64());
+        m.console_lost = v.get("console_lost").and_then(|x| x.as_bool());
+        m.primary_dead = v.get("primary_dead").and_then(|x| x.as_bool());
+        m.imp_mp = v.get("imp_mp").and_then(|x| x.as_i64());
         m.magma_entered = v.get("magma_entered").map(|x| x.as_array().unwrap().iter().map(|p| (p[0].as_str().unwrap().to_string(), p[1].as_str().unwrap().to_string())).collect());
         m.other_unit_hexes = v.get("other_unit_hexes").cloned();
         m.outside_heat = v.get("outside_heat").and_then(|x| x.as_i64());
