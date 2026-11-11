@@ -44,6 +44,9 @@ impl BotSet for GladiatorBots {
         if b.units[attacker].bot == "princess" {
             return crate::bot_targets::princess_choose_target(b, attacker);
         }
+        if b.units[attacker].bot == "hydra" {
+            return crate::hydra::choose_target(b, attacker);
+        }
         crate::bot_targets::gladiator_choose_target(b, attacker)
     }
 
@@ -74,7 +77,9 @@ impl BotSet for GladiatorBots {
     #[allow(unused)]
     fn choose_movement(&mut self, b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, standup_mp: Option<i64>, entry_edge: Option<&[String]>) -> (Option<Pick>, String, PathGate) {
         let mut ties = Ties { recorded: None, missed: false };
-        let (pick, note) = if b.units[mover].bot == "princess" {
+        let (pick, note) = if b.units[mover].bot == "hydra" {
+            crate::hydra::choose_movement(b, mover, other, moves_first, standup_mp, entry_edge)
+        } else if b.units[mover].bot == "princess" {
             assert!(b.cfg.s("PRINCESS_VERSION") == "modern", "the v0.50.07 Princess is not translated yet");
             crate::princess_modern::choose(b, mover, other, moves_first, standup_mp, entry_edge, &mut ties)
         } else {
@@ -115,6 +120,7 @@ impl BotSet for GladiatorBots {
 
     fn reset_assigned(&mut self, b: &mut Battle) {
         crate::princess_fire::reset_assigned(b);
+        b.hydra.start_fire_phase();
     }
 
     fn assign_damage(&mut self, b: &mut Battle, attacker: UnitId, target: UnitId, dmg: f64) {

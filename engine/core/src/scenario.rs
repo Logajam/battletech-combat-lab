@@ -19,6 +19,8 @@ pub struct Scenario {
     pub board: Value,
     pub units: Value,
     pub max_turns: i64,
+    /// teams whose every unit is driven by Hydra, whatever units.json says (btsim --hydra TEAM[,TEAM])
+    pub hydra_teams: Vec<String>,
 }
 
 fn read(p: &Path) -> Value {
@@ -27,8 +29,9 @@ fn read(p: &Path) -> Value {
 
 impl Scenario {
     pub fn load(dir: &Path) -> Scenario {
-        let meta = read(&dir.join("meta.json"));
-        Scenario { config: read(&dir.join("config.json")), board: read(&dir.join("board.json")), units: read(&dir.join("units.json")), max_turns: meta["max_turns"].as_i64().unwrap_or(50) }
+        // meta.json is optional (a fixture folder has none): 50 turns
+        let meta = if dir.join("meta.json").exists() { read(&dir.join("meta.json")) } else { Value::Null };
+        Scenario { hydra_teams: Vec::new(), config: read(&dir.join("config.json")), board: read(&dir.join("board.json")), units: read(&dir.join("units.json")), max_turns: meta["max_turns"].as_i64().unwrap_or(50) }
     }
 
     /// Builds the battle (units, board, config) around a dice source.
@@ -37,7 +40,12 @@ impl Scenario {
         let board = Board::from_json(&self.board);
         let names: Vec<String> = self.units.as_object().unwrap().keys().cloned().collect();
         let idx = |n: &str| names.iter().position(|x| x == n).unwrap();
-        let units: Vec<Mech> = names.iter().map(|n| Mech::from_json(&self.units[n], &idx)).collect();
+        let mut units: Vec<Mech> = names.iter().map(|n| Mech::from_json(&self.units[n], &idx)).collect();
+        for m in units.iter_mut() {
+            if m.team.as_ref().is_some_and(|t| self.hydra_teams.contains(t)) {
+                m.bot = "hydra".to_string();
+            }
+        }
         Battle::new(cfg, board, units, dice)
     }
 
