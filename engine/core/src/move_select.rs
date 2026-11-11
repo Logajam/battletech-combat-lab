@@ -11,7 +11,7 @@ use crate::damage_resolution::get_weapons;
 use crate::hex_geometry;
 use crate::los::hex_distance;
 use crate::mech_state::*;
-use crate::move_attacks::{self, Pose};
+use crate::move_attacks::{self};
 use crate::move_eval::{Candidate, MoveEvaluator};
 use crate::move_options::{self, Opt, PathNotes, StateKey};
 use crate::physical::{PhysPlanner, Worth};
@@ -1040,7 +1040,7 @@ fn choose_normal(b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool
     let starts = b.cfg.i("MOVEMENT_SEARCH_STARTS") as usize;
     let static_cands: Vec<Candidate>;
     {
-        let mut static_rows = |b: &mut Battle, states: &[Opt], ev1: &mut MoveEvaluator, me: &Side, them: &Side| -> Vec<(f64, Candidate)> {
+        let static_rows = |b: &mut Battle, states: &[Opt], ev1: &mut MoveEvaluator, me: &Side, them: &Side| -> Vec<(f64, Candidate)> {
             ev1.evaluate(b, &enemy_label, &o_facing, o_fc, &o_mode, o_mp, states, true).into_iter().map(|cand| (me.obj(cand.dealt, cand.received, them.exp(cand.side_on_defender), me.exp(cand.side_on_mover), me.psr_for_cand(b, &cand)), cand)).collect()
         };
         if !moves_first && own == "short_list" {
@@ -1099,7 +1099,7 @@ fn choose_normal(b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool
     }
 
     // --- two-ply: score every spot by the second mover's modeled reply ---
-    let mut ev2 = MoveEvaluator::new(b, other, mover);
+    let ev2 = MoveEvaluator::new(b, other, mover);
     let opp = opponent_options(b, other, &mut them);
     let prepared2 = ev2.prepare(b, &opp);
     let mut index2 = None;

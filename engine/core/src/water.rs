@@ -91,7 +91,7 @@ pub fn auto_breaches(b: &mut Battle, u: UnitId) {
     let st = state(b, u);
     let locs = submerged_locations(&b.units[u], st); // BTreeSet = sorted(...)
     for location in locs {
-        let loc = &b.units[u].locations[location.as_str()];
+        let _loc = &b.units[u].locations[location.as_str()];
         if breached(&mut b.units[u]).contains(&location) || b.units[u].locations[location.as_str()].destroyed {
             continue;
         }

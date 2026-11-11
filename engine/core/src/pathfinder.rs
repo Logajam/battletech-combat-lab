@@ -48,7 +48,7 @@ fn build_flat(start_x: i64, start_y: i64, start_facing: i64, mp_budget: i64) -> 
     layer.insert(start_state, 0);
     for mp in 0..mp_budget {
         let mut next_layer: IndexMap<State, i64> = IndexMap::default();
-        let mut push = |state: State, forward_count: i64, next_layer: &mut IndexMap<State, i64>| match next_layer.get(&state) {
+        let push = |state: State, forward_count: i64, next_layer: &mut IndexMap<State, i64>| match next_layer.get(&state) {
             Some(&e) if forward_count <= e => {}
             _ => {
                 next_layer.insert(state, forward_count);

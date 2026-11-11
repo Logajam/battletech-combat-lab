@@ -6,6 +6,18 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-11 (Claude, session 25), SESSION 25 TIDY-UP: THE LOOKAHEAD NO LONGER ROLLS BATTLE DICE; SIX CREW HITS BY THE BOOK; HYDRA TABLE RE-RUN; WARNINGS; SECTION 0. REVIEW PENDING (higher-level model).**
+  Daniel: "lets see what you can tidy up on its todo list" and "there was a free floating dice outside of the seed". (1) LOOKAHEAD DICE, both
+  engines (`INTEGRATION__structure_weight.hit_spread`, `engine/core/src/structure_weight.rs`): a bot estimating hits on a torso-cockpit 'Mech
+  whose head is gone used to re-roll head results with the battle's dice and print the re-rolls (Core p.203); it now takes that re-roll's exact
+  average - Head rows dropped, the rest scaled by 1 / (1 - P(head)) - no dice, no log lines. `hit_location::resolve_hit_location_shared` and
+  `Battle::lookahead_log` removed. Python 56 of 56 (no reference log changed); Rust 63 of 63 fixtures with Rust bots; the two random battles that
+  used to differ (`port_fuzz exact 240`, `7054 --tag c`) now match, and 17 new ones (`exact 9100 20 --tag s`; 3 drew bridge maps, which neither engine plays). (2) SIX CREW HITS (`piloting_rolls.rs`):
+  the `crew_six_hits` stub replaced by the book - six hits is "Dead" on the Consciousness table (p.117), so no roll; the console's secondary
+  warrior takes over (p.203). (3) HYDRA's whole mirror table re-run (Fable's second pass left five rows stale): 285 - 245 over nine match-ups,
+  `INTEGRATION__HYDRA.md` Section 5. (4) Ten Rust compiler warnings fixed (unused imports, needless `mut`; no behaviour change). (5) PROJECT_MAP
+  Section 0: date, Rust engine and Hydra rows, D1 rewritten (the port is done), review-queue letters made unique (the session 22-24 items are now
+  (s), (t), (u); older Change Record text calling the Rust review "queue item (p)" means (t)).
 - **2026-11-11 (Claude, session 24), HYDRA SECOND PASS: where damage lands, a lone unit may hide, reply budget 64. REVIEW PENDING (higher-level model).**
   Daniel: "Improve Hydra." `engine/core/src/hydra.rs` only (Hydra units only; no other bot or rule touched). (1) exchange figures are multiplied
   by the engine's exposure factor of the side the damage arrives on (`Side::exposure`); (2) when moving first with no friend in any weighed

@@ -9,7 +9,7 @@ use crate::battle::{Battle, UnitId};
 use crate::combat::{classify_movement_mode, fc_to_tmm, mode_to_amm};
 use crate::hex_geometry::{self, State};
 use crate::mech_state::*;
-use crate::pathfinder::{build_movement_table, Hex};
+use crate::pathfinder::Hex;
 use crate::terrain_rules;
 
 /// (x, y, facing, fc, mode, mp_spent)

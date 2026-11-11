@@ -93,9 +93,6 @@ pub struct Battle {
     pub db: &'static EquipmentDb,
     pub log: Log,
     pub dice: std::cell::RefCell<Box<dyn Dice>>,
-    /// log lines a lookahead's dice quirk printed (a destroyed torso-cockpit head re-rolled while a bot was only thinking):
-    /// written ahead of the next log line
-    pub lookahead_log: std::cell::RefCell<Vec<String>>,
     pub units: Vec<Mech>,
     pub board: Board,
     /// stubs.py: how many times each stub ran this battle
@@ -174,7 +171,6 @@ impl Battle {
             db: EquipmentDb::shared(),
             log: Log::default(),
             dice: std::cell::RefCell::new(dice),
-            lookahead_log: Default::default(),
             units,
             board,
             stub_counts: IndexMap::default(),
@@ -201,10 +197,6 @@ impl Battle {
         self.dice.borrow_mut().pick_number(n)
     }
     pub fn log(&mut self, msg: impl Into<String>) {
-        let pending: Vec<String> = self.lookahead_log.borrow_mut().drain(..).collect();
-        for l in pending {
-            self.log.lines.push(l);
-        }
         self.log.log(msg);
     }
     /// a bare `print` (not config.log): never dropped by a dry run's quiet

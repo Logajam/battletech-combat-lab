@@ -170,8 +170,12 @@ Kept (all in the Mover; each judged on the same seeds, 40 battles a seating):
 | 2 v 2 | 32 - 45 - 3 | 34 - 34 - 12 |
 | 4 v 4 lance, woods | 41 - 28 - 11 | 35 - 30 - 15 (within the noise of 80 battles) |
 
-NOT re-run after the changes: Awesome duel, 4 v 4 grass (37 - 31 - 12 in a mid-way build), 4 v 4 heavies,
-8 v 8, 12 v 12, and speed. Run the whole table before building on this.
+Whole table re-run in session 25 (same build; the four rows above reproduced exactly), Hydra - Gladiator - none,
+40 battles a seating (16 for 8 v 8 and 12 v 12): Awesome duel 42 - 36 - 2 (was 47 - 33 - 0); 4 v 4 grass 36 - 33 - 11
+(was 41 - 29 - 10); 4 v 4 heavies 42 - 25 - 13 (was 51 - 24 - 5); 8 v 8 16 - 11 - 5 (was 15 - 7 - 10); 12 v 12 13 - 12 - 7
+(was 14 - 15 - 3). All nine: 285 - 245. Seconds a battle (wall, 4 threads), Gladiator mirror v with Hydra on one side:
+4 v 4 0.70-1.00 v 0.46-0.60; 8 v 8 2.13 v 1.37; 12 v 12 4.53 v 2.86. Still ahead from 4 v 4 up and faster; the brawler
+duel and 2 v 2 are the gaps, as before.
 
 Tried and dropped (no gain, so the code does not carry them):
 - pressing harder when ahead (judging trades as if level; discounting damage taken by the lead): flat;

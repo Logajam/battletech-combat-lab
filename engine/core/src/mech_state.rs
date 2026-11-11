@@ -458,7 +458,7 @@ impl Mech {
         let quad = QUAD_TYPES.contains(&mech_type);
         let mut items: Vec<Equipment> = Vec::new();
         // equipment_slots(...): ONE Equipment shared by its slots
-        let mut shared = |items: &mut Vec<Equipment>, name: &str, slots: i64, explosive: bool, dmg: Option<i64>| -> Vec<Slot> {
+        let shared = |items: &mut Vec<Equipment>, name: &str, slots: i64, explosive: bool, dmg: Option<i64>| -> Vec<Slot> {
             items.push(Equipment::new(name, slots, explosive, dmg, true, None, false, None, None, None, None, None, None, None, None));
             let id = items.len() - 1;
             (0..slots).map(|_| Slot::Item(id)).collect()

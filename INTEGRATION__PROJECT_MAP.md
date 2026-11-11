@@ -14,7 +14,7 @@ project's files. Never let one source project's file overwrite the other's same-
 ---
 
 
-## 0. WHERE WE ARE (2026-11-10, session 21) — read this first
+## 0. WHERE WE ARE (2026-11-11, session 25) — read this first
 
 This section is the current state and the open work, nothing else. The story of how it got here is in
 `INTEGRATION__HISTORY.md` (the old Section 0, word for word, with Daniel's quotes and every number) and
@@ -23,11 +23,14 @@ move its line to the Change Record instead of adding a paragraph here.
 
 **What it is.** `.mtf` units in, turn-by-turn battles on a real hex board under the Core Rulebook, a batch summary
 and statistics page out. Any number of units on any number of teams (`config.FORCES`), each driven by one of two
-bots: Gladiator (this project's) or Princess (a MegaMek clone). Daniel owns rules and scope; Claude owns the code
+bots: Gladiator (this project's) or Princess (a MegaMek clone); a third, Hydra, exists in the Rust engine only. Daniel owns rules and scope; Claude owns the code
 and the GitHub logistics (Section 7).
 
 ### Session setup and the checks
 
+- **Rust engine (`engine/`, sessions 22-24):** `cd engine && cargo build --release -p btsim`; batches with
+  `engine/target/release/btsim SCENARIO_DIR --battles N` (scenarios from `tools/port_scenario.py`; the Hydra mirror set
+  from `tools/hydra_scenarios.py`, into the git-ignored `engine/fixtures/`). Checks: `RUST_PORT.md` "Session 24".
 - `pip install -r requirements.txt`. Unzip `rules/Battletech_Rule_Reference_Index.zip` OUTSIDE the repo (Core
   Rulebook in `base/core-rules/*.md`, a `[p.N]` marker comes before page N's text; `summary/core-rules/*.yaml`
   is the fast read). Unzip `data/meks.zip` / `data/maps.zip` outside the repo when needed.
@@ -58,7 +61,9 @@ and the GitHub logistics (Section 7).
 | Princess | Modern (default) and v0.50.07 clones; group behaviours; Battle Value | `_princess*`, `_battle_value` |
 | Choices still stubs | Rate of fire, ammo kind, MASC / supercharger, unjam, capacitors, shields, TAG... (loud, counted) | `INTEGRATION__stubs.py`, Section 6 |
 | Output | Batch summary, timing table, replays, battle statistics page (stages 1-3 of 5), saved states (end of a turn) | `_results`, `_timing`, `_replay`, `_stats*`, `_saved_state` |
-| Speed | Rust copies of the weapon table, movement search, LOS, hex distance; Python caches | `fastcore/`, `config.USE_FASTCORE` |
+| Rust engine | The whole engine and both default bots, exact against the Python on 63 fixtures and ~830 random battles; `btsim` batches about 10x the Python's speed a core. Not translated: the switches that are off by default | `engine/`, `INTEGRATION__RUST_PORT.md`, `engine/REVIEW_BRIEF.md` |
+| Hydra | Third bot, Rust only: one planner a team, damage priced by a forecast of the battle's end. Ahead of Gladiator at 4 v 4 / 8 v 8, behind in brawler duels | `engine/core/src/hydra.rs`, `INTEGRATION__HYDRA.md` |
+| Speed (old) | Rust copies of the weapon table, movement search, LOS, hex distance for the Python; to be retired | `fastcore/`, `config.USE_FASTCORE` |
 | Combat Lab art | Skeleton-and-shell faceted models, block library, workbench | `_tokens`, `_shell*`, `tools/token_*`, `INTEGRATION__COMBAT_LAB*.md` |
 
 **Defaults that matter for the bots:** Legate on; fire split "proportional", this turn too; triage on (since
@@ -108,11 +113,12 @@ standoff, sprinting, multi-target fire, unit orders. Open call (Daniel): Short-S
 - C6. Other unit types; scenario features (objectives, fog of war).
 
 **D. Engine, speed, state**
-- **D1. THE RUST TRANSLATION (engine and default bots DONE and reviewed, sessions 22-24: `engine/`, `btsim` runs batches about 10x the Python's speed on one core; left: the switches off by default, a `config.ENGINE` switch, retiring `fastcore/`; check any Rust change with `python tools/port_fuzz.py exact ...`) - Daniel's next step (2026-11-10: "have Sonnet translate the monte carlo into
-  rust. Just bite the bullet and remove translation as a source of slowdown").** Plan, traps, stages and the
-  stage log: `INTEGRATION__RUST_PORT.md` (spec T11). The Python stays as the answer key and its behaviour is
-  FROZEN while the port runs - so decide T8 and build or park T1 first. Engine and both bots go to Rust; output
-  pages and the art stay Python [13, 1, 1a].
+- D1. THE RUST TRANSLATION - DONE and reviewed (sessions 22-24; Change Record "RUST ENGINE REVIEWED"). Daniel, 2026-11-11:
+  "Python will be effectively retired from here on out"; new bot work is Rust only (Hydra). Left, finishing work for a
+  smaller model: a `config.ENGINE` switch in `INTEGRATION__main.py`; retiring `fastcore/`; then the Python fixes in
+  Section 4 ("Known issues found by the Rust review" - Daniel: after the port is otherwise complete); the switches
+  that are off by default stay untranslated until needed; speed leads in `engine/REVIEW_BRIEF.md`. Check any Rust
+  change with `BOTS=rust cargo test --release --test stage6_battles` and `python tools/port_fuzz.py exact ...`.
 - D2. One battle-state object and stable unit numbers in place of memory-address keys (about 300 `id()` uses; two
   real bugs came from them). Design DONE: `INTEGRATION__STATE.md`. The Rust translation builds it directly; the
   Python is changed (T6) only if the translation is dropped.
@@ -139,13 +145,15 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
-- **(q) HYDRA, THE THIRD BOT** (session 24, Rust only) - plan `INTEGRATION__HYDRA.md`, code `engine/core/src/hydra.rs`. Second pass 2026-11-11 (exposure, lone unit may hide, reply 64; full table NOT re-run). First version built and
+- **(v) SESSION 25 TIDY-UP** (2026-11-11; Change Record "SESSION 25"): the lookahead-dice fix in both engines
+  (`structure_weight.hit_spread`, `structure_weight.rs`), the six-crew-hits rule (`piloting_rolls.rs`), the warning clean-up.
+- **(u) HYDRA, THE THIRD BOT** (session 24, Rust only) - plan `INTEGRATION__HYDRA.md`, code `engine/core/src/hydra.rs`. Second pass 2026-11-11 (exposure, lone unit may hide, reply 64; full table re-run in session 25: 285 - 245 head to head, HYDRA.md Section 5). First version built and
   measured (Change Record "HYDRA"); NEXT WORK is the movement play-out, plan Section 6 (S5a), then Section 7. To review: the Forecast and Prices,
   the Mover's score, the Fire Plan's overkill rule.
-- **(p) RUST PORT STAGES 1-9** - REVIEWED in session 24 (Change Record "RUST ENGINE REVIEWED"): two engine bugs fixed, 3-5x faster, random-battle
+- **(t) RUST PORT STAGES 1-9** - REVIEWED in session 24 (Change Record "RUST ENGINE REVIEWED"): two engine bugs fixed, 3-5x faster, random-battle
   check added. What is left of it for a later look: the five Python findings below it in Section 4 (Daniel's call), and the session-24 changes
   themselves (the caches `los_memo` / `table_memo` / `Equipment::memo` and when `Battle::board_changed` empties them; `pyfmt::py_sum`).
-- **(o) RUST PORT STAGE 0** (session 22; Change Record "RUST PORT STAGE 0 DONE"). Review: the decision seam changes nothing in
+- **(s) RUST PORT STAGE 0** (session 22; Change Record "RUST PORT STAGE 0 DONE"). Review: the decision seam changes nothing in
   normal play (`INTEGRATION__decisions.decide` calls `compute()`; the `choose_declaration` move in `attack_resolution._declare`
   is the same code); the recorder's hooks only read; the replay's completeness argument (an exact replay with the bots off proves
   the decision list holds everything the engine needs from them); the coverage list `engine/COVERAGE_GAPS.md`.
@@ -352,14 +360,16 @@ https://claude.ai/artifact/NJUknRiK1fcZzUv4A1fndX
 
 **Crew at 6 hits with the unit still standing (found by Hydra's trials, 2026-11-11).** A unit with several crew can reach 6 crew hits and not be
 destroyed; the consciousness check then had no table entry and crashed. Placeholder (stub `crew_six_hits`, `piloting_rolls.rs`): that crew member is
-out for the battle, no roll. Daniel to rule what the book says.
+out for the battle, no roll. RESOLVED session 25 from the book: six hits = dead (Core p.117, the Consciousness table's 6 column reads
+"Dead"), so no roll; the console's secondary warrior takes over (p.203). Stub removed.
 
 **Known issues found by the Rust review (session 24, 2026-11-11; the Python is frozen during the port, so none is changed).**
 **DANIEL, 2026-11-11: fix these in the Python AFTER the port is otherwise complete ("We'll leave correcting the python code for future you"); the
 lookahead dice are not a worry as long as both engines are wired the same way (they are: the Rust copies the quirk and draws from the battle's dice
 too - only the number of draws differs, which shows in an exact replay and not in batch statistics). The switches that are off by default stay
 untranslated "until they're actually needed". What is left of the port is finishing work for smaller models.**
-- A bot's lookahead rolls REAL dice: `structure_weight.hit_spread` calls `hit_location.resolve_hit_location`, which re-rolls a head result on a unit
+- FIXED session 25 in both engines (Daniel: "a free floating dice outside of the seed"): the lookahead now takes the re-roll's
+  exact average (Head rows dropped, the rest scaled by 1 / (1 - P(head))), draws no dice and prints nothing. Was: a bot's lookahead rolls REAL dice: `structure_weight.hit_spread` calls `hit_location.resolve_hit_location`, which re-rolls a head result on a unit
   whose head is destroyed and whose cockpit is in the torso (Core p.203) with `config.roll_2d6` and logs each re-roll. So a bot that is only thinking
   uses up battle dice and prints dozens of "Head already destroyed ... re-rolled" lines (fixture `fza_240`: 47 in one move). Suggested fix: in the
   lookahead, spread a head result over the other rolls instead of rolling.

@@ -14,14 +14,14 @@ fn p_2d6(roll: i64) -> f64 {
     (6 - (roll - 7).abs()) as f64 / 36.0
 }
 
-/// The location a 2D6 roll strikes as a LOOKAHEAD sees it (a tripod's leg sub-roll reads the raw table; a destroyed
-/// torso-cockpit head draws dice, a Python quirk kept).
+/// The location a 2D6 roll strikes as a LOOKAHEAD sees it: no dice, no log lines (a tripod's leg sub-roll reads the raw
+/// table; a destroyed torso-cockpit head is handled in `hit_spread` by its re-roll's average).
 fn lookahead_location(b: &Battle, u: UnitId, roll: i64, side: &str) -> String {
     if b.units[u].mech_type == "tripod" {
         let table = table_for(side);
         return table.iter().find(|(r, _)| *r == roll).map_or("Center Torso", |(_, l)| l).to_string();
     }
-    crate::hit_location::resolve_hit_location_shared(b, u, roll, side)
+    crate::hit_location::once_pure(b, u, roll, side)
 }
 
 /// [(probability, location, armor key)] for a shot on `side` of `mech` from its CURRENT state; `rolls` = another table.
@@ -33,6 +33,12 @@ pub fn hit_spread(b: &Battle, u: UnitId, side: &str, rolls: Option<&[(f64, Strin
         None => {
             for roll in 2..=12 {
                 base.push((p_2d6(roll), lookahead_location(b, u, roll, side)));
+            }
+            // A torso-cockpit 'Mech whose head is gone re-rolls head results (Core p.203): take the re-roll's exact
+            // average - drop the Head rows, scale the rest by 1 / (1 - P(head)). Session 25; the Python does the same.
+            if mech.mech_type != "tripod" && crate::hit_location::head_gone_torso_cockpit(b, u) {
+                let p_head = crate::pyfmt::py_sum(base.iter().filter(|(_, l)| l == "Head").map(|(p, _)| *p));
+                base = base.into_iter().filter(|(_, l)| l != "Head").map(|(p, l)| (p / (1.0 - p_head), l)).collect();
             }
         }
     }

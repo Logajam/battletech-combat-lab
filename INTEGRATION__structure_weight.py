@@ -68,11 +68,19 @@ def hit_spread(mech, side, rolls=None):
             table = hit_location.HIT_TABLE_RIGHT_SIDE
         else:
             table = hit_location.HIT_TABLE_FRONT_REAR
-        # resolve_hit_location also translates quad leg names; its tripod leg
-        # sub-roll draws Python's random, which a lookahead must not touch, so
-        # a tripod reads the raw table (its Left/Right Leg rows).
-        rolls = [(p, table[roll] if mech.mech_type == "tripod" else hit_location.resolve_hit_location(roll, mech, side))
+        # A lookahead must never draw the battle's dice or print log lines. The
+        # tripod leg sub-roll draws dice, so a tripod reads the raw table (its
+        # Left/Right Leg rows); everyone else reads _resolve_hit_location, which
+        # only translates quad leg names. A torso-cockpit 'Mech whose head is
+        # gone re-rolls head results (Core p.203): the lookahead takes that
+        # re-roll's exact average instead of rolling - the Head rows are dropped
+        # and the rest scaled by 1 / (1 - P(head)). (Session 25: this was the
+        # "lookahead rolls real dice" issue, PROJECT_MAP Section 4.)
+        rolls = [(p, table[roll] if mech.mech_type == "tripod" else hit_location._resolve_hit_location(roll, mech, side))
                  for roll, p in _P_2D6.items()]
+        if mech.mech_type != "tripod" and hit_location._head_gone_torso_cockpit(mech):
+            p_head = sum(p for p, loc in rolls if loc == "Head")
+            rolls = [(p / (1.0 - p_head), loc) for p, loc in rolls if loc != "Head"]
     spread = []
     for p, loc in rolls:
         while loc is not None and mech.locations.get(loc, {}).get("destroyed"):

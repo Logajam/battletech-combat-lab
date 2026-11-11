@@ -424,7 +424,7 @@ impl Mech {
             }
         }
         // placeholders for addresses only named in id sets / keys
-        let mut note = |a: &str, ids: &mut IndexMap<String, ItemId>| {
+        let note = |a: &str, ids: &mut IndexMap<String, ItemId>| {
             let n = ids.len();
             ids.entry(a.to_string()).or_insert(n);
         };
