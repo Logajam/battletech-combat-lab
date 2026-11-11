@@ -121,6 +121,8 @@ pub struct NameMemo {
     pub tn_modifier: Option<Option<i64>>,
     /// weapon_rules.is_ams
     pub is_ams: Option<bool>,
+    /// weapon_rules.targeting_computer_eligible
+    pub tc_eligible: Option<bool>,
 }
 
 impl Equipment {

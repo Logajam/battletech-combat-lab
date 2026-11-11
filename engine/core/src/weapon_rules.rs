@@ -128,6 +128,15 @@ fn fixed_tn_modifier(b: &mut Battle, u: UnitId, w: ItemId) -> i64 {
 
 /// p.200: direct-fire ballistic/energy and pulse weapons, but not cluster weapons, flamers or machine guns.
 pub fn targeting_computer_eligible(b: &mut Battle, u: UnitId, w: ItemId) -> bool {
+    if let Some(e) = b.units[u].items[w].memo.tc_eligible {
+        return e;
+    }
+    let e = tc_eligible_by_name(b, u, w);
+    b.units[u].items[w].memo.tc_eligible = Some(e);
+    e
+}
+
+fn tc_eligible_by_name(b: &mut Battle, u: UnitId, w: ItemId) -> bool {
     let dt = b.units[u].items[w].damage_type.clone();
     if is_cluster(b, u, w) || !matches!(dt.as_deref(), Some("Energy") | Some("Ballistic")) {
         return false;

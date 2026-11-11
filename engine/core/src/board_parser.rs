@@ -21,15 +21,20 @@ pub const KNOWN_FEATURE_NAMES: [&str; 36] = [
 pub struct Features(pub IndexMap<String, Vec<String>>);
 
 impl Features {
+    // A hex has a handful of features at most: looking down the short list beats hashing the name (these are asked
+    // tens of millions of times a battle by the movement search).
     pub fn has(&self, name: &str) -> bool {
-        self.0.contains_key(name)
+        self.get(name).is_some()
     }
     pub fn get(&self, name: &str) -> Option<&Vec<String>> {
-        self.0.get(name)
+        if self.0.len() > 8 {
+            return self.0.get(name);
+        }
+        self.0.iter().find(|(k, _)| k.as_str() == name).map(|(_, v)| v)
     }
     /// `features[name][:1]` as the first param, if any.
     pub fn first_param(&self, name: &str) -> Option<&str> {
-        self.0.get(name).and_then(|p| p.first()).map(|s| s.as_str())
+        self.get(name).and_then(|p| p.first()).map(|s| s.as_str())
     }
 }
 

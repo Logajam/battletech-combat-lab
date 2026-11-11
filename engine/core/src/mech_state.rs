@@ -768,6 +768,12 @@ pub fn mech_shields(mech: &Mech) -> Vec<(String, ItemId, &'static str)> {
         if let Some(slots) = mech.crits.get(arm) {
             for s in slots {
                 if let Slot::Item(id) = s {
+                    // most slots are not shields: say so without building the upper-case name
+                    if let Some((buf, len)) = norm_ascii(&mech.items[*id].name, false) {
+                        if !has_bytes(&buf[..len], b"SHIELD") {
+                            continue;
+                        }
+                    }
                     let n = norm_name(&mech.items[*id].name);
                     if n.contains("SHIELD") && !n.contains("BLUESHIELD") && !seen.contains(id) {
                         seen.push(*id);
@@ -1061,29 +1067,42 @@ pub fn compute_running_mp(mech: &Mech) -> i64 {
 }
 
 fn is_aes(name: &str) -> bool {
-    if name.is_ascii() {
-        // the same test without building the string: spaces and hyphens dropped, upper case
-        let mut buf = [0u8; 96];
-        let mut n = 0;
-        for c in name.bytes() {
-            if c == b' ' || c == b'-' {
-                continue;
-            }
-            if n == buf.len() {
-                return is_aes_slow(name);
-            }
-            buf[n] = c.to_ascii_uppercase();
-            n += 1;
+    match norm_ascii(name, true) {
+        Some((buf, n)) => {
+            let t = &buf[..n];
+            t.ends_with(b"AES") || has_bytes(t, b"ACTUATORENHANCEMENT")
         }
-        let t = &buf[..n];
-        return t.ends_with(b"AES") || t.windows(19).any(|w| w == b"ACTUATORENHANCEMENT");
+        None => {
+            let n = name.replace(' ', "").replace('-', "").to_uppercase();
+            n.ends_with("AES") || n.contains("ACTUATORENHANCEMENT")
+        }
     }
-    is_aes_slow(name)
 }
 
-fn is_aes_slow(name: &str) -> bool {
-    let n = name.replace(' ', "").replace('-', "").to_uppercase();
-    n.ends_with("AES") || n.contains("ACTUATORENHANCEMENT")
+/// `name` with spaces (and hyphens too, when `hyphens`) dropped and in upper case, written into a buffer on the stack:
+/// (buffer, length). None for a name that is not plain ASCII or is too long - the caller then builds the String as
+/// the Python does. Speed only: these name tests run millions of times a battle.
+pub fn norm_ascii(name: &str, hyphens: bool) -> Option<([u8; 96], usize)> {
+    if !name.is_ascii() {
+        return None;
+    }
+    let mut buf = [0u8; 96];
+    let mut n = 0;
+    for c in name.bytes() {
+        if c == b' ' || (hyphens && c == b'-') {
+            continue;
+        }
+        if n == buf.len() {
+            return None;
+        }
+        buf[n] = c.to_ascii_uppercase();
+        n += 1;
+    }
+    Some((buf, n))
+}
+
+pub fn has_bytes(text: &[u8], needle: &[u8]) -> bool {
+    text.windows(needle.len()).any(|w| w == needle)
 }
 
 fn slot_name<'a>(mech: &'a Mech, s: &'a Slot) -> &'a str {
@@ -1116,8 +1135,8 @@ pub fn arm_aes_working(mech: &Mech, arm: &str) -> bool {
 }
 
 pub fn leg_aes_working(mech: &Mech) -> bool {
-    let status = aes_by_location(mech);
-    mech.leg_locations.iter().all(|l| status.get(l) == Some(&true))
+    // `aes_by_location(mech).get(l) == Some(&true)` for every leg, one location at a time
+    mech.leg_locations.iter().all(|l| arm_aes_working(mech, l))
 }
 
 /// Current effective jump MP.

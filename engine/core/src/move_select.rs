@@ -808,25 +808,34 @@ fn modeled_reply(b: &mut Battle, c: &Opt, rc: &mut ReplyCtx, them: &mut Side, me
             }
             rows
         };
+        // rc's option list and PSR table are lent out for the call and put back (no copies: this runs once for every
+        // spot the first mover considers)
         if assumed == "short_list" && !rc.prepared2.is_empty() && !other_flag {
-            let prepared2 = rc.prepared2.clone();
-            let mut psr = rc.reply_psr.clone();
+            let prepared2 = std::mem::take(&mut rc.prepared2);
+            let mut psr = std::mem::take(&mut rc.reply_psr);
             let states = short_list_states(b, &mut rc.cache, c, &prepared2, other, mover, them, &mut psr);
-            rc.reply_psr = psr.clone();
             rows = reply_rows(b, &mut rc.ev2, them, me, &states, &psr);
+            rc.prepared2 = prepared2;
+            rc.reply_psr = psr;
         } else if assumed == "grid" && !rc.prepared2.is_empty() {
-            let prepared2 = rc.prepared2.clone();
+            let prepared2 = std::mem::take(&mut rc.prepared2);
             let start = hex_geometry::parse_hex_label(b.units[other].hex.as_deref().unwrap()).unwrap();
             let starts = b.cfg.i("MOVEMENT_SEARCH_STARTS") as usize;
-            let psr = rc.reply_psr.clone();
-            let ev2 = &mut rc.ev2;
-            let them_ref: &Side = them;
-            let mut f = |b: &mut Battle, states: &[Opt]| reply_rows(b, ev2, them_ref, me, states, &psr);
-            rows = grid_search(b, &prepared2, &mut f, start, starts, Some(c.hex_xy()));
+            let psr = std::mem::take(&mut rc.reply_psr);
+            {
+                let ev2 = &mut rc.ev2;
+                let them_ref: &Side = them;
+                let mut f = |b: &mut Battle, states: &[Opt]| reply_rows(b, ev2, them_ref, me, states, &psr);
+                rows = grid_search(b, &prepared2, &mut f, start, starts, Some(c.hex_xy()));
+            }
+            rc.prepared2 = prepared2;
+            rc.reply_psr = psr;
         } else {
-            let prepared2 = rc.prepared2.clone();
-            let psr = rc.reply_psr.clone();
+            let prepared2 = std::mem::take(&mut rc.prepared2);
+            let psr = std::mem::take(&mut rc.reply_psr);
             rows = reply_rows(b, &mut rc.ev2, them, me, &prepared2, &psr);
+            rc.prepared2 = prepared2;
+            rc.reply_psr = psr;
         }
     }
     cands = rows.iter().map(|(_, c)| c.clone()).collect();

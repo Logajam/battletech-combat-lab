@@ -19,8 +19,13 @@ fn norm_name(name: &str) -> String {
 /// Every live weapon Equipment on this mech right now (a multi-slot weapon once; minus any instance one of whose slots
 /// was hit).
 pub fn get_weapons(mech: &Mech) -> Vec<ItemId> {
-    let destroyed_ids: HashSet<ItemId> = mech.destroyed_slot_info.values().filter_map(|i| i.instance_id).collect();
-    let mut seen: HashSet<ItemId> = HashSet::default();
+    // seen / destroyed as one flag per item (the Python's two sets of ids), so nothing is hashed
+    let mut skip = vec![false; mech.items.len()];
+    for info in mech.destroyed_slot_info.values() {
+        if let Some(id) = info.instance_id {
+            skip[id] = true;
+        }
+    }
     let mut weapons = Vec::new();
     for slots in mech.crits.values() {
         for slot in slots {
@@ -28,15 +33,10 @@ pub fn get_weapons(mech: &Mech) -> Vec<ItemId> {
                 Slot::Item(id) => *id,
                 _ => continue,
             };
-            if mech.items[id].category.as_deref() != Some("weapon") {
+            if skip[id] || mech.items[id].category.as_deref() != Some("weapon") {
                 continue;
             }
-            if !seen.insert(id) {
-                continue;
-            }
-            if destroyed_ids.contains(&id) {
-                continue;
-            }
+            skip[id] = true;
             weapons.push(id);
         }
     }
