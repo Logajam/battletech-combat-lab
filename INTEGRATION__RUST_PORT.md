@@ -315,7 +315,8 @@ differences are float noise, not worth chasing; the old 1-ulp ISLRM5 mystery is 
 `CHECK=declaration,physical,simple cargo test --release --test stage6_battles -- --nocapture` (computes the Rust decision, compares it with
 the recorded one, carries on with the recorded one).
 
-NOT STARTED (next: Gladiator movement = `movement_selection.py` 1,261 lines + `ranged_combat.py` MoveEvaluator, lines 157-1000): the other decisions' Rust bots (foe with several enemies: legate; target: princess_group / kill_curve; fire_pick; physical for
+DONE (session 23): Gladiator movement (`move_options.rs`, `move_eval.rs`, `move_select.rs`, `move_attacks.rs`) matches every recorded move decision in all 63 fixtures (`CHECK=move`). `gladiator_bots.rs` is a Rust-only Gladiator (no decisions.json): `BOTS=rust cargo test --release --test stage6_battles` plays every Gladiator-v-Gladiator duel from the dice tape alone and matches state, dice, log and stub warnings (movement-note numbers compared to their printed precision: a 1-ulp float difference in a 3.375 tie, per Daniel). Use `pyfmt::Fx` for every Python `{:.Nf}` (Rust rounds exact ties the other way). Notes: `reduced_options` reads each state's PSR count at the moment it is yielded (entering the board reaches states twice).
+NOT STARTED (next: Legate = `legate.py`, then Princess's target choice `princess_group.choose_target` which Gladiator borrows with several enemies): the other decisions' Rust bots (foe with several enemies: legate; target: princess_group / kill_curve; fire_pick; physical for
 Princess: princess_fire; move: movement_selection + ranged_combat scoring (Gladiator), princess_modern / princess (Princess)),
 battle_value, peril, stack, herding, cohesion, tiers, future_damage; Stage 9 (PcgDice, rayon batches, ENGINE switch, results
 printing, statistical check, speed work, retiring `fastcore/`). Each bot decision is checked the same way: add a `check_*`
