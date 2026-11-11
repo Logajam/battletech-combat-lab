@@ -25,7 +25,7 @@ pub struct LegateState {
     rates: HashMap<(UnitId, UnitId), (f64, f64)>,
     shares: HashMap<(UnitId, UnitId), f64>,
     /// peril: (attacker, target) -> its damage profile table (one row per extra to-hit point), None = cannot fire
-    profiles: HashMap<(UnitId, UnitId), Option<Vec<Vec<f64>>>>,
+    profiles: HashMap<(UnitId, UnitId, bool), Option<Vec<Vec<f64>>>>,
     footprints: HashMap<UnitId, Vec<(i64, i64)>>,
     peaks: HashMap<(UnitId, UnitId, bool, (i64, i64)), f64>,
     vision: HashMap<((i64, i64), (i64, i64)), Option<(bool, i64, i64)>>,
@@ -616,7 +616,10 @@ impl Extras {
 // =============================================================================================================
 /// range_profile with its four to-hit classes: T[c][d].
 fn profile_table(b: &mut Battle, attacker: UnitId, target: UnitId) -> Option<Vec<Vec<f64>>> {
-    if let Some(t) = b.legate.profiles.get(&(attacker, target)) {
+    // keyed by whether the attacker has moved: the Python's field cache is, and a unit that stood up in its move has a
+    // different profile afterwards
+    let moved = b.units[attacker].moved_this_turn;
+    if let Some(t) = b.legate.profiles.get(&(attacker, target, moved)) {
         return t.clone();
     }
     let base = move_select::range_profile(b, attacker, target, 0);
@@ -632,7 +635,7 @@ fn profile_table(b: &mut Battle, attacker: UnitId, target: UnitId) -> Option<Vec
         }
         Some(t)
     };
-    b.legate.profiles.insert((attacker, target), table.clone());
+    b.legate.profiles.insert((attacker, target, moved), table.clone());
     table
 }
 
@@ -671,6 +674,9 @@ fn peak_at(b: &mut Battle, attacker: UnitId, target: UnitId, hex: (i64, i64)) ->
     }
     let value = (|| {
         let table = profile_table(b, attacker, target)?;
+        if std::env::var("BT_DUMP_TIER").is_ok() && b.units[attacker].side_name.as_deref() == Some("Blue 4") && b.units[target].side_name.as_deref() == Some("Red 3") {
+            eprintln!("PROF {:?} {:?} {:?}", b.units[attacker].hex, table[0].iter().map(|x| (x * 1000.0).round() / 1000.0).collect::<Vec<_>>(), table[1].iter().map(|x| (x * 1000.0).round() / 1000.0).collect::<Vec<_>>());
+        }
         let spots: Vec<(i64, i64)> = if moved && b.units[attacker].hex.is_some() {
             vec![xy(b.units[attacker].hex.as_deref().unwrap())]
         } else {
@@ -700,12 +706,18 @@ fn peak_at(b: &mut Battle, attacker: UnitId, target: UnitId, hex: (i64, i64)) ->
         best
     })()
     .unwrap_or(0.0);
+    if std::env::var("BT_DUMP_TIER").is_ok() {
+        eprintln!("PEAK {} {} {} {:?} {} {}", b.units[attacker].side_name.clone().unwrap_or_default(), b.units[target].side_name.clone().unwrap_or_default(), moved, hex, value, b.legate.footprints.get(&attacker).map_or(0, |f| f.len()));
+    }
     b.legate.peaks.insert(key, value);
     value
 }
 
 /// HOT, MID or COOL for the mover among its team.
 pub fn tier_of(b: &mut Battle, mover: UnitId) -> Tier {
+    if std::env::var("BT_DUMP_TIER").is_ok() {
+        eprintln!("TIER_FOR {} {}", b.units[mover].side_name.clone().unwrap_or_default(), b.units[mover].turn_number);
+    }
     let team_name = b.units[mover].team.clone();
     let standing = crate::forces::standing(b);
     let team: Vec<UnitId> = standing.iter().copied().filter(|u| b.units[*u].team == team_name).collect();
@@ -728,6 +740,9 @@ pub fn tier_of(b: &mut Battle, mover: UnitId) -> Tier {
             peril_here += peak_at(b, *e, *u, hxy);
         }
         ratios.insert(*u, peril_here / move_select::effective_hp(b, *u).max(1.0));
+        if std::env::var("BT_DUMP_TIER").is_ok() {
+            eprintln!("RATIO {} {:?}", b.units[*u].side_name.clone().unwrap_or_default(), ratios[u]);
+        }
     }
     let mut order = on_board.clone();
     order.sort_by(|a, c| (-ratios[a]).partial_cmp(&(-ratios[c])).unwrap());

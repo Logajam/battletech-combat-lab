@@ -100,6 +100,9 @@ impl RangedFor {
         let scale_on = b.cfg.f("MOVEMENT_STRUCTURE_WEIGHT") != 1.0;
         let dissipation = compute_heat_dissipation(&b.units[attacker]);
         let other = crate::heat::other_heat(b, attacker);
+        if std::env::var("BT_DUMP_TIER").is_ok() && extra_tn == 0 && b.units[attacker].side_name.as_deref() == Some("Blue 4") && b.units[target].side_name.as_deref() == Some("Red 3") {
+            eprintln!("RF {} gun {} hfm {} cond {:?} own {} amm {} tmm {} heat {} tgt armor {} att weapons {}", b.units[attacker].turn_number, b.units[attacker].gunnery, b.units[attacker].heat_fire_modifier, cond.as_ref().map(|c| c.0), crate::equipment_systems::own_attack_modifier(&b.units[attacker]), amm, tmm, b.units[attacker].current_heat, b.units[target].locations.values().map(|v| v.armor.f()).sum::<f64>(), get_weapons(&b.units[attacker]).len());
+        }
         RangedFor { attacker, target, cond, fixed: None, adjust, planner, scale_on, scales: None, memo: HashMap::new(), move_heat, amm, tmm, legs, extra_tn, dissipation, other }
     }
 
@@ -114,7 +117,7 @@ impl RangedFor {
             blocked.extend(crate::weapon_profiles::array_gun_ids(b, self.attacker));
             blocked.extend(crate::attack_resolution::arc_unavailable(&b.units[self.attacker], &key));
             let a = &b.units[self.attacker];
-            let pre = a.gunnery + self.amm + self.tmm + a.heat_fire_modifier + cond.0 + crate::advanced_weapons::own_attack_modifier(a, false);
+            let pre = a.gunnery + self.amm + self.tmm + a.heat_fire_modifier + cond.0 + crate::equipment_systems::own_attack_modifier(a);
             let pre_tn = crate::weapon_selection::PRE_TN_MIN.max(crate::weapon_selection::PRE_TN_MAX.min(pre + self.extra_tn));
             self.fixed = Some((blocked, pre_tn));
         }

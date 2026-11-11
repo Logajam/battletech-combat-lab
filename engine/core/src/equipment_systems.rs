@@ -560,3 +560,8 @@ pub fn blue_shield_end_turn(b: &mut Battle, u: UnitId) {
         b.units[u].pfd_active = on;
     }
 }
+
+/// own_attack_modifier: an active Void-Signature System adds +1 to its own mech's ranged attacks; plus Taser / TSEMP / IMP.
+pub fn own_attack_modifier(mech: &Mech) -> i64 {
+    (if active_stealth(mech).contains(&"void_signature") { VOID_OWN_ATTACK_MODIFIER } else { 0 }) + crate::advanced_weapons::own_attack_modifier(mech, false)
+}

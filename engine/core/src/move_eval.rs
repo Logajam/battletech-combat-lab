@@ -287,8 +287,8 @@ impl MoveEvaluator {
         let dw = Worth::new(b, mover, true);
         let mover_planner = PhysPlanner::new(b, mover, Some(mw));
         let defender_planner = PhysPlanner::new(b, defender, Some(dw));
-        let mover_own = crate::advanced_weapons::own_attack_modifier(&b.units[mover], false);
-        let defender_own = crate::advanced_weapons::own_attack_modifier(&b.units[defender], false);
+        let mover_own = crate::equipment_systems::own_attack_modifier(&b.units[mover]);
+        let defender_own = crate::equipment_systems::own_attack_modifier(&b.units[defender]);
         let mover_ams = Coverage::new(b, mover);
         let defender_ams = Coverage::new(b, defender);
         MoveEvaluator {
