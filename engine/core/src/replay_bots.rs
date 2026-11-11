@@ -186,6 +186,9 @@ impl BotSet for ReplayBots {
     }
 
     fn fire_pick_active(&mut self, b: &mut Battle) -> bool {
+        if self.check_legate {
+            return crate::bot_targets::fire_pick_active(b);
+        }
         // bots.fire_pick: None (roster order) unless a side has two Gladiators and the order is "big_guns_first"
         if b.cfg.s("GLADIATOR_FIRE_ORDER") == "roster" {
             return false;
@@ -198,7 +201,14 @@ impl BotSet for ReplayBots {
     fn fire_pick(&mut self, b: &mut Battle, candidates: &[UnitId]) -> UnitId {
         let who: Vec<String> = candidates.iter().map(|u| nm(b, *u)).collect();
         let v = b.decide("fire_pick", &who.join(">"));
-        unit_named(b, &v).expect("a fire pick")
+        let rec = unit_named(b, &v).expect("a fire pick");
+        if self.check_legate {
+            b.log.quiet += 1;
+            let mine = crate::bot_targets::fire_pick(b, candidates);
+            b.log.quiet -= 1;
+            self.note("fire_pick", mine == rec, format!("{}: {:?} v {:?}", who.join(">"), mine, rec));
+        }
+        rec
     }
 
     fn choose_declaration(&mut self, b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId) -> DeclChoice {

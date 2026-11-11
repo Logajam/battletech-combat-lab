@@ -74,6 +74,8 @@ fn armor_of(m: &Mech, loc: &str, rear: bool) -> f64 {
 #[derive(Default)]
 pub struct PrincessState {
     pub assigned: HashMap<(String, UnitId), f64>,
+    /// bots.fire_pick's firepower cache for the phase
+    pub guns: HashMap<UnitId, f64>,
 }
 
 pub fn reset_assigned(b: &mut Battle) {

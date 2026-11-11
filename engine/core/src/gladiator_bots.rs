@@ -34,22 +34,15 @@ impl BotSet for GladiatorBots {
 
     fn choose_target(&mut self, b: &mut Battle, attacker: UnitId) -> Option<UnitId> {
         require_gladiator(b, attacker, "choose_target");
-        require_duel(b, attacker, "choose_target");
-        crate::forces::choose_target(b, attacker, true, false)
+        crate::bot_targets::gladiator_choose_target(b, attacker)
     }
 
     fn fire_pick_active(&mut self, b: &mut Battle) -> bool {
-        // bots.fire_pick: None (roster order) unless a side has two Gladiators and the order is "big_guns_first"
-        if b.cfg.s("GLADIATOR_FIRE_ORDER") == "roster" {
-            return false;
-        }
-        let standing = crate::forces::standing(b);
-        let teams: Vec<String> = standing.iter().filter(|u| b.units[**u].bot != "princess").map(|u| b.units[*u].team.clone().unwrap_or_default()).collect();
-        !teams.iter().all(|t| teams.iter().filter(|x| *x == t).count() < 2)
+        crate::bot_targets::fire_pick_active(b)
     }
 
-    fn fire_pick(&mut self, _b: &mut Battle, _candidates: &[UnitId]) -> UnitId {
-        panic!("Gladiator's firing order (kill_curve.firepower) is not translated yet");
+    fn fire_pick(&mut self, b: &mut Battle, candidates: &[UnitId]) -> UnitId {
+        crate::bot_targets::fire_pick(b, candidates)
     }
 
     fn choose_declaration(&mut self, b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId) -> DeclChoice {
