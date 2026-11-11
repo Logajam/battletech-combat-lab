@@ -410,7 +410,7 @@ pub fn single_attack_tn(b: &mut Battle, attacker: UnitId, target: UnitId, weapon
         target_tmm(&b.units[target]) + equip::void_signature_modifier(&b.units[target], None, None) + prone_target_modifier(&b.units[target], distance)
     };
     let a = &b.units[attacker];
-    let pre_tn = a.gunnery + combat::mode_to_amm(&a.move_mode) + trace.result.modifier + a.heat_fire_modifier + adv::own_attack_modifier(a, false) + cond_mod + own;
+    let pre_tn = a.gunnery + combat::mode_to_amm(&a.move_mode) + trace.result.modifier + a.heat_fire_modifier + equip::own_attack_modifier(a) + cond_mod + own;
     let adjust = with_range_adjuster(tn_adjuster(b, attacker, target, None, cover), &b.units[attacker], a_water);
     let mut best: Option<(i64, ItemId, String)> = None;
     for &w in weapons {
@@ -1079,7 +1079,7 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
     let amm = combat::mode_to_amm(&b.units[attacker].move_mode);
     let tmm = target_tmm(&b.units[target]);
     let heat_mod = b.units[attacker].heat_fire_modifier;
-    let stealth_mod = equip::void_signature_modifier(&b.units[target], None, None) + adv::own_attack_modifier(&b.units[attacker], false);
+    let stealth_mod = equip::void_signature_modifier(&b.units[target], None, None) + equip::own_attack_modifier(&b.units[attacker]);
     let Some((cond_mod, mut unavailable, cond_note)) = firing_conditions(b, attacker) else {
         b.log(format!("  [Ranged] {}: can't make ranged attacks (sensors destroyed, or prone with no arm to prop on).", a_name));
         return Prep::Done;
