@@ -2,7 +2,6 @@
 //! "What happens TO a mech": damage application, critical hit resolution and explosions. Everything takes the battle
 //! and a unit (`b.units[u]`); caches (get_weapons, derived) are speed only and come back in stage 9.
 
-use crate::fasthash::HashSet;
 
 use crate::armor_rules;
 use crate::battle::{Battle, UnitId};

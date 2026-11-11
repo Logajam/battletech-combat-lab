@@ -359,7 +359,7 @@ switch to `replay_bots.rs`, compute with the Rust bot, compare with the recorded
 7. **The LOS cache and smoke** (`smoke._changed`): the Python empties only the standing / standing cache when smoke
    changes; lines cached for a prone 'Mech keep their old answer. The Rust's `Battle::los_memo` is emptied whole
    (`board_changed`), so the two can differ for a prone unit after smoke appears or clears. Not met in ~830 random battles.
-8. **A bot's lookahead rolls real dice** (session 23 translated it; session 24 found the counts still differ): a head
+8. **FIXED session 25 in both engines (the lookahead takes the re-roll's average; no dice, no log lines; `fza_240` and `fzc_7054` now match).** Was: **A bot's lookahead rolls real dice** (session 23 translated it; session 24 found the counts still differ): a head
    result on a unit with a destroyed head and a torso cockpit is re-rolled with the battle's dice inside
    `structure_weight.hit_spread`. How many re-rolls happen depends on which of the Python's caches hit, so the Rust
    draws a different number (`fza_240`, `fzc_7054`: "dice call N: asked for (r, 0), tape has (p, ...)"). A Python bug

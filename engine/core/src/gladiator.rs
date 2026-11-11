@@ -10,7 +10,6 @@ use crate::fire_modes::Planner;
 use crate::hex_geometry;
 use crate::mech_state::*;
 use crate::physical::{self, Plan};
-use crate::weapon_selection::select_weapons_to_fire;
 
 /// attack_resolution._physical_planner: the physical attacks that can follow the ranged fire, for an adjacent target
 /// (nothing fired yet). None if the attacker can't make one (prone, immobile).
