@@ -221,3 +221,11 @@ Daniel, 2026-11-10: "have Sonnet translate the monte carlo into rust. Just bite 
 translation as a source of slowdown." The whole plan is `INTEGRATION__RUST_PORT.md`: the Python stays as the
 answer key, comparison tools first (stage 0), then nine stages each ending in an exact match, a stage log to
 keep up to date. One stage (or part of one) per session. Read that file before anything else.
+
+## T12. Hydra, the third bot: the movement play-out (Opus or higher)
+
+Plan and next stage: `INTEGRATION__HYDRA.md` Section 6 (S5a first). Trials: `tools/hydra_trial.py`.
+
+## T13. Combat Lab on the Rust engine (CL1-CL9)
+
+Spec sheets, one job each, with the order and which model suits: `INTEGRATION__COMBAT_LAB_SPECS.md`.

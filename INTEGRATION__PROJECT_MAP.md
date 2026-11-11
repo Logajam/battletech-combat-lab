@@ -126,6 +126,7 @@ standoff, sprinting, multi-target fire, unit orders. Open call (Daniel): Short-S
 - E1. Battle statistics: stages 4-5 (Change Record "BATTLE STATISTICS", Section 5).
 - E2. Combat Lab GUI [12, 14]: HTML front end behind an `.exe` (Daniel); setup shell first; MegaMek save import
   to test later. `INTEGRATION__COMBAT_LAB.md`.
+  BUILD ORDER as spec sheets CL1-CL9 (session 24, on the Rust engine): `INTEGRATION__COMBAT_LAB_SPECS.md`.
 - E3. 3D art [15] (paused): next the weapon-block stockpile, then bird-body torso / head blocks, the 47 chart
   chassis, directional hardpoints.
 
