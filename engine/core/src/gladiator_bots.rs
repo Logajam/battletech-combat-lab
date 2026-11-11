@@ -28,12 +28,18 @@ fn require_duel(b: &mut Battle, u: UnitId, what: &str) {
 
 impl BotSet for GladiatorBots {
     fn choose_foe(&mut self, b: &mut Battle, mover: UnitId) -> Option<UnitId> {
-        require_gladiator(b, mover, "choose_foe");
-        crate::legate::foe_for(b, mover).or_else(|| crate::forces::choose_foe(b, mover))
+        if b.units[mover].bot == "gladiator" {
+            if let Some(f) = crate::legate::foe_for(b, mover) {
+                return Some(f);
+            }
+        }
+        crate::forces::choose_foe(b, mover)
     }
 
     fn choose_target(&mut self, b: &mut Battle, attacker: UnitId) -> Option<UnitId> {
-        require_gladiator(b, attacker, "choose_target");
+        if b.units[attacker].bot == "princess" {
+            return crate::bot_targets::princess_choose_target(b, attacker);
+        }
         crate::bot_targets::gladiator_choose_target(b, attacker)
     }
 
@@ -46,19 +52,27 @@ impl BotSet for GladiatorBots {
     }
 
     fn choose_declaration(&mut self, b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId) -> DeclChoice {
-        require_gladiator(b, attacker, "choose_declaration");
+        if b.units[attacker].bot == "princess" {
+            return crate::gladiator::choose_declaration_princess(b, ctx, planner, attacker, target);
+        }
         crate::gladiator::choose_declaration(b, ctx, planner, attacker, target)
     }
 
     fn choose_physical(&mut self, b: &mut Battle, attacker: UnitId, target: UnitId) -> Option<(i64, Vec<PhysOption>, ArcAction)> {
-        require_gladiator(b, attacker, "choose_physical");
+        if b.units[attacker].bot == "princess" {
+            return crate::princess_fire::choose_physical(b, attacker, target);
+        }
         crate::physical::choose_attack(b, attacker, target)
     }
 
     fn choose_movement(&mut self, b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, standup_mp: Option<i64>, entry_edge: Option<&[String]>) -> (Option<Pick>, String, PathGate) {
-        require_gladiator(b, mover, "choose_movement");
         let mut ties = Ties { recorded: None, missed: false };
-        let (pick, note) = move_select::choose(b, mover, other, moves_first, standup_mp, entry_edge, &mut ties);
+        let (pick, note) = if b.units[mover].bot == "princess" {
+            assert!(b.cfg.s("PRINCESS_VERSION") == "modern", "the v0.50.07 Princess is not translated yet");
+            crate::princess_modern::choose(b, mover, other, moves_first, standup_mp, entry_edge, &mut ties)
+        } else {
+            move_select::choose(b, mover, other, moves_first, standup_mp, entry_edge, &mut ties)
+        };
         let gate = match &pick {
             Some(p) => {
                 let (psrs, hazard) = crate::ranged_combat::path_notes(b, mover, p, standup_mp, entry_edge);
@@ -67,6 +81,14 @@ impl BotSet for GladiatorBots {
             None => PathGate::default(),
         };
         (pick, note, gate)
+    }
+
+    fn unit_moved(&mut self, b: &mut Battle, mover: UnitId, start_hex: Option<&str>) {
+        crate::princess_memory::unit_moved(b, mover, start_hex);
+    }
+
+    fn end_of_turn(&mut self, b: &mut Battle) {
+        crate::princess_memory::end_of_turn(b);
     }
 
     fn start_movement(&mut self, b: &mut Battle) {

@@ -27,6 +27,7 @@ pub struct ReplayBots {
     pub check_simple_foe_target: bool,
     pub check_gladiator_move: bool,
     pub check_legate: bool,
+    pub check_princess: bool,
     pub checked: std::collections::BTreeMap<String, (usize, usize)>,
     pub mismatches: Vec<String>,
 }
@@ -157,7 +158,10 @@ impl BotSet for ReplayBots {
         let who = nm(b, mover);
         let v = b.decide("foe", &who);
         let rec = unit_named(b, &v);
-        if self.check_legate && b.units[mover].bot == "gladiator" {
+        if self.check_princess && b.units[mover].bot == "princess" {
+            let mine = crate::forces::choose_foe(b, mover);
+            self.note("foe(princess)", mine == rec, format!("{}: {:?} v {:?}", who, mine, rec));
+        } else if self.check_legate && b.units[mover].bot == "gladiator" {
             let mine = crate::legate::foe_for(b, mover).or_else(|| crate::forces::choose_foe(b, mover));
             self.note("foe(legate)", mine == rec, format!("{}: {:?} v {:?}", who, mine, rec));
         } else if self.check_simple_foe_target && crate::forces::enemies_of(b, mover).len() == 1 {
@@ -171,7 +175,12 @@ impl BotSet for ReplayBots {
         let who = nm(b, attacker);
         let v = b.decide("target", &who);
         let rec = unit_named(b, &v);
-        if self.check_legate && b.units[attacker].bot == "gladiator" {
+        if self.check_princess && b.units[attacker].bot == "princess" {
+            let saved = b.stub_counts.clone();
+            let mine = crate::bot_targets::princess_choose_target(b, attacker);
+            b.stub_counts = saved;
+            self.note("target(princess)", mine == rec, format!("turn {} {}: {:?} v {:?}", b.units[attacker].turn_number, who, mine, rec));
+        } else if self.check_legate && b.units[attacker].bot == "gladiator" {
             let saved = b.stub_counts.clone();
             let saved_err = b.log.stderr.len();
             let mine = crate::bot_targets::gladiator_choose_target(b, attacker);
@@ -215,8 +224,8 @@ impl BotSet for ReplayBots {
         let who = format!("{}>{}", nm(b, attacker), nm(b, target));
         let v = b.decide("declaration", &who);
         let recorded = Self::decode_declaration(b, attacker, &v);
-        if self.check_gladiator_declaration && b.units[attacker].bot == "gladiator" {
-            let mine = crate::gladiator::choose_declaration(b, ctx, planner, attacker, target);
+        if (self.check_gladiator_declaration && b.units[attacker].bot == "gladiator") || (self.check_princess && b.units[attacker].bot == "princess") {
+            let mine = if b.units[attacker].bot == "princess" { crate::gladiator::choose_declaration_princess(b, ctx, planner, attacker, target) } else { crate::gladiator::choose_declaration(b, ctx, planner, attacker, target) };
             let same = mine.weapons == recorded.weapons
                 && close(mine.exp_dmg, recorded.exp_dmg)
                 && mine.weapon_heat == recorded.weapon_heat
@@ -240,8 +249,8 @@ impl BotSet for ReplayBots {
             let t = t_list(&v);
             Some((t[0].as_i64().unwrap(), t[1].as_array().unwrap().iter().map(phys_option).collect::<Vec<PhysOption>>(), action_of(&t[2])))
         };
-        if self.check_gladiator_physical && b.units[attacker].bot == "gladiator" {
-            let mine = crate::physical::choose_attack(b, attacker, target);
+        if (self.check_gladiator_physical && b.units[attacker].bot == "gladiator") || (self.check_princess && b.units[attacker].bot == "princess") {
+            let mine = if b.units[attacker].bot == "princess" { crate::princess_fire::choose_physical(b, attacker, target) } else { crate::physical::choose_attack(b, attacker, target) };
             let same = match (&mine, &recorded) {
                 (None, None) => true,
                 (Some(m), Some(r)) => m.0 == r.0 && m.2 == r.2 && m.1.len() == r.1.len() && m.1.iter().zip(&r.1).all(|(x, y)| x.name == y.name && x.mod_ == y.mod_ && x.table == y.table && x.limb == y.limb && close(x.damage.f(), y.damage.f())),
@@ -270,6 +279,15 @@ impl BotSet for ReplayBots {
                 dfa: p.get("dfa").and_then(|x| x.as_bool()).unwrap_or(false),
             })
         };
+        if self.check_princess && b.units[mover].bot == "princess" {
+            let saved = b.stub_counts.clone();
+            let mut ties = crate::move_select::Ties { recorded: pick.as_ref(), missed: false };
+            let (mine, note) = crate::princess_modern::choose(b, mover, other, moves_first, standup_mp, entry_edge, &mut ties);
+            b.stub_counts = saved;
+            let same = mine == pick && notes_agree(&note, t[1].as_str().unwrap());
+            let what = format!("turn {} {}: rust {:?} {:?} v python {:?} {:?}", b.units[mover].turn_number, who, mine, note, pick, t[1].as_str().unwrap());
+            self.note("move(princess)", same, what);
+        }
         if self.check_gladiator_move && b.units[mover].bot == "gladiator" && (self.check_legate || crate::forces::enemies_of(b, mover).len() == 1) {
             let saved = b.stub_counts.clone();
             let mut ties = crate::move_select::Ties { recorded: pick.as_ref(), missed: false };
@@ -281,6 +299,18 @@ impl BotSet for ReplayBots {
         }
         let gate = PathGate { psrs: t[2].as_i64(), hazard: t[3].as_f64() };
         (pick, t[1].as_str().unwrap().to_string(), gate)
+    }
+
+    fn unit_moved(&mut self, b: &mut Battle, mover: UnitId, start_hex: Option<&str>) {
+        if self.check_princess {
+            crate::princess_memory::unit_moved(b, mover, start_hex);
+        }
+    }
+
+    fn end_of_turn(&mut self, b: &mut Battle) {
+        if self.check_princess {
+            crate::princess_memory::end_of_turn(b);
+        }
     }
 
     fn start_movement(&mut self, b: &mut Battle) {

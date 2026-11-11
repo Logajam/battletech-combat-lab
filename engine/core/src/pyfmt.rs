@@ -448,3 +448,8 @@ impl std::fmt::Display for Fx {
         f.write_str(&fixed(self.0, self.1))
     }
 }
+
+/// Python's round(x, n) for n > 0: the exact binary value rounded half to even at n decimals.
+pub fn py_round_n(x: f64, n: usize) -> f64 {
+    fixed(x, n).parse().unwrap()
+}

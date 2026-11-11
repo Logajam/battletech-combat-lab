@@ -76,6 +76,9 @@ pub struct PrincessState {
     pub assigned: HashMap<(String, UnitId), f64>,
     /// bots.fire_pick's firepower cache for the phase
     pub guns: HashMap<UnitId, f64>,
+    /// princess_memory: one TeamMemory per team, and the BV of each unit (as built, cached)
+    pub teams: indexmap::IndexMap<String, crate::princess_memory::TeamMemory>,
+    pub bv: HashMap<UnitId, i64>,
 }
 
 pub fn reset_assigned(b: &mut Battle) {
@@ -345,4 +348,134 @@ impl FireControl {
         self.last = Some((plan.1, u));
         (get_weapons(&b.units[mech]).into_iter().filter(|w| plan.0.contains(w)).collect(), u, plan.4)
     }
+}
+
+// =============================================================================================================
+// PHYSICAL ATTACKS (PhysicalCalculator.getBestPhysicalAttack)
+// =============================================================================================================
+fn armor_named(m: &Mech, name: &str, rear: bool) -> f64 {
+    let loc = location_name(m, name);
+    if m.locations.contains_key(&loc) { armor_of(m, &loc, rear) } else { 0.0 }
+}
+
+/// PhysicalCalculator.punchThroughMod: 1 + a bonus for every location in the arc whose armor `damage`, taken in hits of
+/// `group`, would get through - halved for each further pass.
+pub fn punch_through_mod(target: &Mech, table: &str, side: &str, damage: f64, group: f64) -> f64 {
+    if damage <= 0.0 || group <= 0.0 {
+        return 1.0;
+    }
+    let a = |n: &str, rear: bool| armor_named(target, n, rear);
+    let rear = side != "front";
+    let values: Vec<f64> = match table {
+        "standard" => vec![a("Head", false), a("Center Torso", rear), a("Right Torso", rear), a("Left Torso", rear), a("Right Arm", false), a("Left Arm", false), a("Right Leg", false), a("Right Leg", false)],
+        "punch" => match side {
+            "right" => vec![a("Head", false), a("Center Torso", false), a("Right Torso", false), a("Right Arm", false)],
+            "left" => vec![a("Head", false), a("Center Torso", false), a("Left Torso", false), a("Left Arm", false)],
+            _ => {
+                let r = side == "rear";
+                vec![a("Head", false), a("Center Torso", r), a("Right Torso", r), a("Left Torso", r), a("Right Arm", false), a("Left Arm", false)]
+            }
+        },
+        _ => {
+            let mut v = vec![];
+            if matches!(side, "front" | "rear" | "right") {
+                v.push(a("Right Leg", false));
+            }
+            if matches!(side, "front" | "rear" | "left") {
+                v.push(a("Left Leg", false));
+            }
+            v
+        }
+    };
+    let (mut multiplier, mut base, mut hit_total) = (1.0, 0.5, 0.0);
+    while hit_total <= damage {
+        hit_total += group;
+        multiplier += base * values.iter().filter(|v| hit_total > **v).count() as f64;
+        base /= 2.0;
+    }
+    multiplier
+}
+
+/// PhysicalCalculator.calculateFallingDamage: p x P(failing its piloting roll) x a tenth of its tonnage.
+pub fn falling_damage(p: f64, m: &Mech) -> f64 {
+    let tn = m.piloting + crate::piloting_rolls::preexisting_modifier(m);
+    p * (1.0 - crate::combat::hit_probability(tn)) * m.mass.unwrap_or(0) as f64 * 0.1
+}
+
+fn mobility(m: &Mech, floor: f64) -> f64 {
+    let walk = compute_walk_mp(m);
+    let jump = compute_jump_mp(m);
+    if walk > 0 { (1.0 / walk as f64 + jump as f64).sqrt() } else { floor.max((jump as f64).sqrt()) }
+}
+
+fn push_worth(b: &Battle, attacker: UnitId, target: UnitId, p: f64) -> f64 {
+    let a_xy = crate::hex_geometry::parse_hex_label(b.units[attacker].hex.as_deref().unwrap()).unwrap();
+    let t_xy = crate::hex_geometry::parse_hex_label(b.units[target].hex.as_deref().unwrap()).unwrap();
+    let (dx, dy) = crate::hex_geometry::FACING_DELTAS[crate::combat::direction_facing(a_xy, t_xy).unwrap() as usize];
+    let label = crate::hex_geometry::hex_label(t_xy.0 + dx, t_xy.1 + dy).ok();
+    let t = &b.units[target];
+    let hexes = &b.board.hexes;
+    let Some(label) = label.filter(|l| hexes.contains_key(l)) else {
+        return t.locations.values().map(|e| e.armor.f().max(0.0) + e.rear_armor.map_or(0.0, |r| r.f()).max(0.0)).sum::<f64>() * p;
+    };
+    let drop = (hexes[t.hex.as_deref().unwrap()].level - hexes[&label].level).max(0);
+    let dmg = falling_damage(p, t) * (1.0 + drop as f64);
+    let mut breach = punch_through_mod(t, "standard", "front", dmg, dmg.min(5.0));
+    if breach > 1.0 && crate::water::depth_at(&b.board, Some(&label)) >= 1 {
+        breach *= 2.0;
+    }
+    dmg * mobility(t, 1.0) * breach
+}
+
+/// getBestPhysicalAttack: (base TN, [options], arc action) of the attack with the most expected worth, or None.
+pub fn choose_physical(b: &mut Battle, attacker: UnitId, target: UnitId) -> Option<(i64, Vec<crate::physical::PhysOption>, ArcAction)> {
+    if b.is_destroyed(attacker) || b.is_destroyed(target) || b.units[attacker].hex == b.units[target].hex {
+        return None;
+    }
+    let options = crate::physical::attack_options(b, attacker, target, None);
+    if options.is_empty() {
+        return None;
+    }
+    let base = crate::physical::base_tn_for(b, attacker, target);
+    let a_xy = crate::hex_geometry::parse_hex_label(b.units[attacker].hex.as_deref().unwrap()).unwrap();
+    let t_xy = crate::hex_geometry::parse_hex_label(b.units[target].hex.as_deref().unwrap()).unwrap();
+    let h = crate::attack_resolution::standing();
+    let side = crate::attack_resolution::attack_side(b, a_xy, t_xy, crate::hex_geometry::compass_to_facing(&b.units[target].facing).unwrap(), h, h);
+    let p = |o: &crate::physical::PhysOption| crate::combat::hit_probability(base + o.mod_);
+    let t = &b.units[target];
+    let at = &b.units[attacker];
+    let mut scored: Vec<(f64, Vec<crate::physical::PhysOption>)> = Vec::new();
+    let punches = options.get("punch").cloned().unwrap_or_default();
+    for o in &punches {
+        let d = p(o) * o.damage.f();
+        scored.push((d * punch_through_mod(t, &o.table, side, d, d), vec![o.clone()]));
+    }
+    if punches.len() == 2 {
+        let d: f64 = punches.iter().map(|o| p(o) * o.damage.f()).sum();
+        scored.push((d * punch_through_mod(t, &punches[0].table, side, d, d / 2.0), punches.clone()));
+    }
+    for o in options.get("kick").cloned().unwrap_or_default() {
+        let mut d = p(&o) * o.damage.f();
+        d *= punch_through_mod(t, &o.table, side, d, d);
+        let target_falls = falling_damage(p(&o), t);
+        let self_falls = falling_damage(1.0 - p(&o), at) * mobility(at, 0.0);
+        scored.push((d + target_falls - self_falls, vec![o]));
+    }
+    for kind in ["club", "weapon"] {
+        for o in options.get(kind).cloned().unwrap_or_default() {
+            let d = p(&o) * o.damage.f();
+            scored.push((d * punch_through_mod(t, &o.table, side, d, d), vec![o]));
+        }
+    }
+    for o in options.get("push").cloned().unwrap_or_default() {
+        scored.push((push_worth(b, attacker, target, p(&o)), vec![o]));
+    }
+    let mut best: Option<(f64, Vec<crate::physical::PhysOption>)> = None;
+    for (worth, picks) in scored {
+        if worth > 0.0 && best.as_ref().map_or(true, |x| worth > x.0) {
+            best = Some((worth, picks));
+        }
+    }
+    let (_, picks) = best?;
+    Some((base, picks, crate::arcs::current_action(&b.units[attacker])))
 }

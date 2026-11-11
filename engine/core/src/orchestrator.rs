@@ -33,6 +33,9 @@ pub trait BotSet {
     fn reset_assigned(&mut self, _b: &mut Battle) {}
     /// The Movement Phase begins (legate.plan_turn) / ends (legate.end_phase)
     fn start_movement(&mut self, _b: &mut Battle) {}
+    /// Princess's memory: a unit moved (princess_memory.unit_moved) / the turn's heat phase is over (end_of_turn)
+    fn unit_moved(&mut self, _b: &mut Battle, _mover: UnitId, _start_hex: Option<&str>) {}
+    fn end_of_turn(&mut self, _b: &mut Battle) {}
     fn end_movement(&mut self, _b: &mut Battle) {}
     fn assign_damage(&mut self, _b: &mut Battle, _attacker: UnitId, _target: UnitId, _dmg: f64) {}
 }
@@ -791,8 +794,10 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
         let Some(mover) = act.next(b, &mut pick) else { break };
         let foe = bots.choose_foe(b, mover).expect("a foe to plan against");
         let moves_first = !b.units[foe].moved_this_turn;
+        let start_hex = b.units[mover].hex.clone();
         phase_movement(b, bots, mover, foe, turn, moves_first);
         b.units[mover].moved_this_turn = true;
+        bots.unit_moved(b, mover, start_hex.as_deref());
         let label = format!("{} moves", name(b, mover));
         marks(b, turn, &label);
     }
@@ -841,6 +846,7 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
     let heat_reports: Vec<(UnitId, SideReport)> = scrappers.iter().copied().zip(phys_reports).collect();
     phase_heat(b, &heat_reports);
     after_phase(b);
+    bots.end_of_turn(b);
     phase_end(b, turn, &mut play.unit_stats);
     smoke::end_phase(b, turn);
 

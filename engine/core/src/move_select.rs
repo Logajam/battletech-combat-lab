@@ -222,7 +222,7 @@ fn psr_costs(b: &Battle, u: UnitId) -> (f64, f64) {
     (out[0], out[1])
 }
 
-fn terrain_psr_odds(b: &Battle, u: UnitId) -> Option<(f64, f64)> {
+pub fn terrain_psr_odds(b: &Battle, u: UnitId) -> Option<(f64, f64)> {
     if !b.cfg.b("MOVEMENT_PSR_COST") {
         return None;
     }

@@ -15,7 +15,7 @@ pub const ODD_INTERNAL_X_IS_SHIFTED: bool = true;
 /// (x, y, facing) - Python's `State`.
 pub type State = (i64, i64, i64);
 
-fn row_parity_offset(x: i64) -> i64 {
+pub fn row_parity_offset(x: i64) -> i64 {
     let is_shifted = if ODD_INTERNAL_X_IS_SHIFTED { py_mod(x, 2) == 1 } else { py_mod(x, 2) == 0 };
     if is_shifted {
         -1
