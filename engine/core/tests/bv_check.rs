@@ -14,7 +14,8 @@ fn battle_value_matches_the_python() {
     let (mut checked, mut wrong) = (0, Vec::new());
     for e in fs::read_dir(&root).unwrap() {
         let dir = e.unwrap().path();
-        if !dir.join("units.json").exists() || !dir.join("config.json").exists() {
+        // a scenario folder without a recording (tools/hydra_scenarios.py) has nothing to check against
+        if !dir.join("units.json").exists() || !dir.join("config.json").exists() || !dir.join("dice.json").exists() {
             continue;
         }
         let units_json: Value = serde_json::from_str(&fs::read_to_string(dir.join("units.json")).unwrap()).unwrap();

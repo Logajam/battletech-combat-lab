@@ -79,14 +79,16 @@ boldness when winning and care when losing, and ignoring an enemy that will not 
   - **cost** = my own price x the damage each enemy would deal me, each enemy counted by the share
     of its attention I would get (an enemy has one target; friends near me share the load);
   - **risk** = my own price x expected damage from falls and hazards on the way.
-- **The score** of a spot = gain - resolve x (cost + risk). Prices already put both sides' damage on
-  one scale, so at resolve 1 the score asks "does this trade move the forecast my way".
-- **Resolve.** When the Forecast says my team is losing, resolve drops below 1 (down to 0.25): a
-  losing side that waits only loses later, so it takes the trades that hurt the enemy most ("sell
-  dearly") instead of stalling to the turn limit.
-- Tried and dropped (2026-11-11, keep for the record): scoring by the rate dealt / received. It
-  cured stalling but made Hydra too picky in an even fight; an agile mirror duel went 19 to 54
-  against Gladiator. With the score above the same duel is 30 to 35.
+- **The score** of a spot = what it does to my team's rate of exchange over a typical turn:
+  (d0 + gain) / (r0 + cost + risk), where d0 / r0 = what my whole team, this unit included, deals /
+  takes in a typical turn (from the Ledger, priced). In a big force one unit's trade is small next to
+  d0 and r0, so the score asks "is this trade better than the team's average?". In a duel d0 and r0
+  are the unit's own typical turn, which stops it chasing a tiny free shot over a solid trade.
+  A unit that waits scores d0 / r0, so stalling never beats a fair trade.
+- Tried and dropped (2026-11-11, mirror match-ups v Gladiator, Hydra wins - Gladiator wins):
+  - pure rate, gain / cost: agile duel 19-54 (too picky), heavy 4 v 4 55-17;
+  - gain - cost, cost discounted when losing: agile duel 30-35, heavy 4 v 4 40-28, 12 v 12 11-16;
+  - the rule above (kept): agile duel 33-34, heavy 4 v 4 51-24, 8 v 8 15-7.
 - **The reply.** An enemy that has not moved will answer. The best few spots (one per hex) are scored
   again against the best answer of the unmoved enemy that weighs most on them (the rival). The number
   of spots re-scored shrinks as more enemies are weighed, so the cost stays level in a big battle.
@@ -125,25 +127,137 @@ No exact-match test exists for this bot. It is judged by results, on the same se
 3. **Speed**: seconds per battle next to Gladiator on the same match-up.
 4. **Repeatable**: same seed, same result.
 
-## 5. Later stages (not started)
+## 5. Results so far (2026-11-11, first day)
 
-- **S2 Ghost that moves**: the Ghost pose learns where an unmoved enemy is likely to go (a few
-  candidate positions weighted by the enemy's own best score) instead of "stays near".
+Mirror match-ups (same 'Mechs both sides, `tools/hydra_scenarios.py`), Hydra v Gladiator, both seatings,
+40 battles a seating (16 for 8 v 8). Hydra wins - Gladiator wins - no winner:
+
+| Match-up | Result | Read |
+|---|---|---|
+| duel, Griffin, open ground | 33 - 34 - 13 | level |
+| duel, Hunchback, woods | 23 - 47 - 10 | **loses: the known weak spot** |
+| duel, Awesome, hills | 47 - 33 - 0 | wins |
+| 2 v 2, open ground | 32 - 45 - 3 | loses |
+| 4 v 4 lance, open ground | 41 - 29 - 10 | wins |
+| 4 v 4 lance, woods | 41 - 28 - 11 | wins |
+| 4 v 4 heavies, hills | 51 - 24 - 5 | wins clearly |
+| 8 v 8 | 15 - 7 - 10 | wins |
+| 12 v 12 | 14 - 15 - 3 | level |
+
+Speed: Hydra's battles take about half the time of Gladiator's at 4 v 4 and above.
+Not yet tried: Hydra v Princess (`python tools/hydra_scenarios.py --house princess`).
+
+What the weak spots have in common: few units, short range, and Hydra moving FIRST. Then everything
+rests on guessing the enemy's answer, and Hydra's guess (one rival, scored on Hydra's own terms) is
+poor: in the brawler duel it predicted "I deal 2.9, take 8.0" and still had to go. Stage S5a below is
+aimed at exactly this.
+
+## 6. Stage S5: play-outs (the plan; nothing built)
+
+Purpose: replace the Mover's weakest guess - "what happens after I move" - with a measurement.
+
+It comes in two parts. **S5a is the one to build first**: it needs no dice, no copy of the battle
+and only one small change to the engine. S5b is the heavy version and should wait until S5a's
+numbers are in.
+
+### Why two parts
+What a unit cannot know when it moves is (i) where everyone who moves after it will go, and (ii) the
+dice. For (ii) the Exchange Oracle already gives the exact average, so rolling dice inside a play-out
+adds noise and no knowledge (except for kills, falls and critical hits). Nearly all the missing
+knowledge is (i). So S5a plays out only the REST OF THE MOVEMENT PHASE and judges the final
+positions by expected damage. No dice are drawn, so one play-out per candidate spot is enough.
+
+### S5a: the movement play-out
+
+```
+ MOVE QUEUE ---> for each candidate spot of the mover:
+ (who moves        POSE the mover there
+  after me,        each RESPONDER in queue order picks its answer, POSED in turn
+  in order)        POSITION JUDGE prices the final picture
+                 -> the spot with the best judged picture wins; POSES are removed
+```
+
+- **MOVE QUEUE** - "who moves after me, in what order". In: the turn loop's activation state.
+  Out: the units still to move, in the order they will move. This is the one engine change: the turn
+  loop publishes the queue (a copy of its activation list) before it asks a unit to move.
+  Today that list is a local variable of the turn loop (`forces::Activation` in `play_turn`).
+- **POSE** - "assume unit U ends its move here". Sets a unit's position, facing and how it moved,
+  remembers what was there, and puts it back afterwards. Nothing else about the unit changes: no
+  rolls, no heat, no log lines. Every play-out must leave the battle exactly as it found it; a check
+  at the end of each decision (state before = state after, dice drawn = 0) is part of the block.
+- **RESPONDER** - the fast pilot for one unit that has not moved. It picks the best of its own short
+  list (its top spots from the plain Mover table, made once per decision) against the poses assumed
+  so far. It never runs a play-out itself (no recursion). Enemy responders use the same rule from
+  their own side: an enemy is assumed to think like Hydra.
+- **POSITION JUDGE** - "what is this final picture worth". For the units involved it asks the Oracle
+  for expected damage both ways at the final poses, lets each side's Fire Plan choose targets, and
+  returns the team's gain and cost. These go into the Mover's existing score. So a play-out changes
+  what goes INTO the score, not the score.
+- **Budget** - the play-out involves only the mover's neighbourhood: responders that can matter to
+  the mover this turn, nearest first, at most N of them (start with N = 3); everyone else stays as
+  the Mover treats them today. Candidates: the top K spots, one per hex (start with K = 8, fewer as
+  N grows). Target: a 12 v 12 battle no more than twice as slow as today's Hydra.
+- This block replaces "the reply" in the Mover (the reply is the special case N = 1, enemy only).
+  Friends who move after me are responders too: the unit learns that support will arrive.
+
+Traps to design for (each has bitten the house bots):
+- two units may not end in the same hex: a responder's short list must drop hexes already posed;
+- a prone unit, a unit entering the board, an immobile unit: fixed, never a responder;
+- the pose must carry how the unit moved (walk / run / jump, hexes moved): the Oracle needs it for
+  both the to-hit numbers and the heat;
+- do not call Legate's or Princess's hooks from inside a play-out (their memories would be changed);
+- thinking must never draw from the battle's dice (PROJECT_MAP Section 4, the lookahead-dice issue).
+
+Done when: (1) with no Hydra unit, all 63 fixtures still match exactly; (2) same seed, same result;
+(3) the "state before = state after, no dice drawn" check never fires over the whole mirror set;
+(4) the mirror table above improves, the brawler duel and the 2 v 2 first; (5) the speed target holds.
+
+### S5b: the dice play-out (later)
+
+For decisions where averages mislead (a charge or death from above, pulling back a crippled unit,
+a kill that changes everything) and for looking more than one turn ahead.
+
+- **SNAPSHOT** - a separate copy of the battle that can be played without touching the real one:
+  units and everything that changes (smoke, broken crust, limbs), its OWN dice (seeded from the
+  decision, never the battle's), log switched off, stubs not counted. The board is shared, not
+  copied, until something changes a hex. Today units, board and settings can be copied; the dice
+  and the three bots' memories cannot yet.
+- **TURN CURSOR** - "where in the turn are we". Today a turn is one long function with its place
+  kept in local variables, so it cannot be started in the middle. The cursor holds the turn number,
+  the initiative order, who has moved and the phase, and one function advances a battle from a
+  cursor to a stopping point. The real battle must run through the same function (one path, so the
+  play-out cannot drift from the real rules). Acceptance: the 63 fixtures match exactly.
+- **FAST PILOT** - drives every unit inside a snapshot: the plain Mover (no reply, no play-out) and
+  the Fire Plan.
+- **JUDGE** - the Forecast's margin on the snapshot's Ledger when the play-out stops, minus the
+  margin now. One currency again.
+- **Same dice for every candidate** - each candidate spot is played with the same set of dice
+  seeds, so the spots differ by position and not by luck; far fewer play-outs are needed.
+- By-product: every play-out is a finished piece of battle with a known outcome - the data S6
+  (self-calibration of the Forecast) needs.
+
+## 7. Other later stages (not started)
+
+- **S2 Ghost that moves**: superseded by S5a.
 - **S3 Move order**: Hydra chooses which of its units moves next (least to lose first, deciders
-  last). Needs a new question on the `BotSet` socket.
-- **S4 Charges and death from above** in the Mover (today Hydra never declares them).
-- **S5 Play-outs**: for the top few positions of a deciding unit, copy the battle and play the turn
-  forward in the real engine with Hydra itself as the fast pilot; pick by the average. Needs a way to
-  copy a battle.
+  last). Needs a new question on the `BotSet` socket; the Move Queue of S5a is half of it.
+- **S4 Charges and death from above** in the Mover (today Hydra never declares them; Gladiator
+  does, which may be part of the brawler-duel gap).
 - **S6 Self-calibration**: fit the Forecast's few constants from thousands of finished battles, so its
   margin matches what really happens.
+- **Waiting**: let a unit decline battle for a turn or two when every trade is bad and friends are
+  coming (today it never refuses).
+- **Attention share**: the Mover's guess at how an enemy splits its fire uses a rough range rule;
+  replace it with the Oracle where the cost allows.
 
-## 6. Status
+## 8. Status
 
 | Block | State |
 |---|---|
 | Plan (this file) | written 2026-11-11 |
-| Ledger, Forecast, Prices | see the Change Record |
-| Mover | see the Change Record |
-| Fire Plan | see the Change Record |
-| Results v Gladiator / Princess | see the Change Record |
+| Ledger, Forecast, Prices | built, first version (`engine/core/src/hydra.rs`) |
+| Mover (score, reply) | built; the reply is to be replaced by S5a |
+| Fire Plan | built |
+| Trial tools | `tools/hydra_scenarios.py`, `tools/hydra_trial.py` |
+| S5a movement play-out | planned (Section 6), not built |
+| Everything in Section 7 | not started |

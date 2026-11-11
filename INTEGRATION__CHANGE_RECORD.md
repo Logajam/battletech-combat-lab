@@ -6,6 +6,21 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-11 (Claude, session 24), HYDRA: A THIRD BOT, DESIGNED FROM FIRST PRINCIPLES, FIRST VERSION BUILT; THE PLAY-OUT STAGE PLANNED. Rust only (Daniel: "Rust only. Python will be effectively retired from here on out"). REVIEW PENDING (higher-level model).**
+  Daniel: "start from first principles on your own bot - entirely envisioned and designed by you ... effective from 1 on 1 to large force engagements
+  12 on 12 or possibly higher", and "the plan of what its supposed to do may be more important then the details". THE PLAN is `INTEGRATION__HYDRA.md`
+  (blocks and how they connect; read it before the code). THE IDEA: one planner per team; every point of damage is priced by how far it moves a small
+  forecast of how the battle ends (Ledger -> Forecast -> Prices); the Mover and the team Fire Plan ask the engine what damage flows and multiply by
+  prices. BUILT: `engine/core/src/hydra.rs` (all blocks, first version), routed by the unit's bot name "hydra" in `gladiator_bots.rs`, memory in
+  `Battle::hydra`; `btsim --hydra TEAM`; `tools/hydra_scenarios.py` (mirror match-ups, same 'Mechs both sides) and `tools/hydra_trial.py` (three
+  batches a scenario, head-to-head line). RESULTS v Gladiator on the mirror set (Hydra - Gladiator - no winner; plan Section 5): duels 33-34-13 /
+  23-47-10 / 47-33-0, 2 v 2 32-45-3, 4 v 4 41-29-10 / 41-28-11 / 51-24-5, 8 v 8 15-7-10, 12 v 12 14-15-3. So: ahead at 4 v 4 and 8 v 8, level at 12 v 12,
+  behind in a short-range duel and the 2 v 2; about twice as fast as Gladiator from 4 v 4 up. Not tried v Princess. Three scoring rules were measured;
+  the plan records the two dropped. PLANNED, NOT BUILT: the play-out stage (plan Section 6): S5a plays out the rest of the Movement Phase with no dice
+  and no copy of the battle, S5b is the dice version. ENGINE FIX on the way: a unit with several crew could reach 6 crew hits while still standing and
+  the consciousness check then crashed (the Python raised there too): now that crew member is out, no roll, with a loud stub `crew_six_hits`
+  (PROJECT_MAP Section 4: Daniel to rule). `scenario.rs`: meta.json optional. `bv_check` test skips folders without a recording. TESTS: with no Hydra
+  unit every fixture matches as before (73 ok; the 2 that differ are the known lookahead-dice cases); Python 56 of 56.
 - **2026-11-11 (Claude, session 24, the higher-level review of queue item (p)), RUST ENGINE REVIEWED: 3 TO 5 TIMES FASTER, TWO ENGINE BUGS FIXED, A RANDOM-BATTLE CHECK ADDED. Rust and tools only; the Python is unchanged (56 of 56 checks).**
   Daniel: "check over the work, bug hunt, and optimize the code." SPEED (one core, results IDENTICAL to before on the same seeds, all 63 fixtures still
   equal with the Rust bots alone): 40 Atlas v Archer duels 21.6 s -> 4.3 s; two 4 v 4 Princess v Gladiator battles 17.9 s -> 4.7 s; two 12 v 12 (10 turns)
