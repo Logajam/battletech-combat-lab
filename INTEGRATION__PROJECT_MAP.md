@@ -136,6 +136,10 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(p) RUST PORT STAGES 1-9, FIRST CUT** (session 23; Change Record "RUST PORT STAGES 1-9 FIRST CUT"; brief in `engine/REVIEW_BRIEF.md`).
+  Review: bugs (the Rust is a step-for-step copy, so a bug is usually a difference from the Python in a path no fixture reaches), the
+  places the port made a choice (RefCell dice for the lookahead quirk, `unsafe` pointer in `ranged_combat::path_to_cached`, path tables
+  and caches), and speed (profile `btsim` first; leads in the brief).
 - **(o) RUST PORT STAGE 0** (session 22; Change Record "RUST PORT STAGE 0 DONE"). Review: the decision seam changes nothing in
   normal play (`INTEGRATION__decisions.decide` calls `compute()`; the `choose_declaration` move in `attack_resolution._declare`
   is the same code); the recorder's hooks only read; the replay's completeness argument (an exact replay with the bots off proves

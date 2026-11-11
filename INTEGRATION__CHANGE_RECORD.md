@@ -6,6 +6,24 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-11 (Claude, session 23), RUST PORT STAGES 1-9 FIRST CUT: THE WHOLE ENGINE AND ALL DEFAULT BOTS IN RUST; BATCH RUNNER; STATISTICS CHECK UNDER WAY. New Rust crates and tools; the Python is unchanged. REVIEW PENDING (higher-level model).**
+  Daniel: "Continue until done" and, on the extras, "We'll convert that list of extras later if they come up." `engine/core` (`btsim_core`, ~30,000 lines)
+  now holds the rules engine (stages 1-6) and the bots with their default settings: Gladiator movement (`move_options` / `move_eval` / `move_select` /
+  `move_attacks`), Legate with triage tiers and the peril peak (`legate`), Gladiator's firing order and several-enemy targeting (`bot_targets`), the modern
+  Princess (`princess_modern` ranker + group, `princess_fire` fire control and physical choice, `princess_memory`, `princess`, `princess_geometry`) and Battle
+  Value (`battle_value`). EVIDENCE: (1) every recorded bot decision of all 63 fixtures is reproduced (`CHECK=legate,move,declaration,physical,princess cargo
+  test --release --test stage6_battles`); (2) `BOTS=rust cargo test --release --test stage6_battles` plays all 63 fixture battles with NO recorded decisions -
+  state after every phase, dice used, log and stub warnings equal the Python's (about 215 s); (3) `tests/bv_check.rs`: BV equals the Python's on 45 units. Floats
+  are compared to 1e-12 relative and movement-note numbers to their printed precision (Daniel: 20th-decimal differences are float error); `pyfmt::Fx` prints
+  Python's `{x:.nf}` (Rust rounds exact ties the other way). STAGE 9: `PcgDice` (PCG64, own stream: the engines are compared on statistics, not seeds),
+  `btsim` (`engine/btsim`, rayon, one battle a thread), `tools/port_scenario.py` (writes a scenario from config overrides), `tools/port_stat_check.py` (N battles on
+  each engine, z-tests on wins, turns, damage, HP). A 60-battle duel check: same game (all |z| < 1.5). BUGS FOUND BY BATCHES: a unit whose last enemy fell
+  mid-phase panicked (now `any_enemy`); a destroyed torso-cockpit head in a bot's lookahead draws dice in the Python (translated, dice behind a RefCell);
+  Princess re-searched every path for every spot (12 v 12 never finished; path tables now cached per ranking). NOT TRANSLATED (loud panic if asked; none is
+  in the fixtures): PRINCESS_VERSION "0.50.07", MOVE_ORDER "tiered", LEGATE_HERDING / COHESION / TEAM_VALUE, STACK, PERIL other than off, STUB_GLADIATOR_TARGET
+  "kill_curve", MOVEMENT_SEARCH "if_then". OPEN: the larger statistics runs (200 + 200 + 12 v 12); SPEED (Rust is only ~2x the Python+fastcore so far:
+  per-battle equipment-database load, cloning in the scoring loops); `config.ENGINE` switch in `INTEGRATION__main.py`; retiring `fastcore/`. Review brief: `engine/REVIEW_BRIEF.md`.
+
 - **2026-11-10 (Claude, session 22), RUST PORT STAGE 0 DONE: THE COMPARISON TOOLS. New tools and tests; a pass-through seam in two engine files; no behaviour change. REVIEW PENDING (higher-level model).**
   Daniel: "Its time to convert the monte carlo into rust" and "Go ahead. This is a work until its done project." Built, per `INTEGRATION__RUST_PORT.md` stage 0:
   NEW `tools/port_record.py` (plays battle 1 under a scenario with read-only hooks; writes config / units / board / dice tape / decisions / per-phase state
