@@ -127,6 +127,8 @@ standoff, sprinting, multi-target fire, unit orders. Open call (Daniel): Short-S
 - E2. Combat Lab GUI [12, 14]: HTML front end behind an `.exe` (Daniel); setup shell first; MegaMek save import
   to test later. `INTEGRATION__COMBAT_LAB.md`.
   BUILD ORDER as spec sheets CL1-CL9 (session 24, on the Rust engine): `INTEGRATION__COMBAT_LAB_SPECS.md`.
+- E3a. Art direction (session 24): why the models read as stacked blocks, and jobs A1-A8 in order -
+  `INTEGRATION__COMBAT_LAB_ART_SPECS.md` (nothing built).
 - E3. 3D art [15] (paused): next the weapon-block stockpile, then bird-body torso / head blocks, the 47 chart
   chassis, directional hardpoints.
 

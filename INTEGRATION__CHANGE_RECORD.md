@@ -6,6 +6,12 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-11 (Claude, session 24), COMBAT LAB ART: A DIAGNOSIS AND SPEC SHEETS A1-A8. Documents only; nothing built, no code changed.**
+  Daniel: "they're still just shaped blocks stacked on each other ... Do what you can to help there." `INTEGRATION__COMBAT_LAB_ART_SPECS.md`: six
+  reasons the models read as blocks (all bulging lumps with no hollows; parts touch and do not interlock; one size of detail; variants that do not
+  change the outline; no taper or shared angles; one material in flat light), from one lineup picture of an Atlas, and eight jobs in order: A1
+  materials and light, A2 dark under-body with armor plates and gaps, A3 silhouette check and proportion table, A4 taper and shared angles, A5
+  interlock at joints, A6 small-detail kit, A7 weapons, A8 paint. Each ends with pages published for Daniel's eye. Linked from PROJECT_MAP E3a.
 - **2026-11-11 (Claude, session 24), COMBAT LAB SPEC SHEETS. Documents only; nothing built, no code changed.**
   Daniel: "write spec sheets for future you to follow to improve that side of the project." `INTEGRATION__COMBAT_LAB_SPECS.md`: Part B of
   `INTEGRATION__COMBAT_LAB.md` turned into nine jobs on the Rust engine (CL1 a battle set up from files in Rust, CL2 the battle history, CL3 the
