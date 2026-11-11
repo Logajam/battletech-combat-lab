@@ -6,6 +6,51 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-11 (Claude, session 24, the higher-level review of queue item (p)), RUST ENGINE REVIEWED: 3 TO 5 TIMES FASTER, TWO ENGINE BUGS FIXED, A RANDOM-BATTLE CHECK ADDED. Rust and tools only; the Python is unchanged (56 of 56 checks).**
+  Daniel: "check over the work, bug hunt, and optimize the code." SPEED (one core, results IDENTICAL to before on the same seeds, all 63 fixtures still
+  equal with the Rust bots alone): 40 Atlas v Archer duels 21.6 s -> 4.3 s; two 4 v 4 Princess v Gladiator battles 17.9 s -> 4.7 s; two 12 v 12 (10 turns)
+  67 s -> 21 s. The same 40 duels take the Python 45 s. Found with callgrind, one change at a time: hexes looked up by a (column, row) grid instead of a
+  formatted label and a string hash (`Board::info_xy`, `hex_label` without the formatter); FxHash for every map and set (`fasthash.rs`; SipHash was a
+  sixth of the time); mimalloc in `btsim`; equipment.json parsed once a process (`EquipmentDb::shared`); name-only weapon facts kept on the item
+  (`Equipment::memo`: special, has_profile, TN modifier, AMS, TC-eligible) and the canonical name shared (`Arc<str>`); AES / shield scans without building
+  strings (`norm_ascii`); lines of sight remembered until the board changes (`Battle::los_memo`, the Python's `los_cache`); finished movement tables and
+  the board-wide terrain scans likewise (`Battle::movement_table`, `Board::psr_terrain`; `Battle::board_changed` empties them on smoke and a broken
+  crust); the cluster table read once; the reply model lends its tables instead of copying them per spot; terrain features found by a short scan.
+  BUG HUNT: NEW `tools/port_fuzz.py` - `exact`: a random match-up (any units of meks.zip, any 16x17 map, either bot) is recorded by the Python and replayed
+  by the Rust with its own bots, state / dice / log equal; `crash`: `btsim` batches of random match-ups, twice, for panics and repeatability. Run so far:
+  about 775 duels and 2 v 2s and 55 3 v 3 / 4 v 4s match exactly; 524 match-ups x 6 battles x 2 without a repeatability failure. FIXED IN THE RUST:
+  (1) an active Void Signature System's +1 on its own ranged attacks was missing from the declared attack and the TAG attack (`attack_resolution`
+  called the Taser / TSEMP / IMP-only modifier, not `equipment_systems.own_attack_modifier`); (2) a panic when a unit enters the board while an enemy
+  stands on one of its entry-edge hexes (`ranged_combat::path_to_cached`); (3) the state dump left out the command console's second warrior
+  (`secondary_hits`, `console_lost`, `primary_dead`), `imp_mp` and an ammo bin's None attributes, so those were never compared; (4) Python's `sum()` of
+  floats is compensated summation since 3.12 - the Rust added plainly, the source of the "last digit" differences (`pyfmt::py_sum` / `py_sum_num`
+  at every float `sum()`; Daniel, same day: past the 12th decimal is noise - kept because it was done and makes those lines equal); (5) the function-tap
+  tests no longer compiled (dice behind a RefCell); (6) debugging leftovers in the bots' hot loops (`std::env::var("BT_...")` with hard-coded unit
+  names) removed. FOUND IN THE PYTHON, NOT CHANGED (it is frozen; Daniel's call - PROJECT_MAP Section 4, RUST_PORT "Found on the way" 7-11): a bot's
+  lookahead rolls real dice and prints log lines for a unit with a destroyed head and a torso cockpit (the two engines then draw different counts: the
+  only exact-check failures left, 2 of about 830); two crashes on particular units (a profile weapon with no heat value in the min-heat padding; a PPC
+  capacitor on a PPC with no damage value); the same entry-edge crash as (2); the LOS cache for prone heights is not emptied when smoke changes.
+  All Rust tests pass (stage 1-3, taps, attach, BV, stage 6 with recorded and with Rust bots). STILL OPEN: the untranslated switches (unchanged list);
+  `config.ENGINE` switch; retiring `fastcore/`; further speed leads in `engine/REVIEW_BRIEF.md` (team battles: the fire scoring per (unit, foe)).
+
+- **2026-11-11 (Claude, session 23), RUST PORT STAGES 1-9 FIRST CUT: THE WHOLE ENGINE AND ALL DEFAULT BOTS IN RUST; BATCH RUNNER; STATISTICS CHECK UNDER WAY. New Rust crates and tools; the Python is unchanged. REVIEW PENDING (higher-level model).**
+  Daniel: "Continue until done" and, on the extras, "We'll convert that list of extras later if they come up." `engine/core` (`btsim_core`, ~30,000 lines)
+  now holds the rules engine (stages 1-6) and the bots with their default settings: Gladiator movement (`move_options` / `move_eval` / `move_select` /
+  `move_attacks`), Legate with triage tiers and the peril peak (`legate`), Gladiator's firing order and several-enemy targeting (`bot_targets`), the modern
+  Princess (`princess_modern` ranker + group, `princess_fire` fire control and physical choice, `princess_memory`, `princess`, `princess_geometry`) and Battle
+  Value (`battle_value`). EVIDENCE: (1) every recorded bot decision of all 63 fixtures is reproduced (`CHECK=legate,move,declaration,physical,princess cargo
+  test --release --test stage6_battles`); (2) `BOTS=rust cargo test --release --test stage6_battles` plays all 63 fixture battles with NO recorded decisions -
+  state after every phase, dice used, log and stub warnings equal the Python's (about 215 s); (3) `tests/bv_check.rs`: BV equals the Python's on 45 units. Floats
+  are compared to 1e-12 relative and movement-note numbers to their printed precision (Daniel: 20th-decimal differences are float error); `pyfmt::Fx` prints
+  Python's `{x:.nf}` (Rust rounds exact ties the other way). STAGE 9: `PcgDice` (PCG64, own stream: the engines are compared on statistics, not seeds),
+  `btsim` (`engine/btsim`, rayon, one battle a thread), `tools/port_scenario.py` (writes a scenario from config overrides), `tools/port_stat_check.py` (N battles on
+  each engine, z-tests on wins, turns, damage, HP). A 60-battle duel check: same game (all |z| < 1.5). BUGS FOUND BY BATCHES: a unit whose last enemy fell
+  mid-phase panicked (now `any_enemy`); a destroyed torso-cockpit head in a bot's lookahead draws dice in the Python (translated, dice behind a RefCell);
+  Princess re-searched every path for every spot (12 v 12 never finished; path tables now cached per ranking). NOT TRANSLATED (loud panic if asked; none is
+  in the fixtures): PRINCESS_VERSION "0.50.07", MOVE_ORDER "tiered", LEGATE_HERDING / COHESION / TEAM_VALUE, STACK, PERIL other than off, STUB_GLADIATOR_TARGET
+  "kill_curve", MOVEMENT_SEARCH "if_then". OPEN: the larger statistics runs (200 + 200 + 12 v 12); SPEED (Rust is only ~2x the Python+fastcore so far:
+  per-battle equipment-database load, cloning in the scoring loops); `config.ENGINE` switch in `INTEGRATION__main.py`; retiring `fastcore/`. Review brief: `engine/REVIEW_BRIEF.md`.
+
 - **2026-11-10 (Claude, session 22), RUST PORT STAGE 0 DONE: THE COMPARISON TOOLS. New tools and tests; a pass-through seam in two engine files; no behaviour change. REVIEW PENDING (higher-level model).**
   Daniel: "Its time to convert the monte carlo into rust" and "Go ahead. This is a work until its done project." Built, per `INTEGRATION__RUST_PORT.md` stage 0:
   NEW `tools/port_record.py` (plays battle 1 under a scenario with read-only hooks; writes config / units / board / dice tape / decisions / per-phase state

@@ -80,8 +80,9 @@ Each of these silently breaks exact matching. Stage 0's tools find them; knowing
    of equals - write the loop out (`if score > best`) exactly as the Python's comparison reads (`>` v `>=`).
    `sort_by` is stable; `sort_unstable*` is forbidden.
 4. **Floats.** Rust `f64` and Python floats are the same numbers IF the operations are the same in the same
-   order. So: keep the order of additions and multiplications as written (no "simplifying" `a*b + a*c`); `sum()`
-   adds left to right from 0.0; no `mul_add`; `x ** 0.5` -> `sqrt()`, other powers -> `powf` (check on
+   order. So: keep the order of additions and multiplications as written (no "simplifying" `a*b + a*c`); `sum()` of
+   floats is NOT a running total: since Python 3.12 it is compensated (Neumaier) summation - use `pyfmt::py_sum` /
+   `py_sum_num` for every Python `sum(...)` of floats, a plain loop only where the Python has a `+=` loop (session 24); no `mul_add`; `x ** 0.5` -> `sqrt()`, other powers -> `powf` (check on
    fixtures); `round()` in Python rounds half to EVEN (`fastcore` already has this for hex distance) - Rust's
    `round()` rounds half away from zero, so write a `py_round`. Integer division `//` and `%` floor toward
    negative infinity in Python: use `div_euclid` / `rem_euclid` or a `py_floordiv`, and check every use with a
@@ -208,10 +209,10 @@ test to replay. `fastcore`'s `tests/test_fastcore.py` is the model for this.
 
 | Stage | Translate | Compared against | Done when |
 |---|---|---|---|
-| 1 Geometry and board | `hex_geometry`, `board_parser`, `terrain_rules` (incl. `prepare_board`), stitched maps (`map_picker` stitching only) | `board.json` for every map in `data/maps.zip` that plays (174); distance / neighbours / lines on 100k random pairs | every board identical |
+| 1 Geometry and board | DONE (session 22): `engine/` workspace, crate `btsim_core`: `pyfmt`, `hex_geometry`, `los::hex_distance`, `board_parser` (incl. stitching), `terrain_rules`. `cargo test --release` (from `engine/`) after `python tools/port_stage1.py`: all 356 boards load or are refused with the Python's exact message and warnings (passive and full buildings), 100k label round trips and 100k hex distances, 20 stitched grids and refusals, 60k terrain-rule cases (step_cost, psrs, hazards) identical | session 22, 2026-11-10 | |
 | 2 Sight and movement | `los`, `los_cache` logic (no cache), `pathfinder`, `combat` (movement pieces), `ranged_combat._movement_options`, `water` / `hazards` movement parts, `deployment` | LOS result for every hex pair on 10 boards; reachable-state tables for 2,000 recorded (unit, hex, MP) requests | identical sets, same order |
-| 3 Units | `mtf_parser`, `equipment` + its JSON, `armor_rules`, `mech_state`, `structure_weight`, superheavy / ultralight tables | `units.json` for ALL 4,204 units in `data/meks.zip` | every unit identical |
-| 4 Damage and piloting | `rng` (TapeDice), `hit_location`, `damage_resolution`, `piloting_rolls`, `heat`, `equipment_systems`, `ammo`, `domino`, falls | function-level fixtures driven by the dice tape: (state before, call, dice) -> state after | identical states and log lines |
+| 3 Units | PARSE DONE (session 22): `equipment`, `mech_state` (the `Mech` struct with an Equipment arena + every pure state query), `mtf_parser`, `config`, `damage_resolution::get_weapons`. `cargo test --release --test stage3_units` (after `python tools/port_stage3.py`): all 4,204 units of data/meks.zip dump identically to the Python, and the 23 LAMs are refused with the same message; printed warnings identical. NOT YET: `structure_weight`, the battle-start attach steps (`ammo`, `electronics`, `equipment_systems`, `capacitor`, `_attach_mech_config`) - they come with their stages | session 22, 2026-11-10 | |
+| 4 Damage and piloting | IN PROGRESS (session 22). DONE and checked on tapped Python calls (`python tools/port_tap.py GROUP` then `cargo test --release --test tap_GROUP`): `armor_rules` (2,202 calls), `mech_state` queries + `compute_tmm` + `get_weapons` (10,034), `damage_resolution` + `hit_location` (1,898), `piloting_rolls` + `hazards` + `water` (9,386), plus `advanced_equipment`, `capacitor` (crit_hit), `equipment_systems` and `stubs` (translated, tapped when heat/attacks use them). TO DO: `heat` (read; needs `ammo`, `advanced_weapons`, `fire_modes`, `weapon_profiles` - the `ammo` regexes need the `fancy-regex` crate because of lookaheads), `rng` is `TapeDice`, `domino`, `capacitor` attach/declare/end_phase, `structure_weight`, falls in `domino` | session 22 | The tap tool replays a fixture in Python with a wrapper on named functions and records each call's inputs, dice, outputs, state and log; the Rust test rebuilds and compares (`engine/core/tests/common/mod.rs`) |
 | 5 Attacks | `expected_damage`, `weapon_profiles`, `weapon_rules`, `fire_modes`, `ams`, `electronics`, `arcs`, `advanced_weapons`, `advanced_equipment`, `capacitor`, `tag`, `smoke`, `attack_resolution`; then `physical`, `physical_gear`, `clubs`, `charge`, `dfa`, `movement_attacks` (the resolution parts) | per-phase: state before a phase + that phase's decisions + dice -> `trace.jsonl` line after it | identical for every recorded phase |
 | 6 The turn loop, bots off | `orchestrator`, `forces`, `stubs`, `config`, the log text, `results` as JSON; `cli` replays `decisions.json` | **whole battles**: `trace.jsonl` and `log.txt` for every fixture | every fixture byte for byte. THE ENGINE IS NOW PROVEN |
 | 7 Princess | `princess_fire`, `princess`, `princess_modern`, `princess_group`, `princess_memory`, `battle_value`, `bots` | bots ON for Princess units: the Rust must make the SAME decisions as `decisions.json` at every point (compare decision by decision; on the first mismatch dump both score lists) | Princess v Princess fixtures match with no decision file |
@@ -260,21 +261,84 @@ The 23 LAMs and anything `prepare_board` refuses are refused the same way in Rus
 - **Risk.** The likely failure is not a stage that cannot be done; it is a stage declared done that is not.
   The whole-battle comparison at stages 6 and 8 is the protection - keep it exact.
 
+
+## Where the translation stands and how to continue (written session 22, 2026-11-10)
+
+Rust crate: `engine/core` (`btsim_core`). Run everything from `engine/`: `cargo test --release`. The tests read
+`engine/fixtures/` (git-ignored): `python tools/port_fixtures.py --no-replay` (63 battles), `python tools/port_stage1.py`,
+`python tools/port_stage2.py`, `python tools/port_stage3.py`, and `python tools/port_tap.py GROUP` for the function-level
+groups (`armor state damage piloting`; add groups in `tools/port_tap.py` `GROUPS`).
+
+Design that every module follows (see `battle.rs`): NO globals. `Battle` owns config, dice (`Dice` trait; `TapeDice`
+replays a recorded tape), log (`Log`: stdout lines + stub warnings), the board, `units: Vec<Mech>` and the tables the Python
+keeps in modules. Functions are `fn f(b: &mut Battle, u: UnitId, ...)`. A mech owns its Equipment arena (`items`, `ItemId`);
+slots are `Slot::Name | Slot::Item(id)`. Armor / structure / damage are `pyfmt::Num` (Python int-or-float, printed like
+Python). Log text must match the Python exactly (`b.log(...)`; a bare `print` is `b.print(...)`, never quiet). A dry run
+is `b.log.quiet += 1`.
+
+Translated and checked (function taps match the Python on every recorded call): pyfmt, hex_geometry, board_parser,
+terrain_rules, los, pathfinder, equipment, mtf_parser, mech_state (+ `mech_json`: every attribute, round-trips every recorded
+state), armor_rules, damage_resolution, hit_location, piloting_rolls, hazards, water, advanced_equipment, capacitor (crit_hit),
+equipment_systems, ammo (`fancy-regex`), heat, electronics, arcs, attack_resolution (the resolution parts: hits, TAC, groupings,
+conditions), physical_gear, smoke.probe, physical._location. Taps: `armor state damage piloting ammo heat electronics arcs
+attack` (`python tools/port_tap.py GROUP [--limit N]`; keep a group's JSON under ~400 MB or the Rust test runs out of memory:
+`attack` uses `--limit 8`); a Rust test per group in `engine/core/tests/tap_*.rs`.
+Compiled but NOT yet checked against the Python: stubs (partial), weapon_rules, weapon_profiles, advanced_weapons,
+fire_modes (shot plan, options, `Planner`), expected_damage, combat (hit_probability, fc_to_tmm, direction_facing), ams,
+attack_resolution (`prepare_declaration` / `finish_declaration` / `run_ranged_phase`, the weapon CHOICE is a `RangedBot`),
+clubs, capacitor (attach / declare / end_phase), domino, charge, dfa, movement_attacks (displacement, groupings),
+physical (options, push, `run_physical_units`; the choice is a `PhysicalBot`), forces (`unit_in_hex` only), weapon_selection
+(range terms, heat limits). These are checked by Stage 6's whole-battle comparison (the first-difference tool says where).
+
+Next, in order (each: read the Python module fully, translate, add its functions to a tap GROUP when it takes only
+encodable arguments, run the Rust test):
+1. Stage 6 pieces: `forces` (initiative, movement / fire order, team lists, blocked hexes), `deployment`, `tag`, `results`,
+   `ranged_combat` (`movement_options`, `path_to`: the engine walks the bot's pick), the remaining `equipment_systems` /
+   `hazards` calls the orchestrator makes, then `orchestrator` itself (`_play_turn`, `_move`, `_walk_path`,
+   `_after_fall_midmove`, `_phase_heat`, `_phase_end`, `_finish`), a `Replayer` that reads `decisions.json` (kind, who, value,
+   dice_drawn to skip, log lines and stub warnings to re-emit), and a test per fixture comparing `log.txt` and `trace.jsonl`.
+2. Bot side (stages 7-8): `weapon_selection` (knapsack, fire candidates), `structure_weight`, the rest of `physical`
+   (`Worth`, `Planner`, `choose_attack`), `movement_attacks` (`MoverIndex`, `scored_options`, `displacement_worth`), the rest of
+   `pathfinder/combat.py` that the movement scoring uses, `ranged_combat` scoring, `movement_selection`, princess*, bots,
+   legate, tiers, peril, stack, kill_curve, battle_value, future_damage.
+
+## Where it stands at the end of session 22 (2026-11-10, later)
+
+DONE and checked against the Python: everything the engine does with the bots' answers given - `cargo test --release --test
+stage6_battles` replays all 63 fixture battles exactly (state after every phase, dice used, log, stub warnings) and
+`--test stage6_attach` rebuilds every fixture's units from their .mtf (parse + attach) equal to units.json. All function
+taps pass (`armor state damage piloting ammo heat electronics arcs attack`).
+
+CHECKED bot side (session 22, end): Gladiator's declaration (`gladiator.rs`, `weapon_selection.rs` knapsack,
+`structure_weight.rs`) and physical choice (`physical::choose_attack`, `Worth`, plans) equal decisions.json in ALL fixtures;
+foe / target equal when there is a single enemy. Floats are compared to 1e-12 relative (Daniel, 2026-11-10: last-digit
+differences are float noise, not worth chasing; the old 1-ulp ISLRM5 mystery is closed that way). Check with
+`CHECK=declaration,physical,simple cargo test --release --test stage6_battles -- --nocapture` (computes the Rust decision, compares it with
+the recorded one, carries on with the recorded one).
+
+DONE (session 23): Gladiator movement (`move_options.rs`, `move_eval.rs`, `move_select.rs`, `move_attacks.rs`) matches every recorded move decision in all 63 fixtures (`CHECK=move`). `gladiator_bots.rs` is a Rust-only Gladiator (no decisions.json): `BOTS=rust cargo test --release --test stage6_battles` plays every Gladiator-v-Gladiator duel from the dice tape alone and matches state, dice, log and stub warnings (movement-note numbers compared to their printed precision: a 1-ulp float difference in a 3.375 tie, per Daniel). Use `pyfmt::Fx` for every Python `{:.Nf}` (Rust rounds exact ties the other way). Notes: `reduced_options` reads each state's PSR count at the moment it is yielded (entering the board reaches states twice).
+DONE (session 23, later): Legate (`legate.rs`: plan, foe, extras, triage tiers, peril peak), Gladiator firing order and several-enemy targeting (`bot_targets.rs`), Princess modern (`princess_fire.rs` fire control + physical, `princess_modern.rs` ranker and group, `princess_memory.rs`, `princess.rs`, `princess_geometry.rs`) and Battle Value (`battle_value.rs`, checked on 45 units, `tests/bv_check.rs`). `BOTS=rust cargo test --release --test stage6_battles` plays ALL 63 fixture battles with no recorded decisions and matches the Python (214 s). Checks against decisions.json: `CHECK=legate,move,declaration,physical,princess`. Path tables are cached per ranking (`ranged_combat::path_to_cached`): without it a 12v12 Princess battle never finished.
+NOT STARTED: the v0.50.07 Princess (PRINCESS_VERSION '0.50.07'), MOVE_ORDER 'tiered', the research switches left off by default (peril blending, stack, herding, cohesion, team value/exchange, kill_curve targeting), `if_then` movement search; Stage 9: PcgDice, rayon batches, ENGINE switch, results/summary printing, statistical check, speed work.
+Princess: princess_fire; move: movement_selection + ranged_combat scoring (Gladiator), princess_modern / princess (Princess)),
+battle_value, peril, stack, herding, cohesion, tiers, future_damage; Stage 9 (PcgDice, rayon batches, ENGINE switch, results
+printing, statistical check, speed work, retiring `fastcore/`). Each bot decision is checked the same way: add a `check_*`
+switch to `replay_bots.rs`, compute with the Rust bot, compare with the recorded answer.
+
 ## Stage log (update as stages finish)
 
 | Stage | State | Session / date | Notes |
 |---|---|---|---|
-| T8 archive decision | waiting on Daniel | | |
+| T8 archive decision | DECIDED by Daniel 2026-11-10: NOTHING is archived - Peril, stack, herding, cohesion, team value, exchange, kill curve, tiers stay ("active research into bot logic") and are translated like everything else | session 22 | |
 | 0 Comparison tools | DONE (session 22, 2026-11-10): 63 fixtures (15 reference, 6 team, 42 coverage) record and replay in Python exactly (trace, dice position, stdout, stub warnings); 182 of 1,327 engine functions are not reached - listed and sorted in `engine/COVERAGE_GAPS.md`. 56 of 56 checks, benchmark 501 / 495 unchanged | session 22, 2026-11-10 | `python tools/port_fixtures.py` rebuilds `engine/fixtures/` (git-ignored, about 0.5 GB, several minutes on 4 cores) |
 | 1 Geometry and board | not started | | |
 | 2 Sight and movement | not started | | parts exist in `fastcore/` (PathBoard, LosBoard, hex_distance) - reuse after checking against the fixtures |
 | 3 Units | not started | | |
 | 4 Damage and piloting | not started | | |
 | 5 Attacks | not started | | |
-| 6 Turn loop, bots off | not started | | |
+| 6 Turn loop, bots off | DONE (session 22, 2026-11-10): `cargo test --release --test stage6_battles` plays 62 of the 63 fixture battles (all but the 12 v 12 ones, as in the taps) from units.json + dice.json with the bots' answers read from decisions.json (`replay_bots`); every phase's state, the dice used, the log and the stub warnings equal the Python's. Test normalizations: smoke-clear lines sorted; the bots' `_bv_built` / `blocked_hex` scratch attributes ignored; the attach step's own log lines and stub warnings not compared (units start attached) | session 22 | the step between: `_attach_mech_config` from the parsed .mtf (compare with units.json) |
 | 7 Princess | not started | | |
 | 8 Gladiator | not started | | |
-| 9 Cut over, speed | not started | | |
+| 9 Cut over, speed | PcgDice, `btsim`, statistics check: session 23. Review, speed (3-5x; about 10x the Python on one core) and `tools/port_fuzz.py`: session 24. OPEN: `config.ENGINE` switch, retiring `fastcore/`, the untranslated switches | sessions 23-24, 2026-11-11 | rows 1-8 above this one are DONE too (session 23; see "Where it stands") |
 
 ## Found on the way (Python behaviour that looked wrong, or order-dependent; copied as is)
 
@@ -292,3 +356,29 @@ The 23 LAMs and anything `prepare_board` refuses are refused the same way in Rus
    evaluator are not called by the integrated engine (the file's movement pieces are). Not translated.
 6. **A mixed-in `weapon_locations` quirk**: it lists destroyed weapons' instance ids too (`destroyed_slot_info`), and the
    ranged declaration's "held" set can name them; the decision records write them as the slot addresses the items had.
+7. **The LOS cache and smoke** (`smoke._changed`): the Python empties only the standing / standing cache when smoke
+   changes; lines cached for a prone 'Mech keep their old answer. The Rust's `Battle::los_memo` is emptied whole
+   (`board_changed`), so the two can differ for a prone unit after smoke appears or clears. Not met in ~830 random battles.
+8. **A bot's lookahead rolls real dice** (session 23 translated it; session 24 found the counts still differ): a head
+   result on a unit with a destroyed head and a torso cockpit is re-rolled with the battle's dice inside
+   `structure_weight.hit_spread`. How many re-rolls happen depends on which of the Python's caches hit, so the Rust
+   draws a different number (`fza_240`, `fzc_7054`: "dice call N: asked for (r, 0), tape has (p, ...)"). A Python bug
+   (PROJECT_MAP Section 4); once it is fixed there the Rust's `resolve_hit_location_shared` and `lookahead_log` go.
+9. **Entering the board with an enemy on an entry-edge hex**: `ranged_combat.path_to` raises ValueError in the Python;
+   the Rust skips the blocked edge hex (`path_to_cached`).
+10. **Two Python crashes on particular units** (heat None in `_finish_choice`; `base_damage` None in
+    `capacitor.set_charged`): PROJECT_MAP Section 4. The Rust copies those lines (`unwrap()`), so it most likely panics there too; not tried.
+11. **Present-but-None attributes**: every ammo bin has `feeds` / `kind` / `munition` / `shots_left` in the Python even
+    when None; `Equipment::to_json` writes them as null for a bin (`missiles_per_shot` set).
+
+## Session 24 (2026-11-11): the review - what changed and how to check a change
+
+- Speed work and its rules: `engine/REVIEW_BRIEF.md`. Caches added: `Board::grid` (never stale: hexes are not added or
+  removed), `Equipment::memo` (name-only facts), `Battle::los_memo` and `Battle::table_memo` and `Board::psr_terrain` /
+  `hazard_terrain` (emptied by `Battle::board_changed` - call it after ANY change to a hex), `Config::cluster_hits`
+  (dropped by `Config::set`).
+- Maps and sets come from `crate::fasthash` (FxHash; build with `default()`, not `new()`).
+- Checking a change, in order of cost: `BOTS=rust cargo test --release --test stage6_battles` (63 fixtures; `FIXTURES=`
+  to limit), then `python tools/port_fuzz.py exact START COUNT` (random battles, exact; a few hundred take some
+  minutes a core) and `python tools/port_fuzz.py crash START COUNT` (panics, repeatability).
+

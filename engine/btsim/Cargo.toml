@@ -1,0 +1,11 @@
+[package]
+name = "btsim"
+version = "0.1.0"
+edition = "2021"
+description = "BattleTech Monte Carlo: runs batches of battles on the Rust engine (INTEGRATION__RUST_PORT.md Stage 9)"
+
+[dependencies]
+btsim_core = { path = "../core" }
+rayon = "1"
+mimalloc = { version = "0.1", default-features = false }
+serde_json = { version = "1", features = ["preserve_order"] }

@@ -8,3 +8,5 @@ saved_states/
 fastcore/target/
 stats/
 engine/fixtures/
+engine/target/
+engine/fuzz/
