@@ -834,7 +834,7 @@ pub struct Worth {
 impl Worth {
     pub fn new(b: &Battle, target: UnitId, relative: bool) -> Worth {
         let t = &b.units[target];
-        let front = sw::vulnerability(t, &sw::hit_spread(t, "front", None));
+        let front = sw::vulnerability(t, &sw::hit_spread(b, target, "front", None));
         Worth { target, relative, front, memo: HashMap::new() }
     }
 
@@ -852,17 +852,17 @@ impl Worth {
             if !self.relative || side == "front" {
                 return 1.0;
             }
-            return 1.0 / self.exposure(b, &sw::hit_spread(t, side, None));
+            return 1.0 / self.exposure(b, &sw::hit_spread(b, self.target, side, None));
         }
         let key = (table.to_string(), side.to_string(), damage.to_bits());
         if let Some(g) = self.memo.get(&key) {
             return *g;
         }
         let rolls = table_rolls(table, side, t);
-        let spread = sw::hit_spread(t, side, rolls.as_deref());
+        let spread = sw::hit_spread(b, self.target, side, rolls.as_deref());
         let mut got = self.exposure(b, &spread);
         if self.relative {
-            let standard = if side == "front" { 1.0 } else { self.exposure(b, &sw::hit_spread(t, side, None)) };
+            let standard = if side == "front" { 1.0 } else { self.exposure(b, &sw::hit_spread(b, self.target, side, None)) };
             got /= standard;
         }
         if damage > 0.0 {

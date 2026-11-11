@@ -91,7 +91,10 @@ pub struct Battle {
     pub cfg: Config,
     pub db: EquipmentDb,
     pub log: Log,
-    pub dice: Box<dyn Dice>,
+    pub dice: std::cell::RefCell<Box<dyn Dice>>,
+    /// log lines a lookahead's dice quirk printed (a destroyed torso-cockpit head re-rolled while a bot was only thinking):
+    /// written ahead of the next log line
+    pub lookahead_log: std::cell::RefCell<Vec<String>>,
     pub units: Vec<Mech>,
     pub board: Board,
     /// stubs.py: how many times each stub ran this battle
@@ -130,7 +133,8 @@ impl Battle {
             cfg,
             db: EquipmentDb::load(),
             log: Log::default(),
-            dice,
+            dice: std::cell::RefCell::new(dice),
+            lookahead_log: Default::default(),
             units,
             board,
             stub_counts: IndexMap::new(),
@@ -147,16 +151,23 @@ impl Battle {
         }
     }
 
-    pub fn roll_2d6(&mut self) -> i64 {
-        self.dice.roll_2d6()
+    pub fn roll_2d6(&self) -> i64 {
+        self.dice.borrow_mut().roll_2d6()
     }
-    pub fn pick_number(&mut self, n: i64) -> i64 {
-        self.dice.pick_number(n)
+    pub fn pick_number(&self, n: i64) -> i64 {
+        self.dice.borrow_mut().pick_number(n)
     }
     pub fn log(&mut self, msg: impl Into<String>) {
+        let pending: Vec<String> = self.lookahead_log.borrow_mut().drain(..).collect();
+        for l in pending {
+            self.log.lines.push(l);
+        }
         self.log.log(msg);
     }
     /// a bare `print` (not config.log): never dropped by a dry run's quiet
+    pub fn dice_used(&self) -> usize {
+        self.dice.borrow().used()
+    }
     pub fn print(&mut self, msg: impl Into<String>) {
         self.log.lines.push(msg.into());
     }
@@ -188,7 +199,7 @@ impl Battle {
             panic!("decision {}: asked for {} {}, record has {} {} (phase {})", n + 1, kind, who, rec["kind"], rec["who"], rec["phase"]);
         }
         rp.cursor += 1;
-        self.dice.skip(rec["dice_drawn"].as_u64().unwrap() as usize);
+        self.dice.borrow_mut().skip(rec["dice_drawn"].as_u64().unwrap() as usize);
         for line in rec["log"].as_array().unwrap() {
             self.log(line.as_str().unwrap());
         }

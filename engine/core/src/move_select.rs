@@ -194,7 +194,7 @@ fn exposure_factors(b: &Battle, u: UnitId) -> [f64; 4] {
         return [1.0; 4];
     }
     let m = &b.units[u];
-    let vuln: Vec<f64> = SIDES.iter().map(|s| sw::vulnerability(m, &sw::hit_spread(m, s, None))).collect();
+    let vuln: Vec<f64> = SIDES.iter().map(|s| sw::vulnerability(m, &sw::hit_spread(b, u, s, None))).collect();
     let reference = vuln[0];
     if reference <= 0.0 {
         return [1.0; 4];

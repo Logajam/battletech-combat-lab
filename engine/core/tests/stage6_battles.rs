@@ -140,8 +140,8 @@ fn run_fixture(dir: PathBuf) -> Result<usize, String> {
                 failure(format!("mark {}: turn {} {:?} v trace turn {} {:?}", seen, turn, phase, want["turn"], want["phase"]));
                 return;
             }
-            if want["dice_used"].as_u64().unwrap() as usize != b.dice.used() {
-                failure(format!("after {} turn {}: dice used {} v {}", phase, turn, b.dice.used(), want["dice_used"]));
+            if want["dice_used"].as_u64().unwrap() as usize != b.dice_used() {
+                failure(format!("after {} turn {}: dice used {} v {}", phase, turn, b.dice_used(), want["dice_used"]));
                 return;
             }
             for (i, n) in nms.iter().enumerate() {

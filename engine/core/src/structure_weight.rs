@@ -14,36 +14,25 @@ fn p_2d6(roll: i64) -> f64 {
     (6 - (roll - 7).abs()) as f64 / 36.0
 }
 
-/// The location a 2D6 roll strikes as a LOOKAHEAD sees it: no dice (a tripod's leg sub-roll reads the raw table).
-fn lookahead_location(m: &Mech, roll: i64, side: &str) -> String {
-    let table = table_for(side);
-    let loc = table.iter().find(|(r, _)| *r == roll).map_or("Center Torso", |(_, l)| l);
-    if m.mech_type == "tripod" {
-        return loc.to_string();
+/// The location a 2D6 roll strikes as a LOOKAHEAD sees it (a tripod's leg sub-roll reads the raw table; a destroyed
+/// torso-cockpit head draws dice, a Python quirk kept).
+fn lookahead_location(b: &Battle, u: UnitId, roll: i64, side: &str) -> String {
+    if b.units[u].mech_type == "tripod" {
+        let table = table_for(side);
+        return table.iter().find(|(r, _)| *r == roll).map_or("Center Torso", |(_, l)| l).to_string();
     }
-    if (m.mech_type == "quad" || m.mech_type == "quadvee") && matches!(loc, "Left Arm" | "Right Arm" | "Left Leg" | "Right Leg") {
-        return match loc {
-            "Left Arm" => "Front Left Leg",
-            "Right Arm" => "Front Right Leg",
-            "Left Leg" => "Rear Left Leg",
-            _ => "Rear Right Leg",
-        }
-        .to_string();
-    }
-    if loc == "Head" && m.locations.get("Head").map_or(false, |h| h.destroyed) && m.cockpit_type.as_deref().unwrap_or("").to_uppercase().contains("TORSO") {
-        panic!("a lookahead that would re-roll a destroyed torso-cockpit head draws dice (Python quirk)");
-    }
-    loc.to_string()
+    crate::hit_location::resolve_hit_location_shared(b, u, roll, side)
 }
 
 /// [(probability, location, armor key)] for a shot on `side` of `mech` from its CURRENT state; `rolls` = another table.
-pub fn hit_spread(mech: &Mech, side: &str, rolls: Option<&[(f64, String)]>) -> Spread {
+pub fn hit_spread(b: &Battle, u: UnitId, side: &str, rolls: Option<&[(f64, String)]>) -> Spread {
+    let mech = &b.units[u];
     let mut base: Vec<(f64, String)> = Vec::new();
     match rolls {
         Some(r) => base.extend(r.iter().cloned()),
         None => {
             for roll in 2..=12 {
-                base.push((p_2d6(roll), lookahead_location(mech, roll, side)));
+                base.push((p_2d6(roll), lookahead_location(b, u, roll, side)));
             }
         }
     }
@@ -111,7 +100,7 @@ pub fn weapon_groups(b: &Battle, u: UnitId, w: ItemId) -> Result<Vec<Num>, Strin
 pub fn multipliers(b: &Battle, attacker: UnitId, attacker_weapons: &[ItemId], target: UnitId, side: &str) -> Vec<(ItemId, f64)> {
     let k = b.cfg.f("MOVEMENT_STRUCTURE_WEIGHT");
     let t = &b.units[target];
-    let spread = hit_spread(t, side, None);
+    let spread = hit_spread(b, target, side, None);
     let mut result = Vec::new();
     for &w in attacker_weapons {
         if b.units[attacker].items[w].damage_per_shot.is_none() {

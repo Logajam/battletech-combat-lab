@@ -91,3 +91,32 @@ pub fn resolve_hit_location(b: &mut Battle, u: UnitId, loc_roll: i64, facing: &s
     }
     loc
 }
+
+/// resolve_hit_location for a bot's lookahead (structure_weight.hit_spread): the same roll, with the same quirk - a destroyed
+/// torso-cockpit head is re-rolled, drawing dice and printing a line while the bot only thinks.
+fn once_pure(b: &Battle, u: UnitId, loc_roll: i64, facing: &str) -> String {
+    let loc = lookup(table_for(facing), loc_roll).to_string();
+    let t = &b.units[u].mech_type;
+    if (t == "quad" || t == "quadvee") && matches!(loc.as_str(), "Left Arm" | "Right Arm" | "Left Leg" | "Right Leg") {
+        return match loc.as_str() {
+            "Left Arm" => "Front Left Leg",
+            "Right Arm" => "Front Right Leg",
+            "Left Leg" => "Rear Left Leg",
+            _ => "Rear Right Leg",
+        }
+        .to_string();
+    }
+    loc
+}
+
+pub fn resolve_hit_location_shared(b: &Battle, u: UnitId, loc_roll: i64, facing: &str) -> String {
+    let mut loc = once_pure(b, u, loc_roll, facing);
+    while loc == "Head" && head_gone_torso_cockpit(b, u) {
+        let roll = b.roll_2d6();
+        if b.log.quiet == 0 {
+            b.lookahead_log.borrow_mut().push(format!("  Head already destroyed (torso-mounted cockpit) - re-rolled {}.", roll));
+        }
+        loc = once_pure(b, u, roll, facing);
+    }
+    loc
+}
