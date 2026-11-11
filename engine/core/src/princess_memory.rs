@@ -145,10 +145,8 @@ impl HeatMap {
         let here = hex_geometry::parse_hex_label(label).unwrap();
         let distances: Vec<(i64, i64)> = self.activity.iter().map(|(k, w)| (*w, hex_distance(here, hex_geometry::parse_hex_label(k).unwrap()))).collect();
         let longest = distances.iter().map(|d| d.1).max().unwrap();
-        let mut total = 0.0;
-        for (w, d) in &distances {
-            total += *w as f64 * (longest - d) as f64 / longest as f64;
-        }
+        // Python: sum(...) of floats
+        let total = crate::pyfmt::py_sum(distances.iter().map(|(w, d)| *w as f64 * (longest - d) as f64 / longest as f64));
         total.floor() as i64
     }
 

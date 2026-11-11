@@ -358,14 +358,8 @@ impl Side {
 
 pub fn effective_hp(b: &Battle, u: UnitId) -> f64 {
     let k = b.cfg.f("MOVEMENT_STRUCTURE_WEIGHT");
-    let mut sum = 0.0;
-    for v in b.units[u].locations.values() {
-        if v.destroyed {
-            continue;
-        }
-        sum += v.armor.f() + v.rear_armor.map_or(0.0, |r| r.f()) + k * v.structure.f();
-    }
-    sum
+    // Python: sum(...) of floats
+    crate::pyfmt::py_sum(b.units[u].locations.values().filter(|v| !v.destroyed).map(|v| v.armor.f() + v.rear_armor.map_or(0.0, |r| r.f()) + k * v.structure.f()))
 }
 
 /// battle_record: (HP the enemy has really lost, HP I have really lost, turns fought) so far.

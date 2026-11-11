@@ -160,6 +160,70 @@ pub fn py_float_str(x: f64) -> String {
 /// A Python number: `int` or `float`, kept apart because the Python mixes them (an armor pool is an int until a hardened
 /// point makes it 7.5) and prints them differently. Arithmetic follows Python: int op int is int (except `/`), anything
 /// with a float is a float.
+/// Python's built-in `sum()` of floats (start 0). Since Python 3.12 this is NOT a plain running total: CPython adds
+/// floats with Neumaier's compensated summation (Python/bltinmodule.c, builtin_sum_impl), so sum([0.1] * 10) is 1.0
+/// where a running total gives 0.9999999999999999. Every Python `sum(...)` whose items are floats must be translated
+/// with this (a hand-written `+=` loop in the Python stays a plain loop). Found by a random battle: a push's worth
+/// printed 59.99999999999999 here and 60.0 in the Python.
+pub fn py_sum<I: IntoIterator<Item = f64>>(items: I) -> f64 {
+    let (mut total, mut c) = (0.0f64, 0.0f64);
+    for x in items {
+        let t = total + x;
+        if total.abs() >= x.abs() {
+            c += (total - t) + x;
+        } else {
+            c += (x - t) + total;
+        }
+        total = t;
+    }
+    if c != 0.0 && c.is_finite() {
+        total + c
+    } else {
+        total
+    }
+}
+
+/// `sum()` of numbers that may be ints or floats: ints add exactly while every item so far was an int; from the first
+/// float on, floats are added compensated (as `py_sum`) and ints are added plainly - CPython's own split.
+pub fn py_sum_num<I: IntoIterator<Item = Num>>(items: I) -> Num {
+    let mut it = items.into_iter();
+    let mut whole: i64 = 0;
+    let (mut total, mut c);
+    loop {
+        match it.next() {
+            None => return Num::I(whole),
+            Some(Num::I(i)) => whole += i,
+            Some(Num::F(x)) => {
+                total = whole as f64;
+                c = 0.0f64;
+                let t = total + x;
+                if total.abs() >= x.abs() {
+                    c += (total - t) + x;
+                } else {
+                    c += (x - t) + total;
+                }
+                total = t;
+                break;
+            }
+        }
+    }
+    for item in it {
+        match item {
+            Num::I(i) => total += i as f64,
+            Num::F(x) => {
+                let t = total + x;
+                if total.abs() >= x.abs() {
+                    c += (total - t) + x;
+                } else {
+                    c += (x - t) + total;
+                }
+                total = t;
+            }
+        }
+    }
+    Num::F(if c != 0.0 && c.is_finite() { total + c } else { total })
+}
+
 #[derive(Clone, Copy, Debug)]
 pub enum Num {
     I(i64),

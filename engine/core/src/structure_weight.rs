@@ -61,12 +61,8 @@ fn armor_of(m: &Mech, loc: &str, key: &str) -> Num {
 
 /// sum of P(roll) / durability(location) over a hit_spread.
 pub fn vulnerability(m: &Mech, spread: &Spread) -> f64 {
-    let mut sum = 0.0;
-    for (p, loc, key) in spread {
-        let d = (armor_of(m, loc, key) + m.locations[loc.as_str()].structure).f().max(1.0);
-        sum += p / d;
-    }
-    sum
+    // Python: sum(...) of floats
+    crate::pyfmt::py_sum(spread.iter().map(|(p, loc, key)| p / (armor_of(m, loc, key) + m.locations[loc.as_str()].structure).f().max(1.0)))
 }
 
 /// Worth of `damage` landing on a location with this armor / structure.
@@ -79,11 +75,9 @@ pub fn worth(damage: f64, armor: f64, structure: f64, k: f64) -> f64 {
 
 /// Expected worth of one hit of `damage` rolled on `spread` (a roll that leaves the mech counts flat).
 pub fn spread_worth(m: &Mech, spread: &Spread, damage: f64, k: f64) -> f64 {
-    let covered: f64 = spread.iter().map(|(p, _, _)| *p).sum();
-    let mut sum = 0.0;
-    for (p, loc, key) in spread {
-        sum += p * worth(damage, armor_of(m, loc, key).f(), m.locations[loc.as_str()].structure.f(), k);
-    }
+    // Python: two sum(...) calls of floats
+    let covered: f64 = crate::pyfmt::py_sum(spread.iter().map(|(p, _, _)| *p));
+    let sum = crate::pyfmt::py_sum(spread.iter().map(|(p, loc, key)| p * worth(damage, armor_of(m, loc, key).f(), m.locations[loc.as_str()].structure.f(), k)));
     damage * (1.0 - covered) + sum
 }
 
@@ -107,19 +101,12 @@ pub fn multipliers(b: &Battle, attacker: UnitId, attacker_weapons: &[ItemId], ta
             continue;
         }
         let groups = weapon_groups(b, attacker, w).unwrap();
-        let mut raw = Num::I(0);
-        for g in &groups {
-            raw = raw + *g;
-        }
-        let raw = raw.f();
+        let raw = crate::pyfmt::py_sum_num(groups.iter().copied()).f();
         if raw <= 0.0 {
             result.push((w, 1.0));
             continue;
         }
-        let mut sum = 0.0;
-        for d in &groups {
-            sum += spread_worth(t, &spread, d.f(), k);
-        }
+        let sum = crate::pyfmt::py_sum(groups.iter().map(|d| spread_worth(t, &spread, d.f(), k)));
         result.push((w, sum / raw));
     }
     result

@@ -364,15 +364,16 @@ fn leg_share_q(quad: bool, side: &str) -> f64 {
         "right" => &crate::hit_location::HIT_TABLE_RIGHT_SIDE,
         _ => &crate::hit_location::HIT_TABLE_FRONT_REAR,
     };
-    let mut sum = 0.0;
+    // Python: sum(...) of floats
+    let mut terms = Vec::new();
     for r in 2..=12i64 {
         let p = (6 - (7 - r).abs()) as f64 / 36.0;
         let name = table.iter().find(|(k, _)| *k == r).unwrap().1;
         if name.contains("Leg") || (quad && name.contains("Arm")) {
-            sum += p;
+            terms.push(p);
         }
     }
-    sum
+    crate::pyfmt::py_sum(terms)
 }
 
 /// How much of a physical attack's damage lands at full strength, for movement scoring.

@@ -126,10 +126,12 @@ pub fn fire_share(b: &mut Battle, foe: UnitId, me: UnitId) -> f64 {
     if !team.contains(&me) {
         team.push(me);
     }
-    let mut total = 0.0;
+    // Python: sum(...) of floats
+    let mut terms = Vec::new();
     for u in team {
-        total += pair_rates(b, foe, u).0;
+        terms.push(pair_rates(b, foe, u).0);
     }
+    let total = crate::pyfmt::py_sum(terms);
     if total > 0.0 { mine / total } else { 1.0 }
 }
 
@@ -157,10 +159,12 @@ pub fn multi_lifetime(b: &mut Battle, me: UnitId, foes: &[UnitId]) -> Objective 
             mine = *m;
         }
     }
-    let mut sum = 0.0;
+    // Python: sum(...) of floats
+    let mut terms = Vec::new();
     for ((_, t), f) in rates.iter().zip(foes) {
-        sum += t * fire_share(b, *f, me);
+        terms.push(t * fire_share(b, *f, me));
     }
+    let sum = crate::pyfmt::py_sum(terms);
     let theirs = if sum > floor { sum } else { floor };
     Objective::Multi { hp, mine, theirs }
 }
@@ -726,10 +730,12 @@ pub fn tier_of(b: &mut Battle, mover: UnitId) -> Tier {
     let mut ratios: HashMap<UnitId, f64> = HashMap::default();
     for u in &on_board {
         let hxy = xy(b.units[*u].hex.as_deref().unwrap());
-        let mut peril_here = 0.0;
+        // Python (triage.py): sum(...) of floats
+        let mut terms = Vec::new();
         for e in &enemies {
-            peril_here += peak_at(b, *e, *u, hxy);
+            terms.push(peak_at(b, *e, *u, hxy));
         }
+        let peril_here = crate::pyfmt::py_sum(terms);
         ratios.insert(*u, peril_here / move_select::effective_hp(b, *u).max(1.0));
     }
     let mut order = on_board.clone();

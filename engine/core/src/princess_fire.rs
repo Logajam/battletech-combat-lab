@@ -451,7 +451,7 @@ pub fn choose_physical(b: &mut Battle, attacker: UnitId, target: UnitId) -> Opti
         scored.push((d * punch_through_mod(t, &o.table, side, d, d), vec![o.clone()]));
     }
     if punches.len() == 2 {
-        let d: f64 = punches.iter().map(|o| p(o) * o.damage.f()).sum();
+        let d: f64 = crate::pyfmt::py_sum(punches.iter().map(|o| p(o) * o.damage.f()));
         scored.push((d * punch_through_mod(t, &punches[0].table, side, d, d / 2.0), punches.clone()));
     }
     for o in options.get("kick").cloned().unwrap_or_default() {

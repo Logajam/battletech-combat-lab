@@ -560,14 +560,17 @@ impl<'a> Calc<'a> {
         let weapons: Vec<usize> = (0..self.items.len()).filter(|i| self.offensive_weapon(&self.items[*i])).collect();
         let front: Vec<usize> = weapons.iter().copied().filter(|w| !self.is_arm(&self.items[*w]) && !self.items[*w].turret && !self.items[*w].rear).collect();
         let rear: Vec<usize> = weapons.iter().copied().filter(|w| !self.is_arm(&self.items[*w]) && !self.items[*w].turret && self.items[*w].rear).collect();
-        let mut front_bv = 0.0;
+        // Python: sum(...) of floats
+        let mut terms = Vec::new();
         for w in &front {
-            front_bv += self.weapon_bv(*w, None);
+            terms.push(self.weapon_bv(*w, None));
         }
-        let mut rear_bv = 0.0;
+        let front_bv = crate::pyfmt::py_sum(terms);
+        let mut terms = Vec::new();
         for w in &rear {
-            rear_bv += self.weapon_bv(*w, None);
+            terms.push(self.weapon_bv(*w, None));
         }
+        let rear_bv = crate::pyfmt::py_sum(terms);
         let switch = front_bv < rear_bv;
         let nominal_rear: HashSet<usize> = weapons.iter().copied().filter(|w| (switch ^ rear.contains(w)) && !self.is_arm(&self.items[*w]) && !self.items[*w].turret).collect();
         let mut records: Vec<(usize, f64, f64)> = weapons.iter().map(|w| (*w, self.weapon_bv(*w, Some(&nominal_rear)), self.weapon_heat(&self.items[*w]))).collect();

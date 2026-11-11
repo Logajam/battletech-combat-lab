@@ -877,18 +877,15 @@ impl Worth {
 pub fn expected_damage_of(b: &Battle, base: i64, picks: &[PhysOption], worth: Option<&mut Worth>, side: &str) -> f64 {
     match worth {
         None => {
-            let mut sum = 0.0;
-            for o in picks {
-                sum += crate::combat::hit_probability(base + o.mod_) * o.damage.f();
-            }
-            sum
+            // Python: sum(...) of floats (here and below)
+            crate::pyfmt::py_sum(picks.iter().map(|o| crate::combat::hit_probability(base + o.mod_) * o.damage.f()))
         }
         Some(w) => {
-            let mut sum = 0.0;
+            let mut terms = Vec::new();
             for o in picks {
-                sum += crate::combat::hit_probability(base + o.mod_) * o.damage.f() * w.factor(b, &o.table, side, o.damage.f());
+                terms.push(crate::combat::hit_probability(base + o.mod_) * o.damage.f() * w.factor(b, &o.table, side, o.damage.f()));
             }
-            sum
+            crate::pyfmt::py_sum(terms)
         }
     }
 }

@@ -139,11 +139,12 @@ pub fn end_of_movement_triggers(b: &mut Battle, u: UnitId) -> Vec<(String, i64)>
 /// Worth of `damage` in 5-point groups rolled on `table` against `side`.
 pub fn table_worth(b: &Battle, damage: i64, mech: UnitId, table: &str, side: &str) -> f64 {
     let mut w = crate::physical::Worth::new(b, mech, false);
-    let mut sum = 0.0;
+    // Python: sum(...) of floats
+    let mut terms = Vec::new();
     for g in groupings(damage) {
-        sum += g as f64 * w.factor(b, table, side, g as f64);
+        terms.push(g as f64 * w.factor(b, table, side, g as f64));
     }
-    sum
+    crate::pyfmt::py_sum(terms)
 }
 
 /// What being pushed this way costs the target: its whole remaining armor + structure off the board, the fall's worth
