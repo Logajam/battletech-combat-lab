@@ -1,6 +1,10 @@
 """Hydra v the house bot, same seeds, sides swapped (INTEGRATION__HYDRA.md, Section 4).
 
     python tools/hydra_trial.py SCENARIO_DIR [SCENARIO_DIR ...] [--battles 20] [--seed 1] [--threads N] [--btsim PATH] [--set KEY=VALUE ...]
+                                [--no-baseline]
+
+--no-baseline (session 25): skip the nobody-is-Hydra batch. On the same seeds it never changes, so a series of Hydra
+settings needs it once; without it the win-share and margin lines are not printed, only the head to head.
 
 --btsim: a copy of the program to use (session 25), so the engine can be rebuilt while a long trial runs.
 
@@ -39,7 +43,8 @@ def main(argv):
     battles = int(option(argv, "--battles", "20"))
     seed = int(option(argv, "--seed", "1"))
     threads = option(argv, "--threads", None)
-    folders = [a for i, a in enumerate(argv) if not a.startswith("--") and (i == 0 or not argv[i - 1].startswith("--"))]
+    baseline = "--no-baseline" not in argv
+    folders = [a for i, a in enumerate(argv) if not a.startswith("--") and (i == 0 or not argv[i - 1].startswith("--") or argv[i - 1] == "--no-baseline")]
     edges, heads = [], []
     for folder in folders:
         units = json.load(open(os.path.join(folder, "units.json")))
@@ -50,7 +55,7 @@ def main(argv):
         house = sorted({u["bot"] for u in units.values()})
         print(f"{os.path.basename(folder.rstrip('/'))}: {len(units)} units, teams {teams}, house bot {house}, {battles} battles")
         share, margin = {}, {}
-        for label, hydra in [("baseline", None)] + [(f"Hydra={t}", t) for t in teams]:
+        for label, hydra in ([("baseline", None)] if baseline else []) + [(f"Hydra={t}", t) for t in teams]:
             out = run(folder, battles, seed, threads, hydra)
             wins = out["wins"]
             line = ", ".join(f"{t} {wins.get(t, 0)}" for t in teams)
@@ -65,12 +70,15 @@ def main(argv):
         o = sum(round(share[f"Hydra={t}"][x] * battles) for t in teams for x in teams if x != t)
         print(f"  HEAD TO HEAD: Hydra {h}, house bot {o}, no winner {len(teams) * battles - h - o}")
         heads.append((h, o))
+        if not baseline:
+            continue
         edge = sum(share[f"Hydra={t}"][t] - share["baseline"][t] for t in teams) / len(teams)
         gain = sum(margin[f"Hydra={t}"][t] - margin["baseline"][t] for t in teams) / len(teams)
         print(f"  Hydra over the house bot: win share {edge:+.2f}, strength-left margin {gain:+.3f} (0 = no better)")
         edges.append((edge, gain))
+    if len(heads) > 1:
+        print(f"ALL {len(heads)} scenarios, head to head: Hydra {sum(h for h, _ in heads)}, house bot {sum(o for _, o in heads)}")
     if len(edges) > 1:
-        print(f"ALL {len(edges)} scenarios, head to head: Hydra {sum(h for h, _ in heads)}, house bot {sum(o for _, o in heads)}")
         print(f"ALL {len(edges)} scenarios: mean win-share edge {sum(e for e, _ in edges) / len(edges):+.3f}, mean margin gain {sum(g for _, g in edges) / len(edges):+.3f}")
 
 
