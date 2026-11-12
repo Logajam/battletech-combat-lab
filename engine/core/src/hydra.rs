@@ -497,11 +497,6 @@ fn movement_attack(b: &mut Battle, mover: UnitId, me: &mut Side, standup_mp: Opt
         // no gate: every attack state is priced in full (the gate is Gladiator's "beats its best ordinary shot")
         let options = crate::move_attacks::scored_options(b, mover, t, &pose, &index, &mut ev, my_exp, &t_exp, &|_: &Battle, _: &str, _: i64, _: &str, _: &str, _: i64| 0.0, crate::move_attacks::BestMode::Lazy(&[], t_exp), &target_args, &|_: f64, _: f64, _: f64, _: f64, _: f64| 0.0, &["charge", "dfa"]);
         for (_, cand, state, what) in options {
-            // the attack hex must be free: the list of charge / DFA stops does not look at other units (in a duel there
-            // are none), and a 'Mech may not end its move where another stands
-            if (0..b.units.len()).any(|u| u != mover && b.units[u].hex.as_deref() == Some(state.hex.as_str())) {
-                continue;
-            }
             // the attack's line with its target, damage multiplied by where it lands (as `exchange` does)
             let dealt = cand.dealt * t_exp[side_ix(cand.side_on_defender)];
             let received = cand.received * my_exp[side_ix(cand.side_on_mover)];

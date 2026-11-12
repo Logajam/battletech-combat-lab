@@ -208,6 +208,16 @@ def displacement_worth(target, from_label, direction, terrain_map):
 # =============================================================================
 # ==========================  INDEX  ==========================================
 # =============================================================================
+def _held_hexes(mover):
+    """Hexes other units stand in (mover.other_unit_hexes, set by the orchestrator; empty when not set): a charge or
+    DFA may not stop in one - "no 'Mech can deliberately violate" the stacking limit (Core p.49). Session 25: the
+    stop lists did not check, and a charge could end on a friend's hex (found by Hydra's trials)."""
+    held = getattr(mover, "other_unit_hexes", None)
+    if not held:
+        return frozenset()
+    return frozenset((held,)) if isinstance(held, str) else frozenset(h for h in held if h)
+
+
 class MoverIndex:
     """The mover's reachable states for movement attacks, built once."""
 
@@ -241,10 +251,13 @@ class MoverIndex:
         hexes = self.terrain_map["hexes"]
         t_info = hexes[pose.label]
         best = {}
+        held = _held_hexes(self.mover)
         for d in range(6):
             n = neighbour(pose.label, d)
             if n is None or n not in hexes:
                 continue
+            if n in held:
+                continue                   # another unit stands there: no 'Mech may end its move in it (stacking, p.49)
             nx, ny = hex_geometry.parse_hex_label(n)
             facing = (d + 3) % 6                         # from n, the target is back the way we came
             states = self.ground.get((nx, ny, facing))
@@ -294,6 +307,8 @@ class MoverIndex:
         else:
             stop = hex_line(self.start_xy, pose.xy)[-2][0]
         label = hex_geometry.hex_label(*stop)
+        if label in _held_hexes(self.mover):
+            return []                      # the jump would end on another unit's hex (stacking, p.49)
         facing = combat._direction_facing(stop, pose.xy)
         return [{"hex": label, "facing": hex_geometry.facing_to_compass(facing), "mode": "Jump", "fc": dist,
                  "mp_spent": dist, "dfa": True}]
