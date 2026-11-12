@@ -6,6 +6,14 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-12 (Claude, session 25), HYDRA S6 SECOND PASS: SPREAD FIRE CONFIRMED; STRUCTURE WEIGHT TESTED, KEPT; NO DEFAULT CHANGED. REVIEW PENDING (higher-level model).**
+  Daniel: "Go for second calibration pass." The ledger snapshot now also records raw armor and structure (`scenario::snapshot`); `tools/hydra_calibrate.py
+  fit2` (structure weight x fire spread for small / big battles, scored by log-loss on the winner); NEW Hydra-only setting `HYDRA_LIFE_STRUCTURE_WEIGHT`
+  (`hydra::life_of`; without it the first version's life, `effective_hp` with Gladiator's MOVEMENT_STRUCTURE_WEIGHT - set to 2 it is identical). 1,092
+  fresh battles with the calibrated Hydra (seed 12): spread fire confirmed; a size-dependent spread adds nothing; weight 1 predicts slightly better but
+  plays level (v Gladiator 333 - 203 at 2 v 330 - 216 at 1; v Princess 434 - 174 v 442 - 165), so 2 stays. The duel's under-prediction cannot change a
+  choice (two prices scaled to a mean of 1). Daniel asked whether Hydra copied his homework: its life is his structure-weight rule and its guns and
+  Oracle are Gladiator's (`future_damage`, `MoveEvaluator`) - written down in `INTEGRATION__HYDRA.md`. No reference log changed.
 - **2026-11-12 (Claude, session 25), HYDRA S6: THE FORECAST CALIBRATED ON 1,092 BATTLES; SPREAD FIRE (FOCUS 0) IS THE DEFAULT. Hydra's results change (meant to). REVIEW PENDING (higher-level model).**
   Daniel: "go for the calibration run". NEW `scenario::run_recorded` + `btsim --ledger FILE` (life and guns of every unit at each turn's end; reads
   only: five batches identical with and without it) and `tools/hydra_calibrate.py` (collect / fit). The Forecast got three settings, `hydra::Shape`

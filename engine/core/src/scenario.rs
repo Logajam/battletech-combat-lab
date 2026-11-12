@@ -51,7 +51,7 @@ impl Scenario {
 
     /// One battle on `seed`, with a LEDGER SNAPSHOT at the end of every turn and once more when the battle is over
     /// (S6 calibration of Hydra's Forecast, session 25; INTEGRATION__HYDRA.md Section 7). A snapshot is
-    /// {"turn", "units": [[unit, team, life, guns], ...]}: life = `effective_hp` (0 once destroyed), guns = the
+    /// {"turn", "units": [[unit, team, life, guns, armor, structure], ...]}: life = `effective_hp` (0 once destroyed), guns = the
     /// unit's `future_damage` on the first standing enemy a turn (0 once destroyed or with no enemy left) - the raw
     /// figures Hydra's ledger is built from (its "dormant" and "minimum" rules are applied by the fitting tool).
     /// Recording only reads; tests/check_rust_reference.py-style runs show the battle is the same with or without it.
@@ -90,6 +90,17 @@ fn snapshot(b: &mut Battle, turn: i64) -> Value {
     let mut rows = Vec::new();
     for u in 0..b.units.len() {
         let team = b.units[u].team.clone().unwrap_or_default();
+        // raw armor (front + rear) and internal structure of the locations still standing (second pass: lets the fitting
+        // tool try other structure weights than MOVEMENT_STRUCTURE_WEIGHT)
+        let (mut armor, mut structure) = (0.0, 0.0);
+        if alive.contains(&u) {
+            for v in b.units[u].locations.values() {
+                if !v.destroyed {
+                    armor += v.armor.f() + v.rear_armor.map_or(0.0, |r| r.f());
+                    structure += v.structure.f();
+                }
+            }
+        }
         let (life, guns) = if alive.contains(&u) {
             let foe = alive.iter().copied().find(|v| b.units[*v].team != b.units[u].team);
             let guns = match foe {
@@ -100,7 +111,7 @@ fn snapshot(b: &mut Battle, turn: i64) -> Value {
         } else {
             (0.0, 0.0)
         };
-        rows.push(serde_json::json!([u, team, life, guns]));
+        rows.push(serde_json::json!([u, team, life, guns, armor, structure]));
     }
     serde_json::json!({"turn": turn, "units": rows})
 }
