@@ -6,6 +6,17 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-12 (Claude, session 25), MEGAMEK BRIDGE B2 (THE JAVA SIDE) AND THE RUST HALF OF B3 (COMPACT UNIT STATE). No battle result changes. REVIEW PENDING (higher-level model).**
+  Daniel: "Continue with the build at your discretion" (and: "a lot of this is needed for CombatLab"). NEW `megamek_bridge/` (Java, GPL v3, built
+  against the unchanged MegaMek 0.51.01.7 release by `build.sh`): `HydraBridge extends Princess` (starts `btsim decide`, every decision a counted
+  FALLBACK for now), `DecisionProcess`, `BridgeLauncher` (one game of an `.mms`, our bot on named players, every bot fighting to the end, one JSON
+  record line). Three duels v CASPAR finished. Found: `startPrecognition()` must be called on a new Princess or it hangs. `btsim decide` answers
+  `{"ping": true}`. COMPACT STATE (`bridge.rs` UNIT_FIELDS 78, ITEM_FIELDS 19, `compact_unit` / `apply_compact` / `rebuild_gaps`): a unit is its
+  start record plus what a battle changes, measured over every reference battle; `--bridge-compact` sends only that and the check
+  (`tests/check_bridge_parity.py`, now always compact) requires every unit rebuilt field for field and every answer the same. It found
+  `home_edge` / `home_edge_row` and `stuck` missing from the measured list, and an endless loop when an equipment field holds other equipment
+  (`partner`): fixed by walking inner objects first. Spec Section 3c.
+
 - **2026-11-12 (Claude, session 25), MEGAMEK BRIDGE B1: OUR BOTS DECIDE FROM SNAPSHOTS (`btsim decide`), CHECKED AGAINST EVERY REFERENCE BATTLE. No battle result changes. REVIEW PENDING (higher-level model).**
   Daniel: "Go ahead and continue." NEW `engine/core/src/bridge.rs`: a decision process (`Session`) keeps its own battle for a whole game and is
   sent one JSON line per bot call the engine makes - the signals (phase start / end, a unit moved, end of turn, damage declared) and every

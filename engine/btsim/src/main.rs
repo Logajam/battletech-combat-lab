@@ -28,7 +28,7 @@ fn battle_json(sim: u64, seed: u64, r: &BattleResult) -> Value {
 }
 
 /// `btsim decide` (MegaMek bridge, INTEGRATION__MEGAMEK_BRIDGE.md): the decision process. Reads JSON lines on stdin -
-/// the first is the game's start (`bridge::Session::start`), each later one a call {"method", "args", "state"} - and
+/// `{"ping": true}` at any time is answered `{"pong": true, "started": ...}`; otherwise the first is the game's start (`bridge::Session::start`), each later one a call {"method", "args", "state"} - and
 /// writes one JSON line per call on stdout: {"answer": ...}, or {"error": message} when the call could not be made (the
 /// caller then lets its own bot decide). Stays alive until stdin closes, so the bots' memories carry through the game.
 fn decide() {
@@ -43,6 +43,8 @@ fn decide() {
         }
         let reply = match serde_json::from_str::<Value>(&line) {
             Err(e) => json!({"error": format!("not JSON: {}", e)}),
+            // {"ping": true} (any time): the process is alive; the Java side checks this when it starts
+            Ok(v) if v.get("ping").is_some() => json!({"pong": true, "started": session.is_some()}),
             Ok(v) => match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| match session.as_mut() {
                 None => {
                     session = Some(btsim_core::bridge::Session::start(&v));
@@ -99,12 +101,14 @@ fn main() {
     // process (`btsim decide`'s Session) is fed the recording and must give the same answer to every decision. One JSON
     // line per battle; exit code 1 if any battle differed. --bridge-dump FILE also writes battle 1's recording.
     if args.iter().any(|a| a == "--bridge-parity") {
+        // --bridge-compact (B3): the units go as compact states (bridge::UNIT_FIELDS / ITEM_FIELDS), not whole dumps
+        let compact = args.iter().any(|a| a == "--bridge-compact");
         let runs: Vec<Value> = (1..=battles)
             .into_par_iter()
             .map(|sim| {
                 let s = PcgDice::battle_seed(seed, sim);
                 let keep = sim == 1 && arg(&args, "--bridge-dump").is_some();
-                let (r, p, lines) = scenario.run_bridge_checked(s, keep);
+                let (r, p, lines) = scenario.run_bridge_checked(s, keep, compact);
                 if keep {
                     if let Some(p) = arg(&args, "--bridge-dump") {
                         let start = scenario.bridge_start(s);
@@ -116,7 +120,7 @@ fn main() {
                     }
                 }
                 json!({"sim": sim, "seed": s, "turns": r.turns_taken, "winner": r.winner, "calls": p.calls, "decisions": p.decisions,
-                       "same": p.first_difference.is_none(),
+                       "same": p.first_difference.is_none(), "rebuild_gaps": p.rebuild_gaps,
                        "first_difference": p.first_difference.map(|(n, m, want, got)| json!({"line": n, "method": m, "battle": want, "session": got}))})
             })
             .collect();

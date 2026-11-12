@@ -11,3 +11,6 @@ engine/fixtures/
 engine/target/
 engine/fuzz/
 trial_records/progress/
+
+# MegaMek bridge build output (megamek_bridge/build.sh)
+megamek_bridge/build/

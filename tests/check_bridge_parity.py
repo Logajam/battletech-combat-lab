@@ -14,6 +14,10 @@ deciding that way is the same as deciding inside one of our own battles:
    tests/check_rust_reference.py, seed 1) is played with `btsim --bridge-parity`: its bots' every call is recorded with
    the battle's state, then a fresh decision process is fed the recording and must give the same answer to every
    decision (engine/core/src/bridge.rs). One difference fails the check and names the call.
+   Units go to the process as COMPACT states (stage B3: only what a battle changes, bridge.rs UNIT_FIELDS /
+   ITEM_FIELDS, the rest from each unit at the start), so the check also proves those lists are complete: every unit
+   rebuilt from its compact state must equal its real dump at every call, field for field, and a field that does not
+   ("rebuild gaps") fails the check even if no decision happened to depend on it.
 2. THE WIRE. One recording is piped through a real `btsim decide` process, one JSON line at a time, the way the Java
    side of the bridge will talk to it; every answer must equal the recorded one.
 
@@ -36,7 +40,7 @@ import check_rust_reference as ref  # noqa: E402  (the scenarios zip, the Hydra 
 def parity(scenario_dir, name, folder, variant, max_turns=None):
     """One battle under --bridge-parity: (name, ok, summary text)."""
     hydra, settings = variant
-    cmd = [ref.BTSIM, os.path.join(scenario_dir, folder), "--battles", "1", "--seed", str(ref.SEED), "--threads", "1", "--bridge-parity"]
+    cmd = [ref.BTSIM, os.path.join(scenario_dir, folder), "--battles", "1", "--seed", str(ref.SEED), "--threads", "1", "--bridge-parity", "--bridge-compact"]
     if max_turns:
         cmd += ["--max-turns", str(max_turns)]
     if hydra:
@@ -49,6 +53,9 @@ def parity(scenario_dir, name, folder, variant, max_turns=None):
         return name, False, f"btsim failed (exit {proc.returncode}): {proc.stderr.strip()[-400:]}"
     r = lines[0]
     text = f"{r['decisions']} decisions, {r['calls']} calls"
+    if r.get("rebuild_gaps"):
+        # a field the compact state does not carry: add it to bridge.rs UNIT_FIELDS / ITEM_FIELDS
+        return name, False, f"{text}; COMPACT STATE MISSES {r['rebuild_gaps']}"
     if not r["same"]:
         d = r["first_difference"]
         return name, False, f"{text}; FIRST DIFFERENCE at line {d['line']} ({d['method']}): battle {json.dumps(d['battle'])[:200]} / session {json.dumps(d['session'])[:200]}"
@@ -60,7 +67,7 @@ def wire(scenario_dir, folder, max_turns=None):
     with tempfile.TemporaryDirectory() as tmp:
         dump = os.path.join(tmp, "recording.jsonl")
         cmd = [ref.BTSIM, os.path.join(scenario_dir, folder), "--battles", "1", "--seed", str(ref.SEED), "--threads", "1",
-               "--bridge-parity", "--bridge-dump", dump]
+               "--bridge-parity", "--bridge-compact", "--bridge-dump", dump]
         if max_turns:
             cmd += ["--max-turns", str(max_turns)]
         subprocess.run(cmd, capture_output=True, check=True)
@@ -89,7 +96,8 @@ def main(argv):
         quick = "--quick" in argv
         if quick:
             todo = [b for b in todo if not any(big in b[1] for big in ("8v8", "12v12"))]
-        with ThreadPoolExecutor(max_workers=os.cpu_count() or 4) as pool:
+        # one core spare: the 4 v 4 and larger battles hold several hundred MB each while checked
+        with ThreadPoolExecutor(max_workers=max(1, (os.cpu_count() or 4) - 1)) as pool:
             results = list(pool.map(lambda b: parity(tmp, b[0], b[1], b[2], 15 if quick else None), todo))
         wire_folder = "hy_2v2_grass" if quick else "hy_4v4_lance_woods"
         wire_ok, wire_text = wire(tmp, wire_folder, 15 if quick else None)
