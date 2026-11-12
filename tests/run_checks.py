@@ -72,10 +72,14 @@ def main():
             # the MegaMek bridge's decision process gives the battles' own answers (B1; INTEGRATION__MEGAMEK_BRIDGE.md)
             jobs.append(("rust       check_bridge_parity.py --quick",
                          pool.submit(run_test_file, os.path.join(REPO_ROOT, "tests", "check_bridge_parity.py"), ["--quick"])))
-            # Combat Lab CL1: every fixture's scenario built by Rust from its settings equals the Python-built one
-            jobs.append(("rust       cargo test cl1_setup + stage6_attach",
-                         pool.submit(run_command, ["cargo", "test", "--release", "-q", "--test", "cl1_setup", "--test", "stage6_attach"],
+            # Combat Lab CL1: every fixture's scenario built by Rust from its settings equals the Python-built one;
+            # CL2: every fixture's Rust battle history equals the Python's replay record of it
+            jobs.append(("rust       cargo test cl1_setup + stage6_attach + cl2_history",
+                         pool.submit(run_command, ["cargo", "test", "--release", "-q", "--test", "cl1_setup", "--test", "stage6_attach", "--test", "cl2_history"],
                                      os.path.join(REPO_ROOT, "engine"))))
+            # Combat Lab CL3: the Lab server, driven by a script, gives btsim's battles for the same setup and seed
+            jobs.append(("rust       check_lab_server.py --battles 8",
+                         pool.submit(run_test_file, os.path.join(REPO_ROOT, "tests", "check_lab_server.py"), ["--battles", "8"])))
         else:
             print("NOTE: no cargo on this machine - the Rust reference battles were not run")
         failed = 0

@@ -81,6 +81,9 @@ pub struct Log {
     pub lines: Vec<String>,
     pub stderr: Vec<String>,
     pub quiet: i64,
+    /// which of `lines` are bare prints (`Battle::print`): the Python printed them to the screen only, so its replay
+    /// record (and the Rust history, history.rs) leaves them out
+    pub printed: Vec<usize>,
 }
 
 impl Log {
@@ -213,6 +216,7 @@ impl Battle {
         self.dice.borrow().used()
     }
     pub fn print(&mut self, msg: impl Into<String>) {
+        self.log.printed.push(self.log.lines.len());
         self.log.lines.push(msg.into());
     }
     /// `stubs._warn`: counts the stub and prints its warning to stderr.

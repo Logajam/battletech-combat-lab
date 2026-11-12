@@ -1,0 +1,121 @@
+/* Combat Lab pages (INTEGRATION__COMBAT_LAB_SPECS.md CL4). Daniel's style call (Part B): "a deliberately plain
+   Windows 3.x look ... functional, fast, clean, no unnecessary graphics". One look, light only, on purpose.
+   Layout: a window (title bar, tab strip, tab page); the Units page is team panels around a centre control column. */
+:root {
+  --face: #c0c0c0;        /* button and window face */
+  --light: #ffffff;       /* bevel highlight */
+  --shadow: #808080;      /* bevel shadow */
+  --dark: #000000;        /* bevel outer edge, text */
+  --field: #ffffff;       /* input fields, lists */
+  --title: #000080;       /* active title bar */
+  --title-text: #ffffff;
+  --select: #000080;      /* selected row */
+  --desk: #008080;        /* the desktop behind the window */
+  --good: #006400;
+  --bad: #a00000;
+  --ui: "Tahoma", "MS Sans Serif", "Segoe UI", Arial, sans-serif;
+  --mono: "Lucida Console", "Courier New", monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--desk); color: var(--dark); font: 13px/1.35 var(--ui);
+  padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+button, input, select { font: inherit; color: var(--dark); }
+:focus-visible { outline: 1px dotted var(--dark); outline-offset: -4px; }
+
+/* the bevels: raised (buttons, panels) and sunken (fields, lists) */
+.raised { background: var(--face); border: 2px solid; border-color: var(--light) var(--dark) var(--dark) var(--light); box-shadow: inset -1px -1px 0 var(--shadow); }
+.sunken { background: var(--field); border: 2px solid; border-color: var(--shadow) var(--light) var(--light) var(--shadow); box-shadow: inset 1px 1px 0 var(--dark); }
+
+.window { max-width: 1180px; margin: 0 auto; background: var(--face); border: 2px solid; border-color: var(--light) var(--dark) var(--dark) var(--light); box-shadow: inset -1px -1px 0 var(--shadow), 3px 3px 0 rgba(0,0,0,.35); }
+.titlebar { display: flex; align-items: center; gap: 8px; background: var(--title); color: var(--title-text); font-weight: bold; padding: 3px 4px 3px 6px; }
+.titlebar .box { width: 18px; height: 16px; background: var(--face); border: 1px solid var(--dark); box-shadow: inset 1px 1px 0 var(--light), inset -1px -1px 0 var(--shadow); flex: none; }
+.titlebar .name { flex: 1; text-align: center; letter-spacing: .02em; }
+.titlebar .mode { font-weight: normal; font-size: 12px; opacity: .9; }
+
+.banner { margin: 6px 8px 0; padding: 4px 8px; background: #ffffe1; border: 1px solid var(--dark); font-size: 12px; }
+
+/* tabs: a strip of raised tabs; the open one joins the page below it */
+.tabs { display: flex; flex-wrap: wrap; gap: 2px; padding: 8px 8px 0; }
+.tab { padding: 4px 14px 3px; background: var(--face); border: 2px solid; border-bottom: none; border-color: var(--light) var(--dark) var(--dark) var(--light); cursor: pointer; position: relative; top: 2px; }
+.tab[aria-selected="true"] { font-weight: bold; padding-bottom: 5px; top: 0; z-index: 1; }
+.tab:disabled { color: var(--shadow); cursor: default; }
+.page { margin: 0 8px 8px; padding: 12px; border: 2px solid; border-color: var(--light) var(--dark) var(--dark) var(--light); min-height: 420px; }
+
+.btn { padding: 4px 12px; cursor: pointer; background: var(--face); border: 2px solid; border-color: var(--light) var(--dark) var(--dark) var(--light); box-shadow: inset -1px -1px 0 var(--shadow); }
+.btn:active:not(:disabled) { border-color: var(--dark) var(--light) var(--light) var(--dark); box-shadow: inset 1px 1px 0 var(--shadow); }
+.btn:disabled { color: var(--shadow); text-shadow: 1px 1px 0 var(--light); cursor: default; }
+.btn.small { padding: 1px 6px; }
+.btn.big { padding: 14px 18px; font-size: 16px; font-weight: bold; width: 100%; }
+input[type=text], input[type=number], input[type=search], select { padding: 2px 4px; background: var(--field); border: 2px solid; border-color: var(--shadow) var(--light) var(--light) var(--shadow); box-shadow: inset 1px 1px 0 var(--dark); border-radius: 0; min-width: 0; }
+input[type=number] { width: 72px; }
+label { display: flex; flex-direction: column; gap: 2px; }
+label.row { flex-direction: row; align-items: center; gap: 6px; }
+
+fieldset { border: 2px groove var(--light); margin: 0; padding: 8px 10px 10px; min-width: 0; }
+legend { padding: 0 4px; }
+.note { color: #303030; font-size: 12px; }
+.err { color: var(--bad); font-weight: bold; }
+.num { font-variant-numeric: tabular-nums; text-align: right; }
+h2 { font-size: 14px; margin: 0 0 8px; }
+
+/* UNITS: centre column first on narrow screens, then the team panels */
+.units-layout { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 12px; align-items: start; }
+.teams { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 12px; min-width: 0; }
+.centre { display: flex; flex-direction: column; gap: 10px; position: sticky; top: 8px; }
+.centre .readout { font-family: var(--mono); background: var(--field); padding: 6px; }
+@media (max-width: 760px) {
+  .units-layout { grid-template-columns: minmax(0, 1fr); }
+  .centre { position: static; order: -1; }
+  .teams { grid-template-columns: minmax(0, 1fr); }
+}
+
+.team { display: flex; flex-direction: column; gap: 8px; padding: 8px; min-width: 0; }
+.team-head { display: flex; flex-wrap: wrap; gap: 6px; align-items: end; }
+.team-head .swatch { width: 18px; height: 22px; border: 1px solid var(--dark); flex: none; }
+.team-head input[type=text] { width: 110px; }
+.team.drop { outline: 2px dashed var(--title); outline-offset: -4px; }
+.list { overflow: auto; max-height: 260px; min-height: 60px; }
+.list table { width: 100%; border-collapse: collapse; }
+.list th { position: sticky; top: 0; background: var(--face); font-weight: normal; text-align: left; padding: 2px 4px; border-right: 1px solid var(--shadow); border-bottom: 1px solid var(--shadow); white-space: nowrap; }
+.list td { padding: 1px 4px; white-space: nowrap; }
+.list td.name { white-space: normal; min-width: 120px; }
+.list input[type=number] { width: 38px; padding: 0 2px; }
+.list tr.empty td { color: var(--shadow); padding: 10px 6px; white-space: normal; }
+.totals { display: flex; gap: 14px; font-size: 12px; }
+.adder { position: relative; display: flex; gap: 4px; }
+.adder input { flex: 1; }
+.hits { position: absolute; left: 0; right: 0; top: 100%; z-index: 5; max-height: 240px; overflow: auto; }
+.hits div { padding: 2px 6px; cursor: pointer; display: flex; gap: 8px; }
+.hits div span:first-child { flex: 1; }
+.hits div:hover, .hits div.on { background: var(--select); color: var(--title-text); }
+.hits div.bad { color: var(--shadow); cursor: default; background: none; }
+
+/* MAP / OPTIONS */
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 300px); gap: 12px; align-items: start; }
+@media (max-width: 760px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin-bottom: 8px; }
+.pick tbody tr { cursor: pointer; }
+.pick tbody tr.on { background: var(--select); color: var(--title-text); }
+.form { display: grid; gap: 10px; max-width: 520px; }
+
+/* RESULTS */
+.progress { height: 22px; padding: 2px; }
+.progress div { height: 100%; background: repeating-linear-gradient(90deg, var(--title) 0 12px, transparent 12px 14px); width: 0; }
+.stats { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0; }
+.stats fieldset { flex: 1 1 220px; }
+.stats dl { display: grid; grid-template-columns: auto auto; gap: 2px 12px; margin: 0; }
+.stats dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.winbar { display: flex; height: 18px; margin: 6px 0; border: 1px solid var(--dark); }
+.winbar div { height: 100%; }
+.battles { max-height: 360px; }
+.battles tbody tr { cursor: pointer; }
+.battles tbody tr:hover { background: var(--select); color: var(--title-text); }
+
+/* REPLAY */
+.replay-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin-bottom: 8px; }
+.replay-frame { width: 100%; height: 640px; border: 0; display: block; background: var(--field); }
+.status { margin: 0 8px 8px; padding: 2px 6px; font-size: 12px; display: flex; justify-content: space-between; gap: 8px; }

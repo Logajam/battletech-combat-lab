@@ -8,7 +8,8 @@ tools/port_fixtures.py - record (and self-replay) every fixture battle of the Ru
 
 Each scenario is recorded by tools/port_record.py in its own process (side by side, one per core), then replayed
 from its dice tape and decisions with the bots off, and the two traces and stdout logs are compared: a fixture
-that does not replay is a decision missing from the list, and is reported as FAIL. engine/fixtures is git-ignored
+that does not replay is a decision missing from the list, and is reported as FAIL. A fixture that replays also
+gets the Python's replay record (replay.json, Combat Lab CL2's answer key). engine/fixtures is git-ignored
 (the 12 v 12 traces are 80 MB): recording is byte-for-byte repeatable, so any session can rebuild it in a few
 minutes. The comparison tools and the Rust tests read these folders.
 """
@@ -47,6 +48,11 @@ def one(name, out, replay=True):
     os.rmdir(again)
     if diff.returncode or not same_log:
         return name, False, time.time() - start, "replay differs:\n" + diff.stdout + ("" if same_log else "log differs")
+    # Combat Lab CL2's answer key: the Python's replay record of the battle (replay.json; engine/core/tests/cl2_history.rs)
+    proc = subprocess.run([sys.executable, "tools/port_record.py", "--replay-data", folder],
+                          cwd=REPO_ROOT, env=env, capture_output=True, text=True, encoding="utf-8")
+    if proc.returncode:
+        return name, False, time.time() - start, "REPLAY DATA FAILED\n" + proc.stderr[-1500:]
     return name, True, time.time() - start, diff.stdout.strip()
 
 
