@@ -1,0 +1,6 @@
+# Trial records
+
+One file per trial run, one JSON line per batch, every battle's result: its number in the set (`sim`), its own dice
+seed, winner, turns, whether it reached the turn cap, each team's armor + structure left. Written by
+`tools/hydra_trial.py` and `tools/round_robin.py` (format: `tools/trial_records.py`); `tools/replay_undecided.py`
+plays a file's undecided battles on with a higher turn cap (Daniel, 2026-11-12).

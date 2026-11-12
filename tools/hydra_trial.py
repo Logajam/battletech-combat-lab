@@ -1,7 +1,9 @@
 """Hydra v the house bot, same seeds, sides swapped (INTEGRATION__HYDRA.md, Section 4).
 
     python tools/hydra_trial.py SCENARIO_DIR [SCENARIO_DIR ...] [--battles 20] [--seed 1] [--threads N] [--btsim PATH] [--set KEY=VALUE ...]
-                                [--no-baseline] [--max-turns N]
+                                [--no-baseline] [--max-turns N] [--label NAME | --records FILE | --no-records]
+
+Every battle's result is kept in trial_records/ (tools/trial_records.py; --label names the file).
 
 --no-baseline (session 25): skip the nobody-is-Hydra batch. On the same seeds it never changes, so a series of Hydra
 settings needs it once; without it the win-share and margin lines are not printed, only the head to head.
@@ -15,6 +17,9 @@ wins per team, draws, mean turns, seconds per battle. Two measures of Hydra agai
 strength-left margin (my team's surviving armor + structure share minus the enemy's; a draw that saves the 'Mech counts).
 """
 import json, os, subprocess, sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import trial_records  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BTSIM = os.path.join(ROOT, "engine", "target", "release", "btsim")
@@ -38,6 +43,11 @@ def run(folder, battles, seed, threads, hydra):
     if "--max-turns" in argv:  # the turn cap for this trial (session 25)
         cmd += ["--max-turns", option(argv, "--max-turns", "50")]
     out = json.loads(subprocess.run(cmd, capture_output=True, text=True, check=True).stdout)
+    # every battle's result, kept (tools/trial_records.py)
+    units = json.load(open(os.path.join(folder, "units.json")))
+    bot = {u["team"]: u["bot"] for u in units.values()}
+    trial_records.append(trial_records.records_path(argv, "hydra_trial"), "hydra_trial", os.path.basename(folder.rstrip("/")),
+                         bot.get("Red"), bot.get("Blue"), hydra, argv, int(option(argv, "--max-turns", "50")), seed, battles, out)
     return out
 
 
@@ -46,7 +56,8 @@ def main(argv):
     seed = int(option(argv, "--seed", "1"))
     threads = option(argv, "--threads", None)
     baseline = "--no-baseline" not in argv
-    folders = [a for i, a in enumerate(argv) if not a.startswith("--") and (i == 0 or not argv[i - 1].startswith("--") or argv[i - 1] == "--no-baseline")]
+    flags = ("--no-baseline", "--no-records")  # options without a value
+    folders = [a for i, a in enumerate(argv) if not a.startswith("--") and (i == 0 or not argv[i - 1].startswith("--") or argv[i - 1] in flags)]
     edges, heads = [], []
     for folder in folders:
         units = json.load(open(os.path.join(folder, "units.json")))

@@ -15,6 +15,9 @@ how much the seat alone is worth on that match-up.
 """
 import itertools, json, os, shutil, subprocess, sys, tempfile
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import trial_records  # noqa: E402  every battle's result is kept in trial_records/ (--label NAME / --records FILE / --no-records)
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BTSIM = os.path.join(ROOT, "engine", "target", "release", "btsim")
 
@@ -35,7 +38,7 @@ def seat(folder, out_dir, red_bot, blue_bot):
     return out_dir
 
 
-def play(btsim, folder, battles, seed, threads):
+def play(btsim, folder, battles, seed, threads, scenario=None, red=None, blue=None):
     cmd = [btsim, folder, "--battles", str(battles), "--seed", str(seed)]
     if threads:
         cmd += ["--threads", threads]
@@ -43,7 +46,11 @@ def play(btsim, folder, battles, seed, threads):
     for i, a in enumerate(argv):
         if a == "--set":  # --set KEY=VALUE (any number), passed to btsim
             cmd += ["--set", argv[i + 1]]
+    if "--max-turns" in argv:
+        cmd += ["--max-turns", option(argv, "--max-turns", "50")]
     out = json.loads(subprocess.run(cmd, capture_output=True, text=True, check=True).stdout)
+    trial_records.append(trial_records.records_path(argv, "round_robin"), "round_robin", scenario, red, blue, None, argv,
+                         int(option(argv, "--max-turns", "50")), seed, battles, out)
     left = {t: sum(r["teams"][t]["final_hp"] / max(r["teams"][t]["max_hp"], 1) for r in out["results"]) / battles for t in ("Red", "Blue")}
     return out["wins"].get("Red", 0), out["wins"].get("Blue", 0), out["mean_turns"], out["seconds"] / battles, left["Red"] - left["Blue"]
 
@@ -55,7 +62,7 @@ def main(argv):
     threads = option(argv, "--threads", None)
     btsim = option(argv, "--btsim", BTSIM)
     json_out = option(argv, "--json", None)
-    folders = [a for i, a in enumerate(argv) if not a.startswith("--") and (i == 0 or not argv[i - 1].startswith("--"))]
+    folders = [a for i, a in enumerate(argv) if not a.startswith("--") and (i == 0 or not argv[i - 1].startswith("--") or argv[i - 1] == "--no-records")]
     # totals[(A, B)] = [A wins, B wins, no winner, margin sum, seatings] over both seatings; A = B: [Red, Blue, none, ...]
     totals = {}
     record = []
@@ -64,7 +71,7 @@ def main(argv):
             name = os.path.basename(folder.rstrip("/"))
             print(f"{name}: {battles} battles a seating", flush=True)
             for red, blue in itertools.product(bots, bots):
-                red_wins, blue_wins, turns, secs, margin = play(btsim, seat(folder, os.path.join(tmp, f"{name}_{red}_{blue}"), red, blue), battles, seed, threads)
+                red_wins, blue_wins, turns, secs, margin = play(btsim, seat(folder, os.path.join(tmp, f"{name}_{red}_{blue}"), red, blue), battles, seed, threads, name, red, blue)
                 none = battles - red_wins - blue_wins
                 print(f"  Red {red:9s} v Blue {blue:9s}  {red_wins:3d} - {blue_wins:3d} - {none:3d}   mean turns {turns:5.1f}   {secs:.2f} s/battle   Red margin {margin:+.3f}", flush=True)
                 record.append({"scenario": name, "red": red, "blue": blue, "red_wins": red_wins, "blue_wins": blue_wins, "none": none, "turns": turns, "red_margin": margin})
