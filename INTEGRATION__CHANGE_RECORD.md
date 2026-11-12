@@ -6,6 +6,21 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-12 (Claude, session 25), MEGAMEK BRIDGE B3-B5: OUR ENGINE PLAYS IN MEGAMEK. No battle result changes in our engine. REVIEW PENDING (higher-level model).**
+  Daniel: "Work until the task is complete." Java: `GameView` (the game's start as settings; each unit as MegaMek knows it), `HydraBridge` now
+  asks our engine for move order, the move (steps from the new `path_steps` call, else MegaMek's own path finder; standing up with GET_UP), the
+  target and weapons (by address -> MegaMek's mounted item; torso twist), punches and kicks; everything else a counted fallback to Princess.
+  `DecisionProcess`: a transcript of every line per game and a 120 s answer limit. `BridgeLauncher`: standings saved during the game (MegaMek
+  resets a finished game), the winner by Battle Value left. `tools/megamek_bridge_games.py`: N games, one MegaMek start each, a stalled start
+  played again, a summary. Rust (`bridge.rs`): `apply_megamek_view` (destroyed slots through the new `damage_resolution::destroy_slot_quietly`),
+  start-of-turn bookkeeping and `hp_log` kept by the decision process, the mover's blocked / occupied hexes set and cleared as the engine does,
+  the move queue read from the state. MEASURED with the new view mode (`--bridge-parity --bridge-view`, `BRIDGE_VIEW_EXTRA` to probe): decisions
+  from MegaMek's facts alone order the same as the battle's - Hydra duel movement 96% / weapons 100%, Hydra 4 v 4 movement 90% / weapons 100% /
+  physical 90%, Princess 4 v 4 80% / 99% / 85%. Found on the way: a mover's blocked-hex list left in place (a crash in 4 v 4s), hexes moved,
+  `hp_log`, the move queue, weapons fired this turn - each now carried or kept. Games (Hunchback duel, Hydra as Red): v MegaMek's Princess 2 wins,
+  4 draws of 6, every decision our engine's; draws are standoffs (MegaMek's bots hold their start hex; Hydra waits at the edge of range - MegaMek
+  agrees on the line of sight and range, logged side by side). Spec Section 3d.
+
 - **2026-11-12 (Claude, session 25), COMBAT LAB CL1: A SCENARIO BUILT BY RUST FROM SETTINGS, NO PYTHON (also the MegaMek bridge's start). No battle result changes. REVIEW PENDING (higher-level model).**
   Daniel: "Continue with the build" (and "a lot of this is needed for CombatLab"). NEW `Scenario::from_settings` + `SetupPaths` (scenario.rs),
   `engine/defaults/config.json` (the Python's settings, dumped as the fixtures were), `setup::roster` (moved from tests/stage6_attach.rs),

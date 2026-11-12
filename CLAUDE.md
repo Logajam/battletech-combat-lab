@@ -104,6 +104,9 @@ GitHub logistics.
   by a forecast of how the battle ends. COMPLETE (Daniel, 2026-11-12); `INTEGRATION__HYDRA.md` is its plan and
   results (read before the code). Trials: `tools/hydra_scenarios.py`, `tools/hydra_trial.py`, `tools/round_robin.py`,
   `btsim --hydra TEAM`.
+- **MegaMek bridge** (session 25; `INTEGRATION__MEGAMEK_BRIDGE.md`, `megamek_bridge/README.md`): our bots play as
+  players in a live MegaMek game (MegaMek is never edited, Daniel). `tools/megamek_bridge_games.py SCENARIO.mms
+  --megamek DIR --bridge Red` plays games and keeps records; `btsim decide` is the decision process.
 - **Movement searches:** Short Grid is the default; Daniel's IF/THEN
   (`MOVEMENT_SEARCH = "if_then"`) is an option meant for multi-unit threat
   estimates, not a single 'Mech's default (PROJECT_MAP Section 5).

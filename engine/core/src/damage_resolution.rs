@@ -198,6 +198,20 @@ pub fn mark_all_crits_destroyed(b: &mut Battle, u: UnitId, location: &str) {
     b.log(format!("  All critical slots in {} marked DESTROYED.", location));
 }
 
+/// A slot destroyed by a hit resolved elsewhere (the MegaMek bridge: MegaMek rolled the critical hit and applied its
+/// damage): marked DESTROYED with its loss effects (engine, gyro, cockpit, hip, jump jet, heat sink...), but no ammo
+/// explosion and no dice - that already happened in the other engine. A slot already destroyed is left alone.
+pub fn destroy_slot_quietly(b: &mut Battle, u: UnitId, location: &str, i: usize) {
+    let Some(slot) = b.units[u].crits.get(location).and_then(|l| l.get(i)).cloned() else { return };
+    if slot.is_name("DESTROYED") || slot.is_name("-Empty-") {
+        return;
+    }
+    let info = slot_identity(&b.units[u], &slot);
+    b.units[u].destroyed_slot_info.insert((location.to_string(), i), info);
+    b.units[u].crits.get_mut(location).unwrap()[i] = Slot::name("DESTROYED");
+    slot_loss_effects(b, u, location, &slot, "a critical hit (MegaMek)");
+}
+
 /// Hull breach (Core p.127): every slot's effects applied once, the slots stay in the crit table.
 pub fn mark_location_nonfunctional(b: &mut Battle, u: UnitId, location: &str, why: &str) {
     if !b.units[u].crits.contains_key(location) {

@@ -104,6 +104,12 @@ public final class BridgeLauncher {
         int timeout = Integer.parseInt(arg(args, "--timeout", "10"));
         String records = arg(args, "--records", "bridge_records.jsonl");
         String label = arg(args, "--label", "");
+        // our data folder (the .mtf files our engine loads): --data, else beside btsim (REPO/engine/target/release/btsim)
+        File btsimFile = new File(btsim).getAbsoluteFile();
+        File repo = btsimFile.getParentFile() == null ? new File(".") : btsimFile.getParentFile().getParentFile().getParentFile().getParentFile();
+        File dataDir = new File(arg(args, "--data", new File(repo, "data").getPath()));
+        String boardFile = boardOf(scenarioFile);
+        long seed = Long.parseLong(arg(args, "--seed", String.valueOf(new Random().nextInt(1 << 30))));
 
         TWGameManager gameManager = new TWGameManager();
         Server server = new Server(null, new Random().nextInt(MMConstants.MIN_PORT_FOR_QUICK_GAME, MMConstants.MAX_PORT),
@@ -127,11 +133,20 @@ public final class BridgeLauncher {
             players.sort(Comparator.comparingInt(Player::getId));
             Player watcherSlot = players.getFirst();
             CountDownLatch roundCounter = new CountDownLatch(rounds);
+            // The standings, saved at every round's end report and at victory: when a game ends MegaMek resets it (round
+            // -1, units gone), so a record read afterwards would show no one left (B4: a Hydra win was misread that way).
+            java.util.concurrent.atomic.AtomicReference<String> saved = new java.util.concurrent.atomic.AtomicReference<>();
+            int[] lastRound = {0};
             HeadlessClient watcher = new HeadlessClient(watcherSlot.getName(), LOCALHOST_IP, server.getPort());
             watcher.getGame().addGameListener(new GameListenerAdapter() {
                 @Override
                 public void gamePhaseChange(GamePhaseChangeEvent event) {
                     GamePhase phase = event.getNewPhase();
+                    if ((phase == GamePhase.END_REPORT || phase == GamePhase.VICTORY) && game.getCurrentRound() >= 0) {
+                        lastRound[0] = game.getCurrentRound();
+                        saved.set(record(label, scenarioFile.getName(), botOf, true, game, atStart, watcherSlot.getTeam(),
+                              ours, 0, lastRound[0]));
+                    }
                     if (phase == GamePhase.END_REPORT) {
                         roundCounter.countDown();
                         if (roundCounter.getCount() == 1) {
@@ -157,7 +172,11 @@ public final class BridgeLauncher {
                 String name = slot.getName();
                 BotClient bot;
                 if (bridged.contains(name)) {
-                    HydraBridge h = new HydraBridge(name, LOCALHOST_IP, server.getPort(), btsim);
+                    // every line sent to our engine, for replaying a game's decisions offline (DecisionProcess)
+                    File transcript = new File(arg(args, "--transcripts", "logs"),
+                          "bridge_" + (label + "_" + name).replaceAll("[^A-Za-z0-9_.-]+", "_") + ".jsonl");
+                    HydraBridge h = new HydraBridge(name, LOCALHOST_IP, server.getPort(), btsim, dataDir, boardFile, seed,
+                          transcript);
                     // as MegaMek's BotFactory does for every Princess: without its background planner it waits forever
                     h.startPrecognition();
                     h.setBehaviorSettings(fightToTheEnd(BehaviorSettingsFactory.getInstance().DEFAULT_BEHAVIOR));
@@ -185,8 +204,14 @@ public final class BridgeLauncher {
 
             long started = System.currentTimeMillis();
             boolean finished = roundCounter.await(timeout, TimeUnit.MINUTES);
-            line = record(label, scenarioFile.getName(), botOf, finished, game, atStart, watcherSlot.getTeam(), ours,
-                  (System.currentTimeMillis() - started) / 1000.0);
+            double seconds = (System.currentTimeMillis() - started) / 1000.0;
+            if (game.getCurrentRound() < 0 && saved.get() != null) {
+                // the game was reset when it ended: the standings saved at its last report, with the time filled in
+                line = saved.get().replace("\"seconds\": 0.0", "\"seconds\": " + seconds);
+            } else {
+                line = record(label, scenarioFile.getName(), botOf, finished, game, atStart, watcherSlot.getTeam(), ours,
+                      seconds, game.getCurrentRound());
+            }
         } catch (Exception exception) {
             line = "{\"label\": " + q(label) + ", \"scenario\": " + q(scenarioFile.getName()) + ", \"error\": "
                   + q(String.valueOf(exception)) + "}";
@@ -207,6 +232,20 @@ public final class BridgeLauncher {
         System.exit(0);
     }
 
+    /**
+     * The board file a scenario names (its first {@code - file:} entry under {@code map: boards:}), as an absolute path
+     * into MegaMek's data/boards folder (the launcher runs from the MegaMek folder). Our engine reads the same file.
+     */
+    static String boardOf(File scenario) throws java.io.IOException {
+        for (String line : java.nio.file.Files.readAllLines(scenario.toPath(), StandardCharsets.UTF_8)) {
+            String t = line.trim();
+            if (t.startsWith("- file:")) {
+                return new File("data/boards", t.substring("- file:".length()).trim()).getAbsolutePath();
+            }
+        }
+        throw new IllegalArgumentException("no board file named in " + scenario);
+    }
+
     private static void waitFor(BooleanSupplier condition) throws InterruptedException {
         for (int i = 0; i < 250 && !condition.getAsBoolean(); i++) {
             Thread.sleep(50);
@@ -218,7 +257,7 @@ public final class BridgeLauncher {
 
     /** One game's record line: who drove whom, the result, each team's standing, and our bot's decisions. */
     private static String record(String label, String scenario, Map<String, String> botOf, boolean finished, Game game,
-          List<Player> atStart, int watcherTeam, List<HydraBridge> ours, double seconds) {
+          List<Player> atStart, int watcherTeam, List<HydraBridge> ours, double seconds, int round) {
         Map<Integer, Integer> teamOf = new HashMap<>();
         for (Player p : atStart) {
             teamOf.put(p.getId(), p.getTeam());
@@ -261,8 +300,8 @@ public final class BridgeLauncher {
         StringBuilder s = new StringBuilder("{\"label\": ").append(q(label))
               .append(", \"scenario\": ").append(q(scenario))
               .append(", \"finished\": ").append(finished)
-              .append(", \"rounds\": ").append(game.getCurrentRound())
-              .append(", \"winning_team\": ").append(standing.size() == 1 ? standing.iterator().next() : "null")
+              .append(", \"rounds\": ").append(round)
+              .append(", \"winning_team\": ").append(winner(tally, standing))
               .append(", \"seconds\": ").append(seconds)
               .append(", \"players\": {");
         String sep = "";
@@ -286,7 +325,13 @@ public final class BridgeLauncher {
             s.append(sep).append("{\"player\": ").append(q(h.getName()))
                   .append(", \"engine\": ").append(q(h.engineStatus()))
                   .append(", \"decisions\": ").append(h.decisions())
-                  .append(", \"fallbacks\": {");
+                  .append(", \"ours\": {");
+            String sep3 = "";
+            for (Map.Entry<String, Integer> f : h.made().entrySet()) {
+                s.append(sep3).append(q(f.getKey())).append(": ").append(f.getValue());
+                sep3 = ", ";
+            }
+            s.append("}, \"fallbacks\": {");
             String sep2 = "";
             for (Map.Entry<String, Integer> f : h.fallbacks().entrySet()) {
                 s.append(sep2).append(q(f.getKey())).append(": ").append(f.getValue());
@@ -296,6 +341,24 @@ public final class BridgeLauncher {
             sep = ", ";
         }
         return s.append("]}").toString();
+    }
+
+    /**
+     * The winning team: the only one with Battle Value left (a destroyed or removed unit counts 0; units leave MegaMek's
+     * list when a game ends, so a count of the units still listed can show no one standing). Else the only team with a
+     * unit standing; else none (a draw, or not decided).
+     */
+    private static String winner(Map<Integer, int[]> tally, Set<Integer> standing) {
+        List<Integer> withBv = new ArrayList<>();
+        tally.forEach((team, t) -> {
+            if (t[5] > 0) {
+                withBv.add(team);
+            }
+        });
+        if (withBv.size() == 1) {
+            return String.valueOf(withBv.getFirst());
+        }
+        return (withBv.isEmpty() && standing.size() == 1) ? String.valueOf(standing.iterator().next()) : "null";
     }
 
     /** A JSON string. */

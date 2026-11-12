@@ -126,12 +126,15 @@ fn main() {
     if args.iter().any(|a| a == "--bridge-parity") {
         // --bridge-compact (B3): the units go as compact states (bridge::UNIT_FIELDS / ITEM_FIELDS), not whole dumps
         let compact = args.iter().any(|a| a == "--bridge-compact");
+        // --bridge-view: the units go as MegaMek VIEWS (what a MegaMek game tells our engine); every answer is compared and
+        // the agreement counted per decision kind ("agree"), instead of stopping at the first difference
+        let view = args.iter().any(|a| a == "--bridge-view");
         let runs: Vec<Value> = (1..=battles)
             .into_par_iter()
             .map(|sim| {
                 let s = PcgDice::battle_seed(seed, sim);
                 let keep = sim == 1 && arg(&args, "--bridge-dump").is_some();
-                let (r, p, lines) = scenario.run_bridge_checked(s, keep, compact);
+                let (r, p, lines) = scenario.run_bridge_checked(s, keep, compact, view);
                 if keep {
                     if let Some(p) = arg(&args, "--bridge-dump") {
                         let start = scenario.bridge_start(s);
@@ -143,7 +146,7 @@ fn main() {
                     }
                 }
                 json!({"sim": sim, "seed": s, "turns": r.turns_taken, "winner": r.winner, "calls": p.calls, "decisions": p.decisions,
-                       "same": p.first_difference.is_none(), "rebuild_gaps": p.rebuild_gaps,
+                       "same": p.first_difference.is_none(), "rebuild_gaps": p.rebuild_gaps, "agree": p.agree,
                        "first_difference": p.first_difference.map(|(n, m, want, got)| json!({"line": n, "method": m, "battle": want, "session": got}))})
             })
             .collect();
