@@ -6,6 +6,14 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-12 (Claude, session 25), HYDRA S3: MOVE ORDER, BUILT AS A SWITCH, MEASURED, OFF BY DEFAULT. REVIEW PENDING (higher-level model).**
+  Daniel: "Lets move onto move order then. We'll just keep moving down Fable's wish list until done." NEW socket question `BotSet::move_pick`
+  (default None = the engine's move index; `orchestrator` asks it inside the Movement Phase pick, so the S5a move queue uses it too) and
+  `hydra::move_pick`: least to lose first, deciders last - each unit's STAKE is the priced damage that can flow through it this turn (enemy guns x my
+  price + my guns x enemy price, by `range_factor` of the distance left after its best move); smallest first. Prices once per team per Movement Phase
+  (`HydraState::order`, cleared in `start_movement`), from `ledger_as` (read-only). Switch `HYDRA_MOVE_ORDER = "stake"` (default unset). Same seeds:
+  v Gladiator 331 - 204 (without 333 - 203), v Princess 410 - 195 (without 434 - 174; worse in the 4 v 4 woods / heavies); duels identical. So off.
+  Two reference battles added (86); no other log changed. Python 57 of 57.
 - **2026-11-12 (Claude, session 25), HYDRA S6 SECOND PASS: SPREAD FIRE CONFIRMED; STRUCTURE WEIGHT TESTED, KEPT; NO DEFAULT CHANGED. REVIEW PENDING (higher-level model).**
   Daniel: "Go for second calibration pass." The ledger snapshot now also records raw armor and structure (`scenario::snapshot`); `tools/hydra_calibrate.py
   fit2` (structure weight x fire spread for small / big battles, scored by log-loss on the winner); NEW Hydra-only setting `HYDRA_LIFE_STRUCTURE_WEIGHT`

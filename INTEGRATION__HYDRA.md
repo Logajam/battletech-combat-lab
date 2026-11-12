@@ -382,8 +382,31 @@ responders, K = 8 candidate spots; replace the reply step with it; judge on both
 ## 7. Other later stages (not started)
 
 - **S2 Ghost that moves**: superseded by S5a.
-- **S3 Move order**: Hydra chooses which of its units moves next (least to lose first, deciders
-  last). Needs a new question on the `BotSet` socket; the Move Queue of S5a is half of it.
+- **S3 Move order**: BUILT session 25 as a switch, `HYDRA_MOVE_ORDER = "stake"` (default off: the engine's index), measured
+  level against Gladiator and worse against Princess - see below.
+
+### S3: move order (session 25, 2026-11-12): built, measured, OFF by default
+
+`hydra::move_pick`, asked through a new question on the socket, `BotSet::move_pick` (None = the engine's rule, Princess's
+move index). The turn loop asks it for every pick of a side whose candidates are all Hydra's, so the S5a move queue follows
+the same order. The rule, LEAST TO LOSE FIRST, DECIDERS LAST: a unit's STAKE is the priced damage that can flow through it
+this turn, the sum over enemies on the board of `range_factor`(distance left after its best run or jump) x (enemy guns x
+my price + my guns x enemy price); the smallest stake moves first. Guns and prices are worked out once per team per Movement
+Phase (`HydraState::order`), from a read-only ledger (`ledger_as`, which does not raise the best guns seen). Same seeds and
+battles as S6 (40 a seating, 16 for 8 v 8 / 12 v 12); Hydra - house bot:
+
+| | engine's index | stake |
+|---|---|---|
+| v Gladiator, nine match-ups | 333 - 203 | 331 - 204 |
+| v Princess, nine match-ups | 434 - 174 | 410 - 195 |
+| of which v Princess 4 v 4 woods + heavies | 119 - 40 | 100 - 54 |
+
+Duels are identical (one unit a side: no choice). Speed is the same. Why it does not help, as far as the numbers say: the
+engine's index already sends the far, slow units first and the close ones last (distance / speed), which is most of the
+stake rule; what the stake adds is that Hydra's most valuable units in contact wait longest, and against Princess, which
+moves her close units last too, that seems to leave Hydra's best guns reacting to a line she has already set rather than
+setting it. Ideas if taken up again: the opposite end (deciders first, to take the good ground), or a pick that asks the
+Oracle how much a unit's best spot changes when the enemies still to move have moved (the true worth of waiting).
 - **S4 Charges and death from above**: BUILT session 25 as a switch, `HYDRA_MOVEMENT_ATTACKS` (default off), measured
   level - see below.
 

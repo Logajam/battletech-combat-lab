@@ -58,6 +58,10 @@ impl BotSet for GladiatorBots {
         crate::bot_targets::fire_pick(b, candidates)
     }
 
+    fn move_pick(&mut self, b: &mut Battle, candidates: &[UnitId]) -> Option<UnitId> {
+        crate::hydra::picks_move_order(b, candidates).then(|| crate::hydra::move_pick(b, candidates))
+    }
+
     #[allow(unused)]
     fn choose_declaration(&mut self, b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId) -> DeclChoice {
         if b.units[attacker].bot == "princess" {
@@ -105,6 +109,7 @@ impl BotSet for GladiatorBots {
 
     #[allow(unused)]
     fn start_movement(&mut self, b: &mut Battle) {
+        b.hydra.start_movement_phase();
         crate::legate::plan_turn(b);
     }
 

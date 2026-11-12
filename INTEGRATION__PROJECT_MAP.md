@@ -70,7 +70,7 @@ and the GitHub logistics (Section 7).
 
 **Defaults that matter for the bots:** Legate on; fire split "proportional", this turn too; triage on (since
 2026-11-08); Gladiator's target = Princess's choice borrowed (`STUB_GLADIATOR_TARGET = "princess_plan"`; the fire
-director "kill_curve" is level with it, not better); big guns fire first; move order = Princess's index. OFF
+director "kill_curve" is level with it, not better); big guns fire first; move order = Princess's index (Hydra's own, S3, measured and off). OFF
 because they did not win more: Peril in the move score, stacked coverage, herding, cohesion, team value, exchange.
 
 **Yardstick** (Princess Red v Gladiator Blue, 12 v 12, 32 x 17 field, 100 battles, 100-turn cap): with triage
@@ -148,6 +148,7 @@ Lab functionality; 3D art.
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
 - **(ab) HYDRA S6 SECOND PASS** (session 25): `hydra::life_of` (`HYDRA_LIFE_STRUCTURE_WEIGHT`), armor / structure in `scenario::snapshot`, `fit2`.
+- **(ac) HYDRA S3 MOVE ORDER** (session 25): `hydra::move_pick` / `picks_move_order` (`HYDRA_MOVE_ORDER = "stake"`, off), the new `BotSet::move_pick` socket used by the turn loop's pick (and so by the move queue), `ledger_as` (read-only ledger). Two reference battles (86).
 - **(aa) HYDRA S6, FORECAST CALIBRATION** (session 25): `hydra::Shape` / `forecast_with` / `prices_with`, `scenario::run_recorded`,
   `btsim --ledger`, `tools/hydra_calibrate.py`; default FOCUS 0. Also the stacking fix in `movement_attacks` (both engines).
 - **(z) HYDRA S4, CHARGES AND DFA** (session 25): `hydra::movement_attack` / `weigh_lines_only` (switch `HYDRA_MOVEMENT_ATTACKS`), 2 reference battles.
