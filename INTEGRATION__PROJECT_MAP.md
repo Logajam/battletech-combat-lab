@@ -143,15 +143,16 @@ real Princess and CASPAR through the bridge (E4).
 - E1. Battle statistics: stages 4-5 (Change Record "BATTLE STATISTICS", Section 5).
 - E2. Combat Lab GUI [12, 14]: HTML front end behind an `.exe` (Daniel); setup shell first; MegaMek save import
   to test later. `INTEGRATION__COMBAT_LAB.md`.
-  BUILD ORDER as spec sheets CL1-CL9 (session 24, on the Rust engine): `INTEGRATION__COMBAT_LAB_SPECS.md`. CL1 DONE
-  (session 25: `btsim --setup`, a scenario from settings in Rust).
+  BUILD ORDER as spec sheets CL1-CL10 (session 24, on the Rust engine): `INTEGRATION__COMBAT_LAB_SPECS.md`. CL1 DONE
+  (session 25: `btsim --setup`, a scenario from settings in Rust). NEXT (Daniel, 2026-11-12: "Go from a collection of tools
+  you can use, to something I can interact with as a normal person who does not code"): CL2-CL5.
 - E3a. Art direction (session 24): why the models read as stacked blocks, and jobs A1-A8 in order -
   `INTEGRATION__COMBAT_LAB_ART_SPECS.md` (nothing built).
 - E4. MegaMek bridge (Daniel, 2026-11-12): our bots play in a live MegaMek game - Daniel against Hydra in MegaMek's
   screen, Hydra against the real Princess and CASPAR, an outside check on our rules. Spec DONE, nothing built:
   `INTEGRATION__MEGAMEK_BRIDGE.md` (task T14, stages B0-B7). B0-B5 DONE: our engine plays in MegaMek (Hydra, Gladiator or our
-  Princess as a MegaMek player; `tools/megamek_bridge_games.py`). Next: B6 (compare with our numbers; the standoffs), B7
-  (Daniel plays it on his computer), the unwired orders (charges, DFA, clubs, arm flips).
+  Princess as a MegaMek player; `tools/megamek_bridge_games.py`). SHELVED (Daniel, 2026-11-12) for the Combat Lab GUI;
+  where to pick up, with Daniel's design for playing against the bot: the bridge spec Section 8b (Combat Lab CL10).
 - E3. 3D art [15] (paused): next the weapon-block stockpile, then bird-body torso / head blocks, the 47 chart
   chassis, directional hardpoints.
 

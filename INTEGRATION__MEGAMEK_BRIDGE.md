@@ -394,28 +394,50 @@ with our setting beside it. **Any option where the two can't match is a question
 **First version's limits** (each one a FALLBACK, never a crash): 'Mechs only; no board changes; no units
 without a `.mtf` in our `data/`; no equipment our engine doesn't model.
 
-## 8b. B7 - Daniel plays against our bot (Daniel's design, 2026-11-12)
+## 8b. B7 - Daniel plays against our bot (Daniel's design, 2026-11-12) - SHELVED for Combat Lab
 
-Daniel: "Have the correct version of Megamek on my computer. Have Combatlab on my computer. Open up megamek. Open up
-combat lab. Tell combat lab to connect. Use combat lab to set up it's forces. Use Megamek to set up my own. Play."
+**STATUS: SHELVED (Daniel, 2026-11-12):** "Saving the progress on this quest line, and setting up to make CombatLab a
+functional thing may be the best move right now." B0-B5 are built and merged; this section is where to pick up.
 
-| Step | Status | To build |
-|---|---|---|
-| The right MegaMek | MegaMek refuses a client of another version | the bridge checks the version at connect and says so plainly |
-| Combat Lab installed | Combat Lab is spec sheets (CL1 built) | Windows build of `btsim` + the bridge jar inside Combat Lab, run with MegaMek's own Java |
-| Daniel hosts in MegaMek | works (normal lobby) | - |
-| Combat Lab connects | the launcher starts its own game | **B7a JOIN MODE**: connect `HydraBridge` to a hosted game (host, port, player name) |
-| Combat Lab sets up its forces | - | **B7c**: the bridge adds its units in the lobby as a player's client does (`sendAddEntity`, from Combat Lab's .mtf choices and skills) |
-| Daniel sets up his forces | MegaMek | - |
-| Deployment | Princess's own deployment (inherited); our engine starts at its first decision, after deployment | units arriving later: to check |
-| The map | the bridge reads the scenario's board file | **B7a**: take the board from the game itself (MegaMek's board written in our .board format) |
-| Daniel's units | must have a .mtf in our data folder, or the bridge is off | **B7b**: the bridge sends each unit's file text from MegaMek's own data; units our engine does not simulate (vehicles, infantry, aero) go to Princess, counted |
-| Game options | not compared | flag at the start every lobby option our engine plays differently |
-| Play | works (B4) | - |
+Daniel's picture: "Have the correct version of Megamek on my computer. Have Combatlab on my computer. Open up megamek.
+Open up combat lab. Tell combat lab to connect. Use combat lab to set up it's forces. Use Megamek to set up my own.
+Play." And his corrections and wishes, same day (numbered as he wrote them):
 
-Build order: B7a (join + board from the game), B7b (unit files from MegaMek), B7c (forces from the lobby); each testable
-here by hosting a headless MegaMek game and joining it as Combat Lab would. Then packaging for Windows; the Connect
-button and force picker become Combat Lab screens.
+1. **Version.** "The important point is for CombatLab to have enough information on the board and unit states to be
+   able to create a faithful model of it ... So long as the bots command interface has no drastic changes between
+   versions Combatlab should be able to return the commands needed." CHECKED in MegaMek's source
+   (`server/Server.java`, ~line 690): the server REFUSES any client whose version is not exactly its own ("Client/Server
+   Version Mismatch"). The way round it: Combat Lab runs the bridge on the MegaMek install on Daniel's machine (its
+   MegaMek.jar and lib/ on the classpath), so the version always matches; only the bot interface (MovePath, attack
+   actions, PhysicalOption, the Princess hooks) must stay compatible between releases - a compile against each new
+   release finds any change. Connecting "as a player sending GUI signals" is the same thing underneath: a bot and the
+   GUI send the same client packets.
+2. **Shelve the bridge, build the Combat Lab GUI**: "Go from a collection of tools you can use, to something I can
+   interact with as a normal person who does not code." -> `INTEGRATION__COMBAT_LAB_SPECS.md`, CL2-CL5 next.
+4. **The connect / forces screen** "would look a lot like it does with Megamek. If we wanted to be funny we could make it
+   look exactly like megamek, but build a visual graphic of that section of megamek's start screen being bolted and
+   taped on." And: "It should be capable of remote connections over the internet same as normal megamek" (a host
+   address and port, as MegaMek's own Connect dialog).
+5. **The bot generating its own forces** (future): "Given these limits, Pick 1 random unit that exists within those units
+   as a seed. Then pick the next mech based on that one."
+7. **Deployment**: in MegaMek one starts deployed. "Have the bots pick their move onto the field paths, but Truncate the
+   search space to only hexes in the deployment area. Those become their actual starting positions in megamek." (Our
+   engine's entry-from-home-edge move search, with its end states limited to the deployment zone.)
+8. **Unknown units**: "bots can probably play against units they don't know, so long as they have at least a basic fall
+   back how to process any unit. movement, TMM, Total armor, total structure, total weapons ... at least guess the
+   targets threat profile and value." And later a pass that adds the other unit types to the game.
+9. **Unexpected game options**: the bots read state, so a surprise (shut down at 28 heat) is dealt with at the next plan,
+   at some cost. Future: "read the log looking for unexpected events, and try to adjust their calculations for the 'New
+   math' that's being used instead" - deep back burner.
+
+**What it would take, when picked up** (each testable here by hosting a headless MegaMek game and joining it):
+- B7a JOIN: connect `HydraBridge` to a hosted game (host, port - over the internet as MegaMek does - player name),
+  the board taken from the game itself (MegaMek's board written in our .board format), MegaMek.jar from Daniel's install.
+- B7b UNITS: each unit's file text sent from MegaMek's own data, so ours need not have it; Daniel's #8 fallback model for
+  anything our engine can't build; units our engine does not simulate go to Princess, counted.
+- B7c FORCES: Combat Lab's force picks added in the lobby by the bridge (as a player's client adds units).
+- B7d DEPLOYMENT: Daniel's #7 - the entry move search limited to the deployment zone.
+- Then: Windows packaging inside Combat Lab; the connect screen (#4) as a Combat Lab page.
 
 ## 9. Open questions
 
