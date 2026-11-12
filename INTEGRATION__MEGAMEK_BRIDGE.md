@@ -58,8 +58,53 @@ Paths are under `megamek/src/megamek/` in the MegaMek repo.
 - **License: GPL v3** (`LICENSE.code`). Anyone may use, sell or change it; whoever hands out a program built on
   it must hand out the source too, under GPL. The bridge's Java code is built on MegaMek, so it is GPL. Private
   use is unaffected. Daniel, 2026-11-12: GPL is likely the license for this project anyway "if/when it goes live".
-- **Not checked yet:** building and running MegaMek here. A Gradle build of MegaMek in this session was refused
-  by the session's safety check (running downloaded build code needs Daniel's OK). Java 21 is installed.
+- **Running MegaMek here:** works (Section 1b), with Daniel's OK (2026-11-12, "Go ahead"). Java 21 is installed.
+
+## 1b. B0 results (2026-11-12, MegaMek 0.51.01.7 release, run in this session)
+
+- **Getting it:** the release tarball from GitHub's release download (`MegaMek-0.51.01.7.tar.gz`, about 580 MB packed,
+  730 MB unpacked; the proxy allows it). Built 2026-11-12, it already holds `Caspar`, `AIMatchRunner` and
+  `ScenarioGameRunner`, so no build from source is needed. Run from the unpacked folder:
+  `java -Djava.awt.headless=true -cp 'MegaMek.jar:lib/*' megamek.utilities.AIMatchRunner FILE.mms N ROUNDS TIMEOUT_MIN`.
+  Results: `logs/ai_match_results_*.csv`; game logs `logs/gamelog_*.html`.
+- **Same board:** MegaMek's `Map Set 2/16x17 Scattered Woods.board` is our `data/16x17_Scattered_Woods.board`, hex
+  for hex (only line endings differ).
+- **Five games, Hunchback HBK-4G v Hunchback HBK-4G, Princess v CASPAR** (one `.mms`, below): 2 played out (28 rounds
+  each; one won by each bot, about 20 s a game); **2 stalled at the start** (the CASPAR player disconnected in
+  round 0 after errors inside MegaMek: `Princess.updateEntityState` "Entity.getOwner() is null", `PathRanker`
+  "Entity invalid"; the runner waited out its timeout and wrote the game as unfinished); **1 misread** (the Princess
+  'Mech FLED the board, MegaMek's default behaviour, and the runner wrote rounds -1 and 0 BV for both sides). The
+  stalls happened both on the second game of a run and on a run's only game: restarting MegaMek per game is not
+  enough on its own. The autosave also fails (no `savegames/` folder; harmless).
+- **What this means for the build:**
+  1. Our launcher (B5) plays one game per MegaMek process, with a timeout, and **retries a game that stalls in
+     round 0** (counted in the records, never silent).
+  2. It **checks each result** (rounds > 0, a winner or the cap) and records a bad one as such.
+  3. **Bot behaviour must match ours:** MegaMek's Princess and CASPAR withdraw / flee by default; our games fight
+     to the end. Their behaviour settings (forced withdrawal, flee board) are set off in bridge games (Section 7).
+  4. The two MegaMek bugs (start-of-game stall, the fled-unit misread) are worth telling the MegaMek team about.
+
+The B0 scenario file (`at:` is the board column and row):
+
+```yaml
+MMSVersion: 2
+name: B0 Hunchback duel
+map:
+  boards:
+    - file: Map Set 2/16x17 Scattered Woods.board
+options:
+  off: [check_victory, simultaneous_targeting, simultaneous_firing, simultaneous_physical, simultaneous_deployment]
+factions:
+  - name: Observer
+  - name: Red
+    bot: {ai: PRINCESS}
+    units:
+      - {fullname: Hunchback HBK-4G, at: [8, 2], facing: 3, crew: {name: Red Pilot, gunnery: 4, piloting: 5}}
+  - name: Blue
+    bot: {ai: CASPAR}
+    units:
+      - {fullname: Hunchback HBK-4G, at: [8, 15], facing: 0, crew: {name: Blue Pilot, gunnery: 4, piloting: 5}}
+```
 
 ## 2. What our engine already has
 
@@ -159,7 +204,8 @@ MegaMek server  <--network-->  HydraBridge (Java, extends Princess)  <--stdin/st
 
 Match our engine (`engine/core/src/config.rs`, `INTEGRATION__config.py` OPTIONAL RULES): Total Warfare rules,
 TacOps options off unless our config turns the same rule on, no double-blind, no fog of war, no
-forced withdrawal unless our battle has it, same turn cap (ours is 100; MegaMek's runner takes `roundsLimit`).
+forced withdrawal unless our battle has it, the MegaMek bots' own withdraw / flee-board behaviour off (B0: a
+Princess 'Mech fled the board by default), same turn cap (ours is 100; MegaMek's runner takes `roundsLimit`).
 The list is filled in during B4 by reading MegaMek's game options file (`common/options/`), one line per option
 with our setting beside it. **Any option where the two can't match is a question for Daniel.**
 
@@ -167,7 +213,7 @@ with our setting beside it. **Any option where the two can't match is a question
 
 | Stage | What | Model | Done when |
 |---|---|---|---|
-| **B0** | Get an unchanged MegaMek (a released jar, or built from the unchanged source) and run `AIMatchRunner` on a small `.mms` (Princess v CASPAR, 2 games). Needs Daniel's OK to run MegaMek's downloaded code here (or he runs it on his computer). | Sonnet | Two games finish and the CSV is written |
+| **B0** DONE (Section 1b) | Get an unchanged MegaMek (a released jar, or built from the unchanged source) and run `AIMatchRunner` on a small `.mms` (Princess v CASPAR, 2 games). Needs Daniel's OK to run MegaMek's downloaded code here (or he runs it on his computer). | Sonnet | Two games finish and the CSV is written |
 | **B1** | `btsim decide`: snapshot -> `Battle` -> `BotSet` call -> answer. Snapshot writer on the Rust side too (`--snapshot` on an ordinary battle). | Opus (the snapshot -> `Battle` step needs judgement; `INTEGRATION__STATE.md` lists every field) | **Parity check** (`tests/check_bridge_parity.py`): in ordinary battles, snapshot at every decision, feed it to `btsim decide`, the answer must equal what the battle chose. Every bot, the reference scenarios. |
 | **B2** | `megamek_bridge/`: `HydraBridge extends Princess`, the subprocess, request/answer JSON, FALLBACK on everything (Rust answers `fallback` to all) | Sonnet | A bridge game finishes with every decision a FALLBACK and the same result as plain Princess on the same seed |
 | **B3** | Java snapshot writer (Section 4) | Sonnet | Java's snapshot of a game's start equals Rust's snapshot of the same scenario (a test compares the two) |
