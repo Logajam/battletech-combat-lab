@@ -25,6 +25,11 @@ pub trait BotSet {
     /// bots.fire_pick active? (Gladiator's firing order); then `fire_pick` chooses among the candidates
     fn fire_pick_active(&mut self, b: &mut Battle) -> bool;
     fn fire_pick(&mut self, b: &mut Battle, candidates: &[UnitId]) -> UnitId;
+    /// Which of a side's units moves next, when the side's bot chooses (Hydra's S3); None = the engine's move index.
+    /// Must only read the battle: it also forecasts the move queue.
+    fn move_pick(&mut self, _b: &mut Battle, _candidates: &[UnitId]) -> Option<UnitId> {
+        None
+    }
     fn choose_declaration(&mut self, b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId) -> DeclChoice;
     fn choose_physical(&mut self, b: &mut Battle, attacker: UnitId, target: UnitId) -> Option<(i64, Vec<PhysOption>, ArcAction)>;
     /// bots.choose_movement: (pick, note, the terrain PSRs / hazard the search noted for the pick)
@@ -780,6 +785,9 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
     let mut act = forces::Activation::new(b, &order, forces::can_select_move);
     loop {
         let mut pick = |b: &mut Battle, c: &[UnitId]| -> UnitId {
+            if let Some(u) = bots.move_pick(b, c) {
+                return u;
+            }
             let mut best = c[0];
             let mut best_v = forces::move_index(b, best);
             for &u in &c[1..] {

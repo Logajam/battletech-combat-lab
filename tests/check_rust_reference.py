@@ -40,7 +40,8 @@ LOG_DIR = os.path.join(ENGINE, "reference", "logs")
 SEED = 1
 
 # Extra plays of a scenario with Hydra driving some teams: saved-log name -> (scenario folder, Hydra teams[, settings]).
-# Settings are btsim --set KEY=VALUE pairs (session 25: the S5a play-out, HYDRA_PLAYOUT=s5a).
+# Settings are btsim --set KEY=VALUE pairs (session 25: the S5a play-out HYDRA_PLAYOUT=s5a, S4 HYDRA_MOVEMENT_ATTACKS,
+# S3 HYDRA_MOVE_ORDER=stake).
 VARIANTS = {
     "hydra_red__hy_duel_griffin": ("hy_duel_griffin", "Red"),
     "hydra_red__hy_duel_hunchback_woods": ("hy_duel_hunchback_woods", "Red"),
@@ -54,6 +55,8 @@ VARIANTS = {
     "hydra_s5a_red__hy_8v8_valley": ("hy_8v8_valley", "Red", ["HYDRA_PLAYOUT=s5a"]),
     "hydra_s4_red__hy_duel_griffin": ("hy_duel_griffin", "Red", ["HYDRA_MOVEMENT_ATTACKS=true"]),
     "hydra_s4_blue__hy_4v4_lance_grass": ("hy_4v4_lance_grass", "Blue", ["HYDRA_MOVEMENT_ATTACKS=true"]),
+    "hydra_s3_red__hy_4v4_lance_woods": ("hy_4v4_lance_woods", "Red", ["HYDRA_MOVE_ORDER=stake"]),
+    "hydra_s3_blue__hy_8v8_valley": ("hy_8v8_valley", "Blue", ["HYDRA_MOVE_ORDER=stake"]),
 }
 
 

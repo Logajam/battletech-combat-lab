@@ -21,12 +21,19 @@ pub struct HydraState {
     best_guns: HashMap<UnitId, f64>,
     /// this Weapon Attack Phase's plan, per team: attacker -> target (emptied when the phase starts)
     fire: HashMap<String, HashMap<UnitId, Option<UnitId>>>,
+    /// S3 MOVE ORDER: this Movement Phase's (guns, price) per unit, per team (emptied when the phase starts)
+    order: HashMap<String, HashMap<UnitId, (f64, f64)>>,
 }
 
 impl HydraState {
     /// The Weapon Attack Phase begins: last turn's fire plans are void.
     pub fn start_fire_phase(&mut self) {
         self.fire.clear();
+    }
+
+    /// The Movement Phase begins: last turn's move-order prices are void.
+    pub fn start_movement_phase(&mut self) {
+        self.order.clear();
     }
 }
 
@@ -66,6 +73,11 @@ fn life_of(b: &Battle, u: UnitId) -> f64 {
 
 /// (my team's entries, the enemy's entries): every unit still fighting, on or off the board.
 pub fn ledger(b: &mut Battle, me: UnitId) -> (Vec<Entry>, Vec<Entry>) {
+    ledger_as(b, me, true)
+}
+
+/// `ledger`; with `remember` false it only reads (the best guns seen are used, not raised).
+fn ledger_as(b: &mut Battle, me: UnitId, remember: bool) -> (Vec<Entry>, Vec<Entry>) {
     let team = b.units[me].team.clone();
     let alive = crate::forces::standing(b);
     let per_turn = b.cfg.f("MOVEMENT_LIFETIME_INITIATIVE");
@@ -76,11 +88,16 @@ pub fn ledger(b: &mut Battle, me: UnitId) -> (Vec<Entry>, Vec<Entry>) {
             Some(f) => move_select::future_damage(b, u, f) / if per_turn > 0.0 { per_turn } else { 1.0 },
             None => 0.0,
         };
-        let best = b.hydra.best_guns.entry(u).or_insert(0.0);
-        if guns > *best {
-            *best = guns;
-        }
-        guns = guns.max(DORMANT_GUNS * *best).max(MIN_GUNS);
+        let best = if remember {
+            let best = b.hydra.best_guns.entry(u).or_insert(0.0);
+            if guns > *best {
+                *best = guns;
+            }
+            *best
+        } else {
+            b.hydra.best_guns.get(&u).copied().unwrap_or(0.0).max(guns)
+        };
+        guns = guns.max(DORMANT_GUNS * best).max(MIN_GUNS);
         let e = Entry { unit: u, life: life_of(b, u).max(1.0), guns };
         if b.units[u].team == team { mine.push(e) } else { theirs.push(e) }
     }
@@ -783,6 +800,57 @@ fn playout(b: &mut Battle, mover: UnitId, friends: &[UnitId], prepared: &[Opt], 
     }
     let note = format!("; play-out of {} spots, responders {}", short.len(), names.join(", "));
     Some((note, out))
+}
+
+// =============================================================================================================
+// S3 MOVE ORDER: which of a Hydra side's units moves next (switch HYDRA_MOVE_ORDER = "stake", session 25)
+// =============================================================================================================
+/// The engine asks a side for one unit at a time (Core p.41: sides alternate, the side that lost Initiative first). The
+/// rule: LEAST TO LOSE FIRST, DECIDERS LAST. A unit's STAKE this turn is the priced damage that can flow through it:
+///     sum over enemies on the board of  reach x (enemy guns x my price + my guns x enemy price)
+/// where reach is `range_factor` of the distance left after the unit's own best move (running or jumping MP). A unit far
+/// from everything has little to lose or win wherever it goes, so it commits first; the units in the thick of it move
+/// last, when the most enemies have shown where they stand. A unit not on the board has no stake and goes first (as in
+/// the engine's own rule). Ties: the earlier candidate (roster order). Only reads the battle: guns are the ledger's
+/// without raising the best seen, and prices are worked out once per team per Movement Phase.
+pub fn move_pick(b: &mut Battle, candidates: &[UnitId]) -> UnitId {
+    let team = b.units[candidates[0]].team.clone().unwrap_or_default();
+    if !b.hydra.order.contains_key(&team) {
+        let (mine, theirs) = ledger_as(b, candidates[0], false);
+        let price = prices_with(&mine, &theirs, &Shape::of(b));
+        let worth: HashMap<UnitId, (f64, f64)> = mine.iter().chain(theirs.iter()).map(|e| (e.unit, (e.guns, price.get(&e.unit).copied().unwrap_or(1.0)))).collect();
+        b.hydra.order.insert(team.clone(), worth);
+    }
+    let enemies: Vec<UnitId> = crate::forces::enemies_of(b, candidates[0]).into_iter().filter(|e| b.units[*e].hex.is_some()).collect();
+    let worth = &b.hydra.order[&team];
+    let stake = |u: UnitId| -> f64 {
+        let Some(at) = xy(b, u) else { return 0.0 };
+        let reach = crate::mech_state::compute_running_mp(&b.units[u]).max(crate::mech_state::compute_jump_mp(&b.units[u]));
+        let (my_guns, my_price) = worth.get(&u).copied().unwrap_or((MIN_GUNS, 1.0));
+        let mut sum = 0.0;
+        for &e in &enemies {
+            let Some(there) = xy(b, e) else { continue };
+            let (its_guns, its_price) = worth.get(&e).copied().unwrap_or((MIN_GUNS, 1.0));
+            let r = range_factor((hex_distance(at, there) - reach).max(0));
+            sum += r * (its_guns * my_price + my_guns * its_price);
+        }
+        sum
+    };
+    let mut best = candidates[0];
+    let mut best_v = stake(best);
+    for &u in &candidates[1..] {
+        let v = stake(u);
+        if v < best_v {
+            best = u;
+            best_v = v;
+        }
+    }
+    best
+}
+
+/// Is S3 on for this side's pick? Every candidate is Hydra's and the switch says "stake".
+pub fn picks_move_order(b: &Battle, candidates: &[UnitId]) -> bool {
+    b.cfg.has("HYDRA_MOVE_ORDER") && b.cfg.s("HYDRA_MOVE_ORDER") == "stake" && candidates.iter().all(|u| b.units[*u].bot == "hydra")
 }
 
 // =============================================================================================================
