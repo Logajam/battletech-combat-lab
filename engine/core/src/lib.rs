@@ -60,6 +60,7 @@ pub mod domino;
 pub mod charge;
 pub mod dfa;
 pub mod deployment;
+pub mod playout;
 pub mod tag;
 pub mod ranged_combat;
 pub mod results;

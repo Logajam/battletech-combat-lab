@@ -229,6 +229,19 @@ fn exchange(b: &mut Battle, mover: UnitId, enemy: UnitId, prepared: &[Opt], inde
 /// The movement pick for a Hydra unit and the note the log prints. `other` is the foe the engine named (used only where
 /// the engine's own helpers want one).
 pub fn choose_movement(b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, standup_mp: Option<i64>, entry_edge: Option<&[String]>) -> (Option<Pick>, String) {
+    // HYDRA_CHECK (playout::Witness): thinking must leave the battle exactly as it found it - no dice, no log, no state.
+    // Not around the hand-off before any enemy is on the board: that is Gladiator's march, whose tie-break is a real,
+    // seeded random choice (move_select::Ties), not thinking.
+    let any_enemy_here = crate::forces::enemies_of(b, mover).into_iter().any(|e| b.units[e].hex.is_some());
+    let witness = if any_enemy_here { crate::playout::Witness::take(b) } else { None };
+    let out = choose_movement_inner(b, mover, other, moves_first, standup_mp, entry_edge);
+    if let Some(w) = witness {
+        w.check(b, &format!("Hydra's move choice for {}", b.units[mover].side_name.clone().unwrap_or_default()));
+    }
+    out
+}
+
+fn choose_movement_inner(b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, standup_mp: Option<i64>, entry_edge: Option<&[String]>) -> (Option<Pick>, String) {
     let enemies: Vec<UnitId> = crate::forces::enemies_of(b, mover).into_iter().filter(|e| b.units[*e].hex.is_some()).collect();
     if enemies.is_empty() {
         // nobody to weigh yet (the enemy has not entered): the engine's march toward its edge

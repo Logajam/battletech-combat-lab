@@ -792,6 +792,16 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
             best
         };
         let Some(mover) = act.next(b, &mut pick) else { break };
+        // THE MOVE QUEUE (session 25, Hydra's S5a): who moves after this unit, from a copy of the activation state and
+        // the same pick rule. Pure: the pick only reads positions, and the copy is thrown away.
+        b.move_queue = {
+            let mut ahead = act.clone();
+            let mut queue = Vec::new();
+            while let Some(u) = ahead.next(b, &mut pick) {
+                queue.push(u);
+            }
+            queue
+        };
         let foe = bots.choose_foe(b, mover).expect("a foe to plan against");
         let moves_first = !b.units[foe].moved_this_turn;
         let start_hex = b.units[mover].hex.clone();
@@ -802,6 +812,7 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
         marks(b, turn, &label);
     }
 
+    b.move_queue.clear();
     bots.end_movement(b);
     if (0..b.units.len()).any(|u| b.units[u].hex.is_none()) && forces::teams_standing(b).len() < 2 {
         play.result.turns_taken = turn;

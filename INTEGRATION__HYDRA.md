@@ -147,6 +147,25 @@ Mirror match-ups (same 'Mechs both sides, `tools/hydra_scenarios.py`), Hydra v G
 Speed: Hydra's battles take about half the time of Gladiator's at 4 v 4 and above.
 Not yet tried: Hydra v Princess (`python tools/hydra_scenarios.py --house princess`).
 
+**Hydra v Princess (session 25, 2026-11-12)**, same mirror set (`tools/hydra_scenarios.py --house princess`), 40 battles a
+seating (16 for 8 v 8 and 12 v 12). Hydra - Princess - none:
+
+| Match-up | Result |
+|---|---|
+| duel, Griffin | 71 - 7 - 2 |
+| duel, Hunchback, woods | 51 - 25 - 4 |
+| duel, Awesome, hills | 46 - 32 - 2 |
+| 2 v 2 | 52 - 28 - 0 |
+| 4 v 4 lance, open ground | 56 - 24 - 0 |
+| 4 v 4 lance, woods | 49 - 30 - 1 |
+| 4 v 4 heavies | 56 - 24 - 0 |
+| 8 v 8 | 15 - 13 - 4 |
+| 12 v 12 | 20 - 11 - 1 |
+
+All nine: 416 - 194. Ahead everywhere, the brawler duel included (Princess is weaker there than Gladiator). One caution: at
+8 v 8 and 12 v 12 Hydra wins more but its strength-left margin is slightly negative (-0.04, -0.03): it wins by finishing
+units, not by trading cheaply - few battles there, worth a longer look.
+
 What the weak spots have in common: few units, short range, and Hydra moving FIRST. Then everything
 rests on guessing the enemy's answer, and Hydra's guess (one rival, scored on Hydra's own terms) is
 poor: in the brawler duel it predicted "I deal 2.9, take 8.0" and still had to go. Stage S5a below is
@@ -272,6 +291,28 @@ a kill that changes everything) and for looking more than one turn ahead.
 - By-product: every play-out is a finished piece of battle with a known outcome - the data S6
   (self-calibration of the Forecast) needs.
 
+### S5a groundwork (session 25): BUILT; the play-out itself is not
+
+`engine/core/src/playout.rs`, tests `engine/core/tests/playout.rs`:
+- **MOVE QUEUE** - `Battle::move_queue` (read with `playout::move_queue`): the turn loop works out, before each unit
+  moves, who moves after it and in what order, from a copy of its activation state and the same pick rule (`forces::
+  move_index`). A forecast: later picks can change as units move. Its accuracy is not measured yet. Empty outside the
+  Movement Phase. Changes nothing: all 79 Rust reference battles and the 63 Python-matched fixtures are as before.
+- **POSE** - `playout::Pose` (hex, facing, move mode, hexes moved, MP spent, movement heat, moved flag) and `Poses`, a
+  stack: `pose` puts a unit there and remembers what was, `restore` undoes all, last first; `holds_hex` for the
+  "two units may not end in one hex" trap; dropping a stack with poses still in place panics. The board is not
+  touched, so no cache needs emptying (they are keyed by position).
+- **WITNESS** - `playout::Witness`: a record of every unit's state, the dice drawn, the log length and the stub
+  counts; `check` panics naming the first difference. On when `HYDRA_CHECK` is set; `tests/check_rust_reference.py`
+  always sets it, so every Hydra decision in the reference battles is checked. It now wraps Hydra's move choice
+  (`hydra::choose_movement`), except before any enemy is on the board, where Hydra hands the move to Gladiator's
+  march and that march's tie-break is a real, seeded random choice. First run: it found exactly that draw; Hydra's own
+  thinking is clean in all 7 Hydra reference battles.
+
+Next, to build S5a itself: the RESPONDER (each unit in the queue near the mover picks from its own short list
+against the poses so far), the POSITION JUDGE (Oracle both ways at the final poses, priced), and the budget N = 3
+responders, K = 8 candidate spots; replace the reply step with it; judge on both mirror tables.
+
 ## 7. Other later stages (not started)
 
 - **S2 Ghost that moves**: superseded by S5a.
@@ -295,5 +336,6 @@ a kill that changes everything) and for looking more than one turn ahead.
 | Mover (score, reply) | built; the reply is to be replaced by S5a |
 | Fire Plan | built |
 | Trial tools | `tools/hydra_scenarios.py`, `tools/hydra_trial.py` |
-| S5a movement play-out | planned (Section 6), not built |
+| S5a groundwork: move queue, pose, witness | built, session 25 (`playout.rs`) |
+| S5a movement play-out (responder, judge) | planned (Section 6), not built |
 | Everything in Section 7 | not started |

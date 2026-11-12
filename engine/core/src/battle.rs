@@ -118,6 +118,9 @@ pub struct Battle {
     pub princess: crate::princess_fire::PrincessState,
     /// hydra.rs: the third bot's memory for this battle
     pub hydra: crate::hydra::HydraState,
+    /// Movement Phase: the units still to move after the current mover, in the expected order (playout::move_queue;
+    /// session 25, Hydra's S5a). Read only by bots; empty outside the Movement Phase.
+    pub move_queue: Vec<UnitId>,
     /// INTEGRATION__los_cache: lines of sight the bots asked about, (from, to, heights) -> answer (None = the line runs
     /// off the board). Speed only: emptied whenever the board changes (`board_changed`).
     /// finished movement tables (`movement_table`); speed only, emptied when the board changes
@@ -185,6 +188,7 @@ impl Battle {
             fire_ctl: None,
             princess: Default::default(),
             hydra: Default::default(),
+            move_queue: Vec::new(),
             los_memo: Default::default(),
             table_memo: Default::default(),
         }
