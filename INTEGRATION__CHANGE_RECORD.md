@@ -6,6 +6,13 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-12 (Claude, session 25), HYDRA WAITING AND ATTENTION SHARE, BUILT AS SWITCHES, MEASURED, BOTH OFF BY DEFAULT. REVIEW PENDING (higher-level model).**
+  Daniel: "Go ahead and process the last 2 items on the list." WAITING (`HYDRA_WAITING`; `coming_friends`, `MAX_WAITS` 2, `BEHIND` 3,
+  `HydraState::waited`): a unit out ahead of its line may take a spot that deals nothing when the best trade is worse than the team's typical turn,
+  at most two turns in a row. ATTENTION (`HYDRA_ATTENTION = "oracle"`; `elsewhere_of`, `attention_damage`): the Oracle's expected damage replaces
+  guns x `range_factor` in "what else could this enemy shoot at", in the Mover and the S5a judge. Same seeds: Waiting v Gladiator 335 - 195, v
+  Princess 426 - 179 (first version 333 - 203, 434 - 174); Attention 329 - 213 and 441 - 165 - level, but the 8 v 8 + 12 v 12 went 71 - 41 -> 80 -
+  31 and the 4 v 4s v Gladiator got worse. Both off; a confirming big-battle run is the next step for Attention. Four reference battles added (90).
 - **2026-11-12 (Claude, session 25), HYDRA S3: MOVE ORDER, BUILT AS A SWITCH, MEASURED, OFF BY DEFAULT. REVIEW PENDING (higher-level model).**
   Daniel: "Lets move onto move order then. We'll just keep moving down Fable's wish list until done." NEW socket question `BotSet::move_pick`
   (default None = the engine's move index; `orchestrator` asks it inside the Movement Phase pick, so the S5a move queue uses it too) and
