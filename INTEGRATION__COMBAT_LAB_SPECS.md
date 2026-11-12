@@ -38,9 +38,23 @@ SNAPSHOT and TURN CURSOR): build it once, for both.
 | CL6 | A battle restarted from a saved state | Opus or higher | large |
 | CL7 | Analysis overlays | Opus (design per overlay), Sonnet (drawing) | medium each |
 | CL8 | Branching | Opus | medium, after CL6 |
+| CL10 | Connect to MegaMek: play Combat Lab's bots in a MegaMek game (the bridge's B7) | Opus | large, after CL4 |
 | CL9 | Art: the weapon-block stockpile | whoever Daniel reviews art with | open-ended |
 
 ---
+
+**Since the sheets were written (session 25):** CL1 is done (`btsim --setup`). The MegaMek bridge built pieces CL6 needs:
+`engine/core/src/bridge.rs` keeps a battle alive from snapshots and asks the bots for any decision at any moment (a
+`Session`), with the COMPACT unit state (`UNIT_FIELDS` / `ITEM_FIELDS`, proven complete) - what a saved state of a unit
+must hold. Daniel, 2026-11-12: the bridge is shelved; next is "something I can interact with as a normal person who
+does not code" - CL2 to CL5.
+
+## CL10. Connect to MegaMek (Daniel, 2026-11-12; after CL4)
+
+Combat Lab's bots in a MegaMek game Daniel hosts, his forces set up in MegaMek, Combat Lab's in Combat Lab. A page that
+looks like MegaMek's own connect / lobby section - Daniel: possibly drawn as that part of MegaMek's start screen "being
+bolted and taped on" - with host and port (internet connections as MegaMek allows). The engine side is the shelved
+MegaMek bridge, B7a-B7d in `INTEGRATION__MEGAMEK_BRIDGE.md` Section 8b (Daniel's corrections and wishes there).
 
 ## CL1. A battle set up from unit and board files, in Rust
 
