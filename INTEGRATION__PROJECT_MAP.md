@@ -147,6 +147,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(z) HYDRA S4, CHARGES AND DFA** (session 25): `hydra::movement_attack` / `weigh_lines_only` (switch `HYDRA_MOVEMENT_ATTACKS`), 2 reference battles.
 - **(y) S5a PLAY-OUT AND THE ROUND ROBIN** (session 25): `hydra::playout` / `weigh_lines` (switch `HYDRA_PLAYOUT`), `btsim --set`,
   `tools/round_robin.py`, 3 S5a reference battles; results `INTEGRATION__HYDRA.md` Sections 5-6.
 - **(x) HYDRA S5a GROUNDWORK** (session 25): `engine/core/src/playout.rs` (move queue, pose, witness), the queue in

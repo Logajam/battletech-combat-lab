@@ -419,6 +419,18 @@ fn choose_movement_inner(b: &mut Battle, mover: UnitId, other: UnitId, moves_fir
         }
         reply_note = format!("; {} spots re-scored against {}'s best answer", short.len(), b.units[rival].side_name.clone().unwrap_or_default());
     }
+    // S4, MOVEMENT ATTACKS (switch HYDRA_MOVEMENT_ATTACKS, session 25): a charge or a death from above on an enemy that
+    // has already moved (or cannot move; Core pp.78-79), priced like any other spot: its exchange with that enemy is the
+    // attack's expected damage both ways (self-damage and a missed DFA's fall included, movement_attacks::values) plus
+    // the ranged fire from the attack hex; every other weighed enemy's line is the Oracle's at the attack hex.
+    if entry_edge.is_none() && b.cfg.has("HYDRA_MOVEMENT_ATTACKS") && b.cfg.b("HYDRA_MOVEMENT_ATTACKS") {
+        let normal = best.map(|(s, _, _)| s);
+        if let Some((sc, pick, note)) = movement_attack(b, mover, &mut me, standup_mp, &tables, my_price, &my_exp, d0, r0) {
+            if normal.map_or(true, |ns| sc > ns) {
+                return (Some(pick), format!("Hydra: {} - rate {:.3} beats {}", note, sc, normal.map_or("nothing".to_string(), |ns| format!("{:.3}", ns))));
+            }
+        }
+    }
     if let Some((score, i, instead)) = best {
         let o = &prepared[i];
         let (g, on, c) = match &best_lines {
@@ -455,6 +467,92 @@ fn choose_movement_inner(b: &mut Battle, mover: UnitId, other: UnitId, moves_fir
     }
     let o = &prepared[pick.unwrap().1];
     (Some(o.pick()), format!("Hydra: no spot deals damage - nearest safe spot to {}", goal_name))
+}
+
+// =============================================================================================================
+// S4: MOVEMENT ATTACKS (charge, death from above)
+// =============================================================================================================
+/// The best charge or death from above of this move, in Hydra's currency: (rate, the pick, a note). None when no
+/// weighed enemy can be attacked or no attack deals anything. The rate is the Mover's own score,
+/// (d0 + gain) / (r0 + cost + risk), with the target's line replaced by the attack's exchange.
+#[allow(clippy::too_many_arguments)]
+fn movement_attack(b: &mut Battle, mover: UnitId, me: &mut Side, standup_mp: Option<i64>, tables: &[(UnitId, f64, f64, Vec<(f64, f64)>)], my_price: f64, my_exp: &[f64; 4], d0: f64, r0: f64) -> Option<(f64, Pick, String)> {
+    if !(b.cfg.b("CHARGES") || b.cfg.b("DFA")) {
+        return None;
+    }
+    let targets: Vec<UnitId> = tables.iter().map(|t| t.0).filter(|e| {
+        let moved = b.units[*e].moved_this_turn;
+        crate::move_attacks::can_be_attacked(b, *e, moved)
+    }).collect();
+    if targets.is_empty() {
+        return None;
+    }
+    let mut index = crate::move_attacks::MoverIndex::new(b, mover, standup_mp, &mut me.notes);
+    let mut best: Option<(f64, Pick, String)> = None;
+    for &t in &targets {
+        let pose = crate::move_attacks::pose_of(b, t);
+        let t_exp = soft(Side::new(b, t, true).exposure);
+        let target_args = (b.units[t].hex.clone().unwrap(), b.units[t].facing.clone(), b.units[t].move_fc, b.units[t].move_mode.clone(), b.units[t].mp_spent);
+        let mut ev = MoveEvaluator::new(b, mover, t);
+        // no gate: every attack state is priced in full (the gate is Gladiator's "beats its best ordinary shot")
+        let options = crate::move_attacks::scored_options(b, mover, t, &pose, &index, &mut ev, my_exp, &t_exp, &|_: &Battle, _: &str, _: i64, _: &str, _: &str, _: i64| 0.0, crate::move_attacks::BestMode::Lazy(&[], t_exp), &target_args, &|_: f64, _: f64, _: f64, _: f64, _: f64| 0.0, &["charge", "dfa"]);
+        for (_, cand, state, what) in options {
+            // the attack hex must be free: the list of charge / DFA stops does not look at other units (in a duel there
+            // are none), and a 'Mech may not end its move where another stands
+            if (0..b.units.len()).any(|u| u != mover && b.units[u].hex.as_deref() == Some(state.hex.as_str())) {
+                continue;
+            }
+            // the attack's line with its target, damage multiplied by where it lands (as `exchange` does)
+            let dealt = cand.dealt * t_exp[side_ix(cand.side_on_defender)];
+            let received = cand.received * my_exp[side_ix(cand.side_on_mover)];
+            let mut lines: HashMap<UnitId, (f64, f64)> = HashMap::default();
+            lines.insert(t, (dealt, received));
+            // every other weighed enemy, seen from the attack hex
+            let (x, y) = hex_geometry::parse_hex_label(&state.hex).unwrap();
+            let key: crate::move_options::StateKey = (x, y, hex_geometry::compass_to_facing(&state.facing).unwrap(), state.fc, crate::move_options::mode_str(&state.mode), state.mp_spent);
+            let one = move_options::prepare_options(b, mover, &[key]);
+            if one.is_empty() {
+                continue;
+            }
+            let mut idx: HashMap<(String, &'static str, &'static str, i64), usize> = HashMap::default();
+            idx.insert((one[0].label.clone(), one[0].facing_compass, one[0].mode, one[0].fc), 0);
+            for (e, _, _, _) in tables {
+                if *e == t {
+                    continue;
+                }
+                let e_exp = soft(Side::new(b, *e, true).exposure);
+                let line = exchange(b, mover, *e, &one, &idx, my_exp, &e_exp);
+                lines.insert(*e, line[0]);
+            }
+            let (g, _, c) = weigh_lines_only(tables, &lines, my_price);
+            let risk = my_price * me.psr_for_pick(b, &state);
+            let sc = (d0 + g) / (r0 + c + risk).max(1e-9);
+            if best.as_ref().map_or(true, |(bs, _, _)| sc > *bs) {
+                let name = b.units[t].side_name.clone().unwrap_or_default();
+                best = Some((sc, state.clone(), format!("{} on {} (gain {:.2}, cost {:.2}, risk {:.2})", what, name, g, c, risk)));
+            }
+        }
+    }
+    index.release();
+    best
+}
+
+/// (gain, cost) of a spot from a full set of lines (one per weighed enemy), the tables' own "elsewhere" kept.
+fn weigh_lines_only(tables: &[(UnitId, f64, f64, Vec<(f64, f64)>)], lines: &HashMap<UnitId, (f64, f64)>, my_price: f64) -> (f64, Option<UnitId>, f64) {
+    let (mut gain, mut on, mut cost) = (0.0f64, None, 0.0f64);
+    for (e, p_e, els, _) in tables {
+        let (dealt, received) = lines.get(e).copied().unwrap_or((0.0, 0.0));
+        let g = p_e * dealt;
+        if g > gain {
+            gain = g;
+            on = Some(*e);
+        }
+        let hurt = my_price * received;
+        if hurt > 0.0 {
+            cost += hurt * hurt / (hurt + els);
+        }
+    }
+    (gain, on, cost)
 }
 
 // =============================================================================================================

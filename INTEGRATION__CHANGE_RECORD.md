@@ -6,6 +6,13 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-12 (Claude, session 25), HYDRA S4: CHARGES AND DEATH FROM ABOVE, BUILT AS A SWITCH, MEASURED LEVEL, OFF BY DEFAULT. REVIEW PENDING (higher-level model).**
+  Daniel: "keep working on its list of improvements. Stop after each feature is added in." `hydra::movement_attack`: every charge / DFA stop on a
+  weighed enemy that has moved or cannot (Core pp.78-79) priced in Hydra's currency (the attack's expected damage both ways from `move_attacks::values`
+  plus the ranged exchange from the attack hex; the other enemies' lines from the Oracle there; PSR risk), taken when it beats the best ordinary spot.
+  Switch `HYDRA_MOVEMENT_ATTACKS` (default false). Stops on an occupied hex are skipped (the first trial crashed on one). v Gladiator 291 - 244 (without
+  285 - 245); v Princess 407 - 202 (without 416 - 194; worse at 8 v 8 / 12 v 12); the duels unchanged (no attack chosen). Two reference battles added
+  (84). Likely flaw, written in `INTEGRATION__HYDRA.md` Section 7: the attack is scored against the enemies as they stand, not through the reply.
 - **2026-11-12 (Claude, session 25), ROUND ROBIN OF THE THREE BOTS; S5a PLAY-OUT BUILT AS A SWITCH (MEASURED LEVEL, DEFAULT UNCHANGED); BOT TIMINGS. REVIEW PENDING (higher-level model).**
   Daniel: "First Lets get round robin stats for that set of matchups ... bot vs it self is also a category", "Then build S5a and run it against each
   opponent", "what the time spent per bot per game is". (1) NEW `tools/round_robin.py` (every bot v every bot and itself, units' bots rewritten in a copy

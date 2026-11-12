@@ -52,6 +52,8 @@ VARIANTS = {
     "hydra_s5a_red__hy_4v4_lance_woods": ("hy_4v4_lance_woods", "Red", ["HYDRA_PLAYOUT=s5a"]),
     "hydra_s5a_blue__hy_2v2_grass": ("hy_2v2_grass", "Blue", ["HYDRA_PLAYOUT=s5a"]),
     "hydra_s5a_red__hy_8v8_valley": ("hy_8v8_valley", "Red", ["HYDRA_PLAYOUT=s5a"]),
+    "hydra_s4_red__hy_duel_griffin": ("hy_duel_griffin", "Red", ["HYDRA_MOVEMENT_ATTACKS=true"]),
+    "hydra_s4_blue__hy_4v4_lance_grass": ("hy_4v4_lance_grass", "Blue", ["HYDRA_MOVEMENT_ATTACKS=true"]),
 }
 
 
