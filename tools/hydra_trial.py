@@ -1,7 +1,7 @@
 """Hydra v the house bot, same seeds, sides swapped (INTEGRATION__HYDRA.md, Section 4).
 
     python tools/hydra_trial.py SCENARIO_DIR [SCENARIO_DIR ...] [--battles 20] [--seed 1] [--threads N] [--btsim PATH] [--set KEY=VALUE ...]
-                                [--no-baseline]
+                                [--no-baseline] [--max-turns N]
 
 --no-baseline (session 25): skip the nobody-is-Hydra batch. On the same seeds it never changes, so a series of Hydra
 settings needs it once; without it the win-share and margin lines are not printed, only the head to head.
@@ -35,6 +35,8 @@ def run(folder, battles, seed, threads, hydra):
     for i, a in enumerate(argv):
         if a == "--set":
             cmd += ["--set", argv[i + 1]]
+    if "--max-turns" in argv:  # the turn cap for this trial (session 25)
+        cmd += ["--max-turns", option(argv, "--max-turns", "50")]
     out = json.loads(subprocess.run(cmd, capture_output=True, text=True, check=True).stdout)
     return out
 

@@ -30,7 +30,7 @@ fn battle_json(sim: u64, seed: u64, r: &BattleResult) -> Value {
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let Some(dir) = args.first().filter(|a| !a.starts_with("--")) else {
-        eprintln!("usage: btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--set KEY=VALUE ...] [--ledger FILE]");
+        eprintln!("usage: btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--set KEY=VALUE ...] [--ledger FILE] [--max-turns N]");
         std::process::exit(2);
     };
     let battles: u64 = arg(&args, "--battles").map_or(1, |v| v.parse().expect("--battles"));
@@ -49,6 +49,11 @@ fn main() {
             let value: Value = serde_json::from_str(v).unwrap_or_else(|_| Value::String(v.to_string()));
             scenario.config.as_object_mut().unwrap().insert(k.to_string(), value);
         }
+    }
+    // --max-turns N (session 25): the turn cap for this run, in place of the scenario's (meta max_turns, default 50). A
+    // battle is the same as under the old cap up to it (same seed, same dice), so a raised cap only plays draws on.
+    if let Some(n) = arg(&args, "--max-turns") {
+        scenario.max_turns = n.parse().expect("--max-turns");
     }
     // --hydra TEAM[,TEAM]: those teams are driven by Hydra (INTEGRATION__HYDRA.md)
     if let Some(t) = arg(&args, "--hydra") {
