@@ -20,6 +20,17 @@ pub use ma::can_be_attacked;
 const PRONE_HEIGHT: i64 = 1;
 const STANDING_HEIGHT: i64 = 2;
 
+/// Hexes other units stand in (the unit's `other_unit_hexes`, set by the turn loop; empty when not set): a charge or
+/// DFA may not stop in one - "no 'Mech can deliberately violate" the stacking limit (Core p.49). Session 25: the stop
+/// lists did not check, and a charge could end on a friend's hex (found by Hydra's trials). Same in the Python.
+fn held_hexes(b: &Battle, mover: UnitId) -> Vec<String> {
+    match &b.units[mover].other_unit_hexes {
+        Some(serde_json::Value::Array(a)) => a.iter().filter_map(|v| v.as_str().map(|s| s.to_string())).filter(|s| !s.is_empty()).collect(),
+        Some(serde_json::Value::String(s)) if !s.is_empty() => vec![s.clone()],
+        _ => Vec::new(),
+    }
+}
+
 /// Where a (possibly hypothetical) target stands for these attacks.
 #[derive(Clone, Debug)]
 pub struct Pose {
@@ -98,10 +109,14 @@ impl MoverIndex {
         let hexes = &b.board.hexes;
         let t_info = &hexes[&pose.label];
         let mut best: IndexMap<(String, i64, &'static str), (i64, i64)> = IndexMap::default();
+        let held = held_hexes(b, self.mover);
         for d in 0..6 {
             let Some(n) = ma::neighbour(&pose.label, d) else { continue };
             if !hexes.contains_key(&n) {
                 continue;
+            }
+            if held.contains(&n) {
+                continue; // another unit stands there: no 'Mech may end its move in it (stacking, p.49)
             }
             let (nx, ny) = hex_geometry::parse_hex_label(&n).unwrap();
             let facing = (d + 3) % 6;
@@ -153,6 +168,9 @@ impl MoverIndex {
             line[line.len() - 2][0]
         };
         let label = hex_geometry::hex_label(stop.0, stop.1).unwrap();
+        if held_hexes(b, self.mover).contains(&label) {
+            return vec![]; // the jump would end on another unit's hex (stacking, p.49)
+        }
         let facing = crate::combat::direction_facing(stop, pose.xy).unwrap();
         vec![Pick { hex: label, facing: hex_geometry::facing_to_compass(facing).unwrap().to_string(), mode: "Jump".to_string(), fc: dist, mp_spent: dist, charge: false, dfa: true }]
     }

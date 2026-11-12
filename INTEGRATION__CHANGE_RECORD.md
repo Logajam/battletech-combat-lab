@@ -6,6 +6,14 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-12 (Claude, session 25), RULE FIX: A CHARGE OR DFA MAY NOT STOP ON ANOTHER UNIT'S HEX (Core p.49), BOTH ENGINES. REVIEW PENDING (higher-level model).**
+  Found by Hydra's S4 trial (a crash) and confirmed for Gladiator at Daniel's request ("check if gladiator has the same bug"; "just say 'No, that's not a
+  legal move'"). The stop lists for charges (`MoverIndex.charge_states`) and death from above (`dfa_states`) did not look at other units, so a charge
+  could end next to its target on a FRIEND's hex - against "no 'Mech can deliberately violate" the stacking limit (p.49). Gladiator listed such a stop
+  52 times in 200 team battles (37 times as its best charge) and took one in 3 of them (`hy_4v4_lance_grass` 2, `hy_8v8_valley` 1, seed 7); Hydra's
+  next unit then crashed planning from the shared hex. FIX in `INTEGRATION__movement_attacks.py` (`_held_hexes`) and `engine/core/src/move_attacks.rs`
+  (`held_hexes`), from the unit's `other_unit_hexes`: those stops are not offered. Hydra's own guard removed (the list now refuses them). Checks: Python
+  57 of 57, no reference log changed; the 63 fixtures re-recorded from the fixed Python and the Rust matches all (`BOTS=rust`); Rust reference 84 of 84.
 - **2026-11-12 (Claude, session 25), HYDRA S4: CHARGES AND DEATH FROM ABOVE, BUILT AS A SWITCH, MEASURED LEVEL, OFF BY DEFAULT. REVIEW PENDING (higher-level model).**
   Daniel: "keep working on its list of improvements. Stop after each feature is added in." `hydra::movement_attack`: every charge / DFA stop on a
   weighed enemy that has moved or cannot (Core pp.78-79) priced in Hydra's currency (the attack's expected damage both ways from `move_attacks::values`
