@@ -108,6 +108,14 @@ boldness when winning and care when losing, and ignoring an enemy that will not 
 
 ## 3. How it plugs into the engine
 
+**What Hydra borrows from Gladiator (Daniel, 2026-11-12: "Did Fable copy my homework?" - yes, the measuring tools):** a unit's
+LIFE is Daniel's rule (armor + MOVEMENT_STRUCTURE_WEIGHT x structure, `orchestrator::effective_hp`; Hydra's own weight
+setting exists since S6's second pass, kept at 2); its GUNS are Gladiator's damage a turn (`move_select::future_damage`);
+the EXCHANGE ORACLE is Gladiator's move evaluator (`MoveEvaluator`) with its exposure weighting and fall-risk costs; the
+reply's options and the charge / DFA stops are Gladiator's lists. And life x guns as a unit's worth is close to Daniel's
+"lifetime" (turns survived x damage a turn). Hydra's own: one planner a team, damage priced by the Forecast's ending, the
+rate score, the team fire plan, the play-out.
+
 - A unit's bot name is `"hydra"`. The engine asks its bots through one socket, `BotSet`
   (`engine/core/src/orchestrator.rs`); `engine/core/src/gladiator_bots.rs` routes each question by the
   unit's bot name, and sends a Hydra unit's to `engine/core/src/hydra.rs`.
@@ -437,6 +445,23 @@ What the data says (8,334 snapshots, every 3rd turn):
   Hydra over-commits to a single kill; spread fire prices the whole enemy line more evenly and Hydra trades better.
 - Left for a second pass: the duel's under-prediction (x 1.15), a size-dependent shape, the inputs themselves (`guns` =
   `future_damage`, `life` = armor + weighted structure), and re-fitting on battles played by the calibrated Hydra.
+
+### S6 second pass (session 25, 2026-11-12): no change to the defaults
+
+Re-collected 1,092 battles with the CALIBRATED Hydra (seed 12; the ledger now also records each unit's raw armor and
+structure) and fitted with `tools/hydra_calibrate.py fit2`, scored by log-loss on who really won (a measure that does not
+depend on the structure weight being fitted; the margin measure does).
+- SPREAD FIRE CONFIRMED on the fresh data, most in big battles (9+ alive: MSE 0.038 spread v 0.044 focused).
+- FIRE SPREAD BY SIZE (a separate FOCUS for 8 units or fewer and for more): no gain over FOCUS 0 everywhere.
+- STRUCTURE WEIGHT in life (`HYDRA_LIFE_STRUCTURE_WEIGHT`, new, Hydra only; without it Gladiator's
+  `MOVEMENT_STRUCTURE_WEIGHT` 2 as before): 1 predicts a little better than 2 in both size groups (log-loss 0.4778 v 0.4802
+  overall). In battle (seed 1, all nine match-ups): v Gladiator 333 - 203 (weight 2) v 330 - 216 (weight 1), v Princess
+  434 - 174 v 442 - 165: flat. Default stays 2 (Daniel's weight); the setting stays for later.
+- THE DUEL GAP needs no fix: in a duel Hydra compares two prices scaled to a mean of 1, so scaling the forecast up or
+  down cannot change a choice.
+- So the Forecast's FORM is now as good as this family of models gets: what is left is noise from the dice and from
+  what the ledger cannot see (position, heat, ammo). A better Forecast would need new inputs (e.g. guns by range, or
+  ammo left), not new constants.
 - **Waiting**: let a unit decline battle for a turn or two when every trade is bad and friends are
   coming (today it never refuses).
 - **Attention share**: the Mover's guess at how an enemy splits its fire uses a rough range rule;
@@ -454,5 +479,5 @@ What the data says (8,334 snapshots, every 3rd turn):
 | S5a groundwork: move queue, pose, witness | built, session 25 (`playout.rs`) |
 | S5a movement play-out (responder, judge) | built, switch `HYDRA_PLAYOUT` (default "reply": S5a measured level) |
 | S4 charges / DFA | built, switch `HYDRA_MOVEMENT_ATTACKS` (default off: measured level) |
-| S6 calibration | first pass done: `btsim --ledger`, `tools/hydra_calibrate.py`; Forecast FOCUS 0 by default |
+| S6 calibration | done, two passes: `btsim --ledger`, `tools/hydra_calibrate.py` (fit, fit2); FOCUS 0 by default; structure weight tested, kept at 2 |
 | The rest of Section 7 | not started |

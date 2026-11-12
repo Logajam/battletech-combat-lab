@@ -2,6 +2,7 @@
 
     python tools/hydra_calibrate.py collect OUT.jsonl [--battles 20] [--big-battles 8] [--seed 11] [--threads N] [--btsim PATH]
     python tools/hydra_calibrate.py fit OUT.jsonl [--every 2]
+    python tools/hydra_calibrate.py fit2 OUT.jsonl [--every 3]     (second pass; needs armor / structure in the ledger)
 
 COLLECT plays the nine mirror match-ups (engine/fixtures/hy_*, from tools/hydra_scenarios.py) with these pairings, each
 seat both ways where the bots differ: Hydra v Gladiator, Hydra v Princess, Hydra v Hydra, Gladiator v Gladiator,
@@ -162,5 +163,86 @@ def fit(argv):
         print(f"  focus {focus:.2f} fade {fade:.1f} step {step:.2f}: MSE {mse:.4f} corr {corr:.3f} sign {sign:.1%}")
 
 
+# ---------------------------------------------------------------------------------------------------------------------
+# SECOND PASS (session 25): fire spread by battle size, and the structure weight in a unit's life
+# ---------------------------------------------------------------------------------------------------------------------
+def samples2(path, every):
+    """Like samples(), but each unit keeps (armor, structure, guns) so its life can be rebuilt with any structure weight.
+    Rows: (red [(armor, structure, guns)], blue [...], final {unit: (armor, structure)}, unit ids, winner sign, tag)."""
+    out = []
+    for line in open(path):
+        rec = json.loads(line)
+        snaps = rec["snapshots"]
+        final = {row[0]: (row[4], row[5]) for row in snaps[-1]["units"]}
+        best = {}
+        for k, snap in enumerate(snaps[:-1]):
+            red, blue = [], []
+            for u, team, life, guns, armor, structure in snap["units"]:
+                best[u] = max(best.get(u, 0.0), guns)
+                if life <= 0:
+                    continue
+                g = max(guns, DORMANT_GUNS * best[u], MIN_GUNS)
+                (red if team == "Red" else blue).append((u, armor, structure, g))
+            if k % every or not red or not blue:
+                continue
+            sign = {"Red": 1, "Blue": -1}.get(rec["winner"], 0)
+            out.append((red, blue, final, sign, f"{rec['scenario']}:{rec['red']}-{rec['blue']}"))
+    return out
+
+
+def predict2(row, k, focus_small, focus_big, step=0.5):
+    red, blue, _, _, _ = row
+    a = [(max(ar + k * st, 1.0), g) for _, ar, st, g in red]
+    b = [(max(ar + k * st, 1.0), g) for _, ar, st, g in blue]
+    focus = focus_small if len(a) + len(b) <= 8 else focus_big
+    return forecast(a, b, focus=focus, step=step)
+
+
+def real2(row, k):
+    """The real margin with life = armor + k x structure (the snapshot's guns held fixed)."""
+    red, blue, final, _, _ = row
+    life = lambda ar, st: ar + k * st
+    start = sum(life(ar, st) * g for _, ar, st, g in red + blue)
+    end = lambda side: sum(life(*final[u]) * g for u, _, _, g in side)
+    return (end(red) - end(blue)) / start
+
+
+def log_loss(pred, signs):
+    """Decided battles only: P(Red wins) = 1 / (1 + exp(-c x margin)), c fitted; the mean log-loss at the best c (lower is
+    better; 0.693 = a coin)."""
+    pairs = [(p, s) for p, s in zip(pred, signs) if s != 0]
+    best = None
+    for c in [0.5, 1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30]:
+        ll = 0.0
+        for p, s in pairs:
+            z = c * p * s
+            ll += math.log1p(math.exp(-z)) if z > -30 else -z
+        ll /= len(pairs)
+        if best is None or ll < best[0]:
+            best = (ll, c)
+    return best
+
+
+def fit2(argv):
+    data = samples2(argv[0], int(option(argv, "--every", "3")))
+    signs = [r[3] for r in data]
+    print(f"{len(data)} snapshots; small = 8 units alive or fewer")
+    print(f"{'k':>4} {'focus<=8':>9} {'focus>8':>8} | {'log-loss':>8} {'c':>4} {'sign ok':>8} | MSE (real with the same k)")
+    rows = []
+    for k, fs, fb in itertools.product([1.0, 1.5, 2.0, 3.0, 4.0], [1.0, 0.5, 0.0], [1.0, 0.5, 0.0]):
+        pred = [predict2(r, k, fs, fb) for r in data]
+        ll, c = log_loss(pred, signs)
+        dec = [(p, s) for p, s in zip(pred, signs) if s]
+        ok = sum(1 for p, s in dec if p * s > 0) / len(dec)
+        mse = sum((p - real2(r, k)) ** 2 for p, r in zip(pred, data)) / len(data)
+        rows.append((ll, k, fs, fb, c, ok, mse))
+        mark = "  <- today" if (k, fs, fb) == (2.0, 0.0, 0.0) else ("  <- first version" if (k, fs, fb) == (2.0, 1.0, 1.0) else "")
+        print(f"{k:4.1f} {fs:9.2f} {fb:8.2f} | {ll:8.4f} {c:4.0f} {ok:8.1%} | {mse:.4f}{mark}", flush=True)
+    rows.sort()
+    print("\nBEST by log-loss:")
+    for ll, k, fs, fb, c, ok, mse in rows[:6]:
+        print(f"  k {k:.1f} focus<=8 {fs:.2f} focus>8 {fb:.2f}: log-loss {ll:.4f} sign {ok:.1%} MSE {mse:.4f}")
+
+
 if __name__ == "__main__":
-    {"collect": collect, "fit": fit}[sys.argv[1]](sys.argv[2:])
+    {"collect": collect, "fit": fit, "fit2": fit2}[sys.argv[1]](sys.argv[2:])

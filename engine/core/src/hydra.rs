@@ -47,6 +47,23 @@ const DORMANT_GUNS: f64 = 0.5;
 /// No unit is worth less than this in guns (a disarmed 'Mech still kicks).
 const MIN_GUNS: f64 = 1.0;
 
+/// A unit's life in the ledger: armor + k x internal structure of the locations still standing. k is Hydra's own setting
+/// HYDRA_LIFE_STRUCTURE_WEIGHT (S6 second pass, session 25); without it, Gladiator's MOVEMENT_STRUCTURE_WEIGHT through
+/// `orchestrator::effective_hp` (the first version's life, shared with Gladiator).
+fn life_of(b: &Battle, u: UnitId) -> f64 {
+    if !b.cfg.has("HYDRA_LIFE_STRUCTURE_WEIGHT") {
+        return crate::orchestrator::effective_hp(b, u);
+    }
+    let k = b.cfg.f("HYDRA_LIFE_STRUCTURE_WEIGHT");
+    let mut sum = 0.0;
+    for v in b.units[u].locations.values() {
+        if !v.destroyed {
+            sum += v.armor.f() + v.rear_armor.map_or(0.0, |r| r.f()) + k * v.structure.f();
+        }
+    }
+    sum
+}
+
 /// (my team's entries, the enemy's entries): every unit still fighting, on or off the board.
 pub fn ledger(b: &mut Battle, me: UnitId) -> (Vec<Entry>, Vec<Entry>) {
     let team = b.units[me].team.clone();
@@ -64,7 +81,7 @@ pub fn ledger(b: &mut Battle, me: UnitId) -> (Vec<Entry>, Vec<Entry>) {
             *best = guns;
         }
         guns = guns.max(DORMANT_GUNS * *best).max(MIN_GUNS);
-        let e = Entry { unit: u, life: crate::orchestrator::effective_hp(b, u).max(1.0), guns };
+        let e = Entry { unit: u, life: life_of(b, u).max(1.0), guns };
         if b.units[u].team == team { mine.push(e) } else { theirs.push(e) }
     }
     (mine, theirs)
