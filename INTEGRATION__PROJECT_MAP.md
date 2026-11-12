@@ -110,6 +110,9 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
 
 **B. Princess clone** [00] - still to clone when the project has the rules: forced withdrawal, artillery / TAG
 standoff, sprinting, multi-target fire, unit orders. Open call (Daniel): Short-Short as the default search.
+MegaMek's CASPAR (read 2026-11-12, MegaMek main `c743b3f`): a separate bot, `class Caspar extends Princess`, with Mutual Support
+movement and deployment and aerospace changes; not cloned (Daniel may ask about it on MegaMek's Discord). Our bots can meet the
+real Princess and CASPAR through the bridge (E4).
 
 **C. Rules and units**
 - C1. Crippled / forced withdrawal [5] - not started; an option plus a picker override.
@@ -143,6 +146,9 @@ standoff, sprinting, multi-target fire, unit orders. Open call (Daniel): Short-S
   BUILD ORDER as spec sheets CL1-CL9 (session 24, on the Rust engine): `INTEGRATION__COMBAT_LAB_SPECS.md`.
 - E3a. Art direction (session 24): why the models read as stacked blocks, and jobs A1-A8 in order -
   `INTEGRATION__COMBAT_LAB_ART_SPECS.md` (nothing built).
+- E4. MegaMek bridge (Daniel, 2026-11-12): our bots play in a live MegaMek game - Daniel against Hydra in MegaMek's
+  screen, Hydra against the real Princess and CASPAR, an outside check on our rules. Spec DONE, nothing built:
+  `INTEGRATION__MEGAMEK_BRIDGE.md` (task T14, stages B0-B7).
 - E3. 3D art [15] (paused): next the weapon-block stockpile, then bird-body torso / head blocks, the 47 chart
   chassis, directional hardpoints.
 
@@ -157,6 +163,7 @@ remove the line and note it in the Change Record.
 - **(ac) HYDRA S3 MOVE ORDER** (session 25): `hydra::move_pick` / `picks_move_order` (`HYDRA_MOVE_ORDER = "stake"`, off), the new `BotSet::move_pick` socket used by the turn loop's pick (and so by the move queue), `ledger_as` (read-only ledger). Two reference battles (86).
 - **(ad) HYDRA WAITING + ATTENTION SHARE** (session 25): `HYDRA_WAITING` (`coming_friends`, `HydraState::waited`) and `HYDRA_ATTENTION = "oracle"` (`elsewhere_of`, `attention_damage`), both off. Four reference battles (90).
 - **(ag) WALKING FALL INTO AN OCCUPIED HEX + STREAMED TRIALS** (session 25): `domino.fell_into_occupied` (both engines, MegaMek's rule), `btsim --stream` (per-battle lines, crash catching, resume), progress files in `trial_records/progress/`.
+- **(ah) MEGAMEK BRIDGE SPEC** (session 25): `INTEGRATION__MEGAMEK_BRIDGE.md` - check its read of MegaMek's source and the design before Sonnet builds it (T14).
 - **(af) HYDRA ALL-ON + TURN CAP 100** (session 25): the five switches' default flipped in `hydra.rs` (OFF values listed there), `scenario::STANDARD_MAX_TURNS`, reference variants reworked (86).
 - **(ae) TRIAL RECORDS** (session 25): `tools/trial_records.py` (every hydra_trial / round_robin battle kept in `trial_records/`, always on), `btsim --sims` / `--max-turns`, `tools/replay_undecided.py`. TABLED (Daniel, 2026-11-12, "We'll table that level of statistics for later"): each unit's fate per battle (turn destroyed, by which attack and attacker) in the records.
 - **(aa) HYDRA S6, FORECAST CALIBRATION** (session 25): `hydra::Shape` / `forecast_with` / `prices_with`, `scenario::run_recorded`,
