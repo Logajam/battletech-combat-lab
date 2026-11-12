@@ -60,7 +60,7 @@ def main():
                  for path in tests]
         # The Rust engine's own reference battles (session 25; tests/check_rust_reference.py), when cargo is here.
         if shutil.which("cargo"):
-            jobs.append(("rust       check_rust_reference.py (79 battles)",
+            jobs.append(("rust       check_rust_reference.py (82 battles)",
                          pool.submit(run_test_file, os.path.join(REPO_ROOT, "tests", "check_rust_reference.py"))))
         else:
             print("NOTE: no cargo on this machine - the Rust reference battles were not run")

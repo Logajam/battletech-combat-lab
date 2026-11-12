@@ -30,7 +30,7 @@ fn battle_json(sim: u64, seed: u64, r: &BattleResult) -> Value {
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let Some(dir) = args.first().filter(|a| !a.starts_with("--")) else {
-        eprintln!("usage: btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]]");
+        eprintln!("usage: btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--set KEY=VALUE ...]");
         std::process::exit(2);
     };
     let battles: u64 = arg(&args, "--battles").map_or(1, |v| v.parse().expect("--battles"));
@@ -40,6 +40,16 @@ fn main() {
         rayon::ThreadPoolBuilder::new().num_threads(t.parse().expect("--threads")).build_global().unwrap();
     }
     let mut scenario = Scenario::load(&PathBuf::from(dir));
+    // --set KEY=VALUE (any number; session 25): a setting changed for this run, e.g. --set HYDRA_PLAYOUT=s5a. VALUE is read
+    // as JSON when it parses (numbers, true / false), else as text.
+    for (i, a) in args.iter().enumerate() {
+        if a == "--set" {
+            let kv = args.get(i + 1).expect("--set KEY=VALUE");
+            let (k, v) = kv.split_once('=').expect("--set KEY=VALUE");
+            let value: Value = serde_json::from_str(v).unwrap_or_else(|_| Value::String(v.to_string()));
+            scenario.config.as_object_mut().unwrap().insert(k.to_string(), value);
+        }
+    }
     // --hydra TEAM[,TEAM]: those teams are driven by Hydra (INTEGRATION__HYDRA.md)
     if let Some(t) = arg(&args, "--hydra") {
         scenario.hydra_teams = t.split(',').map(|x| x.to_string()).collect();
