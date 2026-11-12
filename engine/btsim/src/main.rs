@@ -27,8 +27,44 @@ fn battle_json(sim: u64, seed: u64, r: &BattleResult) -> Value {
     json!({"sim": sim, "seed": seed, "turns": r.turns_taken, "winner": r.winner, "destroyed": r.destroyed, "teams": teams})
 }
 
+/// `btsim decide` (MegaMek bridge, INTEGRATION__MEGAMEK_BRIDGE.md): the decision process. Reads JSON lines on stdin -
+/// the first is the game's start (`bridge::Session::start`), each later one a call {"method", "args", "state"} - and
+/// writes one JSON line per call on stdout: {"answer": ...}, or {"error": message} when the call could not be made (the
+/// caller then lets its own bot decide). Stays alive until stdin closes, so the bots' memories carry through the game.
+fn decide() {
+    use std::io::{BufRead, Write};
+    let stdin = std::io::stdin();
+    let mut out = std::io::stdout();
+    let mut session: Option<btsim_core::bridge::Session> = None;
+    for line in stdin.lock().lines() {
+        let line = line.expect("stdin");
+        if line.trim().is_empty() {
+            continue;
+        }
+        let reply = match serde_json::from_str::<Value>(&line) {
+            Err(e) => json!({"error": format!("not JSON: {}", e)}),
+            Ok(v) => match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| match session.as_mut() {
+                None => {
+                    session = Some(btsim_core::bridge::Session::start(&v));
+                    json!({"started": true})
+                }
+                Some(s) => json!({"answer": s.handle(&v)}),
+            })) {
+                Ok(r) => r,
+                Err(e) => json!({"error": e.downcast_ref::<String>().cloned().or_else(|| e.downcast_ref::<&str>().map(|m| m.to_string())).unwrap_or_else(|| "panic".into())}),
+            },
+        };
+        writeln!(out, "{}", reply).unwrap();
+        out.flush().unwrap();
+    }
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
+    if args.first().map(|a| a.as_str()) == Some("decide") {
+        decide();
+        return;
+    }
     let Some(dir) = args.first().filter(|a| !a.starts_with("--")) else {
         eprintln!("usage: btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--set KEY=VALUE ...] [--ledger FILE] [--max-turns N] [--sims I,J,...] [--stream FILE]");
         std::process::exit(2);
@@ -58,6 +94,38 @@ fn main() {
     // --hydra TEAM[,TEAM]: those teams are driven by Hydra (INTEGRATION__HYDRA.md)
     if let Some(t) = arg(&args, "--hydra") {
         scenario.hydra_teams = t.split(',').map(|x| x.to_string()).collect();
+    }
+    // --bridge-parity (MegaMek bridge B1): each battle is played with its bots' calls recorded, then a fresh decision
+    // process (`btsim decide`'s Session) is fed the recording and must give the same answer to every decision. One JSON
+    // line per battle; exit code 1 if any battle differed. --bridge-dump FILE also writes battle 1's recording.
+    if args.iter().any(|a| a == "--bridge-parity") {
+        let runs: Vec<Value> = (1..=battles)
+            .into_par_iter()
+            .map(|sim| {
+                let s = PcgDice::battle_seed(seed, sim);
+                let keep = sim == 1 && arg(&args, "--bridge-dump").is_some();
+                let (r, p, lines) = scenario.run_bridge_checked(s, keep);
+                if keep {
+                    if let Some(p) = arg(&args, "--bridge-dump") {
+                        let start = scenario.bridge_start(s);
+                        let mut text = format!("{}\n", start);
+                        for l in &lines {
+                            text.push_str(&format!("{}\n", l));
+                        }
+                        std::fs::write(p, text).unwrap();
+                    }
+                }
+                json!({"sim": sim, "seed": s, "turns": r.turns_taken, "winner": r.winner, "calls": p.calls, "decisions": p.decisions,
+                       "same": p.first_difference.is_none(),
+                       "first_difference": p.first_difference.map(|(n, m, want, got)| json!({"line": n, "method": m, "battle": want, "session": got}))})
+            })
+            .collect();
+        let bad = runs.iter().filter(|r| !r["same"].as_bool().unwrap()).count();
+        for r in &runs {
+            println!("{}", r);
+        }
+        eprintln!("bridge parity: {} of {} battles the same", runs.len() - bad, runs.len());
+        std::process::exit(if bad == 0 { 0 } else { 1 });
     }
     // --ledger FILE (session 25, S6 calibration): every battle also records a ledger snapshot at the end of each turn;
     // written as one JSON line per battle {sim, seed, winner, turns, snapshots}. Results are the same as without it.

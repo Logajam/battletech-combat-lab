@@ -24,6 +24,11 @@ pub trait Dice {
     fn skip(&mut self, _count: usize) {
         panic!("this dice source cannot skip draws");
     }
+    /// The dice's exact place in their stream, as JSON (MegaMek bridge, `bridge.rs`): None for a source that cannot
+    /// be saved. `PcgDice::restore` puts it back.
+    fn save(&self) -> Option<serde_json::Value> {
+        None
+    }
 }
 
 /// Plays a recorded dice tape back (`["r", 0, sum]` / `["p", n, k]`); asking for a different kind of draw or a

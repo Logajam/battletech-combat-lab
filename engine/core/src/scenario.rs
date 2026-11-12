@@ -75,6 +75,26 @@ impl Scenario {
         (play.result, snaps)
     }
 
+    /// The MegaMek bridge's start line for this scenario (`bridge::Session::start`): settings, board, units, Hydra's teams.
+    pub fn bridge_start(&self, seed: u64) -> Value {
+        serde_json::json!({"config": self.config, "board": self.board, "units": self.units, "hydra_teams": self.hydra_teams, "seed": seed})
+    }
+
+    /// One battle on `seed` with the bots inside a `bridge::Recorder` and a fresh `bridge::Session` checked alongside
+    /// (MegaMek bridge B1): the result, what the check found, and every line when `keep`. The battle is the same as `run`
+    /// on that seed (the recorder only reads and passes calls on).
+    pub fn run_bridge_checked(&self, seed: u64, keep: bool) -> (BattleResult, crate::bridge::Parity, Vec<Value>) {
+        let mut b = self.battle(Box::new(PcgDice::new(seed)));
+        let mut marks = |_: &mut Battle, _: i64, _: &str| {};
+        let mut play = start_battle(&mut b, self.max_turns, &mut marks);
+        let mut inner = GladiatorBots;
+        let session = crate::bridge::Session::start(&self.bridge_start(seed));
+        let mut rec = crate::bridge::Recorder::new(&mut inner, Some(session), keep);
+        play_on(&mut b, &mut rec, &mut play, &mut marks);
+        let (parity, lines) = (rec.parity, rec.lines);
+        (play.result, parity, lines)
+    }
+
     /// One battle on `seed`: the result and its log (when `want_log`).
     pub fn run(&self, seed: u64, want_log: bool) -> (BattleResult, Vec<String>) {
         let mut b = self.battle(Box::new(PcgDice::new(seed)));

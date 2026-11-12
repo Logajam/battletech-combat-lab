@@ -140,10 +140,66 @@ MegaMek server  <--network-->  HydraBridge (Java, extends Princess)  <--stdin/st
 - **Rules inside MegaMek are MegaMek's.** Our bot plans with our engine's rules; MegaMek resolves with its own.
   Where the two differ, the bot plans for a slightly different game. That is expected, and finding those places
   is goal 3. The MegaMek game options for bridge games are set to match ours as far as possible (Section 7).
-- **Decision dice.** Hydra's play-outs roll dice while planning. In `btsim decide` they are seeded from (game
-  seed, round, unit id) so a decision can be replayed.
+- **Decision dice.** Hydra's play-outs roll dice while planning. In the parity check the state carries our dice's
+  place in their stream, so the process rolls what the battle rolled. A MegaMek game sends no dice state: the process
+  then rolls its own dice, seeded by the start line's `seed`, so a recorded game's decisions can be replayed.
+
+## 3b. B1 as built (2026-11-12): the decision process and its check
+
+**Code:** `engine/core/src/bridge.rs`; `btsim decide` and `btsim SCENARIO --bridge-parity [--bridge-dump FILE]`
+(`engine/btsim/src/main.rs`); check `tests/check_bridge_parity.py` (`--quick` runs inside `tests/run_checks.py`).
+
+**The process is fed SIGNALS as well as decisions.** Rather than turning every bot memory (Legate's plans, Princess's
+heat map, Hydra's waits and fire plan) into JSON, `btsim decide` keeps its own `Battle` for the whole game and is sent
+one line for every `BotSet` call the engine makes: the signals (`start_movement`, `unit_moved`, `end_movement`,
+`end_of_turn`, `reset_assigned`, `assign_damage`) and the decisions (`move_pick`, `choose_movement`, `choose_foe`,
+`choose_target`, `fire_pick_active`, `fire_pick`, `choose_declaration`, `choose_physical`). The bots' memories then build
+up exactly as in one of our battles. **So the Java side must send the signals too**, at the matching moments of a
+MegaMek game (B2/B4): when a Movement Phase starts and ends, after each unit moves (with the hex it left), at the end of
+the turn, and the damage a friend declared at a target.
+
+**The wire, as built:**
+- First line, the start: `{"config": {...}, "board": {...}, "units": {name: dump}, "hydra_teams": [...], "seed": N}` -
+  a scenario's own `config.json` / `board.json` / `units.json` (`Scenario::bridge_start`). Reply `{"started": true}`.
+- Every later line: `{"method": "...", "args": {...}, "state": {...}}`. Reply `{"answer": ...}` (null for a signal), or
+  `{"error": message}` when the call could not be made (the Java side then lets Princess decide: a FALLBACK).
+- `state` (`bridge::state_json`): every unit's full dump (`Mech::to_json`), the turn, the board's changes (smoke,
+  broken magma crust, severed limbs), the move order still to come, the dice's place in their stream, and the board
+  itself when it changed.
+- Answers: a move is the END state `{"pick": {"hex", "facing", "mode", "fc", "mp_spent", "charge", "dfa"}, "note",
+  "gate"}` (the steps come from `ranged_combat::path_to`, B4); a weapon declaration names weapons by ADDRESS,
+  `"LOC#first slot"` (e.g. `"RT#3"`): fixed at the battle's start and the same in every dump (a unit rebuilt from its
+  dump may renumber its equipment list, which the first parity run caught), and what the Java side looks up in MegaMek.
+  The physical attack's answer is still this check's own form (B4 gives it the wire form).
+
+**The check, as built.** An ordinary battle is played with a `Recorder` around its bots; a fresh decision process runs
+alongside and is handed each call's line as it is made, and must give the same answer. Checking as the battle goes
+keeps nothing in memory (keeping a 12 v 12 battle's lines ran the machine out of memory). Results (seed 1, all 86
+reference battles, Gladiator, Princess and Hydra, every bot call): **every answer the same**; the 12 v 12 with Hydra
+alone is about 24,000 decisions over four battles. Recording does not change a battle (same winners and turns with and
+without it). The wire test pipes a whole recorded 4 v 4 battle through a real `btsim decide`, line by line.
+
+**What this means for B3.** The state the process reads is our own unit dump, which holds far more than a MegaMek game
+shows (every equipment object's fields). The Java side should NOT write those dumps. B3 instead: the Java side sends a
+COMPACT state per unit (Section 4: the `.mtf` name, position, facing, heat, armor and structure per location,
+destroyed slots, ammo per bin, pilot state, what it did this turn), and a new Rust step builds the full dump from it:
+load the unit from its `.mtf` (as the scenario builder does), then apply the damage and state. B3's check: the compact
+state of each unit in our own battles, rebuilt, gives the same dump (or at least the same answer to every decision).
+
+**Using this to check our Princess against MegaMek's** (Daniel, 2026-11-12: could a Princess v Princess match be
+replicated in the Monte Carlo, if the RNG seed matched?). A whole-game replay can't be made to match: MegaMek rolls
+with an unseeded Java generator by default (it can be given a seeded one, `Compute.setRNG`, from our own launcher), but
+even with the same dice the two engines must roll for the same things in the same order, and the first roll one makes
+and the other doesn't shifts every roll after it. The comparison that works is DECISION BY DECISION: MegaMek plays the
+game; at each of its Princess's decisions, the same position goes to our Princess clone through this process, and we
+count how often they agree (as `tests/bot_agreement.py` does between bots). It never drifts, since every decision starts
+from MegaMek's own position. MegaMek's roll log (game option `rng_log`) and our dice tape (`TapeDice`) also allow one
+attack's rolls to be replayed in our engine, to check that the rules give the same damage. Both are later stages.
 
 ## 4. The request (Java -> Rust), one JSON object a line
+
+(The first draft, from before B1. The wire as built is Section 3b; this section's per-unit fields are the COMPACT state
+B3 sends.)
 
 ```json
 {"kind": "move_order" | "move" | "fire" | "physical" | "game_start" | "game_end",
@@ -214,9 +270,9 @@ with our setting beside it. **Any option where the two can't match is a question
 | Stage | What | Model | Done when |
 |---|---|---|---|
 | **B0** DONE (Section 1b) | Get an unchanged MegaMek (a released jar, or built from the unchanged source) and run `AIMatchRunner` on a small `.mms` (Princess v CASPAR, 2 games). Needs Daniel's OK to run MegaMek's downloaded code here (or he runs it on his computer). | Sonnet | Two games finish and the CSV is written |
-| **B1** | `btsim decide`: snapshot -> `Battle` -> `BotSet` call -> answer. Snapshot writer on the Rust side too (`--snapshot` on an ordinary battle). | Opus (the snapshot -> `Battle` step needs judgement; `INTEGRATION__STATE.md` lists every field) | **Parity check** (`tests/check_bridge_parity.py`): in ordinary battles, snapshot at every decision, feed it to `btsim decide`, the answer must equal what the battle chose. Every bot, the reference scenarios. |
+| **B1** DONE (Section 3b) | `btsim decide`: snapshot -> `Battle` -> `BotSet` call -> answer. Snapshot writer on the Rust side too (`--snapshot` on an ordinary battle). | Opus (the snapshot -> `Battle` step needs judgement; `INTEGRATION__STATE.md` lists every field) | **Parity check** (`tests/check_bridge_parity.py`): in ordinary battles, snapshot at every decision, feed it to `btsim decide`, the answer must equal what the battle chose. Every bot, the reference scenarios. |
 | **B2** | `megamek_bridge/`: `HydraBridge extends Princess`, the subprocess, request/answer JSON, FALLBACK on everything (Rust answers `fallback` to all) | Sonnet | A bridge game finishes with every decision a FALLBACK and the same result as plain Princess on the same seed |
-| **B3** | Java snapshot writer (Section 4) | Sonnet | Java's snapshot of a game's start equals Rust's snapshot of the same scenario (a test compares the two) |
+| **B3** | Compact state (Section 3b, "What this means for B3"): the Java side writes each unit's compact state (Section 4); a Rust step rebuilds the full dump from the `.mtf` plus that state | Opus for the Rust step, Sonnet for the Java | In our own battles, every unit's compact state rebuilt gives the same answer to every decision (the parity check run through the compact form); Java's compact state of a game's start equals Rust's of the same scenario |
 | **B4** | Orders: moves, shots, twist, physical (Section 5); fallbacks and records (Section 6); game options (Section 7) | Sonnet; Opus for the path-refusal cases | A 1 v 1 'Mech duel, Hydra v Princess, plays with no FALLBACK and no refused order |
 | **B5** | Our own launcher (`megamek_bridge/`): starts a game from an `.mms` file the way `ScenarioGameRunner` does and connects `HydraBridge` as a player, using MegaMek as a library. NOT a patched `AIType` / `BotFactory`: MegaMek is never edited. | Sonnet | The launcher plays Hydra v CASPAR from an `.mms` file and writes the records |
 | **B6** | Check against our numbers: a few games each of Hydra v Princess and Hydra v CASPAR on our standard duels; compare with the Monte Carlo's | the top model to read the result | Numbers written up for Daniel; every big gap listed as a rules difference to look at |

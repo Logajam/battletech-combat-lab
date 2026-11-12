@@ -6,6 +6,20 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-12 (Claude, session 25), MEGAMEK BRIDGE B1: OUR BOTS DECIDE FROM SNAPSHOTS (`btsim decide`), CHECKED AGAINST EVERY REFERENCE BATTLE. No battle result changes. REVIEW PENDING (higher-level model).**
+  Daniel: "Go ahead and continue." NEW `engine/core/src/bridge.rs`: a decision process (`Session`) keeps its own battle for a whole game and is
+  sent one JSON line per bot call the engine makes - the signals (phase start / end, a unit moved, end of turn, damage declared) and every
+  decision (move order, movement, foe, target, firing order, weapon declaration, physical attack) - each with the battle's state (every unit's
+  dump, turn, board changes, dice). So the bots' memories build up as in a battle and need no JSON of their own. `btsim decide` runs it on stdin /
+  stdout. CHECK: `btsim SCENARIO --bridge-parity` plays a battle with a `Recorder` around its bots and a fresh session alongside, which must give
+  every answer the same; `tests/check_bridge_parity.py` runs it on all 86 reference battles and pipes a recorded battle through a real `btsim
+  decide` (`--quick`, in run_checks: no 8 v 8 / 12 v 12, turn 15, about 1 min). Result: every answer the same (12 v 12 with Hydra: ~24,000
+  decisions in four battles). The first run found weapons named by their number in the unit's equipment list, which a rebuilt unit may renumber:
+  weapons are now named by address ("RT#3", location and first slot), the form the Java side will use. NEW `Dice::save` / `PcgDice::restore`.
+  Spec Section 3b: the wire as built, and B3 changed (the Java side sends a compact state; Rust rebuilds the full dump from the `.mtf`).
+  Daniel's question (replay a Princess v Princess match on a matching seed): not possible whole-game (MegaMek's dice are unseeded and, even seeded,
+  the two engines roll in different orders); decision-by-decision agreement through this process is the comparison that works (spec 3b).
+
 - **2026-11-12 (Claude, session 25), SPEC: MEGAMEK BRIDGE (task T14, backlog E4). Documents only, no code. REVIEW PENDING (higher-level model).**
   Daniel: "Bridge that allows our bots to connect to a live Megamek game?" ... "Read the source and get a feel for the specs of what we need."
   Read MegaMek main at `c743b3f`: a bot is a client (`BotClient`); CASPAR is `Caspar extends Princess` with a few parts swapped, the pattern

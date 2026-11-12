@@ -76,6 +76,17 @@ impl Dice for PcgDice {
     fn used(&self) -> usize {
         self.used
     }
+    fn save(&self) -> Option<serde_json::Value> {
+        Some(serde_json::json!({"state": self.state.to_string(), "inc": self.inc.to_string(), "used": self.used}))
+    }
+}
+
+impl PcgDice {
+    /// Dice at the exact place `Dice::save` recorded (MegaMek bridge, `bridge.rs`).
+    pub fn restore(v: &serde_json::Value) -> PcgDice {
+        let big = |k: &str| v[k].as_str().unwrap_or_else(|| panic!("dice state: no {}", k)).parse::<u128>().unwrap();
+        PcgDice { state: big("state"), inc: big("inc"), used: v["used"].as_u64().unwrap() as usize }
+    }
 }
 
 #[cfg(test)]
