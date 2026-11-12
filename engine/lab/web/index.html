@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Combat Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="lab.css">
+</head>
+<body>
+<!--LAB-BODY-->
+<div class="window">
+  <div class="titlebar"><span class="box" aria-hidden="true"></span><span class="name">Combat Lab</span><span class="mode" id="mode"></span></div>
+  <div class="banner" id="banner" hidden></div>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-units" aria-selected="true" data-page="units">Units</button>
+    <button class="tab" role="tab" id="tab-map" aria-selected="false" data-page="map">Map</button>
+    <button class="tab" role="tab" id="tab-options" aria-selected="false" data-page="options">Options</button>
+    <button class="tab" role="tab" id="tab-results" aria-selected="false" data-page="results">Results</button>
+    <button class="tab" role="tab" id="tab-replay" aria-selected="false" data-page="replay">Replay</button>
+  </div>
+
+  <!-- UNITS: the team panels, and the centre column (teams, simulations, estimate, Run) -->
+  <section class="page" id="page-units" role="tabpanel">
+    <div class="units-layout">
+      <div class="teams" id="teams"></div>
+      <div class="centre">
+        <fieldset>
+          <legend>Battle</legend>
+          <div class="form">
+            <label class="row" for="team-count">Number of teams <input type="number" id="team-count" min="2" max="6" value="2"></label>
+            <label class="row" for="battles">Number of simulations <input type="number" id="battles" min="1" max="100000" value="20"></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Estimated runtime</legend>
+          <div class="readout sunken" id="estimate">Press Estimate</div>
+          <div style="margin-top:6px"><button class="btn" id="estimate-btn">Estimate</button></div>
+        </fieldset>
+        <div class="note" id="where"></div>
+        <button class="btn big" id="run-btn">Run Simulation</button>
+        <div class="err" id="run-error" role="alert"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAP: pick a board (or a random one of those shown) -->
+  <section class="page" id="page-map" role="tabpanel" hidden>
+    <div class="split">
+      <div>
+        <div class="filters">
+          <label for="board-search">Search <input type="search" id="board-search" placeholder="Name or map set"></label>
+          <label for="board-size">Size <select id="board-size"><option value="">Any</option></select></label>
+          <button class="btn" id="board-random">Random map</button>
+        </div>
+        <div class="list sunken" style="max-height:420px"><table class="pick" id="boards"><thead><tr><th>Board</th><th>Size</th><th>Map set</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <fieldset>
+        <legend>Chosen board</legend>
+        <div id="board-chosen"></div>
+        <p class="note">Each team deploys along its own home edge. Boards from the map pack are unpacked into the project's data folder the first time they are used.</p>
+      </fieldset>
+    </div>
+  </section>
+
+  <!-- OPTIONS -->
+  <section class="page" id="page-options" role="tabpanel" hidden>
+    <div class="form">
+      <label for="threads">CPU threads (0 = every core)<input type="number" id="threads" min="0" max="256" value="0"></label>
+      <label for="seed">Random seed<input type="number" id="seed" min="0" value="1"></label>
+      <label for="max-turns">Turn cap (a battle that reaches it is a draw)<input type="number" id="max-turns" min="1" max="1000" value="100"></label>
+      <p class="note">Battle logs: every battle can be played again, log and all, from its seed, so none are stored. Choose one on the Results page to watch it.</p>
+      <p class="note">Debug output and AI debug recording come with the analysis tools (later).</p>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="page" id="page-results" role="tabpanel" hidden>
+    <div id="results-empty" class="note">No results yet. Set up the teams on the Units page and press Run Simulation.</div>
+    <div id="results" hidden>
+      <div class="filters">
+        <div style="flex:1;min-width:200px"><div class="progress sunken"><div id="bar"></div></div></div>
+        <span id="progress-text" class="num"></span>
+        <button class="btn" id="cancel-btn">Cancel</button>
+      </div>
+      <div class="winbar" id="winbar"></div>
+      <div class="stats" id="stats"></div>
+      <h2>Battles <span class="note">(choose one to watch it)</span></h2>
+      <div class="list sunken battles"><table id="battle-list"><thead><tr><th class="num">#</th><th>Seed</th><th>Winner</th><th class="num">Turns</th><th class="num">Seconds</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- REPLAY -->
+  <section class="page" id="page-replay" role="tabpanel" hidden>
+    <div class="replay-bar">
+      <label for="replay-seed">Seed <input type="text" id="replay-seed" inputmode="numeric" placeholder="e.g. 7"></label>
+      <button class="btn" id="replay-seed-btn">Load by seed</button>
+      <span class="note" id="replay-what">Choose a battle on the Results page, or enter a seed: the current setup is played on it.</span>
+    </div>
+    <iframe class="replay-frame sunken" id="replay-frame" title="Battle replay"></iframe>
+  </section>
+
+  <div class="status raised"><span id="status">Ready</span><span id="status-right"></span></div>
+</div>
+<!--LAB-SCRIPT-->
+<script src="lab.js"></script>
+</body>
+</html>

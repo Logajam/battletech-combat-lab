@@ -31,10 +31,10 @@ SNAPSHOT and TURN CURSOR): build it once, for both.
 | Sheet | Job | Suits | Size |
 |---|---|---|---|
 | CL1 | A battle set up from unit and board files, in Rust - DONE (session 25) | Sonnet | medium |
-| CL2 | The battle's full history written by the Rust engine | Sonnet | small |
-| CL3 | The Lab server: one program, JSON in and out | Sonnet | medium |
-| CL4 | Setup and Results pages | Sonnet | medium |
-| CL5 | Replay page over the history | Sonnet | medium |
+| CL2 | The battle's full history written by the Rust engine - DONE (session 25) | Sonnet | small |
+| CL3 | The Lab server: one program, JSON in and out - DONE (session 25) | Sonnet | medium |
+| CL4 | Setup and Results pages - DONE (session 25) | Sonnet | medium |
+| CL5 | Replay page over the history - DONE (session 25) | Sonnet | medium |
 | CL6 | A battle restarted from a saved state | Opus or higher | large |
 | CL7 | Analysis overlays | Opus (design per overlay), Sonnet (drawing) | medium each |
 | CL8 | Branching | Opus | medium, after CL6 |
@@ -48,6 +48,29 @@ SNAPSHOT and TURN CURSOR): build it once, for both.
 `Session`), with the COMPACT unit state (`UNIT_FIELDS` / `ITEM_FIELDS`, proven complete) - what a saved state of a unit
 must hold. Daniel, 2026-11-12: the bridge is shelved; next is "something I can interact with as a normal person who
 does not code" - CL2 to CL5.
+
+**CL2-CL5 as built (session 25, 2026-11-12).**
+- CL2: `engine/core/src/history.rs` writes the Python replay viewer's own record (option (a) of CL5: the viewer's format is
+  a small subset of the full state, so the history IS the viewer's data; 0.5-0.8 MB a 4 v 4 battle, 2.5 MB a 12 v 12, no
+  packing needed). `btsim --history N [--history-dir DIR] [--history-json]`; `Scenario::run_history`. Checked against the
+  Python's own replay record of every fixture battle (63, 12 v 12s included): `engine/core/tests/cl2_history.rs`, answer key
+  `python tools/port_record.py --replay-data FIXTURE` (port_fixtures.py writes it). Results with and without history equal;
+  the same seed gives a byte-identical file. Bare prints (VERBOSE's crit-pool lines) stay out, as in the Python (`Log::printed`).
+- CL3: `engine/lab` (binary `combatlab`): standard library HTTP on 127.0.0.1 (port 8765 up, or `--port`), the pages built
+  in (`--web DIR` to serve them from disk), requests `info`, `list_units` (every unit of data/ and data/meks.zip parsed once,
+  with Battle Value; 4,252, 0.5 s; cached in `lab_cache/`), `list_boards` (data/ and data/maps.zip, 356), `estimate`, `run`,
+  `progress`, `results`, `cancel`, `history`, `add_unit`; `GET /replay?run=R&sim=S`. Packed units / boards are unpacked to the
+  same path under data/ when first used (git-ignored). One crate added: `zip` (deflate only, pure Rust). Check:
+  `tests/check_lab_server.py` (a 2 v 2 through the server equals btsim's battles for the same setup and seed; in run_checks).
+- CL4: `engine/lab/web` (index.html, lab.css, lab.js), the Windows 3.x look. Units: 2-6 team panels (name, colour, bot,
+  units with skills, search over the whole unit list, drop or pick a .mtf file = copied into data/), number of simulations,
+  Estimate, Run Simulation. Map: search, size filter, random map. Options: threads, seed, turn cap. Results: progress and
+  Cancel, win bar, per-team and overall statistics, battle list. Demo for Daniel: `tools/make_lab_demo.py OUT.html` (the
+  pages with answers recorded from a real run).
+- CL5: the Replay tab shows the viewer page (`/replay`), by battle or by seed (the current setup on that seed). 12 v 12:
+  about 10 ms a step in the browser, no lag.
+- NOT YET: a Windows `CombatLab.exe` package (the program finds the project folder from BTSIM_ROOT or three folders above
+  itself); stats the engine does not total yet (average heat); debug output options; team colours are not passed to the viewer.
 
 ## CL10. Connect to MegaMek (Daniel, 2026-11-12; after CL4)
 

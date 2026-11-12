@@ -107,12 +107,17 @@ GitHub logistics.
 - **MegaMek bridge** (session 25; `INTEGRATION__MEGAMEK_BRIDGE.md`, `megamek_bridge/README.md`): our bots play as
   players in a live MegaMek game (MegaMek is never edited, Daniel). `tools/megamek_bridge_games.py SCENARIO.mms
   --megamek DIR --bridge Red` plays games and keeps records; `btsim decide` is the decision process.
+- **Combat Lab** (session 25; `INTEGRATION__COMBAT_LAB_SPECS.md`): `engine/target/release/combatlab` starts the Lab (a
+  local server, pages in `engine/lab/web`; `--no-browser --port N --web DIR`). `btsim --history N` writes replay pages from
+  the Rust engine (use these to show Daniel battles now that the Python is retired). `tools/make_lab_demo.py` makes the
+  pages into one demo page to publish for Daniel.
 - **Movement searches:** Short Grid is the default; Daniel's IF/THEN
   (`MOVEMENT_SEARCH = "if_then"`) is an option meant for multi-unit threat
   estimates, not a single 'Mech's default (PROJECT_MAP Section 5).
-- **Show Daniel battles as replays.** Set `REPLAY_BATTLES` in
-  `INTEGRATION__config.py`, run, and publish the page from `replays/` with the
-  Artifact tool; give him the link (he doesn't run the code himself).
+- **Show Daniel battles as replays.** `btsim ... --history N` (Rust; or
+  `REPLAY_BATTLES` in `INTEGRATION__config.py` for the Python), then publish
+  the page from `replays/` with the Artifact tool; give him the link (he
+  doesn't run the code himself).
 - **Optional rules** (where the rulebook offers a choice, or Daniel's rule
   differs from it) are switches in `INTEGRATION__config.py`'s OPTIONAL RULES
   section, with the rules-as-written version available.

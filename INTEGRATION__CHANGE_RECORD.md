@@ -6,6 +6,20 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-12 (Claude, session 25), COMBAT LAB CL2-CL5: A LAB PROGRAM WITH PAGES - SET UP TEAMS, RUN, SEE RESULTS, WATCH ANY BATTLE. No battle result changes. REVIEW PENDING (higher-level model).**
+  Daniel: "Go ahead and begin working on CombatLab" (after "something I can interact with as a normal person who does not code").
+  CL2: NEW `history.rs` - a battle's full history in the replay viewer's own format (`btsim --history N`, `Scenario::run_history`,
+  `history::page` builds the viewer page from it); equals the Python's replay record for all 63 fixture battles
+  (`tests/cl2_history.rs`; `port_record.py --replay-data`, written by port_fixtures.py); recording changes nothing (same results,
+  byte-identical repeats). `Log::printed` marks bare prints, which the Python's record left out. CL3: NEW crate `engine/lab`
+  (`combatlab`): a local server (standard library, 127.0.0.1 only) answering the pages' JSON requests - the unit list (data/ and
+  data/meks.zip, 4,252 units with Battle Value) and board list (356, data/maps.zip included), estimate from pilot battles, batches
+  on their own threads with progress / cancel / results, any battle's history, a dropped unit file copied into data/. Check
+  `tests/check_lab_server.py`: its battles equal btsim's for the same setup and seed (in run_checks). CL4: the pages
+  (`engine/lab/web`, Windows 3.x look per Part B): Units (2-6 teams, bot per team, unit search, skills, estimate, Run), Map,
+  Options, Results (win bar, statistics, battle list). CL5: the Replay tab is the viewer over CL2's history, by battle or by
+  seed; smooth at 12 v 12. Demo page for Daniel: `tools/make_lab_demo.py`. Spec sheet notes: COMBAT_LAB_SPECS "CL2-CL5 as built".
+
 - **2026-11-12 (Claude, session 25), MEGAMEK BRIDGE B3-B5: OUR ENGINE PLAYS IN MEGAMEK. No battle result changes in our engine. REVIEW PENDING (higher-level model).**
   Daniel: "Work until the task is complete." Java: `GameView` (the game's start as settings; each unit as MegaMek knows it), `HydraBridge` now
   asks our engine for move order, the move (steps from the new `path_steps` call, else MegaMek's own path finder; standing up with GET_UP), the

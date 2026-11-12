@@ -14,3 +14,8 @@ trial_records/progress/
 
 # MegaMek bridge build output (megamek_bridge/build.sh)
 megamek_bridge/build/
+
+# Combat Lab (engine/lab): its list cache, and units / boards it unpacked from data/meks.zip and data/maps.zip
+lab_cache/
+data/meks/
+data/maps/

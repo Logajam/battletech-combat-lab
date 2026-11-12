@@ -5,6 +5,7 @@ tools/port_record.py - RUST PORT, STAGE 0 (INTEGRATION__RUST_PORT.md): record a 
     python tools/port_record.py --scenario NAME OUT_DIR                   # one of tools/port_scenarios.py
     python tools/port_record.py --overrides overrides.json OUT_DIR      # a JSON list of config statements
     python tools/port_record.py --replay FIXTURE_DIR OUT_DIR             # play it again from dice + decisions only
+    python tools/port_record.py --replay-data FIXTURE_DIR                # that, writing FIXTURE_DIR/replay.json
 
 The Python is the answer key for the Rust translation. This tool plays ONE battle (battle number 1 of the
 batch, the way run_batch plays it) with recorder hooks that only READ, and writes into OUT_DIR:
@@ -632,7 +633,32 @@ def write_fixture(out_dir, statements, max_turns=50):
     return result
 
 
+def write_replay_data(fixture_dir):
+    """COMBAT LAB CL2's answer key: the fixture's battle played again (as --replay) with the Python's replay recorder
+    on (INTEGRATION__replay: REPLAY_BATTLES = 1), its record written to FIXTURE_DIR/replay.json. The Rust history
+    (engine/core/src/history.rs) of the same battle must equal it (engine/core/tests/cl2_history.rs)."""
+    import INTEGRATION__config as config
+    import INTEGRATION__replay as replay
+    captured = {}
+    finish = replay.finish
+
+    def _finish(result):
+        captured["data"] = finish(result)
+        return captured["data"]
+    replay.finish = _finish
+    config.REPLAY_BATTLES = 1
+    try:
+        replay_fixture(fixture_dir)
+    finally:
+        replay.finish = finish
+    with open(os.path.join(fixture_dir, "replay.json"), "w", encoding="utf-8", newline="\n") as f:
+        json.dump(captured["data"], f, sort_keys=True)
+
+
 def main(argv):
+    if argv and argv[0] == "--replay-data":
+        write_replay_data(argv[1])
+        return
     if argv and argv[0] == "--replay":
         log, trace = replay_fixture(argv[1])
         out = argv[2]

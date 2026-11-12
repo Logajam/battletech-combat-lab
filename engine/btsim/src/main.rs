@@ -1,4 +1,4 @@
-//! btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]]
+//! btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--history N]
 //! Plays N battles of a scenario (tools/port_scenario.py writes one) in parallel, one battle a thread, each on its own seed
 //! (battle 1 on S, later ones mixed from S and the number), and prints a JSON summary: wins per team, turns, damage.
 use std::path::PathBuf;
@@ -61,6 +61,21 @@ fn decide() {
     }
 }
 
+/// Writes one battle's history: its replay page, or the bare JSON record (`json`).
+fn write_history(dir: &std::path::Path, record: &Value, json: bool) {
+    let name = btsim_core::history::file_name(record);
+    if json {
+        std::fs::write(dir.join(name.replace(".html", ".json")), serde_json::to_string(record).unwrap()).unwrap();
+    } else {
+        std::fs::write(dir.join(name), btsim_core::history::page(record)).unwrap();
+    }
+}
+
+/// A history's log, every step's lines in order (what --log keeps).
+fn lines_of(record: &Value) -> Vec<String> {
+    record["steps"].as_array().into_iter().flatten().flat_map(|s| s["log"].as_array().into_iter().flatten().filter_map(|l| l.as_str().map(String::from))).collect()
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     if args.first().map(|a| a.as_str()) == Some("decide") {
@@ -74,7 +89,7 @@ fn main() {
     let setup = arg(&args, "--setup");
     let dir_arg = args.first().filter(|a| !a.starts_with("--")).cloned().or_else(|| setup.as_ref().map(|_| String::new()));
     let Some(dir) = dir_arg.as_ref() else {
-        eprintln!("usage: btsim (SCENARIO_DIR | --setup SETTINGS.json [--write-scenario DIR]) [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--set KEY=VALUE ...] [--ledger FILE] [--max-turns N] [--sims I,J,...] [--stream FILE]");
+        eprintln!("usage: btsim (SCENARIO_DIR | --setup SETTINGS.json [--write-scenario DIR]) [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--set KEY=VALUE ...] [--ledger FILE] [--max-turns N] [--sims I,J,...] [--stream FILE] [--history N [--history-dir DIR] [--history-json]]");
         std::process::exit(2);
     };
     let battles: u64 = arg(&args, "--battles").map_or(1, |v| v.parse().expect("--battles"));
@@ -189,6 +204,16 @@ fn main() {
     // already in FILE are not played again: re-running the same command after a stop finishes only what is missing,
     // and the summary counts the earlier lines too.
     let stream = arg(&args, "--stream");
+    // --history N [--history-dir DIR] [--history-json] (Combat Lab CL2): battles 1..N of the set also write their full
+    // history (btsim_core::history), each as a replay page (INTEGRATION__replay_viewer.html with the battle inside;
+    // opens in any browser) in DIR (default "replays"), or as the bare JSON record with --history-json. The battles
+    // are the same as without it: recording only reads.
+    let history_first: u64 = arg(&args, "--history").map_or(0, |v| v.parse().expect("--history"));
+    let history_dir = PathBuf::from(arg(&args, "--history-dir").unwrap_or_else(|| "replays".into()));
+    let history_json = args.iter().any(|a| a == "--history-json");
+    if history_first > 0 {
+        std::fs::create_dir_all(&history_dir).expect("--history-dir");
+    }
     let mut done: std::collections::BTreeMap<u64, Value> = std::collections::BTreeMap::new();
     if let Some(path) = &stream {
         if let Ok(text) = std::fs::read_to_string(path) {
@@ -209,7 +234,17 @@ fn main() {
         .map(|sim| {
             let s = PcgDice::battle_seed(seed, sim);
             // a panic in one battle is that battle's result, not the end of the set
-            let played = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| scenario.run(s, sim <= log_first)));
+            // --history N: battles 1..N also write their full history as a replay page (Combat Lab CL2)
+            let played = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                if sim <= history_first {
+                    let (r, record) = scenario.run_history(sim, s);
+                    write_history(&history_dir, &record, history_json);
+                    let log = if sim <= log_first { lines_of(&record) } else { vec![] };
+                    (r, log)
+                } else {
+                    scenario.run(s, sim <= log_first)
+                }
+            }));
             let (v, log) = match played {
                 Ok((r, log)) => (battle_json(sim, s, &r), log),
                 Err(e) => {

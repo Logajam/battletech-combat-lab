@@ -177,6 +177,19 @@ impl Scenario {
         (play.result, parity, lines)
     }
 
+    /// COMBAT LAB CL2: one battle on `seed` (battle number `sim` of its batch) with its full history (`history.rs`, the
+    /// replay page's record). The battle is the same as `run` on that seed: recording only reads.
+    pub fn run_history(&self, sim: u64, seed: u64) -> (BattleResult, Value) {
+        let mut b = self.battle(Box::new(PcgDice::new(seed)));
+        let mut history = crate::history::History::new(sim, seed);
+        let mut marks = |b: &mut Battle, turn: i64, label: &str| history.mark(b, turn, label);
+        let mut play = start_battle(&mut b, self.max_turns, &mut marks);
+        let mut bots = GladiatorBots;
+        play_on(&mut b, &mut bots, &mut play, &mut marks);
+        let record = history.finish(&b, &play.result);
+        (play.result, record)
+    }
+
     /// One battle on `seed`: the result and its log (when `want_log`).
     pub fn run(&self, seed: u64, want_log: bool) -> (BattleResult, Vec<String>) {
         let mut b = self.battle(Box::new(PcgDice::new(seed)));
