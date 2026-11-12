@@ -6,6 +6,14 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-12 (Claude, session 25), SPEC: MEGAMEK BRIDGE (task T14, backlog E4). Documents only, no code. REVIEW PENDING (higher-level model).**
+  Daniel: "Bridge that allows our bots to connect to a live Megamek game?" ... "Read the source and get a feel for the specs of what we need."
+  Read MegaMek main at `c743b3f`: a bot is a client (`BotClient`); CASPAR is `Caspar extends Princess` with a few parts swapped, the pattern
+  the bridge copies (`HydraBridge extends Princess`, Rust deciding through a `btsim decide` subprocess, Princess as the loud, counted fallback);
+  MegaMek has its own headless bot-v-bot runner (`AIMatchRunner`, bots named by an `ai:` key); same `.mtf` / `.board` formats and facing
+  numbers as ours; GPL v3. NEW `INTEGRATION__MEGAMEK_BRIDGE.md` (stages B0-B7, each with a script check; B1's is a parity check: a
+  snapshot fed to `btsim decide` must give the choice the battle made). Building MegaMek here was refused by the session's safety
+  check (downloaded build code): B0 needs Daniel's OK.
 - **2026-11-12 (Claude, session 25), RULE FIX: A WALKING FALL IN A HEX HOLDING ANOTHER 'MECH SETS OFF A DOMINO EFFECT, BOTH ENGINES; TRIALS RECORD EACH BATTLE AS IT ENDS AND SURVIVE CRASHES; 400-BATTLE CHECKS. REVIEW PENDING (higher-level model).**
   Daniel: "Cast a wider net for both the hunchback and the heavies. Maybe 400 games each." Both were flukes: Hunchback duel v Gladiator 190 - 187
   (first version 182 - 195), heavies v Princess 282 - 116 (279 - 118). The first-version Hunchback run CRASHED (battle 8, seed 101): a Hunchback

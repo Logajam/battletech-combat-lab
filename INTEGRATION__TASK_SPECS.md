@@ -39,6 +39,7 @@ then copies the better bot. T2 and T4 can ride along. (3) T11, the Rust port. (4
 | T9 Rules zip refresh; Interstellar Operations | C5 | Sonnet | Daniel's go |
 | T10 Automatic checks on GitHub | D5 | Sonnet | - |
 | T11 The Rust translation | D1 | Sonnet (Opus for stages 0, 6, 8 if possible) | T8 decided; T1 built or parked |
+| T14 MegaMek bridge (our bots in a live MegaMek game) | E4 | Sonnet; Opus for B1 | Daniel's OK to build and run MegaMek (B0) |
 | Review queue (m), (o), (p) | - | the top model when on hand; (n) lapses when the port's stage 9 retires `fastcore/` | - |
 
 ---
@@ -229,3 +230,11 @@ Plan and next stage: `INTEGRATION__HYDRA.md` Section 6 (S5a first). Trials: `too
 ## T13. Combat Lab on the Rust engine (CL1-CL9)
 
 Spec sheets, one job each, with the order and which model suits: `INTEGRATION__COMBAT_LAB_SPECS.md`.
+
+## T14. MegaMek bridge: our bots in a live MegaMek game (Sonnet; Opus for stage B1)
+
+Daniel, 2026-11-12: "Bridge that allows our bots to connect to a live Megamek game"; specs first, then "give the
+grunt work of the basic build to sonnet". The full spec, from a read of MegaMek's source: `INTEGRATION__MEGAMEK_BRIDGE.md`
+(what MegaMek offers, the design, the request / answer JSON, records and fallbacks, stages B0-B7 each with a
+check a script can run). Start with B0 (needs Daniel's OK to build and run MegaMek's downloaded code) and B1
+(`btsim decide` and its parity check), which don't depend on each other.
