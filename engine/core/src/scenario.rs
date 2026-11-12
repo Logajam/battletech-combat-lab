@@ -49,6 +49,28 @@ impl Scenario {
         Battle::new(cfg, board, units, dice)
     }
 
+    /// One battle on `seed`, with a LEDGER SNAPSHOT at the end of every turn and once more when the battle is over
+    /// (S6 calibration of Hydra's Forecast, session 25; INTEGRATION__HYDRA.md Section 7). A snapshot is
+    /// {"turn", "units": [[unit, team, life, guns], ...]}: life = `effective_hp` (0 once destroyed), guns = the
+    /// unit's `future_damage` on the first standing enemy a turn (0 once destroyed or with no enemy left) - the raw
+    /// figures Hydra's ledger is built from (its "dormant" and "minimum" rules are applied by the fitting tool).
+    /// Recording only reads; tests/check_rust_reference.py-style runs show the battle is the same with or without it.
+    pub fn run_recorded(&self, seed: u64) -> (BattleResult, Vec<Value>) {
+        let mut b = self.battle(Box::new(PcgDice::new(seed)));
+        let mut snaps: Vec<Value> = Vec::new();
+        let mut marks = |b: &mut Battle, turn: i64, label: &str| {
+            if label == "Heat and end phase" {
+                snaps.push(snapshot(b, turn));
+            }
+        };
+        let mut play = start_battle(&mut b, self.max_turns, &mut marks);
+        let mut bots = GladiatorBots;
+        play_on(&mut b, &mut bots, &mut play, &mut marks);
+        let last = play.result.turns_taken;
+        snaps.push(snapshot(&mut b, last));
+        (play.result, snaps)
+    }
+
     /// One battle on `seed`: the result and its log (when `want_log`).
     pub fn run(&self, seed: u64, want_log: bool) -> (BattleResult, Vec<String>) {
         let mut b = self.battle(Box::new(PcgDice::new(seed)));
@@ -59,4 +81,26 @@ impl Scenario {
         let log = if want_log { b.log.lines.clone() } else { vec![] };
         (play.result, log)
     }
+}
+
+/// The ledger's raw figures for every unit now (see `Scenario::run_recorded`).
+fn snapshot(b: &mut Battle, turn: i64) -> Value {
+    let alive = crate::forces::standing(b);
+    let per_turn = b.cfg.f("MOVEMENT_LIFETIME_INITIATIVE");
+    let mut rows = Vec::new();
+    for u in 0..b.units.len() {
+        let team = b.units[u].team.clone().unwrap_or_default();
+        let (life, guns) = if alive.contains(&u) {
+            let foe = alive.iter().copied().find(|v| b.units[*v].team != b.units[u].team);
+            let guns = match foe {
+                Some(f) => crate::move_select::future_damage(b, u, f) / if per_turn > 0.0 { per_turn } else { 1.0 },
+                None => 0.0,
+            };
+            (crate::orchestrator::effective_hp(b, u), guns)
+        } else {
+            (0.0, 0.0)
+        };
+        rows.push(serde_json::json!([u, team, life, guns]));
+    }
+    serde_json::json!({"turn": turn, "units": rows})
 }

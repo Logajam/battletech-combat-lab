@@ -147,6 +147,8 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(aa) HYDRA S6, FORECAST CALIBRATION** (session 25): `hydra::Shape` / `forecast_with` / `prices_with`, `scenario::run_recorded`,
+  `btsim --ledger`, `tools/hydra_calibrate.py`; default FOCUS 0. Also the stacking fix in `movement_attacks` (both engines).
 - **(z) HYDRA S4, CHARGES AND DFA** (session 25): `hydra::movement_attack` / `weigh_lines_only` (switch `HYDRA_MOVEMENT_ATTACKS`), 2 reference battles.
 - **(y) S5a PLAY-OUT AND THE ROUND ROBIN** (session 25): `hydra::playout` / `weigh_lines` (switch `HYDRA_PLAYOUT`), `btsim --set`,
   `tools/round_robin.py`, 3 S5a reference battles; results `INTEGRATION__HYDRA.md` Sections 5-6.

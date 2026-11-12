@@ -6,6 +6,14 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-12 (Claude, session 25), HYDRA S6: THE FORECAST CALIBRATED ON 1,092 BATTLES; SPREAD FIRE (FOCUS 0) IS THE DEFAULT. Hydra's results change (meant to). REVIEW PENDING (higher-level model).**
+  Daniel: "go for the calibration run". NEW `scenario::run_recorded` + `btsim --ledger FILE` (life and guns of every unit at each turn's end; reads
+  only: five batches identical with and without it) and `tools/hydra_calibrate.py` (collect / fit). The Forecast got three settings, `hydra::Shape`
+  (`HYDRA_FORECAST_FOCUS` / `_FADE` / `_STEP`; `forecast` / `prices` keep the first version's shape, `Shape::FIRST`, for tests). Fit: the first version
+  is sound (correlation 0.81, scale 0.98, leader wins 93% above a 0.35 margin); overall the shape hardly matters, FADE hurts; with 9+ units alive spread
+  fire fits 20% better. In battle on the earlier tables' seeds, FOCUS 0: v Gladiator 176 - 145 -> 224 - 103 over the six team match-ups (heavies 42 - 25
+  -> 69 - 7), v Princess 248 - 130 -> 266 - 110; duels identical. DEFAULT now FOCUS 0 (`Shape::CALIBRATED`). The 9 Hydra team reference battles
+  re-saved (meant to change); everything else matches. Python 57 of 57. Plan Section 7 has the table and what is left.
 - **2026-11-12 (Claude, session 25), RULE FIX: A CHARGE OR DFA MAY NOT STOP ON ANOTHER UNIT'S HEX (Core p.49), BOTH ENGINES. REVIEW PENDING (higher-level model).**
   Found by Hydra's S4 trial (a crash) and confirmed for Gladiator at Daniel's request ("check if gladiator has the same bug"; "just say 'No, that's not a
   legal move'"). The stop lists for charges (`MoverIndex.charge_states`) and death from above (`dfa_states`) did not look at other units, so a charge

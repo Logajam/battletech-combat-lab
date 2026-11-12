@@ -93,24 +93,86 @@ fn pour(fire: f64, targets: &[(f64, f64)], hits: &mut [f64]) {
     }
 }
 
+/// The Forecast's shape (S6 calibration, session 25; tools/hydra_calibrate.py fits it on finished battles):
+/// FOCUS - the share of a side's fire poured in kill order; the rest is spread over the enemy in proportion to life left;
+/// FADE  - a unit's guns shrink with its life, guns x (life / life at the start) ^ FADE (0: full guns until destroyed);
+/// STEP  - the share of a side's guns that lands in one step.
+/// Settings HYDRA_FORECAST_FOCUS / _FADE / _STEP. DEFAULT (calibrated, session 25): FOCUS 0, FADE 0, STEP 0.5. The fit on
+/// 1,092 recorded battles (tools/hydra_calibrate.py): with 9+ units alive, spread fire describes real battles 20% better
+/// than perfect focus (error 0.040 v 0.050); FADE only made it worse; STEP hardly matters. In battle (same seeds) the
+/// six team match-ups went 176-145 -> 224-103 v Gladiator and 248-130 -> 266-110 v Princess; duels are unchanged (one
+/// target: nothing to focus). `Shape::FIRST` (1, 0, 0.5) is the first version's (perfect focus).
+#[derive(Clone, Copy, Debug)]
+pub struct Shape {
+    pub focus: f64,
+    pub fade: f64,
+    pub step: f64,
+}
+
+impl Shape {
+    pub const FIRST: Shape = Shape { focus: 1.0, fade: 0.0, step: STEP_FIRE };
+    /// the calibrated default
+    pub const CALIBRATED: Shape = Shape { focus: 0.0, fade: 0.0, step: STEP_FIRE };
+
+    pub fn of(b: &Battle) -> Shape {
+        let get = |k: &str, d: f64| if b.cfg.has(k) { b.cfg.f(k) } else { d };
+        let d = Shape::CALIBRATED;
+        Shape { focus: get("HYDRA_FORECAST_FOCUS", d.focus), fade: get("HYDRA_FORECAST_FADE", d.fade), step: get("HYDRA_FORECAST_STEP", d.step) }
+    }
+}
+
+/// Fire spread over the targets in proportion to the life each has left (the unfocused share of a side's fire).
+fn spread(fire: f64, targets: &[(f64, f64)], hits: &mut [f64]) {
+    let total: f64 = targets.iter().filter(|t| t.0 > 0.0).map(|t| t.0).sum();
+    if total <= 0.0 {
+        return;
+    }
+    for (i, t) in targets.iter().enumerate() {
+        if t.0 > 0.0 {
+            hits[i] += fire * t.0 / total;
+        }
+    }
+}
+
 /// The margin: what side A has left minus what side B has left once one of them is gone (each unit counted as guns x
-/// life), as a share of what both began with. Each entry is (life, guns).
+/// life), as a share of what both began with. Each entry is (life, guns). The first version's shape (perfect focus).
 pub fn forecast(a: &[(f64, f64)], b: &[(f64, f64)]) -> f64 {
+    forecast_with(a, b, &Shape::FIRST)
+}
+
+/// `forecast` with a given shape. With `Shape::FIRST` it does exactly the first version's arithmetic.
+pub fn forecast_with(a: &[(f64, f64)], b: &[(f64, f64)], shape: &Shape) -> f64 {
+    let (a0, b0) = (a.to_vec(), b.to_vec());
     let (mut a, mut b) = (a.to_vec(), b.to_vec());
     let worth = |s: &[(f64, f64)]| s.iter().map(|(l, g)| l.max(0.0) * g).sum::<f64>();
     let start = worth(&a) + worth(&b);
     if start <= 0.0 {
         return 0.0;
     }
+    // a side's guns this step (FADE: shrunk with the life each unit has left)
+    let guns = |s: &[(f64, f64)], s0: &[(f64, f64)]| -> f64 {
+        if shape.fade == 0.0 {
+            s.iter().filter(|u| u.0 > 0.0).map(|u| u.1).sum::<f64>()
+        } else {
+            s.iter().zip(s0).filter(|(u, _)| u.0 > 0.0).map(|(u, u0)| u.1 * (u.0 / u0.0).powf(shape.fade)).sum::<f64>()
+        }
+    };
     for _ in 0..MAX_STEPS {
-        let fire_a: f64 = a.iter().filter(|u| u.0 > 0.0).map(|u| u.1).sum::<f64>() * STEP_FIRE;
-        let fire_b: f64 = b.iter().filter(|u| u.0 > 0.0).map(|u| u.1).sum::<f64>() * STEP_FIRE;
+        let fire_a: f64 = guns(&a, &a0) * shape.step;
+        let fire_b: f64 = guns(&b, &b0) * shape.step;
         if fire_a <= 0.0 || fire_b <= 0.0 {
             break;
         }
         let (mut hits_b, mut hits_a) = (vec![0.0; b.len()], vec![0.0; a.len()]);
-        pour(fire_a, &b, &mut hits_b);
-        pour(fire_b, &a, &mut hits_a);
+        if shape.focus >= 1.0 {
+            pour(fire_a, &b, &mut hits_b);
+            pour(fire_b, &a, &mut hits_a);
+        } else {
+            pour(fire_a * shape.focus, &b, &mut hits_b);
+            spread(fire_a * (1.0 - shape.focus), &b, &mut hits_b);
+            pour(fire_b * shape.focus, &a, &mut hits_a);
+            spread(fire_b * (1.0 - shape.focus), &a, &mut hits_a);
+        }
         for (u, h) in b.iter_mut().zip(&hits_b) {
             u.0 -= h;
         }
@@ -127,9 +189,14 @@ pub fn forecast(a: &[(f64, f64)], b: &[(f64, f64)]) -> f64 {
 /// unit -> price. For an enemy: how far a point of damage on it moves the margin my way. For a friend: how far a point
 /// of damage on it moves the margin against me.
 pub fn prices(mine: &[Entry], theirs: &[Entry]) -> HashMap<UnitId, f64> {
+    prices_with(mine, theirs, &Shape::FIRST)
+}
+
+/// `prices` with a given Forecast shape.
+pub fn prices_with(mine: &[Entry], theirs: &[Entry], shape: &Shape) -> HashMap<UnitId, f64> {
     let a: Vec<(f64, f64)> = mine.iter().map(|e| (e.life, e.guns)).collect();
     let b: Vec<(f64, f64)> = theirs.iter().map(|e| (e.life, e.guns)).collect();
-    let base = forecast(&a, &b);
+    let base = forecast_with(&a, &b, shape);
     let total: f64 = a.iter().chain(b.iter()).map(|(l, g)| l * g).sum();
     let mut out = HashMap::default();
     for (side, entries) in [(0, mine), (1, theirs)] {
@@ -137,7 +204,7 @@ pub fn prices(mine: &[Entry], theirs: &[Entry]) -> HashMap<UnitId, f64> {
             let bite = e.life.min((0.15 * e.life).max(10.0));
             let (mut a2, mut b2) = (a.clone(), b.clone());
             if side == 0 { a2[i].0 -= bite } else { b2[i].0 -= bite }
-            let moved = (forecast(&a2, &b2) - base).abs() / bite;
+            let moved = (forecast_with(&a2, &b2, shape) - base).abs() / bite;
             // never free: at the least, the unit's own guns x the damage, on the margin's scale
             let floor = 0.25 * e.guns / total.max(1.0);
             out.insert(e.unit, moved.max(floor));
@@ -262,7 +329,7 @@ fn choose_movement_inner(b: &mut Battle, mover: UnitId, other: UnitId, moves_fir
     }
 
     let (mine, theirs) = ledger(b, mover);
-    let price = prices(&mine, &theirs);
+    let price = prices_with(&mine, &theirs, &Shape::of(b));
     let my_price = price.get(&mover).copied().unwrap_or(1.0);
     let guns: HashMap<UnitId, f64> = theirs.iter().map(|e| (e.unit, e.guns)).collect();
 
@@ -712,7 +779,7 @@ fn plan_fire(b: &mut Battle, team: &str) -> HashMap<UnitId, Option<UnitId>> {
     let mut plan: HashMap<UnitId, Option<UnitId>> = HashMap::default();
     let Some(&first) = shooters.first() else { return plan };
     let (mine, theirs) = ledger(b, first);
-    let price = prices(&mine, &theirs);
+    let price = prices_with(&mine, &theirs, &Shape::of(b));
     let mut room: HashMap<UnitId, f64> = theirs.iter().map(|e| (e.unit, OVERKILL * e.life)).collect();
     // the oracle: each shooter's expected damage on each enemy it can hit
     let mut shots: Vec<(UnitId, Vec<(UnitId, f64)>)> = Vec::new();
