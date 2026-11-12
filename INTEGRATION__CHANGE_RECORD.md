@@ -6,6 +6,18 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-12 (Claude, session 25), RULE FIX: A WALKING FALL IN A HEX HOLDING ANOTHER 'MECH SETS OFF A DOMINO EFFECT, BOTH ENGINES; TRIALS RECORD EACH BATTLE AS IT ENDS AND SURVIVE CRASHES; 400-BATTLE CHECKS. REVIEW PENDING (higher-level model).**
+  Daniel: "Cast a wider net for both the hunchback and the heavies. Maybe 400 games each." Both were flukes: Hunchback duel v Gladiator 190 - 187
+  (first version 182 - 195), heavies v Princess 282 - 116 (279 - 118). The first-version Hunchback run CRASHED (battle 8, seed 101): a Hunchback
+  walked backward through the hex of an immobile enemy (legal, Core p.48), failed the backward level change PSR and fell in the hex it was leaving
+  (p.115), on top of the enemy; next turn's movement table could not start from a blocked hex. The book does not cover a fall in an occupied hex
+  one passes through; MegaMek (TWGameManager.doEntityFallsInto) resolves the faller's fall, then a domino effect on the 'Mech already there,
+  heading the faller's way, or 1D6 when the fall is in the hex it was in. NEW `domino.fell_into_occupied` (INTEGRATION__domino.py,
+  engine/core/src/domino.rs), called from the walk (`walk_path`) after a fall. No reference log changed (Python 57 of 57, Rust 86 of 86).
+  RECORDING AS IT GOES (Daniel: "the results of each run is recorded when its done. This lets you quickly find crashes, and easilly restart a
+  set"): `btsim --stream FILE` appends each battle the moment it ends, a panic is caught and recorded as {"sim", "seed", "crashed"} and the set
+  goes on, and the same command again plays only the missing battles; `hydra_trial.py` / `round_robin.py` stream every batch to
+  `trial_records/progress/` (git-ignored), print crashes, keep them in the records line, and never write a batch twice.
 - **2026-11-12 (Claude, session 25), HYDRA: ALL FIVE SWITCHES ON BY DEFAULT; RUST TURN CAP 100; PER-BATTLE TRIAL RECORDS. Hydra's and capped battles' results change (meant to). REVIEW PENDING (higher-level model).**
   Daniel: "Leave them all on. Set the standard game cap to 100 rounds." All five on (S5a play-out, S4 charges / DFA, S3 move order, Waiting,
   Oracle attention; each turned off with its OFF value, listed at the top of `hydra.rs`). Measured with the cap at 150, same seeds: v Gladiator 397 -

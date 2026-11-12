@@ -45,6 +45,25 @@ pub fn displace_into_occupied(b: &mut Battle, mover: UnitId, label: &str, direct
     false
 }
 
+/// `mover` has just fallen while walking, in a hex another 'Mech also stands in: a hex it was allowed to pass through
+/// (an immobile enemy, Core p.48) and either entered as it fell or was leaving on a failed backward level change (p.115:
+/// it falls in the hex it was moving out of). The book does not cover this; MegaMek does
+/// (TWGameManager.doEntityFallsInto): the faller takes its normal fall (already resolved by the caller), then the 'Mech
+/// already there suffers a domino effect (p.114) - pushed out heading the way the faller was going (`direction`), or,
+/// when the faller fell in the hex it was already in (None), in a 1D6 direction. Found 2026-11-12 by a Hydra trial: the
+/// two 'Mechs were left stacked and the next movement table crashed. Nothing happens when no other 'Mech is there.
+pub fn fell_into_occupied(b: &mut Battle, mover: UnitId, direction: Option<i64>) {
+    let here = b.units[mover].hex.clone().unwrap();
+    let Some(other) = occupant(b, &here, &[mover]) else { return };
+    let direction = match direction {
+        Some(d) => d,
+        None => b.pick_number(6) - 1,
+    };
+    let line = format!("    {} fell in {}, where {} stands: DOMINO EFFECT (p.114).", name(b, mover), here, name(b, other));
+    b.log(line);
+    push_out(b, other, direction, &here);
+}
+
 /// An attacker follows into the hex its target just left. Returns True when `mover` fell here.
 pub fn advance_into(b: &mut Battle, mover: UnitId, label: &str, direction: i64, cause: &str) -> bool {
     if occupant(b, label, &[mover]).is_none() {

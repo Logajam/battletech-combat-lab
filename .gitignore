@@ -10,3 +10,4 @@ stats/
 engine/fixtures/
 engine/target/
 engine/fuzz/
+trial_records/progress/

@@ -42,12 +42,15 @@ def run(folder, battles, seed, threads, hydra):
             cmd += ["--set", argv[i + 1]]
     if "--max-turns" in argv:  # the turn cap for this trial (session 25)
         cmd += ["--max-turns", option(argv, "--max-turns", "50")]
-    out = json.loads(subprocess.run(cmd, capture_output=True, text=True, check=True).stdout)
-    # every battle's result, kept (tools/trial_records.py)
+    # every battle's result, kept as it ends and per batch (tools/trial_records.py)
     units = json.load(open(os.path.join(folder, "units.json")))
     bot = {u["team"]: u["bot"] for u in units.values()}
-    trial_records.append(trial_records.records_path(argv, "hydra_trial"), "hydra_trial", os.path.basename(folder.rstrip("/")),
-                         bot.get("Red"), bot.get("Blue"), hydra, argv, int(option(argv, "--max-turns", "50")), seed, battles, out)
+    path, scenario = trial_records.records_path(argv, "hydra_trial"), os.path.basename(folder.rstrip("/"))
+    cmd += trial_records.stream_args(path, scenario, bot.get("Red"), bot.get("Blue"), hydra, argv, seed, battles)
+    out = json.loads(subprocess.run(cmd, capture_output=True, text=True, check=True).stdout)
+    trial_records.report_crashes(out)
+    trial_records.append(path, "hydra_trial", scenario, bot.get("Red"), bot.get("Blue"), hydra, argv,
+                         int(option(argv, "--max-turns", "100")), seed, battles, out)
     return out
 
 

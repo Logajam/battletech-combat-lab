@@ -17,8 +17,15 @@ turn cap.
 
 The file name: trial_records/<date>_<tool>_<label>.jsonl, label from --label (default "run"). --records FILE overrides it;
 --no-records turns recording off.
+
+AS IT GOES (Daniel, 2026-11-12: "the results of each run is recorded when its done. This lets you quickly find crashes,
+and easily restart a set should the server ... shut down"): every batch also gets a PROGRESS file,
+trial_records/progress/<records file name>/<batch key>.jsonl, which btsim (--stream) appends each battle to the moment
+it ends, a crash included ({"sim", "seed", "crashed": message}; the set goes on). Run the same command again after a
+stop and each batch plays only its missing battles; a batch already in the records file is not written twice. A
+batch's crashes are kept in its records line ("crashed") and printed.
 """
-import datetime, json, os, subprocess
+import datetime, hashlib, json, os, subprocess
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RECORDS = os.path.join(ROOT, "trial_records")
@@ -45,6 +52,23 @@ def commit():
         return ""
 
 
+def stream_args(path, scenario, red, blue, hydra, argv, seed, battles):
+    """btsim arguments that stream this batch's battles to its progress file ([] when recording is off)."""
+    if not path:
+        return []
+    key = json.dumps([scenario, red, blue, hydra, settings(argv), option(argv, "--max-turns", ""), seed, battles])
+    folder = os.path.join(os.path.dirname(os.path.abspath(path)), "progress", os.path.splitext(os.path.basename(path))[0])
+    os.makedirs(folder, exist_ok=True)
+    name = f"{scenario}_{hydra or red + '_' + blue}_{hashlib.sha1(key.encode()).hexdigest()[:10]}.jsonl"
+    return ["--stream", os.path.join(folder, name)]
+
+
+def report_crashes(out):
+    """Prints a batch's crashed battles, if any."""
+    for c in out.get("crashed", []):
+        print(f"  CRASHED: battle {c['sim']} (seed {c['seed']}): {c['crashed']}", flush=True)
+
+
 def settings(argv):
     """The --set KEY=VALUE pairs of a command line, in order."""
     return [argv[i + 1] for i, a in enumerate(argv) if a == "--set"]
@@ -63,6 +87,16 @@ def append(path, tool, scenario, red, blue, hydra, argv, max_turns, seed, battle
                         "left": {t: [v["final_hp"], v["max_hp"]] for t, v in r["teams"].items()}})
     line = {"tool": tool, "date": datetime.date.today().isoformat(), "commit": commit(), "scenario": scenario,
             "red": red, "blue": blue, "hydra": hydra, "settings": settings(argv), "max_turns": max_turns,
-            "seed": seed, "battles": battles, "results": results}
+            "seed": seed, "battles": battles, "results": results, "crashed": out.get("crashed", [])}
+    # a batch already recorded (a re-run after a stop) is not written twice
+    same = ("tool", "scenario", "red", "blue", "hydra", "settings", "max_turns", "seed", "battles")
+    if os.path.exists(path):
+        for old in open(path):
+            try:
+                o = json.loads(old)
+            except ValueError:
+                continue
+            if all(o.get(k) == line[k] for k in same):
+                return
     with open(path, "a") as f:
         f.write(json.dumps(line) + "\n")

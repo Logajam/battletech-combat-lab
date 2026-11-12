@@ -131,6 +131,7 @@ import INTEGRATION__fire_modes as fire_modes  # noqa: E402
 import INTEGRATION__capacitor as capacitor  # noqa: E402
 import INTEGRATION__tag as tag  # noqa: E402
 import INTEGRATION__physical as physical  # noqa: E402
+import INTEGRATION__domino as domino  # noqa: E402 - a walking fall in an occupied hex (walk_path)
 import INTEGRATION__movement_selection as movement_selection  # noqa: E402
 import INTEGRATION__saved_state as saved_state  # noqa: E402
 import INTEGRATION__bots as bots  # noqa: E402 - which bot decides for each unit (2026-10-27)
@@ -571,13 +572,16 @@ def _walk_path(mover, pick, terrain_map, standup_mp, entry_edge):
         label, facing = hex_geometry.hex_label(sx, sy), hex_geometry.facing_to_compass(sf)
         if step == "turn":
             causes = ["mud"] if running and "mud" in hexes[here]["features"] else []
-            fall_at = here
+            fall_at, fall_dir = here, None
         else:
             from_info = None if step == "enter" else hexes[here]
             causes = terrain_rules.step_psr_causes(from_info, hexes[label], step == "backward", running)
             fall_at = label
+            # the way it was heading into `label` (a domino it sets off by falling there goes on that way)
+            fall_dir = domino.movement_attacks_direction(here, label) if here in hexes else None
             if step == "backward" and from_info is not None and from_info["level"] < hexes[label]["level"]:
                 fall_at = here                # p.46: the lower of the two hexes
+                fall_dir = None               # fell in the hex it was in: no heading (a domino goes a 1D6 way)
             here, moved = label, moved + 1
             got = hazards.enter_hex(mover, label)
             if got or is_destroyed(mover):
@@ -595,6 +599,8 @@ def _walk_path(mover, pick, terrain_map, standup_mp, entry_edge):
             if not _with_piloting(mover, roll):
                 mover.hex, mover.facing = fall_at, facing
                 _with_piloting(mover, piloting_rolls.resolve_fall, cause=f"failed {cause} PSR at {fall_at}")
+                # a hex it was passing through, with an immobile 'Mech in it (2026-11-12, INTEGRATION__domino)
+                domino.fell_into_occupied(mover, fall_dir, terrain_map)
                 return fall_at, facing, mp_after, moved, "fell"
     return None
 

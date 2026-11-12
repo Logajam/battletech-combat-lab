@@ -541,6 +541,21 @@ engine's turn cap is 100 (`scenario::STANDARD_MAX_TURNS`). Cost: a big battle ta
 (12 v 12 about 17-19 s a battle on 2 threads, against 7) and runs longer (45 - 75 turns on average). Records:
 `trial_records/2026-11-12_hydra_trial_*cap150_big.jsonl` (the small match-ups were run before records existed).
 
+### The two weak spots, 400 battles each (session 25, 2026-11-12): flukes
+
+Daniel: "Cast a wider net for both the hunchback and the heavies. Maybe 400 games each. Lets rule out fluke." Fresh seeds
+(101), 200 a seating, Hydra - house bot - no winner:
+
+| | first version (all five off) | all five on |
+|---|---|---|
+| Hunchback duel in woods v Gladiator | 182 - 195 - 23 | 190 - 187 - 23 |
+| 4 v 4 heavies on hills v Princess | 279 - 118 - 3 | 282 - 116 - 2 |
+
+The Hunchback duel is even (the 80-battle 29 - 38 and 33 - 47 were the seeds), and the switches did not hurt the heavies
+(67 - 13 -> 59 - 21 was the seeds). The first run of the first version crashed on battle 8: a rule gap in the engine, not
+Hydra (RULES_REVIEW F-list: a walking fall in a hex holding an immobile 'Mech). Records:
+`trial_records/2026-11-12_hydra_trial_wide_*.jsonl`.
+
 ## 8. Status
 
 | Block | State |
@@ -555,4 +570,4 @@ engine's turn cap is 100 (`scenario::STANDARD_MAX_TURNS`). Cost: a big battle ta
 | S4 charges / DFA | built, switch `HYDRA_MOVEMENT_ATTACKS`, ON by default since 2026-11-12 |
 | S3 move order, Waiting, Attention share | built, switches `HYDRA_MOVE_ORDER` / `HYDRA_WAITING` / `HYDRA_ATTENTION`, ON by default since 2026-11-12 |
 | S6 calibration | done, two passes: `btsim --ledger`, `tools/hydra_calibrate.py` (fit, fit2); FOCUS 0 by default; structure weight tested, kept at 2 |
-| Section 7 (Fable's list) | all built; open: the Hunchback brawler duel v Gladiator, the 4 v 4 heavies v Princess |
+| Section 7 (Fable's list) | all built; the two weak spots were flukes (400-battle check below) |
