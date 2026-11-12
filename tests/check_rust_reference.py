@@ -39,7 +39,8 @@ SCENARIOS_ZIP = os.path.join(ENGINE, "reference", "scenarios.zip")
 LOG_DIR = os.path.join(ENGINE, "reference", "logs")
 SEED = 1
 
-# Extra plays of a scenario with Hydra driving some teams: saved-log name -> (scenario folder, Hydra teams).
+# Extra plays of a scenario with Hydra driving some teams: saved-log name -> (scenario folder, Hydra teams[, settings]).
+# Settings are btsim --set KEY=VALUE pairs (session 25: the S5a play-out, HYDRA_PLAYOUT=s5a).
 VARIANTS = {
     "hydra_red__hy_duel_griffin": ("hy_duel_griffin", "Red"),
     "hydra_red__hy_duel_hunchback_woods": ("hy_duel_hunchback_woods", "Red"),
@@ -48,6 +49,9 @@ VARIANTS = {
     "hydra_blue__hy_4v4_heavy_hills": ("hy_4v4_heavy_hills", "Blue"),
     "hydra_red__hy_12v12_valley": ("hy_12v12_valley", "Red"),
     "hydra_both__hy_4v4_lance_grass": ("hy_4v4_lance_grass", "Red,Blue"),
+    "hydra_s5a_red__hy_4v4_lance_woods": ("hy_4v4_lance_woods", "Red", ["HYDRA_PLAYOUT=s5a"]),
+    "hydra_s5a_blue__hy_2v2_grass": ("hy_2v2_grass", "Blue", ["HYDRA_PLAYOUT=s5a"]),
+    "hydra_s5a_red__hy_8v8_valley": ("hy_8v8_valley", "Red", ["HYDRA_PLAYOUT=s5a"]),
 }
 
 
@@ -58,18 +62,21 @@ def build():
 
 
 def battles(scenario_dir):
-    """[(saved-log name, scenario folder, Hydra teams or None)] for every reference battle."""
+    """[(saved-log name, scenario folder, (Hydra teams or None, settings))] for every reference battle."""
     folders = sorted(d for d in os.listdir(scenario_dir) if os.path.isdir(os.path.join(scenario_dir, d)))
-    out = [(f, f, None) for f in folders]
-    out += [(name, folder, teams) for name, (folder, teams) in VARIANTS.items()]
+    out = [(f, f, (None, [])) for f in folders]
+    out += [(name, v[0], (v[1], v[2] if len(v) > 2 else [])) for name, v in VARIANTS.items()]
     return out
 
 
-def play(scenario_dir, folder, hydra):
+def play(scenario_dir, folder, variant):
     """One battle with btsim; returns the saved-log text."""
+    hydra, settings = variant
     cmd = [BTSIM, os.path.join(scenario_dir, folder), "--battles", "1", "--seed", str(SEED), "--log", "1", "--threads", "1"]
     if hydra:
         cmd += ["--hydra", hydra]
+    for kv in settings:
+        cmd += ["--set", kv]
     # HYDRA_CHECK (session 25, engine/core/src/playout.rs): every Hydra decision is also checked to leave the battle as it
     # found it (no dice, no log, no state); a breach panics, and the saved log then shows the difference.
     proc = subprocess.run(cmd, capture_output=True, text=True, env=dict(os.environ, HYDRA_CHECK="1"))
@@ -78,7 +85,7 @@ def play(scenario_dir, folder, hydra):
         return f"# btsim failed (exit {proc.returncode})\n" + proc.stderr
     out = json.loads(proc.stdout)
     r = out["results"][0]
-    lines = [f"# scenario {folder}" + (f", Hydra drives {hydra}" if hydra else ""),
+    lines = [f"# scenario {folder}" + (f", Hydra drives {hydra}" if hydra else "") + "".join(f", {kv}" for kv in settings),
              f"# seed {SEED}: winner {r['winner']}, {r['turns']} turns" + (" - NOTE: reached the turn cap" if out["hit_turn_cap"] else "")]
     for team, t in r["teams"].items():
         lines.append(f"#   {team}: {t['final_hp']} of {t['max_hp']} armor + structure left, team destroyed {t['destroyed']}, units {t['units']}, "

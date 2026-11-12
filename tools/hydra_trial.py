@@ -1,6 +1,6 @@
 """Hydra v the house bot, same seeds, sides swapped (INTEGRATION__HYDRA.md, Section 4).
 
-    python tools/hydra_trial.py SCENARIO_DIR [SCENARIO_DIR ...] [--battles 20] [--seed 1] [--threads N] [--btsim PATH]
+    python tools/hydra_trial.py SCENARIO_DIR [SCENARIO_DIR ...] [--battles 20] [--seed 1] [--threads N] [--btsim PATH] [--set KEY=VALUE ...]
 
 --btsim: a copy of the program to use (session 25), so the engine can be rebuilt while a long trial runs.
 
@@ -26,6 +26,11 @@ def run(folder, battles, seed, threads, hydra):
         cmd += ["--threads", threads]
     if hydra:
         cmd += ["--hydra", hydra]
+    # --set KEY=VALUE (any number): settings for this trial, passed to btsim (e.g. --set HYDRA_PLAYOUT=s5a)
+    argv = sys.argv[1:]
+    for i, a in enumerate(argv):
+        if a == "--set":
+            cmd += ["--set", argv[i + 1]]
     out = json.loads(subprocess.run(cmd, capture_output=True, text=True, check=True).stdout)
     return out
 

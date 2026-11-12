@@ -343,9 +343,39 @@ fn choose_movement_inner(b: &mut Battle, mover: UnitId, other: UnitId, moves_fir
     // enemy that weighs most on them (the rival) is given its best answer, and the spots are scored again against it.
     let mut reply_note = String::new();
     let mut best: Option<(f64, usize, Option<(UnitId, (f64, f64))>)> = scored.first().map(|(s, i)| (*s, *i, None));
+    // S5a: the judged lines of the chosen spot (per enemy (dealt, received), per enemy "elsewhere"), for the note
+    let mut best_lines: Option<(HashMap<UnitId, (f64, f64)>, HashMap<UnitId, f64>)> = None;
     let unmoved: Vec<UnitId> = relevant.iter().copied().filter(|e| !(b.units[*e].moved_this_turn || is_immobile(&b.units[*e]))).collect();
     let depth = (REPLY_BUDGET / relevant.len().max(1)).min(REPLY_MAX);
-    if !unmoved.is_empty() && depth >= 2 && !scored.is_empty() {
+    if b.cfg.has("HYDRA_PLAYOUT") && b.cfg.s("HYDRA_PLAYOUT") == "s5a" {
+        // S5a, THE MOVEMENT PLAY-OUT (INTEGRATION__HYDRA.md Section 6), in place of the reply below.
+        if !scored.is_empty() || tables.iter().all(|t| t.2 <= 0.0) {
+            let alone = tables.iter().all(|t| t.2 <= 0.0);
+            // every spot in rank order, one per hex; the play-out keeps as many as its budget allows
+            let mut short: Vec<usize> = Vec::new();
+            for (_, i) in if alone { &ranked } else { &scored } {
+                if !short.iter().any(|j| prepared[*j].hex_xy() == prepared[*i].hex_xy()) {
+                    short.push(*i);
+                    if short.len() == PLAYOUT_BUDGET {
+                        break;
+                    }
+                }
+            }
+            let po = playout(b, mover, &friends, &prepared, &short, &tables, &price, &guns, my_price, &my_exp);
+            if let Some((note, scored_short)) = po {
+                best = None;
+                for (i, lines, elsewhere) in scored_short {
+                    let (g, _, c) = weigh_lines(&tables, &lines, &elsewhere, my_price, i);
+                    let sc = rate(g, c, risks[i]);
+                    if best.map_or(true, |(bs, _, _)| sc > bs) {
+                        best = Some((sc, i, None));
+                        best_lines = Some((lines, elsewhere));
+                    }
+                }
+                reply_note = note;
+            }
+        }
+    } else if !unmoved.is_empty() && depth >= 2 && !scored.is_empty() {
         let mut short: Vec<usize> = Vec::new();
         // a unit alone (no friend any weighed enemy could turn on) may also stand where it deals nothing
         let alone = tables.iter().all(|t| t.2 <= 0.0);
@@ -391,7 +421,10 @@ fn choose_movement_inner(b: &mut Battle, mover: UnitId, other: UnitId, moves_fir
     }
     if let Some((score, i, instead)) = best {
         let o = &prepared[i];
-        let (g, on, c) = weigh(i, instead);
+        let (g, on, c) = match &best_lines {
+            Some((lines, elsewhere)) => weigh_lines(&tables, lines, elsewhere, my_price, i),
+            None => weigh(i, instead),
+        };
         let on = on.map_or("nobody".to_string(), |e| b.units[e].side_name.clone().unwrap_or_default());
         let note = format!("Hydra: rate {:.3} = (team {:.1} + gain {:.2} on {}) / (team {:.1} + cost {:.2} + risk {:.2}) ({} of {} enemies weighed, {} spots{})", score, d0, g, on, r0, c, risks[i], relevant.len(), enemies.len(), n, reply_note);
         return (Some(o.pick()), note);
@@ -422,6 +455,157 @@ fn choose_movement_inner(b: &mut Battle, mover: UnitId, other: UnitId, moves_fir
     }
     let o = &prepared[pick.unwrap().1];
     (Some(o.pick()), format!("Hydra: no spot deals damage - nearest safe spot to {}", goal_name))
+}
+
+// =============================================================================================================
+// S5a: THE MOVEMENT PLAY-OUT (INTEGRATION__HYDRA.md Section 6; groundwork in playout.rs)
+// =============================================================================================================
+/// Candidate spots of the mover played out (the top K, one per hex): K = PLAYOUT_BUDGET / responders, so a duel (one
+/// responder) looks as wide as the old reply and a crowded move about as costly. (First cut K = 8 flat lost the
+/// Griffin duel 28 - 33 where the reply's 64 spots won 38 - 26.)
+const PLAYOUT_BUDGET: usize = 64;
+/// Responders: units still to move that can matter, nearest to the mover first, at most this many.
+const PLAYOUT_RESPONDERS: usize = 3;
+
+/// (gain, the enemy it is on, cost) of option `i`, with judged lines where the play-out gave them: `lines` replaces an
+/// enemy's (dealt, received) at its final pose, `elsewhere` its "what else it could shoot at" from the final picture.
+fn weigh_lines(tables: &[(UnitId, f64, f64, Vec<(f64, f64)>)], lines: &HashMap<UnitId, (f64, f64)>, elsewhere: &HashMap<UnitId, f64>, my_price: f64, i: usize) -> (f64, Option<UnitId>, f64) {
+    let (mut gain, mut on, mut cost) = (0.0f64, None, 0.0f64);
+    for (e, p_e, els, table) in tables {
+        let (dealt, received) = lines.get(e).copied().unwrap_or(table[i]);
+        let g = p_e * dealt;
+        if g > gain {
+            gain = g;
+            on = Some(*e);
+        }
+        let hurt = my_price * received;
+        if hurt > 0.0 {
+            let els = elsewhere.get(e).copied().unwrap_or(*els);
+            cost += hurt * hurt / (hurt + els);
+        }
+    }
+    (gain, on, cost)
+}
+
+/// One responder, prepared once per decision: its reachable spots, seen against its counterpart (an enemy answers the
+/// mover; a friend answers the weighed enemy nearest it).
+struct Responder {
+    unit: UnitId,
+    enemy: bool,
+    counterpart: UnitId,
+    ev: MoveEvaluator,
+    spots: Vec<Opt>,
+    exp: [f64; 4],
+}
+
+/// THE PLAY-OUT. For each candidate spot of the mover: the responders, in the order they will move (Battle::move_queue),
+/// each pick their best answer against the picture so far and are POSED there; the POSITION JUDGE then reads the final
+/// picture: an enemy responder's line is the exchange with the mover from where it ended, and every weighed enemy's
+/// "elsewhere" (the friend it could shoot instead) is worked out again from the final positions - so a friend arriving
+/// near draws fire. Every pose is undone before the next spot. None when nobody is left to respond.
+/// Returns the note and, per candidate spot: (option index, judged lines, judged "elsewhere").
+#[allow(clippy::too_many_arguments, clippy::type_complexity)]
+fn playout(b: &mut Battle, mover: UnitId, friends: &[UnitId], prepared: &[Opt], short: &[usize], tables: &[(UnitId, f64, f64, Vec<(f64, f64)>)], price: &HashMap<UnitId, f64>, guns: &HashMap<UnitId, f64>, my_price: f64, my_exp: &[f64; 4]) -> Option<(String, Vec<(usize, HashMap<UnitId, (f64, f64)>, HashMap<UnitId, f64>)>)> {
+    let weighed: Vec<UnitId> = tables.iter().map(|t| t.0).collect();
+    let m_xy = xy(b, mover)?;
+    // THE RESPONDERS: still to move, on the board, free to move (prone, immobile, stuck: fixed, never a responder)
+    let queue: Vec<UnitId> = crate::playout::move_queue(b).to_vec();
+    let mut chosen: Vec<(i64, usize, UnitId, bool)> = Vec::new();
+    for (pos, &u) in queue.iter().enumerate() {
+        let m = &b.units[u];
+        if u == mover || m.hex.is_none() || m.moved_this_turn || m.prone || is_immobile(m) || matches!(m.stuck, Some(Some(_))) {
+            continue;
+        }
+        let enemy = weighed.contains(&u);
+        let is_friend = m.team == b.units[mover].team;
+        if !enemy && !is_friend {
+            continue; // an enemy that cannot matter to this move
+        }
+        if is_friend && !weighed.iter().any(|e| crate::legate::can_matter(b, u, *e)) {
+            continue;
+        }
+        let d = hex_distance(m_xy, xy(b, u).unwrap());
+        chosen.push((d, pos, u, enemy));
+    }
+    chosen.sort_by_key(|c| (c.0, c.1));
+    chosen.truncate(PLAYOUT_RESPONDERS);
+    if chosen.is_empty() {
+        return None;
+    }
+    chosen.sort_by_key(|c| c.1); // back to the order they move in
+    let mut responders: Vec<Responder> = Vec::new();
+    for &(_, _, u, enemy) in &chosen {
+        let counterpart = if enemy {
+            mover
+        } else {
+            let f_xy = xy(b, u).unwrap();
+            *weighed.iter().min_by_key(|e| (hex_distance(f_xy, xy(b, **e).unwrap()), **e)).unwrap()
+        };
+        let mut side = Side::new(b, u, true);
+        let exp = soft(side.exposure);
+        let options = move_select::opponent_options(b, u, &mut side);
+        let ev = MoveEvaluator::new(b, u, counterpart);
+        let spots = ev.prepare(b, &options);
+        responders.push(Responder { unit: u, enemy, counterpart, ev, spots, exp });
+    }
+    let names: Vec<String> = responders.iter().map(|r| b.units[r.unit].side_name.clone().unwrap_or_default()).collect();
+
+    let spots = (PLAYOUT_BUDGET / responders.len()).max(2);
+    let short = &short[..short.len().min(spots)];
+    let mut out = Vec::new();
+    for &i in short {
+        let o = &prepared[i];
+        let mut poses = crate::playout::Poses::new();
+        let mut lines: HashMap<UnitId, (f64, f64)> = HashMap::default();
+        for r in responders.iter_mut() {
+            // where the counterpart stands in the picture so far
+            let (c_label, c_facing, c_fc, c_mode, c_mp, c_exp, p_c) = if r.enemy {
+                (o.label.clone(), o.facing_compass.to_string(), o.fc, o.mode.to_string(), o.mp_spent, *my_exp, my_price)
+            } else {
+                let c = &b.units[r.counterpart];
+                (c.hex.clone().unwrap(), c.facing.clone(), c.move_fc, c.move_mode.clone(), c.mp_spent, soft(Side::new(b, r.counterpart, true).exposure), price.get(&r.counterpart).copied().unwrap_or(1.0))
+            };
+            let p_r = price.get(&r.unit).copied().unwrap_or(1.0);
+            // hexes taken: other units where they stand now, the poses so far, and the mover's candidate spot
+            let taken: Vec<String> = (0..b.units.len()).filter(|u| *u != r.unit && *u != mover).filter_map(|u| b.units[u].hex.clone()).chain(std::iter::once(o.label.clone())).collect();
+            let mut answer: Option<(f64, crate::move_eval::Candidate, (f64, f64))> = None;
+            for c in r.ev.evaluate(b, &c_label, &c_facing, c_fc, &c_mode, c_mp, &r.spots, true) {
+                if taken.contains(&c.hex) {
+                    continue;
+                }
+                // (damage it deals its counterpart, damage it takes), each where it lands
+                let deals = c.dealt * c_exp[side_ix(c.side_on_defender)];
+                let takes = c.received * r.exp[side_ix(c.side_on_mover)];
+                let v = p_c * deals - p_r * takes;
+                if answer.as_ref().map_or(true, |(a, _, _)| v > *a) {
+                    answer = Some((v, c, (deals, takes)));
+                }
+            }
+            if let Some((_, c, (deals, takes))) = answer {
+                if r.enemy {
+                    // the mover's line with this enemy: (what I deal it, what it deals me)
+                    lines.insert(r.unit, (takes, deals));
+                }
+                let pose = crate::playout::Pose { hex: Some(c.hex.clone()), facing: c.facing.to_string(), move_mode: c.mode.to_string(), move_fc: c.fc, mp_spent: c.mp_spent, movement_heat: c.movement_heat, moved_this_turn: true };
+                poses.pose(b, r.unit, &pose);
+            }
+        }
+        // THE POSITION JUDGE: every weighed enemy's "what else could it shoot at", from the final picture
+        let mut elsewhere: HashMap<UnitId, f64> = HashMap::default();
+        for &e in &weighed {
+            let Some(e_xy) = xy(b, e) else { continue };
+            let mut els = 0.0f64;
+            for &f in friends {
+                let v = price.get(&f).copied().unwrap_or(1.0) * guns.get(&e).copied().unwrap_or(0.0) * range_factor(hex_distance(e_xy, xy(b, f).unwrap()));
+                els = els.max(v);
+            }
+            elsewhere.insert(e, els);
+        }
+        poses.restore(b);
+        out.push((i, lines, elsewhere));
+    }
+    let note = format!("; play-out of {} spots, responders {}", short.len(), names.join(", "));
+    Some((note, out))
 }
 
 // =============================================================================================================

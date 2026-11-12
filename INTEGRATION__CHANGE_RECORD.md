@@ -6,6 +6,16 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-12 (Claude, session 25), ROUND ROBIN OF THE THREE BOTS; S5a PLAY-OUT BUILT AS A SWITCH (MEASURED LEVEL, DEFAULT UNCHANGED); BOT TIMINGS. REVIEW PENDING (higher-level model).**
+  Daniel: "First Lets get round robin stats for that set of matchups ... bot vs it self is also a category", "Then build S5a and run it against each
+  opponent", "what the time spent per bot per game is". (1) NEW `tools/round_robin.py` (every bot v every bot and itself, units' bots rewritten in a copy
+  of the scenario; same dice per seating; reproduces `hydra_trial.py` exactly). Nine mirror match-ups: Hydra v Princess 416 - 194, Hydra v Gladiator
+  285 - 245, Gladiator v Princess 331 - 240; self-play Gladiator 118 - 126 - 68 (most draws: backlog A1), Hydra 145 - 148, Princess 168 - 125 (Red edge).
+  (2) S5a, `hydra::playout` + `weigh_lines`, switch `HYDRA_PLAYOUT` ("reply" default / "s5a"); `btsim --set KEY=VALUE`; `--set` passed by `hydra_trial.py`
+  and `round_robin.py`. v Gladiator 309 - 218 (reply 285 - 245), v Princess 398 - 203 (reply 416 - 194): level overall, so the default stays "reply". A first
+  cut with 8 spots flat lost the Griffin duel (28 - 33); the spots now share a budget of 64. (3) Timings, one core, self-play: ms a turn - duel G 25 / P 7 /
+  H 38 / H+S5a 39; 4 v 4 G 164 / P 49 / H 79 / H+S5a 182; 12 v 12 G 335 / P 237 / H 231 / H+S5a 472. Tables: `INTEGRATION__HYDRA.md` Sections 5-6.
+  Checks: Rust reference 82 (3 new S5a battles; witness on); default path unchanged (the 79 earlier logs match).
 - **2026-11-12 (Claude, session 25), HYDRA v PRINCESS MEASURED; S5a GROUNDWORK BUILT (MOVE QUEUE, POSE, WITNESS). REVIEW PENDING (higher-level model).**
   Daniel: "Lets set up the Hydra Vs Princess runs. And set up the ground work for S5a". (1) Hydra v Princess on the mirror set, 40 battles a seating
   (16 for 8 v 8 / 12 v 12): 416 - 194 over nine, ahead in every match-up (table in `INTEGRATION__HYDRA.md` Section 5); `tools/hydra_trial.py --btsim

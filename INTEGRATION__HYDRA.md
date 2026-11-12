@@ -166,6 +166,32 @@ All nine: 416 - 194. Ahead everywhere, the brawler duel included (Princess is we
 8 v 8 and 12 v 12 Hydra wins more but its strength-left margin is slightly negative (-0.04, -0.03): it wins by finishing
 units, not by trading cheaply - few battles there, worth a longer look.
 
+**Round robin (session 25, 2026-11-12)**, `tools/round_robin.py`: every bot against every bot, itself included, on the
+nine mirror match-ups, both seatings, 40 battles a seating (16 for 8 v 8 / 12 v 12), seed 1. Wins - wins - no winner:
+
+| Pairing | Result | Share of decided battles |
+|---|---|---|
+| Hydra v Princess | 416 - 194 - 14 | Hydra 68% |
+| Hydra v Gladiator | 285 - 245 - 94 | Hydra 54% |
+| Gladiator v Princess | 331 - 240 - 53 | Gladiator 58% |
+| Gladiator v itself (Red - Blue) | 118 - 126 - 68 | |
+| Hydra v itself | 145 - 148 - 19 | |
+| Princess v itself | 168 - 125 - 19 | Red's edge is worth something to Princess, not to the others |
+
+So the order is Hydra, Gladiator, Princess. Gladiator v itself has the most draws (68 of 312): the stand-off of backlog A1.
+Gladiator v Princess per match-up: Princess wins only at 8 v 8 / 12 v 12 (20 - 24).
+
+**Time a battle takes (session 25, one core, nothing else running; each bot playing itself, so both sides' thinking):**
+
+| Match-up | Gladiator | Princess | Hydra | Hydra + S5a |
+|---|---|---|---|---|
+| duel, Griffin | 25 ms a turn (0.95 s a battle) | 7 (0.14) | 38 (1.58) | 39 (1.52) |
+| 4 v 4 lance | 164 (4.2) | 49 (1.2) | 79 (1.6) | 182 (3.3) |
+| 12 v 12 | 335 (14.6) | 237 (11.9) | 231 (4.9) | 472 (10.4) |
+
+The engine's own rules work is in every figure. Hydra's battles are also shorter (it trades), which is part of its speed per
+battle. S5a costs about 2.1 - 2.3 times plain Hydra per turn from 4 v 4 up (the plan's target: 2 times).
+
 What the weak spots have in common: few units, short range, and Hydra moving FIRST. Then everything
 rests on guessing the enemy's answer, and Hydra's guess (one rival, scored on Hydra's own terms) is
 poor: in the brawler duel it predicted "I deal 2.9, take 8.0" and still had to go. Stage S5a below is
@@ -309,7 +335,39 @@ a kill that changes everything) and for looking more than one turn ahead.
   march and that march's tie-break is a real, seeded random choice. First run: it found exactly that draw; Hydra's own
   thinking is clean in all 7 Hydra reference battles.
 
-Next, to build S5a itself: the RESPONDER (each unit in the queue near the mover picks from its own short list
+S5a ITSELF: BUILT (session 25), as a switch: `HYDRA_PLAYOUT` = "reply" (default, the old reply step) or "s5a"
+(`btsim --set HYDRA_PLAYOUT=s5a`; `hydra::playout`). For the mover's top spots (one per hex), the RESPONDERS - units still
+to move (the move queue) that can matter, friends and enemies, nearest first, at most 3 - each pick their best answer in
+the order they move, from their own reachable spots against their counterpart (an enemy answers the mover; a friend the
+weighed enemy nearest it), skipping hexes already taken, and are POSED there. The POSITION JUDGE then reads the picture:
+an enemy responder's exchange with the mover from where it ended, and every weighed enemy's "what else it could shoot at"
+from the final positions (so a friend arriving near draws fire). Every pose is undone; the witness checks it. Spots:
+PLAYOUT_BUDGET 64 shared by the responders (64 in a duel, 21 with three). First cut used 8 spots flat: it won team
+battles and lost the Griffin duel (28 - 33, where the reply's 64 spots win 38 - 26); v2 shares the budget.
+
+S5a v2 against the reply (same seeds; Hydra - house bot):
+
+| Match-up | v Gladiator, reply | v Gladiator, S5a | v Princess, reply | v Princess, S5a |
+|---|---|---|---|---|
+| duel, Griffin | 38 - 26 | 39 - 24 | 71 - 7 | 74 - 4 |
+| duel, Hunchback, woods | 29 - 38 | 28 - 37 | 51 - 25 | 54 - 22 |
+| duel, Awesome | 42 - 36 | 44 - 35 | 46 - 32 | 49 - 31 |
+| 2 v 2 | 34 - 34 | 34 - 36 | 52 - 28 | 51 - 28 |
+| 4 v 4 grass | 36 - 33 | 44 - 21 | 56 - 24 | 55 - 25 |
+| 4 v 4 woods | 35 - 30 | 37 - 29 | 49 - 30 | 42 - 38 |
+| 4 v 4 heavies | 42 - 25 | 50 - 17 | 56 - 24 | 45 - 33 |
+| 8 v 8 | 16 - 11 | 14 - 12 | 15 - 13 | 16 - 8 |
+| 12 v 12 | 13 - 12 | 19 - 7 | 20 - 11 | 12 - 14 |
+| **All nine** | **285 - 245** | **309 - 218** | **416 - 194** | **398 - 203** |
+
+Read: better against Gladiator (most in 4 v 4 and 12 v 12), a little worse against Princess (4 v 4 woods / heavies, 12 v 12);
+together 707 - 421 against 701 - 439 for the reply - within the noise. The brawler duel did not move. So the default stays
+"reply". Ideas for the next S5a pass: a responder answers only one counterpart (a friend answers one enemy, an enemy only
+the mover), so a friend never weighs its own exposure to the other enemies; enemies that cannot reach the mover are not
+responders even when they would shift fire onto a friend; the 3-responder cap; and the duel gap is NOT about the reply's
+width (S5a with 64 spots is the reply there) - look at charges / DFA (S4) and moving first for the brawler duel.
+
+Earlier plan text, for reference - to build S5a itself: the RESPONDER (each unit in the queue near the mover picks from its own short list
 against the poses so far), the POSITION JUDGE (Oracle both ways at the final poses, priced), and the budget N = 3
 responders, K = 8 candidate spots; replace the reply step with it; judge on both mirror tables.
 
@@ -337,5 +395,5 @@ responders, K = 8 candidate spots; replace the reply step with it; judge on both
 | Fire Plan | built |
 | Trial tools | `tools/hydra_scenarios.py`, `tools/hydra_trial.py` |
 | S5a groundwork: move queue, pose, witness | built, session 25 (`playout.rs`) |
-| S5a movement play-out (responder, judge) | planned (Section 6), not built |
+| S5a movement play-out (responder, judge) | built, switch `HYDRA_PLAYOUT` (default "reply": S5a measured level) |
 | Everything in Section 7 | not started |
