@@ -558,6 +558,10 @@ Hydra (RULES_REVIEW F-list: a walking fall in a hex holding an immobile 'Mech). 
 
 ## 8. Status
 
+**COMPLETE (Daniel, 2026-11-12: "I think this concludes building Hydra").** Defaults: all five switches on (Section 7,
+"All five together"); turn cap 100. What a later look could still take up: new Forecast inputs (guns by range, ammo
+left), S4 scored through the play-out, the move order's opposite end; none is planned.
+
 | Block | State |
 |---|---|
 | Plan (this file) | written 2026-11-11 |

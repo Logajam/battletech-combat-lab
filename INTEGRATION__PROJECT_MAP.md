@@ -14,7 +14,7 @@ project's files. Never let one source project's file overwrite the other's same-
 ---
 
 
-## 0. WHERE WE ARE (2026-11-11, session 25) — read this first
+## 0. WHERE WE ARE (2026-11-12, end of session 25) — read this first
 
 This section is the current state and the open work, nothing else. The story of how it got here is in
 `INTEGRATION__HISTORY.md` (the old Section 0, word for word, with Daniel's quotes and every number) and
@@ -41,8 +41,10 @@ and the GitHub logistics (Section 7).
 - Run: `python INTEGRATION__main.py`; every setting is in `INTEGRATION__config.py`.
 - **After any change:** `python tests/run_checks.py` - 57 checks today (41 test files + 15 reference battles + the
   Rust reference set as one line), 1-2 minutes, all must pass. The Rust set (session 25): `python tests/check_rust_reference.py`
-  plays 79 battles with `btsim` (inputs frozen in `engine/reference/scenarios.zip`, logs in `engine/reference/logs/`;
-  `--update` for a Rust change meant to alter results) - the Rust's own answer key, no Python needed. The Asymptote mirror prints a NOTE at the 50-turn cap (the stall, backlog A1).
+  plays 86 battles with `btsim` (inputs frozen in `engine/reference/scenarios.zip`, logs in `engine/reference/logs/`;
+  `--update` for a Rust change meant to alter results) - the Rust's own answer key, no Python needed. The Rust turn cap is 100
+  (`scenario::STANDARD_MAX_TURNS`, Daniel 2026-11-12; the Python keeps 50); 2 battles reach it: the Asymptote mirror (the stall,
+  backlog A1) and a first-version Hydra battle.
   `--bench` for anything on the hot path: a speed-only change must keep the benchmark's HP totals (501 / 495) and
   every reference log. A change MEANT to alter results: `python tests/check_reference_logs.py --update`, and say
   so in the Change Record. Art-only work runs only the three token tests (Section 7).
@@ -50,6 +52,10 @@ and the GitHub logistics (Section 7).
   --legate --turns 100 --seed N --stats --first A --last B` (resumable; one core's share - start four side by
   side; `--no-triage` = the old baseline), table by `python tests/battery_summary.py`. Launching a background
   command is not the battery finishing: read each output file, then report.
+- Rust bot trials: `tools/hydra_trial.py` (Hydra v the house bot, both seats; `--no-baseline`) and `tools/round_robin.py`
+  (every bot v every bot). Every battle is recorded in `trial_records/` as it ends (`btsim --stream`; a crash is recorded
+  with its seed and the set goes on; the same command again plays only what is missing); `tools/replay_undecided.py`
+  plays only a trial's capped battles on. Daniel: 40 battles a seating for a decision, 400 a match-up to rule out a fluke.
 - Show Daniel battles as replays: `config.REPLAY_BATTLES`, publish the page from `replays/` with the Artifact
   tool, give him the link.
 
@@ -64,13 +70,13 @@ and the GitHub logistics (Section 7).
 | Choices still stubs | Rate of fire, ammo kind, MASC / supercharger, unjam, capacitors, shields, TAG... (loud, counted) | `INTEGRATION__stubs.py`, Section 6 |
 | Output | Batch summary, timing table, replays, battle statistics page (stages 1-3 of 5), saved states (end of a turn) | `_results`, `_timing`, `_replay`, `_stats*`, `_saved_state` |
 | Rust engine | The whole engine and both default bots, exact against the Python on 63 fixtures and ~830 random battles; `btsim` batches about 10x the Python's speed a core. Not translated: the switches that are off by default | `engine/`, `INTEGRATION__RUST_PORT.md`, `engine/REVIEW_BRIEF.md` |
-| Hydra | Third bot, Rust only: one planner a team, damage priced by a forecast of the battle's end. All five planner switches on (2026-11-12): ahead of Gladiator and Princess in team battles, behind in the brawler duel | `engine/core/src/hydra.rs`, `INTEGRATION__HYDRA.md` |
+| Hydra | Third bot, Rust only: one planner a team, damage priced by a forecast of the battle's end. COMPLETE (Daniel, 2026-11-12: "this concludes building Hydra"). All five planner switches on: ahead of Gladiator and Princess in team battles, level in the duels (400-battle check) | `engine/core/src/hydra.rs`, `INTEGRATION__HYDRA.md` |
 | Speed (old) | Rust copies of the weapon table, movement search, LOS, hex distance for the Python; to be retired | `fastcore/`, `config.USE_FASTCORE` |
 | Combat Lab art | Skeleton-and-shell faceted models, block library, workbench | `_tokens`, `_shell*`, `tools/token_*`, `INTEGRATION__COMBAT_LAB*.md` |
 
 **Defaults that matter for the bots:** Legate on; fire split "proportional", this turn too; triage on (since
 2026-11-08); Gladiator's target = Princess's choice borrowed (`STUB_GLADIATOR_TARGET = "princess_plan"`; the fire
-director "kill_curve" is level with it, not better); big guns fire first; move order = Princess's index (Hydra's own, S3, measured and off). OFF
+director "kill_curve" is level with it, not better); big guns fire first; move order = Princess's index (Hydra picks its own, S3). OFF
 because they did not win more: Peril in the move score, stacked coverage, herding, cohesion, team value, exchange.
 
 **Yardstick** (Princess Red v Gladiator Blue, 12 v 12, 32 x 17 field, 100 battles, 100-turn cap): with triage
@@ -164,7 +170,7 @@ remove the line and note it in the Change Record.
 - **(v) SESSION 25 TIDY-UP** (2026-11-11; Change Record "SESSION 25"): the lookahead-dice fix in both engines
   (`structure_weight.hit_spread`, `structure_weight.rs`), the six-crew-hits rule (`piloting_rolls.rs`), the warning clean-up.
 - **(u) HYDRA, THE THIRD BOT** (session 24, Rust only) - plan `INTEGRATION__HYDRA.md`, code `engine/core/src/hydra.rs`. Second pass 2026-11-11 (exposure, lone unit may hide, reply 64; full table re-run in session 25: 285 - 245 head to head, HYDRA.md Section 5). First version built and
-  measured (Change Record "HYDRA"); NEXT WORK is the movement play-out, plan Section 6 (S5a), then Section 7. To review: the Forecast and Prices,
+  measured (Change Record "HYDRA"); DONE: Hydra building concluded 2026-11-12 (items (v)-(ag)); results in `INTEGRATION__HYDRA.md` Sections 5-8. To review: the Forecast and Prices,
   the Mover's score, the Fire Plan's overkill rule.
 - **(t) RUST PORT STAGES 1-9** - REVIEWED in session 24 (Change Record "RUST ENGINE REVIEWED"): two engine bugs fixed, 3-5x faster, random-battle
   check added. What is left of it for a later look: the five Python findings below it in Section 4 (Daniel's call), and the session-24 changes
@@ -650,6 +656,26 @@ forward arc, kicks included, never into a side arc.
 ---
 
 ## 5. DECISIONS LOG (Daniel's calls — implementation may not override)
+
+- **Hydra is complete (Daniel, 2026-11-12):** "I think this concludes building Hydra." Fable's list is all built.
+  "cheap runs against inferior opponents means you learn nothing. Leave them all on": Hydra plays with all five planner
+  switches on (S5a play-out, S4 charges / DFA, S3 move order, Waiting, Oracle attention share); each stays a switch with an
+  OFF value (top of `engine/core/src/hydra.rs`), and reference battles keep each OFF path played.
+- **Standard turn cap 100 (Daniel, 2026-11-12):** "Set the standard game cap to 100 rounds" (it was 50), in the Rust engine
+  (`scenario::STANDARD_MAX_TURNS`). The frozen Python and its recorded fixtures keep 50. A battle at the cap is still "a
+  possible flaw" and prints a NOTE. Only stalled battles need replaying when the cap moves ("you only need to run the
+  stalled out games").
+- **Trial records always on (Daniel, 2026-11-12):** "we need to keep records of results per individual game seed";
+  "the results of each run is recorded when its done. This lets you quickly find crashes, and easily restart a set".
+  Every trial battle is kept (`trial_records/`), written as it ends; a crash is recorded and the set goes on. Per-unit
+  fate (turn destroyed, by which attack and attacker) is TABLED: "We'll table that level of statistics for later."
+- **Ruling out a fluke (Daniel, 2026-11-12):** "Cast a wider net ... Maybe 400 games each. Lets rule out fluke." A
+  surprising result in one match-up gets 400 battles (200 a seating, fresh seeds) before it is called real.
+- **Illegal moves are refused, not repaired (Daniel, 2026-11-12):** "Think its simpler to just say 'No, that's not a
+  legal move.'" - a stop a unit may not end on (another unit's hex, Core p.49) is not offered.
+- **The Python is effectively dead code (Daniel, 2026-11-11):** "Its effectively dead code now, I don't intend to use it
+  for anything." It stays as the frozen answer key; rule fixes are still made in both engines while the exact-match
+  tests use it. The Rust checks itself with its own reference battles (`tests/check_rust_reference.py`).
 
 - **Battle statistics (Daniel, 2026-11-06):** the report is an HTML page (like the replays), one per batch.
   Teams get a limited set (win / loss, units standing and force remaining over time, survivors at the end, first

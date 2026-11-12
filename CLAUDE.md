@@ -99,8 +99,9 @@ GitHub logistics.
   `INTEGRATION__battle_value`). Daniel wants "general feel, not full stats":
   only the interesting series, few battles, unless he asks for a full run.
 - **Three bots now:** "hydra" (Rust only, session 24) is Claude's own design: one planner per team, damage priced
-  by a forecast of how the battle ends. `INTEGRATION__HYDRA.md` is its plan (read before the code), with results
-  and the next stage (play-outs). Trials: `tools/hydra_scenarios.py`, `tools/hydra_trial.py`, `btsim --hydra TEAM`.
+  by a forecast of how the battle ends. COMPLETE (Daniel, 2026-11-12); `INTEGRATION__HYDRA.md` is its plan and
+  results (read before the code). Trials: `tools/hydra_scenarios.py`, `tools/hydra_trial.py`, `tools/round_robin.py`,
+  `btsim --hydra TEAM`.
 - **Movement searches:** Short Grid is the default; Daniel's IF/THEN
   (`MOVEMENT_SEARCH = "if_then"`) is an option meant for multi-unit threat
   estimates, not a single 'Mech's default (PROJECT_MAP Section 5).
