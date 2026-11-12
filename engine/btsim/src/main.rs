@@ -30,7 +30,7 @@ fn battle_json(sim: u64, seed: u64, r: &BattleResult) -> Value {
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let Some(dir) = args.first().filter(|a| !a.starts_with("--")) else {
-        eprintln!("usage: btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--set KEY=VALUE ...]");
+        eprintln!("usage: btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--set KEY=VALUE ...] [--ledger FILE]");
         std::process::exit(2);
     };
     let battles: u64 = arg(&args, "--battles").map_or(1, |v| v.parse().expect("--battles"));
@@ -53,6 +53,28 @@ fn main() {
     // --hydra TEAM[,TEAM]: those teams are driven by Hydra (INTEGRATION__HYDRA.md)
     if let Some(t) = arg(&args, "--hydra") {
         scenario.hydra_teams = t.split(',').map(|x| x.to_string()).collect();
+    }
+    // --ledger FILE (session 25, S6 calibration): every battle also records a ledger snapshot at the end of each turn;
+    // written as one JSON line per battle {sim, seed, winner, turns, snapshots}. Results are the same as without it.
+    if let Some(path) = arg(&args, "--ledger") {
+        let started = std::time::Instant::now();
+        let runs: Vec<(u64, u64, BattleResult, Vec<Value>)> = (1..=battles)
+            .into_par_iter()
+            .map(|sim| {
+                let s = PcgDice::battle_seed(seed, sim);
+                let (r, snaps) = scenario.run_recorded(s);
+                (sim, s, r, snaps)
+            })
+            .collect();
+        let mut text = String::new();
+        for (sim, s, r, snaps) in &runs {
+            text.push_str(&serde_json::to_string(&json!({"sim": sim, "seed": s, "winner": r.winner, "turns": r.turns_taken, "snapshots": snaps})).unwrap());
+            text.push('\n');
+        }
+        std::fs::write(path, text).unwrap();
+        let out = json!({"battles": battles, "seed": seed, "seconds": started.elapsed().as_secs_f64(), "results": runs.iter().map(|(sim, s, r, _)| battle_json(*sim, *s, r)).collect::<Vec<_>>()});
+        println!("{}", serde_json::to_string_pretty(&out).unwrap());
+        return;
     }
     let started = std::time::Instant::now();
     let runs: Vec<(u64, u64, BattleResult, Vec<String>)> = (1..=battles)

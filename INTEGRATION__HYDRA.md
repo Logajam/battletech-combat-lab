@@ -400,8 +400,43 @@ at 58% for 10 damage loses to standing and shooting), so the brawler-duel gap is
 charges (the lance, the 4 v 4s), with no gain, and the big battles v Princess got worse. Likely why: an attack is scored
 against the enemies as they stand (ghosts), never against the reply / play-out, so walking into contact in a crowd is
 under-priced. If S4 is taken up again: score the attack spot through the same reply or play-out as the other spots.
-- **S6 Self-calibration**: fit the Forecast's few constants from thousands of finished battles, so its
-  margin matches what really happens.
+- **S6 Self-calibration**: DONE session 25 (first pass) - see below. The Forecast now assumes spread fire (FOCUS 0).
+
+### S6: calibrating the Forecast (session 25, 2026-11-12): DONE, first pass; FOCUS 0 is now the default
+
+Tools: `btsim --ledger FILE` (`scenario::run_recorded`: every unit's raw life and guns at the end of every turn and at the
+end; recording only reads - five batches identical with and without it) and `tools/hydra_calibrate.py` (`collect`: the nine
+mirror match-ups x Hydra v Gladiator / v Princess both seats, Hydra v Hydra, Gladiator v Gladiator, Princess v Princess,
+20 battles a seating, 8 for the big two, seed 11 - 1,092 battles; `fit`: the Forecast re-written in Python with three
+settings, scored against how each battle really ended). The OUTCOME is measured with the snapshot's guns held fixed,
+(Red's life at the end x guns - Blue's) / (the same with life at the snapshot), so it does not depend on what is fitted.
+The settings (`hydra::Shape`, `HYDRA_FORECAST_FOCUS` / `_FADE` / `_STEP`): FOCUS = share of fire poured in kill order, the
+rest spread in proportion to life; FADE = guns shrink with life; STEP = fire per step.
+
+What the data says (8,334 snapshots, every 3rd turn):
+- The first version is already sound: correlation 0.81 with the real margin, scale right (real = 0.98 x predicted), and
+  the predicted leader wins 93% of battles when it predicts a margin over 0.35, 78% at 0.2 - 0.35.
+- Over all sizes the shape hardly matters (error 0.0798 - 0.0808 for every FOCUS / STEP); FADE only made it worse.
+- By size it does: in DUELS it under-predicts swings (x 1.15; focus cannot matter, one target); with 9+ UNITS ALIVE it is
+  over-confident (real = 0.74 x predicted; right about the winner 66%) and SPREAD FIRE fits 20% better (error 0.040 v 0.050
+  for perfect focus).
+- In battle (same seeds as the earlier tables, NOT the fitting seeds), FOCUS 0 v the first version's FOCUS 1:
+
+| Match-up | v Gladiator | v Princess |
+|---|---|---|
+| 2 v 2 | 34 - 34 -> 38 - 26 | 52 - 28 -> 61 - 19 |
+| 4 v 4 grass | 36 - 33 -> 43 - 27 | 56 - 24 -> 51 - 29 |
+| 4 v 4 woods | 35 - 30 -> 38 - 24 | 49 - 30 -> 52 - 27 |
+| 4 v 4 heavies | 42 - 25 -> 69 - 7 | 56 - 24 -> 67 - 13 |
+| 8 v 8 | 16 - 11 -> 18 - 10 | 15 - 13 -> 20 - 10 |
+| 12 v 12 | 13 - 12 -> 18 - 9 | 20 - 11 -> 15 - 12 |
+| all six | 176 - 145 -> 224 - 103 | 248 - 130 -> 266 - 110 |
+
+  The three duels are identical either way (checked on both house bots). So FOCUS 0 is the default (`Shape::CALIBRATED`).
+  Why it plays better, a guess to check: with perfect focus the prices pile onto the one enemy next in kill order, so
+  Hydra over-commits to a single kill; spread fire prices the whole enemy line more evenly and Hydra trades better.
+- Left for a second pass: the duel's under-prediction (x 1.15), a size-dependent shape, the inputs themselves (`guns` =
+  `future_damage`, `life` = armor + weighted structure), and re-fitting on battles played by the calibrated Hydra.
 - **Waiting**: let a unit decline battle for a turn or two when every trade is bad and friends are
   coming (today it never refuses).
 - **Attention share**: the Mover's guess at how an enemy splits its fire uses a rough range rule;
@@ -419,4 +454,5 @@ under-priced. If S4 is taken up again: score the attack spot through the same re
 | S5a groundwork: move queue, pose, witness | built, session 25 (`playout.rs`) |
 | S5a movement play-out (responder, judge) | built, switch `HYDRA_PLAYOUT` (default "reply": S5a measured level) |
 | S4 charges / DFA | built, switch `HYDRA_MOVEMENT_ATTACKS` (default off: measured level) |
+| S6 calibration | first pass done: `btsim --ledger`, `tools/hydra_calibrate.py`; Forecast FOCUS 0 by default |
 | The rest of Section 7 | not started |
