@@ -149,6 +149,7 @@ Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-
 remove the line and note it in the Change Record.
 - **(ab) HYDRA S6 SECOND PASS** (session 25): `hydra::life_of` (`HYDRA_LIFE_STRUCTURE_WEIGHT`), armor / structure in `scenario::snapshot`, `fit2`.
 - **(ac) HYDRA S3 MOVE ORDER** (session 25): `hydra::move_pick` / `picks_move_order` (`HYDRA_MOVE_ORDER = "stake"`, off), the new `BotSet::move_pick` socket used by the turn loop's pick (and so by the move queue), `ledger_as` (read-only ledger). Two reference battles (86).
+- **(ad) HYDRA WAITING + ATTENTION SHARE** (session 25): `HYDRA_WAITING` (`coming_friends`, `HydraState::waited`) and `HYDRA_ATTENTION = "oracle"` (`elsewhere_of`, `attention_damage`), both off. Four reference battles (90).
 - **(aa) HYDRA S6, FORECAST CALIBRATION** (session 25): `hydra::Shape` / `forecast_with` / `prices_with`, `scenario::run_recorded`,
   `btsim --ledger`, `tools/hydra_calibrate.py`; default FOCUS 0. Also the stacking fix in `movement_attacks` (both engines).
 - **(z) HYDRA S4, CHARGES AND DFA** (session 25): `hydra::movement_attack` / `weigh_lines_only` (switch `HYDRA_MOVEMENT_ATTACKS`), 2 reference battles.

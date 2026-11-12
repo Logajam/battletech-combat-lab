@@ -23,6 +23,8 @@ pub struct HydraState {
     fire: HashMap<String, HashMap<UnitId, Option<UnitId>>>,
     /// S3 MOVE ORDER: this Movement Phase's (guns, price) per unit, per team (emptied when the phase starts)
     order: HashMap<String, HashMap<UnitId, (f64, f64)>>,
+    /// WAITING: per unit, (the turn it last declined battle, how many turns in a row it has)
+    waited: HashMap<UnitId, (i64, i64)>,
 }
 
 impl HydraState {
@@ -263,6 +265,86 @@ fn range_factor(dist: i64) -> f64 {
     if dist <= 9 { 1.0 } else if dist <= 15 { 0.6 } else if dist <= 21 { 0.3 } else { 0.0 }
 }
 
+/// ATTENTION SHARE: what else enemy `e` could be shooting at instead of the mover - the most (friend's price x damage
+/// on that friend) over the mover's friends. Two estimates:
+///   * the first version (default): the enemy's guns x `range_factor` of the distance, a rough range rule;
+///   * HYDRA_ATTENTION = "oracle" (session 25): the EXCHANGE ORACLE's expected damage of `e` on the friend as both
+///     stand (the engine's own to-hit, range, arcs, cover and line of sight), with `e` as a ghost if it has not moved
+///     (in its hex, having walked, facing the friend) and the friend where it is now.
+fn elsewhere_of(b: &mut Battle, e: UnitId, friends: &[UnitId], price: &HashMap<UnitId, f64>, guns: &HashMap<UnitId, f64>) -> f64 {
+    let Some(e_xy) = xy(b, e) else { return 0.0 };
+    let oracle = b.cfg.has("HYDRA_ATTENTION") && b.cfg.s("HYDRA_ATTENTION") == "oracle";
+    let mut most = 0.0f64;
+    for &f in friends {
+        let Some(f_xy) = xy(b, f) else { continue };
+        let dmg = if oracle { attention_damage(b, e, f, e_xy, f_xy) } else { guns.get(&e).copied().unwrap_or(0.0) * range_factor(hex_distance(e_xy, f_xy)) };
+        most = most.max(price.get(&f).copied().unwrap_or(1.0) * dmg);
+    }
+    most
+}
+
+/// The Oracle's expected damage of enemy `e` on friend `f` this turn, both where they stand (see `elsewhere_of`).
+fn attention_damage(b: &mut Battle, e: UnitId, f: UnitId, e_xy: (i64, i64), f_xy: (i64, i64)) -> f64 {
+    // a friend out of every weapon's reach of the enemy, even after the enemy walks, draws nothing
+    if hex_distance(e_xy, f_xy) > move_select::max_range(b, e) + compute_walk_mp(&b.units[e]).max(0) {
+        return 0.0;
+    }
+    let fixed = b.units[e].moved_this_turn || is_immobile(&b.units[e]);
+    let key: crate::move_options::StateKey = if fixed {
+        let m = &b.units[e];
+        let mode: &'static str = match m.move_mode.as_str() {
+            "Walk" => "Walk",
+            "Run" => "Run",
+            "Jump" => "Jump",
+            _ => "Stand Still",
+        };
+        (e_xy.0, e_xy.1, hex_geometry::compass_to_facing(&m.facing).unwrap_or(0), m.move_fc, mode, m.mp_spent)
+    } else {
+        let walked = compute_walk_mp(&b.units[e]).max(0);
+        let facing = if e_xy == f_xy { 0 } else { crate::combat::direction_facing(e_xy, f_xy).unwrap_or(0).rem_euclid(6) };
+        (e_xy.0, e_xy.1, facing, walked, if walked > 0 { "Walk" } else { "Stand Still" }, walked)
+    };
+    let mut ev = MoveEvaluator::new(b, e, f);
+    let prepared = ev.prepare(b, &[key]);
+    if prepared.is_empty() {
+        return 0.0;
+    }
+    let m = &b.units[f];
+    let (label, facing, fc, mode, mp) = (m.hex.clone().unwrap(), m.facing.clone(), m.move_fc, m.move_mode.clone(), m.mp_spent);
+    ev.evaluate(b, &label, &facing, fc, &mode, mp, &prepared, true).iter().map(|c| c.dealt).fold(0.0, f64::max)
+}
+
+/// WAITING (switch HYDRA_WAITING, session 25): a unit may decline battle at most this many turns in a row.
+const MAX_WAITS: i64 = 2;
+
+/// A friend this many hexes further from the enemy than the mover is still COMING (the mover is out ahead of it).
+const BEHIND: i64 = 3;
+
+/// Is a friend still COMING: not on the board yet, or on it, able to move, and at least BEHIND hexes further from its
+/// nearest enemy than the mover is from its own (so the mover is out in front of its line)? Returns (any coming, the board
+/// positions of those on the board). First try (out of every enemy's reach, `legate::can_matter`) never held in the mirror
+/// match-ups: both forces enter together and all are in reach from the first turn.
+fn coming_friends(b: &mut Battle, mover: UnitId, enemies: &[UnitId]) -> (bool, Vec<(i64, i64)>) {
+    let nearest = |b: &Battle, p: (i64, i64)| enemies.iter().filter_map(|e| xy(b, *e)).map(|q| hex_distance(p, q)).min().unwrap_or(0);
+    let Some(m) = xy(b, mover) else { return (false, Vec::new()) };
+    let front = nearest(b, m);
+    let mut any = false;
+    let mut at = Vec::new();
+    let friends: Vec<UnitId> = crate::forces::standing(b).into_iter().filter(|u| *u != mover && b.units[*u].team == b.units[mover].team).collect();
+    for f in friends {
+        match xy(b, f) {
+            None => any = true,
+            Some(p) => {
+                if !is_immobile(&b.units[f]) && nearest(b, p) >= front + BEHIND {
+                    any = true;
+                    at.push(p);
+                }
+            }
+        }
+    }
+    (any, at)
+}
+
 /// THE REPLY's budget: about this many "what would it answer" searches per move, shared out over the enemies weighed, and
 /// never more than REPLY_MAX spots re-scored. Under 2 spots the reply is skipped (a big battle: the table speaks alone).
 const REPLY_BUDGET: usize = 64;
@@ -386,13 +468,8 @@ fn choose_movement_inner(b: &mut Battle, mover: UnitId, other: UnitId, moves_fir
         let its_exp = soft(Side::new(b, e, true).exposure);
         let table = exchange(b, mover, e, &prepared, &index, &my_exp, &its_exp);
         let p_e = price.get(&e).copied().unwrap_or(1.0);
-        // what else this enemy could be shooting at: its best friend-target, roughly
-        let e_xy = xy(b, e).unwrap();
-        let mut elsewhere = 0.0f64;
-        for &f in &friends {
-            let v = price.get(&f).copied().unwrap_or(1.0) * guns.get(&e).copied().unwrap_or(0.0) * range_factor(hex_distance(e_xy, xy(b, f).unwrap()));
-            elsewhere = elsewhere.max(v);
-        }
+        // what else this enemy could be shooting at: its best friend-target (the attention share)
+        let elsewhere = elsewhere_of(b, e, &friends, &price, &guns);
         tables.push((e, p_e, elsewhere, table));
     }
     // (gain, the enemy it is on, cost) of option i; `instead` swaps one enemy's line of the table for a modeled reply
@@ -429,9 +506,11 @@ fn choose_movement_inner(b: &mut Battle, mover: UnitId, other: UnitId, moves_fir
     let mut scored: Vec<(f64, usize)> = Vec::new();
     let mut ranked: Vec<(f64, usize)> = Vec::new();
     let mut cost = vec![0.0f64; n];
+    let mut gains = vec![0.0f64; n];
     for i in 0..n {
         let (g, _, c) = weigh(i, None);
         cost[i] = c;
+        gains[i] = g;
         if g > 0.0 {
             scored.push((rate(g, c, risks[i]), i));
         }
@@ -529,6 +608,44 @@ fn choose_movement_inner(b: &mut Battle, mover: UnitId, other: UnitId, moves_fir
         if let Some((sc, pick, note)) = movement_attack(b, mover, &mut me, standup_mp, &tables, my_price, &my_exp, d0, r0) {
             if normal.map_or(true, |ns| sc > ns) {
                 return (Some(pick), format!("Hydra: {} - rate {:.3} beats {}", note, sc, normal.map_or("nothing".to_string(), |ns| format!("{:.3}", ns))));
+            }
+        }
+    }
+    // WAITING (switch HYDRA_WAITING, session 25): the Mover never refuses battle by default. With the switch, when the best
+    // trade on offer is worse than the team's typical turn (its rate below d0 / r0) and a friend is still coming, the unit
+    // may take a spot that deals nothing, scored like any other ((d0 + 0) / (r0 + cost + risk): only a spot no weighed
+    // enemy can punish much beats the bad trade); among equals, the one nearest a coming friend. At most MAX_WAITS turns in
+    // a row, so the battle still gets fought.
+    if entry_edge.is_none() && b.cfg.has("HYDRA_WAITING") && b.cfg.b("HYDRA_WAITING") {
+        if let Some((best_rate, _, _)) = best {
+            let turn = b.units[mover].turn_number;
+            let streak = match b.hydra.waited.get(&mover) {
+                Some(&(t, k)) if t == turn => k - 1,
+                Some(&(t, k)) if t == turn - 1 => k,
+                _ => 0,
+            };
+            if best_rate < d0 / r0.max(1e-9) && streak < MAX_WAITS {
+                let (coming, at) = coming_friends(b, mover, &enemies);
+                if coming {
+                    let near = |i: usize| at.iter().map(|p| hex_distance(prepared[i].hex_xy(), *p)).min().unwrap_or(0);
+                    let mut hold: Option<(f64, i64, usize)> = None;
+                    for i in 0..n {
+                        if gains[i] > 0.0 {
+                            continue;
+                        }
+                        let (r, d) = (rate(0.0, cost[i], risks[i]), near(i));
+                        if hold.map_or(true, |(hr, hd, _)| r > hr + 1e-12 || ((r - hr).abs() <= 1e-12 && d < hd)) {
+                            hold = Some((r, d, i));
+                        }
+                    }
+                    if let Some((r, _, i)) = hold {
+                        if r > best_rate {
+                            b.hydra.waited.insert(mover, (turn, streak + 1));
+                            let note = format!("Hydra: waits for its friends - rate {:.3} holding beats {:.3}, the best trade (team {:.1} / {:.1}; wait {} of {})", r, best_rate, d0, r0, streak + 1, MAX_WAITS);
+                            return (Some(prepared[i].pick()), note);
+                        }
+                    }
+                }
             }
         }
     }
@@ -787,12 +904,7 @@ fn playout(b: &mut Battle, mover: UnitId, friends: &[UnitId], prepared: &[Opt], 
         // THE POSITION JUDGE: every weighed enemy's "what else could it shoot at", from the final picture
         let mut elsewhere: HashMap<UnitId, f64> = HashMap::default();
         for &e in &weighed {
-            let Some(e_xy) = xy(b, e) else { continue };
-            let mut els = 0.0f64;
-            for &f in friends {
-                let v = price.get(&f).copied().unwrap_or(1.0) * guns.get(&e).copied().unwrap_or(0.0) * range_factor(hex_distance(e_xy, xy(b, f).unwrap()));
-                els = els.max(v);
-            }
+            let els = elsewhere_of(b, e, friends, price, guns);
             elsewhere.insert(e, els);
         }
         poses.restore(b);

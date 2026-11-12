@@ -60,7 +60,7 @@ GitHub logistics.
 - **After every change:**
   - Run `python tests/run_checks.py` (about 1 min): every `tests/test_*.py`
     plus every reference battle, side by side, one line each, plus the Rust
-    engine's own 86 reference battles (`tests/check_rust_reference.py`, when
+    engine's own 90 reference battles (`tests/check_rust_reference.py`, when
     cargo is installed; `--update` there for a Rust change meant to alter
     results). All must pass.
     Reference battles stop at 50 turns; one that hits the cap prints a NOTE

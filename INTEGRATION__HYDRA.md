@@ -485,10 +485,37 @@ depend on the structure weight being fitted; the margin measure does).
 - So the Forecast's FORM is now as good as this family of models gets: what is left is noise from the dice and from
   what the ledger cannot see (position, heat, ammo). A better Forecast would need new inputs (e.g. guns by range, or
   ammo left), not new constants.
-- **Waiting**: let a unit decline battle for a turn or two when every trade is bad and friends are
-  coming (today it never refuses).
-- **Attention share**: the Mover's guess at how an enemy splits its fire uses a rough range rule;
-  replace it with the Oracle where the cost allows.
+- **Waiting**: BUILT session 25 as a switch, `HYDRA_WAITING` (default off), measured level - see below.
+- **Attention share**: BUILT session 25 as a switch, `HYDRA_ATTENTION = "oracle"` (default off: the range rule), level
+  overall, better in the two big battles - see below.
+
+### Waiting and Attention share (session 25, 2026-11-12): built, measured, both OFF by default
+
+WAITING (`HYDRA_WAITING`, in `choose_movement_inner` after the reply): when the best trade's rate is below the team's
+typical turn (d0 / r0) and a friend is still COMING, the unit may take a spot that deals nothing, scored like any other
+spot, (d0 + 0) / (r0 + cost + risk); it wins only where no weighed enemy can punish much. Ties: nearest a coming friend.
+At most `MAX_WAITS` = 2 turns in a row (`HydraState::waited`), so the battle is still fought. COMING (`coming_friends`): not
+on the board yet, or able to move and at least `BEHIND` = 3 hexes further from its nearest enemy than the mover is - the
+mover is out ahead of its line. The first definition (a friend out of every enemy's reach) never held in the mirror
+match-ups, where both forces enter together. It fires a few times a battle in a 4 v 4, a dozen or more in 8 v 8.
+
+ATTENTION SHARE (`HYDRA_ATTENTION = "oracle"`, `elsewhere_of` / `attention_damage`): "what else could this enemy shoot
+at" is the Oracle's expected damage of the enemy on each friend as both stand (enemy as a ghost if unmoved), x the friend's
+price, the most over friends; in place of guns x `range_factor`. Used by the Mover's cost and by the S5a position judge.
+
+Same seeds and battles as S3 (40 a seating, 16 for 8 v 8 / 12 v 12); Hydra - house bot:
+
+| | first version | Waiting | Attention (Oracle) |
+|---|---|---|---|
+| v Gladiator, nine match-ups | 333 - 203 | 335 - 195 | 329 - 213 |
+| v Princess, nine match-ups | 434 - 174 | 426 - 179 | 441 - 165 |
+| of which 8 v 8 + 12 v 12, both opponents | 71 - 41 | 65 - 44 | 80 - 31 |
+| of which 2 v 2 + 4 v 4, both opponents | 419 - 172 | 422 - 166 | 413 - 187 |
+
+Duels identical (no friend: neither can act). Waiting is noise everywhere. Attention is level overall but splits by size:
+better in both big battles against both bots, worse in the 4 v 4s against Gladiator (heavies 69 - 7 -> 56 - 14). The big
+battles are 64 battles a cell, so the gain is a hint, not a result; a confirming run of the big two on fresh seeds would
+settle whether to turn it on for big battles only. Cost: about 10-20% more time a battle in 8 v 8 / 12 v 12.
 
 ## 8. Status
 
