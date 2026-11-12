@@ -222,8 +222,9 @@ reference battle to: every unit rebuilt from its compact state equals its real r
 and what a Combat Lab save of a unit needs.**
 
 **B3, Java half (next).** For each MegaMek unit, write those fields from MegaMek's `Entity` (position, facing, heat,
-armor per location, destroyed slots, ammo by bin, jams...), and for the start line, build each unit's record from its
-`.mtf` with our own loader (the scenario builder's path). Many of the 78 are our engine's own bookkeeping (snapshots
+armor per location, destroyed slots, ammo by bin, jams...). The START line is ready: `{"settings": {...}, "hydra_teams",
+"seed"}` builds the game in Rust from settings (Combat Lab CL1, `Scenario::from_settings`): FORCES with each unit's `.mtf`,
+team, hex, facing, skills; the board; `DEPLOYMENT: "fixed_hexes"`. The Java side writes that from the MegaMek game. Many of the 78 are our engine's own bookkeeping (snapshots
 taken at phase starts, this turn's movement, `hp_log`): the decision process can keep those itself from the signals
 rather than read them from MegaMek. Sorting the 78 into "MegaMek says" and "we keep" is B3's first job.
 

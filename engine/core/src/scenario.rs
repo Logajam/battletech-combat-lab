@@ -31,7 +31,87 @@ fn read(p: &Path) -> Value {
 /// reaches it ends with no winner. The Python answer key and its recorded fixtures keep their own cap (50).
 pub const STANDARD_MAX_TURNS: i64 = 100;
 
+/// Where `Scenario::from_settings` finds its files: the settings defaults (`engine/defaults/config.json`) and the
+/// data folder its `DATA_DIR` setting is relative to (the repository root, as the Python ran).
+pub struct SetupPaths {
+    pub defaults: std::path::PathBuf,
+    pub root: std::path::PathBuf,
+}
+
+impl SetupPaths {
+    /// The repository root this program runs from: BTSIM_ROOT, else three folders above the running binary
+    /// (engine/target/release/btsim).
+    pub fn find() -> SetupPaths {
+        let root = std::env::var("BTSIM_ROOT").map(std::path::PathBuf::from).unwrap_or_else(|_| {
+            std::env::current_exe().ok().and_then(|e| e.ancestors().nth(4).map(|p| p.to_path_buf())).unwrap_or_else(|| std::path::PathBuf::from("."))
+        });
+        SetupPaths::at(&root)
+    }
+
+    /// From the repository root.
+    pub fn at(root: &Path) -> SetupPaths {
+        SetupPaths { defaults: root.join("engine").join("defaults").join("config.json"), root: root.to_path_buf() }
+    }
+}
+
 impl Scenario {
+    /// COMBAT LAB CL1 (INTEGRATION__COMBAT_LAB_SPECS.md; also the MegaMek bridge's start, B3): a scenario built in Rust from
+    /// SETTINGS - a JSON object of the settings that differ from the defaults, under the Python's own names (`FORCES`,
+    /// or `MECH_RED_MTF` / `MECH_BLUE_MTF` and their `_CONFIG`; `DEFAULT_BOARD_PATH` or `STITCH_MAPS` with
+    /// `STITCH_BOARDS`; `DEPLOYMENT`; any other switch). No Python needed. The same steps as the Python's battle start:
+    /// the roster (`setup::roster`), each unit parsed from its `.mtf` and given its settings (`attach_mech_config`),
+    /// the board parsed (or stitched) and prepared (`terrain_rules::prepare_board`). Deployment is not done here: the
+    /// battle does it on its own dice, as with a scenario folder. Err = what is wrong (a missing file, a bad board).
+    /// Board names are files under DATA_DIR; maps packed in `data/maps.zip` must be unpacked first.
+    pub fn from_settings(settings: &Value, paths: &SetupPaths) -> Result<Scenario, String> {
+        use crate::battle::TapeDice;
+        let text = fs::read_to_string(&paths.defaults).map_err(|e| format!("{}: {}", paths.defaults.display(), e))?;
+        let mut config: Value = serde_json::from_str(&text).map_err(|e| format!("{}: {}", paths.defaults.display(), e))?;
+        for (k, v) in settings.as_object().ok_or("the settings must be a JSON object")? {
+            config[k.as_str()] = v.clone();
+        }
+        let cfg = Config::from_json(&config);
+        let data = paths.root.join(cfg.s("DATA_DIR"));
+        let read = |name: &str| -> Result<(String, String), String> {
+            let p = data.join(name);
+            let t = fs::read_to_string(&p).map_err(|e| format!("{}: {} (a map packed in data/maps.zip must be unpacked first)", p.display(), e))?;
+            Ok((p.to_string_lossy().to_string(), t))
+        };
+        let mut out = String::new();
+        let mut board = if cfg.b("STITCH_MAPS") {
+            let names: Vec<String> = cfg.get("STITCH_BOARDS").as_array().ok_or("STITCH_BOARDS")?.iter().map(|n| n.as_str().unwrap().to_string()).collect();
+            let files = names.iter().map(|n| read(n)).collect::<Result<Vec<_>, _>>()?;
+            crate::board_parser::stitch_boards(&files, cfg.i("STITCH_GRID_COLS"), cfg.i("STITCH_GRID_ROWS"), &mut out)?
+        } else {
+            let (p, t) = read(cfg.s("DEFAULT_BOARD_PATH"))?;
+            crate::board_parser::parse_board_file(&p, &t, &mut out)?
+        };
+        crate::terrain_rules::prepare_board(&mut board, cfg.b("PASSIVE_BUILDINGS"))?;
+        let entries = crate::setup::roster(&cfg);
+        let db = crate::equipment::EquipmentDb::load();
+        let mut mechs = Vec::new();
+        for (mtf, label, _) in &entries {
+            let (_, t) = read(mtf)?;
+            mechs.push(crate::mtf_parser::parse_mtf(&db, &t, &mut out).map_err(|e| format!("{} ({}): {}", label, mtf, e))?);
+        }
+        let board_json = board.to_json();
+        let mut b = Battle::new(cfg, board, mechs, Box::new(TapeDice::new(vec![])));
+        for (u, (_, label, setup)) in entries.iter().enumerate() {
+            crate::setup::attach_mech_config(&mut b, u, setup, label);
+        }
+        for m in b.units.iter_mut() {
+            m.assign_addresses();
+        }
+        let names: Vec<String> = entries.iter().map(|e| e.1.clone()).collect();
+        let name_of = |i: usize| names[i].clone();
+        let mut units = serde_json::Map::new();
+        for (i, n) in names.iter().enumerate() {
+            units.insert(n.clone(), b.units[i].to_json(&name_of));
+        }
+        config.as_object_mut().unwrap().remove("_ACTIVE_RNG");
+        Ok(Scenario { hydra_teams: Vec::new(), config, board: board_json, units: Value::Object(units), max_turns: STANDARD_MAX_TURNS })
+    }
+
     pub fn load(dir: &Path) -> Scenario {
         // THE TURN CAP: STANDARD_MAX_TURNS for every scenario (btsim --max-turns changes it for a run). A meta.json's
         // max_turns is the Python's old 50 (config.MAX_TURNS, written by the export) and is not read.

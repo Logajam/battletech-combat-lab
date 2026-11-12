@@ -6,6 +6,14 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-12 (Claude, session 25), COMBAT LAB CL1: A SCENARIO BUILT BY RUST FROM SETTINGS, NO PYTHON (also the MegaMek bridge's start). No battle result changes. REVIEW PENDING (higher-level model).**
+  Daniel: "Continue with the build" (and "a lot of this is needed for CombatLab"). NEW `Scenario::from_settings` + `SetupPaths` (scenario.rs),
+  `engine/defaults/config.json` (the Python's settings, dumped as the fixtures were), `setup::roster` (moved from tests/stage6_attach.rs),
+  `btsim --setup FILE [--write-scenario DIR]`, and the bridge's start line takes `{"settings": ...}`. Check `engine/core/tests/cl1_setup.rs`: all
+  fixtures built from their settings equal their Python-built units.json and board.json (in run_checks). Daniel asked about the "background
+  planner" the bridge bot needed: MegaMek's Precognition, a thread that works out every unit's reachable hexes and ECM while the opponent moves
+  so Princess answers at once; a speed device, not a decision - our clone computes the same tables when it decides.
+
 - **2026-11-12 (Claude, session 25), MEGAMEK BRIDGE B2 (THE JAVA SIDE) AND THE RUST HALF OF B3 (COMPACT UNIT STATE). No battle result changes. REVIEW PENDING (higher-level model).**
   Daniel: "Continue with the build at your discretion" (and: "a lot of this is needed for CombatLab"). NEW `megamek_bridge/` (Java, GPL v3, built
   against the unchanged MegaMek 0.51.01.7 release by `build.sh`): `HydraBridge extends Princess` (starts `btsim decide`, every decision a counted

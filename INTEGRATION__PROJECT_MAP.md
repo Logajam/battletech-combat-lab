@@ -143,7 +143,8 @@ real Princess and CASPAR through the bridge (E4).
 - E1. Battle statistics: stages 4-5 (Change Record "BATTLE STATISTICS", Section 5).
 - E2. Combat Lab GUI [12, 14]: HTML front end behind an `.exe` (Daniel); setup shell first; MegaMek save import
   to test later. `INTEGRATION__COMBAT_LAB.md`.
-  BUILD ORDER as spec sheets CL1-CL9 (session 24, on the Rust engine): `INTEGRATION__COMBAT_LAB_SPECS.md`.
+  BUILD ORDER as spec sheets CL1-CL9 (session 24, on the Rust engine): `INTEGRATION__COMBAT_LAB_SPECS.md`. CL1 DONE
+  (session 25: `btsim --setup`, a scenario from settings in Rust).
 - E3a. Art direction (session 24): why the models read as stacked blocks, and jobs A1-A8 in order -
   `INTEGRATION__COMBAT_LAB_ART_SPECS.md` (nothing built).
 - E4. MegaMek bridge (Daniel, 2026-11-12): our bots play in a live MegaMek game - Daniel against Hydra in MegaMek's
@@ -165,6 +166,7 @@ remove the line and note it in the Change Record.
 - **(ac) HYDRA S3 MOVE ORDER** (session 25): `hydra::move_pick` / `picks_move_order` (`HYDRA_MOVE_ORDER = "stake"`, off), the new `BotSet::move_pick` socket used by the turn loop's pick (and so by the move queue), `ledger_as` (read-only ledger). Two reference battles (86).
 - **(ad) HYDRA WAITING + ATTENTION SHARE** (session 25): `HYDRA_WAITING` (`coming_friends`, `HydraState::waited`) and `HYDRA_ATTENTION = "oracle"` (`elsewhere_of`, `attention_damage`), both off. Four reference battles (90).
 - **(ag) WALKING FALL INTO AN OCCUPIED HEX + STREAMED TRIALS** (session 25): `domino.fell_into_occupied` (both engines, MegaMek's rule), `btsim --stream` (per-battle lines, crash catching, resume), progress files in `trial_records/progress/`.
+- **(ak) COMBAT LAB CL1** (session 25): `Scenario::from_settings`, `engine/defaults/config.json`, `tests/cl1_setup.rs`.
 - **(aj) MEGAMEK BRIDGE B2 + B3 (Rust half)** (session 25): `megamek_bridge/` (Java), `bridge.rs` compact state - check the field lists' completeness argument and the Java launcher against MegaMek's ScenarioGameRunner.
 - **(ai) MEGAMEK BRIDGE B1** (session 25): `engine/core/src/bridge.rs`, `btsim decide`, `--bridge-parity`, `tests/check_bridge_parity.py` - check the signal list is complete (a bot call added later must be added to `bridge::call` and the `Recorder`), and the state's completeness argument (unit dumps + the fields `state_json` lists).
 - **(ah) MEGAMEK BRIDGE SPEC** (session 25): `INTEGRATION__MEGAMEK_BRIDGE.md` - check its read of MegaMek's source and the design before Sonnet builds it (T14).

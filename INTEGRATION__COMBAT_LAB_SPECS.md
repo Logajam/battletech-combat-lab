@@ -30,7 +30,7 @@ SNAPSHOT and TURN CURSOR): build it once, for both.
 
 | Sheet | Job | Suits | Size |
 |---|---|---|---|
-| CL1 | A battle set up from unit and board files, in Rust | Sonnet | medium |
+| CL1 | A battle set up from unit and board files, in Rust - DONE (session 25) | Sonnet | medium |
 | CL2 | The battle's full history written by the Rust engine | Sonnet | small |
 | CL3 | The Lab server: one program, JSON in and out | Sonnet | medium |
 | CL4 | Setup and Results pages | Sonnet | medium |
@@ -43,6 +43,17 @@ SNAPSHOT and TURN CURSOR): build it once, for both.
 ---
 
 ## CL1. A battle set up from unit and board files, in Rust
+
+**DONE 2026-11-12 (session 25; built for the MegaMek bridge's start too).** `Scenario::from_settings` (engine/core/src/
+scenario.rs): a SETTINGS file (a JSON object of the settings that differ from the defaults, under the Python's names) ->
+the scenario. DEFAULTS: `engine/defaults/config.json`, the Python's settings dumped as the fixtures were (`STATS`,
+`TIMING` off, `MAX_TURNS` 50 as the recorder set them; it equals every fixture's config.json but for the keys the fixture
+overrode). ROSTER BUILDER: `setup::roster` (moved from the attach test, which already proved it). `btsim --setup FILE
+[--write-scenario DIR]`. Check: `engine/core/tests/cl1_setup.rs` - every fixture built from its own differing settings
+gives its units.json and board.json exactly (roster order included; key order inside an object is not compared, fields
+are read by name); in `tests/run_checks.py`. A 200-battle batch from a settings file ran with no Python. NOT done:
+maps packed in data/maps.zip (unpack first; the Rust has no zip reader), the map prompt and random board choice
+(Python-only, interactive). Deployment needs nothing here: the battle deploys on its own dice, as before.
 
 **Job.** Given a list of teams (each: unit files, bot, count), a board file and the settings, build
 the starting battle in Rust. Today the starting battle is built by the Python and handed to Rust as

@@ -429,8 +429,16 @@ pub struct Session {
 
 impl Session {
     /// The game's start: settings, board and units in a scenario's own form (config.json, board.json, units.json),
-    /// plus the teams Hydra drives. The dice are whatever the first line's state says.
+    /// plus the teams Hydra drives. The dice are whatever the first line's state says. OR {"settings": {...},
+    /// "hydra_teams", "seed"}: the scenario is built here from settings (`Scenario::from_settings`, Combat Lab CL1) -
+    /// how the Java side starts a game: which .mtf on which team, at which hex and facing, the board.
     pub fn start(v: &Value) -> Session {
+        if let Some(settings) = v.get("settings") {
+            let s = crate::scenario::Scenario::from_settings(settings, &crate::scenario::SetupPaths::find()).unwrap_or_else(|e| panic!("bridge start: {}", e));
+            let mut start = s.bridge_start(v["seed"].as_u64().unwrap_or(1));
+            start["hydra_teams"] = v.get("hydra_teams").cloned().unwrap_or(json!([]));
+            return Session::start(&start);
+        }
         let cfg = Config::from_json(&v["config"]);
         let board = Board::from_json(&v["board"]);
         let names: Vec<String> = v["units"].as_object().unwrap().keys().cloned().collect();

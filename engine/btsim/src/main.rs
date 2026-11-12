@@ -67,8 +67,14 @@ fn main() {
         decide();
         return;
     }
-    let Some(dir) = args.first().filter(|a| !a.starts_with("--")) else {
-        eprintln!("usage: btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--set KEY=VALUE ...] [--ledger FILE] [--max-turns N] [--sims I,J,...] [--stream FILE]");
+    // --setup FILE (Combat Lab CL1, session 25): the scenario is built in Rust from a settings file (the settings that
+    // differ from engine/defaults/config.json, under the Python's names: FORCES, DEFAULT_BOARD_PATH...) in place of a
+    // scenario folder. The repository root (for the defaults and data/) is BTSIM_ROOT, else three folders above this
+    // binary (engine/target/release/btsim). --write-scenario DIR also saves the built scenario as a folder.
+    let setup = arg(&args, "--setup");
+    let dir_arg = args.first().filter(|a| !a.starts_with("--")).cloned().or_else(|| setup.as_ref().map(|_| String::new()));
+    let Some(dir) = dir_arg.as_ref() else {
+        eprintln!("usage: btsim (SCENARIO_DIR | --setup SETTINGS.json [--write-scenario DIR]) [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--set KEY=VALUE ...] [--ledger FILE] [--max-turns N] [--sims I,J,...] [--stream FILE]");
         std::process::exit(2);
     };
     let battles: u64 = arg(&args, "--battles").map_or(1, |v| v.parse().expect("--battles"));
@@ -77,7 +83,24 @@ fn main() {
     if let Some(t) = arg(&args, "--threads") {
         rayon::ThreadPoolBuilder::new().num_threads(t.parse().expect("--threads")).build_global().unwrap();
     }
-    let mut scenario = Scenario::load(&PathBuf::from(dir));
+    let mut scenario = match &setup {
+        None => Scenario::load(&PathBuf::from(dir)),
+        Some(file) => {
+            let settings: Value = serde_json::from_str(&std::fs::read_to_string(file).unwrap_or_else(|e| panic!("{}: {}", file, e))).unwrap_or_else(|e| panic!("{}: {}", file, e));
+            let s = Scenario::from_settings(&settings, &btsim_core::scenario::SetupPaths::find()).unwrap_or_else(|e| {
+                eprintln!("btsim: {}", e);
+                std::process::exit(2)
+            });
+            if let Some(out) = arg(&args, "--write-scenario") {
+                std::fs::create_dir_all(&out).unwrap();
+                for (name, v) in [("config.json", &s.config), ("units.json", &s.units), ("board.json", &s.board)] {
+                    std::fs::write(PathBuf::from(&out).join(name), serde_json::to_string_pretty(v).unwrap()).unwrap();
+                }
+                std::fs::write(PathBuf::from(&out).join("meta.json"), "{}").unwrap();
+            }
+            s
+        }
+    };
     // --set KEY=VALUE (any number; session 25): a setting changed for this run, e.g. --set HYDRA_PLAYOUT=s5a. VALUE is read
     // as JSON when it parses (numbers, true / false), else as text.
     for (i, a) in args.iter().enumerate() {
