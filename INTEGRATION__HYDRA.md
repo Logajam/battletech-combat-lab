@@ -376,8 +376,30 @@ responders, K = 8 candidate spots; replace the reply step with it; judge on both
 - **S2 Ghost that moves**: superseded by S5a.
 - **S3 Move order**: Hydra chooses which of its units moves next (least to lose first, deciders
   last). Needs a new question on the `BotSet` socket; the Move Queue of S5a is half of it.
-- **S4 Charges and death from above** in the Mover (today Hydra never declares them; Gladiator
-  does, which may be part of the brawler-duel gap).
+- **S4 Charges and death from above**: BUILT session 25 as a switch, `HYDRA_MOVEMENT_ATTACKS` (default off), measured
+  level - see below.
+
+### S4: charges and death from above (session 25, 2026-11-12): built, measured level, OFF by default
+
+`hydra::movement_attack`. Against every weighed enemy that has finished moving (or cannot move; Core pp.78-79 - so only
+when Hydra moves after it), every charge and DFA stop (`move_attacks::MoverIndex`, Gladiator's list) is priced as a spot:
+the target's line is the attack's expected damage both ways (`move_attacks::values`: hit chance, damage, self-damage, a
+missed DFA's fall, displacement) plus the ranged exchange from the attack hex; every other weighed enemy's line is the
+Oracle's at the attack hex; risk is the move's PSR cost. It is taken when its rate beats the best ordinary spot. A stop on a
+hex another unit stands in is skipped (the first trial crashed on one: Gladiator's stop list does not look at other units).
+Results (same seeds, 40 battles a seating, 16 for 8 v 8 / 12 v 12; Hydra - house bot):
+
+| | without | with S4 |
+|---|---|---|
+| v Gladiator, nine match-ups | 285 - 245 | 291 - 244 |
+| v Princess, nine match-ups | 416 - 194 | 407 - 202 |
+| of which v Princess 8 v 8 + 12 v 12 | 35 - 24 | 28 - 30 |
+
+The three duels v Gladiator came out identical: Hydra found no attack worth it there (the Hunchback cannot jump; a charge
+at 58% for 10 damage loses to standing and shooting), so the brawler-duel gap is not about charges. In team battles it
+charges (the lance, the 4 v 4s), with no gain, and the big battles v Princess got worse. Likely why: an attack is scored
+against the enemies as they stand (ghosts), never against the reply / play-out, so walking into contact in a crowd is
+under-priced. If S4 is taken up again: score the attack spot through the same reply or play-out as the other spots.
 - **S6 Self-calibration**: fit the Forecast's few constants from thousands of finished battles, so its
   margin matches what really happens.
 - **Waiting**: let a unit decline battle for a turn or two when every trade is bad and friends are
@@ -396,4 +418,5 @@ responders, K = 8 candidate spots; replace the reply step with it; judge on both
 | Trial tools | `tools/hydra_scenarios.py`, `tools/hydra_trial.py` |
 | S5a groundwork: move queue, pose, witness | built, session 25 (`playout.rs`) |
 | S5a movement play-out (responder, judge) | built, switch `HYDRA_PLAYOUT` (default "reply": S5a measured level) |
-| Everything in Section 7 | not started |
+| S4 charges / DFA | built, switch `HYDRA_MOVEMENT_ATTACKS` (default off: measured level) |
+| The rest of Section 7 | not started |
