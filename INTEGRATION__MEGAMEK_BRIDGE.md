@@ -394,6 +394,29 @@ with our setting beside it. **Any option where the two can't match is a question
 **First version's limits** (each one a FALLBACK, never a crash): 'Mechs only; no board changes; no units
 without a `.mtf` in our `data/`; no equipment our engine doesn't model.
 
+## 8b. B7 - Daniel plays against our bot (Daniel's design, 2026-11-12)
+
+Daniel: "Have the correct version of Megamek on my computer. Have Combatlab on my computer. Open up megamek. Open up
+combat lab. Tell combat lab to connect. Use combat lab to set up it's forces. Use Megamek to set up my own. Play."
+
+| Step | Status | To build |
+|---|---|---|
+| The right MegaMek | MegaMek refuses a client of another version | the bridge checks the version at connect and says so plainly |
+| Combat Lab installed | Combat Lab is spec sheets (CL1 built) | Windows build of `btsim` + the bridge jar inside Combat Lab, run with MegaMek's own Java |
+| Daniel hosts in MegaMek | works (normal lobby) | - |
+| Combat Lab connects | the launcher starts its own game | **B7a JOIN MODE**: connect `HydraBridge` to a hosted game (host, port, player name) |
+| Combat Lab sets up its forces | - | **B7c**: the bridge adds its units in the lobby as a player's client does (`sendAddEntity`, from Combat Lab's .mtf choices and skills) |
+| Daniel sets up his forces | MegaMek | - |
+| Deployment | Princess's own deployment (inherited); our engine starts at its first decision, after deployment | units arriving later: to check |
+| The map | the bridge reads the scenario's board file | **B7a**: take the board from the game itself (MegaMek's board written in our .board format) |
+| Daniel's units | must have a .mtf in our data folder, or the bridge is off | **B7b**: the bridge sends each unit's file text from MegaMek's own data; units our engine does not simulate (vehicles, infantry, aero) go to Princess, counted |
+| Game options | not compared | flag at the start every lobby option our engine plays differently |
+| Play | works (B4) | - |
+
+Build order: B7a (join + board from the game), B7b (unit files from MegaMek), B7c (forces from the lobby); each testable
+here by hosting a headless MegaMek game and joining it as Combat Lab would. Then packaging for Windows; the Connect
+button and force picker become Combat Lab screens.
+
 ## 9. Open questions
 
 - **For Daniel:** where the Java code lives (proposed: `megamek_bridge/` in this repo, GPL); the game options
