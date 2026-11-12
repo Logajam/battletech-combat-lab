@@ -14,6 +14,9 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   numbers as ours; GPL v3. NEW `INTEGRATION__MEGAMEK_BRIDGE.md` (stages B0-B7, each with a script check; B1's is a parity check: a
   snapshot fed to `btsim decide` must give the choice the battle made). Building MegaMek here was refused by the session's safety
   check (downloaded build code): B0 needs Daniel's OK.
+  B0 DONE the same day (Daniel: "Go ahead"): the 0.51.01.7 release (580 MB) runs here headless and holds CASPAR; 5 Hunchback duels,
+  Princess v CASPAR: 2 played out, 2 stalled in round 0 (MegaMek errors), 1 misread after a unit fled. Bridge spec Section 1b: one game per
+  process, retry a round-0 stall, check every result, MegaMek bots' flee behaviour off.
 - **2026-11-12 (Claude, session 25), RULE FIX: A WALKING FALL IN A HEX HOLDING ANOTHER 'MECH SETS OFF A DOMINO EFFECT, BOTH ENGINES; TRIALS RECORD EACH BATTLE AS IT ENDS AND SURVIVE CRASHES; 400-BATTLE CHECKS. REVIEW PENDING (higher-level model).**
   Daniel: "Cast a wider net for both the hunchback and the heavies. Maybe 400 games each." Both were flukes: Hunchback duel v Gladiator 190 - 187
   (first version 182 - 195), heavies v Princess 282 - 116 (279 - 118). The first-version Hunchback run CRASHED (battle 8, seed 101): a Hunchback
