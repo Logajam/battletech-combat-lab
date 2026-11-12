@@ -28,7 +28,7 @@ fn battle_json(sim: u64, seed: u64, r: &BattleResult) -> Value {
 }
 
 /// `btsim decide` (MegaMek bridge, INTEGRATION__MEGAMEK_BRIDGE.md): the decision process. Reads JSON lines on stdin -
-/// the first is the game's start (`bridge::Session::start`), each later one a call {"method", "args", "state"} - and
+/// `{"ping": true}` at any time is answered `{"pong": true, "started": ...}`; otherwise the first is the game's start (`bridge::Session::start`), each later one a call {"method", "args", "state"} - and
 /// writes one JSON line per call on stdout: {"answer": ...}, or {"error": message} when the call could not be made (the
 /// caller then lets its own bot decide). Stays alive until stdin closes, so the bots' memories carry through the game.
 fn decide() {
@@ -43,6 +43,8 @@ fn decide() {
         }
         let reply = match serde_json::from_str::<Value>(&line) {
             Err(e) => json!({"error": format!("not JSON: {}", e)}),
+            // {"ping": true} (any time): the process is alive; the Java side checks this when it starts
+            Ok(v) if v.get("ping").is_some() => json!({"pong": true, "started": session.is_some()}),
             Ok(v) => match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| match session.as_mut() {
                 None => {
                     session = Some(btsim_core::bridge::Session::start(&v));
@@ -65,8 +67,14 @@ fn main() {
         decide();
         return;
     }
-    let Some(dir) = args.first().filter(|a| !a.starts_with("--")) else {
-        eprintln!("usage: btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--set KEY=VALUE ...] [--ledger FILE] [--max-turns N] [--sims I,J,...] [--stream FILE]");
+    // --setup FILE (Combat Lab CL1, session 25): the scenario is built in Rust from a settings file (the settings that
+    // differ from engine/defaults/config.json, under the Python's names: FORCES, DEFAULT_BOARD_PATH...) in place of a
+    // scenario folder. The repository root (for the defaults and data/) is BTSIM_ROOT, else three folders above this
+    // binary (engine/target/release/btsim). --write-scenario DIR also saves the built scenario as a folder.
+    let setup = arg(&args, "--setup");
+    let dir_arg = args.first().filter(|a| !a.starts_with("--")).cloned().or_else(|| setup.as_ref().map(|_| String::new()));
+    let Some(dir) = dir_arg.as_ref() else {
+        eprintln!("usage: btsim (SCENARIO_DIR | --setup SETTINGS.json [--write-scenario DIR]) [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--set KEY=VALUE ...] [--ledger FILE] [--max-turns N] [--sims I,J,...] [--stream FILE]");
         std::process::exit(2);
     };
     let battles: u64 = arg(&args, "--battles").map_or(1, |v| v.parse().expect("--battles"));
@@ -75,7 +83,24 @@ fn main() {
     if let Some(t) = arg(&args, "--threads") {
         rayon::ThreadPoolBuilder::new().num_threads(t.parse().expect("--threads")).build_global().unwrap();
     }
-    let mut scenario = Scenario::load(&PathBuf::from(dir));
+    let mut scenario = match &setup {
+        None => Scenario::load(&PathBuf::from(dir)),
+        Some(file) => {
+            let settings: Value = serde_json::from_str(&std::fs::read_to_string(file).unwrap_or_else(|e| panic!("{}: {}", file, e))).unwrap_or_else(|e| panic!("{}: {}", file, e));
+            let s = Scenario::from_settings(&settings, &btsim_core::scenario::SetupPaths::find()).unwrap_or_else(|e| {
+                eprintln!("btsim: {}", e);
+                std::process::exit(2)
+            });
+            if let Some(out) = arg(&args, "--write-scenario") {
+                std::fs::create_dir_all(&out).unwrap();
+                for (name, v) in [("config.json", &s.config), ("units.json", &s.units), ("board.json", &s.board)] {
+                    std::fs::write(PathBuf::from(&out).join(name), serde_json::to_string_pretty(v).unwrap()).unwrap();
+                }
+                std::fs::write(PathBuf::from(&out).join("meta.json"), "{}").unwrap();
+            }
+            s
+        }
+    };
     // --set KEY=VALUE (any number; session 25): a setting changed for this run, e.g. --set HYDRA_PLAYOUT=s5a. VALUE is read
     // as JSON when it parses (numbers, true / false), else as text.
     for (i, a) in args.iter().enumerate() {
@@ -99,12 +124,14 @@ fn main() {
     // process (`btsim decide`'s Session) is fed the recording and must give the same answer to every decision. One JSON
     // line per battle; exit code 1 if any battle differed. --bridge-dump FILE also writes battle 1's recording.
     if args.iter().any(|a| a == "--bridge-parity") {
+        // --bridge-compact (B3): the units go as compact states (bridge::UNIT_FIELDS / ITEM_FIELDS), not whole dumps
+        let compact = args.iter().any(|a| a == "--bridge-compact");
         let runs: Vec<Value> = (1..=battles)
             .into_par_iter()
             .map(|sim| {
                 let s = PcgDice::battle_seed(seed, sim);
                 let keep = sim == 1 && arg(&args, "--bridge-dump").is_some();
-                let (r, p, lines) = scenario.run_bridge_checked(s, keep);
+                let (r, p, lines) = scenario.run_bridge_checked(s, keep, compact);
                 if keep {
                     if let Some(p) = arg(&args, "--bridge-dump") {
                         let start = scenario.bridge_start(s);
@@ -116,7 +143,7 @@ fn main() {
                     }
                 }
                 json!({"sim": sim, "seed": s, "turns": r.turns_taken, "winner": r.winner, "calls": p.calls, "decisions": p.decisions,
-                       "same": p.first_difference.is_none(),
+                       "same": p.first_difference.is_none(), "rebuild_gaps": p.rebuild_gaps,
                        "first_difference": p.first_difference.map(|(n, m, want, got)| json!({"line": n, "method": m, "battle": want, "session": got}))})
             })
             .collect();

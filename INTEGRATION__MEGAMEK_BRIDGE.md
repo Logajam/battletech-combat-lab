@@ -196,6 +196,38 @@ count how often they agree (as `tests/bot_agreement.py` does between bots). It n
 from MegaMek's own position. MegaMek's roll log (game option `rng_log`) and our dice tape (`TapeDice`) also allow one
 attack's rolls to be replayed in our engine, to check that the rules give the same damage. Both are later stages.
 
+## 3c. B2 and the Rust half of B3, as built (2026-11-12)
+
+**B2, the Java side (`megamek_bridge/`, README there).** `HydraBridge extends Princess` starts `btsim decide` as a child
+process (`DecisionProcess`) and pings it; every movement, firing and physical decision is still a counted FALLBACK to
+Princess (reason "game state not translated yet"). `BridgeLauncher` plays ONE game of an `.mms` with our bot on the
+named players and MegaMek's own bots (the scenario's `ai:`) on the rest, all of them fighting to the end (forced
+withdrawal and auto-flee off), and appends one JSON record line: who drove whom, finished, rounds, the winning team,
+each team's fielded / survivors / destroyed / fled / BV, and our bot's decisions and fallbacks by reason. Built by
+`build.sh` against the unchanged release (javac 21); MegaMek is used as a library only.
+- Found while building: a Princess (and so our bot) must have `startPrecognition()` called after it is made, as
+  MegaMek's `BotFactory` does, or it waits forever on its first move.
+- Check (B2's "done when"): three Hunchback duels, our bot (all FALLBACK) v CASPAR, all finished (about 70 s each),
+  `pong` from the engine, 50-199 decisions a game, all counted. One record has the misread B0 saw (rounds -1, a unit
+  neither destroyed nor fled): to look at with the records work in B4.
+
+**B3, Rust half: the COMPACT unit state.** `bridge.rs` `UNIT_FIELDS` (78 fields) and `ITEM_FIELDS` (19 per equipment
+object, by address), `compact_unit` / `apply_compact`: a unit is its start-of-battle record (built from the `.mtf`)
+plus only what a battle changes - those fields, the critical slots that differ from the start, and the equipment
+fields that differ. About 18 KB a unit becomes a few hundred bytes. The lists were MEASURED (every reference battle,
+every field compared with its start value), then three were added when the compact-mode check found them
+(`home_edge` / `home_edge_row`, set at deployment; `stuck`, first seen in the 8 v 8s). The check now holds every
+reference battle to: every unit rebuilt from its compact state equals its real record at every call, field for field
+("rebuild gaps", reported by name), and every answer the same. **This list is what the Java side must send per unit,
+and what a Combat Lab save of a unit needs.**
+
+**B3, Java half (next).** For each MegaMek unit, write those fields from MegaMek's `Entity` (position, facing, heat,
+armor per location, destroyed slots, ammo by bin, jams...). The START line is ready: `{"settings": {...}, "hydra_teams",
+"seed"}` builds the game in Rust from settings (Combat Lab CL1, `Scenario::from_settings`): FORCES with each unit's `.mtf`,
+team, hex, facing, skills; the board; `DEPLOYMENT: "fixed_hexes"`. The Java side writes that from the MegaMek game. Many of the 78 are our engine's own bookkeeping (snapshots
+taken at phase starts, this turn's movement, `hp_log`): the decision process can keep those itself from the signals
+rather than read them from MegaMek. Sorting the 78 into "MegaMek says" and "we keep" is B3's first job.
+
 ## 4. The request (Java -> Rust), one JSON object a line
 
 (The first draft, from before B1. The wire as built is Section 3b; this section's per-unit fields are the COMPACT state
@@ -271,8 +303,8 @@ with our setting beside it. **Any option where the two can't match is a question
 |---|---|---|---|
 | **B0** DONE (Section 1b) | Get an unchanged MegaMek (a released jar, or built from the unchanged source) and run `AIMatchRunner` on a small `.mms` (Princess v CASPAR, 2 games). Needs Daniel's OK to run MegaMek's downloaded code here (or he runs it on his computer). | Sonnet | Two games finish and the CSV is written |
 | **B1** DONE (Section 3b) | `btsim decide`: snapshot -> `Battle` -> `BotSet` call -> answer. Snapshot writer on the Rust side too (`--snapshot` on an ordinary battle). | Opus (the snapshot -> `Battle` step needs judgement; `INTEGRATION__STATE.md` lists every field) | **Parity check** (`tests/check_bridge_parity.py`): in ordinary battles, snapshot at every decision, feed it to `btsim decide`, the answer must equal what the battle chose. Every bot, the reference scenarios. |
-| **B2** | `megamek_bridge/`: `HydraBridge extends Princess`, the subprocess, request/answer JSON, FALLBACK on everything (Rust answers `fallback` to all) | Sonnet | A bridge game finishes with every decision a FALLBACK and the same result as plain Princess on the same seed |
-| **B3** | Compact state (Section 3b, "What this means for B3"): the Java side writes each unit's compact state (Section 4); a Rust step rebuilds the full dump from the `.mtf` plus that state | Opus for the Rust step, Sonnet for the Java | In our own battles, every unit's compact state rebuilt gives the same answer to every decision (the parity check run through the compact form); Java's compact state of a game's start equals Rust's of the same scenario |
+| **B2** DONE (Section 3c) | `megamek_bridge/`: `HydraBridge extends Princess`, the subprocess, request/answer JSON, FALLBACK on everything (Rust answers `fallback` to all) | Sonnet | A bridge game finishes with every decision a FALLBACK and the same result as plain Princess on the same seed |
+| **B3** Rust half DONE (Section 3c) | Compact state (Section 3b, "What this means for B3"): the Java side writes each unit's compact state (Section 4); a Rust step rebuilds the full dump from the `.mtf` plus that state | Opus for the Rust step, Sonnet for the Java | In our own battles, every unit's compact state rebuilt gives the same answer to every decision (the parity check run through the compact form); Java's compact state of a game's start equals Rust's of the same scenario |
 | **B4** | Orders: moves, shots, twist, physical (Section 5); fallbacks and records (Section 6); game options (Section 7) | Sonnet; Opus for the path-refusal cases | A 1 v 1 'Mech duel, Hydra v Princess, plays with no FALLBACK and no refused order |
 | **B5** | Our own launcher (`megamek_bridge/`): starts a game from an `.mms` file the way `ScenarioGameRunner` does and connects `HydraBridge` as a player, using MegaMek as a library. NOT a patched `AIType` / `BotFactory`: MegaMek is never edited. | Sonnet | The launcher plays Hydra v CASPAR from an `.mms` file and writes the records |
 | **B6** | Check against our numbers: a few games each of Hydra v Princess and Hydra v CASPAR on our standard duels; compare with the Monte Carlo's | the top model to read the result | Numbers written up for Daniel; every big gap listed as a rules difference to look at |
