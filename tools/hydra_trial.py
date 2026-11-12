@@ -1,6 +1,8 @@
 """Hydra v the house bot, same seeds, sides swapped (INTEGRATION__HYDRA.md, Section 4).
 
-    python tools/hydra_trial.py SCENARIO_DIR [SCENARIO_DIR ...] [--battles 20] [--seed 1] [--threads N]
+    python tools/hydra_trial.py SCENARIO_DIR [SCENARIO_DIR ...] [--battles 20] [--seed 1] [--threads N] [--btsim PATH]
+
+--btsim: a copy of the program to use (session 25), so the engine can be rebuilt while a long trial runs.
 
 For each scenario folder (config.json, units.json, board.json; e.g. engine/fixtures/<name>) it runs three batches with
 the release btsim: nobody is Hydra (the baseline), the first team is Hydra, the second team is Hydra. One line each:
@@ -19,7 +21,7 @@ def option(argv, name, default):
 
 
 def run(folder, battles, seed, threads, hydra):
-    cmd = [BTSIM, folder, "--battles", str(battles), "--seed", str(seed)]
+    cmd = [option(sys.argv[1:], "--btsim", BTSIM), folder, "--battles", str(battles), "--seed", str(seed)]
     if threads:
         cmd += ["--threads", threads]
     if hydra:

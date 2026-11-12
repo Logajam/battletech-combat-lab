@@ -70,7 +70,9 @@ def play(scenario_dir, folder, hydra):
     cmd = [BTSIM, os.path.join(scenario_dir, folder), "--battles", "1", "--seed", str(SEED), "--log", "1", "--threads", "1"]
     if hydra:
         cmd += ["--hydra", hydra]
-    proc = subprocess.run(cmd, capture_output=True, text=True)
+    # HYDRA_CHECK (session 25, engine/core/src/playout.rs): every Hydra decision is also checked to leave the battle as it
+    # found it (no dice, no log, no state); a breach panics, and the saved log then shows the difference.
+    proc = subprocess.run(cmd, capture_output=True, text=True, env=dict(os.environ, HYDRA_CHECK="1"))
     if proc.returncode != 0:
         # a panic is a result too: save its message so a change that makes or cures one shows as a difference
         return f"# btsim failed (exit {proc.returncode})\n" + proc.stderr

@@ -147,6 +147,8 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(x) HYDRA S5a GROUNDWORK** (session 25): `engine/core/src/playout.rs` (move queue, pose, witness), the queue in
+  `orchestrator.rs`'s movement loop, the witness around `hydra::choose_movement`, `engine/core/tests/playout.rs`.
 - **(w) RUST REFERENCE BATTLES** (session 25): `tests/check_rust_reference.py`, the frozen inputs, the hook in `run_checks.py`.
 - **(v) SESSION 25 TIDY-UP** (2026-11-11; Change Record "SESSION 25"): the lookahead-dice fix in both engines
   (`structure_weight.hit_spread`, `structure_weight.rs`), the six-crew-hits rule (`piloting_rolls.rs`), the warning clean-up.

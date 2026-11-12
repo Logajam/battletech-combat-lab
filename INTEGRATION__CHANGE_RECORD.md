@@ -6,6 +6,16 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-12 (Claude, session 25), HYDRA v PRINCESS MEASURED; S5a GROUNDWORK BUILT (MOVE QUEUE, POSE, WITNESS). REVIEW PENDING (higher-level model).**
+  Daniel: "Lets set up the Hydra Vs Princess runs. And set up the ground work for S5a". (1) Hydra v Princess on the mirror set, 40 battles a seating
+  (16 for 8 v 8 / 12 v 12): 416 - 194 over nine, ahead in every match-up (table in `INTEGRATION__HYDRA.md` Section 5); `tools/hydra_trial.py --btsim
+  PATH` added so a long trial can use a copy of the program while the engine is rebuilt. (2) NEW `engine/core/src/playout.rs`: the move queue
+  (`Battle::move_queue`, set by the movement loop in `orchestrator.rs` from a copy of the activation state; `forces::Activation` is now Clone), the
+  pose stack (`Pose`, `Poses`), and the witness (`Witness`, on with HYDRA_CHECK; always on in `tests/check_rust_reference.py`), wrapped around
+  `hydra::choose_movement`. No result changes: Rust reference 79 of 79, `BOTS=rust` stage 6 63 of 63; new tests `engine/core/tests/playout.rs`
+  (3). The witness's first run found one die drawn inside a Hydra move: Gladiator's march, which Hydra hands the move to before any enemy is on
+  the board, breaks exact ties with a seeded random pick (the battle's own dice, so the seed covers it - not a loose die); the witness now skips
+  that hand-off. The S5a responder and judge are not built (plan Section 6).
 - **2026-11-11 (Claude, session 25), RUST REFERENCE BATTLES: THE RUST CHECKS ITSELF. New test tool and data; no engine change. REVIEW PENDING (higher-level model).**
   Daniel: "Go ahead and start the battery of Rust reference battles" (after: the Python is "effectively dead code now"). NEW
   `tests/check_rust_reference.py`: 79 battles played by `btsim` on its own dice (seed 1), each compared byte for byte with its saved log in

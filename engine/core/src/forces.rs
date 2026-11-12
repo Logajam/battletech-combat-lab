@@ -128,6 +128,7 @@ pub type Pick<'a> = &'a mut dyn FnMut(&mut Battle, &[UnitId]) -> UnitId;
 
 /// The activation sequence (sides alternate, the side that lost Initiative first; unequal numbers p.41), computed one
 /// unit at a time from the live units: call `next` repeatedly until it returns None.
+#[derive(Clone)]
 pub struct Activation {
     teams: Vec<String>,
     eligible: crate::fasthash::IndexMap<String, Vec<UnitId>>,
