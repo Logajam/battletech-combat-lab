@@ -14,6 +14,11 @@ day: read the source and write the specs first; the basic build goes to Sonnet o
 be... grinding"). A few games to see it works and that the numbers look about right; the Monte Carlo does the
 large sets.
 
+**MegaMek is never forked or edited** (Daniel, 2026-11-12: "It sounds like you want to make a pure Megamek branch
+and then start editing it" - no). The bridge lives in this repo and uses an unchanged MegaMek (a released jar, or
+one built from the unchanged source) as a library. A bot is just another player joining over the network, so
+MegaMek never has to know our bots exist.
+
 ---
 
 ## 1. What MegaMek's source says (checked, with file paths)
@@ -34,12 +39,12 @@ Paths are under `megamek/src/megamek/` in the MegaMek repo.
   turn, the one with the highest "move index" (`Princess.java` ~line 3150). This is where Hydra's move order
   (S3) plugs in.
 - **Bot types are an enum and a factory.** `client/bot/AIType.java` (`PRINCESS`, `CASPAR`) and
-  `client/bot/BotFactory.createBot(...)`. Adding `HYDRA` (and `GLADIATOR`) is one enum value and one `case` each.
+  `client/bot/BotFactory.createBot(...)`. Our bots are NOT added here (that would mean editing MegaMek); they join as players (B5).
 - **MegaMek has its own headless bot-vs-bot runner.** `utilities/AIMatchRunner.java <scenarioFile>
   [repetitions] [roundsLimit] [timeoutMinutes]`, built on `utilities/ScenarioGameRunner.java`. The scenario file
   (`.mms`) names each bot player's AI with an `ai:` key (e.g. `ai: CASPAR`; examples in
   `testresources/data/scenarios/test_setups/MixedBattleCapstone.mms`). It writes a per-game CSV (winner, rounds,
-  survivors, BV left). **We don't need to build a game runner**: add our type to the enum and use this one.
+  survivors, BV left). Our launcher (B5) reuses how it starts a game; the runner itself only knows MegaMek's own bots.
 - **Orders.** A move is a `MovePath` of steps (`common/moves/`: `ForwardStep`, `BackwardStep`, `GetUpStep`,
   `ChargeStep`, ... and turn steps). A shot is `new WeaponAttackAction(attackerId, targetType, targetId,
   weaponId)`, where `weaponId` is MegaMek's equipment number (`Entity.getEquipmentNum(mounted)`). A torso twist
@@ -162,12 +167,12 @@ with our setting beside it. **Any option where the two can't match is a question
 
 | Stage | What | Model | Done when |
 |---|---|---|---|
-| **B0** | Build MegaMek here and run `AIMatchRunner` on a small `.mms` (Princess v CASPAR, 2 games). Needs Daniel's OK to run MegaMek's downloaded build (or he runs it on his computer). | Sonnet | Two games finish and the CSV is written |
+| **B0** | Get an unchanged MegaMek (a released jar, or built from the unchanged source) and run `AIMatchRunner` on a small `.mms` (Princess v CASPAR, 2 games). Needs Daniel's OK to run MegaMek's downloaded code here (or he runs it on his computer). | Sonnet | Two games finish and the CSV is written |
 | **B1** | `btsim decide`: snapshot -> `Battle` -> `BotSet` call -> answer. Snapshot writer on the Rust side too (`--snapshot` on an ordinary battle). | Opus (the snapshot -> `Battle` step needs judgement; `INTEGRATION__STATE.md` lists every field) | **Parity check** (`tests/check_bridge_parity.py`): in ordinary battles, snapshot at every decision, feed it to `btsim decide`, the answer must equal what the battle chose. Every bot, the reference scenarios. |
 | **B2** | `megamek_bridge/`: `HydraBridge extends Princess`, the subprocess, request/answer JSON, FALLBACK on everything (Rust answers `fallback` to all) | Sonnet | A bridge game finishes with every decision a FALLBACK and the same result as plain Princess on the same seed |
 | **B3** | Java snapshot writer (Section 4) | Sonnet | Java's snapshot of a game's start equals Rust's snapshot of the same scenario (a test compares the two) |
 | **B4** | Orders: moves, shots, twist, physical (Section 5); fallbacks and records (Section 6); game options (Section 7) | Sonnet; Opus for the path-refusal cases | A 1 v 1 'Mech duel, Hydra v Princess, plays with no FALLBACK and no refused order |
-| **B5** | `AIType.HYDRA` / `GLADIATOR` in a patched `BotFactory`, or a launcher that adds the bot to a game (whichever MegaMek allows without changing its source; the read so far says the enum has to be patched) | Sonnet | `AIMatchRunner` plays Hydra v CASPAR from an `.mms` file |
+| **B5** | Our own launcher (`megamek_bridge/`): starts a game from an `.mms` file the way `ScenarioGameRunner` does and connects `HydraBridge` as a player, using MegaMek as a library. NOT a patched `AIType` / `BotFactory`: MegaMek is never edited. | Sonnet | The launcher plays Hydra v CASPAR from an `.mms` file and writes the records |
 | **B6** | Check against our numbers: a few games each of Hydra v Princess and Hydra v CASPAR on our standard duels; compare with the Monte Carlo's | the top model to read the result | Numbers written up for Daniel; every big gap listed as a rules difference to look at |
 | **B7** | Daniel plays Hydra from his own computer (MegaMek lobby, join a game with the bridge bot) | Sonnet writes the how-to | Daniel has played a game |
 
@@ -179,5 +184,5 @@ without a `.mtf` in our `data/`; no equipment our engine doesn't model.
 - **For Daniel:** where the Java code lives (proposed: `megamek_bridge/` in this repo, GPL); the game options
   that can't match (after B4); whether to tell the MegaMek team (their Discord) - they may already have a way for
   an outside bot to connect, which would replace B5.
-- **To check in B0/B2:** whether MegaMek can load a bot class from outside its own jar, or only through
-  `AIType` (decides B5).
+- **To check in B2/B5:** which `ScenarioGameRunner` pieces are public enough for our launcher to reuse; where
+  they aren't, the launcher repeats them in our own code (still no edit to MegaMek).
