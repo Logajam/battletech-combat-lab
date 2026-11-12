@@ -1,7 +1,7 @@
 # scenario hy_8v8_valley
-# seed 1: winner Draw, 50 turns - NOTE: reached the turn cap
-#   Red: 1227.0 of 2288.0 armor + structure left, team destroyed False, units 8, 130 hits of 264 attacks, 1041.0 damage dealt
-#   Blue: 969.0 of 2288.0 armor + structure left, team destroyed False, units 8, 97 hits of 197 attacks, 754.0 damage dealt
+# seed 1: winner Red, 52 turns
+#   Red: 1028.0 of 2288.0 armor + structure left, team destroyed False, units 8, 136 hits of 270 attacks, 1092.0 damage dealt
+#   Blue: 904.0 of 2288.0 armor + structure left, team destroyed True, units 8, 99 hits of 199 attacks, 764.0 damage dealt
 # log
   Deployment: Blue 1 home edge W (0101-0117).
   Deployment: Blue 2 home edge W (0101-0117).
@@ -6689,3 +6689,356 @@ FALL (automatic fall): Cataphract CTF-3D takes 7 falling damage (1D6 1: rear tab
   -- end of turn 50: Blue 6 @ 1009 NE: HP 96, pilot hits 0, engine 6, gyro 4, heat 2 [PRONE, DESTROYED (Center Torso Destroyed)]
   -- end of turn 50: Blue 7 @ 1407 SE: HP 156, pilot hits 1, engine 0, gyro 0, heat 0 [PRONE]
   -- end of turn 50: Blue 8 @ 1008 SE: HP 93, pilot hits 1, engine 6, gyro 4, heat 0 [DESTROYED (Center Torso Destroyed)]
+
+=== TURN 51 ===
+  Initiative: Blue lost the roll, moves first.
+Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 8.
+  Success - Cataphract CTF-3D is standing (remaining running MP 0).
+  [Movement select] Blue 7: score 53.812 = dealt 4.17 x1.00 + (HP 248.0 - received 35.71 x1.00 - PSR 0.00) / enemies' future on me 9.15 x my best future 2.14 [two-ply, 6 spots x 140 replies (short list); modeled reply Red 5 -> 1911 NW Stand Still]
+  [Movement] Blue 7: 1407 SE -> 1407 S, Run (0 MP, 0 hexes, 2 heat; budget walk 1 / run 2 / jump 2; stood up with 0 MP left)
+6 damage (BALLISTIC) incoming to Left Leg (armor).
+  [STANDARD/BALLISTIC] 3 armor pts destroyed at armor (3 -> 0 remaining). 3 damage applied to structure [STANDARD] (21 -> 18/21 remaining).
+  Check for possible critical. Roll a 9.
+    1 critical hit(s).
+  Critical hit pool at Left Leg:
+    1: Hip (slot 1)
+    2: Upper Leg Actuator (slot 2)
+    3: Lower Leg Actuator (slot 3)
+    4: Foot Actuator (slot 4)
+    5: Heat Sink (slot 5)
+    6: Heat Sink (slot 6)
+    1/1 Criticals: Upper Leg Actuator hit.
+      Current crit slots in Left Leg: ['Hip', 'DESTROYED', 'Lower Leg Actuator', 'Foot Actuator', 'Heat Sink', 'Heat Sink', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+      Leg actuator hit at Left Leg (1 destroyed there) - walk MP now 1.
+7 damage (BALLISTIC) incoming to Right Leg (armor).
+  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 7 damage applied to structure [STANDARD] (19 -> 12/21 remaining).
+  Check for possible critical. Roll a 12.
+    Roll of 12: Right Leg blown off / destroyed!
+    Hip specifically destroyed at Right Leg from Right Leg destruction.
+    Heat sink destroyed (Heat Sink) from Right Leg destruction - heat dissipation reduced (now 19).
+    Heat sink destroyed (Heat Sink) from Right Leg destruction - heat dissipation reduced (now 18).
+  All critical slots in Right Leg marked DESTROYED.
+    Red 1: starts its Movement Phase in liquid magma at 2508 - liquid magma burns Left Leg 6, Right Leg 7 (2D6 each, TO:AR p.35).
+PSR trigger: 25 armor+structure lost this phase (>=20) -> +1.
+PSR trigger: Right Leg destroyed this phase -> automatic fall.
+PSR trigger: 1 leg actuator(s) destroyed at Left Leg this phase -> +1, one roll.
+Automatic fall this phase.
+FALL (automatic fall): Atlas AS7-K takes 10 falling damage (1D6 5: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 7 -> Center Torso
+5 damage (PHYSICAL) incoming to Center Torso (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (47 -> 42 remaining).
+  Fall cluster (5 dmg): rolled 10 -> Left Arm
+5 damage (PHYSICAL) incoming to Left Arm (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (33 -> 28 remaining).
+  Seatbelt check: needs 5. Rolled 11. Pilot unharmed.
+4 damage (BALLISTIC) incoming to Head (armor).
+  [STANDARD/BALLISTIC] 4 armor pts destroyed at armor (9 -> 5 remaining).
+7 damage (BALLISTIC) incoming to Center Torso (armor).
+  [STANDARD/BALLISTIC] 7 armor pts destroyed at armor (42 -> 35 remaining).
+8 damage (BALLISTIC) incoming to Center Torso (rear_armor).
+  [STANDARD/BALLISTIC] 8 armor pts destroyed at rear_armor (14 -> 6 remaining).
+9 damage (BALLISTIC) incoming to Left Torso (armor).
+  [STANDARD/BALLISTIC] 9 armor pts destroyed at armor (26 -> 17 remaining).
+9 damage (BALLISTIC) incoming to Left Torso (rear_armor).
+  [STANDARD/BALLISTIC] 9 armor pts destroyed at rear_armor (10 -> 1 remaining).
+4 damage (BALLISTIC) incoming to Right Torso (armor).
+  [STANDARD/BALLISTIC] 4 armor pts destroyed at armor (25 -> 21 remaining).
+8 damage (BALLISTIC) incoming to Right Torso (rear_armor).
+  [STANDARD/BALLISTIC] 8 armor pts destroyed at rear_armor (10 -> 2 remaining).
+6 damage (BALLISTIC) incoming to Left Arm (armor).
+  [STANDARD/BALLISTIC] 6 armor pts destroyed at armor (28 -> 22 remaining).
+7 damage (BALLISTIC) incoming to Right Arm (armor).
+  [STANDARD/BALLISTIC] 7 armor pts destroyed at armor (34 -> 27 remaining).
+10 damage (BALLISTIC) incoming to Left Leg (armor).
+  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 10 damage applied to structure [STANDARD] (18 -> 8/21 remaining).
+  Check for possible critical. Roll a 7.
+    No critical hit.
+    Red 1: fell in liquid magma at 2508 - liquid magma burns Head 4, Center Torso 7, Center Torso (rear) 8, Left Torso 9, Left Torso (rear) 9, Right Torso 4, Right Torso (rear) 8, Left Arm 6, Right Arm 7, Left Leg 10 (2D6 each, TO:AR p.35).
+    Red 1 fell in liquid magma - STUCK (TO:AR p.61: free the prone 'Mech, stand, then free it from the hex).
+[Movement] Red 1: roll to free itself from the stuck prone position at 2508: needs 10 (Piloting 5 + +5). Rolled 7.
+  Failed - falls.
+    Red 1 stays stuck at 2508 (TO:AR p.60; no fall).
+  [Movement] Red 1: stuck prone at 2508 - can't stand this turn.
+6 damage (BALLISTIC) incoming to Head (armor).
+  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (5 -> 0 remaining). 1 damage applied to structure [STANDARD] (3 -> 2/3 remaining).
+  Check for possible critical. Roll a 10.
+    2 critical hit(s).
+  Critical hit pool at Head:
+    1: Life Support (slot 1)
+    2: Sensors (slot 2)
+    3: Cockpit (slot 3)
+    4: Sensors (slot 5)
+    5: Life Support (slot 6)
+    1/2 Criticals: Life Support hit.
+      Current crit slots in Head: ['Life Support', 'Sensors', 'Cockpit', '-Empty-', 'Sensors', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  Critical hit pool at Head:
+    1: Life Support (slot 1)
+    2: Sensors (slot 2)
+    3: Cockpit (slot 3)
+    4: Sensors (slot 5)
+    2/2 Criticals: Sensors hit.
+      Current crit slots in Head: ['Life Support', 'Sensors', 'Cockpit', '-Empty-', 'DESTROYED', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+3 damage (BALLISTIC) incoming to Center Torso (armor).
+  [STANDARD/BALLISTIC] 3 armor pts destroyed at armor (35 -> 32 remaining).
+9 damage (BALLISTIC) incoming to Center Torso (rear_armor).
+  [STANDARD/BALLISTIC] 6 armor pts destroyed at rear_armor (6 -> 0 remaining). 3 damage applied to structure [STANDARD] (31 -> 28/31 remaining).
+  Check for possible critical. Roll a 7.
+    No critical hit.
+9 damage (BALLISTIC) incoming to Left Torso (armor).
+  [STANDARD/BALLISTIC] 9 armor pts destroyed at armor (17 -> 8 remaining).
+3 damage (BALLISTIC) incoming to Left Torso (rear_armor).
+  [STANDARD/BALLISTIC] 1 armor pts destroyed at rear_armor (1 -> 0 remaining). 2 damage applied to structure [STANDARD] (21 -> 19/21 remaining).
+  Check for possible critical. Roll a 5.
+    No critical hit.
+10 damage (BALLISTIC) incoming to Right Torso (armor).
+  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (21 -> 11 remaining).
+7 damage (BALLISTIC) incoming to Right Torso (rear_armor).
+  [STANDARD/BALLISTIC] 2 armor pts destroyed at rear_armor (2 -> 0 remaining). 5 damage applied to structure [STANDARD] (21 -> 16/21 remaining).
+  Check for possible critical. Roll a 9.
+    1 critical hit(s).
+  Critical hit pool at Right Torso:
+    1: Engine (slot 1)
+    2: Engine (slot 2)
+    3: Engine (slot 3)
+    4: ISGaussRifle (slot 4)
+    5: ISGaussRifle (slot 5)
+    6: ISGaussRifle (slot 6)
+    7: ISGaussRifle (slot 7)
+    8: ISGaussRifle (slot 8)
+    9: ISGaussRifle (slot 9)
+    10: ISGaussRifle (slot 10)
+    1/1 Criticals: ISGaussRifle slot hit.
+      Current crit slots in Right Torso: ['Engine', 'Engine', 'Engine', 'ISGaussRifle', 'ISGaussRifle', 'ISGaussRifle', 'ISGaussRifle', 'ISGaussRifle', 'ISGaussRifle', 'DESTROYED', 'ISCASE', '-Empty-']
+    ISGaussRifle destroyed at Right Torso - EXPLOSION (14 dmg)! Pilot takes 1 hit (1/6).
+    Explosion reaches Right Torso. CASE present - at most 10 structure damage.
+    10 structure damage taken (6/21 remaining).
+  Check for possible critical. Roll a 6.
+    No critical hit.
+    CASE vents the excess: Right Torso loses 0 rear armor (0 left).
+    CASE contains the explosion. No further transfer.
+7 damage (BALLISTIC) incoming to Left Arm (armor).
+  [STANDARD/BALLISTIC] 7 armor pts destroyed at armor (22 -> 15 remaining).
+10 damage (BALLISTIC) incoming to Right Arm (armor).
+  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (27 -> 17 remaining).
+8 damage (BALLISTIC) incoming to Left Leg (armor).
+  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 8 damage applied to structure [STANDARD] (8 -> 0/21 remaining).
+  Left Leg destroyed with no live explosive components - no critical roll.
+  Left Leg DESTROYED!
+    Hip specifically destroyed at Left Leg from Left Leg destruction.
+    Heat sink destroyed (Heat Sink) from Left Leg destruction - heat dissipation reduced (now 17).
+    Heat sink destroyed (Heat Sink) from Left Leg destruction - heat dissipation reduced (now 16).
+  All critical slots in Left Leg marked DESTROYED.
+  0 damage remains, transfers to Left Torso.
+    Red 1: starts and ends its Movement Phase in liquid magma (2508) - liquid magma burns Head 6, Center Torso 3, Center Torso (rear) 9, Left Torso 9, Left Torso (rear) 3, Right Torso 10, Right Torso (rear) 7, Left Arm 7, Right Arm 10, Left Leg 8 (2D6 each, TO:AR p.35).
+  [Movement select] Red 5: score 1899.078 = dealt 36.21 x0.99 + (HP 453.0 - received 4.17 x1.02 - PSR 0.00) / enemy future 1.25 x my future 5.21 [enemy held at 1407; 72 spots with LOS]
+  [Movement] Red 5: 1911 N -> 1911 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+  [Ranged] Blue 7 -> Red 5: range 6, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['ISMediumLaser', 'ISMediumLaser'] (weapon heat 6 of budget 18 = max 4 + sink 16 - current 0 - movement 2 - other 0; expected dmg 4.17)
+    ISMediumLaser: needs 8 (range mod +2), rolled 9 -> HIT
+    ISMediumLaser: needs 8 (range mod +2), rolled 11 -> HIT
+  [Ranged] Red 5 -> Blue 7: range 6, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['PPC', 'PPC', 'PPC'] (weapon heat 30 of budget 32 = max 4 + sink 28 - current 0 - movement 0 - other 0; expected dmg 27.50)
+    PPC: needs 4 (range mod +0), rolled 5 -> HIT
+    PPC: needs 4 (range mod +0), rolled 11 -> HIT
+    PPC: needs 4 (range mod +0), rolled 9 -> HIT
+    ISMediumLaser hit for 5:
+      Hit location roll 7 (left table): Left Torso.
+5 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (19 -> 14 remaining).
+    ISMediumLaser hit for 5:
+      Hit location roll 4 (left table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (19 -> 14 remaining).
+    PPC hit for 10:
+      Hit location roll 5 (left table): Left Arm.
+10 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 2 armor pts destroyed at armor (2 -> 0 remaining). 8 damage applied to structure [STANDARD] (11 -> 3/11 remaining).
+  Check for possible critical. Roll a 5.
+    No critical hit.
+    PPC hit for 10:
+      Hit location roll 5 (left table): Left Arm.
+10 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (3 -> 0/11 remaining).
+  Left Arm destroyed with no live explosive components - no critical roll.
+  Left Arm DESTROYED!
+  All critical slots in Left Arm marked DESTROYED.
+  7 damage remains, transfers to Left Torso.
+  [STANDARD/ENERGY] 7 armor pts destroyed at armor (15 -> 8 remaining).
+    PPC hit for 10:
+      Hit location roll 7 (left table): Left Torso.
+10 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 8 armor pts destroyed at armor (8 -> 0 remaining). 2 damage applied to structure [STANDARD] (15 -> 13/15 remaining).
+  Check for possible critical. Roll a 4.
+    No critical hit.
+PSR trigger: 30 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 10 (Piloting 5 + +5). Rolled 5.
+  Failed - falls.
+FALL (failed Attack Phase PSR): Cataphract CTF-3D takes 7 falling damage (1D6 6: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 11 -> Left Arm
+5 damage (PHYSICAL) incoming to Left Arm (armor).
+  Left Arm already destroyed - damage transfers to Left Torso.
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (13 -> 8/15 remaining).
+  Check for possible critical. Roll a 4.
+    No critical hit.
+  Fall cluster (2 dmg): rolled 11 -> Left Arm
+2 damage (PHYSICAL) incoming to Left Arm (armor).
+  Left Arm already destroyed - damage transfers to Left Torso.
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (8 -> 6/15 remaining).
+  Check for possible critical. Roll a 10.
+    2 critical hit(s).
+  Critical hit pool at Left Torso:
+    1: Engine (slot 1)
+    2: Engine (slot 2)
+    3: Engine (slot 3)
+    4: Heat Sink (slot 4)
+    5: Heat Sink (slot 5)
+    6: ISMediumLaser (slot 6)
+    7: ISLBXAC10 CL Ammo (slot 7)
+    8: ISLBXAC10 Ammo (slot 8)
+    1/2 Criticals: Heat Sink slot hit.
+      Current crit slots in Left Torso: ['Engine', 'Engine', 'Engine', 'Heat Sink', 'DESTROYED', 'ISMediumLaser', 'ISLBXAC10 CL Ammo', 'ISLBXAC10 Ammo', 'ISCASE', '-Empty-', '-Empty-', '-Empty-']
+      Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 15).
+  Critical hit pool at Left Torso:
+    1: Engine (slot 1)
+    2: Engine (slot 2)
+    3: Engine (slot 3)
+    4: Heat Sink (slot 4)
+    5: ISMediumLaser (slot 6)
+    6: ISLBXAC10 CL Ammo (slot 7)
+    7: ISLBXAC10 Ammo (slot 8)
+    2/2 Criticals: Heat Sink slot hit.
+      Current crit slots in Left Torso: ['Engine', 'Engine', 'Engine', 'DESTROYED', 'DESTROYED', 'ISMediumLaser', 'ISLBXAC10 CL Ammo', 'ISLBXAC10 Ammo', 'ISCASE', '-Empty-', '-Empty-', '-Empty-']
+      Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 14).
+  Seatbelt check: needs 5. Rolled 6. Pilot unharmed.
+  [Heat] Red 5: 0 + movement 0 + weapons 30 + engine 0 - sinks 28 -> 2
+  [Heat] Blue 7: 0 + movement 2 + weapons 6 + engine 0 - sinks 14 -> 0
+  -- end of turn 51: Red 1 @ 2508 NW: HP 172, pilot hits 1, engine 0, gyro 0, heat 0 [PRONE, DESTROYED (Legs Destroyed)]
+  -- end of turn 51: Red 2 @ 0607 S: HP 86, pilot hits 1, engine 4, gyro 0, heat 5 [PRONE, DESTROYED (Engine Destroyed)]
+  -- end of turn 51: Red 3 @ 1605 SE: HP 95, pilot hits 2, engine 6, gyro 4, heat 0 [DESTROYED (Center Torso Destroyed)]
+  -- end of turn 51: Red 4 @ 2116 SE: HP 42, pilot hits 1, engine 6, gyro 4, heat 4 [DESTROYED (Center Torso Destroyed)]
+  -- end of turn 51: Red 5 @ 1911 N: HP 321, pilot hits 0, engine 0, gyro 0, heat 2
+  -- end of turn 51: Red 6 @ 0706 SW: HP 99, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE, DESTROYED (Legs Destroyed)]
+  -- end of turn 51: Red 7 @ 0903 N: HP 146, pilot hits 2, engine 0, gyro 0, heat 0 [PRONE, DESTROYED (Head Destroyed)]
+  -- end of turn 51: Red 8 @ 0611 N: HP 67, pilot hits 1, engine 0, gyro 0, heat 0 [DESTROYED (Legs Destroyed)]
+  -- end of turn 51: Blue 1 @ 1509 S: HP 239, pilot hits 2, engine 3, gyro 0, heat 2 [DESTROYED (Engine Destroyed)]
+  -- end of turn 51: Blue 2 @ 2015 NE: HP 116, pilot hits 2, engine 6, gyro 4, heat 3 [DESTROYED (Head Destroyed)]
+  -- end of turn 51: Blue 3 @ 0602 N: HP 59, pilot hits 2, engine 6, gyro 4, heat 0 [DESTROYED (Center Torso Destroyed)]
+  -- end of turn 51: Blue 4 @ 2610 SE: HP 39, pilot hits 1, engine 6, gyro 4, heat 4 [DESTROYED (Center Torso Destroyed)]
+  -- end of turn 51: Blue 5 @ 0811 SE: HP 171, pilot hits 1, engine 0, gyro 0, heat 0 [DESTROYED (Legs Destroyed)]
+  -- end of turn 51: Blue 6 @ 1009 NE: HP 96, pilot hits 0, engine 6, gyro 4, heat 2 [PRONE, DESTROYED (Center Torso Destroyed)]
+  -- end of turn 51: Blue 7 @ 1407 S: HP 119, pilot hits 1, engine 0, gyro 0, heat 0 [PRONE]
+  -- end of turn 51: Blue 8 @ 1008 SE: HP 93, pilot hits 1, engine 6, gyro 4, heat 0 [DESTROYED (Center Torso Destroyed)]
+
+=== TURN 52 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red 5: score 2708.976 = dealt 41.56 x1.23 + (HP 443.0 - received 0.00 x1.04 - PSR 0.00) / enemy future 1.11 x my future 6.65 [two-ply, 72 of 140 spots (grid search) x 1 replies (short list); modeled reply Blue 7 -> 1407 S Run]
+  [Movement] Red 5: 1911 N -> 1911 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 6.
+  Failed to stand.
+FALL (failed to stand): Cataphract CTF-3D takes 7 falling damage (1D6 5: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 8 -> Left Torso
+5 damage (PHYSICAL) incoming to Left Torso (armor).
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (6 -> 1/15 remaining).
+  Check for possible critical. Roll a 7.
+    No critical hit.
+  Fall cluster (2 dmg): rolled 2 -> Center Torso
+2 damage (PHYSICAL) incoming to Center Torso (armor).
+  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (11 -> 9 remaining).
+  Seatbelt check: needs 5. Rolled 6. Pilot unharmed.
+Insufficient MP (<2) remaining for another stand attempt. Remains prone.
+  [Movement] Blue 7: still prone at 1407.
+  [Ranged] Red 5 -> Blue 7: range 6, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0 + prone target 1); firing ['PPC', 'PPC', 'PPC'] (weapon heat 30 of budget 30 = max 4 + sink 28 - current 2 - movement 0 - other 0; expected dmg 25.00)
+    PPC: needs 5 (range mod +0), rolled 5 -> HIT
+    PPC: needs 5 (range mod +0), rolled 9 -> HIT
+    PPC: needs 5 (range mod +0), rolled 10 -> HIT
+  [Ranged] Blue 7 -> Red 5: range 6, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0 + prone +2); firing nothing (weapon heat 0 of budget 16 = max 4 + sink 14 - current 0 - movement 2 - other 0; expected dmg 0.00)
+    PPC hit for 10:
+      Hit location roll 7 (left table): Left Torso.
+10 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 1 damage applied to structure [STANDARD] (1 -> 0/15 remaining).
+  Left Torso destroyed with no live explosive components - no critical roll.
+  Left Torso DESTROYED!
+    Engine hit (1/3) from Left Torso destruction.
+    Engine hit (2/3) from Left Torso destruction.
+    Engine hit (3/3) from Left Torso destruction.
+  All critical slots in Left Torso marked DESTROYED.
+  Left Arm also destroyed (side torso rule).
+  All critical slots in Left Arm marked DESTROYED.
+  9 damage remains, transfers to Center Torso.
+    PPC hit for 10:
+      Hit location roll 5 (left table): Left Arm.
+10 damage (ENERGY) incoming to Left Arm (armor).
+  Left Arm already destroyed - damage transfers to Left Torso.
+  Left Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/ENERGY] 9 armor pts destroyed at armor (9 -> 0 remaining). 1 damage applied to structure [STANDARD] (22 -> 21/22 remaining).
+  Check for possible critical. Roll a 11.
+    2 critical hit(s).
+  Critical hit pool at Center Torso:
+    1: Engine (slot 1)
+    2: Engine (slot 2)
+    3: Engine (slot 3)
+    4: Gyro (slot 4)
+    5: Gyro (slot 5)
+    6: Gyro (slot 6)
+    7: Gyro (slot 7)
+    8: Engine (slot 8)
+    9: Engine (slot 9)
+    10: Engine (slot 10)
+    11: Heat Sink (slot 11)
+    12: Heat Sink (slot 12)
+    1/2 Criticals: Gyro hit.
+      Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'DESTROYED', 'Engine', 'Engine', 'Engine', 'Heat Sink', 'Heat Sink']
+      Gyro hit (1/2).
+  Critical hit pool at Center Torso:
+    1: Engine (slot 1)
+    2: Engine (slot 2)
+    3: Engine (slot 3)
+    4: Gyro (slot 4)
+    5: Gyro (slot 5)
+    6: Gyro (slot 6)
+    7: Engine (slot 8)
+    8: Engine (slot 9)
+    9: Engine (slot 10)
+    10: Heat Sink (slot 11)
+    11: Heat Sink (slot 12)
+    2/2 Criticals: Heat Sink slot hit.
+      Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'DESTROYED', 'Engine', 'Engine', 'Engine', 'Heat Sink', 'DESTROYED']
+      Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 13).
+    PPC hit for 10:
+      Hit location roll 9 (left table): Right Torso.
+10 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 3 armor pts destroyed at armor (3 -> 0 remaining). 7 damage applied to structure [STANDARD] (15 -> 8/15 remaining).
+  Check for possible critical. Roll a 9.
+    1 critical hit(s).
+  Critical hit pool at Right Torso:
+    1: Engine (slot 1)
+    2: Engine (slot 2)
+    3: Engine (slot 3)
+    4: ISLBXAC10 (slot 4)
+    5: ISLBXAC10 (slot 5)
+    6: ISLBXAC10 (slot 6)
+    7: ISLBXAC10 (slot 7)
+    8: ISLBXAC10 (slot 8)
+    9: ISLBXAC10 (slot 9)
+    10: ISMediumLaser (slot 10)
+    11: ISUltraAC5 Ammo (slot 11)
+    1/1 Criticals: Engine hit.
+      Current crit slots in Right Torso: ['Engine', 'Engine', 'DESTROYED', 'ISLBXAC10', 'ISLBXAC10', 'ISLBXAC10', 'ISLBXAC10', 'ISLBXAC10', 'ISLBXAC10', 'ISMediumLaser', 'ISUltraAC5 Ammo', 'ISCASE']
+      Engine hit (4/3).
+  [Heat] Red 5: 2 + movement 0 + weapons 30 + engine 0 - sinks 28 -> 4
+  -- end of turn 52: Red 1 @ 2508 NW: HP 172, pilot hits 1, engine 0, gyro 0, heat 0 [PRONE, DESTROYED (Legs Destroyed)]
+  -- end of turn 52: Red 2 @ 0607 S: HP 86, pilot hits 1, engine 4, gyro 0, heat 5 [PRONE, DESTROYED (Engine Destroyed)]
+  -- end of turn 52: Red 3 @ 1605 SE: HP 95, pilot hits 2, engine 6, gyro 4, heat 0 [DESTROYED (Center Torso Destroyed)]
+  -- end of turn 52: Red 4 @ 2116 SE: HP 42, pilot hits 1, engine 6, gyro 4, heat 4 [DESTROYED (Center Torso Destroyed)]
+  -- end of turn 52: Red 5 @ 1911 N: HP 321, pilot hits 0, engine 0, gyro 0, heat 4
+  -- end of turn 52: Red 6 @ 0706 SW: HP 99, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE, DESTROYED (Legs Destroyed)]
+  -- end of turn 52: Red 7 @ 0903 N: HP 146, pilot hits 2, engine 0, gyro 0, heat 0 [PRONE, DESTROYED (Head Destroyed)]
+  -- end of turn 52: Red 8 @ 0611 N: HP 67, pilot hits 1, engine 0, gyro 0, heat 0 [DESTROYED (Legs Destroyed)]
+  -- end of turn 52: Blue 1 @ 1509 S: HP 239, pilot hits 2, engine 3, gyro 0, heat 2 [DESTROYED (Engine Destroyed)]
+  -- end of turn 52: Blue 2 @ 2015 NE: HP 116, pilot hits 2, engine 6, gyro 4, heat 3 [DESTROYED (Head Destroyed)]
+  -- end of turn 52: Blue 3 @ 0602 N: HP 59, pilot hits 2, engine 6, gyro 4, heat 0 [DESTROYED (Center Torso Destroyed)]
+  -- end of turn 52: Blue 4 @ 2610 SE: HP 39, pilot hits 1, engine 6, gyro 4, heat 4 [DESTROYED (Center Torso Destroyed)]
+  -- end of turn 52: Blue 5 @ 0811 SE: HP 171, pilot hits 1, engine 0, gyro 0, heat 0 [DESTROYED (Legs Destroyed)]
+  -- end of turn 52: Blue 6 @ 1009 NE: HP 96, pilot hits 0, engine 6, gyro 4, heat 2 [PRONE, DESTROYED (Center Torso Destroyed)]
+  -- end of turn 52: Blue 7 @ 1407 S: HP 91, pilot hits 1, engine 4, gyro 1, heat 0 [PRONE, DESTROYED (Engine Destroyed)]
+  -- end of turn 52: Blue 8 @ 1008 SE: HP 93, pilot hits 1, engine 6, gyro 4, heat 0 [DESTROYED (Center Torso Destroyed)]
+
+>>> Battle over on turn 52: Blue destroyed. <<<

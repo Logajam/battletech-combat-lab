@@ -64,7 +64,7 @@ and the GitHub logistics (Section 7).
 | Choices still stubs | Rate of fire, ammo kind, MASC / supercharger, unjam, capacitors, shields, TAG... (loud, counted) | `INTEGRATION__stubs.py`, Section 6 |
 | Output | Batch summary, timing table, replays, battle statistics page (stages 1-3 of 5), saved states (end of a turn) | `_results`, `_timing`, `_replay`, `_stats*`, `_saved_state` |
 | Rust engine | The whole engine and both default bots, exact against the Python on 63 fixtures and ~830 random battles; `btsim` batches about 10x the Python's speed a core. Not translated: the switches that are off by default | `engine/`, `INTEGRATION__RUST_PORT.md`, `engine/REVIEW_BRIEF.md` |
-| Hydra | Third bot, Rust only: one planner a team, damage priced by a forecast of the battle's end. Ahead of Gladiator at 4 v 4 / 8 v 8, behind in brawler duels | `engine/core/src/hydra.rs`, `INTEGRATION__HYDRA.md` |
+| Hydra | Third bot, Rust only: one planner a team, damage priced by a forecast of the battle's end. All five planner switches on (2026-11-12): ahead of Gladiator and Princess in team battles, behind in the brawler duel | `engine/core/src/hydra.rs`, `INTEGRATION__HYDRA.md` |
 | Speed (old) | Rust copies of the weapon table, movement search, LOS, hex distance for the Python; to be retired | `fastcore/`, `config.USE_FASTCORE` |
 | Combat Lab art | Skeleton-and-shell faceted models, block library, workbench | `_tokens`, `_shell*`, `tools/token_*`, `INTEGRATION__COMBAT_LAB*.md` |
 
@@ -150,6 +150,7 @@ remove the line and note it in the Change Record.
 - **(ab) HYDRA S6 SECOND PASS** (session 25): `hydra::life_of` (`HYDRA_LIFE_STRUCTURE_WEIGHT`), armor / structure in `scenario::snapshot`, `fit2`.
 - **(ac) HYDRA S3 MOVE ORDER** (session 25): `hydra::move_pick` / `picks_move_order` (`HYDRA_MOVE_ORDER = "stake"`, off), the new `BotSet::move_pick` socket used by the turn loop's pick (and so by the move queue), `ledger_as` (read-only ledger). Two reference battles (86).
 - **(ad) HYDRA WAITING + ATTENTION SHARE** (session 25): `HYDRA_WAITING` (`coming_friends`, `HydraState::waited`) and `HYDRA_ATTENTION = "oracle"` (`elsewhere_of`, `attention_damage`), both off. Four reference battles (90).
+- **(af) HYDRA ALL-ON + TURN CAP 100** (session 25): the five switches' default flipped in `hydra.rs` (OFF values listed there), `scenario::STANDARD_MAX_TURNS`, reference variants reworked (86).
 - **(ae) TRIAL RECORDS** (session 25): `tools/trial_records.py` (every hydra_trial / round_robin battle kept in `trial_records/`, always on), `btsim --sims` / `--max-turns`, `tools/replay_undecided.py`. TABLED (Daniel, 2026-11-12, "We'll table that level of statistics for later"): each unit's fate per battle (turn destroyed, by which attack and attacker) in the records.
 - **(aa) HYDRA S6, FORECAST CALIBRATION** (session 25): `hydra::Shape` / `forecast_with` / `prices_with`, `scenario::run_recorded`,
   `btsim --ledger`, `tools/hydra_calibrate.py`; default FOCUS 0. Also the stacking fix in `movement_attacks` (both engines).

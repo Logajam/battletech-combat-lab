@@ -55,6 +55,7 @@ def append(path, tool, scenario, red, blue, hydra, argv, max_turns, seed, battle
     if not path:
         return
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    max_turns = out.get("max_turns", max_turns)  # btsim says which cap it played to
     results = []
     for r in out["results"]:
         results.append({"sim": r["sim"], "seed": r["seed"], "winner": r["winner"], "turns": r["turns"],

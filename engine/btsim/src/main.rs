@@ -50,7 +50,7 @@ fn main() {
             scenario.config.as_object_mut().unwrap().insert(k.to_string(), value);
         }
     }
-    // --max-turns N (session 25): the turn cap for this run, in place of the scenario's (meta max_turns, default 50). A
+    // --max-turns N (session 25): the turn cap for this run, in place of the scenario's (scenario::STANDARD_MAX_TURNS, 100). A
     // battle is the same as under the old cap up to it (same seed, same dice), so a raised cap only plays draws on.
     if let Some(n) = arg(&args, "--max-turns") {
         scenario.max_turns = n.parse().expect("--max-turns");
@@ -112,6 +112,7 @@ fn main() {
         "wins": wins,
         "mean_turns": turns as f64 / runs.len().max(1) as f64,
         "hit_turn_cap": capped,
+        "max_turns": scenario.max_turns,
         "results": runs.iter().map(|(sim, s, r, _)| battle_json(*sim, *s, r)).collect::<Vec<_>>(),
         "logs": runs.iter().filter(|(_, _, _, l)| !l.is_empty()).map(|(sim, _, _, l)| json!({"sim": sim, "lines": l})).collect::<Vec<_>>(),
     });

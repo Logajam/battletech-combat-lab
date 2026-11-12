@@ -6,6 +6,17 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-12 (Claude, session 25), HYDRA: ALL FIVE SWITCHES ON BY DEFAULT; RUST TURN CAP 100; PER-BATTLE TRIAL RECORDS. Hydra's and capped battles' results change (meant to). REVIEW PENDING (higher-level model).**
+  Daniel: "Leave them all on. Set the standard game cap to 100 rounds." All five on (S5a play-out, S4 charges / DFA, S3 move order, Waiting,
+  Oracle attention; each turned off with its OFF value, listed at the top of `hydra.rs`). Measured with the cap at 150, same seeds: v Gladiator 397 -
+  219 - 8 (first version 369 - 243 - 12), v Princess 447 - 161 - 16 (438 - 176 - 10); big battles 86 - 30 v 75 - 47; 4 v 4 heavies v Princess worse.
+  NEW `scenario::STANDARD_MAX_TURNS` = 100 for every Rust scenario (a meta.json's 50 is no longer read; the Python answer key and its fixtures keep
+  50). `btsim --max-turns N`, `--sims I,J` and a `max_turns` field in its output. Trial records (Daniel: "we need to keep records of results per
+  individual game seed"): `tools/trial_records.py`, always on in `hydra_trial.py` / `round_robin.py`, files in `trial_records/`;
+  `tools/replay_undecided.py` replays only the capped battles. Reference battles: the old switch variants became "one switch off" variants plus
+  two "first version" battles (86 in all). Before re-saving, the only non-Hydra battles that differed were the six that had hit the 50-turn cap
+  (Daniel: "you only need to run the stalled out games"); now 2 of 86 reach the cap (the Asymptote mirror, and the first-version Hydra in the
+  lance woods). Python 57 of 57.
 - **2026-11-12 (Claude, session 25), HYDRA WAITING AND ATTENTION SHARE, BUILT AS SWITCHES, MEASURED, BOTH OFF BY DEFAULT. REVIEW PENDING (higher-level model).**
   Daniel: "Go ahead and process the last 2 items on the list." WAITING (`HYDRA_WAITING`; `coming_friends`, `MAX_WAITS` 2, `BEHIND` 3,
   `HydraState::waited`): a unit out ahead of its line may take a spot that deals nothing when the best trade is worse than the team's typical turn,

@@ -4,6 +4,14 @@
 //! ask the engine (the EXCHANGE ORACLE, `MoveEvaluator` / `dry_declare_as`) what damage flows and multiply by prices.
 //!
 //! Rust only: there is no Python version of this bot and no exact-match test. It is judged by results (plan, Section 4).
+//!
+//! SWITCHES, all ON by default since 2026-11-12 (Daniel: "Leave them all on"; together they beat the first version, see
+//! INTEGRATION__HYDRA.md Section 7 "All five together"). Each is turned OFF by `btsim --set` with the value in brackets:
+//!   HYDRA_PLAYOUT          the S5a movement play-out             ["reply": the first version's single reply]
+//!   HYDRA_MOVEMENT_ATTACKS S4 charges and death from above       [false]
+//!   HYDRA_MOVE_ORDER       S3 least to lose first, deciders last ["index": the engine's move index]
+//!   HYDRA_WAITING          a unit out ahead may decline a bad trade [false]
+//!   HYDRA_ATTENTION        the Oracle's attention share          ["range": the range rule]
 use crate::battle::{Battle, UnitId};
 use crate::fasthash::HashMap;
 use crate::hex_geometry;
@@ -273,7 +281,7 @@ fn range_factor(dist: i64) -> f64 {
 ///     (in its hex, having walked, facing the friend) and the friend where it is now.
 fn elsewhere_of(b: &mut Battle, e: UnitId, friends: &[UnitId], price: &HashMap<UnitId, f64>, guns: &HashMap<UnitId, f64>) -> f64 {
     let Some(e_xy) = xy(b, e) else { return 0.0 };
-    let oracle = b.cfg.has("HYDRA_ATTENTION") && b.cfg.s("HYDRA_ATTENTION") == "oracle";
+    let oracle = !(b.cfg.has("HYDRA_ATTENTION") && b.cfg.s("HYDRA_ATTENTION") == "range");
     let mut most = 0.0f64;
     for &f in friends {
         let Some(f_xy) = xy(b, f) else { continue };
@@ -527,7 +535,7 @@ fn choose_movement_inner(b: &mut Battle, mover: UnitId, other: UnitId, moves_fir
     let mut best_lines: Option<(HashMap<UnitId, (f64, f64)>, HashMap<UnitId, f64>)> = None;
     let unmoved: Vec<UnitId> = relevant.iter().copied().filter(|e| !(b.units[*e].moved_this_turn || is_immobile(&b.units[*e]))).collect();
     let depth = (REPLY_BUDGET / relevant.len().max(1)).min(REPLY_MAX);
-    if b.cfg.has("HYDRA_PLAYOUT") && b.cfg.s("HYDRA_PLAYOUT") == "s5a" {
+    if !(b.cfg.has("HYDRA_PLAYOUT") && b.cfg.s("HYDRA_PLAYOUT") == "reply") {
         // S5a, THE MOVEMENT PLAY-OUT (INTEGRATION__HYDRA.md Section 6), in place of the reply below.
         if !scored.is_empty() || tables.iter().all(|t| t.2 <= 0.0) {
             let alone = tables.iter().all(|t| t.2 <= 0.0);
@@ -603,7 +611,7 @@ fn choose_movement_inner(b: &mut Battle, mover: UnitId, other: UnitId, moves_fir
     // has already moved (or cannot move; Core pp.78-79), priced like any other spot: its exchange with that enemy is the
     // attack's expected damage both ways (self-damage and a missed DFA's fall included, movement_attacks::values) plus
     // the ranged fire from the attack hex; every other weighed enemy's line is the Oracle's at the attack hex.
-    if entry_edge.is_none() && b.cfg.has("HYDRA_MOVEMENT_ATTACKS") && b.cfg.b("HYDRA_MOVEMENT_ATTACKS") {
+    if entry_edge.is_none() && !(b.cfg.has("HYDRA_MOVEMENT_ATTACKS") && !b.cfg.b("HYDRA_MOVEMENT_ATTACKS")) {
         let normal = best.map(|(s, _, _)| s);
         if let Some((sc, pick, note)) = movement_attack(b, mover, &mut me, standup_mp, &tables, my_price, &my_exp, d0, r0) {
             if normal.map_or(true, |ns| sc > ns) {
@@ -616,7 +624,7 @@ fn choose_movement_inner(b: &mut Battle, mover: UnitId, other: UnitId, moves_fir
     // may take a spot that deals nothing, scored like any other ((d0 + 0) / (r0 + cost + risk): only a spot no weighed
     // enemy can punish much beats the bad trade); among equals, the one nearest a coming friend. At most MAX_WAITS turns in
     // a row, so the battle still gets fought.
-    if entry_edge.is_none() && b.cfg.has("HYDRA_WAITING") && b.cfg.b("HYDRA_WAITING") {
+    if entry_edge.is_none() && !(b.cfg.has("HYDRA_WAITING") && !b.cfg.b("HYDRA_WAITING")) {
         if let Some((best_rate, _, _)) = best {
             let turn = b.units[mover].turn_number;
             let streak = match b.hydra.waited.get(&mover) {
@@ -962,7 +970,7 @@ pub fn move_pick(b: &mut Battle, candidates: &[UnitId]) -> UnitId {
 
 /// Is S3 on for this side's pick? Every candidate is Hydra's and the switch says "stake".
 pub fn picks_move_order(b: &Battle, candidates: &[UnitId]) -> bool {
-    b.cfg.has("HYDRA_MOVE_ORDER") && b.cfg.s("HYDRA_MOVE_ORDER") == "stake" && candidates.iter().all(|u| b.units[*u].bot == "hydra")
+    !(b.cfg.has("HYDRA_MOVE_ORDER") && b.cfg.s("HYDRA_MOVE_ORDER") == "index") && candidates.iter().all(|u| b.units[*u].bot == "hydra")
 }
 
 // =============================================================================================================

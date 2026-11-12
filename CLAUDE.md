@@ -60,11 +60,14 @@ GitHub logistics.
 - **After every change:**
   - Run `python tests/run_checks.py` (about 1 min): every `tests/test_*.py`
     plus every reference battle, side by side, one line each, plus the Rust
-    engine's own 90 reference battles (`tests/check_rust_reference.py`, when
+    engine's own 86 reference battles (`tests/check_rust_reference.py`, when
     cargo is installed; `--update` there for a Rust change meant to alter
     results). All must pass.
-    Reference battles stop at 50 turns; one that hits the cap prints a NOTE
-    (Daniel: "a possible flaw").
+    Reference battles stop at the turn cap: 50 in the Python, 100 in the Rust
+    (the standard game since 2026-11-12, `scenario::STANDARD_MAX_TURNS`); one
+    that hits the cap prints a NOTE (Daniel: "a possible flaw").
+  - Every trial battle is kept in `trial_records/` (`tools/trial_records.py`);
+    `tools/replay_undecided.py` replays only a trial's capped battles.
   - A reference log that differs: if the change was meant to alter results, run
     `python tests/check_reference_logs.py --update` and record that in the
     Change Record.
