@@ -50,6 +50,21 @@ fn unit_name(b: &Battle, i: usize) -> String {
 ///
 /// With `compact_base` (each unit's dump at the start), the units go as compact states ("compact_units"), not dumps.
 pub fn state_json(b: &Battle, last_board: &mut Option<String>, compact_base: Option<&[Value]>) -> Value {
+    state_json_mode(b, last_board, compact_base, false)
+}
+
+/// `state_json`, or with `view` the MegaMek views of the units (`megamek_view`), the turn and the dice only.
+pub fn state_json_mode(b: &Battle, last_board: &mut Option<String>, compact_base: Option<&[Value]>, view: bool) -> Value {
+    if view {
+        // the battle's own turn counter is not kept up to date by the engine (b.turn); the units' is
+        let turn = b.units.iter().map(|m| m.turn_number).max().unwrap_or(0);
+        let mut v = json!({"turn": turn, "megamek_units": (0..b.units.len()).map(|u| megamek_view(b, u)).collect::<Vec<_>>(),
+                           "move_queue": b.move_queue});
+        if let Some(d) = b.dice.borrow().save() {
+            v["dice"] = d;
+        }
+        return v;
+    }
     let name = |i: usize| unit_name(b, i);
     let units: Vec<Value> = b.units.iter().map(|m| m.to_json(&name)).collect();
     let (key, units) = match compact_base {
@@ -81,6 +96,44 @@ pub fn state_json(b: &Battle, last_board: &mut Option<String>, compact_base: Opt
 /// start, plus a compact state); a new board drops the remembered lines of sight and movement tables (they rebuild to
 /// the same values).
 pub fn load_state(b: &mut Battle, v: &Value, base: &[Value]) {
+    // A MegaMek game sends its own view of each unit instead (B3): written into this battle's units, the rest kept.
+    if let Some(views) = v.get("megamek_units") {
+        for view in views.as_array().expect("megamek_units") {
+            apply_megamek_view(b, view);
+        }
+        // A new turn: the start-of-turn bookkeeping the engine does in play_turn (each unit's turn number - Hydra's
+        // Waiting counts turns with it - and the damage snapshot piloting rolls use). MegaMek's rounds count from 0,
+        // our turns from 1 (GameView sends ours).
+        if let Some(d) = v.get("dice") {
+            *b.dice.borrow_mut() = Box::new(PcgDice::restore(d));
+        }
+        // the units still to move this phase, in order (Hydra's forecast reads it); MegaMek's turn order gives it
+        if let Some(q) = v.get("move_queue").and_then(|q| q.as_array()) {
+            b.move_queue = q.iter().filter_map(|u| u.as_u64().map(|u| u as UnitId)).collect();
+        }
+        if let Some(t) = v.get("turn").and_then(|t| t.as_i64()) {
+            if t != b.turn {
+                // each unit's HP history (Hydra's forecast reads it), kept as play_turn keeps it: the HP when the game
+                // starts, then one entry at the end of every turn (here: when the next turn is first seen)
+                for u in 0..b.units.len() {
+                    let hp = crate::orchestrator::effective_hp(b, u);
+                    if b.turn == 0 || b.units[u].hp_log.is_none() {
+                        b.units[u].hp_log = Some(vec![hp]);
+                    } else {
+                        for _ in b.turn..t {
+                            b.units[u].hp_log.get_or_insert_with(Vec::new).push(hp);
+                        }
+                    }
+                }
+                b.turn = t;
+                for u in 0..b.units.len() {
+                    crate::piloting_rolls::snapshot_preexisting_damage(&mut b.units[u]);
+                    crate::equipment_systems::start_turn(b, u, t);
+                }
+            }
+        }
+        return;
+    }
     let names: Vec<String> = (0..b.units.len()).map(|i| unit_name(b, i)).collect();
     let index = |n: &str| names.iter().position(|x| x == n).unwrap_or_else(|| panic!("bridge state: no unit {}", n));
     let dumps: Vec<Value> = match v.get("compact_units") {
@@ -306,6 +359,210 @@ pub fn apply_compact(base: &Value, c: &Value) -> Value {
 }
 
 // =============================================================================================================
+// MegaMek's view of a unit (stage B3, Java half): what a MegaMek game knows, written into the session's own unit
+// =============================================================================================================
+// A MegaMek game cannot send our unit records: it sends what IT knows about each unit (btbridge.GameView writes it):
+//   {"name", "hex" ("0905", null off the board), "facing" 0-5, "prone", "shutdown", "heat", "destroyed",
+//    "locations": {"Left Torso": {"armor", "rear", "structure", "destroyed"}}, "destroyed_slots": [["Left Torso", 3]],
+//    "ammo": {"Left Torso#0": shots}, "jammed": ["Right Arm#4"], "pilot_hits", "conscious",
+//    "moved": "Walk" / "Run" / "Jump" / "Stand Still" (this turn, or null), "mp_spent", "twist" (-1, 0, 1)}
+// Everything else stays as the session's own copy of the unit has it (built from the .mtf when the game started).
+// Destroyed slots go through the engine's own slot loss (`destroy_slot_quietly`), so engine / gyro / heat sink / jump
+// jet counters follow; no explosion, MegaMek resolved it. Our own bookkeeping that MegaMek does not have (snapshots
+// taken at phase starts, hp_log...) is NOT kept up to date this way: decisions in a MegaMek game are made on MegaMek's
+// facts plus that approximation (spec Section 3c).
+
+/// The MegaMek view of one of OUR units (what btbridge.GameView would send for it): the parity check's view mode
+/// (`--bridge-view`) sends these instead of full records, to measure how often decisions made from MegaMek's facts
+/// alone agree with decisions made from the whole record.
+pub fn megamek_view(b: &Battle, u: UnitId) -> Value {
+    let m = &b.units[u];
+    let name = unit_name(b, u);
+    if m.destroyed || m.hex.is_none() {
+        return json!({"name": name, "destroyed": m.destroyed, "hex": m.hex, "home_edge": m.home_edge, "home_edge_row": m.home_edge_row});
+    }
+    let mut locations = serde_json::Map::new();
+    for (loc, l) in &m.locations {
+        let mut o = json!({"armor": l.armor.f() as i64, "structure": l.structure.f() as i64, "destroyed": l.destroyed});
+        if let Some(r) = &l.rear_armor {
+            o["rear"] = json!(r.f() as i64);
+        }
+        locations.insert(loc.clone(), o);
+    }
+    let mut slots = Vec::new();
+    for (loc, list) in &m.crits {
+        for (i, s) in list.iter().enumerate() {
+            if s.is_name("DESTROYED") {
+                slots.push(json!([loc, i]));
+            }
+        }
+    }
+    let (mut ammo, mut jammed) = (serde_json::Map::new(), Vec::new());
+    for (id, addr) in m.item_addresses() {
+        let it = &m.items[id];
+        if it.category.as_deref() == Some("ammo") {
+            if let Some(n) = it.shots_left {
+                ammo.insert(addr.clone(), json!(n));
+            }
+        }
+        if it.jammed == Some(true) {
+            jammed.push(addr);
+        }
+    }
+    json!({"name": name, "hex": m.hex, "facing": crate::hex_geometry::compass_to_facing(&m.facing).unwrap_or(0),
+           "prone": m.prone, "shutdown": m.shutdown, "heat": m.current_heat, "destroyed": false,
+           "locations": locations, "destroyed_slots": slots, "ammo": ammo, "jammed": jammed,
+           "pilot_hits": m.pilot_hits, "conscious": !m.crew.get("pilot").is_some_and(|p| p.unconscious),
+           "moved": if m.moved_this_turn { m.move_mode.clone() } else { "Stand Still".into() }, "mp_spent": m.mp_spent,
+           "hexes_moved": m.move_fc,
+           "twist": m.torso_twist.unwrap_or(0), "home_edge": m.home_edge, "home_edge_row": m.home_edge_row,
+           "extra": view_extra(b, u)})
+}
+
+/// MEASUREMENT ONLY (the view-mode check): BRIDGE_VIEW_EXTRA=field,field adds those raw record fields to each view,
+/// to find which of our own bookkeeping fields the decisions depend on (agreement rises when the right one is added).
+/// A MegaMek game never sends these.
+fn view_extra(b: &Battle, u: UnitId) -> Value {
+    let Ok(list) = std::env::var("BRIDGE_VIEW_EXTRA") else { return Value::Null };
+    let name = |i: usize| unit_name(b, i);
+    let dump = b.units[u].to_json(&name);
+    let mut out = serde_json::Map::new();
+    for k in list.split(',').filter(|k| !k.is_empty()) {
+        if let Some(v) = dump.get(k) {
+            out.insert(k.to_string(), v.clone());
+        }
+    }
+    Value::Object(out)
+}
+
+/// Writes one unit's MegaMek view into the battle (by its name).
+pub fn apply_megamek_view(b: &mut Battle, v: &Value) {
+    use crate::pyfmt::Num;
+    let name = v["name"].as_str().expect("megamek view: name");
+    let Some(u) = b.units.iter().position(|m| m.side_name.as_deref() == Some(name)) else { panic!("megamek view: no unit {}", name) };
+    if let Some(locs) = v.get("locations").and_then(|l| l.as_object()) {
+        for (loc, s) in locs {
+            if let Some(l) = b.units[u].locations.get_mut(loc) {
+                l.armor = Num::I(s["armor"].as_i64().unwrap_or(0));
+                if l.rear_armor.is_some() {
+                    l.rear_armor = s["rear"].as_i64().map(Num::I);
+                }
+                l.structure = Num::I(s["structure"].as_i64().unwrap_or(0));
+                l.destroyed = s["destroyed"].as_bool().unwrap_or(false);
+            }
+        }
+    }
+    for d in v.get("destroyed_slots").and_then(|d| d.as_array()).into_iter().flatten() {
+        crate::damage_resolution::destroy_slot_quietly(b, u, d[0].as_str().unwrap(), d[1].as_u64().unwrap() as usize);
+    }
+    let by_addr: std::collections::HashMap<String, usize> = b.units[u].item_addresses().into_iter().map(|(id, a)| (a, id)).collect();
+    if let Some(ammo) = v.get("ammo").and_then(|a| a.as_object()) {
+        for (addr, shots) in ammo {
+            if let Some(id) = by_addr.get(addr) {
+                b.units[u].items[*id].shots_left = shots.as_i64();
+            }
+        }
+    }
+    if let Some(jammed) = v.get("jammed").and_then(|j| j.as_array()) {
+        let jammed: Vec<&str> = jammed.iter().filter_map(|x| x.as_str()).collect();
+        for (addr, id) in &by_addr {
+            let it = &mut b.units[u].items[*id];
+            if it.jammed.is_some() || jammed.contains(&addr.as_str()) {
+                it.jammed = Some(jammed.contains(&addr.as_str()));
+            }
+        }
+    }
+    let m = &mut b.units[u];
+    m.hex = v.get("hex").and_then(|h| h.as_str()).map(|h| h.to_string());
+    if let Some(f) = v.get("facing").and_then(|f| f.as_i64()) {
+        m.facing = crate::hex_geometry::facing_to_compass(f.rem_euclid(6)).unwrap().to_string();
+    }
+    let flag = |k: &str, d: bool| v.get(k).and_then(|x| x.as_bool()).unwrap_or(d);
+    m.prone = flag("prone", m.prone);
+    m.shutdown = flag("shutdown", m.shutdown);
+    m.destroyed = flag("destroyed", m.destroyed);
+    if let Some(h) = v.get("heat").and_then(|h| h.as_i64()) {
+        m.current_heat = h;
+    }
+    if let Some(p) = v.get("pilot_hits").and_then(|p| p.as_i64()) {
+        m.pilot_hits = p;
+    }
+    if let Some(c) = v.get("conscious").and_then(|c| c.as_bool()) {
+        if let Some(pilot) = m.crew.get_mut("pilot") {
+            pilot.unconscious = !c;
+        }
+    }
+    if let Some(mode) = v.get("moved").and_then(|x| x.as_str()) {
+        m.move_mode = mode.to_string();
+        m.moved_this_turn = mode != "Stand Still";
+        m.mp_spent = v.get("mp_spent").and_then(|x| x.as_i64()).unwrap_or(0);
+        // hexes moved: what the target movement modifier is figured from (combat::fc_to_tmm), and the movement heat
+        m.move_fc = v.get("hexes_moved").and_then(|x| x.as_i64()).unwrap_or(0);
+        m.movement_heat = crate::heat::movement_heat(m, mode, m.move_fc);
+        match mode {
+            "Run" => m.movement_mode_this_turn = "running".into(),
+            "Jump" => m.movement_mode_this_turn = "jump".into(),
+            _ => {}
+        }
+    }
+    if let Some(t) = v.get("twist").and_then(|t| t.as_i64()) {
+        m.torso_twist = Some(t);
+    }
+    if let Some(extra) = v.get("extra").and_then(|e| e.as_object()).filter(|e| !e.is_empty()) {
+        // measurement only (view_extra): the raw fields put back through the record
+        let names: Vec<String> = (0..b.units.len()).map(|i| unit_name(b, i)).collect();
+        let index = |n: &str| names.iter().position(|x| x == n).unwrap();
+        let name_of = |i: usize| names[i].clone();
+        let mut dump = b.units[u].to_json(&name_of);
+        for (k, x) in extra {
+            dump[k.as_str()] = x.clone();
+        }
+        b.units[u] = Mech::from_json(&dump, &index);
+    }
+    let m = &mut b.units[u];
+    // the side's deployment edge, when the game has one (MegaMek's deployment zone; not sent by GameView yet: its games
+    // start deployed, DEPLOYMENT fixed_hexes)
+    let edge = |k: &str| v.get(k).and_then(|e| e.as_array()).map(|e| e.iter().filter_map(|x| x.as_str().map(|s| s.to_string())).collect::<Vec<_>>());
+    if let Some(e) = edge("home_edge") {
+        m.home_edge = Some(e);
+    }
+    if let Some(e) = edge("home_edge_row") {
+        m.home_edge_row = Some(e);
+    }
+}
+
+/// A picked move as MegaMek steps: "get_up", "turn_left", "turn_right", "forward", "backward" - or {"jump": true}
+/// (MegaMek's own path finder takes a jump to its end hex) or null when no route is found.
+fn path_steps(b: &Battle, mover: UnitId, pick: &Pick, standup_mp: Option<i64>) -> Value {
+    if pick.mode == "Jump" {
+        return json!({"jump": true});
+    }
+    if pick.mode == "Stand Still" {
+        return json!({"steps": if standup_mp.is_some() { vec!["get_up"] } else { vec![] }});
+    }
+    let Some(path) = crate::ranged_combat::path_to(b, mover, pick, standup_mp, None) else { return Value::Null };
+    let mut steps: Vec<&str> = Vec::new();
+    if standup_mp.is_some() {
+        steps.push("get_up");
+    }
+    let start = b.units[mover].hex.as_deref().and_then(|h| crate::hex_geometry::state_from_label(h, &b.units[mover].facing).ok());
+    let mut facing = start.map(|s| s.2).unwrap_or(0);
+    for (step, (_, _, f), _) in path {
+        match step {
+            "turn" => {
+                // the path's first state may already be a different facing (standing up facing anywhere)
+                steps.push(if (f - facing).rem_euclid(6) == 1 { "turn_right" } else { "turn_left" });
+                facing = f;
+            }
+            "forward" => steps.push("forward"),
+            "backward" => steps.push("backward"),
+            other => return json!({"unsupported_step": other}),
+        }
+    }
+    json!({"steps": steps})
+}
+
+// =============================================================================================================
 // Answers on the wire
 // =============================================================================================================
 
@@ -340,7 +597,8 @@ fn decl_json(b: &Battle, attacker: UnitId, c: &DeclChoice) -> Value {
 fn phys_json(p: &Option<(i64, Vec<PhysOption>, ArcAction)>) -> Value {
     match p {
         None => Value::Null,
-        Some((tn, opts, act)) => json!({"tn": tn, "attacks": opts.iter().map(|o| format!("{:?}", o)).collect::<Vec<_>>(), "action": action_json(act)}),
+        Some((tn, opts, act)) => json!({"tn": tn, "names": opts.iter().map(|o| o.name.clone()).collect::<Vec<_>>(),
+                                        "attacks": opts.iter().map(|o| format!("{:?}", o)).collect::<Vec<_>>(), "action": action_json(act)}),
     }
 }
 
@@ -354,6 +612,21 @@ fn unit_list(v: &Value) -> Vec<UnitId> {
 
 fn opt_unit(v: &Value) -> Option<UnitId> {
     v.as_u64().map(|u| u as UnitId)
+}
+
+/// The hexes other units stand in, set on a mover before it moves as `orchestrator::phase_movement` does (p.48: the
+/// mobile enemies' hexes are closed to its ground moves) - when the state did not already carry them (a MegaMek game's
+/// state does not; a recorded battle's does, and is left as it is).
+fn mover_sees_others(b: &mut Battle, mover: UnitId) {
+    let unset = |v: &Option<Value>| v.as_ref().is_none_or(|x| x.is_null());
+    if unset(&b.units[mover].blocked_hex) {
+        let blocked: Vec<Value> = crate::forces::blocked_xy(b, mover).into_iter().map(|(x, y)| json!([x, y])).collect();
+        b.units[mover].blocked_hex = Some(Value::Array(blocked));
+    }
+    if unset(&b.units[mover].other_unit_hexes) {
+        let occ = crate::forces::occupied_labels(b, mover);
+        b.units[mover].other_unit_hexes = Some(json!(occ));
+    }
 }
 
 /// Makes the `BotSet` call a line names, on a battle already holding that line's state; returns the answer as JSON
@@ -398,8 +671,14 @@ fn call(b: &mut Battle, bots: &mut dyn BotSet, method: &str, a: &Value) -> Value
             let choice = bots.choose_declaration(b, &ctx, &mut planner, attacker, target);
             decl_json(b, attacker, &choice)
         }
+        "path_steps" => {
+            mover_sees_others(b, a["mover"].as_u64().unwrap() as UnitId);
+            let pick = pick_back(&a["pick"]);
+            path_steps(b, a["mover"].as_u64().unwrap() as UnitId, &pick, a["standup_mp"].as_i64())
+        }
         "choose_physical" => phys_json(&bots.choose_physical(b, a["attacker"].as_u64().unwrap() as UnitId, a["target"].as_u64().unwrap() as UnitId)),
         "choose_movement" => {
+            mover_sees_others(b, a["mover"].as_u64().unwrap() as UnitId);
             let edge: Option<Vec<String>> = a["entry_edge"].as_array().map(|e| e.iter().map(|x| x.as_str().unwrap().to_string()).collect());
             let (pick, note, gate) = bots.choose_movement(
                 b,
@@ -480,27 +759,45 @@ pub struct Recorder<'a> {
     last_board: Option<String>,
     /// compact mode: each unit's dump at the start (the checking session's own), units then go as compact states
     compact_base: Option<Vec<Value>>,
+    /// view mode (`--bridge-view`): units go as MegaMek views; answers are counted, not required to be the same
+    pub view: bool,
 }
 
 impl<'a> Recorder<'a> {
     /// `compact`: send the units as compact states, against the checking session's own start dumps.
     pub fn new(inner: &'a mut dyn BotSet, check: Option<Session>, keep: bool, compact: bool) -> Recorder<'a> {
         let compact_base = if compact { check.as_ref().map(|s| s.base.clone()) } else { None };
-        Recorder { inner, lines: Vec::new(), keep, check, parity: Parity { calls: 0, decisions: 0, first_difference: None, rebuild_gaps: Default::default() }, last_board: None, compact_base }
+        Recorder { inner, lines: Vec::new(), keep, check, parity: Parity { calls: 0, decisions: 0, first_difference: None, rebuild_gaps: Default::default(), agree: Default::default() }, last_board: None, compact_base, view: false }
     }
 
     /// Records the state, makes the call through the same `call` the session uses, records the answer.
     fn run(&mut self, b: &mut Battle, method: &str, args: Value) -> Value {
         self.note_gaps(b);
-        let state = state_json(b, &mut self.last_board, self.compact_base.as_deref());
+        let state = state_json_mode(b, &mut self.last_board, self.compact_base.as_deref(), self.view);
         let answer = call(b, self.inner, method, &args);
         self.checked(json!({"method": method, "args": args, "state": state, "answer": answer}));
         answer
     }
 
     /// Compact mode: every unit rebuilt from its compact state is compared with its real dump; the fields it got wrong
-    /// are counted (`Parity::rebuild_gaps`) - what UNIT_FIELDS / ITEM_FIELDS are missing, if anything.
+    /// are counted (`Parity::rebuild_gaps`) - what UNIT_FIELDS / ITEM_FIELDS are missing, if anything. View mode: the
+    /// session's units (as the MegaMek views left them, before it answers) against the real dumps - what a MegaMek game
+    /// does not tell our engine, field by field.
     fn note_gaps(&mut self, b: &Battle) {
+        if self.view {
+            let Some(s) = self.check.as_mut() else { return };
+            let mut last = None;
+            let state = state_json_mode(b, &mut last, None, true);
+            load_state(&mut s.b, &state, &s.base);
+            let name = |i: usize| unit_name(b, i);
+            for (i, m) in b.units.iter().enumerate() {
+                let sname = |j: usize| unit_name(&s.b, j);
+                for g in rebuild_gaps(&m.to_json(&name), &s.b.units[i].to_json(&sname)) {
+                    *self.parity.rebuild_gaps.entry(g).or_insert(0) += 1;
+                }
+            }
+            return;
+        }
         let Some(base) = self.compact_base.as_ref() else { return };
         let name = |i: usize| unit_name(b, i);
         for (i, m) in b.units.iter().enumerate() {
@@ -518,7 +815,30 @@ impl<'a> Recorder<'a> {
         if !line["answer"].is_null() {
             self.parity.decisions += 1;
         }
-        if self.parity.first_difference.is_none() {
+        if self.view {
+            // view mode: every call is answered and compared; the decisions' agreement is counted
+            if let Some(s) = self.check.as_mut() {
+                let got = s.handle(&line);
+                if !line["answer"].is_null() {
+                    // what is actually ORDERED is compared: the move (not its note), the weapons and twist (not the
+                    // expected damage), the physical attacks; anything else whole
+                    let ordered = |m: &str, a: &Value| -> Value {
+                        match m {
+                            "choose_movement" => a["pick"].clone(),
+                            "choose_declaration" => json!([a["weapons"], a["action"], a["no_attack"]]),
+                            "choose_physical" => json!([a["names"], a["action"]]),
+                            _ => a.clone(),
+                        }
+                    };
+                    let method = line["method"].as_str().unwrap();
+                    let e = self.parity.agree.entry(method.to_string()).or_insert((0, 0));
+                    e.1 += 1;
+                    if ordered(method, &got) == ordered(method, &line["answer"]) {
+                        e.0 += 1;
+                    }
+                }
+            }
+        } else if self.parity.first_difference.is_none() {
             if let Some(s) = self.check.as_mut() {
                 let got = s.handle(&line);
                 if got != line["answer"] {
@@ -567,7 +887,7 @@ impl BotSet for Recorder<'_> {
     fn choose_declaration(&mut self, b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId) -> DeclChoice {
         // the engine's own inputs go to the bots; the session rebuilds them from the state (see `call`)
         self.note_gaps(b);
-        let state = state_json(b, &mut self.last_board, self.compact_base.as_deref());
+        let state = state_json_mode(b, &mut self.last_board, self.compact_base.as_deref(), self.view);
         let choice = self.inner.choose_declaration(b, ctx, planner, attacker, target);
         let answer = decl_json(b, attacker, &choice);
         self.checked(json!({"method": "choose_declaration", "args": {"attacker": attacker, "target": target}, "state": state, "answer": answer}));
@@ -575,7 +895,7 @@ impl BotSet for Recorder<'_> {
     }
     fn choose_physical(&mut self, b: &mut Battle, attacker: UnitId, target: UnitId) -> Option<(i64, Vec<PhysOption>, ArcAction)> {
         self.note_gaps(b);
-        let state = state_json(b, &mut self.last_board, self.compact_base.as_deref());
+        let state = state_json_mode(b, &mut self.last_board, self.compact_base.as_deref(), self.view);
         let choice = self.inner.choose_physical(b, attacker, target);
         self.checked(json!({"method": "choose_physical", "args": {"attacker": attacker, "target": target}, "state": state, "answer": phys_json(&choice)}));
         choice
@@ -622,12 +942,14 @@ pub struct Parity {
     pub first_difference: Option<(usize, String, Value, Value)>,
     /// compact mode: fields a unit rebuilt from its compact state got wrong, and how many calls each was wrong in
     pub rebuild_gaps: std::collections::BTreeMap<String, usize>,
+    /// view mode: per decision kind, (answers the same, answers given)
+    pub agree: std::collections::BTreeMap<String, (usize, usize)>,
 }
 
 /// Feeds a recorded battle's lines to a fresh session (built from the same start) and compares every answer.
 pub fn parity(start: &Value, lines: &[Value]) -> Parity {
     let mut s = Session::start(start);
-    let mut out = Parity { calls: 0, decisions: 0, first_difference: None, rebuild_gaps: Default::default() };
+    let mut out = Parity { calls: 0, decisions: 0, first_difference: None, rebuild_gaps: Default::default(), agree: Default::default() };
     for line in lines {
         out.calls += 1;
         let answer = s.handle(line);

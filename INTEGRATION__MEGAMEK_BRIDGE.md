@@ -228,6 +228,45 @@ team, hex, facing, skills; the board; `DEPLOYMENT: "fixed_hexes"`. The Java side
 taken at phase starts, this turn's movement, `hp_log`): the decision process can keep those itself from the signals
 rather than read them from MegaMek. Sorting the 78 into "MegaMek says" and "we keep" is B3's first job.
 
+## 3d. B3 (Java half) and B4, as built (2026-11-12): our engine plays in MegaMek
+
+**The start.** `GameView.start` writes the game as SETTINGS (Combat Lab CL1): every MegaMek unit, in entity-id order,
+as a FORCES entry (`"name": "U<id>"`, `"team": "T<team>"`, its `.mtf` - "Chassis Model.mtf" in our data folder -,
+hex, facing, gunnery, piloting), `DEPLOYMENT: fixed_hexes`, and `DEFAULT_BOARD_PATH` = the scenario's board file in
+MegaMek's data/boards (the same format as ours; the launcher reads it from the `.mms`). Our engine builds the game from
+that (`Session::start` with "settings"). A unit with no `.mtf` in our data folder turns the bridge off for the game
+(every decision a FALLBACK, the reason recorded).
+
+**Before every question: MegaMek's view of each unit** (`GameView.state` -> `bridge::apply_megamek_view`): hex,
+facing, prone, shutdown, heat, destroyed, armor / rear / structure / destroyed per location, destroyed critical slots
+(through the engine's own slot loss, `damage_resolution::destroy_slot_quietly`: engine, gyro, heat sink, jump jet
+counters follow; no explosion, MegaMek resolved it), ammo by address, jammed weapons, pilot hits and consciousness,
+this turn's movement (mode, MP) and torso twist. A new round runs the engine's start-of-turn bookkeeping (each unit's
+turn number - Hydra's Waiting counts turns with it -, the damage snapshot for piloting rolls). Not sent (our engine's
+own bookkeeping keeps its start-of-game value or what the signals build): phase snapshots, `hp_log`, smoke and other
+board changes (no such terrain in the first games).
+
+**Signals** (`HydraBridge`): `start_movement` at our first movement decision of a round (after `end_of_turn` for the
+last one), `unit_moved` for every unit seen done since (with the hex it started the round in), `end_movement` and
+`reset_assigned` at our first firing decision of a round. Not sent yet: `assign_damage` (friends' declared damage, which
+our Princess clone's target choice uses).
+
+**Orders.**
+- MOVE: `move_pick` among our units MegaMek allows to move (else the first), `choose_foe`, `choose_movement` (a prone
+  unit plans with its running MP - 2, the stand's cost, Core p.98; the route starts with GET_UP and MegaMek rolls the
+  stand), `path_steps` (new: the pick's route as MegaMek steps - forward, backward, turn_left / turn_right, get_up -
+  from `ranged_combat::path_to`). The steps become a `MovePath`; if MegaMek finds it illegal or it ends elsewhere, its
+  own path finder (`MovePath.findPathTo`) is tried to the same hex and facing; then a FALLBACK. Jumps go straight to
+  the path finder (START_JUMP first). Charges and death from above: FALLBACK (not wired).
+- FIRE: `choose_target`, then `choose_declaration`; weapons by address -> MegaMek's mounted item (location name and
+  first slot) -> `WeaponAttackAction`; a torso twist first (`TorsoTwistAction`, same convention as ours: torso facing
+  = facing + twist). A weapon MegaMek rules impossible is left out and counted. Arm flips: FALLBACK.
+- PHYSICAL: `choose_target` (adjacent only), `choose_physical` (its answer now carries the attacks' `names`): one
+  punch, both punches, or one kick become MegaMek's `PhysicalOption`; clubs, pushes, anything with a twist: FALLBACK.
+- Every refused or unwired case is counted by reason in the game's record ("ours" by kind, "fallbacks" by reason), and
+  the bridge logs each decision (`[bridge]` lines in MegaMek's `logs/unified_log.log`), with MegaMek's own to-hit for
+  every weapon whenever our engine declines to fire (the two engines' line of sight and range, side by side).
+
 ## 4. The request (Java -> Rust), one JSON object a line
 
 (The first draft, from before B1. The wire as built is Section 3b; this section's per-unit fields are the COMPACT state
