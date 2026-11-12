@@ -160,6 +160,7 @@ public final class GameView {
             ArrayNode slots = u.putArray("destroyed_slots");
             ObjectNode ammo = u.putObject("ammo");
             ArrayNode jammed = u.putArray("jammed");
+            ArrayNode fired = u.putArray("fired");   // weapons fired this turn (what fired limits what punches)
             for (int loc = 0; loc < e.locations(); loc++) {
                 String name = e.getLocationName(loc);
                 ObjectNode l = locs.putObject(name);
@@ -185,6 +186,9 @@ public final class GameView {
                         }
                         if (m.isJammed()) {
                             jammed.add(addr);
+                        }
+                        if (m.isUsedThisRound()) {
+                            fired.add(addr);
                         }
                     }
                 }

@@ -415,6 +415,7 @@ pub fn megamek_view(b: &Battle, u: UnitId) -> Value {
            "pilot_hits": m.pilot_hits, "conscious": !m.crew.get("pilot").is_some_and(|p| p.unconscious),
            "moved": if m.moved_this_turn { m.move_mode.clone() } else { "Stand Still".into() }, "mp_spent": m.mp_spent,
            "hexes_moved": m.move_fc,
+           "fired": m.weapons_fired_this_turn.as_ref().map(|f| { let a = m.item_addresses(); f.iter().filter_map(|id| a.get(id).cloned()).collect::<Vec<_>>() }),
            "twist": m.torso_twist.unwrap_or(0), "home_edge": m.home_edge, "home_edge_row": m.home_edge_row,
            "extra": view_extra(b, u)})
 }
@@ -507,6 +508,11 @@ pub fn apply_megamek_view(b: &mut Battle, v: &Value) {
     }
     if let Some(t) = v.get("twist").and_then(|t| t.as_i64()) {
         m.torso_twist = Some(t);
+    }
+    // the weapons fired this turn, by address (the physical attack choice reads them: what fired limits what punches)
+    if let Some(f) = v.get("fired").and_then(|f| f.as_array()) {
+        let fired: Vec<&str> = f.iter().filter_map(|x| x.as_str()).collect();
+        m.weapons_fired_this_turn = Some(by_addr.iter().filter(|(a, _)| fired.contains(&a.as_str())).map(|(_, id)| *id).collect());
     }
     if let Some(extra) = v.get("extra").and_then(|e| e.as_object()).filter(|e| !e.is_empty()) {
         // measurement only (view_extra): the raw fields put back through the record
@@ -617,15 +623,25 @@ fn opt_unit(v: &Value) -> Option<UnitId> {
 /// The hexes other units stand in, set on a mover before it moves as `orchestrator::phase_movement` does (p.48: the
 /// mobile enemies' hexes are closed to its ground moves) - when the state did not already carry them (a MegaMek game's
 /// state does not; a recorded battle's does, and is left as it is).
-fn mover_sees_others(b: &mut Battle, mover: UnitId) {
+///
+/// Returns whether it set them: the caller clears them again after the question (`mover_done`), as phase_movement
+/// does after the move - left in place, a unit's old list would block its own hex when it is later an opponent.
+fn mover_sees_others(b: &mut Battle, mover: UnitId) -> bool {
     let unset = |v: &Option<Value>| v.as_ref().is_none_or(|x| x.is_null());
-    if unset(&b.units[mover].blocked_hex) {
-        let blocked: Vec<Value> = crate::forces::blocked_xy(b, mover).into_iter().map(|(x, y)| json!([x, y])).collect();
-        b.units[mover].blocked_hex = Some(Value::Array(blocked));
+    if !unset(&b.units[mover].blocked_hex) {
+        return false;
     }
-    if unset(&b.units[mover].other_unit_hexes) {
-        let occ = crate::forces::occupied_labels(b, mover);
-        b.units[mover].other_unit_hexes = Some(json!(occ));
+    let blocked: Vec<Value> = crate::forces::blocked_xy(b, mover).into_iter().map(|(x, y)| json!([x, y])).collect();
+    b.units[mover].blocked_hex = Some(Value::Array(blocked));
+    let occ = crate::forces::occupied_labels(b, mover);
+    b.units[mover].other_unit_hexes = Some(json!(occ));
+    true
+}
+
+fn mover_done(b: &mut Battle, mover: UnitId, set: bool) {
+    if set {
+        b.units[mover].blocked_hex = Some(Value::Null);
+        b.units[mover].other_unit_hexes = Some(Value::Null);
     }
 }
 
@@ -672,13 +688,17 @@ fn call(b: &mut Battle, bots: &mut dyn BotSet, method: &str, a: &Value) -> Value
             decl_json(b, attacker, &choice)
         }
         "path_steps" => {
-            mover_sees_others(b, a["mover"].as_u64().unwrap() as UnitId);
+            let mover = a["mover"].as_u64().unwrap() as UnitId;
+            let set = mover_sees_others(b, mover);
             let pick = pick_back(&a["pick"]);
-            path_steps(b, a["mover"].as_u64().unwrap() as UnitId, &pick, a["standup_mp"].as_i64())
+            let steps = path_steps(b, mover, &pick, a["standup_mp"].as_i64());
+            mover_done(b, mover, set);
+            steps
         }
         "choose_physical" => phys_json(&bots.choose_physical(b, a["attacker"].as_u64().unwrap() as UnitId, a["target"].as_u64().unwrap() as UnitId)),
         "choose_movement" => {
-            mover_sees_others(b, a["mover"].as_u64().unwrap() as UnitId);
+            let mover = a["mover"].as_u64().unwrap() as UnitId;
+            let set = mover_sees_others(b, mover);
             let edge: Option<Vec<String>> = a["entry_edge"].as_array().map(|e| e.iter().map(|x| x.as_str().unwrap().to_string()).collect());
             let (pick, note, gate) = bots.choose_movement(
                 b,
@@ -688,6 +708,7 @@ fn call(b: &mut Battle, bots: &mut dyn BotSet, method: &str, a: &Value) -> Value
                 a["standup_mp"].as_i64(),
                 edge.as_deref(),
             );
+            mover_done(b, mover, set);
             json!({"pick": pick.as_ref().map(pick_json), "note": note, "gate": gate_json(&gate)})
         }
         other => panic!("bridge: no call {}", other),

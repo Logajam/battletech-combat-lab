@@ -267,6 +267,48 @@ our Princess clone's target choice uses).
   the bridge logs each decision (`[bridge]` lines in MegaMek's `logs/unified_log.log`), with MegaMek's own to-hit for
   every weapon whenever our engine declines to fire (the two engines' line of sight and range, side by side).
 
+**How much MegaMek's view loses - MEASURED (`btsim SCENARIO --bridge-parity --bridge-view`).** In our own battles, the
+recorder sends each call's state as MegaMek views (`bridge::megamek_view`: exactly the fields GameView sends) and
+counts how often the decision process ORDERS the same thing (the move; the weapons and twist; the physical attacks)
+as the battle did. It also lists every record field the views leave different ("rebuild_gaps"). What it found, and
+what was added so the view carries it (each a real gap in MegaMek games too):
+- `hexes_moved` (MegaMek's `delta_distance`; our `move_fc`, the target movement modifier, plus movement heat): weapon
+  choices went from 72-94% to 99-100% the same.
+- The hexes other units stand in (`blocked_hex`, `other_unit_hexes`), which the engine sets on a mover before it moves
+  (p.48): now set by the decision process itself (`mover_sees_others`).
+- `hp_log`, each unit's HP history (Hydra's forecast reads it): now KEPT by the decision process (one entry per turn,
+  as `play_turn` keeps it), not sent.
+- The MOVE QUEUE (who moves after the mover; Hydra's forecast): sent by GameView from MegaMek's remaining turn list.
+- A measurement-only switch, `BRIDGE_VIEW_EXTRA=field,field`, adds raw record fields to the views to find such
+  dependencies (that is how `hp_log` was found: 67% -> 79% alone, 96% with the move queue).
+Plus two more found the same way: a mover's blocked-hex list must be CLEARED after its move, as the engine does (left
+in place it blocked a unit's own hex when it was later an opponent: a crash in 4 v 4s), and the weapons FIRED this
+turn (`fired`, MegaMek's `isUsedThisRound`; the physical attack choice reads them).
+Result (how often the decision process orders the same thing as the battle, 4-10 battles each):
+
+| Battles | Movement | Weapons | Physical | Targets |
+|---|---|---|---|---|
+| Hydra duel (Hunchback, woods) | 96% | 100% | - | 100% |
+| Gladiator duel | 93% | 93% | 92% | 100% |
+| Princess duel | 96% | 100% | - | 100% |
+| Hydra 4 v 4 (lance, woods) | 90% | 100% | 90% | 100% |
+| Princess 4 v 4 | 80% | 99% | 85% | 100% | The rest are our engine's own phase bookkeeping (snapshots taken at phase
+starts, arc actions), which a MegaMek game cannot give; the bridge's decisions are therefore close to, not exactly,
+what our bots would decide in our own engine.
+
+**Games played (2026-11-12, Hunchback HBK-4G duels on Scattered Woods, our Hydra as Red, 100 rounds;
+`megamek_bridge/scenarios/`).** Our engine made every decision (no fallbacks once standing up was wired). Before the
+view fixes: v MegaMek's Princess 2 wins, 2 draws of 4; v CASPAR 1 win, 2 draws, 1 unfinished of 4. After them
+(`trial_records/megamek_bridge.jsonl`): v Princess 2 wins, 4 draws, 0 losses of 6; v CASPAR 1 loss, 3 draws,
+2 unfinished (MegaMek stalled at rounds 49 and 14) of 6. Findings:
+- STANDOFFS: MegaMek's Princess and CASPAR often hold their start hex; Hydra waits at the edge of its range (from 0805
+  nothing reaches; 0806 has no line of sight through the woods - MegaMek agrees on both: the log carries its to-hit
+  beside ours). Our clone of Princess advances, so these duels are decided in our engine and drawn in MegaMek.
+- Hydra peeks by stepping 0806 -> 0805 BACKWARD up a level, a piloting roll every time (Core p.115), and falls now and
+  then: a Hydra choice to look at (it knows the risk), not a bridge fault.
+- MegaMek stalls on its own now and then (also seen in its own runner, B0): the runner script plays a game again if it
+  stalls before round 2, and the launcher's timeout ends the rest.
+
 ## 4. The request (Java -> Rust), one JSON object a line
 
 (The first draft, from before B1. The wire as built is Section 3b; this section's per-unit fields are the COMPACT state
@@ -343,10 +385,10 @@ with our setting beside it. **Any option where the two can't match is a question
 | **B0** DONE (Section 1b) | Get an unchanged MegaMek (a released jar, or built from the unchanged source) and run `AIMatchRunner` on a small `.mms` (Princess v CASPAR, 2 games). Needs Daniel's OK to run MegaMek's downloaded code here (or he runs it on his computer). | Sonnet | Two games finish and the CSV is written |
 | **B1** DONE (Section 3b) | `btsim decide`: snapshot -> `Battle` -> `BotSet` call -> answer. Snapshot writer on the Rust side too (`--snapshot` on an ordinary battle). | Opus (the snapshot -> `Battle` step needs judgement; `INTEGRATION__STATE.md` lists every field) | **Parity check** (`tests/check_bridge_parity.py`): in ordinary battles, snapshot at every decision, feed it to `btsim decide`, the answer must equal what the battle chose. Every bot, the reference scenarios. |
 | **B2** DONE (Section 3c) | `megamek_bridge/`: `HydraBridge extends Princess`, the subprocess, request/answer JSON, FALLBACK on everything (Rust answers `fallback` to all) | Sonnet | A bridge game finishes with every decision a FALLBACK and the same result as plain Princess on the same seed |
-| **B3** Rust half DONE (Section 3c) | Compact state (Section 3b, "What this means for B3"): the Java side writes each unit's compact state (Section 4); a Rust step rebuilds the full dump from the `.mtf` plus that state | Opus for the Rust step, Sonnet for the Java | In our own battles, every unit's compact state rebuilt gives the same answer to every decision (the parity check run through the compact form); Java's compact state of a game's start equals Rust's of the same scenario |
-| **B4** | Orders: moves, shots, twist, physical (Section 5); fallbacks and records (Section 6); game options (Section 7) | Sonnet; Opus for the path-refusal cases | A 1 v 1 'Mech duel, Hydra v Princess, plays with no FALLBACK and no refused order |
-| **B5** | Our own launcher (`megamek_bridge/`): starts a game from an `.mms` file the way `ScenarioGameRunner` does and connects `HydraBridge` as a player, using MegaMek as a library. NOT a patched `AIType` / `BotFactory`: MegaMek is never edited. | Sonnet | The launcher plays Hydra v CASPAR from an `.mms` file and writes the records |
-| **B6** | Check against our numbers: a few games each of Hydra v Princess and Hydra v CASPAR on our standard duels; compare with the Monte Carlo's | the top model to read the result | Numbers written up for Daniel; every big gap listed as a rules difference to look at |
+| **B3** DONE (Sections 3c, 3d) | Compact state (Section 3b, "What this means for B3"): the Java side writes each unit's compact state (Section 4); a Rust step rebuilds the full dump from the `.mtf` plus that state | Opus for the Rust step, Sonnet for the Java | In our own battles, every unit's compact state rebuilt gives the same answer to every decision (the parity check run through the compact form); Java's compact state of a game's start equals Rust's of the same scenario |
+| **B4** DONE, first version (Section 3d; not wired: charges, DFA, clubs and other physical attacks, arm flips, `assign_damage`) | Orders: moves, shots, twist, physical (Section 5); fallbacks and records (Section 6); game options (Section 7) | Sonnet; Opus for the path-refusal cases | A 1 v 1 'Mech duel, Hydra v Princess, plays with no FALLBACK and no refused order |
+| **B5** DONE (`BridgeLauncher`, `tools/megamek_bridge_games.py`) | Our own launcher (`megamek_bridge/`): starts a game from an `.mms` file the way `ScenarioGameRunner` does and connects `HydraBridge` as a player, using MegaMek as a library. NOT a patched `AIType` / `BotFactory`: MegaMek is never edited. | Sonnet | The launcher plays Hydra v CASPAR from an `.mms` file and writes the records |
+| **B6** started (Section 3d: the view measurement; line of sight and range compared in the log) | Check against our numbers: a few games each of Hydra v Princess and Hydra v CASPAR on our standard duels; compare with the Monte Carlo's | the top model to read the result | Numbers written up for Daniel; every big gap listed as a rules difference to look at |
 | **B7** | Daniel plays Hydra from his own computer (MegaMek lobby, join a game with the bridge bot) | Sonnet writes the how-to | Daniel has played a game |
 
 **First version's limits** (each one a FALLBACK, never a crash): 'Mechs only; no board changes; no units

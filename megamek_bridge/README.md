@@ -37,6 +37,14 @@ the decisions our engine made ("ours") and the ones Princess made instead ("fall
 also logged in MegaMek's `logs/unified_log.log` (`[bridge]` lines). Units must have their `.mtf` in our `data/`
 folder ("Chassis Model.mtf"), or the bridge stays off for that game.
 
+Or, for several games with records and a summary (each game one MegaMek start; a stalled start played again):
+
+```bash
+python tools/megamek_bridge_games.py megamek_bridge/scenarios/hbk_duel_princess.mms --megamek /path/to/MegaMek-0.51.01.7 --bridge Red --games 6
+```
+
+`scenarios/`: the Hunchback duels on Scattered Woods used so far (Red is ours; Blue is MegaMek's Princess or CASPAR).
+
 Run it once per game (MegaMek's own runner sometimes stalls at the start of a game; one game per run keeps a stall to
 that game). The scenario format and an example: `INTEGRATION__MEGAMEK_BRIDGE.md` Section 1b. All bots, ours and
 MegaMek's, fight to the end (forced withdrawal and fleeing off), as our engine's battles do.
