@@ -30,7 +30,7 @@ fn battle_json(sim: u64, seed: u64, r: &BattleResult) -> Value {
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let Some(dir) = args.first().filter(|a| !a.starts_with("--")) else {
-        eprintln!("usage: btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--set KEY=VALUE ...] [--ledger FILE]");
+        eprintln!("usage: btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--set KEY=VALUE ...] [--ledger FILE] [--max-turns N] [--sims I,J,...]");
         std::process::exit(2);
     };
     let battles: u64 = arg(&args, "--battles").map_or(1, |v| v.parse().expect("--battles"));
@@ -49,6 +49,11 @@ fn main() {
             let value: Value = serde_json::from_str(v).unwrap_or_else(|_| Value::String(v.to_string()));
             scenario.config.as_object_mut().unwrap().insert(k.to_string(), value);
         }
+    }
+    // --max-turns N (session 25): the turn cap for this run, in place of the scenario's (scenario::STANDARD_MAX_TURNS, 100). A
+    // battle is the same as under the old cap up to it (same seed, same dice), so a raised cap only plays draws on.
+    if let Some(n) = arg(&args, "--max-turns") {
+        scenario.max_turns = n.parse().expect("--max-turns");
     }
     // --hydra TEAM[,TEAM]: those teams are driven by Hydra (INTEGRATION__HYDRA.md)
     if let Some(t) = arg(&args, "--hydra") {
@@ -77,7 +82,11 @@ fn main() {
         return;
     }
     let started = std::time::Instant::now();
-    let runs: Vec<(u64, u64, BattleResult, Vec<String>)> = (1..=battles)
+    // --sims I,J,... (session 25): play only these battle numbers of the 1..=N set (each on its own seed, as in the full
+    // set), e.g. the undecided ones of an earlier run, replayed with a higher --max-turns.
+    let only: Option<Vec<u64>> = arg(&args, "--sims").map(|v| v.split(',').map(|x| x.parse().expect("--sims")).collect());
+    let sims: Vec<u64> = (1..=battles).filter(|s| only.as_ref().map_or(true, |o| o.contains(s))).collect();
+    let runs: Vec<(u64, u64, BattleResult, Vec<String>)> = sims
         .into_par_iter()
         .map(|sim| {
             let s = PcgDice::battle_seed(seed, sim);
@@ -101,8 +110,9 @@ fn main() {
         "seed": seed,
         "seconds": secs,
         "wins": wins,
-        "mean_turns": turns as f64 / battles as f64,
+        "mean_turns": turns as f64 / runs.len().max(1) as f64,
         "hit_turn_cap": capped,
+        "max_turns": scenario.max_turns,
         "results": runs.iter().map(|(sim, s, r, _)| battle_json(*sim, *s, r)).collect::<Vec<_>>(),
         "logs": runs.iter().filter(|(_, _, _, l)| !l.is_empty()).map(|(sim, _, _, l)| json!({"sim": sim, "lines": l})).collect::<Vec<_>>(),
     });

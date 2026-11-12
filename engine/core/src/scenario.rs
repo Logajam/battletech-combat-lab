@@ -27,11 +27,15 @@ fn read(p: &Path) -> Value {
     serde_json::from_str(&fs::read_to_string(p).unwrap_or_else(|e| panic!("{}: {}", p.display(), e))).unwrap()
 }
 
+/// The standard game's turn cap (Daniel, 2026-11-12: "Set the standard game cap to 100 rounds"; it was 50). A battle that
+/// reaches it ends with no winner. The Python answer key and its recorded fixtures keep their own cap (50).
+pub const STANDARD_MAX_TURNS: i64 = 100;
+
 impl Scenario {
     pub fn load(dir: &Path) -> Scenario {
-        // meta.json is optional (a fixture folder has none): 50 turns
-        let meta = if dir.join("meta.json").exists() { read(&dir.join("meta.json")) } else { Value::Null };
-        Scenario { hydra_teams: Vec::new(), config: read(&dir.join("config.json")), board: read(&dir.join("board.json")), units: read(&dir.join("units.json")), max_turns: meta["max_turns"].as_i64().unwrap_or(50) }
+        // THE TURN CAP: STANDARD_MAX_TURNS for every scenario (btsim --max-turns changes it for a run). A meta.json's
+        // max_turns is the Python's old 50 (config.MAX_TURNS, written by the export) and is not read.
+        Scenario { hydra_teams: Vec::new(), config: read(&dir.join("config.json")), board: read(&dir.join("board.json")), units: read(&dir.join("units.json")), max_turns: STANDARD_MAX_TURNS }
     }
 
     /// Builds the battle (units, board, config) around a dice source.

@@ -1,7 +1,7 @@
-# scenario hy_duel_griffin, Hydra drives Red, HYDRA_MOVEMENT_ATTACKS=true
+# scenario hy_duel_griffin, Hydra drives Red, HYDRA_MOVEMENT_ATTACKS=false
 # seed 1: winner Red, 37 turns
-#   Red: 175.0 of 243.0 armor + structure left, team destroyed False, units 1, 13 hits of 44 attacks, 121.0 damage dealt
-#   Blue: 79.0 of 243.0 armor + structure left, team destroyed True, units 1, 8 hits of 42 attacks, 68.0 damage dealt
+#   Red: 175.0 of 243.0 armor + structure left, team destroyed False, units 1, 12 hits of 44 attacks, 106.0 damage dealt
+#   Blue: 88.0 of 243.0 armor + structure left, team destroyed True, units 1, 8 hits of 42 attacks, 68.0 damage dealt
 # log
   Deployment: Blue home edge W (0101-0117).
   Deployment: Red home edge E (1601-1617).
@@ -98,7 +98,7 @@
 
 === TURN 5 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 0.787 = (team 3.0 + gain 6.33 on Blue) / (team 3.0 + cost 8.83 + risk 0.00) (1 of 1 enemies weighed, 915 spots; 64 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 0.787 = (team 3.0 + gain 6.33 on Blue) / (team 3.0 + cost 8.83 + risk 0.00) (1 of 1 enemies weighed, 915 spots; play-out of 64 spots, responders Blue)
   [Movement] Red: 1007 N -> 1007 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 4)
   [Movement select] Blue: score 497.431 = dealt 8.73 x1.00 + (HP 328.0 - received 6.51 x0.98 - PSR 0.00) / enemy future 2.16 x my future 3.29 [enemy held at 1007; 187 spots with LOS]
   [Movement] Blue: 0503 NE -> 0503 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
@@ -127,7 +127,7 @@
 
 === TURN 6 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 0.856 = (team 3.0 + gain 7.11 on Blue) / (team 3.2 + cost 8.57 + risk 0.00) (1 of 1 enemies weighed, 915 spots; 64 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 0.856 = (team 3.0 + gain 7.11 on Blue) / (team 3.2 + cost 8.57 + risk 0.00) (1 of 1 enemies weighed, 915 spots; play-out of 64 spots, responders Blue)
   [Movement] Red: 1007 N -> 0710 NE, Walk (5 MP, 4 hexes, 1 heat; budget walk 5 / run 8 / jump 4) - includes a backward move
   [Movement select] Blue: score 511.201 = dealt 3.11 x1.04 + (HP 322.0 - received 2.83 x0.98 - PSR 0.00) / enemy future 2.63 x my future 4.19 [enemy held at 0710; 162 spots with LOS]
   [Movement] Blue: 0503 NE -> 0802 SE, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
@@ -186,7 +186,7 @@
 
 === TURN 9 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 1.127 = (team 4.3 + gain 5.02 on Blue) / (team 3.3 + cost 4.99 + risk 0.00) (1 of 1 enemies weighed, 856 spots; 64 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 1.127 = (team 4.3 + gain 5.02 on Blue) / (team 3.3 + cost 4.99 + risk 0.00) (1 of 1 enemies weighed, 856 spots; play-out of 64 spots, responders Blue)
   [Movement] Red: 1107 N -> 1107 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 4)
   [Movement select] Blue: score 246.821 = dealt 4.57 x1.04 + (HP 306.0 - received 4.97 x1.06 - PSR 0.00) / enemy future 3.79 x my future 3.05 [enemy held at 1107; 177 spots with LOS]
   [Movement] Blue: 0503 NE -> 0503 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
@@ -238,7 +238,7 @@
 
 === TURN 11 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 2.364 = (team 6.6 + gain 0.40 on Blue) / (team 3.0 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 824 spots; 64 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 2.364 = (team 6.6 + gain 0.40 on Blue) / (team 3.0 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 824 spots; play-out of 64 spots, responders Blue)
   [Movement] Red: 1405 S -> 1405 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 4)
   [Movement select] Blue: score 162.166 = dealt 1.77 x0.93 + (HP 279.0 - received 2.96 x0.82 - PSR 0.00) / enemy future 5.72 x my future 3.32 [enemy held at 1405; 146 spots with LOS]
   [Movement] Blue: 0504 S -> 0901 S, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
@@ -254,7 +254,7 @@
 
 === TURN 12 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 1.789 = (team 6.6 + gain 0.00 on nobody) / (team 3.1 + cost 0.60 + risk 0.00) (1 of 1 enemies weighed, 824 spots; 64 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 1.789 = (team 6.6 + gain 0.00 on nobody) / (team 3.1 + cost 0.60 + risk 0.00) (1 of 1 enemies weighed, 824 spots; play-out of 64 spots, responders Blue)
   [Movement] Red: 1405 S -> 1412 S, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 4)
   [Movement select] Blue: score 164.485 = dealt 1.36 x0.93 + (HP 279.0 - received 0.89 x0.82 - PSR 0.00) / enemy future 5.31 x my future 3.12 [enemy held at 1412; 49 spots with LOS]
   [Movement] Blue: 0901 S -> 0908 S, Run (7 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
@@ -287,7 +287,7 @@
 
 === TURN 14 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 2.228 = (team 6.6 + gain 0.00 on nobody) / (team 3.0 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 882 spots; 64 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 2.228 = (team 6.6 + gain 0.00 on nobody) / (team 3.0 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 882 spots; play-out of 64 spots, responders Blue)
   [Movement] Red: 1114 SW -> 0814 NW, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 4)
   [Movement select] Blue: score 162.164 = dealt 0.92 x1.00 + (HP 279.0 - received 1.44 x0.82 - PSR 0.00) / enemy future 4.65 x my future 2.70 [enemy held at 0814; 88 spots with LOS]
   [Movement] Blue: 1005 SW -> 0309 SW, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
@@ -336,7 +336,7 @@
 
 === TURN 17 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 1.461 = (team 6.6 + gain 2.50 on Blue) / (team 3.1 + cost 3.14 + risk 0.00) (1 of 1 enemies weighed, 986 spots; 64 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 1.461 = (team 6.6 + gain 2.50 on Blue) / (team 3.1 + cost 3.14 + risk 0.00) (1 of 1 enemies weighed, 986 spots; play-out of 64 spots, responders Blue)
   [Movement] Red: 0613 NE -> 1209 N, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 4)
   [Movement select] Blue: score 165.451 = dealt 3.01 x1.07 + (HP 279.0 - received 2.96 x0.82 - PSR 0.00) / enemy future 3.91 x my future 2.30 [enemy held at 1209; 136 spots with LOS]
   [Movement] Blue: 0207 SW -> 0210 S, Walk (4 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
@@ -354,7 +354,7 @@
 
 === TURN 18 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 2.004 = (team 6.6 + gain 0.46 on Blue) / (team 3.0 + cost 0.57 + risk 0.00) (1 of 1 enemies weighed, 924 spots; 64 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 2.004 = (team 6.6 + gain 0.46 on Blue) / (team 3.0 + cost 0.57 + risk 0.00) (1 of 1 enemies weighed, 924 spots; play-out of 64 spots, responders Blue)
   [Movement] Red: 1209 N -> 1505 N, Run (8 MP, 6 hexes, 2 heat; budget walk 5 / run 8 / jump 4)
   [Movement select] Blue: score 162.243 = dealt 0.54 x1.07 + (HP 279.0 - received 0.55 x0.82 - PSR 0.00) / enemy future 3.72 x my future 2.16 [enemy held at 1505; 25 spots with LOS]
   [Movement] Blue: 0210 S -> 0206 SE, Walk (5 MP, 4 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
@@ -392,7 +392,7 @@
 
 === TURN 20 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 1.837 = (team 5.9 + gain 0.21 on Blue) / (team 2.9 + cost 0.46 + risk 0.00) (1 of 1 enemies weighed, 882 spots; 64 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 1.837 = (team 5.9 + gain 0.21 on Blue) / (team 2.9 + cost 0.46 + risk 0.00) (1 of 1 enemies weighed, 882 spots; play-out of 64 spots, responders Blue)
   [Movement] Red: 1107 S -> 1609 S, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 4)
   [Movement select] Blue: score 139.100 = dealt 2.66 x0.93 + (HP 267.0 - received 2.16 x1.00 - PSR 0.00) / enemy future 3.80 x my future 1.96 [enemy held at 1609; 155 spots with LOS]
   [Movement] Blue: 0206 SE -> 0206 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
@@ -417,7 +417,7 @@
 
 === TURN 21 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 1.785 = (team 5.8 + gain 0.00 on nobody) / (team 3.3 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 601 spots; 63 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 1.785 = (team 5.8 + gain 0.00 on nobody) / (team 3.3 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 601 spots; play-out of 63 spots, responders Blue)
   [Movement] Red: 1609 S -> 1313 SW, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 4)
   [Movement select] Blue: score 185.908 = dealt 0.18 x0.94 + (HP 267.0 - received 0.22 x0.91 - PSR 0.00) / enemy future 3.64 x my future 2.53 [enemy held at 1313; 139 spots with LOS]
   [Movement] Blue: 0206 SE -> 0603 SW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
@@ -469,7 +469,7 @@
 
 === TURN 24 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 1.785 = (team 5.8 + gain 0.00 on nobody) / (team 3.3 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 770 spots; 64 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 1.785 = (team 5.8 + gain 0.00 on nobody) / (team 3.3 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 770 spots; play-out of 64 spots, responders Blue)
   [Movement] Red: 1314 SW -> 1415 S, Walk (5 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 4) - includes a backward move
   [Movement select] Blue: no spot deals damage - closing fallback
   [Movement] Blue: 0503 SW -> 1001 N, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
@@ -517,7 +517,7 @@
 
 === TURN 27 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 1.418 = (team 5.8 + gain 0.31 on Blue) / (team 3.3 + cost 1.06 + risk 0.00) (1 of 1 enemies weighed, 635 spots; 53 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 1.418 = (team 5.8 + gain 0.31 on Blue) / (team 3.3 + cost 1.06 + risk 0.00) (1 of 1 enemies weighed, 635 spots; play-out of 53 spots, responders Blue)
   [Movement] Red: 1414 S -> 1614 N, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 4)
   [Movement select] Blue: score 187.535 = dealt 3.43 x1.08 + (HP 267.0 - received 3.23 x0.91 - PSR 0.00) / enemy future 2.88 x my future 2.01 [enemy held at 1614; 247 spots with LOS]
   [Movement] Blue: 0709 S -> 0709 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
@@ -532,7 +532,7 @@
 
 === TURN 28 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 1.648 = (team 5.8 + gain 0.00 on nobody) / (team 3.3 + cost 0.27 + risk 0.00) (1 of 1 enemies weighed, 543 spots; 58 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 1.648 = (team 5.8 + gain 0.00 on nobody) / (team 3.3 + cost 0.27 + risk 0.00) (1 of 1 enemies weighed, 543 spots; play-out of 58 spots, responders Blue)
   [Movement] Red: 1614 N -> 1315 S, Jump (4 MP, 3 hexes, 3 heat; budget walk 5 / run 8 / jump 4)
   [Movement select] Blue: score 186.161 = dealt 0.30 x0.94 + (HP 267.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 2.79 x my future 1.94 [enemy held at 1315; 163 spots with LOS]
   [Movement] Blue: 0709 S -> 0813 SE, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
@@ -598,7 +598,7 @@
 
 === TURN 32 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 1.201 = (team 5.7 + gain 6.35 on Blue) / (team 3.2 + cost 6.85 + risk 0.00) (1 of 1 enemies weighed, 696 spots; 63 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 1.201 = (team 5.7 + gain 6.35 on Blue) / (team 3.2 + cost 6.85 + risk 0.00) (1 of 1 enemies weighed, 696 spots; play-out of 63 spots, responders Blue)
   [Movement] Red: 0308 N -> 0312 N, Walk (5 MP, 4 hexes, 1 heat; budget walk 5 / run 8 / jump 4) - includes a backward move
   [Movement select] Blue: score 217.434 = dealt 7.05 x1.00 + (HP 267.0 - received 8.39 x0.91 - PSR 0.00) / enemy future 2.46 x my future 2.00 [enemy held at 0312; 253 spots with LOS]
   [Movement] Blue: 0507 SW -> 0507 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
@@ -617,7 +617,7 @@
 
 === TURN 33 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 1.042 = (team 5.4 + gain 6.18 on Blue) / (team 3.4 + cost 7.74 + risk 0.00) (1 of 1 enemies weighed, 824 spots; 64 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 1.042 = (team 5.4 + gain 6.18 on Blue) / (team 3.4 + cost 7.74 + risk 0.00) (1 of 1 enemies weighed, 824 spots; play-out of 64 spots, responders Blue)
   [Movement] Red: 0312 N -> 0317 N, Walk (5 MP, 5 hexes, 1 heat; budget walk 5 / run 8 / jump 4) - includes a backward move
   [Movement select] Blue: score 191.371 = dealt 7.77 x1.00 + (HP 257.0 - received 6.77 x0.91 - PSR 0.00) / enemy future 2.67 x my future 1.95 [enemy held at 0317; 215 spots with LOS]
   [Movement] Blue: 0507 SW -> 0507 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
@@ -697,8 +697,8 @@ Movement Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 10.
 
 === TURN 35 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 8.691 = (team 4.0 + gain 10.17 on Blue) / (team 1.6 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 861 spots; 64 spots re-scored against Blue's best answer)
-  [Movement] Red: 0612 NE -> 0606 NW, Run (8 MP, 6 hexes, 2 heat; budget walk 5 / run 8 / jump 3)
+  [Movement select] Red: Hydra: rate 13.272 = (team 4.0 + gain 21.47 on Blue) / (team 1.6 + cost 0.29 + risk 0.00) (1 of 1 enemies weighed, 861 spots)
+  [Movement] Red: 0612 NE -> 0508 NW, Run (8 MP, 6 hexes, 2 heat; budget walk 5 / run 8 / jump 3)
 Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 7.
   Failed to stand.
 FALL (failed to stand): Griffin GRF-1N takes 6 falling damage (1D6 3: front table, 5-pt clusters).
@@ -717,13 +717,71 @@ Movement Phase consciousness check (pilot, 3 pilot hits): needs 7. Rolled 6.
   Pilot knocked unconscious.
   [Ranged] Red -> Blue: range 1, base TN 0 (gunnery 4 + AMM 2 [Run] + TMM -4 + LOS 0 + heat 0 + prone target -2); firing ['PPC'] (aimed at Center Torso) (weapon heat 10 of budget 12 = max 4 + sink 12 - current 2 - movement 2 - other 0; expected dmg 9.72)
     PPC: needs 3 (range mod +3) aimed at Center Torso, rolled 6 -> HIT
-  [Ranged] Blue: no weapon can bear on Red (rear arc) - can't fire.
+  [Ranged] Blue -> Red: range 1, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 0 + heat 0 + prone +2); firing nothing (weapon heat 0 of budget 14 = max 4 + sink 12 - current 0 - movement 2 - other 0; expected dmg 0.00)
     PPC hit for 10: aimed at Center Torso, 1D6 2 - rolls for location.
-      Hit location roll 5 (rear table): Right Leg.
-10 damage (ENERGY) incoming to Right Leg (rear_armor).
-  Right Leg already destroyed - damage transfers to Right Torso.
+      Hit location roll 5 (left table): Left Arm.
+10 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 7 damage applied to structure [STANDARD] (7 -> 0/9 remaining).
+  Left Arm destroyed with no live explosive components - no critical roll.
+  Left Arm DESTROYED!
+  All critical slots in Left Arm marked DESTROYED.
+  3 damage remains, transfers to Left Torso.
+  [STANDARD/ENERGY] 3 armor pts destroyed at armor (16 -> 13 remaining).
+  Blue drops its tree club in 0507 (p.79).
+  [Physical] Red -> Blue: kick (Left Leg) needs 0 (piloting 5 + base -4 + attack -1), rolled 6 -> HIT (11 dmg, left side)
+    kick (Left Leg) hits Blue's Right Arm for 11.
+11 damage (PHYSICAL) incoming to Right Arm (armor).
+  [STANDARD/PHYSICAL] 11 armor pts destroyed at armor (13 -> 2 remaining).
+  [Heat] Red: 2 + movement 2 + weapons 10 + engine 0 - sinks 12 -> 2
+  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 12 -> 0
+  -- end of turn 35: Red @ 0508 NW: HP 175, pilot hits 0, engine 0, gyro 0, heat 2
+  -- end of turn 35: Blue @ 0507 SW: HP 128, pilot hits 3, engine 0, gyro 0, heat 0 [PRONE, UNCONSCIOUS]
+
+=== TURN 36 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement] Blue: all crew unconscious - skips movement (immobile).
+  [Movement select] Red: Hydra: rate 30.546 = (team 5.1 + gain 41.15 on Blue) / (team 1.5 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 716 spots)
+  [Movement] Red: 0508 NW -> 0506 S, Walk (4 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 3) - includes a backward move
+  [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0 + prone +2); firing nothing (weapon heat 0 of budget 16 = max 4 + sink 12 - current 0 - movement 0 - other 0; expected dmg 0.00)
+  [Ranged] Red -> Blue: range 1, base TN -1 (gunnery 4 + AMM 1 [Walk] + TMM -4 + LOS 0 + heat 0 + prone target -2); firing ['PPC'] (aimed at Center Torso) (weapon heat 10 of budget 13 = max 4 + sink 12 - current 2 - movement 1 - other 0; expected dmg 9.72)
+    PPC: needs 2 (range mod +3) aimed at Center Torso, rolled 12 -> HIT
+    PPC hit for 10: aimed at Center Torso, 1D6 6 - on target.
+10 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 9 armor pts destroyed at armor (9 -> 0 remaining). 1 damage applied to structure [STANDARD] (18 -> 17/18 remaining).
+  Check for possible critical. Roll a 4.
+    No critical hit.
+  [Physical] Red -> Blue: kick (Left Leg) needs -1 (piloting 5 + base -5 + attack -1), rolled 8 -> HIT (11 dmg, right side)
+    kick (Left Leg) hits Blue's Right Arm for 11.
+11 damage (PHYSICAL) incoming to Right Arm (armor).
+  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (2 -> 0 remaining). 9 damage applied to structure [STANDARD] (9 -> 0/9 remaining).
+  Right Arm destroyed with no live explosive components - no critical roll.
+  Right Arm DESTROYED!
+  All critical slots in Right Arm marked DESTROYED.
+  0 damage remains, transfers to Right Torso.
+  [Heat] Red: 2 + movement 1 + weapons 10 + engine 0 - sinks 12 -> 1
+  [Heat] Blue: 0 + movement 0 + weapons 0 + engine 0 - sinks 12 -> 0
+End Phase wake-up check (pilot, 3 pilot hits): needs 7. Rolled 11.
+  Pilot wakes up.
+  [End] Blue is now CRIPPLED (BattleMech Manual definition).
+  -- end of turn 36: Red @ 0506 S: HP 175, pilot hits 0, engine 0, gyro 0, heat 1
+  -- end of turn 36: Blue @ 0507 SW: HP 107, pilot hits 3, engine 0, gyro 0, heat 0 [PRONE]
+
+=== TURN 37 ===
+  Initiative: Blue lost the roll, moves first.
+Cannot stand (destroyed gyro, or too many legs / arms lost - pp.51, 98). Remains prone.
+  [Movement] Blue: can't stand - turns 1 hexside(s) on the ground to face NW (forward arc on Red; Walk, 1 MP).
+  [Movement] Blue: still prone at 0507.
+  [Movement select] Red: Hydra: rate 38.672 = (team 4.7 + gain 47.55 on Blue) / (team 1.4 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 651 spots)
+  [Movement] Red: 0506 S -> 0506 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 3)
+  [Ranged] Blue: can't make ranged attacks (sensors destroyed, or prone with no arm to prop on).
+  [Ranged] Red -> Blue: range 1, base TN 2 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0 + prone target -2); firing ['LRM 10', 'PPC'] (weapon heat 14 of budget 15 = max 4 + sink 12 - current 1 - movement 0 - other 0; expected dmg 10.96)
+    LRM 10: needs 8 (range mod +6), rolled 6 -> miss [IS Ammo LRM-10: 8 shots left]
+    PPC: needs 5 (range mod +3), rolled 8 -> HIT
+    PPC hit for 10:
+      Hit location roll 7 (right table): Right Torso.
+10 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (2 -> 0/13 remaining).
-  Check for possible critical. Roll a 6.
+  Check for possible critical. Roll a 4.
     No critical hit.
   Right Torso DESTROYED!
     Jump jet destroyed (Jump Jet) from Right Torso destruction - jump MP reduced (now 4).
@@ -732,98 +790,16 @@ Movement Phase consciousness check (pilot, 3 pilot hits): needs 7. Rolled 6.
   Right Arm also destroyed (side torso rule).
   All critical slots in Right Arm marked DESTROYED.
   8 damage remains, transfers to Center Torso.
-  [STANDARD/ENERGY] 8 armor pts destroyed at armor (9 -> 1 remaining).
-  Blue drops its tree club in 0507 (p.79).
-  [Physical] Red -> Blue: kick (Left Leg) needs 0 (piloting 5 + base -4 + attack -1), rolled 10 -> HIT (11 dmg, rear side)
-    kick (Left Leg) hits Blue's Left Arm for 11.
-11 damage (PHYSICAL) incoming to Left Arm (rear_armor).
-  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 7 damage applied to structure [STANDARD] (7 -> 0/9 remaining).
-  Left Arm destroyed with no live explosive components - no critical roll.
-  Left Arm DESTROYED!
-  All critical slots in Left Arm marked DESTROYED.
-  4 damage remains, transfers to Left Torso.
-  [STANDARD/PHYSICAL] 4 armor pts destroyed at armor (16 -> 12 remaining).
-  [Heat] Red: 2 + movement 2 + weapons 10 + engine 0 - sinks 12 -> 2
-  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 12 -> 0
-  [End] Blue is now CRIPPLED (BattleMech Manual definition).
-  -- end of turn 35: Red @ 0606 NW: HP 175, pilot hits 0, engine 0, gyro 0, heat 2
-  -- end of turn 35: Blue @ 0507 SW: HP 119, pilot hits 3, engine 0, gyro 0, heat 0 [PRONE, UNCONSCIOUS]
-
-=== TURN 36 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 38.190 = (team 6.8 + gain 43.97 on Blue) / (team 1.3 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 774 spots)
-  [Movement] Red: 0606 NW -> 0506 SW, Walk (4 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 3) - includes a backward move
-  [Movement] Blue: all crew unconscious - skips movement (immobile).
-  [Ranged] Red -> Blue: range 1, base TN -1 (gunnery 4 + AMM 1 [Walk] + TMM -4 + LOS 0 + heat 0 + prone target -2); firing ['PPC'] (aimed at Center Torso) (weapon heat 10 of budget 13 = max 4 + sink 12 - current 2 - movement 1 - other 0; expected dmg 9.72)
-    PPC: needs 2 (range mod +3) aimed at Center Torso, rolled 8 -> HIT
-  [Ranged] Blue: no weapon can bear on Red (right side arc) - can't fire.
-    PPC hit for 10: aimed at Center Torso, 1D6 2 - rolls for location.
-      Hit location roll 8 (right table): Center Torso.
-10 damage (ENERGY) incoming to Center Torso (armor).
-  [STANDARD/ENERGY] 1 armor pts destroyed at armor (1 -> 0 remaining). 9 damage applied to structure [STANDARD] (18 -> 9/18 remaining).
-  Check for possible critical. Roll a 4.
-    No critical hit.
-  [Physical] Red -> Blue: kick (Left Leg) needs -1 (piloting 5 + base -5 + attack -1), rolled 11 -> HIT (11 dmg, right side)
-    kick (Left Leg) hits Blue's Left Leg for 11.
-11 damage (PHYSICAL) incoming to Left Leg (armor).
-  [STANDARD/PHYSICAL] 11 armor pts destroyed at armor (18 -> 7 remaining).
-  [Heat] Red: 2 + movement 1 + weapons 10 + engine 0 - sinks 12 -> 1
-  [Heat] Blue: 0 + movement 0 + weapons 0 + engine 0 - sinks 12 -> 0
-End Phase wake-up check (pilot, 3 pilot hits): needs 7. Rolled 2.
-  Pilot remains unconscious.
-  -- end of turn 36: Red @ 0506 SW: HP 175, pilot hits 0, engine 0, gyro 0, heat 1
-  -- end of turn 36: Blue @ 0507 SW: HP 98, pilot hits 3, engine 0, gyro 0, heat 0 [PRONE, UNCONSCIOUS]
-
-=== TURN 37 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 62.654 = (team 8.9 + gain 62.22 on Blue) / (team 1.1 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 729 spots)
-  [Movement] Red: 0506 SW -> 0506 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 3)
-  [Movement] Blue: all crew unconscious - skips movement (immobile).
-  [Ranged] Red -> Blue: range 1, base TN -2 (gunnery 4 + AMM 0 [Stand Still] + TMM -4 + LOS 0 + heat 0 + prone target -2); firing ['LRM 10', 'PPC'] (aimed at Center Torso) (weapon heat 14 of budget 15 = max 4 + sink 12 - current 1 - movement 0 - other 0; expected dmg 14.28)
-    LRM 10: needs 4 (range mod +6), rolled 7 -> HIT [IS Ammo LRM-10: 8 shots left]
-    PPC: needs 1 (range mod +3) aimed at Center Torso, rolled 4 -> HIT
-  [Ranged] Blue: no weapon can bear on Red (right side arc) - can't fire.
-    LRM 10 hit: cluster roll 7 on the 10-column table -> 6 connect (6 dmg).
-      Group 1/2: Hit location roll 8 (right table): Center Torso.
-5 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (9 -> 4/18 remaining).
-  Check for possible critical. Roll a 8.
-    1 critical hit(s).
-  Critical hit pool at Center Torso:
-    1: Engine (slot 1)
-    2: Engine (slot 2)
-    3: Engine (slot 3)
-    4: Gyro (slot 4)
-    5: Gyro (slot 5)
-    6: Gyro (slot 6)
-    7: Gyro (slot 7)
-    8: Engine (slot 8)
-    9: Engine (slot 9)
-    10: Engine (slot 10)
-    11: Heat Sink (slot 11)
-    12: Jump Jet (slot 12)
-    1/1 Criticals: Engine hit.
-      Current crit slots in Center Torso: ['DESTROYED', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'Heat Sink', 'Jump Jet']
-      Engine hit (1/3).
-      Group 2/2: Hit location roll 6 (right table): Right Leg.
-1 damage (MISSILE) incoming to Right Leg (armor).
-  Right Leg already destroyed - damage transfers to Right Torso.
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 1 damage applied to structure [STANDARD] (4 -> 3/18 remaining).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 8 damage applied to structure [STANDARD] (17 -> 9/18 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
-    PPC hit for 10: aimed at Center Torso, 1D6 3 - rolls for location.
-      Hit location roll 9 (right table): Left Torso.
-10 damage (ENERGY) incoming to Left Torso (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (12 -> 2 remaining).
-  [Physical] Red -> Blue: kick (Left Leg) needs -2 (piloting 5 + base -6 + attack -1), rolled 7 -> HIT (11 dmg, right side)
-    kick (Left Leg) hits Blue's Right Arm for 11.
-11 damage (PHYSICAL) incoming to Right Arm (armor).
-  Right Arm already destroyed - damage transfers to Right Torso.
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (3 -> 0/18 remaining).
+  [Physical] Red -> Blue: kick (Left Leg) needs 2 (piloting 5 + base -2 + attack -1), rolled 8 -> HIT (11 dmg, right side)
+    kick (Left Leg) hits Blue's Center Torso for 11.
+11 damage (PHYSICAL) incoming to Center Torso (armor).
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 9 damage applied to structure [STANDARD] (9 -> 0/18 remaining).
   Center Torso destroyed with no live explosive components - no critical roll.
   Center Torso DESTROYED!
+    Engine hit (1/3) from Center Torso destruction.
     Engine hit (2/3) from Center Torso destruction.
     Engine hit (3/3) from Center Torso destruction.
     Gyro hit (1/2) from Center Torso destruction.
@@ -836,9 +812,9 @@ End Phase wake-up check (pilot, 3 pilot hits): needs 7. Rolled 2.
     Heat sink destroyed (Heat Sink) from Center Torso destruction - heat dissipation reduced (now 11).
     Jump jet destroyed (Jump Jet) from Center Torso destruction - jump MP reduced (now 2).
   All critical slots in Center Torso marked DESTROYED.
-  8 damage remains, transfers to nowhere (attack finished).
+  2 damage remains, transfers to nowhere (attack finished).
   [Heat] Red: 1 + movement 0 + weapons 14 + engine 0 - sinks 12 -> 3
-  -- end of turn 37: Red @ 0506 SW: HP 175, pilot hits 0, engine 0, gyro 0, heat 3
-  -- end of turn 37: Blue @ 0507 SW: HP 79, pilot hits 3, engine 6, gyro 4, heat 0 [PRONE, UNCONSCIOUS, DESTROYED (Center Torso Destroyed)]
+  -- end of turn 37: Red @ 0506 S: HP 175, pilot hits 0, engine 0, gyro 0, heat 3
+  -- end of turn 37: Blue @ 0507 NW: HP 88, pilot hits 3, engine 6, gyro 4, heat 0 [PRONE, DESTROYED (Center Torso Destroyed)]
 
 >>> Battle over on turn 37: Blue destroyed. <<<

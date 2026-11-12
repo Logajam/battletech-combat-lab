@@ -1,7 +1,7 @@
 # scenario hy_duel_hunchback_woods, Hydra drives Red
-# seed 1: winner Red, 32 turns
-#   Red: 173.0 of 243.0 armor + structure left, team destroyed False, units 1, 24 hits of 63 attacks, 134.0 damage dealt
-#   Blue: 79.0 of 243.0 armor + structure left, team destroyed True, units 1, 5 hits of 46 attacks, 55.0 damage dealt
+# seed 1: winner Red, 49 turns
+#   Red: 95.0 of 243.0 armor + structure left, team destroyed False, units 1, 19 hits of 76 attacks, 98.0 damage dealt
+#   Blue: 93.0 of 243.0 armor + structure left, team destroyed True, units 1, 19 hits of 74 attacks, 123.0 damage dealt
 # log
   Deployment: Blue home edge W (0101-0117).
   Deployment: Red home edge E (1601-1617).
@@ -22,7 +22,7 @@
 
 === TURN 2 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 1.000 = (team 12.6 + gain 2.63 on Blue) / (team 12.6 + cost 2.63 + risk 0.00) (1 of 1 enemies weighed, 179 spots; 32 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 1.000 = (team 12.6 + gain 2.63 on Blue) / (team 12.6 + cost 2.63 + risk 0.00) (1 of 1 enemies weighed, 179 spots; play-out of 32 spots, responders Blue)
   [Movement] Red: 1111 NW -> 1011 SW, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue: score 324.246 = dealt 0.87 x1.01 + (HP 326.0 - received 2.60 x1.01 - PSR 0.00) / enemy future 12.64 x my future 12.64 [enemy held at 1011; 12 spots with LOS]
   [Movement] Blue: 0505 SE -> 0805 SE, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
@@ -42,7 +42,7 @@
 
 === TURN 3 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 1.168 = (team 12.6 + gain 5.20 on Blue) / (team 12.6 + cost 2.63 + risk 0.00) (1 of 1 enemies weighed, 187 spots; 34 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 1.168 = (team 12.6 + gain 5.20 on Blue) / (team 12.6 + cost 2.63 + risk 0.00) (1 of 1 enemies weighed, 187 spots; play-out of 34 spots, responders Blue)
   [Movement] Red: 1011 SW -> 1310 SW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Blue: score 323.400 = dealt 0.00 x1.01 + (HP 326.0 - received 2.60 x1.00 - PSR 0.00) / enemy future 12.64 x my future 12.64 [enemy held at 1310; 86 spots with LOS]
   [Movement] Blue: 0805 SE -> 0706 SE, Run (6 MP, 1 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
@@ -59,7 +59,7 @@
 
 === TURN 4 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 1.069 = (team 12.6 + gain 0.88 on Blue) / (team 12.6 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 209 spots; 35 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 1.069 = (team 12.6 + gain 0.88 on Blue) / (team 12.6 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 209 spots; play-out of 35 spots, responders Blue)
   [Movement] Red: 1310 SW -> 1011 SW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue: score 321.615 = dealt 0.87 x1.01 + (HP 326.0 - received 5.20 x1.01 - PSR 0.00) / enemy future 12.64 x my future 12.64 [enemy held at 1011; 1 spots with LOS]
   [Movement] Blue: 0706 SE -> 0608 SW, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
@@ -80,7 +80,7 @@
 
 === TURN 5 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 0.789 = (team 10.6 + gain 16.58 on Blue) / (team 13.9 + cost 20.53 + risk 0.00) (1 of 1 enemies weighed, 187 spots; 34 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 0.789 = (team 10.6 + gain 16.58 on Blue) / (team 13.9 + cost 20.53 + risk 0.00) (1 of 1 enemies weighed, 187 spots; play-out of 34 spots, responders Blue)
   [Movement] Red: 1011 SW -> 1109 S, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Blue: score 349.848 = dealt 5.20 x1.01 + (HP 326.0 - received 5.20 x1.01 - PSR 0.00) / enemy future 11.77 x my future 12.64 [enemy held at 1109; 19 spots with LOS]
   [Movement] Blue: 0608 SW -> 0707 S, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
@@ -100,7 +100,7 @@
 
 === TURN 6 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 0.886 = (team 10.7 + gain 2.12 on Blue) / (team 12.2 + cost 2.30 + risk 0.00) (1 of 1 enemies weighed, 186 spots; 37 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 0.886 = (team 10.7 + gain 2.12 on Blue) / (team 12.2 + cost 2.30 + risk 0.00) (1 of 1 enemies weighed, 186 spots; play-out of 37 spots, responders Blue)
   [Movement] Red: 1109 S -> 1010 SW, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue: no spot deals damage - closing fallback
 [Movement] Blue: backward level change PSR at 0705: needs 5 (Piloting 5 + +0). Rolled 7.
@@ -128,7 +128,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
 
 === TURN 7 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 1.138 = (team 12.3 + gain 2.53 on Blue) / (team 12.1 + cost 0.91 + risk 0.00) (1 of 1 enemies weighed, 206 spots; 32 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 1.138 = (team 12.3 + gain 2.53 on Blue) / (team 12.1 + cost 0.91 + risk 0.00) (1 of 1 enemies weighed, 206 spots; play-out of 32 spots, responders Blue)
   [Movement] Red: 1010 SW -> 1010 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue: score 472.294 = dealt 2.46 x1.08 + (HP 326.0 - received 5.20 x1.01 - PSR 0.00) / enemy future 9.48 x my future 13.88 [enemy held at 1010; 26 spots with LOS]
   [Movement] Blue: 0705 S -> 0907 SE, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
@@ -151,7 +151,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
 
 === TURN 8 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 1.413 = (team 15.0 + gain 0.96 on Blue) / (team 10.3 + cost 1.02 + risk 0.00) (1 of 1 enemies weighed, 206 spots; 32 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 1.413 = (team 15.0 + gain 0.96 on Blue) / (team 10.3 + cost 1.02 + risk 0.00) (1 of 1 enemies weighed, 206 spots; play-out of 32 spots, responders Blue)
   [Movement] Red: 1010 SW -> 0913 S, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue: no spot deals damage - closing fallback
 [Movement] Blue: backward level change PSR at 0805: needs 5 (Piloting 5 + +0). Rolled 5.
@@ -171,7 +171,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
 
 === TURN 9 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 1.222 = (team 13.7 + gain 0.00 on nobody) / (team 11.2 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 182 spots; 37 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 1.222 = (team 13.7 + gain 0.00 on nobody) / (team 11.2 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 182 spots; play-out of 37 spots, responders Blue)
   [Movement] Red: 0913 S -> 0913 NE, Walk (2 MP, 0 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue: score 399.550 = dealt 5.61 x0.98 + (HP 321.0 - received 8.82 x1.00 - PSR 0.00) / enemy future 7.33 x my future 9.26 [enemy held at 0913; 51 spots with LOS]
   [Movement] Blue: 0805 S -> 0805 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
@@ -211,7 +211,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
 
 === TURN 10 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 0.777 = (team 11.4 + gain 0.00 on nobody) / (team 14.6 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 170 spots; 35 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 0.777 = (team 11.4 + gain 0.00 on nobody) / (team 14.6 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 170 spots; play-out of 35 spots, responders Blue)
   [Movement] Red: 0913 NE -> 0913 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue: score 311.065 = dealt 0.00 x1.04 + (HP 291.0 - received 0.93 x0.94 - PSR 0.00) / enemy future 10.54 x my future 11.30 [enemy held at 0913; 24 spots with LOS]
   [Movement] Blue: 0805 S -> 0606 SW, Run (6 MP, 2 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
@@ -229,7 +229,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
 
 === TURN 11 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 0.596 = (team 10.1 + gain 0.00 on nobody) / (team 16.9 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 170 spots; 35 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 0.596 = (team 10.1 + gain 0.00 on nobody) / (team 16.9 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 170 spots; play-out of 35 spots, responders Blue)
   [Movement] Red: 0913 NE -> 0813 NE, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Blue: no spot deals damage - closing fallback
   [Movement] Blue: 0606 SW -> 0604 N, Run (6 MP, 2 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
@@ -243,7 +243,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
 
 === TURN 12 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 0.677 = (team 10.1 + gain 6.80 on Blue) / (team 16.9 + cost 8.00 + risk 0.00) (1 of 1 enemies weighed, 143 spots; 32 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 0.677 = (team 10.1 + gain 6.80 on Blue) / (team 16.9 + cost 8.00 + risk 0.00) (1 of 1 enemies weighed, 143 spots; play-out of 32 spots, responders Blue)
   [Movement] Red: 0813 NE -> 0714 NE, Walk (2 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Blue: score 321.938 = dealt 0.00 x1.04 + (HP 291.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 8.20 x my future 9.07 [enemy held at 0714; 58 spots with LOS]
   [Movement] Blue: 0604 N -> 0505 S, Run (5 MP, 1 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
@@ -256,7 +256,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
 
 === TURN 13 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 0.600 = (team 10.1 + gain 0.88 on Blue) / (team 16.9 + cost 1.33 + risk 0.00) (1 of 1 enemies weighed, 113 spots; 24 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 0.600 = (team 10.1 + gain 0.88 on Blue) / (team 16.9 + cost 1.33 + risk 0.00) (1 of 1 enemies weighed, 113 spots; play-out of 24 spots, responders Blue)
   [Movement] Red: 0714 NE -> 1013 NE, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue: no spot deals damage - closing fallback
   [Movement] Blue: 0505 S -> 0507 S, Walk (3 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
@@ -269,7 +269,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
 
 === TURN 14 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 0.596 = (team 10.1 + gain 0.00 on nobody) / (team 16.9 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 188 spots; 34 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 0.596 = (team 10.1 + gain 0.00 on nobody) / (team 16.9 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 188 spots; play-out of 34 spots, responders Blue)
   [Movement] Red: 1013 NE -> 1013 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue: no spot deals damage - closing fallback
   [Movement] Blue: 0507 S -> 0505 S, Walk (2 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
@@ -282,7 +282,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
 
 === TURN 15 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: no spot deals damage - closes on Blue
+  [Movement select] Red: Hydra: rate 0.626 = (team 10.1 + gain 5.26 on Blue) / (team 16.9 + cost 7.58 + risk 0.00) (1 of 1 enemies weighed, 188 spots; play-out of 34 spots, responders Blue)
   [Movement] Red: 1013 NE -> 1111 N, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue: score 321.405 = dealt 3.16 x1.04 + (HP 291.0 - received 2.78 x0.94 - PSR 0.83) / enemy future 6.15 x my future 6.80 [enemy held at 1111; 7 spots with LOS]
 [Movement] Blue: backward level change PSR at 0604: needs 5 (Piloting 5 + +0). Rolled 7.
@@ -360,7 +360,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
 
 === TURN 19 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 0.778 = (team 5.9 + gain 0.00 on nobody) / (team 7.6 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 88 spots; 17 spots re-scored against Blue's best answer)
+  [Movement select] Red: Hydra: rate 0.778 = (team 5.9 + gain 0.00 on nobody) / (team 7.6 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 88 spots; play-out of 17 spots, responders Blue)
   [Movement] Red: 0809 NW -> 0809 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Blue: score 293.006 = dealt 0.00 x1.00 + (HP 286.0 - received 0.00 x1.13 - PSR 0.00) / enemy future 3.67 x my future 3.76 [enemy held at 0809; 36 spots with LOS]
   [Movement] Blue: 0304 NW -> 0103 NE, Run (6 MP, 2 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
@@ -411,140 +411,154 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 4.
 
 === TURN 22 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: no spot deals damage - closes on Blue
-  [Movement] Red: 0609 NW -> 0608 N, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
-  [Movement select] Blue: score 266.060 = dealt 1.06 x1.00 + (HP 281.0 - received 0.93 x0.96 - PSR 0.00) / enemy future 3.35 x my future 3.17 [enemy held at 0608; 11 spots with LOS]
-  [Movement] Blue: 0102 SW -> 0201 SW, Walk (1 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
-  [Ranged] Red -> Blue: range 9, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 0.83)
+  [Movement select] Red: Hydra: rate 0.913 = (team 6.2 + gain 0.84 on Blue) / (team 7.3 + cost 0.37 + risk 0.00) (1 of 1 enemies weighed, 70 spots; play-out of 14 spots, responders Blue)
+  [Movement] Red: 0609 NW -> 0509 NW, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Blue: no spot deals damage - closing fallback
+  [Movement] Blue: 0102 SW -> 0104 S, Walk (3 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red -> Blue: range 7, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 0.83)
     Medium Laser: needs 11 (range mod +4), rolled 7 -> miss
     Medium Laser: needs 11 (range mod +4), rolled 11 -> HIT
-  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
-  [Ranged] Blue -> Red: range 9, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 0.83)
-    Medium Laser: needs 11 (range mod +4), rolled 8 -> miss
-    Medium Laser: needs 11 (range mod +4), rolled 4 -> miss
+  [Ranged] Blue -> Red: range 7, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 4 + heat 0); firing nothing (weapon heat 0 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 0.00)
+    Medium Laser hit for 5:
+      Hit location roll 8 (left table): Center Torso.
+5 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (26 -> 21 remaining).
+  [Heat] Red: 0 + movement 1 + weapons 6 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 13 -> 0
+  -- end of turn 22: Red @ 0509 NW: HP 203, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 22: Blue @ 0104 S: HP 198, pilot hits 1, engine 0, gyro 0, heat 0
+
+=== TURN 23 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: Hydra: rate 0.910 = (team 5.8 + gain 1.58 on Blue) / (team 7.7 + cost 0.39 + risk 0.00) (1 of 1 enemies weighed, 90 spots; play-out of 21 spots, responders Blue)
+  [Movement] Red: 0509 NW -> 0509 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Blue: score 241.099 = dealt 0.35 x1.00 + (HP 276.0 - received 1.86 x0.95 - PSR 0.00) / enemy future 3.43 x my future 3.01 [enemy held at 0509; 23 spots with LOS]
+  [Movement] Blue: 0104 S -> 0104 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red -> Blue: range 7, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 17 = max 4 + sink 13 - current 0 - movement 0 - other 0; expected dmg 1.67)
+    Medium Laser: needs 10 (range mod +4), rolled 4 -> miss
+    Medium Laser: needs 10 (range mod +4), rolled 6 -> miss
+  [Ranged] Blue -> Red: range 7, base TN 8 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 4 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 17 = max 4 + sink 13 - current 0 - movement 0 - other 0; expected dmg 0.28)
+    Medium Laser: needs 12 (range mod +4), rolled 10 -> miss
+    Medium Laser: needs 12 (range mod +4), rolled 10 -> miss
+  [Heat] Red: 0 + movement 0 + weapons 6 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 6 + engine 0 - sinks 13 -> 0
+  -- end of turn 23: Red @ 0509 NW: HP 203, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 23: Blue @ 0104 S: HP 198, pilot hits 1, engine 0, gyro 0, heat 0
+
+=== TURN 24 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: Hydra: rate 0.910 = (team 5.8 + gain 1.58 on Blue) / (team 7.7 + cost 0.39 + risk 0.00) (1 of 1 enemies weighed, 90 spots; play-out of 21 spots, responders Blue)
+  [Movement] Red: 0509 NW -> 0509 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Blue: score 241.099 = dealt 0.35 x1.00 + (HP 276.0 - received 1.86 x0.95 - PSR 0.00) / enemy future 3.26 x my future 2.86 [enemy held at 0509; 23 spots with LOS]
+  [Movement] Blue: 0104 S -> 0104 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red -> Blue: range 7, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 17 = max 4 + sink 13 - current 0 - movement 0 - other 0; expected dmg 1.67)
+    Medium Laser: needs 10 (range mod +4), rolled 9 -> miss
+    Medium Laser: needs 10 (range mod +4), rolled 4 -> miss
+  [Ranged] Blue -> Red: range 7, base TN 8 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 4 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 17 = max 4 + sink 13 - current 0 - movement 0 - other 0; expected dmg 0.28)
+    Medium Laser: needs 12 (range mod +4), rolled 9 -> miss
+    Medium Laser: needs 12 (range mod +4), rolled 10 -> miss
+  [Heat] Red: 0 + movement 0 + weapons 6 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 6 + engine 0 - sinks 13 -> 0
+  -- end of turn 24: Red @ 0509 NW: HP 203, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 24: Blue @ 0104 S: HP 198, pilot hits 1, engine 0, gyro 0, heat 0
+
+=== TURN 25 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: Hydra: rate 0.910 = (team 5.8 + gain 1.58 on Blue) / (team 7.7 + cost 0.39 + risk 0.00) (1 of 1 enemies weighed, 90 spots; play-out of 21 spots, responders Blue)
+  [Movement] Red: 0509 NW -> 0509 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Blue: score 241.099 = dealt 0.35 x1.00 + (HP 276.0 - received 1.86 x0.95 - PSR 0.00) / enemy future 3.11 x my future 2.73 [enemy held at 0509; 23 spots with LOS]
+  [Movement] Blue: 0104 S -> 0104 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red -> Blue: range 7, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 17 = max 4 + sink 13 - current 0 - movement 0 - other 0; expected dmg 1.67)
+    Medium Laser: needs 10 (range mod +4), rolled 11 -> HIT
+    Medium Laser: needs 10 (range mod +4), rolled 11 -> HIT
+  [Ranged] Blue -> Red: range 7, base TN 8 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 4 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 17 = max 4 + sink 13 - current 0 - movement 0 - other 0; expected dmg 0.28)
+    Medium Laser: needs 12 (range mod +4), rolled 7 -> miss
+    Medium Laser: needs 12 (range mod +4), rolled 11 -> miss
     Medium Laser hit for 5:
       Hit location roll 11 (left table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (15 -> 10 remaining).
-  [Heat] Red: 0 + movement 1 + weapons 6 + engine 0 - sinks 13 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 6 + engine 0 - sinks 13 -> 0
-  -- end of turn 22: Red @ 0608 N: HP 203, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 22: Blue @ 0201 SW: HP 198, pilot hits 1, engine 0, gyro 0, heat 0
-
-=== TURN 23 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 0.834 = (team 5.8 + gain 3.92 on Blue) / (team 7.7 + cost 3.94 + risk 0.00) (1 of 1 enemies weighed, 104 spots; 22 spots re-scored against Blue's best answer)
-  [Movement] Red: 0608 N -> 0508 NW, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
-  [Movement select] Blue: score 239.755 = dealt 3.55 x1.00 + (HP 276.0 - received 4.65 x0.95 - PSR 0.00) / enemy future 3.46 x my future 3.01 [enemy held at 0508; 25 spots with LOS]
-  [Movement] Blue: 0201 SW -> 0104 S, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
-  [Ranged] Red -> Blue: range 6, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 4.17)
-    Medium Laser: needs 8 (range mod +2), rolled 10 -> HIT
-    Medium Laser: needs 8 (range mod +2), rolled 10 -> HIT
-  [Ranged] Blue -> Red: range 6, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 2.78)
-    Medium Laser: needs 9 (range mod +2), rolled 4 -> miss
-    Medium Laser: needs 9 (range mod +2), rolled 8 -> miss
     Medium Laser hit for 5:
-      Hit location roll 9 (left table): Right Torso.
-5 damage (ENERGY) incoming to Right Torso (armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (7 -> 2/12 remaining).
-  Check for possible critical. Roll a 4.
-    No critical hit.
-    Medium Laser hit for 5:
-      Hit location roll 9 (left table): Right Torso.
-5 damage (ENERGY) incoming to Right Torso (armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (2 -> 0/12 remaining).
-  Right Torso destroyed with no live explosive components - no critical roll.
-  Right Torso DESTROYED!
-  All critical slots in Right Torso marked DESTROYED.
-  Right Arm also destroyed (side torso rule).
-  All critical slots in Right Arm marked DESTROYED.
-  3 damage remains, transfers to Center Torso.
-  [STANDARD/ENERGY] 3 armor pts destroyed at armor (26 -> 23 remaining).
-  Blue drops its tree club in 0104 (p.79).
-  [Heat] Red: 0 + movement 1 + weapons 6 + engine 0 - sinks 13 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 6 + engine 0 - sinks 13 -> 0
-  [End] Blue is now CRIPPLED (BattleMech Manual definition).
-  -- end of turn 23: Red @ 0508 NW: HP 203, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 23: Blue @ 0104 S: HP 180, pilot hits 1, engine 0, gyro 0, heat 0
-
-=== TURN 24 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 98.541 = dealt 0.53 x1.00 + (HP 223.0 - received 0.84 x1.03 - PSR 0.00) / enemy future 5.89 x my future 2.60 [two-ply, 48 of 170 spots (grid search) x 175 replies (short list); modeled reply Red -> 0507 N Walk]
-  [Movement] Blue: 0104 S -> 0201 SW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
-  [Movement select] Red: Hydra: rate 1.614 = (team 7.7 + gain 4.84 on Blue) / (team 6.1 + cost 1.66 + risk 0.00) (1 of 1 enemies weighed, 175 spots)
-  [Movement] Red: 0508 NW -> 0206 NW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
-  [Ranged] Blue -> Red: range 5, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 1 + heat 0); firing ['Medium Laser'] (weapon heat 3 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 1.39)
-    Medium Laser: needs 9 (range mod +2), rolled 7 -> miss
-  [Ranged] Red -> Blue: range 5, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 4.17)
-    Medium Laser: needs 8 (range mod +2), rolled 11 -> HIT
-    Medium Laser: needs 8 (range mod +2), rolled 11 -> HIT
-    Medium Laser hit for 5:
-      Hit location roll 7 (left table): Left Torso.
-5 damage (ENERGY) incoming to Left Torso (armor).
+      Hit location roll 6 (left table): Left Leg.
+5 damage (ENERGY) incoming to Left Leg (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (20 -> 15 remaining).
-    Medium Laser hit for 5:
-      Hit location roll 11 (left table): Right Leg.
-5 damage (ENERGY) incoming to Right Leg (armor).
-  [STANDARD/ENERGY] 5 armor pts destroyed at armor (10 -> 5 remaining).
-  [Heat] Red: 0 + movement 1 + weapons 6 + engine 0 - sinks 13 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 3 + engine 0 - sinks 13 -> 0
-  -- end of turn 24: Red @ 0206 NW: HP 203, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 24: Blue @ 0201 SW: HP 170, pilot hits 1, engine 0, gyro 0, heat 0
-
-=== TURN 25 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 84.111 = dealt 1.77 x1.00 + (HP 213.0 - received 5.87 x1.02 - PSR 0.00) / enemy future 6.24 x my future 2.48 [two-ply, 92 of 126 spots (grid search) x 196 replies (short list); modeled reply Red -> 0206 N Stand Still]
-  [Movement] Blue: 0201 SW -> 0302 NW, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
-  [Movement select] Red: Hydra: rate 2.043 = (team 9.1 + gain 6.72 on Blue) / (team 6.1 + cost 1.65 + risk 0.00) (1 of 1 enemies weighed, 196 spots)
-  [Movement] Red: 0206 NW -> 0206 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
-  [Ranged] Blue -> Red: range 5, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0); firing ['Medium Laser'] (weapon heat 3 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 1.39)
-    Medium Laser: needs 9 (range mod +2), rolled 4 -> miss
-  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
-  [Ranged] Red -> Blue: range 5, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 17 = max 4 + sink 13 - current 0 - movement 0 - other 0; expected dmg 5.83)
-    Medium Laser: needs 7 (range mod +2), rolled 4 -> miss
-    Medium Laser: needs 7 (range mod +2), rolled 10 -> HIT
-    Medium Laser hit for 5:
-      Hit location roll 5 (left table): Left Arm.
-5 damage (ENERGY) incoming to Left Arm (armor).
-  [STANDARD/ENERGY] 5 armor pts destroyed at armor (11 -> 6 remaining).
   [Heat] Red: 0 + movement 0 + weapons 6 + engine 0 - sinks 13 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 3 + engine 0 - sinks 13 -> 0
-  -- end of turn 25: Red @ 0206 NW: HP 203, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 25: Blue @ 0302 NW: HP 165, pilot hits 1, engine 0, gyro 0, heat 0
+  [Heat] Blue: 0 + movement 0 + weapons 6 + engine 0 - sinks 13 -> 0
+  -- end of turn 25: Red @ 0509 NW: HP 203, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 25: Blue @ 0104 S: HP 188, pilot hits 1, engine 0, gyro 0, heat 0
 
 === TURN 26 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 202.164 = dealt 1.06 x1.00 + (HP 266.0 - received 0.31 x0.95 - PSR 0.00) / enemy future 3.46 x my future 2.62 [two-ply, 48 of 170 spots (grid search) x 90 replies (short list); modeled reply Red -> 0507 N Run]
+  [Movement] Blue: 0104 S -> 0201 SW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
+  [Movement select] Red: Hydra: rate 1.232 = (team 7.2 + gain 0.33 on Blue) / (team 6.1 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 90 spots)
+  [Movement] Red: 0509 NW -> 0408 NW, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Blue -> Red: range 8, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 4 + heat 0); firing nothing (weapon heat 0 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 0.00)
+  [Ranged] Red -> Blue: range 8, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 2 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 0.28)
+    Medium Laser: needs 12 (range mod +4), rolled 6 -> miss
+    Medium Laser: needs 12 (range mod +4), rolled 7 -> miss
+  [Heat] Red: 0 + movement 1 + weapons 6 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 13 -> 0
+  -- end of turn 26: Red @ 0408 NW: HP 203, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 26: Blue @ 0201 SW: HP 188, pilot hits 1, engine 0, gyro 0, heat 0
+
+=== TURN 27 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 1.851 = (team 8.9 + gain 3.14 on Blue) / (team 6.0 + cost 0.49 + risk 0.00) (1 of 1 enemies weighed, 196 spots; 29 spots re-scored against Blue's best answer)
-  [Movement] Red: 0206 NW -> 0206 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
-  [Movement select] Blue: score 81.752 = dealt 9.70 x1.04 + (HP 208.0 - received 22.28 x1.00 - PSR 0.00) / enemy future 6.15 x my future 2.37 [enemy held at 0206; 22 spots with LOS]
-  [Movement] Blue: 0302 NW -> 0205 S, Run (6 MP, 4 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
-  [Ranged] Red -> Blue: range 1, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 1 + LOS 0 + heat 0); firing ['Small Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 7 of budget 17 = max 4 + sink 13 - current 0 - movement 0 - other 0; expected dmg 10.83)
-    Small Laser: needs 5 (range mod +0), rolled 7 -> HIT
-    Medium Laser: needs 5 (range mod +0), rolled 8 -> HIT
-    Medium Laser: needs 5 (range mod +0), rolled 8 -> HIT
-  [Ranged] Blue -> Red: range 1, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0); firing ['Small Laser', 'Medium Laser'] (weapon heat 4 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 4.67)
-    Small Laser: needs 7 (range mod +0), rolled 6 -> miss
-    Medium Laser: needs 7 (range mod +0), rolled 7 -> HIT
-    Small Laser hit for 3:
-      Hit location roll 6 (front table): Right Torso.
-3 damage (ENERGY) incoming to Right Torso (armor).
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/ENERGY] 3 armor pts destroyed at armor (23 -> 20 remaining).
-    Medium Laser hit for 5:
-      Hit location roll 11 (front table): Left Arm.
-5 damage (ENERGY) incoming to Left Arm (armor).
-  [STANDARD/ENERGY] 5 armor pts destroyed at armor (6 -> 1 remaining).
-    Medium Laser hit for 5:
-      Hit location roll 3 (front table): Right Arm.
-5 damage (ENERGY) incoming to Right Arm (armor).
-  Right Arm already destroyed - damage transfers to Right Torso.
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/ENERGY] 5 armor pts destroyed at armor (20 -> 15 remaining).
+  [Movement select] Red: Hydra: rate 1.382 = (team 7.2 + gain 1.25 on Blue) / (team 6.1 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 166 spots; play-out of 30 spots, responders Blue)
+  [Movement] Red: 0408 NW -> 0408 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Blue: score 200.475 = dealt 0.00 x1.04 + (HP 266.0 - received 1.00 x1.12 - PSR 0.00) / enemy future 3.31 x my future 2.51 [enemy held at 0408; 82 spots with LOS]
+  [Movement] Blue: 0201 SW -> 0202 NE, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red -> Blue: range 7, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 1 + LOS 2 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 17 = max 4 + sink 13 - current 0 - movement 0 - other 0; expected dmg 0.83)
+    Medium Laser: needs 11 (range mod +4), rolled 5 -> miss
+    Medium Laser: needs 11 (range mod +4), rolled 6 -> miss
+  [Ranged] Blue -> Red: range 7, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 4 + heat 0); firing nothing (weapon heat 0 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Heat] Red: 0 + movement 0 + weapons 6 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 13 -> 0
+  -- end of turn 27: Red @ 0408 NW: HP 203, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 27: Blue @ 0202 NE: HP 188, pilot hits 1, engine 0, gyro 0, heat 0
+
+=== TURN 28 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 201.323 = dealt 0.00 x1.00 + (HP 266.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 3.18 x my future 2.41 [two-ply, 32 of 148 spots (grid search) x 166 replies (short list); modeled reply: none with LOS]
+  [Movement] Blue: 0202 NE -> 0401 S, Run (6 MP, 2 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red: Hydra: rate 1.195 = (team 7.2 + gain 2.50 on Blue) / (team 6.1 + cost 2.00 + risk 0.00) (1 of 1 enemies weighed, 166 spots)
+  [Movement] Red: 0408 NW -> 0105 N, Run (6 MP, 5 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Blue -> Red: range 5, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 0 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 1.67)
+    Medium Laser: needs 10 (range mod +2), rolled 11 -> HIT
+    Medium Laser: needs 10 (range mod +2), rolled 8 -> miss
+  [Ranged] Red -> Blue: range 5, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 1.67)
+    Medium Laser: needs 10 (range mod +2), rolled 8 -> miss
+    Medium Laser: needs 10 (range mod +2), rolled 8 -> miss
     Medium Laser hit for 5:
       Hit location roll 9 (right table): Left Torso.
 5 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (12 -> 7/12 remaining).
-  Check for possible critical. Roll a 11.
+  Check for possible critical. Roll a 7.
+    No critical hit.
+  [Heat] Red: 0 + movement 2 + weapons 6 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 6 + engine 0 - sinks 13 -> 0
+  -- end of turn 28: Red @ 0105 N: HP 198, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 28: Blue @ 0401 S: HP 188, pilot hits 1, engine 0, gyro 0, heat 0
+
+=== TURN 29 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 235.818 = dealt 5.43 x1.00 + (HP 266.0 - received 1.91 x1.00 - PSR 0.00) / enemy future 3.06 x my future 2.67 [two-ply, 77 of 141 spots (grid search) x 162 replies (short list); modeled reply Red -> 0304 N Run]
+  [Movement] Blue: 0401 S -> 0401 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red: Hydra: rate 0.846 = (team 6.4 + gain 10.68 on Blue) / (team 7.1 + cost 13.13 + risk 0.00) (1 of 1 enemies weighed, 162 spots)
+  [Movement] Red: 0105 N -> 0301 NE, Run (6 MP, 5 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
+  [Ranged] Blue holds ['Medium Laser'] back for the Physical phase (plans punch (Left Arm), punch (Right Arm), expected 7.22).
+  [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 2 + LOS 0 + heat 0); firing ['Small Laser'] (weapon heat 1 of budget 17 = max 4 + sink 13 - current 0 - movement 0 - other 0; expected dmg 2.17)
+    Small Laser: needs 6 (range mod +0), rolled 7 -> HIT
+  [Ranged] Red -> Blue: range 1, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0); firing ['Small Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 7 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 5.42)
+    Small Laser: needs 8 (range mod +0), rolled 9 -> HIT
+    Medium Laser: needs 8 (range mod +0), rolled 6 -> miss
+    Medium Laser: needs 8 (range mod +0), rolled 5 -> miss
+    Small Laser hit for 3:
+      Hit location roll 9 (right table): Left Torso.
+3 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (7 -> 4/12 remaining).
+  Check for possible critical. Roll a 10.
     2 critical hit(s).
   Critical hit pool at Left Torso:
     1: IS Ammo AC/20 (slot 1)
@@ -553,150 +567,51 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 4.
       Current crit slots in Left Torso: ['IS Ammo AC/20', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
     2/2 Criticals: IS Ammo AC/20 slot hit.
       Current crit slots in Left Torso: ['DESTROYED', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-  [Physical] Red -> Blue: kick (Left Leg) needs 5 (piloting 5 + base 1 + attack -1), rolled 9 -> HIT (10 dmg, front side)
-  [Physical] Blue -> Red: kick (Left Leg) needs 7 (piloting 5 + base 3 + attack -1), rolled 7 -> HIT (10 dmg, right side)
-    kick (Left Leg) hits Blue's Left Leg for 10.
-10 damage (PHYSICAL) incoming to Left Leg (armor).
-  [STANDARD/PHYSICAL] 10 armor pts destroyed at armor (20 -> 10 remaining).
-    kick (Left Leg) hits Red's Right Leg for 10.
+    Small Laser hit for 3:
+      Hit location roll 6 (right table): Right Leg.
+3 damage (ENERGY) incoming to Right Leg (armor).
+  [STANDARD/ENERGY] 3 armor pts destroyed at armor (10 -> 7 remaining).
+  [Physical] Blue -> Red: tree club needs 6 (piloting 5 + base 2 + attack -1), rolled 5 -> miss (10 dmg, right side)
+  [Physical] Red -> Blue: kick (Left Leg) needs 8 (piloting 5 + base 4 + attack -1), rolled 9 -> HIT (10 dmg, right side)
+    kick (Left Leg) hits Blue's Right Leg for 10.
 10 damage (PHYSICAL) incoming to Right Leg (armor).
-  [STANDARD/PHYSICAL] 10 armor pts destroyed at armor (20 -> 10 remaining).
-PSR trigger: kicked -> +0.
-Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
-  Succeeded - remains standing.
+  [STANDARD/PHYSICAL] 7 armor pts destroyed at armor (7 -> 0 remaining). 3 damage applied to structure [STANDARD] (12 -> 9/12 remaining).
+  Check for possible critical. Roll a 7.
+    No critical hit.
 PSR trigger: kicked -> +0.
 Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 5.
   Succeeded - remains standing.
-  [Heat] Red: 0 + movement 0 + weapons 7 + engine 0 - sinks 13 -> 0
-  [Heat] Blue: 0 + movement 2 + weapons 4 + engine 0 - sinks 13 -> 0
-  -- end of turn 26: Red @ 0206 NW: HP 188, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 26: Blue @ 0205 S: HP 142, pilot hits 1, engine 0, gyro 0, heat 0
+  [Heat] Red: 0 + movement 2 + weapons 7 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 1 + engine 0 - sinks 13 -> 0
+  -- end of turn 29: Red @ 0301 NE: HP 195, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 29: Blue @ 0401 S: HP 175, pilot hits 1, engine 0, gyro 0, heat 0
 
-=== TURN 27 ===
+=== TURN 30 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: Hydra: rate 1.831 = (team 9.5 + gain 2.24 on Blue) / (team 5.5 + cost 0.89 + risk 0.00) (1 of 1 enemies weighed, 163 spots; 24 spots re-scored against Blue's best answer)
-  [Movement] Red: 0206 NW -> 0505 SW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
-  [Movement select] Blue: score 86.091 = dealt 6.35 x1.02 + (HP 185.0 - received 9.43 x1.00 - PSR 0.00) / enemy future 6.86 x my future 3.11 [enemy held at 0505; 85 spots with LOS]
-  [Movement] Blue: 0205 S -> 0305 NE, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
-  [Ranged] Red -> Blue: range 2, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 1 + heat 0); firing ['Small Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 7 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 8.47)
-    Small Laser: needs 8 (range mod +2), rolled 6 -> miss
-    Medium Laser: needs 6 (range mod +0), rolled 8 -> HIT
-    Medium Laser: needs 6 (range mod +0), rolled 6 -> HIT
-  [Ranged] Blue -> Red: range 2, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['Small Laser', 'Medium Laser'] (weapon heat 4 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 4.86)
-    Small Laser: needs 8 (range mod +2), rolled 7 -> miss
-    Medium Laser: needs 6 (range mod +0), rolled 8 -> HIT
-    Medium Laser hit for 5:
-      Hit location roll 10 (front table): Left Arm.
-5 damage (ENERGY) incoming to Left Arm (armor).
-  [STANDARD/ENERGY] 1 armor pts destroyed at armor (1 -> 0 remaining). 4 damage applied to structure [STANDARD] (8 -> 4/8 remaining).
-  Check for possible critical. Roll a 6.
-    No critical hit.
-    Medium Laser hit for 5:
-      Hit location roll 5 (front table): Right Leg.
-5 damage (ENERGY) incoming to Right Leg (armor).
-  [STANDARD/ENERGY] 5 armor pts destroyed at armor (5 -> 0 remaining).
-    Medium Laser hit for 5:
-      Hit location roll 9 (right table): Left Torso.
-5 damage (ENERGY) incoming to Left Torso (armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (7 -> 2/12 remaining).
-  Check for possible critical. Roll a 5.
-    No critical hit.
-  [Heat] Red: 0 + movement 1 + weapons 7 + engine 0 - sinks 13 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 4 + engine 0 - sinks 13 -> 0
-  -- end of turn 27: Red @ 0505 SW: HP 183, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 27: Blue @ 0305 NE: HP 132, pilot hits 1, engine 0, gyro 0, heat 0
-
-=== TURN 28 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 75.647 = dealt 0.00 x1.00 + (HP 171.0 - received 5.34 x1.15 - PSR 0.00) / enemy future 7.22 x my future 3.31 [two-ply, 47 of 189 spots (grid search) x 181 replies (short list); modeled reply Red -> 0306 SE Walk]
-  [Movement] Blue: 0305 NE -> 0606 SE, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
-  [Movement select] Red: Hydra: rate 2.898 = (team 9.9 + gain 7.08 on Blue) / (team 5.8 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 180 spots)
-  [Movement] Red: 0505 SW -> 0306 S, Walk (3 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
-  [Ranged] Blue: no weapon can bear on Red (rear arc) - can't fire.
-  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
-  [Ranged] Red -> Blue: range 3, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 2 + heat 0); firing ['Small Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 7 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 4.25)
-    Small Laser: needs 12 (range mod +4), rolled 7 -> miss
-    Medium Laser: needs 8 (range mod +0), rolled 8 -> HIT
-    Medium Laser: needs 8 (range mod +0), rolled 11 -> HIT
-    Medium Laser hit for 5:
-      Hit location roll 8 (rear table): Left Torso.
-5 damage (ENERGY) incoming to Left Torso (rear_armor).
-  [STANDARD/ENERGY] 4 armor pts destroyed at rear_armor (4 -> 0 remaining). 1 damage applied to structure [STANDARD] (12 -> 11/12 remaining).
-  Check for possible critical. Roll a 9.
-    1 critical hit(s).
-  Critical hit pool at Left Torso:
-    1: IS Ammo AC/20 (slot 1)
-    2: IS Ammo AC/20 (slot 2)
-    1/1 Criticals: IS Ammo AC/20 slot hit.
-      Current crit slots in Left Torso: ['IS Ammo AC/20', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  [Movement select] Red: Hydra: rate 0.982 = (team 10.0 + gain 5.19 on Blue) / (team 6.7 + cost 8.81 + risk 0.00) (1 of 1 enemies weighed, 76 spots; play-out of 10 spots, responders Blue)
+  [Movement] Red: 0301 NE -> 0304 S, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Blue: score 182.984 = dealt 11.64 x0.78 + (HP 250.0 - received 5.03 x1.00 - PSR 0.00) / enemy future 3.90 x my future 2.77 [enemy held at 0304; 58 spots with LOS]
+  [Movement] Blue: 0401 S -> 0303 S, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red holds ['Medium Laser'] back for the Physical phase (plans punch (Left Arm), expected 3.61).
+  [Ranged] Red -> Blue: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Ranged] Blue -> Red: range 1, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 1 + heat 0); firing ['Small Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 7 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 7.58)
+    Small Laser: needs 7 (range mod +0), rolled 7 -> HIT
+    Medium Laser: needs 7 (range mod +0), rolled 9 -> HIT
+    Medium Laser: needs 7 (range mod +0), rolled 9 -> HIT
+    Small Laser hit for 3:
+      Hit location roll 10 (rear table): Left Arm.
+3 damage (ENERGY) incoming to Left Arm (rear_armor).
+  [STANDARD/ENERGY] 3 armor pts destroyed at armor (16 -> 13 remaining).
     Medium Laser hit for 5:
       Hit location roll 5 (rear table): Right Leg.
 5 damage (ENERGY) incoming to Right Leg (rear_armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (12 -> 7/12 remaining).
-  Check for possible critical. Roll a 6.
-    No critical hit.
-  [Heat] Red: 0 + movement 1 + weapons 7 + engine 0 - sinks 13 -> 0
-  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 13 -> 0
-  -- end of turn 28: Red @ 0306 S: HP 183, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 28: Blue @ 0606 SE: HP 122, pilot hits 1, engine 0, gyro 0, heat 0
-
-=== TURN 29 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 65.215 = dealt 1.72 x0.92 + (HP 155.0 - received 2.03 x1.09 - PSR 0.00) / enemy future 7.65 x my future 3.19 [two-ply, 88 of 165 spots (grid search) x 207 replies (short list); modeled reply Red -> 0206 NE Walk]
-  [Movement] Blue: 0606 SE -> 0606 NW, Walk (3 MP, 0 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
-  [Movement select] Red: Hydra: rate 2.165 = (team 10.5 + gain 21.73 on Blue) / (team 6.0 + cost 8.89 + risk 0.00) (1 of 1 enemies weighed, 207 spots)
-  [Movement] Red: 0306 S -> 0605 SE, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
-  [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['Small Laser', 'Medium Laser'] (weapon heat 4 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 5.78)
-    Small Laser: needs 6 (range mod +0), rolled 4 -> miss
-    Medium Laser: needs 6 (range mod +0), rolled 5 -> miss
-  [Ranged] Red -> Blue: range 1, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0); firing ['Small Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 7 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 5.42)
-    Small Laser: needs 8 (range mod +0), rolled 4 -> miss
-    Medium Laser: needs 8 (range mod +0), rolled 2 -> miss
-    Medium Laser: needs 8 (range mod +0), rolled 4 -> miss
-  [Physical] Blue -> Red: kick (Left Leg) needs 6 (piloting 5 + base 2 + attack -1), rolled 5 -> miss (10 dmg, right side)
-  [Physical] Red -> Blue: kick (Left Leg) needs 8 (piloting 5 + base 4 + attack -1), rolled 6 -> miss (10 dmg, right side)
-PSR trigger: missed a kick -> +0.
-Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
-  Succeeded - remains standing.
-PSR trigger: missed a kick -> +0.
-Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 8.
-  Succeeded - remains standing.
-  [Heat] Red: 0 + movement 2 + weapons 7 + engine 0 - sinks 13 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 4 + engine 0 - sinks 13 -> 0
-  -- end of turn 29: Red @ 0605 SE: HP 183, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 29: Blue @ 0606 NW: HP 122, pilot hits 1, engine 0, gyro 0, heat 0
-
-=== TURN 30 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 63.462 = dealt 5.32 x1.00 + (HP 155.0 - received 13.02 x1.18 - PSR 0.00) / enemy future 7.37 x my future 3.07 [two-ply, 81 of 176 spots (grid search) x 162 replies (short list); modeled reply Red -> 0507 NE Run]
-  [Movement] Blue: 0606 NW -> 0606 NE, Walk (2 MP, 0 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
-  [Movement select] Red: Hydra: rate 2.445 = (team 10.5 + gain 21.73 on Blue) / (team 6.0 + cost 7.18 + risk 0.00) (1 of 1 enemies weighed, 153 spots)
-  [Movement] Red: 0605 SE -> 0707 SW, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
-  [Ranged] Blue -> Red: range 1, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 1 + heat 0); firing ['Small Laser', 'Medium Laser'] (weapon heat 4 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 4.67)
-    Small Laser: needs 7 (range mod +0), rolled 3 -> miss
-    Medium Laser: needs 7 (range mod +0), rolled 11 -> HIT
-  [Ranged] Red -> Blue: range 1, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0); firing ['Small Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 7 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 5.42)
-    Small Laser: needs 8 (range mod +0), rolled 4 -> miss
-    Medium Laser: needs 8 (range mod +0), rolled 6 -> miss
-    Medium Laser: needs 8 (range mod +0), rolled 3 -> miss
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (20 -> 15 remaining).
     Medium Laser hit for 5:
-      Hit location roll 4 (right table): Right Arm.
-5 damage (ENERGY) incoming to Right Arm (armor).
-  [STANDARD/ENERGY] 5 armor pts destroyed at armor (16 -> 11 remaining).
-  [Physical] Blue -> Red: kick (Left Leg) needs 7 (piloting 5 + base 3 + attack -1), rolled 2 -> miss (10 dmg, right side)
-  [Physical] Red -> Blue: kick (Left Leg) needs 8 (piloting 5 + base 4 + attack -1), rolled 6 -> miss (10 dmg, right side)
-PSR trigger: missed a kick -> +0.
-Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
-  Succeeded - remains standing.
-PSR trigger: missed a kick -> +0.
-Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 4.
-  Failed - falls.
-FALL (failed Attack Phase PSR): Hunchback HBK-4G takes 5 falling damage (1D6 3: front table, 5-pt clusters).
-  Fall cluster (5 dmg): rolled 6 -> Right Torso
-5 damage (PHYSICAL) incoming to Right Torso (armor).
-  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (12 -> 7/12 remaining).
-  Check for possible critical. Roll a 10.
-    2 critical hit(s).
+      Hit location roll 6 (rear table): Right Torso.
+5 damage (ENERGY) incoming to Right Torso (rear_armor).
+  [STANDARD/ENERGY] 4 armor pts destroyed at rear_armor (4 -> 0 remaining). 1 damage applied to structure [STANDARD] (12 -> 11/12 remaining).
+  Check for possible critical. Roll a 8.
+    1 critical hit(s).
   Critical hit pool at Right Torso:
     1: Autocannon/20 (slot 1)
     2: Autocannon/20 (slot 2)
@@ -708,190 +623,594 @@ FALL (failed Attack Phase PSR): Hunchback HBK-4G takes 5 falling damage (1D6 3: 
     8: Autocannon/20 (slot 8)
     9: Autocannon/20 (slot 9)
     10: Autocannon/20 (slot 10)
-    1/2 Criticals: Autocannon/20 slot hit - an autocannon's first critical hit doesn't destroy it (p.183); it still fires.
-  Critical hit pool at Right Torso:
-    1: Autocannon/20 (slot 1)
-    2: Autocannon/20 (slot 2)
-    3: Autocannon/20 (slot 3)
-    4: Autocannon/20 (slot 4)
-    5: Autocannon/20 (slot 5)
-    6: Autocannon/20 (slot 6)
-    7: Autocannon/20 (slot 7)
-    8: Autocannon/20 (slot 8)
-    9: Autocannon/20 (slot 10)
-    2/2 Criticals: Autocannon/20 slot hit.
-      Current crit slots in Right Torso: ['Autocannon/20', 'Autocannon/20', 'Autocannon/20', 'Autocannon/20', 'Autocannon/20', 'Autocannon/20', 'DESTROYED', 'Autocannon/20', 'DESTROYED', 'Autocannon/20', '-Empty-', '-Empty-']
-  Seatbelt check: needs 5. Rolled 7. Pilot unharmed.
-  [Heat] Red: 0 + movement 2 + weapons 7 + engine 0 - sinks 13 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 4 + engine 0 - sinks 13 -> 0
+    1/1 Criticals: Autocannon/20 slot hit - an autocannon's first critical hit doesn't destroy it (p.183); it still fires.
+  [Physical] Red twists its torso 1 hexside left to reach Blue.
+  [Physical] Red -> Blue: punch (Left Arm) needs 6 (piloting 5 + base 2 + attack -1), rolled 5 -> miss (5 dmg, front side)
+  [Physical] Blue -> Red: kick (Left Leg) needs 7 (piloting 5 + base 3 + attack -1), rolled 3 -> miss (10 dmg, rear side)
+PSR trigger: missed a kick -> +0.
+Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
+  Succeeded - remains standing.
+  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 7 + engine 0 - sinks 13 -> 0
   [End] Red is now CRIPPLED (BattleMech Manual definition).
-  -- end of turn 30: Red @ 0707 SW: HP 173, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE]
-  -- end of turn 30: Blue @ 0606 NE: HP 122, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 30: Red @ 0304 S: HP 182, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 30: Blue @ 0303 S: HP 175, pilot hits 1, engine 0, gyro 0, heat 0
 
 === TURN 31 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: Hydra: rate 1.183 = (team 9.8 + gain 1.48 on Blue) / (team 6.9 + cost 2.66 + risk 0.00) (1 of 1 enemies weighed, 174 spots; play-out of 29 spots, responders Blue)
+  [Movement] Red: 0304 S -> 0806 SE, Run (6 MP, 5 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Blue: score 212.231 = dealt 4.96 x0.83 + (HP 250.0 - received 3.42 x0.90 - PSR 0.00) / enemy future 3.76 x my future 3.17 [enemy held at 0806; 16 spots with LOS]
+  [Movement] Blue: 0303 S -> 0505 S, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's left side arc after that).
+  [Ranged] Red -> Blue: range 3, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['Medium Laser'] (weapon heat 3 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 2.92)
+    Medium Laser: needs 7 (range mod +0), rolled 7 -> HIT
+  [Ranged] Blue -> Red: range 3, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 0 + heat 0); firing ['Small Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 7 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 4.25)
+    Small Laser: needs 12 (range mod +4), rolled 4 -> miss
+    Medium Laser: needs 8 (range mod +0), rolled 10 -> HIT
+    Medium Laser: needs 8 (range mod +0), rolled 3 -> miss
+    Medium Laser hit for 5:
+      Hit location roll 4 (left table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (11 -> 6 remaining).
+    Medium Laser hit for 5:
+      Hit location roll 7 (rear table): Center Torso.
+5 damage (ENERGY) incoming to Center Torso (rear_armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at rear_armor (5 -> 0 remaining).
+  [Heat] Red: 0 + movement 2 + weapons 3 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 7 + engine 0 - sinks 13 -> 0
+  -- end of turn 31: Red @ 0806 SE: HP 177, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 31: Blue @ 0505 S: HP 170, pilot hits 1, engine 0, gyro 0, heat 0
+
+=== TURN 32 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 95.739 = dealt 10.98 x0.96 + (HP 155.0 - received 2.64 x0.95 - PSR 0.00) / enemy future 6.25 x my future 3.49 [two-ply, 103 of 160 spots (grid search) x 1 replies (short list); modeled reply Red -> 0707 SW Run]
-  [Movement] Blue: 0606 NE -> 0706 SE, Walk (2 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
-Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
-  Success - Hunchback HBK-4G is standing (remaining running MP 4).
-  [Movement select] Red: Hydra: rate 4.177 = (team 10.3 + gain 36.68 on Blue) / (team 6.2 + cost 5.02 + risk 0.00) (1 of 1 enemies weighed, 48 spots)
-  [Movement] Red: 0707 SW -> 0606 N, Run (4 MP, 1 hexes, 2 heat; budget walk 4 / run 6 / jump 0; stood up with 4 MP left)
+  [Movement select] Blue: score 209.531 = dealt 1.04 x1.00 + (HP 245.0 - received 1.05 x1.00 - PSR 0.00) / enemy future 3.78 x my future 3.23 [two-ply, 70 of 162 spots (grid search) x 130 replies (short list); modeled reply Red -> 0908 NW Run]
+  [Movement] Blue: 0505 S -> 0307 SE, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red: Hydra: rate 1.485 = (team 9.6 + gain 2.11 on Blue) / (team 6.9 + cost 1.03 + risk 0.00) (1 of 1 enemies weighed, 130 spots)
+  [Movement] Red: 0806 SE -> 0807 S, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Blue -> Red: range 5, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 3 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 0.83)
+    Medium Laser: needs 11 (range mod +2), rolled 6 -> miss
+    Medium Laser: needs 11 (range mod +2), rolled 3 -> miss
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 5, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 2 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 1.67)
+    Medium Laser: needs 10 (range mod +2), rolled 3 -> miss
+    Medium Laser: needs 10 (range mod +2), rolled 5 -> miss
+  [Heat] Red: 0 + movement 1 + weapons 6 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 6 + engine 0 - sinks 13 -> 0
+  -- end of turn 32: Red @ 0807 S: HP 177, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 32: Blue @ 0307 SE: HP 170, pilot hits 1, engine 0, gyro 0, heat 0
+
+=== TURN 33 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: Hydra: rate 1.215 = (team 9.6 + gain 5.51 on Blue) / (team 6.9 + cost 5.58 + risk 0.00) (1 of 1 enemies weighed, 112 spots; play-out of 17 spots, responders Blue)
+  [Movement] Red: 0807 S -> 0509 SW, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Blue: score 210.350 = dealt 6.49 x0.87 + (HP 245.0 - received 4.67 x1.17 - PSR 0.00) / enemy future 3.65 x my future 3.12 [enemy held at 0509; 31 spots with LOS]
+  [Movement] Blue: 0307 SE -> 0608 S, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red holds ['Medium Laser'] back for the Physical phase (plans punch (Left Arm), expected 2.92).
+  [Ranged] Red -> Blue: range 1, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Ranged] Blue -> Red: range 1, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 2 + heat 0); firing ['Small Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 7 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 3.61)
+    Small Laser: needs 9 (range mod +0), rolled 5 -> miss
+    Medium Laser: needs 9 (range mod +0), rolled 6 -> miss
+    Medium Laser: needs 9 (range mod +0), rolled 10 -> HIT
+    Medium Laser hit for 5:
+      Hit location roll 10 (rear table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (rear_armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (13 -> 8 remaining).
+  [Physical] Red twists its torso 1 hexside left to reach Blue.
+  [Physical] Red -> Blue: punch (Left Arm) needs 7 (piloting 5 + base 3 + attack -1), rolled 7 -> HIT (5 dmg, right side)
+  [Physical] Blue -> Red: kick (Left Leg) needs 9 (piloting 5 + base 5 + attack -1), rolled 12 -> HIT (10 dmg, rear side)
+    punch (Left Arm) hits Blue's Head for 5.
+5 damage (PHYSICAL) incoming to Head (armor).
+  [STANDARD/PHYSICAL] 4 armor pts destroyed at armor (4 -> 0 remaining). 1 damage applied to structure [STANDARD] (3 -> 2/3 remaining).
+  Check for possible critical. Roll a 4.
+    No critical hit.
+    kick (Left Leg) hits Red's Right Leg for 10.
+10 damage (PHYSICAL) incoming to Right Leg (rear_armor).
+  [STANDARD/PHYSICAL] 10 armor pts destroyed at armor (15 -> 5 remaining).
+PSR trigger: kicked -> +0.
+Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
+  Succeeded - remains standing.
+Physical Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 8.
+  Pilot stays conscious.
+  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 7 + engine 0 - sinks 13 -> 0
+  -- end of turn 33: Red @ 0509 SW: HP 162, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 33: Blue @ 0608 S: HP 165, pilot hits 2, engine 0, gyro 0, heat 0
+
+=== TURN 34 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 230.403 = dealt 3.47 x1.00 + (HP 239.0 - received 5.36 x1.00 - PSR 0.00) / enemy future 3.67 x my future 3.57 [two-ply, 63 of 70 spots (grid search) x 88 replies (short list); modeled reply Red -> 0509 N Stand Still]
+  [Movement] Blue: 0608 S -> 0606 S, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
+  [Movement select] Red: Hydra: rate 1.145 = (team 8.7 + gain 3.43 on Blue) / (team 7.1 + cost 3.55 + risk 0.00) (1 of 1 enemies weighed, 88 spots)
+  [Movement] Red: 0509 SW -> 0509 N, Walk (2 MP, 0 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Blue -> Red: range 3, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 4 + heat 0); firing ['Small Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 7 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 2.78)
+    Small Laser: needs 13 (range mod +4), rolled 3 -> miss
+    Medium Laser: needs 9 (range mod +0), rolled 10 -> HIT
+    Medium Laser: needs 9 (range mod +0), rolled 5 -> miss
+  [Ranged] Red -> Blue: range 3, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 4 + heat 0); firing ['Small Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 7 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 2.78)
+    Small Laser: needs 13 (range mod +4), rolled 5 -> miss
+    Medium Laser: needs 9 (range mod +0), rolled 8 -> miss
+    Medium Laser: needs 9 (range mod +0), rolled 6 -> miss
+    Medium Laser hit for 5:
+      Hit location roll 8 (front table): Left Torso.
+5 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 4 damage applied to structure [STANDARD] (4 -> 0/12 remaining).
+  Left Torso destroyed with no live explosive components - no critical roll.
+  Left Torso DESTROYED!
+  All critical slots in Left Torso marked DESTROYED.
+  Left Arm also destroyed (side torso rule).
+  All critical slots in Left Arm marked DESTROYED.
+  1 damage remains, transfers to Center Torso.
+  [STANDARD/ENERGY] 1 armor pts destroyed at armor (26 -> 25 remaining).
+  Red drops its tree club in 0509 (p.79).
+  [Heat] Red: 0 + movement 1 + weapons 7 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 7 + engine 0 - sinks 13 -> 0
+  -- end of turn 34: Red @ 0509 N: HP 149, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 34: Blue @ 0606 S: HP 165, pilot hits 2, engine 0, gyro 0, heat 0
+
+=== TURN 35 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: Hydra: rate 0.699 = (team 6.3 + gain 9.06 on Blue) / (team 9.1 + cost 12.97 + risk 0.00) (1 of 1 enemies weighed, 86 spots; play-out of 19 spots, responders Blue)
+  [Movement] Red: 0509 N -> 0409 NE, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
+  [Movement select] Blue: score 334.095 = dealt 0.15 x0.90 + (HP 239.0 - received 0.49 x0.93 - PSR 0.00) / enemy future 3.38 x my future 4.74 [enemy held at 0409; 18 spots with LOS]
+  [Movement] Blue: 0606 S -> 0305 NW, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 5, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 3 + heat 0); firing ['Medium Laser'] (weapon heat 3 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 0.42)
+    Medium Laser: needs 11 (range mod +2), rolled 7 -> miss
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's left side arc after that).
+  [Ranged] Blue -> Red: range 5, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 4 + heat 0); firing ['Medium Laser'] (weapon heat 3 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 0.14)
+    Medium Laser: needs 12 (range mod +2), rolled 6 -> miss
+  [Heat] Red: 0 + movement 1 + weapons 3 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 3 + engine 0 - sinks 13 -> 0
+  -- end of turn 35: Red @ 0409 NE: HP 149, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 35: Blue @ 0305 NW: HP 165, pilot hits 2, engine 0, gyro 0, heat 0
+
+=== TURN 36 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 334.596 = dealt 0.00 x1.00 + (HP 239.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 3.28 x my future 4.59 [two-ply, 70 of 213 spots (grid search) x 110 replies (short list); modeled reply Red -> 0406 N Run]
+  [Movement] Blue: 0305 NW -> 0101 N, Run (6 MP, 5 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red: Hydra: rate 0.715 = (team 6.3 + gain 0.15 on Blue) / (team 9.1 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 110 spots)
+  [Movement] Red: 0409 NE -> 0408 N, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Blue -> Red: range 9, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 3 + heat 0); firing nothing (weapon heat 0 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Ranged] Red -> Blue: range 9, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 1 + heat 0); firing ['Medium Laser'] (weapon heat 3 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 0.14)
+    Medium Laser: needs 12 (range mod +4), rolled 3 -> miss
+  [Heat] Red: 0 + movement 1 + weapons 3 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 13 -> 0
+  -- end of turn 36: Red @ 0408 N: HP 149, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 36: Blue @ 0101 N: HP 165, pilot hits 2, engine 0, gyro 0, heat 0
+
+=== TURN 37 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 333.316 = dealt 0.00 x1.00 + (HP 239.0 - received 0.98 x0.93 - PSR 0.00) / enemy future 3.19 x my future 4.46 [two-ply, 55 of 79 spots (grid search) x 167 replies (short list); modeled reply Red -> 0408 N Stand Still]
+  [Movement] Blue: 0101 N -> 0302 SW, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
+  [Movement select] Red: Hydra: rate 0.789 = (team 6.3 + gain 0.82 on Blue) / (team 9.1 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 167 spots)
+  [Movement] Red: 0408 N -> 0408 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Blue -> Red: range 7, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 4 + heat 0); firing nothing (weapon heat 0 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 0.00)
+  [Ranged] Red -> Blue: range 7, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['Medium Laser'] (weapon heat 3 of budget 17 = max 4 + sink 13 - current 0 - movement 0 - other 0; expected dmg 0.83)
+    Medium Laser: needs 10 (range mod +4), rolled 5 -> miss
+  [Heat] Red: 0 + movement 0 + weapons 3 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 13 -> 0
+  -- end of turn 37: Red @ 0408 N: HP 149, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 37: Blue @ 0302 SW: HP 165, pilot hits 2, engine 0, gyro 0, heat 0
+
+=== TURN 38 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 334.596 = dealt 0.00 x1.00 + (HP 239.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 3.09 x my future 4.33 [two-ply, 80 of 145 spots (grid search) x 167 replies (short list); modeled reply: none with LOS]
+  [Movement] Blue: 0302 SW -> 0401 NE, Run (6 MP, 1 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red: Hydra: rate 0.698 = (team 6.3 + gain 0.89 on Blue) / (team 9.1 + cost 1.29 + risk 0.00) (1 of 1 enemies weighed, 167 spots)
+  [Movement] Red: 0408 N -> 0105 NW, Run (6 MP, 5 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's right side arc after that).
+  [Ranged] Blue -> Red: range 5, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 0 + heat 0); firing ['Medium Laser'] (weapon heat 3 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 0.83)
+    Medium Laser: needs 10 (range mod +2), rolled 3 -> miss
+  [Ranged] Red -> Blue: range 5, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0); firing ['Medium Laser'] (weapon heat 3 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 0.83)
+    Medium Laser: needs 10 (range mod +2), rolled 5 -> miss
+  [Heat] Red: 0 + movement 2 + weapons 3 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 3 + engine 0 - sinks 13 -> 0
+  -- end of turn 38: Red @ 0105 NW: HP 149, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 38: Blue @ 0401 NE: HP 165, pilot hits 2, engine 0, gyro 0, heat 0
+
+=== TURN 39 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 337.303 = dealt 4.84 x1.00 + (HP 239.0 - received 1.64 x0.93 - PSR 0.00) / enemy future 3.01 x my future 4.21 [two-ply, 70 of 133 spots (grid search) x 136 replies (short list); modeled reply Red -> 0304 N Walk]
+  [Movement] Blue: 0401 NE -> 0401 NW, Walk (2 MP, 0 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red: Hydra: rate 0.519 = (team 6.3 + gain 0.82 on Blue) / (team 9.1 + cost 4.71 + risk 0.00) (1 of 1 enemies weighed, 136 spots)
+  [Movement] Red: 0105 NW -> 0304 NE, Run (5 MP, 2 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
+  [Ranged] Blue -> Red: range 3, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 3 + heat 0); firing ['Small Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 7 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 4.25)
+    Small Laser: needs 12 (range mod +4), rolled 8 -> miss
+    Medium Laser: needs 8 (range mod +0), rolled 9 -> HIT
+    Medium Laser: needs 8 (range mod +0), rolled 9 -> HIT
+  [Ranged] Red -> Blue: range 3, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 4 + heat 0); firing ['Small Laser', 'Medium Laser'] (weapon heat 4 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 0.83)
+    Small Laser: needs 14 (range mod +4), rolled 7 -> miss
+    Medium Laser: needs 10 (range mod +0), rolled 4 -> miss
+    Medium Laser hit for 5:
+      Hit location roll 9 (left table): Right Torso.
+5 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (11 -> 6/12 remaining).
+  Check for possible critical. Roll a 9.
+    1 critical hit(s).
+  Critical hit pool at Right Torso:
+    1: Autocannon/20 (slot 2)
+    2: Autocannon/20 (slot 3)
+    3: Autocannon/20 (slot 4)
+    4: Autocannon/20 (slot 5)
+    5: Autocannon/20 (slot 6)
+    6: Autocannon/20 (slot 7)
+    7: Autocannon/20 (slot 8)
+    8: Autocannon/20 (slot 9)
+    9: Autocannon/20 (slot 10)
+    1/1 Criticals: Autocannon/20 slot hit.
+      Current crit slots in Right Torso: ['DESTROYED', 'Autocannon/20', 'Autocannon/20', 'Autocannon/20', 'Autocannon/20', 'Autocannon/20', 'Autocannon/20', 'Autocannon/20', 'Autocannon/20', 'DESTROYED', '-Empty-', '-Empty-']
+    Medium Laser hit for 5:
+      Hit location roll 6 (left table): Left Leg.
+5 damage (ENERGY) incoming to Left Leg (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (20 -> 15 remaining).
+  [Heat] Red: 0 + movement 2 + weapons 4 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 7 + engine 0 - sinks 13 -> 0
+  -- end of turn 39: Red @ 0304 NE: HP 139, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 39: Blue @ 0401 NW: HP 165, pilot hits 2, engine 0, gyro 0, heat 0
+
+=== TURN 40 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: Hydra: rate 0.699 = (team 6.1 + gain 12.14 on Blue) / (team 8.7 + cost 17.38 + risk 0.00) (1 of 1 enemies weighed, 189 spots; play-out of 31 spots, responders Blue)
+  [Movement] Red: 0304 NE -> 0305 N, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
+  [Movement select] Blue: score 364.475 = dealt 3.16 x1.00 + (HP 239.0 - received 1.64 x0.93 - PSR 0.00) / enemy future 2.93 x my future 4.45 [enemy held at 0305; 37 spots with LOS]
+  [Movement] Blue: 0401 NW -> 0102 SW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red -> Blue: range 4, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 1 + heat 0); firing ['Medium Laser'] (weapon heat 3 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 1.39)
+    Medium Laser: needs 9 (range mod +2), rolled 7 -> miss
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
+  [Ranged] Blue -> Red: range 4, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 2.78)
+    Medium Laser: needs 9 (range mod +2), rolled 2 -> miss
+    Medium Laser: needs 9 (range mod +2), rolled 5 -> miss
+  [Heat] Red: 0 + movement 1 + weapons 3 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 6 + engine 0 - sinks 13 -> 0
+  -- end of turn 40: Red @ 0305 N: HP 139, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 40: Blue @ 0102 SW: HP 165, pilot hits 2, engine 0, gyro 0, heat 0
+
+=== TURN 41 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: Hydra: rate 0.665 = (team 6.1 + gain 8.51 on Blue) / (team 8.7 + cost 13.23 + risk 0.00) (1 of 1 enemies weighed, 204 spots; play-out of 30 spots, responders Blue)
+  [Movement] Red: 0305 N -> 0305 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Blue: score 363.507 = dealt 4.75 x1.00 + (HP 239.0 - received 3.44 x0.93 - PSR 0.00) / enemy future 2.85 x my future 4.34 [enemy held at 0305; 69 spots with LOS]
+  [Movement] Blue: 0102 SW -> 0102 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red -> Blue: range 4, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['Medium Laser'] (weapon heat 3 of budget 17 = max 4 + sink 13 - current 0 - movement 0 - other 0; expected dmg 2.92)
+    Medium Laser: needs 7 (range mod +2), rolled 8 -> HIT
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
+  [Ranged] Blue -> Red: range 4, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 17 = max 4 + sink 13 - current 0 - movement 0 - other 0; expected dmg 4.17)
+    Medium Laser: needs 8 (range mod +2), rolled 5 -> miss
+    Medium Laser: needs 8 (range mod +2), rolled 9 -> HIT
+    Medium Laser hit for 5:
+      Hit location roll 3 (left table): Left Leg.
+5 damage (ENERGY) incoming to Left Leg (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (15 -> 10 remaining).
+    Medium Laser hit for 5:
+      Hit location roll 8 (front table): Left Torso.
+5 damage (ENERGY) incoming to Left Torso (armor).
+  Left Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (25 -> 20 remaining).
+  [Heat] Red: 0 + movement 0 + weapons 3 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 6 + engine 0 - sinks 13 -> 0
+  -- end of turn 41: Red @ 0305 N: HP 134, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 41: Blue @ 0102 SW: HP 160, pilot hits 2, engine 0, gyro 0, heat 0
+
+=== TURN 42 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 319.911 = dealt 14.99 x1.00 + (HP 234.0 - received 25.61 x1.14 - PSR 0.00) / enemy future 2.92 x my future 4.35 [two-ply, 38 of 122 spots (grid search) x 206 replies (short list); modeled reply Red -> 0305 N Stand Still]
+  [Movement] Blue: 0102 SW -> 0304 SE, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red: Hydra: rate 1.677 = (team 7.0 + gain 22.55 on Blue) / (team 7.8 + cost 9.78 + risk 0.00) (1 of 1 enemies weighed, 171 spots)
+  [Movement] Red: 0305 N -> 0204 SE, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
-  [Ranged] Blue holds ['Medium Laser'] back for the Physical phase (plans punch (Left Arm), expected 2.92).
-  [Ranged] Blue -> Red: range 1, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0); firing ['Small Laser'] (weapon heat 1 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 1.75)
-    Small Laser: needs 7 (range mod +0), rolled 6 -> miss
-  [Ranged] Red -> Blue: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['Small Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 7 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 9.39)
-    Small Laser: needs 6 (range mod +0), rolled 8 -> HIT
-    Medium Laser: needs 6 (range mod +0), rolled 12 -> HIT
-    Medium Laser: needs 6 (range mod +0), rolled 6 -> HIT
+  [Ranged] Blue holds ['Medium Laser'] back for the Physical phase (plans punch (Left Arm), punch (Right Arm), expected 7.22).
+  [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['Small Laser'] (weapon heat 1 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 2.17)
+    Small Laser: needs 6 (range mod +0), rolled 5 -> miss
+  [Ranged] Red -> Blue: range 1, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 1 + heat 0); firing ['Small Laser', 'Medium Laser'] (weapon heat 4 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 4.67)
+    Small Laser: needs 7 (range mod +0), rolled 9 -> HIT
+    Medium Laser: needs 7 (range mod +0), rolled 6 -> miss
     Small Laser hit for 3:
-      Hit location roll 3 (right table): Right Leg.
-3 damage (ENERGY) incoming to Right Leg (armor).
+      Hit location roll 5 (right table): Right Arm.
+3 damage (ENERGY) incoming to Right Arm (armor).
+  [STANDARD/ENERGY] 3 armor pts destroyed at armor (16 -> 13 remaining).
+  [Physical] Blue -> Red: tree club needs 6 (piloting 5 + base 2 + attack -1), rolled 3 -> miss (10 dmg, left side)
+  [Physical] Red -> Blue: kick (Left Leg) needs 7 (piloting 5 + base 3 + attack -1), rolled 6 -> miss (10 dmg, right side)
+PSR trigger: missed a kick -> +0.
+Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
+  Succeeded - remains standing.
+  [Heat] Red: 0 + movement 1 + weapons 4 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 1 + engine 0 - sinks 13 -> 0
+  -- end of turn 42: Red @ 0204 SE: HP 134, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 42: Blue @ 0304 SE: HP 157, pilot hits 2, engine 0, gyro 0, heat 0
+
+=== TURN 43 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 334.825 = dealt 1.58 x1.00 + (HP 231.0 - received 1.64 x0.94 - PSR 0.00) / enemy future 2.92 x my future 4.24 [two-ply, 74 of 186 spots (grid search) x 180 replies (short list); modeled reply Red -> 0506 SE Walk]
+  [Movement] Blue: 0304 SE -> 0806 NE, Run (6 MP, 5 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red: Hydra: rate 0.917 = (team 7.0 + gain 1.48 on Blue) / (team 7.8 + cost 1.44 + risk 0.00) (1 of 1 enemies weighed, 180 spots)
+  [Movement] Red: 0204 SE -> 0305 S, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's left side arc after that).
+  [Ranged] Blue -> Red: range 5, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0); firing ['Medium Laser'] (weapon heat 3 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 1.39)
+    Medium Laser: needs 9 (range mod +2), rolled 11 -> HIT
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 5, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 0); firing ['Medium Laser'] (weapon heat 3 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 1.39)
+    Medium Laser: needs 9 (range mod +2), rolled 10 -> HIT
+    Medium Laser hit for 5:
+      Hit location roll 4 (left table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (armor).
+  Left Arm already destroyed - damage transfers to Left Torso.
+  Left Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (20 -> 15 remaining).
+    Medium Laser hit for 5:
+      Hit location roll 5 (left table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (6 -> 1 remaining).
+  [Heat] Red: 0 + movement 1 + weapons 3 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 3 + engine 0 - sinks 13 -> 0
+  -- end of turn 43: Red @ 0305 S: HP 129, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 43: Blue @ 0806 NE: HP 152, pilot hits 2, engine 0, gyro 0, heat 0
+
+=== TURN 44 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 323.397 = dealt 0.47 x1.00 + (HP 226.0 - received 0.56 x0.97 - PSR 0.00) / enemy future 2.97 x my future 4.25 [two-ply, 30 of 143 spots (grid search) x 218 replies (short list); modeled reply Red -> 0606 NE Run]
+  [Movement] Blue: 0806 NE -> 0904 N, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red: Hydra: rate 0.916 = (team 6.9 + gain 0.52 on Blue) / (team 7.7 + cost 0.44 + risk 0.00) (1 of 1 enemies weighed, 218 spots)
+  [Movement] Red: 0305 S -> 0606 SE, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's left side arc after that).
+  [Ranged] Blue -> Red: range 4, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 2 + heat 0); firing ['Medium Laser'] (weapon heat 3 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 0.42)
+    Medium Laser: needs 11 (range mod +2), rolled 7 -> miss
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 4, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 2 + heat 0); firing ['Medium Laser'] (weapon heat 3 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 0.42)
+    Medium Laser: needs 11 (range mod +2), rolled 8 -> miss
+  [Heat] Red: 0 + movement 2 + weapons 3 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 3 + engine 0 - sinks 13 -> 0
+  -- end of turn 44: Red @ 0606 SE: HP 129, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 44: Blue @ 0904 N: HP 152, pilot hits 2, engine 0, gyro 0, heat 0
+
+=== TURN 45 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: Hydra: rate 0.897 = (team 6.9 + gain 2.58 on Blue) / (team 7.7 + cost 2.91 + risk 0.00) (1 of 1 enemies weighed, 166 spots; play-out of 28 spots, responders Blue)
+  [Movement] Red: 0606 SE -> 0606 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Blue: score 322.638 = dealt 3.09 x0.91 + (HP 226.0 - received 2.78 x0.97 - PSR 0.00) / enemy future 2.89 x my future 4.15 [enemy held at 0606; 74 spots with LOS]
+  [Movement] Blue: 0904 N -> 0904 NW, Walk (1 MP, 0 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 4, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 2 + heat 0); firing ['Medium Laser'] (weapon heat 3 of budget 17 = max 4 + sink 13 - current 0 - movement 0 - other 0; expected dmg 2.08)
+    Medium Laser: needs 8 (range mod +2), rolled 9 -> HIT
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
+  [Ranged] Blue -> Red: range 4, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0); firing ['Medium Laser', 'Medium Laser'] (weapon heat 6 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 2.78)
+    Medium Laser: needs 9 (range mod +2), rolled 6 -> miss
+    Medium Laser: needs 9 (range mod +2), rolled 7 -> miss
+    Medium Laser hit for 5:
+      Hit location roll 7 (left table): Left Torso.
+5 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (20 -> 15 remaining).
+  [Heat] Red: 0 + movement 0 + weapons 3 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 6 + engine 0 - sinks 13 -> 0
+  -- end of turn 45: Red @ 0606 SE: HP 129, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 45: Blue @ 0904 NW: HP 147, pilot hits 2, engine 0, gyro 0, heat 0
+
+=== TURN 46 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 305.330 = dealt 4.75 x1.00 + (HP 221.0 - received 2.78 x0.97 - PSR 0.00) / enemy future 2.94 x my future 4.05 [two-ply, 82 of 157 spots (grid search) x 166 replies (short list); modeled reply Red -> 0606 NE Stand Still]
+  [Movement] Blue: 0904 NW -> 0904 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red: Hydra: rate 0.844 = (team 7.0 + gain 8.93 on Blue) / (team 7.6 + cost 11.22 + risk 0.00) (1 of 1 enemies weighed, 166 spots)
+  [Movement] Red: 0606 SE -> 0905 NE, Run (5 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
+  [Ranged] Blue holds ['Medium Laser'] back for the Physical phase (plans punch (Left Arm), punch (Right Arm), expected 8.33).
+  [Ranged] Blue -> Red: range 1, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 1 + LOS 0 + heat 0); firing ['Small Laser'] (weapon heat 1 of budget 17 = max 4 + sink 13 - current 0 - movement 0 - other 0; expected dmg 2.50)
+    Small Laser: needs 5 (range mod +0), rolled 10 -> HIT
+  [Ranged] Red -> Blue: range 1, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0); firing ['Small Laser', 'Medium Laser'] (weapon heat 4 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 4.67)
+    Small Laser: needs 7 (range mod +0), rolled 7 -> HIT
+    Medium Laser: needs 7 (range mod +0), rolled 6 -> miss
+    Small Laser hit for 3:
+      Hit location roll 7 (left table): Left Torso.
+3 damage (ENERGY) incoming to Left Torso (armor).
+  Left Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/ENERGY] 3 armor pts destroyed at armor (15 -> 12 remaining).
+    Small Laser hit for 3:
+      Hit location roll 9 (left table): Right Torso.
+3 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (7 -> 4/12 remaining).
-  Check for possible critical. Roll a 10.
-    2 critical hit(s).
-  Critical hit pool at Right Leg:
+  Check for possible critical. Roll a 3.
+    No critical hit.
+  [Physical] Blue -> Red: tree club needs 5 (piloting 5 + base 1 + attack -1), rolled 2 -> miss (10 dmg, left side)
+  [Physical] Red -> Blue: kick (Left Leg) needs 7 (piloting 5 + base 3 + attack -1), rolled 8 -> HIT (10 dmg, left side)
+    kick (Left Leg) hits Blue's Left Leg for 10.
+10 damage (PHYSICAL) incoming to Left Leg (armor).
+  [STANDARD/PHYSICAL] 10 armor pts destroyed at armor (10 -> 0 remaining).
+PSR trigger: kicked -> +0.
+Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
+  Succeeded - remains standing.
+  [Heat] Red: 0 + movement 2 + weapons 4 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 1 + engine 0 - sinks 13 -> 0
+  -- end of turn 46: Red @ 0905 NE: HP 126, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 46: Blue @ 0904 NW: HP 134, pilot hits 2, engine 0, gyro 0, heat 0
+
+=== TURN 47 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: Hydra: rate 0.683 = (team 8.2 + gain 9.74 on Blue) / (team 7.8 + cost 18.47 + risk 0.00) (1 of 1 enemies weighed, 121 spots; play-out of 22 spots, responders Blue)
+  [Movement] Red: 0905 NE -> 0805 NE, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
+  [Movement select] Blue: score 250.732 = dealt 18.93 x0.91 + (HP 205.0 - received 10.68 x0.98 - PSR 0.00) / enemy future 3.35 x my future 4.02 [enemy held at 0805; 69 spots with LOS]
+  [Movement] Blue: 0904 NW -> 0804 SW, Walk (3 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Red holds ['Medium Laser'] back for the Physical phase (plans punch (Right Arm), expected 4.17).
+  [Ranged] Red -> Blue: range 1, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['Small Laser'] (weapon heat 1 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 2.50)
+    Small Laser: needs 5 (range mod +0), rolled 6 -> HIT
+  [Ranged] Blue -> Red: range 1, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['Small Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 7 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; expected dmg 10.83)
+    Small Laser: needs 5 (range mod +0), rolled 10 -> HIT
+    Medium Laser: needs 5 (range mod +0), rolled 12 -> HIT
+    Medium Laser: needs 5 (range mod +0), rolled 6 -> HIT
+    Small Laser hit for 3:
+      Hit location roll 6 (left table): Left Leg.
+3 damage (ENERGY) incoming to Left Leg (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (12 -> 9/12 remaining).
+  Check for possible critical. Roll a 7.
+    No critical hit.
+    Small Laser hit for 3:
+      Hit location roll 6 (left table): Left Leg.
+3 damage (ENERGY) incoming to Left Leg (armor).
+  [STANDARD/ENERGY] 3 armor pts destroyed at armor (15 -> 12 remaining).
+    Medium Laser hit for 5:
+      Hit location roll 5 (left table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (armor).
+  Left Arm already destroyed - damage transfers to Left Torso.
+  Left Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (12 -> 7 remaining).
+    Medium Laser hit for 5:
+      Hit location roll 7 (left table): Left Torso.
+5 damage (ENERGY) incoming to Left Torso (armor).
+  Left Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (7 -> 2 remaining).
+  [Physical] Red -> Blue: punch (Right Arm) needs 5 (piloting 5 + base 1 + attack -1), rolled 7 -> HIT (5 dmg, left side)
+  [Physical] Blue -> Red: kick (Left Leg) needs 5 (piloting 5 + base 1 + attack -1), rolled 8 -> HIT (10 dmg, left side)
+    punch (Right Arm) hits Blue's Left Leg for 5.
+5 damage (PHYSICAL) incoming to Left Leg (armor).
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (9 -> 4/12 remaining).
+  Check for possible critical. Roll a 9.
+    1 critical hit(s).
+  Critical hit pool at Left Leg:
     1: Hip (slot 1)
     2: Upper Leg Actuator (slot 2)
     3: Lower Leg Actuator (slot 3)
     4: Foot Actuator (slot 4)
     5: Heat Sink (slot 5)
     6: Heat Sink (slot 6)
-    1/2 Criticals: Upper Leg Actuator hit.
-      Current crit slots in Right Leg: ['Hip', 'DESTROYED', 'Lower Leg Actuator', 'Foot Actuator', 'Heat Sink', 'Heat Sink', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Leg actuator hit at Right Leg (1 destroyed there) - walk MP now 3.
-  Critical hit pool at Right Leg:
-    1: Hip (slot 1)
-    2: Lower Leg Actuator (slot 3)
-    3: Foot Actuator (slot 4)
-    4: Heat Sink (slot 5)
-    5: Heat Sink (slot 6)
-    2/2 Criticals: Lower Leg Actuator hit.
-      Current crit slots in Right Leg: ['Hip', 'DESTROYED', 'DESTROYED', 'Foot Actuator', 'Heat Sink', 'Heat Sink', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Leg actuator hit at Right Leg (2 destroyed there) - walk MP now 2.
-    Medium Laser hit for 5:
-      Hit location roll 5 (right table): Right Arm.
-5 damage (ENERGY) incoming to Right Arm (armor).
-  Right Arm already destroyed - damage transfers to Right Torso.
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/ENERGY] 5 armor pts destroyed at armor (15 -> 10 remaining).
-    Medium Laser hit for 5:
-      Hit location roll 8 (right table): Center Torso.
-5 damage (ENERGY) incoming to Center Torso (armor).
-  [STANDARD/ENERGY] 5 armor pts destroyed at armor (10 -> 5 remaining).
-PSR trigger: 2 leg actuator(s) destroyed at Right Leg this phase -> +2, one roll.
-Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 6.
-  Failed - falls.
-FALL (failed Attack Phase PSR): Hunchback HBK-4G takes 5 falling damage (1D6 4: front table, 5-pt clusters).
-  Fall cluster (5 dmg): rolled 8 -> Left Torso
-5 damage (PHYSICAL) incoming to Left Torso (armor).
-  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (15 -> 10 remaining).
-  Seatbelt check: needs 5. Rolled 6. Pilot unharmed.
-  [Physical] Red -> Blue: kick (Left Leg) needs 4 (piloting 5 + base 0 + attack -1), rolled 6 -> HIT (10 dmg, right side)
-    kick (Left Leg) hits Blue's Right Arm for 10.
-10 damage (PHYSICAL) incoming to Right Arm (armor).
-  Right Arm already destroyed - damage transfers to Right Torso.
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (5 -> 0 remaining). 5 damage applied to structure [STANDARD] (16 -> 11/16 remaining).
-  Check for possible critical. Roll a 9.
-    1 critical hit(s).
-  Critical hit pool at Center Torso:
-    1: Engine (slot 1)
-    2: Engine (slot 2)
-    3: Engine (slot 3)
-    4: Gyro (slot 4)
-    5: Gyro (slot 5)
-    6: Gyro (slot 6)
-    7: Gyro (slot 7)
-    8: Engine (slot 8)
-    9: Engine (slot 9)
-    10: Engine (slot 10)
-    11: Heat Sink (slot 11)
-    1/1 Criticals: Engine hit.
-      Current crit slots in Center Torso: ['DESTROYED', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'Heat Sink', '-Empty-']
-      Engine hit (1/3).
-  [Heat] Red: 0 + movement 2 + weapons 7 + engine 0 - sinks 13 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 1 + engine 5 - sinks 13 -> 0
-  -- end of turn 31: Red @ 0606 N: HP 173, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 31: Blue @ 0706 SE: HP 94, pilot hits 1, engine 1, gyro 0, heat 0 [PRONE]
+    1/1 Criticals: Heat Sink slot hit.
+      Current crit slots in Left Leg: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', 'DESTROYED', 'Heat Sink', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+      Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 12).
+    kick (Left Leg) hits Red's Left Arm for 10.
+10 damage (PHYSICAL) incoming to Left Arm (armor).
+  Left Arm already destroyed - damage transfers to Left Torso.
+  Left Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (2 -> 0 remaining). 8 damage applied to structure [STANDARD] (16 -> 8/16 remaining).
+  Check for possible critical. Roll a 7.
+    No critical hit.
+PSR trigger: kicked -> +0.
+Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
+  Succeeded - remains standing.
+  [Heat] Red: 0 + movement 1 + weapons 1 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 7 + engine 0 - sinks 12 -> 0
+  -- end of turn 47: Red @ 0805 NE: HP 103, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 47: Blue @ 0804 SW: HP 126, pilot hits 2, engine 0, gyro 0, heat 0
 
-=== TURN 32 ===
+=== TURN 48 ===
   Initiative: Blue lost the roll, moves first.
-Stand attempt 1: needs 6 (Piloting 5 + +1, incl. -1 for standing). Rolled 2.
-  Failed to stand.
-FALL (failed to stand): Hunchback HBK-4G takes 5 falling damage (1D6 1: rear table, 5-pt clusters).
-  Fall cluster (5 dmg): rolled 6 -> Right Torso
-5 damage (PHYSICAL) incoming to Right Torso (rear_armor).
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (11 -> 6/16 remaining).
+  [Movement select] Blue: score 224.912 = dealt 5.82 x1.00 + (HP 189.0 - received 14.01 x0.92 - PSR 0.00) / enemy future 3.75 x my future 4.66 [two-ply, 63 of 87 spots (grid search) x 133 replies (short list); modeled reply Red -> 0803 S Run]
+  [Movement] Blue: 0804 SW -> 0804 S, Walk (1 MP, 0 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
+  [Movement select] Red: Hydra: rate 1.080 = (team 8.2 + gain 10.04 on Blue) / (team 9.7 + cost 7.24 + risk 0.00) (1 of 1 enemies weighed, 118 spots)
+  [Movement] Red: 0805 NE -> 0803 NW, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's left side arc after that).
+  [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['Medium Laser'] (weapon heat 3 of budget 15 = max 4 + sink 12 - current 0 - movement 1 - other 0; expected dmg 3.61)
+    Medium Laser: needs 6 (range mod +0), rolled 2 -> miss
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
+  [Ranged] Red holds ['Medium Laser'] back for the Physical phase (plans punch (Right Arm), expected 3.61).
+  [Ranged] Red -> Blue: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['Small Laser'] (weapon heat 1 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 2.17)
+    Small Laser: needs 6 (range mod +0), rolled 11 -> HIT
+    Small Laser hit for 3:
+      Hit location roll 10 (rear table): Left Arm.
+3 damage (ENERGY) incoming to Left Arm (rear_armor).
+  [STANDARD/ENERGY] 1 armor pts destroyed at armor (1 -> 0 remaining). 2 damage applied to structure [STANDARD] (8 -> 6/8 remaining).
+  Check for possible critical. Roll a 7.
+    No critical hit.
+  [Physical] Red -> Blue: punch (Right Arm) needs 6 (piloting 5 + base 2 + attack -1), rolled 6 -> HIT (5 dmg, rear side)
+    punch (Right Arm) hits Blue's Left Leg for 5.
+5 damage (PHYSICAL) incoming to Left Leg (rear_armor).
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 4 damage applied to structure [STANDARD] (4 -> 0/12 remaining).
+  Left Leg destroyed with no live explosive components - no critical roll.
+  Left Leg DESTROYED!
+    Hip specifically destroyed at Left Leg from Left Leg destruction.
+    Heat sink destroyed (Heat Sink) from Left Leg destruction - heat dissipation reduced (now 11).
+  All critical slots in Left Leg marked DESTROYED.
+  1 damage remains, transfers to Left Torso.
+  [STANDARD/PHYSICAL] 1 armor pts destroyed at armor (15 -> 14 remaining).
+PSR trigger: Left Leg destroyed this phase -> automatic fall.
+Automatic fall this phase.
+FALL (automatic fall): Hunchback HBK-4G takes 5 falling damage (1D6 1: rear table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 8 -> Left Torso
+5 damage (PHYSICAL) incoming to Left Torso (rear_armor).
+  [STANDARD/PHYSICAL] 4 armor pts destroyed at rear_armor (4 -> 0 remaining). 1 damage applied to structure [STANDARD] (12 -> 11/12 remaining).
   Check for possible critical. Roll a 8.
     1 critical hit(s).
-  Critical hit pool at Center Torso:
-    1: Engine (slot 2)
-    2: Engine (slot 3)
-    3: Gyro (slot 4)
-    4: Gyro (slot 5)
-    5: Gyro (slot 6)
-    6: Gyro (slot 7)
-    7: Engine (slot 8)
-    8: Engine (slot 9)
-    9: Engine (slot 10)
-    10: Heat Sink (slot 11)
-    1/1 Criticals: Gyro hit.
-      Current crit slots in Center Torso: ['DESTROYED', 'Engine', 'Engine', 'Gyro', 'DESTROYED', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'Heat Sink', '-Empty-']
-      Gyro hit (1/2).
-  Seatbelt check: needs 5. Rolled 5. Pilot unharmed.
-Insufficient MP (<2) remaining for another stand attempt. Remains prone.
-  [Movement] Blue: still prone at 0706.
-  [Movement select] Red: Hydra: rate 18.492 = (team 17.1 + gain 57.23 on Blue) / (team 4.0 + cost 0.00 + risk 0.00) (1 of 1 enemies weighed, 152 spots)
-  [Movement] Red: 0606 N -> 0606 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
-  [Ranged] Blue: no weapon can bear on Red (right side arc) - can't fire.
-  [Ranged] Red -> Blue: range 1, base TN 2 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0 + prone target -2); firing ['Small Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 7 of budget 17 = max 4 + sink 13 - current 0 - movement 0 - other 0; expected dmg 13.00)
-    Small Laser: needs 2 (range mod +0), rolled 7 -> HIT
-    Medium Laser: needs 2 (range mod +0), rolled 7 -> HIT
-    Medium Laser: needs 2 (range mod +0), rolled 10 -> HIT
-    Small Laser hit for 3:
-      Hit location roll 3 (right table): Right Leg.
-3 damage (ENERGY) incoming to Right Leg (armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (4 -> 1/12 remaining).
-  Check for possible critical. Roll a 5.
-    No critical hit.
-    Medium Laser hit for 5:
-      Hit location roll 6 (right table): Right Leg.
-5 damage (ENERGY) incoming to Right Leg (armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 1 damage applied to structure [STANDARD] (1 -> 0/12 remaining).
-  Right Leg destroyed with no live explosive components - no critical roll.
-  Right Leg DESTROYED!
-    Hip specifically destroyed at Right Leg from Right Leg destruction.
-    Heat sink destroyed (Heat Sink) from Right Leg destruction - heat dissipation reduced (now 12).
-    Heat sink destroyed (Heat Sink) from Right Leg destruction - heat dissipation reduced (now 11).
-  All critical slots in Right Leg marked DESTROYED.
-  4 damage remains, transfers to Right Torso.
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 4 damage applied to structure [STANDARD] (6 -> 2/16 remaining).
-  Check for possible critical. Roll a 5.
-    No critical hit.
-    Medium Laser hit for 5:
-      Hit location roll 5 (right table): Right Arm.
-5 damage (ENERGY) incoming to Right Arm (armor).
-  Right Arm already destroyed - damage transfers to Right Torso.
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (2 -> 0/16 remaining).
-  Center Torso destroyed with no live explosive components - no critical roll.
-  Center Torso DESTROYED!
-    Engine hit (2/3) from Center Torso destruction.
-    Engine hit (3/3) from Center Torso destruction.
-    Gyro hit (2/2) from Center Torso destruction.
-    Gyro hit (3/2) from Center Torso destruction.
-    Gyro hit (4/2) from Center Torso destruction.
-    Engine hit (4/3) from Center Torso destruction.
-    Engine hit (5/3) from Center Torso destruction.
-    Engine hit (6/3) from Center Torso destruction.
-    Heat sink destroyed (Heat Sink) from Center Torso destruction - heat dissipation reduced (now 10).
-  All critical slots in Center Torso marked DESTROYED.
-  3 damage remains, transfers to nowhere (attack finished).
-  [Heat] Red: 0 + movement 0 + weapons 7 + engine 0 - sinks 13 -> 0
-  -- end of turn 32: Red @ 0606 N: HP 173, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 32: Blue @ 0706 SE: HP 79, pilot hits 1, engine 6, gyro 4, heat 0 [PRONE, DESTROYED (Center Torso Destroyed)]
+  Critical hit pool at Left Torso:
+    1: IS Ammo AC/20 (slot 1)
+    2: IS Ammo AC/20 (slot 2)
+    1/1 Criticals: IS Ammo AC/20 slot hit.
+      Current crit slots in Left Torso: ['IS Ammo AC/20', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  Seatbelt check: needs 5. Rolled 7. Pilot unharmed.
+  [Heat] Red: 0 + movement 2 + weapons 1 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 3 + engine 0 - sinks 11 -> 0
+  [End] Blue is now CRIPPLED (BattleMech Manual definition).
+  -- end of turn 48: Red @ 0803 NW: HP 103, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 48: Blue @ 0804 S: HP 113, pilot hits 2, engine 0, gyro 0, heat 0 [PRONE]
 
->>> Battle over on turn 32: Blue destroyed. <<<
+=== TURN 49 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: Hydra: rate 1.870 = (team 8.2 + gain 19.81 on Blue) / (team 7.5 + cost 7.47 + risk 0.00) (1 of 1 enemies weighed, 113 spots)
+  [Movement] Red: 0803 NW -> 0704 NE, Run (6 MP, 1 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 9.
+  Success - Hunchback HBK-4G is standing (remaining running MP 0).
+  [Movement select] Blue: score 191.281 = dealt 14.80 x0.97 + (HP 169.0 - received 11.56 x0.98 - PSR 0.00) / enemy future 4.00 x my future 4.48 [enemy held at 0704; 6 spots with LOS]
+  [Movement] Blue: 0804 S -> 0804 NE, Run (0 MP, 0 hexes, 2 heat; budget walk 1 / run 2 / jump 0; stood up with 0 MP left)
+  [Ranged] Red -> Blue: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['Small Laser', 'Medium Laser'] (weapon heat 4 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; expected dmg 5.78)
+    Small Laser: needs 6 (range mod +0), rolled 8 -> HIT
+    Medium Laser: needs 6 (range mod +0), rolled 6 -> HIT
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
+  [Ranged] Blue holds ['Medium Laser'] back for the Physical phase (plans punch (Left Arm), punch (Right Arm), expected 7.22).
+  [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['Small Laser'] (weapon heat 1 of budget 13 = max 4 + sink 11 - current 0 - movement 2 - other 0; expected dmg 2.17)
+    Small Laser: needs 6 (range mod +0), rolled 9 -> HIT
+    Small Laser hit for 3:
+      Hit location roll 6 (left table): Left Leg.
+3 damage (ENERGY) incoming to Left Leg (armor).
+  Left Leg already destroyed - damage transfers to Left Torso.
+  [STANDARD/ENERGY] 3 armor pts destroyed at armor (14 -> 11 remaining).
+    Medium Laser hit for 5:
+      Hit location roll 5 (left table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (6 -> 1/8 remaining).
+  Check for possible critical. Roll a 10.
+    2 critical hit(s).
+  Critical hit pool at Left Arm:
+    1: Shoulder (slot 1)
+    2: Upper Arm Actuator (slot 2)
+    3: Lower Arm Actuator (slot 3)
+    4: Hand Actuator (slot 4)
+    5: Medium Laser (slot 5)
+    1/2 Criticals: Shoulder hit.
+      Current crit slots in Left Arm: ['DESTROYED', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', 'Medium Laser', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  Critical hit pool at Left Arm:
+    1: Upper Arm Actuator (slot 2)
+    2: Lower Arm Actuator (slot 3)
+    3: Hand Actuator (slot 4)
+    4: Medium Laser (slot 5)
+    2/2 Criticals: Lower Arm Actuator hit.
+      Current crit slots in Left Arm: ['DESTROYED', 'Upper Arm Actuator', 'DESTROYED', 'Hand Actuator', 'Medium Laser', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+    Small Laser hit for 3:
+      Hit location roll 12 (right table): Head.
+      Head hit - pilot takes 1 hit (1/6), regardless of armor.
+3 damage (ENERGY) incoming to Head (armor).
+  [STANDARD/ENERGY] 3 armor pts destroyed at armor (9 -> 6 remaining).
+Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 8.
+  Pilot stays conscious.
+  Blue drops its tree club in 0804 (p.79).
+  [Physical] Red -> Blue: kick (Left Leg) needs 6 (piloting 5 + base 2 + attack -1), rolled 8 -> HIT (10 dmg, left side)
+  [Physical] Blue -> Red: punch (Right Arm) needs 6 (piloting 5 + base 2 + attack -1), rolled 11 -> HIT (5 dmg, right side)
+    kick (Left Leg) hits Blue's Left Leg for 10.
+10 damage (PHYSICAL) incoming to Left Leg (armor).
+  Left Leg already destroyed - damage transfers to Left Torso.
+  [STANDARD/PHYSICAL] 10 armor pts destroyed at armor (11 -> 1 remaining).
+    punch (Right Arm) hits Red's Right Arm for 5.
+5 damage (PHYSICAL) incoming to Right Arm (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (16 -> 11 remaining).
+PSR trigger: kicked -> +0.
+Attack Phase PSR: needs 9 (Piloting 5 + +4). Rolled 7.
+  Failed - falls.
+FALL (failed Attack Phase PSR): Hunchback HBK-4G takes 5 falling damage (1D6 5: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 12 -> Head
+5 damage (PHYSICAL) incoming to Head (armor).
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (2 -> 0/3 remaining).
+  Head destroyed with no live explosive components - no critical roll.
+  Head DESTROYED!
+    Cockpit destroyed from Head destruction.
+  All critical slots in Head marked DESTROYED.
+  3 damage remains, transfers to nowhere (attack finished).
+  [Heat] Red: 0 + movement 2 + weapons 4 + engine 0 - sinks 13 -> 0
+  -- end of turn 49: Red @ 0704 NE: HP 95, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 49: Blue @ 0804 NE: HP 93, pilot hits 2, engine 0, gyro 0, heat 0 [PRONE, DESTROYED (Head Destroyed)]
+
+>>> Battle over on turn 49: Blue destroyed. <<<

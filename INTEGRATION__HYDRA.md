@@ -517,6 +517,30 @@ better in both big battles against both bots, worse in the 4 v 4s against Gladia
 battles are 64 battles a cell, so the gain is a hint, not a result; a confirming run of the big two on fresh seeds would
 settle whether to turn it on for big battles only. Cost: about 10-20% more time a battle in 8 v 8 / 12 v 12.
 
+### All five together (session 25, 2026-11-12): ON BY DEFAULT
+
+Daniel: "turn on all the features Fable wanted at once ... I suspect that individually they're suffering diminishing
+returns. Their value would be in edge cases." With all five on (S5a play-out, S4 charges / DFA, S3 move order, Waiting,
+Oracle attention) at the old 50-turn cap, Hydra lost less but many battles stalled (8 v 8 / 12 v 12 about 40% no winner,
+41 turns on average against 33). Played on to 150 turns (Daniel: "take the draws and play them out"), same seeds, 40
+battles a seating, 16 for 8 v 8 / 12 v 12; Hydra - house bot - no winner:
+
+| | first version | all five on |
+|---|---|---|
+| v Gladiator, nine match-ups | 369 - 243 - 12 | 397 - 219 - 8 |
+| v Princess, nine match-ups | 438 - 176 - 10 | 447 - 161 - 16 |
+| of which 8 v 8 + 12 v 12, both opponents | 75 - 47 | 86 - 30 |
+| of which 4 v 4 lance woods v Gladiator | 46 - 30 | 61 - 19 |
+| of which 4 v 4 heavies v Princess | 67 - 13 | 59 - 21 (worse in every test of these switches) |
+
+About three standard deviations better against Gladiator, one against Princess; duels level (the Hunchback duel v
+Gladiator is still lost, 33 - 47). So the stalls at 50 turns were mostly Hydra wins still being ground out. Daniel:
+"cheap runs against inferior opponents means you learn nothing. Leave them all on. Set the standard game cap to 100
+rounds." DEFAULTS now: all five on (each turned off by its OFF value, listed at the top of `hydra.rs`), and the Rust
+engine's turn cap is 100 (`scenario::STANDARD_MAX_TURNS`). Cost: a big battle takes about 2.5 times the computer time
+(12 v 12 about 17-19 s a battle on 2 threads, against 7) and runs longer (45 - 75 turns on average). Records:
+`trial_records/2026-11-12_hydra_trial_*cap150_big.jsonl` (the small match-ups were run before records existed).
+
 ## 8. Status
 
 | Block | State |
@@ -527,7 +551,8 @@ settle whether to turn it on for big battles only. Cost: about 10-20% more time 
 | Fire Plan | built |
 | Trial tools | `tools/hydra_scenarios.py`, `tools/hydra_trial.py` |
 | S5a groundwork: move queue, pose, witness | built, session 25 (`playout.rs`) |
-| S5a movement play-out (responder, judge) | built, switch `HYDRA_PLAYOUT` (default "reply": S5a measured level) |
-| S4 charges / DFA | built, switch `HYDRA_MOVEMENT_ATTACKS` (default off: measured level) |
+| S5a movement play-out (responder, judge) | built, switch `HYDRA_PLAYOUT`, ON by default since 2026-11-12 (off: "reply") |
+| S4 charges / DFA | built, switch `HYDRA_MOVEMENT_ATTACKS`, ON by default since 2026-11-12 |
+| S3 move order, Waiting, Attention share | built, switches `HYDRA_MOVE_ORDER` / `HYDRA_WAITING` / `HYDRA_ATTENTION`, ON by default since 2026-11-12 |
 | S6 calibration | done, two passes: `btsim --ledger`, `tools/hydra_calibrate.py` (fit, fit2); FOCUS 0 by default; structure weight tested, kept at 2 |
-| The rest of Section 7 | not started |
+| Section 7 (Fable's list) | all built; open: the Hunchback brawler duel v Gladiator, the 4 v 4 heavies v Princess |

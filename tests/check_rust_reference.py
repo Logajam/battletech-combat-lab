@@ -19,7 +19,7 @@ Each is played once by `btsim` on its own dice (PcgDice, seed 1) with the scenar
 played again with Hydra on one side (VARIANTS), since Hydra has no Python answer key at all.
 
 Saved logs: engine/reference/logs/<name>.txt - a short result block (winner, turns, each team's armor +
-structure left, units destroyed), then the battle log. A battle that reaches its turn cap prints a NOTE
+structure left, units destroyed), then the battle log. The turn cap is the engine's standard, 100 (2026-11-12; it was 50). A battle that reaches it prints a NOTE
 (Daniel: "a possible flaw"); it still passes if its log matches.
 """
 
@@ -40,8 +40,10 @@ LOG_DIR = os.path.join(ENGINE, "reference", "logs")
 SEED = 1
 
 # Extra plays of a scenario with Hydra driving some teams: saved-log name -> (scenario folder, Hydra teams[, settings]).
-# Settings are btsim --set KEY=VALUE pairs (session 25: the S5a play-out HYDRA_PLAYOUT=s5a, S4 HYDRA_MOVEMENT_ATTACKS,
-# S3 HYDRA_MOVE_ORDER=stake, HYDRA_WAITING, HYDRA_ATTENTION=oracle).
+# Settings are btsim --set KEY=VALUE pairs (engine/core/src/hydra.rs lists Hydra's switches and their OFF values).
+# Hydra as first built (session 24-25): every later switch off.
+FIRST_VERSION = ["HYDRA_PLAYOUT=reply", "HYDRA_MOVEMENT_ATTACKS=false", "HYDRA_MOVE_ORDER=index", "HYDRA_WAITING=false", "HYDRA_ATTENTION=range"]
+
 VARIANTS = {
     "hydra_red__hy_duel_griffin": ("hy_duel_griffin", "Red"),
     "hydra_red__hy_duel_hunchback_woods": ("hy_duel_hunchback_woods", "Red"),
@@ -50,17 +52,14 @@ VARIANTS = {
     "hydra_blue__hy_4v4_heavy_hills": ("hy_4v4_heavy_hills", "Blue"),
     "hydra_red__hy_12v12_valley": ("hy_12v12_valley", "Red"),
     "hydra_both__hy_4v4_lance_grass": ("hy_4v4_lance_grass", "Red,Blue"),
-    "hydra_s5a_red__hy_4v4_lance_woods": ("hy_4v4_lance_woods", "Red", ["HYDRA_PLAYOUT=s5a"]),
-    "hydra_s5a_blue__hy_2v2_grass": ("hy_2v2_grass", "Blue", ["HYDRA_PLAYOUT=s5a"]),
-    "hydra_s5a_red__hy_8v8_valley": ("hy_8v8_valley", "Red", ["HYDRA_PLAYOUT=s5a"]),
-    "hydra_s4_red__hy_duel_griffin": ("hy_duel_griffin", "Red", ["HYDRA_MOVEMENT_ATTACKS=true"]),
-    "hydra_s4_blue__hy_4v4_lance_grass": ("hy_4v4_lance_grass", "Blue", ["HYDRA_MOVEMENT_ATTACKS=true"]),
-    "hydra_s3_red__hy_4v4_lance_woods": ("hy_4v4_lance_woods", "Red", ["HYDRA_MOVE_ORDER=stake"]),
-    "hydra_s3_blue__hy_8v8_valley": ("hy_8v8_valley", "Blue", ["HYDRA_MOVE_ORDER=stake"]),
-    "hydra_wait_red__hy_8v8_valley": ("hy_8v8_valley", "Red", ["HYDRA_WAITING=true"]),
-    "hydra_wait_blue__hy_4v4_heavy_hills": ("hy_4v4_heavy_hills", "Blue", ["HYDRA_WAITING=true"]),
-    "hydra_attention_red__hy_4v4_lance_woods": ("hy_4v4_lance_woods", "Red", ["HYDRA_ATTENTION=oracle"]),
-    "hydra_attention_blue__hy_8v8_valley": ("hy_8v8_valley", "Blue", ["HYDRA_ATTENTION=oracle"]),
+    # session 25, 2026-11-12: Hydra's five switches are ON by default ("Leave them all on"); these keep each OFF path played
+    "hydra_noplayout_red__hy_4v4_lance_woods": ("hy_4v4_lance_woods", "Red", ["HYDRA_PLAYOUT=reply"]),
+    "hydra_nocharge_red__hy_duel_griffin": ("hy_duel_griffin", "Red", ["HYDRA_MOVEMENT_ATTACKS=false"]),
+    "hydra_nomoveorder_blue__hy_8v8_valley": ("hy_8v8_valley", "Blue", ["HYDRA_MOVE_ORDER=index"]),
+    "hydra_nowait_red__hy_8v8_valley": ("hy_8v8_valley", "Red", ["HYDRA_WAITING=false"]),
+    "hydra_noattention_blue__hy_4v4_heavy_hills": ("hy_4v4_heavy_hills", "Blue", ["HYDRA_ATTENTION=range"]),
+    "hydra_first_red__hy_4v4_lance_woods": ("hy_4v4_lance_woods", "Red", FIRST_VERSION),
+    "hydra_first_blue__hy_8v8_valley": ("hy_8v8_valley", "Blue", FIRST_VERSION),
 }
 
 
