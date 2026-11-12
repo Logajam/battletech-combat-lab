@@ -434,18 +434,23 @@ fn walk_path(b: &mut Battle, mover: UnitId, pick: &Pick, standup_mp: Option<i64>
         let facing = hex_geometry::facing_to_compass(sf).unwrap().to_string();
         let causes: Vec<&'static str>;
         let mut fall_at: String;
+        let mut fall_dir: Option<i64>;
         if step == "turn" {
             let h = here.clone().unwrap();
             causes = if running && b.board.hexes[&h].features.has("mud") { vec!["mud"] } else { vec![] };
             fall_at = h;
+            fall_dir = None;
         } else {
             let from_info = if step == "enter" { None } else { Some(b.board.hexes[here.as_deref().unwrap()].clone()) };
             causes = terrain_rules::step_psr_causes(from_info.as_ref(), &b.board.hexes[&label], step == "backward", running);
             fall_at = label.clone();
+            // the way it was heading into `label` (a domino it sets off by falling there goes on that way)
+            fall_dir = here.as_deref().filter(|h| b.board.hexes.contains_key(*h)).map(|h| crate::domino::combat_dir(h, &label));
             if step == "backward" {
                 if let Some(f) = &from_info {
                     if f.level < b.board.hexes[&label].level {
                         fall_at = here.clone().unwrap();
+                        fall_dir = None; // fell in the hex it was in: no heading (a domino goes a 1D6 way)
                     }
                 }
             }
@@ -469,6 +474,8 @@ fn walk_path(b: &mut Battle, mover: UnitId, pick: &Pick, standup_mp: Option<i64>
                 b.units[mover].facing = facing.clone();
                 let c = format!("failed {} PSR at {}", cause, fall_at);
                 b.with_piloting(mover, |b| pr::resolve_fall(b, mover, &c, 0, None));
+                // a hex it was passing through, with an immobile 'Mech in it (2026-11-12, domino::fell_into_occupied)
+                crate::domino::fell_into_occupied(b, mover, fall_dir);
                 return Some((fall_at, facing, mp_after, moved, "fell"));
             }
         }

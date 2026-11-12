@@ -66,8 +66,11 @@ GitHub logistics.
     Reference battles stop at the turn cap: 50 in the Python, 100 in the Rust
     (the standard game since 2026-11-12, `scenario::STANDARD_MAX_TURNS`); one
     that hits the cap prints a NOTE (Daniel: "a possible flaw").
-  - Every trial battle is kept in `trial_records/` (`tools/trial_records.py`);
-    `tools/replay_undecided.py` replays only a trial's capped battles.
+  - Every trial battle is kept in `trial_records/` (`tools/trial_records.py`),
+    written as each battle ends (`btsim --stream`): a crash is recorded with
+    its seed and the set goes on, and re-running a stopped command plays only
+    the missing battles. `tools/replay_undecided.py` replays only a trial's
+    capped battles.
   - A reference log that differs: if the change was meant to alter results, run
     `python tests/check_reference_logs.py --update` and record that in the
     Change Record.

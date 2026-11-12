@@ -95,6 +95,23 @@ def displace_into_occupied(mover, label, direction, drop, terrain_map, cause):
     return False
 
 
+def fell_into_occupied(mover, direction, terrain_map):
+    """`mover` has just fallen while walking, in a hex another 'Mech also stands in: a hex it was allowed to pass
+    through (an immobile enemy, Core p.48) and either entered as it fell or was leaving on a failed backward level
+    change (p.115: it falls in the hex it was moving out of). The book does not cover this; MegaMek does
+    (TWGameManager.doEntityFallsInto): the faller takes its normal fall (already resolved by the caller), then the
+    'Mech already there suffers a domino effect (p.114) - pushed out heading the way the faller was going, or, when the
+    faller fell in the hex it was already in, in a 1D6 direction. Found 2026-11-12 by a Hydra trial: the two 'Mechs
+    were left stacked and the next movement table crashed. Does nothing when the hex holds no other 'Mech."""
+    other = occupant(mover.hex, exclude=(mover,))
+    if other is None:
+        return
+    if direction is None:
+        direction = config.pick_number(6, prompt="Domino direction 1D6 (fell in its own hex)") - 1
+    config.log(f"    {mover.side_name} fell in {mover.hex}, where {other.side_name} stands: DOMINO EFFECT (p.114).")
+    _push_out(other, direction, mover.hex, terrain_map)
+
+
 def advance_into(mover, label, direction, terrain_map, cause):
     """An attacker follows into the hex its target just left: a charge (p.79), a push (p.83), a DFA's
     landing (p.80). The target's own displacement can set off a chain that puts another 'Mech in that

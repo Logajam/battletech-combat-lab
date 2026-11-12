@@ -30,7 +30,7 @@ fn battle_json(sim: u64, seed: u64, r: &BattleResult) -> Value {
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let Some(dir) = args.first().filter(|a| !a.starts_with("--")) else {
-        eprintln!("usage: btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--set KEY=VALUE ...] [--ledger FILE] [--max-turns N] [--sims I,J,...]");
+        eprintln!("usage: btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--set KEY=VALUE ...] [--ledger FILE] [--max-turns N] [--sims I,J,...] [--stream FILE]");
         std::process::exit(2);
     };
     let battles: u64 = arg(&args, "--battles").map_or(1, |v| v.parse().expect("--battles"));
@@ -85,36 +85,82 @@ fn main() {
     // --sims I,J,... (session 25): play only these battle numbers of the 1..=N set (each on its own seed, as in the full
     // set), e.g. the undecided ones of an earlier run, replayed with a higher --max-turns.
     let only: Option<Vec<u64>> = arg(&args, "--sims").map(|v| v.split(',').map(|x| x.parse().expect("--sims")).collect());
-    let sims: Vec<u64> = (1..=battles).filter(|s| only.as_ref().map_or(true, |o| o.contains(s))).collect();
-    let runs: Vec<(u64, u64, BattleResult, Vec<String>)> = sims
+    // --stream FILE (session 25; Daniel, 2026-11-12: "the results of each run is recorded when its done. This lets you
+    // quickly find crashes, and easily restart a set"): every battle is appended to FILE as one JSON line the moment it
+    // ends - its result, or {"sim", "seed", "crashed": message} if the engine panicked (the set goes on). Battles
+    // already in FILE are not played again: re-running the same command after a stop finishes only what is missing,
+    // and the summary counts the earlier lines too.
+    let stream = arg(&args, "--stream");
+    let mut done: std::collections::BTreeMap<u64, Value> = std::collections::BTreeMap::new();
+    if let Some(path) = &stream {
+        if let Ok(text) = std::fs::read_to_string(path) {
+            for line in text.lines().filter(|l| !l.trim().is_empty()) {
+                // a line cut short by a stop is ignored (that battle is played again)
+                if let Ok(v) = serde_json::from_str::<Value>(line) {
+                    if let Some(sim) = v["sim"].as_u64() {
+                        done.insert(sim, v);
+                    }
+                }
+            }
+        }
+    }
+    let writer = stream.as_ref().map(|p| std::sync::Mutex::new(std::fs::OpenOptions::new().create(true).append(true).open(p).expect("--stream FILE")));
+    let sims: Vec<u64> = (1..=battles).filter(|s| only.as_ref().map_or(true, |o| o.contains(s))).filter(|s| !done.contains_key(s)).collect();
+    let runs: Vec<(u64, Value, Vec<String>)> = sims
         .into_par_iter()
         .map(|sim| {
             let s = PcgDice::battle_seed(seed, sim);
-            let (r, log) = scenario.run(s, sim <= log_first);
-            (sim, s, r, log)
+            // a panic in one battle is that battle's result, not the end of the set
+            let played = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| scenario.run(s, sim <= log_first)));
+            let (v, log) = match played {
+                Ok((r, log)) => (battle_json(sim, s, &r), log),
+                Err(e) => {
+                    let msg = e.downcast_ref::<String>().cloned().or_else(|| e.downcast_ref::<&str>().map(|m| m.to_string())).unwrap_or_else(|| "panic".into());
+                    (json!({"sim": sim, "seed": s, "crashed": msg}), Vec::new())
+                }
+            };
+            if let Some(w) = &writer {
+                use std::io::Write;
+                let mut f = w.lock().unwrap();
+                writeln!(f, "{}", serde_json::to_string(&v).unwrap()).unwrap();
+                f.flush().unwrap();
+            }
+            (sim, v, log)
         })
         .collect();
     let secs = started.elapsed().as_secs_f64();
+    // every battle of the set: the earlier stream lines and the ones just played, in battle order
+    let mut all: std::collections::BTreeMap<u64, Value> = done.into_iter().filter(|(sim, _)| only.as_ref().map_or(*sim <= battles, |o| o.contains(sim))).collect();
+    for (sim, v, _) in &runs {
+        all.insert(*sim, v.clone());
+    }
+    let (results, crashed): (Vec<Value>, Vec<Value>) = all.into_values().partition(|v| v.get("crashed").is_none());
     let mut wins: serde_json::Map<String, Value> = serde_json::Map::new();
     let (mut turns, mut capped) = (0i64, 0u64);
-    for (_, _, r, _) in &runs {
-        let n = wins.get(&r.winner).and_then(|v| v.as_u64()).unwrap_or(0);
-        wins.insert(r.winner.clone(), json!(n + 1));
-        turns += r.turns_taken;
-        if r.turn_cap.is_some_and(|c| r.turns_taken >= c) {
+    for r in &results {
+        let w = r["winner"].as_str().unwrap_or("Draw").to_string();
+        let n = wins.get(&w).and_then(|v| v.as_u64()).unwrap_or(0);
+        wins.insert(w, json!(n + 1));
+        let t = r["turns"].as_i64().unwrap_or(0);
+        turns += t;
+        if t >= scenario.max_turns {
             capped += 1;
         }
+    }
+    for c in &crashed {
+        eprintln!("btsim: battle {} (seed {}) CRASHED: {}", c["sim"], c["seed"], c["crashed"].as_str().unwrap_or(""));
     }
     let out = json!({
         "battles": battles,
         "seed": seed,
         "seconds": secs,
         "wins": wins,
-        "mean_turns": turns as f64 / runs.len().max(1) as f64,
+        "mean_turns": turns as f64 / results.len().max(1) as f64,
         "hit_turn_cap": capped,
         "max_turns": scenario.max_turns,
-        "results": runs.iter().map(|(sim, s, r, _)| battle_json(*sim, *s, r)).collect::<Vec<_>>(),
-        "logs": runs.iter().filter(|(_, _, _, l)| !l.is_empty()).map(|(sim, _, _, l)| json!({"sim": sim, "lines": l})).collect::<Vec<_>>(),
+        "crashed": crashed,
+        "results": results,
+        "logs": runs.iter().filter(|(_, _, l)| !l.is_empty()).map(|(sim, _, l)| json!({"sim": sim, "lines": l})).collect::<Vec<_>>(),
     });
     let text = serde_json::to_string_pretty(&out).unwrap();
     match arg(&args, "--out") {

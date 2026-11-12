@@ -48,9 +48,12 @@ def play(btsim, folder, battles, seed, threads, scenario=None, red=None, blue=No
             cmd += ["--set", argv[i + 1]]
     if "--max-turns" in argv:
         cmd += ["--max-turns", option(argv, "--max-turns", "50")]
+    path = trial_records.records_path(argv, "round_robin")
+    cmd += trial_records.stream_args(path, scenario, red, blue, None, argv, seed, battles)
     out = json.loads(subprocess.run(cmd, capture_output=True, text=True, check=True).stdout)
-    trial_records.append(trial_records.records_path(argv, "round_robin"), "round_robin", scenario, red, blue, None, argv,
-                         int(option(argv, "--max-turns", "50")), seed, battles, out)
+    trial_records.report_crashes(out)
+    trial_records.append(path, "round_robin", scenario, red, blue, None, argv,
+                         int(option(argv, "--max-turns", "100")), seed, battles, out)
     left = {t: sum(r["teams"][t]["final_hp"] / max(r["teams"][t]["max_hp"], 1) for r in out["results"]) / battles for t in ("Red", "Blue")}
     return out["wins"].get("Red", 0), out["wins"].get("Blue", 0), out["mean_turns"], out["seconds"] / battles, left["Red"] - left["Blue"]
 
