@@ -72,3 +72,4 @@ pub mod gladiator;
 
 pub mod scenario;
 pub mod hydra;
+pub mod bridge;

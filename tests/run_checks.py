@@ -28,10 +28,10 @@ sys.path.insert(0, os.path.join(REPO_ROOT, "tests"))
 import check_reference_logs  # noqa: E402
 
 
-def run_test_file(path):
-    """(passed, seconds, output) for one tests/test_*.py file."""
+def run_test_file(path, args=()):
+    """(passed, seconds, output) for one tests/test_*.py file (or a check script, with its arguments)."""
     start = time.time()
-    proc = subprocess.run([sys.executable, path], cwd=REPO_ROOT,
+    proc = subprocess.run([sys.executable, path, *args], cwd=REPO_ROOT,
                           capture_output=True, text=True, encoding="utf-8",
                           env=dict(os.environ, PYTHONIOENCODING="utf-8"))
     return proc.returncode == 0, time.time() - start, proc.stdout + proc.stderr
@@ -62,6 +62,9 @@ def main():
         if shutil.which("cargo"):
             jobs.append(("rust       check_rust_reference.py (86 battles)",
                          pool.submit(run_test_file, os.path.join(REPO_ROOT, "tests", "check_rust_reference.py"))))
+            # the MegaMek bridge's decision process gives the battles' own answers (B1; INTEGRATION__MEGAMEK_BRIDGE.md)
+            jobs.append(("rust       check_bridge_parity.py --quick",
+                         pool.submit(run_test_file, os.path.join(REPO_ROOT, "tests", "check_bridge_parity.py"), ["--quick"])))
         else:
             print("NOTE: no cargo on this machine - the Rust reference battles were not run")
         failed = 0

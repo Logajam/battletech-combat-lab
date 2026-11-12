@@ -148,7 +148,8 @@ real Princess and CASPAR through the bridge (E4).
   `INTEGRATION__COMBAT_LAB_ART_SPECS.md` (nothing built).
 - E4. MegaMek bridge (Daniel, 2026-11-12): our bots play in a live MegaMek game - Daniel against Hydra in MegaMek's
   screen, Hydra against the real Princess and CASPAR, an outside check on our rules. Spec DONE, nothing built:
-  `INTEGRATION__MEGAMEK_BRIDGE.md` (task T14, stages B0-B7).
+  `INTEGRATION__MEGAMEK_BRIDGE.md` (task T14, stages B0-B7). B0 and B1 DONE (MegaMek runs here; `btsim decide` gives
+  the battles' own answers to every bot call); next B2 (the Java side) and B3 (compact state).
 - E3. 3D art [15] (paused): next the weapon-block stockpile, then bird-body torso / head blocks, the 47 chart
   chassis, directional hardpoints.
 
@@ -163,6 +164,7 @@ remove the line and note it in the Change Record.
 - **(ac) HYDRA S3 MOVE ORDER** (session 25): `hydra::move_pick` / `picks_move_order` (`HYDRA_MOVE_ORDER = "stake"`, off), the new `BotSet::move_pick` socket used by the turn loop's pick (and so by the move queue), `ledger_as` (read-only ledger). Two reference battles (86).
 - **(ad) HYDRA WAITING + ATTENTION SHARE** (session 25): `HYDRA_WAITING` (`coming_friends`, `HydraState::waited`) and `HYDRA_ATTENTION = "oracle"` (`elsewhere_of`, `attention_damage`), both off. Four reference battles (90).
 - **(ag) WALKING FALL INTO AN OCCUPIED HEX + STREAMED TRIALS** (session 25): `domino.fell_into_occupied` (both engines, MegaMek's rule), `btsim --stream` (per-battle lines, crash catching, resume), progress files in `trial_records/progress/`.
+- **(ai) MEGAMEK BRIDGE B1** (session 25): `engine/core/src/bridge.rs`, `btsim decide`, `--bridge-parity`, `tests/check_bridge_parity.py` - check the signal list is complete (a bot call added later must be added to `bridge::call` and the `Recorder`), and the state's completeness argument (unit dumps + the fields `state_json` lists).
 - **(ah) MEGAMEK BRIDGE SPEC** (session 25): `INTEGRATION__MEGAMEK_BRIDGE.md` - check its read of MegaMek's source and the design before Sonnet builds it (T14).
 - **(af) HYDRA ALL-ON + TURN CAP 100** (session 25): the five switches' default flipped in `hydra.rs` (OFF values listed there), `scenario::STANDARD_MAX_TURNS`, reference variants reworked (86).
 - **(ae) TRIAL RECORDS** (session 25): `tools/trial_records.py` (every hydra_trial / round_robin battle kept in `trial_records/`, always on), `btsim --sims` / `--max-turns`, `tools/replay_undecided.py`. TABLED (Daniel, 2026-11-12, "We'll table that level of statistics for later"): each unit's fate per battle (turn destroyed, by which attack and attacker) in the records.

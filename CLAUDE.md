@@ -62,7 +62,9 @@ GitHub logistics.
     plus every reference battle, side by side, one line each, plus the Rust
     engine's own 86 reference battles (`tests/check_rust_reference.py`, when
     cargo is installed; `--update` there for a Rust change meant to alter
-    results). All must pass.
+    results), plus the MegaMek bridge's parity check
+    (`tests/check_bridge_parity.py --quick`). All must pass. A new bot call
+    (`BotSet` method) must be added to `bridge.rs` too, or the check misses it.
     Reference battles stop at the turn cap: 50 in the Python, 100 in the Rust
     (the standard game since 2026-11-12, `scenario::STANDARD_MAX_TURNS`); one
     that hits the cap prints a NOTE (Daniel: "a possible flaw").
