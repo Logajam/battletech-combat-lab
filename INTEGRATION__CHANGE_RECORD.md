@@ -6,6 +6,23 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-13 (Claude, session 26), FIX: TWO 'MECHS COULD CHARGE EACH OTHER (Combat Lab crash). Battle results change only where this happened (none of the 86 reference battles). REVIEW PENDING (higher-level model).**
+  Daniel's report: a 100-battle Lab run (12 Inner Sphere 'Mechs, Hydra, v 4 Asymptote IIC iJ Mpulse, Hydra; 16x17 Desert
+  Hills; base seed 2; Red listed first) crashed in battle 73 (seed 5376118808176116898): "index out of bounds: the len is 1
+  but the index is 18446744073709551615" at `attack_resolution.rs:113` (`attack_side`). Cause: Blue 2 and Red 4 had each
+  declared a charge on the other. Blue 2's charge resolved first, pushed Red 4 off the board and moved Blue 2 into Red 4's
+  hex; Red 4's charge on Blue 2 then had both 'Mechs in one hex, so no line of sight to take a direction from. The rule
+  (Core p.78): a charge is declared in the Movement Phase and the charger's movement ends only in the Physical Attack
+  Phase, so a 'Mech making a charge or DFA can't be the target of one; a charge target must have finished moving (Daniel:
+  "2 units can't charge each other. Only units that have completed their movement are valid charge targets"). Our check
+  counted a charger as "moved". FIX: `movement_attacks::can_be_attacked` (the one check behind every charge / DFA target:
+  Hydra, Gladiator's move_select, `charge::can_charge`) refuses a target whose `charging` or `dfa` is set. NEW
+  `engine/core/tests/charge_targets.rs` (in run_checks). Daniel's set re-run with btsim: no crash; battles 1-3, 72, 74 equal his
+  list; battle 73 now Blue in 28 turns (Red 93, Blue 7). The Python (retired) is not changed. Seen in passing (not
+  changed): Core p.76 says charge / DFA / push displacement waits until every physical attack of the phase is resolved,
+  while ours displaces as each one resolves; with this fix two of them can no longer involve the same pair, but a charge
+  on a 'Mech that another 'Mech's charge displaces is still resolved after the move. Noted for Daniel.
+
 - **2026-11-13 (Claude, session 25), COMBAT LAB: BV FOLLOWS THE PILOT'S SKILLS. No battle result changes. REVIEW PENDING (higher-level model).**
   Daniel: "BV should update when piloting and gunnery change"; and "Lets refine before making it too public" (the public
   download link waits for a refined version, PROJECT_MAP E6). The unit list's BV is the gunnery 4 / piloting 5 value; the
