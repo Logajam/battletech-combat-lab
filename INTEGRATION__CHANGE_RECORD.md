@@ -6,6 +6,25 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-13 (Claude, session 26), RULES: PUSHES CHECKED (Core p.83). One reference battle changes (team_12v12_princess_v_gladiator, updated). REVIEW PENDING (higher-level model).**
+  Daniel: "Think pushes might need a double check. Can't target a Charge or DFA. Can be mutual. But if both succeed they
+  cancel out" - the displacement, not the fall check ("Succeed but are not canceled out for the fall check") - "And they
+  recieve bonus damage to the score function if the target would fall off a cliff." Checked against p.83:
+  (1) a push target that is charging or making a DFA: already refused (`physical::push_option`). OK.
+  (2) MUTUAL PUSH - BUG: `resolve_pushes` cancelled whenever exactly two pushes succeeded in the phase, whoever they were.
+  Now only a pair pushing each other cancels: neither moves, both still make the push PSR; any other push resolves as
+  usual. (3) ONE CHARGE, DFA OR PUSH PER TARGET A TURN (p.83) - NOT ENFORCED: two 'Mechs could charge (or DFA) one target, a
+  charged 'Mech could be pushed, two 'Mechs could push one target. Now `movement_attacks::already_charged_or_dfad` (in
+  `can_be_attacked` and `push_option`) and `Battle::pushed_this_phase` (filled as pushes are declared, emptied at the start
+  and end of the Physical Attack Phase; carried in the bridge state) refuse a second one. The changed reference battle was
+  exactly this: Blue 5 and Blue 9 both pushed Red 11, and the old code took it for a mutual push; now Blue 9 kicks.
+  (4) Pushes also follow p.76's "already displaced" rule (an earlier push moved one of its 'Mechs: no displacement, the
+  target's PSR stands). (5) Score: a push is worth the target's whole armor + structure off the board, the fall damage
+  2+ levels down (p.115: 10% of tonnage, rounded up, x (levels + 1)), else 0 - already so (`displacement_worth`). OK.
+  NEW tests in `engine/core/tests/charge_targets.rs` (4 in all). `resolve_pushes` made public for them.
+  Daniel's Asymptote set (seed 2, 100 battles) re-run: no crash; Red 93, Blue 7 (was 92 / 8); 23 battles changed
+  (four Asymptotes often gang up on one target with pushes and charges, which the one-per-target rule now limits).
+
 - **2026-11-13 (Claude, session 26), RULES: DISPLACEMENT WAITS UNTIL EVERY PHYSICAL ATTACK IS MADE (Core p.76). Battle results change where a phase has a charge or DFA with another displacement (none of the 86 reference battles; 5 of Daniel's 100 Asymptote battles). REVIEW PENDING (higher-level model).**
   Daniel: "please bring it in line". Core p.76: all physical attacks are made at the same time, so a charge's, DFA's or
   push's displacement happens only after every attack of the phase is resolved; a 'Mech about to be displaced still makes

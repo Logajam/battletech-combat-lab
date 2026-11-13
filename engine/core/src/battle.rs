@@ -129,6 +129,9 @@ pub struct Battle {
     /// Movement Phase: the units still to move after the current mover, in the expected order (playout::move_queue;
     /// session 25, Hydra's S5a). Read only by bots; empty outside the Movement Phase.
     pub move_queue: Vec<UnitId>,
+    /// Physical Attack Phase: the 'Mechs a push has been declared against this phase (p.83: a 'Mech is the target of
+    /// only one charge, DFA or push a turn). Emptied at the start of each Physical Attack Phase.
+    pub pushed_this_phase: Vec<UnitId>,
     /// INTEGRATION__los_cache: lines of sight the bots asked about, (from, to, heights) -> answer (None = the line runs
     /// off the board). Speed only: emptied whenever the board changes (`board_changed`).
     /// finished movement tables (`movement_table`); speed only, emptied when the board changes
@@ -197,6 +200,7 @@ impl Battle {
             princess: Default::default(),
             hydra: Default::default(),
             move_queue: Vec::new(),
+            pushed_this_phase: Vec::new(),
             los_memo: Default::default(),
             table_memo: Default::default(),
         }

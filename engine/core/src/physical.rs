@@ -530,6 +530,10 @@ pub fn push_option(b: &mut Battle, attacker: UnitId, a_xy: (i64, i64), a_facing:
     if t.prone || t_level != a_level || t.charging.is_some() || t.dfa.is_some() {
         return None;
     }
+    // p.83: the target of only one charge, DFA or push a turn
+    if b.pushed_this_phase.contains(&target) || crate::movement_attacks::already_charged_or_dfad(b, target) {
+        return None;
+    }
     let t_xy = crate::hex_geometry::parse_hex_label(t_label).unwrap();
     if crate::los::hex_distance(a_xy, t_xy) != 1 || crate::combat::direction_facing(a_xy, t_xy).unwrap() != a_facing {
         return None;
@@ -579,17 +583,27 @@ fn add_trigger(t: &mut Triggers, who: &str, why: &str, m: i64) {
 }
 
 /// Successful pushes (p.83): the target moves one hex straight on, the pusher into its hex, then the target makes a PSR.
-fn resolve_pushes(b: &mut Battle, pushes: &[(UnitId, UnitId)], triggers: &mut Triggers) {
-    if pushes.len() == 2 {
-        b.log("    Both pushes succeed - neither mech moves; both must make a PSR (p.83).");
-        for (_, target) in pushes {
-            let n = name_of(b, *target);
-            add_trigger(triggers, &n, "pushed", PUSH_PSR_MODIFIER);
-        }
-        return;
-    }
-    for &(attacker, target) in pushes {
+pub fn resolve_pushes(b: &mut Battle, pushes: &[(UnitId, UnitId)], triggers: &mut Triggers) {
+    // Two 'Mechs that push each other and both succeed: neither moves, but both still make the PSR (p.83). Only such a
+    // pair cancels; any other push is resolved as usual.
+    let mutual = |a: UnitId, t: UnitId| pushes.contains(&(t, a));
+    // where each 'Mech stood when the pushes were made (pushes are the first displacements of the phase, p.76)
+    let stood: Vec<(Option<String>, Option<String>)> = pushes.iter().map(|&(a, t)| (b.units[a].hex.clone(), b.units[t].hex.clone())).collect();
+    for (i, &(attacker, target)) in pushes.iter().enumerate() {
         let (an, tn) = (name_of(b, attacker), name_of(b, target));
+        if mutual(attacker, target) {
+            b.log(format!("    {} and {} push each other and both succeed - neither moves; {} must make a PSR (p.83).", an, tn, tn));
+            add_trigger(triggers, &tn, "pushed", PUSH_PSR_MODIFIER);
+            continue;
+        }
+        // an earlier push already moved one of them: this one moves nobody, the target still makes its PSR (p.76)
+        if b.units[attacker].hex != stood[i].0 || b.units[target].hex != stood[i].1 {
+            b.log(format!("    {}'s push on {}: one of them was already displaced this phase - no displacement from this push (p.76).", an, tn));
+            if !b.is_destroyed(target) {
+                add_trigger(triggers, &tn, "pushed", PUSH_PSR_MODIFIER);
+            }
+            continue;
+        }
         let direction = hex_geometry::compass_to_facing(&b.units[attacker].facing).unwrap();
         let here = b.units[target].hex.clone().unwrap();
         let (kind, label, drop) = ma::displacement(b, &here, direction);
@@ -660,6 +674,7 @@ pub fn run_physical_units(b: &mut Battle, order: &[UnitId], reports: &mut [SideR
             gear::declare_raise(b, m, "Physical");
         }
     }
+    b.pushed_this_phase.clear();
     let mut declared: Vec<(UnitId, UnitId, PhysOption, bool, String)> = Vec::new();
     let mut charges: Vec<(UnitId, UnitId)> = Vec::new();
     let mut dfas: Vec<(UnitId, UnitId, bool)> = Vec::new();
@@ -699,6 +714,9 @@ pub fn run_physical_units(b: &mut Battle, order: &[UnitId], reports: &mut [SideR
         let t_hex = hex_geometry::parse_hex_label(b.units[target].hex.as_deref().unwrap()).unwrap();
         let tf = hex_geometry::compass_to_facing(&b.units[target].facing).unwrap();
         let side = crate::attack_resolution::attack_side(b, a_hex, t_hex, tf, crate::attack_resolution::standing(), crate::attack_resolution::standing()).to_string();
+        if picks.iter().any(|o| o.push) {
+            b.pushed_this_phase.push(target);
+        }
         for mut o in picks {
             let (an, tname) = (name_of(b, attacker), name_of(b, target));
             if o.heat != 0 {
@@ -817,6 +835,8 @@ pub fn run_physical_units(b: &mut Battle, order: &[UnitId], reports: &mut [SideR
         b.with_piloting(m, |b| crate::piloting_rolls::resolve_attack_phase_psr(b, m, &forced));
         crate::piloting_rolls::resolve_consciousness_checks(b, m, "Physical Attack Phase");
     }
+    // the phase is over: next turn's movement scoring may weigh pushes on these 'Mechs again
+    b.pushed_this_phase.clear();
 }
 
 // =============================================================================================================
