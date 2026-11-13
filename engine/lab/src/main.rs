@@ -72,6 +72,9 @@ fn main() {
     let data = paths.root.join(defaults["DATA_DIR"].as_str().unwrap_or("./data"));
     let catalog = catalog::Catalog::load(&data, &paths.root.join("lab_cache"), &defaults);
     eprintln!("combatlab: {} units, {} boards in {}", catalog.units.len(), catalog.boards.len(), data.display());
+    if catalog.units.is_empty() || catalog.boards.is_empty() {
+        println!("NO UNITS OR BOARDS FOUND in {}.\nThe download comes in two parts: unzip the data part into the same folder as this program (its data folder\nmust sit beside CombatLab.exe), then start CombatLab again.", data.display());
+    }
     let lab = Arc::new(Lab { paths, catalog, runs: Mutex::new(HashMap::new()), next_run: Mutex::new(1), last_setup: Mutex::new(None), added: Mutex::new(Vec::new()), defaults: defaults.clone(), web: arg(&args, "--web").map(PathBuf::from) });
 
     // a free port: the one asked for, else the first free one from 8765
@@ -186,6 +189,7 @@ fn api(lab: &Lab, name: &str, req: &Value) -> Result<Value, String> {
             "cores": std::thread::available_parallelism().map_or(1, |n| n.get()),
             "default_board": "16x17_Grassland_1.board",
             "project": lab.paths.root.display().to_string(),
+            "missing_data": lab.catalog.units.is_empty() || lab.catalog.boards.is_empty(),
         })),
         "list_units" => {
             let added = lab.added.lock().unwrap();
