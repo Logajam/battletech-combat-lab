@@ -39,11 +39,15 @@ pub struct SetupPaths {
 }
 
 impl SetupPaths {
-    /// The repository root this program runs from: BTSIM_ROOT, else three folders above the running binary
-    /// (engine/target/release/btsim).
+    /// The project folder this program runs from: BTSIM_ROOT, else the nearest folder at or above the running program
+    /// that holds `engine/defaults/config.json` - the repository root for engine/target/release/btsim, and the
+    /// unpacked folder itself for a packaged Combat Lab (CombatLab.exe beside data/ and engine/defaults/).
     pub fn find() -> SetupPaths {
         let root = std::env::var("BTSIM_ROOT").map(std::path::PathBuf::from).unwrap_or_else(|_| {
-            std::env::current_exe().ok().and_then(|e| e.ancestors().nth(4).map(|p| p.to_path_buf())).unwrap_or_else(|| std::path::PathBuf::from("."))
+            std::env::current_exe()
+                .ok()
+                .and_then(|e| e.ancestors().skip(1).find(|p| p.join("engine").join("defaults").join("config.json").exists()).map(|p| p.to_path_buf()))
+                .unwrap_or_else(|| std::path::PathBuf::from("."))
         });
         SetupPaths::at(&root)
     }

@@ -146,8 +146,9 @@ real Princess and CASPAR through the bridge (E4).
   BUILD ORDER as spec sheets CL1-CL10 (session 24, on the Rust engine): `INTEGRATION__COMBAT_LAB_SPECS.md`. CL1-CL5 DONE
   (session 25; Daniel, 2026-11-12: "something I can interact with as a normal person who does not code"): `btsim --setup`,
   battle histories (`btsim --history N`), the Lab program `engine/target/release/combatlab` (local server + pages:
-  Units, Map, Options, Results, Replay), demo page `tools/make_lab_demo.py`. NEXT: a Windows build Daniel can start
-  (`CombatLab.exe` + the project folder), then CL6 (battle from a saved state).
+  Units, Map, Options, Results, Replay), demo page `tools/make_lab_demo.py`, Windows alpha `tools/package_lab.py`.
+  NEXT (Daniel's next-version notes, COMBAT_LAB.md Part A): start positions per team and a side swap, BV following the
+  skills; then CL6 (battle from a saved state).
 - E3a. Art direction (session 24): why the models read as stacked blocks, and jobs A1-A8 in order -
   `INTEGRATION__COMBAT_LAB_ART_SPECS.md` (nothing built).
 - E4. MegaMek bridge (Daniel, 2026-11-12): our bots play in a live MegaMek game - Daniel against Hydra in MegaMek's
@@ -169,6 +170,7 @@ remove the line and note it in the Change Record.
 - **(ac) HYDRA S3 MOVE ORDER** (session 25): `hydra::move_pick` / `picks_move_order` (`HYDRA_MOVE_ORDER = "stake"`, off), the new `BotSet::move_pick` socket used by the turn loop's pick (and so by the move queue), `ledger_as` (read-only ledger). Two reference battles (86).
 - **(ad) HYDRA WAITING + ATTENTION SHARE** (session 25): `HYDRA_WAITING` (`coming_friends`, `HydraState::waited`) and `HYDRA_ATTENTION = "oracle"` (`elsewhere_of`, `attention_damage`), both off. Four reference battles (90).
 - **(ag) WALKING FALL INTO AN OCCUPIED HEX + STREAMED TRIALS** (session 25): `domino.fell_into_occupied` (both engines, MegaMek's rule), `btsim --stream` (per-battle lines, crash catching, resume), progress files in `trial_records/progress/`.
+- **(ao) COMBAT LAB ALPHA** (session 25): `tools/package_lab.py`, `catalog::unpack_solid`, `SetupPaths::find`.
 - **(an) COMBAT LAB SECOND PASS** (session 25): `runs::matches` / `results` pieces, the board grid in `scenario_of`, `lab.js` (Unit Browser, stitched map, nested list).
 - **(am) COMBAT LAB CL2-CL5** (session 25): `history.rs` (the replay record; `Log::printed`), `tests/cl2_history.rs` + `port_record.py --replay-data`, the Lab program `engine/lab` (catalog, runs, the std-only HTTP server: check the request parsing and that it stays on 127.0.0.1), the pages `engine/lab/web`, `tests/check_lab_server.py`.
 - **(al) MEGAMEK BRIDGE B3-B5** (session 25): `GameView` / `HydraBridge` orders, `apply_megamek_view`, the view-mode measurement - check the view's field list against what MegaMek's Entity really reports (slot indices, ammo addresses, `delta_distance`), and the standoff finding.
