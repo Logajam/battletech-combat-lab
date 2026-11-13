@@ -6,7 +6,7 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
-- **2026-11-13 (Claude, session 25), COMBAT LAB: BV FOLLOWS THE PILOT'S SKILLS. No battle result changes.**
+- **2026-11-13 (Claude, session 25), COMBAT LAB: BV FOLLOWS THE PILOT'S SKILLS. No battle result changes. REVIEW PENDING (higher-level model).**
   Daniel: "BV should update when piloting and gunnery change"; and "Lets refine before making it too public" (the public
   download link waits for a refined version, PROJECT_MAP E6). The unit list's BV is the gunnery 4 / piloting 5 value; the
   server sends the engine's skill table (`battle_value::SKILL_TABLE`, now public) and the page shows each unit's BV for its
@@ -14,7 +14,7 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   `engine/core/tests/bv_skills.rs`: that equals the engine's own battle_value for every unit file in data/ at every
   gunnery and piloting 0-8 (in run_checks).
 
-- **2026-11-13 (Claude, session 25), THE PUBLIC COPY: tools/publish_public.py. No code changes.**
+- **2026-11-13 (Claude, session 25), THE PUBLIC COPY: tools/publish_public.py. No code changes. REVIEW PENDING (higher-level model).**
   Daniel made the public repository github.com/Logajam/battletech-combat-lab and said the real work stays in this private
   one. NEW `tools/publish_public.py [--push]`: this repo's full main history, rewritten with git filter-repo (the `rules/`
   path out of every version; any non-public author / committer email -> Daniel's GitHub no-reply address), checked (no
@@ -22,7 +22,7 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   the same result as a hand-made rewrite (deterministic, so later publishes add on top). First push waits on the Claude
   GitHub App's access to the new repository (Daniel).
 
-- **2026-11-13 (Claude, session 25), RULEBOOK TEXT REMOVED; TOWARD A PUBLIC REPOSITORY. No code changes.**
+- **2026-11-13 (Claude, session 25), RULEBOOK TEXT REMOVED; TOWARD A PUBLIC REPOSITORY. No code changes. REVIEW PENDING (higher-level model).**
   Daniel: "Make sure it does exist in the rules repo before nuking it, but otherwise remove it and sanitize the combatlab repo
   so we can make the repo publicly viewable." Checked first: all 73 files of `rules/Battletech_Rule_Reference_Index.zip` are in
   `logajam/battletech-rules-index` main (70 word for word; the other 3, storage-map / pipeline workflow / index manifest, are
