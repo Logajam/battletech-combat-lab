@@ -59,3 +59,39 @@ fn a_charge_displaces_after_all_attacks_and_skips_a_mech_already_moved() {
     let t_name = b.units[2].side_name.clone().unwrap();
     assert!(triggers[&t_name].iter().any(|(why, _)| why == "charged"), "the target still makes its PSR");
 }
+
+/// p.83: a 'Mech is the target of only one charge, DFA or push a turn.
+#[test]
+fn a_mech_already_charged_is_not_a_second_target() {
+    let mut b = two_v_two("second");
+    assert!(can_be_attacked(&mut b, 2, true));
+    b.units[0].charging = Some(2);
+    assert!(!can_be_attacked(&mut b, 2, true), "a second charge / DFA on the same target");
+    b.units[0].charging = None;
+    b.units[0].dfa = Some(2);
+    assert!(!can_be_attacked(&mut b, 2, true));
+}
+
+/// p.83: two 'Mechs that push each other and both succeed - neither moves, both make the PSR. Any other push is
+/// resolved as usual (before, any two successful pushes in a phase cancelled each other).
+#[test]
+fn only_a_mutual_push_cancels() {
+    use btsim_core::physical::resolve_pushes;
+    let mut b = two_v_two("mutual");
+    // 0 (0305) and 2 (0306) push each other; 1 (0309) pushes 3 (0310) on its own
+    b.units[0].facing = "S".into();
+    b.units[2].hex = Some("0306".into());
+    b.units[2].facing = "N".into();
+    b.units[1].facing = "S".into();
+    b.units[3].hex = Some("0310".into());
+    let mut triggers = Default::default();
+    resolve_pushes(&mut b, &[(0, 2), (2, 0), (1, 3)], &mut triggers);
+    assert_eq!(b.units[0].hex.as_deref(), Some("0305"), "mutual push: nobody moves");
+    assert_eq!(b.units[2].hex.as_deref(), Some("0306"));
+    for u in [0, 2, 3] {
+        let n = b.units[u].side_name.clone().unwrap();
+        assert!(triggers[&n].iter().any(|(why, _)| why == "pushed"), "{} makes the push PSR", n);
+    }
+    assert_eq!(b.units[3].hex.as_deref(), Some("0311"), "the other push is resolved as usual");
+    assert_eq!(b.units[1].hex.as_deref(), Some("0310"));
+}

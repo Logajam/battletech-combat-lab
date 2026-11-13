@@ -90,11 +90,17 @@ pub fn displacement(b: &Battle, from_label: &str, direction: i64) -> (&'static s
 
 /// Charge / DFA targets: on the board, not destroyed, finished moving or immobile (pp.78-79). A 'Mech that has
 /// declared its own charge or DFA has not finished moving (its movement ends in the Physical Attack Phase), so it can't
-/// be charged or DFA'd (Core p.78) - two 'Mechs never charge each other.
+/// be charged or DFA'd (Core p.78) - two 'Mechs never charge each other. And a 'Mech is the target of only one charge,
+/// DFA or push a turn (p.83): not one another 'Mech has already declared a charge or DFA on.
 pub fn can_be_attacked(b: &mut Battle, target: UnitId, target_has_moved: bool) -> bool {
     let t = &b.units[target];
-    let mid_attack = t.charging.is_some() || t.dfa.is_some();
+    let mid_attack = t.charging.is_some() || t.dfa.is_some() || already_charged_or_dfad(b, target);
     t.hex.is_some() && !b.is_destroyed(target) && !mid_attack && (target_has_moved || is_immobile(&b.units[target]))
+}
+
+/// Some 'Mech has declared a charge or DFA on `target` this turn (p.83: one charge, DFA or push per target).
+pub fn already_charged_or_dfad(b: &Battle, target: UnitId) -> bool {
+    b.units.iter().any(|m| m.charging == Some(target) || m.dfa == Some(target))
 }
 
 /// The PSRs a charging / DFA mech owes when its movement finally ends in the Physical Attack Phase.
