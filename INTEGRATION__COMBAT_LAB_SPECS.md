@@ -69,6 +69,15 @@ does not code" - CL2 to CL5.
   pages with answers recorded from a real run).
 - CL5: the Replay tab shows the viewer page (`/replay`), by battle or by seed (the current setup on that seed). 12 v 12:
   about 10 ms a step in the browser, no lag.
+- Second pass (2026-11-13, Daniel's notes after trying it, `INTEGRATION__COMBAT_LAB.md` Part A): teams uncapped (2 up; past
+  eight, colours spread around the colour wheel) with a colour picker each (carried into replays: the record's `colours`,
+  read by the viewer); the UNIT BROWSER window (name, weight class, tons, BV, tech base, unit set, year, playable only;
+  sortable; units dragged onto a team, or selected and added with the team's "Add selected" for touch screens); the demo
+  takes unit files too. Map: boards stitched in a grid (setup `board: {"grid": [[id...]...]}` -> STITCH_MAPS), the page
+  checks row heights / column widths; Random map fills the grid with boards of one size. Results: `results` takes
+  `filter` (winner, turn cap, turns, unit destroyed / survived with cause words) and `from` / `to` / `bucket`; the page
+  nests the battle list in ranges of 100 or more (never more than 100 lines at a level) and shows the statistics of the
+  battles that match.
 - NOT YET: a Windows `CombatLab.exe` package (the program finds the project folder from BTSIM_ROOT or three folders above
   itself); stats the engine does not total yet (average heat); debug output options; team colours are not passed to the viewer.
 

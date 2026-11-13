@@ -204,6 +204,7 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
   var PALETTE = ["var(--red)", "var(--blue)", "var(--t3)", "var(--t4)", "var(--t5)", "var(--t6)", "var(--t7)", "var(--t8)"];
   function teamOf(side) { return (data.teams && data.teams[side]) || side; }
   function teamColour(team) {
+    if (data.colours && data.colours[team]) return data.colours[team];   // chosen in Combat Lab
     if (team === "Red") return PALETTE[0];
     if (team === "Blue") return PALETTE[1];
     var i = TEAMS.filter(function (t) { return t !== "Red" && t !== "Blue"; }).indexOf(team);

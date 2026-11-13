@@ -56,9 +56,33 @@ pub fn scenario_of(setup: &Value, catalog: &Catalog, paths: &SetupPaths) -> Resu
             forces.push(json!({"team": name, "mtf": id, "bot": bot, "gunnery": skill("gunnery", 4), "piloting": skill("piloting", 5)}));
         }
     }
-    let board = setup["board"].as_str().ok_or("no board chosen")?;
-    catalog.ensure(board)?;
-    let settings = json!({"FORCES": forces, "DEFAULT_BOARD_PATH": board, "DEPLOYMENT": "home_edge"});
+    // the board: one board's id, or {"grid": [[id, ...], ...]} - boards stitched together, row by row (the engine's
+    // STITCH_MAPS: boards in a row share a height, boards in a column a width)
+    let mut settings = json!({"FORCES": forces, "DEPLOYMENT": "home_edge"});
+    match &setup["board"] {
+        Value::String(board) => {
+            catalog.ensure(board)?;
+            settings["DEFAULT_BOARD_PATH"] = json!(board);
+        }
+        Value::Object(o) => {
+            let rows: Vec<Vec<String>> = o.get("grid").and_then(|g| g.as_array()).ok_or("no boards chosen")?
+                .iter()
+                .map(|r| r.as_array().map(|c| c.iter().filter_map(|x| x.as_str().map(String::from)).collect()).unwrap_or_default())
+                .collect();
+            let cols = rows.first().map_or(0, |r| r.len());
+            if rows.is_empty() || cols == 0 || rows.iter().any(|r| r.len() != cols) {
+                return Err("every place in the board grid needs a board".into());
+            }
+            for id in rows.iter().flatten() {
+                catalog.ensure(id)?;
+            }
+            settings["STITCH_MAPS"] = json!(true);
+            settings["STITCH_BOARDS"] = json!(rows.concat());
+            settings["STITCH_GRID_COLS"] = json!(cols);
+            settings["STITCH_GRID_ROWS"] = json!(rows.len());
+        }
+        _ => return Err("no board chosen".into()),
+    }
     let mut s = Scenario::from_settings(&settings, paths)?;
     s.hydra_teams = hydra_teams;
     if let Some(cap) = setup["max_turns"].as_i64().filter(|c| *c > 0) {
@@ -75,7 +99,9 @@ fn battle_line(sim: u64, seed: u64, r: &BattleResult, seconds: f64) -> Value {
         .map(|(k, s)| (k.clone(), json!({"units": s.units, "units_lost": s.units_lost, "damage_dealt": s.damage_dealt, "max_hp": s.max_hp, "final_hp": s.final_hp, "attacks": s.attacks, "hits": s.hits})))
         .collect();
     // the seed as text: seeds pass JavaScript's exact-integer limit
-    json!({"sim": sim, "seed": seed.to_string(), "winner": r.winner, "turns": r.turns_taken, "seconds": seconds, "capped": r.turn_cap.is_some_and(|c| r.turns_taken >= c && r.winner == "Draw"), "teams": teams})
+    // each unit: destroyed or not, and how (what the results filter asks about)
+    let units: serde_json::Map<String, Value> = r.units.iter().map(|(k, s)| (k.clone(), json!({"name": s.name, "destroyed": s.destroyed, "cause": s.cause_of_death}))).collect();
+    json!({"sim": sim, "seed": seed.to_string(), "winner": r.winner, "turns": r.turns_taken, "seconds": seconds, "capped": r.turn_cap.is_some_and(|c| r.turns_taken >= c && r.winner == "Draw"), "teams": teams, "units": units})
 }
 
 /// A batch: started by `start`, read by `progress` / `results`.
@@ -146,34 +172,96 @@ impl Run {
         json!({"run": self.id, "done": self.done.load(Ordering::Relaxed), "battles": self.battles, "finished": self.finished.load(Ordering::SeqCst), "cancelled": self.cancel.load(Ordering::Relaxed), "seconds": elapsed})
     }
 
-    /// The statistics and the battle list (so far, while the batch runs).
-    pub fn results(&self) -> Value {
+    /// The statistics and the battle list, so far while the batch runs. Request: {run, filter?, from?, to?, bucket?}.
+    /// FILTER keeps the battles that match it (see `matches`); the statistics are those of the battles kept, and of all.
+    /// The list is long for a big batch, so it comes in pieces: `battles` = the kept battles numbered from..=to (at most
+    /// 500), and with `bucket` = B, `buckets` = how many kept battles each run of B battle numbers in from..=to holds
+    /// (the page shows a long list as nested ranges: "Battles 1-100 (37)").
+    pub fn results(&self, req: &Value) -> Value {
         let mut lines = self.lines.lock().unwrap().clone();
         lines.sort_by_key(|l| l["sim"].as_u64());
-        let n = lines.len().max(1) as f64;
-        let mut teams: Vec<String> = Vec::new();
-        for t in self.setup["teams"].as_array().into_iter().flatten() {
-            teams.push(t["name"].as_str().unwrap_or("").to_string());
+        let filter = &req["filter"];
+        let kept: Vec<&Value> = lines.iter().filter(|l| matches(l, filter)).collect();
+        let from = req["from"].as_u64().unwrap_or(1);
+        let to = req["to"].as_u64().unwrap_or(self.battles);
+        let in_range: Vec<&&Value> = kept.iter().filter(|l| (from..=to).contains(&l["sim"].as_u64().unwrap_or(0))).collect();
+        let mut out = json!({
+            "progress": self.progress(),
+            "all": self.summary(&lines.iter().collect::<Vec<_>>()),
+            "summary": self.summary(&kept),
+            "matching": kept.len(),
+            "in_range": in_range.len(),
+            "battles": in_range.iter().take(500).collect::<Vec<_>>(),
+            "units": lines.first().map_or(json!({}), |l| l["units"].as_object().map(|u| u.iter().map(|(k, v)| (k.clone(), v["name"].clone())).collect::<serde_json::Map<_, _>>()).map_or(json!({}), Value::Object)),
+            "crashed": self.crashed.lock().unwrap().clone(),
+        });
+        if let Some(b) = req["bucket"].as_u64().filter(|b| *b > 0) {
+            let mut counts: Vec<u64> = vec![0; ((to + 1 - from.min(to + 1)) as f64 / b as f64).ceil() as usize];
+            for l in &in_range {
+                let i = ((l["sim"].as_u64().unwrap_or(from) - from) / b) as usize;
+                if i < counts.len() {
+                    counts[i] += 1;
+                }
+            }
+            out["buckets"] = json!(counts);
         }
+        out
+    }
+
+    /// Wins, losses, damage, units lost... over these battles.
+    fn summary(&self, lines: &[&Value]) -> Value {
+        let n = lines.len().max(1) as f64;
         let mut per_team = serde_json::Map::new();
-        for t in &teams {
-            let wins = lines.iter().filter(|l| l["winner"] == t.as_str()).count();
-            let mean = |k: &str| lines.iter().map(|l| l["teams"][t.as_str()][k].as_f64().unwrap_or(0.0)).sum::<f64>() / n;
-            let (attacks, hits) = lines.iter().fold((0.0, 0.0), |(a, h), l| (a + l["teams"][t.as_str()]["attacks"].as_f64().unwrap_or(0.0), h + l["teams"][t.as_str()]["hits"].as_f64().unwrap_or(0.0)));
+        for t in self.setup["teams"].as_array().into_iter().flatten() {
+            let t = t["name"].as_str().unwrap_or("");
+            let wins = lines.iter().filter(|l| l["winner"] == t).count();
+            let mean = |k: &str| lines.iter().map(|l| l["teams"][t][k].as_f64().unwrap_or(0.0)).sum::<f64>() / n;
+            let (attacks, hits) = lines.iter().fold((0.0, 0.0), |(a, h), l| (a + l["teams"][t]["attacks"].as_f64().unwrap_or(0.0), h + l["teams"][t]["hits"].as_f64().unwrap_or(0.0)));
             let hit_rate = if attacks > 0.0 { hits / attacks } else { 0.0 };
-            per_team.insert(t.clone(), json!({"wins": wins, "win_rate": wins as f64 / n, "mean_damage_dealt": mean("damage_dealt"), "mean_units_lost": mean("units_lost"), "mean_hp_left": mean("final_hp"), "max_hp": mean("max_hp"), "hit_rate": hit_rate}));
+            per_team.insert(t.to_string(), json!({"wins": wins, "win_rate": wins as f64 / n, "mean_damage_dealt": mean("damage_dealt"), "mean_units_lost": mean("units_lost"), "mean_hp_left": mean("final_hp"), "max_hp": mean("max_hp"), "hit_rate": hit_rate}));
         }
         let draws = lines.iter().filter(|l| l["winner"] == "Draw").count();
         let capped = lines.iter().filter(|l| l["capped"] == true).count();
         let turns = lines.iter().map(|l| l["turns"].as_f64().unwrap_or(0.0)).sum::<f64>() / n;
         let battle_secs = lines.iter().map(|l| l["seconds"].as_f64().unwrap_or(0.0)).sum::<f64>() / n;
-        json!({
-            "progress": self.progress(),
-            "summary": {"battles": lines.len(), "teams": per_team, "draws": draws, "hit_turn_cap": capped, "max_turns": self.scenario.max_turns, "mean_turns": turns, "mean_battle_seconds": battle_secs},
-            "battles": lines,
-            "crashed": self.crashed.lock().unwrap().clone(),
-        })
+        json!({"battles": lines.len(), "teams": per_team, "draws": draws, "hit_turn_cap": capped, "max_turns": self.scenario.max_turns, "mean_turns": turns, "mean_battle_seconds": battle_secs})
     }
+}
+
+/// Whether a battle's line passes the results filter: {"winner": team or "Draw", "capped": true / false,
+/// "min_turns", "max_turns", "units": [{"unit": label, "state": "destroyed" | "survived", "cause": text}]} - every part
+/// given must hold; a unit's cause is matched as words inside its cause of death ("Center Torso", "Head"...).
+pub fn matches(line: &Value, f: &Value) -> bool {
+    if let Some(w) = f["winner"].as_str().filter(|w| !w.is_empty()) {
+        if line["winner"] != w {
+            return false;
+        }
+    }
+    if let Some(c) = f["capped"].as_bool() {
+        if line["capped"].as_bool() != Some(c) {
+            return false;
+        }
+    }
+    let turns = line["turns"].as_i64().unwrap_or(0);
+    if f["min_turns"].as_i64().is_some_and(|m| turns < m) || f["max_turns"].as_i64().is_some_and(|m| turns > m) {
+        return false;
+    }
+    for c in f["units"].as_array().into_iter().flatten() {
+        let u = &line["units"][c["unit"].as_str().unwrap_or("")];
+        let destroyed = u["destroyed"].as_bool().unwrap_or(false);
+        match c["state"].as_str() {
+            Some("destroyed") if !destroyed => return false,
+            Some("survived") if destroyed => return false,
+            _ => {}
+        }
+        if let Some(text) = c["cause"].as_str().filter(|t| !t.trim().is_empty()) {
+            let cause = u["cause"].as_str().unwrap_or("").to_lowercase();
+            if !text.to_lowercase().split_whitespace().all(|w| cause.contains(w)) {
+                return false;
+            }
+        }
+    }
+    true
 }
 
 /// Seconds a batch of `battles` will take on `threads` threads (0 = every core), from a few pilot battles played side

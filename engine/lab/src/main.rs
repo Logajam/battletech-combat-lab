@@ -14,7 +14,7 @@
 //! | `estimate` | {setup} | seconds for the batch, from a few pilot battles |
 //! | `run` | {setup} | {run}: the batch started (runs.rs has the setup) |
 //! | `progress` | {run} | battles done, finished, seconds |
-//! | `results` | {run} | statistics and the battle list (number, seed, winner, turns, duration) |
+//! | `results` | {run, filter?, from?, to?, bucket?} | statistics (of the battles the filter keeps, and of all) and the battle list in pieces (runs.rs) |
 //! | `cancel` | {run} | stops the batch (battles under way finish) |
 //! | `add_unit` | {file, text} | a dropped unit file copied into the data folder and listed |
 //! | `history` | {run, sim} or {setup, seed} | one battle's full history (btsim_core::history, CL2) |
@@ -209,7 +209,7 @@ fn api(lab: &Lab, name: &str, req: &Value) -> Result<Value, String> {
             Ok(json!({"run": id}))
         }
         "progress" => Ok(run_of(lab, req)?.progress()),
-        "results" => Ok(run_of(lab, req)?.results()),
+        "results" => Ok(run_of(lab, req)?.results(req)),
         "cancel" => {
             let run = run_of(lab, req)?;
             run.cancel.store(true, std::sync::atomic::Ordering::Relaxed);
@@ -247,8 +247,24 @@ fn add_unit(lab: &Lab, req: &Value) -> Result<Value, String> {
     Ok(json!({"unit": unit, "copied": copied}))
 }
 
-/// One battle's full history: battle `sim` of run `run`, or the setup `setup` on seed `seed`.
+/// The team colours a setup chose ({team: "#rrggbb"}), for the replay page.
+fn colours(setup: &Value) -> Value {
+    let m: serde_json::Map<String, Value> = setup["teams"].as_array().into_iter().flatten()
+        .filter_map(|t| Some((t["name"].as_str()?.to_string(), json!(t["colour"].as_str()?))))
+        .collect();
+    Value::Object(m)
+}
+
+/// One battle's full history (with the setup's team colours): battle `sim` of run `run`, or the setup `setup` on seed
+/// `seed`.
 fn history(lab: &Lab, req: &Value) -> Result<Value, String> {
+    let mut record = history_bare(lab, req)?;
+    let setup = if req.get("run").is_some_and(|r| !r.is_null()) { run_of(lab, req)?.setup.clone() } else { req["setup"].clone() };
+    record["colours"] = colours(&setup);
+    Ok(record)
+}
+
+fn history_bare(lab: &Lab, req: &Value) -> Result<Value, String> {
     let seed_of = |v: &Value| v.as_u64().or_else(|| v.as_str().and_then(|s| s.parse().ok()));
     if req.get("run").is_some_and(|r| !r.is_null()) {
         let run = run_of(lab, req)?;
