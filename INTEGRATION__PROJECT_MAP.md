@@ -172,7 +172,12 @@ real Princess and CASPAR through the bridge (E4).
     their text stays in the private rules repo (never shipped).
   - Other code in the download: the Rust crates (rayon, serde_json, indexmap, zip, lzma-rs, mimalloc...) need their
     licence notices (mostly MIT / Apache-2.0).
-  - The project's own licence: none chosen yet (no LICENSE file). Credits: Daniel (design, rules calls, direction) and
+  - The project's own licence: none chosen yet (no LICENSE file). Daniel's criteria (2026-11-13): "a license that i dont have
+    to do any work to use. That protects the rights of the people who's stuff we've used, and prevents someone in the future
+    from trying to claim it as their own to block others from using it. After that its free reign. I have no problem with
+    someone reverse engineering the thing to build their own." Claude's recommendation: GPL v3 or later for everything the
+    project wrote (copyleft; the same licence as MegaMek's code, which the Princess clone comes from); MegaMek's data keeps
+    CC BY-NC-SA 4.0, listed separately. WAITING for Daniel's go-ahead. Credits: Daniel (design, rules calls, direction) and
     Claude (Anthropic's AI model: implementation, as the co-author lines in the history say).
 - E3. 3D art [15] (paused): next the weapon-block stockpile, then bird-body torso / head blocks, the 47 chart
   chassis, directional hardpoints.
