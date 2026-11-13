@@ -171,8 +171,8 @@ real Princess and CASPAR through the bridge (E4).
   (no `rules/` in any version; no personal email), checked, pushed. Deterministic: each publish adds commits on top.
   Why a separate repo: this one's history held the rulebook text (since 2026-10-19), and GitHub keeps every pull
   request's commits, which only GitHub Support can delete. Publish when Daniel wants the public copy updated (e.g. with
-  each Combat Lab download). OPEN: the Claude GitHub App must be given access to battletech-combat-lab before the first
-  push (Daniel); the Combat Lab downloads then go on the public repo (the GPL source requirement is met there).
+  each Combat Lab download). FIRST PUBLISH 2026-11-13 (647 commits; checked on GitHub: no `rules/` in any version). NEXT: the Combat Lab downloads
+  go on the public repo with the next alpha (the GPL source requirement is met there).
 - E3. 3D art [15] (paused): next the weapon-block stockpile, then bird-body torso / head blocks, the 47 chart
   chassis, directional hardpoints.
 
