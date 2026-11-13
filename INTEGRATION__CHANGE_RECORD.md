@@ -6,6 +6,16 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-13 (Claude, session 25), COMBAT LAB SECOND PASS: DANIEL'S NOTES AFTER TRYING IT. No battle result changes. REVIEW PENDING (higher-level model).**
+  Daniel tried the demo page: deleting a team's units was a dead end (the File button opens the computer's file picker, which the demo
+  refused); "Number of teams ... 64 as a minimum cap"; pick colours; a unit filter with drag-and-drop into teams; stitched maps; a
+  10,000-battle list must not be one long list; a results filter. Built: teams uncapped with a colour picker (colours reach the replay:
+  the viewer reads the record's `colours`); the Unit Browser window (filters, sort, drag onto a team, "Add selected"); the demo reads
+  dropped files; stitched maps (`runs::scenario_of` takes a board grid); `results` filters (winner, turn cap, turns, a unit destroyed /
+  survived and its cause) with statistics of the matches, and returns the battle list in ranges (the page nests it). Checked in a
+  browser: drag from the browser, 8 teams, a stitched map, 250 battles nested and filtered; a 12-team free-for-all plays. His later
+  ideas are in `INTEGRATION__COMBAT_LAB.md` Part A ("Daniel's notes after trying the first Lab pages").
+
 - **2026-11-12 (Claude, session 25), COMBAT LAB CL2-CL5: A LAB PROGRAM WITH PAGES - SET UP TEAMS, RUN, SEE RESULTS, WATCH ANY BATTLE. No battle result changes. REVIEW PENDING (higher-level model).**
   Daniel: "Go ahead and begin working on CombatLab" (after "something I can interact with as a normal person who does not code").
   CL2: NEW `history.rs` - a battle's full history in the replay viewer's own format (`btsim --history N`, `Scenario::run_history`,

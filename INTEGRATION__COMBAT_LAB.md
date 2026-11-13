@@ -45,6 +45,28 @@ bots.
 **AI plugin architecture.** Bots behind one adapter interface, so a new bot
 needs no GUI change.
 
+**Daniel's notes after trying the first Lab pages (2026-11-13).** Built the
+same day: no cap on teams (he wants grand melees: "64 as a minimum cap"),
+any team colour, a Unit Browser window with filters where units are dragged
+onto teams, boards stitched together, a battle list nested in ranges for
+big batches, and a "Find battles" filter. For later:
+- **Unit selection ergonomics:** MegaMek's or MekBay's filter system as the
+  model; improve on it in the GUI ergonomics pass.
+- **Non-rectangular map areas** (wild idea): a play area that is not a
+  rectangle of boards.
+- **Options tab = optional rules:** pick which optional and advanced rules
+  are in effect (the engine's OPTIONAL RULES switches), when the engine is
+  ready for that.
+- **Deep result filters:** "find games where the Atlas died to a DFA from a
+  Griffin" needs the engine to record who killed whom and how. Daniel's idea:
+  say what to look for BEFORE the batch, and record only the battles that
+  match (keeps memory small).
+- **Replay:** an art pass someday; show a bot's "thinking" (its heat map)
+  over the board (Combat Lab CL7).
+- **Grand-melee deployment:** with more than four teams, teams share the
+  four home edges (the engine cycles them); a deployment that spreads many
+  teams around the board is a rules / scope call for Daniel.
+
 ## Claude's notes on Part A
 
 - **Most of this already has a seam in the code.** `INTEGRATION__bots`

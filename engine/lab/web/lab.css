@@ -119,3 +119,49 @@ h2 { font-size: 14px; margin: 0 0 8px; }
 .replay-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin-bottom: 8px; }
 .replay-frame { width: 100%; height: 640px; border: 0; display: block; background: var(--field); }
 .status { margin: 0 8px 8px; padding: 2px 6px; font-size: 12px; display: flex; justify-content: space-between; gap: 8px; }
+
+/* team panels: buttons under the list */
+.team-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+.team-head input[type=color] { width: 44px; height: 24px; padding: 1px; background: var(--face); border: 2px solid; border-color: var(--shadow) var(--light) var(--light) var(--shadow); }
+
+/* the Unit Browser window (moves by its title bar; resizable at the corner) */
+.dialog { position: fixed; top: calc(60px + env(safe-area-inset-top, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); z-index: 20;
+  width: min(640px, calc(100vw - 32px)); height: min(72vh, 640px); min-width: 300px; min-height: 260px; resize: both; overflow: hidden;
+  display: flex; flex-direction: column; background: var(--face); border: 2px solid; border-color: var(--light) var(--dark) var(--dark) var(--light); box-shadow: inset -1px -1px 0 var(--shadow), 4px 4px 0 rgba(0,0,0,.4); }
+.dialog[hidden] { display: none; }
+.dialog .titlebar { cursor: move; touch-action: none; user-select: none; }
+.closebox { width: 20px; height: 18px; padding: 0; line-height: 14px; background: var(--face); color: var(--dark); border: 1px solid var(--dark); box-shadow: inset 1px 1px 0 var(--light), inset -1px -1px 0 var(--shadow); cursor: pointer; }
+.dialog-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding: 8px; }
+.dialog-body .filters { margin: 0; }
+.pair { display: flex; gap: 4px; }
+.pair input[type=number] { width: 64px; }
+.ub-list { flex: 1; min-height: 80px; max-height: none; }
+#ub-list tbody tr { cursor: grab; }
+#ub-list tbody tr.on { background: var(--select); color: var(--title-text); }
+#ub-list tbody tr.bad { color: var(--shadow); cursor: default; }
+#ub-list th[data-sort] { cursor: pointer; }
+#ub-list th.sorted { font-weight: bold; }
+@media (max-width: 760px) { .dialog { left: max(8px, env(safe-area-inset-left, 0px)) !important; right: auto; width: calc(100vw - 16px); top: auto !important; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); height: 60vh; resize: none; } }
+
+/* the stitched map grid */
+.stitch-grid { display: grid; gap: 4px; margin-top: 6px; }
+.stitch-grid .cell { min-height: 54px; padding: 4px; font: inherit; font-size: 12px; text-align: center; background: var(--field); border: 2px solid; border-color: var(--shadow) var(--light) var(--light) var(--shadow); cursor: pointer; min-width: 0; overflow-wrap: anywhere; }
+.stitch-grid .cell.on { outline: 2px solid var(--title); outline-offset: -4px; }
+#stitch-box { margin-bottom: 8px; }
+
+/* results: the finder and the nested battle list */
+.finder { margin-bottom: 8px; }
+.cond { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 6px; }
+.cond select, .cond input { max-width: 100%; }
+#battle-tree { padding: 4px; max-height: 420px; }
+.branch .twig { display: block; width: 100%; text-align: left; padding: 2px 4px; background: none; border: 0; cursor: pointer; font: inherit; }
+.branch .twig:hover { background: var(--select); color: var(--title-text); }
+.branch .twig:hover .note { color: inherit; }
+.branch .sign { display: inline-block; width: 12px; text-align: center; font-family: var(--mono); }
+.branch .kids { margin-left: 18px; border-left: 1px dotted var(--shadow); padding-left: 4px; }
+table.leaves { width: 100%; border-collapse: collapse; }
+table.leaves th { font-weight: normal; text-align: left; padding: 1px 4px; border-bottom: 1px solid var(--shadow); }
+table.leaves td { padding: 1px 4px; white-space: nowrap; }
+table.leaves tbody tr { cursor: pointer; }
+table.leaves tbody tr:hover { background: var(--select); color: var(--title-text); }
+.leaf { padding: 4px; }

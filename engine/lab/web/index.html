@@ -28,8 +28,10 @@
         <fieldset>
           <legend>Battle</legend>
           <div class="form">
-            <label class="row" for="team-count">Number of teams <input type="number" id="team-count" min="2" max="6" value="2"></label>
+            <label class="row" for="team-count">Number of teams <input type="number" id="team-count" min="2" value="2"></label>
             <label class="row" for="battles">Number of simulations <input type="number" id="battles" min="1" max="100000" value="20"></label>
+            <span class="note" id="team-sum"></span>
+            <button class="btn" id="browse-btn">Unit Browser&hellip;</button>
           </div>
         </fieldset>
         <fieldset>
@@ -48,6 +50,19 @@
   <section class="page" id="page-map" role="tabpanel" hidden>
     <div class="split">
       <div>
+        <div class="filters">
+          <label class="row" for="map-one"><input type="radio" name="map-mode" id="map-one" checked> One board</label>
+          <label class="row" for="map-stitch"><input type="radio" name="map-mode" id="map-stitch"> Boards stitched together</label>
+        </div>
+        <fieldset id="stitch-box" hidden>
+          <legend>Stitched map</legend>
+          <div class="filters">
+            <label class="row" for="stitch-cols">Across <input type="number" id="stitch-cols" min="1" max="8" value="2"></label>
+            <label class="row" for="stitch-rows">Down <input type="number" id="stitch-rows" min="1" max="8" value="1"></label>
+          </div>
+          <p class="note">Choose a place in the grid, then a board in the list; the next place is chosen for you. Boards in a row must share a height, boards in a column a width. Random map fills every place with boards of one size.</p>
+          <div class="stitch-grid" id="stitch-grid"></div>
+        </fieldset>
         <div class="filters">
           <label for="board-search">Search <input type="search" id="board-search" placeholder="Name or map set"></label>
           <label for="board-size">Size <select id="board-size"><option value="">Any</option></select></label>
@@ -83,10 +98,26 @@
         <span id="progress-text" class="num"></span>
         <button class="btn" id="cancel-btn">Cancel</button>
       </div>
+      <fieldset class="finder">
+        <legend>Find battles</legend>
+        <div class="filters">
+          <label for="f-winner">Winner <select id="f-winner"><option value="">Any</option></select></label>
+          <label for="f-capped">Reached the turn cap <select id="f-capped"><option value="">Either</option><option value="yes">Yes</option><option value="no">No</option></select></label>
+          <label for="f-tmin">Turns from <input type="number" id="f-tmin" min="0"></label>
+          <label for="f-tmax">to <input type="number" id="f-tmax" min="0"></label>
+        </div>
+        <div id="f-units"></div>
+        <div class="filters">
+          <button class="btn" id="f-add-unit">Add a unit condition</button>
+          <button class="btn" id="f-apply">Find</button>
+          <button class="btn" id="f-clear">Show all</button>
+        </div>
+      </fieldset>
+      <p class="note" id="filter-note"></p>
       <div class="winbar" id="winbar"></div>
       <div class="stats" id="stats"></div>
       <h2>Battles <span class="note">(choose one to watch it)</span></h2>
-      <div class="list sunken battles"><table id="battle-list"><thead><tr><th class="num">#</th><th>Seed</th><th>Winner</th><th class="num">Turns</th><th class="num">Seconds</th></tr></thead><tbody></tbody></table></div>
+      <div class="list sunken battles" id="battle-tree"></div>
     </div>
   </section>
 
@@ -99,6 +130,26 @@
     </div>
     <iframe class="replay-frame sunken" id="replay-frame" title="Battle replay"></iframe>
   </section>
+
+  <!-- the UNIT BROWSER: a window over the page; units are dragged from it onto the team panels -->
+  <div class="dialog" id="browser" role="dialog" aria-labelledby="ub-title-text" hidden>
+    <div class="titlebar" id="ub-title"><span class="box" aria-hidden="true"></span><span class="name" id="ub-title-text">Unit Browser</span><button class="closebox" id="ub-close" aria-label="Close">&times;</button></div>
+    <div class="dialog-body">
+      <div class="filters">
+        <label for="ub-name">Name <input type="search" id="ub-name" placeholder="e.g. atlas"></label>
+        <label for="ub-class">Weight class <select id="ub-class"><option value="">Any</option><option value="light">Light (20-35 t)</option><option value="medium">Medium (40-55 t)</option><option value="heavy">Heavy (60-75 t)</option><option value="assault">Assault (80-100 t)</option><option value="superheavy">Super-heavy</option></select></label>
+        <label for="ub-tmin">Tons <span class="pair"><input type="number" id="ub-tmin" min="0" placeholder="min"><input type="number" id="ub-tmax" min="0" placeholder="max"></span></label>
+        <label for="ub-bmin">Battle Value <span class="pair"><input type="number" id="ub-bmin" min="0" placeholder="min"><input type="number" id="ub-bmax" min="0" placeholder="max"></span></label>
+        <label for="ub-tech">Tech base <select id="ub-tech"><option value="">Any</option><option value="inner sphere">Inner Sphere</option><option value="clan">Clan</option><option value="mixed">Mixed</option></select></label>
+        <label for="ub-source">Unit set <select id="ub-source"></select></label>
+        <label for="ub-year">In service by (year) <input type="number" id="ub-year" min="2000" placeholder="any"></label>
+        <label class="row" for="ub-playable"><input type="checkbox" id="ub-playable" checked> Playable only</label>
+      </div>
+      <div class="filters"><span id="ub-count" class="note"></span><button class="btn small" id="ub-clear">Clear selection</button></div>
+      <div class="list sunken ub-list"><table id="ub-list"><thead><tr><th data-sort="name">Unit</th><th data-sort="tons" class="num">Tons</th><th data-sort="bv" class="num">BV</th><th>Tech</th><th data-sort="era" class="num">Year</th></tr></thead><tbody></tbody></table></div>
+      <div class="note" id="ub-picked"></div>
+    </div>
+  </div>
 
   <div class="status raised"><span id="status">Ready</span><span id="status-right"></span></div>
 </div>
