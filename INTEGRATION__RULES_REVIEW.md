@@ -1,7 +1,7 @@
 # Core Rulebook vs code — rules review
 
 Started 2026-10-20 (Claude). The code checked against the Core Rulebook in
-`rules/Battletech_Rule_Reference_Index.zip` (`base/core-rules/*.md`, summaries
+the rules library (the private repo `logajam/battletech-rules-index`; until 2026-11-13 a zip copy in `rules/`) (`base/core-rules/*.md`, summaries
 in `summary/core-rules/*.yaml`). Every entry cites the page. Status words:
 
 - **FIXED** — clear rule, now in the code (Change Record, `INTEGRATION__CHANGE_RECORD.md`, once Section 8 of the

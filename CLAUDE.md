@@ -34,20 +34,21 @@ GitHub logistics.
   Daniel's differs, follow the book and say so. Exception: switches kept for
   speed, like `FIGHT_TO_THE_DEATH` off ("it saves time when the situation is
   hopeless").
-- **Rules come from the library, never from memory.** Use
-  `rules/Battletech_Rule_Reference_Index.zip`, unzipped OUTSIDE the repo. The
-  Core Rulebook is in `base/core-rules/*.md`, and a `[p.N]` marker comes before
-  page N's text. Cite the page in the code. If the library doesn't settle a
-  rule, look at how MegaMek does it (its source; Daniel, 2026-10-28), and ask
-  Daniel only if that still leaves a question. The zip is a snapshot of the private repo
-  `logajam/battletech-rules-index` (its own CLAUDE.md has the pipeline);
-  that repo also holds TO: Advanced Units & Equipment and TO: Advanced Rules
-  (2026-10), which the zip predates (session 10 read them from a clone of
-  that repo). Interstellar Operations isn't indexed yet: its TSEMP / iATM
-  rules came from Daniel's pastes, and stats no paste or table gives come
-  from MegaMek's source at Daniel's word (cite "MegaMek" in the code).
-  Attach it with `add_repo` when a rule needs a newer book,
-  and refresh the zip when Daniel wants that book used here.
+- **Rules come from the library, never from memory.** The library is the
+  PRIVATE repo `logajam/battletech-rules-index` (its own CLAUDE.md has the
+  pipeline): attach it with `add_repo` and clone it OUTSIDE this repo (e.g.
+  `/home/user/battletech-rules-index`). The Core Rulebook is in
+  `base/core-rules/*.md` (a `[p.N]` marker comes before page N's text;
+  `summary/core-rules/*.yaml` is the fast read); it also holds TO: Advanced
+  Units & Equipment and TO: Advanced Rules. Cite the page in the code. If the
+  library doesn't settle a rule, look at how MegaMek does it (its source;
+  Daniel, 2026-10-28), and ask Daniel only if that still leaves a question.
+  Interstellar Operations isn't indexed yet: its TSEMP / iATM rules came from
+  Daniel's pastes, and stats no paste or table gives come from MegaMek's
+  source at Daniel's word (cite "MegaMek" in the code). NEVER put rulebook
+  text in this repo (Daniel, 2026-11-13: it is to be publicly viewable):
+  cite pages and describe rules in our own words. The old copy
+  (`rules/Battletech_Rule_Reference_Index.zip`) was removed that day.
 - **Logistics are Claude's** (Daniel: "You're in charge of the logistics").
   Work on the session branch, commit, push, open a PR to `main`, and merge it
   once every test passes. Daniel doesn't use GitHub, so tell him in plain words
@@ -137,7 +138,7 @@ GitHub logistics.
   explicit and commented to match the surrounding files, and sign changes in
   the Change Record.
 - **Licence** (Daniel, 2026-11-13): the project is GNU GPL v3 or later (`LICENSE`, `CREDITS.md`). Credit borrowed work in
-  `CREDITS.md` (MegaMek's data is CC BY-NC-SA 4.0: keep each file's header); never ship `rules/` (rulebook text); after a
+  `CREDITS.md` (MegaMek's data is CC BY-NC-SA 4.0: keep each file's header); never put rulebook text in the repo; after a
   change of Rust libraries run `python tools/third_party_licenses.py`. A download for anyone but Daniel needs its source
   with it (PROJECT_MAP E5).
 - **File names:** keep the `INTEGRATION__` / `mechsim/` / `pathfinder/` split.

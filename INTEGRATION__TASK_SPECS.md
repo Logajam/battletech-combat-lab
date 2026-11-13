@@ -203,8 +203,7 @@ entry that holds its numbers. Checks identical before and after (they are off, s
 
 ## T9. Rules library (Sonnet helpers, per `battletech-rules-index/CLAUDE.md`; on Daniel's go)
 
-(a) Rebuild `rules/Battletech_Rule_Reference_Index.zip` from the rules repo's `main` so TO:AUE and TO:AR are in
-it; update CLAUDE.md's rules paragraph. (b) Interstellar Operations: the rules repo's own recipe (prep script,
+(a) SUPERSEDED (2026-11-13): the zip copy was removed; sessions read the rules repo itself (CLAUDE.md). (b) Interstellar Operations: the rules repo's own recipe (prep script,
 chapter map, base rip one helper at a time, errata v1.21 and IOAE v3.01, summary, index), about 4M helper tokens
 for a ~230-page book - IntOps is 394 pages, so budget about 7M and split over days.
 

@@ -31,9 +31,9 @@ and the GitHub logistics (Section 7).
 - **Rust engine (`engine/`, sessions 22-24):** `cd engine && cargo build --release -p btsim`; batches with
   `engine/target/release/btsim SCENARIO_DIR --battles N` (scenarios from `tools/port_scenario.py`; the Hydra mirror set
   from `tools/hydra_scenarios.py`, into the git-ignored `engine/fixtures/`). Checks: `RUST_PORT.md` "Session 24".
-- `pip install -r requirements.txt`. Unzip `rules/Battletech_Rule_Reference_Index.zip` OUTSIDE the repo (Core
-  Rulebook in `base/core-rules/*.md`, a `[p.N]` marker comes before page N's text; `summary/core-rules/*.yaml`
-  is the fast read). Unzip `data/meks.zip` / `data/maps.zip` outside the repo when needed.
+- `pip install -r requirements.txt`. The rules library is the private repo `logajam/battletech-rules-index`, cloned
+  OUTSIDE this repo (Core Rulebook in `base/core-rules/*.md`, a `[p.N]` marker comes before page N's text;
+  `summary/core-rules/*.yaml` is the fast read); never copy its text here (CLAUDE.md). Unzip `data/meks.zip` / `data/maps.zip` outside the repo when needed.
 - The Rust module is optional (same results without it): `pip install maturin && cd fastcore && maturin build
   --release && pip install --force-reinstall target/wheels/*.whl`.
 - MegaMek's source, when a rule or the Princess clone needs it: `git clone --depth 1 --filter=blob:none --sparse
@@ -159,12 +159,20 @@ real Princess and CASPAR through the bridge (E4).
   where to pick up, with Daniel's design for playing against the bot: the bridge spec Section 8b (Combat Lab CL10).
 - E5. ATTRIBUTIONS AND LICENCE NOTICES - DONE (Daniel, 2026-11-13: "Go ahead and add it to the project"). The project is
   GNU GPL v3 or later (`LICENSE`); `CREDITS.md` credits Daniel and Claude, the MegaMek Team (data under CC BY-NC-SA 4.0,
-  `licenses/`; the Princess translation from their GPL v3 code), BattleTech's owners, and keeps `rules/` out of the licence
-  and out of every download; `THIRD_PARTY_LICENSES.txt` (`tools/third_party_licenses.py`); the Lab's About box; all in the
+  `licenses/`; the Princess translation from their GPL v3 code), BattleTech's owners (no rulebook text in the repo: the zip copy was removed 2026-11-13); `THIRD_PARTY_LICENSES.txt` (`tools/third_party_licenses.py`); the Lab's About box; all in the
   Combat Lab download. Daniel's criteria: "a license that i dont have to do any work to use. That protects the rights of the
   people who's stuff we've used, and prevents someone in the future from trying to claim it as their own". OPEN: GPL v3 asks
   that whoever receives the program can get its source. The repository is private, so before the download goes to anyone
   but Daniel, ship the source with it (or a public source link); `tools/package_lab.py` does not do that yet.
+- E6. PUBLIC REPOSITORY (Daniel, 2026-11-13: "sanitize the combatlab repo so we can make the repo publicly viewable").
+  Done: the rulebook text removed from the tree (Change Record). Still in this repo's HISTORY (since 2026-10-19), and GitHub
+  keeps every pull request's commits, which nobody but GitHub Support can delete - so flipping THIS repo to public would
+  leave the rulebook text reachable through ~200 old pull requests. Plan: a NEW public repository with this repo's history
+  rewritten (`git filter-repo`: the `rules/` folder taken out of every version; Daniel's personal email on 9 commits mapped
+  to his GitHub noreply address), main only (the downloads branch is remade there with the next alpha, which carries the
+  licence files); this repo stays private as the archive (its pull request discussions stay here). Needs Daniel to create the
+  empty repository (Claude cannot create repositories from a session). Public repos: anyone can read and copy, only Daniel
+  and people he invites can write.
 - E3. 3D art [15] (paused): next the weapon-block stockpile, then bird-body torso / head blocks, the 47 chart
   chassis, directional hardpoints.
 
@@ -1201,9 +1209,10 @@ turn's score, so a decision sees what it gives up.
   ask only when a real rules/scope call is Daniel's.)
 - Never hardcode a BT numeric rule from memory — check the rules library
   (below) and cite the page; if the library doesn't settle it, ask Daniel.
-- The rules library is `rules/Battletech_Rule_Reference_Index.zip` (Core
-  Rulebook base layer in `base/core-rules/*.md`). Unzip it outside the repo
-  and check rules against it; cite the page in the code.
+- The rules library is the private repo `logajam/battletech-rules-index`
+  (Core Rulebook base layer in `base/core-rules/*.md`), cloned outside this
+  repo; check rules against it and cite the page in the code. Its text never
+  goes into this repo (Daniel, 2026-11-13).
 - Keep source-project file prefixes; never let one overwrite the other.
 - Name which pile new code belongs to; if it doesn't fit, say so.
 - New pile-4 decision points get a Section 6 row.
