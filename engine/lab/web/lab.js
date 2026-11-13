@@ -622,6 +622,10 @@ async function start() {
     $("banner").textContent = "Combat Lab's program is not running: start CombatLab, then reload this page.";
     return;
   }
+  if (lab.info.missing_data) {
+    $("banner").hidden = false;
+    $("banner").innerHTML = `<b>No units or boards found.</b> Combat Lab comes in two parts: unzip the data part into the same folder as CombatLab.exe (the folder <code>data</code> must sit beside it), then close the black window and start CombatLab again.`;
+  }
   if (DEMO) {
     $("mode").textContent = "DEMO";
     $("banner").hidden = false;

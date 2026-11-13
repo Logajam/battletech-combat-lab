@@ -1,7 +1,7 @@
 """
 tools/package_lab.py - Combat Lab for Windows as one zip Daniel downloads, unpacks and starts (CombatLab.exe).
 
-    python tools/package_lab.py OUT_DIR [--version alpha-1]
+    python tools/package_lab.py OUT_DIR [--version alpha-1] [--split]
 
 Builds the Lab for Windows (cargo, target x86_64-pc-windows-gnu: needs `rustup target add x86_64-pc-windows-gnu` and the
 MinGW compiler and strip, `apt-get install gcc-mingw-w64-x86-64 binutils-mingw-w64-x86-64`), then writes OUT_DIR/CombatLab-<version>.zip:
@@ -28,6 +28,10 @@ TARGET = "x86_64-pc-windows-gnu"
 
 README = """COMBAT LAB ({version})
 ==========================
+
+If it came in two parts (-program and -data): unzip both into the SAME folder, so that the folder CombatLab holds
+CombatLab.exe, README.txt, engine and data together. (Unzip the first one; then unzip the second one to the same
+place - Windows asks whether to merge the CombatLab folders: yes.)
 
 Start: double-click CombatLab.exe. A black window opens (the program) and Combat Lab opens in your web browser.
 Close the black window to stop Combat Lab. If the browser does not open, type the address the black window shows
@@ -72,13 +76,22 @@ def main(argv):
     subprocess.run(["x86_64-w64-mingw32-strip", os.path.join(stage, "CombatLab.exe")], check=True)
     with open(os.path.join(stage, "README.txt"), "w", encoding="utf-8", newline="\r\n") as f:
         f.write(README.format(version=version))
-    zip_path = os.path.join(out, f"CombatLab-{version}.zip")
-    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
-        for root, _, files in os.walk(stage):
-            for name in sorted(files):
-                full = os.path.join(root, name)
-                z.write(full, os.path.relpath(full, out))
-    print(f"{zip_path}: {os.path.getsize(zip_path) / 1e6:.1f} MB")
+    # --split: two zips, the program and the data, both under the same CombatLab/ folder, so unzipping both into one
+    # place merges them (for an upload that takes only ~3 MB a file); otherwise one zip
+    parts = {"": lambda rel: True}
+    if "--split" in argv:
+        is_data = lambda rel: rel.startswith(os.path.join("CombatLab", "data") + os.sep)
+        parts = {"-program": lambda rel: not is_data(rel), "-data": is_data}
+    for suffix, keep in parts.items():
+        zip_path = os.path.join(out, f"CombatLab-{version}{suffix}.zip")
+        with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+            for root, _, files in os.walk(stage):
+                for name in sorted(files):
+                    full = os.path.join(root, name)
+                    rel = os.path.relpath(full, out)
+                    if keep(rel):
+                        z.write(full, rel)
+        print(f"{zip_path}: {os.path.getsize(zip_path) / 1e6:.2f} MB")
 
 
 if __name__ == "__main__":
