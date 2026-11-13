@@ -36,6 +36,9 @@ const MAP_PREFIX: &str = "maps/";
 impl Catalog {
     /// Reads (or builds and keeps) the lists for the data folder `data`; the cache goes in `cache_dir`.
     pub fn load(data: &Path, cache_dir: &Path, defaults: &Value) -> Catalog {
+        if let Err(e) = unpack_solid(data) {
+            eprintln!("combatlab: the unit pack could not be unpacked: {}", e);
+        }
         let sig = signature(data);
         let cache = cache_dir.join("units.json");
         let cached: Option<Value> = fs::read_to_string(&cache).ok().and_then(|t| serde_json::from_str(&t).ok());
@@ -77,6 +80,45 @@ impl Catalog {
         }
         fs::write(&target, text).map_err(|e| e.to_string())
     }
+}
+
+/// The packaged download carries the unit pack as ONE xz-compressed block, `data/meks.pack.xz` (ten times smaller than
+/// meks.zip, which compresses each unit file on its own; tools/package_lab.py writes it). On the first start it is made
+/// into `data/meks.zip` again (files stored, not compressed), so everything else reads units the usual way. The block
+/// is, per unit file: name length (4 bytes, little-endian), name (UTF-8), content length (4 bytes), content.
+fn unpack_solid(data: &Path) -> Result<(), String> {
+    let solid = data.join("meks.pack.xz");
+    let pack = data.join(UNIT_PACK);
+    if pack.exists() || !solid.exists() {
+        return Ok(());
+    }
+    let started = std::time::Instant::now();
+    let mut raw = Vec::new();
+    lzma_rs::xz_decompress(&mut std::io::BufReader::new(fs::File::open(&solid).map_err(|e| e.to_string())?), &mut raw).map_err(|e| format!("{:?}", e))?;
+    let tmp = data.join("meks.zip.part");
+    let mut z = zip::ZipWriter::new(fs::File::create(&tmp).map_err(|e| e.to_string())?);
+    let opts = zip::write::SimpleFileOptions::default().compression_method(zip::CompressionMethod::Stored);
+    let mut at = 0usize;
+    let mut take = |n: usize| -> Result<&[u8], String> {
+        let s = raw.get(at..at + n).ok_or("the unit pack is cut short")?;
+        at += n;
+        Ok(s)
+    };
+    let mut count = 0;
+    loop {
+        let Ok(len) = take(4) else { break };
+        let len = u32::from_le_bytes(len.try_into().unwrap()) as usize;
+        let name = String::from_utf8(take(len)?.to_vec()).map_err(|e| e.to_string())?;
+        let size = u32::from_le_bytes(take(4)?.try_into().unwrap()) as usize;
+        let content = take(size)?.to_vec();
+        z.start_file(name, opts).map_err(|e| e.to_string())?;
+        std::io::Write::write_all(&mut z, &content).map_err(|e| e.to_string())?;
+        count += 1;
+    }
+    z.finish().map_err(|e| e.to_string())?;
+    fs::rename(&tmp, &pack).map_err(|e| e.to_string())?;
+    eprintln!("combatlab: unit pack unpacked ({} units, {:.1} s)", count, started.elapsed().as_secs_f64());
+    Ok(())
 }
 
 /// What the cached unit list was built from: the loose unit files and the unit pack (names, sizes, times).

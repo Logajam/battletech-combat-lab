@@ -15,3 +15,5 @@ mimalloc = { version = "0.1", default-features = false }
 serde_json = { version = "1", features = ["preserve_order"] }
 # reads the unit pack (data/meks.zip) and the map pack (data/maps.zip); the server itself is the standard library only
 zip = { version = "2", default-features = false, features = ["deflate"] }
+# the packaged download carries the unit pack as one xz block (data/meks.pack.xz, ten times smaller; catalog.rs)
+lzma-rs = "0.3"

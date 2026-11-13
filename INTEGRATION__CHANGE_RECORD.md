@@ -6,6 +6,17 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-13 (Claude, session 25), COMBAT LAB ALPHA FOR WINDOWS. No battle result changes. REVIEW PENDING (higher-level model).**
+  Daniel: "get it from Demo to Alpha status to something I can download and use" (he wanted to try 1 Atlas v 12 Wasps). NEW
+  `tools/package_lab.py OUT_DIR --version V`: cross-builds `CombatLab.exe` (target x86_64-pc-windows-gnu, MinGW; only Windows
+  system DLLs), and zips it with engine/defaults/config.json, data/ (*.mtf, *.board, maps.zip) and the unit pack as ONE xz block
+  (`data/meks.pack.xz`, 0.77 MB against meks.zip's 7.6 MB; `catalog::unpack_solid` makes meks.zip from it on the first start;
+  crate `lzma-rs`): 4.3 MB. `SetupPaths::find` now takes the nearest folder at or above the program that holds
+  engine/defaults/config.json (the repository root, or the unpacked package). Tested under Wine: the package starts, unpacks
+  4,227 pack units (4,252 in all), serves the pages, plays 1 Atlas AS7-D v 12 Wasp WSP-1A (the Wasps won 20 of 20, about 2 lost).
+  Daniel's next-version notes (start positions per team, a side swap for N/S v E/W balance, BV following the skills) are in
+  `INTEGRATION__COMBAT_LAB.md` Part A.
+
 - **2026-11-13 (Claude, session 25), COMBAT LAB SECOND PASS: DANIEL'S NOTES AFTER TRYING IT. No battle result changes. REVIEW PENDING (higher-level model).**
   Daniel tried the demo page: deleting a team's units was a dead end (the File button opens the computer's file picker, which the demo
   refused); "Number of teams ... 64 as a minimum cap"; pick colours; a unit filter with drag-and-drop into teams; stitched maps; a

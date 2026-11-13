@@ -78,7 +78,8 @@ does not code" - CL2 to CL5.
   `filter` (winner, turn cap, turns, unit destroyed / survived with cause words) and `from` / `to` / `bucket`; the page
   nests the battle list in ranges of 100 or more (never more than 100 lines at a level) and shows the statistics of the
   battles that match.
-- NOT YET: a Windows `CombatLab.exe` package (the program finds the project folder from BTSIM_ROOT or three folders above
+- ALPHA (2026-11-13): `tools/package_lab.py` builds the Windows download (CombatLab.exe + data, 4.3 MB; README.txt inside).
+- NOT YET (superseded: see ALPHA above): a Windows `CombatLab.exe` package (the program finds the project folder from BTSIM_ROOT or three folders above
   itself); stats the engine does not total yet (average heat); debug output options; team colours are not passed to the viewer.
 
 ## CL10. Connect to MegaMek (Daniel, 2026-11-12; after CL4)
