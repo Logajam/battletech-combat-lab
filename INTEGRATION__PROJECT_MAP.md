@@ -157,6 +157,23 @@ real Princess and CASPAR through the bridge (E4).
   `INTEGRATION__MEGAMEK_BRIDGE.md` (task T14, stages B0-B7). B0-B5 DONE: our engine plays in MegaMek (Hydra, Gladiator or our
   Princess as a MegaMek player; `tools/megamek_bridge_games.py`). SHELVED (Daniel, 2026-11-12) for the Combat Lab GUI;
   where to pick up, with Daniel's design for playing against the bot: the bridge spec Section 8b (Combat Lab CL10).
+- E5. ATTRIBUTIONS AND LICENCE NOTICES (Daniel, 2026-11-13: "Proper attributions. Especially to Megamek's team. Probably
+  liscnese boilerplate too, wherever that goes. Your contribution should be included in there too."). To do: a CREDITS /
+  NOTICE file at the repository root, shipped in the Combat Lab download, plus an About box in the Lab. What it must cover
+  (facts found so far; the licence choices are Daniel's):
+  - MegaMek's unit files (data/*.mtf, data/meks.zip) and boards (data/*.board, data/maps.zip): each file's header says
+    "MegaMek Data (C) 2025 by The MegaMek Team is licensed under CC BY-NC-SA 4.0" (attribution, NON-COMMERCIAL, share-alike),
+    with trademark notices (Topps: MechWarrior, BattleMech, 'Mech, AeroTech; InMediaRes / Catalyst Game Labs; Microsoft's Game
+    Content Usage Rules). Keep those headers, credit the MegaMek Team, link the licence.
+  - MegaMek's source code (GPL v3): our Princess clone was translated from it (INTEGRATION__bots, PROJECT_MAP Section 6), rules
+    gaps were settled from it ("cite MegaMek in the code"), and megamek_bridge/ is built on it (already GPL, its README). CHECK:
+    what GPL v3 asks of the Combat Lab download, which contains the Princess clone.
+  - BattleTech itself: Catalyst Game Labs / Topps trademarks; the Core Rulebook and Tactical Operations are cited by page,
+    their text stays in the private rules repo (never shipped).
+  - Other code in the download: the Rust crates (rayon, serde_json, indexmap, zip, lzma-rs, mimalloc...) need their
+    licence notices (mostly MIT / Apache-2.0).
+  - The project's own licence: none chosen yet (no LICENSE file). Credits: Daniel (design, rules calls, direction) and
+    Claude (Anthropic's AI model: implementation, as the co-author lines in the history say).
 - E3. 3D art [15] (paused): next the weapon-block stockpile, then bird-body torso / head blocks, the 47 chart
   chassis, directional hardpoints.
 
