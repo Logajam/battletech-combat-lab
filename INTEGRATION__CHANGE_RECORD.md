@@ -6,6 +6,16 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-13 (Claude, session 25), RULEBOOK TEXT REMOVED; TOWARD A PUBLIC REPOSITORY. No code changes.**
+  Daniel: "Make sure it does exist in the rules repo before nuking it, but otherwise remove it and sanitize the combatlab repo
+  so we can make the repo publicly viewable." Checked first: all 73 files of `rules/Battletech_Rule_Reference_Index.zip` are in
+  `logajam/battletech-rules-index` main (70 word for word; the other 3, storage-map / pipeline workflow / index manifest, are
+  only longer there). Removed the zip; CLAUDE.md, PROJECT_MAP, README, RULES_REVIEW, TASK_SPECS T9 now point at the rules
+  repo, cloned outside this one, with a standing rule: no rulebook text in this repo. Audit of the rest (every version): no
+  keys or passwords; no other rulebook text (page cites and our own summaries; Daniel's IO pastes were summarised); no PDFs or
+  images ever; files deleted over time are our own. The equipment tables are now credited to MegaMek in CREDITS.md. Daniel's
+  personal email is on 9 commits. Going public: PROJECT_MAP E6.
+
 - **2026-11-13 (Claude, session 25), LICENCE AND CREDITS. No code behaviour changes. REVIEW PENDING (higher-level model).**
   Daniel: "Go ahead and add it to the project" (GPL v3, recommended against his criteria: no work to use, protects the people
   whose work we used, no one can claim it and block others, reverse engineering welcome). NEW `LICENSE` (GNU GPL v3 text,

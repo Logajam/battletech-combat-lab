@@ -30,6 +30,8 @@ the BattleTech community. This project would not exist without their work.
   <https://creativecommons.org/licenses/by-nc-sa/4.0/>. They are used unchanged, each with its own notice header. They
   may not be used for commercial purposes; because the Combat Lab download includes them, the download is
   non-commercial too.
+- **Equipment tables.** `mechsim/equipment.json` and `mechsim/equipment_bv.json` (weapon and equipment stats, Battle
+  Values) were built from MegaMek's equipment data and source code.
 - **Code.** MegaMek's source code is licensed under the GNU General Public License v3. This project's "princess" bot is a
   translation of MegaMek's Princess bot (from MegaMek's source), rules the rulebooks leave open were settled by reading
   MegaMek's source (cited "MegaMek" in the code), and `megamek_bridge/` is built against MegaMek (see its README). MegaMek
@@ -46,9 +48,8 @@ electronic games is a trademark of Microsoft Corporation. MechWarrior Copyright 
 created under Microsoft's "Game Content Usage Rules" (<https://www.xbox.com/en-US/developers/rules>).
 
 The rules come from Catalyst Game Labs' rulebooks (the BattleTech Core Rulebook, Tactical Operations: Advanced Rules and
-Advanced Units & Equipment, Interstellar Operations), cited by page in the code. The rulebook index in `rules/` holds
-text from those books for the project's own private reference: it is NOT covered by this project's licence, is not
-part of any download, and must never be distributed.
+Advanced Units & Equipment, Interstellar Operations), cited by page in the code and described in the project's own words. No rulebook text is part of this project or
+of any download: the project reads the books from a separate, private reference library.
 
 ## Open-source libraries
 
