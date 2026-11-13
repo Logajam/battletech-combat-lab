@@ -78,7 +78,10 @@ does not code" - CL2 to CL5.
   `filter` (winner, turn cap, turns, unit destroyed / survived with cause words) and `from` / `to` / `bucket`; the page
   nests the battle list in ranges of 100 or more (never more than 100 lines at a level) and shows the statistics of the
   battles that match.
-- ALPHA (2026-11-13): `tools/package_lab.py` builds the Windows download (CombatLab.exe + data, 4.3 MB; README.txt inside).
+- ALPHA (2026-11-13): `tools/package_lab.py` builds the Windows download (CombatLab.exe + data, 4.3 MB; README.txt inside;
+  `--split` for program + data zips). DELIVERY: Daniel downloads from the `downloads` branch (an orphan branch holding only the
+  zips; his choice, 2026-11-13): `https://github.com/Logajam/battletech-monte-carlo-sim/raw/downloads/CombatLab-<version>.zip`.
+  The Google Drive connector could not be used (3.1 MB per call, and no permission to create files).
 - NOT YET (superseded: see ALPHA above): a Windows `CombatLab.exe` package (the program finds the project folder from BTSIM_ROOT or three folders above
   itself); stats the engine does not total yet (average heat); debug output options; team colours are not passed to the viewer.
 
