@@ -21,7 +21,9 @@ fn items_db() -> &'static HashMap<String, Value> {
     })
 }
 
-const SKILL_TABLE: [[f64; 9]; 9] = [
+/// The skill multipliers, [gunnery][piloting] from 0 to 8 (4 / 5 = 1.00). Public for Combat Lab, whose page works a
+/// unit's BV out for any pilot from its 4 / 5 value: BV = floor(BV(4/5) x SKILL_TABLE[g][p] + 0.5), as `battle_value`.
+pub const SKILL_TABLE: [[f64; 9]; 9] = [
     [2.42, 2.31, 2.21, 2.10, 1.93, 1.75, 1.68, 1.59, 1.50],
     [2.21, 2.11, 2.02, 1.92, 1.76, 1.60, 1.54, 1.46, 1.38],
     [1.93, 1.85, 1.76, 1.68, 1.54, 1.40, 1.35, 1.28, 1.21],

@@ -172,7 +172,8 @@ real Princess and CASPAR through the bridge (E4).
   Why a separate repo: this one's history held the rulebook text (since 2026-10-19), and GitHub keeps every pull
   request's commits, which only GitHub Support can delete. Publish when Daniel wants the public copy updated (e.g. with
   each Combat Lab download). FIRST PUBLISH 2026-11-13 (647 commits; checked on GitHub: no `rules/` in any version). NEXT: the Combat Lab downloads
-  go on the public repo with the next alpha (the GPL source requirement is met there).
+  go on the public repo (a download link on its front page), but not yet: Daniel, 2026-11-13, "Lets refine before making
+  it too public".
 - E3. 3D art [15] (paused): next the weapon-block stockpile, then bird-body torso / head blocks, the 47 chart
   chassis, directional hardpoints.
 

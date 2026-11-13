@@ -33,6 +33,16 @@ function setStatus(text, right) {
 const fmtSecs = (s) => s < 60 ? `${s.toFixed(1)} s` : s < 3600 ? `${Math.floor(s / 60)} min ${Math.round(s % 60)} s` : `${(s / 3600).toFixed(1)} h`;
 const pct = (x) => `${(100 * x).toFixed(0)}%`;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+// a unit's Battle Value for its pilot: the list gives it for gunnery 4 / piloting 5; the engine's skill table
+// (battle_value.rs SKILL_TABLE, sent by the server) scales it, rounded as the engine rounds
+function unitBv(u) {
+  const base = (lab.byId.get(u.id) || {}).bv;
+  if (base == null) return null;
+  const table = lab.info.skill_table;
+  if (!table) return base;
+  const g = Math.max(0, Math.min(8, u.gunnery)), p = Math.max(0, Math.min(8, u.piloting));
+  return Math.floor(base * table[g][p] + 0.5);
+}
 const colourOf = (name) => (lab.teams.find((t) => t.name === name) || {}).colour || "#808080";
 
 // a team's default colour: the named ones first, then hues spread around the wheel (any number of teams)
@@ -113,7 +123,7 @@ function teamPanel(t, ti) {
   el.className = "team raised";
   const bots = lab.info.bots.map((b) => `<option value="${b}"${b === t.bot ? " selected" : ""}>${b[0].toUpperCase() + b.slice(1)}</option>`).join("");
   const tons = t.units.reduce((s, u) => s + (u.tons || 0), 0);
-  const bv = t.units.reduce((s, u) => s + (u.bv || 0), 0);
+  const bv = t.units.reduce((s, u) => s + (unitBv(u) || 0), 0);
   el.innerHTML = `
     <legend>Team ${ti + 1}</legend>
     <div class="team-head">
@@ -124,7 +134,7 @@ function teamPanel(t, ti) {
     <div class="list sunken"><table>
       <thead><tr><th>Unit</th><th class="num">Tons</th><th class="num">BV</th><th title="Gunnery skill">G</th><th title="Piloting skill">P</th><th></th></tr></thead>
       <tbody>${t.units.length ? t.units.map((u, ui) => `<tr>
-        <td class="name">${esc(u.name)}</td><td class="num">${u.tons ?? ""}</td><td class="num">${u.bv ?? ""}</td>
+        <td class="name">${esc(u.name)}</td><td class="num">${u.tons ?? ""}</td><td class="num" id="bv-${ti}-${ui}">${unitBv(u) ?? ""}</td>
         <td><input type="number" min="0" max="8" value="${u.gunnery}" id="g-${ti}-${ui}" aria-label="Gunnery"></td>
         <td><input type="number" min="0" max="8" value="${u.piloting}" id="p-${ti}-${ui}" aria-label="Piloting"></td>
         <td><button class="btn small" data-remove="${ui}" title="Remove">&times;</button></td></tr>`).join("")
@@ -151,8 +161,9 @@ function teamPanel(t, ti) {
   el.querySelector(`#tbot-${ti}`).addEventListener("change", (e) => { t.bot = e.target.value; save(); });
   el.querySelectorAll("[data-remove]").forEach((b) => b.addEventListener("click", () => { t.units.splice(+b.dataset.remove, 1); redraw(); }));
   t.units.forEach((u, ui) => {
-    el.querySelector(`#g-${ti}-${ui}`).addEventListener("change", (e) => { u.gunnery = Math.max(0, Math.min(8, +e.target.value)); save(); });
-    el.querySelector(`#p-${ti}-${ui}`).addEventListener("change", (e) => { u.piloting = Math.max(0, Math.min(8, +e.target.value)); save(); });
+    // a skill change re-draws the team, so the unit's BV and the team's total follow it
+    el.querySelector(`#g-${ti}-${ui}`).addEventListener("change", (e) => { u.gunnery = Math.max(0, Math.min(8, +e.target.value)); redraw(); });
+    el.querySelector(`#p-${ti}-${ui}`).addEventListener("change", (e) => { u.piloting = Math.max(0, Math.min(8, +e.target.value)); redraw(); });
   });
   wireSearch(el, t, ti);
   el.querySelector(`#browse-${ti}`).addEventListener("click", openBrowser);
