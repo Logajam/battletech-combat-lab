@@ -151,7 +151,20 @@
     </div>
   </div>
 
-  <div class="status raised"><span id="status">Ready</span><span id="status-right"></span></div>
+  <!-- ABOUT: credits and licences (CREDITS.md has them in full) -->
+  <div class="dialog about" id="about" role="dialog" aria-labelledby="about-title-text" hidden>
+    <div class="titlebar"><span class="box" aria-hidden="true"></span><span class="name" id="about-title-text">About Combat Lab</span><button class="closebox" id="about-close" aria-label="Close">&times;</button></div>
+    <div class="dialog-body about-body">
+      <p><b>Combat Lab</b>, part of the BattleTech Monte Carlo simulator. Copyright &copy; 2026 Daniel (Logajam).<br>
+      By <b>Daniel</b> (design, direction, rules calls) and <b>Claude</b>, an AI model made by Anthropic (implementation).</p>
+      <p>Free software under the <b>GNU General Public License v3</b> or later: anyone may use, study, change and share it, and what is shared that is built on it stays under the same licence. No warranty. See <code>LICENSE</code> and <code>CREDITS.md</code> in the Combat Lab folder.</p>
+      <p>With thanks to <b>the MegaMek Team</b> (megamek.org). The units and boards are MegaMek Data, &copy; 2025 The MegaMek Team, under <b>CC BY-NC-SA 4.0</b> (non-commercial). The "princess" bot is a translation of MegaMek's Princess (GPL v3).</p>
+      <p class="note">An unofficial fan project, not affiliated with, endorsed by, or licensed by Microsoft Corporation, The Topps Company, Inc., or Catalyst Game Labs. MechWarrior, BattleMech, 'Mech and AeroTech are registered trademarks of The Topps Company, Inc. Catalyst Game Labs and its logo are trademarks of InMediaRes Productions, LLC. The BattleTech name for electronic games is a trademark of Microsoft Corporation.</p>
+      <p class="note">Built with open-source Rust libraries: their licences are in <code>THIRD_PARTY_LICENSES.txt</code>.</p>
+    </div>
+  </div>
+
+  <div class="status raised"><span id="status">Ready</span><span class="status-right"><span id="status-right"></span><button class="btn small" id="about-btn">About</button></span></div>
 </div>
 <!--LAB-SCRIPT-->
 <script src="lab.js"></script>

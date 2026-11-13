@@ -2,6 +2,7 @@
 name = "combatlab"
 version = "0.1.0"
 edition = "2021"
+license = "GPL-3.0-or-later"
 description = "Combat Lab (INTEGRATION__COMBAT_LAB_SPECS.md CL3): the local server the Combat Lab pages talk to"
 
 [[bin]]

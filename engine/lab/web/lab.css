@@ -165,3 +165,10 @@ table.leaves td { padding: 1px 4px; white-space: nowrap; }
 table.leaves tbody tr { cursor: pointer; }
 table.leaves tbody tr:hover { background: var(--select); color: var(--title-text); }
 .leaf { padding: 4px; }
+
+/* the About box: centred, sized to its text */
+.dialog.about { left: 50%; right: auto; top: 50%; transform: translate(-50%, -50%); height: auto; max-height: calc(100vh - 32px); width: min(560px, calc(100vw - 32px)); resize: none; }
+.about-body { overflow: auto; }
+.about-body p { margin: 0 0 8px; max-width: 65ch; }
+.status-right { display: flex; gap: 8px; align-items: center; }
+@media (max-width: 760px) { .dialog.about { left: 50% !important; top: 50% !important; bottom: auto; height: auto; } }
