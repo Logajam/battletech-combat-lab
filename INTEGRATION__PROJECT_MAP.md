@@ -14,7 +14,12 @@ project's files. Never let one source project's file overwrite the other's same-
 ---
 
 
-## 0. WHERE WE ARE (2026-11-12, end of session 25) — read this first
+## 0. WHERE WE ARE (2026-11-13, end of session 25) — read this first
+
+**Pick up here (Daniel, 2026-11-13, closing session 25):** "I should play with the program and come up with a better
+defined list." Combat Lab alpha-1 works on his PC (stage 1); he will bring a polish list. Waiting items: start positions
+per team and a side swap (offered as the next step, not started), the other ideas in `INTEGRATION__COMBAT_LAB.md` Part A,
+a public download link once refined (E6), the MegaMek bridge (shelved, E4).
 
 This section is the current state and the open work, nothing else. The story of how it got here is in
 `INTEGRATION__HISTORY.md` (the old Section 0, word for word, with Daniel's quotes and every number) and
@@ -188,6 +193,8 @@ remove the line and note it in the Change Record.
 - **(ac) HYDRA S3 MOVE ORDER** (session 25): `hydra::move_pick` / `picks_move_order` (`HYDRA_MOVE_ORDER = "stake"`, off), the new `BotSet::move_pick` socket used by the turn loop's pick (and so by the move queue), `ledger_as` (read-only ledger). Two reference battles (86).
 - **(ad) HYDRA WAITING + ATTENTION SHARE** (session 25): `HYDRA_WAITING` (`coming_friends`, `HydraState::waited`) and `HYDRA_ATTENTION = "oracle"` (`elsewhere_of`, `attention_damage`), both off. Four reference battles (90).
 - **(ag) WALKING FALL INTO AN OCCUPIED HEX + STREAMED TRIALS** (session 25): `domino.fell_into_occupied` (both engines, MegaMek's rule), `btsim --stream` (per-battle lines, crash catching, resume), progress files in `trial_records/progress/`.
+- **(ar) PUBLIC COPY** (session 25): `tools/publish_public.py` (the filter-repo rewrite and its checks: no `rules/` path, no personal email, tree equal to main) and the removal of the rulebook zip (docs now point at the rules repo).
+- **(aq) BV FOLLOWS THE SKILLS** (session 25): `battle_value::SKILL_TABLE` made public, `unitBv` in `lab.js`, `tests/bv_skills.rs`.
 - **(ap) LICENCE AND CREDITS** (session 25): `CREDITS.md` wording (MegaMek, trademarks, `rules/` excluded), `tools/third_party_licenses.py`.
 - **(ao) COMBAT LAB ALPHA** (session 25): `tools/package_lab.py`, `catalog::unpack_solid`, `SetupPaths::find`.
 - **(an) COMBAT LAB SECOND PASS** (session 25): `runs::matches` / `results` pieces, the board grid in `scenario_of`, `lab.js` (Unit Browser, stitched map, nested list).
