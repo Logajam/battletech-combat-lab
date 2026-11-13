@@ -179,6 +179,18 @@ real Princess and CASPAR through the bridge (E4).
   each Combat Lab download). FIRST PUBLISH 2026-11-13 (647 commits; checked on GitHub: no `rules/` in any version). NEXT: the Combat Lab downloads
   go on the public repo (a download link on its front page), but not yet: Daniel, 2026-11-13, "Lets refine before making
   it too public".
+- E7. COMBAT LAB: SAVED RUNS AND CRASHED BATTLES (Daniel, 2026-11-13, after a crash in a 100-battle run). (a) "We need the
+  capacity to save runs so its easier for me to just hand you a set so you can look at it": a run (its setup: teams,
+  units, skills, bots, board, base seed, battle count, turn cap; and its battle list) saved to one file Daniel can send,
+  and opened again by the Lab and by `btsim`. Today the setup has to be retyped by hand, and the team ORDER matters (Red
+  listed first gives different battles than Blue first; it took three tries to rebuild his run). The file should also
+  name the Lab version and include any added unit files (the Asymptote IIC was a dropped file). (b) "Seeds that give
+  errors should still be listed for replay": today a crashed battle goes to the run's separate `crashed` list
+  (`runs.rs`), not the battle list, so it vanishes from the page (battle 73 was simply missing). It should appear in
+  the list, marked as an error with its message, and its replay should play up to the crash (needs a history that
+  survives the panic: `run_history` keeps what it has recorded when the battle panics). Not built. Note:
+  `tests/check_lab_server.py` (in run_checks) rebuilds `combatlab` in the session; that is a local test build, not a release
+  (Daniel, 2026-11-13: "Do not recompile the combatlab program" until more fixes are in).
 - E3. 3D art [15] (paused): next the weapon-block stockpile, then bird-body torso / head blocks, the 47 chart
   chassis, directional hardpoints.
 
@@ -194,6 +206,7 @@ remove the line and note it in the Change Record.
 - **(ad) HYDRA WAITING + ATTENTION SHARE** (session 25): `HYDRA_WAITING` (`coming_friends`, `HydraState::waited`) and `HYDRA_ATTENTION = "oracle"` (`elsewhere_of`, `attention_damage`), both off. Four reference battles (90).
 - **(ag) WALKING FALL INTO AN OCCUPIED HEX + STREAMED TRIALS** (session 25): `domino.fell_into_occupied` (both engines, MegaMek's rule), `btsim --stream` (per-battle lines, crash catching, resume), progress files in `trial_records/progress/`.
 - **(ar) PUBLIC COPY** (session 25): `tools/publish_public.py` (the filter-repo rewrite and its checks: no `rules/` path, no personal email, tree equal to main) and the removal of the rulebook zip (docs now point at the rules repo).
+- **(as) NO CHARGE / DFA ON A 'MECH THAT IS ITSELF CHARGING OR DFA-ING** (session 26): `movement_attacks::can_be_attacked` (Core p.78), `engine/core/tests/charge_targets.rs`. Fixed a Combat Lab crash (two 'Mechs charging each other).
 - **(aq) BV FOLLOWS THE SKILLS** (session 25): `battle_value::SKILL_TABLE` made public, `unitBv` in `lab.js`, `tests/bv_skills.rs`.
 - **(ap) LICENCE AND CREDITS** (session 25): `CREDITS.md` wording (MegaMek, trademarks, `rules/` excluded), `tools/third_party_licenses.py`.
 - **(ao) COMBAT LAB ALPHA** (session 25): `tools/package_lab.py`, `catalog::unpack_solid`, `SetupPaths::find`.
