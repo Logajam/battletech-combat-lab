@@ -206,6 +206,7 @@ remove the line and note it in the Change Record.
 - **(ad) HYDRA WAITING + ATTENTION SHARE** (session 25): `HYDRA_WAITING` (`coming_friends`, `HydraState::waited`) and `HYDRA_ATTENTION = "oracle"` (`elsewhere_of`, `attention_damage`), both off. Four reference battles (90).
 - **(ag) WALKING FALL INTO AN OCCUPIED HEX + STREAMED TRIALS** (session 25): `domino.fell_into_occupied` (both engines, MegaMek's rule), `btsim --stream` (per-battle lines, crash catching, resume), progress files in `trial_records/progress/`.
 - **(ar) PUBLIC COPY** (session 25): `tools/publish_public.py` (the filter-repo rewrite and its checks: no `rules/` path, no personal email, tree equal to main) and the removal of the rulebook zip (docs now point at the rules repo).
+- **(at) DISPLACEMENT AFTER ALL PHYSICAL ATTACKS** (session 26, Core p.76): `charge::resolve_damage` / `resolve_displacement`, `dfa::resolve_damage` / `resolve_displacement`, the order in `physical::run_physical_units`, the already-displaced rule (MegaMek's).
 - **(as) NO CHARGE / DFA ON A 'MECH THAT IS ITSELF CHARGING OR DFA-ING** (session 26): `movement_attacks::can_be_attacked` (Core p.78), `engine/core/tests/charge_targets.rs`. Fixed a Combat Lab crash (two 'Mechs charging each other).
 - **(aq) BV FOLLOWS THE SKILLS** (session 25): `battle_value::SKILL_TABLE` made public, `unitBv` in `lab.js`, `tests/bv_skills.rs`.
 - **(ap) LICENCE AND CREDITS** (session 25): `CREDITS.md` wording (MegaMek, trademarks, `rules/` excluded), `tools/third_party_licenses.py`.

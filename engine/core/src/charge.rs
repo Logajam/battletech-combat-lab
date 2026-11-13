@@ -107,10 +107,23 @@ pub fn declare(b: &mut Battle, attacker: UnitId, target: UnitId) -> Declared {
     Declared::Going(tn, hit)
 }
 
-/// Damage both ways, then displacement (p.78, pp.113-115). Returns the PSR triggers.
-pub fn resolve_hit(b: &mut Battle, attacker: UnitId, target: UnitId) -> Triggers {
-    let a_hex = hex_geometry::parse_hex_label(b.units[attacker].hex.as_deref().unwrap()).unwrap();
-    let t_hex = hex_geometry::parse_hex_label(b.units[target].hex.as_deref().unwrap()).unwrap();
+/// A charge that hit, between its damage and its displacement: who, and where both stood when it was made.
+pub struct ChargeHit {
+    pub attacker: UnitId,
+    pub target: UnitId,
+    pub a_label: String,
+    pub t_label: String,
+    /// the direction of the charge (attacker's hex -> target's hex)
+    pub dir: i64,
+}
+
+/// A charge's damage, both ways (p.78). Displacement waits until every physical attack of the phase has been made (Core
+/// p.76): `resolve_displacement` does it, from the ChargeHit returned here.
+pub fn resolve_damage(b: &mut Battle, attacker: UnitId, target: UnitId) -> ChargeHit {
+    let a_label = b.units[attacker].hex.clone().unwrap();
+    let t_label = b.units[target].hex.clone().unwrap();
+    let a_hex = hex_geometry::parse_hex_label(&a_label).unwrap();
+    let t_hex = hex_geometry::parse_hex_label(&t_label).unwrap();
     let tf = hex_geometry::compass_to_facing(&b.units[target].facing).unwrap();
     let side = crate::attack_resolution::attack_side(b, a_hex, t_hex, tf, crate::attack_resolution::standing(), crate::attack_resolution::standing()).to_string();
     let dealt = target_damage(&b.units[attacker], combat::fc_to_tmm(b.units[attacker].move_fc, false).unwrap());
@@ -135,12 +148,40 @@ pub fn resolve_hit(b: &mut Battle, attacker: UnitId, target: UnitId) -> Triggers
     }
     let onto = gear::raised_arm(&b.units[attacker]);
     ma::apply_groups(b, attacker, taken, "standard", "front", "Charge (attacker)", spikes, onto.as_deref());
+    ChargeHit { attacker, target, a_label, t_label, dir: combat::direction_facing(a_hex, t_hex).unwrap() }
+}
 
+/// A charge's displacement (pp.78, 113-115), once every physical attack of the phase has been made (p.76). Returns the
+/// PSR triggers. If an earlier displacement this phase already moved the attacker or the target out of the hex it
+/// stood in for the charge, this one moves nobody else: the target is not displaced again, and the attacker (if it was
+/// not moved itself) advances into the hex it charged, as MegaMek does for a target that is no longer there (the
+/// rulebook does not say; TWGameManager.resolveChargeAttack).
+pub fn resolve_displacement(b: &mut Battle, h: &ChargeHit) -> Triggers {
+    let (attacker, target) = (h.attacker, h.target);
+    let (a_name, t_name) = (b.units[attacker].side_name.clone().unwrap_or_default(), b.units[target].side_name.clone().unwrap_or_default());
     let mut triggers: Triggers = IndexMap::default();
     triggers.insert(a_name.clone(), vec![]);
     triggers.insert(t_name.clone(), vec![]);
     if !b.is_destroyed(attacker) {
         triggers.get_mut(&a_name).unwrap().push(("charged (attacker)".into(), CHARGE_PSR_MODIFIER));
+    }
+    let attacker_moved = b.units[attacker].hex.as_deref() != Some(h.a_label.as_str());
+    let target_moved = b.units[target].hex.as_deref() != Some(h.t_label.as_str());
+    if attacker_moved || target_moved {
+        let who = if attacker_moved { &a_name } else { &t_name };
+        b.log(format!("    {}'s charge on {}: {} was already displaced this phase - no displacement from this charge (p.76).", a_name, t_name, who));
+        if !b.is_destroyed(target) {
+            triggers.get_mut(&t_name).unwrap().push(("charged".into(), CHARGE_PSR_MODIFIER));
+        }
+        if !attacker_moved && !b.is_destroyed(attacker) {
+            if domino::advance_into(b, attacker, &h.t_label, h.dir, "advancing after its charge") {
+                triggers.insert(a_name.clone(), vec![]);
+            } else {
+                let ah = b.units[attacker].hex.clone().unwrap();
+                hazards::enter_hex(b, attacker, &ah, false, Some(&format!("advanced into {}", ah)), true);
+            }
+        }
+        return triggers;
     }
     if b.is_destroyed(target) {
         if !b.is_destroyed(attacker) {
@@ -148,7 +189,7 @@ pub fn resolve_hit(b: &mut Battle, attacker: UnitId, target: UnitId) -> Triggers
         }
         return triggers;
     }
-    let dir = combat::direction_facing(a_hex, t_hex).unwrap();
+    let dir = h.dir;
     let here = b.units[target].hex.clone().unwrap();
     let (kind, new_label, drop) = ma::displacement(b, &here, dir);
     if kind == "off" {

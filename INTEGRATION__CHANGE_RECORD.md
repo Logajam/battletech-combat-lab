@@ -6,6 +6,21 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-13 (Claude, session 26), RULES: DISPLACEMENT WAITS UNTIL EVERY PHYSICAL ATTACK IS MADE (Core p.76). Battle results change where a phase has a charge or DFA with another displacement (none of the 86 reference battles; 5 of Daniel's 100 Asymptote battles). REVIEW PENDING (higher-level model).**
+  Daniel: "please bring it in line". Core p.76: all physical attacks are made at the same time, so a charge's, DFA's or
+  push's displacement happens only after every attack of the phase is resolved; a 'Mech about to be displaced still makes
+  and receives its attacks. Ours displaced as each attack resolved (pushes, then each charge's damage + displacement, then
+  each DFA's). NOW: `charge::resolve_damage` / `dfa::resolve_damage` deal every charge's and DFA's damage from where the
+  'Mechs stood, and only then `resolve_pushes`, `charge::resolve_displacement`, `dfa::resolve_displacement` move anyone
+  (`physical::run_physical_units`; the order among displacements is unchanged: pushes, charges, DFAs, each in declaration
+  order). The book does not say what a displacement does when an earlier one already moved one of its 'Mechs: a charge
+  then displaces nobody, the target still makes its +2 PSR, and the charger (if it was not itself moved) advances into the
+  hex it charged - MegaMek's handling of a charge target that is no longer there (`TWGameManager.resolveChargeAttack`); a
+  DFA's target is not displaced / does not step aside again, and the attacker still lands in that hex. Both logged
+  ("... was already displaced this phase ... (p.76)"). NEW test in `engine/core/tests/charge_targets.rs`. Daniel's set
+  (seed 2, 100 battles) re-run: no crash; Red 92, Blue 8 (was 93 / 7); battles 21, 30 (Red -> Blue), 35, 71, 73 changed.
+  The Python (retired) keeps the old order.
+
 - **2026-11-13 (Claude, session 26), FIX: TWO 'MECHS COULD CHARGE EACH OTHER (Combat Lab crash). Battle results change only where this happened (none of the 86 reference battles). REVIEW PENDING (higher-level model).**
   Daniel's report: a 100-battle Lab run (12 Inner Sphere 'Mechs, Hydra, v 4 Asymptote IIC iJ Mpulse, Hydra; 16x17 Desert
   Hills; base seed 2; Red listed first) crashed in battle 73 (seed 5376118808176116898): "index out of bounds: the len is 1

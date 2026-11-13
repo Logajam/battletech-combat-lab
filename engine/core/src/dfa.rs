@@ -143,13 +143,22 @@ fn displace(b: &mut Battle, target: UnitId, kind: &str, label: Option<String>, d
     false
 }
 
-/// Damage, landing and displacement (p.80). Returns PSR triggers.
-pub fn resolve(b: &mut Battle, attacker: UnitId, target: UnitId, hit: bool) -> Triggers {
+/// A DFA between its damage and its landing: who, whether it hit, and where both stood when it was made.
+pub struct DfaHit {
+    pub attacker: UnitId,
+    pub target: UnitId,
+    pub hit: bool,
+    /// the target's hex when the DFA was made: where the attacker lands
+    pub target_hex: String,
+    /// attacker's hex -> target's hex
+    pub direction: i64,
+}
+
+/// A DFA's damage, both ways, if it hit (p.80). Landing and displacement wait until every physical attack of the phase
+/// has been made (Core p.76): `resolve_displacement` does them, from the DfaHit returned here.
+pub fn resolve_damage(b: &mut Battle, attacker: UnitId, target: UnitId, hit: bool) -> DfaHit {
     let a_name = b.units[attacker].side_name.clone().unwrap_or_default();
     let t_name = b.units[target].side_name.clone().unwrap_or_default();
-    let mut triggers: Triggers = IndexMap::default();
-    triggers.insert(a_name.clone(), vec![]);
-    triggers.insert(t_name.clone(), vec![]);
     let a_xy = hex_geometry::parse_hex_label(b.units[attacker].hex.as_deref().unwrap()).unwrap();
     let t_xy = hex_geometry::parse_hex_label(b.units[target].hex.as_deref().unwrap()).unwrap();
     let direction = combat::direction_facing(a_xy, t_xy).unwrap();
@@ -170,8 +179,28 @@ pub fn resolve(b: &mut Battle, attacker: UnitId, target: UnitId, hit: bool) -> T
             gear::spike_retaliation(b, attacker, &l);
         }
         ma::apply_groups(b, attacker, ad, "kick", "front", "DFA (attacker)", false, None);
+    }
+    DfaHit { attacker, target, hit, target_hex, direction }
+}
+
+/// A DFA's landing and the target's displacement (p.80), once every physical attack of the phase has been made (p.76).
+/// Returns PSR triggers. If an earlier displacement this phase already moved the target out of the hex it was attacked
+/// in, it is not displaced (or made to step aside) again; the attacker still lands in that hex.
+pub fn resolve_displacement(b: &mut Battle, h: &DfaHit) -> Triggers {
+    let (attacker, target, direction) = (h.attacker, h.target, h.direction);
+    let target_hex = h.target_hex.clone();
+    let a_name = b.units[attacker].side_name.clone().unwrap_or_default();
+    let t_name = b.units[target].side_name.clone().unwrap_or_default();
+    let mut triggers: Triggers = IndexMap::default();
+    triggers.insert(a_name.clone(), vec![]);
+    triggers.insert(t_name.clone(), vec![]);
+    let target_moved = b.units[target].hex.as_deref() != Some(target_hex.as_str());
+    if target_moved {
+        b.log(format!("    {}'s DFA on {}: {} was already displaced this phase - it is not displaced again (p.76).", a_name, t_name, t_name));
+    }
+    if h.hit {
         let mut fell = false;
-        if !b.is_destroyed(target) {
+        if !b.is_destroyed(target) && !target_moved {
             let options = open_hexes(b, target, direction);
             if options.is_empty() {
                 b.units[target].destroyed = true;
@@ -194,23 +223,25 @@ pub fn resolve(b: &mut Battle, attacker: UnitId, target: UnitId, hit: bool) -> T
         return triggers;
     }
     // Miss: the target steps aside (its choice - the safest open hex), the attacker falls 2 levels.
-    let options: Vec<(i64, &'static str, Option<String>, i64)> = open_hexes(b, target, direction).into_iter().filter(|o| o.1 == "moved").collect();
-    if options.is_empty() {
-        b.units[attacker].destroyed = true;
-        b.units[attacker].cause_of_death = Some("Failed DFA with nowhere to land".into());
-        b.log(format!("    {} has nowhere to step aside - {} is destroyed (p.81).", t_name, a_name));
-        return triggers;
-    }
-    let mut best: Option<((bool, i64, bool), usize)> = None;
-    for (i, o) in options.iter().enumerate() {
-        let occ = domino::occupant(b, o.2.as_deref().unwrap(), &[target, attacker]).is_some();
-        let key = (occ, 0.max(o.3), o.0 != direction);
-        if best.as_ref().map_or(true, |(k, _)| key < *k) {
-            best = Some((key, i));
+    if !target_moved {
+        let options: Vec<(i64, &'static str, Option<String>, i64)> = open_hexes(b, target, direction).into_iter().filter(|o| o.1 == "moved").collect();
+        if options.is_empty() {
+            b.units[attacker].destroyed = true;
+            b.units[attacker].cause_of_death = Some("Failed DFA with nowhere to land".into());
+            b.log(format!("    {} has nowhere to step aside - {} is destroyed (p.81).", t_name, a_name));
+            return triggers;
         }
+        let mut best: Option<((bool, i64, bool), usize)> = None;
+        for (i, o) in options.iter().enumerate() {
+            let occ = domino::occupant(b, o.2.as_deref().unwrap(), &[target, attacker]).is_some();
+            let key = (occ, 0.max(o.3), o.0 != direction);
+            if best.as_ref().map_or(true, |(k, _)| key < *k) {
+                best = Some((key, i));
+            }
+        }
+        let (_, _, label, drop) = options[best.unwrap().1].clone();
+        displace(b, target, "moved", label, drop, "stepping aside from a DFA");
     }
-    let (_, _, label, drop) = options[best.unwrap().1].clone();
-    displace(b, target, "moved", label, drop, "stepping aside from a DFA");
     land(b, attacker, &target_hex, Some(direction), true);
     if !b.units[attacker].prone && !b.is_destroyed(attacker) {
         b.log(format!("    {} misses and falls {} levels in {} (rear, p.80).", a_name, MISS_FALL_LEVELS, target_hex));

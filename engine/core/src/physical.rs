@@ -645,8 +645,8 @@ fn whip_trip(b: &mut Battle, attacker: UnitId, target: UnitId, o: &PhysOption, t
     }
 }
 
-/// Every unit declares and rolls, then the damage lands, then charges' and DFAs' damage and displacement, then PSRs and
-/// consciousness checks (p.83). `reports` parallel to `order`.
+/// Every unit declares and rolls, then the damage lands, then charges' and DFAs' damage, then every displacement (pushes,
+/// charges, DFAs; Core p.76), then PSRs and consciousness checks (p.83). `reports` parallel to `order`.
 pub fn run_physical_units(b: &mut Battle, order: &[UnitId], reports: &mut [SideReport], bot: &mut dyn PhysicalBot) {
     let idx = |u: UnitId| order.iter().position(|x| *x == u);
     for &m in order {
@@ -788,14 +788,18 @@ pub fn run_physical_units(b: &mut Battle, order: &[UnitId], reports: &mut [SideR
             add_trigger(&mut triggers, &an, "hit itself with a flail", 0);
         }
     }
+    // Core p.76: every physical attack is made before anyone is displaced - all charge and DFA damage lands from where
+    // the 'Mechs stood, then the displacements: pushes, charges, DFAs (each skips a 'Mech an earlier one already moved).
+    let charge_hits: Vec<charge::ChargeHit> = charges.into_iter().map(|(attacker, target)| charge::resolve_damage(b, attacker, target)).collect();
+    let dfa_hits: Vec<crate::dfa::DfaHit> = dfas.into_iter().map(|(attacker, target, hit)| crate::dfa::resolve_damage(b, attacker, target, hit)).collect();
     resolve_pushes(b, &pushes, &mut triggers);
-    for (attacker, target) in charges {
-        for (name, extra) in charge::resolve_hit(b, attacker, target) {
+    for h in &charge_hits {
+        for (name, extra) in charge::resolve_displacement(b, h) {
             triggers.entry(name).or_default().extend(extra);
         }
     }
-    for (attacker, target, hit) in dfas {
-        for (name, extra) in crate::dfa::resolve(b, attacker, target, hit) {
+    for h in &dfa_hits {
+        for (name, extra) in crate::dfa::resolve_displacement(b, h) {
             triggers.entry(name).or_default().extend(extra);
         }
     }
