@@ -136,4 +136,8 @@ GitHub logistics.
 - **Code style:** Daniel reads the code but doesn't write it. Keep it clean,
   explicit and commented to match the surrounding files, and sign changes in
   the Change Record.
+- **Licence** (Daniel, 2026-11-13): the project is GNU GPL v3 or later (`LICENSE`, `CREDITS.md`). Credit borrowed work in
+  `CREDITS.md` (MegaMek's data is CC BY-NC-SA 4.0: keep each file's header); never ship `rules/` (rulebook text); after a
+  change of Rust libraries run `python tools/third_party_licenses.py`. A download for anyone but Daniel needs its source
+  with it (PROJECT_MAP E5).
 - **File names:** keep the `INTEGRATION__` / `mechsim/` / `pathfinder/` split.

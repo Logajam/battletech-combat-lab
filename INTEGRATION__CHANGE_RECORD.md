@@ -6,6 +6,14 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-13 (Claude, session 25), LICENCE AND CREDITS. No code behaviour changes. REVIEW PENDING (higher-level model).**
+  Daniel: "Go ahead and add it to the project" (GPL v3, recommended against his criteria: no work to use, protects the people
+  whose work we used, no one can claim it and block others, reverse engineering welcome). NEW `LICENSE` (GNU GPL v3 text,
+  identical to MegaMek's LICENSE.code), `CREDITS.md`, `licenses/CC-BY-NC-SA-4.0.txt` (from MegaMek's release, for the data),
+  `THIRD_PARTY_LICENSES.txt` + `tools/third_party_licenses.py` (46 Rust libraries, all MIT / Apache-2.0 / similar), `license =
+  "GPL-3.0-or-later"` in the three Cargo.toml, the About box in the Lab, the files in the Combat Lab package, a README row.
+  MegaMek's licensing guide was read for what it asks (credit, non-commercial data, its trademark and fan-project notices).
+
 - **2026-11-13 (Daniel), COMBAT LAB STAGE 1 REACHED.** Daniel ran CombatLab-alpha-1 on his own Windows PC: "That seems to work.
   There will be so many small tweaks needed to polish it, but we have achieved stage 1, It works." Speed, measured the same day:
   the Lab plays a batch as fast as btsim (Atlas v 12 Wasps, 20 battles on 4 cores: 63 s v 58 s, identical results).

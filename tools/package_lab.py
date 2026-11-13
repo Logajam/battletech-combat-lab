@@ -9,6 +9,8 @@ MinGW compiler and strip, `apt-get install gcc-mingw-w64-x86-64 binutils-mingw-w
     CombatLab/
         CombatLab.exe                 the whole engine and the pages, in one program (needs nothing else installed)
         README.txt                    how to start it
+        LICENSE, CREDITS.md           the licence (GNU GPL v3 or later) and credits; licenses/ (CC BY-NC-SA 4.0 of the data)
+        THIRD_PARTY_LICENSES.txt      the Rust libraries' licences
         engine/defaults/config.json   the engine's settings defaults (the program finds its folder by this file)
         data/                         the units (*.mtf; the unit pack as meks.pack.xz) and boards (*.board, maps.zip)
 
@@ -41,7 +43,11 @@ Windows may warn the first time ("Windows protected your PC"): the program is no
 "Run anyway". Nothing leaves your computer: only this computer's browser can reach Combat Lab.
 
 Keep the folder together: CombatLab.exe reads the units and boards in data/ and its settings in engine/defaults/.
-Unit files (.mtf) you drop on a team are copied into data/. The first start takes a few seconds longer (it builds the
+Unit files (.mtf) you drop on a team are copied into data/.
+
+Credits and licences: CREDITS.md (and the About button in Combat Lab). Combat Lab is free software under the GNU GPL
+v3 or later (LICENSE); its units and boards are MegaMek Data, (C) The MegaMek Team, under CC BY-NC-SA 4.0
+(non-commercial). An unofficial fan project, not affiliated with Microsoft, Topps or Catalyst Game Labs. The first start takes a few seconds longer (it builds the
 unit list once; it is kept in lab_cache/).
 """
 
@@ -74,6 +80,11 @@ def main(argv):
         f.write(lzma.compress(block.getvalue(), format=lzma.FORMAT_XZ, check=lzma.CHECK_CRC64, preset=9 | lzma.PRESET_EXTREME))
     # no debugging symbols: a smaller download
     subprocess.run(["x86_64-w64-mingw32-strip", os.path.join(stage, "CombatLab.exe")], check=True)
+    # the licences and credits travel with the program (CREDITS.md)
+    subprocess.run([sys.executable, os.path.join(REPO_ROOT, "tools", "third_party_licenses.py")], check=True)
+    for name in ("LICENSE", "CREDITS.md", "THIRD_PARTY_LICENSES.txt"):
+        shutil.copy(os.path.join(REPO_ROOT, name), os.path.join(stage, name))
+    shutil.copytree(os.path.join(REPO_ROOT, "licenses"), os.path.join(stage, "licenses"))
     with open(os.path.join(stage, "README.txt"), "w", encoding="utf-8", newline="\r\n") as f:
         f.write(README.format(version=version))
     # --split: two zips, the program and the data, both under the same CombatLab/ folder, so unzipping both into one

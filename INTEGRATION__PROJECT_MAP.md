@@ -157,28 +157,14 @@ real Princess and CASPAR through the bridge (E4).
   `INTEGRATION__MEGAMEK_BRIDGE.md` (task T14, stages B0-B7). B0-B5 DONE: our engine plays in MegaMek (Hydra, Gladiator or our
   Princess as a MegaMek player; `tools/megamek_bridge_games.py`). SHELVED (Daniel, 2026-11-12) for the Combat Lab GUI;
   where to pick up, with Daniel's design for playing against the bot: the bridge spec Section 8b (Combat Lab CL10).
-- E5. ATTRIBUTIONS AND LICENCE NOTICES (Daniel, 2026-11-13: "Proper attributions. Especially to Megamek's team. Probably
-  liscnese boilerplate too, wherever that goes. Your contribution should be included in there too."). To do: a CREDITS /
-  NOTICE file at the repository root, shipped in the Combat Lab download, plus an About box in the Lab. What it must cover
-  (facts found so far; the licence choices are Daniel's):
-  - MegaMek's unit files (data/*.mtf, data/meks.zip) and boards (data/*.board, data/maps.zip): each file's header says
-    "MegaMek Data (C) 2025 by The MegaMek Team is licensed under CC BY-NC-SA 4.0" (attribution, NON-COMMERCIAL, share-alike),
-    with trademark notices (Topps: MechWarrior, BattleMech, 'Mech, AeroTech; InMediaRes / Catalyst Game Labs; Microsoft's Game
-    Content Usage Rules). Keep those headers, credit the MegaMek Team, link the licence.
-  - MegaMek's source code (GPL v3): our Princess clone was translated from it (INTEGRATION__bots, PROJECT_MAP Section 6), rules
-    gaps were settled from it ("cite MegaMek in the code"), and megamek_bridge/ is built on it (already GPL, its README). CHECK:
-    what GPL v3 asks of the Combat Lab download, which contains the Princess clone.
-  - BattleTech itself: Catalyst Game Labs / Topps trademarks; the Core Rulebook and Tactical Operations are cited by page,
-    their text stays in the private rules repo (never shipped).
-  - Other code in the download: the Rust crates (rayon, serde_json, indexmap, zip, lzma-rs, mimalloc...) need their
-    licence notices (mostly MIT / Apache-2.0).
-  - The project's own licence: none chosen yet (no LICENSE file). Daniel's criteria (2026-11-13): "a license that i dont have
-    to do any work to use. That protects the rights of the people who's stuff we've used, and prevents someone in the future
-    from trying to claim it as their own to block others from using it. After that its free reign. I have no problem with
-    someone reverse engineering the thing to build their own." Claude's recommendation: GPL v3 or later for everything the
-    project wrote (copyleft; the same licence as MegaMek's code, which the Princess clone comes from); MegaMek's data keeps
-    CC BY-NC-SA 4.0, listed separately. WAITING for Daniel's go-ahead. Credits: Daniel (design, rules calls, direction) and
-    Claude (Anthropic's AI model: implementation, as the co-author lines in the history say).
+- E5. ATTRIBUTIONS AND LICENCE NOTICES - DONE (Daniel, 2026-11-13: "Go ahead and add it to the project"). The project is
+  GNU GPL v3 or later (`LICENSE`); `CREDITS.md` credits Daniel and Claude, the MegaMek Team (data under CC BY-NC-SA 4.0,
+  `licenses/`; the Princess translation from their GPL v3 code), BattleTech's owners, and keeps `rules/` out of the licence
+  and out of every download; `THIRD_PARTY_LICENSES.txt` (`tools/third_party_licenses.py`); the Lab's About box; all in the
+  Combat Lab download. Daniel's criteria: "a license that i dont have to do any work to use. That protects the rights of the
+  people who's stuff we've used, and prevents someone in the future from trying to claim it as their own". OPEN: GPL v3 asks
+  that whoever receives the program can get its source. The repository is private, so before the download goes to anyone
+  but Daniel, ship the source with it (or a public source link); `tools/package_lab.py` does not do that yet.
 - E3. 3D art [15] (paused): next the weapon-block stockpile, then bird-body torso / head blocks, the 47 chart
   chassis, directional hardpoints.
 
@@ -193,6 +179,7 @@ remove the line and note it in the Change Record.
 - **(ac) HYDRA S3 MOVE ORDER** (session 25): `hydra::move_pick` / `picks_move_order` (`HYDRA_MOVE_ORDER = "stake"`, off), the new `BotSet::move_pick` socket used by the turn loop's pick (and so by the move queue), `ledger_as` (read-only ledger). Two reference battles (86).
 - **(ad) HYDRA WAITING + ATTENTION SHARE** (session 25): `HYDRA_WAITING` (`coming_friends`, `HydraState::waited`) and `HYDRA_ATTENTION = "oracle"` (`elsewhere_of`, `attention_damage`), both off. Four reference battles (90).
 - **(ag) WALKING FALL INTO AN OCCUPIED HEX + STREAMED TRIALS** (session 25): `domino.fell_into_occupied` (both engines, MegaMek's rule), `btsim --stream` (per-battle lines, crash catching, resume), progress files in `trial_records/progress/`.
+- **(ap) LICENCE AND CREDITS** (session 25): `CREDITS.md` wording (MegaMek, trademarks, `rules/` excluded), `tools/third_party_licenses.py`.
 - **(ao) COMBAT LAB ALPHA** (session 25): `tools/package_lab.py`, `catalog::unpack_solid`, `SetupPaths::find`.
 - **(an) COMBAT LAB SECOND PASS** (session 25): `runs::matches` / `results` pieces, the board grid in `scenario_of`, `lab.js` (Unit Browser, stitched map, nested list).
 - **(am) COMBAT LAB CL2-CL5** (session 25): `history.rs` (the replay record; `Log::printed`), `tests/cl2_history.rs` + `port_record.py --replay-data`, the Lab program `engine/lab` (catalog, runs, the std-only HTTP server: check the request parsing and that it stays on 127.0.0.1), the pages `engine/lab/web`, `tests/check_lab_server.py`.

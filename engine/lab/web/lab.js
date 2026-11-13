@@ -651,6 +651,8 @@ async function start() {
   $("estimate-btn").addEventListener("click", estimate);
   $("run-btn").addEventListener("click", runBatch);
   $("browse-btn").addEventListener("click", openBrowser);
+  $("about-btn").addEventListener("click", () => { $("about").hidden = false; });
+  $("about-close").addEventListener("click", () => { $("about").hidden = true; });
   $("cancel-btn").addEventListener("click", () => api("cancel", { run: lab.run }));
   $("board-search").addEventListener("input", drawBoards);
   $("board-size").addEventListener("change", drawBoards);

@@ -2,6 +2,7 @@
 name = "btsim_core"
 version = "0.1.0"
 edition = "2021"
+license = "GPL-3.0-or-later"
 description = "BattleTech Monte Carlo engine: a step-for-step translation of the Python (INTEGRATION__RUST_PORT.md)"
 
 [dependencies]
