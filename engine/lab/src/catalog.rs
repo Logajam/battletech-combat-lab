@@ -132,7 +132,7 @@ fn signature(data: &Path) -> Value {
         let t = m.modified().ok().and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok()).map_or(0, |d| d.as_secs());
         parts.push(format!("{}:{}:{}", UNIT_PACK, m.len(), t));
     }
-    parts.push(format!("engine {} list 2", env!("CARGO_PKG_VERSION")));
+    parts.push(format!("engine {} list 3", env!("CARGO_PKG_VERSION")));
     json!(parts)
 }
 
@@ -199,7 +199,10 @@ pub fn describe_unit(db: &'static btsim_core::equipment::EquipmentDb, cfg: &btsi
     let base = json!({"id": id, "name": name, "source": source, "tons": field("mass:").parse::<i64>().ok(), "tech": field("techbase:"), "era": field("era:").parse::<i64>().ok()});
     let mut out = String::new();
     let parsed = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-        let m = btsim_core::mtf_parser::parse_mtf(db, text, &mut out)?;
+        let mut m = btsim_core::mtf_parser::parse_mtf(db, text, &mut out)?;
+        // the list's BV is the 4 / 5 pilot's (skill factor 1.00); the page scales it by the skill table for other pilots
+        m.gunnery = 4;
+        m.piloting = 5;
         let board = btsim_core::board_parser::Board::from_json(&json!({"width": 1, "height": 1, "hexes": {}}));
         let b = btsim_core::battle::Battle::new(cfg.clone(), board, vec![m], Box::new(btsim_core::battle::TapeDice::new(vec![])));
         Ok::<i64, String>(btsim_core::battle_value::battle_value(&b, 0))

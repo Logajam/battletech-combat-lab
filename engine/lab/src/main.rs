@@ -189,6 +189,7 @@ fn api(lab: &Lab, name: &str, req: &Value) -> Result<Value, String> {
             "cores": std::thread::available_parallelism().map_or(1, |n| n.get()),
             "default_board": "16x17_Grassland_1.board",
             "project": lab.paths.root.display().to_string(),
+            "skill_table": btsim_core::battle_value::SKILL_TABLE,
             "missing_data": lab.catalog.units.is_empty() || lab.catalog.boards.is_empty(),
         })),
         "list_units" => {

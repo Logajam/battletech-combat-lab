@@ -69,8 +69,8 @@ big batches, and a "Find battles" filter. For later:
   start areas, and a toggle to swap sides ("Sometimes a run wants to check
   N/S vs E/W balance"). Yes to spreading teams around the board for grand
   melees ("Because MegaMek runs" them).
-- **BV follows the skills (next version):** a unit's BV on the team panel
-  should change with its gunnery and piloting.
+- **BV follows the skills:** DONE 2026-11-13 (a unit's BV on the team panel
+  changes with its gunnery and piloting).
 - **Grand-melee deployment:** with more than four teams, teams share the
   four home edges (the engine cycles them); a deployment that spreads many
   teams around the board is a rules / scope call for Daniel.

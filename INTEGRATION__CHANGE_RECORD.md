@@ -6,6 +6,14 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-13 (Claude, session 25), COMBAT LAB: BV FOLLOWS THE PILOT'S SKILLS. No battle result changes.**
+  Daniel: "BV should update when piloting and gunnery change"; and "Lets refine before making it too public" (the public
+  download link waits for a refined version, PROJECT_MAP E6). The unit list's BV is the gunnery 4 / piloting 5 value; the
+  server sends the engine's skill table (`battle_value::SKILL_TABLE`, now public) and the page shows each unit's BV for its
+  pilot, floor(BV(4/5) x factor + 0.5), and the team's total, updating as a skill changes. NEW
+  `engine/core/tests/bv_skills.rs`: that equals the engine's own battle_value for every unit file in data/ at every
+  gunnery and piloting 0-8 (in run_checks).
+
 - **2026-11-13 (Claude, session 25), THE PUBLIC COPY: tools/publish_public.py. No code changes.**
   Daniel made the public repository github.com/Logajam/battletech-combat-lab and said the real work stays in this private
   one. NEW `tools/publish_public.py [--push]`: this repo's full main history, rewritten with git filter-repo (the `rules/`
