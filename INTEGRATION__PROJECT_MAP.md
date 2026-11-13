@@ -147,7 +147,8 @@ real Princess and CASPAR through the bridge (E4).
   (session 25; Daniel, 2026-11-12: "something I can interact with as a normal person who does not code"): `btsim --setup`,
   battle histories (`btsim --history N`), the Lab program `engine/target/release/combatlab` (local server + pages:
   Units, Map, Options, Results, Replay), demo page `tools/make_lab_demo.py`, Windows alpha `tools/package_lab.py`.
-  NEXT (Daniel's next-version notes, COMBAT_LAB.md Part A): start positions per team and a side swap, BV following the
+  STAGE 1 REACHED (Daniel, 2026-11-13: "we have achieved stage 1, It works" - alpha-1 on his PC, downloads branch).
+  NEXT (Daniel's next-version notes, COMBAT_LAB.md Part A; "so many small tweaks needed to polish it"): start positions per team and a side swap, BV following the
   skills; then CL6 (battle from a saved state).
 - E3a. Art direction (session 24): why the models read as stacked blocks, and jobs A1-A8 in order -
   `INTEGRATION__COMBAT_LAB_ART_SPECS.md` (nothing built).

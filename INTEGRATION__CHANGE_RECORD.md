@@ -6,6 +6,10 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-13 (Daniel), COMBAT LAB STAGE 1 REACHED.** Daniel ran CombatLab-alpha-1 on his own Windows PC: "That seems to work.
+  There will be so many small tweaks needed to polish it, but we have achieved stage 1, It works." Speed, measured the same day:
+  the Lab plays a batch as fast as btsim (Atlas v 12 Wasps, 20 battles on 4 cores: 63 s v 58 s, identical results).
+
 - **2026-11-13 (Claude, session 25), COMBAT LAB ALPHA FOR WINDOWS. No battle result changes. REVIEW PENDING (higher-level model).**
   Daniel: "get it from Demo to Alpha status to something I can download and use" (he wanted to try 1 Atlas v 12 Wasps). NEW
   `tools/package_lab.py OUT_DIR --version V`: cross-builds `CombatLab.exe` (target x86_64-pc-windows-gnu, MinGW; only Windows
