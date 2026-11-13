@@ -141,4 +141,7 @@ GitHub logistics.
   `CREDITS.md` (MegaMek's data is CC BY-NC-SA 4.0: keep each file's header); never put rulebook text in the repo; after a
   change of Rust libraries run `python tools/third_party_licenses.py`. A download for anyone but Daniel needs its source
   with it (PROJECT_MAP E5).
+- **Public copy** (Daniel, 2026-11-13): work happens HERE (private). `github.com/Logajam/battletech-combat-lab` is the
+  public face, updated only with `python tools/publish_public.py --push` (it strips `rules/` and personal emails from all
+  history and checks before pushing); never push to it by hand. Publish when Daniel asks (PROJECT_MAP E6).
 - **File names:** keep the `INTEGRATION__` / `mechsim/` / `pathfinder/` split.

@@ -6,6 +6,14 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-13 (Claude, session 25), THE PUBLIC COPY: tools/publish_public.py. No code changes.**
+  Daniel made the public repository github.com/Logajam/battletech-combat-lab and said the real work stays in this private
+  one. NEW `tools/publish_public.py [--push]`: this repo's full main history, rewritten with git filter-repo (the `rules/`
+  path out of every version; any non-public author / committer email -> Daniel's GitHub no-reply address), checked (no
+  private path, no private email, latest files identical to main), then pushed. Dry run: 645 commits, all checks pass, and
+  the same result as a hand-made rewrite (deterministic, so later publishes add on top). First push waits on the Claude
+  GitHub App's access to the new repository (Daniel).
+
 - **2026-11-13 (Claude, session 25), RULEBOOK TEXT REMOVED; TOWARD A PUBLIC REPOSITORY. No code changes.**
   Daniel: "Make sure it does exist in the rules repo before nuking it, but otherwise remove it and sanitize the combatlab repo
   so we can make the repo publicly viewable." Checked first: all 73 files of `rules/Battletech_Rule_Reference_Index.zip` are in

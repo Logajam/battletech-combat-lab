@@ -164,15 +164,15 @@ real Princess and CASPAR through the bridge (E4).
   people who's stuff we've used, and prevents someone in the future from trying to claim it as their own". OPEN: GPL v3 asks
   that whoever receives the program can get its source. The repository is private, so before the download goes to anyone
   but Daniel, ship the source with it (or a public source link); `tools/package_lab.py` does not do that yet.
-- E6. PUBLIC REPOSITORY (Daniel, 2026-11-13: "sanitize the combatlab repo so we can make the repo publicly viewable").
-  Done: the rulebook text removed from the tree (Change Record). Still in this repo's HISTORY (since 2026-10-19), and GitHub
-  keeps every pull request's commits, which nobody but GitHub Support can delete - so flipping THIS repo to public would
-  leave the rulebook text reachable through ~200 old pull requests. Plan: a NEW public repository with this repo's history
-  rewritten (`git filter-repo`: the `rules/` folder taken out of every version; Daniel's personal email on 9 commits mapped
-  to his GitHub noreply address), main only (the downloads branch is remade there with the next alpha, which carries the
-  licence files); this repo stays private as the archive (its pull request discussions stay here). Needs Daniel to create the
-  empty repository (Claude cannot create repositories from a session). Public repos: anyone can read and copy, only Daniel
-  and people he invites can write.
+- E6. PUBLIC REPOSITORY (Daniel, 2026-11-13: "sanitize the combatlab repo so we can make the repo publicly viewable";
+  then "we'll let this be the public facing version. I think our actual work should stay in the private repo").
+  The PUBLIC copy is github.com/Logajam/battletech-combat-lab; the WORK stays here (private, the archive of every pull
+  request too). `python tools/publish_public.py --push` updates it from this repo's main: the whole history rewritten
+  (no `rules/` in any version; no personal email), checked, pushed. Deterministic: each publish adds commits on top.
+  Why a separate repo: this one's history held the rulebook text (since 2026-10-19), and GitHub keeps every pull
+  request's commits, which only GitHub Support can delete. Publish when Daniel wants the public copy updated (e.g. with
+  each Combat Lab download). OPEN: the Claude GitHub App must be given access to battletech-combat-lab before the first
+  push (Daniel); the Combat Lab downloads then go on the public repo (the GPL source requirement is met there).
 - E3. 3D art [15] (paused): next the weapon-block stockpile, then bird-body torso / head blocks, the 47 chart
   chassis, directional hardpoints.
 
