@@ -19,3 +19,6 @@ megamek_bridge/build/
 lab_cache/
 data/meks/
 data/maps/
+
+# Combat Lab in the browser (tools/build_web_lab.py): the finished static site
+web_lab/

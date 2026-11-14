@@ -23,6 +23,7 @@ const lab = {
 // ---------------------------------------------------------------- talking to the server
 async function api(name, body) {
   if (DEMO) return demoApi(name, body || {});
+  if (window.LAB_WASM) return window.LAB_WASM.api(name, body || {});   // the browser build (engine/wasm): this computer plays the battles
   const r = await fetch("api/" + name, { method: "POST", body: JSON.stringify(body || {}) });
   return r.json();
 }
@@ -1139,6 +1140,10 @@ async function openReplay(which) {
     if (rec) rec.colours = Object.fromEntries(lab.teams.map((t) => [t.name, t.colour]));
     frame.srcdoc = rec ? DEMO.viewer.replace("__REPLAY_JSON__", JSON.stringify(rec).replace(/<\//g, "<\\/"))
       : `<p style="font:13px Tahoma,sans-serif;padding:12px">This demo carries the replays of battles ${Object.keys(DEMO.histories).join(", ")} only. In Combat Lab any battle replays.</p>`;
+  } else if (window.LAB_WASM) {
+    const html = await window.LAB_WASM.replayHtml(which.run ? { run: which.run, sim: which.sim } : { setup: setup(), seed: which.seed, sim: Math.max(1, +$("replay-sim").value || 1) });
+    if (html.error) { setStatus(html.error); return; }
+    frame.srcdoc = html;
   } else if (which.run) {
     frame.removeAttribute("srcdoc");
     frame.src = `replay?run=${which.run}&sim=${which.sim}`;

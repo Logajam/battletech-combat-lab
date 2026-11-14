@@ -14,11 +14,36 @@
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
+// The browser build (engine/wasm) shares this file: no threads and no std clock there (the page's workers play the
+// battles, and the clock is the page's, `host_now_ms`), so those parts are compiled only for the desktop.
+#[cfg(not(target_arch = "wasm32"))]
 use std::time::Instant;
+#[cfg(target_arch = "wasm32")]
+use wasm_clock::Instant;
+
+#[cfg(target_arch = "wasm32")]
+pub mod wasm_clock {
+    extern "C" {
+        /// milliseconds from the page (performance.now())
+        fn host_now_ms() -> f64;
+    }
+    /// std::time::Instant's two uses here, on the page's clock.
+    #[derive(Clone, Copy)]
+    pub struct Instant(f64);
+    impl Instant {
+        pub fn now() -> Instant {
+            Instant(unsafe { host_now_ms() })
+        }
+        pub fn elapsed(&self) -> std::time::Duration {
+            std::time::Duration::from_secs_f64(((unsafe { host_now_ms() }) - self.0).max(0.0) / 1000.0)
+        }
+    }
+}
 
 use btsim_core::dice::PcgDice;
 use btsim_core::results::BattleResult;
 use btsim_core::scenario::{Scenario, SetupPaths};
+#[cfg(not(target_arch = "wasm32"))]
 use rayon::prelude::*;
 use serde_json::{json, Value};
 
@@ -101,7 +126,7 @@ fn scenario_one(setup: &Value, catalog: &Catalog, paths: &SetupPaths, zones: Opt
 /// (`Config::b` and friends panic), so it is refused here in words instead.
 fn apply_options(settings: &mut Value, options: &Value, paths: &SetupPaths) -> Result<(), String> {
     let Some(options) = options.as_object().filter(|o| !o.is_empty()) else { return Ok(()) };
-    let text = std::fs::read_to_string(&paths.defaults).map_err(|e| format!("{}: {}", paths.defaults.display(), e))?;
+    let text = paths.defaults_text()?;
     let defaults: Value = serde_json::from_str(&text).map_err(|e| e.to_string())?;
     for (key, value) in options {
         let Some(default) = defaults.get(key) else { return Err(format!("option {}: no such setting", key)) };
@@ -322,7 +347,44 @@ pub struct Run {
 }
 
 impl Run {
+    #[allow(dead_code)]
+    /// A batch whose battles are played elsewhere (the browser build: the page's workers) and handed in with
+    /// `push_line` / `push_crash` / `finish`.
+    pub fn external(id: u64, setup: Value, plan: Plan) -> Arc<Run> {
+        let battles = setup["battles"].as_u64().unwrap_or(20).clamp(1, 100_000);
+        Arc::new(Run {
+            id,
+            seed: setup["seed"].as_u64().unwrap_or(1),
+            setup,
+            plan: Arc::new(plan),
+            battles,
+            done: AtomicU64::new(0),
+            cancel: AtomicBool::new(false),
+            finished: AtomicBool::new(false),
+            started: Instant::now(),
+            seconds: Mutex::new(None),
+            lines: Mutex::new(Vec::new()),
+            crashed: Mutex::new(Vec::new()),
+        })
+    }
+
+    /// Battles played elsewhere, handed in (the browser build): their lines and crashes, counted as done.
+    #[allow(dead_code)]
+    pub fn add(&self, lines: Vec<Value>, crashed: Vec<Value>) {
+        self.done.fetch_add((lines.len() + crashed.len()) as u64, Ordering::Relaxed);
+        self.lines.lock().unwrap().extend(lines);
+        self.crashed.lock().unwrap().extend(crashed);
+    }
+
+    /// The elsewhere-played batch is over: its time (the page's, else ours so far).
+    #[allow(dead_code)]
+    pub fn finish(&self, seconds: Option<f64>) {
+        *self.seconds.lock().unwrap() = Some(seconds.unwrap_or_else(|| self.started.elapsed().as_secs_f64()));
+        self.finished.store(true, Ordering::SeqCst);
+    }
+
     /// Starts the batch on its own thread and returns at once.
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn start(id: u64, setup: Value, plan: Plan) -> Arc<Run> {
         let battles = setup["battles"].as_u64().unwrap_or(20).clamp(1, 100_000);
         let seed = setup["seed"].as_u64().unwrap_or(1);
@@ -553,6 +615,7 @@ pub fn matches(line: &Value, f: &Value) -> bool {
 
 /// Seconds a batch of `battles` will take on `threads` threads (0 = every core), from a few pilot battles played side
 /// by side now (on seeds the batch itself does not use first).
+#[cfg(not(target_arch = "wasm32"))]
 pub fn estimate(scenario: &Scenario, battles: u64, threads: usize) -> Value {
     let cores = std::thread::available_parallelism().map_or(1, |n| n.get());
     let threads = if threads == 0 { cores } else { threads.min(cores) };
@@ -569,4 +632,21 @@ pub fn estimate(scenario: &Scenario, battles: u64, threads: usize) -> Value {
     let per_battle = times.iter().sum::<f64>() / times.len() as f64;
     let waves = (battles as f64 / threads as f64).ceil();
     json!({"seconds": per_battle * waves, "per_battle": per_battle, "threads": threads, "pilot_battles": pilots, "pilot_seconds": started.elapsed().as_secs_f64()})
+}
+
+/// Plays battle `sim` of a batch (seed `run_seed`) and returns its line for the battle list, or what a crash would
+/// record. The browser build calls this in its workers (the desktop's `Run::start` does the same inline).
+/// Returns (is a crash, the line).
+#[allow(dead_code)]
+pub fn play_one(plan: &Plan, run_seed: u64, sim: u64) -> (bool, Value) {
+    let s = PcgDice::battle_seed(run_seed, sim);
+    let t = Instant::now();
+    let (scenario, variant) = plan.scenario_for(sim, s);
+    match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| scenario.run(s, false))) {
+        Ok((result, _)) => (false, battle_line(sim, s, &result, t.elapsed().as_secs_f64(), &variant)),
+        Err(e) => {
+            let msg = e.downcast_ref::<String>().cloned().or_else(|| e.downcast_ref::<&str>().map(|m| m.to_string())).unwrap_or_else(|| "panic".into());
+            (true, json!({"sim": sim, "seed": s.to_string(), "crashed": msg, "board": variant["board"], "zones": variant["zones"]}))
+        }
+    }
 }

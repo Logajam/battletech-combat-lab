@@ -1,0 +1,4 @@
+# The browser build (wasm/): the page supplies a few functions (the clock, the panic message), so the linker must leave
+# them as imports of the module instead of failing on them.
+[target.wasm32-unknown-unknown]
+rustflags = ["-C", "link-arg=--import-undefined"]

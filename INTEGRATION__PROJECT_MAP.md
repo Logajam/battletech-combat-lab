@@ -204,6 +204,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s26-9) COMBAT LAB IN THE BROWSER** (session 26): `engine/wasm`, `engine/wasm/web/*.js`, `tools/build_web_lab.py`, `tests/check_web_lab.py`, `SetupPaths.memory` in `scenario.rs`, the wasm32 gates in `lab/src/runs.rs`. The worker-crash path (WebAssembly panics abort; `worker.js` records the seed and restarts the instance) is written but NOT yet exercised: no known unit crashes the engine to try it on. `add_unit` still missing.
 - **(s26-1) REPLAY HEAT MAPS (PRINCESS)** (session 26): `history.rs::heat_now` + the viewer's Heat map box. Terrain-blind reach; Gladiator / Hydra maps still open (CL6 / CL7).
 - **(s26-2) COMBAT LAB RESULTS STATS + RUN FILE** (session 26): engine `Battle.tally` / `SideStats` additions (results only), `runs.rs` unit_stats / causes / export / restore, `main.rs` save_run / load_run, Results page. OPEN FOR OPUS: CL18's live conditions (design in COMBAT_LAB_V2_TASKS).
 - **(s26-3) REPLAY LOG REGROUPING** (session 26): `INTEGRATION__replay_viewer.html` `regroupRanged` (presentation only, falls back to the engine's order if the lines do not pair).

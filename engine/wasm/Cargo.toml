@@ -1,0 +1,14 @@
+[package]
+name = "combatlab_wasm"
+version = "0.1.0"
+edition = "2021"
+license = "GPL-3.0-or-later"
+description = "Combat Lab in the browser: the engine and the Lab's batch statistics as one WebAssembly module (INTEGRATION__COMBAT_LAB_WEB.md)"
+
+[lib]
+crate-type = ["cdylib"]
+
+# No wasm-bindgen: the module exports a handful of plain functions (lib.rs) and web/engine.js is the whole glue.
+[dependencies]
+btsim_core = { path = "../core" }
+serde_json = { version = "1", features = ["preserve_order"] }
