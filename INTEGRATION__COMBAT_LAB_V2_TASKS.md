@@ -135,10 +135,14 @@ battles keep their seed and the situation (setup + seed + turn) so they can be r
 Results with a "replay crash" button (builds on `trial_records/`, which already keeps crashes by seed).
 
 ### CL21. Replay heat maps of bot thinking  `[S]` for Princess, `[TOP]` for the rest
+**Decided (round 2): nothing is recorded for heat maps.** Replay is built by rerunning the battle from its seed, so
+the map for any step is recomputed from the battle's state at that step (rerun to the step, read Princess's memory).
+Per-unit share = the team map limited to the hexes that unit could reach this turn (its movement range: walk/run, or
+jump if it jumps). Draw order: team selected = whole map; unit selected = masked map.
 **Decided: Princess first.** Checked 2026-11-14: Princess's BV-weighted team heat map already exists as bot memory
 (`princess_memory.rs`, and `bridge.rs` keeps the bots' memories across snapshots), so her map may not need CL6: record
 it per turn into the history and draw it in Replay (a per-unit share needs her per-unit contribution, CHECK). Gladiator's
-move score and Hydra's price per hex still wait on CL6/CL7. Selecting a team shows the combined map; selecting a unit shows only that unit's share. Needs CL6 (battle restored
+move score and Hydra's price per hex still wait on CL6/CL7. Selecting a team shows the combined map; selecting a unit shows only that unit's share. Princess needs no CL6; the other bots need CL6 (battle restored
 from a saved state, `Opus or higher`) and CL7 (analysis overlays, `analyze(seed, step, unit, bot, what)`), then the
 drawing. Which bot map first is Daniel's call (Q8). Analysis must not change or draw dice from the battle. Not
 started until CL6/CL7 exist; scoped here so Daniel can see the dependency.
@@ -178,3 +182,17 @@ B. Rotating with teams whose zone sets differ in size (one team Edge, the other 
 C. Alternating (Rotating) and a team that ticked Center: is Center (not walk-on) a zone that rotates like the others?
 D. Data: faction availability needs MegaMek's source/data checked out for CL13: is `MegaMek/megamek` OK to attach
    (public repo, read only)? MekHQ's faction tables may also be needed.
+
+## Round 2 answers (2026-11-14) and what they settle
+
+- A: yes: walk-on enters in turn 1's movement phase; all 8 outer boxes + Walk on = any edge.
+- B/C: Rotating shifts each team's WHOLE zone configuration (zone set, Center included, walk-on flag) to the next
+  team. Battle k, team i uses the configuration of team (i - (k-1)), wrapping. 2 teams: swap every battle. 4 teams:
+  battle 2 team 2 has team 1's, battle 5 team 1 has its own again.
+- D: attach `MegaMek/megamek` read only for CL13; credit in CREDITS.md.
+- CL17: use MegaMek's own log output as the model for the order and wording of the presentation.
+- NEW (CL14) "teams opposite each other" under Random: a run-level check box, "Keep teams opposite". Random picks
+  the first team's zone (from its set); every other team's zone is the mirror through the centre (N<->S, E<->W,
+  NE<->SW, NW<->SE; a set is mirrored box by box). Center has no opposite, so a Center team can't be paired.
+  OPEN Q E: with 3+ teams, what does "opposite" mean? Proposal: team 1 random, team 2 opposite, team 3 and up spread
+  evenly between them (or anywhere free); or simply disable the check box above 2 teams.
