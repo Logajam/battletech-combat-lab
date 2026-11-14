@@ -6,6 +6,19 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-14 (Claude, session 26), REPLAY LOG READS ONE UNIT AT A TIME, ONE WEAPON AT A TIME (CL17). REVIEW PENDING (higher-level model).**
+  Presentation only (`INTEGRATION__replay_viewer.html`, `regroupRanged`; no engine change, results identical). The engine
+  writes a firing phase in its resolution order (every unit's to-hit rolls, then every hit's damage, then the piloting rolls).
+  The Replay now regroups that step as people read it (Daniel: "declare fire, roll fire, apply damage one unit at a time"; the
+  flow follows MegaMek's own game log as he described it; MegaMek's log was not opened): the first unit to fire, each weapon
+  in the order it fires with its roll, and under a hit the hit's whole result (location, damage, armor / structure, crits,
+  cluster groups) before the next weapon and then the next unit; at the end, "[End of the phase: piloting rolls and what
+  failed ones did]" lists each unit's PSR trigger, roll, result and the fall damage in turn. Firing stays simultaneous: it is
+  the same recorded lines re-sorted, nothing replayed. A checkbox ("one unit at a time, one weapon at a time", on by default)
+  switches to the engine's order. Safety: each declared hit must pair with the next damage block of the same weapon; if
+  anything does not pair, the step is shown as the engine wrote it. Checked on 81 ranged-phase steps of four 3 v 3 battles
+  (Gladiator and Princess): every step with an attack regrouped (the only non-regrouped steps had no attack lines). Not
+  done: the Physical phase and the Results page's text logs are not regrouped.
 - **2026-11-14 (Claude, session 26), RULES-OF-PLAY: A SALVO FIRES BIGGEST HIT FIRST (CL16). RESULTS CHANGE; REFERENCE LOGS UPDATED. REVIEW PENDING (higher-level model).**
   Daniel: "fire the weapons that deal the most damage to one location first, then in descending order of cluster size - the
   AC/20 before the SRM-6 even if the unit lists the SRM-6 first" and, when asked about a switch, "Its just the correct order":

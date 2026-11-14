@@ -93,7 +93,7 @@ recorded in the Change Record, and an A/B on the same seeds (`ab_batches.py`) go
 gets a PROJECT_MAP Section 6 row, and it must reach `bridge.rs`. Higher tier because a wrong order key is a quiet
 bias in every battle ever run.
 
-### CL17. Firing phase log PRESENTATION, MegaMek style  `[S]`/`[O]`
+### CL17. Firing phase log PRESENTATION, MegaMek style  `[S]`/`[O]`  DONE 2026-11-14 (REVIEW PENDING)
 **Decided: presentation only. Firing stays simultaneous: every unit declares from its state at the START of the
 phase; damage is applied but nobody's state changes for decisions until the end of the phase.** The engine is not
 rewritten: the log reader re-sorts what the engine already records into a linear story (declare, roll, apply, one unit

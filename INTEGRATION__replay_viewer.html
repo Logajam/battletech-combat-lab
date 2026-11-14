@@ -153,6 +153,8 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
   max-height: 60vh; overflow: auto;
 }
 .log .tag { font-weight: 500; color: var(--muted); }
+.log h3 .logmode { text-transform: none; letter-spacing: 0; font-weight: 400; margin-left: 10px; }
+.log .sect { color: var(--muted); font-weight: 600; }
 .log .hit { color: var(--hit); font-weight: 500; }
 .log .big { color: var(--hit); font-weight: 600; }
 .log .u { font-weight: 600; }
@@ -187,7 +189,7 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
     </section>
     <aside class="side" id="sheets"></aside>
     <section class="log">
-      <h3>Log for this step</h3>
+      <h3>Log for this step <label class="logmode" id="logmodeBox" hidden><input type="checkbox" id="logmode" checked> one unit at a time, one weapon at a time</label></h3>
       <pre id="log"></pre>
     </section>
   </div>
@@ -441,9 +443,69 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
     s = s.replace(labelRegex, function (m) { return '<span class="u" style="color:' + sideVar(m) + '">' + m + "</span>"; });
     return s;
   }
+  // The ranged attack phase as people read it (CL17, Daniel 2026-11-14; MegaMek's way): the first unit to fire, each of its
+  // weapons in the order it fires, and on a hit that hit's result right under it, before the next weapon and then the next
+  // unit; at the end of the phase, the piloting rolls one unit after another with what each failed roll did. The engine
+  // writes the same lines in its own order (every unit's to-hit rolls first, then every hit's damage, then the rolls), and
+  // the phase is one simultaneous exchange: this only re-sorts what was recorded, nothing is re-played. If the lines do not
+  // pair up as expected the step is shown as the engine wrote it.
+  function regroupRanged(lines) {
+    var HEAD = /^\s*\[Ranged\] .+? -> .+?: range /, ROLL = /^ {4}(\S.*?): needs \d+/, BLOCK = /^ {4}(\S.*?) (?:hit\b|homing missile misses)/;
+    var TAIL = /^(PSR trigger|Attack Phase PSR|FALL \(|.*Attack Phase PSR|Consciousness|.*consciousness)/;
+    var pre = [], units = [], blocks = [], middle = [], tail = [], cur = null, roll = null, blk = null, state = "decl";
+    function nextHit(n) { var k = 0; for (var u = 0; u < units.length; u++) for (var r = 0; r < units[u].rolls.length; r++) if (units[u].rolls[r].hit) { if (k === n) return units[u].rolls[r].weapon; k++; } return null; }
+    for (var i = 0; i < lines.length; i++) {
+      var l = lines[i];
+      if (state !== "tail" && TAIL.test(l)) { state = "tail"; blk = null; }
+      if (state === "tail") { tail.push(l); continue; }
+      if (HEAD.test(l)) { cur = { head: l, pre: pre, lines: [], rolls: [] }; pre = []; units.push(cur); roll = null; continue; }
+      var m = ROLL.exec(l);
+      if (m && state === "decl" && cur) { roll = { line: l, weapon: m[1].replace(/ x\d+$/, ""), hit: /-> HIT/.test(l), more: [] }; cur.rolls.push(roll); continue; }
+      var bm = BLOCK.exec(l);
+      // a block starts where the next declared hit's weapon says so (not at "No critical hit", which also says "hit")
+      if (bm && !/->/.test(l.split(":")[0]) && bm[1] === nextHit(blocks.length)) { state = "resolve"; blk = { weapon: bm[1], lines: [l] }; blocks.push(blk); continue; }
+      if (state === "resolve") { (blk ? blk.lines : middle).push(l); continue; }
+      if (roll && /^ {6}/.test(l)) { roll.more.push(l); continue; }          // a roll's own notes (a jam, a streak miss)
+      if (cur && cur.rolls.length && !/^\s*\[Ranged\]/.test(l)) { middle.push(l); continue; }
+      if (cur && cur.rolls.length) { pre.push(l); continue; }          // a unit's twist / hold-back lines come before its attack line
+      if (cur) { cur.lines.push(l); continue; }
+      pre.push(l);
+    }
+    if (!units.length || !blocks.length && !tail.length) return null;
+    var out = [], used = 0;
+    for (var u = 0; u < units.length; u++) {
+      var un = units[u];
+      un.pre.forEach(function (x) { out.push(x); });
+      out.push(un.head);
+      un.lines.forEach(function (x) { out.push(x); });
+      for (var r = 0; r < un.rolls.length; r++) {
+        var ro = un.rolls[r];
+        out.push(ro.line);
+        ro.more.forEach(function (x) { out.push(x); });
+        if (ro.hit) {
+          var b = blocks[used];
+          if (!b || b.weapon !== ro.weapon) return null;                      // does not pair up: show the engine's order
+          used++;
+          b.lines.forEach(function (x) { var ind = x.length - x.replace(/^ +/, "").length; out.push(ind <= 2 ? "        " + x.trim() : "  " + x); });
+        }
+      }
+    }
+    if (used !== blocks.length) return null;
+    pre.forEach(function (x) { out.push(x); });
+    if (middle.length) { out.push(""); out.push("[Missile defence and other effects]"); middle.forEach(function (x) { out.push(x); }); }
+    if (tail.length) {
+      out.push(""); out.push("[End of the phase: piloting rolls and what failed ones did]");
+      tail.forEach(function (x, k) { if (k && /^PSR trigger|^Attack Phase PSR/.test(x) && !/^PSR trigger/.test(tail[k - 1]) && tail[k - 1].trim() !== "") out.push(""); out.push(x); });
+    }
+    return out;
+  }
   function drawLog() {
-    var lines = steps[idx].log.filter(function (l) { return l.trim() !== ""; });
-    $("log").innerHTML = lines.length ? lines.map(highlight).join("\n") : '<span class="empty">Nothing logged in this step.</span>';
+    var raw = steps[idx].log.filter(function (l) { return l.trim() !== ""; });
+    var lines = raw;
+    var box = $("logmodeBox"), can = /^Ranged/.test(steps[idx].phase);
+    box.hidden = !can;
+    if (can && $("logmode").checked) { var g = regroupRanged(raw); if (g) lines = g; else box.title = "This step's lines did not pair up, so they are shown in the engine's order."; }
+    $("log").innerHTML = lines.length ? lines.map(function (l) { return /^\[[^\]]+\]$/.test(l) ? '<span class="sect">' + esc(l) + "</span>" : highlight(l); }).join("\n") : '<span class="empty">Nothing logged in this step.</span>';
     $("log").scrollTop = 0;
   }
 

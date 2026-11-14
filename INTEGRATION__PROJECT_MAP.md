@@ -201,6 +201,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(aj) REPLAY LOG REGROUPING** (session 26): `INTEGRATION__replay_viewer.html` `regroupRanged` (presentation only, falls back to the engine's order if the lines do not pair).
 - **(ai) SALVO FIRING ORDER** (session 26): `attack_resolution.rs::salvo_key` + the sort in `finish_declaration`; hidden `_FIRE_ORDER_LISTED` for the Python-fixture tests; `armored_slots` added to bridge UNIT_FIELDS; Rust reference logs regenerated.
 - **(ah) COMBAT LAB MAP TAB + ZONE DEPLOYMENT** (session 26): ENGINE `deployment.rs` zone_* fns, `orchestrator.rs::deploy_zones` (only with DEPLOY_ZONES; defaults untouched), `runs.rs::Plan`, Map page in lab.js. Read the engine part first.
 - **(ag) COMBAT LAB UNIT FILTERS** (session 26): `tools/make_availability.py`, `engine/lab/web/availability.json`, catalog.rs details, `buildAdvanced` / `passes` in lab.js. Availability follows MegaMek's RATGenerator with stated simplifications.
