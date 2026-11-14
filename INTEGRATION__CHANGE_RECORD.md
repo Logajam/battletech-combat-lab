@@ -6,6 +6,20 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-14 (Claude, session 26), COMBAT LAB: OPTIONS TAB (CL15). REVIEW PENDING (higher-level model).**
+  Options tab = sub-tabs (Game setup, Bot features), folders inside them (Run, Deployment, Rules, Placeholders,
+  Technical; one folder per bot: Gladiator, Princess, Legate, Hydra), a search box over all of it (each sub-tab shows
+  its hit count, folders with hits open), a "changed" tag and per-option Reset, and Reset all. The list is generated:
+  `tools/make_options_registry.py` reads engine/defaults/config.json plus the comments in INTEGRATION__config.py and
+  writes `engine/lab/web/options.json` (built into combatlab: rerun it and rebuild when settings are added). A setting is
+  ACTIVE when the Rust engine reads it by name; the rest are listed greyed with a "not active yet" tag (about 60 of 125,
+  mostly Python-only: kill curve, stack, peril blend, cohesion, rendering, debug). Hydra's switches are Rust constants,
+  not settings, so its four are listed greyed. The Lab server (`runs.rs::apply_options`) lays a setup's `"options"` over the
+  defaults for the run, refusing an unknown name, one the Lab sets itself (seed, turn cap...) and a wrong kind of value
+  (it would panic a worker); `tests/check_lab_server.py` has four new checks (passes). Engine code untouched, results
+  identical with no options. Known roughness: choice-type text options are free text (valid values are in the
+  description); the "not read by the Rust engine" test is by name, so a setting read through a built-up name would be
+  wrongly greyed (none found).
 - **2026-11-14 (Claude, session 26), COMBAT LAB: WINDOWS AND THE UNITS TAB REBUILT (CL11, CL12). REVIEW PENDING (higher-level model).**
   Pages only (`engine/lab/web`); no engine code touched, so only the Lab's own check ran (`tests/check_lab_server.py`,
   all passed) plus screenshots at 1400 and 600 px. The page no longer scrolls: each column and tab page scrolls its own

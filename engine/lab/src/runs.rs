@@ -83,12 +83,41 @@ pub fn scenario_of(setup: &Value, catalog: &Catalog, paths: &SetupPaths) -> Resu
         }
         _ => return Err("no board chosen".into()),
     }
+    apply_options(&mut settings, &setup["options"], paths)?;
     let mut s = Scenario::from_settings(&settings, paths)?;
     s.hydra_teams = hydra_teams;
     if let Some(cap) = setup["max_turns"].as_i64().filter(|c| *c > 0) {
         s.max_turns = cap;
     }
     Ok(s)
+}
+
+/// The Options tab's changes ("options": {SETTING: value}) laid over the defaults. Only a setting that exists, that the Lab
+/// does not set itself, and whose value has the default's kind is accepted: a wrong kind would crash a battle's worker
+/// (`Config::b` and friends panic), so it is refused here in words instead.
+fn apply_options(settings: &mut Value, options: &Value, paths: &SetupPaths) -> Result<(), String> {
+    let Some(options) = options.as_object().filter(|o| !o.is_empty()) else { return Ok(()) };
+    let text = std::fs::read_to_string(&paths.defaults).map_err(|e| format!("{}: {}", paths.defaults.display(), e))?;
+    let defaults: Value = serde_json::from_str(&text).map_err(|e| e.to_string())?;
+    for (key, value) in options {
+        let Some(default) = defaults.get(key) else { return Err(format!("option {}: no such setting", key)) };
+        if settings.get(key).is_some() || key.starts_with('_') || ["SEED", "MAX_TURNS", "WORKERS", "NUM_SIMULATIONS", "BOT"].contains(&key.as_str()) {
+            return Err(format!("option {}: the Lab sets this one itself", key));
+        }
+        let same_kind = match default {
+            Value::Bool(_) => value.is_boolean(),
+            Value::Number(_) => value.is_number(),
+            Value::String(_) => value.is_string(),
+            Value::Array(_) => value.is_array(),
+            Value::Object(_) => value.is_object(),
+            _ => true,
+        };
+        if !same_kind {
+            return Err(format!("option {}: wrong kind of value (expected {})", key, match default { Value::Bool(_) => "on/off", Value::Number(_) => "a number", Value::String(_) => "text", Value::Array(_) => "a list", _ => "a table" }));
+        }
+        settings[key.as_str()] = value.clone();
+    }
+    Ok(())
 }
 
 /// One battle's line in the battle list.

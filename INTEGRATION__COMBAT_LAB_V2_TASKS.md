@@ -70,7 +70,7 @@ Engine side: scenario setup must accept per-team zone set, walk-on flag, and per
 zone go into the battle's record (CL18). `[TOP]` reviews the engine part: deployment and walk-on entry touch
 battle start for every set, and the reference battles must stay identical with the defaults.
 
-### CL15. Options tab: folders, search, greyed-out future features  `[S]`
+### CL15. Options tab: folders, search, greyed-out future features  `[S]`  DONE 2026-11-14 (REVIEW PENDING)
 - Sub-tabs or collapsible folders: **Game setup** | **Bot features**, and under Bot features one folder per bot
   (Gladiator, Princess, Hydra, Legate).
 - Every option gets a registry entry: name, description, bot, `implemented: true/false`. Unimplemented ones are

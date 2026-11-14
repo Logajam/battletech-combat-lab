@@ -16,6 +16,7 @@ const lab = {
   map: { mode: "one", one: null, cols: 2, rows: 1, cells: [null, null], cell: 0 },
   run: null, runSetup: null, filter: {}, poll: null,
   picked: new Set(),            // units selected in the unit browser
+  options: {}, registry: [],    // the Options tab: changed settings {NAME: value}, and the list of every setting
 };
 
 // ---------------------------------------------------------------- talking to the server
@@ -77,11 +78,12 @@ function setup() {
     seed: +$("seed").value || 0,
     threads: +$("threads").value || 0,
     max_turns: +$("max-turns").value || 100,
+    ...(Object.keys(lab.options).length ? { options: lab.options } : {}),
   };
 }
 
 function save() {
-  try { localStorage.setItem(STORE, JSON.stringify({ teams: lab.teams, map: lab.map, battles: $("battles").value, seed: $("seed").value, threads: $("threads").value, maxTurns: $("max-turns").value })); } catch (e) { /* storage off: nothing kept */ }
+  try { localStorage.setItem(STORE, JSON.stringify({ teams: lab.teams, map: lab.map, battles: $("battles").value, seed: $("seed").value, threads: $("threads").value, maxTurns: $("max-turns").value, options: lab.options })); } catch (e) { /* storage off: nothing kept */ }
   $("estimate").textContent = "Press Estimate";
 }
 
@@ -97,6 +99,7 @@ function restore() {
   if (saved && saved.teams && saved.teams.length >= 2) {
     lab.teams = saved.teams.map((t) => ({ ...t, units: t.units.map((u) => unitEntry(u.id, u.gunnery, u.piloting)).filter(Boolean) }));
     lab.map = { ...lab.map, ...saved.map };
+    lab.options = saved.options || {};
     $("battles").value = saved.battles || 20; $("seed").value = saved.seed || 1; $("threads").value = saved.threads || 0; $("max-turns").value = saved.maxTurns || 100;
   } else {
     const start = DEMO ? DEMO.setup : { teams: [{ name: "Red", bot: "gladiator", units: [{ unit: "Atlas AS7-K.mtf" }, { unit: "Griffin GRF-1N.mtf" }] },
@@ -400,6 +403,115 @@ function wireBrowserWindow() {
   document.querySelectorAll("#ub-list th[data-sort]").forEach((th) => th.addEventListener("click", () => {
     browse.dir = browse.sort === th.dataset.sort ? -browse.dir : 1; browse.sort = th.dataset.sort; drawBrowser();
   }));
+}
+
+// ---------------------------------------------------------------- OPTIONS page (CL15)
+async function loadOptions() {
+  try {
+    const r = await fetch("options.json");
+    lab.registry = r.ok ? await r.json() : [];
+  } catch (e) { lab.registry = []; }          // the canned demo has no options.json: the tab then shows only the run settings
+  // a saved choice for a setting that no longer exists is dropped
+  for (const k of Object.keys(lab.options)) if (!lab.registry.some((o) => o.key === k && o.active)) delete lab.options[k];
+  drawOptions();
+}
+
+const optValue = (o) => (o.key in lab.options ? lab.options[o.key] : o.default);
+
+function optionRow(o) {
+  const row = document.createElement("div");
+  const id = `opt-${o.key}`;
+  row.className = "opt" + (o.active ? "" : " inactive");
+  row.dataset.search = `${o.key} ${o.label} ${o.text} ${o.folder}`.toLowerCase();
+  const val = optValue(o);
+  let control;
+  if (o.kind === "bool") control = `<input type="checkbox" id="${id}" ${val ? "checked" : ""} ${o.active ? "" : "disabled"}>`;
+  else if (o.kind === "int" || o.kind === "number") control = `<input type="number" id="${id}" step="${o.kind === "int" ? 1 : "any"}" value="${val}" ${o.active ? "" : "disabled"}>`;
+  else control = `<input type="text" id="${id}" value="${esc(o.kind === "json" ? JSON.stringify(val) : val ?? "")}" ${o.active ? "" : "disabled"} ${o.default === null ? "placeholder=\"set in the engine\"" : ""}>`;
+  row.innerHTML = `<div class="opt-main"><label for="${id}" title="${esc(o.key)}">${esc(o.label)}</label>${control}
+      ${o.active ? "" : `<span class="tag off">not active yet</span>`}<span class="tag chg" ${o.key in lab.options ? "" : "hidden"}>changed</span>
+      <button class="btn small" data-reset ${o.key in lab.options ? "" : "hidden"} title="Back to ${esc(JSON.stringify(o.default))}">Reset</button></div>
+    ${o.short ? `<p class="note desc" title="${esc(o.text)}">${esc(o.short)}</p>` : ""}`;
+  if (!o.active) return row;
+  const input = row.querySelector("input");
+  const changed = () => {
+    const on = o.key in lab.options;
+    row.classList.toggle("changed", on);
+    row.querySelector(".tag.chg").hidden = !on; row.querySelector("[data-reset]").hidden = !on;
+    save(); optionCounts();
+  };
+  input.addEventListener("change", () => {
+    let v;
+    if (o.kind === "bool") v = input.checked;
+    else if (o.kind === "int" || o.kind === "number") { v = o.kind === "int" ? Math.round(+input.value) : +input.value; if (input.value === "" || Number.isNaN(v)) { input.classList.add("bad"); return; } }
+    else if (o.kind === "json") { try { v = JSON.parse(input.value); } catch (e) { input.classList.add("bad"); setStatus(`${o.label}: that is not valid JSON`); return; } }
+    else v = input.value;
+    input.classList.remove("bad");
+    if (JSON.stringify(v) === JSON.stringify(o.default)) delete lab.options[o.key]; else lab.options[o.key] = v;
+    changed();
+  });
+  row.querySelector("[data-reset]").addEventListener("click", () => {
+    delete lab.options[o.key];
+    if (o.kind === "bool") input.checked = !!o.default; else input.value = o.kind === "json" ? JSON.stringify(o.default) : o.default;
+    input.classList.remove("bad"); changed();
+  });
+  if (o.key in lab.options) row.classList.add("changed");
+  return row;
+}
+
+function drawOptions() {
+  for (const [top, id] of [["Game setup", "opt-folders-game"], ["Bot features", "opt-folders-bots"]]) {
+    const box = $(id); box.innerHTML = "";
+    const folders = [...new Set(lab.registry.filter((o) => o.top === top).map((o) => o.folder))];
+    for (const f of folders) {
+      const d = document.createElement("details");
+      d.className = "folder"; d.dataset.folder = f;
+      const items = lab.registry.filter((o) => o.top === top && o.folder === f);
+      // folders that are mostly inert (debug switches, a bot with nothing wired) start closed
+      d.open = items.some((o) => o.active) && f !== "Technical and debugging";
+      d.innerHTML = `<summary>${esc(f)} <span class="note">(${items.filter((o) => o.active).length} active of ${items.length})</span></summary>`;
+      items.forEach((o) => d.appendChild(optionRow(o)));
+      box.appendChild(d);
+    }
+  }
+  optionCounts(); filterOptions();
+}
+
+function optionCounts() {
+  const n = Object.keys(lab.options).length;
+  $("opt-count").textContent = n ? `${n} option${n === 1 ? "" : "s"} changed from the defaults` : "All options at their defaults";
+  $("opt-reset-all").disabled = !n;
+}
+
+// the search: every word must appear in a row's name, key, description or folder; folders with no hit disappear and
+// folders with hits open; each sub-tab says how many hits it holds
+function filterOptions() {
+  const words = $("opt-search").value.toLowerCase().split(/\s+/).filter(Boolean);
+  const hits = { game: 0, bots: 0 };
+  for (const pane of ["game", "bots"]) {
+    document.querySelectorAll(`#opt-pane-${pane} details.folder`).forEach((d) => {
+      let any = 0;
+      d.querySelectorAll(".opt, p[data-search]").forEach((r) => {
+        const show = words.every((w) => r.dataset.search.includes(w));
+        r.hidden = !show; if (show) any++;
+      });
+      d.hidden = words.length > 0 && !any;
+      if (words.length && any) d.open = true;
+      hits[pane] += any;
+    });
+  }
+  const label = { game: "Game setup", bots: "Bot features" };
+  document.querySelectorAll(".subtab").forEach((b) => { b.textContent = words.length ? `${label[b.dataset.pane]} (${hits[b.dataset.pane]})` : label[b.dataset.pane]; });
+  if (words.length) {
+    const cur = document.querySelector('.subtab[aria-selected="true"]').dataset.pane;
+    if (!hits[cur] && hits[cur === "game" ? "bots" : "game"]) showOptionPane(cur === "game" ? "bots" : "game");
+  }
+  $("opt-none").hidden = !(words.length && !hits.game && !hits.bots);
+}
+
+function showOptionPane(pane) {
+  document.querySelectorAll(".subtab").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.pane === pane)));
+  $("opt-pane-game").hidden = pane !== "game"; $("opt-pane-bots").hidden = pane !== "bots";
 }
 
 // ---------------------------------------------------------------- MAP page
@@ -737,6 +849,7 @@ async function start() {
   drawBoards();
   wireBrowserWindow();
   initBrowser();
+  await loadOptions();
   pickedChanged();
   setStatus("Ready", `${lab.units.length} units, ${lab.boards.length} boards, ${lab.info.cores} cores`);
 
@@ -745,6 +858,9 @@ async function start() {
   ["battles", "seed", "threads", "max-turns"].forEach((id) => $(id).addEventListener("change", save));
   $("estimate-btn").addEventListener("click", estimate);
   $("run-btn").addEventListener("click", runBatch);
+  $("opt-search").addEventListener("input", filterOptions);
+  document.querySelectorAll(".subtab").forEach((b) => b.addEventListener("click", () => showOptionPane(b.dataset.pane)));
+  $("opt-reset-all").addEventListener("click", () => { lab.options = {}; save(); drawOptions(); });
   $("reset-layout").addEventListener("click", () => {
     lab.layout = {}; saveLayout();
     const b = $("browser"); sizeWatch.unobserve(b); b.classList.remove("float"); b.style.cssText = ""; $("browser-slot").appendChild(b);
