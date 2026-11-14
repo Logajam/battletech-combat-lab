@@ -11,7 +11,8 @@ Builds and starts engine/target/release/combatlab on a free port, then:
   4. asks the server for battle 3's history and checks it against the battle list (seed, winner, turns, a step per
      marked phase) and that a second request gives the same record;
   5. a unit from the unit pack (data/meks.zip) and a board from the map pack (data/maps.zip) play too;
-  6. a bad setup answers {"error": ...} and the server keeps answering.
+  6. a bad setup answers {"error": ...} and the server keeps answering;
+  7. the Options tab's settings ("options" in a setup) are accepted, or refused with words.
 Exit code 0 = every check passed.
 """
 import json
@@ -120,6 +121,12 @@ def main(argv):
 
         bad = lab.api("run", {"setup": {"teams": [{"name": "Solo", "units": [{"unit": "Atlas AS7-K.mtf"}]}], "board": "16x17_Grassland_1.board"}})
         check("error" in bad, f"a bad setup: {bad}", failures)
+        # Options tab: a changed setting is accepted and used; a wrong kind, an unknown name and one the Lab sets itself are refused
+        base = {"teams": [{"name": "Red", "bot": "gladiator", "units": [{"unit": "Atlas AS7-K.mtf"}]}, {"name": "Blue", "bot": "gladiator", "units": [{"unit": "Griffin GRF-1N.mtf"}]}],
+                "board": "16x17_Grassland_1.board", "battles": 1, "seed": 1, "threads": 1}
+        check("error" not in lab.api("estimate", {"setup": {**base, "options": {"POOL_CLUSTER_DAMAGE": True}}}), "an option is accepted", failures)
+        for name, opts in (("wrong kind", {"CHARGES": "yes"}), ("unknown", {"NO_SUCH_SETTING": 1}), ("Lab-owned", {"SEED": 3})):
+            check("error" in lab.api("estimate", {"setup": {**base, "options": opts}}), f"option refused: {name}", failures)
         check("units" in lab.api("list_units"), "the server still answers", failures)
     finally:
         if "--keep-running" not in argv:

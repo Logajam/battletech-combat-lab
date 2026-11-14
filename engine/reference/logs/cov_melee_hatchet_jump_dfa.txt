@@ -39,9 +39,10 @@
   [Movement select] Red: score 1023.546 = dealt 4.17 x1.01 + (HP 302.0 - received 2.86 x1.00 - PSR 0.00) / enemy future 4.07 x my future 13.88 [enemy held at 0501; 124 spots with LOS]
   [Movement] Red: 0310 NW -> 0107 N, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
   [Ranged] Blue -> Red: range 8, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 1 + heat 0); firing ['LRM 10', 'Medium Laser', 'PPC'] (weapon heat 17 of budget 44 = max 30 + sink 15 - current 0 - movement 1 - other 0; expected dmg 2.86)
-    LRM 10: needs 10 (range mod +2), rolled 4 -> miss [IS Ammo LRM-10: 11 shots left]
-    Medium Laser: needs 12 (range mod +4), rolled 2 -> miss
-    PPC: needs 10 (range mod +2), rolled 8 -> miss
+  [Ranged] Blue fires in order: ['PPC', 'LRM 10', 'Medium Laser'].
+    PPC: needs 10 (range mod +2), rolled 4 -> miss
+    LRM 10: needs 10 (range mod +2), rolled 2 -> miss [IS Ammo LRM-10: 11 shots left]
+    Medium Laser: needs 12 (range mod +4), rolled 8 -> miss
   [Ranged] Red -> Blue: range 8, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 1 + heat 0); firing ['ISMediumXPulseLaser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 24 of budget 52 = max 30 + sink 24 - current 0 - movement 2 - other 0; expected dmg 4.17)
     ISMediumXPulseLaser: needs 9 (range mod +4, modifiers -3), rolled 9 -> HIT
     Medium Laser: needs 11 (range mod +4, modifiers -1), rolled 6 -> miss
@@ -97,9 +98,10 @@
   [Ranged] Red -> Blue: range 6, base TN 13 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 3 + heat 0); firing ['ISMediumXPulseLaser'] (weapon heat 6 of budget 45 = max 30 + sink 24 - current 4 - movement 5 - other 0; expected dmg 0.17)
     ISMediumXPulseLaser: needs 12 (range mod +2, modifiers -3), rolled 10 -> miss
   [Ranged] Blue -> Red: range 6, base TN 12 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 2 + heat 0); firing ['LRM 10', 'Medium Laser', 'PPC'] (weapon heat 17 of budget 41 = max 30 + sink 15 - current 1 - movement 3 - other 0; expected dmg 0.28)
-    LRM 10: needs 13 (range mod +1), rolled 7 -> miss [IS Ammo LRM-10: 10 shots left]
-    Medium Laser: needs 14 (range mod +2), rolled 2 -> miss
-    PPC: needs 12 (range mod +0), rolled 6 -> miss
+  [Ranged] Blue fires in order: ['PPC', 'LRM 10', 'Medium Laser'].
+    PPC: needs 12 (range mod +0), rolled 7 -> miss
+    LRM 10: needs 13 (range mod +1), rolled 2 -> miss [IS Ammo LRM-10: 10 shots left]
+    Medium Laser: needs 14 (range mod +2), rolled 6 -> miss
   [Heat] Red: 4 + movement 5 + weapons 6 + engine 0 - sinks 24 -> 0
   [Heat] Blue: 1 + movement 3 + weapons 17 + engine 0 - sinks 15 -> 6
   [Heat] Blue: heat 6 -> next turn -1 Walking MP, +0 to ranged attacks.
@@ -113,10 +115,11 @@
   [Movement select] Red: score 723.295 = dealt 7.50 x1.05 + (HP 292.0 - received 1.21 x0.99 - PSR 0.00) / enemy future 3.64 x my future 8.96 [enemy held at 0308; 148 spots with LOS]
   [Movement] Red: 1006 NW -> 0310 SW, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
   [Ranged] Blue -> Red: range 2, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 0 + heat 0); firing ['Small Laser', 'LRM 10', 'Medium Laser', 'PPC'] (weapon heat 18 of budget 36 = max 30 + sink 15 - current 6 - movement 3 - other 0; expected dmg 1.19)
-    Small Laser: needs 12 (range mod +2), rolled 4 -> miss
+  [Ranged] Blue fires in order: ['PPC', 'LRM 10', 'Medium Laser', 'Small Laser'].
+    PPC: needs 12 (range mod +2), rolled 4 -> miss
     LRM 10: needs 15 (range mod +5), rolled 7 -> miss [IS Ammo LRM-10: 9 shots left]
     Medium Laser: needs 10 (range mod +0), rolled 11 -> HIT
-    PPC: needs 12 (range mod +2), rolled 7 -> miss
+    Small Laser: needs 12 (range mod +2), rolled 7 -> miss
   [Ranged] Red -> Blue: range 2, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 2 + heat 0); firing ['ISMediumXPulseLaser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 24 of budget 52 = max 30 + sink 24 - current 0 - movement 2 - other 0; expected dmg 7.50)
     ISMediumXPulseLaser: needs 8 (range mod +0, modifiers -3), rolled 8 -> HIT
     Medium Laser: needs 10 (range mod +0, modifiers -1), rolled 8 -> miss
@@ -151,10 +154,11 @@
   [Movement] Red: 0310 SW -> 0204 N, Run (8 MP, 6 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
   [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
   [Ranged] Blue -> Red: range 3, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 1 + heat 1); firing ['Small Laser', 'LRM 10', 'Medium Laser', 'PPC'] (weapon heat 18 of budget 30 = max 30 + sink 15 - current 12 - movement 3 - other 0; expected dmg 0.69)
-    Small Laser: needs 15 (range mod +4), rolled 6 -> miss
+  [Ranged] Blue fires in order: ['PPC', 'LRM 10', 'Medium Laser', 'Small Laser'].
+    PPC: needs 12 (range mod +1), rolled 6 -> miss
     LRM 10: needs 15 (range mod +4), rolled 5 -> miss [IS Ammo LRM-10: 8 shots left]
     Medium Laser: needs 11 (range mod +0), rolled 9 -> miss
-    PPC: needs 12 (range mod +1), rolled 10 -> miss
+    Small Laser: needs 15 (range mod +4), rolled 10 -> miss
   [Ranged] Red -> Blue: range 3, base TN 12 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 3 + heat 0); firing ['ISMediumXPulseLaser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 24 of budget 50 = max 30 + sink 24 - current 2 - movement 2 - other 0; expected dmg 4.17)
     ISMediumXPulseLaser: needs 9 (range mod +0, modifiers -3), rolled 12 -> HIT
     Medium Laser: needs 11 (range mod +0, modifiers -1), rolled 3 -> miss
@@ -182,9 +186,10 @@
   [Movement] Red: 0204 N -> 0701 NE, Run (8 MP, 6 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
   [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
   [Ranged] Blue -> Red: range 4, base TN 12 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 0 + heat 3); firing ['LRM 10', 'Medium Laser', 'PPC'] (weapon heat 17 of budget 24 = max 30 + sink 15 - current 18 - movement 3 - other 0; expected dmg 0.28)
-    LRM 10: needs 15 (range mod +3), rolled 11 -> miss [IS Ammo LRM-10: 7 shots left]
+  [Ranged] Blue fires in order: ['PPC', 'LRM 10', 'Medium Laser'].
+    PPC: needs 12 (range mod +0), rolled 11 -> miss
+    LRM 10: needs 15 (range mod +3), rolled 6 -> miss [IS Ammo LRM-10: 7 shots left]
     Medium Laser: needs 14 (range mod +2), rolled 6 -> miss
-    PPC: needs 12 (range mod +0), rolled 6 -> miss
   [Ranged] Red -> Blue: range 4, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['ISMediumXPulseLaser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 24 of budget 48 = max 30 + sink 24 - current 4 - movement 2 - other 0; expected dmg 7.50)
     ISMediumXPulseLaser: needs 8 (range mod +2, modifiers -3), rolled 5 -> miss
     Medium Laser: needs 10 (range mod +2, modifiers -1), rolled 8 -> miss

@@ -153,6 +153,10 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
   max-height: 60vh; overflow: auto;
 }
 .log .tag { font-weight: 500; color: var(--muted); }
+.log h3 .logmode { text-transform: none; letter-spacing: 0; font-weight: 400; margin-left: 10px; }
+.heatsel { font-size: 12px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; }
+.heatsel select { font: inherit; }
+.log .sect { color: var(--muted); font-weight: 600; }
 .log .hit { color: var(--hit); font-weight: 500; }
 .log .big { color: var(--hit); font-weight: 600; }
 .log .u { font-weight: 600; }
@@ -177,7 +181,8 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
     </div>
     <div class="step-label"><strong id="stepTitle"></strong><span id="stepCount"></span></div>
     <input type="range" id="scrub" min="0" value="0" aria-label="Step">
-    <span class="keys">Left / Right: step &middot; Shift: turn &middot; Space: play</span>
+    <label class="heatsel" id="heatBox" hidden title="What Princess's memory of where her team has stood looks like at this step: a team shows its whole map, a unit only the part it could reach this turn">Heat map <select id="heatSel"></select></label>
+        <span class="keys">Left / Right: step &middot; Shift: turn &middot; Space: play</span>
   </div>
 
   <div class="main">
@@ -187,7 +192,7 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
     </section>
     <aside class="side" id="sheets"></aside>
     <section class="log">
-      <h3>Log for this step</h3>
+      <h3>Log for this step <label class="logmode" id="logmodeBox" hidden><input type="checkbox" id="logmode" checked> one unit at a time, one weapon at a time</label></h3>
       <pre id="log"></pre>
     </section>
   </div>
@@ -318,6 +323,7 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
   });
   legend.push("<span>Wedge = facing, line = torso twist, dashed = moved this step</span>");
   $("legend").innerHTML = legend.join("");
+  var heatLayer = el("g", { "pointer-events": "none" }, svg);
   var trails = el("g", {}, svg), units = el("g", {}, svg);
 
   function point(cx, cy, dir, dist) {
@@ -325,8 +331,46 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
     return [cx + dist * Math.cos(a), cy + dist * Math.sin(a)];
   }
 
+  // ---- Princess's heat maps (CL21): the replay is played from the seed, so the map at any step is the memory she held then.
+  // Choosing a team draws its whole map; choosing one of its units draws only the hexes that unit could reach this turn.
+  var heat = data.heat || null;
+  if (heat) {
+    var opts = ['<option value="">Off</option>'];
+    var heatTeams = {};
+    heat.forEach(function (h) { Object.keys(h.maps).forEach(function (t) { heatTeams[t] = true; }); });
+    Object.keys(heatTeams).forEach(function (t) {
+      opts.push('<option value="team:' + esc(t) + '">' + esc(t) + ' (whole team)</option>');
+      SIDES.filter(function (u) { return teamOf(u) === t; }).forEach(function (u) { opts.push('<option value="unit:' + esc(u) + '">' + esc(u) + ' (its share)</option>'); });
+    });
+    $("heatSel").innerHTML = opts.join("");
+    $("heatBox").hidden = false;
+    $("heatSel").addEventListener("change", drawHeat);
+  }
+  function hexDist(a, b) {                                          // straight hex distance between two labels (even columns lower)
+    function cube(l) { var q = parseInt(l.slice(0, 2), 10) - 1, r = parseInt(l.slice(2), 10) - 1, z = r - (q - (q & 1)) / 2; return [q, -q - z, z]; }
+    var p = cube(a), c = cube(b);
+    return Math.max(Math.abs(p[0] - c[0]), Math.abs(p[1] - c[1]), Math.abs(p[2] - c[2]));
+  }
+  function drawHeat() {
+    heatLayer.innerHTML = "";
+    var v = heat ? $("heatSel").value : "";
+    if (!v) return;
+    var h = heat[idx], kind = v.slice(0, v.indexOf(":")), who = v.slice(v.indexOf(":") + 1);
+    var team = kind === "team" ? who : teamOf(who), map = h.maps[team];
+    if (!map) return;
+    var here = null, reach = 0;
+    if (kind === "unit") { var m = steps[idx].state[who]; if (!m || !m.hex || m.destroyed) return; here = m.hex; reach = h.reach[who] || 0; }
+    var labels = Object.keys(map).filter(function (l) { return !here || hexDist(here, l) <= reach; });
+    var top = Math.max.apply(null, Object.keys(map).map(function (l) { return map[l]; }));
+    labels.forEach(function (l) {
+      var p = centre(l), a = 0.15 + 0.6 * map[l] / top;
+      el("polygon", { points: hexPoints(p[0], p[1]), fill: "rgb(230,90,20)", "fill-opacity": a.toFixed(2), stroke: "rgb(230,90,20)", "stroke-width": 0.8 }, heatLayer);
+    });
+    if (here) { var c = centre(here); el("circle", { cx: c[0], cy: c[1], r: (reach * 1.5 * R).toFixed(0), fill: "none", stroke: sideVar(who), "stroke-dasharray": "4 3", "stroke-width": 1, opacity: 0.6 }, heatLayer); }
+  }
   function drawUnits() {
     trails.innerHTML = ""; units.innerHTML = "";
+    drawHeat();
     var st = steps[idx].state, prev = idx > 0 ? steps[idx - 1].state : null;
     var crowd = {};                                           // units sharing a hex for a moment (a charge's end): fan them out
     SIDES.forEach(function (side) { var h = st[side].hex; if (h && !st[side].destroyed) (crowd[h] = crowd[h] || []).push(side); });
@@ -441,9 +485,69 @@ table.locs tr.gone td { color: var(--muted); text-decoration: line-through; }
     s = s.replace(labelRegex, function (m) { return '<span class="u" style="color:' + sideVar(m) + '">' + m + "</span>"; });
     return s;
   }
+  // The ranged attack phase as people read it (CL17, Daniel 2026-11-14; MegaMek's way): the first unit to fire, each of its
+  // weapons in the order it fires, and on a hit that hit's result right under it, before the next weapon and then the next
+  // unit; at the end of the phase, the piloting rolls one unit after another with what each failed roll did. The engine
+  // writes the same lines in its own order (every unit's to-hit rolls first, then every hit's damage, then the rolls), and
+  // the phase is one simultaneous exchange: this only re-sorts what was recorded, nothing is re-played. If the lines do not
+  // pair up as expected the step is shown as the engine wrote it.
+  function regroupRanged(lines) {
+    var HEAD = /^\s*\[Ranged\] .+? -> .+?: range /, ROLL = /^ {4}(\S.*?): needs \d+/, BLOCK = /^ {4}(\S.*?) (?:hit\b|homing missile misses)/;
+    var TAIL = /^(PSR trigger|Attack Phase PSR|FALL \(|.*Attack Phase PSR|Consciousness|.*consciousness)/;
+    var pre = [], units = [], blocks = [], middle = [], tail = [], cur = null, roll = null, blk = null, state = "decl";
+    function nextHit(n) { var k = 0; for (var u = 0; u < units.length; u++) for (var r = 0; r < units[u].rolls.length; r++) if (units[u].rolls[r].hit) { if (k === n) return units[u].rolls[r].weapon; k++; } return null; }
+    for (var i = 0; i < lines.length; i++) {
+      var l = lines[i];
+      if (state !== "tail" && TAIL.test(l)) { state = "tail"; blk = null; }
+      if (state === "tail") { tail.push(l); continue; }
+      if (HEAD.test(l)) { cur = { head: l, pre: pre, lines: [], rolls: [] }; pre = []; units.push(cur); roll = null; continue; }
+      var m = ROLL.exec(l);
+      if (m && state === "decl" && cur) { roll = { line: l, weapon: m[1].replace(/ x\d+$/, ""), hit: /-> HIT/.test(l), more: [] }; cur.rolls.push(roll); continue; }
+      var bm = BLOCK.exec(l);
+      // a block starts where the next declared hit's weapon says so (not at "No critical hit", which also says "hit")
+      if (bm && !/->/.test(l.split(":")[0]) && bm[1] === nextHit(blocks.length)) { state = "resolve"; blk = { weapon: bm[1], lines: [l] }; blocks.push(blk); continue; }
+      if (state === "resolve") { (blk ? blk.lines : middle).push(l); continue; }
+      if (roll && /^ {6}/.test(l)) { roll.more.push(l); continue; }          // a roll's own notes (a jam, a streak miss)
+      if (cur && cur.rolls.length && !/^\s*\[Ranged\]/.test(l)) { middle.push(l); continue; }
+      if (cur && cur.rolls.length) { pre.push(l); continue; }          // a unit's twist / hold-back lines come before its attack line
+      if (cur) { cur.lines.push(l); continue; }
+      pre.push(l);
+    }
+    if (!units.length || !blocks.length && !tail.length) return null;
+    var out = [], used = 0;
+    for (var u = 0; u < units.length; u++) {
+      var un = units[u];
+      un.pre.forEach(function (x) { out.push(x); });
+      out.push(un.head);
+      un.lines.forEach(function (x) { out.push(x); });
+      for (var r = 0; r < un.rolls.length; r++) {
+        var ro = un.rolls[r];
+        out.push(ro.line);
+        ro.more.forEach(function (x) { out.push(x); });
+        if (ro.hit) {
+          var b = blocks[used];
+          if (!b || b.weapon !== ro.weapon) return null;                      // does not pair up: show the engine's order
+          used++;
+          b.lines.forEach(function (x) { var ind = x.length - x.replace(/^ +/, "").length; out.push(ind <= 2 ? "        " + x.trim() : "  " + x); });
+        }
+      }
+    }
+    if (used !== blocks.length) return null;
+    pre.forEach(function (x) { out.push(x); });
+    if (middle.length) { out.push(""); out.push("[Missile defence and other effects]"); middle.forEach(function (x) { out.push(x); }); }
+    if (tail.length) {
+      out.push(""); out.push("[End of the phase: piloting rolls and what failed ones did]");
+      tail.forEach(function (x, k) { if (k && /^PSR trigger|^Attack Phase PSR/.test(x) && !/^PSR trigger/.test(tail[k - 1]) && tail[k - 1].trim() !== "") out.push(""); out.push(x); });
+    }
+    return out;
+  }
   function drawLog() {
-    var lines = steps[idx].log.filter(function (l) { return l.trim() !== ""; });
-    $("log").innerHTML = lines.length ? lines.map(highlight).join("\n") : '<span class="empty">Nothing logged in this step.</span>';
+    var raw = steps[idx].log.filter(function (l) { return l.trim() !== ""; });
+    var lines = raw;
+    var box = $("logmodeBox"), can = /^Ranged/.test(steps[idx].phase);
+    box.hidden = !can;
+    if (can && $("logmode").checked) { var g = regroupRanged(raw); if (g) lines = g; else box.title = "This step's lines did not pair up, so they are shown in the engine's order."; }
+    $("log").innerHTML = lines.length ? lines.map(function (l) { return /^\[[^\]]+\]$/.test(l) ? '<span class="sect">' + esc(l) + "</span>" : highlight(l); }).join("\n") : '<span class="empty">Nothing logged in this step.</span>';
     $("log").scrollTop = 0;
   }
 

@@ -53,6 +53,9 @@ fn first_diff(a: &Value, b: &Value, path: &str) -> Option<String> {
 /// Smoke that clears in one End Phase prints in hash order in the Python (INTEGRATION__RUST_PORT.md "Found on the way"
 /// 1; stage6_battles.rs does the same): each step's runs of those lines are compared sorted.
 fn normalize(record: &mut Value) {
+    if let Some(o) = record.as_object_mut() {
+        o.remove("heat"); // the Lab's heat maps (CL21) are not in the Python record
+    }
     let is_clear = |l: &Value| l.as_str().is_some_and(|l| l.starts_with("  [End] The smoke at ") && l.ends_with(" clears."));
     for step in record["steps"].as_array_mut().into_iter().flatten() {
         let lines = step["log"].as_array_mut().unwrap();
@@ -69,7 +72,9 @@ fn normalize(record: &mut Value) {
 fn history_of(dir: &PathBuf, sim: u64, seed: u64) -> Value {
     let over = read_json(&dir.join("overrides.json"));
     let max_turns = over["max_turns"].as_i64().unwrap();
-    let cfg = Config::from_json(&read_json(&dir.join("config.json")));
+    // the frozen Python answer key fires a unit's weapons in its own order (attack_resolution::finish_declaration)
+    let mut cfg = Config::from_json(&read_json(&dir.join("config.json")));
+    cfg.set("_FIRE_ORDER_LISTED", serde_json::Value::Bool(true));
     let board = Board::from_json(&read_json(&dir.join("board.json")));
     let units_json = read_json(&dir.join("units.json"));
     let names: Vec<String> = units_json.as_object().unwrap().keys().cloned().collect();

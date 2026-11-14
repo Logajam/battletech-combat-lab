@@ -1,7 +1,7 @@
 # scenario ref_Kontio_vs_Hammerhead_seed12345
-# seed 1: winner Blue, 3 turns
-#   Red: 110.0 of 203.0 armor + structure left, team destroyed True, units 1, 5 hits of 6 attacks, 12.5 damage dealt
-#   Blue: 182.5 of 195.0 armor + structure left, team destroyed False, units 1, 6 hits of 9 attacks, 71.0 damage dealt
+# seed 1: winner Red, 2 turns
+#   Red: 165.0 of 203.0 armor + structure left, team destroyed False, units 1, 4 hits of 6 attacks, 10.0 damage dealt
+#   Blue: 175.5 of 195.0 armor + structure left, team destroyed True, units 1, 3 hits of 3 attacks, 29.0 damage dealt
 # log
   Deployment: Blue home edge W (0101-0117).
   Deployment: Red home edge E (1601-1617).
@@ -17,20 +17,21 @@
   [Ranged] Red: no weapon can bear on Blue (rear arc) - can't fire.
   [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
   [Ranged] Blue -> Red: range 1, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 4 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLStreakSRM6', 'CLLargePulseLaser'] (weapon heat 19 of budget 23 = max 4 + sink 20 - current 0 - movement 1 - other 0; expected dmg 11.11)
-    CLERMediumLaser: needs 9 (range mod +0), rolled 7 -> miss
-    CLStreakSRM6: needs 9 (range mod +0), rolled 10 -> HIT
+  [Ranged] Blue fires in order: ['CLLargePulseLaser', 'CLERMediumLaser', 'CLStreakSRM6'].
+    CLLargePulseLaser: needs 7 (range mod +0, modifiers -2), rolled 7 -> HIT
+    CLERMediumLaser: needs 9 (range mod +0), rolled 10 -> HIT
+    CLStreakSRM6: needs 9 (range mod +0), rolled 9 -> HIT
       [Clan Streak SRM 6 Ammo: 14 shots left]
-    CLLargePulseLaser: needs 7 (range mod +0, modifiers -2), rolled 9 -> HIT
-    CLStreakSRM6 hit: Streak - all 6 missiles hit (12 dmg).
-      Group 1/6: Hit location roll 4 (rear table): Right Arm.
-2 damage (MISSILE) incoming to Right Arm (rear_armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (12 -> 10 remaining).
-      Group 2/6: Hit location roll 2 (rear table): Center Torso.
+    CLLargePulseLaser hit for 10:
+      Hit location roll 4 (rear table): Right Arm.
+10 damage (ENERGY) incoming to Right Arm (rear_armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (12 -> 2 remaining).
+    CLERMediumLaser hit for 7:
+      Hit location roll 2 (rear table): Center Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
       Floating TAC re-roll: 8 -> Left Torso
-2 damage (MISSILE) incoming to Left Torso (rear_armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at rear_armor (5 -> 3 remaining).
-      Additional critical hit due to TAC.
+7 damage (ENERGY) incoming to Left Torso (rear_armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at rear_armor (5 -> 0 remaining). 2 damage applied to structure [STANDARD] (10 -> 8/10 remaining).
   Check for possible critical. Roll a 9.
     1 critical hit(s).
   Critical hit pool at Left Torso:
@@ -46,172 +47,110 @@
     1/1 Criticals: Engine hit.
       Current crit slots in Left Torso: ['Engine', 'DESTROYED', 'CLMediumPulseLaser', 'CLERSmallLaser', 'CLERSmallLaser', 'CLERSmallLaser', 'CLECMSuite', 'Clan Endo Steel', 'Clan Endo Steel', 'Clan Endo Steel', 'IS Stealth', 'IS Stealth']
       Engine hit (1/3).
-      Group 3/6: Hit location roll 7 (rear table): Center Torso.
-2 damage (MISSILE) incoming to Center Torso (rear_armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at rear_armor (5 -> 3 remaining).
-      Group 4/6: Hit location roll 12 (rear table): Head.
+      Additional critical hit due to TAC.
+  Check for possible critical. Roll a 7.
+    No critical hit.
+    CLStreakSRM6 hit: Streak - all 6 missiles hit (12 dmg).
+      Group 1/6: Hit location roll 12 (rear table): Head.
       Head hit - pilot takes 1 hit (1/6), regardless of armor.
 2 damage (MISSILE) incoming to Head (rear_armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (9 -> 7 remaining).
-      Group 5/6: Hit location roll 9 (rear table): Left Leg.
+      Group 2/6: Hit location roll 9 (rear table): Left Leg.
 2 damage (MISSILE) incoming to Left Leg (rear_armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (20 -> 18 remaining).
-      Group 6/6: Hit location roll 8 (rear table): Left Torso.
+      Group 3/6: Hit location roll 8 (rear table): Left Torso.
 2 damage (MISSILE) incoming to Left Torso (rear_armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at rear_armor (3 -> 1 remaining).
-    CLLargePulseLaser hit for 10:
-      Hit location roll 6 (rear table): Right Torso.
-10 damage (ENERGY) incoming to Right Torso (rear_armor).
-  [STANDARD/ENERGY] 5 armor pts destroyed at rear_armor (5 -> 0 remaining). 5 damage applied to structure [STANDARD] (10 -> 5/10 remaining).
-  Check for possible critical. Roll a 4.
+  [STANDARD/MISSILE] 0 armor pts destroyed at rear_armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (8 -> 6/10 remaining).
+  Check for possible critical. Roll a 6.
     No critical hit.
-PSR trigger: 22 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
-  Succeeded - remains standing.
-Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 9.
-  Pilot stays conscious.
-  [Physical] Red twists its torso 1 hexside left to reach Blue.
-  [Physical] Red -> Blue: claw (Left Arm) needs 9 (piloting 5 + base 4 + attack +0), rolled 5 -> miss (6 dmg, right side)
-  [Physical] Blue -> Red: punch (Left Arm) needs 9 (piloting 5 + base 5 + attack -1), rolled 8 -> miss (5 dmg, rear side)
-  [Physical] Blue -> Red: punch (Right Arm) needs 9 (piloting 5 + base 5 + attack -1), rolled 10 -> HIT (5 dmg, rear side)
-    punch (Right Arm) hits Red's Head for 5.
-5 damage (PHYSICAL) incoming to Head (rear_armor).
-  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (7 -> 2 remaining).
-Physical Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 10.
+      Group 4/6: Hit location roll 4 (rear table): Right Arm.
+2 damage (MISSILE) incoming to Right Arm (rear_armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (2 -> 0 remaining).
+      Group 5/6: Hit location roll 11 (rear table): Left Arm.
+2 damage (MISSILE) incoming to Left Arm (rear_armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (12 -> 10 remaining).
+      Group 6/6: Hit location roll 9 (rear table): Left Leg.
+2 damage (MISSILE) incoming to Left Leg (rear_armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (18 -> 16 remaining).
+PSR trigger: 29 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 5.
+  Failed - falls.
+FALL (failed Attack Phase PSR): Kontio  takes 4 falling damage (1D6 3: front table, 5-pt clusters).
+  Fall cluster (4 dmg): rolled 11 -> Left Arm
+4 damage (PHYSICAL) incoming to Left Arm (armor).
+  [STANDARD/PHYSICAL] 4 armor pts destroyed at armor (10 -> 6 remaining).
+  Seatbelt check: needs 5. Rolled 10. Pilot unharmed.
+Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 10.
   Pilot stays conscious.
   [Heat] Red: 0 + movement 2 + weapons 0 + engine 5 + stealth 10 - sinks 20 -> 0
   [Heat] Blue: 0 + movement 1 + weapons 19 + engine 0 - sinks 20 -> 0
-  -- end of turn 1: Red @ 0507 SW: HP 176, pilot hits 2, engine 1, gyro 0, heat 0
+  -- end of turn 1: Red @ 0507 SW: HP 170, pilot hits 1, engine 1, gyro 0, heat 0 [PRONE]
   -- end of turn 1: Blue @ 0606 SE: HP 195, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 2 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 459.792 = dealt 0.00 x1.00 + (HP 270.0 - received 13.84 x1.30 - PSR 0.00) / enemy future 7.63 x my future 13.93 [two-ply, 132 of 670 spots (grid search) x 1157 replies (short list); modeled reply Red -> 1006 SE Walk]
-  [Movement] Blue: 0606 SE -> 1108 S, Run (8 MP, 5 hexes, 2 heat; budget walk 6 / run 8 / jump 0)
-  [Movement select] Red: score 144.135 = dealt 25.79 x1.01 + (HP 238.0 - received 22.29 x1.02 - PSR 0.00) / enemy future 13.93 x my future 7.63 [enemy held at 1108; 173 spots with LOS]
-  [Movement] Red: 0507 SW -> 1008 N, Walk (7 MP, 5 hexes, 1 heat; budget walk 7 / run 11 / jump 0) - includes a backward move
-  [Ranged] Blue -> Red: range 1, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLStreakSRM6', 'CLLargePulseLaser'] (weapon heat 19 of budget 22 = max 4 + sink 20 - current 0 - movement 2 - other 0; expected dmg 15.14)
-    CLERMediumLaser: needs 8 (range mod +0), rolled 5 -> miss
-    CLStreakSRM6: needs 8 (range mod +0), rolled 3 -> miss
-      Streak missed - launcher doesn't fire: no heat, no ammo.
-    CLLargePulseLaser: needs 6 (range mod +0, modifiers -2), rolled 7 -> HIT
-  [Ranged] Red -> Blue: range 1, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 0); firing ['CLMicroPulseLaser', 'CLMediumPulseLaser', 'CLERSmallLaser', 'CLERSmallLaser', 'CLERSmallLaser', 'CLERSmallLaser'] (weapon heat 13 of budget 13 = max 9 + sink 20 - current 0 - movement 1 - other 15; expected dmg 20.00)
-    CLMicroPulseLaser: needs 5 (range mod +0, modifiers -2), rolled 5 -> HIT
-    CLMediumPulseLaser: needs 5 (range mod +0, modifiers -2), rolled 6 -> HIT
-    CLERSmallLaser: needs 7 (range mod +0), rolled 6 -> miss
-    CLERSmallLaser: needs 7 (range mod +0), rolled 8 -> HIT
-    CLERSmallLaser: needs 7 (range mod +0), rolled 10 -> HIT
-    CLERSmallLaser: needs 7 (range mod +0), rolled 7 -> HIT
-    CLLargePulseLaser hit for 10:
-      Hit location roll 2 (right table): Right Torso.
+  [Movement select] Blue: score 1347.050 = dealt 51.36 x1.39 + (HP 270.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 3.28 x my future 15.50 [two-ply, 166 of 670 spots (grid search) x 1 replies (short list); modeled reply Red -> 0507 SW Run]
+  [Movement] Blue: 0606 SE -> 0606 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 6 / run 8 / jump 0)
+Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 8.
+  Success - Kontio  is standing (remaining running MP 9).
+  [Movement select] Red: score 156.707 = dealt 33.71 x1.30 + (HP 233.0 - received 3.93 x0.94 - PSR 0.00) / enemy future 15.50 x my future 7.63 [enemy held at 0606; 143 spots with LOS]
+  [Movement] Red: 0507 SW -> 0506 SW, Run (9 MP, 5 hexes, 2 heat; budget walk 7 / run 11 / jump 0; stood up with 9 MP left)
+  [Ranged] Blue: no weapon can bear on Red (rear arc) - can't fire.
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['CLERSmallLaser', 'CLERSmallLaser', 'CLERSmallLaser', 'CLERSmallLaser', 'CLERSmallLaser', 'CLERSmallLaser'] (weapon heat 12 of budget 12 = max 9 + sink 20 - current 0 - movement 2 - other 15; expected dmg 21.67)
+    CLERSmallLaser: needs 6 (range mod +0), rolled 3 -> miss
+    CLERSmallLaser: needs 6 (range mod +0), rolled 7 -> HIT
+    CLERSmallLaser: needs 6 (range mod +0), rolled 5 -> miss
+    CLERSmallLaser: needs 6 (range mod +0), rolled 6 -> HIT
+    CLERSmallLaser: needs 6 (range mod +0), rolled 6 -> HIT
+    CLERSmallLaser: needs 6 (range mod +0), rolled 8 -> HIT
+    CLERSmallLaser hit for 5:
+      Hit location roll 10 (rear table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (rear_armor).
+  [HARDENED/ENERGY] 2.5 armor pts destroyed at armor (12 -> 9.5 remaining).
+    CLERSmallLaser hit for 5:
+      Hit location roll 7 (rear table): Center Torso.
+5 damage (ENERGY) incoming to Center Torso (rear_armor).
+  [HARDENED/ENERGY] 2.5 armor pts destroyed at rear_armor (5 -> 2.5 remaining).
+    CLERSmallLaser hit for 5:
+      Hit location roll 2 (rear table): Center Torso.
       Roll of 2 - Through-Armor Critical (floating) triggered.
-      Floating TAC re-roll: 6 -> Right Leg
-10 damage (ENERGY) incoming to Right Leg (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (20 -> 10 remaining).
+      Floating TAC re-roll: 6 -> Right Torso
+5 damage (ENERGY) incoming to Right Torso (rear_armor).
+  [HARDENED/ENERGY] 2.5 armor pts destroyed at rear_armor (3 -> 0.5 remaining).
       Additional critical hit due to TAC.
-  Check for possible critical. Roll a 12.
-    Roll of 12: Right Leg blown off / destroyed!
-    Hip specifically destroyed at Right Leg from Right Leg destruction.
-  All critical slots in Right Leg marked DESTROYED.
-    CLMicroPulseLaser hit for 3:
-      Hit location roll 8 (right table): Center Torso.
-3 damage (ENERGY) incoming to Center Torso (armor).
-  [HARDENED/ENERGY] 1.5 armor pts destroyed at armor (20 -> 18.5 remaining).
-    CLMediumPulseLaser hit for 7:
-      Hit location roll 4 (right table): Right Arm.
-7 damage (ENERGY) incoming to Right Arm (armor).
-  [HARDENED/ENERGY] 3.5 armor pts destroyed at armor (12 -> 8.5 remaining).
-    CLERSmallLaser hit for 5:
-      Hit location roll 7 (right table): Right Torso.
-5 damage (ENERGY) incoming to Right Torso (armor).
-  [HARDENED/ENERGY] 2.5 armor pts destroyed at armor (13 -> 10.5 remaining).
-    CLERSmallLaser hit for 5:
-      Hit location roll 11 (right table): Left Leg.
-5 damage (ENERGY) incoming to Left Leg (armor).
-  [HARDENED/ENERGY] 2.5 armor pts destroyed at armor (15 -> 12.5 remaining).
-    CLERSmallLaser hit for 5:
-      Hit location roll 7 (right table): Right Torso.
-5 damage (ENERGY) incoming to Right Torso (armor).
-  [HARDENED/ENERGY] 2.5 armor pts destroyed at armor (10.5 -> 8 remaining).
-PSR trigger: 20 armor+structure lost this phase (>=20) -> +1.
-PSR trigger: Right Leg destroyed this phase -> automatic fall.
-Automatic fall this phase.
-FALL (automatic fall): Kontio  takes 4 falling damage (1D6 5: front table, 5-pt clusters).
-  Fall cluster (4 dmg): rolled 7 -> Center Torso
-4 damage (PHYSICAL) incoming to Center Torso (armor).
-  [STANDARD/PHYSICAL] 4 armor pts destroyed at armor (18 -> 14 remaining).
-  Seatbelt check: needs 5. Rolled 9. Pilot unharmed.
-  [Physical] Blue -> Red: kick (Left Leg) needs 5 (piloting 5 + base 2 + attack -2), rolled 8 -> HIT (9 dmg, right side)
-    kick (Left Leg) hits Red's Right Torso for 9.
-9 damage (PHYSICAL) incoming to Right Torso (armor).
-  [STANDARD/PHYSICAL] 9 armor pts destroyed at armor (15 -> 6 remaining).
-  [Heat] Red: 0 + movement 1 + weapons 13 + engine 5 + stealth 10 - sinks 20 -> 9
-  [Heat] Red: heat 9 -> next turn -1 Walking MP, +1 to ranged attacks, TSM active (+2 Walking MP).
-  [Heat] Blue: 0 + movement 2 + weapons 15 + engine 0 - sinks 20 -> 0
-  -- end of turn 2: Red @ 1008 N: HP 143, pilot hits 2, engine 1, gyro 0, heat 9 [PRONE]
-  -- end of turn 2: Blue @ 1108 S: HP 182.5, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 3 ===
-  Initiative: Red lost the roll, moves first.
-Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 10.
-  Success - Kontio  is standing (remaining running MP 1).
-Movement Phase PSR (running mode, Hip/leg destroyed while running): needs 9 (Piloting 5 + +4). Rolled 8.
-  Failed - falls.
-FALL (fell again after standing): Kontio  takes 4 falling damage (1D6 5: front table, 5-pt clusters).
-  Fall cluster (4 dmg): rolled 5 -> Right Leg
-4 damage (PHYSICAL) incoming to Right Leg (armor).
-  Right Leg already destroyed - damage transfers to Right Torso.
-  [STANDARD/PHYSICAL] 4 armor pts destroyed at armor (6 -> 2 remaining).
-  Seatbelt check: needs 5. Rolled 6. Pilot unharmed.
-  Will not attempt to stand again this round.
-  [Movement] Red: still prone at 1008.
-  [Movement select] Blue: score 2405.211 = dealt 51.62 x1.36 + (HP 257.5 - received 0.00 x1.00 - PSR 0.00) / enemy future 3.08 x my future 27.96 [enemy held at 1008; 151 spots with LOS]
-  [Movement] Blue: 1108 S -> 1009 NE, Walk (6 MP, 2 hexes, 1 heat; budget walk 6 / run 8 / jump 0) - includes a backward move
-  [Ranged] Red: no weapon can bear on Blue (rear arc) - can't fire.
-  [Ranged] Blue -> Red: range 1, base TN 3 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0 + prone target -2); firing ['CLERMediumLaser', 'CLStreakSRM6', 'CLLargePulseLaser'] (weapon heat 19 of budget 23 = max 4 + sink 20 - current 0 - movement 1 - other 0; expected dmg 28.47)
-    CLERMediumLaser: needs 3 (range mod +0), rolled 3 -> HIT
-    CLStreakSRM6: needs 3 (range mod +0), rolled 7 -> HIT
-      [Clan Streak SRM 6 Ammo: 13 shots left]
-    CLLargePulseLaser: needs 1 (range mod +0, modifiers -2), rolled 8 -> HIT
-    CLERMediumLaser hit for 7:
-      Hit location roll 8 (rear table): Left Torso.
-7 damage (ENERGY) incoming to Left Torso (rear_armor).
-  [STANDARD/ENERGY] 1 armor pts destroyed at rear_armor (1 -> 0 remaining). 6 damage applied to structure [STANDARD] (10 -> 4/10 remaining).
-  Check for possible critical. Roll a 11.
+  Check for possible critical. Roll a 10 (12 -2).
     2 critical hit(s).
-  Critical hit pool at Left Torso:
+  Critical hit pool at Right Torso:
     1: Engine (slot 1)
-    2: CLMediumPulseLaser (slot 3)
-    3: CLERSmallLaser (slot 4)
-    4: CLERSmallLaser (slot 5)
-    5: CLERSmallLaser (slot 6)
-    6: CLECMSuite (slot 7)
-    7: IS Stealth (slot 11)
-    8: IS Stealth (slot 12)
-    1/2 Criticals: IS Stealth slot hit.
-      Current crit slots in Left Torso: ['Engine', 'DESTROYED', 'CLMediumPulseLaser', 'CLERSmallLaser', 'CLERSmallLaser', 'CLERSmallLaser', 'CLECMSuite', 'Clan Endo Steel', 'Clan Endo Steel', 'Clan Endo Steel', 'IS Stealth', 'DESTROYED']
-  Critical hit pool at Left Torso:
+    2: Engine (slot 2)
+    3: CLLargePulseLaser (slot 3)
+    4: CLLargePulseLaser (slot 4)
+    1/2 Criticals: CLLargePulseLaser slot hit.
+      Current crit slots in Right Torso: ['Engine', 'Engine', 'CLLargePulseLaser', 'DESTROYED', 'Clan Endo Steel', 'Clan Endo Steel', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  Critical hit pool at Right Torso:
     1: Engine (slot 1)
-    2: CLMediumPulseLaser (slot 3)
-    3: CLERSmallLaser (slot 4)
-    4: CLERSmallLaser (slot 5)
-    5: CLERSmallLaser (slot 6)
-    6: CLECMSuite (slot 7)
-    7: IS Stealth (slot 11)
-    2/2 Criticals: CLERSmallLaser slot hit.
-      Current crit slots in Left Torso: ['Engine', 'DESTROYED', 'CLMediumPulseLaser', 'DESTROYED', 'CLERSmallLaser', 'CLERSmallLaser', 'CLECMSuite', 'Clan Endo Steel', 'Clan Endo Steel', 'Clan Endo Steel', 'IS Stealth', 'DESTROYED']
-    CLStreakSRM6 hit: Streak - all 6 missiles hit (12 dmg).
-      Group 1/6: Hit location roll 7 (rear table): Center Torso.
-2 damage (MISSILE) incoming to Center Torso (rear_armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at rear_armor (3 -> 1 remaining).
-      Group 2/6: Hit location roll 10 (rear table): Left Arm.
-2 damage (MISSILE) incoming to Left Arm (rear_armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (12 -> 10 remaining).
-      Group 3/6: Hit location roll 7 (rear table): Center Torso.
-2 damage (MISSILE) incoming to Center Torso (rear_armor).
-  [STANDARD/MISSILE] 1 armor pts destroyed at rear_armor (1 -> 0 remaining). 1 damage applied to structure [STANDARD] (12 -> 11/12 remaining).
-  Check for possible critical. Roll a 10.
-    2 critical hit(s).
+    2: Engine (slot 2)
+    3: CLLargePulseLaser (slot 3)
+    2/2 Criticals: Engine hit.
+      Current crit slots in Right Torso: ['DESTROYED', 'Engine', 'CLLargePulseLaser', 'DESTROYED', 'Clan Endo Steel', 'Clan Endo Steel', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+      Engine hit (1/3).
+    CLERSmallLaser hit for 5:
+      Hit location roll 4 (rear table): Right Arm.
+5 damage (ENERGY) incoming to Right Arm (rear_armor).
+  [HARDENED/ENERGY] 2.5 armor pts destroyed at armor (12 -> 9.5 remaining).
+  [Physical] Blue twists its torso 1 hexside left to reach Red.
+  [Physical] Blue -> Red: punch (Left Arm) needs 6 (piloting 5 + base 2 + attack -1), rolled 7 -> HIT (5 dmg, left side)
+  [Physical] Red -> Blue: claw (Left Arm) needs 7 (piloting 5 + base 2 + attack +0), rolled 11 -> HIT (6 dmg, rear side)
+  [Physical] Red -> Blue: claw (Right Arm) needs 7 (piloting 5 + base 2 + attack +0), rolled 7 -> HIT (6 dmg, rear side)
+    punch (Left Arm) hits Red's Left Arm for 5.
+5 damage (PHYSICAL) incoming to Left Arm (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (6 -> 1 remaining).
+    claw (Left Arm) hits Blue's Center Torso for 6.
+6 damage (PHYSICAL) incoming to Center Torso (rear_armor).
+  [HARDENED/PHYSICAL] 2.5 armor pts destroyed at rear_armor (2.5 -> 0 remaining). 1 damage applied to structure [STANDARD] (14 -> 13/14 remaining).
+  Check for possible critical. Roll a 8.
+    1 critical hit(s).
   Critical hit pool at Center Torso:
     1: Engine (slot 1)
     2: Engine (slot 2)
@@ -223,10 +162,15 @@ FALL (fell again after standing): Kontio  takes 4 falling damage (1D6 5: front t
     8: Engine (slot 8)
     9: Engine (slot 9)
     10: Engine (slot 10)
-    11: CLMicroPulseLaser (slot 11)
-    1/2 Criticals: Engine hit.
-      Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'DESTROYED', 'Engine', 'Engine', 'CLMicroPulseLaser', 'Clan Endo Steel']
+    11: CLERMediumLaser (slot 11)
+    1/1 Criticals: Engine hit.
+      Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'DESTROYED', 'Engine', 'CLERMediumLaser', 'Clan Endo Steel']
       Engine hit (2/3).
+    claw (Right Arm) hits Blue's Center Torso for 6.
+6 damage (PHYSICAL) incoming to Center Torso (rear_armor).
+  [HARDENED/PHYSICAL] 0 armor pts destroyed at rear_armor (0 -> 0 remaining). 6 damage applied to structure [STANDARD] (13 -> 7/14 remaining).
+  Check for possible critical. Roll a 11.
+    2 critical hit(s).
   Critical hit pool at Center Torso:
     1: Engine (slot 1)
     2: Engine (slot 2)
@@ -235,46 +179,28 @@ FALL (fell again after standing): Kontio  takes 4 falling damage (1D6 5: front t
     5: Gyro (slot 5)
     6: Gyro (slot 6)
     7: Gyro (slot 7)
-    8: Engine (slot 9)
+    8: Engine (slot 8)
     9: Engine (slot 10)
-    10: CLMicroPulseLaser (slot 11)
-    2/2 Criticals: Engine hit.
-      Current crit slots in Center Torso: ['Engine', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'DESTROYED', 'Engine', 'Engine', 'CLMicroPulseLaser', 'Clan Endo Steel']
+    10: CLERMediumLaser (slot 11)
+    1/2 Criticals: Engine hit.
+      Current crit slots in Center Torso: ['DESTROYED', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'DESTROYED', 'Engine', 'CLERMediumLaser', 'Clan Endo Steel']
       Engine hit (3/3).
-      Group 4/6: Hit location roll 6 (rear table): Right Torso.
-2 damage (MISSILE) incoming to Right Torso (rear_armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at rear_armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (5 -> 3/10 remaining).
-  Check for possible critical. Roll a 8.
-    1 critical hit(s).
-  Critical hit pool at Right Torso:
-    1: Engine (slot 1)
-    2: Engine (slot 2)
-    3: CLMediumPulseLaser (slot 3)
-    4: CLERSmallLaser (slot 4)
-    5: CLERSmallLaser (slot 5)
-    6: CLERSmallLaser (slot 6)
-    7: Supercharger (Clan) (slot 7)
-    8: IS Stealth (slot 11)
-    9: IS Stealth (slot 12)
-    1/1 Criticals: Engine hit.
-      Current crit slots in Right Torso: ['Engine', 'DESTROYED', 'CLMediumPulseLaser', 'CLERSmallLaser', 'CLERSmallLaser', 'CLERSmallLaser', 'Supercharger (Clan)', 'Clan Endo Steel', 'Clan Endo Steel', 'Clan Endo Steel', 'IS Stealth', 'IS Stealth']
+  Critical hit pool at Center Torso:
+    1: Engine (slot 2)
+    2: Engine (slot 3)
+    3: Gyro (slot 4)
+    4: Gyro (slot 5)
+    5: Gyro (slot 6)
+    6: Gyro (slot 7)
+    7: Engine (slot 8)
+    8: Engine (slot 10)
+    9: CLERMediumLaser (slot 11)
+    2/2 Criticals: Engine hit.
+      Current crit slots in Center Torso: ['DESTROYED', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'DESTROYED', 'Engine', 'CLERMediumLaser', 'Clan Endo Steel']
       Engine hit (4/3).
-      Group 5/6: Hit location roll 7 (rear table): Center Torso.
-2 damage (MISSILE) incoming to Center Torso (rear_armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at rear_armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (11 -> 9/12 remaining).
-  Check for possible critical. Roll a 7.
-    No critical hit.
-      Group 6/6: Hit location roll 7 (rear table): Center Torso.
-2 damage (MISSILE) incoming to Center Torso (rear_armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at rear_armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (9 -> 7/12 remaining).
-  Check for possible critical. Roll a 4.
-    No critical hit.
-    CLLargePulseLaser hit for 10:
-      Hit location roll 10 (rear table): Left Arm.
-10 damage (ENERGY) incoming to Left Arm (rear_armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (10 -> 0 remaining).
-  [Heat] Blue: 0 + movement 1 + weapons 19 + engine 0 - sinks 20 -> 0
-  -- end of turn 3: Red @ 1008 N: HP 110, pilot hits 2, engine 4, gyro 0, heat 9 [PRONE, DESTROYED (Engine Destroyed)]
-  -- end of turn 3: Blue @ 1009 NE: HP 182.5, pilot hits 0, engine 0, gyro 0, heat 0
+  [Heat] Red: 0 + movement 2 + weapons 12 + engine 5 + stealth 10 - sinks 20 -> 9
+  [Heat] Red: heat 9 -> next turn -1 Walking MP, +1 to ranged attacks, TSM active (+2 Walking MP).
+  -- end of turn 2: Red @ 0506 SW: HP 165, pilot hits 1, engine 1, gyro 0, heat 9
+  -- end of turn 2: Blue @ 0606 SE: HP 175.5, pilot hits 0, engine 4, gyro 0, heat 0 [DESTROYED (Engine Destroyed)]
 
->>> Battle over on turn 3: Red destroyed. <<<
+>>> Battle over on turn 2: Blue destroyed. <<<

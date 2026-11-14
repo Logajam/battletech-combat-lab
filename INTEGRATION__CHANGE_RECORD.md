@@ -6,6 +6,134 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-14 (Claude, session 26), REPLAY HEAT MAPS: PRINCESS'S MEMORY, BY TEAM AND BY UNIT (CL21, Princess first). REVIEW PENDING (higher-level model).**
+  Daniel: "Replay is built from the seed rerunning that game. For any given step, the heat map can be recalculated from the
+  state of that game at that step"; per unit, "princess's heat map limited by the potential movement range of that unit".
+  Done exactly so, with nothing saved: the history is itself produced by playing the battle again from its seed, and
+  `history.rs::heat_now` reads Princess's team memory (`princess_memory.rs`: the BV-weighted record of where her team's
+  units have stood, decayed each turn) at every step into a separate `heat` list beside `steps` (same length; written
+  only when a team has Princess units; the Python-record test drops it). Each entry also carries each standing unit's
+  reach: its run MP, or jump MP when larger, as a straight hex distance (terrain ignored). The Replay has a "Heat map" box:
+  Off / a team (its whole map) / one of its units (the team map limited to the hexes within that unit's reach, with a dashed
+  circle). Orange, stronger = more weight. Checked on a 2 v 2 Princess battle: the box lists both teams and their units, a unit
+  share shows only its reachable part. NOT DONE: Gladiator's move score and Hydra's price per hex (need CL6/CL7); reach
+  does not follow terrain or facing costs, so a unit's share can include hexes it could not actually reach.
+- **2026-11-14 (Claude, session 26), COMBAT LAB RESULTS: CAUSES, ARMOR AND STRUCTURE APART, UNIT STATISTICS, SAVE / OPEN A RUN FILE (CL18 standard parts, CL19, CL20). REVIEW PENDING (higher-level model).**
+  NOT DONE, saved for Opus (Daniel: "may be a save for Opus to think about"): CL18's live conditions - the user builds a
+  condition before the run ("3+ gyros lost in one turn") that triggers as battles happen; the sheet in
+  INTEGRATION__COMBAT_LAB_V2_TASKS.md says what it must settle (condition language and builder, evaluation per turn in the
+  engine without slowing the hot path or touching dice, how a hit is stored so it replays, what a condition may see).
+  ENGINE (results only; no rules touched; reference logs and all 60 checks unchanged): `Battle.tally` (`battle.rs`) counts per
+  unit and weapon the shots, hits, damage to the target's armor + structure, and the turns it fired in (`run_ranged_phase`
+  around each resolved attack), kills by weapon fire (a unit destroyed while that attack resolved), and turns standing at
+  the start of each turn; `SideStats` (`results.rs`) gets armor and structure apart (rear armor counts as armor), per
+  location now / at the start, kills, turns alive and the weapon table, filled in `start_battle` / `finish`. Not counted:
+  physical attacks, charges, falls, pushes (no weapon, no kill credit); pooled cluster damage (POOL_CLUSTER_DAMAGE, off).
+  LAB SERVER (`runs.rs`, `main.rs`): battle lines carry the armor / structure pairs and each unit's detail; the battle
+  list sends them slim; `results` returns `causes` (every cause of death and how many units, "Pushed off the battlefield"
+  among them: it answers Daniel's pushes question) and, on `unit_stats: true`, per unit: how it ended as a share of
+  battles, armor and structure left per location (average and share), kills, per weapon shots a battle, accuracy, damage
+  a turn (over every turn the unit stood) and use (share of standing turns it fired in). `save_run` writes one file (setup,
+  every battle line, crashes with seed, map, zones, and the .mtf files the setup used that are not in the packs);
+  `load_run` reads it back as a finished run (replays are played again from the seeds). A battle that crashes replays into
+  the same crash and says so in words.
+  PAGES: team statistics show Armor left and Structure left as two figures; the finder's cause box lists the causes seen;
+  a "Unit statistics" folder (team > unit > tables) under the statistics; Save run / Open a run file buttons at the top of
+  Results (opening offers to put the run's setup back into the Units, Map and Options pages); crashed battles listed with
+  seed, map, zones and a Replay button. Checked: 20-battle runs through the API and the page; a saved run reloads with an
+  identical summary and replays battle 3. Limits: every battle line holds its units' detail in memory (a 100,000-battle run
+  is large: the file too); loose boards are not put in the file (map-pack boards are); a crash's partial log is lost.
+- **2026-11-14 (Claude, session 26), REPLAY LOG READS ONE UNIT AT A TIME, ONE WEAPON AT A TIME (CL17). REVIEW PENDING (higher-level model).**
+  Presentation only (`INTEGRATION__replay_viewer.html`, `regroupRanged`; no engine change, results identical). The engine
+  writes a firing phase in its resolution order (every unit's to-hit rolls, then every hit's damage, then the piloting rolls).
+  The Replay now regroups that step as people read it (Daniel: "declare fire, roll fire, apply damage one unit at a time"; the
+  flow follows MegaMek's own game log as he described it; MegaMek's log was not opened): the first unit to fire, each weapon
+  in the order it fires with its roll, and under a hit the hit's whole result (location, damage, armor / structure, crits,
+  cluster groups) before the next weapon and then the next unit; at the end, "[End of the phase: piloting rolls and what
+  failed ones did]" lists each unit's PSR trigger, roll, result and the fall damage in turn. Firing stays simultaneous: it is
+  the same recorded lines re-sorted, nothing replayed. A checkbox ("one unit at a time, one weapon at a time", on by default)
+  switches to the engine's order. Safety: each declared hit must pair with the next damage block of the same weapon; if
+  anything does not pair, the step is shown as the engine wrote it. Checked on 81 ranged-phase steps of four 3 v 3 battles
+  (Gladiator and Princess): every step with an attack regrouped (the only non-regrouped steps had no attack lines). Not
+  done: the Physical phase and the Results page's text logs are not regrouped.
+- **2026-11-14 (Claude, session 26), RULES-OF-PLAY: A SALVO FIRES BIGGEST HIT FIRST (CL16). RESULTS CHANGE; REFERENCE LOGS UPDATED. REVIEW PENDING (higher-level model).**
+  Daniel: "fire the weapons that deal the most damage to one location first, then in descending order of cluster size - the
+  AC/20 before the SRM-6 even if the unit lists the SRM-6 first" and, when asked about a switch, "Its just the correct order":
+  so it is the rule, with no setting. `attack_resolution.rs::finish_declaration` now sorts a declaration's weapons before
+  their to-hit rolls are made and their hits applied: key 1 = the most damage one hit puts into one location (a missile
+  rack's grouping: SRM 2, LRM 5; any other weapon its whole damage per shot), key 2 = the cluster (rack) size, both larger
+  first, equal keys keep the unit's listed order (`salvo_key`). The attack stays one simultaneous salvo; only the order of
+  rolls and applications moves. Every bot is covered (Gladiator, Princess, Hydra share the path); a changed order is
+  logged ("[Ranged] Red fires in order: [...]"). The frozen Python answer key keeps the listed order, so its fixtures are
+  marked with a hidden `_FIRE_ORDER_LISTED` (the cargo tests' fixture loaders: `tests/common/mod.rs`, `cl2_history.rs`,
+  `stage6_battles.rs`); `Scenario::load` and the Lab do not set it. `check_rust_reference.py --update` was run (Daniel: "If
+  we have to rerun the reference battles so be it"): 86 battles, over all of them mean length 24.6 -> 23.8 turns, hit
+  rate 38.5% -> 40.2% (one seed each: a feel, not a study; `ab_batches.py` has no switch to compare, so a before/after
+  needs the old binary). THE BRIDGE PARITY CHECK found a real gap on the way: `armored_slots` (changed by crits) was missing
+  from `bridge.rs` UNIT_FIELDS; added (cov_hvac now passes). Not changed: Gladiator's declaration search still chooses
+  WHICH weapons by expected damage as before; this only orders the chosen ones.
+- **2026-11-14 (Claude, session 26), COMBAT LAB: MAP TAB - PREVIEW, HEIGHT COLOURS, STARTING ZONES, MAP LIST (CL14). REVIEW PENDING (higher-level model; the engine part is the one to look at).**
+  PAGES: whole-map preview under the chosen board (a `board` request returns the file's text; the page draws it), heights
+  in a MegaMek-style colour ramp (dark green low, yellow, brown, white high) with water / woods / road / rough / building
+  laid over; stitched maps previewed whole. Starting zones: a 3 x 3 grid per team (NW N NE / W C E / SW S SE; Edge = the 8
+  outer boxes, Anywhere = all 9, Clear), a Walk on check box (Centre and Walk on switch each other off), a small copy of
+  the grid on every team panel (same state), and one dropdown for the run: Core Rulebook (initiative roll; the default,
+  nothing changes) / Fixed / Rotating / Random. Rotating: battle k, team i takes the whole zone setup (boxes + walk-on) of
+  team i-(k-1), wrapping (2 teams swap every battle). Random: one box drawn from the team's highlighted ones, fresh each
+  battle. "Keep teams opposite" (random, 2 teams only: greyed with a tag for 3+): team 2 gets the mirror box (k -> 8-k). Map
+  list: boards the battles cycle through, "Playlist order" or "Shuffle" (a fresh order each pass); the battle list shows
+  each battle's map and zones; "Load by seed" has a Battle number box (rotation and the map list depend on it).
+  ENGINE (`deployment.rs`, `orchestrator.rs::deploy_zones`, `scenario.rs` Scenario now Clone): a new path used ONLY when the
+  setup has a DEPLOY_ZONES setting; without it a battle starts exactly as before (all 60 checks pass, the 86 Rust
+  reference battles unchanged). Walk-on: entry hexes = the border bands (DEPLOYMENT_DEPTH deep) inside the zone's boxes, a hex
+  must be able to reach the centre box (the old "stuck" rule, widened to DEPLOYMENT_STUCK_DEPTH). Placed: a free enterable
+  hex of the zone, spread so no two units touch where possible, facing the middle of the board, one dice pick per unit. Lab
+  server (`runs.rs`): a `Plan` builds one scenario per map of the list and, per battle, the zone assignment (the Lab's own
+  splitmix64, a pure function of the setup, battle number and seed, so a battle replays); battle lines and crash records
+  carry `board` and `zones`. Checked end to end through the API: 4 battles, rotating zones, two maps, replay shows
+  "placed at 1310 in zone E" / "walks on in zone W (6 entry hexes)". `tests/check_lab_server.py` passes.
+  Known gaps for the reviewer: no per-zone minimum separation or bot-chosen placement (placed units are drawn at random);
+  placed units of different teams may share a zone and are spread by the same rule; a 'Mech that cannot get out of its zone
+  stops the battle with a panic (caught as a crash record); no results filter on map or zone yet (CL18).
+- **2026-11-14 (Claude, session 26), COMBAT LAB: UNIT BROWSER FILTERS (CL13). REVIEW PENDING (higher-level model).**
+  The Advanced search popup now has Mekbay-style filters: number ranges (tons, BV, walk, jump, armor points, heat sinks,
+  year introduced), tech base, armor type, structure, unit set, source book, configuration / role / rules level boxes,
+  weapons carried (name and a minimum count, several at once), a "Playable only" switch, Clear all, and named saved
+  searches (kept in the browser). New table columns: Move (walk/run/jump), Armor, Role. The catalog
+  (`engine/lab/src/catalog.rs`, cache version bumped) now reads those details from each .mtf's header and weapon list
+  (no engine call). FACTION AND YEAR: `tools/make_availability.py` reduces MegaMek's RAT-generator data (mm-data
+  `data/forcegenerator` + `data/universe/factions`; attached read-only, public) to `engine/lab/web/availability.json`
+  (47 PLAYABLE factions x 39 era tables; 3,409 'Mechs; 750 KB; built into combatlab), following `RATGenerator.java`:
+  own entry, else parent faction(s), else General; rating 0 = unavailable. Simplifications, all stated in the tool:
+  a game year uses the nearest earlier era table (MegaMek interpolates), the + / - rating shifts and an entry's start
+  year are ignored, only 'Mechs listed by MegaMek can match a faction filter (3,025 of 4,252 of ours). CREDITS.md has
+  the entry. Checked: Atlas AS7-K appears for DC in 3067 and not in 2700; DC 3025 = 280 units, 3067 = 1,048; the Lab server
+  check passes. Engine untouched. Not done: weapon names are the file's ids made readable by a rule, not the engine's own
+  names; "Omnimech/OmniMek" configuration spellings are separate boxes; no faction-rating (A-F) filter.
+- **2026-11-14 (Claude, session 26), COMBAT LAB: OPTIONS TAB (CL15). REVIEW PENDING (higher-level model).**
+  Options tab = sub-tabs (Game setup, Bot features), folders inside them (Run, Deployment, Rules, Placeholders,
+  Technical; one folder per bot: Gladiator, Princess, Legate, Hydra), a search box over all of it (each sub-tab shows
+  its hit count, folders with hits open), a "changed" tag and per-option Reset, and Reset all. The list is generated:
+  `tools/make_options_registry.py` reads engine/defaults/config.json plus the comments in INTEGRATION__config.py and
+  writes `engine/lab/web/options.json` (built into combatlab: rerun it and rebuild when settings are added). A setting is
+  ACTIVE when the Rust engine reads it by name; the rest are listed greyed with a "not active yet" tag (about 60 of 125,
+  mostly Python-only: kill curve, stack, peril blend, cohesion, rendering, debug). Hydra's switches are Rust constants,
+  not settings, so its four are listed greyed. The Lab server (`runs.rs::apply_options`) lays a setup's `"options"` over the
+  defaults for the run, refusing an unknown name, one the Lab sets itself (seed, turn cap...) and a wrong kind of value
+  (it would panic a worker); `tests/check_lab_server.py` has four new checks (passes). Engine code untouched, results
+  identical with no options. Known roughness: choice-type text options are free text (valid values are in the
+  description); the "not read by the Rust engine" test is by name, so a setting read through a built-up name would be
+  wrongly greyed (none found).
+- **2026-11-14 (Claude, session 26), COMBAT LAB: WINDOWS AND THE UNITS TAB REBUILT (CL11, CL12). REVIEW PENDING (higher-level model).**
+  Pages only (`engine/lab/web`); no engine code touched, so only the Lab's own check ran (`tests/check_lab_server.py`,
+  all passed) plus screenshots at 1400 and 600 px. The page no longer scrolls: each column and tab page scrolls its own
+  content. Units tab: Battle / Estimated runtime / Run Simulation in a row across the top; odd teams left, even right,
+  the Unit Browser permanently open in the centre; advanced search is a movable popup. Each team's Add selected /
+  From file / quick add sit above its list (they no longer move as units are added; Add selected greys instead of
+  hiding). Weight-class icons (original inline SVG) with a grip mark on every unit row. Any panel floats when its title
+  bar is dragged (resize at the corner, double-click the title to dock, Reset layout button; kept in the browser); a
+  narrow screen stays docked in one column. Three unit files with no chassis/model line showed blank names: they now
+  show the file name. Not yet: zone grids (CL14), the rest of the Mekbay filters (CL13), the other tabs as windows.
 - **2026-11-13 (Claude, session 26), RULES: PUSHES CHECKED (Core p.83). One reference battle changes (team_12v12_princess_v_gladiator, updated). REVIEW PENDING (higher-level model).**
   Daniel: "Think pushes might need a double check. Can't target a Charge or DFA. Can be mutual. But if both succeed they
   cancel out" - the displacement, not the fall check ("Succeed but are not canceled out for the fall check") - "And they

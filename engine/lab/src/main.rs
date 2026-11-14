@@ -39,10 +39,12 @@ use serde_json::{json, Value};
 static ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 /// The pages, built into the program.
-const PAGES: [(&str, &str, &str); 3] = [
+const PAGES: [(&str, &str, &str); 5] = [
     ("index.html", "text/html; charset=utf-8", include_str!("../web/index.html")),
     ("lab.css", "text/css; charset=utf-8", include_str!("../web/lab.css")),
     ("lab.js", "text/javascript; charset=utf-8", include_str!("../web/lab.js")),
+    ("options.json", "application/json", include_str!("../web/options.json")),
+    ("availability.json", "application/json", include_str!("../web/availability.json")),
 ];
 
 struct Lab {
@@ -198,8 +200,16 @@ fn api(lab: &Lab, name: &str, req: &Value) -> Result<Value, String> {
         }
         "add_unit" => add_unit(lab, req),
         "list_boards" => Ok(json!({"boards": lab.catalog.boards})),
+        // a board file's text, for the Map page's preview (the page draws it); the map pack's boards are unpacked on the way
+        "board" => {
+            let id = req["id"].as_str().ok_or("which board?")?;
+            lab.catalog.ensure(id)?;
+            let text = std::fs::read_to_string(lab.catalog.data.join(id)).map_err(|e| format!("{}: {}", id, e))?;
+            Ok(json!({"id": id, "text": text}))
+        }
         "estimate" => {
-            let s = runs::scenario_of(&req["setup"], &lab.catalog, &lab.paths)?;
+            let plan = runs::scenario_of(&req["setup"], &lab.catalog, &lab.paths)?;
+            let s = plan.scenario_for(1, 1).0;
             Ok(runs::estimate(&s, req["setup"]["battles"].as_u64().unwrap_or(20), req["setup"]["threads"].as_u64().unwrap_or(0) as usize))
         }
         "run" => {
@@ -220,7 +230,51 @@ fn api(lab: &Lab, name: &str, req: &Value) -> Result<Value, String> {
             run.cancel.store(true, std::sync::atomic::Ordering::Relaxed);
             Ok(run.progress())
         }
-        "history" => history(lab, req),
+        // CL20: a run as one file (setup, every battle's line, the crashes with their seeds, the unit files the setup used that
+        // are not in the packs), so it can be sent to Claude for bug hunting and opened again anywhere
+        "save_run" => {
+            let run = run_of(lab, req)?;
+            let mut files = serde_json::Map::new();
+            for t in run.setup["teams"].as_array().into_iter().flatten() {
+                for u in t["units"].as_array().into_iter().flatten() {
+                    if let Some(id) = u["unit"].as_str() {
+                        if !id.contains('/') && !id.contains("..") {
+                            if let Ok(text) = std::fs::read_to_string(lab.catalog.data.join(id)) {
+                                files.insert(id.to_string(), json!(text));
+                            }
+                        }
+                    }
+                }
+            }
+            Ok(run.export(files))
+        }
+        "load_run" => {
+            let f = &req["file"];
+            if f["combatlab_run"] != 1 {
+                return Err("this is not a Combat Lab run file".into());
+            }
+            for (id, text) in f["unit_files"].as_object().into_iter().flatten() {
+                let target = lab.catalog.data.join(id);
+                if id.contains('/') || id.contains("..") || !id.to_lowercase().ends_with(".mtf") {
+                    continue;
+                }
+                if !target.exists() {
+                    add_unit(lab, &json!({"file": id, "text": text}))?;
+                }
+            }
+            let plan = runs::scenario_of(&f["setup"], &lab.catalog, &lab.paths)?;
+            let id = {
+                let mut n = lab.next_run.lock().unwrap();
+                *n += 1;
+                *n - 1
+            };
+            let run = runs::Run::restore(id, f["setup"].clone(), plan, f["lines"].as_array().cloned().unwrap_or_default(), f["crashed"].as_array().cloned().unwrap_or_default(), f["seconds"].as_f64().unwrap_or(0.0));
+            lab.runs.lock().unwrap().insert(id, run);
+            Ok(json!({"run": id, "setup": f["setup"]}))
+        }
+        // a battle that crashes replays into the same crash: say so in words instead of dropping the request
+        "history" => std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| history(lab, req)))
+            .unwrap_or_else(|e| Err(format!("this battle crashes when played again: {}", e.downcast_ref::<String>().cloned().or_else(|| e.downcast_ref::<&str>().map(|s| s.to_string())).unwrap_or_else(|| "panic".into())))),
         _ => Err(format!("unknown request '{}'", name)),
     }
 }
@@ -275,10 +329,10 @@ fn history_bare(lab: &Lab, req: &Value) -> Result<Value, String> {
         let run = run_of(lab, req)?;
         let sim = req["sim"].as_u64().ok_or("which battle?")?;
         let seed = btsim_core::dice::PcgDice::battle_seed(run.seed, sim);
-        return Ok(run.scenario.run_history(sim, seed).1);
+        return Ok(run.plan.scenario_for(sim, seed).0.run_history(sim, seed).1);
     }
     let seed = seed_of(&req["seed"]).ok_or("which seed?")?;
-    let s = runs::scenario_of(&req["setup"], &lab.catalog, &lab.paths)?;
+    let s = runs::scenario_of(&req["setup"], &lab.catalog, &lab.paths)?.scenario_for(req["sim"].as_u64().unwrap_or(1), seed).0;
     *lab.last_setup.lock().unwrap() = Some(req["setup"].clone());
     Ok(s.run_history(req["sim"].as_u64().unwrap_or(1), seed).1)
 }
@@ -289,7 +343,7 @@ fn replay_page(lab: &Lab, q: &HashMap<String, String>) -> Result<String, String>
         history(lab, &json!({"run": run, "sim": num("sim").ok_or("which battle?")?}))?
     } else {
         let setup = lab.last_setup.lock().unwrap().clone().ok_or("no setup to replay")?;
-        history(lab, &json!({"setup": setup, "seed": num("seed").ok_or("which seed?")?}))?
+        history(lab, &json!({"setup": setup, "seed": num("seed").ok_or("which seed?")?, "sim": num("sim").unwrap_or(1)}))?
     };
     Ok(btsim_core::history::page(&record))
 }

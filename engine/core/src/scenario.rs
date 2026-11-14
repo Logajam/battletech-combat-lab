@@ -14,6 +14,7 @@ use crate::mech_state::Mech;
 use crate::orchestrator::{play_on, start_battle};
 use crate::results::BattleResult;
 
+#[derive(Clone)]
 pub struct Scenario {
     pub config: Value,
     pub board: Value,

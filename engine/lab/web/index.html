@@ -9,8 +9,8 @@
 </head>
 <body>
 <!--LAB-BODY-->
-<div class="window">
-  <div class="titlebar"><span class="box" aria-hidden="true"></span><span class="name">Combat Lab</span><span class="mode" id="mode"></span></div>
+<div class="window" id="app">
+  <div class="titlebar"><span class="box" aria-hidden="true"></span><span class="name">Combat Lab</span><span class="mode" id="mode"></span><button class="btn small" id="reset-layout" title="Put every window back where it started">Reset layout</button></div>
   <div class="banner" id="banner" hidden></div>
   <div class="tabs" role="tablist">
     <button class="tab" role="tab" id="tab-units" aria-selected="true" data-page="units">Units</button>
@@ -20,30 +20,51 @@
     <button class="tab" role="tab" id="tab-replay" aria-selected="false" data-page="replay">Replay</button>
   </div>
 
-  <!-- UNITS: the team panels, and the centre column (teams, simulations, estimate, Run) -->
+  <!-- UNITS (CL11/CL12): a row across the top (Battle, Estimated runtime, Run), then odd teams on the left, the Unit
+       Browser permanently open in the centre, even teams on the right. Every panel can be dragged out by its title bar
+       into a floating window (resize at the corner; double-click the title to put it back). -->
   <section class="page" id="page-units" role="tabpanel">
-    <div class="units-layout">
-      <div class="teams" id="teams"></div>
-      <div class="centre">
-        <fieldset>
-          <legend>Battle</legend>
-          <div class="form">
-            <label class="row" for="team-count">Number of teams <input type="number" id="team-count" min="2" value="2"></label>
-            <label class="row" for="battles">Number of simulations <input type="number" id="battles" min="1" max="100000" value="20"></label>
-            <span class="note" id="team-sum"></span>
-            <button class="btn" id="browse-btn">Unit Browser&hellip;</button>
-          </div>
-        </fieldset>
-        <fieldset>
-          <legend>Estimated runtime</legend>
-          <div class="readout sunken" id="estimate">Press Estimate</div>
-          <div style="margin-top:6px"><button class="btn" id="estimate-btn">Estimate</button></div>
-        </fieldset>
-        <div class="note" id="where"></div>
+    <div class="units-top">
+      <fieldset>
+        <legend>Battle</legend>
+        <div class="form">
+          <label class="row" for="team-count">Number of teams <input type="number" id="team-count" min="2" value="2"></label>
+          <label class="row" for="battles">Number of simulations <input type="number" id="battles" min="1" max="100000" value="20"></label>
+          <span class="note" id="team-sum"></span>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Estimated runtime</legend>
+        <div class="readout sunken" id="estimate">Press Estimate</div>
+        <div style="margin-top:6px"><button class="btn" id="estimate-btn">Estimate</button></div>
+      </fieldset>
+      <fieldset class="run-box">
+        <legend>Run</legend>
         <button class="btn big" id="run-btn">Run Simulation</button>
+        <div class="note" id="where"></div>
         <div class="err" id="run-error" role="alert"></div>
-      </div>
+      </fieldset>
     </div>
+    <div class="units-desk">
+      <div class="col" id="teams-left"></div>
+      <div class="col centre-col" id="browser-slot">
+        <div class="win browser" id="browser" data-wkey="browser">
+          <div class="wtitle" id="ub-title"><span class="name">Unit Browser</span></div>
+          <div class="wbody">
+            <div class="filters">
+              <label for="ub-name">Name <input type="search" id="ub-name" placeholder="e.g. atlas"></label>
+              <label for="ub-class">Weight class <select id="ub-class"><option value="">Any</option><option value="light">Light (20-35 t)</option><option value="medium">Medium (40-55 t)</option><option value="heavy">Heavy (60-75 t)</option><option value="assault">Assault (80-100 t)</option><option value="superheavy">Super-heavy</option></select></label>
+              <button class="btn" id="ub-adv-btn">Advanced search&hellip;</button>
+            </div>
+            <div class="filters"><span id="ub-count" class="note"></span><button class="btn small" id="ub-clear">Clear selection</button></div>
+            <div class="list sunken ub-list"><table id="ub-list"><thead><tr><th></th><th data-sort="name">Unit</th><th data-sort="tons" class="num">Tons</th><th data-sort="bv" class="num">BV</th><th data-sort="walk" class="num" title="Walk / run / jump MP">Move</th><th data-sort="armor" class="num">Armor</th><th data-sort="role">Role</th><th data-sort="era" class="num">Year</th></tr></thead><tbody></tbody></table></div>
+            <div class="note" id="ub-picked"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col" id="teams-right"></div>
+    </div>
+    <div class="float-layer" id="units-float"></div>
   </section>
 
   <!-- MAP: pick a board (or a random one of those shown) -->
@@ -53,7 +74,17 @@
         <div class="filters">
           <label class="row" for="map-one"><input type="radio" name="map-mode" id="map-one" checked> One board</label>
           <label class="row" for="map-stitch"><input type="radio" name="map-mode" id="map-stitch"> Boards stitched together</label>
+          <label class="row" for="map-playlist"><input type="radio" name="map-mode" id="map-playlist"> Map list (battles cycle through it)</label>
         </div>
+        <fieldset id="playlist-box" hidden>
+          <legend>Map list</legend>
+          <div class="filters">
+            <label for="playlist-order">Order <select id="playlist-order"><option value="sequence">Playlist order</option><option value="shuffle">Shuffle (a fresh order each pass)</option></select></label>
+            <button class="btn small" id="playlist-clear">Clear list</button>
+          </div>
+          <p class="note">Click boards in the list below to add them. Battle 1 uses the first map, battle 2 the next, and so on round again.</p>
+          <ol class="playlist" id="playlist"></ol>
+        </fieldset>
         <fieldset id="stitch-box" hidden>
           <legend>Stitched map</legend>
           <div class="filters">
@@ -70,27 +101,68 @@
         </div>
         <div class="list sunken" style="max-height:420px"><table class="pick" id="boards"><thead><tr><th>Board</th><th>Size</th><th>Map set</th></tr></thead><tbody></tbody></table></div>
       </div>
-      <fieldset>
+      <div class="right-col">
+      <fieldset id="zones-box">
+        <legend>Starting zones</legend>
+        <div class="filters">
+          <label for="zone-mode">Deployment <select id="zone-mode"><option value="rulebook">Core Rulebook (initiative roll, home edge)</option><option value="fixed">Fixed zones</option><option value="rotating">Rotating zones</option><option value="random">Random zone each battle</option></select></label>
+          <label class="row" for="zone-opposite"><input type="checkbox" id="zone-opposite"> Keep teams opposite <span class="tag off" id="zone-opposite-tag" hidden>2 teams only</span></label>
+        </div>
+        <div class="zone-grids" id="zone-grids"></div>
+        <p class="note" id="zone-note"></p>
+      </fieldset>
+      <fieldset class="chosen">
         <legend>Chosen board</legend>
         <div id="board-chosen"></div>
-        <p class="note">Each team deploys along its own home edge. Boards from the map pack are unpacked into the project's data folder the first time they are used.</p>
+        <canvas id="map-preview" class="sunken" width="10" height="10" aria-label="Preview of the whole map"></canvas>
+        <div class="legend" id="map-legend"></div>
+        <p class="note">Colours show height: each level is a step in the ramp above. Each team deploys along its own home edge. Boards from the map pack are unpacked into the project's data folder the first time they are used.</p>
       </fieldset>
+      </div>
     </div>
   </section>
 
-  <!-- OPTIONS -->
+  <!-- OPTIONS (CL15): sub-tabs (Game setup, Bot features), folders inside them, a search over all of it. The list of
+       settings is options.json, made from the engine's settings by tools/make_options_registry.py. -->
   <section class="page" id="page-options" role="tabpanel" hidden>
-    <div class="form">
-      <label for="threads">CPU threads (0 = every core)<input type="number" id="threads" min="0" max="256" value="0"></label>
-      <label for="seed">Random seed<input type="number" id="seed" min="0" value="1"></label>
-      <label for="max-turns">Turn cap (a battle that reaches it is a draw)<input type="number" id="max-turns" min="1" max="1000" value="100"></label>
-      <p class="note">Battle logs: every battle can be played again, log and all, from its seed, so none are stored. Choose one on the Results page to watch it.</p>
-      <p class="note">Debug output and AI debug recording come with the analysis tools (later).</p>
+    <div class="filters opt-bar">
+      <label for="opt-search">Search options <input type="search" id="opt-search" placeholder="e.g. cluster, bravery, legate" autocomplete="off"></label>
+      <span class="note" id="opt-count"></span>
+      <button class="btn" id="opt-reset-all">Reset all options to defaults</button>
     </div>
+    <div class="subtabs" role="tablist" id="opt-subtabs">
+      <button class="subtab" role="tab" data-pane="game" aria-selected="true">Game setup</button>
+      <button class="subtab" role="tab" data-pane="bots" aria-selected="false">Bot features</button>
+    </div>
+    <div class="opt-pane" id="opt-pane-game">
+      <details class="folder" open data-folder="Run" id="opt-run">
+        <summary>Run</summary>
+        <div class="opt" data-search="cpu threads cores run">
+          <div class="opt-main"><label for="threads">CPU threads (0 = every core)</label><input type="number" id="threads" min="0" max="256" value="0"></div>
+        </div>
+        <div class="opt" data-search="random seed run">
+          <div class="opt-main"><label for="seed">Random seed</label><input type="number" id="seed" min="0" value="1"></div>
+        </div>
+        <div class="opt" data-search="turn cap draw max turns run">
+          <div class="opt-main"><label for="max-turns">Turn cap (a battle that reaches it is a draw)</label><input type="number" id="max-turns" min="1" max="1000" value="100"></div>
+        </div>
+        <p class="note" data-search="battle logs replay seed run">Battle logs: every battle can be played again, log and all, from its seed, so none are stored. Choose one on the Results page to watch it.</p>
+      </details>
+      <div id="opt-folders-game"></div>
+    </div>
+    <div class="opt-pane" id="opt-pane-bots" hidden>
+      <div id="opt-folders-bots"></div>
+    </div>
+    <p class="note" id="opt-none" hidden>No option matches that search.</p>
   </section>
 
   <!-- RESULTS -->
   <section class="page" id="page-results" role="tabpanel" hidden>
+    <div class="filters runfile">
+      <button class="btn" id="save-run" disabled title="Save this run (setup, every battle, seeds and crashes) as one file">Save run to a file&hellip;</button>
+      <button class="btn" id="open-run" title="Open a run file saved earlier, or sent by someone else">Open a run file&hellip;</button>
+      <input type="file" id="open-run-input" accept=".json,.combatlab" hidden>
+    </div>
     <div id="results-empty" class="note">No results yet. Set up the teams on the Units page and press Run Simulation.</div>
     <div id="results" hidden>
       <div class="filters">
@@ -114,8 +186,14 @@
         </div>
       </fieldset>
       <p class="note" id="filter-note"></p>
+      <div id="crashes" hidden></div>
       <div class="winbar" id="winbar"></div>
       <div class="stats" id="stats"></div>
+      <details class="folder" id="unit-stats-box">
+        <summary>Unit statistics <span class="note">(one folder per team and unit: how they died, what was left, kills, each weapon)</span></summary>
+        <div id="unit-stats" class="note">Open to load.</div>
+      </details>
+      <datalist id="cause-list"></datalist>
       <h2>Battles <span class="note">(choose one to watch it)</span></h2>
       <div class="list sunken battles" id="battle-tree"></div>
     </div>
@@ -125,29 +203,21 @@
   <section class="page" id="page-replay" role="tabpanel" hidden>
     <div class="replay-bar">
       <label for="replay-seed">Seed <input type="text" id="replay-seed" inputmode="numeric" placeholder="e.g. 7"></label>
+      <label for="replay-sim">Battle number <input type="text" id="replay-sim" inputmode="numeric" placeholder="1" size="4"></label>
       <button class="btn" id="replay-seed-btn">Load by seed</button>
       <span class="note" id="replay-what">Choose a battle on the Results page, or enter a seed: the current setup is played on it.</span>
     </div>
     <iframe class="replay-frame sunken" id="replay-frame" title="Battle replay"></iframe>
   </section>
 
-  <!-- the UNIT BROWSER: a window over the page; units are dragged from it onto the team panels -->
-  <div class="dialog" id="browser" role="dialog" aria-labelledby="ub-title-text" hidden>
-    <div class="titlebar" id="ub-title"><span class="box" aria-hidden="true"></span><span class="name" id="ub-title-text">Unit Browser</span><button class="closebox" id="ub-close" aria-label="Close">&times;</button></div>
+  <!-- ADVANCED SEARCH: a popup window over the page (moves by its title bar); CL13 grows it to Mekbay's filters -->
+  <div class="dialog adv" id="adv" role="dialog" aria-labelledby="adv-title-text" hidden>
+    <div class="titlebar" id="adv-title"><span class="box" aria-hidden="true"></span><span class="name" id="adv-title-text">Advanced search</span><button class="closebox" id="adv-close" aria-label="Close">&times;</button></div>
     <div class="dialog-body">
-      <div class="filters">
-        <label for="ub-name">Name <input type="search" id="ub-name" placeholder="e.g. atlas"></label>
-        <label for="ub-class">Weight class <select id="ub-class"><option value="">Any</option><option value="light">Light (20-35 t)</option><option value="medium">Medium (40-55 t)</option><option value="heavy">Heavy (60-75 t)</option><option value="assault">Assault (80-100 t)</option><option value="superheavy">Super-heavy</option></select></label>
-        <label for="ub-tmin">Tons <span class="pair"><input type="number" id="ub-tmin" min="0" placeholder="min"><input type="number" id="ub-tmax" min="0" placeholder="max"></span></label>
-        <label for="ub-bmin">Battle Value <span class="pair"><input type="number" id="ub-bmin" min="0" placeholder="min"><input type="number" id="ub-bmax" min="0" placeholder="max"></span></label>
-        <label for="ub-tech">Tech base <select id="ub-tech"><option value="">Any</option><option value="inner sphere">Inner Sphere</option><option value="clan">Clan</option><option value="mixed">Mixed</option></select></label>
-        <label for="ub-source">Unit set <select id="ub-source"></select></label>
-        <label for="ub-year">In service by (year) <input type="number" id="ub-year" min="2000" placeholder="any"></label>
-        <label class="row" for="ub-playable"><input type="checkbox" id="ub-playable" checked> Playable only</label>
-      </div>
-      <div class="filters"><span id="ub-count" class="note"></span><button class="btn small" id="ub-clear">Clear selection</button></div>
-      <div class="list sunken ub-list"><table id="ub-list"><thead><tr><th data-sort="name">Unit</th><th data-sort="tons" class="num">Tons</th><th data-sort="bv" class="num">BV</th><th>Tech</th><th data-sort="era" class="num">Year</th></tr></thead><tbody></tbody></table></div>
-      <div class="note" id="ub-picked"></div>
+      <div class="filters"><button class="btn small" id="adv-clear">Clear all filters</button>
+        <label class="row" for="adv-preset">Saved <select id="adv-preset"><option value="">(none)</option></select></label>
+        <button class="btn small" id="adv-save">Save as&hellip;</button><button class="btn small" id="adv-del">Delete</button></div>
+      <div class="adv-scroll" id="adv-body"></div>
     </div>
   </div>
 
