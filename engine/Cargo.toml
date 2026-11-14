@@ -1,5 +1,5 @@
 [workspace]
-members = ["core", "btsim", "lab"]
+members = ["core", "btsim", "lab", "wasm"]
 resolver = "2"
 
 [profile.release]

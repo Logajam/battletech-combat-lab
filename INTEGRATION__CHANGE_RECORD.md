@@ -6,6 +6,21 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-14 (Claude, session 26), COMBAT LAB IN THE BROWSER (WebAssembly; the visitor's computer plays the battles). REVIEW PENDING (higher-level model).**
+  Daniel: "Front load it so that the users computer is the one actually doing the work ... prune out all the maps that aren't
+  standard 16x17 ... any other simplifications that would make it lighter." Built: `engine/wasm` (crate `combatlab_wasm`, the
+  engine plus `lab/src/runs.rs` by path as one `.wasm`, plain exports, no wasm-bindgen), `engine/wasm/web` (`engine.js` = the
+  page's end of the Lab's api: coordinator instance for the statistics + one Web Worker per core; `worker.js`; `wasmio.js`),
+  `tools/build_web_lab.py` (-> `web_lab/`, static), `tests/check_web_lab.py`, `INTEGRATION__COMBAT_LAB_WEB.md`.
+  ENGINE CHANGES (results identical, full suite 60 of 60 incl. the 86 Rust reference battles): `SetupPaths.memory` /
+  `MemoryFiles` / `defaults_text()` in `core/src/scenario.rs` (files from memory instead of disk; desktop path untouched);
+  `runs.rs`: `Run::external` / `add` / `finish`, `play_one`, the clock and rayon parts compiled only off wasm32; `lab.js`: two
+  `window.LAB_WASM` hooks (api, replay page). PRUNED: boards to 16x17 only (356 -> 200), unit-file fluff lines (18.6 -> 11.9 MB),
+  units the engine cannot play; all in one 0.84 MB gzip block; the module is 1.7 MB gzipped. CHECKED in headless Chromium: four
+  setups (Gladiator 2 v 2; Princess v Hydra with a packed unit; two boards stitched; a shuffled map list with random zones)
+  give every battle identical to the desktop Lab (seed, winner, turns, damage, causes of death); replay page builds. SPEED:
+  browser about 1.8x slower than native (9.4 s v 5.1 s for 20 battles on 4 cores). NOT DONE: dropping a unit file in
+  (`add_unit`; needs `describe_unit` out of the desktop-only `catalog.rs`); not in `run_checks.py` (needs a browser).
 - **2026-11-14 (Claude, session 26), SESSION LOCKED IN AND COMBAT LAB ALPHA-2 PACKAGED.** Daniel: "lock everything down so its saved in house ...
   regenerate the program and give me a download link ... send it to Opus for review before pushing it to the public repo." The
   session branch was merged to `main` of this private repo (pull request 224); nothing went to the public repo. `tools/package_lab.py

@@ -37,6 +37,19 @@ pub const STANDARD_MAX_TURNS: i64 = 100;
 pub struct SetupPaths {
     pub defaults: std::path::PathBuf,
     pub root: std::path::PathBuf,
+    /// Files held in memory instead of on disk (the browser build, engine/wasm: there is no disk there). When set,
+    /// the settings defaults come from `memory.defaults` and a data file `name` (a unit or board id) from
+    /// `memory.files[name]`. `None` = read from `defaults` and `root/DATA_DIR` as always.
+    pub memory: Option<MemoryFiles>,
+}
+
+/// The files a scenario needs, held in memory (see `SetupPaths::memory`).
+#[derive(Clone, Default)]
+pub struct MemoryFiles {
+    /// engine/defaults/config.json's text
+    pub defaults: String,
+    /// unit and board files by the name the settings give them
+    pub files: std::collections::HashMap<String, String>,
 }
 
 impl SetupPaths {
@@ -55,7 +68,15 @@ impl SetupPaths {
 
     /// From the repository root.
     pub fn at(root: &Path) -> SetupPaths {
-        SetupPaths { defaults: root.join("engine").join("defaults").join("config.json"), root: root.to_path_buf() }
+        SetupPaths { defaults: root.join("engine").join("defaults").join("config.json"), root: root.to_path_buf(), memory: None }
+    }
+
+    /// The settings defaults' text (from memory or from the file).
+    pub fn defaults_text(&self) -> Result<String, String> {
+        match &self.memory {
+            Some(m) => Ok(m.defaults.clone()),
+            None => fs::read_to_string(&self.defaults).map_err(|e| format!("{}: {}", self.defaults.display(), e)),
+        }
     }
 }
 
@@ -70,7 +91,7 @@ impl Scenario {
     /// Board names are files under DATA_DIR; maps packed in `data/maps.zip` must be unpacked first.
     pub fn from_settings(settings: &Value, paths: &SetupPaths) -> Result<Scenario, String> {
         use crate::battle::TapeDice;
-        let text = fs::read_to_string(&paths.defaults).map_err(|e| format!("{}: {}", paths.defaults.display(), e))?;
+        let text = paths.defaults_text()?;
         let mut config: Value = serde_json::from_str(&text).map_err(|e| format!("{}: {}", paths.defaults.display(), e))?;
         for (k, v) in settings.as_object().ok_or("the settings must be a JSON object")? {
             config[k.as_str()] = v.clone();
@@ -78,6 +99,9 @@ impl Scenario {
         let cfg = Config::from_json(&config);
         let data = paths.root.join(cfg.s("DATA_DIR"));
         let read = |name: &str| -> Result<(String, String), String> {
+            if let Some(m) = &paths.memory {
+                return m.files.get(name).map(|t| (name.to_string(), t.clone())).ok_or_else(|| format!("{}: no such unit or board", name));
+            }
             let p = data.join(name);
             let t = fs::read_to_string(&p).map_err(|e| format!("{}: {} (a map packed in data/maps.zip must be unpacked first)", p.display(), e))?;
             Ok((p.to_string_lossy().to_string(), t))
