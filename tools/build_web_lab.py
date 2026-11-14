@@ -36,6 +36,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=os.path.join(ROOT, "web_lab"))
     ap.add_argument("--skip-wasm", action="store_true")
+    ap.add_argument("--b64", action="store_true", help="also write data.pack.b64.txt (for a host that will not serve .gz files; engine.js falls back to it)")
     ap.add_argument("--port", type=int, default=8797)
     a = ap.parse_args()
     engine = os.path.join(ROOT, "engine")
@@ -92,8 +93,12 @@ def main():
     out = a.out
     shutil.rmtree(out, ignore_errors=True)
     os.makedirs(out)
+    packed = gzip.compress(bytes(block), 9, mtime=0)
     with open(os.path.join(out, "data.pack.gz"), "wb") as f:
-        f.write(gzip.compress(bytes(block), 9, mtime=0))
+        f.write(packed)
+    if a.b64:
+        import base64
+        open(os.path.join(out, "data.pack.b64.txt"), "w").write(base64.b64encode(packed).decode())
     # a unit's list entry without what only the desktop's own pages use is the same; keep the entry whole
     catalog = {"units": kept_units, "boards": kept_boards,
                "info": {"bots": info["bots"], "default_board": info["default_board"], "skill_table": info["skill_table"]}}

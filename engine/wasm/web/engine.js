@@ -27,6 +27,18 @@
     return { bytes, index, text: (name) => { const e = index.get(name); return e ? dec.decode(bytes.subarray(e[0], e[0] + e[1])) : null; } };
   }
 
+  // the data block: data.pack.gz, or data.pack.b64.txt (the same bytes as base64) for a host that will not serve .gz files
+  async function loadPack(get) {
+    let gz;
+    try {
+      gz = (await get("data.pack.gz")).body;
+    } catch (e) {
+      const b64 = await (await get("data.pack.b64.txt")).text();
+      gz = new Response(Uint8Array.from(atob(b64.trim()), (c) => c.charCodeAt(0))).body;
+    }
+    return new Response(gz.pipeThrough(new DecompressionStream("gzip"))).arrayBuffer();
+  }
+
   function init() {
     if (!loading) loading = (async () => {
       status("Loading the engine and the unit list...");
@@ -35,7 +47,7 @@
         get("combatlab.wasm").then((r) => WebAssembly.compileStreaming ? WebAssembly.compileStreaming(r) : r.arrayBuffer().then(WebAssembly.compile)),
         get("catalog.json").then((r) => r.json()),
         get("defaults.json").then((r) => r.text()),
-        get("data.pack.gz").then((r) => new Response(r.body.pipeThrough(new DecompressionStream("gzip"))).arrayBuffer()),
+        loadPack(get),
       ]);
       const pack = indexPack(packBuf);
       const coord = await makeEngine(module);
