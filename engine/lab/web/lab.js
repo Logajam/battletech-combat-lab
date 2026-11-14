@@ -989,11 +989,42 @@ async function drawResults() {
       ${res.crashed.length ? `<dt class="err">Crashed</dt><dd class="err">${res.crashed.length}</dd>` : ""}</dl></fieldset>`;
   $("save-run").disabled = false;
   drawCrashes(res.crashed || []);
+  reportFlag(res.crashed || []);
   $("cause-list").innerHTML = (res.causes || []).map(([c, k]) => `<option value="${esc(c)}">${k} unit${k === 1 ? "" : "s"}</option>`).join("");
   if ($("unit-stats-box").open) loadUnitStats();
   const tree = $("battle-tree");
   tree.innerHTML = "";
   fillRange(tree, 1, total, res);
+}
+
+// ---------------------------------------------------------------- SUGGESTION / BUG REPORT
+// The project's issue page (the public repository). The report button flashes while the open run has crashed battles.
+const ISSUES_URL = "https://github.com/Logajam/battletech-combat-lab/issues/new";
+let reportCrashes = [];
+function reportFlag(crashed) {
+  reportCrashes = crashed;
+  $("report-btn").classList.toggle("flash", crashed.length > 0);
+}
+// a link to a new issue with its title and text filled in (the address has a size limit, so the text stays short)
+function issueLink(title, body) {
+  return `${ISSUES_URL}?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+}
+function openReport() {
+  const setupText = lab.runSetup ? JSON.stringify(lab.runSetup) : "";
+  const n = reportCrashes.length;
+  const seeds = reportCrashes.slice(0, 10).map((c) => `- battle ${c.sim}, seed ${c.seed}${c.board ? ", map " + c.board : ""}: ${String(c.crashed || "").slice(0, 160)}`).join("\n");
+  const where = `${window.LAB_WASM ? "browser" : "desktop"}; ${navigator.userAgent}`;
+  let bug = `**What happened**\n\n(Describe what you saw.)\n\n**Saved run file**\n\n(Drag the saved .txt file here.)\n\n---\n`;
+  if (lab.runSetup) bug += `Batch seed: ${lab.runSetup.seed ?? "default"}, battles: ${lab.runSetup.battles}\n`;
+  if (n) bug += `\nCrashed battles (${n}):\n${seeds}${n > 10 ? "\n- ... and " + (n - 10) + " more (see the file)" : ""}\n`;
+  bug += `\nRunning on: ${where}\n`;
+  if (setupText && encodeURIComponent(bug + setupText).length < 5500) bug += `\nSetup:\n\`\`\`json\n${setupText}\n\`\`\`\n`;
+  else if (setupText) bug += `\n(The setup is in the saved file.)\n`;
+  $("report-bug").href = issueLink(n ? `Bug: ${n} battle${n === 1 ? "" : "s"} crashed` : "Bug: ", bug);
+  $("report-idea").href = issueLink("Suggestion: ", `**What would you like to see?**\n\n(Describe it.)\n\n---\nRunning on: ${where}\n`);
+  $("report-crash").hidden = !n;
+  $("report-crash").textContent = n ? `${n} battle${n === 1 ? "" : "s"} crashed in this run. That is a bug in the engine: please report it.` : "";
+  $("report").hidden = false;
 }
 
 // crashed battles stay visible: seed, what happened, where; "Replay" plays the same battle again (it crashes again, and says so)
@@ -1275,6 +1306,8 @@ async function start() {
   });
   $("about-btn").addEventListener("click", () => { $("about").hidden = false; });
   $("about-close").addEventListener("click", () => { $("about").hidden = true; });
+  $("report-btn").addEventListener("click", openReport);
+  $("report-close").addEventListener("click", () => { $("report").hidden = true; });
   $("cancel-btn").addEventListener("click", () => api("cancel", { run: lab.run }));
   $("board-search").addEventListener("input", drawBoards);
   $("board-size").addEventListener("change", drawBoards);
@@ -1294,7 +1327,7 @@ async function start() {
     if (file.error) { setStatus(file.error); return; }
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([JSON.stringify(file)], { type: "application/json" }));
-    a.download = `combatlab-run-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-")}.json`;
+    a.download = `combatlab-run-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-")}.json.txt`;   // .txt: GitHub issues accept it, and not .json
     a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
     setStatus(`Saved ${file.lines.length} battles, ${file.crashed.length} crashes`);
   });
