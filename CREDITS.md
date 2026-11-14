@@ -32,6 +32,10 @@ the BattleTech community. This project would not exist without their work.
   non-commercial too.
 - **Equipment tables.** `mechsim/equipment.json` and `mechsim/equipment_bv.json` (weapon and equipment stats, Battle
   Values) were built from MegaMek's equipment data and source code.
+- **Availability tables** (2026-11-14): `engine/lab/web/availability.json` is MegaMek Data (the `mm-data` repository's
+  `data/forcegenerator` era tables and `data/universe/factions`), reduced to a bit mask per 'Mech per era by
+  `tools/make_availability.py`, following MegaMek's RAT generator (`RATGenerator.java`). Same licence as above
+  (CC BY-NC-SA 4.0, non-commercial); the file carries MegaMek's notice in its `_license` field.
 - **Code.** MegaMek's source code is licensed under the GNU General Public License v3. This project's "princess" bot is a
   translation of MegaMek's Princess bot (from MegaMek's source), rules the rulebooks leave open were settled by reading
   MegaMek's source (cited "MegaMek" in the code), and `megamek_bridge/` is built against MegaMek (see its README). MegaMek

@@ -6,6 +6,21 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-14 (Claude, session 26), COMBAT LAB: UNIT BROWSER FILTERS (CL13). REVIEW PENDING (higher-level model).**
+  The Advanced search popup now has Mekbay-style filters: number ranges (tons, BV, walk, jump, armor points, heat sinks,
+  year introduced), tech base, armor type, structure, unit set, source book, configuration / role / rules level boxes,
+  weapons carried (name and a minimum count, several at once), a "Playable only" switch, Clear all, and named saved
+  searches (kept in the browser). New table columns: Move (walk/run/jump), Armor, Role. The catalog
+  (`engine/lab/src/catalog.rs`, cache version bumped) now reads those details from each .mtf's header and weapon list
+  (no engine call). FACTION AND YEAR: `tools/make_availability.py` reduces MegaMek's RAT-generator data (mm-data
+  `data/forcegenerator` + `data/universe/factions`; attached read-only, public) to `engine/lab/web/availability.json`
+  (47 PLAYABLE factions x 39 era tables; 3,409 'Mechs; 750 KB; built into combatlab), following `RATGenerator.java`:
+  own entry, else parent faction(s), else General; rating 0 = unavailable. Simplifications, all stated in the tool:
+  a game year uses the nearest earlier era table (MegaMek interpolates), the + / - rating shifts and an entry's start
+  year are ignored, only 'Mechs listed by MegaMek can match a faction filter (3,025 of 4,252 of ours). CREDITS.md has
+  the entry. Checked: Atlas AS7-K appears for DC in 3067 and not in 2700; DC 3025 = 280 units, 3067 = 1,048; the Lab server
+  check passes. Engine untouched. Not done: weapon names are the file's ids made readable by a rule, not the engine's own
+  names; "Omnimech/OmniMek" configuration spellings are separate boxes; no faction-rating (A-F) filter.
 - **2026-11-14 (Claude, session 26), COMBAT LAB: OPTIONS TAB (CL15). REVIEW PENDING (higher-level model).**
   Options tab = sub-tabs (Game setup, Bot features), folders inside them (Run, Deployment, Rules, Placeholders,
   Technical; one folder per bot: Gladiator, Princess, Legate, Hydra), a search box over all of it (each sub-tab shows

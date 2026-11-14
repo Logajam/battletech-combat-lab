@@ -330,32 +330,155 @@ async function estimate() {
 // ---------------------------------------------------------------- the UNIT BROWSER window
 const browse = { sort: "name", dir: 1, shown: [] };
 
-function initBrowser() {
-  const sources = [...new Set(lab.units.map((u) => u.source))].sort((a, b) => (a === "project" ? -1 : b === "project" ? 1 : a.localeCompare(b)));
-  $("ub-source").innerHTML = `<option value="">Any</option>` + sources.map((s) => `<option value="${esc(s)}">${esc(s === "project" ? "Project folder" : s)}</option>`).join("");
+// ---- advanced search (CL13): Mekbay-style filters. `adv` holds them; drawBrowser applies them.
+const ADV_KEY = "combatlab.adv.v1", PRESET_KEY = "combatlab.advpresets.v1";
+const ADV_EMPTY = () => ({ ranges: {}, tech: "", source: "", book: "", armor_type: "", structure: "", sets: { config: [], role: [], rules: [] }, playable: true, weapons: [], faction: "", fyear: "" });
+let adv = ADV_EMPTY();
+let availability = null;          // availability.json (who fielded what, when): loaded the first time a faction is chosen
+const RANGES = [["Tons", "tons"], ["Battle Value", "bv"], ["Walk MP", "walk"], ["Jump MP", "jump"], ["Armor points", "armor"], ["Heat sinks", "sinks"], ["Year introduced", "era"]];
+const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage off */ } };
+const fetchStore = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || "null") ?? d; } catch (e) { return d; } };
+// an equipment id as the file writes it ("ISERLargeLaser") in words ("ER Large Laser"; Clan ones say so)
+function weaponLabel(id) {
+  let s = id, clan = false;
+  if (/^CL/.test(s)) { clan = true; s = s.slice(2); } else if (/^IS/.test(s)) s = s.slice(2);
+  s = s.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2").replace(/([A-Za-z])(\d)/g, "$1 $2");
+  return clan ? `${s} (Clan)` : s;
+}
+const unique = (key) => [...new Set(lab.units.map((u) => u[key]).filter((x) => x !== null && x !== undefined && x !== ""))].sort((a, b) => (typeof a === "number" ? a - b : String(a).localeCompare(String(b))));
+const selectHtml = (id, values, label, current) => `<label for="${id}">${label} <select id="${id}"><option value="">Any</option>${values.map((v) => `<option value="${esc(v)}"${String(v) === String(current) ? " selected" : ""}>${esc(v === "project" ? "Project folder" : v)}</option>`).join("")}</select></label>`;
+const checksHtml = (name, values, picked) => `<div class="checks">${values.map((v) => `<label class="row"><input type="checkbox" data-set="${name}" value="${esc(v)}" ${picked.includes(String(v)) ? "checked" : ""}> ${esc(v)}</label>`).join("")}</div>`;
+
+function buildAdvanced() {
+  const grid = RANGES.map(([label, k]) => `<label>${label} <span class="pair"><input type="number" data-range="${k}" data-end="0" placeholder="min" value="${adv.ranges[k]?.[0] ?? ""}"><input type="number" data-range="${k}" data-end="1" placeholder="max" value="${adv.ranges[k]?.[1] ?? ""}"></span></label>`).join("");
+  const wnames = [...new Set(lab.units.flatMap((u) => (u.weapons || []).map((w) => w[0])))].sort((a, b) => weaponLabel(a).localeCompare(weaponLabel(b)));
+  lab.weaponNames = wnames;
+  const factions = lab.availFactions || [];
+  $("adv-body").innerHTML = `
+    <fieldset><legend>Numbers</legend><div class="adv-grid">${grid}</div></fieldset>
+    <fieldset><legend>Kind</legend><div class="adv-grid">
+      ${selectHtml("adv-tech", ["Inner Sphere", "Clan", "Mixed"], "Tech base", adv.tech)}
+      ${selectHtml("adv-armor", unique("armor_type"), "Armor type", adv.armor_type)}
+      ${selectHtml("adv-structure", unique("structure"), "Structure", adv.structure)}
+      ${selectHtml("adv-source", unique("source"), "Unit set", adv.source)}
+      <label for="adv-book">Source book contains <input type="text" id="adv-book" value="${esc(adv.book)}" placeholder="e.g. TRO 3050"></label></div>
+      <p class="note" style="margin:6px 0 2px">Configuration</p>${checksHtml("config", unique("config"), adv.sets.config)}
+      <p class="note" style="margin:6px 0 2px">Role</p>${checksHtml("role", unique("role"), adv.sets.role)}
+      <p class="note" style="margin:6px 0 2px">Rules level</p>${checksHtml("rules", unique("rules"), adv.sets.rules)}
+    </fieldset>
+    <fieldset><legend>Weapons and equipment (all must be carried)</legend><div id="adv-weapons"></div>
+      <button class="btn small" id="adv-add-weapon">Add a weapon</button>
+      <datalist id="adv-wlist">${wnames.map((n) => `<option value="${esc(weaponLabel(n))}">`).join("")}</datalist></fieldset>
+    <fieldset><legend>Who fielded it (MegaMek's availability data)</legend><div class="adv-grid">
+      <label for="adv-faction">Faction <select id="adv-faction"><option value="">Any</option>${factions.map((f) => `<option value="${esc(f.key)}"${f.key === adv.faction ? " selected" : ""}>${esc(f.name)}</option>`).join("")}</select></label>
+      <label for="adv-fyear">In the year <input type="number" id="adv-fyear" min="2398" max="3200" value="${esc(adv.fyear)}" placeholder="any year"></label></div>
+      <p class="note" id="adv-avail-note">Pick a faction to see only the 'Mechs it could field. A year uses the nearest earlier era table; no year means any era. Only 'Mechs MegaMek has availability for can match.</p></fieldset>
+    <label class="row" for="adv-playable"><input type="checkbox" id="adv-playable" ${adv.playable ? "checked" : ""}> Playable only (the engine can load them)</label>`;
+  drawAdvWeapons();
+  const body = $("adv-body");
+  const changed = () => { store(ADV_KEY, adv); advCount(); drawBrowser(); };
+  body.querySelectorAll("[data-range]").forEach((i) => i.addEventListener("input", () => {
+    const k = i.dataset.range, r = adv.ranges[k] || [null, null];
+    r[+i.dataset.end] = i.value === "" ? null : +i.value;
+    if (r[0] === null && r[1] === null) delete adv.ranges[k]; else adv.ranges[k] = r;
+    changed();
+  }));
+  for (const [id, key] of [["adv-tech", "tech"], ["adv-armor", "armor_type"], ["adv-structure", "structure"], ["adv-source", "source"]]) $(id).addEventListener("change", (e) => { adv[key] = e.target.value; changed(); });
+  $("adv-book").addEventListener("input", (e) => { adv.book = e.target.value; changed(); });
+  body.querySelectorAll("[data-set]").forEach((i) => i.addEventListener("change", () => {
+    const list = adv.sets[i.dataset.set];
+    if (i.checked) list.push(i.value); else list.splice(list.indexOf(i.value), 1);
+    changed();
+  }));
+  $("adv-playable").addEventListener("change", (e) => { adv.playable = e.target.checked; changed(); });
+  $("adv-faction").addEventListener("change", async (e) => { adv.faction = e.target.value; if (adv.faction) await loadAvailability(); changed(); });
+  $("adv-fyear").addEventListener("input", (e) => { adv.fyear = e.target.value; changed(); });
+  $("adv-add-weapon").addEventListener("click", () => { adv.weapons.push({ name: "", min: 1 }); drawAdvWeapons(); });
+  advCount();
+}
+
+function drawAdvWeapons() {
+  const box = $("adv-weapons");
+  box.innerHTML = adv.weapons.map((w, i) => `<div class="wrow"><input type="text" list="adv-wlist" data-w="${i}" value="${esc(w.name)}" placeholder="weapon name, e.g. ER Large Laser" aria-label="Weapon"><span class="note">at least</span><input type="number" min="1" data-wn="${i}" value="${w.min}" aria-label="Count"><button class="btn small" data-wd="${i}" title="Remove">&times;</button></div>`).join("");
+  box.querySelectorAll("[data-w]").forEach((i) => i.addEventListener("input", () => { adv.weapons[+i.dataset.w].name = i.value; store(ADV_KEY, adv); advCount(); drawBrowser(); }));
+  box.querySelectorAll("[data-wn]").forEach((i) => i.addEventListener("input", () => { adv.weapons[+i.dataset.wn].min = Math.max(1, +i.value || 1); store(ADV_KEY, adv); drawBrowser(); }));
+  box.querySelectorAll("[data-wd]").forEach((b) => b.addEventListener("click", () => { adv.weapons.splice(+b.dataset.wd, 1); drawAdvWeapons(); store(ADV_KEY, adv); advCount(); drawBrowser(); }));
+}
+
+async function loadAvailability() {
+  if (availability) return;
+  $("adv-avail-note").textContent = "Loading availability tables...";
+  try {
+    const r = await fetch("availability.json");
+    availability = r.ok ? await r.json() : { eras: [], factions: [], units: {} };
+  } catch (e) { availability = { eras: [], factions: [], units: {} }; }
+  $("adv-avail-note").textContent = availability.eras.length ? "A year uses the nearest earlier era table; no year means any era. Only 'Mechs MegaMek has availability for can match." : "No availability data in this copy.";
+}
+
+// does a unit pass the advanced filters
+function passes(u) {
+  if (adv.playable && !u.ok) return false;
+  for (const [k, [lo, hi]] of Object.entries(adv.ranges)) {
+    const v = u[k]; if (v === null || v === undefined) return false;
+    if (lo !== null && v < lo) return false; if (hi !== null && v > hi) return false;
+  }
+  if (adv.tech && !(u.tech || "").toLowerCase().includes(adv.tech.toLowerCase())) return false;
+  if (adv.source && u.source !== adv.source) return false;
+  if (adv.armor_type && u.armor_type !== adv.armor_type) return false;
+  if (adv.structure && u.structure !== adv.structure) return false;
+  if (adv.book && !(u.book || "").toLowerCase().includes(adv.book.toLowerCase())) return false;
+  for (const k of ["config", "role", "rules"]) if (adv.sets[k].length && !adv.sets[k].includes(String(u[k]))) return false;
+  for (const w of adv.weapons) {
+    if (!w.name.trim()) continue;
+    const want = w.name.trim().toLowerCase();
+    const have = (u.weapons || []).filter((x) => weaponLabel(x[0]).toLowerCase().includes(want)).reduce((s, x) => s + x[1], 0);
+    if (have < w.min) return false;
+  }
+  if (adv.faction && availability) {
+    const row = availability.units[u.name]; if (!row) return false;
+    const fi = availability.factions.findIndex((f) => f.key === adv.faction);
+    const bit = (m) => Math.floor(m / 2 ** fi) % 2 === 1;      // masks have up to 47 bits: no bit operators
+    if (adv.fyear === "") return row.some(bit);
+    const ei = availability.eras.filter((y) => y <= +adv.fyear).length - 1;
+    return ei >= 0 && bit(row[ei]);
+  }
+  return true;
+}
+
+function advCount() {
+  const n = Object.keys(adv.ranges).length + ["tech", "source", "book", "armor_type", "structure", "faction"].filter((k) => adv[k]).length +
+    Object.values(adv.sets).filter((l) => l.length).length + adv.weapons.filter((w) => w.name.trim()).length + (adv.playable ? 0 : 1);
+  $("ub-adv-btn").textContent = n ? `Advanced search (${n})…` : "Advanced search…";
+}
+
+function advPresets() {
+  const presets = fetchStore(PRESET_KEY, {});
+  $("adv-preset").innerHTML = `<option value="">(none)</option>` + Object.keys(presets).map((n) => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+  return presets;
+}
+
+async function initBrowser() {
+  adv = { ...ADV_EMPTY(), ...fetchStore(ADV_KEY, {}) };
+  adv.sets = { config: [], role: [], rules: [], ...(adv.sets || {}) };
+  // the faction list is small: it comes with the availability file, loaded now so the choice list is there; a saved faction filter needs the tables
+  try { const r = await fetch("availability.json"); if (r.ok) { availability = await r.json(); lab.availFactions = availability.factions; } } catch (e) { /* demo or no file */ }
+  if (adv.faction && !availability) adv.faction = "";
+  buildAdvanced();
+  advPresets();
   drawBrowser();
 }
 
 function drawBrowser() {
   const words = $("ub-name").value.toLowerCase().split(/\s+/).filter(Boolean);
   const cls = CLASSES[$("ub-class").value];
-  const num = (id) => ($(id).value === "" ? null : +$(id).value);
-  const [tmin, tmax, bmin, bmax, year] = [num("ub-tmin"), num("ub-tmax"), num("ub-bmin"), num("ub-bmax"), num("ub-year")];
-  const tech = $("ub-tech").value, source = $("ub-source").value, playable = $("ub-playable").checked;
-  const list = lab.units.filter((u) =>
-    (!playable || u.ok) && words.every((w) => u.name.toLowerCase().includes(w)) &&
-    (!cls || (u.tons >= cls[0] && u.tons <= cls[1])) &&
-    (tmin === null || u.tons >= tmin) && (tmax === null || u.tons <= tmax) &&
-    (bmin === null || (u.bv ?? 0) >= bmin) && (bmax === null || (u.bv ?? 0) <= bmax) &&
-    (!tech || (u.tech || "").toLowerCase().includes(tech)) && (!source || u.source === source) &&
-    (year === null || (u.era ?? 0) <= year));
+  const list = lab.units.filter((u) => words.every((w) => u.name.toLowerCase().includes(w)) && (!cls || (u.tons >= cls[0] && u.tons <= cls[1])) && passes(u));
   const k = browse.sort, d = browse.dir;
-  list.sort((a, b) => (k === "name" ? a.name.localeCompare(b.name) : ((a[k] ?? -1) - (b[k] ?? -1)) || a.name.localeCompare(b.name)) * d);
+  list.sort((a, b) => ((k === "name" || k === "role") ? String(a[k] ?? "").localeCompare(String(b[k] ?? "")) || a.name.localeCompare(b.name) : ((a[k] ?? -1) - (b[k] ?? -1)) || a.name.localeCompare(b.name)) * d);
   browse.shown = list.slice(0, 400);
   $("ub-count").textContent = `${list.length} unit${list.length === 1 ? "" : "s"}${list.length > 400 ? " (first 400 shown: narrow the search)" : ""}`;
   const body = $("ub-list").tBodies[0];
   body.innerHTML = browse.shown.map((u, i) => `<tr data-i="${i}" draggable="${u.ok}" class="${lab.picked.has(u.id) ? "on" : ""}${u.ok ? "" : " bad"}" title="${esc(u.ok ? "Drag onto a team" : u.why)}">
-      <td class="ico">${classIcon(u.tons)}</td><td>${esc(u.name)}</td><td class="num">${u.tons ?? ""}</td><td class="num">${u.bv ?? ""}</td><td>${esc(u.tech || "")}</td><td class="num">${u.era ?? ""}</td></tr>`).join("");
+      <td class="ico">${classIcon(u.tons)}</td><td>${esc(u.name)}</td><td class="num">${u.tons ?? ""}</td><td class="num">${u.bv ?? ""}</td><td class="num">${u.walk ?? ""}/${u.walk != null ? Math.ceil(u.walk * 1.5) : ""}/${u.jump ?? ""}</td><td class="num">${u.armor ?? ""}</td><td>${esc(u.role || "")}</td><td class="num">${u.era ?? ""}</td></tr>`).join("");
   body.querySelectorAll("tr").forEach((tr) => {
     const u = browse.shown[+tr.dataset.i];
     tr.addEventListener("click", (e) => {
@@ -397,8 +520,20 @@ function wireBrowserWindow() {
   wireDialogMove($("adv"), $("adv-title"));
   $("ub-adv-btn").addEventListener("click", () => { $("adv").hidden = !$("adv").hidden; });
   $("adv-close").addEventListener("click", () => { $("adv").hidden = true; });
-  ["ub-name", "ub-tmin", "ub-tmax", "ub-bmin", "ub-bmax", "ub-year"].forEach((id) => $(id).addEventListener("input", drawBrowser));
-  ["ub-class", "ub-tech", "ub-source", "ub-playable"].forEach((id) => $(id).addEventListener("change", drawBrowser));
+  $("ub-name").addEventListener("input", drawBrowser);
+  $("ub-class").addEventListener("change", drawBrowser);
+  $("adv-clear").addEventListener("click", () => { adv = ADV_EMPTY(); store(ADV_KEY, adv); buildAdvanced(); drawBrowser(); });
+  $("adv-save").addEventListener("click", () => {
+    const name = (prompt("Name this search:") || "").trim();
+    if (!name) return;
+    const presets = fetchStore(PRESET_KEY, {}); presets[name] = adv; store(PRESET_KEY, presets); advPresets(); $("adv-preset").value = name;
+  });
+  $("adv-preset").addEventListener("change", async (e) => {
+    const p = fetchStore(PRESET_KEY, {})[e.target.value]; if (!p) return;
+    adv = { ...ADV_EMPTY(), ...JSON.parse(JSON.stringify(p)) }; if (adv.faction) await loadAvailability();
+    store(ADV_KEY, adv); buildAdvanced(); drawBrowser();
+  });
+  $("adv-del").addEventListener("click", () => { const n = $("adv-preset").value; if (!n) return; const p = fetchStore(PRESET_KEY, {}); delete p[n]; store(PRESET_KEY, p); advPresets(); });
   $("ub-clear").addEventListener("click", () => { lab.picked.clear(); pickedChanged(); });
   document.querySelectorAll("#ub-list th[data-sort]").forEach((th) => th.addEventListener("click", () => {
     browse.dir = browse.sort === th.dataset.sort ? -browse.dir : 1; browse.sort = th.dataset.sort; drawBrowser();
@@ -848,7 +983,7 @@ async function start() {
   drawTeams();
   drawBoards();
   wireBrowserWindow();
-  initBrowser();
+  await initBrowser();
   await loadOptions();
   pickedChanged();
   setStatus("Ready", `${lab.units.length} units, ${lab.boards.length} boards, ${lab.info.cores} cores`);

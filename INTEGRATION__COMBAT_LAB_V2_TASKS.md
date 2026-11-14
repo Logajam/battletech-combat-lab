@@ -48,7 +48,7 @@ app window where a browser is found (falls back to a tab).
   lists, as a "handle" to grab; drag from browser to team (drag and drop already specified in CL4).
 - Visual assets: icons drawn as small inline SVG (no rulebook art; original shapes only).
 
-### CL13. Unit Browser filters on par with Mekbay  `[S]`
+### CL13. Unit Browser filters on par with Mekbay  `[S]`  DONE 2026-11-14 (REVIEW PENDING)
 Mekbay-style filtering: text search, unit type, tech base, era / year, rules level, source book, weight class and
 tonnage range, BV range, walk/run/jump MP, armor and structure points, heat sinks, role, weapon and equipment
 filters (has / count / min damage), sort by any column, saved filters. Work: (1) list which fields the `.mtf` files

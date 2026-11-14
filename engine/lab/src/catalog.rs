@@ -132,7 +132,7 @@ fn signature(data: &Path) -> Value {
         let t = m.modified().ok().and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok()).map_or(0, |d| d.as_secs());
         parts.push(format!("{}:{}:{}", UNIT_PACK, m.len(), t));
     }
-    parts.push(format!("engine {} list 3", env!("CARGO_PKG_VERSION")));
+    parts.push(format!("engine {} list 4", env!("CARGO_PKG_VERSION")));
     json!(parts)
 }
 
@@ -196,7 +196,35 @@ pub fn describe_unit(db: &'static btsim_core::equipment::EquipmentDb, cfg: &btsi
         text.lines().find_map(|l| (l.len() >= key.len() && l.is_char_boundary(key.len()) && l[..key.len()].eq_ignore_ascii_case(key)).then(|| l[key.len()..].trim().to_string())).unwrap_or_default()
     };
     let name = format!("{} {}", field("chassis:"), field("model:")).trim().to_string();
-    let base = json!({"id": id, "name": name, "source": source, "tons": field("mass:").parse::<i64>().ok(), "tech": field("techbase:"), "era": field("era:").parse::<i64>().ok()});
+    let num = |key: &str| field(key).parse::<i64>().ok();
+    // Mekbay-style details (CL13), read straight from the file's header and tables: no engine needed
+    let armor: i64 = text.lines().filter_map(|l| {
+        let (k, v) = l.split_once(':')?;
+        (k.trim_end().ends_with(" Armor") && !k.starts_with("RT") && k != "Armor").then(|| v.trim().parse::<i64>().ok()).flatten()
+    }).sum::<i64>() + text.lines().filter_map(|l| {
+        let (k, v) = l.split_once(':')?;
+        (k.starts_with("RT") && k.ends_with(" Armor")).then(|| v.trim().parse::<i64>().ok()).flatten()
+    }).sum::<i64>();
+    let sinks = field("heat sinks:");
+    let (sink_n, sink_kind) = sinks.split_once(' ').map(|(n, k)| (n.parse::<i64>().ok(), k.to_string())).unwrap_or((sinks.parse::<i64>().ok(), String::new()));
+    // weapons: the lines after "Weapons:N" until the first blank line, each "Name, Location" (a leading "2 " style count is not used by .mtf)
+    let mut weapons: std::collections::BTreeMap<String, i64> = Default::default();
+    let mut lines = text.lines();
+    while let Some(l) = lines.next() {
+        if l.len() > 8 && l[..8].eq_ignore_ascii_case("weapons:") {
+            for w in lines.by_ref().take_while(|w| !w.trim().is_empty()) {
+                let n = w.split(',').next().unwrap_or("").trim();
+                let n = n.trim_start_matches(|c: char| c.is_ascii_digit()).trim().trim_start_matches(|c: char| c == 'x').trim();
+                if !n.is_empty() { *weapons.entry(n.to_string()).or_insert(0) += 1; }
+            }
+            break;
+        }
+    }
+    let base = json!({"id": id, "name": name, "source": source, "tons": field("mass:").parse::<i64>().ok(), "tech": field("techbase:"), "era": field("era:").parse::<i64>().ok(),
+        "config": field("config:"), "role": field("role:"), "rules": num("rules level:"), "book": field("source:"),
+        "walk": num("walk mp:"), "jump": num("jump mp:"), "armor": armor, "sinks": sink_n, "sink_kind": sink_kind,
+        "engine": field("engine:"), "armor_type": field("armor:"), "structure": field("structure:"),
+        "weapons": weapons.into_iter().collect::<Vec<_>>()});
     let mut out = String::new();
     let parsed = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         let mut m = btsim_core::mtf_parser::parse_mtf(db, text, &mut out)?;

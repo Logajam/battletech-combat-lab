@@ -201,8 +201,17 @@ table.leaves tbody tr:hover { background: var(--select); color: var(--title-text
 .grip { color: var(--shadow); font-family: var(--mono); letter-spacing: -2px; margin-right: 2px; user-select: none; }
 .cls { vertical-align: middle; width: 18px; height: 18px; fill: currentColor; }
 .cls-light { color: #2e8b57; } .cls-medium { color: #a67c00; } .cls-heavy { color: #c05a00; } .cls-assault { color: #a00000; } .cls-superheavy { color: #600060; }
-.adv-filters { flex-direction: column; align-items: stretch; }
-.dialog.adv .dialog-body { overflow: auto; }
+#adv { width: min(480px, calc(100vw - 32px)); height: min(78vh, 720px); margin-left: -240px; }
+.adv-scroll { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 2px; }
+.adv-scroll fieldset { padding: 4px 8px 6px; }
+.adv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px 10px; align-items: end; }
+.checks { display: flex; flex-wrap: wrap; gap: 2px 12px; }
+.checks label.row { gap: 4px; }
+.wrow { display: flex; gap: 4px; align-items: center; margin-bottom: 4px; }
+.wrow input[type=text] { flex: 1; min-width: 0; }
+.wrow input[type=number] { width: 52px; }
+.pair input[type=number] { width: 70px; }
+@media (max-width: 760px) { #adv { margin-left: 0; } }
 .team-tools { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 
 /* CL15: the Options tab - sub-tabs, folders, one row per option */

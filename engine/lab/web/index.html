@@ -57,7 +57,7 @@
               <button class="btn" id="ub-adv-btn">Advanced search&hellip;</button>
             </div>
             <div class="filters"><span id="ub-count" class="note"></span><button class="btn small" id="ub-clear">Clear selection</button></div>
-            <div class="list sunken ub-list"><table id="ub-list"><thead><tr><th></th><th data-sort="name">Unit</th><th data-sort="tons" class="num">Tons</th><th data-sort="bv" class="num">BV</th><th>Tech</th><th data-sort="era" class="num">Year</th></tr></thead><tbody></tbody></table></div>
+            <div class="list sunken ub-list"><table id="ub-list"><thead><tr><th></th><th data-sort="name">Unit</th><th data-sort="tons" class="num">Tons</th><th data-sort="bv" class="num">BV</th><th data-sort="walk" class="num" title="Walk / run / jump MP">Move</th><th data-sort="armor" class="num">Armor</th><th data-sort="role">Role</th><th data-sort="era" class="num">Year</th></tr></thead><tbody></tbody></table></div>
             <div class="note" id="ub-picked"></div>
           </div>
         </div>
@@ -179,14 +179,10 @@
   <div class="dialog adv" id="adv" role="dialog" aria-labelledby="adv-title-text" hidden>
     <div class="titlebar" id="adv-title"><span class="box" aria-hidden="true"></span><span class="name" id="adv-title-text">Advanced search</span><button class="closebox" id="adv-close" aria-label="Close">&times;</button></div>
     <div class="dialog-body">
-      <div class="filters adv-filters">
-        <label for="ub-tmin">Tons <span class="pair"><input type="number" id="ub-tmin" min="0" placeholder="min"><input type="number" id="ub-tmax" min="0" placeholder="max"></span></label>
-        <label for="ub-bmin">Battle Value <span class="pair"><input type="number" id="ub-bmin" min="0" placeholder="min"><input type="number" id="ub-bmax" min="0" placeholder="max"></span></label>
-        <label for="ub-tech">Tech base <select id="ub-tech"><option value="">Any</option><option value="inner sphere">Inner Sphere</option><option value="clan">Clan</option><option value="mixed">Mixed</option></select></label>
-        <label for="ub-source">Unit set <select id="ub-source"></select></label>
-        <label for="ub-year">In service by (year) <input type="number" id="ub-year" min="2000" placeholder="any"></label>
-        <label class="row" for="ub-playable"><input type="checkbox" id="ub-playable" checked> Playable only</label>
-      </div>
+      <div class="filters"><button class="btn small" id="adv-clear">Clear all filters</button>
+        <label class="row" for="adv-preset">Saved <select id="adv-preset"><option value="">(none)</option></select></label>
+        <button class="btn small" id="adv-save">Save as&hellip;</button><button class="btn small" id="adv-del">Delete</button></div>
+      <div class="adv-scroll" id="adv-body"></div>
     </div>
   </div>
 

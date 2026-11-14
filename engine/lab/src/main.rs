@@ -39,11 +39,12 @@ use serde_json::{json, Value};
 static ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 /// The pages, built into the program.
-const PAGES: [(&str, &str, &str); 4] = [
+const PAGES: [(&str, &str, &str); 5] = [
     ("index.html", "text/html; charset=utf-8", include_str!("../web/index.html")),
     ("lab.css", "text/css; charset=utf-8", include_str!("../web/lab.css")),
     ("lab.js", "text/javascript; charset=utf-8", include_str!("../web/lab.js")),
     ("options.json", "application/json", include_str!("../web/options.json")),
+    ("availability.json", "application/json", include_str!("../web/availability.json")),
 ];
 
 struct Lab {
