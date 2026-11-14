@@ -268,3 +268,8 @@ details.folder[hidden] { display: none; }
 .runfile { margin-bottom: 8px; }
 .ustat table { width: 100%; }
 #crashes fieldset { margin: 8px 0; }
+
+/* the report button flashes when a battle crashed (reduced motion: stays highlighted instead) */
+@keyframes flash { 0%, 100% { background: var(--face); color: inherit; } 50% { background: var(--bad); color: #fff; } }
+#report-btn.flash { animation: flash 1s steps(1, end) infinite; font-weight: bold; }
+@media (prefers-reduced-motion: reduce) { #report-btn.flash { animation: none; background: var(--bad); color: #fff; } }

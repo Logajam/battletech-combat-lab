@@ -227,6 +227,7 @@
     <div class="dialog-body about-body">
       <p><b>Combat Lab</b>, part of the BattleTech Monte Carlo simulator. Copyright &copy; 2026 Daniel (Logajam).<br>
       By <b>Daniel</b> (design, direction, rules calls) and <b>Claude</b>, an AI model made by Anthropic (implementation).</p>
+      <p><b>Status: alpha.</b> This is an early, unfinished version. Rules are still being checked against the book, some rules and options are not built, and there are bugs. Treat its numbers as work in progress, and please report what you find (Suggestion / bug report, bottom right).</p>
       <p>Free software under the <b>GNU General Public License v3</b> or later: anyone may use, study, change and share it, and what is shared that is built on it stays under the same licence. No warranty. See <code>LICENSE</code> and <code>CREDITS.md</code> in the Combat Lab folder.</p>
       <p>With thanks to <b>the MegaMek Team</b> (megamek.org). The units and boards are MegaMek Data, &copy; 2025 The MegaMek Team, under <b>CC BY-NC-SA 4.0</b> (non-commercial). The "princess" bot is a translation of MegaMek's Princess (GPL v3).</p>
       <p class="note">An unofficial fan project, not affiliated with, endorsed by, or licensed by Microsoft Corporation, The Topps Company, Inc., or Catalyst Game Labs. MechWarrior, BattleMech, 'Mech and AeroTech are registered trademarks of The Topps Company, Inc. Catalyst Game Labs and its logo are trademarks of InMediaRes Productions, LLC. The BattleTech name for electronic games is a trademark of Microsoft Corporation.</p>
@@ -234,7 +235,23 @@
     </div>
   </div>
 
-  <div class="status raised"><span id="status">Ready</span><span class="status-right"><span id="status-right"></span><button class="btn small" id="about-btn">About</button></span></div>
+  <!-- SUGGESTION / BUG REPORT: opens a prefilled issue on the project's GitHub page; flashes when a battle crashed -->
+  <div class="dialog about" id="report" role="dialog" aria-labelledby="report-title-text" hidden>
+    <div class="titlebar"><span class="box" aria-hidden="true"></span><span class="name" id="report-title-text">Suggestion / bug report</span><button class="closebox" id="report-close" aria-label="Close">&times;</button></div>
+    <div class="dialog-body about-body">
+      <p id="report-crash" class="err" hidden></p>
+      <p>Reports and suggestions go to the project's issue page on GitHub (a free GitHub account is needed). The form opens with the batch's setup and seeds already filled in, so the battles can be played again exactly.</p>
+      <ol>
+        <li id="report-step-save">On the <b>Results</b> page press <b>Save run to a file...</b>. The file holds the exact setup, the batch seed and the seed of every battle that crashed.</li>
+        <li>Press the button below. A page opens with the details filled in; add what you saw.</li>
+        <li>Drag the saved file into the box on that page (it is saved as <code>.txt</code>, which GitHub accepts) and press Submit.</li>
+      </ol>
+      <p><a class="btn" id="report-bug" href="#" target="_blank" rel="noopener">Report a bug</a> <a class="btn" id="report-idea" href="#" target="_blank" rel="noopener">Make a suggestion</a></p>
+      <p class="note">Nothing is sent until you press Submit on GitHub, and you can edit everything first.</p>
+    </div>
+  </div>
+
+  <div class="status raised"><span id="status">Ready</span><span class="status-right"><span id="status-right"></span><button class="btn small" id="report-btn" title="Report a bug or make a suggestion (opens GitHub)">Suggestion / bug report</button> <button class="btn small" id="about-btn">About</button></span></div>
 </div>
 <!--LAB-SCRIPT-->
 <script src="lab.js"></script>

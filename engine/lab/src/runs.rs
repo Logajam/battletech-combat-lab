@@ -451,12 +451,23 @@ impl Run {
         })
     }
 
-    /// Everything a saved file needs (see main.rs `save_run`, which adds the unit files).
+    /// Everything a saved file needs (see main.rs `save_run`, which adds the unit files). The file leads with what is
+    /// needed to PLAY THE BATTLES AGAIN (build, setup, batch seed, the seeds of the crashed and the turn-capped battles:
+    /// what a bug report wants); the per-battle statistics (`lines`, what "Open a run file" shows) come after.
     pub fn export(&self, unit_files: serde_json::Map<String, Value>) -> Value {
         let mut lines = self.lines.lock().unwrap().clone();
         lines.sort_by_key(|l| l["sim"].as_u64());
-        json!({"combatlab_run": 1, "version": env!("CARGO_PKG_VERSION"), "setup": self.setup, "battles": self.battles,
-               "seconds": self.seconds.lock().unwrap().unwrap_or(0.0), "lines": lines, "crashed": self.crashed.lock().unwrap().clone(),
+        let mut crashed = self.crashed.lock().unwrap().clone();
+        crashed.sort_by_key(|l| l["sim"].as_u64());
+        let capped: Vec<Value> = lines.iter().filter(|l| l["capped"] == true).map(|l| json!({"sim": l["sim"], "seed": l["seed"], "board": l["board"], "zones": l["zones"]})).collect();
+        json!({"combatlab_run": 1, "version": env!("CARGO_PKG_VERSION"),
+               "build": option_env!("COMBATLAB_BUILD").unwrap_or("unknown"),
+               "platform": if cfg!(target_arch = "wasm32") { "browser" } else { "desktop" },
+               "replay_with": "the setup below and the batch seed play the same battles again, on any machine with the same build",
+               "seed_rule": "battle n is played on battle_seed(batch_seed, n): battle 1 on the batch seed itself, the others on a fixed mix of the batch seed and n. Each battle's own seed is its `seed` in `lines`, `crashed` and `capped`.",
+               "batch_seed": self.seed, "battles": self.battles, "setup": self.setup,
+               "crashed": crashed, "capped": capped,
+               "seconds": self.seconds.lock().unwrap().unwrap_or(0.0), "lines": lines,
                "unit_files": unit_files})
     }
 

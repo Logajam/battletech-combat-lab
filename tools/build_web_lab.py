@@ -42,8 +42,14 @@ def main():
     engine = os.path.join(ROOT, "engine")
     wasm = os.path.join(engine, "target", "wasm32-unknown-unknown", "release", "combatlab_wasm.wasm")
     if not a.skip_wasm:
-        subprocess.check_call(["cargo", "build", "--release", "--target", "wasm32-unknown-unknown", "-p", "combatlab_wasm"], cwd=engine)
-        subprocess.check_call(["cargo", "build", "--release", "-p", "combatlab"], cwd=engine)
+        # the build's name goes into every saved run file (runs.rs `export`), so a bug report says which code played it
+        try:
+            stamp = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, text=True).strip()
+        except Exception:
+            stamp = "unknown"
+        env = {**os.environ, "COMBATLAB_BUILD": stamp}
+        subprocess.check_call(["cargo", "build", "--release", "--target", "wasm32-unknown-unknown", "-p", "combatlab_wasm"], cwd=engine, env=env)
+        subprocess.check_call(["cargo", "build", "--release", "-p", "combatlab"], cwd=engine, env=env)
     lab = os.path.join(engine, "target", "release", "combatlab")
     server = subprocess.Popen([lab, "--no-browser", "--port", str(a.port)], env={**os.environ, "BTSIM_ROOT": ROOT}, stderr=subprocess.DEVNULL)
     try:

@@ -5,6 +5,11 @@ turn by turn, many times over, and the results are summarized. Any number of
 mechs on any number of teams can fight too (a lance against a lance, a company,
 a free for all, a three-way battle): set `FORCES` in `INTEGRATION__config.py`.
 
+**Status: alpha.** An early, unfinished version: expect bugs, and treat results as work in progress.
+**Try Combat Lab in your browser** (your own computer plays the battles; nothing is sent anywhere):
+https://logajam.github.io/battletech-combat-lab/ . Bugs and ideas: the issue page of this repository, or the
+"Suggestion / bug report" button inside Combat Lab.
+
 ## Run it
 
 ```

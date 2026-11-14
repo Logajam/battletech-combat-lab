@@ -6,6 +6,24 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-14 (Claude, session 26), COMBAT LAB WEB BUILD PUBLISHED AS A WEBSITE; ALPHA LABEL. REVIEW PENDING (higher-level model).**
+  Daniel: put the web version on the public repository as a public website, and call the program alpha. Added `tools/publish_web_lab.py`
+  (the build as the one commit of the public repo's `gh-pages` branch for GitHub Pages; checks: only the expected files, no email
+  address), "ALPHA" in the title bar, a banner and About text (lab.js / index.html), a README note with the site address, and
+  `engine.js` now accepts a data pack a host already decompressed. See INTEGRATION__COMBAT_LAB_WEB.md "Publishing".
+- **2026-11-14 (Claude, session 26), SUGGESTION / BUG REPORT BUTTON AND A REPLAY-FIRST RUN FILE. REVIEW PENDING (higher-level model).**
+  Daniel: a report button that flashes when a run fails and opens the open repository's issue page with instructions to post
+  the run's save file; the save file "more about the exact setup and seed ... especially the seeds for failed runs";
+  one button for suggestions and bugs. Done: `runs.rs::export` now leads with `build` (git hash, `COMBATLAB_BUILD`, stamped by
+  `tools/build_web_lab.py`), `platform`, `batch_seed`, `seed_rule` (battle n's seed; battle 1 = the batch seed), `setup`,
+  `crashed` (sim, seed, message, board, zones) and `capped` (battles that hit the turn cap), then the statistics (`lines`);
+  old files still open (same keys). `lab.js` / `index.html` / `lab.css`: status-bar button "Suggestion / bug report", flashing
+  while the open run has crashes (steady red under reduced motion), a dialog with the steps and two links to
+  `github.com/Logajam/battletech-combat-lab/issues/new` (constant `ISSUES_URL`) prefilled with the setup, batch seed and up to
+  ten crash seeds; the run file now saves as `.json.txt` (GitHub issues accept .txt, not .json). Checked: `check_lab_server.py`
+  and `check_web_lab.py` pass; the flash, the link text and the new keys were looked at in the browser build with a faked crash
+  (no real crash was available). NOT CHECKED: that Issues is switched on for the public repository; `package_lab.py` does not
+  set `COMBATLAB_BUILD` yet (desktop files say "unknown").
 - **2026-11-14 (Claude, session 26), COMBAT LAB IN THE BROWSER (WebAssembly; the visitor's computer plays the battles). REVIEW PENDING (higher-level model).**
   Daniel: "Front load it so that the users computer is the one actually doing the work ... prune out all the maps that aren't
   standard 16x17 ... any other simplifications that would make it lighter." Built: `engine/wasm` (crate `combatlab_wasm`, the

@@ -52,6 +52,14 @@ Desktop 5.1 s, browser 9.4 s: about 1.8x slower, as WebAssembly usually is. A 12
 this machine either way. The page uses `navigator.hardwareConcurrency` workers (at most 16); each holds its own copy of
 the engine's tables (a few tens of MB), so a phone should use fewer (the setup's `threads` field).
 
+## Publishing (Daniel, 2026-11-14: "accessible as a public website"; alpha)
+
+`python tools/publish_public.py --push` first (the code, as always), then `python tools/publish_web_lab.py --push`: builds
+`web_lab/` and force-pushes it as the only commit of the public repository's `gh-pages` branch (generated files only; the
+module changes with every build, so no history is kept). GitHub Pages serves it at
+https://logajam.github.io/battletech-combat-lab/ after ONE setting by the owner: Settings > Pages > Deploy from a branch >
+`gh-pages` / root (Claude's access cannot change it). The page says "ALPHA" in the title bar, in a banner and in About.
+
 ## Open
 
 * Add-unit by file in the browser; progress is polled (every 200 ms flush) rather than pushed.
