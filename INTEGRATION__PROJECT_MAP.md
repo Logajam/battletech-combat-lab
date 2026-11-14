@@ -201,6 +201,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(ae) COMBAT LAB WINDOWS + UNITS TAB** (session 26): `engine/lab/web` index.html / lab.css / lab.js (floating panels, `wireWindow`, `classIcon`, docked three-column Units page). Pages only.
 - **(ab) HYDRA S6 SECOND PASS** (session 25): `hydra::life_of` (`HYDRA_LIFE_STRUCTURE_WEIGHT`), armor / structure in `scenario::snapshot`, `fit2`.
 - **(ac) HYDRA S3 MOVE ORDER** (session 25): `hydra::move_pick` / `picks_move_order` (`HYDRA_MOVE_ORDER = "stake"`, off), the new `BotSet::move_pick` socket used by the turn loop's pick (and so by the move queue), `ledger_as` (read-only ledger). Two reference battles (86).
 - **(ad) HYDRA WAITING + ATTENTION SHARE** (session 25): `HYDRA_WAITING` (`coming_friends`, `HydraState::waited`) and `HYDRA_ATTENTION = "oracle"` (`elsewhere_of`, `attention_damage`), both off. Four reference battles (90).

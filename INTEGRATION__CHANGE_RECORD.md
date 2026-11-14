@@ -6,6 +6,16 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-14 (Claude, session 26), COMBAT LAB: WINDOWS AND THE UNITS TAB REBUILT (CL11, CL12). REVIEW PENDING (higher-level model).**
+  Pages only (`engine/lab/web`); no engine code touched, so only the Lab's own check ran (`tests/check_lab_server.py`,
+  all passed) plus screenshots at 1400 and 600 px. The page no longer scrolls: each column and tab page scrolls its own
+  content. Units tab: Battle / Estimated runtime / Run Simulation in a row across the top; odd teams left, even right,
+  the Unit Browser permanently open in the centre; advanced search is a movable popup. Each team's Add selected /
+  From file / quick add sit above its list (they no longer move as units are added; Add selected greys instead of
+  hiding). Weight-class icons (original inline SVG) with a grip mark on every unit row. Any panel floats when its title
+  bar is dragged (resize at the corner, double-click the title to dock, Reset layout button; kept in the browser); a
+  narrow screen stays docked in one column. Three unit files with no chassis/model line showed blank names: they now
+  show the file name. Not yet: zone grids (CL14), the rest of the Mekbay filters (CL13), the other tabs as windows.
 - **2026-11-13 (Claude, session 26), RULES: PUSHES CHECKED (Core p.83). One reference battle changes (team_12v12_princess_v_gladiator, updated). REVIEW PENDING (higher-level model).**
   Daniel: "Think pushes might need a double check. Can't target a Charge or DFA. Can be mutual. But if both succeed they
   cancel out" - the displacement, not the fall check ("Succeed but are not canceled out for the fall check") - "And they

@@ -112,44 +112,127 @@ function restore() {
 
 // ---------------------------------------------------------------- UNITS page
 function drawTeams() {
-  const box = $("teams");
-  box.innerHTML = "";
-  lab.teams.forEach((t, ti) => box.appendChild(teamPanel(t, ti)));
+  const left = $("teams-left"), right = $("teams-right"), layer = $("units-float");
+  const scroll = lab.teams.map((_, i) => { const l = $(`list-${i}`); return l ? l.scrollTop : 0; });   // a list keeps its place when a unit is added
+  left.innerHTML = ""; right.innerHTML = "";
+  layer.querySelectorAll(".win.team").forEach((x) => x.remove());
+  // odd-numbered teams (1, 3, 5...) in the left column, even ones on the right (Daniel, 2026-11-14)
+  lab.teams.forEach((t, ti) => {
+    const el = teamPanel(t, ti), key = `team${ti}`;
+    if (!applyFloat(el, key)) (ti % 2 === 0 ? left : right).appendChild(el);
+    wireWindow(el, key, drawTeams);
+    const l = el.querySelector(".list"); if (l) l.scrollTop = scroll[ti] || 0;
+  });
   $("team-sum").textContent = `${lab.teams.length} teams, ${lab.teams.reduce((s, t) => s + t.units.length, 0)} units`;
 }
 
+// ---------------------------------------------------------------- windows (CL11)
+// A panel docks in its column; dragging its title bar pulls it out into a floating window (resize at the corner);
+// double-clicking the title docks it again. Positions are kept in the browser (localStorage), "Reset layout" clears them.
+const LAYOUT_KEY = "combatlab.layout.v1";
+let zTop = 30;
+try { lab.layout = JSON.parse(localStorage.getItem(LAYOUT_KEY) || "{}") || {}; } catch (e) { lab.layout = {}; }
+function saveLayout() { try { localStorage.setItem(LAYOUT_KEY, JSON.stringify(lab.layout)); } catch (e) { /* storage off */ } }
+const narrow = () => window.matchMedia("(max-width: 900px)").matches;
+const clampNum = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+const sizeWatch = new ResizeObserver((entries) => {
+  for (const e of entries) {
+    const f = lab.layout[e.target.dataset.wkey];
+    if (f && e.target.classList.contains("float") && (Math.abs(f.w - e.target.offsetWidth) > 1 || Math.abs(f.h - e.target.offsetHeight) > 1)) {
+      f.w = e.target.offsetWidth; f.h = e.target.offsetHeight; clearTimeout(sizeWatch.t); sizeWatch.t = setTimeout(saveLayout, 300);
+    }
+  }
+});
+// put a panel in the floating layer if its layout says so; false = it stays docked
+function applyFloat(el, key) {
+  const f = lab.layout[key];
+  el.dataset.wkey = key;
+  // on a narrow screen everything stays docked in one column
+  if (!f || narrow()) { el.classList.remove("float"); el.style.cssText = ""; return false; }
+  el.classList.add("float");
+  Object.assign(el.style, { left: `${f.x}px`, top: `${f.y}px`, width: `${f.w}px`, height: `${f.h}px`, zIndex: ++zTop });
+  $("units-float").appendChild(el);
+  sizeWatch.observe(el);
+  return true;
+}
+function wireWindow(el, key, redock) {
+  const title = el.querySelector(".wtitle");
+  el.addEventListener("pointerdown", () => { if (el.classList.contains("float")) el.style.zIndex = ++zTop; });
+  title.addEventListener("dblclick", (e) => {
+    if (e.target.closest("button,input,select") || !lab.layout[key]) return;
+    delete lab.layout[key]; saveLayout(); sizeWatch.unobserve(el); el.classList.remove("float"); el.style.cssText = ""; redock(el);
+  });
+  title.addEventListener("pointerdown", (e) => {
+    if (e.button || e.target.closest("button,input,select") || narrow()) return;
+    const lr = $("units-float").getBoundingClientRect(), r = el.getBoundingClientRect();
+    const dx = e.clientX - r.left, dy = e.clientY - r.top, sx = e.clientX, sy = e.clientY;
+    let moved = false;
+    const move = (m) => {
+      if (!moved) {
+        if (Math.hypot(m.clientX - sx, m.clientY - sy) < 4) return;
+        moved = true;
+        if (!el.classList.contains("float")) { lab.layout[key] = { x: r.left - lr.left, y: r.top - lr.top, w: r.width, h: Math.min(r.height, 440) }; applyFloat(el, key); }
+      }
+      const f = lab.layout[key];
+      f.x = clampNum(m.clientX - dx - lr.left, 80 - f.w, lr.width - 80); f.y = clampNum(m.clientY - dy - lr.top, 0, lr.height - 28);
+      el.style.left = `${f.x}px`; el.style.top = `${f.y}px`;
+    };
+    const up = () => { window.removeEventListener("pointermove", move); if (moved) saveLayout(); };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up, { once: true });
+    e.preventDefault();
+  });
+}
+
+// weight-class icons (CL12): a grip and a little 'Mech whose build grows with the class
+const classOf = (t) => (t == null ? null : t <= 35 ? "light" : t <= 55 ? "medium" : t <= 75 ? "heavy" : t <= 100 ? "assault" : "superheavy");
+const CLASS_SHAPES = {
+  light: '<circle cx="10" cy="4" r="2.2"/><rect x="8" y="7" width="4" height="6"/><rect x="7" y="13" width="2" height="5"/><rect x="11" y="13" width="2" height="5"/>',
+  medium: '<circle cx="10" cy="4" r="2.5"/><rect x="6" y="7" width="8" height="6"/><rect x="4" y="7" width="2" height="6"/><rect x="14" y="7" width="2" height="6"/><rect x="6.5" y="13" width="3" height="5"/><rect x="10.5" y="13" width="3" height="5"/>',
+  heavy: '<circle cx="10" cy="3.8" r="2.4"/><rect x="5" y="6.5" width="10" height="7.5"/><rect x="2.5" y="6.5" width="2.5" height="7"/><rect x="15" y="6.5" width="2.5" height="7"/><rect x="5.5" y="14" width="3.5" height="4.5"/><rect x="11" y="14" width="3.5" height="4.5"/>',
+  assault: '<circle cx="10" cy="3.5" r="2.4"/><rect x="4" y="6" width="12" height="8.5"/><rect x="1" y="5.5" width="3" height="9"/><rect x="16" y="5.5" width="3" height="9"/><rect x="5" y="14.5" width="4" height="4"/><rect x="11" y="14.5" width="4" height="4"/>',
+};
+CLASS_SHAPES.superheavy = CLASS_SHAPES.assault;
+function classIcon(tons) {
+  const c = classOf(tons);
+  if (!c) return `<span class="grip">&#8942;&#8942;</span>`;
+  const [lo, hi] = CLASSES[c];
+  return `<span class="grip">&#8942;&#8942;</span><svg class="cls cls-${c}" viewBox="0 0 20 20" role="img" aria-label="${c}"><title>${c[0].toUpperCase() + c.slice(1)} (${c === "superheavy" ? "over 100" : lo + "-" + hi} t)</title>${CLASS_SHAPES[c]}</svg>`;
+}
+
 function teamPanel(t, ti) {
-  const el = document.createElement("fieldset");
-  el.className = "team raised";
+  const el = document.createElement("div");
+  el.className = "win team";
   const bots = lab.info.bots.map((b) => `<option value="${b}"${b === t.bot ? " selected" : ""}>${b[0].toUpperCase() + b.slice(1)}</option>`).join("");
   const tons = t.units.reduce((s, u) => s + (u.tons || 0), 0);
   const bv = t.units.reduce((s, u) => s + (unitBv(u) || 0), 0);
   el.innerHTML = `
-    <legend>Team ${ti + 1}</legend>
+    <div class="wtitle" id="wt-${ti}" style="border-left-color:${t.colour}" title="Drag to float this panel; double-click to dock it again"><span class="name">Team ${ti + 1}</span><span class="note" style="color:inherit;font-weight:normal">${t.units.length} unit${t.units.length === 1 ? "" : "s"} &middot; ${tons} t &middot; BV ${bv}</span></div>
+    <div class="wbody">
     <div class="team-head">
       <label for="tcol-${ti}">Colour <input type="color" id="tcol-${ti}" value="${t.colour}"></label>
       <label for="tname-${ti}">Name <input type="text" id="tname-${ti}" value="${esc(t.name)}" maxlength="24"></label>
       <label for="tbot-${ti}">Bot <select id="tbot-${ti}">${bots}</select></label>
     </div>
-    <div class="list sunken"><table>
-      <thead><tr><th>Unit</th><th class="num">Tons</th><th class="num">BV</th><th title="Gunnery skill">G</th><th title="Piloting skill">P</th><th></th></tr></thead>
-      <tbody>${t.units.length ? t.units.map((u, ui) => `<tr>
-        <td class="name">${esc(u.name)}</td><td class="num">${u.tons ?? ""}</td><td class="num" id="bv-${ti}-${ui}">${unitBv(u) ?? ""}</td>
-        <td><input type="number" min="0" max="8" value="${u.gunnery}" id="g-${ti}-${ui}" aria-label="Gunnery"></td>
-        <td><input type="number" min="0" max="8" value="${u.piloting}" id="p-${ti}-${ui}" aria-label="Piloting"></td>
-        <td><button class="btn small" data-remove="${ui}" title="Remove">&times;</button></td></tr>`).join("")
-        : `<tr class="empty"><td colspan="6">No units yet. Drag units here from the Unit Browser, or type a name below.</td></tr>`}</tbody>
-    </table></div>
-    <div class="totals"><span>${t.units.length} unit${t.units.length === 1 ? "" : "s"}</span><span>${tons} tons</span><span>BV ${bv}</span></div>
+    <div class="team-tools">
+      <button class="btn" id="addsel-${ti}" ${lab.picked.size ? "" : "disabled"}>Add selected (${lab.picked.size})</button>
+      <button class="btn" id="file-${ti}" title="Add a .mtf unit file from this computer">From file&hellip;</button>
+      <input type="file" id="fileinput-${ti}" accept=".mtf" multiple hidden>
+    </div>
     <div class="adder">
       <input type="search" id="find-${ti}" placeholder="Quick add: type a unit name" autocomplete="off">
       <div class="hits sunken" id="hits-${ti}" hidden></div>
     </div>
-    <div class="team-buttons">
-      <button class="btn" id="browse-${ti}">Unit Browser&hellip;</button>
-      <button class="btn" id="addsel-${ti}" ${lab.picked.size ? "" : "hidden"}>Add selected (${lab.picked.size})</button>
-      <button class="btn" id="file-${ti}" title="Add a .mtf unit file from this computer">From file&hellip;</button>
-      <input type="file" id="fileinput-${ti}" accept=".mtf" multiple hidden>
+    <div class="list sunken" id="list-${ti}"><table>
+      <thead><tr><th></th><th>Unit</th><th class="num">Tons</th><th class="num">BV</th><th title="Gunnery skill">G</th><th title="Piloting skill">P</th><th></th></tr></thead>
+      <tbody>${t.units.length ? t.units.map((u, ui) => `<tr>
+        <td class="ico">${classIcon(u.tons)}</td>
+        <td class="name">${esc(u.name)}</td><td class="num">${u.tons ?? ""}</td><td class="num" id="bv-${ti}-${ui}">${unitBv(u) ?? ""}</td>
+        <td><input type="number" min="0" max="8" value="${u.gunnery}" id="g-${ti}-${ui}" aria-label="Gunnery"></td>
+        <td><input type="number" min="0" max="8" value="${u.piloting}" id="p-${ti}-${ui}" aria-label="Piloting"></td>
+        <td><button class="btn small" data-remove="${ui}" title="Remove">&times;</button></td></tr>`).join("")
+        : `<tr class="empty"><td colspan="7">No units yet. Drag units here from the Unit Browser, or type a name above.</td></tr>`}</tbody>
+    </table></div>
     </div>`;
   const redraw = () => { save(); drawTeams(); };
   el.querySelector(`#tname-${ti}`).addEventListener("change", (e) => {
@@ -157,7 +240,7 @@ function teamPanel(t, ti) {
     if (name && !lab.teams.some((o, oi) => oi !== ti && o.name === name)) t.name = name;
     redraw();
   });
-  el.querySelector(`#tcol-${ti}`).addEventListener("input", (e) => { t.colour = e.target.value; save(); });
+  el.querySelector(`#tcol-${ti}`).addEventListener("input", (e) => { t.colour = e.target.value; el.querySelector(".wtitle").style.borderLeftColor = t.colour; save(); });
   el.querySelector(`#tbot-${ti}`).addEventListener("change", (e) => { t.bot = e.target.value; save(); });
   el.querySelectorAll("[data-remove]").forEach((b) => b.addEventListener("click", () => { t.units.splice(+b.dataset.remove, 1); redraw(); }));
   t.units.forEach((u, ui) => {
@@ -166,7 +249,6 @@ function teamPanel(t, ti) {
     el.querySelector(`#p-${ti}-${ui}`).addEventListener("change", (e) => { u.piloting = Math.max(0, Math.min(8, +e.target.value)); redraw(); });
   });
   wireSearch(el, t, ti);
-  el.querySelector(`#browse-${ti}`).addEventListener("click", openBrowser);
   el.querySelector(`#addsel-${ti}`).addEventListener("click", () => addUnits(t, [...lab.picked]));
   // a .mtf file (dropped on the panel, or picked with From file...) is copied into the project and added
   const files = async (list) => {
@@ -245,15 +327,10 @@ async function estimate() {
 // ---------------------------------------------------------------- the UNIT BROWSER window
 const browse = { sort: "name", dir: 1, shown: [] };
 
-function openBrowser() {
-  const w = $("browser");
-  w.hidden = false;
-  if (!$("ub-source").options.length) {
-    const sources = [...new Set(lab.units.map((u) => u.source))].sort((a, b) => (a === "project" ? -1 : b === "project" ? 1 : a.localeCompare(b)));
-    $("ub-source").innerHTML = `<option value="">Any</option>` + sources.map((s) => `<option value="${esc(s)}">${esc(s === "project" ? "Project folder" : s)}</option>`).join("");
-  }
+function initBrowser() {
+  const sources = [...new Set(lab.units.map((u) => u.source))].sort((a, b) => (a === "project" ? -1 : b === "project" ? 1 : a.localeCompare(b)));
+  $("ub-source").innerHTML = `<option value="">Any</option>` + sources.map((s) => `<option value="${esc(s)}">${esc(s === "project" ? "Project folder" : s)}</option>`).join("");
   drawBrowser();
-  $("ub-name").focus();
 }
 
 function drawBrowser() {
@@ -275,7 +352,7 @@ function drawBrowser() {
   $("ub-count").textContent = `${list.length} unit${list.length === 1 ? "" : "s"}${list.length > 400 ? " (first 400 shown: narrow the search)" : ""}`;
   const body = $("ub-list").tBodies[0];
   body.innerHTML = browse.shown.map((u, i) => `<tr data-i="${i}" draggable="${u.ok}" class="${lab.picked.has(u.id) ? "on" : ""}${u.ok ? "" : " bad"}" title="${esc(u.ok ? "Drag onto a team" : u.why)}">
-      <td>${esc(u.name)}</td><td class="num">${u.tons ?? ""}</td><td class="num">${u.bv ?? ""}</td><td>${esc(u.tech || "")}</td><td class="num">${u.era ?? ""}</td></tr>`).join("");
+      <td class="ico">${classIcon(u.tons)}</td><td>${esc(u.name)}</td><td class="num">${u.tons ?? ""}</td><td class="num">${u.bv ?? ""}</td><td>${esc(u.tech || "")}</td><td class="num">${u.era ?? ""}</td></tr>`).join("");
   body.querySelectorAll("tr").forEach((tr) => {
     const u = browse.shown[+tr.dataset.i];
     tr.addEventListener("click", (e) => {
@@ -296,21 +373,27 @@ function drawBrowser() {
 function pickedChanged() {
   $("ub-picked").textContent = lab.picked.size ? `${lab.picked.size} selected: drag them onto a team, or press that team's "Add selected"` : "Drag a unit onto a team. Click to select several (Ctrl+click adds to the selection).";
   drawBrowser();
-  lab.teams.forEach((t, ti) => { const b = $(`addsel-${ti}`); if (b) { b.hidden = !lab.picked.size; b.textContent = `Add selected (${lab.picked.size})`; } });
+  lab.teams.forEach((t, ti) => { const b = $(`addsel-${ti}`); if (b) { b.disabled = !lab.picked.size; b.textContent = `Add selected (${lab.picked.size})`; } });
 }
 
-// the window moves by its title bar
-function wireBrowserWindow() {
-  const w = $("browser"), bar = $("ub-title");
+// a popup window (Advanced search) moves by its title bar
+function wireDialogMove(w, bar) {
   bar.addEventListener("pointerdown", (e) => {
     if (e.target.closest("button")) return;
     const r = w.getBoundingClientRect(), dx = e.clientX - r.left, dy = e.clientY - r.top;
     bar.setPointerCapture(e.pointerId);
-    const move = (m) => { w.style.left = `${Math.max(0, m.clientX - dx)}px`; w.style.top = `${Math.max(0, m.clientY - dy)}px`; w.style.right = "auto"; };
+    const move = (m) => { w.style.left = `${Math.max(0, m.clientX - dx)}px`; w.style.top = `${Math.max(0, m.clientY - dy)}px`; w.style.marginLeft = "0"; w.style.right = "auto"; };
     bar.addEventListener("pointermove", move);
     bar.addEventListener("pointerup", () => bar.removeEventListener("pointermove", move), { once: true });
   });
-  $("ub-close").addEventListener("click", () => { w.hidden = true; });
+}
+function wireBrowserWindow() {
+  wireWindow($("browser"), "browser", () => $("browser-slot").appendChild($("browser")));
+  const key = "browser";
+  applyFloat($("browser"), key);
+  wireDialogMove($("adv"), $("adv-title"));
+  $("ub-adv-btn").addEventListener("click", () => { $("adv").hidden = !$("adv").hidden; });
+  $("adv-close").addEventListener("click", () => { $("adv").hidden = true; });
   ["ub-name", "ub-tmin", "ub-tmax", "ub-bmin", "ub-bmax", "ub-year"].forEach((id) => $(id).addEventListener("input", drawBrowser));
   ["ub-class", "ub-tech", "ub-source", "ub-playable"].forEach((id) => $(id).addEventListener("change", drawBrowser));
   $("ub-clear").addEventListener("click", () => { lab.picked.clear(); pickedChanged(); });
@@ -645,7 +728,7 @@ async function start() {
   setStatus("Loading the unit and board lists...");
   const [u, b] = await Promise.all([api("list_units"), api("list_boards")]);
   lab.units = u.units; lab.boards = b.boards;
-  lab.units.forEach((x) => lab.byId.set(x.id, x));
+  lab.units.forEach((x) => { if (!x.name.trim()) x.name = x.id.replace(/\.mtf$/i, ""); lab.byId.set(x.id, x); });   // a unit file with no chassis/model line shows its file name
   lab.boards.forEach((x) => lab.boardById.set(x.id, x));
   const sizes = [...new Set(lab.boards.map((x) => `${x.width}x${x.height}`))].sort((p, q) => parseInt(p) - parseInt(q) || p.localeCompare(q, undefined, { numeric: true }));
   $("board-size").innerHTML = `<option value="">Any</option>` + sizes.map((s) => `<option>${s}</option>`).join("");
@@ -653,6 +736,7 @@ async function start() {
   drawTeams();
   drawBoards();
   wireBrowserWindow();
+  initBrowser();
   pickedChanged();
   setStatus("Ready", `${lab.units.length} units, ${lab.boards.length} boards, ${lab.info.cores} cores`);
 
@@ -661,7 +745,11 @@ async function start() {
   ["battles", "seed", "threads", "max-turns"].forEach((id) => $(id).addEventListener("change", save));
   $("estimate-btn").addEventListener("click", estimate);
   $("run-btn").addEventListener("click", runBatch);
-  $("browse-btn").addEventListener("click", openBrowser);
+  $("reset-layout").addEventListener("click", () => {
+    lab.layout = {}; saveLayout();
+    const b = $("browser"); sizeWatch.unobserve(b); b.classList.remove("float"); b.style.cssText = ""; $("browser-slot").appendChild(b);
+    drawTeams();
+  });
   $("about-btn").addEventListener("click", () => { $("about").hidden = false; });
   $("about-close").addEventListener("click", () => { $("about").hidden = true; });
   $("cancel-btn").addEventListener("click", () => api("cancel", { run: lab.run }));
@@ -682,6 +770,8 @@ async function start() {
     const seed = $("replay-seed").value.trim();
     if (/^\d+$/.test(seed)) openReplay({ seed }); else setStatus("A seed is a whole number");
   });
+  let wasNarrow = narrow();
+  window.addEventListener("resize", () => { if (narrow() !== wasNarrow) { wasNarrow = narrow(); location.reload(); } });
   if (DEMO && DEMO.autorun) runBatch();
 }
 

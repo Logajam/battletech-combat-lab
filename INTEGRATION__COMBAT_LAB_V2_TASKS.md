@@ -26,7 +26,7 @@ Mekbay-style filters and the map work are Sonnet's (queued). CL18 is a "save for
 
 ## Lab pages
 
-### CL11. Lab layout: movable, resizable windows inside the page  `[S]`
+### CL11. Lab layout: movable, resizable windows inside the page  `[S]`  DONE 2026-11-14 (REVIEW PENDING)
 A browser tab can't be dragged or resized by a page; the browser owns it. Options: (a) launch the Lab in its own
 app-style window (`combatlab` opens Chrome/Edge `--app=URL`, or `window.open` with `resizable`), which the user
 can move and resize like any program; (b) make the layout fully responsive so any size works; (c) Windows 3.x style
@@ -37,7 +37,7 @@ fight: the page itself never scrolls, each window scrolls its own content only.
 Old plan, superseded:  Done when: the page is usable from ~900 px to full screen with no horizontal scroll, and `combatlab` opens it in an
 app window where a browser is found (falls back to a tab).
 
-### CL12. Units tab rebuild  `[S]`
+### CL12. Units tab rebuild  `[S]`  DONE 2026-11-14 (REVIEW PENDING; the zone grids per team join it when CL14 is built)
 - Unit Browser buttons (Add selected, From file, and the other action buttons) move to the TOP of the list so they
   don't shift as units are added.
 - Top row across the Units tab: Battle (number of sims), Estimated Runtime, Run Simulation.
