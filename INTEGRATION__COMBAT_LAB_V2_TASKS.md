@@ -134,7 +134,7 @@ histories; never rulebook text) and "Open run" loads it. Meant for sending to Cl
 battles keep their seed and the situation (setup + seed + turn) so they can be replayed from the file, and show in
 Results with a "replay crash" button (builds on `trial_records/`, which already keeps crashes by seed).
 
-### CL21. Replay heat maps of bot thinking  `[S]` for Princess, `[TOP]` for the rest
+### CL21. Replay heat maps of bot thinking  `[S]` for Princess, `[TOP]` for the rest  (PRINCESS DONE 2026-11-14, REVIEW PENDING; Gladiator and Hydra maps wait on CL6/CL7)
 **Decided (round 2): nothing is recorded for heat maps.** Replay is built by rerunning the battle from its seed, so
 the map for any step is recomputed from the battle's state at that step (rerun to the step, read Princess's memory).
 Per-unit share = the team map limited to the hexes that unit could reach this turn (its movement range: walk/run, or

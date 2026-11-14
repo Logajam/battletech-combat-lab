@@ -29,6 +29,8 @@ use crate::results::BattleResult;
 pub struct History {
     data: Map<String, Value>,
     steps: Vec<Value>,
+    /// one entry per step (Combat Lab, CL21): Princess's team heat maps and each unit's reach at that step
+    heat: Vec<Value>,
     /// how many of the battle's log lines are in a step already
     logged: usize,
 }
@@ -39,7 +41,7 @@ impl History {
         let mut data = Map::new();
         data.insert("sim".into(), json!(sim));
         data.insert("seed".into(), json!(seed.to_string()));
-        History { data, steps: Vec::new(), logged: 0 }
+        History { data, steps: Vec::new(), heat: Vec::new(), logged: 0 }
     }
 
     /// The `Marks` hook: one step, the units as they are now and the log lines since the last step. The first step
@@ -56,6 +58,7 @@ impl History {
         let lines: Vec<&String> = (self.logged..b.log.lines.len()).filter(|i| !b.log.printed.contains(i)).map(|i| &b.log.lines[i]).collect();
         self.logged = b.log.lines.len();
         self.steps.push(json!({"turn": turn, "phase": phase, "state": state, "log": lines}));
+        self.heat.push(heat_now(b));
     }
 
     /// The finished record. Log lines written after the last step (the battle's end) make a "Battle over" step.
@@ -65,6 +68,10 @@ impl History {
         }
         let causes: Map<String, Value> = result.units.iter().map(|(k, s)| (k.clone(), json!(s.cause_of_death))).collect();
         self.data.insert("steps".into(), Value::Array(self.steps));
+        // the heat maps ride beside the steps (a separate list, same length), only when some team has Princess units
+        if self.heat.iter().any(|h| !h["maps"].as_object().is_none_or(|m| m.is_empty())) {
+            self.data.insert("heat".into(), Value::Array(self.heat));
+        }
         self.data.insert("result".into(), json!({"winner": result.winner, "turns": result.turns_taken, "causes": causes}));
         Value::Object(self.data)
     }
@@ -106,6 +113,34 @@ impl History {
         self.data.insert("team_order".into(), json!(team_order));
         self.data.insert("board".into(), board(b));
     }
+}
+
+/// What Princess's heat map looks like right now (CL21): {"maps": {team: {hex label: weight}}, "reach": {unit label: hexes}}.
+/// The map is the BV-weighted record of where her team's units have stood (INTEGRATION__princess_memory), recomputed by the
+/// replay itself from the seed, so any step shows what her memory held at that step. "reach" is how far each standing
+/// unit could move this turn (its run MP, or jump MP when larger), by straight hex distance: the Replay masks a unit's
+/// share of the team map with it (terrain is ignored).
+fn heat_now(b: &Battle) -> Value {
+    let mut maps = Map::new();
+    for (team, mem) in b.princess.teams.iter() {
+        let live: Map<String, Value> = mem.heat.activity.iter().filter(|(_, w)| **w > 0).map(|(k, w)| (k.clone(), json!(w))).collect();
+        if !live.is_empty() {
+            maps.insert(team.clone(), Value::Object(live));
+        }
+    }
+    let mut reach = Map::new();
+    if !maps.is_empty() {
+        for u in 0..b.units.len() {
+            let m = &b.units[u];
+            if m.hex.is_none() || m.destroyed {
+                continue;
+            }
+            let walk = crate::mech_state::compute_walk_mp(m);
+            let run = (walk as f64 * 1.5).ceil() as i64;
+            reach.insert(label(b, u), json!(run.max(crate::mech_state::compute_jump_mp(m))));
+        }
+    }
+    json!({"maps": maps, "reach": reach})
 }
 
 fn label(b: &Battle, u: usize) -> String {

@@ -201,6 +201,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(al) REPLAY HEAT MAPS (PRINCESS)** (session 26): `history.rs::heat_now` + the viewer's Heat map box. Terrain-blind reach; Gladiator / Hydra maps still open (CL6 / CL7).
 - **(ak) COMBAT LAB RESULTS STATS + RUN FILE** (session 26): engine `Battle.tally` / `SideStats` additions (results only), `runs.rs` unit_stats / causes / export / restore, `main.rs` save_run / load_run, Results page. OPEN FOR OPUS: CL18's live conditions (design in COMBAT_LAB_V2_TASKS).
 - **(aj) REPLAY LOG REGROUPING** (session 26): `INTEGRATION__replay_viewer.html` `regroupRanged` (presentation only, falls back to the engine's order if the lines do not pair).
 - **(ai) SALVO FIRING ORDER** (session 26): `attack_resolution.rs::salvo_key` + the sort in `finish_declaration`; hidden `_FIRE_ORDER_LISTED` for the Python-fixture tests; `armored_slots` added to bridge UNIT_FIELDS; Rust reference logs regenerated.

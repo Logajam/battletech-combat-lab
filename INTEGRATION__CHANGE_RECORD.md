@@ -6,6 +6,18 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-14 (Claude, session 26), REPLAY HEAT MAPS: PRINCESS'S MEMORY, BY TEAM AND BY UNIT (CL21, Princess first). REVIEW PENDING (higher-level model).**
+  Daniel: "Replay is built from the seed rerunning that game. For any given step, the heat map can be recalculated from the
+  state of that game at that step"; per unit, "princess's heat map limited by the potential movement range of that unit".
+  Done exactly so, with nothing saved: the history is itself produced by playing the battle again from its seed, and
+  `history.rs::heat_now` reads Princess's team memory (`princess_memory.rs`: the BV-weighted record of where her team's
+  units have stood, decayed each turn) at every step into a separate `heat` list beside `steps` (same length; written
+  only when a team has Princess units; the Python-record test drops it). Each entry also carries each standing unit's
+  reach: its run MP, or jump MP when larger, as a straight hex distance (terrain ignored). The Replay has a "Heat map" box:
+  Off / a team (its whole map) / one of its units (the team map limited to the hexes within that unit's reach, with a dashed
+  circle). Orange, stronger = more weight. Checked on a 2 v 2 Princess battle: the box lists both teams and their units, a unit
+  share shows only its reachable part. NOT DONE: Gladiator's move score and Hydra's price per hex (need CL6/CL7); reach
+  does not follow terrain or facing costs, so a unit's share can include hexes it could not actually reach.
 - **2026-11-14 (Claude, session 26), COMBAT LAB RESULTS: CAUSES, ARMOR AND STRUCTURE APART, UNIT STATISTICS, SAVE / OPEN A RUN FILE (CL18 standard parts, CL19, CL20). REVIEW PENDING (higher-level model).**
   NOT DONE, saved for Opus (Daniel: "may be a save for Opus to think about"): CL18's live conditions - the user builds a
   condition before the run ("3+ gyros lost in one turn") that triggers as battles happen; the sheet in
