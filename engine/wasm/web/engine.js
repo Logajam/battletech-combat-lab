@@ -36,7 +36,11 @@
       const b64 = await (await get("data.pack.b64.txt")).text();
       gz = new Response(Uint8Array.from(atob(b64.trim()), (c) => c.charCodeAt(0))).body;
     }
-    return new Response(gz.pipeThrough(new DecompressionStream("gzip"))).arrayBuffer();
+    // a host may already have undone the compression on the way (a Content-Encoding header): only gzip data (1f 8b) is decompressed
+    const buf = await new Response(gz).arrayBuffer();
+    const head = new Uint8Array(buf, 0, 2);
+    if (head[0] !== 0x1f || head[1] !== 0x8b) return buf;
+    return new Response(new Blob([buf]).stream().pipeThrough(new DecompressionStream("gzip"))).arrayBuffer();
   }
 
   function init() {

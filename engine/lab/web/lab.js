@@ -1273,6 +1273,13 @@ async function start() {
     $("mode").textContent = "DEMO";
     $("banner").hidden = false;
     $("banner").innerHTML = DEMO.banner;
+  } else {
+    // ALPHA: unfinished software (Daniel, 2026-11-14: "the program should probably be considered as Alpha status")
+    $("mode").textContent = "ALPHA";
+    if ($("banner").hidden) {
+      $("banner").hidden = false;
+      $("banner").innerHTML = `<b>Alpha version.</b> Combat Lab is unfinished: expect bugs and results that are still being checked against the rules. Please report problems and ideas with the <b>Suggestion / bug report</b> button at the bottom right.`;
+    }
   }
   setStatus("Loading the unit and board lists...");
   const [u, b] = await Promise.all([api("list_units"), api("list_boards")]);
