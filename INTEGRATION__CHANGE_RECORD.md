@@ -6,6 +6,22 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-14 (Claude, session 26), RULES-OF-PLAY: A SALVO FIRES BIGGEST HIT FIRST (CL16). RESULTS CHANGE; REFERENCE LOGS UPDATED. REVIEW PENDING (higher-level model).**
+  Daniel: "fire the weapons that deal the most damage to one location first, then in descending order of cluster size - the
+  AC/20 before the SRM-6 even if the unit lists the SRM-6 first" and, when asked about a switch, "Its just the correct order":
+  so it is the rule, with no setting. `attack_resolution.rs::finish_declaration` now sorts a declaration's weapons before
+  their to-hit rolls are made and their hits applied: key 1 = the most damage one hit puts into one location (a missile
+  rack's grouping: SRM 2, LRM 5; any other weapon its whole damage per shot), key 2 = the cluster (rack) size, both larger
+  first, equal keys keep the unit's listed order (`salvo_key`). The attack stays one simultaneous salvo; only the order of
+  rolls and applications moves. Every bot is covered (Gladiator, Princess, Hydra share the path); a changed order is
+  logged ("[Ranged] Red fires in order: [...]"). The frozen Python answer key keeps the listed order, so its fixtures are
+  marked with a hidden `_FIRE_ORDER_LISTED` (the cargo tests' fixture loaders: `tests/common/mod.rs`, `cl2_history.rs`,
+  `stage6_battles.rs`); `Scenario::load` and the Lab do not set it. `check_rust_reference.py --update` was run (Daniel: "If
+  we have to rerun the reference battles so be it"): 86 battles, over all of them mean length 24.6 -> 23.8 turns, hit
+  rate 38.5% -> 40.2% (one seed each: a feel, not a study; `ab_batches.py` has no switch to compare, so a before/after
+  needs the old binary). THE BRIDGE PARITY CHECK found a real gap on the way: `armored_slots` (changed by crits) was missing
+  from `bridge.rs` UNIT_FIELDS; added (cov_hvac now passes). Not changed: Gladiator's declaration search still chooses
+  WHICH weapons by expected damage as before; this only orders the chosen ones.
 - **2026-11-14 (Claude, session 26), COMBAT LAB: MAP TAB - PREVIEW, HEIGHT COLOURS, STARTING ZONES, MAP LIST (CL14). REVIEW PENDING (higher-level model; the engine part is the one to look at).**
   PAGES: whole-map preview under the chosen board (a `board` request returns the file's text; the page draws it), heights
   in a MegaMek-style colour ramp (dark green low, yellow, brown, white high) with water / woods / road / rough / building

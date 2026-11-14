@@ -137,7 +137,12 @@ pub fn fixture_config(fixture: &str) -> Config {
     CONFIGS.with(|c| {
         c.borrow_mut()
             .entry(fixture.to_string())
-            .or_insert_with(|| Config::from_json(&serde_json::from_str(&fs::read_to_string(root().join(fixture).join("config.json")).unwrap()).unwrap()))
+            .or_insert_with(|| {
+                // the frozen Python answer key fires a unit's weapons in its own order (attack_resolution::finish_declaration)
+                let mut c = Config::from_json(&serde_json::from_str(&fs::read_to_string(root().join(fixture).join("config.json")).unwrap()).unwrap());
+                c.set("_FIRE_ORDER_LISTED", serde_json::Value::Bool(true));
+                c
+            })
             .clone()
     })
 }

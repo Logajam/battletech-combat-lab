@@ -1217,6 +1217,17 @@ fn choice_note(b: &mut Battle, attacker: UnitId, weapons: &[ItemId], value: f64,
 
 /// `_declare` after the choice: declares the arc action, logs the attack line, rolls to hit for each selected weapon
 /// and fills `report`. `record_damage`: Princess's damage map (called with the plan's expected damage) or None.
+/// A weapon's place in the firing order: (the most damage one hit puts into one location, the size of its cluster). A missile
+/// rack puts its grouping (SRM 2, LRM 5...) into a location at a time, any other weapon its whole damage; the cluster size is
+/// the rack (0 for a weapon that is not a cluster). Larger first on both counts.
+pub fn salvo_key(b: &mut Battle, attacker: UnitId, w: ItemId, plan: &ShotPlan) -> (i64, i64) {
+    if weapon_rules::is_cluster(b, attacker, w) {
+        (fire_modes::grouping(b, attacker, w, plan), b.units[attacker].items[w].rack_size.unwrap_or(0))
+    } else {
+        (fire_modes::damage_per(b, attacker, w, plan).unwrap_or(0), 0)
+    }
+}
+
 pub fn finish_declaration(
     b: &mut Battle,
     ctx: &DeclCtx,
@@ -1309,6 +1320,30 @@ pub fn finish_declaration(
 
     report.weapon_heat += choice.weapon_heat + surcharge;
     let t_dir = combat::direction_facing(ctx.a_hex, ctx.t_hex).unwrap();
+    // FIRING ORDER (Daniel, 2026-11-14: "fire the weapons that deal the most damage to one location first, then in descending
+    // order of cluster size - the AC/20 before the SRM-6 even if the unit lists the SRM-6 first"). The salvo is one
+    // simultaneous attack; this is the order its to-hit rolls are made and its hits applied, so a big hit that opens a
+    // location comes before the small ones that follow it. It is simply the rule, not a setting. Only the frozen Python's saved
+    // fixtures (`Scenario::load`, which marks them _FIRE_ORDER_LISTED) keep the unit's own order, so the answer-key comparisons
+    // still mean something.
+    let sorted: Vec<ItemId>;
+    let weapons: &Vec<ItemId> = if !b.cfg.has("_FIRE_ORDER_LISTED") && weapons.len() > 1 {
+        let mut keyed: Vec<(ItemId, i64, i64)> = Vec::with_capacity(weapons.len());
+        for &w in weapons {
+            let plan = plans.iter().find(|(x, _)| *x == w).map(|(_, p)| p.clone()).unwrap_or_else(ShotPlan::plain);
+            let (per_location, cluster) = salvo_key(b, attacker, w, &plan);
+            keyed.push((w, per_location, cluster));
+        }
+        keyed.sort_by(|x, y| y.1.cmp(&x.1).then(y.2.cmp(&x.2))); // stable: equal keys keep the listed order
+        sorted = keyed.into_iter().map(|k| k.0).collect();
+        if sorted != *weapons {
+            let names: Vec<String> = sorted.iter().map(|w| b.units[attacker].items[*w].name.clone()).collect();
+            b.log(format!("  [Ranged] {} fires in order: {}.", a_name, crate::damage_resolution::py_str_list(&names)));
+        }
+        &sorted
+    } else {
+        weapons
+    };
     for &w in weapons {
         let plan = plans.iter().find(|(x, _)| *x == w).map(|(_, p)| p.clone()).unwrap_or_else(ShotPlan::plain);
         let special = fire_modes::special(b, attacker, w);

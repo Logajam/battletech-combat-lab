@@ -82,7 +82,7 @@ battle start for every set, and the reference battles must stay identical with t
 
 ## Results and recording
 
-### CL16. Weapon firing order  `[TOP]`
+### CL16. Weapon firing order  `[TOP]`  DONE 2026-11-14 (REVIEW PENDING; Daniel confirmed the rule and that it is not a switch)
 Daniel: bots fire weapons in listed order; they should fire the weapon dealing the most damage to one location
 first, then descending by cluster size (AC-20 before SRM-6 even if the unit lists the SRM-6 first).
 First CHECK how the engine orders a unit's attacks (candidates: `attack_resolution.rs`, `orchestrator.rs`,

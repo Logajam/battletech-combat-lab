@@ -16,8 +16,9 @@
   [Ranged] Red -> Blue: range 18, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 31 = max 4 + sink 28 - current 0 - movement 1 - other 0; expected dmg 0.00)
   [Ranged] Blue -> Red: range 18, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 0); firing ['ISLBXAC10', 'ISUltraAC5'] (weapon heat 4 of budget 19 = max 4 + sink 16 - current 0 - movement 1 - other 0; expected dmg 1.64)
     [Blue fire control] ISLBXAC10: LB-X cluster rounds; ISUltraAC5: rapid fire x2
-    ISLBXAC10: needs 10 (range mod +4, modifiers -1), rolled 3 -> miss [ISLBXAC10 CL Ammo: 9 shots left]
-    ISUltraAC5 x2: needs 11 (range mod +4), rolled 7 -> miss [ISUltraAC5 Ammo: 18 shots left]
+  [Ranged] Blue fires in order: ['ISUltraAC5', 'ISLBXAC10'].
+    ISUltraAC5 x2: needs 11 (range mod +4), rolled 3 -> miss [ISUltraAC5 Ammo: 18 shots left]
+    ISLBXAC10: needs 10 (range mod +4, modifiers -1), rolled 7 -> miss [ISLBXAC10 CL Ammo: 9 shots left]
   [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 28 -> 0
   [Heat] Blue: 0 + movement 1 + weapons 4 + engine 0 - sinks 16 -> 0
   -- end of turn 1: Red @ 1601 N: HP 243, pilot hits 0, engine 0, gyro 0, heat 0
@@ -31,8 +32,9 @@
   [Movement] Red: 1601 N -> 1103 SW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
   [Ranged] Blue -> Red: range 14, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 3 + LOS 0 + heat 0); firing ['ISLBXAC10', 'ISUltraAC5'] (weapon heat 4 of budget 20 = max 4 + sink 16 - current 0 - movement 0 - other 0; expected dmg 1.64)
     [Blue fire control] ISLBXAC10: LB-X cluster rounds; ISUltraAC5: rapid fire x2
-    ISLBXAC10: needs 10 (range mod +4, modifiers -1), rolled 4 -> miss [ISLBXAC10 CL Ammo: 8 shots left]
-    ISUltraAC5 x2: needs 11 (range mod +4), rolled 2 -> miss [ISUltraAC5 Ammo: 16 shots left]
+  [Ranged] Blue fires in order: ['ISUltraAC5', 'ISLBXAC10'].
+    ISUltraAC5 x2: needs 11 (range mod +4), rolled 4 -> miss [ISUltraAC5 Ammo: 16 shots left]
+    ISLBXAC10: needs 10 (range mod +4, modifiers -1), rolled 2 -> miss [ISLBXAC10 CL Ammo: 8 shots left]
   [Ranged] Red -> Blue: range 14, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLHAG20'] (weapon heat 19 of budget 27 = max 4 + sink 28 - current 0 - movement 5 - other 0; expected dmg 5.28)
     CLERMediumLaser: needs 11 (range mod +4), rolled 8 -> miss
     CLERMediumLaser: needs 11 (range mod +4), rolled 9 -> miss
@@ -106,8 +108,9 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 8.
   [Movement] Red: 1506 S -> 1408 SW, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Ranged] Blue -> Red: range 14, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['ISLBXAC10', 'ISUltraAC5'] (weapon heat 4 of budget 18 = max 4 + sink 16 - current 0 - movement 2 - other 0; expected dmg 1.64)
     [Blue fire control] ISLBXAC10: LB-X cluster rounds; ISUltraAC5: rapid fire x2
-    ISLBXAC10: needs 10 (range mod +4, modifiers -1), rolled 4 -> miss [ISLBXAC10 CL Ammo: 6 shots left]
-    ISUltraAC5 x2: needs 11 (range mod +4), rolled 9 -> miss [ISUltraAC5 Ammo: 14 shots left]
+  [Ranged] Blue fires in order: ['ISUltraAC5', 'ISLBXAC10'].
+    ISUltraAC5 x2: needs 11 (range mod +4), rolled 4 -> miss [ISUltraAC5 Ammo: 14 shots left]
+    ISLBXAC10: needs 10 (range mod +4, modifiers -1), rolled 9 -> miss [ISLBXAC10 CL Ammo: 6 shots left]
   [Ranged] Red -> Blue: range 14, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLHAG20'] (weapon heat 19 of budget 31 = max 4 + sink 28 - current 0 - movement 1 - other 0; expected dmg 13.24)
     CLERMediumLaser: needs 9 (range mod +4), rolled 12 -> HIT
     CLERMediumLaser: needs 9 (range mod +4), rolled 3 -> miss
@@ -170,8 +173,9 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
   [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
   [Ranged] Blue -> Red: range 13, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 3 + LOS 0 + heat 0); firing ['ISLBXAC10', 'ISUltraAC5'] (weapon heat 4 of budget 20 = max 4 + sink 16 - current 0 - movement 0 - other 0; expected dmg 3.02)
     [Blue fire control] ISLBXAC10: LB-X cluster rounds; ISUltraAC5: rapid fire x2
-    ISLBXAC10: needs 10 (range mod +4, modifiers -1), rolled 6 -> miss [ISLBXAC10 CL Ammo: 5 shots left]
-    ISUltraAC5 x2: needs 9 (range mod +2), rolled 5 -> miss [ISUltraAC5 Ammo: 12 shots left]
+  [Ranged] Blue fires in order: ['ISUltraAC5', 'ISLBXAC10'].
+    ISUltraAC5 x2: needs 9 (range mod +2), rolled 6 -> miss [ISUltraAC5 Ammo: 12 shots left]
+    ISLBXAC10: needs 10 (range mod +4, modifiers -1), rolled 5 -> miss [ISLBXAC10 CL Ammo: 5 shots left]
   [Ranged] Red -> Blue: range 13, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLHAG20'] (weapon heat 19 of budget 27 = max 4 + sink 28 - current 0 - movement 5 - other 0; expected dmg 5.28)
     CLERMediumLaser: needs 11 (range mod +4), rolled 9 -> miss
     CLERMediumLaser: needs 11 (range mod +4), rolled 10 -> miss
