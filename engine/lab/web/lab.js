@@ -106,10 +106,10 @@ function restore() {
     lab.map = { ...lab.map, ...saved.map };
     lab.options = saved.options || {};
     lab.deploy = { ...lab.deploy, ...(saved.deploy || {}) };
-    $("battles").value = saved.battles || 20; $("seed").value = saved.seed || 1; $("threads").value = saved.threads || 0; $("max-turns").value = saved.maxTurns || 100;
+    $("battles").value = saved.battles || 20; $("seed").value = saved.seed && saved.seed !== "1" ? saved.seed : "";   // an empty box = a new seed each run (the old default, 1, is dropped) $("threads").value = saved.threads || 0; $("max-turns").value = saved.maxTurns || 100;
   } else {
     const start = DEMO ? DEMO.setup : { teams: [{ name: "Red", bot: "gladiator", units: [{ unit: "Atlas AS7-K.mtf" }, { unit: "Griffin GRF-1N.mtf" }] },
-      { name: "Blue", bot: "gladiator", units: [{ unit: "Awesome AWS-8Q.mtf" }, { unit: "Hunchback HBK-4G.mtf" }] }], board: lab.info.default_board, battles: 20, seed: 1 };
+      { name: "Blue", bot: "gladiator", units: [{ unit: "Awesome AWS-8Q.mtf" }, { unit: "Hunchback HBK-4G.mtf" }] }], board: lab.info.default_board, battles: 20, seed: "" };
     lab.teams = start.teams.map((t, i) => ({ name: t.name, colour: t.colour || defaultColour(i), bot: t.bot, units: t.units.map((u) => unitEntry(u.unit, u.gunnery ?? 4, u.piloting ?? 5)).filter(Boolean) }));
     lab.map.one = typeof start.board === "string" ? start.board : lab.info.default_board;
     $("battles").value = start.battles; $("seed").value = start.seed;
@@ -937,10 +937,12 @@ async function runBatch() {
   if (!mapCheck().ok) { $("run-error").textContent = "The map is not ready: see the Map page."; return; }
   const zp = zonesProblem();
   if (zp) { $("run-error").textContent = zp + " See the Map page."; return; }
-  const r = await api("run", { setup: setup() });
+  const chosen = setup();
+  if (!DEMO && !$("seed").value.trim()) chosen.seed = freshSeed();   // an empty seed box: a new starting seed for this run, written into the setup (so the saved file replays it)
+  const r = await api("run", { setup: chosen });
   if (r.error) { $("run-error").textContent = r.error; return; }
   lab.run = r.run;
-  lab.runSetup = setup();
+  lab.runSetup = chosen;
   lab.filter = {};
   $("results-empty").hidden = true;
   $("results").hidden = false;
@@ -951,7 +953,7 @@ async function runBatch() {
   lab.poll = setInterval(async () => {
     const p = await api("progress", { run: lab.run });
     $("bar").style.width = pct(p.done / p.battles);
-    $("progress-text").textContent = `${p.done} / ${p.battles} battles, ${fmtSecs(p.seconds)}${p.cancelled ? " (cancelled)" : ""}`;
+    $("progress-text").textContent = `${p.done} / ${p.battles} battles, ${fmtSecs(p.seconds)}, seed ${lab.runSetup.seed}${p.cancelled ? " (cancelled)" : ""}`;
     $("cancel-btn").disabled = p.finished;
     setStatus(p.finished ? "Batch finished" : "Running...", `${p.done} / ${p.battles}`);
     if (p.finished || ticks++ % 5 === 0) await drawResults();
@@ -995,6 +997,15 @@ async function drawResults() {
   const tree = $("battle-tree");
   tree.innerHTML = "";
   fillRange(tree, 1, total, res);
+}
+
+// A new starting seed: random bits mixed with the clock (Daniel, 2026-11-14: "starter seed + time ... is a more random plan"),
+// kept under 2^52 so it stays an exact whole number in JSON. The battles' own seeds follow from it (runs.rs, PcgDice::battle_seed).
+function freshSeed() {
+  const r = new Uint32Array(2);
+  crypto.getRandomValues(r);
+  const mixed = (BigInt(r[0]) << 20n) ^ BigInt(r[1]) ^ (BigInt(Date.now()) * 0x9E3779B1n);
+  return Number(mixed % (1n << 52n)) || 1;
 }
 
 // ---------------------------------------------------------------- SUGGESTION / BUG REPORT

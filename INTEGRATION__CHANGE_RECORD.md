@@ -6,6 +6,13 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-14 (Claude, session 26), A NEW STARTING SEED EACH RUN BY DEFAULT. REVIEW PENDING (higher-level model).**
+  Daniel: "Starter seed + time used to generate the seeds is a more random plan." Pages only (`lab.js` `freshSeed`, `index.html`):
+  the Options page's seed box now starts empty ("new each run"); an empty box makes each run a new starting seed (random bits
+  mixed with the clock, under 2^52) that is written into the run's setup, so the saved file and every replay still use the exact
+  number; the Results progress line shows it. A typed seed is used as it is. Old saved settings holding the old default 1 become
+  empty. The engine is untouched (`PcgDice::battle_seed` as before; every reference battle and `btsim` run keeps its fixed seed).
+  NOT PUBLISHED (Daniel: not yet): the public site still has the old default of 1.
 - **2026-11-14 (Claude, session 26), COMBAT LAB WEB BUILD PUBLISHED AS A WEBSITE; ALPHA LABEL. REVIEW PENDING (higher-level model).**
   Daniel: put the web version on the public repository as a public website, and call the program alpha. Added `tools/publish_web_lab.py`
   (the build as the one commit of the public repo's `gh-pages` branch for GitHub Pages; checks: only the expected files, no email
