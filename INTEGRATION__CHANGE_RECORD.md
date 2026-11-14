@@ -6,6 +6,11 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-14 (Claude, session 26), COMBAT LAB WEB BUILD PUBLISHED AS A WEBSITE; ALPHA LABEL. REVIEW PENDING (higher-level model).**
+  Daniel: put the web version on the public repository as a public website, and call the program alpha. Added `tools/publish_web_lab.py`
+  (the build as the one commit of the public repo's `gh-pages` branch for GitHub Pages; checks: only the expected files, no email
+  address), "ALPHA" in the title bar, a banner and About text (lab.js / index.html), a README note with the site address, and
+  `engine.js` now accepts a data pack a host already decompressed. See INTEGRATION__COMBAT_LAB_WEB.md "Publishing".
 - **2026-11-14 (Claude, session 26), SUGGESTION / BUG REPORT BUTTON AND A REPLAY-FIRST RUN FILE. REVIEW PENDING (higher-level model).**
   Daniel: a report button that flashes when a run fails and opens the open repository's issue page with instructions to post
   the run's save file; the save file "more about the exact setup and seed ... especially the seeds for failed runs";
