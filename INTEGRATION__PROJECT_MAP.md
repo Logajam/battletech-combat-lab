@@ -201,6 +201,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(ah) COMBAT LAB MAP TAB + ZONE DEPLOYMENT** (session 26): ENGINE `deployment.rs` zone_* fns, `orchestrator.rs::deploy_zones` (only with DEPLOY_ZONES; defaults untouched), `runs.rs::Plan`, Map page in lab.js. Read the engine part first.
 - **(ag) COMBAT LAB UNIT FILTERS** (session 26): `tools/make_availability.py`, `engine/lab/web/availability.json`, catalog.rs details, `buildAdvanced` / `passes` in lab.js. Availability follows MegaMek's RATGenerator with stated simplifications.
 - **(af) COMBAT LAB OPTIONS TAB** (session 26): `tools/make_options_registry.py`, `engine/lab/web/options.json`, `runs.rs::apply_options`, Options page in lab.js. Lab server and pages only.
 - **(ae) COMBAT LAB WINDOWS + UNITS TAB** (session 26): `engine/lab/web` index.html / lab.css / lab.js (floating panels, `wireWindow`, `classIcon`, docked three-column Units page). Pages only.

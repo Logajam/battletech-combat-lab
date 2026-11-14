@@ -6,6 +6,29 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-14 (Claude, session 26), COMBAT LAB: MAP TAB - PREVIEW, HEIGHT COLOURS, STARTING ZONES, MAP LIST (CL14). REVIEW PENDING (higher-level model; the engine part is the one to look at).**
+  PAGES: whole-map preview under the chosen board (a `board` request returns the file's text; the page draws it), heights
+  in a MegaMek-style colour ramp (dark green low, yellow, brown, white high) with water / woods / road / rough / building
+  laid over; stitched maps previewed whole. Starting zones: a 3 x 3 grid per team (NW N NE / W C E / SW S SE; Edge = the 8
+  outer boxes, Anywhere = all 9, Clear), a Walk on check box (Centre and Walk on switch each other off), a small copy of
+  the grid on every team panel (same state), and one dropdown for the run: Core Rulebook (initiative roll; the default,
+  nothing changes) / Fixed / Rotating / Random. Rotating: battle k, team i takes the whole zone setup (boxes + walk-on) of
+  team i-(k-1), wrapping (2 teams swap every battle). Random: one box drawn from the team's highlighted ones, fresh each
+  battle. "Keep teams opposite" (random, 2 teams only: greyed with a tag for 3+): team 2 gets the mirror box (k -> 8-k). Map
+  list: boards the battles cycle through, "Playlist order" or "Shuffle" (a fresh order each pass); the battle list shows
+  each battle's map and zones; "Load by seed" has a Battle number box (rotation and the map list depend on it).
+  ENGINE (`deployment.rs`, `orchestrator.rs::deploy_zones`, `scenario.rs` Scenario now Clone): a new path used ONLY when the
+  setup has a DEPLOY_ZONES setting; without it a battle starts exactly as before (all 60 checks pass, the 86 Rust
+  reference battles unchanged). Walk-on: entry hexes = the border bands (DEPLOYMENT_DEPTH deep) inside the zone's boxes, a hex
+  must be able to reach the centre box (the old "stuck" rule, widened to DEPLOYMENT_STUCK_DEPTH). Placed: a free enterable
+  hex of the zone, spread so no two units touch where possible, facing the middle of the board, one dice pick per unit. Lab
+  server (`runs.rs`): a `Plan` builds one scenario per map of the list and, per battle, the zone assignment (the Lab's own
+  splitmix64, a pure function of the setup, battle number and seed, so a battle replays); battle lines and crash records
+  carry `board` and `zones`. Checked end to end through the API: 4 battles, rotating zones, two maps, replay shows
+  "placed at 1310 in zone E" / "walks on in zone W (6 entry hexes)". `tests/check_lab_server.py` passes.
+  Known gaps for the reviewer: no per-zone minimum separation or bot-chosen placement (placed units are drawn at random);
+  placed units of different teams may share a zone and are spread by the same rule; a 'Mech that cannot get out of its zone
+  stops the battle with a panic (caught as a crash record); no results filter on map or zone yet (CL18).
 - **2026-11-14 (Claude, session 26), COMBAT LAB: UNIT BROWSER FILTERS (CL13). REVIEW PENDING (higher-level model).**
   The Advanced search popup now has Mekbay-style filters: number ranges (tons, BV, walk, jump, armor points, heat sinks,
   year introduced), tech base, armor type, structure, unit set, source book, configuration / role / rules level boxes,

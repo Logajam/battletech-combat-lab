@@ -55,7 +55,7 @@ filters (has / count / min damage), sort by any column, saved filters. Work: (1)
 and `catalog.rs` already carry, (2) extend `catalog.rs`'s index (built once at server start) with the missing ones,
 (3) the filter UI. **Decided:** faction and availability filters too. Method: look at how the MegaMek suite does it (MegaMek / MekHQ / MUL availability data and its era and faction tables; read the source, credit it in `CREDITS.md`, keep each data file's CC BY-NC-SA header). Needs the MegaMek checkout (`add_repo`).
 
-### CL14. Map tab  `[S]` (engine part `[TOP]` reviews)
+### CL14. Map tab  `[S]` (engine part `[TOP]` reviews)  DONE 2026-11-14 (REVIEW PENDING)
 1. **Full-map preview** under the board chooser (small canvas of the whole board).
 2. **Elevation colour contrast** like MegaMek (ramp by level; water/woods/buildings keep their own overlay).
    Drawn by the same function for the preview and the replay board.

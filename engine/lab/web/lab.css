@@ -243,3 +243,20 @@ details.folder[hidden] { display: none; }
 .legend { display: flex; flex-wrap: wrap; gap: 2px 8px; font-size: 11px; margin-bottom: 4px; }
 .legend span { display: inline-flex; align-items: center; gap: 3px; }
 .legend i { width: 12px; height: 12px; border: 1px solid var(--dark); display: inline-block; }
+
+/* CL14: starting zones - a 3 x 3 grid of boxes per team, the playlist */
+.right-col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.zone-grids { display: flex; flex-wrap: wrap; gap: 10px; }
+.zone-team { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.zone-team .zname { font-weight: bold; border-left: 8px solid var(--shadow); padding-left: 4px; }
+.zone-grid { display: grid; grid-template-columns: repeat(3, 30px); grid-template-rows: repeat(3, 24px); gap: 2px; }
+.zone-grid button { padding: 0; font-size: 10px; background: var(--face); border: 2px solid; border-color: var(--light) var(--dark) var(--dark) var(--light); cursor: pointer; color: var(--dark); }
+.zone-grid button.on { color: #fff; font-weight: bold; border-color: var(--dark) var(--light) var(--light) var(--dark); }
+.zone-grid.off button { opacity: .45; cursor: default; }
+.zone-tools { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font-size: 12px; }
+.zone-mini { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.zone-mini .zone-grid { grid-template-columns: repeat(3, 20px); grid-template-rows: repeat(3, 16px); }
+.zone-mini .zone-grid button { font-size: 8px; border-width: 1px; }
+.playlist { margin: 0 0 8px; padding-left: 22px; max-height: 180px; overflow: auto; }
+.playlist li { display: list-item; padding: 1px 0; }
+.playlist li span.pl { display: inline-flex; gap: 4px; align-items: center; }

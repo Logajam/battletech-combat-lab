@@ -142,3 +142,97 @@ pub fn start_hexes(b: &Battle, u: UnitId, edge: &str) -> StartHexes {
     }
     StartHexes { hexes: ok, depth, stuck }
 }
+
+// ---- zone deployment (Combat Lab starting zones, session 26; Daniel 2026-11-14) -----------------------------------------
+// The board is cut into a 3 x 3 grid of boxes, 0 = north-west ... 8 = south-east (row by row), 4 = the centre. A team's
+// zone is any set of boxes; its units either WALK ON (enter from the board's border hexes inside the zone, as the home
+// edge deployment does) or are PLACED on hexes of the zone before turn 1. Used only when the setup has a DEPLOY_ZONES
+// setting; without it the battle starts exactly as before (initiative roll, home edge).
+
+/// The box (0-8) a hex label falls in: the same thirds the Lab's map preview draws.
+pub fn zone_box(b: &Battle, label: &str) -> usize {
+    let (w, h) = (b.board.width.max(1), b.board.height.max(1));
+    let col: i64 = label[0..2].parse().unwrap_or(1);
+    let row: i64 = label[2..4].parse().unwrap_or(1);
+    ((((row - 1) * 3 / h).min(2)) * 3 + (((col - 1) * 3 / w).min(2))) as usize
+}
+
+/// Every hex of the board that lies in one of the chosen boxes, in board order.
+pub fn zone_hexes(b: &Battle, boxes: &[bool; 9]) -> Vec<String> {
+    b.board.hexes.keys().filter(|l| boxes[zone_box(b, l)]).cloned().collect()
+}
+
+/// The hexes a unit may walk on from: the border bands (DEPLOYMENT_DEPTH hexes deep, from each of the four edges) that lie
+/// inside the zone. The depth is widened to DEPLOYMENT_STUCK_DEPTH when nothing within the first depth lets the unit
+/// out into the middle of the board (the same "stuck" rule as the home edge). `reach` = the hexes it must be able to get to.
+pub fn zone_walk_on(b: &Battle, u: UnitId, boxes: &[bool; 9]) -> StartHexes {
+    let dd = b.cfg.i("DEPLOYMENT_DEPTH");
+    let sd = b.cfg.i("DEPLOYMENT_STUCK_DEPTH");
+    let goal: HashSet<String> = zone_hexes(b, &[false, false, false, false, true, false, false, false, false]).into_iter().collect();
+    let mut good_cache: HashMap<String, bool> = HashMap::default();
+    let mut moves_cache: HashMap<(String, bool), HashSet<String>> = HashMap::default();
+    let mut usable = |depth: i64| -> (Vec<String>, Vec<String>) {
+        let (mut ok, mut stuck) = (Vec::new(), Vec::new());
+        let mut seen: HashSet<String> = HashSet::default();
+        for edge in EDGE_NAMES {
+            for label in band(b, edge, depth) {
+                if !boxes[zone_box(b, &label)] || !seen.insert(label.clone()) {
+                    continue;
+                }
+                if terrain_rules::step_cost(None, &b.board.hexes[&label], terrain_rules::max_level_change(false, false), false).is_none() {
+                    continue;
+                }
+                let g = *good_cache.entry(label.clone()).or_insert_with(|| reaches(b, u, &label, &goal, &mut moves_cache));
+                if g { ok.push(label); } else { stuck.push(label); }
+            }
+        }
+        (ok, stuck)
+    };
+    let mut depth = dd;
+    let (mut ok, mut stuck) = usable(depth);
+    if ok.is_empty() && sd > depth {
+        depth = sd;
+        let r = usable(depth);
+        ok = r.0;
+        stuck = r.1;
+    }
+    StartHexes { hexes: ok, depth, stuck }
+}
+
+/// The border hexes (edge row only) inside the zone: what `home_edge_row` holds for a walk-on team.
+pub fn zone_edge_row(b: &Battle, boxes: &[bool; 9]) -> Vec<String> {
+    let mut seen: HashSet<String> = HashSet::default();
+    let mut out = Vec::new();
+    for edge in EDGE_NAMES {
+        for label in band(b, edge, 0) {
+            if boxes[zone_box(b, &label)] && seen.insert(label.clone()) {
+                out.push(label);
+            }
+        }
+    }
+    out
+}
+
+/// The compass facing that points from a hex toward the middle of the board.
+pub fn facing_to_centre(b: &Battle, label: &str) -> &'static str {
+    let px = |c: f64, r: f64| (1.5 * c, 3f64.sqrt() * r + if (c as i64) % 2 == 0 { 3f64.sqrt() / 2.0 } else { 0.0 });
+    let col: f64 = label[0..2].parse().unwrap_or(1.0);
+    let row: f64 = label[2..4].parse().unwrap_or(1.0);
+    let (x, y) = px(col, row);
+    let (cx, cy) = px(((b.board.width + 1) / 2) as f64, ((b.board.height + 1) / 2) as f64);
+    // screen angle of each facing: N up, then clockwise in 60 degree steps
+    let angle = (cy - y).atan2(cx - x).to_degrees();
+    let mut best = ("N", f64::MAX);
+    for (name, a) in [("N", -90.0), ("NE", -30.0), ("SE", 30.0), ("S", 90.0), ("SW", 150.0), ("NW", -150.0)] {
+        let mut diff = (angle - a).abs() % 360.0;
+        if diff > 180.0 { diff = 360.0 - diff; }
+        if diff < best.1 { best = (name, diff); }
+    }
+    best.0
+}
+
+/// Do two hex labels touch (neighbours)?
+pub fn hexes_touch(a: &str, b: &str) -> bool {
+    let (Ok((ax, ay)), Ok((bx, by))) = (hex_geometry::parse_hex_label(a), hex_geometry::parse_hex_label(b)) else { return false };
+    hex_geometry::FACING_DELTAS.iter().any(|(dx, dy)| ax + dx == bx && ay + dy == by)
+}

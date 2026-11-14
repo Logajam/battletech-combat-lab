@@ -13,7 +13,8 @@ const CLASSES = { light: [20, 35], medium: [40, 55], heavy: [60, 75], assault: [
 const lab = {
   info: null, units: [], boards: [], byId: new Map(), boardById: new Map(),
   teams: [],
-  map: { mode: "one", one: null, cols: 2, rows: 1, cells: [null, null], cell: 0 },
+  map: { mode: "one", one: null, cols: 2, rows: 1, cells: [null, null], cell: 0, playlist: [], order: "sequence" },
+  deploy: { mode: "rulebook", opposite: false },   // starting zones (CL14): "rulebook" = the Core Rulebook deployment, else fixed / rotating / random
   run: null, runSetup: null, filter: {}, poll: null,
   picked: new Set(),            // units selected in the unit browser
   options: {}, registry: [],    // the Options tab: changed settings {NAME: value}, and the list of every setting
@@ -65,6 +66,7 @@ function freshTeamName(i) {
 function boardOfSetup() {
   const m = lab.map;
   if (m.mode === "one") return m.one;
+  if (m.mode === "playlist") return { playlist: m.playlist, order: m.order };
   const grid = [];
   for (let r = 0; r < m.rows; r++) grid.push(m.cells.slice(r * m.cols, (r + 1) * m.cols));
   return { grid };
@@ -72,7 +74,9 @@ function boardOfSetup() {
 
 function setup() {
   return {
-    teams: lab.teams.map((t) => ({ name: t.name, colour: t.colour, bot: t.bot, units: t.units.map((u) => ({ unit: u.id, gunnery: u.gunnery, piloting: u.piloting })) })),
+    teams: lab.teams.map((t, ti) => ({ name: t.name, colour: t.colour, bot: t.bot, units: t.units.map((u) => ({ unit: u.id, gunnery: u.gunnery, piloting: u.piloting })),
+      ...(lab.deploy.mode !== "rulebook" ? { zone: zoneOf(t, ti) } : {}) })),
+    ...(lab.deploy.mode !== "rulebook" ? { zone_mode: lab.deploy.mode, zone_opposite: lab.deploy.mode === "random" && lab.deploy.opposite && lab.teams.length === 2 } : {}),
     board: boardOfSetup(),
     battles: +$("battles").value || 20,
     seed: +$("seed").value || 0,
@@ -83,7 +87,7 @@ function setup() {
 }
 
 function save() {
-  try { localStorage.setItem(STORE, JSON.stringify({ teams: lab.teams, map: lab.map, battles: $("battles").value, seed: $("seed").value, threads: $("threads").value, maxTurns: $("max-turns").value, options: lab.options })); } catch (e) { /* storage off: nothing kept */ }
+  try { localStorage.setItem(STORE, JSON.stringify({ teams: lab.teams, map: lab.map, battles: $("battles").value, seed: $("seed").value, threads: $("threads").value, maxTurns: $("max-turns").value, options: lab.options, deploy: lab.deploy })); } catch (e) { /* storage off: nothing kept */ }
   $("estimate").textContent = "Press Estimate";
 }
 
@@ -100,6 +104,7 @@ function restore() {
     lab.teams = saved.teams.map((t) => ({ ...t, units: t.units.map((u) => unitEntry(u.id, u.gunnery, u.piloting)).filter(Boolean) }));
     lab.map = { ...lab.map, ...saved.map };
     lab.options = saved.options || {};
+    lab.deploy = { ...lab.deploy, ...(saved.deploy || {}) };
     $("battles").value = saved.battles || 20; $("seed").value = saved.seed || 1; $("threads").value = saved.threads || 0; $("max-turns").value = saved.maxTurns || 100;
   } else {
     const start = DEMO ? DEMO.setup : { teams: [{ name: "Red", bot: "gladiator", units: [{ unit: "Atlas AS7-K.mtf" }, { unit: "Griffin GRF-1N.mtf" }] },
@@ -127,6 +132,7 @@ function drawTeams() {
     const l = el.querySelector(".list"); if (l) l.scrollTop = scroll[ti] || 0;
   });
   $("team-sum").textContent = `${lab.teams.length} teams, ${lab.teams.reduce((s, t) => s + t.units.length, 0)} units`;
+  paintZoneGrids();
 }
 
 // ---------------------------------------------------------------- windows (CL11)
@@ -221,6 +227,7 @@ function teamPanel(t, ti) {
       <button class="btn" id="addsel-${ti}" ${lab.picked.size ? "" : "disabled"}>Add selected (${lab.picked.size})</button>
       <button class="btn" id="file-${ti}" title="Add a .mtf unit file from this computer">From file&hellip;</button>
       <input type="file" id="fileinput-${ti}" accept=".mtf" multiple hidden>
+      <span id="zmini-${ti}"></span>
     </div>
     <div class="adder">
       <input type="search" id="find-${ti}" placeholder="Quick add: type a unit name" autocomplete="off">
@@ -251,6 +258,7 @@ function teamPanel(t, ti) {
     el.querySelector(`#g-${ti}-${ui}`).addEventListener("change", (e) => { u.gunnery = Math.max(0, Math.min(8, +e.target.value)); redraw(); });
     el.querySelector(`#p-${ti}-${ui}`).addEventListener("change", (e) => { u.piloting = Math.max(0, Math.min(8, +e.target.value)); redraw(); });
   });
+  el.querySelector(`#zmini-${ti}`).replaceWith(zoneGrid(ti, true));
   wireSearch(el, t, ti);
   el.querySelector(`#addsel-${ti}`).addEventListener("click", () => addUnits(t, [...lab.picked]));
   // a .mtf file (dropped on the panel, or picked with From file...) is copied into the project and added
@@ -318,7 +326,7 @@ function setTeamCount(n) {
   }
   lab.teams.length = n;
   $("team-count").value = n;
-  save(); drawTeams();
+  save(); drawTeams(); drawZones();
 }
 
 async function estimate() {
@@ -655,18 +663,23 @@ function drawBoards() {
   const size = $("board-size").value;
   const list = lab.boards.filter((b) => (!size || `${b.width}x${b.height}` === size) && words.every((w) => (b.name + " " + b.source).toLowerCase().includes(w)));
   const m = lab.map;
-  const current = m.mode === "one" ? m.one : m.cells[m.cell];
+  const current = m.mode === "one" ? m.one : m.mode === "playlist" ? null : m.cells[m.cell];
   const body = $("boards").tBodies[0];
   body.innerHTML = list.slice(0, 400).map((b) => `<tr data-id="${esc(b.id)}" class="${b.id === current ? "on" : ""}"><td>${esc(b.name)}</td><td class="num">${b.width}&times;${b.height}</td><td>${esc(b.source)}</td></tr>`).join("")
     || `<tr><td colspan="3" class="note">No board matches</td></tr>`;
   body.querySelectorAll("tr[data-id]").forEach((tr) => tr.addEventListener("click", () => {
     if (m.mode === "one") m.one = tr.dataset.id;
+    else if (m.mode === "playlist") m.playlist.push(tr.dataset.id);
     else { m.cells[m.cell] = tr.dataset.id; m.cell = (m.cell + 1) % m.cells.length; }
     save(); drawBoards();
   }));
   $("map-one").checked = m.mode === "one";
   $("map-stitch").checked = m.mode === "stitch";
+  $("map-playlist").checked = m.mode === "playlist";
   $("stitch-box").hidden = m.mode !== "stitch";
+  $("playlist-box").hidden = m.mode !== "playlist";
+  $("playlist-order").value = m.order;
+  drawPlaylist();
   $("stitch-cols").value = m.cols; $("stitch-rows").value = m.rows;
   drawStitch();
   return list;
@@ -771,6 +784,90 @@ async function drawPreview() {
     `<span><i style="background:#1e5ac8"></i>Water</span><span><i style="background:#2d5a2a"></i>Woods</span><span><i style="background:#6e6e6e"></i>Road / paving</span><span><i style="background:#5a3c1e"></i>Rough</span><span><i style="background:#3c3c46"></i>Building</span>`;
 }
 
+function drawPlaylist() {
+  const m = lab.map, ol = $("playlist");
+  ol.innerHTML = m.playlist.length ? m.playlist.map((id, i) => {
+    const b = lab.boardById.get(id);
+    return `<li><span class="pl">${esc(b ? b.name : id)} <span class="note">${b ? `${b.width}&times;${b.height}` : ""}</span>
+      <button class="btn small" data-up="${i}" ${i ? "" : "disabled"} title="Earlier">&#9650;</button><button class="btn small" data-down="${i}" ${i < m.playlist.length - 1 ? "" : "disabled"} title="Later">&#9660;</button><button class="btn small" data-del="${i}" title="Remove">&times;</button></span></li>`;
+  }).join("") : `<li class="note" style="list-style:none;margin-left:-22px">No maps yet: click boards in the list.</li>`;
+  const move = (i, to) => { const [x] = m.playlist.splice(i, 1); m.playlist.splice(to, 0, x); save(); drawBoards(); };
+  ol.querySelectorAll("[data-up]").forEach((b) => b.addEventListener("click", () => move(+b.dataset.up, +b.dataset.up - 1)));
+  ol.querySelectorAll("[data-down]").forEach((b) => b.addEventListener("click", () => move(+b.dataset.down, +b.dataset.down + 1)));
+  ol.querySelectorAll("[data-del]").forEach((b) => b.addEventListener("click", () => { m.playlist.splice(+b.dataset.del, 1); save(); drawBoards(); }));
+}
+
+// ---------------------------------------------------------------- starting zones (CL14)
+// A zone is a set of the nine boxes of a 3 x 3 cut of the board (NW N NE / W C E / SW S SE). Edge = the eight outer boxes,
+// Anywhere = all nine. Walk on = the units enter from the board's border inside the zone; off = they are placed on it.
+// Centre and Walk on exclude each other. Every team has its own; the one dropdown (Fixed / Rotating / Random) is for the run.
+const BOX_LABELS = ["NW", "N", "NE", "W", "C", "E", "SW", "S", "SE"];
+function zoneOf(t, ti) {
+  if (!t.zone) { const boxes = new Array(9).fill(false); const d = [3, 5, 1, 7][ti]; if (d === undefined) boxes.fill(true); else boxes[d] = true; t.zone = { boxes, walk_on: d !== undefined }; }
+  return t.zone;
+}
+function zoneGrid(ti, mini) {
+  const t = lab.teams[ti], z = zoneOf(t, ti);
+  const wrap = document.createElement("div");
+  wrap.className = mini ? "zone-mini" : "zone-team";
+  wrap.dataset.zteam = ti;
+  wrap.innerHTML = `${mini ? "" : `<div class="zname" data-zname></div>`}
+    <div class="zone-grid">${BOX_LABELS.map((n, k) => `<button type="button" data-box="${k}" title="${k === 4 ? "Centre" : "Zone " + n}">${n}</button>`).join("")}</div>
+    <div class="zone-tools"><label class="row"><input type="checkbox" data-walk> Walk on</label>${mini ? "" : `<button class="btn small" type="button" data-edge>Edge</button><button class="btn small" type="button" data-any>Anywhere</button><button class="btn small" type="button" data-none>Clear</button>`}</div>`;
+  const set = (fn) => { fn(zoneOf(lab.teams[ti], ti)); zonesChanged(); };
+  wrap.querySelectorAll("[data-box]").forEach((b) => b.addEventListener("click", () => { if (lab.deploy.mode === "rulebook") return; set((z) => { const k = +b.dataset.box; z.boxes[k] = !z.boxes[k]; if (k === 4 && z.boxes[4]) z.walk_on = false; }); }));
+  wrap.querySelector("[data-walk]").addEventListener("change", (e) => set((z) => { z.walk_on = e.target.checked; if (z.walk_on) z.boxes[4] = false; }));
+  if (!mini) {
+    wrap.querySelector("[data-edge]").addEventListener("click", () => set((z) => { z.boxes = [true, true, true, true, false, true, true, true, true]; }));
+    wrap.querySelector("[data-any]").addEventListener("click", () => set((z) => { z.boxes = new Array(9).fill(true); z.walk_on = false; }));
+    wrap.querySelector("[data-none]").addEventListener("click", () => set((z) => { z.boxes = new Array(9).fill(false); }));
+  }
+  return wrap;
+}
+// bring every grid (the Map page's and the small ones on the team panels) up to date with the state
+function paintZoneGrids() {
+  const off = lab.deploy.mode === "rulebook";
+  document.querySelectorAll("[data-zteam]").forEach((w) => {
+    const ti = +w.dataset.zteam, t = lab.teams[ti];
+    if (!t) return;
+    const z = zoneOf(t, ti);
+    w.querySelector(".zone-grid").classList.toggle("off", off);
+    w.querySelectorAll("[data-box]").forEach((b) => { const on = z.boxes[+b.dataset.box]; b.classList.toggle("on", on); b.style.background = on ? t.colour : ""; });
+    const walk = w.querySelector("[data-walk]"); walk.checked = z.walk_on; walk.disabled = off;
+    const zn = w.querySelector("[data-zname]"); if (zn) { zn.textContent = `Team ${ti + 1}: ${t.name}`; zn.style.borderLeftColor = t.colour; }
+    w.querySelectorAll("button.btn").forEach((b) => { b.disabled = off; });
+  });
+}
+function zonesProblem() {
+  if (lab.deploy.mode === "rulebook") return "";
+  const t = lab.teams.findIndex((x, i) => !zoneOf(x, i).boxes.some(Boolean));
+  return t >= 0 ? `${lab.teams[t].name} has no starting zone chosen.` : "";
+}
+function zonesChanged() {
+  save(); paintZoneGrids();
+  const p = zonesProblem();
+  $("zone-note").innerHTML = p ? `<span class="err">${esc(p)}</span>` : zoneNote();
+  drawPreview();
+}
+function zoneNote() {
+  const n = lab.teams.length;
+  return { rulebook: "The Core Rulebook's deployment: the sides roll for initiative and the loser picks a home edge; every unit walks on from its team's edge. Zones below are not used.",
+    fixed: "Each team starts in its own zone every battle.",
+    rotating: n === 2 ? "The two teams swap zone setups every battle." : `Each battle the zone setups move one team along: battle 2 gives team 2 team 1's setup, and after ${n} battles each team has its own again.`,
+    random: "Each battle, each team starts in one box drawn from the boxes it has highlighted." }[lab.deploy.mode];
+}
+function drawZones() {
+  const box = $("zone-grids");
+  box.innerHTML = "";
+  lab.teams.forEach((t, ti) => box.appendChild(zoneGrid(ti, false)));
+  $("zone-mode").value = lab.deploy.mode;
+  const opp = $("zone-opposite"), two = lab.teams.length === 2;
+  opp.checked = !!lab.deploy.opposite && two; opp.disabled = !(two && lab.deploy.mode === "random");
+  $("zone-opposite-tag").hidden = two;
+  zonesChanged();
+}
+lab.zonesOverlay = () => (lab.deploy.mode === "rulebook" ? null : lab.teams.map((t, ti) => ({ boxes: zoneOf(t, ti).boxes, colour: t.colour, label: t.name })));
+
 // the stitched map: a grid of places; the chosen place gets the next board clicked in the list
 function drawStitch() {
   const m = lab.map;
@@ -793,6 +890,10 @@ function mapCheck() {
   if (m.mode === "one") {
     const b = lab.boardById.get(m.one);
     return b ? { ok: `${b.name} (${b.width}×${b.height})`, text: `<p><b>${esc(b.name)}</b><br>${b.width} &times; ${b.height} hexes<br>${esc(b.source === "project" ? "Project folder" : "Map pack: " + b.source)}</p>` } : { text: "<p>None</p>" };
+  }
+  if (m.mode === "playlist") {
+    const n = m.playlist.length;
+    return n ? { ok: `${n} map${n === 1 ? "" : "s"} in a list (${m.order === "shuffle" ? "shuffled" : "in order"})`, text: `<p><b>${n} map${n === 1 ? "" : "s"} cycled through</b><br>${m.playlist.map((id) => esc((lab.boardById.get(id) || {}).name || id)).slice(0, 6).join("<br>")}${n > 6 ? `<br>and ${n - 6} more` : ""}<br><span class="note">The preview shows the first.</span></p>` } : { text: `<p class="err">The map list is empty.</p>` };
   }
   const at = (r, c) => lab.boardById.get(m.cells[r * m.cols + c]);
   if (m.cells.some((c) => !lab.boardById.has(c))) return { text: `<p class="err">Every place in the grid needs a board.</p>` };
@@ -818,6 +919,7 @@ function randomMap() {
   if (!list.length) return;
   const m = lab.map;
   if (m.mode === "one") m.one = list[Math.floor(Math.random() * list.length)].id;
+  else if (m.mode === "playlist") m.playlist.push(list[Math.floor(Math.random() * list.length)].id);
   else {
     // one size for every place, so the boards always fit together
     const sizes = [...new Set(list.map((b) => `${b.width}x${b.height}`))];
@@ -832,6 +934,8 @@ function randomMap() {
 async function runBatch() {
   $("run-error").textContent = "";
   if (!mapCheck().ok) { $("run-error").textContent = "The map is not ready: see the Map page."; return; }
+  const zp = zonesProblem();
+  if (zp) { $("run-error").textContent = zp + " See the Map page."; return; }
   const r = await api("run", { setup: setup() });
   if (r.error) { $("run-error").textContent = r.error; return; }
   lab.run = r.run;
@@ -902,8 +1006,8 @@ async function fillRange(box, from, to, res) {
     if (!res.battles.length) { box.innerHTML = `<div class="note leaf">No battles here${Object.keys(lab.filter).length ? " match" : " yet"}.</div>`; return; }
     const table = document.createElement("table");
     table.className = "leaves";
-    table.innerHTML = `<thead><tr><th class="num">#</th><th>Seed</th><th>Winner</th><th class="num">Turns</th><th class="num">Seconds</th></tr></thead><tbody>` +
-      res.battles.map((b) => `<tr data-sim="${b.sim}"><td class="num">${b.sim}</td><td>${b.seed}</td><td><span style="color:${colourOf(b.winner)}">&#9632;</span> ${esc(b.winner)}${b.capped ? " (turn cap)" : ""}</td><td class="num">${b.turns}</td><td class="num">${b.seconds.toFixed(2)}</td></tr>`).join("") + "</tbody>";
+    table.innerHTML = `<thead><tr><th class="num">#</th><th>Seed</th><th>Winner</th><th class="num">Turns</th><th class="num">Seconds</th><th>Map</th><th>Zones</th></tr></thead><tbody>` +
+      res.battles.map((b) => `<tr data-sim="${b.sim}"><td class="num">${b.sim}</td><td>${b.seed}</td><td><span style="color:${colourOf(b.winner)}">&#9632;</span> ${esc(b.winner)}${b.capped ? " (turn cap)" : ""}</td><td class="num">${b.turns}</td><td class="num">${b.seconds.toFixed(2)}</td><td>${esc(String(b.board || "").replace(/\.board$/, "").replace(/_/g, " "))}</td><td>${b.zones ? esc(Object.entries(b.zones).map(([k, v]) => `${k}: ${v}`).join("; ")) : ""}</td></tr>`).join("") + "</tbody>";
     table.querySelectorAll("tbody tr").forEach((tr) => tr.addEventListener("click", () => openReplay({ run: lab.run, sim: +tr.dataset.sim })));
     box.appendChild(table);
     return;
@@ -978,10 +1082,11 @@ async function openReplay(which) {
     frame.removeAttribute("srcdoc");
     frame.src = `replay?run=${which.run}&sim=${which.sim}`;
   } else {
-    const r = await api("history", { setup: setup(), seed: which.seed });   // checks the setup; the page plays it again
+    const sim = Math.max(1, +$("replay-sim").value || 1);
+    const r = await api("history", { setup: setup(), seed: which.seed, sim });   // checks the setup; the page plays it again
     if (r.error) { setStatus(r.error); return; }
     frame.removeAttribute("srcdoc");
-    frame.src = `replay?seed=${which.seed}&t=${Date.now()}`;
+    frame.src = `replay?seed=${which.seed}&sim=${sim}&t=${Date.now()}`;
   }
   frame.onload = () => setStatus("Replay ready");
 }
@@ -1081,6 +1186,7 @@ async function start() {
   $("board-size").innerHTML = `<option value="">Any</option>` + sizes.map((s) => `<option>${s}</option>`).join("");
   restore();
   drawTeams();
+  drawZones();
   drawBoards();
   wireBrowserWindow();
   await initBrowser();
@@ -1109,6 +1215,11 @@ async function start() {
   $("board-random").addEventListener("click", randomMap);
   $("map-one").addEventListener("change", () => { lab.map.mode = "one"; save(); drawBoards(); });
   $("map-stitch").addEventListener("change", () => { lab.map.mode = "stitch"; save(); drawBoards(); });
+  $("map-playlist").addEventListener("change", () => { lab.map.mode = "playlist"; save(); drawBoards(); });
+  $("playlist-order").addEventListener("change", (e) => { lab.map.order = e.target.value; save(); drawBoards(); });
+  $("playlist-clear").addEventListener("click", () => { lab.map.playlist = []; save(); drawBoards(); });
+  $("zone-mode").addEventListener("change", (e) => { lab.deploy.mode = e.target.value; drawZones(); });
+  $("zone-opposite").addEventListener("change", (e) => { lab.deploy.opposite = e.target.checked; zonesChanged(); });
   $("stitch-cols").addEventListener("change", resizeStitch);
   $("stitch-rows").addEventListener("change", resizeStitch);
   $("f-add-unit").addEventListener("click", () => addUnitCondition());

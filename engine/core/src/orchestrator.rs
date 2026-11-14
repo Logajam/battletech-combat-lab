@@ -685,6 +685,67 @@ fn deploy_teams(b: &mut Battle) {
     b.log(format!("  Deployment roll: {} - {} chose its edge.", parts.join(", "), order[0]));
 }
 
+/// Zone deployment (Combat Lab): DEPLOY_ZONES = {team: {"boxes": [9 bools], "walk_on": bool}}. A walk-on unit starts off the
+/// board with the zone's border hexes as its entry hexes (as the home edge does); a placed unit starts on a free hex of the
+/// zone, facing the middle of the board. The dice are drawn only for placed units (one pick each).
+fn deploy_zones(b: &mut Battle) {
+    let zones = b.cfg.get("DEPLOY_ZONES").clone();
+    let all: Vec<UnitId> = (0..b.units.len()).collect();
+    let teams = forces::team_names(b, &all);
+    for team in &teams {
+        let z = &zones[team.as_str()];
+        let mut boxes = [true; 9];
+        if let Some(arr) = z["boxes"].as_array() {
+            for (i, v) in arr.iter().take(9).enumerate() {
+                boxes[i] = v.as_bool().unwrap_or(false);
+            }
+        }
+        let walk_on = z["walk_on"].as_bool().unwrap_or(true);
+        let members: Vec<UnitId> = all.iter().copied().filter(|u| b.units[*u].team.as_deref() == Some(team.as_str())).collect();
+        let label: String = ["NW", "N", "NE", "W", "Centre", "E", "SW", "S", "SE"].iter().enumerate().filter(|(i, _)| boxes[*i]).map(|(_, n)| *n).collect::<Vec<_>>().join("+");
+        if walk_on {
+            let row = deployment::zone_edge_row(b, &boxes);
+            for u in members {
+                let start = deployment::zone_walk_on(b, u, &boxes);
+                b.units[u].home_edge = Some(start.hexes.clone());
+                b.units[u].home_edge_row = Some(row.clone());
+                b.units[u].hex = None;
+                b.units[u].facing = "N".into();
+                let nm = name(b, u);
+                b.log(format!("  Deployment: {} walks on in zone {} ({} entry hexes, up to {} hexes in).", nm, label, start.hexes.len(), start.depth));
+            }
+        } else {
+            let zone = deployment::zone_hexes(b, &boxes);
+            let centre: crate::fasthash::HashSet<String> = deployment::zone_hexes(b, &[false, false, false, false, true, false, false, false, false]).into_iter().collect();
+            let mut taken: Vec<String> = all.iter().filter_map(|u| b.units[*u].hex.clone()).collect();
+            for u in members {
+                let mut cache = Default::default();
+                let mut good: Vec<String> = zone.iter().filter(|l| !taken.contains(l)
+                    && terrain_rules::step_cost(None, &b.board.hexes[*l], terrain_rules::max_level_change(false, false), false).is_some()).cloned().collect();
+                // keep to hexes the unit can get out of into the middle of the board; if none can, take any enterable one
+                let free: Vec<String> = good.iter().filter(|l| deployment::reaches(b, u, l, &centre, &mut cache)).cloned().collect();
+                if !free.is_empty() { good = free; }
+                // spread out: prefer hexes not touching a hex already taken
+                let spread: Vec<String> = good.iter().filter(|l| !taken.iter().any(|t| deployment::hexes_touch(l, t))).cloned().collect();
+                if !spread.is_empty() { good = spread; }
+                let hex = good.get((b.pick_number(good.len().max(1) as i64) - 1) as usize).cloned();
+                let nm = name(b, u);
+                match hex {
+                    Some(h) => {
+                        b.units[u].facing = deployment::facing_to_centre(b, &h).into();
+                        b.units[u].hex = Some(h.clone());
+                        b.units[u].home_edge = None;
+                        b.units[u].home_edge_row = None;
+                        taken.push(h.clone());
+                        b.log(format!("  Deployment: {} placed at {} in zone {}.", nm, h, label));
+                    }
+                    None => panic!("deployment: no free hex in zone {} for {}", label, nm),
+                }
+            }
+        }
+    }
+}
+
 fn after_phase(b: &mut Battle) {
     for u in 0..b.units.len() {
         clubs::after_phase(b, u);
@@ -724,7 +785,9 @@ pub fn effective_hp(b: &Battle, u: UnitId) -> f64 {
 pub fn start_battle(b: &mut Battle, max_turns: i64, marks: Marks) -> Play {
     b.limbs_on_ground.clear();
     b.smoky.clear();
-    if b.cfg.s("DEPLOYMENT") == "home_edge" {
+    if b.cfg.has("DEPLOY_ZONES") {
+        deploy_zones(b);
+    } else if b.cfg.s("DEPLOYMENT") == "home_edge" {
         deploy_teams(b);
     } else if b.cfg.s("DEPLOYMENT") != "fixed_hexes" {
         panic!("Unknown DEPLOYMENT");

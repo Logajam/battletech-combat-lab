@@ -74,7 +74,17 @@
         <div class="filters">
           <label class="row" for="map-one"><input type="radio" name="map-mode" id="map-one" checked> One board</label>
           <label class="row" for="map-stitch"><input type="radio" name="map-mode" id="map-stitch"> Boards stitched together</label>
+          <label class="row" for="map-playlist"><input type="radio" name="map-mode" id="map-playlist"> Map list (battles cycle through it)</label>
         </div>
+        <fieldset id="playlist-box" hidden>
+          <legend>Map list</legend>
+          <div class="filters">
+            <label for="playlist-order">Order <select id="playlist-order"><option value="sequence">Playlist order</option><option value="shuffle">Shuffle (a fresh order each pass)</option></select></label>
+            <button class="btn small" id="playlist-clear">Clear list</button>
+          </div>
+          <p class="note">Click boards in the list below to add them. Battle 1 uses the first map, battle 2 the next, and so on round again.</p>
+          <ol class="playlist" id="playlist"></ol>
+        </fieldset>
         <fieldset id="stitch-box" hidden>
           <legend>Stitched map</legend>
           <div class="filters">
@@ -91,6 +101,16 @@
         </div>
         <div class="list sunken" style="max-height:420px"><table class="pick" id="boards"><thead><tr><th>Board</th><th>Size</th><th>Map set</th></tr></thead><tbody></tbody></table></div>
       </div>
+      <div class="right-col">
+      <fieldset id="zones-box">
+        <legend>Starting zones</legend>
+        <div class="filters">
+          <label for="zone-mode">Deployment <select id="zone-mode"><option value="rulebook">Core Rulebook (initiative roll, home edge)</option><option value="fixed">Fixed zones</option><option value="rotating">Rotating zones</option><option value="random">Random zone each battle</option></select></label>
+          <label class="row" for="zone-opposite"><input type="checkbox" id="zone-opposite"> Keep teams opposite <span class="tag off" id="zone-opposite-tag" hidden>2 teams only</span></label>
+        </div>
+        <div class="zone-grids" id="zone-grids"></div>
+        <p class="note" id="zone-note"></p>
+      </fieldset>
       <fieldset class="chosen">
         <legend>Chosen board</legend>
         <div id="board-chosen"></div>
@@ -98,6 +118,7 @@
         <div class="legend" id="map-legend"></div>
         <p class="note">Colours show height: each level is a step in the ramp above. Each team deploys along its own home edge. Boards from the map pack are unpacked into the project's data folder the first time they are used.</p>
       </fieldset>
+      </div>
     </div>
   </section>
 
@@ -171,6 +192,7 @@
   <section class="page" id="page-replay" role="tabpanel" hidden>
     <div class="replay-bar">
       <label for="replay-seed">Seed <input type="text" id="replay-seed" inputmode="numeric" placeholder="e.g. 7"></label>
+      <label for="replay-sim">Battle number <input type="text" id="replay-sim" inputmode="numeric" placeholder="1" size="4"></label>
       <button class="btn" id="replay-seed-btn">Load by seed</button>
       <span class="note" id="replay-what">Choose a battle on the Results page, or enter a seed: the current setup is played on it.</span>
     </div>

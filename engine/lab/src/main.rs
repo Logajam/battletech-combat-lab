@@ -208,7 +208,8 @@ fn api(lab: &Lab, name: &str, req: &Value) -> Result<Value, String> {
             Ok(json!({"id": id, "text": text}))
         }
         "estimate" => {
-            let s = runs::scenario_of(&req["setup"], &lab.catalog, &lab.paths)?;
+            let plan = runs::scenario_of(&req["setup"], &lab.catalog, &lab.paths)?;
+            let s = plan.scenario_for(1, 1).0;
             Ok(runs::estimate(&s, req["setup"]["battles"].as_u64().unwrap_or(20), req["setup"]["threads"].as_u64().unwrap_or(0) as usize))
         }
         "run" => {
@@ -284,10 +285,10 @@ fn history_bare(lab: &Lab, req: &Value) -> Result<Value, String> {
         let run = run_of(lab, req)?;
         let sim = req["sim"].as_u64().ok_or("which battle?")?;
         let seed = btsim_core::dice::PcgDice::battle_seed(run.seed, sim);
-        return Ok(run.scenario.run_history(sim, seed).1);
+        return Ok(run.plan.scenario_for(sim, seed).0.run_history(sim, seed).1);
     }
     let seed = seed_of(&req["seed"]).ok_or("which seed?")?;
-    let s = runs::scenario_of(&req["setup"], &lab.catalog, &lab.paths)?;
+    let s = runs::scenario_of(&req["setup"], &lab.catalog, &lab.paths)?.scenario_for(req["sim"].as_u64().unwrap_or(1), seed).0;
     *lab.last_setup.lock().unwrap() = Some(req["setup"].clone());
     Ok(s.run_history(req["sim"].as_u64().unwrap_or(1), seed).1)
 }
@@ -298,7 +299,7 @@ fn replay_page(lab: &Lab, q: &HashMap<String, String>) -> Result<String, String>
         history(lab, &json!({"run": run, "sim": num("sim").ok_or("which battle?")?}))?
     } else {
         let setup = lab.last_setup.lock().unwrap().clone().ok_or("no setup to replay")?;
-        history(lab, &json!({"setup": setup, "seed": num("seed").ok_or("which seed?")?}))?
+        history(lab, &json!({"setup": setup, "seed": num("seed").ok_or("which seed?")?, "sim": num("sim").unwrap_or(1)}))?
     };
     Ok(btsim_core::history::page(&record))
 }
