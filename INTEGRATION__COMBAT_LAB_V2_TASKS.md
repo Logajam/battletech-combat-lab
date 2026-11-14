@@ -196,3 +196,5 @@ D. Data: faction availability needs MegaMek's source/data checked out for CL13: 
   NE<->SW, NW<->SE; a set is mirrored box by box). Center has no opposite, so a Center team can't be paired.
   OPEN Q E: with 3+ teams, what does "opposite" mean? Proposal: team 1 random, team 2 opposite, team 3 and up spread
   evenly between them (or anywhere free); or simply disable the check box above 2 teams.
+- Q E decided (Daniel, 2026-11-14): "Keep teams opposite" is DISABLED (greyed, tagged "2 teams only") when 3+ teams
+  are in play; most experiments are 1 v 1. Revisit for 3+ teams later.
