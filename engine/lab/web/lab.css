@@ -117,7 +117,7 @@ h2 { font-size: 14px; margin: 0 0 8px; }
 .hits div.bad { color: var(--shadow); cursor: default; background: none; }
 
 /* MAP / OPTIONS */
-.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 300px); gap: 12px; align-items: start; }
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 480px); gap: 12px; align-items: start; }
 @media (max-width: 760px) { .split { grid-template-columns: minmax(0, 1fr); } }
 .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin-bottom: 8px; }
 .pick tbody tr { cursor: pointer; }
@@ -237,3 +237,9 @@ details.folder[hidden] { display: none; }
 .opt .desc { margin: 2px 0 0 0; max-width: 90ch; }
 .opt input.bad { outline: 2px solid var(--bad); }
 .opt-body mark, .opt mark { background: #ffee66; color: inherit; }
+
+/* CL14: the map preview */
+#map-preview { width: 100%; height: auto; display: block; margin: 6px 0; image-rendering: auto; }
+.legend { display: flex; flex-wrap: wrap; gap: 2px 8px; font-size: 11px; margin-bottom: 4px; }
+.legend span { display: inline-flex; align-items: center; gap: 3px; }
+.legend i { width: 12px; height: 12px; border: 1px solid var(--dark); display: inline-block; }

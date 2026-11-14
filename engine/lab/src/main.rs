@@ -200,6 +200,13 @@ fn api(lab: &Lab, name: &str, req: &Value) -> Result<Value, String> {
         }
         "add_unit" => add_unit(lab, req),
         "list_boards" => Ok(json!({"boards": lab.catalog.boards})),
+        // a board file's text, for the Map page's preview (the page draws it); the map pack's boards are unpacked on the way
+        "board" => {
+            let id = req["id"].as_str().ok_or("which board?")?;
+            lab.catalog.ensure(id)?;
+            let text = std::fs::read_to_string(lab.catalog.data.join(id)).map_err(|e| format!("{}: {}", id, e))?;
+            Ok(json!({"id": id, "text": text}))
+        }
         "estimate" => {
             let s = runs::scenario_of(&req["setup"], &lab.catalog, &lab.paths)?;
             Ok(runs::estimate(&s, req["setup"]["battles"].as_u64().unwrap_or(20), req["setup"]["threads"].as_u64().unwrap_or(0) as usize))

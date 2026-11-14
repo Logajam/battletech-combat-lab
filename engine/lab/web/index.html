@@ -91,10 +91,12 @@
         </div>
         <div class="list sunken" style="max-height:420px"><table class="pick" id="boards"><thead><tr><th>Board</th><th>Size</th><th>Map set</th></tr></thead><tbody></tbody></table></div>
       </div>
-      <fieldset>
+      <fieldset class="chosen">
         <legend>Chosen board</legend>
         <div id="board-chosen"></div>
-        <p class="note">Each team deploys along its own home edge. Boards from the map pack are unpacked into the project's data folder the first time they are used.</p>
+        <canvas id="map-preview" class="sunken" width="10" height="10" aria-label="Preview of the whole map"></canvas>
+        <div class="legend" id="map-legend"></div>
+        <p class="note">Colours show height: each level is a step in the ramp above. Each team deploys along its own home edge. Boards from the map pack are unpacked into the project's data folder the first time they are used.</p>
       </fieldset>
     </div>
   </section>
