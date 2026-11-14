@@ -11,6 +11,9 @@ checks); anything touching `engine/core` runs everything (`python tests/run_chec
 
 `OPEN Q` = waiting on Daniel (questions are listed at the bottom).
 
+**Daniel's answers (2026-11-14) are folded in below; "Decided" lines carry them.** Daniel's call: the Lab pages,
+Mekbay-style filters and the map work are Sonnet's (queued). CL18 is a "save for Opus to think about" item.
+
 ## Suggested order
 
 1. CL16 (weapon firing order) first and alone: it changes engine results, so it needs its own reference-log
@@ -23,42 +26,46 @@ checks); anything touching `engine/core` runs everything (`python tests/run_chec
 
 ## Lab pages
 
-### CL11. Lab behaves like a normal window  `[S]`  OPEN Q1
+### CL11. Lab layout: movable, resizable windows inside the page  `[S]`
 A browser tab can't be dragged or resized by a page; the browser owns it. Options: (a) launch the Lab in its own
 app-style window (`combatlab` opens Chrome/Edge `--app=URL`, or `window.open` with `resizable`), which the user
 can move and resize like any program; (b) make the layout fully responsive so any size works; (c) Windows 3.x style
 floating, resizable panels inside the page. Plan: do (a)+(b) now, (c) only if Daniel wants panels he can arrange.
-Done when: the page is usable from ~900 px to full screen with no horizontal scroll, and `combatlab` opens it in an
+**Decided:** windows inside the page, rearrangeable (drag by title bar, resize by edge, remember layout). Daniel may
+drop the Windows 3.x look to avoid dead space; build it with no fixed chrome. Fix the page-scroll vs window-scroll
+fight: the page itself never scrolls, each window scrolls its own content only.
+Old plan, superseded:  Done when: the page is usable from ~900 px to full screen with no horizontal scroll, and `combatlab` opens it in an
 app window where a browser is found (falls back to a tab).
 
-### CL12. Units tab rebuild  `[S]`  OPEN Q2
+### CL12. Units tab rebuild  `[S]`
 - Unit Browser buttons (Add selected, From file, and the other action buttons) move to the TOP of the list so they
   don't shift as units are added.
 - Top row across the Units tab: Battle (number of sims), Estimated Runtime, Run Simulation.
-- Three-column layout: odd teams (1, 3, 5...) on the right, even teams (2, 4...) on the left, the Unit Browser in
+- **Decided:** odd teams on the LEFT, even on the RIGHT (Daniel's correction; Western reading order), Unit Browser permanently open in the centre; advanced search is a movable popup window.
+- Three-column layout: odd teams (1, 3, 5...) on the left, even teams (2, 4...) on the right, the Unit Browser in
   the centre. Needs a rule for 3+ teams (stack within each side); the page must never assume Red and Blue.
 - Weight-class icons (Light, Medium, Heavy, Assault) beside every listed unit, in the browser and in the team
   lists, as a "handle" to grab; drag from browser to team (drag and drop already specified in CL4).
 - Visual assets: icons drawn as small inline SVG (no rulebook art; original shapes only).
 
-### CL13. Unit Browser filters on par with Mekbay  `[O]`  OPEN Q3
+### CL13. Unit Browser filters on par with Mekbay  `[S]`
 Mekbay-style filtering: text search, unit type, tech base, era / year, rules level, source book, weight class and
 tonnage range, BV range, walk/run/jump MP, armor and structure points, heat sinks, role, weapon and equipment
 filters (has / count / min damage), sort by any column, saved filters. Work: (1) list which fields the `.mtf` files
 and `catalog.rs` already carry, (2) extend `catalog.rs`'s index (built once at server start) with the missing ones,
-(3) the filter UI. Faction / availability filters need data the `.mtf` does not hold (see Q3).
+(3) the filter UI. **Decided:** faction and availability filters too. Method: look at how the MegaMek suite does it (MegaMek / MekHQ / MUL availability data and its era and faction tables; read the source, credit it in `CREDITS.md`, keep each data file's CC BY-NC-SA header). Needs the MegaMek checkout (`add_repo`).
 
-### CL14. Map tab  `[O]` (UI `[S]`)  OPEN Q4 Q5
+### CL14. Map tab  `[S]` (engine part `[TOP]` reviews)
 1. **Full-map preview** under the board chooser (small canvas of the whole board).
 2. **Elevation colour contrast** like MegaMek (ramp by level; water/woods/buildings keep their own overlay).
    Drawn by the same function for the preview and the replay board.
-3. **Starting zones.** Per team: a 3x3 clickable grid (N NE E SE S SW W NW + Center). Highlighting the 8 outer
-   boxes = Edge; all 9 = Anywhere; any subset = those zones (Random picks one of the chosen zones per team).
+3. **Starting zones.** Decided: one grid per team, also shown (small) on the Units tab beside each team. Per team: a 3x3 clickable grid (N NE E SE S SW W NW + Center). Highlighting the 8 outer
+   boxes = Edge; all 9 = Anywhere; any subset = those zones (Random picks one of the team's chosen zones, fresh each battle).
    Center and Walk-on (a check box beside the grid) switch each other off.
 4. **Placement method** per team: Placed on board / Walk on.
-5. **Zone assignment** (set-wide dropdown): Fixed (a team keeps its own zone every battle), Rotating (battle k:
+5. **Zone assignment** (one dropdown for the whole run): Fixed (a team keeps its own zone every battle), Rotating (battle k:
    team i takes the zone of team i-(k-1), wrapping; 2 teams: swap each battle), Random.
-6. **Map cycle list:** an ordered list of boards; battle k uses board ((k-1) mod length). Single board = today.
+6. **Map cycle list:** a list of boards with two modes (Decided): Playlist order (battle k uses board ((k-1) mod length)) and Shuffle. Single board = today.
 Engine side: scenario setup must accept per-team zone set, walk-on flag, and per-battle board; the chosen board and
 zone go into the battle's record (CL18). `[TOP]` reviews the engine part: deployment and walk-on entry touch
 battle start for every set, and the reference battles must stay identical with the defaults.
@@ -75,7 +82,7 @@ battle start for every set, and the reference battles must stay identical with t
 
 ## Results and recording
 
-### CL16. Weapon firing order  `[TOP]`  OPEN Q6
+### CL16. Weapon firing order  `[TOP]`
 Daniel: bots fire weapons in listed order; they should fire the weapon dealing the most damage to one location
 first, then descending by cluster size (AC-20 before SRM-6 even if the unit lists the SRM-6 first).
 First CHECK how the engine orders a unit's attacks (candidates: `attack_resolution.rs`, `orchestrator.rs`,
@@ -86,17 +93,29 @@ recorded in the Change Record, and an A/B on the same seeds (`ab_batches.py`) go
 gets a PROJECT_MAP Section 6 row, and it must reach `bridge.rs`. Higher tier because a wrong order key is a quiet
 bias in every battle ever run.
 
-### CL17. Firing phase log rewritten, MegaMek style  `[O]`  OPEN Q6
-Order: first unit to fire; each weapon in firing order; on a hit, the hit's result immediately (location, damage,
+### CL17. Firing phase log PRESENTATION, MegaMek style  `[S]`/`[O]`
+**Decided: presentation only. Firing stays simultaneous: every unit declares from its state at the START of the
+phase; damage is applied but nobody's state changes for decisions until the end of the phase.** The engine is not
+rewritten: the log reader re-sorts what the engine already records into a linear story (declare, roll, apply, one unit
+at a time). If the history does not carry the per-weapon rolls and results in a usable form, add them to history.rs
+only (results must stay identical). Order: first unit to fire; each weapon in firing order; on a hit, the hit's result immediately (location, damage,
 armor/structure gone, crits, transfers) before the next weapon; then the next unit. At the END of the phase, the
 PSRs one by one: unit, reason, target number, roll, result, and the consequence of each failed roll (fall, damage,
 pilot damage). Needs the engine to record events in resolution order (history.rs) and the Replay log panel to read
 them; Results' text logs (`keep logs`) use the same lines. Check: a fixture's total damage per unit is unchanged by
 the rewrite (log-only change); only CL16 changes results.
 
-### CL18. Results: causes, filters, and a query builder  `[TOP]` for the design, `[S]` for the UI  OPEN Q7
+### CL18. Results: causes, standard stats, and user-built live search conditions  `[TOP]`: SAVE FOR OPUS TO DESIGN
 - Add a **cause list** to outcomes, with Push (off-map by push) among them; current causes audited from the engine
   (destroyed, retreated, pushed off map, ejected, shutdown, etc.).
+- **Decided (Daniel):** the real ask is NOT the recording. It is letting the user build custom conditions (for
+  example "3+ units lose a gyro in the same turn") that are armed BEFORE a run and TRIGGER AS BATTLES HAPPEN, flagging
+  and keeping those battles. Opus designs: a condition language/builder UI, evaluation per turn inside the engine without slowing
+  the hot path or touching dice, how a hit is stored (seed + turn, so it replays), and what a condition may see.
+- **Standard stats recorded every battle (Decided):** cause of death as a percentage breakdown per unit; average
+  remaining armor and structure per location per unit; average kills per unit; average damage per turn per weapon per
+  unit; average accuracy and utilization per weapon per unit. (Size check in the design: per-unit, per-weapon tables.)
+- Old note, superseded by the above for design purposes:
 - **Query builder:** chain conditions, e.g. "3+ units suffered a gyro hit in the same turn" = event `gyro_hit`,
   grouped by turn, count >= 3, scope any turn. Needs a compact **event table** recorded for every battle (turn, phase,
   unit, event kind, detail), so a query is a filter over data already kept and nothing new has to be re-run.
@@ -115,15 +134,18 @@ histories; never rulebook text) and "Open run" loads it. Meant for sending to Cl
 battles keep their seed and the situation (setup + seed + turn) so they can be replayed from the file, and show in
 Results with a "replay crash" button (builds on `trial_records/`, which already keeps crashes by seed).
 
-### CL21. Replay heat maps of bot thinking  `[TOP]`  OPEN Q8
-Selecting a team shows the combined map; selecting a unit shows only that unit's share. Needs CL6 (battle restored
+### CL21. Replay heat maps of bot thinking  `[S]` for Princess, `[TOP]` for the rest
+**Decided: Princess first.** Checked 2026-11-14: Princess's BV-weighted team heat map already exists as bot memory
+(`princess_memory.rs`, and `bridge.rs` keeps the bots' memories across snapshots), so her map may not need CL6: record
+it per turn into the history and draw it in Replay (a per-unit share needs her per-unit contribution, CHECK). Gladiator's
+move score and Hydra's price per hex still wait on CL6/CL7. Selecting a team shows the combined map; selecting a unit shows only that unit's share. Needs CL6 (battle restored
 from a saved state, `Opus or higher`) and CL7 (analysis overlays, `analyze(seed, step, unit, bot, what)`), then the
 drawing. Which bot map first is Daniel's call (Q8). Analysis must not change or draw dice from the battle. Not
 started until CL6/CL7 exist; scoped here so Daniel can see the dependency.
 
 ---
 
-## Questions for Daniel
+## Questions for Daniel (round 1 answered 2026-11-14; round 2 at the end of this file)
 
 1. **Window (CL11).** A browser tab can't be dragged or resized by a page. Do you mean (a) the Lab opens in its own
    program-style window you can move and resize (my pick), (b) just resizes sensibly, or (c) windows inside the page
@@ -145,3 +167,14 @@ started until CL6/CL7 exist; scoped here so Daniel can see the dependency.
    engine hit, cockpit hit, fall, PSR failed, ammo explosion, limb lost, shutdown, ejected.
 8. **Heat maps (CL21).** Which first: Princess's team heat map, Gladiator's move score per hex, or Hydra's price per
    hex?
+
+## Round 2 questions (open)
+
+A. Walk-on zones: a team set to Walk on enters from the board edge of its zone (a N zone enters at the north edge).
+   Does a walk-on unit enter in turn 1's movement phase (as the book), and do the 8 outer boxes + Walk on mean "walk on
+   from any edge"?
+B. Rotating with teams whose zone sets differ in size (one team Edge, the other W): rotation swaps the whole zone SETS
+   between teams. Confirm.
+C. Alternating (Rotating) and a team that ticked Center: is Center (not walk-on) a zone that rotates like the others?
+D. Data: faction availability needs MegaMek's source/data checked out for CL13: is `MegaMek/megamek` OK to attach
+   (public repo, read only)? MekHQ's faction tables may also be needed.
