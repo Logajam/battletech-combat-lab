@@ -14,12 +14,15 @@ project's files. Never let one source project's file overwrite the other's same-
 ---
 
 
-## 0. WHERE WE ARE (2026-11-13, end of session 25) — read this first
+## 0. WHERE WE ARE (2026-11-14, end of session 26) — read this first
 
-**Pick up here (Daniel, 2026-11-13, closing session 25):** "I should play with the program and come up with a better
-defined list." Combat Lab alpha-1 works on his PC (stage 1); he will bring a polish list. Waiting items: start positions
-per team and a side swap (offered as the next step, not started), the other ideas in `INTEGRATION__COMBAT_LAB.md` Part A,
-a public download link once refined (E6), the MegaMek bridge (shelved, E4).
+**Pick up here (Daniel, 2026-11-14, closing session 26):** "I'll start that list tomorrow" - he will play with Combat Lab
+alpha-2 (`downloads` branch, `CombatLab-alpha-2.zip`) and bring a change list; then it goes to Opus for review before
+anything goes to the public repo (E6). Session 26 built Daniel's round-2 list, all of it merged to `main` (pull requests 224,
+225): CL11-CL17, CL19-CL21 (Princess) and the standard parts of CL18; every entry is in the Change Record and the REVIEW QUEUE
+below. OPEN: (1) CL18's live user-built conditions, saved for Opus to design (the sheet in `INTEGRATION__COMBAT_LAB_V2_TASKS.md`);
+(2) CL21's Gladiator and Hydra heat maps (need CL6 saved state / CL7 overlays); (3) the Windows `CombatLab.exe` of alpha-2 was not
+run (no Wine here): if it misbehaves on Daniel's PC, start there.
 
 This section is the current state and the open work, nothing else. The story of how it got here is in
 `INTEGRATION__HISTORY.md` (the old Section 0, word for word, with Daniel's quotes and every number) and
@@ -201,14 +204,14 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
-- **(al) REPLAY HEAT MAPS (PRINCESS)** (session 26): `history.rs::heat_now` + the viewer's Heat map box. Terrain-blind reach; Gladiator / Hydra maps still open (CL6 / CL7).
-- **(ak) COMBAT LAB RESULTS STATS + RUN FILE** (session 26): engine `Battle.tally` / `SideStats` additions (results only), `runs.rs` unit_stats / causes / export / restore, `main.rs` save_run / load_run, Results page. OPEN FOR OPUS: CL18's live conditions (design in COMBAT_LAB_V2_TASKS).
-- **(aj) REPLAY LOG REGROUPING** (session 26): `INTEGRATION__replay_viewer.html` `regroupRanged` (presentation only, falls back to the engine's order if the lines do not pair).
-- **(ai) SALVO FIRING ORDER** (session 26): `attack_resolution.rs::salvo_key` + the sort in `finish_declaration`; hidden `_FIRE_ORDER_LISTED` for the Python-fixture tests; `armored_slots` added to bridge UNIT_FIELDS; Rust reference logs regenerated.
-- **(ah) COMBAT LAB MAP TAB + ZONE DEPLOYMENT** (session 26): ENGINE `deployment.rs` zone_* fns, `orchestrator.rs::deploy_zones` (only with DEPLOY_ZONES; defaults untouched), `runs.rs::Plan`, Map page in lab.js. Read the engine part first.
-- **(ag) COMBAT LAB UNIT FILTERS** (session 26): `tools/make_availability.py`, `engine/lab/web/availability.json`, catalog.rs details, `buildAdvanced` / `passes` in lab.js. Availability follows MegaMek's RATGenerator with stated simplifications.
-- **(af) COMBAT LAB OPTIONS TAB** (session 26): `tools/make_options_registry.py`, `engine/lab/web/options.json`, `runs.rs::apply_options`, Options page in lab.js. Lab server and pages only.
-- **(ae) COMBAT LAB WINDOWS + UNITS TAB** (session 26): `engine/lab/web` index.html / lab.css / lab.js (floating panels, `wireWindow`, `classIcon`, docked three-column Units page). Pages only.
+- **(s26-1) REPLAY HEAT MAPS (PRINCESS)** (session 26): `history.rs::heat_now` + the viewer's Heat map box. Terrain-blind reach; Gladiator / Hydra maps still open (CL6 / CL7).
+- **(s26-2) COMBAT LAB RESULTS STATS + RUN FILE** (session 26): engine `Battle.tally` / `SideStats` additions (results only), `runs.rs` unit_stats / causes / export / restore, `main.rs` save_run / load_run, Results page. OPEN FOR OPUS: CL18's live conditions (design in COMBAT_LAB_V2_TASKS).
+- **(s26-3) REPLAY LOG REGROUPING** (session 26): `INTEGRATION__replay_viewer.html` `regroupRanged` (presentation only, falls back to the engine's order if the lines do not pair).
+- **(s26-4) SALVO FIRING ORDER** (session 26): `attack_resolution.rs::salvo_key` + the sort in `finish_declaration`; hidden `_FIRE_ORDER_LISTED` for the Python-fixture tests; `armored_slots` added to bridge UNIT_FIELDS; Rust reference logs regenerated.
+- **(s26-5) COMBAT LAB MAP TAB + ZONE DEPLOYMENT** (session 26): ENGINE `deployment.rs` zone_* fns, `orchestrator.rs::deploy_zones` (only with DEPLOY_ZONES; defaults untouched), `runs.rs::Plan`, Map page in lab.js. Read the engine part first.
+- **(s26-6) COMBAT LAB UNIT FILTERS** (session 26): `tools/make_availability.py`, `engine/lab/web/availability.json`, catalog.rs details, `buildAdvanced` / `passes` in lab.js. Availability follows MegaMek's RATGenerator with stated simplifications.
+- **(s26-7) COMBAT LAB OPTIONS TAB** (session 26): `tools/make_options_registry.py`, `engine/lab/web/options.json`, `runs.rs::apply_options`, Options page in lab.js. Lab server and pages only.
+- **(s26-8) COMBAT LAB WINDOWS + UNITS TAB** (session 26): `engine/lab/web` index.html / lab.css / lab.js (floating panels, `wireWindow`, `classIcon`, docked three-column Units page). Pages only.
 - **(ab) HYDRA S6 SECOND PASS** (session 25): `hydra::life_of` (`HYDRA_LIFE_STRUCTURE_WEIGHT`), armor / structure in `scenario::snapshot`, `fit2`.
 - **(ac) HYDRA S3 MOVE ORDER** (session 25): `hydra::move_pick` / `picks_move_order` (`HYDRA_MOVE_ORDER = "stake"`, off), the new `BotSet::move_pick` socket used by the turn loop's pick (and so by the move queue), `ledger_as` (read-only ledger). Two reference battles (86).
 - **(ad) HYDRA WAITING + ATTENTION SHARE** (session 25): `HYDRA_WAITING` (`coming_friends`, `HydraState::waited`) and `HYDRA_ATTENTION = "oracle"` (`elsewhere_of`, `attention_damage`), both off. Four reference battles (90).
