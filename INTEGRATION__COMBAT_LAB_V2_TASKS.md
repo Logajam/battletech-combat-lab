@@ -105,7 +105,7 @@ pilot damage). Needs the engine to record events in resolution order (history.rs
 them; Results' text logs (`keep logs`) use the same lines. Check: a fixture's total damage per unit is unchanged by
 the rewrite (log-only change); only CL16 changes results.
 
-### CL18. Results: causes, standard stats, and user-built live search conditions  `[TOP]`: SAVE FOR OPUS TO DESIGN
+### CL18. Results: causes, standard stats, and user-built live search conditions  `[TOP]`: SAVE FOR OPUS TO DESIGN  (causes, standard stats, armor/structure apart DONE 2026-11-14; the live conditions are NOT built)
 - Add a **cause list** to outcomes, with Push (off-map by push) among them; current causes audited from the engine
   (destroyed, retreated, pushed off map, ejected, shutdown, etc.).
 - **Decided (Daniel):** the real ask is NOT the recording. It is letting the user build custom conditions (for
@@ -123,12 +123,12 @@ the rewrite (log-only change); only CL16 changes results.
 - Entry point and map recorded per battle and filterable (needs CL14).
 - Higher tier because the event catalog is the thing nobody can fix after the run: an event not recorded is gone.
 
-### CL19. Individual unit statistics  `[S]`
+### CL19. Individual unit statistics  `[S]`  DONE 2026-11-14 (REVIEW PENDING)
 Results gets expandable folders: team > unit (by name + slot) > numbers (survival, damage dealt and taken, armor %
 and structure % left, kills, weapons fired and hit rate, heat, falls, crits taken). Aggregated across the set, with
 the per-battle values behind a second expand.
 
-### CL20. Save and share a run as a file  `[S]`  
+### CL20. Save and share a run as a file  `[S]`  DONE 2026-11-14 (REVIEW PENDING)
 "Save run" writes one file (zip: setup JSON, per-battle results, seeds, crash records, event tables, optionally
 histories; never rulebook text) and "Open run" loads it. Meant for sending to Claude for bug hunting. Crashed
 battles keep their seed and the situation (setup + seed + turn) so they can be replayed from the file, and show in

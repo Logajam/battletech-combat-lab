@@ -95,8 +95,28 @@ impl Log {
     }
 }
 
+/// Counters the Combat Lab reads at the end of a battle (never the rules): per unit, the weapons' shots, hits, damage and the
+/// turns they fired in ([fired, hits, damage, turns_fired, last_turn_fired]), kills by weapon fire, and turns standing.
+#[derive(Clone, Debug, Default)]
+pub struct Tally {
+    pub weapons: Vec<IndexMap<String, [f64; 5]>>,
+    pub kills: Vec<i64>,
+    pub alive: Vec<i64>,
+}
+
+impl Tally {
+    pub fn fit(&mut self, n: usize) {
+        if self.kills.len() < n {
+            self.weapons.resize_with(n, Default::default);
+            self.kills.resize(n, 0);
+            self.alive.resize(n, 0);
+        }
+    }
+}
+
 pub struct Battle {
     pub cfg: Config,
+    pub tally: Tally,
     /// equipment.json: a read-only table, parsed once for the whole process and shared by every battle
     pub db: &'static EquipmentDb,
     pub log: Log,
@@ -182,6 +202,7 @@ impl Battle {
         let piloting = if cfg.has("PILOTING") { cfg.i("PILOTING") } else { 5 };
         Battle {
             cfg,
+            tally: Tally::default(),
             db: EquipmentDb::shared(),
             log: Log::default(),
             dice: std::cell::RefCell::new(dice),

@@ -1525,6 +1525,9 @@ pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBo
             let w = attack.weapon;
             let wname = b.units[attacker].items[w].name.clone();
             let tname = b.units[target].side_name.clone().unwrap_or_default();
+            // the Lab's tallies: what this shot did to the target (read-only: nothing here touches the dice or the rules)
+            let hp_num = |n: Num| match n { Num::I(i) => i as f64, Num::F(f) => f };
+            let (hp0, dead0) = (hp_num(total_hp(&b.units[target])), b.is_destroyed(target));
             if attack.hit {
                 reports[idx(attacker)].hits += 1;
                 if adv::is_tsemp(b, attacker, w) {
@@ -1544,6 +1547,14 @@ pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBo
             } else if attack.fire.as_ref().is_some_and(|f| f.kind == "artillery") || wp::is_art_cannon(b, attacker, w) {
                 resolve_area_miss(b, attacker, target, attack);
             }
+            b.tally.fit(b.units.len());
+            let turn_now = b.units[attacker].turn_number;
+            let ws = b.tally.weapons[attacker].entry(wname.clone()).or_insert([0.0; 5]);
+            ws[0] += 1.0;
+            if attack.hit { ws[1] += 1.0; }
+            ws[2] += (hp0 - hp_num(total_hp(&b.units[target]))).max(0.0);
+            if ws[4] != turn_now as f64 { ws[3] += 1.0; ws[4] = turn_now as f64; }
+            if !dead0 && b.is_destroyed(target) { b.tally.kills[attacker] += 1; }
         }
         if let Some(p) = pool {
             for ((size, dtype, side, cover), parts) in p.entries {

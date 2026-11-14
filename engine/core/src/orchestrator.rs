@@ -807,7 +807,21 @@ pub fn start_battle(b: &mut Battle, max_turns: i64, marks: Marks) -> Play {
             crate::pyfmt::Num::I(i) => i as f64,
             crate::pyfmt::Num::F(f) => f,
         };
-        unit_stats.insert(m.side_name.clone().unwrap_or_default(), SideStats::new(format!("{} ({} {})", m.side_name.clone().unwrap_or_default(), m.chassis, m.model), hp));
+        let mut st = SideStats::new(format!("{} ({} {})", m.side_name.clone().unwrap_or_default(), m.chassis, m.model), hp);
+        let num = |n: crate::pyfmt::Num| match n { crate::pyfmt::Num::I(i) => i as f64, crate::pyfmt::Num::F(f) => f };
+        for (loc, v) in m.locations.iter() {
+            let (a, s) = (num(v.armor + v.rear_armor.unwrap_or(crate::pyfmt::Num::I(0))), num(v.structure));
+            st.max_armor += a;
+            st.max_structure += s;
+            st.locations.insert(loc.to_string(), [a, a, s, s]);
+        }
+        // every weapon appears in the tallies from the start, so one that never fired shows as zero
+        let mut zero: IndexMap<String, [f64; 4]> = IndexMap::default();
+        for w in crate::damage_resolution::get_weapons(m) {
+            zero.entry(m.items[w].name.clone()).or_insert([0.0; 4]);
+        }
+        st.weapons = zero;
+        unit_stats.insert(m.side_name.clone().unwrap_or_default(), st);
     }
     Play { max_turns, result: BattleResult::new(Some(max_turns)), team_list, unit_stats, turn: 0, over: false }
 }
@@ -831,6 +845,12 @@ fn log_initiative(b: &mut Battle, order: &[String]) {
 
 /// One turn, Initiative to End Phase. True = the battle is over.
 fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, marks: Marks) -> bool {
+    b.tally.fit(b.units.len());
+    for u in 0..b.units.len() {
+        if !b.is_destroyed(u) {
+            b.tally.alive[u] += 1;
+        }
+    }
     b.log(format!("\n=== TURN {} ===", turn));
     let alive = forces::standing(b);
     for u in 0..b.units.len() {
@@ -967,7 +987,29 @@ fn finish(b: &mut Battle, play: &mut Play) {
             crate::pyfmt::Num::I(i) => i as f64,
             crate::pyfmt::Num::F(f) => f,
         };
+        let (mut armor, mut structure) = (0.0, 0.0);
+        let num = |n: crate::pyfmt::Num| match n { crate::pyfmt::Num::I(i) => i as f64, crate::pyfmt::Num::F(f) => f };
+        let mut locs: IndexMap<String, [f64; 4]> = IndexMap::default();
+        for (loc, v) in b.units[u].locations.iter() {
+            let a = num(v.armor + v.rear_armor.unwrap_or(crate::pyfmt::Num::I(0)));
+            let st = num(v.structure);
+            armor += a;
+            structure += st;
+            locs.insert(loc.to_string(), [a, 0.0, st, 0.0]);
+        }
+        b.tally.fit(b.units.len());
         let s = play.unit_stats.get_mut(&nm).unwrap();
+        for (loc, now) in locs.iter() {
+            let at_start = s.locations.get(loc).copied().unwrap_or([0.0; 4]);
+            s.locations.insert(loc.clone(), [now[0], at_start[1], now[2], at_start[3]]);
+        }
+        s.final_armor = armor;
+        s.final_structure = structure;
+        s.kills = b.tally.kills[u];
+        s.turns_alive = b.tally.alive[u];
+        for (w, v) in b.tally.weapons[u].iter() {
+            s.weapons.insert(w.clone(), [v[0], v[1], v[2], v[3]]);
+        }
         s.final_hp = hp;
         s.destroyed = destroyed;
         s.units_lost = if destroyed { 1 } else { 0 };

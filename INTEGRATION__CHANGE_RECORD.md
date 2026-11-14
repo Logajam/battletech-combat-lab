@@ -6,6 +6,31 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-14 (Claude, session 26), COMBAT LAB RESULTS: CAUSES, ARMOR AND STRUCTURE APART, UNIT STATISTICS, SAVE / OPEN A RUN FILE (CL18 standard parts, CL19, CL20). REVIEW PENDING (higher-level model).**
+  NOT DONE, saved for Opus (Daniel: "may be a save for Opus to think about"): CL18's live conditions - the user builds a
+  condition before the run ("3+ gyros lost in one turn") that triggers as battles happen; the sheet in
+  INTEGRATION__COMBAT_LAB_V2_TASKS.md says what it must settle (condition language and builder, evaluation per turn in the
+  engine without slowing the hot path or touching dice, how a hit is stored so it replays, what a condition may see).
+  ENGINE (results only; no rules touched; reference logs and all 60 checks unchanged): `Battle.tally` (`battle.rs`) counts per
+  unit and weapon the shots, hits, damage to the target's armor + structure, and the turns it fired in (`run_ranged_phase`
+  around each resolved attack), kills by weapon fire (a unit destroyed while that attack resolved), and turns standing at
+  the start of each turn; `SideStats` (`results.rs`) gets armor and structure apart (rear armor counts as armor), per
+  location now / at the start, kills, turns alive and the weapon table, filled in `start_battle` / `finish`. Not counted:
+  physical attacks, charges, falls, pushes (no weapon, no kill credit); pooled cluster damage (POOL_CLUSTER_DAMAGE, off).
+  LAB SERVER (`runs.rs`, `main.rs`): battle lines carry the armor / structure pairs and each unit's detail; the battle
+  list sends them slim; `results` returns `causes` (every cause of death and how many units, "Pushed off the battlefield"
+  among them: it answers Daniel's pushes question) and, on `unit_stats: true`, per unit: how it ended as a share of
+  battles, armor and structure left per location (average and share), kills, per weapon shots a battle, accuracy, damage
+  a turn (over every turn the unit stood) and use (share of standing turns it fired in). `save_run` writes one file (setup,
+  every battle line, crashes with seed, map, zones, and the .mtf files the setup used that are not in the packs);
+  `load_run` reads it back as a finished run (replays are played again from the seeds). A battle that crashes replays into
+  the same crash and says so in words.
+  PAGES: team statistics show Armor left and Structure left as two figures; the finder's cause box lists the causes seen;
+  a "Unit statistics" folder (team > unit > tables) under the statistics; Save run / Open a run file buttons at the top of
+  Results (opening offers to put the run's setup back into the Units, Map and Options pages); crashed battles listed with
+  seed, map, zones and a Replay button. Checked: 20-battle runs through the API and the page; a saved run reloads with an
+  identical summary and replays battle 3. Limits: every battle line holds its units' detail in memory (a 100,000-battle run
+  is large: the file too); loose boards are not put in the file (map-pack boards are); a crash's partial log is lost.
 - **2026-11-14 (Claude, session 26), REPLAY LOG READS ONE UNIT AT A TIME, ONE WEAPON AT A TIME (CL17). REVIEW PENDING (higher-level model).**
   Presentation only (`INTEGRATION__replay_viewer.html`, `regroupRanged`; no engine change, results identical). The engine
   writes a firing phase in its resolution order (every unit's to-hit rolls, then every hit's damage, then the piloting rolls).

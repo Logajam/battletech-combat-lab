@@ -975,7 +975,8 @@ async function drawResults() {
       <dt>Losses</dt><dd>${s.battles - t.wins - s.draws}</dd>
       <dt>Damage dealt, average</dt><dd>${t.mean_damage_dealt.toFixed(1)}</dd>
       <dt>Units lost, average</dt><dd>${t.mean_units_lost.toFixed(2)}</dd>
-      <dt>Armor + structure left</dt><dd>${pct(t.max_hp ? t.mean_hp_left / t.max_hp : 0)}</dd>
+      <dt>Armor left</dt><dd>${t.max_armor ? pct(t.mean_armor_left / t.max_armor) : "n/a"}</dd>
+      <dt>Structure left</dt><dd>${t.max_structure ? pct(t.mean_structure_left / t.max_structure) : "n/a"}</dd>
       <dt>Shots that hit</dt><dd>${pct(t.hit_rate)}</dd></dl></fieldset>`).join("")
     + `<fieldset><legend>${filtered ? "Matching battles" : "All battles"}</legend><dl>
       <dt>Battles</dt><dd>${s.battles}</dd>
@@ -985,9 +986,69 @@ async function drawResults() {
       <dt>Runtime</dt><dd>${fmtSecs(res.progress.seconds)}</dd>
       <dt>Seconds a battle</dt><dd>${s.mean_battle_seconds.toFixed(2)}</dd>
       ${res.crashed.length ? `<dt class="err">Crashed</dt><dd class="err">${res.crashed.length}</dd>` : ""}</dl></fieldset>`;
+  $("save-run").disabled = false;
+  drawCrashes(res.crashed || []);
+  $("cause-list").innerHTML = (res.causes || []).map(([c, k]) => `<option value="${esc(c)}">${k} unit${k === 1 ? "" : "s"}</option>`).join("");
+  if ($("unit-stats-box").open) loadUnitStats();
   const tree = $("battle-tree");
   tree.innerHTML = "";
   fillRange(tree, 1, total, res);
+}
+
+// crashed battles stay visible: seed, what happened, where; "Replay" plays the same battle again (it crashes again, and says so)
+function drawCrashes(list) {
+  const box = $("crashes");
+  box.hidden = !list.length;
+  if (!list.length) return;
+  box.innerHTML = `<fieldset><legend class="err">Crashed battles (${list.length})</legend><table class="leaves"><thead><tr><th class="num">#</th><th>Seed</th><th>Map</th><th>Zones</th><th>What happened</th><th></th></tr></thead><tbody>${list.map((c) => `<tr><td class="num">${c.sim}</td><td>${esc(c.seed)}</td><td>${esc(String(c.board || "").replace(/\.board$/, "").replace(/_/g, " "))}</td><td>${c.zones ? esc(Object.entries(c.zones).map(([k, v]) => `${k}: ${v}`).join("; ")) : ""}</td><td>${esc(c.crashed)}</td>
+    <td><button class="btn small" data-replay="${c.sim}">Replay</button> <button class="btn small" data-repro="${esc(c.seed)}" title="Copy what is needed to play it again on the command line">Copy seed</button></td></tr>`).join("")}</tbody></table></fieldset>`;
+  box.querySelectorAll("[data-replay]").forEach((b) => b.addEventListener("click", async () => {
+    const r = await api("history", { run: lab.run, sim: +b.dataset.replay });
+    setStatus(r.error ? r.error : "That battle did not crash this time");
+    if (!r.error) openReplay({ run: lab.run, sim: +b.dataset.replay });
+  }));
+  box.querySelectorAll("[data-repro]").forEach((b) => b.addEventListener("click", () => { try { navigator.clipboard.writeText(b.dataset.repro); } catch (e) { /* no clipboard */ } setStatus(`Seed ${b.dataset.repro} (battle seed: use it with Load by seed, or btsim --seed with the run's seed and battle number)`); }));
+}
+
+// a saved run's setup back into the Units, Map and Options pages
+function applySetup(s) {
+  lab.teams = s.teams.map((t, i) => ({ name: t.name, colour: t.colour || defaultColour(i), bot: t.bot, zone: t.zone, units: t.units.map((u) => unitEntry(u.unit, u.gunnery ?? 4, u.piloting ?? 5)).filter(Boolean) }));
+  const m = lab.map;
+  if (typeof s.board === "string") { m.mode = "one"; m.one = s.board; }
+  else if (s.board && s.board.playlist) { m.mode = "playlist"; m.playlist = [...s.board.playlist]; m.order = s.board.order || "sequence"; }
+  else if (s.board && s.board.grid) { const g = s.board.grid; Object.assign(m, { mode: "stitch", rows: g.length, cols: g[0].length, cells: g.flat(), cell: 0 }); }
+  lab.deploy = { mode: s.zone_mode || "rulebook", opposite: !!s.zone_opposite };
+  lab.options = s.options || {};
+  $("battles").value = s.battles; $("seed").value = s.seed; $("threads").value = s.threads || 0; $("max-turns").value = s.max_turns || 100;
+  $("team-count").value = lab.teams.length;
+  save(); drawTeams(); drawZones(); drawBoards(); drawOptions();
+}
+
+// ---- unit statistics: team folders, unit folders inside them, the numbers inside those
+async function loadUnitStats() {
+  if (!lab.run) return;
+  const res = await api("results", { run: lab.run, filter: lab.filter, from: 1, to: 1, unit_stats: true });
+  if (res.error || !res.unit_stats) { $("unit-stats").textContent = res.error || "No statistics yet."; return; }
+  const openKeys = new Set([...document.querySelectorAll("#unit-stats details[open]")].map((d) => d.dataset.key));
+  const f1 = (x) => x.toFixed(1), p = (a, m) => (m > 0 ? pct(a / m) : "n/a");
+  const html = Object.entries(res.unit_stats).map(([team, units]) => `<details class="folder" data-key="${esc(team)}" ${openKeys.has(team) || !openKeys.size ? "open" : ""}>
+    <summary><span style="color:${colourOf(team)}">&#9632;</span> <b>${esc(team)}</b></summary>
+    ${Object.entries(units).map(([label, u]) => {
+      const n = u.battles || 1;
+      const rows = [["Survived", u.survived], ...Object.entries(u.causes).sort((a, b) => b[1] - a[1])];
+      return `<details class="folder" data-key="${esc(label)}" ${openKeys.has(label) ? "open" : ""}>
+        <summary>${esc(u.name)} <span class="note">survived ${pct(u.survived / n)} &middot; armor left ${p(u.armor_left, u.armor_max)} &middot; structure left ${p(u.structure_left, u.structure_max)} &middot; ${u.kills.toFixed(2)} kills</span></summary>
+        <div class="ustat">
+          <table class="leaves"><thead><tr><th>How it ended (share of battles)</th><th class="num">%</th></tr></thead><tbody>${rows.map(([c, k]) => `<tr><td>${esc(c)}</td><td class="num">${pct(k / n)}</td></tr>`).join("")}</tbody></table>
+          <table class="leaves"><thead><tr><th>Location</th><th class="num">Armor left (avg)</th><th class="num">%</th><th class="num">Structure left (avg)</th><th class="num">%</th></tr></thead><tbody>
+            ${Object.entries(u.locations).map(([loc, v]) => `<tr><td>${esc(loc)}</td><td class="num">${f1(v.armor)} / ${f1(v.armor_max)}</td><td class="num">${p(v.armor, v.armor_max)}</td><td class="num">${f1(v.structure)} / ${f1(v.structure_max)}</td><td class="num">${p(v.structure, v.structure_max)}</td></tr>`).join("")}
+            <tr><td><b>Whole unit</b></td><td class="num">${f1(u.armor_left)} / ${f1(u.armor_max)}</td><td class="num">${p(u.armor_left, u.armor_max)}</td><td class="num">${f1(u.structure_left)} / ${f1(u.structure_max)}</td><td class="num">${p(u.structure_left, u.structure_max)}</td></tr></tbody></table>
+          <table class="leaves"><thead><tr><th>Weapon</th><th class="num">Shots a battle</th><th class="num">Accuracy</th><th class="num">Damage a turn</th><th class="num" title="Share of its turns standing in which the weapon fired">Used</th></tr></thead><tbody>
+            ${Object.entries(u.weapons).map(([w, v]) => `<tr><td>${esc(weaponLabel(w))}</td><td class="num">${f1(v.fired_per_battle)}</td><td class="num">${pct(v.accuracy)}</td><td class="num">${v.damage_per_turn.toFixed(2)}</td><td class="num">${pct(v.utilization)}</td></tr>`).join("") || `<tr><td colspan="5" class="note">No weapons.</td></tr>`}</tbody></table>
+          <p class="note">Standing ${u.turns_alive.toFixed(1)} turns a battle on average. Damage a turn = damage dealt by that weapon over every turn the unit stood.</p>
+        </div></details>`;
+    }).join("")}</details>`).join("");
+  $("unit-stats").innerHTML = html;
 }
 
 // A long battle list is nested: a range with more than 100 battles to show is split into at most 100 smaller ranges,
@@ -1046,7 +1107,7 @@ function addUnitCondition(cond = {}) {
   row.className = "cond";
   row.innerHTML = `<select class="c-unit" aria-label="Unit">${Object.entries(labels).map(([k, v]) => `<option value="${esc(k)}"${k === cond.unit ? " selected" : ""}>${esc(v)}</option>`).join("")}</select>
     <select class="c-state" aria-label="What happened"><option value="destroyed">was destroyed</option><option value="survived">survived</option><option value="">either</option></select>
-    <input type="text" class="c-cause" placeholder="cause contains (e.g. head)" aria-label="Cause of death contains">
+    <input type="text" class="c-cause" list="cause-list" placeholder="cause (pick or type a word)" aria-label="Cause of death contains">
     <button class="btn small" title="Remove this condition">&times;</button>`;
   row.querySelector("button").addEventListener("click", () => row.remove());
   $("f-units").appendChild(row);
@@ -1223,6 +1284,28 @@ async function start() {
   $("stitch-cols").addEventListener("change", resizeStitch);
   $("stitch-rows").addEventListener("change", resizeStitch);
   $("f-add-unit").addEventListener("click", () => addUnitCondition());
+  $("save-run").addEventListener("click", async () => {
+    const file = await api("save_run", { run: lab.run });
+    if (file.error) { setStatus(file.error); return; }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(file)], { type: "application/json" }));
+    a.download = `combatlab-run-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-")}.json`;
+    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    setStatus(`Saved ${file.lines.length} battles, ${file.crashed.length} crashes`);
+  });
+  $("open-run").addEventListener("click", () => $("open-run-input").click());
+  $("open-run-input").addEventListener("change", async (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    let file; try { file = JSON.parse(await f.text()); } catch (x) { setStatus("That is not a run file"); return; }
+    const r = await api("load_run", { file });
+    if (r.error) { setStatus(r.error); return; }
+    lab.run = r.run; lab.runSetup = r.setup; lab.filter = {};
+    $("results-empty").hidden = true; $("results").hidden = false;
+    if (confirm("Also put this run's setup (teams, map, zones, options) into the Units, Map and Options pages?")) applySetup(r.setup);
+    show("results"); drawResults(); setStatus(`Opened ${f.name}`);
+    e.target.value = "";
+  });
+  $("unit-stats-box").addEventListener("toggle", () => { if ($("unit-stats-box").open) loadUnitStats(); });
   $("f-apply").addEventListener("click", () => { lab.filter = readFilter(); drawResults(); });
   $("f-clear").addEventListener("click", () => {
     ["f-winner", "f-capped", "f-tmin", "f-tmax"].forEach((id) => { $(id).value = ""; });

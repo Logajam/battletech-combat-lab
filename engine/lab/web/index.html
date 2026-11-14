@@ -158,6 +158,11 @@
 
   <!-- RESULTS -->
   <section class="page" id="page-results" role="tabpanel" hidden>
+    <div class="filters runfile">
+      <button class="btn" id="save-run" disabled title="Save this run (setup, every battle, seeds and crashes) as one file">Save run to a file&hellip;</button>
+      <button class="btn" id="open-run" title="Open a run file saved earlier, or sent by someone else">Open a run file&hellip;</button>
+      <input type="file" id="open-run-input" accept=".json,.combatlab" hidden>
+    </div>
     <div id="results-empty" class="note">No results yet. Set up the teams on the Units page and press Run Simulation.</div>
     <div id="results" hidden>
       <div class="filters">
@@ -181,8 +186,14 @@
         </div>
       </fieldset>
       <p class="note" id="filter-note"></p>
+      <div id="crashes" hidden></div>
       <div class="winbar" id="winbar"></div>
       <div class="stats" id="stats"></div>
+      <details class="folder" id="unit-stats-box">
+        <summary>Unit statistics <span class="note">(one folder per team and unit: how they died, what was left, kills, each weapon)</span></summary>
+        <div id="unit-stats" class="note">Open to load.</div>
+      </details>
+      <datalist id="cause-list"></datalist>
       <h2>Battles <span class="note">(choose one to watch it)</span></h2>
       <div class="list sunken battles" id="battle-tree"></div>
     </div>

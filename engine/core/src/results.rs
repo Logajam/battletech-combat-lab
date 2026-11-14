@@ -16,6 +16,19 @@ pub struct SideStats {
     pub final_hex: Option<String>,
     pub units: i64,
     pub units_lost: i64,
+    // Combat Lab statistics (session 26): armor and structure kept apart (rear armor counts as armor), per location, and what
+    // each weapon did. Filled at the start (the max_* ones) and the end of a battle; read by the Lab, never by the rules.
+    pub max_armor: f64,
+    pub final_armor: f64,
+    pub max_structure: f64,
+    pub final_structure: f64,
+    /// location -> [armor now, armor at the start, structure now, structure at the start]
+    pub locations: IndexMap<String, [f64; 4]>,
+    pub kills: i64,
+    /// the turns this unit was standing when a turn began
+    pub turns_alive: i64,
+    /// weapon name -> [shots fired, hits, damage dealt to the target's armor + structure, turns it fired in]
+    pub weapons: IndexMap<String, [f64; 4]>,
 }
 
 impl SideStats {
@@ -57,6 +70,11 @@ pub fn team_totals(team: &str, members: &[SideStats]) -> SideStats {
         damage_dealt: members.iter().map(|m| m.damage_dealt).sum(),
         units: members.len() as i64,
         units_lost: members.iter().filter(|m| m.destroyed).count() as i64,
+        max_armor: members.iter().map(|m| m.max_armor).sum(),
+        final_armor: members.iter().map(|m| m.final_armor).sum(),
+        max_structure: members.iter().map(|m| m.max_structure).sum(),
+        final_structure: members.iter().map(|m| m.final_structure).sum(),
+        kills: members.iter().map(|m| m.kills).sum(),
         ..Default::default()
     }
 }

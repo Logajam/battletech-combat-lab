@@ -260,3 +260,11 @@ details.folder[hidden] { display: none; }
 .playlist { margin: 0 0 8px; padding-left: 22px; max-height: 180px; overflow: auto; }
 .playlist li { display: list-item; padding: 1px 0; }
 .playlist li span.pl { display: inline-flex; gap: 4px; align-items: center; }
+
+/* CL18/CL19: unit statistics folders */
+#unit-stats-box { margin: 8px 0; }
+.ustat { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 8px; align-items: start; padding: 4px 0 8px; }
+#unit-stats details.folder { margin: 4px 0 4px 12px; }
+.runfile { margin-bottom: 8px; }
+.ustat table { width: 100%; }
+#crashes fieldset { margin: 8px 0; }

@@ -268,12 +268,41 @@ fn battle_line(sim: u64, seed: u64, r: &BattleResult, seconds: f64, variant: &Va
     let teams: serde_json::Map<String, Value> = r
         .teams
         .iter()
-        .map(|(k, s)| (k.clone(), json!({"units": s.units, "units_lost": s.units_lost, "damage_dealt": s.damage_dealt, "max_hp": s.max_hp, "final_hp": s.final_hp, "attacks": s.attacks, "hits": s.hits})))
+        .map(|(k, s)| (k.clone(), json!({"units": s.units, "units_lost": s.units_lost, "damage_dealt": s.damage_dealt, "max_hp": s.max_hp, "final_hp": s.final_hp, "attacks": s.attacks, "hits": s.hits,
+            "armor": [s.final_armor, s.max_armor], "structure": [s.final_structure, s.max_structure]})))
         .collect();
     // the seed as text: seeds pass JavaScript's exact-integer limit
     // each unit: destroyed or not, and how (what the results filter asks about)
-    let units: serde_json::Map<String, Value> = r.units.iter().map(|(k, s)| (k.clone(), json!({"name": s.name, "destroyed": s.destroyed, "cause": s.cause_of_death}))).collect();
+    let units: serde_json::Map<String, Value> = r.units.iter().map(|(k, s)| (k.clone(), json!({"name": s.name, "destroyed": s.destroyed, "cause": s.cause_of_death,
+        "armor": [s.final_armor, s.max_armor], "structure": [s.final_structure, s.max_structure], "kills": s.kills, "alive": s.turns_alive,
+        "locs": s.locations, "weapons": s.weapons}))).collect();
     json!({"sim": sim, "seed": seed.to_string(), "winner": r.winner, "turns": r.turns_taken, "seconds": seconds, "capped": r.turn_cap.is_some_and(|c| r.turns_taken >= c && r.winner == "Draw"), "teams": teams, "units": units, "board": variant["board"], "zones": variant["zones"]})
+}
+
+/// A battle line without its per-unit detail (what the battle list needs).
+fn slim(line: &Value) -> Value {
+    let mut l = line.clone();
+    if let Some(units) = l["units"].as_object_mut() {
+        for u in units.values_mut() {
+            if let Some(o) = u.as_object_mut() {
+                for k in ["locs", "weapons", "armor", "structure", "kills", "alive"] { o.remove(k); }
+            }
+        }
+    }
+    l
+}
+
+/// Every cause of death seen, with how many units died of it: [[cause, count], ...] most common first (the finder's list).
+fn causes_of(lines: &[&Value]) -> Value {
+    let mut c: std::collections::BTreeMap<String, u64> = Default::default();
+    for l in lines {
+        for u in l["units"].as_object().into_iter().flat_map(|o| o.values()) {
+            if u["destroyed"] == true { *c.entry(u["cause"].as_str().unwrap_or("unknown").to_string()).or_insert(0) += 1; }
+        }
+    }
+    let mut v: Vec<(String, u64)> = c.into_iter().collect();
+    v.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
+    json!(v)
 }
 
 /// A batch: started by `start`, read by `progress` / `results`.
@@ -340,6 +369,35 @@ impl Run {
         run
     }
 
+    /// A finished run read back from a saved file (CL20): its battle lines, crashes and setup; the battles themselves are
+    /// played again from their seeds when one is replayed (a pure function of the setup, the battle number and its seed).
+    pub fn restore(id: u64, setup: Value, plan: Plan, lines: Vec<Value>, crashed: Vec<Value>, seconds: f64) -> Arc<Run> {
+        let battles = setup["battles"].as_u64().unwrap_or(lines.len() as u64).clamp(1, 100_000);
+        Arc::new(Run {
+            id,
+            seed: setup["seed"].as_u64().unwrap_or(1),
+            setup,
+            plan: Arc::new(plan),
+            battles,
+            done: AtomicU64::new((lines.len() + crashed.len()) as u64),
+            cancel: AtomicBool::new(false),
+            finished: AtomicBool::new(true),
+            started: Instant::now(),
+            seconds: Mutex::new(Some(seconds)),
+            lines: Mutex::new(lines),
+            crashed: Mutex::new(crashed),
+        })
+    }
+
+    /// Everything a saved file needs (see main.rs `save_run`, which adds the unit files).
+    pub fn export(&self, unit_files: serde_json::Map<String, Value>) -> Value {
+        let mut lines = self.lines.lock().unwrap().clone();
+        lines.sort_by_key(|l| l["sim"].as_u64());
+        json!({"combatlab_run": 1, "version": env!("CARGO_PKG_VERSION"), "setup": self.setup, "battles": self.battles,
+               "seconds": self.seconds.lock().unwrap().unwrap_or(0.0), "lines": lines, "crashed": self.crashed.lock().unwrap().clone(),
+               "unit_files": unit_files})
+    }
+
     pub fn progress(&self) -> Value {
         let elapsed = self.seconds.lock().unwrap().unwrap_or_else(|| self.started.elapsed().as_secs_f64());
         json!({"run": self.id, "done": self.done.load(Ordering::Relaxed), "battles": self.battles, "finished": self.finished.load(Ordering::SeqCst), "cancelled": self.cancel.load(Ordering::Relaxed), "seconds": elapsed})
@@ -364,10 +422,14 @@ impl Run {
             "summary": self.summary(&kept),
             "matching": kept.len(),
             "in_range": in_range.len(),
-            "battles": in_range.iter().take(500).collect::<Vec<_>>(),
+            "battles": in_range.iter().take(500).map(|l| slim(l)).collect::<Vec<_>>(),
+            "causes": causes_of(&lines.iter().collect::<Vec<_>>()),
             "units": lines.first().map_or(json!({}), |l| l["units"].as_object().map(|u| u.iter().map(|(k, v)| (k.clone(), v["name"].clone())).collect::<serde_json::Map<_, _>>()).map_or(json!({}), Value::Object)),
             "crashed": self.crashed.lock().unwrap().clone(),
         });
+        if req["unit_stats"] == true {
+            out["unit_stats"] = self.unit_stats(&kept);
+        }
         if let Some(b) = req["bucket"].as_u64().filter(|b| *b > 0) {
             let mut counts: Vec<u64> = vec![0; ((to + 1 - from.min(to + 1)) as f64 / b as f64).ceil() as usize];
             for l in &in_range {
@@ -381,6 +443,56 @@ impl Run {
         out
     }
 
+    /// Per unit, over these battles (the Results page's expandable unit folders): how often it survived, the percentage
+    /// breakdown of how it died, the armor and structure left (and as a share of the start), per location, kills, and per
+    /// weapon the damage a turn, accuracy and how often it was used. Returns {team: {unit label: {...}}}.
+    fn unit_stats(&self, lines: &[&Value]) -> Value {
+        let mut out = serde_json::Map::new();
+        let sum = |f: &dyn Fn(&Value) -> Option<f64>| lines.iter().filter_map(|l| f(l)).sum::<f64>();
+        let _ = sum;
+        // every unit label, in the order the first battle lists them
+        let mut labels: Vec<String> = Vec::new();
+        for l in lines {
+            for k in l["units"].as_object().into_iter().flat_map(|o| o.keys()) {
+                if !labels.contains(k) { labels.push(k.clone()); }
+            }
+        }
+        for label in labels {
+            let rows: Vec<&Value> = lines.iter().filter_map(|l| l["units"].get(&label)).collect();
+            let n = rows.len().max(1) as f64;
+            let get = |r: &Value, path: &[&str]| path.iter().fold(r, |v, k| &v[*k]).as_f64().unwrap_or(0.0);
+            let destroyed = rows.iter().filter(|r| r["destroyed"] == true).count();
+            let mut causes: std::collections::BTreeMap<String, usize> = Default::default();
+            for r in rows.iter().filter(|r| r["destroyed"] == true) {
+                *causes.entry(r["cause"].as_str().unwrap_or("unknown").to_string()).or_insert(0) += 1;
+            }
+            let pair = |k: &str| (rows.iter().map(|r| r[k][0].as_f64().unwrap_or(0.0)).sum::<f64>() / n, rows.iter().map(|r| r[k][1].as_f64().unwrap_or(0.0)).sum::<f64>() / n);
+            let mut locs = serde_json::Map::new();
+            let loc_names: Vec<String> = rows.first().and_then(|r| r["locs"].as_object()).map(|o| o.keys().cloned().collect()).unwrap_or_default();
+            for loc in &loc_names {
+                let m = |i: usize| rows.iter().map(|r| r["locs"][loc][i].as_f64().unwrap_or(0.0)).sum::<f64>() / n;
+                locs.insert(loc.clone(), json!({"armor": m(0), "armor_max": m(1), "structure": m(2), "structure_max": m(3)}));
+            }
+            let alive: f64 = rows.iter().map(|r| get(r, &["alive"])).sum();
+            let mut weapons = serde_json::Map::new();
+            let wnames: Vec<String> = rows.first().and_then(|r| r["weapons"].as_object()).map(|o| o.keys().cloned().collect()).unwrap_or_default();
+            for w in &wnames {
+                let t = |i: usize| rows.iter().map(|r| r["weapons"][w][i].as_f64().unwrap_or(0.0)).sum::<f64>();
+                let (fired, hits, dmg, turns) = (t(0), t(1), t(2), t(3));
+                weapons.insert(w.clone(), json!({"fired_per_battle": fired / n, "accuracy": if fired > 0.0 { hits / fired } else { 0.0 },
+                    "damage_per_turn": if alive > 0.0 { dmg / alive } else { 0.0 }, "damage_per_battle": dmg / n, "utilization": if alive > 0.0 { turns / alive } else { 0.0 }}));
+            }
+            let (a, am) = pair("armor");
+            let (s, sm) = pair("structure");
+            let team = label.split(' ').next().unwrap_or("").to_string();
+            let entry = out.entry(team).or_insert_with(|| json!({}));
+            entry[&label] = json!({"name": rows.first().map_or(Value::Null, |r| r["name"].clone()), "battles": rows.len(), "survived": rows.len() - destroyed,
+                "causes": causes, "armor_left": a, "armor_max": am, "structure_left": s, "structure_max": sm, "kills": rows.iter().map(|r| get(r, &["kills"])).sum::<f64>() / n,
+                "turns_alive": alive / n, "locations": locs, "weapons": weapons});
+        }
+        Value::Object(out)
+    }
+
     /// Wins, losses, damage, units lost... over these battles.
     fn summary(&self, lines: &[&Value]) -> Value {
         let n = lines.len().max(1) as f64;
@@ -389,9 +501,11 @@ impl Run {
             let t = t["name"].as_str().unwrap_or("");
             let wins = lines.iter().filter(|l| l["winner"] == t).count();
             let mean = |k: &str| lines.iter().map(|l| l["teams"][t][k].as_f64().unwrap_or(0.0)).sum::<f64>() / n;
+            let mean_pair = |k: &str, i: usize| lines.iter().map(|l| l["teams"][t][k][i].as_f64().unwrap_or(0.0)).sum::<f64>() / n;
             let (attacks, hits) = lines.iter().fold((0.0, 0.0), |(a, h), l| (a + l["teams"][t]["attacks"].as_f64().unwrap_or(0.0), h + l["teams"][t]["hits"].as_f64().unwrap_or(0.0)));
             let hit_rate = if attacks > 0.0 { hits / attacks } else { 0.0 };
-            per_team.insert(t.to_string(), json!({"wins": wins, "win_rate": wins as f64 / n, "mean_damage_dealt": mean("damage_dealt"), "mean_units_lost": mean("units_lost"), "mean_hp_left": mean("final_hp"), "max_hp": mean("max_hp"), "hit_rate": hit_rate}));
+            per_team.insert(t.to_string(), json!({"wins": wins, "win_rate": wins as f64 / n, "mean_damage_dealt": mean("damage_dealt"), "mean_units_lost": mean("units_lost"), "mean_hp_left": mean("final_hp"), "max_hp": mean("max_hp"), "hit_rate": hit_rate,
+                "mean_armor_left": mean_pair("armor", 0), "max_armor": mean_pair("armor", 1), "mean_structure_left": mean_pair("structure", 0), "max_structure": mean_pair("structure", 1)}));
         }
         let draws = lines.iter().filter(|l| l["winner"] == "Draw").count();
         let capped = lines.iter().filter(|l| l["capped"] == true).count();
