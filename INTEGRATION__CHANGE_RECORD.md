@@ -6,6 +6,13 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-14 (Claude, session 26), SESSION LOCKED IN AND COMBAT LAB ALPHA-2 PACKAGED.** Daniel: "lock everything down so its saved in house ...
+  regenerate the program and give me a download link ... send it to Opus for review before pushing it to the public repo." The
+  session branch was merged to `main` of this private repo (pull request 224); nothing went to the public repo. `tools/package_lab.py
+  --version alpha-2` built `CombatLab-alpha-2.zip` (4.6 MB, Windows exe cross-built with MinGW; the packaged data was checked by
+  running the Linux build inside the unpacked folder: 4,252 units, a battle with zones, statistics, options.json and availability.json
+  served; the Windows exe itself was not run, there is no Wine here). Put on the `downloads` branch beside alpha-1 (README updated).
+  What alpha-2 holds is every CL11-CL21 entry above. Open for Opus: CL18's live conditions; the review of everything marked REVIEW PENDING.
 - **2026-11-14 (Claude, session 26), REPLAY HEAT MAPS: PRINCESS'S MEMORY, BY TEAM AND BY UNIT (CL21, Princess first). REVIEW PENDING (higher-level model).**
   Daniel: "Replay is built from the seed rerunning that game. For any given step, the heat map can be recalculated from the
   state of that game at that step"; per unit, "princess's heat map limited by the potential movement range of that unit".
