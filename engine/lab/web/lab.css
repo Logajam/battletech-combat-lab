@@ -295,8 +295,8 @@ details.folder[hidden] { display: none; }
 .zone-mini .zl input { width: 1em; height: 1em; margin: 0 .1em 0 0; }
 
 /* the unit sheet / editor */
-.dialog.sheet { left: 40px; top: 60px; margin-left: 0; width: min(1040px, calc(100vw - 80px)); height: calc(100vh - 100px); }
-.sheet-scroll { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: minmax(250px, 300px) minmax(0, 1fr); gap: 10px; align-content: start; }
+.dialog.sheet { left: 40px; top: 60px; margin-left: 0; width: min(1180px, calc(100vw - 80px)); height: calc(100vh - 100px); }
+.sheet-scroll { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: minmax(270px, 320px) minmax(0, 1fr); gap: 10px; align-content: start; }
 .sheet-scroll h3 { margin: 0 0 4px; font-size: 13px; }
 .sheet-scroll table { border-collapse: collapse; width: 100%; }
 .sheet-scroll td, .sheet-scroll th { padding: 1px 4px; text-align: left; font-weight: normal; }
@@ -307,7 +307,7 @@ details.folder[hidden] { display: none; }
 .sheet-scroll .head b { font-size: 15px; }
 .sheet-msgs { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 2px; }
 .sheet-msgs .bad { color: #a00000; } .sheet-msgs .ok { color: #006000; } .sheet-msgs .warn { color: #8a5a00; }
-.crit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; }
+.crit-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; align-items: start; }
 .crit-loc { border: 1px solid var(--shadow); background: var(--field); }
 .crit-loc h4 { margin: 0; padding: 1px 4px; font-size: 11px; background: var(--face); border-bottom: 1px solid var(--shadow); display: flex; justify-content: space-between; }
 .crit-slot { padding: 0 4px; font-size: 11px; min-height: 15px; border-bottom: 1px dotted #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -315,7 +315,11 @@ details.folder[hidden] { display: none; }
 .crit-slot.managed { color: #345; background: #e4ecf5; }
 .sheet.editing .crit-slot:not(.fixed):not(.managed):hover { background: var(--select); color: var(--title-text); cursor: pointer; }
 .sheet.editing .crit-slot.empty:hover { cursor: copy; }
-.picker { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.picker select { max-width: 340px; }
+.picker { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+.picker select { width: 100%; }
+.picker details { border: 1px solid var(--shadow); padding: 2px 4px; }
+.picker summary { cursor: pointer; font-weight: bold; }
+.crit-slot label { display: flex; flex-direction: row; gap: 3px; align-items: center; margin: 0; white-space: nowrap; }
+.crit-slot input[type=checkbox] { margin: 0; width: 11px; height: 11px; }
 .sheet-foot { margin: 0; justify-content: flex-end; }
 @media (max-width: 760px) { .dialog.sheet { left: max(8px, env(safe-area-inset-left, 0px)) !important; width: calc(100vw - 16px); height: 80vh; } .sheet-scroll { grid-template-columns: minmax(0, 1fr); } }

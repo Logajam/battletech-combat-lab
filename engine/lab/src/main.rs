@@ -252,6 +252,9 @@ fn api(lab: &Lab, name: &str, req: &Value) -> Result<Value, String> {
             let mut files = serde_json::Map::new();
             for t in run.setup["teams"].as_array().into_iter().flatten() {
                 for u in t["units"].as_array().into_iter().flatten() {
+                    if u["mtf_text"].is_string() {
+                        continue;        // a modified unit travels inside the setup itself
+                    }
                     if let Some(id) = u["unit"].as_str() {
                         if !id.contains('/') && !id.contains("..") {
                             if let Ok(text) = std::fs::read_to_string(lab.catalog.data.join(id)) {
@@ -304,12 +307,7 @@ fn add_unit(lab: &Lab, req: &Value) -> Result<Value, String> {
         return Err("only .mtf unit files can be added".into());
     }
     let target = lab.catalog.data.join(&name);
-    let overwrite = req["overwrite"] == true;      // a custom unit saved again under the same name
-    // only a file the editor made may be replaced: a published design (or a file of Daniel's) is never overwritten
-    if overwrite && target.exists() && !std::fs::read_to_string(&target).map(|t| t.contains("Edited in Combat Lab")).unwrap_or(false) {
-        return Err(format!("a unit file called '{}' already exists and was not made in Combat Lab: give the model another name", name));
-    }
-    let copied = overwrite || !target.exists();
+    let copied = !target.exists();
     let text = if copied { req["text"].as_str().ok_or("the file is empty")?.to_string() } else { std::fs::read_to_string(&target).map_err(|e| e.to_string())? };
     let cfg = btsim_core::config::Config::from_json(&lab.defaults);
     let unit = catalog::describe_unit(btsim_core::equipment::EquipmentDb::shared(), &cfg, &name, "project", &text);
@@ -320,10 +318,7 @@ fn add_unit(lab: &Lab, req: &Value) -> Result<Value, String> {
         std::fs::write(&target, &text).map_err(|e| e.to_string())?;
     }
     let mut added = lab.added.lock().unwrap();
-    if overwrite {
-        added.retain(|u| u["id"] != name.as_str());
-        added.push(unit.clone());
-    } else if !lab.catalog.units.iter().any(|u| u.id == name) && !added.iter().any(|u| u["id"] == name.as_str()) {
+    if !lab.catalog.units.iter().any(|u| u.id == name) && !added.iter().any(|u| u["id"] == name.as_str()) {
         added.push(unit.clone());
     }
     Ok(json!({"unit": unit, "copied": copied}))

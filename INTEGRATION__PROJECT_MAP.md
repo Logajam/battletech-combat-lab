@@ -160,7 +160,8 @@ real Princess and CASPAR through the bridge (E4).
   skills; then CL6 (battle from a saved state).
 - E2a. DANIEL'S LIST, 2026-11-15 (session 27; he is still adding to it). DONE: armor 0 in the browser, team-column scroll,
   dynamic browser columns, Add-to row, one-line start zones, resizable windows / columns, sort triangles (Change Record).
-  STAGE 1 OF (1) DONE 2026-11-15 (Change Record "UNIT SHEET AND EDITOR"; what is missing is listed there).
+  STAGES 1-2 OF (1) DONE 2026-11-15 (Change Record "UNIT EDITOR STAGE 2"; what is missing is listed there). Modified units are
+  temporary: saved only inside a saved run (Daniel).
   TO BUILD: (1) UNIT PREVIEW AND EDITOR: a unit in the browser shows its stats; once on a team its values are editable with
   only mild construction limits (heat sinks tied to what fits the engine and the critical slots, jump jets likewise) and an
   override; the one hard rule is that equipment must fit the critical slots; BV recalculated from the current stats; also a

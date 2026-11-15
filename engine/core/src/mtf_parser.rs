@@ -113,6 +113,24 @@ pub fn determine_mech_type(config_str: &str, cockpit_str: &str) -> Result<&'stat
     }
 }
 
+/// The "LA IS:17" lines of a unit file: (location, internal structure), front keys of `armor_key_map` only.
+fn structure_overrides(text: &str, mech_type: &str) -> Vec<(String, i64)> {
+    let map = armor_key_map(mech_type);
+    let mut out = Vec::new();
+    for l in text.lines() {
+        let Some((k, v)) = l.split_once(':') else { continue };
+        let k = py_strip(k).to_lowercase();
+        let Some(stem) = k.strip_suffix(" is") else { continue };
+        let want = format!("{} armor", stem);
+        if let Some((_, loc, _)) = map.iter().find(|(mk, _, side)| mk.to_lowercase() == want && *side == "front") {
+            if let Ok(n) = py_strip(v).parse::<i64>() {
+                out.push((loc.to_string(), n));
+            }
+        }
+    }
+    out
+}
+
 pub const KNOWN_LOCATIONS: [&str; 13] = [
     "Left Arm", "Right Arm", "Left Torso", "Right Torso", "Center Torso", "Head", "Left Leg", "Right Leg", "Center Leg",
     "Front Left Leg", "Front Right Leg", "Rear Left Leg", "Rear Right Leg",
@@ -667,7 +685,17 @@ pub fn parse_mtf(db: &EquipmentDb, text: &str, out: &mut String) -> Result<Mech,
         }
     };
 
-    let structure = structure_for_tonnage(mass, mech_type)?;
+    // Combat Lab's editor can set each location's internal structure by hand ("LA IS:17", one line per location, the same key
+    // letters as the armor lines): lines present override the tonnage table, and with them a mass between the table's steps (up to 200 t) plays too, on the table's shape for 200 t. A file without such lines reads exactly as before.
+    let overrides = structure_overrides(text, mech_type);
+    let mut structure = match structure_for_tonnage(mass, mech_type) {
+        Ok(s) => s,
+        Err(e) if overrides.is_empty() || mass > 200 => return Err(e),      // nothing above 200 t plays (Daniel, 2026-11-15)
+        Err(_) => structure_for_tonnage(200, mech_type)?,
+    };
+    for (loc, n) in overrides {
+        structure.insert(loc, n);
+    }
     let mut mech = Mech::new(mech_type);
     mech.chassis = chassis;
     mech.model = model;

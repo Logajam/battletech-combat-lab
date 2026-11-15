@@ -28,6 +28,8 @@ pub struct Catalog {
     pub boards: Vec<Value>,
 }
 
+/// where the units edited on the page are kept while a run needs them (emptied when the Lab starts)
+const MODIFIED_DIR: &str = "_modified/";
 const UNIT_PACK: &str = "meks.zip";
 const MAP_PACK: &str = "maps.zip";
 /// a board from the map pack is named under this folder
@@ -36,6 +38,7 @@ const MAP_PREFIX: &str = "maps/";
 impl Catalog {
     /// Reads (or builds and keeps) the lists for the data folder `data`; the cache goes in `cache_dir`.
     pub fn load(data: &Path, cache_dir: &Path, defaults: &Value) -> Catalog {
+        let _ = fs::remove_dir_all(data.join(MODIFIED_DIR));
         if let Err(e) = unpack_solid(data) {
             eprintln!("combatlab: the unit pack could not be unpacked: {}", e);
         }
@@ -55,6 +58,21 @@ impl Catalog {
         };
         let units = units_json.into_iter().map(|j| UnitEntry { id: j["id"].as_str().unwrap_or("").to_string(), json: j }).collect();
         Catalog { data: data.to_path_buf(), units, boards: index_boards(data) }
+    }
+
+    /// A unit edited on the page: its text as a scratch file under `data/_modified/` (named by a hash of the text), the name the
+    /// engine reads it by. See runs.rs.
+    pub fn scratch_unit(&self, text: &str) -> Result<String, String> {
+        use std::hash::{Hash, Hasher};
+        let mut h = std::collections::hash_map::DefaultHasher::new();
+        text.hash(&mut h);
+        let id = format!("{}{:016x}.mtf", MODIFIED_DIR, h.finish());
+        let target = self.data.join(&id);
+        if !target.exists() {
+            fs::create_dir_all(self.data.join(MODIFIED_DIR)).map_err(|e| e.to_string())?;
+            fs::write(&target, text).map_err(|e| e.to_string())?;
+        }
+        Ok(id)
     }
 
     /// Makes sure the unit or board named `id` is a file under the data folder (unpacking it from its pack if need be).
@@ -295,7 +313,7 @@ pub fn equipment_list(db: &btsim_core::equipment::EquipmentDb) -> Vec<Value> {
         let key = aliases.iter().find(|a| !a.contains(' ') && a.starts_with(prefix)).cloned()
             .or_else(|| aliases.iter().find(|a| !a.contains(' ')).cloned())
             .unwrap_or_else(|| e.canonical_name().replace(' ', ""));
-        json!({"k": key, "n": e.canonical_name(), "cat": e.category().unwrap_or_default(), "tech": tech, "slots": e.slots(),
+        json!({"k": key, "n": e.canonical_name(), "cat": e.category().unwrap_or_default(), "dt": e.opt_str("damage_type"), "tech": tech, "slots": e.slots(),
                "tons": e.tonnage(), "heat": e.opt_i64("heat"), "dmg": e.opt_i64("damage_per_shot"), "bv": e.opt_i64("battle_value"),
                // every spelling the engine resolves to this item, lower case without spaces: how the page recognises a crit slot
                "al": aliases.iter().map(|a| a.to_lowercase().replace(' ', "")).collect::<Vec<_>>()})

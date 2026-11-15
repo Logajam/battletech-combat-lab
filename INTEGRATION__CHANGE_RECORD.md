@@ -6,7 +6,33 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
-- **2026-11-15 (Claude, session 27), UNIT SHEET AND EDITOR, STAGE 1 (Daniel's list item 1). REVIEW PENDING (higher-level model).**
+- **2026-11-15 (Claude, session 27), UNIT EDITOR STAGE 2: A .MTF EDITOR, MODIFIED UNITS ARE TEMPORARY. REVIEW PENDING (higher-level model).**
+  Daniel's notes on stage 1. DESIGN: this is an editor for fun and research, not a designer; legality is never checked, the aim
+  is only that anything it makes plays in the engine (Daniel: "an Atlas that moves at 6/9... does the BV increase equal a change in
+  win rate?"). CHANGED: (A) no Download .mtf and no unit file is ever written: "Use this design" puts a MODIFIED unit in the team
+  carrying its whole text (`mtf` in the team entry, `mtf_text` in the setup, named "<name> (modified)"); the engine reads it from a
+  scratch file `data/_modified/<hash>.mtf` (emptied at start, git-ignored, never in the unit list); a saved run file carries the
+  text, so saving the run is the only way to keep one (`runs.rs`, `catalog.rs scratch_unit`, `main.rs save_run`); `add_unit`'s
+  overwrite option from stage 1 is gone. (B) Every popup window goes on top when it opens or is clicked (`raiseWindow`, one counter
+  shared with the floating panels). (C) Heat sinks, jump jets and structure slots (Endo Steel, Ferro-Fibrous) are never forced:
+  too few in the slots is a warning with a "Place N" button; Override is gone. The only hard rule is that equipment fits the
+  slots. (D) Heat sinks and the other items can be taken out; only shoulder, hip, upper arm / leg, lower leg, foot, sensors, life
+  support, cockpit, engine and gyro cannot; the lower arm and hand actuators are check boxes in their slots. Engine, gyro and cockpit
+  are lists (engine: Fusion, XL, XL Clan, Light, XXL, XXL Clan, Compact, ICE, Fuel Cell) that rebuild their slots, with the counts read
+  off the unit files; no room = refused with the reason. (E) Head and legs show 6 slots (the files pad them to 12). (F) The paper
+  layout: head on top; left arm, left torso, centre torso, right torso, right arm; left leg (centre leg), right leg. (G) Equipment
+  is picked from folders: Energy, Ballistic, Missile, Physical, Other, and Ammo, which lists only the ammo of weapons on the unit
+  ("Show all ammo" overrides). Also editable: chassis, model, tonnage (cap 200 t, Daniel: "if the engine doesn't like units over 200,
+  cap it"), tech base, structure / armor / myomer type, internal structure by hand. "Use tonnage" rounds the tonnage up to a
+  multiple of 5 and fills in the table row of the nearest tonnage (10-200). ENGINE: `mtf_parser.rs` reads optional `LA IS:17` lines
+  (one per location) before the tonnage table, so a tonnage between the table's steps plays (102 t); a file without them reads
+  as before and nothing over 200 t plays. Also fixed: a comment had swallowed the restore of the thread count and turn cap in
+  `restore()`. TESTS: `check_lab_server.py` (inline unit runs and stays out of the list; 102 t refused without / read with the
+  lines; 250 t refused). NOT YET: quirks, role, config (biped / quad), omni pods, per-location armor types, ammo counts; the engine /
+  gyro / cockpit slot layouts cover the common types only; the equipment list has no tech-base filter; the browser (wasm) version.
+  RULES TO CHECK in the library: engine-held sinks = rating / 25, the 10-sink minimum, armor = 2 x structure (head 9).
+
+- **2026-11-15 (Claude, session 27), UNIT SHEET AND EDITOR, STAGE 1 (superseded by stage 2 above where they differ: no file is written) (Daniel's list item 1). REVIEW PENDING (higher-level model).**
   Daniel: a unit in the browser shows its stats; on a team the values become editable with mild construction limits and an
   override; the one hard rule is that equipment must fit the critical slots; BV follows the design; custom units without a file
   download; "for science", illegal designs welcome. BUILT: (Rust, `engine/lab/src`) three calls, `unit_text` (a unit's file),

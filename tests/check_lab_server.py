@@ -82,7 +82,23 @@ def main(argv):
         check(more["unit"]["ok"] and more["unit"]["bv"] != base["unit"]["bv"], "an edited jump MP changes the BV", failures)
         eq = lab.api("equipment_list")["equipment"]
         check(len(eq) > 600 and any("ismediumlaser" in e["al"] for e in eq), f"equipment_list: {len(eq)} items", failures)
-        check("error" in lab.api("add_unit", {"file": "Atlas AS7-K.mtf", "text": text, "overwrite": True}), "a published unit file cannot be overwritten", failures)
+        # a modified unit travels inside the setup (its text), never in the unit folder or the unit list (2026-11-15)
+        mod = text.replace("Jump MP:0", "Jump MP:3").replace("chassis:Atlas", "chassis:Atlas Modified")
+        before = len(lab.api("list_units")["units"])
+        setup_mod = {"teams": [{"name": "Red", "bot": "gladiator", "units": [{"unit": "Atlas AS7-K.mtf", "mtf_text": mod}]},
+                               {"name": "Blue", "bot": "gladiator", "units": [{"unit": "Awesome AWS-8Q.mtf"}]}],
+                     "board": "16x17_Grassland_1.board", "battles": 2, "seed": 1, "threads": 0, "max_turns": 100}
+        run = lab.api("run", {"setup": setup_mod})
+        check("run" in run, f"a setup with a modified unit's text runs ({run})", failures)
+        check(len(lab.api("list_units")["units"]) == before, "a modified unit does not enter the unit list", failures)
+        # a 102-ton 'Mech (between the table's steps) plays when the file gives its internal structure ("LA IS:17"...); without those lines it is refused; nothing over 200 t plays
+        big = text.replace("Mass:100", "Mass:102")
+        check(not lab.api("unit_eval", {"text": big})["unit"]["ok"], "102 t with no structure lines is refused", failures)
+        isl = "\n".join(f"{k} IS:{v}" for k, v in {"LA": 60, "RA": 60, "LT": 80, "RT": 80, "CT": 100, "HD": 9, "LL": 90, "RL": 90}.items())
+        big_is = big.replace("LA Armor:34", isl + "\nLA Armor:34")
+        ev = lab.api("unit_eval", {"text": big_is})
+        check(not lab.api("unit_eval", {"text": big_is.replace("Mass:102", "Mass:250")})["unit"]["ok"], "250 t is refused even with structure lines", failures)
+        check(ev["unit"]["ok"] and ev["structure"].get("Left Arm") == 60, f"102 t with structure lines is read ({ev['unit'].get('why', ev['structure'])})", failures)
 
         setup = {"teams": [{"name": "Red", "bot": "gladiator", "units": [{"unit": "Atlas AS7-K.mtf"}, {"unit": "Griffin GRF-1N.mtf"}]},
                            {"name": "Blue", "bot": "gladiator", "units": [{"unit": "Awesome AWS-8Q.mtf"}, {"unit": "Hunchback HBK-4G.mtf"}]}],

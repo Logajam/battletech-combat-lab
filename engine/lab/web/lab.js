@@ -39,7 +39,7 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 // a unit's Battle Value for its pilot: the list gives it for gunnery 4 / piloting 5; the engine's skill table
 // (battle_value.rs SKILL_TABLE, sent by the server) scales it, rounded as the engine rounds
 function unitBv(u) {
-  const base = (lab.byId.get(u.id) || {}).bv;
+  const base = u.mtf ? u.bv : (lab.byId.get(u.id) || {}).bv;        // a modified unit carries its own BV
   if (base == null) return null;
   const table = lab.info.skill_table;
   if (!table) return base;
@@ -75,7 +75,7 @@ function boardOfSetup() {
 
 function setup() {
   return {
-    teams: lab.teams.map((t, ti) => ({ name: t.name, colour: t.colour, bot: t.bot, units: t.units.map((u) => ({ unit: u.id, gunnery: u.gunnery, piloting: u.piloting })),
+    teams: lab.teams.map((t, ti) => ({ name: t.name, colour: t.colour, bot: t.bot, units: t.units.map((u) => (u.mtf ? { unit: u.base || u.id, mtf_text: u.mtf, gunnery: u.gunnery, piloting: u.piloting } : { unit: u.id, gunnery: u.gunnery, piloting: u.piloting })),
       ...(lab.deploy.mode !== "rulebook" ? { zone: zoneOf(t, ti) } : {}) })),
     ...(lab.deploy.mode !== "rulebook" ? { zone_mode: lab.deploy.mode, zone_opposite: lab.deploy.mode === "random" && lab.deploy.opposite && lab.teams.length === 2 } : {}),
     board: boardOfSetup(),
@@ -102,11 +102,12 @@ function restore() {
   try { saved = JSON.parse(localStorage.getItem(STORE) || "null"); } catch (e) { saved = null; }
   if (DEMO) saved = null;     // the demo always opens on the setup its results came from
   if (saved && saved.teams && saved.teams.length >= 2) {
-    lab.teams = saved.teams.map((t) => ({ ...t, units: t.units.map((u) => unitEntry(u.id, u.gunnery, u.piloting)).filter(Boolean) }));
+    lab.teams = saved.teams.map((t) => ({ ...t, units: t.units.map((u) => (u.mtf ? modifiedEntry(u.mtf, u.base || u.id, u.gunnery, u.piloting, { bv: u.bv }) : unitEntry(u.id, u.gunnery, u.piloting))).filter(Boolean) }));
     lab.map = { ...lab.map, ...saved.map };
     lab.options = saved.options || {};
     lab.deploy = { ...lab.deploy, ...(saved.deploy || {}) };
-    $("battles").value = saved.battles || 20; $("seed").value = saved.seed && saved.seed !== "1" ? saved.seed : "";   // an empty box = a new seed each run (the old default, 1, is dropped) $("threads").value = saved.threads || 0; $("max-turns").value = saved.maxTurns || 100;
+    $("battles").value = saved.battles || 20; $("seed").value = saved.seed && saved.seed !== "1" ? saved.seed : "";   // an empty box = a new seed each run (the old default, 1, is dropped)
+    $("threads").value = saved.threads || 0; $("max-turns").value = saved.maxTurns || 100;
   } else {
     const start = DEMO ? DEMO.setup : { teams: [{ name: "Red", bot: "gladiator", units: [{ unit: "Atlas AS7-K.mtf" }, { unit: "Griffin GRF-1N.mtf" }] },
       { name: "Blue", bot: "gladiator", units: [{ unit: "Awesome AWS-8Q.mtf" }, { unit: "Hunchback HBK-4G.mtf" }] }], board: lab.info.default_board, battles: 20, seed: "" };
@@ -144,6 +145,7 @@ function drawTeams() {
 // double-clicking the title docks it again. Positions are kept in the browser (localStorage), "Reset layout" clears them.
 const LAYOUT_KEY = "combatlab.layout.v1";
 let zTop = 30;
+const raiseWindow = (el) => { el.style.zIndex = ++zTop; };         // a window that opens, or is clicked, goes on top of the others
 try { lab.layout = JSON.parse(localStorage.getItem(LAYOUT_KEY) || "{}") || {}; } catch (e) { lab.layout = {}; }
 function saveLayout() { try { localStorage.setItem(LAYOUT_KEY, JSON.stringify(lab.layout)); } catch (e) { /* storage off */ } }
 const narrow = () => window.matchMedia("(max-width: 900px)").matches;
@@ -1163,7 +1165,7 @@ function drawCrashes(list) {
 
 // a saved run's setup back into the Units, Map and Options pages
 function applySetup(s) {
-  lab.teams = s.teams.map((t, i) => ({ name: t.name, colour: t.colour || defaultColour(i), bot: t.bot, zone: t.zone, units: t.units.map((u) => unitEntry(u.unit, u.gunnery ?? 4, u.piloting ?? 5)).filter(Boolean) }));
+  lab.teams = s.teams.map((t, i) => ({ name: t.name, colour: t.colour || defaultColour(i), bot: t.bot, zone: t.zone, units: t.units.map((u) => (u.mtf_text ? modifiedEntry(u.mtf_text, u.unit, u.gunnery ?? 4, u.piloting ?? 5) : unitEntry(u.unit, u.gunnery ?? 4, u.piloting ?? 5))).filter(Boolean) }));
   const m = lab.map;
   if (typeof s.board === "string") { m.mode = "one"; m.one = s.board; }
   else if (s.board && s.board.playlist) { m.mode = "playlist"; m.playlist = [...s.board.playlist]; m.order = s.board.order || "sequence"; }
@@ -1380,18 +1382,48 @@ function demoApi(name, body) {
 }
 
 // ---------------------------------------------------------------- unit sheet and editor (Daniel, 2026-11-15)
-// A unit from the browser opens as a read-only sheet; a unit on a team opens the same sheet with its values editable. What is
-// edited is the unit's own .mtf text (the same file format the engine plays), so an edited unit is simply a new unit file kept
-// in the project's unit folder. Construction limits are mild: the one hard rule is that equipment must fit the critical
-// slots; heat sinks and jump jets are tied to the slots (sinks beyond the engine's own take slots) unless "Override" is on.
+// A unit from the browser opens as a read-only sheet; a unit on a team opens the same sheet with its values editable. This is a
+// .mtf editor feeding the engine, not a designer: nothing is checked for being a legal design, the aim is only that whatever
+// is made plays. What is edited is the unit's own .mtf text, changed line by line, so whatever the page does not understand is
+// kept as it was. The one hard rule is that equipment must fit the critical slots; everything else (heat sinks, jump jets,
+// structure slots, armor, tonnage...) is at most a warning. A modified unit is temporary: it lives in the team and travels in the
+// setup (so a saved run file carries it); it is never written to the unit folder and never appears in the unit list.
 // The engine reads the edited text for the Battle Value (api "unit_eval"), so the BV shown is the one a battle uses.
 const EMPTY = "-Empty-";
 const LOC_RE = /^(Left Arm|Right Arm|Left Torso|Right Torso|Center Torso|Head|Left Leg|Right Leg|Center Leg|Front Left Leg|Front Right Leg|Rear Left Leg|Rear Right Leg):\s*$/i;
-// the armor lines of a unit file: key -> [location, side] (the engine's own table, mtf_parser.rs armor_key_map)
+// the armor lines of a unit file: key -> [location, side] (the engine's own table, mtf_parser.rs armor_key_map). The same
+// letters + " IS" are the internal structure lines the engine reads first when they are there ("LA IS:17").
 const ARMOR_KEYS = { "la": ["Left Arm", "front"], "ra": ["Right Arm", "front"], "lt": ["Left Torso", "front"], "rt": ["Right Torso", "front"], "ct": ["Center Torso", "front"],
   "hd": ["Head", "front"], "ll": ["Left Leg", "front"], "rl": ["Right Leg", "front"], "cl": ["Center Leg", "front"], "fll": ["Front Left Leg", "front"], "frl": ["Front Right Leg", "front"],
   "rll": ["Rear Left Leg", "front"], "rrl": ["Rear Right Leg", "front"], "rtl": ["Left Torso", "rear"], "rtr": ["Right Torso", "rear"], "rtc": ["Center Torso", "rear"] };
-const SHEET = { mtf: null, original: "", id: "", team: null, unit: null, edit: false, override: false, pick: null, structure: {}, eval: null, msg: "" };
+const KEY_OF = Object.fromEntries(Object.entries(ARMOR_KEYS).filter(([, v]) => v[1] === "front").map(([k, v]) => [v[0], k.toUpperCase()]));
+// the standard internal structure table (engine: mech_state.rs STRUCTURE_TABLE): tons -> [CT, side torso, arm, leg]
+const STRUCT_ROWS = [[10,4,3,1,2],[15,5,4,2,3],[20,6,5,3,4],[25,8,6,4,6],[30,10,7,5,7],[35,11,8,6,8],[40,12,10,6,10],[45,14,11,7,11],[50,16,12,8,12],[55,18,13,9,13],[60,20,14,10,14],[65,21,15,10,15],[70,22,15,11,15],[75,23,16,12,16],[80,25,17,13,17],[85,27,18,14,18],[90,29,19,15,19],[95,30,20,16,20],[100,31,21,17,21],[105,32,22,17,22],[110,33,23,18,23],[115,35,24,19,24],[120,36,25,20,25],[125,38,26,21,26],[130,39,27,21,27],[135,41,28,22,28],[140,42,29,23,29],[145,44,31,24,31],[150,45,32,25,32],[155,47,33,26,33],[160,48,34,26,34],[165,50,35,27,35],[170,51,36,28,36],[175,53,37,29,37],[180,54,38,30,38],[185,56,39,31,39],[190,57,40,31,40],[195,59,41,32,41],[200,60,42,33,42]];
+// where each location sits on the sheet, as the paper sheet has it: [row, column]
+const SHEET_POS = { "Head": [1, 3], "Left Arm": [2, 1], "Left Torso": [2, 2], "Center Torso": [2, 3], "Right Torso": [2, 4], "Right Arm": [2, 5],
+  "Left Leg": [3, 2], "Center Leg": [3, 3], "Right Leg": [3, 4], "Front Left Leg": [3, 2], "Front Right Leg": [3, 4], "Rear Left Leg": [4, 2], "Rear Right Leg": [4, 4] };
+const slotCap = (loc) => (/Head|Leg/.test(loc) ? 6 : 12);                 // a head and a leg have 6 critical slots, everything else 12
+// parts that cannot be taken out (Daniel): shoulder, hip, upper arm / leg, lower leg, foot, sensors, life support, cockpit, engine, gyro
+const FIXED = new Set(["shoulder", "hip", "upperarmactuator", "upperlegactuator", "lowerlegactuator", "footactuator", "sensors", "lifesupport", "cockpit", "cockpit(armored)", "fusionengine", "gyro", "engine"]);
+const isFixed = (raw) => FIXED.has(normName(raw));
+const ACTUATORS = { 2: "Lower Arm Actuator", 3: "Hand Actuator" };      // the arm slots that are check boxes
+// engine, gyro and cockpit lists with the slots they take (read off the unit files: how many "Fusion Engine" slots a type has in
+// the centre torso and in each side torso, how many "Gyro" slots, what the head holds)
+const ENGINES = [["Fusion Engine", 6, 0], ["XL Engine", 6, 3], ["XL (Clan) Engine", 6, 2], ["Light Engine", 6, 2], ["XXL Engine", 6, 6], ["XXL (Clan) Engine", 6, 4], ["Compact Engine", 3, 0], ["ICE Engine", 6, 0], ["Fuel Cell Engine", 6, 0]];
+const GYROS = [["Standard Gyro", 4], ["Compact Gyro", 2], ["Heavy Duty Gyro", 4], ["XL Gyro", 6]];
+const E = EMPTY;
+const COCKPITS = { "Standard Cockpit": { head: ["Life Support", "Sensors", "Cockpit", E, "Sensors", "Life Support"], ct: 0 },
+  "Small Cockpit": { head: ["Life Support", "Sensors", "Cockpit", "Sensors", E, E], ct: 0 },
+  "Command Console": { head: ["Life Support", "Sensors", "Cockpit", "Cockpit", "Sensors", "Life Support"], ct: 0 },
+  "Torso-Mounted Cockpit": { head: ["Sensors", "Sensors", E, E, E, E], ct: 1 },
+  "Industrial Cockpit": { head: ["Life Support", "Sensors", "Cockpit", E, "Sensors", "Life Support"], ct: 0 },
+  "Primitive Cockpit": { head: ["Life Support", "Sensors", "Cockpit", E, "Sensors", "Life Support"], ct: 0 } };
+const STRUCTURES = ["Standard", "Endo Steel", "Endo-Composite", "Composite", "Reinforced", "Industrial"];
+const ARMORS = ["Standard", "Ferro-Fibrous", "Light Ferro-Fibrous", "Heavy Ferro-Fibrous", "Stealth", "Reactive", "Reflective", "Hardened", "Ferro-Lamellor", "Ballistic-Reinforced", "Anti-Penetrative Ablation", "Impact-Resistant", "Heat-Dissipating"];
+const MYOMERS = ["Standard", "Triple-Strength", "MASC", "Industrial Triple-Strength", "Super-Cooled"];
+const TECHBASES = ["Inner Sphere", "Clan", "Mixed (IS Chassis)", "Mixed (Clan Chassis)"];
+
+const SHEET = { mtf: null, original: "", id: "", team: null, unit: null, edit: false, pick: null, structure: {}, eval: null, msg: "", find: "", allAmmo: false };
 let equipment = null;                       // { list, byAlias } from api "equipment_list"
 const normName = (s) => String(s).toLowerCase().replace(/\s+/g, "");
 const stripTags = (s) => String(s).replace(/\s*\((R|OMNIPOD|T|SPLIT|ARMORED)\)/gi, "");
@@ -1410,8 +1442,23 @@ function pretty(raw) {
   s = s.replace(/^(IS|CL)(?=[A-Z])/, "").replace(/([a-z])([A-Z0-9])/g, "$1 $2").replace(/([A-Z])([A-Z][a-z])/g, "$1 $2");
   return (clan ? "Clan " : "") + s;
 }
+// the folder an equipment item is listed under
+const PHYSICAL_RE = /hatchet|sword|retractable|chain ?whip|mace|saw|claw|lance|flail|vibro|talon|wrecking|pile|dual saw|lift hoist|backhoe|rock cutter|spot welder/i;
+function folderOf(e) {
+  if (e.cat === "ammo") return "Ammo";
+  if (e.cat === "weapon") return e.dt === "Energy" ? "Energy" : e.dt === "Ballistic" ? "Ballistic" : e.dt === "Missile" ? "Missile" : "Other";
+  return PHYSICAL_RE.test(e.n + e.k) ? "Physical" : "Other";
+}
+const FOLDERS = ["Energy", "Ballistic", "Missile", "Physical", "Other", "Ammo"];
+// does this ammo belong to a weapon on the unit: the ammo's name (without IS / CL and "Ammo") is the weapon's, or starts it
+// (and the next letter is not a digit, so AC/2 ammo is not AC/20's)
+const ammoBase = (a) => normName(a).replace(/^(is|cl|clan)/, "").replace(/ammo/g, "").replace(/[^a-z0-9]/g, "");
+function ammoFits(ammo, present) {
+  const b = ammoBase(ammo.k); if (!b) return false;
+  return present.some((w) => (w.al || []).some((a) => { const x = ammoBase(a); return x === b || (x.startsWith(b) && !/\d/.test(x[b.length] || "")); }));
+}
 
-// the file as a list of lines; every edit changes a line in place, so whatever the page does not understand is kept as it was
+// the file as a list of lines; every edit changes a line in place
 class Mtf {
   constructor(text) { this.nl = text.includes("\r\n") ? "\r\n" : "\n"; this.lines = text.split(/\r?\n/); }
   text() { return this.lines.join(this.nl); }
@@ -1420,14 +1467,15 @@ class Mtf {
   set(key, value) {
     const i = this.find(key);
     if (i >= 0) { this.lines[i] = this.lines[i].slice(0, key.length + 1) + value; return; }
-    const w = this.find("walk mp"); this.lines.splice(w >= 0 ? w + 1 : this.lines.length, 0, `${key}:${value}`);
+    const w = this.find("mass"); this.lines.splice(w >= 0 ? w + 1 : this.lines.length, 0, `${key}:${value}`);
   }
   locations() {
     const out = [];
     this.lines.forEach((l, i) => {
       const m = LOC_RE.exec(l); if (!m) return;
       let j = i + 1; while (j < this.lines.length && this.lines[j].trim() !== "" && !LOC_RE.test(this.lines[j])) j++;
-      out.push({ name: m[1].replace(/\b\w/g, (c) => c.toUpperCase()), at: i + 1, n: j - i - 1 });
+      const name = m[1].replace(/\b\w/g, (c) => c.toUpperCase());
+      out.push({ name, at: i + 1, n: j - i - 1, cap: Math.min(j - i - 1, slotCap(name)) });
     });
     return out;
   }
@@ -1439,108 +1487,153 @@ class Mtf {
     });
     return out;
   }
+  // the "LA IS:17" lines (internal structure by hand); {} when the file has none
+  isLines() {
+    const out = {};
+    this.lines.forEach((l, i) => { const m = /^([A-Za-z]{2,3}) IS:\s*(\d+)/i.exec(l); const k = m && ARMOR_KEYS[m[1].toLowerCase()]; if (k && k[1] === "front") out[k[0]] = { line: i, val: +m[2] }; });
+    return out;
+  }
+  setIS(loc, val, all) {          // all = every location's current value, written together the first time
+    let have = this.isLines();
+    if (!Object.keys(have).length) {
+      let at = this.armor().reduce((n, a) => Math.max(n, a.line), -1) + 1; if (at <= 0) at = this.lines.length;
+      const add = Object.entries(all).filter(([l]) => KEY_OF[l]).map(([l, v]) => `${KEY_OF[l]} IS:${v}`);
+      this.lines.splice(at, 0, ...add); have = this.isLines();
+    }
+    if (have[loc]) this.lines[have[loc].line] = this.lines[have[loc].line].replace(/:\s*\d+/, `:${val}`);
+  }
   // the Weapons: block follows the crit slots (the engine reads the slots; the block feeds the list's weapon search)
   rewriteWeapons() {
     const block = [];
     for (const loc of this.locations()) {
       let run = null;
       const flush = () => { if (run) { const e = lookupEq(run.raw); const per = e && e.slots > 0 ? e.slots : 1; if (e && e.cat === "weapon") block.push(`${Math.max(1, Math.floor(run.n / per))} ${stripTags(run.raw)}, ${loc.name}`); run = null; } };
-      for (let k = 0; k < loc.n; k++) { const raw = this.lines[loc.at + k]; if (raw === EMPTY) { flush(); continue; } if (run && normName(run.raw) === normName(raw)) run.n++; else { flush(); run = { raw, n: 1 }; } }
+      for (let k = 0; k < loc.cap; k++) { const raw = this.lines[loc.at + k]; if (raw === EMPTY) { flush(); continue; } if (run && normName(run.raw) === normName(raw)) run.n++; else { flush(); run = { raw, n: 1 }; } }
       flush();
     }
     const i = this.lines.findIndex((l) => /^weapons:\s*\d+/i.test(l));
-    const entry = [`Weapons:${block.length}`, ...block];
     if (i < 0) return;
     let j = i + 1; while (j < this.lines.length && this.lines[j].trim() !== "") j++;
-    this.lines.splice(i, j - i, ...entry);
+    this.lines.splice(i, j - i, `Weapons:${block.length}`, ...block);
   }
 }
 
 // ---- the design as numbers
 const sheetTons = () => +SHEET.mtf.get("Mass") || 0;
 const engineRating = () => parseInt(SHEET.mtf.get("Engine"), 10) || 0;
-const engineFree = () => (/\b(ICE|fuel cell|fission)\b/i.test(SHEET.mtf.get("Engine")) ? 0 : Math.floor(engineRating() / 25));     // sinks the engine holds
+const engineKind = () => { const t = SHEET.mtf.get("Engine").replace(/^\d+\s*/, ""); return ENGINES.find(([n]) => normName(n.replace(/ Engine$/, "")) === normName(t.replace(/\(.*?\)\s*$/, "").replace(/ Engine$/, "").replace(/ Fusion$/, ""))) || (/xxl/i.test(t) ? /clan/i.test(t) ? ENGINES[5] : ENGINES[4] : /xl/i.test(t) ? /clan/i.test(t) ? ENGINES[2] : ENGINES[1] : /light/i.test(t) ? ENGINES[3] : /compact/i.test(t) ? ENGINES[6] : /ice/i.test(t) ? ENGINES[7] : /fuel/i.test(t) ? ENGINES[8] : ENGINES[0]); };
+const engineFree = () => { const k = engineKind()[0]; return /ICE|Fuel/.test(k) ? 0 : Math.floor(engineRating() / 25); };       // sinks the engine holds
+const gyroKind = () => { const t = SHEET.mtf.get("Gyro"); return GYROS.find(([n]) => normName(n) === normName(t)) || GYROS.find(([n]) => t && normName(t).includes(normName(n.split(" ")[0]))) || GYROS[0]; };
+const cockpitKind = () => { const t = SHEET.mtf.get("Cockpit"); return Object.keys(COCKPITS).find((n) => normName(n) === normName(t)) || "Standard Cockpit"; };
 const sinkInfo = () => { const m = /^(\d+)\s*(\w*)/.exec(SHEET.mtf.get("Heat Sinks")) || []; return { n: +m[1] || 0, type: /double/i.test(m[2]) ? "Double" : "Single" }; };
+const isClanTech = () => /clan/i.test(SHEET.mtf.get("TechBase")) && !/mixed \(IS/i.test(SHEET.mtf.get("TechBase"));
 function sinkItem() {          // [slot name, slots each] for the design's heat sink type
   if (sinkInfo().type === "Single") return ["Heat Sink", 1];
-  return /clan/i.test(SHEET.mtf.get("TechBase")) ? ["CLDoubleHeatSink", 2] : ["ISDoubleHeatSink", 3];
+  return isClanTech() ? ["CLDoubleHeatSink", 2] : ["ISDoubleHeatSink", 3];
 }
 const isSinkSlot = (raw) => /heatsink/.test(normName(raw)) && !/ammo/.test(normName(raw));
 const isJetSlot = (raw) => /jumpjet/.test(normName(raw)) && !/ammo/.test(normName(raw));
-// every slot of every location: [{loc, i (index in lines), raw}]
-function allSlots() { const out = []; for (const loc of SHEET.mtf.locations()) for (let k = 0; k < loc.n; k++) out.push({ loc: loc.name, k, n: loc.n, i: loc.at + k, raw: SHEET.mtf.lines[loc.at + k] }); return out; }
+const STRUCT_SLOT = /^(IS |Clan |CL )?(Endo Steel|Endo-Steel|Endo-Composite|Endo Composite|Ferro-Fibrous|Light Ferro-Fibrous|Heavy Ferro-Fibrous)$/i;
+const isStructSlot = (raw) => STRUCT_SLOT.test(String(raw).trim());
+// every slot of every location the sheet shows: [{loc, k, i (index in lines), raw}]
+function allSlots() { const out = []; for (const loc of SHEET.mtf.locations()) for (let k = 0; k < loc.cap; k++) out.push({ loc: loc.name, k, i: loc.at + k, raw: SHEET.mtf.lines[loc.at + k] }); return out; }
 // the items on the unit: a run of equal names, cut into pieces of the item's size
 function itemsOf(pred) {
   const items = [], slots = allSlots();
-  for (let s = 0; s < slots.length; s++) {
-    if (!pred(slots[s].raw)) continue;
-    const e = lookupEq(slots[s].raw), size = e && e.slots > 0 ? e.slots : 1;
+  for (const s of slots) {
+    if (!pred(s.raw)) continue;
+    const e = lookupEq(s.raw), size = e && e.slots > 0 ? e.slots : 1;
     const last = items[items.length - 1];
-    if (last && last.loc === slots[s].loc && last.name === normName(slots[s].raw) && last.at.length < last.size) last.at.push(slots[s].i);
-    else items.push({ loc: slots[s].loc, name: normName(slots[s].raw), size, at: [slots[s].i] });
+    if (last && last.loc === s.loc && last.name === normName(s.raw) && last.at.length < last.size && last.at[last.at.length - 1] === s.i - 1) last.at.push(s.i);
+    else items.push({ loc: s.loc, name: normName(s.raw), size, at: [s.i] });
   }
   return items;
 }
-const PREFER = { sink: [/Arm/, /Leg/, /Torso/], jet: [/Leg/, /Torso/] };
+const PREFER = { sink: [/Arm/, /Leg/, /Torso/], jet: [/Leg/, /Torso/], struct: [/Arm/, /Leg/, /Torso/] };
 // put `size` equal slots in the first location of the preferred kinds that has that many empty ones in a row
 function placeRun(name, size, prefs) {
-  const locs = SHEET.mtf.locations();
-  for (const pref of prefs) for (const loc of locs) {
+  const m = SHEET.mtf;
+  for (const pref of prefs) for (const loc of m.locations()) {
     if (!pref.test(loc.name) || /Head/.test(loc.name)) continue;
-    for (let k = 0; k + size <= loc.n; k++) {
-      let free = true; for (let q = 0; q < size; q++) if (SHEET.mtf.lines[loc.at + k + q] !== EMPTY) { free = false; break; }
-      if (free) { for (let q = 0; q < size; q++) SHEET.mtf.lines[loc.at + k + q] = name; return true; }
+    for (let k = 0; k + size <= loc.cap; k++) {
+      let free = true; for (let q = 0; q < size; q++) if (m.lines[loc.at + k + q] !== EMPTY) { free = false; break; }
+      if (free) { for (let q = 0; q < size; q++) m.lines[loc.at + k + q] = name; return true; }
     }
   }
   return false;
 }
-// bring the slot items up to `want` units; false (and as many as fit placed) when there is no room
-function syncItems(pred, want, name, size, prefs) {
-  const have = itemsOf(pred);
-  while (have.length > want) { for (const i of have.pop().at) SHEET.mtf.lines[i] = EMPTY; }
-  let n = have.length;
-  while (n < want) { if (!placeRun(name, size, prefs)) return false; n++; }
+// "first empty slots" of a location, `n` of them (not necessarily in a row): for engine and gyro slots
+function takeEmpty(locName, n, name) {
+  const m = SHEET.mtf, loc = m.locations().find((l) => l.name === locName); if (!loc) return n === 0;
+  const idx = []; for (let k = 0; k < loc.cap && idx.length < n; k++) if (m.lines[loc.at + k] === EMPTY) idx.push(loc.at + k);
+  if (idx.length < n) return false;
+  idx.forEach((i) => { m.lines[i] = name; });
   return true;
 }
-// heat sinks: the engine holds some; every other one is an item in the slots
-function syncSinks() {
-  const { n } = sinkInfo(), [name, size] = sinkItem();
-  const inSlots = Math.max(0, n - Math.min(n, engineFree()));
-  return syncItems(isSinkSlot, inSlots, name, size, PREFER.sink);
+const clearNamed = (locName, pred) => { const m = SHEET.mtf, loc = m.locations().find((l) => l.name === locName); if (loc) for (let k = 0; k < loc.n; k++) if (pred(m.lines[loc.at + k])) m.lines[loc.at + k] = EMPTY; };
+// engine / gyro: the old slots out, the new ones into the first empty places; false (and the caller puts the lines back) when they do not fit
+function rebuildEngineGyro(engine, gyro) {
+  for (const loc of ["Center Torso", "Left Torso", "Right Torso"]) clearNamed(loc, (r) => /^(fusion engine|gyro)$/i.test(r.trim()) || /^engine$/i.test(r.trim()));
+  return takeEmpty("Center Torso", engine[1], "Fusion Engine") && takeEmpty("Center Torso", gyro[1], "Gyro") && takeEmpty("Left Torso", engine[2], "Fusion Engine") && takeEmpty("Right Torso", engine[2], "Fusion Engine");
 }
-const syncJets = () => syncItems(isJetSlot, +SHEET.mtf.get("Jump MP") || 0, "Jump Jet", 1, PREFER.jet);
+function rebuildCockpit(name) {
+  const m = SHEET.mtf, c = COCKPITS[name], head = m.locations().find((l) => l.name === "Head"); if (!head) return true;
+  clearNamed("Head", (r) => /^(life support|sensors|cockpit(\s*\(armored\))?)$/i.test(r.trim()));
+  clearNamed("Center Torso", (r) => /^cockpit$/i.test(r.trim()));
+  for (let k = 0; k < 6; k++) if (c.head[k] !== E) { if (m.lines[head.at + k] !== E) return false; m.lines[head.at + k] = c.head[k]; }
+  return c.ct ? takeEmpty("Center Torso", c.ct, "Cockpit") : true;
+}
+// how many of each slot kind a design should have, for the warnings
+function expectedStructSlots() {
+  const st = SHEET.mtf.get("Structure"), ar = SHEET.mtf.get("Armor"), clan = (t) => /clan/i.test(t) || (!/\bIS\b|inner sphere/i.test(t) && isClanTech());
+  let n = 0;
+  if (/endo.?steel/i.test(st)) n += clan(st) ? 7 : 14;
+  if (/endo.?composite/i.test(st)) n += clan(st) ? 4 : 7;
+  if (/light ferro/i.test(ar)) n += 7; else if (/heavy ferro/i.test(ar)) n += 21; else if (/ferro-?fibrous/i.test(ar) && !/lamellor/i.test(ar)) n += clan(ar) ? 7 : 14;
+  return n;
+}
 
-// ---- checks: [{level: "ok" | "warn" | "bad", limit: bool, text}]; a "limit" can be overridden, a "bad" cannot
+// ---- warnings: [{level: "ok" | "warn" | "bad", text, fix?: [label, fn]}]; only "bad" (the engine cannot read the design) holds anything back
 function sheetChecks() {
-  const m = SHEET.mtf, out = [], t = sheetTons(), rating = engineRating();
+  const m = SHEET.mtf, out = [], rating = engineRating();
   if (SHEET.eval && SHEET.eval.ok === false) out.push({ level: "bad", text: `The engine cannot play this design: ${SHEET.eval.why}` });
-  const { n } = sinkInfo(), free = Math.min(n, engineFree()), sinkUnits = itemsOf(isSinkSlot).length;
-  const [, size] = sinkItem();
-  out.push(sinkUnits === n - free ? { level: "ok", text: `Heat sinks: ${n} (${free} in the engine${n - free ? `, ${n - free} in ${sinkUnits * size} critical slots` : ""}).` }
-    : { level: "warn", limit: true, text: `Heat sinks: ${n} asked for, ${free} fit the engine, ${sinkUnits} slot item${sinkUnits === 1 ? "" : "s"} placed (${n - free} needed).` });
-  if (n < 10) out.push({ level: "warn", limit: true, text: `A 'Mech normally has at least 10 heat sinks (this has ${n}).` });
+  const { n } = sinkInfo(), free = Math.min(n, engineFree()), [sname, size] = sinkItem(), have = itemsOf(isSinkSlot).length, need = n - free;
+  const ofs = have - need;
+  if (ofs < 0) out.push({ level: "warn", text: `Heat sinks: ${n} (${free} fit in the engine), so ${need} should be in the critical slots: ${have} are placed, ${-ofs} short (${-ofs * size} slot${-ofs * size === 1 ? "" : "s"}).`, fix: [`Place ${-ofs}`, () => placeMany(isSinkSlot, -ofs, sname, size, PREFER.sink)] });
+  else if (ofs > 0) out.push({ level: "warn", text: `Heat sinks: ${n} (${free} fit in the engine) but ${have} are placed in the slots, ${ofs} more than needed.` });
   const jets = itemsOf(isJetSlot).length, jump = +m.get("Jump MP") || 0;
-  if (jets !== jump) out.push({ level: "warn", limit: true, text: `Jump MP ${jump} but ${jets} jump jet${jets === 1 ? "" : "s"} in the slots.` });
-  if (rating > 400) out.push({ level: "warn", limit: true, text: `Engine rating ${rating} is above 400.` });
-  const rear = {}; SHEET.mtf.armor().filter((a) => a.side === "rear").forEach((a) => { rear[a.loc] = a.val; });
-  for (const a of SHEET.mtf.armor().filter((x) => x.side === "front")) {
-    const st = SHEET.structure[a.loc]; if (st == null) continue;
-    const max = a.loc === "Head" ? 9 : 2 * st;
-    if (a.val + (rear[a.loc] || 0) > max) out.push({ level: "warn", limit: true, text: `${a.loc} armor ${a.val + (rear[a.loc] || 0)} is over its maximum of ${max} (twice the internal structure).` });
+  if (jets < jump) out.push({ level: "warn", text: `Jump MP ${jump} should have ${jump} jump jets in the slots: ${jets} are placed, ${jump - jets} short.`, fix: [`Place ${jump - jets}`, () => placeMany(isJetSlot, jump - jets, "Jump Jet", 1, PREFER.jet)] });
+  else if (jets > jump) out.push({ level: "warn", text: `${jets} jump jets in the slots for Jump MP ${jump}.` });
+  const ss = allSlots().filter((s) => isStructSlot(s.raw)).length, want = expectedStructSlots();
+  if (ss < want) out.push({ level: "warn", text: `${m.get("Structure")} structure / ${m.get("Armor")} armor should take ${want} critical slots: ${ss} are placed, ${want - ss} short.`, fix: [`Place ${want - ss}`, () => placeMany(isStructSlot, want - ss, (/clan/i.test(m.get("Structure") + m.get("Armor")) ? "Clan " : "IS ") + (/endo/i.test(m.get("Structure")) ? "Endo Steel" : "Ferro-Fibrous"), 1, PREFER.struct, true)] });
+  else if (ss > want) out.push({ level: "warn", text: `${ss} structure / armor slots are placed, ${ss - want} more than ${want}.` });
+  if (n < 10) out.push({ level: "warn", text: `A 'Mech normally has at least 10 heat sinks (this has ${n}).` });
+  if (rating > 400) out.push({ level: "warn", text: `Engine rating ${rating} is above 400.` });
+  const tons = sheetTons(), walk = +m.get("Walk MP") || 0;
+  if (rating && tons && walk * tons !== rating) out.push({ level: "warn", text: `Engine rating ${rating} is not Walk MP ${walk} x ${tons} t = ${walk * tons}.` });
+  if (!STRUCT_ROWS.some((r) => r[0] === tons) && !Object.keys(m.isLines()).length) out.push({ level: "warn", text: `${tons} t has no internal structure in the table (10-200 t in steps of 5): press "Use tonnage" (the most the engine plays is 200 t), then edit the points by hand.` });
+  const st = SHEET.structure, rear = {}; m.armor().filter((a) => a.side === "rear").forEach((a) => { rear[a.loc] = a.val; });
+  for (const a of m.armor().filter((x) => x.side === "front")) {
+    const s = st[a.loc]; if (s == null) continue;
+    const max = a.loc === "Head" ? 9 : 2 * s;
+    if (a.val + (rear[a.loc] || 0) > max) out.push({ level: "warn", text: `${a.loc} armor ${a.val + (rear[a.loc] || 0)} is more than twice its internal structure (${max}).` });
   }
-  if (!out.some((o) => o.level !== "ok")) out.push({ level: "ok", text: "Within the construction limits. Weight is not checked." });
+  if (!out.length) out.push({ level: "ok", text: "Nothing to warn about. (Legality is not checked.)" });
   return out;
 }
-const sheetBlocked = () => { const c = sheetChecks(); return c.some((x) => x.level === "bad") || (!SHEET.override && c.some((x) => x.limit)); };
+function placeMany(pred, count, name, size, prefs) {
+  let placed = 0; while (placed < count && placeRun(name, size, prefs)) placed++;
+  sheetChanged(placed < count ? `Only ${placed} of ${count} fitted: the critical slots are full.` : "");
+}
 
 // ---- opening, evaluating, drawing
 async function openSheet(id, team, unit) {
   await loadEquipment();
-  const r = await api("unit_text", { id });
-  if (r.error) { setStatus(`${id}: ${r.error}`); return; }
-  Object.assign(SHEET, { mtf: new Mtf(r.text), original: r.text, id, team, unit, edit: team != null, override: false, pick: null, msg: "", eval: null, structure: {}, unitJson: lab.byId.get(id) || {} });
-  $("sheet").classList.toggle("editing", SHEET.edit);
-  $("sheet").hidden = false;
+  let text, base = id;
+  if (team != null && lab.teams[team].units[unit].mtf) { text = lab.teams[team].units[unit].mtf; base = lab.teams[team].units[unit].base || id; }
+  else { const r = await api("unit_text", { id }); if (r.error) { setStatus(`${id}: ${r.error}`); return; } text = r.text; }
+  Object.assign(SHEET, { mtf: new Mtf(text), original: text, id: base, team, unit, edit: team != null, pick: null, msg: "", eval: null, evalError: "", structure: {}, find: "", unitJson: lab.byId.get(base) || {} });
+  const dlg = $("sheet"); dlg.classList.toggle("editing", SHEET.edit); dlg.hidden = false; raiseWindow(dlg);
   drawSheet(); evalSheet();
 }
 let evalTimer = 0;
@@ -1550,7 +1643,7 @@ function evalSheet() {
     if (!SHEET.mtf) return;
     const r = await api("unit_eval", { text: SHEET.mtf.text() });
     SHEET.eval = r.error ? null : r.unit; SHEET.structure = r.structure || {}; SHEET.evalError = r.error || "";
-    if (!$("sheet").hidden) drawSheet();
+    if (SHEET.mtf && !$("sheet").hidden) drawSheet();
   }, 200);
 }
 function sheetBv() {
@@ -1559,20 +1652,21 @@ function sheetBv() {
   const t = SHEET.team != null ? lab.teams[SHEET.team].units[SHEET.unit] : null, table = lab.info.skill_table;
   return t && table ? `${Math.floor(base * table[t.gunnery][t.piloting] + 0.5)} with this pilot (${base} at 4 / 5)` : String(base);
 }
+const opts = (list, cur) => list.map((x) => { const v = Array.isArray(x) ? x[0] : x; return `<option${normName(v) === normName(cur) ? " selected" : ""}>${esc(v)}</option>`; }).join("");
 function drawSheet() {
   const S = SHEET, m = S.mtf, ed = S.edit, off = ed ? "" : " disabled";
   const rating = engineRating(), tons = sheetTons(), walk = +m.get("Walk MP") || 0, jump = +m.get("Jump MP") || 0, sk = sinkInfo();
   const changed = m.text() !== S.original;
-  $("sheet-title-text").textContent = `${m.get("chassis")} ${m.get("model")}`.trim() + (ed ? "  -  editing" : "");
+  $("sheet-title-text").textContent = `${m.get("chassis")} ${m.get("model")}`.trim() + (ed ? "  -  editing (temporary)" : "");
   const armor = m.armor(), rear = {}; armor.filter((a) => a.side === "rear").forEach((a) => { rear[a.loc] = a; });
-  const totalArmor = armor.reduce((n, a) => n + a.val, 0);
+  const totalArmor = armor.reduce((n, a) => n + a.val, 0), isl = m.isLines();
   const checks = sheetChecks();
   const armorRows = armor.filter((a) => a.side === "front").map((a) => {
-    const st = S.structure[a.loc], max = a.loc === "Head" ? 9 : st != null ? 2 * st : "";
+    const st = isl[a.loc] ? isl[a.loc].val : S.structure[a.loc], max = a.loc === "Head" ? 9 : st != null ? 2 * st : "";
     const r = rear[a.loc];
-    return `<tr><td>${esc(a.loc)}</td><td class="num"><input type="number" min="0" data-armor="${a.line}" value="${a.val}"${off}></td><td class="num">${r ? `<input type="number" min="0" data-armor="${r.line}" value="${r.val}"${off}>` : ""}</td><td class="num">${st ?? ""}</td><td class="num">${max}</td></tr>`;
+    return `<tr><td>${esc(a.loc)}</td><td class="num"><input type="number" min="0" data-armor="${a.line}" value="${a.val}"${off}></td><td class="num">${r ? `<input type="number" min="0" data-armor="${r.line}" value="${r.val}"${off}>` : ""}</td><td class="num"><input type="number" min="0" data-is="${esc(a.loc)}" value="${st ?? ""}"${off}></td><td class="num">${max}</td></tr>`;
   }).join("");
-  // equipment summary from the slots
+  // equipment totals from the slots
   const tally = new Map();
   for (const it of itemsOf((raw) => raw !== EMPTY && !!lookupEq(raw) && !isSinkSlot(raw) && !isJetSlot(raw))) {
     const raw = m.lines[it.at[0]], e = lookupEq(raw), k = normName(raw);
@@ -1581,90 +1675,136 @@ function drawSheet() {
   const eqRows = [...tally.values()].sort((a, b) => (b.e.tons || 0) - (a.e.tons || 0)).map((r) => `<tr><td>${esc(pretty(r.raw))}</td><td class="num">${r.n}</td><td class="num">${r.e.slots}</td><td class="num">${r.e.tons ?? ""}</td><td class="num">${r.e.heat ?? ""}</td><td class="num">${r.e.dmg ?? ""}</td></tr>`).join("");
   const grid = m.locations().map((loc) => {
     let freeN = 0;
-    const slots = Array.from({ length: loc.n }, (_, k) => {
-      const raw = m.lines[loc.at + k]; let cls = "crit-slot", title = "";
-      if (raw === EMPTY) { cls += " empty"; freeN++; } else if (isSinkSlot(raw) || isJetSlot(raw)) { cls += " managed"; title = "Counted by the Heat sinks / Jump MP boxes"; } else if (!lookupEq(raw)) { cls += " fixed"; title = "A built-in part of the 'Mech"; }
-      return `<div class="${cls}" data-loc="${esc(loc.name)}" data-k="${k}" title="${esc(title)}">${raw === EMPTY ? "(empty)" : esc(pretty(raw))}</div>`;
+    const slots = Array.from({ length: loc.cap }, (_, k) => {
+      const raw = m.lines[loc.at + k]; let cls = "crit-slot", title = "", inner;
+      const act = /Arm/.test(loc.name) && ACTUATORS[k];
+      if (act && (raw === EMPTY || raw === act)) {
+        // the lower arm and hand actuators are check boxes beside their slots
+        if (raw === EMPTY) freeN++;
+        inner = `<label><input type="checkbox" data-act="${esc(loc.name)}:${k}"${raw === act ? " checked" : ""}${off}> ${esc(raw === act ? act : `(${act.toLowerCase()})`)}</label>`;
+        cls += raw === act ? " fixed" : " empty";
+      } else {
+        if (raw === EMPTY) { cls += " empty"; freeN++; } else if (isFixed(raw)) { cls += " fixed"; title = "A built-in part of the 'Mech: it cannot be taken out"; }
+        inner = raw === EMPTY ? "(empty)" : esc(pretty(raw));
+      }
+      return `<div class="${cls}" data-loc="${esc(loc.name)}" data-k="${k}" title="${esc(title)}">${inner}</div>`;
     }).join("");
-    return `<div class="crit-loc"><h4><span>${esc(loc.name)}</span><span>${freeN} free</span></h4>${slots}</div>`;
+    const pos = SHEET_POS[loc.name] || [3, 3];
+    return `<div class="crit-loc" style="grid-row:${pos[0]};grid-column:${pos[1]}"><h4><span>${esc(loc.name)}</span><span>${freeN} free</span></h4>${slots}</div>`;
   }).join("");
-  const pick = S.pick;
-  const picker = ed ? `<div class="picker"><label>Equipment <input type="search" id="sh-find" placeholder="find, e.g. ER Large" value="${esc(S.find || "")}"></label>
-      <select id="sh-eq" size="1">${(equipment.list.filter((e) => e.cat !== "misc" || /./.test(e.n)).filter((e) => !S.find || normName(e.n + e.k).includes(normName(S.find))).slice(0, 300)).map((e) => `<option value="${esc(e.k)}"${pick && pick.k === e.k ? " selected" : ""}>${esc(pretty(e.k))} (${e.slots} slot${e.slots === 1 ? "" : "s"}${e.tons != null ? `, ${e.tons} t` : ""}${e.heat != null ? `, heat ${e.heat}` : ""}${e.cat === "ammo" ? ", ammo" : ""})</option>`).join("")}</select>
-      <span class="note">${pick ? `Click an empty slot to place ${esc(pretty(pick.k))}; click a placed item to take it out.` : "Choose equipment, then click an empty slot. Click a placed item to take it out."}</span></div>` : "";
+  // the equipment picker: one folder each for Energy, Ballistic, Missile, Physical, Other and the ammo of the weapons on the unit
+  let picker = "";
+  if (ed) {
+    const present = itemsOf((raw) => raw !== EMPTY && !!lookupEq(raw) && lookupEq(raw).cat === "weapon").map((it) => lookupEq(m.lines[it.at[0]]));
+    const q = normName(S.find);
+    const folders = FOLDERS.map((f) => {
+      let list = equipment.list.filter((e) => folderOf(e) === f && (!q || normName(e.n + e.k).includes(q)));
+      if (f === "Ammo" && !S.allAmmo) list = list.filter((e) => ammoFits(e, present));
+      const sel = `<select size="8" data-folder="${f}">${list.slice(0, 400).map((e) => `<option value="${esc(e.k)}"${S.pick && S.pick.k === e.k ? " selected" : ""}>${esc(pretty(e.k))} (${e.slots} slot${e.slots === 1 ? "" : "s"}${e.tons != null ? `, ${e.tons} t` : ""}${e.heat != null ? `, heat ${e.heat}` : ""})</option>`).join("")}</select>`;
+      return `<details class="folder"${S.open && S.open[f] ? " open" : ""} data-fname="${f}"><summary>${f} <span class="note">(${list.length}${f === "Ammo" && !S.allAmmo ? ", for the weapons on this unit" : ""})</span></summary>${f === "Ammo" ? `<label class="row"><input type="checkbox" id="sh-allammo"${S.allAmmo ? " checked" : ""}> Show all ammo</label>` : ""}${sel}</details>`;
+    }).join("");
+    picker = `<div class="picker"><h3>Add equipment</h3><label>Find <input type="search" id="sh-find" placeholder="e.g. ER Large" value="${esc(S.find)}"></label>
+      <div class="note">${S.pick ? `Click an empty slot to place ${esc(pretty(S.pick.k))}; click a placed item to take it out.` : "Choose an item in a folder, then click an empty slot. Click a placed item to take it out."}</div>${folders}</div>`;
+  }
   $("sheet-body").innerHTML = `
-    <div class="head"><b>${esc(m.get("chassis"))} ${esc(m.get("model"))}</b><span>${tons} t</span><span>${esc(m.get("TechBase"))}</span><span>Battle Value ${esc(sheetBv())}</span>${changed ? `<span class="tag">edited (the original is ${esc(S.unitJson.bv ?? "?")})</span>` : ""}</div>
-    ${picker}
-    <div class="sheet-msgs">${S.msg ? `<div class="bad">${esc(S.msg)}</div>` : ""}${checks.map((c) => `<div class="${c.level}">${c.level === "ok" ? "&#10003;" : c.level === "bad" ? "&#10007;" : "&#9888;"} ${esc(c.text)}${c.limit && S.override ? " (overridden)" : ""}</div>`).join("")}</div>
+    <div class="head"><b>${esc(m.get("chassis"))} ${esc(m.get("model"))}</b><span>${tons} t</span><span>${esc(m.get("TechBase"))}</span><span>Battle Value ${esc(sheetBv())}</span>${changed ? `<span class="tag">modified (the original is ${esc(S.unitJson.bv ?? "?")})</span>` : ""}</div>
+    <div class="sheet-msgs">${S.msg ? `<div class="bad">${esc(S.msg)}</div>` : ""}${checks.map((c, i) => `<div class="${c.level}">${c.level === "ok" ? "&#10003;" : c.level === "bad" ? "&#10007;" : "&#9888;"} ${esc(c.text)}${c.fix && ed ? ` <button class="btn small" data-fix="${i}">${esc(c.fix[0])}</button>` : ""}</div>`).join("")}</div>
     <div>
-      <h3>Movement and heat</h3>
+      <h3>Identity</h3>
       <table>
-        <tr><td>Engine</td><td colspan="2">${esc(m.get("Engine"))}${ed ? ` <span class="note">rating = Walk x tons = ${walk * tons}</span>` : ""}</td></tr>
-        <tr><td>Walk MP</td><td class="num"><input type="number" min="1" max="20" id="sh-walk" value="${walk}"${off}></td><td class="note">run ${Math.ceil(walk * 1.5)}</td></tr>
-        <tr><td>Jump MP</td><td class="num"><input type="number" min="0" max="20" id="sh-jump" value="${jump}"${off}></td><td class="note">${itemsOf(isJetSlot).length} jets in slots</td></tr>
-        <tr><td>Heat sinks</td><td class="num"><input type="number" min="0" max="200" id="sh-sinks" value="${sk.n}"${off}></td><td><select id="sh-sinktype"${off}><option${sk.type === "Single" ? " selected" : ""}>Single</option><option${sk.type === "Double" ? " selected" : ""}>Double</option></select></td></tr>
+        <tr><td>Chassis</td><td colspan="2"><input type="text" id="sh-chassis" value="${esc(m.get("chassis"))}" style="width:150px"${off}></td></tr>
+        <tr><td>Model</td><td colspan="2"><input type="text" id="sh-model" value="${esc(m.get("model"))}" style="width:150px"${off}></td></tr>
+        <tr><td>Tonnage</td><td class="num"><input type="number" min="1" max="200" id="sh-mass" value="${tons}"${off}></td><td>${ed ? `<button class="btn small" id="sh-usetons" title="Rounds the tonnage up to a multiple of 5 and fills in the internal structure of the nearest tonnage in the table (10-200 t); edit the points by hand after">Use tonnage</button>` : ""}</td></tr>
+        <tr><td>Tech base</td><td colspan="2"><select id="sh-tech"${off}>${opts(TECHBASES, m.get("TechBase"))}</select></td></tr>
       </table>
-      <h3 style="margin-top:8px">Armor (${totalArmor} points)</h3>
-      <table><thead><tr><th>Location</th><th class="num">Front</th><th class="num">Rear</th><th class="num" title="Internal structure">IS</th><th class="num" title="Most armor a location can carry">Max</th></tr></thead><tbody>${armorRows}</tbody></table>
-      ${ed ? `<h3 style="margin-top:8px">Save as</h3><label>Model <input type="text" id="sh-model" value="${esc(S.modelName ?? defaultModel())}" style="width:150px"></label>
-      <label class="row" style="margin-top:6px"><input type="checkbox" id="sh-override"${S.override ? " checked" : ""}> Override construction limits</label>` : ""}
+      <h3 style="margin-top:8px">Movement and heat</h3>
+      <table>
+        <tr><td>Engine</td><td colspan="2"><select id="sh-engine"${off}>${opts(ENGINES, engineKind()[0])}</select> <span class="note">${rating}</span></td></tr>
+        <tr><td>Walk MP</td><td class="num"><input type="number" min="1" max="30" id="sh-walk" value="${walk}"${off}></td><td class="note">run ${Math.ceil(walk * 1.5)}; engine ${walk * tons}</td></tr>
+        <tr><td>Jump MP</td><td class="num"><input type="number" min="0" max="30" id="sh-jump" value="${jump}"${off}></td><td class="note">${itemsOf(isJetSlot).length} jets placed</td></tr>
+        <tr><td>Heat sinks</td><td class="num"><input type="number" min="0" max="500" id="sh-sinks" value="${sk.n}"${off}></td><td><select id="sh-sinktype"${off}><option${sk.type === "Single" ? " selected" : ""}>Single</option><option${sk.type === "Double" ? " selected" : ""}>Double</option></select></td></tr>
+        <tr><td>Gyro</td><td colspan="2"><select id="sh-gyro"${off}>${opts(GYROS, gyroKind()[0])}</select></td></tr>
+        <tr><td>Cockpit</td><td colspan="2"><select id="sh-cockpit"${off}>${opts(Object.keys(COCKPITS), cockpitKind())}</select></td></tr>
+        <tr><td>Structure</td><td colspan="2"><select id="sh-structure"${off}>${opts(STRUCTURES, m.get("Structure").replace(/^(IS|Clan|CL) /i, "").replace(/-Steel/i, " Steel"))}</select></td></tr>
+        <tr><td>Armor</td><td colspan="2"><select id="sh-armortype"${off}>${opts(ARMORS, m.get("Armor").replace(/\(.*\)/, "").replace(/^(IS|Clan|CL) /i, "").replace(/ Armor$/i, ""))}</select></td></tr>
+        <tr><td>Myomer</td><td colspan="2"><select id="sh-myomer"${off}>${opts(MYOMERS, m.get("Myomer"))}</select></td></tr>
+      </table>
+      <h3 style="margin-top:8px">Armor (${totalArmor} points) and structure</h3>
+      <table><thead><tr><th>Location</th><th class="num">Front</th><th class="num">Rear</th><th class="num" title="Internal structure points">IS</th><th class="num" title="Twice the internal structure (head 9)">2xIS</th></tr></thead><tbody>${armorRows}</tbody></table>
     </div>
     <div>
-      <h3>Critical slots</h3>
       <div class="crit-grid">${grid}</div>
+      ${picker}
       <h3 style="margin-top:8px">Weapons and equipment</h3>
       <table><thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Slots</th><th class="num">Tons</th><th class="num">Heat</th><th class="num">Dmg</th></tr></thead><tbody>${eqRows}</tbody></table>
-    </div>
-`;
+    </div>`;
   const foot = $("sheet-foot");
   foot.innerHTML = ed
-    ? `<button class="btn" id="sh-use"${sheetBlocked() ? " disabled" : ""}>Use this design for ${esc(lab.teams[S.team].name)}</button><button class="btn" id="sh-revert"${changed ? "" : " disabled"}>Revert changes</button><button class="btn" id="sh-dl">Download .mtf</button><button class="btn" id="sh-close2">Close</button>`
-    : `<button class="btn" id="sh-add">Add to ${esc((lab.teams[lab.addTo] || {}).name || "team")}</button><button class="btn" id="sh-dl">Download .mtf</button><button class="btn" id="sh-close2">Close</button>`;
-  wireSheet();
+    ? `<span class="note" style="flex:1;text-align:left">A modified unit is temporary: it is kept in the team and saved only inside a saved run.</span><button class="btn" id="sh-use"${checks.some((c) => c.level === "bad") ? " disabled" : ""}>Use this design for ${esc(lab.teams[S.team].name)}</button><button class="btn" id="sh-revert"${changed ? "" : " disabled"}>Revert changes</button><button class="btn" id="sh-close2">Close</button>`
+    : `<button class="btn" id="sh-add">Add to ${esc((lab.teams[lab.addTo] || {}).name || "team")}</button><button class="btn" id="sh-close2">Close</button>`;
+  wireSheet(checks);
 }
-const defaultModel = () => { const mo = SHEET.mtf.get("model"); return /Edited in Combat Lab/.test(SHEET.original) || / \(custom\)$/.test(mo) ? mo : `${mo} (custom)`; };
 
 function sheetChanged(msg) {
   SHEET.mtf.rewriteWeapons();
   SHEET.msg = msg || "";
   drawSheet(); evalSheet();
 }
-function wireSheet() {
+function wireSheet(checks) {
   const S = SHEET, m = S.mtf, q = (id) => $(id);
   q("sh-close2").addEventListener("click", closeSheet);
-  q("sh-dl").addEventListener("click", () => {
-    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([m.text()], { type: "text/plain" }));
-    a.download = `${m.get("chassis")} ${m.get("model")}.mtf`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-  });
   if (!S.edit) { q("sh-add").addEventListener("click", () => { addUnits(lab.teams[lab.addTo], [S.id]); closeSheet(); }); return; }
   const num = (id) => +q(id).value;
-  // each stat: set the line, bring the slots in line; with no room and no override the change is refused
-  const trySet = (change) => {
-    const before = m.lines.slice();
-    change();
-    const fit = syncSinks() & syncJets();
-    if (!fit && !S.override) { m.lines = before; sheetChanged("There is no room for that in the critical slots (turn on Override to set the number anyway)."); return; }
-    sheetChanged();
-  };
-  q("sh-walk").addEventListener("change", () => trySet(() => { const w = Math.max(1, Math.round(num("sh-walk"))); m.set("Walk MP", String(w)); m.set("Engine", m.get("Engine").replace(/^\d+/, String(w * sheetTons()))); }));
-  q("sh-jump").addEventListener("change", () => trySet(() => m.set("Jump MP", String(Math.max(0, Math.round(num("sh-jump")))))));
-  q("sh-sinks").addEventListener("change", () => trySet(() => m.set("Heat Sinks", `${Math.max(0, Math.round(num("sh-sinks")))} ${sinkInfo().type}`)));
-  q("sh-sinktype").addEventListener("change", (e) => {
-    const before = m.lines.slice();
-    // the sink items in the slots change kind: take the old ones out, then place the new ones
-    for (const it of itemsOf(isSinkSlot)) for (const i of it.at) m.lines[i] = EMPTY;
-    m.set("Heat Sinks", `${sinkInfo().n} ${e.target.value}`);
-    if (!syncSinks() && !S.override) { m.lines = before; sheetChanged("There is no room for that kind of heat sink in the critical slots."); return; }
-    sheetChanged();
+  // a change that moves slots around: if it does not fit the slots, the lines go back as they were and a message says why
+  const attempt = (change, why) => { const before = m.lines.slice(); if (change() === false) { m.lines = before; sheetChanged(why); } else sheetChanged(); };
+  q("sh-chassis").addEventListener("change", (e) => { m.set("chassis", e.target.value.trim() || m.get("chassis")); sheetChanged(); });
+  q("sh-model").addEventListener("change", (e) => { m.set("model", e.target.value.trim() || m.get("model")); sheetChanged(); });
+  q("sh-tech").addEventListener("change", (e) => { m.set("TechBase", e.target.value); sheetChanged(); });
+  q("sh-mass").addEventListener("change", () => { const t = Math.max(1, Math.min(200, Math.round(num("sh-mass")))); m.set("Mass", String(t)); m.set("Engine", m.get("Engine").replace(/^\d+/, String((+m.get("Walk MP") || 1) * t))); sheetChanged(); });      // the most the engine plays is 200 t
+  q("sh-usetons").addEventListener("click", () => {
+    const t = Math.max(10, Math.min(200, Math.ceil(sheetTons() / 5) * 5)), row = STRUCT_ROWS.find((r) => r[0] === t) || STRUCT_ROWS[STRUCT_ROWS.length - 1];
+    const all = {}; for (const loc of m.locations()) all[loc.name] = /Head/.test(loc.name) ? (t >= 105 ? 4 : 3) : /Center Torso/.test(loc.name) ? row[1] : /Torso/.test(loc.name) ? row[2] : /Arm/.test(loc.name) ? row[3] : row[4];
+    for (const l of Object.keys(m.isLines())) m.lines.splice(m.isLines()[l].line, 1);       // start from the table, then the points are edited by hand
+    m.setIS("Head", all["Head"] ?? 3, all); for (const [loc, v] of Object.entries(all)) m.setIS(loc, v, all);
+    sheetChanged(`Internal structure filled in from the ${t} t row of the table. Edit the points by hand if you like.`);
   });
+  q("sh-engine").addEventListener("change", (e) => {
+    const eng = ENGINES.find(([n]) => n === e.target.value); if (!eng) return;
+    attempt(() => { m.set("Engine", `${engineRating()} ${eng[0]}`); return rebuildEngineGyro(eng, gyroKind()); }, `There is no room for that engine's slots (${eng[1]} in the centre torso, ${eng[2]} in each side torso): empty some slots there first.`);
+  });
+  q("sh-gyro").addEventListener("change", (e) => {
+    const g = GYROS.find(([n]) => n === e.target.value); if (!g) return;
+    attempt(() => { m.set("Gyro", g[0]); return rebuildEngineGyro(engineKind(), g); }, `There is no room for ${g[1]} gyro slots in the centre torso: empty some slots there first.`);
+  });
+  q("sh-cockpit").addEventListener("change", (e) => attempt(() => { m.set("Cockpit", e.target.value); return rebuildCockpit(e.target.value); }, "That cockpit needs head slots that hold other equipment: take that out first."));
+  q("sh-structure").addEventListener("change", (e) => { m.set("Structure", (/endo|composite|reinforced/i.test(e.target.value) && isClanTech() ? "Clan " : /standard|industrial/i.test(e.target.value) ? "IS " : "IS ") + e.target.value); sheetChanged(); });
+  q("sh-armortype").addEventListener("change", (e) => { m.set("Armor", `${e.target.value}(${isClanTech() ? "Clan" : "Inner Sphere"})`); sheetChanged(); });
+  q("sh-myomer").addEventListener("change", (e) => { m.set("Myomer", e.target.value); sheetChanged(); });
+  // walk: the engine rating follows (Walk x tons); the sinks the engine holds change with it, but nothing is forced into the slots
+  q("sh-walk").addEventListener("change", () => { const w = Math.max(1, Math.round(num("sh-walk"))); m.set("Walk MP", String(w)); m.set("Engine", m.get("Engine").replace(/^\d+/, String(w * sheetTons()))); sheetChanged(); });
+  q("sh-jump").addEventListener("change", () => { m.set("Jump MP", String(Math.max(0, Math.round(num("sh-jump"))))); sheetChanged(); });
+  q("sh-sinks").addEventListener("change", () => { m.set("Heat Sinks", `${Math.max(0, Math.round(num("sh-sinks")))} ${sinkInfo().type}`); sheetChanged(); });
+  q("sh-sinktype").addEventListener("change", (e) => { m.set("Heat Sinks", `${sinkInfo().n} ${e.target.value}`); sheetChanged("The heat sinks in the slots are still the old kind: take them out and place the new ones with the button."); });
   document.querySelectorAll("[data-armor]").forEach((i) => i.addEventListener("change", () => { const ln = +i.dataset.armor; m.lines[ln] = m.lines[ln].replace(/:\s*\d+/, `:${Math.max(0, Math.round(+i.value))}`); sheetChanged(); }));
-  q("sh-override").addEventListener("change", (e) => { S.override = e.target.checked; drawSheet(); });
-  q("sh-model").addEventListener("change", (e) => { S.modelName = e.target.value; });
+  document.querySelectorAll("[data-is]").forEach((i) => i.addEventListener("change", () => {
+    const all = { ...S.structure }; const isl = m.isLines(); for (const l of Object.keys(isl)) all[l] = isl[l].val;
+    m.setIS(i.dataset.is, Math.max(0, Math.round(+i.value)), all); sheetChanged();
+  }));
+  document.querySelectorAll("[data-fix]").forEach((b) => b.addEventListener("click", () => checks[+b.dataset.fix].fix[1]()));
+  document.querySelectorAll("[data-act]").forEach((c) => {
+    c.addEventListener("click", (e) => e.stopPropagation());
+    c.addEventListener("change", () => {
+      const [locName, k] = c.dataset.act.split(":"), loc = m.locations().find((l) => l.name === locName), at = loc.at + +k;
+      if (c.checked) { if (m.lines[at] !== EMPTY) { sheetChanged("That slot is taken."); return; } m.lines[at] = ACTUATORS[+k]; } else m.lines[at] = EMPTY;
+      sheetChanged();
+    });
+  });
   q("sh-find").addEventListener("input", (e) => { S.find = e.target.value; const pos = e.target.selectionStart; drawSheet(); const f = $("sh-find"); f.focus(); f.setSelectionRange(pos, pos); });
-  q("sh-eq").addEventListener("change", (e) => { S.pick = equipment.list.find((x) => x.k === e.target.value) || null; drawSheet(); });
-  if (!S.pick) { const first = q("sh-eq").value; if (first) S.pick = equipment.list.find((x) => x.k === first) || null; }
+  q("sh-allammo").addEventListener("change", (e) => { S.allAmmo = e.target.checked; S.open = { ...(S.open || {}), Ammo: true }; drawSheet(); });
+  document.querySelectorAll("details.folder[data-fname]").forEach((d) => d.addEventListener("toggle", () => { S.open = { ...(S.open || {}), [d.dataset.fname]: d.open }; }));
+  document.querySelectorAll("select[data-folder]").forEach((s) => s.addEventListener("change", (e) => { S.pick = equipment.list.find((x) => x.k === e.target.value) || null; S.open = { ...(S.open || {}), [s.dataset.folder]: true }; drawSheet(); }));
   document.querySelectorAll(".crit-slot").forEach((d) => d.addEventListener("click", () => slotClick(d.dataset.loc, +d.dataset.k)));
-  q("sh-revert").addEventListener("click", () => { S.mtf = new Mtf(S.original); S.modelName = undefined; sheetChanged(); });
+  q("sh-revert").addEventListener("click", () => { S.mtf = new Mtf(S.original); sheetChanged(); });
   q("sh-use").addEventListener("click", useDesign);
 }
 function slotClick(locName, k) {
@@ -1673,35 +1813,44 @@ function slotClick(locName, k) {
   if (raw === EMPTY) {
     const e = S.pick; if (!e) { sheetChanged("Choose equipment first."); return; }
     const size = Math.max(1, e.slots);
-    if (k + size > loc.n || Array.from({ length: size }, (_, q) => m.lines[at + q]).some((x) => x !== EMPTY)) { sheetChanged(`${pretty(e.k)} needs ${size} empty slot${size === 1 ? "" : "s"} in a row from there (${loc.name}).`); return; }
+    if (k + size > loc.cap || Array.from({ length: size }, (_, q) => m.lines[at + q]).some((x) => x !== EMPTY)) { sheetChanged(`${pretty(e.k)} needs ${size} empty slot${size === 1 ? "" : "s"} in a row from there (${loc.name} has ${loc.cap}).`); return; }
     for (let q = 0; q < size; q++) m.lines[at + q] = e.k;
     sheetChanged(); return;
   }
-  const managed = isSinkSlot(raw) || isJetSlot(raw);
-  if (!lookupEq(raw)) { sheetChanged("That is a built-in part of the 'Mech: it cannot be taken out."); return; }
-  if (managed && !S.override) { sheetChanged("Heat sinks and jump jets follow the Heat sinks and Jump MP boxes (or turn on Override)."); return; }
+  if (isFixed(raw) || (/Arm/.test(loc.name) && ACTUATORS[k] === raw)) { sheetChanged(ACTUATORS[k] === raw ? "Use the check box to take an actuator out." : "That is a built-in part of the 'Mech: it cannot be taken out."); return; }
   const item = itemsOf(() => true).find((it) => it.at.includes(at));
   for (const i of (item ? item.at : [at])) m.lines[i] = EMPTY;
   sheetChanged();
 }
+// "Use this design": the modified unit goes into the team as it is, temporary, carrying its own text
 async function useDesign() {
-  const S = SHEET, m = S.mtf; if (sheetBlocked()) return;
-  const model = (S.modelName ?? defaultModel()).trim() || defaultModel();
-  m.set("model", model);
-  if (!/Edited in Combat Lab/.test(m.lines.slice(0, 3).join(" "))) m.lines.unshift("# Edited in Combat Lab: a custom unit, not a published design.");
-  const file = `${m.get("chassis")} ${model}.mtf`.replace(/[\\/:*?"<>|]/g, "-");
-  const r = await api("add_unit", { file, text: m.text(), overwrite: true });
-  if (r.error) { S.msg = r.error; drawSheet(); return; }
-  const idx = lab.units.findIndex((x) => x.id === r.unit.id);
-  if (idx >= 0) lab.units[idx] = r.unit; else lab.units.push(r.unit);
-  lab.byId.set(r.unit.id, r.unit);
-  const t = lab.teams[S.team], old = t.units[S.unit];
-  t.units[S.unit] = unitEntry(r.unit.id, old.gunnery, old.piloting);
-  setStatus(`${r.unit.name} saved as a unit and used in ${t.name}`);
-  closeSheet(); save(); drawTeams(); drawBrowser();
+  const S = SHEET, m = S.mtf;
+  if (!/Modified in Combat Lab/.test(m.lines.slice(0, 3).join(" "))) m.lines.unshift("# Modified in Combat Lab: a temporary unit, not a published design.");
+  const name = `${m.get("chassis")} ${m.get("model")}`.trim();
+  const r = await api("unit_eval", { text: m.text() });
+  const demoBv = DEMO && r.error;          // the demo has no engine to ask: the unit is used with no BV
+  if (!demoBv && (r.error || !r.unit || !r.unit.ok)) { S.msg = r.error || (r.unit && r.unit.why) || "The engine cannot play this design."; m.lines.shift(); drawSheet(); return; }
+  const t = lab.teams[S.team], old = t.units[S.unit], same = m.text() === S.original && !old.mtf;
+  t.units[S.unit] = same ? unitEntry(S.id, old.gunnery, old.piloting)
+    : { id: `modified:${S.id}`, base: S.id, name: /modified/i.test(name) ? name : `${name} (modified)`, tons: sheetTons(), bv: demoBv ? null : r.unit.bv, gunnery: old.gunnery, piloting: old.piloting, mtf: m.text(), modified: true };
+  if (!same && !/modified/i.test(m.get("model"))) { /* the name shown carries "(modified)"; the file's own model line is left as edited */ }
+  setStatus(same ? `${name}: no changes` : `${name} used in ${t.name} as a modified unit (temporary: it is saved with a saved run)`);
+  closeSheet(); save(); drawTeams();
+}
+// a team entry from a unit text carried in a setup or a saved state (bv: asked of the engine when it is not known)
+function modifiedEntry(text, base, g, p, known) {
+  const mt = new Mtf(text), name = `${mt.get("chassis")} ${mt.get("model")}`.trim();
+  const e = { id: `modified:${base}`, base, name: /modified/i.test(name) ? name : `${name} (modified)`, tons: +mt.get("Mass") || null, bv: known ? known.bv : null, gunnery: g, piloting: p, mtf: text, modified: true };
+  if (e.bv == null) api("unit_eval", { text }).then((r) => { if (r.unit && r.unit.ok) { e.bv = r.unit.bv; save(); drawTeams(); } });
+  return e;
 }
 function closeSheet() { $("sheet").hidden = true; SHEET.mtf = null; }
 function wireSheetWindow() {
+  // every popup window (Advanced search, the unit sheet, About, the report) goes on top when it opens or is clicked
+  document.querySelectorAll(".dialog").forEach((d) => {
+    new MutationObserver(() => { if (!d.hidden) raiseWindow(d); }).observe(d, { attributes: true, attributeFilter: ["hidden"] });
+    d.addEventListener("pointerdown", () => raiseWindow(d), true);
+  });
   wireDialogMove($("sheet"), $("sheet-title"));
   $("sheet-close").addEventListener("click", closeSheet);
   $("ub-preview").addEventListener("click", () => { const id = [...lab.picked][0]; if (id) openSheet(id, null, null); });
