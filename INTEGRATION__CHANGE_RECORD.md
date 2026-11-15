@@ -6,6 +6,20 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-15 (Claude, session 27), UNIT EDITOR IN THE BROWSER BUILD, AND CONFIG. REVIEW PENDING (higher-level model).**
+  Daniel: quirks, role and omni pods are fluff (not built); CONFIG matters; nothing extra for the BV-v-win-rate research (the user
+  does it with the editor). (1) Config: a Biped / Quad / Tripod list converts the location blocks (arms <-> front legs with
+  shoulder = hip ... hand = foot, legs <-> rear legs, the centre leg added or removed), the armor and structure line keys, and
+  the Config line (an Omni suffix is kept); refused when a slot that would be lost holds equipment. A quad Locust played 3 battles.
+  (2) THE BROWSER (WASM) VERSION HAS THE EDITOR. It was never impossible: this container only lacked the wasm32 target
+  (`rustup target add wasm32-unknown-unknown` works through the proxy; an earlier note here that it could not be built was wrong).
+  `describe_unit`, `equipment_list` and `unit_structure` moved to `engine/lab/src/describe.rs`, shared by the desktop Lab and
+  `engine/wasm`; the wasm module answers `unit_eval` and `equipment_list`, holds a setup's modified units under `_modified/<hash>.mtf`
+  in its memory files (`plan_of`), and `engine.js` answers `unit_text` from the data block; `unit_eval` goes through a worker
+  (`worker.js` "eval") so a text that crashes the engine stops only that instance. `tests/check_web_lab.py` has a "modified unit
+  (text in the setup)" battle set (browser = desktop, battle for battle) and 5 editor checks; all pass. The published website
+  artifact was rebuilt and updated (data block as base64, the host serves no .gz).
+
 - **2026-11-15 (Claude, session 27), UNIT EDITOR STAGE 2: A .MTF EDITOR, MODIFIED UNITS ARE TEMPORARY. REVIEW PENDING (higher-level model).**
   Daniel's notes on stage 1. DESIGN: this is an editor for fun and research, not a designer; legality is never checked, the aim
   is only that anything it makes plays in the engine (Daniel: "an Atlas that moves at 6/9... does the BV increase equal a change in

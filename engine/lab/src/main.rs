@@ -24,6 +24,7 @@
 //! it. The project folder is the repository root (BTSIM_ROOT, else found from where the program is), with its data
 //! folder `data/` (units, boards, packs); lists are cached in `lab_cache/`.
 mod catalog;
+mod describe;
 mod runs;
 
 use std::collections::HashMap;

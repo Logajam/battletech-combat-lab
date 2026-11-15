@@ -1421,6 +1421,12 @@ const COCKPITS = { "Standard Cockpit": { head: ["Life Support", "Sensors", "Cock
 const STRUCTURES = ["Standard", "Endo Steel", "Endo-Composite", "Composite", "Reinforced", "Industrial"];
 const ARMORS = ["Standard", "Ferro-Fibrous", "Light Ferro-Fibrous", "Heavy Ferro-Fibrous", "Stealth", "Reactive", "Reflective", "Hardened", "Ferro-Lamellor", "Ballistic-Reinforced", "Anti-Penetrative Ablation", "Impact-Resistant", "Heat-Dissipating"];
 const MYOMERS = ["Standard", "Triple-Strength", "MASC", "Industrial Triple-Strength", "Super-Cooled"];
+const CONFIGS = ["Biped", "Quad", "Tripod"];
+const configOf = () => { const c = SHEET.mtf.get("Config"); return /quad/i.test(c) ? "Quad" : /tripod/i.test(c) ? "Tripod" : "Biped"; };
+// the actuators of an arm and of the leg that replaces it on a quad (shoulder = hip, hand = foot)
+const ARM_TO_LEG = { "Shoulder": "Hip", "Upper Arm Actuator": "Upper Leg Actuator", "Lower Arm Actuator": "Lower Leg Actuator", "Hand Actuator": "Foot Actuator" };
+const LEG_TO_ARM = Object.fromEntries(Object.entries(ARM_TO_LEG).map(([a, l]) => [l, a]));
+const QUAD_NAMES = [["Left Arm", "Front Left Leg", "LA", "FLL"], ["Right Arm", "Front Right Leg", "RA", "FRL"], ["Left Leg", "Rear Left Leg", "LL", "RLL"], ["Right Leg", "Rear Right Leg", "RL", "RRL"]];
 const TECHBASES = ["Inner Sphere", "Clan", "Mixed (IS Chassis)", "Mixed (Clan Chassis)"];
 
 const SHEET = { mtf: null, original: "", id: "", team: null, unit: null, edit: false, pick: null, structure: {}, eval: null, msg: "", find: "", allAmmo: false };
@@ -1583,6 +1589,47 @@ function rebuildCockpit(name) {
   for (let k = 0; k < 6; k++) if (c.head[k] !== E) { if (m.lines[head.at + k] !== E) return false; m.lines[head.at + k] = c.head[k]; }
   return c.ct ? takeEmpty("Center Torso", c.ct, "Cockpit") : true;
 }
+// the configuration: the location blocks, their actuators and the armor / structure lines change; false (nothing changed) when a
+// slot that would be lost holds equipment
+function convertConfig(target) {
+  const m = SHEET.mtf, cur = configOf(); if (cur === target) return true;
+  const omni = /omni/i.test(m.get("Config")) ? " Omnimech" : "";
+  const locs = () => m.locations();
+  const keepsOnly = (name, ok) => { const loc = locs().find((l) => l.name === name); return !loc || Array.from({ length: loc.n }, (_, k) => m.lines[loc.at + k]).every((r, k) => r === EMPTY || ok(r, k)); };
+  const rename = (from, to, map, keyFrom, keyTo) => {
+    const i = m.lines.findIndex((l) => l.toLowerCase() === from.toLowerCase() + ":"); if (i < 0) return;
+    m.lines[i] = to + ":";
+    for (let k = i + 1; k < m.lines.length && m.lines[k].trim() !== "" && !LOC_RE.test(m.lines[k]); k++) if (map[m.lines[k].trim()]) m.lines[k] = map[m.lines[k].trim()];
+    m.lines = m.lines.map((l) => l.replace(new RegExp(`^${keyFrom} (armor|IS):`, "i"), `${keyTo} $1:`));
+  };
+  const toTripod = () => {
+    if (m.lines.some((l) => /^Center Leg:/i.test(l))) return;
+    const rl = locs().find((l) => l.name === "Right Leg"); if (!rl) return;
+    const end = rl.at + rl.n, leg = ["Hip", "Upper Leg Actuator", "Lower Leg Actuator", "Foot Actuator"];
+    m.lines.splice(end, 0, "", "Center Leg:", ...leg, ...Array(rl.n - 4).fill(EMPTY));
+    const ra = m.armor().find((a) => a.loc === "Right Leg"); if (ra) m.lines.splice(ra.line + 1, 0, `CL armor:${ra.val}`);
+    const ri = m.isLines()["Right Leg"]; if (ri) m.lines.splice(ri.line + 1, 0, `CL IS:${ri.val}`);
+  };
+  const fromTripod = () => {
+    const cl = locs().find((l) => l.name === "Center Leg"); if (!cl) return true;
+    if (!keepsOnly("Center Leg", (r, k) => k < 4 && LEG_TO_ARM[r.trim()] !== undefined)) return false;
+    m.lines.splice(cl.at - 1, cl.n + 1 + (m.lines[cl.at + cl.n] === "" ? 1 : 0));
+    m.lines = m.lines.filter((l) => !/^CL (armor|IS):/i.test(l));
+    return true;
+  };
+  if (cur === "Tripod") { if (!fromTripod()) return false; }
+  const from = cur === "Tripod" ? "Biped" : cur, to = target === "Tripod" ? "Biped" : target;
+  if (from === "Biped" && to === "Quad") {
+    for (const [arm] of QUAD_NAMES.slice(0, 2)) { const loc = locs().find((l) => l.name === arm); if (loc && Array.from({ length: loc.n - 6 }, (_, k) => m.lines[loc.at + 6 + k]).some((r) => r !== EMPTY)) return false; }
+    for (const [a, l, ka, kl] of QUAD_NAMES) rename(a, l, /Arm/.test(a) ? ARM_TO_LEG : {}, ka, kl);
+  } else if (from === "Quad" && to === "Biped") {
+    for (const [a, l, ka, kl] of QUAD_NAMES) rename(l, a, /Arm/.test(a) ? LEG_TO_ARM : {}, kl, ka);
+  }
+  if (target === "Tripod") toTripod();
+  m.set("Config", target + omni);
+  return true;
+}
+
 // how many of each slot kind a design should have, for the warnings
 function expectedStructSlots() {
   const st = SHEET.mtf.get("Structure"), ar = SHEET.mtf.get("Armor"), clan = (t) => /clan/i.test(t) || (!/\bIS\b|inner sphere/i.test(t) && isClanTech());
@@ -1714,6 +1761,7 @@ function drawSheet() {
       <table>
         <tr><td>Chassis</td><td colspan="2"><input type="text" id="sh-chassis" value="${esc(m.get("chassis"))}" style="width:150px"${off}></td></tr>
         <tr><td>Model</td><td colspan="2"><input type="text" id="sh-model" value="${esc(m.get("model"))}" style="width:150px"${off}></td></tr>
+        <tr><td>Type</td><td colspan="2"><select id="sh-config"${off}>${opts(CONFIGS, configOf())}</select> <span class="note">${/omni/i.test(m.get("Config")) ? "Omni" : ""}</span></td></tr>
         <tr><td>Tonnage</td><td class="num"><input type="number" min="1" max="200" id="sh-mass" value="${tons}"${off}></td><td>${ed ? `<button class="btn small" id="sh-usetons" title="Rounds the tonnage up to a multiple of 5 and fills in the internal structure of the nearest tonnage in the table (10-200 t); edit the points by hand after">Use tonnage</button>` : ""}</td></tr>
         <tr><td>Tech base</td><td colspan="2"><select id="sh-tech"${off}>${opts(TECHBASES, m.get("TechBase"))}</select></td></tr>
       </table>
@@ -1759,6 +1807,7 @@ function wireSheet(checks) {
   const attempt = (change, why) => { const before = m.lines.slice(); if (change() === false) { m.lines = before; sheetChanged(why); } else sheetChanged(); };
   q("sh-chassis").addEventListener("change", (e) => { m.set("chassis", e.target.value.trim() || m.get("chassis")); sheetChanged(); });
   q("sh-model").addEventListener("change", (e) => { m.set("model", e.target.value.trim() || m.get("model")); sheetChanged(); });
+  q("sh-config").addEventListener("change", (e) => attempt(() => convertConfig(e.target.value), "A Biped to Quad change needs the arms' slots beyond the sixth to be empty (a leg has 6): take that equipment out first."));
   q("sh-tech").addEventListener("change", (e) => { m.set("TechBase", e.target.value); sheetChanged(); });
   q("sh-mass").addEventListener("change", () => { const t = Math.max(1, Math.min(200, Math.round(num("sh-mass")))); m.set("Mass", String(t)); m.set("Engine", m.get("Engine").replace(/^\d+/, String((+m.get("Walk MP") || 1) * t))); sheetChanged(); });      // the most the engine plays is 200 t
   q("sh-usetons").addEventListener("click", () => {

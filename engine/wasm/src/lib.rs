@@ -30,6 +30,8 @@
 
 #[path = "../../lab/src/runs.rs"]
 mod runs;
+#[path = "../../lab/src/describe.rs"]
+mod describe;
 
 /// What `runs.rs` asks of the desktop's catalog, from the files held in memory.
 mod catalog {
@@ -41,6 +43,11 @@ mod catalog {
             } else {
                 Err(format!("no unit or board '{}'", id))
             }
+        }
+        /// A unit edited on the page (its text is in the setup): `plan_of` has already put it in the files held under this
+        /// name (a hash of the text); the desktop Lab writes a scratch file instead.
+        pub fn scratch_unit(&self, text: &str) -> Result<String, String> {
+            Ok(super::scratch_id(text))
         }
     }
 }
@@ -124,8 +131,27 @@ fn run_of(req: &Value) -> Result<Arc<runs::Run>, String> {
     STATE.with(|s| s.borrow().runs.get(&id).cloned()).ok_or_else(|| format!("no run {}", id))
 }
 
-/// A setup made into a plan, from the files held.
+/// The name a modified unit's text is held under (the same rule as the desktop Lab's scratch file).
+fn scratch_id(text: &str) -> String {
+    use std::hash::{Hash, Hasher};
+    let mut h = std::collections::hash_map::DefaultHasher::new();
+    text.hash(&mut h);
+    format!("_modified/{:016x}.mtf", h.finish())
+}
+
+/// A setup made into a plan, from the files held (and the texts of its modified units, held first).
 fn plan_of(setup: &Value) -> Result<runs::Plan, String> {
+    STATE.with(|s| {
+        let mut s = s.borrow_mut();
+        let m = s.paths.memory.as_mut().unwrap();
+        for t in setup["teams"].as_array().into_iter().flatten() {
+            for u in t["units"].as_array().into_iter().flatten() {
+                if let Some(text) = u["mtf_text"].as_str() {
+                    m.files.insert(scratch_id(text), text.to_string());
+                }
+            }
+        }
+    });
     // shared borrows only: the catalog's `ensure` looks at the same files
     STATE.with(|s| runs::scenario_of(setup, &catalog::Catalog, &s.borrow().paths))
 }
@@ -203,6 +229,15 @@ fn dispatch(name: &str, req: &Value) -> Result<Value, String> {
                 Ok(json!({"crash": crash, "line": line}))
             })
         }
+        // the unit editor's calls (the desktop Lab's `unit_eval` and `equipment_list`; unit text comes from the page's data block)
+        "unit_eval" => {
+            let text = req["text"].as_str().ok_or("no unit text")?;
+            let defaults: Value = STATE.with(|s| serde_json::from_str(&s.borrow().paths.memory.as_ref().unwrap().defaults)).map_err(|e| e.to_string())?;
+            let cfg = btsim_core::config::Config::from_json(&defaults);
+            let db = btsim_core::equipment::EquipmentDb::shared();
+            Ok(json!({"unit": describe::describe_unit(db, &cfg, "(edited)", "custom", text), "structure": describe::unit_structure(db, text)}))
+        }
+        "equipment_list" => Ok(json!({"equipment": describe::equipment_list(btsim_core::equipment::EquipmentDb::shared())})),
         "history" => history(req),
         "page" => Ok(json!({"html": btsim_core::history::page(&req["record"])})),
         // the seed battle `sim` of a batch on run seed `run_seed` is played on (for a crash the worker could not report)

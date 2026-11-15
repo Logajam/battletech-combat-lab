@@ -30,6 +30,10 @@ def ask(port, name, body=None):
     return json.loads(urllib.request.urlopen(req, timeout=600).read())
 
 
+# the 100-ton Atlas with jump jets (Jump MP 3) and a new name: what the unit editor would send (2026-11-15)
+MODIFIED_ATLAS = open(os.path.join(REPO_ROOT, "data", "Atlas AS7-K.mtf"), encoding="utf-8", errors="replace").read().replace("Jump MP:0", "Jump MP:3").replace("chassis:Atlas", "chassis:Atlas Modified")
+
+
 def setups(n):
     unit = lambda f, g=4, p=5: {"unit": f, "gunnery": g, "piloting": p}
     return {
@@ -42,6 +46,9 @@ def setups(n):
         "stitched boards": {"teams": [{"name": "Red", "bot": "gladiator", "units": [unit("Hunchback HBK-4G.mtf")]},
                                        {"name": "Blue", "bot": "gladiator", "units": [unit("Catapult CPLT-C1.mtf")]}],
                             "board": {"grid": [["16x17_Hilltops_1.board", "16x17_Scattered_Woods.board"]]}, "battles": n, "seed": 3},
+        "modified unit (text in the setup)": {"teams": [{"name": "Red", "bot": "gladiator", "units": [{"unit": "Atlas AS7-K.mtf", "mtf_text": MODIFIED_ATLAS, "gunnery": 4, "piloting": 5}]},
+                                                         {"name": "Blue", "bot": "gladiator", "units": [unit("Awesome AWS-8Q.mtf")]}],
+                                              "board": "16x17_Grassland_1.board", "battles": n, "seed": 9},
         "map list with zones": {"teams": [{"name": "Red", "bot": "gladiator", "units": [unit("Cataphract CTF-3D.mtf")], "zone": {"boxes": [True, False, False, True, False, False, True, False, False], "walk_on": True}},
                                            {"name": "Blue", "bot": "gladiator", "units": [unit("Dervish DV-6M.mtf")]}],
                                 "board": {"playlist": ["16x17_Large_Lakes_1.board", "16x17_Military_Base_1.board"], "order": "shuffle"},
@@ -75,9 +82,14 @@ const { chromium } = require('playwright');
       const saved = await LAB_WASM.api("save_run", { run: r.run });
       res[name] = { lines: saved.lines, crashed: saved.crashed };
     }
+    const text = (await LAB_WASM.api("unit_text", { id: "Atlas AS7-K.mtf" })).text || "";
+    const editor = { text: text.length, base: await LAB_WASM.api("unit_eval", { text }),
+      jumped: await LAB_WASM.api("unit_eval", { text: text.replace("Jump MP:0", "Jump MP:3") }),
+      broken: await LAB_WASM.api("unit_eval", { text: "this is not a unit" }),
+      equipment: ((await LAB_WASM.api("equipment_list", {})).equipment || []).length };
     const bad = await LAB_WASM.api("run", { setup: { teams: [], board: "x" } });
     const html = await LAB_WASM.replayHtml({ setup: all[Object.keys(all)[0]], seed: 7, sim: 1 });
-    return { res, bad, replay: typeof html === "string" ? html.length : html };
+    return { res, editor, bad, replay: typeof html === "string" ? html.length : html };
   }, all);
   out.errors = errors;
   console.log("RESULT " + JSON.stringify(out));
@@ -136,6 +148,12 @@ def main():
                 failures += 1
                 for x, y in zip(nk, wk):
                     if x != y: print("   desktop", x, "\n   browser", y); break
+        ed = out["editor"]
+        for what, good in [("unit_text gives the file", ed["text"] > 1000), ("unit_eval gives the listed BV", ed["base"].get("unit", {}).get("bv") == 2175),
+                           ("an edited jump MP changes the BV", ed["jumped"].get("unit", {}).get("bv") not in (None, 2175)),
+                           ("a text that is not a unit is refused, not a crash", ed["broken"].get("unit", {}).get("ok") is False or "error" in ed["broken"]),
+                           ("equipment_list has the catalogue", ed["equipment"] > 600)]:
+            print(f"{'ok  ' if good else 'FAIL'} browser editor: {what}"); failures += 0 if good else 1
         print(f"{'ok  ' if out['bad'].get('error') else 'FAIL'} a bad setup answers in words: {out['bad'].get('error')}")
         failures += 0 if out["bad"].get("error") else 1
         print(f"{'ok  ' if isinstance(out['replay'], int) and out['replay'] > 1000 else 'FAIL'} replay page built ({out['replay']} characters)")
