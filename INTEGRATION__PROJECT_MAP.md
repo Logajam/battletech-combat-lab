@@ -158,6 +158,15 @@ real Princess and CASPAR through the bridge (E4).
   STAGE 1 REACHED (Daniel, 2026-11-13: "we have achieved stage 1, It works" - alpha-1 on his PC, downloads branch).
   NEXT (Daniel's next-version notes, COMBAT_LAB.md Part A; "so many small tweaks needed to polish it"): start positions per team and a side swap, BV following the
   skills; then CL6 (battle from a saved state).
+- E2a. DANIEL'S LIST, 2026-11-15 (session 27; he is still adding to it). DONE: armor 0 in the browser, team-column scroll,
+  dynamic browser columns, Add-to row, one-line start zones, resizable windows / columns, sort triangles (Change Record).
+  TO BUILD: (1) UNIT PREVIEW AND EDITOR: a unit in the browser shows its stats; once on a team its values are editable with
+  only mild construction limits (heat sinks tied to what fits the engine and the critical slots, jump jets likewise) and an
+  override; the one hard rule is that equipment must fit the critical slots; BV recalculated from the current stats; also a
+  way to add custom units without a file download. Purpose: science, and illegal designs for fun (30 AC/2s). (2) TacOps
+  OPTIONAL RULES in the option list: floating crits (a toggle), stackpole, others to come (implementation "next week").
+  (3) Total Warfare NON-AEROSPACE units ("next week"). (4) WISHLIST: the grabbable unit icon looks like the actual unit;
+  Daniel is weighing MegaMek's token art against a better stylised version of our own (licence: CREDITS.md).
 - E3a. Art direction (session 24): why the models read as stacked blocks, and jobs A1-A8 in order -
   `INTEGRATION__COMBAT_LAB_ART_SPECS.md` (nothing built).
 - E4. MegaMek bridge (Daniel, 2026-11-12): our bots play in a live MegaMek game - Daniel against Hydra in MegaMek's

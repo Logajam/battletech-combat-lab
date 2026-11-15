@@ -130,9 +130,11 @@ function drawTeams() {
     const el = teamPanel(t, ti), key = `team${ti}`;
     if (!applyFloat(el, key)) (ti % 2 === 0 ? left : right).appendChild(el);
     wireWindow(el, key, drawTeams);
+    dockSize(el, key);
     const l = el.querySelector(".list"); if (l) l.scrollTop = scroll[ti] || 0;
   });
   drawAddTo();
+  fitZoneLines();
   $("team-sum").textContent = `${lab.teams.length} teams, ${lab.teams.reduce((s, t) => s + t.units.length, 0)} units`;
   paintZoneGrids();
 }
@@ -227,7 +229,7 @@ function teamPanel(t, ti) {
     </div>
     <div class="team-zone" id="zmini-${ti}"></div>
     <div class="list sunken" id="list-${ti}"><table>
-      <thead><tr><th></th><th>Unit</th><th class="num">Tons</th><th class="num">BV</th><th title="Gunnery skill">G</th><th title="Piloting skill">P</th><th></th></tr></thead>
+      <thead><tr><th data-ck="ico"></th><th data-ck="name">Unit</th><th data-ck="tons" class="num">Tons</th><th data-ck="bv" class="num">BV</th><th data-ck="g" title="Gunnery skill">G</th><th data-ck="p" title="Piloting skill">P</th><th data-ck="x"></th></tr></thead>
       <tbody>${t.units.length ? t.units.map((u, ui) => `<tr>
         <td class="ico">${classIcon(u.tons)}</td>
         <td class="name">${esc(u.name)}</td><td class="num">${u.tons ?? ""}</td><td class="num" id="bv-${ti}-${ui}">${unitBv(u) ?? ""}</td>
@@ -252,6 +254,7 @@ function teamPanel(t, ti) {
     el.querySelector(`#p-${ti}-${ui}`).addEventListener("change", (e) => { u.piloting = Math.max(0, Math.min(8, +e.target.value)); redraw(); });
   });
   el.querySelector(`#zmini-${ti}`).replaceWith(zoneGrid(ti, true));
+  colResize(el.querySelector(".list table"), "team");
   const files = (list) => addFiles(t, list);
   // drops: units dragged from the Unit Browser, or unit files from the computer
   el.addEventListener("dragover", (e) => { e.preventDefault(); el.classList.add("drop"); });
@@ -283,6 +286,92 @@ async function addFiles(t, list) {
   }
   save(); drawTeams();
 }
+
+// ---------------------------------------------------------------- sizes (Daniel, 2026-11-15)
+// Column widths: drag the right edge of a header. The widths are kept per table kind ("ub" = the Unit Browser, "team") in the
+// layout; a table with saved widths gets a fixed layout, wider than its box if need be (the box scrolls sideways).
+function colResize(table, kind) {
+  const ths = [...table.tHead.rows[0].cells];
+  const saved = (lab.layout.cols && lab.layout.cols[kind]) || {};
+  const total = () => ths.reduce((n, th) => n + (parseFloat(th.style.width) || 0), 0);
+  const fix = (widths) => { table.style.tableLayout = "fixed"; ths.forEach((th, i) => { th.style.width = `${widths[i]}px`; }); table.style.width = `${total()}px`; };
+  if (ths.some((th) => saved[th.dataset.ck])) fix(ths.map((th) => saved[th.dataset.ck] || (th.dataset.ck === "name" ? 170 : th.dataset.ck === "ico" ? 40 : 60)));
+  ths.forEach((th, i) => {
+    if (i === 0 && th.dataset.ck === "ico") return;
+    const h = document.createElement("span"); h.className = "rz"; h.title = "Drag to resize the column; double-click to reset all widths";
+    h.addEventListener("click", (e) => e.stopPropagation());
+    h.addEventListener("dblclick", (e) => { e.stopPropagation(); if (lab.layout.cols) delete lab.layout.cols[kind]; saveLayout(); table.style.tableLayout = ""; table.style.width = ""; ths.forEach((t) => { t.style.width = ""; }); });
+    h.addEventListener("pointerdown", (e) => {
+      e.preventDefault(); e.stopPropagation();
+      if (table.style.tableLayout !== "fixed") fix(ths.map((t) => t.getBoundingClientRect().width));
+      const x0 = e.clientX, w0 = parseFloat(th.style.width);
+      const move = (m) => { th.style.width = `${Math.max(22, w0 + m.clientX - x0)}px`; table.style.width = `${total()}px`; };
+      const up = () => {
+        window.removeEventListener("pointermove", move);
+        lab.layout.cols = lab.layout.cols || {}; lab.layout.cols[kind] = Object.fromEntries(ths.map((t) => [t.dataset.ck, parseFloat(t.style.width)])); saveLayout();
+      };
+      window.addEventListener("pointermove", move); window.addEventListener("pointerup", up, { once: true });
+    });
+    th.appendChild(h);
+  });
+}
+
+// A docked team panel can be pulled taller or shorter by its bottom corner; the height is kept. Double-click its title to clear it.
+function dockSize(el, key) {
+  const h = lab.layout["dh_" + key];
+  if (h && !narrow() && !el.classList.contains("float")) { el.style.height = `${h}px`; el.classList.add("sized"); }
+  el.addEventListener("pointerdown", (e) => {
+    if (el.classList.contains("float") || narrow()) return;
+    const r = el.getBoundingClientRect();
+    if (e.clientX < r.right - 20 || e.clientY < r.bottom - 20) return;         // only the resize corner
+    const before = r.height;
+    el.style.height = `${before}px`; el.classList.add("sized");
+    window.addEventListener("pointerup", () => {
+      const now = el.getBoundingClientRect().height;
+      if (Math.abs(now - before) < 2 && !lab.layout["dh_" + key]) { el.style.height = ""; el.classList.remove("sized"); return; }
+      lab.layout["dh_" + key] = now; saveLayout();
+    }, { once: true });
+  });
+  el.querySelector(".wtitle").addEventListener("dblclick", () => {
+    if (!lab.layout["dh_" + key]) return;
+    delete lab.layout["dh_" + key]; saveLayout(); el.style.height = ""; el.classList.remove("sized");
+  });
+}
+
+// The browser's list fills the window down to the bottom of the screen; pulling its bottom corner locks it at that height
+// (kept in the layout) until Reset layout. On a narrow screen the page itself sets the height.
+function lockBrowserList(h) {
+  const l = document.querySelector(".ub-list"); if (!l) return;
+  if (h && !narrow()) { l.style.flex = "none"; l.style.height = `${h}px`; } else { l.style.flex = ""; l.style.height = ""; }
+}
+function wireBrowserList() {
+  const l = document.querySelector(".ub-list");
+  lockBrowserList(lab.layout.ubH);
+  l.addEventListener("pointerdown", (e) => {
+    if (narrow()) return;
+    const r = l.getBoundingClientRect();
+    if (e.clientX < r.right - 20 || e.clientY < r.bottom - 20) return;
+    const before = r.height;
+    l.style.flex = "none"; l.style.height = `${before}px`;
+    window.addEventListener("pointerup", () => {
+      const now = l.getBoundingClientRect().height;
+      if (Math.abs(now - before) < 2) { lockBrowserList(lab.layout.ubH); return; }
+      lab.layout.ubH = now; saveLayout();
+    }, { once: true });
+  });
+}
+
+// The start line on a team panel always tries to be one line: the text shrinks until it fits (never below 7 px; then it wraps).
+function fitZoneLines() {
+  document.querySelectorAll(".zone-mini").forEach((w) => {
+    w.style.flexWrap = "nowrap";
+    let fs = 12; w.style.fontSize = `${fs}px`;
+    while (w.scrollWidth > w.clientWidth + 1 && fs > 7) { fs -= 0.5; w.style.fontSize = `${fs}px`; }
+    if (w.scrollWidth > w.clientWidth + 1) w.style.flexWrap = "wrap";
+  });
+}
+window.addEventListener("resize", () => fitZoneLines());
+if (window.ResizeObserver) { const zw = new ResizeObserver(() => fitZoneLines()); window.addEventListener("load", () => document.querySelectorAll("#teams-left, #teams-right").forEach((c) => zw.observe(c))); }
 
 // the Unit Browser's "Add to" row (MegaMek style): choose the team once, then add the selection, a double-clicked unit, or a file
 function drawAddTo() {
@@ -481,8 +570,8 @@ function drawBrowser() {
   list.sort((a, b) => (STRING_SORTS.has(k) ? String(a[k] ?? "").localeCompare(String(b[k] ?? "")) || a.name.localeCompare(b.name) : ((a[k] ?? -1) - (b[k] ?? -1)) || a.name.localeCompare(b.name)) * d);
   browse.shown = list.slice(0, 400);
   $("ub-count").textContent = `${list.length} unit${list.length === 1 ? "" : "s"}${list.length > 400 ? " (first 400 shown: narrow the search)" : ""}`;
-  const th = (key, head, cls, title) => `<th ${key ? `data-sort="${key}" ` : ""}class="${cls || ""}"${title ? ` title="${esc(title)}"` : ""}>${head}</th>`;
-  $("ub-list").tHead.innerHTML = `<tr><th></th>${th("name", "Unit")}${th("tons", "Tons", "num")}${th("bv", "BV", "num")}${cols.map((c) => th(c.sortable === false ? "" : (c.sort || c.key), c.head, c.num ? "num" : "", c.title)).join("")}</tr>`;
+  const th = (key, head, cls, title) => `<th data-ck="${esc(key || head)}" ${key ? `data-sort="${key}" ` : ""}class="${cls || ""}"${title ? ` title="${esc(title)}"` : ""}>${head}</th>`;
+  $("ub-list").tHead.innerHTML = `<tr><th data-ck="ico"></th>${th("name", "Unit")}${th("tons", "Tons", "num")}${th("bv", "BV", "num")}${cols.map((c) => th(c.sortable === false ? "" : (c.sort || c.key), c.head, c.num ? "num" : "", c.title)).join("")}</tr>`;
   document.querySelectorAll("#ub-list th[data-sort]").forEach((h) => h.addEventListener("click", () => {
     browse.dir = browse.sort === h.dataset.sort ? -browse.dir : 1; browse.sort = h.dataset.sort; drawBrowser();
   }));
@@ -504,7 +593,8 @@ function drawBrowser() {
       e.dataTransfer.effectAllowed = "copy";
     });
   });
-  document.querySelectorAll("#ub-list th[data-sort]").forEach((th) => th.classList.toggle("sorted", th.dataset.sort === k));
+  document.querySelectorAll("#ub-list th[data-sort]").forEach((th) => { th.classList.toggle("sorted", th.dataset.sort === k); th.dataset.dir = String(d); });   // CSS draws the up / down triangle
+  colResize($("ub-list"), "ub");
 }
 
 function pickedChanged() {
@@ -525,6 +615,7 @@ function wireDialogMove(w, bar) {
   });
 }
 function wireBrowserWindow() {
+  wireBrowserList();
   wireWindow($("browser"), "browser", () => $("browser-slot").appendChild($("browser")));
   const key = "browser";
   applyFloat($("browser"), key);
@@ -1332,7 +1423,7 @@ async function start() {
   document.querySelectorAll(".subtab").forEach((b) => b.addEventListener("click", () => showOptionPane(b.dataset.pane)));
   $("opt-reset-all").addEventListener("click", () => { lab.options = {}; save(); drawOptions(); });
   $("reset-layout").addEventListener("click", () => {
-    lab.layout = {}; saveLayout();
+    lab.layout = {}; saveLayout(); lockBrowserList(null);
     const b = $("browser"); sizeWatch.unobserve(b); b.classList.remove("float"); b.style.cssText = ""; $("browser-slot").appendChild(b);
     drawTeams();
   });

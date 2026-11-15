@@ -6,6 +6,20 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-15 (Claude, session 27), UNITS PAGE ROUND 2: SIZES, COLUMNS, TRIANGLES, TIDIER BROWSER. REVIEW PENDING (higher-level model).**
+  Daniel's notes after the first look. Pages only (`lab.js`, `lab.css`, `index.html`) plus `tools/make_lab_demo.py`. Narrow
+  (phone) screens: the browser is one screenful (80% of the height, 640 px at most) and its list scrolls inside it. Docked team
+  panels pull taller or shorter by their bottom corner (height kept in the layout; double-click the title to clear it; floating
+  panels already resized). Browser: Clear selection beside Weight class, Advanced search beside From file, the unit count at the
+  bottom. The list fills the window to the bottom of the screen and stays so until its bottom corner is pulled; then it keeps that
+  height (kept in the layout; Reset layout clears it). Team lists: half a line under the last unit. The start line shrinks its
+  text (down to 7 px) to stay on one line, wrapping only below that. Every column header can be resized by dragging its right
+  edge (double-click resets; widths kept per table kind; a resized table is fixed-layout and may scroll sideways). A sorted
+  header shows an up / down triangle. The "walk from 1 shows no units" report was the DEMO only: `make_lab_demo.py` kept just a few
+  fields per unit (no walk, jump, armor, role...), so every search on the others matched nothing; it now keeps them all; the real
+  Lab matched 4,229 units. Checked in a real browser at 1920x1080 and 420x800; no page errors. Daniel's longer list (unit
+  editor, TacOps options, Total Warfare ground units, unit icons) is recorded in PROJECT_MAP E2a.
+
 - **2026-11-15 (Claude, session 27), UNITS PAGE: SCROLLING, DYNAMIC COLUMNS, LESS CLUTTER ON THE TEAM PANELS. REVIEW PENDING (higher-level model).**
   Daniel's list items 4, 7 and 5. Pages only (`lab.js`, `lab.css`, `index.html`; no engine change). (4) Teams 3 and up could not be
   reached: the side columns squeezed the team panels instead of scrolling; `.col > .win { flex: none }` keeps each panel its height

@@ -46,7 +46,7 @@ def main(argv):
         proc.stdout.readline()
         info = api("info")
         info["project"] = "(your project folder)"
-        keep = ("id", "name", "source", "tons", "bv", "tech", "era", "ok", "why")
+        keep = ("id", "name", "source", "tons", "bv", "tech", "era", "ok", "why", "walk", "jump", "armor", "sinks", "sink_kind", "role", "config", "rules", "book", "armor_type", "structure", "weapons")
         units = [{k: u[k] for k in keep if k in u} for u in api("list_units")["units"]]
         boards = api("list_boards")["boards"]
         estimate = api("estimate", {"setup": SETUP})

@@ -89,8 +89,10 @@ h2 { font-size: 14px; margin: 0 0 8px; }
   .units-top { grid-template-columns: minmax(0, 1fr); }
   .units-desk { display: flex; flex-direction: column; flex: none; }
   .col { overflow: visible; }
-  .centre-col { order: -1; min-height: 420px; }
-  .win.browser { min-height: 420px; }
+  /* phone: the browser is one screenful tall and its list scrolls inside it, instead of running down the page */
+  .centre-col { order: -1; height: min(80vh, 640px); min-height: 420px; flex: none; }
+  .win.browser { height: 100%; min-height: 0; }
+  .ub-list { resize: none; }
   .win.float { position: static !important; width: auto !important; height: auto !important; resize: none; }
 }
 
@@ -160,7 +162,7 @@ h2 { font-size: 14px; margin: 0 0 8px; }
 .dialog-body .filters { margin: 0; }
 .pair { display: flex; gap: 4px; }
 .pair input[type=number] { width: 64px; }
-.ub-list { flex: 1; min-height: 80px; max-height: none; }
+.ub-list { flex: 1; min-height: 80px; max-height: none; resize: vertical; }
 #ub-list tbody tr { cursor: grab; }
 #ub-list tbody tr.on { background: var(--select); color: var(--title-text); }
 #ub-list tbody tr.bad { color: var(--shadow); cursor: default; }
@@ -279,3 +281,15 @@ details.folder[hidden] { display: none; }
 @keyframes flash { 0%, 100% { background: var(--face); color: inherit; } 50% { background: var(--bad); color: #fff; } }
 #report-btn.flash { animation: flash 1s steps(1, end) infinite; font-weight: bold; }
 @media (prefers-reduced-motion: reduce) { #report-btn.flash { animation: none; background: var(--bad); color: #fff; } }
+
+/* sizes (2026-11-15): half a line under the last unit, a pull-down corner on docked teams, column handles, sort triangles */
+.team .list { padding-bottom: .5em; }
+.win.team:not(.float) { resize: vertical; overflow: hidden; }
+.win.sized .list { max-height: none; flex: 1; }
+.list th { position: sticky; }
+.rz { position: absolute; right: 0; top: 0; bottom: 0; width: 7px; cursor: col-resize; touch-action: none; }
+.rz:hover { background: var(--select); opacity: .5; }
+#ub-list th.sorted[data-dir="1"]::after { content: " \25B2"; font-size: 9px; }
+#ub-list th.sorted[data-dir="-1"]::after { content: " \25BC"; font-size: 9px; }
+.zone-mini { flex-wrap: nowrap; min-width: 0; overflow: hidden; gap: 0 .6em; }
+.zone-mini .zl input { width: 1em; height: 1em; margin: 0 .1em 0 0; }
