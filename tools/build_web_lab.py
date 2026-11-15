@@ -9,7 +9,7 @@ What it does:
   2. asks the desktop Lab (engine/target/release/combatlab, started on a spare port) for its unit and board lists, so the
      web lists are the very ones the desktop shows;
   3. keeps only boards that are 16x17 (the standard map sheet; Daniel, 2026-11-14: "prune out all the maps that aren't
-     standard 16x17") and only units the engine can play;
+     standard 16x17") and only units the engine can play and whose equipment it models (units with unmodeled equipment are left out; Daniel, 2026-11-15);
   4. strips the fluff from unit files (history, overview, capabilities, deployment, manufacturers: lines the engine
      never reads; tests/check_web_lab.py plays the same battles with and without to prove it);
   5. writes data.pack.gz (every unit and board in one gzip block: per file name length, name, content length, content,
@@ -80,9 +80,18 @@ def main():
             return maps.read(i[len("maps/"):]).decode("utf-8", "replace")
         return open(os.path.join(data, i), encoding="utf-8", errors="replace").read()
 
-    kept_units = [u for u in units if u.get("ok")]
+    # the website carries only units whose equipment the engine models (Daniel, 2026-11-15: "any units with unmodeled equipment should
+    # be removed from the website version"; the desktop Lab keeps them all). The engine says so itself, in the `warnings` it
+    # gives each unit (engine/lab/src/describe.rs): an equipment item it does not know, an armor or structure type it does not
+    # model (industrial, commercial, primitive...), or equipment whose special rules are only partly modelled.
+    UNMODELED = ("unrecognized component", "unrecognized global armor type", "unrecognized armor type", "unrecognized structure type",
+                 "equipment with special rules not yet fully modeled")
+    unmodeled = [u for u in units if u.get("ok") and any(k in w for w in u.get("warnings", []) for k in UNMODELED)]
+    skip = {u["id"] for u in unmodeled}
+    kept_units = [u for u in units if u.get("ok") and u["id"] not in skip]
+    print(f"left out for unmodeled equipment: {len(unmodeled)} units")
     kept_boards = [b for b in boards if (b["width"], b["height"]) == (16, 17)]
-    print(f"units {len(kept_units)} of {len(units)} (the rest the engine cannot play); boards {len(kept_boards)} of {len(boards)} (16x17 only)")
+    print(f"units {len(kept_units)} of {len(units)} (the rest the engine cannot play, or carry equipment it does not model); boards {len(kept_boards)} of {len(boards)} (16x17 only)")
     files, raw, stripped = [], 0, 0
     for u in kept_units:
         t = unit_text(u["id"])

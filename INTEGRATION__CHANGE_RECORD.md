@@ -6,6 +6,15 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-15 (Claude, session 27), WEBSITE: UNITS WITH UNMODELED EQUIPMENT LEFT OUT; CHECKPOINT. REVIEW PENDING (higher-level model).**
+  Daniel: "any units with unmodeled equipment should be removed from the website version... They will be built eventually", and a
+  checkpoint (merge to main, update the actual website). `tools/build_web_lab.py` now leaves out every unit the engine warns about
+  for equipment it does not model (`warnings` from `describe.rs`: an unknown component, an unmodeled armor or structure type, or
+  special rules only partly modeled): 324 units, on top of the 23 the engine cannot play, so the website lists 3,905 of 4,252 units.
+  The desktop Lab keeps them all. To put a class of unit back, change `UNMODELED` in that file. `check_web_lab.py` passes on the
+  new build. The sheet editor in the browser still lists the whole equipment catalogue (a unit built in the editor from unmodeled
+  equipment is the user's own doing).
+
 - **2026-11-15 (Claude, session 27), EDITOR ROUND 3: EYE PREVIEWS, "NEEDS A PLACE" TRAY, DHS FIX, THE SPELLING WITCH HUNT. REVIEW PENDING (higher-level model).**
   (1) BUG: the heat sink warning counted each slot of a double heat sink (the equipment database lists one as 1 slot);
   `itemsOf` now gives a heat sink item its real size (inner sphere double 3, clan double 2). (2) EYE COLUMN: the Preview button is
