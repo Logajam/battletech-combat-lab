@@ -24,6 +24,7 @@
 //! it. The project folder is the repository root (BTSIM_ROOT, else found from where the program is), with its data
 //! folder `data/` (units, boards, packs); lists are cached in `lab_cache/`.
 mod catalog;
+mod describe;
 mod runs;
 
 use std::collections::HashMap;
@@ -199,6 +200,21 @@ fn api(lab: &Lab, name: &str, req: &Value) -> Result<Value, String> {
             Ok(json!({"units": lab.catalog.units.iter().map(|u| &u.json).chain(added.iter()).collect::<Vec<_>>()}))
         }
         "add_unit" => add_unit(lab, req),
+        // the unit sheet and editor (Daniel, 2026-11-15): a unit's file text, the equipment it can be built from, and the
+        // engine's reading (Battle Value, or why it cannot be played) of a text that has been edited on the page
+        "unit_text" => {
+            let id = req["id"].as_str().ok_or("which unit?")?;
+            lab.catalog.ensure(id)?;
+            let text = std::fs::read_to_string(lab.catalog.data.join(id)).map_err(|e| format!("{}: {}", id, e))?;
+            Ok(json!({"id": id, "text": text}))
+        }
+        "unit_eval" => {
+            let text = req["text"].as_str().ok_or("no unit text")?;
+            let cfg = btsim_core::config::Config::from_json(&lab.defaults);
+            let db = btsim_core::equipment::EquipmentDb::shared();
+            Ok(json!({"unit": catalog::describe_unit(db, &cfg, "(edited)", "custom", text), "structure": catalog::unit_structure(db, text)}))
+        }
+        "equipment_list" => Ok(json!({"equipment": catalog::equipment_list(btsim_core::equipment::EquipmentDb::shared())})),
         "list_boards" => Ok(json!({"boards": lab.catalog.boards})),
         // a board file's text, for the Map page's preview (the page draws it); the map pack's boards are unpacked on the way
         "board" => {
@@ -237,6 +253,9 @@ fn api(lab: &Lab, name: &str, req: &Value) -> Result<Value, String> {
             let mut files = serde_json::Map::new();
             for t in run.setup["teams"].as_array().into_iter().flatten() {
                 for u in t["units"].as_array().into_iter().flatten() {
+                    if u["mtf_text"].is_string() {
+                        continue;        // a modified unit travels inside the setup itself
+                    }
                     if let Some(id) = u["unit"].as_str() {
                         if !id.contains('/') && !id.contains("..") {
                             if let Ok(text) = std::fs::read_to_string(lab.catalog.data.join(id)) {

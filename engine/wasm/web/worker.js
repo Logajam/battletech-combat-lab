@@ -37,6 +37,16 @@ onmessage = async (e) => {
         const seed = engine.call("seed", { run_seed: prepared.setup.seed || 1, sim: e.data.sim }).seed;
         reply({ crash: true, line: { sim: e.data.sim, seed, crashed: msg, board: null, zones: null } });
       }
+    } else if (cmd === "eval") {
+      // the unit editor's question (BV, can it play) on an edited text: a text that crashes the engine stops only this instance
+      try {
+        engine.call("files", { defaults: e.data.defaults });
+        reply(engine.call("unit_eval", { text: e.data.text }));
+      } catch (err) {
+        const msg = engine.panic || String(err);
+        engine = await makeEngine(module);
+        reply({ error: "the engine could not read this design: " + msg });
+      }
     } else if (cmd === "history" || cmd === "page") {
       // answered on a fresh instance when the battle crashes it
       try {

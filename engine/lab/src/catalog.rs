@@ -28,6 +28,8 @@ pub struct Catalog {
     pub boards: Vec<Value>,
 }
 
+/// where the units edited on the page are kept while a run needs them (emptied when the Lab starts)
+const MODIFIED_DIR: &str = "_modified/";
 const UNIT_PACK: &str = "meks.zip";
 const MAP_PACK: &str = "maps.zip";
 /// a board from the map pack is named under this folder
@@ -36,6 +38,7 @@ const MAP_PREFIX: &str = "maps/";
 impl Catalog {
     /// Reads (or builds and keeps) the lists for the data folder `data`; the cache goes in `cache_dir`.
     pub fn load(data: &Path, cache_dir: &Path, defaults: &Value) -> Catalog {
+        let _ = fs::remove_dir_all(data.join(MODIFIED_DIR));
         if let Err(e) = unpack_solid(data) {
             eprintln!("combatlab: the unit pack could not be unpacked: {}", e);
         }
@@ -55,6 +58,21 @@ impl Catalog {
         };
         let units = units_json.into_iter().map(|j| UnitEntry { id: j["id"].as_str().unwrap_or("").to_string(), json: j }).collect();
         Catalog { data: data.to_path_buf(), units, boards: index_boards(data) }
+    }
+
+    /// A unit edited on the page: its text as a scratch file under `data/_modified/` (named by a hash of the text), the name the
+    /// engine reads it by. See runs.rs.
+    pub fn scratch_unit(&self, text: &str) -> Result<String, String> {
+        use std::hash::{Hash, Hasher};
+        let mut h = std::collections::hash_map::DefaultHasher::new();
+        text.hash(&mut h);
+        let id = format!("{}{:016x}.mtf", MODIFIED_DIR, h.finish());
+        let target = self.data.join(&id);
+        if !target.exists() {
+            fs::create_dir_all(self.data.join(MODIFIED_DIR)).map_err(|e| e.to_string())?;
+            fs::write(&target, text).map_err(|e| e.to_string())?;
+        }
+        Ok(id)
     }
 
     /// Makes sure the unit or board named `id` is a file under the data folder (unpacking it from its pack if need be).
@@ -132,7 +150,7 @@ fn signature(data: &Path) -> Value {
         let t = m.modified().ok().and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok()).map_or(0, |d| d.as_secs());
         parts.push(format!("{}:{}:{}", UNIT_PACK, m.len(), t));
     }
-    parts.push(format!("engine {} list 4", env!("CARGO_PKG_VERSION")));
+    parts.push(format!("engine {} list 6", env!("CARGO_PKG_VERSION")));
     json!(parts)
 }
 
@@ -189,70 +207,6 @@ fn index_units(data: &Path, defaults: &Value) -> Vec<Value> {
     files.par_iter().map(|(id, source, text)| describe_unit(db, &cfg, id, source, text)).collect()
 }
 
-/// One unit of the list: name, tons, Battle Value (with the default pilot, 4 / 5), tech base.
-pub fn describe_unit(db: &'static btsim_core::equipment::EquipmentDb, cfg: &btsim_core::config::Config, id: &str, source: &str, text: &str) -> Value {
-    // header keys are written "mass:" in some files and "Mass:" in others
-    let field = |key: &str| {
-        text.lines().find_map(|l| (l.len() >= key.len() && l.is_char_boundary(key.len()) && l[..key.len()].eq_ignore_ascii_case(key)).then(|| l[key.len()..].trim().to_string())).unwrap_or_default()
-    };
-    let name = format!("{} {}", field("chassis:"), field("model:")).trim().to_string();
-    let num = |key: &str| field(key).parse::<i64>().ok();
-    // Mekbay-style details (CL13), read straight from the file's header and tables: no engine needed
-    let armor: i64 = text.lines().filter_map(|l| {
-        let (k, v) = l.split_once(':')?;
-        (k.trim_end().ends_with(" Armor") && !k.starts_with("RT") && k != "Armor").then(|| v.trim().parse::<i64>().ok()).flatten()
-    }).sum::<i64>() + text.lines().filter_map(|l| {
-        let (k, v) = l.split_once(':')?;
-        (k.starts_with("RT") && k.ends_with(" Armor")).then(|| v.trim().parse::<i64>().ok()).flatten()
-    }).sum::<i64>();
-    let sinks = field("heat sinks:");
-    let (sink_n, sink_kind) = sinks.split_once(' ').map(|(n, k)| (n.parse::<i64>().ok(), k.to_string())).unwrap_or((sinks.parse::<i64>().ok(), String::new()));
-    // weapons: the lines after "Weapons:N" until the first blank line, each "Name, Location" (a leading "2 " style count is not used by .mtf)
-    let mut weapons: std::collections::BTreeMap<String, i64> = Default::default();
-    let mut lines = text.lines();
-    while let Some(l) = lines.next() {
-        if l.len() > 8 && l[..8].eq_ignore_ascii_case("weapons:") {
-            for w in lines.by_ref().take_while(|w| !w.trim().is_empty()) {
-                let n = w.split(',').next().unwrap_or("").trim();
-                let n = n.trim_start_matches(|c: char| c.is_ascii_digit()).trim().trim_start_matches(|c: char| c == 'x').trim();
-                if !n.is_empty() { *weapons.entry(n.to_string()).or_insert(0) += 1; }
-            }
-            break;
-        }
-    }
-    let base = json!({"id": id, "name": name, "source": source, "tons": field("mass:").parse::<i64>().ok(), "tech": field("techbase:"), "era": field("era:").parse::<i64>().ok(),
-        "config": field("config:"), "role": field("role:"), "rules": num("rules level:"), "book": field("source:"),
-        "walk": num("walk mp:"), "jump": num("jump mp:"), "armor": armor, "sinks": sink_n, "sink_kind": sink_kind,
-        "engine": field("engine:"), "armor_type": field("armor:"), "structure": field("structure:"),
-        "weapons": weapons.into_iter().collect::<Vec<_>>()});
-    let mut out = String::new();
-    let parsed = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-        let mut m = btsim_core::mtf_parser::parse_mtf(db, text, &mut out)?;
-        // the list's BV is the 4 / 5 pilot's (skill factor 1.00); the page scales it by the skill table for other pilots
-        m.gunnery = 4;
-        m.piloting = 5;
-        let board = btsim_core::board_parser::Board::from_json(&json!({"width": 1, "height": 1, "hexes": {}}));
-        let b = btsim_core::battle::Battle::new(cfg.clone(), board, vec![m], Box::new(btsim_core::battle::TapeDice::new(vec![])));
-        Ok::<i64, String>(btsim_core::battle_value::battle_value(&b, 0))
-    }));
-    let mut v = base;
-    match parsed {
-        Ok(Ok(bv)) => {
-            v["bv"] = json!(bv);
-            v["ok"] = json!(true);
-        }
-        Ok(Err(e)) => {
-            v["ok"] = json!(false);
-            v["why"] = json!(e);
-        }
-        Err(_) => {
-            v["ok"] = json!(false);
-            v["why"] = json!("the engine could not read this unit");
-        }
-    }
-    v
-}
-
 /// The board list: loose boards, then the map pack's; each with its size (the file's "size W H" line).
 fn index_boards(data: &Path) -> Vec<Value> {
     let size = |text: &str| -> (i64, i64) {
@@ -282,3 +236,5 @@ fn index_boards(data: &Path) -> Vec<Value> {
     }
     out
 }
+
+pub use crate::describe::{describe_unit, equipment_list, unit_structure};

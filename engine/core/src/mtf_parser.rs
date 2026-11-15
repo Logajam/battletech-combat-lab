@@ -12,7 +12,9 @@ use crate::pyfmt::{py_int, py_repr_str, py_strip, Num};
 /// Normalized (lowercase, whitespace / hyphens stripped) armor-type text -> ArmorType.
 fn armor_type_by_name(norm: &str) -> Option<ArmorType> {
     Some(match norm {
-        "standard" | "ferrofibrous" | "stealth" => ArmorType::Standard,
+        // these read as standard armor, as before: the sim has no combat difference for them. The extra spellings ("Standard Armor",
+        // "Light / Heavy Ferro-Fibrous", "Stealth Armor") were reported as unrecognised on ~460 unit files (witch hunt, 2026-11-15)
+        "standard" | "standardarmor" | "ferrofibrous" | "lightferrofibrous" | "heavyferrofibrous" | "ferrofibrousprototype" | "stealth" | "stealtharmor" => ArmorType::Standard,
         "antipenetrativeablation" => ArmorType::AntiPenetrativeAblation,
         "impactresistant" => ArmorType::ImpactResistant,
         "reflective" => ArmorType::Reflective,
@@ -27,7 +29,7 @@ fn armor_type_by_name(norm: &str) -> Option<ArmorType> {
 
 fn structure_type_by_name(norm: &str) -> Option<StructureType> {
     Some(match norm {
-        "standard" | "endosteel" | "endocomposite" => StructureType::Standard,
+        "standard" | "endosteel" | "endosteelprototype" | "endocomposite" => StructureType::Standard,
         "reinforced" => StructureType::Reinforced,
         "composite" => StructureType::Composite,
         _ => return None,
@@ -60,7 +62,8 @@ pub fn strip_armor_type_tech_base(name_text: &str) -> String {
 }
 
 fn normalize_type_text(name_text: &str) -> String {
-    strip_armor_type_tech_base(name_text).chars().filter(|c| !crate::pyfmt::py_is_space(*c) && *c != '-').collect::<String>().to_lowercase()
+    // letters and digits only: spaces, hyphens and stray brackets ("Standard((Unknown Technology Base))") make no difference
+    strip_armor_type_tech_base(name_text).chars().filter(|c| c.is_alphanumeric()).collect::<String>().to_lowercase()
 }
 
 pub fn map_structure_type_name(name_text: &str) -> Option<StructureType> {
@@ -111,6 +114,24 @@ pub fn determine_mech_type(config_str: &str, cockpit_str: &str) -> Result<&'stat
             config_str
         ))
     }
+}
+
+/// The "LA IS:17" lines of a unit file: (location, internal structure), front keys of `armor_key_map` only.
+fn structure_overrides(text: &str, mech_type: &str) -> Vec<(String, i64)> {
+    let map = armor_key_map(mech_type);
+    let mut out = Vec::new();
+    for l in text.lines() {
+        let Some((k, v)) = l.split_once(':') else { continue };
+        let k = py_strip(k).to_lowercase();
+        let Some(stem) = k.strip_suffix(" is") else { continue };
+        let want = format!("{} armor", stem);
+        if let Some((_, loc, _)) = map.iter().find(|(mk, _, side)| mk.to_lowercase() == want && *side == "front") {
+            if let Ok(n) = py_strip(v).parse::<i64>() {
+                out.push((loc.to_string(), n));
+            }
+        }
+    }
+    out
 }
 
 pub const KNOWN_LOCATIONS: [&str; 13] = [
@@ -667,7 +688,17 @@ pub fn parse_mtf(db: &EquipmentDb, text: &str, out: &mut String) -> Result<Mech,
         }
     };
 
-    let structure = structure_for_tonnage(mass, mech_type)?;
+    // Combat Lab's editor can set each location's internal structure by hand ("LA IS:17", one line per location, the same key
+    // letters as the armor lines): lines present override the tonnage table, and with them a mass between the table's steps (up to 200 t) plays too, on the table's shape for 200 t. A file without such lines reads exactly as before.
+    let overrides = structure_overrides(text, mech_type);
+    let mut structure = match structure_for_tonnage(mass, mech_type) {
+        Ok(s) => s,
+        Err(e) if overrides.is_empty() || mass > 200 => return Err(e),      // nothing above 200 t plays (Daniel, 2026-11-15)
+        Err(_) => structure_for_tonnage(200, mech_type)?,
+    };
+    for (loc, n) in overrides {
+        structure.insert(loc, n);
+    }
     let mut mech = Mech::new(mech_type);
     mech.chassis = chassis;
     mech.model = model;

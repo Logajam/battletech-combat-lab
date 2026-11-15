@@ -68,6 +68,37 @@ def main(argv):
         units = lab.api("list_units")["units"]
         boards = lab.api("list_boards")["boards"]
         check(len(units) > 1000 and len(boards) > 100, f"lists: {len(units)} units, {len(boards)} boards", failures)
+        # a quarter of the library writes "LA armor:" in lower case; the list once showed those units with armor 0
+        no_armor = [u["name"] for u in units if not u.get("armor")]
+        check(not no_armor, f"every listed unit has armor ({len(no_armor)} without: {no_armor[:3]})", failures)
+        # the unit sheet / editor's calls (2026-11-15): a unit's text, the equipment catalogue, the engine's reading of edited text
+        text = lab.api("unit_text", {"id": "Atlas AS7-K.mtf"}).get("text", "")
+        check("chassis:Atlas" in text, "unit_text returns a unit's file", failures)
+        base = lab.api("unit_eval", {"text": text})
+        listed = next(u for u in units if u["id"] == "Atlas AS7-K.mtf")
+        check(base["unit"]["ok"] and base["unit"]["bv"] == listed["bv"], f"unit_eval gives the listed BV ({base['unit'].get('bv')} v {listed['bv']})", failures)
+        check(base["structure"].get("Left Arm") == 17, f"unit_eval gives internal structure ({base['structure'].get('Left Arm')})", failures)
+        more = lab.api("unit_eval", {"text": text.replace("Jump MP:0", "Jump MP:3")})
+        check(more["unit"]["ok"] and more["unit"]["bv"] != base["unit"]["bv"], "an edited jump MP changes the BV", failures)
+        eq = lab.api("equipment_list")["equipment"]
+        check(len(eq) > 600 and any("ismediumlaser" in e["al"] for e in eq), f"equipment_list: {len(eq)} items", failures)
+        # a modified unit travels inside the setup (its text), never in the unit folder or the unit list (2026-11-15)
+        mod = text.replace("Jump MP:0", "Jump MP:3").replace("chassis:Atlas", "chassis:Atlas Modified")
+        before = len(lab.api("list_units")["units"])
+        setup_mod = {"teams": [{"name": "Red", "bot": "gladiator", "units": [{"unit": "Atlas AS7-K.mtf", "mtf_text": mod}]},
+                               {"name": "Blue", "bot": "gladiator", "units": [{"unit": "Awesome AWS-8Q.mtf"}]}],
+                     "board": "16x17_Grassland_1.board", "battles": 2, "seed": 1, "threads": 0, "max_turns": 100}
+        run = lab.api("run", {"setup": setup_mod})
+        check("run" in run, f"a setup with a modified unit's text runs ({run})", failures)
+        check(len(lab.api("list_units")["units"]) == before, "a modified unit does not enter the unit list", failures)
+        # a 102-ton 'Mech (between the table's steps) plays when the file gives its internal structure ("LA IS:17"...); without those lines it is refused; nothing over 200 t plays
+        big = text.replace("Mass:100", "Mass:102")
+        check(not lab.api("unit_eval", {"text": big})["unit"]["ok"], "102 t with no structure lines is refused", failures)
+        isl = "\n".join(f"{k} IS:{v}" for k, v in {"LA": 60, "RA": 60, "LT": 80, "RT": 80, "CT": 100, "HD": 9, "LL": 90, "RL": 90}.items())
+        big_is = big.replace("LA Armor:34", isl + "\nLA Armor:34")
+        ev = lab.api("unit_eval", {"text": big_is})
+        check(not lab.api("unit_eval", {"text": big_is.replace("Mass:102", "Mass:250")})["unit"]["ok"], "250 t is refused even with structure lines", failures)
+        check(ev["unit"]["ok"] and ev["structure"].get("Left Arm") == 60, f"102 t with structure lines is read ({ev['unit'].get('why', ev['structure'])})", failures)
 
         setup = {"teams": [{"name": "Red", "bot": "gladiator", "units": [{"unit": "Atlas AS7-K.mtf"}, {"unit": "Griffin GRF-1N.mtf"}]},
                            {"name": "Blue", "bot": "gladiator", "units": [{"unit": "Awesome AWS-8Q.mtf"}, {"unit": "Hunchback HBK-4G.mtf"}]}],

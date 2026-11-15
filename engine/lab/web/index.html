@@ -54,11 +54,18 @@
             <div class="filters">
               <label for="ub-name">Name <input type="search" id="ub-name" placeholder="e.g. atlas"></label>
               <label for="ub-class">Weight class <select id="ub-class"><option value="">Any</option><option value="light">Light (20-35 t)</option><option value="medium">Medium (40-55 t)</option><option value="heavy">Heavy (60-75 t)</option><option value="assault">Assault (80-100 t)</option><option value="superheavy">Super-heavy</option></select></label>
+              <button class="btn" id="ub-clear">Clear selection</button>
+            </div>
+            <div class="filters add-to">
+              <label for="ub-addto">Add to <select id="ub-addto"></select></label>
+              <button class="btn" id="ub-add" disabled>Add selected (0)</button>
+              <button class="btn" id="ub-file" title="Add a .mtf unit file from this computer to that team">From file&hellip;</button>
+              <input type="file" id="ub-fileinput" accept=".mtf" multiple hidden>
               <button class="btn" id="ub-adv-btn">Advanced search&hellip;</button>
             </div>
-            <div class="filters"><span id="ub-count" class="note"></span><button class="btn small" id="ub-clear">Clear selection</button></div>
-            <div class="list sunken ub-list"><table id="ub-list"><thead><tr><th></th><th data-sort="name">Unit</th><th data-sort="tons" class="num">Tons</th><th data-sort="bv" class="num">BV</th><th data-sort="walk" class="num" title="Walk / run / jump MP">Move</th><th data-sort="armor" class="num">Armor</th><th data-sort="role">Role</th><th data-sort="era" class="num">Year</th></tr></thead><tbody></tbody></table></div>
+            <div class="list sunken ub-list"><table id="ub-list"><thead></thead><tbody></tbody></table></div>
             <div class="note" id="ub-picked"></div>
+            <div class="note" id="ub-count"></div>
           </div>
         </div>
       </div>

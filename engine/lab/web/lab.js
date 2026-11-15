@@ -10,7 +10,7 @@ const NAMED = [["Red", "#c00000"], ["Blue", "#0000c0"], ["Green", "#007000"], ["
 const STORE = "combatlab.setup.v2";
 const CLASSES = { light: [20, 35], medium: [40, 55], heavy: [60, 75], assault: [80, 100], superheavy: [101, 999] };
 
-const lab = {
+const lab = { addTo: 0,
   info: null, units: [], boards: [], byId: new Map(), boardById: new Map(),
   teams: [],
   map: { mode: "one", one: null, cols: 2, rows: 1, cells: [null, null], cell: 0, playlist: [], order: "sequence" },
@@ -39,7 +39,7 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 // a unit's Battle Value for its pilot: the list gives it for gunnery 4 / piloting 5; the engine's skill table
 // (battle_value.rs SKILL_TABLE, sent by the server) scales it, rounded as the engine rounds
 function unitBv(u) {
-  const base = (lab.byId.get(u.id) || {}).bv;
+  const base = u.mtf ? u.bv : (lab.byId.get(u.id) || {}).bv;        // a modified unit carries its own BV
   if (base == null) return null;
   const table = lab.info.skill_table;
   if (!table) return base;
@@ -75,7 +75,7 @@ function boardOfSetup() {
 
 function setup() {
   return {
-    teams: lab.teams.map((t, ti) => ({ name: t.name, colour: t.colour, bot: t.bot, units: t.units.map((u) => ({ unit: u.id, gunnery: u.gunnery, piloting: u.piloting })),
+    teams: lab.teams.map((t, ti) => ({ name: t.name, colour: t.colour, bot: t.bot, units: t.units.map((u) => (u.mtf ? { unit: u.base || u.id, mtf_text: u.mtf, gunnery: u.gunnery, piloting: u.piloting } : { unit: u.id, gunnery: u.gunnery, piloting: u.piloting })),
       ...(lab.deploy.mode !== "rulebook" ? { zone: zoneOf(t, ti) } : {}) })),
     ...(lab.deploy.mode !== "rulebook" ? { zone_mode: lab.deploy.mode, zone_opposite: lab.deploy.mode === "random" && lab.deploy.opposite && lab.teams.length === 2 } : {}),
     board: boardOfSetup(),
@@ -102,11 +102,12 @@ function restore() {
   try { saved = JSON.parse(localStorage.getItem(STORE) || "null"); } catch (e) { saved = null; }
   if (DEMO) saved = null;     // the demo always opens on the setup its results came from
   if (saved && saved.teams && saved.teams.length >= 2) {
-    lab.teams = saved.teams.map((t) => ({ ...t, units: t.units.map((u) => unitEntry(u.id, u.gunnery, u.piloting)).filter(Boolean) }));
+    lab.teams = saved.teams.map((t) => ({ ...t, units: t.units.map((u) => (u.mtf ? modifiedEntry(u.mtf, u.base || u.id, u.gunnery, u.piloting, { bv: u.bv }) : unitEntry(u.id, u.gunnery, u.piloting))).filter(Boolean) }));
     lab.map = { ...lab.map, ...saved.map };
     lab.options = saved.options || {};
     lab.deploy = { ...lab.deploy, ...(saved.deploy || {}) };
-    $("battles").value = saved.battles || 20; $("seed").value = saved.seed && saved.seed !== "1" ? saved.seed : "";   // an empty box = a new seed each run (the old default, 1, is dropped) $("threads").value = saved.threads || 0; $("max-turns").value = saved.maxTurns || 100;
+    $("battles").value = saved.battles || 20; $("seed").value = saved.seed && saved.seed !== "1" ? saved.seed : "";   // an empty box = a new seed each run (the old default, 1, is dropped)
+    $("threads").value = saved.threads || 0; $("max-turns").value = saved.maxTurns || 100;
   } else {
     const start = DEMO ? DEMO.setup : { teams: [{ name: "Red", bot: "gladiator", units: [{ unit: "Atlas AS7-K.mtf" }, { unit: "Griffin GRF-1N.mtf" }] },
       { name: "Blue", bot: "gladiator", units: [{ unit: "Awesome AWS-8Q.mtf" }, { unit: "Hunchback HBK-4G.mtf" }] }], board: lab.info.default_board, battles: 20, seed: "" };
@@ -130,8 +131,11 @@ function drawTeams() {
     const el = teamPanel(t, ti), key = `team${ti}`;
     if (!applyFloat(el, key)) (ti % 2 === 0 ? left : right).appendChild(el);
     wireWindow(el, key, drawTeams);
+    dockSize(el, key);
     const l = el.querySelector(".list"); if (l) l.scrollTop = scroll[ti] || 0;
   });
+  drawAddTo();
+  fitZoneLines();
   $("team-sum").textContent = `${lab.teams.length} teams, ${lab.teams.reduce((s, t) => s + t.units.length, 0)} units`;
   paintZoneGrids();
 }
@@ -141,6 +145,7 @@ function drawTeams() {
 // double-clicking the title docks it again. Positions are kept in the browser (localStorage), "Reset layout" clears them.
 const LAYOUT_KEY = "combatlab.layout.v1";
 let zTop = 30;
+const raiseWindow = (el) => { el.style.zIndex = ++zTop; };         // a window that opens, or is clicked, goes on top of the others
 try { lab.layout = JSON.parse(localStorage.getItem(LAYOUT_KEY) || "{}") || {}; } catch (e) { lab.layout = {}; }
 function saveLayout() { try { localStorage.setItem(LAYOUT_KEY, JSON.stringify(lab.layout)); } catch (e) { /* storage off */ } }
 const narrow = () => window.matchMedia("(max-width: 900px)").matches;
@@ -224,25 +229,16 @@ function teamPanel(t, ti) {
       <label for="tname-${ti}">Name <input type="text" id="tname-${ti}" value="${esc(t.name)}" maxlength="24"></label>
       <label for="tbot-${ti}">Bot <select id="tbot-${ti}">${bots}</select></label>
     </div>
-    <div class="team-tools">
-      <button class="btn" id="addsel-${ti}" ${lab.picked.size ? "" : "disabled"}>Add selected (${lab.picked.size})</button>
-      <button class="btn" id="file-${ti}" title="Add a .mtf unit file from this computer">From file&hellip;</button>
-      <input type="file" id="fileinput-${ti}" accept=".mtf" multiple hidden>
-      <span id="zmini-${ti}"></span>
-    </div>
-    <div class="adder">
-      <input type="search" id="find-${ti}" placeholder="Quick add: type a unit name" autocomplete="off">
-      <div class="hits sunken" id="hits-${ti}" hidden></div>
-    </div>
+    <div class="team-zone" id="zmini-${ti}"></div>
     <div class="list sunken" id="list-${ti}"><table>
-      <thead><tr><th></th><th>Unit</th><th class="num">Tons</th><th class="num">BV</th><th title="Gunnery skill">G</th><th title="Piloting skill">P</th><th></th></tr></thead>
+      <thead><tr><th data-ck="ico"></th><th data-ck="name">Unit</th><th data-ck="tons" class="num">Tons</th><th data-ck="bv" class="num">BV</th><th data-ck="g" title="Gunnery skill">G</th><th data-ck="p" title="Piloting skill">P</th><th data-ck="x"></th></tr></thead>
       <tbody>${t.units.length ? t.units.map((u, ui) => `<tr>
         <td class="ico">${classIcon(u.tons)}</td>
         <td class="name">${esc(u.name)}</td><td class="num">${u.tons ?? ""}</td><td class="num" id="bv-${ti}-${ui}">${unitBv(u) ?? ""}</td>
         <td><input type="number" min="0" max="8" value="${u.gunnery}" id="g-${ti}-${ui}" aria-label="Gunnery"></td>
         <td><input type="number" min="0" max="8" value="${u.piloting}" id="p-${ti}-${ui}" aria-label="Piloting"></td>
-        <td><button class="btn small" data-remove="${ui}" title="Remove">&times;</button></td></tr>`).join("")
-        : `<tr class="empty"><td colspan="7">No units yet. Drag units here from the Unit Browser, or type a name above.</td></tr>`}</tbody>
+        <td class="acts"><button class="btn small" data-edit="${ui}" title="Edit this unit's stats and equipment">&#9998;</button><button class="btn small" data-remove="${ui}" title="Remove">&times;</button></td></tr>`).join("")
+        : `<tr class="empty"><td colspan="7">No units yet. Pick the team in the Unit Browser\'s "Add to" box, or drag units here.</td></tr>`}</tbody>
     </table></div>
     </div>`;
   const redraw = () => { save(); drawTeams(); };
@@ -253,6 +249,7 @@ function teamPanel(t, ti) {
   });
   el.querySelector(`#tcol-${ti}`).addEventListener("input", (e) => { t.colour = e.target.value; el.querySelector(".wtitle").style.borderLeftColor = t.colour; save(); });
   el.querySelector(`#tbot-${ti}`).addEventListener("change", (e) => { t.bot = e.target.value; save(); });
+  el.querySelectorAll("[data-edit]").forEach((b) => b.addEventListener("click", () => openSheet(t.units[+b.dataset.edit].id, ti, +b.dataset.edit)));
   el.querySelectorAll("[data-remove]").forEach((b) => b.addEventListener("click", () => { t.units.splice(+b.dataset.remove, 1); redraw(); }));
   t.units.forEach((u, ui) => {
     // a skill change re-draws the team, so the unit's BV and the team's total follow it
@@ -260,22 +257,8 @@ function teamPanel(t, ti) {
     el.querySelector(`#p-${ti}-${ui}`).addEventListener("change", (e) => { u.piloting = Math.max(0, Math.min(8, +e.target.value)); redraw(); });
   });
   el.querySelector(`#zmini-${ti}`).replaceWith(zoneGrid(ti, true));
-  wireSearch(el, t, ti);
-  el.querySelector(`#addsel-${ti}`).addEventListener("click", () => addUnits(t, [...lab.picked]));
-  // a .mtf file (dropped on the panel, or picked with From file...) is copied into the project and added
-  const files = async (list) => {
-    for (const f of list) {
-      if (!f.name.toLowerCase().endsWith(".mtf")) { setStatus(`${f.name}: only .mtf unit files can be added`); continue; }
-      const r = await api("add_unit", { file: f.name, text: await f.text() });
-      if (r.error) { setStatus(`${f.name}: ${r.error}`); continue; }
-      if (!lab.byId.has(r.unit.id)) { lab.units.push(r.unit); lab.byId.set(r.unit.id, r.unit); }
-      t.units.push(unitEntry(r.unit.id));
-      setStatus(r.copied ? `${r.unit.name} copied into the project's unit folder and added` : `${r.unit.name} added (already in the project)`);
-    }
-    redraw();
-  };
-  el.querySelector(`#file-${ti}`).addEventListener("click", () => el.querySelector(`#fileinput-${ti}`).click());
-  el.querySelector(`#fileinput-${ti}`).addEventListener("change", (e) => files(e.target.files));
+  colResize(el.querySelector(".list table"), "team");
+  const files = (list) => addFiles(t, list);
   // drops: units dragged from the Unit Browser, or unit files from the computer
   el.addEventListener("dragover", (e) => { e.preventDefault(); el.classList.add("drop"); });
   el.addEventListener("dragleave", () => el.classList.remove("drop"));
@@ -294,29 +277,112 @@ function addUnits(t, ids) {
   save(); drawTeams();
 }
 
-function wireSearch(el, t, ti) {
-  const input = el.querySelector(`#find-${ti}`);
-  const hits = el.querySelector(`#hits-${ti}`);
-  let shown = [];
-  const add = (u) => {
-    t.units.push(unitEntry(u.id));
-    save(); drawTeams();
-    const again = $(`find-${ti}`); if (again) again.focus();
-  };
-  input.addEventListener("input", () => {
-    const words = input.value.toLowerCase().split(/\s+/).filter(Boolean);
-    if (!words.length) { hits.hidden = true; return; }
-    shown = lab.units.filter((u) => words.every((w) => u.name.toLowerCase().includes(w))).slice(0, 60);
-    hits.innerHTML = shown.length ? shown.map((u, i) => `<div data-i="${i}" class="${u.ok ? "" : "bad"}" title="${esc(u.ok ? u.source : u.why)}"><span>${esc(u.name)}</span><span class="num">${u.tons ?? "?"} t</span><span class="num">${u.ok ? "BV " + u.bv : "can't play"}</span></div>`).join("")
-      : `<div class="bad"><span>No unit matches</span></div>`;
-    hits.hidden = false;
-    hits.querySelectorAll("[data-i]").forEach((d) => d.addEventListener("mousedown", (e) => { e.preventDefault(); const u = shown[+d.dataset.i]; if (u.ok) add(u); }));
+// a .mtf file (dropped on a team panel, or picked with the browser's From file...) is copied into the project and added
+async function addFiles(t, list) {
+  for (const f of list) {
+    if (!f.name.toLowerCase().endsWith(".mtf")) { setStatus(`${f.name}: only .mtf unit files can be added`); continue; }
+    const r = await api("add_unit", { file: f.name, text: await f.text() });
+    if (r.error) { setStatus(`${f.name}: ${r.error}`); continue; }
+    if (!lab.byId.has(r.unit.id)) { lab.units.push(r.unit); lab.byId.set(r.unit.id, r.unit); }
+    t.units.push(unitEntry(r.unit.id));
+    setStatus(r.copied ? `${r.unit.name} copied into the project's unit folder and added` : `${r.unit.name} added (already in the project)`);
+  }
+  save(); drawTeams();
+}
+
+// ---------------------------------------------------------------- sizes (Daniel, 2026-11-15)
+// Column widths: drag the right edge of a header. The widths are kept per table kind ("ub" = the Unit Browser, "team") in the
+// layout; a table with saved widths gets a fixed layout, wider than its box if need be (the box scrolls sideways).
+function colResize(table, kind) {
+  const ths = [...table.tHead.rows[0].cells];
+  const saved = (lab.layout.cols && lab.layout.cols[kind]) || {};
+  const total = () => ths.reduce((n, th) => n + (parseFloat(th.style.width) || 0), 0);
+  const fix = (widths) => { table.style.tableLayout = "fixed"; ths.forEach((th, i) => { th.style.width = `${widths[i]}px`; }); table.style.width = `${total()}px`; };
+  if (ths.some((th) => saved[th.dataset.ck])) fix(ths.map((th) => saved[th.dataset.ck] || (th.dataset.ck === "name" ? 170 : th.dataset.ck === "ico" ? 40 : 60)));
+  ths.forEach((th, i) => {
+    if (th.dataset.ck === "ico" || th.dataset.ck === "eye") return;
+    const h = document.createElement("span"); h.className = "rz"; h.title = "Drag to resize the column; double-click to reset all widths";
+    h.addEventListener("click", (e) => e.stopPropagation());
+    h.addEventListener("dblclick", (e) => { e.stopPropagation(); if (lab.layout.cols) delete lab.layout.cols[kind]; saveLayout(); table.style.tableLayout = ""; table.style.width = ""; ths.forEach((t) => { t.style.width = ""; }); });
+    h.addEventListener("pointerdown", (e) => {
+      e.preventDefault(); e.stopPropagation();
+      if (table.style.tableLayout !== "fixed") fix(ths.map((t) => t.getBoundingClientRect().width));
+      const x0 = e.clientX, w0 = parseFloat(th.style.width);
+      const move = (m) => { th.style.width = `${Math.max(22, w0 + m.clientX - x0)}px`; table.style.width = `${total()}px`; };
+      const up = () => {
+        window.removeEventListener("pointermove", move);
+        lab.layout.cols = lab.layout.cols || {}; lab.layout.cols[kind] = Object.fromEntries(ths.map((t) => [t.dataset.ck, parseFloat(t.style.width)])); saveLayout();
+      };
+      window.addEventListener("pointermove", move); window.addEventListener("pointerup", up, { once: true });
+    });
+    th.appendChild(h);
   });
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") { const u = shown.find((x) => x.ok); if (u && !hits.hidden) add(u); }
-    if (e.key === "Escape") { hits.hidden = true; }
+}
+
+// A docked team panel can be pulled taller or shorter by its bottom corner; the height is kept. Double-click its title to clear it.
+function dockSize(el, key) {
+  const h = lab.layout["dh_" + key];
+  if (h && !narrow() && !el.classList.contains("float")) { el.style.height = `${h}px`; el.classList.add("sized"); }
+  el.addEventListener("pointerdown", (e) => {
+    if (el.classList.contains("float") || narrow()) return;
+    const r = el.getBoundingClientRect();
+    if (e.clientX < r.right - 20 || e.clientY < r.bottom - 20) return;         // only the resize corner
+    const before = r.height;
+    el.style.height = `${before}px`; el.classList.add("sized");
+    window.addEventListener("pointerup", () => {
+      const now = el.getBoundingClientRect().height;
+      if (Math.abs(now - before) < 2 && !lab.layout["dh_" + key]) { el.style.height = ""; el.classList.remove("sized"); return; }
+      lab.layout["dh_" + key] = now; saveLayout();
+    }, { once: true });
   });
-  input.addEventListener("blur", () => setTimeout(() => { hits.hidden = true; }, 150));
+  el.querySelector(".wtitle").addEventListener("dblclick", () => {
+    if (!lab.layout["dh_" + key]) return;
+    delete lab.layout["dh_" + key]; saveLayout(); el.style.height = ""; el.classList.remove("sized");
+  });
+}
+
+// The browser's list fills the window down to the bottom of the screen; pulling its bottom corner locks it at that height
+// (kept in the layout) until Reset layout. On a narrow screen the page itself sets the height.
+function lockBrowserList(h) {
+  const l = document.querySelector(".ub-list"); if (!l) return;
+  if (h && !narrow()) { l.style.flex = "none"; l.style.height = `${h}px`; } else { l.style.flex = ""; l.style.height = ""; }
+}
+function wireBrowserList() {
+  const l = document.querySelector(".ub-list");
+  lockBrowserList(lab.layout.ubH);
+  l.addEventListener("pointerdown", (e) => {
+    if (narrow()) return;
+    const r = l.getBoundingClientRect();
+    if (e.clientX < r.right - 20 || e.clientY < r.bottom - 20) return;
+    const before = r.height;
+    l.style.flex = "none"; l.style.height = `${before}px`;
+    window.addEventListener("pointerup", () => {
+      const now = l.getBoundingClientRect().height;
+      if (Math.abs(now - before) < 2) { lockBrowserList(lab.layout.ubH); return; }
+      lab.layout.ubH = now; saveLayout();
+    }, { once: true });
+  });
+}
+
+// The start line on a team panel always tries to be one line: the text shrinks until it fits (never below 7 px; then it wraps).
+function fitZoneLines() {
+  document.querySelectorAll(".zone-mini").forEach((w) => {
+    w.style.flexWrap = "nowrap";
+    let fs = 12; w.style.fontSize = `${fs}px`;
+    while (w.scrollWidth > w.clientWidth + 1 && fs > 7) { fs -= 0.5; w.style.fontSize = `${fs}px`; }
+    if (w.scrollWidth > w.clientWidth + 1) w.style.flexWrap = "wrap";
+  });
+}
+window.addEventListener("resize", () => fitZoneLines());
+if (window.ResizeObserver) { const zw = new ResizeObserver(() => fitZoneLines()); window.addEventListener("load", () => document.querySelectorAll("#teams-left, #teams-right").forEach((c) => zw.observe(c))); }
+
+// the Unit Browser's "Add to" row (MegaMek style): choose the team once, then add the selection, a double-clicked unit, or a file
+function drawAddTo() {
+  const sel = $("ub-addto");
+  if (!lab.teams[lab.addTo]) lab.addTo = 0;
+  sel.innerHTML = lab.teams.map((t, i) => `<option value="${i}">${i + 1}: ${esc(t.name)}</option>`).join("");
+  sel.value = lab.addTo;
+  const b = $("ub-add"); b.disabled = !lab.picked.size; b.textContent = `Add selected (${lab.picked.size})`;
 }
 
 function setTeamCount(n) {
@@ -354,6 +420,14 @@ function weaponLabel(id) {
   s = s.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2").replace(/([A-Za-z])(\d)/g, "$1 $2");
   return clan ? `${s} (Clan)` : s;
 }
+// armor and structure types are spelled a few ways in the unit files ("Hardened(Clan)" and "Hardened (Clan)", "Endo-Steel" and "Endo Steel"):
+// one entry in the list for each, found by the text without spaces, hyphens and capitals, shown in its commonest spelling
+const typeKey = (s) => String(s ?? "").toLowerCase().replace(/[\s\-_]+/g, "");
+function uniqueTypes(key) {
+  const groups = new Map();
+  for (const u of lab.units) { const v = u[key]; if (!v) continue; const g = groups.get(typeKey(v)) || new Map(); g.set(v, (g.get(v) || 0) + 1); groups.set(typeKey(v), g); }
+  return [...groups.values()].map((g) => [...g.entries()].sort((a, b) => b[1] - a[1])[0][0]).sort((a, b) => a.localeCompare(b));
+}
 const unique = (key) => [...new Set(lab.units.map((u) => u[key]).filter((x) => x !== null && x !== undefined && x !== ""))].sort((a, b) => (typeof a === "number" ? a - b : String(a).localeCompare(String(b))));
 const selectHtml = (id, values, label, current) => `<label for="${id}">${label} <select id="${id}"><option value="">Any</option>${values.map((v) => `<option value="${esc(v)}"${String(v) === String(current) ? " selected" : ""}>${esc(v === "project" ? "Project folder" : v)}</option>`).join("")}</select></label>`;
 const checksHtml = (name, values, picked) => `<div class="checks">${values.map((v) => `<label class="row"><input type="checkbox" data-set="${name}" value="${esc(v)}" ${picked.includes(String(v)) ? "checked" : ""}> ${esc(v)}</label>`).join("")}</div>`;
@@ -367,8 +441,8 @@ function buildAdvanced() {
     <fieldset><legend>Numbers</legend><div class="adv-grid">${grid}</div></fieldset>
     <fieldset><legend>Kind</legend><div class="adv-grid">
       ${selectHtml("adv-tech", ["Inner Sphere", "Clan", "Mixed"], "Tech base", adv.tech)}
-      ${selectHtml("adv-armor", unique("armor_type"), "Armor type", adv.armor_type)}
-      ${selectHtml("adv-structure", unique("structure"), "Structure", adv.structure)}
+      ${selectHtml("adv-armor", uniqueTypes("armor_type"), "Armor type", adv.armor_type)}
+      ${selectHtml("adv-structure", uniqueTypes("structure"), "Structure", adv.structure)}
       ${selectHtml("adv-source", unique("source"), "Unit set", adv.source)}
       <label for="adv-book">Source book contains <input type="text" id="adv-book" value="${esc(adv.book)}" placeholder="e.g. TRO 3050"></label></div>
       <p class="note" style="margin:6px 0 2px">Configuration</p>${checksHtml("config", unique("config"), adv.sets.config)}
@@ -433,8 +507,8 @@ function passes(u) {
   }
   if (adv.tech && !(u.tech || "").toLowerCase().includes(adv.tech.toLowerCase())) return false;
   if (adv.source && u.source !== adv.source) return false;
-  if (adv.armor_type && u.armor_type !== adv.armor_type) return false;
-  if (adv.structure && u.structure !== adv.structure) return false;
+  if (adv.armor_type && typeKey(u.armor_type) !== typeKey(adv.armor_type)) return false;
+  if (adv.structure && typeKey(u.structure) !== typeKey(adv.structure)) return false;
   if (adv.book && !(u.book || "").toLowerCase().includes(adv.book.toLowerCase())) return false;
   for (const k of ["config", "role", "rules"]) if (adv.sets[k].length && !adv.sets[k].includes(String(u[k]))) return false;
   for (const w of adv.weapons) {
@@ -477,19 +551,49 @@ async function initBrowser() {
   drawBrowser();
 }
 
+// The table's columns (Daniel, 2026-11-15): Unit, Tons and BV are always there; every other column appears only while the
+// search uses it (a range, a pick list or a weapon), so a plain browse stays narrow. `on` says when; `show` is the cell.
+const COLS = [
+  { key: "move", head: "Move", title: "Walk / run / jump MP", num: true, on: () => "walk" in adv.ranges || "jump" in adv.ranges, show: (u) => `${u.walk ?? ""}/${u.walk != null ? Math.ceil(u.walk * 1.5) : ""}/${u.jump ?? ""}`, sort: "walk" },
+  { key: "armor", head: "Armor", num: true, on: () => "armor" in adv.ranges, show: (u) => u.armor ?? "" },
+  { key: "sinks", head: "Sinks", title: "Heat sinks", num: true, on: () => "sinks" in adv.ranges, show: (u) => u.sinks ?? "" },
+  { key: "era", head: "Year", num: true, on: () => "era" in adv.ranges || adv.fyear !== "", show: (u) => u.era ?? "" },
+  { key: "role", head: "Role", on: () => adv.sets.role.length > 0, show: (u) => u.role || "" },
+  { key: "config", head: "Type", on: () => adv.sets.config.length > 0, show: (u) => u.config || "" },
+  { key: "rules", head: "Rules", title: "Rules level", num: true, on: () => adv.sets.rules.length > 0, show: (u) => u.rules ?? "" },
+  { key: "tech", head: "Tech", on: () => !!adv.tech, show: (u) => u.tech || "" },
+  { key: "armor_type", head: "Armor type", on: () => !!adv.armor_type, show: (u) => u.armor_type || "" },
+  { key: "structure", head: "Structure", on: () => !!adv.structure, show: (u) => u.structure || "" },
+  { key: "book", head: "Book", on: () => !!adv.book, show: (u) => u.book || "" },
+  { key: "weapons", head: "Weapons", title: "How many of each searched weapon the unit carries", on: () => adv.weapons.some((w) => w.name.trim()), sortable: false,
+    show: (u) => adv.weapons.filter((w) => w.name.trim()).map((w) => (u.weapons || []).filter((x) => weaponLabel(x[0]).toLowerCase().includes(w.name.trim().toLowerCase())).reduce((n, x) => n + x[1], 0)).join(" / ") },
+];
+const EYE = '<svg class="eye" viewBox="0 0 20 12" width="16" height="10" aria-label="Preview"><path d="M1 6 C4 1.5 16 1.5 19 6 C16 10.5 4 10.5 1 6 Z" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="6" r="2.4" fill="currentColor"/></svg>';
+const STRING_SORTS = new Set(["name", "role", "config", "tech", "armor_type", "structure", "book"]);
+
 function drawBrowser() {
   const words = $("ub-name").value.toLowerCase().split(/\s+/).filter(Boolean);
   const cls = CLASSES[$("ub-class").value];
   const list = lab.units.filter((u) => words.every((w) => u.name.toLowerCase().includes(w)) && (!cls || (u.tons >= cls[0] && u.tons <= cls[1])) && passes(u));
+  const cols = COLS.filter((c) => c.on());
+  // a sort on a column that has gone away falls back to the name
+  if (browse.sort !== "name" && browse.sort !== "tons" && browse.sort !== "bv" && !cols.some((c) => (c.sort || c.key) === browse.sort)) { browse.sort = "name"; browse.dir = 1; }
   const k = browse.sort, d = browse.dir;
-  list.sort((a, b) => ((k === "name" || k === "role") ? String(a[k] ?? "").localeCompare(String(b[k] ?? "")) || a.name.localeCompare(b.name) : ((a[k] ?? -1) - (b[k] ?? -1)) || a.name.localeCompare(b.name)) * d);
+  list.sort((a, b) => (STRING_SORTS.has(k) ? String(a[k] ?? "").localeCompare(String(b[k] ?? "")) || a.name.localeCompare(b.name) : ((a[k] ?? -1) - (b[k] ?? -1)) || a.name.localeCompare(b.name)) * d);
   browse.shown = list.slice(0, 400);
   $("ub-count").textContent = `${list.length} unit${list.length === 1 ? "" : "s"}${list.length > 400 ? " (first 400 shown: narrow the search)" : ""}`;
+  const th = (key, head, cls, title) => `<th data-ck="${esc(key || head)}" ${key ? `data-sort="${key}" ` : ""}class="${cls || ""}"${title ? ` title="${esc(title)}"` : ""}>${head}</th>`;
+  $("ub-list").tHead.innerHTML = `<tr><th data-ck="ico"></th><th data-ck="eye" class="eyeh" title="Click an eye to open that unit's sheet; open several to compare them side by side">${EYE}</th>${th("name", "Unit")}${th("tons", "Tons", "num")}${th("bv", "BV", "num")}${cols.map((c) => th(c.sortable === false ? "" : (c.sort || c.key), c.head, c.num ? "num" : "", c.title)).join("")}</tr>`;
+  document.querySelectorAll("#ub-list th[data-sort]").forEach((h) => h.addEventListener("click", () => {
+    browse.dir = browse.sort === h.dataset.sort ? -browse.dir : 1; browse.sort = h.dataset.sort; drawBrowser();
+  }));
   const body = $("ub-list").tBodies[0];
   body.innerHTML = browse.shown.map((u, i) => `<tr data-i="${i}" draggable="${u.ok}" class="${lab.picked.has(u.id) ? "on" : ""}${u.ok ? "" : " bad"}" title="${esc(u.ok ? "Drag onto a team" : u.why)}">
-      <td class="ico">${classIcon(u.tons)}</td><td>${esc(u.name)}</td><td class="num">${u.tons ?? ""}</td><td class="num">${u.bv ?? ""}</td><td class="num">${u.walk ?? ""}/${u.walk != null ? Math.ceil(u.walk * 1.5) : ""}/${u.jump ?? ""}</td><td class="num">${u.armor ?? ""}</td><td>${esc(u.role || "")}</td><td class="num">${u.era ?? ""}</td></tr>`).join("");
+      <td class="ico">${classIcon(u.tons)}</td><td class="eye"><span class="eyebtn" data-eye title="Open this unit's sheet">${EYE}</span></td><td>${esc(u.name)}</td><td class="num">${u.tons ?? ""}</td><td class="num">${u.bv ?? ""}</td>${cols.map((c) => `<td${c.num ? ' class="num"' : ""}>${esc(String(c.show(u)))}</td>`).join("")}</tr>`).join("");
   body.querySelectorAll("tr").forEach((tr) => {
     const u = browse.shown[+tr.dataset.i];
+    tr.querySelector("[data-eye]").addEventListener("click", (e) => { e.stopPropagation(); openSheet(u.id, null, null); });
+    tr.addEventListener("dblclick", () => { if (u.ok) addUnits(lab.teams[lab.addTo], [u.id]); });
     tr.addEventListener("click", (e) => {
       if (!u.ok) return;
       if (!(e.ctrlKey || e.metaKey || e.shiftKey)) { if (lab.picked.has(u.id) && lab.picked.size === 1) lab.picked.clear(); else { lab.picked.clear(); lab.picked.add(u.id); } }
@@ -502,13 +606,14 @@ function drawBrowser() {
       e.dataTransfer.effectAllowed = "copy";
     });
   });
-  document.querySelectorAll("#ub-list th[data-sort]").forEach((th) => th.classList.toggle("sorted", th.dataset.sort === k));
+  document.querySelectorAll("#ub-list th[data-sort]").forEach((th) => { th.classList.toggle("sorted", th.dataset.sort === k); th.dataset.dir = String(d); });   // CSS draws the up / down triangle
+  colResize($("ub-list"), "ub");
 }
 
 function pickedChanged() {
-  $("ub-picked").textContent = lab.picked.size ? `${lab.picked.size} selected: drag them onto a team, or press that team's "Add selected"` : "Drag a unit onto a team. Click to select several (Ctrl+click adds to the selection).";
+  $("ub-picked").textContent = lab.picked.size ? `${lab.picked.size} selected: drag them onto a team, or press "Add selected"` : "Drag a unit onto a team. Click to select several (Ctrl+click adds to the selection).";
   drawBrowser();
-  lab.teams.forEach((t, ti) => { const b = $(`addsel-${ti}`); if (b) { b.disabled = !lab.picked.size; b.textContent = `Add selected (${lab.picked.size})`; } });
+  drawAddTo();
 }
 
 // a popup window (Advanced search) moves by its title bar
@@ -523,6 +628,8 @@ function wireDialogMove(w, bar) {
   });
 }
 function wireBrowserWindow() {
+  wireBrowserList();
+  wireSheetWindow();
   wireWindow($("browser"), "browser", () => $("browser-slot").appendChild($("browser")));
   const key = "browser";
   applyFloat($("browser"), key);
@@ -543,10 +650,11 @@ function wireBrowserWindow() {
     store(ADV_KEY, adv); buildAdvanced(); drawBrowser();
   });
   $("adv-del").addEventListener("click", () => { const n = $("adv-preset").value; if (!n) return; const p = fetchStore(PRESET_KEY, {}); delete p[n]; store(PRESET_KEY, p); advPresets(); });
+  $("ub-addto").addEventListener("change", (e) => { lab.addTo = +e.target.value; });
+  $("ub-add").addEventListener("click", () => addUnits(lab.teams[lab.addTo], [...lab.picked]));
+  $("ub-file").addEventListener("click", () => $("ub-fileinput").click());
+  $("ub-fileinput").addEventListener("change", (e) => { addFiles(lab.teams[lab.addTo], e.target.files); e.target.value = ""; });
   $("ub-clear").addEventListener("click", () => { lab.picked.clear(); pickedChanged(); });
-  document.querySelectorAll("#ub-list th[data-sort]").forEach((th) => th.addEventListener("click", () => {
-    browse.dir = browse.sort === th.dataset.sort ? -browse.dir : 1; browse.sort = th.dataset.sort; drawBrowser();
-  }));
 }
 
 // ---------------------------------------------------------------- OPTIONS page (CL15)
@@ -812,10 +920,17 @@ function zoneGrid(ti, mini) {
   const wrap = document.createElement("div");
   wrap.className = mini ? "zone-mini" : "zone-team";
   wrap.dataset.zteam = ti;
-  wrap.innerHTML = `${mini ? "" : `<div class="zname" data-zname></div>`}
+  const set = (fn) => { fn(zoneOf(lab.teams[ti], ti)); zonesChanged(); };
+  if (mini) {
+    // on a team panel: one line, "Start: NW N NE W C E SW S SE [walk on]", a checkbox each (Daniel, 2026-11-15)
+    wrap.innerHTML = `<span class="zl-head" title="Where this team starts: tick the boxes of the 3 x 3 cut of the board">Start:</span>${BOX_LABELS.map((n, k) => `<label class="zl" title="${k === 4 ? "Centre" : "Zone " + n}"><input type="checkbox" data-box="${k}">${n}</label>`).join("")}<label class="zl" title="Units walk on from the board's border inside the zone"><input type="checkbox" data-walk>Walk on</label>`;
+    wrap.querySelectorAll("[data-box]").forEach((b) => b.addEventListener("change", () => { const k = +b.dataset.box; set((z) => { z.boxes[k] = b.checked; if (k === 4 && z.boxes[4]) z.walk_on = false; }); }));
+    wrap.querySelector("[data-walk]").addEventListener("change", (e) => set((z) => { z.walk_on = e.target.checked; if (z.walk_on) z.boxes[4] = false; }));
+    return wrap;
+  }
+  wrap.innerHTML = `<div class="zname" data-zname></div>
     <div class="zone-grid">${BOX_LABELS.map((n, k) => `<button type="button" data-box="${k}" title="${k === 4 ? "Centre" : "Zone " + n}">${n}</button>`).join("")}</div>
     <div class="zone-tools"><label class="row"><input type="checkbox" data-walk> Walk on</label>${mini ? "" : `<button class="btn small" type="button" data-edge>Edge</button><button class="btn small" type="button" data-any>Anywhere</button><button class="btn small" type="button" data-none>Clear</button>`}</div>`;
-  const set = (fn) => { fn(zoneOf(lab.teams[ti], ti)); zonesChanged(); };
   wrap.querySelectorAll("[data-box]").forEach((b) => b.addEventListener("click", () => { if (lab.deploy.mode === "rulebook") return; set((z) => { const k = +b.dataset.box; z.boxes[k] = !z.boxes[k]; if (k === 4 && z.boxes[4]) z.walk_on = false; }); }));
   wrap.querySelector("[data-walk]").addEventListener("change", (e) => set((z) => { z.walk_on = e.target.checked; if (z.walk_on) z.boxes[4] = false; }));
   if (!mini) {
@@ -832,8 +947,12 @@ function paintZoneGrids() {
     const ti = +w.dataset.zteam, t = lab.teams[ti];
     if (!t) return;
     const z = zoneOf(t, ti);
-    w.querySelector(".zone-grid").classList.toggle("off", off);
-    w.querySelectorAll("[data-box]").forEach((b) => { const on = z.boxes[+b.dataset.box]; b.classList.toggle("on", on); b.style.background = on ? t.colour : ""; });
+    const grid = w.querySelector(".zone-grid"); if (grid) grid.classList.toggle("off", off);
+    w.querySelectorAll("[data-box]").forEach((b) => {
+      const on = z.boxes[+b.dataset.box];
+      if (b.type === "checkbox") { b.checked = on; b.disabled = off; return; }       // the one-line version on a team panel
+      b.classList.toggle("on", on); b.style.background = on ? t.colour : "";
+    });
     const walk = w.querySelector("[data-walk]"); walk.checked = z.walk_on; walk.disabled = off;
     const zn = w.querySelector("[data-zname]"); if (zn) { zn.textContent = `Team ${ti + 1}: ${t.name}`; zn.style.borderLeftColor = t.colour; }
     w.querySelectorAll("button.btn").forEach((b) => { b.disabled = off; });
@@ -1055,7 +1174,7 @@ function drawCrashes(list) {
 
 // a saved run's setup back into the Units, Map and Options pages
 function applySetup(s) {
-  lab.teams = s.teams.map((t, i) => ({ name: t.name, colour: t.colour || defaultColour(i), bot: t.bot, zone: t.zone, units: t.units.map((u) => unitEntry(u.unit, u.gunnery ?? 4, u.piloting ?? 5)).filter(Boolean) }));
+  lab.teams = s.teams.map((t, i) => ({ name: t.name, colour: t.colour || defaultColour(i), bot: t.bot, zone: t.zone, units: t.units.map((u) => (u.mtf_text ? modifiedEntry(u.mtf_text, u.unit, u.gunnery ?? 4, u.piloting ?? 5) : unitEntry(u.unit, u.gunnery ?? 4, u.piloting ?? 5))).filter(Boolean) }));
   const m = lab.map;
   if (typeof s.board === "string") { m.mode = "one"; m.one = s.board; }
   else if (s.board && s.board.playlist) { m.mode = "playlist"; m.playlist = [...s.board.playlist]; m.order = s.board.order || "sequence"; }
@@ -1240,6 +1359,10 @@ function demoApi(name, body) {
     case "info": return d.info;
     case "list_units": return { units: d.units };
     case "list_boards": return { boards: d.boards };
+    case "equipment_list": return { equipment: d.equipment || [] };
+    case "unit_text": return d.unit_texts && d.unit_texts[body.id] ? { id: body.id, text: d.unit_texts[body.id] } : { error: "this demo carries the sheets of a few units only; Combat Lab has them all" };
+    case "unit_eval": return { error: "the demo cannot work out a Battle Value" };
+    case "board": return d.board_texts && d.board_texts[body.id] ? { id: body.id, text: d.board_texts[body.id] } : { error: "this board is not in the demo" };
     case "estimate": return { ...d.estimate, seconds: d.estimate.per_battle * Math.ceil((body.setup.battles || 20) / d.estimate.threads) };
     case "run": demoDone = 0; return { run: 1 };
     case "progress": {
@@ -1265,6 +1388,611 @@ function demoApi(name, body) {
     }
     default: return { error: "not in the demo: " + name };
   }
+}
+
+// ---------------------------------------------------------------- unit sheet and editor (Daniel, 2026-11-15)
+// A unit from the browser opens as a read-only sheet; a unit on a team opens the same sheet with its values editable. This is a
+// .mtf editor feeding the engine, not a designer: nothing is checked for being a legal design, the aim is only that whatever
+// is made plays. What is edited is the unit's own .mtf text, changed line by line, so whatever the page does not understand is
+// kept as it was. The one hard rule is that equipment must fit the critical slots; everything else (heat sinks, jump jets,
+// structure slots, armor, tonnage...) is at most a warning. A modified unit is temporary: it lives in the team and travels in the
+// setup (so a saved run file carries it); it is never written to the unit folder and never appears in the unit list.
+// The engine reads the edited text for the Battle Value (api "unit_eval"), so the BV shown is the one a battle uses.
+const EMPTY = "-Empty-";
+const LOC_RE = /^(Left Arm|Right Arm|Left Torso|Right Torso|Center Torso|Head|Left Leg|Right Leg|Center Leg|Front Left Leg|Front Right Leg|Rear Left Leg|Rear Right Leg):\s*$/i;
+// the armor lines of a unit file: key -> [location, side] (the engine's own table, mtf_parser.rs armor_key_map). The same
+// letters + " IS" are the internal structure lines the engine reads first when they are there ("LA IS:17").
+const ARMOR_KEYS = { "la": ["Left Arm", "front"], "ra": ["Right Arm", "front"], "lt": ["Left Torso", "front"], "rt": ["Right Torso", "front"], "ct": ["Center Torso", "front"],
+  "hd": ["Head", "front"], "ll": ["Left Leg", "front"], "rl": ["Right Leg", "front"], "cl": ["Center Leg", "front"], "fll": ["Front Left Leg", "front"], "frl": ["Front Right Leg", "front"],
+  "rll": ["Rear Left Leg", "front"], "rrl": ["Rear Right Leg", "front"], "rtl": ["Left Torso", "rear"], "rtr": ["Right Torso", "rear"], "rtc": ["Center Torso", "rear"] };
+const KEY_OF = Object.fromEntries(Object.entries(ARMOR_KEYS).filter(([, v]) => v[1] === "front").map(([k, v]) => [v[0], k.toUpperCase()]));
+// the standard internal structure table (engine: mech_state.rs STRUCTURE_TABLE): tons -> [CT, side torso, arm, leg]
+const STRUCT_ROWS = [[10,4,3,1,2],[15,5,4,2,3],[20,6,5,3,4],[25,8,6,4,6],[30,10,7,5,7],[35,11,8,6,8],[40,12,10,6,10],[45,14,11,7,11],[50,16,12,8,12],[55,18,13,9,13],[60,20,14,10,14],[65,21,15,10,15],[70,22,15,11,15],[75,23,16,12,16],[80,25,17,13,17],[85,27,18,14,18],[90,29,19,15,19],[95,30,20,16,20],[100,31,21,17,21],[105,32,22,17,22],[110,33,23,18,23],[115,35,24,19,24],[120,36,25,20,25],[125,38,26,21,26],[130,39,27,21,27],[135,41,28,22,28],[140,42,29,23,29],[145,44,31,24,31],[150,45,32,25,32],[155,47,33,26,33],[160,48,34,26,34],[165,50,35,27,35],[170,51,36,28,36],[175,53,37,29,37],[180,54,38,30,38],[185,56,39,31,39],[190,57,40,31,40],[195,59,41,32,41],[200,60,42,33,42]];
+// where each location sits on the sheet, as the paper sheet has it: [row, column]
+const SHEET_POS = { "Head": [1, 3], "Left Arm": [2, 1], "Left Torso": [2, 2], "Center Torso": [2, 3], "Right Torso": [2, 4], "Right Arm": [2, 5],
+  "Left Leg": [3, 2], "Center Leg": [3, 3], "Right Leg": [3, 4], "Front Left Leg": [3, 2], "Front Right Leg": [3, 4], "Rear Left Leg": [4, 2], "Rear Right Leg": [4, 4] };
+const slotCap = (loc) => (/Head|Leg/.test(loc) ? 6 : 12);                 // a head and a leg have 6 critical slots, everything else 12
+// parts that cannot be taken out (Daniel): shoulder, hip, upper arm / leg, lower leg, foot, sensors, life support, cockpit, engine, gyro
+const FIXED = new Set(["shoulder", "hip", "upperarmactuator", "upperlegactuator", "lowerlegactuator", "footactuator", "sensors", "lifesupport", "cockpit", "cockpit(armored)", "fusionengine", "gyro", "engine"]);
+const isFixed = (raw) => FIXED.has(normName(raw));
+const ACTUATORS = { 2: "Lower Arm Actuator", 3: "Hand Actuator" };      // the arm slots that are check boxes
+// engine, gyro and cockpit lists with the slots they take (read off the unit files: how many "Fusion Engine" slots a type has in
+// the centre torso and in each side torso, how many "Gyro" slots, what the head holds)
+const ENGINES = [["Fusion Engine", 6, 0], ["XL Engine", 6, 3], ["XL (Clan) Engine", 6, 2], ["Light Engine", 6, 2], ["XXL Engine", 6, 6], ["XXL (Clan) Engine", 6, 4], ["Compact Engine", 3, 0], ["ICE Engine", 6, 0], ["Fuel Cell Engine", 6, 0]];
+const GYROS = [["Standard Gyro", 4], ["Compact Gyro", 2], ["Heavy Duty Gyro", 4], ["XL Gyro", 6]];
+const E = EMPTY;
+const COCKPITS = { "Standard Cockpit": { head: ["Life Support", "Sensors", "Cockpit", E, "Sensors", "Life Support"], ct: 0 },
+  "Small Cockpit": { head: ["Life Support", "Sensors", "Cockpit", "Sensors", E, E], ct: 0 },
+  "Command Console": { head: ["Life Support", "Sensors", "Cockpit", "Cockpit", "Sensors", "Life Support"], ct: 0 },
+  "Torso-Mounted Cockpit": { head: ["Sensors", "Sensors", E, E, E, E], ct: 1 },
+  "Industrial Cockpit": { head: ["Life Support", "Sensors", "Cockpit", E, "Sensors", "Life Support"], ct: 0 },
+  "Primitive Cockpit": { head: ["Life Support", "Sensors", "Cockpit", E, "Sensors", "Life Support"], ct: 0 } };
+const STRUCTURES = ["Standard", "Endo Steel", "Endo-Composite", "Composite", "Reinforced", "Industrial"];
+const ARMORS = ["Standard", "Ferro-Fibrous", "Light Ferro-Fibrous", "Heavy Ferro-Fibrous", "Stealth", "Reactive", "Reflective", "Hardened", "Ferro-Lamellor", "Ballistic-Reinforced", "Anti-Penetrative Ablation", "Impact-Resistant", "Heat-Dissipating"];
+const MYOMERS = ["Standard", "Triple-Strength", "MASC", "Industrial Triple-Strength", "Super-Cooled"];
+const CONFIGS = ["Biped", "Quad", "Tripod"];
+const configOf = () => { const c = SHEET.mtf.get("Config"); return /quad/i.test(c) ? "Quad" : /tripod/i.test(c) ? "Tripod" : "Biped"; };
+// the actuators of an arm and of the leg that replaces it on a quad (shoulder = hip, hand = foot)
+const ARM_TO_LEG = { "Shoulder": "Hip", "Upper Arm Actuator": "Upper Leg Actuator", "Lower Arm Actuator": "Lower Leg Actuator", "Hand Actuator": "Foot Actuator" };
+const LEG_TO_ARM = Object.fromEntries(Object.entries(ARM_TO_LEG).map(([a, l]) => [l, a]));
+const QUAD_NAMES = [["Left Arm", "Front Left Leg", "LA", "FLL"], ["Right Arm", "Front Right Leg", "RA", "FRL"], ["Left Leg", "Rear Left Leg", "LL", "RLL"], ["Right Leg", "Rear Right Leg", "RL", "RRL"]];
+const TECHBASES = ["Inner Sphere", "Clan", "Mixed (IS Chassis)", "Mixed (Clan Chassis)"];
+
+// one state per open sheet window (previews from the browser's eye column can be open side by side); `SHEET` points at the one
+// being drawn or answering an event (a capture listener on each window sets it before any handler there runs)
+let SHEET = null;
+const newSheet = (extra) => ({ mtf: null, original: "", id: "", team: null, unit: null, edit: false, pick: null, structure: {}, eval: null, evalError: "", msg: "", find: "", allAmmo: false, tray: [], evalTimer: 0, el: null, ...extra });
+function createSheetWindow(S) {
+  const d = document.createElement("div");
+  d.className = "dialog sheet" + (S.edit ? " editing" : ""); d.setAttribute("role", "dialog");
+  d.innerHTML = `<div class="titlebar"><span class="box" aria-hidden="true"></span><span class="name sheet-title-text">Unit sheet</span><button class="closebox" aria-label="Close">&times;</button></div>
+    <div class="dialog-body"><div class="sheet-scroll"></div><div class="filters sheet-foot"></div></div>`;
+  const n = document.querySelectorAll(".dialog.sheet").length;
+  if (S.edit) { d.style.left = `${40 + (n % 8) * 28}px`; d.style.top = `${60 + (n % 8) * 28}px`; }
+  else {
+    // a preview opens against the right edge (the browser's eyes stay clickable) and the next one a little to the left and down
+    const w = Math.min(720, window.innerWidth - 24);
+    d.style.width = `${w}px`; d.style.left = `${Math.max(8, window.innerWidth - w - 16 - (n % 6) * 30)}px`; d.style.top = `${60 + (n % 6) * 30}px`;
+  }
+  $("app").appendChild(d);
+  S.el = d;
+  for (const ev of ["pointerdown", "click", "change", "input", "focusin", "dragstart", "drop", "toggle"]) d.addEventListener(ev, () => { SHEET = S; }, true);
+  wireDialogMove(d, d.querySelector(".titlebar"));
+  d.querySelector(".closebox").addEventListener("click", () => closeSheet(S));
+  wireRaise(d); raiseWindow(d);
+  return d;
+}
+let equipment = null;                       // { list, byAlias } from api "equipment_list"
+const normName = (s) => String(s).toLowerCase().replace(/\s+/g, "");
+const stripTags = (s) => String(s).replace(/\s*\((R|OMNIPOD|T|SPLIT|ARMORED)\)/gi, "");
+const lookupEq = (raw) => (equipment ? equipment.byAlias.get(normName(stripTags(raw))) : null);
+async function loadEquipment() {
+  if (equipment) return;
+  const r = await api("equipment_list");
+  const list = r.equipment || [], byAlias = new Map();
+  list.forEach((e) => (e.al || []).forEach((a) => { if (!byAlias.has(a)) byAlias.set(a, e); }));
+  equipment = { list, byAlias };
+}
+// "ISERLargeLaser" -> "ER Large Laser", "CLERLargeLaser" -> "Clan ER Large Laser"
+function pretty(raw) {
+  let s = stripTags(raw).trim();
+  const clan = /^CL(?=[A-Z])/.test(s);
+  s = s.replace(/^(IS|CL)(?=[A-Z])/, "").replace(/([a-z])([A-Z0-9])/g, "$1 $2").replace(/([A-Z])([A-Z][a-z])/g, "$1 $2");
+  return (clan ? "Clan " : "") + s;
+}
+// the folder an equipment item is listed under
+const PHYSICAL_RE = /hatchet|sword|retractable|chain ?whip|mace|saw|claw|lance|flail|vibro|talon|wrecking|pile|dual saw|lift hoist|backhoe|rock cutter|spot welder/i;
+function folderOf(e) {
+  if (e.cat === "ammo") return "Ammo";
+  if (e.cat === "weapon") return e.dt === "Energy" ? "Energy" : e.dt === "Ballistic" ? "Ballistic" : e.dt === "Missile" ? "Missile" : "Other";
+  return PHYSICAL_RE.test(e.n + e.k) ? "Physical" : "Other";
+}
+const FOLDERS = ["Energy", "Ballistic", "Missile", "Physical", "Other", "Ammo"];
+// does this ammo belong to a weapon on the unit: the ammo's name (without IS / CL and "Ammo") is the weapon's, or starts it
+// (and the next letter is not a digit, so AC/2 ammo is not AC/20's)
+const ammoBase = (a) => normName(a).replace(/^(is|cl|clan)/, "").replace(/ammo/g, "").replace(/[^a-z0-9]/g, "");
+function ammoFits(ammo, present) {
+  const b = ammoBase(ammo.k); if (!b) return false;
+  return present.some((w) => (w.al || []).some((a) => { const x = ammoBase(a); return x === b || (x.startsWith(b) && !/\d/.test(x[b.length] || "")); }));
+}
+
+// the file as a list of lines; every edit changes a line in place
+class Mtf {
+  constructor(text) { this.nl = text.includes("\r\n") ? "\r\n" : "\n"; this.lines = text.split(/\r?\n/); }
+  text() { return this.lines.join(this.nl); }
+  find(key) { const k = key.toLowerCase() + ":"; return this.lines.findIndex((l) => l.toLowerCase().startsWith(k)); }
+  get(key) { const i = this.find(key); return i < 0 ? "" : this.lines[i].slice(key.length + 1).trim(); }
+  set(key, value) {
+    const i = this.find(key);
+    if (i >= 0) { this.lines[i] = this.lines[i].slice(0, key.length + 1) + value; return; }
+    const w = this.find("mass"); this.lines.splice(w >= 0 ? w + 1 : this.lines.length, 0, `${key}:${value}`);
+  }
+  locations() {
+    const out = [];
+    this.lines.forEach((l, i) => {
+      const m = LOC_RE.exec(l); if (!m) return;
+      let j = i + 1; while (j < this.lines.length && this.lines[j].trim() !== "" && !LOC_RE.test(this.lines[j])) j++;
+      const name = m[1].replace(/\b\w/g, (c) => c.toUpperCase());
+      out.push({ name, at: i + 1, n: j - i - 1, cap: Math.min(j - i - 1, slotCap(name)) });
+    });
+    return out;
+  }
+  armor() {
+    const out = [];
+    this.lines.forEach((l, i) => {
+      const m = /^([A-Za-z]{2,3}) armor:\s*(\d+)/i.exec(l); const k = m && ARMOR_KEYS[m[1].toLowerCase()];
+      if (k) out.push({ line: i, key: m[1], loc: k[0], side: k[1], val: +m[2] });
+    });
+    return out;
+  }
+  // the "LA IS:17" lines (internal structure by hand); {} when the file has none
+  isLines() {
+    const out = {};
+    this.lines.forEach((l, i) => { const m = /^([A-Za-z]{2,3}) IS:\s*(\d+)/i.exec(l); const k = m && ARMOR_KEYS[m[1].toLowerCase()]; if (k && k[1] === "front") out[k[0]] = { line: i, val: +m[2] }; });
+    return out;
+  }
+  setIS(loc, val, all) {          // all = every location's current value, written together the first time
+    let have = this.isLines();
+    if (!Object.keys(have).length) {
+      let at = this.armor().reduce((n, a) => Math.max(n, a.line), -1) + 1; if (at <= 0) at = this.lines.length;
+      const add = Object.entries(all).filter(([l]) => KEY_OF[l]).map(([l, v]) => `${KEY_OF[l]} IS:${v}`);
+      this.lines.splice(at, 0, ...add); have = this.isLines();
+    }
+    if (have[loc]) this.lines[have[loc].line] = this.lines[have[loc].line].replace(/:\s*\d+/, `:${val}`);
+  }
+  // the Weapons: block follows the crit slots (the engine reads the slots; the block feeds the list's weapon search)
+  rewriteWeapons() {
+    const block = [];
+    for (const loc of this.locations()) {
+      let run = null;
+      const flush = () => { if (run) { const e = lookupEq(run.raw); const per = e && e.slots > 0 ? e.slots : 1; if (e && e.cat === "weapon") block.push(`${Math.max(1, Math.floor(run.n / per))} ${stripTags(run.raw)}, ${loc.name}`); run = null; } };
+      for (let k = 0; k < loc.cap; k++) { const raw = this.lines[loc.at + k]; if (raw === EMPTY) { flush(); continue; } if (run && normName(run.raw) === normName(raw)) run.n++; else { flush(); run = { raw, n: 1 }; } }
+      flush();
+    }
+    const i = this.lines.findIndex((l) => /^weapons:\s*\d+/i.test(l));
+    if (i < 0) return;
+    let j = i + 1; while (j < this.lines.length && this.lines[j].trim() !== "") j++;
+    this.lines.splice(i, j - i, `Weapons:${block.length}`, ...block);
+  }
+}
+
+// ---- the design as numbers
+const sheetTons = () => +SHEET.mtf.get("Mass") || 0;
+const engineRating = () => parseInt(SHEET.mtf.get("Engine"), 10) || 0;
+const engineKind = () => { const t = SHEET.mtf.get("Engine").replace(/^\d+\s*/, ""); return ENGINES.find(([n]) => normName(n.replace(/ Engine$/, "")) === normName(t.replace(/\(.*?\)\s*$/, "").replace(/ Engine$/, "").replace(/ Fusion$/, ""))) || (/xxl/i.test(t) ? /clan/i.test(t) ? ENGINES[5] : ENGINES[4] : /xl/i.test(t) ? /clan/i.test(t) ? ENGINES[2] : ENGINES[1] : /light/i.test(t) ? ENGINES[3] : /compact/i.test(t) ? ENGINES[6] : /ice/i.test(t) ? ENGINES[7] : /fuel/i.test(t) ? ENGINES[8] : ENGINES[0]); };
+const engineFree = () => { const k = engineKind()[0]; return /ICE|Fuel/.test(k) ? 0 : Math.floor(engineRating() / 25); };       // sinks the engine holds
+const gyroKind = () => { const t = SHEET.mtf.get("Gyro"); return GYROS.find(([n]) => normName(n) === normName(t)) || GYROS.find(([n]) => t && normName(t).includes(normName(n.split(" ")[0]))) || GYROS[0]; };
+const cockpitKind = () => { const t = SHEET.mtf.get("Cockpit"); return Object.keys(COCKPITS).find((n) => normName(n) === normName(t)) || "Standard Cockpit"; };
+const sinkInfo = () => { const m = /^(\d+)\s*(\w*)/.exec(SHEET.mtf.get("Heat Sinks")) || []; return { n: +m[1] || 0, type: /double/i.test(m[2]) ? "Double" : "Single" }; };
+const isClanTech = () => /clan/i.test(SHEET.mtf.get("TechBase")) && !/mixed \(IS/i.test(SHEET.mtf.get("TechBase"));
+function sinkItem() {          // [slot name, slots each] for the design's heat sink type
+  if (sinkInfo().type === "Single") return ["Heat Sink", 1];
+  return isClanTech() ? ["CLDoubleHeatSink", 2] : ["ISDoubleHeatSink", 3];
+}
+const isSinkSlot = (raw) => /heatsink/.test(normName(raw)) && !/ammo/.test(normName(raw));
+// a heat sink item takes 1 slot (single), 3 (inner sphere double) or 2 (clan double): the equipment database lists each as 1
+const sinkSlotSize = (raw) => (/double/i.test(raw) ? (/^cl/i.test(String(raw).trim()) ? 2 : 3) : 1);
+const isJetSlot = (raw) => /jumpjet/.test(normName(raw)) && !/ammo/.test(normName(raw));
+const STRUCT_SLOT = /^(IS |Clan |CL )?(Endo Steel|Endo-Steel|Endo-Composite|Endo Composite|Ferro-Fibrous|Light Ferro-Fibrous|Heavy Ferro-Fibrous)$/i;
+const isStructSlot = (raw) => STRUCT_SLOT.test(String(raw).trim());
+// every slot of every location the sheet shows: [{loc, k, i (index in lines), raw}]
+function allSlots() { const out = []; for (const loc of SHEET.mtf.locations()) for (let k = 0; k < loc.cap; k++) out.push({ loc: loc.name, k, i: loc.at + k, raw: SHEET.mtf.lines[loc.at + k] }); return out; }
+// the items on the unit: a run of equal names, cut into pieces of the item's size
+function itemsOf(pred) {
+  const items = [], slots = allSlots();
+  for (const s of slots) {
+    if (!pred(s.raw)) continue;
+    const e = lookupEq(s.raw), size = isSinkSlot(s.raw) ? sinkSlotSize(s.raw) : e && e.slots > 0 ? e.slots : 1;
+    const last = items[items.length - 1];
+    if (last && last.loc === s.loc && last.name === normName(s.raw) && last.at.length < last.size && last.at[last.at.length - 1] === s.i - 1) last.at.push(s.i);
+    else items.push({ loc: s.loc, name: normName(s.raw), size, at: [s.i] });
+  }
+  return items;
+}
+const PREFER = { sink: [/Arm/, /Leg/, /Torso/], jet: [/Leg/, /Torso/], struct: [/Arm/, /Leg/, /Torso/] };
+// put `size` equal slots in the first location of the preferred kinds that has that many empty ones in a row
+function placeRun(name, size, prefs) {
+  const m = SHEET.mtf;
+  for (const pref of prefs) for (const loc of m.locations()) {
+    if (!pref.test(loc.name) || /Head/.test(loc.name)) continue;
+    for (let k = 0; k + size <= loc.cap; k++) {
+      let free = true; for (let q = 0; q < size; q++) if (m.lines[loc.at + k + q] !== EMPTY) { free = false; break; }
+      if (free) { for (let q = 0; q < size; q++) m.lines[loc.at + k + q] = name; return true; }
+    }
+  }
+  return false;
+}
+// "first empty slots" of a location, `n` of them (not necessarily in a row): for engine and gyro slots
+function takeEmpty(locName, n, name) {
+  const m = SHEET.mtf, loc = m.locations().find((l) => l.name === locName); if (!loc) return n === 0;
+  const idx = []; for (let k = 0; k < loc.cap && idx.length < n; k++) if (m.lines[loc.at + k] === EMPTY) idx.push(loc.at + k);
+  if (idx.length < n) return false;
+  idx.forEach((i) => { m.lines[i] = name; });
+  return true;
+}
+const clearNamed = (locName, pred) => { const m = SHEET.mtf, loc = m.locations().find((l) => l.name === locName); if (loc) for (let k = 0; k < loc.n; k++) if (pred(m.lines[loc.at + k])) m.lines[loc.at + k] = EMPTY; };
+// engine / gyro: the old slots out, the new ones into the first empty places; false (and the caller puts the lines back) when they do not fit
+function rebuildEngineGyro(engine, gyro) {
+  for (const loc of ["Center Torso", "Left Torso", "Right Torso"]) clearNamed(loc, (r) => /^(fusion engine|gyro)$/i.test(r.trim()) || /^engine$/i.test(r.trim()));
+  return takeEmpty("Center Torso", engine[1], "Fusion Engine") && takeEmpty("Center Torso", gyro[1], "Gyro") && takeEmpty("Left Torso", engine[2], "Fusion Engine") && takeEmpty("Right Torso", engine[2], "Fusion Engine");
+}
+function rebuildCockpit(name) {
+  const m = SHEET.mtf, c = COCKPITS[name], head = m.locations().find((l) => l.name === "Head"); if (!head) return true;
+  clearNamed("Head", (r) => /^(life support|sensors|cockpit(\s*\(armored\))?)$/i.test(r.trim()));
+  clearNamed("Center Torso", (r) => /^cockpit$/i.test(r.trim()));
+  for (let k = 0; k < 6; k++) if (c.head[k] !== E) { if (m.lines[head.at + k] !== E) return false; m.lines[head.at + k] = c.head[k]; }
+  return c.ct ? takeEmpty("Center Torso", c.ct, "Cockpit") : true;
+}
+// the configuration: the location blocks, their actuators and the armor / structure lines change; false (nothing changed) when a
+// slot that would be lost holds equipment
+function convertConfig(target) {
+  const m = SHEET.mtf, cur = configOf(); if (cur === target) return true;
+  const omni = /omni/i.test(m.get("Config")) ? " Omnimech" : "";
+  const locs = () => m.locations();
+  const keepsOnly = (name, ok) => { const loc = locs().find((l) => l.name === name); return !loc || Array.from({ length: loc.n }, (_, k) => m.lines[loc.at + k]).every((r, k) => r === EMPTY || ok(r, k)); };
+  const rename = (from, to, map, keyFrom, keyTo) => {
+    const i = m.lines.findIndex((l) => l.toLowerCase() === from.toLowerCase() + ":"); if (i < 0) return;
+    m.lines[i] = to + ":";
+    for (let k = i + 1; k < m.lines.length && m.lines[k].trim() !== "" && !LOC_RE.test(m.lines[k]); k++) if (map[m.lines[k].trim()]) m.lines[k] = map[m.lines[k].trim()];
+    m.lines = m.lines.map((l) => l.replace(new RegExp(`^${keyFrom} (armor|IS):`, "i"), `${keyTo} $1:`));
+  };
+  const toTripod = () => {
+    if (m.lines.some((l) => /^Center Leg:/i.test(l))) return;
+    const rl = locs().find((l) => l.name === "Right Leg"); if (!rl) return;
+    const end = rl.at + rl.n, leg = ["Hip", "Upper Leg Actuator", "Lower Leg Actuator", "Foot Actuator"];
+    m.lines.splice(end, 0, "", "Center Leg:", ...leg, ...Array(rl.n - 4).fill(EMPTY));
+    const ra = m.armor().find((a) => a.loc === "Right Leg"); if (ra) m.lines.splice(ra.line + 1, 0, `CL armor:${ra.val}`);
+    const ri = m.isLines()["Right Leg"]; if (ri) m.lines.splice(ri.line + 1, 0, `CL IS:${ri.val}`);
+  };
+  const fromTripod = () => {
+    const cl = locs().find((l) => l.name === "Center Leg"); if (!cl) return true;
+    if (!keepsOnly("Center Leg", (r, k) => k < 4 && LEG_TO_ARM[r.trim()] !== undefined)) return false;
+    m.lines.splice(cl.at - 1, cl.n + 1 + (m.lines[cl.at + cl.n] === "" ? 1 : 0));
+    m.lines = m.lines.filter((l) => !/^CL (armor|IS):/i.test(l));
+    return true;
+  };
+  if (cur === "Tripod") { if (!fromTripod()) return false; }
+  const from = cur === "Tripod" ? "Biped" : cur, to = target === "Tripod" ? "Biped" : target;
+  if (from === "Biped" && to === "Quad") {
+    for (const [arm] of QUAD_NAMES.slice(0, 2)) { const loc = locs().find((l) => l.name === arm); if (loc && Array.from({ length: loc.n - 6 }, (_, k) => m.lines[loc.at + 6 + k]).some((r) => r !== EMPTY)) return false; }
+    for (const [a, l, ka, kl] of QUAD_NAMES) rename(a, l, /Arm/.test(a) ? ARM_TO_LEG : {}, ka, kl);
+  } else if (from === "Quad" && to === "Biped") {
+    for (const [a, l, ka, kl] of QUAD_NAMES) rename(l, a, /Arm/.test(a) ? LEG_TO_ARM : {}, kl, ka);
+  }
+  if (target === "Tripod") toTripod();
+  m.set("Config", target + omni);
+  return true;
+}
+
+// how many of each slot kind a design should have, for the warnings
+function expectedStructSlots() {
+  const st = SHEET.mtf.get("Structure"), ar = SHEET.mtf.get("Armor"), clan = (t) => /clan/i.test(t) || (!/\bIS\b|inner sphere/i.test(t) && isClanTech());
+  let n = 0;
+  if (/endo.?steel/i.test(st)) n += clan(st) ? 7 : 14;
+  if (/endo.?composite/i.test(st)) n += clan(st) ? 4 : 7;
+  if (/light ferro/i.test(ar)) n += 7; else if (/heavy ferro/i.test(ar)) n += 21; else if (/ferro-?fibrous/i.test(ar) && !/lamellor/i.test(ar)) n += clan(ar) ? 7 : 14;
+  return n;
+}
+
+// ---- items that still need a place: made by a choice (equipment picked, MASC, armor / structure types) and dragged into the slots
+// {name: what is written in a slot, size: slots in a row, count: how many of them, label}
+const MASC_PLACEHOLDER = "MASC size is a PLACEHOLDER (tons / 20 inner sphere, tons / 25 clan, rounded) until the TechManual is indexed.";
+function addToTray(name, size, count, label) {
+  const t = SHEET.tray.find((x) => x.name === name && x.size === size);
+  if (t) t.count += count; else SHEET.tray.push({ name, size, count, label: label || pretty(name) });
+}
+function maybeTrayForTypes() {      // after a structure / armor / myomer change: the slots the new types ask for, not yet placed, wait in the tray
+  const m = SHEET.mtf, want = expectedStructSlots(), have = allSlots().filter((s) => isStructSlot(s.raw)).length + SHEET.tray.filter((t) => isStructSlot(t.name)).reduce((n, t) => n + t.count, 0);
+  if (want > have) addToTray((/clan/i.test(m.get("Structure") + m.get("Armor")) ? "Clan " : "IS ") + (/endo/i.test(m.get("Structure")) ? "Endo Steel" : "Ferro-Fibrous"), 1, want - have);
+  if (/masc/i.test(m.get("Myomer")) && !allSlots().some((s) => /masc/i.test(s.raw)) && !SHEET.tray.some((t) => /masc/i.test(t.name))) {
+    const clan = isClanTech(), n = Math.max(1, Math.round(sheetTons() / (clan ? 25 : 20)));
+    addToTray(clan ? "CLMASC" : "ISMASC", n, 1, `MASC (${n} slot${n === 1 ? "" : "s"})`);
+    SHEET.msg = MASC_PLACEHOLDER;
+  }
+}
+// ---- warnings: [{level: "ok" | "warn" | "bad", text, fix?: [label, fn]}]; only "bad" (the engine cannot read the design) holds anything back
+function sheetChecks() {
+  const m = SHEET.mtf, out = [], rating = engineRating();
+  if (SHEET.eval && SHEET.eval.ok === false) out.push({ level: "bad", text: `The engine cannot play this design: ${SHEET.eval.why}` });
+  const { n } = sinkInfo(), free = Math.min(n, engineFree()), [sname, size] = sinkItem(), have = itemsOf(isSinkSlot).length, need = n - free;
+  const ofs = have - need;
+  if (ofs < 0) out.push({ level: "warn", text: `Heat sinks: ${n} (${free} fit in the engine), so ${need} should be in the critical slots: ${have} are placed, ${-ofs} short (${-ofs * size} slot${-ofs * size === 1 ? "" : "s"}).`, fix: [`Place ${-ofs}`, () => placeMany(isSinkSlot, -ofs, sname, size, PREFER.sink)] });
+  else if (ofs > 0) out.push({ level: "warn", text: `Heat sinks: ${n} (${free} fit in the engine) but ${have} are placed in the slots, ${ofs} more than needed.` });
+  const jets = itemsOf(isJetSlot).length, jump = +m.get("Jump MP") || 0;
+  if (jets < jump) out.push({ level: "warn", text: `Jump MP ${jump} should have ${jump} jump jets in the slots: ${jets} are placed, ${jump - jets} short.`, fix: [`Place ${jump - jets}`, () => placeMany(isJetSlot, jump - jets, "Jump Jet", 1, PREFER.jet)] });
+  else if (jets > jump) out.push({ level: "warn", text: `${jets} jump jets in the slots for Jump MP ${jump}.` });
+  const ss = allSlots().filter((s) => isStructSlot(s.raw)).length, want = expectedStructSlots();
+  if (ss < want) out.push({ level: "warn", text: `${m.get("Structure")} structure / ${m.get("Armor")} armor should take ${want} critical slots: ${ss} are placed, ${want - ss} short.`, fix: [`Place ${want - ss}`, () => placeMany(isStructSlot, want - ss, (/clan/i.test(m.get("Structure") + m.get("Armor")) ? "Clan " : "IS ") + (/endo/i.test(m.get("Structure")) ? "Endo Steel" : "Ferro-Fibrous"), 1, PREFER.struct, true)] });
+  else if (ss > want) out.push({ level: "warn", text: `${ss} structure / armor slots are placed, ${ss - want} more than ${want}.` });
+  if (n < 10) out.push({ level: "warn", text: `A 'Mech normally has at least 10 heat sinks (this has ${n}).` });
+  if (rating > 400) out.push({ level: "warn", text: `Engine rating ${rating} is above 400.` });
+  const tons = sheetTons(), walk = +m.get("Walk MP") || 0;
+  if (rating && tons && walk * tons !== rating) out.push({ level: "warn", text: `Engine rating ${rating} is not Walk MP ${walk} x ${tons} t = ${walk * tons}.` });
+  if (!STRUCT_ROWS.some((r) => r[0] === tons) && !Object.keys(m.isLines()).length) out.push({ level: "warn", text: `${tons} t has no internal structure in the table (10-200 t in steps of 5): press "Use tonnage" (the most the engine plays is 200 t), then edit the points by hand.` });
+  const st = SHEET.structure, rear = {}; m.armor().filter((a) => a.side === "rear").forEach((a) => { rear[a.loc] = a.val; });
+  for (const a of m.armor().filter((x) => x.side === "front")) {
+    const s = st[a.loc]; if (s == null) continue;
+    const max = a.loc === "Head" ? 9 : 2 * s;
+    if (a.val + (rear[a.loc] || 0) > max) out.push({ level: "warn", text: `${a.loc} armor ${a.val + (rear[a.loc] || 0)} is more than twice its internal structure (${max}).` });
+  }
+  const waiting = SHEET.tray.reduce((n, t) => n + t.count, 0);
+  if (waiting) out.push({ level: "warn", text: `${waiting} item${waiting === 1 ? "" : "s"} still need${waiting === 1 ? "s" : ""} a place: drag ${waiting === 1 ? "it" : "them"} from "Needs a place" into the slots.` });
+  if (!out.length) out.push({ level: "ok", text: "Nothing to warn about. (Legality is not checked.)" });
+  return out;
+}
+function placeMany(pred, count, name, size, prefs) {
+  let placed = 0; while (placed < count && placeRun(name, size, prefs)) placed++;
+  sheetChanged(placed < count ? `Only ${placed} of ${count} fitted: the critical slots are full.` : "");
+}
+
+// ---- opening, evaluating, drawing
+async function openSheet(id, team, unit) {
+  await loadEquipment();
+  let text, base = id;
+  if (team != null && lab.teams[team].units[unit].mtf) { text = lab.teams[team].units[unit].mtf; base = lab.teams[team].units[unit].base || id; }
+  else { const r = await api("unit_text", { id }); if (r.error) { setStatus(`${id}: ${r.error}`); return; } text = r.text; }
+  const S = newSheet({ mtf: new Mtf(text), original: text, id: base, team, unit, edit: team != null, unitJson: lab.byId.get(base) || {} });
+  createSheetWindow(S); SHEET = S;
+  drawSheet(); evalSheet();
+}
+function evalSheet() {
+  const S = SHEET;
+  clearTimeout(S.evalTimer);
+  S.evalTimer = setTimeout(async () => {
+    if (!S.mtf) return;
+    const r = await api("unit_eval", { text: S.mtf.text() });
+    S.eval = r.error ? null : r.unit; S.structure = r.structure || {}; S.evalError = r.error || "";
+    if (S.mtf && S.el.isConnected) { SHEET = S; drawSheet(); }
+  }, 200);
+}
+function sheetBv() {
+  const e = SHEET.eval; const base = e && e.ok ? e.bv : (SHEET.evalError ? null : SHEET.unitJson.bv);
+  if (base == null) return "n/a here (the program works it out)";
+  const t = SHEET.team != null ? lab.teams[SHEET.team].units[SHEET.unit] : null, table = lab.info.skill_table;
+  return t && table ? `${Math.floor(base * table[t.gunnery][t.piloting] + 0.5)} with this pilot (${base} at 4 / 5)` : String(base);
+}
+const opts = (list, cur) => list.map((x) => { const v = Array.isArray(x) ? x[0] : x; return `<option${normName(v) === normName(cur) ? " selected" : ""}>${esc(v)}</option>`; }).join("");
+function drawSheet() {
+  const S = SHEET, root = S.el, m = S.mtf, ed = S.edit, off = ed ? "" : " disabled";
+  const rating = engineRating(), tons = sheetTons(), walk = +m.get("Walk MP") || 0, jump = +m.get("Jump MP") || 0, sk = sinkInfo();
+  const changed = m.text() !== S.original;
+  root.querySelector(".sheet-title-text").textContent = `${m.get("chassis")} ${m.get("model")}`.trim() + (ed ? "  -  editing (temporary)" : "");
+  const armor = m.armor(), rear = {}; armor.filter((a) => a.side === "rear").forEach((a) => { rear[a.loc] = a; });
+  const totalArmor = armor.reduce((n, a) => n + a.val, 0), isl = m.isLines();
+  const checks = sheetChecks();
+  const armorRows = armor.filter((a) => a.side === "front").map((a) => {
+    const st = isl[a.loc] ? isl[a.loc].val : S.structure[a.loc], max = a.loc === "Head" ? 9 : st != null ? 2 * st : "";
+    const r = rear[a.loc];
+    return `<tr><td>${esc(a.loc)}</td><td class="num"><input type="number" min="0" data-armor="${a.line}" value="${a.val}"${off}></td><td class="num">${r ? `<input type="number" min="0" data-armor="${r.line}" value="${r.val}"${off}>` : ""}</td><td class="num"><input type="number" min="0" data-is="${esc(a.loc)}" value="${st ?? ""}"${off}></td><td class="num">${max}</td></tr>`;
+  }).join("");
+  // equipment totals from the slots
+  const tally = new Map();
+  for (const it of itemsOf((raw) => raw !== EMPTY && !!lookupEq(raw) && !isSinkSlot(raw) && !isJetSlot(raw))) {
+    const raw = m.lines[it.at[0]], e = lookupEq(raw), k = normName(raw);
+    const row = tally.get(k) || { e, raw, n: 0 }; row.n++; tally.set(k, row);
+  }
+  const eqRows = [...tally.values()].sort((a, b) => (b.e.tons || 0) - (a.e.tons || 0)).map((r) => `<tr><td>${esc(pretty(r.raw))}</td><td class="num">${r.n}</td><td class="num">${r.e.slots}</td><td class="num">${r.e.tons ?? ""}</td><td class="num">${r.e.heat ?? ""}</td><td class="num">${r.e.dmg ?? ""}</td></tr>`).join("");
+  const grid = m.locations().map((loc) => {
+    let freeN = 0;
+    const slots = Array.from({ length: loc.cap }, (_, k) => {
+      const raw = m.lines[loc.at + k]; let cls = "crit-slot", title = "", inner;
+      const act = /Arm/.test(loc.name) && ACTUATORS[k];
+      if (act && (raw === EMPTY || raw === act)) {
+        // the lower arm and hand actuators are check boxes beside their slots
+        if (raw === EMPTY) freeN++;
+        inner = `<label><input type="checkbox" data-act="${esc(loc.name)}:${k}"${raw === act ? " checked" : ""}${off}> ${esc(raw === act ? act : `(${act.toLowerCase()})`)}</label>`;
+        cls += raw === act ? " fixed" : " empty";
+      } else {
+        if (raw === EMPTY) { cls += " empty"; freeN++; } else if (isFixed(raw)) { cls += " fixed"; title = "A built-in part of the 'Mech: it cannot be taken out"; }
+        inner = raw === EMPTY ? "(empty)" : esc(pretty(raw));
+      }
+      return `<div class="${cls}" data-loc="${esc(loc.name)}" data-k="${k}" title="${esc(title)}">${inner}</div>`;
+    }).join("");
+    const pos = SHEET_POS[loc.name] || [3, 3];
+    return `<div class="crit-loc" style="grid-row:${pos[0]};grid-column:${pos[1]}"><h4><span>${esc(loc.name)}</span><span>${freeN} free</span></h4>${slots}</div>`;
+  }).join("");
+  // the equipment picker: one folder each for Energy, Ballistic, Missile, Physical, Other and the ammo of the weapons on the unit
+  let picker = "";
+  if (ed) {
+    const present = itemsOf((raw) => raw !== EMPTY && !!lookupEq(raw) && lookupEq(raw).cat === "weapon").map((it) => lookupEq(m.lines[it.at[0]]));
+    const q = normName(S.find);
+    const folders = FOLDERS.map((f) => {
+      let list = equipment.list.filter((e) => folderOf(e) === f && (!q || normName(e.n + e.k).includes(q)));
+      if (f === "Ammo" && !S.allAmmo) list = list.filter((e) => ammoFits(e, present));
+      const sel = `<select size="8" data-folder="${f}">${list.slice(0, 400).map((e) => `<option value="${esc(e.k)}"${S.pick && S.pick.k === e.k ? " selected" : ""}>${esc(pretty(e.k))} (${e.slots} slot${e.slots === 1 ? "" : "s"}${e.tons != null ? `, ${e.tons} t` : ""}${e.heat != null ? `, heat ${e.heat}` : ""})</option>`).join("")}</select>`;
+      return `<details class="folder"${S.open && S.open[f] ? " open" : ""} data-fname="${f}"><summary>${f} <span class="note">(${list.length}${f === "Ammo" && !S.allAmmo ? ", for the weapons on this unit" : ""})</span></summary>${f === "Ammo" ? `<label class="row"><input type="checkbox" id="sh-allammo"${S.allAmmo ? " checked" : ""}> Show all ammo</label>` : ""}${sel}</details>`;
+    }).join("");
+    picker = `<div class="picker"><h3>Add equipment</h3><label>Find <input type="search" id="sh-find" placeholder="e.g. ER Large" value="${esc(S.find)}"></label>
+      <div class="note">${S.pick ? `Click an empty slot to place ${esc(pretty(S.pick.k))}, or` : "Choose an item in a folder, then click an empty slot, or"} <button class="btn small" id="sh-totray"${S.pick ? "" : " disabled"}>send it to "Needs a place"</button>. Click a placed item to take it out; drag items to move them.</div>${folders}</div>`;
+  }
+  root.querySelector(".sheet-scroll").innerHTML = `
+    <div class="head"><b>${esc(m.get("chassis"))} ${esc(m.get("model"))}</b><span>${tons} t</span><span>${esc(m.get("TechBase"))}</span><span>Battle Value ${esc(sheetBv())}</span>${changed ? `<span class="tag">modified (the original is ${esc(S.unitJson.bv ?? "?")})</span>` : ""}</div>
+    <div class="sheet-msgs">${S.msg ? `<div class="bad">${esc(S.msg)}</div>` : ""}${checks.map((c, i) => `<div class="${c.level}">${c.level === "ok" ? "&#10003;" : c.level === "bad" ? "&#10007;" : "&#9888;"} ${esc(c.text)}${c.fix && ed ? ` <button class="btn small" data-fix="${i}">${esc(c.fix[0])}</button>` : ""}</div>`).join("")}</div>
+    <div>
+      <h3>Identity</h3>
+      <table>
+        <tr><td>Chassis</td><td colspan="2"><input type="text" id="sh-chassis" value="${esc(m.get("chassis"))}" style="width:150px"${off}></td></tr>
+        <tr><td>Model</td><td colspan="2"><input type="text" id="sh-model" value="${esc(m.get("model"))}" style="width:150px"${off}></td></tr>
+        <tr><td>Type</td><td colspan="2"><select id="sh-config"${off}>${opts(CONFIGS, configOf())}</select> <span class="note">${/omni/i.test(m.get("Config")) ? "Omni" : ""}</span></td></tr>
+        <tr><td>Tonnage</td><td class="num"><input type="number" min="1" max="200" id="sh-mass" value="${tons}"${off}></td><td>${ed ? `<button class="btn small" id="sh-usetons" title="Rounds the tonnage up to a multiple of 5 and fills in the internal structure of the nearest tonnage in the table (10-200 t); edit the points by hand after">Use tonnage</button>` : ""}</td></tr>
+        <tr><td>Tech base</td><td colspan="2"><select id="sh-tech"${off}>${opts(TECHBASES, m.get("TechBase"))}</select></td></tr>
+      </table>
+      <h3 style="margin-top:8px">Movement and heat</h3>
+      <table>
+        <tr><td>Engine</td><td colspan="2"><select id="sh-engine"${off}>${opts(ENGINES, engineKind()[0])}</select> <span class="note">${rating}</span></td></tr>
+        <tr><td>Walk MP</td><td class="num"><input type="number" min="1" max="30" id="sh-walk" value="${walk}"${off}></td><td class="note">run ${Math.ceil(walk * 1.5)}; engine ${walk * tons}</td></tr>
+        <tr><td>Jump MP</td><td class="num"><input type="number" min="0" max="30" id="sh-jump" value="${jump}"${off}></td><td class="note">${itemsOf(isJetSlot).length} jets placed</td></tr>
+        <tr><td>Heat sinks</td><td class="num"><input type="number" min="0" max="500" id="sh-sinks" value="${sk.n}"${off}></td><td><select id="sh-sinktype"${off}><option${sk.type === "Single" ? " selected" : ""}>Single</option><option${sk.type === "Double" ? " selected" : ""}>Double</option></select></td></tr>
+        <tr><td>Gyro</td><td colspan="2"><select id="sh-gyro"${off}>${opts(GYROS, gyroKind()[0])}</select></td></tr>
+        <tr><td>Cockpit</td><td colspan="2"><select id="sh-cockpit"${off}>${opts(Object.keys(COCKPITS), cockpitKind())}</select></td></tr>
+        <tr><td>Structure</td><td colspan="2"><select id="sh-structure"${off}>${opts(STRUCTURES, m.get("Structure").replace(/^(IS|Clan|CL) /i, "").replace(/-Steel/i, " Steel"))}</select></td></tr>
+        <tr><td>Armor</td><td colspan="2"><select id="sh-armortype"${off}>${opts(ARMORS, m.get("Armor").replace(/\(.*\)/, "").replace(/^(IS|Clan|CL) /i, "").replace(/ Armor$/i, ""))}</select></td></tr>
+        <tr><td>Myomer</td><td colspan="2"><select id="sh-myomer"${off}>${opts(MYOMERS, m.get("Myomer"))}</select></td></tr>
+      </table>
+      <h3 style="margin-top:8px">Armor (${totalArmor} points) and structure</h3>
+      <table><thead><tr><th>Location</th><th class="num">Front</th><th class="num">Rear</th><th class="num" title="Internal structure points">IS</th><th class="num" title="Twice the internal structure (head 9)">2xIS</th></tr></thead><tbody>${armorRows}</tbody></table>
+    </div>
+    <div>
+      <div class="crit-grid">${grid}</div>
+      ${ed ? `<div class="tray" id="sh-tray"><b>Needs a place</b> ${S.tray.length ? S.tray.map((t, i) => `<span class="chip" draggable="true" data-tray="${i}" title="Drag into the slots">${esc(t.label)}${t.size > 1 && !/MASC/.test(t.label) ? ` (${t.size} slots)` : ""}${t.count > 1 ? ` x${t.count}` : ""} <button class="x" data-traydrop="${i}" title="Throw away">&times;</button></span>`).join(" ") : `<span class="note">Items that still need a place (new equipment, the slots a new armor, structure or myomer type asks for) wait here. Drag one into a slot, or drag a placed item back here.</span>`}</div>` : ""}
+      ${picker}
+      <h3 style="margin-top:8px">Weapons and equipment</h3>
+      <table><thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Slots</th><th class="num">Tons</th><th class="num">Heat</th><th class="num">Dmg</th></tr></thead><tbody>${eqRows}</tbody></table>
+    </div>`;
+  const foot = root.querySelector(".sheet-foot");
+  foot.innerHTML = ed
+    ? `<span class="note" style="flex:1;text-align:left">A modified unit is temporary: it is kept in the team and saved only inside a saved run.</span><button class="btn" id="sh-use"${checks.some((c) => c.level === "bad") ? " disabled" : ""}>Use this design for ${esc(lab.teams[S.team].name)}</button><button class="btn" id="sh-revert"${changed ? "" : " disabled"}>Revert changes</button><button class="btn" id="sh-close2">Close</button>`
+    : `<button class="btn" id="sh-add">Add to ${esc((lab.teams[lab.addTo] || {}).name || "team")}</button><button class="btn" id="sh-close2">Close</button>`;
+  wireSheet(checks);
+}
+
+function sheetChanged(msg) {
+  SHEET.mtf.rewriteWeapons();
+  SHEET.msg = msg || "";
+  drawSheet(); evalSheet();
+}
+function wireSheet(checks) {
+  const S = SHEET, root = S.el, m = S.mtf, q = (id) => root.querySelector("#" + id);
+  q("sh-close2").addEventListener("click", () => closeSheet(S));
+  if (!S.edit) { q("sh-add").addEventListener("click", () => { addUnits(lab.teams[lab.addTo], [S.id]); closeSheet(S); }); return; }
+  const num = (id) => +q(id).value;
+  // a change that moves slots around: if it does not fit the slots, the lines go back as they were and a message says why
+  const attempt = (change, why) => { const before = m.lines.slice(); if (change() === false) { m.lines = before; sheetChanged(why); } else sheetChanged(); };
+  q("sh-chassis").addEventListener("change", (e) => { m.set("chassis", e.target.value.trim() || m.get("chassis")); sheetChanged(); });
+  q("sh-model").addEventListener("change", (e) => { m.set("model", e.target.value.trim() || m.get("model")); sheetChanged(); });
+  q("sh-config").addEventListener("change", (e) => attempt(() => convertConfig(e.target.value), "A Biped to Quad change needs the arms' slots beyond the sixth to be empty (a leg has 6): take that equipment out first."));
+  q("sh-tech").addEventListener("change", (e) => { m.set("TechBase", e.target.value); sheetChanged(); });
+  q("sh-mass").addEventListener("change", () => { const t = Math.max(1, Math.min(200, Math.round(num("sh-mass")))); m.set("Mass", String(t)); m.set("Engine", m.get("Engine").replace(/^\d+/, String((+m.get("Walk MP") || 1) * t))); sheetChanged(); });      // the most the engine plays is 200 t
+  q("sh-usetons").addEventListener("click", () => {
+    const t = Math.max(10, Math.min(200, Math.ceil(sheetTons() / 5) * 5)), row = STRUCT_ROWS.find((r) => r[0] === t) || STRUCT_ROWS[STRUCT_ROWS.length - 1];
+    const all = {}; for (const loc of m.locations()) all[loc.name] = /Head/.test(loc.name) ? (t >= 105 ? 4 : 3) : /Center Torso/.test(loc.name) ? row[1] : /Torso/.test(loc.name) ? row[2] : /Arm/.test(loc.name) ? row[3] : row[4];
+    for (const l of Object.keys(m.isLines())) m.lines.splice(m.isLines()[l].line, 1);       // start from the table, then the points are edited by hand
+    m.setIS("Head", all["Head"] ?? 3, all); for (const [loc, v] of Object.entries(all)) m.setIS(loc, v, all);
+    sheetChanged(`Internal structure filled in from the ${t} t row of the table. Edit the points by hand if you like.`);
+  });
+  q("sh-engine").addEventListener("change", (e) => {
+    const eng = ENGINES.find(([n]) => n === e.target.value); if (!eng) return;
+    attempt(() => { m.set("Engine", `${engineRating()} ${eng[0]}`); return rebuildEngineGyro(eng, gyroKind()); }, `There is no room for that engine's slots (${eng[1]} in the centre torso, ${eng[2]} in each side torso): empty some slots there first.`);
+  });
+  q("sh-gyro").addEventListener("change", (e) => {
+    const g = GYROS.find(([n]) => n === e.target.value); if (!g) return;
+    attempt(() => { m.set("Gyro", g[0]); return rebuildEngineGyro(engineKind(), g); }, `There is no room for ${g[1]} gyro slots in the centre torso: empty some slots there first.`);
+  });
+  q("sh-cockpit").addEventListener("change", (e) => attempt(() => { m.set("Cockpit", e.target.value); return rebuildCockpit(e.target.value); }, "That cockpit needs head slots that hold other equipment: take that out first."));
+  q("sh-structure").addEventListener("change", (e) => { m.set("Structure", (/endo|composite|reinforced/i.test(e.target.value) && isClanTech() ? "Clan " : "IS ") + e.target.value); maybeTrayForTypes(); sheetChanged(SHEET.msg); });
+  q("sh-armortype").addEventListener("change", (e) => { m.set("Armor", `${e.target.value}(${isClanTech() ? "Clan" : "Inner Sphere"})`); maybeTrayForTypes(); sheetChanged(SHEET.msg); });
+  q("sh-myomer").addEventListener("change", (e) => { m.set("Myomer", e.target.value); SHEET.msg = ""; maybeTrayForTypes(); sheetChanged(SHEET.msg); });
+  // walk: the engine rating follows (Walk x tons); the sinks the engine holds change with it, but nothing is forced into the slots
+  q("sh-walk").addEventListener("change", () => { const w = Math.max(1, Math.round(num("sh-walk"))); m.set("Walk MP", String(w)); m.set("Engine", m.get("Engine").replace(/^\d+/, String(w * sheetTons()))); sheetChanged(); });
+  q("sh-jump").addEventListener("change", () => { m.set("Jump MP", String(Math.max(0, Math.round(num("sh-jump"))))); sheetChanged(); });
+  q("sh-sinks").addEventListener("change", () => { m.set("Heat Sinks", `${Math.max(0, Math.round(num("sh-sinks")))} ${sinkInfo().type}`); sheetChanged(); });
+  q("sh-sinktype").addEventListener("change", (e) => { m.set("Heat Sinks", `${sinkInfo().n} ${e.target.value}`); sheetChanged("The heat sinks in the slots are still the old kind: take them out and place the new ones with the button."); });
+  root.querySelectorAll("[data-armor]").forEach((i) => i.addEventListener("change", () => { const ln = +i.dataset.armor; m.lines[ln] = m.lines[ln].replace(/:\s*\d+/, `:${Math.max(0, Math.round(+i.value))}`); sheetChanged(); }));
+  root.querySelectorAll("[data-is]").forEach((i) => i.addEventListener("change", () => {
+    const all = { ...S.structure }; const isl = m.isLines(); for (const l of Object.keys(isl)) all[l] = isl[l].val;
+    m.setIS(i.dataset.is, Math.max(0, Math.round(+i.value)), all); sheetChanged();
+  }));
+  root.querySelectorAll("[data-fix]").forEach((b) => b.addEventListener("click", () => checks[+b.dataset.fix].fix[1]()));
+  root.querySelectorAll("[data-act]").forEach((c) => {
+    c.addEventListener("click", (e) => e.stopPropagation());
+    c.addEventListener("change", () => {
+      const [locName, k] = c.dataset.act.split(":"), loc = m.locations().find((l) => l.name === locName), at = loc.at + +k;
+      if (c.checked) { if (m.lines[at] !== EMPTY) { sheetChanged("That slot is taken."); return; } m.lines[at] = ACTUATORS[+k]; } else m.lines[at] = EMPTY;
+      sheetChanged();
+    });
+  });
+  q("sh-find").addEventListener("input", (e) => { S.find = e.target.value; const pos = e.target.selectionStart; drawSheet(); const f = q("sh-find"); f.focus(); f.setSelectionRange(pos, pos); });
+  q("sh-allammo").addEventListener("change", (e) => { S.allAmmo = e.target.checked; S.open = { ...(S.open || {}), Ammo: true }; drawSheet(); });
+  root.querySelectorAll("details.folder[data-fname]").forEach((d) => d.addEventListener("toggle", () => { S.open = { ...(S.open || {}), [d.dataset.fname]: d.open }; }));
+  root.querySelectorAll("select[data-folder]").forEach((s) => s.addEventListener("change", (e) => { S.pick = equipment.list.find((x) => x.k === e.target.value) || null; S.open = { ...(S.open || {}), [s.dataset.folder]: true }; drawSheet(); }));
+  root.querySelectorAll(".crit-slot").forEach((d) => d.addEventListener("click", () => slotClick(d.dataset.loc, +d.dataset.k)));
+  q("sh-totray").addEventListener("click", () => { if (S.pick) { addToTray(S.pick.k, Math.max(1, S.pick.slots), 1); sheetChanged(); } });
+  root.querySelectorAll("[data-traydrop]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); const t = S.tray[+b.dataset.traydrop]; if (t && --t.count <= 0) S.tray.splice(+b.dataset.traydrop, 1); sheetChanged(); }));
+  // drag and drop: a chip from the tray or a placed item goes onto an empty slot; a placed item goes back to the tray by dropping it there
+  root.querySelectorAll("[data-tray]").forEach((c) => c.addEventListener("dragstart", (e) => e.dataTransfer.setData("text/x-sheet", `tray:${c.dataset.tray}`)));
+  root.querySelectorAll(".crit-slot[data-loc]").forEach((d) => {
+    const raw = m.lines[m.locations().find((l) => l.name === d.dataset.loc).at + +d.dataset.k];
+    const movable = raw !== EMPTY && !isFixed(raw) && !(/Arm/.test(d.dataset.loc) && ACTUATORS[+d.dataset.k] === raw);
+    if (movable) { d.draggable = true; d.addEventListener("dragstart", (e) => e.dataTransfer.setData("text/x-sheet", `slot:${d.dataset.loc}:${d.dataset.k}`)); }
+    d.addEventListener("dragover", (e) => { e.preventDefault(); d.classList.add("drop"); });
+    d.addEventListener("dragleave", () => d.classList.remove("drop"));
+    d.addEventListener("drop", (e) => { e.preventDefault(); dropOn(e.dataTransfer.getData("text/x-sheet"), d.dataset.loc, +d.dataset.k); });
+  });
+  const tray = q("sh-tray");
+  tray.addEventListener("dragover", (e) => e.preventDefault());
+  tray.addEventListener("drop", (e) => { e.preventDefault(); dropOnTray(e.dataTransfer.getData("text/x-sheet")); });
+  q("sh-revert").addEventListener("click", () => { S.mtf = new Mtf(S.original); sheetChanged(); });
+  q("sh-use").addEventListener("click", useDesign);
+}
+function dropOn(what, locName, k) {
+  const S = SHEET, m = S.mtf, loc = m.locations().find((l) => l.name === locName); if (!loc || !what) return;
+  let name, size, undo;
+  if (what.startsWith("tray:")) { const t = S.tray[+what.slice(5)]; if (!t) return; name = t.name; size = t.size; }
+  else {
+    const [, ln, kk] = what.split(":"), src = m.locations().find((l) => l.name === ln), at = src.at + +kk;
+    const item = itemsOf(() => true).find((it) => it.at.includes(at)); if (!item) return;
+    name = m.lines[item.at[0]]; size = item.at.length;
+    const before = m.lines.slice(); item.at.forEach((i) => { m.lines[i] = EMPTY; }); undo = () => { m.lines = before; };
+  }
+  const at = loc.at + k;
+  if (k + size > loc.cap || Array.from({ length: size }, (_, q) => m.lines[at + q]).some((x) => x !== EMPTY)) { if (undo) undo(); sheetChanged(`${pretty(name)} needs ${size} empty slot${size === 1 ? "" : "s"} in a row from there (${loc.name} has ${loc.cap}).`); return; }
+  for (let q = 0; q < size; q++) m.lines[at + q] = name;
+  if (what.startsWith("tray:")) { const t = S.tray[+what.slice(5)]; if (--t.count <= 0) S.tray.splice(+what.slice(5), 1); }
+  sheetChanged();
+}
+function dropOnTray(what) {
+  const S = SHEET, m = S.mtf; if (!what.startsWith("slot:")) return;
+  const [, ln, kk] = what.split(":"), src = m.locations().find((l) => l.name === ln), at = src.at + +kk;
+  const item = itemsOf(() => true).find((it) => it.at.includes(at)); if (!item) return;
+  const name = m.lines[item.at[0]]; item.at.forEach((i) => { m.lines[i] = EMPTY; });
+  addToTray(name, item.at.length, 1);
+  sheetChanged();
+}
+function slotClick(locName, k) {
+  const S = SHEET, m = S.mtf, loc = m.locations().find((l) => l.name === locName); if (!loc) return;
+  const at = loc.at + k, raw = m.lines[at];
+  if (raw === EMPTY) {
+    const e = S.pick; if (!e) { sheetChanged("Choose equipment first."); return; }
+    const size = Math.max(1, e.slots);
+    if (k + size > loc.cap || Array.from({ length: size }, (_, q) => m.lines[at + q]).some((x) => x !== EMPTY)) { sheetChanged(`${pretty(e.k)} needs ${size} empty slot${size === 1 ? "" : "s"} in a row from there (${loc.name} has ${loc.cap}).`); return; }
+    for (let q = 0; q < size; q++) m.lines[at + q] = e.k;
+    sheetChanged(); return;
+  }
+  if (isFixed(raw) || (/Arm/.test(loc.name) && ACTUATORS[k] === raw)) { sheetChanged(ACTUATORS[k] === raw ? "Use the check box to take an actuator out." : "That is a built-in part of the 'Mech: it cannot be taken out."); return; }
+  const item = itemsOf(() => true).find((it) => it.at.includes(at));
+  for (const i of (item ? item.at : [at])) m.lines[i] = EMPTY;
+  sheetChanged();
+}
+// "Use this design": the modified unit goes into the team as it is, temporary, carrying its own text
+async function useDesign() {
+  const S = SHEET, m = S.mtf;
+  if (!/Modified in Combat Lab/.test(m.lines.slice(0, 3).join(" "))) m.lines.unshift("# Modified in Combat Lab: a temporary unit, not a published design.");
+  const name = `${m.get("chassis")} ${m.get("model")}`.trim();
+  const r = await api("unit_eval", { text: m.text() });
+  const demoBv = DEMO && r.error;          // the demo has no engine to ask: the unit is used with no BV
+  if (!demoBv && (r.error || !r.unit || !r.unit.ok)) { S.msg = r.error || (r.unit && r.unit.why) || "The engine cannot play this design."; m.lines.shift(); drawSheet(); return; }
+  const t = lab.teams[S.team], old = t.units[S.unit], same = m.text() === S.original && !old.mtf;
+  t.units[S.unit] = same ? unitEntry(S.id, old.gunnery, old.piloting)
+    : { id: `modified:${S.id}`, base: S.id, name: /modified/i.test(name) ? name : `${name} (modified)`, tons: sheetTons(), bv: demoBv ? null : r.unit.bv, gunnery: old.gunnery, piloting: old.piloting, mtf: m.text(), modified: true };
+  if (!same && !/modified/i.test(m.get("model"))) { /* the name shown carries "(modified)"; the file's own model line is left as edited */ }
+  setStatus(same ? `${name}: no changes` : `${name} used in ${t.name} as a modified unit (temporary: it is saved with a saved run)`);
+  closeSheet(S); save(); drawTeams();
+}
+// a team entry from a unit text carried in a setup or a saved state (bv: asked of the engine when it is not known)
+function modifiedEntry(text, base, g, p, known) {
+  const mt = new Mtf(text), name = `${mt.get("chassis")} ${mt.get("model")}`.trim();
+  const e = { id: `modified:${base}`, base, name: /modified/i.test(name) ? name : `${name} (modified)`, tons: +mt.get("Mass") || null, bv: known ? known.bv : null, gunnery: g, piloting: p, mtf: text, modified: true };
+  if (e.bv == null) api("unit_eval", { text }).then((r) => { if (r.unit && r.unit.ok) { e.bv = r.unit.bv; save(); drawTeams(); } });
+  return e;
+}
+function closeSheet(S = SHEET) { if (!S) return; S.mtf = null; S.el.remove(); if (SHEET === S) SHEET = null; }
+// a popup window goes on top when it opens or is clicked
+function wireRaise(d) {
+  new MutationObserver(() => { if (!d.hidden) raiseWindow(d); }).observe(d, { attributes: true, attributeFilter: ["hidden"] });
+  d.addEventListener("pointerdown", () => raiseWindow(d), true);
+}
+function wireSheetWindow() {
+  document.querySelectorAll(".dialog").forEach(wireRaise);        // Advanced search, About, the report (the sheets add theirs as they open)
 }
 
 // ---------------------------------------------------------------- start
@@ -1318,7 +2046,7 @@ async function start() {
   document.querySelectorAll(".subtab").forEach((b) => b.addEventListener("click", () => showOptionPane(b.dataset.pane)));
   $("opt-reset-all").addEventListener("click", () => { lab.options = {}; save(); drawOptions(); });
   $("reset-layout").addEventListener("click", () => {
-    lab.layout = {}; saveLayout();
+    lab.layout = {}; saveLayout(); lockBrowserList(null);
     const b = $("browser"); sizeWatch.unobserve(b); b.classList.remove("float"); b.style.cssText = ""; $("browser-slot").appendChild(b);
     drawTeams();
   });

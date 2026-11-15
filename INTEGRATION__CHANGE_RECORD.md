@@ -6,6 +6,143 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-15 (Claude, session 27), WEBSITE: UNITS WITH UNMODELED EQUIPMENT LEFT OUT; CHECKPOINT. REVIEW PENDING (higher-level model).**
+  Daniel: "any units with unmodeled equipment should be removed from the website version... They will be built eventually", and a
+  checkpoint (merge to main, update the actual website). `tools/build_web_lab.py` now leaves out every unit the engine warns about
+  for equipment it does not model (`warnings` from `describe.rs`: an unknown component, an unmodeled armor or structure type, or
+  special rules only partly modeled): 324 units, on top of the 23 the engine cannot play, so the website lists 3,905 of 4,252 units.
+  The desktop Lab keeps them all. To put a class of unit back, change `UNMODELED` in that file. `check_web_lab.py` passes on the
+  new build. The sheet editor in the browser still lists the whole equipment catalogue (a unit built in the editor from unmodeled
+  equipment is the user's own doing).
+
+- **2026-11-15 (Claude, session 27), EDITOR ROUND 3: EYE PREVIEWS, "NEEDS A PLACE" TRAY, DHS FIX, THE SPELLING WITCH HUNT. REVIEW PENDING (higher-level model).**
+  (1) BUG: the heat sink warning counted each slot of a double heat sink (the equipment database lists one as 1 slot);
+  `itemsOf` now gives a heat sink item its real size (inner sphere double 3, clan double 2). (2) EYE COLUMN: the Preview button is
+  gone; a fixed eye column in the Unit Browser opens that unit's sheet (read only); several can be open at once to compare (each
+  sheet is its own window with its own state, `createSheetWindow`; previews are 720 px wide and open against the right edge so the
+  eyes stay clickable). The fixed `#sheet` window is gone. (3) "NEEDS A PLACE" TRAY (Daniel: items that still need a place, to be
+  dragged where you want them): chips in a tray under the slots; equipment can be sent there from the picker; choosing MASC puts its
+  slots there, and choosing an armor or structure type puts the Endo / Ferro slots it asks for there (one chip with a count);
+  drag a chip into an empty slot (it must have room in a row), drag a placed item to another slot or back into the tray (fixed
+  parts and actuators cannot be dragged); a "still need a place" warning stays until the tray is empty. PLACEHOLDER, LOUD: the MASC
+  slot count (tons / 20 inner sphere, tons / 25 clan, rounded) is from memory and shown as a placeholder in the sheet; replace it
+  when the TechManual is indexed. Armor changes only add the Endo / Ferro slots so far (no per-location armor types, no
+  slot-taking special armors). (4) WITCH HUNT (Daniel: "random spaces, capitalization"). The two "Hardened Clan" entries were the
+  Advanced search lists comparing exact text ("Hardened(Clan)" 6 units v "Hardened (Clan)" 1); the engine already ignored spaces,
+  hyphens and capitals. The lists now fold spellings together (`uniqueTypes`, `typeKey`). The engine now reports its own
+  complaints per unit (`warnings` in `describe_unit`; `tools/unit_witch_hunt.py` groups them): 811 of 4,252 units warned; 685 had an
+  armor type text it did not recognise (`Standard Armor` 237, Light / Heavy Ferro-Fibrous 235, Stealth Armor 13...) and 184 a
+  structure type; they all read as Standard, as the recognised spellings do. `mtf_parser.rs` `normalize_type_text` now keeps letters
+  and digits only (fixes `Standard((Unknown Technology Base))`) and `Standard Armor`, Light / Heavy Ferro-Fibrous, Ferro-Fibrous
+  Prototype, Stealth Armor and Endo Steel Prototype are named: same result (standard), no warning. Warnings left: 329 units,
+  chiefly types the sim does NOT model (Industrial / Heavy Industrial / Commercial / Primitive armor, Industrial structure: they
+  read as Standard) and 285 units with a component the equipment database does not know (e.g. IS Wrecking Ball). Open for Daniel:
+  whether those should be built, and the remaining spelling splits in the files themselves (Endo-Steel / Endo Steel, 4 armor
+  groups) that the lists now hide.
+
+- **2026-11-15 (Claude, session 27), UNIT EDITOR IN THE BROWSER BUILD, AND CONFIG. REVIEW PENDING (higher-level model).**
+  Daniel: quirks, role and omni pods are fluff (not built); CONFIG matters; nothing extra for the BV-v-win-rate research (the user
+  does it with the editor). (1) Config: a Biped / Quad / Tripod list converts the location blocks (arms <-> front legs with
+  shoulder = hip ... hand = foot, legs <-> rear legs, the centre leg added or removed), the armor and structure line keys, and
+  the Config line (an Omni suffix is kept); refused when a slot that would be lost holds equipment. A quad Locust played 3 battles.
+  (2) THE BROWSER (WASM) VERSION HAS THE EDITOR. It was never impossible: this container only lacked the wasm32 target
+  (`rustup target add wasm32-unknown-unknown` works through the proxy; an earlier note here that it could not be built was wrong).
+  `describe_unit`, `equipment_list` and `unit_structure` moved to `engine/lab/src/describe.rs`, shared by the desktop Lab and
+  `engine/wasm`; the wasm module answers `unit_eval` and `equipment_list`, holds a setup's modified units under `_modified/<hash>.mtf`
+  in its memory files (`plan_of`), and `engine.js` answers `unit_text` from the data block; `unit_eval` goes through a worker
+  (`worker.js` "eval") so a text that crashes the engine stops only that instance. `tests/check_web_lab.py` has a "modified unit
+  (text in the setup)" battle set (browser = desktop, battle for battle) and 5 editor checks; all pass. The published website
+  artifact was rebuilt and updated (data block as base64, the host serves no .gz).
+
+- **2026-11-15 (Claude, session 27), UNIT EDITOR STAGE 2: A .MTF EDITOR, MODIFIED UNITS ARE TEMPORARY. REVIEW PENDING (higher-level model).**
+  Daniel's notes on stage 1. DESIGN: this is an editor for fun and research, not a designer; legality is never checked, the aim
+  is only that anything it makes plays in the engine (Daniel: "an Atlas that moves at 6/9... does the BV increase equal a change in
+  win rate?"). CHANGED: (A) no Download .mtf and no unit file is ever written: "Use this design" puts a MODIFIED unit in the team
+  carrying its whole text (`mtf` in the team entry, `mtf_text` in the setup, named "<name> (modified)"); the engine reads it from a
+  scratch file `data/_modified/<hash>.mtf` (emptied at start, git-ignored, never in the unit list); a saved run file carries the
+  text, so saving the run is the only way to keep one (`runs.rs`, `catalog.rs scratch_unit`, `main.rs save_run`); `add_unit`'s
+  overwrite option from stage 1 is gone. (B) Every popup window goes on top when it opens or is clicked (`raiseWindow`, one counter
+  shared with the floating panels). (C) Heat sinks, jump jets and structure slots (Endo Steel, Ferro-Fibrous) are never forced:
+  too few in the slots is a warning with a "Place N" button; Override is gone. The only hard rule is that equipment fits the
+  slots. (D) Heat sinks and the other items can be taken out; only shoulder, hip, upper arm / leg, lower leg, foot, sensors, life
+  support, cockpit, engine and gyro cannot; the lower arm and hand actuators are check boxes in their slots. Engine, gyro and cockpit
+  are lists (engine: Fusion, XL, XL Clan, Light, XXL, XXL Clan, Compact, ICE, Fuel Cell) that rebuild their slots, with the counts read
+  off the unit files; no room = refused with the reason. (E) Head and legs show 6 slots (the files pad them to 12). (F) The paper
+  layout: head on top; left arm, left torso, centre torso, right torso, right arm; left leg (centre leg), right leg. (G) Equipment
+  is picked from folders: Energy, Ballistic, Missile, Physical, Other, and Ammo, which lists only the ammo of weapons on the unit
+  ("Show all ammo" overrides). Also editable: chassis, model, tonnage (cap 200 t, Daniel: "if the engine doesn't like units over 200,
+  cap it"), tech base, structure / armor / myomer type, internal structure by hand. "Use tonnage" rounds the tonnage up to a
+  multiple of 5 and fills in the table row of the nearest tonnage (10-200). ENGINE: `mtf_parser.rs` reads optional `LA IS:17` lines
+  (one per location) before the tonnage table, so a tonnage between the table's steps plays (102 t); a file without them reads
+  as before and nothing over 200 t plays. Also fixed: a comment had swallowed the restore of the thread count and turn cap in
+  `restore()`. TESTS: `check_lab_server.py` (inline unit runs and stays out of the list; 102 t refused without / read with the
+  lines; 250 t refused). NOT YET: quirks, role, config (biped / quad), omni pods, per-location armor types, ammo counts; the engine /
+  gyro / cockpit slot layouts cover the common types only; the equipment list has no tech-base filter; the browser (wasm) version.
+  RULES TO CHECK in the library: engine-held sinks = rating / 25, the 10-sink minimum, armor = 2 x structure (head 9).
+
+- **2026-11-15 (Claude, session 27), UNIT SHEET AND EDITOR, STAGE 1 (superseded by stage 2 above where they differ: no file is written) (Daniel's list item 1). REVIEW PENDING (higher-level model).**
+  Daniel: a unit in the browser shows its stats; on a team the values become editable with mild construction limits and an
+  override; the one hard rule is that equipment must fit the critical slots; BV follows the design; custom units without a file
+  download; "for science", illegal designs welcome. BUILT: (Rust, `engine/lab/src`) three calls, `unit_text` (a unit's file),
+  `unit_eval` (the engine's reading of an edited text: BV, whether it plays, each location's internal structure; it reuses
+  `describe_unit`, so the BV is the one a battle uses) and `equipment_list` (699 items: slot name, kind, tech, slots, tons, heat,
+  damage, BV, every spelling the engine resolves); `add_unit` takes `overwrite`, allowed only on a file the editor made (it
+  carries "Edited in Combat Lab"), never on a published design. (Page, `lab.js` "unit sheet and editor") what is edited is the
+  unit's own .mtf text, changed line by line so nothing the page does not understand is lost. The Unit Browser's Preview opens the
+  sheet read only (header, movement and heat, armor with internal structure and maximum, every location's critical slots,
+  equipment totals). The pencil on a team row opens it editable: Walk MP (the engine rating follows: Walk x tons), Jump MP, heat
+  sinks and their kind, armor front and rear, equipment placed by choosing an item and clicking an empty slot (multi-slot items
+  need that many empty slots in a row; clicking a placed item takes it out). Heat sinks beyond what the engine holds
+  (rating / 25) and jump jets (one per MP) are items in the slots, placed and removed automatically; with no room the change is
+  refused unless "Override construction limits" is on, which sets the number anyway. Checks shown: sinks v slots, fewer than 10
+  sinks, jets v Jump MP, rating over 400, armor over twice the internal structure (head 9). Weight is NOT checked. "Use this
+  design" saves a new unit file (model name + " (custom)", changeable) in the project's unit folder, which also puts it in the
+  unit list, and swaps it into the team keeping the pilot skills; "Download .mtf" gives the file. Checked: in a real browser
+  (preview, edit sinks / jump / a weapon, refused 150 sinks, save into the team; BV 2175 -> 2433 -> 2472), an edited Atlas played 4
+  battles with no crash, `check_lab_server.py` has 6 new checks. NOT YET: the browser (wasm) version has no editor (its
+  `engine.js` says so; it needs the same three calls in `engine/wasm`); the demo shows the sheet and editor for a few units but
+  cannot recalculate BV; no from-scratch "new unit" and no tonnage / structure-type / engine-type editing; Clan-versus-IS item
+  filtering; quirks, omni pods and armored components are left as the file has them; the 23 LAMs do not load. RULES TO CHECK against
+  the library (not yet cited in the code): engine-held sinks = rating / 25, the 10-sink minimum, armor = 2 x structure (head 9).
+
+- **2026-11-15 (Claude, session 27), DEMO MAP PREVIEWS. REVIEW PENDING (higher-level model).** Daniel: the Map tab shows no
+  previews. Demo only: it had no answer for the "board" request. `tools/make_lab_demo.py` now embeds every board's text
+  (`board_texts`, about 4 MB; the page is 7.7 MB) and `lab.js` `demoApi` answers "board" from it. The real Lab was fine.
+
+- **2026-11-15 (Claude, session 27), UNITS PAGE ROUND 2: SIZES, COLUMNS, TRIANGLES, TIDIER BROWSER. REVIEW PENDING (higher-level model).**
+  Daniel's notes after the first look. Pages only (`lab.js`, `lab.css`, `index.html`) plus `tools/make_lab_demo.py`. Narrow
+  (phone) screens: the browser is one screenful (80% of the height, 640 px at most) and its list scrolls inside it. Docked team
+  panels pull taller or shorter by their bottom corner (height kept in the layout; double-click the title to clear it; floating
+  panels already resized). Browser: Clear selection beside Weight class, Advanced search beside From file, the unit count at the
+  bottom. The list fills the window to the bottom of the screen and stays so until its bottom corner is pulled; then it keeps that
+  height (kept in the layout; Reset layout clears it). Team lists: half a line under the last unit. The start line shrinks its
+  text (down to 7 px) to stay on one line, wrapping only below that. Every column header can be resized by dragging its right
+  edge (double-click resets; widths kept per table kind; a resized table is fixed-layout and may scroll sideways). A sorted
+  header shows an up / down triangle. The "walk from 1 shows no units" report was the DEMO only: `make_lab_demo.py` kept just a few
+  fields per unit (no walk, jump, armor, role...), so every search on the others matched nothing; it now keeps them all; the real
+  Lab matched 4,229 units. Checked in a real browser at 1920x1080 and 420x800; no page errors. Daniel's longer list (unit
+  editor, TacOps options, Total Warfare ground units, unit icons) is recorded in PROJECT_MAP E2a.
+
+- **2026-11-15 (Claude, session 27), UNITS PAGE: SCROLLING, DYNAMIC COLUMNS, LESS CLUTTER ON THE TEAM PANELS. REVIEW PENDING (higher-level model).**
+  Daniel's list items 4, 7 and 5. Pages only (`lab.js`, `lab.css`, `index.html`; no engine change). (4) Teams 3 and up could not be
+  reached: the side columns squeezed the team panels instead of scrolling; `.col > .win { flex: none }` keeps each panel its height
+  and the column scrolls. (7) The Unit Browser table always shows Unit, Tons and BV; the other columns (`COLS` in `lab.js`: Move,
+  Armor, Sinks, Year, Role, Type, Rules, Tech, Armor type, Structure, Book, and a Weapons count) appear only while the advanced
+  search uses them, and a sort on a column that went away falls back to the name. Heat sinks is a new column. (5) The team panel is
+  now colour / name / bot, the zone line and the unit list. Adding moved into the Unit Browser, MegaMek style: an "Add to" team
+  box, "Add selected (n)", "From file...", and a double-click on a unit adds it to that team (dragging onto a panel and dropping
+  a .mtf file on one still work). The panels' "Quick add" search is gone (the browser's name box does that). The starting zone on a
+  team panel is a line of text and checkboxes ("Start: NW N NE W C E SW S SE, Walk on"); the Map page's grid is unchanged.
+  Checked in a real browser (6 teams scroll; columns appear with the search; add, double-click and the zone boxes work, no page
+  errors). `tests/check_web_lab.py` could not run here (no wasm32 build target in this container); `check_lab_server.py` passes.
+
+- **2026-11-15 (Claude, session 27), UNIT BROWSER SHOWED ARMOR 0 - FIXED. REVIEW PENDING (higher-level model).**
+  Daniel: "Unit browser is showing units with armor 0?" Cause: `engine/lab/src/catalog.rs` `describe_unit` summed only
+  `"<loc> Armor:N"` lines (capital A), but 1,557 of the library's 'Mechs write `"LA armor:N"` in lower case, so they summed to 0.
+  Now one case-insensitive sum of every `"<location> armor"` line (front and rear; the bare `armor:` type header is still left
+  out). Results for capital-A files are unchanged. Catalog only, no engine change. `tests/check_lab_server.py` now fails if any
+  listed unit has no armor. `check_lab_server.py` passes.
+
 - **2026-11-14 (Claude, session 26), A NEW STARTING SEED EACH RUN BY DEFAULT. REVIEW PENDING (higher-level model).**
   Daniel: "Starter seed + time used to generate the seeds is a more random plan." Pages only (`lab.js` `freshSeed`, `index.html`):
   the Options page's seed box now starts empty ("new each run"); an empty box makes each run a new starting seed (random bits

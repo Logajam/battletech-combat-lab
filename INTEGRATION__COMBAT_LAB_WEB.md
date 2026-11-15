@@ -60,6 +60,9 @@ module changes with every build, so no history is kept). GitHub Pages serves it 
 https://logajam.github.io/battletech-combat-lab/ after ONE setting by the owner: Settings > Pages > Deploy from a branch >
 `gh-pages` / root (Claude's access cannot change it). The page says "ALPHA" in the title bar, in a banner and in About.
 
+The website lists only units whose equipment the engine models (`tools/build_web_lab.py` `UNMODELED`, Daniel, 2026-11-15; 324
+units left out, 3,905 of 4,252 listed); the desktop Lab lists all.
+
 ## Open
 
 * Add-unit by file in the browser; progress is polled (every 200 ms flush) rather than pushed.

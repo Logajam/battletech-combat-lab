@@ -46,10 +46,24 @@ def main(argv):
         proc.stdout.readline()
         info = api("info")
         info["project"] = "(your project folder)"
-        keep = ("id", "name", "source", "tons", "bv", "tech", "era", "ok", "why")
+        keep = ("id", "name", "source", "tons", "bv", "tech", "era", "ok", "why", "walk", "jump", "armor", "sinks", "sink_kind", "role", "config", "rules", "book", "armor_type", "structure", "weapons")
         units = [{k: u[k] for k in keep if k in u} for u in api("list_units")["units"]]
         boards = api("list_boards")["boards"]
         estimate = api("estimate", {"setup": SETUP})
+        # the unit sheet / editor: the equipment catalogue and the file text of a few units (the real Lab reads any unit's file)
+        equipment = api("equipment_list")["equipment"]
+        unit_texts = {}
+        for u in units:
+            if u["id"] in ("Atlas AS7-K.mtf", "Griffin GRF-1N.mtf", "Awesome AWS-8Q.mtf", "Hunchback HBK-4G.mtf") or u["id"].startswith(("Atlas AS7-D", "Marauder MAD-3R", "Locust LCT-1V", "Warhammer WHM-6R", "Archer ARC-2R")):
+                r = api("unit_text", {"id": u["id"]})
+                if "text" in r:
+                    unit_texts[u["id"]] = r["text"]
+        # every board's text, so the Map page's previews work (about 4 MB; the real Lab asks the program for each one)
+        board_texts = {}
+        for b in boards:
+            r = api("board", {"id": b["id"] if isinstance(b, dict) else b})
+            if "text" in r:
+                board_texts[r["id"]] = r["text"]
         run = api("run", {"setup": SETUP})["run"]
         while not api("progress", {"run": run})["finished"]:
             time.sleep(0.5)
@@ -64,7 +78,7 @@ def main(argv):
               f"{SETUP['battles']} battles of Atlas + Griffin (Gladiator) against Awesome + Hunchback (Princess). "
               f"Run Simulation replays those results whatever is set up; battles 1 to {replays} can be watched. "
               f"Find battles works on them (try: Red 1 was destroyed).")
-    demo = {"info": info, "units": units, "boards": boards, "estimate": estimate, "lines": results["battles"], "unitLabels": results["units"],
+    demo = {"info": info, "units": units, "boards": boards, "board_texts": board_texts, "equipment": equipment, "unit_texts": unit_texts, "estimate": estimate, "lines": results["battles"], "unitLabels": results["units"],
             "seconds": results["progress"]["seconds"], "histories": histories,
             "setup": SETUP, "viewer": viewer, "banner": banner, "autorun": True}
     with open(os.path.join(WEB, "index.html"), encoding="utf-8") as f:

@@ -11,6 +11,7 @@
   const cores = Math.max(1, Math.min(navigator.hardwareConcurrency || 2, 16));
   let loading = null;                  // promise of {module, catalog, defaults, pack, coord}
   let S = null;                        // what it resolved to
+  let equipmentList = null;            // the unit editor's equipment catalogue, asked of the module once
 
   const status = (t) => { const el = document.getElementById("status"); if (el) el.textContent = t; };
 
@@ -197,6 +198,10 @@
       }
       case "history": return historyOf(body);
       case "add_unit": return { error: "Adding your own unit files is not available in the browser version yet." };
+      // the unit sheet and editor: the file text comes from the data block, the engine's reading and the equipment list from the module
+      case "unit_text": { const text = S.pack.text(body.id); return text == null ? { error: "no unit " + body.id } : { id: body.id, text }; }
+      case "unit_eval": return (await getHistorian()).ask("eval", { defaults: S.defaults, text: body.text });
+      case "equipment_list": return equipmentList || (equipmentList = S.coord.call("equipment_list", {}));
       default: return { error: "unknown request '" + name + "'" };
     }
   }

@@ -22,3 +22,4 @@ data/maps/
 
 # Combat Lab in the browser (tools/build_web_lab.py): the finished static site
 web_lab/
+data/_modified/

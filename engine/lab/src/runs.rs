@@ -76,8 +76,18 @@ fn scenario_one(setup: &Value, catalog: &Catalog, paths: &SetupPaths, zones: Opt
         }
         let units = t["units"].as_array().filter(|u| !u.is_empty()).ok_or_else(|| format!("team {} has no units", name))?;
         for u in units {
-            let id = u["unit"].as_str().ok_or_else(|| format!("team {}: a unit with no file", name))?;
-            catalog.ensure(id)?;
+            // a unit edited on the page (Daniel, 2026-11-15) carries its whole file text in the setup, so it lives and dies with the
+            // setup: it is saved only with the run's file. The engine reads it from a scratch file named by the text's hash
+            // under data/_modified/ (emptied each time the Lab starts); it never enters the unit list or the unit folder.
+            let inline_id;
+            let id = if let Some(text) = u["mtf_text"].as_str() {
+                inline_id = catalog.scratch_unit(text)?;
+                inline_id.as_str()
+            } else {
+                let id = u["unit"].as_str().ok_or_else(|| format!("team {}: a unit with no file", name))?;
+                catalog.ensure(id)?;
+                id
+            };
             let skill = |k: &str, d: i64| u[k].as_i64().unwrap_or(d).clamp(0, 8);
             forces.push(json!({"team": name, "mtf": id, "bot": bot, "gunnery": skill("gunnery", 4), "piloting": skill("piloting", 5)}));
         }

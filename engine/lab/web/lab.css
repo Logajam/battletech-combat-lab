@@ -74,6 +74,8 @@ h2 { font-size: 14px; margin: 0 0 8px; }
 .units-desk { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(250px, 1fr) minmax(360px, 1.5fr) minmax(250px, 1fr); gap: 8px; }
 .col { min-width: 0; min-height: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 8px; padding-right: 2px; }
 .centre-col { overflow: hidden; }
+/* a team panel keeps its own height: without this the column squeezed teams 3 and up instead of scrolling (Daniel, 2026-11-15) */
+.col > .win { flex: none; }
 .float-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 /* a panel: title bar (the grip) over a body. Docked it sits in its column; dragged out it floats and resizes. */
 .win { display: flex; flex-direction: column; min-width: 0; background: var(--face); border: 2px solid; border-color: var(--light) var(--dark) var(--dark) var(--light); box-shadow: inset -1px -1px 0 var(--shadow); }
@@ -87,8 +89,10 @@ h2 { font-size: 14px; margin: 0 0 8px; }
   .units-top { grid-template-columns: minmax(0, 1fr); }
   .units-desk { display: flex; flex-direction: column; flex: none; }
   .col { overflow: visible; }
-  .centre-col { order: -1; min-height: 420px; }
-  .win.browser { min-height: 420px; }
+  /* phone: the browser is one screenful tall and its list scrolls inside it, instead of running down the page */
+  .centre-col { order: -1; height: min(80vh, 640px); min-height: 420px; flex: none; }
+  .win.browser { height: 100%; min-height: 0; }
+  .ub-list { resize: none; }
   .win.float { position: static !important; width: auto !important; height: auto !important; resize: none; }
 }
 
@@ -158,7 +162,7 @@ h2 { font-size: 14px; margin: 0 0 8px; }
 .dialog-body .filters { margin: 0; }
 .pair { display: flex; gap: 4px; }
 .pair input[type=number] { width: 64px; }
-.ub-list { flex: 1; min-height: 80px; max-height: none; }
+.ub-list { flex: 1; min-height: 80px; max-height: none; resize: vertical; }
 #ub-list tbody tr { cursor: grab; }
 #ub-list tbody tr.on { background: var(--select); color: var(--title-text); }
 #ub-list tbody tr.bad { color: var(--shadow); cursor: default; }
@@ -212,7 +216,11 @@ table.leaves tbody tr:hover { background: var(--select); color: var(--title-text
 .wrow input[type=number] { width: 52px; }
 .pair input[type=number] { width: 70px; }
 @media (max-width: 760px) { #adv { margin-left: 0; } }
-.team-tools { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.team-zone { min-height: 1px; }
+/* the starting zone as one line of text and checkboxes (team panel) */
+.zone-mini { display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: center; font-size: 12px; }
+.zone-mini .zl { display: inline-flex; flex-direction: row; gap: 2px; align-items: center; white-space: nowrap; }
+.zone-mini .zl-head { font-weight: bold; }
 
 /* CL15: the Options tab - sub-tabs, folders, one row per option */
 .subtabs { display: flex; gap: 2px; margin-bottom: 8px; flex: none; }
@@ -273,3 +281,57 @@ details.folder[hidden] { display: none; }
 @keyframes flash { 0%, 100% { background: var(--face); color: inherit; } 50% { background: var(--bad); color: #fff; } }
 #report-btn.flash { animation: flash 1s steps(1, end) infinite; font-weight: bold; }
 @media (prefers-reduced-motion: reduce) { #report-btn.flash { animation: none; background: var(--bad); color: #fff; } }
+
+/* sizes (2026-11-15): half a line under the last unit, a pull-down corner on docked teams, column handles, sort triangles */
+.team .list { padding-bottom: .5em; }
+.win.team:not(.float) { resize: vertical; overflow: hidden; }
+.win.sized .list { max-height: none; flex: 1; }
+.list th { position: sticky; }
+.rz { position: absolute; right: 0; top: 0; bottom: 0; width: 7px; cursor: col-resize; touch-action: none; }
+.rz:hover { background: var(--select); opacity: .5; }
+#ub-list th.sorted[data-dir="1"]::after { content: " \25B2"; font-size: 9px; }
+#ub-list th.sorted[data-dir="-1"]::after { content: " \25BC"; font-size: 9px; }
+.zone-mini { flex-wrap: nowrap; min-width: 0; overflow: hidden; gap: 0 .6em; }
+.zone-mini .zl input { width: 1em; height: 1em; margin: 0 .1em 0 0; }
+
+/* the unit sheet / editor */
+.dialog.sheet { left: 40px; top: 60px; margin-left: 0; width: min(1180px, calc(100vw - 80px)); height: calc(100vh - 100px); }
+.sheet-scroll { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: minmax(270px, 320px) minmax(0, 1fr); gap: 10px; align-content: start; }
+.sheet-scroll h3 { margin: 0 0 4px; font-size: 13px; }
+.sheet-scroll table { border-collapse: collapse; width: 100%; }
+.sheet-scroll td, .sheet-scroll th { padding: 1px 4px; text-align: left; font-weight: normal; }
+.sheet-scroll th { border-bottom: 1px solid var(--shadow); }
+.sheet-scroll td.num, .sheet-scroll th.num { text-align: right; }
+.sheet-scroll input[type=number] { width: 54px; padding: 0 2px; }
+.sheet-scroll .head { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: baseline; }
+.sheet-scroll .head b { font-size: 15px; }
+.sheet-msgs { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 2px; }
+.sheet-msgs .bad { color: #a00000; } .sheet-msgs .ok { color: #006000; } .sheet-msgs .warn { color: #8a5a00; }
+.crit-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; align-items: start; }
+.crit-loc { border: 1px solid var(--shadow); background: var(--field); }
+.crit-loc h4 { margin: 0; padding: 1px 4px; font-size: 11px; background: var(--face); border-bottom: 1px solid var(--shadow); display: flex; justify-content: space-between; }
+.crit-slot { padding: 0 4px; font-size: 11px; min-height: 15px; border-bottom: 1px dotted #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.crit-slot.empty { color: #999; } .crit-slot.fixed { color: #666; background: #eee; }
+.crit-slot.managed { color: #345; background: #e4ecf5; }
+.sheet.editing .crit-slot:not(.fixed):not(.managed):hover { background: var(--select); color: var(--title-text); cursor: pointer; }
+.sheet.editing .crit-slot.empty:hover { cursor: copy; }
+.picker { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+.picker select { width: 100%; }
+.picker details { border: 1px solid var(--shadow); padding: 2px 4px; }
+.picker summary { cursor: pointer; font-weight: bold; }
+.crit-slot label { display: flex; flex-direction: row; gap: 3px; align-items: center; margin: 0; white-space: nowrap; }
+.crit-slot input[type=checkbox] { margin: 0; width: 11px; height: 11px; }
+.sheet-foot { margin: 0; justify-content: flex-end; }
+@media (max-width: 760px) { .dialog.sheet { left: max(8px, env(safe-area-inset-left, 0px)) !important; width: calc(100vw - 16px); height: 80vh; } .sheet-scroll { grid-template-columns: minmax(0, 1fr); } }
+
+/* eye column, the "needs a place" tray, drop targets */
+#ub-list td.eye, #ub-list th.eyeh { width: 26px; text-align: center; padding: 0; }
+.eyebtn { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 16px; cursor: pointer; color: #345; }
+.eyebtn:hover { background: var(--select); color: var(--title-text); }
+.tray { margin-top: 8px; padding: 4px; border: 1px dashed var(--shadow); min-height: 26px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.chip { display: inline-flex; align-items: center; gap: 4px; padding: 1px 4px; background: #fff3c4; border: 1px solid #b08a00; cursor: grab; user-select: none; }
+.chip .x { border: 0; background: none; cursor: pointer; padding: 0 2px; }
+.crit-slot.drop { outline: 2px dashed var(--title); outline-offset: -2px; }
+.crit-slot[draggable="true"] { cursor: grab; }
+.dialog.sheet:not(.editing) .sheet-scroll { grid-template-columns: minmax(230px, 270px) minmax(0, 1fr); }
+.dialog.sheet:not(.editing) .crit-slot { font-size: 10px; }
