@@ -198,12 +198,12 @@ pub fn describe_unit(db: &'static btsim_core::equipment::EquipmentDb, cfg: &btsi
     let name = format!("{} {}", field("chassis:"), field("model:")).trim().to_string();
     let num = |key: &str| field(key).parse::<i64>().ok();
     // Mekbay-style details (CL13), read straight from the file's header and tables: no engine needed
+    // every "<location> armor:N" line, front and rear alike; the key's case varies between files ("LA Armor" / "LA armor":
+    // a quarter of the library writes it lower case, which summed to 0 until 2026-11-15), and the bare "armor:" header
+    // (the armor type) has no location in front of it, so " armor" with the space leaves it out
     let armor: i64 = text.lines().filter_map(|l| {
         let (k, v) = l.split_once(':')?;
-        (k.trim_end().ends_with(" Armor") && !k.starts_with("RT") && k != "Armor").then(|| v.trim().parse::<i64>().ok()).flatten()
-    }).sum::<i64>() + text.lines().filter_map(|l| {
-        let (k, v) = l.split_once(':')?;
-        (k.starts_with("RT") && k.ends_with(" Armor")).then(|| v.trim().parse::<i64>().ok()).flatten()
+        k.trim_end().to_ascii_lowercase().ends_with(" armor").then(|| v.trim().parse::<i64>().ok()).flatten()
     }).sum::<i64>();
     let sinks = field("heat sinks:");
     let (sink_n, sink_kind) = sinks.split_once(' ').map(|(n, k)| (n.parse::<i64>().ok(), k.to_string())).unwrap_or((sinks.parse::<i64>().ok(), String::new()));

@@ -68,6 +68,9 @@ def main(argv):
         units = lab.api("list_units")["units"]
         boards = lab.api("list_boards")["boards"]
         check(len(units) > 1000 and len(boards) > 100, f"lists: {len(units)} units, {len(boards)} boards", failures)
+        # a quarter of the library writes "LA armor:" in lower case; the list once showed those units with armor 0
+        no_armor = [u["name"] for u in units if not u.get("armor")]
+        check(not no_armor, f"every listed unit has armor ({len(no_armor)} without: {no_armor[:3]})", failures)
 
         setup = {"teams": [{"name": "Red", "bot": "gladiator", "units": [{"unit": "Atlas AS7-K.mtf"}, {"unit": "Griffin GRF-1N.mtf"}]},
                            {"name": "Blue", "bot": "gladiator", "units": [{"unit": "Awesome AWS-8Q.mtf"}, {"unit": "Hunchback HBK-4G.mtf"}]}],

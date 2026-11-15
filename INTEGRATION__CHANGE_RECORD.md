@@ -6,6 +6,13 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-15 (Claude, session 27), UNIT BROWSER SHOWED ARMOR 0 - FIXED. REVIEW PENDING (higher-level model).**
+  Daniel: "Unit browser is showing units with armor 0?" Cause: `engine/lab/src/catalog.rs` `describe_unit` summed only
+  `"<loc> Armor:N"` lines (capital A), but 1,557 of the library's 'Mechs write `"LA armor:N"` in lower case, so they summed to 0.
+  Now one case-insensitive sum of every `"<location> armor"` line (front and rear; the bare `armor:` type header is still left
+  out). Results for capital-A files are unchanged. Catalog only, no engine change. `tests/check_lab_server.py` now fails if any
+  listed unit has no armor. `check_lab_server.py` passes.
+
 - **2026-11-14 (Claude, session 26), A NEW STARTING SEED EACH RUN BY DEFAULT. REVIEW PENDING (higher-level model).**
   Daniel: "Starter seed + time used to generate the seeds is a more random plan." Pages only (`lab.js` `freshSeed`, `index.html`):
   the Options page's seed box now starts empty ("new each run"); an empty box makes each run a new starting seed (random bits
