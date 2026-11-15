@@ -6,6 +6,10 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-15 (Claude, session 27), DEMO MAP PREVIEWS. REVIEW PENDING (higher-level model).** Daniel: the Map tab shows no
+  previews. Demo only: it had no answer for the "board" request. `tools/make_lab_demo.py` now embeds every board's text
+  (`board_texts`, about 4 MB; the page is 7.7 MB) and `lab.js` `demoApi` answers "board" from it. The real Lab was fine.
+
 - **2026-11-15 (Claude, session 27), UNITS PAGE ROUND 2: SIZES, COLUMNS, TRIANGLES, TIDIER BROWSER. REVIEW PENDING (higher-level model).**
   Daniel's notes after the first look. Pages only (`lab.js`, `lab.css`, `index.html`) plus `tools/make_lab_demo.py`. Narrow
   (phone) screens: the browser is one screenful (80% of the height, 640 px at most) and its list scrolls inside it. Docked team

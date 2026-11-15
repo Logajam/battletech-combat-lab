@@ -1345,6 +1345,7 @@ function demoApi(name, body) {
     case "info": return d.info;
     case "list_units": return { units: d.units };
     case "list_boards": return { boards: d.boards };
+    case "board": return d.board_texts && d.board_texts[body.id] ? { id: body.id, text: d.board_texts[body.id] } : { error: "this board is not in the demo" };
     case "estimate": return { ...d.estimate, seconds: d.estimate.per_battle * Math.ceil((body.setup.battles || 20) / d.estimate.threads) };
     case "run": demoDone = 0; return { run: 1 };
     case "progress": {
