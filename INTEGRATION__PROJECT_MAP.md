@@ -162,7 +162,7 @@ real Princess and CASPAR through the bridge (E4).
   dynamic browser columns, Add-to row, one-line start zones, resizable windows / columns, sort triangles (Change Record).
   STAGES 1-2 OF (1) DONE 2026-11-15 (Change Record "UNIT EDITOR STAGE 2"; what is missing is listed there). Modified units are
   temporary: saved only inside a saved run (Daniel).
-  Browser version has the editor too; Config (biped / quad / tripod) done. Quirks, role, omni pods: fluff, not wanted (Daniel).
+  Browser version has the editor too; Config (biped / quad / tripod) done. Round 3 (eye previews, tray, witch hunt) done; the TechManual-based pieces (MASC and armor slot rules, a full custom designer) wait for TechManual (Daniel: "we might accidentally make a fully functional custom unit designer"). Quirks, role, omni pods: fluff, not wanted (Daniel).
   TO BUILD: (1) UNIT PREVIEW AND EDITOR: a unit in the browser shows its stats; once on a team its values are editable with
   only mild construction limits (heat sinks tied to what fits the engine and the critical slots, jump jets likewise) and an
   override; the one hard rule is that equipment must fit the critical slots; BV recalculated from the current stats; also a

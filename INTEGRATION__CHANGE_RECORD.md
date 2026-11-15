@@ -6,6 +6,31 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-15 (Claude, session 27), EDITOR ROUND 3: EYE PREVIEWS, "NEEDS A PLACE" TRAY, DHS FIX, THE SPELLING WITCH HUNT. REVIEW PENDING (higher-level model).**
+  (1) BUG: the heat sink warning counted each slot of a double heat sink (the equipment database lists one as 1 slot);
+  `itemsOf` now gives a heat sink item its real size (inner sphere double 3, clan double 2). (2) EYE COLUMN: the Preview button is
+  gone; a fixed eye column in the Unit Browser opens that unit's sheet (read only); several can be open at once to compare (each
+  sheet is its own window with its own state, `createSheetWindow`; previews are 720 px wide and open against the right edge so the
+  eyes stay clickable). The fixed `#sheet` window is gone. (3) "NEEDS A PLACE" TRAY (Daniel: items that still need a place, to be
+  dragged where you want them): chips in a tray under the slots; equipment can be sent there from the picker; choosing MASC puts its
+  slots there, and choosing an armor or structure type puts the Endo / Ferro slots it asks for there (one chip with a count);
+  drag a chip into an empty slot (it must have room in a row), drag a placed item to another slot or back into the tray (fixed
+  parts and actuators cannot be dragged); a "still need a place" warning stays until the tray is empty. PLACEHOLDER, LOUD: the MASC
+  slot count (tons / 20 inner sphere, tons / 25 clan, rounded) is from memory and shown as a placeholder in the sheet; replace it
+  when the TechManual is indexed. Armor changes only add the Endo / Ferro slots so far (no per-location armor types, no
+  slot-taking special armors). (4) WITCH HUNT (Daniel: "random spaces, capitalization"). The two "Hardened Clan" entries were the
+  Advanced search lists comparing exact text ("Hardened(Clan)" 6 units v "Hardened (Clan)" 1); the engine already ignored spaces,
+  hyphens and capitals. The lists now fold spellings together (`uniqueTypes`, `typeKey`). The engine now reports its own
+  complaints per unit (`warnings` in `describe_unit`; `tools/unit_witch_hunt.py` groups them): 811 of 4,252 units warned; 685 had an
+  armor type text it did not recognise (`Standard Armor` 237, Light / Heavy Ferro-Fibrous 235, Stealth Armor 13...) and 184 a
+  structure type; they all read as Standard, as the recognised spellings do. `mtf_parser.rs` `normalize_type_text` now keeps letters
+  and digits only (fixes `Standard((Unknown Technology Base))`) and `Standard Armor`, Light / Heavy Ferro-Fibrous, Ferro-Fibrous
+  Prototype, Stealth Armor and Endo Steel Prototype are named: same result (standard), no warning. Warnings left: 329 units,
+  chiefly types the sim does NOT model (Industrial / Heavy Industrial / Commercial / Primitive armor, Industrial structure: they
+  read as Standard) and 285 units with a component the equipment database does not know (e.g. IS Wrecking Ball). Open for Daniel:
+  whether those should be built, and the remaining spelling splits in the files themselves (Endo-Steel / Endo Steel, 4 armor
+  groups) that the lists now hide.
+
 - **2026-11-15 (Claude, session 27), UNIT EDITOR IN THE BROWSER BUILD, AND CONFIG. REVIEW PENDING (higher-level model).**
   Daniel: quirks, role and omni pods are fluff (not built); CONFIG matters; nothing extra for the BV-v-win-rate research (the user
   does it with the editor). (1) Config: a Biped / Quad / Tripod list converts the location blocks (arms <-> front legs with

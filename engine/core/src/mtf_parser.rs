@@ -12,7 +12,9 @@ use crate::pyfmt::{py_int, py_repr_str, py_strip, Num};
 /// Normalized (lowercase, whitespace / hyphens stripped) armor-type text -> ArmorType.
 fn armor_type_by_name(norm: &str) -> Option<ArmorType> {
     Some(match norm {
-        "standard" | "ferrofibrous" | "stealth" => ArmorType::Standard,
+        // these read as standard armor, as before: the sim has no combat difference for them. The extra spellings ("Standard Armor",
+        // "Light / Heavy Ferro-Fibrous", "Stealth Armor") were reported as unrecognised on ~460 unit files (witch hunt, 2026-11-15)
+        "standard" | "standardarmor" | "ferrofibrous" | "lightferrofibrous" | "heavyferrofibrous" | "ferrofibrousprototype" | "stealth" | "stealtharmor" => ArmorType::Standard,
         "antipenetrativeablation" => ArmorType::AntiPenetrativeAblation,
         "impactresistant" => ArmorType::ImpactResistant,
         "reflective" => ArmorType::Reflective,
@@ -27,7 +29,7 @@ fn armor_type_by_name(norm: &str) -> Option<ArmorType> {
 
 fn structure_type_by_name(norm: &str) -> Option<StructureType> {
     Some(match norm {
-        "standard" | "endosteel" | "endocomposite" => StructureType::Standard,
+        "standard" | "endosteel" | "endosteelprototype" | "endocomposite" => StructureType::Standard,
         "reinforced" => StructureType::Reinforced,
         "composite" => StructureType::Composite,
         _ => return None,
@@ -60,7 +62,8 @@ pub fn strip_armor_type_tech_base(name_text: &str) -> String {
 }
 
 fn normalize_type_text(name_text: &str) -> String {
-    strip_armor_type_tech_base(name_text).chars().filter(|c| !crate::pyfmt::py_is_space(*c) && *c != '-').collect::<String>().to_lowercase()
+    // letters and digits only: spaces, hyphens and stray brackets ("Standard((Unknown Technology Base))") make no difference
+    strip_armor_type_tech_base(name_text).chars().filter(|c| c.is_alphanumeric()).collect::<String>().to_lowercase()
 }
 
 pub fn map_structure_type_name(name_text: &str) -> Option<StructureType> {

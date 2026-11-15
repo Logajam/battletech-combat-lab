@@ -50,6 +50,12 @@ pub fn describe_unit(db: &'static btsim_core::equipment::EquipmentDb, cfg: &btsi
         Ok::<i64, String>(btsim_core::battle_value::battle_value(&b, 0))
     }));
     let mut v = base;
+    // the engine's own complaints while reading the file (an armor type it does not know and so reads as standard, a line it
+    // defaults...): kept on the unit so the odd files can be found across the library (the "witch hunt" for spaces, capitals, spellings)
+    let warnings: Vec<&str> = out.lines().map(str::trim).filter(|l| !l.is_empty()).collect();
+    if !warnings.is_empty() {
+        v["warnings"] = json!(warnings);
+    }
     match parsed {
         Ok(Ok(bv)) => {
             v["bv"] = json!(bv);

@@ -323,3 +323,15 @@ details.folder[hidden] { display: none; }
 .crit-slot input[type=checkbox] { margin: 0; width: 11px; height: 11px; }
 .sheet-foot { margin: 0; justify-content: flex-end; }
 @media (max-width: 760px) { .dialog.sheet { left: max(8px, env(safe-area-inset-left, 0px)) !important; width: calc(100vw - 16px); height: 80vh; } .sheet-scroll { grid-template-columns: minmax(0, 1fr); } }
+
+/* eye column, the "needs a place" tray, drop targets */
+#ub-list td.eye, #ub-list th.eyeh { width: 26px; text-align: center; padding: 0; }
+.eyebtn { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 16px; cursor: pointer; color: #345; }
+.eyebtn:hover { background: var(--select); color: var(--title-text); }
+.tray { margin-top: 8px; padding: 4px; border: 1px dashed var(--shadow); min-height: 26px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.chip { display: inline-flex; align-items: center; gap: 4px; padding: 1px 4px; background: #fff3c4; border: 1px solid #b08a00; cursor: grab; user-select: none; }
+.chip .x { border: 0; background: none; cursor: pointer; padding: 0 2px; }
+.crit-slot.drop { outline: 2px dashed var(--title); outline-offset: -2px; }
+.crit-slot[draggable="true"] { cursor: grab; }
+.dialog.sheet:not(.editing) .sheet-scroll { grid-template-columns: minmax(230px, 270px) minmax(0, 1fr); }
+.dialog.sheet:not(.editing) .crit-slot { font-size: 10px; }

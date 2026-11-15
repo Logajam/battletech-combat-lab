@@ -62,7 +62,6 @@
               <button class="btn" id="ub-file" title="Add a .mtf unit file from this computer to that team">From file&hellip;</button>
               <input type="file" id="ub-fileinput" accept=".mtf" multiple hidden>
               <button class="btn" id="ub-adv-btn">Advanced search&hellip;</button>
-              <button class="btn" id="ub-preview" disabled title="Show the selected unit's stats">Preview</button>
             </div>
             <div class="list sunken ub-list"><table id="ub-list"><thead></thead><tbody></tbody></table></div>
             <div class="note" id="ub-picked"></div>
@@ -227,14 +226,6 @@
         <button class="btn small" id="adv-save">Save as&hellip;</button><button class="btn small" id="adv-del">Delete</button></div>
       <div class="adv-scroll" id="adv-body"></div>
     </div>
-  </div>
-
-  <!-- UNIT SHEET / EDITOR (Daniel, 2026-11-15): a unit's stats from the browser (read only), and on a team the same sheet
-       with its values editable. Drawn by lab.js (drawSheet); the unit's .mtf text is what is edited. -->
-  <div class="dialog sheet" id="sheet" role="dialog" aria-labelledby="sheet-title-text" hidden>
-    <div class="titlebar" id="sheet-title"><span class="box" aria-hidden="true"></span><span class="name" id="sheet-title-text">Unit sheet</span><button class="closebox" id="sheet-close" aria-label="Close">&times;</button></div>
-    <div class="dialog-body"><div class="sheet-scroll" id="sheet-body"></div>
-      <div class="filters sheet-foot" id="sheet-foot"></div></div>
   </div>
 
   <!-- ABOUT: credits and licences (CREDITS.md has them in full) -->
