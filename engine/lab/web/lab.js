@@ -10,7 +10,7 @@ const NAMED = [["Red", "#c00000"], ["Blue", "#0000c0"], ["Green", "#007000"], ["
 const STORE = "combatlab.setup.v2";
 const CLASSES = { light: [20, 35], medium: [40, 55], heavy: [60, 75], assault: [80, 100], superheavy: [101, 999] };
 
-const lab = {
+const lab = { addTo: 0,
   info: null, units: [], boards: [], byId: new Map(), boardById: new Map(),
   teams: [],
   map: { mode: "one", one: null, cols: 2, rows: 1, cells: [null, null], cell: 0, playlist: [], order: "sequence" },
@@ -132,6 +132,7 @@ function drawTeams() {
     wireWindow(el, key, drawTeams);
     const l = el.querySelector(".list"); if (l) l.scrollTop = scroll[ti] || 0;
   });
+  drawAddTo();
   $("team-sum").textContent = `${lab.teams.length} teams, ${lab.teams.reduce((s, t) => s + t.units.length, 0)} units`;
   paintZoneGrids();
 }
@@ -224,16 +225,7 @@ function teamPanel(t, ti) {
       <label for="tname-${ti}">Name <input type="text" id="tname-${ti}" value="${esc(t.name)}" maxlength="24"></label>
       <label for="tbot-${ti}">Bot <select id="tbot-${ti}">${bots}</select></label>
     </div>
-    <div class="team-tools">
-      <button class="btn" id="addsel-${ti}" ${lab.picked.size ? "" : "disabled"}>Add selected (${lab.picked.size})</button>
-      <button class="btn" id="file-${ti}" title="Add a .mtf unit file from this computer">From file&hellip;</button>
-      <input type="file" id="fileinput-${ti}" accept=".mtf" multiple hidden>
-      <span id="zmini-${ti}"></span>
-    </div>
-    <div class="adder">
-      <input type="search" id="find-${ti}" placeholder="Quick add: type a unit name" autocomplete="off">
-      <div class="hits sunken" id="hits-${ti}" hidden></div>
-    </div>
+    <div class="team-zone" id="zmini-${ti}"></div>
     <div class="list sunken" id="list-${ti}"><table>
       <thead><tr><th></th><th>Unit</th><th class="num">Tons</th><th class="num">BV</th><th title="Gunnery skill">G</th><th title="Piloting skill">P</th><th></th></tr></thead>
       <tbody>${t.units.length ? t.units.map((u, ui) => `<tr>
@@ -242,7 +234,7 @@ function teamPanel(t, ti) {
         <td><input type="number" min="0" max="8" value="${u.gunnery}" id="g-${ti}-${ui}" aria-label="Gunnery"></td>
         <td><input type="number" min="0" max="8" value="${u.piloting}" id="p-${ti}-${ui}" aria-label="Piloting"></td>
         <td><button class="btn small" data-remove="${ui}" title="Remove">&times;</button></td></tr>`).join("")
-        : `<tr class="empty"><td colspan="7">No units yet. Drag units here from the Unit Browser, or type a name above.</td></tr>`}</tbody>
+        : `<tr class="empty"><td colspan="7">No units yet. Pick the team in the Unit Browser\'s "Add to" box, or drag units here.</td></tr>`}</tbody>
     </table></div>
     </div>`;
   const redraw = () => { save(); drawTeams(); };
@@ -260,22 +252,7 @@ function teamPanel(t, ti) {
     el.querySelector(`#p-${ti}-${ui}`).addEventListener("change", (e) => { u.piloting = Math.max(0, Math.min(8, +e.target.value)); redraw(); });
   });
   el.querySelector(`#zmini-${ti}`).replaceWith(zoneGrid(ti, true));
-  wireSearch(el, t, ti);
-  el.querySelector(`#addsel-${ti}`).addEventListener("click", () => addUnits(t, [...lab.picked]));
-  // a .mtf file (dropped on the panel, or picked with From file...) is copied into the project and added
-  const files = async (list) => {
-    for (const f of list) {
-      if (!f.name.toLowerCase().endsWith(".mtf")) { setStatus(`${f.name}: only .mtf unit files can be added`); continue; }
-      const r = await api("add_unit", { file: f.name, text: await f.text() });
-      if (r.error) { setStatus(`${f.name}: ${r.error}`); continue; }
-      if (!lab.byId.has(r.unit.id)) { lab.units.push(r.unit); lab.byId.set(r.unit.id, r.unit); }
-      t.units.push(unitEntry(r.unit.id));
-      setStatus(r.copied ? `${r.unit.name} copied into the project's unit folder and added` : `${r.unit.name} added (already in the project)`);
-    }
-    redraw();
-  };
-  el.querySelector(`#file-${ti}`).addEventListener("click", () => el.querySelector(`#fileinput-${ti}`).click());
-  el.querySelector(`#fileinput-${ti}`).addEventListener("change", (e) => files(e.target.files));
+  const files = (list) => addFiles(t, list);
   // drops: units dragged from the Unit Browser, or unit files from the computer
   el.addEventListener("dragover", (e) => { e.preventDefault(); el.classList.add("drop"); });
   el.addEventListener("dragleave", () => el.classList.remove("drop"));
@@ -294,29 +271,26 @@ function addUnits(t, ids) {
   save(); drawTeams();
 }
 
-function wireSearch(el, t, ti) {
-  const input = el.querySelector(`#find-${ti}`);
-  const hits = el.querySelector(`#hits-${ti}`);
-  let shown = [];
-  const add = (u) => {
-    t.units.push(unitEntry(u.id));
-    save(); drawTeams();
-    const again = $(`find-${ti}`); if (again) again.focus();
-  };
-  input.addEventListener("input", () => {
-    const words = input.value.toLowerCase().split(/\s+/).filter(Boolean);
-    if (!words.length) { hits.hidden = true; return; }
-    shown = lab.units.filter((u) => words.every((w) => u.name.toLowerCase().includes(w))).slice(0, 60);
-    hits.innerHTML = shown.length ? shown.map((u, i) => `<div data-i="${i}" class="${u.ok ? "" : "bad"}" title="${esc(u.ok ? u.source : u.why)}"><span>${esc(u.name)}</span><span class="num">${u.tons ?? "?"} t</span><span class="num">${u.ok ? "BV " + u.bv : "can't play"}</span></div>`).join("")
-      : `<div class="bad"><span>No unit matches</span></div>`;
-    hits.hidden = false;
-    hits.querySelectorAll("[data-i]").forEach((d) => d.addEventListener("mousedown", (e) => { e.preventDefault(); const u = shown[+d.dataset.i]; if (u.ok) add(u); }));
-  });
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") { const u = shown.find((x) => x.ok); if (u && !hits.hidden) add(u); }
-    if (e.key === "Escape") { hits.hidden = true; }
-  });
-  input.addEventListener("blur", () => setTimeout(() => { hits.hidden = true; }, 150));
+// a .mtf file (dropped on a team panel, or picked with the browser's From file...) is copied into the project and added
+async function addFiles(t, list) {
+  for (const f of list) {
+    if (!f.name.toLowerCase().endsWith(".mtf")) { setStatus(`${f.name}: only .mtf unit files can be added`); continue; }
+    const r = await api("add_unit", { file: f.name, text: await f.text() });
+    if (r.error) { setStatus(`${f.name}: ${r.error}`); continue; }
+    if (!lab.byId.has(r.unit.id)) { lab.units.push(r.unit); lab.byId.set(r.unit.id, r.unit); }
+    t.units.push(unitEntry(r.unit.id));
+    setStatus(r.copied ? `${r.unit.name} copied into the project's unit folder and added` : `${r.unit.name} added (already in the project)`);
+  }
+  save(); drawTeams();
+}
+
+// the Unit Browser's "Add to" row (MegaMek style): choose the team once, then add the selection, a double-clicked unit, or a file
+function drawAddTo() {
+  const sel = $("ub-addto");
+  if (!lab.teams[lab.addTo]) lab.addTo = 0;
+  sel.innerHTML = lab.teams.map((t, i) => `<option value="${i}">${i + 1}: ${esc(t.name)}</option>`).join("");
+  sel.value = lab.addTo;
+  const b = $("ub-add"); b.disabled = !lab.picked.size; b.textContent = `Add selected (${lab.picked.size})`;
 }
 
 function setTeamCount(n) {
@@ -477,19 +451,47 @@ async function initBrowser() {
   drawBrowser();
 }
 
+// The table's columns (Daniel, 2026-11-15): Unit, Tons and BV are always there; every other column appears only while the
+// search uses it (a range, a pick list or a weapon), so a plain browse stays narrow. `on` says when; `show` is the cell.
+const COLS = [
+  { key: "move", head: "Move", title: "Walk / run / jump MP", num: true, on: () => "walk" in adv.ranges || "jump" in adv.ranges, show: (u) => `${u.walk ?? ""}/${u.walk != null ? Math.ceil(u.walk * 1.5) : ""}/${u.jump ?? ""}`, sort: "walk" },
+  { key: "armor", head: "Armor", num: true, on: () => "armor" in adv.ranges, show: (u) => u.armor ?? "" },
+  { key: "sinks", head: "Sinks", title: "Heat sinks", num: true, on: () => "sinks" in adv.ranges, show: (u) => u.sinks ?? "" },
+  { key: "era", head: "Year", num: true, on: () => "era" in adv.ranges || adv.fyear !== "", show: (u) => u.era ?? "" },
+  { key: "role", head: "Role", on: () => adv.sets.role.length > 0, show: (u) => u.role || "" },
+  { key: "config", head: "Type", on: () => adv.sets.config.length > 0, show: (u) => u.config || "" },
+  { key: "rules", head: "Rules", title: "Rules level", num: true, on: () => adv.sets.rules.length > 0, show: (u) => u.rules ?? "" },
+  { key: "tech", head: "Tech", on: () => !!adv.tech, show: (u) => u.tech || "" },
+  { key: "armor_type", head: "Armor type", on: () => !!adv.armor_type, show: (u) => u.armor_type || "" },
+  { key: "structure", head: "Structure", on: () => !!adv.structure, show: (u) => u.structure || "" },
+  { key: "book", head: "Book", on: () => !!adv.book, show: (u) => u.book || "" },
+  { key: "weapons", head: "Weapons", title: "How many of each searched weapon the unit carries", on: () => adv.weapons.some((w) => w.name.trim()), sortable: false,
+    show: (u) => adv.weapons.filter((w) => w.name.trim()).map((w) => (u.weapons || []).filter((x) => weaponLabel(x[0]).toLowerCase().includes(w.name.trim().toLowerCase())).reduce((n, x) => n + x[1], 0)).join(" / ") },
+];
+const STRING_SORTS = new Set(["name", "role", "config", "tech", "armor_type", "structure", "book"]);
+
 function drawBrowser() {
   const words = $("ub-name").value.toLowerCase().split(/\s+/).filter(Boolean);
   const cls = CLASSES[$("ub-class").value];
   const list = lab.units.filter((u) => words.every((w) => u.name.toLowerCase().includes(w)) && (!cls || (u.tons >= cls[0] && u.tons <= cls[1])) && passes(u));
+  const cols = COLS.filter((c) => c.on());
+  // a sort on a column that has gone away falls back to the name
+  if (browse.sort !== "name" && browse.sort !== "tons" && browse.sort !== "bv" && !cols.some((c) => (c.sort || c.key) === browse.sort)) { browse.sort = "name"; browse.dir = 1; }
   const k = browse.sort, d = browse.dir;
-  list.sort((a, b) => ((k === "name" || k === "role") ? String(a[k] ?? "").localeCompare(String(b[k] ?? "")) || a.name.localeCompare(b.name) : ((a[k] ?? -1) - (b[k] ?? -1)) || a.name.localeCompare(b.name)) * d);
+  list.sort((a, b) => (STRING_SORTS.has(k) ? String(a[k] ?? "").localeCompare(String(b[k] ?? "")) || a.name.localeCompare(b.name) : ((a[k] ?? -1) - (b[k] ?? -1)) || a.name.localeCompare(b.name)) * d);
   browse.shown = list.slice(0, 400);
   $("ub-count").textContent = `${list.length} unit${list.length === 1 ? "" : "s"}${list.length > 400 ? " (first 400 shown: narrow the search)" : ""}`;
+  const th = (key, head, cls, title) => `<th ${key ? `data-sort="${key}" ` : ""}class="${cls || ""}"${title ? ` title="${esc(title)}"` : ""}>${head}</th>`;
+  $("ub-list").tHead.innerHTML = `<tr><th></th>${th("name", "Unit")}${th("tons", "Tons", "num")}${th("bv", "BV", "num")}${cols.map((c) => th(c.sortable === false ? "" : (c.sort || c.key), c.head, c.num ? "num" : "", c.title)).join("")}</tr>`;
+  document.querySelectorAll("#ub-list th[data-sort]").forEach((h) => h.addEventListener("click", () => {
+    browse.dir = browse.sort === h.dataset.sort ? -browse.dir : 1; browse.sort = h.dataset.sort; drawBrowser();
+  }));
   const body = $("ub-list").tBodies[0];
   body.innerHTML = browse.shown.map((u, i) => `<tr data-i="${i}" draggable="${u.ok}" class="${lab.picked.has(u.id) ? "on" : ""}${u.ok ? "" : " bad"}" title="${esc(u.ok ? "Drag onto a team" : u.why)}">
-      <td class="ico">${classIcon(u.tons)}</td><td>${esc(u.name)}</td><td class="num">${u.tons ?? ""}</td><td class="num">${u.bv ?? ""}</td><td class="num">${u.walk ?? ""}/${u.walk != null ? Math.ceil(u.walk * 1.5) : ""}/${u.jump ?? ""}</td><td class="num">${u.armor ?? ""}</td><td>${esc(u.role || "")}</td><td class="num">${u.era ?? ""}</td></tr>`).join("");
+      <td class="ico">${classIcon(u.tons)}</td><td>${esc(u.name)}</td><td class="num">${u.tons ?? ""}</td><td class="num">${u.bv ?? ""}</td>${cols.map((c) => `<td${c.num ? ' class="num"' : ""}>${esc(String(c.show(u)))}</td>`).join("")}</tr>`).join("");
   body.querySelectorAll("tr").forEach((tr) => {
     const u = browse.shown[+tr.dataset.i];
+    tr.addEventListener("dblclick", () => { if (u.ok) addUnits(lab.teams[lab.addTo], [u.id]); });
     tr.addEventListener("click", (e) => {
       if (!u.ok) return;
       if (!(e.ctrlKey || e.metaKey || e.shiftKey)) { if (lab.picked.has(u.id) && lab.picked.size === 1) lab.picked.clear(); else { lab.picked.clear(); lab.picked.add(u.id); } }
@@ -506,9 +508,9 @@ function drawBrowser() {
 }
 
 function pickedChanged() {
-  $("ub-picked").textContent = lab.picked.size ? `${lab.picked.size} selected: drag them onto a team, or press that team's "Add selected"` : "Drag a unit onto a team. Click to select several (Ctrl+click adds to the selection).";
+  $("ub-picked").textContent = lab.picked.size ? `${lab.picked.size} selected: drag them onto a team, or press "Add selected"` : "Drag a unit onto a team. Click to select several (Ctrl+click adds to the selection).";
   drawBrowser();
-  lab.teams.forEach((t, ti) => { const b = $(`addsel-${ti}`); if (b) { b.disabled = !lab.picked.size; b.textContent = `Add selected (${lab.picked.size})`; } });
+  drawAddTo();
 }
 
 // a popup window (Advanced search) moves by its title bar
@@ -543,10 +545,11 @@ function wireBrowserWindow() {
     store(ADV_KEY, adv); buildAdvanced(); drawBrowser();
   });
   $("adv-del").addEventListener("click", () => { const n = $("adv-preset").value; if (!n) return; const p = fetchStore(PRESET_KEY, {}); delete p[n]; store(PRESET_KEY, p); advPresets(); });
+  $("ub-addto").addEventListener("change", (e) => { lab.addTo = +e.target.value; });
+  $("ub-add").addEventListener("click", () => addUnits(lab.teams[lab.addTo], [...lab.picked]));
+  $("ub-file").addEventListener("click", () => $("ub-fileinput").click());
+  $("ub-fileinput").addEventListener("change", (e) => { addFiles(lab.teams[lab.addTo], e.target.files); e.target.value = ""; });
   $("ub-clear").addEventListener("click", () => { lab.picked.clear(); pickedChanged(); });
-  document.querySelectorAll("#ub-list th[data-sort]").forEach((th) => th.addEventListener("click", () => {
-    browse.dir = browse.sort === th.dataset.sort ? -browse.dir : 1; browse.sort = th.dataset.sort; drawBrowser();
-  }));
 }
 
 // ---------------------------------------------------------------- OPTIONS page (CL15)
@@ -812,10 +815,17 @@ function zoneGrid(ti, mini) {
   const wrap = document.createElement("div");
   wrap.className = mini ? "zone-mini" : "zone-team";
   wrap.dataset.zteam = ti;
-  wrap.innerHTML = `${mini ? "" : `<div class="zname" data-zname></div>`}
+  const set = (fn) => { fn(zoneOf(lab.teams[ti], ti)); zonesChanged(); };
+  if (mini) {
+    // on a team panel: one line, "Start: NW N NE W C E SW S SE [walk on]", a checkbox each (Daniel, 2026-11-15)
+    wrap.innerHTML = `<span class="zl-head" title="Where this team starts: tick the boxes of the 3 x 3 cut of the board">Start:</span>${BOX_LABELS.map((n, k) => `<label class="zl" title="${k === 4 ? "Centre" : "Zone " + n}"><input type="checkbox" data-box="${k}">${n}</label>`).join("")}<label class="zl" title="Units walk on from the board's border inside the zone"><input type="checkbox" data-walk>Walk on</label>`;
+    wrap.querySelectorAll("[data-box]").forEach((b) => b.addEventListener("change", () => { const k = +b.dataset.box; set((z) => { z.boxes[k] = b.checked; if (k === 4 && z.boxes[4]) z.walk_on = false; }); }));
+    wrap.querySelector("[data-walk]").addEventListener("change", (e) => set((z) => { z.walk_on = e.target.checked; if (z.walk_on) z.boxes[4] = false; }));
+    return wrap;
+  }
+  wrap.innerHTML = `<div class="zname" data-zname></div>
     <div class="zone-grid">${BOX_LABELS.map((n, k) => `<button type="button" data-box="${k}" title="${k === 4 ? "Centre" : "Zone " + n}">${n}</button>`).join("")}</div>
     <div class="zone-tools"><label class="row"><input type="checkbox" data-walk> Walk on</label>${mini ? "" : `<button class="btn small" type="button" data-edge>Edge</button><button class="btn small" type="button" data-any>Anywhere</button><button class="btn small" type="button" data-none>Clear</button>`}</div>`;
-  const set = (fn) => { fn(zoneOf(lab.teams[ti], ti)); zonesChanged(); };
   wrap.querySelectorAll("[data-box]").forEach((b) => b.addEventListener("click", () => { if (lab.deploy.mode === "rulebook") return; set((z) => { const k = +b.dataset.box; z.boxes[k] = !z.boxes[k]; if (k === 4 && z.boxes[4]) z.walk_on = false; }); }));
   wrap.querySelector("[data-walk]").addEventListener("change", (e) => set((z) => { z.walk_on = e.target.checked; if (z.walk_on) z.boxes[4] = false; }));
   if (!mini) {
@@ -832,8 +842,12 @@ function paintZoneGrids() {
     const ti = +w.dataset.zteam, t = lab.teams[ti];
     if (!t) return;
     const z = zoneOf(t, ti);
-    w.querySelector(".zone-grid").classList.toggle("off", off);
-    w.querySelectorAll("[data-box]").forEach((b) => { const on = z.boxes[+b.dataset.box]; b.classList.toggle("on", on); b.style.background = on ? t.colour : ""; });
+    const grid = w.querySelector(".zone-grid"); if (grid) grid.classList.toggle("off", off);
+    w.querySelectorAll("[data-box]").forEach((b) => {
+      const on = z.boxes[+b.dataset.box];
+      if (b.type === "checkbox") { b.checked = on; b.disabled = off; return; }       // the one-line version on a team panel
+      b.classList.toggle("on", on); b.style.background = on ? t.colour : "";
+    });
     const walk = w.querySelector("[data-walk]"); walk.checked = z.walk_on; walk.disabled = off;
     const zn = w.querySelector("[data-zname]"); if (zn) { zn.textContent = `Team ${ti + 1}: ${t.name}`; zn.style.borderLeftColor = t.colour; }
     w.querySelectorAll("button.btn").forEach((b) => { b.disabled = off; });

@@ -6,6 +6,19 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-15 (Claude, session 27), UNITS PAGE: SCROLLING, DYNAMIC COLUMNS, LESS CLUTTER ON THE TEAM PANELS. REVIEW PENDING (higher-level model).**
+  Daniel's list items 4, 7 and 5. Pages only (`lab.js`, `lab.css`, `index.html`; no engine change). (4) Teams 3 and up could not be
+  reached: the side columns squeezed the team panels instead of scrolling; `.col > .win { flex: none }` keeps each panel its height
+  and the column scrolls. (7) The Unit Browser table always shows Unit, Tons and BV; the other columns (`COLS` in `lab.js`: Move,
+  Armor, Sinks, Year, Role, Type, Rules, Tech, Armor type, Structure, Book, and a Weapons count) appear only while the advanced
+  search uses them, and a sort on a column that went away falls back to the name. Heat sinks is a new column. (5) The team panel is
+  now colour / name / bot, the zone line and the unit list. Adding moved into the Unit Browser, MegaMek style: an "Add to" team
+  box, "Add selected (n)", "From file...", and a double-click on a unit adds it to that team (dragging onto a panel and dropping
+  a .mtf file on one still work). The panels' "Quick add" search is gone (the browser's name box does that). The starting zone on a
+  team panel is a line of text and checkboxes ("Start: NW N NE W C E SW S SE, Walk on"); the Map page's grid is unchanged.
+  Checked in a real browser (6 teams scroll; columns appear with the search; add, double-click and the zone boxes work, no page
+  errors). `tests/check_web_lab.py` could not run here (no wasm32 build target in this container); `check_lab_server.py` passes.
+
 - **2026-11-15 (Claude, session 27), UNIT BROWSER SHOWED ARMOR 0 - FIXED. REVIEW PENDING (higher-level model).**
   Daniel: "Unit browser is showing units with armor 0?" Cause: `engine/lab/src/catalog.rs` `describe_unit` summed only
   `"<loc> Armor:N"` lines (capital A), but 1,557 of the library's 'Mechs write `"LA armor:N"` in lower case, so they summed to 0.
