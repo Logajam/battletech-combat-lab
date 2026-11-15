@@ -71,6 +71,18 @@ def main(argv):
         # a quarter of the library writes "LA armor:" in lower case; the list once showed those units with armor 0
         no_armor = [u["name"] for u in units if not u.get("armor")]
         check(not no_armor, f"every listed unit has armor ({len(no_armor)} without: {no_armor[:3]})", failures)
+        # the unit sheet / editor's calls (2026-11-15): a unit's text, the equipment catalogue, the engine's reading of edited text
+        text = lab.api("unit_text", {"id": "Atlas AS7-K.mtf"}).get("text", "")
+        check("chassis:Atlas" in text, "unit_text returns a unit's file", failures)
+        base = lab.api("unit_eval", {"text": text})
+        listed = next(u for u in units if u["id"] == "Atlas AS7-K.mtf")
+        check(base["unit"]["ok"] and base["unit"]["bv"] == listed["bv"], f"unit_eval gives the listed BV ({base['unit'].get('bv')} v {listed['bv']})", failures)
+        check(base["structure"].get("Left Arm") == 17, f"unit_eval gives internal structure ({base['structure'].get('Left Arm')})", failures)
+        more = lab.api("unit_eval", {"text": text.replace("Jump MP:0", "Jump MP:3")})
+        check(more["unit"]["ok"] and more["unit"]["bv"] != base["unit"]["bv"], "an edited jump MP changes the BV", failures)
+        eq = lab.api("equipment_list")["equipment"]
+        check(len(eq) > 600 and any("ismediumlaser" in e["al"] for e in eq), f"equipment_list: {len(eq)} items", failures)
+        check("error" in lab.api("add_unit", {"file": "Atlas AS7-K.mtf", "text": text, "overwrite": True}), "a published unit file cannot be overwritten", failures)
 
         setup = {"teams": [{"name": "Red", "bot": "gladiator", "units": [{"unit": "Atlas AS7-K.mtf"}, {"unit": "Griffin GRF-1N.mtf"}]},
                            {"name": "Blue", "bot": "gladiator", "units": [{"unit": "Awesome AWS-8Q.mtf"}, {"unit": "Hunchback HBK-4G.mtf"}]}],

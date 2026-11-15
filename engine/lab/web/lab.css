@@ -293,3 +293,29 @@ details.folder[hidden] { display: none; }
 #ub-list th.sorted[data-dir="-1"]::after { content: " \25BC"; font-size: 9px; }
 .zone-mini { flex-wrap: nowrap; min-width: 0; overflow: hidden; gap: 0 .6em; }
 .zone-mini .zl input { width: 1em; height: 1em; margin: 0 .1em 0 0; }
+
+/* the unit sheet / editor */
+.dialog.sheet { left: 40px; top: 60px; margin-left: 0; width: min(1040px, calc(100vw - 80px)); height: calc(100vh - 100px); }
+.sheet-scroll { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: minmax(250px, 300px) minmax(0, 1fr); gap: 10px; align-content: start; }
+.sheet-scroll h3 { margin: 0 0 4px; font-size: 13px; }
+.sheet-scroll table { border-collapse: collapse; width: 100%; }
+.sheet-scroll td, .sheet-scroll th { padding: 1px 4px; text-align: left; font-weight: normal; }
+.sheet-scroll th { border-bottom: 1px solid var(--shadow); }
+.sheet-scroll td.num, .sheet-scroll th.num { text-align: right; }
+.sheet-scroll input[type=number] { width: 54px; padding: 0 2px; }
+.sheet-scroll .head { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: baseline; }
+.sheet-scroll .head b { font-size: 15px; }
+.sheet-msgs { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 2px; }
+.sheet-msgs .bad { color: #a00000; } .sheet-msgs .ok { color: #006000; } .sheet-msgs .warn { color: #8a5a00; }
+.crit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; }
+.crit-loc { border: 1px solid var(--shadow); background: var(--field); }
+.crit-loc h4 { margin: 0; padding: 1px 4px; font-size: 11px; background: var(--face); border-bottom: 1px solid var(--shadow); display: flex; justify-content: space-between; }
+.crit-slot { padding: 0 4px; font-size: 11px; min-height: 15px; border-bottom: 1px dotted #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.crit-slot.empty { color: #999; } .crit-slot.fixed { color: #666; background: #eee; }
+.crit-slot.managed { color: #345; background: #e4ecf5; }
+.sheet.editing .crit-slot:not(.fixed):not(.managed):hover { background: var(--select); color: var(--title-text); cursor: pointer; }
+.sheet.editing .crit-slot.empty:hover { cursor: copy; }
+.picker { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.picker select { max-width: 340px; }
+.sheet-foot { margin: 0; justify-content: flex-end; }
+@media (max-width: 760px) { .dialog.sheet { left: max(8px, env(safe-area-inset-left, 0px)) !important; width: calc(100vw - 16px); height: 80vh; } .sheet-scroll { grid-template-columns: minmax(0, 1fr); } }

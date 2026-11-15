@@ -197,6 +197,7 @@
       }
       case "history": return historyOf(body);
       case "add_unit": return { error: "Adding your own unit files is not available in the browser version yet." };
+      case "unit_text": case "unit_eval": case "equipment_list": return { error: "The unit sheet and editor are not in the browser version yet (they need the Combat Lab program)." };
       default: return { error: "unknown request '" + name + "'" };
     }
   }

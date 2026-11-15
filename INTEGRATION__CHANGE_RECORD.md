@@ -6,6 +6,31 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-15 (Claude, session 27), UNIT SHEET AND EDITOR, STAGE 1 (Daniel's list item 1). REVIEW PENDING (higher-level model).**
+  Daniel: a unit in the browser shows its stats; on a team the values become editable with mild construction limits and an
+  override; the one hard rule is that equipment must fit the critical slots; BV follows the design; custom units without a file
+  download; "for science", illegal designs welcome. BUILT: (Rust, `engine/lab/src`) three calls, `unit_text` (a unit's file),
+  `unit_eval` (the engine's reading of an edited text: BV, whether it plays, each location's internal structure; it reuses
+  `describe_unit`, so the BV is the one a battle uses) and `equipment_list` (699 items: slot name, kind, tech, slots, tons, heat,
+  damage, BV, every spelling the engine resolves); `add_unit` takes `overwrite`, allowed only on a file the editor made (it
+  carries "Edited in Combat Lab"), never on a published design. (Page, `lab.js` "unit sheet and editor") what is edited is the
+  unit's own .mtf text, changed line by line so nothing the page does not understand is lost. The Unit Browser's Preview opens the
+  sheet read only (header, movement and heat, armor with internal structure and maximum, every location's critical slots,
+  equipment totals). The pencil on a team row opens it editable: Walk MP (the engine rating follows: Walk x tons), Jump MP, heat
+  sinks and their kind, armor front and rear, equipment placed by choosing an item and clicking an empty slot (multi-slot items
+  need that many empty slots in a row; clicking a placed item takes it out). Heat sinks beyond what the engine holds
+  (rating / 25) and jump jets (one per MP) are items in the slots, placed and removed automatically; with no room the change is
+  refused unless "Override construction limits" is on, which sets the number anyway. Checks shown: sinks v slots, fewer than 10
+  sinks, jets v Jump MP, rating over 400, armor over twice the internal structure (head 9). Weight is NOT checked. "Use this
+  design" saves a new unit file (model name + " (custom)", changeable) in the project's unit folder, which also puts it in the
+  unit list, and swaps it into the team keeping the pilot skills; "Download .mtf" gives the file. Checked: in a real browser
+  (preview, edit sinks / jump / a weapon, refused 150 sinks, save into the team; BV 2175 -> 2433 -> 2472), an edited Atlas played 4
+  battles with no crash, `check_lab_server.py` has 6 new checks. NOT YET: the browser (wasm) version has no editor (its
+  `engine.js` says so; it needs the same three calls in `engine/wasm`); the demo shows the sheet and editor for a few units but
+  cannot recalculate BV; no from-scratch "new unit" and no tonnage / structure-type / engine-type editing; Clan-versus-IS item
+  filtering; quirks, omni pods and armored components are left as the file has them; the 23 LAMs do not load. RULES TO CHECK against
+  the library (not yet cited in the code): engine-held sinks = rating / 25, the 10-sink minimum, armor = 2 x structure (head 9).
+
 - **2026-11-15 (Claude, session 27), DEMO MAP PREVIEWS. REVIEW PENDING (higher-level model).** Daniel: the Map tab shows no
   previews. Demo only: it had no answer for the "board" request. `tools/make_lab_demo.py` now embeds every board's text
   (`board_texts`, about 4 MB; the page is 7.7 MB) and `lab.js` `demoApi` answers "board" from it. The real Lab was fine.

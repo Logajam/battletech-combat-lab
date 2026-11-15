@@ -282,3 +282,34 @@ fn index_boards(data: &Path) -> Vec<Value> {
     }
     out
 }
+
+/// Everything a unit can be built from, for the editor's picker: the name to write in a crit slot (one the engine's
+/// lookup resolves), the display name, kind (weapon / ammo / misc), tech base, crit slots, tons (None when the database has
+/// none) and, for a weapon, heat, damage and Battle Value.
+pub fn equipment_list(db: &btsim_core::equipment::EquipmentDb) -> Vec<Value> {
+    let mut out: Vec<Value> = db.entries.values().map(|e| {
+        let tech = e.opt_str("tech_base").unwrap_or_default();
+        let prefix = if tech == "Clan" { "CL" } else { "IS" };
+        let aliases: Vec<String> = e.get("aliases").and_then(|a| a.as_array()).map(|a| a.iter().filter_map(|x| x.as_str().map(String::from)).collect()).unwrap_or_default();
+        // a name without spaces that starts IS / CL, as the unit files write it; else the first alias, spaces taken out
+        let key = aliases.iter().find(|a| !a.contains(' ') && a.starts_with(prefix)).cloned()
+            .or_else(|| aliases.iter().find(|a| !a.contains(' ')).cloned())
+            .unwrap_or_else(|| e.canonical_name().replace(' ', ""));
+        json!({"k": key, "n": e.canonical_name(), "cat": e.category().unwrap_or_default(), "tech": tech, "slots": e.slots(),
+               "tons": e.tonnage(), "heat": e.opt_i64("heat"), "dmg": e.opt_i64("damage_per_shot"), "bv": e.opt_i64("battle_value"),
+               // every spelling the engine resolves to this item, lower case without spaces: how the page recognises a crit slot
+               "al": aliases.iter().map(|a| a.to_lowercase().replace(' ', "")).collect::<Vec<_>>()})
+    }).collect();
+    out.sort_by(|a, b| a["n"].as_str().cmp(&b["n"].as_str()));
+    out
+}
+
+/// Each location's internal structure for the unit file `text`, as the engine reads it ({"Left Arm": 17, ...}); the editor
+/// limits armor to twice this (a head to 9). Empty when the file does not parse.
+pub fn unit_structure(db: &btsim_core::equipment::EquipmentDb, text: &str) -> Value {
+    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let mut out = String::new();
+        btsim_core::mtf_parser::parse_mtf(db, text, &mut out).map(|m| m.locations.iter().map(|(l, v)| (l.clone(), json!(v.structure.as_int()))).collect::<serde_json::Map<String, Value>>())
+    }));
+    match r { Ok(Ok(m)) => Value::Object(m), _ => json!({}) }
+}

@@ -199,6 +199,21 @@ fn api(lab: &Lab, name: &str, req: &Value) -> Result<Value, String> {
             Ok(json!({"units": lab.catalog.units.iter().map(|u| &u.json).chain(added.iter()).collect::<Vec<_>>()}))
         }
         "add_unit" => add_unit(lab, req),
+        // the unit sheet and editor (Daniel, 2026-11-15): a unit's file text, the equipment it can be built from, and the
+        // engine's reading (Battle Value, or why it cannot be played) of a text that has been edited on the page
+        "unit_text" => {
+            let id = req["id"].as_str().ok_or("which unit?")?;
+            lab.catalog.ensure(id)?;
+            let text = std::fs::read_to_string(lab.catalog.data.join(id)).map_err(|e| format!("{}: {}", id, e))?;
+            Ok(json!({"id": id, "text": text}))
+        }
+        "unit_eval" => {
+            let text = req["text"].as_str().ok_or("no unit text")?;
+            let cfg = btsim_core::config::Config::from_json(&lab.defaults);
+            let db = btsim_core::equipment::EquipmentDb::shared();
+            Ok(json!({"unit": catalog::describe_unit(db, &cfg, "(edited)", "custom", text), "structure": catalog::unit_structure(db, text)}))
+        }
+        "equipment_list" => Ok(json!({"equipment": catalog::equipment_list(btsim_core::equipment::EquipmentDb::shared())})),
         "list_boards" => Ok(json!({"boards": lab.catalog.boards})),
         // a board file's text, for the Map page's preview (the page draws it); the map pack's boards are unpacked on the way
         "board" => {
@@ -289,7 +304,12 @@ fn add_unit(lab: &Lab, req: &Value) -> Result<Value, String> {
         return Err("only .mtf unit files can be added".into());
     }
     let target = lab.catalog.data.join(&name);
-    let copied = !target.exists();
+    let overwrite = req["overwrite"] == true;      // a custom unit saved again under the same name
+    // only a file the editor made may be replaced: a published design (or a file of Daniel's) is never overwritten
+    if overwrite && target.exists() && !std::fs::read_to_string(&target).map(|t| t.contains("Edited in Combat Lab")).unwrap_or(false) {
+        return Err(format!("a unit file called '{}' already exists and was not made in Combat Lab: give the model another name", name));
+    }
+    let copied = overwrite || !target.exists();
     let text = if copied { req["text"].as_str().ok_or("the file is empty")?.to_string() } else { std::fs::read_to_string(&target).map_err(|e| e.to_string())? };
     let cfg = btsim_core::config::Config::from_json(&lab.defaults);
     let unit = catalog::describe_unit(btsim_core::equipment::EquipmentDb::shared(), &cfg, &name, "project", &text);
@@ -300,7 +320,10 @@ fn add_unit(lab: &Lab, req: &Value) -> Result<Value, String> {
         std::fs::write(&target, &text).map_err(|e| e.to_string())?;
     }
     let mut added = lab.added.lock().unwrap();
-    if !lab.catalog.units.iter().any(|u| u.id == name) && !added.iter().any(|u| u["id"] == name.as_str()) {
+    if overwrite {
+        added.retain(|u| u["id"] != name.as_str());
+        added.push(unit.clone());
+    } else if !lab.catalog.units.iter().any(|u| u.id == name) && !added.iter().any(|u| u["id"] == name.as_str()) {
         added.push(unit.clone());
     }
     Ok(json!({"unit": unit, "copied": copied}))
