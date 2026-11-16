@@ -248,6 +248,35 @@ built from them. Daniel is happy to cheat on the retro look (800 triangles, not 
 to use modern tools" (animation will need them). Everything is PRIVATE (`reference_art/` is on `publish_public.py`'s
 `PRIVATE_PATHS`). Read `reference_art/README.md` first: it has the model format, the part kinds and the coordinate rules.
 
+**REVISED ORDER (Daniel, 2026-11-16, later): BUILD THE BLOCKS FIRST.** The three test models were written from raw shapes
+(box, wedge, bar, tube, hull, dome) BEFORE `reference_art/block_taxonomy.json` existed, so none of their parts is an instance of a
+dictionary block: the same "slab boot" would be rebuilt from scratch on every 'Mech. Do not add the other 31 models that way. Order:
+(1) T15a, the block library: each taxonomy type (22 parts, 88 types, common ones first: foot slab_boot, lower_leg
+tapered_slab_shin, upper_leg tapered_slab_thigh, upper_torso boxy_chest_sloped_shoulders, shoulder_pod and shoulder_disc,
+launcher_bay, lower_arm fist_arm and barrel_arm, hand fist, head dome_helmet and bubble_canopy) becomes a named, parametrised
+GENERATOR. (2) Retrofit the three built models so every part is a block instance (`"block": "foot/slab_boot", "params": {...}`)
+and `check` fails a part with no block. (3) T15b: the other 31, composed from blocks (new block types only where the taxonomy
+has a gap, and then the taxonomy is updated).
+
+**Design for T15a (Claude's recommendation, 2026-11-16; Daniel's idea: "a much higher polygon count for our blocks, then dumb down
+the final build").**
+- LEVELS OF DETAIL come from the generator, not from decimating a mesh. A block takes a `lod` argument and is DESIGNED at each
+  level: LOD0 high (bevels, 16-24 sided tubes, 6-8 dome rings, tube mouths and plates as real geometry), LOD1 medium, LOD2 the
+  reference level (what the three models are now: boxes, wedges, 6/8-sided tubes, hulls and domes). Decimating a detailed mesh
+  gives unpredictable silhouettes and loses the hard-edged retro look; a generator keeps the look chosen. Daniel is happy to
+  cheat on the '95 look: the retro look is a style, modern tools are allowed.
+- BUDGETS: the whole model at LOD2 stays under 800 triangles (the rule now enforced by `check`). Suggested LOD1 about 3,000 and
+  LOD0 about 15,000 per 'Mech; measure the Combat Lab at 12 v 12 before fixing them (the art specs' A2 trap: solid count multiplies).
+- CHECK: the silhouette of LOD1 and LOD2 must stay within a set share of LOD0's (render all three from the same camera and compare
+  the black shapes; the art specs' A3 variant check is the pattern). A scripted check can do this; the look is still Daniel's.
+- ANCHORS: each block states its attachment points (a foot has `ankle`; a shin `knee` and `ankle`; a shoulder `arm` and `torso`),
+  so blocks snap together and a model is a list of block instances with sizes, not coordinates. This is also what makes the
+  override list work: an override names blocks and params.
+- UNITS: sizes in the model's own units (figure height about 10); a block's params are shares of the part it sits on, so a block
+  scales with tonnage.
+- WHERE: new files under `reference_art/` (a `blocks/` folder and a loader in `tools/lowpoly_ref.py`), still private; the existing
+  `data/token_blocks.json` and the generator are NOT touched until Daniel says the dictionary is ready.
+
 **State.** Built and checked: Commando COM-2D, Javelin JVN-10N, Spider SDR-5V (three test models, Daniel reviewed the look: "much
 finer detail" is what the other AI gets right). Not built: the other 31 (`units.json`, `"status": "not built"`). The tool, index,
 unit-file check and test exist and need no change to start: `tools/lowpoly_ref.py` (`check`, `render [--iso]`, `mtf`),

@@ -25,6 +25,13 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   hull of points: sloped plates) and `dome` (ellipsoid or flat-based cap: round chests, canopies, helmets). The Spider (dome chest,
   large fins, from Gemini's reading), Commando (chest plate, heavy forearms, dome helmet) and Javelin (leaning hull chest, big
   canopy dome) were reworked: 370-442 triangles.
+  LATER SAME DAY: (a) Javelin rebuilt twice (zoomed reading found the two chest missile bays; Daniel's good AI views added the skirt
+  plate, brimmed canopy and dish): 706 triangles. (b) The AI turnaround sheets for all 34 units are filed in `reference_art/ai_sheets/`
+  (Daniel's note: good for silhouette and the ways a part can be drawn, unreliable for exact detail); per-unit faults are in
+  `units.json` `ai_sheet_caveats`. (c) `reference_art/block_taxonomy.json`: a survey of the block types per body part (22 parts, 88
+  types, 10 WTF items), all WTF items answered by Daniel. (d) `compare` command in `tools/lowpoly_ref.py`. (e) Hand-off T15 in
+  `INTEGRATION__TASK_SPECS.md`. (f) DECISION: build the block library BEFORE the other 31 models, with levels of detail from the
+  generators (LOD0 high, LOD2 the 800-triangle reference): the three built models are raw shapes, not dictionary blocks.
 
 - **2026-11-15 (Claude, session 27), WEBSITE: UNITS WITH UNMODELED EQUIPMENT LEFT OUT; CHECKPOINT. REVIEW PENDING (higher-level model).**
   Daniel: "any units with unmodeled equipment should be removed from the website version... They will be built eventually", and a

@@ -170,7 +170,7 @@ real Princess and CASPAR through the bridge (E4).
   OPTIONAL RULES in the option list: floating crits (a toggle), stackpole, others to come (implementation "next week").
   (3) Total Warfare NON-AEROSPACE units ("next week"). (4) WISHLIST: the grabbable unit icon looks like the actual unit;
   Daniel is weighing MegaMek's token art against a better stylised version of our own (licence: CREDITS.md).
-- E3b. Low-poly reference models (session 27, Daniel 2026-11-16): the TRO 3039 'Mechs redrawn as low-poly models (800 triangles) as the source for the block dictionary and override list. 3 of 34 built; the other 31 are task T15 (Opus), the AI turnaround sheets for all 34 are filed in `reference_art/ai_sheets/` (2026-11-16). PRIVATE (`reference_art/`). Done work: Change Record 2026-11-16.
+- E3b. Low-poly reference models (session 27, Daniel 2026-11-16): the TRO 3039 'Mechs redrawn as low-poly models (800 triangles) as the source for the block dictionary and override list. 3 of 34 built as raw shapes; next is the BLOCK LIBRARY with levels of detail (T15a), then retrofit the three, then the other 31 (T15b) (Opus), the AI turnaround sheets for all 34 are filed in `reference_art/ai_sheets/` (2026-11-16). PRIVATE (`reference_art/`). Done work: Change Record 2026-11-16.
 - E3a. Art direction (session 24): why the models read as stacked blocks, and jobs A1-A8 in order -
   `INTEGRATION__COMBAT_LAB_ART_SPECS.md` (nothing built).
 - E4. MegaMek bridge (Daniel, 2026-11-12): our bots play in a live MegaMek game - Daniel against Hydra in MegaMek's
