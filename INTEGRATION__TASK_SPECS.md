@@ -38,7 +38,7 @@ then copies the better bot. T2 and T4 can ride along. (3) T11, the Rust port. (4
 | T8 Archive the experiments that lost | D4 | Opus or Sonnet | Daniel's OK |
 | T9 Rules zip refresh; Interstellar Operations | C5 | Sonnet | Daniel's go |
 | T10 Automatic checks on GitHub | D5 | Sonnet | - |
-| T15 Low-poly reference models: the other 31 'Mechs | E3b | Opus | Daniel's other-AI turnaround sheets (optional) |
+| T15 Low-poly reference models: the other 31 'Mechs | E3b | Opus | - (the AI sheets are in `reference_art/ai_sheets/`) |
 | T11 The Rust translation | D1 | Sonnet (Opus for stages 0, 6, 8 if possible) | T8 decided; T1 built or parked |
 | T14 MegaMek bridge (our bots in a live MegaMek game) | E4 | Sonnet; Opus for B1 | Daniel's OK to build and run MegaMek (B0) |
 | Review queue (m), (o), (p) | - | the top model when on hand; (n) lapses when the port's stage 9 retires `fastcore/` | - |
@@ -239,7 +239,7 @@ grunt work of the basic build to sonnet". The full spec, from a read of MegaMek'
 check a script can run). Start with B0 (needs Daniel's OK to build and run MegaMek's downloaded code) and B1
 (`btsim decide` and its parity check), which don't depend on each other.
 
-## T15. Low-poly reference models: the other 31 'Mechs (Opus; Daniel gathers the AI sheets first)
+## T15. Low-poly reference models: the other 31 'Mechs (Opus; the AI sheets are in)
 
 Daniel, 2026-11-16 (session 27). Redraw each 'Mech of the TRO 3039 extract as a low-poly model: five orthographic views, one
 A-stance, "roughly recognisable, even more removed from the original source". The models are REFERENCE: later, the block
@@ -253,8 +253,9 @@ finer detail" is what the other AI gets right). Not built: the other 31 (`units.
 unit-file check and test exist and need no change to start: `tools/lowpoly_ref.py` (`check`, `render [--iso]`, `mtf`),
 `tests/test_lowpoly_ref.py`.
 
-**Inputs per unit.** (1) The TRO drawing: `reference_art/originals/NN <Unit>.jpg`. (2) Optional: the turnaround sheet(s) Daniel gets
-from other AIs (Gemini so far), saved as `reference_art/ai_sheets/<Unit>/<source>_<n>.<ext>`. (3) The unit file's equipment, already in
+**Inputs per unit.** (1) The TRO drawing: `reference_art/originals/NN <Unit>.jpg`. (2) The turnaround sheet(s) Daniel got from other AIs (Gemini and Google), one or
+two per unit for ALL 34, in `reference_art/ai_sheets/<Unit>/` (`gemini_1.*`, `batch2_<n>.*`; the source of each is not recorded). More sheets
+from Daniel go in the same folder as `<source>_<n>.<ext>`. (3) The unit file's equipment, already in
 `units.json` and enforced by `check`.
 
 **How to build one unit (do them in batches of about five, in the order of `units.json`; show Daniel each batch):**
@@ -268,7 +269,7 @@ from other AIs (Gemini so far), saved as `reference_art/ai_sheets/<Unit>/<source
    panel right, in `reference_art/sheets/compare_<unit>.png`) and fix what is wrong.
 5. Add the unit to `status` in `units.json` (change "not built" to "built"), run `tests/test_lowpoly_ref.py`, commit.
 
-**What the AI sheets are and are not (measured on Daniel's first three).** Good: they find the shapes (the Spider's dome chest and
+**What the AI sheets are and are not (Daniel, 2026-11-16, on seeing the full set: "unreliable for exact details; pretty good for the silhouette and for describing all the different ways you can render body parts"; his plan is the sheets plus the source drawings together).** Measured on his first three: Good: they find the shapes (the Spider's dome chest and
 fins, the Commando's chest plate and heavy forearms). Bad: their five views often disagree (different pelvises, arms and
 backs between views), they are far over the triangle budget, and one of three (the Javelin) was badly wrong. So: the sheet
 suggests, the TRO drawing decides, the unit file fixes the equipment. When Daniel has several AIs' sheets for one unit, favour a
