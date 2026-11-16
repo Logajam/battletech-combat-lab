@@ -274,6 +274,14 @@ the final build").**
   override list work: an override names blocks and params.
 - UNITS: sizes in the model's own units (figure height about 10); a block's params are shares of the part it sits on, so a block
   scales with tonnage.
+- MOUNTS (Daniel, 2026-11-16: "blocks also need mounting points for weapons, equipment, and greebles. Like that blade coming off the
+  shoulder of the JagerMech, that's a greeble"). Every block carries mount points of three kinds: WEAPON (by family, with slot
+  capacity, tied to a unit-file location so the .mtf's items land on the right block), EQUIPMENT (jump-jet nozzles, heat-sink vents,
+  ECM and probe domes, AMS...), GREEBLE (decorative: blade fins, ear pods, antennas, dishes, vent grilles, hazard panels, hose ribs,
+  glazing bands, decals). The spec is in `reference_art/block_taxonomy.json` under `mount_points` and `greebles`. Mount points are the
+  same at every level of detail (a mount must not move when the detail changes). A per-unit override can name a greeble outright
+  (the JagerMech's shoulder blade); the rest are shuffled by the unit's name hash as in the Skeleton spec, with that spec's hardpoint
+  counts. The greeble class names reuse the `kit` vocabulary of `data/token_reference_tags.json`.
 - WHERE: new files under `reference_art/` (a `blocks/` folder and a loader in `tools/lowpoly_ref.py`), still private; the existing
   `data/token_blocks.json` and the generator are NOT touched until Daniel says the dictionary is ready.
 
