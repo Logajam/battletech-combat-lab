@@ -282,6 +282,12 @@ the final build").**
   same at every level of detail (a mount must not move when the detail changes). A per-unit override can name a greeble outright
   (the JagerMech's shoulder blade); the rest are shuffled by the unit's name hash as in the Skeleton spec, with that spec's hardpoint
   counts. The greeble class names reuse the `kit` vocabulary of `data/token_reference_tags.json`.
+- KEEP THE TYPES IN HAND (Daniel, 2026-11-16: one extra 'Mech added five types; there may be 400+ pictures to come). Policy in
+  `reference_art/block_taxonomy.json` `pruning_policy`: build blocks as FORM x PRESET x MODIFIERS (about 8 forms, named presets per body
+  part, composable modifiers), not one type per shape; admit a new preset only if its silhouette is more than a set share different
+  AND it is on 3+ units (or Daniel names it); everything else is a per-unit special; a soft cap of about six presets per part;
+  classify new art against the existing presets and log only the residual as candidates for Daniel to prune in batches. Do the first
+  prune (merge the drum family and the slab families) BEFORE writing generators, so the library is built on the pruned set.
 - WHERE: new files under `reference_art/` (a `blocks/` folder and a loader in `tools/lowpoly_ref.py`), still private; the existing
   `data/token_blocks.json` and the generator are NOT touched until Daniel says the dictionary is ready.
 
