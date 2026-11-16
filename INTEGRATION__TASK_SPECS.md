@@ -275,6 +275,8 @@ backs between views), they are far over the triangle budget, and one of three (t
 suggests, the TRO drawing decides, the unit file fixes the equipment. When Daniel has several AIs' sheets for one unit, favour a
 shape that two of them agree on.
 
+**Daniel's rulings on the art (2026-11-16, in `reference_art/block_taxonomy.json`, `wtf`).** The round side disc is the SHOULDER; the Stalker's head is a fighter-style canopy on TOP of the torso (its AI sheet is fairly accurate except for extra weapon pods on the sides of the arms in the front and rear views: ignore those); the UrbanMech's head is the dome and its torso the cylinder below; Jenner and Cicada have small weapon pods for arms; the Quickdraw's wheels are ankle discs; the Hunchback's ribbed 'beer barrels' are its lower legs. Still open: the Catapult's claw shapes (my reading: the far leg's foot), the Dragon's arm versus cannon.
+
 **Known gaps in the three built models (the first thing to improve).** Legs and feet are plain tapered bars and boxes: the AI sheets
 show knee discs, armored shins, clawed or three-toed feet and reverse-knee bird legs. The Javelin lacks the brow over the bays, the
 hatched vents under them and the faceted belly band. The Commando's six-tube SRM 6 is a plain box (give it tube mouths as on the
