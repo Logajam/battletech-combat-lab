@@ -38,6 +38,7 @@ then copies the better bot. T2 and T4 can ride along. (3) T11, the Rust port. (4
 | T8 Archive the experiments that lost | D4 | Opus or Sonnet | Daniel's OK |
 | T9 Rules zip refresh; Interstellar Operations | C5 | Sonnet | Daniel's go |
 | T10 Automatic checks on GitHub | D5 | Sonnet | - |
+| T15 Low-poly reference models: the other 31 'Mechs | E3b | Opus | Daniel's other-AI turnaround sheets (optional) |
 | T11 The Rust translation | D1 | Sonnet (Opus for stages 0, 6, 8 if possible) | T8 decided; T1 built or parked |
 | T14 MegaMek bridge (our bots in a live MegaMek game) | E4 | Sonnet; Opus for B1 | Daniel's OK to build and run MegaMek (B0) |
 | Review queue (m), (o), (p) | - | the top model when on hand; (n) lapses when the port's stage 9 retires `fastcore/` | - |
@@ -237,3 +238,55 @@ grunt work of the basic build to sonnet". The full spec, from a read of MegaMek'
 (what MegaMek offers, the design, the request / answer JSON, records and fallbacks, stages B0-B7 each with a
 check a script can run). Start with B0 (needs Daniel's OK to build and run MegaMek's downloaded code) and B1
 (`btsim decide` and its parity check), which don't depend on each other.
+
+## T15. Low-poly reference models: the other 31 'Mechs (Opus; Daniel gathers the AI sheets first)
+
+Daniel, 2026-11-16 (session 27). Redraw each 'Mech of the TRO 3039 extract as a low-poly model: five orthographic views, one
+A-stance, "roughly recognisable, even more removed from the original source". The models are REFERENCE: later, the block
+dictionary (`data/token_blocks.json`) and the override list (`data/token_overrides.json`, `data/token_reference_tags.json`) are
+built from them. Daniel is happy to cheat on the retro look (800 triangles, not the '95 400), "retro appearance while still happy
+to use modern tools" (animation will need them). Everything is PRIVATE (`reference_art/` is on `publish_public.py`'s
+`PRIVATE_PATHS`). Read `reference_art/README.md` first: it has the model format, the part kinds and the coordinate rules.
+
+**State.** Built and checked: Commando COM-2D, Javelin JVN-10N, Spider SDR-5V (three test models, Daniel reviewed the look: "much
+finer detail" is what the other AI gets right). Not built: the other 31 (`units.json`, `"status": "not built"`). The tool, index,
+unit-file check and test exist and need no change to start: `tools/lowpoly_ref.py` (`check`, `render [--iso]`, `mtf`),
+`tests/test_lowpoly_ref.py`.
+
+**Inputs per unit.** (1) The TRO drawing: `reference_art/originals/NN <Unit>.jpg`. (2) Optional: the turnaround sheet(s) Daniel gets
+from other AIs (Gemini so far), saved as `reference_art/ai_sheets/<Unit>/<source>_<n>.<ext>`. (3) The unit file's equipment, already in
+`units.json` and enforced by `check`.
+
+**How to build one unit (do them in batches of about five, in the order of `units.json`; show Daniel each batch):**
+1. ZOOM. Crop the drawing into pieces (head, chest, each arm, pelvis, each leg) and look at each at full size before writing a
+   part. The Javelin's two missile bays were missed at page size: a drum on the shoulder was read as a launcher.
+2. Read the AI sheet for SHAPES only (a round dome chest, big fins, knee discs, claw feet); it is a hint, never the geometry.
+3. Write `reference_art/models/<Unit>.json` (copy a built one). Put the unit file's weapons where the drawing shows them
+   (`art_vs_unit_file` says what you decided where they disagree or the drawing is silent), jump jets where the drawing or the unit
+   file's location says. Fill `features` in the vocabulary of `data/token_reference_tags.json`.
+4. `python -I tools/lowpoly_ref.py check "<model>"`, then `render --iso`, then `compare "<model>"` (the drawing left, the model's 3/4
+   panel right, in `reference_art/sheets/compare_<unit>.png`) and fix what is wrong.
+5. Add the unit to `status` in `units.json` (change "not built" to "built"), run `tests/test_lowpoly_ref.py`, commit.
+
+**What the AI sheets are and are not (measured on Daniel's first three).** Good: they find the shapes (the Spider's dome chest and
+fins, the Commando's chest plate and heavy forearms). Bad: their five views often disagree (different pelvises, arms and
+backs between views), they are far over the triangle budget, and one of three (the Javelin) was badly wrong. So: the sheet
+suggests, the TRO drawing decides, the unit file fixes the equipment. When Daniel has several AIs' sheets for one unit, favour a
+shape that two of them agree on.
+
+**Known gaps in the three built models (the first thing to improve).** Legs and feet are plain tapered bars and boxes: the AI sheets
+show knee discs, armored shins, clawed or three-toed feet and reverse-knee bird legs. The Javelin lacks the brow over the bays, the
+hatched vents under them and the faceted belly band. The Commando's six-tube SRM 6 is a plain box (give it tube mouths as on the
+Javelin). The stance is one A-stance for all (Daniel: "keep the same stance for now"), so a mid-stride drawing is straightened.
+
+**Done when.** All 34 are `built`, `tests/test_lowpoly_ref.py` passes, Daniel has seen every sheet. A scripted check cannot judge
+likeness (it checks the triangle budget, the required assemblies, feet on the ground and the unit file's weapons and jump-jet
+locations): the likeness is Daniel's eye. NEXT STAGE (not this task): read the repeated shapes off the models into new blocks in
+`data/token_blocks.json` and per-unit entries in the override list; Daniel wants these kept separate from the token generator until
+then.
+
+**Traps.** The renderer sorts faces by depth (fine for separate convex parts, may mis-order where parts interlock): look at the
+picture, do not trust a clean `check`. A part carries one role (`weapon:<LOC>:<name>`): give only the housing the role and leave
+its decorative tube mouths without one, or the weapon count is wrong. Tube parts take their cross-section axes from the way they
+point (the module docstring says which). Do not put the TRO drawings or the models anywhere outside `reference_art/`.
+

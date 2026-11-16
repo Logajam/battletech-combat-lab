@@ -10,6 +10,7 @@ in tools/publish_public.py's PRIVATE_PATHS). Kept apart from the token generator
 Commands (run with `python -I tools/lowpoly_ref.py ...`):
   check  [MODEL.json ...]   triangle budget, required assemblies, parts on the ground, mtf cross-check
   render [MODEL.json ...]   five-view sheet(s) into reference_art/sheets/ (add --iso for a 3/4 panel)
+  compare [MODEL.json ...]  the TRO drawing beside the model's 3/4 panel, into reference_art/sheets/compare_<unit>.png
   mtf    "Commando COM-2D"  print the unit file's weapons / jump jets per location (from data/meks.zip)
 
 COORDINATES. Figure height is about 10 units, feet on y = 0. +y up, +z the way the 'Mech faces, +x the
@@ -494,6 +495,28 @@ def render_sheet(model, path, iso=False):
     return tris
 
 
+def compare_picture(model, path):
+    """The TRO drawing (left) beside the model's 3/4 panel (right): the quickest likeness check for a person or a model."""
+    from PIL import Image
+    unit = model["unit"] + " " + model["model"]
+    units = json.load(open(os.path.join(REF, "units.json")))["units"]
+    entry = next(u for u in units if u["unit"] == unit)
+    drawing = Image.open(os.path.join(REF, entry["original"])).convert("RGB")
+    tmp = path + ".tmp.png"
+    render_sheet(model, tmp, iso=True)
+    sheet = Image.open(tmp)
+    os.remove(tmp)
+    w = sheet.width // 6
+    panel = sheet.crop((5 * w, 70, 6 * w, sheet.height))
+    height = 700
+    drawing = drawing.resize((int(drawing.width * height / drawing.height), height), Image.LANCZOS)
+    panel = panel.resize((int(panel.width * height / panel.height), height), Image.LANCZOS)
+    out = Image.new("RGB", (drawing.width + panel.width + 30, height + 20), "white")
+    out.paste(drawing, (10, 10))
+    out.paste(panel, (drawing.width + 20, 10))
+    out.save(path)
+
+
 # ---------------------------------------------------------------- command line
 def _load(path):
     with open(path) as f:
@@ -507,7 +530,7 @@ def _models(args):
 
 
 def main(argv):
-    if len(argv) < 2 or argv[1] not in ("check", "render", "mtf"):
+    if len(argv) < 2 or argv[1] not in ("check", "render", "compare", "mtf"):
         print(__doc__)
         return 2
     cmd, args = argv[1], argv[2:]
@@ -524,6 +547,10 @@ def main(argv):
             for e in errors:
                 print("       -", e)
             bad += bool(errors)
+        elif cmd == "compare":
+            out = os.path.join(SHEETS, "compare_" + os.path.basename(path)[:-5] + ".png")
+            compare_picture(model, out)
+            print("wrote", os.path.relpath(out, ROOT))
         else:
             out = os.path.join(SHEETS, os.path.basename(path)[:-5] + ".png")
             tris = render_sheet(model, out, iso="--iso" in args)
