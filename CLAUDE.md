@@ -112,6 +112,9 @@ GitHub logistics.
   local server, pages in `engine/lab/web`; `--no-browser --port N --web DIR`). `btsim --history N` writes replay pages from
   the Rust engine (use these to show Daniel battles now that the Python is retired). `tools/make_lab_demo.py` makes the
   pages into one demo page to publish for Daniel.
+- **Low-poly reference models** (session 27, Daniel 2026-11-16): `reference_art/` (README there) holds the TRO 3039 drawings and
+  low-poly models redrawn from them, the source for the Combat Lab's block dictionary and override list. PRIVATE (on
+  `publish_public.py`'s `PRIVATE_PATHS`; redrawn images and models never go public). `tools/lowpoly_ref.py`, art checks only.
 - **Movement searches:** Short Grid is the default; Daniel's IF/THEN
   (`MOVEMENT_SEARCH = "if_then"`) is an option meant for multi-unit threat
   estimates, not a single 'Mech's default (PROJECT_MAP Section 5).

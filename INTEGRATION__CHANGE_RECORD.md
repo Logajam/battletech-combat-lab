@@ -6,6 +6,21 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-16 (Claude, session 27), LOW-POLY REFERENCE MODELS: TOOL, INDEX AND A TEST BATCH OF THREE. REVIEW PENDING (higher-level model).**
+  Daniel: redraw the TRO 3039 'Mech art as strict low-poly models (boxes, wedges, 6/8-sided prisms, under 400 triangles, one neutral
+  A-stance) as reference for the Combat Lab's block dictionary and override list; models go straight to 3D, no image-generator step.
+  (1) The 34 drawings were pulled from the PDF (one per odd page) into `reference_art/originals/`; `units.json` names each from its
+  title bar and ties it to its exact unit file (all 34 exist in `data/meks.zip`) with weapons and jump jets from the file. (2)
+  `tools/lowpoly_ref.py`: the primitives (box, wedge, bar, tube), the five-view renderer (front, rear, left, right, top, one scale; `--iso`
+  adds a 3/4 review panel) and `check`, which tests each model against its unit file (every weapon in its location, jump-jet locations,
+  mass, triangle budget, the required assemblies, feet on the ground). `tests/test_lowpoly_ref.py` runs it. (3) Three models built:
+  Commando COM-2D, Javelin JVN-10N, Spider SDR-5V (336-352 triangles each); each carries `features` in the field names of
+  `data/token_reference_tags.json` (so the override list can take them as they are) and notes where the drawing and the unit file
+  differ. (4) PRIVACY: `reference_art/` is on `publish_public.py`'s `PRIVATE_PATHS`; its tree check compared whole trees, which a
+  private folder in `main` would break, so it now compares the files outside the private paths (`public_files`). Known limits:
+  the renderer sorts faces by depth (fine for separate convex parts, may mis-order where parts interlock); the likeness is by eye
+  from one drawing per unit (side and rear views are inferred). Art only: no engine code touched; only the art checks were run.
+
 - **2026-11-15 (Claude, session 27), WEBSITE: UNITS WITH UNMODELED EQUIPMENT LEFT OUT; CHECKPOINT. REVIEW PENDING (higher-level model).**
   Daniel: "any units with unmodeled equipment should be removed from the website version... They will be built eventually", and a
   checkpoint (merge to main, update the actual website). `tools/build_web_lab.py` now leaves out every unit the engine warns about
