@@ -3,7 +3,7 @@ tests/test_lowpoly_ref.py - the low-poly reference models (reference_art/, Danie
 
     python tests/test_lowpoly_ref.py
 
-Every model in reference_art/models must: stay under 400 triangles; show a pelvis, torso, head and both legs and arms as
+Every model in reference_art/models must: stay under 800 triangles; show a pelvis, torso, head and both legs and arms as
 separate assemblies; stand on y = 0; and carry exactly the weapons and jump-jet locations its unit file lists
 (tools/lowpoly_ref.py `check`). Every unit in units.json must name a unit file that exists, and the folder must stay on
 tools/publish_public.py's private list (the TRO drawings are Catalyst artwork). Art only: nothing here touches a battle.

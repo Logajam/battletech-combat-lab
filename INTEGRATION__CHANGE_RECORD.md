@@ -20,6 +20,11 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   private folder in `main` would break, so it now compares the files outside the private paths (`public_files`). Known limits:
   the renderer sorts faces by depth (fine for separate convex parts, may mis-order where parts interlock); the likeness is by eye
   from one drawing per unit (side and rear views are inferred). Art only: no engine code touched; only the art checks were run.
+  UPDATE same day (after Daniel compared Gemini sheets): Daniel, "perfectly happy to cheat on that '95 look" (retro look, modern
+  tools, animation later), so the triangle limit is 800 (was 400) and `tools/lowpoly_ref.py` gained two part kinds, `hull` (convex
+  hull of points: sloped plates) and `dome` (ellipsoid or flat-based cap: round chests, canopies, helmets). The Spider (dome chest,
+  large fins, from Gemini's reading), Commando (chest plate, heavy forearms, dome helmet) and Javelin (leaning hull chest, big
+  canopy dome) were reworked: 370-442 triangles.
 
 - **2026-11-15 (Claude, session 27), WEBSITE: UNITS WITH UNMODELED EQUIPMENT LEFT OUT; CHECKPOINT. REVIEW PENDING (higher-level model).**
   Daniel: "any units with unmodeled equipment should be removed from the website version... They will be built eventually", and a

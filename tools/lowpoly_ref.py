@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Low-poly REFERENCE models of the TRO 3039 'Mechs (art only; nothing here touches a battle).
 
-Daniel, 2026-11-16: the TRO drawings are redrawn as strict low-polygon models (boxes, wedges and 6/8-sided
-prisms, under 400 triangles, A-stance), five orthographic views each. These models are REFERENCE material:
+Daniel, 2026-11-16: the TRO drawings are redrawn as strict low-polygon models (boxes, wedges, 6/8-sided
+prisms, hulls and domes, under 800 triangles, A-stance), five orthographic views each. These models are REFERENCE material:
 the "lego pieces" for the Combat Lab block dictionary are read off them, so the generator's output ends up
 recognisable but further from the source. Models and renders stay in the PRIVATE repo (`reference_art/` is
 in tools/publish_public.py's PRIVATE_PATHS). Kept apart from the token generator (INTEGRATION__tokens.py).
@@ -22,9 +22,13 @@ PRIMITIVES ("kind"). Every part is ONE convex solid; "id", "assembly" and option
          The cross-section axes: for a mostly-vertical bar they are [x, z]; for a mostly-z bar [x, y]; for a
          mostly-x bar [z, y]. A bar is a limb segment: it tapers, and it can point anywhere (the arms' A-stance).
   tube   as bar with "n": 6 or 8 sides; "w0"/"w1" are the diameters across the corners; "roll" turns the sides.
+  hull   "pts": 4 or more [x, y, z] points; the part is their convex hull (sloped armor plates, wedge-and-bevel shapes).
+  dome   "c", "r": [rx, ry, rz], "n" sides (default 8), "rings" (default 4), "half": "top" for a flat-based cap
+         (a canopy, a helmet), otherwise a full ellipsoid (a round chest). A hull of latitude rings.
 Optional "tone" (0-1) overrides the flat grey so neighbouring pieces read apart.
 Roles: "weapon:<LOC>:<mtf name>", "jumpjet:<LOC>", "canopy", "antenna", "armor" (anything else: no role).
-Triangle count: a box 12, a wedge 8, a hexagonal tube 20, an octagonal tube 28 (faces fan-triangulated).
+Triangle count: a box 12, a wedge 8, a hexagonal tube 20, an octagonal tube 28, an 8-sided 4-ring dome 40-48
+(faces fan-triangulated; the limit is TRIANGLE_LIMIT).
 """
 import json
 import math
@@ -37,7 +41,8 @@ REF = os.path.join(ROOT, "reference_art")
 MODELS = os.path.join(REF, "models")
 SHEETS = os.path.join(REF, "sheets")
 MEKS_ZIP = os.path.join(ROOT, "data", "meks.zip")
-TRIANGLE_LIMIT = 400
+# Daniel, 2026-11-16: "perfectly happy to cheat on that '95 look" (retro look, modern tools; animation later): 800, up from 400
+TRIANGLE_LIMIT = 800
 
 # the assemblies a model must show as separate pieces (Daniel's prompt: pelvis, legs, torso, arms, head/canopy)
 REQUIRED_ASSEMBLIES = ["pelvis", "torso", "head", "leg_L", "leg_R", "arm_L", "arm_R"]
@@ -169,12 +174,81 @@ def make_wedge(part):
     return verts, faces
 
 
+def _hull(points):
+    """Convex hull of a small point set (a few dozen at most): (vertices, faces). Brute force: every triple of points
+    that has all the others on one side is a face plane; the points on a plane make one polygon, ordered by angle."""
+    pts = []
+    for p in points:
+        if all(_len(_sub(p, q)) > 1e-9 for q in pts):
+            pts.append(tuple(p))
+    planes = {}
+    n = len(pts)
+    for i in range(n):
+        for j in range(i + 1, n):
+            for k in range(j + 1, n):
+                nrm = _cross(_sub(pts[j], pts[i]), _sub(pts[k], pts[i]))
+                if _len(nrm) < 1e-9:
+                    continue
+                nrm = _unit(nrm)
+                d = _dot(nrm, pts[i])
+                side = [_dot(nrm, p) - d for p in pts]
+                if all(x <= 1e-7 for x in side):
+                    pass
+                elif all(x >= -1e-7 for x in side):
+                    nrm = _mul(nrm, -1)
+                else:
+                    continue
+                members = tuple(m for m, x in enumerate(side) if abs(x) <= 1e-7)
+                planes[members] = nrm
+    faces, used = [], set()
+    for members, nrm in planes.items():
+        c = (sum(pts[m][0] for m in members) / len(members), sum(pts[m][1] for m in members) / len(members),
+             sum(pts[m][2] for m in members) / len(members))
+        u = _unit(_sub(pts[members[0]], c))
+        v = _cross(nrm, u)
+        order = sorted(members, key=lambda m: math.atan2(_dot(_sub(pts[m], c), v), _dot(_sub(pts[m], c), u)))
+        faces.append(order)
+        used.update(order)
+    remap = {old: new for new, old in enumerate(sorted(used))}
+    return [pts[o] for o in sorted(used)], [[remap[m] for m in f] for f in faces]
+
+
+def make_hull(part):
+    verts, faces = _hull(part["pts"])
+    if "rot" in part:
+        cen = tuple(sum(p[k] for p in verts) / len(verts) for k in range(3))
+        verts = [_rot(p, part["rot"], cen) for p in verts]
+    return verts, faces
+
+
+def make_dome(part):
+    cx, cy, cz = part["c"]
+    rx, ry, rz = part["r"]
+    n, rings, roll = int(part.get("n", 8)), int(part.get("rings", 4)), math.radians(part.get("roll", 0.0))
+    top = part.get("half") == "top"
+    lats = [90.0 * k / rings for k in range(rings)] if top else [-90.0 + 180.0 * k / rings for k in range(1, rings)]
+    pts = [(cx, cy + ry, cz)] + ([] if top else [(cx, cy - ry, cz)])
+    for lat in lats:
+        a = math.radians(lat)
+        for k in range(n):
+            t = roll + k * 2 * math.pi / n
+            pts.append((cx + rx * math.cos(a) * math.cos(t), cy + ry * math.sin(a), cz + rz * math.cos(a) * math.sin(t)))
+    verts, faces = _hull(pts)
+    if "rot" in part:
+        verts = [_rot(p, part["rot"], (cx, cy, cz)) for p in verts]
+    return verts, faces
+
+
 def build_part(part):
     kind = part["kind"]
     if kind == "box":
         return make_box(part)
     if kind == "wedge":
         return make_wedge(part)
+    if kind == "hull":
+        return make_hull(part)
+    if kind == "dome":
+        return make_dome(part)
     if kind == "bar":
         return make_bar(part, 4)
     if kind == "tube":
