@@ -104,6 +104,11 @@ def main(argv):
                            {"name": "Blue", "bot": "gladiator", "units": [{"unit": "Awesome AWS-8Q.mtf"}, {"unit": "Hunchback HBK-4G.mtf"}]}],
                  "board": "16x17_Grassland_1.board", "battles": battles, "seed": 7, "threads": 0}
         est = lab.api("estimate", {"setup": setup})
+        # threads (Daniel, 2026-11-17): 0 = automatic (a quarter of the cores left free), Full power = every core
+        cores = os.cpu_count() or 1
+        auto = lab.api("estimate", {"setup": {**setup, "threads": 0}}).get("threads")
+        full = lab.api("estimate", {"setup": {**setup, "threads": 1, "full_power": True}}).get("threads")
+        check(auto == max(1, cores - max(1, cores // 4)) and full == cores, f"threads: automatic {auto}, full power {full} of {cores} cores", failures)
         check("seconds" in est, f"estimate: {est.get('seconds', 0):.1f} s for {battles} battles ({est.get('per_battle', 0):.2f} s a battle)", failures)
 
         run = lab.api("run", {"setup": setup})["run"]

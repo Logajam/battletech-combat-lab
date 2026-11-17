@@ -162,8 +162,45 @@ pub fn zone_hexes(b: &Battle, boxes: &[bool; 9]) -> Vec<String> {
     b.board.hexes.keys().filter(|l| boxes[zone_box(b, l)]).cloned().collect()
 }
 
-/// The hexes a unit may walk on from: the border bands (DEPLOYMENT_DEPTH hexes deep, from each of the four edges) that lie
-/// inside the zone. The depth is widened to DEPLOYMENT_STUCK_DEPTH when nothing within the first depth lets the unit
+/// The stretches of the border a walk-on zone enters from (Daniel, 2026-11-17: "NEWS should allow entry from that entire side
+/// of the map. Corner locations would allow entry up to the half way point of the edge"): a side box (N, E, S, W) = that
+/// whole edge; a corner box = the two edges that meet there, each from the corner to its half-way point (on an odd length
+/// the middle hex belongs to both halves); the centre box = none. (edge, part): part 0 = the whole edge, 1 = the half with
+/// the low hex numbers (north / west end), 2 = the other half.
+pub fn entry_segments(boxes: &[bool; 9]) -> Vec<(&'static str, u8)> {
+    const BY_BOX: [&[(&str, u8)]; 9] = [
+        &[("N", 1), ("W", 1)], &[("N", 0)], &[("N", 2), ("E", 1)],
+        &[("W", 0)], &[], &[("E", 0)],
+        &[("S", 1), ("W", 2)], &[("S", 0)], &[("S", 2), ("E", 2)],
+    ];
+    let mut out = Vec::new();
+    for (k, on) in boxes.iter().enumerate() {
+        if *on {
+            out.extend(BY_BOX[k].iter().copied());
+        }
+    }
+    out
+}
+
+/// The hexes up to `depth` in from the zone's entry stretches (`entry_segments`), each once, in edge order.
+pub fn zone_entry_band(b: &Battle, boxes: &[bool; 9], depth: i64) -> Vec<String> {
+    let mut seen: HashSet<String> = HashSet::default();
+    let mut out = Vec::new();
+    for (edge, part) in entry_segments(boxes) {
+        let len = if edge == "N" || edge == "S" { b.board.width } else { b.board.height };
+        for label in band(b, edge, depth) {
+            // the place along the edge: the column on the north / south edge, the row on the east / west edge
+            let along: i64 = if edge == "N" || edge == "S" { label[0..2].parse().unwrap_or(1) } else { label[2..4].parse().unwrap_or(1) };
+            let inside = match part { 1 => along * 2 <= len + 1, 2 => along * 2 >= len + 1, _ => true };
+            if inside && seen.insert(label.clone()) {
+                out.push(label);
+            }
+        }
+    }
+    out
+}
+
+/// The hexes a unit may walk on from: the zone's entry band (`zone_entry_band`, DEPLOYMENT_DEPTH hexes deep). The depth is widened to DEPLOYMENT_STUCK_DEPTH when nothing within the first depth lets the unit
 /// out into the middle of the board (the same "stuck" rule as the home edge). `reach` = the hexes it must be able to get to.
 pub fn zone_walk_on(b: &Battle, u: UnitId, boxes: &[bool; 9]) -> StartHexes {
     let dd = b.cfg.i("DEPLOYMENT_DEPTH");
@@ -173,18 +210,12 @@ pub fn zone_walk_on(b: &Battle, u: UnitId, boxes: &[bool; 9]) -> StartHexes {
     let mut moves_cache: HashMap<(String, bool), HashSet<String>> = HashMap::default();
     let mut usable = |depth: i64| -> (Vec<String>, Vec<String>) {
         let (mut ok, mut stuck) = (Vec::new(), Vec::new());
-        let mut seen: HashSet<String> = HashSet::default();
-        for edge in EDGE_NAMES {
-            for label in band(b, edge, depth) {
-                if !boxes[zone_box(b, &label)] || !seen.insert(label.clone()) {
-                    continue;
-                }
-                if terrain_rules::step_cost(None, &b.board.hexes[&label], terrain_rules::max_level_change(false, false), false).is_none() {
-                    continue;
-                }
-                let g = *good_cache.entry(label.clone()).or_insert_with(|| reaches(b, u, &label, &goal, &mut moves_cache));
-                if g { ok.push(label); } else { stuck.push(label); }
+        for label in zone_entry_band(b, boxes, depth) {
+            if terrain_rules::step_cost(None, &b.board.hexes[&label], terrain_rules::max_level_change(false, false), false).is_none() {
+                continue;
             }
+            let g = *good_cache.entry(label.clone()).or_insert_with(|| reaches(b, u, &label, &goal, &mut moves_cache));
+            if g { ok.push(label); } else { stuck.push(label); }
         }
         (ok, stuck)
     };
@@ -199,18 +230,9 @@ pub fn zone_walk_on(b: &Battle, u: UnitId, boxes: &[bool; 9]) -> StartHexes {
     StartHexes { hexes: ok, depth, stuck }
 }
 
-/// The border hexes (edge row only) inside the zone: what `home_edge_row` holds for a walk-on team.
+/// The border hexes (edge row only) of the zone's entry stretches: what `home_edge_row` holds for a walk-on team.
 pub fn zone_edge_row(b: &Battle, boxes: &[bool; 9]) -> Vec<String> {
-    let mut seen: HashSet<String> = HashSet::default();
-    let mut out = Vec::new();
-    for edge in EDGE_NAMES {
-        for label in band(b, edge, 0) {
-            if boxes[zone_box(b, &label)] && seen.insert(label.clone()) {
-                out.push(label);
-            }
-        }
-    }
-    out
+    zone_entry_band(b, boxes, 0)
 }
 
 /// The compass facing that points from a hex toward the middle of the board.

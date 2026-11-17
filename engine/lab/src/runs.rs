@@ -399,7 +399,7 @@ impl Run {
         let battles = setup["battles"].as_u64().unwrap_or(20).clamp(1, 100_000);
         let seed = setup["seed"].as_u64().unwrap_or(1);
         let cores = std::thread::available_parallelism().map_or(1, |n| n.get());
-        let threads = threads_for(setup["threads"].as_u64().unwrap_or(0) as usize, cores);
+        let threads = threads_for(setup["threads"].as_u64().unwrap_or(0) as usize, cores, setup["full_power"].as_bool().unwrap_or(false));
         let run = Arc::new(Run {
             id,
             setup,
@@ -644,19 +644,20 @@ pub fn matches(line: &Value, f: &Value) -> bool {
 
 /// The threads a batch plays on. `asked` 0 = automatic: every core but a quarter of them (at least one), so other programs
 /// keep room to run (Daniel, 2026-11-17: a game crashed when a run took every cycle). A number typed in is used as it is, up to
-/// the core count. The browser build (engine/wasm/web/engine.js `autoThreads`) uses the same rule.
+/// the core count. `full_power` (the Options page's "Full power" box, Daniel 2026-11-17) = every core, whatever was typed.
+/// The browser build (engine/wasm/web/engine.js `autoThreads`) uses the same rule.
 #[cfg_attr(target_arch = "wasm32", allow(dead_code))]
-pub fn threads_for(asked: usize, cores: usize) -> usize {
+pub fn threads_for(asked: usize, cores: usize, full_power: bool) -> usize {
     let cores = cores.max(1);
-    if asked == 0 { (cores - (cores / 4).max(1)).max(1) } else { asked.min(cores) }
+    if full_power { cores } else if asked == 0 { (cores - (cores / 4).max(1)).max(1) } else { asked.min(cores) }
 }
 
 /// Seconds a batch of `battles` will take on `threads` threads (0 = automatic, `threads_for`), from a few pilot battles played side
 /// by side now (on seeds the batch itself does not use first).
 #[cfg(not(target_arch = "wasm32"))]
-pub fn estimate(scenario: &Scenario, battles: u64, threads: usize) -> Value {
+pub fn estimate(scenario: &Scenario, battles: u64, threads: usize, full_power: bool) -> Value {
     let cores = std::thread::available_parallelism().map_or(1, |n| n.get());
-    let threads = threads_for(threads, cores);
+    let threads = threads_for(threads, cores, full_power);
     let pilots = threads.clamp(1, 4) as u64;
     let started = Instant::now();
     let times: Vec<f64> = (0..pilots)
