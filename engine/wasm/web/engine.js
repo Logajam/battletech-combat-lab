@@ -2,13 +2,19 @@
 // names and answers as the desktop Lab's server, engine/lab/src/main.rs); this file answers them without a server:
 //   - the unit and board lists and files are static files (catalog.json, data.pack.gz), loaded once;
 //   - the batch's statistics are kept by one instance of the engine module on this page (its `push` / `results`);
-//   - the battles are played by workers, one instance of the module each, as many as this computer has cores.
+//   - the battles are played by workers, one instance of the module each: by default every core but a quarter of them
+//     (`autoThreads`), so the visitor's other programs keep room to run.
 // So the visitor's own computer does all the work; the host only serves files.
 "use strict";
 
 (function () {
   const dec = new TextDecoder();
   const cores = Math.max(1, Math.min(navigator.hardwareConcurrency || 2, 16));
+  // How many workers play at once. 0 (the default) = automatic: every core but a quarter of them, at least one left free
+  // (Daniel, 2026-11-17: another program crashed when a run took every cycle; a web page cannot lower its own priority,
+  // so it leaves cores free instead). A number typed in is used as it is, up to the core count. Same rule as the desktop
+  // Lab's `runs::threads_for`.
+  const autoThreads = (asked) => (asked > 0 ? Math.min(asked, cores) : Math.max(1, cores - Math.max(1, Math.floor(cores / 4))));
   let loading = null;                  // promise of {module, catalog, defaults, pack, coord}
   let S = null;                        // what it resolved to
   let equipmentList = null;            // the unit editor's equipment catalogue, asked of the module once
@@ -104,7 +110,7 @@
 
   async function runBatch(runId, setup, files) {
     const total = Math.max(1, Math.min(100000, setup.battles || 20));
-    const n = Math.min(setup.threads > 0 ? setup.threads : cores, cores, total);
+    const n = Math.min(autoThreads(setup.threads), total);
     const mine = { runId, next: 1, cancelled: false, buf: { lines: [], crashed: [] }, t0: performance.now() };
     job = mine;
     const flush = (finished) => {
@@ -140,7 +146,7 @@
     if (check.error) return check;
     S.coord.call("cancel", { run: check.run });
     const total = Math.max(1, setup.battles || 20);
-    const threads = Math.min(setup.threads > 0 ? setup.threads : cores, cores);
+    const threads = autoThreads(setup.threads);
     const pilots = Math.max(1, Math.min(threads, 4));
     const ws = await getPlayers(pilots);
     const started = performance.now();

@@ -37,6 +37,22 @@ def run_test_file(path, args=()):
     return proc.returncode == 0, time.time() - start, proc.stdout + proc.stderr
 
 
+def run_web_checks():
+    """The browser build's two checks, one after the other (they share the web_lab/ build): check_web_ui.py (the page as a
+    person uses it; it rebuilds web_lab/ when its sources are newer) then check_web_lab.py (browser = desktop, battle for
+    battle). Exit code 77 = skipped (no node / Playwright / wasm32 target here): reported as a NOTE, not a failure."""
+    start, out, ok = time.time(), [], True
+    for script, args in (("check_web_ui.py", []), ("check_web_lab.py", ["--battles", "4"])):
+        proc = subprocess.run([sys.executable, os.path.join(REPO_ROOT, "tests", script), *args], cwd=REPO_ROOT,
+                              capture_output=True, text=True, encoding="utf-8", env=dict(os.environ, PYTHONIOENCODING="utf-8"))
+        if proc.returncode == 77:
+            out.append(f"NOTE: {script} skipped - " + (proc.stdout.strip().splitlines() or ["?"])[-1])
+            break
+        ok = ok and proc.returncode == 0
+        out.append(proc.stdout + proc.stderr)
+    return ok, time.time() - start, "\n".join(out)
+
+
 def run_command(cmd, cwd):
     """(passed, seconds, output) for any command."""
     start = time.time()
@@ -80,6 +96,8 @@ def main():
             # Combat Lab CL3: the Lab server, driven by a script, gives btsim's battles for the same setup and seed
             jobs.append(("rust       check_lab_server.py --battles 8",
                          pool.submit(run_test_file, os.path.join(REPO_ROOT, "tests", "check_lab_server.py"), ["--battles", "8"])))
+            # Combat Lab in the browser (session 26-28): the website clicked through, and the browser v the desktop
+            jobs.append(("web        check_web_ui.py + check_web_lab.py --battles 4", pool.submit(run_web_checks)))
         else:
             print("NOTE: no cargo on this machine - the Rust reference battles were not run")
         failed = 0

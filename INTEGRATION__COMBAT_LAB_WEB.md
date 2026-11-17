@@ -31,6 +31,7 @@ battle's seed, winner, turns, damage and causes of death identical, in headless 
 ```
 python tools/build_web_lab.py         # -> web_lab/ (static files; any web host, or: python -m http.server -d web_lab)
 python tests/check_web_lab.py         # desktop v browser, battle for battle (needs node + Playwright; skips without)
+python tests/check_web_ui.py          # the page clicked through as a person uses it (rebuilds web_lab/ when stale)
 ```
 `rustup target add wasm32-unknown-unknown` once. `engine/.cargo/config.toml` lets the linker leave the page's functions
 as imports.
@@ -62,6 +63,11 @@ https://logajam.github.io/battletech-combat-lab/ after ONE setting by the owner:
 
 The website lists only units whose equipment the engine models (`tools/build_web_lab.py` `UNMODELED`, Daniel, 2026-11-15; 324
 units left out, 3,905 of 4,252 listed); the desktop Lab lists all.
+
+## Cores (Daniel, 2026-11-17)
+
+Threads 0 = automatic: every core but a quarter of them, at least one free (`engine.js` `autoThreads`, the desktop's
+`runs::threads_for`). A page cannot lower its own priority; the desktop Lab runs below normal priority (`main.rs`).
 
 ## Open
 

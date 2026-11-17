@@ -47,8 +47,8 @@ and the GitHub logistics (Section 7).
 - MegaMek's source, when a rule or the Princess clone needs it: `git clone --depth 1 --filter=blob:none --sparse
   https://github.com/MegaMek/megamek.git` works through the proxy (Section 6, "Princess clone").
 - Run: `python INTEGRATION__main.py`; every setting is in `INTEGRATION__config.py`.
-- **After any change:** `python tests/run_checks.py` - 57 checks today (41 test files + 15 reference battles + the
-  Rust reference set as one line), 1-2 minutes, all must pass. The Rust set (session 25): `python tests/check_rust_reference.py`
+- **After any change:** `python tests/run_checks.py` - 61 checks today (the test files, the reference battles, the Rust lines, and one "web" line:
+  `check_web_ui.py` then `check_web_lab.py`, the website clicked through and browser = desktop), 1-2 minutes, all must pass. The Rust set (session 25): `python tests/check_rust_reference.py`
   plays 86 battles with `btsim` (inputs frozen in `engine/reference/scenarios.zip`, logs in `engine/reference/logs/`;
   `--update` for a Rust change meant to alter results) - the Rust's own answer key, no Python needed. The Rust turn cap is 100
   (`scenario::STANDARD_MAX_TURNS`, Daniel 2026-11-12; the Python keeps 50); 2 battles reach it: the Asymptote mirror (the stall,
@@ -216,6 +216,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s28-1) CAUSE FILTER, CORES, WEB UI TESTS** (session 28): `runs::matches` `cause_is`, `runs::threads_for`, `main.rs::lower_priority` (the Windows FFI), `engine.js` `autoThreads`, `filterByCause` in lab.js, `tests/check_web_ui.py`, the web line in `run_checks.py`.
 - **(s26-9) COMBAT LAB IN THE BROWSER** (session 26): `engine/wasm`, `engine/wasm/web/*.js`, `tools/build_web_lab.py`, `tests/check_web_lab.py`, `SetupPaths.memory` in `scenario.rs`, the wasm32 gates in `lab/src/runs.rs`. The worker-crash path (WebAssembly panics abort; `worker.js` records the seed and restarts the instance) is written but NOT yet exercised: no known unit crashes the engine to try it on. `add_unit` still missing.
 - **(s26-1) REPLAY HEAT MAPS (PRINCESS)** (session 26): `history.rs::heat_now` + the viewer's Heat map box. Terrain-blind reach; Gladiator / Hydra maps still open (CL6 / CL7).
 - **(s26-2) COMBAT LAB RESULTS STATS + RUN FILE** (session 26): engine `Battle.tally` / `SideStats` additions (results only), `runs.rs` unit_stats / causes / export / restore, `main.rs` save_run / load_run, Results page. OPEN FOR OPUS: CL18's live conditions (design in COMBAT_LAB_V2_TASKS).

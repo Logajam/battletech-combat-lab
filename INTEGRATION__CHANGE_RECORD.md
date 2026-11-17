@@ -6,6 +6,28 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-17 (Claude, session 28), COMBAT LAB: CAUSE OF DEATH -> ITS BATTLES; CORES LEFT FREE AND LOWER PRIORITY; A TEST SUITE FOR THE WEBSITE. No battle result changes. REVIEW PENDING (higher-level model).**
+  Daniel (browser version first): (1) "If we need a test suite go ahead and make it." NEW `tests/check_web_ui.py`: headless
+  Chromium clicks through the website as a person would (41 checks: tabs, Unit Browser search, two unit sheets from the eyes, map
+  preview, Options search, a batch from the Run button, the cause-of-death click checked battle by battle against the run's own
+  record, Survived, Show all, a replay, the core rule at 1 / 2 / 4 / 8 / 16 reported cores; no page errors). It rebuilds `web_lab/`
+  when any of its sources is newer. `run_checks.py` now runs it and then `check_web_lab.py --battles 4` (browser = desktop) as one
+  "web" line; exit 77 (no node / Playwright / wasm32 target) is a NOTE, not a failure. (2) "If you click on a mech's cause of death
+  in results it filters to those battles": each row of a unit's "How it ended" table (Results > Unit statistics) is a link; a click
+  puts one unit condition in the Find battles form (that unit, destroyed, that cause; or survived for the Survived row) and the
+  list and statistics show only those battles. The match is EXACT (new `cause_is` in the filter, `runs::matches` and the demo's
+  `demoMatches`), so "Engine Destroyed" never also picks a longer cause containing those words; editing the cause text by hand goes
+  back to the old every-word match. (3) "The number of cores it uses needs to conform to normal windows program priority
+  management instead of being purely greedy" (City of Heroes crashed when a run started). The threads box's 0 now means
+  AUTOMATIC: every core but a quarter of them, at least one left free (16 -> 12, 8 -> 6, 4 -> 3, 2 -> 1), in the browser
+  (`engine.js` `autoThreads`) and the desktop Lab (`runs::threads_for`, batch and estimate); a typed number is used as before, up
+  to the core count. The DESKTOP Lab also asks Windows to run it at below-normal priority (`main.rs` `lower_priority`:
+  `SetPriorityClass(BELOW_NORMAL_PRIORITY_CLASS)`, every battle thread inherits it; `nice +10` elsewhere; no new library), so
+  other programs get the processor first. A web page cannot lower its own priority; leaving cores free is what it can do.
+  Checked: `cargo check --target x86_64-pc-windows-gnu` builds; on Linux the Lab runs at nice 10; all 61 checks pass. The
+  Combat Lab website artifact (claude.ai/artifact/TxziRWUqF5gU96Bof16r3p) is updated; the public GitHub Pages copy is NOT (E6:
+  Daniel's call), and no new Windows download was packaged.
+
 - **2026-11-17 (Claude, session 28), REVIEW OF SESSION 27 (2026-11-15: unit browser, Units page, unit sheet and editor stages 1-3, website unit filter). No code changes.**
   Every check passes on `main` (60 of 60, incl. the 86 Rust reference battles and the bridge parity check). ENGINE PARTS, judged
   safe: (1) `mtf_parser.rs` `normalize_type_text` (letters and digits only) and the new spellings (Standard Armor, Light / Heavy

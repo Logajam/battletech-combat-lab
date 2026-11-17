@@ -335,3 +335,5 @@ details.folder[hidden] { display: none; }
 .crit-slot[draggable="true"] { cursor: grab; }
 .dialog.sheet:not(.editing) .sheet-scroll { grid-template-columns: minmax(230px, 270px) minmax(0, 1fr); }
 .dialog.sheet:not(.editing) .crit-slot { font-size: 10px; }
+#unit-stats tr.cause-row { cursor: pointer; }
+#unit-stats tr.cause-row:hover td, #unit-stats tr.cause-row:hover a { background: var(--select); color: var(--title-text); }
