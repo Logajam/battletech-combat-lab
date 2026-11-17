@@ -6,6 +6,19 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-17 (Claude, session 28), WHM v JVN: CAUSES OF DEATH BY BOT - HYDRA IS CHARGED OFF THE MAP EDGE. No code changes.**
+  Daniel: "Did you look at the cause of death breakdown for each unit by bot?" (not at first). The same 900 battles through the Lab
+  (identical results). The Warhammer's deaths by its bot (v the Gladiator Javelin): Gladiator - CT 10, head 5, legs 4...; Princess -
+  CT 30, GYRO 11 (the rear hits above), engine 6...; Hydra - DISPLACED OFF THE BATTLEFIELD 9, CT 9... Off-the-map losses: Hydra
+  Warhammer 9 of 27 (v Gladiator JVN) and 10 of 32 (v Hydra JVN); Gladiator Warhammer 1, Princess 3. The rule is right (Core p.113
+  and the charge / DFA / push rules: a 'Mech displaced off the battlefield is destroyed): in battle 2 (Hydra v Gladiator) a nearly
+  whole Warhammer (238 of 267) on the east edge is charged from the west for 6 damage and is gone. Both the Gladiator and Hydra
+  Warhammers end 15-21% of their turns on an edge hex, but the Gladiator one is charged off once in 100 battles and the Hydra one
+  8-9 times (almost all by a charge): Hydra's mover does not price being charged or pushed off the map (backlog A8 lists the same
+  gap for Gladiator's scoring; its two-ply look-ahead seems to cover it in practice). The Javelin dies by head hits in 14-18% of
+  battles (plausible: a PPC or a punch to its head is fatal). For Daniel: whether to price the board edge in Hydra's mover (Hydra
+  is COMPLETE, 2026-11-12, so this reopens it).
+
 - **2026-11-17 (Claude, session 28), COMBAT LAB ROUND: FULL POWER, CANCEL, WIDER TEAMS, MAP PAGE, WALK-ON ZONES, WEB MAPS; WHM v JVN STUDY. Battle results change only for walk-on starting zones (Lab zone modes; no reference battle uses them). REVIEW PENDING (higher-level model).**
   Daniel's list. (1) FULL POWER: a box beside CPU threads (Options > Run) = every core, with the warning "turns the rest of your
   computer into a potato"; it greys the threads box (`full_power` in the setup; `runs::threads_for(.., full_power)`, `engine.js`
