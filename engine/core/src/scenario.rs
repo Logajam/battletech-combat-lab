@@ -193,7 +193,9 @@ impl Scenario {
     /// (MegaMek bridge B1): the result, what the check found, and every line when `keep`. `compact`: the units go to the
     /// session as compact states (B3), which must be enough for every answer. The battle is the same as `run`
     /// on that seed (the recorder only reads and passes calls on).
-    pub fn run_bridge_checked(&self, seed: u64, keep: bool, compact: bool, view: bool) -> (BattleResult, crate::bridge::Parity, Vec<Value>) {
+    /// The fourth value is the battle's log (the same lines `run` gives: recording only reads), so one run can serve both the
+    /// bridge's parity check and the reference-log check (tests/check_rust_reference.py --parity, 2026-11-17).
+    pub fn run_bridge_checked(&self, seed: u64, keep: bool, compact: bool, view: bool) -> (BattleResult, crate::bridge::Parity, Vec<Value>, Vec<String>) {
         let mut b = self.battle(Box::new(PcgDice::new(seed)));
         let mut marks = |_: &mut Battle, _: i64, _: &str| {};
         let mut play = start_battle(&mut b, self.max_turns, &mut marks);
@@ -203,7 +205,7 @@ impl Scenario {
         rec.view = view;
         play_on(&mut b, &mut rec, &mut play, &mut marks);
         let (parity, lines) = (rec.parity, rec.lines);
-        (play.result, parity, lines)
+        (play.result, parity, lines, b.log.lines.clone())
     }
 
     /// COMBAT LAB CL2: one battle on `seed` (battle number `sim` of its batch) with its full history (`history.rs`, the
