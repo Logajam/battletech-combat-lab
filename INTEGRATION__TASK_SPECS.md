@@ -38,6 +38,7 @@ then copies the better bot. T2 and T4 can ride along. (3) T11, the Rust port. (4
 | T8 Archive the experiments that lost | D4 | Opus or Sonnet | Daniel's OK |
 | T9 Rules zip refresh; Interstellar Operations | C5 | Sonnet | Daniel's go |
 | T10 Automatic checks on GitHub | D5 | Sonnet | - |
+| T15 Low-poly reference models: the other 31 'Mechs | E3b | Opus | - (the AI sheets are in `reference_art/ai_sheets/`) |
 | T11 The Rust translation | D1 | Sonnet (Opus for stages 0, 6, 8 if possible) | T8 decided; T1 built or parked |
 | T14 MegaMek bridge (our bots in a live MegaMek game) | E4 | Sonnet; Opus for B1 | Daniel's OK to build and run MegaMek (B0) |
 | Review queue (m), (o), (p) | - | the top model when on hand; (n) lapses when the port's stage 9 retires `fastcore/` | - |
@@ -237,3 +238,108 @@ grunt work of the basic build to sonnet". The full spec, from a read of MegaMek'
 (what MegaMek offers, the design, the request / answer JSON, records and fallbacks, stages B0-B7 each with a
 check a script can run). Start with B0 (needs Daniel's OK to build and run MegaMek's downloaded code) and B1
 (`btsim decide` and its parity check), which don't depend on each other.
+
+## T15. Low-poly reference models: the other 31 'Mechs (Opus; the AI sheets are in)
+
+Daniel, 2026-11-16 (session 27). Redraw each 'Mech of the TRO 3025 extract as a low-poly model: five orthographic views, one
+A-stance, "roughly recognisable, even more removed from the original source". The models are REFERENCE: later, the block
+dictionary (`data/token_blocks.json`) and the override list (`data/token_overrides.json`, `data/token_reference_tags.json`) are
+built from them. Daniel is happy to cheat on the retro look (800 triangles, not the '95 400), "retro appearance while still happy
+to use modern tools" (animation will need them). Everything is PRIVATE (`reference_art/` is on `publish_public.py`'s
+`PRIVATE_PATHS`). Read `reference_art/README.md` first: it has the model format, the part kinds and the coordinate rules.
+
+**REVISED ORDER (Daniel, 2026-11-16, later): BUILD THE BLOCKS FIRST.** The three test models were written from raw shapes
+(box, wedge, bar, tube, hull, dome) BEFORE `reference_art/block_taxonomy.json` existed, so none of their parts is an instance of a
+dictionary block: the same "slab boot" would be rebuilt from scratch on every 'Mech. Do not add the other 31 models that way. Order:
+(1) T15a, the block library: each taxonomy type (22 parts, 88 types, common ones first: foot slab_boot, lower_leg
+tapered_slab_shin, upper_leg tapered_slab_thigh, upper_torso boxy_chest_sloped_shoulders, shoulder_pod and shoulder_disc,
+launcher_bay, lower_arm fist_arm and barrel_arm, hand fist, head dome_helmet and bubble_canopy) becomes a named, parametrised
+GENERATOR. (2) Retrofit the three built models so every part is a block instance (`"block": "foot/slab_boot", "params": {...}`)
+and `check` fails a part with no block. (3) T15b: the other 31, composed from blocks (new block types only where the taxonomy
+has a gap, and then the taxonomy is updated).
+
+**Design for T15a (Claude's recommendation, 2026-11-16; Daniel's idea: "a much higher polygon count for our blocks, then dumb down
+the final build").**
+- LEVELS OF DETAIL come from the generator, not from decimating a mesh. A block takes a `lod` argument and is DESIGNED at each
+  level: LOD0 high (bevels, 16-24 sided tubes, 6-8 dome rings, tube mouths and plates as real geometry), LOD1 medium, LOD2 the
+  reference level (what the three models are now: boxes, wedges, 6/8-sided tubes, hulls and domes). Decimating a detailed mesh
+  gives unpredictable silhouettes and loses the hard-edged retro look; a generator keeps the look chosen. Daniel is happy to
+  cheat on the '95 look: the retro look is a style, modern tools are allowed.
+- BUDGETS: the whole model at LOD2 stays under 800 triangles (the rule now enforced by `check`). Suggested LOD1 about 3,000 and
+  LOD0 about 15,000 per 'Mech; measure the Combat Lab at 12 v 12 before fixing them (the art specs' A2 trap: solid count multiplies).
+- CHECK: the silhouette of LOD1 and LOD2 must stay within a set share of LOD0's (render all three from the same camera and compare
+  the black shapes; the art specs' A3 variant check is the pattern). A scripted check can do this; the look is still Daniel's.
+- ANCHORS: each block states its attachment points (a foot has `ankle`; a shin `knee` and `ankle`; a shoulder `arm` and `torso`),
+  so blocks snap together and a model is a list of block instances with sizes, not coordinates. This is also what makes the
+  override list work: an override names blocks and params.
+- UNITS: sizes in the model's own units (figure height about 10); a block's params are shares of the part it sits on, so a block
+  scales with tonnage.
+- MOUNTS (Daniel, 2026-11-16: "blocks also need mounting points for weapons, equipment, and greebles. Like that blade coming off the
+  shoulder of the JagerMech, that's a greeble"). Every block carries mount points of three kinds: WEAPON (by family, with slot
+  capacity, tied to a unit-file location so the .mtf's items land on the right block), EQUIPMENT (jump-jet nozzles, heat-sink vents,
+  ECM and probe domes, AMS...), GREEBLE (decorative: blade fins, ear pods, antennas, dishes, vent grilles, hazard panels, hose ribs,
+  glazing bands, decals). The spec is in `reference_art/block_taxonomy.json` under `mount_points` and `greebles`. Mount points are the
+  same at every level of detail (a mount must not move when the detail changes). A per-unit override can name a greeble outright
+  (the JagerMech's shoulder blade); the rest are shuffled by the unit's name hash as in the Skeleton spec, with that spec's hardpoint
+  counts. The greeble class names reuse the `kit` vocabulary of `data/token_reference_tags.json`.
+- KEEP THE TYPES IN HAND (Daniel, 2026-11-16: one extra 'Mech added five types; there may be 400+ pictures to come). Policy in
+  `reference_art/block_taxonomy.json` `pruning_policy`: build blocks as FORM x PRESET x MODIFIERS (about 8 forms, named presets per body
+  part, composable modifiers), not one type per shape; admit a new preset only if its silhouette is more than a set share different
+  AND it is on 3+ units (or Daniel names it); everything else is a per-unit special; a soft cap of about six presets per part;
+  classify new art against the existing presets and log only the residual as candidates for Daniel to prune in batches. Do the first
+  prune (merge the drum family and the slab families) BEFORE writing generators, so the library is built on the pruned set.
+- DATING (Daniel, 2026-11-17: tag blocks with a date, then build a unit from blocks of its own era). Three SEPARATE tags in the
+  taxonomy's `dating` block: unit year (the unit file's `era:`, present on all 4,227 files), tech base (IS / Clan), art source (book
+  and artist). Computed `years_seen` is on every type. Do NOT choose blocks by year yet: the 34 'Mechs span 2475-2898 but share one
+  book's art style, so the year says nothing about the look until there is art from three or more books or periods. Make the
+  generator accept the tags now (cheap) and switch the selection on later.
+- WHERE: new files under `reference_art/` (a `blocks/` folder and a loader in `tools/lowpoly_ref.py`), still private; the existing
+  `data/token_blocks.json` and the generator are NOT touched until Daniel says the dictionary is ready.
+
+**T15a first pass (Claude, session 28, 2026-11-17): DONE for the common dozen.** Daniel's choices that day: Claude prunes and he checks (`prune_1` in the taxonomy: nothing deleted, merges marked `merged_into`); HIGH and LOW only (MEDIUM later); the twelve named above first. Built: `tools/lowpoly_blocks.py` (generators, anchors and mounts identical at both levels, a depth-buffer renderer that outlines only creases, the LOW-v-HIGH outline match, `check`, `sheets`, `page`) and `reference_art/blocks/` (`library.json`: per block the exact crop of the TRO drawing it was built from, the camera matching the drawing, params, LOW budget, verdict; `sheets/`: crop | HIGH | LOW | front / side / top). Eight of the twelve were NOT close enough on the first try and were reworked (each verdict says what changed). Next: the remaining presets of `prune_1`, the modifiers' own generators, a MEDIUM level, then retrofit the three models onto blocks.
+
+**State.** Built and checked: Commando COM-2D, Javelin JVN-10N, Spider SDR-5V (three test models, Daniel reviewed the look: "much
+finer detail" is what the other AI gets right). Not built: the other 31 (`units.json`, `"status": "not built"`). The tool, index,
+unit-file check and test exist and need no change to start: `tools/lowpoly_ref.py` (`check`, `render [--iso]`, `mtf`),
+`tests/test_lowpoly_ref.py`.
+
+**Inputs per unit.** (1) The TRO drawing: `reference_art/originals/NN <Unit>.jpg`. (2) The turnaround sheet(s) Daniel got from other AIs (Gemini and Google), one or
+two per unit for ALL 34, in `reference_art/ai_sheets/<Unit>/` (`gemini_1.*`, `batch2_<n>.*`; the source of each is not recorded). More sheets
+from Daniel go in the same folder as `<source>_<n>.<ext>`. (3) The unit file's equipment, already in
+`units.json` and enforced by `check`.
+
+**How to build one unit (do them in batches of about five, in the order of `units.json`; show Daniel each batch):**
+1. ZOOM. Crop the drawing into pieces (head, chest, each arm, pelvis, each leg) and look at each at full size before writing a
+   part. The Javelin's two missile bays were missed at page size: a drum on the shoulder was read as a launcher.
+2. Read the AI sheet for SHAPES only (a round dome chest, big fins, knee discs, claw feet); it is a hint, never the geometry.
+3. Write `reference_art/models/<Unit>.json` (copy a built one). Put the unit file's weapons where the drawing shows them
+   (`art_vs_unit_file` says what you decided where they disagree or the drawing is silent), jump jets where the drawing or the unit
+   file's location says. Fill `features` in the vocabulary of `data/token_reference_tags.json`.
+4. `python -I tools/lowpoly_ref.py check "<model>"`, then `render --iso`, then `compare "<model>"` (the drawing left, the model's 3/4
+   panel right, in `reference_art/sheets/compare_<unit>.png`) and fix what is wrong.
+5. Add the unit to `status` in `units.json` (change "not built" to "built"), run `tests/test_lowpoly_ref.py`, commit.
+
+**What the AI sheets are and are not (Daniel, 2026-11-16, on seeing the full set: "unreliable for exact details; pretty good for the silhouette and for describing all the different ways you can render body parts"; his plan is the sheets plus the source drawings together).** Measured on his first three: Good: they find the shapes (the Spider's dome chest and
+fins, the Commando's chest plate and heavy forearms). Bad: their five views often disagree (different pelvises, arms and
+backs between views), they are far over the triangle budget, and one of three (the Javelin) was badly wrong. So: the sheet
+suggests, the TRO drawing decides, the unit file fixes the equipment. When Daniel has several AIs' sheets for one unit, favour a
+shape that two of them agree on.
+
+**Daniel's rulings on the art (2026-11-16, in `reference_art/block_taxonomy.json`, `wtf`).** The round side disc is the SHOULDER; the Stalker's head is a fighter-style canopy on TOP of the torso (its AI sheet is fairly accurate except for extra weapon pods on the sides of the arms in the front and rear views: ignore those); the UrbanMech's head is the dome and its torso the cylinder below; Jenner and Cicada have small weapon pods for arms; the Quickdraw's wheels are ankle discs; the Hunchback's ribbed 'beer barrels' are its lower legs. Also: the Catapult is a bird leg (its claws are the three-toe foot); the Dragon's big barrel is a GUN ARM (the AI sheet's top-down view shows it). All the WTF items are answered. Per-unit AI-sheet faults (Victor's head turned away, Awesome's side views, Charger's floating figure, Stalker's extra pods, the Javelin) are in `units.json` under `ai_sheet_caveats`: read them before using a sheet.
+
+**Known gaps in the three built models (the first thing to improve).** Legs and feet are plain tapered bars and boxes: the AI sheets
+show knee discs, armored shins, clawed or three-toed feet and reverse-knee bird legs. The Javelin lacks the brow over the bays, the
+hatched vents under them and the faceted belly band. The Commando's six-tube SRM 6 is a plain box (give it tube mouths as on the
+Javelin). The stance is one A-stance for all (Daniel: "keep the same stance for now"), so a mid-stride drawing is straightened.
+
+**Done when.** All 34 are `built`, `tests/test_lowpoly_ref.py` passes, Daniel has seen every sheet. A scripted check cannot judge
+likeness (it checks the triangle budget, the required assemblies, feet on the ground and the unit file's weapons and jump-jet
+locations): the likeness is Daniel's eye. NEXT STAGE (not this task): read the repeated shapes off the models into new blocks in
+`data/token_blocks.json` and per-unit entries in the override list; Daniel wants these kept separate from the token generator until
+then.
+
+**Traps.** The renderer sorts faces by depth (fine for separate convex parts, may mis-order where parts interlock): look at the
+picture, do not trust a clean `check`. A part carries one role (`weapon:<LOC>:<name>`): give only the housing the role and leave
+its decorative tube mouths without one, or the weapon count is wrong. Tube parts take their cross-section axes from the way they
+point (the module docstring says which). Do not put the TRO drawings or the models anywhere outside `reference_art/`.
+

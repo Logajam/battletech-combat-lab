@@ -6,6 +6,33 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-17 (Claude, session 28), BLOCK LIBRARY FIRST PASS (T15a): THE TAXONOMY PRUNED, THE COMMON DOZEN BUILT. Art only
+  (reference_art/, private); no battle changes. REVIEW PENDING (higher-level model).** Daniel: "Begin a first pass at creating
+  'Lego blocks' ... you must be able to show the exact image you used as reference material. After each block is made, compare
+  your work to the reference material and decide if its close enough"; "Stick to the information in that branch" (session 27's
+  `reference_art/`, merged into main with this work; the earlier token / shell art is on the back burner). His choices: Claude
+  prunes and he checks; HIGH + LOW; the plan's common dozen.
+  - PRUNE (`block_taxonomy.json` `prune_1`): every type gets form / preset / modifiers, or `merged_into` (20: duplicates such as
+    foot/ankle_disc = ankle/ankle_disc and shoulder/fin_wing = fins_spars_wings/fin_plate; settings such as thin_rod = the limb bar,
+    thinner; modifiers such as vented_belly = belly + vents). 93 types -> 60 blocks in 38 presets (slab 28, drum 17, bar 5, dome 5,
+    wedge 2, claw 2, hull 1), 9 "no part", 4 one-unit specials, 36 modifiers + 15 settings. The drum family is one generator (the
+    pod and the disc are its two settings). Nothing deleted.
+  - BLOCKS (`tools/lowpoly_blocks.py`, `reference_art/blocks/library.json`): slab_boot, tapered_slab_shin, tapered_slab_thigh,
+    boxy_chest_sloped_shoulders, shoulder_pod, shoulder_disc, launcher_bay, fist_arm, barrel_arm, fist, dome_helmet, bubble_canopy.
+    References: Commando (7), Javelin (3), Dragon, Clint; each crop box recorded. HIGH 220-1,040 triangles, LOW 24-92; the LOW
+    outline matches HIGH's by 0.87-0.99 (intersection over union, front / side / top; minimum 0.85). All twelve judged close
+    enough; EIGHT were not on the first try and were reworked (boot, shin, thigh, chest, disc, bay, forearm, fist: each verdict
+    says what was wrong). Rendering: a depth buffer (the face sort hid tube mouths behind their panel) and outlines only at
+    creases, part edges and the silhouette (a faceted dome had read as a golf ball).
+  - CHECKS: `tests/test_lowpoly_ref.py` runs the block check; `run_checks.py`'s art level now includes it.
+  - CONNECTED GROUPS (Daniel: "So far I like the art. Can you take the separate pieces and show examples of connected
+    groups of them?"): `tools/lowpoly_groups.py` snaps blocks at their anchors (`Assembly.add`: a block's anchor put on a world
+    point, mirrored for the right side) into seven groups in `reference_art/blocks/groups/`: a leg, a fist arm, a gun arm, the
+    Commando-kit and Javelin-kit upper bodies, and two whole figures. The upper arm and the pelvis have no block yet: drawn as
+    plain light STAND-INS and named on each sheet. Per-body-part scales (`SCALE`, a first guess by eye) fit the pieces measured
+    on different units together. Whole figure at LOW: 594 (Commando kit) and 794 (Javelin kit, two bays and a gun arm) triangles
+    without the stand-ins, against the 800 limit: the Javelin kit is at the edge, so LOW budgets need a look before the rest.
+
 - **2026-11-17 (Claude, session 28), HYDRA'S MAP-EDGE RISK MADE MANDATORY. Two Hydra reference logs re-recorded, one removed.
   REVIEW PENDING (higher-level model).** Daniel: "Avoiding the edge should be mandatory for Hydra with no way to turn it off."
   `hydra.rs`: the `HYDRA_EDGE_RISK` switch is gone; `would_be_chargers` / `edge_risk` always run. `check_rust_reference.py`:
@@ -121,7 +148,51 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   nine entries had never been put in the REVIEW QUEUE; marked reviewed here. The low-poly reference work (branch
   `claude/youthful-euler-vv1pfc`, not merged) stays queued: its own check passes; the likeness is Daniel's to judge.
 
-- **2026-11-15 (Claude, session 27), WEBSITE: UNITS WITH UNMODELED EQUIPMENT LEFT OUT; CHECKPOINT. REVIEWED 2026-11-17 (see the review entry above).**
+- **2026-11-16 (Claude, session 27), LOW-POLY REFERENCE MODELS: TOOL, INDEX AND A TEST BATCH OF THREE. REVIEW PENDING (higher-level model).**
+  Daniel: redraw the TRO 3025 'Mech art as strict low-poly models (boxes, wedges, 6/8-sided prisms, under 400 triangles, one neutral
+  A-stance) as reference for the Combat Lab's block dictionary and override list; models go straight to 3D, no image-generator step.
+  (1) The 34 drawings were pulled from the PDF (one per odd page) into `reference_art/originals/`; `units.json` names each from its
+  title bar and ties it to its exact unit file (all 34 exist in `data/meks.zip`) with weapons and jump jets from the file. (2)
+  `tools/lowpoly_ref.py`: the primitives (box, wedge, bar, tube), the five-view renderer (front, rear, left, right, top, one scale; `--iso`
+  adds a 3/4 review panel) and `check`, which tests each model against its unit file (every weapon in its location, jump-jet locations,
+  mass, triangle budget, the required assemblies, feet on the ground). `tests/test_lowpoly_ref.py` runs it. (3) Three models built:
+  Commando COM-2D, Javelin JVN-10N, Spider SDR-5V (336-352 triangles each); each carries `features` in the field names of
+  `data/token_reference_tags.json` (so the override list can take them as they are) and notes where the drawing and the unit file
+  differ. (4) PRIVACY: `reference_art/` is on `publish_public.py`'s `PRIVATE_PATHS`; its tree check compared whole trees, which a
+  private folder in `main` would break, so it now compares the files outside the private paths (`public_files`). Known limits:
+  the renderer sorts faces by depth (fine for separate convex parts, may mis-order where parts interlock); the likeness is by eye
+  from one drawing per unit (side and rear views are inferred). Art only: no engine code touched; only the art checks were run.
+  UPDATE same day (after Daniel compared Gemini sheets): Daniel, "perfectly happy to cheat on that '95 look" (retro look, modern
+  tools, animation later), so the triangle limit is 800 (was 400) and `tools/lowpoly_ref.py` gained two part kinds, `hull` (convex
+  hull of points: sloped plates) and `dome` (ellipsoid or flat-based cap: round chests, canopies, helmets). The Spider (dome chest,
+  large fins, from Gemini's reading), Commando (chest plate, heavy forearms, dome helmet) and Javelin (leaning hull chest, big
+  canopy dome) were reworked: 370-442 triangles.
+  LATER SAME DAY: (a) Javelin rebuilt twice (zoomed reading found the two chest missile bays; Daniel's good AI views added the skirt
+  plate, brimmed canopy and dish): 706 triangles. (b) The AI turnaround sheets for all 34 units are filed in `reference_art/ai_sheets/`
+  (Daniel's note: good for silhouette and the ways a part can be drawn, unreliable for exact detail); per-unit faults are in
+  `units.json` `ai_sheet_caveats`. (c) `reference_art/block_taxonomy.json`: a survey of the block types per body part (22 parts, 88
+  types, 10 WTF items), all WTF items answered by Daniel. (d) `compare` command in `tools/lowpoly_ref.py`. (e) Hand-off T15 in
+  `INTEGRATION__TASK_SPECS.md`. (f) DECISION: build the block library BEFORE the other 31 models, with levels of detail from the
+  generators (LOD0 high, LOD2 the 800-triangle reference): the three built models are raw shapes, not dictionary blocks.
+  END OF SESSION 27 (2026-11-16/17): (g) The taxonomy now has 93 types over 22 body parts (Daniel's 16 parts plus neck collar, ankle,
+  back deck, weapon mount, antenna, fins/spars/wings); his rulings on the ten WTF items are applied (the round side disc is the
+  shoulder; the Stalker's head is a fighter canopy on top of the torso; the UrbanMech's head is the dome over a cylindrical torso;
+  Jenner and Cicada have small weapon pods for arms; the Quickdraw's wheels are ankle discs; the Hunchback's ribbed barrels are lower
+  legs; the Catapult is a bird leg; the Dragon's big barrel is a gun arm). (h) MOUNT POINTS: every block is to carry weapon,
+  equipment and greeble mounts (Daniel: the JagerMech's shoulder blade is a greeble), fixed or hinged, in `mount_points` and
+  `greebles`. (i) The DARK CROW (a modern David White picture, `reference_art/extra_art/`; unit file: the base Dark Crow) added five
+  types and showed that the block hierarchy must be a default, not a law (its arms mount on the lower torso, its side torsos carry
+  hinged guards). (j) PRUNING POLICY (`pruning_policy`): types as form x preset x modifiers, an admission test (a different
+  silhouette AND 3+ units, or named iconic by Daniel), core / candidate tiers (80 / 13), about six presets per part, new art
+  classified against the presets with only the residual logged for Daniel to prune; Daniel: the 400+ pieces are TRO PDFs and the
+  real bottleneck is generating Gemini turnaround sheets, so the plan is to classify from the originals first and use Gemini only
+  where the residual is large (a five-unit pilot would test that). (k) DATING (`dating`): unit year (the unit file's `era:`, on all 4,227
+  files), tech base and art source as three separate tags; `years_seen` computed on each type; NOT used to pick blocks yet because
+  the 34 units span 2475-2898 but share one book's art. (l) SOURCE BOOK: TRO 3025 and 3026 were merged into TRO 3039 (Daniel), so
+  both names are right; the README says so (an earlier draft here wrongly called "3039" a mistake for a while). NOT DONE: no PR to
+  `main` (the work is on the session branch, pushed); the block library and the other 31 models (task T15); the prune of the drum
+  and slab families; `publish_public.py` not run since the private-path change.
+
   Daniel: "any units with unmodeled equipment should be removed from the website version... They will be built eventually", and a
   checkpoint (merge to main, update the actual website). `tools/build_web_lab.py` now leaves out every unit the engine warns about
   for equipment it does not model (`warnings` from `describe.rs`: an unknown component, an unmodeled armor or structure type, or
@@ -130,6 +201,7 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   new build. The sheet editor in the browser still lists the whole equipment catalogue (a unit built in the editor from unmodeled
   equipment is the user's own doing).
 
+- **2026-11-15 (Claude, session 27), WEBSITE: UNITS WITH UNMODELED EQUIPMENT LEFT OUT; CHECKPOINT. REVIEWED 2026-11-17 (see the review entry above).**
 - **2026-11-15 (Claude, session 27), EDITOR ROUND 3: EYE PREVIEWS, "NEEDS A PLACE" TRAY, DHS FIX, THE SPELLING WITCH HUNT. REVIEWED 2026-11-17 (see the review entry above).**
   (1) BUG: the heat sink warning counted each slot of a double heat sink (the equipment database lists one as 1 slot);
   `itemsOf` now gives a heat sink item its real size (inner sphere double 3, clan double 2). (2) EYE COLUMN: the Preview button is
