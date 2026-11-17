@@ -67,7 +67,7 @@ GitHub logistics.
     (`check_web_ui.py`, `check_web_lab.py`) + `check_lab_server.py`; the
     Python -> its tests and 15 reference battles; anything else (the engine)
     -> the Rust checks + the website + the Lab server. The Rust reference
-    battles (87, `tests/check_rust_reference.py`; `--update` for a Rust
+    battles (86, `tests/check_rust_reference.py`; `--update` for a Rust
     change meant to alter results) and the MegaMek bridge's parity check
     (`tests/check_bridge_parity.py --quick`) run one after the other
     (`check_rust_reference.py --parity` does both in one run, every battle

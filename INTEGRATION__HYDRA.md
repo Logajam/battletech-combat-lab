@@ -556,7 +556,7 @@ The Hunchback duel is even (the 80-battle 29 - 38 and 33 - 47 were the seeds), a
 Hydra (RULES_REVIEW F-list: a walking fall in a hex holding an immobile 'Mech). Records:
 `trial_records/2026-11-12_hydra_trial_wide_*.jsonl`.
 
-### The map edge (session 28, 2026-11-17): built, ON by default (`HYDRA_EDGE_RISK`)
+### The map edge (session 28, 2026-11-17): built, ALWAYS ON (no switch; Daniel the same day: "mandatory ... with no way to turn it off")
 
 Reopened by Daniel ("you are allowed to fix your bot and update Hydra") after the WHM-6R v JVN-10F study: a third of the Hydra
 Warhammer's losses were a Javelin CHARGING it off the map (a 'Mech displaced off the battlefield is destroyed, Core p.113). The
@@ -586,4 +586,4 @@ left), S4 scored through the play-out, the move order's opposite end; none is pl
 | S3 move order, Waiting, Attention share | built, switches `HYDRA_MOVE_ORDER` / `HYDRA_WAITING` / `HYDRA_ATTENTION`, ON by default since 2026-11-12 |
 | S6 calibration | done, two passes: `btsim --ledger`, `tools/hydra_calibrate.py` (fit, fit2); FOCUS 0 by default; structure weight tested, kept at 2 |
 | Section 7 (Fable's list) | all built; the two weak spots were flukes (400-battle check below) |
-| Map edge (Section 7, 2026-11-17) | built, switch `HYDRA_EDGE_RISK`, ON by default |
+| Map edge (Section 7, 2026-11-17) | built, always on (the `HYDRA_EDGE_RISK` switch was removed the same day, Daniel) |

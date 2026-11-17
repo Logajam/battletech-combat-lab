@@ -169,7 +169,7 @@ def main(argv):
         print("NOTE: no cargo on this machine - the Rust and website checks were not run")
     if "engine" in want and has_cargo:
         # the Rust engine's own reference battles, then the MegaMek bridge's quick parity check (B1)
-        heavy.append(("rust       check_rust_reference.py (87 battles)",
+        heavy.append(("rust       check_rust_reference.py (86 battles)",
                       run_test_file, (os.path.join(REPO_ROOT, "tests", "check_rust_reference.py"),)))
         heavy.append(("rust       check_bridge_parity.py --quick",
                       run_test_file, (os.path.join(REPO_ROOT, "tests", "check_bridge_parity.py"), ["--quick"])))
