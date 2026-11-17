@@ -25,6 +25,13 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
     says what was wrong). Rendering: a depth buffer (the face sort hid tube mouths behind their panel) and outlines only at
     creases, part edges and the silhouette (a faceted dome had read as a golf ball).
   - CHECKS: `tests/test_lowpoly_ref.py` runs the block check; `run_checks.py`'s art level now includes it.
+  - CONNECTED GROUPS (Daniel: "So far I like the art. Can you take the separate pieces and show examples of connected
+    groups of them?"): `tools/lowpoly_groups.py` snaps blocks at their anchors (`Assembly.add`: a block's anchor put on a world
+    point, mirrored for the right side) into seven groups in `reference_art/blocks/groups/`: a leg, a fist arm, a gun arm, the
+    Commando-kit and Javelin-kit upper bodies, and two whole figures. The upper arm and the pelvis have no block yet: drawn as
+    plain light STAND-INS and named on each sheet. Per-body-part scales (`SCALE`, a first guess by eye) fit the pieces measured
+    on different units together. Whole figure at LOW: 594 (Commando kit) and 794 (Javelin kit, two bays and a gun arm) triangles
+    without the stand-ins, against the 800 limit: the Javelin kit is at the edge, so LOW budgets need a look before the rest.
 
 - **2026-11-17 (Claude, session 28), HYDRA'S MAP-EDGE RISK MADE MANDATORY. Two Hydra reference logs re-recorded, one removed.
   REVIEW PENDING (higher-level model).** Daniel: "Avoiding the edge should be mandatory for Hydra with no way to turn it off."
