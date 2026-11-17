@@ -12,7 +12,8 @@ Added 2026-10-20 (Claude) after Daniel: "probably need to establish a briefer wa
 
   LEVELS. The files changed since origin/main (committed, staged, unstaged or new) pick the checks:
     docs only (*.md, trial records, licences)             -> nothing to run (says so)
-    Combat Lab art (token / shell / reference art files)  -> the three token tests (Daniel, 2026-11-04)
+    Combat Lab art (token / shell / reference art files)  -> the three token tests (Daniel, 2026-11-04) + the low-poly
+                                                            reference models and block library (test_lowpoly_ref.py)
     Lab pages only (engine/lab/web, engine/wasm/web, ...)  -> the website checks + the Lab server check
     the Python (INTEGRATION__*.py, mechsim/, ...)        -> the Python tests and Python reference battles
     anything else (the engine, tools, checks...)          -> the Rust checks + the website + the Lab server
@@ -42,7 +43,7 @@ from concurrent.futures import ThreadPoolExecutor
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO_ROOT, "tests"))
 
-ART_TESTS = ["test_token_shell.py", "test_token_joined.py", "test_token_volume.py"]
+ART_TESTS = ["test_token_shell.py", "test_token_joined.py", "test_token_volume.py", "test_lowpoly_ref.py"]
 
 
 def run_test_file(path, args=()):

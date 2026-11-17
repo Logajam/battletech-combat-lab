@@ -6,6 +6,26 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-17 (Claude, session 28), BLOCK LIBRARY FIRST PASS (T15a): THE TAXONOMY PRUNED, THE COMMON DOZEN BUILT. Art only
+  (reference_art/, private); no battle changes. REVIEW PENDING (higher-level model).** Daniel: "Begin a first pass at creating
+  'Lego blocks' ... you must be able to show the exact image you used as reference material. After each block is made, compare
+  your work to the reference material and decide if its close enough"; "Stick to the information in that branch" (session 27's
+  `reference_art/`, merged into main with this work; the earlier token / shell art is on the back burner). His choices: Claude
+  prunes and he checks; HIGH + LOW; the plan's common dozen.
+  - PRUNE (`block_taxonomy.json` `prune_1`): every type gets form / preset / modifiers, or `merged_into` (20: duplicates such as
+    foot/ankle_disc = ankle/ankle_disc and shoulder/fin_wing = fins_spars_wings/fin_plate; settings such as thin_rod = the limb bar,
+    thinner; modifiers such as vented_belly = belly + vents). 93 types -> 60 blocks in 38 presets (slab 28, drum 17, bar 5, dome 5,
+    wedge 2, claw 2, hull 1), 9 "no part", 4 one-unit specials, 36 modifiers + 15 settings. The drum family is one generator (the
+    pod and the disc are its two settings). Nothing deleted.
+  - BLOCKS (`tools/lowpoly_blocks.py`, `reference_art/blocks/library.json`): slab_boot, tapered_slab_shin, tapered_slab_thigh,
+    boxy_chest_sloped_shoulders, shoulder_pod, shoulder_disc, launcher_bay, fist_arm, barrel_arm, fist, dome_helmet, bubble_canopy.
+    References: Commando (7), Javelin (3), Dragon, Clint; each crop box recorded. HIGH 220-1,040 triangles, LOW 24-92; the LOW
+    outline matches HIGH's by 0.87-0.99 (intersection over union, front / side / top; minimum 0.85). All twelve judged close
+    enough; EIGHT were not on the first try and were reworked (boot, shin, thigh, chest, disc, bay, forearm, fist: each verdict
+    says what was wrong). Rendering: a depth buffer (the face sort hid tube mouths behind their panel) and outlines only at
+    creases, part edges and the silhouette (a faceted dome had read as a golf ball).
+  - CHECKS: `tests/test_lowpoly_ref.py` runs the block check; `run_checks.py`'s art level now includes it.
+
 - **2026-11-17 (Claude, session 28), HYDRA'S MAP-EDGE RISK MADE MANDATORY. Two Hydra reference logs re-recorded, one removed.
   REVIEW PENDING (higher-level model).** Daniel: "Avoiding the edge should be mandatory for Hydra with no way to turn it off."
   `hydra.rs`: the `HYDRA_EDGE_RISK` switch is gone; `would_be_chargers` / `edge_risk` always run. `check_rust_reference.py`:

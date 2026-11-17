@@ -125,6 +125,8 @@ GitHub logistics.
 - **Low-poly reference models** (session 27, Daniel 2026-11-16): `reference_art/` (README there) holds the TRO 3025 drawings and
   low-poly models redrawn from them, the source for the Combat Lab's block dictionary and override list. PRIVATE (on
   `publish_public.py`'s `PRIVATE_PATHS`; redrawn images and models never go public). `tools/lowpoly_ref.py`, art checks only.
+  The block library (T15a) is `tools/lowpoly_blocks.py` + `reference_art/blocks/`: every block names the exact drawing crop it
+  came from and carries a verdict. The older token / shell art is on the back burner (Daniel, 2026-11-17).
 - **Movement searches:** Short Grid is the default; Daniel's IF/THEN
   (`MOVEMENT_SEARCH = "if_then"`) is an option meant for multi-unit threat
   estimates, not a single 'Mech's default (PROJECT_MAP Section 5).

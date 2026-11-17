@@ -296,6 +296,8 @@ the final build").**
 - WHERE: new files under `reference_art/` (a `blocks/` folder and a loader in `tools/lowpoly_ref.py`), still private; the existing
   `data/token_blocks.json` and the generator are NOT touched until Daniel says the dictionary is ready.
 
+**T15a first pass (Claude, session 28, 2026-11-17): DONE for the common dozen.** Daniel's choices that day: Claude prunes and he checks (`prune_1` in the taxonomy: nothing deleted, merges marked `merged_into`); HIGH and LOW only (MEDIUM later); the twelve named above first. Built: `tools/lowpoly_blocks.py` (generators, anchors and mounts identical at both levels, a depth-buffer renderer that outlines only creases, the LOW-v-HIGH outline match, `check`, `sheets`, `page`) and `reference_art/blocks/` (`library.json`: per block the exact crop of the TRO drawing it was built from, the camera matching the drawing, params, LOW budget, verdict; `sheets/`: crop | HIGH | LOW | front / side / top). Eight of the twelve were NOT close enough on the first try and were reworked (each verdict says what changed). Next: the remaining presets of `prune_1`, the modifiers' own generators, a MEDIUM level, then retrofit the three models onto blocks.
+
 **State.** Built and checked: Commando COM-2D, Javelin JVN-10N, Spider SDR-5V (three test models, Daniel reviewed the look: "much
 finer detail" is what the other AI gets right). Not built: the other 31 (`units.json`, `"status": "not built"`). The tool, index,
 unit-file check and test exist and need no change to start: `tools/lowpoly_ref.py` (`check`, `render [--iso]`, `mtf`),
