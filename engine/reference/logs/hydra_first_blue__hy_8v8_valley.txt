@@ -1,4 +1,4 @@
-# scenario hy_8v8_valley, Hydra drives Blue, HYDRA_PLAYOUT=reply, HYDRA_MOVEMENT_ATTACKS=false, HYDRA_MOVE_ORDER=index, HYDRA_WAITING=false, HYDRA_ATTENTION=range
+# scenario hy_8v8_valley, Hydra drives Blue, HYDRA_PLAYOUT=reply, HYDRA_MOVEMENT_ATTACKS=false, HYDRA_MOVE_ORDER=index, HYDRA_WAITING=false, HYDRA_ATTENTION=range, HYDRA_EDGE_RISK=false
 # seed 1: winner Blue, 37 turns
 #   Red: 704.0 of 2288.0 armor + structure left, team destroyed True, units 8, 118 hits of 278 attacks, 876.0 damage dealt
 #   Blue: 1244.0 of 2288.0 armor + structure left, team destroyed False, units 8, 122 hits of 352 attacks, 1069.0 damage dealt
