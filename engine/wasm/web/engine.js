@@ -14,7 +14,8 @@
   // (Daniel, 2026-11-17: another program crashed when a run took every cycle; a web page cannot lower its own priority,
   // so it leaves cores free instead). A number typed in is used as it is, up to the core count. Same rule as the desktop
   // Lab's `runs::threads_for`.
-  const autoThreads = (asked) => (asked > 0 ? Math.min(asked, cores) : Math.max(1, cores - Math.max(1, Math.floor(cores / 4))));
+  // "Full power" (Daniel, 2026-11-17) = every core, whatever was typed.
+  const autoThreads = (asked, full) => (full ? cores : asked > 0 ? Math.min(asked, cores) : Math.max(1, cores - Math.max(1, Math.floor(cores / 4))));
   let loading = null;                  // promise of {module, catalog, defaults, pack, coord}
   let S = null;                        // what it resolved to
   let equipmentList = null;            // the unit editor's equipment catalogue, asked of the module once
@@ -80,6 +81,10 @@
       return new Promise((resolve) => { const id = ++this.n; this.waiting.set(id, resolve); this.worker.postMessage({ id, cmd, ...body }, transfer || []); });
     }
     static async start() { const p = new Player(); await p.ask("init", { module: S.module }); return p; }
+    // Cancel (Daniel, 2026-11-17: "a way to stop a run in the middle"): a battle inside the engine cannot be interrupted, so
+    // the worker is ended on the spot and every question still waiting on it answers {stopped: true}; a new one is started
+    // for the next run.
+    stop() { this.worker.terminate(); for (const w of this.waiting.values()) w({ stopped: true }); this.waiting.clear(); }
   }
   const players = [];
   async function getPlayers(n) {
@@ -110,7 +115,7 @@
 
   async function runBatch(runId, setup, files) {
     const total = Math.max(1, Math.min(100000, setup.battles || 20));
-    const n = Math.min(autoThreads(setup.threads), total);
+    const n = Math.min(autoThreads(setup.threads, setup.full_power), total);
     const mine = { runId, next: 1, cancelled: false, buf: { lines: [], crashed: [] }, t0: performance.now() };
     job = mine;
     const flush = (finished) => {
@@ -122,11 +127,13 @@
     const timer = setInterval(() => flush(false), 200);
     try {
       const ws = await getPlayers(n);
+      mine.players = ws;
       await Promise.all(ws.map((w) => w.ask("prepare", { defaults: S.defaults, files, setup })));
       await Promise.all(ws.map(async (w) => {
         while (!mine.cancelled && mine.next <= total) {
           const sim = mine.next++;
           const r = await w.ask("play", { sim });
+          if (r.stopped || mine.cancelled) break;      // cancelled: a battle cut off in the middle is not counted
           if (r.error) { mine.buf.crashed.push({ sim, seed: "", crashed: r.error }); continue; }
           (r.crash ? mine.buf.crashed : mine.buf.lines).push(r.line);
         }
@@ -146,7 +153,7 @@
     if (check.error) return check;
     S.coord.call("cancel", { run: check.run });
     const total = Math.max(1, setup.battles || 20);
-    const threads = autoThreads(setup.threads);
+    const threads = autoThreads(setup.threads, setup.full_power);
     const pilots = Math.max(1, Math.min(threads, 4));
     const ws = await getPlayers(pilots);
     const started = performance.now();
@@ -192,7 +199,13 @@
         runBatch(r.run, body.setup, files);     // plays on in the workers; the page polls `progress`
         return r;
       }
-      case "cancel": if (job && job.runId === body.run) job.cancelled = true; return S.coord.call("cancel", body);
+      case "cancel": {
+        if (job && job.runId === body.run) {
+          job.cancelled = true;
+          for (const w of job.players || []) { w.stop(); const i = players.indexOf(w); if (i >= 0) players.splice(i, 1); }
+        }
+        return S.coord.call("cancel", body);
+      }
       case "progress": case "results": return S.coord.call(name, body);
       case "save_run": return S.coord.call("save_run", body);
       case "load_run": {

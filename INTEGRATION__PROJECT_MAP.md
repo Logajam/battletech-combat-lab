@@ -130,6 +130,11 @@ real Princess and CASPAR through the bridge (E4).
 - C4. Deferred by Daniel [10]: 'Mech UMUs, the chain whip grapple, industrial tools.
 - C5. Rules library: refresh the zip with TO:AUE / TO:AR; Interstellar Operations is not indexed yet (T9).
 - C6. Other unit types; scenario features (objectives, fog of war).
+- C7. IDEAS LIST (Daniel, 2026-11-17: "no action taken now"). (a) DYNAMIC MAPS: the elevator terrain is meant to change the level
+  of hexes between turns (TO:AR's industrial elevators; the engine refuses them today, `terrain_rules::UNSUPPORTED_FEATURES`,
+  and the website leaves such maps out); a board whose hexes change during the battle. (b) WATER MOVEMENT: some maps should
+  have units moving through / on water in ways the sim does not play yet; Daniel worked out how in another conversation (about
+  improving MegaMek), to be brought over when this is picked up.
 
 **D. Engine, speed, state**
 - D1. THE RUST TRANSLATION - DONE and reviewed (sessions 22-24; Change Record "RUST ENGINE REVIEWED"). Daniel, 2026-11-11:
@@ -216,6 +221,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s28-2) WALK-ON ZONES + LAB ROUND** (session 28): ENGINE `deployment::entry_segments` / `zone_entry_band` (walk-on zones), `tests/zone_entry.rs`; `entryHexes` / `deployDepths` and the zone paint in lab.js; `Player.stop` (browser cancel) in engine.js; the board filter in `build_web_lab.py`.
 - **(s28-1) CAUSE FILTER, CORES, WEB UI TESTS** (session 28): `runs::matches` `cause_is`, `runs::threads_for`, `main.rs::lower_priority` (the Windows FFI), `engine.js` `autoThreads`, `filterByCause` in lab.js, `tests/check_web_ui.py`, the web line in `run_checks.py`.
 - **(s26-9) COMBAT LAB IN THE BROWSER** (session 26): `engine/wasm`, `engine/wasm/web/*.js`, `tools/build_web_lab.py`, `tests/check_web_lab.py`, `SetupPaths.memory` in `scenario.rs`, the wasm32 gates in `lab/src/runs.rs`. The worker-crash path (WebAssembly panics abort; `worker.js` records the seed and restarts the instance) is written but NOT yet exercised: no known unit crashes the engine to try it on. `add_unit` still missing.
 - **(s26-1) REPLAY HEAT MAPS (PRINCESS)** (session 26): `history.rs::heat_now` + the viewer's Heat map box. Terrain-blind reach; Gladiator / Hydra maps still open (CL6 / CL7).

@@ -47,6 +47,7 @@
     </div>
     <div class="units-desk">
       <div class="col" id="teams-left"></div>
+      <div class="colgrip" id="grip-left" title="Drag to make the team columns wider or narrower; double-click to reset"></div>
       <div class="col centre-col" id="browser-slot">
         <div class="win browser" id="browser" data-wkey="browser">
           <div class="wtitle" id="ub-title"><span class="name">Unit Browser</span></div>
@@ -69,6 +70,7 @@
           </div>
         </div>
       </div>
+      <div class="colgrip" id="grip-right" title="Drag to make the team columns wider or narrower; double-click to reset"></div>
       <div class="col" id="teams-right"></div>
     </div>
     <div class="float-layer" id="units-float"></div>
@@ -89,8 +91,8 @@
             <label for="playlist-order">Order <select id="playlist-order"><option value="sequence">Playlist order</option><option value="shuffle">Shuffle (a fresh order each pass)</option></select></label>
             <button class="btn small" id="playlist-clear">Clear list</button>
           </div>
-          <p class="note">Click boards in the list below to add them. Battle 1 uses the first map, battle 2 the next, and so on round again.</p>
-          <ol class="playlist" id="playlist"></ol>
+          <p class="note">Double-click boards in the list below to add them (a single click only previews one); the newest goes on top. Battle 1 uses the first map, battle 2 the next, and so on round again.</p>
+          <div class="playlist sunken"><table class="leaves" id="playlist"><tbody></tbody></table></div>
         </fieldset>
         <fieldset id="stitch-box" hidden>
           <legend>Stitched map</legend>
@@ -98,7 +100,7 @@
             <label class="row" for="stitch-cols">Across <input type="number" id="stitch-cols" min="1" max="8" value="2"></label>
             <label class="row" for="stitch-rows">Down <input type="number" id="stitch-rows" min="1" max="8" value="1"></label>
           </div>
-          <p class="note">Choose a place in the grid, then a board in the list; the next place is chosen for you. Boards in a row must share a height, boards in a column a width. Random map fills every place with boards of one size.</p>
+          <p class="note">Choose a place in the grid, then double-click a board in the list; the next place is chosen for you. Boards in a row must share a height, boards in a column a width. Random map fills every place with boards of one size.</p>
           <div class="stitch-grid" id="stitch-grid"></div>
         </fieldset>
         <div class="filters">
@@ -106,6 +108,7 @@
           <label for="board-size">Size <select id="board-size"><option value="">Any</option></select></label>
           <button class="btn" id="board-random">Random map</button>
         </div>
+        <p class="note">Click a board to preview it; double-click to choose it.</p>
         <div class="list sunken" style="max-height:420px"><table class="pick" id="boards"><thead><tr><th>Board</th><th>Size</th><th>Map set</th></tr></thead><tbody></tbody></table></div>
       </div>
       <div class="right-col">
@@ -144,8 +147,9 @@
     <div class="opt-pane" id="opt-pane-game">
       <details class="folder" open data-folder="Run" id="opt-run">
         <summary>Run</summary>
-        <div class="opt" data-search="cpu threads cores run">
+        <div class="opt" data-search="cpu threads cores run full power speed potato">
           <div class="opt-main"><label for="threads" title="0 = automatic: leaves a quarter of the cores (at least one) free for your other programs">CPU threads (0 = automatic, leaves room for other programs)</label><input type="number" id="threads" min="0" max="256" value="0"></div>
+          <div class="opt-main"><label class="row" for="full-power"><input type="checkbox" id="full-power"> Full power</label><span class="note warn" id="full-power-warn">Every core. The fastest, but it also turns the rest of your computer into a potato until the run is done.</span></div>
         </div>
         <div class="opt" data-search="random seed run">
           <div class="opt-main"><label for="seed">Random seed (empty = a new one each run)</label><input type="number" id="seed" min="0" placeholder="new each run"></div>
@@ -175,7 +179,7 @@
       <div class="filters">
         <div style="flex:1;min-width:200px"><div class="progress sunken"><div id="bar"></div></div></div>
         <span id="progress-text" class="num"></span>
-        <button class="btn" id="cancel-btn">Cancel</button>
+        <button class="btn" id="cancel-btn" title="Stop this run now: the battles already finished are kept">Cancel run</button>
       </div>
       <fieldset class="finder">
         <legend>Find battles</legend>
@@ -258,7 +262,7 @@
     </div>
   </div>
 
-  <div class="status raised"><span id="status">Ready</span><span class="status-right"><span id="status-right"></span><button class="btn small" id="report-btn" title="Report a bug or make a suggestion (opens GitHub)">Suggestion / bug report</button> <button class="btn small" id="about-btn">About</button></span></div>
+  <div class="status raised"><span id="status">Ready</span><span class="status-right"><span id="status-right"></span><button class="btn small" id="cancel-btn-2" title="Stop this run now: the battles already finished are kept" hidden>Cancel run</button><button class="btn small" id="report-btn" title="Report a bug or make a suggestion (opens GitHub)">Suggestion / bug report</button> <button class="btn small" id="about-btn">About</button></span></div>
 </div>
 <!--LAB-SCRIPT-->
 <script src="lab.js"></script>

@@ -53,12 +53,14 @@ const { chromium } = require('playwright');
         const auto = await LAB_WASM.api("estimate", { setup: { ...setup, threads: 0 } });
         const two = await LAB_WASM.api("estimate", { setup: { ...setup, threads: 2 } });
         const many = await LAB_WASM.api("estimate", { setup: { ...setup, threads: 99 } });
-        return { auto: auto.threads, two: two.threads, many: many.threads, err: auto.error || two.error || many.error };
+        const full = await LAB_WASM.api("estimate", { setup: { ...setup, threads: 2, full_power: true } });
+        return { auto: auto.threads, two: two.threads, many: many.threads, full: full.threads, err: auto.error || two.error || many.error };
       });
       const want = Math.max(1, cores - Math.max(1, Math.floor(cores / 4)));
       check(`${cores} cores: automatic plays on ${want}`, r.auto === want, `got ${r.auto}${r.err ? " / " + r.err : ""}`);
       check(`${cores} cores: 2 typed in plays on ${Math.min(2, cores)}`, r.two === Math.min(2, cores), `got ${r.two}`);
       check(`${cores} cores: 99 typed in is capped at ${cores}`, r.many === cores, `got ${r.many}`);
+      check(`${cores} cores: Full power plays on all ${cores}`, r.full === cores, `got ${r.full}`);
       await ctx.close();
     }
 
@@ -81,6 +83,15 @@ const { chromium } = require('playwright');
     await p.waitForTimeout(400);
     const rows = await p.locator("#ub-list tbody tr").count();
     check("the name search narrows the Unit Browser", rows > 0 && rows < before, `${before} -> ${rows}`);
+    // every word typed must be in the name ("jav r": Javelins with an r in the name; Daniel, 2026-11-17)
+    await p.fill("#ub-name", "jav r");
+    await p.waitForTimeout(400);
+    const javr = await p.evaluate(() => [...document.querySelectorAll("#ub-list tbody tr")].map((tr) => tr.children[2].textContent));
+    check("\"jav r\" lists only names with both words, and some", javr.length > 0 && javr.every((n) => /jav/i.test(n) && /r/i.test(n)), javr.slice(0, 4).join("; "));
+    const jav = await p.evaluate(async () => (await LAB_WASM.api("list_units", {})).units.filter((u) => /jav/i.test(u.name) && /r/i.test(u.name)).length);
+    check("\"jav r\" lists every such unit", javr.length === Math.min(jav, 400), `${javr.length} listed, ${jav} in the catalogue`);
+    await p.fill("#ub-name", "Atlas AS7");
+    await p.waitForTimeout(400);
     await p.locator("#ub-list tbody tr [data-eye]").nth(0).click();
     await p.waitForSelector(".dialog.sheet", { timeout: 30000 });
     await p.locator("#ub-list tbody tr [data-eye]").nth(1).click();
@@ -97,6 +108,44 @@ const { chromium } = require('playwright');
     const drawn = await p.evaluate(() => { const c = document.getElementById("map-preview"); if (!c || !c.width) return 0;
       const d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data; const seen = new Set(); for (let i = 0; i < d.length; i += 4 * 97) seen.add(d[i] + "," + d[i + 1] + "," + d[i + 2]); return seen.size; });
     check("the map preview is drawn", drawn > 3, `${drawn} colours sampled`);
+    // the web build's boards: 16x17 and the 50x50 blank, none with bridges / fuel tanks / elevators (Daniel, 2026-11-17)
+    const boards = await p.evaluate(async () => (await LAB_WASM.api("list_boards", {})).boards);
+    check("the 50x50 blank map is on the website", boards.some((b) => b.width === 50 && b.height === 50), boards.length + " boards");
+    const texts = await p.evaluate(async (ids) => { const out = []; for (const id of ids) out.push((await LAB_WASM.api("board", { id })).text || ""); return out; }, boards.map((b) => b.id));
+    const broken = boards.filter((b, i) => /[";](bridge|elevator|fuel_tank)[a-z_]*:/.test(texts[i])).map((b) => b.name);
+    check("no website board has bridges, fuel tanks or elevators", !broken.length, broken.slice(0, 5).join(", "));
+    // one click previews, a double-click chooses
+    await p.click("#map-one");
+    const chosenBefore = await p.evaluate(() => lab.map.one);
+    const rowsB = p.locator("#boards tbody tr[data-id]");
+    const other = await rowsB.evaluateAll((trs, cur) => trs.map((t) => t.dataset.id).find((id) => id !== cur), chosenBefore);
+    await p.locator(`#boards tbody tr[data-id="${other}"]`).click();
+    await p.waitForTimeout(300);
+    check("one click on a board previews it without choosing it", (await p.evaluate(() => lab.map.one)) === chosenBefore && /Previewing/.test(await p.textContent("#board-chosen")));
+    await p.locator(`#boards tbody tr[data-id="${other}"]`).dblclick();
+    await p.waitForTimeout(300);
+    check("a double-click chooses it", (await p.evaluate(() => lab.map.one)) === other && !/Previewing/.test(await p.textContent("#board-chosen")));
+    // the map list: a double-clicked board goes on top; the rows are a table, so the buttons line up
+    await p.click("#map-playlist");
+    await p.click("#playlist-clear");
+    const ids = await rowsB.evaluateAll((trs) => trs.slice(0, 3).map((t) => t.dataset.id));
+    for (const id of ids) await p.locator(`#boards tbody tr[data-id="${id}"]`).dblclick();
+    const pl = await p.evaluate(() => lab.map.playlist);
+    check("the newest map in the list goes on top", JSON.stringify(pl) === JSON.stringify([...ids].reverse()), JSON.stringify(pl));
+    const xs = await p.evaluate(() => [...document.querySelectorAll("#playlist [data-del]")].map((b) => Math.round(b.getBoundingClientRect().left)));
+    check("the map list's remove buttons line up", xs.length === 3 && new Set(xs).size === 1, JSON.stringify(xs));
+    await p.click("#playlist-clear");
+    await p.click("#map-one");
+    // walk-on entry: the page's highlight uses the engine's rule (core/tests/zone_entry.rs has the same cases)
+    const ent = await p.evaluate(() => {
+      const b = (on) => { const x = new Array(9).fill(false); on.forEach((k) => { x[k] = true; }); return x; };
+      return { n: entryHexes(b([1]), 16, 17, 0).size, w2: entryHexes(b([3]), 16, 17, 2).size, nw: [...entryHexes(b([0]), 16, 17, 0)].sort(), c: entryHexes(b([4]), 16, 17, 3).size };
+    });
+    const nwWant = [...Array.from({ length: 8 }, (_, i) => `${i + 1},1`), ...Array.from({ length: 8 }, (_, i) => `1,${i + 2}`)].sort();
+    check("walk-on N enters from the whole north edge", ent.n === 16, ent.n);
+    check("walk-on W, 2 deep, is 3 columns of every row", ent.w2 === 51, ent.w2);
+    check("walk-on NW enters from half of each edge", JSON.stringify(ent.nw) === JSON.stringify(nwWant), JSON.stringify(ent.nw));
+    check("the centre has no walk-on entry", ent.c === 0, ent.c);
     await p.click("#tab-options");
     const allOpts = await p.locator("#page-options .opt:visible").count();
     await p.fill("#opt-search", "thread");
@@ -105,7 +154,36 @@ const { chromium } = require('playwright');
     check("the Options search narrows the list", someOpts >= 1 && someOpts < allOpts, `${allOpts} -> ${someOpts}`);
     await p.fill("#opt-search", "");
 
+    // the team columns widen sideways (Daniel, 2026-11-17)
+    await p.click("#tab-units");
+    const wBefore = await p.evaluate(() => document.getElementById("teams-left").getBoundingClientRect().width);
+    const g = await p.locator("#grip-left").boundingBox();
+    await p.mouse.move(g.x + 4, g.y + 40); await p.mouse.down(); await p.mouse.move(g.x + 124, g.y + 40, { steps: 5 }); await p.mouse.up();
+    const wAfter = await p.evaluate(() => document.getElementById("teams-left").getBoundingClientRect().width);
+    check("dragging the grip widens the team column", wAfter > wBefore + 80, `${Math.round(wBefore)} -> ${Math.round(wAfter)}`);
+    await p.locator("#grip-left").dblclick();
+    // Full power: the box turns the threads box off and goes into the setup
+    await p.click("#tab-options");
+    await p.check("#full-power");
+    check("Full power disables the threads box and shows its warning", await p.isDisabled("#threads") && /potato/.test(await p.textContent("#full-power-warn")));
+    check("Full power goes into the run's setup", await p.evaluate(() => setup().full_power === true));
+    await p.uncheck("#full-power");
+    check("without it the setup has no full_power", await p.evaluate(() => !setup().full_power && !document.getElementById("threads").disabled));
+    // Cancel: a long run stopped from the status bar's button keeps what finished and stops at once
+    await p.click("#tab-units");
+    await p.fill("#battles", "5000");
+    await p.click("#run-btn");
+    await p.waitForFunction(() => { const t = document.getElementById("progress-text").textContent || ""; return /^\d+ \//.test(t) && +t.split(" ")[0] >= 2; }, null, { timeout: 120000 });
+    check("the status bar shows Cancel run while a run plays", await p.isVisible("#cancel-btn-2"));
+    const t0 = Date.now();
+    await p.click("#cancel-btn-2");
+    await p.waitForFunction(() => /cancelled/.test(document.getElementById("progress-text").textContent), null, { timeout: 30000 });
+    const doneAt = await p.textContent("#progress-text");
+    check("Cancel run stops the run within seconds", Date.now() - t0 < 10000 && +doneAt.split(" ")[0] < 5000, doneAt);
+    await p.waitForTimeout(1500);
+    check("after Cancel no more battles are added", (await p.textContent("#progress-text")).split(" ")[0] === doneAt.split(" ")[0] && !(await p.isVisible("#cancel-btn-2")));
     // a batch from the Run button (the default setup: Atlas + Griffin v Awesome + Hunchback)
+    await p.click("#tab-options");
     await p.fill("#seed", "4242");
     await p.fill("#threads", "0");
     await p.click("#tab-units");

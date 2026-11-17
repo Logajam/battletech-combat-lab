@@ -255,7 +255,7 @@ fn api(lab: &Lab, name: &str, req: &Value) -> Result<Value, String> {
         "estimate" => {
             let plan = runs::scenario_of(&req["setup"], &lab.catalog, &lab.paths)?;
             let s = plan.scenario_for(1, 1).0;
-            Ok(runs::estimate(&s, req["setup"]["battles"].as_u64().unwrap_or(20), req["setup"]["threads"].as_u64().unwrap_or(0) as usize))
+            Ok(runs::estimate(&s, req["setup"]["battles"].as_u64().unwrap_or(20), req["setup"]["threads"].as_u64().unwrap_or(0) as usize, req["setup"]["full_power"].as_bool().unwrap_or(false)))
         }
         "run" => {
             let s = runs::scenario_of(&req["setup"], &lab.catalog, &lab.paths)?;

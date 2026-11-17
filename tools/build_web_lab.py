@@ -32,6 +32,17 @@ def ask(port, name, body=None):
     return json.loads(urllib.request.urlopen(req, timeout=600).read())
 
 
+# terrain the engine reads but cannot play yet, and every terrain name it reads (engine/core/src/terrain_rules.rs
+# UNSUPPORTED_FEATURES, board_parser.rs KNOWN_FEATURE_NAMES: keep these in step with them)
+UNSUPPORTED_TERRAIN = {"bridge", "bridge_cf", "bridge_elev", "fuel_tank", "fuel_tank_cf", "fuel_tank_elev", "fuel_tank_magn", "elevator"}
+KNOWN_TERRAIN = {"woods", "jungle", "rough", "rubble", "sand", "mud", "swamp", "water", "road", "pavement", "building",
+                 "bldg_elev", "bldg_cf", "bldg_class", "bldg_armor", "bldg_basement_type", "bridge", "bridge_cf", "bridge_elev",
+                 "fuel_tank", "fuel_tank_cf", "fuel_tank_elev", "fuel_tank_magn", "magma", "hazardous_liquid", "fortified",
+                 "impassable", "elevator", "planted_fields", "arms", "legs", "ground_fluff", "foliage_elev", "fluff",
+                 "bldg_fluff", "road_fluff"}
+EXTRA_BOARDS = {"BigBlank.board"}          # kept whatever its size (Daniel, 2026-11-17: "Add the 50x50 blank map")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=os.path.join(ROOT, "web_lab"))
@@ -90,8 +101,33 @@ def main():
     skip = {u["id"] for u in unmodeled}
     kept_units = [u for u in units if u.get("ok") and u["id"] not in skip]
     print(f"left out for unmodeled equipment: {len(unmodeled)} units")
-    kept_boards = [b for b in boards if (b["width"], b["height"]) == (16, 17)]
-    print(f"units {len(kept_units)} of {len(units)} (the rest the engine cannot play, or carry equipment it does not model); boards {len(kept_boards)} of {len(boards)} (16x17 only)")
+    # boards: the standard 16x17 sheet (Daniel, 2026-11-14), plus the 50x50 blank map (BigBlank, Daniel 2026-11-17); and none
+    # with terrain the engine does not play yet (Daniel, 2026-11-17: "Maps that have non functional bits (Bridges, elevators)
+    # should be excluded from the web version"): bridges, fuel tanks, elevators (engine/core/src/terrain_rules.rs
+    # UNSUPPORTED_FEATURES), or any terrain name the board reader does not know (board_parser.rs KNOWN_FEATURE_NAMES).
+    def nonfunctional(text):
+        found = set()
+        for line in text.splitlines():
+            parts = line.split('"')
+            if not line.startswith("hex ") or len(parts) < 2:
+                continue
+            for item in parts[1].split(";"):
+                name = item.split(":", 1)[0].strip().lower()
+                if name and (name in UNSUPPORTED_TERRAIN or name not in KNOWN_TERRAIN):
+                    found.add(name)
+        return found
+    sized = [b for b in boards if (b["width"], b["height"]) == (16, 17) or b["id"] in EXTRA_BOARDS]
+    dropped = {}
+    kept_boards = []
+    for b in sized:
+        bad = nonfunctional(board_text(b["id"]))
+        if bad:
+            for n in bad:
+                dropped[n] = dropped.get(n, 0) + 1
+        else:
+            kept_boards.append(b)
+    print(f"boards left out for terrain the engine does not play: {len(sized) - len(kept_boards)} ({', '.join(f'{k} {v}' for k, v in sorted(dropped.items()))})")
+    print(f"units {len(kept_units)} of {len(units)} (the rest the engine cannot play, or carry equipment it does not model); boards {len(kept_boards)} of {len(boards)} (16x17 and BigBlank only)")
     files, raw, stripped = [], 0, 0
     for u in kept_units:
         t = unit_text(u["id"])

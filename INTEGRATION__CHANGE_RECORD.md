@@ -6,6 +6,35 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-17 (Claude, session 28), COMBAT LAB ROUND: FULL POWER, CANCEL, WIDER TEAMS, MAP PAGE, WALK-ON ZONES, WEB MAPS; WHM v JVN STUDY. Battle results change only for walk-on starting zones (Lab zone modes; no reference battle uses them). REVIEW PENDING (higher-level model).**
+  Daniel's list. (1) FULL POWER: a box beside CPU threads (Options > Run) = every core, with the warning "turns the rest of your
+  computer into a potato"; it greys the threads box (`full_power` in the setup; `runs::threads_for(.., full_power)`, `engine.js`
+  `autoThreads`). (2) CANCEL RUN: beside the progress bar (renamed) and in the status bar beside the battle counter (shown while a
+  run plays). In the browser it now stops AT ONCE: the workers are ended mid-battle (`Player.stop`) and fresh ones start for the next
+  run; a battle cut off is not counted. The desktop stops dealing new battles (those under way finish, under a second each). (3)
+  TEAM COLUMNS WIDEN: grips between the team columns and the Unit Browser, dragged sideways (kept in the layout; double-click or
+  Reset layout clears). (4) NAME SEARCH: "jav r" already listed only names holding every word; now covered by the test. (5) WEB
+  MAPS: boards with bridges, fuel tanks or elevators (or a terrain name the reader does not know) are left out of the website (18
+  boards); the 50x50 BigBlank is added (`tools/build_web_lab.py`). (6) MAP PAGE: one click on a board previews it ("Previewing ...,
+  double-click to choose"), a double-click chooses it; a board added to the map list goes on TOP (so the preview shows it; Random map
+  too); the map list is a table, so its up / down / remove buttons line up. (7) WALK-ON ZONES (ENGINE, `deployment.rs`
+  `entry_segments` / `zone_entry_band`): a side box (N, E, S, W) enters from that whole edge; a corner box from the two edges meeting
+  there, each to its half-way point (the middle hex of an odd length in both); the centre from nowhere. Before, a box entered only
+  from the border inside its own third. The map preview now draws exactly those hexes: the DEPLOYMENT_DEPTH band solid, the extra rows
+  out to DEPLOYMENT_STUCK_DEPTH faint and dashed ("only for a unit stuck in the first rows"), with a legend; placed zones still shade
+  their boxes. `engine/core/tests/zone_entry.rs` (in run_checks). (8) IDEAS LIST (no action): dynamic maps (elevators), water
+  movement - PROJECT_MAP C7. TESTS: `check_web_ui.py` 65 checks (Full power at 5 core counts, "jav r", web boards, preview v choose,
+  map list order and alignment, entry hexes, the grip, Cancel from the status bar mid-run); `check_lab_server.py` checks automatic
+  and full-power threads. All 61 checks pass.
+  SIDEQUEST (Daniel: WHM-6R v JVN-10F, ~100 battles a seating, the three bots): `round_robin.py`, Grassland 1, home edges, 100-turn
+  cap, Warhammer always Red. Warhammer wins / Javelin wins by (WHM bot, JVN bot): G-G 75-24, G-P 79-20, G-H 72-28, P-G 41-59, P-P 74-26,
+  P-H 54-45, H-G 73-21, H-P 83-17, H-H 68-29. ANOMALY: with Princess driving the Warhammer, Gladiator's Javelin WINS (59%). In those
+  battles 43% of the Warhammer's volleys are at range 1 (its PPCs' minimum range; Gladiator / Hydra Warhammers: 6%), it fires 1.96
+  weapons a volley (others 2.5), the Javelin sits in its side or rear arc (its left side 429 times v right 30, so the torso guns
+  cannot fire), and 32% of the Javelin's hits land on its rear armor (others 13-15%). Princess's movement score for the Warhammer
+  carries a "close range" bonus of ~17 and a facing term that is 0 in 1,352 of 1,356 moves. Not changed: the Princess clone follows
+  MegaMek; whether real Princess plays a PPC boat this way is a question for the MegaMek bridge (E4). No engine fault seen.
+
 - **2026-11-17 (Claude, session 28), COMBAT LAB: CAUSE OF DEATH -> ITS BATTLES; CORES LEFT FREE AND LOWER PRIORITY; A TEST SUITE FOR THE WEBSITE. No battle result changes. REVIEW PENDING (higher-level model).**
   Daniel (browser version first): (1) "If we need a test suite go ahead and make it." NEW `tests/check_web_ui.py`: headless
   Chromium clicks through the website as a person would (41 checks: tabs, Unit Browser search, two unit sheets from the eyes, map

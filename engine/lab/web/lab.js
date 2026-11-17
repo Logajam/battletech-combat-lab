@@ -82,13 +82,14 @@ function setup() {
     battles: +$("battles").value || 20,
     seed: +$("seed").value || 0,
     threads: +$("threads").value || 0,
+    ...($("full-power").checked ? { full_power: true } : {}),
     max_turns: +$("max-turns").value || 100,
     ...(Object.keys(lab.options).length ? { options: lab.options } : {}),
   };
 }
 
 function save() {
-  try { localStorage.setItem(STORE, JSON.stringify({ teams: lab.teams, map: lab.map, battles: $("battles").value, seed: $("seed").value, threads: $("threads").value, maxTurns: $("max-turns").value, options: lab.options, deploy: lab.deploy })); } catch (e) { /* storage off: nothing kept */ }
+  try { localStorage.setItem(STORE, JSON.stringify({ teams: lab.teams, map: lab.map, battles: $("battles").value, seed: $("seed").value, threads: $("threads").value, fullPower: $("full-power").checked, maxTurns: $("max-turns").value, options: lab.options, deploy: lab.deploy })); } catch (e) { /* storage off: nothing kept */ }
   $("estimate").textContent = "Press Estimate";
 }
 
@@ -108,6 +109,7 @@ function restore() {
     lab.deploy = { ...lab.deploy, ...(saved.deploy || {}) };
     $("battles").value = saved.battles || 20; $("seed").value = saved.seed && saved.seed !== "1" ? saved.seed : "";   // an empty box = a new seed each run (the old default, 1, is dropped)
     $("threads").value = saved.threads || 0; $("max-turns").value = saved.maxTurns || 100;
+    $("full-power").checked = !!saved.fullPower; $("threads").disabled = $("full-power").checked;
   } else {
     const start = DEMO ? DEMO.setup : { teams: [{ name: "Red", bot: "gladiator", units: [{ unit: "Atlas AS7-K.mtf" }, { unit: "Griffin GRF-1N.mtf" }] },
       { name: "Blue", bot: "gladiator", units: [{ unit: "Awesome AWS-8Q.mtf" }, { unit: "Hunchback HBK-4G.mtf" }] }], board: lab.info.default_board, battles: 20, seed: "" };
@@ -317,6 +319,37 @@ function colResize(table, kind) {
     });
     th.appendChild(h);
   });
+}
+
+// The team columns can be made wider or narrower (Daniel, 2026-11-17: "Teams boxes should be allowed to be expanded sideways
+// too"): the grips between them and the Unit Browser are dragged sideways; the widths are kept in the layout (double-click a
+// grip, or Reset layout, to go back to the default shares). The browser keeps at least 360 px.
+function deskColumns() {
+  const L = lab.layout.deskL, R = lab.layout.deskR;
+  $("page-units").querySelector(".units-desk").style.gridTemplateColumns =
+    L || R ? `${L ? `${L}px` : "minmax(250px, 1fr)"} 8px minmax(360px, 1.5fr) 8px ${R ? `${R}px` : "minmax(250px, 1fr)"}` : "";
+}
+function wireColumnGrips() {
+  const desk = $("page-units").querySelector(".units-desk");
+  for (const [id, side] of [["grip-left", "deskL"], ["grip-right", "deskR"]]) {
+    const g = $(id);
+    g.addEventListener("pointerdown", (e) => {
+      if (e.button || narrow()) return;
+      e.preventDefault(); g.setPointerCapture(e.pointerId); g.classList.add("dragging");
+      const move = (m) => {
+        const d = desk.getBoundingClientRect();
+        const other = side === "deskL" ? $("teams-right").getBoundingClientRect().width : $("teams-left").getBoundingClientRect().width;
+        const max = d.width - other - 16 - 360;
+        lab.layout[side] = Math.round(clampNum(side === "deskL" ? m.clientX - d.left : d.right - m.clientX, 180, Math.max(180, max)));
+        deskColumns();
+      };
+      const up = () => { g.removeEventListener("pointermove", move); g.classList.remove("dragging"); saveLayout(); fitZoneLines(); };
+      g.addEventListener("pointermove", move);
+      g.addEventListener("pointerup", up, { once: true });
+    });
+    g.addEventListener("dblclick", () => { delete lab.layout[side]; saveLayout(); deskColumns(); fitZoneLines(); });
+  }
+  deskColumns();
 }
 
 // A docked team panel can be pulled taller or shorter by its bottom corner; the height is kept. Double-click its title to clear it.
@@ -774,14 +807,25 @@ function drawBoards() {
   const m = lab.map;
   const current = m.mode === "one" ? m.one : m.mode === "playlist" ? null : m.cells[m.cell];
   const body = $("boards").tBodies[0];
-  body.innerHTML = list.slice(0, 400).map((b) => `<tr data-id="${esc(b.id)}" class="${b.id === current ? "on" : ""}"><td>${esc(b.name)}</td><td class="num">${b.width}&times;${b.height}</td><td>${esc(b.source)}</td></tr>`).join("")
+  body.innerHTML = list.slice(0, 400).map((b) => `<tr data-id="${esc(b.id)}" class="${b.id === current ? "on" : b.id === lab.peek ? "peek" : ""}"><td>${esc(b.name)}</td><td class="num">${b.width}&times;${b.height}</td><td>${esc(b.source)}</td></tr>`).join("")
     || `<tr><td colspan="3" class="note">No board matches</td></tr>`;
-  body.querySelectorAll("tr[data-id]").forEach((tr) => tr.addEventListener("click", () => {
-    if (m.mode === "one") m.one = tr.dataset.id;
-    else if (m.mode === "playlist") m.playlist.push(tr.dataset.id);
-    else { m.cells[m.cell] = tr.dataset.id; m.cell = (m.cell + 1) % m.cells.length; }
-    save(); drawBoards();
-  }));
+  // one click previews a board; a double-click chooses it (Daniel, 2026-11-17: "sometimes I want to see the preview of a map
+  // before adding it"). A board added to the map list goes on TOP, so the preview (the list's first map) shows it.
+  body.querySelectorAll("tr[data-id]").forEach((tr) => {
+    tr.addEventListener("click", () => {
+      lab.peek = tr.dataset.id;
+      body.querySelectorAll("tr.peek").forEach((x) => x.classList.remove("peek"));
+      if (!tr.classList.contains("on")) tr.classList.add("peek");
+      drawPreview();
+    });
+    tr.addEventListener("dblclick", () => {
+      lab.peek = null;
+      if (m.mode === "one") m.one = tr.dataset.id;
+      else if (m.mode === "playlist") m.playlist.unshift(tr.dataset.id);
+      else { m.cells[m.cell] = tr.dataset.id; m.cell = (m.cell + 1) % m.cells.length; }
+      save(); drawBoards();
+    });
+  });
   $("map-one").checked = m.mode === "one";
   $("map-stitch").checked = m.mode === "stitch";
   $("map-playlist").checked = m.mode === "playlist";
@@ -820,6 +864,7 @@ async function getBoard(id) {
 // the place of the chosen map: [{board, ox, oy}] with its total size, or null when it is not ready
 async function mapParts() {
   const m = lab.map;
+  if (lab.peek && lab.boardById.has(lab.peek)) { const b = await getBoard(lab.peek); if (b) return { w: b.w, h: b.h, cells: [{ board: b, ox: 0, oy: 0 }], peek: true }; }
   if (m.mode === "one" || m.mode === "playlist") {
     const id = m.mode === "one" ? m.one : (m.playlist || [])[0];
     const b = id && (await getBoard(id)); return b ? { w: b.w, h: b.h, cells: [{ board: b, ox: 0, oy: 0 }] } : null;
@@ -863,13 +908,28 @@ function paintMap(canvas, parts, zones) {
       if (showLevels && hex.level !== 0) { g.fillStyle = hex.level > 8 || hex.level < -1 ? "#fff" : "#222"; g.font = `${Math.round(R * 0.5)}px sans-serif`; g.textAlign = "center"; g.fillText(hex.level, x, y + R * 0.7); }
     }
   }
-  // starting zones: a shade over the hexes of each team's boxes, and the team's name in the middle of each box
+  // starting zones. PLACED: a shade over the hexes of the team's boxes. WALK ON: the hexes the engine really lets a unit
+  // enter from (Daniel, 2026-11-17: "The highlighted entry boxes should match the actual deployment area based on the
+  // deployment depth options, including the anti-stuck options"): the entry band DEPLOYMENT_DEPTH deep, solid; the extra rows
+  // out to DEPLOYMENT_STUCK_DEPTH, faint with a dashed edge, are used only by a unit that could not get out of the first band.
+  // Then the team's name in the middle of each box.
+  const { depth: dd, stuck: sd } = deployDepths();
   (zones || []).forEach((z, zi) => {
-    for (let r = 1; r <= parts.h; r++) for (let c = 1; c <= parts.w; c++) {
-      const box = Math.min(2, Math.floor(((r - 1) * 3) / parts.h)) * 3 + Math.min(2, Math.floor(((c - 1) * 3) / parts.w));
-      if (!z.boxes[box]) continue;
-      const [x, y] = centre(c, r); path(x, y, 1);
-      g.fillStyle = z.colour + "55"; g.fill();
+    if (z.walk_on) {
+      const near = entryHexes(z.boxes, parts.w, parts.h, dd), far = sd > dd ? entryHexes(z.boxes, parts.w, parts.h, sd) : new Set();
+      for (const k of far) {
+        if (near.has(k)) continue;
+        const [c, r] = k.split(",").map(Number), [x, y] = centre(c, r); path(x, y, 1);
+        g.fillStyle = z.colour + "22"; g.fill(); g.setLineDash([2, 2]); g.strokeStyle = z.colour; g.lineWidth = 1; g.stroke(); g.setLineDash([]);
+      }
+      for (const k of near) { const [c, r] = k.split(",").map(Number), [x, y] = centre(c, r); path(x, y, 1); g.fillStyle = z.colour + "88"; g.fill(); }
+    } else {
+      for (let r = 1; r <= parts.h; r++) for (let c = 1; c <= parts.w; c++) {
+        const box = Math.min(2, Math.floor(((r - 1) * 3) / parts.h)) * 3 + Math.min(2, Math.floor(((c - 1) * 3) / parts.w));
+        if (!z.boxes[box]) continue;
+        const [x, y] = centre(c, r); path(x, y, 1);
+        g.fillStyle = z.colour + "55"; g.fill();
+      }
     }
     g.font = `bold ${Math.max(10, Math.round(R * 0.9))}px sans-serif`; g.textAlign = "center";
     z.boxes.forEach((on, box) => {
@@ -881,25 +941,53 @@ function paintMap(canvas, parts, zones) {
     });
   });
 }
+// The deployment depths in force: the Options page's value, else the option's default (0 and 3).
+function deployDepths() {
+  const val = (k, d) => { const v = lab.options && lab.options[k]; if (v !== undefined && v !== "") return +v; const o = (lab.registry || []).find((x) => x.key === k); return o ? +o.default : d; };
+  return { depth: val("DEPLOYMENT_DEPTH", 0), stuck: val("DEPLOYMENT_STUCK_DEPTH", 3) };
+}
+// The hexes ("col,row") a walk-on zone enters from, up to `depth` in: the same rule as the engine's
+// deployment::zone_entry_band. A side box (N, E, S, W) = that whole edge; a corner box = the two edges meeting there, each from
+// the corner to its half-way point (the middle hex of an odd length is in both halves); the centre = none.
+function entryHexes(boxes, w, h, depth) {
+  const BY_BOX = [[["N", 1], ["W", 1]], [["N", 0]], [["N", 2], ["E", 1]], [["W", 0]], [], [["E", 0]], [["S", 1], ["W", 2]], [["S", 0]], [["S", 2], ["E", 2]]];
+  const out = new Set();
+  boxes.forEach((on, k) => {
+    if (!on) return;
+    for (const [edge, part] of BY_BOX[k]) {
+      const len = edge === "N" || edge === "S" ? w : h;
+      for (let along = 1; along <= len; along++) {
+        if ((part === 1 && along * 2 > len + 1) || (part === 2 && along * 2 < len + 1)) continue;
+        for (let d = 0; d <= depth; d++) {
+          const [c, r] = edge === "N" ? [along, 1 + d] : edge === "S" ? [along, h - d] : edge === "W" ? [1 + d, along] : [w - d, along];
+          if (c >= 1 && c <= w && r >= 1 && r <= h) out.add(`${c},${r}`);
+        }
+      }
+    }
+  });
+  return out;
+}
 let previewToken = 0;
 async function drawPreview() {
   const token = ++previewToken, canvas = $("map-preview");
   const parts = await mapParts();
   if (token !== previewToken) return;
   canvas.hidden = !parts; $("map-legend").hidden = !parts;
+  const pb = lab.peek && lab.boardById.get(lab.peek);
+  $("board-chosen").innerHTML = pb ? `<p><b>Previewing ${esc(pb.name)}</b> (${pb.width}&times;${pb.height})<br><span class="note">Double-click it in the list to choose it; it is not chosen yet.</span></p>` : mapCheck().text;
   if (!parts) return;
   paintMap(canvas, parts, lab.zonesOverlay ? lab.zonesOverlay() : null);
   $("map-legend").innerHTML = [-2, 0, 2, 4, 6, 8, 10].map((l) => `<span><i style="background:${levelColour(l)}"></i>${l === 10 ? "10+" : l}</span>`).join("") +
-    `<span><i style="background:#1e5ac8"></i>Water</span><span><i style="background:#2d5a2a"></i>Woods</span><span><i style="background:#6e6e6e"></i>Road / paving</span><span><i style="background:#5a3c1e"></i>Rough</span><span><i style="background:#3c3c46"></i>Building</span>`;
+    (lab.zonesOverlay && lab.zonesOverlay() && lab.zonesOverlay().some((z) => z.walk_on) ? (() => { const { depth, stuck } = deployDepths(); return `<span><i style="background:#88888888"></i>Walk-on entry (${depth ? `${depth + 1} rows deep` : "edge row"})</span>${stuck > depth ? `<span><i style="background:#88888822;outline:1px dashed #888"></i>Only for a unit stuck in the first rows (to ${stuck + 1} deep)</span>` : ""}`; })() : "") + `<span><i style="background:#1e5ac8"></i>Water</span><span><i style="background:#2d5a2a"></i>Woods</span><span><i style="background:#6e6e6e"></i>Road / paving</span><span><i style="background:#5a3c1e"></i>Rough</span><span><i style="background:#3c3c46"></i>Building</span>`;
 }
 
 function drawPlaylist() {
-  const m = lab.map, ol = $("playlist");
+  const m = lab.map, ol = $("playlist").tBodies[0];
   ol.innerHTML = m.playlist.length ? m.playlist.map((id, i) => {
     const b = lab.boardById.get(id);
-    return `<li><span class="pl">${esc(b ? b.name : id)} <span class="note">${b ? `${b.width}&times;${b.height}` : ""}</span>
-      <button class="btn small" data-up="${i}" ${i ? "" : "disabled"} title="Earlier">&#9650;</button><button class="btn small" data-down="${i}" ${i < m.playlist.length - 1 ? "" : "disabled"} title="Later">&#9660;</button><button class="btn small" data-del="${i}" title="Remove">&times;</button></span></li>`;
-  }).join("") : `<li class="note" style="list-style:none;margin-left:-22px">No maps yet: click boards in the list.</li>`;
+    return `<tr><td class="n">${i + 1}.</td><td>${esc(b ? b.name : id)}</td><td class="note">${b ? `${b.width}&times;${b.height}` : ""}</td>
+      <td class="b"><button class="btn small" data-up="${i}" ${i ? "" : "disabled"} title="Earlier">&#9650;</button></td><td class="b"><button class="btn small" data-down="${i}" ${i < m.playlist.length - 1 ? "" : "disabled"} title="Later">&#9660;</button></td><td class="b"><button class="btn small" data-del="${i}" title="Remove">&times;</button></td></tr>`;
+  }).join("") : `<tr><td class="note">No maps yet: double-click boards in the list.</td></tr>`;
   const move = (i, to) => { const [x] = m.playlist.splice(i, 1); m.playlist.splice(to, 0, x); save(); drawBoards(); };
   ol.querySelectorAll("[data-up]").forEach((b) => b.addEventListener("click", () => move(+b.dataset.up, +b.dataset.up - 1)));
   ol.querySelectorAll("[data-down]").forEach((b) => b.addEventListener("click", () => move(+b.dataset.down, +b.dataset.down + 1)));
@@ -986,7 +1074,7 @@ function drawZones() {
   $("zone-opposite-tag").hidden = two;
   zonesChanged();
 }
-lab.zonesOverlay = () => (lab.deploy.mode === "rulebook" ? null : lab.teams.map((t, ti) => ({ boxes: zoneOf(t, ti).boxes, colour: t.colour, label: t.name })));
+lab.zonesOverlay = () => (lab.deploy.mode === "rulebook" ? null : lab.teams.map((t, ti) => ({ boxes: zoneOf(t, ti).boxes, walk_on: !!zoneOf(t, ti).walk_on, colour: t.colour, label: t.name })));
 
 // the stitched map: a grid of places; the chosen place gets the next board clicked in the list
 function drawStitch() {
@@ -1039,7 +1127,7 @@ function randomMap() {
   if (!list.length) return;
   const m = lab.map;
   if (m.mode === "one") m.one = list[Math.floor(Math.random() * list.length)].id;
-  else if (m.mode === "playlist") m.playlist.push(list[Math.floor(Math.random() * list.length)].id);
+  else if (m.mode === "playlist") m.playlist.unshift(list[Math.floor(Math.random() * list.length)].id);
   else {
     // one size for every place, so the boards always fit together
     const sizes = [...new Set(list.map((b) => `${b.width}x${b.height}`))];
@@ -1074,6 +1162,7 @@ async function runBatch() {
     $("bar").style.width = pct(p.done / p.battles);
     $("progress-text").textContent = `${p.done} / ${p.battles} battles, ${fmtSecs(p.seconds)}, seed ${lab.runSetup.seed}${p.cancelled ? " (cancelled)" : ""}`;
     $("cancel-btn").disabled = p.finished;
+    $("cancel-btn-2").hidden = p.finished;
     setStatus(p.finished ? "Batch finished" : "Running...", `${p.done} / ${p.battles}`);
     if (p.finished || ticks++ % 5 === 0) await drawResults();
     if (p.finished) clearInterval(lab.poll);
@@ -1181,7 +1270,7 @@ function applySetup(s) {
   else if (s.board && s.board.grid) { const g = s.board.grid; Object.assign(m, { mode: "stitch", rows: g.length, cols: g[0].length, cells: g.flat(), cell: 0 }); }
   lab.deploy = { mode: s.zone_mode || "rulebook", opposite: !!s.zone_opposite };
   lab.options = s.options || {};
-  $("battles").value = s.battles; $("seed").value = s.seed; $("threads").value = s.threads || 0; $("max-turns").value = s.max_turns || 100;
+  $("battles").value = s.battles; $("seed").value = s.seed; $("threads").value = s.threads || 0; $("max-turns").value = s.max_turns || 100; $("full-power").checked = !!s.full_power; $("threads").disabled = $("full-power").checked;
   $("team-count").value = lab.teams.length;
   save(); drawTeams(); drawZones(); drawBoards(); drawOptions();
 }
@@ -1338,6 +1427,7 @@ async function openReplay(which) {
 
 // ---------------------------------------------------------------- tabs
 function show(page) {
+  if (page === "map" && typeof drawPreview === "function") setTimeout(drawPreview, 0);     // the deployment depths may have changed on the Options page
   document.querySelectorAll(".tab").forEach((t) => t.setAttribute("aria-selected", String(t.dataset.page === page)));
   document.querySelectorAll(".page").forEach((p) => { p.hidden = p.id !== "page-" + page; });
 }
@@ -2051,6 +2141,7 @@ async function start() {
   drawZones();
   drawBoards();
   wireBrowserWindow();
+  wireColumnGrips();
   await initBrowser();
   await loadOptions();
   pickedChanged();
@@ -2065,7 +2156,7 @@ async function start() {
   document.querySelectorAll(".subtab").forEach((b) => b.addEventListener("click", () => showOptionPane(b.dataset.pane)));
   $("opt-reset-all").addEventListener("click", () => { lab.options = {}; save(); drawOptions(); });
   $("reset-layout").addEventListener("click", () => {
-    lab.layout = {}; saveLayout(); lockBrowserList(null);
+    lab.layout = {}; saveLayout(); lockBrowserList(null); deskColumns();
     const b = $("browser"); sizeWatch.unobserve(b); b.classList.remove("float"); b.style.cssText = ""; $("browser-slot").appendChild(b);
     drawTeams();
   });
@@ -2073,13 +2164,20 @@ async function start() {
   $("about-close").addEventListener("click", () => { $("about").hidden = true; });
   $("report-btn").addEventListener("click", openReport);
   $("report-close").addEventListener("click", () => { $("report").hidden = true; });
-  $("cancel-btn").addEventListener("click", () => api("cancel", { run: lab.run }));
+  // Cancel run (Daniel, 2026-11-17): beside the progress bar and beside the battle counter in the status bar
+  const cancelRun = async () => { if (!lab.run) return; setStatus("Cancelling..."); await api("cancel", { run: lab.run }); };
+  $("cancel-btn").addEventListener("click", cancelRun);
+  $("cancel-btn-2").addEventListener("click", cancelRun);
+  // Full power: every core; the threads box does not apply while it is on
+  const fullPower = () => { $("threads").disabled = $("full-power").checked; $("full-power-warn").classList.toggle("on", $("full-power").checked); };
+  $("full-power").addEventListener("change", () => { fullPower(); save(); });
+  fullPower();
   $("board-search").addEventListener("input", drawBoards);
   $("board-size").addEventListener("change", drawBoards);
   $("board-random").addEventListener("click", randomMap);
-  $("map-one").addEventListener("change", () => { lab.map.mode = "one"; save(); drawBoards(); });
-  $("map-stitch").addEventListener("change", () => { lab.map.mode = "stitch"; save(); drawBoards(); });
-  $("map-playlist").addEventListener("change", () => { lab.map.mode = "playlist"; save(); drawBoards(); });
+  $("map-one").addEventListener("change", () => { lab.peek = null; lab.map.mode = "one"; save(); drawBoards(); });
+  $("map-stitch").addEventListener("change", () => { lab.peek = null; lab.map.mode = "stitch"; save(); drawBoards(); });
+  $("map-playlist").addEventListener("change", () => { lab.peek = null; lab.map.mode = "playlist"; save(); drawBoards(); });
   $("playlist-order").addEventListener("change", (e) => { lab.map.order = e.target.value; save(); drawBoards(); });
   $("playlist-clear").addEventListener("click", () => { lab.map.playlist = []; save(); drawBoards(); });
   $("zone-mode").addEventListener("change", (e) => { lab.deploy.mode = e.target.value; drawZones(); });
