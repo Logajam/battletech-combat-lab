@@ -6,7 +6,23 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
-- **2026-11-15 (Claude, session 27), WEBSITE: UNITS WITH UNMODELED EQUIPMENT LEFT OUT; CHECKPOINT. REVIEW PENDING (higher-level model).**
+- **2026-11-17 (Claude, session 28), REVIEW OF SESSION 27 (2026-11-15: unit browser, Units page, unit sheet and editor stages 1-3, website unit filter). No code changes.**
+  Every check passes on `main` (60 of 60, incl. the 86 Rust reference battles and the bridge parity check). ENGINE PARTS, judged
+  safe: (1) `mtf_parser.rs` `normalize_type_text` (letters and digits only) and the new spellings (Standard Armor, Light / Heavy
+  Ferro-Fibrous, Ferro-Fibrous Prototype, Stealth Armor, Endo Steel Prototype) read as Standard, as their old spellings did; Stealth
+  armor keeps its effects (BV and heat read `armor_desc`, not the type). (2) The `LA IS:17` structure lines: none of the 4,227 library
+  files has a key the reader could mistake for one (scanned); the editor writes every location at once, so the 200 t fallback rows
+  are never used for a location left out. NOTES, not bugs: (a) the editor's construction numbers (engine sinks = rating / 25, the 10-sink
+  minimum, armor up to 2 x structure, head 9, double heat sink sizes 3 / 2, MASC size) are from memory, not the library; they only
+  raise warnings, the TechManual is not indexed, and TO:AUE's patchwork-armor example agrees on the 2 x structure maximum. Treat them
+  as placeholders until the TechManual is in. (b) The website filter drops only units the PARSER warns about; units whose equipment
+  loads but runs on a loud stub (TAG, C3...) stay listed: Daniel's call whether those count as "unmodeled". (c) `tests/check_web_lab.py`
+  is not part of `run_checks.py` (it needs the wasm32 target); run it by hand after any change to `engine/wasm` or `describe.rs`.
+  (d) The Python parser does not know the new spellings or the IS lines (Python retired; no effect on the Rust answer key). (e) These
+  nine entries had never been put in the REVIEW QUEUE; marked reviewed here. The low-poly reference work (branch
+  `claude/youthful-euler-vv1pfc`, not merged) stays queued: its own check passes; the likeness is Daniel's to judge.
+
+- **2026-11-15 (Claude, session 27), WEBSITE: UNITS WITH UNMODELED EQUIPMENT LEFT OUT; CHECKPOINT. REVIEWED 2026-11-17 (see the review entry above).**
   Daniel: "any units with unmodeled equipment should be removed from the website version... They will be built eventually", and a
   checkpoint (merge to main, update the actual website). `tools/build_web_lab.py` now leaves out every unit the engine warns about
   for equipment it does not model (`warnings` from `describe.rs`: an unknown component, an unmodeled armor or structure type, or
@@ -15,7 +31,7 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   new build. The sheet editor in the browser still lists the whole equipment catalogue (a unit built in the editor from unmodeled
   equipment is the user's own doing).
 
-- **2026-11-15 (Claude, session 27), EDITOR ROUND 3: EYE PREVIEWS, "NEEDS A PLACE" TRAY, DHS FIX, THE SPELLING WITCH HUNT. REVIEW PENDING (higher-level model).**
+- **2026-11-15 (Claude, session 27), EDITOR ROUND 3: EYE PREVIEWS, "NEEDS A PLACE" TRAY, DHS FIX, THE SPELLING WITCH HUNT. REVIEWED 2026-11-17 (see the review entry above).**
   (1) BUG: the heat sink warning counted each slot of a double heat sink (the equipment database lists one as 1 slot);
   `itemsOf` now gives a heat sink item its real size (inner sphere double 3, clan double 2). (2) EYE COLUMN: the Preview button is
   gone; a fixed eye column in the Unit Browser opens that unit's sheet (read only); several can be open at once to compare (each
@@ -40,7 +56,7 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   whether those should be built, and the remaining spelling splits in the files themselves (Endo-Steel / Endo Steel, 4 armor
   groups) that the lists now hide.
 
-- **2026-11-15 (Claude, session 27), UNIT EDITOR IN THE BROWSER BUILD, AND CONFIG. REVIEW PENDING (higher-level model).**
+- **2026-11-15 (Claude, session 27), UNIT EDITOR IN THE BROWSER BUILD, AND CONFIG. REVIEWED 2026-11-17 (see the review entry above).**
   Daniel: quirks, role and omni pods are fluff (not built); CONFIG matters; nothing extra for the BV-v-win-rate research (the user
   does it with the editor). (1) Config: a Biped / Quad / Tripod list converts the location blocks (arms <-> front legs with
   shoulder = hip ... hand = foot, legs <-> rear legs, the centre leg added or removed), the armor and structure line keys, and
@@ -54,7 +70,7 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   (text in the setup)" battle set (browser = desktop, battle for battle) and 5 editor checks; all pass. The published website
   artifact was rebuilt and updated (data block as base64, the host serves no .gz).
 
-- **2026-11-15 (Claude, session 27), UNIT EDITOR STAGE 2: A .MTF EDITOR, MODIFIED UNITS ARE TEMPORARY. REVIEW PENDING (higher-level model).**
+- **2026-11-15 (Claude, session 27), UNIT EDITOR STAGE 2: A .MTF EDITOR, MODIFIED UNITS ARE TEMPORARY. REVIEWED 2026-11-17 (see the review entry above).**
   Daniel's notes on stage 1. DESIGN: this is an editor for fun and research, not a designer; legality is never checked, the aim
   is only that anything it makes plays in the engine (Daniel: "an Atlas that moves at 6/9... does the BV increase equal a change in
   win rate?"). CHANGED: (A) no Download .mtf and no unit file is ever written: "Use this design" puts a MODIFIED unit in the team
@@ -80,7 +96,7 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   gyro / cockpit slot layouts cover the common types only; the equipment list has no tech-base filter; the browser (wasm) version.
   RULES TO CHECK in the library: engine-held sinks = rating / 25, the 10-sink minimum, armor = 2 x structure (head 9).
 
-- **2026-11-15 (Claude, session 27), UNIT SHEET AND EDITOR, STAGE 1 (superseded by stage 2 above where they differ: no file is written) (Daniel's list item 1). REVIEW PENDING (higher-level model).**
+- **2026-11-15 (Claude, session 27), UNIT SHEET AND EDITOR, STAGE 1 (superseded by stage 2 above where they differ: no file is written) (Daniel's list item 1). REVIEWED 2026-11-17 (see the review entry above).**
   Daniel: a unit in the browser shows its stats; on a team the values become editable with mild construction limits and an
   override; the one hard rule is that equipment must fit the critical slots; BV follows the design; custom units without a file
   download; "for science", illegal designs welcome. BUILT: (Rust, `engine/lab/src`) three calls, `unit_text` (a unit's file),
@@ -105,11 +121,11 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   filtering; quirks, omni pods and armored components are left as the file has them; the 23 LAMs do not load. RULES TO CHECK against
   the library (not yet cited in the code): engine-held sinks = rating / 25, the 10-sink minimum, armor = 2 x structure (head 9).
 
-- **2026-11-15 (Claude, session 27), DEMO MAP PREVIEWS. REVIEW PENDING (higher-level model).** Daniel: the Map tab shows no
+- **2026-11-15 (Claude, session 27), DEMO MAP PREVIEWS. REVIEWED 2026-11-17 (see the review entry above).** Daniel: the Map tab shows no
   previews. Demo only: it had no answer for the "board" request. `tools/make_lab_demo.py` now embeds every board's text
   (`board_texts`, about 4 MB; the page is 7.7 MB) and `lab.js` `demoApi` answers "board" from it. The real Lab was fine.
 
-- **2026-11-15 (Claude, session 27), UNITS PAGE ROUND 2: SIZES, COLUMNS, TRIANGLES, TIDIER BROWSER. REVIEW PENDING (higher-level model).**
+- **2026-11-15 (Claude, session 27), UNITS PAGE ROUND 2: SIZES, COLUMNS, TRIANGLES, TIDIER BROWSER. REVIEWED 2026-11-17 (see the review entry above).**
   Daniel's notes after the first look. Pages only (`lab.js`, `lab.css`, `index.html`) plus `tools/make_lab_demo.py`. Narrow
   (phone) screens: the browser is one screenful (80% of the height, 640 px at most) and its list scrolls inside it. Docked team
   panels pull taller or shorter by their bottom corner (height kept in the layout; double-click the title to clear it; floating
@@ -123,7 +139,7 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   Lab matched 4,229 units. Checked in a real browser at 1920x1080 and 420x800; no page errors. Daniel's longer list (unit
   editor, TacOps options, Total Warfare ground units, unit icons) is recorded in PROJECT_MAP E2a.
 
-- **2026-11-15 (Claude, session 27), UNITS PAGE: SCROLLING, DYNAMIC COLUMNS, LESS CLUTTER ON THE TEAM PANELS. REVIEW PENDING (higher-level model).**
+- **2026-11-15 (Claude, session 27), UNITS PAGE: SCROLLING, DYNAMIC COLUMNS, LESS CLUTTER ON THE TEAM PANELS. REVIEWED 2026-11-17 (see the review entry above).**
   Daniel's list items 4, 7 and 5. Pages only (`lab.js`, `lab.css`, `index.html`; no engine change). (4) Teams 3 and up could not be
   reached: the side columns squeezed the team panels instead of scrolling; `.col > .win { flex: none }` keeps each panel its height
   and the column scrolls. (7) The Unit Browser table always shows Unit, Tons and BV; the other columns (`COLS` in `lab.js`: Move,
@@ -136,7 +152,7 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   Checked in a real browser (6 teams scroll; columns appear with the search; add, double-click and the zone boxes work, no page
   errors). `tests/check_web_lab.py` could not run here (no wasm32 build target in this container); `check_lab_server.py` passes.
 
-- **2026-11-15 (Claude, session 27), UNIT BROWSER SHOWED ARMOR 0 - FIXED. REVIEW PENDING (higher-level model).**
+- **2026-11-15 (Claude, session 27), UNIT BROWSER SHOWED ARMOR 0 - FIXED. REVIEWED 2026-11-17 (see the review entry above).**
   Daniel: "Unit browser is showing units with armor 0?" Cause: `engine/lab/src/catalog.rs` `describe_unit` summed only
   `"<loc> Armor:N"` lines (capital A), but 1,557 of the library's 'Mechs write `"LA armor:N"` in lower case, so they summed to 0.
   Now one case-insensitive sum of every `"<location> armor"` line (front and rear; the bare `armor:` type header is still left
