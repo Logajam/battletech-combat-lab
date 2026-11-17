@@ -67,10 +67,11 @@ GitHub logistics.
     (`check_web_ui.py`, `check_web_lab.py`) + `check_lab_server.py`; the
     Python -> its tests and 15 reference battles; anything else (the engine)
     -> the Rust checks + the website + the Lab server. The Rust reference
-    battles (86, `tests/check_rust_reference.py --parity`; `--update` for a
-    Rust change meant to alter results) are played once under the MegaMek
-    bridge's parity check too, so `check_bridge_parity.py` no longer runs
-    separately. `--list` shows the choice and why. **Before a merge: always
+    battles (87, `tests/check_rust_reference.py`; `--update` for a Rust
+    change meant to alter results) and the MegaMek bridge's parity check
+    (`tests/check_bridge_parity.py --quick`) run one after the other
+    (`check_rust_reference.py --parity` does both in one run, every battle
+    in full: thorough, but 2.5x slower). `--list` shows the choice and why. **Before a merge: always
     `--full`** (every Rust and website check). The retired Python runs only
     when a Python file changed or with `--python`: run that once a week (the
     first session of the week). All must pass. A new bot call (`BotSet`
@@ -111,7 +112,7 @@ GitHub logistics.
   `INTEGRATION__battle_value`). Daniel wants "general feel, not full stats":
   only the interesting series, few battles, unless he asks for a full run.
 - **Three bots now:** "hydra" (Rust only, session 24) is Claude's own design: one planner per team, damage priced
-  by a forecast of how the battle ends. COMPLETE (Daniel, 2026-11-12); `INTEGRATION__HYDRA.md` is its plan and
+  by a forecast of how the battle ends. COMPLETE (Daniel, 2026-11-12; reopened once, 2026-11-17, for the map edge); `INTEGRATION__HYDRA.md` is its plan and
   results (read before the code). Trials: `tools/hydra_scenarios.py`, `tools/hydra_trial.py`, `tools/round_robin.py`,
   `btsim --hydra TEAM`.
 - **MegaMek bridge** (session 25; `INTEGRATION__MEGAMEK_BRIDGE.md`, `megamek_bridge/README.md`): our bots play as

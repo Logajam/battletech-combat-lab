@@ -50,9 +50,9 @@ and the GitHub logistics (Section 7).
 - **After any change:** `python tests/run_checks.py` picks the checks from what changed since origin/main (levels:
   docs / art / Lab pages / Python / engine; `--list` says why); `--full` before every merge; `--python` adds the
   retired Python's tests and 15 reference battles (weekly). The engine level: the Rust reference set
-  (`check_rust_reference.py --parity`: 86 battles from `engine/reference/scenarios.zip`, logs in `engine/reference/logs/`,
-  each also checked by the MegaMek bridge's parity check, plus its wire test; `--update` for a Rust change meant to
-  alter results), the engine's cargo tests, `check_lab_server.py --battles 4`, and the website (`check_web_ui.py`, then
+  (`check_rust_reference.py`: 87 battles from `engine/reference/scenarios.zip`, logs in `engine/reference/logs/`;
+  `--update` for a Rust change meant to alter results; `--parity` also runs every battle in full under the bridge's
+  parity check, a thorough but slower run), the bridge's `check_bridge_parity.py --quick`, the engine's cargo tests, `check_lab_server.py --battles 4`, and the website (`check_web_ui.py`, then
   `check_web_lab.py --battles 4`). Heavy checks run one at a time. The Rust turn cap is 100
   (`scenario::STANDARD_MAX_TURNS`, Daniel 2026-11-12; the Python keeps 50); 2 battles reach it: the Asymptote mirror (the
   stall, backlog A1) and a first-version Hydra battle.
@@ -231,6 +231,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s28-3) HYDRA EDGE RISK + CHECK LEVELS** (session 28): `hydra::would_be_chargers` / `edge_risk`; `run_bridge_checked`'s log and `btsim --bridge-parity --log`; `check_rust_reference.py --parity`; the levels in `run_checks.py` (`kind_of`, `plan`).
 - **(s28-2) WALK-ON ZONES + LAB ROUND** (session 28): ENGINE `deployment::entry_segments` / `zone_entry_band` (walk-on zones), `tests/zone_entry.rs`; `entryHexes` / `deployDepths` and the zone paint in lab.js; `Player.stop` (browser cancel) in engine.js; the board filter in `build_web_lab.py`.
 - **(s28-1) CAUSE FILTER, CORES, WEB UI TESTS** (session 28): `runs::matches` `cause_is`, `runs::threads_for`, `main.rs::lower_priority` (the Windows FFI), `engine.js` `autoThreads`, `filterByCause` in lab.js, `tests/check_web_ui.py`, the web line in `run_checks.py`.
 - **(s26-9) COMBAT LAB IN THE BROWSER** (session 26): `engine/wasm`, `engine/wasm/web/*.js`, `tools/build_web_lab.py`, `tests/check_web_lab.py`, `SetupPaths.memory` in `scenario.rs`, the wasm32 gates in `lab/src/runs.rs`. The worker-crash path (WebAssembly panics abort; `worker.js` records the seed and restarts the instance) is written but NOT yet exercised: no known unit crashes the engine to try it on. `add_unit` still missing.

@@ -19,8 +19,10 @@ Added 2026-10-20 (Claude) after Daniel: "probably need to establish a briefer wa
   --full runs every Rust and website check whatever changed; it is the one to run before a merge.
   THE PYTHON is retired (Daniel, 2026-11-11) and frozen: its test files and 15 reference battles guard code nobody changes
   now, so they run only when a Python file changed, or with --python (weekly: the first session of the week).
-  ONE RUN, TWO CHECKS: the Rust reference battles are played under the MegaMek bridge's parity check
-  (check_rust_reference.py --parity), so check_bridge_parity.py's separate run of the same battles is not needed here.
+  ONE RUN, TWO CHECKS - TRIED, NOT KEPT: playing the Rust reference battles under the bridge's parity check
+  (check_rust_reference.py --parity) took 434 s, against 71 s for the plain reference run plus 108 s for
+  check_bridge_parity.py --quick (which skips the 8 v 8 / 12 v 12 battles and stops at turn 15). The parity check is the
+  costly half, so the two stay separate; --parity remains for a thorough run (every battle in full under parity).
   SMALLER COUNTS: the Lab server compares 4 battles a setup (was 8); the website parity check 4.
   FEWER AT ONCE: the heavy checks (each of which already uses every core) run one after another; only the light Python
   checks run side by side. Before, they all ran together and fought over the cores.
@@ -166,9 +168,11 @@ def main(argv):
     if want & {"engine", "pages"} and not has_cargo:
         print("NOTE: no cargo on this machine - the Rust and website checks were not run")
     if "engine" in want and has_cargo:
-        # the Rust engine's 86 reference battles, each also played under the MegaMek bridge's parity check (B1), + the wire test
-        heavy.append(("rust       check_rust_reference.py --parity (86 battles + bridge parity + wire)",
-                      run_test_file, (os.path.join(REPO_ROOT, "tests", "check_rust_reference.py"), ["--parity"])))
+        # the Rust engine's own reference battles, then the MegaMek bridge's quick parity check (B1)
+        heavy.append(("rust       check_rust_reference.py (87 battles)",
+                      run_test_file, (os.path.join(REPO_ROOT, "tests", "check_rust_reference.py"),)))
+        heavy.append(("rust       check_bridge_parity.py --quick",
+                      run_test_file, (os.path.join(REPO_ROOT, "tests", "check_bridge_parity.py"), ["--quick"])))
         # CL1 settings, stage-6 attach, CL2 histories, BV skills, charge targets, walk-on zones
         heavy.append(("rust       cargo test cl1_setup + stage6_attach + cl2_history + bv_skills + charge_targets + zone_entry",
                       run_command, (["cargo", "test", "--release", "-q", "--test", "cl1_setup", "--test", "stage6_attach", "--test", "cl2_history",
