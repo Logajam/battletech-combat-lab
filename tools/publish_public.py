@@ -24,7 +24,9 @@ import tempfile
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PUBLIC_URL = "https://github.com/Logajam/battletech-combat-lab"
-PRIVATE_PATHS = ["rules/"]
+# rules/ = the rulebook text that once lived here; reference_art/ = the TRO drawings and the low-poly models redrawn from them
+# (Daniel, 2026-11-16: redrawn images and models stay in the private repo)
+PRIVATE_PATHS = ["rules/", "reference_art/"]
 DANIEL_PUBLIC = b"56737113+Logajam@users.noreply.github.com"
 PUBLIC_EMAILS = [b"noreply@anthropic.com", b"users.noreply.github.com", b"noreply@github.com"]
 
@@ -41,6 +43,17 @@ for who in ("author", "committer"):
 
 def git(args, cwd, **kw):
     return subprocess.run(["git"] + args, cwd=cwd, check=True, capture_output=True, text=True, **kw).stdout
+
+
+def public_files(cwd, rev):
+    """{path: blob id} of every file at `rev` outside PRIVATE_PATHS. The rewritten copy must equal private main on exactly
+    this set (a private folder kept in main, like reference_art/, is not in the copy, so whole-tree hashes can never match)."""
+    files = {}
+    for line in git(["ls-tree", "-r", rev], cwd).splitlines():
+        meta, path = line.split("\t", 1)
+        if not any(path.startswith(p) for p in PRIVATE_PATHS):
+            files[path] = meta.split()[2]
+    return files
 
 
 def main(argv):
@@ -60,10 +73,10 @@ def main(argv):
     leaked = [l for l in objects.splitlines() if any(f" {p}" in l for p in PRIVATE_PATHS)]
     emails = set(git(["log", "--all", "--format=%ae%n%ce"], work).split())
     private_emails = [e for e in emails if not any(e.encode().endswith(p) for p in PUBLIC_EMAILS)]
-    same_tree = git(["rev-parse", "HEAD^{tree}"], work) == git(["rev-parse", "origin/main^{tree}"], REPO_ROOT)
+    same_tree = public_files(work, "HEAD") == public_files(REPO_ROOT, "origin/main")
     count = git(["rev-list", "--count", "HEAD"], work).strip()
     print(f"rewritten copy: {work}\n  {count} commits; private paths left: {len(leaked)}; non-public emails left: {len(private_emails)}; "
-          f"latest files identical to private main: {same_tree}")
+          f"latest files identical to private main (private paths aside): {same_tree}")
     if leaked or private_emails or not same_tree:
         raise SystemExit("NOT PUBLISHED: a check failed (see above)")
     if push:

@@ -1,0 +1,45 @@
+"""
+tests/test_lowpoly_ref.py - the low-poly reference models (reference_art/, Daniel 2026-11-16)
+
+    python tests/test_lowpoly_ref.py
+
+Every model in reference_art/models must: stay under 800 triangles; show a pelvis, torso, head and both legs and arms as
+separate assemblies; stand on y = 0; and carry exactly the weapons and jump-jet locations its unit file lists
+(tools/lowpoly_ref.py `check`). Every unit in units.json must name a unit file that exists, and the folder must stay on
+tools/publish_public.py's private list (the TRO drawings are Catalyst artwork). Art only: nothing here touches a battle.
+"""
+import json
+import os
+import sys
+
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO_ROOT, "tools"))
+import lowpoly_ref as L  # noqa: E402
+import publish_public  # noqa: E402
+
+
+def main():
+    bad = 0
+    units = json.load(open(os.path.join(L.REF, "units.json")))["units"]
+    for u in units:
+        try:
+            L.read_mtf(u["unit"])
+        except FileNotFoundError:
+            print("FAIL units.json: no unit file for", u["unit"]); bad += 1
+        if not os.path.exists(os.path.join(L.REF, u["original"])):
+            print("FAIL units.json: no original picture for", u["unit"]); bad += 1
+    built = [f for f in sorted(os.listdir(L.MODELS)) if f.endswith(".json")]
+    for f in built:
+        errors, notes = L.check_model(json.load(open(os.path.join(L.MODELS, f))))
+        for e in errors:
+            print("FAIL %s: %s" % (f, e)); bad += 1
+        if f[:-5] not in {u["unit"] for u in units}:
+            print("FAIL %s: not listed in units.json" % f); bad += 1
+    if "reference_art/" not in publish_public.PRIVATE_PATHS:
+        print("FAIL reference_art/ is not in publish_public.PRIVATE_PATHS"); bad += 1
+    print("%s: %d units indexed, %d models built" % ("FAIL" if bad else "OK", len(units), len(built)))
+    return 1 if bad else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
