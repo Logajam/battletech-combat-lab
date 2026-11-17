@@ -7,7 +7,7 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
 - **2026-11-16 (Claude, session 27), LOW-POLY REFERENCE MODELS: TOOL, INDEX AND A TEST BATCH OF THREE. REVIEW PENDING (higher-level model).**
-  Daniel: redraw the TRO 3039 'Mech art as strict low-poly models (boxes, wedges, 6/8-sided prisms, under 400 triangles, one neutral
+  Daniel: redraw the TRO 3025 'Mech art as strict low-poly models (boxes, wedges, 6/8-sided prisms, under 400 triangles, one neutral
   A-stance) as reference for the Combat Lab's block dictionary and override list; models go straight to 3D, no image-generator step.
   (1) The 34 drawings were pulled from the PDF (one per odd page) into `reference_art/originals/`; `units.json` names each from its
   title bar and ties it to its exact unit file (all 34 exist in `data/meks.zip`) with weapons and jump jets from the file. (2)

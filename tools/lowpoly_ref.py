@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Low-poly REFERENCE models of the TRO 3039 'Mechs (art only; nothing here touches a battle).
+"""Low-poly REFERENCE models of the TRO 3025 'Mechs (art only; nothing here touches a battle).
 
 Daniel, 2026-11-16: the TRO drawings are redrawn as strict low-polygon models (boxes, wedges, 6/8-sided
 prisms, hulls and domes, under 800 triangles, A-stance), five orthographic views each. These models are REFERENCE material:

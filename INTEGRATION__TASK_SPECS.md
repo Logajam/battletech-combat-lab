@@ -241,7 +241,7 @@ check a script can run). Start with B0 (needs Daniel's OK to build and run MegaM
 
 ## T15. Low-poly reference models: the other 31 'Mechs (Opus; the AI sheets are in)
 
-Daniel, 2026-11-16 (session 27). Redraw each 'Mech of the TRO 3039 extract as a low-poly model: five orthographic views, one
+Daniel, 2026-11-16 (session 27). Redraw each 'Mech of the TRO 3025 extract as a low-poly model: five orthographic views, one
 A-stance, "roughly recognisable, even more removed from the original source". The models are REFERENCE: later, the block
 dictionary (`data/token_blocks.json`) and the override list (`data/token_overrides.json`, `data/token_reference_tags.json`) are
 built from them. Daniel is happy to cheat on the retro look (800 triangles, not the '95 400), "retro appearance while still happy
@@ -288,6 +288,11 @@ the final build").**
   AND it is on 3+ units (or Daniel names it); everything else is a per-unit special; a soft cap of about six presets per part;
   classify new art against the existing presets and log only the residual as candidates for Daniel to prune in batches. Do the first
   prune (merge the drum family and the slab families) BEFORE writing generators, so the library is built on the pruned set.
+- DATING (Daniel, 2026-11-17: tag blocks with a date, then build a unit from blocks of its own era). Three SEPARATE tags in the
+  taxonomy's `dating` block: unit year (the unit file's `era:`, present on all 4,227 files), tech base (IS / Clan), art source (book
+  and artist). Computed `years_seen` is on every type. Do NOT choose blocks by year yet: the 34 'Mechs span 2475-2898 but share one
+  book's art style, so the year says nothing about the look until there is art from three or more books or periods. Make the
+  generator accept the tags now (cheap) and switch the selection on later.
 - WHERE: new files under `reference_art/` (a `blocks/` folder and a loader in `tools/lowpoly_ref.py`), still private; the existing
   `data/token_blocks.json` and the generator are NOT touched until Daniel says the dictionary is ready.
 
