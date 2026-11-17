@@ -557,10 +557,10 @@ fn choose_movement_inner(b: &mut Battle, mover: UnitId, other: UnitId, moves_fir
         }
         (gain, on, cost)
     };
-    // risk = the fall chance of getting there, priced; plus (HYDRA_EDGE_RISK, on by default) the chance of being charged or
-    // jumped off the map from there by an enemy still to move, times this unit's whole remaining strength, priced
-    let edge_on = !(b.cfg.has("HYDRA_EDGE_RISK") && !b.cfg.b("HYDRA_EDGE_RISK"));
-    let chargers = if edge_on { would_be_chargers(b, &enemies) } else { Vec::new() };
+    // risk = the fall chance of getting there, priced; plus the chance of being charged or jumped off the map from there by an
+    // enemy still to move, times this unit's whole remaining strength, priced. ALWAYS ON (Daniel, 2026-11-17: "Avoiding the
+    // edge should be mandatory for Hydra with no way to turn it off"; the HYDRA_EDGE_RISK switch of that morning is gone)
+    let chargers = would_be_chargers(b, &enemies);
     let my_whole = crate::attack_resolution::total_hp(&b.units[mover]).f();
     let risks: Vec<f64> = prepared.iter().map(|o| my_price * (me.psr_for_opt(b, o) + edge_risk(b, o, &chargers) * my_whole)).collect();
     // THE SCORE of a spot: what it does to my team's rate of exchange over a typical turn,

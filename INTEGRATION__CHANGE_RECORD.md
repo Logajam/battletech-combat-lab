@@ -6,6 +6,14 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-17 (Claude, session 28), HYDRA'S MAP-EDGE RISK MADE MANDATORY. Two Hydra reference logs re-recorded, one removed.
+  REVIEW PENDING (higher-level model).** Daniel: "Avoiding the edge should be mandatory for Hydra with no way to turn it off."
+  `hydra.rs`: the `HYDRA_EDGE_RISK` switch is gone; `would_be_chargers` / `edge_risk` always run. `check_rust_reference.py`:
+  `FIRST_VERSION` no longer sets it, so the two first-version Hydra battles (`hydra_first_red__hy_4v4_lance_woods`,
+  `hydra_first_blue__hy_8v8_valley`) now play the first version WITH the edge risk and were re-recorded (the 8 v 8 now goes to
+  Red in 31 turns, was Blue in 37); `hydra_noedge_red__hy_duel_griffin` (the switch's OFF path) removed: 86 reference battles.
+  The trial records `2026-11-17_hydra_trial_edge_off.jsonl` stay as the measurement of the change. Every other log unchanged.
+
 - **2026-11-17 (Claude, session 28), HYDRA PRICES THE MAP EDGE; BACKLOG AUDIT; THE CHECKS PRUNED. Hydra battles change (meant to); 10 Hydra reference logs re-recorded, 1 added. REVIEW PENDING (higher-level model).**
   (1) HYDRA (Daniel: "you are allowed to fix your bot and update Hydra"): `hydra::would_be_chargers` / `edge_risk`, switch
   HYDRA_EDGE_RISK (on). For each spot, the best hit chance of an enemy still to move that can reach a neighbour from which its

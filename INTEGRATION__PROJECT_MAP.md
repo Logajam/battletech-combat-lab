@@ -50,7 +50,7 @@ and the GitHub logistics (Section 7).
 - **After any change:** `python tests/run_checks.py` picks the checks from what changed since origin/main (levels:
   docs / art / Lab pages / Python / engine; `--list` says why); `--full` before every merge; `--python` adds the
   retired Python's tests and 15 reference battles (weekly). The engine level: the Rust reference set
-  (`check_rust_reference.py`: 87 battles from `engine/reference/scenarios.zip`, logs in `engine/reference/logs/`;
+  (`check_rust_reference.py`: 86 battles from `engine/reference/scenarios.zip`, logs in `engine/reference/logs/`;
   `--update` for a Rust change meant to alter results; `--parity` also runs every battle in full under the bridge's
   parity check, a thorough but slower run), the bridge's `check_bridge_parity.py --quick`, the engine's cargo tests, `check_lab_server.py --battles 4`, and the website (`check_web_ui.py`, then
   `check_web_lab.py --battles 4`). Heavy checks run one at a time. The Rust turn cap is 100
@@ -119,7 +119,7 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   2026-10-20: its own push / charge / DFA by `displacement_worth`, the enemy's push next to it through the physical
   planner in `move_eval`, and, moving first, the enemy's charge / DFA in the two-ply reply (`move_select` modeled_reply);
   1 off-the-map loss in 100 WHM v JVN battles. HYDRA did not price an unmoved enemy's charge / DFA: fixed the same day,
-  `hydra::edge_risk`, switch HYDRA_EDGE_RISK, on.)
+  `hydra::edge_risk`, always on, no switch (Daniel).)
 - A9. Measurement (review 2026-11-10): judge A/Bs by a per-battle margin, not win counts (T2); a small scenario
   suite so the bot is not tuned to one roster and field (T3).
 

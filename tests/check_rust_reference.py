@@ -41,9 +41,9 @@ SEED = 1
 
 # Extra plays of a scenario with Hydra driving some teams: saved-log name -> (scenario folder, Hydra teams[, settings]).
 # Settings are btsim --set KEY=VALUE pairs (engine/core/src/hydra.rs lists Hydra's switches and their OFF values).
-# Hydra as first built (session 24-25): every later switch off.
-FIRST_VERSION = ["HYDRA_PLAYOUT=reply", "HYDRA_MOVEMENT_ATTACKS=false", "HYDRA_MOVE_ORDER=index", "HYDRA_WAITING=false", "HYDRA_ATTENTION=range",
-                 "HYDRA_EDGE_RISK=false"]
+# Hydra as first built (session 24-25): every later switch off. (The map-edge risk, 2026-11-17, has no switch: Daniel
+# made it mandatory, so these play the first version WITH the edge risk.)
+FIRST_VERSION = ["HYDRA_PLAYOUT=reply", "HYDRA_MOVEMENT_ATTACKS=false", "HYDRA_MOVE_ORDER=index", "HYDRA_WAITING=false", "HYDRA_ATTENTION=range"]
 
 VARIANTS = {
     "hydra_red__hy_duel_griffin": ("hy_duel_griffin", "Red"),
@@ -56,8 +56,6 @@ VARIANTS = {
     # session 25, 2026-11-12: Hydra's five switches are ON by default ("Leave them all on"); these keep each OFF path played
     "hydra_noplayout_red__hy_4v4_lance_woods": ("hy_4v4_lance_woods", "Red", ["HYDRA_PLAYOUT=reply"]),
     "hydra_nocharge_red__hy_duel_griffin": ("hy_duel_griffin", "Red", ["HYDRA_MOVEMENT_ATTACKS=false"]),
-    # Hydra without the edge risk (2026-11-17, HYDRA_EDGE_RISK=false): the Mover as it was before that day
-    "hydra_noedge_red__hy_duel_griffin": ("hy_duel_griffin", "Red", ["HYDRA_EDGE_RISK=false"]),
     "hydra_nomoveorder_blue__hy_8v8_valley": ("hy_8v8_valley", "Blue", ["HYDRA_MOVE_ORDER=index"]),
     "hydra_nowait_red__hy_8v8_valley": ("hy_8v8_valley", "Red", ["HYDRA_WAITING=false"]),
     "hydra_noattention_blue__hy_4v4_heavy_hills": ("hy_4v4_heavy_hills", "Blue", ["HYDRA_ATTENTION=range"]),
