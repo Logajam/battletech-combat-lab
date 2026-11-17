@@ -32,6 +32,24 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   types, 10 WTF items), all WTF items answered by Daniel. (d) `compare` command in `tools/lowpoly_ref.py`. (e) Hand-off T15 in
   `INTEGRATION__TASK_SPECS.md`. (f) DECISION: build the block library BEFORE the other 31 models, with levels of detail from the
   generators (LOD0 high, LOD2 the 800-triangle reference): the three built models are raw shapes, not dictionary blocks.
+  END OF SESSION 27 (2026-11-16/17): (g) The taxonomy now has 93 types over 22 body parts (Daniel's 16 parts plus neck collar, ankle,
+  back deck, weapon mount, antenna, fins/spars/wings); his rulings on the ten WTF items are applied (the round side disc is the
+  shoulder; the Stalker's head is a fighter canopy on top of the torso; the UrbanMech's head is the dome over a cylindrical torso;
+  Jenner and Cicada have small weapon pods for arms; the Quickdraw's wheels are ankle discs; the Hunchback's ribbed barrels are lower
+  legs; the Catapult is a bird leg; the Dragon's big barrel is a gun arm). (h) MOUNT POINTS: every block is to carry weapon,
+  equipment and greeble mounts (Daniel: the JagerMech's shoulder blade is a greeble), fixed or hinged, in `mount_points` and
+  `greebles`. (i) The DARK CROW (a modern David White picture, `reference_art/extra_art/`; unit file: the base Dark Crow) added five
+  types and showed that the block hierarchy must be a default, not a law (its arms mount on the lower torso, its side torsos carry
+  hinged guards). (j) PRUNING POLICY (`pruning_policy`): types as form x preset x modifiers, an admission test (a different
+  silhouette AND 3+ units, or named iconic by Daniel), core / candidate tiers (80 / 13), about six presets per part, new art
+  classified against the presets with only the residual logged for Daniel to prune; Daniel: the 400+ pieces are TRO PDFs and the
+  real bottleneck is generating Gemini turnaround sheets, so the plan is to classify from the originals first and use Gemini only
+  where the residual is large (a five-unit pilot would test that). (k) DATING (`dating`): unit year (the unit file's `era:`, on all 4,227
+  files), tech base and art source as three separate tags; `years_seen` computed on each type; NOT used to pick blocks yet because
+  the 34 units span 2475-2898 but share one book's art. (l) SOURCE BOOK: TRO 3025 and 3026 were merged into TRO 3039 (Daniel), so
+  both names are right; the README says so (an earlier draft here wrongly called "3039" a mistake for a while). NOT DONE: no PR to
+  `main` (the work is on the session branch, pushed); the block library and the other 31 models (task T15); the prune of the drum
+  and slab families; `publish_public.py` not run since the private-path change.
 
 - **2026-11-15 (Claude, session 27), WEBSITE: UNITS WITH UNMODELED EQUIPMENT LEFT OUT; CHECKPOINT. REVIEW PENDING (higher-level model).**
   Daniel: "any units with unmodeled equipment should be removed from the website version... They will be built eventually", and a
