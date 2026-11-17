@@ -6,6 +6,34 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-17 (Claude, session 28), BLOCK LIBRARY SECOND BATCH: THE REST OF THE TAXONOMY (46 BLOCKS), JUDGED FROM ABOVE TOO.
+  Art only (reference_art/, private). REVIEW PENDING (higher-level model).** Daniel: "More reference material. Its from Megamek so
+  technically it could be used, but I'd prefer not to to avoid confusion between our program and theirs. The main thought is that
+  silhouette from above is just as important as from the front and back. ... use the same process to build the remaining blocks."
+  - REFERENCE FROM ABOVE: his two zips of MegaMek top-down unit sprites (about 3,500). Only the base sprite of each cited unit is kept
+    (`reference_art/megamek_sprites/`, 36 files, README says reference only, never our art, CC BY-NC-SA credit). Every block now
+    carries `top_reference`, and its sheet shows the sprite beside the block's top view.
+  - BLOCKS: 46 new (every type of `prune_1` that is a block, except hand/claw_clamp: no drawing shows one; recorded under
+    `not_built` for Daniel). New generators: ski_plate, pedestal_block, three_toe_claw, drum_foot, bird_shin, barrel_limb (ribbed
+    shin, barrel thigh, cylinder torso), joint_disc (knee disc, hip drum, ankle wheels, belly plate), ball_joint, guard_plate,
+    thin_bar_thigh, pelvis_box (box and belt ring), skirt_wedge, slim_waist, turret_ring (waist ring and neck collar), faceted_belly,
+    transverse_cylinder, dome_chest, slung_lozenge, hunch_block, wing_rack, cannon_hump, box_canopy, mask_skull, fighter_canopy,
+    box_pauldron, limb_bar, heavy_sleeve, pod_arm, cuff, jump_jet_pack, rear_rack, long_barrel (single and twin), whip (whip and
+    mast dish), fin_plate; modifiers on old ones: shin `greave` / `louvre` (greave and pillar shins), thigh `guard`, barrel arm
+    `fin` / `muzzle_sides` (the Dragon's gun arm). References: 16 TRO drawings, the Dark Crow picture, and ONE AI sheet (the jump-jet
+    pack: the drawings show no backs; marked provisional). Reworked after the first look (each verdict says why): three-toe claw
+    (splayed spikes -> parallel blades), greave shin, bird shin, ribbed tube (rings -> vertical staves), knee disc (spokes), guarded
+    thigh, transverse cylinder, mask skull (box -> egg head), fighter canopy, gun arm, belly plate (cross), ski plate. Crops moved
+    for the box canopy, slim waist, whip and plain upper arm; the box pelvis's reference moved from the Spider to the Clint.
+  - FROM ABOVE, THE FIRST DOZEN RE-JUDGED: the chest was a plain rectangle from above; it now has a prow (`prow` param), as the
+    Commando's sprite. The others hold.
+  - LOW: 14 blocks first failed the outline check (their LOW dropped a rib, lip or cap); fixed so LOW keeps what makes the outline.
+    Thin parts (whip, dish, fin) carry their own minimum with a reason (`outline_min`). New LOW budgets = their count rounded to 8.
+  - GROUPS: the upper arm and pelvis stand-ins are now real blocks; two new figures (a heavy, Atlas / Hunchback kit; a bird-legged,
+    Catapult kit). LOW totals: Commando kit 750, Javelin kit 950 (OVER the 800 limit: the scaled shoulders, two bays and the gun
+    arm), heavy 536, bird 550. Budgets need a pass before whole models.
+  - The review page's images are JPEG now (the PNGs passed the 16 MB page limit).
+
 - **2026-11-17 (Claude, session 28), BLOCK LIBRARY FIRST PASS (T15a): THE TAXONOMY PRUNED, THE COMMON DOZEN BUILT. Art only
   (reference_art/, private); no battle changes. REVIEW PENDING (higher-level model).** Daniel: "Begin a first pass at creating
   'Lego blocks' ... you must be able to show the exact image you used as reference material. After each block is made, compare
