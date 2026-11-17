@@ -1201,7 +1201,7 @@ async function loadUnitStats() {
       return `<details class="folder" data-key="${esc(label)}" ${openKeys.has(label) ? "open" : ""}>
         <summary>${esc(u.name)} <span class="note">survived ${pct(u.survived / n)} &middot; armor left ${p(u.armor_left, u.armor_max)} &middot; structure left ${p(u.structure_left, u.structure_max)} &middot; ${u.kills.toFixed(2)} kills</span></summary>
         <div class="ustat">
-          <table class="leaves"><thead><tr><th>How it ended (share of battles)</th><th class="num">%</th></tr></thead><tbody>${rows.map(([c, k]) => `<tr><td>${esc(c)}</td><td class="num">${pct(k / n)}</td></tr>`).join("")}</tbody></table>
+          <table class="leaves"><thead><tr><th>How it ended (share of battles)</th><th class="num">%</th></tr></thead><tbody>${rows.map(([c, k], i) => `<tr class="cause-row" data-unit="${esc(label)}" data-cause="${i === 0 ? "" : esc(c)}" title="Show the battles where it ${i === 0 ? "survived" : "ended this way"}"><td><a href="#">${esc(c)}</a></td><td class="num">${pct(k / n)}</td></tr>`).join("")}</tbody></table>
           <table class="leaves"><thead><tr><th>Location</th><th class="num">Armor left (avg)</th><th class="num">%</th><th class="num">Structure left (avg)</th><th class="num">%</th></tr></thead><tbody>
             ${Object.entries(u.locations).map(([loc, v]) => `<tr><td>${esc(loc)}</td><td class="num">${f1(v.armor)} / ${f1(v.armor_max)}</td><td class="num">${p(v.armor, v.armor_max)}</td><td class="num">${f1(v.structure)} / ${f1(v.structure_max)}</td><td class="num">${p(v.structure, v.structure_max)}</td></tr>`).join("")}
             <tr><td><b>Whole unit</b></td><td class="num">${f1(u.armor_left)} / ${f1(u.armor_max)}</td><td class="num">${p(u.armor_left, u.armor_max)}</td><td class="num">${f1(u.structure_left)} / ${f1(u.structure_max)}</td><td class="num">${p(u.structure_left, u.structure_max)}</td></tr></tbody></table>
@@ -1211,6 +1211,19 @@ async function loadUnitStats() {
         </div></details>`;
     }).join("")}</details>`).join("");
   $("unit-stats").innerHTML = html;
+  $("unit-stats").querySelectorAll(".cause-row").forEach((tr) => tr.addEventListener("click", (e) => { e.preventDefault(); filterByCause(tr.dataset.unit, tr.dataset.cause); }));
+}
+
+// A click on a "How it ended" row (Daniel, 2026-11-17): the battle list and statistics show only the battles where that unit
+// ended that way (the "Survived" row: where it survived). It is an ordinary unit condition in the Find battles form, so it
+// can be read, changed, added to, or cleared with Show all.
+function filterByCause(unit, cause) {
+  $("f-units").innerHTML = "";
+  addUnitCondition(cause ? { unit, state: "destroyed", cause, exact: true } : { unit, state: "survived" });
+  lab.filter = readFilter();
+  drawResults();
+  const list = $("battle-tree");
+  if (list && list.scrollIntoView) list.scrollIntoView({ block: "start" });
 }
 
 // A long battle list is nested: a range with more than 100 battles to show is split into at most 100 smaller ranges,
@@ -1268,10 +1281,12 @@ function addUnitCondition(cond = {}) {
   const row = document.createElement("div");
   row.className = "cond";
   row.innerHTML = `<select class="c-unit" aria-label="Unit">${Object.entries(labels).map(([k, v]) => `<option value="${esc(k)}"${k === cond.unit ? " selected" : ""}>${esc(v)}</option>`).join("")}</select>
-    <select class="c-state" aria-label="What happened"><option value="destroyed">was destroyed</option><option value="survived">survived</option><option value="">either</option></select>
-    <input type="text" class="c-cause" list="cause-list" placeholder="cause (pick or type a word)" aria-label="Cause of death contains">
+    <select class="c-state" aria-label="What happened">${[["destroyed", "was destroyed"], ["survived", "survived"], ["", "either"]].map(([v, t]) => `<option value="${v}"${(cond.state ?? "destroyed") === v ? " selected" : ""}>${t}</option>`).join("")}</select>
+    <input type="text" class="c-cause" list="cause-list" placeholder="cause (pick or type a word)" aria-label="Cause of death contains" value="${esc(cond.cause || "")}">
     <button class="btn small" title="Remove this condition">&times;</button>`;
   row.querySelector("button").addEventListener("click", () => row.remove());
+  // a condition made by clicking a cause matches that cause exactly, until its text is changed by hand (then: every word)
+  if (cond.exact) row.dataset.exact = cond.cause;
   $("f-units").appendChild(row);
 }
 
@@ -1281,7 +1296,10 @@ function readFilter() {
   if ($("f-capped").value) f.capped = $("f-capped").value === "yes";
   if ($("f-tmin").value !== "") f.min_turns = +$("f-tmin").value;
   if ($("f-tmax").value !== "") f.max_turns = +$("f-tmax").value;
-  const units = [...document.querySelectorAll("#f-units .cond")].map((r) => ({ unit: r.querySelector(".c-unit").value, state: r.querySelector(".c-state").value, cause: r.querySelector(".c-cause").value }));
+  const units = [...document.querySelectorAll("#f-units .cond")].map((r) => {
+    const cause = r.querySelector(".c-cause").value, state = r.querySelector(".c-state").value;
+    return r.dataset.exact !== undefined && r.dataset.exact === cause && state === "destroyed" ? { unit: r.querySelector(".c-unit").value, state, cause_is: cause } : { unit: r.querySelector(".c-unit").value, state, cause };
+  });
   if (units.length) f.units = units;
   return f;
 }
@@ -1336,6 +1354,7 @@ function demoMatches(l, f) {
     const u = l.units[c.unit] || {};
     if (c.state === "destroyed" && !u.destroyed) return false;
     if (c.state === "survived" && u.destroyed) return false;
+    if (c.cause_is !== undefined && (!u.destroyed || (u.cause || "unknown") !== c.cause_is)) return false;
     const cause = (u.cause || "").toLowerCase();
     return (c.cause || "").toLowerCase().split(/\s+/).filter(Boolean).every((w) => cause.includes(w));
   });

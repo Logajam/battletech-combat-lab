@@ -6,7 +6,7 @@
 //! {"teams": [{"name": "Red", "bot": "gladiator" | "princess" | "hydra",
 //!             "units": [{"unit": "Atlas AS7-K.mtf", "gunnery": 4, "piloting": 5}, ...]}, ...],
 //!  "board": "16x17_Grassland_1.board",            (a board's id from list_boards)
-//!  "battles": 20, "seed": 1, "threads": 0 (= every core), "max_turns": 100 (optional)}
+//!  "battles": 20, "seed": 1, "threads": 0 (= automatic: a quarter of the cores left free), "max_turns": 100 (optional)}
 //! ```
 //! Battle n of a batch is played on `PcgDice::battle_seed(seed, n)`, as `btsim` does, so a battle of the Lab is the
 //! same battle `btsim` plays for the same settings and seed - and any one can be played again, with its full history,
@@ -398,7 +398,8 @@ impl Run {
     pub fn start(id: u64, setup: Value, plan: Plan) -> Arc<Run> {
         let battles = setup["battles"].as_u64().unwrap_or(20).clamp(1, 100_000);
         let seed = setup["seed"].as_u64().unwrap_or(1);
-        let threads = setup["threads"].as_u64().unwrap_or(0) as usize;
+        let cores = std::thread::available_parallelism().map_or(1, |n| n.get());
+        let threads = threads_for(setup["threads"].as_u64().unwrap_or(0) as usize, cores);
         let run = Arc::new(Run {
             id,
             setup,
@@ -624,6 +625,13 @@ pub fn matches(line: &Value, f: &Value) -> bool {
             Some("survived") if destroyed => return false,
             _ => {}
         }
+        // `cause_is`: exactly this cause, as the unit statistics list it ("unknown" when the line has none); set by a click on
+        // a "How it ended" row (Daniel, 2026-11-17). `cause` below is the typed form: every word must appear.
+        if let Some(exact) = c["cause_is"].as_str() {
+            if !destroyed || u["cause"].as_str().unwrap_or("unknown") != exact {
+                return false;
+            }
+        }
         if let Some(text) = c["cause"].as_str().filter(|t| !t.trim().is_empty()) {
             let cause = u["cause"].as_str().unwrap_or("").to_lowercase();
             if !text.to_lowercase().split_whitespace().all(|w| cause.contains(w)) {
@@ -634,12 +642,21 @@ pub fn matches(line: &Value, f: &Value) -> bool {
     true
 }
 
-/// Seconds a batch of `battles` will take on `threads` threads (0 = every core), from a few pilot battles played side
+/// The threads a batch plays on. `asked` 0 = automatic: every core but a quarter of them (at least one), so other programs
+/// keep room to run (Daniel, 2026-11-17: a game crashed when a run took every cycle). A number typed in is used as it is, up to
+/// the core count. The browser build (engine/wasm/web/engine.js `autoThreads`) uses the same rule.
+#[cfg_attr(target_arch = "wasm32", allow(dead_code))]
+pub fn threads_for(asked: usize, cores: usize) -> usize {
+    let cores = cores.max(1);
+    if asked == 0 { (cores - (cores / 4).max(1)).max(1) } else { asked.min(cores) }
+}
+
+/// Seconds a batch of `battles` will take on `threads` threads (0 = automatic, `threads_for`), from a few pilot battles played side
 /// by side now (on seeds the batch itself does not use first).
 #[cfg(not(target_arch = "wasm32"))]
 pub fn estimate(scenario: &Scenario, battles: u64, threads: usize) -> Value {
     let cores = std::thread::available_parallelism().map_or(1, |n| n.get());
-    let threads = if threads == 0 { cores } else { threads.min(cores) };
+    let threads = threads_for(threads, cores);
     let pilots = threads.clamp(1, 4) as u64;
     let started = Instant::now();
     let times: Vec<f64> = (0..pilots)

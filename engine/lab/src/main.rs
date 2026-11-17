@@ -65,7 +65,36 @@ fn arg(args: &[String], name: &str) -> Option<String> {
     args.iter().position(|a| a == name).and_then(|i| args.get(i + 1)).cloned()
 }
 
+/// Asks the operating system to run this program below normal priority, so a game or any other program the user has
+/// open gets the processor first and the battles take only what is left (Daniel, 2026-11-17: a game crashed when a run
+/// took every cycle). Windows: BELOW_NORMAL_PRIORITY_CLASS for the whole process (every battle thread inherits it).
+/// Elsewhere: nice +10. No new library: the calls are the system's own (kernel32 / libc, linked by Rust's std already).
+fn lower_priority() {
+    #[cfg(windows)]
+    {
+        extern "system" {
+            fn GetCurrentProcess() -> *mut core::ffi::c_void;
+            fn SetPriorityClass(process: *mut core::ffi::c_void, class: u32) -> i32;
+        }
+        const BELOW_NORMAL_PRIORITY_CLASS: u32 = 0x0000_4000;
+        // SAFETY: the pseudo-handle of this process and a documented priority class; failure only leaves the priority as it was
+        let ok = unsafe { SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS) };
+        if ok == 0 {
+            eprintln!("combatlab: could not lower the priority (battles run at normal priority)");
+        }
+    }
+    #[cfg(unix)]
+    {
+        extern "C" {
+            fn nice(inc: i32) -> i32;
+        }
+        // SAFETY: nice() only changes this process's scheduling priority
+        unsafe { nice(10) };
+    }
+}
+
 fn main() {
+    lower_priority();
     let args: Vec<String> = std::env::args().skip(1).collect();
     let paths = SetupPaths::find();
     let defaults: Value = std::fs::read_to_string(&paths.defaults)
