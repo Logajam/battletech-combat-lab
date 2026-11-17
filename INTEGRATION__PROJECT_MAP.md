@@ -112,7 +112,8 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
 - A7. Research decisions [3, 4, 8]: rate of fire, MASC, ammo kind, ammo conservation, PPC capacitors, the
   future-capability Memo (Section 6); placeholders `TARGET_HEAT_WORTH`, `TASER_` / `TSEMP_` / `IMP_EFFECT_WORTH`.
 - A8. Not priced in movement scoring [6, 7]: attack-caused PSRs, mud's -1, hull-breach risk (G21: DON'T BUILD
-  YET, Daniel), being pushed off the board edge.
+  YET, Daniel), being pushed off the board edge. Measured 2026-11-17 (WHM v JVN, Change Record): HYDRA's Warhammer
+  loses a third of its battles by being charged off the edge; Gladiator's rarely. Daniel's call whether to reopen Hydra for it.
 - A9. Measurement (review 2026-11-10): judge A/Bs by a per-battle margin, not win counts (T2); a small scenario
   suite so the bot is not tuned to one roster and field (T3).
 
