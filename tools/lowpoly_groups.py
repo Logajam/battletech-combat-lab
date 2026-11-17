@@ -3,6 +3,7 @@
 
 Daniel, 2026-11-17: "So far I like the art. Can you take the separate pieces and show examples of connected groups of them?"
 
+(2026-11-17, second batch: the upper arm and the pelvis are real blocks now; no stand-ins remain in these groups.)
 A group is built by `Assembly.add(block_id, anchor, at, mirror)`: the block's named anchor is put at the world point `at`
 (mirror=True makes the right-hand copy: x flipped), and the call returns the block's anchors in world coordinates, so the next
 block chains on (thigh `knee` -> shin `knee`, shin `ankle` -> boot `ankle`). Two pieces have no block yet, the UPPER ARM and
@@ -67,7 +68,7 @@ class Assembly:
 UPPER_ARM = 1.2          # stand-in upper arm length (models' units)
 # Each block's default size is its reference unit's, measured on its own; put together, the Commando's limbs came out spindly
 # next to its chest. Group-level scales by body part (a first guess by eye against the Commando drawing, not a rule):
-SCALE = {"upper_leg": 1.3, "lower_leg": 1.3, "foot": 1.2, "lower_arm": 1.4, "hand": 1.4, "shoulder": 1.1}
+SCALE = {"upper_leg": 1.3, "lower_leg": 1.3, "foot": 1.2, "lower_arm": 1.4, "hand": 1.4, "shoulder": 1.1, "upper_arm": 1.15}
 
 
 def leg(a, hip=(0.0, 0.0, 0.0), mirror=False):
@@ -87,10 +88,8 @@ def shoulder_with_upper_arm(a, at, block="shoulder/shoulder_pod", mirror=False):
     """A shoulder drum on the torso's shoulder anchor, and the stand-in upper arm hanging from its arm anchor; returns the
     elbow point."""
     sh = a.add(block, "torso", at, mirror)
-    top = sh["arm"]
-    elbow = (top[0], top[1] - UPPER_ARM, top[2])
-    a.stand_in("upper arm" + (" R" if mirror else " L"), top, elbow, 0.5, 0.55)
-    return elbow
+    ua = a.add("upper_arm/plain_tapered_bar", "shoulder", sh["arm"], mirror)      # a real block since the second batch
+    return ua["elbow"]
 
 
 def g_leg(a):
@@ -146,7 +145,7 @@ def g_figure(a):
     for x, m in ((hip_x, False), (-hip_x, True)):
         leg(a, (x, hip_y, 0.0), m)
     pelvis_top = hip_y + 0.75
-    a.stand_in("pelvis", (0.0, pelvis_top, 0.0), (0.0, hip_y - 0.15, 0.0), 2.1, 1.3)
+    a.add("pelvis/box_pelvis", "waist", (0.0, pelvis_top, 0.0), scale=1.4)
     upper_body(a, "head/dome_helmet", base=(0.0, pelvis_top, 0.0))
 
 
@@ -156,8 +155,49 @@ def g_figure_javelin(a):
     leg_len = leg_length(lib)
     for x, m in ((0.72, False), (-0.72, True)):
         leg(a, (x, leg_len, 0.0), m)
-    a.stand_in("pelvis", (0.0, leg_len + 0.75, 0.0), (0.0, leg_len - 0.15, 0.0), 2.1, 1.3)
+    a.add("pelvis/box_pelvis", "waist", (0.0, leg_len + 0.75, 0.0), scale=1.4)
     upper_body(a, "head/bubble_canopy", base=(0.0, leg_len + 0.75, 0.0), right_gun=True, bays=True)
+
+
+def g_heavy(a):
+    """A heavy from the second batch (Atlas / Hunchback kit): pedestal feet, pillar shins, guarded thighs, a belted pelvis, the
+    hump torso, the skull head, box pauldrons, heavy sleeves and fists."""
+    one = {"scale": 1.0}
+    lib = a.lib["blocks"]
+    leg_len = (lib["upper_leg/guarded_thigh"]["params"]["length"] + lib["lower_leg/pillar_shin"]["params"]["length"]
+               + lib["foot/pedestal_block"]["params"]["height"])
+    for x, m in ((0.95, False), (-0.95, True)):
+        t = a.add("upper_leg/guarded_thigh", "hip", (x, leg_len, 0.0), m, **one)
+        sh = a.add("lower_leg/pillar_shin", "knee", t["knee"], m, **one)
+        a.add("foot/pedestal_block", "ankle", sh["ankle"], m, **one)
+    pel = a.add("pelvis/belt_ring", "waist", (0.0, leg_len + 0.62, 0.0), **one)
+    c = a.add("upper_torso/hunch_block", "waist", pel["waist"], **one)
+    a.add("head/mask_skull", "neck", (c["neck"][0], c["neck"][1] - 0.15, c["neck"][2] - 0.1), **one)
+    for side, m in (("shoulder_L", False), ("shoulder_R", True)):
+        pd = a.add("shoulder/box_pauldron", "torso", c[side], m, **one)
+        sl = a.add("upper_arm/heavy_sleeve", "shoulder", pd["arm"], m, **one)
+        a.add("hand/fist", "wrist", sl["elbow"], m, scale=1.5)
+    a.add("antenna/mast_dish", "base", (c["neck"][0] + 0.7, c["neck"][1] + 0.2, c["neck"][2] - 0.4), **one)
+
+
+def g_bird(a):
+    """A bird-legged 'Mech from the second batch (Catapult kit): claw feet, bird shins, knee discs, thin thighs, the slung
+    lozenge body, the fighter canopy, LRM racks on the shoulders."""
+    one = {"scale": 1.0}
+    lib = a.lib["blocks"]
+    shin = lib["lower_leg/bird_shin"]["params"]
+    hip_y = lib["upper_leg/thin_bar_thigh"]["params"]["length"] + shin["length"] + 0.3
+    for x, m in ((1.0, False), (-1.0, True)):
+        t = a.add("upper_leg/thin_bar_thigh", "hip", (x, hip_y, 0.0), m, **one)
+        a.add("knee/disc_cover", "joint", (t["knee"][0] + (-0.35 if m else 0.35), t["knee"][1], t["knee"][2]), m, scale=0.7)
+        s = a.add("lower_leg/bird_shin", "knee", t["knee"], m, **one)
+        a.add("foot/three_toe_claw", "ankle", (s["ankle"][0], 0.3 + 0.42 * 1.1 - 0.3, s["ankle"][2] + 0.3), m, **one)
+    body = a.add("upper_torso/slung_lozenge", "hips", (0.0, hip_y + 0.3, 0.0), **one)
+    a.add("head/fighter_canopy", "seat", body["cockpit"], **one)
+    for side, m in (("shoulder_L", False), ("shoulder_R", True)):
+        sx = 1 if not m else -1
+        q = body[side]
+        a.add("side_torso/side_wing_rack", "pivot", (q[0] + sx * 0.6, q[1] + 0.1, q[2]), m, **one)
 
 
 GROUPS = [
@@ -169,6 +209,8 @@ GROUPS = [
      {"yaw": -25, "pitch": 12}),
     ("figure", "Whole figure from the dozen (Commando kit on the legs)", g_figure, {"yaw": 25, "pitch": 8}),
     ("figure_javelin", "Whole figure, Javelin kit (same legs)", g_figure_javelin, {"yaw": -25, "pitch": 8}),
+    ("heavy", "Heavy figure, second batch (Atlas / Hunchback kit)", g_heavy, {"yaw": 25, "pitch": 8}),
+    ("bird", "Bird-legged figure, second batch (Catapult kit)", g_bird, {"yaw": -40, "pitch": 10}),
 ]
 
 
@@ -220,19 +262,16 @@ def page(lib, out):
     items = []
     for key, title, _, _ in GROUPS:
         path = os.path.join(GROUPS_DIR, key + ".png")
-        with open(path, "rb") as f:
-            data = base64.b64encode(f.read()).decode()
-        items.append('<section><h2>%s</h2><img alt="%s" src="data:image/png;base64,%s"></section>' % (
+        data = B.page_image(path)
+        items.append('<section><h2>%s</h2><img alt="%s" src="%s"></section>' % (
             html.escape(title), html.escape(title), data))
     intro = ('<h1>Connected groups</h1><p>The blocks snapped together at their anchor points (hip, knee, ankle, shoulder, elbow, '
-             'wrist, neck). The upper arm and the pelvis have no block yet: they are drawn as plain, very light boxes and named '
-             'as stand-ins on each sheet. Sizes are each block\'s defaults, so the Commando and Javelin pieces mix at their own '
-             'scales.</p>')
+             'wrist, neck). Since the second batch every piece is a real block (no stand-ins). The last two figures, a heavy and '
+             'a bird-legged one, are built mostly from the second batch.</p>')
     with open(out) as f:
         s = f.read()
-    s = s.replace("<main><h1>Block library, first pass: the common dozen</h1>",
+    s = s.replace("<main><h1>Block library: 58 blocks</h1>",
                   "<main>" + intro + "\n".join(items) + "<h1>The single blocks</h1>")
-    s = s.replace("<title>Block Library Pass One</title>", "<title>Block Library Pass One</title>")
     with open(out, "w") as f:
         f.write(s)
 
