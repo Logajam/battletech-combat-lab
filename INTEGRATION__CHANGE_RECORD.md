@@ -6,6 +6,33 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-17 (Claude, session 28), HYDRA PRICES THE MAP EDGE; BACKLOG AUDIT; THE CHECKS PRUNED. Hydra battles change (meant to); 10 Hydra reference logs re-recorded, 1 added. REVIEW PENDING (higher-level model).**
+  (1) HYDRA (Daniel: "you are allowed to fix your bot and update Hydra"): `hydra::would_be_chargers` / `edge_risk`, switch
+  HYDRA_EDGE_RISK (on). For each spot, the best hit chance of an enemy still to move that can reach a neighbour from which its
+  charge / DFA would push this unit off the board, times the unit's whole remaining strength, priced, is added to the spot's
+  risk (INTEGRATION__HYDRA.md Section 7, "The map edge"). WHM v JVN, 100 battles a seating: Hydra Warhammer v Gladiator Javelin
+  73 -> 82 wins (off-the-map losses 9 -> 0), v Hydra Javelin 68 -> 70 (10 -> 0); other seatings within noise. Team battles
+  (`hydra_trial.py`, all 9 hy_ scenarios, 40 battles a seating, same seeds): Hydra v Gladiator 438 - 264 with it, 437 - 256
+  without (per scenario +-6, noise). Reference logs: the 10 Hydra battles re-recorded; the two first-version Hydra battles
+  set HYDRA_EDGE_RISK=false and are unchanged (only their header line lists the setting); new `hydra_noedge_red__hy_duel_griffin`.
+  (2) BACKLOG AUDIT (Daniel: "see if anything else was fixed but not documented"), PROJECT_MAP Section 0: A8's "pushed off the
+  board edge" was stale for Gladiator (priced since 2026-10-20: own push / charge / DFA by `displacement_worth`, the enemy's
+  push in `move_eval`, the enemy's charge / DFA in the two-ply reply); C5's zip refresh obsolete (zip removed 2026-11-13); E2's
+  next items (start positions, side swap, BV by skills) done; E2a item (1) the unit editor done; E4 "nothing built" wording
+  fixed; E7 (a) save / open a run done in the Lab (btsim cannot open one; the file names no Lab version), (b) crashed battles
+  are listed with seed and message, but their replay does not yet play up to the crash.
+  (3) THE CHECKS PRUNED (Daniel's list of five): `tests/run_checks.py` picks checks by what changed since origin/main (docs ->
+  none, art -> token tests, Lab pages -> website + Lab server, Python -> Python tests + Python reference battles, engine ->
+  Rust + website + Lab server; `--list` explains; `--full` before every merge; `--python` weekly). Idea 1 (one battle run
+  serving both the reference and the bridge parity check) was BUILT AND MEASURED, NOT KEPT as the default:
+  `check_rust_reference.py --parity` (`btsim --bridge-parity --log N` now also gives each battle's result and log;
+  `Scenario::run_bridge_checked` returns the log) took 434 s on a quiet 4-core machine, against 71 s for the plain reference
+  run + 108 s for `check_bridge_parity.py --quick`: the parity replay of every full battle (8 v 8, 12 v 12 included) is the
+  cost. It stays as a thorough option. Lab server 8 -> 4 battles a setup. The heavy checks run one at a time (they fought
+  over the cores before). `--full` on a quiet 4-core machine: 239 s (reference 71, bridge quick 105, cargo tests 1, Lab server 10, website 53), all
+  pass; the old run_checks took about 500 s with the Python included. The Python set passed this session (weekly run done).
+  CLAUDE.md and PROJECT_MAP updated.
+
 - **2026-11-17 (Claude, session 28), WHM v JVN: CAUSES OF DEATH BY BOT - HYDRA IS CHARGED OFF THE MAP EDGE. No code changes.**
   Daniel: "Did you look at the cause of death breakdown for each unit by bot?" (not at first). The same 900 battles through the Lab
   (identical results). The Warhammer's deaths by its bot (v the Gladiator Javelin): Gladiator - CT 10, head 5, legs 4...; Princess -

@@ -149,7 +149,7 @@ fn main() {
             .map(|sim| {
                 let s = PcgDice::battle_seed(seed, sim);
                 let keep = sim == 1 && arg(&args, "--bridge-dump").is_some();
-                let (r, p, lines) = scenario.run_bridge_checked(s, keep, compact, view);
+                let (r, p, lines, log) = scenario.run_bridge_checked(s, keep, compact, view);
                 if keep {
                     if let Some(p) = arg(&args, "--bridge-dump") {
                         let start = scenario.bridge_start(s);
@@ -160,9 +160,17 @@ fn main() {
                         std::fs::write(p, text).unwrap();
                     }
                 }
-                json!({"sim": sim, "seed": s, "turns": r.turns_taken, "winner": r.winner, "calls": p.calls, "decisions": p.decisions,
+                let mut v = json!({"sim": sim, "seed": s, "turns": r.turns_taken, "winner": r.winner, "calls": p.calls, "decisions": p.decisions,
                        "same": p.first_difference.is_none(), "rebuild_gaps": p.rebuild_gaps, "agree": p.agree,
-                       "first_difference": p.first_difference.map(|(n, m, want, got)| json!({"line": n, "method": m, "battle": want, "session": got}))})
+                       "first_difference": p.first_difference.map(|(n, m, want, got)| json!({"line": n, "method": m, "battle": want, "session": got}))});
+                // --log N with --bridge-parity (2026-11-17): the first N battles also carry their full result and log, so the
+                // reference-log check can read them from this same run (tests/check_rust_reference.py --parity)
+                if sim <= log_first {
+                    v["result"] = battle_json(sim, s, &r);
+                    v["capped"] = json!(r.turns_taken >= scenario.max_turns);
+                    v["log"] = json!(log);
+                }
+                v
             })
             .collect();
         let bad = runs.iter().filter(|r| !r["same"].as_bool().unwrap()).count();

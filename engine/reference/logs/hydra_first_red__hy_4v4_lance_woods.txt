@@ -1,4 +1,4 @@
-# scenario hy_4v4_lance_woods, Hydra drives Red, HYDRA_PLAYOUT=reply, HYDRA_MOVEMENT_ATTACKS=false, HYDRA_MOVE_ORDER=index, HYDRA_WAITING=false, HYDRA_ATTENTION=range
+# scenario hy_4v4_lance_woods, Hydra drives Red, HYDRA_PLAYOUT=reply, HYDRA_MOVEMENT_ATTACKS=false, HYDRA_MOVE_ORDER=index, HYDRA_WAITING=false, HYDRA_ATTENTION=range, HYDRA_EDGE_RISK=false
 # seed 1: winner Blue, 45 turns
 #   Red: 510.0 of 1064.0 armor + structure left, team destroyed True, units 4, 48 hits of 165 attacks, 411.0 damage dealt
 #   Blue: 554.0 of 1064.0 armor + structure left, team destroyed False, units 4, 42 hits of 142 attacks, 302.0 damage dealt

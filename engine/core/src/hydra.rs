@@ -417,6 +417,63 @@ fn exchange(b: &mut Battle, mover: UnitId, enemy: UnitId, prepared: &[Opt], inde
     out
 }
 
+// =============================================================================================================
+// EDGE RISK (Daniel, 2026-11-17, after the WHM-6R v JVN-10F study: a third of the Hydra Warhammer's losses were a
+// Javelin charging it off the map; a 'Mech displaced off the battlefield is destroyed, Core p.113)
+// =============================================================================================================
+/// An enemy that has not moved yet and could still charge or jump on this unit: (unit, where, running MP, jumping MP,
+/// piloting). A charge needs the CHARGES setting, a death from above the DFA setting.
+fn would_be_chargers(b: &mut Battle, enemies: &[UnitId]) -> Vec<(UnitId, (i64, i64), i64, i64, i64)> {
+    let (charges, dfas) = (b.cfg.b("CHARGES"), b.cfg.b("DFA"));
+    if !(charges || dfas) {
+        return Vec::new();
+    }
+    let alive: Vec<UnitId> = enemies.iter().copied().filter(|e| !b.is_destroyed(*e)).collect();
+    alive
+        .into_iter()
+        .filter(|e| {
+            let m = &b.units[*e];
+            m.hex.is_some() && !m.moved_this_turn && !m.prone && !m.shutdown && !is_immobile(m)
+        })
+        .map(|e| {
+            let m = &b.units[e];
+            let run = if charges { crate::mech_state::compute_running_mp(m).max(0) } else { -1 };
+            let jump = if dfas { crate::mech_state::compute_jump_mp(m).max(0) } else { 0 };
+            (e, xy(b, e).unwrap(), run, jump, m.piloting)
+        })
+        .collect()
+}
+
+/// The chance that standing at `o` this unit is charged or jumped on (DFA) off the map this turn: the best hit chance of
+/// any would-be charger that can reach a hex next to `o` from which the attack's push (attacker's hex -> target's hex,
+/// as `charge.rs` / `dfa.rs` displace) leads off the board. Reach is counted in hexes (terrain ignored: the threat is
+/// taken at its largest); the hit chance is the attack's to-hit number at its simplest: piloting + the attacker's
+/// movement modifier (running +2 for a charge, jumping +3 for a DFA) + this spot's TMM. 0 on a spot no push can clear.
+fn edge_risk(b: &Battle, o: &Opt, chargers: &[(UnitId, (i64, i64), i64, i64, i64)]) -> f64 {
+    if chargers.is_empty() {
+        return 0.0;
+    }
+    let mut p: f64 = 0.0;
+    for d in 0..6i64 {
+        // the attacker would stand on the neighbour in direction d and push the other way, (d + 3) mod 6
+        let Some(n) = crate::movement_attacks::neighbour(&o.label, d).filter(|n| b.board.hexes.contains_key(n)) else { continue };
+        if crate::movement_attacks::displacement(b, &o.label, (d + 3).rem_euclid(6)).0 != "off" {
+            continue;
+        }
+        let n_xy = hex_geometry::parse_hex_label(&n).unwrap();
+        for (_, e_xy, run, jump, piloting) in chargers {
+            let dist = hex_distance(*e_xy, n_xy);
+            if *run >= 0 && dist <= *run {
+                p = p.max(crate::combat::hit_probability(piloting + 2 + o.tmm));
+            }
+            if *jump > 0 && dist <= *jump {
+                p = p.max(crate::combat::hit_probability(piloting + 3 + o.tmm));
+            }
+        }
+    }
+    p
+}
+
 /// The movement pick for a Hydra unit and the note the log prints. `other` is the foe the engine named (used only where
 /// the engine's own helpers want one).
 pub fn choose_movement(b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, standup_mp: Option<i64>, entry_edge: Option<&[String]>) -> (Option<Pick>, String) {
@@ -500,7 +557,12 @@ fn choose_movement_inner(b: &mut Battle, mover: UnitId, other: UnitId, moves_fir
         }
         (gain, on, cost)
     };
-    let risks: Vec<f64> = prepared.iter().map(|o| my_price * me.psr_for_opt(b, o)).collect();
+    // risk = the fall chance of getting there, priced; plus (HYDRA_EDGE_RISK, on by default) the chance of being charged or
+    // jumped off the map from there by an enemy still to move, times this unit's whole remaining strength, priced
+    let edge_on = !(b.cfg.has("HYDRA_EDGE_RISK") && !b.cfg.b("HYDRA_EDGE_RISK"));
+    let chargers = if edge_on { would_be_chargers(b, &enemies) } else { Vec::new() };
+    let my_whole = crate::attack_resolution::total_hp(&b.units[mover]).f();
+    let risks: Vec<f64> = prepared.iter().map(|o| my_price * (me.psr_for_opt(b, o) + edge_risk(b, o, &chargers) * my_whole)).collect();
     // THE SCORE of a spot: what it does to my team's rate of exchange over a typical turn,
     //     (d0 + gain) / (r0 + cost + risk)
     // d0 / r0 = what my whole team (this unit included) deals / takes in a typical turn, priced. In a big force one

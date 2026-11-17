@@ -47,15 +47,18 @@ and the GitHub logistics (Section 7).
 - MegaMek's source, when a rule or the Princess clone needs it: `git clone --depth 1 --filter=blob:none --sparse
   https://github.com/MegaMek/megamek.git` works through the proxy (Section 6, "Princess clone").
 - Run: `python INTEGRATION__main.py`; every setting is in `INTEGRATION__config.py`.
-- **After any change:** `python tests/run_checks.py` - 61 checks today (the test files, the reference battles, the Rust lines, and one "web" line:
-  `check_web_ui.py` then `check_web_lab.py`, the website clicked through and browser = desktop), 1-2 minutes, all must pass. The Rust set (session 25): `python tests/check_rust_reference.py`
-  plays 86 battles with `btsim` (inputs frozen in `engine/reference/scenarios.zip`, logs in `engine/reference/logs/`;
-  `--update` for a Rust change meant to alter results) - the Rust's own answer key, no Python needed. The Rust turn cap is 100
-  (`scenario::STANDARD_MAX_TURNS`, Daniel 2026-11-12; the Python keeps 50); 2 battles reach it: the Asymptote mirror (the stall,
-  backlog A1) and a first-version Hydra battle.
-  `--bench` for anything on the hot path: a speed-only change must keep the benchmark's HP totals (501 / 495) and
-  every reference log. A change MEANT to alter results: `python tests/check_reference_logs.py --update`, and say
-  so in the Change Record. Art-only work runs only the three token tests (Section 7).
+- **After any change:** `python tests/run_checks.py` picks the checks from what changed since origin/main (levels:
+  docs / art / Lab pages / Python / engine; `--list` says why); `--full` before every merge; `--python` adds the
+  retired Python's tests and 15 reference battles (weekly). The engine level: the Rust reference set
+  (`check_rust_reference.py`: 87 battles from `engine/reference/scenarios.zip`, logs in `engine/reference/logs/`;
+  `--update` for a Rust change meant to alter results; `--parity` also runs every battle in full under the bridge's
+  parity check, a thorough but slower run), the bridge's `check_bridge_parity.py --quick`, the engine's cargo tests, `check_lab_server.py --battles 4`, and the website (`check_web_ui.py`, then
+  `check_web_lab.py --battles 4`). Heavy checks run one at a time. The Rust turn cap is 100
+  (`scenario::STANDARD_MAX_TURNS`, Daniel 2026-11-12; the Python keeps 50); 2 battles reach it: the Asymptote mirror (the
+  stall, backlog A1) and a first-version Hydra battle.
+  `--bench` for anything on the Python hot path: a speed-only change must keep the benchmark's HP totals (501 / 495) and
+  every reference log. A change MEANT to alter results: `--update` on the reference check, and say so in the Change
+  Record. Art-only work runs only the three token tests (Section 7).
 - Bot changes: `python tests/ab_batches.py` (duels) or the battery: `python tests/baseline_battery.py pg 20
   --legate --turns 100 --seed N --stats --first A --last B` (resumable; one core's share - start four side by
   side; `--no-triage` = the old baseline), table by `python tests/battery_summary.py`. Launching a background
@@ -112,8 +115,11 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
 - A7. Research decisions [3, 4, 8]: rate of fire, MASC, ammo kind, ammo conservation, PPC capacitors, the
   future-capability Memo (Section 6); placeholders `TARGET_HEAT_WORTH`, `TASER_` / `TSEMP_` / `IMP_EFFECT_WORTH`.
 - A8. Not priced in movement scoring [6, 7]: attack-caused PSRs, mud's -1, hull-breach risk (G21: DON'T BUILD
-  YET, Daniel), being pushed off the board edge. Measured 2026-11-17 (WHM v JVN, Change Record): HYDRA's Warhammer
-  loses a third of its battles by being charged off the edge; Gladiator's rarely. Daniel's call whether to reopen Hydra for it.
+  YET, Daniel). (AUDIT 2026-11-17: "being pushed off the board edge" was stale for Gladiator - it has priced it since
+  2026-10-20: its own push / charge / DFA by `displacement_worth`, the enemy's push next to it through the physical
+  planner in `move_eval`, and, moving first, the enemy's charge / DFA in the two-ply reply (`move_select` modeled_reply);
+  1 off-the-map loss in 100 WHM v JVN battles. HYDRA did not price an unmoved enemy's charge / DFA: fixed the same day,
+  `hydra::edge_risk`, switch HYDRA_EDGE_RISK, on.)
 - A9. Measurement (review 2026-11-10): judge A/Bs by a per-battle margin, not win counts (T2); a small scenario
   suite so the bot is not tuned to one roster and field (T3).
 
@@ -129,7 +135,9 @@ real Princess and CASPAR through the bridge (E4).
 - C3. Spotting / indirect fire, C3, special munitions (G16), G18 choices, G12; fire, snow / ice, temperatures;
   LAMs; TO:AR optional weather [11].
 - C4. Deferred by Daniel [10]: 'Mech UMUs, the chain whip grapple, industrial tools.
-- C5. Rules library: refresh the zip with TO:AUE / TO:AR; Interstellar Operations is not indexed yet (T9).
+- C5. Rules library: Interstellar Operations is not indexed yet (T9); TechManual skipped for now (the unit editor's
+  construction numbers wait on it). (Audit 2026-11-17: "refresh the zip" is obsolete - the zip was removed 2026-11-13 and
+  the rules repo, with TO:AUE and TO:AR, is read directly.)
 - C6. Other unit types; scenario features (objectives, fog of war).
 - C7. IDEAS LIST (Daniel, 2026-11-17: "no action taken now"). (a) DYNAMIC MAPS: the elevator terrain is meant to change the level
   of hexes between turns (TO:AR's industrial elevators; the engine refuses them today, `terrain_rules::UNSUPPORTED_FEATURES`,
@@ -162,24 +170,21 @@ real Princess and CASPAR through the bridge (E4).
   battle histories (`btsim --history N`), the Lab program `engine/target/release/combatlab` (local server + pages:
   Units, Map, Options, Results, Replay), demo page `tools/make_lab_demo.py`, Windows alpha `tools/package_lab.py`.
   STAGE 1 REACHED (Daniel, 2026-11-13: "we have achieved stage 1, It works" - alpha-1 on his PC, downloads branch).
-  NEXT (Daniel's next-version notes, COMBAT_LAB.md Part A; "so many small tweaks needed to polish it"): start positions per team and a side swap, BV following the
-  skills; then CL6 (battle from a saved state).
+  Part A's notes DONE (audit 2026-11-17): start positions per team and the side swap (CL14 zones, rotating mode), BV
+  following the skills (aq). NEXT: CL6 (battle from a saved state).
 - E2a. DANIEL'S LIST, 2026-11-15 (session 27; he is still adding to it). DONE: armor 0 in the browser, team-column scroll,
   dynamic browser columns, Add-to row, one-line start zones, resizable windows / columns, sort triangles (Change Record).
   STAGES 1-2 OF (1) DONE 2026-11-15 (Change Record "UNIT EDITOR STAGE 2"; what is missing is listed there). Modified units are
   temporary: saved only inside a saved run (Daniel).
   Browser version has the editor too; Config (biped / quad / tripod) done. Round 3 (eye previews, tray, witch hunt) done; the TechManual-based pieces (MASC and armor slot rules, a full custom designer) wait for TechManual (Daniel: "we might accidentally make a fully functional custom unit designer"). Quirks, role, omni pods: fluff, not wanted (Daniel).
-  TO BUILD: (1) UNIT PREVIEW AND EDITOR: a unit in the browser shows its stats; once on a team its values are editable with
-  only mild construction limits (heat sinks tied to what fits the engine and the critical slots, jump jets likewise) and an
-  override; the one hard rule is that equipment must fit the critical slots; BV recalculated from the current stats; also a
-  way to add custom units without a file download. Purpose: science, and illegal designs for fun (30 AC/2s). (2) TacOps
+  (1) UNIT PREVIEW AND EDITOR: DONE (stages 1-3 above). TO BUILD: (2) TacOps
   OPTIONAL RULES in the option list: floating crits (a toggle), stackpole, others to come (implementation "next week").
   (3) Total Warfare NON-AEROSPACE units ("next week"). (4) WISHLIST: the grabbable unit icon looks like the actual unit;
   Daniel is weighing MegaMek's token art against a better stylised version of our own (licence: CREDITS.md).
 - E3a. Art direction (session 24): why the models read as stacked blocks, and jobs A1-A8 in order -
   `INTEGRATION__COMBAT_LAB_ART_SPECS.md` (nothing built).
 - E4. MegaMek bridge (Daniel, 2026-11-12): our bots play in a live MegaMek game - Daniel against Hydra in MegaMek's
-  screen, Hydra against the real Princess and CASPAR, an outside check on our rules. Spec DONE, nothing built:
+  screen, Hydra against the real Princess and CASPAR, an outside check on our rules. Spec:
   `INTEGRATION__MEGAMEK_BRIDGE.md` (task T14, stages B0-B7). B0-B5 DONE: our engine plays in MegaMek (Hydra, Gladiator or our
   Princess as a MegaMek player; `tools/megamek_bridge_games.py`). SHELVED (Daniel, 2026-11-12) for the Combat Lab GUI;
   where to pick up, with Daniel's design for playing against the bot: the bridge spec Section 8b (Combat Lab CL10).
@@ -209,7 +214,11 @@ real Princess and CASPAR through the bridge (E4).
   errors should still be listed for replay": today a crashed battle goes to the run's separate `crashed` list
   (`runs.rs`), not the battle list, so it vanishes from the page (battle 73 was simply missing). It should appear in
   the list, marked as an error with its message, and its replay should play up to the crash (needs a history that
-  survives the panic: `run_history` keeps what it has recorded when the battle panics). Not built. Note:
+  survives the panic: `run_history` keeps what it has recorded when the battle panics). AUDIT 2026-11-17: (a) DONE in the Lab
+  (CL20, session 26: Save run / Open a run file, with the setup, every battle, the crashes and dropped unit files); NOT done:
+  `btsim` cannot open a run file, and the file does not name the Lab version. (b) PARTLY: a crashed battle is listed in its own
+  "Crashed battles" box with its seed, message, Replay and Copy seed (and the report button flashes); its replay does not
+  yet play up to the crash (it says the battle crashes again). Note:
   `tests/check_lab_server.py` (in run_checks) rebuilds `combatlab` in the session; that is a local test build, not a release
   (Daniel, 2026-11-13: "Do not recompile the combatlab program" until more fixes are in).
 - E3. 3D art [15] (paused): next the weapon-block stockpile, then bird-body torso / head blocks, the 47 chart
@@ -222,6 +231,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s28-3) HYDRA EDGE RISK + CHECK LEVELS** (session 28): `hydra::would_be_chargers` / `edge_risk`; `run_bridge_checked`'s log and `btsim --bridge-parity --log`; `check_rust_reference.py --parity`; the levels in `run_checks.py` (`kind_of`, `plan`).
 - **(s28-2) WALK-ON ZONES + LAB ROUND** (session 28): ENGINE `deployment::entry_segments` / `zone_entry_band` (walk-on zones), `tests/zone_entry.rs`; `entryHexes` / `deployDepths` and the zone paint in lab.js; `Player.stop` (browser cancel) in engine.js; the board filter in `build_web_lab.py`.
 - **(s28-1) CAUSE FILTER, CORES, WEB UI TESTS** (session 28): `runs::matches` `cause_is`, `runs::threads_for`, `main.rs::lower_priority` (the Windows FFI), `engine.js` `autoThreads`, `filterByCause` in lab.js, `tests/check_web_ui.py`, the web line in `run_checks.py`.
 - **(s26-9) COMBAT LAB IN THE BROWSER** (session 26): `engine/wasm`, `engine/wasm/web/*.js`, `tools/build_web_lab.py`, `tests/check_web_lab.py`, `SetupPaths.memory` in `scenario.rs`, the wasm32 gates in `lab/src/runs.rs`. The worker-crash path (WebAssembly panics abort; `worker.js` records the seed and restarts the instance) is written but NOT yet exercised: no known unit crashes the engine to try it on. `add_unit` still missing.

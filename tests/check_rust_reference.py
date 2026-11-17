@@ -42,7 +42,8 @@ SEED = 1
 # Extra plays of a scenario with Hydra driving some teams: saved-log name -> (scenario folder, Hydra teams[, settings]).
 # Settings are btsim --set KEY=VALUE pairs (engine/core/src/hydra.rs lists Hydra's switches and their OFF values).
 # Hydra as first built (session 24-25): every later switch off.
-FIRST_VERSION = ["HYDRA_PLAYOUT=reply", "HYDRA_MOVEMENT_ATTACKS=false", "HYDRA_MOVE_ORDER=index", "HYDRA_WAITING=false", "HYDRA_ATTENTION=range"]
+FIRST_VERSION = ["HYDRA_PLAYOUT=reply", "HYDRA_MOVEMENT_ATTACKS=false", "HYDRA_MOVE_ORDER=index", "HYDRA_WAITING=false", "HYDRA_ATTENTION=range",
+                 "HYDRA_EDGE_RISK=false"]
 
 VARIANTS = {
     "hydra_red__hy_duel_griffin": ("hy_duel_griffin", "Red"),
@@ -55,6 +56,8 @@ VARIANTS = {
     # session 25, 2026-11-12: Hydra's five switches are ON by default ("Leave them all on"); these keep each OFF path played
     "hydra_noplayout_red__hy_4v4_lance_woods": ("hy_4v4_lance_woods", "Red", ["HYDRA_PLAYOUT=reply"]),
     "hydra_nocharge_red__hy_duel_griffin": ("hy_duel_griffin", "Red", ["HYDRA_MOVEMENT_ATTACKS=false"]),
+    # Hydra without the edge risk (2026-11-17, HYDRA_EDGE_RISK=false): the Mover as it was before that day
+    "hydra_noedge_red__hy_duel_griffin": ("hy_duel_griffin", "Red", ["HYDRA_EDGE_RISK=false"]),
     "hydra_nomoveorder_blue__hy_8v8_valley": ("hy_8v8_valley", "Blue", ["HYDRA_MOVE_ORDER=index"]),
     "hydra_nowait_red__hy_8v8_valley": ("hy_8v8_valley", "Red", ["HYDRA_WAITING=false"]),
     "hydra_noattention_blue__hy_4v4_heavy_hills": ("hy_4v4_heavy_hills", "Blue", ["HYDRA_ATTENTION=range"]),
@@ -77,10 +80,14 @@ def battles(scenario_dir):
     return out
 
 
-def play(scenario_dir, folder, variant):
-    """One battle with btsim; returns the saved-log text."""
+def play(scenario_dir, folder, variant, parity=False):
+    """One battle with btsim; returns the saved-log text. With `parity` (2026-11-17) the battle is played once under the
+    MegaMek bridge's parity check (btsim --bridge-parity --bridge-compact, tests/check_bridge_parity.py) and returns
+    (text, parity problem or None): the same battle serves both checks, so run_checks.py no longer plays them twice."""
     hydra, settings = variant
     cmd = [BTSIM, os.path.join(scenario_dir, folder), "--battles", "1", "--seed", str(SEED), "--log", "1", "--threads", "1"]
+    if parity:
+        cmd += ["--bridge-parity", "--bridge-compact"]
     if hydra:
         cmd += ["--hydra", hydra]
     for kv in settings:
@@ -88,10 +95,27 @@ def play(scenario_dir, folder, variant):
     # HYDRA_CHECK (session 25, engine/core/src/playout.rs): every Hydra decision is also checked to leave the battle as it
     # found it (no dice, no log, no state); a breach panics, and the saved log then shows the difference.
     proc = subprocess.run(cmd, capture_output=True, text=True, env=dict(os.environ, HYDRA_CHECK="1"))
+    if parity:
+        rows = [json.loads(l) for l in proc.stdout.splitlines() if l.strip()]
+        if not rows or "result" not in rows[0]:
+            return f"# btsim failed (exit {proc.returncode})\n" + proc.stderr, f"btsim failed: {proc.stderr.strip()[-300:]}"
+        row = rows[0]
+        problem = None
+        if row.get("rebuild_gaps"):
+            problem = f"COMPACT STATE MISSES {row['rebuild_gaps']}"
+        elif not row["same"]:
+            d = row["first_difference"]
+            problem = f"bridge parity: FIRST DIFFERENCE at line {d['line']} ({d['method']})"
+        out = {"results": [row["result"]], "hit_turn_cap": row["capped"], "logs": [{"lines": row["log"]}]}
+        return saved_text(folder, hydra, settings, out), problem
     if proc.returncode != 0:
         # a panic is a result too: save its message so a change that makes or cures one shows as a difference
         return f"# btsim failed (exit {proc.returncode})\n" + proc.stderr
-    out = json.loads(proc.stdout)
+    return saved_text(folder, hydra, settings, json.loads(proc.stdout))
+
+
+def saved_text(folder, hydra, settings, out):
+    """The saved-log text of one battle from btsim's JSON (results, hit_turn_cap, logs)."""
     r = out["results"][0]
     lines = [f"# scenario {folder}" + (f", Hydra drives {hydra}" if hydra else "") + "".join(f", {kv}" for kv in settings),
              f"# seed {SEED}: winner {r['winner']}, {r['turns']} turns" + (" - NOTE: reached the turn cap" if out["hit_turn_cap"] else "")]
@@ -107,6 +131,9 @@ def play(scenario_dir, folder, variant):
 def main(argv):
     update = "--update" in argv
     only = argv[argv.index("--only") + 1] if "--only" in argv else ""
+    # --parity: each battle is played once under the bridge's parity check as well (and the wire test is run), standing in
+    # for tests/check_bridge_parity.py in run_checks.py (2026-11-17, Daniel: prune the checks)
+    with_parity = "--parity" in argv
     build()
     os.makedirs(LOG_DIR, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
@@ -114,8 +141,21 @@ def main(argv):
             z.extractall(tmp)
         todo = [b for b in battles(tmp) if b[0].startswith(only)]
         with ThreadPoolExecutor(max_workers=os.cpu_count() or 4) as pool:
-            texts = list(pool.map(lambda b: play(tmp, b[1], b[2]), todo))
+            played = list(pool.map(lambda b: play(tmp, b[1], b[2], with_parity), todo))
+        texts = [p[0] for p in played] if with_parity else played
+        problems = [p[1] for p in played] if with_parity else [None] * len(played)
+        wire_result = None
+        if with_parity:
+            import check_bridge_parity   # noqa: E402 (its wire test: one recording through a real `btsim decide`)
+            wire_result = check_bridge_parity.wire(tmp, "hy_2v2_grass")
     failed, capped = 0, 0
+    for (name, _, _), problem in zip(todo, problems):
+        if problem:
+            failed += 1
+            print(f"FAIL   {name}: {problem}")
+    if wire_result is not None:
+        failed += not wire_result[0]
+        print(f"{'PASS' if wire_result[0] else 'FAIL'}   bridge wire (hy_2v2_grass): {wire_result[1]}")
     for (name, _, _), text in zip(todo, texts):
         path = os.path.join(LOG_DIR, name + ".txt")
         note = " NOTE: turn cap" if "reached the turn cap" in text.split("# log", 1)[0] else ""

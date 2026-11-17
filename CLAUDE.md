@@ -57,18 +57,25 @@ GitHub logistics.
   (`tests/test_token_shell.py`, `test_token_joined.py`, `test_token_volume.py`),
   not the whole suite (Daniel, 2026-11-04: "We're not messing with the core
   code, we're messing with visual assets ... Run only checks that are related").
-  A change that touches engine code still runs everything below.
+  A change that touches engine code still runs the engine level below
+  (`run_checks.py` picks the level by itself).
 - **After every change:**
-  - Run `python tests/run_checks.py` (about 8 min): every `tests/test_*.py`
-    plus every reference battle, side by side, one line each, plus the Rust
-    engine's own 86 reference battles (`tests/check_rust_reference.py`, when
-    cargo is installed; `--update` there for a Rust change meant to alter
-    results), plus the MegaMek bridge's parity check
-    (`tests/check_bridge_parity.py --quick`), plus the website's checks
-    (`tests/check_web_ui.py`, the page clicked through, then
-    `check_web_lab.py`; skipped with a NOTE where node / Playwright / the
-    wasm32 target are missing). All must pass. A new bot call
-    (`BotSet` method) must be added to `bridge.rs` too, or the check misses it.
+  - Run `python tests/run_checks.py`: it picks the checks from the files
+    changed since origin/main (Daniel, 2026-11-17: "prune down the suite"):
+    docs only -> nothing; art -> the three token tests; Lab pages
+    (`engine/lab/web`, `engine/wasm/web`) -> the website checks
+    (`check_web_ui.py`, `check_web_lab.py`) + `check_lab_server.py`; the
+    Python -> its tests and 15 reference battles; anything else (the engine)
+    -> the Rust checks + the website + the Lab server. The Rust reference
+    battles (87, `tests/check_rust_reference.py`; `--update` for a Rust
+    change meant to alter results) and the MegaMek bridge's parity check
+    (`tests/check_bridge_parity.py --quick`) run one after the other
+    (`check_rust_reference.py --parity` does both in one run, every battle
+    in full: thorough, but 2.5x slower). `--list` shows the choice and why. **Before a merge: always
+    `--full`** (every Rust and website check). The retired Python runs only
+    when a Python file changed or with `--python`: run that once a week (the
+    first session of the week). All must pass. A new bot call (`BotSet`
+    method) must be added to `bridge.rs` too, or the parity check misses it.
     Reference battles stop at the turn cap: 50 in the Python, 100 in the Rust
     (the standard game since 2026-11-12, `scenario::STANDARD_MAX_TURNS`); one
     that hits the cap prints a NOTE (Daniel: "a possible flaw").
@@ -105,7 +112,7 @@ GitHub logistics.
   `INTEGRATION__battle_value`). Daniel wants "general feel, not full stats":
   only the interesting series, few battles, unless he asks for a full run.
 - **Three bots now:** "hydra" (Rust only, session 24) is Claude's own design: one planner per team, damage priced
-  by a forecast of how the battle ends. COMPLETE (Daniel, 2026-11-12); `INTEGRATION__HYDRA.md` is its plan and
+  by a forecast of how the battle ends. COMPLETE (Daniel, 2026-11-12; reopened once, 2026-11-17, for the map edge); `INTEGRATION__HYDRA.md` is its plan and
   results (read before the code). Trials: `tools/hydra_scenarios.py`, `tools/hydra_trial.py`, `tools/round_robin.py`,
   `btsim --hydra TEAM`.
 - **MegaMek bridge** (session 25; `INTEGRATION__MEGAMEK_BRIDGE.md`, `megamek_bridge/README.md`): our bots play as
