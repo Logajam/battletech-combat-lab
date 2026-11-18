@@ -313,19 +313,24 @@ def catapult():
     # stands one in front of and one behind the centre of mass, the same distance away: the front nozzle under the jowl's back, the
     # rear one under the body. (Before: both pairs far behind the centre of mass.)
     cg = centre_of_mass(m.parts)
-    d = 1.43
-    for k, z in enumerate((cg[2] + d, cg[2] - d)):
-        if k == 0:
-            y_top = 7.15                                    # the jowl's underside
-        else:                                               # the body's underside AT the nozzle's x (it curves up to the sides)
-            under = [surface_point(secs, z, -math.pi / 2 + i * 0.02) for i in range(80)]
-            y_top = min(under, key=lambda q: abs(q[0] - 1.12))[1] + 0.05
-        # mounted INSIDE, only the nozzle's lip showing (Daniel: "you can mount the jets internally with just the outer lip of the
-        # nozzle showing. Their size and shape is also variable"): a short ring proud of the surface round a dark throat
-        lip = 0.62 if k == 0 else 0.7
-        m.tube("jj_lip", "torso", (1.12, y_top + 0.1, z), (1.12, y_top - 0.12, z), lip * 0.9, lip, n=20, tone=0.45, mirror=True,
-               role="jumpjet:LT" if k == 0 else None)
-        m.tube("jj_throat", "torso", (1.12, y_top - 0.12, z), (1.12, y_top - 0.135, z), lip * 0.72, n=20, tone=DARK, mirror=True)
+    # Second placement (Daniel: "they're clipping or crowding other features. They could be placed more on the body either angled
+    # out, or with vents that come out just a bit"): VENTS on the body's flanks, in the clear strip between the tilt hinge (below)
+    # and the launcher arms (above), each angled down and OUTWARD (the left and right thrusts' sideways parts cancel), one in front
+    # of and one behind the centre of mass. A short lip stands proud of the skin; the jet itself is inside.
+    tilt = math.radians(35)
+    for k, (dz, y_want) in enumerate(((0.72, 8.33), (-0.72, 8.15))):
+        z = cg[2] + dz
+        cands = [surface_point(secs, z, t * 0.02) for t in range(-40, 41)]
+        sp_ = min(cands, key=lambda q: abs(q[1] - y_want))
+        dirn = (math.sin(tilt), -math.cos(tilt), 0.0)           # down and out (the 'Mech's left; mirrored for the right)
+        root = (sp_[0] - dirn[0] * 0.12, sp_[1] - dirn[1] * 0.12, z)
+        tip = (sp_[0] + dirn[0] * 0.14, sp_[1] + dirn[1] * 0.14, z)
+        m.tube("jj_lip", "torso", root, tip, 0.46, 0.52, n=20, tone=0.45, mirror=True, role="jumpjet:LT" if k == 0 else None)
+        m.tube("jj_throat", "torso", tip, (tip[0] + dirn[0] * 0.01, tip[1] + dirn[1] * 0.01, z), 0.38, n=20, tone=DARK, mirror=True)
+        # a small hood over the vent, sloping into the skin above it
+        m.hull("jj_hood", "torso", [(sp_[0] - 0.08, sp_[1] + 0.32, z + sz * 0.3) for sz in (-1, 1)] +
+               [(sp_[0] + 0.1, sp_[1] + 0.12, z + sz * 0.3) for sz in (-1, 1)] +
+               [(sp_[0] - 0.1, sp_[1] + 0.05, z + sz * 0.3) for sz in (-1, 1)], tone=PLATE, mirror=True)
     # SPLAY (Daniel: "the legs are splayed out slightly"): the leg turns about the hip by LEG_SPLAY degrees, foot outward; the foot
     # follows the ankle but stays flat on the ground
     a = math.radians(LEG_SPLAY)
