@@ -47,6 +47,13 @@ def main():
     import lowpoly_assemble as A
     for e in A.check_all():
         print("FAIL mech", e); bad += 1
+    # HD models (reference_art/models_hd: no triangle budget; the simplified models are made from them later)
+    hd_dir = os.path.join(L.REF, "models_hd")
+    for f in sorted(os.listdir(hd_dir)) if os.path.isdir(hd_dir) else []:
+        if f.endswith(".json"):
+            errors, notes = L.check_model(json.load(open(os.path.join(hd_dir, f))))
+            for e in errors:
+                print("FAIL HD %s: %s" % (f, e)); bad += 1
     if "reference_art/" not in publish_public.PRIVATE_PATHS:
         print("FAIL reference_art/ is not in publish_public.PRIVATE_PATHS"); bad += 1
     print("%s: %d units indexed, %d models built, %d blocks" % ("FAIL" if bad else "OK", len(units), len(built), len(rows)))
