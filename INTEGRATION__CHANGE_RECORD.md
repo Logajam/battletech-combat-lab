@@ -6,6 +6,16 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), HD MODELS; THE CATAPULT IN HD. Art only. REVIEW PENDING (higher-level model).** Daniel:
+  "Don't worry about polygon count. This will be the HD version that gets simplified later." `tools/lowpoly_hd.py` builds HD
+  models into `reference_art/models_hd/` (`"detail": "hd"`: `lowpoly_ref.check` skips the 800-triangle budget, every other check
+  stays; `tests/test_lowpoly_ref.py` checks them). The Catapult HD (8,272 triangles), from the same grid measurements: a rounded
+  teardrop body in slices with panel seams, framed cockpit panes, the chin box with vents and the centre lasers, striped intakes,
+  the hatch deck with its X, launcher arms with all 15 tube mouths, ribs and top hatches on ringed shoulder discs, side-torso
+  lasers, belled jump-jet nozzles, the hip block with vents and ringed hip discs, rounded thighs to a rear knee cap, plated and
+  vented shins, ankle joints, three-toed feet splayed 18 degrees. Its sheet: `reference_art/sheets/Catapult CPLT-C1 HD.png`. The
+  800-triangle model is now noted as its simplification (`simplified_to`).
+
 - **2026-11-18 (Claude, session 28), CATAPULT CPLT-C1 REFERENCE MODEL FROM THE AI FIVE-VIEW SHEET. Art only. REVIEW PENDING
   (higher-level model).** Daniel: "Using the 5 fold view of the catapult, build a model that matches its appearance ... the art is
   accurate enough, though you may need to compensate for it being art and not a technical drawing." `reference_art/models/Catapult

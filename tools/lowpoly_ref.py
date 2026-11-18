@@ -336,7 +336,8 @@ def check_model(model):
     solids = expand_parts(model)
     tris = sum(s["tris"] for s in solids)
     notes.append("%d parts, %d triangles" % (len(solids), tris))
-    if tris >= TRIANGLE_LIMIT:
+    if tris >= TRIANGLE_LIMIT and model.get("detail") != "hd":      # an HD model (2026-11-18, Daniel: "Don't worry about polygon
+                                                                       # count. This will be the HD version that gets simplified later")
         errors.append("triangle budget: %d (limit under %d)" % (tris, TRIANGLE_LIMIT))
     asm = {s["assembly"] for s in solids}
     for need in REQUIRED_ASSEMBLIES:
