@@ -202,6 +202,102 @@ def bay_grid(m, asm, centre, w, h, rows, cols, role=None, depth=0.3, proud=0.15,
             m.tube(name + "_bore", asm, (x, y, front), (x, y, front + 0.015), d * 0.63, n=12, tone=0.1, mirror=mirror)
 
 
+def torso_stack(m, levels, ch=0.24, tone=0.88, name="chest"):
+    """HD BLOCK torso/chamfered_stack (the Commando's upright chest): horizontal sections, each (y, half-width, front, back) with its
+    corners chamfered by ch, hulled pair by pair (top first). Its surface is the sections themselves: flat front faces for mounts."""
+    for (y0, w0, f0, b0), (y1, w1, f1, b1) in zip(levels, levels[1:]):
+        m.hull(name, "torso", bevel_ring(y0, w0, f0, b0, ch) + bevel_ring(y1, w1, f1, b1, ch), tone=tone)
+
+
+def slung_body(m, secs, tone=0.9, fire_cut_ok=True):
+    """HD BLOCK body/slung_teardrop (the Catapult's): rounded cross-sections along z (nose first), each (z, y_top, y_bottom,
+    half-widths across the top, at the widest, across the bottom), one convex slice between two. Its surface function is
+    `surface_point(secs, z, angle, grow)` (the wrapped cockpit, the jet vents and the panels use it)."""
+    for (z0, t0, b0, a0, m0, c0), (z1, t1, b1, a1, m1, c1) in zip(secs, secs[1:]):
+        m.hull("body", "torso", rounded_section(z0, t0, b0, a0, m0, c0) + rounded_section(z1, t1, b1, a1, m1, c1), tone=tone,
+               **({"fire_cut_ok": True} if fire_cut_ok else {}))
+
+
+def helmet(m, hc, hr, neck_base, skirt_bottom, skirt_back_drop, ear_side=1):
+    """HD BLOCK head/helmet (the Commando's; Daniel, 2026-11-18: "kind of a helmet that covers the back of the neck"): a faceted dome
+    (centre hc, radii hr), a ribbed neck from neck_base, a SKIRT round the sides and back reaching down to skirt_bottom (lower at the
+    back by skirt_back_drop; it must stop short of the torso: "a bit of a gap ... so that the head can rotate"), a brim, a wrapped
+    visor, a brow, a crest, a jaw with a grille, a round fitting on one side (ear_side +1: the left). Sizes are the Commando's,
+    measured from the dome centre."""
+    cy, cz = hc[1], hc[2]
+    for k in range(4):                                              # a ribbed neck (mostly under the skirt)
+        m.tube("neck", "head", (0, neck_base + k * 0.13, cz - 0.13), (0, neck_base + 0.1 + k * 0.13, cz - 0.13), 1.0 - 0.04 * k, n=8,
+               roll=22.5, tone=JOINT)
+    m.tube("neck_core", "head", (0, neck_base, cz - 0.13), (0, neck_base + 0.6, cz - 0.13), 0.82, n=8, roll=22.5, tone=DARK)
+    m.add("dome", "dome", "head", c=hc, r=hr, n=16, rings=5, half="top", tone=0.9)
+    # the SKIRT: one convex piece per 22.5 degrees from the face's right edge round the back to its left edge; it reaches lower at
+    # the back (over the neck) than at the cheeks, and flares a little
+    step = 22.5
+    lon = 135.0
+    while lon < 405.0 - 1e-6:
+        piece = []
+        for lo in (lon, lon + step):
+            back = (1 - math.sin(math.radians(lo))) / 2              # 0 at the face, 1 straight behind
+            yb = skirt_bottom - skirt_back_drop * back
+            for g in (-0.06, 0.05):
+                piece.append(dome_point(hc, hr, 0, lo, g))
+                b_ = dome_point(hc, hr, 0, lo, g + 0.1)
+                piece.append((b_[0], yb, b_[2]))
+        m.hull("helmet_skirt", "head", piece, tone=0.86)
+        lon += step
+    m.tube("brim", "head", (0, cy - 0.03, cz), (0, cy + 0.05, cz), 2 * hr[0] + 0.14, 2 * hr[0] + 0.08, n=16, tone=TRIM)
+    # the VISOR (cockpit rule, WRAP): panes on the dome's own surface, a band across its front (the TRO's slit; the sheet's bands)
+    wrap_glass(m, lambda la, lo, g: dome_point(hc, hr, la, lo, g), [(12, 32)], [(52, 76), (78, 102), (104, 128)], name="visor")
+    m.hull("brow", "head", [dome_point(hc, hr, la, lo, g) for la in (35, 42) for lo in (48, 70, 90, 110, 132) for g in (0.09, -0.01)],
+           tone=TRIM)
+    # the crest: a low ridge from the brow over the top to the back, in short segments that follow the dome
+    path = [(46, 90), (62, 90), (78, 90), (90, 90), (78, 270), (62, 270), (46, 270), (30, 270)]
+    for (la0, lo0), (la1, lo1) in zip(path, path[1:]):
+        m.hull("crest", "head", [dome_point(hc, hr, la, lo + dl, g) for la, lo in ((la0, lo0), (la1, lo1)) for dl in (-6, 6)
+                                 for g in (0.06, -0.03)], tone=0.8)
+    # the face below the visor: a jaw tapering forward (stopping short of the torso, as the skirt), a grille, a round fitting
+    jb = skirt_bottom - 0.06
+    m.hull("jaw", "head", [(sx * 0.62, cy - 0.03, z) for sx in (-1, 1) for z in (cz - 0.35, cz + 0.7)] +
+           [(sx * 0.5, jb, z) for sx in (-1, 1) for z in (cz - 0.3, cz + 0.5)] +
+           [(sx * 0.3, jb + 0.02, cz + 0.8) for sx in (-1, 1)] + [(sx * 0.4, cy - 0.1, cz + 0.9) for sx in (-1, 1)], tone=0.8)
+    for k in range(4):
+        m.box("grille", "head", (0, jb + 0.06 + k * 0.05, cz + 0.81 - k * 0.025), (0.46, 0.03, 0.06), tone=DARK)
+    ex = ear_side
+    m.tube("ear", "head", (ex * 0.5, cy - 0.18, cz + 0.2), (ex * 0.66, cy - 0.18, cz + 0.2), 0.3, n=12, tone=JOINT)
+    m.tube("ear_hub", "head", (ex * 0.66, cy - 0.18, cz + 0.2), (ex * 0.7, cy - 0.18, cz + 0.2), 0.15, n=12, tone=DARK)
+
+
+def pelvis_briefs(m, belt_y, belt_w, belt_d, top, point, crotch, plate_top, plate_bottom, vents=3):
+    """HD BLOCK pelvis/briefs (the Commando's; Daniel: "it looks like an actual pelvis or 'Briefs' underwear"): a BELT band (middle
+    at belt_y, belt_w wide, belt_d deep); under it one straight V, from `top` (y, half-width, front, back) down to `point`, its sloped
+    sides the leg openings; a small crotch block under the point (`crotch`: top section, bottom section); a raised plate down the
+    front and a seat plate behind (plate_top / plate_bottom: (y, half-width, z, z proud)); vents low on the front plate."""
+    m.hull("belt", "pelvis", bevel_box((0, belt_y, 0.0), (belt_w, 0.36, belt_d), 0.1), tone=0.8)
+    m.hull("briefs", "pelvis", bevel_ring(*top, 0.16) + bevel_ring(*point, 0.12), tone=0.74)
+    m.hull("crotch_block", "pelvis", bevel_ring(*crotch[0], 0.1) + bevel_ring(*crotch[1], 0.08), tone=0.68)
+    (ty, tw, tz, tp), (by, bw, bz, bp) = plate_top, plate_bottom
+    for sz, name in ((1, "codpiece"), (-1, "seat_plate")):
+        m.hull(name, "pelvis", [(sx * tw, ty, sz * tz) for sx in (-1, 1)] + [(sx * bw, by, sz * bz) for sx in (-1, 1)] +
+               [(sx * (tw - 0.06), ty - 0.02, sz * tp) for sx in (-1, 1)] + [(sx * (bw - 0.04), by + 0.04, sz * bp) for sx in (-1, 1)],
+               tone=0.82)
+    for k in range(vents):                           # vents low on the front plate
+        y = by + 0.16 + k * 0.1
+        z = bp + (tp - bp) * (y - (by + 0.04)) / ((ty - 0.02) - (by + 0.04)) + 0.005
+        m.box("crotch_vent", "pelvis", (0, y, z), (0.26 + 0.05 * k, 0.03, 0.03), tone=DARK)
+
+
+def pelvis_box(m, centre, size, bevel, vent_rows=3):
+    """HD BLOCK pelvis/box (the Catapult's: its sheet draws a box, principle 32 satisfied): a bevelled box, vent rows front and back,
+    a plate on the back (no large flat space, principle 34). The hip discs are joints (axle_cap) on its sides."""
+    cx, cy, cz = centre
+    m.hull("pelvis", "pelvis", bevel_box(centre, size, bevel), tone=0.74)
+    zf = cz + size[2] / 2 - 0.015
+    for k in range(vent_rows):
+        m.box("pelvis_vent", "pelvis", (cx, cy - 0.35 + k * 0.15, zf), (1.0, 0.06, 0.1), tone=DARK)
+        m.box("pelvis_vent_back", "pelvis", (cx, cy - 0.35 + k * 0.15, -zf), (1.0, 0.06, 0.1), tone=DARK)
+    m.hull("pelvis_back_plate", "pelvis", bevel_box((cx, cy + 0.32, -(zf + 0.01)), (1.2, 0.4, 0.06), 0.03), tone=PLATE)
+
+
 def catapult():
     m = Model()
     # ---------------------------------------------------------------- the body: a rounded teardrop (side heights, top widths)
@@ -210,9 +306,7 @@ def catapult():
             (3.00, 9.00, 7.12, 0.66, 0.92, 0.72), (2.57, 9.12, 6.98, 0.82, 1.12, 0.88), (1.80, 9.38, 6.95, 0.98, 1.32, 1.02),
             (1.08, 9.62, 6.98, 1.08, 1.42, 1.08), (0.17, 9.95, 7.12, 1.12, 1.48, 1.10), (-1.10, 9.98, 7.55, 1.10, 1.45, 1.06),
             (-2.10, 9.90, 7.95, 1.02, 1.36, 0.98), (-2.35, 9.70, 8.15, 0.85, 1.15, 0.80)]
-    for (z0, t0, b0, a0, m0, c0), (z1, t1, b1, a1, m1, c1) in zip(secs, secs[1:]):     # one convex slice between two sections
-        m.hull("body", "torso", rounded_section(z0, t0, b0, a0, m0, c0) + rounded_section(z1, t1, b1, a1, m1, c1), tone=0.9,
-               fire_cut_ok=True)                 # the chest lasers' channel is cut through it (Daniel: "cut out a tube")
+    slung_body(m, secs)              # the chest lasers' channel is cut through it (Daniel: "cut out a tube"): fire_cut_ok
     # THE BACK (Daniel, 2026-11-18: "the back of the catapult is completely flat. It should have at least some shape, paneling, and
     # greebling. There should almost never be a large flat space on a mech"): the body no longer ends in a flat disc but in a
     # tapering TAIL, a heat-exhaust grille on its end; raised armour panels on the rear flanks; a vent block under the tail
@@ -310,11 +404,7 @@ def catapult():
     base = (0.0, 6.35 - 0.3 * lean[1] / ln, -0.05 - 0.3 * lean[2] / ln)       # 0.3 further down the tower's own axis
     mid = (0.0, base[1] + (top[1] - base[1]) * 0.55, base[2] + (top[2] - base[2]) * 0.55)
     waist_joint(m, base, 0.8, ((0.0, 6.5, -0.05), (0.0, 6.82, -0.02), 1.95, 1.72), tower=(base, mid, top, 1.5, 1.42, 0.95))
-    m.hull("pelvis", "pelvis", bevel_box((0.0, 5.8, 0.0), (1.67, 1.5, 2.15), 0.3), tone=0.74)
-    for k in range(3):
-        m.box("pelvis_vent", "pelvis", (0.0, 5.45 + k * 0.15, 1.06), (1.0, 0.06, 0.1), tone=DARK)
-        m.box("pelvis_vent_back", "pelvis", (0.0, 5.45 + k * 0.15, -1.06), (1.0, 0.06, 0.1), tone=DARK)
-    m.hull("pelvis_back_plate", "pelvis", bevel_box((0.0, 6.12, -1.07), (1.2, 0.4, 0.06), 0.03), tone=PLATE)
+    pelvis_box(m, (0.0, 5.8, 0.0), (1.67, 1.5, 2.15), 0.3)
     axle_cap(m, "hip_disc", "pelvis", 5.72, 0.0, 0.75, 1.02, 1.45, n=28, ring=(0.06, 1.2))
     # ---------------------------------------------------------------- the legs: reverse knee (side view), x 1.52
     # the thigh: a big rounded block, hip (y 5.72, z 0) down and BACK to the knee (y 4.31, z -1.68)
@@ -523,45 +613,7 @@ def commando():
     # and neck are perhaps too simple. In the TRO ... kind of a helmet that covers the back of the neck. The AI version is just a well
     # designed futuristic looking head"): a faceted dome, a skirt sweeping down round the sides and back over the neck (open at the
     # face), a brow ridge over the visor, a crest, a jaw with a grille
-    hc, hr = (0.0, 9.15, 0.05), (0.92, 0.85, 0.95)
-    for k in range(4):                                              # a ribbed neck (mostly under the skirt)
-        m.tube("neck", "head", (0, 8.3 + k * 0.13, -0.08), (0, 8.4 + k * 0.13, -0.08), 1.0 - 0.04 * k, n=8, roll=22.5, tone=JOINT)
-    m.tube("neck_core", "head", (0, 8.3, -0.08), (0, 8.9, -0.08), 0.82, n=8, roll=22.5, tone=DARK)
-    m.add("dome", "dome", "head", c=hc, r=hr, n=16, rings=5, half="top", tone=0.9)
-    # the SKIRT: one convex piece per 22.5 degrees from the face's right edge round the back to its left edge; it reaches lower at
-    # the back (over the neck) than at the cheeks, and flares a little
-    step = 22.5
-    lon = 135.0
-    while lon < 405.0 - 1e-6:
-        piece = []
-        for lo in (lon, lon + step):
-            back = (1 - math.sin(math.radians(lo))) / 2              # 0 at the face, 1 straight behind
-            yb = 8.88 - 0.08 * back                                # clear of the torso top (8.65): a gap to turn in
-            for g in (-0.06, 0.05):
-                piece.append(dome_point(hc, hr, 0, lo, g))
-                b_ = dome_point(hc, hr, 0, lo, g + 0.1)
-                piece.append((b_[0], yb, b_[2]))
-        m.hull("helmet_skirt", "head", piece, tone=0.86)
-        lon += step
-    m.tube("brim", "head", (0, 9.12, 0.05), (0, 9.2, 0.05), 1.98, 1.92, n=16, tone=TRIM)
-    # the VISOR (cockpit rule, WRAP): panes on the dome's own surface, a band across its front (the TRO's slit; the sheet's bands)
-    wrap_glass(m, lambda la, lo, g: dome_point(hc, hr, la, lo, g), [(12, 32)], [(52, 76), (78, 102), (104, 128)], name="visor")
-    m.hull("brow", "head", [dome_point(hc, hr, la, lo, g) for la in (35, 42) for lo in (48, 70, 90, 110, 132) for g in (0.09, -0.01)],
-           tone=TRIM)
-    # the crest: a low ridge from the brow over the top to the back, in short segments that follow the dome
-    path = [(46, 90), (62, 90), (78, 90), (90, 90), (78, 270), (62, 270), (46, 270), (30, 270)]
-    for (la0, lo0), (la1, lo1) in zip(path, path[1:]):
-        m.hull("crest", "head", [dome_point(hc, hr, la, lo + dl, g) for la, lo in ((la0, lo0), (la1, lo1)) for dl in (-6, 6)
-                                 for g in (0.06, -0.03)], tone=0.8)
-    # the face below the visor: a jaw tapering forward, a grille, a round fitting on its left (the TRO's)
-    # (Daniel, 2026-11-18: the helmet "needs a bit of a gap between it and the torso so that the head can rotate. This is art not a
-    # functional pivot point": the skirt and jaw stop short of the torso's top, the neck shows in the gap)
-    m.hull("jaw", "head", [(sx * 0.62, 9.12, z) for sx in (-1, 1) for z in (-0.3, 0.75)] + [(sx * 0.5, 8.82, z) for sx in (-1, 1) for z in (-0.25, 0.55)] +
-           [(sx * 0.3, 8.84, 0.85) for sx in (-1, 1)] + [(sx * 0.4, 9.05, 0.95) for sx in (-1, 1)], tone=0.8)
-    for k in range(4):
-        m.box("grille", "head", (0, 8.88 + k * 0.05, 0.86 - k * 0.025), (0.46, 0.03, 0.06), tone=DARK)
-    m.tube("ear", "head", (0.5, 8.97, 0.25), (0.66, 8.97, 0.25), 0.3, n=12, tone=JOINT)
-    m.tube("ear_hub", "head", (0.66, 8.97, 0.25), (0.7, 8.97, 0.25), 0.15, n=12, tone=DARK)
+    helmet(m, (0.0, 9.15, 0.05), (0.92, 0.85, 0.95), neck_base=8.3, skirt_bottom=8.88, skirt_back_drop=0.08)
     # ---------------------------------------------------------------- the upper torso: a chamfered block narrowing to the waist
     # (the sheet's "rectangular block torso"; the TRO's deep chest)
     # PROPORTIONS measured row by row on the sheet (2026-11-18, Daniel: "take measurements of it vs the AI drawings for torso
@@ -569,8 +621,7 @@ def commando():
     # chest, narrowest (2.05) at the round belly, 2.4 below it; side depths about 1.9 at the chest, 1.7 at the belly
     lv = [(8.65, 1.05, 0.62, -0.65), (8.5, 1.25, 0.85, -0.85), (7.8, 1.25, 1.0, -0.9), (7.2, 1.17, 1.0, -0.9),
           (6.85, 1.03, 0.9, -0.85), (6.3, 1.2, 0.86, -0.8), (5.75, 1.2, 0.8, -0.75)]
-    for (y0, w0, f0, b0), (y1, w1, f1, b1) in zip(lv, lv[1:]):
-        m.hull("chest", "torso", bevel_ring(y0, w0, f0, b0, 0.24) + bevel_ring(y1, w1, f1, b1, 0.24), tone=0.88)
+    torso_stack(m, lv)
     m.box("chest_seam", "torso", (0, 7.2, 0), (2.38, 0.05, 1.94), tone=DARK)
     # (the SRM 6 is on the round belly: below, after the belly)
     # HIDDEN WEAPON MOUNTS (Daniel: "torso weapons would be placed flat on the torso sections much as the srm 6 is. A theoretical
@@ -610,18 +661,8 @@ def commando():
     # the PELVIS as BRIEFS (Daniel, 2026-11-18: "In the ai drawing it looks like an actual pelvis or 'Briefs' underwear. In yours its
     # just a rectangular box. The box is the wrong option here"): a belt band, and under it a shape that narrows from the belt's width
     # down to the crotch, its sloped sides the leg openings the thighs come out of; a raised plate down the front, a seat plate behind
-    m.hull("belt", "pelvis", bevel_box((0, 5.62, 0.0), (2.85, 0.36, 1.62), 0.1), tone=0.8)      # the sheet's "crotch block seam"
-    # (second try: one straight V from the belt's corners to the crotch, as the sheet; the first had an upright band above the V and
-    # read as a tray) and a small crotch block under its point
-    m.hull("briefs", "pelvis", bevel_ring(5.46, 1.34, 0.74, -0.74, 0.16) + bevel_ring(4.6, 0.42, 0.52, -0.54, 0.12), tone=0.74)
-    m.hull("crotch_block", "pelvis", bevel_ring(4.62, 0.42, 0.5, -0.5, 0.1) + bevel_ring(4.38, 0.34, 0.42, -0.42, 0.08), tone=0.68)
-    for sz, name in ((1, "codpiece"), (-1, "seat_plate")):
-        m.hull(name, "pelvis", [(sx * 0.62, 5.42, sz * 0.7) for sx in (-1, 1)] + [(sx * 0.24, 4.62, sz * 0.5) for sx in (-1, 1)] +
-               [(sx * 0.56, 5.4, sz * 0.79) for sx in (-1, 1)] + [(sx * 0.2, 4.66, sz * 0.57) for sx in (-1, 1)], tone=0.82)
-    for k in range(3):                               # vents low on the front plate
-        y = 4.78 + k * 0.1
-        z = 0.57 + (0.79 - 0.57) * (y - 4.66) / (5.4 - 4.66) + 0.005
-        m.box("crotch_vent", "pelvis", (0, y, z), (0.26 + 0.05 * k, 0.03, 0.03), tone=DARK)
+    pelvis_briefs(m, 5.62, 2.85, 1.62, (5.46, 1.34, 0.74, -0.74), (4.6, 0.42, 0.52, -0.54),
+                  ((4.62, 0.42, 0.5, -0.5), (4.38, 0.34, 0.42, -0.42)), (5.42, 0.62, 0.7, 0.79), (4.62, 0.24, 0.5, 0.57))
     # the legs are drawn at x 0.72 and moved out by LEG_OUT below (all their parts at once)
     LEG_OUT = 0.33
     hip, knee, ankle = (0.72, 4.95, 0.0), (0.72, 3.1, 0.1), (0.72, 0.8, -0.05)

@@ -10,7 +10,8 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   `tools/lowpoly_hd.py`: `axle_cap` (every joint's drum, ring and hub), `limb` (one limb block; the Catapult's nested copy removed),
   `splay_legs`, `waist_joint`, `wrap_glass` (the cockpit glazing on any surface). Both builders now call them. New
   `tools/lowpoly_fingerprint.py`: the proof that a refactor changes nothing (every solid, pivots, mounts, centre of mass): both models
-  SAME after every step. Progress and what is left: `reference_art/blocks/HD_REVIEW.md` section 5.
+  SAME after every step. Then five more, also SAME: `helmet`, `pelvis_briefs`, `pelvis_box`, `torso_stack`, `slung_body`. Progress
+  and what is left: `reference_art/blocks/HD_REVIEW.md` section 5.
 - **2026-11-18 (Claude, session 28), STRESS TEST ROUND 2: SYMMETRY, THE BELLY MOUNT, THE SIX FOREARM FACES; A FIRE-CUT CHECK. Art
   only. REVIEW PENDING (higher-level model).** Daniel's notes: symmetry broke (four weapons laid three over one: rows are now centred,
   side mounts fill in mirrored pairs, a mirror check in the report); the centre torso's mount is the round belly (the Commando's SRM 6
