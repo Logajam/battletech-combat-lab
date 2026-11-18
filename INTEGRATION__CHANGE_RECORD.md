@@ -6,6 +6,14 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), CATAPULT HD: BUILT TO ARTICULATE. Art only. REVIEW PENDING (higher-level model).** Daniel's
+  second review: the round section is the torso's tilt hinge; legs splayed; the waist tilted to meet the torso, "a mix of octagon
+  tower and pyramid"; bolder bevels; leg end caps engaging the hip discs; "imagine that the mech has to articulate". Built: a
+  hinge drum across the underside (axis x) with hubs; the jowls now forward of it; an octagonal waist tower + pyramid on a tilted
+  axis from the hip block to the hinge; bevelled launchers, deck and hip block (`bevel_box`); thigh end caps concentric with the
+  hip discs (the hip joint on their axis); legs splayed 5 degrees about the hips, feet flat; the model's `pivots` (torso tilt,
+  waist turn, hips, knees, ankles, shoulders). 10,214 triangles. Principles 12-14 and a correction to 9.
+
 - **2026-11-18 (Claude, session 28), CATAPULT HD REVISED (Daniel's review). Art only. REVIEW PENDING (higher-level model).**
   The LT / RT medium lasers now sit in the "jowls" (pods low on the body's sides, hatched, the muzzle in front: Daniel); the
   stray "torso discs" (the jowls' rear caps misread) removed, with the intakes they doubled; the ankle built out into a flared,

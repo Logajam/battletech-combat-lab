@@ -25,6 +25,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import lowpoly_ref as L  # noqa: E402
 
 HD_DIR = os.path.join(L.REF, "models_hd")
+LEG_SPLAY = 5.0          # degrees: the legs turn outward about the hips (the front view)
 DARK, TRIM, PLATE, JOINT, METAL = 0.22, 0.97, 0.88, 0.78, 0.6
 
 
@@ -63,6 +64,20 @@ class Model:
 
     def box(self, name, asm, c, s, **kw):
         self.add("box", name, asm, c=c, s=s, **kw)
+
+
+def bevel_box(c, s, ch):
+    """The corner points of a box (centre c, size s) with every edge bevelled by ch (Daniel, 2026-11-18: the art's bevelling is
+    more pronounced than a plain box)."""
+    hx, hy, hz = s[0] / 2, s[1] / 2, s[2] / 2
+    ch = min(ch, hx * 0.45, hy * 0.45, hz * 0.45)
+    pts = []
+    for ax, ay, az in ((hx, hy - ch, hz - ch), (hx - ch, hy, hz - ch), (hx - ch, hy - ch, hz)):
+        for i in (-1, 1):
+            for j in (-1, 1):
+                for k in (-1, 1):
+                    pts.append((c[0] + i * ax, c[1] + j * ay, c[2] + k * az))
+    return pts
 
 
 def rounded_section(z, y_top, y_bot, w_top, w_mid, w_bot, n=10):
@@ -105,12 +120,13 @@ def catapult():
     # little 'cheeks or jowls' on the lower sides of the torso would be where they're housed"). In the front view they are the round
     # bulges flanking the chin; in the side view the hatched housing under the nose, ending behind in the round cap that was first
     # misread as a free-standing torso disc. A pod along the body: domed rear, hatched outer face, the laser's muzzle in front.
-    jx, jy, jd = 1.12, 7.45, 0.95
-    m.add("dome", "jowl_cap", "torso", c=(jx, jy, 0.6), r=(jd / 2, jd / 2, 0.42), n=20, rings=8, tone=0.84, mirror=True)
-    m.tube("jowl", "torso", (jx, jy, 0.6), (jx, jy, 2.45), jd, jd * 0.9, n=24, tone=0.84, mirror=True)
+    # (the round cap behind the jowl is NOT the jowl's: it is the torso's tilt hinge, below)
+    jx, jy, jd = 1.12, 7.5, 0.9
+    m.add("dome", "jowl_back", "torso", c=(jx, jy, 1.15), r=(jd / 2, jd / 2, 0.2), n=20, rings=6, tone=0.84, mirror=True)
+    m.tube("jowl", "torso", (jx, jy, 1.15), (jx, jy, 2.45), jd, jd * 0.9, n=24, tone=0.84, mirror=True)
     m.tube("jowl_lip", "torso", (jx, jy, 2.45), (jx, jy, 2.6), jd * 0.92, jd * 0.8, n=24, tone=TRIM, mirror=True)
     for k in range(4):                               # the hatching on its outer face (the striped panel in the side view)
-        m.box("stripe", "torso", (jx + jd / 2 + 0.005, jy, 1.15 + k * 0.24), (0.03, 0.42, 0.09), tone=DARK, mirror=True)
+        m.box("stripe", "torso", (jx + jd / 2 + 0.005, jy, 1.4 + k * 0.24), (0.03, 0.42, 0.09), tone=DARK, mirror=True)
     m.tube("ml_side", "torso", (jx, jy, 2.55), (jx, jy, 2.95), 0.32, 0.28, n=16, role="weapon:LT:Medium Laser", tone=METAL, mirror=True)
     m.tube("ml_side_bore", "torso", (jx, jy, 2.95), (jx, jy, 2.98), 0.18, n=16, tone=DARK, mirror=True)
     # ---------------------------------------------------------------- the cockpit: framed glazing on the nose's upper faces
@@ -127,8 +143,7 @@ def catapult():
                role="jumpjet:LT" if k == 0 else None)
         m.tube("jj_throat", "torso", (0.75, 7.5, z), (0.75, 7.48, z), 0.5, n=16, tone=DARK, mirror=True)
     # ---------------------------------------------------------------- the hatch deck between the launchers (the X box)
-    m.hull("deck", "torso", [(-0.8, 9.9, -2.3), (0.8, 9.9, -2.3), (-0.8, 9.9, 0.05), (0.8, 9.9, 0.05),
-                             (-0.72, 10.42, -2.2), (0.72, 10.42, -2.2), (-0.72, 10.42, -0.05), (0.72, 10.42, -0.05)], tone=0.95)
+    m.hull("deck", "torso", bevel_box((0, 10.12, -1.12), (1.6, 0.62, 2.36), 0.16), tone=0.95)
     for a, b in (((-0.6, -2.05), (0.6, -0.2)), ((0.6, -2.05), (-0.6, -0.2))):           # the X on the hatch
         m.add("bar", "deck_x", "torso", a=(a[0], 10.43, a[1]), b=(b[0], 10.43, b[1]), w0=[0.07, 0.02], w1=[0.07, 0.02], tone=DARK)
     m.box("deck_rim", "torso", (0, 10.43, -1.12), (1.3, 0.03, 1.95), tone=0.8)
@@ -137,8 +152,7 @@ def catapult():
     m.tube("shoulder", "arm_L", (1.2, 9.3, -0.85), (2.2, 9.3, -0.85), 1.35, n=28, tone=JOINT, mirror=True)
     m.tube("shoulder_ring", "arm_L", (2.2, 9.3, -0.85), (2.32, 9.3, -0.85), 1.35, 1.1, n=28, tone=TRIM, mirror=True)
     m.tube("shoulder_hub", "arm_L", (2.32, 9.3, -0.85), (2.4, 9.3, -0.85), 0.5, n=20, tone=DARK, mirror=True)
-    m.hull("rack", "arm_L", [(x, y, z) for x in (0.88, 2.32) for y in (8.6, 11.1) for z in (-2.54, 0.0)] +
-           [(x, 11.2, z) for x in (0.98, 2.22) for z in (-2.44, -0.1)], tone=PLATE, role="weapon:LA:LRM 15", mirror=True)
+    m.hull("rack", "arm_L", bevel_box((1.6, 9.9, -1.27), (1.44, 2.6, 2.54), 0.22), tone=PLATE, role="weapon:LA:LRM 15", mirror=True)
     m.box("rack_face", "arm_L", (1.6, 10.12, 0.03), (1.22, 1.9, 0.08), tone=DARK, mirror=True)
     for col in range(3):                             # the LRM 15's fifteen tubes: 3 across, 5 down (the front view's grid)
         for row in range(5):
@@ -149,16 +163,32 @@ def catapult():
         m.box("rib", "arm_L", (2.33, 9.85, -0.4 - k * 0.55), (0.04, 2.3, 0.08), tone=TRIM, mirror=True)
     m.box("rack_hatch", "arm_L", (1.6, 11.21, -1.25), (1.0, 0.03, 1.6), tone=0.8, mirror=True)
     # ---------------------------------------------------------------- the lower torso: waist, side discs, hip block and hip discs
-    m.hull("waist", "pelvis", [(x, y, z) for x in (-0.65, 0.65) for y in (6.5, 7.15) for z in (-0.5, 0.95)], tone=0.68)
-    m.hull("pelvis", "pelvis", [(x, y, z) for x in (-0.84, 0.84) for y in (5.15, 6.45) for z in (-0.95, 0.95)] +
-           [(x, y, z) for x in (-0.7, 0.7) for y in (5.05, 6.55) for z in (-1.08, 1.1)], tone=0.74)
+    # the TORSO TILT HINGE (Daniel: "That round section was the hinge that allowed the torso to tilt up and down"): a drum across
+    # the body's underside, axis x, at the round section of the side view (y 7.45, z 0.55); a hub ring at each end
+    hinge = (0.0, 7.45, 0.55)
+    m.tube("tilt_hinge", "torso", (-1.55, hinge[1], hinge[2]), (1.55, hinge[1], hinge[2]), 1.2, n=28, tone=JOINT)
+    m.tube("tilt_hub", "torso", (1.55, hinge[1], hinge[2]), (1.62, hinge[1], hinge[2]), 0.55, n=20, tone=DARK, mirror=True)
+    m.tube("tilt_ring", "torso", (1.4, hinge[1], hinge[2]), (1.56, hinge[1], hinge[2]), 1.28, n=28, tone=TRIM, mirror=True)
+    # the WAIST: an octagonal tower rising from the hip block, tilted so it meets the hinge squarely, topped by a pyramid that
+    # closes round the hinge (Daniel: "a mix of octagon tower and pyramid"); the waist turns the torso, the hinge tilts it
+    base, top = (0.0, 6.35, -0.05), (0.0, hinge[1] - 0.15, hinge[2] - 0.05)
+    mid = (0.0, base[1] + (top[1] - base[1]) * 0.55, base[2] + (top[2] - base[2]) * 0.55)
+    m.tube("waist_tower", "pelvis", base, mid, 1.5, 1.42, n=8, roll=22.5, tone=0.68)
+    m.tube("waist_pyramid", "pelvis", mid, top, 1.42, 0.95, n=8, roll=22.5, tone=0.68)
+    m.hull("pelvis", "pelvis", bevel_box((0.0, 5.8, 0.0), (1.67, 1.5, 2.15), 0.3), tone=0.74)
     for k in range(3):
         m.box("pelvis_vent", "pelvis", (0.0, 5.45 + k * 0.15, 1.11), (1.0, 0.06, 0.02), tone=DARK)
     m.tube("hip_disc", "pelvis", (0.75, 5.72, 0.0), (1.02, 5.72, 0.0), 1.45, n=28, tone=JOINT, mirror=True)
     m.tube("hip_ring", "pelvis", (1.02, 5.72, 0.0), (1.08, 5.72, 0.0), 1.45, 1.2, n=28, tone=TRIM, mirror=True)
     # ---------------------------------------------------------------- the legs: reverse knee (side view), x 1.52
     # the thigh: a big rounded block, hip (y 5.72, z 0) down and BACK to the knee (y 4.31, z -1.68)
-    hip, knee, ankle = (1.52, 5.95, 0.15), (1.52, 4.3, -1.68), (1.52, 0.72, 1.08)
+    # the hip at the hip discs' axis, so the thigh turns about it (Daniel: "circular end caps on the legs that engage with the
+    # circular hip connecting points")
+    hip, knee, ankle = (1.52, 5.72, 0.0), (1.52, 4.3, -1.68), (1.52, 0.72, 1.08)
+    leg_from = len(m.parts)
+    m.tube("thigh_cap", "leg_L", (1.06, hip[1], hip[2]), (2.02, hip[1], hip[2]), 1.4, n=28, tone=JOINT, mirror=True)
+    m.tube("thigh_cap_ring", "leg_L", (2.02, hip[1], hip[2]), (2.1, hip[1], hip[2]), 1.4, 1.05, n=28, tone=TRIM, mirror=True)
+    m.tube("thigh_cap_hub", "leg_L", (2.1, hip[1], hip[2]), (2.16, hip[1], hip[2]), 0.5, n=20, tone=DARK, mirror=True)
 
     def limb(name, a, b, w0, d0, w1, d1, steps=4):
         """A rounded limb between a and b: slices of rounded sections (width w, depth d) turned along a->b (y-z plane)."""
@@ -204,6 +234,7 @@ def catapult():
     for k in range(4):                               # the hatching on the housing's side (the side view's hatched block)
         m.box("ankle_vent", "leg_L", (2.17, 0.95 + k * 0.17, on_shin(1.3) - 0.1), (0.03, 0.07, 0.75), tone=DARK, mirror=True)
     m.tube("ankle_hub", "leg_L", (2.12, 0.85, on_shin(0.85) - 0.1), (2.24, 0.85, on_shin(0.85) - 0.1), 0.55, n=20, tone=JOINT, mirror=True)
+    foot_from = len(m.parts)
     # the foot: a long sole (side x 84-218, toes forward), three toes, a heel spur; the WHOLE foot turned 18 degrees outward about
     # the ankle (each part was first turned about its own middle, which slid the foot out from under the leg)
     ax_, az_ = 1.52, ankle[2]
@@ -220,7 +251,32 @@ def catapult():
                                                  (1.0, 0.62, -0.05), (2.04, 0.62, -0.05), (1.0, 0.62, 1.0), (2.04, 0.62, 1.0)]], tone=0.7, mirror=True)
     m.hull("heel", "leg_L", [turn(q) for q in [(1.17, 0, -0.2), (1.87, 0, -0.2), (1.17, 0, -1.1), (1.87, 0, -1.1),
                                                (1.2, 0.4, -0.2), (1.84, 0.4, -0.2)]], tone=0.74, mirror=True)
-    return {"unit": "Catapult", "model": "CPLT-C1", "mass": 65, "detail": "hd", "stance": "a_stance",
+    # SPLAY (Daniel: "the legs are splayed out slightly"): the leg turns about the hip by LEG_SPLAY degrees, foot outward; the foot
+    # follows the ankle but stays flat on the ground
+    a = math.radians(LEG_SPLAY)
+
+    def splay(q):
+        dx, dy = q[0] - hip[0], q[1] - hip[1]
+        return (hip[0] + dx * math.cos(a) - dy * math.sin(a), hip[1] + dx * math.sin(a) + dy * math.cos(a), q[2])
+    shift = splay(ankle)[0] - ankle[0]
+    for i in range(leg_from, len(m.parts)):
+        p = m.parts[i]
+        f = (lambda q: (q[0] + shift, q[1], q[2])) if i >= foot_from else splay
+        for key in ("a", "b", "c"):
+            if key in p:
+                p[key] = rnd(f(p[key]))
+        if "pts" in p:
+            p["pts"] = [rnd(f(q)) for q in p["pts"]]
+        if i < foot_from and p["kind"] in ("box", "wedge"):
+            p["rot"] = [0, 0, LEG_SPLAY]
+    # the PIVOTS, for animation: centre and axis of every joint (the left side; mirror x for the right)
+    pivots = {"torso_tilt": {"centre": list(hinge), "axis": "x", "parent": "waist", "child": "torso"},
+              "waist_turn": {"centre": list(base), "axis": [0, top[1] - base[1], top[2] - base[2]], "parent": "pelvis", "child": "waist"},
+              "hip_L": {"centre": list(hip), "axis": "x", "parent": "pelvis", "child": "thigh"},
+              "knee_L": {"centre": rnd(splay(knee)), "axis": "x", "parent": "thigh", "child": "shin"},
+              "ankle_L": {"centre": rnd(splay(ankle)), "axis": "x", "parent": "shin", "child": "foot"},
+              "shoulder_L": {"centre": [1.8, 9.3, -0.85], "axis": "x", "parent": "torso", "child": "launcher arm"}}
+    return {"unit": "Catapult", "model": "CPLT-C1", "mass": 65, "detail": "hd", "stance": "a_stance", "pivots": pivots,
             "scale": "ground to the body's top = 10; +x is the 'Mech's left",
             "source": "AI five-view sheet, reference_art/ai_sheets/Catapult CPLT-C1/batch2_1.webp (measured on a grid; tools/lowpoly_hd.py)",
             "simplified_to": "reference_art/models/Catapult CPLT-C1.json",
