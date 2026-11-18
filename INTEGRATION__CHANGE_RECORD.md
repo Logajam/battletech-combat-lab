@@ -6,6 +6,12 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), PRINCIPLE 25 BUILT: A LAUNCHER ON A FOREARM WITH A HAND. Art only. REVIEW PENDING
+  (higher-level model).** `tools/lowpoly_assemble.py`: `arm_plan` no longer turns an arm with a hand actuator and a missile
+  launcher into a bare pod arm; it keeps the forearm and hand and adds a `pod`, which `arm_pod` seats flush on the forearm's front
+  face above the hand (a launcher bay sized to the forearm, its tubes forward, set in by BAY_SINK; its line of fire cuts only its
+  own arm, like the other arm weapons). Changes the Commando's right arm (SRM 4) and the Trebuchet's left (LRM 15). Assembly check:
+  34 units x 2 builds x 2 levels OK.
 - **2026-11-18 (Claude, session 28), COMMANDO HD MODEL; FIVE-VIEW FRONT/REAR MIRROR FIX. Art only. REVIEW PENDING (higher-level
   model).** `tools/lowpoly_hd.py commando()` -> `reference_art/models_hd/Commando COM-2D.json` (148 parts, ~6,000 triangles) and
   `sheets/Commando COM-2D HD.png`, the second unit through the T15c pipeline: measured from the Gemini sheet's front and side views
