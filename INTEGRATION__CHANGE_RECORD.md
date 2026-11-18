@@ -6,6 +6,13 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), ATLAS HD, ROUND 2 (Claude's own list, Daniel: "Go ahead and make your changes"). Art only.
+  REVIEW PENDING (higher-level model).** From the side-by-side with the AI sheet: the separate humps became one sloped shoulder mass
+  each side (the top line had five bumps); the chest tapers to the waist like a V; the skull is faceted (eight sides) with a flat face
+  plate, and sits further forward with a raised spine behind it (clear of the head); the pauldrons are blockier and pushed forward
+  (the sheet's side view); the shins taper toward the feet (the TRO). The measuring test passes (all landmarks within 6 %). Found by
+  it: the old shin vents stood proud of the shin and had inflated the leg width - the shin was really 7 % narrow; it is now widened
+  (+1.5 %). (`skull_head` gained `facets` and `face_plate`.)
 - **2026-11-18 (Claude, session 28), ATLAS HD, SECOND PASS; THE STANDARD MEASURING TEST; THE KIT STORED. Art only. REVIEW PENDING
   (higher-level model).** Daniel's notes: the LRM 20 and SRM 6 swap (the bigger launcher on the open upper chest); the arm lasers are
   symmetric, over the fist on both, the forearm's other faces listed as mount slots; "measure torso width compared to the drawings

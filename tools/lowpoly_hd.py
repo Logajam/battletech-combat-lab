@@ -831,19 +831,23 @@ def commando():
             "parts": m.parts}
 
 
-def skull_head(m, c, w, top, chin, depth, gap_top):
+def skull_head(m, c, w, top, chin, depth, gap_top, facets=16, face_plate=False):
     """HD BLOCK head/skull (the Atlas's death's-head): a faceted cranium dome, a face that narrows from the cheekbones to the jaw, two
     angled EYE sockets that are the cockpit glazing (the cockpit rule: glass in the host's own surface), a nose, a toothed jaw grille,
     cheek vents. c = (x, y of the cranium's base, z of its middle); w = the cranium's width; the chin at `chin` must stand clear of the
     torso top (`gap_top`): a gap under the head (principle 30)."""
     cx, cy, cz = c
     hr = (w / 2, top - cy, depth / 2)
-    m.add("dome", "cranium", "head", c=c, r=hr, n=16, rings=5, half="top", tone=0.9)
+    m.add("dome", "cranium", "head", c=c, r=hr, n=facets, rings=5 if facets > 8 else 3, half="top", roll=180.0 / facets if facets <= 8 else 0.0,
+          tone=0.9)
     fz = cz + depth / 2                                   # the face's front
     face = [(sx * w / 2, cy + 0.02, cz + zz) for sx in (-1, 1) for zz in (-depth / 2 + 0.1, depth / 2 - 0.05)] + \
            [(sx * w * 0.42, cy - 0.35, fz + 0.05) for sx in (-1, 1)] + [(sx * w * 0.47, cy - 0.35, cz - depth / 2 + 0.15) for sx in (-1, 1)] + \
            [(sx * w * 0.3, chin, fz - 0.08) for sx in (-1, 1)] + [(sx * w * 0.36, chin, cz - depth / 2 + 0.25) for sx in (-1, 1)]
     m.hull("face", "head", face, tone=0.84)
+    if face_plate:                                        # a FLAT face plate across the brow (the AI sheet's mask), proud of the face
+        m.hull("face_plate", "head", [(sx * w * 0.44, cy + 0.12, fz + g) for sx in (-1, 1) for g in (-0.25, 0.06)] +
+               [(sx * w * 0.36, cy - 0.02, fz + g) for sx in (-1, 1) for g in (-0.25, 0.06)], tone=TRIM)
     # the EYES: the cockpit. Two panes set in the face, angled down toward the nose (the death's-head scowl)
     for sx in (1, -1):
         ex = sx * w * 0.2
@@ -877,12 +881,22 @@ def atlas():
     Units: ground to the head's top = 10; +x is the 'Mech's LEFT, +z forward."""
     m = Model()
     # ---------------------------------------------------------------- the torso: a wide chest, two humps either side of a sunken head
-    lv = [(8.1, 1.95, 0.85, -0.95), (7.9, 2.15, 1.1, -1.15), (7.0, 2.1, 1.15, -1.15), (6.8, 1.85, 1.05, -1.05),
-          (6.5, 1.8, 1.0, -1.0), (6.15, 1.9, 0.95, -0.95)]
+    # ROUND 2 (Claude's list, Daniel: "Go ahead and make your changes"): the chest TAPERS to the waist like a V (the sheet: 3.6 wide
+    # at y 6.5 under a 4.3 chest; it was a box down to the belt)
+    lv = [(8.1, 1.95, 0.85, -0.95), (7.9, 2.15, 1.1, -1.15), (7.0, 2.0, 1.15, -1.15), (6.5, 1.72, 1.0, -1.0), (6.15, 1.6, 0.95, -0.95)]
     torso_stack(m, lv, ch=0.3, tone=0.88)
-    for sx in (1, -1):                                    # the humps beside the head (the Atlas's high shoulders)
-        m.hull("hump", "torso", bevel_box((sx * 1.62, 8.62, -0.05), (1.1, 1.2, 1.95), 0.28), tone=0.86)
-        m.box("hump_seam", "torso", (sx * 1.62, 8.75, 0.93), (0.9, 0.04, 0.03), tone=DARK)
+    # the high SHOULDERS as one sloped mass from the head's sides out to the pauldrons (the sheet's chest rises into its pads; the
+    # first pass had separate humps, five bumps across the top)
+    for sx in (1, -1):
+        pts = []
+        for z in (-1.0, 0.92):
+            pts += [(sx * 0.98, 8.05, z), (sx * 2.3, 8.05, z), (sx * 2.3, 8.82, z), (sx * 0.98, 9.18, z)]
+        for z in (-0.72, 0.64):
+            pts += [(sx * 1.06, 9.32, z), (sx * 2.22, 8.95, z)]
+        m.hull("shoulder_mass", "torso", pts, tone=0.86)
+        m.add("bar", "shoulder_seam", "torso", a=(sx * 1.1, 9.0, 0.93), b=(sx * 2.2, 8.66, 0.93), w0=[0.03, 0.04], w1=[0.03, 0.04], tone=DARK)
+    # a raised SPINE behind the head (the sheet's plan), clear of the head so it can turn
+    m.hull("spine", "torso", bevel_box((0, 8.4, -0.92), (0.7, 0.6, 0.75), 0.1), tone=0.8)
     m.box("chest_seam", "torso", (0, 7.45, 0), (4.22, 0.05, 2.28), tone=DARK)
     # the V of the abdomen (the sheet's converging plates) and a centre plate
     for sx in (1, -1):
@@ -890,7 +904,7 @@ def atlas():
     m.hull("abdomen_plate", "torso", bevel_box((0, 6.75, 1.05), (1.2, 0.55, 0.12), 0.05), tone=PLATE)
     for sx in (1, -1):                                    # louvres across the lower front (the kit), bolt heads at the chest corners
         for k in range(4):
-            m.box("louvre", "torso", (sx * 1.05, 6.32 + k * 0.1, 1.0), (0.7, 0.04, 0.05), tone=DARK)
+            m.box("louvre", "torso", (sx * 0.95, 6.3 + k * 0.1, 0.985), (0.55, 0.04, 0.05), tone=DARK)
         for y, z in ((7.75, 1.12), (7.1, 1.165)):
             m.box("bolt", "torso", (sx * 1.7, y, z), (0.09, 0.09, 0.05), tone=0.5)
     # the BACK: a pack with vents (the rear view's rectangle with louvres), no large flat space (principle 34)
@@ -926,12 +940,13 @@ def atlas():
     for k in range(3):                                    # the brake's rings
         m.tube("ac20_brake", "torso", (ax, ay + 0.05, 2.3 + k * 0.15), (ax, ay + 0.05, 2.38 + k * 0.15), 0.5, n=16, tone=0.45)
     # ---------------------------------------------------------------- the head: a skull, sunk between the humps, a gap under it
-    skull_head(m, (0.0, 9.0, 0.25), 1.55, 10.0, 8.22, 1.95, 8.1)
+    # (round 2: forward, as the sheet's plan; taller-looking and faceted, with a flat face plate, as its front)
+    skull_head(m, (0.0, 9.0, 0.5), 1.6, 10.0, 8.22, 1.95, 8.1, facets=8, face_plate=True)
     # the dish (the sheet: on the right hump) and the antenna (left), both kept
-    m.tube("dish_mast", "torso", (-1.45, 9.18, -0.45), (-1.45, 9.62, -0.45), 0.14, n=8, tone=DARK)
+    m.tube("dish_mast", "torso", (-1.45, 9.0, -0.45), (-1.45, 9.62, -0.45), 0.14, n=8, tone=DARK)
     m.tube("dish", "torso", (-1.45, 9.75, -0.5), (-1.45, 9.82, -0.38), 0.72, 0.6, n=16, tone=0.8)
     m.tube("dish_feed", "torso", (-1.45, 9.8, -0.4), (-1.45, 9.95, -0.2), 0.05, n=6, tone=DARK)
-    m.tube("mast_base", "torso", (1.3, 9.15, -0.35), (1.3, 9.36, -0.35), 0.24, 0.18, n=10, tone=DARK)
+    m.tube("mast_base", "torso", (1.3, 9.0, -0.35), (1.3, 9.36, -0.35), 0.24, 0.18, n=10, tone=DARK)
     m.add("bar", "mast", "torso", a=(1.3, 9.3, -0.35), b=(1.35, 10.35, -0.55), w0=[0.07, 0.07], w1=[0.04, 0.04], tone=DARK)
     # ---------------------------------------------------------------- the waist and the pelvis: a belt, a deep crotch block
     waist_joint(m, (0, 6.15, 0), 0.75, ((0, 6.08, 0), (0, 6.22, 0), 3.0, 2.85), ball_n=16, ball_rings=8)
@@ -956,11 +971,11 @@ def atlas():
     m.add("bar", "thigh_slash", "leg_L", a=(2.38, 4.7, -0.5), b=(2.38, 3.95, 0.55), w0=[0.03, 0.06], w1=[0.03, 0.06], tone=DARK, mirror=True)
     axle_cap(m, "knee_cap", "leg_L", knee[1], knee[2], 0.85, 2.25, 1.05, n=24, ring=(2.25, 2.33, 1.35, 1.15), hub=(0.06, 0.5, 16))
     m.add("bar", "knee_pad", "leg_L", a=(1.56, 3.75, 0.8), b=(1.56, 2.85, 0.92), w0=[1.2, 0.3], w1=[1.0, 0.26], tone=0.86, mirror=True)
-    limb(m, "shin", "leg_L", knee, ankle, 1.42, 1.5, 1.36, 1.42, steps=3, sides=8, tone=0.72, mirror=True, bulge=0.06)
+    limb(m, "shin", "leg_L", knee, ankle, 1.52, 1.5, 1.4, 1.34, steps=3, sides=8, tone=0.72, mirror=True, bulge=0.06)   # tapering (the TRO), within the sheet's width (the measuring test)
     for k in range(4):
-        m.box("shin_vent", "leg_L", (2.24, 2.55 - k * 0.15, 0.1), (0.05, 0.07, 0.6), tone=DARK, mirror=True)
+        m.box("shin_vent", "leg_L", (2.22, 2.55 - k * 0.15, 0.1), (0.06, 0.07, 0.6), tone=DARK, mirror=True)   # on the tapered shin
     m.add("bar", "shin_plate", "leg_L", a=(1.56, 2.9, 0.76), b=(1.56, 1.6, 0.74), w0=[1.0, 0.12], w1=[0.95, 0.12], tone=PLATE, mirror=True)
-    m.hull("shin_spur", "leg_L", [(1.56 + sx * 0.14, y, z) for sx in (-1, 1) for y, z in ((2.9, -0.6), (1.6, -0.62), (2.5, -0.95), (1.9, -0.92))],
+    m.hull("shin_spur", "leg_L", [(1.56 + sx * 0.14, y, z) for sx in (-1, 1) for y, z in ((2.9, -0.5), (1.6, -0.5), (2.5, -0.92), (1.9, -0.9))],
            tone=0.7, mirror=True)                       # the narrow spur behind the shin (the kit)
     # the ANKLE housing reaches INTO the foot (principle 28); the foot: a wide pedestal, toe forward (side view: toe 2.0 ahead, heel 1.4
     # behind; front view 2.25 wide)
@@ -988,11 +1003,14 @@ def atlas():
         sh = (X(2.66), 8.3, 0.0)
         # the PAULDRON (the kit: "a big faceted dome (like a helmet, hexagonal facets) with a rim flange below it, wider than the upper
         # arm"; the TRO's round shoulders): an eight-faceted dome over the shoulder, a flange ring round its foot
-        m.add("dome", "pauldron", asm, c=(X(2.68), 8.05, 0.0), r=(0.75, 1.15, 1.08), n=8, rings=3, half="top", roll=22.5, tone=0.9)
-        m.tube("pauldron_flange", asm, (X(2.68), 7.92, 0.0), (X(2.68), 8.08, 0.0), 1.72, 1.64, n=8, roll=22.5, tone=TRIM)   # (2.3 read as a hat)
+        # (round 2: blockier - two rings of facets - and pushed FORWARD: the sheet's side view has the pad bulging ahead of the chest)
+        pz = 0.32
+        m.add("dome", "pauldron", asm, c=(X(2.68), 8.05, pz), r=(0.75, 1.0, 1.28), n=8, rings=2, half="top", roll=22.5, tone=0.9)
+        ring = lambda y, rx, rz: [(X(2.68) + rx * math.cos(math.radians(22.5 + 45 * k)), y, pz + rz * math.sin(math.radians(22.5 + 45 * k)))
+                                  for k in range(8)]
+        m.hull("pauldron_flange", asm, ring(7.92, 0.84, 1.38) + ring(8.08, 0.8, 1.33), tone=TRIM)    # (a wider one read as a hat)
         m.tube("pauldron_root", asm, (X(2.05), 8.05, 0.0), (X(2.4), 8.05, 0.0), 1.2, n=8, roll=22.5, tone=0.8)
-        for k in range(3):
-            m.box("pod_vent", asm, (X(3.345), 8.12 + k * 0.12, 0.0), (0.04, 0.05, 0.8), tone=DARK)   # on the dome's outer facet
+        m.box("pauldron_seam", asm, (X(2.68), 8.55, pz + 0.9), (0.9, 0.04, 0.03), tone=DARK)
         axle_cap(m, "shoulder", asm, sh[1], 0, X(1.9), X(3.36), 1.0, n=24, mirror=False)
         up = math.radians(15)
         elbow = (sh[0], sh[1] - 1.65 * math.cos(up), 1.65 * math.sin(up))
