@@ -879,6 +879,9 @@ def apply_unit_file(c, unit, lib, pick):
         c["side_torso"] = None                      # a shoulder rack only for a TORSO launcher (arm launchers are the arms)
     c["side_torso_plan"] = side_torso_plan(unit, c.get("side_torso"))
     c["jets"] = record_sheet(unit).get("jump_jets", {})
+    if c.get("back_deck") == "back_deck/rear_rack_deck" and not any(
+            loc == "CT" and weapon_kind(w) == "missile" for loc, w in unit.get("weapons", [])):
+        c["back_deck"] = None                       # a back rack only for a centre-torso launcher (the Catapult's missiles are in its arms)
     plan = c["side_torso_plan"] or {}
     centre = [w for loc, w in unit.get("weapons", []) if loc == "CT" and weapon_kind(w) == "missile"]
     if c.get("back_deck") == "back_deck/rear_rack_deck" and centre:

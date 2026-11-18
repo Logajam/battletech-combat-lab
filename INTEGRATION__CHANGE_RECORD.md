@@ -6,6 +6,13 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), RESERVED BAYS; WEAPON PLANS PER BLOCK; NO BACK RACK WITHOUT A CT LAUNCHER. Art only. REVIEW
+  PENDING (higher-level model).** Daniel on the Catapult's X box: keep it, its space reserved ("maybe it houses a radar ... or extra
+  weapons if someone edited the catapult"): the HD model's `mounts` lists it as `deck.reserved_bay`. Principles 22 (unexplained art
+  is a reserved bay) and 23 (every block plans weapon mounts up to its location's critical-slot limit; to refine in T15c item B).
+  `lowpoly_assemble.apply_unit_file`: a back rack only for a centre-torso launcher (the rule-built Catapult had one; its missiles are
+  in its arms).
+
 - **2026-11-18 (Claude, session 28), THE CATAPULT'S LESSONS AS A PIPELINE (T15c); THE CHECKS FAST AGAIN; THE MEASURING TOOL. Art
   only. REVIEW PENDING (higher-level model).** Daniel: "What lessons were learned and how can they be applied to the rest of the
   project in a systematic fashion?" / "Yep. Also implement item D". The plan is T15c in INTEGRATION__TASK_SPECS.md. D: the assembly
