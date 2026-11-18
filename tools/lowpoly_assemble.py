@@ -337,6 +337,23 @@ def settle(upper, lower, at, overlap=0.03):
     k0 = next(iter(upper.anchors))
     upper.place(k0, add(upper.anchors[k0], (0.0, best - overlap, 0.0)))
 
+POD_ON_FOREARM_AT = 0.35          # the pod's middle this far down the forearm from the elbow (above the hand, clear of it)
+POD_ON_FOREARM_WIDTH = 0.85       # the pod is this share of the forearm's width
+
+
+def arm_pod(m, weapon, fa, elbow, wrist, mirror, lib):
+    """PRINCIPLE 25: a launcher on a forearm that ends in a hand is a pod ON the forearm (the Commando's SRM 4), seated flush on the
+    forearm's front face like a torso bay (its tubes facing forward, a line-of-fire hole in front), above the hand."""
+    rows, cols = launcher_grid(weapon)
+    blk = "side_torso/launcher_bay"
+    prm = {"rows": rows, "cols": cols, "width": 0.24 * cols + 0.28, "height": 0.26 * rows + 0.3}
+    hl, hh = bounds([fa])
+    sc = POD_ON_FOREARM_WIDTH * (hh[0] - hl[0]) / prm["width"]
+    at = add(elbow, mul(sub(wrist, elbow), POD_ON_FOREARM_AT))
+    m.seat(blk, "arm_pod", "torso", [fa], (at[0], at[1], hh[2] + 20.0), (0, 0, -1), axis=(0, 0, 1), mirror=mirror, params=prm,
+           scale=sc, offset=-BAY_SINK * lib["blocks"][blk]["params"]["depth"] * sc)
+
+
 def inline_gun(m, weapons, host, j1, j2, sx, mirror, lib):
     """The arm's weapons IN LINE with the limb (Daniel, 2026-11-18): a barrel (two for two or more weapons) lying along the limb
     on its front face, its muzzle toward the limb's far end. A big gun (PPC, autocannon, large laser) carried this way is fatter."""
@@ -576,6 +593,8 @@ def build(choice, lod, lib, mass=50, jump=0):
             if ap.get("hand"):
                 m.make(choice.get("hand") or "hand/fist", "hand", mirror).place("wrist", wrist)
             inline_gun(m, ap["inline"], [fa], elbow, wrist, sx, mirror, lib)
+            if ap.get("pod"):
+                arm_pod(m, ap["pod"], fa, elbow, wrist, mirror, lib)
             continue
         # a forward gun or pod on the elbow ("forward"): a gun arm, a launcher pod, or the small pod of an empty arm
         a = math.radians(FORWARD_ARM_PITCH)
@@ -645,7 +664,7 @@ def build(choice, lod, lib, mass=50, jump=0):
     return m
 
 
-ARM_SLOTS = ("upper_arm", "lower_arm", "hand", "arm_gun", "arm_rack")
+ARM_SLOTS = ("upper_arm", "lower_arm", "hand", "arm_gun", "arm_rack", "arm_pod")
 
 
 def cut_lines_of_fire(m):
@@ -828,8 +847,11 @@ def arm_plan(unit, side):
                               a gun -> a gun arm on a short upper arm ("forward");
                               small weapons -> those weapons in line with the short upper arm ("inline_upper");
                               nothing -> a small pod on a short upper arm (the Cicada: Daniel's tiny pod arms) ("forward", small)
-      a lower-arm actuator:   a missile launcher -> a pod arm ("forward"); a gun and no hand -> a gun arm ("forward");
-                              otherwise a forearm ("limb"), with a hand if the hand actuator is there, its weapons in line
+      a lower-arm actuator:   a missile launcher and no hand -> a pod arm ("forward"); a gun and no hand -> a gun arm ("forward");
+                              otherwise a forearm ("limb"), with a hand if the hand actuator is there, its weapons in line;
+                              a missile launcher WITH a hand -> that forearm and hand, the launcher a pod on the forearm ("pod":
+                              principle 25, Daniel 2026-11-18, the Commando's SRM 4: "there is a hand on that arm, its just curled
+                              up into a fist"; the hand actuator always means a hand)
     """
     loc = "LA" if side == "L" else "RA"
     crits = record_sheet(unit)["crits"].get(loc, [])
@@ -849,6 +871,9 @@ def arm_plan(unit, side):
         if weapons:
             return {"struct": "inline_upper", "inline": weapons, "lower": False}
         return {"struct": "forward", "arm": "missile", "small": True, "inline": [], "lower": False}
+    if "missile" in kinds and hand:
+        pod = max((x for x in weapons if weapon_kind(x) == "missile"), key=lambda x: launcher_grid(x)[0] * launcher_grid(x)[1])
+        return {"struct": "limb", "hand": True, "pod": pod, "inline": [w for w in weapons if w != pod], "lower": True}
     if "missile" in kinds:
         return {"struct": "forward", "arm": "missile", "inline": [], "lower": True}
     if "gun" in kinds and not hand:
