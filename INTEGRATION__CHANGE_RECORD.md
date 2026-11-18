@@ -6,6 +6,11 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), WEAPON STRESS TEST (the Commando). Art only. REVIEW PENDING (higher-level model).** Daniel: three
+  Commandos with 28 machine guns, 28 SRM 2s and 14 RL-10s in the torso plus 8 per arm (stacked pods). New `tools/lowpoly_stress.py`
+  (fills an HD model's mounts, stacks pods on the forearms, reports placement, floating parts, lines of fire, triangles and the
+  smallest bore). All three fit and fire; findings in `reference_art/blocks/STRESS_TEST.md` (the lower-belly mounts are too small
+  and clip the belly and belt: three options for Daniel; a minimum-bore merge rule proposed).
 - **2026-11-18 (Claude, session 28), HD MODELS: JOINT COVERS, THE CATAPULT'S BACK, THE COMMANDO'S HIDDEN WEAPON MOUNTS, A DYNAMIC
   POSE. Art only. REVIEW PENDING (higher-level model).** Daniel's notes on the turnarounds. `lowpoly_hd.py`: `joint_cover` (armour
   plates over the hip and knee joints of both models, a hexagon and a pointed guard), `conformal_panel`, `bay_grid` (a weapon bay
