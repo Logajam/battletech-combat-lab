@@ -343,3 +343,44 @@ picture, do not trust a clean `check`. A part carries one role (`weapon:<LOC>:<n
 its decorative tube mouths without one, or the weapon count is wrong. Tube parts take their cross-section axes from the way they
 point (the module docstring says which). Do not put the TRO drawings or the models anywhere outside `reference_art/`.
 
+## T15c. Every 'Mech the Catapult's way: the systematic pipeline (Opus; Daniel, 2026-11-18)
+
+Daniel, after the HD Catapult: "What lessons were learned and how can they be applied to the rest of the project in a systematic
+fashion?" Then: "Yep. Also implement item D." The principles (with their reasons) are `reference_art/blocks/ASSEMBLY_PRINCIPLES.md`
+(21 of them); READ THEM FIRST.
+
+**Lessons (short).** (1) Each source is authority for one thing: the record sheet for structure and placement (what an arm IS, where
+weapons and jets go), the TRO drawing for shape, the AI five-view sheet for proportion and measurement, the sprite for the outline
+from above. (2) Measure, don't guess: the Catapult came right only when measured from its five-view sheet. (3) Every shape is FOR
+something: say what it houses or turns before adding it. (4) Design the joints first, as if it must articulate; the pivots come free.
+(5) Machines catch what eyes skim: floating parts, lines of fire, the record sheet, the ground. (6) HD first, simplify later.
+(7) Plausible beats perfect. (8) Review loop: five-view comparison -> Daniel's reasons -> a written principle the same day.
+
+**The pipeline, per unit.**
+1. RECORD-SHEET PLAN (automatic): `lowpoly_assemble.arm_plan` (arm structure from the actuators), weapon and jump-jet locations.
+2. MEASURE (built 2026-11-18): `python -I tools/lowpoly_measure.py find "<unit>"` numbers the views on its AI sheet; put the front,
+   side and top boxes in `reference_art/views.json`; `measure "<unit>"` writes `reference_art/measure/<unit>.json` + `.png`
+   (crotch, shoulders, torso width, leg widths, feet; body length and leg reach from the side; plan ratio from the top; each view
+   on its own scale). A person checks the landmark lines on the .png.
+3. BUILD HD from blocks sized by the measurements (`tools/lowpoly_hd.py`, one builder per unit until the HD blocks of item B exist).
+   Checks (automatic): one piece (no floating parts), every line of fire clear, feet on the ground, weapons and jets as the record
+   sheet, jets near the centre of mass.
+4. SELF-REVIEW against the principles' checklist BEFORE Daniel sees it: what does every round shape turn? joints built out? legs
+   splay? cockpit wraps or cuts? turning roots inside their parents? every record-sheet weapon housed?
+5. FIVE-VIEW COMPARISON to Daniel (the sheet's views beside the model's); every new principle into ASSEMBLY_PRINCIPLES.md the same day.
+6. SIMPLIFY to the 800-triangle model from the HD one, with the outline check against it.
+
+**B. HD blocks from the Catapult.** Turn its parts into library blocks with sockets, pivots, mounts and line-of-fire holes: the
+torso tilt hinge, the waist (octagon tower + pyramid, ball root, cowl), ringed joint caps, the flared ankle housing, the weapon jowl,
+the launcher arm, the wrapped cockpit (`conformal_glass`), flank jet vents. The Stalker, Jenner and Cicada start from them.
+
+**C. Order: one per archetype**, each teaching what the next needs: a humanoid light (Commando), a humanoid assault (Atlas: its
+views are already in views.json and measured), the Hunchback (torso gun, balance), the UrbanMech (turret). Expect 2-3 review rounds
+each, not the Catapult's ten.
+
+**D. Keep the checks fast (DONE 2026-11-18).** The assembly check had grown to 4.5 minutes; profiling showed 90 % in the brute-force
+convex hull (fourth power of the point count; a 200-point dome took 18 s). `lowpoly_ref._hull` now uses Qhull (identical vertices,
+faces and triangle counts on random sets and the models; the brute force stays for degenerate sets), and the check runs the units
+in parallel (one core left free): 4.5 min -> 21 s; the HD Catapult builds in 10 s. `tests/test_lowpoly_ref.py` times the check
+against a 90 s budget and prints SLOW over it (profile before it grows).
+

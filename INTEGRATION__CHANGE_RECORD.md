@@ -6,6 +6,16 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), THE CATAPULT'S LESSONS AS A PIPELINE (T15c); THE CHECKS FAST AGAIN; THE MEASURING TOOL. Art
+  only. REVIEW PENDING (higher-level model).** Daniel: "What lessons were learned and how can they be applied to the rest of the
+  project in a systematic fashion?" / "Yep. Also implement item D". The plan is T15c in INTEGRATION__TASK_SPECS.md. D: the assembly
+  check (4.5 min) spent 90 % in the brute-force hull: `lowpoly_ref._hull` now uses Qhull (scipy; same output on 60 random sets and
+  the models; brute force kept for degenerate sets) and `lowpoly_assemble.viewer_units` runs units in parallel: 21 s; the art test
+  times it against a 90 s budget (prints SLOW). The HD Catapult's count moved 11,250 -> 11,214 triangles (cut pieces' faces now come
+  from Qhull's planes). Step 2: `tools/lowpoly_measure.py` (`find` numbers a sheet's views; `measure` takes each view's silhouette -
+  everything the line work encloses, label text dropped - and reads crotch, shoulders, torso and leg widths, feet, body length, leg
+  reach, plan ratio), `reference_art/views.json` (Catapult, Atlas), `reference_art/measure/`.
+
 - **2026-11-18 (Claude, session 28), HOLES; EVERY WEAPON'S LINE OF FIRE. Art only. REVIEW PENDING (higher-level model).** Daniel:
   the Catapult's centre lasers fired into its own nose; "If all weapons include a region of 'Anti existence' in front of them as
   part of their blocks, this should never be a problem again"; the term is a HOLE. `lowpoly_ref`: `subtract` (convex difference,

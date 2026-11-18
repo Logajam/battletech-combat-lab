@@ -1036,44 +1036,65 @@ def mesh_for_viewer(m, k):
     return {"parts": parts}
 
 
-def viewer_units(lib, tax, lods=("high", "low")):
+def unit_entry(u, lib, tax, lods=("high", "low")):
+    """One unit's viewer entry and its check problems (both builds, every level): one process's work in viewer_units."""
+    problems = []
+    try:
+        mt = L.read_mtf(u["unit"])
+        mass, jump = mt.get("mass") or 50, mt.get("jump") or 0
+    except Exception:                                      # noqa: BLE001 - the viewer still shows the unit
+        mass, jump = u.get("mass") or 50, u.get("jump") or 0
+    builds = {"ref": drawings_build(u, lib, tax), "hash": hash_build(u, lib)}
+    levels = 1.65 + 0.6 * (min(100, max(20, mass)) - 20) / 80.0
+    e = {"id": u["unit"].lower().replace(" ", "-"), "name": u["unit"], "chassis": u["chassis"], "tons": mass,
+         "rules": 2, "config": "Biped", "source": "block library", "confidence": "", "stealth": False, "tags": {}}
+    for key, (choice, why) in builds.items():
+        for lod in lods:
+            m = build(choice, lod, lib, mass, jump)
+            errs = check_mech(m)
+            problems += ["%s %s %s: %s" % (u["unit"], key, lod, x) for x in errs]
+            lo, hi = bounds(m.pieces)
+            kscale = levels / max(1e-6, hi[1])
+            vkey = key if lod == "high" else key + "_low"
+            e[vkey] = mesh_for_viewer(m, kscale)
+            tris = sum(pc.tris for pc in m.pieces)
+            rows = [("build", "from the drawings (taxonomy seen_on)" if key == "ref" else "name hash only"),
+                    ("detail", "%s, %d triangles" % (lod.upper(), tris))]
+            rows += [(s_.replace("_", " "), (choice[s_].split("/")[1].replace("_", " ") if choice.get(s_) else "none")
+                      + ("" if key == "hash" else "  (" + why[s_] + ")")) for s_ in SLOTS if choice.get(s_) or key == "ref"]
+            if jump and not choice.get("back_deck"):
+                rows.append(("back deck", "jump jet pack (the unit file: jumps %d)" % jump))
+            e["tags"][vkey] = rows
+            if lod == "high":
+                e["levels"] = levels
+    e["note"] = ("Built from the block library on a socket skeleton. 'From the drawings' takes each slot from the TRO drawings "
+                 "(the block taxonomy); 'Name hash' is what an untagged unit would get.")
+    return e, problems
+
+
+def _unit_job(args):
+    u, lods = args
+    lib, tax = B.library(), json.load(open(os.path.join(L.REF, "block_taxonomy.json")))
+    return unit_entry(u, lib, tax, lods)
+
+
+def viewer_units(lib, tax, lods=("high", "low"), workers=None):
+    """Every unit's entry and the problems found, the units split across processes (2026-11-18, item D of the Catapult lessons:
+    keep the checks fast; one core left free, as the Combat Lab does)."""
     units = json.load(open(os.path.join(L.REF, "units.json")))["units"]
+    workers = workers or max(1, (os.cpu_count() or 2) - 1)
+    if workers > 1:
+        from multiprocessing import Pool
+        with Pool(workers) as pool:
+            results = pool.map(_unit_job, [(u, lods) for u in units], chunksize=1)
+    else:
+        results = [unit_entry(u, lib, tax, lods) for u in units]
     out, problems = [], []
-    for u in units:
-        try:
-            mt = L.read_mtf(u["unit"])
-            mass, jump = mt.get("mass") or 50, mt.get("jump") or 0
-        except Exception:                                  # noqa: BLE001 - the viewer still shows the unit
-            mass, jump = u.get("mass") or 50, u.get("jump") or 0
-        builds = {"ref": drawings_build(u, lib, tax), "hash": hash_build(u, lib)}
-        levels = 1.65 + 0.6 * (min(100, max(20, mass)) - 20) / 80.0
-        e = {"id": u["unit"].lower().replace(" ", "-"), "name": u["unit"], "chassis": u["chassis"], "tons": mass,
-             "rules": 2, "config": "Biped", "source": "block library", "confidence": "", "stealth": False, "tags": {}}
-        for key, (choice, why) in builds.items():
-            for lod in lods:
-                m = build(choice, lod, lib, mass, jump)
-                errs = check_mech(m)
-                problems += ["%s %s %s: %s" % (u["unit"], key, lod, x) for x in errs]
-                lo, hi = bounds(m.pieces)
-                kscale = levels / max(1e-6, hi[1])
-                vkey = key if lod == "high" else key + "_low"
-                e[vkey] = mesh_for_viewer(m, kscale)
-                tris = sum(pc.tris for pc in m.pieces)
-                rows = [("build", "from the drawings (taxonomy seen_on)" if key == "ref" else "name hash only"),
-                        ("detail", "%s, %d triangles" % (lod.upper(), tris))]
-                rows += [(s.replace("_", " "), (choice[s].split("/")[1].replace("_", " ") if choice.get(s) else "none")
-                          + ("" if key == "hash" else "  (" + why[s] + ")")) for s in SLOTS if choice.get(s) or key == "ref"]
-                if jump and not choice.get("back_deck"):
-                    rows.append(("back deck", "jump jet pack (the unit file: jumps %d)" % jump))
-                e["tags"][vkey] = rows
-                if lod == "high":
-                    e["levels"] = levels
-        e["note"] = ("Built from the block library on a socket skeleton. 'From the drawings' takes each slot from the TRO drawings "
-                     "(the block taxonomy); 'Name hash' is what an untagged unit would get.")
+    for e, pr in results:
         out.append(e)
+        problems += pr
     out.sort(key=lambda x: (x["tons"], x["name"]))
     return out, problems
-
 
 VIEWER_JS_INFO = r'''function renderInfo() {
   const u = state.unit;

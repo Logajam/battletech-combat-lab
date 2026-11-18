@@ -176,31 +176,50 @@ def make_wedge(part):
 
 
 def _hull(points):
-    """Convex hull of a small point set (a few dozen at most): (vertices, faces). Brute force: every triple of points
-    that has all the others on one side is a face plane; the points on a plane make one polygon, ordered by angle."""
+    """Convex hull of a point set: (vertices, faces), each face one polygon ordered by angle. Qhull (scipy) finds the face planes;
+    the points lying on a plane make its polygon, as before. (2026-11-18: the first version tested every triple of points against
+    all the others - fourth power of the point count; a 200-point dome took 18 s and the assembly check 4.5 minutes. The brute
+    force stays as the fallback for flat or tiny point sets that Qhull refuses.)"""
     pts = []
     for p in points:
         if all(_len(_sub(p, q)) > 1e-9 for q in pts):
             pts.append(tuple(p))
-    planes = {}
-    n = len(pts)
-    for i in range(n):
-        for j in range(i + 1, n):
-            for k in range(j + 1, n):
-                nrm = _cross(_sub(pts[j], pts[i]), _sub(pts[k], pts[i]))
-                if _len(nrm) < 1e-9:
-                    continue
-                nrm = _unit(nrm)
-                d = _dot(nrm, pts[i])
-                side = [_dot(nrm, p) - d for p in pts]
-                if all(x <= 1e-7 for x in side):
-                    pass
-                elif all(x >= -1e-7 for x in side):
-                    nrm = _mul(nrm, -1)
-                else:
-                    continue
-                members = tuple(m for m, x in enumerate(side) if abs(x) <= 1e-7)
-                planes[members] = nrm
+    planes = None
+    if len(pts) >= 5:
+        try:
+            import numpy as np
+            from scipy.spatial import ConvexHull
+            arr = np.asarray(pts, dtype=float)
+            h = ConvexHull(arr)
+            planes = {}
+            for eq in h.equations:                       # outward normal (a, b, c) and offset: n.x + e = 0
+                nrm = eq[:3] / np.linalg.norm(eq[:3])
+                d = -eq[3] / np.linalg.norm(eq[:3])
+                members = tuple(int(m) for m in np.where(np.abs(arr @ nrm - d) <= 1e-7)[0])
+                if len(members) >= 3 and members not in planes:
+                    planes[members] = (-nrm[0], -nrm[1], -nrm[2])   # the brute force kept the inward normal: same ordering
+        except Exception:                                # noqa: BLE001 - degenerate set: the brute force below
+            planes = None
+    if planes is None:
+        planes = {}
+        n = len(pts)
+        for i in range(n):
+            for j in range(i + 1, n):
+                for k in range(j + 1, n):
+                    nrm = _cross(_sub(pts[j], pts[i]), _sub(pts[k], pts[i]))
+                    if _len(nrm) < 1e-9:
+                        continue
+                    nrm = _unit(nrm)
+                    d = _dot(nrm, pts[i])
+                    side = [_dot(nrm, p) - d for p in pts]
+                    if all(x <= 1e-7 for x in side):
+                        pass
+                    elif all(x >= -1e-7 for x in side):
+                        nrm = _mul(nrm, -1)
+                    else:
+                        continue
+                    members = tuple(m for m, x in enumerate(side) if abs(x) <= 1e-7)
+                    planes[members] = nrm
     faces, used = [], set()
     for members, nrm in planes.items():
         c = (sum(pts[m][0] for m in members) / len(members), sum(pts[m][1] for m in members) / len(members),
@@ -212,7 +231,6 @@ def _hull(points):
         used.update(order)
     remap = {old: new for new, old in enumerate(sorted(used))}
     return [pts[o] for o in sorted(used)], [[remap[m] for m in f] for f in faces]
-
 
 def make_hull(part):
     verts, faces = _hull(part["pts"])
