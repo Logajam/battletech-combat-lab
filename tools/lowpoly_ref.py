@@ -296,7 +296,7 @@ def read_mtf(name):
         if path is None:
             raise FileNotFoundError(name)
         lines = z.read(path).decode("utf-8", "replace").splitlines()
-    out = {"file": path, "weapons": [], "jump_jets": {}, "mass": None, "walk": None, "jump": 0}
+    out = {"file": path, "weapons": [], "jump_jets": {}, "mass": None, "walk": None, "jump": 0, "crits": {}}
     loc = None
     in_weapons = False
     for line in lines:
@@ -318,6 +318,11 @@ def read_mtf(name):
             loc = LOC_NAMES[s[:-1]]
         elif loc and s == "Jump Jet":
             out["jump_jets"][loc] = out["jump_jets"].get(loc, 0) + 1
+            out["crits"].setdefault(loc, []).append(s)
+        elif loc and s and not s.endswith(":") and ":" not in s:
+            # every critical slot by location (2026-11-18: the arm's actuators decide how an arm is built - the record sheet's
+            # Shoulder / Upper Arm / Lower Arm / Hand Actuator lines)
+            out["crits"].setdefault(loc, []).append(s)
         elif not s:
             if in_weapons and out["weapons"]:
                 in_weapons = False

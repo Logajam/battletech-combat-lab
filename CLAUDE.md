@@ -128,6 +128,7 @@ GitHub logistics.
   The block library (T15a) is `tools/lowpoly_blocks.py` + `reference_art/blocks/`: every block names the exact drawing crop it
   came from and carries a verdict. The older token / shell art is on the back burner (Daniel, 2026-11-17). Whole 'Mechs:
   `tools/lowpoly_assemble.py` (every block on a bone socket or seated flush; one connected piece, checked; `viewer` = the 3D page).
+  Daniel's assembly principles, WITH their reasons: `reference_art/blocks/ASSEMBLY_PRINCIPLES.md` (read first; add each new one).
 - **Movement searches:** Short Grid is the default; Daniel's IF/THEN
   (`MOVEMENT_SEARCH = "if_then"`) is an option meant for multi-unit threat
   estimates, not a single 'Mech's default (PROJECT_MAP Section 5).
