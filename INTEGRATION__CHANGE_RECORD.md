@@ -6,6 +6,12 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), CATAPULT HD REVISED (Daniel's review). Art only. REVIEW PENDING (higher-level model).**
+  The LT / RT medium lasers now sit in the "jowls" (pods low on the body's sides, hatched, the muzzle in front: Daniel); the
+  stray "torso discs" (the jowls' rear caps misread) removed, with the intakes they doubled; the ankle built out into a flared,
+  plated, hatched housing from mid-shin to the foot ("where the muscles would be housed"); the foot turned about the ankle as one
+  assembly (it had slid off the leg). 9,168 triangles. ASSEMBLY_PRINCIPLES.md: principles 9-11.
+
 - **2026-11-18 (Claude, session 28), HD MODELS; THE CATAPULT IN HD. Art only. REVIEW PENDING (higher-level model).** Daniel:
   "Don't worry about polygon count. This will be the HD version that gets simplified later." `tools/lowpoly_hd.py` builds HD
   models into `reference_art/models_hd/` (`"detail": "hd"`: `lowpoly_ref.check` skips the 800-triangle budget, every other check
