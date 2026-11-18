@@ -32,6 +32,7 @@ import lowpoly_ref as L  # noqa: E402
 VIEWS = os.path.join(L.REF, "views.json")
 OUT = os.path.join(L.REF, "measure")
 INK = 200                  # a pixel darker than this (0-255) is line work
+OPEN = 2                   # px: lines thinner than about twice this are not part of a silhouette (arrows, leader lines)
 
 
 def _mask(img):
@@ -46,6 +47,8 @@ def _mask(img):
     border = set(np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))) - {0}
     outside = np.isin(lab, list(border))
     sil = ~outside
+    # an opening removes thin lines touching the figure (caption arrows on annotated sheets, the Commando's) and keeps the body
+    sil = ndimage.binary_opening(sil, iterations=OPEN)
     lab2, n = ndimage.label(sil)
     if n == 0:
         return sil

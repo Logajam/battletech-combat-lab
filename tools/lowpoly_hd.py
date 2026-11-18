@@ -375,12 +375,245 @@ def catapult():
             "parts": m.parts}
 
 
-BUILDERS = {"Catapult CPLT-C1": catapult}
+def limb(m, name, asm, a, b, w0, d0, w1, d1, steps=4, sides=16, tone=0.72, mirror=False, bulge=0.15):
+    """A limb between a and b (both at the same x): slices of rounded (or, with few `sides`, faceted) sections of width w (across x)
+    and depth d (across the limb, in the side plane), the middle a little fuller (`bulge`)."""
+    ax = (b[1] - a[1], b[2] - a[2])
+    ln = math.hypot(*ax)
+    uy, uz = ax[0] / ln, ax[1] / ln
+    ny, nz = -uz, uy
+    rings = []
+    for i in range(steps + 1):
+        t = i / steps
+        cy, cz = a[1] + ax[0] * t, a[2] + ax[1] * t
+        w = w0 + (w1 - w0) * t
+        d = (d0 + (d1 - d0) * t) * (1 - bulge * (2 * t - 1) ** 2 if steps > 1 else 1)
+        ring = []
+        for k in range(sides):
+            th = 2 * math.pi * (k + 0.5) / sides
+            ring.append((a[0] + w / 2 * math.cos(th), cy + ny * d / 2 * math.sin(th), cz + nz * d / 2 * math.sin(th)))
+        rings.append(ring)
+    for r0, r1 in zip(rings, rings[1:]):
+        m.hull(name, asm, r0 + r1, tone=tone, mirror=mirror)
 
 
-def main():
+def dome_point(c, r, lat, lon, grow=0.0):
+    """A point on an ellipsoid dome (centre c, radii r) at latitude / longitude in degrees (longitude 90 = straight ahead, +z)."""
+    a, t = math.radians(lat), math.radians(lon)
+    return (c[0] + (r[0] + grow) * math.cos(a) * math.cos(t), c[1] + (r[1] + grow) * math.sin(a),
+            c[2] + (r[2] + grow) * math.cos(a) * math.sin(t))
+
+
+def bevel_ring(y, hw, zf, zb, ch, x0=0.0):
+    """A horizontal section at height y: a rectangle (half-width hw, front zf, back zb) with its four corners chamfered by ch."""
+    return [(x0 + sx * hw, y, z) for sx in (-1, 1) for z in (zf - ch, zb + ch)] + \
+           [(x0 + sx * (hw - ch), y, z) for sx in (-1, 1) for z in (zf, zb)]
+
+
+def commando():
+    """COMMANDO COM-2D (25 t light). Measured on a grid over the Gemini five-view sheet (reference_art/ai_sheets/Commando COM-2D/
+    gemini_1.webp; front view 10/352 per pixel, centre x 212, ground y 530) and tools/lowpoly_measure.py (crotch 0.489, shoulders
+    0.494 wide at 0.855, feet 0.405 wide); the weapons and the arms from the TRO drawing and the record sheet; Daniel's rulings in
+    reference_art/views.json. Units: ground to the dome's top = 10; +x is the 'Mech's LEFT, +z forward."""
+    m = Model()
+    # ---------------------------------------------------------------- the head: a faceted dome over a chamfered face block
+    hc, hr = (0.0, 9.15, 0.05), (0.92, 0.85, 0.95)
+    m.tube("neck", "head", (0, 8.3, -0.05), (0, 8.75, -0.05), 1.05, n=8, roll=22.5, tone=JOINT)
+    m.hull("face", "head", bevel_box((0, 8.85, 0.22), (1.15, 0.72, 1.2), 0.2), tone=0.8)
+    m.add("dome", "dome", "head", c=hc, r=hr, n=16, rings=5, half="top", tone=0.9)
+    m.tube("brim", "head", (0, 9.08, 0.05), (0, 9.2, 0.05), 1.98, 1.9, n=16, tone=TRIM)
+    # the VISOR (cockpit rule, WRAP): panes on the dome's own surface, a band across its front (the TRO's slit; the sheet's bands)
+    first = True
+    for l0, l1 in ((14, 34),):
+        for t0, t1 in ((52, 76), (78, 102), (104, 128)):
+            pts = [dome_point(hc, hr, la, lo, g) for la in (l0, (l0 + l1) / 2, l1) for lo in (t0, (t0 + t1) / 2, t1) for g in (0.035, -0.01)]
+            m.hull("visor", "head", pts, tone=0.26, role="canopy" if first else None)
+            first = False
+    m.tube("ear", "head", (0.5, 8.95, 0.1), (0.72, 8.95, 0.1), 0.42, n=12, tone=JOINT)       # the round fitting on the TRO's head
+    m.tube("ear_hub", "head", (0.72, 8.95, 0.1), (0.76, 8.95, 0.1), 0.2, n=12, tone=DARK)
+    # the antenna: on the head's right, raked back (the TRO; the sheet draws it straight up)
+    m.tube("mast_base", "head", (-0.62, 9.3, -0.3), (-0.88, 9.3, -0.3), 0.24, n=10, tone=DARK)
+    m.add("bar", "mast", "head", a=(-0.78, 9.3, -0.3), b=(-0.98, 10.5, -0.8), w0=[0.07, 0.07], w1=[0.04, 0.04], tone=DARK)
+    # ---------------------------------------------------------------- the upper torso: a chamfered block narrowing to the waist
+    # (the sheet's "rectangular block torso"; the TRO's deep chest)
+    lv = [(8.78, 1.18, 0.62, -0.68), (8.6, 1.4, 0.88, -0.9), (8.0, 1.42, 1.1, -0.95), (7.2, 1.3, 1.15, -0.95),
+          (6.3, 1.0, 1.05, -0.85), (5.55, 0.82, 0.85, -0.75)]
+    for (y0, w0, f0, b0), (y1, w1, f1, b1) in zip(lv, lv[1:]):
+        m.hull("chest", "torso", bevel_ring(y0, w0, f0, b0, 0.24) + bevel_ring(y1, w1, f1, b1, 0.24), tone=0.88)
+    m.box("chest_seam", "torso", (0, 7.2, 0), (2.64, 0.05, 2.14), tone=DARK)
+    # the SRM 6 (record sheet: centre torso): a six-tube bay high on the chest, left of the head (the TRO: 3 across, 2 down);
+    # the tubes are flush in the bay face, so the line of fire starts clear of them
+    m.hull("srm6_bay", "torso", bevel_box((0.45, 7.85, 1.12), (1.2, 0.85, 0.3), 0.08), tone=PLATE, role="weapon:CT:SRM 6",
+           fire={"from": [0.45, 7.85, 1.31], "dir": [0, 0, 1], "r": 0.45})
+    for col in range(3):
+        for row in range(2):
+            x, y = 0.45 + (col - 1) * 0.36, 7.85 + (0.5 - row) * 0.38
+            m.tube("srm6_tube", "torso", (x, y, 1.15), (x, y, 1.27), 0.3, n=12, tone=0.7)
+            m.tube("srm6_bore", "torso", (x, y, 1.27), (x, y, 1.285), 0.19, n=12, tone=0.1)
+    # the ROUND CHEST PLATE: kept for recognition, a RESERVED BAY (Daniel, 2026-11-18: it reads as a torso pivot, "not worth
+    # making it an actual pivot point"; principle 24)
+    m.tube("chest_plate", "torso", (0, 6.42, 0.9), (0, 6.42, 1.18), 1.9, n=28, tone=0.94)
+    m.tube("chest_plate_rim", "torso", (0, 6.42, 1.18), (0, 6.42, 1.22), 1.9, 1.75, n=28, tone=TRIM)
+    m.box("plate_seam_v", "torso", (0, 6.42, 1.225), (0.04, 1.6, 0.02), tone=DARK)
+    m.box("plate_seam_h", "torso", (0, 6.6, 1.225), (1.5, 0.04, 0.02), tone=DARK)
+    reserved_bay = {"id": "chest.reserved_bay", "kind": "reserved", "pos": [0, 6.42, 1.22], "facing": "+z",
+                    "envelope": [1.9, 1.9, 0.4], "accepts": ["greeble:sensor", "equipment", "weapon (edited variants)"]}
+    # the back: a flat pack (the rear view's rectangle)
+    m.hull("back_pack", "torso", bevel_box((0, 7.6, -1.08), (1.8, 1.7, 0.36), 0.12), tone=PLATE)
+    for k in range(4):
+        m.box("pack_vent", "torso", (0, 7.05 + k * 0.16, -1.27), (1.2, 0.06, 0.03), tone=DARK)
+    # ---------------------------------------------------------------- the waist and the hips
+    # the waist turns the upper torso: a ball sunk in the belt and a cowl ringing it at the joint line (principle: the root inside)
+    m.add("dome", "waist_ball", "pelvis", c=(0, 5.5, 0), r=(0.62, 0.62, 0.62), n=16, rings=8, tone=JOINT)
+    m.tube("waist_cowl", "pelvis", (0, 5.44, 0), (0, 5.6, 0), 1.86, 1.72, n=8, roll=22.5, tone=0.7)
+    # PROPORTIONS (self-review against the sheet, first build): the legs start right under the belt (the sheet's crotch at 0.49 of
+    # the height, about 4.8 here) and are slim; the first build hung a tall hip block under the belt, which cut the legs short
+    m.hull("belt", "pelvis", bevel_box((0, 5.2, 0.0), (2.0, 0.5, 1.6), 0.14), tone=0.8)        # the sheet's "crotch block seam"
+    m.hull("hip_block", "pelvis", bevel_box((0, 4.83, 0.0), (2.1, 0.42, 1.45), 0.14), tone=0.74)
+    m.hull("crotch", "pelvis", [(sx * 0.4, 4.65, sz * 0.56) for sx in (-1, 1) for sz in (-1, 1)] +
+           [(sx * 0.24, 4.3, sz * 0.4) for sx in (-1, 1) for sz in (-1, 1)], tone=0.7)
+    for k in range(3):
+        m.box("crotch_vent", "pelvis", (0, 4.4 + k * 0.08, 0.5 - k * 0.03), (0.36, 0.035, 0.05), tone=DARK)
+    # the hip housings: plates down each side of the hip block, holding the axle the thigh cap turns on
+    hip, knee, ankle = (0.72, 4.72, 0.0), (0.72, 3.1, 0.1), (0.72, 0.8, -0.05)
+    m.hull("hip_plate", "pelvis", bevel_box((1.33, 4.75, 0.0), (0.16, 0.85, 1.0), 0.06), tone=PLATE, mirror=True)
+    m.tube("hip_disc", "pelvis", (1.4, hip[1], 0), (1.5, hip[1], 0), 0.7, 0.58, n=20, tone=JOINT, mirror=True)
+    # ---------------------------------------------------------------- the legs (front and side views: Daniel calls them accurate)
+    leg_from = len(m.parts)
+    m.tube("thigh_cap", "leg_L", (0.22, hip[1], 0), (1.3, hip[1], 0), 0.86, n=24, tone=JOINT, mirror=True)
+    limb(m, "thigh", "leg_L", hip, knee, 1.05, 1.3, 0.92, 1.0, steps=3, tone=0.74, mirror=True)
+    m.add("bar", "thigh_plate", "leg_L", a=(0.72, 4.3, 0.58), b=(0.72, 3.55, 0.54), w0=[0.82, 0.12], w1=[0.7, 0.1], tone=PLATE, mirror=True)
+    m.tube("knee_cap", "leg_L", (0.26, knee[1], knee[2]), (1.18, knee[1], knee[2]), 0.85, n=24, tone=JOINT, mirror=True)
+    m.tube("knee_disc", "leg_L", (1.18, knee[1], knee[2]), (1.26, knee[1], knee[2]), 1.0, 0.86, n=24, tone=TRIM, mirror=True)
+    m.tube("knee_hub", "leg_L", (1.26, knee[1], knee[2]), (1.3, knee[1], knee[2]), 0.36, n=16, tone=DARK, mirror=True)
+    m.add("bar", "knee_pad", "leg_L", a=(0.72, 3.6, 0.52), b=(0.72, 2.8, 0.64), w0=[0.82, 0.22], w1=[0.68, 0.2], tone=0.86, mirror=True)
+    limb(m, "shin", "leg_L", knee, ankle, 0.86, 0.95, 0.8, 0.85, steps=4, tone=0.72, mirror=True)
+    m.hull("calf", "leg_L", [(0.72 + sx * 0.32, y, z) for sx in (-1, 1) for y, z in ((2.65, -0.28), (1.55, -0.38), (2.3, -0.6), (1.7, -0.58))],
+           tone=0.7, mirror=True)
+    for k in range(4):
+        m.box("shin_vent", "leg_L", (1.12, 2.3 - k * 0.14, 0.05), (0.06, 0.06, 0.45), tone=DARK, mirror=True)
+    # the ANKLE built out (the muscles' housing; the sheet's flared lower leg)
+    rings = []
+    for y, w, d in ((1.95, 0.8, 0.86), (1.2, 0.96, 1.12), (0.5, 1.12, 1.38)):
+        zc = knee[2] + (ankle[2] - knee[2]) * (knee[1] - y) / (knee[1] - ankle[1])
+        rings.append(bevel_ring(y, w / 2, zc + d / 2, zc - d / 2, 0.14, x0=0.72))
+    for r0, r1 in zip(rings, rings[1:]):
+        m.hull("ankle_housing", "leg_L", r0 + r1, tone=0.72, mirror=True)
+    m.tube("ankle_hub", "leg_L", (1.26, 0.72, ankle[2]), (1.36, 0.72, ankle[2]), 0.44, n=16, tone=JOINT, mirror=True)
+    foot_from = len(m.parts)
+    # the foot: long and wedged (side view: toe 1.55 ahead of the ankle, heel 1.05 behind; front view 1.7 wide), a ridge on top
+    fx = 0.72
+    m.hull("foot", "leg_L", [(fx + sx * 0.76, 0, z) for sx in (-1, 1) for z in (-1.05, 1.15)] + [(fx + sx * 0.46, 0, 1.6) for sx in (-1, 1)] +
+           [(fx + sx * 0.64, 0.46, z) for sx in (-1, 1) for z in (-0.85, 0.6)] + [(fx + sx * 0.4, 0.2, 1.5) for sx in (-1, 1)],
+           tone=0.76, mirror=True)
+    m.add("bar", "foot_ridge", "leg_L", a=(fx, 0.5, 0.35), b=(fx, 0.22, 1.45), w0=[0.5, 0.12], w1=[0.36, 0.1], tone=PLATE, mirror=True)
+    m.hull("heel", "leg_L", [(fx + sx * 0.54, y, z) for sx in (-1, 1) for y, z in ((0, -1.05), (0, -1.35), (0.35, -1.05), (0.12, -1.3))],
+           tone=0.7, mirror=True)
+    leg_end = len(m.parts)
+    # ---------------------------------------------------------------- the arms: shoulder pad, upper arm, elbow, faceted forearm, fist
+    # A ready pose (the TRO's right arm; the sheet's side views): the upper arm 15 degrees forward, the forearm level, pointing ahead,
+    # so the arm weapons fire forward (they are in line with the forearm, Daniel). Record sheet: both arms have all four actuators.
+    pivots = {}
+    for s, asm, side in ((1, "arm_L", "L"), (-1, "arm_R", "R")):
+        X = lambda x: s * x
+        sh = (X(2.05), 8.15, 0.0)
+        # the pad: flat top, the outer side square, the underside sloping in and down to the chest (the sheet's front view)
+        pad = []
+        for z in (-0.95, 0.95):
+            zi = z - math.copysign(0.14, z)
+            pad += [(X(1.3), 8.8, zi), (X(2.62), 8.8, zi), (X(2.62), 8.1, zi), (X(1.3), 7.6, zi)]
+            pad += [(X(1.42), 8.66, z), (X(2.48), 8.66, z), (X(2.48), 8.2, z), (X(1.42), 7.74, z)]
+        m.hull("shoulder_pad", asm, pad, tone=0.9)
+        m.box("pad_trim", asm, (X(1.96), 8.81, 0), (1.1, 0.03, 1.5), tone=0.8)
+        m.tube("shoulder", asm, (X(1.3), sh[1], 0), (X(2.66), sh[1], 0), 0.9, n=24, tone=JOINT)
+        m.tube("shoulder_ring", asm, (X(2.62), sh[1] - 0.05, 0), (X(2.7), sh[1] - 0.05, 0), 0.8, 0.6, n=20, tone=TRIM)
+        up = math.radians(15)
+        elbow = (sh[0], sh[1] - 1.15 * math.cos(up), 1.15 * math.sin(up))
+        limb(m, "upper_arm", asm, sh, elbow, 0.92, 0.92, 0.9, 0.86, steps=3, sides=8, tone=0.74)
+        m.tube("elbow", asm, (X(1.55), elbow[1], elbow[2]), (X(2.55), elbow[1], elbow[2]), 0.86, n=20, tone=JOINT)
+        dn = math.radians(8)
+        wrist = (sh[0], elbow[1] - 1.6 * math.sin(dn), elbow[2] + 1.6 * math.cos(dn))
+        limb(m, "forearm", asm, elbow, wrist, 1.25, 1.2, 1.15, 1.08, steps=2, sides=6, tone=0.78, bulge=0.08)
+        m.tube("forearm_band", asm, (sh[0], *[elbow[i] + (wrist[i] - elbow[i]) * 0.55 for i in (1, 2)]),
+               (sh[0], *[elbow[i] + (wrist[i] - elbow[i]) * 0.6 for i in (1, 2)]), 1.24, n=6, tone=DARK)
+        # the FIST (record sheet: hand actuator; Daniel: "a hand ... curled up into a fist")
+        fc = (sh[0], wrist[1] - 0.1, wrist[2] + 0.3)
+        m.tube("wrist", asm, (X(1.75), wrist[1], wrist[2]), (X(2.35), wrist[1], wrist[2]), 0.62, n=16, tone=JOINT)
+        m.hull("fist", asm, bevel_box(fc, (0.92, 0.95, 0.75), 0.14), tone=0.82)
+        m.hull("knuckles", asm, bevel_box((fc[0], fc[1] + 0.22, fc[2] + 0.38), (0.88, 0.36, 0.14), 0.04), tone=0.86)
+        for k in range(3):
+            m.box("finger_gap", asm, (fc[0] + (k - 1) * 0.22, fc[1] - 0.05, fc[2] + 0.38), (0.03, 0.5, 0.03), tone=DARK)
+        m.hull("thumb", asm, bevel_box((fc[0] - s * 0.5, fc[1] + 0.05, fc[2] + 0.12), (0.16, 0.42, 0.42), 0.05), tone=0.8)
+        if side == "R":
+            # the SRM 4 (record sheet: right arm): a four-tube pod ON TOP of the forearm, above the fist (Daniel, from the TRO)
+            m.hull("srm4_pod", asm, bevel_box((sh[0], 7.82, 1.5), (0.86, 0.74, 1.0), 0.1), tone=PLATE, role="weapon:RA:SRM 4",
+                   fire={"from": [sh[0], 7.82, 2.03], "dir": [0, 0, 1], "r": 0.4})
+            m.box("pod_strap", asm, (sh[0], 7.6, 1.5), (0.9, 0.3, 0.12), tone=DARK)
+            for cx in (-0.19, 0.19):
+                for cy in (-0.18, 0.18):
+                    m.tube("srm4_tube", asm, (sh[0] + cx, 7.82 + cy, 1.85), (sh[0] + cx, 7.82 + cy, 2.0), 0.3, n=12, tone=0.7)
+                    m.tube("srm4_bore", asm, (sh[0] + cx, 7.82 + cy, 2.0), (sh[0] + cx, 7.82 + cy, 2.015), 0.19, n=12, tone=0.1)
+        else:
+            # the MEDIUM LASER (record sheet: left arm), IN LINE with the forearm (Daniel) on its outer face, sunk 0.42 of its diameter,
+            # the muzzle past the fist's outer side so its fire is clear
+            d_ = (0.0, wrist[1] - elbow[1], wrist[2] - elbow[2])
+            ln_ = math.hypot(d_[1], d_[2])
+            u = (0.0, d_[1] / ln_, d_[2] / ln_)
+            bx = sh[0] + 0.625 + 0.32 * (0.5 - 0.42)
+            p0 = (bx, elbow[1] + u[1] * 0.35, elbow[2] + u[2] * 0.35)
+            p1 = (bx, elbow[1] + u[1] * 1.2, elbow[2] + u[2] * 1.2)
+            p2 = (bx, elbow[1] + u[1] * 2.35, elbow[2] + u[2] * 2.35)
+            m.tube("laser_housing", asm, p0, p1, 0.5, 0.46, n=12, tone=PLATE)
+            m.tube("laser_barrel", asm, p1, p2, 0.32, 0.28, n=12, tone=METAL, role="weapon:LA:Medium Laser")
+            m.tube("laser_bore", asm, p2, (bx, p2[1] + u[1] * 0.02, p2[2] + u[2] * 0.02), 0.17, n=12, tone=DARK)
+        pivots["shoulder_" + side] = {"centre": rnd(sh), "axis": "x", "parent": "torso", "child": "upper arm"}
+        pivots["elbow_" + side] = {"centre": rnd(elbow), "axis": "x", "parent": "upper arm", "child": "forearm"}
+        pivots["wrist_" + side] = {"centre": rnd(wrist), "axis": "x", "parent": "forearm", "child": "fist"}
+    # ---------------------------------------------------------------- SPLAY: the legs turn out about the hips, feet flat
+    a = math.radians(LEG_SPLAY)
+
+    def splay(q):
+        dx, dy = q[0] - hip[0], q[1] - hip[1]
+        return (hip[0] + dx * math.cos(a) - dy * math.sin(a), hip[1] + dx * math.sin(a) + dy * math.cos(a), q[2])
+    shift = splay(ankle)[0] - ankle[0]
+    for i in range(leg_from, leg_end):
+        p = m.parts[i]
+        f = (lambda q: (q[0] + shift, q[1], q[2])) if i >= foot_from else splay
+        for key in ("a", "b", "c"):
+            if key in p:
+                p[key] = rnd(f(p[key]))
+        if "pts" in p:
+            p["pts"] = [rnd(f(q)) for q in p["pts"]]
+        if i < foot_from and p["kind"] in ("box", "wedge"):
+            p["rot"] = [0, 0, LEG_SPLAY]
+    pivots.update({"waist_turn": {"centre": [0, 5.5, 0], "axis": "y", "parent": "pelvis", "child": "torso"},
+                   "hip_L": {"centre": list(hip), "axis": "x", "parent": "pelvis", "child": "thigh"},
+                   "knee_L": {"centre": rnd(splay(knee)), "axis": "x", "parent": "thigh", "child": "shin"},
+                   "ankle_L": {"centre": rnd(splay(ankle)), "axis": "x", "parent": "shin", "child": "foot"}})
+    return {"unit": "Commando", "model": "COM-2D", "mass": 25, "detail": "hd", "stance": "ready", "pivots": pivots,
+            "centre_of_mass": centre_of_mass(m.parts), "mounts": [reserved_bay],
+            "scale": "ground to the dome's top = 10; +x is the 'Mech's left",
+            "source": "AI five-view sheet, reference_art/ai_sheets/Commando COM-2D/gemini_1.webp (front and side measured on a grid and "
+                      "with tools/lowpoly_measure.py); weapons and arms from the TRO drawing (reference_art/originals/01 Commando COM-2D.jpg)",
+            "simplified_to": "reference_art/models/Commando COM-2D.json",
+            "art_vs_unit_file": [
+                "SRM 4 (right arm): a pod on top of the forearm above the fist (Daniel, from the TRO); the sheet draws no pod.",
+                "SRM 6 (centre torso): the TRO's six-tube grid high on the chest, left of the head; the sheet draws none.",
+                "Round chest plate: kept for recognition as a reserved bay (Daniel), not a pivot.",
+                "Arms in a ready pose (forearms level, pointing ahead) so both arm weapons fire forward; the sheet's front view hangs them.",
+                "Antenna raked back on the head's right (the TRO); the sheet's top view (feet drawn backwards, Daniel) was not used.",
+                "No jump jets (record sheet: jump 0)."],
+            "parts": m.parts}
+
+
+BUILDERS = {"Catapult CPLT-C1": catapult, "Commando COM-2D": commando}
+
+
+def main(argv=()):
     os.makedirs(HD_DIR, exist_ok=True)
     for unit, fn in BUILDERS.items():
+        if argv and not any(a.lower() in unit.lower() for a in argv):
+            continue
         model = fn()
         path = os.path.join(HD_DIR, unit + ".json")
         with open(path, "w") as f:
@@ -390,7 +623,10 @@ def main():
         sheet(model, os.path.join(L.SHEETS, unit + " HD.png"))
 
 
-FIVE_VIEWS = [("FRONT", lambda q: (-q[0], q[1], q[2])), ("REAR", lambda q: (q[0], q[1], -q[2])),
+# (screen x, screen y, depth: larger = nearer). Seen from the front, the 'Mech's left (+x) is on the viewer's right; from behind, on
+# the viewer's left. (Before 2026-11-18 the FRONT and REAR panels had x the wrong way round: unseen on the symmetric Catapult, found
+# on the Commando, whose antenna and SRM 4 pod came out on the wrong side.)
+FIVE_VIEWS = [("FRONT", lambda q: (q[0], q[1], q[2])), ("REAR", lambda q: (-q[0], q[1], -q[2])),
               ("LEFT SIDE", lambda q: (-q[2], q[1], q[0])), ("RIGHT SIDE", lambda q: (q[2], q[1], -q[0])),
               ("TOP-DOWN", lambda q: (q[0], -q[2], q[1]))]
 
@@ -430,4 +666,4 @@ def _box_solid(sol):
     return [{"verts": [(c[0] + a * h, c[1] + b * h, c[2] + e * h) for a in (-1, 1) for b in (-1, 1) for e in (-1, 1)], "faces": []}]
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
