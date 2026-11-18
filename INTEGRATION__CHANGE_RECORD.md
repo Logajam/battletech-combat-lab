@@ -6,6 +6,20 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), ITERATION 4: THE RECORD SHEET BUILDS THE ARMS; BIRD KNEES BACKWARD; MEASURED PROPORTIONS.
+  Art only. REVIEW PENDING (higher-level model).** Daniel, after the Catapult four-way comparison: "Where does the record sheet say
+  the missiles are located?" (in the arms: the launchers ARE the arms); bird legs bend backward; legs / hip / lower torso / upper
+  torso out of proportion; the Hunchback's arms off their shoulder sockets, arm weapons in line with the limb, the cannon built back
+  over the legs. His principles, with their reasons, are now `reference_art/blocks/ASSEMBLY_PRINCIPLES.md` (read before changing
+  the assembler). Rules (ITERATION 4 in `tools/lowpoly_assemble.py`): `lowpoly_ref.read_mtf` now returns every critical slot
+  (`crits`); `arm_plan` builds each arm from its actuators (no lower arm: launcher -> it stands on the shoulder socket, gun -> a gun
+  arm on a short upper arm, small weapons -> in line with the upper arm, empty -> a small pod; lower arm: launcher -> pod, gun
+  without hand -> gun arm, else a forearm, a hand if the hand actuator is there, its weapons in line); the record sheet overrides
+  the survey for arms; jump jets where the record sheet puts them (torso -> a back pack, legs -> packs on the shins); bird knees
+  behind the hip; hip height = everything above it (1.0x light, 0.9x assault), pelvis 0.38x the chest, slung bodies 1.7x their
+  height; arms on the shoulder socket (iteration 3's outward shift removed); in-line weapons sized by the limb's width; the cannon
+  hump level and centred over the hips. All 136 builds one piece.
+
 - **2026-11-18 (Claude, session 28), ITERATION 3: THE PROBLEMS THE ITERATIVE PASS LEFT OPEN. Art only. REVIEW PENDING
   (higher-level model).** Daniel: "Work on fixing those problems you listed." Rules in `tools/lowpoly_assemble.py` (ITERATION 3),
   table in `reference_art/blocks/comparison_pass1.md`: hose limbs keep their girth; slung bodies get 2x leg length; hips spaced by
