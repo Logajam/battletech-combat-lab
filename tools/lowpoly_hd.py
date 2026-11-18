@@ -182,7 +182,7 @@ def catapult():
     m.tube("jowl", "torso", (jx, jy, 1.15), (jx, jy, 2.45), jd, jd * 0.9, n=24, tone=0.84, mirror=True)
     m.tube("jowl_lip", "torso", (jx, jy, 2.45), (jx, jy, 2.6), jd * 0.92, jd * 0.8, n=24, tone=TRIM, mirror=True)
     for k in range(4):                               # the hatching on its outer face (the striped panel in the side view)
-        m.box("stripe", "torso", (jx + jd / 2 + 0.005, jy, 1.4 + k * 0.24), (0.03, 0.42, 0.09), tone=DARK, mirror=True)
+        m.box("stripe", "torso", (jx + jd / 2 - 0.06, jy, 1.4 + k * 0.24), (0.14, 0.42, 0.09), tone=DARK, mirror=True)
     m.tube("ml_side", "torso", (jx, jy, 2.55), (jx, jy, 2.95), 0.32, 0.28, n=16, role="weapon:LT:Medium Laser", tone=METAL, mirror=True)
     m.tube("ml_side_bore", "torso", (jx, jy, 2.95), (jx, jy, 2.98), 0.18, n=16, tone=DARK, mirror=True)
     # ---------------------------------------------------------------- the cockpit: glazing WRAPPED on the nose (the cockpit rule)
@@ -234,7 +234,7 @@ def catapult():
     m.tube("waist_pyramid", "pelvis", mid, top, 1.42, 0.95, n=8, roll=22.5, tone=0.68)
     m.hull("pelvis", "pelvis", bevel_box((0.0, 5.8, 0.0), (1.67, 1.5, 2.15), 0.3), tone=0.74)
     for k in range(3):
-        m.box("pelvis_vent", "pelvis", (0.0, 5.45 + k * 0.15, 1.11), (1.0, 0.06, 0.02), tone=DARK)
+        m.box("pelvis_vent", "pelvis", (0.0, 5.45 + k * 0.15, 1.06), (1.0, 0.06, 0.1), tone=DARK)
     m.tube("hip_disc", "pelvis", (0.75, 5.72, 0.0), (1.02, 5.72, 0.0), 1.45, n=28, tone=JOINT, mirror=True)
     m.tube("hip_ring", "pelvis", (1.02, 5.72, 0.0), (1.08, 5.72, 0.0), 1.45, 1.2, n=28, tone=TRIM, mirror=True)
     # ---------------------------------------------------------------- the legs: reverse knee (side view), x 1.52
@@ -273,7 +273,7 @@ def catapult():
     # armour plate down the shin's front and a vent hatch on its side
     m.add("bar", "shin_plate", "leg_L", a=(1.52, 3.6, -0.85), b=(1.52, 1.3, 0.75), w0=[0.7, 0.18], w1=[0.6, 0.16], tone=PLATE, mirror=True)
     for k in range(5):
-        m.box("shin_vent", "leg_L", (1.98, 2.9 - k * 0.14, -0.15 + k * 0.1), (0.03, 0.06, 0.5), tone=DARK, mirror=True)
+        m.box("shin_vent", "leg_L", (1.9, 2.9 - k * 0.14, -0.15 + k * 0.1), (0.2, 0.06, 0.5), tone=DARK, mirror=True)
     # the ANKLE: built out into a flared housing from mid-shin to the foot (Daniel, 2026-11-18: "In the art its built out because
     # thats where the muscles would be housed"; the side view's wide trapezoid above the foot, the front view's widening lower leg)
     def on_shin(y):
@@ -312,6 +312,8 @@ def catapult():
     # straight down and their thrust centre is the 'Mech's centre of mass, or a jump would pitch it over. Each side torso's pair
     # stands one in front of and one behind the centre of mass, the same distance away: the front nozzle under the jowl's back, the
     # rear one under the body. (Before: both pairs far behind the centre of mass.)
+    leg_end = len(m.parts)       # the parts after this are NOT the legs' (the splay below must not move them: it first swung the
+                                 # jump-jet vents out off the body, found by the no-floating-bits check)
     cg = centre_of_mass(m.parts)
     # Second placement (Daniel: "they're clipping or crowding other features. They could be placed more on the body either angled
     # out, or with vents that come out just a bit"): VENTS on the body's flanks, in the clear strip between the tilt hinge (below)
@@ -339,7 +341,7 @@ def catapult():
         dx, dy = q[0] - hip[0], q[1] - hip[1]
         return (hip[0] + dx * math.cos(a) - dy * math.sin(a), hip[1] + dx * math.sin(a) + dy * math.cos(a), q[2])
     shift = splay(ankle)[0] - ankle[0]
-    for i in range(leg_from, len(m.parts)):
+    for i in range(leg_from, leg_end):
         p = m.parts[i]
         f = (lambda q: (q[0] + shift, q[1], q[2])) if i >= foot_from else splay
         for key in ("a", "b", "c"):
@@ -401,8 +403,12 @@ def sheet(model, path):
     fit = [s_ for s_ in sol]
     out = Image.new("RGB", (H * len(views), H + 44), "white")
     d = ImageDraw.Draw(out)
-    d.text((10, 6), "%s %s HD | %d triangles | five-view format, one scale" % (model["unit"].upper(), model["model"],
-                                                                                 sum(x["tris"] for x in sol)), fill="black")
+    loose = L.floating_parts(sol)                   # the no-floating-bits check on every render (Daniel, 2026-11-18)
+    d.text((10, 6), "%s %s HD | %d triangles | five-view format, one scale | %s" % (
+        model["unit"].upper(), model["model"], sum(x["tris"] for x in sol),
+        ("FLOATING PARTS: " + ", ".join(loose[:6])) if loose else "no floating parts"), fill="red" if loose else "black")
+    if loose:
+        print("WARNING %s: floating parts %s" % (model["unit"], loose))
     for i, (name, f) in enumerate(views):
         scale_ref = fit if i >= 5 else _box_solid(sol)
         out.paste(B.render(sol, f, (H, H), fit_solids=scale_ref), (i * H, 44))
