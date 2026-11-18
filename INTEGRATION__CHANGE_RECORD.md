@@ -6,6 +6,14 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), ITERATION 3: THE PROBLEMS THE ITERATIVE PASS LEFT OPEN. Art only. REVIEW PENDING
+  (higher-level model).** Daniel: "Work on fixing those problems you listed." Rules in `tools/lowpoly_assemble.py` (ITERATION 3),
+  table in `reference_art/blocks/comparison_pass1.md`: hose limbs keep their girth; slung bodies get 2x leg length; hips spaced by
+  leg width (pelvis widened); a centre-torso launcher becomes the back rack (Jenner); launcher bays set 55 % into the chest
+  (Javelin); heavy hunch chests wider and lower per ton, legs from the default chest height (Atlas, Charger, Cyclops, Zeus); arms
+  hang from the shoulder block's outer part (clear of the body from above); armless slung bodies carry their arm launchers in
+  side racks sized by them (Catapult, Stalker). All 136 builds still one piece. Open: the Stalker's body is small for its legs.
+
 - **2026-11-18 (Claude, session 28), ITERATIVE PASS: THE 34 MODELS AGAINST THEIR DRAWINGS, AND THE ASSEMBLY RULES THAT CAME OF IT.
   Art only. REVIEW PENDING (higher-level model).** Daniel: "For each generated model, compare it to its original art. Make a list
   where they do not match. Use that list to improve the rules for how models are put together." The list, the patterns and the rule
