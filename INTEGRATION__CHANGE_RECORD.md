@@ -6,6 +6,16 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), ATLAS HD, ROUND 4: SECTION BY SECTION. Art only. REVIEW PENDING (higher-level model).** Daniel:
+  the head "more of a dome with face objects attached to the front", too small, without the sheet's collar; "the mech still feels like
+  its made of boxes"; compare section by section, list, then modify (the Catapult's method). New `lowpoly_measure.py sections UNIT`
+  (the sheet and the model cut into the same height bands). The list (12 differences) and what was done: `reference_art/blocks/
+  ATLAS_SECTIONS.md`. New blocks `faceted_head` (one faceted shell, the jaw its lower part) and `death_face` (laid into the shell's
+  front); a louvred collar round the head; breastplate, pectoral planes, belly arch with grilles; faceted block pauldrons (the domes
+  read as cones); tapered thighs with a faceted top; ankle spats; wedge feet. Measuring test: all within 6 % but the belt. Principles
+  49-50. Then front-to-back bands too (Daniel: "Did you section band from the sides and top?"): `sections` also writes the top and
+  side views in front / middle / back thirds; it showed the torso's plan as a rectangle where the sheet's is an octagon (corner cut
+  0.3 -> 0.55; the back pack's 0.14 -> 0.28).
 - **2026-11-18 (Claude, session 28), ATLAS HD, ROUND 3 (Daniel's notes). Art only. REVIEW PENDING (higher-level model).** The pose
   camera is above the floor (pitch 4; the turnaround clamps a negative pitch). The measuring test now reads the torso in bands (hips,
   belt, waist, chest widths and heights) and the back's depth behind the leg line at the chest and the hips, with the model in a
