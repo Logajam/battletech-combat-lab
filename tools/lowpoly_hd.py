@@ -203,7 +203,8 @@ def catapult():
             (1.08, 9.62, 6.98, 1.08, 1.42, 1.08), (0.17, 9.95, 7.12, 1.12, 1.48, 1.10), (-1.10, 9.98, 7.55, 1.10, 1.45, 1.06),
             (-2.10, 9.90, 7.95, 1.02, 1.36, 0.98), (-2.35, 9.70, 8.15, 0.85, 1.15, 0.80)]
     for (z0, t0, b0, a0, m0, c0), (z1, t1, b1, a1, m1, c1) in zip(secs, secs[1:]):     # one convex slice between two sections
-        m.hull("body", "torso", rounded_section(z0, t0, b0, a0, m0, c0) + rounded_section(z1, t1, b1, a1, m1, c1), tone=0.9)
+        m.hull("body", "torso", rounded_section(z0, t0, b0, a0, m0, c0) + rounded_section(z1, t1, b1, a1, m1, c1), tone=0.9,
+               fire_cut_ok=True)                 # the chest lasers' channel is cut through it (Daniel: "cut out a tube")
     # THE BACK (Daniel, 2026-11-18: "the back of the catapult is completely flat. It should have at least some shape, paneling, and
     # greebling. There should almost never be a large flat space on a mech"): the body no longer ends in a flat disc but in a
     # tapering TAIL, a heat-exhaust grille on its end; raised armour panels on the rear flanks; a vent block under the tail
@@ -550,9 +551,7 @@ def commando():
     for (y0, w0, f0, b0), (y1, w1, f1, b1) in zip(lv, lv[1:]):
         m.hull("chest", "torso", bevel_ring(y0, w0, f0, b0, 0.24) + bevel_ring(y1, w1, f1, b1, 0.24), tone=0.88)
     m.box("chest_seam", "torso", (0, 7.2, 0), (2.38, 0.05, 1.94), tone=DARK)
-    # the SRM 6 (record sheet: centre torso) in the UPPER BELLY, the centre torso's weapon place (Daniel, 2026-11-18: "Use the upper
-    # belly for the CT weapon mounts"; it was high on the chest, left of the head, as the TRO), sized to that mount: 3 x 2 tubes
-    bay_grid(m, "torso", (0.0, 7.72, 1.0), 0.95, 0.6, 2, 3, role="weapon:CT:SRM 6", name="srm6_bay")
+    # (the SRM 6 is on the round belly: below, after the belly)
     # HIDDEN WEAPON MOUNTS (Daniel: "torso weapons would be placed flat on the torso sections much as the srm 6 is. A theoretical
     # arrangement could be a quad in the upper chest, middle chest, and lower belly. 4 small weapons grouped together in one mount";
     # "hidden. No hatches"): nothing is drawn; the model's `mounts` list them for an edited Commando. Each side torso: three quads
@@ -562,8 +561,10 @@ def commando():
         for level, (x, y, size) in (("upper_chest", (0.77, 8.2, 0.44)), ("middle_chest", (0.77, 7.5, 0.44)), ("lower_belly", (0.86, 5.88, 0.22))):
             hidden.append({"id": "%s.quad_%s" % (side, level), "kind": "weapon_quad", "location": side, "slots": 4, "hidden": True,
                            "pos": [round(sx * x, 3), y, 1.0 if y > 6.4 else 0.82], "facing": "+z", "envelope": [size, size, 0.3]})
-    hidden.append({"id": "CT.upper_belly", "kind": "weapon_bay", "location": "CT", "slots": 2, "hidden": False, "holds": "SRM 6",
-                   "pos": [0.0, 7.72, 1.0], "facing": "+z", "envelope": [0.95, 0.6, 0.3]})
+    # the CENTRE TORSO's mount is the ROUND BELLY (Daniel, 2026-11-18, after the stress test: "For the center torso, you can move the
+    # weapons onto the round belly to get more space"; it was the upper belly, 0.95 x 0.6): the square inside the belly's face
+    hidden.append({"id": "CT.belly", "kind": "weapon_bay", "location": "CT", "slots": 2, "hidden": False, "holds": "SRM 6",
+                   "pos": [0.0, 6.5, 0.97], "facing": "+z", "envelope": [1.28, 1.28, 0.3]})
     # the ROUND BELLY: kept for recognition, a RESERVED BAY (Daniel, 2026-11-18: it reads as a torso pivot, "not worth making it an
     # actual pivot point"; principle 24). Not a plate laid on the chest (the first build): the belly itself bulges out, faceted, and
     # BEVELS into the rest of the torso (Daniel: "its not a separate plate, its the belly that bevels into the rest of the lower
@@ -573,8 +574,8 @@ def commando():
     m.tube("belly", "torso", (0, 6.5, 0.62), (0, 6.5, 0.97), 2.02, 1.82, n=16, roll=11.25, tone=0.88)
     m.box("belly_seam_v", "torso", (0, 6.5, 0.975), (0.04, 1.6, 0.02), tone=DARK)
     m.box("belly_seam_h", "torso", (0, 6.68, 0.975), (1.5, 0.04, 0.02), tone=DARK)
-    reserved_bay = {"id": "chest.reserved_bay", "kind": "reserved", "pos": [0, 6.5, 0.97], "facing": "+z",
-                    "envelope": [1.82, 1.82, 0.4], "accepts": ["greeble:sensor", "equipment", "weapon (edited variants)"]}
+    # the SRM 6 (record sheet: centre torso) ON THE BELLY, the centre torso's mount (above), 3 x 2 tubes
+    bay_grid(m, "torso", (0.0, 6.5, 0.97), 1.1, 0.74, 2, 3, role="weapon:CT:SRM 6", name="srm6_bay")
     # the back: a flat pack (the rear view's rectangle)
     m.hull("back_pack", "torso", bevel_box((0, 7.6, -1.08), (1.8, 1.7, 0.36), 0.12), tone=PLATE)
     for k in range(4):
@@ -691,7 +692,7 @@ def commando():
             # It sits FLAT on the hexagonal forearm's upper OUTER face (Daniel, 2026-11-18: the first build sat it on the top EDGE,
             # "not supported"; "rotated to the outer upper flat edge of the hexagon"), turned with that face and lying along the
             # forearm. The face: between the forearm's top corner and its upper outer corner (limb() sections, 6 sides).
-            t_ = 0.62                                               # the pod's middle along the forearm, elbow -> wrist
+            t_ = 0.69                                               # the pod's middle along the forearm, elbow -> wrist (its front at the wrist)
             w_ = 1.25 + (1.15 - 1.25) * t_
             d_ = (1.2 + (1.08 - 1.2) * t_) * (1 - 0.08 * (2 * t_ - 1) ** 2)
             fu = [wrist[i] - elbow[i] for i in range(3)]
@@ -706,7 +707,9 @@ def commando():
             nrm = (nrm[0] / nl_, nrm[1] / nl_)
             N = tuple(lat[i] * nrm[0] + up_[i] * nrm[1] for i in range(3))
             S_ = tuple(lat[i] * nrm[1] - up_[i] * nrm[0] for i in range(3))      # along the face, across the forearm
-            pw, ph, pl, sink = 0.82, 0.7, 1.0, 0.08
+            # (taller than first built, 0.7: its fire passed through the fist's top and cut a channel in the fist and forearm,
+            # found 2026-11-18 by the weapon stress test; the check now reports such a cut)
+            pw, ph, pl, sink = 0.82, 0.88, 1.0, 0.06
             base = [elbow[i] + fu[i] * fl * t_ + lat[i] * mid2[0] + up_[i] * mid2[1] for i in range(3)]
             pc_ = [base[i] + N[i] * (ph / 2 - sink) for i in range(3)]
 
@@ -714,7 +717,7 @@ def commando():
                 return tuple(c[i] + q[0] * S_[i] + q[1] * N[i] + q[2] * fu[i] for i in range(3))
             front = pod_pt((0, 0, pl / 2 + 0.03))
             m.hull("srm4_pod", asm, [pod_pt(q) for q in bevel_box((0, 0, 0), (pw, ph, pl), 0.1)], tone=PLATE, role="weapon:RA:SRM 4",
-                   fire={"from": rnd(front), "dir": rnd(fu), "r": 0.36})
+                   fire={"from": rnd(front), "dir": rnd(fu), "r": 0.34})
             m.hull("pod_strap", asm, [pod_pt(q) for q in bevel_box((0, -0.12, -0.05), (pw + 0.06, 0.34, 0.12), 0.02)], tone=DARK)
             for cx in (-0.19, 0.19):
                 for cy in (-0.17, 0.17):
@@ -769,7 +772,7 @@ def commando():
                    "knee_L": {"centre": rnd(splay(knee)), "axis": "x", "parent": "thigh", "child": "shin"},
                    "ankle_L": {"centre": rnd(splay(ankle)), "axis": "x", "parent": "shin", "child": "foot"}})
     return {"unit": "Commando", "model": "COM-2D", "mass": 25, "detail": "hd", "stance": "ready", "pivots": pivots,
-            "centre_of_mass": centre_of_mass(m.parts), "mounts": [reserved_bay] + hidden,
+            "centre_of_mass": centre_of_mass(m.parts), "mounts": hidden,
             "poses": {"dynamic": {"hip_L": -22, "knee_L": 30, "ankle_L": -8, "hip_R": 16, "knee_R": 14, "ankle_R": -30,
                                   "waist_turn": 12, "neck": -10, "shoulder_R": -14, "shoulder_L": 8, "elbow_L": -12}},
             "scale": "ground to the dome's top = 10; +x is the 'Mech's left",
@@ -778,8 +781,8 @@ def commando():
             "simplified_to": "reference_art/models/Commando COM-2D.json",
             "art_vs_unit_file": [
                 "SRM 4 (right arm): a pod on top of the forearm above the fist (Daniel, from the TRO); the sheet draws no pod.",
-                "SRM 6 (centre torso): in the upper belly, the centre torso's mount (Daniel); the TRO draws it high on the chest.",
-                "Round chest plate: kept for recognition as a reserved bay (Daniel), not a pivot.",
+                "SRM 6 (centre torso): on the round belly, the centre torso's mount (Daniel); the TRO draws it high on the chest.",
+                "Round belly: kept for recognition (Daniel), not a pivot; it is the centre torso's weapon mount.",
                 "Arms in a ready pose (forearms level, pointing ahead) so both arm weapons fire forward; the sheet's front view hangs them.",
                 "Antenna on the right shoulder pad (the sheet's place; Daniel likes it). The sheet's top view (feet drawn backwards, Daniel) was not used.",
                 "Head: a helmet whose skirt covers the back of the neck (the TRO, Daniel), a brow, a crest, a jaw with a grille.",

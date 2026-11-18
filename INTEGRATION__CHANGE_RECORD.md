@@ -6,6 +6,13 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), STRESS TEST ROUND 2: SYMMETRY, THE BELLY MOUNT, THE SIX FOREARM FACES; A FIRE-CUT CHECK. Art
+  only. REVIEW PENDING (higher-level model).** Daniel's notes: symmetry broke (four weapons laid three over one: rows are now centred,
+  side mounts fill in mirrored pairs, a mirror check in the report); the centre torso's mount is the round belly (the Commando's SRM 6
+  moved onto it); the six faces of the hexagonal forearm are mounts (a search places a pod per face, on a riser if needed, off the
+  fist and with its fire clear: the two lower faces are blocked by the fist). Found and fixed: the Commando's own SRM 4 fired through
+  its fist (the hole-cutting carved a channel and the blocked-fire check passed): `lowpoly_ref.check_model` now fails a part cut by a
+  line of fire unless it is marked `fire_cut_ok` (the Catapult's body). Principles 37-39; `STRESS_TEST.md` round 2.
 - **2026-11-18 (Claude, session 28), WEAPON STRESS TEST (the Commando). Art only. REVIEW PENDING (higher-level model).** Daniel: three
   Commandos with 28 machine guns, 28 SRM 2s and 14 RL-10s in the torso plus 8 per arm (stacked pods). New `tools/lowpoly_stress.py`
   (fills an HD model's mounts, stacks pods on the forearms, reports placement, floating parts, lines of fire, triangles and the
