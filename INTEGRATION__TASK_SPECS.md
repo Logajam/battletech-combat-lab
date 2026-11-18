@@ -377,6 +377,11 @@ the launcher arm, the wrapped cockpit (`conformal_glass`), flank jet vents. The 
 **C. Order: one per archetype**, each teaching what the next needs: a humanoid light (Commando), a humanoid assault (Atlas: its
 views are already in views.json and measured), the Hunchback (torso gun, balance), the UrbanMech (turret). Expect 2-3 review rounds
 each, not the Catapult's ten.
+  Checked 2026-11-18 (Daniel: "Atlas is the unit with the next highest commonality with other units?"): by the block choices the
+  assembler makes for the 34 units (`lowpoly_assemble.drawings_build`), the Commando and Catapult already cover 310 of the 496
+  block uses; the unit that adds the most uses still uncovered is the Atlas (+58), then the Centurion (+44), the Hunchback (+23),
+  the Whitworth (+18), the Spider (+10). The Atlas is NOT itself a common unit (29th of 34 for shared choices; the Trebuchet is
+  1st), but it brings the most blocks the others still need. The UrbanMech (turret) is not in the top five.
 
 **D. Keep the checks fast (DONE 2026-11-18).** The assembly check had grown to 4.5 minutes; profiling showed 90 % in the brute-force
 convex hull (fourth power of the point count; a 200-point dome took 18 s). `lowpoly_ref._hull` now uses Qhull (identical vertices,
