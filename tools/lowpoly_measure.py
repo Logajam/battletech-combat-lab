@@ -113,6 +113,26 @@ def measure_front(sil):
             if a <= mid <= b:
                 torso.append((b - a + 1, r))
     tw, tr = max(torso) if torso else (0, top)
+    # TORSO PROFILE (Daniel, 2026-11-18: "Width in the chest, width in the waist, width of the hips, depth of the back, height of
+    # the hips"): the run through the middle, row by row, read in bands between the crotch (c) and the shoulder row (s), as shares of
+    # c -> s: HIPS the widest run in 0 .. 0.25 (the thighs' tops and the crotch), BELT the widest in 0.25 .. 0.5, WAIST the narrowest
+    # in 0.5 .. 0.9, CHEST the widest in 0.9 .. 1 (with the pads, where they join it); each with its height. Arms that hang apart are
+    # separate runs, so only the body is read (the model is measured with its arms hanging as the sheet's: `sheet_pose`).
+    prof = {}
+    for r in range(int(sr), y + 1):
+        for a, b in _runs(sil[r]):
+            if a <= mid <= b:
+                prof[r] = b - a + 1
+    torso_profile = {}
+
+    def band(f0, f1, pick):
+        rr = [r for r in prof if y - (y - sr) * f1 <= r <= y - (y - sr) * f0]
+        return pick(rr, key=lambda r: prof[r]) if rr else None
+    for name, f0, f1, pick in (("hip", 0.0, 0.25, max), ("belt", 0.25, 0.5, max), ("waist", 0.5, 0.9, min), ("chest", 0.9, 1.0, max)):
+        r = band(f0, f1, pick)
+        if r is not None:
+            torso_profile[name + "_width"] = round(prof[r] / h, 3)
+            torso_profile[name + "_height"] = round(share(r), 3)
     mid_leg = int(ground - (ground - y) * 0.5)
     leg_runs = _runs(sil[mid_leg])
     feet = _runs(sil[ground - 2])
@@ -120,7 +140,7 @@ def measure_front(sil):
             "leg_widths": [round((b - a + 1) / h, 3) for a, b in leg_runs], "leg_count_at_mid": len(leg_runs),
             "feet_width": round(((feet[-1][1] - feet[0][0] + 1) / h) if feet else 0, 3),
             "overall_width": round((cols.max() - cols.min() + 1) / h, 3),
-            "torso_width": round(tw / h, 3), "torso_width_height": round(share(tr), 3),
+            "torso_width": round(tw / h, 3), "torso_width_height": round(share(tr), 3), **torso_profile,
             "_px": {"top": int(top), "ground": int(ground), "crotch_row": int(y), "shoulder_row": int(sr), "mid_leg_row": mid_leg,
                     "torso_row": int(tr)}}
 
@@ -135,8 +155,19 @@ def measure_side(sil, crotch_share):
     bl, br = max(lengths) if lengths else (0, top)
     legs = sil[cr:ground + 1]
     lc = np.where(legs.any(0))[0]
+    # BACK DEPTH: how far the back stands behind the leg's axis (the middle of the leg at mid-leg), at the chest (75 % of the height)
+    # and at the hips; forward is to the LEFT in a left side view, so the back is the rightmost filled pixel. (The front is not read:
+    # the arms stand in front of the chest.)
+    ml = int(ground - (ground - cr) * 0.5)
+    runs = _runs(sil[ml])
+    axis = (runs[0][0] + runs[-1][1]) / 2 if runs else (lc.min() + lc.max()) / 2
+    back = {}
+    for name, share_ in (("back_depth_chest", 0.75), ("back_depth_hips", crotch_share + 0.08)):
+        r = int(ground - share_ * h)
+        xs = np.where(sil[r])[0]
+        back[name] = round((xs.max() - axis) / h, 3) if len(xs) else 0
     return {"height_px": h, "body_length": round(bl / h, 3), "body_length_height": round((ground - br) / h, 3),
-            "leg_reach": round(((lc.max() - lc.min() + 1) / h) if len(lc) else 0, 3),
+            "leg_reach": round(((lc.max() - lc.min() + 1) / h) if len(lc) else 0, 3), **back,
             "_px": {"top": int(top), "ground": int(ground), "body_row": int(br)}}
 
 
@@ -222,12 +253,14 @@ ARM_TOUCHED = ("overall_width", "body_length", "body_length_height")
 
 
 def model_silhouettes(unit, px=760):
-    """The HD model's FRONT and LEFT SIDE silhouettes as masks (True = the model), in the five-view projections."""
+    """The HD model's FRONT and LEFT SIDE silhouettes as masks (True = the model), in the five-view projections, in the model's
+    `sheet` pose when it has one (its arms hanging as the sheet's, so arm-touched landmarks compare like for like)."""
     import numpy as np
     import lowpoly_blocks as B
     import lowpoly_hd as HD
     model = json.load(open(os.path.join(HD.HD_DIR, unit + ".json")))
-    sol = L.expand_parts(model)
+    pose = model.get("poses", {}).get("sheet")
+    sol = HD.posed_solids(model, pose) if pose else L.expand_parts(model)
     cube = HD._box_solid(sol)
     views = dict(HD.FIVE_VIEWS)
     out = {}
