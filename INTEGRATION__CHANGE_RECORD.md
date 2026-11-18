@@ -6,6 +6,16 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), CATAPULT CPLT-C1 REFERENCE MODEL FROM THE AI FIVE-VIEW SHEET. Art only. REVIEW PENDING
+  (higher-level model).** Daniel: "Using the 5 fold view of the catapult, build a model that matches its appearance ... the art is
+  accurate enough, though you may need to compensate for it being art and not a technical drawing." `reference_art/models/Catapult
+  CPLT-C1.json` (792 triangles, passes `lowpoly_ref.py check`: weapons and jump-jet locations as the record sheet), measured on a
+  grid of the sheet: body sections from the side (heights) and top (half-widths) views; the LRM 15 arms on shoulder discs over the
+  back third; lower-torso discs, hip block and hip discs; reverse-knee legs (knee 1.68 behind the hip); long feet splayed 18
+  degrees; the hatch deck between the launchers. Compensations (in `art_vs_unit_file`): each view scaled to its own body-top
+  height (the side view is drawn ~10 % taller); the raised launcher built level; medium lasers and jump jets, not drawn, placed
+  where the record sheet's locations allow. Sheets: `reference_art/sheets/Catapult CPLT-C1.png`, `compare_Catapult CPLT-C1.png`.
+
 - **2026-11-18 (Claude, session 28), ITERATION 4: THE RECORD SHEET BUILDS THE ARMS; BIRD KNEES BACKWARD; MEASURED PROPORTIONS.
   Art only. REVIEW PENDING (higher-level model).** Daniel, after the Catapult four-way comparison: "Where does the record sheet say
   the missiles are located?" (in the arms: the launchers ARE the arms); bird legs bend backward; legs / hip / lower torso / upper
