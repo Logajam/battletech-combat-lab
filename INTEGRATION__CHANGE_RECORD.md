@@ -6,6 +6,12 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), THE ATLAS TAKEN APART INTO HD BLOCKS (T15c item B). Art only. REVIEW PENDING (higher-level
+  model).** Daniel: "Good enough. I think its ready to be taken apart for blocks." `tools/lowpoly_hd.py`: `atlas()` is now a list of
+  18 block calls (collar, shoulder decks, chest and back armour, rear laser pair, side recesses, the boxed autocannon, the skull head,
+  sensor masts, oval waist and pelvis, plated leg, ankle spat, wedge foot, pauldron, slab forearm, block fist, inline arm laser), and
+  `place_block` lets any block be moved and scaled about its anchor for another 'Mech. The fingerprints of all three models are SAME
+  (nothing changed), and each block drawn moved and at half size came out exactly half as big. Listed in HD_REVIEW.md section 5.
 - **2026-11-18 (Claude, session 28), THE CHECKLIST; THE ATLAS RUN THROUGH IT. Art only. REVIEW PENDING (higher-level model).** Daniel:
   "make a checklist of everything I've bitched about for all the mechs, and run the ones that apply to the atlas" (and: the legs are
   not to be swept, "the legs are fused in place ... They look fine"). New `tools/lowpoly_checklist.py`: 49 items (the principles),
