@@ -269,6 +269,145 @@ def _flip_role(role):
     return ":".join(bits)
 
 
+# ---------------------------------------------------------------- "anti-existence": every weapon's line of fire (Daniel, 2026-11-18)
+# "The 2 medium lasers in the center torso. The torso clips their attack path. Solution in this case is to cut out a tube along
+# their firing path. If all weapons include a region of 'Anti existence' in front of them as part of their blocks, this should
+# never be a problem again." A FIRING CORRIDOR is a square channel from just past the muzzle along the firing direction; every
+# other solid it passes through is cut (split into convex pieces round the channel), and the check proves every corridor clear.
+FIRE_LENGTH = 4.0          # how far a corridor reaches (models' units; past the model's own parts)
+FIRE_START = 0.04          # a corridor starts this far past the muzzle (the bore's dark disc stays)
+
+
+def corridor(start, direction, r, length=FIRE_LENGTH):
+    d = _unit(direction)
+    up = (0.0, 1.0, 0.0) if abs(d[1]) < 0.9 else (1.0, 0.0, 0.0)
+    u = _unit(_cross(d, up))
+    v = _cross(d, u)
+    return {"s": tuple(start), "d": d, "u": u, "v": v, "r": r, "len": length}
+
+
+def part_corridors(part):
+    """A weapon part's corridors: its "fire" field ({"from", "dir", "r", optional "len"}), else, for a tube or bar with a weapon
+    role, from its far end along its axis, as wide as its muzzle. A mirrored part's corridor is mirrored too."""
+    out = []
+    if "fire" in part:
+        f = part["fire"]
+        out.append(corridor(f["from"], f["dir"], f["r"], f.get("len", FIRE_LENGTH)))
+    elif part.get("role", "").startswith("weapon:") and part["kind"] in ("tube", "bar"):
+        a, b = tuple(part["a"]), tuple(part["b"])
+        d = _unit(_sub(b, a))
+        r = max(part.get("w1", part["w0"])) / 2
+        out.append(corridor(_add(b, _mul(d, FIRE_START)), d, r))
+    if part.get("mirror"):
+        out += [dict(c, s=(-c["s"][0], c["s"][1], c["s"][2]), d=(-c["d"][0], c["d"][1], c["d"][2]),
+                     u=(-c["u"][0], c["u"][1], c["u"][2]), v=(-c["v"][0], c["v"][1], c["v"][2])) for c in list(out)]
+    return out
+
+
+def corridor_solid(c):
+    """The corridor as a convex solid (for the clear-line-of-fire check)."""
+    pts = []
+    for t in (0.0, c["len"]):
+        for i in (-1, 1):
+            for j in (-1, 1):
+                pts.append(_add(c["s"], _add(_mul(c["d"], t), _add(_mul(c["u"], i * c["r"]), _mul(c["v"], j * c["r"])))))
+    verts, faces = _hull(pts)
+    return {"verts": verts, "faces": faces}
+
+
+def _clip(verts, faces, n, k):
+    """The convex solid (verts, faces) cut to the half-space n.x <= k: (verts, faces) or None if nothing is left."""
+    side = [_dot(n, p) - k for p in verts]
+    keep = [p for p, sd in zip(verts, side) if sd <= 1e-9]
+    if len(keep) == len(verts):
+        return verts, faces
+    if not keep:
+        return None
+    edges = set()
+    for f in faces:
+        for i in range(len(f)):
+            a, b = f[i], f[(i + 1) % len(f)]
+            edges.add((min(a, b), max(a, b)))
+    for a, b in edges:
+        if (side[a] < -1e-9 and side[b] > 1e-9) or (side[a] > 1e-9 and side[b] < -1e-9):
+            t = side[a] / (side[a] - side[b])
+            keep.append(_add(verts[a], _mul(_sub(verts[b], verts[a]), t)))
+    if len(keep) < 4:
+        return None
+    try:
+        v2, f2 = _hull(keep)
+    except Exception:                                    # noqa: BLE001 - a flat sliver: nothing worth keeping
+        return None
+    if len(f2) < 4:
+        return None
+    return v2, f2
+
+
+def subtract(solid, hole):
+    """`solid` minus the convex `hole` (a HOLE, Tinkercad's word; a boolean difference elsewhere - Daniel, 2026-11-18: "A shape
+    you add to another shape to remove from it"): the standard convex decomposition, one piece per face of the hole: piece i is
+    the part of the solid outside the hole's face i but inside its faces 0..i-1. Every piece is convex, so the rest of the
+    pipeline (renderer, checks) is unchanged."""
+    import numpy as np
+    hv = hole["verts"]
+    cen = tuple(sum(p[k] for p in hv) / len(hv) for k in range(3))
+    planes = []
+    for f in hole["faces"]:
+        n = _face_normal(hv, f, cen)                     # outward
+        planes.append((n, _dot(n, hv[f[0]])))
+    pieces = []
+    inside = []                                          # half-spaces 'inside face j' for the faces already used
+    for n, k in planes:
+        cur = (solid["verts"], solid["faces"])
+        for nn, kk in [(_mul(n, -1), -k)] + inside:      # outside face i (n.x >= k), inside the earlier faces
+            cur = _clip(cur[0], cur[1], nn, kk)
+            if cur is None:
+                break
+        if cur is not None:
+            pieces.append(cur)
+        inside.append((n, k))
+    return pieces
+
+
+def cut_channel(solid, c):
+    """`solid` with the corridor's hole subtracted (a weapon's line of fire)."""
+    return subtract(solid, corridor_solid(c))
+
+
+def apply_fire_cuts(solids, corridors, owner=None):
+    """Cut every corridor's channel through every solid it meets (not the weapon's own solids, `owner` index -> weapon key)."""
+    out = list(solids)
+    for ci, c in enumerate(corridors):
+        cs = corridor_solid(c)
+        ca = _solid_arrays(cs)
+        nxt = []
+        for s in out:
+            if c.get("own") is not None and s.get("weapon_key") == c["own"]:
+                nxt.append(s)
+                continue
+            if separated(_solid_arrays(s), ca, -1e-6):
+                nxt.append(s)
+                continue
+            for k, (vs, fs) in enumerate(cut_channel(s, c)):
+                cen = tuple(sum(p[i] for p in vs) / len(vs) for i in range(3))
+                nxt.append(dict(s, id="%s~cut%d.%d" % (s["id"], ci, k), verts=vs, faces=fs, centroid=cen, tris=tri_count(fs)))
+        out = nxt
+    return out
+
+
+def blocked_lines_of_fire(solids, corridors):
+    """(corridor index, blocking solid id) pairs: a solid other than the weapon's own still inside a corridor."""
+    bad = []
+    for ci, c in enumerate(corridors):
+        ca = _solid_arrays(corridor_solid(dict(c, r=c["r"] * 0.9)))
+        for s in solids:
+            if c.get("own") is not None and s.get("weapon_key") == c["own"]:
+                continue
+            if not separated(_solid_arrays(s), ca, -0.005):
+                bad.append((ci, s["id"]))
+    return bad
+
+
 def expand_parts(model):
     """The model's parts as solids: [{id, assembly, role, verts, faces, centroid}], mirrors written out."""
     solids = []
@@ -284,7 +423,30 @@ def expand_parts(model):
                 role = _flip_role(role)
             cen = (sum(p[0] for p in vs) / len(vs), sum(p[1] for p in vs) / len(vs), sum(p[2] for p in vs) / len(vs))
             solids.append({"id": pid, "assembly": asm, "role": role, "verts": vs, "faces": faces, "centroid": cen,
-                           "tris": tri_count(faces), "tone": part.get("tone")})
+                           "tris": tri_count(faces), "tone": part.get("tone"), "weapon_key": part["id"] if part_corridors(part) else None,
+                           "hole": bool(part.get("hole"))})
+    # HOLES: a part marked "hole": true is never drawn; it is subtracted from every other solid it meets
+    holes = [s_ for s_ in solids if s_.get("hole")]
+    if holes:
+        solids = [s_ for s_ in solids if not s_.get("hole")]
+        for h in holes:
+            ha = _solid_arrays(h)
+            nxt = []
+            for s_ in solids:
+                if separated(_solid_arrays(s_), ha, -1e-6):
+                    nxt.append(s_)
+                    continue
+                for k, (vs, fs) in enumerate(subtract(s_, h)):
+                    cen = tuple(sum(p[i] for p in vs) / len(vs) for i in range(3))
+                    nxt.append(dict(s_, id="%s~%s.%d" % (s_["id"], h["id"], k), verts=vs, faces=fs, centroid=cen, tris=tri_count(fs)))
+            solids = nxt
+    # every weapon carries a hole along its line of fire (its "anti-existence" region): cut through whatever stands in it
+    corridors = []
+    for part in model["parts"]:
+        for c in part_corridors(part):
+            corridors.append(dict(c, own=part["id"]))
+    if corridors:
+        solids = apply_fire_cuts(solids, corridors)
     return solids
 
 
@@ -426,6 +588,9 @@ def check_model(model):
     for need in REQUIRED_ASSEMBLIES:
         if need not in asm:
             errors.append("no part in assembly %r" % need)
+    corridors = [dict(c, own=p["id"]) for p in model["parts"] for c in part_corridors(p)]
+    for ci, sid in blocked_lines_of_fire(solids, corridors):
+        errors.append("a weapon's line of fire is blocked by %s" % sid)
     loose = floating_parts(solids)
     if loose:
         errors.append("floating parts (not touching the body): %s" % ", ".join(loose[:12]) + (" ..." if len(loose) > 12 else ""))

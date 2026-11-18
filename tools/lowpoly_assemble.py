@@ -162,6 +162,16 @@ class Piece:
         self.block, self.slot, self.mirror = block_id, slot, mirror
         self.solids = [dict(s, verts=[f(v) for v in s["verts"]], centroid=f(s["centroid"])) for s in g["solids"]]
         self.anchors = {k: f(v) for k, v in g["anchors"].items()}
+        # the line-of-fire hole rides along as three anchors (muzzle, a point along the firing direction, a point at the hole's
+        # radius), so every move of the block moves it too
+        DIRS = {"+x": (1, 0, 0), "-x": (-1, 0, 0), "+y": (0, 1, 0), "-y": (0, -1, 0), "+z": (0, 0, 1), "-z": (0, 0, -1)}
+        for mt in g["mounts"]:
+            if "line_of_fire" in mt:
+                pos, dn = tuple(mt["pos"]), DIRS[mt["facing"]]
+                side = (dn[1], dn[2], dn[0]) if dn[0] == 0 else (0, 1, 0)
+                self.anchors["_lof_a"] = f(pos)
+                self.anchors["_lof_b"] = f(add(pos, dn))
+                self.anchors["_lof_r"] = f(add(pos, mul(side, mt["line_of_fire"]["r"])))
         self.tris = g["tris"]
 
     def place(self, anchor, at, R=IDENTITY, about=None):
@@ -240,7 +250,8 @@ class Mech:
         self.lod, self.lib, self.bulk = lod, lib, bulk
         self.pieces, self.errors = [], []
         self.by_slot = {}
-        self.bones = []                                 # (joint, joint): the skeleton, for the viewer's Skeleton layer
+        self.bones = []
+        self.corridors = []                             # (piece index, line-of-fire corridor)                                 # (joint, joint): the skeleton, for the viewer's Skeleton layer
 
     def make(self, block_id, slot, mirror=False, scale=None, params=None):
         part = block_id.split("/")[0]
@@ -630,7 +641,30 @@ def build(choice, lod, lib, mass=50, jump=0):
         for sx, mirror in ((1, False), (-1, True)):
             m.seat(choice["fins"], "fins", "root", [chest], (cx + sx * ch_w * 0.2, hi[1] + 20.0, lo[2] + ch_d * 0.3), (0, -1, 0),
                    axis=(0, 1, 0), mirror=mirror)
+    cut_lines_of_fire(m)
     return m
+
+
+ARM_SLOTS = ("upper_arm", "lower_arm", "hand", "arm_gun", "arm_rack")
+
+
+def cut_lines_of_fire(m):
+    """Every weapon block's line-of-fire hole is cut through every OTHER block it meets (lowpoly_ref.subtract). An ARM weapon's
+    hole cuts only its own arm: in the standing pose the arms hang down and an arm weapon would 'fire' into the 'Mech's own legs
+    and feet; it fires with the arm raised, a pose for the animation (2026-11-18: the first run cut feet and shins)."""
+    for k, pc in enumerate(m.pieces):
+        if "_lof_a" not in pc.anchors:
+            continue
+        a, b, r_ = pc.anchors["_lof_a"], pc.anchors["_lof_b"], pc.anchors["_lof_r"]
+        c = L.corridor(add(a, mul(unit(sub(b, a)), L.FIRE_START)), sub(b, a), norm(sub(r_, a)))
+        arm = pc.slot in ARM_SLOTS
+        m.corridors.append((k, c, arm, pc.mirror))
+        for j, other in enumerate(m.pieces):
+            if j == k or (arm and not (other.slot in ARM_SLOTS and other.mirror == pc.mirror)):
+                continue
+            for s_ in other.solids:
+                s_.setdefault("id", other.block)
+            other.solids = L.apply_fire_cuts(other.solids, [c])
 
 
 # ---------------------------------------------------------------- the checks
@@ -644,6 +678,12 @@ def check_mech(m):
         for s_ in pc.solids:
             solids.append(dict(s_, id="%s (%s) #%d" % (pc.block, pc.slot, k)))
             owner.append(k)
+    for k, c, arm, mir in m.corridors:                  # every line of fire clear (after the cuts, by construction; checked)
+        others = [s_ for s_, o in zip(solids, owner) if o != k and
+                  (not arm or (m.pieces[o].slot in ARM_SLOTS and m.pieces[o].mirror == mir))]
+        for _, sid in L.blocked_lines_of_fire(others, [c]):
+            errs.append("line of fire of %s blocked by %s" % (m.pieces[k].block, sid.rsplit(" #", 1)[0]))
+            break
     loose = L.floating_parts(solids, group=lambda i: owner[i])
     if loose:
         errs.append("not one piece: loose " + ", ".join(sorted({x.rsplit(" #", 1)[0] for x in loose})))

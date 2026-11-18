@@ -6,6 +6,17 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), HOLES; EVERY WEAPON'S LINE OF FIRE. Art only. REVIEW PENDING (higher-level model).** Daniel:
+  the Catapult's centre lasers fired into its own nose; "If all weapons include a region of 'Anti existence' in front of them as
+  part of their blocks, this should never be a problem again"; the term is a HOLE. `lowpoly_ref`: `subtract` (convex difference,
+  one piece per face of the hole), `"hole": true` parts, `part_corridors` / `apply_fire_cuts` (every weapon part's line-of-fire hole
+  cut through what stands in it, in `expand_parts`), `blocked_lines_of_fire` in `check_model`. `lowpoly_blocks`: weapon blocks
+  (barrel arm, long barrel, pod arm, launcher bay, cannon hump, rear rack) carry `line_of_fire` on their muzzle mount
+  (`LINE_OF_FIRE`). `lowpoly_assemble`: the hole rides as anchors through every move, `cut_lines_of_fire` after the build (an arm
+  weapon cuts only its own arm), the check proves every line clear. The HD Catapult's centre lasers now fire through channels cut
+  in the nose; the 800-triangle Catapult's lasers moved where their fire is clear (a cut costs ~290 triangles there). Principle 21.
+  The assembly check now takes about 4.5 minutes (the cuts).
+
 - **2026-11-18 (Claude, session 28), THE NO-FLOATING-BITS CHECK. Art only. REVIEW PENDING (higher-level model).** Daniel: "The
   front view looks like they are not connected to the body. There needs to be a no floaty bits check when you render."
   `lowpoly_ref.floating_parts` (separating-axis test on the real convex solids, gap 0.02; boxes only pre-filter) in
