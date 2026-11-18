@@ -6,6 +6,11 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), CATAPULT HD: JETS AS FLANK VENTS.** Daniel: the jets clipped or crowded other features; "they
+  could be placed more on the body either angled out, or with vents that come out just a bit." Now four vents on the body's flanks,
+  in the clear strip between the tilt hinge and the launcher arms, angled 35 degrees down-and-out, 0.72 in front of and behind the
+  centre of mass, each a short lip under a hood. Principle 17 extended. REVIEW PENDING (higher-level model).
+
 - **2026-11-18 (Claude, session 28), CATAPULT HD: JETS INTERNAL, LIPS SHOWING.** Daniel: "it doesn't have to be perfect, merely
   plausible. And you can mount the jets internally with just the outer lip of the nozzle showing." The four nozzles are now flush
   lips round dark throats (front pair under the jowls, rear pair on the underside), same positions about the centre of mass.
