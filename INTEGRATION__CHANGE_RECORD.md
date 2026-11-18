@@ -6,6 +6,13 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), CATAPULT HD: WAIST ROOT, WRAPPED COCKPIT, JETS ON THE CENTRE OF MASS, FIVE-VIEW SHEETS. Art
+  only. REVIEW PENDING (higher-level model).** Daniel's third review. The waist's root is a ball sunk in the hip block under an
+  octagonal cowl (the tilted tower poked out); the cockpit glazing is built on the body's own curve (`conformal_glass`: 12 panes
+  in three rows, frame gaps between); the jump jets point down with their thrust centre on the measured centre of mass (y 7.03,
+  z -0.12; front nozzles under the jowls, rear ones on the body's real underside); the HD sheet is the five-view format (front,
+  rear, left, right, top-down on one scale, then underside and 3/4). 11,226 triangles. Principles 15-18.
+
 - **2026-11-18 (Claude, session 28), CATAPULT HD: BUILT TO ARTICULATE. Art only. REVIEW PENDING (higher-level model).** Daniel's
   second review: the round section is the torso's tilt hinge; legs splayed; the waist tilted to meet the torso, "a mix of octagon
   tower and pyramid"; bolder bevels; leg end caps engaging the hip discs; "imagine that the mech has to articulate". Built: a
