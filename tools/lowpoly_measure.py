@@ -8,6 +8,7 @@ outline from the sheet and reads off the landmarks, so a person only confirms th
     python -I tools/lowpoly_measure.py find "Catapult CPLT-C1"      # number the drawn shapes on the sheet (to pick the views)
     python -I tools/lowpoly_measure.py measure "Catapult CPLT-C1"   # measure the views named in reference_art/views.json
     python -I tools/lowpoly_measure.py compare "Atlas AS7-D"        # THE STANDARD TEST: the HD model measured the same way, v the sheet
+    python -I tools/lowpoly_measure.py sections "Atlas AS7-D"       # the sheet and the model cut into the same height bands, one scale
 
 COMPARE (Daniel, 2026-11-18: "measure torso width compared to the drawings ... this should be a standard test"): the HD model's
 front and side silhouettes are rendered (the five-view projections) and measured by the SAME code as the sheet, so the two sets of
@@ -248,6 +249,57 @@ def measure(unit):
     return res
 
 
+SECTION_BANDS = [("HEAD + COLLAR", 0.76, 1.0), ("SHOULDERS + CHEST", 0.62, 0.82), ("WAIST + SIDE TORSOS", 0.5, 0.66),
+                 ("PELVIS + HIPS", 0.36, 0.54), ("THIGHS + KNEES", 0.22, 0.42), ("SHINS", 0.08, 0.28), ("FEET", 0.0, 0.12)]
+
+
+def sections(unit, H=1100):
+    """SECTION BY SECTION (Daniel, 2026-11-18: "compare your version vs the AI drawing section by section, list differences and then
+    modify your model based on those differences"; the Catapult's method): the sheet's front and side and the model's (in its `sheet`
+    pose) scaled to one standing height and cut into the same height bands, side by side, one row per band, for the list of
+    differences. Writes reference_art/measure/<unit> sections.png."""
+    import numpy as np
+    import lowpoly_blocks as B
+    import lowpoly_hd as HD
+    from PIL import Image, ImageDraw
+    model = json.load(open(os.path.join(HD.HD_DIR, unit + ".json")))
+    pose = model.get("poses", {}).get("sheet")
+    sol = HD.posed_solids(model, pose) if pose else L.expand_parts(model)
+    cube = HD._box_solid(sol)
+    V = dict(HD.FIVE_VIEWS)
+    spec = json.load(open(VIEWS))[unit]
+    sheet = Image.open(sheet_path(unit)).convert("RGB")
+
+    def norm(im):
+        g = np.asarray(im.convert("L")) < 245
+        rows, cols = np.where(g)
+        im = im.crop((cols.min(), rows.min(), cols.max() + 1, rows.max() + 1))
+        return im.resize((max(1, int(im.width * H / im.height)), H))
+    views = [("sheet front", norm(sheet.crop(tuple(spec["front"])))),
+             ("model front", norm(B.render(sol, V["FRONT"], (1400, 1400), fit_solids=cube))),
+             ("sheet side", norm(sheet.crop(tuple(spec["side"])))),
+             ("model side", norm(B.render(sol, V["LEFT SIDE"], (1400, 1400), fit_solids=cube)))]
+    rows = []
+    for name, f0, f1 in SECTION_BANDS:
+        ims = [(k, im.crop((0, int(H * (1 - f1)), im.width, int(H * (1 - f0))))) for k, im in views]
+        r = Image.new("RGB", (sum(i.width for _, i in ims) + 120, max(i.height for _, i in ims) + 22), "white")
+        d = ImageDraw.Draw(r)
+        x = 0
+        for k, i in ims:
+            r.paste(i, (x, 22))
+            d.text((x + 4, 4), name + " - " + k, fill="black")
+            x += i.width + 30
+        rows.append(r)
+    out = Image.new("RGB", (max(r.width for r in rows), sum(r.height + 14 for r in rows)), "white")
+    y = 0
+    for r in rows:
+        out.paste(r, (0, y))
+        y += r.height + 14
+    path = os.path.join(OUT, unit + " sections.png")
+    out.save(path)
+    return path
+
+
 TOLERANCE = 0.06                        # a landmark more than 6 % off the sheet's is flagged
 ARM_TOUCHED = ("overall_width", "body_length", "body_length_height")
 
@@ -331,6 +383,9 @@ def compare(unit):
 def main(argv):
     if len(argv) >= 2 and argv[0] == "find":
         find(argv[1])
+        return 0
+    if len(argv) >= 2 and argv[0] == "sections":
+        print("wrote", os.path.relpath(sections(argv[1]), L.ROOT))
         return 0
     if len(argv) >= 2 and argv[0] == "compare":
         res = compare(argv[1])
