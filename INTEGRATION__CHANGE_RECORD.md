@@ -6,6 +6,13 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), COMMANDO HD, DANIEL'S FIRST REVIEW. Art only. REVIEW PENDING (higher-level model).**
+  `tools/lowpoly_hd.py commando()`: the round belly is now a faceted bulge in the torso's own tone that bevels into the torso (it was a
+  plate laid on the chest); the ankle housings reach down into the feet (the leg splay had opened gaps at their sides); the SRM 4 pod
+  sits flat on the hexagonal forearm's upper outer face (it sat on the top edge, unsupported), the fist a little lower so its fire
+  stays clear; the head is a helmet (a skirt over the back of the neck, brow, crest, jaw with a grille, ribbed neck); the antenna is
+  on the right shoulder pad (Daniel likes the sheet's place). Arm pose kept (Daniel: "fine"). Principles 26-29. The earlier entry's
+  "Catapult sheet redrawn" means only re-rendered: it came out pixel-identical (the Catapult is symmetric).
 - **2026-11-18 (Claude, session 28), PRINCIPLE 25 BUILT: A LAUNCHER ON A FOREARM WITH A HAND. Art only. REVIEW PENDING
   (higher-level model).** `tools/lowpoly_assemble.py`: `arm_plan` no longer turns an arm with a hand actuator and a missile
   launcher into a bare pod arm; it keeps the forearm and hand and adds a `pod`, which `arm_pod` seats flush on the forearm's front
