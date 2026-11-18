@@ -6,6 +6,11 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), COMMANDO HD: THE PELVIS AS BRIEFS. Art only. REVIEW PENDING (higher-level model).** Daniel:
+  "In the ai drawing it looks like an actual pelvis or 'Briefs' underwear. In yours its just a rectangular box." The hip box and
+  crotch wedge are gone: a belt band, under it one straight V from the belt's corners down to a small crotch block (a first try with
+  an upright band above the V read as a tray), a raised plate down the front (vents) and a seat plate behind; each thigh's top is cut
+  on a slant that follows the V, a small gap below it, so the legs come out of leg openings. Principle 32.
 - **2026-11-18 (Claude, session 28), COMMANDO HD, SECOND REVIEW: TORSO MEASURED, HELMET GAP. Art only. REVIEW PENDING
   (higher-level model).** Daniel: the belly looked like "a beer gut" ("take measurements of it vs the AI drawings for torso
   proportions"); the helmet "needs a bit of a gap between it and the torso so that the head can rotate. This is art not a functional

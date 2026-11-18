@@ -504,12 +504,21 @@ def commando():
     # PROPORTIONS (self-review against the sheet, first build): the legs start right under the belt (the sheet's crotch at 0.49 of
     # the height, about 4.8 here) and are slim; the first build hung a tall hip block under the belt, which cut the legs short
     # the sheet's belt is the widest part of the lower body (about 2.9), the legs hang straight from under it, 2.2 apart
-    m.hull("belt", "pelvis", bevel_box((0, 5.48, 0.0), (2.85, 0.55, 1.6), 0.14), tone=0.8)      # the sheet's "crotch block seam"
-    m.hull("hip_block", "pelvis", bevel_box((0, 5.05, 0.0), (2.6, 0.42, 1.45), 0.14), tone=0.74)
-    m.hull("crotch", "pelvis", [(sx * 0.42, 4.9, sz * 0.56) for sx in (-1, 1) for sz in (-1, 1)] +
-           [(sx * 0.26, 4.5, sz * 0.4) for sx in (-1, 1) for sz in (-1, 1)], tone=0.7)
-    for k in range(3):
-        m.box("crotch_vent", "pelvis", (0, 4.6 + k * 0.08, 0.44 + k * 0.032), (0.38, 0.035, 0.05), tone=DARK)
+    # the PELVIS as BRIEFS (Daniel, 2026-11-18: "In the ai drawing it looks like an actual pelvis or 'Briefs' underwear. In yours its
+    # just a rectangular box. The box is the wrong option here"): a belt band, and under it a shape that narrows from the belt's width
+    # down to the crotch, its sloped sides the leg openings the thighs come out of; a raised plate down the front, a seat plate behind
+    m.hull("belt", "pelvis", bevel_box((0, 5.62, 0.0), (2.85, 0.36, 1.62), 0.1), tone=0.8)      # the sheet's "crotch block seam"
+    # (second try: one straight V from the belt's corners to the crotch, as the sheet; the first had an upright band above the V and
+    # read as a tray) and a small crotch block under its point
+    m.hull("briefs", "pelvis", bevel_ring(5.46, 1.34, 0.74, -0.74, 0.16) + bevel_ring(4.6, 0.42, 0.52, -0.54, 0.12), tone=0.74)
+    m.hull("crotch_block", "pelvis", bevel_ring(4.62, 0.42, 0.5, -0.5, 0.1) + bevel_ring(4.38, 0.34, 0.42, -0.42, 0.08), tone=0.68)
+    for sz, name in ((1, "codpiece"), (-1, "seat_plate")):
+        m.hull(name, "pelvis", [(sx * 0.62, 5.42, sz * 0.7) for sx in (-1, 1)] + [(sx * 0.24, 4.62, sz * 0.5) for sx in (-1, 1)] +
+               [(sx * 0.56, 5.4, sz * 0.79) for sx in (-1, 1)] + [(sx * 0.2, 4.66, sz * 0.57) for sx in (-1, 1)], tone=0.82)
+    for k in range(3):                               # vents low on the front plate
+        y = 4.78 + k * 0.1
+        z = 0.57 + (0.79 - 0.57) * (y - 4.66) / (5.4 - 4.66) + 0.005
+        m.box("crotch_vent", "pelvis", (0, y, z), (0.26 + 0.05 * k, 0.03, 0.03), tone=DARK)
     # the legs are drawn at x 0.72 and moved out by LEG_OUT below (all their parts at once)
     LEG_OUT = 0.33
     hip, knee, ankle = (0.72, 4.95, 0.0), (0.72, 3.1, 0.1), (0.72, 0.8, -0.05)
@@ -517,6 +526,12 @@ def commando():
     leg_from = len(m.parts)
     m.tube("thigh_cap", "leg_L", (0.22, hip[1], 0), (1.3, hip[1], 0), 0.86, n=24, tone=JOINT, mirror=True)     # turns in the hip block
     m.tube("thigh_hub", "leg_L", (1.3, hip[1], 0), (1.36, hip[1], 0), 0.48, n=16, tone=DARK, mirror=True)
+    # the thigh's top is cut on a SLANT that follows the briefs' side, a small gap below it (the sheet: the leg openings), high on
+    # the outside, low at the crotch. Written where the leg ends up (x + LEG_OUT) and moved back, as the leg moves out below.
+    slope = (5.46 - 4.6) / (1.34 - 0.42)
+    top = lambda x: min(5.3, 4.6 + (x - 0.42) * slope - 0.1)
+    m.hull("thigh_top", "leg_L", [(x - LEG_OUT, y, z) for x in (0.5, 1.2, 1.62) for y in (top(x), 4.45) for z in (-0.6, 0.6)],
+           tone=0.8, mirror=True)
     limb(m, "thigh", "leg_L", hip, knee, 1.05, 1.3, 0.92, 1.0, steps=3, tone=0.74, mirror=True)
     m.add("bar", "thigh_plate", "leg_L", a=(0.72, 4.3, 0.58), b=(0.72, 3.55, 0.54), w0=[0.82, 0.12], w1=[0.7, 0.1], tone=PLATE, mirror=True)
     m.tube("knee_cap", "leg_L", (0.26, knee[1], knee[2]), (1.18, knee[1], knee[2]), 0.85, n=24, tone=JOINT, mirror=True)
