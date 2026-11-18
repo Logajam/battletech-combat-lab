@@ -679,7 +679,8 @@ def commando():
             p["pts"] = [rnd(f(q)) for q in p["pts"]]
         if i < foot_from and p["kind"] in ("box", "wedge"):
             p["rot"] = [0, 0, splay_deg]
-    pivots.update({"waist_turn": {"centre": [0, 5.72, 0], "axis": "y", "parent": "pelvis", "child": "torso"},
+    pivots.update({"neck": {"centre": [0, 8.7, -0.08], "axis": "y", "parent": "torso", "child": "head"},     # HD review F4
+                   "waist_turn": {"centre": [0, 5.72, 0], "axis": "y", "parent": "pelvis", "child": "torso"},
                    "hip_L": {"centre": list(hip), "axis": "x", "parent": "pelvis", "child": "thigh"},
                    "knee_L": {"centre": rnd(splay(knee)), "axis": "x", "parent": "thigh", "child": "shin"},
                    "ankle_L": {"centre": rnd(splay(ankle)), "axis": "x", "parent": "shin", "child": "foot"}})
@@ -715,6 +716,7 @@ def main(argv=()):
         errors, notes = L.check_model(model)
         print(unit, "; ".join(notes), "; ".join(errors) or "ok")
         sheet(model, os.path.join(L.SHEETS, unit + " HD.png"))
+        turnaround(model, os.path.join(L.SHEETS, unit + " HD turnaround.png"))
 
 
 # (screen x, screen y, depth: larger = nearer). Seen from the front, the 'Mech's left (+x) is on the viewer's right; from behind, on
@@ -747,6 +749,50 @@ def sheet(model, path):
         scale_ref = fit if i >= 5 else _box_solid(sol)
         out.paste(B.render(sol, f, (H, H), fit_solids=scale_ref), (i * H, 44))
         d.text((i * H + 8, 26), name, fill="black")
+    out.save(path)
+
+
+def turnaround(model, path, H=720):
+    """A presentation five-view, laid out as the AI turnaround sheets (Daniel, 2026-11-18: "a good 5 fold view"): the top-down view
+    above, then front, rear, left side and right side in a row, ALL ON ONE SCALE (each panel is framed on the same cube round the
+    model, then trimmed of empty margin), and two 3/4 views. The floating-parts stamp as on `sheet`."""
+    import lowpoly_blocks as B
+    from PIL import Image, ImageDraw, ImageChops
+    sol = L.expand_parts(model)
+    cube = _box_solid(sol)
+
+    def trim(im, rows=False):
+        bg = Image.new("RGB", im.size, "white")
+        box = ImageChops.difference(im, bg).getbbox() or (0, 0, im.width, im.height)
+        pad = 18
+        l, t, r, b = max(0, box[0] - pad), max(0, box[1] - pad), min(im.width, box[2] + pad), min(im.height, box[3] + pad)
+        return im.crop((l, t, r, b) if rows else (l, 0, r, im.height))
+    views = dict(FIVE_VIEWS)
+    row2 = [(n, trim(B.render(sol, views[n], (H, H), fit_solids=cube))) for n in ("FRONT", "REAR", "LEFT SIDE", "RIGHT SIDE")]
+    top = trim(B.render(sol, views["TOP-DOWN"], (H, H), fit_solids=cube), rows=True)
+    q34 = [(n, trim(B.render(sol, f, (H // 2 + 120, H // 2 + 120)), rows=True)) for n, f in
+           (("3/4 FRONT", B.camera(-35, 12)), ("3/4 REAR", B.camera(-145, 12)))]
+    gap, head = 30, 64
+    w2 = sum(im.width for _, im in row2) + gap * (len(row2) + 1)
+    h1 = max(top.height, max(im.height for _, im in q34)) + 30
+    out = Image.new("RGB", (max(w2, top.width + sum(im.width for _, im in q34) + gap * 4), head + h1 + H + 40), "white")
+    d = ImageDraw.Draw(out)
+    loose = L.floating_parts(sol)
+    d.text((gap, 14), "%s %s  -  HD REFERENCE MODEL, TURNAROUND" % (model["unit"].upper(), model["model"]), fill="black")
+    d.text((gap, 34), "%d t | %d solids, %d triangles | top, front, rear and side views on one scale (the 3/4 views are not) | %s" % (
+        model.get("mass", 0), len(sol), sum(x["tris"] for x in sol),
+        ("FLOATING PARTS: " + ", ".join(loose[:6])) if loose else "no floating parts"), fill="red" if loose else "black")
+    x = gap
+    for n, im in [("TOP-DOWN (forward down)", top)] + q34:
+        out.paste(im, (x, head + 20))
+        d.text((x + 6, head + 2), n, fill="black")
+        x += im.width + gap
+    x, y = gap, head + h1 + 20
+    for n, im in row2:
+        out.paste(im, (x, y))
+        d.text((x + 6, y - 18), n, fill="black")
+        x += im.width + gap
+    d.line([(gap, y + H - 1), (out.width - gap, y + H - 1)], fill=(170, 170, 170))       # the ground line
     out.save(path)
 
 
