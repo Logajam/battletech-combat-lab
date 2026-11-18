@@ -6,6 +6,18 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), ATLAS HD, ROUND 5: ARTICULATION, DEPTH, NO PAINTED LINES. Art only. REVIEW PENDING (higher-level
+  model).** New `tools/lowpoly_articulate.py`: each joint turned through its range, every NEW overlap reported (Daniel: "Can it torso
+  twist without something clipping? ... 90 degrees to left and right"; the arms at the shoulder). It found: the side weapons and
+  recesses hung below the waist joint and swept through the belt, rear skirt and hip covers in the twist (moved above the waist line);
+  the pauldrons, which move with the arms, stood inside the chest and the collar (now outboard of the chest; the shoulder joint out to
+  x 2.72); the upper arm and forearm met at the elbow (each stops short, the drum bridges; the elbow's honest range -15..+82); the head
+  hit the collar turning (collar blocks further out, the collar behind further back). All joints now clear: twist +-90, shoulders
+  -90..+60, elbows -15..+82, head +-45 (ranges recorded in `pivots`; `lowpoly_articulate` reads them). Also: the head back over
+  the neck and the neck on the spine line; the torso deeper front and back with plates layered on the back (lower back plate, shoulder
+  blades); the painted seam lines (chest seam, breastplate ridge, pauldron seams, thigh slash) removed; a wide turning ring at the
+  waist. Measuring test: within 6 % but the belt and where the waist's narrowest point sits (at the turning ring, 6.2, the sheet's at
+  7.0). Principles 51-54.
 - **2026-11-18 (Claude, session 28), ATLAS HD, ROUND 4: SECTION BY SECTION. Art only. REVIEW PENDING (higher-level model).** Daniel:
   the head "more of a dome with face objects attached to the front", too small, without the sheet's collar; "the mech still feels like
   its made of boxes"; compare section by section, list, then modify (the Catapult's method). New `lowpoly_measure.py sections UNIT`
