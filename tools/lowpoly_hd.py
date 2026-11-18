@@ -93,6 +93,62 @@ def rounded_section(z, y_top, y_bot, w_top, w_mid, w_bot, n=10):
     return pts
 
 
+def section_at(secs, z):
+    """The body's section parameters interpolated at z (secs sorted nose first, z falling)."""
+    for a, b in zip(secs, secs[1:]):
+        if b[0] <= z <= a[0]:
+            t = (a[0] - z) / (a[0] - b[0])
+            return [a[i] + (b[i] - a[i]) * t for i in range(1, 6)]
+    raise ValueError(z)
+
+
+def surface_point(secs, z, theta, grow=0.0):
+    """A point on the body's rounded surface at z and angle theta (pi/2 = the top), pushed out by `grow` from the section's middle."""
+    yt, yb, wt, wm, wb = section_at(secs, z)
+    cy, ry = (yt + yb) / 2, (yt - yb) / 2
+    s_, c_ = math.sin(theta), math.cos(theta)
+    w = wm + (wt - wm) * max(0.0, s_) ** 1.5 + (wb - wm) * max(0.0, -s_) ** 1.5
+    x, y = w * c_, cy + ry * s_
+    n = math.hypot(x, y - cy) or 1.0
+    return (x + grow * x / n, y + grow * (y - cy) / n, z)
+
+
+def conformal_glass(m, secs, z_cuts, theta_cuts, gap, name="pane", role_first=None):
+    """COCKPIT RULE, WRAP (Daniel, 2026-11-18: "Cockpits need rules on how to wrap or cut into structure"): the glazing is a skin on
+    the host's OWN surface, a hair proud of it, cut into panes by frame gaps along the given z and angle cuts. Each pane is a thin
+    shell (outer + inner points), never a flat plate laid across a curve."""
+    first = True
+    for z0, z1 in zip(z_cuts, z_cuts[1:]):
+        for t0, t1 in zip(theta_cuts, theta_cuts[1:]):
+            za, zb = z0 - gap / 2, z1 + gap / 2                # z falls toward the back: z0 > z1
+            ta, tb = t0 + gap / 3, t1 - gap / 3
+            pts = []
+            for z in (za, (za + zb) / 2, zb):
+                for t in (ta, (ta + tb) / 2, tb):
+                    pts.append(surface_point(secs, z, t, 0.035))
+                    pts.append(surface_point(secs, z, t, -0.01))
+            m.hull(name, "head", pts, tone=0.26, role=role_first if first else None)
+            first = False
+
+
+def centre_of_mass(parts):
+    """Volume centroid of all solids (uniform density: a first estimate, good enough to aim the jump jets)."""
+    tv, tc = 0.0, [0.0, 0.0, 0.0]
+    for sol in L.expand_parts({"parts": parts}):
+        vs, c = sol["verts"], sol["centroid"]
+        for f in sol["faces"]:
+            for k in range(1, len(f) - 1):
+                a, b, d = vs[f[0]], vs[f[k]], vs[f[k + 1]]
+                p = [a[i] - c[i] for i in range(3)]
+                q = [b[i] - c[i] for i in range(3)]
+                r = [d[i] - c[i] for i in range(3)]
+                v = abs(p[0] * (q[1] * r[2] - q[2] * r[1]) - p[1] * (q[0] * r[2] - q[2] * r[0]) + p[2] * (q[0] * r[1] - q[1] * r[0])) / 6
+                tv += v
+                for i in range(3):
+                    tc[i] += v * (c[i] + (p[i] + q[i] + r[i]) / 4)
+    return [round(x / tv, 3) for x in tc]
+
+
 def catapult():
     m = Model()
     # ---------------------------------------------------------------- the body: a rounded teardrop (side heights, top widths)
@@ -129,19 +185,12 @@ def catapult():
         m.box("stripe", "torso", (jx + jd / 2 + 0.005, jy, 1.4 + k * 0.24), (0.03, 0.42, 0.09), tone=DARK, mirror=True)
     m.tube("ml_side", "torso", (jx, jy, 2.55), (jx, jy, 2.95), 0.32, 0.28, n=16, role="weapon:LT:Medium Laser", tone=METAL, mirror=True)
     m.tube("ml_side_bore", "torso", (jx, jy, 2.95), (jx, jy, 2.98), 0.18, n=16, tone=DARK, mirror=True)
-    # ---------------------------------------------------------------- the cockpit: framed glazing on the nose's upper faces
-    for i, (z0, z1) in enumerate(((3.85, 3.42), (3.40, 2.95), (2.93, 2.55))):
-        for side in (-1, 1):
-            m.hull("pane", "head", [(side * 0.05, 8.42 + i * 0.3, z0), (side * 0.05, 8.72 + i * 0.25, z1),
-                                    (side * (0.32 + i * 0.18), 8.32 + i * 0.25, z0 - 0.05), (side * (0.5 + i * 0.2), 8.6 + i * 0.22, z1),
-                                    (side * 0.05, 8.38 + i * 0.3, z0), (side * 0.05, 8.68 + i * 0.25, z1)],
-                   tone=0.28, role="canopy" if (i == 0 and side == 1) else None)
-    m.box("canopy_frame", "head", (0, 8.95, 2.75), (0.08, 0.06, 1.6), tone=TRIM)
+    # ---------------------------------------------------------------- the cockpit: glazing WRAPPED on the nose (the cockpit rule)
+    # three rows front to back, two panes a side, a frame spine down the middle and frame bands between rows (the side view's
+    # dark wedge on the nose's upper faces, the front view's dark band)
+    conformal_glass(m, secs, [3.85, 3.4, 2.95, 2.55], [math.pi / 2 + 0.06, math.pi / 2 + 0.5, math.pi / 2 + 0.95], 0.06, role_first="canopy")
+    conformal_glass(m, secs, [3.85, 3.4, 2.95, 2.55], [math.pi / 2 - 0.95, math.pi / 2 - 0.5, math.pi / 2 - 0.06], 0.06)
     # the jump jets (2 LT, 2 RT) under the back
-    for k, z in enumerate((-1.35, -1.95)):
-        m.tube("jj", "torso", (0.75, 8.05, z), (0.75, 7.5, z), 0.42, 0.62, n=16, tone=0.45, mirror=True,
-               role="jumpjet:LT" if k == 0 else None)
-        m.tube("jj_throat", "torso", (0.75, 7.5, z), (0.75, 7.48, z), 0.5, n=16, tone=DARK, mirror=True)
     # ---------------------------------------------------------------- the hatch deck between the launchers (the X box)
     m.hull("deck", "torso", bevel_box((0, 10.12, -1.12), (1.6, 0.62, 2.36), 0.16), tone=0.95)
     for a, b in (((-0.6, -2.05), (0.6, -0.2)), ((0.6, -2.05), (-0.6, -0.2))):           # the X on the hatch
@@ -171,7 +220,15 @@ def catapult():
     m.tube("tilt_ring", "torso", (1.4, hinge[1], hinge[2]), (1.56, hinge[1], hinge[2]), 1.28, n=28, tone=TRIM, mirror=True)
     # the WAIST: an octagonal tower rising from the hip block, tilted so it meets the hinge squarely, topped by a pyramid that
     # closes round the hinge (Daniel: "a mix of octagon tower and pyramid"); the waist turns the torso, the hinge tilts it
-    base, top = (0.0, 6.35, -0.05), (0.0, hinge[1] - 0.15, hinge[2] - 0.05)
+    # its root is a BALL sunk in the hip block and a COWL rings it at the block's top (Daniel, 2026-11-18: the tilted tower's bottom
+    # poked out of the hip block; "a cowl, or building waist blocks with extra structure (like a hemisphere) that is usually inside
+    # the hip block if flat"): however the tower leans, its root stays inside
+    top = (0.0, hinge[1] - 0.15, hinge[2] - 0.05)
+    lean = (0.0, top[1] - 6.35, top[2] + 0.05)
+    ln = math.hypot(lean[1], lean[2])
+    base = (0.0, 6.35 - 0.3 * lean[1] / ln, -0.05 - 0.3 * lean[2] / ln)       # 0.3 further down the tower's own axis
+    m.add("dome", "waist_ball", "pelvis", c=base, r=(0.8, 0.8, 0.8), n=20, rings=10, tone=JOINT)
+    m.tube("waist_cowl", "pelvis", (0.0, 6.5, -0.05), (0.0, 6.82, -0.02), 1.95, 1.72, n=8, roll=22.5, tone=0.7)
     mid = (0.0, base[1] + (top[1] - base[1]) * 0.55, base[2] + (top[2] - base[2]) * 0.55)
     m.tube("waist_tower", "pelvis", base, mid, 1.5, 1.42, n=8, roll=22.5, tone=0.68)
     m.tube("waist_pyramid", "pelvis", mid, top, 1.42, 0.95, n=8, roll=22.5, tone=0.68)
@@ -251,6 +308,22 @@ def catapult():
                                                  (1.0, 0.62, -0.05), (2.04, 0.62, -0.05), (1.0, 0.62, 1.0), (2.04, 0.62, 1.0)]], tone=0.7, mirror=True)
     m.hull("heel", "leg_L", [turn(q) for q in [(1.17, 0, -0.2), (1.87, 0, -0.2), (1.17, 0, -1.1), (1.87, 0, -1.1),
                                                (1.2, 0.4, -0.2), (1.84, 0.4, -0.2)]], tone=0.74, mirror=True)
+    # JUMP JETS (2 LT, 2 RT; Daniel, 2026-11-18: "The jump jets are off axis to actually act as rockets"): the nozzles point
+    # straight down and their thrust centre is the 'Mech's centre of mass, or a jump would pitch it over. Each side torso's pair
+    # stands one in front of and one behind the centre of mass, the same distance away: the front nozzle under the jowl's back, the
+    # rear one under the body. (Before: both pairs far behind the centre of mass.)
+    cg = centre_of_mass(m.parts)
+    d = 1.43
+    for k, z in enumerate((cg[2] + d, cg[2] - d)):
+        if k == 0:
+            y_top = 7.15                                    # the jowl's underside
+        else:                                               # the body's underside AT the nozzle's x (it curves up to the sides)
+            under = [surface_point(secs, z, -math.pi / 2 + i * 0.02) for i in range(80)]
+            y_top = min(under, key=lambda q: abs(q[0] - 1.12))[1] + 0.05
+        m.tube("jj_mount", "torso", (1.12, y_top + 0.12, z), (1.12, y_top - 0.18, z), 0.5, 0.46, n=16, tone=METAL, mirror=True)
+        m.tube("jj", "torso", (1.12, y_top - 0.18, z), (1.12, y_top - 0.62, z), 0.36, 0.6, n=20, tone=0.45, mirror=True,
+               role="jumpjet:LT" if k == 0 else None)
+        m.tube("jj_throat", "torso", (1.12, y_top - 0.62, z), (1.12, y_top - 0.64, z), 0.48, n=20, tone=DARK, mirror=True)
     # SPLAY (Daniel: "the legs are splayed out slightly"): the leg turns about the hip by LEG_SPLAY degrees, foot outward; the foot
     # follows the ankle but stays flat on the ground
     a = math.radians(LEG_SPLAY)
@@ -271,12 +344,13 @@ def catapult():
             p["rot"] = [0, 0, LEG_SPLAY]
     # the PIVOTS, for animation: centre and axis of every joint (the left side; mirror x for the right)
     pivots = {"torso_tilt": {"centre": list(hinge), "axis": "x", "parent": "waist", "child": "torso"},
-              "waist_turn": {"centre": list(base), "axis": [0, top[1] - base[1], top[2] - base[2]], "parent": "pelvis", "child": "waist"},
+              "waist_turn": {"centre": rnd(base), "axis": rnd([0, top[1] - base[1], top[2] - base[2]]), "parent": "pelvis", "child": "waist"},
               "hip_L": {"centre": list(hip), "axis": "x", "parent": "pelvis", "child": "thigh"},
               "knee_L": {"centre": rnd(splay(knee)), "axis": "x", "parent": "thigh", "child": "shin"},
               "ankle_L": {"centre": rnd(splay(ankle)), "axis": "x", "parent": "shin", "child": "foot"},
               "shoulder_L": {"centre": [1.8, 9.3, -0.85], "axis": "x", "parent": "torso", "child": "launcher arm"}}
     return {"unit": "Catapult", "model": "CPLT-C1", "mass": 65, "detail": "hd", "stance": "a_stance", "pivots": pivots,
+            "centre_of_mass": centre_of_mass(m.parts),
             "scale": "ground to the body's top = 10; +x is the 'Mech's left",
             "source": "AI five-view sheet, reference_art/ai_sheets/Catapult CPLT-C1/batch2_1.webp (measured on a grid; tools/lowpoly_hd.py)",
             "simplified_to": "reference_art/models/Catapult CPLT-C1.json",
@@ -303,23 +377,40 @@ def main():
         sheet(model, os.path.join(L.SHEETS, unit + " HD.png"))
 
 
+FIVE_VIEWS = [("FRONT", lambda q: (-q[0], q[1], q[2])), ("REAR", lambda q: (q[0], q[1], -q[2])),
+              ("LEFT SIDE", lambda q: (-q[2], q[1], q[0])), ("RIGHT SIDE", lambda q: (q[2], q[1], -q[0])),
+              ("TOP-DOWN", lambda q: (q[0], -q[2], q[1]))]
+
+
 def sheet(model, path):
-    """Front, side, top and two 3/4 views with the depth-buffer renderer (lowpoly_blocks.render: lowpoly_ref's face sort mis-orders
-    the many overlapping parts of an HD model)."""
+    """The FIVE-VIEW format (Daniel, 2026-11-18: "use 5 fold format for display"), as the AI turnaround sheets: front, rear, left
+    side, right side, top-down (forward down), on one scale, then the underside and a 3/4 view. Depth-buffer renderer
+    (lowpoly_blocks.render)."""
     import lowpoly_blocks as B
     from PIL import Image, ImageDraw
     sol = L.expand_parts(model)
-    views = [("FRONT", lambda q: (-q[0], q[1], q[2])), ("LEFT SIDE", lambda q: (-q[2], q[1], q[0])),
-             ("TOP (forward down)", lambda q: (q[0], -q[2], q[1])), ("3/4 FRONT", B.camera(-35, 12)), ("3/4 REAR", B.camera(145, 15))]
+    views = FIVE_VIEWS + [("UNDERSIDE (forward up)", lambda q: (q[0], q[2], -q[1])), ("3/4 FRONT", B.camera(-35, 12))]
     H = 520
-    out = Image.new("RGB", (H * len(views), H + 40), "white")
+    fit = [s_ for s_ in sol]
+    out = Image.new("RGB", (H * len(views), H + 44), "white")
     d = ImageDraw.Draw(out)
-    d.text((10, 6), "%s %s HD | %d triangles" % (model["unit"].upper(), model["model"], sum(x["tris"] for x in sol)), fill="black")
+    d.text((10, 6), "%s %s HD | %d triangles | five-view format, one scale" % (model["unit"].upper(), model["model"],
+                                                                                 sum(x["tris"] for x in sol)), fill="black")
     for i, (name, f) in enumerate(views):
-        out.paste(B.render(sol, f, (H, H)), (i * H, 40))
-        d.text((i * H + 8, 24), name, fill="black")
+        scale_ref = fit if i >= 5 else _box_solid(sol)
+        out.paste(B.render(sol, f, (H, H), fit_solids=scale_ref), (i * H, 44))
+        d.text((i * H + 8, 26), name, fill="black")
     out.save(path)
 
+
+def _box_solid(sol):
+    """A cube round the whole model: framing every five-view panel on it keeps one scale in all five."""
+    pts = [v for s_ in sol for v in s_["verts"]]
+    lo = [min(p[i] for p in pts) for i in range(3)]
+    hi = [max(p[i] for p in pts) for i in range(3)]
+    c = [(lo[i] + hi[i]) / 2 for i in range(3)]
+    h = max(hi[i] - lo[i] for i in range(3)) / 2
+    return [{"verts": [(c[0] + a * h, c[1] + b * h, c[2] + e * h) for a in (-1, 1) for b in (-1, 1) for e in (-1, 1)], "faces": []}]
 
 if __name__ == "__main__":
     main()
