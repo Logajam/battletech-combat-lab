@@ -149,6 +149,51 @@ def centre_of_mass(parts):
     return [round(x / tv, 3) for x in tc]
 
 
+def joint_cover(m, name, asm, centre, x0, r, sides=6, roll=0.0, thick=0.11, ky=1.0, kz=1.0, tone=None, mirror=True):
+    """An ARMOUR COVER over a joint's outer face (Daniel, 2026-11-18: "All the circular joints start to look the same from the side.
+    Might be worth putting artistic covers over some of them"): a chamfered plate, `sides`-sided (6 a hexagon, 5 a guard with a
+    point), stretched by ky / kz, standing on the joint's outer end at x0 (+x outward; mirrored for the right). It turns with the
+    joint's child, as a knee guard does."""
+    pts = []
+    for k in range(sides):
+        th = math.radians(roll) + 2 * math.pi * k / sides
+        for x, rr in ((x0 - 0.01, r), (x0 + thick, r * 0.78)):
+            pts.append((x, centre[1] + rr * math.sin(th) * ky, centre[2] + rr * math.cos(th) * kz))
+    m.hull(name, asm, pts, tone=PLATE if tone is None else tone, mirror=mirror)
+    m.tube(name + "_boss", asm, (x0 + thick - 0.01, centre[1], centre[2]), (x0 + thick + 0.04, centre[1], centre[2]), r * 0.3, n=sides * 2,
+           tone=0.7, mirror=mirror)
+
+
+def conformal_panel(m, secs, z0, z1, t0, t1, asm, grow=0.05, tone=None, mirror=True):
+    """A raised armour PANEL on a body's own surface (between sections z0 > z1 and angles t0 < t1), standing `grow` proud: the
+    paneling that keeps a large surface from reading as one flat sheet (Daniel, 2026-11-18)."""
+    pts = []
+    for z in (z0, (z0 + z1) / 2, z1):
+        for t in (t0, (t0 + t1) / 2, t1):
+            pts.append(surface_point(secs, z, t, grow))
+            pts.append(surface_point(secs, z, t, -0.02))
+    m.hull("panel", asm, pts, tone=PLATE if tone is None else tone, mirror=mirror)
+
+
+def bay_grid(m, asm, centre, w, h, rows, cols, role=None, depth=0.3, proud=0.15, name="bay", tone=None, mirror=False):
+    """A WEAPON BAY sized to its MOUNT (Daniel, 2026-11-18: "This would involve changing the size of weapon blocks to make them
+    fit"): a plate w x h set into a flat front face (its middle at `centre`, on the face; it stands `proud` out), with rows x cols
+    tubes flush in its face, as big as the plate allows; the line-of-fire hole starts just in front of it."""
+    cx, cy, zf = centre
+    zc = zf + proud - depth / 2
+    m.hull(name, asm, bevel_box((cx, cy, zc), (w, h, depth), min(0.08, w * 0.12, h * 0.12)), tone=PLATE if tone is None else tone,
+           role=role, mirror=mirror,
+           **({"fire": {"from": [cx, cy, zf + proud + 0.04], "dir": [0, 0, 1], "r": round(min(w, h) / 2 * 0.95, 3)}} if role else {}))
+    d = min(w / cols, h / rows) * 0.78
+    front = zf + proud
+    for c in range(cols):
+        for r_ in range(rows):
+            x = cx + (c - (cols - 1) / 2) * (w * 0.86 / cols)
+            y = cy + ((rows - 1) / 2 - r_) * (h * 0.86 / rows)
+            m.tube(name + "_tube", asm, (x, y, front - 0.12), (x, y, front), d, n=12, tone=0.7, mirror=mirror)
+            m.tube(name + "_bore", asm, (x, y, front), (x, y, front + 0.015), d * 0.63, n=12, tone=0.1, mirror=mirror)
+
+
 def catapult():
     m = Model()
     # ---------------------------------------------------------------- the body: a rounded teardrop (side heights, top widths)
@@ -159,6 +204,26 @@ def catapult():
             (-2.10, 9.90, 7.95, 1.02, 1.36, 0.98), (-2.35, 9.70, 8.15, 0.85, 1.15, 0.80)]
     for (z0, t0, b0, a0, m0, c0), (z1, t1, b1, a1, m1, c1) in zip(secs, secs[1:]):     # one convex slice between two sections
         m.hull("body", "torso", rounded_section(z0, t0, b0, a0, m0, c0) + rounded_section(z1, t1, b1, a1, m1, c1), tone=0.9)
+    # THE BACK (Daniel, 2026-11-18: "the back of the catapult is completely flat. It should have at least some shape, paneling, and
+    # greebling. There should almost never be a large flat space on a mech"): the body no longer ends in a flat disc but in a
+    # tapering TAIL, a heat-exhaust grille on its end; raised armour panels on the rear flanks; a vent block under the tail
+    zt, yt, yb_, wt, wm, wb = secs[-1]
+    cyt = (yt + yb_) / 2
+    tail = [(zt, 1.0), (zt - 0.22, 0.84), (zt - 0.36, 0.6)]
+    ring = lambda z, k: rounded_section(z, cyt + (yt - cyt) * k, cyt - (cyt - yb_) * k, wt * k, wm * k, wb * k)
+    for (za, ka), (zb, kb) in zip(tail, tail[1:]):
+        m.hull("tail", "torso", ring(za, ka) + ring(zb, kb), tone=0.86)
+    zend = tail[-1][0]
+    m.hull("exhaust_plate", "torso", bevel_box((0, cyt, zend - 0.02), (1.1, 0.72, 0.06), 0.03), tone=0.6)
+    for k in range(5):
+        m.box("exhaust_slat", "torso", (0, cyt - 0.26 + k * 0.13, zend - 0.07), (0.96, 0.05, 0.06), tone=DARK)
+    for (za, zb), (ta, tb) in (((-1.25, -2.25), (0.25, 0.75)), ((-1.25, -2.25), (0.85, 1.3)), ((-0.2, -1.1), (-0.55, -0.1))):
+        conformal_panel(m, secs, za, zb, ta, tb, "torso")
+    for k in range(3):                               # panel seams across the rear flank
+        m.box("rear_seam", "torso", (0.0, 9.86, -1.4 - k * 0.35), (0.3, 0.02, 0.03), tone=DARK)
+    m.hull("tail_vent", "torso", bevel_box((0, 7.78, -1.9), (0.9, 0.18, 0.7), 0.05), tone=0.62)
+    for k in range(4):
+        m.box("tail_vent_slat", "torso", (0, 7.68, -1.65 - k * 0.17), (0.8, 0.04, 0.05), tone=DARK)
     # panel seams round the body (thin dark rings, slightly proud)
     for z0, t0, b0, a0, m0, c0 in secs[3:-1:2]:
         ring = rounded_section(z0, t0 + 0.02, b0 - 0.02, a0 + 0.02, m0 + 0.02, c0 + 0.02)
@@ -215,6 +280,12 @@ def catapult():
     for k in range(4):                               # ribs down the launcher's sides and a hatch on top (the side and top views)
         m.box("rib", "arm_L", (2.33, 9.85, -0.4 - k * 0.55), (0.04, 2.3, 0.08), tone=TRIM, mirror=True)
     m.box("rack_hatch", "arm_L", (1.6, 11.21, -1.25), (1.0, 0.03, 1.6), tone=0.8, mirror=True)
+    # the launcher's BACK (it was one flat face): a raised reload panel with a hatch, ribs across it, a handle
+    m.hull("rack_back", "arm_L", bevel_box((1.6, 9.85, -2.56), (1.16, 2.1, 0.08), 0.04), tone=PLATE, mirror=True)
+    for y in (9.15, 9.85, 10.55):
+        m.box("rack_back_rib", "arm_L", (1.6, y, -2.62), (1.0, 0.08, 0.06), tone=TRIM, mirror=True)
+    m.box("reload_hatch", "arm_L", (1.6, 10.2, -2.615), (0.62, 0.42, 0.03), tone=0.55, mirror=True)
+    m.add("bar", "rack_handle", "arm_L", a=(1.35, 9.5, -2.62), b=(1.85, 9.5, -2.62), w0=[0.06, 0.1], w1=[0.06, 0.1], tone=DARK, mirror=True)
     # ---------------------------------------------------------------- the lower torso: waist, side discs, hip block and hip discs
     # the TORSO TILT HINGE (Daniel: "That round section was the hinge that allowed the torso to tilt up and down"): a drum across
     # the body's underside, axis x, at the round section of the side view (y 7.45, z 0.55); a hub ring at each end
@@ -239,6 +310,8 @@ def catapult():
     m.hull("pelvis", "pelvis", bevel_box((0.0, 5.8, 0.0), (1.67, 1.5, 2.15), 0.3), tone=0.74)
     for k in range(3):
         m.box("pelvis_vent", "pelvis", (0.0, 5.45 + k * 0.15, 1.06), (1.0, 0.06, 0.1), tone=DARK)
+        m.box("pelvis_vent_back", "pelvis", (0.0, 5.45 + k * 0.15, -1.06), (1.0, 0.06, 0.1), tone=DARK)
+    m.hull("pelvis_back_plate", "pelvis", bevel_box((0.0, 6.12, -1.07), (1.2, 0.4, 0.06), 0.03), tone=PLATE)
     m.tube("hip_disc", "pelvis", (0.75, 5.72, 0.0), (1.02, 5.72, 0.0), 1.45, n=28, tone=JOINT, mirror=True)
     m.tube("hip_ring", "pelvis", (1.02, 5.72, 0.0), (1.08, 5.72, 0.0), 1.45, 1.2, n=28, tone=TRIM, mirror=True)
     # ---------------------------------------------------------------- the legs: reverse knee (side view), x 1.52
@@ -250,6 +323,7 @@ def catapult():
     m.tube("thigh_cap", "leg_L", (1.06, hip[1], hip[2]), (2.02, hip[1], hip[2]), 1.4, n=28, tone=JOINT, mirror=True)
     m.tube("thigh_cap_ring", "leg_L", (2.02, hip[1], hip[2]), (2.1, hip[1], hip[2]), 1.4, 1.05, n=28, tone=TRIM, mirror=True)
     m.tube("thigh_cap_hub", "leg_L", (2.1, hip[1], hip[2]), (2.16, hip[1], hip[2]), 0.5, n=20, tone=DARK, mirror=True)
+    joint_cover(m, "hip_cover", "leg_L", hip, 2.16, 0.8, sides=6, roll=30)        # covers vary the run of round joints
 
     def limb(name, a, b, w0, d0, w1, d1, steps=4):
         """A rounded limb between a and b: slices of rounded sections (width w, depth d) turned along a->b (y-z plane)."""
@@ -273,6 +347,7 @@ def catapult():
     limb("thigh", hip, knee, 1.1, 1.55, 0.95, 1.15)
     m.tube("knee_cap", "leg_L", (0.95, knee[1], knee[2] - 0.05), (2.1, knee[1], knee[2] - 0.05), 1.05, n=24, tone=JOINT, mirror=True)
     m.tube("knee_hub", "leg_L", (2.1, knee[1], knee[2] - 0.05), (2.16, knee[1], knee[2] - 0.05), 0.45, n=16, tone=DARK, mirror=True)
+    joint_cover(m, "knee_cover", "leg_L", (knee[0], knee[1], knee[2] - 0.05), 2.16, 0.62, sides=5, roll=180, kz=1.15)
     limb("shin", knee, ankle, 0.92, 1.0, 0.78, 0.82, steps=5)
     # armour plate down the shin's front and a vent hatch on its side
     m.add("bar", "shin_plate", "leg_L", a=(1.52, 3.6, -0.85), b=(1.52, 1.3, 0.75), w0=[0.7, 0.18], w1=[0.6, 0.16], tone=PLATE, mirror=True)
@@ -364,6 +439,8 @@ def catapult():
               "shoulder_L": {"centre": [1.8, 9.3, -0.85], "axis": "x", "parent": "torso", "child": "launcher arm"}}
     return {"unit": "Catapult", "model": "CPLT-C1", "mass": 65, "detail": "hd", "stance": "a_stance", "pivots": pivots,
             "centre_of_mass": centre_of_mass(m.parts), "mounts": [reserved_bay],
+            "poses": {"dynamic": {"torso_tilt": -10, "waist_turn": -12, "hip_L": -24, "knee_L": 18, "ankle_L": 6,
+                                  "hip_R": 18, "knee_R": -8, "ankle_R": -10, "shoulder_L": -22, "shoulder_R": -8}},
             "scale": "ground to the body's top = 10; +x is the 'Mech's left",
             "source": "AI five-view sheet, reference_art/ai_sheets/Catapult CPLT-C1/batch2_1.webp (measured on a grid; tools/lowpoly_hd.py)",
             "simplified_to": "reference_art/models/Catapult CPLT-C1.json",
@@ -473,15 +550,20 @@ def commando():
     for (y0, w0, f0, b0), (y1, w1, f1, b1) in zip(lv, lv[1:]):
         m.hull("chest", "torso", bevel_ring(y0, w0, f0, b0, 0.24) + bevel_ring(y1, w1, f1, b1, 0.24), tone=0.88)
     m.box("chest_seam", "torso", (0, 7.2, 0), (2.38, 0.05, 1.94), tone=DARK)
-    # the SRM 6 (record sheet: centre torso): a six-tube bay high on the chest, left of the head (the TRO: 3 across, 2 down);
-    # the tubes are flush in the bay face, so the line of fire starts clear of them
-    m.hull("srm6_bay", "torso", bevel_box((0.45, 7.85, 1.0), (1.2, 0.85, 0.3), 0.08), tone=PLATE, role="weapon:CT:SRM 6",
-           fire={"from": [0.45, 7.85, 1.19], "dir": [0, 0, 1], "r": 0.45})
-    for col in range(3):
-        for row in range(2):
-            x, y = 0.45 + (col - 1) * 0.36, 7.85 + (0.5 - row) * 0.38
-            m.tube("srm6_tube", "torso", (x, y, 1.03), (x, y, 1.15), 0.3, n=12, tone=0.7)
-            m.tube("srm6_bore", "torso", (x, y, 1.15), (x, y, 1.165), 0.19, n=12, tone=0.1)
+    # the SRM 6 (record sheet: centre torso) in the UPPER BELLY, the centre torso's weapon place (Daniel, 2026-11-18: "Use the upper
+    # belly for the CT weapon mounts"; it was high on the chest, left of the head, as the TRO), sized to that mount: 3 x 2 tubes
+    bay_grid(m, "torso", (0.0, 7.72, 1.0), 0.95, 0.6, 2, 3, role="weapon:CT:SRM 6", name="srm6_bay")
+    # HIDDEN WEAPON MOUNTS (Daniel: "torso weapons would be placed flat on the torso sections much as the srm 6 is. A theoretical
+    # arrangement could be a quad in the upper chest, middle chest, and lower belly. 4 small weapons grouped together in one mount";
+    # "hidden. No hatches"): nothing is drawn; the model's `mounts` list them for an edited Commando. Each side torso: three quads
+    # (3 x 4 = its 12 weapon slots), on the chest's flat front, the lower ones small enough to clear the round belly
+    hidden = []
+    for side, sx in (("LT", 1), ("RT", -1)):
+        for level, (x, y, size) in (("upper_chest", (0.77, 8.2, 0.44)), ("middle_chest", (0.77, 7.5, 0.44)), ("lower_belly", (0.86, 5.88, 0.22))):
+            hidden.append({"id": "%s.quad_%s" % (side, level), "kind": "weapon_quad", "location": side, "slots": 4, "hidden": True,
+                           "pos": [round(sx * x, 3), y, 1.0 if y > 6.4 else 0.82], "facing": "+z", "envelope": [size, size, 0.3]})
+    hidden.append({"id": "CT.upper_belly", "kind": "weapon_bay", "location": "CT", "slots": 2, "hidden": False, "holds": "SRM 6",
+                   "pos": [0.0, 7.72, 1.0], "facing": "+z", "envelope": [0.95, 0.6, 0.3]})
     # the ROUND BELLY: kept for recognition, a RESERVED BAY (Daniel, 2026-11-18: it reads as a torso pivot, "not worth making it an
     # actual pivot point"; principle 24). Not a plate laid on the chest (the first build): the belly itself bulges out, faceted, and
     # BEVELS into the rest of the torso (Daniel: "its not a separate plate, its the belly that bevels into the rest of the lower
@@ -526,6 +608,7 @@ def commando():
     leg_from = len(m.parts)
     m.tube("thigh_cap", "leg_L", (0.22, hip[1], 0), (1.3, hip[1], 0), 0.86, n=24, tone=JOINT, mirror=True)     # turns in the hip block
     m.tube("thigh_hub", "leg_L", (1.3, hip[1], 0), (1.36, hip[1], 0), 0.48, n=16, tone=DARK, mirror=True)
+    joint_cover(m, "hip_cover", "leg_L", hip, 1.36, 0.5, sides=6, roll=30, kz=1.1)
     # the thigh's top is cut on a SLANT that follows the briefs' side, a small gap below it (the sheet: the leg openings), high on
     # the outside, low at the crotch. Written where the leg ends up (x + LEG_OUT) and moved back, as the leg moves out below.
     slope = (5.46 - 4.6) / (1.34 - 0.42)
@@ -537,6 +620,7 @@ def commando():
     m.tube("knee_cap", "leg_L", (0.26, knee[1], knee[2]), (1.18, knee[1], knee[2]), 0.85, n=24, tone=JOINT, mirror=True)
     m.tube("knee_disc", "leg_L", (1.18, knee[1], knee[2]), (1.26, knee[1], knee[2]), 1.0, 0.86, n=24, tone=TRIM, mirror=True)
     m.tube("knee_hub", "leg_L", (1.26, knee[1], knee[2]), (1.3, knee[1], knee[2]), 0.36, n=16, tone=DARK, mirror=True)
+    joint_cover(m, "knee_cover", "leg_L", knee, 1.3, 0.56, sides=5, roll=180, ky=1.15)          # a guard, its point down
     m.add("bar", "knee_pad", "leg_L", a=(0.72, 3.6, 0.52), b=(0.72, 2.8, 0.64), w0=[0.82, 0.22], w1=[0.68, 0.2], tone=0.86, mirror=True)
     limb(m, "shin", "leg_L", knee, ankle, 0.86, 0.95, 0.8, 0.85, steps=4, tone=0.72, mirror=True)
     m.hull("calf", "leg_L", [(0.72 + sx * 0.32, y, z) for sx in (-1, 1) for y, z in ((2.65, -0.28), (1.55, -0.38), (2.3, -0.6), (1.7, -0.58))],
@@ -685,14 +769,16 @@ def commando():
                    "knee_L": {"centre": rnd(splay(knee)), "axis": "x", "parent": "thigh", "child": "shin"},
                    "ankle_L": {"centre": rnd(splay(ankle)), "axis": "x", "parent": "shin", "child": "foot"}})
     return {"unit": "Commando", "model": "COM-2D", "mass": 25, "detail": "hd", "stance": "ready", "pivots": pivots,
-            "centre_of_mass": centre_of_mass(m.parts), "mounts": [reserved_bay],
+            "centre_of_mass": centre_of_mass(m.parts), "mounts": [reserved_bay] + hidden,
+            "poses": {"dynamic": {"hip_L": -22, "knee_L": 30, "ankle_L": -8, "hip_R": 16, "knee_R": 14, "ankle_R": -30,
+                                  "waist_turn": 12, "neck": -10, "shoulder_R": -14, "shoulder_L": 8, "elbow_L": -12}},
             "scale": "ground to the dome's top = 10; +x is the 'Mech's left",
             "source": "AI five-view sheet, reference_art/ai_sheets/Commando COM-2D/gemini_1.webp (front and side measured on a grid and "
                       "with tools/lowpoly_measure.py); weapons and arms from the TRO drawing (reference_art/originals/01 Commando COM-2D.jpg)",
             "simplified_to": "reference_art/models/Commando COM-2D.json",
             "art_vs_unit_file": [
                 "SRM 4 (right arm): a pod on top of the forearm above the fist (Daniel, from the TRO); the sheet draws no pod.",
-                "SRM 6 (centre torso): the TRO's six-tube grid high on the chest, left of the head; the sheet draws none.",
+                "SRM 6 (centre torso): in the upper belly, the centre torso's mount (Daniel); the TRO draws it high on the chest.",
                 "Round chest plate: kept for recognition as a reserved bay (Daniel), not a pivot.",
                 "Arms in a ready pose (forearms level, pointing ahead) so both arm weapons fire forward; the sheet's front view hangs them.",
                 "Antenna on the right shoulder pad (the sheet's place; Daniel likes it). The sheet's top view (feet drawn backwards, Daniel) was not used.",
@@ -752,6 +838,97 @@ def sheet(model, path):
     out.save(path)
 
 
+TORSO_FIXED = ("shoulder_pad", "pad_trim", "mast_base", "mast")      # arm-assembly parts that belong to the torso (they do not swing)
+
+
+def _rotate(p, c, axis, deg):
+    """p turned deg degrees about the axis (a unit-ish vector, or "x" / "y" / "z") through c (Rodrigues)."""
+    a = {"x": (1, 0, 0), "y": (0, 1, 0), "z": (0, 0, 1)}.get(axis, axis) if isinstance(axis, str) else axis
+    n = math.sqrt(sum(v * v for v in a))
+    k = [v / n for v in a]
+    v = [p[i] - c[i] for i in range(3)]
+    t = math.radians(deg)
+    ct, st = math.cos(t), math.sin(t)
+    kv = sum(k[i] * v[i] for i in range(3))
+    cr = (k[1] * v[2] - k[2] * v[1], k[2] * v[0] - k[0] * v[2], k[0] * v[1] - k[1] * v[0])
+    return tuple(c[i] + v[i] * ct + cr[i] * st + k[i] * kv * (1 - ct) for i in range(3))
+
+
+def _pivot(model, name):
+    """A pivot by name; a right-hand one (…_R) not recorded is the left one mirrored."""
+    pv = model.get("pivots", {})
+    if name in pv:
+        return pv[name]
+    if name.endswith("_R") and name[:-2] + "_L" in pv:
+        q = pv[name[:-2] + "_L"]
+        return dict(q, centre=[-q["centre"][0], q["centre"][1], q["centre"][2]])
+    return None
+
+
+def _chain(model, sol):
+    """The pivots that move this solid, the nearest first (forward kinematics: the leaf's turn, then its parents')."""
+    import re
+    name = re.sub(r"_\d+.*$", "", sol["id"])
+    asm, c = sol["assembly"], sol["centroid"]
+    torso = [n for n in ("torso_tilt", "waist_turn") if _pivot(model, n)]
+    if asm in ("leg_L", "leg_R"):
+        sd = asm[-1]
+        knee, ankle = _pivot(model, "knee_" + sd), _pivot(model, "ankle_" + sd)
+        if c[1] < ankle["centre"][1] - 0.2:
+            return ["ankle_" + sd, "knee_" + sd, "hip_" + sd]
+        return ["hip_" + sd] if c[1] >= knee["centre"][1] - 0.05 else ["knee_" + sd, "hip_" + sd]
+    if asm in ("arm_L", "arm_R"):
+        sd = asm[-1]
+        if name in TORSO_FIXED:
+            return torso
+        el, wr, sh = _pivot(model, "elbow_" + sd), _pivot(model, "wrist_" + sd), _pivot(model, "shoulder_" + sd)
+        if not el:
+            return ["shoulder_" + sd] + torso
+        e, w_, s_ = el["centre"], wr["centre"], sh["centre"]
+
+        def dist(a, b):
+            ab = [b[i] - a[i] for i in range(3)]
+            t = sum((c[i] - a[i]) * ab[i] for i in range(3)) / max(1e-9, sum(x * x for x in ab))
+            q = [a[i] + ab[i] * min(1.0, max(0.0, t)) for i in range(3)]
+            return math.dist(c, q), t
+        du, _ = dist(s_, e)
+        df, tf = dist(e, w_)
+        if tf > 1.0 and name not in ("srm4_pod", "srm4_tube", "srm4_bore", "pod_strap", "laser_barrel", "laser_bore"):
+            return ["wrist_" + sd, "elbow_" + sd, "shoulder_" + sd] + torso
+        return (["shoulder_" + sd] if du < df else ["elbow_" + sd, "shoulder_" + sd]) + torso
+    if asm == "head":
+        return (["neck"] if _pivot(model, "neck") else []) + torso
+    if asm == "torso":
+        return torso
+    if asm == "pelvis" and name in ("waist_tower", "waist_pyramid"):
+        return ["waist_turn"]
+    return []
+
+
+def posed_solids(model, pose):
+    """The model's solids in a POSE (pivot name -> degrees; a missing pivot stays at 0), set back on the ground. Display only: the
+    checks run on the model as built."""
+    sol = L.expand_parts(model)
+    out = []
+    for s_ in sol:
+        vs = s_["verts"]
+        for pn in _chain(model, s_):
+            ang = pose.get(pn, 0.0)
+            pv = _pivot(model, pn)
+            if ang and pv:
+                vs = [_rotate(v, pv["centre"], pv["axis"], ang) for v in vs]
+        out.append(dict(s_, verts=vs))
+    low = min(v[1] for s_ in out for v in s_["verts"])
+    res = []
+    for s_ in out:
+        vs = [(v[0], v[1] - low, v[2]) for v in s_["verts"]]
+        # the centroid moves with the solid (the renderer uses it to tell a face's outside from its inside: left behind, the turned
+        # parts drew inside-out - the Catapult's launcher tubes scattered, the Commando's forearm blank)
+        cen = tuple(sum(v[i] for v in vs) / len(vs) for i in range(3))
+        res.append(dict(s_, verts=vs, centroid=cen))
+    return res
+
+
 def turnaround(model, path, H=720):
     """A presentation five-view, laid out as the AI turnaround sheets (Daniel, 2026-11-18: "a good 5 fold view"): the top-down view
     above, then front, rear, left side and right side in a row, ALL ON ONE SCALE (each panel is framed on the same cube round the
@@ -772,6 +949,11 @@ def turnaround(model, path, H=720):
     top = trim(B.render(sol, views["TOP-DOWN"], (H, H), fit_solids=cube), rows=True)
     q34 = [(n, trim(B.render(sol, f, (H // 2 + 120, H // 2 + 120)), rows=True)) for n, f in
            (("3/4 FRONT", B.camera(-35, 12)), ("3/4 REAR", B.camera(-145, 12)))]
+    # a DYNAMIC POSE (Daniel, 2026-11-18: "5 views, 3/4 views, Think we need at least one Dynamic pose view too"): the model turned
+    # about its own pivots (`poses` in the model), so the view also shows whether the joints really work
+    if model.get("poses", {}).get("dynamic"):
+        q34.append(("DYNAMIC POSE", trim(B.render(posed_solids(model, model["poses"]["dynamic"]), B.camera(-30, 14),
+                                                  (H // 2 + 120, H // 2 + 120)), rows=True)))
     gap, head = 30, 64
     w2 = sum(im.width for _, im in row2) + gap * (len(row2) + 1)
     h1 = max(top.height, max(im.height for _, im in q34)) + 30

@@ -6,6 +6,14 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), HD MODELS: JOINT COVERS, THE CATAPULT'S BACK, THE COMMANDO'S HIDDEN WEAPON MOUNTS, A DYNAMIC
+  POSE. Art only. REVIEW PENDING (higher-level model).** Daniel's notes on the turnarounds. `lowpoly_hd.py`: `joint_cover` (armour
+  plates over the hip and knee joints of both models, a hexagon and a pointed guard), `conformal_panel`, `bay_grid` (a weapon bay
+  sized to its mount). The Catapult's body ends in a tapering tail with an exhaust grille; rear panels, launcher backs (ribs, reload
+  hatch, handle), a vent block under the tail, pelvis vents behind. The Commando's SRM 6 moves to the upper belly (the centre
+  torso's mount, Daniel), and six HIDDEN quad mounts (upper chest, middle chest, lower belly, each side) fill its side torsos' 12
+  slots each. Posing: `posed_solids` turns a model about its own pivots (forward kinematics from the pivots table; parts assigned to
+  limbs by assembly and position); each model carries a "dynamic" pose, and the turnaround shows it. Principles 33-36.
 - **2026-11-18 (Claude, session 28), TURNAROUND SHEETS; HD REVIEW OF THE CATAPULT AND THE COMMANDO (T15c item B begun). Art only.
   REVIEW PENDING (higher-level model).** `lowpoly_hd.turnaround` writes `reference_art/sheets/<unit> HD turnaround.png` (Daniel: "a
   good 5 fold view"): top-down and two 3/4 views above, front, rear and both sides below, the five main views on one scale.
