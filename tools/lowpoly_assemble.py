@@ -303,16 +303,28 @@ class Mech:
 
 
 def settle(upper, lower, at, overlap=0.03):
-    """A block stacked on a socket SITS on the block below: measured on the vertical through the socket, its underside is moved
-    to the lower block's top surface (less a small overlap), up or down. Sockets that sit a little off a block's real surface
-    (one did: the skirt pelvis) can then never leave a gap or a deep overlap."""
-    top = raycast([lower], (at[0], at[1] + 50.0, at[2]), (0, -1, 0))
-    under = raycast([upper], (at[0], at[1] - 50.0, at[2]), (0, 1, 0))
-    if top is None or under is None:
+    """A block stacked on a socket SITS on the block below: vertical probes across the lower block's footprint (not only through
+    the socket: a ring - the turret-ring waist, the neck collar - is hollow in the middle, and a round chest or head settled into
+    the hole touched nothing, 2026-11-18, found by the no-floating-bits check) measure, at each probe, the lower block's top and
+    the upper block's underside; the upper block moves (up or down) so they meet where they come closest, less a small overlap."""
+    ll, lh = bounds([lower])
+    rx, rz = (lh[0] - ll[0]) / 2, (lh[2] - ll[2]) / 2
+    best = None
+    for fr in (0.0, 0.35, 0.6, 0.8):
+        for k in range(8 if fr else 1):
+            a = 2 * math.pi * k / 8
+            x, z = at[0] + fr * rx * math.cos(a), at[2] + fr * rz * math.sin(a)
+            top = raycast([lower], (x, lh[1] + 50.0, z), (0, -1, 0))
+            under = raycast([upper], (x, ll[1] - 50.0, z), (0, 1, 0))
+            if top is None or under is None:
+                continue
+            dy = top[0][1] - under[0][1]
+            if best is None or dy > best:
+                best = dy
+    if best is None:
         return
-    dy = top[0][1] - under[0][1] - overlap
-    upper.place(next(iter(upper.anchors)), add(upper.anchors[next(iter(upper.anchors))], (0.0, dy, 0.0)))
-
+    k0 = next(iter(upper.anchors))
+    upper.place(k0, add(upper.anchors[k0], (0.0, best - overlap, 0.0)))
 
 def inline_gun(m, weapons, host, j1, j2, sx, mirror, lib):
     """The arm's weapons IN LINE with the limb (Daniel, 2026-11-18): a barrel (two for two or more weapons) lying along the limb
@@ -340,7 +352,7 @@ def inline_gun(m, weapons, host, j1, j2, sx, mirror, lib):
         m.errors.append("inline weapon: no limb face at the root")
         return
     d = params["diameter"] * sc * (1.6 if big else 1.0)
-    root = (start[0], start[1], hit[0][2] + d * 0.55)
+    root = (start[0], start[1], hit[0][2] + d * 0.42)     # sunk a little into the limb (0.55 left a gap: it floated)
     pc = Piece(blk, m.lod, m.lib, sc, mirror, params, "arm_gun")
     pc.place("mount", root, rot_align((0.0, 0.0, 1.0), axis))
     m.pieces.append(pc)
@@ -490,7 +502,9 @@ def build(choice, lod, lib, mass=50, jump=0):
         if choice.get("neck_collar") and not lozenge:
             col = m.seat(choice["neck_collar"], "neck_collar", "base", host, aim, (0, -1, 0))
             if col is not None:
-                m.make(hd, "head").place("neck", col.anchors["top"])
+                h_ = m.make(hd, "head")
+                h_.place("neck", col.anchors["top"])
+                settle(h_, col, col.anchors["top"])
         elif hd == "head/fighter_canopy":
             m.seat(hd, "head", "seat", host, aim, (0, -1, 0), axis=(0, 1, 0))
         else:
@@ -621,38 +635,18 @@ def build(choice, lod, lib, mass=50, jump=0):
 
 # ---------------------------------------------------------------- the checks
 def check_mech(m):
-    """Problems with one built 'Mech: seat misses, more than one connected piece, not standing on the ground."""
+    """Problems with one built 'Mech: seat misses, floating parts, not standing on the ground. The floating-parts test uses the real
+    convex solids (lowpoly_ref.floating_parts), not their boxes (2026-11-18: a box test let a part float beside the body); a
+    block's own solids count as one part."""
     errs = list(m.errors)
-    solids = [s for pc in m.pieces for s in pc.solids]
-    boxes = []
-    for s in solids:
-        vs = s["verts"]
-        boxes.append(([min(v[i] for v in vs) - CONTACT_EPS for i in range(3)], [max(v[i] for v in vs) + CONTACT_EPS for i in range(3)]))
-    owner = []
-    for pc in m.pieces:
-        owner += [pc] * len(pc.solids)
-    parent = list(range(len(solids)))
-
-    def find(i):
-        while parent[i] != i:
-            parent[i] = parent[parent[i]]
-            i = parent[i]
-        return i
-    for i in range(len(solids)):                       # the solids of one block belong together (a block is one part)
-        if i and owner[i] is owner[i - 1]:
-            parent[find(i)] = find(i - 1)
-    for i in range(len(solids)):
-        for j in range(i + 1, len(solids)):
-            (a0, a1), (b0, b1) = boxes[i], boxes[j]
-            if all(a0[k] <= b1[k] and b0[k] <= a1[k] for k in range(3)):
-                parent[find(i)] = find(j)
-    groups = {}
-    for i in range(len(solids)):
-        groups.setdefault(find(i), set()).add(owner[i].block + " (" + owner[i].slot + ")")
-    if len(groups) > 1:
-        main = max(groups.values(), key=len)
-        loose = sorted(set().union(*[g for g in groups.values() if g is not main]))
-        errs.append("not one piece: loose " + ", ".join(loose))
+    solids, owner = [], []
+    for k, pc in enumerate(m.pieces):
+        for s_ in pc.solids:
+            solids.append(dict(s_, id="%s (%s) #%d" % (pc.block, pc.slot, k)))
+            owner.append(k)
+    loose = L.floating_parts(solids, group=lambda i: owner[i])
+    if loose:
+        errs.append("not one piece: loose " + ", ".join(sorted({x.rsplit(" #", 1)[0] for x in loose})))
     low = min(v[1] for s in solids for v in s["verts"])
     if abs(low) > 0.03:
         errs.append("does not stand on the ground (lowest point %.3f)" % low)

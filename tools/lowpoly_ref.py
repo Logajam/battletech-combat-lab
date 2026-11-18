@@ -329,6 +329,89 @@ def read_mtf(name):
     return out
 
 
+# ---------------------------------------------------------------- the no-floating-bits check (Daniel, 2026-11-18)
+TOUCH_GAP = 0.02          # two solids touch when no direction separates them by more than this (models' units)
+
+
+def _solid_arrays(s):
+    import numpy as np
+    v = np.asarray(s["verts"], dtype=float)
+    normals, edges = [], set()
+    for f in s["faces"]:
+        p = v[f]
+        n = np.zeros(3)
+        for i in range(len(f)):                                      # Newell's normal
+            q, r = p[i], p[(i + 1) % len(f)]
+            n += np.array([(q[1] - r[1]) * (q[2] + r[2]), (q[2] - r[2]) * (q[0] + r[0]), (q[0] - r[0]) * (q[1] + r[1])])
+            e = r - q
+            ln = np.linalg.norm(e)
+            if ln > 1e-9:
+                e = e / ln
+                if e[0] < 0 or (e[0] == 0 and (e[1] < 0 or (e[1] == 0 and e[2] < 0))):
+                    e = -e
+                edges.add(tuple(np.round(e, 4)))
+        ln = np.linalg.norm(n)
+        if ln > 1e-9:
+            normals.append(n / ln)
+    return v, np.array(normals) if normals else np.zeros((0, 3)), np.array(sorted(edges)) if edges else np.zeros((0, 3))
+
+
+def separated(a, b, gap=TOUCH_GAP):
+    """True when two convex solids are further apart than `gap` (separating-axis test: both solids' face normals and the cross
+    products of their edge directions; exact for convex solids)."""
+    import numpy as np
+    va, na, ea = a
+    vb, nb, eb = b
+    axes = [na, nb]
+    if len(ea) and len(eb):
+        c = np.cross(ea[:, None, :], eb[None, :, :]).reshape(-1, 3)
+        ln = np.linalg.norm(c, axis=1)
+        axes.append(c[ln > 1e-6] / ln[ln > 1e-6, None])
+    ax = np.concatenate(axes)
+    pa, pb = va @ ax.T, vb @ ax.T
+    gap_ab = np.maximum(pb.min(0) - pa.max(0), pa.min(0) - pb.max(0))
+    return bool((gap_ab > gap).any())
+
+
+def floating_parts(solids, gap=TOUCH_GAP, group=None):
+    """The ids of solids not joined to the main body: every solid must touch (within `gap`) a chain of solids reaching the largest
+    connected group. `group(i)` may name solids that belong together whatever (one block's own pieces). Daniel, 2026-11-18: "There
+    needs to be a no floaty bits check when you render" - the box-overlap test let a jump-jet vent float beside the body."""
+    import numpy as np
+    n = len(solids)
+    arrs = [_solid_arrays(s) for s in solids]
+    lo = np.array([a[0].min(0) for a in arrs]) - gap
+    hi = np.array([a[0].max(0) for a in arrs]) + gap
+    parent = list(range(n))
+
+    def find(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+    if group is not None:
+        first = {}
+        for i in range(n):
+            g = group(i)
+            if g is not None:
+                if g in first:
+                    parent[find(i)] = find(first[g])
+                else:
+                    first[g] = i
+    for i in range(n):
+        near = np.where(np.all(lo[i] <= hi, axis=1) & np.all(lo <= hi[i], axis=1))[0]
+        for j in near:
+            if j <= i or find(i) == find(j):
+                continue
+            if not separated(arrs[i], arrs[j], gap):
+                parent[find(i)] = find(int(j))
+    comps = {}
+    for i in range(n):
+        comps.setdefault(find(i), []).append(i)
+    main = max(comps.values(), key=len)
+    return [solids[i]["id"] for c in comps.values() if c is not main for i in c]
+
+
 # ---------------------------------------------------------------- checks
 def check_model(model):
     """Returns (errors, notes). Errors fail the check."""
@@ -343,6 +426,9 @@ def check_model(model):
     for need in REQUIRED_ASSEMBLIES:
         if need not in asm:
             errors.append("no part in assembly %r" % need)
+    loose = floating_parts(solids)
+    if loose:
+        errors.append("floating parts (not touching the body): %s" % ", ".join(loose[:12]) + (" ..." if len(loose) > 12 else ""))
     ids = [s["id"] for s in solids]
     if len(ids) != len(set(ids)):
         errors.append("duplicate part ids")
@@ -475,8 +561,12 @@ def render_sheet(model, path, iso=False):
     except TypeError:
         font = small = ImageFont.load_default()
     tris = sum(s["tris"] for s in solids)
-    dr.text((14, 10), "%s %s   |   %d parts, %d triangles   |   same scale in every view" %
-            (model["unit"].upper(), model["model"], len(solids), tris), fill="black", font=font)
+    loose = floating_parts(solids)                  # every render runs the no-floating-bits check and says so on the sheet
+    dr.text((14, 10), "%s %s   |   %d parts, %d triangles   |   same scale in every view   |   %s" %
+            (model["unit"].upper(), model["model"], len(solids), tris,
+             ("FLOATING PARTS: " + ", ".join(loose[:6])) if loose else "no floating parts"), fill="red" if loose else "black", font=font)
+    if loose:
+        print("WARNING %s %s: floating parts %s" % (model["unit"], model["model"], loose))
     zc = (max(p[2] for p in pts) + min(p[2] for p in pts)) / 2
     xc = (max(p[0] for p in pts) + min(p[0] for p in pts)) / 2
     for i, view in enumerate(views):

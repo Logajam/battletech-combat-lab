@@ -6,6 +6,16 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), THE NO-FLOATING-BITS CHECK. Art only. REVIEW PENDING (higher-level model).** Daniel: "The
+  front view looks like they are not connected to the body. There needs to be a no floaty bits check when you render."
+  `lowpoly_ref.floating_parts` (separating-axis test on the real convex solids, gap 0.02; boxes only pre-filter) in
+  `lowpoly_ref.check_model` (all models), on every sheet render (lowpoly_ref and lowpoly_hd stamp it), and replacing the box test in
+  `lowpoly_assemble.check_mech` (a block's own solids grouped). Found and fixed: the HD Catapult's vents (the leg splay also moved
+  every part added after the legs; it now stops at the legs), its stripes, pelvis and shin vents (sunk into their surfaces); the
+  Spider's arms (shoulder pads off the dome chest), the Commando's antenna, the Javelin's mast and dish; in the assembler, chests
+  and heads on ring waists / neck collars (`settle` now probes the whole footprint, not the hollow middle) and in-line barrels
+  (sunk 0.42 of their diameter, not 0.55). All models and all 136 assembled builds pass. Principle 20.
+
 - **2026-11-18 (Claude, session 28), CATAPULT HD: JETS AS FLANK VENTS.** Daniel: the jets clipped or crowded other features; "they
   could be placed more on the body either angled out, or with vents that come out just a bit." Now four vents on the body's flanks,
   in the clear strip between the tilt hinge and the launcher arms, angled 35 degrees down-and-out, 0.72 in front of and behind the
