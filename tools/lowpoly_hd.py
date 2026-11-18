@@ -320,10 +320,12 @@ def catapult():
         else:                                               # the body's underside AT the nozzle's x (it curves up to the sides)
             under = [surface_point(secs, z, -math.pi / 2 + i * 0.02) for i in range(80)]
             y_top = min(under, key=lambda q: abs(q[0] - 1.12))[1] + 0.05
-        m.tube("jj_mount", "torso", (1.12, y_top + 0.12, z), (1.12, y_top - 0.18, z), 0.5, 0.46, n=16, tone=METAL, mirror=True)
-        m.tube("jj", "torso", (1.12, y_top - 0.18, z), (1.12, y_top - 0.62, z), 0.36, 0.6, n=20, tone=0.45, mirror=True,
+        # mounted INSIDE, only the nozzle's lip showing (Daniel: "you can mount the jets internally with just the outer lip of the
+        # nozzle showing. Their size and shape is also variable"): a short ring proud of the surface round a dark throat
+        lip = 0.62 if k == 0 else 0.7
+        m.tube("jj_lip", "torso", (1.12, y_top + 0.1, z), (1.12, y_top - 0.12, z), lip * 0.9, lip, n=20, tone=0.45, mirror=True,
                role="jumpjet:LT" if k == 0 else None)
-        m.tube("jj_throat", "torso", (1.12, y_top - 0.62, z), (1.12, y_top - 0.64, z), 0.48, n=20, tone=DARK, mirror=True)
+        m.tube("jj_throat", "torso", (1.12, y_top - 0.12, z), (1.12, y_top - 0.135, z), lip * 0.72, n=20, tone=DARK, mirror=True)
     # SPLAY (Daniel: "the legs are splayed out slightly"): the leg turns about the hip by LEG_SPLAY degrees, foot outward; the foot
     # follows the ankle but stays flat on the ground
     a = math.radians(LEG_SPLAY)
