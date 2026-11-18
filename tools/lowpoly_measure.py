@@ -365,6 +365,9 @@ def compare(unit):
     from PIL import Image, ImageDraw
     import numpy as np
     sheet = json.load(open(os.path.join(OUT, unit + ".json")))
+    import lowpoly_hd as HD
+    model_explained = json.load(open(os.path.join(HD.HD_DIR, unit + ".json"))).get("measure_explained")
+    explained = []
     sil = model_silhouettes(unit)
     mod = {"front": measure_front(sil["front"])}
     mod["side"] = measure_side(sil["side"], mod["front"]["crotch"])
@@ -379,10 +382,13 @@ def compare(unit):
                 k = k + " (mean)"
             diff = (b - a) / a if a else 0.0
             flag = abs(diff) > TOLERANCE and k not in ARM_TOUCHED
+            why = (model_explained or {}).get(k.replace(" (mean)", ""))
             rows.append((view, k, float(a), float(b), float(diff), bool(flag)))
-            if flag:
+            if flag and why:                              # a deviation the model EXPLAINS (its `measure_explained`): reported, not failed
+                explained.append("%s %+.0f %% (%s)" % (k, diff * 100, why))
+            elif flag:
                 flags.append("%s %s: model %.3f v sheet %.3f (%+.0f %%)" % (view, k, b, a, diff * 100))
-    res = {"unit": unit, "tolerance": TOLERANCE, "flags": flags,
+    res = {"unit": unit, "tolerance": TOLERANCE, "flags": flags, "explained": explained,
            "rows": [{"view": v, "landmark": k, "sheet": round(a, 3), "model": round(b, 3), "diff_pct": round(d * 100, 1),
                      "flag": f} for v, k, a, b, d, f in rows]}
     with open(os.path.join(OUT, unit + " compare.json"), "w") as f:

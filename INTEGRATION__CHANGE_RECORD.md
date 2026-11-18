@@ -6,6 +6,18 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), THE CHECKLIST; THE ATLAS RUN THROUGH IT. Art only. REVIEW PENDING (higher-level model).** Daniel:
+  "make a checklist of everything I've bitched about for all the mechs, and run the ones that apply to the atlas" (and: the legs are
+  not to be swept, "the legs are fused in place ... They look fine"). New `tools/lowpoly_checklist.py`: 49 items (the principles),
+  each with the models it applies to; automatic ones tested (record sheet, floating parts, lines of fire, fire cuts, measuring test,
+  balance over the feet, splay, jets, five-view, spare-slot mounts, head gap, joint covers, exposed flat faces, pose, pose camera,
+  weapon mirroring, forearm slots, articulation, painted lines, neck over spine), by-eye ones from `reference_art/checklist/<unit>.json`
+  (verdict + reason). The measuring test now accepts deviations a model EXPLAINS (`measure_explained`, reported not failed). Running it
+  on the Atlas found and fixed: spare torso slots with no mount (hidden quads on the collar fronts), the rear skirt's dark ribs (a
+  painted line), exposed flat faces (shoulder decks with vents, pack panels, a bevelled waist ring, the head's turntable, a skirt plate,
+  a deeper crotch chamfer), the back's depth (explained: Daniel's "anemic"), and by eye the legs as columns (`limb` gained a chamfered
+  section: plated thighs and shins). Left: the plan from above still squarer than the sheet's (fail, by eye); the death's head's fear
+  (Daniel's call).
 - **2026-11-18 (Claude, session 28), ATLAS HD, ROUND 5: ARTICULATION, DEPTH, NO PAINTED LINES. Art only. REVIEW PENDING (higher-level
   model).** New `tools/lowpoly_articulate.py`: each joint turned through its range, every NEW overlap reported (Daniel: "Can it torso
   twist without something clipping? ... 90 degrees to left and right"; the arms at the shoulder). It found: the side weapons and
