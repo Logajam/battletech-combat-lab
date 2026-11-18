@@ -970,45 +970,58 @@ def death_face(m, front, y_brow, y_mouth):
             m.box("tooth", "head", (x, y_mouth + dy, zf(y_mouth + dy, 0.0)), (hw * 0.18, 0.12, 0.05), tone=0.74)
 
 
-def atlas():
-    """ATLAS AS7-D (100 t assault). Measured on a grid over the AI five-view sheet (reference_art/ai_sheets/Atlas AS7-D/batch2_1.webp:
-    front view 10/377 per pixel, centre x 187, ground y 405, head top y 28; side view 10/356, ground y 808) and tools/lowpoly_measure.py;
-    the weapons from the record sheet and the TRO drawing (reference_art/originals/34 Atlas AS7-D.jpg). Built from the HD blocks.
-    The SHAPE LANGUAGE from the MWO Atlas printable kit Daniel sent on 2026-11-03 (28 STL parts; the files were kept out of the repo,
-    the study is in INTEGRATION__COMBAT_LAB.md "Reference study: MWO Atlas parts kit"): angular and plated, louvres and bolts; a
-    death's-head dome in a notch; dome pauldrons with a rim flange; an oval pelvis plate with a hanging front apron; legs deeper than
-    wide, a slash line on the thigh, a spur behind the shin; a LOW foot with a big ankle drum; the AC/20 a boxy receiver with a top
-    rail and cooling holes, a long barrel, a ringed brake, on a round socket disc; the SRM 6 a box with a 2 x 3 face.
-    Units: ground to the head's top = 10; +x is the 'Mech's LEFT, +z forward."""
-    m = Model()
-    # ---------------------------------------------------------------- the torso: a wide chest, two humps either side of a sunken head
-    # ROUND 2 (Claude's list, Daniel: "Go ahead and make your changes"): the chest TAPERS to the waist like a V (the sheet: 3.6 wide
-    # at y 6.5 under a 4.3 chest; it was a box down to the belt)
-    # (round 5, Daniel: "The chest and back are anemic. The AI drawing portrays the mech with a much more build up torso in terms of
-    # depth": the front stands 0.25 further out, the back 0.15 further back, and plates are layered on the back below)
-    lv = [(8.1, 1.95, 1.0, -1.05), (7.9, 2.15, 1.35, -1.3), (7.0, 1.86, 1.4, -1.3), (6.5, 1.62, 1.25, -1.15), (6.15, 1.5, 1.1, -1.05)]
-    # (round 4, the TOP-VIEW bands: from above the sheet's torso is an OCTAGON, its corners cut deep; ours was a rectangle - ch 0.3)
-    torso_stack(m, lv, ch=0.55, tone=0.88)
-    # THE COLLAR (round 4, the section comparison: the sheet's head stands in a collar - tall LOUVRED blocks either side, a raised
-    # collar behind; the louvres are heat exhausts): chamfered blocks either side of the head, a collar plate behind it, clear of the
-    # head so it can turn (principle 30)
+def place_block(m, start, anchor, at=None, scale=1.0):
+    """PLACE a block (T15c item B: the Atlas taken apart into blocks other 'Mechs can use): the parts it drew, m.parts[start:], are
+    moved so its ANCHOR lands on `at` and scaled by `scale` about it - every point (hull points, box centres, tube and bar ends,
+    dome centres, fire origins) and every size. With at=None and scale 1 nothing changes (the fingerprints prove it)."""
+    if at is None and scale == 1.0:
+        return
+    at = anchor if at is None else at
+    P = lambda q: rnd([at[i] + scale * (q[i] - anchor[i]) for i in range(3)])
+    for p in m.parts[start:]:
+        for key in ("a", "b", "c"):
+            if key in p:
+                p[key] = P(p[key])
+        if "pts" in p:
+            p["pts"] = [P(q) for q in p["pts"]]
+        for key in ("s", "r", "w0", "w1"):
+            if key in p:
+                p[key] = rnd([scale * v for v in p[key]])
+        if "fire" in p:
+            p["fire"] = dict(p["fire"], **{"from": P(p["fire"]["from"]), "r": round(p["fire"]["r"] * scale, 3)})
+
+
+def louvred_collar(m, at=None, scale=1.0):
+    """HD BLOCK (from the Atlas): the COLLAR round a sunken head: a chamfered block either side with heat-exhaust LOUVRES across its front, a collar plate behind,
+    all clear of the turning head (principle 30).
+    ANCHOR (0.0, 8.62, -0.05): `at` moves the anchor there, `scale` scales the block about it (the defaults draw the Atlas's own)."""
+    start = len(m.parts)
     for sx in (1, -1):
         # (round 5, the articulation test: the head turning hit the collar blocks - they start further out now, x 1.15)
         m.hull("collar_block", "torso", bevel_box((sx * 1.62, 8.62, -0.05), (0.72, 1.25, 1.85), 0.3), tone=0.86)    # (cut deep: the plan)
         for k in range(4):
             m.box("collar_louvre", "torso", (sx * 1.62, 8.35 + k * 0.17, 0.875), (0.5, 0.06, 0.04), tone=DARK)
     m.hull("collar_back", "torso", bevel_box((0, 8.62, -1.3), (2.0, 1.1, 0.5), 0.14), tone=0.82)     # (clear of the turning head)
-    # the SHOULDER DECKS: the chest's top beside the collar, broken into stepped plates with a vent between (no large flat space)
+    place_block(m, start, (0.0, 8.62, -0.05), at, scale)
+
+
+def shoulder_decks(m, at=None, scale=1.0):
+    """HD BLOCK (from the Atlas): SHOULDER DECKS: the chest's top beside a collar broken into stepped plates with a vent between (no large flat space, principle 34).
+    ANCHOR (0.0, 8.16, 0.0): `at` moves the anchor there, `scale` scales the block about it (the defaults draw the Atlas's own)."""
+    start = len(m.parts)
     for sx in (1, -1):
         m.hull("shoulder_deck", "torso", bevel_box((sx * 1.62, 8.16, 0.55), (1.05, 0.14, 0.75), 0.04), tone=0.84)
         m.hull("shoulder_deck", "torso", bevel_box((sx * 1.7, 8.2, -0.62), (0.9, 0.22, 0.65), 0.05), tone=0.8)
         for k in range(3):
             m.box("deck_vent", "torso", (sx * 1.7, 8.115, -0.05 + k * 0.12), (0.7, 0.04, 0.05), tone=DARK)
-    # (round 5: the dark SEAM LINES were thin boxes standing for panel joins, not parts - Daniel: "The black lines are for visual
-    # appeal? ... The ones on the chest dont look right, especially in the action pose": the chest seam, the breastplate ridge, the
-    # pauldron seams and the thigh slash are gone; a join is shown by real plates meeting, as the breastplate and the pectorals do)
-    # the BREASTPLATE (round 4: the sheet's raised shield of angled facets meeting in the middle, bulging forward in the side view),
-    # the PECTORAL planes sloping back to the sides, and the ARCH over the belly with GRILLES either side (air intakes)
+    place_block(m, start, (0.0, 8.16, 0.0), at, scale)
+
+
+def chest_armour(m, at=None, scale=1.0):
+    """HD BLOCK (from the Atlas): CHEST ARMOUR: a raised BREASTPLATE of angled facets meeting in the middle, PECTORAL planes sloping back to the sides, an ARCH over
+    the belly with GRILLES (air intakes) either side, and bolt heads. Laid on a torso_stack whose front is z 1.1 .. 1.4.
+    ANCHOR (0.0, 7.5, 1.2): `at` moves the anchor there, `scale` scales the block about it (the defaults draw the Atlas's own)."""
+    start = len(m.parts)
     bp = [(0, 8.02, 1.61), (0.66, 8.02, 1.43), (0.56, 7.25, 1.45), (0, 6.98, 1.55), (0, 8.02, 1.2), (0.66, 8.02, 1.2), (0.56, 7.25, 1.2),
           (0, 6.98, 1.2)]
     m.hull("breastplate", "torso", [(sx * x, y, z) for sx in (1, -1) for x, y, z in bp], tone=0.92)
@@ -1023,7 +1036,14 @@ def atlas():
             y = 6.3 + k * 0.11
             m.box("grille", "torso", (sx * 1.0, y, chest_front(y) + 0.005), (0.3, 0.05, 0.05), tone=DARK)
         m.box("bolt", "torso", (sx * 1.15, 7.1, 1.415), (0.09, 0.09, 0.05), tone=0.5)
-    # the BACK built up: plates layered on the lower back and on the shoulder blades beside the collar (Daniel: "anemic")
+    place_block(m, start, (0.0, 7.5, 1.2), at, scale)
+
+
+def back_armour(m, at=None, scale=1.0):
+    """HD BLOCK (from the Atlas): BACK ARMOUR: plates layered on the lower back and the shoulder blades, a deep back PACK (corners cut, the top view) with vents, a
+    hatch and raised panels splitting its back (no large flat space).
+    ANCHOR (0.0, 7.6, -1.3): `at` moves the anchor there, `scale` scales the block about it (the defaults draw the Atlas's own)."""
+    start = len(m.parts)
     m.hull("lower_back_plate", "torso", bevel_box((0, 6.7, -1.25), (2.3, 0.7, 0.3), 0.1), tone=0.82)
     for sx in (1, -1):
         m.hull("shoulder_blade", "torso", [(sx * 0.95, 8.95, -1.0), (sx * 1.95, 8.6, -1.0), (sx * 1.95, 7.95, -1.0), (sx * 0.95, 8.0, -1.0),
@@ -1039,14 +1059,25 @@ def atlas():
     for sx in (1, -1):                                    # raised armour panels splitting the pack's back (no large flat space)
         m.hull("pack_panel", "torso", bevel_box((sx * 0.62, 7.25, -1.88), (1.0, 0.75, 0.1), 0.04), tone=0.84)
         m.hull("pack_panel_upper", "torso", bevel_box((sx * 0.62, 8.1, -1.89), (0.95, 0.55, 0.12), 0.04), tone=0.8)
-    # the two REAR-FIRING centre-torso lasers (record sheet: "Medium Laser (R)" x 2), under the pack, pointing back
+    place_block(m, start, (0.0, 7.6, -1.3), at, scale)
+
+
+def rear_laser_pair(m, at=None, scale=1.0):
+    """HD BLOCK (from the Atlas): a PAIR of REAR-FIRING lasers under the back pack, in housings, pointing back (the Atlas's two CT medium lasers).
+    ANCHOR (0.0, 6.62, -1.0): `at` moves the anchor there, `scale` scales the block about it (the defaults draw the Atlas's own)."""
+    start = len(m.parts)
     for sx in (1, -1):
         m.tube("rear_laser_housing", "torso", (sx * 0.45, 6.62, -1.0), (sx * 0.45, 6.62, -1.48), 0.36, n=12, tone=PLATE)
         m.tube("rear_laser", "torso", (sx * 0.45, 6.62, -1.45), (sx * 0.45, 6.62, -1.8), 0.24, 0.2, n=12, tone=METAL,
                role="weapon:CT:Medium Laser")
-    # the SIDE TORSOS below the chest: RECESSED sections either side of the centre torso, set back from its front, holding the weapon
-    # bays (Daniel, 2026-11-18: "the side torsos have recessed sections holding weapon bays that are visually not part of the core
-    # torso from the front"): a dark-edged recess each side, a frame lip round it, vents in its back wall
+    place_block(m, start, (0.0, 6.62, -1.0), at, scale)
+
+
+def side_recesses(m, at=None, scale=1.0):
+    """HD BLOCK (from the Atlas): SIDE-TORSO RECESSES: set-back sections either side of the centre torso that hold the side weapons, a lip over each, vents in the
+    back wall; all above the waist line so they turn with the torso clear of the pelvis.
+    ANCHOR (0.0, 6.85, -0.2): `at` moves the anchor there, `scale` scales the block about it (the defaults draw the Atlas's own)."""
+    start = len(m.parts)
     for sx in (1, -1):
         # (x 1.55, 0.7 wide: a gap to the hanging arm, as the sheet)
         # (round 5, the articulation test: hung below the waist joint, the recesses and their weapons swept through the belt, the rear
@@ -1055,16 +1086,14 @@ def atlas():
         m.hull("recess_lip", "torso", bevel_box((sx * 1.52, 7.47, 0.28), (0.78, 0.1, 0.5), 0.03), tone=TRIM)
         for k in range(3):
             m.box("recess_vent", "torso", (sx * 1.88, 6.6 + k * 0.16, -0.25), (0.03, 0.07, 0.9), tone=DARK)
-    # the LRM 20 (record sheet: left torso) on the open upper LEFT CHEST, and the SRM 6 at the left hip: the bigger launcher on the
-    # wider flat space (Daniel, 2026-11-18: "Atlas LRM 20 is weird. My suggestion is to switch spots with the SRM-6, use the wider open
-    # chest for the bigger weapon system"; the first pass had the TRO's places: SRM 6 on the chest, LRM 20 at the hip)
-    bay_grid(m, "torso", (1.22, 7.6, 1.37), 1.05, 0.88, 4, 5, role="weapon:LT:LRM 20", name="lrm20_bay")
-    m.hull("srm_housing", "torso", bevel_box((1.52, 6.72, 0.72), (0.66, 0.84, 1.4), 0.08), tone=0.8)
-    bay_grid(m, "torso", (1.52, 6.72, 1.3), 0.6, 0.76, 3, 2, role="weapon:LT:SRM 6", name="srm6_bay")
-    # the AC/20 (record sheet: right torso) on the right flank: a breech housing reaching back (its weight over the legs, as the
-    # Hunchback lesson) and a jacketed barrel forward (the TRO's barrel at the right hip)
-    # (the kit: a boxy RECEIVER with a raised top rail and cooling holes, an underside stub, a long barrel, a ringed muzzle brake, on
-    # a round SOCKET DISC on the torso's side; moved in from x -1.86 so its fire clears the right fist's thumb)
+    place_block(m, start, (0.0, 6.85, -0.2), at, scale)
+
+
+def boxed_autocannon(m, at=None, scale=1.0):
+    """HD BLOCK (from the Atlas): a heavy AUTOCANNON on the torso's side: a socket disc, a boxy RECEIVER with a raised top rail and cooling holes, an underside stub,
+    a jacketed barrel and a ringed muzzle brake (the MWO kit's AC/20). The barrel carries the weapon role.
+    ANCHOR (-1.5, 6.78, 0.3): `at` moves the anchor there, `scale` scales the block about it (the defaults draw the Atlas's own)."""
+    start = len(m.parts)
     ax, ay, az = -1.5, 6.78, 0.3                         # (round 5: up above the waist line, forward with the deeper chest)
     axle_cap(m, "ac20_socket", "torso", ay, -0.1, -1.45, -1.84, 1.1, n=20, mirror=False, ring=(0.05, 0.85))
     m.hull("ac20_receiver", "torso", bevel_box((ax, ay, az + 0.1), (0.78, 0.9, 1.7), 0.1), tone=0.8)
@@ -1076,12 +1105,14 @@ def atlas():
     m.tube("ac20_barrel", "torso", (ax, ay + 0.05, az + 1.55), (ax, ay + 0.05, az + 2.75), 0.4, 0.38, n=16, tone=METAL, role="weapon:RT:AC/20")
     for k in range(3):                                    # the brake's rings
         m.tube("ac20_brake", "torso", (ax, ay + 0.05, az + 2.3 + k * 0.15), (ax, ay + 0.05, az + 2.38 + k * 0.15), 0.5, n=16, tone=0.45)
-    # ---------------------------------------------------------------- the head: a skull, sunk between the humps, a gap under it
-    # (round 3: a DEATH'S HEAD - Daniel: "The head is an abomination ... I think you drew a sad conehead"; forward, as the sheet's plan)
-    # THE HEAD (round 4): one faceted shell, about as tall as wide (the sheet: 1.75 wide, 2.0 tall), bulging forward over the chest
-    # (the side view), the jaw its own lower part; the death's head laid into its front
-    # (round 5, Daniel: "The head looks like its jutting forward. The neck is not aligned with where the spine would be": the head moves
-    # back over the neck, the neck stands on the torso's centre line)
+    place_block(m, start, (-1.5, 6.78, 0.3), at, scale)
+
+
+def skull_head_hd(m, at=None, scale=1.0):
+    """HD BLOCK (from the Atlas): a DEATH'S-HEAD on a neck: one faceted shell about as tall as wide, the skull's face laid into its front (death_face), the neck on
+    the spine's line, the turntable it turns on (a torso part) and a sensor on the temple.
+    ANCHOR (0.0, 9.0, 0.05): `at` moves the anchor there, `scale` scales the block about it (the defaults draw the Atlas's own)."""
+    start = len(m.parts)
     hz = 0.05
     head_rings = [(10.0, 0.4, hz + 0.3, hz - 0.45), (9.82, 0.72, hz + 0.72, hz - 0.72), (9.42, 0.88, hz + 0.95, hz - 0.9),
                   (9.0, 0.88, hz + 1.02, hz - 0.88), (8.7, 0.72, hz + 1.0, hz - 0.75), (8.42, 0.56, hz + 0.92, hz - 0.6),
@@ -1093,17 +1124,27 @@ def atlas():
     # head clears it by its gap)
     m.tube("head_turntable", "torso", (0, 8.08, -0.05), (0, 8.2, -0.05), 2.5, 1.9, n=12, roll=15.0, tone=JOINT)   # its rim bevelled
     joint_cover(m, "temple_sensor", "head", (0, 9.3, hz - 0.05), 0.86, 0.2, sides=6, roll=30, thick=0.06)
-    # the dish (the sheet: on the right hump) and the antenna (left), both kept
-    # (centred on the collar blocks they stand on - Daniel, 2026-11-18: "Check the antenna and radar dish, they're no longer centered":
-    # they stayed where the old shoulder masses had been when the collar moved out)
+    place_block(m, start, (0.0, 9.0, 0.05), at, scale)
+
+
+def sensor_masts(m, at=None, scale=1.0):
+    """HD BLOCK (from the Atlas): a radar DISH on its mast over the right collar block and a whip ANTENNA over the left, each centred on its block.
+    ANCHOR (0.0, 9.0, -0.05): `at` moves the anchor there, `scale` scales the block about it (the defaults draw the Atlas's own)."""
+    start = len(m.parts)
     cxc, czc = 1.62, -0.05
     m.tube("dish_mast", "torso", (-cxc, 9.1, czc), (-cxc, 9.62, czc), 0.14, n=8, tone=DARK)
     m.tube("dish", "torso", (-cxc, 9.75, czc - 0.06), (-cxc, 9.82, czc + 0.06), 0.72, 0.6, n=16, tone=0.8)
     m.tube("dish_feed", "torso", (-cxc, 9.8, czc + 0.04), (-cxc, 9.95, czc + 0.24), 0.05, n=6, tone=DARK)
     m.tube("mast_base", "torso", (cxc, 9.0, czc), (cxc, 9.36, czc), 0.24, 0.18, n=10, tone=DARK)
     m.add("bar", "mast", "torso", a=(cxc, 9.3, czc), b=(cxc + 0.05, 10.35, czc - 0.2), w0=[0.07, 0.07], w1=[0.04, 0.04], tone=DARK)
-    # ---------------------------------------------------------------- the waist and the pelvis: a belt, a deep crotch block
-    # (round 5: the turning RING at the waist line, wide - the torso turns on it, so it shows in the outline; the sheet's waist is 3.6)
+    place_block(m, start, (0.0, 9.0, -0.05), at, scale)
+
+
+def oval_waist(m, at=None, scale=1.0):
+    """HD BLOCK (from the Atlas): the WAIST: the bearing inside (waist_joint) and an OVAL turning ring in the body's plan, chamfered top and bottom; fixed to the
+    pelvis, the torso turns above it.
+    ANCHOR (0.0, 6.15, 0.0): `at` moves the anchor there, `scale` scales the block about it (the defaults draw the Atlas's own)."""
+    start = len(m.parts)
     waist_joint(m, (0, 6.15, 0), 0.75, ((0, 6.08, 0), (0, 6.18, 0), 2.0, 2.0), ball_n=16, ball_rings=8)   # the bearing, inside
     # the turning RING an OVAL, the body's own plan - full width side to side (3.5 across its flats), the torso's depth front to back
     # (Daniel, 2026-11-18: "from the side what I assume is the waists rotating ring sticks out to the rear": it was round, 3.8 deep on a
@@ -1113,8 +1154,14 @@ def atlas():
     m.hull("waist_ring", "pelvis", oct_(6.08, 1.92, 1.14) + oct_(6.18, 1.92, 1.14), tone=0.7)
     m.hull("waist_ring_bevel", "pelvis", oct_(6.18, 1.92, 1.14) + oct_(6.25, 1.6, 0.98), tone=0.7)
     m.hull("waist_ring_bevel", "pelvis", oct_(6.08, 1.92, 1.14) + oct_(6.0, 1.62, 0.98), tone=0.7)
-    # the PELVIS (the kit: "a wide flat OVAL plate on top, a short skirt below, and a narrow hanging apron down the front centre: from
-    # the front it reads as a T or anvil")
+    place_block(m, start, (0.0, 6.15, 0.0), at, scale)
+
+
+def oval_pelvis(m, at=None, scale=1.0):
+    """HD BLOCK (from the Atlas): the PELVIS as an oval: a wide flat oval plate, a short skirt, a REAR SKIRT with a centre plate and ribs, skirt vents, the crotch
+    block and its front plate (from the front: a T or anvil).
+    ANCHOR (0.0, 5.7, 0.0): `at` moves the anchor there, `scale` scales the block about it (the defaults draw the Atlas's own)."""
+    start = len(m.parts)
     oval = lambda y, rx, rz: [(rx * math.cos(2 * math.pi * k / 16), y, rz * math.sin(2 * math.pi * k / 16)) for k in range(16)]
     # (round 3, the measuring test: the sheet's belt band is 4.3 across, ours was 3.9)
     m.hull("pelvis_plate", "pelvis", oval(6.1, 1.82, 0.92) + oval(6.02, 1.88, 0.98) + oval(5.78, 1.88, 0.98) + oval(5.7, 1.82, 0.92), tone=0.8)
@@ -1133,11 +1180,15 @@ def atlas():
     m.hull("crotch", "pelvis", bevel_ring(5.45, 0.75, 0.85, -0.85, 0.14) + bevel_ring(4.25, 0.6, 0.7, -0.7, 0.28), tone=0.74)
     m.hull("crotch_plate", "pelvis", [(sx * 0.55, 5.35, 0.86) for sx in (-1, 1)] + [(sx * 0.42, 4.4, 0.72) for sx in (-1, 1)] +
            [(sx * 0.5, 5.33, 0.93) for sx in (-1, 1)] + [(sx * 0.38, 4.44, 0.79) for sx in (-1, 1)], tone=PLATE)
-    # ---------------------------------------------------------------- the legs (straight; the sheet: column shins, a big knee disc)
+    place_block(m, start, (0.0, 5.7, 0.0), at, scale)
+
+
+def plated_leg(m, at=None, scale=1.0):
+    """HD BLOCK (from the Atlas): a PLATED LEG (the left; mirrored): hip axle and hexagonal hip cover, a thigh of chamfered plates tapering to the knee with a guard
+    and a facet over its top, the knee disc and pad, a tapering shin with vents, a plate and a spur behind.
+    ANCHOR (1.56, 3.3, 0.0): `at` moves the anchor there, `scale` scales the block about it (the defaults draw the Atlas's own)."""
+    start = len(m.parts)
     hip, knee, ankle = (1.56, 5.15, 0.0), (1.56, 3.3, 0.12), (1.56, 1.25, 0.0)
-    leg_from = len(m.parts)
-    # (round 3, the measuring test: the hips measured far wider than the sheet's 3.65: the hip axle, its cover and the thigh's top stood
-    # out past the hanging arms; now the axle ends at the thigh's outer face and the thigh is narrower at the top)
     axle_cap(m, "thigh_cap", "leg_L", hip[1], 0, 0.75, 2.03, 1.1, n=24, hub=(0.05, 0.55, 16))
     joint_cover(m, "hip_cover", "leg_L", hip, 2.08, 0.6, sides=6, roll=30, kz=1.1)
     # (round 4: tapering from the hip to the knee, as the sheet's; a faceted plate over its outer top)
@@ -1155,9 +1206,14 @@ def atlas():
     m.add("bar", "shin_plate", "leg_L", a=(1.56, 2.9, 0.76), b=(1.56, 1.6, 0.74), w0=[1.0, 0.12], w1=[0.95, 0.12], tone=PLATE, mirror=True)
     m.hull("shin_spur", "leg_L", [(1.56 + sx * 0.14, y, z) for sx in (-1, 1) for y, z in ((2.9, -0.5), (1.6, -0.5), (2.5, -0.92), (1.9, -0.9))],
            tone=0.7, mirror=True)                       # the narrow spur behind the shin (the kit)
-    # the ANKLE housing reaches INTO the foot (principle 28); the foot: a wide pedestal, toe forward (side view: toe 2.0 ahead, heel 1.4
-    # behind; front view 2.25 wide)
-    # (round 4: the sheet's shin FLARES into an ankle SPAT - a trapezoid skirt over the foot - with a band at its top)
+    place_block(m, start, (1.56, 3.3, 0.0), at, scale)
+
+
+def ankle_spat(m, at=None, scale=1.0):
+    """HD BLOCK (from the Atlas): an ANKLE SPAT: the shin flaring into a trapezoid skirt over the foot (it reaches into it, principle 28) with a band at its top, and
+    an octagonal ankle drum (the hip, knee and ankle do not read alike from the side, principle 33).
+    ANCHOR (1.56, 1.1, 0.0): `at` moves the anchor there, `scale` scales the block about it (the defaults draw the Atlas's own)."""
+    start = len(m.parts)
     m.hull("ankle_spat", "leg_L", bevel_ring(1.78, 0.7, 0.8, -0.72, 0.14, x0=1.56) + bevel_ring(0.5, 0.92, 1.2, -0.9, 0.2, x0=1.56),   # into the foot
            tone=0.74, mirror=True)
     m.hull("spat_band", "leg_L", bevel_ring(1.86, 0.74, 0.84, -0.76, 0.14, x0=1.56) + bevel_ring(1.66, 0.76, 0.88, -0.78, 0.14, x0=1.56),
@@ -1165,6 +1221,14 @@ def atlas():
     # the kit's big ankle drum, OCTAGONAL: the hip cover (hexagon), the knee disc (round) and the ankle no longer read alike from the
     # side (principle 33)
     axle_cap(m, "ankle_drum", "leg_L", 1.1, -0.05, 0.75, 2.42, 0.78, n=8, ring=(0.05, 0.6), hub=(0.04, 0.3, 8))
+    place_block(m, start, (1.56, 1.1, 0.0), at, scale)
+
+
+def wedge_foot(m, at=None, scale=1.0):
+    """HD BLOCK (from the Atlas): a WEDGE FOOT: one chamfered low wedge, the toe low and pointed, a dark sole inset, a split groove and two toe plates, side armour,
+    a short heel with a spur; set 0.35 forward so the ankle sits a third of the way from the heel.
+    ANCHOR (1.56, 0.0, 0.0): `at` moves the anchor there, `scale` scales the block about it (the defaults draw the Atlas's own)."""
+    start = len(m.parts)
     foot_from = len(m.parts)
     fx = 1.56
     # THE FOOT (round 4, the section comparison: the sheet's feet are compact low WEDGES - the toe low and pointed in the side view, a
@@ -1193,6 +1257,171 @@ def atlas():
                 p[key] = rnd((p[key][0], p[key][1], p[key][2] + 0.35))
         if "pts" in p:
             p["pts"] = [rnd((q[0], q[1], q[2] + 0.35)) for q in p["pts"]]
+    place_block(m, start, (1.56, 0.0, 0.0), at, scale)
+
+
+def faceted_pauldron(m, s, asm, at=None, scale=1.0):
+    """HD BLOCK (from the Atlas): a FACETED PAULDRON over a shoulder (s = 1 the left, -1 the right): a block whose top slopes down and
+    out, its front and back corners cut deep (the plan), a rim FLANGE round its foot, a root on the shoulder's axis.
+    ANCHOR (s * 2.88, 8.3, 0.0): `at` moves the anchor there, `scale` scales the block about it (the defaults draw the Atlas's own)."""
+    start = len(m.parts)
+    X = lambda x: s * x
+    pz = 0.0
+    # (round 4, the section comparison: the dome read as a CONE; the sheet's pads are faceted blocks whose tops slope down and out)
+    pad = []
+    # (round 5, the articulation test: the pad moves with the arm, and its inner side stood inside the chest and the collar - the arm
+    # could not swing without the pad cutting through them; it now starts outboard of the chest, x 2.24)
+    for z, k in ((-0.95, 0.72), (-0.65, 1.0), (0.65, 1.0), (0.95, 0.72)):   # (the front and back corners cut deeper: the plan)
+        pad += [(X(2.24), 8.0, z * k), (X(3.52), 8.0, z * k), (X(3.52), 8.42 + 0.12 * (k - 0.85) / 0.15, z * k),
+                (X(2.24), 8.8 + 0.12 * (k - 0.85) / 0.15, z * k)]
+    pad += [(X(2.38), 9.02, z) for z in (-0.5, 0.5)] + [(X(3.36), 8.62, z) for z in (-0.5, 0.5)]
+    m.hull("pauldron", asm, pad, tone=0.9)
+    ring = lambda y, rx, rz: [(X(2.88) + rx * math.cos(math.radians(22.5 + 45 * k)), y, pz + rz * math.sin(math.radians(22.5 + 45 * k)))
+                              for k in range(8)]
+    m.hull("pauldron_flange", asm, ring(7.92, 0.66, 1.08) + ring(8.08, 0.62, 1.03), tone=TRIM)    # (a wider one read as a hat)
+    m.tube("pauldron_root", asm, (X(2.05), 8.3, 0.0), (X(2.4), 8.3, 0.0), 1.0, n=8, roll=22.5, tone=0.8)    # on the shoulder's axis
+    place_block(m, start, (s * 2.88, 8.3, 0.0), at, scale)
+
+
+def slab_forearm(m, s, asm, sh, elbow, wrist):
+    """HD BLOCK (from the Atlas): a SLAB FOREARM between the elbow and the wrist (placed by its joints): a chamfered slab, the ACTUATOR
+    HOUSING at the elbow end, an ARMOUR PLATE down the outer face, a MAINTENANCE HATCH with warning stripes on the inner face, a WRIST
+    CUFF at the fist end. Every part is for something (Daniel: "The black bands. Do they have a purpose?")."""
+    ef = lambda t: (sh[0], elbow[1] + (wrist[1] - elbow[1]) * t, elbow[2] + (wrist[2] - elbow[2]) * t)
+    limb(m, "forearm", asm, ef(0.2), wrist, 1.32, 1.28, 1.24, 1.2, steps=1, sides=8, tone=0.78, bulge=0.0)
+    m.tube("actuator_housing", asm, ef(0.24), ef(0.4), 1.4, 1.36, n=8, roll=22.5, tone=0.7)
+    m.tube("wrist_cuff", asm, ef(0.86), ef(1.0), 1.34, 1.38, n=8, roll=22.5, tone=0.7)
+    fo = 1.28 / 2 * math.cos(math.radians(22.5))
+    m.add("bar", "forearm_armour", asm, a=(sh[0] + s * (fo + 0.04), *ef(0.25)[1:]), b=(sh[0] + s * (fo + 0.04), *ef(0.82)[1:]),
+          w0=[0.1, 0.95], w1=[0.1, 0.9], tone=PLATE)
+    hp = ef(0.55)
+    m.box("hatch", asm, (sh[0] - s * (fo + 0.01), hp[1], hp[2]), (0.03, 0.62, 0.62), tone=0.55)
+    for k in range(4):                                # the warning stripes on the hatch
+        m.add("bar", "hatch_stripe", asm, a=(sh[0] - s * (fo + 0.03), hp[1] - 0.28 + k * 0.15, hp[2] - 0.28),
+              b=(sh[0] - s * (fo + 0.03), hp[1] - 0.28 + k * 0.15 + 0.2, hp[2] - 0.08), w0=[0.02, 0.05], w1=[0.02, 0.05], tone=DARK)
+
+
+def block_fist(m, s, asm, wrist, size=1.0):
+    """HD BLOCK (from the Atlas): a BLOCK FIST at the wrist: the wrist axle, a bevelled fist, knuckles with finger gaps, a thumb on the
+    inner side (s = 1 the left hand). `size` scales it about the wrist."""
+    start = len(m.parts)
+    X = lambda x: s * x
+    fc = (wrist[0], wrist[1] - 0.18, wrist[2] + 0.4)
+    axle_cap(m, "wrist", asm, wrist[1], wrist[2], X(2.32), X(3.12), 0.75, n=16, mirror=False)
+    m.hull("fist", asm, bevel_box(fc, (1.1, 1.1, 0.9), 0.16), tone=0.82)
+    m.hull("knuckles", asm, bevel_box((fc[0], fc[1] + 0.26, fc[2] + 0.46), (1.05, 0.4, 0.16), 0.05), tone=0.86)
+    for k in range(3):
+        m.box("finger_gap", asm, (fc[0] + (k - 1) * 0.26, fc[1] - 0.05, fc[2] + 0.46), (0.03, 0.6, 0.03), tone=DARK)
+    m.hull("thumb", asm, bevel_box((fc[0] - s * 0.6, fc[1] + 0.05, fc[2] + 0.15), (0.18, 0.5, 0.5), 0.05), tone=0.8)
+    place_block(m, start, wrist, wrist, size)
+
+
+def inline_arm_laser(m, s, asm, side, sh, elbow, wrist):
+    """HD BLOCK (from the Atlas): a LASER IN LINE with the forearm on its top face (over the fist), its housing clear of the bent elbow,
+    the barrel sunk 0.42 of its diameter; returns the forearm's MOUNT SLOTS (the faces a weapon may take, Daniel: "technically there
+    should be mounting slots for a number of placements"), the top one holding this laser."""
+    mounts = []
+    d_ = (0.0, wrist[1] - elbow[1], wrist[2] - elbow[2])
+    ln_ = math.hypot(d_[1], d_[2])
+    u = (0.0, d_[1] / ln_, d_[2] / ln_)
+    up_ = (0.0, u[2], -u[1])                          # across the forearm, upward
+    apo = 1.35 / 2 * math.cos(math.radians(22.5))     # the eight-sided forearm's top face, from its axis
+    lift = apo + 0.3 * (0.5 - 0.42)                   # the barrel sunk 0.42 of its diameter (principle: inline guns)
+    at = lambda t, h: (sh[0], elbow[1] + u[1] * t + up_[1] * h, elbow[2] + u[2] * t + up_[2] * h)
+    p0, p1, p2 = at(0.75, apo + 0.05), at(1.4, lift), at(2.95, lift)     # (the housing starts clear of the bent elbow)
+    m.tube("laser_housing", asm, p0, p1, 0.5, 0.46, n=12, tone=PLATE)
+    m.tube("laser_barrel", asm, p1, p2, 0.3, 0.27, n=12, tone=METAL, role="weapon:%sA:Medium Laser" % side)
+    # the forearm's MOUNT SLOTS (the faces a weapon may take; the three lower faces are behind the fist): positions on the faces at
+    # the forearm's middle, facing along it
+    for face, ang in (("top", 90), ("top_outer", 45), ("outer", 0), ("top_inner", 135), ("inner", 180)):
+        a_ = math.radians(ang)
+        lat, upc = math.cos(a_) * s, math.sin(a_)
+        pos = (sh[0] + lat * apo, elbow[1] + u[1] * 1.2 + up_[1] * upc * apo, elbow[2] + u[2] * 1.2 + up_[2] * upc * apo)
+        mounts.append({"id": "%sA.forearm_%s" % (side, face), "kind": "arm_face", "location": side + "A", "hidden": face != "top",
+                           "holds": "Medium Laser" if face == "top" else None, "pos": rnd(pos), "facing": rnd(u),
+                           "note": "over the fist" if face == "top" else ("over the thumb" if face == "top_inner" else "")})
+    return mounts
+
+
+def atlas():
+    """ATLAS AS7-D (100 t assault). Measured on a grid over the AI five-view sheet (reference_art/ai_sheets/Atlas AS7-D/batch2_1.webp:
+    front view 10/377 per pixel, centre x 187, ground y 405, head top y 28; side view 10/356, ground y 808) and tools/lowpoly_measure.py;
+    the weapons from the record sheet and the TRO drawing (reference_art/originals/34 Atlas AS7-D.jpg). Built from the HD blocks.
+    The SHAPE LANGUAGE from the MWO Atlas printable kit Daniel sent on 2026-11-03 (28 STL parts; the files were kept out of the repo,
+    the study is in INTEGRATION__COMBAT_LAB.md "Reference study: MWO Atlas parts kit"): angular and plated, louvres and bolts; a
+    death's-head dome in a notch; dome pauldrons with a rim flange; an oval pelvis plate with a hanging front apron; legs deeper than
+    wide, a slash line on the thigh, a spur behind the shin; a LOW foot with a big ankle drum; the AC/20 a boxy receiver with a top
+    rail and cooling holes, a long barrel, a ringed brake, on a round socket disc; the SRM 6 a box with a 2 x 3 face.
+    Units: ground to the head's top = 10; +x is the 'Mech's LEFT, +z forward."""
+    m = Model()
+    # ---------------------------------------------------------------- the torso: a wide chest, two humps either side of a sunken head
+    # ROUND 2 (Claude's list, Daniel: "Go ahead and make your changes"): the chest TAPERS to the waist like a V (the sheet: 3.6 wide
+    # at y 6.5 under a 4.3 chest; it was a box down to the belt)
+    # (round 5, Daniel: "The chest and back are anemic. The AI drawing portrays the mech with a much more build up torso in terms of
+    # depth": the front stands 0.25 further out, the back 0.15 further back, and plates are layered on the back below)
+    lv = [(8.1, 1.95, 1.0, -1.05), (7.9, 2.15, 1.35, -1.3), (7.0, 1.86, 1.4, -1.3), (6.5, 1.62, 1.25, -1.15), (6.15, 1.5, 1.1, -1.05)]
+    # (round 4, the TOP-VIEW bands: from above the sheet's torso is an OCTAGON, its corners cut deep; ours was a rectangle - ch 0.3)
+    torso_stack(m, lv, ch=0.55, tone=0.88)
+    # THE COLLAR (round 4, the section comparison: the sheet's head stands in a collar - tall LOUVRED blocks either side, a raised
+    # collar behind; the louvres are heat exhausts): chamfered blocks either side of the head, a collar plate behind it, clear of the
+    # head so it can turn (principle 30)
+    louvred_collar(m)
+    # the SHOULDER DECKS: the chest's top beside the collar, broken into stepped plates with a vent between (no large flat space)
+    shoulder_decks(m)
+    # (round 5: the dark SEAM LINES were thin boxes standing for panel joins, not parts - Daniel: "The black lines are for visual
+    # appeal? ... The ones on the chest dont look right, especially in the action pose": the chest seam, the breastplate ridge, the
+    # pauldron seams and the thigh slash are gone; a join is shown by real plates meeting, as the breastplate and the pectorals do)
+    # the BREASTPLATE (round 4: the sheet's raised shield of angled facets meeting in the middle, bulging forward in the side view),
+    # the PECTORAL planes sloping back to the sides, and the ARCH over the belly with GRILLES either side (air intakes)
+    chest_armour(m)
+    # the BACK built up: plates layered on the lower back and on the shoulder blades beside the collar (Daniel: "anemic")
+    back_armour(m)
+    # the two REAR-FIRING centre-torso lasers (record sheet: "Medium Laser (R)" x 2), under the pack, pointing back
+    rear_laser_pair(m)
+    # the SIDE TORSOS below the chest: RECESSED sections either side of the centre torso, set back from its front, holding the weapon
+    # bays (Daniel, 2026-11-18: "the side torsos have recessed sections holding weapon bays that are visually not part of the core
+    # torso from the front"): a dark-edged recess each side, a frame lip round it, vents in its back wall
+    side_recesses(m)
+    # the LRM 20 (record sheet: left torso) on the open upper LEFT CHEST, and the SRM 6 at the left hip: the bigger launcher on the
+    # wider flat space (Daniel, 2026-11-18: "Atlas LRM 20 is weird. My suggestion is to switch spots with the SRM-6, use the wider open
+    # chest for the bigger weapon system"; the first pass had the TRO's places: SRM 6 on the chest, LRM 20 at the hip)
+    bay_grid(m, "torso", (1.22, 7.6, 1.37), 1.05, 0.88, 4, 5, role="weapon:LT:LRM 20", name="lrm20_bay")
+    m.hull("srm_housing", "torso", bevel_box((1.52, 6.72, 0.72), (0.66, 0.84, 1.4), 0.08), tone=0.8)
+    bay_grid(m, "torso", (1.52, 6.72, 1.3), 0.6, 0.76, 3, 2, role="weapon:LT:SRM 6", name="srm6_bay")
+    # the AC/20 (record sheet: right torso) on the right flank: a breech housing reaching back (its weight over the legs, as the
+    # Hunchback lesson) and a jacketed barrel forward (the TRO's barrel at the right hip)
+    # (the kit: a boxy RECEIVER with a raised top rail and cooling holes, an underside stub, a long barrel, a ringed muzzle brake, on
+    # a round SOCKET DISC on the torso's side; moved in from x -1.86 so its fire clears the right fist's thumb)
+    boxed_autocannon(m)
+    # ---------------------------------------------------------------- the head: a skull, sunk between the humps, a gap under it
+    # (round 3: a DEATH'S HEAD - Daniel: "The head is an abomination ... I think you drew a sad conehead"; forward, as the sheet's plan)
+    # THE HEAD (round 4): one faceted shell, about as tall as wide (the sheet: 1.75 wide, 2.0 tall), bulging forward over the chest
+    # (the side view), the jaw its own lower part; the death's head laid into its front
+    # (round 5, Daniel: "The head looks like its jutting forward. The neck is not aligned with where the spine would be": the head moves
+    # back over the neck, the neck stands on the torso's centre line)
+    skull_head_hd(m)
+    # the dish (the sheet: on the right hump) and the antenna (left), both kept
+    # (centred on the collar blocks they stand on - Daniel, 2026-11-18: "Check the antenna and radar dish, they're no longer centered":
+    # they stayed where the old shoulder masses had been when the collar moved out)
+    sensor_masts(m)
+    # ---------------------------------------------------------------- the waist and the pelvis: a belt, a deep crotch block
+    # (round 5: the turning RING at the waist line, wide - the torso turns on it, so it shows in the outline; the sheet's waist is 3.6)
+    oval_waist(m)
+    # the PELVIS (the kit: "a wide flat OVAL plate on top, a short skirt below, and a narrow hanging apron down the front centre: from
+    # the front it reads as a T or anvil")
+    oval_pelvis(m)
+    # ---------------------------------------------------------------- the legs (straight; the sheet: column shins, a big knee disc)
+    hip, knee, ankle = (1.56, 5.15, 0.0), (1.56, 3.3, 0.12), (1.56, 1.25, 0.0)
+    leg_from = len(m.parts)
+    # (round 3, the measuring test: the hips measured far wider than the sheet's 3.65: the hip axle, its cover and the thigh's top stood
+    # out past the hanging arms; now the axle ends at the thigh's outer face and the thigh is narrower at the top)
+    plated_leg(m)
+    # the ANKLE housing reaches INTO the foot (principle 28); the foot: a wide pedestal, toe forward (side view: toe 2.0 ahead, heel 1.4
+    # behind; front view 2.25 wide)
+    # (round 4: the sheet's shin FLARES into an ankle SPAT - a trapezoid skirt over the foot - with a band at its top)
+    ankle_spat(m)
+    foot_from = len(m.parts)
+    wedge_foot(m)
     leg_end = len(m.parts)
     # ---------------------------------------------------------------- the arms: pod shoulders, heavy sleeves, fists, lasers in line
     pivots, arm_mounts = {}, []
@@ -1206,20 +1435,7 @@ def atlas():
         # (round 2: blockier - two rings of facets - and pushed FORWARD: the sheet's side view has the pad bulging ahead of the chest)
         # (round 3, Daniel: "The shoulder plates are not centered over the shoulder and are kinda long when viewed from above": centred
         # over the joint again, and shorter fore and aft)
-        pz = 0.0
-        # (round 4, the section comparison: the dome read as a CONE; the sheet's pads are faceted blocks whose tops slope down and out)
-        pad = []
-        # (round 5, the articulation test: the pad moves with the arm, and its inner side stood inside the chest and the collar - the arm
-        # could not swing without the pad cutting through them; it now starts outboard of the chest, x 2.24)
-        for z, k in ((-0.95, 0.72), (-0.65, 1.0), (0.65, 1.0), (0.95, 0.72)):   # (the front and back corners cut deeper: the plan)
-            pad += [(X(2.24), 8.0, z * k), (X(3.52), 8.0, z * k), (X(3.52), 8.42 + 0.12 * (k - 0.85) / 0.15, z * k),
-                    (X(2.24), 8.8 + 0.12 * (k - 0.85) / 0.15, z * k)]
-        pad += [(X(2.38), 9.02, z) for z in (-0.5, 0.5)] + [(X(3.36), 8.62, z) for z in (-0.5, 0.5)]
-        m.hull("pauldron", asm, pad, tone=0.9)
-        ring = lambda y, rx, rz: [(X(2.88) + rx * math.cos(math.radians(22.5 + 45 * k)), y, pz + rz * math.sin(math.radians(22.5 + 45 * k)))
-                                  for k in range(8)]
-        m.hull("pauldron_flange", asm, ring(7.92, 0.66, 1.08) + ring(8.08, 0.62, 1.03), tone=TRIM)    # (a wider one read as a hat)
-        m.tube("pauldron_root", asm, (X(2.05), 8.3, 0.0), (X(2.4), 8.3, 0.0), 1.0, n=8, roll=22.5, tone=0.8)    # on the shoulder's axis
+        faceted_pauldron(m, s, asm)
         axle_cap(m, "shoulder", asm, sh[1], 0, X(1.9), X(3.36), 1.0, n=24, mirror=False)
         up = math.radians(15)
         elbow = (sh[0], sh[1] - 1.65 * math.cos(up), 1.65 * math.sin(up))
@@ -1235,48 +1451,13 @@ def atlas():
         # "a long slab ending in a fist"), and every part on it is for something: the ACTUATOR HOUSING at the elbow end (the lower arm
         # actuator), an ARMOUR PLATE down its outer face, a MAINTENANCE HATCH with its warning stripes (the TRO's hatched panel), a WRIST
         # CUFF at the fist end over the wrist (hand) actuator
-        ef = lambda t: (sh[0], elbow[1] + (wrist[1] - elbow[1]) * t, elbow[2] + (wrist[2] - elbow[2]) * t)
-        limb(m, "forearm", asm, ef(0.2), wrist, 1.32, 1.28, 1.24, 1.2, steps=1, sides=8, tone=0.78, bulge=0.0)
-        m.tube("actuator_housing", asm, ef(0.24), ef(0.4), 1.4, 1.36, n=8, roll=22.5, tone=0.7)
-        m.tube("wrist_cuff", asm, ef(0.86), ef(1.0), 1.34, 1.38, n=8, roll=22.5, tone=0.7)
-        fo = 1.28 / 2 * math.cos(math.radians(22.5))
-        m.add("bar", "forearm_armour", asm, a=(sh[0] + s * (fo + 0.04), *ef(0.25)[1:]), b=(sh[0] + s * (fo + 0.04), *ef(0.82)[1:]),
-              w0=[0.1, 0.95], w1=[0.1, 0.9], tone=PLATE)
-        hp = ef(0.55)
-        m.box("hatch", asm, (sh[0] - s * (fo + 0.01), hp[1], hp[2]), (0.03, 0.62, 0.62), tone=0.55)
-        for k in range(4):                                # the warning stripes on the hatch
-            m.add("bar", "hatch_stripe", asm, a=(sh[0] - s * (fo + 0.03), hp[1] - 0.28 + k * 0.15, hp[2] - 0.28),
-                  b=(sh[0] - s * (fo + 0.03), hp[1] - 0.28 + k * 0.15 + 0.2, hp[2] - 0.08), w0=[0.02, 0.05], w1=[0.02, 0.05], tone=DARK)
-        fc = (sh[0], wrist[1] - 0.18, wrist[2] + 0.4)
-        axle_cap(m, "wrist", asm, wrist[1], wrist[2], X(2.32), X(3.12), 0.75, n=16, mirror=False)
-        m.hull("fist", asm, bevel_box(fc, (1.1, 1.1, 0.9), 0.16), tone=0.82)
-        m.hull("knuckles", asm, bevel_box((fc[0], fc[1] + 0.26, fc[2] + 0.46), (1.05, 0.4, 0.16), 0.05), tone=0.86)
-        for k in range(3):
-            m.box("finger_gap", asm, (fc[0] + (k - 1) * 0.26, fc[1] - 0.05, fc[2] + 0.46), (0.03, 0.6, 0.03), tone=DARK)
-        m.hull("thumb", asm, bevel_box((fc[0] - s * 0.6, fc[1] + 0.05, fc[2] + 0.15), (0.18, 0.5, 0.5), 0.05), tone=0.8)
+        slab_forearm(m, s, asm, sh, elbow, wrist)
+        block_fist(m, s, asm, wrist)
         # the MEDIUM LASER (record sheet: each arm), in line with the forearm, OVER THE FIST on its top face, the same on both arms
         # (Daniel, 2026-11-18: in the art "one is placed over the thumb, the other over the fist. They're not symmetrical. I however
         # do believe in symmetry whenever possible. Which is picked is arbitrary, and technically there should be mounting slots for a
         # number of placements": the other faces are listed as the forearm's mount slots, below)
-        d_ = (0.0, wrist[1] - elbow[1], wrist[2] - elbow[2])
-        ln_ = math.hypot(d_[1], d_[2])
-        u = (0.0, d_[1] / ln_, d_[2] / ln_)
-        up_ = (0.0, u[2], -u[1])                          # across the forearm, upward
-        apo = 1.35 / 2 * math.cos(math.radians(22.5))     # the eight-sided forearm's top face, from its axis
-        lift = apo + 0.3 * (0.5 - 0.42)                   # the barrel sunk 0.42 of its diameter (principle: inline guns)
-        at = lambda t, h: (sh[0], elbow[1] + u[1] * t + up_[1] * h, elbow[2] + u[2] * t + up_[2] * h)
-        p0, p1, p2 = at(0.75, apo + 0.05), at(1.4, lift), at(2.95, lift)     # (the housing starts clear of the bent elbow)
-        m.tube("laser_housing", asm, p0, p1, 0.5, 0.46, n=12, tone=PLATE)
-        m.tube("laser_barrel", asm, p1, p2, 0.3, 0.27, n=12, tone=METAL, role="weapon:%sA:Medium Laser" % side)
-        # the forearm's MOUNT SLOTS (the faces a weapon may take; the three lower faces are behind the fist): positions on the faces at
-        # the forearm's middle, facing along it
-        for face, ang in (("top", 90), ("top_outer", 45), ("outer", 0), ("top_inner", 135), ("inner", 180)):
-            a_ = math.radians(ang)
-            lat, upc = math.cos(a_) * s, math.sin(a_)
-            pos = (sh[0] + lat * apo, elbow[1] + u[1] * 1.2 + up_[1] * upc * apo, elbow[2] + u[2] * 1.2 + up_[2] * upc * apo)
-            arm_mounts.append({"id": "%sA.forearm_%s" % (side, face), "kind": "arm_face", "location": side + "A", "hidden": face != "top",
-                               "holds": "Medium Laser" if face == "top" else None, "pos": rnd(pos), "facing": rnd(u),
-                               "note": "over the fist" if face == "top" else ("over the thumb" if face == "top_inner" else "")})
+        arm_mounts += inline_arm_laser(m, s, asm, side, sh, elbow, wrist)
         # each joint's RANGE (degrees from the built pose), checked clip-free by tools/lowpoly_articulate.py: the elbow folds to 105
         # degrees (15 past level; further, the thick forearm meets the upper arm) and opens to straight
         pivots["shoulder_" + side] = {"centre": rnd(sh), "axis": "x", "parent": "torso", "child": "upper arm", "range": [-90, 60]}
@@ -1334,7 +1515,6 @@ def atlas():
                 "Arms in the ready pose, as the Commando's; the AI front view hangs them.",
                 "Head: a death's-head skull, the cockpit in its eyes; a gap under it (principle 30)."],
             "parts": m.parts}
-
 
 BUILDERS = {"Catapult CPLT-C1": catapult, "Commando COM-2D": commando, "Atlas AS7-D": atlas}
 
