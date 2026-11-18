@@ -4,6 +4,9 @@
 Daniel, 2026-11-17: "So far I like the art. Can you take the separate pieces and show examples of connected groups of them?"
 
 (2026-11-17, second batch: the upper arm and the pelvis are real blocks now; no stand-ins remain in these groups.)
+SUPERSEDED for whole 'Mechs by tools/lowpoly_assemble.py (2026-11-17): Daniel saw loose pieces on the Catapult group here ("Any
+final render must have a socket system so that every block connects to the correct 'Bone'", and blocks seated flush). These groups
+place some parts by hand-set offsets; the assembler places every block by sockets and seats, and checks it is one piece.
 A group is built by `Assembly.add(block_id, anchor, at, mirror)`: the block's named anchor is put at the world point `at`
 (mirror=True makes the right-hand copy: x flipped), and the call returns the block's anchors in world coordinates, so the next
 block chains on (thigh `knee` -> shin `knee`, shin `ankle` -> boot `ankle`). Two pieces have no block yet, the UPPER ARM and

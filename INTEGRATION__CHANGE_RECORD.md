@@ -6,6 +6,28 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), WHOLE 'MECHS ON A SOCKET SKELETON; THE OLD ART PROJECT'S 3D VIEWER. Art only. REVIEW PENDING
+  (higher-level model).** Daniel: "the Catapult render you showed has disconnected pieces. Any final render must have a socket
+  system so that every block connects to the correct 'Bone'. Also blocks must sit flush to the surface they're on ... the Catapult's
+  cockpit needs to be tangent to the surface it sits on ... steal the unit viewer from the original art project and render the
+  mechs from this pass, plus their hashed appearance."
+  - `tools/lowpoly_assemble.py`: a skeleton (hip-knee-ankle, shoulder-elbow-wrist, waist-neck; straight or bird legs, the pose from
+    the shin) whose joints come from the blocks' own sockets. Blocks are placed three ways: FIT (a limb's solid spans its bone plus
+    0.08 into each neighbour; it stretches along the bone, its thickness follows only up to 1.25x), PLUG (one socket on a joint),
+    SEAT (a ray onto the host block: the anchor on the hit point, the mounting face turned to the surface normal: canopies tangent,
+    heads, shoulders, knee and ankle discs, bays, racks, packs, antennas, fins, belly plates, arm guns). Stacked blocks SETTLE onto
+    the real top of the block below. Two builds per unit: from the drawings (the taxonomy's seen_on; the most distinctive type when
+    several; the name hash where the drawings are silent; no arms only on a slung body with no forearm drawn, as the Catapult) and
+    name hash only (sha256 per slot, as INTEGRATION__shell_facet.pick). A jump-jet pack when the unit file jumps.
+  - Fixed on the way: the skirt pelvis's waist socket was above its top (every torso on it floated); the drum foot's LOW had no
+    ankle socket; the first fit left gaps at knees (blocks stop short of their anchors); stubby limbs swelled into drums.
+  - CHECK: all 34 units x 2 builds x HIGH/LOW are ONE connected piece (solid-box contact graph), stand on y = 0, and every seat hit
+    its surface; in tests/test_lowpoly_ref.py. The Catapult (drawings) is now one piece, its canopy tangent on its body.
+  - VIEWER: tools/token_3d_template.html copied to tools/lowpoly_viewer_template.html (`lowpoly_assemble.py template` makes it:
+    variant buttons From the drawings / Name hash / both at LOW, a new header and legend); the bones are a Skeleton layer (X-ray
+    armor shows them). `lowpoly_assemble.py viewer OUT.html` writes the page (34 units, about 13 MB). tools/lowpoly_groups.py is
+    superseded for whole 'Mechs (it placed some parts by hand).
+
 - **2026-11-17 (Claude, session 28), BLOCK LIBRARY SECOND BATCH: THE REST OF THE TAXONOMY (46 BLOCKS), JUDGED FROM ABOVE TOO.
   Art only (reference_art/, private). REVIEW PENDING (higher-level model).** Daniel: "More reference material. Its from Megamek so
   technically it could be used, but I'd prefer not to to avoid confusion between our program and theirs. The main thought is that
