@@ -19,6 +19,8 @@ import lowpoly_blocks as B  # noqa: E402
 import lowpoly_ref as L  # noqa: E402
 import publish_public  # noqa: E402
 
+ASSEMBLY_CHECK_BUDGET = 90      # seconds; over it the test prints SLOW (it does not fail: speed is not correctness)
+
 
 def main():
     bad = 0
@@ -44,9 +46,17 @@ def main():
         print("FAIL block", e); bad += 1
     # whole 'Mechs on the socket skeleton (2026-11-17): every unit's two builds at both levels are one connected piece, stand on
     # the ground, and every seated block found its surface (tools/lowpoly_assemble.py check)
+    import time
     import lowpoly_assemble as A
+    t0 = time.time()
     for e in A.check_all():
         print("FAIL mech", e); bad += 1
+    took = time.time() - t0
+    # a slowdown is flagged the day it appears (2026-11-18: a brute-force hull had made this check 4.5 minutes unnoticed)
+    if took > ASSEMBLY_CHECK_BUDGET:
+        print("SLOW: the assembly check took %.0f s (budget %d s): profile it (python -m cProfile) before it grows" % (took, ASSEMBLY_CHECK_BUDGET))
+    else:
+        print("assembly check: %.0f s (budget %d s)" % (took, ASSEMBLY_CHECK_BUDGET))
     # HD models (reference_art/models_hd: no triangle budget; the simplified models are made from them later)
     hd_dir = os.path.join(L.REF, "models_hd")
     for f in sorted(os.listdir(hd_dir)) if os.path.isdir(hd_dir) else []:
