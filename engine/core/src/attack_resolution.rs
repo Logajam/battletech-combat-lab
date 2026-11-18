@@ -1208,7 +1208,7 @@ pub fn table_value(b: &mut Battle, attacker: UnitId, w: ItemId, distance: i64, p
 }
 
 fn choice_note(b: &mut Battle, attacker: UnitId, weapons: &[ItemId], value: f64, planner: &mut Planner, distance: i64, pre_tn: i64) -> String {
-    if b.units[attacker].bot != "princess" {
+    if !b.units[attacker].is_princess_family() {
         return format!("expected dmg {}", crate::pyfmt::Fx(value, 2));
     }
     let damage = plan_damage(b, attacker, weapons, planner, distance, pre_tn);

@@ -6,6 +6,19 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 29), CASPAR, THE FOURTH BOT. REVIEW PENDING (higher-level model).** Daniel: "look up the CASPAR bot used by
+  megamek and incorporate it as a 4th bot", then "update the programs website to include it as an option". Read MegaMek main `7fa46c5`
+  (`Caspar.java`, `MutualSupportPathRanker`, `MutualSupportDeployment`, `FormationGeometry`, `SupportEnvelope`, `BankRegions`,
+  `FormationSide`, `DamageProfile`). CASPAR is `Caspar extends Princess`; for 'Mechs it differs in (1) the Mutual Support movement ranker,
+  (2) Mutual Support deployment, (3) deployment facing toward the enemy's zone. Built as bot "caspar": `engine/core/src/caspar.rs` (the
+  supporting-range envelope, formation radius, `Doctrine` = formation penalty bounded by one turn's advance x 0.8, cover bonus of 2 for up
+  to 2 set friends in range, closing tempo in turns at own speed, defender's river charge; formation placement), `princess_modern::choose_as`
+  (the two terms swapped inside Princess's ranker, everything else shared), `Mech::is_princess_family` (every place that asked "is it
+  Princess?" now takes CASPAR too: target, fire, physical, memory), `orchestrator::deploy_zones` (placed units form up and face the enemy
+  zones), `runs::BOTS` (the Lab and, through its info, the website's bot list), `btsim --caspar TEAM`, credits, a website check setup.
+  Not ported: aerospace, takeoff, player unit orders, forced withdrawal (none exist here). Simplified: no per-round envelope cache;
+  hex-line water test counts either hex of an edge-run. Princess's and Gladiator's behaviour is unchanged (their reference battles are
+  untouched). Seeing it: 4v4 Princess v Gladiator, 40 battles, Red as Princess 17-23, Red as CASPAR 17-23 (general feel only).
 - **2026-11-18 (Claude, session 28), THE ATLAS TAKEN APART INTO HD BLOCKS (T15c item B). Art only. REVIEW PENDING (higher-level
   model).** Daniel: "Good enough. I think its ready to be taken apart for blocks." `tools/lowpoly_hd.py`: `atlas()` is now a list of
   18 block calls (collar, shoulder decks, chest and back armour, rear laser pair, side recesses, the boxed autocannon, the skull head,

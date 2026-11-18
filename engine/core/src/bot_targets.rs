@@ -22,7 +22,7 @@ pub fn dry_declare_as(b: &mut Battle, attacker: UnitId, target: UnitId, princess
     let r = (|| {
         let Prep::Ready(ctx) = prepare_declaration(b, attacker, target, true) else { return None };
         let mut planner = Planner::new(attacker, target, &ctx.adjust, ctx.ams_share, ctx.pod_values.clone(), Some(ctx.hex_offset));
-        let choice = if princess || b.units[attacker].bot == "princess" {
+        let choice = if princess || b.units[attacker].is_princess_family() {
             crate::gladiator::choose_declaration_princess(b, &ctx, &mut planner, attacker, target)
         } else {
             crate::gladiator::choose_declaration(b, &ctx, &mut planner, attacker, target)
@@ -96,7 +96,7 @@ pub fn fire_pick_active(b: &mut Battle) -> bool {
         return false;
     }
     let standing = crate::forces::standing(b);
-    let teams: Vec<String> = standing.iter().filter(|u| b.units[**u].bot != "princess").map(|u| b.units[*u].team.clone().unwrap_or_default()).collect();
+    let teams: Vec<String> = standing.iter().filter(|u| !b.units[**u].is_princess_family()).map(|u| b.units[*u].team.clone().unwrap_or_default()).collect();
     if teams.iter().all(|t| teams.iter().filter(|x| *x == t).count() < 2) {
         return false;
     }
@@ -109,7 +109,7 @@ pub fn fire_pick_active(b: &mut Battle) -> bool {
 pub fn fire_pick(b: &mut Battle, candidates: &[UnitId]) -> UnitId {
     let mut best: Option<(UnitId, (i64, f64))> = None;
     for &u in candidates {
-        let rank = if b.units[u].bot == "princess" {
+        let rank = if b.units[u].is_princess_family() {
             (0, 0.0)
         } else {
             let g = match b.princess.guns.get(&u) {
@@ -127,7 +127,7 @@ pub fn fire_pick(b: &mut Battle, candidates: &[UnitId]) -> UnitId {
         }
     }
     let (u, _) = best.unwrap();
-    if b.units[u].bot != "princess" && candidates.len() > 1 {
+    if !b.units[u].is_princess_family() && candidates.len() > 1 {
         let name = b.units[u].side_name.clone().unwrap_or_default();
         let g = b.princess.guns[&u];
         b.log(format!("  [Ranged] Firing order: {} declares next (big guns first: expected {}).", name, crate::pyfmt::Fx(g, 1)));

@@ -22,6 +22,8 @@ pub struct Scenario {
     pub max_turns: i64,
     /// teams whose every unit is driven by Hydra, whatever units.json says (btsim --hydra TEAM[,TEAM])
     pub hydra_teams: Vec<String>,
+    /// teams whose every unit is driven by CASPAR (btsim --caspar TEAM[,TEAM])
+    pub caspar_teams: Vec<String>,
 }
 
 fn read(p: &Path) -> Value {
@@ -138,13 +140,13 @@ impl Scenario {
             units.insert(n.clone(), b.units[i].to_json(&name_of));
         }
         config.as_object_mut().unwrap().remove("_ACTIVE_RNG");
-        Ok(Scenario { hydra_teams: Vec::new(), config, board: board_json, units: Value::Object(units), max_turns: STANDARD_MAX_TURNS })
+        Ok(Scenario { hydra_teams: Vec::new(), caspar_teams: Vec::new(), config, board: board_json, units: Value::Object(units), max_turns: STANDARD_MAX_TURNS })
     }
 
     pub fn load(dir: &Path) -> Scenario {
         // THE TURN CAP: STANDARD_MAX_TURNS for every scenario (btsim --max-turns changes it for a run). A meta.json's
         // max_turns is the Python's old 50 (config.MAX_TURNS, written by the export) and is not read.
-        Scenario { hydra_teams: Vec::new(), config: read(&dir.join("config.json")), board: read(&dir.join("board.json")), units: read(&dir.join("units.json")), max_turns: STANDARD_MAX_TURNS }
+        Scenario { hydra_teams: Vec::new(), caspar_teams: Vec::new(), config: read(&dir.join("config.json")), board: read(&dir.join("board.json")), units: read(&dir.join("units.json")), max_turns: STANDARD_MAX_TURNS }
     }
 
     /// Builds the battle (units, board, config) around a dice source.
@@ -157,6 +159,9 @@ impl Scenario {
         for m in units.iter_mut() {
             if m.team.as_ref().is_some_and(|t| self.hydra_teams.contains(t)) {
                 m.bot = "hydra".to_string();
+            }
+            if m.team.as_ref().is_some_and(|t| self.caspar_teams.contains(t)) {
+                m.bot = "caspar".to_string();
             }
         }
         Battle::new(cfg, board, units, dice)

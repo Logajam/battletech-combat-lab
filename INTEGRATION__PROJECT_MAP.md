@@ -31,7 +31,7 @@ move its line to the Change Record instead of adding a paragraph here.
 
 **What it is.** `.mtf` units in, turn-by-turn battles on a real hex board under the Core Rulebook, a batch summary
 and statistics page out. Any number of units on any number of teams (`config.FORCES`), each driven by one of two
-bots: Gladiator (this project's) or Princess (a MegaMek clone); a third, Hydra, exists in the Rust engine only. Daniel owns rules and scope; Claude owns the code
+bots: Gladiator (this project's) or Princess (a MegaMek clone); a third, Hydra, and a fourth, CASPAR (MegaMek's Mutual Support bot, Princess-based), exist in the Rust engine only. Daniel owns rules and scope; Claude owns the code
 and the GitHub logistics (Section 7).
 
 ### Session setup and the checks
@@ -125,9 +125,12 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
 
 **B. Princess clone** [00] - still to clone when the project has the rules: forced withdrawal, artillery / TAG
 standoff, sprinting, multi-target fire, unit orders. Open call (Daniel): Short-Short as the default search.
-MegaMek's CASPAR (read 2026-11-12, MegaMek main `c743b3f`): a separate bot, `class Caspar extends Princess`, with Mutual Support
-movement and deployment and aerospace changes; not cloned (Daniel may ask about it on MegaMek's Discord). Our bots can meet the
-real Princess and CASPAR through the bridge (E4).
+MegaMek's CASPAR (read 2026-11-12, MegaMek main `c743b3f`; re-read 2026-11-18 at `7fa46c5`): `class Caspar extends Princess`. CLONED
+2026-11-18 as the FOURTH BOT, "caspar" (Rust only; Daniel: "incorporate it as a 4th bot"): `engine/core/src/caspar.rs` plus
+`princess_modern::choose_as`. It is the Princess clone with MegaMek's Mutual Support doctrine swapped in (formation penalty, cover
+bonus, closing tempo in turns at own speed, river charge for a defending force) and Mutual Support deployment / zone-facing for
+placed units. Not ported (a simulation has none): aerospace, takeoff / landing, player unit orders, forced withdrawal. Pick it in
+the Lab or the website's team bot list, or `btsim ... --caspar TEAM`. Our bots can also meet the real Princess and CASPAR through the bridge (E4).
 
 **C. Rules and units**
 - C1. Crippled / forced withdrawal [5] - not started; an option plus a picker override.
@@ -232,6 +235,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s29-1) CASPAR, THE FOURTH BOT** (session 29): `engine/core/src/caspar.rs` (envelope, formation radius, `Doctrine`, deployment), the `choose_as` / `rank` hooks in `princess_modern.rs`, `Mech::is_princess_family` and its call sites, `orchestrator::deploy_zones` + `enemy_zone_centre`, `deployment::facing_toward`, `runs::BOTS`, `btsim --caspar`. Look at: the supporting-range curve v MegaMek's DamageProfile (no arcs, no ammo options); the hex-line water test; that CASPAR's "friends" are the whole team; the five-hex-wide formation radius at the default mutual-support slider.
 - **(s28-7) ITERATIVE PASS v DRAWINGS** (session 28): `reference_art/blocks/comparison_pass1.md` (the list and the rules), the ITERATION 1 / 2 rules in `tools/lowpoly_assemble.py`. Look at: whether the unit-file arm rule overrides the drawings too often; `leg_ratio`'s numbers were read off the drawings by eye.
 - **(s28-8) COMMANDO HD** (session 28): `tools/lowpoly_hd.py commando()`, `reference_art/models_hd/Commando COM-2D.json`. Look at: the ready arm pose (the sheet hangs the arms); the laser on the forearm's outer face; the FIVE_VIEWS front/rear mirror fix.
 - **(s28-9) HD REVIEW + COMMANDO ROUNDS** (session 28): `reference_art/blocks/HD_REVIEW.md` (the block plan and slot budgets), the Commando's review rounds (principles 26-32), `lowpoly_hd.turnaround`. Look at: the slot-budget table; whether the block split is the right granularity.

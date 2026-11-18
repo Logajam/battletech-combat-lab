@@ -35,15 +35,15 @@ const DEFAULT_ENEMIES_TO_FACE: i64 = 4;
 const ATTACK: &str = "ATTACK";
 const DEFEND: &str = "DEFEND";
 
-fn java_round(x: f64) -> i64 {
+pub(crate) fn java_round(x: f64) -> i64 {
     (x + 0.5).floor() as i64
 }
 
-fn cols_rows(xy: (i64, i64)) -> (i64, i64) {
+pub(crate) fn cols_rows(xy: (i64, i64)) -> (i64, i64) {
     label_to_cols_rows(&hex_geometry::hex_label(xy.0, xy.1).unwrap())
 }
 
-fn xy_of(col: i64, row: i64) -> (i64, i64) {
+pub(crate) fn xy_of(col: i64, row: i64) -> (i64, i64) {
     hex_geometry::parse_hex_label(&cols_rows_to_label(col, row)).unwrap()
 }
 
@@ -81,6 +81,11 @@ fn geometric_median(points: &[(i64, i64)]) -> Option<(i64, i64)> {
     Some((cx as i64, cy as i64))
 }
 
+/// BehaviorSettings.getMutualSupportValue: the mutual support slider's multiplier.
+pub fn mutual_support_value(b: &Battle) -> f64 {
+    MUTUAL_SUPPORT_VALUES[b.cfg.get("PRINCESS_BEHAVIOR")["mutual_support"].as_i64().unwrap_or(5).clamp(0, 10) as usize]
+}
+
 /// The battle as one Princess unit sees it while it picks a move.
 pub struct Group {
     pub mover: UnitId,
@@ -107,7 +112,7 @@ impl Group {
         let team = b.units[mover].team.clone();
         let friends: Vec<UnitId> = standing.into_iter().filter(|u| b.units[*u].team == team && *u != mover && b.units[*u].hex.is_some()).collect();
         let beh = b.cfg.get("PRINCESS_BEHAVIOR").clone();
-        let support_value = MUTUAL_SUPPORT_VALUES[beh["mutual_support"].as_i64().unwrap_or(5).clamp(0, 10) as usize];
+        let support_value = mutual_support_value(b);
         let anti_crowding = beh["anti_crowding"].as_i64().unwrap_or(0);
         let enemies_to_face = beh["facing_enemies"].as_i64().unwrap_or(DEFAULT_ENEMIES_TO_FACE).max(1);
         let group_on = b.cfg.b("PRINCESS_GROUP");
@@ -566,11 +571,19 @@ fn foes_note(group: &Group, moved: bool) -> String {
 
 /// Modern Princess's end-of-movement pick: (pick, note).
 pub fn choose(b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, standup_mp: Option<i64>, entry_edge: Option<&[String]>, ties: &mut crate::move_select::Ties) -> (Option<Pick>, String) {
+    choose_as(b, mover, other, moves_first, standup_mp, entry_edge, ties, false)
+}
+
+/// The same pick for Princess (`caspar` false) or for CASPAR (true): CASPAR is Princess with the Mutual Support doctrine's
+/// two terms in place of the herding and aggression terms (`caspar::Doctrine`); every other part of the score is shared.
+#[allow(clippy::too_many_arguments)]
+pub fn choose_as(b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, standup_mp: Option<i64>, entry_edge: Option<&[String]>, ties: &mut crate::move_select::Ties, caspar: bool) -> (Option<Pick>, String) {
     if b.units[other].hex.is_none() {
         return crate::move_select::choose(b, mover, other, moves_first, standup_mp, entry_edge, ties);
     }
     let group = Group::new(b, mover, Some(other), moves_first);
     let stance = force_posture(b, mover, &group);
+    let doctrine = if caspar { Some(crate::caspar::Doctrine::new(b, mover, &group, &stance)) } else { None };
     let exclude = move_options::occupied_hexes(b, mover, other);
     let (options, notes) = move_options::reduced_options(b, mover, &exclude, standup_mp, entry_edge);
     let moved = group.has_moved(b, other);
@@ -609,11 +622,11 @@ pub fn choose(b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, s
         prepared = Some(p);
     }
     b.fire_ctl = None;
-    rank(b, mover, &group, &prepared.unwrap(), &estimate.unwrap(), standup_mp, entry_edge, &notes, moved, &stance)
+    rank(b, mover, &group, &prepared.unwrap(), &estimate.unwrap(), standup_mp, entry_edge, &notes, moved, &stance, doctrine.as_ref())
 }
 
 #[allow(clippy::too_many_arguments)]
-fn rank(b: &mut Battle, mover: UnitId, group: &Group, prepared: &[Opt], estimate: &HashMap<Key5, Est>, standup_mp: Option<i64>, entry_edge: Option<&[String]>, notes: &move_options::PathNotes, moved: bool, stance: &str) -> (Option<Pick>, String) {
+fn rank(b: &mut Battle, mover: UnitId, group: &Group, prepared: &[Opt], estimate: &HashMap<Key5, Est>, standup_mp: Option<i64>, entry_edge: Option<&[String]>, notes: &move_options::PathNotes, moved: bool, stance: &str, doctrine: Option<&crate::caspar::Doctrine>) -> (Option<Pick>, String) {
     let psr_applies = standup_mp.is_none();
     let fall_shame = princess_fire::setting(b, "fall_shame");
     let bravery = princess_fire::setting(b, "bravery");
@@ -660,13 +673,21 @@ fn rank(b: &mut Battle, mover: UnitId, group: &Group, prepared: &[Opt], estimate
         let fall_mod = fail * if fail == 1.0 { UNIT_DESTRUCTION_FACTOR } else { fall_shame };
         let bravery_mod = p * done * bravery - taken;
         let dist = group.distance_to_enemy(b, o.hex_xy()).unwrap();
-        let aggression_mod = if no_pull { 0.0 } else { (if dist != 0 { dist } else { 2 }) as f64 * aggression };
+        // CASPAR (MutualSupportPathRanker.calculateAggressionMod): the gap to the unit's own best range, in turns at its own speed
+        let aggression_mod = match doctrine {
+            Some(d) => if no_pull { 0.0 } else { d.tempo(dist, aggression) },
+            None => if no_pull { 0.0 } else { (if dist != 0 { dist } else { 2 }) as f64 * aggression },
+        };
         let close = close_range_incentive(b, mover, dist, &mut max_at);
         let face_xy = group.face_target(b, o.hex_xy()).unwrap();
         let near = group.nearest(b, o.hex_xy(), 1);
         let closest = near.map(|(f, _)| hex_geometry::parse_hex_label(b.units[f].hex.as_deref().unwrap()).unwrap());
         let face = facing_mod(o, face_xy, bias, close > 0.0 && melee && dist >= 1, closest);
-        let support = group.support_mod(o.hex_xy());
+        // CASPAR (MutualSupportPathRanker.calculateMutualSupportMod): formation penalty - cover bonus + river posture charge
+        let support = match doctrine {
+            Some(d) => d.support_mod(o.hex_xy(), dist, aggression, turn_of_advance),
+            None => group.support_mod(o.hex_xy()),
+        };
         let crowd = group.crowding_mod(b, o.hex_xy(), max_range);
         let mut hold = 0.0;
         if o.fc == 0 && dist <= THREAT_CONTACT_RANGE {
@@ -681,9 +702,10 @@ fn rank(b: &mut Battle, mover: UnitId, group: &Group, prepared: &[Opt], estimate
         }
     }
     let (utility, o, fall_mod, bravery_mod, p, done, taken, aggression_mod, close, face, hold, support, crowd) = best.unwrap();
-    let group_note = format!("{}{}", if support != 0.0 { format!(" - mutual support {}", Fx(support, 2)) } else { String::new() }, if crowd != 0.0 { format!(" - crowding {}", Fx(crowd, 2)) } else { String::new() });
+    let group_note = format!("{}{}", if support != 0.0 { format!(" - {} {}", if doctrine.is_some() { "formation" } else { "mutual support" }, Fx(support, 2)) } else { String::new() }, if crowd != 0.0 { format!(" - crowding {}", Fx(crowd, 2)) } else { String::new() });
     let note = format!(
-        "Princess (modern, {}): utility {} = -fall {} + bravery {} [{} x {} x {} - taken {}] - aggression {} + close range {}{} - facing {} + hold {} [{} of {} spots; {}]",
+        "{} (modern, {}): utility {} = -fall {} + bravery {} [{} x {} x {} - taken {}] - aggression {} + close range {}{} - facing {} + hold {} [{} of {} spots; {}]",
+        if doctrine.is_some() { "CASPAR" } else { "Princess" },
         stance.to_lowercase(),
         Fx(utility, 2),
         Fx(fall_mod, 2),
