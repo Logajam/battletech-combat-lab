@@ -6,6 +6,16 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), COMMANDO HD, SECOND REVIEW: TORSO MEASURED, HELMET GAP. Art only. REVIEW PENDING
+  (higher-level model).** Daniel: the belly looked like "a beer gut" ("take measurements of it vs the AI drawings for torso
+  proportions"); the helmet "needs a bit of a gap between it and the torso so that the head can rotate. This is art not a functional
+  pivot point". Measured row by row on the sheet (`lowpoly_measure._mask`): chest 2.3-2.5 wide, narrowest (2.05) at the round belly,
+  2.4 below it; the belt the lower body's widest part (about 2.9); the legs straight under it, 2.2 apart; depths about 1.9 at the chest
+  and 1.7 at the belly. The torso was a V (2.84 at the chest, 1.64 at the waist) with a belly bulging past the chest: now box-shaped
+  to those numbers, the belly a shallow faceted disc 2.0 across standing 0.1 proud, the belt 2.85 wide, the legs moved out 0.33 a side
+  with a 3-degree splay (feet 4.1 wide, as the sheet), the hip side plates gone (the thigh caps turn in the hip block). The torso's
+  top is lower (8.65) and the helmet's skirt and jaw stop above it: the neck shows in the gap. Shoulder pads reach in to the narrower
+  chest.
 - **2026-11-18 (Claude, session 28), COMMANDO HD, DANIEL'S FIRST REVIEW. Art only. REVIEW PENDING (higher-level model).**
   `tools/lowpoly_hd.py commando()`: the round belly is now a faceted bulge in the torso's own tone that bevels into the torso (it was a
   plate laid on the chest); the ankle housings reach down into the feet (the leg splay had opened gaps at their sides); the SRM 4 pod
