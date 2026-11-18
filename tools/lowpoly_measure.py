@@ -297,6 +297,42 @@ def sections(unit, H=1100):
         y += r.height + 14
     path = os.path.join(OUT, unit + " sections.png")
     out.save(path)
+    # ... and FRONT TO BACK (Daniel, 2026-11-18: "Did you section band from the sides and top?"): the top views (forward down) and
+    # the side views (forward to the left) cut into depth bands, each at one scale (the top views by their length, the side views by
+    # their height), sheet and model side by side per band
+    def norm_to(im, size, axis):
+        g = np.asarray(im.convert("L")) < 245
+        rows, cols = np.where(g)
+        im = im.crop((cols.min(), rows.min(), cols.max() + 1, rows.max() + 1))
+        k = size / (im.height if axis == "h" else im.width)
+        return im.resize((max(1, int(im.width * k)), max(1, int(im.height * k))))
+    tops = [("sheet top", norm_to(sheet.crop(tuple(spec["top"])), 700, "h")) if "top" in spec else None,
+            ("model top", norm_to(B.render(sol, V["TOP-DOWN"], (1400, 1400), fit_solids=cube), 700, "h"))]
+    tops = [t for t in tops if t]
+    sides = [("sheet side", norm_to(sheet.crop(tuple(spec["side"])), 700, "h")),
+             ("model side", norm_to(B.render(sol, V["LEFT SIDE"], (1400, 1400), fit_solids=cube), 700, "h"))]
+    deep = [("FRONT THIRD", 0.0, 0.34), ("MIDDLE THIRD", 0.33, 0.67), ("BACK THIRD", 0.66, 1.0)]
+    rows2 = []
+    for name, f0, f1 in deep:
+        ims = []
+        for k, im in tops:                                    # forward is DOWN in a top view: the front third is the bottom
+            ims.append((k, im.crop((0, int(im.height * (1 - f1)), im.width, int(im.height * (1 - f0))))))
+        for k, im in sides:                                   # forward is LEFT in a left side view
+            ims.append((k, im.crop((int(im.width * f0), 0, int(im.width * f1), im.height))))
+        r = Image.new("RGB", (sum(i.width for _, i in ims) + 30 * len(ims), max(i.height for _, i in ims) + 22), "white")
+        d = ImageDraw.Draw(r)
+        x = 0
+        for k, i in ims:
+            r.paste(i, (x, 22))
+            d.text((x + 4, 4), name + " - " + k, fill="black")
+            x += i.width + 30
+        rows2.append(r)
+    out2 = Image.new("RGB", (max(r.width for r in rows2), sum(r.height + 14 for r in rows2)), "white")
+    y = 0
+    for r in rows2:
+        out2.paste(r, (0, y))
+        y += r.height + 14
+    out2.save(os.path.join(OUT, unit + " sections depth.png"))
     return path
 
 

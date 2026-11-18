@@ -983,7 +983,8 @@ def atlas():
     # ROUND 2 (Claude's list, Daniel: "Go ahead and make your changes"): the chest TAPERS to the waist like a V (the sheet: 3.6 wide
     # at y 6.5 under a 4.3 chest; it was a box down to the belt)
     lv = [(8.1, 1.95, 0.85, -0.95), (7.9, 2.15, 1.1, -1.15), (7.0, 1.86, 1.15, -1.15), (6.5, 1.62, 1.0, -1.0), (6.15, 1.5, 0.95, -0.95)]
-    torso_stack(m, lv, ch=0.3, tone=0.88)
+    # (round 4, the TOP-VIEW bands: from above the sheet's torso is an OCTAGON, its corners cut deep; ours was a rectangle - ch 0.3)
+    torso_stack(m, lv, ch=0.55, tone=0.88)
     # THE COLLAR (round 4, the section comparison: the sheet's head stands in a collar - tall LOUVRED blocks either side, a raised
     # collar behind; the louvres are heat exhausts): chamfered blocks either side of the head, a collar plate behind it, clear of the
     # head so it can turn (principle 30)
@@ -1007,10 +1008,10 @@ def atlas():
     for sx in (1, -1):                                    # the grilles either side of the arch, bolt heads at the chest corners
         for k in range(4):
             m.box("grille", "torso", (sx * 1.18, 6.3 + k * 0.11, 0.985), (0.34, 0.05, 0.05), tone=DARK)
-        m.box("bolt", "torso", (sx * 1.45, 7.1, 1.165), (0.09, 0.09, 0.05), tone=0.5)      # (the upper bolts are under the pectorals now)
+        m.box("bolt", "torso", (sx * 1.15, 7.1, 1.165), (0.09, 0.09, 0.05), tone=0.5)      # (the upper bolts are under the pectorals now)
     # the BACK: a pack with vents (the rear view's rectangle with louvres), no large flat space (principle 34)
     # (round 3, the measuring test: the back stood 1.51 behind the leg's line at the chest, the sheet's 1.74: a deeper pack)
-    m.hull("back_pack", "torso", bevel_box((0, 7.95, -1.42), (2.5, 2.0, 0.62), 0.14), tone=PLATE)
+    m.hull("back_pack", "torso", bevel_box((0, 7.95, -1.42), (2.5, 2.0, 0.62), 0.28), tone=PLATE)      # (corners cut: the top view)
     for k in range(5):
         m.box("pack_vent", "torso", (-0.55, 7.45 + k * 0.17, -1.74), (0.9, 0.07, 0.03), tone=DARK)
         m.box("pack_vent", "torso", (0.55, 7.45 + k * 0.17, -1.74), (0.9, 0.07, 0.03), tone=DARK)
