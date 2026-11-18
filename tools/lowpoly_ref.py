@@ -609,6 +609,14 @@ def check_model(model):
     corridors = [dict(c, own=p["id"]) for p in model["parts"] for c in part_corridors(p)]
     for ci, sid in blocked_lines_of_fire(solids, corridors):
         errors.append("a weapon's line of fire is blocked by %s" % sid)
+    # a hole CUT by a line of fire must be meant (2026-11-18: the Catapult's chest lasers cut a channel in its body, as Daniel asked;
+    # the Commando's SRM 4 was found to cut one through its own fist and forearm, which passed the blocked-fire check unnoticed):
+    # a cut part needs "fire_cut_ok": true
+    by_id = {p["id"]: p for p in model["parts"]}
+    for sid in sorted({s_["id"].split("~")[0] for s_ in solids if "~cut" in s_["id"]}):
+        base = sid[:-2] if sid.endswith(("_L", "_R")) and sid[:-2] in by_id else sid
+        if not by_id.get(base, {}).get("fire_cut_ok"):
+            errors.append("a line of fire cuts through %s (move the weapon, or mark the part fire_cut_ok if the hole is meant)" % sid)
     loose = floating_parts(solids)
     if loose:
         errors.append("floating parts (not touching the body): %s" % ", ".join(loose[:12]) + (" ..." if len(loose) > 12 else ""))
