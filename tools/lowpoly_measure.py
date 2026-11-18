@@ -7,6 +7,12 @@ outline from the sheet and reads off the landmarks, so a person only confirms th
 
     python -I tools/lowpoly_measure.py find "Catapult CPLT-C1"      # number the drawn shapes on the sheet (to pick the views)
     python -I tools/lowpoly_measure.py measure "Catapult CPLT-C1"   # measure the views named in reference_art/views.json
+    python -I tools/lowpoly_measure.py compare "Atlas AS7-D"        # THE STANDARD TEST: the HD model measured the same way, v the sheet
+
+COMPARE (Daniel, 2026-11-18: "measure torso width compared to the drawings ... this should be a standard test"): the HD model's
+front and side silhouettes are rendered (the five-view projections) and measured by the SAME code as the sheet, so the two sets of
+numbers are like for like; every landmark that differs by more than TOLERANCE is flagged. The arms' pose differs from the sheet's
+(a ready pose), so the landmarks the arms touch (overall width, side body length) are reported but not flagged.
 
 reference_art/views.json says, per unit, which sheet and where each view is: {"front": [l, t, r, b], "side": [...], "top": [...]}
 (pixel boxes; `find` proposes them). Output: reference_art/measure/<unit>.json and <unit>.png (each view's outline with the
@@ -211,10 +217,95 @@ def measure(unit):
     return res
 
 
+TOLERANCE = 0.06                        # a landmark more than 6 % off the sheet's is flagged
+ARM_TOUCHED = ("overall_width", "body_length", "body_length_height")
+
+
+def model_silhouettes(unit, px=760):
+    """The HD model's FRONT and LEFT SIDE silhouettes as masks (True = the model), in the five-view projections."""
+    import numpy as np
+    import lowpoly_blocks as B
+    import lowpoly_hd as HD
+    model = json.load(open(os.path.join(HD.HD_DIR, unit + ".json")))
+    sol = L.expand_parts(model)
+    cube = HD._box_solid(sol)
+    views = dict(HD.FIVE_VIEWS)
+    out = {}
+    for k, name in (("front", "FRONT"), ("side", "LEFT SIDE")):
+        im = B.render(sol, views[name], (px, px), fit_solids=cube).convert("L")
+        a = np.asarray(im) < 250
+        rows, cols = np.where(a)
+        out[k] = a[rows.min():rows.max() + 1, cols.min():cols.max() + 1]
+    return out
+
+
+def compare(unit):
+    """The standard test: the model's landmarks v the sheet's (both as shares of their own standing height)."""
+    from PIL import Image, ImageDraw
+    import numpy as np
+    sheet = json.load(open(os.path.join(OUT, unit + ".json")))
+    sil = model_silhouettes(unit)
+    mod = {"front": measure_front(sil["front"])}
+    mod["side"] = measure_side(sil["side"], mod["front"]["crotch"])
+    rows, flags = [], []
+    for view in ("front", "side"):
+        for k, v in sheet.get(view, {}).items():
+            if k.startswith("_") or k in ("height_px", "leg_count_at_mid") or k not in mod[view]:
+                continue
+            a, b = v, mod[view][k]
+            if isinstance(a, list):
+                a, b = (sum(a) / len(a) if a else 0), (sum(b) / len(b) if b else 0)
+                k = k + " (mean)"
+            diff = (b - a) / a if a else 0.0
+            flag = abs(diff) > TOLERANCE and k not in ARM_TOUCHED
+            rows.append((view, k, float(a), float(b), float(diff), bool(flag)))
+            if flag:
+                flags.append("%s %s: model %.3f v sheet %.3f (%+.0f %%)" % (view, k, b, a, diff * 100))
+    res = {"unit": unit, "tolerance": TOLERANCE, "flags": flags,
+           "rows": [{"view": v, "landmark": k, "sheet": round(a, 3), "model": round(b, 3), "diff_pct": round(d * 100, 1),
+                     "flag": f} for v, k, a, b, d, f in rows]}
+    with open(os.path.join(OUT, unit + " compare.json"), "w") as f:
+        json.dump(res, f, indent=1)
+    # the picture: the sheet's silhouette and the model's side by side, each at its own standing height, landmark lines on both
+    spec = json.load(open(VIEWS))[unit]
+    img = Image.open(sheet_path(unit)).convert("RGB")
+    H = 420
+    pics = []
+    for view in ("front", "side"):
+        for src, m_ in (("sheet", _mask(img.crop(tuple(spec[view])))), ("model", sil[view])):
+            rws = np.where(m_.any(1))[0]
+            m_ = m_[rws.min():rws.max() + 1]
+            im = Image.fromarray(np.where(m_, 150 if src == "sheet" else 90, 255).astype("uint8")).convert("RGB")
+            im = im.resize((max(1, int(im.width * H / im.height)), H))
+            d = ImageDraw.Draw(im)
+            d.text((4, 4), "%s %s" % (src, view), fill=(200, 0, 0))
+            pics.append(im)
+    W = sum(p.width for p in pics) + 12 * len(pics)
+    out = Image.new("RGB", (max(W, 900), H + 22 + 16 * (len(rows) + 1)), "white")
+    x = 0
+    for p in pics:
+        out.paste(p, (x, 0))
+        x += p.width + 12
+    d = ImageDraw.Draw(out)
+    d.text((6, H + 6), "%-6s %-26s %8s %8s %8s" % ("view", "landmark (share of height)", "sheet", "model", "diff"), fill="black")
+    for i, (v, k, a, b, dd, f) in enumerate(rows):
+        d.text((6, H + 22 + 16 * i), "%-6s %-26s %8.3f %8.3f %+7.0f%%%s" % (v, k, a, b, dd * 100, "   <-- OFF" if f else ""),
+               fill="red" if f else "black")
+    out.save(os.path.join(OUT, unit + " compare.png"))
+    return res
+
+
 def main(argv):
     if len(argv) >= 2 and argv[0] == "find":
         find(argv[1])
         return 0
+    if len(argv) >= 2 and argv[0] == "compare":
+        res = compare(argv[1])
+        for r in res["rows"]:
+            print("%-6s %-26s sheet %.3f  model %.3f  %+6.1f %%%s" % (r["view"], r["landmark"], r["sheet"], r["model"], r["diff_pct"],
+                                                                     "   <-- OFF" if r["flag"] else ""))
+        print("%d landmark(s) off by more than %d %%" % (len(res["flags"]), TOLERANCE * 100))
+        return 1 if res["flags"] else 0
     if len(argv) >= 2 and argv[0] == "measure":
         print(json.dumps(measure(argv[1]), indent=1))
         return 0

@@ -365,6 +365,10 @@ something: say what it houses or turns before adding it. (4) Design the joints f
 3. BUILD HD from blocks sized by the measurements (`tools/lowpoly_hd.py`, one builder per unit until the HD blocks of item B exist).
    Checks (automatic): one piece (no floating parts), every line of fire clear, feet on the ground, weapons and jets as the record
    sheet, jets near the centre of mass.
+3b. THE STANDARD MEASURING TEST (Daniel, 2026-11-18): `python -I tools/lowpoly_measure.py compare "<unit>"` - the HD model measured
+   by the sheet's own code; every landmark more than 6 % off is flagged (`reference_art/measure/<unit> compare.png`). On first run
+   it also flagged the approved Catapult and Commando (Commando crotch -14 %, torso +12 %; Catapult crotch +11 %, feet +9 %): left
+   for Daniel to decide.
 4. SELF-REVIEW against the principles' checklist BEFORE Daniel sees it: what does every round shape turn? joints built out? legs
    splay? cockpit wraps or cuts? turning roots inside their parents? every record-sheet weapon housed?
 5. FIVE-VIEW COMPARISON to Daniel (the sheet's views beside the model's); every new principle into ASSEMBLY_PRINCIPLES.md the same day.
