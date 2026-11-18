@@ -6,6 +6,15 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), ATLAS HD, SECOND PASS; THE STANDARD MEASURING TEST; THE KIT STORED. Art only. REVIEW PENDING
+  (higher-level model).** Daniel's notes: the LRM 20 and SRM 6 swap (the bigger launcher on the open upper chest); the arm lasers are
+  symmetric, over the fist on both, the forearm's other faces listed as mount slots; "measure torso width compared to the drawings
+  ... should be a standard test": new `tools/lowpoly_measure.py compare UNIT` (the model's own silhouettes measured by the sheet's
+  code, landmarks over 6 % flagged): the Atlas's shoulders were 6.3 % too wide, now +1.7 % (joints in from x 2.8 to 2.66, pauldrons a
+  little smaller, the AC/20 moved in to clear the forearm); first run also flags the approved Catapult and Commando (for Daniel).
+  The dynamic pose copies the TRO drawing (stance, hanging arms, turns, the drawing's low left-front viewpoint). Daniel's MWO Atlas
+  printable kit (BobertmaX, 27 STL parts + PDF; no licence stated) is now stored PRIVATELY in `reference_art/kits/` with a README
+  (reference only; its scaled part sizes there). Principles 40-43.
 - **2026-11-18 (Claude, session 28), ATLAS HD, FIRST PASS (T15c; order Atlas, Centurion, Hunchback, Whitworth, Spider, Daniel). Art
   only. REVIEW PENDING (higher-level model).** `tools/lowpoly_hd.py atlas()` -> `reference_art/models_hd/Atlas AS7-D.json` (257
   solids, ~8,500 triangles), its turnaround. Built from the HD blocks (joints, limbs, splay, waist, torso stack, wrapped... the

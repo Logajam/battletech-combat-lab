@@ -904,23 +904,22 @@ def atlas():
         m.tube("rear_laser_housing", "torso", (sx * 0.45, 6.62, -0.8), (sx * 0.45, 6.62, -1.18), 0.36, n=12, tone=PLATE)
         m.tube("rear_laser", "torso", (sx * 0.45, 6.62, -1.15), (sx * 0.45, 6.62, -1.5), 0.24, 0.2, n=12, tone=METAL,
                role="weapon:CT:Medium Laser")
-    # the SRM 6 (record sheet: left torso) high on the left chest, flat on the chest's front (the TRO: a 3 x 2 grid by the head)
-    bay_grid(m, "torso", (1.2, 7.62, 1.12), 1.0, 0.7, 2, 3, role="weapon:LT:SRM 6", name="srm6_bay")
-    # the LRM 20 (record sheet: left torso) on the left flank under the chest, at the belt (the sheet's hip rack; the TRO's box)
-    # (it stands forward of the belt and the chest, so its fire clears them: the first build's fire cut both)
-    # (x 1.7: at 1.86 its fire grazed the left fist's thumb)
-    m.hull("lrm_housing", "torso", bevel_box((1.7, 5.86, 0.42), (0.74, 1.04, 1.4), 0.08), tone=0.8)
-    bay_grid(m, "torso", (1.7, 5.86, 1.0), 0.7, 1.0, 5, 4, role="weapon:LT:LRM 20", name="lrm20_bay")
+    # the LRM 20 (record sheet: left torso) on the open upper LEFT CHEST, and the SRM 6 at the left hip: the bigger launcher on the
+    # wider flat space (Daniel, 2026-11-18: "Atlas LRM 20 is weird. My suggestion is to switch spots with the SRM-6, use the wider open
+    # chest for the bigger weapon system"; the first pass had the TRO's places: SRM 6 on the chest, LRM 20 at the hip)
+    bay_grid(m, "torso", (1.22, 7.6, 1.12), 1.05, 0.88, 4, 5, role="weapon:LT:LRM 20", name="lrm20_bay")
+    m.hull("srm_housing", "torso", bevel_box((1.52, 5.86, 0.42), (0.66, 0.84, 1.4), 0.08), tone=0.8)
+    bay_grid(m, "torso", (1.52, 5.86, 1.0), 0.6, 0.76, 3, 2, role="weapon:LT:SRM 6", name="srm6_bay")
     # the AC/20 (record sheet: right torso) on the right flank: a breech housing reaching back (its weight over the legs, as the
     # Hunchback lesson) and a jacketed barrel forward (the TRO's barrel at the right hip)
     # (the kit: a boxy RECEIVER with a raised top rail and cooling holes, an underside stub, a long barrel, a ringed muzzle brake, on
     # a round SOCKET DISC on the torso's side; moved in from x -1.86 so its fire clears the right fist's thumb)
-    ax, ay = -1.72, 5.98
-    axle_cap(m, "ac20_socket", "torso", ay, -0.1, -1.6, -2.32, 1.1, n=20, mirror=False, ring=(0.06, 0.85))
+    ax, ay = -1.55, 5.98                                  # (x -1.72 at first: the narrower shoulders bring the right forearm in)
+    axle_cap(m, "ac20_socket", "torso", ay, -0.1, -1.5, -2.0, 1.1, n=20, mirror=False, ring=(0.06, 0.85))
     m.hull("ac20_receiver", "torso", bevel_box((ax, ay, 0.1), (0.78, 0.9, 1.7), 0.1), tone=0.8)
     m.hull("ac20_rail", "torso", bevel_box((ax, ay + 0.5, 0.15), (0.3, 0.12, 1.4), 0.03), tone=PLATE)
     for k in range(4):
-        m.box("ac20_cooling", "torso", (ax - 0.4, ay + 0.1, -0.4 + k * 0.3), (0.03, 0.14, 0.14), tone=DARK)
+        m.box("ac20_cooling", "torso", (ax - 0.4, ay + 0.1, -0.4 + k * 0.3), (0.03, 0.14, 0.14), tone=DARK)   # on the receiver's side
     m.hull("ac20_stub", "torso", bevel_box((ax, ay - 0.52, 0.3), (0.3, 0.16, 0.5), 0.03), tone=0.6)
     m.tube("ac20_jacket", "torso", (ax, ay + 0.05, 0.9), (ax, ay + 0.05, 1.6), 0.6, 0.54, n=16, tone=0.55)
     m.tube("ac20_barrel", "torso", (ax, ay + 0.05, 1.55), (ax, ay + 0.05, 2.75), 0.4, 0.38, n=16, tone=METAL, role="weapon:RT:AC/20")
@@ -981,22 +980,24 @@ def atlas():
            tone=0.7, mirror=True)
     leg_end = len(m.parts)
     # ---------------------------------------------------------------- the arms: pod shoulders, heavy sleeves, fists, lasers in line
-    pivots = {}
+    pivots, arm_mounts = {}, []
     for s, asm, side in ((1, "arm_L", "L"), (-1, "arm_R", "R")):
         X = lambda x: s * x
-        sh = (X(2.8), 8.3, 0.0)
+        # SHOULDERS IN (the standard measuring test, Daniel 2026-11-18: "Your model is wider then it should be": the shoulder line
+        # measured 6.3 % wider than the sheet's; the joint moves in from x 2.8 and the pauldron shrinks a little)
+        sh = (X(2.66), 8.3, 0.0)
         # the PAULDRON (the kit: "a big faceted dome (like a helmet, hexagonal facets) with a rim flange below it, wider than the upper
         # arm"; the TRO's round shoulders): an eight-faceted dome over the shoulder, a flange ring round its foot
-        m.add("dome", "pauldron", asm, c=(X(2.82), 8.05, 0.0), r=(0.78, 1.15, 1.08), n=8, rings=3, half="top", roll=22.5, tone=0.9)
-        m.tube("pauldron_flange", asm, (X(2.82), 7.92, 0.0), (X(2.82), 8.08, 0.0), 1.78, 1.7, n=8, roll=22.5, tone=TRIM)   # (2.3 read as a hat)
-        m.tube("pauldron_root", asm, (X(2.15), 8.05, 0.0), (X(2.55), 8.05, 0.0), 1.2, n=8, roll=22.5, tone=0.8)
+        m.add("dome", "pauldron", asm, c=(X(2.68), 8.05, 0.0), r=(0.75, 1.15, 1.08), n=8, rings=3, half="top", roll=22.5, tone=0.9)
+        m.tube("pauldron_flange", asm, (X(2.68), 7.92, 0.0), (X(2.68), 8.08, 0.0), 1.72, 1.64, n=8, roll=22.5, tone=TRIM)   # (2.3 read as a hat)
+        m.tube("pauldron_root", asm, (X(2.05), 8.05, 0.0), (X(2.4), 8.05, 0.0), 1.2, n=8, roll=22.5, tone=0.8)
         for k in range(3):
-            m.box("pod_vent", asm, (X(3.51), 8.12 + k * 0.12, 0.0), (0.04, 0.05, 0.8), tone=DARK)   # on the dome's outer facet
-        axle_cap(m, "shoulder", asm, sh[1], 0, X(2.0), X(3.5), 1.0, n=24, mirror=False)
+            m.box("pod_vent", asm, (X(3.345), 8.12 + k * 0.12, 0.0), (0.04, 0.05, 0.8), tone=DARK)   # on the dome's outer facet
+        axle_cap(m, "shoulder", asm, sh[1], 0, X(1.9), X(3.36), 1.0, n=24, mirror=False)
         up = math.radians(15)
         elbow = (sh[0], sh[1] - 1.65 * math.cos(up), 1.65 * math.sin(up))
         limb(m, "upper_arm", asm, sh, elbow, 1.05, 1.05, 1.0, 0.98, steps=3, sides=8, tone=0.74)
-        axle_cap(m, "elbow", asm, elbow[1], elbow[2], X(2.2), X(3.4), 1.0, n=20, mirror=False)
+        axle_cap(m, "elbow", asm, elbow[1], elbow[2], X(2.06), X(3.26), 1.0, n=20, mirror=False)
         dn = math.radians(8)
         wrist = (sh[0], elbow[1] - 2.0 * math.sin(dn), elbow[2] + 2.0 * math.cos(dn))
         limb(m, "forearm", asm, elbow, wrist, 1.35, 1.35, 1.25, 1.22, steps=2, sides=8, tone=0.78, bulge=0.06)
@@ -1005,22 +1006,35 @@ def atlas():
             q2 = [elbow[i] + (wrist[i] - elbow[i]) * (t + 0.05) for i in (1, 2)]
             m.tube("forearm_band", asm, (sh[0], *q), (sh[0], *q2), 1.36, n=8, roll=22.5, tone=DARK)
         fc = (sh[0], wrist[1] - 0.18, wrist[2] + 0.4)
-        axle_cap(m, "wrist", asm, wrist[1], wrist[2], X(2.4), X(3.2), 0.75, n=16, mirror=False)
+        axle_cap(m, "wrist", asm, wrist[1], wrist[2], X(2.26), X(3.06), 0.75, n=16, mirror=False)
         m.hull("fist", asm, bevel_box(fc, (1.1, 1.1, 0.9), 0.16), tone=0.82)
         m.hull("knuckles", asm, bevel_box((fc[0], fc[1] + 0.26, fc[2] + 0.46), (1.05, 0.4, 0.16), 0.05), tone=0.86)
         for k in range(3):
             m.box("finger_gap", asm, (fc[0] + (k - 1) * 0.26, fc[1] - 0.05, fc[2] + 0.46), (0.03, 0.6, 0.03), tone=DARK)
         m.hull("thumb", asm, bevel_box((fc[0] - s * 0.6, fc[1] + 0.05, fc[2] + 0.15), (0.18, 0.5, 0.5), 0.05), tone=0.8)
-        # the MEDIUM LASER (record sheet: each arm), in line with the forearm on its outer face (the TRO's barrel along the forearm)
+        # the MEDIUM LASER (record sheet: each arm), in line with the forearm, OVER THE FIST on its top face, the same on both arms
+        # (Daniel, 2026-11-18: in the art "one is placed over the thumb, the other over the fist. They're not symmetrical. I however
+        # do believe in symmetry whenever possible. Which is picked is arbitrary, and technically there should be mounting slots for a
+        # number of placements": the other faces are listed as the forearm's mount slots, below)
         d_ = (0.0, wrist[1] - elbow[1], wrist[2] - elbow[2])
         ln_ = math.hypot(d_[1], d_[2])
         u = (0.0, d_[1] / ln_, d_[2] / ln_)
-        bx = sh[0] + s * (0.625 + 0.05)
-        p0 = (bx, elbow[1] + u[1] * 0.4, elbow[2] + u[2] * 0.4)
-        p1 = (bx, elbow[1] + u[1] * 1.4, elbow[2] + u[2] * 1.4)
-        p2 = (bx, elbow[1] + u[1] * 2.95, elbow[2] + u[2] * 2.95)
+        up_ = (0.0, u[2], -u[1])                          # across the forearm, upward
+        apo = 1.35 / 2 * math.cos(math.radians(22.5))     # the eight-sided forearm's top face, from its axis
+        lift = apo + 0.3 * (0.5 - 0.42)                   # the barrel sunk 0.42 of its diameter (principle: inline guns)
+        at = lambda t, h: (sh[0], elbow[1] + u[1] * t + up_[1] * h, elbow[2] + u[2] * t + up_[2] * h)
+        p0, p1, p2 = at(0.4, apo + 0.05), at(1.4, lift), at(2.95, lift)
         m.tube("laser_housing", asm, p0, p1, 0.5, 0.46, n=12, tone=PLATE)
         m.tube("laser_barrel", asm, p1, p2, 0.3, 0.27, n=12, tone=METAL, role="weapon:%sA:Medium Laser" % side)
+        # the forearm's MOUNT SLOTS (the faces a weapon may take; the three lower faces are behind the fist): positions on the faces at
+        # the forearm's middle, facing along it
+        for face, ang in (("top", 90), ("top_outer", 45), ("outer", 0), ("top_inner", 135), ("inner", 180)):
+            a_ = math.radians(ang)
+            lat, upc = math.cos(a_) * s, math.sin(a_)
+            pos = (sh[0] + lat * apo, elbow[1] + u[1] * 1.2 + up_[1] * upc * apo, elbow[2] + u[2] * 1.2 + up_[2] * upc * apo)
+            arm_mounts.append({"id": "%sA.forearm_%s" % (side, face), "kind": "arm_face", "location": side + "A", "hidden": face != "top",
+                               "holds": "Medium Laser" if face == "top" else None, "pos": rnd(pos), "facing": rnd(u),
+                               "note": "over the fist" if face == "top" else ("over the thumb" if face == "top_inner" else "")})
         pivots["shoulder_" + side] = {"centre": rnd(sh), "axis": "x", "parent": "torso", "child": "upper arm"}
         pivots["elbow_" + side] = {"centre": rnd(elbow), "axis": "x", "parent": "upper arm", "child": "forearm"}
         pivots["wrist_" + side] = {"centre": rnd(wrist), "axis": "x", "parent": "forearm", "child": "fist"}
@@ -1031,19 +1045,23 @@ def atlas():
                    "knee_L": {"centre": rnd(splay(knee)), "axis": "x", "parent": "thigh", "child": "shin"},
                    "ankle_L": {"centre": rnd(splay(ankle)), "axis": "x", "parent": "shin", "child": "foot"}})
     return {"unit": "Atlas", "model": "AS7-D", "mass": 100, "detail": "hd", "stance": "ready", "pivots": pivots,
-            "centre_of_mass": centre_of_mass(m.parts), "mounts": [],
-            "poses": {"dynamic": {"hip_L": -18, "knee_L": 24, "ankle_L": -6, "hip_R": 14, "knee_R": 12, "ankle_R": -26,
-                                  "waist_turn": -14, "neck": 10, "shoulder_L": -12, "shoulder_R": 6, "elbow_R": -10}},
+            "centre_of_mass": centre_of_mass(m.parts), "mounts": arm_mounts,
+            # the DYNAMIC POSE copies the TRO drawing (Daniel, 2026-11-18: "when making the active pose, lets try to copy the TRO drawing"):
+            # standing square, the right foot a little forward, both arms hanging (the right one bent a little forward), the torso and the
+            # head turned to its right; seen from low and to its left front, as the drawing
+            "poses": {"dynamic": {"hip_R": -8, "knee_R": 8, "ankle_R": 0, "hip_L": 4, "knee_L": 4, "ankle_L": -8,
+                                  "shoulder_R": 5, "elbow_R": 45, "shoulder_L": 15, "elbow_L": 65, "waist_turn": -8, "neck": -25},
+                      "dynamic_camera": [34, -14], "dynamic_after": "the TRO drawing"},
             "scale": "ground to the head's top = 10; +x is the 'Mech's left",
             "source": "AI five-view sheet, reference_art/ai_sheets/Atlas AS7-D/batch2_1.webp (front and side measured on a grid); weapons "
                       "from the record sheet and the TRO drawing (reference_art/originals/34 Atlas AS7-D.jpg)",
             "simplified_to": "reference_art/models/Atlas AS7-D.json",
             "art_vs_unit_file": [
-                "LRM 20 (left torso): one rack, on the left flank at the belt; the AI sheet draws a rack on BOTH hips (the record sheet has one).",
+                "LRM 20 (left torso): on the open upper left chest, the SRM 6 at the left hip (Daniel: the bigger launcher on the wider space; the TRO has them the other way round). The AI sheet draws a rack on BOTH hips (the record sheet has one).",
                 "AC/20 (right torso): on the right flank, a breech housing reaching back and a jacketed barrel forward (the TRO's barrel at the right hip).",
-                "SRM 6 (left torso): a 3 x 2 bay high on the left chest (the TRO).",
+                "SRM 6 (left torso): a 3 x 2 bay at the left hip (swapped with the LRM 20, Daniel).",
                 "Two centre-torso medium lasers fire to the REAR (record sheet): under the back pack. Neither picture shows them.",
-                "Arm lasers in line with the forearms on their outer faces (the TRO); the AI sheet hangs them under the forearms.",
+                "Arm lasers in line with the forearms, over the fist on both (Daniel: symmetry; the art has one over the thumb, one over the fist); the forearm's other faces are mount slots in `mounts`.",
                 "Arms in the ready pose, as the Commando's; the AI front view hangs them.",
                 "Head: a death's-head skull, the cockpit in its eyes; a gap under it (principle 30)."],
             "parts": m.parts}
@@ -1214,8 +1232,10 @@ def turnaround(model, path, H=720):
     # a DYNAMIC POSE (Daniel, 2026-11-18: "5 views, 3/4 views, Think we need at least one Dynamic pose view too"): the model turned
     # about its own pivots (`poses` in the model), so the view also shows whether the joints really work
     if model.get("poses", {}).get("dynamic"):
-        q34.append(("DYNAMIC POSE", trim(B.render(posed_solids(model, model["poses"]["dynamic"]), B.camera(-30, 14),
-                                                  (H // 2 + 120, H // 2 + 120)), rows=True)))
+        cam = model["poses"].get("dynamic_camera", [-30, 14])
+        after = model["poses"].get("dynamic_after")
+        q34.append(("DYNAMIC POSE" + (" (after %s)" % after if after else ""),
+                    trim(B.render(posed_solids(model, model["poses"]["dynamic"]), B.camera(*cam), (H // 2 + 120, H // 2 + 120)), rows=True)))
     gap, head = 30, 64
     w2 = sum(im.width for _, im in row2) + gap * (len(row2) + 1)
     h1 = max(top.height, max(im.height for _, im in q34)) + 30
