@@ -6,6 +6,18 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), ITERATIVE PASS: THE 34 MODELS AGAINST THEIR DRAWINGS, AND THE ASSEMBLY RULES THAT CAME OF IT.
+  Art only. REVIEW PENDING (higher-level model).** Daniel: "For each generated model, compare it to its original art. Make a list
+  where they do not match. Use that list to improve the rules for how models are put together." The list, the patterns and the rule
+  each became: `reference_art/blocks/comparison_pass1.md`. Rules in `tools/lowpoly_assemble.py` (ITERATION 1 / 2): legs from the
+  chest (`leg_ratio(tons)`: 1.8 x chest height at 20 t to 1.35 at 100 t) and arms from the chest; limb thickness clamped below and
+  growing with tonnage (legs tons^0.45); each arm's kind from the unit file's weapons in it (gun / missile pod / fist), a side the
+  drawing names kept; torso blocks only on the sides the unit file arms, launcher grids sized by tube count, the cannon hump by the
+  gun; the drawings build fills silent slots with the commonest block, not the name hash; shoulders <= 0.45 and heads <= 0.34 of the
+  chest's height; forward gun arms 20 degrees down and <= 1.35 x a forearm. All 136 builds still one piece. Left for block or
+  survey work (listed in the file): the Stalker's legs, the Jenner's back rack, the Javelin's chest bays, wide heavy chests,
+  shoulder width from above.
+
 - **2026-11-18 (Claude, session 28), WHOLE 'MECHS ON A SOCKET SKELETON; THE OLD ART PROJECT'S 3D VIEWER. Art only. REVIEW PENDING
   (higher-level model).** Daniel: "the Catapult render you showed has disconnected pieces. Any final render must have a socket
   system so that every block connects to the correct 'Bone'. Also blocks must sit flush to the surface they're on ... the Catapult's

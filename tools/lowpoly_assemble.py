@@ -36,6 +36,7 @@ The unit file adds what it fixes: a jump-jet pack when the unit can jump.
 PRIVATE (reference_art/ is), like the blocks.
 """
 import hashlib
+import re
 import json
 import math
 import os
@@ -48,10 +49,22 @@ import lowpoly_ref as L  # noqa: E402
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 # ---------------------------------------------------------------- the skeleton's bone lengths (models' units, a 'Mech about 10 tall)
-THIGH, SHIN = 2.3, 2.6                  # straight legs
-BIRD_THIGH, BIRD_SHIN = 2.1, 2.9        # bird legs
+# ITERATION 1 (2026-11-18, the model-v-drawing comparison, reference_art/blocks/comparison_pass1.md): the legs were too long and
+# the bodies too small on every unit (legs about 2.1 x the chest's height; the drawings show 1.3 - 1.8, heavier = stockier).
+# The legs now follow the chest: hip height = LEG_RATIO(tons) x chest height, the thigh THIGH_SHARE of the leg above the foot.
+def leg_ratio(mass):
+    return 1.8 - 0.45 * (min(100, max(20, mass)) - 20) / 80.0
+
+
+THIGH_SHARE = 0.47
+BIRD_SHIN_SHARE = 0.58                  # a bird leg's shin is the longer part
 BIRD_KNEE_FWD, BIRD_SHIN_BACK = 35.0, 22.0   # degrees from vertical: the thigh forward to the knee, the shin back to the ankle
-UPPER_ARM, FOREARM = 1.5, 1.7
+UPPER_ARM, FOREARM = 1.5, 1.7         # fractions of nothing: scaled by the chest height below (ARM_PER_CHEST)
+ARM_PER_CHEST = 0.62                  # upper arm = this x chest height; forearm a little longer (ITERATION 1)
+FORWARD_ARM_PITCH = 20.0              # a forward gun or pod arm points this far below horizontal (ITERATION 1: drawings hold them low)
+HEAD_PER_CHEST = 0.34                 # ITERATION 2: a head (not a canopy) is at most this x the chest's height (the Victor's dome was huge)
+GUN_ARM_PER_FOREARM = 1.35            # ITERATION 2: a forward gun / pod arm is at most this x the forearm's length (JagerMech, Dragon)
+SHOULDER_PER_CHEST = 0.45             # a shoulder block is at most this x the chest's height (ITERATION 1: discs were bigger than heads)
 ARM_SPLAY = 0.18                        # the A-stance: the elbow this far out from the shoulder socket
 # uniform scale of each block's default size, by part (a first calibration by eye, as the groups' SCALE: blocks are measured on
 # different units); limbs are scaled by their fit instead
@@ -209,7 +222,7 @@ class Mech:
         self.by_slot.setdefault(slot, []).append(pc)
         return pc
 
-    def fit(self, block_id, slot, j1, j2, mirror=False):
+    def fit(self, block_id, slot, j1, j2, mirror=False, bulk=None):
         """A limb on its bone: its first two anchors (top, bottom) give its axis; its SOLID extent along that axis is scaled
         (uniformly) to span the bone from j1 to j2 plus JOINT_OVERLAP into each neighbour, so limbs always meet at a joint
         (a block's ends stop short of its anchors, and the first assembly left gaps at the knees)."""
@@ -223,7 +236,9 @@ class Mech:
         s_len = (bone + 2 * JOINT_OVERLAP) / max(1e-9, t1 - t0)
         # thickness grows with the stretch but no more than MAX_LIMB_THICKEN (a short fat barrel on a long bone otherwise
         # swelled into a drum, 2026-11-17), times the 'Mech's bulk
-        s_cross = min(s_len, MAX_LIMB_THICKEN) * self.bulk
+        # ITERATION 1: heavy legs were matchsticks (an 80-ton Awesome on a Commando's legs): thickness is clamped from below too,
+        # and follows the limb's own bulk (legs grow with tonnage faster than the rest)
+        s_cross = max(0.85, min(s_len, MAX_LIMB_THICKEN)) * (self.bulk if bulk is None else bulk)
         pc = probe
         start = add(a, mul(u, t0))                                  # the solid's top end, on the axis
         wu = unit(sub(j2, j1))
@@ -277,18 +292,25 @@ def slot_hosts(m, *slots):
 def build(choice, lod, lib, mass=50, jump=0):
     """One 'Mech from a slot -> block choice (None = no block in that slot). Returns the Mech (pieces, errors)."""
     m = Mech(lod, lib, bulk=(max(20, mass) / 50.0) ** 0.22)
+    leg_bulk, arm_bulk = (max(20, mass) / 50.0) ** 0.45, (max(20, mass) / 50.0) ** 0.3
     bird = choice.get("lower_leg") == "lower_leg/bird_shin"
+    probe = Piece(choice["upper_torso"], lod, lib, PART_SCALE["upper_torso"] * m.bulk)
+    pl, ph = bounds([probe])
+    chest_h = ph[1] - pl[1]
 
     # --- legs: the foot on the ground fixes the ankle; the pelvis's hip sockets fix the hips
     foot = Piece(choice["foot"], lod, lib, PART_SCALE["foot"] * m.bulk)
     ankle_y = foot.anchors["ankle"][1] - min(v[1] for s in foot.solids for v in s["verts"])
+    rise = max(1.5, leg_ratio(mass) * chest_h - ankle_y)        # hip above the ankle
     if bird:
         kf, sb = math.radians(BIRD_KNEE_FWD), math.radians(BIRD_SHIN_BACK)
-        knee_rel = (0.0, -BIRD_THIGH * math.cos(kf), BIRD_THIGH * math.sin(kf))
-        ankle_rel = add(knee_rel, (0.0, -BIRD_SHIN * math.cos(sb), -BIRD_SHIN * math.sin(sb)))
+        th = rise * (1 - BIRD_SHIN_SHARE) / math.cos(kf)
+        sh = rise * BIRD_SHIN_SHARE / math.cos(sb)
+        knee_rel = (0.0, -th * math.cos(kf), th * math.sin(kf))
+        ankle_rel = add(knee_rel, (0.0, -sh * math.cos(sb), -sh * math.sin(sb)))
     else:
-        knee_rel = (0.0, -THIGH, 0.12)
-        ankle_rel = add(knee_rel, (0.0, -SHIN, -0.12))
+        knee_rel = (0.0, -rise * THIGH_SHARE, 0.12)
+        ankle_rel = add(knee_rel, (0.0, -rise * (1 - THIGH_SHARE), -0.12))
     hip_y = ankle_y - ankle_rel[1]
     pel = m.make(choice["pelvis"], "pelvis")
     pel.place("hip_L", (pel.anchors["hip_L"][0], hip_y, -ankle_rel[2]))
@@ -304,8 +326,8 @@ def build(choice, lod, lib, mass=50, jump=0):
         knee, ankle = add(hip, knee_rel), add(hip, ankle_rel)
         joints[side] = (hip, knee, ankle)
         m.bones += [(hip, knee), (knee, ankle), (hip, (0.0, hip[1], hip[2]))]
-        m.fit(choice["upper_leg"], "upper_leg", hip, knee, mirror)
-        m.fit(choice["lower_leg"], "lower_leg", knee, ankle, mirror)
+        m.fit(choice["upper_leg"], "upper_leg", hip, knee, mirror, bulk=leg_bulk)
+        m.fit(choice["lower_leg"], "lower_leg", knee, ankle, mirror, bulk=leg_bulk)
         ft = m.make(choice["foot"], "foot", mirror)
         ft.place("ankle", ankle)
     legs = slot_hosts(m, "upper_leg", "lower_leg")
@@ -377,15 +399,21 @@ def build(choice, lod, lib, mass=50, jump=0):
         elif hd == "head/fighter_canopy":
             m.seat(hd, "head", "seat", host, aim, (0, -1, 0), axis=(0, 1, 0))
         else:
-            m.seat(hd, "head", "neck", host, aim, (0, -1, 0), offset=-0.05)
+            hp = Piece(hd, lod, lib, 1.0)
+            hl_, hh_ = bounds([hp])
+            cap = HEAD_PER_CHEST * ch_h / max(1e-6, (hh_[1] - hl_[1]) * m.bulk)
+            m.seat(hd, "head", "neck", host, aim, (0, -1, 0), offset=-0.05, scale=min(PART_SCALE["head"], cap))
 
     # --- shoulders, arms and hands; or, on a slung body with no arms, the racks are the arms
     for side, sx, mirror in (("L", 1, False), ("R", -1, True)):
         sk = sockets[side]
         top = None
         if choice.get("shoulder"):
+            sp = Piece(choice["shoulder"], lod, lib, 1.0)
+            spl, sph = bounds([sp])
+            cap = SHOULDER_PER_CHEST * ch_h / max(1e-6, (sph[1] - spl[1]) * m.bulk)
             sh = m.seat(choice["shoulder"], "shoulder", "torso", [chest], (sk[0] + sx * 20.0, sk[1], sk[2]), (-sx, 0, 0),
-                        axis=(sx, 0, 0), mirror=mirror)
+                        axis=(sx, 0, 0), mirror=mirror, scale=min(PART_SCALE["shoulder"], cap))
             if sh is not None:
                 top = sh.anchors["arm"]
         elif choice.get("upper_arm") or choice.get("lower_arm_" + side):
@@ -396,16 +424,17 @@ def build(choice, lod, lib, mass=50, jump=0):
         la = choice.get("lower_arm_" + side)
         if top is None or not la:
             continue
-        elbow = add(top, (sx * ARM_SPLAY, -UPPER_ARM, 0.0))
+        ua_len, fa_len = ARM_PER_CHEST * ch_h, ARM_PER_CHEST * ch_h * 1.12
+        elbow = add(top, (sx * ARM_SPLAY, -ua_len, 0.0))
         m.bones += [(top, elbow), (top, (0.0, top[1], top[2]))]
         if choice.get("upper_arm"):
-            m.fit(choice["upper_arm"], "upper_arm", top, elbow, mirror)
+            m.fit(choice["upper_arm"], "upper_arm", top, elbow, mirror, bulk=arm_bulk)
         else:
             elbow = top
         if la in ("lower_arm/fist_arm", "upper_arm/heavy_sleeve"):
-            wrist = add(elbow, (sx * 0.05, -FOREARM, 0.1))
+            wrist = add(elbow, (sx * 0.05, -fa_len, 0.1))
             m.bones.append((elbow, wrist))
-            fa = m.fit(la, "lower_arm", elbow, wrist, mirror)
+            fa = m.fit(la, "lower_arm", elbow, wrist, mirror, bulk=arm_bulk)
             if choice.get("hand"):
                 m.make(choice["hand"], "hand", mirror).place("wrist", wrist)
             gun = choice.get("arm_gun_" + side)
@@ -414,20 +443,34 @@ def build(choice, lod, lib, mass=50, jump=0):
                 r = lib["blocks"][gun]["params"]["diameter"] * 0.8 * PART_SCALE["weapon_mount"] * m.bulk
                 m.seat(gun, "arm_gun", "mount", [fa], (mid[0] + sx * 20.0, mid[1], mid[2]), (-sx, 0, 0), offset=r, mirror=mirror)
         else:                                          # a forward gun or pod: its elbow socket on the elbow
-            m.make(la, "lower_arm", mirror).place("elbow", elbow)
-            m.bones.append((elbow, add(elbow, (0.0, 0.0, FOREARM))))
+            a = math.radians(FORWARD_ARM_PITCH)
+            down = (0.0, -math.sin(a), math.cos(a))
+            gp = Piece(la, lod, lib, 1.0)
+            gl, gh = bounds([gp])
+            cap = GUN_ARM_PER_FOREARM * fa_len / max(1e-6, (gh[2] - gl[2]) * m.bulk)
+            m.make(la, "lower_arm", mirror, scale=min(PART_SCALE["lower_arm"], cap)).place("elbow", elbow, rot_align((0.0, 0.0, 1.0), down))
+            m.bones.append((elbow, add(elbow, mul(down, fa_len))))
 
     # --- on the chest: bays, humps, racks, the belly plate, the back, antennas and fins (all seated)
     st = choice.get("side_torso")
-    for side, sx, mirror in (("L", 1, False), ("R", -1, True)):
+    # ITERATION 1: the side (and size) of a torso weapon comes from the unit file (choice["side_torso_plan"]: side -> params);
+    # before, a bay went on both sides and the Hunchback's hump on the wrong one
+    plan = choice.get("side_torso_plan") or {"L": {}, "R": {}}
+    for side, sx, mirror in (("L", 1, False), ("R", -1, True), ("C", 0, False)):
+        if side not in plan or not st:
+            continue
+        prm = dict(plan[side])
+        sc = prm.pop("_scale", None)
+        sc = None if sc is None else sc * PART_SCALE["side_torso"]
         if st == "side_torso/launcher_bay":
             m.seat(st, "side_torso", "torso", [chest], (sx * ch_w * 0.22 + cx, lo[1] + ch_h * 0.66, hi[2] + 20.0), (0, 0, -1),
-                   axis=(0, 0, 1), mirror=mirror)
+                   axis=(0, 0, 1), mirror=mirror, params=prm or None, scale=sc)
         elif st == "side_torso/side_wing_rack":
-            m.seat(st, "side_torso", "pivot", [chest], (cx + sx * ch_w * 0.36, hi[1] + 20.0, sockets[side][2]), (0, -1, 0),
-                   axis=(0, 1, 0), mirror=mirror)
-        elif st == "side_torso/cannon_hump" and side == "L":
-            m.seat(st, "side_torso", "torso", [chest], (cx + ch_w * 0.3, hi[1] + 20.0, cz), (0, -1, 0), axis=(0, 1, 0))
+            m.seat(st, "side_torso", "pivot", [chest], (cx + (sx or 1) * ch_w * 0.36, hi[1] + 20.0, sockets.get(side, sockets["L"])[2]),
+                   (0, -1, 0), axis=(0, 1, 0), mirror=mirror, params=prm or None, scale=sc)
+        elif st == "side_torso/cannon_hump" and side in "LR":
+            m.seat(st, "side_torso", "torso", [chest], (cx + sx * ch_w * 0.3, hi[1] + 20.0, cz), (0, -1, 0), axis=(0, 1, 0),
+                   mirror=mirror, scale=sc)
     if choice.get("belly") and not lozenge:
         m.seat(choice["belly"], "belly", "joint", [chest], (cx, lo[1] + ch_h * 0.28, hi[2] + 20.0), (0, 0, -1), axis=(0, 0, 1))
     deck = choice.get("back_deck") or ("back_deck/jump_jet_pack" if jump > 0 else None)
@@ -542,12 +585,91 @@ def make_consistent(choice, lib):
     return choice
 
 
+# ---------------------------------------------------------------- what the unit file fixes (ITERATION 1)
+ARM_KIND = {"lower_arm/barrel_arm": "gun", "lower_arm/gun_arm": "gun", "lower_arm/pod_arm": "missile",
+            "lower_arm/fist_arm": "fist", "upper_arm/heavy_sleeve": "fist"}
+KIND_DEFAULT = {"gun": "lower_arm/barrel_arm", "missile": "lower_arm/pod_arm", "fist": "lower_arm/fist_arm"}
+
+
+def weapon_kind(name):
+    n = name.lower()
+    if any(k in n for k in ("lrm", "srm", "mrm", "streak", "atm", "mml", "rocket", "thunderbolt")):
+        return "missile"
+    if any(k in n for k in ("ac/", "autocannon", "ppc", "gauss", "large laser", "lb ", "ultra", "rotary", "rifle")):
+        return "gun"
+    return "small"
+
+
+def arm_kind(unit, side):
+    """What the unit file puts in an arm: a gun (an autocannon, PPC, Gauss rifle or large laser) -> a gun arm; missiles -> a pod
+    arm; small weapons or none -> a fist arm (ITERATION 1: the Clint, Hermes II, Vindicator, Hunchback... carried two gun arms
+    where the unit file has one big gun, or none)."""
+    kinds = [weapon_kind(w) for loc, w in unit.get("weapons", []) if loc == ("LA" if side == "L" else "RA")]
+    return "gun" if "gun" in kinds else "missile" if "missile" in kinds else "fist"
+
+
+def launcher_grid(name):
+    """(rows, cols) of tube mouths for a missile launcher, from the number in its name."""
+    digits = re.findall(r"(\d+)", name)
+    n = int(digits[-1]) if digits else 4
+    if "lrm" in name.lower():
+        return max(1, min(4, (n + 4) // 5)), 5
+    return {1: (1, 1), 2: (1, 2), 3: (1, 3), 4: (2, 2), 5: (1, 5), 6: (2, 3)}.get(n, (2, min(5, (n + 1) // 2)))
+
+
+def side_torso_plan(unit, block):
+    """Which torso sides carry the side-torso block, and its size, from the unit file's LT / RT / CT weapons."""
+    if not block:
+        return None
+    side_of = {"LT": "L", "RT": "R", "CT": "C"}
+    plan = {}
+    if block in ("side_torso/launcher_bay", "side_torso/side_wing_rack"):
+        for loc, w in unit.get("weapons", []):
+            if loc in side_of and weapon_kind(w) == "missile":
+                rows, cols = launcher_grid(w)
+                old = plan.get(side_of[loc])
+                if not old or rows * cols > old["rows"] * old["cols"]:
+                    plan[side_of[loc]] = {"rows": rows, "cols": cols, "width": 0.24 * cols + 0.28, "height": 0.26 * rows + 0.3} \
+                        if block == "side_torso/launcher_bay" else {"rows": max(rows, 2), "cols": cols}
+        if "C" in plan and block == "side_torso/side_wing_rack":       # racks stand on the shoulders, never in the middle
+            plan.setdefault("L", plan.pop("C"))
+    else:                                                              # the cannon hump: on the side of the big gun
+        for loc, w in unit.get("weapons", []):
+            if loc in ("LT", "RT") and weapon_kind(w) == "gun":
+                n = w.lower()
+                plan[side_of[loc]] = {"_scale": 1.9 if ("ac/20" in n or "gauss" in n) else 1.45 if ("ac/10" in n or "ppc" in n) else 1.15}
+    return plan or ({"L": {}, "R": {}} if block != "side_torso/cannon_hump" else {"R": {}})
+
+
+def apply_unit_file(c, unit, lib, pick):
+    """The unit file's say: each arm's kind from its weapons (pick(slot, candidates) chooses among the blocks of that kind), the
+    side-torso block's sides and size."""
+    for side in "LR":
+        slot = "lower_arm_" + side
+        if not c.get(slot):
+            continue
+        kind = arm_kind(unit, side)
+        if ARM_KIND.get(c[slot]) != kind:
+            c[slot] = pick(slot, [b for b in options(lib, slot) if ARM_KIND.get(b) == kind]) or KIND_DEFAULT[kind]
+    c["side_torso_plan"] = side_torso_plan(unit, c.get("side_torso"))
+    return c
+
+
 def hash_build(unit, lib):
     c = {s: hash_pick(unit, s, options(lib, s)) for s in SLOTS}
     if c["upper_torso"] == "upper_torso/slung_lozenge":            # a slung body mostly has no arms
         if hash_pick(unit, "slung_arms", [0, 0, 1]) == 0:
             c.update({"shoulder": None, "upper_arm": None, "lower_arm_L": None, "lower_arm_R": None})
+    c = apply_unit_file(c, unit, lib, lambda slot, cands: hash_pick(unit, slot + "|kind", cands) if cands else None)
     return make_consistent(c, lib), {s: "name hash" for s in SLOTS}
+
+
+def default_block(lib, slot):
+    """The most common block for a slot (seen on the most units): what the drawings build uses where its drawing is silent
+    (ITERATION 1: the name hash filled silent slots with rare body plans - a slung body on the Orion, a barrel torso on the
+    Grasshopper, bird legs on the Whitworth)."""
+    cands = [b for b in options(lib, slot) if b]
+    return max(cands, key=lambda b: SEEN_COUNT.get(b, 0)) if cands else None
 
 
 def _resolve(lib, tax, part, typ):
@@ -582,7 +704,6 @@ def drawings_build(unit, lib, tax):
                 if blk:
                     seen.setdefault(part, []).append((blk, note.lower()))
     c, why = {}, {}
-    hashed, _ = hash_build(unit, lib)
     for slot in SLOTS:
         part = TAX_PART.get(slot, slot)
         found = seen.get(part, [])
@@ -613,7 +734,22 @@ def drawings_build(unit, lib, tax):
                 any(x[0] == "upper_torso/slung_lozenge" for x in seen.get("upper_torso", [])):
             c[slot], why[slot] = None, "drawing (no arms: a slung body)"
         else:
-            c[slot], why[slot] = hashed[slot], "name hash (drawing silent)"
+            c[slot], why[slot] = default_block(lib, slot), "the commonest (drawing silent)"
+    arms_before = {s: c.get("lower_arm_" + s) for s in "LR"}
+
+    def pick(slot, cands):                          # the drawing's own blocks of the right kind first, the most distinctive
+        side = "left" if slot.endswith("L") else "right"
+        drawn = [x[0] for x in seen.get("lower_arm", []) if x[0] in cands]
+        drawn.sort(key=lambda b: SEEN_COUNT.get(b, 99))
+        return drawn[0] if drawn else None
+    sided = {s: any(("left" if s == "L" else "right") in x[1] for x in seen.get("lower_arm", [])) for s in "LR"}
+    keep = {s: c.get("lower_arm_" + s) for s in "LR" if sided[s]}
+    c = apply_unit_file(c, unit, lib, pick)
+    for s in "LR":
+        if s in keep:                               # a side the drawing names stays as drawn
+            c["lower_arm_" + s] = keep[s]
+        elif c.get("lower_arm_" + s) != arms_before[s]:
+            why["lower_arm_" + s] = "the unit file (%s in the arm)" % arm_kind(unit, s)
     return make_consistent(c, lib), why
 
 
