@@ -442,7 +442,7 @@ def expand_parts(model):
             cen = (sum(p[0] for p in vs) / len(vs), sum(p[1] for p in vs) / len(vs), sum(p[2] for p in vs) / len(vs))
             solids.append({"id": pid, "assembly": asm, "role": role, "verts": vs, "faces": faces, "centroid": cen,
                            "tris": tri_count(faces), "tone": part.get("tone"), "weapon_key": part["id"] if part_corridors(part) else None,
-                           "hole": bool(part.get("hole"))})
+                           "hole": bool(part.get("hole")), "moves_with": part.get("moves_with")})
     # HOLES: a part marked "hole": true is never drawn; it is subtracted from every other solid it meets
     holes = [s_ for s_ in solids if s_.get("hole")]
     if holes:

@@ -369,6 +369,9 @@ something: say what it houses or turns before adding it. (4) Design the joints f
    by the sheet's own code; every landmark more than 6 % off is flagged (`reference_art/measure/<unit> compare.png`). On first run
    it also flagged the approved Catapult and Commando (Commando crotch -14 %, torso +12 %; Catapult crotch +11 %, feet +9 %): left
    for Daniel to decide.
+3c. SECTIONS and ARTICULATION (Daniel, 2026-11-18): `python -I tools/lowpoly_measure.py sections "<unit>"` (the sheet and the model
+   in the same bands, height and front-to-back; write the list of differences before changing anything) and `python -I
+   tools/lowpoly_articulate.py "<unit>"` (every joint through its recorded range, clip-free).
 4. SELF-REVIEW against the principles' checklist BEFORE Daniel sees it: what does every round shape turn? joints built out? legs
    splay? cockpit wraps or cuts? turning roots inside their parents? every record-sheet weapon housed?
 5. FIVE-VIEW COMPARISON to Daniel (the sheet's views beside the model's); every new principle into ASSEMBLY_PRINCIPLES.md the same day.
