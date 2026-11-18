@@ -1104,11 +1104,15 @@ def atlas():
     m.add("bar", "mast", "torso", a=(cxc, 9.3, czc), b=(cxc + 0.05, 10.35, czc - 0.2), w0=[0.07, 0.07], w1=[0.04, 0.04], tone=DARK)
     # ---------------------------------------------------------------- the waist and the pelvis: a belt, a deep crotch block
     # (round 5: the turning RING at the waist line, wide - the torso turns on it, so it shows in the outline; the sheet's waist is 3.6)
-    waist_joint(m, (0, 6.15, 0), 0.75, ((0, 6.08, 0), (0, 6.18, 0), 3.85, 3.85), ball_n=16, ball_rings=8)   # (3.5 across its flats)
-    # the ring's flat top and bottom CHAMFERED down to the torso and the belt (the checklist: no large flat space, principle 34)
-    oct_ = lambda y, r: [(r * math.cos(math.radians(22.5 + 45 * k)), y, r * math.sin(math.radians(22.5 + 45 * k))) for k in range(8)]
-    m.hull("waist_ring_bevel", "pelvis", oct_(6.18, 1.92) + oct_(6.25, 1.6), tone=0.7)
-    m.hull("waist_ring_bevel", "pelvis", oct_(6.08, 1.92) + oct_(6.0, 1.62), tone=0.7)
+    waist_joint(m, (0, 6.15, 0), 0.75, ((0, 6.08, 0), (0, 6.18, 0), 2.0, 2.0), ball_n=16, ball_rings=8)   # the bearing, inside
+    # the turning RING an OVAL, the body's own plan - full width side to side (3.5 across its flats), the torso's depth front to back
+    # (Daniel, 2026-11-18: "from the side what I assume is the waists rotating ring sticks out to the rear": it was round, 3.8 deep on a
+    # body 2.1 deep). It is fixed to the pelvis; the torso turns above it, so it need not be round. Its top and bottom chamfered down to
+    # the torso and the belt (no large flat space, principle 34)
+    oct_ = lambda y, rx, rz: [(rx * math.cos(math.radians(22.5 + 45 * k)), y, rz * math.sin(math.radians(22.5 + 45 * k))) for k in range(8)]
+    m.hull("waist_ring", "pelvis", oct_(6.08, 1.92, 1.14) + oct_(6.18, 1.92, 1.14), tone=0.7)
+    m.hull("waist_ring_bevel", "pelvis", oct_(6.18, 1.92, 1.14) + oct_(6.25, 1.6, 0.98), tone=0.7)
+    m.hull("waist_ring_bevel", "pelvis", oct_(6.08, 1.92, 1.14) + oct_(6.0, 1.62, 0.98), tone=0.7)
     # the PELVIS (the kit: "a wide flat OVAL plate on top, a short skirt below, and a narrow hanging apron down the front centre: from
     # the front it reads as a T or anvil")
     oval = lambda y, rx, rz: [(rx * math.cos(2 * math.pi * k / 16), y, rz * math.sin(2 * math.pi * k / 16)) for k in range(16)]
