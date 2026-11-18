@@ -6,6 +6,20 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), COMMANDO HD MODEL; FIVE-VIEW FRONT/REAR MIRROR FIX. Art only. REVIEW PENDING (higher-level
+  model).** `tools/lowpoly_hd.py commando()` -> `reference_art/models_hd/Commando COM-2D.json` (148 parts, ~6,000 triangles) and
+  `sheets/Commando COM-2D HD.png`, the second unit through the T15c pipeline: measured from the Gemini sheet's front and side views
+  (`tools/lowpoly_measure.py`; the top view not used, Daniel: its feet are drawn backwards), the weapons from the TRO and the record
+  sheet. Daniel's rulings: the SRM 4 is a four-tube pod on top of the right forearm above the fist; the round chest plate is kept
+  as a reserved bay (`chest.reserved_bay`); the legs follow the sheet's front and side views. The SRM 6 is the TRO's 3x2 grid high on
+  the chest, left of the head; the medium laser runs along the left forearm's outer face (in line, muzzle clear of the fist). Arms
+  in a ready pose (forearms level) so both arm weapons fire forward. Joints built to articulate (hip axle and caps, knee caps and
+  discs, built-out ankles, waist ball and cowl, shoulders, elbows, wrists; `pivots` recorded), legs splayed 5 degrees, no jump jets.
+  Checks: no floating parts, every line of fire clear, the record sheet's weapons present. A self-review against the sheet after
+  the first build lengthened and slimmed the legs (the sheet's legs start right under the belt). New helpers `limb` (module level,
+  faceted option), `dome_point`, `bevel_ring`; `python -I tools/lowpoly_hd.py NAME` builds one unit. BUG FIX: the sheet's FRONT and
+  REAR panels were drawn mirror-imaged (the Commando's antenna and pod came out on the wrong side; the symmetric Catapult hid it).
+  Measure tool: a binary opening drops caption arrows (the Commando's annotated sheet).
 - **2026-11-18 (Claude, session 28), RESERVED BAYS; WEAPON PLANS PER BLOCK; NO BACK RACK WITHOUT A CT LAUNCHER. Art only. REVIEW
   PENDING (higher-level model).** Daniel on the Catapult's X box: keep it, its space reserved ("maybe it houses a radar ... or extra
   weapons if someone edited the catapult"): the HD model's `mounts` lists it as `deck.reserved_bay`. Principles 22 (unexplained art
