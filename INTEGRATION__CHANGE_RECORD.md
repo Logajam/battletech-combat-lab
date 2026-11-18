@@ -6,6 +6,18 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), ATLAS HD, ROUND 3 (Daniel's notes). Art only. REVIEW PENDING (higher-level model).** The pose
+  camera is above the floor (pitch 4; the turnaround clamps a negative pitch). The measuring test now reads the torso in bands (hips,
+  belt, waist, chest widths and heights) and the back's depth behind the leg line at the chest and the hips, with the model in a
+  `sheet` pose (arms hanging as the sheet's, so they do not merge into the body's width). Results drove the changes: the legs moved in
+  0.36 a side with a 5.5-degree splay (the hips were far too wide; the feet stay put), the thigh tops narrower and the hip axle ending
+  at the thigh, the waist tapered further, a deeper back pack and a rear skirt at the hips (back depth now within 2 %). All landmarks
+  within 6 % but the belt (-11 %: the sheet's belt band carries racks on BOTH hips; the record sheet has one launcher, on the chest
+  now). Daniel's other notes: RECESSED side-torso sections holding the SRM 6 and the AC/20; the feet rebuilt (sole, arch, two split
+  toes with caps, side plates, instep with ridge, heel and spur, ankle socket); the forearm redesigned - it was the legs' limb block
+  with decorative bands - as a slab with an actuator housing, an outer armour plate, a maintenance hatch with warning stripes and a
+  wrist cuff; the pauldrons centred over the shoulder and shorter; a new `death_head` block (wider-than-tall cranium, V brow, deep
+  slanted sockets with the glass inside, cheekbones, nasal cavity, toothed grin, temple sensors). Principles 44-48.
 - **2026-11-18 (Claude, session 28), ATLAS HD, ROUND 2 (Claude's own list, Daniel: "Go ahead and make your changes"). Art only.
   REVIEW PENDING (higher-level model).** From the side-by-side with the AI sheet: the separate humps became one sloped shoulder mass
   each side (the top line had five bumps); the chest tapers to the waist like a V; the skull is faceted (eight sides) with a flat face

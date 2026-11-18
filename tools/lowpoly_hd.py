@@ -869,6 +869,56 @@ def skull_head(m, c, w, top, chin, depth, gap_top, facets=16, face_plate=False):
     m.tube("neck", "head", (0, gap_top - 0.25, cz - 0.1), (0, chin + 0.1, cz - 0.1), w * 0.55, n=8, roll=22.5, tone=JOINT)
 
 
+def death_head(m, c, w, chin, depth, gap_top):
+    """HD BLOCK head/death_head (the Atlas: "reknown for the fear it strikes into its foes"; Daniel, 2026-11-18, of the first try:
+    "a sad conehead"). A SKULL, not a helmet: a rounded, faceted cranium WIDER at the temples than it is tall over the face; a heavy
+    brow ridge that drops to a V between the eyes (the scowl); deep, slanted EYE sockets under it, the cockpit glass set back inside
+    them (the cockpit rule); jutting cheekbones; a nasal cavity; a narrower square jaw with two rows of teeth and a dark grin line
+    between; sensor plates at the temples. c = (x, y of the cranium's base, z of its middle), w = the skull's width across the
+    temples; the chin at `chin` stands clear of the torso top `gap_top` (principle 30)."""
+    cx, cy, cz = c
+    fz = cz + depth / 2                                   # the face's front
+    # the cranium LOWER than it is wide (a taller one read as a cone, Daniel), swelling at the temples
+    m.add("dome", "cranium", "head", c=(cx, cy, cz - 0.05), r=(w / 2 + 0.04, 0.74, depth / 2 + 0.02), n=12, rings=4, half="top", roll=15.0,
+          tone=0.9)
+    # the MASK: the upper face, temples to cheekbones, its front a little forward of the cranium
+    m.hull("mask", "head", [(sx * w / 2, cy + 0.05, z) for sx in (-1, 1) for z in (cz - 0.3, fz - 0.15)] +
+           [(sx * w * 0.42, cy - 0.42, fz + 0.02) for sx in (-1, 1)] + [(sx * w * 0.47, cy - 0.42, cz - 0.25) for sx in (-1, 1)] +
+           [(sx * w * 0.36, cy + 0.02, fz + 0.04) for sx in (-1, 1)], tone=0.86)
+    # the BROW: high at the temples, dropping to a V between the eyes, standing out over them
+    for sx in (1, -1):
+        m.hull("brow", "head", [(sx * w * 0.46, cy + 0.1, fz - 0.1), (sx * w * 0.46, cy - 0.02, fz - 0.1), (sx * 0.06, cy - 0.12, fz + 0.16),
+                                (sx * 0.06, cy - 0.26, fz + 0.14), (sx * w * 0.44, cy + 0.08, fz + 0.06), (sx * 0.06, cy - 0.16, fz + 0.22)],
+               tone=TRIM)
+        # the EYE socket under the brow, slanting down toward the nose; the glass deep inside it
+        pts = [(sx * a, b, z) for a, b in ((0.12, cy - 0.27), (w * 0.4, cy - 0.06), (w * 0.38, cy - 0.24), (0.14, cy - 0.4))
+               for z in (fz - 0.06, fz + 0.035)]
+        m.hull("eye_socket", "head", pts, tone=0.12)
+        m.hull("eye", "head", [(sx * a, b, fz - 0.07) for a, b in ((0.16, cy - 0.28), (w * 0.36, cy - 0.1), (w * 0.34, cy - 0.23),
+                                                                (0.17, cy - 0.37))] +
+               [(sx * a, b, fz - 0.03) for a, b in ((0.18, cy - 0.29), (w * 0.34, cy - 0.12), (w * 0.32, cy - 0.22))],
+               tone=0.3, role="canopy" if sx == 1 else None)
+        # the CHEEKBONE: jutting out and forward under the eye
+        m.hull("cheekbone", "head", [(sx * w * 0.5, cy - 0.32, cz + 0.1), (sx * w * 0.52, cy - 0.5, cz + 0.05), (sx * w * 0.3, cy - 0.48, fz + 0.06),
+                                     (sx * w * 0.32, cy - 0.38, fz + 0.06), (sx * w * 0.47, cy - 0.36, fz - 0.15), (sx * w * 0.36, cy - 0.58, fz - 0.05)],
+               tone=0.8)
+    # a SENSOR plate at each temple (the head's side sensors: a hexagon with a lens); joint_cover mirrors it to the right
+    joint_cover(m, "temple_sensor", "head", (0, cy - 0.05, cz - 0.05), w / 2 - 0.03, 0.22, sides=6, roll=30, thick=0.06)
+    # the NOSE: an inverted triangle cavity
+    m.hull("nasal", "head", [(0, cy - 0.36, fz + 0.03), (-0.1, cy - 0.58, fz), (0.1, cy - 0.58, fz),
+                             (0, cy - 0.36, fz - 0.06), (-0.1, cy - 0.58, fz - 0.06), (0.1, cy - 0.58, fz - 0.06)], tone=0.12)
+    # the JAW: narrower than the cheekbones, square-chinned, set a little back; two rows of TEETH and the dark grin between
+    jw, jt = w * 0.32, cy - 0.55
+    m.hull("jaw", "head", [(sx * jw, jt, z) for sx in (-1, 1) for z in (cz - 0.25, fz - 0.06)] +
+           [(sx * jw * 0.86, chin, z) for sx in (-1, 1) for z in (cz - 0.15, fz - 0.12)], tone=0.82)
+    m.box("grin", "head", (0, (jt + chin) / 2 + 0.03, fz - 0.06), (jw * 1.7, 0.05, 0.04), tone=0.1)
+    for row, y0 in (("upper", (jt + chin) / 2 + 0.14), ("lower", (jt + chin) / 2 - 0.08)):
+        for k in range(6):
+            x = (k - 2.5) * jw * 0.3
+            m.box("tooth", "head", (x, y0, fz - 0.06), (jw * 0.17, 0.11, 0.04), tone=0.74)
+    m.tube("neck", "head", (0, gap_top - 0.25, cz - 0.1), (0, chin + 0.1, cz - 0.1), w * 0.5, n=8, roll=22.5, tone=JOINT)
+
+
 def atlas():
     """ATLAS AS7-D (100 t assault). Measured on a grid over the AI five-view sheet (reference_art/ai_sheets/Atlas AS7-D/batch2_1.webp:
     front view 10/377 per pixel, centre x 187, ground y 405, head top y 28; side view 10/356, ground y 808) and tools/lowpoly_measure.py;
@@ -883,7 +933,7 @@ def atlas():
     # ---------------------------------------------------------------- the torso: a wide chest, two humps either side of a sunken head
     # ROUND 2 (Claude's list, Daniel: "Go ahead and make your changes"): the chest TAPERS to the waist like a V (the sheet: 3.6 wide
     # at y 6.5 under a 4.3 chest; it was a box down to the belt)
-    lv = [(8.1, 1.95, 0.85, -0.95), (7.9, 2.15, 1.1, -1.15), (7.0, 2.0, 1.15, -1.15), (6.5, 1.72, 1.0, -1.0), (6.15, 1.6, 0.95, -0.95)]
+    lv = [(8.1, 1.95, 0.85, -0.95), (7.9, 2.15, 1.1, -1.15), (7.0, 1.86, 1.15, -1.15), (6.5, 1.62, 1.0, -1.0), (6.15, 1.5, 0.95, -0.95)]
     torso_stack(m, lv, ch=0.3, tone=0.88)
     # the high SHOULDERS as one sloped mass from the head's sides out to the pauldrons (the sheet's chest rises into its pads; the
     # first pass had separate humps, five bumps across the top)
@@ -906,18 +956,28 @@ def atlas():
         for k in range(4):
             m.box("louvre", "torso", (sx * 0.95, 6.3 + k * 0.1, 0.985), (0.55, 0.04, 0.05), tone=DARK)
         for y, z in ((7.75, 1.12), (7.1, 1.165)):
-            m.box("bolt", "torso", (sx * 1.7, y, z), (0.09, 0.09, 0.05), tone=0.5)
+            m.box("bolt", "torso", (sx * (1.7 if y > 7.5 else 1.45), y, z), (0.09, 0.09, 0.05), tone=0.5)
     # the BACK: a pack with vents (the rear view's rectangle with louvres), no large flat space (principle 34)
-    m.hull("back_pack", "torso", bevel_box((0, 7.95, -1.32), (2.5, 2.0, 0.42), 0.12), tone=PLATE)
+    # (round 3, the measuring test: the back stood 1.51 behind the leg's line at the chest, the sheet's 1.74: a deeper pack)
+    m.hull("back_pack", "torso", bevel_box((0, 7.95, -1.42), (2.5, 2.0, 0.62), 0.14), tone=PLATE)
     for k in range(5):
-        m.box("pack_vent", "torso", (-0.55, 7.45 + k * 0.17, -1.54), (0.9, 0.07, 0.03), tone=DARK)
-        m.box("pack_vent", "torso", (0.55, 7.45 + k * 0.17, -1.54), (0.9, 0.07, 0.03), tone=DARK)
-    m.box("pack_hatch", "torso", (0, 8.65, -1.535), (1.6, 0.4, 0.03), tone=0.6)
+        m.box("pack_vent", "torso", (-0.55, 7.45 + k * 0.17, -1.74), (0.9, 0.07, 0.03), tone=DARK)
+        m.box("pack_vent", "torso", (0.55, 7.45 + k * 0.17, -1.74), (0.9, 0.07, 0.03), tone=DARK)
+    m.box("pack_hatch", "torso", (0, 8.65, -1.735), (1.6, 0.4, 0.03), tone=0.6)
     # the two REAR-FIRING centre-torso lasers (record sheet: "Medium Laser (R)" x 2), under the pack, pointing back
     for sx in (1, -1):
         m.tube("rear_laser_housing", "torso", (sx * 0.45, 6.62, -0.8), (sx * 0.45, 6.62, -1.18), 0.36, n=12, tone=PLATE)
         m.tube("rear_laser", "torso", (sx * 0.45, 6.62, -1.15), (sx * 0.45, 6.62, -1.5), 0.24, 0.2, n=12, tone=METAL,
                role="weapon:CT:Medium Laser")
+    # the SIDE TORSOS below the chest: RECESSED sections either side of the centre torso, set back from its front, holding the weapon
+    # bays (Daniel, 2026-11-18: "the side torsos have recessed sections holding weapon bays that are visually not part of the core
+    # torso from the front"): a dark-edged recess each side, a frame lip round it, vents in its back wall
+    for sx in (1, -1):
+        # (x 1.55, 0.7 wide: a gap to the hanging arm, as the sheet)
+        m.hull("side_recess", "torso", bevel_box((sx * 1.52, 6.25, -0.2), (0.7, 1.3, 1.4), 0.08), tone=0.62)
+        m.hull("recess_lip", "torso", bevel_box((sx * 1.52, 6.95, 0.28), (0.78, 0.1, 0.5), 0.03), tone=TRIM)
+        for k in range(3):
+            m.box("recess_vent", "torso", (sx * 1.88, 6.0 + k * 0.16, -0.25), (0.03, 0.07, 0.9), tone=DARK)
     # the LRM 20 (record sheet: left torso) on the open upper LEFT CHEST, and the SRM 6 at the left hip: the bigger launcher on the
     # wider flat space (Daniel, 2026-11-18: "Atlas LRM 20 is weird. My suggestion is to switch spots with the SRM-6, use the wider open
     # chest for the bigger weapon system"; the first pass had the TRO's places: SRM 6 on the chest, LRM 20 at the hip)
@@ -928,8 +988,8 @@ def atlas():
     # Hunchback lesson) and a jacketed barrel forward (the TRO's barrel at the right hip)
     # (the kit: a boxy RECEIVER with a raised top rail and cooling holes, an underside stub, a long barrel, a ringed muzzle brake, on
     # a round SOCKET DISC on the torso's side; moved in from x -1.86 so its fire clears the right fist's thumb)
-    ax, ay = -1.55, 5.98                                  # (x -1.72 at first: the narrower shoulders bring the right forearm in)
-    axle_cap(m, "ac20_socket", "torso", ay, -0.1, -1.5, -2.0, 1.1, n=20, mirror=False, ring=(0.06, 0.85))
+    ax, ay = -1.5, 5.98                                  # (x -1.72 at first: the narrower shoulders bring the right forearm in)
+    axle_cap(m, "ac20_socket", "torso", ay, -0.1, -1.45, -1.84, 1.1, n=20, mirror=False, ring=(0.05, 0.85))
     m.hull("ac20_receiver", "torso", bevel_box((ax, ay, 0.1), (0.78, 0.9, 1.7), 0.1), tone=0.8)
     m.hull("ac20_rail", "torso", bevel_box((ax, ay + 0.5, 0.15), (0.3, 0.12, 1.4), 0.03), tone=PLATE)
     for k in range(4):
@@ -940,8 +1000,8 @@ def atlas():
     for k in range(3):                                    # the brake's rings
         m.tube("ac20_brake", "torso", (ax, ay + 0.05, 2.3 + k * 0.15), (ax, ay + 0.05, 2.38 + k * 0.15), 0.5, n=16, tone=0.45)
     # ---------------------------------------------------------------- the head: a skull, sunk between the humps, a gap under it
-    # (round 2: forward, as the sheet's plan; taller-looking and faceted, with a flat face plate, as its front)
-    skull_head(m, (0.0, 9.0, 0.5), 1.6, 10.0, 8.22, 1.95, 8.1, facets=8, face_plate=True)
+    # (round 3: a DEATH'S HEAD - Daniel: "The head is an abomination ... I think you drew a sad conehead"; forward, as the sheet's plan)
+    death_head(m, (0.0, 9.26, 0.45), 1.64, 8.22, 1.9, 8.1)          # (the crown back at 10: the sheet's head stands 2.0 tall)
     # the dish (the sheet: on the right hump) and the antenna (left), both kept
     m.tube("dish_mast", "torso", (-1.45, 9.0, -0.45), (-1.45, 9.62, -0.45), 0.14, n=8, tone=DARK)
     m.tube("dish", "torso", (-1.45, 9.75, -0.5), (-1.45, 9.82, -0.38), 0.72, 0.6, n=16, tone=0.8)
@@ -953,8 +1013,14 @@ def atlas():
     # the PELVIS (the kit: "a wide flat OVAL plate on top, a short skirt below, and a narrow hanging apron down the front centre: from
     # the front it reads as a T or anvil")
     oval = lambda y, rx, rz: [(rx * math.cos(2 * math.pi * k / 16), y, rz * math.sin(2 * math.pi * k / 16)) for k in range(16)]
-    m.hull("pelvis_plate", "pelvis", oval(6.1, 1.72, 0.92) + oval(6.02, 1.8, 0.98) + oval(5.78, 1.8, 0.98) + oval(5.7, 1.72, 0.92), tone=0.8)
+    # (round 3, the measuring test: the sheet's belt band is 4.3 across, ours was 3.9)
+    m.hull("pelvis_plate", "pelvis", oval(6.1, 1.82, 0.92) + oval(6.02, 1.88, 0.98) + oval(5.78, 1.88, 0.98) + oval(5.7, 1.82, 0.92), tone=0.8)
     m.hull("pelvis_skirt", "pelvis", oval(5.72, 1.55, 0.86) + oval(5.4, 1.38, 0.8), tone=0.74)
+    # the REAR SKIRT: armour hanging behind the hips (the sheet's back stands 1.29 behind the leg's line at the hips; ours 0.77)
+    m.hull("rear_skirt", "pelvis", [(sx * 1.2, 5.75, -0.8) for sx in (-1, 1)] + [(sx * 1.25, 5.65, -1.4) for sx in (-1, 1)] +
+           [(sx * 0.95, 4.65, -1.25) for sx in (-1, 1)] + [(sx * 0.9, 4.7, -0.8) for sx in (-1, 1)], tone=PLATE)
+    for k in range(3):
+        m.box("rear_skirt_rib", "pelvis", (0, 5.35 - k * 0.25, -1.37 + k * 0.04), (1.9 - k * 0.2, 0.05, 0.04), tone=DARK)
     for k in range(4):
         m.box("skirt_vent", "pelvis", (0, 5.47 + k * 0.07, 0.82), (1.0, 0.03, 0.03), tone=DARK)
     m.hull("crotch", "pelvis", bevel_ring(5.45, 0.75, 0.85, -0.85, 0.14) + bevel_ring(4.25, 0.6, 0.7, -0.7, 0.12), tone=0.74)
@@ -963,12 +1029,14 @@ def atlas():
     # ---------------------------------------------------------------- the legs (straight; the sheet: column shins, a big knee disc)
     hip, knee, ankle = (1.56, 5.15, 0.0), (1.56, 3.3, 0.12), (1.56, 1.25, 0.0)
     leg_from = len(m.parts)
-    axle_cap(m, "thigh_cap", "leg_L", hip[1], 0, 0.7, 2.3, 1.1, n=24, hub=(0.06, 0.55, 16))
-    joint_cover(m, "hip_cover", "leg_L", hip, 2.3, 0.66, sides=6, roll=30, kz=1.1)
-    limb(m, "thigh", "leg_L", hip, knee, 1.46, 1.7, 1.36, 1.45, steps=3, sides=8, tone=0.74, mirror=True)
+    # (round 3, the measuring test: the hips measured far wider than the sheet's 3.65: the hip axle, its cover and the thigh's top stood
+    # out past the hanging arms; now the axle ends at the thigh's outer face and the thigh is narrower at the top)
+    axle_cap(m, "thigh_cap", "leg_L", hip[1], 0, 0.75, 2.03, 1.1, n=24, hub=(0.05, 0.55, 16))
+    joint_cover(m, "hip_cover", "leg_L", hip, 2.08, 0.6, sides=6, roll=30, kz=1.1)
+    limb(m, "thigh", "leg_L", hip, knee, 1.2, 1.7, 1.36, 1.45, steps=3, sides=8, tone=0.74, mirror=True)
     m.add("bar", "thigh_guard", "leg_L", a=(1.56, 4.85, 0.82), b=(1.56, 3.75, 0.8), w0=[1.25, 0.16], w1=[1.1, 0.14], tone=PLATE, mirror=True)
-    m.hull("thigh_guard_side", "leg_L", bevel_box((2.3, 4.3, 0.05), (0.14, 1.0, 1.2), 0.05), tone=PLATE, mirror=True)
-    m.add("bar", "thigh_slash", "leg_L", a=(2.38, 4.7, -0.5), b=(2.38, 3.95, 0.55), w0=[0.03, 0.06], w1=[0.03, 0.06], tone=DARK, mirror=True)
+    m.hull("thigh_guard_side", "leg_L", bevel_box((2.14, 4.2, 0.05), (0.08, 0.95, 1.15), 0.03), tone=PLATE, mirror=True)
+    m.add("bar", "thigh_slash", "leg_L", a=(2.18, 4.6, -0.45), b=(2.18, 3.85, 0.5), w0=[0.03, 0.06], w1=[0.03, 0.06], tone=DARK, mirror=True)
     axle_cap(m, "knee_cap", "leg_L", knee[1], knee[2], 0.85, 2.25, 1.05, n=24, ring=(2.25, 2.33, 1.35, 1.15), hub=(0.06, 0.5, 16))
     m.add("bar", "knee_pad", "leg_L", a=(1.56, 3.75, 0.8), b=(1.56, 2.85, 0.92), w0=[1.2, 0.3], w1=[1.0, 0.26], tone=0.86, mirror=True)
     limb(m, "shin", "leg_L", knee, ankle, 1.52, 1.5, 1.4, 1.34, steps=3, sides=8, tone=0.72, mirror=True, bulge=0.06)   # tapering (the TRO), within the sheet's width (the measuring test)
@@ -986,13 +1054,29 @@ def atlas():
     axle_cap(m, "ankle_drum", "leg_L", 0.95, -0.1, 0.62, 2.5, 0.95, n=8, ring=(0.06, 0.7), hub=(0.04, 0.36, 8))
     foot_from = len(m.parts)
     fx = 1.56
-    m.hull("foot", "leg_L", [(fx + sx * 1.12, 0, z) for sx in (-1, 1) for z in (-1.4, 1.5)] + [(fx + sx * 0.85, 0, 2.0) for sx in (-1, 1)] +
-           [(fx + sx * 1.0, 0.55, z) for sx in (-1, 1) for z in (-1.2, 1.1)] + [(fx + sx * 0.75, 0.3, 1.9) for sx in (-1, 1)],
-           tone=0.76, mirror=True)
-    for dx in (-0.5, 0.0, 0.5):                           # toe ridges
-        m.add("bar", "toe_ridge", "leg_L", a=(fx + dx, 0.5, 1.0), b=(fx + dx, 0.28, 1.88), w0=[0.22, 0.1], w1=[0.18, 0.08], tone=PLATE, mirror=True)
-    m.hull("heel", "leg_L", [(fx + sx * 0.8, y, z) for sx in (-1, 1) for y, z in ((0, -1.4), (0, -1.7), (0.45, -1.35), (0.15, -1.68))],
+    # THE FOOT (round 3, Daniel: "Your feet are simplistic"): a SOLE plate; the main block (the arch) on it; TWO TOES split at the
+    # front, each a chamfered wedge with its own toe cap (the kit's wedge toes; the sheet's and the TRO's split front); armour plates on
+    # the outer and inner sides; an instep plate with a ridge over the toes' roots; a HEEL block with a spur; a socket ring where the
+    # ankle housing comes down into the foot
+    m.hull("sole", "leg_L", bevel_box((fx, 0.08, 0.1), (2.3, 0.16, 3.2), 0.06), tone=0.5, mirror=True)   # (the side view's reach: 3.6)
+    m.hull("arch", "leg_L", [(fx + sx * 1.02, 0.15, z) for sx in (-1, 1) for z in (-1.3, 0.9)] +
+           [(fx + sx * 0.9, 0.62, z) for sx in (-1, 1) for z in (-1.1, 0.55)], tone=0.76, mirror=True)
+    for dx in (-0.5, 0.5):
+        m.hull("toe", "leg_L", [(fx + dx + sx * 0.46, 0.15, z) for sx in (-1, 1) for z in (0.8, 1.5)] +
+               [(fx + dx + sx * 0.38, 0.15, 1.72) for sx in (-1, 1)] + [(fx + dx + sx * 0.4, 0.5, 0.85) for sx in (-1, 1)] +
+               [(fx + dx + sx * 0.32, 0.3, 1.62) for sx in (-1, 1)], tone=0.78, mirror=True)
+        m.add("bar", "toe_cap", "leg_L", a=(fx + dx, 0.47, 1.0), b=(fx + dx, 0.29, 1.6), w0=[0.5, 0.08], w1=[0.42, 0.07], tone=PLATE, mirror=True)
+    m.box("toe_split", "leg_L", (fx, 0.3, 1.35), (0.06, 0.3, 1.0), tone=DARK, mirror=True)
+    for sx in (1, -1):
+        m.hull("foot_side_plate", "leg_L", [(fx + sx * 1.04, y, z) for y, z in ((0.16, -1.1), (0.16, 0.9), (0.52, -0.9), (0.45, 0.7))] +
+               [(fx + sx * 1.1, y, z) for y, z in ((0.2, -1.0), (0.2, 0.8), (0.48, -0.85), (0.42, 0.65))], tone=PLATE, mirror=True)
+    m.hull("instep", "leg_L", bevel_box((fx, 0.66, 0.65), (1.5, 0.12, 0.6), 0.04), tone=0.82, mirror=True)
+    m.add("bar", "instep_ridge", "leg_L", a=(fx, 0.73, 0.4), b=(fx, 0.72, 0.92), w0=[0.12, 0.06], w1=[0.12, 0.06], tone=DARK, mirror=True)
+    m.hull("heel", "leg_L", [(fx + sx * 0.82, y, z) for sx in (-1, 1) for y, z in ((0.15, -1.2), (0.15, -1.6), (0.6, -1.1), (0.3, -1.58))],
            tone=0.7, mirror=True)
+    m.hull("heel_spur", "leg_L", [(fx + sx * 0.14, y, z) for sx in (-1, 1) for y, z in ((0.2, -1.5), (0.2, -1.72), (0.42, -1.45), (0.25, -1.7))],
+           tone=PLATE, mirror=True)
+    m.tube("ankle_socket", "leg_L", (fx, 0.6, -0.1), (fx, 0.74, -0.1), 1.72, 1.62, n=8, roll=22.5, tone=TRIM, mirror=True)
     leg_end = len(m.parts)
     # ---------------------------------------------------------------- the arms: pod shoulders, heavy sleeves, fists, lasers in line
     pivots, arm_mounts = {}, []
@@ -1004,13 +1088,15 @@ def atlas():
         # the PAULDRON (the kit: "a big faceted dome (like a helmet, hexagonal facets) with a rim flange below it, wider than the upper
         # arm"; the TRO's round shoulders): an eight-faceted dome over the shoulder, a flange ring round its foot
         # (round 2: blockier - two rings of facets - and pushed FORWARD: the sheet's side view has the pad bulging ahead of the chest)
-        pz = 0.32
-        m.add("dome", "pauldron", asm, c=(X(2.68), 8.05, pz), r=(0.75, 1.0, 1.28), n=8, rings=2, half="top", roll=22.5, tone=0.9)
+        # (round 3, Daniel: "The shoulder plates are not centered over the shoulder and are kinda long when viewed from above": centred
+        # over the joint again, and shorter fore and aft)
+        pz = 0.0
+        m.add("dome", "pauldron", asm, c=(X(2.68), 8.05, pz), r=(0.75, 1.0, 0.98), n=8, rings=2, half="top", roll=22.5, tone=0.9)
         ring = lambda y, rx, rz: [(X(2.68) + rx * math.cos(math.radians(22.5 + 45 * k)), y, pz + rz * math.sin(math.radians(22.5 + 45 * k)))
                                   for k in range(8)]
-        m.hull("pauldron_flange", asm, ring(7.92, 0.84, 1.38) + ring(8.08, 0.8, 1.33), tone=TRIM)    # (a wider one read as a hat)
+        m.hull("pauldron_flange", asm, ring(7.92, 0.84, 1.08) + ring(8.08, 0.8, 1.03), tone=TRIM)    # (a wider one read as a hat)
         m.tube("pauldron_root", asm, (X(2.05), 8.05, 0.0), (X(2.4), 8.05, 0.0), 1.2, n=8, roll=22.5, tone=0.8)
-        m.box("pauldron_seam", asm, (X(2.68), 8.55, pz + 0.9), (0.9, 0.04, 0.03), tone=DARK)
+        m.box("pauldron_seam", asm, (X(2.68), 8.5, pz + 0.68), (0.9, 0.04, 0.03), tone=DARK)
         axle_cap(m, "shoulder", asm, sh[1], 0, X(1.9), X(3.36), 1.0, n=24, mirror=False)
         up = math.radians(15)
         elbow = (sh[0], sh[1] - 1.65 * math.cos(up), 1.65 * math.sin(up))
@@ -1018,11 +1104,23 @@ def atlas():
         axle_cap(m, "elbow", asm, elbow[1], elbow[2], X(2.06), X(3.26), 1.0, n=20, mirror=False)
         dn = math.radians(8)
         wrist = (sh[0], elbow[1] - 2.0 * math.sin(dn), elbow[2] + 2.0 * math.cos(dn))
-        limb(m, "forearm", asm, elbow, wrist, 1.35, 1.35, 1.25, 1.22, steps=2, sides=8, tone=0.78, bulge=0.06)
-        for t in (0.35, 0.7):
-            q = [elbow[i] + (wrist[i] - elbow[i]) * t for i in (1, 2)]
-            q2 = [elbow[i] + (wrist[i] - elbow[i]) * (t + 0.05) for i in (1, 2)]
-            m.tube("forearm_band", asm, (sh[0], *q), (sh[0], *q2), 1.36, n=8, roll=22.5, tone=DARK)
+        # THE FOREARM (round 3, Daniel: "I feel like you reused the hunchbacks legs for the lower arms ... The black bands. Do they have
+        # a purpose?" - it was the same rounded limb block as the legs, and the bands were decoration). Now a chamfered SLAB (the kit:
+        # "a long slab ending in a fist"), and every part on it is for something: the ACTUATOR HOUSING at the elbow end (the lower arm
+        # actuator), an ARMOUR PLATE down its outer face, a MAINTENANCE HATCH with its warning stripes (the TRO's hatched panel), a WRIST
+        # CUFF at the fist end over the wrist (hand) actuator
+        limb(m, "forearm", asm, elbow, wrist, 1.32, 1.28, 1.24, 1.2, steps=1, sides=8, tone=0.78, bulge=0.0)
+        ef = lambda t: (sh[0], elbow[1] + (wrist[1] - elbow[1]) * t, elbow[2] + (wrist[2] - elbow[2]) * t)
+        m.tube("actuator_housing", asm, ef(0.0), ef(0.22), 1.44, 1.38, n=8, roll=22.5, tone=0.7)
+        m.tube("wrist_cuff", asm, ef(0.86), ef(1.0), 1.34, 1.38, n=8, roll=22.5, tone=0.7)
+        fo = 1.28 / 2 * math.cos(math.radians(22.5))
+        m.add("bar", "forearm_armour", asm, a=(sh[0] + s * (fo + 0.04), *ef(0.25)[1:]), b=(sh[0] + s * (fo + 0.04), *ef(0.82)[1:]),
+              w0=[0.1, 0.95], w1=[0.1, 0.9], tone=PLATE)
+        hp = ef(0.55)
+        m.box("hatch", asm, (sh[0] - s * (fo + 0.01), hp[1], hp[2]), (0.03, 0.62, 0.62), tone=0.55)
+        for k in range(4):                                # the warning stripes on the hatch
+            m.add("bar", "hatch_stripe", asm, a=(sh[0] - s * (fo + 0.03), hp[1] - 0.28 + k * 0.15, hp[2] - 0.28),
+                  b=(sh[0] - s * (fo + 0.03), hp[1] - 0.28 + k * 0.15 + 0.2, hp[2] - 0.08), w0=[0.02, 0.05], w1=[0.02, 0.05], tone=DARK)
         fc = (sh[0], wrist[1] - 0.18, wrist[2] + 0.4)
         axle_cap(m, "wrist", asm, wrist[1], wrist[2], X(2.26), X(3.06), 0.75, n=16, mirror=False)
         m.hull("fist", asm, bevel_box(fc, (1.1, 1.1, 0.9), 0.16), tone=0.82)
@@ -1056,7 +1154,18 @@ def atlas():
         pivots["shoulder_" + side] = {"centre": rnd(sh), "axis": "x", "parent": "torso", "child": "upper arm"}
         pivots["elbow_" + side] = {"centre": rnd(elbow), "axis": "x", "parent": "upper arm", "child": "forearm"}
         pivots["wrist_" + side] = {"centre": rnd(wrist), "axis": "x", "parent": "forearm", "child": "fist"}
-    splay = splay_legs(m, leg_from, leg_end, foot_from, hip, ankle, 2.0)
+    # (round 3, the measuring test: the hips measured 0.47 of the height across, the sheet's 0.35 - the legs were drawn 1.56 out: they
+    # move in by LEG_IN and splay further, so the feet stay where the sheet has them)
+    LEG_IN = 0.36
+    for i in range(leg_from, leg_end):
+        p = m.parts[i]
+        for key in ("a", "b", "c"):
+            if key in p:
+                p[key] = rnd((p[key][0] - LEG_IN, p[key][1], p[key][2]))
+        if "pts" in p:
+            p["pts"] = [rnd((q[0] - LEG_IN, q[1], q[2])) for q in p["pts"]]
+    hip, knee, ankle = [(q[0] - LEG_IN, q[1], q[2]) for q in (hip, knee, ankle)]
+    splay = splay_legs(m, leg_from, leg_end, foot_from, hip, ankle, 5.5)
     pivots.update({"neck": {"centre": [0, 8.2, 0.15], "axis": "y", "parent": "torso", "child": "head"},
                    "waist_turn": {"centre": [0, 6.15, 0], "axis": "y", "parent": "pelvis", "child": "torso"},
                    "hip_L": {"centre": list(hip), "axis": "x", "parent": "pelvis", "child": "thigh"},
@@ -1069,7 +1178,10 @@ def atlas():
             # head turned to its right; seen from low and to its left front, as the drawing
             "poses": {"dynamic": {"hip_R": -8, "knee_R": 8, "ankle_R": 0, "hip_L": 4, "knee_L": 4, "ankle_L": -8,
                                   "shoulder_R": 5, "elbow_R": 45, "shoulder_L": 15, "elbow_L": 65, "waist_turn": -8, "neck": -25},
-                      "dynamic_camera": [34, -14], "dynamic_after": "the TRO drawing"},
+                      # (pitch above 0: the camera below the floor made it lean back, Daniel 2026-11-18)
+                      "dynamic_camera": [34, 4], "dynamic_after": "the TRO drawing",
+                      # the measuring test's pose: the arms hanging as the AI sheet's front view
+                      "sheet": {"shoulder_L": 15, "elbow_L": 67, "shoulder_R": 15, "elbow_R": 67}},
             "scale": "ground to the head's top = 10; +x is the 'Mech's left",
             "source": "AI five-view sheet, reference_art/ai_sheets/Atlas AS7-D/batch2_1.webp (front and side measured on a grid); weapons "
                       "from the record sheet and the TRO drawing (reference_art/originals/34 Atlas AS7-D.jpg)",
@@ -1250,7 +1362,10 @@ def turnaround(model, path, H=720):
     # a DYNAMIC POSE (Daniel, 2026-11-18: "5 views, 3/4 views, Think we need at least one Dynamic pose view too"): the model turned
     # about its own pivots (`poses` in the model), so the view also shows whether the joints really work
     if model.get("poses", {}).get("dynamic"):
-        cam = model["poses"].get("dynamic_camera", [-30, 14])
+        cam = list(model["poses"].get("dynamic_camera", [-30, 14]))
+        if cam[1] < 0:                                    # never below the floor (Daniel, 2026-11-18: it made the 'Mech lean back)
+            print("NOTE %s: the pose camera's pitch %.0f is below the floor; drawn at 0" % (model["unit"], cam[1]))
+            cam[1] = 0
         after = model["poses"].get("dynamic_after")
         q34.append(("DYNAMIC POSE" + (" (after %s)" % after if after else ""),
                     trim(B.render(posed_solids(model, model["poses"]["dynamic"]), B.camera(*cam), (H // 2 + 120, H // 2 + 120)), rows=True)))
