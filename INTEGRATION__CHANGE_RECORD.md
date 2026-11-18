@@ -6,6 +6,13 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), TURNAROUND SHEETS; HD REVIEW OF THE CATAPULT AND THE COMMANDO (T15c item B begun). Art only.
+  REVIEW PENDING (higher-level model).** `lowpoly_hd.turnaround` writes `reference_art/sheets/<unit> HD turnaround.png` (Daniel: "a
+  good 5 fold view"): top-down and two 3/4 views above, front, rear and both sides below, the five main views on one scale.
+  `reference_art/blocks/HD_REVIEW.md`: both models taken apart section by section into the HD blocks item B will build (what each is
+  for, its sockets, pivot and weapon mounts up to its location's critical-slot budget), six findings (F1: the Commando's side
+  torsos, its biggest weapon budget, have no housing - a question for Daniel) and the order of work. F4 done: the Commando's neck
+  pivot.
 - **2026-11-18 (Claude, session 28), COMMANDO HD: THE PELVIS AS BRIEFS. Art only. REVIEW PENDING (higher-level model).** Daniel:
   "In the ai drawing it looks like an actual pelvis or 'Briefs' underwear. In yours its just a rectangular box." The hip box and
   crotch wedge are gone: a belt band, under it one straight V from the belt's corners down to a small crotch block (a first try with
