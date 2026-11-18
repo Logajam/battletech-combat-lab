@@ -416,24 +416,51 @@ def commando():
     0.494 wide at 0.855, feet 0.405 wide); the weapons and the arms from the TRO drawing and the record sheet; Daniel's rulings in
     reference_art/views.json. Units: ground to the dome's top = 10; +x is the 'Mech's LEFT, +z forward."""
     m = Model()
-    # ---------------------------------------------------------------- the head: a faceted dome over a chamfered face block
+    # ---------------------------------------------------------------- the head: a HELMET (Daniel, 2026-11-18, second look: "the head
+    # and neck are perhaps too simple. In the TRO ... kind of a helmet that covers the back of the neck. The AI version is just a well
+    # designed futuristic looking head"): a faceted dome, a skirt sweeping down round the sides and back over the neck (open at the
+    # face), a brow ridge over the visor, a crest, a jaw with a grille
     hc, hr = (0.0, 9.15, 0.05), (0.92, 0.85, 0.95)
-    m.tube("neck", "head", (0, 8.3, -0.05), (0, 8.75, -0.05), 1.05, n=8, roll=22.5, tone=JOINT)
-    m.hull("face", "head", bevel_box((0, 8.85, 0.22), (1.15, 0.72, 1.2), 0.2), tone=0.8)
+    for k in range(4):                                              # a ribbed neck (mostly under the skirt)
+        m.tube("neck", "head", (0, 8.3 + k * 0.13, -0.08), (0, 8.4 + k * 0.13, -0.08), 1.0 - 0.04 * k, n=8, roll=22.5, tone=JOINT)
+    m.tube("neck_core", "head", (0, 8.3, -0.08), (0, 8.9, -0.08), 0.82, n=8, roll=22.5, tone=DARK)
     m.add("dome", "dome", "head", c=hc, r=hr, n=16, rings=5, half="top", tone=0.9)
-    m.tube("brim", "head", (0, 9.08, 0.05), (0, 9.2, 0.05), 1.98, 1.9, n=16, tone=TRIM)
+    # the SKIRT: one convex piece per 22.5 degrees from the face's right edge round the back to its left edge; it reaches lower at
+    # the back (over the neck) than at the cheeks, and flares a little
+    step = 22.5
+    lon = 135.0
+    while lon < 405.0 - 1e-6:
+        piece = []
+        for lo in (lon, lon + step):
+            back = (1 - math.sin(math.radians(lo))) / 2              # 0 at the face, 1 straight behind
+            yb = 8.92 - 0.42 * back
+            for g in (-0.06, 0.05):
+                piece.append(dome_point(hc, hr, 0, lo, g))
+                b_ = dome_point(hc, hr, 0, lo, g + 0.1)
+                piece.append((b_[0], yb, b_[2]))
+        m.hull("helmet_skirt", "head", piece, tone=0.86)
+        lon += step
+    m.tube("brim", "head", (0, 9.12, 0.05), (0, 9.2, 0.05), 1.98, 1.92, n=16, tone=TRIM)
     # the VISOR (cockpit rule, WRAP): panes on the dome's own surface, a band across its front (the TRO's slit; the sheet's bands)
     first = True
-    for l0, l1 in ((14, 34),):
-        for t0, t1 in ((52, 76), (78, 102), (104, 128)):
-            pts = [dome_point(hc, hr, la, lo, g) for la in (l0, (l0 + l1) / 2, l1) for lo in (t0, (t0 + t1) / 2, t1) for g in (0.035, -0.01)]
-            m.hull("visor", "head", pts, tone=0.26, role="canopy" if first else None)
-            first = False
-    m.tube("ear", "head", (0.5, 8.95, 0.1), (0.72, 8.95, 0.1), 0.42, n=12, tone=JOINT)       # the round fitting on the TRO's head
-    m.tube("ear_hub", "head", (0.72, 8.95, 0.1), (0.76, 8.95, 0.1), 0.2, n=12, tone=DARK)
-    # the antenna: on the head's right, raked back (the TRO; the sheet draws it straight up)
-    m.tube("mast_base", "head", (-0.62, 9.3, -0.3), (-0.88, 9.3, -0.3), 0.24, n=10, tone=DARK)
-    m.add("bar", "mast", "head", a=(-0.78, 9.3, -0.3), b=(-0.98, 10.5, -0.8), w0=[0.07, 0.07], w1=[0.04, 0.04], tone=DARK)
+    for t0, t1 in ((52, 76), (78, 102), (104, 128)):
+        pts = [dome_point(hc, hr, la, lo, g) for la in (12, 22, 32) for lo in (t0, (t0 + t1) / 2, t1) for g in (0.035, -0.01)]
+        m.hull("visor", "head", pts, tone=0.26, role="canopy" if first else None)
+        first = False
+    m.hull("brow", "head", [dome_point(hc, hr, la, lo, g) for la in (35, 42) for lo in (48, 70, 90, 110, 132) for g in (0.09, -0.01)],
+           tone=TRIM)
+    # the crest: a low ridge from the brow over the top to the back, in short segments that follow the dome
+    path = [(46, 90), (62, 90), (78, 90), (90, 90), (78, 270), (62, 270), (46, 270), (30, 270)]
+    for (la0, lo0), (la1, lo1) in zip(path, path[1:]):
+        m.hull("crest", "head", [dome_point(hc, hr, la, lo + dl, g) for la, lo in ((la0, lo0), (la1, lo1)) for dl in (-6, 6)
+                                 for g in (0.06, -0.03)], tone=0.8)
+    # the face below the visor: a jaw tapering forward, a grille, a round fitting on its left (the TRO's)
+    m.hull("jaw", "head", [(sx * 0.62, 9.12, z) for sx in (-1, 1) for z in (-0.3, 0.75)] + [(sx * 0.5, 8.6, z) for sx in (-1, 1) for z in (-0.25, 0.55)] +
+           [(sx * 0.3, 8.62, 0.85) for sx in (-1, 1)] + [(sx * 0.4, 9.05, 0.95) for sx in (-1, 1)], tone=0.8)
+    for k in range(4):
+        m.box("grille", "head", (0, 8.72 + k * 0.08, 0.84 - k * 0.03), (0.5, 0.035, 0.06), tone=DARK)
+    m.tube("ear", "head", (0.5, 8.85, 0.25), (0.66, 8.85, 0.25), 0.36, n=12, tone=JOINT)
+    m.tube("ear_hub", "head", (0.66, 8.85, 0.25), (0.7, 8.85, 0.25), 0.18, n=12, tone=DARK)
     # ---------------------------------------------------------------- the upper torso: a chamfered block narrowing to the waist
     # (the sheet's "rectangular block torso"; the TRO's deep chest)
     lv = [(8.78, 1.18, 0.62, -0.68), (8.6, 1.4, 0.88, -0.9), (8.0, 1.42, 1.1, -0.95), (7.2, 1.3, 1.15, -0.95),
@@ -450,14 +477,15 @@ def commando():
             x, y = 0.45 + (col - 1) * 0.36, 7.85 + (0.5 - row) * 0.38
             m.tube("srm6_tube", "torso", (x, y, 1.15), (x, y, 1.27), 0.3, n=12, tone=0.7)
             m.tube("srm6_bore", "torso", (x, y, 1.27), (x, y, 1.285), 0.19, n=12, tone=0.1)
-    # the ROUND CHEST PLATE: kept for recognition, a RESERVED BAY (Daniel, 2026-11-18: it reads as a torso pivot, "not worth
-    # making it an actual pivot point"; principle 24)
-    m.tube("chest_plate", "torso", (0, 6.42, 0.9), (0, 6.42, 1.18), 1.9, n=28, tone=0.94)
-    m.tube("chest_plate_rim", "torso", (0, 6.42, 1.18), (0, 6.42, 1.22), 1.9, 1.75, n=28, tone=TRIM)
-    m.box("plate_seam_v", "torso", (0, 6.42, 1.225), (0.04, 1.6, 0.02), tone=DARK)
-    m.box("plate_seam_h", "torso", (0, 6.6, 1.225), (1.5, 0.04, 0.02), tone=DARK)
-    reserved_bay = {"id": "chest.reserved_bay", "kind": "reserved", "pos": [0, 6.42, 1.22], "facing": "+z",
-                    "envelope": [1.9, 1.9, 0.4], "accepts": ["greeble:sensor", "equipment", "weapon (edited variants)"]}
+    # the ROUND BELLY: kept for recognition, a RESERVED BAY (Daniel, 2026-11-18: it reads as a torso pivot, "not worth making it an
+    # actual pivot point"; principle 24). Not a plate laid on the chest (the first build): the belly itself bulges out, faceted, and
+    # BEVELS into the rest of the torso (Daniel: "its not a separate plate, its the belly that bevels into the rest of the lower
+    # torso"): a faceted frustum in the torso's own tone, its back buried in the torso, its sloped sides the bevel
+    m.tube("belly", "torso", (0, 6.42, 0.5), (0, 6.42, 1.3), 2.75, 1.45, n=16, roll=11.25, tone=0.88)
+    m.box("belly_seam_v", "torso", (0, 6.42, 1.305), (0.04, 1.25, 0.02), tone=DARK)
+    m.box("belly_seam_h", "torso", (0, 6.6, 1.305), (1.15, 0.04, 0.02), tone=DARK)
+    reserved_bay = {"id": "chest.reserved_bay", "kind": "reserved", "pos": [0, 6.42, 1.3], "facing": "+z",
+                    "envelope": [1.45, 1.45, 0.4], "accepts": ["greeble:sensor", "equipment", "weapon (edited variants)"]}
     # the back: a flat pack (the rear view's rectangle)
     m.hull("back_pack", "torso", bevel_box((0, 7.6, -1.08), (1.8, 1.7, 0.36), 0.12), tone=PLATE)
     for k in range(4):
@@ -494,7 +522,9 @@ def commando():
         m.box("shin_vent", "leg_L", (1.12, 2.3 - k * 0.14, 0.05), (0.06, 0.06, 0.45), tone=DARK, mirror=True)
     # the ANKLE built out (the muscles' housing; the sheet's flared lower leg)
     rings = []
-    for y, w, d in ((1.95, 0.8, 0.86), (1.2, 0.96, 1.12), (0.5, 1.12, 1.38)):
+    # its bottom ring goes down INTO the foot (Daniel, 2026-11-18: "The ankles are not firmly attached to the feet. There are gaps on
+    # the side": the splay tilts the housing, lifting one side of a bottom that only touched the foot's top)
+    for y, w, d in ((1.95, 0.8, 0.86), (1.2, 0.96, 1.12), (0.5, 1.12, 1.38), (0.22, 1.12, 1.38)):
         zc = knee[2] + (ankle[2] - knee[2]) * (knee[1] - y) / (knee[1] - ankle[1])
         rings.append(bevel_ring(y, w / 2, zc + d / 2, zc - d / 2, 0.14, x0=0.72))
     for r0, r1 in zip(rings, rings[1:]):
@@ -525,6 +555,11 @@ def commando():
             pad += [(X(1.42), 8.66, z), (X(2.48), 8.66, z), (X(2.48), 8.2, z), (X(1.42), 7.74, z)]
         m.hull("shoulder_pad", asm, pad, tone=0.9)
         m.box("pad_trim", asm, (X(1.96), 8.81, 0), (1.1, 0.03, 1.5), tone=0.8)
+        if side == "R":
+            # the ANTENNA on the right shoulder pad, at its back (the sheet's place; Daniel, 2026-11-18: "I also kind of like the
+            # antenna on the shoulder. Its not accurate to the picture, but being perfectly accurate is not the goal")
+            m.tube("mast_base", asm, (X(1.75), 8.76, -0.62), (X(1.75), 8.98, -0.62), 0.26, 0.2, n=10, tone=DARK)
+            m.add("bar", "mast", asm, a=(X(1.75), 8.95, -0.62), b=(X(1.8), 10.45, -0.78), w0=[0.07, 0.07], w1=[0.04, 0.04], tone=DARK)
         m.tube("shoulder", asm, (X(1.3), sh[1], 0), (X(2.66), sh[1], 0), 0.9, n=24, tone=JOINT)
         m.tube("shoulder_ring", asm, (X(2.62), sh[1] - 0.05, 0), (X(2.7), sh[1] - 0.05, 0), 0.8, 0.6, n=20, tone=TRIM)
         up = math.radians(15)
@@ -537,7 +572,7 @@ def commando():
         m.tube("forearm_band", asm, (sh[0], *[elbow[i] + (wrist[i] - elbow[i]) * 0.55 for i in (1, 2)]),
                (sh[0], *[elbow[i] + (wrist[i] - elbow[i]) * 0.6 for i in (1, 2)]), 1.24, n=6, tone=DARK)
         # the FIST (record sheet: hand actuator; Daniel: "a hand ... curled up into a fist")
-        fc = (sh[0], wrist[1] - 0.1, wrist[2] + 0.3)
+        fc = (sh[0], wrist[1] - 0.16, wrist[2] + 0.3)
         m.tube("wrist", asm, (X(1.75), wrist[1], wrist[2]), (X(2.35), wrist[1], wrist[2]), 0.62, n=16, tone=JOINT)
         m.hull("fist", asm, bevel_box(fc, (0.92, 0.95, 0.75), 0.14), tone=0.82)
         m.hull("knuckles", asm, bevel_box((fc[0], fc[1] + 0.22, fc[2] + 0.38), (0.88, 0.36, 0.14), 0.04), tone=0.86)
@@ -546,13 +581,38 @@ def commando():
         m.hull("thumb", asm, bevel_box((fc[0] - s * 0.5, fc[1] + 0.05, fc[2] + 0.12), (0.16, 0.42, 0.42), 0.05), tone=0.8)
         if side == "R":
             # the SRM 4 (record sheet: right arm): a four-tube pod ON TOP of the forearm, above the fist (Daniel, from the TRO)
-            m.hull("srm4_pod", asm, bevel_box((sh[0], 7.82, 1.5), (0.86, 0.74, 1.0), 0.1), tone=PLATE, role="weapon:RA:SRM 4",
-                   fire={"from": [sh[0], 7.82, 2.03], "dir": [0, 0, 1], "r": 0.4})
-            m.box("pod_strap", asm, (sh[0], 7.6, 1.5), (0.9, 0.3, 0.12), tone=DARK)
+            # It sits FLAT on the hexagonal forearm's upper OUTER face (Daniel, 2026-11-18: the first build sat it on the top EDGE,
+            # "not supported"; "rotated to the outer upper flat edge of the hexagon"), turned with that face and lying along the
+            # forearm. The face: between the forearm's top corner and its upper outer corner (limb() sections, 6 sides).
+            t_ = 0.62                                               # the pod's middle along the forearm, elbow -> wrist
+            w_ = 1.25 + (1.15 - 1.25) * t_
+            d_ = (1.2 + (1.08 - 1.2) * t_) * (1 - 0.08 * (2 * t_ - 1) ** 2)
+            fu = [wrist[i] - elbow[i] for i in range(3)]
+            fl = math.sqrt(sum(c * c for c in fu))
+            fu = [c / fl for c in fu]
+            up_ = (0.0, fu[2], -fu[1])                              # across the forearm, upward
+            lat = (s, 0.0, 0.0)                                     # across the forearm, OUTWARD (s = -1: the right arm)
+            # in (outward, up) coordinates: the top corner (0, d/2), the upper outer corner (0.866 w/2, d/4)
+            mid2 = (0.433 * w_ / 2, 0.75 * d_ / 2)
+            nrm = (d_ / 4, 0.866 * w_ / 2)
+            nl_ = math.hypot(*nrm)
+            nrm = (nrm[0] / nl_, nrm[1] / nl_)
+            N = tuple(lat[i] * nrm[0] + up_[i] * nrm[1] for i in range(3))
+            S_ = tuple(lat[i] * nrm[1] - up_[i] * nrm[0] for i in range(3))      # along the face, across the forearm
+            pw, ph, pl, sink = 0.82, 0.7, 1.0, 0.08
+            base = [elbow[i] + fu[i] * fl * t_ + lat[i] * mid2[0] + up_[i] * mid2[1] for i in range(3)]
+            pc_ = [base[i] + N[i] * (ph / 2 - sink) for i in range(3)]
+
+            def pod_pt(q, c=pc_):
+                return tuple(c[i] + q[0] * S_[i] + q[1] * N[i] + q[2] * fu[i] for i in range(3))
+            front = pod_pt((0, 0, pl / 2 + 0.03))
+            m.hull("srm4_pod", asm, [pod_pt(q) for q in bevel_box((0, 0, 0), (pw, ph, pl), 0.1)], tone=PLATE, role="weapon:RA:SRM 4",
+                   fire={"from": rnd(front), "dir": rnd(fu), "r": 0.36})
+            m.hull("pod_strap", asm, [pod_pt(q) for q in bevel_box((0, -0.12, -0.05), (pw + 0.06, 0.34, 0.12), 0.02)], tone=DARK)
             for cx in (-0.19, 0.19):
-                for cy in (-0.18, 0.18):
-                    m.tube("srm4_tube", asm, (sh[0] + cx, 7.82 + cy, 1.85), (sh[0] + cx, 7.82 + cy, 2.0), 0.3, n=12, tone=0.7)
-                    m.tube("srm4_bore", asm, (sh[0] + cx, 7.82 + cy, 2.0), (sh[0] + cx, 7.82 + cy, 2.015), 0.19, n=12, tone=0.1)
+                for cy in (-0.17, 0.17):
+                    m.tube("srm4_tube", asm, pod_pt((cx, cy, pl / 2 - 0.15)), pod_pt((cx, cy, pl / 2)), 0.3, n=12, tone=0.7)
+                    m.tube("srm4_bore", asm, pod_pt((cx, cy, pl / 2)), pod_pt((cx, cy, pl / 2 + 0.015)), 0.19, n=12, tone=0.1)
         else:
             # the MEDIUM LASER (record sheet: left arm), IN LINE with the forearm (Daniel) on its outer face, sunk 0.42 of its diameter,
             # the muzzle past the fist's outer side so its fire is clear
@@ -601,7 +661,8 @@ def commando():
                 "SRM 6 (centre torso): the TRO's six-tube grid high on the chest, left of the head; the sheet draws none.",
                 "Round chest plate: kept for recognition as a reserved bay (Daniel), not a pivot.",
                 "Arms in a ready pose (forearms level, pointing ahead) so both arm weapons fire forward; the sheet's front view hangs them.",
-                "Antenna raked back on the head's right (the TRO); the sheet's top view (feet drawn backwards, Daniel) was not used.",
+                "Antenna on the right shoulder pad (the sheet's place; Daniel likes it). The sheet's top view (feet drawn backwards, Daniel) was not used.",
+                "Head: a helmet whose skirt covers the back of the neck (the TRO, Daniel), a brow, a crest, a jaw with a grille.",
                 "No jump jets (record sheet: jump 0)."],
             "parts": m.parts}
 
