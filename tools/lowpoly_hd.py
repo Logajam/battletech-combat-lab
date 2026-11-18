@@ -433,7 +433,7 @@ def commando():
         piece = []
         for lo in (lon, lon + step):
             back = (1 - math.sin(math.radians(lo))) / 2              # 0 at the face, 1 straight behind
-            yb = 8.92 - 0.42 * back
+            yb = 8.88 - 0.08 * back                                # clear of the torso top (8.65): a gap to turn in
             for g in (-0.06, 0.05):
                 piece.append(dome_point(hc, hr, 0, lo, g))
                 b_ = dome_point(hc, hr, 0, lo, g + 0.1)
@@ -455,60 +455,68 @@ def commando():
         m.hull("crest", "head", [dome_point(hc, hr, la, lo + dl, g) for la, lo in ((la0, lo0), (la1, lo1)) for dl in (-6, 6)
                                  for g in (0.06, -0.03)], tone=0.8)
     # the face below the visor: a jaw tapering forward, a grille, a round fitting on its left (the TRO's)
-    m.hull("jaw", "head", [(sx * 0.62, 9.12, z) for sx in (-1, 1) for z in (-0.3, 0.75)] + [(sx * 0.5, 8.6, z) for sx in (-1, 1) for z in (-0.25, 0.55)] +
-           [(sx * 0.3, 8.62, 0.85) for sx in (-1, 1)] + [(sx * 0.4, 9.05, 0.95) for sx in (-1, 1)], tone=0.8)
+    # (Daniel, 2026-11-18: the helmet "needs a bit of a gap between it and the torso so that the head can rotate. This is art not a
+    # functional pivot point": the skirt and jaw stop short of the torso's top, the neck shows in the gap)
+    m.hull("jaw", "head", [(sx * 0.62, 9.12, z) for sx in (-1, 1) for z in (-0.3, 0.75)] + [(sx * 0.5, 8.82, z) for sx in (-1, 1) for z in (-0.25, 0.55)] +
+           [(sx * 0.3, 8.84, 0.85) for sx in (-1, 1)] + [(sx * 0.4, 9.05, 0.95) for sx in (-1, 1)], tone=0.8)
     for k in range(4):
-        m.box("grille", "head", (0, 8.72 + k * 0.08, 0.84 - k * 0.03), (0.5, 0.035, 0.06), tone=DARK)
-    m.tube("ear", "head", (0.5, 8.85, 0.25), (0.66, 8.85, 0.25), 0.36, n=12, tone=JOINT)
-    m.tube("ear_hub", "head", (0.66, 8.85, 0.25), (0.7, 8.85, 0.25), 0.18, n=12, tone=DARK)
+        m.box("grille", "head", (0, 8.88 + k * 0.05, 0.86 - k * 0.025), (0.46, 0.03, 0.06), tone=DARK)
+    m.tube("ear", "head", (0.5, 8.97, 0.25), (0.66, 8.97, 0.25), 0.3, n=12, tone=JOINT)
+    m.tube("ear_hub", "head", (0.66, 8.97, 0.25), (0.7, 8.97, 0.25), 0.15, n=12, tone=DARK)
     # ---------------------------------------------------------------- the upper torso: a chamfered block narrowing to the waist
     # (the sheet's "rectangular block torso"; the TRO's deep chest)
-    lv = [(8.78, 1.18, 0.62, -0.68), (8.6, 1.4, 0.88, -0.9), (8.0, 1.42, 1.1, -0.95), (7.2, 1.3, 1.15, -0.95),
-          (6.3, 1.0, 1.05, -0.85), (5.55, 0.82, 0.85, -0.75)]
+    # PROPORTIONS measured row by row on the sheet (2026-11-18, Daniel: "take measurements of it vs the AI drawings for torso
+    # proportions"; the first build was a V, 2.84 wide at the chest, narrowing to 1.64 at the waist): front widths 2.3-2.5 at the
+    # chest, narrowest (2.05) at the round belly, 2.4 below it; side depths about 1.9 at the chest, 1.7 at the belly
+    lv = [(8.65, 1.05, 0.62, -0.65), (8.5, 1.25, 0.85, -0.85), (7.8, 1.25, 1.0, -0.9), (7.2, 1.17, 1.0, -0.9),
+          (6.85, 1.03, 0.9, -0.85), (6.3, 1.2, 0.86, -0.8), (5.75, 1.2, 0.8, -0.75)]
     for (y0, w0, f0, b0), (y1, w1, f1, b1) in zip(lv, lv[1:]):
         m.hull("chest", "torso", bevel_ring(y0, w0, f0, b0, 0.24) + bevel_ring(y1, w1, f1, b1, 0.24), tone=0.88)
-    m.box("chest_seam", "torso", (0, 7.2, 0), (2.64, 0.05, 2.14), tone=DARK)
+    m.box("chest_seam", "torso", (0, 7.2, 0), (2.38, 0.05, 1.94), tone=DARK)
     # the SRM 6 (record sheet: centre torso): a six-tube bay high on the chest, left of the head (the TRO: 3 across, 2 down);
     # the tubes are flush in the bay face, so the line of fire starts clear of them
-    m.hull("srm6_bay", "torso", bevel_box((0.45, 7.85, 1.12), (1.2, 0.85, 0.3), 0.08), tone=PLATE, role="weapon:CT:SRM 6",
-           fire={"from": [0.45, 7.85, 1.31], "dir": [0, 0, 1], "r": 0.45})
+    m.hull("srm6_bay", "torso", bevel_box((0.45, 7.85, 1.0), (1.2, 0.85, 0.3), 0.08), tone=PLATE, role="weapon:CT:SRM 6",
+           fire={"from": [0.45, 7.85, 1.19], "dir": [0, 0, 1], "r": 0.45})
     for col in range(3):
         for row in range(2):
             x, y = 0.45 + (col - 1) * 0.36, 7.85 + (0.5 - row) * 0.38
-            m.tube("srm6_tube", "torso", (x, y, 1.15), (x, y, 1.27), 0.3, n=12, tone=0.7)
-            m.tube("srm6_bore", "torso", (x, y, 1.27), (x, y, 1.285), 0.19, n=12, tone=0.1)
+            m.tube("srm6_tube", "torso", (x, y, 1.03), (x, y, 1.15), 0.3, n=12, tone=0.7)
+            m.tube("srm6_bore", "torso", (x, y, 1.15), (x, y, 1.165), 0.19, n=12, tone=0.1)
     # the ROUND BELLY: kept for recognition, a RESERVED BAY (Daniel, 2026-11-18: it reads as a torso pivot, "not worth making it an
     # actual pivot point"; principle 24). Not a plate laid on the chest (the first build): the belly itself bulges out, faceted, and
     # BEVELS into the rest of the torso (Daniel: "its not a separate plate, its the belly that bevels into the rest of the lower
     # torso"): a faceted frustum in the torso's own tone, its back buried in the torso, its sloped sides the bevel
-    m.tube("belly", "torso", (0, 6.42, 0.5), (0, 6.42, 1.3), 2.75, 1.45, n=16, roll=11.25, tone=0.88)
-    m.box("belly_seam_v", "torso", (0, 6.42, 1.305), (0.04, 1.25, 0.02), tone=DARK)
-    m.box("belly_seam_h", "torso", (0, 6.6, 1.305), (1.15, 0.04, 0.02), tone=DARK)
-    reserved_bay = {"id": "chest.reserved_bay", "kind": "reserved", "pos": [0, 6.42, 1.3], "facing": "+z",
-                    "envelope": [1.45, 1.45, 0.4], "accepts": ["greeble:sensor", "equipment", "weapon (edited variants)"]}
+    # (second look, Daniel: "It looks like it has a beer gut now": the sheet's circle is about 2.0 across, nearly the torso's width,
+    # and barely stands out of the front, which is at its NARROWEST there) - a shallow faceted disc, its rim bevelled into the torso
+    m.tube("belly", "torso", (0, 6.5, 0.62), (0, 6.5, 0.97), 2.02, 1.82, n=16, roll=11.25, tone=0.88)
+    m.box("belly_seam_v", "torso", (0, 6.5, 0.975), (0.04, 1.6, 0.02), tone=DARK)
+    m.box("belly_seam_h", "torso", (0, 6.68, 0.975), (1.5, 0.04, 0.02), tone=DARK)
+    reserved_bay = {"id": "chest.reserved_bay", "kind": "reserved", "pos": [0, 6.5, 0.97], "facing": "+z",
+                    "envelope": [1.82, 1.82, 0.4], "accepts": ["greeble:sensor", "equipment", "weapon (edited variants)"]}
     # the back: a flat pack (the rear view's rectangle)
     m.hull("back_pack", "torso", bevel_box((0, 7.6, -1.08), (1.8, 1.7, 0.36), 0.12), tone=PLATE)
     for k in range(4):
         m.box("pack_vent", "torso", (0, 7.05 + k * 0.16, -1.27), (1.2, 0.06, 0.03), tone=DARK)
     # ---------------------------------------------------------------- the waist and the hips
     # the waist turns the upper torso: a ball sunk in the belt and a cowl ringing it at the joint line (principle: the root inside)
-    m.add("dome", "waist_ball", "pelvis", c=(0, 5.5, 0), r=(0.62, 0.62, 0.62), n=16, rings=8, tone=JOINT)
-    m.tube("waist_cowl", "pelvis", (0, 5.44, 0), (0, 5.6, 0), 1.86, 1.72, n=8, roll=22.5, tone=0.7)
+    m.add("dome", "waist_ball", "pelvis", c=(0, 5.72, 0), r=(0.62, 0.62, 0.62), n=16, rings=8, tone=JOINT)
+    m.tube("waist_cowl", "pelvis", (0, 5.7, 0), (0, 5.84, 0), 2.3, 2.15, n=8, roll=22.5, tone=0.7)
     # PROPORTIONS (self-review against the sheet, first build): the legs start right under the belt (the sheet's crotch at 0.49 of
     # the height, about 4.8 here) and are slim; the first build hung a tall hip block under the belt, which cut the legs short
-    m.hull("belt", "pelvis", bevel_box((0, 5.2, 0.0), (2.0, 0.5, 1.6), 0.14), tone=0.8)        # the sheet's "crotch block seam"
-    m.hull("hip_block", "pelvis", bevel_box((0, 4.83, 0.0), (2.1, 0.42, 1.45), 0.14), tone=0.74)
-    m.hull("crotch", "pelvis", [(sx * 0.4, 4.65, sz * 0.56) for sx in (-1, 1) for sz in (-1, 1)] +
-           [(sx * 0.24, 4.3, sz * 0.4) for sx in (-1, 1) for sz in (-1, 1)], tone=0.7)
+    # the sheet's belt is the widest part of the lower body (about 2.9), the legs hang straight from under it, 2.2 apart
+    m.hull("belt", "pelvis", bevel_box((0, 5.48, 0.0), (2.85, 0.55, 1.6), 0.14), tone=0.8)      # the sheet's "crotch block seam"
+    m.hull("hip_block", "pelvis", bevel_box((0, 5.05, 0.0), (2.6, 0.42, 1.45), 0.14), tone=0.74)
+    m.hull("crotch", "pelvis", [(sx * 0.42, 4.9, sz * 0.56) for sx in (-1, 1) for sz in (-1, 1)] +
+           [(sx * 0.26, 4.5, sz * 0.4) for sx in (-1, 1) for sz in (-1, 1)], tone=0.7)
     for k in range(3):
-        m.box("crotch_vent", "pelvis", (0, 4.4 + k * 0.08, 0.5 - k * 0.03), (0.36, 0.035, 0.05), tone=DARK)
-    # the hip housings: plates down each side of the hip block, holding the axle the thigh cap turns on
-    hip, knee, ankle = (0.72, 4.72, 0.0), (0.72, 3.1, 0.1), (0.72, 0.8, -0.05)
-    m.hull("hip_plate", "pelvis", bevel_box((1.33, 4.75, 0.0), (0.16, 0.85, 1.0), 0.06), tone=PLATE, mirror=True)
-    m.tube("hip_disc", "pelvis", (1.4, hip[1], 0), (1.5, hip[1], 0), 0.7, 0.58, n=20, tone=JOINT, mirror=True)
+        m.box("crotch_vent", "pelvis", (0, 4.6 + k * 0.08, 0.44 + k * 0.032), (0.38, 0.035, 0.05), tone=DARK)
+    # the legs are drawn at x 0.72 and moved out by LEG_OUT below (all their parts at once)
+    LEG_OUT = 0.33
+    hip, knee, ankle = (0.72, 4.95, 0.0), (0.72, 3.1, 0.1), (0.72, 0.8, -0.05)
     # ---------------------------------------------------------------- the legs (front and side views: Daniel calls them accurate)
     leg_from = len(m.parts)
-    m.tube("thigh_cap", "leg_L", (0.22, hip[1], 0), (1.3, hip[1], 0), 0.86, n=24, tone=JOINT, mirror=True)
+    m.tube("thigh_cap", "leg_L", (0.22, hip[1], 0), (1.3, hip[1], 0), 0.86, n=24, tone=JOINT, mirror=True)     # turns in the hip block
+    m.tube("thigh_hub", "leg_L", (1.3, hip[1], 0), (1.36, hip[1], 0), 0.48, n=16, tone=DARK, mirror=True)
     limb(m, "thigh", "leg_L", hip, knee, 1.05, 1.3, 0.92, 1.0, steps=3, tone=0.74, mirror=True)
     m.add("bar", "thigh_plate", "leg_L", a=(0.72, 4.3, 0.58), b=(0.72, 3.55, 0.54), w0=[0.82, 0.12], w1=[0.7, 0.1], tone=PLATE, mirror=True)
     m.tube("knee_cap", "leg_L", (0.26, knee[1], knee[2]), (1.18, knee[1], knee[2]), 0.85, n=24, tone=JOINT, mirror=True)
@@ -551,8 +559,8 @@ def commando():
         pad = []
         for z in (-0.95, 0.95):
             zi = z - math.copysign(0.14, z)
-            pad += [(X(1.3), 8.8, zi), (X(2.62), 8.8, zi), (X(2.62), 8.1, zi), (X(1.3), 7.6, zi)]
-            pad += [(X(1.42), 8.66, z), (X(2.48), 8.66, z), (X(2.48), 8.2, z), (X(1.42), 7.74, z)]
+            pad += [(X(1.15), 8.8, zi), (X(2.62), 8.8, zi), (X(2.62), 8.1, zi), (X(1.15), 7.6, zi)]     # inner edge into the
+            pad += [(X(1.27), 8.66, z), (X(2.48), 8.66, z), (X(2.48), 8.2, z), (X(1.27), 7.74, z)]     # narrower chest
         m.hull("shoulder_pad", asm, pad, tone=0.9)
         m.box("pad_trim", asm, (X(1.96), 8.81, 0), (1.1, 0.03, 1.5), tone=0.8)
         if side == "R":
@@ -560,7 +568,7 @@ def commando():
             # antenna on the shoulder. Its not accurate to the picture, but being perfectly accurate is not the goal")
             m.tube("mast_base", asm, (X(1.75), 8.76, -0.62), (X(1.75), 8.98, -0.62), 0.26, 0.2, n=10, tone=DARK)
             m.add("bar", "mast", asm, a=(X(1.75), 8.95, -0.62), b=(X(1.8), 10.45, -0.78), w0=[0.07, 0.07], w1=[0.04, 0.04], tone=DARK)
-        m.tube("shoulder", asm, (X(1.3), sh[1], 0), (X(2.66), sh[1], 0), 0.9, n=24, tone=JOINT)
+        m.tube("shoulder", asm, (X(1.15), sh[1], 0), (X(2.66), sh[1], 0), 0.9, n=24, tone=JOINT)
         m.tube("shoulder_ring", asm, (X(2.62), sh[1] - 0.05, 0), (X(2.7), sh[1] - 0.05, 0), 0.8, 0.6, n=20, tone=TRIM)
         up = math.radians(15)
         elbow = (sh[0], sh[1] - 1.15 * math.cos(up), 1.15 * math.sin(up))
@@ -629,8 +637,18 @@ def commando():
         pivots["shoulder_" + side] = {"centre": rnd(sh), "axis": "x", "parent": "torso", "child": "upper arm"}
         pivots["elbow_" + side] = {"centre": rnd(elbow), "axis": "x", "parent": "upper arm", "child": "forearm"}
         pivots["wrist_" + side] = {"centre": rnd(wrist), "axis": "x", "parent": "forearm", "child": "fist"}
-    # ---------------------------------------------------------------- SPLAY: the legs turn out about the hips, feet flat
-    a = math.radians(LEG_SPLAY)
+    # ---------------------------------------------------------------- the legs moved OUT to the sheet's spacing, then SPLAYED
+    for i in range(leg_from, leg_end):
+        p = m.parts[i]
+        for key in ("a", "b", "c"):
+            if key in p:
+                p[key] = rnd((p[key][0] + LEG_OUT, p[key][1], p[key][2]))
+        if "pts" in p:
+            p["pts"] = [rnd((q[0] + LEG_OUT, q[1], q[2])) for q in p["pts"]]
+    hip, knee, ankle = [(q[0] + LEG_OUT, q[1], q[2]) for q in (hip, knee, ankle)]
+    # the splay: 3 degrees (the sheet's feet are 4.1 wide over all; the Catapult's 5 would put them at 4.4)
+    splay_deg = 3.0
+    a = math.radians(splay_deg)
 
     def splay(q):
         dx, dy = q[0] - hip[0], q[1] - hip[1]
@@ -645,8 +663,8 @@ def commando():
         if "pts" in p:
             p["pts"] = [rnd(f(q)) for q in p["pts"]]
         if i < foot_from and p["kind"] in ("box", "wedge"):
-            p["rot"] = [0, 0, LEG_SPLAY]
-    pivots.update({"waist_turn": {"centre": [0, 5.5, 0], "axis": "y", "parent": "pelvis", "child": "torso"},
+            p["rot"] = [0, 0, splay_deg]
+    pivots.update({"waist_turn": {"centre": [0, 5.72, 0], "axis": "y", "parent": "pelvis", "child": "torso"},
                    "hip_L": {"centre": list(hip), "axis": "x", "parent": "pelvis", "child": "thigh"},
                    "knee_L": {"centre": rnd(splay(knee)), "axis": "x", "parent": "thigh", "child": "shin"},
                    "ankle_L": {"centre": rnd(splay(ankle)), "axis": "x", "parent": "shin", "child": "foot"}})
