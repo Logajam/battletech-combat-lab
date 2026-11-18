@@ -196,6 +196,10 @@ def catapult():
     for a, b in (((-0.6, -2.05), (0.6, -0.2)), ((0.6, -2.05), (-0.6, -0.2))):           # the X on the hatch
         m.add("bar", "deck_x", "torso", a=(a[0], 10.43, a[1]), b=(b[0], 10.43, b[1]), w0=[0.07, 0.02], w1=[0.07, 0.02], tone=DARK)
     m.box("deck_rim", "torso", (0, 10.43, -1.12), (1.3, 0.03, 1.95), tone=0.8)
+    # the X box is a RESERVED BAY (principle 22: Daniel, "maybe it houses a radar ... or extra weapons if someone edited the
+    # catapult"): its mount point is in the model's `mounts`
+    reserved_bay = {"id": "deck.reserved_bay", "kind": "reserved", "pos": [0, 10.43, -1.12], "facing": "+y",
+                    "envelope": [1.3, 0.6, 1.95], "accepts": ["greeble:dish", "greeble:sensor", "equipment", "weapon (edited variants)"]}
     # ---------------------------------------------------------------- the arms: LRM 15 launchers on their shoulder discs
     # (record sheet: shoulder + upper arm actuator + LRM 15) - front x 1.60, width 1.45, y 8.6-11.1, z -2.54 .. 0.11
     m.tube("shoulder", "arm_L", (1.2, 9.3, -0.85), (2.2, 9.3, -0.85), 1.35, n=28, tone=JOINT, mirror=True)
@@ -359,7 +363,7 @@ def catapult():
               "ankle_L": {"centre": rnd(splay(ankle)), "axis": "x", "parent": "shin", "child": "foot"},
               "shoulder_L": {"centre": [1.8, 9.3, -0.85], "axis": "x", "parent": "torso", "child": "launcher arm"}}
     return {"unit": "Catapult", "model": "CPLT-C1", "mass": 65, "detail": "hd", "stance": "a_stance", "pivots": pivots,
-            "centre_of_mass": centre_of_mass(m.parts),
+            "centre_of_mass": centre_of_mass(m.parts), "mounts": [reserved_bay],
             "scale": "ground to the body's top = 10; +x is the 'Mech's left",
             "source": "AI five-view sheet, reference_art/ai_sheets/Catapult CPLT-C1/batch2_1.webp (measured on a grid; tools/lowpoly_hd.py)",
             "simplified_to": "reference_art/models/Catapult CPLT-C1.json",
