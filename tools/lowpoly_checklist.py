@@ -87,7 +87,11 @@ ITEMS = [
     (52, "no painted-on lines", lambda m: True, "auto"),
     (53, "the head sits over the neck, the neck over the spine", lambda m: HD._pivot(m, "neck") is not None, "auto"),
     (54, "an assault torso is built up in depth", lambda m: m.get("mass", 0) >= 80, "eye"),
+    (55, "a skull has no eyebrows and no moustache", lambda m: has(m, "eye_socket"), "eye"),
+    (56, "an attachment stands centred on what it is mounted on (antenna, dish)", lambda m: has(m, "mast_base", "dish_mast"), "auto"),
+    (57, "the foot sits under the leg, not slid back", lambda m: True, "eye"),
 ]
+ATTACHMENTS = ("mast_base", "dish_mast")
 
 
 # ---------------------------------------------------------------------------- the automatic checks: (ok, detail)
@@ -273,6 +277,32 @@ def auto(n, unit, model, sol, quick):
         hz = (head[:, 2].min() + head[:, 2].max()) / 2
         ok = abs(pv["centre"][2] - zc) < 0.3 and abs(hz - pv["centre"][2]) < 0.3
         return ok, "neck z %.2f, the torso's middle %.2f, the head's middle %.2f" % (pv["centre"][2], zc, hz)
+    if n == 56:
+        # each attachment's base against the host it stands on (the highest solid under it): its offset from the host's middle as a
+        # share of the host's half-size, across and fore-and-aft
+        out = []
+        for s_ in sol:
+            if _name(s_["id"]) not in ATTACHMENTS:
+                continue
+            vs = np.array(s_["verts"])
+            bx, bz, by = vs[:, 0].mean(), vs[:, 2].mean(), vs[:, 1].min()
+            hosts = []
+            for h in sol:
+                if h is s_ or _name(h["id"]) in ATTACHMENTS:
+                    continue
+                hv = np.array(h["verts"])
+                lo, hi = hv.min(0), hv.max(0)
+                if lo[0] <= bx <= hi[0] and lo[2] <= bz <= hi[2] and hi[1] <= by + 0.35 and hi[1] >= by - 0.35:
+                    hosts.append((hi[1], h, lo, hi))
+            if not hosts:
+                out.append("%s stands on nothing" % _name(s_["id"]))
+                continue
+            _, h, lo, hi = max(hosts, key=lambda t: t[0])
+            ox = abs(bx - (lo[0] + hi[0]) / 2) / max(1e-6, (hi[0] - lo[0]) / 2)
+            oz = abs(bz - (lo[2] + hi[2]) / 2) / max(1e-6, (hi[2] - lo[2]) / 2)
+            if max(ox, oz) > 0.3:
+                out.append("%s off the middle of %s (%.0f %% across, %.0f %% fore-and-aft)" % (_name(s_["id"]), _name(h["id"]), ox * 100, oz * 100))
+        return not out, "; ".join(out) or "every attachment centred on its host"
     return None, "no automatic test"
 
 

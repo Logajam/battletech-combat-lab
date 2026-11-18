@@ -949,19 +949,15 @@ def death_face(m, front, y_brow, y_mouth):
     hair proud of the surface so it reads as cut into the shell, not stuck on: a brow dropping to a V between the eyes, slanted eye
     sockets with the cockpit glass in them, cheek ridges, a nasal cavity, a grin with two rows of teeth."""
     zf = lambda y, g=0.0: front(y)[0] + g
+    # (Daniel, 2026-11-18: "the deaths head looks like it has a mustache and eyebrows. Skulls do not normally have those" - the light
+    # brow bars and the cheek ridges are gone; the menace is in the SOCKETS: big, deep, angular, wider at the outer top, coming to a
+    # point low at the nose; the brow and cheekbones are the shell's own faceting)
     for sx in (1, -1):
-        m.hull("brow", "head", [(sx * 0.62, y_brow + 0.1, zf(y_brow + 0.1, -0.03)), (sx * 0.62, y_brow, zf(y_brow, -0.03)),
-                                (sx * 0.05, y_brow - 0.12, zf(y_brow - 0.12, -0.03)), (sx * 0.05, y_brow - 0.24, zf(y_brow - 0.24, -0.03)),
-                                (sx * 0.6, y_brow + 0.06, zf(y_brow + 0.06, 0.1)), (sx * 0.06, y_brow - 0.18, zf(y_brow - 0.18, 0.14))], tone=TRIM)
-        ey = y_brow - 0.22
-        eye = [(0.1, ey - 0.05), (0.56, ey + 0.14), (0.54, ey - 0.06), (0.13, ey - 0.2)]
-        m.hull("eye_socket", "head", [(sx * a, b, zf(b, g)) for a, b in eye for g in (-0.04, 0.02)], tone=0.1)
-        m.hull("eye", "head", [(sx * (a * 0.86 + 0.03), b - 0.01, zf(b, g)) for a, b in eye for g in (0.0, 0.03)], tone=0.3,
+        ey = y_brow - 0.2
+        eye = [(0.08, ey - 0.02), (0.6, ey + 0.16), (0.58, ey - 0.14), (0.2, ey - 0.27), (0.1, ey - 0.18)]
+        m.hull("eye_socket", "head", [(sx * a, b, zf(b, g)) for a, b in eye for g in (-0.06, 0.015)], tone=0.08)
+        m.hull("eye", "head", [(sx * (a * 0.8 + 0.06), b - 0.02, zf(b, g)) for a, b in eye for g in (-0.04, -0.01)], tone=0.3,
                role="canopy" if sx == 1 else None)
-        cy_ = ey - 0.3
-        m.hull("cheek_ridge", "head", [(sx * 0.62, cy_ + 0.06, zf(cy_, -0.05)), (sx * 0.62, cy_ - 0.06, zf(cy_, -0.05)),
-                                       (sx * 0.25, cy_ - 0.1, zf(cy_ - 0.1, -0.03)), (sx * 0.6, cy_, zf(cy_, 0.06)),
-                                       (sx * 0.28, cy_ - 0.08, zf(cy_ - 0.08, 0.05))], tone=0.8)
     ny = y_brow - 0.55
     m.hull("nasal", "head", [(0, ny + 0.14, zf(ny + 0.14, 0.02)), (-0.1, ny - 0.08, zf(ny - 0.08, 0.02)), (0.1, ny - 0.08, zf(ny - 0.08, 0.02)),
                              (0, ny + 0.14, zf(ny + 0.14, -0.05)), (-0.1, ny - 0.08, zf(ny - 0.08, -0.05)), (0.1, ny - 0.08, zf(ny - 0.08, -0.05))],
@@ -1098,11 +1094,14 @@ def atlas():
     m.tube("head_turntable", "torso", (0, 8.08, -0.05), (0, 8.2, -0.05), 2.5, 1.9, n=12, roll=15.0, tone=JOINT)   # its rim bevelled
     joint_cover(m, "temple_sensor", "head", (0, 9.3, hz - 0.05), 0.86, 0.2, sides=6, roll=30, thick=0.06)
     # the dish (the sheet: on the right hump) and the antenna (left), both kept
-    m.tube("dish_mast", "torso", (-1.45, 9.1, -0.45), (-1.45, 9.62, -0.45), 0.14, n=8, tone=DARK)
-    m.tube("dish", "torso", (-1.45, 9.75, -0.5), (-1.45, 9.82, -0.38), 0.72, 0.6, n=16, tone=0.8)
-    m.tube("dish_feed", "torso", (-1.45, 9.8, -0.4), (-1.45, 9.95, -0.2), 0.05, n=6, tone=DARK)
-    m.tube("mast_base", "torso", (1.3, 9.0, -0.35), (1.3, 9.36, -0.35), 0.24, 0.18, n=10, tone=DARK)
-    m.add("bar", "mast", "torso", a=(1.3, 9.3, -0.35), b=(1.35, 10.35, -0.55), w0=[0.07, 0.07], w1=[0.04, 0.04], tone=DARK)
+    # (centred on the collar blocks they stand on - Daniel, 2026-11-18: "Check the antenna and radar dish, they're no longer centered":
+    # they stayed where the old shoulder masses had been when the collar moved out)
+    cxc, czc = 1.62, -0.05
+    m.tube("dish_mast", "torso", (-cxc, 9.1, czc), (-cxc, 9.62, czc), 0.14, n=8, tone=DARK)
+    m.tube("dish", "torso", (-cxc, 9.75, czc - 0.06), (-cxc, 9.82, czc + 0.06), 0.72, 0.6, n=16, tone=0.8)
+    m.tube("dish_feed", "torso", (-cxc, 9.8, czc + 0.04), (-cxc, 9.95, czc + 0.24), 0.05, n=6, tone=DARK)
+    m.tube("mast_base", "torso", (cxc, 9.0, czc), (cxc, 9.36, czc), 0.24, 0.18, n=10, tone=DARK)
+    m.add("bar", "mast", "torso", a=(cxc, 9.3, czc), b=(cxc + 0.05, 10.35, czc - 0.2), w0=[0.07, 0.07], w1=[0.04, 0.04], tone=DARK)
     # ---------------------------------------------------------------- the waist and the pelvis: a belt, a deep crotch block
     # (round 5: the turning RING at the waist line, wide - the torso turns on it, so it shows in the outline; the sheet's waist is 3.6)
     waist_joint(m, (0, 6.15, 0), 0.75, ((0, 6.08, 0), (0, 6.18, 0), 3.85, 3.85), ball_n=16, ball_rings=8)   # (3.5 across its flats)
@@ -1182,6 +1181,14 @@ def atlas():
            tone=0.7, mirror=True)
     m.hull("heel_spur", "leg_L", [(fx + sx * 0.12, y, z) for sx in (-1, 1) for y, z in ((0.1, -1.42), (0.1, -1.66), (0.36, -1.38), (0.2, -1.64))],
            tone=PLATE, mirror=True)
+    # the FOOT FORWARD under the leg (Daniel, 2026-11-18: "the feet seem to be slid back a bit compared to the lower leg": the foot's raised
+    # back, where the spat sits, lay behind the spat): every foot part moves 0.35 forward, the ankle now a third of the way from the heel
+    for p in m.parts[foot_from:]:
+        for key in ("a", "b", "c"):
+            if key in p:
+                p[key] = rnd((p[key][0], p[key][1], p[key][2] + 0.35))
+        if "pts" in p:
+            p["pts"] = [rnd((q[0], q[1], q[2] + 0.35)) for q in p["pts"]]
     leg_end = len(m.parts)
     # ---------------------------------------------------------------- the arms: pod shoulders, heavy sleeves, fists, lasers in line
     pivots, arm_mounts = {}, []

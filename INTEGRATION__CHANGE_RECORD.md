@@ -17,7 +17,9 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   painted line), exposed flat faces (shoulder decks with vents, pack panels, a bevelled waist ring, the head's turntable, a skirt plate,
   a deeper crotch chamfer), the back's depth (explained: Daniel's "anemic"), and by eye the legs as columns (`limb` gained a chamfered
   section: plated thighs and shins). Left: the plan from above still squarer than the sheet's (fail, by eye); the death's head's fear
-  (Daniel's call).
+  (Daniel's call). Then Daniel's three: the antenna and dish centred on the collar blocks (they had stayed where the old shoulder masses
+  were; checklist item 56 now tests it), the feet 0.35 forward under the legs, the skull without its "eyebrows" and "moustache" (the
+  light brow bars and cheek ridges; deep angular sockets instead). Principles 55-57.
 - **2026-11-18 (Claude, session 28), ATLAS HD, ROUND 5: ARTICULATION, DEPTH, NO PAINTED LINES. Art only. REVIEW PENDING (higher-level
   model).** New `tools/lowpoly_articulate.py`: each joint turned through its range, every NEW overlap reported (Daniel: "Can it torso
   twist without something clipping? ... 90 degrees to left and right"; the arms at the shoulder). It found: the side weapons and
