@@ -6,6 +6,16 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-18 (Claude, session 28), ATLAS HD, FIRST PASS (T15c; order Atlas, Centurion, Hunchback, Whitworth, Spider, Daniel). Art
+  only. REVIEW PENDING (higher-level model).** `tools/lowpoly_hd.py atlas()` -> `reference_art/models_hd/Atlas AS7-D.json` (257
+  solids, ~8,500 triangles), its turnaround. Built from the HD blocks (joints, limbs, splay, waist, torso stack, wrapped... the
+  cockpit is in a new `skull_head` block's eyes) and the sheet's grid measurements; weapons by the record sheet: SRM 6 high on the
+  left chest, LRM 20 on the left flank at the belt, AC/20 on the right flank (receiver, rail, cooling holes, ringed brake, socket
+  disc), arm lasers in line with the forearms, the two centre-torso lasers firing to the REAR under the back pack. Shape language
+  from the MWO Atlas printable kit study (session 18, `INTEGRATION__COMBAT_LAB.md`; the STL files were kept out of the repo then):
+  dome pauldrons with a flange, an oval pelvis plate with an apron, a slash on the thigh, a spur behind the shin, a big ankle drum
+  (octagonal, so hip, knee and ankle read differently: principle 33), louvres and bolts. Checks clean (no floating parts, lines of
+  fire clear, no fire cuts). Also: the block-commonality ranking that set the order (T15c C).
 - **2026-11-18 (Claude, session 28), HD BLOCKS, FIRST FIVE (T15c item B). Art only. REVIEW PENDING (higher-level model).** In
   `tools/lowpoly_hd.py`: `axle_cap` (every joint's drum, ring and hub), `limb` (one limb block; the Catapult's nested copy removed),
   `splay_legs`, `waist_joint`, `wrap_glass` (the cockpit glazing on any surface). Both builders now call them. New

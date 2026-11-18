@@ -382,6 +382,7 @@ each, not the Catapult's ten.
   block uses; the unit that adds the most uses still uncovered is the Atlas (+58), then the Centurion (+44), the Hunchback (+23),
   the Whitworth (+18), the Spider (+10). The Atlas is NOT itself a common unit (29th of 34 for shared choices; the Trebuchet is
   1st), but it brings the most blocks the others still need. The UrbanMech (turret) is not in the top five.
+  ORDER (Daniel, 2026-11-18: "Yep we'll use that order"): Atlas, Centurion, Hunchback, Whitworth, Spider.
 
 **D. Keep the checks fast (DONE 2026-11-18).** The assembly check had grown to 4.5 minutes; profiling showed 90 % in the brute-force
 convex hull (fourth power of the point count; a 200-point dome took 18 s). `lowpoly_ref._hull` now uses Qhull (identical vertices,
