@@ -117,17 +117,25 @@ def conformal_glass(m, secs, z_cuts, theta_cuts, gap, name="pane", role_first=No
     """COCKPIT RULE, WRAP (Daniel, 2026-11-18: "Cockpits need rules on how to wrap or cut into structure"): the glazing is a skin on
     the host's OWN surface, a hair proud of it, cut into panes by frame gaps along the given z and angle cuts. Each pane is a thin
     shell (outer + inner points), never a flat plate laid across a curve."""
+    zs = [(z0 - gap / 2, z1 + gap / 2) for z0, z1 in zip(z_cuts, z_cuts[1:])]          # z falls toward the back: z0 > z1
+    ts = [(t0 + gap / 3, t1 - gap / 3) for t0, t1 in zip(theta_cuts, theta_cuts[1:])]
+    wrap_glass(m, lambda z, t, g: surface_point(secs, z, t, g), zs, ts, name=name, role_first=role_first)
+
+
+def wrap_glass(m, surface, u_spans, v_spans, name="pane", role_first="canopy", asm="head", grow=(0.035, -0.01)):
+    """HD BLOCK cockpit/wrap_glass: glazing WRAPPED on any host surface (`surface(u, v, grow)` -> a point on it, pushed out by grow):
+    one pane per (u span, v span), each a thin shell sampled 3 x 3 across its span, a hair proud of the host. The frame gaps are the
+    spaces between the spans. The Catapult's nose (u = z, v = angle round the body) and the Commando's visor (u = latitude, v =
+    longitude on its dome) are the same block."""
     first = True
-    for z0, z1 in zip(z_cuts, z_cuts[1:]):
-        for t0, t1 in zip(theta_cuts, theta_cuts[1:]):
-            za, zb = z0 - gap / 2, z1 + gap / 2                # z falls toward the back: z0 > z1
-            ta, tb = t0 + gap / 3, t1 - gap / 3
+    for ua, ub in u_spans:
+        for va, vb in v_spans:
             pts = []
-            for z in (za, (za + zb) / 2, zb):
-                for t in (ta, (ta + tb) / 2, tb):
-                    pts.append(surface_point(secs, z, t, 0.035))
-                    pts.append(surface_point(secs, z, t, -0.01))
-            m.hull(name, "head", pts, tone=0.26, role=role_first if first else None)
+            for u in (ua, (ua + ub) / 2, ub):
+                for v in (va, (va + vb) / 2, vb):
+                    for g in grow:
+                        pts.append(surface(u, v, g))
+            m.hull(name, asm, pts, tone=0.26, role=role_first if first else None)
             first = False
 
 
@@ -268,9 +276,7 @@ def catapult():
                     "envelope": [1.3, 0.6, 1.95], "accepts": ["greeble:dish", "greeble:sensor", "equipment", "weapon (edited variants)"]}
     # ---------------------------------------------------------------- the arms: LRM 15 launchers on their shoulder discs
     # (record sheet: shoulder + upper arm actuator + LRM 15) - front x 1.60, width 1.45, y 8.6-11.1, z -2.54 .. 0.11
-    m.tube("shoulder", "arm_L", (1.2, 9.3, -0.85), (2.2, 9.3, -0.85), 1.35, n=28, tone=JOINT, mirror=True)
-    m.tube("shoulder_ring", "arm_L", (2.2, 9.3, -0.85), (2.32, 9.3, -0.85), 1.35, 1.1, n=28, tone=TRIM, mirror=True)
-    m.tube("shoulder_hub", "arm_L", (2.32, 9.3, -0.85), (2.4, 9.3, -0.85), 0.5, n=20, tone=DARK, mirror=True)
+    axle_cap(m, "shoulder", "arm_L", 9.3, -0.85, 1.2, 2.2, 1.35, n=28, ring=(0.12, 1.1), hub=(0.08, 0.5))
     m.hull("rack", "arm_L", bevel_box((1.6, 9.9, -1.27), (1.44, 2.6, 2.54), 0.22), tone=PLATE, role="weapon:LA:LRM 15", mirror=True)
     m.box("rack_face", "arm_L", (1.6, 10.12, 0.03), (1.22, 1.9, 0.08), tone=DARK, mirror=True)
     for col in range(3):                             # the LRM 15's fifteen tubes: 3 across, 5 down (the front view's grid)
@@ -291,9 +297,8 @@ def catapult():
     # the TORSO TILT HINGE (Daniel: "That round section was the hinge that allowed the torso to tilt up and down"): a drum across
     # the body's underside, axis x, at the round section of the side view (y 7.45, z 0.55); a hub ring at each end
     hinge = (0.0, 7.45, 0.55)
-    m.tube("tilt_hinge", "torso", (-1.55, hinge[1], hinge[2]), (1.55, hinge[1], hinge[2]), 1.2, n=28, tone=JOINT)
-    m.tube("tilt_hub", "torso", (1.55, hinge[1], hinge[2]), (1.62, hinge[1], hinge[2]), 0.55, n=20, tone=DARK, mirror=True)
-    m.tube("tilt_ring", "torso", (1.4, hinge[1], hinge[2]), (1.56, hinge[1], hinge[2]), 1.28, n=28, tone=TRIM, mirror=True)
+    axle_cap(m, "tilt_hinge", "torso", hinge[1], hinge[2], -1.55, 1.55, 1.2, n=28, across=True,
+             ring=(1.4, 1.56, 1.28, 1.28), hub_at=(1.55, 1.62, 0.55))
     # the WAIST: an octagonal tower rising from the hip block, tilted so it meets the hinge squarely, topped by a pyramid that
     # closes round the hinge (Daniel: "a mix of octagon tower and pyramid"); the waist turns the torso, the hinge tilts it
     # its root is a BALL sunk in the hip block and a COWL rings it at the block's top (Daniel, 2026-11-18: the tilted tower's bottom
@@ -303,53 +308,27 @@ def catapult():
     lean = (0.0, top[1] - 6.35, top[2] + 0.05)
     ln = math.hypot(lean[1], lean[2])
     base = (0.0, 6.35 - 0.3 * lean[1] / ln, -0.05 - 0.3 * lean[2] / ln)       # 0.3 further down the tower's own axis
-    m.add("dome", "waist_ball", "pelvis", c=base, r=(0.8, 0.8, 0.8), n=20, rings=10, tone=JOINT)
-    m.tube("waist_cowl", "pelvis", (0.0, 6.5, -0.05), (0.0, 6.82, -0.02), 1.95, 1.72, n=8, roll=22.5, tone=0.7)
     mid = (0.0, base[1] + (top[1] - base[1]) * 0.55, base[2] + (top[2] - base[2]) * 0.55)
-    m.tube("waist_tower", "pelvis", base, mid, 1.5, 1.42, n=8, roll=22.5, tone=0.68)
-    m.tube("waist_pyramid", "pelvis", mid, top, 1.42, 0.95, n=8, roll=22.5, tone=0.68)
+    waist_joint(m, base, 0.8, ((0.0, 6.5, -0.05), (0.0, 6.82, -0.02), 1.95, 1.72), tower=(base, mid, top, 1.5, 1.42, 0.95))
     m.hull("pelvis", "pelvis", bevel_box((0.0, 5.8, 0.0), (1.67, 1.5, 2.15), 0.3), tone=0.74)
     for k in range(3):
         m.box("pelvis_vent", "pelvis", (0.0, 5.45 + k * 0.15, 1.06), (1.0, 0.06, 0.1), tone=DARK)
         m.box("pelvis_vent_back", "pelvis", (0.0, 5.45 + k * 0.15, -1.06), (1.0, 0.06, 0.1), tone=DARK)
     m.hull("pelvis_back_plate", "pelvis", bevel_box((0.0, 6.12, -1.07), (1.2, 0.4, 0.06), 0.03), tone=PLATE)
-    m.tube("hip_disc", "pelvis", (0.75, 5.72, 0.0), (1.02, 5.72, 0.0), 1.45, n=28, tone=JOINT, mirror=True)
-    m.tube("hip_ring", "pelvis", (1.02, 5.72, 0.0), (1.08, 5.72, 0.0), 1.45, 1.2, n=28, tone=TRIM, mirror=True)
+    axle_cap(m, "hip_disc", "pelvis", 5.72, 0.0, 0.75, 1.02, 1.45, n=28, ring=(0.06, 1.2))
     # ---------------------------------------------------------------- the legs: reverse knee (side view), x 1.52
     # the thigh: a big rounded block, hip (y 5.72, z 0) down and BACK to the knee (y 4.31, z -1.68)
     # the hip at the hip discs' axis, so the thigh turns about it (Daniel: "circular end caps on the legs that engage with the
     # circular hip connecting points")
     hip, knee, ankle = (1.52, 5.72, 0.0), (1.52, 4.3, -1.68), (1.52, 0.72, 1.08)
     leg_from = len(m.parts)
-    m.tube("thigh_cap", "leg_L", (1.06, hip[1], hip[2]), (2.02, hip[1], hip[2]), 1.4, n=28, tone=JOINT, mirror=True)
-    m.tube("thigh_cap_ring", "leg_L", (2.02, hip[1], hip[2]), (2.1, hip[1], hip[2]), 1.4, 1.05, n=28, tone=TRIM, mirror=True)
-    m.tube("thigh_cap_hub", "leg_L", (2.1, hip[1], hip[2]), (2.16, hip[1], hip[2]), 0.5, n=20, tone=DARK, mirror=True)
+    axle_cap(m, "thigh_cap", "leg_L", hip[1], hip[2], 1.06, 2.02, 1.4, n=28, ring=(0.08, 1.05), hub=(0.06, 0.5))
     joint_cover(m, "hip_cover", "leg_L", hip, 2.16, 0.8, sides=6, roll=30)        # covers vary the run of round joints
 
-    def limb(name, a, b, w0, d0, w1, d1, steps=4):
-        """A rounded limb between a and b: slices of rounded sections (width w, depth d) turned along a->b (y-z plane)."""
-        ax = (b[1] - a[1], b[2] - a[2])
-        ln = math.hypot(*ax)
-        uy, uz = ax[0] / ln, ax[1] / ln            # along the limb
-        ny, nz = -uz, uy                           # across it, in the side plane (depth)
-        rings = []
-        for i in range(steps + 1):
-            t = i / steps
-            cy, cz = a[1] + ax[0] * t, a[2] + ax[1] * t
-            w = w0 + (w1 - w0) * t
-            d = (d0 + (d1 - d0) * t) * (1 - 0.15 * (2 * t - 1) ** 2 if steps > 1 else 1)
-            ring = []
-            for k in range(16):
-                th = 2 * math.pi * k / 16
-                ring.append((a[0] + w / 2 * math.cos(th), cy + ny * d / 2 * math.sin(th), cz + nz * d / 2 * math.sin(th)))
-            rings.append(ring)
-        for r0, r1 in zip(rings, rings[1:]):
-            m.hull(name, "leg_L", r0 + r1, tone=0.72, mirror=True)
-    limb("thigh", hip, knee, 1.1, 1.55, 0.95, 1.15)
-    m.tube("knee_cap", "leg_L", (0.95, knee[1], knee[2] - 0.05), (2.1, knee[1], knee[2] - 0.05), 1.05, n=24, tone=JOINT, mirror=True)
-    m.tube("knee_hub", "leg_L", (2.1, knee[1], knee[2] - 0.05), (2.16, knee[1], knee[2] - 0.05), 0.45, n=16, tone=DARK, mirror=True)
+    limb(m, "thigh", "leg_L", hip, knee, 1.1, 1.55, 0.95, 1.15, tone=0.72, mirror=True, phase=0.0)
+    axle_cap(m, "knee_cap", "leg_L", knee[1], knee[2] - 0.05, 0.95, 2.1, 1.05, n=24, hub=(0.06, 0.45, 16))
     joint_cover(m, "knee_cover", "leg_L", (knee[0], knee[1], knee[2] - 0.05), 2.16, 0.62, sides=5, roll=180, kz=1.15)
-    limb("shin", knee, ankle, 0.92, 1.0, 0.78, 0.82, steps=5)
+    limb(m, "shin", "leg_L", knee, ankle, 0.92, 1.0, 0.78, 0.82, steps=5, tone=0.72, mirror=True, phase=0.0)
     # armour plate down the shin's front and a vent hatch on its side
     m.add("bar", "shin_plate", "leg_L", a=(1.52, 3.6, -0.85), b=(1.52, 1.3, 0.75), w0=[0.7, 0.18], w1=[0.6, 0.16], tone=PLATE, mirror=True)
     for k in range(5):
@@ -370,7 +349,7 @@ def catapult():
           w0=[0.62, 0.12], w1=[0.85, 0.14], tone=PLATE, mirror=True)
     for k in range(4):                               # the hatching on the housing's side (the side view's hatched block)
         m.box("ankle_vent", "leg_L", (2.17, 0.95 + k * 0.17, on_shin(1.3) - 0.1), (0.03, 0.07, 0.75), tone=DARK, mirror=True)
-    m.tube("ankle_hub", "leg_L", (2.12, 0.85, on_shin(0.85) - 0.1), (2.24, 0.85, on_shin(0.85) - 0.1), 0.55, n=20, tone=JOINT, mirror=True)
+    axle_cap(m, "ankle_hub", "leg_L", 0.85, on_shin(0.85) - 0.1, 2.12, 2.24, 0.55, n=20)
     foot_from = len(m.parts)
     # the foot: a long sole (side x 84-218, toes forward), three toes, a heel spur; the WHOLE foot turned 18 degrees outward about
     # the ankle (each part was first turned about its own middle, which slid the foot out from under the leg)
@@ -413,24 +392,7 @@ def catapult():
         m.hull("jj_hood", "torso", [(sp_[0] - 0.08, sp_[1] + 0.32, z + sz * 0.3) for sz in (-1, 1)] +
                [(sp_[0] + 0.1, sp_[1] + 0.12, z + sz * 0.3) for sz in (-1, 1)] +
                [(sp_[0] - 0.1, sp_[1] + 0.05, z + sz * 0.3) for sz in (-1, 1)], tone=PLATE, mirror=True)
-    # SPLAY (Daniel: "the legs are splayed out slightly"): the leg turns about the hip by LEG_SPLAY degrees, foot outward; the foot
-    # follows the ankle but stays flat on the ground
-    a = math.radians(LEG_SPLAY)
-
-    def splay(q):
-        dx, dy = q[0] - hip[0], q[1] - hip[1]
-        return (hip[0] + dx * math.cos(a) - dy * math.sin(a), hip[1] + dx * math.sin(a) + dy * math.cos(a), q[2])
-    shift = splay(ankle)[0] - ankle[0]
-    for i in range(leg_from, leg_end):
-        p = m.parts[i]
-        f = (lambda q: (q[0] + shift, q[1], q[2])) if i >= foot_from else splay
-        for key in ("a", "b", "c"):
-            if key in p:
-                p[key] = rnd(f(p[key]))
-        if "pts" in p:
-            p["pts"] = [rnd(f(q)) for q in p["pts"]]
-        if i < foot_from and p["kind"] in ("box", "wedge"):
-            p["rot"] = [0, 0, LEG_SPLAY]
+    splay = splay_legs(m, leg_from, leg_end, foot_from, hip, ankle, LEG_SPLAY)
     # the PIVOTS, for animation: centre and axis of every joint (the left side; mirror x for the right)
     pivots = {"torso_tilt": {"centre": list(hinge), "axis": "x", "parent": "waist", "child": "torso"},
               "waist_turn": {"centre": rnd(base), "axis": rnd([0, top[1] - base[1], top[2] - base[2]]), "parent": "pelvis", "child": "waist"},
@@ -453,9 +415,10 @@ def catapult():
             "parts": m.parts}
 
 
-def limb(m, name, asm, a, b, w0, d0, w1, d1, steps=4, sides=16, tone=0.72, mirror=False, bulge=0.15):
-    """A limb between a and b (both at the same x): slices of rounded (or, with few `sides`, faceted) sections of width w (across x)
-    and depth d (across the limb, in the side plane), the middle a little fuller (`bulge`)."""
+def limb(m, name, asm, a, b, w0, d0, w1, d1, steps=4, sides=16, tone=0.72, mirror=False, bulge=0.15, phase=0.5):
+    """HD BLOCK limb/rounded. A limb between a and b (both at the same x): slices of rounded (or, with few `sides`, faceted) sections
+    of width w (across x) and depth d (across the limb, in the side plane), the middle a little fuller (`bulge`). `phase` turns the
+    section (0.5: a flat face on top, as the Commando's six-sided forearm; 0: a corner on top, as the Catapult's legs)."""
     ax = (b[1] - a[1], b[2] - a[2])
     ln = math.hypot(*ax)
     uy, uz = ax[0] / ln, ax[1] / ln
@@ -468,11 +431,73 @@ def limb(m, name, asm, a, b, w0, d0, w1, d1, steps=4, sides=16, tone=0.72, mirro
         d = (d0 + (d1 - d0) * t) * (1 - bulge * (2 * t - 1) ** 2 if steps > 1 else 1)
         ring = []
         for k in range(sides):
-            th = 2 * math.pi * (k + 0.5) / sides
+            th = 2 * math.pi * (k + phase) / sides
             ring.append((a[0] + w / 2 * math.cos(th), cy + ny * d / 2 * math.sin(th), cz + nz * d / 2 * math.sin(th)))
         rings.append(ring)
     for r0, r1 in zip(rings, rings[1:]):
         m.hull(name, asm, r0 + r1, tone=tone, mirror=mirror)
+
+
+def axle_cap(m, name, asm, y, z, x0, x1, d, n=24, ring=None, hub=None, hub_at=None, mirror=True, across=False, tone=None):
+    """HD BLOCK joint/axle_cap (T15c item B; the HD review: "the most reused block"): a joint as its parts show it from the side - a
+    DRUM on the joint's axis (x, from x0 to x1, diameter d), then on its outer end an optional TRIM RING and an optional dark HUB.
+      ring: (length, outer diameter) - from x1, tapering from d; or (x_from, x_to, d0, d1[, n[, dy]]) given in full
+      hub:  (length, diameter[, n]) - after the ring (or the drum); hub_at: (x_from, x_to, diameter[, n]) in full
+    across=True: the drum spans both sides (one part, x0 = -x1: the Catapult's tilt hinge) and only the ring and hub are mirrored."""
+    m.tube(name, asm, (x0, y, z), (x1, y, z), d, n=n, tone=JOINT if tone is None else tone, mirror=mirror and not across)
+    end = x1
+    if ring:
+        if len(ring) == 2:
+            m.tube(name + "_ring", asm, (x1, y, z), (x1 + ring[0], y, z), d, ring[1], n=n, tone=TRIM, mirror=mirror)
+            end = x1 + ring[0]
+        else:
+            xa, xb, r0, r1 = ring[:4]
+            rn = ring[4] if len(ring) > 4 else n
+            dy = ring[5] if len(ring) > 5 else 0.0
+            m.tube(name + "_ring", asm, (xa, y + dy, z), (xb, y + dy, z), r0, r1, n=rn, tone=TRIM, mirror=mirror)
+            end = max(end, xb) if not across else end
+    if hub:
+        m.tube(name + "_hub", asm, (end, y, z), (end + hub[0], y, z), hub[1], n=hub[2] if len(hub) > 2 else 20, tone=DARK, mirror=mirror)
+    if hub_at:
+        m.tube(name + "_hub", asm, (hub_at[0], y, z), (hub_at[1], y, z), hub_at[2], n=hub_at[3] if len(hub_at) > 3 else 20, tone=DARK,
+               mirror=mirror)
+
+
+def waist_joint(m, ball, ball_r, cowl, ball_n=20, ball_rings=10, tower=None):
+    """HD BLOCK waist/ball_cowl (the waist turns the torso): a BALL sunk in the pelvis and a COWL ringing the joint line (Daniel:
+    "a cowl, or building waist blocks with extra structure (like a hemisphere) that is usually inside the hip block": the root stays
+    inside however the waist leans). cowl = (bottom point, top point, d0, d1), octagonal. tower = (base, mid, top, d_base, d_mid,
+    d_top): an octagonal tower and a pyramid above it, leaning to meet a tilt hinge (the Catapult: "a mix of octagon tower and
+    pyramid")."""
+    m.add("dome", "waist_ball", "pelvis", c=ball, r=(ball_r, ball_r, ball_r), n=ball_n, rings=ball_rings, tone=JOINT)
+    m.tube("waist_cowl", "pelvis", cowl[0], cowl[1], cowl[2], cowl[3], n=8, roll=22.5, tone=0.7)
+    if tower:
+        base, mid, top, d0, d1, d2 = tower
+        m.tube("waist_tower", "pelvis", base, mid, d0, d1, n=8, roll=22.5, tone=0.68)
+        m.tube("waist_pyramid", "pelvis", mid, top, d1, d2, n=8, roll=22.5, tone=0.68)
+
+
+def splay_legs(m, leg_from, leg_end, foot_from, hip, ankle, deg):
+    """HD BLOCK: the leg SPLAY (Daniel: "the legs are splayed out slightly"). Every leg part (parts leg_from .. leg_end) turns `deg`
+    degrees outward about the hip; the foot (parts from foot_from) only follows the ankle sideways, staying flat on the ground.
+    Returns the splay function (for the pivots)."""
+    a = math.radians(deg)
+
+    def splay(q):
+        dx, dy = q[0] - hip[0], q[1] - hip[1]
+        return (hip[0] + dx * math.cos(a) - dy * math.sin(a), hip[1] + dx * math.sin(a) + dy * math.cos(a), q[2])
+    shift = splay(ankle)[0] - ankle[0]
+    for i in range(leg_from, leg_end):
+        p = m.parts[i]
+        f = (lambda q: (q[0] + shift, q[1], q[2])) if i >= foot_from else splay
+        for key in ("a", "b", "c"):
+            if key in p:
+                p[key] = rnd(f(p[key]))
+        if "pts" in p:
+            p["pts"] = [rnd(f(q)) for q in p["pts"]]
+        if i < foot_from and p["kind"] in ("box", "wedge"):
+            p["rot"] = [0, 0, deg]
+    return splay
 
 
 def dome_point(c, r, lat, lon, grow=0.0):
@@ -520,11 +545,7 @@ def commando():
         lon += step
     m.tube("brim", "head", (0, 9.12, 0.05), (0, 9.2, 0.05), 1.98, 1.92, n=16, tone=TRIM)
     # the VISOR (cockpit rule, WRAP): panes on the dome's own surface, a band across its front (the TRO's slit; the sheet's bands)
-    first = True
-    for t0, t1 in ((52, 76), (78, 102), (104, 128)):
-        pts = [dome_point(hc, hr, la, lo, g) for la in (12, 22, 32) for lo in (t0, (t0 + t1) / 2, t1) for g in (0.035, -0.01)]
-        m.hull("visor", "head", pts, tone=0.26, role="canopy" if first else None)
-        first = False
+    wrap_glass(m, lambda la, lo, g: dome_point(hc, hr, la, lo, g), [(12, 32)], [(52, 76), (78, 102), (104, 128)], name="visor")
     m.hull("brow", "head", [dome_point(hc, hr, la, lo, g) for la in (35, 42) for lo in (48, 70, 90, 110, 132) for g in (0.09, -0.01)],
            tone=TRIM)
     # the crest: a low ridge from the brow over the top to the back, in short segments that follow the dome
@@ -582,8 +603,7 @@ def commando():
         m.box("pack_vent", "torso", (0, 7.05 + k * 0.16, -1.27), (1.2, 0.06, 0.03), tone=DARK)
     # ---------------------------------------------------------------- the waist and the hips
     # the waist turns the upper torso: a ball sunk in the belt and a cowl ringing it at the joint line (principle: the root inside)
-    m.add("dome", "waist_ball", "pelvis", c=(0, 5.72, 0), r=(0.62, 0.62, 0.62), n=16, rings=8, tone=JOINT)
-    m.tube("waist_cowl", "pelvis", (0, 5.7, 0), (0, 5.84, 0), 2.3, 2.15, n=8, roll=22.5, tone=0.7)
+    waist_joint(m, (0, 5.72, 0), 0.62, ((0, 5.7, 0), (0, 5.84, 0), 2.3, 2.15), ball_n=16, ball_rings=8)
     # PROPORTIONS (self-review against the sheet, first build): the legs start right under the belt (the sheet's crotch at 0.49 of
     # the height, about 4.8 here) and are slim; the first build hung a tall hip block under the belt, which cut the legs short
     # the sheet's belt is the widest part of the lower body (about 2.9), the legs hang straight from under it, 2.2 apart
@@ -607,8 +627,7 @@ def commando():
     hip, knee, ankle = (0.72, 4.95, 0.0), (0.72, 3.1, 0.1), (0.72, 0.8, -0.05)
     # ---------------------------------------------------------------- the legs (front and side views: Daniel calls them accurate)
     leg_from = len(m.parts)
-    m.tube("thigh_cap", "leg_L", (0.22, hip[1], 0), (1.3, hip[1], 0), 0.86, n=24, tone=JOINT, mirror=True)     # turns in the hip block
-    m.tube("thigh_hub", "leg_L", (1.3, hip[1], 0), (1.36, hip[1], 0), 0.48, n=16, tone=DARK, mirror=True)
+    axle_cap(m, "thigh_cap", "leg_L", hip[1], 0, 0.22, 1.3, 0.86, n=24, hub=(0.06, 0.48, 16))     # turns in the hip block
     joint_cover(m, "hip_cover", "leg_L", hip, 1.36, 0.5, sides=6, roll=30, kz=1.1)
     # the thigh's top is cut on a SLANT that follows the briefs' side, a small gap below it (the sheet: the leg openings), high on
     # the outside, low at the crotch. Written where the leg ends up (x + LEG_OUT) and moved back, as the leg moves out below.
@@ -618,9 +637,7 @@ def commando():
            tone=0.8, mirror=True)
     limb(m, "thigh", "leg_L", hip, knee, 1.05, 1.3, 0.92, 1.0, steps=3, tone=0.74, mirror=True)
     m.add("bar", "thigh_plate", "leg_L", a=(0.72, 4.3, 0.58), b=(0.72, 3.55, 0.54), w0=[0.82, 0.12], w1=[0.7, 0.1], tone=PLATE, mirror=True)
-    m.tube("knee_cap", "leg_L", (0.26, knee[1], knee[2]), (1.18, knee[1], knee[2]), 0.85, n=24, tone=JOINT, mirror=True)
-    m.tube("knee_disc", "leg_L", (1.18, knee[1], knee[2]), (1.26, knee[1], knee[2]), 1.0, 0.86, n=24, tone=TRIM, mirror=True)
-    m.tube("knee_hub", "leg_L", (1.26, knee[1], knee[2]), (1.3, knee[1], knee[2]), 0.36, n=16, tone=DARK, mirror=True)
+    axle_cap(m, "knee_cap", "leg_L", knee[1], knee[2], 0.26, 1.18, 0.85, n=24, ring=(1.18, 1.26, 1.0, 0.86), hub=(0.04, 0.36, 16))
     joint_cover(m, "knee_cover", "leg_L", knee, 1.3, 0.56, sides=5, roll=180, ky=1.15)          # a guard, its point down
     m.add("bar", "knee_pad", "leg_L", a=(0.72, 3.6, 0.52), b=(0.72, 2.8, 0.64), w0=[0.82, 0.22], w1=[0.68, 0.2], tone=0.86, mirror=True)
     limb(m, "shin", "leg_L", knee, ankle, 0.86, 0.95, 0.8, 0.85, steps=4, tone=0.72, mirror=True)
@@ -637,7 +654,7 @@ def commando():
         rings.append(bevel_ring(y, w / 2, zc + d / 2, zc - d / 2, 0.14, x0=0.72))
     for r0, r1 in zip(rings, rings[1:]):
         m.hull("ankle_housing", "leg_L", r0 + r1, tone=0.72, mirror=True)
-    m.tube("ankle_hub", "leg_L", (1.26, 0.72, ankle[2]), (1.36, 0.72, ankle[2]), 0.44, n=16, tone=JOINT, mirror=True)
+    axle_cap(m, "ankle_hub", "leg_L", 0.72, ankle[2], 1.26, 1.36, 0.44, n=16)
     foot_from = len(m.parts)
     # the foot: long and wedged (side view: toe 1.55 ahead of the ankle, heel 1.05 behind; front view 1.7 wide), a ridge on top
     fx = 0.72
@@ -668,12 +685,11 @@ def commando():
             # antenna on the shoulder. Its not accurate to the picture, but being perfectly accurate is not the goal")
             m.tube("mast_base", asm, (X(1.75), 8.76, -0.62), (X(1.75), 8.98, -0.62), 0.26, 0.2, n=10, tone=DARK)
             m.add("bar", "mast", asm, a=(X(1.75), 8.95, -0.62), b=(X(1.8), 10.45, -0.78), w0=[0.07, 0.07], w1=[0.04, 0.04], tone=DARK)
-        m.tube("shoulder", asm, (X(1.15), sh[1], 0), (X(2.66), sh[1], 0), 0.9, n=24, tone=JOINT)
-        m.tube("shoulder_ring", asm, (X(2.62), sh[1] - 0.05, 0), (X(2.7), sh[1] - 0.05, 0), 0.8, 0.6, n=20, tone=TRIM)
+        axle_cap(m, "shoulder", asm, sh[1], 0, X(1.15), X(2.66), 0.9, n=24, ring=(X(2.62), X(2.7), 0.8, 0.6, 20, -0.05), mirror=False)
         up = math.radians(15)
         elbow = (sh[0], sh[1] - 1.15 * math.cos(up), 1.15 * math.sin(up))
         limb(m, "upper_arm", asm, sh, elbow, 0.92, 0.92, 0.9, 0.86, steps=3, sides=8, tone=0.74)
-        m.tube("elbow", asm, (X(1.55), elbow[1], elbow[2]), (X(2.55), elbow[1], elbow[2]), 0.86, n=20, tone=JOINT)
+        axle_cap(m, "elbow", asm, elbow[1], elbow[2], X(1.55), X(2.55), 0.86, n=20, mirror=False)
         dn = math.radians(8)
         wrist = (sh[0], elbow[1] - 1.6 * math.sin(dn), elbow[2] + 1.6 * math.cos(dn))
         limb(m, "forearm", asm, elbow, wrist, 1.25, 1.2, 1.15, 1.08, steps=2, sides=6, tone=0.78, bulge=0.08)
@@ -681,7 +697,7 @@ def commando():
                (sh[0], *[elbow[i] + (wrist[i] - elbow[i]) * 0.6 for i in (1, 2)]), 1.24, n=6, tone=DARK)
         # the FIST (record sheet: hand actuator; Daniel: "a hand ... curled up into a fist")
         fc = (sh[0], wrist[1] - 0.16, wrist[2] + 0.3)
-        m.tube("wrist", asm, (X(1.75), wrist[1], wrist[2]), (X(2.35), wrist[1], wrist[2]), 0.62, n=16, tone=JOINT)
+        axle_cap(m, "wrist", asm, wrist[1], wrist[2], X(1.75), X(2.35), 0.62, n=16, mirror=False)
         m.hull("fist", asm, bevel_box(fc, (0.92, 0.95, 0.75), 0.14), tone=0.82)
         m.hull("knuckles", asm, bevel_box((fc[0], fc[1] + 0.22, fc[2] + 0.38), (0.88, 0.36, 0.14), 0.04), tone=0.86)
         for k in range(3):
@@ -749,23 +765,7 @@ def commando():
             p["pts"] = [rnd((q[0] + LEG_OUT, q[1], q[2])) for q in p["pts"]]
     hip, knee, ankle = [(q[0] + LEG_OUT, q[1], q[2]) for q in (hip, knee, ankle)]
     # the splay: 3 degrees (the sheet's feet are 4.1 wide over all; the Catapult's 5 would put them at 4.4)
-    splay_deg = 3.0
-    a = math.radians(splay_deg)
-
-    def splay(q):
-        dx, dy = q[0] - hip[0], q[1] - hip[1]
-        return (hip[0] + dx * math.cos(a) - dy * math.sin(a), hip[1] + dx * math.sin(a) + dy * math.cos(a), q[2])
-    shift = splay(ankle)[0] - ankle[0]
-    for i in range(leg_from, leg_end):
-        p = m.parts[i]
-        f = (lambda q: (q[0] + shift, q[1], q[2])) if i >= foot_from else splay
-        for key in ("a", "b", "c"):
-            if key in p:
-                p[key] = rnd(f(p[key]))
-        if "pts" in p:
-            p["pts"] = [rnd(f(q)) for q in p["pts"]]
-        if i < foot_from and p["kind"] in ("box", "wedge"):
-            p["rot"] = [0, 0, splay_deg]
+    splay = splay_legs(m, leg_from, leg_end, foot_from, hip, ankle, 3.0)
     pivots.update({"neck": {"centre": [0, 8.7, -0.08], "axis": "y", "parent": "torso", "child": "head"},     # HD review F4
                    "waist_turn": {"centre": [0, 5.72, 0], "axis": "y", "parent": "pelvis", "child": "torso"},
                    "hip_L": {"centre": list(hip), "axis": "x", "parent": "pelvis", "child": "thigh"},
