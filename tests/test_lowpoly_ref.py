@@ -42,6 +42,11 @@ def main():
     errors, rows = B.check(B.library())
     for e in errors:
         print("FAIL block", e); bad += 1
+    # whole 'Mechs on the socket skeleton (2026-11-17): every unit's two builds at both levels are one connected piece, stand on
+    # the ground, and every seated block found its surface (tools/lowpoly_assemble.py check)
+    import lowpoly_assemble as A
+    for e in A.check_all():
+        print("FAIL mech", e); bad += 1
     if "reference_art/" not in publish_public.PRIVATE_PATHS:
         print("FAIL reference_art/ is not in publish_public.PRIVATE_PATHS"); bad += 1
     print("%s: %d units indexed, %d models built, %d blocks" % ("FAIL" if bad else "OK", len(units), len(built), len(rows)))

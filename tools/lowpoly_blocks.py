@@ -785,8 +785,8 @@ def drum_foot(lod, p):
     parts = [tube("sole", (0, 0, 0), (0, H * 0.12, 0), D * 1.04, n=n, roll=22.5),
              tube("band", (0, H * 0.12, 0), (0, H * 0.5, 0), D, n=n, roll=22.5),
              tube("cap", (0, H * 0.5, 0), (0, H * 0.85, 0), D, D * 0.55, n=n, roll=22.5)]
+    parts.append(tube("socket", (0, H * 0.85, 0), (0, H, 0), D * 0.42, n=12 if hi else 6))   # LOW keeps it: it is the ankle socket
     if hi:
-        parts.append(tube("socket", (0, H * 0.85, 0), (0, H, 0), D * 0.42, n=12))
         for k in range(n):                               # a panel line down each facet of the band
             t = 2 * math.pi * (k + 0.5) / n + math.radians(22.5)
             r = D / 2 * math.cos(math.pi / n) + 0.005
@@ -990,7 +990,8 @@ def skirt_wedge(lod, p):
     on a short pelvis block; a centre ridge and a plate seam. Seen from above: a forward-pointing trapezoid."""
     W, H, D = p["width"], p["height"], p["depth"]
     hi = lod == "high"
-    anchors = {"waist": [0.0, H * 0.5, 0.0], "hip_L": [W * 0.4, 0.0, -D * 0.1], "hip_R": [-W * 0.4, 0.0, -D * 0.1]}
+    # the waist socket on the block's real top (it was at H * 0.5, above the top at 0.35 H: the torso floated, 2026-11-17)
+    anchors = {"waist": [0.0, H * 0.35, -D * 0.15], "hip_L": [W * 0.4, 0.0, -D * 0.1], "hip_R": [-W * 0.4, 0.0, -D * 0.1]}
     parts = [cbox("block", (0, 0, -D * 0.15), (W, H * 0.7, D * 0.7), ch=0.05 if hi else 0.0)]
     skirt = [(-W * 0.42, H * 0.35, D * 0.1), (W * 0.42, H * 0.35, D * 0.1), (-W * 0.42, H * 0.35, -D * 0.3), (W * 0.42, H * 0.35, -D * 0.3),
              (-W * 0.14, -H * 0.85, D * 0.5), (W * 0.14, -H * 0.85, D * 0.5), (-W * 0.14, -H * 0.85, D * 0.1), (W * 0.14, -H * 0.85, D * 0.1)]
