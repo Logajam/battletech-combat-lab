@@ -130,6 +130,7 @@ GitHub logistics.
   `tools/lowpoly_assemble.py` (every block on a bone socket or seated flush; one connected piece, checked; `viewer` = the 3D page).
   Daniel's assembly principles, WITH their reasons: `reference_art/blocks/ASSEMBLY_PRINCIPLES.md` (read first; add each new one).
   The per-unit pipeline (measure the five-view sheet with `tools/lowpoly_measure.py`, build HD, checks, five-view review): T15c.
+  Before showing Daniel a model: `tools/lowpoly_checklist.py UNIT` (every correction he has made, as checks).
 - **Movement searches:** Short Grid is the default; Daniel's IF/THEN
   (`MOVEMENT_SEARCH = "if_then"`) is an option meant for multi-unit threat
   estimates, not a single 'Mech's default (PROJECT_MAP Section 5).

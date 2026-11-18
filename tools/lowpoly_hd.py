@@ -505,7 +505,7 @@ def catapult():
             "parts": m.parts}
 
 
-def limb(m, name, asm, a, b, w0, d0, w1, d1, steps=4, sides=16, tone=0.72, mirror=False, bulge=0.15, phase=0.5):
+def limb(m, name, asm, a, b, w0, d0, w1, d1, steps=4, sides=16, tone=0.72, mirror=False, bulge=0.15, phase=0.5, chamfer=None):
     """HD BLOCK limb/rounded. A limb between a and b (both at the same x): slices of rounded (or, with few `sides`, faceted) sections
     of width w (across x) and depth d (across the limb, in the side plane), the middle a little fuller (`bulge`). `phase` turns the
     section (0.5: a flat face on top, as the Commando's six-sided forearm; 0: a corner on top, as the Catapult's legs)."""
@@ -520,9 +520,15 @@ def limb(m, name, asm, a, b, w0, d0, w1, d1, steps=4, sides=16, tone=0.72, mirro
         w = w0 + (w1 - w0) * t
         d = (d0 + (d1 - d0) * t) * (1 - bulge * (2 * t - 1) ** 2 if steps > 1 else 1)
         ring = []
-        for k in range(sides):
-            th = 2 * math.pi * (k + phase) / sides
-            ring.append((a[0] + w / 2 * math.cos(th), cy + ny * d / 2 * math.sin(th), cz + nz * d / 2 * math.sin(th)))
+        if chamfer:                                       # a CHAMFERED RECTANGLE: wide flat faces, the corners cut by `chamfer` of the
+            c_ = chamfer * min(w, d)                      # smaller side (the Atlas's plated legs: "fewer, bigger planes")
+            for ux, uv in ((1, 1), (-1, 1), (-1, -1), (1, -1)):
+                for px, pv in ((w / 2, d / 2 - c_), (w / 2 - c_, d / 2)) if ux * uv > 0 else ((w / 2 - c_, d / 2), (w / 2, d / 2 - c_)):
+                    ring.append((a[0] + ux * px, cy + ny * uv * pv, cz + nz * uv * pv))
+        else:
+            for k in range(sides):
+                th = 2 * math.pi * (k + phase) / sides
+                ring.append((a[0] + w / 2 * math.cos(th), cy + ny * d / 2 * math.sin(th), cz + nz * d / 2 * math.sin(th)))
         rings.append(ring)
     for r0, r1 in zip(rings, rings[1:]):
         m.hull(name, asm, r0 + r1, tone=tone, mirror=mirror)
@@ -943,19 +949,15 @@ def death_face(m, front, y_brow, y_mouth):
     hair proud of the surface so it reads as cut into the shell, not stuck on: a brow dropping to a V between the eyes, slanted eye
     sockets with the cockpit glass in them, cheek ridges, a nasal cavity, a grin with two rows of teeth."""
     zf = lambda y, g=0.0: front(y)[0] + g
+    # (Daniel, 2026-11-18: "the deaths head looks like it has a mustache and eyebrows. Skulls do not normally have those" - the light
+    # brow bars and the cheek ridges are gone; the menace is in the SOCKETS: big, deep, angular, wider at the outer top, coming to a
+    # point low at the nose; the brow and cheekbones are the shell's own faceting)
     for sx in (1, -1):
-        m.hull("brow", "head", [(sx * 0.62, y_brow + 0.1, zf(y_brow + 0.1, -0.03)), (sx * 0.62, y_brow, zf(y_brow, -0.03)),
-                                (sx * 0.05, y_brow - 0.12, zf(y_brow - 0.12, -0.03)), (sx * 0.05, y_brow - 0.24, zf(y_brow - 0.24, -0.03)),
-                                (sx * 0.6, y_brow + 0.06, zf(y_brow + 0.06, 0.1)), (sx * 0.06, y_brow - 0.18, zf(y_brow - 0.18, 0.14))], tone=TRIM)
-        ey = y_brow - 0.22
-        eye = [(0.1, ey - 0.05), (0.56, ey + 0.14), (0.54, ey - 0.06), (0.13, ey - 0.2)]
-        m.hull("eye_socket", "head", [(sx * a, b, zf(b, g)) for a, b in eye for g in (-0.04, 0.02)], tone=0.1)
-        m.hull("eye", "head", [(sx * (a * 0.86 + 0.03), b - 0.01, zf(b, g)) for a, b in eye for g in (0.0, 0.03)], tone=0.3,
+        ey = y_brow - 0.2
+        eye = [(0.08, ey - 0.02), (0.6, ey + 0.16), (0.58, ey - 0.14), (0.2, ey - 0.27), (0.1, ey - 0.18)]
+        m.hull("eye_socket", "head", [(sx * a, b, zf(b, g)) for a, b in eye for g in (-0.06, 0.015)], tone=0.08)
+        m.hull("eye", "head", [(sx * (a * 0.8 + 0.06), b - 0.02, zf(b, g)) for a, b in eye for g in (-0.04, -0.01)], tone=0.3,
                role="canopy" if sx == 1 else None)
-        cy_ = ey - 0.3
-        m.hull("cheek_ridge", "head", [(sx * 0.62, cy_ + 0.06, zf(cy_, -0.05)), (sx * 0.62, cy_ - 0.06, zf(cy_, -0.05)),
-                                       (sx * 0.25, cy_ - 0.1, zf(cy_ - 0.1, -0.03)), (sx * 0.6, cy_, zf(cy_, 0.06)),
-                                       (sx * 0.28, cy_ - 0.08, zf(cy_ - 0.08, 0.05))], tone=0.8)
     ny = y_brow - 0.55
     m.hull("nasal", "head", [(0, ny + 0.14, zf(ny + 0.14, 0.02)), (-0.1, ny - 0.08, zf(ny - 0.08, 0.02)), (0.1, ny - 0.08, zf(ny - 0.08, 0.02)),
                              (0, ny + 0.14, zf(ny + 0.14, -0.05)), (-0.1, ny - 0.08, zf(ny - 0.08, -0.05)), (0.1, ny - 0.08, zf(ny - 0.08, -0.05))],
@@ -992,10 +994,16 @@ def atlas():
     # head so it can turn (principle 30)
     for sx in (1, -1):
         # (round 5, the articulation test: the head turning hit the collar blocks - they start further out now, x 1.15)
-        m.hull("collar_block", "torso", bevel_box((sx * 1.62, 8.62, -0.05), (0.72, 1.25, 1.85), 0.18), tone=0.86)
+        m.hull("collar_block", "torso", bevel_box((sx * 1.62, 8.62, -0.05), (0.72, 1.25, 1.85), 0.3), tone=0.86)    # (cut deep: the plan)
         for k in range(4):
             m.box("collar_louvre", "torso", (sx * 1.62, 8.35 + k * 0.17, 0.875), (0.5, 0.06, 0.04), tone=DARK)
     m.hull("collar_back", "torso", bevel_box((0, 8.62, -1.3), (2.0, 1.1, 0.5), 0.14), tone=0.82)     # (clear of the turning head)
+    # the SHOULDER DECKS: the chest's top beside the collar, broken into stepped plates with a vent between (no large flat space)
+    for sx in (1, -1):
+        m.hull("shoulder_deck", "torso", bevel_box((sx * 1.62, 8.16, 0.55), (1.05, 0.14, 0.75), 0.04), tone=0.84)
+        m.hull("shoulder_deck", "torso", bevel_box((sx * 1.7, 8.2, -0.62), (0.9, 0.22, 0.65), 0.05), tone=0.8)
+        for k in range(3):
+            m.box("deck_vent", "torso", (sx * 1.7, 8.115, -0.05 + k * 0.12), (0.7, 0.04, 0.05), tone=DARK)
     # (round 5: the dark SEAM LINES were thin boxes standing for panel joins, not parts - Daniel: "The black lines are for visual
     # appeal? ... The ones on the chest dont look right, especially in the action pose": the chest seam, the breastplate ridge, the
     # pauldron seams and the thigh slash are gone; a join is shown by real plates meeting, as the breastplate and the pectorals do)
@@ -1028,6 +1036,9 @@ def atlas():
         m.box("pack_vent", "torso", (-0.55, 7.35 + k * 0.17, -1.87), (0.9, 0.07, 0.03), tone=DARK)
         m.box("pack_vent", "torso", (0.55, 7.35 + k * 0.17, -1.87), (0.9, 0.07, 0.03), tone=DARK)
     m.box("pack_hatch", "torso", (0, 8.55, -1.865), (1.6, 0.4, 0.03), tone=0.6)
+    for sx in (1, -1):                                    # raised armour panels splitting the pack's back (no large flat space)
+        m.hull("pack_panel", "torso", bevel_box((sx * 0.62, 7.25, -1.88), (1.0, 0.75, 0.1), 0.04), tone=0.84)
+        m.hull("pack_panel_upper", "torso", bevel_box((sx * 0.62, 8.1, -1.89), (0.95, 0.55, 0.12), 0.04), tone=0.8)
     # the two REAR-FIRING centre-torso lasers (record sheet: "Medium Laser (R)" x 2), under the pack, pointing back
     for sx in (1, -1):
         m.tube("rear_laser_housing", "torso", (sx * 0.45, 6.62, -1.0), (sx * 0.45, 6.62, -1.48), 0.36, n=12, tone=PLATE)
@@ -1078,16 +1089,26 @@ def atlas():
     hfront = faceted_head(m, head_rings)
     death_face(m, hfront, 9.32, 8.5)
     m.tube("neck", "head", (0, 7.85, 0.0), (0, 8.3, 0.0), 0.8, n=8, roll=22.5, tone=JOINT)
+    # the head's TURNTABLE: the bearing plate the head turns on, filling the floor of the well round the neck (part of the torso; the
+    # head clears it by its gap)
+    m.tube("head_turntable", "torso", (0, 8.08, -0.05), (0, 8.2, -0.05), 2.5, 1.9, n=12, roll=15.0, tone=JOINT)   # its rim bevelled
     joint_cover(m, "temple_sensor", "head", (0, 9.3, hz - 0.05), 0.86, 0.2, sides=6, roll=30, thick=0.06)
     # the dish (the sheet: on the right hump) and the antenna (left), both kept
-    m.tube("dish_mast", "torso", (-1.45, 9.1, -0.45), (-1.45, 9.62, -0.45), 0.14, n=8, tone=DARK)
-    m.tube("dish", "torso", (-1.45, 9.75, -0.5), (-1.45, 9.82, -0.38), 0.72, 0.6, n=16, tone=0.8)
-    m.tube("dish_feed", "torso", (-1.45, 9.8, -0.4), (-1.45, 9.95, -0.2), 0.05, n=6, tone=DARK)
-    m.tube("mast_base", "torso", (1.3, 9.0, -0.35), (1.3, 9.36, -0.35), 0.24, 0.18, n=10, tone=DARK)
-    m.add("bar", "mast", "torso", a=(1.3, 9.3, -0.35), b=(1.35, 10.35, -0.55), w0=[0.07, 0.07], w1=[0.04, 0.04], tone=DARK)
+    # (centred on the collar blocks they stand on - Daniel, 2026-11-18: "Check the antenna and radar dish, they're no longer centered":
+    # they stayed where the old shoulder masses had been when the collar moved out)
+    cxc, czc = 1.62, -0.05
+    m.tube("dish_mast", "torso", (-cxc, 9.1, czc), (-cxc, 9.62, czc), 0.14, n=8, tone=DARK)
+    m.tube("dish", "torso", (-cxc, 9.75, czc - 0.06), (-cxc, 9.82, czc + 0.06), 0.72, 0.6, n=16, tone=0.8)
+    m.tube("dish_feed", "torso", (-cxc, 9.8, czc + 0.04), (-cxc, 9.95, czc + 0.24), 0.05, n=6, tone=DARK)
+    m.tube("mast_base", "torso", (cxc, 9.0, czc), (cxc, 9.36, czc), 0.24, 0.18, n=10, tone=DARK)
+    m.add("bar", "mast", "torso", a=(cxc, 9.3, czc), b=(cxc + 0.05, 10.35, czc - 0.2), w0=[0.07, 0.07], w1=[0.04, 0.04], tone=DARK)
     # ---------------------------------------------------------------- the waist and the pelvis: a belt, a deep crotch block
     # (round 5: the turning RING at the waist line, wide - the torso turns on it, so it shows in the outline; the sheet's waist is 3.6)
-    waist_joint(m, (0, 6.15, 0), 0.75, ((0, 6.02, 0), (0, 6.24, 0), 3.85, 3.75), ball_n=16, ball_rings=8)   # (3.5 across its flats)
+    waist_joint(m, (0, 6.15, 0), 0.75, ((0, 6.08, 0), (0, 6.18, 0), 3.85, 3.85), ball_n=16, ball_rings=8)   # (3.5 across its flats)
+    # the ring's flat top and bottom CHAMFERED down to the torso and the belt (the checklist: no large flat space, principle 34)
+    oct_ = lambda y, r: [(r * math.cos(math.radians(22.5 + 45 * k)), y, r * math.sin(math.radians(22.5 + 45 * k))) for k in range(8)]
+    m.hull("waist_ring_bevel", "pelvis", oct_(6.18, 1.92) + oct_(6.25, 1.6), tone=0.7)
+    m.hull("waist_ring_bevel", "pelvis", oct_(6.08, 1.92) + oct_(6.0, 1.62), tone=0.7)
     # the PELVIS (the kit: "a wide flat OVAL plate on top, a short skirt below, and a narrow hanging apron down the front centre: from
     # the front it reads as a T or anvil")
     oval = lambda y, rx, rz: [(rx * math.cos(2 * math.pi * k / 16), y, rz * math.sin(2 * math.pi * k / 16)) for k in range(16)]
@@ -1098,10 +1119,14 @@ def atlas():
     m.hull("rear_skirt", "pelvis", [(sx * 1.2, 5.75, -0.8) for sx in (-1, 1)] + [(sx * 1.25, 5.65, -1.4) for sx in (-1, 1)] +
            [(sx * 0.95, 4.65, -1.25) for sx in (-1, 1)] + [(sx * 0.9, 4.7, -0.8) for sx in (-1, 1)], tone=PLATE)
     for k in range(3):
-        m.box("rear_skirt_rib", "pelvis", (0, 5.35 - k * 0.25, -1.37 + k * 0.04), (1.9 - k * 0.2, 0.05, 0.04), tone=DARK)
+        if k == 0:                                        # a centre plate on the skirt's back (no large flat space)
+            m.hull("rear_skirt_plate", "pelvis", [(sx * 0.8, 5.5, -1.47) for sx in (-1, 1)] + [(sx * 0.62, 4.85, -1.33) for sx in (-1, 1)] +
+                   [(sx * 0.8, 5.5, -1.3) for sx in (-1, 1)] + [(sx * 0.62, 4.85, -1.2) for sx in (-1, 1)], tone=0.82)
+        # raised ribs (stiffeners), in the plate's tone - dark thin boxes read as painted lines (the checklist, principle 52)
+        m.hull("rear_skirt_rib", "pelvis", bevel_box((0, 5.35 - k * 0.25, -1.38 + k * 0.04), (1.9 - k * 0.2, 0.09, 0.08), 0.02), tone=0.78)
     for k in range(4):
         m.box("skirt_vent", "pelvis", (0, 5.47 + k * 0.07, 0.82), (1.0, 0.03, 0.03), tone=DARK)
-    m.hull("crotch", "pelvis", bevel_ring(5.45, 0.75, 0.85, -0.85, 0.14) + bevel_ring(4.25, 0.6, 0.7, -0.7, 0.12), tone=0.74)
+    m.hull("crotch", "pelvis", bevel_ring(5.45, 0.75, 0.85, -0.85, 0.14) + bevel_ring(4.25, 0.6, 0.7, -0.7, 0.28), tone=0.74)
     m.hull("crotch_plate", "pelvis", [(sx * 0.55, 5.35, 0.86) for sx in (-1, 1)] + [(sx * 0.42, 4.4, 0.72) for sx in (-1, 1)] +
            [(sx * 0.5, 5.33, 0.93) for sx in (-1, 1)] + [(sx * 0.38, 4.44, 0.79) for sx in (-1, 1)], tone=PLATE)
     # ---------------------------------------------------------------- the legs (straight; the sheet: column shins, a big knee disc)
@@ -1112,14 +1137,15 @@ def atlas():
     axle_cap(m, "thigh_cap", "leg_L", hip[1], 0, 0.75, 2.03, 1.1, n=24, hub=(0.05, 0.55, 16))
     joint_cover(m, "hip_cover", "leg_L", hip, 2.08, 0.6, sides=6, roll=30, kz=1.1)
     # (round 4: tapering from the hip to the knee, as the sheet's; a faceted plate over its outer top)
-    limb(m, "thigh", "leg_L", hip, knee, 1.24, 1.78, 1.08, 1.36, steps=3, sides=8, tone=0.74, mirror=True, bulge=0.0)
+    # (the checklist, principle 32: the thighs and shins were eight-sided columns; the sheet's are wide plates with cut corners)
+    limb(m, "thigh", "leg_L", hip, knee, 1.24, 1.78, 1.08, 1.36, steps=3, tone=0.74, mirror=True, bulge=0.0, chamfer=0.22)
     m.hull("thigh_top_facet", "leg_L", [(2.12, 4.95, -0.6), (2.12, 4.95, 0.62), (1.9, 5.15, -0.55), (1.9, 5.15, 0.55),
                                         (2.02, 4.4, -0.62), (2.02, 4.4, 0.66)], tone=PLATE, mirror=True)
     m.add("bar", "thigh_guard", "leg_L", a=(1.56, 4.85, 0.82), b=(1.56, 3.75, 0.8), w0=[1.25, 0.16], w1=[1.1, 0.14], tone=PLATE, mirror=True)
     m.hull("thigh_guard_side", "leg_L", bevel_box((2.14, 4.2, 0.05), (0.08, 0.95, 1.15), 0.03), tone=PLATE, mirror=True)
     axle_cap(m, "knee_cap", "leg_L", knee[1], knee[2], 0.85, 2.25, 1.05, n=24, ring=(2.25, 2.33, 1.35, 1.15), hub=(0.06, 0.5, 16))
     m.add("bar", "knee_pad", "leg_L", a=(1.56, 3.75, 0.8), b=(1.56, 2.85, 0.92), w0=[1.2, 0.3], w1=[1.0, 0.26], tone=0.86, mirror=True)
-    limb(m, "shin", "leg_L", knee, ankle, 1.46, 1.5, 1.34, 1.32, steps=3, sides=8, tone=0.72, mirror=True, bulge=0.06)   # tapering (the TRO), within the sheet's width (the measuring test)
+    limb(m, "shin", "leg_L", knee, ankle, 1.46, 1.5, 1.34, 1.32, steps=3, tone=0.72, mirror=True, bulge=0.06, chamfer=0.22)   # tapering (the TRO), within the sheet's width (the measuring test)
     for k in range(4):
         m.box("shin_vent", "leg_L", (2.22, 2.55 - k * 0.15, 0.1), (0.06, 0.07, 0.6), tone=DARK, mirror=True)   # on the tapered shin
     m.add("bar", "shin_plate", "leg_L", a=(1.56, 2.9, 0.76), b=(1.56, 1.6, 0.74), w0=[1.0, 0.12], w1=[0.95, 0.12], tone=PLATE, mirror=True)
@@ -1128,7 +1154,7 @@ def atlas():
     # the ANKLE housing reaches INTO the foot (principle 28); the foot: a wide pedestal, toe forward (side view: toe 2.0 ahead, heel 1.4
     # behind; front view 2.25 wide)
     # (round 4: the sheet's shin FLARES into an ankle SPAT - a trapezoid skirt over the foot - with a band at its top)
-    m.hull("ankle_spat", "leg_L", bevel_ring(1.78, 0.7, 0.8, -0.72, 0.14, x0=1.56) + bevel_ring(0.62, 0.92, 1.2, -0.9, 0.2, x0=1.56),
+    m.hull("ankle_spat", "leg_L", bevel_ring(1.78, 0.7, 0.8, -0.72, 0.14, x0=1.56) + bevel_ring(0.5, 0.92, 1.2, -0.9, 0.2, x0=1.56),   # into the foot
            tone=0.74, mirror=True)
     m.hull("spat_band", "leg_L", bevel_ring(1.86, 0.74, 0.84, -0.76, 0.14, x0=1.56) + bevel_ring(1.66, 0.76, 0.88, -0.78, 0.14, x0=1.56),
            tone=TRIM, mirror=True)
@@ -1155,6 +1181,14 @@ def atlas():
            tone=0.7, mirror=True)
     m.hull("heel_spur", "leg_L", [(fx + sx * 0.12, y, z) for sx in (-1, 1) for y, z in ((0.1, -1.42), (0.1, -1.66), (0.36, -1.38), (0.2, -1.64))],
            tone=PLATE, mirror=True)
+    # the FOOT FORWARD under the leg (Daniel, 2026-11-18: "the feet seem to be slid back a bit compared to the lower leg": the foot's raised
+    # back, where the spat sits, lay behind the spat): every foot part moves 0.35 forward, the ankle now a third of the way from the heel
+    for p in m.parts[foot_from:]:
+        for key in ("a", "b", "c"):
+            if key in p:
+                p[key] = rnd((p[key][0], p[key][1], p[key][2] + 0.35))
+        if "pts" in p:
+            p["pts"] = [rnd((q[0], q[1], q[2] + 0.35)) for q in p["pts"]]
     leg_end = len(m.parts)
     # ---------------------------------------------------------------- the arms: pod shoulders, heavy sleeves, fists, lasers in line
     pivots, arm_mounts = {}, []
@@ -1173,7 +1207,7 @@ def atlas():
         pad = []
         # (round 5, the articulation test: the pad moves with the arm, and its inner side stood inside the chest and the collar - the arm
         # could not swing without the pad cutting through them; it now starts outboard of the chest, x 2.24)
-        for z, k in ((-0.95, 0.85), (-0.7, 1.0), (0.7, 1.0), (0.95, 0.85)):
+        for z, k in ((-0.95, 0.72), (-0.65, 1.0), (0.65, 1.0), (0.95, 0.72)):   # (the front and back corners cut deeper: the plan)
             pad += [(X(2.24), 8.0, z * k), (X(3.52), 8.0, z * k), (X(3.52), 8.42 + 0.12 * (k - 0.85) / 0.15, z * k),
                     (X(2.24), 8.8 + 0.12 * (k - 0.85) / 0.15, z * k)]
         pad += [(X(2.38), 9.02, z) for z in (-0.5, 0.5)] + [(X(3.36), 8.62, z) for z in (-0.5, 0.5)]
@@ -1262,7 +1296,18 @@ def atlas():
                    "knee_L": {"centre": rnd(splay(knee)), "axis": "x", "parent": "thigh", "child": "shin"},
                    "ankle_L": {"centre": rnd(splay(ankle)), "axis": "x", "parent": "shin", "child": "foot"}})
     return {"unit": "Atlas", "model": "AS7-D", "mass": 100, "detail": "hd", "stance": "ready", "pivots": pivots,
-            "centre_of_mass": centre_of_mass(m.parts), "mounts": arm_mounts,
+            "centre_of_mass": centre_of_mass(m.parts), "mounts": arm_mounts + [
+                # SPARE torso slots (the checklist, principle 23: LT has 5 spare, RT 2): HIDDEN quad mounts on the collar blocks'
+                # fronts, either side of the head, firing forward over the louvres
+                {"id": "%s.collar_quad" % loc, "kind": "weapon_quad", "location": loc, "slots": 4, "hidden": True,
+                 "pos": [sx * 1.62, 8.62, 0.9], "facing": "+z", "envelope": [0.55, 0.55, 0.3]} for loc, sx in (("LT", 1), ("RT", -1))],
+            # deviations from the sheet's measurements that the model EXPLAINS (the measuring test reports them, does not fail them)
+            "measure_explained": {
+                "belt_width": "the sheet's belt band carries a missile rack on BOTH hips; the record sheet has one launcher, on the chest here",
+                "belt_height": "follows the belt reading above",
+                "waist_height": "the narrowest point is the waist's turning ring (6.2), the joint the torso twists on, not the sheet's 7.0",
+                "back_depth_chest": "deeper than the sheet on purpose (Daniel, 2026-11-18: 'The chest and back are anemic ... a much more build up "
+                                    "torso in terms of depth')"},
             # the DYNAMIC POSE copies the TRO drawing (Daniel, 2026-11-18: "when making the active pose, lets try to copy the TRO drawing"):
             # standing square, the right foot a little forward, both arms hanging (the right one bent a little forward), the torso and the
             # head turned to its right; seen from low and to its left front, as the drawing
