@@ -38,6 +38,9 @@ def main(argv):
             json.dump(cur, open(os.path.join(d, name), "w"))
             print("saved", name)
             continue
+        if not os.path.exists(os.path.join(d, name)):
+            print(name, "NEW (no saved fingerprint)")
+            continue
         old = json.load(open(os.path.join(d, name)))
         parts = ["geometry", "pivots", "mounts", "centre of mass"]
         diff = [n for n, a, b in zip(parts, old, cur) if a != b]
