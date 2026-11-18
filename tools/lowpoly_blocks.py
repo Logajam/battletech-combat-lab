@@ -1505,6 +1505,14 @@ GENERATORS = {"slab_boot": slab_boot, "tapered_slab_shin": tapered_slab_shin, "t
               "barrel_arm": barrel_arm, "fist": fist, "dome_helmet": dome_helmet, "bubble_canopy": bubble_canopy}
 GENERATORS.update(GENERATORS2)
 
+# generator -> (its muzzle mount, the line-of-fire hole's half-width from the params)
+LINE_OF_FIRE = {"barrel_arm": ("barrel.muzzle", lambda p: p["muzzle"] * 0.33),
+                "long_barrel": ("barrel.muzzle", lambda p: p["diameter"] * 0.7 * max(1, int(p.get("count", 1)))),
+                "pod_arm": ("pod.face", lambda p: min(p["width"], p["height"]) * 0.4),
+                "launcher_bay": ("bay.grid", lambda p: min(p["width"], p["height"]) * 0.4),
+                "cannon_hump": ("hump.muzzle", lambda p: p["bore"] / 2),
+                "rear_rack": ("rack.top", lambda p: min(p["width"], p["depth"]) * 0.4)}
+
 
 # ---------------------------------------------------------------- the library
 def library():
@@ -1547,6 +1555,14 @@ def generate(block_id, lod, params=None, lib=None):
     p.update(params or {})
     _seq[0] = 0
     parts, anchors, mounts = GENERATORS[rec["generator"]](lod, p)
+    # every WEAPON block carries a hole along its line of fire, as part of the block (Daniel, 2026-11-18: "If all weapons include a
+    # region of 'Anti existence' in front of them as part of their blocks, this should never be a problem again"): its muzzle mount
+    # gets a "line_of_fire" (radius in the block's units); the assembler cuts it through whatever stands in front
+    lof = LINE_OF_FIRE.get(rec["generator"])
+    if lof:
+        for mt in mounts:
+            if mt["id"] == lof[0]:
+                mt["line_of_fire"] = {"r": lof[1](p), "len": 4.0}
     solids = L.expand_parts({"parts": parts})
     tris = sum(s["tris"] for s in solids)
     for sol in solids:
