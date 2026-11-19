@@ -332,6 +332,25 @@ The Hunchback duel (`hbk_duel_caspar.mms`, Scattered Woods): our Hydra as Red th
   shot needing 12, through the woods). Open: why MegaMek's moved-foe estimate (evaluateMovedEnemy) is that far from its
   own to-hit (PROJECT_MAP Section 4).
 
+**The refused routes, traced (session 30, same day).** Of the 64 refusals, every one came after a rules mismatch our
+side had not carried into bridge games:
+- **A unit our engine had written off.** With FIGHT_TO_THE_DEATH off (Daniel's speed switch) our engine counts a 'Mech
+  whose gyro is gone as destroyed; in MegaMek it lies there and shoots. In all three games with refusals CASPAR lost its
+  gyro (rounds 9-18); from then on Hydra planned routes through its hex (MegaMek refused: no entering an enemy's hex),
+  never fired at it, and lost or drew. FIXED: a bridge session started from MegaMek runs with FIGHT_TO_THE_DEATH on
+  (MegaMek decides when a unit is out; `bridge::Session::start`).
+- **Heat effects never applied.** The view carried MegaMek's heat but our engine sets the heat's MP / to-hit / TSM effects
+  in its own Heat Phase, which a bridge game never runs: Hydra planned 4-MP backward walks at heat 6-7 where MegaMek's
+  walk is 3 (checked in MegaMek with a stand-alone path check). FIXED: `apply_megamek_view` sets them from the heat.
+- **No enemy left.** MegaMek runs a few rounds after a side is gone; our movement search crashed when asked ("our engine
+  found no move"). FIXED: the bridge answers Stand Still.
+After the fixes: 5 games v CASPAR, no fallback at all (Hydra 4 - 1); 5 v MegaMek's Princess, 2 refusals left:
+- **Standing up (a rules difference, Daniel's call).** The Core Rulebook lets a 'Mech that stands pick any facing at no
+  cost (movement.md, Standing Up); MegaMek keeps the prone facing and charges 1 MP a hexside after GET_UP. Our step list
+  sends no turn for the free facing, so MegaMek walks the route the wrong way.
+- One 4-hex Run from 1203 (heat 0, standing) that MegaMek's stand-alone path check accepts: unexplained (seen once; that
+  game's MegaMek log was overwritten).
+
 ## 4. The request (Java -> Rust), one JSON object a line
 
 (The first draft, from before B1. The wire as built is Section 3b; this section's per-unit fields are the COMPACT state

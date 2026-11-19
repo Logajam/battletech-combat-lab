@@ -236,6 +236,7 @@ Lab functionality; 3D art.
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
 - **(s30-1) PRINCESS / CASPAR DEPLOYMENT, MEGAMEK'S** (session 30): `engine/core/src/princess_deploy.rs` (fitness, cluster maps, hazard scan, room-to-move kernel, facing), its call in `orchestrator::deploy_zones`, `caspar::prefer_formation` now a full stable order, `attack_resolution::weapon_attack_tns`. Look at: the 3-MP walk search v MegaMek's ShortestPathFinder (ties between equal-MP paths, turn limits not modelled); jump kernel as "every landable hex within 3"; zone-to-edge mapping for the far-edge test; the team-at-a-time deployment order.
+- **(s30-4) BRIDGE RULES ALIGNMENT** (session 30): `bridge::Session::start` (FIGHT_TO_THE_DEATH on), `apply_megamek_view` heat effects, the no-enemy Stand Still. Look at: other end-of-phase state our engine sets that MegaMek's view does not carry (the heat was one).
 - **(s30-3) TIE-BREAK + DECISION REPLAY** (session 30): the RankedPath tie-break in `princess_modern::rank`, `tools/megamek_decision_replay.py`, MEGAMEK_BRIDGE Section 3e. Look at: whether `o.fc` is MegaMek's getHexesMoved for every move kind (jumps, backward steps); the replay's rebuilt "before the move" state.
 - **(s30-2) CASPAR WATER LINE + BRIDGE "done"** (session 30): `caspar::mm_intervening` (+ the `libm` atan), `GameView.state` "done", `bridge.rs`. Look at: the "done" rule for phases other than Movement.
 - **(s28-7) ITERATIVE PASS v DRAWINGS** (session 28): `reference_art/blocks/comparison_pass1.md` (the list and the rules), the ITERATION 1 / 2 rules in `tools/lowpoly_assemble.py`. Look at: whether the unit-file arm rule overrides the drawings too often; `leg_ratio`'s numbers were read off the drawings by eye.
@@ -527,8 +528,9 @@ untranslated "until they're actually needed". What is left of the port is finish
 - When CASPAR / Princess moves after its foe, MegaMek's estimate of that moved foe (BasicPathRanker.evaluateMovedEnemy)
   can be far from ours and from MegaMek's own to-hit (one traced case: 45 dealt / 0 taken in MegaMek, 2 / 5 in ours, 25
   actually taken). Most of the remaining 24% of moves that differ. To trace: MegaMek's FireControl guess for that case.
-- In MegaMek games 64 of Hydra's ~220 moves were refused by MegaMek ("would not take the route", mostly Run): the
-  bridge's path steps or MegaMek's path check.
+- ~~64 of Hydra's ~220 moves refused by MegaMek~~ TRACED and fixed (MEGAMEK_BRIDGE 3e): a gyro-less enemy written off by
+  FIGHT_TO_THE_DEATH off, and heat effects never applied in bridge games. Left: standing-up facing (Core free, MegaMek
+  1 MP a hexside - Daniel's call for bridge games) and one unexplained Run refusal.
 - `caspar_red__hy_8v8_valley` reaches the 100-turn cap since the tie-break fix (a possible flaw, Daniel).
 
 **Known issues to fix later (found session 13, Claude):**
