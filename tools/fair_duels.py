@@ -1,7 +1,7 @@
 """FAIR DUELS (session 30; Daniel, 2026-11-19): find very different 'Mechs that are equal in a 1 v 1.
 
     python tools/fair_duels.py pilot      [--workers 4] [--label NAME]
-    python tools/fair_duels.py rate       [--round 1|2] [--opponents 10] [--workers 4] [--label NAME]
+    python tools/fair_duels.py rate       [--round 1|2] [--opponents 10] [--bots hydra] [--workers 4] [--label NAME]
     python tools/fair_duels.py confirm    [--pairs FILE] [--top 60] [--workers 4] [--label NAME]
     python tools/fair_duels.py report     [--label NAME]
 
@@ -23,6 +23,11 @@ Stages (314 'Mechs make 49,000 pairs; a full set is 144 battles, so not every pa
            (a draw is half a win), so every 'Mech gets one strength number on one scale.
   confirm  pairs of near-equal rating that differ most (tonnage, speed, reach, Battle Value): full sets head to head.
   report   per pair: A's score (win = 1, draw = 1/2) with its margin of error, per bot and per map; the ratings beside BV.
+
+Bots: `--bots a,b` (default all four). Daniel, 2026-11-19: "Might want to use Hydra. its still the strongest bot in
+general." So the rating stage over the 314 runs on Hydra alone (four times the battles for the time); a rating cell set
+with one bot is the 4 edges x 4 maps (rotated). The confirmation stage keeps all four bots, to show whether an even pair
+is even for every bot or only for Hydra.
 
 Records: every battle, as each cell ends, in trial_records/<date>_fair_duels_<label>.jsonl (one line a cell); a re-run plays
 only the missing cells. Units are unpacked from data/meks.zip into data/meks/ (git-ignored), as the Combat Lab does.
@@ -91,12 +96,13 @@ def cells_full(a, b):
     return [(a, b, m, bot, e) for m in MAPS for bot in BOTS for e in EDGES]
 
 
-def cells_rate(a, b, rng):
-    """The rating sample for a pair: the 4 edges x the 4 bots, each with a map (the maps rotated, a random start)."""
+def cells_rate(a, b, rng, bots):
+    """The rating sample for a pair: 16 battles, the 4 edges x 4 rounds of the bots given (each bot equally often), each
+    with a map (the maps rotated from a random start)."""
     start = rng.randrange(len(MAPS))
     out = []
-    for i, (bot, e) in enumerate(itertools.product(BOTS, EDGES)):
-        out.append((a, b, MAPS[(start + i) % len(MAPS)], bot, e))
+    for i in range(16):
+        out.append((a, b, MAPS[(start + i) % len(MAPS)], bots[(i // 4) % len(bots)], EDGES[i % 4]))
     return out
 
 
@@ -270,7 +276,8 @@ def stage_rate(argv):
                     n += 1
                     if n >= k // 2:
                         break
-    cells = [c for a, b in sorted(pairs) for c in cells_rate(a, b, random.Random(cell_seed([a, b])))]
+    bots = option(argv, "--bots", ",".join(BOTS)).split(",")
+    cells = [c for a, b in sorted(pairs) for c in cells_rate(a, b, random.Random(cell_seed([a, b])), bots)]
     print(f"round {rnd}: {len(pairs)} pairs")
     run_cells(cells, label, int(option(argv, "--workers", "4")))
 
