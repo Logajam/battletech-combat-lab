@@ -248,7 +248,9 @@ pub fn facing_toward(_b: &Battle, label: &str, target_col: f64, target_row: f64)
     let (x, y) = px(col, row);
     let (cx, cy) = px(target_col, target_row);
     // screen angle of each facing: N up, then clockwise in 60 degree steps
-    let angle = (cy - y).atan2(cx - x).to_degrees();
+    // Rounded to a millionth of a degree: a hex on a 60 degree line through the target sits exactly between two facings, and the last
+    // bit of atan2 (the desktop and the WebAssembly build use different maths libraries) must not decide which one it takes.
+    let angle = ((cy - y).atan2(cx - x).to_degrees() * 1e6).round() / 1e6;
     let mut best = ("N", f64::MAX);
     for (name, a) in [("N", -90.0), ("NE", -30.0), ("SE", 30.0), ("S", 90.0), ("SW", 150.0), ("NW", -150.0)] {
         let mut diff = (angle - a).abs() % 360.0;

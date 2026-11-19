@@ -6,6 +6,106 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-19 (Claude, session 30), DEPLOYMENT: UNITS ARE PLACED, NOT WALKED ON, AND PLACE IN TURNS, THE MEGAMEK WAY. REVIEW PENDING (higher-level model).**
+  Daniel (while the benchmark was running): "that formation logic is supposed to be standard kit... If you need to rebuild the
+  reference battles to turn it on permanently do that too", then "using megamek's start of game. Players take turns putting their
+  units on the board within the starting zone limits. Once all units are placed, the game actually starts", "when using megamek
+  style deployment zones, need to do it megamek's way", "Fix deployment. Push those changes... as a bug patch". Found: Princess's and
+  CASPAR's deployment (`princess_deploy.rs`, CASPAR's formation order and zone facing) ran ONLY for units placed in a Combat Lab
+  deployment zone; every ordinary game walked its units on from the home edge, so the benchmark battery had never used it.
+  BOOK DIFFERENCE, on Daniel's order: Core p.37 walks each 'Mech onto the board in its Movement Phase, counting MP from the
+  first full hex. The default is now PLACEMENT: before turn 1 each unit stands in a hex of its home-edge row (up to
+  DEPLOYMENT_DEPTH in), then gets its full turn-1 move from there, so it starts about one hex ahead of a walk-on and with its
+  facing chosen by its bot. Every bot is placed alike (Princess, CASPAR: MegaMek's logic; Gladiator, Hydra: the shared placement:
+  hexes they can get out of toward the middle, spread, by dice, facing the middle). The rule-book walk-on is the switch
+  `DEPLOYMENT_PLACED` = false (INTEGRATION__config.py OPTIONAL RULES, engine/defaults/config.json; a settings file without the key is
+  placed). A unit with no free edge hex still walks on. MEGAMEK'S ORDER (MegaMek main: deployment turns come from the same
+  initiative turn order as movement, via `TWGameManager.determineTurnOrder`; MegaMek also has a walk-on option,
+  BASE_WALK_ON_DEPLOYMENT): the teams place one unit at a time, the deployment roll's LOSER first, each seeing the units already
+  placed; a team with more units takes proportionally more turns (its units / the smallest team's; MegaMek's even-turn spread is
+  not copied exactly). Zone deployment (`deploy_zones`) now takes the same turns, with a roll (logged "X places first") when two
+  or more teams place; walk-on zones are unchanged. Code: `orchestrator::place_in_turns`, `place_unit`, `walk_on_edge`,
+  `deploy_teams`, `deploy_zones`; the old princess_deploy note "this engine places a team at a time" is now out of date.
+  ALSO FIXED: `deployment::facing_toward` chose a facing by the last bit of `atan2` when a hex sat exactly on a 60 degree line
+  through the target, so the desktop and the browser (WebAssembly's maths library) could face a unit differently and play a
+  different battle (`check_web_lab.py`: gladiator 2v2 battle 4, placed zones battle 4). The angle is rounded to a millionth of a
+  degree; none of the 91 reference battles changed from that.
+  RESULTS CHANGED: 48 of the 91 Rust reference battles (every home-edge one) re-recorded with `check_rust_reference.py --update`
+  (the dice stream and the starts changed); the 43 fixed-hex and zone ones that did not use the home edge are unchanged except
+  the placed-zone one. Three battles now reach the turn cap: the Asymptote mirror (known stall), and `hydra_noplayout_red` and
+  `hydra_first_red` on `hy_4v4_lance_woods` (new; Hydra stalls on that board, to look at: backlog A1). Every benchmark result
+  before this entry (1 v 1, 4 v 4, 12 v 12) was played with WALK-ON and is the baseline for the old rule.
+  Checks: `run_checks.py --full` (reference, bridge parity, cargo tests, Lab server, website), `check_web_ui.py`, `check_web_lab.py
+  --rebuild`; the fixtures for `cl1_setup` rebuilt with `tools/port_fixtures.py --no-replay` (they are git-ignored; the container had
+  none); wasm32 target installed (`rustup target add wasm32-unknown-unknown`).
+
+- **2026-11-19 (Claude, session 30), BENCHMARK BATTERY STAGE 3: TWELVE v TWELVE MIRROR ON GRASSLAND 1 TWICE (`tools/benchmark_bots.py 4v4 mixed12 --stitched`).
+  REVIEW PENDING (higher-level model).** Daniel: "Use grassland 1 twice." Board: two copies of Grassland 1 side by side (32 x 17;
+  STITCH_MAPS, grid 2 x 1; a 16 x 34 stack was not played). Both sides the 12-'Mech mixed force of `tools/hydra_scenarios.py`
+  (Atlas AS7-K, Awesome AWS-8Q, Archer ARC-2R, Hunchback HBK-4G, Griffin GRF-1N, Dervish DV-6M, Jenner JR7-D, Commando COM-2D,
+  Locust LCT-1V, Catapult CPLT-C1, Cataphract CTF-3D, Kintaro KTO-19); 20 battles on each axis a pairing. 8 of 10 pairings
+  played in `trial_records/benchmark_4v4_mixed12.jsonl` (the name is the 4 v 4 mode's; the roster is 12 v 12): all 10 pairings,
+  400 battles. Daniel paused the Hydra pairings ("skip hydra vs itself for now ... hydra is having an optimization pass in other
+  threads"), then "The Hydra optimization is complete": main (pull requests 283-285, speed only) was merged in, `btsim` rebuilt,
+  and Hydra v itself replayed plus the never-played Hydra v CASPAR. The replay is battle for battle IDENTICAL to the
+  pre-optimization run (same winners and turns, N 13-7 S, W 9-11 E) and ran 2.1-2.6 times faster (382 s -> 182 s and 457 s ->
+  177 s for the two 20-battle cells; part of that may be less CPU contention). Hydra v Gladiator and v Princess were played
+  before the pass; the pass changes no results, so they stand. Hydra v CASPAR: 20-20.
+  EDGE BIAS: nothing. Pooled over the four bots N v S 36-42 (p = 0.57), W v E 40-40 (p = 1.00). Per bot the leans disagree
+  (Princess 6-13 S side but 13-7 W side; CASPAR 6-14 on W v E but 10-10 on N v S; Hydra 13-7 N). 20 battles a bot is too few
+  to read, as in the 4 v 4 sets. Grassland 1 alone (the 4 v 4 watch item, W v E 50-29) shows nothing at 12 v 12.
+  BOT SCORES (decided battles, 40 a pair): Hydra 26-14 over Gladiator and 24-16 over Princess; CASPAR 27-13 over Gladiator;
+  Princess 25-15 over CASPAR; Gladiator 21-19 over Princess; Hydra v CASPAR 20-20. (CASPAR beating Gladiator and losing to Princess; at 4 v 4 CASPAR
+  lost to both.) 12 v 12 cost: Gladiator v itself 170 s for 20 battles on this machine; Hydra about 13 s a battle before the speed-ups, about 9 s after.
+  The run died twice when the session sat idle (the container restarted, background jobs lost; no results were lost: every
+  20-battle run is saved as it ends and the tool resumes). Checks: no engine or test file changed; `run_checks.py` not run.
+
+- **2026-11-19 (Claude, session 30), BENCHMARK BATTERY STAGE 2: FOUR v FOUR MIRRORS (`tools/benchmark_bots.py 4v4`).
+  REVIEW PENDING (higher-level model).** Daniel: "Go ahead and start the 4v4 sets." Both sides field the Hydra lance
+  (Atlas AS7-K, Hunchback HBK-4G, Griffin GRF-1N, Jenner JR7-D), all website 'Mechs; the six maps of stage 1; every one of the
+  10 pairings plays 20 battles on N v S and 20 on E v W per map (a cross pair splits them over both seatings): 2,400 battles,
+  about 40 minutes, records in `trial_records/benchmark_4v4_lance4.jsonl` (with each team's start edge). The four same-bot
+  pairings are the edge-bias test; `tools/benchmark_report.py` section 3 tabulates them.
+  EDGE BIAS: pooled over the four bots, N v S 232-224 (p = 0.74) and W v E 252-220 (p = 0.15) over all maps. Per map and axis
+  only ONE of twelve cells is under p = 0.05: Grassland 1, W v E 50-29 (p = 0.02; Caspar 15-5, Gladiator 14-6, Hydra 14-5, but
+  Princess 7-13), about what chance gives from twelve looks, so call it "watch Grassland 1", not a bias. Nothing else: Desert
+  Hills, Rolling Hills 1, Large Lakes 1, Military Base 1 and Scattered Woods are all between 0.18 and 1.00. Stage 1's many
+  "significant" cells therefore came from the differing 'Mechs and the shared dice, not from the maps. 20 battles a cell is
+  weak: only a lean past about 70/30 shows; a real study wants hundreds a cell (Daniel: later).
+  BOT SCORES (cross pairings, 4 v 4, all maps, 240 battles a pair, decided only): Hydra beat Gladiator 160-68, CASPAR 172-63
+  and Princess 150-76; Gladiator beat CASPAR 129-108 and Princess 128-104; Princess beat CASPAR 131-106. So the order is Hydra,
+  Gladiator, Princess, CASPAR, the reverse of 1 v 1 for the last two (CASPAR was level with Princess there). UNDECIDED BATTLES
+  (turn cap 100): most on Military Base 1 (Hydra v itself 11 of 40, Hydra v Princess 11 of 40, Princess v itself 6) and Large Lakes 1 (up to 5 of 40);
+  stalls worth a look (backlog A1, the stand-off).
+  Checks: no engine or test file changed; `run_checks.py` not run.
+
+- **2026-11-19 (Claude, session 30), BENCHMARK BATTERY STAGE 1: ONE-ON-ONE, FOUR BOTS (`tools/benchmark_bots.py`, `tools/benchmark_report.py`).
+  REVIEW PENDING (higher-level model).** Daniel: "Lets do a battery of bench marking tests", then "start the 1 on 1s". Plan agreed:
+  1 v 1 (non-mirror, each bot flies each 'Mech half the time), then 4 v 4 mirrors on six maps (20 N-S + 20 E-W a pairing), then
+  PAUSE and use the edge-bias data to choose the boards stitched for 12 v 12. Only website 'Mechs and boards (16x17, no bridges /
+  fuel tanks / elevators, no unmodeled equipment). 4 bots (gladiator, princess modern, hydra, caspar) = 10 pairings (6 cross + 4
+  self). Each pairing is 80 battles = 2 seatings x N-S / E-W x six maps (Grassland 1, Rolling Hills 1, Scattered Woods, Large
+  Lakes 1, Military Base 1, Desert Hills). Six matchups x 800 = 4,800 battles, all played (about 80 s a matchup, 8 threads):
+  Warhammer WHM-6R v Javelin JVN-10N, Hunchback HBK-4G v Griffin GRF-1N, Rifleman RFL-3N v Wolverine WVR-6R, Marauder MAD-3R v
+  Catapult CPLT-C1, Awesome AWS-8Q v Jenner JR7-D, Thunderbolt TDR-5S v Shadow Hawk SHD-2H. Every battle is kept in
+  `trial_records/benchmark_1v1_<matchup>.jsonl` WITH the edge each team started on (read from the battle's deployment log lines:
+  the deployment roll, not the seat, decides who takes the edge). The tool plays only missing cells, so it resumes. Built with
+  `btsim --setup` and an unpacked copy of data/meks.zip + maps.zip OUTSIDE the repo (`--data-root`). No engine code changed.
+  RESULTS (cross pairings, all six matchups, wins - losses 1,440 battles a bot): Hydra 905-520, Gladiator
+  851-573, CASPAR 559-870, Princess 538-890. Head to head over 480 battles a pair (the 'Mechs and seats cancel out): Hydra
+  beat Gladiator 249-223 (ahead in five of six matchups, behind in Rifleman v Wolverine 37-40), Hydra beat CASPAR 327-149 and
+  Princess 329-148, Gladiator beat CASPAR 307-170 and Princess 321-154, and CASPAR and Princess are level (CASPAR 240, Princess
+  236). 54 battles of 4,800 had no winner (turn cap 100).
+  BATTLE VALUE AS A PREDICTOR (same-bot pairings, 24 sets): the higher-BV 'Mech won more than half in 20 of 24; correlation of
+  ln(BV ratio) with its win rate r = 0.53; its win rate averaged 71-75% against a BV share of 58%. BV is not bot-neutral: the
+  Hunchback (BV 1041, one AC/20) beat the Griffin (BV 1272) 85-91% of the time under Princess and CASPAR but only 43-44% under
+  Gladiator and Hydra, and Marauder v Catapult (BV 1399 v 1363) came out near 50% for every bot.
+  EDGE BIAS, PRELIMINARY (1 v 1 'Mechs differ; the 4 v 4 mirrors are the test, and cells share dice across pairings, so the
+  p-values are optimistic): pooled over all bots, S beat N on Desert Hills (239-152) and Scattered Woods (233-166); N beat S on
+  Military Base (256-143); E beat W on Grassland 1 (226-168) and W beat E on Large Lakes 1 (242-151). Rolling Hills 1 shows none.
+  Rerun `python tools/benchmark_report.py --bv-file LISTS.json` (LISTS.json: the Lab's `list_units` output) for the tables.
+  Checks: no engine or test file changed; `run_checks.py` not run (docs and new tools only).
+
 - **2026-11-19 (Claude, session 30), SPEED: HYDRA'S ATTENTION SHARE REMEMBERED WITHIN A DECISION (12 v 12 ANOTHER ~45% FASTER).
   Battle results unchanged. REVIEW PENDING (higher-level model).** Daniel: "Go for it." (the next step left by the entry
   below). `hydra::AttentionMemo`: one decision's store of `attention_damage` (enemy e on friend f), reused when both stand

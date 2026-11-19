@@ -11,6 +11,17 @@
 "active": true
 },
 {
+"key": "DEPLOYMENT_PLACED",
+"label": "Deployment placed",
+"top": "Game setup",
+"folder": "Deployment",
+"kind": "bool",
+"default": true,
+"short": "Placed or walking on (Daniel, 2026-11-19: \"that formation logic is supposed to be standard kit\").",
+"text": "Placed or walking on (Daniel, 2026-11-19: \"that formation logic is supposed to be standard kit\"). True (the default): before turn 1 each unit is PLACED in a hex of its home-edge row (up to DEPLOYMENT_DEPTH in), standing where its bot would put it (Princess and CASPAR: MegaMek's deployment logic; Gladiator and Hydra: the shared placement), as MegaMek deploys. False: the rule book's walk-on (Core p.37): each 'Mech moves onto the board from its home edge when its turn to move comes, its movement counted from the first full hex. A unit with no free hex on the edge still walks on. Rust engine only.",
+"active": true
+},
+{
 "key": "DEPLOYMENT_STUCK_DEPTH",
 "label": "Deployment stuck depth",
 "top": "Game setup",

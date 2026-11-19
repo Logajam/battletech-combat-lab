@@ -276,6 +276,12 @@ LEGATE_TEAM_EXCHANGE_WEIGHT = 1.0
 DEPLOYMENT = "home_edge"
 # Which edge the deployment-roll loser picks: "random", or "N"/"E"/"S"/"W".
 HOME_EDGE_CHOICE = "random"
+# Placed or walking on (Daniel, 2026-11-19: "that formation logic is supposed to be standard kit"). True (the default): before
+# turn 1 each unit is PLACED in a hex of its home-edge row (up to DEPLOYMENT_DEPTH in), standing where its bot would put it
+# (Princess and CASPAR: MegaMek's deployment logic; Gladiator and Hydra: the shared placement), as MegaMek deploys. False:
+# the rule book's walk-on (Core p.37): each 'Mech moves onto the board from its home edge when its turn to move comes, its
+# movement counted from the first full hex. A unit with no free hex on the edge still walks on. Rust engine only.
+DEPLOYMENT_PLACED = True
 # How far in from its home edge a mech may start its movement (Daniel,
 # 2026-10-21: "Its value is the number of hexes in from the edge that a mech
 # can start its movement"): 0 = the edge hexes only (Core p.37). Read here as
