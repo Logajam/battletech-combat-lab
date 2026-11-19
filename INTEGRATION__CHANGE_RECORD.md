@@ -6,6 +6,15 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-19 (Claude, session 30), WHY MEGAMEK REFUSED HYDRA'S ROUTES. REVIEW PENDING (higher-level model).** Daniel:
+  "What is hydra trying to do, and why is it being refused." Traced in MEGAMEK_BRIDGE 3e: our engine (FIGHT_TO_THE_DEATH off)
+  wrote off a CASPAR 'Mech with a destroyed gyro that MegaMek kept in play, so Hydra routed through its hex and ignored it; and
+  the bridge never applied the heat's MP / to-hit / TSM effects. FIXED in `bridge.rs`: a session started from MegaMek sets
+  FIGHT_TO_THE_DEATH on; `apply_megamek_view` sets `heat_mp_penalty`, `heat_fire_modifier`, `tsm_active` from the heat;
+  `choose_movement` with no enemy left answers Stand Still (it crashed). Our own battles unchanged (91 reference battles,
+  bridge parity 83 of 83). MegaMek games after: v CASPAR 5 games, 0 fallbacks, Hydra 4-1; v Princess 5 games, 2 refusals
+  (standing-up facing: Core lets a 'Mech that stands face anywhere free, MegaMek charges a turn - asked Daniel; one Run
+  unexplained).
 - **2026-11-19 (Claude, session 30), HYDRA V CASPAR IN BOTH ENGINES; PRINCESS / CASPAR TIE-BREAK. REVIEW PENDING (higher-level model).**
   Daniel: "Run a caspar vs Hydra game in both Megamek using the bridge and on our engine. We're looking to see if they act
   the same way." Findings in INTEGRATION__MEGAMEK_BRIDGE.md Section 3e: (1) the bridge duels started Blue in water, where

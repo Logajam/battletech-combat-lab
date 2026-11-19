@@ -486,6 +486,13 @@ pub fn apply_megamek_view(b: &mut Battle, v: &Value) {
     m.destroyed = flag("destroyed", m.destroyed);
     if let Some(h) = v.get("heat").and_then(|h| h.as_i64()) {
         m.current_heat = h;
+        // what the heat does this turn (Heat Scale: MP, to-hit, TSM): our engine sets these in its own Heat Phase
+        // (heat::apply_heat_effects), which a MegaMek game never runs here. Without them our bots planned at full MP and
+        // without the to-hit penalty when hot - routes MegaMek then refused ("would not take the route": a 4-MP backward
+        // walk at heat 6-7, where MegaMek's walk is 3; session 30, Hydra v CASPAR).
+        m.heat_mp_penalty = crate::heat::mp_penalty_for(h);
+        m.heat_fire_modifier = crate::heat::fire_modifier_for(h);
+        m.tsm_active = m.has_tsm && crate::equipment_systems::tsm_active_for(m, h);
     }
     if let Some(p) = v.get("pilot_hits").and_then(|p| p.as_i64()) {
         m.pilot_hits = p;
@@ -704,6 +711,15 @@ fn call(b: &mut Battle, bots: &mut dyn BotSet, method: &str, a: &Value) -> Value
         "choose_physical" => phys_json(&bots.choose_physical(b, a["attacker"].as_u64().unwrap() as UnitId, a["target"].as_u64().unwrap() as UnitId)),
         "choose_movement" => {
             let mover = a["mover"].as_u64().unwrap() as UnitId;
+            // No enemy left (MegaMek can run a few rounds after a side is gone before it declares the end): stand still.
+            // Our engine never asks this - its battle ends first - and its movement search assumes a foe on the board
+            // or entering it (it crashed here; session 30, Hydra v CASPAR game 2).
+            if crate::forces::enemies_of(b, mover).is_empty() {
+                if let Some(h) = b.units[mover].hex.clone() {
+                    let stay = Pick { hex: h, facing: b.units[mover].facing.clone(), mode: "Stand Still".into(), fc: 0, mp_spent: 0, charge: false, dfa: false };
+                    return json!({"pick": pick_json(&stay), "note": "no enemy left: stands still", "gate": Value::Null});
+                }
+            }
             let set = mover_sees_others(b, mover);
             let edge: Option<Vec<String>> = a["entry_edge"].as_array().map(|e| e.iter().map(|x| x.as_str().unwrap().to_string()).collect());
             let (pick, note, gate) = bots.choose_movement(
@@ -743,6 +759,11 @@ impl Session {
         if let Some(settings) = v.get("settings") {
             let s = crate::scenario::Scenario::from_settings(settings, &crate::scenario::SetupPaths::find()).unwrap_or_else(|e| panic!("bridge start: {}", e));
             let mut start = s.bridge_start(v["seed"].as_u64().unwrap_or(1));
+            // MegaMek decides when a unit is out (the view's "destroyed"): our engine must not write one off early. With
+            // FIGHT_TO_THE_DEATH off (Daniel's speed switch for our own battles) a 'Mech with its gyro or both legs gone
+            // counts as destroyed here, while in MegaMek it lies there and shoots: our bots then ignored it - routes through
+            // its hex (MegaMek refused them: "would not take the route"), no shots at it (session 30, Hydra v CASPAR).
+            start["config"]["FIGHT_TO_THE_DEATH"] = json!(true);
             start["hydra_teams"] = v.get("hydra_teams").cloned().unwrap_or(json!([]));
             start["caspar_teams"] = v.get("caspar_teams").cloned().unwrap_or(json!([]));
             return Session::start(&start);
