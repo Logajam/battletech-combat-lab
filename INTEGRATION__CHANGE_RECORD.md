@@ -6,6 +6,33 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-19 (Claude, session 30), BENCHMARK BATTERY STAGE 1: ONE-ON-ONE, FOUR BOTS (`tools/benchmark_bots.py`, `tools/benchmark_report.py`).
+  REVIEW PENDING (higher-level model).** Daniel: "Lets do a battery of bench marking tests", then "start the 1 on 1s". Plan agreed:
+  1 v 1 (non-mirror, each bot flies each 'Mech half the time), then 4 v 4 mirrors on six maps (20 N-S + 20 E-W a pairing), then
+  PAUSE and use the edge-bias data to choose the boards stitched for 12 v 12. Only website 'Mechs and boards (16x17, no bridges /
+  fuel tanks / elevators, no unmodeled equipment). 4 bots (gladiator, princess modern, hydra, caspar) = 10 pairings (6 cross + 4
+  self). Each pairing is 80 battles = 2 seatings x N-S / E-W x six maps (Grassland 1, Rolling Hills 1, Scattered Woods, Large
+  Lakes 1, Military Base 1, Desert Hills). Six matchups x 800 = 4,800 battles, all played (about 80 s a matchup, 8 threads):
+  Warhammer WHM-6R v Javelin JVN-10N, Hunchback HBK-4G v Griffin GRF-1N, Rifleman RFL-3N v Wolverine WVR-6R, Marauder MAD-3R v
+  Catapult CPLT-C1, Awesome AWS-8Q v Jenner JR7-D, Thunderbolt TDR-5S v Shadow Hawk SHD-2H. Every battle is kept in
+  `trial_records/benchmark_1v1_<matchup>.jsonl` WITH the edge each team started on (read from the battle's deployment log lines:
+  the deployment roll, not the seat, decides who takes the edge). The tool plays only missing cells, so it resumes. Built with
+  `btsim --setup` and an unpacked copy of data/meks.zip + maps.zip OUTSIDE the repo (`--data-root`). No engine code changed.
+  RESULTS (cross pairings, all six matchups, wins - losses 1,440 battles a bot): Hydra 905-520, Gladiator
+  851-573, CASPAR 559-870, Princess 538-890. Head to head over 480 battles a pair (the 'Mechs and seats cancel out): Hydra
+  beat Gladiator 249-223 (ahead in five of six matchups, behind in Rifleman v Wolverine 37-40), Hydra beat CASPAR 327-149 and
+  Princess 329-148, Gladiator beat CASPAR 307-170 and Princess 321-154, and CASPAR and Princess are level (CASPAR 240, Princess
+  236). 54 battles of 4,800 had no winner (turn cap 100).
+  BATTLE VALUE AS A PREDICTOR (same-bot pairings, 24 sets): the higher-BV 'Mech won more than half in 20 of 24; correlation of
+  ln(BV ratio) with its win rate r = 0.53; its win rate averaged 71-75% against a BV share of 58%. BV is not bot-neutral: the
+  Hunchback (BV 1041, one AC/20) beat the Griffin (BV 1272) 85-91% of the time under Princess and CASPAR but only 43-44% under
+  Gladiator and Hydra, and Marauder v Catapult (BV 1399 v 1363) came out near 50% for every bot.
+  EDGE BIAS, PRELIMINARY (1 v 1 'Mechs differ; the 4 v 4 mirrors are the test, and cells share dice across pairings, so the
+  p-values are optimistic): pooled over all bots, S beat N on Desert Hills (239-152) and Scattered Woods (233-166); N beat S on
+  Military Base (256-143); E beat W on Grassland 1 (226-168) and W beat E on Large Lakes 1 (242-151). Rolling Hills 1 shows none.
+  Rerun `python tools/benchmark_report.py --bv-file LISTS.json` (LISTS.json: the Lab's `list_units` output) for the tables.
+  Checks: no engine or test file changed; `run_checks.py` not run (docs and new tools only).
+
 - **2026-11-19 (Claude, session 30), PUBLIC COPY AND PUBLIC WEBSITE UPDATED (CASPAR). No code changes.** Daniel: "Time to update
   the public page for combatlab. Adding caspar to it was my main goal today." From main 046bd6e (after pull request 280):
   `tools/publish_public.py --push` (826 commits; no private paths, no non-public emails, files equal to private main) and

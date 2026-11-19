@@ -1,0 +1,173 @@
+"""The four-bot benchmark battery (session 30, Daniel 2026-11-19): every bot against every bot, itself included, on the
+website's maps and 'Mechs only.
+
+    python tools/benchmark_bots.py 1v1 [MATCHUP ...] [--battles 80] [--data-root DIR] [--records DIR] [--threads N] [--list]
+
+Stage 1 (this file): ONE-ON-ONE. A matchup is two 'Mechs (MATCHUPS below). For each of the 10 bot pairings (4 bots: 6 cross
+pairs + 4 bots against themselves) the set is `--battles` battles (80), spread over six maps and both axes:
+
+  * the two seatings (each bot flies each 'Mech half the time: Red always holds 'Mech 1, Blue 'Mech 2, so swapping which
+    bot sits where swaps the 'Mechs);
+  * North v South and East v West (HOME_EDGE_CHOICE "N" / "E"; the deployment roll still decides WHICH team takes the
+    edge, so the edge each team actually got is read back from the battle log and kept with the result);
+  * six maps (MAPS), the extra battles of an uneven split rotating from one pairing to the next.
+
+Every battle is one line in `trial_records/benchmark_1v1_<matchup>.jsonl`: matchup, bots, 'Mechs, map, axis, the edge each
+team started on, winner (team, bot, 'Mech), turns, cap, hit-point shares left. A re-run plays only the cells missing from
+that file (the set can be stopped and resumed). `--list` prints the plan and stops.
+
+Same-bot pairings are also the first edge-bias data (tools/map_bias.py reads these files): in a one-on-one the two 'Mechs
+differ, so that bias is only a hint; the 4 v 4 mirrors (stage 2) are the real test.
+"""
+import itertools, json, os, re, subprocess, sys, tempfile, zipfile, zlib
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BTSIM = os.path.join(ROOT, "engine", "target", "release", "btsim")
+
+BOTS = ["gladiator", "princess", "hydra", "caspar"]
+# Only boards and units the website build carries (tools/build_web_lab.py: 16x17, no bridges / fuel tanks / elevators;
+# units with no unmodeled equipment). Checked 2026-11-19 against the Lab's own unit and board lists.
+MAPS = ["16x17_Grassland_1.board", "16x17_Grasslands_Rolling_Hills_1.board", "16x17_Scattered_Woods.board",
+        "16x17_Large_Lakes_1.board", "16x17_Military_Base_1.board", "16x17_Desert_Hills.board"]
+AXES = {"NS": "N", "EW": "E"}          # HOME_EDGE_CHOICE for each axis
+MATCHUPS = {                          # name: ('Mech 1 (Red), 'Mech 2 (Blue))
+    "whm_jvn": ("meks/3039u/Warhammer WHM-6R.mtf", "meks/3039u/Javelin JVN-10N.mtf"),         # Daniel's example
+    "hbk_grf": ("Hunchback HBK-4G.mtf", "Griffin GRF-1N.mtf"),
+    "rfl_wvr": ("meks/3039u/Rifleman RFL-3N.mtf", "meks/3039u/Wolverine WVR-6R.mtf"),
+    "mad_cplt": ("meks/3039u/Marauder MAD-3R.mtf", "Catapult CPLT-C1.mtf"),
+    "aws_jr7": ("Awesome AWS-8Q.mtf", "Jenner JR7-D.mtf"),
+    "tdr_shd": ("meks/3039u/Thunderbolt TDR-5S.mtf", "meks/3039u/Shadow Hawk SHD-2H.mtf"),
+}
+
+
+def pairings():
+    """(A, B) for every unordered pair of bots, A = B included: 10 of them."""
+    return [(BOTS[i], BOTS[j]) for i in range(len(BOTS)) for j in range(i, len(BOTS))]
+
+
+def split_runs(pair_index, total):
+    """The cells of one pairing: [(seat, axis, map, battles)], `total` battles over 2 seats x 2 axes x 6 maps (each seat/axis
+    cell gets total/4, split over the maps; the maps that get the odd battles rotate with the pairing)."""
+    per_cell = total // 4
+    base, extra = divmod(per_cell, len(MAPS))
+    runs = []
+    for c, (seat, axis) in enumerate(itertools.product((0, 1), AXES)):
+        for m, board in enumerate(MAPS):
+            n = base + (1 if (m - pair_index - c) % len(MAPS) < extra else 0)
+            if n:
+                runs.append((seat, axis, board, n))
+    return runs
+
+
+def data_root(path):
+    """A folder with data/ (the project's own files plus data/meks.zip and data/maps.zip unpacked) for btsim to read."""
+    if not os.path.isdir(os.path.join(path, "data", "meks")):
+        os.makedirs(os.path.join(path, "data"), exist_ok=True)
+        src = os.path.join(ROOT, "data")
+        for f in os.listdir(src):
+            if f.endswith((".mtf", ".board")):
+                with open(os.path.join(src, f), "rb") as a, open(os.path.join(path, "data", f), "wb") as b:
+                    b.write(a.read())
+        for z in ("meks.zip", "maps.zip"):
+            zipfile.ZipFile(os.path.join(src, z)).extractall(os.path.join(path, "data"))
+    link = os.path.join(path, "engine")
+    if not os.path.exists(link):
+        os.symlink(os.path.join(ROOT, "engine"), link)
+    return path
+
+
+EDGE = re.compile(r"Deployment: (\S+) home edge ([NESW])")
+
+
+def play(root, mtfs, red_bot, blue_bot, board, axis, battles, seed, threads):
+    """One run: `battles` battles of Red (mtfs[0], red_bot) v Blue (mtfs[1], blue_bot). Returns btsim's results with each
+    battle's start edges added ('edges': {team: edge})."""
+    settings = {"FORCES": [{"team": "Red", "mtf": mtfs[0], "count": 1, "bot": red_bot},
+                           {"team": "Blue", "mtf": mtfs[1], "count": 1, "bot": blue_bot}],
+                "DEFAULT_BOARD_PATH": board, "HOME_EDGE_CHOICE": AXES[axis]}
+    with tempfile.TemporaryDirectory() as tmp:
+        sfile, out = os.path.join(tmp, "settings.json"), os.path.join(tmp, "out.json")
+        json.dump(settings, open(sfile, "w"))
+        cmd = [BTSIM, "--setup", sfile, "--battles", str(battles), "--seed", str(seed), "--log", str(battles), "--out", out]
+        if threads:
+            cmd += ["--threads", str(threads)]
+        subprocess.run(cmd, env={**os.environ, "BTSIM_ROOT": root}, capture_output=True, text=True, check=True)
+        res = json.load(open(out))
+    logs = {x["sim"]: x["lines"] for x in res.get("logs", [])}
+    for r in res["results"]:
+        r["edges"] = {t: e for t, e in (EDGE.match(l.strip()).groups() for l in logs.get(r["sim"], []) if EDGE.match(l.strip()))}
+    res.pop("logs", None)
+    return res
+
+
+def done_cells(path):
+    keys = set()
+    if os.path.exists(path):
+        for line in open(path):
+            keys.add(json.loads(line)["cell"])
+    return keys
+
+
+def run_matchup(name, battles, root, records, threads):
+    mtfs = MATCHUPS[name]
+    path = os.path.join(records, f"benchmark_1v1_{name}.jsonl")
+    have = done_cells(path)
+    nm = [m.split("/")[-1][:-4] for m in mtfs]
+    print(f"\n=== {name}: {nm[0]} (Red) v {nm[1]} (Blue), {battles} battles a pairing ===", flush=True)
+    tally = {}                                           # bot -> [wins, losses, draws] over the whole matchup so far
+    for p, (a, b) in enumerate(pairings()):
+        w = {a: 0, b: 0, "none": 0} if a != b else {a: 0, "none": 0}
+        mech_wins = {0: 0, 1: 0}
+        edge_wins = {}
+        for seat, axis, board, n in split_runs(p, battles):
+            red, blue = (a, b) if seat == 0 else (b, a)  # seat 0: A flies 'Mech 1; seat 1: A flies 'Mech 2
+            cell = f"{name}|{a}|{b}|{seat}|{axis}|{board}"
+            if cell in have:
+                continue
+            seed = 1 + 1000 * (zlib.crc32(f"{axis}{board}{seat}".encode()) % 997)   # same dice for every pairing of a cell
+            res = play(root, mtfs, red, blue, board, axis, n, seed, threads)
+            with open(path, "a") as f:
+                f.write(json.dumps({"cell": cell, "matchup": name, "mechs": mtfs, "bots": {"Red": red, "Blue": blue}, "map": board,
+                                    "axis": axis, "seat": seat, "seed": seed, "results": res["results"], "seconds": res["seconds"]}) + "\n")
+        for line in open(path) if os.path.exists(path) else []:
+            r = json.loads(line)
+            if r["matchup"] != name or r["cell"].split("|")[1:3] != [a, b]:
+                continue
+            for x in r["results"]:
+                win = x["winner"]
+                if win in ("Red", "Blue"):
+                    w[r["bots"][win]] += 1
+                    mech_wins[0 if win == "Red" else 1] += 1
+                    e = x["edges"].get(win)
+                    edge_wins[e] = edge_wins.get(e, 0) + 1
+                else:
+                    w["none"] += 1
+        if a == b:
+            print(f"  {a:9s} v itself   : {nm[0]} {mech_wins[0]:3d} - {mech_wins[1]:3d} {nm[1]}   none {w['none']}   edge wins {dict(sorted(edge_wins.items()))}", flush=True)
+        else:
+            print(f"  {a:9s} v {b:9s}: {a} {w[a]:3d} - {w[b]:3d} {b}   none {w['none']}   ({nm[0]} won {mech_wins[0]}, {nm[1]} {mech_wins[1]})   edge wins {dict(sorted(edge_wins.items()))}", flush=True)
+            for bot, wins, losses in ((a, w[a], w[b]), (b, w[b], w[a])):
+                t = tally.setdefault(bot, [0, 0, 0])
+                t[0] += wins; t[1] += losses; t[2] += w["none"]
+    print(f"  cross-pair totals for {name} (wins - losses): " + ", ".join(f"{k} {v[0]}-{v[1]}" for k, v in tally.items()), flush=True)
+
+
+def main(argv):
+    def opt(name, default):
+        return argv[argv.index(name) + 1] if name in argv else default
+    if not argv or argv[0] != "1v1":
+        raise SystemExit(__doc__)
+    battles = int(opt("--battles", "80"))
+    names = [a for i, a in enumerate(argv[1:], 1) if not a.startswith("--") and argv[i - 1] not in ("--battles", "--data-root", "--records", "--threads")] or list(MATCHUPS)
+    if "--list" in argv:
+        for n in names:
+            print(n, MATCHUPS[n], f"{battles * len(pairings())} battles")
+        return
+    root = data_root(opt("--data-root", os.path.join(os.path.dirname(ROOT), "btroot")))
+    records = opt("--records", os.path.join(ROOT, "trial_records"))
+    for n in names:
+        run_matchup(n, battles, root, records, opt("--threads", None))
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
