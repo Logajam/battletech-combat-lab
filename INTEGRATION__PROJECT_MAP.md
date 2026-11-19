@@ -525,6 +525,9 @@ untranslated "until they're actually needed". What is left of the port is finish
   their pre-smoke answer.
 
 **Known issues found against MegaMek (session 30, Claude; MEGAMEK_BRIDGE Section 3e):**
+- LINE OF SIGHT: our `los::hex_line` samples one point per hex step, so it skips hexes the true centre-to-centre line
+  clips and applies the border rule (Core p.56) where the line only crosses an edge; MegaMek traces the true line. Half
+  the lines on a board differ. Waiting on Daniel (changes every battle).
 - When CASPAR / Princess moves after its foe, MegaMek's estimate of that moved foe (BasicPathRanker.evaluateMovedEnemy)
   can be far from ours and from MegaMek's own to-hit (one traced case: 45 dealt / 0 taken in MegaMek, 2 / 5 in ours, 25
   actually taken). Most of the remaining 24% of moves that differ. To trace: MegaMek's FireControl guess for that case.

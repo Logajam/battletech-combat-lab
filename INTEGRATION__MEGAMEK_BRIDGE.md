@@ -357,6 +357,18 @@ After the fixes: 5 games v CASPAR, no fallback at all (Hydra 4 - 1); 5 v MegaMek
 - One 4-hex Run from 1203 (heat 0, standing) that MegaMek's stand-alone path check accepts: unexplained (seen once; that
   game's MegaMek log was overwritten).
 
+**"Weapons MegaMek ruled out of reach" (research, session 30; Daniel: "do research on range mismatch").** Not range: the
+traced cases are LINE OF SIGHT. Shot 0209 -> 0610 (Scattered Woods): MegaMek "LOS blocked by intervening woods". Both
+engines trace 0310, 0409 / 0410, 0510; our line samples one point per hex step (`los::hex_line`, cube interpolation, from
+the Python) and that point falls exactly on the 0409/0410 edge, so we apply the book's border rule (Core p.56: the target
+picks one hex) and count 2 (heavy woods). Worked out in MegaMek's hex geometry, the line CROSSES that edge at its middle -
+it passes through both hexes, light + heavy = 3, blocked; the border rule is for a line running ALONG an edge (exact
+30-degree lines; MegaMek's losDivided). Measured on every pair of an 11 x 11 board against MegaMek's Coords.intervening
+(the true line through hex centres): 7,223 of 14,641 lines the same hexes; 4,204 where MegaMek counts both hexes of a pair
+we treat as "pick one"; 3,214 where our sampling skips hexes the line clips (e.g. 0101 -> 0205: MegaMek 8 hexes, ours 6).
+The book defines LOS as the straight line between hex centres, so MegaMek's set is the book's. OPEN - Daniel's call: it
+changes line of sight (and so results) in every battle.
+
 ## 4. The request (Java -> Rust), one JSON object a line
 
 (The first draft, from before B1. The wire as built is Section 3b; this section's per-unit fields are the COMPACT state
