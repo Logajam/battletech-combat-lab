@@ -6,6 +6,14 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-19 (Claude, session 30), COMBAT LAB: TEAM WINDOWS RESIZE SIDEWAYS BY THEIR OWN EDGE. Battle results unchanged. REVIEW PENDING
+  (higher-level model).** Daniel: "I was thinking more in terms of resizing the windows not adjust the columns." A docked team
+  window's inner edge (the side facing the Unit Browser: right for the left column, left for the right) now drags it wider or
+  narrower (`lab.js` `dockWidth`, cursor and a thicker edge in `lab.css`). The windows of a column stack in it, so they share its
+  width: the edge moves the column, the same kept width as the column grips (`dragColumn`, now shared by both); double-click the
+  edge or Reset layout to clear it. The bottom corner still sets the height. Floating windows already resized at the corner.
+  Checked in a browser: left edge +120 px, right edge -100 px, corner +80 px down, kept after a reload, no page errors.
+
 - **2026-11-19 (Claude, session 30), PUBLIC COPY AND PUBLIC WEBSITE UPDATED (CASPAR). No code changes.** Daniel: "Time to update
   the public page for combatlab. Adding caspar to it was my main goal today." From main 046bd6e (after pull request 280):
   `tools/publish_public.py --push` (826 commits; no private paths, no non-public emails, files equal to private main) and
