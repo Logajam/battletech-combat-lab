@@ -150,12 +150,21 @@ def records_file(label):
     return os.path.join(RECORDS, f"{datetime.date.today().isoformat()}_fair_duels_{label}.jsonl")
 
 
+def progress_file(label):
+    """Where a run writes as it goes (git-ignored, like trial_records/progress/ for the other tools); moved into the records
+    file when the run ends, so the records in git change once a run, not every second."""
+    return os.path.join(RECORDS, "progress", f"fair_duels_{label}.jsonl")
+
+
 def done_cells(label):
-    """Cells already recorded under this label (any date), so a re-run plays only the missing ones."""
+    """Cells already recorded under this label (any date, or still in progress), so a re-run plays only the missing ones."""
     done = {}
-    for f in os.listdir(RECORDS):
-        if f.endswith(f"_fair_duels_{label}.jsonl"):
-            for row in open(os.path.join(RECORDS, f)):
+    files = [os.path.join(RECORDS, f) for f in os.listdir(RECORDS) if f.endswith(f"_fair_duels_{label}.jsonl")]
+    if os.path.exists(progress_file(label)):
+        files.append(progress_file(label))
+    for path in files:
+        if True:
+            for row in open(path):
                 try:
                     r = json.loads(row)
                 except ValueError:
@@ -169,8 +178,8 @@ def run_cells(cells, label, workers):
     done = done_cells(label)
     todo = [c for c in cells if c not in done]
     print(f"{len(cells)} cells, {len(cells) - len(todo)} already recorded, {len(todo)} to play ({workers} at a time)", flush=True)
-    path = records_file(label)
-    os.makedirs(RECORDS, exist_ok=True)
+    path = progress_file(label)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     errors = 0
     with concurrent.futures.ThreadPoolExecutor(workers) as pool, open(path, "a") as f:
         for i, line in enumerate(pool.map(play_cell, todo), 1):
@@ -183,6 +192,10 @@ def run_cells(cells, label, workers):
             if i % 500 == 0:
                 print(f"  {i} / {len(todo)}", flush=True)
     print(f"done; {errors} errors", flush=True)
+    # the run is over: its battles go into the records file (kept in git), the progress file is emptied
+    with open(path) as src, open(records_file(label), "a") as dst:
+        dst.write(src.read())
+    os.unlink(path)
     return done_cells(label)
 
 
