@@ -122,8 +122,8 @@ MegaMek's `Caspar extends Princess`: our Princess clone with two terms of the mo
 - Not ported: aerospace, takeoff / landing, player orders, forced withdrawal. Simplified: no per-round envelope cache; the water line test
   counts an edge-run as crossing if either hex is deep water (MegaMek follows one of the two); deployment picks at random among the hexes
   tied best for the formation, where MegaMek scans about the first twenty in formation order and takes the safest terrain; in a MegaMek
-  bridge game a friend that stood still does not count as "set" for the cover bonus (the bridge marks only units that moved). Unmeasured beyond a feel check (4v4 v Gladiator, 40 battles: 17-23 both as
-  Princess and as CASPAR); an A/B (`tools/round_robin.py` once it lists "caspar") is the next step.
+  bridge game a friend that stood still does not count as "set" for the cover bonus (the bridge marks only units that moved). Feel checks only (session 30): 4v4 v Gladiator, 40 battles, 17-23 both as
+  Princess and as CASPAR; mirror `hy_4v4_heavy_hills`, 20 a seating, CASPAR 25 - Princess 15 (`tools/round_robin.py --bots princess,caspar`).
 
 ## What actually differs, and what the battles show
 

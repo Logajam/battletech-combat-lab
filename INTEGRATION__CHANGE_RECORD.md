@@ -22,7 +22,13 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   `caspar_red__team_4v4_princess_v_gladiator`; a variant's team string "caspar:TEAM" = `--caspar`), 90 reference battles, all also
   under the bridge parity check. Left as documented simplifications (INTEGRATION__BOTS.md "CASPAR"): the water line test takes both
   hexes of an edge-run; deployment picks at random among the best-tied hexes (MegaMek scans ~20 for terrain); in a bridge game a friend
-  that stood still is not "set" for the cover bonus. `tools/round_robin.py` lists caspar in its usage line.
+  that stood still is not "set" for the cover bonus. `tools/round_robin.py` lists caspar in its usage line. (3) `btsim decide` (the
+  bridge's decision process) could not be told a team is CASPAR: the new reference battles failed the parity check ("COMPACT STATE
+  MISSES bot"). Its start line now takes "caspar_teams" like "hydra_teams" (`bridge::Session::start`, `Scenario::bridge_start`); the
+  Java side is unchanged (it plays our engine as Hydra; MegaMek's own CASPAR is already a MegaMek bot). `--full` 5 of 5 (82 of 82
+  bridge checks). Feel check (general feel only): 4v4 Princess v Gladiator, 40 battles, Red 17-23 as Princess AND as CASPAR (mean
+  turns 16.3 v 15.5: different battles, the same score by chance); `round_robin.py hy_4v4_heavy_hills --bots princess,caspar
+  --battles 20`: CASPAR beats Princess 25-15 over both seatings, Princess v itself 10-10, CASPAR v itself 8-12.
 - **2026-11-18 (Claude, session 29), CASPAR, THE FOURTH BOT. REVIEWED 2026-11-19 (entry above).** Daniel: "look up the CASPAR bot used by
   megamek and incorporate it as a 4th bot", then "update the programs website to include it as an option". Read MegaMek main `7fa46c5`
   (`Caspar.java`, `MutualSupportPathRanker`, `MutualSupportDeployment`, `FormationGeometry`, `SupportEnvelope`, `BankRegions`,

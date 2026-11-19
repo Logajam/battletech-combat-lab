@@ -189,9 +189,10 @@ impl Scenario {
         (play.result, snaps)
     }
 
-    /// The MegaMek bridge's start line for this scenario (`bridge::Session::start`): settings, board, units, Hydra's teams.
+    /// The MegaMek bridge's start line for this scenario (`bridge::Session::start`): settings, board, units, Hydra's and
+    /// CASPAR's teams.
     pub fn bridge_start(&self, seed: u64) -> Value {
-        serde_json::json!({"config": self.config, "board": self.board, "units": self.units, "hydra_teams": self.hydra_teams, "seed": seed})
+        serde_json::json!({"config": self.config, "board": self.board, "units": self.units, "hydra_teams": self.hydra_teams, "caspar_teams": self.caspar_teams, "seed": seed})
     }
 
     /// One battle on `seed` with the bots inside a `bridge::Recorder` and a fresh `bridge::Session` checked alongside
