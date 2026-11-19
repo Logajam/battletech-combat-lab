@@ -10,3 +10,5 @@ indexmap = { version = "2", features = ["serde"] }
 serde_json = { version = "1", features = ["preserve_order"] }
 ryu = "1"
 fancy-regex = "0.14"
+# fdlibm's atan, bit for bit as Java's StrictMath (caspar::mm_radian: MegaMek's hex line)
+libm = "0.2"

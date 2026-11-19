@@ -119,10 +119,12 @@ MegaMek's `Caspar extends Princess`: our Princess clone with two terms of the mo
 - **River charge**: a defending force pays one turn of advance for a path that leaves its dry region (any water is a divide).
 - **Deployment** (placed zones only): only the hexes that miss the formation band least are chosen from at random (min spacing 2); the
   unit faces the mean of the enemy zones' middles.
-- Not ported: aerospace, takeoff / landing, player orders, forced withdrawal. Simplified: no per-round envelope cache; the water line test
-  counts an edge-run as crossing if either hex is deep water (MegaMek follows one of the two); deployment picks at random among the hexes
-  tied best for the formation, where MegaMek scans about the first twenty in formation order and takes the safest terrain; in a MegaMek
-  bridge game a friend that stood still does not count as "set" for the cover bonus (the bridge marks only units that moved). Feel checks only (session 30): 4v4 v Gladiator, 40 battles, 17-23 both as
+- Deployment (placed zones), shared with Princess since session 30: MegaMek's bot deployment (`princess_deploy.rs`): every zone hex
+  shuffled and scored (height for the unit's range, the shots it would take from and give to enemies already down, woods, deep water,
+  building damage, a way to the far edge), CASPAR's formation order on top, then the safest of the first ~20 hexes with the most room
+  to move (3 MP); Princess faces the first enemy on the board or the middle, CASPAR the enemy zones' middle.
+- Not ported: aerospace, takeoff / landing, player orders, forced withdrawal. Simplified: no per-round envelope cache.
+  The water test uses MegaMek's own hex line (`caspar::mm_intervening`, identical to MegaMek's on all 14,641 lines of an 11 x 11 board). Feel checks only (session 30): 4v4 v Gladiator, 40 battles, 17-23 both as
   Princess and as CASPAR; mirror `hy_4v4_heavy_hills`, 20 a seating, CASPAR 25 - Princess 15 (`tools/round_robin.py --bots princess,caspar`).
 
 ## What actually differs, and what the battles show

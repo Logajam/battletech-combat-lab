@@ -718,65 +718,44 @@ fn deploy_zones(b: &mut Battle) {
             let zone = deployment::zone_hexes(b, &boxes);
             let centre: crate::fasthash::HashSet<String> = deployment::zone_hexes(b, &[false, false, false, false, true, false, false, false, false]).into_iter().collect();
             let mut taken: Vec<String> = all.iter().filter_map(|u| b.units[*u].hex.clone()).collect();
+            // Princess and CASPAR deploy as MegaMek's bots do (princess_deploy); the team's board-area maps are built once
+            let mut clusters = crate::princess_deploy::Clusters::default();
+            let enemy_zone = crate::princess_deploy::enemy_zone_centre(b, &zones, team);
             for u in members {
                 let mut cache = Default::default();
                 let mut good: Vec<String> = zone.iter().filter(|l| !taken.contains(l)
                     && terrain_rules::step_cost(None, &b.board.hexes[*l], terrain_rules::max_level_change(false, false), false).is_some()).cloned().collect();
-                // keep to hexes the unit can get out of into the middle of the board; if none can, take any enterable one
-                let free: Vec<String> = good.iter().filter(|l| deployment::reaches(b, u, l, &centre, &mut cache)).cloned().collect();
-                if !free.is_empty() { good = free; }
-                // spread out: prefer hexes not touching a hex already taken
-                let spread: Vec<String> = good.iter().filter(|l| !taken.iter().any(|t| deployment::hexes_touch(l, t))).cloned().collect();
-                if !spread.is_empty() { good = spread; }
-                // CASPAR forms up (MutualSupportDeployment): only the hexes that best keep the force together are left to choose from
-                let caspar = b.units[u].bot == "caspar";
-                if caspar { good = crate::caspar::prefer_formation(b, u, good); }
-                let hex = good.get((b.pick_number(good.len().max(1) as i64) - 1) as usize).cloned();
                 let nm = name(b, u);
-                match hex {
-                    Some(h) => {
-                        // CASPAR faces the middle of the enemy teams' zones (facesEnemyZoneAtDeployment), the others the board's middle
-                        let toward = if b.units[u].bot == "caspar" { enemy_zone_centre(b, &zones, team) } else { None };
-                        b.units[u].facing = match toward {
-                            Some((c, r)) => deployment::facing_toward(b, &h, c, r),
-                            None => deployment::facing_to_centre(b, &h),
-                        }.into();
+                let placed: Option<(String, String, String)> = if b.units[u].is_princess_family() {
+                    crate::princess_deploy::choose(b, u, good, &boxes, enemy_zone, &mut clusters).map(|p| (p.hex, p.facing.to_string(), format!(" ({})", p.note)))
+                } else {
+                    // keep to hexes the unit can get out of into the middle of the board; if none can, take any enterable one
+                    let free: Vec<String> = good.iter().filter(|l| deployment::reaches(b, u, l, &centre, &mut cache)).cloned().collect();
+                    if !free.is_empty() { good = free; }
+                    // spread out: prefer hexes not touching a hex already taken
+                    let spread: Vec<String> = good.iter().filter(|l| !taken.iter().any(|t| deployment::hexes_touch(l, t))).cloned().collect();
+                    if !spread.is_empty() { good = spread; }
+                    let hex = good.get((b.pick_number(good.len().max(1) as i64) - 1) as usize).cloned();
+                    hex.map(|h| { let f = deployment::facing_to_centre(b, &h).to_string(); (h, f, String::new()) })
+                };
+                match placed {
+                    Some((h, facing, note)) => {
+                        b.units[u].facing = facing;
                         b.units[u].hex = Some(h.clone());
                         b.units[u].home_edge = None;
                         b.units[u].home_edge_row = None;
                         taken.push(h.clone());
-                        b.log(format!("  Deployment: {} placed at {} in zone {}.", nm, h, label));
+                        if note.is_empty() {
+                            b.log(format!("  Deployment: {} placed at {} in zone {}.", nm, h, label));
+                        } else {
+                            b.log(format!("  Deployment: {} placed at {} facing {} in zone {}{}.", nm, h, b.units[u].facing, label, note));
+                        }
                     }
                     None => panic!("deployment: no free hex in zone {} for {}", label, nm),
                 }
             }
         }
     }
-}
-
-/// EnemyDeploymentZone.center for the zone deployment: the mean of the middles (column, row) of the other teams' zones.
-fn enemy_zone_centre(b: &Battle, zones: &serde_json::Value, me: &str) -> Option<(f64, f64)> {
-    let mut middles = Vec::new();
-    for (name, z) in zones.as_object()? {
-        if name == me {
-            continue;
-        }
-        let mut boxes = [true; 9];
-        if let Some(arr) = z["boxes"].as_array() {
-            for (i, v) in arr.iter().take(9).enumerate() {
-                boxes[i] = v.as_bool().unwrap_or(false);
-            }
-        }
-        let hexes = deployment::zone_hexes(b, &boxes);
-        if hexes.is_empty() {
-            continue;
-        }
-        let n = hexes.len() as f64;
-        let c: f64 = hexes.iter().map(|h| h[0..2].parse::<f64>().unwrap_or(1.0)).sum::<f64>() / n;
-        let r: f64 = hexes.iter().map(|h| h[2..4].parse::<f64>().unwrap_or(1.0)).sum::<f64>() / n;
-        middles.push((c, r));
-    }
-    crate::caspar::enemy_zone_centre(&middles)
 }
 
 fn after_phase(b: &mut Battle) {

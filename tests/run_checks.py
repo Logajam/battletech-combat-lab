@@ -170,13 +170,13 @@ def main(argv):
         print("NOTE: no cargo on this machine - the Rust and website checks were not run")
     if "engine" in want and has_cargo:
         # the Rust engine's own reference battles, then the MegaMek bridge's quick parity check (B1)
-        heavy.append(("rust       check_rust_reference.py (90 battles)",
+        heavy.append(("rust       check_rust_reference.py (91 battles)",
                       run_test_file, (os.path.join(REPO_ROOT, "tests", "check_rust_reference.py"),)))
         heavy.append(("rust       check_bridge_parity.py --quick",
                       run_test_file, (os.path.join(REPO_ROOT, "tests", "check_bridge_parity.py"), ["--quick"])))
         # CL1 settings, stage-6 attach, CL2 histories, BV skills, charge targets, walk-on zones
-        heavy.append(("rust       cargo test cl1_setup + stage6_attach + cl2_history + bv_skills + charge_targets + zone_entry",
-                      run_command, (["cargo", "test", "--release", "-q", "--test", "cl1_setup", "--test", "stage6_attach", "--test", "cl2_history",
+        heavy.append(("rust       cargo test cl1_setup + stage6_attach + cl2_history + bv_skills + charge_targets + zone_entry + core unit tests",
+                      run_command, (["cargo", "test", "--release", "-q", "-p", "btsim_core", "--lib", "--test", "cl1_setup", "--test", "stage6_attach", "--test", "cl2_history",
                                      "--test", "bv_skills", "--test", "charge_targets", "--test", "zone_entry"], os.path.join(REPO_ROOT, "engine"))))
     if want & {"engine", "pages"} and has_cargo:
         # Combat Lab CL3: the Lab server, driven by a script, gives btsim's battles for the same setup and seed

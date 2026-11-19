@@ -38,7 +38,8 @@ the BattleTech community. This project would not exist without their work.
   (CC BY-NC-SA 4.0, non-commercial); the file carries MegaMek's notice in its `_license` field.
 - **Code.** MegaMek's source code is licensed under the GNU General Public License v3. This project's "princess" bot is a
   translation of MegaMek's Princess bot and its "caspar" bot a translation of MegaMek's CASPAR bot (Mutual Support movement
-  and deployment; `engine/core/src/caspar.rs`), both from MegaMek's source, rules the rulebooks leave open were settled by reading
+  and deployment; `engine/core/src/caspar.rs`), both from MegaMek's source, and both deploy by a translation of MegaMek's bot
+  deployment (`BotClient` / `Princess`; `engine/core/src/princess_deploy.rs`), rules the rulebooks leave open were settled by reading
   MegaMek's source (cited "MegaMek" in the code), and `megamek_bridge/` is built against MegaMek (see its README). MegaMek
   is never copied into or changed by this project.
 

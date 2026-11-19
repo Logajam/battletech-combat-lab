@@ -50,7 +50,7 @@ and the GitHub logistics (Section 7).
 - **After any change:** `python tests/run_checks.py` picks the checks from what changed since origin/main (levels:
   docs / art / Lab pages / Python / engine; `--list` says why); `--full` before every merge; `--python` adds the
   retired Python's tests and 15 reference battles (weekly). The engine level: the Rust reference set
-  (`check_rust_reference.py`: 90 battles (86 + 4 CASPAR) from `engine/reference/scenarios.zip`, logs in `engine/reference/logs/`;
+  (`check_rust_reference.py`: 91 battles (86 + 4 CASPAR + 1 placed-zone Princess v CASPAR) from `engine/reference/scenarios.zip`, logs in `engine/reference/logs/`;
   `--update` for a Rust change meant to alter results; `--parity` also runs every battle in full under the bridge's
   parity check, a thorough but slower run), the bridge's `check_bridge_parity.py --quick`, the engine's cargo tests, `check_lab_server.py --battles 4`, and the website (`check_web_ui.py`, then
   `check_web_lab.py --battles 4`). Heavy checks run one at a time. The Rust turn cap is 100
@@ -235,6 +235,8 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s30-1) PRINCESS / CASPAR DEPLOYMENT, MEGAMEK'S** (session 30): `engine/core/src/princess_deploy.rs` (fitness, cluster maps, hazard scan, room-to-move kernel, facing), its call in `orchestrator::deploy_zones`, `caspar::prefer_formation` now a full stable order, `attack_resolution::weapon_attack_tns`. Look at: the 3-MP walk search v MegaMek's ShortestPathFinder (ties between equal-MP paths, turn limits not modelled); jump kernel as "every landable hex within 3"; zone-to-edge mapping for the far-edge test; the team-at-a-time deployment order.
+- **(s30-2) CASPAR WATER LINE + BRIDGE "done"** (session 30): `caspar::mm_intervening` (+ the `libm` atan), `GameView.state` "done", `bridge.rs`. Look at: the "done" rule for phases other than Movement.
 - **(s28-7) ITERATIVE PASS v DRAWINGS** (session 28): `reference_art/blocks/comparison_pass1.md` (the list and the rules), the ITERATION 1 / 2 rules in `tools/lowpoly_assemble.py`. Look at: whether the unit-file arm rule overrides the drawings too often; `leg_ratio`'s numbers were read off the drawings by eye.
 - **(s28-8) COMMANDO HD** (session 28): `tools/lowpoly_hd.py commando()`, `reference_art/models_hd/Commando COM-2D.json`. Look at: the ready arm pose (the sheet hangs the arms); the laser on the forearm's outer face; the FIVE_VIEWS front/rear mirror fix.
 - **(s28-9) HD REVIEW + COMMANDO ROUNDS** (session 28): `reference_art/blocks/HD_REVIEW.md` (the block plan and slot budgets), the Commando's review rounds (principles 26-32), `lowpoly_hd.turnaround`. Look at: the slot-budget table; whether the block split is the right granularity.
@@ -1169,6 +1171,12 @@ support / crowding / formations (no friends in a duel), forced withdrawal,
 the enemy / friendly memory (FightMemory, EnemyTracker - multi-unit).
 [Session 13: mutual support, crowding, the friendly heat map and the damage map
 ARE ported now - `INTEGRATION__princess_group`; formations are CASPAR's.]
+[Session 30 (Daniel, 2026-11-19: "If both are supposed to use it in megamek, it should be ported for both"): DEPLOYMENT
+in a placed zone is MegaMek's bot deployment for Princess and CASPAR alike, `engine/core/src/princess_deploy.rs`
+(BotClient.getStartingCoordsArray's hex fitness - height for the unit's range, the shots it would take and give,
+woods, deep water, building damage, a way to the far edge; then Princess.rankDeploymentCoords' hazard scan of the
+front ~20 hexes and rankKernelAroundCoords' room to move; Princess.getDeploymentFacing). Decision point: where a
+Princess-family unit stands and faces at deployment. Gladiator and Hydra keep the shared zone placement.]
 
 Reference: MegaMek **v0.50.07** `megamek/src/megamek/client/bot/princess/`
 (+ `client/bot/PhysicalCalculator.java`, `princess/geometry/`). Fetch with

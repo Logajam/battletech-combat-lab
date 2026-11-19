@@ -73,5 +73,6 @@ pub mod gladiator;
 pub mod scenario;
 pub mod hydra;
 pub mod caspar;
+pub mod princess_deploy;
 pub mod bridge;
 pub mod history;

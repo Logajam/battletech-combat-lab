@@ -378,7 +378,7 @@ fn heat_sink_boost(b: &mut Battle, u: UnitId, o: &Opt, dist: i64) -> f64 {
 }
 
 /// waterHazard (modern) for one hex.
-fn water_hazard(b: &Battle, mover: UnitId, depth: i64, prone: bool, fall_odds: f64, moving: bool) -> f64 {
+pub(crate) fn water_hazard(b: &Battle, mover: UnitId, depth: i64, prone: bool, fall_odds: f64, moving: bool) -> f64 {
     let m = &b.units[mover];
     let submerged = |down: bool| -> Vec<&String> {
         m.locations
