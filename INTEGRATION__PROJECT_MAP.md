@@ -191,6 +191,16 @@ the Lab or the website's team bot list, or `btsim ... --caspar TEAM`. Our bots c
   only after you move the box"): docked windows must resize in both directions in place, on every window (teams, Unit
   Browser, and the rest), with no extra step. Trace first why the docked edge did not answer for him (it did in a headless
   test: maybe the edge is too thin to find, or his browser picks the native corner instead).
+  (6) TO DO, NOT SCHEDULED (Daniel, 2026-11-19, "assume temporarily ... that the ability to control forces by the player is
+  added"): PLAYER-CONTROLLED FORCES, and with them a game that SURVIVES THE PAGE CLOSING (a phone screen off, the tab killed,
+  the site closed mid-battle; "the player would expect to return to their active game when they have 5 minutes"). Sketch
+  talked through with Daniel (not decided): save after every player decision and on `visibilitychange` / `pagehide` (phones
+  skip `unload`) to IndexedDB; save the whole battle state (dice stream and bot memories included, INTEGRATION__STATE.md),
+  plus the setup, seed and decision list, and the engine version; ask `navigator.storage.persist()`; a service worker keeps
+  the wasm that started the game, so a site update cannot break a game in progress; on opening, offer "Resume battle";
+  export / import a save file as the backup (and the way to move a game to another device). Storage is per site: the
+  public site and the claude.ai artifact keep separate saves. iPhone Safari may clear a site's storage after about a week
+  unused unless it is added to the home screen (check when built).
 - E3b. Low-poly reference models (session 27, Daniel 2026-11-16): the TRO 3025 'Mechs redrawn as low-poly models (800 triangles) as the source for the block dictionary and override list. 3 of 34 built as raw shapes. T15a BLOCKS DONE (session 28, 2026-11-17: 58 of 59 block types; hand/claw_clamp waits for a picture; every block judged from above too, against MegaMek's top-down sprites kept as reference only in `reference_art/megamek_sprites/`). First pass: the taxonomy pruned (`block_taxonomy.json` `prune_1`: 93 types -> 60 blocks in 38 presets, 20 merges for Daniel to veto) and the common dozen built as generators at HIGH and LOW (`tools/lowpoly_blocks.py`, `reference_art/blocks/`), each with its reference crop and Claude's verdict. NEXT: T15c (INTEGRATION__TASK_SPECS.md), the Catapult's lessons as a per-unit pipeline (measure, build HD, checks, self-review, five-view review, simplify). Then: the rest of the taxonomy's blocks, then retrofit the three models, then the other 31 (T15b) (Opus), the AI turnaround sheets for all 34 are filed in `reference_art/ai_sheets/` (2026-11-16). PRIVATE (`reference_art/`). Done work: Change Record 2026-11-16 (the END OF SESSION 27 paragraph). Decisions waiting on Daniel: should an old unit look old (dating); the 20 merges of `prune_1` (veto any by name); whether the dozen look right. Daniel, 2026-11-17: the earlier token / shell art (E3, E3a) is on the back burner; work from `reference_art/` only.
 - E3a. Art direction (session 24): why the models read as stacked blocks, and jobs A1-A8 in order -
   `INTEGRATION__COMBAT_LAB_ART_SPECS.md` (nothing built).
