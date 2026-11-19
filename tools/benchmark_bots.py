@@ -1,6 +1,7 @@
 """The four-bot benchmark battery (session 30, Daniel 2026-11-19): every bot against every bot, itself included, on the
 website's maps and 'Mechs only.
 
+    python tools/benchmark_bots.py 4v4 [MIRROR] [--per-axis 20] [--only=MAP_PREFIX]      (stage 2, below)
     python tools/benchmark_bots.py 1v1 [MATCHUP ...] [--battles 80] [--data-root DIR] [--records DIR] [--threads N] [--list]
 
 Stage 1 (this file): ONE-ON-ONE. A matchup is two 'Mechs (MATCHUPS below). For each of the 10 bot pairings (4 bots: 6 cross
@@ -76,14 +77,13 @@ def data_root(path):
     return path
 
 
-EDGE = re.compile(r"Deployment: (\S+) home edge ([NESW])")
+EDGE = re.compile(r"Deployment: (Red|Blue)\b.*? home edge ([NESW])")   # "Red", or "Red 2" in a team of several
 
 
-def play(root, mtfs, red_bot, blue_bot, board, axis, battles, seed, threads):
-    """One run: `battles` battles of Red (mtfs[0], red_bot) v Blue (mtfs[1], blue_bot). Returns btsim's results with each
+def play(root, red_mtfs, blue_mtfs, red_bot, blue_bot, board, axis, battles, seed, threads):
+    """One run: `battles` battles of Red (red_mtfs, red_bot) v Blue (blue_mtfs, blue_bot). Returns btsim's results with each
     battle's start edges added ('edges': {team: edge})."""
-    settings = {"FORCES": [{"team": "Red", "mtf": mtfs[0], "count": 1, "bot": red_bot},
-                           {"team": "Blue", "mtf": mtfs[1], "count": 1, "bot": blue_bot}],
+    settings = {"FORCES": [{"team": t, "mtf": m, "count": 1, "bot": bot} for t, ms, bot in (("Red", red_mtfs, red_bot), ("Blue", blue_mtfs, blue_bot)) for m in ms],
                 "DEFAULT_BOARD_PATH": board, "HOME_EDGE_CHOICE": AXES[axis]}
     with tempfile.TemporaryDirectory() as tmp:
         sfile, out = os.path.join(tmp, "settings.json"), os.path.join(tmp, "out.json")
@@ -95,7 +95,11 @@ def play(root, mtfs, red_bot, blue_bot, board, axis, battles, seed, threads):
         res = json.load(open(out))
     logs = {x["sim"]: x["lines"] for x in res.get("logs", [])}
     for r in res["results"]:
-        r["edges"] = {t: e for t, e in (EDGE.match(l.strip()).groups() for l in logs.get(r["sim"], []) if EDGE.match(l.strip()))}
+        r["edges"] = {}
+        for l in logs.get(r["sim"], []):
+            m = EDGE.match(l.strip())
+            if m:
+                r["edges"].setdefault(m.group(1), m.group(2))
     res.pop("logs", None)
     return res
 
@@ -125,7 +129,7 @@ def run_matchup(name, battles, root, records, threads):
             if cell in have:
                 continue
             seed = 1 + 1000 * (zlib.crc32(f"{axis}{board}{seat}".encode()) % 997)   # same dice for every pairing of a cell
-            res = play(root, mtfs, red, blue, board, axis, n, seed, threads)
+            res = play(root, [mtfs[0]], [mtfs[1]], red, blue, board, axis, n, seed, threads)
             with open(path, "a") as f:
                 f.write(json.dumps({"cell": cell, "matchup": name, "mechs": mtfs, "bots": {"Red": red, "Blue": blue}, "map": board,
                                     "axis": axis, "seat": seat, "seed": seed, "results": res["results"], "seconds": res["seconds"]}) + "\n")
@@ -152,9 +156,63 @@ def run_matchup(name, battles, root, records, threads):
     print(f"  cross-pair totals for {name} (wins - losses): " + ", ".join(f"{k} {v[0]}-{v[1]}" for k, v in tally.items()), flush=True)
 
 
+MIRRORS = {      # name: the 'Mechs of ONE side (both sides field them: the pilot is the only difference)
+    "lance4": ["Atlas AS7-K.mtf", "Hunchback HBK-4G.mtf", "Griffin GRF-1N.mtf", "Jenner JR7-D.mtf"],   # tools/hydra_scenarios.py LANCE
+}
+
+
+def run_mirror(name, per_axis, root, records, threads, maps):
+    """Stage 2: the mirror `name` on each map, every pairing, `per_axis` battles on each axis (a cross pair splits them over the
+    two seatings; a same-bot pair plays them all in one). Prints, per map, the score of each pairing and, for same-bot
+    pairings, the wins by starting edge: the edge-bias record (tools/benchmark_report.py reads it)."""
+    mech = MIRRORS[name]
+    path = os.path.join(records, f"benchmark_4v4_{name}.jsonl")
+    have = done_cells(path)
+    for board in maps:
+        print(f"\n=== {name} on {board[:-6]}: {per_axis} battles an axis, per pairing ===", flush=True)
+        for a, b in pairings():
+            seats = (0, 1) if a != b else (0,)
+            score, edges = {a: 0, b: 0, "none": 0}, {}
+            for axis in AXES:
+                for seat in seats:
+                    n = per_axis // len(seats)
+                    red, blue = (a, b) if seat == 0 else (b, a)
+                    cell = f"{name}|{a}|{b}|{seat}|{axis}|{board}"
+                    if cell not in have:
+                        seed = 1 + 1000 * (zlib.crc32(f"{axis}{board}{seat}".encode()) % 997)
+                        res = play(root, mech, mech, red, blue, board, axis, n, seed, threads)
+                        with open(path, "a") as f:
+                            f.write(json.dumps({"cell": cell, "matchup": name, "mechs": mech, "bots": {"Red": red, "Blue": blue}, "map": board,
+                                                "axis": axis, "seat": seat, "seed": seed, "results": res["results"], "seconds": res["seconds"]}) + "\n")
+            for line in open(path):
+                r = json.loads(line)
+                if r["map"] != board or r["cell"].split("|")[1:3] != [a, b] or r["matchup"] != name:
+                    continue
+                for x in r["results"]:
+                    win = x["winner"]
+                    if win in ("Red", "Blue"):
+                        score[r["bots"][win]] += (1 if a != b else 0)
+                        e = x["edges"].get(win)
+                        edges[(r["axis"], e)] = edges.get((r["axis"], e), 0) + 1
+                    else:
+                        score["none"] += 1
+            if a == b:
+                ns = [edges.get(("NS", "N"), 0), edges.get(("NS", "S"), 0)]
+                ew = [edges.get(("EW", "W"), 0), edges.get(("EW", "E"), 0)]
+                print(f"  {a:9s} v itself   : N {ns[0]:2d} - S {ns[1]:2d}   W {ew[0]:2d} - E {ew[1]:2d}   none {score['none']}", flush=True)
+            else:
+                print(f"  {a:9s} v {b:9s}: {score[a]:3d} - {score[b]:3d}   none {score['none']}", flush=True)
+
+
 def main(argv):
     def opt(name, default):
         return argv[argv.index(name) + 1] if name in argv else default
+    if argv and argv[0] == "4v4":
+        root = data_root(opt("--data-root", os.path.join(os.path.dirname(ROOT), "btroot")))
+        maps = [m for m in MAPS if not [a for a in argv if a.startswith("--only=")] or m.startswith(argv[[a.startswith("--only=") for a in argv].index(True)][7:])]
+        for n in ([a for a in argv[1:] if a in MIRRORS] or list(MIRRORS)):
+            run_mirror(n, int(opt("--per-axis", "20")), root, opt("--records", os.path.join(ROOT, "trial_records")), opt("--threads", None), maps)
+        return
     if not argv or argv[0] != "1v1":
         raise SystemExit(__doc__)
     battles = int(opt("--battles", "80"))
