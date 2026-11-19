@@ -57,6 +57,7 @@ public class HydraBridge extends Princess {
     private int decisions;
 
     private GameView view;
+    private final List<String> rulesNotes = new ArrayList<>();
     private boolean broken;
     private String brokenWhy;
     /** The round our engine last heard a Movement / Weapon Attack phase start in. */
@@ -103,6 +104,11 @@ public class HydraBridge extends Princess {
     }
 
     /** Princess decided instead of our engine, by reason. */
+    /** Our engine's notes on MegaMek's game options: what it set to match them, what it cannot follow. */
+    public List<String> rulesNotes() {
+        return rulesNotes;
+    }
+
     public Map<String, Integer> fallbacks() {
         return new TreeMap<>(fallbacks);
     }
@@ -136,6 +142,11 @@ public class HydraBridge extends Princess {
             JsonNode reply = GameView.JSON.readTree(engine.ask(start.toString()));   // (a failure here: caught below)
             if (!reply.path("started").asBoolean(false)) {
                 return breakWith("our engine could not build the game: " + reply.path("error").asText(reply.toString()));
+            }
+            // what our engine set to match MegaMek's game options, and the options it cannot follow (kept in the record)
+            for (JsonNode note : reply.path("rules")) {
+                rulesNotes.add(note.asText());
+                LOGGER.info("[bridge] rules: {}", note.asText());
             }
             return true;
         } catch (Exception exception) {

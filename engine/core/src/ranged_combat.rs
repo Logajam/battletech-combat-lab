@@ -76,6 +76,29 @@ pub fn path_to(b: &Battle, u: UnitId, pick: &Pick, standup_mp: Option<i64>, entr
     path_to_cached(b, u, pick, standup_mp, entry_edge, &mut TableCache::default())
 }
 
+/// path_to, plus the facing the route starts from: for a unit standing up, the facing it chose as it stood (Core:
+/// any facing, free), which the route's steps do not show (the MegaMek bridge sends it as turns after GET_UP).
+pub fn path_to_with_start(b: &Battle, u: UnitId, pick: &Pick, standup_mp: Option<i64>) -> Option<(i64, Vec<(&'static str, State, i64)>)> {
+    let m = &b.units[u];
+    let (sx, sy, start_facing) = hex_geometry::state_from_label(m.hex.as_deref()?, &m.facing).ok()?;
+    let path = path_to(b, u, pick, standup_mp, None)?;
+    if standup_mp.is_none() {
+        return Some((start_facing, path));
+    }
+    // which stand-up facing the route was found from: the one whose table holds the pick at that cost
+    let blocked = blocked_set(&m.blocked_hex);
+    let (x, y) = hex_geometry::parse_hex_label(&pick.hex).unwrap();
+    let state: State = (x, y, hex_geometry::compass_to_facing(&pick.facing).unwrap());
+    let level_limit = terrain_rules::max_level_change(ground_level_limited(m), is_superheavy(m));
+    for f0 in 0..6 {
+        let table = build_movement_table(sx, sy, f0, standup_mp.unwrap(), Some(&b.board), None, level_limit, true, &blocked).unwrap();
+        if table.entries.get(&state).and_then(|c| c.get(&pick.mp_spent)) == Some(&pick.fc) {
+            return Some((f0, path));
+        }
+    }
+    Some((start_facing, path))
+}
+
 /// path_to with the searched tables kept in `cache` (PathBook): asking for many picks from one spot searches once.
 pub fn path_to_cached(b: &Battle, u: UnitId, pick: &Pick, standup_mp: Option<i64>, entry_edge: Option<&[String]>, cache: &mut TableCache) -> Option<Vec<(&'static str, State, i64)>> {
     let m = &b.units[u];

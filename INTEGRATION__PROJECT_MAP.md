@@ -529,8 +529,8 @@ untranslated "until they're actually needed". What is left of the port is finish
   can be far from ours and from MegaMek's own to-hit (one traced case: 45 dealt / 0 taken in MegaMek, 2 / 5 in ours, 25
   actually taken). Most of the remaining 24% of moves that differ. To trace: MegaMek's FireControl guess for that case.
 - ~~64 of Hydra's ~220 moves refused by MegaMek~~ TRACED and fixed (MEGAMEK_BRIDGE 3e): a gyro-less enemy written off by
-  FIGHT_TO_THE_DEATH off, and heat effects never applied in bridge games. Left: standing-up facing (Core free, MegaMek
-  1 MP a hexside - Daniel's call for bridge games) and one unexplained Run refusal.
+  FIGHT_TO_THE_DEATH off, and heat effects never applied in bridge games. Standing-up facing FIXED (sent as turns after GET_UP).
+  Left: one unexplained Run refusal; "weapons MegaMek ruled out of reach" (shots our engine thinks it has, MegaMek not).
 - `caspar_red__hy_8v8_valley` reaches the 100-turn cap since the tie-break fix (a possible flaw, Daniel).
 
 **Known issues to fix later (found session 13, Claude):**

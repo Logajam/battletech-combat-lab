@@ -18,6 +18,7 @@ import megamek.common.CriticalSlot;
 import megamek.common.board.Coords;
 import megamek.common.equipment.Mounted;
 import megamek.common.game.Game;
+import megamek.common.options.IOption;
 import megamek.common.units.Entity;
 
 /**
@@ -96,6 +97,14 @@ public final class GameView {
         line.set("settings", settings);
         ArrayNode teams = line.putArray("hydra_teams");
         hydraTeams.forEach(teams::add);
+        // every game option MegaMek is playing with, and its default: our engine follows the ones it has a switch for and
+        // reports the rest (session 30; Daniel: "see what game options megamek is using, and then conform to them")
+        ObjectNode options = line.putObject("megamek_options");
+        for (IOption o : game.getOptions().getOptionsList()) {
+            ObjectNode entry = options.putObject(o.getName());
+            entry.put("value", o.stringValue());
+            entry.put("default", String.valueOf(o.getDefault()));
+        }
         line.put("seed", seed);
         return line;
     }

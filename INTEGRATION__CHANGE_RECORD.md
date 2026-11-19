@@ -6,6 +6,13 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-19 (Claude, session 30), BRIDGE: STANDING UP, MEGAMEK'S GAME OPTIONS. REVIEW PENDING (higher-level model).** Daniel:
+  "Standing up should be a I/O issue. Command is stand up, turn to the facing you want as a separate step ... That turn should
+  count as free. Bridge might need a step to see what game options megamek is using, and then conform to them." `bridge::
+  path_steps` sends GET_UP + turns to the chosen facing (free in MegaMek after GET_UP) via `ranged_combat::path_to_with_start`;
+  the start line carries MegaMek's options (`GameView.start`), `bridge::conform_to_megamek` follows the ones our engine has a
+  switch for (FLOATING_CRITICALS now follows MegaMek's floating_crits, off by default) and reports the rest, kept in the game
+  record (`BridgeLauncher`, "rules"); `btsim decide` answers the start with those notes. Our battles unchanged (--full 5/5).
 - **2026-11-19 (Claude, session 30), WHY MEGAMEK REFUSED HYDRA'S ROUTES. REVIEW PENDING (higher-level model).** Daniel:
   "What is hydra trying to do, and why is it being refused." Traced in MEGAMEK_BRIDGE 3e: our engine (FIGHT_TO_THE_DEATH off)
   wrote off a CASPAR 'Mech with a destroyed gyro that MegaMek kept in play, so Hydra routed through its hex and ignored it; and

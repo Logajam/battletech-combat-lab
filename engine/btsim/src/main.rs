@@ -47,8 +47,10 @@ fn decide() {
             Ok(v) if v.get("ping").is_some() => json!({"pong": true, "started": session.is_some()}),
             Ok(v) => match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| match session.as_mut() {
                 None => {
-                    session = Some(btsim_core::bridge::Session::start(&v));
-                    json!({"started": true})
+                    let s = btsim_core::bridge::Session::start(&v);
+                    let rules = s.rules_notes.clone();
+                    session = Some(s);
+                    json!({"started": true, "rules": rules})
                 }
                 Some(s) => json!({"answer": s.handle(&v)}),
             })) {

@@ -337,7 +337,13 @@ public final class BridgeLauncher {
                 s.append(sep2).append(q(f.getKey())).append(": ").append(f.getValue());
                 sep2 = ", ";
             }
-            s.append("}}");
+            s.append("}, \"rules\": [");
+            String sep4 = "";
+            for (String note : h.rulesNotes()) {
+                s.append(sep4).append(q(note));
+                sep4 = ", ";
+            }
+            s.append("]}");
             sep = ", ";
         }
         return s.append("]}").toString();

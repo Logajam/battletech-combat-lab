@@ -559,13 +559,27 @@ fn path_steps(b: &Battle, mover: UnitId, pick: &Pick, standup_mp: Option<i64>) -
     if pick.mode == "Stand Still" {
         return json!({"steps": if standup_mp.is_some() { vec!["get_up"] } else { vec![] }});
     }
-    let Some(path) = crate::ranged_combat::path_to(b, mover, pick, standup_mp, None) else { return Value::Null };
+    let Some((stood_facing, path)) = crate::ranged_combat::path_to_with_start(b, mover, pick, standup_mp) else { return Value::Null };
     let mut steps: Vec<&str> = Vec::new();
-    if standup_mp.is_some() {
-        steps.push("get_up");
-    }
     let start = b.units[mover].hex.as_deref().and_then(|h| crate::hex_geometry::state_from_label(h, &b.units[mover].facing).ok());
     let mut facing = start.map(|s| s.2).unwrap_or(0);
+    if standup_mp.is_some() {
+        steps.push("get_up");
+        // Core (Standing Up): a 'Mech that stands picks any facing at no cost. MegaMek keeps the prone facing, but a turn
+        // made right after GET_UP costs nothing there (TurnStep: hasJustStood), so the chosen facing goes as turns here,
+        // the short way round (Daniel, 2026-11-19: "stand up, turn to the facing you want as a separate step").
+        let mut turn = (stood_facing - facing).rem_euclid(6);
+        while turn != 0 {
+            if turn <= 3 {
+                steps.push("turn_right");
+                facing = (facing + 1).rem_euclid(6);
+            } else {
+                steps.push("turn_left");
+                facing = (facing + 5).rem_euclid(6);
+            }
+            turn = (stood_facing - facing).rem_euclid(6);
+        }
+    }
     for (step, (_, _, f), _) in path {
         match step {
             "turn" => {
@@ -747,6 +761,49 @@ pub struct Session {
     bots: GladiatorBots,
     /// every unit's dump as the game started: what a compact state is applied to
     pub base: Vec<Value>,
+    /// for a game started from MegaMek: what was set to match MegaMek's game options, and what cannot be followed
+    pub rules_notes: Vec<String>,
+}
+
+/// MegaMek game options our engine has a switch for: (MegaMek's option name, our config key). Both booleans.
+const MEGAMEK_SWITCHES: [(&str, &str); 1] = [("floating_crits", "FLOATING_CRITICALS")];
+/// MegaMek options that change nothing our engine models (the client, saving, reports, the bridge's own settings).
+const MEGAMEK_IGNORABLE: [&str; 3] = ["autosave_msg", "paranoid_autosave", "rules_system"];
+
+/// A game started from MegaMek follows MegaMek's game options where our engine has the switch (session 30; Daniel: "see
+/// what game options megamek is using, and then conform to them"): sets those in `config`, turns Daniel's own house rule
+/// off (POOL_CLUSTER_DAMAGE: MegaMek has none), and returns one note per setting made and per option our engine cannot
+/// follow - MegaMek's rule set if it is not Core Rules, and every other option changed from MegaMek's default.
+pub fn conform_to_megamek(config: &mut Value, options: Option<&Value>) -> Vec<String> {
+    let mut notes = Vec::new();
+    if config.get("POOL_CLUSTER_DAMAGE").and_then(|x| x.as_bool()) == Some(true) {
+        config["POOL_CLUSTER_DAMAGE"] = json!(false);
+        notes.push("POOL_CLUSTER_DAMAGE off: a house rule MegaMek does not have".into());
+    }
+    let Some(options) = options.and_then(|o| o.as_object()) else {
+        notes.push("NOT CHECKED: the start line carried no MegaMek game options".into());
+        return notes;
+    };
+    for (option, key) in MEGAMEK_SWITCHES {
+        if let Some(o) = options.get(option) {
+            let on = o["value"].as_str() == Some("true");
+            config[key] = json!(on);
+            notes.push(format!("{} {}: MegaMek's {} is {}", key, if on { "on" } else { "off" }, option, on));
+        }
+    }
+    let system = options.get("rules_system").and_then(|o| o["value"].as_str()).unwrap_or("");
+    if system != "Core Rules" {
+        notes.push(format!("NOT FOLLOWED: MegaMek plays '{}'; our engine plays the Core Rulebook (moves and rules can differ)", system));
+    }
+    for (name, o) in options {
+        if MEGAMEK_SWITCHES.iter().any(|(n, _)| n == name) || MEGAMEK_IGNORABLE.contains(&name.as_str()) {
+            continue;
+        }
+        if o["value"] != o["default"] {
+            notes.push(format!("NOT FOLLOWED: MegaMek option {} = {} (default {})", name, o["value"].as_str().unwrap_or("?"), o["default"].as_str().unwrap_or("?")));
+        }
+    }
+    notes
 }
 
 impl Session {
@@ -764,9 +821,16 @@ impl Session {
             // counts as destroyed here, while in MegaMek it lies there and shoots: our bots then ignored it - routes through
             // its hex (MegaMek refused them: "would not take the route"), no shots at it (session 30, Hydra v CASPAR).
             start["config"]["FIGHT_TO_THE_DEATH"] = json!(true);
+            let mut notes = vec!["FIGHT_TO_THE_DEATH on: MegaMek decides when a unit is out".to_string()];
+            notes.extend(conform_to_megamek(&mut start["config"], v.get("megamek_options")));
+            if s.board.get("hexes").and_then(|h| h.as_object()).is_some_and(|h| h.values().any(|x| x["features"].get("building").is_some())) {
+                notes.push("NOT FOLLOWED: the board has buildings - MegaMek plays the full building rules, our engine passive buildings".into());
+            }
             start["hydra_teams"] = v.get("hydra_teams").cloned().unwrap_or(json!([]));
             start["caspar_teams"] = v.get("caspar_teams").cloned().unwrap_or(json!([]));
-            return Session::start(&start);
+            let mut session = Session::start(&start);
+            session.rules_notes = notes;
+            return session;
         }
         let cfg = Config::from_json(&v["config"]);
         let board = Board::from_json(&v["board"]);
@@ -787,7 +851,7 @@ impl Session {
         let b = Battle::new(cfg, board, units, Box::new(PcgDice::new(seed)));
         let name = |i: usize| unit_name(&b, i);
         let base = b.units.iter().map(|m| m.to_json(&name)).collect();
-        Session { b, bots: GladiatorBots, base }
+        Session { b, bots: GladiatorBots, base, rules_notes: Vec::new() }
     }
 
     /// One line: {"method", "args", "state"} -> the answer (null for a signal).
