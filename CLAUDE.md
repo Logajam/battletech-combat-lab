@@ -111,6 +111,10 @@ GitHub logistics.
   `INTEGRATION__princess_group` / `_memory`; Battle Value is
   `INTEGRATION__battle_value`). Daniel wants "general feel, not full stats":
   only the interesting series, few battles, unless he asks for a full run.
+- **Four bots now:** "caspar" (Rust only, session 29, Daniel 2026-11-18) is MegaMek's CASPAR: the Princess clone with the Mutual Support
+  movement ranker and zone deployment swapped in (`engine/core/src/caspar.rs`, `princess_modern::choose_as`; `btsim --caspar TEAM`; in
+  the Lab / website team bot list). Anywhere that asks "is this Princess?" uses `Mech::is_princess_family`. BUILT and checked (`--full`
+  5 of 5) but NOT yet merged to `main` and not yet reviewed (REVIEW QUEUE s29-1); no A/B numbers beyond a 40-battle feel check.
 - **Three bots now:** "hydra" (Rust only, session 24) is Claude's own design: one planner per team, damage priced
   by a forecast of how the battle ends. COMPLETE (Daniel, 2026-11-12; reopened once, 2026-11-17, for the map edge); `INTEGRATION__HYDRA.md` is its plan and
   results (read before the code). Trials: `tools/hydra_scenarios.py`, `tools/hydra_trial.py`, `tools/round_robin.py`,
