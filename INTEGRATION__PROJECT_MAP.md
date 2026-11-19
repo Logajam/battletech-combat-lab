@@ -206,7 +206,7 @@ the Lab or the website's team bot list, or `btsim ... --caspar TEAM`. Our bots c
   (no `rules/` in any version; no personal email), checked, pushed. Deterministic: each publish adds commits on top.
   Why a separate repo: this one's history held the rulebook text (since 2026-10-19), and GitHub keeps every pull
   request's commits, which only GitHub Support can delete. Publish when Daniel wants the public copy updated (e.g. with
-  each Combat Lab download). FIRST PUBLISH 2026-11-13 (647 commits; checked on GitHub: no `rules/` in any version). NEXT: the Combat Lab downloads
+  each Combat Lab download). FIRST PUBLISH 2026-11-13 (647 commits; checked on GitHub: no `rules/` in any version). LAST PUBLISH 2026-11-19 (code and website, with CASPAR; the session must attach the public repo with `add_repo` before `--push`). NEXT: the Combat Lab downloads
   go on the public repo (a download link on its front page), but not yet: Daniel, 2026-11-13, "Lets refine before making
   it too public".
 - E7. COMBAT LAB: SAVED RUNS AND CRASHED BATTLES (Daniel, 2026-11-13, after a crash in a 100-battle run). (a) "We need the
