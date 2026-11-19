@@ -31,7 +31,7 @@ move its line to the Change Record instead of adding a paragraph here.
 
 **What it is.** `.mtf` units in, turn-by-turn battles on a real hex board under the Core Rulebook, a batch summary
 and statistics page out. Any number of units on any number of teams (`config.FORCES`), each driven by one of two
-bots: Gladiator (this project's) or Princess (a MegaMek clone); a third, Hydra, exists in the Rust engine only. Daniel owns rules and scope; Claude owns the code
+bots: Gladiator (this project's) or Princess (a MegaMek clone); a third, Hydra, and a fourth, CASPAR (MegaMek's Mutual Support bot, Princess-based), exist in the Rust engine only. Daniel owns rules and scope; Claude owns the code
 and the GitHub logistics (Section 7).
 
 ### Session setup and the checks
@@ -50,7 +50,7 @@ and the GitHub logistics (Section 7).
 - **After any change:** `python tests/run_checks.py` picks the checks from what changed since origin/main (levels:
   docs / art / Lab pages / Python / engine; `--list` says why); `--full` before every merge; `--python` adds the
   retired Python's tests and 15 reference battles (weekly). The engine level: the Rust reference set
-  (`check_rust_reference.py`: 86 battles from `engine/reference/scenarios.zip`, logs in `engine/reference/logs/`;
+  (`check_rust_reference.py`: 90 battles (86 + 4 CASPAR) from `engine/reference/scenarios.zip`, logs in `engine/reference/logs/`;
   `--update` for a Rust change meant to alter results; `--parity` also runs every battle in full under the bridge's
   parity check, a thorough but slower run), the bridge's `check_bridge_parity.py --quick`, the engine's cargo tests, `check_lab_server.py --battles 4`, and the website (`check_web_ui.py`, then
   `check_web_lab.py --battles 4`). Heavy checks run one at a time. The Rust turn cap is 100
@@ -125,9 +125,12 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
 
 **B. Princess clone** [00] - still to clone when the project has the rules: forced withdrawal, artillery / TAG
 standoff, sprinting, multi-target fire, unit orders. Open call (Daniel): Short-Short as the default search.
-MegaMek's CASPAR (read 2026-11-12, MegaMek main `c743b3f`): a separate bot, `class Caspar extends Princess`, with Mutual Support
-movement and deployment and aerospace changes; not cloned (Daniel may ask about it on MegaMek's Discord). Our bots can meet the
-real Princess and CASPAR through the bridge (E4).
+MegaMek's CASPAR (read 2026-11-12, MegaMek main `c743b3f`; re-read 2026-11-18 at `7fa46c5`): `class Caspar extends Princess`. CLONED
+2026-11-18 as the FOURTH BOT, "caspar" (Rust only; Daniel: "incorporate it as a 4th bot"): `engine/core/src/caspar.rs` plus
+`princess_modern::choose_as`. It is the Princess clone with MegaMek's Mutual Support doctrine swapped in (formation penalty, cover
+bonus, closing tempo in turns at own speed, river charge for a defending force) and Mutual Support deployment / zone-facing for
+placed units. Not ported (a simulation has none): aerospace, takeoff / landing, player unit orders, forced withdrawal. Pick it in
+the Lab or the website's team bot list, or `btsim ... --caspar TEAM`. Our bots can also meet the real Princess and CASPAR through the bridge (E4).
 
 **C. Rules and units**
 - C1. Crippled / forced withdrawal [5] - not started; an option plus a picker override.

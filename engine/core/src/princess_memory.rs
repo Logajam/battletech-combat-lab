@@ -55,7 +55,7 @@ pub fn team<'a>(b: &'a mut Battle, name: &str) -> &'a mut TeamMemory {
 
 /// Princess.calculateMoveTurn: a Princess unit that moved credits its end hex.
 pub fn unit_moved(b: &mut Battle, mech: UnitId, start_hex: Option<&str>) {
-    if b.units[mech].bot != "princess" || b.units[mech].hex.is_none() {
+    if !b.units[mech].is_princess_family() || b.units[mech].hex.is_none() {
         return;
     }
     let hex = b.units[mech].hex.clone().unwrap();
@@ -74,7 +74,7 @@ pub fn end_of_turn(b: &mut Battle) {
     let n = b.units.len();
     let mut teams: Vec<String> = Vec::new();
     for u in 0..n {
-        if b.units[u].bot == "princess" {
+        if b.units[u].is_princess_family() {
             let t = b.units[u].team.clone().unwrap_or_default();
             if !teams.contains(&t) {
                 teams.push(t);

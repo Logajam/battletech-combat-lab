@@ -6,6 +6,42 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-19 (Claude, session 30), CASPAR REVIEWED (REVIEW QUEUE s29-1 cleared).** Daniel: "double check Sonnet's work for
+  accuracy and completeness." Checked line by line against MegaMek main `0cc7d65` (`Caspar.java`, `MutualSupportPathRanker`,
+  `FormationGeometry`, `SupportEnvelope`, `FormationSide`, `BankRegions`, `MutualSupportDeployment`, `EnemyDeploymentZone`,
+  `DeploymentPlanner.deploymentFacing`, `BasicPathRanker`, `DamageProfile`). CORRECT as built: the formation penalty and its cap,
+  the cover bonus (2 a friend, at most 2, only friends already moved, only with an enemy within 15), the closing tempo (gap to own peak
+  range / max(run, jump) x 15 x aggression) with the defender's no-pull rule, the river charge (any water; a mover standing in water
+  pays nothing), the formation radius and centre (offset-coordinate mean, same-side friends only), the deployment order (out of the
+  band, then crowding) and the facing toward the enemy zones' middle; every "is it Princess?" check in the engine now takes CASPAR
+  (the replay bots only replay the Python, which has no CASPAR). FIXED: (1) the range envelope counted weapons with no ammo left, and
+  priced damage with the engine's own per-hit figure instead of MegaMek's profile: now a dry weapon is left out, a rack is the plain
+  Cluster Hits Table average (no Artemis, a Streak like any rack) and an Ultra / Rotary AC is 2 / 6 shots through the table
+  (`caspar::profile_damage_per_hit`); (2) NO REFERENCE BATTLE RAN CASPAR, so the "--full 5 of 5" only showed the other bots were
+  untouched: four added (`caspar_red__hy_duel_griffin`, `caspar_blue__hy_4v4_heavy_hills`, `caspar_red__hy_8v8_valley`,
+  `caspar_red__team_4v4_princess_v_gladiator`; a variant's team string "caspar:TEAM" = `--caspar`), 90 reference battles, all also
+  under the bridge parity check. Left as documented simplifications (INTEGRATION__BOTS.md "CASPAR"): the water line test takes both
+  hexes of an edge-run; deployment picks at random among the best-tied hexes (MegaMek scans ~20 for terrain); in a bridge game a friend
+  that stood still is not "set" for the cover bonus. `tools/round_robin.py` lists caspar in its usage line. (3) `btsim decide` (the
+  bridge's decision process) could not be told a team is CASPAR: the new reference battles failed the parity check ("COMPACT STATE
+  MISSES bot"). Its start line now takes "caspar_teams" like "hydra_teams" (`bridge::Session::start`, `Scenario::bridge_start`); the
+  Java side is unchanged (it plays our engine as Hydra; MegaMek's own CASPAR is already a MegaMek bot). `--full` 5 of 5 (82 of 82
+  bridge checks). Feel check (general feel only): 4v4 Princess v Gladiator, 40 battles, Red 17-23 as Princess AND as CASPAR (mean
+  turns 16.3 v 15.5: different battles, the same score by chance); `round_robin.py hy_4v4_heavy_hills --bots princess,caspar
+  --battles 20`: CASPAR beats Princess 25-15 over both seatings, Princess v itself 10-10, CASPAR v itself 8-12.
+- **2026-11-18 (Claude, session 29), CASPAR, THE FOURTH BOT. REVIEWED 2026-11-19 (entry above).** Daniel: "look up the CASPAR bot used by
+  megamek and incorporate it as a 4th bot", then "update the programs website to include it as an option". Read MegaMek main `7fa46c5`
+  (`Caspar.java`, `MutualSupportPathRanker`, `MutualSupportDeployment`, `FormationGeometry`, `SupportEnvelope`, `BankRegions`,
+  `FormationSide`, `DamageProfile`). CASPAR is `Caspar extends Princess`; for 'Mechs it differs in (1) the Mutual Support movement ranker,
+  (2) Mutual Support deployment, (3) deployment facing toward the enemy's zone. Built as bot "caspar": `engine/core/src/caspar.rs` (the
+  supporting-range envelope, formation radius, `Doctrine` = formation penalty bounded by one turn's advance x 0.8, cover bonus of 2 for up
+  to 2 set friends in range, closing tempo in turns at own speed, defender's river charge; formation placement), `princess_modern::choose_as`
+  (the two terms swapped inside Princess's ranker, everything else shared), `Mech::is_princess_family` (every place that asked "is it
+  Princess?" now takes CASPAR too: target, fire, physical, memory), `orchestrator::deploy_zones` (placed units form up and face the enemy
+  zones), `runs::BOTS` (the Lab and, through its info, the website's bot list), `btsim --caspar TEAM`, credits, a website check setup.
+  Not ported: aerospace, takeoff, player unit orders, forced withdrawal (none exist here). Simplified: no per-round envelope cache;
+  hex-line water test counts either hex of an edge-run. Princess's and Gladiator's behaviour is unchanged (their reference battles are
+  untouched). Seeing it: 4v4 Princess v Gladiator, 40 battles, Red as Princess 17-23, Red as CASPAR 17-23 (general feel only).
 - **2026-11-18 (Claude, session 28), THE ATLAS TAKEN APART INTO HD BLOCKS (T15c item B). Art only. REVIEW PENDING (higher-level
   model).** Daniel: "Good enough. I think its ready to be taken apart for blocks." `tools/lowpoly_hd.py`: `atlas()` is now a list of
   18 block calls (collar, shoulder decks, chest and back armour, rear laser pair, side recesses, the boxed autocannon, the skull head,

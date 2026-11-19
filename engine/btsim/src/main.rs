@@ -1,4 +1,4 @@
-//! btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--history N]
+//! btsim SCENARIO_DIR [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--caspar TEAM[,TEAM]] [--history N]
 //! Plays N battles of a scenario (tools/port_scenario.py writes one) in parallel, one battle a thread, each on its own seed
 //! (battle 1 on S, later ones mixed from S and the number), and prints a JSON summary: wins per team, turns, damage.
 use std::path::PathBuf;
@@ -89,7 +89,7 @@ fn main() {
     let setup = arg(&args, "--setup");
     let dir_arg = args.first().filter(|a| !a.starts_with("--")).cloned().or_else(|| setup.as_ref().map(|_| String::new()));
     let Some(dir) = dir_arg.as_ref() else {
-        eprintln!("usage: btsim (SCENARIO_DIR | --setup SETTINGS.json [--write-scenario DIR]) [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--set KEY=VALUE ...] [--ledger FILE] [--max-turns N] [--sims I,J,...] [--stream FILE] [--history N [--history-dir DIR] [--history-json]]");
+        eprintln!("usage: btsim (SCENARIO_DIR | --setup SETTINGS.json [--write-scenario DIR]) [--battles N] [--seed S] [--threads T] [--log N] [--out FILE] [--hydra TEAM[,TEAM]] [--caspar TEAM[,TEAM]] [--set KEY=VALUE ...] [--ledger FILE] [--max-turns N] [--sims I,J,...] [--stream FILE] [--history N [--history-dir DIR] [--history-json]]");
         std::process::exit(2);
     };
     let battles: u64 = arg(&args, "--battles").map_or(1, |v| v.parse().expect("--battles"));
@@ -134,6 +134,10 @@ fn main() {
     // --hydra TEAM[,TEAM]: those teams are driven by Hydra (INTEGRATION__HYDRA.md)
     if let Some(t) = arg(&args, "--hydra") {
         scenario.hydra_teams = t.split(',').map(|x| x.to_string()).collect();
+    }
+    // --caspar TEAM[,TEAM]: those teams are driven by CASPAR (Princess with the Mutual Support doctrine; caspar.rs)
+    if let Some(t) = arg(&args, "--caspar") {
+        scenario.caspar_teams = t.split(',').map(|x| x.to_string()).collect();
     }
     // --bridge-parity (MegaMek bridge B1): each battle is played with its bots' calls recorded, then a fresh decision
     // process (`btsim decide`'s Session) is fed the recording and must give the same answer to every decision. One JSON

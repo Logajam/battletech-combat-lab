@@ -102,6 +102,29 @@ rates highest, with the damage its teammates already declared counted (an
 enemy they are expected to destroy scores badly). The firing-plan utility is
 expected damage + critical chance + kill chance - overheating.
 
+## CASPAR (MegaMek's fourth bot, Rust only, session 29)
+
+MegaMek's `Caspar extends Princess`: our Princess clone with two terms of the movement score replaced (`caspar::Doctrine`,
+`princess_modern::choose_as`) and its own zone deployment. Everything else (target, fire, physical, memory, posture) is Princess's.
+- **Formation penalty** replaces herding on the heat map: a path ending more than `radius` hexes from the centre of the force's other
+  units costs hexes-out x min(mutual-support slider, 0.8 x aggression) x 5, never more than 0.8 turns of advance (15 x aggression).
+  `radius` = half the mean "effective range" of the force's armed units / the slider (min 2). A unit's envelope: its peak-expected-damage
+  range and the furthest range still landing half of that (MegaMek's DamageProfile: hit chance at its gunnery x damage per hit, a rack
+  at the plain cluster average, an Ultra / Rotary AC as 2 / 6 shots, weapons out of ammo left out; no arcs or ammo-kind options).
+  Friends across water 2+ deep are left out of the centre.
+- **Cover bonus** 2 per friend (max 2) that has already moved this turn and has the path's end hex inside its effective range, when the
+  nearest enemy is within 15.
+- **Closing tempo** replaces the aggression term: (nearest enemy distance - own peak range, min 0) / own speed x 15 x aggression;
+  unchanged "no pull" rule when defending with the enemy inside 15.
+- **River charge**: a defending force pays one turn of advance for a path that leaves its dry region (any water is a divide).
+- **Deployment** (placed zones only): only the hexes that miss the formation band least are chosen from at random (min spacing 2); the
+  unit faces the mean of the enemy zones' middles.
+- Not ported: aerospace, takeoff / landing, player orders, forced withdrawal. Simplified: no per-round envelope cache; the water line test
+  counts an edge-run as crossing if either hex is deep water (MegaMek follows one of the two); deployment picks at random among the hexes
+  tied best for the formation, where MegaMek scans about the first twenty in formation order and takes the safest terrain; in a MegaMek
+  bridge game a friend that stood still does not count as "set" for the cover bonus (the bridge marks only units that moved). Feel checks only (session 30): 4v4 v Gladiator, 40 battles, 17-23 both as
+  Princess and as CASPAR; mirror `hy_4v4_heavy_hills`, 20 a seating, CASPAR 25 - Princess 15 (`tools/round_robin.py --bots princess,caspar`).
+
 ## What actually differs, and what the battles show
 
 Same 20 seeds, Gladiator with Legate (session 14):

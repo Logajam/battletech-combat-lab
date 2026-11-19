@@ -452,6 +452,14 @@ fn loc(name: &str) -> String {
 }
 
 impl Mech {
+    /// Is this unit driven by Princess or by CASPAR (the fourth bot, session 29)? CASPAR is "Princess with parts swapped"
+    /// (MegaMek's `class Caspar extends Princess`): it shares Princess's target choice, fire control, physical attacks and
+    /// memory, and differs only in its movement ranker and zone deployment (`caspar.rs`). Every place that asked
+    /// "is this a Princess unit?" asks this instead; only the movement call and the deployment tell the two apart.
+    pub fn is_princess_family(&self) -> bool {
+        self.bot == "princess" || self.bot == "caspar"
+    }
+
     /// `BattleMech(mech_type)`: the stress-test fixture mech (its crit lists and numbers are placeholders that
     /// parse_mtf overwrites).
     pub fn new(mech_type: &str) -> Mech {

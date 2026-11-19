@@ -67,7 +67,7 @@ GitHub logistics.
     (`check_web_ui.py`, `check_web_lab.py`) + `check_lab_server.py`; the
     Python -> its tests and 15 reference battles; anything else (the engine)
     -> the Rust checks + the website + the Lab server. The Rust reference
-    battles (86, `tests/check_rust_reference.py`; `--update` for a Rust
+    battles (90, `tests/check_rust_reference.py`; `--update` for a Rust
     change meant to alter results) and the MegaMek bridge's parity check
     (`tests/check_bridge_parity.py --quick`) run one after the other
     (`check_rust_reference.py --parity` does both in one run, every battle
@@ -111,6 +111,10 @@ GitHub logistics.
   `INTEGRATION__princess_group` / `_memory`; Battle Value is
   `INTEGRATION__battle_value`). Daniel wants "general feel, not full stats":
   only the interesting series, few battles, unless he asks for a full run.
+- **Four bots now:** "caspar" (Rust only, session 29, Daniel 2026-11-18) is MegaMek's CASPAR: the Princess clone with the Mutual Support
+  movement ranker and zone deployment swapped in (`engine/core/src/caspar.rs`, `princess_modern::choose_as`; `btsim --caspar TEAM`; in
+  the Lab / website team bot list). Anywhere that asks "is this Princess?" uses `Mech::is_princess_family`. Reviewed against MegaMek's
+  source 2026-11-19 (Change Record) and merged; four reference battles play it (`caspar_*` in `check_rust_reference.py`). A/B: `tools/round_robin.py --bots princess,caspar`.
 - **Three bots now:** "hydra" (Rust only, session 24) is Claude's own design: one planner per team, damage priced
   by a forecast of how the battle ends. COMPLETE (Daniel, 2026-11-12; reopened once, 2026-11-17, for the map edge); `INTEGRATION__HYDRA.md` is its plan and
   results (read before the code). Trials: `tools/hydra_scenarios.py`, `tools/hydra_trial.py`, `tools/round_robin.py`,

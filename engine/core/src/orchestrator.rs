@@ -728,11 +728,19 @@ fn deploy_zones(b: &mut Battle) {
                 // spread out: prefer hexes not touching a hex already taken
                 let spread: Vec<String> = good.iter().filter(|l| !taken.iter().any(|t| deployment::hexes_touch(l, t))).cloned().collect();
                 if !spread.is_empty() { good = spread; }
+                // CASPAR forms up (MutualSupportDeployment): only the hexes that best keep the force together are left to choose from
+                let caspar = b.units[u].bot == "caspar";
+                if caspar { good = crate::caspar::prefer_formation(b, u, good); }
                 let hex = good.get((b.pick_number(good.len().max(1) as i64) - 1) as usize).cloned();
                 let nm = name(b, u);
                 match hex {
                     Some(h) => {
-                        b.units[u].facing = deployment::facing_to_centre(b, &h).into();
+                        // CASPAR faces the middle of the enemy teams' zones (facesEnemyZoneAtDeployment), the others the board's middle
+                        let toward = if b.units[u].bot == "caspar" { enemy_zone_centre(b, &zones, team) } else { None };
+                        b.units[u].facing = match toward {
+                            Some((c, r)) => deployment::facing_toward(b, &h, c, r),
+                            None => deployment::facing_to_centre(b, &h),
+                        }.into();
                         b.units[u].hex = Some(h.clone());
                         b.units[u].home_edge = None;
                         b.units[u].home_edge_row = None;
@@ -744,6 +752,31 @@ fn deploy_zones(b: &mut Battle) {
             }
         }
     }
+}
+
+/// EnemyDeploymentZone.center for the zone deployment: the mean of the middles (column, row) of the other teams' zones.
+fn enemy_zone_centre(b: &Battle, zones: &serde_json::Value, me: &str) -> Option<(f64, f64)> {
+    let mut middles = Vec::new();
+    for (name, z) in zones.as_object()? {
+        if name == me {
+            continue;
+        }
+        let mut boxes = [true; 9];
+        if let Some(arr) = z["boxes"].as_array() {
+            for (i, v) in arr.iter().take(9).enumerate() {
+                boxes[i] = v.as_bool().unwrap_or(false);
+            }
+        }
+        let hexes = deployment::zone_hexes(b, &boxes);
+        if hexes.is_empty() {
+            continue;
+        }
+        let n = hexes.len() as f64;
+        let c: f64 = hexes.iter().map(|h| h[0..2].parse::<f64>().unwrap_or(1.0)).sum::<f64>() / n;
+        let r: f64 = hexes.iter().map(|h| h[2..4].parse::<f64>().unwrap_or(1.0)).sum::<f64>() / n;
+        middles.push((c, r));
+    }
+    crate::caspar::enemy_zone_centre(&middles)
 }
 
 fn after_phase(b: &mut Battle) {

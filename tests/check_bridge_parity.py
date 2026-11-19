@@ -43,8 +43,7 @@ def parity(scenario_dir, name, folder, variant, max_turns=None):
     cmd = [ref.BTSIM, os.path.join(scenario_dir, folder), "--battles", "1", "--seed", str(ref.SEED), "--threads", "1", "--bridge-parity", "--bridge-compact"]
     if max_turns:
         cmd += ["--max-turns", str(max_turns)]
-    if hydra:
-        cmd += ["--hydra", hydra]
+    cmd += ref.bot_args(hydra)
     for kv in settings:
         cmd += ["--set", kv]
     proc = subprocess.run(cmd, capture_output=True, text=True)

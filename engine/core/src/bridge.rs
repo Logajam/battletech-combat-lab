@@ -731,7 +731,8 @@ pub struct Session {
 
 impl Session {
     /// The game's start: settings, board and units in a scenario's own form (config.json, board.json, units.json),
-    /// plus the teams Hydra drives. The dice are whatever the first line's state says. OR {"settings": {...},
+    /// plus the teams Hydra drives and the teams CASPAR drives ("caspar_teams", optional; added in CASPAR's review,
+    /// 2026-11-19: before it a CASPAR team's units came back as their units.json bot). The dice are whatever the first line's state says. OR {"settings": {...},
     /// "hydra_teams", "seed"}: the scenario is built here from settings (`Scenario::from_settings`, Combat Lab CL1) -
     /// how the Java side starts a game: which .mtf on which team, at which hex and facing, the board.
     pub fn start(v: &Value) -> Session {
@@ -739,6 +740,7 @@ impl Session {
             let s = crate::scenario::Scenario::from_settings(settings, &crate::scenario::SetupPaths::find()).unwrap_or_else(|e| panic!("bridge start: {}", e));
             let mut start = s.bridge_start(v["seed"].as_u64().unwrap_or(1));
             start["hydra_teams"] = v.get("hydra_teams").cloned().unwrap_or(json!([]));
+            start["caspar_teams"] = v.get("caspar_teams").cloned().unwrap_or(json!([]));
             return Session::start(&start);
         }
         let cfg = Config::from_json(&v["config"]);
@@ -747,9 +749,13 @@ impl Session {
         let idx = |n: &str| names.iter().position(|x| x == n).unwrap();
         let mut units: Vec<Mech> = names.iter().map(|n| Mech::from_json(&v["units"][n], &idx)).collect();
         let hydra: Vec<String> = v["hydra_teams"].as_array().map(|t| t.iter().map(|x| x.as_str().unwrap().to_string()).collect()).unwrap_or_default();
+        let caspar: Vec<String> = v["caspar_teams"].as_array().map(|t| t.iter().map(|x| x.as_str().unwrap().to_string()).collect()).unwrap_or_default();
         for m in units.iter_mut() {
             if m.team.as_ref().is_some_and(|t| hydra.contains(t)) {
                 m.bot = "hydra".to_string();
+            }
+            if m.team.as_ref().is_some_and(|t| caspar.contains(t)) {
+                m.bot = "caspar".to_string();
             }
         }
         let seed = v["seed"].as_u64().unwrap_or(1);

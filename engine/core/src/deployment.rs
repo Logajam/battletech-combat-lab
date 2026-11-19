@@ -237,11 +237,16 @@ pub fn zone_edge_row(b: &Battle, boxes: &[bool; 9]) -> Vec<String> {
 
 /// The compass facing that points from a hex toward the middle of the board.
 pub fn facing_to_centre(b: &Battle, label: &str) -> &'static str {
+    facing_toward(b, label, ((b.board.width + 1) / 2) as f64, ((b.board.height + 1) / 2) as f64)
+}
+
+/// The compass facing that points from a hex toward a point given as (column, row).
+pub fn facing_toward(_b: &Battle, label: &str, target_col: f64, target_row: f64) -> &'static str {
     let px = |c: f64, r: f64| (1.5 * c, 3f64.sqrt() * r + if (c as i64) % 2 == 0 { 3f64.sqrt() / 2.0 } else { 0.0 });
     let col: f64 = label[0..2].parse().unwrap_or(1.0);
     let row: f64 = label[2..4].parse().unwrap_or(1.0);
     let (x, y) = px(col, row);
-    let (cx, cy) = px(((b.board.width + 1) / 2) as f64, ((b.board.height + 1) / 2) as f64);
+    let (cx, cy) = px(target_col, target_row);
     // screen angle of each facing: N up, then clockwise in 60 degree steps
     let angle = (cy - y).atan2(cx - x).to_degrees();
     let mut best = ("N", f64::MAX);

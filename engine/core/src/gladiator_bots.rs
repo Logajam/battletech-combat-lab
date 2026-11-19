@@ -41,7 +41,7 @@ impl BotSet for GladiatorBots {
 
     #[allow(unused)]
     fn choose_target(&mut self, b: &mut Battle, attacker: UnitId) -> Option<UnitId> {
-        if b.units[attacker].bot == "princess" {
+        if b.units[attacker].is_princess_family() {
             return crate::bot_targets::princess_choose_target(b, attacker);
         }
         if b.units[attacker].bot == "hydra" {
@@ -64,7 +64,7 @@ impl BotSet for GladiatorBots {
 
     #[allow(unused)]
     fn choose_declaration(&mut self, b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId) -> DeclChoice {
-        if b.units[attacker].bot == "princess" {
+        if b.units[attacker].is_princess_family() {
             return crate::gladiator::choose_declaration_princess(b, ctx, planner, attacker, target);
         }
         crate::gladiator::choose_declaration(b, ctx, planner, attacker, target)
@@ -72,7 +72,7 @@ impl BotSet for GladiatorBots {
 
     #[allow(unused)]
     fn choose_physical(&mut self, b: &mut Battle, attacker: UnitId, target: UnitId) -> Option<(i64, Vec<PhysOption>, ArcAction)> {
-        if b.units[attacker].bot == "princess" {
+        if b.units[attacker].is_princess_family() {
             return crate::princess_fire::choose_physical(b, attacker, target);
         }
         crate::physical::choose_attack(b, attacker, target)
@@ -83,9 +83,10 @@ impl BotSet for GladiatorBots {
         let mut ties = Ties { recorded: None, missed: false };
         let (pick, note) = if b.units[mover].bot == "hydra" {
             crate::hydra::choose_movement(b, mover, other, moves_first, standup_mp, entry_edge)
-        } else if b.units[mover].bot == "princess" {
+        } else if b.units[mover].is_princess_family() {
             assert!(b.cfg.s("PRINCESS_VERSION") == "modern", "the v0.50.07 Princess is not translated yet");
-            crate::princess_modern::choose(b, mover, other, moves_first, standup_mp, entry_edge, &mut ties)
+            // CASPAR = Princess's whole movement ranker with the Mutual Support doctrine swapped in (caspar.rs)
+            crate::princess_modern::choose_as(b, mover, other, moves_first, standup_mp, entry_edge, &mut ties, b.units[mover].bot == "caspar")
         } else {
             move_select::choose(b, mover, other, moves_first, standup_mp, entry_edge, &mut ties)
         };
@@ -120,7 +121,7 @@ impl BotSet for GladiatorBots {
     fn records_declared_damage(&self, b: &Battle, attacker: UnitId) -> bool {
         // bots.records_declared_damage: Princess always; a Gladiator when it borrows Princess's target choice or runs the
         // kill-curve director
-        b.units[attacker].bot == "princess" || matches!(b.cfg.s("STUB_GLADIATOR_TARGET"), "princess_plan" | "kill_curve")
+        b.units[attacker].is_princess_family() || matches!(b.cfg.s("STUB_GLADIATOR_TARGET"), "princess_plan" | "kill_curve")
     }
 
     fn reset_assigned(&mut self, b: &mut Battle) {
