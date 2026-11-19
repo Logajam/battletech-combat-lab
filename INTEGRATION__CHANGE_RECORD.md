@@ -6,6 +6,39 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-19 (Claude, session 30), DEPLOYMENT: UNITS ARE PLACED, NOT WALKED ON, AND PLACE IN TURNS, THE MEGAMEK WAY. REVIEW PENDING (higher-level model).**
+  Daniel (while the benchmark was running): "that formation logic is supposed to be standard kit... If you need to rebuild the
+  reference battles to turn it on permanently do that too", then "using megamek's start of game. Players take turns putting their
+  units on the board within the starting zone limits. Once all units are placed, the game actually starts", "when using megamek
+  style deployment zones, need to do it megamek's way", "Fix deployment. Push those changes... as a bug patch". Found: Princess's and
+  CASPAR's deployment (`princess_deploy.rs`, CASPAR's formation order and zone facing) ran ONLY for units placed in a Combat Lab
+  deployment zone; every ordinary game walked its units on from the home edge, so the benchmark battery had never used it.
+  BOOK DIFFERENCE, on Daniel's order: Core p.37 walks each 'Mech onto the board in its Movement Phase, counting MP from the
+  first full hex. The default is now PLACEMENT: before turn 1 each unit stands in a hex of its home-edge row (up to
+  DEPLOYMENT_DEPTH in), then gets its full turn-1 move from there, so it starts about one hex ahead of a walk-on and with its
+  facing chosen by its bot. Every bot is placed alike (Princess, CASPAR: MegaMek's logic; Gladiator, Hydra: the shared placement:
+  hexes they can get out of toward the middle, spread, by dice, facing the middle). The rule-book walk-on is the switch
+  `DEPLOYMENT_PLACED` = false (INTEGRATION__config.py OPTIONAL RULES, engine/defaults/config.json; a settings file without the key is
+  placed). A unit with no free edge hex still walks on. MEGAMEK'S ORDER (MegaMek main: deployment turns come from the same
+  initiative turn order as movement, via `TWGameManager.determineTurnOrder`; MegaMek also has a walk-on option,
+  BASE_WALK_ON_DEPLOYMENT): the teams place one unit at a time, the deployment roll's LOSER first, each seeing the units already
+  placed; a team with more units takes proportionally more turns (its units / the smallest team's; MegaMek's even-turn spread is
+  not copied exactly). Zone deployment (`deploy_zones`) now takes the same turns, with a roll (logged "X places first") when two
+  or more teams place; walk-on zones are unchanged. Code: `orchestrator::place_in_turns`, `place_unit`, `walk_on_edge`,
+  `deploy_teams`, `deploy_zones`; the old princess_deploy note "this engine places a team at a time" is now out of date.
+  ALSO FIXED: `deployment::facing_toward` chose a facing by the last bit of `atan2` when a hex sat exactly on a 60 degree line
+  through the target, so the desktop and the browser (WebAssembly's maths library) could face a unit differently and play a
+  different battle (`check_web_lab.py`: gladiator 2v2 battle 4, placed zones battle 4). The angle is rounded to a millionth of a
+  degree; none of the 91 reference battles changed from that.
+  RESULTS CHANGED: 48 of the 91 Rust reference battles (every home-edge one) re-recorded with `check_rust_reference.py --update`
+  (the dice stream and the starts changed); the 43 fixed-hex and zone ones that did not use the home edge are unchanged except
+  the placed-zone one. Three battles now reach the turn cap: the Asymptote mirror (known stall), and `hydra_noplayout_red` and
+  `hydra_first_red` on `hy_4v4_lance_woods` (new; Hydra stalls on that board, to look at: backlog A1). Every benchmark result
+  before this entry (1 v 1, 4 v 4, 12 v 12) was played with WALK-ON and is the baseline for the old rule.
+  Checks: `run_checks.py --full` (reference, bridge parity, cargo tests, Lab server, website), `check_web_ui.py`, `check_web_lab.py
+  --rebuild`; the fixtures for `cl1_setup` rebuilt with `tools/port_fixtures.py --no-replay` (they are git-ignored; the container had
+  none); wasm32 target installed (`rustup target add wasm32-unknown-unknown`).
+
 - **2026-11-19 (Claude, session 30), BENCHMARK BATTERY STAGE 3: TWELVE v TWELVE MIRROR ON GRASSLAND 1 TWICE (`tools/benchmark_bots.py 4v4 mixed12 --stitched`).
   REVIEW PENDING (higher-level model).** Daniel: "Use grassland 1 twice." Board: two copies of Grassland 1 side by side (32 x 17;
   STITCH_MAPS, grid 2 x 1; a 16 x 34 stack was not played). Both sides the 12-'Mech mixed force of `tools/hydra_scenarios.py`

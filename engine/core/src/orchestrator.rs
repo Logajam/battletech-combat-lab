@@ -665,29 +665,167 @@ fn deploy_teams(b: &mut Battle) {
         panic!("Unknown HOME_EDGE_CHOICE {:?}", choice);
     };
     let edges = edges_for_teams(edge, order.len());
+    // Placed (the default, Daniel 2026-11-19: "that formation logic is supposed to be standard kit") or walking on (Core p.37 as
+    // written; DEPLOYMENT_PLACED false). Placed units stand in hexes of their home-edge row (up to DEPLOYMENT_DEPTH in) before turn 1,
+    // taking turns as MegaMek's players do (place_in_turns); a unit with no free hex still walks on.
+    let placed_mode = !b.cfg.has("DEPLOYMENT_PLACED") || b.cfg.b("DEPLOYMENT_PLACED");
+    let mut zones = serde_json::Map::new();
     for (i, team) in order.iter().enumerate() {
-        let e = edges[i];
+        zones.insert(team.clone(), serde_json::json!({"boxes": edge_boxes(edges[i]).to_vec()}));
+    }
+    let zones = serde_json::Value::Object(zones);
+    let mut parts: Vec<Placing> = Vec::new();
+    for (i, team) in order.iter().enumerate() {
         let members: Vec<UnitId> = all.iter().copied().filter(|u| b.units[*u].team.as_deref() == Some(team.as_str())).collect();
+        if placed_mode {
+            let enemy_zone = crate::princess_deploy::enemy_zone_centre(b, &zones, team);
+            parts.push(Placing { members, boxes: edge_boxes(edges[i]), spots: Spots::Edge(edges[i]), label: String::new(), enemy_zone, clusters: Default::default() });
+            continue;
+        }
         for u in members {
-            let start = deployment::start_hexes(b, u, e);
-            b.units[u].home_edge = Some(start.hexes.clone());
-            b.units[u].home_edge_row = Some(edge_hexes(b, e));
-            b.units[u].hex = None;
-            b.units[u].facing = "N".into();
+            walk_on_edge(b, u, edges[i], true);
+        }
+    }
+    if placed_mode {
+        for (i, u) in place_in_turns(b, parts) {
             let nm = name(b, u);
-            let he = start.hexes.clone();
-            if start.depth == 0 && start.stuck.is_empty() && he == edge_hexes(b, e) {
-                b.log(format!("  Deployment: {} home edge {} ({}-{}).", nm, e, he[0], he[he.len() - 1]));
-            } else {
-                let dd = b.cfg.i("DEPLOYMENT_DEPTH");
-                let over = if start.depth != dd { " (stuck-terrain override)" } else { "" };
-                let left = if !start.stuck.is_empty() { format!(", {} stuck hexes left out", start.stuck.len()) } else { String::new() };
-                b.log(format!("  Deployment: {} home edge {}, starting up to {} hexes in{}: {} start hexes{}.", nm, e, start.depth, over, he.len(), left));
-            }
+            b.log(format!("  Deployment: {} has no free hex on its home edge and walks on.", nm));
+            walk_on_edge(b, u, edges[i], false);
         }
     }
     let parts: Vec<String> = teams.iter().map(|t| format!("{} {}", t, rolls[t])).collect();
     b.log(format!("  Deployment roll: {} - {} chose its edge.", parts.join(", "), order[0]));
+}
+
+/// Core p.37 walk-on for one unit: it will enter along `e` during its Movement Phase (hex None). `log_edge` writes the
+/// "home edge" line (place_in_turns writes its own for a placed unit).
+fn walk_on_edge(b: &mut Battle, u: UnitId, e: &str, log_edge: bool) {
+    let start = deployment::start_hexes(b, u, e);
+    if log_edge {
+        log_home_edge(b, u, e, &start);
+    }
+    b.units[u].home_edge = Some(start.hexes.clone());
+    b.units[u].home_edge_row = Some(edge_hexes(b, e));
+    b.units[u].hex = None;
+    b.units[u].facing = "N".into();
+}
+
+fn log_home_edge(b: &mut Battle, u: UnitId, e: &str, start: &deployment::StartHexes) {
+    let nm = name(b, u);
+    let he = &start.hexes;
+    if start.depth == 0 && start.stuck.is_empty() && *he == edge_hexes(b, e) {
+        b.log(format!("  Deployment: {} home edge {} ({}-{}).", nm, e, he[0], he[he.len() - 1]));
+    } else {
+        let dd = b.cfg.i("DEPLOYMENT_DEPTH");
+        let over = if start.depth != dd { " (stuck-terrain override)" } else { "" };
+        let left = if !start.stuck.is_empty() { format!(", {} stuck hexes left out", start.stuck.len()) } else { String::new() };
+        b.log(format!("  Deployment: {} home edge {}, starting up to {} hexes in{}: {} start hexes{}.", nm, e, start.depth, over, he.len(), left));
+    }
+}
+
+/// Where a team's placed units may stand: the hexes of a deployment zone, or its home edge's row.
+enum Spots {
+    Zone(Vec<String>),
+    Edge(&'static str),
+}
+
+/// One team waiting to place its units (place_in_turns).
+struct Placing {
+    members: Vec<UnitId>,
+    boxes: [bool; 9],
+    spots: Spots,
+    label: String,
+    enemy_zone: Option<(i64, i64)>,
+    /// Princess and CASPAR build the team's board-area maps once
+    clusters: crate::princess_deploy::Clusters,
+}
+
+/// MegaMek's start of the game (Daniel, 2026-11-19: "Players take turns putting their units on the board within the starting
+/// zone limits. Once all units are placed, the game actually starts"): the teams place one unit at a time, in `parts` order (the
+/// deployment roll's loser first), a team with more units taking proportionally more turns (its units / the smallest team's, as
+/// MegaMek's even turn order spreads them), each seeing the units already on the board. Returns (index in `parts`, unit) for
+/// every unit that found no free hex.
+fn place_in_turns(b: &mut Battle, mut parts: Vec<Placing>) -> Vec<(usize, UnitId)> {
+    let centre: crate::fasthash::HashSet<String> = deployment::zone_hexes(b, &[false, false, false, false, true, false, false, false, false]).into_iter().collect();
+    let mut taken: Vec<String> = (0..b.units.len()).filter_map(|u| b.units[u].hex.clone()).collect();
+    let smallest = parts.iter().map(|p| p.members.len()).filter(|n| *n > 0).min().unwrap_or(1);
+    let per_round: Vec<usize> = parts.iter().map(|p| (p.members.len() / smallest).max(1)).collect();
+    let mut next = vec![0usize; parts.len()];
+    let mut unplaced = Vec::new();
+    loop {
+        let mut any = false;
+        for i in 0..parts.len() {
+            for _ in 0..per_round[i] {
+                if next[i] >= parts[i].members.len() {
+                    break;
+                }
+                any = true;
+                let u = parts[i].members[next[i]];
+                next[i] += 1;
+                let nm = name(b, u);
+                let good: Vec<String> = match &parts[i].spots {
+                    Spots::Zone(zone) => zone.iter().filter(|l| !taken.contains(l)
+                        && terrain_rules::step_cost(None, &b.board.hexes[*l], terrain_rules::max_level_change(false, false), false).is_some()).cloned().collect(),
+                    Spots::Edge(e) => {
+                        let start = deployment::start_hexes(b, u, e);
+                        log_home_edge(b, u, e, &start);
+                        start.hexes.iter().filter(|l| !taken.contains(l)).cloned().collect()
+                    }
+                };
+                let (boxes, enemy_zone) = (parts[i].boxes, parts[i].enemy_zone);
+                let placed = place_unit(b, u, good, &boxes, enemy_zone, &mut parts[i].clusters, &centre, &taken);
+                match placed {
+                    Some((h, facing, note)) => {
+                        b.units[u].facing = facing;
+                        b.units[u].hex = Some(h.clone());
+                        b.units[u].home_edge = None;
+                        b.units[u].home_edge_row = None;
+                        taken.push(h.clone());
+                        let place = if parts[i].label.is_empty() { String::new() } else { format!(" in zone {}", parts[i].label) };
+                        if note.is_empty() {
+                            b.log(format!("  Deployment: {} placed at {}{}.", nm, h, place));
+                        } else {
+                            b.log(format!("  Deployment: {} placed at {} facing {}{}{}.", nm, h, b.units[u].facing, place, note));
+                        }
+                    }
+                    None => unplaced.push((i, u)),
+                }
+            }
+        }
+        if !any {
+            return unplaced;
+        }
+    }
+}
+
+/// Where one PLACED unit stands and faces, out of `good` (the free hexes it may take). Princess and CASPAR choose as MegaMek's
+/// bots do (princess_deploy: fitness, hazard scan, room to move, formation, facing); everyone else keeps the shared placement:
+/// hexes it can get out of into the middle of the board (`centre`), not touching a hex already taken, picked by the dice, facing
+/// the middle. Returns (hex, facing, log note), None when `good` is empty. Used by zone deployment (`deploy_zones`) and by the
+/// default home-edge deployment (`deploy_teams`, Daniel 2026-11-19: the formation logic is standard kit).
+fn place_unit(b: &mut Battle, u: UnitId, mut good: Vec<String>, boxes: &[bool; 9], enemy_zone: Option<(i64, i64)>,
+              clusters: &mut crate::princess_deploy::Clusters, centre: &crate::fasthash::HashSet<String>, taken: &[String]) -> Option<(String, String, String)> {
+    if b.units[u].is_princess_family() {
+        return crate::princess_deploy::choose(b, u, good, boxes, enemy_zone, clusters).map(|p| (p.hex, p.facing.to_string(), format!(" ({})", p.note)));
+    }
+    let mut cache = Default::default();
+    // keep to hexes the unit can get out of into the middle of the board; if none can, take any enterable one
+    let free: Vec<String> = good.iter().filter(|l| deployment::reaches(b, u, l, centre, &mut cache)).cloned().collect();
+    if !free.is_empty() { good = free; }
+    // spread out: prefer hexes not touching a hex already taken
+    let spread: Vec<String> = good.iter().filter(|l| !taken.iter().any(|t| deployment::hexes_touch(l, t))).cloned().collect();
+    if !spread.is_empty() { good = spread; }
+    let hex = good.get((b.pick_number(good.len().max(1) as i64) - 1) as usize).cloned();
+    hex.map(|h| { let f = deployment::facing_to_centre(b, &h).to_string(); (h, f, String::new()) })
+}
+
+/// The 3 x 3 zone boxes that make up a home edge (N: the top row of boxes ... W: the left column), what the Princess deployment
+/// reads to know which side of the board a team stands on.
+fn edge_boxes(edge: &str) -> [bool; 9] {
+    let on: [usize; 3] = match edge { "N" => [0, 1, 2], "S" => [6, 7, 8], "W" => [0, 3, 6], _ => [2, 5, 8] };
+    let mut boxes = [false; 9];
+    for i in on { boxes[i] = true; }
+    boxes
 }
 
 /// Zone deployment (Combat Lab): DEPLOY_ZONES = {team: {"boxes": [9 bools], "walk_on": bool}}. A walk-on unit starts off the
@@ -697,6 +835,7 @@ fn deploy_zones(b: &mut Battle) {
     let zones = b.cfg.get("DEPLOY_ZONES").clone();
     let all: Vec<UnitId> = (0..b.units.len()).collect();
     let teams = forces::team_names(b, &all);
+    let mut parts: Vec<(String, Placing)> = Vec::new();
     for team in &teams {
         let z = &zones[team.as_str()];
         let mut boxes = [true; 9];
@@ -720,46 +859,27 @@ fn deploy_zones(b: &mut Battle) {
                 b.log(format!("  Deployment: {} walks on in zone {} ({} entry hexes, up to {} hexes in).", nm, label, start.hexes.len(), start.depth));
             }
         } else {
-            let zone = deployment::zone_hexes(b, &boxes);
-            let centre: crate::fasthash::HashSet<String> = deployment::zone_hexes(b, &[false, false, false, false, true, false, false, false, false]).into_iter().collect();
-            let mut taken: Vec<String> = all.iter().filter_map(|u| b.units[*u].hex.clone()).collect();
-            // Princess and CASPAR deploy as MegaMek's bots do (princess_deploy); the team's board-area maps are built once
-            let mut clusters = crate::princess_deploy::Clusters::default();
             let enemy_zone = crate::princess_deploy::enemy_zone_centre(b, &zones, team);
-            for u in members {
-                let mut cache = Default::default();
-                let mut good: Vec<String> = zone.iter().filter(|l| !taken.contains(l)
-                    && terrain_rules::step_cost(None, &b.board.hexes[*l], terrain_rules::max_level_change(false, false), false).is_some()).cloned().collect();
-                let nm = name(b, u);
-                let placed: Option<(String, String, String)> = if b.units[u].is_princess_family() {
-                    crate::princess_deploy::choose(b, u, good, &boxes, enemy_zone, &mut clusters).map(|p| (p.hex, p.facing.to_string(), format!(" ({})", p.note)))
-                } else {
-                    // keep to hexes the unit can get out of into the middle of the board; if none can, take any enterable one
-                    let free: Vec<String> = good.iter().filter(|l| deployment::reaches(b, u, l, &centre, &mut cache)).cloned().collect();
-                    if !free.is_empty() { good = free; }
-                    // spread out: prefer hexes not touching a hex already taken
-                    let spread: Vec<String> = good.iter().filter(|l| !taken.iter().any(|t| deployment::hexes_touch(l, t))).cloned().collect();
-                    if !spread.is_empty() { good = spread; }
-                    let hex = good.get((b.pick_number(good.len().max(1) as i64) - 1) as usize).cloned();
-                    hex.map(|h| { let f = deployment::facing_to_centre(b, &h).to_string(); (h, f, String::new()) })
-                };
-                match placed {
-                    Some((h, facing, note)) => {
-                        b.units[u].facing = facing;
-                        b.units[u].hex = Some(h.clone());
-                        b.units[u].home_edge = None;
-                        b.units[u].home_edge_row = None;
-                        taken.push(h.clone());
-                        if note.is_empty() {
-                            b.log(format!("  Deployment: {} placed at {} in zone {}.", nm, h, label));
-                        } else {
-                            b.log(format!("  Deployment: {} placed at {} facing {} in zone {}{}.", nm, h, b.units[u].facing, label, note));
-                        }
-                    }
-                    None => panic!("deployment: no free hex in zone {} for {}", label, nm),
-                }
-            }
+            parts.push((team.clone(), Placing { members, boxes, spots: Spots::Zone(deployment::zone_hexes(b, &boxes)), label, enemy_zone, clusters: Default::default() }));
         }
+    }
+    if parts.is_empty() {
+        return;
+    }
+    // the teams that place take turns, the deployment roll's loser first (a lone team needs no roll)
+    if parts.len() > 1 {
+        let names: Vec<String> = parts.iter().map(|(t, _)| t.clone()).collect();
+        let mut rolls: IndexMap<String, i64> = IndexMap::default();
+        let order = forces::initiative_order(b, &names, Some(&mut rolls));
+        let shown: Vec<String> = names.iter().map(|t| format!("{} {}", t, rolls[t])).collect();
+        b.log(format!("  Deployment roll: {} - {} places first.", shown.join(", "), order[0]));
+        parts.sort_by_key(|(t, _)| order.iter().position(|o| o == t).unwrap());
+    }
+    let labels: Vec<String> = parts.iter().map(|(_, p)| p.label.clone()).collect();
+    let unplaced = place_in_turns(b, parts.into_iter().map(|(_, p)| p).collect());
+    if let Some((i, u)) = unplaced.first() {
+        let nm = name(b, *u);
+        panic!("deployment: no free hex in zone {} for {}", labels[*i], nm);
     }
 }
 

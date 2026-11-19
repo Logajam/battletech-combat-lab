@@ -48,7 +48,7 @@ def folder(key):
         return "Game setup", "Rules"
     if key.startswith("STUB_"):
         return "Game setup", "Placeholders (stubs)"
-    if key in ("HOME_EDGE_CHOICE", "DEPLOYMENT_DEPTH", "DEPLOYMENT_STUCK_DEPTH"):
+    if key in ("HOME_EDGE_CHOICE", "DEPLOYMENT_DEPTH", "DEPLOYMENT_STUCK_DEPTH", "DEPLOYMENT_PLACED"):
         return "Game setup", "Deployment"
     if key.startswith(TECHNICAL):
         return "Game setup", "Technical and debugging"
