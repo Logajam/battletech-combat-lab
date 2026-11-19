@@ -1,7 +1,7 @@
 """The four-bot benchmark battery (session 30, Daniel 2026-11-19): every bot against every bot, itself included, on the
 website's maps and 'Mechs only.
 
-    python tools/benchmark_bots.py 4v4 [MIRROR] [--per-axis 20] [--only=MAP_PREFIX]      (stage 2, below)
+    python tools/benchmark_bots.py 4v4 [MIRROR] [--per-axis 20] [--only=MAP_PREFIX]      (stage 2, below; --stitched plays the STITCHED boards, for mixed12)
     python tools/benchmark_bots.py 1v1 [MATCHUP ...] [--battles 80] [--data-root DIR] [--records DIR] [--threads N] [--list]
 
 Stage 1 (this file): ONE-ON-ONE. A matchup is two 'Mechs (MATCHUPS below). For each of the 10 bot pairings (4 bots: 6 cross
@@ -84,7 +84,12 @@ def play(root, red_mtfs, blue_mtfs, red_bot, blue_bot, board, axis, battles, see
     """One run: `battles` battles of Red (red_mtfs, red_bot) v Blue (blue_mtfs, blue_bot). Returns btsim's results with each
     battle's start edges added ('edges': {team: edge})."""
     settings = {"FORCES": [{"team": t, "mtf": m, "count": 1, "bot": bot} for t, ms, bot in (("Red", red_mtfs, red_bot), ("Blue", blue_mtfs, blue_bot)) for m in ms],
-                "DEFAULT_BOARD_PATH": board, "HOME_EDGE_CHOICE": AXES[axis]}
+                "HOME_EDGE_CHOICE": AXES[axis]}
+    if board in STITCHED:                      # boards joined in a grid (STITCH_MAPS, as the Lab does)
+        ids, cols, rows = STITCHED[board]
+        settings.update({"STITCH_MAPS": True, "STITCH_BOARDS": ids, "STITCH_GRID_COLS": cols, "STITCH_GRID_ROWS": rows})
+    else:
+        settings["DEFAULT_BOARD_PATH"] = board
     with tempfile.TemporaryDirectory() as tmp:
         sfile, out = os.path.join(tmp, "settings.json"), os.path.join(tmp, "out.json")
         json.dump(settings, open(sfile, "w"))
@@ -156,7 +161,12 @@ def run_matchup(name, battles, root, records, threads):
     print(f"  cross-pair totals for {name} (wins - losses): " + ", ".join(f"{k} {v[0]}-{v[1]}" for k, v in tally.items()), flush=True)
 
 
+STITCHED = {     # name: (board ids, grid columns, grid rows); Daniel 2026-11-19: "Use grassland 1 twice" for 12 v 12
+    "Grassland_1_x2_wide.board": (["16x17_Grassland_1.board"] * 2, 2, 1),      # 32 wide, 17 high
+}
 MIRRORS = {      # name: the 'Mechs of ONE side (both sides field them: the pilot is the only difference)
+    "mixed12": ["Atlas AS7-K.mtf", "Awesome AWS-8Q.mtf", "Archer ARC-2R.mtf", "Hunchback HBK-4G.mtf", "Griffin GRF-1N.mtf", "Dervish DV-6M.mtf",
+                "Jenner JR7-D.mtf", "Commando COM-2D.mtf", "Locust LCT-1V.mtf", "Catapult CPLT-C1.mtf", "Cataphract CTF-3D.mtf", "Kintaro KTO-19.mtf"],   # tools/hydra_scenarios.py MIXED
     "lance4": ["Atlas AS7-K.mtf", "Hunchback HBK-4G.mtf", "Griffin GRF-1N.mtf", "Jenner JR7-D.mtf"],   # tools/hydra_scenarios.py LANCE
 }
 
@@ -210,7 +220,9 @@ def main(argv):
     if argv and argv[0] == "4v4":
         root = data_root(opt("--data-root", os.path.join(os.path.dirname(ROOT), "btroot")))
         maps = [m for m in MAPS if not [a for a in argv if a.startswith("--only=")] or m.startswith(argv[[a.startswith("--only=") for a in argv].index(True)][7:])]
-        for n in ([a for a in argv[1:] if a in MIRRORS] or list(MIRRORS)):
+        if "--stitched" in argv:
+            maps = list(STITCHED)
+        for n in ([a for a in argv[1:] if a in MIRRORS] or ["lance4"]):
             run_mirror(n, int(opt("--per-axis", "20")), root, opt("--records", os.path.join(ROOT, "trial_records")), opt("--threads", None), maps)
         return
     if not argv or argv[0] != "1v1":
