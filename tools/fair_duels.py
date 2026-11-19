@@ -24,10 +24,10 @@ Stages (314 'Mechs make 49,000 pairs; a full set is 144 battles, so not every pa
   confirm  pairs of near-equal rating that differ most (tonnage, speed, reach, Battle Value): full sets head to head.
   report   per pair: A's score (win = 1, draw = 1/2) with its margin of error, per bot and per map; the ratings beside BV.
 
-Bots: `--bots a,b` (default all four). Daniel, 2026-11-19: "Might want to use Hydra. its still the strongest bot in
-general." So the rating stage over the 314 runs on Hydra alone (four times the battles for the time); a rating cell set
-with one bot is the 4 edges x 4 maps (rotated). The confirmation stage keeps all four bots, to show whether an even pair
-is even for every bot or only for Hydra.
+Bots: all four in every stage (Daniel, 2026-11-19, reversing a Hydra-only idea the same hour: "Forgot that we were
+looking for fairness across bots too. I expect this will give absolutely dirty data that doesn't agree with itself.").
+A FAIR pair is even under each bot, not only on the total; `report` gives each bot's own ratings and how far the bots
+agree. `--bots a,b` remains for a side study.
 
 Records: every battle, as each cell ends, in trial_records/<date>_fair_duels_<label>.jsonl (one line a cell); a re-run plays
 only the missing cells. Units are unpacked from data/meks.zip into data/meks/ (git-ignored), as the Combat Lab does.
@@ -298,7 +298,9 @@ def stage_confirm(argv):
     label = option(argv, "--label", "intro")
     units = {u["id"]: u for u in intro_pool()}
     done = done_cells(label)
-    rating = bradley_terry(list(done.values()), list(units))
+    rows = list(done.values())
+    rating = bradley_terry(rows, list(units))
+    per_bot = {bot: bradley_terry([r for r in rows if r["bot"] == bot], list(units)) for bot in BOTS}
     if "--pairs" in argv:
         pairs = [tuple(l.split("\t")[:2]) for l in open(option(argv, "--pairs", "")) if l.strip()]
     else:
@@ -309,6 +311,10 @@ def stage_confirm(argv):
             for y in ids[i + 1:]:
                 if rating[y] - rating[x] > 0.15:  # predicted score within about 46 - 54%
                     break
+                # fair across bots too: no single bot rates them more than 0.4 apart (about 40 - 60%); the per-bot ratings
+                # rest on a quarter of the battles, so this is a loose screen and the full set decides
+                if any(abs(per_bot[bot][x] - per_bot[bot][y]) > 0.4 for bot in BOTS):
+                    continue
                 cands.append((difference(units[x], units[y]), x, y))
         cands.sort(reverse=True)
         pairs, used = [], {}
@@ -336,12 +342,14 @@ def summarize(rows, units, title, full_only=False):
         se = math.sqrt(max(s * (1 - s), 0.05) / n)
         per_bot = {bot: sum(v for v, r in ss if r["bot"] == bot) / max(1, sum(1 for _, r in ss if r["bot"] == bot)) for bot in BOTS}
         draws = sum(1 for _, r in ss if r["winner"] == "Draw") / n
-        lines.append((abs(s - 0.5), x, y, s, se, n, per_bot, draws))
+        worst = max(abs(v - 0.5) for v in per_bot.values())
+        lines.append((max(abs(s - 0.5), worst) if full_only else abs(s - 0.5), x, y, s, se, n, per_bot, draws))
     lines.sort()
-    print(f"\n{title}: {len(lines)} pairs (score = the first 'Mech's, win 1 / draw 1/2; +- one standard error)")
+    order = "the bot furthest from even" if full_only else "the total"
+    print(f"\n{title}: {len(lines)} pairs, nearest even first by {order} (score = the first 'Mech's, win 1 / draw 1/2; +- one standard error)")
     for _, x, y, s, se, n, pb, dr in lines:
         ux, uy = units.get(x, {}), units.get(y, {})
-        nm = lambda u, i: f"{u.get('name', i)} ({u.get('tons', '?')}t, BV {u.get('bv', '?')})"
+        nm = lambda u, i: f"{(u.get('name') or i)} ({u.get('tons', '?')}t, BV {u.get('bv', '?')})"
         bots = " ".join(f"{b[:3]} {v:.2f}" for b, v in pb.items())
         print(f"  {s:.3f} +- {se:.3f}  n={n:3d}  draws {dr:.0%}  [{bots}]  {nm(ux, x)}  v  {nm(uy, y)}")
 
@@ -367,10 +375,21 @@ def stage_report(argv):
         corr = cov / math.sqrt(sum((a - mx) ** 2 for a, _ in bv) * sum((b - my) ** 2 for _, b in bv))
         slope = cov / sum((b - my) ** 2 for _, b in bv)
         print(f"rating v log(BV): correlation {corr:.2f}; slope {slope:.2f} (rating per log-BV)")
-    print("\nratings (Bradley-Terry, log scale; +0.69 = twice as likely to win against the same opponent):")
+    per_bot = {bot: bradley_terry([r for r in rows if r["bot"] == bot], ids) for bot in BOTS}
+
+    def corr(xs, ys):
+        mx, my = sum(xs) / len(xs), sum(ys) / len(ys)
+        c = sum((a - mx) * (b - my) for a, b in zip(xs, ys))
+        return c / math.sqrt(sum((a - mx) ** 2 for a in xs) * sum((b - my) ** 2 for b in ys) or 1)
+    print("\nhow far the bots agree (correlation of their ratings; 1 = the same order):")
+    for i, x in enumerate(BOTS):
+        print("  " + f"{x:10s}" + " ".join(f"{corr([per_bot[x][u] for u in ids], [per_bot[y][u] for u in ids]):6.2f}" for y in BOTS))
+    print("\nratings (Bradley-Terry, log scale; +0.69 = twice as likely to win against the same opponent); then each bot's own:")
+    print("  " + " " * 7 + f"{'':32s} {'':>4}  {'':>8}  " + " ".join(f"{b[:5]:>6}" for b in BOTS))
     for i in sorted(ids, key=lambda i: -rating[i]):
         u = units.get(i, {})
-        print(f"  {rating[i]:+.2f}  {u.get('name', i):32s} {u.get('tons', '?'):>3}t  BV {u.get('bv', '?'):>5}")
+        pb = " ".join(f"{per_bot[b][i]:+6.2f}" for b in BOTS)
+        print(f"  {rating[i]:+.2f}  {(u.get('name') or i):32s} {u.get('tons', '?'):>3}t  BV {u.get('bv', '?'):>5}  {pb}")
     summarize(rows, units, "pairs closest to even" + (" (full sets only)" if "--full" in argv else ""), "--full" in argv)
 
 
