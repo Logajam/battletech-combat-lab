@@ -154,6 +154,14 @@ public final class GameView {
                 case MOVE_JUMP -> "Jump";
                 default -> "Stand Still";
             });
+            // "done": has the unit had its Movement Phase turn this round (our engine's moved_this_turn: a unit that stood
+            // still has moved too)? In the Movement Phase that is MegaMek's isDone(); before it no one has, after it everyone
+            // has. "moved" alone cannot tell a unit that stood still from one still to move (CASPAR's review, 2026-11-19).
+            boolean afterMovement = game.getPhase().isMovementReport() || game.getPhase().isOffboard()
+                  || game.getPhase().isOffboardReport() || game.getPhase().isPreFiring() || game.getPhase().isFiring()
+                  || game.getPhase().isFiringReport() || game.getPhase().isPhysical() || game.getPhase().isPhysicalReport()
+                  || game.getPhase().isEnd() || game.getPhase().isEndReport();
+            u.put("done", game.getPhase().isMovement() ? e.isDone() : afterMovement);
             u.put("mp_spent", e.mpUsed);
             u.put("hexes_moved", e.delta_distance);
             ObjectNode locs = u.putObject("locations");

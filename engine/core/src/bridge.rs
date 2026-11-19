@@ -367,7 +367,7 @@ pub fn apply_compact(base: &Value, c: &Value) -> Value {
 //   {"name", "hex" ("0905", null off the board), "facing" 0-5, "prone", "shutdown", "heat", "destroyed",
 //    "locations": {"Left Torso": {"armor", "rear", "structure", "destroyed"}}, "destroyed_slots": [["Left Torso", 3]],
 //    "ammo": {"Left Torso#0": shots}, "jammed": ["Right Arm#4"], "pilot_hits", "conscious",
-//    "moved": "Walk" / "Run" / "Jump" / "Stand Still" (this turn, or null), "mp_spent", "twist" (-1, 0, 1)}
+//    "moved": "Walk" / "Run" / "Jump" / "Stand Still" (this turn, or null), "done" (has had its Movement Phase turn this round; optional), "mp_spent", "twist" (-1, 0, 1)}
 // Everything else stays as the session's own copy of the unit has it (built from the .mtf when the game started).
 // Destroyed slots go through the engine's own slot loss (`destroy_slot_quietly`), so engine / gyro / heat sink / jump
 // jet counters follow; no explosion, MegaMek resolved it. Our own bookkeeping that MegaMek does not have (snapshots
@@ -415,7 +415,7 @@ pub fn megamek_view(b: &Battle, u: UnitId) -> Value {
            "prone": m.prone, "shutdown": m.shutdown, "heat": m.current_heat, "destroyed": false,
            "locations": locations, "destroyed_slots": slots, "ammo": ammo, "jammed": jammed,
            "pilot_hits": m.pilot_hits, "conscious": !m.crew.get("pilot").is_some_and(|p| p.unconscious),
-           "moved": if m.moved_this_turn { m.move_mode.clone() } else { "Stand Still".into() }, "mp_spent": m.mp_spent,
+           "moved": if m.moved_this_turn { m.move_mode.clone() } else { "Stand Still".into() }, "done": m.moved_this_turn, "mp_spent": m.mp_spent,
            "hexes_moved": m.move_fc,
            "fired": m.weapons_fired_this_turn.as_ref().map(|f| { let a = m.item_addresses(); f.iter().filter_map(|id| a.get(id).cloned()).collect::<Vec<_>>() }),
            "twist": m.torso_twist.unwrap_or(0), "home_edge": m.home_edge, "home_edge_row": m.home_edge_row,
@@ -497,7 +497,11 @@ pub fn apply_megamek_view(b: &mut Battle, v: &Value) {
     }
     if let Some(mode) = v.get("moved").and_then(|x| x.as_str()) {
         m.move_mode = mode.to_string();
-        m.moved_this_turn = mode != "Stand Still";
+        // "done" (2026-11-19, CASPAR's review): the unit has had its Movement Phase turn this round - MegaMek's Entity.isDone()
+        // in the Movement Phase, true for every unit after it - which is what moved_this_turn means in our engine (a unit that
+        // stood still has moved too). An older state line without it falls back to the movement mode, which missed a unit
+        // that stood still (CASPAR's cover bonus counted it as unset, Hydra's forecast as still to move).
+        m.moved_this_turn = v.get("done").and_then(|d| d.as_bool()).unwrap_or(mode != "Stand Still");
         m.mp_spent = v.get("mp_spent").and_then(|x| x.as_i64()).unwrap_or(0);
         // hexes moved: what the target movement modifier is figured from (combat::fc_to_tmm), and the movement heat
         m.move_fc = v.get("hexes_moved").and_then(|x| x.as_i64()).unwrap_or(0);
