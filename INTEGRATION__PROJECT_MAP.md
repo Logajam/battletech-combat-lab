@@ -50,7 +50,7 @@ and the GitHub logistics (Section 7).
 - **After any change:** `python tests/run_checks.py` picks the checks from what changed since origin/main (levels:
   docs / art / Lab pages / Python / engine; `--list` says why); `--full` before every merge; `--python` adds the
   retired Python's tests and 15 reference battles (weekly). The engine level: the Rust reference set
-  (`check_rust_reference.py`: 86 battles from `engine/reference/scenarios.zip`, logs in `engine/reference/logs/`;
+  (`check_rust_reference.py`: 90 battles (86 + 4 CASPAR) from `engine/reference/scenarios.zip`, logs in `engine/reference/logs/`;
   `--update` for a Rust change meant to alter results; `--parity` also runs every battle in full under the bridge's
   parity check, a thorough but slower run), the bridge's `check_bridge_parity.py --quick`, the engine's cargo tests, `check_lab_server.py --battles 4`, and the website (`check_web_ui.py`, then
   `check_web_lab.py --battles 4`). Heavy checks run one at a time. The Rust turn cap is 100
@@ -235,7 +235,6 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
-- **(s29-1) CASPAR, THE FOURTH BOT** (session 29): `engine/core/src/caspar.rs` (envelope, formation radius, `Doctrine`, deployment), the `choose_as` / `rank` hooks in `princess_modern.rs`, `Mech::is_princess_family` and its call sites, `orchestrator::deploy_zones` + `enemy_zone_centre`, `deployment::facing_toward`, `runs::BOTS`, `btsim --caspar`. Look at: the supporting-range curve v MegaMek's DamageProfile (no arcs, no ammo options); the hex-line water test; that CASPAR's "friends" are the whole team; the five-hex-wide formation radius at the default mutual-support slider.
 - **(s28-7) ITERATIVE PASS v DRAWINGS** (session 28): `reference_art/blocks/comparison_pass1.md` (the list and the rules), the ITERATION 1 / 2 rules in `tools/lowpoly_assemble.py`. Look at: whether the unit-file arm rule overrides the drawings too often; `leg_ratio`'s numbers were read off the drawings by eye.
 - **(s28-8) COMMANDO HD** (session 28): `tools/lowpoly_hd.py commando()`, `reference_art/models_hd/Commando COM-2D.json`. Look at: the ready arm pose (the sheet hangs the arms); the laser on the forearm's outer face; the FIVE_VIEWS front/rear mirror fix.
 - **(s28-9) HD REVIEW + COMMANDO ROUNDS** (session 28): `reference_art/blocks/HD_REVIEW.md` (the block plan and slot budgets), the Commando's review rounds (principles 26-32), `lowpoly_hd.turnaround`. Look at: the slot-budget table; whether the block split is the right granularity.

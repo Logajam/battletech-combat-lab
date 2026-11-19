@@ -61,7 +61,31 @@ VARIANTS = {
     "hydra_noattention_blue__hy_4v4_heavy_hills": ("hy_4v4_heavy_hills", "Blue", ["HYDRA_ATTENTION=range"]),
     "hydra_first_red__hy_4v4_lance_woods": ("hy_4v4_lance_woods", "Red", FIRST_VERSION),
     "hydra_first_blue__hy_8v8_valley": ("hy_8v8_valley", "Blue", FIRST_VERSION),
+    # CASPAR, the fourth bot (session 29; added in its review, 2026-11-19): a team string "caspar:TEAMS" plays those teams as
+    # CASPAR (btsim --caspar) instead of Hydra. Without these no reference battle ran CASPAR's code at all.
+    "caspar_red__hy_duel_griffin": ("hy_duel_griffin", "caspar:Red"),
+    "caspar_blue__hy_4v4_heavy_hills": ("hy_4v4_heavy_hills", "caspar:Blue"),
+    "caspar_red__hy_8v8_valley": ("hy_8v8_valley", "caspar:Red"),
+    "caspar_red__team_4v4_princess_v_gladiator": ("team_4v4_princess_v_gladiator", "caspar:Red"),
 }
+
+
+def bot_args(teams):
+    """btsim's flags for a variant's team string: "Red" / "Red,Blue" = Hydra, "caspar:Red" = CASPAR."""
+    if not teams:
+        return []
+    if teams.startswith("caspar:"):
+        return ["--caspar", teams[len("caspar:"):]]
+    return ["--hydra", teams]
+
+
+def bot_label(teams):
+    """The saved log's header words for a variant's team string."""
+    if not teams:
+        return ""
+    if teams.startswith("caspar:"):
+        return f", CASPAR drives {teams[len('caspar:'):]}"
+    return f", Hydra drives {teams}"
 
 
 def build():
@@ -86,8 +110,7 @@ def play(scenario_dir, folder, variant, parity=False):
     cmd = [BTSIM, os.path.join(scenario_dir, folder), "--battles", "1", "--seed", str(SEED), "--log", "1", "--threads", "1"]
     if parity:
         cmd += ["--bridge-parity", "--bridge-compact"]
-    if hydra:
-        cmd += ["--hydra", hydra]
+    cmd += bot_args(hydra)
     for kv in settings:
         cmd += ["--set", kv]
     # HYDRA_CHECK (session 25, engine/core/src/playout.rs): every Hydra decision is also checked to leave the battle as it
@@ -115,7 +138,7 @@ def play(scenario_dir, folder, variant, parity=False):
 def saved_text(folder, hydra, settings, out):
     """The saved-log text of one battle from btsim's JSON (results, hit_turn_cap, logs)."""
     r = out["results"][0]
-    lines = [f"# scenario {folder}" + (f", Hydra drives {hydra}" if hydra else "") + "".join(f", {kv}" for kv in settings),
+    lines = [f"# scenario {folder}" + bot_label(hydra) + "".join(f", {kv}" for kv in settings),
              f"# seed {SEED}: winner {r['winner']}, {r['turns']} turns" + (" - NOTE: reached the turn cap" if out["hit_turn_cap"] else "")]
     for team, t in r["teams"].items():
         lines.append(f"#   {team}: {t['final_hp']} of {t['max_hp']} armor + structure left, team destroyed {t['destroyed']}, units {t['units']}, "

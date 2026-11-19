@@ -1,6 +1,6 @@
 """Every bot against every bot, itself included, on the same match-ups and seeds (session 25).
 
-    python tools/round_robin.py SCENARIO_DIR [SCENARIO_DIR ...] [--bots gladiator,princess,hydra] [--battles 40]
+    python tools/round_robin.py SCENARIO_DIR [SCENARIO_DIR ...] [--bots gladiator,princess,hydra,caspar] [--battles 40]
                                 [--seed 1] [--threads N] [--btsim PATH] [--json OUT.json]
 
 Each scenario folder (config.json, units.json, board.json; a mirror match-up from tools/hydra_scenarios.py is best: the

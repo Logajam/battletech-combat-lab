@@ -109,7 +109,8 @@ MegaMek's `Caspar extends Princess`: our Princess clone with two terms of the mo
 - **Formation penalty** replaces herding on the heat map: a path ending more than `radius` hexes from the centre of the force's other
   units costs hexes-out x min(mutual-support slider, 0.8 x aggression) x 5, never more than 0.8 turns of advance (15 x aggression).
   `radius` = half the mean "effective range" of the force's armed units / the slider (min 2). A unit's envelope: its peak-expected-damage
-  range and the furthest range still landing half of that (expected damage per weapon at its gunnery; no arcs or ammo options).
+  range and the furthest range still landing half of that (MegaMek's DamageProfile: hit chance at its gunnery x damage per hit, a rack
+  at the plain cluster average, an Ultra / Rotary AC as 2 / 6 shots, weapons out of ammo left out; no arcs or ammo-kind options).
   Friends across water 2+ deep are left out of the centre.
 - **Cover bonus** 2 per friend (max 2) that has already moved this turn and has the path's end hex inside its effective range, when the
   nearest enemy is within 15.
@@ -119,7 +120,9 @@ MegaMek's `Caspar extends Princess`: our Princess clone with two terms of the mo
 - **Deployment** (placed zones only): only the hexes that miss the formation band least are chosen from at random (min spacing 2); the
   unit faces the mean of the enemy zones' middles.
 - Not ported: aerospace, takeoff / landing, player orders, forced withdrawal. Simplified: no per-round envelope cache; the water line test
-  counts an edge-run as crossing if either hex is deep water. Unmeasured beyond a feel check (4v4 v Gladiator, 40 battles: 17-23 both as
+  counts an edge-run as crossing if either hex is deep water (MegaMek follows one of the two); deployment picks at random among the hexes
+  tied best for the formation, where MegaMek scans about the first twenty in formation order and takes the safest terrain; in a MegaMek
+  bridge game a friend that stood still does not count as "set" for the cover bonus (the bridge marks only units that moved). Unmeasured beyond a feel check (4v4 v Gladiator, 40 battles: 17-23 both as
   Princess and as CASPAR); an A/B (`tools/round_robin.py` once it lists "caspar") is the next step.
 
 ## What actually differs, and what the battles show

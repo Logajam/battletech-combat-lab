@@ -50,12 +50,17 @@ pub fn envelope(b: &mut Battle, u: UnitId) -> Envelope {
     let gunnery = b.units[u].gunnery;
     let mut weapons: Vec<(f64, crate::equipment::WeaponRange, usize)> = Vec::new();
     for w in crate::damage_resolution::get_weapons(&b.units[u]) {
-        if crate::weapon_rules::is_ams(b, u, w) || b.units[u].items[w].damage_per_shot.is_none() {
+        if crate::weapon_rules::is_ams(b, u, w) {
             continue;
         }
+        let Some(dps) = b.units[u].items[w].damage_per_shot else { continue };
         let Some(range) = b.units[u].items[w].weapon_range.clone() else { continue };
-        let Ok(ed) = crate::expected_damage::expected_damage_per_hit(b, u, w, 0) else { continue };
-        weapons.push((ed.f(), range, w));
+        // DamageProfile.WeaponContribution.of: a weapon that needs ammo and has no usable shot left adds nothing
+        // (review of session 29: the first port counted dry weapons, so a spent launcher kept stretching the envelope)
+        if crate::ams::shots_left(&b.units[u], w) <= 0.0 {
+            continue;
+        }
+        weapons.push((profile_damage_per_hit(b, u, w, dps), range, w));
     }
     let reach = weapons.iter().map(|w| w.1.long).max().unwrap_or(0);
     if reach < 1 {
@@ -89,6 +94,27 @@ pub fn envelope(b: &mut Battle, u: UnitId) -> Envelope {
         range -= 1;
     }
     Envelope { peak, effective }
+}
+
+/// DamageProfile.WeaponContribution.resolve, damage per hit (before the hit chance): a missile rack is the plain Cluster
+/// Hits Table average for its size (MegaMek's profile applies no Artemis / Apollo bonus, and prices a Streak like any rack),
+/// an Ultra autocannon two shots and a Rotary six through the same table, anything else its damage. (Review of session 29:
+/// the first port used the engine's own per-hit expectation, which gives a Streak its whole rack, adds Artemis and treats an
+/// Ultra / Rotary as one shot.) A rack size the table cannot price falls back to the flat damage.
+fn profile_damage_per_hit(b: &mut Battle, u: UnitId, w: usize, dps: i64) -> f64 {
+    let shots = if crate::fire_modes::is_ultra(b, u, w) {
+        2
+    } else if crate::fire_modes::is_rotary(b, u, w) {
+        6
+    } else if crate::weapon_rules::is_cluster(b, u, w) {
+        b.units[u].items[w].rack_size.unwrap_or(1)
+    } else {
+        1
+    };
+    if shots <= 1 {
+        return dps as f64;
+    }
+    crate::expected_damage::expected_cluster_hits(b, shots, 0).map_or(dps as f64, |hits| dps as f64 * hits)
 }
 
 /// FormationGeometry.formationRadiusFor: half the mean effective range of the armed units, divided by the mutual support setting,
