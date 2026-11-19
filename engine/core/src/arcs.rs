@@ -65,6 +65,25 @@ fn norm(name: &str) -> String {
     name.replace(' ', "").replace('-', "").to_uppercase()
 }
 
+/// `norm(name).ends_with(suffix)` for an upper-case ASCII `suffix`, without building the string: walks the name from the
+/// end, skipping spaces and hyphens, comparing letters case-blind. A non-ASCII name (whose upper case can grow, e.g.
+/// "ß" -> "SS") takes the slow path, so the answer is always the same. Speed only (2026-11-19 profile: the turret
+/// checks below, run inside every Hydra and Gladiator move score, were ~40% of a 12 v 12 Hydra battle).
+fn norm_ends_with(name: &str, suffix: &str) -> bool {
+    if !name.is_ascii() {
+        return norm(name).ends_with(suffix);
+    }
+    let mut want = suffix.bytes().rev();
+    for c in name.bytes().rev().filter(|c| *c != b' ' && *c != b'-') {
+        match want.next() {
+            None => return true,
+            Some(w) if c.to_ascii_uppercase() == w => {}
+            Some(_) => return false,
+        }
+    }
+    want.next().is_none()
+}
+
 fn slot_name<'a>(m: &'a Mech, s: &'a Slot) -> &'a str {
     match s {
         Slot::Name(n) => n,
@@ -73,7 +92,7 @@ fn slot_name<'a>(m: &'a Mech, s: &'a Slot) -> &'a str {
 }
 
 pub fn has_quad_turret(mech: &Mech) -> bool {
-    mech.crits.values().any(|slots| slots.iter().any(|s| norm(slot_name(mech, s)).ends_with("QUADTURRET")))
+    mech.crits.values().any(|slots| slots.iter().any(|s| norm_ends_with(slot_name(mech, s), "QUADTURRET")))
 }
 
 /// {location: "shoulder" / "head"}
@@ -81,19 +100,19 @@ pub fn mech_turrets(mech: &Mech) -> IndexMap<String, &'static str> {
     let mut out: IndexMap<String, &'static str> = IndexMap::default();
     for (loc, slots) in &mech.crits {
         for s in slots {
-            let n = norm(slot_name(mech, s));
-            if n.ends_with("SHOULDERTURRET") {
+            let n = slot_name(mech, s);
+            if norm_ends_with(n, "SHOULDERTURRET") {
                 out.insert(loc.clone(), "shoulder");
-            } else if n.ends_with("HEADTURRET") {
+            } else if norm_ends_with(n, "HEADTURRET") {
                 out.insert(loc.clone(), "head");
             }
         }
     }
     for ((loc, _), info) in &mech.destroyed_slot_info {
-        let n = norm(&info.name);
-        if n.ends_with("SHOULDERTURRET") {
+        let n = &info.name;
+        if norm_ends_with(n, "SHOULDERTURRET") {
             out.entry(loc.clone()).or_insert("shoulder");
-        } else if n.ends_with("HEADTURRET") {
+        } else if norm_ends_with(n, "HEADTURRET") {
             out.entry(loc.clone()).or_insert("head");
         }
     }
@@ -102,8 +121,7 @@ pub fn mech_turrets(mech: &Mech) -> IndexMap<String, &'static str> {
 
 pub fn mech_turret_locked(mech: &Mech, loc: &str) -> bool {
     mech.destroyed_slot_info.iter().any(|((l, _), info)| l == loc && {
-        let n = norm(&info.name);
-        n.ends_with("SHOULDERTURRET") || n.ends_with("HEADTURRET")
+        norm_ends_with(&info.name, "SHOULDERTURRET") || norm_ends_with(&info.name, "HEADTURRET")
     })
 }
 
@@ -119,7 +137,7 @@ pub fn mech_turret_of(mech: &Mech, locations: &[String]) -> Option<String> {
 }
 
 pub fn turret_locked(mech: &Mech) -> bool {
-    mech.destroyed_slot_info.values().any(|info| norm(&info.name).ends_with("QUADTURRET"))
+    mech.destroyed_slot_info.values().any(|info| norm_ends_with(&info.name, "QUADTURRET"))
 }
 
 pub fn can_flip_arms(mech: &Mech) -> bool {
@@ -364,4 +382,21 @@ pub fn describe(action: &ArcAction) -> String {
         }
     }
     parts.join(" and ")
+}
+
+#[cfg(test)]
+mod norm_tests {
+    use super::{norm, norm_ends_with};
+
+    /// The fast check must agree with the slow one on every name, including spacing, hyphens, case and non-ASCII.
+    #[test]
+    fn norm_ends_with_matches_norm() {
+        let names = ["Shoulder Turret", "shoulder-turret", "Head Turret", "Quad Turret", "QUADTURRET", "Medium Laser", "", " ", "-",
+            "Turret", "ISQuadTurret", "Clan Head-Turret ", "ßHOULDERTURRET", "Ärm Quad Turret", "urret", "HEADTURRET x"];
+        for n in names {
+            for suf in ["QUADTURRET", "SHOULDERTURRET", "HEADTURRET", "TURRET"] {
+                assert_eq!(norm_ends_with(n, suf), norm(n).ends_with(suf), "{n:?} / {suf}");
+            }
+        }
+    }
 }
