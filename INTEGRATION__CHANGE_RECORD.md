@@ -13,7 +13,7 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   whose actions start with a TorsoTwistAction), charges (route + CHARGE step + target; Rust `path_steps` returns the route to
   the hex next to the target and "charge") and death from above (MegaMek's path finder, START_JUMP .. DFA), each checked with
   MegaMek's own to-hit. Refusals traced with a new per-step log (`explainRefusal`) and per-game bridge logs
-  (`tools/megamek_bridge_games.py`): `destroy_slot_quietly` now counts leg actuators (a lost hip cost no MP in bridge games);
+  (`tools/megamek_bridge_games.py`): `destroy_slot_quietly` now counts leg actuators (a lost hip cost no MP in bridge games; only that path - a destroyed or breached location keeps its old effects, so our battles are unchanged);
   the bridge answers a prone 'Mech that cannot stand with turns on the ground (`orchestrator::turn_while_down_choice`, split
   out of `turn_while_down`, results unchanged); the view sets the declared twist and its turn lock (`arc_action`,
   `arc_action_locked`). Java: a prone 'Mech with 1 MP may try to stand (Core p.51). Our own battles unchanged.
