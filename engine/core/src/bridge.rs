@@ -521,6 +521,14 @@ pub fn apply_megamek_view(b: &mut Battle, v: &Value) {
     }
     if let Some(t) = v.get("twist").and_then(|t| t.as_i64()) {
         m.torso_twist = Some(t);
+        // the twist as our engine's declared action, locked for the turn once made (Core p.62: a 'Mech that twisted in the
+        // Ranged Attack Phase keeps that twist for its physical attacks; only one not yet twisted may twist then). MegaMek
+        // resets the twist in the End Phase, so a twist seen here was declared this turn. Session 30: only the number was
+        // copied, so our engine re-twisted in the physical phase and MegaMek refused the punch.
+        let flip = m.arms_flipped.unwrap_or(false);
+        let turret = crate::arcs::current_action(m).turret;
+        m.arc_action = Some(ArcAction { twist: t, flip, turret });
+        m.arc_action_locked = Some(t != 0 || flip);
     }
     // the weapons fired this turn, by address (the physical attack choice reads them: what fired limits what punches)
     if let Some(f) = v.get("fired").and_then(|f| f.as_array()) {
@@ -553,8 +561,40 @@ pub fn apply_megamek_view(b: &mut Battle, v: &Value) {
 /// A picked move as MegaMek steps: "get_up", "turn_left", "turn_right", "forward", "backward" - or {"jump": true}
 /// (MegaMek's own path finder takes a jump to its end hex) or null when no route is found.
 fn path_steps(b: &Battle, mover: UnitId, pick: &Pick, standup_mp: Option<i64>) -> Value {
+    if pick.charge {
+        // A charge (Core p.78): the pick is the hex next to the target, facing it, with the MP and hexes of the last step
+        // INTO the target counted. The steps are the route to that hex; the bridge adds MegaMek's CHARGE step (session 30).
+        let Some(target) = crate::movement_attacks::neighbour(&pick.hex, crate::hex_geometry::compass_to_facing(&pick.facing).unwrap()) else { return Value::Null };
+        let m = &b.units[mover];
+        let level_limit = crate::terrain_rules::max_level_change(crate::mech_state::ground_level_limited(m), crate::mech_state::is_superheavy(m));
+        let (Some(from), Some(into)) = (b.board.hexes.get(&pick.hex), b.board.hexes.get(&target)) else { return Value::Null };
+        let Some(cost) = crate::terrain_rules::step_cost(Some(from), into, level_limit, false) else { return Value::Null };
+        let route = Pick { fc: pick.fc - 1, mp_spent: pick.mp_spent - cost, charge: false, ..pick.clone() };
+        let mut out = if route.fc == 0 && route.mp_spent == 0 { json!({"steps": if standup_mp.is_some() { vec!["get_up"] } else { vec![] }}) } else { path_steps(b, mover, &route, standup_mp) };
+        if out.is_null() {
+            return Value::Null;
+        }
+        out["charge"] = json!(target);
+        return out;
+    }
     if pick.mode == "Jump" {
         return json!({"jump": true});
+    }
+    if b.units[mover].prone && !crate::piloting_rolls::can_stand(&b.units[mover]) {
+        // lying where it is, turning toward its foe (see "choose_movement"): only turns, the short way round
+        let mut facing = crate::hex_geometry::compass_to_facing(&b.units[mover].facing).unwrap_or(0);
+        let want = crate::hex_geometry::compass_to_facing(&pick.facing).unwrap_or(facing);
+        let mut steps: Vec<&str> = Vec::new();
+        while facing != want {
+            if (want - facing).rem_euclid(6) <= 3 {
+                steps.push("turn_right");
+                facing = (facing + 1).rem_euclid(6);
+            } else {
+                steps.push("turn_left");
+                facing = (facing + 5).rem_euclid(6);
+            }
+        }
+        return json!({"steps": steps});
     }
     if pick.mode == "Stand Still" {
         return json!({"steps": if standup_mp.is_some() { vec!["get_up"] } else { vec![] }});
@@ -733,6 +773,21 @@ fn call(b: &mut Battle, bots: &mut dyn BotSet, method: &str, a: &Value) -> Value
                     let stay = Pick { hex: h, facing: b.units[mover].facing.clone(), mode: "Stand Still".into(), fc: 0, mp_spent: 0, charge: false, dfa: false };
                     return json!({"pick": pick_json(&stay), "note": "no enemy left: stands still", "gate": Value::Null});
                 }
+            }
+            // A prone 'Mech that cannot stand (gyro destroyed; a leg and both arms gone - Core p.51 / damage table): the Java
+            // side offers a stand-up allowance whenever its 'Mech is prone, but our engine never tries to stand then; it turns
+            // on the ground toward its foe, as the Movement Phase does (`turn_while_down`). Session 30: the bridge planned a
+            // stand-up there and MegaMek refused it ("would not take the route", a GET_UP with the gyro gone).
+            if a["standup_mp"].as_i64().is_some() && b.units[mover].prone && !crate::piloting_rolls::can_stand(&b.units[mover]) {
+                let other = a["other"].as_u64().unwrap() as UnitId;
+                let h = b.units[mover].hex.clone().unwrap_or_default();
+                let (facing, turns) = match crate::orchestrator::turn_while_down_choice(b, mover, other) {
+                    Some((f, t, _)) => (crate::hex_geometry::facing_to_compass(f).unwrap().to_string(), t),
+                    None => (b.units[mover].facing.clone(), 0),
+                };
+                let mode = if turns > 0 { "Walk" } else { "Stand Still" };
+                let pick = Pick { hex: h, facing, mode: mode.into(), fc: 0, mp_spent: turns, charge: false, dfa: false };
+                return json!({"pick": pick_json(&pick), "note": "cannot stand: turns on the ground", "gate": Value::Null});
             }
             let set = mover_sees_others(b, mover);
             let edge: Option<Vec<String>> = a["entry_edge"].as_array().map(|e| e.iter().map(|x| x.as_str().unwrap().to_string()).collect());

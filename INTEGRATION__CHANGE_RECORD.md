@@ -6,6 +6,17 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-19 (Claude, session 30), BRIDGE: PHYSICAL TWISTS, PUSHES, CHARGES, DEATH FROM ABOVE; THE LAST ROUTE REFUSALS TRACED.
+  REVIEW PENDING (higher-level model).** Daniel: "whats the double punch problem? What about charges and dfas? And I hate
+  unexplained things so lets see if we can trace it down." (MEGAMEK_BRIDGE 3e.) The double punch was wired; the fallback was
+  ANY physical attack with a twist. Now: punches, kicks and pushes with our twist sent first when it is new (a PhysicalOption
+  whose actions start with a TorsoTwistAction), charges (route + CHARGE step + target; Rust `path_steps` returns the route to
+  the hex next to the target and "charge") and death from above (MegaMek's path finder, START_JUMP .. DFA), each checked with
+  MegaMek's own to-hit. Refusals traced with a new per-step log (`explainRefusal`) and per-game bridge logs
+  (`tools/megamek_bridge_games.py`): `destroy_slot_quietly` now counts leg actuators (a lost hip cost no MP in bridge games);
+  the bridge answers a prone 'Mech that cannot stand with turns on the ground (`orchestrator::turn_while_down_choice`, split
+  out of `turn_while_down`, results unchanged); the view sets the declared twist and its turn lock (`arc_action`,
+  `arc_action_locked`). Java: a prone 'Mech with 1 MP may try to stand (Core p.51). Our own battles unchanged.
 - **2026-11-19 (Claude, session 30), LINE OF SIGHT: THE TRUE LINE (TIER 1 BUG). REVIEW PENDING (higher-level model).** Daniel:
   "Oh thats funny. And needs to be fixed. Tier 1 bug." Found through the bridge ("weapons MegaMek ruled out of reach"): our
   line of sight sampled one point per hex step (`los::hex_line`, cube interpolation, from the Python), skipping hexes the

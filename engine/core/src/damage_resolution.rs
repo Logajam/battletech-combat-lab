@@ -269,9 +269,18 @@ fn slot_loss_effects(b: &mut Battle, u: UnitId, location: &str, slot: &Slot, why
             } else if n == "Cockpit" {
                 b.units[u].cockpit_hit = true;
                 b.log(format!("    Cockpit destroyed from {} {}.", location, why));
-            } else if n == "Hip" && b.units[u].leg_locations.iter().any(|l| l == location) {
-                b.units[u].destroyed_hip_locations.insert(location.to_string());
-                b.log(format!("    Hip specifically destroyed at {} from {} {}.", location, location, why));
+            } else if LEG_ACTUATOR_NAMES.contains(&n.as_str()) && b.units[u].leg_locations.iter().any(|l| l == location) {
+                // a leg actuator lost costs walking MP, as in a battle of our own (the critical-hit path above);
+                // session 30: the copy kept only the hip's piloting-roll effect, so in MegaMek games our bots planned
+                // at full MP with a hip or leg actuator gone, and MegaMek refused the run ("would not take the route")
+                let c = b.units[u].destroyed_leg_actuators.get(location).copied().unwrap_or(0) + 1;
+                b.units[u].destroyed_leg_actuators.insert(location.to_string(), c);
+                let wmp = compute_walk_mp(&b.units[u]);
+                b.log(format!("    Leg actuator lost at {} ({} there) from {} - walk MP now {}.", location, c, why, wmp));
+                if n == "Hip" {
+                    b.units[u].destroyed_hip_locations.insert(location.to_string());
+                    b.log(format!("    Hip specifically destroyed at {} from {} {}.", location, location, why));
+                }
             }
         }
     }

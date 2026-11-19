@@ -109,14 +109,17 @@ pub fn reset_movement_state(m: &mut Mech) {
 
 // ---- movement phase ---------------------------------------------------------------------------------------------------
 /// A prone mech that can't stand may still change facing: 1 MP per hexside (p.98).
-fn turn_while_down(b: &mut Battle, mover: UnitId, other: UnitId) {
+/// The facing a prone 'Mech that cannot stand turns to on the ground, and how many hexsides (Core: one a turn with a destroyed
+/// gyro, else up to its walking MP, at most 3): toward the foe's forward arc, then any side arc. None = no turn worth making.
+/// Shared by the Movement Phase and the MegaMek bridge (session 30).
+pub fn turn_while_down_choice(b: &Battle, mover: UnitId, other: UnitId) -> Option<(i64, i64, [i64; 6])> {
     if b.units[other].hex.is_none() || b.units[mover].hex.is_none() {
-        return;
+        return None;
     }
     let walk = compute_walk_mp(&b.units[mover]);
     let max_turns = walk.min(if gyro_destroyed(&b.units[mover]) { 1 } else { 3 });
     if max_turns < 1 {
-        return;
+        return None;
     }
     let me = hex_geometry::parse_hex_label(b.units[mover].hex.as_deref().unwrap()).unwrap();
     let them = hex_geometry::parse_hex_label(b.units[other].hex.as_deref().unwrap()).unwrap();
@@ -140,9 +143,11 @@ fn turn_while_down(b: &mut Battle, mover: UnitId, other: UnitId) {
             }
         }
     }
-    if best_turns == 0 {
-        return;
-    }
+    (best_turns > 0).then_some((best, best_turns, seen_as))
+}
+
+fn turn_while_down(b: &mut Battle, mover: UnitId, other: UnitId) {
+    let Some((best, best_turns, seen_as)) = turn_while_down_choice(b, mover, other) else { return };
     let compass = hex_geometry::facing_to_compass(best).unwrap().to_string();
     b.units[mover].facing = compass.clone();
     b.units[mover].move_mode = "Walk".into();

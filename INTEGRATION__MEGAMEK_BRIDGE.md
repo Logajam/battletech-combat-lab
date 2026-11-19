@@ -357,6 +357,28 @@ After the fixes: 5 games v CASPAR, no fallback at all (Hydra 4 - 1); 5 v MegaMek
 - One 4-hex Run from 1203 (heat 0, standing) that MegaMek's stand-alone path check accepts: unexplained (seen once; that
   game's MegaMek log was overwritten).
 
+**The last refusals, traced (session 30; Daniel: "I hate unexplained things").** The bridge now logs MegaMek's verdict on
+every step of a refused route (`HydraBridge.explainRefusal`: each step's MP, movement type, legality, the unit's MP and
+posture), and the game runner keeps each game's bridge lines (`logs/bridge_<label>.log`, gathered from MegaMek's rolled
+logs). Each refusal was our side planning with a rule state MegaMek's view did not carry over:
+- **Run to 0704: a lost hip.** The bridge mirrors MegaMek's destroyed slots through `destroy_slot_quietly`, which noted a
+  hip only for piloting rolls, never as a lost leg actuator (-1 walking MP each, Core damage table). Hydra planned a 6-MP
+  run where MegaMek (and the book) allow 5. FIXED: the mirror counts every leg actuator, as combat damage does.
+- **GET_UP refused: a destroyed gyro.** The Java side offers a stand-up allowance to any prone 'Mech, bypassing our
+  engine's own can-stand check (gyro gone, or a leg and both arms). FIXED: the bridge answers a prone 'Mech that cannot
+  stand with turns on the ground toward its foe (`orchestrator::turn_while_down_choice`, shared with the Movement Phase).
+- **Punch refused with a twist: the twist was not locked.** The view copied MegaMek's torso twist as a number only; our
+  engine's declared action and its "twisted this turn" lock (Core p.62: a 'Mech that twisted to fire keeps that twist for
+  physical attacks) were not set, so it re-twisted. FIXED: `apply_megamek_view` sets both.
+- The Run to 1207 (arms gone, legs whole) left no log; the MegaMek path check accepts it from the transcript's state.
+  It is the one case not reproduced; the per-game bridge logs will catch it if it recurs.
+**Physical attacks and movement attacks wired.** Physical: punches (one or both), kicks and pushes, with the twist our
+engine attacks with sent first when it is new (MegaMek's Core Rules allow a physical-phase twist). Charges: our route to
+the hex next to the target, then MegaMek's CHARGE step with the target set (as MegaMek's movement screen builds one);
+death from above: MegaMek's path finder jumping to the target with the DFA step last. Checked in MegaMek with a stand-alone
+path check: a charge from 0602 to 0801 legal, to-hit 7 (piloting 5, ran +2); a Jenner's DFA legal, to-hit 8. Not yet seen
+in a played game (Hydra rarely charges in the Hunchback duel). Still FALLBACK: clubs / physical weapons, arm flips.
+
 **"Weapons MegaMek ruled out of reach" (research, session 30; Daniel: "do research on range mismatch").** Not range: the
 traced cases are LINE OF SIGHT. Shot 0209 -> 0610 (Scattered Woods): MegaMek "LOS blocked by intervening woods". Both
 engines trace 0310, 0409 / 0410, 0510; our line samples one point per hex step (`los::hex_line`, cube interpolation, from

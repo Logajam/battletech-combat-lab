@@ -19,6 +19,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import megamek.client.bot.PhysicalOption;
+import megamek.common.actions.DfaAttackAction;
+import megamek.common.actions.ChargeAttackAction;
 import megamek.client.bot.princess.Princess;
 import megamek.common.actions.EntityAction;
 import megamek.common.actions.TorsoTwistAction;
@@ -30,6 +32,7 @@ import megamek.common.equipment.Mounted;
 import megamek.common.game.Game;
 import megamek.common.game.GameTurn;
 import megamek.common.moves.MovePath;
+import megamek.common.moves.MoveStep;
 import megamek.common.rolls.TargetRoll;
 import megamek.common.units.Entity;
 import megamek.common.units.Targetable;
@@ -282,11 +285,13 @@ public class HydraBridge extends Princess {
         // inside its own battle, here MegaMek rolls it during the move), and the route starts with GET_UP.
         Integer standupMp = null;
         if (mover.isProne()) {
-            standupMp = mover.getRunMP() - 2;
-            if (standupMp < 0) {
-                fallback("move: prone unit that cannot stand");
+            // Core p.51: standing costs 2 MP, but a prone 'Mech with only 1 MP may still make one attempt (minimum movement);
+            // whether it can stand at all (gyro, limbs) our engine decides, and answers with turns on the ground if not
+            if (mover.getRunMP() < 1) {
+                fallback("move: prone unit with no MP");
                 return null;
             }
+            standupMp = Math.max(mover.getRunMP() - 2, 0);
         }
         int me = view.index(mover);
         a = args();
@@ -313,10 +318,7 @@ public class HydraBridge extends Princess {
             return null;
         }
         JsonNode pick = choice.get("pick");
-        if (pick.path("charge").asBoolean() || pick.path("dfa").asBoolean()) {
-            fallback("move: charge / death from above (not wired yet)");
-            return null;
-        }
+        boolean charge = pick.path("charge").asBoolean(), dfa = pick.path("dfa").asBoolean();
         a = args();
         a.put("mover", me);
         a.set("pick", pick);
@@ -329,6 +331,18 @@ public class HydraBridge extends Princess {
         Coords dest = GameView.coords(pick.get("hex").asText());
         int facing = compass(pick.get("facing").asText());
         String mode = pick.get("mode").asText();
+        if (charge || dfa) {
+            // the pick is the hex next to the target, facing it: the target stands one hex on in that facing
+            MovePath attack = buildMovementAttack(mover, steps, dest.translated(facing), other, dfa, standupMp != null);
+            LOGGER.info("[bridge] round {} {}: {} -> {} at {} steps {} => {}", game.getCurrentRound(), dfa ? "death from above" : "charge",
+                  mover.getDisplayName(), other == null ? "nobody" : other.getDisplayName(), GameView.label(dest.translated(facing)), steps, attack);
+            if (attack == null) {
+                fallback("move: MegaMek would not take the " + (dfa ? "death from above" : "charge") + " on " + GameView.label(dest.translated(facing)));
+            } else {
+                made.merge(dfa ? "move: death from above" : "move: charge", 1, Integer::sum);
+            }
+            return attack;
+        }
         MovePath path = build(mover, steps, dest, facing, mode, standupMp != null);
         LOGGER.info("[bridge] round {} move: {} -> {} {} {} steps {} => {}", game.getCurrentRound(), mover.getDisplayName(),
               pick.get("hex").asText(), pick.get("facing").asText(), mode, steps, path);
@@ -368,6 +382,7 @@ public class HydraBridge extends Princess {
             if (fits(p, dest, facing)) {
                 return p;
             }
+            explainRefusal(mover, p, dest, facing);
         }
         MovePath p = new MovePath(game, mover);
         if (standUp) {
@@ -381,6 +396,87 @@ public class HydraBridge extends Princess {
         }
         turnTo(p, facing);
         return fits(p, dest, facing) ? p : null;
+    }
+
+    /**
+     * A charge or a death from above as MegaMek takes it (as its own movement screen builds one, MovementDisplay): a charge
+     * is our route to the hex next to the target then a CHARGE step into the target's hex; a death from above, MegaMek's
+     * path finder jumping to the target with the DFA step last (jumps always go to its path finder here). The step carries
+     * the target; MegaMek's own to-hit must allow the attack. Null when it cannot be made (a fallback, counted).
+     */
+    private MovePath buildMovementAttack(Entity mover, JsonNode steps, Coords targetHex, Entity target, boolean dfa, boolean standUp) {
+        Game game = getGame();
+        if (target == null || target.getPosition() == null || !target.getPosition().equals(targetHex)) {
+            LOGGER.info("[bridge] movement attack: the foe is not on {}", GameView.label(targetHex));
+            return null;
+        }
+        MoveStepType type = dfa ? MoveStepType.DFA : MoveStepType.CHARGE;
+        List<MovePath> tries = new ArrayList<>();
+        if (!dfa && steps != null && steps.has("steps")) {
+            MovePath p = new MovePath(game, mover);
+            boolean ok = true;
+            for (JsonNode st : steps.get("steps")) {
+                switch (st.asText()) {
+                    case "forward" -> p.addStep(MoveStepType.FORWARDS);
+                    case "backward" -> p.addStep(MoveStepType.BACKWARDS);
+                    case "turn_left" -> p.addStep(MoveStepType.TURN_LEFT);
+                    case "turn_right" -> p.addStep(MoveStepType.TURN_RIGHT);
+                    case "get_up" -> p.addStep(MoveStepType.GET_UP);
+                    default -> ok = false;
+                }
+            }
+            if (ok) {
+                p.addStep(type);
+                tries.add(p);
+            }
+        }
+        MovePath planned = new MovePath(game, mover);
+        if (standUp) {
+            planned.addStep(MoveStepType.GET_UP);
+        }
+        if (dfa) {
+            planned.addStep(MoveStepType.START_JUMP);
+        }
+        planned.findPathTo(targetHex, type);
+        if (targetHex.equals(planned.getFinalCoords()) && (planned.getLastStep() == null || planned.getLastStep().getType() != type)) {
+            planned.removeLastStep();
+            planned.addStep(type);
+        }
+        tries.add(planned);
+        for (MovePath p : tries) {
+            if (p.getLastStep() == null || p.getLastStep().getType() != type || !targetHex.equals(p.getFinalCoords()) || !p.isMoveLegal()) {
+                explainRefusal(mover, p, targetHex, p.getFinalFacing());
+                continue;
+            }
+            p.getLastStep().setTarget(target);
+            var toHit = dfa ? DfaAttackAction.toHit(game, mover.getId(), target, p) : new ChargeAttackAction(mover, target).toHit(game, p);
+            LOGGER.info("[bridge]   {} to-hit {}: {}", dfa ? "death from above" : "charge", toHit.getValue(), toHit.getDesc());
+            if (toHit.getValue() != TargetRoll.IMPOSSIBLE) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Why MegaMek would not take our steps (session 30, chasing "would not take the route"): each step's position, facing,
+     * MP used, movement type and legality as MegaMek sees them, with the unit's MP, heat and posture.
+     */
+    private void explainRefusal(Entity mover, MovePath p, Coords dest, int facing) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("walk ").append(mover.getWalkMP()).append(" run ").append(mover.getRunMP()).append(" jump ")
+              .append(mover.getJumpMP()).append(", heat ").append(mover.heat).append(", prone ").append(mover.isProne())
+              .append(", done ").append(mover.isDone()).append(", at ").append(GameView.label(mover.getPosition()))
+              .append(" facing ").append(mover.getFacing()).append(";");
+        for (MoveStep st : p.getStepVector()) {
+            sb.append(" ").append(st.getType()).append("->").append(GameView.label(st.getPosition())).append("/")
+                  .append(st.getFacing()).append(" mp ").append(st.getMpUsed()).append(" ")
+                  .append(st.getMovementType(st == p.getLastStep())).append(st.isLegal(p) ? "" : " ILLEGAL");
+        }
+        sb.append("; path legal ").append(p.isMoveLegal()).append(", ends ").append(GameView.label(p.getFinalCoords()))
+              .append(" facing ").append(p.getFinalFacing()).append(" (wanted ").append(GameView.label(dest)).append(" facing ")
+              .append(facing).append(")");
+        LOGGER.info("[bridge] refused steps: {}", sb);
     }
 
     private static void turnTo(MovePath p, int facing) {
@@ -528,6 +624,9 @@ public class HydraBridge extends Princess {
         if (names.size() == 2 && names.contains("punch (Left Arm)") && names.contains("punch (Right Arm)")) {
             return PhysicalOption.PUNCH_BOTH;
         }
+        if (names.size() == 1 && names.getFirst().equals("push")) {
+            return PhysicalOption.PUSH_ATTACK;
+        }
         if (names.size() != 1) {
             return -1;
         }
@@ -575,11 +674,34 @@ public class HydraBridge extends Princess {
         int type = physicalType(names);
         LOGGER.info("[bridge] round {} physical: {} -> {} {}", game.getCurrentRound(), attacker.getDisplayName(),
               foe.getDisplayName(), names);
-        if (type < 0 || choice.path("action").path("twist").asInt(0) != 0 || choice.path("action").path("flip").asBoolean()) {
-            fallback("physical: " + names + " (only plain punches and kicks are wired)");
+        if (type < 0 || choice.path("action").path("flip").asBoolean()) {
+            fallback("physical: " + names + " (only punches, kicks and pushes are wired; no arm flip)");
             return null;
         }
-        return new PhysicalOption(attacker, foe, 0, type, null);
+        // the torso twist our engine attacks with, the same convention as in firing (torso facing = facing + twist). If it is
+        // already the 'Mech's twist (made in the firing phase) nothing more is sent; otherwise a TorsoTwistAction goes first
+        // (Core: a 'Mech that has not twisted this turn may twist as it declares physical attacks; MegaMek's Core Rules allow
+        // it - CoreRulesUnits.getPhysicalTwistEnabled).
+        int twist = choice.path("action").path("twist").asInt(0);
+        int current = ((attacker.getSecondaryFacing() - attacker.getFacing() + 9) % 6) - 3;
+        if (twist == current) {
+            return new PhysicalOption(attacker, foe, 0, type, null);
+        }
+        if (!attacker.canChangeSecondaryFacing()) {
+            fallback("physical: " + names + " with a twist MegaMek does not allow now");
+            return null;
+        }
+        int torso = ((attacker.getFacing() + twist) % 6 + 6) % 6;
+        TorsoTwistAction tta = new TorsoTwistAction(attacker.getId(), torso);
+        return new PhysicalOption(attacker, foe, 0, type, null) {
+            @Override
+            public Vector<EntityAction> getVector() {
+                Vector<EntityAction> v = new Vector<>();
+                v.add(tta);
+                v.addAll(super.getVector());
+                return v;
+            }
+        };
     }
 
     @Override
