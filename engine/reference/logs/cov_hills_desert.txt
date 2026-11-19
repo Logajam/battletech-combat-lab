@@ -168,7 +168,7 @@
 
 === TURN 10 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 437.363 = dealt 6.82 x0.86 + (HP 345.0 - received 3.47 x1.00 - PSR 0.00) / enemy future 1.95 x my future 2.47 [two-ply, 269 of 1047 spots (grid search) x 864 replies (short list); modeled reply Red -> 1215 SW Jump]
+  [Movement select] Blue: score 437.323 = dealt 6.82 x0.86 + (HP 345.0 - received 3.47 x1.01 - PSR 0.00) / enemy future 1.95 x my future 2.47 [two-ply, 269 of 1047 spots (grid search) x 864 replies (short list); modeled reply Red -> 1215 SW Jump]
   [Movement] Blue: 0415 NE -> 0415 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 6 / run 9 / jump 6)
   [Movement select] Red: score 134.415 = dealt 10.86 x1.00 + (HP 170.0 - received 16.11 x0.86 - PSR 0.00) / enemy future 2.47 x my future 1.95 [enemy held at 0415; 122 spots with LOS]
   [Movement] Red: 1210 SW -> 0813 S, Jump (5 MP, 5 hexes, 5 heat; budget walk 6 / run 9 / jump 5)

@@ -236,6 +236,7 @@ Lab functionality; 3D art.
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
 - **(s30-1) PRINCESS / CASPAR DEPLOYMENT, MEGAMEK'S** (session 30): `engine/core/src/princess_deploy.rs` (fitness, cluster maps, hazard scan, room-to-move kernel, facing), its call in `orchestrator::deploy_zones`, `caspar::prefer_formation` now a full stable order, `attack_resolution::weapon_attack_tns`. Look at: the 3-MP walk search v MegaMek's ShortestPathFinder (ties between equal-MP paths, turn limits not modelled); jump kernel as "every landable hex within 3"; zone-to-edge mapping for the far-edge test; the team-at-a-time deployment order.
+- **(s30-5) LINE OF SIGHT, THE TRUE LINE** (session 30): `mm_line.rs` (moved from caspar.rs; `los_steps`, the split variant), `los::hex_line` (+ shape cache, no-text coordinate conversion), the adjacency test in `trace_los_path`'s `intervenes`, `LOSResult.distance` = hex distance, `hex_line_sampled` kept for `combat::build_jump_states` and `move_attacks`. Look at: the 30-degree test (MegaMek's whole-degree rounding); an off-board hex in a split pair (only the on-board side is walked); whether the jump-path check should use the true line too.
 - **(s30-4) BRIDGE RULES ALIGNMENT** (session 30): `bridge::Session::start` (FIGHT_TO_THE_DEATH on), `apply_megamek_view` heat effects, the no-enemy Stand Still. Look at: other end-of-phase state our engine sets that MegaMek's view does not carry (the heat was one).
 - **(s30-3) TIE-BREAK + DECISION REPLAY** (session 30): the RankedPath tie-break in `princess_modern::rank`, `tools/megamek_decision_replay.py`, MEGAMEK_BRIDGE Section 3e. Look at: whether `o.fc` is MegaMek's getHexesMoved for every move kind (jumps, backward steps); the replay's rebuilt "before the move" state.
 - **(s30-2) CASPAR WATER LINE + BRIDGE "done"** (session 30): `caspar::mm_intervening` (+ the `libm` atan), `GameView.state` "done", `bridge.rs`. Look at: the "done" rule for phases other than Movement.
@@ -525,9 +526,10 @@ untranslated "until they're actually needed". What is left of the port is finish
   their pre-smoke answer.
 
 **Known issues found against MegaMek (session 30, Claude; MEGAMEK_BRIDGE Section 3e):**
-- LINE OF SIGHT: our `los::hex_line` samples one point per hex step, so it skips hexes the true centre-to-centre line
-  clips and applies the border rule (Core p.56) where the line only crosses an edge; MegaMek traces the true line. Half
-  the lines on a board differ. Waiting on Daniel (changes every battle).
+- ~~LINE OF SIGHT sampled one point per hex step~~ FIXED session 30 (Daniel: "Tier 1 bug"): `los::hex_line` is the true
+  centre-to-centre line (`mm_line.rs`, MegaMek's trace, checked on every pair of an 11 x 11 board); the old sampled line
+  stays only for jump paths and a death from above's last hex (`hex_line_sampled`). The Rust's LOS no longer matches the
+  frozen Python. Still open from the bridge: two unexplained Run refusals (1207, 0704).
 - When CASPAR / Princess moves after its foe, MegaMek's estimate of that moved foe (BasicPathRanker.evaluateMovedEnemy)
   can be far from ours and from MegaMek's own to-hit (one traced case: 45 dealt / 0 taken in MegaMek, 2 / 5 in ours, 25
   actually taken). Most of the remaining 24% of moves that differ. To trace: MegaMek's FireControl guess for that case.

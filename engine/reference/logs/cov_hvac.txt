@@ -1,14 +1,14 @@
 # scenario cov_hvac
-# seed 1: winner Blue, 13 turns
-#   Red: 200.0 of 322.0 armor + structure left, team destroyed True, units 1, 10 hits of 34 attacks, 87.0 damage dealt
-#   Blue: 369.0 of 456.0 armor + structure left, team destroyed False, units 1, 14 hits of 48 attacks, 112.0 damage dealt
+# seed 1: winner Blue, 17 turns
+#   Red: 80.0 of 322.0 armor + structure left, team destroyed True, units 1, 9 hits of 27 attacks, 70.0 damage dealt
+#   Blue: 386.0 of 456.0 armor + structure left, team destroyed False, units 1, 24 hits of 62 attacks, 172.0 damage dealt
 # log
 
 === TURN 1 ===
   Initiative: Blue lost the roll, moves first.
   [Movement select] Blue: score 683.998 = dealt 27.53 x1.00 + (HP 608.0 - received 30.01 x1.00 - PSR 0.00) / enemy future 12.12 x my future 13.77 [two-ply, 89 of 163 spots (grid search) x 638 replies (short list); modeled reply Red -> 0510 S Run]
   [Movement] Blue: 0510 N -> 0511 N, Walk (3 MP, 2 hexes, 1 heat; budget walk 3 / run 5 / jump 0) - includes a backward move
-  [Movement select] Red: score 397.072 = dealt 20.24 x1.00 + (HP 444.0 - received 15.72 x1.02 - PSR 0.00) / enemy future 13.77 x my future 12.12 [enemy held at 0511; 88 spots with LOS]
+  [Movement select] Red: score 397.348 = dealt 20.24 x1.01 + (HP 444.0 - received 15.72 x1.02 - PSR 0.00) / enemy future 13.77 x my future 12.12 [enemy held at 0511; 88 spots with LOS]
   [Movement] Red: 0505 S -> 0609 SE, Run (6 MP, 5 hexes, 2 heat; budget walk 4 / run 6 / jump 4)
   [Ranged] Blue -> Red: range 2, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 0); firing ['Thunderbolt 15', 'Hyper Velocity Auto Cannon/10', 'ISSNPPC', 'Light PPC', 'Light PPC'] (weapon heat 34 of budget 61 = max 30 + sink 32 - current 0 - movement 1 - other 0; expected dmg 15.69)
     Thunderbolt 15: needs 11 (range mod +4), rolled 7 -> miss [IS Ammo Thunderbolt-15: 3 shots left]
@@ -39,7 +39,7 @@
 5 damage (ENERGY) incoming to Right Torso (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (13 -> 8 remaining).
     Hyper Velocity Auto Cannon/10 hit for 10:
-      Hit location roll 12 (front table): Head.
+      Hit location roll 12 (right table): Head.
       Head hit - pilot takes 1 hit (1/6), regardless of armor.
 10 damage (BALLISTIC) incoming to Head (armor).
   [STANDARD/BALLISTIC] 9 armor pts destroyed at armor (9 -> 0 remaining). 1 damage applied to structure [STANDARD] (3 -> 2/3 remaining).
@@ -54,22 +54,22 @@
     6: Life Support (slot 6)
     1/1 Criticals: Cockpit slot hit - its component armor absorbs it, no effect (p.207).
     Medium Laser hit for 5:
-      Hit location roll 10 (front table): Left Arm.
+      Hit location roll 10 (right table): Left Arm.
 5 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 5 armor pts destroyed at armor (34 -> 29 remaining).
     ISStreakSRM4 hit: Streak - all 4 missiles hit (8 dmg).
-      Group 1/4: Hit location roll 4 (front table): Right Arm.
+      Group 1/4: Hit location roll 4 (right table): Right Arm.
 2 damage (MISSILE) incoming to Right Arm (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (34 -> 32 remaining).
-      Group 2/4: Hit location roll 6 (front table): Right Torso.
-2 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (32 -> 30 remaining).
-      Group 3/4: Hit location roll 10 (front table): Left Arm.
+      Group 2/4: Hit location roll 6 (right table): Right Leg.
+2 damage (MISSILE) incoming to Right Leg (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (41 -> 39 remaining).
+      Group 3/4: Hit location roll 10 (right table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (29 -> 27 remaining).
-      Group 4/4: Hit location roll 6 (front table): Right Torso.
-2 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (30 -> 28 remaining).
+      Group 4/4: Hit location roll 6 (right table): Right Leg.
+2 damage (MISSILE) incoming to Right Leg (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (39 -> 37 remaining).
 PSR trigger: 23 armor+structure lost this phase (>=20) -> +1.
 Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
   Succeeded - remains standing.
@@ -85,9 +85,9 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
 
 === TURN 2 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 572.713 = dealt 9.46 x1.00 + (HP 584.0 - received 18.27 x1.17 - PSR 0.00) / enemy future 17.17 x my future 17.19 [two-ply, 41 of 157 spots (grid search) x 676 replies (short list); modeled reply Red -> 0509 NE Walk]
+  [Movement select] Blue: score 572.688 = dealt 9.46 x1.00 + (HP 584.0 - received 18.17 x1.18 - PSR 0.00) / enemy future 17.17 x my future 17.19 [two-ply, 41 of 157 spots (grid search) x 676 replies (short list); modeled reply Red -> 0509 NE Walk]
   [Movement] Blue: 0511 N -> 0608 NE, Run (4 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
-  [Movement select] Red: score 431.355 = dealt 18.27 x1.17 + (HP 419.0 - received 8.69 x0.98 - PSR 0.00) / enemy future 17.19 x my future 17.17 [enemy held at 0608; 187 spots with LOS]
+  [Movement select] Red: score 431.380 = dealt 18.17 x1.18 + (HP 419.0 - received 8.69 x0.98 - PSR 0.00) / enemy future 17.19 x my future 17.17 [enemy held at 0608; 187 spots with LOS]
   [Movement] Red: 0609 SE -> 0509 S, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 4) - includes a backward move
   [Ranged] Blue holds ['Light PPC'] back for the Physical phase (plans punch (Left Arm), expected 7.22).
   [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 57 = max 30 + sink 32 - current 3 - movement 2 - other 0; expected dmg 0.00)
@@ -103,11 +103,11 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
     Hyper Velocity Auto Cannon/10 hit for 10:
       Hit location roll 5 (rear table): Right Leg.
 10 damage (BALLISTIC) incoming to Right Leg (rear_armor).
-  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (41 -> 31 remaining).
+  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (37 -> 27 remaining).
     ISStreakSRM4 hit: Streak - all 4 missiles hit (8 dmg).
       Group 1/4: Hit location roll 5 (rear table): Right Leg.
 2 damage (MISSILE) incoming to Right Leg (rear_armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (31 -> 29 remaining).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (27 -> 25 remaining).
       Group 2/4: Hit location roll 9 (rear table): Left Leg.
 2 damage (MISSILE) incoming to Left Leg (rear_armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (41 -> 39 remaining).
@@ -134,7 +134,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
   Initiative: Red lost the roll, moves first.
   [Movement select] Red: score 444.730 = dealt 4.32 x1.00 + (HP 409.0 - received 12.99 x1.00 - PSR 0.00) / enemy future 15.59 x my future 17.34 [two-ply, 101 of 504 spots (grid search) x 164 replies (short list); modeled reply Blue -> 0907 SW Walk]
   [Movement] Red: 0509 S -> 0308 S, Jump (4 MP, 2 hexes, 3 heat; budget walk 3 / run 5 / jump 4)
-  [Movement select] Blue: score 513.542 = dealt 11.16 x1.00 + (HP 566.0 - received 7.25 x1.01 - PSR 0.00) / enemy future 17.34 x my future 15.59 [enemy held at 0308; 69 spots with LOS]
+  [Movement select] Blue: score 513.553 = dealt 11.16 x1.00 + (HP 566.0 - received 7.25 x1.00 - PSR 0.00) / enemy future 17.34 x my future 15.59 [enemy held at 0308; 69 spots with LOS]
   [Movement] Blue: 0608 NE -> 0807 N, Walk (3 MP, 2 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
   [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
   [Ranged] Red -> Blue: range 5, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 1 + heat 0); firing ['ISStreakSRM4', 'Medium Laser', 'Medium Laser', 'Hyper Velocity Auto Cannon/10'] (weapon heat 16 of budget 34 = max 30 + sink 14 - current 7 - movement 3 - other 0; expected dmg 7.17)
@@ -179,9 +179,9 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
 
 === TURN 4 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 551.385 = dealt 10.85 x1.00 + (HP 558.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 15.44 x my future 14.96 [two-ply, 93 of 161 spots (grid search) x 329 replies (short list); modeled reply Red -> 0207 NE Jump]
+  [Movement select] Blue: score 546.654 = dealt 6.12 x1.00 + (HP 558.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 15.44 x my future 14.96 [two-ply, 93 of 161 spots (grid search) x 329 replies (short list); modeled reply Red -> 0204 SE Jump]
   [Movement] Blue: 0807 N -> 0907 NW, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0) - includes a backward move
-  [Movement select] Red: score 401.418 = dealt 0.00 x1.01 + (HP 399.0 - received 10.34 x0.98 - PSR 0.00) / enemy future 14.96 x my future 15.44 [enemy held at 0907; 97 spots with LOS]
+  [Movement select] Red: score 401.418 = dealt 0.00 x1.00 + (HP 399.0 - received 10.34 x0.98 - PSR 0.00) / enemy future 14.96 x my future 15.44 [enemy held at 0907; 97 spots with LOS]
   [Movement] Red: 0308 S -> 0207 SW, Jump (4 MP, 1 hexes, 3 heat; budget walk 2 / run 3 / jump 4)
   [Ranged] Blue -> Red: range 7, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 2 + heat 0); firing ['Thunderbolt 15', 'Hyper Velocity Auto Cannon/10', 'ISSNPPC', 'Light PPC', 'Light PPC'] (weapon heat 34 of budget 58 = max 30 + sink 32 - current 3 - movement 1 - other 0; expected dmg 10.00)
     Thunderbolt 15: needs 10 (range mod +2), rolled 6 -> miss [IS Ammo Thunderbolt-15: 1 shots left]
@@ -216,9 +216,9 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
 
 === TURN 5 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 587.891 = dealt 27.54 x1.00 + (HP 558.0 - received 16.56 x1.01 - PSR 0.00) / enemy future 15.41 x my future 15.95 [two-ply, 24 of 32 spots (grid search) x 428 replies (short list); modeled reply Red -> 0607 NE Jump]
+  [Movement select] Blue: score 587.919 = dealt 27.54 x1.00 + (HP 558.0 - received 16.56 x1.00 - PSR 0.00) / enemy future 15.41 x my future 15.95 [two-ply, 24 of 32 spots (grid search) x 428 replies (short list); modeled reply Red -> 0607 NE Jump]
   [Movement] Blue: 0907 NW -> 0907 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 2 / run 3 / jump 0)
-  [Movement select] Red: score 351.268 = dealt 2.19 x1.01 + (HP 379.0 - received 17.67 x1.00 - PSR 0.00) / enemy future 15.95 x my future 15.41 [enemy held at 0907; 94 spots with LOS]
+  [Movement select] Red: score 351.265 = dealt 2.19 x1.00 + (HP 379.0 - received 17.67 x1.00 - PSR 0.00) / enemy future 15.95 x my future 15.41 [enemy held at 0907; 94 spots with LOS]
   [Movement] Red: 0207 SW -> 0110 NE, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
   [Ranged] Blue -> Red: range 8, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 2 + LOS 1 + heat 0); firing ['Thunderbolt 15', 'Hyper Velocity Auto Cannon/10', 'ISSNPPC', 'Light PPC', 'Light PPC'] (weapon heat 34 of budget 56 = max 30 + sink 32 - current 6 - movement 0 - other 0; expected dmg 15.56)
     Thunderbolt 15: needs 9 (range mod +2), rolled 6 -> miss [IS Ammo Thunderbolt-15: 0 shots left]
@@ -294,204 +294,446 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
   Initiative: Blue lost the roll, moves first.
   [Movement select] Blue: score 859.662 = dealt 6.79 x1.00 + (HP 558.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 9.47 x my future 14.47 [two-ply, 92 of 167 spots (grid search) x 425 replies (short list); modeled reply Red -> 0206 SE Jump]
   [Movement] Blue: 0808 NW -> 0909 NW, Walk (3 MP, 2 hexes, 1 heat; budget walk 3 / run 5 / jump 0) - includes a backward move
-  [Movement select] Red: score 228.668 = dealt 0.28 x1.01 + (HP 352.0 - received 2.98 x0.98 - PSR 0.00) / enemy future 14.47 x my future 9.47 [enemy held at 0909; 63 spots with LOS]
-  [Movement] Red: 0203 N -> 0503 S, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
+  [Movement select] Red: score 228.929 = dealt 0.28 x1.02 + (HP 352.0 - received 2.82 x0.90 - PSR 0.00) / enemy future 14.47 x my future 9.47 [enemy held at 0909; 63 spots with LOS]
+  [Movement] Red: 0203 N -> 0503 N, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
   [Ranged] Blue -> Red: range 8, base TN 10 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 3 + heat 0); firing ['Thunderbolt 15', 'Hyper Velocity Auto Cannon/10', 'ISSNPPC', 'Light PPC', 'Light PPC'] (weapon heat 34 of budget 58 = max 30 + sink 32 - current 3 - movement 1 - other 0; expected dmg 2.64)
-    Thunderbolt 15: needs 12 (range mod +2), rolled 6 -> miss [IS Ammo Thunderbolt-15: 2 shots left]
-    Hyper Velocity Auto Cannon/10: needs 12 (range mod +2), rolled 9 -> miss [IS Ammo HVAC/10: 2 shots left]
+    Thunderbolt 15: needs 12 (range mod +2), rolled 7 -> miss [IS Ammo Thunderbolt-15: 2 shots left]
+    Hyper Velocity Auto Cannon/10: needs 12 (range mod +2), rolled 6 -> miss [IS Ammo HVAC/10: 2 shots left]
       Heavy smoke fills 1009 (from Blue's HVAC fire; until the End Phase of turn 9).
-    ISSNPPC: needs 10 (range mod +0), rolled 3 -> miss
+    ISSNPPC: needs 10 (range mod +0), rolled 5 -> miss
     Light PPC: needs 12 (range mod +2), rolled 6 -> miss
     Light PPC: needs 12 (range mod +2), rolled 6 -> miss
-  [Ranged] Red -> Blue: range 8, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 3 + heat 0); firing ['ISStreakSRM4', 'Medium Laser', 'Medium Laser', 'Hyper Velocity Auto Cannon/10'] (weapon heat 16 of budget 41 = max 30 + sink 14 - current 0 - movement 3 - other 0; expected dmg 0.28)
-  [Ranged] Red fires in order: ['Hyper Velocity Auto Cannon/10', 'Medium Laser', 'Medium Laser', 'ISStreakSRM4'].
-    Hyper Velocity Auto Cannon/10: needs 12 (range mod +2), rolled 7 -> miss [IS Ammo HVAC/10: 2 shots left]
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's right side arc after that).
+  [Ranged] Red -> Blue: range 8, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 3 + heat 0); firing ['Hyper Velocity Auto Cannon/10'] (weapon heat 7 of budget 41 = max 30 + sink 14 - current 0 - movement 3 - other 0; expected dmg 0.28)
+    Hyper Velocity Auto Cannon/10: needs 12 (range mod +2), rolled 6 -> miss [IS Ammo HVAC/10: 2 shots left]
       Heavy smoke fills 0502 (from Red's HVAC fire; until the End Phase of turn 9).
-    Medium Laser: needs 14 (range mod +4), rolled 2 -> miss
-    Medium Laser: needs 14 (range mod +4), rolled 3 -> miss
-    ISStreakSRM4: needs 14 (range mod +4), rolled 10 -> miss
-      Streak missed - launcher doesn't fire: no heat, no ammo.
-  [Heat] Red: 0 + movement 3 + weapons 13 + engine 0 - sinks 14 -> 2
+  [Heat] Red: 0 + movement 3 + weapons 7 + engine 0 - sinks 14 -> 0
   [Heat] Blue: 3 + movement 1 + weapons 34 + engine 0 - sinks 32 -> 6
   [Heat] Blue: heat 6 -> next turn -1 Walking MP, +0 to ranged attacks.
   [End] The smoke at 0103 clears.
   [End] The smoke at 0909 clears.
-  -- end of turn 8: Red @ 0503 S: HP 232, pilot hits 0, engine 0, gyro 0, heat 2
+  -- end of turn 8: Red @ 0503 N: HP 232, pilot hits 0, engine 0, gyro 0, heat 0
   -- end of turn 8: Blue @ 0909 NW: HP 407, pilot hits 1, engine 0, gyro 0, heat 6
 
 === TURN 9 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 262.333 = dealt 0.00 x1.00 + (HP 352.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 13.16 x my future 9.81 [two-ply, 98 of 502 spots (grid search) x 37 replies (short list); modeled reply: none with LOS]
-  [Movement] Red: 0503 S -> 0401 SE, Walk (3 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 4) - includes a backward move
-  [Movement select] Blue: no spot deals damage - closing fallback
-  [Movement] Blue: 0909 NW -> 0907 N, Run (3 MP, 2 hexes, 2 heat; budget walk 2 / run 3 / jump 0)
-  [Ranged] Red: no LOS to Blue - holds fire.
-  [Ranged] Blue: no LOS to Red - holds fire.
-  [Heat] Red: 2 + movement 1 + weapons 0 + engine 0 - sinks 14 -> 0
-  [Heat] Blue: 6 + movement 2 + weapons 0 + engine 0 - sinks 32 -> 0
-  [End] The smoke at 0502 clears.
-  [End] The smoke at 1009 clears.
-  -- end of turn 9: Red @ 0401 SE: HP 232, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 9: Blue @ 0907 N: HP 407, pilot hits 1, engine 0, gyro 0, heat 0
-
-=== TURN 10 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 856.322 = dealt 6.79 x1.00 + (HP 558.0 - received 2.19 x1.00 - PSR 0.00) / enemy future 7.89 x my future 12.06 [two-ply, 79 of 143 spots (grid search) x 393 replies (short list); modeled reply Red -> 0503 SE Jump]
-  [Movement] Blue: 0907 N -> 0908 NW, Walk (2 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0) - includes a backward move
-  [Movement select] Red: score 226.818 = dealt 0.84 x1.00 + (HP 352.0 - received 6.73 x0.98 - PSR 0.00) / enemy future 12.06 x my future 7.89 [enemy held at 0908; 58 spots with LOS]
-  [Movement] Red: 0401 SE -> 0304 SW, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
-  [Ranged] Blue -> Red: range 7, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 2 + heat 0); firing ['Thunderbolt 15', 'Hyper Velocity Auto Cannon/10', 'ISSNPPC', 'Light PPC', 'Light PPC'] (weapon heat 34 of budget 61 = max 30 + sink 32 - current 0 - movement 1 - other 0; expected dmg 5.69)
-    Thunderbolt 15: needs 11 (range mod +2), rolled 3 -> miss [IS Ammo Thunderbolt-15: 1 shots left]
-    Hyper Velocity Auto Cannon/10: needs 11 (range mod +2), rolled 7 -> miss [IS Ammo HVAC/10: 1 shots left]
-      Heavy smoke fills 1008 (from Blue's HVAC fire; until the End Phase of turn 11).
-    ISSNPPC: needs 9 (range mod +0), rolled 10 -> HIT
-    Light PPC: needs 11 (range mod +2), rolled 5 -> miss
-    Light PPC: needs 11 (range mod +2), rolled 5 -> miss
-  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
-  [Ranged] Red -> Blue: range 7, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 2 + heat 0); firing ['ISStreakSRM4', 'Medium Laser', 'Medium Laser', 'Hyper Velocity Auto Cannon/10'] (weapon heat 16 of budget 41 = max 30 + sink 14 - current 0 - movement 3 - other 0; expected dmg 0.83)
-  [Ranged] Red fires in order: ['Hyper Velocity Auto Cannon/10', 'Medium Laser', 'Medium Laser', 'ISStreakSRM4'].
-    Hyper Velocity Auto Cannon/10: needs 11 (range mod +2), rolled 11 -> HIT [IS Ammo HVAC/10: 1 shots left]
-      Heavy smoke fills 0203 (from Red's HVAC fire; until the End Phase of turn 11).
-    Medium Laser: needs 13 (range mod +4), rolled 4 -> miss
-    Medium Laser: needs 13 (range mod +4), rolled 8 -> miss
-    ISStreakSRM4: needs 13 (range mod +4), rolled 9 -> miss
-      Streak missed - launcher doesn't fire: no heat, no ammo.
-    ISSNPPC hit for 10:
-      Hit location roll 12 (left table): Head.
-      Head hit - pilot takes 1 hit (1/6), regardless of armor.
-10 damage (ENERGY) incoming to Head (armor).
-  [STANDARD/ENERGY] 9 armor pts destroyed at armor (9 -> 0 remaining). 1 damage applied to structure [STANDARD] (3 -> 2/3 remaining).
-  Check for possible critical. Roll a 5.
-    No critical hit.
-    Hyper Velocity Auto Cannon/10 hit for 10:
-      Hit location roll 8 (front table): Left Torso.
-10 damage (BALLISTIC) incoming to Left Torso (armor).
-  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (32 -> 22 remaining).
-Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
-  Pilot stays conscious.
-  [Heat] Red: 0 + movement 3 + weapons 13 + engine 0 - sinks 14 -> 2
-  [Heat] Blue: 0 + movement 1 + weapons 34 + engine 0 - sinks 32 -> 3
-  -- end of turn 10: Red @ 0304 SW: HP 222, pilot hits 1, engine 0, gyro 0, heat 2
-  -- end of turn 10: Blue @ 0908 NW: HP 397, pilot hits 1, engine 0, gyro 0, heat 3
-
-=== TURN 11 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 194.523 = dealt 0.84 x1.00 + (HP 341.0 - received 6.25 x0.92 - PSR 0.00) / enemy future 13.94 x my future 8.05 [two-ply, 127 of 479 spots (grid search) x 155 replies (short list); modeled reply Blue -> 0507 N Run]
-  [Movement] Red: 0304 SW -> 0201 N, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Blue: score 952.846 = dealt 6.25 x0.92 + (HP 548.0 - received 0.84 x1.01 - PSR 0.00) / enemy future 8.05 x my future 13.94 [enemy held at 0201; 8 spots with LOS]
-  [Movement] Blue: 0908 NW -> 0508 SW, Run (5 MP, 4 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
+  [Movement select] Blue: score 755.281 = dealt 19.91 x1.08 + (HP 558.0 - received 10.96 x1.02 - PSR 0.00) / enemy future 9.81 x my future 13.16 [two-ply, 28 of 37 spots (grid search) x 504 replies (short list); modeled reply Red -> 0503 SE Stand Still]
+  [Movement] Blue: 0909 NW -> 0909 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 2 / run 3 / jump 0)
+  [Movement select] Red: score 256.686 = dealt 5.87 x1.02 + (HP 352.0 - received 17.36 x0.90 - PSR 0.00) / enemy future 13.16 x my future 9.81 [enemy held at 0909; 95 spots with LOS]
+  [Movement] Red: 0503 N -> 0503 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 4)
+  [Ranged] Blue -> Red: range 8, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 3 + heat 0); firing ['Thunderbolt 15', 'Hyper Velocity Auto Cannon/10', 'ISSNPPC', 'Light PPC', 'Light PPC'] (weapon heat 34 of budget 56 = max 30 + sink 32 - current 6 - movement 0 - other 0; expected dmg 15.56)
+    Thunderbolt 15: needs 9 (range mod +2), rolled 7 -> miss [IS Ammo Thunderbolt-15: 1 shots left]
+    Hyper Velocity Auto Cannon/10: needs 9 (range mod +2), rolled 7 -> miss [IS Ammo HVAC/10: 1 shots left]
+      Heavy smoke fills 1009 (from Blue's HVAC fire; until the End Phase of turn 10).
+    ISSNPPC: needs 7 (range mod +0), rolled 8 -> HIT
+    Light PPC: needs 9 (range mod +2), rolled 2 -> miss
+    Light PPC: needs 9 (range mod +2), rolled 10 -> HIT
   [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's right side arc after that).
-  [Ranged] Red -> Blue: range 8, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 1 + heat 0); firing ['Hyper Velocity Auto Cannon/10'] (weapon heat 7 of budget 39 = max 30 + sink 14 - current 2 - movement 3 - other 0; expected dmg 0.83)
-    Hyper Velocity Auto Cannon/10: needs 11 (range mod +2), rolled 12 -> HIT [IS Ammo HVAC/10: 0 shots left]
-  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
-  [Ranged] Blue -> Red: range 8, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 1 + heat 0); firing ['Thunderbolt 15', 'Hyper Velocity Auto Cannon/10', 'ISSNPPC', 'Light PPC', 'Light PPC'] (weapon heat 34 of budget 57 = max 30 + sink 32 - current 3 - movement 2 - other 0; expected dmg 5.69)
-    Thunderbolt 15: needs 11 (range mod +2), rolled 8 -> miss [IS Ammo Thunderbolt-15: 0 shots left]
-    Hyper Velocity Auto Cannon/10: needs 11 (range mod +2), rolled 7 -> miss [IS Ammo HVAC/10: 0 shots left]
-      Heavy smoke fills 0509 (from Blue's HVAC fire; until the End Phase of turn 12).
-    ISSNPPC: needs 9 (range mod +0), rolled 9 -> HIT
-    Light PPC: needs 11 (range mod +2), rolled 10 -> miss
-    Light PPC: needs 11 (range mod +2), rolled 7 -> miss
-    Hyper Velocity Auto Cannon/10 hit for 10:
-      Hit location roll 8 (right table): Center Torso.
-10 damage (BALLISTIC) incoming to Center Torso (armor).
-  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (45 -> 35 remaining).
+  [Ranged] Red -> Blue: range 8, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['Hyper Velocity Auto Cannon/10'] (weapon heat 7 of budget 44 = max 30 + sink 14 - current 0 - movement 0 - other 0; expected dmg 5.83)
+    Hyper Velocity Auto Cannon/10: needs 7 (range mod +2), rolled 6 -> miss [IS Ammo HVAC/10: 1 shots left]
+      Heavy smoke fills 0502 (from Red's HVAC fire; until the End Phase of turn 10).
     ISSNPPC hit for 10:
       Hit location roll 7 (rear table): Center Torso.
 10 damage (ENERGY) incoming to Center Torso (rear_armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at rear_armor (15 -> 5 remaining).
-  [Heat] Red: 2 + movement 3 + weapons 7 + engine 0 - sinks 14 -> 0
-  [Heat] Blue: 3 + movement 2 + weapons 34 + engine 0 - sinks 32 -> 7
-  [Heat] Blue: heat 7 -> next turn -1 Walking MP, +0 to ranged attacks.
-  [End] The smoke at 0203 clears.
-  [End] The smoke at 1008 clears.
-  -- end of turn 11: Red @ 0201 N: HP 212, pilot hits 1, engine 0, gyro 0, heat 0
-  -- end of turn 11: Blue @ 0508 SW: HP 387, pilot hits 1, engine 0, gyro 0, heat 7
+    Light PPC hit for 5:
+      Hit location roll 5 (rear table): Right Leg.
+5 damage (ENERGY) incoming to Right Leg (rear_armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (10 -> 5 remaining).
+  [Heat] Red: 0 + movement 0 + weapons 7 + engine 0 - sinks 14 -> 0
+  [Heat] Blue: 6 + movement 0 + weapons 34 + engine 0 - sinks 32 -> 8
+  [Heat] Blue: heat 8 -> next turn -1 Walking MP, +1 to ranged attacks.
+  -- end of turn 9: Red @ 0503 N: HP 217, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 9: Blue @ 0909 NW: HP 407, pilot hits 1, engine 0, gyro 0, heat 8
+
+=== TURN 10 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 238.901 = dealt 1.68 x1.02 + (HP 337.0 - received 1.49 x0.93 - PSR 0.00) / enemy future 12.72 x my future 8.99 [two-ply, 130 of 504 spots (grid search) x 37 replies (short list); modeled reply Blue -> 0710 SW Run]
+  [Movement] Red: 0503 N -> 0201 N, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
+  [Movement select] Blue: no spot deals damage - closing fallback
+  [Movement] Blue: 0909 NW -> 0710 SW, Run (3 MP, 2 hexes, 2 heat; budget walk 2 / run 3 / jump 0)
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's right side arc after that).
+  [Ranged] Red -> Blue: range 11, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 1 + heat 0); firing ['Hyper Velocity Auto Cannon/10'] (weapon heat 7 of budget 41 = max 30 + sink 14 - current 0 - movement 3 - other 0; expected dmg 1.67)
+    Hyper Velocity Auto Cannon/10: needs 10 (range mod +2), rolled 3 -> miss [IS Ammo HVAC/10: 0 shots left]
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
+  [Ranged] Blue -> Red: range 11, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 1 + heat 1); firing ['Thunderbolt 15', 'Hyper Velocity Auto Cannon/10', 'ISSNPPC', 'Light PPC', 'Light PPC'] (weapon heat 34 of budget 52 = max 30 + sink 32 - current 8 - movement 2 - other 0; expected dmg 1.19)
+    Thunderbolt 15: needs 12 (range mod +2), rolled 9 -> miss [IS Ammo Thunderbolt-15: 0 shots left]
+    Hyper Velocity Auto Cannon/10: needs 12 (range mod +2), rolled 6 -> miss [IS Ammo HVAC/10: 0 shots left]
+      Heavy smoke fills 0711 (from Blue's HVAC fire; until the End Phase of turn 11).
+    ISSNPPC: needs 12 (range mod +2), rolled 9 -> miss
+    Light PPC: needs 12 (range mod +2), rolled 5 -> miss
+    Light PPC: needs 12 (range mod +2), rolled 12 -> HIT
+    Light PPC hit for 5:
+      Hit location roll 10 (rear table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (rear_armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (8 -> 3 remaining).
+  [Heat] Red: 0 + movement 3 + weapons 7 + engine 0 - sinks 14 -> 0
+  [Heat] Blue: 8 + movement 2 + weapons 34 + engine 0 - sinks 32 -> 12
+  [Heat] Blue: heat 12 -> next turn -2 Walking MP, +1 to ranged attacks.
+  [End] The smoke at 0502 clears.
+  [End] The smoke at 1009 clears.
+  -- end of turn 10: Red @ 0201 N: HP 212, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 10: Blue @ 0710 SW: HP 407, pilot hits 1, engine 0, gyro 0, heat 12
+
+=== TURN 11 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 248.029 = dealt 2.19 x1.02 + (HP 332.0 - received 0.83 x0.99 - PSR 0.00) / enemy future 12.29 x my future 9.12 [two-ply, 113 of 280 spots (grid search) x 13 replies (short list); modeled reply Blue -> 0809 SW Walk]
+  [Movement] Red: 0201 N -> 0503 SW, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
+  [Movement select] Blue: score 749.622 = dealt 0.83 x0.99 + (HP 558.0 - received 2.19 x1.02 - PSR 0.00) / enemy future 9.12 x my future 12.29 [enemy held at 0503; 1 spots with LOS]
+  [Movement] Blue: 0710 SW -> 0809 SW, Walk (1 MP, 1 hexes, 1 heat; budget walk 1 / run 2 / jump 0) - includes a backward move
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 8, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 1 + heat 0); firing ['ISStreakSRM4', 'Medium Laser', 'Medium Laser', 'Hyper Velocity Auto Cannon/10'] (weapon heat 16 of budget 41 = max 30 + sink 14 - current 0 - movement 3 - other 0; expected dmg 2.17)
+  [Ranged] Red fires in order: ['Hyper Velocity Auto Cannon/10', 'Medium Laser', 'Medium Laser', 'ISStreakSRM4'].
+    Hyper Velocity Auto Cannon/10: needs 10 (range mod +2), rolled 8 -> miss [IS Ammo HVAC/10: 7 shots left]
+      Heavy smoke fills 0502 (from Red's HVAC fire; until the End Phase of turn 12).
+    Medium Laser: needs 12 (range mod +4), rolled 5 -> miss
+    Medium Laser: needs 12 (range mod +4), rolled 11 -> miss
+    ISStreakSRM4: needs 12 (range mod +4), rolled 12 -> HIT
+      [IS Streak SRM 4 Ammo: 21 shots left]
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
+  [Ranged] Blue -> Red: range 8, base TN 11 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 3 + heat 1); firing ['Hyper Velocity Auto Cannon/10', 'ISSNPPC'] (weapon heat 17 of budget 49 = max 30 + sink 32 - current 12 - movement 1 - other 0; expected dmg 0.83)
+    Hyper Velocity Auto Cannon/10: needs 13 (range mod +2), rolled 4 -> miss [IS Ammo HVAC/10: 7 shots left]
+      Heavy smoke fills 0810 (from Blue's HVAC fire; until the End Phase of turn 12).
+    ISSNPPC: needs 11 (range mod +0), rolled 11 -> HIT
+    ISStreakSRM4 hit: Streak - all 4 missiles hit (8 dmg).
+      Group 1/4: Hit location roll 7 (right table): Right Torso.
+2 damage (MISSILE) incoming to Right Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (32 -> 30 remaining).
+      Group 2/4: Hit location roll 7 (right table): Right Torso.
+2 damage (MISSILE) incoming to Right Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (30 -> 28 remaining).
+      Group 3/4: Hit location roll 8 (right table): Center Torso.
+2 damage (MISSILE) incoming to Center Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (45 -> 43 remaining).
+      Group 4/4: Hit location roll 8 (right table): Center Torso.
+2 damage (MISSILE) incoming to Center Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (43 -> 41 remaining).
+    ISSNPPC hit for 10:
+      Hit location roll 11 (left table): Right Leg.
+10 damage (ENERGY) incoming to Right Leg (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (5 -> 0 remaining). 5 damage applied to structure [STANDARD] (17 -> 12/17 remaining).
+  Check for possible critical. Roll a 9.
+    1 critical hit(s).
+  Critical hit pool at Right Leg:
+    1: Hip (slot 1)
+    2: Upper Leg Actuator (slot 2)
+    3: Lower Leg Actuator (slot 3)
+    4: Foot Actuator (slot 4)
+    5: Heat Sink (slot 5)
+    6: Jump Jet (slot 6)
+    1/1 Criticals: Foot Actuator hit.
+      Current crit slots in Right Leg: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'DESTROYED', 'Heat Sink', 'Jump Jet', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+      Leg actuator hit at Right Leg (1 destroyed there) - walk MP now 3.
+PSR trigger: 1 leg actuator(s) destroyed at Right Leg this phase -> +1, one roll.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 4.
+  Failed - falls.
+FALL (failed Attack Phase PSR): Victor VTR-Cr takes 8 falling damage (1D6 6: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 7 -> Center Torso
+5 damage (PHYSICAL) incoming to Center Torso (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (24 -> 19 remaining).
+  Fall cluster (3 dmg): rolled 6 -> Right Torso
+3 damage (PHYSICAL) incoming to Right Torso (armor).
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (15 -> 12/17 remaining).
+  Check for possible critical. Roll a 8.
+    1 critical hit(s).
+  Critical hit pool at Right Torso:
+    1: IS Ammo HVAC/10 (slot 1)
+    2: IS Ammo HVAC/10 (slot 2)
+    1/1 Criticals: IS Ammo HVAC/10 slot hit.
+      Current crit slots in Right Torso: ['IS Ammo HVAC/10', 'DESTROYED', 'ISCASE', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', '-Empty-']
+    IS Ammo HVAC/10 destroyed at Right Torso - EXPLOSION (70 dmg)! Pilot takes 1 hit (1/6).
+    Explosion reaches Right Torso. CASE present - at most 10 structure damage.
+    10 structure damage taken (2/17 remaining).
+  Check for possible critical. Roll a 10.
+    2 critical hit(s).
+    1/2 Criticals: IS Ammo HVAC/10 slot hit.
+      Current crit slots in Right Torso: ['DESTROYED', 'DESTROYED', 'ISCASE', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', 'Endo Steel', '-Empty-']
+    2/2 Criticals: Right Torso critical slots exhausted during this round - discarded (no transfer).
+    CASE vents the excess: Right Torso loses 10 rear armor (0 left).
+    CASE contains the explosion. No further transfer.
+  Seatbelt check: needs 5. Rolled 4. FAILED - pilot takes 1 hit (2/6).
+Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 8.
+  Pilot stays conscious.
+  [Heat] Red: 0 + movement 3 + weapons 16 + engine 0 - sinks 14 -> 5
+  [Heat] Red: heat 5 -> next turn -1 Walking MP, +0 to ranged attacks.
+  [Heat] Blue: 12 + movement 1 + weapons 17 + engine 0 - sinks 32 -> 0
+  [End] The smoke at 0711 clears.
+  -- end of turn 11: Red @ 0503 SW: HP 174, pilot hits 2, engine 0, gyro 0, heat 5 [PRONE]
+  -- end of turn 11: Blue @ 0809 SW: HP 399, pilot hits 1, engine 0, gyro 0, heat 0
 
 === TURN 12 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 805.459 = dealt 21.16 x1.00 + (HP 538.0 - received 10.96 x1.01 - PSR 0.00) / enemy future 9.13 x my future 13.59 [two-ply, 24 of 26 spots (grid search) x 280 replies (short list); modeled reply Red -> 0303 S Walk]
-  [Movement] Blue: 0508 SW -> 0408 SW, Walk (2 MP, 1 hexes, 1 heat; budget walk 2 / run 3 / jump 0)
-  [Movement select] Red: score 220.160 = dealt 4.32 x1.01 + (HP 331.0 - received 9.95 x0.99 - PSR 0.00) / enemy future 13.59 x my future 9.13 [enemy held at 0408; 65 spots with LOS]
-  [Movement] Red: 0201 N -> 0403 SW, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
+  [Movement select] Blue: score 1959.767 = dealt 13.33 x0.87 + (HP 550.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 4.39 x my future 15.54 [two-ply, 84 of 170 spots (grid search) x 1 replies (short list); modeled reply Red -> 0503 SW Run]
+  [Movement] Blue: 0809 SW -> 0809 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 9.
+  Success - Victor VTR-Cr is standing (remaining running MP 1).
+  [Movement select] Red: score 126.353 = dealt 1.53 x1.02 + (HP 276.0 - received 13.33 x0.87 - PSR 0.00) / enemy future 15.54 x my future 7.34 [enemy held at 0809; 7 spots with LOS]
+  [Movement] Red: 0503 SW -> 0503 SW, Run (0 MP, 0 hexes, 2 heat; budget walk 2 / run 3 / jump 4; stood up with 1 MP left)
   [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
-  [Ranged] Blue -> Red: range 5, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 2 + heat 0); firing ['Hyper Velocity Auto Cannon/10', 'ISSNPPC', 'Light PPC', 'Light PPC'] (weapon heat 27 of budget 54 = max 30 + sink 32 - current 7 - movement 1 - other 0; expected dmg 8.33)
-    Hyper Velocity Auto Cannon/10: needs 9 (range mod +0), rolled 7 -> miss [IS Ammo HVAC/10: 7 shots left]
-      Heavy smoke fills 0409 (from Blue's HVAC fire; until the End Phase of turn 13).
-    ISSNPPC: needs 9 (range mod +0), rolled 7 -> miss
-    Light PPC: needs 9 (range mod +0), rolled 6 -> miss
-    Light PPC: needs 9 (range mod +0), rolled 8 -> miss
-  [Ranged] Red -> Blue: range 5, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 2 + heat 0); firing ['ISStreakSRM4', 'Medium Laser', 'Medium Laser', 'Hyper Velocity Auto Cannon/10'] (weapon heat 16 of budget 41 = max 30 + sink 14 - current 0 - movement 3 - other 0; expected dmg 4.28)
-  [Ranged] Red fires in order: ['Hyper Velocity Auto Cannon/10', 'Medium Laser', 'Medium Laser', 'ISStreakSRM4'].
-    Hyper Velocity Auto Cannon/10: needs 9 (range mod +0), rolled 10 -> HIT [IS Ammo HVAC/10: 7 shots left]
-      Heavy smoke fills 0402 (from Red's HVAC fire; until the End Phase of turn 13).
-    Medium Laser: needs 11 (range mod +2), rolled 5 -> miss
-    Medium Laser: needs 11 (range mod +2), rolled 5 -> miss
-    ISStreakSRM4: needs 11 (range mod +2), rolled 10 -> miss
-      Streak missed - launcher doesn't fire: no heat, no ammo.
+  [Ranged] Blue -> Red: range 8, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 3 + heat 0); firing ['Hyper Velocity Auto Cannon/10', 'ISSNPPC', 'Light PPC', 'Light PPC'] (weapon heat 27 of budget 62 = max 30 + sink 32 - current 0 - movement 0 - other 0; expected dmg 11.39)
+    Hyper Velocity Auto Cannon/10: needs 9 (range mod +2), rolled 10 -> HIT [IS Ammo HVAC/10: 6 shots left]
+      Heavy smoke fills 0810 (from Blue's HVAC fire; until the End Phase of turn 13).
+    ISSNPPC: needs 7 (range mod +0), rolled 4 -> miss
+    Light PPC: needs 9 (range mod +2), rolled 7 -> miss
+    Light PPC: needs 9 (range mod +2), rolled 11 -> HIT
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 8, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0); firing ['ISStreakSRM4', 'Medium Laser', 'Medium Laser'] (weapon heat 9 of budget 37 = max 30 + sink 14 - current 5 - movement 2 - other 0; expected dmg 1.50)
+  [Ranged] Red fires in order: ['Medium Laser', 'Medium Laser', 'ISStreakSRM4'].
+    Medium Laser: needs 11 (range mod +4), rolled 11 -> HIT
+    Medium Laser: needs 11 (range mod +4), rolled 7 -> miss
+    ISStreakSRM4: needs 11 (range mod +4), rolled 11 -> HIT
+      [IS Streak SRM 4 Ammo: 20 shots left]
     Hyper Velocity Auto Cannon/10 hit for 10:
-      Hit location roll 8 (right table): Center Torso.
-10 damage (BALLISTIC) incoming to Center Torso (armor).
-  [STANDARD/BALLISTIC] 10 armor pts destroyed at armor (35 -> 25 remaining).
-  [Heat] Red: 0 + movement 3 + weapons 13 + engine 0 - sinks 14 -> 2
-  [Heat] Blue: 7 + movement 1 + weapons 27 + engine 0 - sinks 32 -> 3
-  [End] The smoke at 0509 clears.
-  -- end of turn 12: Red @ 0403 SW: HP 212, pilot hits 1, engine 0, gyro 0, heat 2
-  -- end of turn 12: Blue @ 0408 SW: HP 377, pilot hits 1, engine 0, gyro 0, heat 3
-
-=== TURN 13 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 215.686 = dealt 2.19 x1.00 + (HP 331.0 - received 4.93 x0.99 - PSR 0.00) / enemy future 12.69 x my future 8.31 [two-ply, 188 of 514 spots (grid search) x 133 replies (short list); modeled reply Blue -> 0710 NW Run]
-  [Movement] Red: 0403 SW -> 0205 S, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
-  [Movement select] Blue: score 805.549 = dealt 10.08 x1.00 + (HP 528.0 - received 7.25 x1.00 - PSR 0.00) / enemy future 8.31 x my future 12.69 [enemy held at 0205; 16 spots with LOS]
-  [Movement] Blue: 0408 SW -> 0311 SW, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Red -> Blue: range 6, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 2 + heat 0); firing ['ISStreakSRM4', 'Medium Laser', 'Medium Laser', 'Hyper Velocity Auto Cannon/10'] (weapon heat 16 of budget 41 = max 30 + sink 14 - current 2 - movement 1 - other 0; expected dmg 7.17)
-  [Ranged] Red fires in order: ['Hyper Velocity Auto Cannon/10', 'Medium Laser', 'Medium Laser', 'ISStreakSRM4'].
-    Hyper Velocity Auto Cannon/10: needs 8 (range mod +0), rolled 6 -> miss [IS Ammo HVAC/10: 6 shots left]
-      Heavy smoke fills 0204 (from Red's HVAC fire; until the End Phase of turn 14).
-    Medium Laser: needs 10 (range mod +2), rolled 6 -> miss
-    Medium Laser: needs 10 (range mod +2), rolled 9 -> miss
-    ISStreakSRM4: needs 10 (range mod +2), rolled 10 -> HIT
-      [IS Streak SRM 4 Ammo: 21 shots left]
-  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
-  [Ranged] Blue -> Red: range 6, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 2 + heat 0); firing ['Hyper Velocity Auto Cannon/10', 'ISSNPPC', 'Light PPC', 'Light PPC'] (weapon heat 27 of budget 57 = max 30 + sink 32 - current 3 - movement 2 - other 0; expected dmg 8.33)
-    Hyper Velocity Auto Cannon/10: needs 9 (range mod +0), rolled 8 -> miss [IS Ammo HVAC/10: 6 shots left]
-      Heavy smoke fills 0312 (from Blue's HVAC fire; until the End Phase of turn 14).
-    ISSNPPC: needs 9 (range mod +0), rolled 11 -> HIT
-    Light PPC: needs 9 (range mod +0), rolled 10 -> HIT
-    Light PPC: needs 9 (range mod +0), rolled 7 -> miss
+      Hit location roll 11 (left table): Right Leg.
+10 damage (BALLISTIC) incoming to Right Leg (armor).
+  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 10 damage applied to structure [STANDARD] (12 -> 2/17 remaining).
+  Check for possible critical. Roll a 6.
+    No critical hit.
+    Light PPC hit for 5:
+      Hit location roll 4 (left table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 3 armor pts destroyed at armor (3 -> 0 remaining). 2 damage applied to structure [STANDARD] (13 -> 11/13 remaining).
+  Check for possible critical. Roll a 4.
+    No critical hit.
+    Medium Laser hit for 5:
+      Hit location roll 10 (right table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (27 -> 22 remaining).
     ISStreakSRM4 hit: Streak - all 4 missiles hit (8 dmg).
-      Group 1/4: Hit location roll 6 (right table): Right Leg.
-2 damage (MISSILE) incoming to Right Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (29 -> 27 remaining).
-      Group 2/4: Hit location roll 5 (right table): Right Arm.
+      Group 1/4: Hit location roll 5 (right table): Right Arm.
 2 damage (MISSILE) incoming to Right Arm (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (30 -> 28 remaining).
+      Group 2/4: Hit location roll 6 (right table): Right Leg.
+2 damage (MISSILE) incoming to Right Leg (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (25 -> 23 remaining).
       Group 3/4: Hit location roll 7 (right table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (28 -> 26 remaining).
-      Group 4/4: Hit location roll 9 (right table): Left Torso.
-2 damage (MISSILE) incoming to Left Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (22 -> 20 remaining).
-    ISSNPPC hit for 10:
-      Hit location roll 6 (front table): Right Torso.
-10 damage (ENERGY) incoming to Right Torso (armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 10 damage applied to structure [STANDARD] (15 -> 5/17 remaining).
-  Check for possible critical. Roll a 2.
+      Group 4/4: Hit location roll 7 (right table): Right Torso.
+2 damage (MISSILE) incoming to Right Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (26 -> 24 remaining).
+  [Heat] Red: 5 + movement 2 + weapons 9 + engine 0 - sinks 14 -> 2
+  [Heat] Blue: 0 + movement 0 + weapons 27 + engine 0 - sinks 32 -> 0
+  [End] The smoke at 0502 clears.
+  -- end of turn 12: Red @ 0503 SW: HP 159, pilot hits 2, engine 0, gyro 0, heat 2
+  -- end of turn 12: Blue @ 0809 SW: HP 386, pilot hits 1, engine 0, gyro 0, heat 0
+
+=== TURN 13 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 115.892 = dealt 5.09 x1.00 + (HP 249.0 - received 13.60 x0.78 - PSR 0.00) / enemy future 16.60 x my future 7.71 [two-ply, 135 of 413 spots (grid search) x 170 replies (short list); modeled reply Blue -> 0809 N Stand Still]
+  [Movement] Red: 0503 SW -> 0503 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 4)
+  [Movement select] Blue: score 1160.223 = dealt 6.00 x0.78 + (HP 537.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 7.71 x my future 16.60 [enemy held at 0503; 36 spots with LOS]
+  [Movement] Blue: 0809 SW -> 1010 NW, Walk (3 MP, 2 hexes, 1 heat; budget walk 3 / run 5 / jump 0) - includes a backward move
+  [Ranged] Red -> Blue: range 10, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 42 = max 30 + sink 14 - current 2 - movement 0 - other 0; expected dmg 0.00)
+  [Ranged] Blue -> Red: range 10, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 3 + heat 0); firing ['Hyper Velocity Auto Cannon/10', 'ISSNPPC', 'Light PPC', 'Light PPC'] (weapon heat 27 of budget 61 = max 30 + sink 32 - current 0 - movement 1 - other 0; expected dmg 4.67)
+    Hyper Velocity Auto Cannon/10: needs 10 (range mod +2), rolled 6 -> miss [IS Ammo HVAC/10: 5 shots left]
+      Heavy smoke fills 1111 (from Blue's HVAC fire; until the End Phase of turn 14).
+    ISSNPPC: needs 10 (range mod +2), rolled 11 -> HIT
+    Light PPC: needs 10 (range mod +2), rolled 3 -> miss
+    Light PPC: needs 10 (range mod +2), rolled 9 -> miss
+    ISSNPPC hit for 8:
+      Hit location roll 11 (left table): Right Leg.
+8 damage (ENERGY) incoming to Right Leg (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (2 -> 0/17 remaining).
+  Right Leg destroyed with no live explosive components - no critical roll.
+  Right Leg DESTROYED!
+    Hip specifically destroyed at Right Leg from Right Leg destruction.
+    Heat sink destroyed (Heat Sink) from Right Leg destruction - heat dissipation reduced (now 13).
+    Jump jet destroyed (Jump Jet) from Right Leg destruction - jump MP reduced (now 3).
+  All critical slots in Right Leg marked DESTROYED.
+  6 damage remains, transfers to Right Torso.
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (2 -> 0/17 remaining).
+  Right Torso destroyed with no live explosive components - no critical roll.
+  Right Torso DESTROYED!
+  All critical slots in Right Torso marked DESTROYED.
+  Right Arm also destroyed (side torso rule).
+  All critical slots in Right Arm marked DESTROYED.
+  4 damage remains, transfers to Center Torso.
+  [STANDARD/ENERGY] 4 armor pts destroyed at armor (19 -> 15 remaining).
+PSR trigger: 21 armor+structure lost this phase (>=20) -> +1.
+PSR trigger: Right Leg destroyed this phase -> automatic fall.
+Automatic fall this phase.
+FALL (automatic fall): Victor VTR-Cr takes 8 falling damage (1D6 4: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 9 -> Left Leg
+5 damage (PHYSICAL) incoming to Left Leg (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (20 -> 15 remaining).
+  Fall cluster (3 dmg): rolled 7 -> Center Torso
+3 damage (PHYSICAL) incoming to Center Torso (armor).
+  [STANDARD/PHYSICAL] 3 armor pts destroyed at armor (15 -> 12 remaining).
+  Seatbelt check: needs 5. Rolled 8. Pilot unharmed.
+  [Heat] Red: 2 + movement 0 + weapons 0 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 27 + engine 0 - sinks 32 -> 0
+  [End] Red is now CRIPPLED (BattleMech Manual definition).
+  [End] The smoke at 0810 clears.
+  -- end of turn 13: Red @ 0503 SW: HP 130, pilot hits 2, engine 0, gyro 0, heat 0 [PRONE]
+  -- end of turn 13: Blue @ 1010 NW: HP 386, pilot hits 1, engine 0, gyro 0, heat 0
+
+=== TURN 14 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 2115.634 = dealt 9.46 x1.13 + (HP 537.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 4.65 x my future 18.23 [two-ply, 84 of 168 spots (grid search) x 1 replies (short list); modeled reply Red -> 0503 SW Run]
+  [Movement] Blue: 1010 NW -> 1010 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 2.
+  Failed to stand.
+FALL (failed to stand): Victor VTR-Cr takes 8 falling damage (1D6 2: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 7 -> Center Torso
+5 damage (PHYSICAL) incoming to Center Torso (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (12 -> 7 remaining).
+  Fall cluster (3 dmg): rolled 9 -> Left Leg
+3 damage (PHYSICAL) incoming to Left Leg (armor).
+  [STANDARD/PHYSICAL] 3 armor pts destroyed at armor (15 -> 12 remaining).
+  Seatbelt check: needs 5. Rolled 6. Pilot unharmed.
+Insufficient MP (<2) remaining for another stand attempt. Remains prone.
+  [Movement] Red: still prone at 0503.
+  [Ranged] Blue -> Red: range 10, base TN 8 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 3 + heat 0 + prone target 1); firing ['Hyper Velocity Auto Cannon/10', 'ISSNPPC', 'Light PPC', 'Light PPC'] (weapon heat 27 of budget 62 = max 30 + sink 32 - current 0 - movement 0 - other 0; expected dmg 4.67)
+    Hyper Velocity Auto Cannon/10: needs 10 (range mod +2), rolled 5 -> miss [IS Ammo HVAC/10: 4 shots left]
+      Heavy smoke fills 1111 (from Blue's HVAC fire; until the End Phase of turn 15).
+    ISSNPPC: needs 10 (range mod +2), rolled 9 -> miss
+    Light PPC: needs 10 (range mod +2), rolled 10 -> HIT
+    Light PPC: needs 10 (range mod +2), rolled 9 -> miss
+  [Ranged] Red -> Blue: range 10, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0 + prone +2); firing nothing (weapon heat 0 of budget 41 = max 30 + sink 13 - current 0 - movement 2 - other 0; expected dmg 0.00)
+    Light PPC hit for 5:
+      Hit location roll 5 (left table): Left Arm.
+5 damage (ENERGY) incoming to Left Arm (armor).
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (11 -> 6/13 remaining).
+  Check for possible critical. Roll a 6.
+    No critical hit.
+  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 27 + engine 0 - sinks 32 -> 0
+  -- end of turn 14: Red @ 0503 SW: HP 117, pilot hits 2, engine 0, gyro 0, heat 0 [PRONE]
+  -- end of turn 14: Blue @ 1010 NW: HP 386, pilot hits 1, engine 0, gyro 0, heat 0
+
+=== TURN 15 ===
+  Initiative: Red lost the roll, moves first.
+Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 11.
+  Success - Victor VTR-Cr is standing (remaining running MP 0).
+  [Movement select] Red: no spot deals damage even before the reply (two-ply, 6 spots) - closing fallback found nothing; nearest reachable spot to the enemy
+  [Movement] Red: 0503 SW -> 0503 NE, Run (0 MP, 0 hexes, 2 heat; budget walk 1 / run 2 / jump 3; stood up with 0 MP left)
+  [Movement select] Blue: score 1680.941 = dealt 9.10 x0.85 + (HP 537.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 5.89 x my future 18.34 [enemy held at 0503; 80 spots with LOS]
+  [Movement] Blue: 1010 NW -> 1010 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+  [Ranged] Red -> Blue: range 10, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 41 = max 30 + sink 13 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Ranged] Blue -> Red: range 10, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 3 + heat 0); firing ['Hyper Velocity Auto Cannon/10', 'ISSNPPC', 'Light PPC', 'Light PPC'] (weapon heat 27 of budget 62 = max 30 + sink 32 - current 0 - movement 0 - other 0; expected dmg 7.78)
+    Hyper Velocity Auto Cannon/10: needs 9 (range mod +2), rolled 11 -> HIT [IS Ammo HVAC/10: 3 shots left]
+      Heavy smoke fills 1111 (from Blue's HVAC fire; until the End Phase of turn 16).
+    ISSNPPC: needs 9 (range mod +2), rolled 8 -> miss
+    Light PPC: needs 9 (range mod +2), rolled 9 -> HIT
+    Light PPC: needs 9 (range mod +2), rolled 8 -> miss
+    Hyper Velocity Auto Cannon/10 hit for 10:
+      Hit location roll 5 (right table): Right Arm.
+10 damage (BALLISTIC) incoming to Right Arm (armor).
+  Right Arm already destroyed - damage transfers to Right Torso.
+  Right Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/BALLISTIC] 7 armor pts destroyed at armor (7 -> 0 remaining). 3 damage applied to structure [STANDARD] (25 -> 22/25 remaining).
+  Check for possible critical. Roll a 7.
     No critical hit.
     Light PPC hit for 5:
-      Hit location roll 12 (front table): Head.
-      Head hit - pilot takes 1 hit (2/6), regardless of armor.
-5 damage (ENERGY) incoming to Head (armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (2 -> 0/3 remaining).
-  Head destroyed with no live explosive components - no critical roll.
-  Head DESTROYED!
-    Cockpit destroyed from Head destruction.
-  All critical slots in Head marked DESTROYED.
-  3 damage remains, transfers to nowhere (attack finished).
-  [Heat] Blue: 3 + movement 2 + weapons 27 + engine 0 - sinks 32 -> 0
-  [End] The smoke at 0402 clears.
-  [End] The smoke at 0409 clears.
-  -- end of turn 13: Red @ 0205 S: HP 200, pilot hits 2, engine 0, gyro 0, heat 2 [DESTROYED (Head Destroyed)]
-  -- end of turn 13: Blue @ 0311 SW: HP 369, pilot hits 1, engine 0, gyro 0, heat 0
+      Hit location roll 5 (right table): Right Arm.
+5 damage (ENERGY) incoming to Right Arm (armor).
+  Right Arm already destroyed - damage transfers to Right Torso.
+  Right Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (22 -> 17/25 remaining).
+  Check for possible critical. Roll a 5.
+    No critical hit.
+  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 27 + engine 0 - sinks 32 -> 0
+  -- end of turn 15: Red @ 0503 NE: HP 102, pilot hits 2, engine 0, gyro 0, heat 0
+  -- end of turn 15: Blue @ 1010 NW: HP 386, pilot hits 1, engine 0, gyro 0, heat 0
 
->>> Battle over on turn 13: Red destroyed. <<<
+=== TURN 16 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 44.657 = dealt 0.00 x1.00 + (HP 159.0 - received 0.00 x1.00 - PSR 5.78) / enemy future 19.08 x my future 5.56 [two-ply, 79 of 215 spots (grid search) x 168 replies (short list); modeled reply: none with LOS]
+  [Movement] Red: 0503 NE -> 0402 NE, Jump (3 MP, 1 hexes, 3 heat; budget walk 1 / run 2 / jump 3)
+Movement Phase PSR (jump mode, leg actuator/leg destroyed while jumping): needs 9 (Piloting 5 + +4). Rolled 2.
+  Failed - falls.
+FALL (failed Movement Phase PSR (jump)): Victor VTR-Cr takes 8 falling damage (1D6 2: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 5 -> Right Leg
+5 damage (PHYSICAL) incoming to Right Leg (armor).
+  Right Leg already destroyed - damage transfers to Right Torso.
+  Right Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (17 -> 12/25 remaining).
+  Check for possible critical. Roll a 7.
+    No critical hit.
+  Fall cluster (3 dmg): rolled 7 -> Center Torso
+3 damage (PHYSICAL) incoming to Center Torso (armor).
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (12 -> 9/25 remaining).
+  Check for possible critical. Roll a 4.
+    No critical hit.
+  Seatbelt check: needs 5. Rolled 10. Pilot unharmed.
+  [Movement select] Blue: no spot deals damage - closing fallback
+  [Movement] Blue: 1010 NW -> 0610 SW, Run (5 MP, 4 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
+  [Ranged] Red: no LOS to Blue - holds fire.
+  [Ranged] Blue: no LOS to Red - holds fire.
+  [Heat] Red: 0 + movement 3 + weapons 0 + engine 0 - sinks 13 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 32 -> 0
+  [End] The smoke at 1111 clears.
+  -- end of turn 16: Red @ 0402 NE: HP 94, pilot hits 2, engine 0, gyro 0, heat 0 [PRONE]
+  -- end of turn 16: Blue @ 0610 SW: HP 386, pilot hits 1, engine 0, gyro 0, heat 0
+
+=== TURN 17 ===
+  Initiative: Red lost the roll, moves first.
+Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 7.
+  Failed to stand.
+FALL (failed to stand): Victor VTR-Cr takes 8 falling damage (1D6 6: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 4 -> Right Arm
+5 damage (PHYSICAL) incoming to Right Arm (armor).
+  Right Arm already destroyed - damage transfers to Right Torso.
+  Right Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (9 -> 4/25 remaining).
+  Check for possible critical. Roll a 6.
+    No critical hit.
+  Fall cluster (3 dmg): rolled 3 -> Right Arm
+3 damage (PHYSICAL) incoming to Right Arm (armor).
+  Right Arm already destroyed - damage transfers to Right Torso.
+  Right Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (4 -> 1/25 remaining).
+  Check for possible critical. Roll a 4.
+    No critical hit.
+  Seatbelt check: needs 5. Rolled 2. FAILED - pilot takes 1 hit (3/6).
+Insufficient MP (<2) remaining for another stand attempt. Remains prone.
+  [Movement] Red: still prone at 0402.
+Movement Phase consciousness check (pilot, 3 pilot hits): needs 7. Rolled 6.
+  Pilot knocked unconscious.
+  [Movement select] Blue: score 2617.637 = dealt 27.04 x1.20 + (HP 537.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 3.74 x my future 17.99 [enemy held at 0402; 11 spots with LOS]
+  [Movement] Blue: 0610 SW -> 0511 SW, Walk (3 MP, 2 hexes, 1 heat; budget walk 3 / run 5 / jump 0) - includes a backward move
+  [Ranged] Red: no weapon can bear on Blue (right side arc) - can't fire.
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
+  [Ranged] Blue -> Red: range 9, base TN 4 (gunnery 4 + AMM 1 [Walk] + TMM -4 + LOS 2 + heat 0 + prone target 1); firing ['Hyper Velocity Auto Cannon/10', 'ISSNPPC', 'Light PPC', 'Light PPC'] (aimed at Center Torso) (weapon heat 27 of budget 61 = max 30 + sink 32 - current 0 - movement 1 - other 0; expected dmg 23.61)
+    Hyper Velocity Auto Cannon/10: needs 6 (range mod +2) aimed at Center Torso, rolled 7 -> HIT [IS Ammo HVAC/10: 2 shots left]
+      Heavy smoke fills 0512 (from Blue's HVAC fire; until the End Phase of turn 18).
+    ISSNPPC: needs 4 (range mod +0) aimed at Center Torso, rolled 5 -> HIT
+    Light PPC: needs 6 (range mod +2) aimed at Center Torso, rolled 6 -> HIT
+    Light PPC: needs 6 (range mod +2) aimed at Center Torso, rolled 10 -> HIT
+    Hyper Velocity Auto Cannon/10 hit for 10: aimed at Center Torso, 1D6 5 - on target.
+10 damage (BALLISTIC) incoming to Center Torso (armor).
+  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 1 damage applied to structure [STANDARD] (1 -> 0/25 remaining).
+  Center Torso destroyed with no live explosive components - no critical roll.
+  Center Torso DESTROYED!
+    Engine hit (1/3) from Center Torso destruction.
+    Engine hit (2/3) from Center Torso destruction.
+    Engine hit (3/3) from Center Torso destruction.
+    Gyro hit (1/2) from Center Torso destruction.
+    Gyro hit (2/2) from Center Torso destruction.
+    Gyro hit (3/2) from Center Torso destruction.
+    Gyro hit (4/2) from Center Torso destruction.
+    Engine hit (4/3) from Center Torso destruction.
+    Engine hit (5/3) from Center Torso destruction.
+    Engine hit (6/3) from Center Torso destruction.
+    Jump jet destroyed (Jump Jet) from Center Torso destruction - jump MP reduced (now 2).
+    Jump jet destroyed (Jump Jet) from Center Torso destruction - jump MP reduced (now 1).
+  All critical slots in Center Torso marked DESTROYED.
+  9 damage remains, transfers to nowhere (attack finished).
+    ISSNPPC hit for 10: aimed at Center Torso, 1D6 5 - on target.
+10 damage (ENERGY) incoming to Center Torso (armor).
+  Center Torso already destroyed - damage transfers to nowhere (attack finished).
+    Light PPC hit for 5: aimed at Center Torso, 1D6 6 - on target.
+5 damage (ENERGY) incoming to Center Torso (armor).
+  Center Torso already destroyed - damage transfers to nowhere (attack finished).
+    Light PPC hit for 5: aimed at Center Torso, 1D6 1 - rolls for location.
+      Hit location roll 12 (right table): Head.
+      Head hit - pilot takes 1 hit (4/6), regardless of armor.
+5 damage (ENERGY) incoming to Head (armor).
+  [STANDARD/ENERGY] 5 armor pts destroyed at armor (9 -> 4 remaining).
+  [Heat] Blue: 0 + movement 1 + weapons 27 + engine 0 - sinks 32 -> 0
+  -- end of turn 17: Red @ 0402 NE: HP 80, pilot hits 4, engine 6, gyro 4, heat 0 [PRONE, UNCONSCIOUS, DESTROYED (Center Torso Destroyed)]
+  -- end of turn 17: Blue @ 0511 SW: HP 386, pilot hits 1, engine 0, gyro 0, heat 0
+
+>>> Battle over on turn 17: Red destroyed. <<<

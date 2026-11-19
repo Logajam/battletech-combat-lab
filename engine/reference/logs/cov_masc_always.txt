@@ -1,7 +1,7 @@
 # scenario cov_masc_always
-# seed 1: winner Red, 7 turns
-#   Red: 128.0 of 131.0 armor + structure left, team destroyed False, units 1, 7 hits of 12 attacks, 37.0 damage dealt
-#   Blue: 42.0 of 83.0 armor + structure left, team destroyed True, units 1, 0 hits of 2 attacks, 0.0 damage dealt
+# seed 1: winner Blue, 10 turns
+#   Red: 83.0 of 131.0 armor + structure left, team destroyed True, units 1, 1 hits of 6 attacks, 6.0 damage dealt
+#   Blue: 75.0 of 83.0 armor + structure left, team destroyed False, units 1, 3 hits of 5 attacks, 27.0 damage dealt
 # log
 
 === TURN 1 ===
@@ -45,199 +45,288 @@
   [Movement select] Red: score 738.504 = dealt 2.78 x1.00 + (HP 182.0 - received 1.75 x1.00 - PSR 0.00) / enemy future 1.35 x my future 5.51 [two-ply, 331 of 1673 spots (grid search) x 1903 replies (short list); modeled reply Blue -> 0608 N Walk]
   [Movement] Red: 0505 NE -> 0303 S, Run (12 MP, 7 hexes, 2 heat; budget walk 6 / run 12 / jump 5)
     Blue: MASC (turn 3 in a row) needs 7, rolled 9 - works.
-  [Movement select] Blue: score 30.037 = dealt 1.21 x1.22 + (HP 118.0 - received 1.39 x1.00 - PSR 0.00) / enemy future 5.51 x my future 1.35 [enemy held at 0303; 190 spots with LOS]
-  [Movement] Blue: 1106 NW -> 0401 SW, Run (16 MP, 11 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
-  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's left side arc after that).
-  [Ranged] Red -> Blue: range 2, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 0 + heat 0); firing ['ISERMediumLaser'] (weapon heat 5 of budget 36 = max 30 + sink 12 - current 4 - movement 2 - other 0; expected dmg 1.39)
-    ISERMediumLaser: needs 9 (range mod +0, modifiers -1), rolled 10 -> HIT
-  [Ranged] Blue -> Red: range 2, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 1 + heat 0); firing ['CLLRM10'] (weapon heat 4 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 1.05)
-    CLLRM10: needs 10 (range mod +0), rolled 4 -> miss [Clan Ammo LRM-10: 10 shots left]
-    ISERMediumLaser hit for 5:
+  [Movement select] Blue: CHARGE (TN 11, P 0.08, 20 dmg) on Red: score 29.987 = dealt 1.98 x1.22 + (HP 118.0 - received 5.43 x1.00 - PSR 0.00) / enemy future 5.51 x my future 1.35 [incl. self-damage] beats 29.678
+  [Movement] Blue declares a CHARGE against Red (stops adjacent; 11 hexes counting the target's hex).
+  [Movement] Blue: 1106 NW -> 0302 S, Run (16 MP, 11 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's right side arc after that).
+  [Ranged] Red -> Blue: range 1, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 0 + heat 0); firing ['ISERMediumLaser', 'ISMediumPulseLaser'] (weapon heat 9 of budget 36 = max 30 + sink 12 - current 4 - movement 2 - other 0; expected dmg 4.89)
+  [Ranged] Red fires in order: ['ISMediumPulseLaser', 'ISERMediumLaser'].
+    ISMediumPulseLaser: needs 7 (range mod +0, modifiers -3), rolled 10 -> HIT
+    ISERMediumLaser: needs 9 (range mod +0, modifiers -1), rolled 4 -> miss
+  [Ranged] Blue: charging Red - no ranged attacks this turn (pp.78-79).
+    ISMediumPulseLaser hit for 6:
       Hit location roll 6 (front table): Right Torso.
-5 damage (ENERGY) incoming to Right Torso (armor).
-  [STANDARD/ENERGY] 5 armor pts destroyed at armor (6 -> 1 remaining).
-  [Heat] Red: 4 + movement 2 + weapons 5 + engine 0 - sinks 12 -> 0
-  [Heat] Blue: 0 + movement 2 + weapons 4 + engine 0 - sinks 10 -> 0
-  -- end of turn 3: Red @ 0303 S: HP 131, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 3: Blue @ 0401 SW: HP 78, pilot hits 0, engine 0, gyro 0, heat 0
+6 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 6 armor pts destroyed at armor (6 -> 0 remaining).
+  [Physical] Blue -> Red: CHARGE needs 11 (piloting 5 + AMM 2 + TMM 3 + terrain 1 + comparative +0), rolled 10 -> miss
+  [Heat] Red: 4 + movement 2 + weapons 9 + engine 0 - sinks 12 -> 3
+  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
+  -- end of turn 3: Red @ 0303 S: HP 131, pilot hits 0, engine 0, gyro 0, heat 3
+  -- end of turn 3: Blue @ 0302 S: HP 77, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 4 ===
-  Initiative: Blue lost the roll, moves first.
-    Blue: MASC (turn 4 in a row) needs 10, rolled 7 - FAILS.
-  [Movement select] Blue: score 18.716 = dealt 0.00 x1.00 + (HP 113.0 - received 8.34 x0.99 - PSR 0.00) / enemy future 5.67 x my future 1.01 [two-ply, 160 of 777 spots (grid search) x 1091 replies (short list); modeled reply Red -> 0307 S Walk]
-  [Movement] Blue: 0401 SW -> 0308 SE, Run (12 MP, 8 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
-    Blue: masc failure - critical check 11: 2 critical hit(s).
-    1/2 Criticals: Foot Actuator hit.
-      Current crit slots in Rear Left Leg: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Leg actuator hit at Rear Left Leg (1 destroyed there) - walk MP now 7.
-    2/2 Criticals: Lower Leg Actuator hit.
-      Current crit slots in Rear Left Leg: ['Hip', 'Upper Leg Actuator', 'DESTROYED', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Leg actuator hit at Rear Left Leg (2 destroyed there) - walk MP now 6.
-PSR trigger: 2 leg actuator(s) destroyed at Rear Left Leg this phase -> +2, one roll.
-Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 10.
-  Succeeded - remains standing.
-    Red: MASC (turn 4 in a row) needs 10, rolled 4 - FAILS.
-  [Movement select] Red: score 1026.783 = dealt 8.34 x0.99 + (HP 182.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.01 x my future 5.67 [enemy held at 0308; 185 spots with LOS]
-  [Movement] Red: 0303 S -> 0307 SE, Walk (6 MP, 4 hexes, 1 heat; budget walk 6 / run 9 / jump 5)
-    Red: masc failure - critical check 8: 1 critical hit(s).
-    1/1 Criticals: Hip hit.
-      Current crit slots in Right Leg: ['DESTROYED', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', 'Heat Sink', 'Heat Sink', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Leg actuator hit at Right Leg (1 destroyed there) - walk MP now 5.
-      Hip specifically destroyed at Right Leg - running-mode Movement Phase PSR trigger now active.
-PSR trigger: 1 leg actuator(s) destroyed at Right Leg this phase -> +1, one roll.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 5.
-  Failed - falls.
-FALL (failed Attack Phase PSR): Falcon FLC-5P takes 3 falling damage (1D6 4: front table, 5-pt clusters).
-  Fall cluster (3 dmg): rolled 5 -> Right Leg
-3 damage (PHYSICAL) incoming to Right Leg (armor).
-  [STANDARD/PHYSICAL] 3 armor pts destroyed at armor (11 -> 8 remaining).
-  Seatbelt check: needs 5. Rolled 6. Pilot unharmed.
-  [Ranged] Blue: no weapon can bear on Red (left side arc) - can't fire.
-  [Ranged] Red -> Blue: range 1, base TN 12 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 2 + heat 0 + prone +2); firing ['ISERMediumLaser', 'ISMediumPulseLaser'] (weapon heat 9 of budget 41 = max 30 + sink 12 - current 0 - movement 1 - other 0; expected dmg 2.08)
-  [Ranged] Red fires in order: ['ISMediumPulseLaser', 'ISERMediumLaser'].
-    ISMediumPulseLaser: needs 9 (range mod +0, modifiers -3), rolled 6 -> miss
-    ISERMediumLaser: needs 11 (range mod +0, modifiers -1), rolled 8 -> miss
-  [Heat] Red: 0 + movement 1 + weapons 9 + engine 0 - sinks 12 -> 0
-  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
-  -- end of turn 4: Red @ 0307 SE: HP 128, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE]
-  -- end of turn 4: Blue @ 0308 SE: HP 78, pilot hits 0, engine 0, gyro 0, heat 0
+  Initiative: Red lost the roll, moves first.
+    Red: MASC (turn 4 in a row) needs 10, rolled 11 - works.
+  [Movement select] Red: score 1062.098 = dealt 0.47 x1.00 + (HP 182.0 - received 0.60 x1.22 - PSR 0.00) / enemy future 1.01 x my future 5.93 [two-ply, 251 of 1067 spots (grid search) x 1108 replies (short list); modeled reply Blue -> 0810 N Run]
+  [Movement] Red: 0303 S -> 0505 N, Run (12 MP, 7 hexes, 2 heat; budget walk 6 / run 12 / jump 5)
+    Blue: MASC (turn 4 in a row) needs 10, rolled 10 - works.
+  [Movement select] Blue: score 19.767 = dealt 0.60 x1.22 + (HP 112.0 - received 0.50 x1.06 - PSR 0.00) / enemy future 5.93 x my future 1.01 [enemy held at 0505; 211 spots with LOS]
+  [Movement] Blue: 0302 S -> 0711 NW, Run (16 MP, 11 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's right side arc after that).
+  [Ranged] Red -> Blue: range 7, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 0 + heat 0); firing ['ISERMediumLaser'] (weapon heat 5 of budget 37 = max 30 + sink 12 - current 3 - movement 2 - other 0; expected dmg 0.42)
+    ISERMediumLaser: needs 11 (range mod +2, modifiers -1), rolled 10 -> miss
+  [Ranged] Blue -> Red: range 7, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 2 + heat 0); firing ['CLLRM10'] (weapon heat 4 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.53)
+    CLLRM10: needs 11 (range mod +0), rolled 4 -> miss [Clan Ammo LRM-10: 10 shots left]
+  [Heat] Red: 3 + movement 2 + weapons 5 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 4 + engine 0 - sinks 10 -> 0
+  -- end of turn 4: Red @ 0505 N: HP 131, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 4: Blue @ 0711 NW: HP 77, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 5 ===
   Initiative: Blue lost the roll, moves first.
-    Blue: MASC (turn 5 in a row) needs 11, rolled 2 - FAILS.
-  [Movement select] Blue: score 83.389 = dealt 7.44 x1.21 + (HP 113.0 - received 0.00 x1.05 - PSR 0.00) / enemy future 2.18 x my future 1.43 [two-ply, 169 of 624 spots (grid search) x 1 replies (short list); modeled reply Red -> 0307 SE Run]
-  [Movement] Blue: 0308 SE -> 0206 NE, Walk (5 MP, 2 hexes, 1 heat; budget walk 6 / run 9 / jump 0) - includes a backward move
-    Blue: masc failure - critical check 9: 1 critical hit(s).
-    1/1 Criticals: Foot Actuator hit.
-      Current crit slots in Rear Right Leg: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Leg actuator hit at Rear Right Leg (1 destroyed there) - walk MP now 5.
-PSR trigger: 1 leg actuator(s) destroyed at Rear Right Leg this phase -> +1, one roll.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 3.
-  Failed - falls.
-FALL (failed Attack Phase PSR): Snow Fox 2 takes 2 falling damage (1D6 3: front table, 5-pt clusters).
-  Fall cluster (2 dmg): rolled 7 -> Center Torso
-2 damage (PHYSICAL) incoming to Center Torso (armor).
-  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (6 -> 4 remaining).
-  Seatbelt check: needs 5. Rolled 11. Pilot unharmed.
-Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 7.
-  Success - Falcon FLC-5P is standing (remaining running MP 6).
-Movement Phase PSR (running mode, Hip/leg destroyed while running): needs 6 (Piloting 5 + +1). Rolled 8.
-  Succeeded - remains standing.
-  [Movement select] Red: score 674.946 = dealt 22.26 x1.17 + (HP 179.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.13 x my future 4.08 [enemy held at 0206; 67 spots with LOS]
-  [Movement] Red: 0307 SE -> 0107 S, Run (5 MP, 2 hexes, 2 heat; budget walk 5 / run 8 / jump 5; stood up with 6 MP left)
-  [Ranged] Blue: no weapon can bear on Red (rear arc) - can't fire.
-  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
-  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0 + prone target -2); firing ['ISERMediumLaser', 'ISERMediumLaser', 'ISMediumPulseLaser'] (weapon heat 14 of budget 40 = max 30 + sink 12 - current 0 - movement 2 - other 0; expected dmg 15.72)
-  [Ranged] Red fires in order: ['ISMediumPulseLaser', 'ISERMediumLaser', 'ISERMediumLaser'].
-    ISMediumPulseLaser: needs 1 (range mod +0, modifiers -3), rolled 9 -> HIT
-    ISERMediumLaser: needs 3 (range mod +0, modifiers -1), rolled 8 -> HIT
-    ISERMediumLaser: needs 3 (range mod +0, modifiers -1), rolled 7 -> HIT
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 3 (rear table): Front Right Leg.
-6 damage (ENERGY) incoming to Front Right Leg (rear_armor).
-  [STANDARD/ENERGY] 5 armor pts destroyed at armor (5 -> 0 remaining). 1 damage applied to structure [STANDARD] (4 -> 3/4 remaining).
-  Check for possible critical. Roll a 6.
-    No critical hit.
-    ISERMediumLaser hit for 5:
-      Hit location roll 10 (rear table): Front Left Leg.
-5 damage (ENERGY) incoming to Front Left Leg (rear_armor).
-  [STANDARD/ENERGY] 5 armor pts destroyed at armor (5 -> 0 remaining).
-    ISERMediumLaser hit for 5:
-      Hit location roll 8 (rear table): Left Torso.
-5 damage (ENERGY) incoming to Left Torso (rear_armor).
-  [STANDARD/ENERGY] 1 armor pts destroyed at rear_armor (1 -> 0 remaining). 4 damage applied to structure [STANDARD] (5 -> 1/5 remaining).
-  Check for possible critical. Roll a 7.
-    No critical hit.
-  [Heat] Red: 0 + movement 2 + weapons 14 + engine 0 - sinks 12 -> 4
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 10 -> 0
-  -- end of turn 5: Red @ 0107 S: HP 128, pilot hits 0, engine 0, gyro 0, heat 4
-  -- end of turn 5: Blue @ 0206 NE: HP 60, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE]
+    Blue: MASC (turn 5 in a row) needs 11, rolled 3 - FAILS.
+  [Movement select] Blue: score 23.533 = dealt 0.00 x1.00 + (HP 112.0 - received 0.31 x0.98 - PSR 0.00) / enemy future 4.75 x my future 1.00 [two-ply, 274 of 1674 spots (grid search) x 1555 replies (short list); modeled reply Red -> 0409 S Run]
+  [Movement] Blue: 0711 NW -> 0116 NE, Run (12 MP, 8 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
+    Blue: masc failure - critical check 7: 0 critical hit(s).
+    Red: MASC (turn 5 in a row) needs 11, rolled 5 - FAILS.
+  [Movement select] Red: score 863.827 = dealt 0.00 x0.98 + (HP 182.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 4.75 [enemy held at 0116; 217 spots with LOS]
+  [Movement] Red: 0505 N -> 0303 S, Jump (5 MP, 3 hexes, 3 heat; budget walk 6 / run 9 / jump 5)
+    Red: masc failure - critical check 5: 0 critical hit(s).
+  [Ranged] Blue -> Red: range 14, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 3 + heat 0); firing nothing (weapon heat 0 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Ranged] Red -> Blue: range 14, base TN 12 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 39 = max 30 + sink 12 - current 0 - movement 3 - other 0; expected dmg 0.00)
+  [Ranged] Red picks up a tree club in 0303 instead of firing (p.79).
+  [Heat] Red: 0 + movement 3 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
+  -- end of turn 5: Red @ 0303 S: HP 131, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 5: Blue @ 0116 NE: HP 77, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 6 ===
   Initiative: Blue lost the roll, moves first.
-Stand attempt 1: a quad with no leg destroyed stands without a PSR (p.238).
-  Success - Snow Fox 2 is standing (remaining running MP 6).
-  [Movement select] Blue: score 11.089 = dealt 0.00 x1.00 + (HP 90.0 - received 20.23 x0.98 - PSR 0.00) / enemy future 7.56 x my future 1.19 [two-ply, 53 of 200 spots (grid search) x 845 replies (short list); modeled reply Red -> 0107 S Stand Still]
-  [Movement] Blue: 0206 NE -> 0109 SE, Run (6 MP, 3 hexes, 2 heat; budget walk 5 / run 8 / jump 0; stood up with 6 MP left)
-    Red: MASC (turn 4 in a row) needs 10, rolled 3 - FAILS.
-  [Movement select] Red: score 1153.208 = dealt 20.23 x0.98 + (HP 179.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.19 x my future 7.56 [enemy held at 0109; 192 spots with LOS]
-  [Movement] Red: 0107 S -> 0107 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
-    Red: masc failure - critical check 7: 0 critical hit(s).
-  [Ranged] Blue: no weapon can bear on Red (left side arc) - can't fire.
-  [Ranged] Red -> Blue: range 2, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 1 + LOS 0 + heat 0); firing ['ISERMediumLaser', 'ISERMediumLaser', 'ISMediumPulseLaser'] (weapon heat 14 of budget 38 = max 30 + sink 12 - current 4 - movement 0 - other 0; expected dmg 15.17)
-  [Ranged] Red fires in order: ['ISMediumPulseLaser', 'ISERMediumLaser', 'ISERMediumLaser'].
-    ISMediumPulseLaser: needs 2 (range mod +0, modifiers -3), rolled 8 -> HIT
-    ISERMediumLaser: needs 4 (range mod +0, modifiers -1), rolled 8 -> HIT
-    ISERMediumLaser: needs 4 (range mod +0, modifiers -1), rolled 11 -> HIT
-    ISMediumPulseLaser hit for 6:
-      Hit location roll 8 (left table): Center Torso.
-6 damage (ENERGY) incoming to Center Torso (armor).
-  [STANDARD/ENERGY] 4 armor pts destroyed at armor (4 -> 0 remaining). 2 damage applied to structure [STANDARD] (6 -> 4/6 remaining).
-  Check for possible critical. Roll a 7.
-    No critical hit.
-    ISERMediumLaser hit for 5:
-      Hit location roll 10 (left table): Front Right Leg.
-5 damage (ENERGY) incoming to Front Right Leg (armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (3 -> 0/4 remaining).
-  Front Right Leg destroyed with no live explosive components - no critical roll.
-  Front Right Leg DESTROYED!
-    Hip specifically destroyed at Front Right Leg from Front Right Leg destruction.
-  All critical slots in Front Right Leg marked DESTROYED.
-  2 damage remains, transfers to Right Torso.
-  [STANDARD/ENERGY] 1 armor pts destroyed at armor (1 -> 0 remaining). 1 damage applied to structure [STANDARD] (5 -> 4/5 remaining).
-  Check for possible critical. Roll a 7.
-    No critical hit.
-    ISERMediumLaser hit for 5:
-      Hit location roll 10 (left table): Front Right Leg.
-5 damage (ENERGY) incoming to Front Right Leg (armor).
-  Front Right Leg already destroyed - damage transfers to Right Torso.
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 4 damage applied to structure [STANDARD] (4 -> 0/5 remaining).
-  Check for possible critical. Roll a 6.
-    No critical hit.
-  Right Torso DESTROYED!
-    Heat sink destroyed (Heat Sink) from Right Torso destruction - heat dissipation reduced (now 9).
-    Heat sink destroyed (Heat Sink) from Right Torso destruction - heat dissipation reduced (now 8).
-  All critical slots in Right Torso marked DESTROYED.
-  Front Right Leg also destroyed (side torso rule).
-  All critical slots in Front Right Leg marked DESTROYED.
-  1 damage remains, transfers to Center Torso.
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 1 damage applied to structure [STANDARD] (4 -> 3/6 remaining).
-  Check for possible critical. Roll a 6.
-    No critical hit.
-PSR trigger: Front Right Leg destroyed this phase -> automatic fall.
-Automatic fall this phase.
-FALL (automatic fall): Snow Fox 2 takes 2 falling damage (1D6 4: front table, 5-pt clusters).
-  Fall cluster (2 dmg): rolled 6 -> Right Torso
-2 damage (PHYSICAL) incoming to Right Torso (armor).
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (3 -> 1/6 remaining).
-  Check for possible critical. Roll a 7.
-    No critical hit.
-  Seatbelt check: needs 5. Rolled 7. Pilot unharmed.
-  [Heat] Red: 4 + movement 0 + weapons 14 + engine 0 - sinks 12 -> 6
-  [Heat] Red: heat 6 -> next turn -1 Walking MP, +0 to ranged attacks.
-  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 8 -> 0
-  [End] Blue is now CRIPPLED (BattleMech Manual definition).
-  -- end of turn 6: Red @ 0107 S: HP 128, pilot hits 0, engine 0, gyro 0, heat 6
-  -- end of turn 6: Blue @ 0109 SE: HP 42, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE]
+    Blue: MASC (turn 6 in a row) needs 11, rolled 8 - FAILS.
+  [Movement select] Blue: score 28.317 = dealt 0.00 x1.00 + (HP 112.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 3.96 x my future 1.00 [two-ply, 196 of 837 spots (grid search) x 1091 replies (short list); modeled reply Red -> 0303 S Run]
+  [Movement] Blue: 0116 NE -> 0616 N, Walk (8 MP, 5 hexes, 1 heat; budget walk 8 / run 12 / jump 0)
+    Blue: masc failure - critical check 6: 0 critical hit(s).
+    Red: MASC (turn 6 in a row) needs 11, rolled 4 - FAILS.
+  [Movement select] Red: score 719.856 = dealt 0.00 x1.00 + (HP 182.0 - received 0.00 x1.22 - PSR 0.00) / enemy future 1.00 x my future 3.96 [enemy held at 0616; 122 spots with LOS]
+  [Movement] Red: 0303 S -> 0303 N, Jump (1 MP, 0 hexes, 3 heat; budget walk 6 / run 9 / jump 5)
+    Red: masc failure - critical check 12: 3 critical hit(s).
+    1/3 Criticals: Upper Leg Actuator hit.
+      Current crit slots in Left Leg: ['Hip', 'DESTROYED', 'Lower Leg Actuator', 'Foot Actuator', 'Heat Sink', 'Heat Sink', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+      Leg actuator hit at Left Leg (1 destroyed there) - walk MP now 5.
+    2/3 Criticals: Hip hit.
+      Current crit slots in Left Leg: ['DESTROYED', 'DESTROYED', 'Lower Leg Actuator', 'Foot Actuator', 'Heat Sink', 'Heat Sink', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+      Leg actuator hit at Left Leg (2 destroyed there) - walk MP now 4.
+      Hip specifically destroyed at Left Leg - running-mode Movement Phase PSR trigger now active.
+    3/3 Criticals: Foot Actuator hit.
+      Current crit slots in Left Leg: ['DESTROYED', 'DESTROYED', 'Lower Leg Actuator', 'DESTROYED', 'Heat Sink', 'Heat Sink', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+      Leg actuator hit at Left Leg (3 destroyed there) - walk MP now 3.
+PSR trigger: 3 leg actuator(s) destroyed at Left Leg this phase -> +3, one roll.
+Attack Phase PSR: needs 8 (Piloting 5 + +3). Rolled 7.
+  Failed - falls.
+FALL (failed Attack Phase PSR): Falcon FLC-5P takes 3 falling damage (1D6 5: front table, 5-pt clusters).
+  Fall cluster (3 dmg): rolled 12 -> Head
+3 damage (PHYSICAL) incoming to Head (armor).
+  [STANDARD/PHYSICAL] 3 armor pts destroyed at armor (8 -> 5 remaining).
+  Seatbelt check: needs 5. Rolled 6. Pilot unharmed.
+  [Ranged] Blue -> Red: range 15, base TN 10 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 3 + heat 0 + prone target 1); firing nothing (weapon heat 0 of budget 39 = max 30 + sink 10 - current 0 - movement 1 - other 0; expected dmg 0.00)
+  [Ranged] Red: no weapon can bear on Blue (rear arc) - can't fire.
+  [Heat] Red: 0 + movement 3 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 10 -> 0
+  -- end of turn 6: Red @ 0303 N: HP 128, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE]
+  -- end of turn 6: Blue @ 0616 N: HP 77, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 7 ===
-  Initiative: Blue lost the roll, moves first.
-Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 10.
-  Success - Snow Fox 2 is standing (remaining running MP 4).
-  [Movement select] Blue: no spot deals damage even before the reply (two-ply, 68 spots) - closing fallback
-  [Movement] Blue: 0109 SE -> 0108 N, Run (1 MP, 1 hexes, 2 heat; budget walk 4 / run 6 / jump 0; stood up with 4 MP left)
-    Red: MASC (turn 5 in a row) needs 11, rolled 8 - FAILS.
-  [Movement select] Red: score 2070.770 = dealt 32.60 x1.07 + (HP 179.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 11.37 [enemy held at 0108; 131 spots with LOS]
-  [Movement] Red: 0107 S -> 0207 SW, Walk (4 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 5)
-    Red: masc failure - critical check 5: 0 critical hit(s).
-  [Ranged] Blue -> Red: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 36 = max 30 + sink 8 - current 0 - movement 2 - other 0; expected dmg 0.00)
-  [Ranged] Red holds ['ISERMediumLaser', 'ISMediumPulseLaser'] back for the Physical phase (plans push, expected 35.00).
-  [Ranged] Red -> Blue: range 1, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 35 = max 30 + sink 12 - current 6 - movement 1 - other 0; expected dmg 0.00)
-  [Physical] Red -> Blue: push needs 5 (piloting 5 + base 1 + attack -1), rolled 7 -> HIT (42 dmg, right side)
-    Blue is pushed off the battlefield - destroyed (p.83).
-  [Heat] Red: 6 + movement 1 + weapons 0 + engine 0 - sinks 12 -> 0
-  -- end of turn 7: Red @ 0108 SW: HP 128, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 7: Blue @ 0108 N: HP 42, pilot hits 0, engine 0, gyro 0, heat 0 [DESTROYED (Pushed off the battlefield)]
+  Initiative: Red lost the roll, moves first.
+Stand attempt 1: needs 7 (Piloting 5 + +2, incl. -1 for standing). Rolled 8.
+  Success - Falcon FLC-5P is standing (remaining running MP 3).
+Movement Phase PSR (running mode, Hip/leg destroyed while running): needs 8 (Piloting 5 + +3). Rolled 7.
+  Failed - falls.
+FALL (fell again after standing): Falcon FLC-5P takes 3 falling damage (1D6 1: rear table, 5-pt clusters).
+  Fall cluster (3 dmg): rolled 6 -> Right Torso
+3 damage (PHYSICAL) incoming to Right Torso (rear_armor).
+  [STANDARD/PHYSICAL] 3 armor pts destroyed at rear_armor (3 -> 0 remaining).
+  Seatbelt check: needs 5. Rolled 6. Pilot unharmed.
+  Will not attempt to stand again this round.
+  [Movement] Red: still prone at 0303.
+    Blue: MASC (turn 7 in a row) needs 11, rolled 8 - FAILS.
+  [Movement select] Blue: score 89.266 = dealt 3.27 x1.30 + (HP 112.0 - received 0.00 x1.06 - PSR 0.00) / enemy future 1.70 x my future 1.29 [enemy held at 0303; 87 spots with LOS]
+  [Movement] Blue: 0616 N -> 0406 NW, Run (12 MP, 11 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
+    Blue: masc failure - critical check 11: 2 critical hit(s).
+    1/2 Criticals: Upper Leg Actuator hit.
+      Current crit slots in Front Left Leg: ['Hip', 'DESTROYED', 'Lower Leg Actuator', 'Foot Actuator', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+      Leg actuator hit at Front Left Leg (1 destroyed there) - walk MP now 7.
+    2/2 Criticals: Foot Actuator hit.
+      Current crit slots in Front Left Leg: ['Hip', 'DESTROYED', 'Lower Leg Actuator', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+      Leg actuator hit at Front Left Leg (2 destroyed there) - walk MP now 6.
+PSR trigger: 2 leg actuator(s) destroyed at Front Left Leg this phase -> +2, one roll.
+Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 3.
+  Failed - falls.
+FALL (failed Attack Phase PSR): Snow Fox 2 takes 2 falling damage (1D6 1: rear table, 5-pt clusters).
+  Fall cluster (2 dmg): rolled 6 -> Right Torso
+2 damage (PHYSICAL) incoming to Right Torso (rear_armor).
+  [STANDARD/PHYSICAL] 1 armor pts destroyed at rear_armor (1 -> 0 remaining). 1 damage applied to structure [STANDARD] (5 -> 4/5 remaining).
+  Check for possible critical. Roll a 5.
+    No critical hit.
+  Seatbelt check: needs 5. Rolled 9. Pilot unharmed.
+  [Ranged] Red: no weapon can bear on Blue (rear arc) - can't fire.
+  [Ranged] Blue -> Red: range 4, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0 + prone target 1); firing ['CLLRM10'] (weapon heat 4 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 2.63)
+    CLLRM10: needs 8 (range mod +0), rolled 10 -> HIT [Clan Ammo LRM-10: 9 shots left]
+    CLLRM10 hit: cluster roll 12 on the 10-column table -> 10 connect (10 dmg).
+      Group 1/2: Hit location roll 3 (rear table): Right Arm.
+5 damage (MISSILE) incoming to Right Arm (rear_armor).
+  [STANDARD/MISSILE] 5 armor pts destroyed at armor (8 -> 3 remaining).
+      Group 2/2: Hit location roll 10 (rear table): Left Arm.
+5 damage (MISSILE) incoming to Left Arm (rear_armor).
+  [STANDARD/MISSILE] 5 armor pts destroyed at armor (8 -> 3 remaining).
+  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 4 + engine 0 - sinks 10 -> 0
+  -- end of turn 7: Red @ 0303 N: HP 115, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE]
+  -- end of turn 7: Blue @ 0406 NW: HP 75, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE]
 
->>> Battle over on turn 7: Blue destroyed. <<<
+=== TURN 8 ===
+  Initiative: Blue lost the roll, moves first.
+Stand attempt 1: a quad with no leg destroyed stands without a PSR (p.238).
+  Success - Snow Fox 2 is standing (remaining running MP 7).
+  [Movement select] Blue: score 156.858 = dealt 4.90 x1.25 + (HP 109.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.85 x my future 2.56 [two-ply, 97 of 385 spots (grid search) x 1 replies (short list); modeled reply Red -> 0303 N Run]
+  [Movement] Blue: 0406 NW -> 0306 N, Run (7 MP, 3 hexes, 2 heat; budget walk 6 / run 9 / jump 0; stood up with 7 MP left)
+Stand attempt 1: needs 7 (Piloting 5 + +2, incl. -1 for standing). Rolled 6.
+  Failed to stand.
+FALL (failed to stand): Falcon FLC-5P takes 3 falling damage (1D6 4: front table, 5-pt clusters).
+  Fall cluster (3 dmg): rolled 6 -> Right Torso
+3 damage (PHYSICAL) incoming to Right Torso (armor).
+  [STANDARD/PHYSICAL] 3 armor pts destroyed at armor (8 -> 5 remaining).
+  Seatbelt check: needs 5. Rolled 6. Pilot unharmed.
+Stand attempt 2: needs 7 (Piloting 5 + +2, incl. -1 for standing). Rolled 7.
+  Success - Falcon FLC-5P is standing (remaining running MP 1).
+Movement Phase PSR (running mode, Hip/leg destroyed while running): needs 8 (Piloting 5 + +3). Rolled 7.
+  Failed - falls.
+FALL (fell again after standing): Falcon FLC-5P takes 3 falling damage (1D6 3: front table, 5-pt clusters).
+  Fall cluster (3 dmg): rolled 7 -> Center Torso
+3 damage (PHYSICAL) incoming to Center Torso (armor).
+  [STANDARD/PHYSICAL] 3 armor pts destroyed at armor (9 -> 6 remaining).
+  Seatbelt check: needs 5. Rolled 5. Pilot unharmed.
+  Will not attempt to stand again this round.
+  [Movement] Red: still prone at 0303.
+  [Ranged] Blue -> Red: range 3, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0 + prone target 1); firing ['CLLRM10'] (weapon heat 4 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 2.63)
+    CLLRM10: needs 8 (range mod +0), rolled 11 -> HIT [Clan Ammo LRM-10: 8 shots left]
+  [Ranged] Red: no weapon can bear on Blue (rear arc) - can't fire.
+    CLLRM10 hit: cluster roll 6 on the 10-column table -> 6 connect (6 dmg).
+      Group 1/2: Hit location roll 6 (rear table): Right Torso.
+5 damage (MISSILE) incoming to Right Torso (rear_armor).
+  [STANDARD/MISSILE] 0 armor pts destroyed at rear_armor (0 -> 0 remaining). 5 damage applied to structure [STANDARD] (7 -> 2/7 remaining).
+  Check for possible critical. Roll a 5.
+    No critical hit.
+      Group 2/2: Hit location roll 8 (rear table): Left Torso.
+1 damage (MISSILE) incoming to Left Torso (rear_armor).
+  [STANDARD/MISSILE] 1 armor pts destroyed at rear_armor (3 -> 2 remaining).
+  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 4 + engine 0 - sinks 10 -> 0
+  -- end of turn 8: Red @ 0303 N: HP 103, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE]
+  -- end of turn 8: Blue @ 0306 N: HP 75, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 9 ===
+  Initiative: Blue lost the roll, moves first.
+    Blue: MASC (turn 7 in a row) needs 11, rolled 6 - FAILS.
+  [Movement select] Blue: score 286.856 = dealt 6.77 x1.64 + (HP 109.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.64 x my future 4.16 [two-ply, 160 of 530 spots (grid search) x 1 replies (short list); modeled reply Red -> 0303 N Run]
+  [Movement] Blue: 0306 N -> 0306 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 6 / run 9 / jump 0)
+    Blue: masc failure - critical check 7: 0 critical hit(s).
+Stand attempt 1: needs 7 (Piloting 5 + +2, incl. -1 for standing). Rolled 10.
+  Success - Falcon FLC-5P is standing (remaining running MP 3).
+Movement Phase PSR (running mode, Hip/leg destroyed while running): needs 8 (Piloting 5 + +3). Rolled 6.
+  Failed - falls.
+FALL (fell again after standing): Falcon FLC-5P takes 3 falling damage (1D6 4: front table, 5-pt clusters).
+  Fall cluster (3 dmg): rolled 10 -> Left Arm
+3 damage (PHYSICAL) incoming to Left Arm (armor).
+  [STANDARD/PHYSICAL] 3 armor pts destroyed at armor (3 -> 0 remaining).
+  Seatbelt check: needs 5. Rolled 3. FAILED - pilot takes 1 hit (1/6).
+  Will not attempt to stand again this round.
+  [Movement] Red: still prone at 0303.
+Movement Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
+  Pilot stays conscious.
+  [Ranged] Blue -> Red: range 3, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0 + prone target 1); firing ['CLLRM10'] (weapon heat 4 of budget 40 = max 30 + sink 10 - current 0 - movement 0 - other 0; expected dmg 4.55)
+    CLLRM10: needs 6 (range mod +0), rolled 8 -> HIT [Clan Ammo LRM-10: 7 shots left]
+  [Ranged] Red: no weapon can bear on Blue (rear arc) - can't fire.
+    CLLRM10 hit: cluster roll 7 on the 10-column table -> 6 connect (6 dmg).
+      Group 1/2: Hit location roll 6 (rear table): Right Torso.
+5 damage (MISSILE) incoming to Right Torso (rear_armor).
+  [STANDARD/MISSILE] 0 armor pts destroyed at rear_armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (2 -> 0/7 remaining).
+  Right Torso destroyed with no live explosive components - no critical roll.
+  Right Torso DESTROYED!
+    Engine hit (1/3) from Right Torso destruction.
+    Engine hit (2/3) from Right Torso destruction.
+    Jump jet destroyed (Jump Jet) from Right Torso destruction - jump MP reduced (now 4).
+    Jump jet destroyed (Jump Jet) from Right Torso destruction - jump MP reduced (now 3).
+  All critical slots in Right Torso marked DESTROYED.
+  Right Arm also destroyed (side torso rule).
+  All critical slots in Right Arm marked DESTROYED.
+  3 damage remains, transfers to Center Torso.
+  [STANDARD/MISSILE] 3 armor pts destroyed at armor (6 -> 3 remaining).
+      Group 2/2: Hit location roll 7 (rear table): Center Torso.
+1 damage (MISSILE) incoming to Center Torso (rear_armor).
+  [STANDARD/MISSILE] 1 armor pts destroyed at rear_armor (3 -> 2 remaining).
+  Red drops its tree club in 0303 (p.79).
+  [Heat] Red: 0 + movement 2 + weapons 0 + engine 10 - sinks 12 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 4 + engine 0 - sinks 10 -> 0
+  [End] Red is now CRIPPLED (BattleMech Manual definition).
+  -- end of turn 9: Red @ 0303 N: HP 89, pilot hits 1, engine 2, gyro 0, heat 0 [PRONE]
+  -- end of turn 9: Blue @ 0306 N: HP 75, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 10 ===
+  Initiative: Blue lost the roll, moves first.
+    Blue: MASC (turn 8 in a row) needs 11, rolled 6 - FAILS.
+  [Movement select] Blue: score 764.982 = dealt 7.51 x1.10 + (HP 109.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.00 x my future 6.94 [two-ply, 160 of 530 spots (grid search) x 1 replies (short list); modeled reply Red -> 0303 N Run]
+  [Movement] Blue: 0306 N -> 0306 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 6 / run 9 / jump 0)
+    Blue: masc failure - critical check 6: 0 critical hit(s).
+Stand attempt 1: needs 7 (Piloting 5 + +2, incl. -1 for standing). Rolled 6.
+  Failed to stand.
+FALL (failed to stand): Falcon FLC-5P takes 3 falling damage (1D6 3: front table, 5-pt clusters).
+  Fall cluster (3 dmg): rolled 2 -> Center Torso
+3 damage (PHYSICAL) incoming to Center Torso (armor).
+  [STANDARD/PHYSICAL] 3 armor pts destroyed at armor (3 -> 0 remaining).
+  Seatbelt check: needs 5. Rolled 3. FAILED - pilot takes 1 hit (2/6).
+Stand attempt 2: needs 7 (Piloting 5 + +2, incl. -1 for standing). Rolled 10.
+  Success - Falcon FLC-5P is standing (remaining running MP 1).
+Movement Phase PSR (running mode, Hip/leg destroyed while running): needs 8 (Piloting 5 + +3). Rolled 4.
+  Failed - falls.
+FALL (fell again after standing): Falcon FLC-5P takes 3 falling damage (1D6 6: front table, 5-pt clusters).
+  Fall cluster (3 dmg): rolled 2 -> Center Torso
+3 damage (PHYSICAL) incoming to Center Torso (armor).
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 3 damage applied to structure [STANDARD] (10 -> 7/10 remaining).
+  Check for possible critical. Roll a 10.
+    2 critical hit(s).
+  Critical hit pool at Center Torso:
+    1: Engine (slot 1)
+    2: Engine (slot 2)
+    3: Engine (slot 3)
+    4: Gyro (slot 4)
+    5: Gyro (slot 5)
+    6: Gyro (slot 6)
+    7: Gyro (slot 7)
+    8: Engine (slot 8)
+    9: Engine (slot 9)
+    10: Engine (slot 10)
+    11: Jump Jet (slot 11)
+    1/2 Criticals: Gyro hit.
+      Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'Jump Jet', '-Empty-']
+      Gyro hit (1/2).
+  Critical hit pool at Center Torso:
+    1: Engine (slot 1)
+    2: Engine (slot 2)
+    3: Engine (slot 3)
+    4: Gyro (slot 5)
+    5: Gyro (slot 6)
+    6: Gyro (slot 7)
+    7: Engine (slot 8)
+    8: Engine (slot 9)
+    9: Engine (slot 10)
+    10: Jump Jet (slot 11)
+    2/2 Criticals: Gyro hit.
+      Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'DESTROYED', 'Engine', 'Engine', 'Engine', 'Jump Jet', '-Empty-']
+      Gyro hit (2/2).
+  Will not attempt to stand again this round.
+  [Movement] Red: still prone at 0303.
+  [Heat] Blue: 0 + movement 0 + weapons 0 + engine 0 - sinks 10 -> 0
+  -- end of turn 10: Red @ 0303 N: HP 83, pilot hits 2, engine 2, gyro 2, heat 0 [PRONE, DESTROYED (Gyro Destroyed)]
+  -- end of turn 10: Blue @ 0306 N: HP 75, pilot hits 0, engine 0, gyro 0, heat 0
+
+>>> Battle over on turn 10: Red destroyed. <<<

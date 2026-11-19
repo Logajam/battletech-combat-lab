@@ -1,7 +1,7 @@
 # scenario cov_partial_wing_masc
-# seed 1: winner Red, 23 turns
-#   Red: 217.0 of 243.0 armor + structure left, team destroyed False, units 1, 4 hits of 39 attacks, 33.0 damage dealt
-#   Blue: 46.0 of 83.0 armor + structure left, team destroyed True, units 1, 3 hits of 9 attacks, 22.0 damage dealt
+# seed 1: winner Red, 27 turns
+#   Red: 203.0 of 243.0 armor + structure left, team destroyed False, units 1, 4 hits of 46 attacks, 18.0 damage dealt
+#   Blue: 65.0 of 83.0 armor + structure left, team destroyed True, units 1, 5 hits of 12 attacks, 36.0 damage dealt
 # log
 
 === TURN 1 ===
@@ -43,7 +43,7 @@
   [Movement select] Red: score 1928.121 = dealt 0.50 x1.00 + (HP 326.0 - received 0.53 x1.01 - PSR 0.00) / enemy future 1.34 x my future 7.94 [two-ply, 258 of 1534 spots (grid search) x 1808 replies (short list); modeled reply Blue -> 0701 SW Run]
   [Movement] Red: 0907 NE -> 0503 S, Jump (7 MP, 6 hexes, 6 heat; budget walk 5 / run 8 / jump 7)
     Blue: MASC (turn 1 in a row) needs 3, rolled 6 - works.
-  [Movement select] Blue: score 20.300 = dealt 0.80 x1.01 + (HP 118.0 - received 2.56 x1.00 - PSR 0.00) / enemy future 7.94 x my future 1.34 [enemy held at 0503; 161 spots with LOS]
+  [Movement select] Blue: score 20.300 = dealt 0.80 x1.01 + (HP 118.0 - received 2.56 x1.00 - PSR 0.00) / enemy future 7.94 x my future 1.34 [enemy held at 0503; 143 spots with LOS]
   [Movement] Blue: 1512 NW -> 0603 NW, Run (16 MP, 13 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
   [Ranged] Red -> Blue: range 1, base TN 12 (gunnery 4 + AMM 3 [Jump] + TMM 4 + LOS 1 + heat 0); firing ['ISSmallXPulseLaser', 'ISMML5', 'ISMML5', 'ISSmallXPulseLaser', 'ISSmallXPulseLaser', 'ISSNPPC'] (weapon heat 25 of budget 47 = max 30 + sink 23 - current 0 - movement 6 - other 0; expected dmg 2.13)
     [Red fire control] ISMML5: MML SRM rounds
@@ -186,23 +186,23 @@ Attack Phase PSR 2/2: needs 5 (Piloting 5 + +0). Rolled 10.
   Initiative: Blue lost the roll, moves first.
     Blue: MASC (turn 1 in a row) needs 3, rolled 10 - works.
   [Movement select] Blue: score 104.517 = dealt 0.00 x1.00 + (HP 115.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 2.95 x my future 2.68 [two-ply, 314 of 1844 spots (grid search) x 1474 replies (short list); modeled reply Red -> 0511 SE Jump]
-  [Movement] Blue: 0614 N -> 1315 NW, Run (16 MP, 9 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
-  [Movement select] Red: score 336.691 = dealt 0.00 x1.00 + (HP 306.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 2.68 x my future 2.95 [enemy held at 1315; 160 spots with LOS]
+  [Movement] Blue: 0614 N -> 1315 N, Run (15 MP, 9 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
+  [Movement select] Red: score 336.691 = dealt 0.00 x1.00 + (HP 306.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 2.68 x my future 2.95 [enemy held at 1315; 144 spots with LOS]
   [Movement] Red: 0606 S -> 0310 SE, Jump (7 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 7)
   [Ranged] Blue -> Red: range 10, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.00)
   [Ranged] Red -> Blue: range 10, base TN 14 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 4 + heat 0); firing nothing (weapon heat 0 of budget 48 = max 30 + sink 23 - current 0 - movement 5 - other 0; expected dmg 0.00)
   [Heat] Red: 0 + movement 5 + weapons 0 + engine 0 - sinks 23 -> 0
   [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
   -- end of turn 9: Red @ 0310 SE: HP 223, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 9: Blue @ 1315 NW: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 9: Blue @ 1315 N: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 10 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 104.517 = dealt 0.00 x1.00 + (HP 115.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 2.65 x my future 2.41 [two-ply, 256 of 987 spots (grid search) x 1250 replies (short list); modeled reply: none with LOS]
-  [Movement] Blue: 1315 NW -> 1415 S, Walk (8 MP, 4 hexes, 1 heat; budget walk 8 / run 12 / jump 0) - includes a backward move
-  [Movement select] Red: score 340.782 = dealt 3.98 x1.03 + (HP 306.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 2.41 x my future 2.65 [enemy held at 1415; 26 spots with LOS]
+  [Movement select] Blue: score 104.517 = dealt 0.00 x1.00 + (HP 115.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 2.65 x my future 2.41 [two-ply, 242 of 897 spots (grid search) x 1250 replies (short list); modeled reply: none with LOS]
+  [Movement] Blue: 1315 N -> 1415 N, Walk (8 MP, 3 hexes, 1 heat; budget walk 8 / run 12 / jump 0) - includes a backward move
+  [Movement select] Red: score 340.674 = dealt 3.98 x1.00 + (HP 306.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 2.41 x my future 2.65 [enemy held at 1415; 26 spots with LOS]
   [Movement] Red: 0310 SE -> 0416 S, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 7)
-  [Ranged] Blue: no weapon can bear on Red (right side arc) - can't fire.
+  [Ranged] Blue: no weapon can bear on Red (left side arc) - can't fire.
   [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
   [Ranged] Red -> Blue: range 10, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['ISMML5', 'ISMML5', 'ISSNPPC'] (weapon heat 16 of budget 51 = max 30 + sink 23 - current 0 - movement 2 - other 0; expected dmg 3.98)
     [Red fire control] ISMML5: MML LRM rounds
@@ -213,15 +213,15 @@ Attack Phase PSR 2/2: needs 5 (Piloting 5 + +0). Rolled 10.
   [Heat] Red: 0 + movement 2 + weapons 16 + engine 0 - sinks 23 -> 0
   [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 10 -> 0
   -- end of turn 10: Red @ 0416 S: HP 223, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 10: Blue @ 1415 S: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 10: Blue @ 1415 N: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 11 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 336.381 = dealt 0.28 x1.00 + (HP 306.0 - received 0.53 x1.02 - PSR 0.00) / enemy future 2.19 x my future 2.41 [two-ply, 164 of 835 spots (grid search) x 1102 replies (short list); modeled reply Blue -> 0312 SE Run]
+  [Movement select] Red: score 336.382 = dealt 0.28 x1.00 + (HP 306.0 - received 0.53 x1.02 - PSR 0.00) / enemy future 2.19 x my future 2.41 [two-ply, 164 of 835 spots (grid search) x 1191 replies (short list); modeled reply Blue -> 1313 SW Run]
   [Movement] Red: 0416 S -> 0813 N, Jump (7 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 7)
     Blue: MASC (turn 1 in a row) needs 3, rolled 8 - works.
-  [Movement select] Blue: score 104.790 = dealt 0.53 x1.00 + (HP 115.0 - received 0.28 x1.00 - PSR 0.00) / enemy future 2.41 x my future 2.19 [enemy held at 0813; 207 spots with LOS]
-  [Movement] Blue: 1415 S -> 1109 SW, Run (16 MP, 10 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
+  [Movement select] Blue: score 104.798 = dealt 0.53 x1.02 + (HP 115.0 - received 0.28 x1.00 - PSR 0.00) / enemy future 2.41 x my future 2.19 [enemy held at 0813; 218 spots with LOS]
+  [Movement] Blue: 1415 N -> 1109 SW, Run (16 MP, 11 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
   [Ranged] Red -> Blue: range 6, base TN 12 (gunnery 4 + AMM 3 [Jump] + TMM 4 + LOS 1 + heat 0); firing ['ISMML5', 'ISMML5', 'ISSNPPC'] (weapon heat 16 of budget 48 = max 30 + sink 23 - current 0 - movement 5 - other 0; expected dmg 0.28)
     [Red fire control] ISMML5: MML LRM rounds
   [Ranged] Red fires in order: ['ISSNPPC', 'ISMML5', 'ISMML5'].
@@ -239,244 +239,287 @@ Attack Phase PSR 2/2: needs 5 (Piloting 5 + +0). Rolled 10.
   Initiative: Red lost the roll, moves first.
   [Movement select] Red: score 336.691 = dealt 0.00 x1.00 + (HP 306.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 2.01 x my future 2.21 [two-ply, 262 of 1493 spots (grid search) x 1741 replies (short list); modeled reply Blue -> 1412 S Run]
   [Movement] Red: 0813 N -> 1315 NW, Jump (7 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 7)
-  [Movement select] Blue: score 104.517 = dealt 0.00 x1.02 + (HP 115.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 2.21 x my future 2.01 [enemy held at 1315; 202 spots with LOS]
-  [Movement] Blue: 1109 SW -> 1109 SE, Run (12 MP, 7 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
-  [Ranged] Red -> Blue: range 7, base TN 13 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 3 + heat 0); firing nothing (weapon heat 0 of budget 48 = max 30 + sink 23 - current 0 - movement 5 - other 0; expected dmg 0.00)
-  [Ranged] Blue -> Red: range 7, base TN 13 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 4 + heat 0); firing nothing (weapon heat 0 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Movement select] Blue: score 104.517 = dealt 0.00 x1.02 + (HP 115.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 2.21 x my future 2.01 [enemy held at 1315; 168 spots with LOS]
+  [Movement] Blue: 1109 SW -> 0907 S, Run (12 MP, 7 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
+  [Ranged] Red -> Blue: range 10, base TN 12 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 48 = max 30 + sink 23 - current 0 - movement 5 - other 0; expected dmg 0.00)
+  [Ranged] Blue -> Red: range 10, base TN 13 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 4 + heat 0); firing nothing (weapon heat 0 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.00)
   [Heat] Red: 0 + movement 5 + weapons 0 + engine 0 - sinks 23 -> 0
   [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
   -- end of turn 12: Red @ 1315 NW: HP 223, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 12: Blue @ 1109 SE: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 12: Blue @ 0907 S: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 13 ===
   Initiative: Blue lost the roll, moves first.
     Blue: MASC (turn 1 in a row) needs 3, rolled 10 - works.
-  [Movement select] Blue: score 105.907 = dealt 1.75 x1.00 + (HP 115.0 - received 0.40 x1.00 - PSR 0.00) / enemy future 2.04 x my future 1.85 [two-ply, 342 of 2144 spots (grid search) x 991 replies (short list); modeled reply Red -> 0913 NW Run]
-  [Movement] Blue: 1109 SE -> 0203 SE, Run (16 MP, 10 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
-  [Movement select] Red: score 336.691 = dealt 0.00 x1.03 + (HP 306.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 1.85 x my future 2.04 [enemy held at 0203; 168 spots with LOS]
-  [Movement] Red: 1315 NW -> 0611 SW, Jump (7 MP, 7 hexes, 7 heat; budget walk 5 / run 8 / jump 7)
-  [Ranged] Blue -> Red: range 10, base TN 12 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.00)
-  [Ranged] Red -> Blue: range 10, base TN 13 (gunnery 4 + AMM 3 [Jump] + TMM 4 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 46 = max 30 + sink 23 - current 0 - movement 7 - other 0; expected dmg 0.00)
-  [Heat] Red: 0 + movement 7 + weapons 0 + engine 0 - sinks 23 -> 0
-  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
-  -- end of turn 13: Red @ 0611 SW: HP 223, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 13: Blue @ 0203 SE: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
+  [Movement select] Blue: score 106.296 = dealt 1.75 x1.02 + (HP 115.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 2.04 x my future 1.85 [two-ply, 375 of 2209 spots (grid search) x 991 replies (short list); modeled reply Red -> 0913 NW Run]
+  [Movement] Blue: 0907 S -> 0303 SE, Run (16 MP, 10 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
+  [Movement select] Red: no spot deals damage - closing fallback
+  [Movement] Red: 1315 NW -> 0913 NW, Run (6 MP, 4 hexes, 2 heat; budget walk 5 / run 8 / jump 7)
+  [Ranged] Blue -> Red: range 13, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['CLLRM10'] (weapon heat 4 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 1.75)
+    CLLRM10: needs 9 (range mod +2), rolled 9 -> HIT [Clan Ammo LRM-10: 5 shots left]
+  [Ranged] Red -> Blue: range 13, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 51 = max 30 + sink 23 - current 0 - movement 2 - other 0; expected dmg 0.00)
+    CLLRM10 hit: cluster roll 6 on the 10-column table -> 6 connect (6 dmg).
+      Group 1/2: Hit location roll 10 (right table): Left Arm.
+5 damage (MISSILE) incoming to Left Arm (armor).
+  [STANDARD/MISSILE] 5 armor pts destroyed at armor (14 -> 9 remaining).
+      Group 2/2: Hit location roll 3 (right table): Right Leg.
+1 damage (MISSILE) incoming to Right Leg (armor).
+  [STANDARD/MISSILE] 1 armor pts destroyed at armor (17 -> 16 remaining).
+  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 23 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 4 + engine 0 - sinks 10 -> 0
+  -- end of turn 13: Red @ 0913 NW: HP 217, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 13: Blue @ 0303 SE: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 14 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 336.691 = dealt 0.00 x1.00 + (HP 306.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 1.72 x my future 1.89 [two-ply, 233 of 1528 spots (grid search) x 847 replies (short list); modeled reply Blue -> 0404 SE Run]
-  [Movement] Red: 0611 SW -> 1314 SW, Jump (7 MP, 7 hexes, 7 heat; budget walk 5 / run 8 / jump 7)
-  [Movement select] Blue: score 104.517 = dealt 0.00 x1.02 + (HP 115.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.89 x my future 1.72 [enemy held at 1314; 130 spots with LOS]
-  [Movement] Blue: 0203 SE -> 0308 SE, Run (12 MP, 6 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
-  [Ranged] Red -> Blue: range 11, base TN 12 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 3 + heat 0); firing nothing (weapon heat 0 of budget 46 = max 30 + sink 23 - current 0 - movement 7 - other 0; expected dmg 0.00)
-  [Ranged] Blue -> Red: range 11, base TN 13 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 3 + heat 0); firing nothing (weapon heat 0 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.00)
-  [Heat] Red: 0 + movement 7 + weapons 0 + engine 0 - sinks 23 -> 0
+  [Movement select] Red: score 265.132 = dealt 0.88 x1.00 + (HP 300.0 - received 0.53 x1.00 - PSR 0.00) / enemy future 2.15 x my future 1.89 [two-ply, 257 of 1531 spots (grid search) x 846 replies (short list); modeled reply Blue -> 0307 S Run]
+  [Movement] Red: 0913 NW -> 0209 NW, Run (7 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 7)
+  [Movement select] Blue: score 130.329 = dealt 0.00 x1.00 + (HP 115.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 1.89 x my future 2.15 [enemy held at 0209; 127 spots with LOS]
+  [Movement] Blue: 0303 SE -> 1103 S, Run (11 MP, 8 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
+  [Ranged] Red -> Blue: range 11, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 51 = max 30 + sink 23 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Ranged] Blue -> Red: range 11, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 23 -> 0
   [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
-  -- end of turn 14: Red @ 1314 SW: HP 223, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 14: Blue @ 0308 SE: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 14: Red @ 0209 NW: HP 217, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 14: Blue @ 1103 S: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 15 ===
   Initiative: Blue lost the roll, moves first.
-    Blue: MASC (turn 1 in a row) needs 3, rolled 9 - works.
-  [Movement select] Blue: score 105.223 = dealt 1.05 x1.02 + (HP 115.0 - received 0.40 x1.00 - PSR 0.00) / enemy future 1.77 x my future 1.61 [two-ply, 358 of 1826 spots (grid search) x 1082 replies (short list); modeled reply Red -> 0811 NW Run]
-  [Movement] Blue: 0308 SE -> 0201 S, Walk (8 MP, 7 hexes, 1 heat; budget walk 8 / run 16 / jump 0) - includes a backward move
-  [Movement select] Red: score 336.691 = dealt 0.00 x1.00 + (HP 306.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 1.61 x my future 1.77 [enemy held at 0201; 56 spots with LOS]
-  [Movement] Red: 1314 SW -> 0611 SE, Jump (7 MP, 7 hexes, 7 heat; budget walk 5 / run 8 / jump 7)
-  [Ranged] Blue -> Red: range 12, base TN 11 (gunnery 4 + AMM 1 [Walk] + TMM 4 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 39 = max 30 + sink 10 - current 0 - movement 1 - other 0; expected dmg 0.00)
-  [Ranged] Red -> Blue: range 12, base TN 12 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 46 = max 30 + sink 23 - current 0 - movement 7 - other 0; expected dmg 0.00)
-  [Heat] Red: 0 + movement 7 + weapons 0 + engine 0 - sinks 23 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 10 -> 0
-  -- end of turn 15: Red @ 0611 SE: HP 223, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 15: Blue @ 0201 S: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
+    Blue: MASC (turn 1 in a row) needs 3, rolled 6 - works.
+  [Movement select] Blue: score 129.992 = dealt 1.75 x1.00 + (HP 115.0 - received 1.84 x1.00 - PSR 0.00) / enemy future 1.77 x my future 2.00 [two-ply, 289 of 1594 spots (grid search) x 1011 replies (short list); modeled reply Red -> 0410 NE Walk]
+  [Movement] Blue: 1103 S -> 1207 SW, Run (16 MP, 10 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
+  [Movement select] Red: score 265.631 = dealt 1.84 x1.00 + (HP 300.0 - received 1.05 x1.00 - PSR 0.00) / enemy future 2.00 x my future 1.77 [enemy held at 1207; 225 spots with LOS]
+  [Movement] Red: 0209 NW -> 0312 N, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 7) - includes a backward move
+  [Ranged] Blue -> Red: range 9, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 1 + heat 0); firing ['CLLRM10'] (weapon heat 4 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 1.05)
+    CLLRM10: needs 10 (range mod +2), rolled 9 -> miss [Clan Ammo LRM-10: 4 shots left]
+  [Ranged] Red -> Blue: range 9, base TN 10 (gunnery 4 + AMM 1 [Walk] + TMM 4 + LOS 1 + heat 0); firing ['ISMML5', 'ISMML5', 'ISSNPPC'] (weapon heat 16 of budget 52 = max 30 + sink 23 - current 0 - movement 1 - other 0; expected dmg 1.84)
+    [Red fire control] ISMML5: MML LRM rounds
+  [Ranged] Red fires in order: ['ISSNPPC', 'ISMML5', 'ISMML5'].
+    ISSNPPC: needs 10 (range mod +0), rolled 3 -> miss
+    ISMML5: needs 12 (range mod +2), rolled 6 -> miss [IS Ammo MML-5 LRM: 11 shots left]
+    ISMML5: needs 12 (range mod +2), rolled 6 -> miss [IS Ammo MML-5 LRM: 10 shots left]
+  [Heat] Red: 0 + movement 1 + weapons 16 + engine 0 - sinks 23 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 4 + engine 0 - sinks 10 -> 0
+  -- end of turn 15: Red @ 0312 N: HP 217, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 15: Blue @ 1207 SW: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 16 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 336.691 = dealt 0.00 x1.00 + (HP 306.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 1.51 x my future 1.66 [two-ply, 236 of 1547 spots (grid search) x 693 replies (short list); modeled reply Blue -> 0205 SE Run]
-  [Movement] Red: 0611 SE -> 1314 N, Jump (7 MP, 7 hexes, 7 heat; budget walk 5 / run 8 / jump 7)
-  [Movement select] Blue: no spot deals damage - closing fallback
-  [Movement] Blue: 0201 S -> 0102 SW, Walk (8 MP, 3 hexes, 1 heat; budget walk 8 / run 12 / jump 0)
-  [Ranged] Red -> Blue: range 18, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 0); firing ['ISMML5', 'ISMML5'] (weapon heat 6 of budget 46 = max 30 + sink 23 - current 0 - movement 7 - other 0; expected dmg 0.18)
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 130.329 = dealt 0.00 x1.00 + (HP 115.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.66 x my future 1.88 [two-ply, 291 of 1628 spots (grid search) x 1203 replies (short list); modeled reply: none with LOS]
+  [Movement] Blue: 1207 SW -> 1505 S, Run (12 MP, 7 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
+  [Movement select] Red: score 264.959 = dealt 0.40 x1.00 + (HP 300.0 - received 0.18 x1.00 - PSR 0.00) / enemy future 1.88 x my future 1.66 [enemy held at 1505; 36 spots with LOS]
+  [Movement] Red: 0312 N -> 1013 NW, Jump (7 MP, 7 hexes, 7 heat; budget walk 5 / run 8 / jump 7)
+  [Ranged] Blue -> Red: range 11, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 0 + heat 0); firing ['CLLRM10'] (weapon heat 4 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.18)
+    CLLRM10: needs 12 (range mod +2), rolled 7 -> miss [Clan Ammo LRM-10: 3 shots left]
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 11, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 0 + heat 0); firing ['ISMML5', 'ISMML5', 'ISSNPPC'] (weapon heat 16 of budget 46 = max 30 + sink 23 - current 0 - movement 7 - other 0; expected dmg 0.40)
     [Red fire control] ISMML5: MML LRM rounds
-    ISMML5: needs 12 (range mod +4), rolled 9 -> miss [IS Ammo MML-5 LRM: 11 shots left]
-    ISMML5: needs 12 (range mod +4), rolled 3 -> miss [IS Ammo MML-5 LRM: 10 shots left]
-  [Ranged] Blue: no weapon can bear on Red (left side arc) - can't fire.
-  [Heat] Red: 0 + movement 7 + weapons 6 + engine 0 - sinks 23 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 10 -> 0
-  -- end of turn 16: Red @ 1314 N: HP 223, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 16: Blue @ 0102 SW: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
+  [Ranged] Red fires in order: ['ISSNPPC', 'ISMML5', 'ISMML5'].
+    ISSNPPC: needs 12 (range mod +2), rolled 7 -> miss
+    ISMML5: needs 12 (range mod +2), rolled 8 -> miss [IS Ammo MML-5 LRM: 9 shots left]
+    ISMML5: needs 12 (range mod +2), rolled 2 -> miss [IS Ammo MML-5 LRM: 8 shots left]
+  [Heat] Red: 0 + movement 7 + weapons 16 + engine 0 - sinks 23 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 4 + engine 0 - sinks 10 -> 0
+  -- end of turn 16: Red @ 1013 NW: HP 217, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 16: Blue @ 1505 S: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 17 ===
   Initiative: Blue lost the roll, moves first.
-    Blue: MASC (turn 1 in a row) needs 3, rolled 3 - works.
-  [Movement select] Blue: score 104.517 = dealt 0.00 x1.00 + (HP 115.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.56 x my future 1.42 [two-ply, 190 of 938 spots (grid search) x 1079 replies (short list); modeled reply Red -> 1611 NW Run]
-  [Movement] Blue: 0102 SW -> 0701 S, Run (14 MP, 8 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
-  [Movement select] Red: score 339.410 = dealt 3.31 x1.00 + (HP 306.0 - received 0.53 x1.02 - PSR 0.00) / enemy future 1.42 x my future 1.56 [enemy held at 0701; 106 spots with LOS]
-  [Movement] Red: 1314 N -> 1307 N, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 7)
-  [Ranged] Blue -> Red: range 9, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['CLLRM10'] (weapon heat 4 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.53)
-    CLLRM10: needs 11 (range mod +2), rolled 7 -> miss [Clan Ammo LRM-10: 5 shots left]
-  [Ranged] Red -> Blue: range 9, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['ISMML5', 'ISMML5', 'ISSNPPC'] (weapon heat 16 of budget 51 = max 30 + sink 23 - current 0 - movement 2 - other 0; expected dmg 3.31)
-    [Red fire control] ISMML5: MML LRM rounds
-  [Ranged] Red fires in order: ['ISSNPPC', 'ISMML5', 'ISMML5'].
-    ISSNPPC: needs 9 (range mod +0), rolled 8 -> miss
-    ISMML5: needs 11 (range mod +2), rolled 2 -> miss [IS Ammo MML-5 LRM: 9 shots left]
-    ISMML5: needs 11 (range mod +2), rolled 10 -> miss [IS Ammo MML-5 LRM: 8 shots left]
-  [Heat] Red: 0 + movement 2 + weapons 16 + engine 0 - sinks 23 -> 0
-  [Heat] Blue: 0 + movement 2 + weapons 4 + engine 0 - sinks 10 -> 0
-  -- end of turn 17: Red @ 1307 N: HP 223, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 17: Blue @ 0701 S: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
+    Blue: MASC (turn 1 in a row) needs 3, rolled 7 - works.
+  [Movement select] Blue: score 130.329 = dealt 0.00 x1.00 + (HP 115.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.56 x my future 1.77 [two-ply, 269 of 1491 spots (grid search) x 1425 replies (short list); modeled reply: none with LOS]
+  [Movement] Blue: 1505 S -> 0503 SW, Run (16 MP, 11 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
+  [Movement select] Red: no spot deals damage - closing fallback
+  [Movement] Red: 1013 NW -> 0611 NW, Walk (4 MP, 4 hexes, 1 heat; budget walk 5 / run 8 / jump 7)
+  [Ranged] Blue: no LOS to Red - holds fire.
+  [Ranged] Red: no LOS to Blue - holds fire.
+  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 23 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
+  -- end of turn 17: Red @ 0611 NW: HP 217, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 17: Blue @ 0503 SW: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 18 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 336.691 = dealt 0.00 x1.00 + (HP 306.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 1.34 x my future 1.47 [two-ply, 210 of 1312 spots (grid search) x 1042 replies (short list); modeled reply Blue -> 0104 NE Run]
-  [Movement] Red: 1307 N -> 0603 SE, Jump (7 MP, 7 hexes, 7 heat; budget walk 5 / run 8 / jump 7)
-  [Movement select] Blue: score 104.517 = dealt 0.00 x1.00 + (HP 115.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.47 x my future 1.34 [enemy held at 0603; 215 spots with LOS]
-  [Movement] Blue: 0701 S -> 1506 NE, Run (12 MP, 10 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
-  [Ranged] Red -> Blue: range 9, base TN 13 (gunnery 4 + AMM 3 [Jump] + TMM 4 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 46 = max 30 + sink 23 - current 0 - movement 7 - other 0; expected dmg 0.00)
+  [Movement select] Red: score 265.394 = dealt 0.83 x1.00 + (HP 300.0 - received 0.18 x1.00 - PSR 0.00) / enemy future 1.67 x my future 1.47 [two-ply, 246 of 1523 spots (grid search) x 947 replies (short list); modeled reply Blue -> 0708 NE Run]
+  [Movement] Red: 0611 NW -> 1207 SW, Jump (7 MP, 7 hexes, 7 heat; budget walk 5 / run 8 / jump 7)
+  [Movement select] Blue: score 130.329 = dealt 0.00 x1.00 + (HP 115.0 - received 0.00 x1.27 - PSR 0.00) / enemy future 1.47 x my future 1.67 [enemy held at 1207; 35 spots with LOS]
+  [Movement] Blue: 0503 SW -> 0308 SW, Run (12 MP, 6 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
+  [Ranged] Red -> Blue: range 9, base TN 13 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 4 + heat 0); firing nothing (weapon heat 0 of budget 46 = max 30 + sink 23 - current 0 - movement 7 - other 0; expected dmg 0.00)
   [Ranged] Blue: no weapon can bear on Red (rear arc) - can't fire.
   [Heat] Red: 0 + movement 7 + weapons 0 + engine 0 - sinks 23 -> 0
   [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
-  -- end of turn 18: Red @ 0603 SE: HP 223, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 18: Blue @ 1506 NE: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 18: Red @ 1207 SW: HP 217, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 18: Blue @ 0308 SW: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 19 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 336.113 = dealt 0.00 x1.00 + (HP 306.0 - received 0.53 x1.00 - PSR 0.00) / enemy future 1.27 x my future 1.40 [two-ply, 233 of 1200 spots (grid search) x 1404 replies (short list); modeled reply Blue -> 1405 SW Run]
-  [Movement] Red: 0603 SE -> 1107 NE, Jump (7 MP, 6 hexes, 6 heat; budget walk 5 / run 8 / jump 7)
-    Blue: MASC (turn 1 in a row) needs 3, rolled 5 - works.
-  [Movement select] Blue: score 104.731 = dealt 0.18 x1.22 + (HP 115.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.40 x my future 1.27 [enemy held at 1107; 282 spots with LOS]
-  [Movement] Blue: 1506 NE -> 0607 SE, Run (16 MP, 11 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
-  [Ranged] Red -> Blue: range 5, base TN 12 (gunnery 4 + AMM 3 [Jump] + TMM 4 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 47 = max 30 + sink 23 - current 0 - movement 6 - other 0; expected dmg 0.00)
-  [Ranged] Blue -> Red: range 5, base TN 12 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 3 + heat 0); firing ['CLLRM10'] (weapon heat 4 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.18)
-    CLLRM10: needs 12 (range mod +0), rolled 9 -> miss [Clan Ammo LRM-10: 4 shots left]
-  [Heat] Red: 0 + movement 6 + weapons 0 + engine 0 - sinks 23 -> 0
-  [Heat] Blue: 0 + movement 2 + weapons 4 + engine 0 - sinks 10 -> 0
-  -- end of turn 19: Red @ 1107 NE: HP 223, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 19: Blue @ 0607 SE: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 20 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 336.691 = dealt 0.00 x1.00 + (HP 306.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 1.21 x my future 1.33 [two-ply, 217 of 1383 spots (grid search) x 1784 replies (short list); modeled reply Blue -> 0902 SW Run]
-  [Movement] Red: 1107 NE -> 0403 S, Jump (7 MP, 7 hexes, 7 heat; budget walk 5 / run 8 / jump 7)
-  [Movement select] Blue: score 104.517 = dealt 0.00 x1.00 + (HP 115.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 1.33 x my future 1.21 [enemy held at 0403; 279 spots with LOS]
-  [Movement] Blue: 0607 SE -> 0412 SW, Run (12 MP, 10 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
-  [Ranged] Red -> Blue: range 9, base TN 13 (gunnery 4 + AMM 3 [Jump] + TMM 4 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 46 = max 30 + sink 23 - current 0 - movement 7 - other 0; expected dmg 0.00)
+  [Movement select] Red: score 264.715 = dealt 0.00 x1.00 + (HP 300.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 1.58 x my future 1.40 [two-ply, 248 of 1459 spots (grid search) x 1642 replies (short list); modeled reply Blue -> 1014 NE Run]
+  [Movement] Red: 1207 SW -> 1314 NW, Jump (7 MP, 7 hexes, 7 heat; budget walk 5 / run 8 / jump 7)
+    Blue: MASC (turn 1 in a row) needs 3, rolled 4 - works.
+  [Movement select] Blue: score 130.329 = dealt 0.00 x1.03 + (HP 115.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 1.40 x my future 1.58 [enemy held at 1314; 251 spots with LOS]
+  [Movement] Blue: 0308 SW -> 0914 N, Run (16 MP, 10 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
+  [Ranged] Red -> Blue: range 4, base TN 13 (gunnery 4 + AMM 3 [Jump] + TMM 4 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 46 = max 30 + sink 23 - current 0 - movement 7 - other 0; expected dmg 0.00)
   [Ranged] Blue: no weapon can bear on Red (right side arc) - can't fire.
   [Heat] Red: 0 + movement 7 + weapons 0 + engine 0 - sinks 23 -> 0
   [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
-  -- end of turn 20: Red @ 0403 S: HP 223, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 20: Blue @ 0412 SW: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 19: Red @ 1314 NW: HP 217, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 19: Blue @ 0914 N: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 20 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 264.715 = dealt 0.00 x1.00 + (HP 300.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.50 x my future 1.33 [two-ply, 202 of 1111 spots (grid search) x 1575 replies (short list); modeled reply Blue -> 0417 NE Walk]
+  [Movement] Red: 1314 NW -> 1207 S, Jump (7 MP, 7 hexes, 7 heat; budget walk 5 / run 8 / jump 7)
+  [Movement select] Blue: score 130.329 = dealt 0.00 x1.00 + (HP 115.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 1.33 x my future 1.50 [enemy held at 1207; 264 spots with LOS]
+  [Movement] Blue: 0914 N -> 0916 NW, Run (12 MP, 7 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
+  [Ranged] Red -> Blue: range 10, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 46 = max 30 + sink 23 - current 0 - movement 7 - other 0; expected dmg 0.00)
+  [Ranged] Blue: no weapon can bear on Red (right side arc) - can't fire.
+  [Heat] Red: 0 + movement 7 + weapons 0 + engine 0 - sinks 23 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
+  -- end of turn 20: Red @ 1207 S: HP 217, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 20: Blue @ 0916 NW: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 21 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 336.691 = dealt 0.00 x1.00 + (HP 306.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 1.15 x my future 1.26 [two-ply, 176 of 1035 spots (grid search) x 1686 replies (short list); modeled reply Blue -> 0408 NE Run]
-  [Movement] Red: 0403 S -> 1107 S, Jump (7 MP, 7 hexes, 7 heat; budget walk 5 / run 8 / jump 7)
-    Blue: MASC (turn 1 in a row) needs 3, rolled 4 - works.
-  [Movement select] Blue: score 104.517 = dealt 0.00 x1.02 + (HP 115.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.26 x my future 1.15 [enemy held at 1107; 310 spots with LOS]
-  [Movement] Blue: 0412 SW -> 0308 SE, Run (16 MP, 10 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
-  [Ranged] Red -> Blue: range 8, base TN 15 (gunnery 4 + AMM 3 [Jump] + TMM 4 + LOS 4 + heat 0); firing nothing (weapon heat 0 of budget 46 = max 30 + sink 23 - current 0 - movement 7 - other 0; expected dmg 0.00)
-  [Ranged] Blue -> Red: range 8, base TN 14 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 4 + heat 0); firing nothing (weapon heat 0 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Movement select] Red: score 264.715 = dealt 0.00 x1.00 + (HP 300.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.43 x my future 1.26 [two-ply, 242 of 1434 spots (grid search) x 1637 replies (short list); modeled reply Blue -> 0409 N Run]
+  [Movement] Red: 1207 S -> 0505 NE, Jump (7 MP, 7 hexes, 7 heat; budget walk 5 / run 8 / jump 7)
+    Blue: MASC (turn 1 in a row) needs 3, rolled 8 - works.
+  [Movement select] Blue: score 130.329 = dealt 0.00 x1.00 + (HP 115.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.26 x my future 1.43 [enemy held at 0505; 301 spots with LOS]
+  [Movement] Blue: 0916 NW -> 0310 NE, Run (16 MP, 12 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
+  [Ranged] Red -> Blue: range 6, base TN 13 (gunnery 4 + AMM 3 [Jump] + TMM 4 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 46 = max 30 + sink 23 - current 0 - movement 7 - other 0; expected dmg 0.00)
+  [Ranged] Blue -> Red: range 6, base TN 14 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 4 + heat 0); firing nothing (weapon heat 0 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.00)
   [Heat] Red: 0 + movement 7 + weapons 0 + engine 0 - sinks 23 -> 0
   [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
-  -- end of turn 21: Red @ 1107 S: HP 223, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 21: Blue @ 0308 SE: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 21: Red @ 0505 NE: HP 217, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 21: Blue @ 0310 NE: HP 80, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 22 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 102.842 = dealt 0.00 x1.00 + (HP 115.0 - received 1.84 x1.00 - PSR 0.00) / enemy future 1.21 x my future 1.10 [two-ply, 216 of 1251 spots (grid search) x 1410 replies (short list); modeled reply Red -> 1008 SW Walk]
-  [Movement] Blue: 0308 SE -> 0212 S, Run (12 MP, 7 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
-  [Movement select] Red: score 339.414 = dealt 2.72 x1.00 + (HP 306.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 1.10 x my future 1.21 [enemy held at 0212; 321 spots with LOS]
-  [Movement] Red: 1107 S -> 0909 S, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 7)
-  [Ranged] Blue: no weapon can bear on Red (left side arc) - can't fire.
-  [Ranged] Red -> Blue: range 7, base TN 10 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 2 + heat 0); firing ['ISMML5', 'ISMML5', 'ISSNPPC'] (weapon heat 16 of budget 52 = max 30 + sink 23 - current 0 - movement 1 - other 0; expected dmg 2.72)
-    [Red fire control] ISMML5: MML LRM rounds
-  [Ranged] Red fires in order: ['ISSNPPC', 'ISMML5', 'ISMML5'].
-    ISSNPPC: needs 10 (range mod +0), rolled 11 -> HIT
-    ISMML5: needs 10 (range mod +0), rolled 12 -> HIT [IS Ammo MML-5 LRM: 7 shots left]
-    ISMML5: needs 10 (range mod +0), rolled 4 -> miss [IS Ammo MML-5 LRM: 6 shots left]
-    ISSNPPC hit for 10:
-      Hit location roll 11 (left table): Rear Right Leg.
-10 damage (ENERGY) incoming to Rear Right Leg (armor).
-  [STANDARD/ENERGY] 5 armor pts destroyed at armor (5 -> 0 remaining). 4 damage applied to structure [STANDARD] (4 -> 0/4 remaining).
-  Rear Right Leg destroyed with no live explosive components - no critical roll.
-  Rear Right Leg DESTROYED!
-    Hip specifically destroyed at Rear Right Leg from Rear Right Leg destruction.
-  All critical slots in Rear Right Leg marked DESTROYED.
-  1 damage remains, transfers to Right Torso.
-  [STANDARD/ENERGY] 1 armor pts destroyed at armor (3 -> 2 remaining).
-    ISMML5 hit: cluster roll 7 (MML LRM rounds) on the 5-column table -> 3 connect (3 dmg).
-      Group 1/1: Hit location roll 7 (left table): Left Torso.
-3 damage (MISSILE) incoming to Left Torso (armor).
-  [STANDARD/MISSILE] 3 armor pts destroyed at armor (6 -> 3 remaining).
-PSR trigger: Rear Right Leg destroyed this phase -> automatic fall.
-Automatic fall this phase.
-FALL (automatic fall): Snow Fox 2 takes 2 falling damage (1D6 6: front table, 5-pt clusters).
-  Fall cluster (2 dmg): rolled 8 -> Left Torso
-2 damage (PHYSICAL) incoming to Left Torso (armor).
-  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (3 -> 1 remaining).
-  Seatbelt check: needs 5. Rolled 7. Pilot unharmed.
-  [Heat] Red: 0 + movement 1 + weapons 16 + engine 0 - sinks 23 -> 0
-  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
-  -- end of turn 22: Red @ 0909 S: HP 223, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 22: Blue @ 0212 S: HP 65, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE]
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 264.820 = dealt 2.50 x1.00 + (HP 300.0 - received 2.63 x1.03 - PSR 0.00) / enemy future 1.37 x my future 1.21 [two-ply, 290 of 1303 spots (grid search) x 1386 replies (short list); modeled reply Blue -> 0204 SE Run]
+  [Movement] Red: 0505 NE -> 0505 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 7)
+  [Movement select] Blue: score 129.858 = dealt 3.68 x1.21 + (HP 115.0 - received 4.33 x1.00 - PSR 0.00) / enemy future 1.21 x my future 1.37 [enemy held at 0505; 289 spots with LOS]
+  [Movement] Blue: 0310 NE -> 0205 NE, Walk (8 MP, 5 hexes, 1 heat; budget walk 8 / run 12 / jump 0) - includes a backward move
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's left side arc after that).
+  [Ranged] Red -> Blue: range 3, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 2 + LOS 0 + heat 0); firing ['ISSmallXPulseLaser', 'ISSmallXPulseLaser'] (weapon heat 6 of budget 53 = max 30 + sink 23 - current 0 - movement 0 - other 0; expected dmg 4.33)
+    ISSmallXPulseLaser: needs 6 (range mod +2, modifiers -2), rolled 8 -> HIT
+    ISSmallXPulseLaser: needs 6 (range mod +2, modifiers -2), rolled 7 -> HIT
+  [Ranged] Blue -> Red: range 3, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 2 + heat 0); firing ['CLLRM10'] (weapon heat 4 of budget 39 = max 30 + sink 10 - current 0 - movement 1 - other 0; expected dmg 3.68)
+    CLLRM10: needs 7 (range mod +0), rolled 9 -> HIT [Clan Ammo LRM-10: 2 shots left]
+    ISSmallXPulseLaser hit for 3:
+      Hit location roll 10 (front table): Front Left Leg.
+3 damage (ENERGY) incoming to Front Left Leg (armor).
+  [STANDARD/ENERGY] 3 armor pts destroyed at armor (5 -> 2 remaining).
+    ISSmallXPulseLaser hit for 3:
+      Hit location roll 7 (front table): Center Torso.
+3 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 3 armor pts destroyed at armor (6 -> 3 remaining).
+    CLLRM10 hit: cluster roll 8 on the 10-column table -> 6 connect (6 dmg).
+      Group 1/2: Hit location roll 7 (rear table): Center Torso.
+5 damage (MISSILE) incoming to Center Torso (rear_armor).
+  [STANDARD/MISSILE] 5 armor pts destroyed at rear_armor (8 -> 3 remaining).
+      Group 2/2: Hit location roll 11 (rear table): Left Arm.
+1 damage (MISSILE) incoming to Left Arm (rear_armor).
+  [STANDARD/MISSILE] 1 armor pts destroyed at armor (9 -> 8 remaining).
+  [Heat] Red: 0 + movement 0 + weapons 6 + engine 0 - sinks 23 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 4 + engine 0 - sinks 10 -> 0
+  -- end of turn 22: Red @ 0505 NE: HP 211, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 22: Blue @ 0205 NE: HP 74, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 23 ===
   Initiative: Blue lost the roll, moves first.
-Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 4.
-  Failed to stand.
-FALL (failed to stand): Snow Fox 2 takes 2 falling damage (1D6 6: front table, 5-pt clusters).
-  Fall cluster (2 dmg): rolled 7 -> Center Torso
-2 damage (PHYSICAL) incoming to Center Torso (armor).
-  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (6 -> 4 remaining).
-  Seatbelt check: needs 5. Rolled 6. Pilot unharmed.
-Stand attempt 2: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 8.
-  Success - Snow Fox 2 is standing (remaining running MP 7).
-  [Movement select] Blue: score 47.072 = dealt 1.75 x1.00 + (HP 94.0 - received 7.59 x1.01 - PSR 0.00) / enemy future 2.00 x my future 1.05 [two-ply, 80 of 340 spots (grid search) x 1649 replies (short list); modeled reply Red -> 0511 S Walk]
-  [Movement] Blue: 0212 S -> 0217 NE, Run (7 MP, 5 hexes, 2 heat; budget walk 7 / run 11 / jump 0; stood up with 7 MP left)
-  [Movement select] Red: score 587.229 = dealt 7.59 x1.00 + (HP 306.0 - received 1.75 x1.00 - PSR 0.00) / enemy future 1.05 x my future 2.00 [enemy held at 0217; 290 spots with LOS]
-  [Movement] Red: 0909 S -> 0712 SW, Walk (5 MP, 4 hexes, 1 heat; budget walk 5 / run 8 / jump 7)
-  [Ranged] Blue -> Red: range 8, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['CLLRM10'] (weapon heat 4 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 1.75)
-    CLLRM10: needs 9 (range mod +2), rolled 10 -> HIT [Clan Ammo LRM-10: 3 shots left]
-  [Ranged] Red -> Blue: range 8, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 0); firing ['ISMML5', 'ISMML5', 'ISSNPPC'] (weapon heat 16 of budget 52 = max 30 + sink 23 - current 0 - movement 1 - other 0; expected dmg 7.59)
+    Blue: MASC (turn 1 in a row) needs 3, rolled 11 - works.
+  [Movement select] Blue: score 116.082 = dealt 1.05 x1.00 + (HP 109.0 - received 1.84 x1.00 - PSR 0.00) / enemy future 1.46 x my future 1.57 [two-ply, 283 of 1566 spots (grid search) x 1309 replies (short list); modeled reply Red -> 0205 S Walk]
+  [Movement] Blue: 0205 NE -> 0213 N, Run (16 MP, 11 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
+  [Movement select] Red: score 275.524 = dealt 2.66 x0.99 + (HP 294.0 - received 1.05 x0.99 - PSR 0.00) / enemy future 1.57 x my future 1.46 [enemy held at 0213; 151 spots with LOS]
+  [Movement] Red: 0505 NE -> 0512 SE, Jump (7 MP, 7 hexes, 7 heat; budget walk 5 / run 8 / jump 7)
+  [Ranged] Blue -> Red: range 3, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 0 + heat 0); firing ['CLLRM10'] (weapon heat 4 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 1.05)
+    CLLRM10: needs 10 (range mod +0), rolled 6 -> miss [Clan Ammo LRM-10: 1 shots left]
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 3, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 4 + LOS 0 + heat 0); firing ['ISSmallXPulseLaser', 'ISMML5', 'ISMML5', 'ISSmallXPulseLaser', 'ISSmallXPulseLaser', 'ISSNPPC'] (weapon heat 25 of budget 46 = max 30 + sink 23 - current 0 - movement 7 - other 0; expected dmg 2.64)
+    [Red fire control] ISMML5: MML SRM rounds
+  [Ranged] Red fires in order: ['ISSNPPC', 'ISSmallXPulseLaser', 'ISSmallXPulseLaser', 'ISSmallXPulseLaser', 'ISMML5', 'ISMML5'].
+    ISSNPPC: needs 11 (range mod +0), rolled 8 -> miss
+    ISSmallXPulseLaser: needs 11 (range mod +2, modifiers -2), rolled 10 -> miss
+    ISSmallXPulseLaser: needs 11 (range mod +2, modifiers -2), rolled 5 -> miss
+    ISSmallXPulseLaser: needs 11 (range mod +2, modifiers -2), rolled 5 -> miss
+    ISMML5: needs 11 (range mod +0), rolled 10 -> miss [IS Ammo MML-5 SRM: 17 shots left]
+    ISMML5: needs 11 (range mod +0), rolled 8 -> miss [IS Ammo MML-5 SRM: 16 shots left]
+  [Heat] Red: 0 + movement 7 + weapons 25 + engine 0 - sinks 23 -> 9
+  [Heat] Red: heat 9 -> next turn -1 Walking MP, +1 to ranged attacks.
+  [Heat] Blue: 0 + movement 2 + weapons 4 + engine 0 - sinks 10 -> 0
+  -- end of turn 23: Red @ 0512 SE: HP 211, pilot hits 0, engine 0, gyro 0, heat 9
+  -- end of turn 23: Blue @ 0213 N: HP 74, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 24 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 223.852 = dealt 0.00 x1.00 + (HP 294.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.50 x my future 1.14 [two-ply, 173 of 1098 spots (grid search) x 1085 replies (short list); modeled reply Blue -> 0409 N Run]
+  [Movement] Red: 0512 SE -> 0505 S, Jump (7 MP, 7 hexes, 7 heat; budget walk 4 / run 6 / jump 7)
+  [Movement select] Blue: score 143.157 = dealt 0.00 x1.00 + (HP 109.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.14 x my future 1.50 [enemy held at 0505; 191 spots with LOS]
+  [Movement] Blue: 0213 N -> 0408 N, Run (12 MP, 7 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
+  [Ranged] Red -> Blue: range 4, base TN 13 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 2 + heat 1); firing nothing (weapon heat 0 of budget 37 = max 30 + sink 23 - current 9 - movement 7 - other 0; expected dmg 0.00)
+  [Ranged] Blue -> Red: range 4, base TN 13 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 3 + heat 0); firing nothing (weapon heat 0 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Heat] Red: 9 + movement 7 + weapons 0 + engine 0 - sinks 23 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
+  -- end of turn 24: Red @ 0505 S: HP 211, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 24: Blue @ 0408 N: HP 74, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 25 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 273.391 = dealt 0.00 x1.00 + (HP 294.0 - received 0.53 x0.99 - PSR 0.00) / enemy future 1.44 x my future 1.34 [two-ply, 222 of 1286 spots (grid search) x 2009 replies (short list); modeled reply Blue -> 0505 SE Run]
+  [Movement] Red: 0505 S -> 1109 S, Jump (7 MP, 7 hexes, 7 heat; budget walk 5 / run 8 / jump 7)
+    Blue: MASC (turn 1 in a row) needs 3, rolled 10 - works.
+  [Movement select] Blue: score 117.416 = dealt 0.56 x1.26 + (HP 109.0 - received 0.28 x0.99 - PSR 0.00) / enemy future 1.34 x my future 1.44 [enemy held at 1109; 317 spots with LOS]
+  [Movement] Blue: 0408 N -> 1007 SE, Run (16 MP, 10 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's right side arc after that).
+  [Ranged] Red -> Blue: range 2, base TN 12 (gunnery 4 + AMM 3 [Jump] + TMM 4 + LOS 1 + heat 0); firing ['ISSNPPC'] (weapon heat 10 of budget 46 = max 30 + sink 23 - current 0 - movement 7 - other 0; expected dmg 0.28)
+    ISSNPPC: needs 12 (range mod +0), rolled 8 -> miss
+  [Ranged] Blue -> Red: range 2, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 1 + heat 0); firing ['CLLRM10'] (weapon heat 4 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.53)
+    CLLRM10: needs 11 (range mod +0), rolled 11 -> HIT [Clan Ammo LRM-10: 0 shots left]
+    CLLRM10 hit: cluster roll 10 on the 10-column table -> 8 connect (8 dmg).
+      Group 1/2: Hit location roll 7 (rear table): Center Torso.
+5 damage (MISSILE) incoming to Center Torso (rear_armor).
+  [STANDARD/MISSILE] 3 armor pts destroyed at rear_armor (3 -> 0 remaining). 2 damage applied to structure [STANDARD] (16 -> 14/16 remaining).
+  Check for possible critical. Roll a 6.
+    No critical hit.
+      Group 2/2: Hit location roll 5 (rear table): Right Leg.
+3 damage (MISSILE) incoming to Right Leg (rear_armor).
+  [STANDARD/MISSILE] 3 armor pts destroyed at armor (16 -> 13 remaining).
+  [Heat] Red: 0 + movement 7 + weapons 10 + engine 0 - sinks 23 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 4 + engine 0 - sinks 10 -> 0
+  -- end of turn 25: Red @ 1109 S: HP 203, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 25: Blue @ 1007 SE: HP 74, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 26 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 219.600 = dealt 0.28 x1.00 + (HP 284.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 1.67 x my future 1.29 [two-ply, 271 of 1505 spots (grid search) x 1656 replies (short list); modeled reply Blue -> 0405 S Run]
+  [Movement] Red: 1109 S -> 0510 NE, Jump (7 MP, 6 hexes, 6 heat; budget walk 5 / run 8 / jump 7)
+  [Movement select] Blue: score 141.144 = dealt 0.00 x1.00 + (HP 109.0 - received 0.00 x0.99 - PSR 0.00) / enemy future 1.29 x my future 1.67 [enemy held at 0510; 342 spots with LOS]
+  [Movement] Blue: 1007 SE -> 0917 SW, Run (12 MP, 10 hexes, 2 heat; budget walk 8 / run 12 / jump 0)
+  [Ranged] Red -> Blue: range 9, base TN 13 (gunnery 4 + AMM 3 [Jump] + TMM 4 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 47 = max 30 + sink 23 - current 0 - movement 6 - other 0; expected dmg 0.00)
+  [Ranged] Blue: no weapon can bear on Red (right side arc) - can't fire.
+  [Heat] Red: 0 + movement 6 + weapons 0 + engine 0 - sinks 23 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 10 -> 0
+  -- end of turn 26: Red @ 0510 NE: HP 203, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 26: Blue @ 0917 SW: HP 74, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 27 ===
+  Initiative: Blue lost the roll, moves first.
+    Blue: MASC (turn 1 in a row) needs 3, rolled 12 - works.
+  [Movement select] Blue: score 140.779 = dealt 0.00 x1.00 + (HP 109.0 - received 0.28 x1.01 - PSR 0.00) / enemy future 1.24 x my future 1.61 [two-ply, 271 of 1358 spots (grid search) x 1483 replies (short list); modeled reply Red -> 1009 SE Run]
+  [Movement] Blue: 0917 SW -> 1515 NE, Run (16 MP, 11 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
+  [Movement select] Red: score 219.782 = dealt 0.45 x1.01 + (HP 284.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.61 x my future 1.24 [enemy held at 1515; 75 spots with LOS]
+  [Movement] Red: 0510 NE -> 1209 SE, Jump (7 MP, 7 hexes, 7 heat; budget walk 5 / run 8 / jump 7)
+  [Ranged] Blue: no weapon can bear on Red (left side arc) - can't fire.
+  [Ranged] Red -> Blue: range 7, base TN 12 (gunnery 4 + AMM 3 [Jump] + TMM 4 + LOS 1 + heat 0); firing ['ISMML5', 'ISMML5', 'ISSNPPC'] (weapon heat 16 of budget 46 = max 30 + sink 23 - current 0 - movement 7 - other 0; expected dmg 0.45)
     [Red fire control] ISMML5: MML LRM rounds
   [Ranged] Red fires in order: ['ISSNPPC', 'ISMML5', 'ISMML5'].
-    ISSNPPC: needs 7 (range mod +0), rolled 5 -> miss
-    ISMML5: needs 9 (range mod +2), rolled 5 -> miss [IS Ammo MML-5 LRM: 5 shots left]
-    ISMML5: needs 9 (range mod +2), rolled 10 -> HIT [IS Ammo MML-5 LRM: 4 shots left]
-    CLLRM10 hit: cluster roll 8 on the 10-column table -> 6 connect (6 dmg).
-      Group 1/2: Hit location roll 5 (front table): Right Leg.
-5 damage (MISSILE) incoming to Right Leg (armor).
-  [STANDARD/MISSILE] 5 armor pts destroyed at armor (17 -> 12 remaining).
-      Group 2/2: Hit location roll 11 (front table): Left Arm.
-1 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 1 armor pts destroyed at armor (14 -> 13 remaining).
-    ISMML5 hit: cluster roll 6 (MML LRM rounds) on the 5-column table -> 3 connect (3 dmg).
-      Group 1/1: Hit location roll 6 (front table): Right Torso.
-3 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (2 -> 0 remaining). 1 damage applied to structure [STANDARD] (5 -> 4/5 remaining).
-  Check for possible critical. Roll a 9.
-    1 critical hit(s).
-  Critical hit pool at Right Torso:
-    1: Heat Sink (slot 1)
-    2: Heat Sink (slot 2)
-    3: Clan Ammo LRM-10 (slot 3)
-    1/1 Criticals: Clan Ammo LRM-10 slot hit.
-      Current crit slots in Right Torso: ['Heat Sink', 'Heat Sink', 'DESTROYED', 'Ferro-Fibrous', 'Ferro-Fibrous', 'Ferro-Fibrous', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-    Clan Ammo LRM-10 destroyed at Right Torso - EXPLOSION (30 dmg)! Pilot takes 1 hit (1/6).
-    Explosion reaches Right Torso. No CASE present - 20 damage to structure.
-    4 structure damage taken (0/5 remaining).
-  Right Torso destroyed with no live explosive components - no critical roll.
-    Right Torso DESTROYED! (explosion)
-    Heat sink destroyed (Heat Sink) from Right Torso destruction - heat dissipation reduced (now 9).
-    Heat sink destroyed (Heat Sink) from Right Torso destruction - heat dissipation reduced (now 8).
-  All critical slots in Right Torso marked DESTROYED.
-  Front Right Leg also destroyed (side torso rule).
-    Hip specifically destroyed at Front Right Leg from Front Right Leg destruction.
-  All critical slots in Front Right Leg marked DESTROYED.
-    16 explosion damage remains, transfers to Center Torso.
-    Explosion reaches Center Torso. No CASE present - 16 damage to structure.
-    6 structure damage taken (0/6 remaining).
+    ISSNPPC: needs 12 (range mod +0), rolled 12 -> HIT
+    ISMML5: needs 12 (range mod +0), rolled 5 -> miss [IS Ammo MML-5 LRM: 7 shots left]
+    ISMML5: needs 12 (range mod +0), rolled 6 -> miss [IS Ammo MML-5 LRM: 6 shots left]
+    ISSNPPC hit for 10:
+      Hit location roll 8 (left table): Center Torso.
+10 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 3 armor pts destroyed at armor (3 -> 0 remaining). 6 damage applied to structure [STANDARD] (6 -> 0/6 remaining).
   Center Torso destroyed with no live explosive components - no critical roll.
-    Center Torso DESTROYED! (explosion)
+  Center Torso DESTROYED!
     Engine hit (1/3) from Center Torso destruction.
     Engine hit (2/3) from Center Torso destruction.
     Engine hit (3/3) from Center Torso destruction.
@@ -488,8 +531,9 @@ Stand attempt 2: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 8.
     Engine hit (5/3) from Center Torso destruction.
     Engine hit (6/3) from Center Torso destruction.
   All critical slots in Center Torso marked DESTROYED.
-  [Heat] Red: 0 + movement 1 + weapons 16 + engine 0 - sinks 23 -> 0
-  -- end of turn 23: Red @ 0712 SW: HP 217, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 23: Blue @ 0217 NE: HP 46, pilot hits 1, engine 6, gyro 4, heat 0 [DESTROYED (Center Torso Destroyed)]
+  1 damage remains, transfers to nowhere (attack finished).
+  [Heat] Red: 0 + movement 7 + weapons 16 + engine 0 - sinks 23 -> 0
+  -- end of turn 27: Red @ 1209 SE: HP 203, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 27: Blue @ 1515 NE: HP 65, pilot hits 0, engine 6, gyro 4, heat 0 [DESTROYED (Center Torso Destroyed)]
 
->>> Battle over on turn 23: Blue destroyed. <<<
+>>> Battle over on turn 27: Blue destroyed. <<<

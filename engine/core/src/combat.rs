@@ -84,7 +84,7 @@ pub const JUMP_BLOCK_MARGIN: i64 = 1;
 /// Every (x, y, facing) state reachable by jumping, given jump_mp: {state: forward_count} in board-hex order.
 pub fn build_jump_states(board: &crate::board_parser::Board, start_x: i64, start_y: i64, jump_mp: i64) -> Result<crate::fasthash::IndexMap<(i64, i64, i64), i64>, String> {
     use crate::hex_geometry::{hex_label, parse_hex_label};
-    use crate::los::{hex_distance, hex_line};
+    use crate::los::{hex_distance, hex_line_sampled as hex_line};
     let hex_info = |h: (i64, i64)| -> Option<&crate::board_parser::Hex> { hex_label(h.0, h.1).ok().and_then(|l| board.hexes.get(&l)) };
     let start_hex = (start_x, start_y);
     let start_info = hex_info(start_hex).ok_or_else(|| format!("Jump start hex {} is not on the loaded board.", crate::pyfmt::py_repr_str(&hex_label(start_x, start_y).unwrap_or_default())))?;

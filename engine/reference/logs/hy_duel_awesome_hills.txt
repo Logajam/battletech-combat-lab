@@ -11,7 +11,7 @@
   Initiative: Red lost the roll, moves first.
   [Movement select] Red: no enemy on the board yet - heads for its home edge near 0109 (closing fallback)
   [Movement] Red: off the board -> 1303 SW, Run (4 MP, 4 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
-  [Movement select] Blue: score 487.418 = dealt 8.36 x1.01 + (HP 484.0 - received 5.01 x1.00 - PSR 0.00) / enemy future 8.77 x my future 8.77 [enemy held at 1303; 56 spots with LOS]
+  [Movement select] Blue: score 487.418 = dealt 8.36 x1.01 + (HP 484.0 - received 5.01 x1.00 - PSR 0.00) / enemy future 8.77 x my future 8.77 [enemy held at 1303; 46 spots with LOS]
   [Movement] Blue: off the board -> 0302 SE, Run (4 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
   [Ranged] Red -> Blue: range 10, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 1 + heat 0); firing ['PPC', 'PPC', 'PPC'] (weapon heat 30 of budget 30 = max 4 + sink 28 - current 0 - movement 2 - other 0; expected dmg 5.00)
     PPC: needs 10 (range mod +2), rolled 3 -> miss
@@ -638,7 +638,7 @@ Movement Phase PSR (running mode, gyro hit): needs 7 (Piloting 5 + +2). Rolled 8
 
 === TURN 19 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 312.425 = dealt 18.70 x1.00 + (HP 331.0 - received 20.74 x1.00 - PSR 0.00) / enemy future 9.44 x my future 8.94 [two-ply, 66 of 91 spots (grid search) x 101 replies (short list); modeled reply Blue -> 0306 NE Stand Still]
+  [Movement select] Red: score 310.510 = dealt 22.46 x0.90 + (HP 331.0 - received 24.12 x1.01 - PSR 0.00) / enemy future 9.44 x my future 8.94 [two-ply, 66 of 91 spots (grid search) x 101 replies (short list); modeled reply Blue -> 0405 NE Walk]
   [Movement] Red: 1005 SW -> 1005 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Blue: score 340.927 = dealt 20.74 x1.00 + (HP 319.0 - received 17.69 x0.90 - PSR 0.00) / enemy future 8.94 x my future 9.44 [enemy held at 1005; 57 spots with LOS]
   [Movement] Blue: 0306 N -> 0306 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)

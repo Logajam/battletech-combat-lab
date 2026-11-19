@@ -9,7 +9,7 @@
   [Movement select] Blue: score 130.031 = dealt 0.83 x1.00 + (HP 166.0 - received 0.83 x1.37 - PSR 0.00) / enemy future 1.65 x my future 1.29 [two-ply, 404 of 2311 spots (grid search) x 1973 replies (short list); modeled reply Red -> 1013 SE Run]
   [Movement] Blue: 0509 N -> 1114 SE, Run (15 MP, 10 hexes, 2 heat; budget walk 10 / run 15 / jump 0)
     Red: Supercharger (turn 1 in a row) needs 3, rolled 6 - works.
-  [Movement select] Red: score 292.068 = dealt 0.83 x1.37 + (HP 228.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.29 x my future 1.65 [enemy held at 1114; 357 spots with LOS]
+  [Movement select] Red: score 292.068 = dealt 0.83 x1.37 + (HP 228.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.29 x my future 1.65 [enemy held at 1114; 345 spots with LOS]
   [Movement] Red: 0505 S -> 0711 SE, Walk (8 MP, 7 hexes, 1 heat; budget walk 8 / run 16 / jump 0)
   [Ranged] Blue: no weapon can bear on Red (rear arc) - can't fire.
   [Ranged] Red -> Blue: range 5, base TN 10 (gunnery 4 + AMM 1 [Walk] + TMM 4 + LOS 1 + heat 0); firing ['TSEMP Cannon'] (weapon heat 10 of budget 39 = max 30 + sink 10 - current 0 - movement 1 - other 0; expected dmg 0.83)
@@ -81,7 +81,7 @@
   [Movement select] Blue: score 267.950 = dealt 1.85 x1.00 + (HP 166.0 - received 1.13 x1.01 - PSR 0.00) / enemy future 1.00 x my future 1.61 [two-ply, 236 of 1472 spots (grid search) x 1277 replies (short list); modeled reply Red -> 0214 S Run]
   [Movement] Blue: 0202 SE -> 0215 NW, Run (17 MP, 13 hexes, 2 heat; budget walk 11 / run 17 / jump 0)
     Red: Supercharger (turn 1 in a row) needs 3, rolled 11 - works.
-  [Movement select] Red: score 141.252 = dealt 0.00 x1.01 + (HP 228.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.61 x my future 1.00 [enemy held at 0215; 159 spots with LOS]
+  [Movement select] Red: score 141.252 = dealt 0.00 x1.01 + (HP 228.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.61 x my future 1.00 [enemy held at 0215; 152 spots with LOS]
   [Movement] Red: 0303 SE -> 0310 NE, Run (16 MP, 11 hexes, 2 heat; budget walk 8 / run 16 / jump 0)
   [Ranged] Blue -> Red: range 6, base TN 13 (gunnery 4 + AMM 2 [Run] + TMM 4 + LOS 2 + heat 1); firing ['TSEMP Cannon'] (weapon heat 10 of budget 29 = max 30 + sink 20 - current 9 - movement 2 - other 10; expected dmg 0.00)
     TSEMP Cannon: needs 15 (range mod +2), rolled 6 -> miss

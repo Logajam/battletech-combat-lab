@@ -366,8 +366,9 @@ it passes through both hexes, light + heavy = 3, blocked; the border rule is for
 30-degree lines; MegaMek's losDivided). Measured on every pair of an 11 x 11 board against MegaMek's Coords.intervening
 (the true line through hex centres): 7,223 of 14,641 lines the same hexes; 4,204 where MegaMek counts both hexes of a pair
 we treat as "pick one"; 3,214 where our sampling skips hexes the line clips (e.g. 0101 -> 0205: MegaMek 8 hexes, ours 6).
-The book defines LOS as the straight line between hex centres, so MegaMek's set is the book's. OPEN - Daniel's call: it
-changes line of sight (and so results) in every battle.
+The book defines LOS as the straight line between hex centres, so MegaMek's set is the book's. FIXED the same day
+(Daniel: "Tier 1 bug"): `los::hex_line` is now the true line (`mm_line::los_steps`); 8 MegaMek games after, 129 shots,
+none ruled out of reach.
 
 ## 4. The request (Java -> Rust), one JSON object a line
 
