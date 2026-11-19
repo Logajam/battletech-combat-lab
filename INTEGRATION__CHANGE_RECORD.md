@@ -11,17 +11,19 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   STITCH_MAPS, grid 2 x 1; a 16 x 34 stack was not played). Both sides the 12-'Mech mixed force of `tools/hydra_scenarios.py`
   (Atlas AS7-K, Awesome AWS-8Q, Archer ARC-2R, Hunchback HBK-4G, Griffin GRF-1N, Dervish DV-6M, Jenner JR7-D, Commando COM-2D,
   Locust LCT-1V, Catapult CPLT-C1, Cataphract CTF-3D, Kintaro KTO-19); 20 battles on each axis a pairing. 8 of 10 pairings
-  played (320 battles) in `trial_records/benchmark_4v4_mixed12.jsonl` (the name is the 4 v 4 mode's; the roster is 12 v 12).
-  SKIPPED, Daniel: "skip hydra vs itself for now ... hydra is having an optimization pass in other threads": Hydra v CASPAR was
-  never played (`--skip hydra` leaves unplayed Hydra pairings); Hydra v itself had already finished (N 13-7 S, W 9-11 E) and
-  its records are from the engine BEFORE that pass, as are Hydra v Gladiator and v Princess. Re-run them after the pass
-  (the tool plays only missing cells, so delete the Hydra cells from the file first).
+  played in `trial_records/benchmark_4v4_mixed12.jsonl` (the name is the 4 v 4 mode's; the roster is 12 v 12): all 10 pairings,
+  400 battles. Daniel paused the Hydra pairings ("skip hydra vs itself for now ... hydra is having an optimization pass in other
+  threads"), then "The Hydra optimization is complete": main (pull requests 283-285, speed only) was merged in, `btsim` rebuilt,
+  and Hydra v itself replayed plus the never-played Hydra v CASPAR. The replay is battle for battle IDENTICAL to the
+  pre-optimization run (same winners and turns, N 13-7 S, W 9-11 E) and ran 2.1-2.6 times faster (382 s -> 182 s and 457 s ->
+  177 s for the two 20-battle cells; part of that may be less CPU contention). Hydra v Gladiator and v Princess were played
+  before the pass; the pass changes no results, so they stand. Hydra v CASPAR: 20-20.
   EDGE BIAS: nothing. Pooled over the four bots N v S 36-42 (p = 0.57), W v E 40-40 (p = 1.00). Per bot the leans disagree
   (Princess 6-13 S side but 13-7 W side; CASPAR 6-14 on W v E but 10-10 on N v S; Hydra 13-7 N). 20 battles a bot is too few
   to read, as in the 4 v 4 sets. Grassland 1 alone (the 4 v 4 watch item, W v E 50-29) shows nothing at 12 v 12.
   BOT SCORES (decided battles, 40 a pair): Hydra 26-14 over Gladiator and 24-16 over Princess; CASPAR 27-13 over Gladiator;
-  Princess 25-15 over CASPAR; Gladiator 21-19 over Princess. (CASPAR beating Gladiator and losing to Princess; at 4 v 4 CASPAR
-  lost to both.) 12 v 12 cost: Gladiator v itself 170 s for 20 battles on this machine, Hydra 13 s a battle.
+  Princess 25-15 over CASPAR; Gladiator 21-19 over Princess; Hydra v CASPAR 20-20. (CASPAR beating Gladiator and losing to Princess; at 4 v 4 CASPAR
+  lost to both.) 12 v 12 cost: Gladiator v itself 170 s for 20 battles on this machine; Hydra about 13 s a battle before the speed-ups, about 9 s after.
   The run died twice when the session sat idle (the container restarted, background jobs lost; no results were lost: every
   20-battle run is saved as it ends and the tool resumes). Checks: no engine or test file changed; `run_checks.py` not run.
 
