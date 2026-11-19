@@ -1,7 +1,7 @@
 """The four-bot benchmark battery (session 30, Daniel 2026-11-19): every bot against every bot, itself included, on the
 website's maps and 'Mechs only.
 
-    python tools/benchmark_bots.py 4v4 [MIRROR] [--per-axis 20] [--only=MAP_PREFIX]      (stage 2, below; --stitched plays the STITCHED boards, for mixed12)
+    python tools/benchmark_bots.py 4v4 [MIRROR] [--per-axis 20] [--only=MAP_PREFIX] [--skip BOT,BOT]      (stage 2, below; --stitched plays the STITCHED boards, for mixed12)
     python tools/benchmark_bots.py 1v1 [MATCHUP ...] [--battles 80] [--data-root DIR] [--records DIR] [--threads N] [--list]
 
 Stage 1 (this file): ONE-ON-ONE. A matchup is two 'Mechs (MATCHUPS below). For each of the 10 bot pairings (4 bots: 6 cross
@@ -171,7 +171,7 @@ MIRRORS = {      # name: the 'Mechs of ONE side (both sides field them: the pilo
 }
 
 
-def run_mirror(name, per_axis, root, records, threads, maps):
+def run_mirror(name, per_axis, root, records, threads, maps, skip=()):
     """Stage 2: the mirror `name` on each map, every pairing, `per_axis` battles on each axis (a cross pair splits them over the
     two seatings; a same-bot pair plays them all in one). Prints, per map, the score of each pairing and, for same-bot
     pairings, the wins by starting edge: the edge-bias record (tools/benchmark_report.py reads it)."""
@@ -181,6 +181,9 @@ def run_mirror(name, per_axis, root, records, threads, maps):
     for board in maps:
         print(f"\n=== {name} on {board[:-6]}: {per_axis} battles an axis, per pairing ===", flush=True)
         for a, b in pairings():
+            if (a in skip or b in skip) and not any(c.startswith(f"{name}|{a}|{b}|") and c.endswith(board) for c in have):
+                print(f"  {a:9s} v {b:9s}: skipped (not played yet; --skip {','.join(skip)})", flush=True)
+                continue
             seats = (0, 1) if a != b else (0,)
             score, edges = {a: 0, b: 0, "none": 0}, {}
             for axis in AXES:
@@ -223,7 +226,7 @@ def main(argv):
         if "--stitched" in argv:
             maps = list(STITCHED)
         for n in ([a for a in argv[1:] if a in MIRRORS] or ["lance4"]):
-            run_mirror(n, int(opt("--per-axis", "20")), root, opt("--records", os.path.join(ROOT, "trial_records")), opt("--threads", None), maps)
+            run_mirror(n, int(opt("--per-axis", "20")), root, opt("--records", os.path.join(ROOT, "trial_records")), opt("--threads", None), maps, tuple(opt("--skip", "").split(",")) if "--skip" in argv else ())
         return
     if not argv or argv[0] != "1v1":
         raise SystemExit(__doc__)

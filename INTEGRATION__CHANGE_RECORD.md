@@ -6,6 +6,25 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-19 (Claude, session 30), BENCHMARK BATTERY STAGE 3: TWELVE v TWELVE MIRROR ON GRASSLAND 1 TWICE (`tools/benchmark_bots.py 4v4 mixed12 --stitched`).
+  REVIEW PENDING (higher-level model).** Daniel: "Use grassland 1 twice." Board: two copies of Grassland 1 side by side (32 x 17;
+  STITCH_MAPS, grid 2 x 1; a 16 x 34 stack was not played). Both sides the 12-'Mech mixed force of `tools/hydra_scenarios.py`
+  (Atlas AS7-K, Awesome AWS-8Q, Archer ARC-2R, Hunchback HBK-4G, Griffin GRF-1N, Dervish DV-6M, Jenner JR7-D, Commando COM-2D,
+  Locust LCT-1V, Catapult CPLT-C1, Cataphract CTF-3D, Kintaro KTO-19); 20 battles on each axis a pairing. 8 of 10 pairings
+  played (320 battles) in `trial_records/benchmark_4v4_mixed12.jsonl` (the name is the 4 v 4 mode's; the roster is 12 v 12).
+  SKIPPED, Daniel: "skip hydra vs itself for now ... hydra is having an optimization pass in other threads": Hydra v CASPAR was
+  never played (`--skip hydra` leaves unplayed Hydra pairings); Hydra v itself had already finished (N 13-7 S, W 9-11 E) and
+  its records are from the engine BEFORE that pass, as are Hydra v Gladiator and v Princess. Re-run them after the pass
+  (the tool plays only missing cells, so delete the Hydra cells from the file first).
+  EDGE BIAS: nothing. Pooled over the four bots N v S 36-42 (p = 0.57), W v E 40-40 (p = 1.00). Per bot the leans disagree
+  (Princess 6-13 S side but 13-7 W side; CASPAR 6-14 on W v E but 10-10 on N v S; Hydra 13-7 N). 20 battles a bot is too few
+  to read, as in the 4 v 4 sets. Grassland 1 alone (the 4 v 4 watch item, W v E 50-29) shows nothing at 12 v 12.
+  BOT SCORES (decided battles, 40 a pair): Hydra 26-14 over Gladiator and 24-16 over Princess; CASPAR 27-13 over Gladiator;
+  Princess 25-15 over CASPAR; Gladiator 21-19 over Princess. (CASPAR beating Gladiator and losing to Princess; at 4 v 4 CASPAR
+  lost to both.) 12 v 12 cost: Gladiator v itself 170 s for 20 battles on this machine, Hydra 13 s a battle.
+  The run died twice when the session sat idle (the container restarted, background jobs lost; no results were lost: every
+  20-battle run is saved as it ends and the tool resumes). Checks: no engine or test file changed; `run_checks.py` not run.
+
 - **2026-11-19 (Claude, session 30), BENCHMARK BATTERY STAGE 2: FOUR v FOUR MIRRORS (`tools/benchmark_bots.py 4v4`).
   REVIEW PENDING (higher-level model).** Daniel: "Go ahead and start the 4v4 sets." Both sides field the Hydra lance
   (Atlas AS7-K, Hunchback HBK-4G, Griffin GRF-1N, Jenner JR7-D), all website 'Mechs; the six maps of stage 1; every one of the

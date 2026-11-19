@@ -73,26 +73,30 @@ def main(argv):
 
 
 def mirror_report(records):
+    for path in sorted(glob.glob(os.path.join(records, "benchmark_4v4_*.jsonl"))):
+        mirror_one(path)
+
+
+def mirror_one(path):
     """3. THE EDGE-BIAS TEST: the 4 v 4 mirrors (same 'Mechs, same bot on both sides: the starting edge is the only difference).
     Per map and axis, wins by the team that started on the N (or W) edge v the S (or E) edge, the four bots pooled and each
     bot alone; then the bot-by-bot score of the cross pairings."""
     cells = collections.defaultdict(lambda: collections.defaultdict(lambda: [0, 0]))   # (map, axis) -> bot -> [N/W wins, S/E wins]
     cross = collections.defaultdict(lambda: [0, 0])
-    for path in sorted(glob.glob(os.path.join(records, "benchmark_4v4_*.jsonl"))):
-        for line in open(path):
-            r = json.loads(line)
-            a, b = r["cell"].split("|")[1:3]
-            for x in r["results"]:
-                if x["winner"] not in ("Red", "Blue"):
-                    continue
-                if a == b:
-                    cells[(r["map"], r["axis"])][a][0 if x["edges"].get(x["winner"]) in ("N", "W") else 1] += 1
-                else:
-                    win = r["bots"][x["winner"]]
-                    cross[tuple(sorted((a, b)))][0 if win == min(a, b) else 1] += 1
+    for line in open(path):
+        r = json.loads(line)
+        a, b = r["cell"].split("|")[1:3]
+        for x in r["results"]:
+            if x["winner"] not in ("Red", "Blue"):
+                continue
+            if a == b:
+                cells[(r["map"], r["axis"])][a][0 if x["edges"].get(x["winner"]) in ("N", "W") else 1] += 1
+            else:
+                win = r["bots"][x["winner"]]
+                cross[tuple(sorted((a, b)))][0 if win == min(a, b) else 1] += 1
     if not cells:
         return
-    print("\n3. EDGE BIAS, 4 v 4 MIRRORS (pooled over the four bots, then each bot: N/W edge wins - S/E edge wins)")
+    print(f"\n3. EDGE BIAS, MIRROR {os.path.basename(path)} (pooled over the four bots, then each bot: N/W edge wins - S/E edge wins)")
     for (m, ax), by_bot in sorted(cells.items()):
         lo, hi = sum(v[0] for v in by_bot.values()), sum(v[1] for v in by_bot.values())
         side = "N v S" if ax == "NS" else "W v E"
