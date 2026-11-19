@@ -6,6 +6,18 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-19 (Claude, session 30), SPEED: THE TURRET CHECKS NO LONGER BUILD STRINGS (HYDRA ~35% FASTER). Battle results
+  unchanged. REVIEW PENDING (higher-level model).** Daniel: "What takes Hydra so long? And can we speed up?" A profile
+  (callgrind, 3 turns of `hy_12v12_valley`, Hydra both sides) put 78% of the time in Hydra's attention share
+  (`hydra::elsewhere_of`, which builds a `MoveEvaluator` for every enemy-friend pair, again for every play-out spot), and
+  41% of ALL time in `arcs::mech_turrets` / `has_quad_turret` / `mech_turret_locked`: each slot name was copied, stripped
+  and upper-cased (`norm`) on every call, inside every evaluator. New `arcs::norm_ends_with` gives the same answer without
+  building a string (a non-ASCII name falls back to the old way; unit test `arcs::norm_tests` checks the two agree). One core,
+  2 battles of 12 v 12 at the 100-turn cap: Hydra v Hydra 98.8 s -> 62.8 s, Gladiator v Gladiator 49.2 s -> 43.1 s; the
+  battle output is identical. Next step left (not done, needs care to stay exact): reuse the attention share's evaluators
+  across play-out spots; an enemy-friend pair's figure can depend on where other units stand (ECM, `electronics::control_for`),
+  so a cache must key on those too.
+
 - **2026-11-19 (Claude, session 30), COMBAT LAB: TEAM WINDOWS RESIZE SIDEWAYS BY THEIR OWN EDGE. Battle results unchanged. REVIEW PENDING
   (higher-level model).** Daniel: "I was thinking more in terms of resizing the windows not adjust the columns." A docked team
   window's inner edge (the side facing the Unit Browser: right for the left column, left for the right) now drags it wider or
