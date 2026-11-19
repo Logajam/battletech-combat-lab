@@ -69,6 +69,42 @@ def main(argv):
         lo = sum(v[0] for (m, a), v in edge.items() if a == ax)
         hi = sum(v[1] for (m, a), v in edge.items() if a == ax)
         print(f"   ALL MAPS {side}: {lo} - {hi}   p = {binom_p(lo, lo + hi):.3f}")
+    mirror_report(records)
+
+
+def mirror_report(records):
+    """3. THE EDGE-BIAS TEST: the 4 v 4 mirrors (same 'Mechs, same bot on both sides: the starting edge is the only difference).
+    Per map and axis, wins by the team that started on the N (or W) edge v the S (or E) edge, the four bots pooled and each
+    bot alone; then the bot-by-bot score of the cross pairings."""
+    cells = collections.defaultdict(lambda: collections.defaultdict(lambda: [0, 0]))   # (map, axis) -> bot -> [N/W wins, S/E wins]
+    cross = collections.defaultdict(lambda: [0, 0])
+    for path in sorted(glob.glob(os.path.join(records, "benchmark_4v4_*.jsonl"))):
+        for line in open(path):
+            r = json.loads(line)
+            a, b = r["cell"].split("|")[1:3]
+            for x in r["results"]:
+                if x["winner"] not in ("Red", "Blue"):
+                    continue
+                if a == b:
+                    cells[(r["map"], r["axis"])][a][0 if x["edges"].get(x["winner"]) in ("N", "W") else 1] += 1
+                else:
+                    win = r["bots"][x["winner"]]
+                    cross[tuple(sorted((a, b)))][0 if win == min(a, b) else 1] += 1
+    if not cells:
+        return
+    print("\n3. EDGE BIAS, 4 v 4 MIRRORS (pooled over the four bots, then each bot: N/W edge wins - S/E edge wins)")
+    for (m, ax), by_bot in sorted(cells.items()):
+        lo, hi = sum(v[0] for v in by_bot.values()), sum(v[1] for v in by_bot.values())
+        side = "N v S" if ax == "NS" else "W v E"
+        each = "  ".join(f"{b[:3]} {v[0]}-{v[1]}" for b, v in sorted(by_bot.items()))
+        print(f"   {m[:-6]:34s} {side}  {lo:3d} - {hi:3d}  p = {binom_p(lo, lo + hi):.2f}   [{each}]")
+    for ax, side in (("NS", "N v S"), ("EW", "W v E")):
+        lo = sum(v[0] for (m, a), bb in cells.items() if a == ax for v in bb.values())
+        hi = sum(v[1] for (m, a), bb in cells.items() if a == ax for v in bb.values())
+        print(f"   ALL MAPS {side}: {lo} - {hi}   p = {binom_p(lo, lo + hi):.3f}")
+    print("   cross pairings, all maps (first bot alphabetically - second):")
+    for (a, b), (wa, wb) in sorted(cross.items()):
+        print(f"     {a:9s} {wa:3d} - {wb:3d} {b}")
 
 
 if __name__ == "__main__":

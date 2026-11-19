@@ -6,6 +6,25 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-19 (Claude, session 30), BENCHMARK BATTERY STAGE 2: FOUR v FOUR MIRRORS (`tools/benchmark_bots.py 4v4`).
+  REVIEW PENDING (higher-level model).** Daniel: "Go ahead and start the 4v4 sets." Both sides field the Hydra lance
+  (Atlas AS7-K, Hunchback HBK-4G, Griffin GRF-1N, Jenner JR7-D), all website 'Mechs; the six maps of stage 1; every one of the
+  10 pairings plays 20 battles on N v S and 20 on E v W per map (a cross pair splits them over both seatings): 2,400 battles,
+  about 40 minutes, records in `trial_records/benchmark_4v4_lance4.jsonl` (with each team's start edge). The four same-bot
+  pairings are the edge-bias test; `tools/benchmark_report.py` section 3 tabulates them.
+  EDGE BIAS: pooled over the four bots, N v S 232-224 (p = 0.74) and W v E 252-220 (p = 0.15) over all maps. Per map and axis
+  only ONE of twelve cells is under p = 0.05: Grassland 1, W v E 50-29 (p = 0.02; Caspar 15-5, Gladiator 14-6, Hydra 14-5, but
+  Princess 7-13), about what chance gives from twelve looks, so call it "watch Grassland 1", not a bias. Nothing else: Desert
+  Hills, Rolling Hills 1, Large Lakes 1, Military Base 1 and Scattered Woods are all between 0.18 and 1.00. Stage 1's many
+  "significant" cells therefore came from the differing 'Mechs and the shared dice, not from the maps. 20 battles a cell is
+  weak: only a lean past about 70/30 shows; a real study wants hundreds a cell (Daniel: later).
+  BOT SCORES (cross pairings, 4 v 4, all maps, 240 battles a pair, decided only): Hydra beat Gladiator 160-68, CASPAR 172-63
+  and Princess 150-76; Gladiator beat CASPAR 129-108 and Princess 128-104; Princess beat CASPAR 131-106. So the order is Hydra,
+  Gladiator, Princess, CASPAR, the reverse of 1 v 1 for the last two (CASPAR was level with Princess there). UNDECIDED BATTLES
+  (turn cap 100): most on Military Base 1 (Hydra v itself 11 of 40, Hydra v Princess 11 of 40, Princess v itself 6) and Large Lakes 1 (up to 5 of 40);
+  stalls worth a look (backlog A1, the stand-off).
+  Checks: no engine or test file changed; `run_checks.py` not run.
+
 - **2026-11-19 (Claude, session 30), BENCHMARK BATTERY STAGE 1: ONE-ON-ONE, FOUR BOTS (`tools/benchmark_bots.py`, `tools/benchmark_report.py`).
   REVIEW PENDING (higher-level model).** Daniel: "Lets do a battery of bench marking tests", then "start the 1 on 1s". Plan agreed:
   1 v 1 (non-mirror, each bot flies each 'Mech half the time), then 4 v 4 mirrors on six maps (20 N-S + 20 E-W a pairing), then
