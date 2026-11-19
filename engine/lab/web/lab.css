@@ -292,6 +292,11 @@ details.folder[hidden] { display: none; }
 /* sizes (2026-11-15): half a line under the last unit, a pull-down corner on docked teams, column handles, sort triangles */
 .team .list { padding-bottom: .5em; }
 .win.team:not(.float) { resize: vertical; overflow: hidden; }
+/* a docked team window's inner edge (the side facing the Unit Browser) widens it sideways: lab.js dockWidth */
+#teams-left .win.team:not(.float) { border-right-width: 4px; }
+#teams-right .win.team:not(.float) { border-left-width: 4px; }
+.win.team.edge-hot, .win.team.dragging { cursor: ew-resize; }
+.win.team.dragging { user-select: none; }
 .win.sized .list { max-height: none; flex: 1; }
 .list th { position: sticky; }
 .rz { position: absolute; right: 0; top: 0; bottom: 0; width: 7px; cursor: col-resize; touch-action: none; }
