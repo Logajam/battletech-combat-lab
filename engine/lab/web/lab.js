@@ -134,6 +134,7 @@ function drawTeams() {
     if (!applyFloat(el, key)) (ti % 2 === 0 ? left : right).appendChild(el);
     wireWindow(el, key, drawTeams);
     dockSize(el, key);
+    dockWidth(el);
     const l = el.querySelector(".list"); if (l) l.scrollTop = scroll[ti] || 0;
   });
   drawAddTo();
@@ -329,27 +330,55 @@ function deskColumns() {
   $("page-units").querySelector(".units-desk").style.gridTemplateColumns =
     L || R ? `${L ? `${L}px` : "minmax(250px, 1fr)"} 8px minmax(360px, 1.5fr) 8px ${R ? `${R}px` : "minmax(250px, 1fr)"}` : "";
 }
-function wireColumnGrips() {
+// One sideways drag of a team column's width (side "deskL" or "deskR"), from a grip or from a team window's inner edge.
+function dragColumn(side, e, handle) {
   const desk = $("page-units").querySelector(".units-desk");
+  e.preventDefault(); handle.setPointerCapture(e.pointerId); handle.classList.add("dragging");
+  const move = (m) => {
+    const d = desk.getBoundingClientRect();
+    const other = side === "deskL" ? $("teams-right").getBoundingClientRect().width : $("teams-left").getBoundingClientRect().width;
+    const max = d.width - other - 16 - 360;
+    lab.layout[side] = Math.round(clampNum(side === "deskL" ? m.clientX - d.left : d.right - m.clientX, 180, Math.max(180, max)));
+    deskColumns();
+  };
+  const up = () => { handle.removeEventListener("pointermove", move); handle.classList.remove("dragging"); saveLayout(); fitZoneLines(); };
+  handle.addEventListener("pointermove", move);
+  handle.addEventListener("pointerup", up, { once: true });
+}
+function wireColumnGrips() {
   for (const [id, side] of [["grip-left", "deskL"], ["grip-right", "deskR"]]) {
     const g = $(id);
-    g.addEventListener("pointerdown", (e) => {
-      if (e.button || narrow()) return;
-      e.preventDefault(); g.setPointerCapture(e.pointerId); g.classList.add("dragging");
-      const move = (m) => {
-        const d = desk.getBoundingClientRect();
-        const other = side === "deskL" ? $("teams-right").getBoundingClientRect().width : $("teams-left").getBoundingClientRect().width;
-        const max = d.width - other - 16 - 360;
-        lab.layout[side] = Math.round(clampNum(side === "deskL" ? m.clientX - d.left : d.right - m.clientX, 180, Math.max(180, max)));
-        deskColumns();
-      };
-      const up = () => { g.removeEventListener("pointermove", move); g.classList.remove("dragging"); saveLayout(); fitZoneLines(); };
-      g.addEventListener("pointermove", move);
-      g.addEventListener("pointerup", up, { once: true });
-    });
+    g.addEventListener("pointerdown", (e) => { if (!e.button && !narrow()) dragColumn(side, e, g); });
     g.addEventListener("dblclick", () => { delete lab.layout[side]; saveLayout(); deskColumns(); fitZoneLines(); });
   }
   deskColumns();
+}
+
+// A docked team window is also resized sideways by its own inner edge, the side facing the Unit Browser (Daniel,
+// 2026-11-19: "resizing the windows not adjust the columns"). The windows of a column stack in it, so they share its
+// width: the edge drags the column, as the grip does (kept in the layout; double-click the edge or Reset layout clears it).
+const EDGE = 8;
+function sideOf(el) { return el.closest("#teams-left") ? "deskL" : el.closest("#teams-right") ? "deskR" : null; }
+function onInnerEdge(el, e) {
+  const side = sideOf(el), r = el.getBoundingClientRect(), x = e.clientX;
+  if (e.clientY > r.bottom - 20) return false;            // the bottom corner is the height's (dockSize)
+  return side === "deskL" ? x >= r.right - EDGE : side === "deskR" ? x <= r.left + EDGE : false;
+}
+function dockWidth(el) {
+  el.addEventListener("pointermove", (e) => {
+    if (el.classList.contains("float") || narrow() || el.classList.contains("dragging")) return;
+    el.classList.toggle("edge-hot", onInnerEdge(el, e) && !e.target.closest(".wtitle"));
+  });
+  el.addEventListener("pointerleave", () => el.classList.remove("edge-hot"));
+  el.addEventListener("pointerdown", (e) => {
+    if (e.button || el.classList.contains("float") || narrow() || !onInnerEdge(el, e) || e.target.closest(".wtitle")) return;
+    e.stopPropagation(); dragColumn(sideOf(el), e, el);
+  });
+  el.addEventListener("dblclick", (e) => {
+    const side = sideOf(el);
+    if (!side || el.classList.contains("float") || !onInnerEdge(el, e)) return;
+    delete lab.layout[side]; saveLayout(); deskColumns(); fitZoneLines();
+  });
 }
 
 // A docked team panel can be pulled taller or shorter by its bottom corner; the height is kept. Double-click its title to clear it.

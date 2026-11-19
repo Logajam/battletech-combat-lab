@@ -71,6 +71,38 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   Rerun `python tools/benchmark_report.py --bv-file LISTS.json` (LISTS.json: the Lab's `list_units` output) for the tables.
   Checks: no engine or test file changed; `run_checks.py` not run (docs and new tools only).
 
+- **2026-11-19 (Claude, session 30), SPEED: HYDRA'S ATTENTION SHARE REMEMBERED WITHIN A DECISION (12 v 12 ANOTHER ~45% FASTER).
+  Battle results unchanged. REVIEW PENDING (higher-level model).** Daniel: "Go for it." (the next step left by the entry
+  below). `hydra::AttentionMemo`: one decision's store of `attention_damage` (enemy e on friend f), reused when both stand
+  exactly as before (hex, facing, move mode, hexes moved, MP, movement heat, moved yet). The play-out poses at most three
+  responders per spot, so most pairs repeat. What the estimate reads that a pose could change, traced: ECM, Artemis, Narc and
+  stealth are each unit's own (`electronics::hostile_field`); line of sight and the movement tables are keyed by position;
+  the one read of OTHER units' places is a push's worth (`physical.rs`, `domino::occupant`, the hex behind the target),
+  possible only between adjacent units, so adjacent pairs are always worked out afresh. Cross-check switch:
+  BTSIM_HYDRA_MEMO_CHECK=1 recomputes every reused figure and stops on any difference; clean on all nine Hydra match-ups
+  (6 battles each, Hydra both sides) and through `run_checks.py --full`. One core, 2 battles of 12 v 12, Hydra v Hydra:
+  98.8 s (start of the day) -> 62.8 s (turret checks) -> 34.4 s; output identical.
+
+- **2026-11-19 (Claude, session 30), SPEED: THE TURRET CHECKS NO LONGER BUILD STRINGS (HYDRA ~35% FASTER). Battle results
+  unchanged. REVIEW PENDING (higher-level model).** Daniel: "What takes Hydra so long? And can we speed up?" A profile
+  (callgrind, 3 turns of `hy_12v12_valley`, Hydra both sides) put 78% of the time in Hydra's attention share
+  (`hydra::elsewhere_of`, which builds a `MoveEvaluator` for every enemy-friend pair, again for every play-out spot), and
+  41% of ALL time in `arcs::mech_turrets` / `has_quad_turret` / `mech_turret_locked`: each slot name was copied, stripped
+  and upper-cased (`norm`) on every call, inside every evaluator. New `arcs::norm_ends_with` gives the same answer without
+  building a string (a non-ASCII name falls back to the old way; unit test `arcs::norm_tests` checks the two agree). One core,
+  2 battles of 12 v 12 at the 100-turn cap: Hydra v Hydra 98.8 s -> 62.8 s, Gladiator v Gladiator 49.2 s -> 43.1 s; the
+  battle output is identical. Next step left (not done, needs care to stay exact): reuse the attention share's evaluators
+  across play-out spots; an enemy-friend pair's figure can depend on where other units stand (ECM, `electronics::control_for`),
+  so a cache must key on those too.
+
+- **2026-11-19 (Claude, session 30), COMBAT LAB: TEAM WINDOWS RESIZE SIDEWAYS BY THEIR OWN EDGE. Battle results unchanged. REVIEW PENDING
+  (higher-level model).** Daniel: "I was thinking more in terms of resizing the windows not adjust the columns." A docked team
+  window's inner edge (the side facing the Unit Browser: right for the left column, left for the right) now drags it wider or
+  narrower (`lab.js` `dockWidth`, cursor and a thicker edge in `lab.css`). The windows of a column stack in it, so they share its
+  width: the edge moves the column, the same kept width as the column grips (`dragColumn`, now shared by both); double-click the
+  edge or Reset layout to clear it. The bottom corner still sets the height. Floating windows already resized at the corner.
+  Checked in a browser: left edge +120 px, right edge -100 px, corner +80 px down, kept after a reload, no page errors.
+
 - **2026-11-19 (Claude, session 30), PUBLIC COPY AND PUBLIC WEBSITE UPDATED (CASPAR). No code changes.** Daniel: "Time to update
   the public page for combatlab. Adding caspar to it was my main goal today." From main 046bd6e (after pull request 280):
   `tools/publish_public.py --push` (826 commits; no private paths, no non-public emails, files equal to private main) and
