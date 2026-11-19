@@ -6,6 +6,14 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-19 (Claude, session 30), PUBLIC COPY AND PUBLIC WEBSITE UPDATED (CASPAR). No code changes.** Daniel: "Time to update
+  the public page for combatlab. Adding caspar to it was my main goal today." From main 046bd6e (after pull request 280):
+  `tools/publish_public.py --push` (826 commits; no private paths, no non-public emails, files equal to private main) and
+  `tools/publish_web_lab.py --push` (gh-pages, 14 files, 10.6 MB). Checked live at logajam.github.io/battletech-combat-lab:
+  the team bot list is gladiator, princess, hydra, caspar, and the About box credits CASPAR. The Combat Lab website artifact
+  (claude.ai/artifact/TxziRWUqF5gU96Bof16r3p) was updated from the same work (version 6). The public repo had to be attached
+  to the session first (`add_repo`, push access) or the git proxy refuses the push.
+
 - **2026-11-19 (Claude, session 30), BRIDGE: PHYSICAL TWISTS, PUSHES, CHARGES, DEATH FROM ABOVE; THE LAST ROUTE REFUSALS TRACED.
   REVIEW PENDING (higher-level model).** Daniel: "whats the double punch problem? What about charges and dfas? And I hate
   unexplained things so lets see if we can trace it down." (MEGAMEK_BRIDGE 3e.) The double punch was wired; the fallback was
