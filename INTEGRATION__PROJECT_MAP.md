@@ -236,6 +236,7 @@ Lab functionality; 3D art.
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
 - **(s30-1) PRINCESS / CASPAR DEPLOYMENT, MEGAMEK'S** (session 30): `engine/core/src/princess_deploy.rs` (fitness, cluster maps, hazard scan, room-to-move kernel, facing), its call in `orchestrator::deploy_zones`, `caspar::prefer_formation` now a full stable order, `attack_resolution::weapon_attack_tns`. Look at: the 3-MP walk search v MegaMek's ShortestPathFinder (ties between equal-MP paths, turn limits not modelled); jump kernel as "every landable hex within 3"; zone-to-edge mapping for the far-edge test; the team-at-a-time deployment order.
+- **(s30-6) BRIDGE PHYSICAL / CHARGE / DFA + REFUSALS** (session 30): `HydraBridge` (`ourPhysical` twist, `buildMovementAttack`, `explainRefusal`), `bridge.rs` (`path_steps` charge and prone turns, the cannot-stand answer, the twist lock in `apply_megamek_view`), `damage_resolution::slot_loss_effects` leg actuators, `orchestrator::turn_while_down_choice`, the runner's bridge logs. Look at: charges and DFA in a played game (none yet); whether other effects of `slot_loss_effects` lag the combat path's.
 - **(s30-5) LINE OF SIGHT, THE TRUE LINE** (session 30): `mm_line.rs` (moved from caspar.rs; `los_steps`, the split variant), `los::hex_line` (+ shape cache, no-text coordinate conversion), the adjacency test in `trace_los_path`'s `intervenes`, `LOSResult.distance` = hex distance, `hex_line_sampled` kept for `combat::build_jump_states` and `move_attacks`. Look at: the 30-degree test (MegaMek's whole-degree rounding); an off-board hex in a split pair (only the on-board side is walked); whether the jump-path check should use the true line too.
 - **(s30-4) BRIDGE RULES ALIGNMENT** (session 30): `bridge::Session::start` (FIGHT_TO_THE_DEATH on), `apply_megamek_view` heat effects, the no-enemy Stand Still. Look at: other end-of-phase state our engine sets that MegaMek's view does not carry (the heat was one).
 - **(s30-3) TIE-BREAK + DECISION REPLAY** (session 30): the RankedPath tie-break in `princess_modern::rank`, `tools/megamek_decision_replay.py`, MEGAMEK_BRIDGE Section 3e. Look at: whether `o.fc` is MegaMek's getHexesMoved for every move kind (jumps, backward steps); the replay's rebuilt "before the move" state.
@@ -535,7 +536,8 @@ untranslated "until they're actually needed". What is left of the port is finish
   actually taken). Most of the remaining 24% of moves that differ. To trace: MegaMek's FireControl guess for that case.
 - ~~64 of Hydra's ~220 moves refused by MegaMek~~ TRACED and fixed (MEGAMEK_BRIDGE 3e): a gyro-less enemy written off by
   FIGHT_TO_THE_DEATH off, and heat effects never applied in bridge games. Standing-up facing FIXED (sent as turns after GET_UP).
-  Left: one unexplained Run refusal; "weapons MegaMek ruled out of reach" (shots our engine thinks it has, MegaMek not).
+  Later refusals traced too (a lost hip, a GET_UP with the gyro gone, an unlocked twist; MEGAMEK_BRIDGE 3e); one Run
+  refusal (to 1207) not reproduced - the per-game bridge logs now keep MegaMek's reason if it recurs.
 - `caspar_red__hy_8v8_valley` reaches the 100-turn cap since the tie-break fix (a possible flaw, Daniel).
 
 **Known issues to fix later (found session 13, Claude):**

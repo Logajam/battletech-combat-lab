@@ -9,7 +9,8 @@ INTEGRATION__MEGAMEK_BRIDGE.md) and summarize them.
 first if it is missing (megamek_bridge/build.sh). Each game is ONE run of btbridge.BridgeLauncher (MegaMek sometimes
 stalls at a game's start; a game that ends before round 2 without a result is played again, at most twice). Every
 game's record is appended to --records (default trial_records/megamek_bridge.jsonl) as it ends; the decision
-transcripts go to the MegaMek folder's logs/ (bridge_<label>_<player>.jsonl).
+transcripts go to the MegaMek folder's logs/ (bridge_<label>_<player>.jsonl), and each game's MegaMek log beside them
+(bridge_<label>.log: the bridge's "[bridge]" lines, MegaMek's reason for every refused route).
 
 Prints one line per game and a summary: wins per team, draws, unfinished, our engine's decisions and Princess's
 fallbacks by reason.
@@ -17,13 +18,32 @@ fallbacks by reason.
 import argparse
 import collections
 import json
+import gzip
 import os
 import subprocess
 import sys
+import time
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 JAR = os.path.join(REPO_ROOT, "megamek_bridge", "build", "megamek_bridge.jar")
 BTSIM = os.path.join(REPO_ROOT, "engine", "target", "release", "btsim")
+
+
+def keep_bridge_log(megamek, label, since):
+    """This game's "[bridge]" lines - every decision, MegaMek's to-hit beside ours, MegaMek's reason for each refused route -
+    into logs/bridge_<label>.log beside the transcripts. MegaMek's own log rolls over every few megabytes (and at each start),
+    so they are gathered from every piece written since the game started, oldest first."""
+    logs = os.path.join(megamek, "logs")
+    pieces = [os.path.join(logs, f) for f in os.listdir(logs) if f.startswith("unified_log") and (f.endswith(".log") or f.endswith(".log.gz"))]
+    pieces = sorted((p for p in pieces if os.path.getmtime(p) >= since - 1), key=os.path.getmtime)
+    lines = []
+    for p in pieces:
+        opener = gzip.open if p.endswith(".gz") else open
+        with opener(p, "rt", encoding="utf-8", errors="replace") as f:
+            lines += [l for l in f if "[bridge]" in l]
+    safe = "".join(c if c.isalnum() or c in "-_." else "_" for c in label)
+    with open(os.path.join(logs, f"bridge_{safe}.log"), "w", encoding="utf-8") as out:
+        out.writelines(lines)
 
 
 def play(a, n, records):
@@ -32,10 +52,13 @@ def play(a, n, records):
     cmd = ["java", "-Djava.awt.headless=true", "-cp", f"{JAR}:MegaMek.jar:lib/*", "btbridge.BridgeLauncher",
            os.path.abspath(a.scenario), "--btsim", BTSIM, "--bridge", a.bridge, "--rounds", str(a.rounds),
            "--timeout", str(a.timeout), "--records", records, "--label", label, "--seed", str(a.seed + n - 1)]
+    started = time.time()
     try:
         subprocess.run(cmd, cwd=a.megamek, capture_output=True, text=True, timeout=a.timeout * 60 + 120)
     except subprocess.TimeoutExpired:
         return {"label": label, "error": "the launcher itself did not stop"}
+    finally:
+        keep_bridge_log(a.megamek, label, started)
     with open(records, encoding="utf-8") as f:
         lines = [json.loads(l) for l in f if l.strip()]
     mine = [r for r in lines if r.get("label") == label]

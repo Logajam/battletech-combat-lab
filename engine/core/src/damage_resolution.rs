@@ -192,7 +192,7 @@ pub fn mark_all_crits_destroyed(b: &mut Battle, u: UnitId, location: &str) {
         b.units[u].destroyed_slot_info.insert((location.to_string(), i), info);
         b.units[u].crits.get_mut(location).unwrap()[i] = Slot::name("DESTROYED");
         if !already_lost {
-            slot_loss_effects(b, u, location, &slot, "destruction");
+            slot_loss_effects(b, u, location, &slot, "destruction", false);
         }
     }
     b.log(format!("  All critical slots in {} marked DESTROYED.", location));
@@ -209,7 +209,7 @@ pub fn destroy_slot_quietly(b: &mut Battle, u: UnitId, location: &str, i: usize)
     let info = slot_identity(&b.units[u], &slot);
     b.units[u].destroyed_slot_info.insert((location.to_string(), i), info);
     b.units[u].crits.get_mut(location).unwrap()[i] = Slot::name("DESTROYED");
-    slot_loss_effects(b, u, location, &slot, "a critical hit (MegaMek)");
+    slot_loss_effects(b, u, location, &slot, "a critical hit (MegaMek)", true);
 }
 
 /// Hull breach (Core p.127): every slot's effects applied once, the slots stay in the crit table.
@@ -226,11 +226,13 @@ pub fn mark_location_nonfunctional(b: &mut Battle, u: UnitId, location: &str, wh
         let info = slot_identity(&b.units[u], &slot);
         b.units[u].destroyed_slot_info.insert((location.to_string(), i), info);
         b.units[u].breached_slot_set.get_or_insert_with(Default::default).insert((location.to_string(), i));
-        slot_loss_effects(b, u, location, &slot, why);
+        slot_loss_effects(b, u, location, &slot, why, false);
     }
 }
 
-fn slot_loss_effects(b: &mut Battle, u: UnitId, location: &str, slot: &Slot, why: &str) {
+/// `leg_actuators`: also count a lost leg actuator against walking MP, as a critical hit does - for a single slot lost by a
+/// critical hit elsewhere (the MegaMek bridge's mirror); a destroyed or breached location keeps its old effects only.
+fn slot_loss_effects(b: &mut Battle, u: UnitId, location: &str, slot: &Slot, why: &str, leg_actuators: bool) {
     match slot {
         Slot::Item(id) => {
             let id = *id;
@@ -269,6 +271,18 @@ fn slot_loss_effects(b: &mut Battle, u: UnitId, location: &str, slot: &Slot, why
             } else if n == "Cockpit" {
                 b.units[u].cockpit_hit = true;
                 b.log(format!("    Cockpit destroyed from {} {}.", location, why));
+            } else if leg_actuators && LEG_ACTUATOR_NAMES.contains(&n.as_str()) && b.units[u].leg_locations.iter().any(|l| l == location) {
+                // a leg actuator lost costs walking MP, as in a battle of our own (the critical-hit path above);
+                // session 30: the copy kept only the hip's piloting-roll effect, so in MegaMek games our bots planned
+                // at full MP with a hip or leg actuator gone, and MegaMek refused the run ("would not take the route")
+                let c = b.units[u].destroyed_leg_actuators.get(location).copied().unwrap_or(0) + 1;
+                b.units[u].destroyed_leg_actuators.insert(location.to_string(), c);
+                let wmp = compute_walk_mp(&b.units[u]);
+                b.log(format!("    Leg actuator lost at {} ({} there) from {} - walk MP now {}.", location, c, why, wmp));
+                if n == "Hip" {
+                    b.units[u].destroyed_hip_locations.insert(location.to_string());
+                    b.log(format!("    Hip specifically destroyed at {} from {} {}.", location, location, why));
+                }
             } else if n == "Hip" && b.units[u].leg_locations.iter().any(|l| l == location) {
                 b.units[u].destroyed_hip_locations.insert(location.to_string());
                 b.log(format!("    Hip specifically destroyed at {} from {} {}.", location, location, why));
