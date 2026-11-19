@@ -217,14 +217,14 @@ fn mm_radian(a: (i64, i64), b: (i64, i64)) -> f64 {
 
 /// Coords.direction: (int) Math.round(radian / HEX_SIDE) % 6. Java's Math.round is exact (ties up): floor(x + 0.5) would
 /// round 0.49999999999999994 up, which happens on the 30-degree lines.
-fn mm_direction(a: (i64, i64), b: (i64, i64)) -> i64 {
+pub(crate) fn mm_direction(a: (i64, i64), b: (i64, i64)) -> i64 {
     let x = mm_radian(a, b) / HEX_SIDE;
     let f = x.floor();
     (if x - f >= 0.5 { f as i64 + 1 } else { f as i64 }) % 6
 }
 
 /// Coords.translated(dir) (xInDir / yInDir at distance 1).
-fn mm_translated(c: (i64, i64), dir: i64) -> (i64, i64) {
+pub(crate) fn mm_translated(c: (i64, i64), dir: i64) -> (i64, i64) {
     let (x, y) = c;
     let odd = x & 1;
     match dir {
@@ -386,10 +386,11 @@ impl Doctrine {
 }
 
 // ---- deployment (MutualSupportDeployment) -----------------------------------------------------------------------------------
-/// MutualSupportDeployment.prioritize: of the legal hexes, those that miss the formation band least come first. Returns only the
-/// leading ties (the in-position set when there is one), in their given order: MegaMek keeps that order and lets its terrain scan
-/// choose among them, and this engine picks among them at random. `anchor` = the centre of the force's deployed units, or the
-/// middle of the candidates when none is down yet.
+/// MutualSupportDeployment.prioritize / orderByFormation: the legal hexes in formation order - least out of the formation band
+/// first, then least crowding - a stable sort, so hexes that tie keep the order they came in (Princess's terrain fitness order;
+/// `princess_deploy`, which then scans the front of the list as MegaMek does). `anchor` = the centre of the force's deployed
+/// units, or the middle of the candidates when none is down yet. (Session 30: the first port kept only the leading ties and
+/// picked among them at random.)
 pub fn prefer_formation(b: &mut Battle, unit: UnitId, candidates: Vec<String>) -> Vec<String> {
     if candidates.len() < 2 {
         return candidates;
@@ -416,19 +417,10 @@ pub fn prefer_formation(b: &mut Battle, unit: UnitId, candidates: Vec<String>) -
         let crowd = friends.iter().map(|f| MINIMUM_SPACING_HEXES - hex_distance(xy, *f)).max().unwrap_or(0).max(0);
         (out, crowd)
     };
-    let best = candidates.iter().map(&key).min().unwrap();
-    candidates.into_iter().filter(|c| key(c) == best).collect()
+    let mut ordered = candidates;
+    ordered.sort_by_key(|c| key(c));
+    ordered
 }
-
-/// EnemyDeploymentZone.center: the mean of the middles of the enemy teams' zones, as (column, row), or None when no enemy has one.
-pub fn enemy_zone_centre(zone_cols_rows: &[(f64, f64)]) -> Option<(f64, f64)> {
-    if zone_cols_rows.is_empty() {
-        return None;
-    }
-    let n = zone_cols_rows.len() as f64;
-    Some((zone_cols_rows.iter().map(|z| z.0).sum::<f64>() / n, zone_cols_rows.iter().map(|z| z.1).sum::<f64>() / n))
-}
-
 
 #[cfg(test)]
 mod tests {

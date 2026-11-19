@@ -6,6 +6,34 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-19 (Claude, session 30), PRINCESS AND CASPAR DEPLOY AS MEGAMEK'S BOTS DO. REVIEW PENDING (higher-level model).**
+  Daniel: "If both are supposed to use it in megamek, it should be ported for both. Its the only way to get authentic results from
+  our captured bots." New `engine/core/src/princess_deploy.rs`, used by `orchestrator::deploy_zones` for every Princess / CASPAR unit
+  in a placed zone (Gladiator and Hydra keep the shared placement; walk-on and fixed hexes unchanged): BotClient.getStartingCoordsArray
+  (the zone's free hexes shuffled; fitness = -|ideal height - level| (ideal from the average long range, MegaMek's ATM / MML ammo
+  quirks included), - the expected damage of every weapon of each enemy within 17 hexes / 10, + each own weapon's best expected damage
+  / 10 (BotClient.getDeployDamage on this engine's to-hit, the unit standing facing north as MegaMek's undeployed unit does), +1 woods
+  of foliage 2+, - depth of water 2+, - building damage odds, -50 / -100 for no walking way to the far edge (BoardClusterTracker,
+  per team) and + the reachable area when every hex is that bad; stable sort, Java's Double.compare), CASPAR's formation order (now
+  the whole list, stable), Princess.rankDeploymentCoords (hazard groups over the front of the list, stopping past 20) and
+  rankKernelAroundCoords (24 - hexes reachable with 3 MP, - hexes moved, + path hazards; a jumper from a jump start), and
+  Princess.getDeploymentFacing (CASPAR: the enemy zones' middle, MegaMek's integer means). `attack_resolution::weapon_attack_tns`
+  split out of `single_attack_tn` (results unchanged). Checks: hand count on flat ground (a 3-MP walker: score 6, as worked out),
+  `--full` 5 of 5, a new reference battle `zone_4v4_princess_v_caspar_hills` (91). Not ported (nothing here has them): infantry,
+  vehicle, ProtoMek and aerospace terms, C3, tow links, unit orders, bridge-top clusters. Feel check, 4v4 placed zones (Red north v
+  Gladiator south), 20 battles a setting, old shared placement -> MegaMek's: Princess, Desert Hills 12-8 -> 16-4, Grassland 13-7 ->
+  14-6; CASPAR, Desert Hills 13-6-1 -> 15-5, Grassland 13-7 -> 9-11 (general feel only; battles a few turns shorter).
+- **2026-11-19 (Claude, session 30), CASPAR: TWO OF THE THREE LEFT-OVER DIFFERENCES CLOSED. REVIEW PENDING (higher-level model).** Daniel: "I think we need to address
+  those small differences." (1) THE WATER LINE: `caspar::same_side` now walks MegaMek's own hex line (`mm_intervening`: Coords.intervening
+  with split = false, Coords.nextHex, IdealHex, ported as written on MegaMek's (column, row) coordinates). Two traps found by comparing
+  with MegaMek 0.51.01.7's real Coords on every pair of an 11 x 11 board (14,641 lines, now all identical): Java's Math.round is exact
+  (floor(x + 0.5) rounds 0.49999999999999994 up), and Java's Math.atan is fdlibm's, one bit off the system atan on the 30-degree lines
+  (new Rust library `libm`, THIRD_PARTY_LICENSES.txt redone). A unit test keeps six of MegaMek's lines (`caspar::tests`), and
+  run_checks.py now runs the engine's unit tests. (2) STOOD STILL IN BRIDGE GAMES: the state line carries "done" (MegaMek's isDone() in
+  the Movement Phase, true for everyone after it; `GameView.state`, read by `bridge.rs`), so a unit that stood still counts as moved, as
+  it does in our engine - for CASPAR's cover bonus, and for every bot that asks who has moved. The bridge jar builds against 0.51.01.7.
+  Results: the 90 reference battles unchanged (no deep water on a line between friends in them), bridge parity 82 of 82.
+  (3) DEPLOYMENT: Daniel chose to port MegaMek's bot deployment for both bots (entry above).
 - **2026-11-19 (Claude, session 30), CASPAR REVIEWED (REVIEW QUEUE s29-1 cleared).** Daniel: "double check Sonnet's work for
   accuracy and completeness." Checked line by line against MegaMek main `0cc7d65` (`Caspar.java`, `MutualSupportPathRanker`,
   `FormationGeometry`, `SupportEnvelope`, `FormationSide`, `BankRegions`, `MutualSupportDeployment`, `EnemyDeploymentZone`,

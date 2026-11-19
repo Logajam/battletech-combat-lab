@@ -379,6 +379,22 @@ pub fn with_range_adjuster(mut adj: Adjuster, attacker: &Mech, a_state: &str) ->
 /// (TN, weapon, note) of the easiest standard ranged attack with one of `weapons` from where the attacker stands, or
 /// None when none can be made (TAG's use).
 pub fn single_attack_tn(b: &mut Battle, attacker: UnitId, target: UnitId, weapons: &[ItemId], at_hex: bool) -> Option<(i64, ItemId, String)> {
+    let (tns, distance, cond_note) = weapon_attack_tns(b, attacker, target, weapons, at_hex)?;
+    let mut best: Option<(i64, ItemId, String)> = None;
+    for (w, tn) in tns {
+        if best.as_ref().map_or(true, |x| tn < x.0) {
+            best = Some((tn, w, format!("range {}{}", distance, if cond_note.is_empty() { String::new() } else { format!(", {}", cond_note) })));
+        }
+    }
+    best
+}
+
+/// The standard ranged attack TN of each of `weapons` that could fire at the target from where the attacker stands, in
+/// the given order (a weapon out of range, out of arc or otherwise unable is left out), with the range and the firing
+/// conditions' note; None when no attack can be made at all (no line of sight, or the attacker cannot fire). `at_hex`:
+/// aimed at the hex (no target movement, prone or partial cover modifier). Shared by `single_attack_tn` (TAG) and the
+/// Princess / CASPAR deployment's damage estimate (`princess_deploy`, MegaMek's getDeployDamage).
+pub fn weapon_attack_tns(b: &mut Battle, attacker: UnitId, target: UnitId, weapons: &[ItemId], at_hex: bool) -> Option<(Vec<(ItemId, i64)>, i64, String)> {
     let a_hex = hex_geometry::parse_hex_label(b.units[attacker].hex.as_deref().unwrap()).unwrap();
     let t_hex = hex_geometry::parse_hex_label(b.units[target].hex.as_deref().unwrap()).unwrap();
     if a_hex == t_hex {
@@ -412,19 +428,16 @@ pub fn single_attack_tn(b: &mut Battle, attacker: UnitId, target: UnitId, weapon
     let a = &b.units[attacker];
     let pre_tn = a.gunnery + combat::mode_to_amm(&a.move_mode) + trace.result.modifier + a.heat_fire_modifier + equip::own_attack_modifier(a) + cond_mod + own;
     let adjust = with_range_adjuster(tn_adjuster(b, attacker, target, None, cover), &b.units[attacker], a_water);
-    let mut best: Option<(i64, ItemId, String)> = None;
+    let mut tns = Vec::new();
     for &w in weapons {
         let rm = weapon_selection::weapon_range_mod(b, attacker, w, distance);
         if unavailable.contains(&w) || rm.is_none() {
             continue;
         }
         let br = weapon_selection::range_bracket(b, attacker, w, distance);
-        let tn = pre_tn + rm.unwrap() + adjust.adjust(b, w, br, None);
-        if best.as_ref().map_or(true, |x| tn < x.0) {
-            best = Some((tn, w, format!("range {}{}", distance, if cond_note.is_empty() { String::new() } else { format!(", {}", cond_note) })));
-        }
+        tns.push((w, pre_tn + rm.unwrap() + adjust.adjust(b, w, br, None)));
     }
-    best
+    Some((tns, distance, cond_note))
 }
 
 /// True when some weapon of the attacker could fire at the target, with any torso twist / arm flip it may declare.
