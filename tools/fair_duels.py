@@ -2,7 +2,7 @@
 
     python tools/fair_duels.py pilot      [--workers 4] [--label NAME]
     python tools/fair_duels.py rate       [--round 1|2] [--opponents 10] [--bots hydra] [--workers 4] [--label NAME]
-    python tools/fair_duels.py confirm    [--pairs FILE] [--top 60] [--workers 4] [--label NAME]
+    python tools/fair_duels.py confirm    [--pairs FILE] [--top 60] [--reps 3] [--workers 4] [--label NAME]
     python tools/fair_duels.py report     [--label NAME]
 
 Daniel: "1 on 1 matches of 2 different units. Using the same bot for both sides. Sweep through maps, bots. Balance starting
@@ -21,7 +21,9 @@ Stages (314 'Mechs make 49,000 pairs; a full set is 144 battles, so not every pa
   rate     a sparse schedule over the 314: round 1, each 'Mech against `--opponents` random others; round 2, against the
            ones nearest it in rating. Per pair: the 4 edges x the 4 bots, maps rotated (16 battles). Ratings: Bradley-Terry
            (a draw is half a win), so every 'Mech gets one strength number on one scale.
-  confirm  pairs of near-equal rating that differ most (tonnage, speed, reach, Battle Value): full sets head to head.
+  confirm  pairs of near-equal rating that differ most (tonnage, speed, armor): full sets head to head, three times over
+           with fresh dice (Daniel: the pilot and rating are for pruning; a finalist needs 480 battles, 120 a bot, about
+           +- 4.5% per bot instead of +- 8%). `--pairs FILE` (tab-separated ids) confirms a given list, e.g. the pilot's best.
   report   per pair: A's score (win = 1, draw = 1/2) with its margin of error, per bot and per map; the ratings beside BV.
 
 Bots: all four in every stage (Daniel, 2026-11-19, reversing a Hydra-only idea the same hour: "Forgot that we were
@@ -91,9 +93,10 @@ def unpack(units):
 
 
 # ---------------------------------------------------------------------------------------------------------------- cells
-def cells_full(a, b):
-    """A full set for the pair (a, b): every map x bot x edge."""
-    return [(a, b, m, bot, e) for m in MAPS for bot in BOTS for e in EDGES]
+def cells_full(a, b, reps=1):
+    """A full set for the pair (a, b): every map x bot x edge, `reps` times with fresh dice. The first time is the plain
+    5-part cell (so the pilot's and the rating's records count toward it); a repeat carries its number as a 6th part."""
+    return [(a, b, m, bot, e) + ((r,) if r else ()) for r in range(reps) for m in MAPS for bot in BOTS for e in EDGES]
 
 
 def cells_rate(a, b, rng, bots):
@@ -108,7 +111,8 @@ def cells_rate(a, b, rng, bots):
 
 def play_cell(cell):
     """Plays one cell (one battle). Returns the record line (a dict)."""
-    a, b, board, bot, edge = cell
+    a, b, board, bot, edge = cell[:5]
+    rep = cell[5] if len(cell) > 5 else 0
     # A is Red on the N and E cells, Blue on the S and W ones (seat and edge both balanced over a full set)
     a_red = edge in ("N", "E")
     red, blue = (a, b) if a_red else (b, a)
@@ -119,7 +123,7 @@ def play_cell(cell):
         "DEFAULT_BOARD_PATH": board,
         "DEPLOY_ZONES": {"Red": zone(red_edge), "Blue": zone(blue_edge)},
     }
-    seed = cell_seed([a, b, board, bot, edge])
+    seed = cell_seed([a, b, board, bot, edge] + ([rep] if rep else []))
     with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
         json.dump(settings, f)
         path = f.name
@@ -133,6 +137,8 @@ def play_cell(cell):
     finally:
         os.unlink(path)
     line = {"a": a, "b": b, "map": board, "bot": bot, "edge": edge, "a_team": "Red" if a_red else "Blue", "seed": seed}
+    if rep:
+        line["rep"] = rep
     if p.returncode != 0:
         line["error"] = (p.stderr or p.stdout)[-400:]
         return line
@@ -170,7 +176,7 @@ def done_cells(label):
                 except ValueError:
                     continue
                 if "error" not in r:
-                    done[(r["a"], r["b"], r["map"], r["bot"], r["edge"])] = r
+                    done[(r["a"], r["b"], r["map"], r["bot"], r["edge"]) + ((r["rep"],) if r.get("rep") else ())] = r
     return done
 
 
@@ -338,9 +344,11 @@ def stage_confirm(argv):
                 used[y] = used.get(y, 0) + 1
             if len(pairs) >= top:
                 break
-    unpack([units[p] for pr in pairs for p in pr])
-    cells = [c for a, b in pairs for c in cells_full(a, b)]
-    print(f"confirm: {len(pairs)} pairs, full sets")
+    every = {u["id"]: u for u in catalog_units()}  # a --pairs list may name 'Mechs outside the pool (the pilot's)
+    unpack([every.get(p, {"id": p}) for pr in pairs for p in pr])
+    reps = int(option(argv, "--reps", "3"))
+    cells = [c for a, b in pairs for c in cells_full(a, b, reps)]
+    print(f"confirm: {len(pairs)} pairs, full sets x {reps} (fresh dice each time)")
     run_cells(cells, label + "_confirm", int(option(argv, "--workers", "4")))
 
 
