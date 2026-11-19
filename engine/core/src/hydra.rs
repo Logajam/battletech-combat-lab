@@ -279,16 +279,60 @@ fn range_factor(dist: i64) -> f64 {
 ///   * HYDRA_ATTENTION = "oracle" (session 25): the EXCHANGE ORACLE's expected damage of `e` on the friend as both
 ///     stand (the engine's own to-hit, range, arcs, cover and line of sight), with `e` as a ghost if it has not moved
 ///     (in its hex, having walked, facing the friend) and the friend where it is now.
-fn elsewhere_of(b: &mut Battle, e: UnitId, friends: &[UnitId], price: &HashMap<UnitId, f64>, guns: &HashMap<UnitId, f64>) -> f64 {
+fn elsewhere_of(b: &mut Battle, memo: &mut AttentionMemo, e: UnitId, friends: &[UnitId], price: &HashMap<UnitId, f64>, guns: &HashMap<UnitId, f64>) -> f64 {
     let Some(e_xy) = xy(b, e) else { return 0.0 };
     let oracle = !(b.cfg.has("HYDRA_ATTENTION") && b.cfg.s("HYDRA_ATTENTION") == "range");
     let mut most = 0.0f64;
     for &f in friends {
         let Some(f_xy) = xy(b, f) else { continue };
-        let dmg = if oracle { attention_damage(b, e, f, e_xy, f_xy) } else { guns.get(&e).copied().unwrap_or(0.0) * range_factor(hex_distance(e_xy, f_xy)) };
+        let dmg = if oracle { memo.damage(b, e, f, e_xy, f_xy) } else { guns.get(&e).copied().unwrap_or(0.0) * range_factor(hex_distance(e_xy, f_xy)) };
         most = most.max(price.get(&f).copied().unwrap_or(1.0) * dmg);
     }
     most
+}
+
+/// One decision's store of `attention_damage` figures (speed only, 2026-11-19: building a `MoveEvaluator` for every
+/// enemy-friend pair, again for every play-out spot, was ~78% of a 12 v 12 Hydra battle). The play-out poses only a few
+/// responders per spot, so most pairs stand exactly as they did for the last spot. A figure is reused when both units
+/// stand as they did (hex, facing, how they moved, heat of moving, moved yet): the estimate reads nothing else that a pose
+/// changes, with one exception - a push's worth asks whether the hex behind the target is taken (`physical.rs`,
+/// `domino::occupant`), which only matters when the two are adjacent, so adjacent pairs are always worked out afresh.
+/// Lives for one decision: damage, heat and ammo do not change inside it. Set BTSIM_HYDRA_MEMO_CHECK=1 to recompute
+/// every reused figure and stop on any difference (the cross-check used to accept this).
+type PoseSig = (Option<String>, String, String, i64, i64, i64, bool);
+
+#[derive(Default)]
+pub(crate) struct AttentionMemo {
+    figures: HashMap<(UnitId, UnitId, PoseSig, PoseSig), f64>,
+}
+
+fn pose_sig(b: &Battle, u: UnitId) -> PoseSig {
+    let m = &b.units[u];
+    (m.hex.clone(), m.facing.clone(), m.move_mode.clone(), m.move_fc, m.mp_spent, m.movement_heat, m.moved_this_turn)
+}
+
+impl AttentionMemo {
+    fn damage(&mut self, b: &mut Battle, e: UnitId, f: UnitId, e_xy: (i64, i64), f_xy: (i64, i64)) -> f64 {
+        if hex_distance(e_xy, f_xy) <= 1 {
+            return attention_damage(b, e, f, e_xy, f_xy);
+        }
+        let key = (e, f, pose_sig(b, e), pose_sig(b, f));
+        if let Some(&v) = self.figures.get(&key) {
+            if memo_check() {
+                let fresh = attention_damage(b, e, f, e_xy, f_xy);
+                assert!(fresh.to_bits() == v.to_bits(), "Hydra attention memo differs: {} on {}: kept {} fresh {}", e, f, v, fresh);
+            }
+            return v;
+        }
+        let v = attention_damage(b, e, f, e_xy, f_xy);
+        self.figures.insert(key, v);
+        v
+    }
+}
+
+fn memo_check() -> bool {
+    static CHECK: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *CHECK.get_or_init(|| std::env::var("BTSIM_HYDRA_MEMO_CHECK").map_or(false, |v| v == "1"))
 }
 
 /// The Oracle's expected damage of enemy `e` on friend `f` this turn, both where they stand (see `elsewhere_of`).
@@ -529,12 +573,13 @@ fn choose_movement_inner(b: &mut Battle, mover: UnitId, other: UnitId, moves_fir
     let friends: Vec<UnitId> = mine.iter().map(|e| e.unit).filter(|u| *u != mover && b.units[*u].hex.is_some()).collect();
     // one exchange table per enemy weighed: (enemy, its price, what else it could shoot at, per option (dealt, received))
     let mut tables: Vec<(UnitId, f64, f64, Vec<(f64, f64)>)> = Vec::new();
+    let mut memo = AttentionMemo::default();
     for &e in &relevant {
         let its_exp = soft(Side::new(b, e, true).exposure);
         let table = exchange(b, mover, e, &prepared, &index, &my_exp, &its_exp);
         let p_e = price.get(&e).copied().unwrap_or(1.0);
         // what else this enemy could be shooting at: its best friend-target (the attention share)
-        let elsewhere = elsewhere_of(b, e, &friends, &price, &guns);
+        let elsewhere = elsewhere_of(b, &mut memo, e, &friends, &price, &guns);
         tables.push((e, p_e, elsewhere, table));
     }
     // (gain, the enemy it is on, cost) of option i; `instead` swaps one enemy's line of the table for a modeled reply
@@ -611,7 +656,7 @@ fn choose_movement_inner(b: &mut Battle, mover: UnitId, other: UnitId, moves_fir
                     }
                 }
             }
-            let po = playout(b, mover, &friends, &prepared, &short, &tables, &price, &guns, my_price, &my_exp);
+            let po = playout(b, &mut memo, mover, &friends, &prepared, &short, &tables, &price, &guns, my_price, &my_exp);
             if let Some((note, scored_short)) = po {
                 best = None;
                 for (i, lines, elsewhere) in scored_short {
@@ -886,7 +931,7 @@ struct Responder {
 /// near draws fire. Every pose is undone before the next spot. None when nobody is left to respond.
 /// Returns the note and, per candidate spot: (option index, judged lines, judged "elsewhere").
 #[allow(clippy::too_many_arguments, clippy::type_complexity)]
-fn playout(b: &mut Battle, mover: UnitId, friends: &[UnitId], prepared: &[Opt], short: &[usize], tables: &[(UnitId, f64, f64, Vec<(f64, f64)>)], price: &HashMap<UnitId, f64>, guns: &HashMap<UnitId, f64>, my_price: f64, my_exp: &[f64; 4]) -> Option<(String, Vec<(usize, HashMap<UnitId, (f64, f64)>, HashMap<UnitId, f64>)>)> {
+fn playout(b: &mut Battle, memo: &mut AttentionMemo, mover: UnitId, friends: &[UnitId], prepared: &[Opt], short: &[usize], tables: &[(UnitId, f64, f64, Vec<(f64, f64)>)], price: &HashMap<UnitId, f64>, guns: &HashMap<UnitId, f64>, my_price: f64, my_exp: &[f64; 4]) -> Option<(String, Vec<(usize, HashMap<UnitId, (f64, f64)>, HashMap<UnitId, f64>)>)> {
     let weighed: Vec<UnitId> = tables.iter().map(|t| t.0).collect();
     let m_xy = xy(b, mover)?;
     // THE RESPONDERS: still to move, on the board, free to move (prone, immobile, stuck: fixed, never a responder)
@@ -974,7 +1019,7 @@ fn playout(b: &mut Battle, mover: UnitId, friends: &[UnitId], prepared: &[Opt], 
         // THE POSITION JUDGE: every weighed enemy's "what else could it shoot at", from the final picture
         let mut elsewhere: HashMap<UnitId, f64> = HashMap::default();
         for &e in &weighed {
-            let els = elsewhere_of(b, e, friends, price, guns);
+            let els = elsewhere_of(b, memo, e, friends, price, guns);
             elsewhere.insert(e, els);
         }
         poses.restore(b);

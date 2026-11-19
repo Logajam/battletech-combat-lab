@@ -6,6 +6,18 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-19 (Claude, session 30), SPEED: HYDRA'S ATTENTION SHARE REMEMBERED WITHIN A DECISION (12 v 12 ANOTHER ~45% FASTER).
+  Battle results unchanged. REVIEW PENDING (higher-level model).** Daniel: "Go for it." (the next step left by the entry
+  below). `hydra::AttentionMemo`: one decision's store of `attention_damage` (enemy e on friend f), reused when both stand
+  exactly as before (hex, facing, move mode, hexes moved, MP, movement heat, moved yet). The play-out poses at most three
+  responders per spot, so most pairs repeat. What the estimate reads that a pose could change, traced: ECM, Artemis, Narc and
+  stealth are each unit's own (`electronics::hostile_field`); line of sight and the movement tables are keyed by position;
+  the one read of OTHER units' places is a push's worth (`physical.rs`, `domino::occupant`, the hex behind the target),
+  possible only between adjacent units, so adjacent pairs are always worked out afresh. Cross-check switch:
+  BTSIM_HYDRA_MEMO_CHECK=1 recomputes every reused figure and stops on any difference; clean on all nine Hydra match-ups
+  (6 battles each, Hydra both sides) and through `run_checks.py --full`. One core, 2 battles of 12 v 12, Hydra v Hydra:
+  98.8 s (start of the day) -> 62.8 s (turret checks) -> 34.4 s; output identical.
+
 - **2026-11-19 (Claude, session 30), SPEED: THE TURRET CHECKS NO LONGER BUILD STRINGS (HYDRA ~35% FASTER). Battle results
   unchanged. REVIEW PENDING (higher-level model).** Daniel: "What takes Hydra so long? And can we speed up?" A profile
   (callgrind, 3 turns of `hy_12v12_valley`, Hydra both sides) put 78% of the time in Hydra's attention share
