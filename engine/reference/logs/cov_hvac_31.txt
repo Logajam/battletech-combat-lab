@@ -148,7 +148,7 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
   Initiative: Blue lost the roll, moves first.
   [Movement select] Blue: score 881.759 = dealt 12.75 x1.00 + (HP 580.0 - received 20.32 x1.00 - PSR 0.00) / enemy future 10.55 x my future 16.38 [two-ply, 53 of 151 spots (grid search) x 628 replies (short list); modeled reply Red -> 0713 S Walk]
   [Movement] Blue: 0515 NE -> 0716 SW, Run (5 MP, 2 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
-  [Movement select] Red: score 269.950 = dealt 20.32 x1.00 + (HP 394.0 - received 6.47 x0.99 - PSR 0.00) / enemy future 16.38 x my future 10.55 [enemy held at 0716; 127 spots with LOS]
+  [Movement select] Red: score 269.950 = dealt 20.32 x1.00 + (HP 394.0 - received 6.47 x0.99 - PSR 0.00) / enemy future 16.38 x my future 10.55 [enemy held at 0716; 126 spots with LOS]
   [Movement] Red: 0412 NE -> 0516 S, Run (6 MP, 4 hexes, 2 heat; budget walk 4 / run 6 / jump 4)
   [Ranged] Blue's active probe sees through the smoke on the line (-2).
   [Ranged] Blue -> Red: range 2, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 2 + heat 0); firing ['Thunderbolt 15', 'Hyper Velocity Auto Cannon/10', 'ISSNPPC', 'Light PPC', 'Light PPC'] (weapon heat 34 of budget 56 = max 30 + sink 32 - current 4 - movement 2 - other 0; expected dmg 15.69)
@@ -250,7 +250,7 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 5.
   Initiative: Blue lost the roll, moves first.
   [Movement select] Blue: score 546.443 = dealt 5.44 x1.00 + (HP 537.0 - received 17.05 x1.37 - PSR 0.00) / enemy future 13.23 x my future 13.94 [two-ply, 57 of 131 spots (grid search) x 470 replies (short list); modeled reply Red -> 0613 SW Jump]
   [Movement] Blue: 0815 SW -> 0514 SW, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
-  [Movement select] Red: score 378.220 = dealt 17.05 x1.37 + (HP 379.0 - received 5.39 x0.98 - PSR 0.00) / enemy future 13.94 x my future 13.23 [enemy held at 0514; 95 spots with LOS]
+  [Movement select] Red: score 378.220 = dealt 17.05 x1.37 + (HP 379.0 - received 5.39 x0.98 - PSR 0.00) / enemy future 13.94 x my future 13.23 [enemy held at 0514; 89 spots with LOS]
   [Movement] Red: 0915 S -> 0613 NW, Jump (4 MP, 3 hexes, 3 heat; budget walk 3 / run 5 / jump 4)
   [Ranged] Blue holds ['Light PPC'] back for the Physical phase (plans punch (Left Arm), expected 4.17).
   [Ranged] Blue -> Red: range 1, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 60 = max 30 + sink 32 - current 0 - movement 2 - other 0; expected dmg 0.00)

@@ -122,10 +122,39 @@ fn cube_round_candidates(q: f64, r: f64, s: f64) -> Vec<(i64, i64, i64)> {
     }
 }
 
-/// The straight-line path of hexes between two hex centers, one entry per step (both hexes when the line runs exactly
-/// along a shared edge). Worked out from (0, 0) to the offset and shifted onto `a`, as the Python does (its cache),
-/// because the float arithmetic from a different origin can round differently.
+/// LINE OF SIGHT's line (Core p.56): the straight line from hex centre to hex centre, one entry per hex it passes through,
+/// both hexes where it runs exactly along the edge between them (the target's controller picks one). MegaMek's trace
+/// (`mm_line::los_steps`). Session 30 (Daniel, 2026-11-19: "a Tier 1 bug"): it was `hex_line_sampled`, which skipped hexes
+/// the line clips and took a line crossing an edge at a sample point for one running along it - e.g. 0209 -> 0610 on
+/// Scattered Woods crosses heavy 0409 AND light 0410 (blocked), where the sampled line let the target pick one.
 pub fn hex_line(a: Hex, b: Hex) -> Vec<Vec<Hex>> {
+    // this engine's internal (x, y) <-> MegaMek's (column, row) from 0, the arithmetic of hex_label / parse_hex_label
+    // without the text (speed: line of sight is on the hot path)
+    let to_mm = |h: Hex| -> Option<(i64, i64)> {
+        let off = crate::hex_geometry::row_parity_offset(h.0);
+        ((h.1 - off).rem_euclid(2) == 0).then(|| (h.0, -(h.1 - off).div_euclid(2)))
+    };
+    let (Some(ma), Some(mb)) = (to_mm(a), to_mm(b)) else { return hex_line_sampled(a, b) };
+    let back = |c: (i64, i64)| -> Hex { (c.0, -2 * c.1 + crate::hex_geometry::row_parity_offset(c.0)) };
+    // A line's shape depends only on the offset and on whether it starts in an odd column (MegaMek's odd columns sit half a
+    // hex lower): traced once per shape from (parity, 0) and moved by an even number of columns (speed only, session 30).
+    thread_local! {
+        static SHAPES: std::cell::RefCell<crate::fasthash::HashMap<(i64, i64, i64), Vec<Vec<(i64, i64)>>>> = Default::default();
+    }
+    let parity = ma.0 & 1;
+    let key = (parity, mb.0 - ma.0, mb.1 - ma.1);
+    let shape = SHAPES.with(|c| {
+        c.borrow_mut().entry(key).or_insert_with(|| crate::mm_line::los_steps((parity, 0), (parity + key.1, key.2))).clone()
+    });
+    let (sx, sy) = (ma.0 - parity, ma.1);
+    shape.into_iter().map(|step| step.into_iter().map(|(x, y)| (x + sx, y + sy)).map(back).collect()).collect()
+}
+
+/// The old line: one sampled point per hex step from centre to centre (cube interpolation, from the Python), both hexes
+/// where a sample falls on an edge. Kept where a path must step from hex to ADJACENT hex (jump paths, a death from above's
+/// last hex); line of sight uses `hex_line`. Worked out from (0, 0) to the offset and shifted onto `a`, as the Python does
+/// (its cache), because the float arithmetic from a different origin can round differently.
+pub fn hex_line_sampled(a: Hex, b: Hex) -> Vec<Vec<Hex>> {
     let (dx, dy) = (b.0 - a.0, b.1 - a.1);
     let shape = hex_line_direct((0, 0), (dx, dy));
     let (ax, ay) = a;
@@ -259,7 +288,9 @@ fn evaluate(attacker_hex: Hex, target_hex: Hex, board: &Board, attacker_height: 
         return Ok(LOSTrace { steps: vec![st], result: LOSResult { los: true, modifier: 0, distance: 0 } });
     }
 
-    let intervenes = |top: i64, i: i64| -> bool { (top >= a_los && top >= b_los) || (i == 1 && top >= a_los) || (i == n - 1 && top >= b_los) };
+    // woods and hills next to the attacker or the target count at their height (p.57): ADJACENT, not the first / last step,
+    // since the true line can clip a hex that touches neither (session 30)
+    let intervenes = |top: i64, h: Hex| -> bool { (top >= a_los && top >= b_los) || (hex_distance(h, attacker_hex) == 1 && top >= a_los) || (hex_distance(h, target_hex) == 1 && top >= b_los) };
 
     let mut sides: Vec<Vec<Hex>> = Vec::new();
     for pick in [0usize, 1] {
@@ -292,22 +323,22 @@ fn evaluate(attacker_hex: Hex, target_hex: Hex, board: &Board, attacker_height: 
             let after = blocked_at.is_some();
             let (mut contrib, mut blocks, mut smoke) = (0i64, false, 0i64);
             if !after {
-                blocks = intervenes(level, i);
+                blocks = intervenes(level, *h);
                 let density = woods_density(info);
                 if !blocks && density.as_deref() == Some(ULTRA_HEAVY) {
-                    blocks = intervenes(level + ULTRA_HEAVY_HEIGHT, i);
-                } else if !blocks && density.is_some() && intervenes(level + WOODS_HEIGHT, i) {
+                    blocks = intervenes(level + ULTRA_HEAVY_HEIGHT, *h);
+                } else if !blocks && density.is_some() && intervenes(level + WOODS_HEIGHT, *h) {
                     contrib = woods_points(density.as_deref().unwrap());
                     woods += contrib;
                     blocks = woods >= WOODS_BLOCK_POINTS;
                 }
-                if !blocks && info.smoke.is_some() && intervenes(info.surface_level.unwrap_or(level) + SMOKE_HEIGHT, i) {
+                if !blocks && info.smoke.is_some() && intervenes(info.surface_level.unwrap_or(level) + SMOKE_HEIGHT, *h) {
                     smoke = smoke_share(info, contrib);
                     contrib += smoke;
                     woods += smoke;
                     blocks = woods >= WOODS_BLOCK_POINTS;
                 }
-                if !blocks && info.features.has("planted_fields") && intervenes(level + FIELDS_HEIGHT, i) {
+                if !blocks && info.features.has("planted_fields") && intervenes(level + FIELDS_HEIGHT, *h) {
                     fields += 1;
                     contrib += if fields % FIELDS_PER_POINT == 0 { 1 } else { 0 };
                     blocks = fields >= FIELDS_BLOCK;
@@ -387,7 +418,8 @@ fn evaluate(attacker_hex: Hex, target_hex: Hex, board: &Board, attacker_height: 
     last.after_block = blocked_at.is_some();
     steps.push(last);
     let los = blocked_at.is_none();
-    Ok(LOSTrace { steps, result: LOSResult { los, modifier, distance: if los { n } else { blocked_at.unwrap() } } })
+    // the range in hexes (the line itself can have more steps than that: it lists every hex it passes through)
+    Ok(LOSTrace { steps, result: LOSResult { los, modifier, distance: if los { hex_distance(attacker_hex, target_hex) } else { blocked_at.unwrap() } } })
 }
 
 /// The to-hit modifier of the target's own hex alone (woods / jungle, smoke) - indirect fire with no spotter.

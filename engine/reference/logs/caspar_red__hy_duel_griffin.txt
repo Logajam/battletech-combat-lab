@@ -1,7 +1,7 @@
 # scenario hy_duel_griffin, CASPAR drives Red
-# seed 1: winner Blue, 8 turns
-#   Red: 230.0 of 243.0 armor + structure left, team destroyed True, units 1, 0 hits of 7 attacks, 0.0 damage dealt
-#   Blue: 232.0 of 243.0 armor + structure left, team destroyed False, units 1, 2 hits of 5 attacks, 13.0 damage dealt
+# seed 1: winner Blue, 29 turns
+#   Red: 186.0 of 243.0 armor + structure left, team destroyed True, units 1, 1 hits of 23 attacks, 10.0 damage dealt
+#   Blue: 222.0 of 243.0 armor + structure left, team destroyed False, units 1, 4 hits of 21 attacks, 33.0 damage dealt
 # log
   Deployment: Blue home edge W (0101-0117).
   Deployment: Red home edge E (1601-1617).
@@ -11,7 +11,7 @@
   Initiative: Red lost the roll, moves first.
   [Movement select] Red: no enemy on the board yet - heads for its home edge near 0109 (closing fallback)
   [Movement] Red: off the board -> 1502 SW, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
-  [Movement select] Blue: score 337.176 = dealt 4.54 x1.00 + (HP 334.0 - received 1.36 x1.00 - PSR 0.00) / enemy future 3.05 x my future 3.05 [enemy held at 1502; 141 spots with LOS]
+  [Movement select] Blue: score 337.176 = dealt 4.54 x1.00 + (HP 334.0 - received 1.36 x1.00 - PSR 0.00) / enemy future 3.05 x my future 3.05 [enemy held at 1502; 129 spots with LOS]
   [Movement] Blue: off the board -> 0505 NE, Run (7 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
   [Ranged] Red -> Blue: range 10, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 2 + heat 0); firing ['LRM 10', 'PPC'] (weapon heat 14 of budget 15 = max 4 + sink 12 - current 0 - movement 1 - other 0; Princess plan utility 2.38, about 1.36 expected dmg)
   [Ranged] Red fires in order: ['PPC', 'LRM 10'].
@@ -81,7 +81,7 @@
 
 === TURN 5 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 822.065 = dealt 0.91 x1.00 + (HP 334.0 - received 1.85 x1.00 - PSR 0.00) / enemy future 1.31 x my future 3.24 [two-ply, 258 of 1028 spots (grid search) x 1140 replies (short list); modeled reply Red -> 0813 SE Stand Still]
+  [Movement select] Blue: score 823.134 = dealt 0.43 x1.00 + (HP 334.0 - received 1.21 x1.01 - PSR 0.00) / enemy future 1.31 x my future 3.24 [two-ply, 258 of 1028 spots (grid search) x 1140 replies (short list); modeled reply Red -> 1314 S Jump]
   [Movement] Blue: 1212 S -> 1315 NW, Jump (5 MP, 3 hexes, 3 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Red: CASPAR (modern, defend): utility 11.04 = -fall 0.00 + bravery 0.04 [1.00 x 1.00 x 1.5 - taken 1.46] - aggression 0.00 + close range 11.00 - facing 0 + hold 0.00 [1134 of 1134 spots; enemy moved]
   [Movement] Red: 0813 N -> 1314 S, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
@@ -91,9 +91,9 @@
   [Ranged] Red -> Blue: range 1, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 10 = max 4 + sink 12 - current 1 - movement 5 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
   [Ranged] Red picks up a tree club in 1314 instead of firing (p.79).
   [Physical] Blue -> Red: punch (Left Arm) needs 12 (piloting 5 + base 8 + attack -1), rolled 10 -> miss (6 dmg, front side)
-  [Physical] Blue -> Red: punch (Right Arm) needs 12 (piloting 5 + base 8 + attack -1), rolled 8 -> miss (6 dmg, front side)
-  [Physical] Red -> Blue: punch (Left Arm) needs 11 (piloting 5 + base 7 + attack -1), rolled 5 -> miss (6 dmg, right side)
-  [Physical] Red -> Blue: punch (Right Arm) needs 11 (piloting 5 + base 7 + attack -1), rolled 8 -> miss (6 dmg, right side)
+  [Physical] Blue -> Red: punch (Right Arm) needs 12 (piloting 5 + base 8 + attack -1), rolled 4 -> miss (6 dmg, front side)
+  [Physical] Red -> Blue: punch (Left Arm) needs 11 (piloting 5 + base 7 + attack -1), rolled 10 -> miss (6 dmg, right side)
+  [Physical] Red -> Blue: punch (Right Arm) needs 11 (piloting 5 + base 7 + attack -1), rolled 5 -> miss (6 dmg, right side)
   [Heat] Red: 1 + movement 5 + weapons 0 + engine 0 - sinks 12 -> 0
   [Heat] Blue: 0 + movement 3 + weapons 0 + engine 0 - sinks 12 -> 0
   -- end of turn 5: Red @ 1314 S: HP 230, pilot hits 0, engine 0, gyro 0, heat 0
@@ -108,48 +108,414 @@
   [Ranged] Red: no weapon can bear on Blue (rear arc) - can't fire.
   [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's right side arc after that).
   [Ranged] Blue -> Red: range 3, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 4 + heat 0); firing ['PPC'] (weapon heat 10 of budget 14 = max 4 + sink 12 - current 0 - movement 2 - other 0; expected dmg 0.83)
-    PPC: needs 11 (range mod +1), rolled 8 -> miss
+    PPC: needs 11 (range mod +1), rolled 5 -> miss
   [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 12 -> 0
   [Heat] Blue: 0 + movement 2 + weapons 10 + engine 0 - sinks 12 -> 0
   -- end of turn 6: Red @ 1314 S: HP 230, pilot hits 0, engine 0, gyro 0, heat 0
   -- end of turn 6: Blue @ 1411 NE: HP 243, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 7 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 816.592 = dealt 3.22 x1.00 + (HP 334.0 - received 3.99 x1.25 - PSR 0.00) / enemy future 1.02 x my future 2.52 [two-ply, 155 of 879 spots (grid search) x 822 replies (short list); modeled reply Red -> 1516 SW Run]
-  [Movement] Blue: 1411 NE -> 1416 SW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
-  [Movement select] Red: CASPAR (modern, defend): utility 19.78 = -fall 0.00 + bravery 3.86 [1.00 x 2.93 x 1.5 - taken 0.53] - aggression 0.00 + close range 9.00 - facing 0 + hold 6.92 [807 of 807 spots; enemy moved]
-  [Movement] Red: 1314 S -> 1314 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
-  [Ranged] Blue -> Red: range 3, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 4 + heat 0); firing ['PPC'] (weapon heat 10 of budget 11 = max 4 + sink 12 - current 0 - movement 5 - other 0; expected dmg 0.28)
-    PPC: needs 12 (range mod +1), rolled 7 -> miss
-  [Ranged] Red -> Blue: range 3, base TN 9 (gunnery 4 + AMM 0 [Stand Still] + TMM 3 + LOS 2 + heat 0); firing ['PPC'] (weapon heat 10 of budget 16 = max 4 + sink 12 - current 0 - movement 0 - other 0; Princess plan utility 2.93, about 1.67 expected dmg)
-    PPC: needs 10 (range mod +1), rolled 2 -> miss
-  [Heat] Red: 0 + movement 0 + weapons 10 + engine 0 - sinks 12 -> 0
-  [Heat] Blue: 0 + movement 5 + weapons 10 + engine 0 - sinks 12 -> 3
-  -- end of turn 7: Red @ 1314 S: HP 230, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 7: Blue @ 1416 SW: HP 243, pilot hits 0, engine 0, gyro 0, heat 3
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: CASPAR (modern, defend): utility 5.50 = -fall 0.00 + bravery -0.50 [1.00 x 1.00 x 1.5 - taken 2.00] - aggression 0.00 + close range 6.00 - facing 0 + hold 0.00 [811 of 811 spots; enemy still to move]
+  [Movement] Red: 1314 S -> 0813 NE, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Blue: score 825.725 = dealt 0.00 x1.00 + (HP 334.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.02 x my future 2.52 [enemy held at 0813; 162 spots with LOS]
+  [Movement] Blue: 1411 NE -> 1207 N, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Red -> Blue: range 8, base TN 12 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 11 = max 4 + sink 12 - current 0 - movement 5 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Blue: no weapon can bear on Red (rear arc) - can't fire.
+  [Heat] Red: 0 + movement 5 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 0 + movement 5 + weapons 0 + engine 0 - sinks 12 -> 0
+  -- end of turn 7: Red @ 0813 NE: HP 230, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 7: Blue @ 1207 N: HP 243, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 8 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 751.047 = dealt 3.11 x1.05 + (HP 334.0 - received 3.84 x1.00 - PSR 0.00) / enemy future 1.00 x my future 2.26 [two-ply, 221 of 1103 spots (grid search) x 1123 replies (short list); modeled reply Red -> 0807 N Run]
+  [Movement] Blue: 1207 N -> 1103 SW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: CASPAR (modern, attack): utility 16.07 = -fall 0.00 + bravery 10.07 [1.00 x 6.71 x 1.5 - taken 0.00] - aggression 0.00 + close range 6.00 - facing 0 + hold 0.00 [1123 of 1123 spots; enemy moved]
+  [Movement] Red: 0813 NE -> 0807 N, Run (7 MP, 6 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue -> Red: range 6, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 11 = max 4 + sink 12 - current 0 - movement 5 - other 0; expected dmg 2.78)
+    PPC: needs 9 (range mod +0), rolled 9 -> HIT
+  [Ranged] Red -> Blue: range 6, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['LRM 10', 'PPC'] (weapon heat 14 of budget 14 = max 4 + sink 12 - current 0 - movement 2 - other 0; Princess plan utility 6.71, about 3.83 expected dmg)
+  [Ranged] Red fires in order: ['PPC', 'LRM 10'].
+    PPC: needs 9 (range mod +0), rolled 12 -> HIT
+    LRM 10: needs 10 (range mod +1), rolled 3 -> miss [IS Ammo LRM-10: 8 shots left]
+    PPC hit for 10:
+      Hit location roll 7 (right table): Right Torso.
+10 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (20 -> 10 remaining).
+    PPC hit for 10:
+      Hit location roll 8 (front table): Left Torso.
+10 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (20 -> 10 remaining).
+  [Heat] Red: 0 + movement 2 + weapons 14 + engine 0 - sinks 12 -> 4
+  [Heat] Blue: 0 + movement 5 + weapons 10 + engine 0 - sinks 12 -> 3
+  -- end of turn 8: Red @ 0807 N: HP 220, pilot hits 0, engine 0, gyro 0, heat 4
+  -- end of turn 8: Blue @ 1103 SW: HP 233, pilot hits 0, engine 0, gyro 0, heat 3
+
+=== TURN 9 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 549.470 = dealt 2.14 x1.00 + (HP 324.0 - received 2.39 x1.19 - PSR 0.00) / enemy future 1.74 x my future 2.97 [two-ply, 209 of 977 spots (grid search) x 1158 replies (short list); modeled reply Red -> 1206 SW Run]
+  [Movement] Blue: 1103 SW -> 1107 SW, Jump (5 MP, 4 hexes, 4 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: CASPAR (modern, attack): utility 26.77 = -fall 0.00 + bravery 18.77 [1.00 x 2.93 x 1.5 - taken -14.37] - aggression 0.00 + close range 8.00 - facing 0 + hold 0.00 [1151 of 1151 spots; enemy moved]
+  [Movement] Red: 0807 N -> 0709 NE, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
+  [Ranged] Blue -> Red: range 4, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 1 + heat 0); firing ['LRM 10'] (weapon heat 4 of budget 9 = max 4 + sink 12 - current 3 - movement 4 - other 0; expected dmg 0.18)
+    LRM 10: needs 12 (range mod +3), rolled 7 -> miss [IS Ammo LRM-10: 10 shots left]
+  [Ranged] Red -> Blue: range 4, base TN 10 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 3 + heat 0); firing ['PPC'] (weapon heat 10 of budget 11 = max 4 + sink 12 - current 4 - movement 1 - other 0; Princess plan utility 2.93, about 1.67 expected dmg)
+    PPC: needs 10 (range mod +0), rolled 9 -> miss
+  [Heat] Red: 4 + movement 1 + weapons 10 + engine 0 - sinks 12 -> 3
+  [Heat] Blue: 3 + movement 4 + weapons 4 + engine 0 - sinks 12 -> 0
+  -- end of turn 9: Red @ 0709 NE: HP 220, pilot hits 0, engine 0, gyro 0, heat 3
+  -- end of turn 9: Blue @ 1107 SW: HP 233, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 10 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 550.279 = dealt 1.07 x1.00 + (HP 324.0 - received 1.75 x1.00 - PSR 0.00) / enemy future 1.60 x my future 2.72 [two-ply, 179 of 1017 spots (grid search) x 1153 replies (short list); modeled reply Red -> 0903 SE Run]
+  [Movement] Blue: 1107 SW -> 1604 S, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: CASPAR (modern, attack): utility 10.79 = -fall 0.00 + bravery 4.79 [1.00 x 6.71 x 1.5 - taken 5.28] - aggression 0.00 + close range 6.00 - facing 0 + hold 0.00 [1153 of 1153 spots; enemy moved]
+  [Movement] Red: 0709 NE -> 1005 NE, Run (7 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue -> Red: range 6, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 11 = max 4 + sink 12 - current 0 - movement 5 - other 0; expected dmg 2.78)
+    PPC: needs 9 (range mod +0), rolled 6 -> miss
+  [Ranged] Red -> Blue: range 6, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 11 = max 4 + sink 12 - current 3 - movement 2 - other 0; Princess plan utility 4.88, about 2.78 expected dmg)
+    PPC: needs 9 (range mod +0), rolled 6 -> miss
+  [Heat] Red: 3 + movement 2 + weapons 10 + engine 0 - sinks 12 -> 3
+  [Heat] Blue: 0 + movement 5 + weapons 10 + engine 0 - sinks 12 -> 3
+  -- end of turn 10: Red @ 1005 NE: HP 220, pilot hits 0, engine 0, gyro 0, heat 3
+  -- end of turn 10: Blue @ 1604 S: HP 233, pilot hits 0, engine 0, gyro 0, heat 3
+
+=== TURN 11 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: CASPAR (modern, defend): utility 6.50 = -fall 0.00 + bravery -3.50 [1.00 x 1.00 x 1.5 - taken 5.00] - aggression 0.00 + close range 10.00 - facing 0 + hold 0.00 [807 of 807 spots; enemy still to move]
-  [Movement] Red: 1314 S -> 1617 NW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
-  [Movement select] Blue: score 832.936 = dealt 95.83 x1.00 + (HP 334.0 - received 8.55 x1.00 - PSR 0.00) / enemy future 1.00 x my future 2.26 [enemy held at 1617; 156 spots with LOS]
-  [Movement] Blue: 1416 SW -> 1517 SE, Walk (5 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
-  [Ranged] Red -> Blue: range 1, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 11 = max 4 + sink 12 - current 0 - movement 5 - other 0; Princess plan utility 2.93, about 1.67 expected dmg)
-    PPC: needs 10 (range mod +3), rolled 3 -> miss
-  [Ranged] Blue holds ['PPC'] back for the Physical phase (plans push, expected 95.83).
-  [Ranged] Blue -> Red: range 1, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 12 = max 4 + sink 12 - current 3 - movement 1 - other 0; expected dmg 0.00)
-  [Physical] Red -> Blue: kick (Left Leg) needs 7 (piloting 5 + base 3 + attack -1), rolled 7 -> HIT (11 dmg, front side)
-  [Physical] Blue -> Red: push needs 8 (piloting 5 + base 4 + attack -1), rolled 8 -> HIT (230 dmg, front side)
-    kick (Left Leg) hits Blue's Left Leg for 11.
-11 damage (PHYSICAL) incoming to Left Leg (armor).
+  [Movement select] Red: CASPAR (modern, defend): utility 5.25 = -fall 0.00 + bravery -4.75 [1.00 x 0.00 x 1.5 - taken 4.75] - aggression 0.00 + close range 10.00 - facing 0 + hold 0.00 [1114 of 1114 spots; enemy still to move]
+  [Movement] Red: 1005 NE -> 1405 NE, Run (8 MP, 4 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Blue: score 553.862 = dealt 1.75 x0.96 + (HP 324.0 - received 0.00 x1.19 - PSR 0.00) / enemy future 1.47 x my future 2.51 [enemy held at 1405; 237 spots with LOS]
+  [Movement] Blue: 1604 S -> 1105 NW, Run (8 MP, 6 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Red: no weapon can bear on Blue (rear arc) - can't fire.
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's right side arc after that).
+  [Ranged] Blue -> Red: range 3, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 2 + heat 0); firing ['PPC'] (weapon heat 10 of budget 11 = max 4 + sink 12 - current 3 - movement 2 - other 0; expected dmg 1.67)
+    PPC: needs 10 (range mod +1), rolled 5 -> miss
+  [Heat] Red: 3 + movement 2 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 3 + movement 2 + weapons 10 + engine 0 - sinks 12 -> 3
+  -- end of turn 11: Red @ 1405 NE: HP 220, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 11: Blue @ 1105 NW: HP 233, pilot hits 0, engine 0, gyro 0, heat 3
+
+=== TURN 12 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 547.450 = dealt 1.79 x1.00 + (HP 324.0 - received 3.84 x1.00 - PSR 0.00) / enemy future 1.37 x my future 2.33 [two-ply, 213 of 1108 spots (grid search) x 881 replies (short list); modeled reply Red -> 1205 NW Walk]
+  [Movement] Blue: 1105 NW -> 0603 N, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: CASPAR (modern, attack): utility 12.77 = -fall 0.00 + bravery 5.77 [1.00 x 5.80 x 1.5 - taken 2.92] - aggression 0.00 + close range 7.00 - facing 0 + hold 0.00 [881 of 881 spots; enemy moved]
+  [Movement] Red: 1405 NE -> 1104 NW, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
+  [Ranged] Blue -> Red: range 5, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 0); firing ['LRM 10'] (weapon heat 4 of budget 8 = max 4 + sink 12 - current 3 - movement 5 - other 0; expected dmg 1.05)
+    LRM 10: needs 10 (range mod +2), rolled 7 -> miss [IS Ammo LRM-10: 9 shots left]
+  [Ranged] Red -> Blue: range 5, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 1 + heat 0); firing ['LRM 10', 'PPC'] (weapon heat 14 of budget 15 = max 4 + sink 12 - current 0 - movement 1 - other 0; Princess plan utility 5.80, about 3.30 expected dmg)
+  [Ranged] Red fires in order: ['PPC', 'LRM 10'].
+    PPC: needs 9 (range mod +0), rolled 8 -> miss
+    LRM 10: needs 11 (range mod +2), rolled 8 -> miss [IS Ammo LRM-10: 7 shots left]
+  [Heat] Red: 0 + movement 1 + weapons 14 + engine 0 - sinks 12 -> 3
+  [Heat] Blue: 3 + movement 5 + weapons 4 + engine 0 - sinks 12 -> 0
+  -- end of turn 12: Red @ 1104 NW: HP 220, pilot hits 0, engine 0, gyro 0, heat 3
+  -- end of turn 12: Blue @ 0603 N: HP 233, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 13 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 550.796 = dealt 2.57 x1.00 + (HP 324.0 - received 2.33 x1.00 - PSR 0.00) / enemy future 1.28 x my future 2.18 [two-ply, 188 of 909 spots (grid search) x 1043 replies (short list); modeled reply Red -> 0406 S Run]
+  [Movement] Blue: 0603 N -> 0407 NW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: CASPAR (modern, defend): utility 9.43 = -fall 0.00 + bravery -0.57 [1.00 x 0.00 x 1.5 - taken 0.57] - aggression 0.00 + close range 10.00 - facing 0 + hold 0.00 [1043 of 1043 spots; enemy moved]
+  [Movement] Red: 1104 NW -> 0606 SW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue -> Red: range 2, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 11 = max 4 + sink 12 - current 0 - movement 5 - other 0; expected dmg 0.28)
+    PPC: needs 12 (range mod +2), rolled 7 -> miss
+  [Ranged] Red -> Blue: range 2, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 8 = max 4 + sink 12 - current 3 - movement 5 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Heat] Red: 3 + movement 5 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 0 + movement 5 + weapons 10 + engine 0 - sinks 12 -> 3
+  -- end of turn 13: Red @ 0606 SW: HP 220, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 13: Blue @ 0407 NW: HP 233, pilot hits 0, engine 0, gyro 0, heat 3
+
+=== TURN 14 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 548.482 = dealt 3.02 x1.00 + (HP 324.0 - received 3.84 x1.03 - PSR 0.00) / enemy future 1.20 x my future 2.04 [two-ply, 213 of 891 spots (grid search) x 1103 replies (short list); modeled reply Red -> 1104 SW Walk]
+  [Movement] Blue: 0407 NW -> 0505 S, Jump (5 MP, 3 hexes, 3 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: CASPAR (modern, defend): utility 21.57 = -fall 0.00 + bravery 11.57 [1.00 x 1.46 x 1.5 - taken -9.37] - aggression 0.00 + close range 10.00 - facing 0 + hold 0.00 [1092 of 1092 spots; enemy moved]
+  [Movement] Red: 0606 SW -> 0507 N, Walk (5 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
+  [Ranged] Blue -> Red: range 2, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 10 = max 4 + sink 12 - current 3 - movement 3 - other 0; expected dmg 2.78)
+    PPC: needs 9 (range mod +2), rolled 10 -> HIT
+  [Ranged] Red -> Blue: range 2, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 2 + heat 0); firing ['PPC'] (weapon heat 10 of budget 15 = max 4 + sink 12 - current 0 - movement 1 - other 0; Princess plan utility 1.46, about 0.83 expected dmg)
+    PPC: needs 11 (range mod +2), rolled 6 -> miss
+    PPC hit for 10:
+      Hit location roll 6 (front table): Right Torso.
+10 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (10 -> 0 remaining).
+  [Heat] Red: 0 + movement 1 + weapons 10 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 3 + movement 3 + weapons 10 + engine 0 - sinks 12 -> 4
+  -- end of turn 14: Red @ 0507 N: HP 210, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 14: Blue @ 0505 S: HP 233, pilot hits 0, engine 0, gyro 0, heat 4
+
+=== TURN 15 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 742.732 = dealt 2.48 x1.00 + (HP 324.0 - received 2.39 x1.19 - PSR 0.00) / enemy future 1.13 x my future 2.60 [two-ply, 214 of 959 spots (grid search) x 1025 replies (short list); modeled reply Red -> 0207 SE Run]
+  [Movement] Blue: 0505 S -> 0308 SE, Jump (5 MP, 4 hexes, 4 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: CASPAR (modern, defend): utility 16.25 = -fall 0.00 + bravery 0.82 [1.00 x 0.54 x 1.5 - taken 0.00] - aggression 0.00 + close range 10.00 - facing 0 + hold 5.44 [1015 of 1015 spots; enemy moved]
+  [Movement] Red: 0507 N -> 0507 SW, Walk (2 MP, 0 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue -> Red: range 2, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 8 = max 4 + sink 12 - current 4 - movement 4 - other 0; expected dmg 0.00)
+  [Ranged] Red -> Blue: range 2, base TN 10 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 3 + heat 0); firing ['PPC'] (weapon heat 10 of budget 15 = max 4 + sink 12 - current 0 - movement 1 - other 0; Princess plan utility 0.54, about 0.28 expected dmg)
+    PPC: needs 12 (range mod +2), rolled 7 -> miss
+  [Heat] Red: 0 + movement 1 + weapons 10 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 4 + movement 4 + weapons 0 + engine 0 - sinks 12 -> 0
+  -- end of turn 15: Red @ 0507 SW: HP 210, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 15: Blue @ 0308 SE: HP 233, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 16 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 738.355 = dealt 2.48 x1.00 + (HP 324.0 - received 3.99 x1.19 - PSR 0.00) / enemy future 1.06 x my future 2.45 [two-ply, 233 of 855 spots (grid search) x 1025 replies (short list); modeled reply Red -> 0208 NE Run]
+  [Movement] Blue: 0308 SE -> 0308 NE, Jump (1 MP, 0 hexes, 3 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: CASPAR (modern, defend): utility 13.43 = -fall 0.00 + bravery 2.43 [1.00 x 2.00 x 1.5 - taken 0.57] - aggression 0.00 + close range 11.00 - facing 0 + hold 0.00 [1006 of 1006 spots; enemy moved]
+  [Movement] Red: 0507 SW -> 0208 NE, Jump (5 MP, 3 hexes, 3 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue -> Red: range 1, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 13 = max 4 + sink 12 - current 0 - movement 3 - other 0; expected dmg 0.00)
+  [Ranged] Red -> Blue: range 1, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 13 = max 4 + sink 12 - current 0 - movement 3 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Physical] Blue twists its torso 1 hexside left to reach Red.
+  [Physical] Blue -> Red: punch (Left Arm) needs 9 (piloting 5 + base 5 + attack -1), rolled 11 -> HIT (6 dmg, front side)
+  [Physical] Red -> Blue: punch (Left Arm) needs 10 (piloting 5 + base 6 + attack -1), rolled 6 -> miss (6 dmg, rear side)
+  [Physical] Red -> Blue: punch (Right Arm) needs 10 (piloting 5 + base 6 + attack -1), rolled 6 -> miss (6 dmg, rear side)
+    punch (Left Arm) hits Red's Center Torso for 6.
+6 damage (PHYSICAL) incoming to Center Torso (armor).
+  [STANDARD/PHYSICAL] 6 armor pts destroyed at armor (20 -> 14 remaining).
+  [Heat] Red: 0 + movement 3 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 0 + movement 3 + weapons 0 + engine 0 - sinks 12 -> 0
+  -- end of turn 16: Red @ 0208 NE: HP 204, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 16: Blue @ 0308 NE: HP 233, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 17 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: CASPAR (modern, defend): utility 4.92 = -fall 0.00 + bravery -6.08 [1.00 x 0.00 x 1.5 - taken 6.08] - aggression 0.00 + close range 11.00 - facing 0 + hold 0.00 [741 of 741 spots; enemy still to move]
+  [Movement] Red: 0208 NE -> 0307 S, Run (8 MP, 3 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Blue: score 850.940 = dealt 3.67 x1.02 + (HP 324.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 1.01 x my future 2.64 [enemy held at 0307; 254 spots with LOS]
+  [Movement] Blue: 0308 NE -> 0404 NW, Run (7 MP, 4 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Red: no weapon can bear on Blue (rear arc) - can't fire.
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
+  [Ranged] Blue -> Red: range 3, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 1 + heat 0); firing ['LRM 10', 'PPC'] (weapon heat 14 of budget 14 = max 4 + sink 12 - current 0 - movement 2 - other 0; expected dmg 2.95)
+  [Ranged] Blue fires in order: ['PPC', 'LRM 10'].
+    PPC: needs 9 (range mod +1), rolled 5 -> miss
+    LRM 10: needs 12 (range mod +4), rolled 8 -> miss [IS Ammo LRM-10: 8 shots left]
+  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 14 + engine 0 - sinks 12 -> 4
+  -- end of turn 17: Red @ 0307 S: HP 204, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 17: Blue @ 0404 NW: HP 233, pilot hits 0, engine 0, gyro 0, heat 4
+
+=== TURN 18 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: CASPAR (modern, attack): utility 6.25 = -fall 0.00 + bravery -4.75 [1.00 x 0.00 x 1.5 - taken 4.75] - aggression 0.00 + close range 11.00 - facing 0 + hold 0.00 [827 of 827 spots; enemy still to move]
+  [Movement] Red: 0307 S -> 0505 NW, Jump (5 MP, 3 hexes, 3 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Blue: score 812.396 = dealt 1.05 x1.02 + (HP 324.0 - received 0.00 x1.03 - PSR 0.00) / enemy future 1.00 x my future 2.50 [enemy held at 0505; 239 spots with LOS]
+  [Movement] Blue: 0404 NW -> 0707 NE, Run (8 MP, 4 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Red: no weapon can bear on Blue (rear arc) - can't fire.
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
+  [Ranged] Blue -> Red: range 3, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 2 + heat 0); firing ['PPC'] (weapon heat 10 of budget 10 = max 4 + sink 12 - current 4 - movement 2 - other 0; expected dmg 0.83)
+    PPC: needs 11 (range mod +1), rolled 10 -> miss
+  [Heat] Red: 0 + movement 3 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 4 + movement 2 + weapons 10 + engine 0 - sinks 12 -> 4
+  -- end of turn 18: Red @ 0505 NW: HP 204, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 18: Blue @ 0707 NE: HP 233, pilot hits 0, engine 0, gyro 0, heat 4
+
+=== TURN 19 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 771.437 = dealt 1.22 x1.00 + (HP 324.0 - received 1.01 x1.03 - PSR 0.00) / enemy future 1.00 x my future 2.38 [two-ply, 211 of 1157 spots (grid search) x 1017 replies (short list); modeled reply Red -> 0907 NW Walk]
+  [Movement] Blue: 0707 NE -> 0503 S, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: CASPAR (modern, attack): utility 28.20 = -fall 0.00 + bravery 9.43 [1.00 x 0.00 x 1.5 - taken -9.43] - aggression 0.00 + close range 10.00 - facing 0 + hold 8.77 [1004 of 1004 spots; enemy moved]
+  [Movement] Red: 0505 NW -> 0505 N, Walk (1 MP, 0 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue -> Red: range 2, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 3 + heat 0); firing nothing (weapon heat 0 of budget 7 = max 4 + sink 12 - current 4 - movement 5 - other 0; expected dmg 0.00)
+  [Ranged] Red -> Blue: range 2, base TN 11 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 3 + heat 0); firing nothing (weapon heat 0 of budget 15 = max 4 + sink 12 - current 0 - movement 1 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 4 + movement 5 + weapons 0 + engine 0 - sinks 12 -> 0
+  -- end of turn 19: Red @ 0505 N: HP 204, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 19: Blue @ 0503 S: HP 233, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 20 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 730.457 = dealt 3.69 x1.00 + (HP 324.0 - received 3.99 x1.19 - PSR 0.00) / enemy future 1.00 x my future 2.28 [two-ply, 218 of 784 spots (grid search) x 1006 replies (short list); modeled reply Red -> 0402 SE Run]
+  [Movement] Blue: 0503 S -> 0503 SE, Jump (1 MP, 0 hexes, 3 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: CASPAR (modern, attack): utility 19.77 = -fall 0.00 + bravery 3.82 [1.00 x 2.93 x 1.5 - taken 0.57] - aggression 0.00 + close range 10.00 - facing 0 + hold 5.94 [987 of 987 spots; enemy moved]
+  [Movement] Red: 0505 N -> 0505 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue -> Red: range 2, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 3 + heat 0); firing ['PPC'] (weapon heat 10 of budget 13 = max 4 + sink 12 - current 0 - movement 3 - other 0; expected dmg 0.28)
+    PPC: needs 12 (range mod +2), rolled 7 -> miss
+  [Ranged] Red -> Blue: range 2, base TN 8 (gunnery 4 + AMM 0 [Stand Still] + TMM 1 + LOS 3 + heat 0); firing ['PPC'] (weapon heat 10 of budget 16 = max 4 + sink 12 - current 0 - movement 0 - other 0; Princess plan utility 2.93, about 1.67 expected dmg)
+    PPC: needs 10 (range mod +2), rolled 8 -> miss
+  [Heat] Red: 0 + movement 0 + weapons 10 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 0 + movement 3 + weapons 10 + engine 0 - sinks 12 -> 1
+  -- end of turn 20: Red @ 0505 N: HP 204, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 20: Blue @ 0503 SE: HP 233, pilot hits 0, engine 0, gyro 0, heat 1
+
+=== TURN 21 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 698.859 = dealt 3.69 x1.00 + (HP 324.0 - received 3.99 x1.19 - PSR 0.00) / enemy future 1.00 x my future 2.18 [two-ply, 223 of 820 spots (grid search) x 1006 replies (short list); modeled reply Red -> 0402 SE Run]
+  [Movement] Blue: 0503 SE -> 0503 SE, Jump (1 MP, 0 hexes, 3 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: CASPAR (modern, attack): utility 19.77 = -fall 0.00 + bravery 3.82 [1.00 x 2.93 x 1.5 - taken 0.57] - aggression 0.00 + close range 10.00 - facing 0 + hold 5.94 [987 of 987 spots; enemy moved]
+  [Movement] Red: 0505 N -> 0505 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue -> Red: range 2, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 3 + heat 0); firing ['PPC'] (weapon heat 10 of budget 12 = max 4 + sink 12 - current 1 - movement 3 - other 0; expected dmg 0.28)
+    PPC: needs 12 (range mod +2), rolled 7 -> miss
+  [Ranged] Red -> Blue: range 2, base TN 8 (gunnery 4 + AMM 0 [Stand Still] + TMM 1 + LOS 3 + heat 0); firing ['PPC'] (weapon heat 10 of budget 16 = max 4 + sink 12 - current 0 - movement 0 - other 0; Princess plan utility 2.93, about 1.67 expected dmg)
+    PPC: needs 10 (range mod +2), rolled 6 -> miss
+  [Heat] Red: 0 + movement 0 + weapons 10 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 1 + movement 3 + weapons 10 + engine 0 - sinks 12 -> 2
+  -- end of turn 21: Red @ 0505 N: HP 204, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 21: Blue @ 0503 SE: HP 233, pilot hits 0, engine 0, gyro 0, heat 2
+
+=== TURN 22 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: CASPAR (modern, attack): utility 6.00 = -fall 0.00 + bravery 0.00 [1.00 x 3.33 x 1.5 - taken 5.00] - aggression 0.00 + close range 6.00 - facing 0 + hold 0.00 [987 of 987 spots; enemy still to move]
+  [Movement] Red: 0505 N -> 0509 N, Walk (4 MP, 4 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
+  [Movement select] Blue: score 674.099 = dealt 13.70 x1.09 + (HP 324.0 - received 8.15 x1.00 - PSR 0.00) / enemy future 1.00 x my future 2.09 [enemy held at 0509; 76 spots with LOS]
+  [Movement] Blue: 0503 SE -> 0608 S, Run (8 MP, 6 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Red -> Blue: range 1, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 15 = max 4 + sink 12 - current 0 - movement 1 - other 0; Princess plan utility 2.93, about 1.67 expected dmg)
+    PPC: needs 10 (range mod +3), rolled 6 -> miss
+  [Ranged] Blue -> Red: range 1, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 12 = max 4 + sink 12 - current 2 - movement 2 - other 0; expected dmg 1.67)
+    PPC: needs 10 (range mod +3), rolled 6 -> miss
+  [Physical] Red -> Blue: kick (Left Leg) needs 7 (piloting 5 + base 3 + attack -1), rolled 4 -> miss (11 dmg, right side)
+  [Physical] Blue -> Red: punch (Left Arm) needs 7 (piloting 5 + base 3 + attack -1), rolled 2 -> miss (6 dmg, right side)
+PSR trigger: missed a kick -> +0.
+Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
+  Succeeded - remains standing.
+  [Heat] Red: 0 + movement 1 + weapons 10 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 2 + movement 2 + weapons 10 + engine 0 - sinks 12 -> 2
+  -- end of turn 22: Red @ 0509 N: HP 204, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 22: Blue @ 0608 S: HP 233, pilot hits 0, engine 0, gyro 0, heat 2
+
+=== TURN 23 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: CASPAR (modern, attack): utility 4.25 = -fall 0.00 + bravery -4.75 [1.00 x 0.00 x 1.5 - taken 4.75] - aggression 0.00 + close range 9.00 - facing 0 + hold 0.00 [1048 of 1048 spots; enemy still to move]
+  [Movement] Red: 0509 N -> 0308 SE, Jump (5 MP, 2 hexes, 3 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Blue: score 649.701 = dealt 1.09 x1.09 + (HP 324.0 - received 0.28 x1.00 - PSR 0.00) / enemy future 1.00 x my future 2.00 [enemy held at 0308; 236 spots with LOS]
+  [Movement] Blue: 0608 S -> 0515 SW, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Red -> Blue: range 8, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 0 + heat 0); firing ['LRM 10', 'PPC'] (weapon heat 14 of budget 13 = max 4 + sink 12 - current 0 - movement 3 - other 0; Princess plan utility 0.83, about 0.45 expected dmg)
+  [Ranged] Red fires in order: ['PPC', 'LRM 10'].
+    PPC: needs 12 (range mod +2), rolled 2 -> miss
+    LRM 10: needs 12 (range mod +2), rolled 10 -> miss [IS Ammo LRM-10: 6 shots left]
+  [Ranged] Blue -> Red: range 8, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 2 + heat 0); firing ['PPC'] (weapon heat 10 of budget 12 = max 4 + sink 12 - current 2 - movement 2 - other 0; expected dmg 0.83)
+    PPC: needs 11 (range mod +2), rolled 6 -> miss
+  [Heat] Red: 0 + movement 3 + weapons 14 + engine 0 - sinks 12 -> 5
+  [Heat] Red: heat 5 -> next turn -1 Walking MP, +0 to ranged attacks.
+  [Heat] Blue: 2 + movement 2 + weapons 10 + engine 0 - sinks 12 -> 2
+  -- end of turn 23: Red @ 0308 SE: HP 204, pilot hits 0, engine 0, gyro 0, heat 5
+  -- end of turn 23: Blue @ 0515 SW: HP 233, pilot hits 0, engine 0, gyro 0, heat 2
+
+=== TURN 24 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 623.713 = dealt 1.22 x1.00 + (HP 324.0 - received 0.84 x1.00 - PSR 0.00) / enemy future 1.00 x my future 1.93 [two-ply, 174 of 915 spots (grid search) x 643 replies (short list); modeled reply Red -> 0209 SE Walk]
+  [Movement] Blue: 0515 SW -> 1017 SW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: CASPAR (modern, attack): utility -8.29 = -fall 0.00 + bravery 0.21 [1.00 x 0.52 x 1.5 - taken 0.57] - aggression 12.50 + close range 4.00 - facing 0 + hold 0.00 [643 of 643 spots; enemy moved]
+  [Movement] Red: 0308 SE -> 0810 S, Jump (5 MP, 5 hexes, 5 heat; budget walk 4 / run 6 / jump 5)
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
+  [Ranged] Blue -> Red: range 8, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 0 + heat 0); firing ['LRM 10'] (weapon heat 4 of budget 9 = max 4 + sink 12 - current 2 - movement 5 - other 0; expected dmg 0.18)
+    LRM 10: needs 12 (range mod +2), rolled 8 -> miss [IS Ammo LRM-10: 7 shots left]
+  [Ranged] Red -> Blue: range 8, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 0 + heat 0); firing ['LRM 10'] (weapon heat 4 of budget 6 = max 4 + sink 12 - current 5 - movement 5 - other 0; Princess plan utility 0.31, about 0.18 expected dmg)
+    LRM 10: needs 12 (range mod +2), rolled 9 -> miss [IS Ammo LRM-10: 5 shots left]
+  [Heat] Red: 5 + movement 5 + weapons 4 + engine 0 - sinks 12 -> 2
+  [Heat] Blue: 2 + movement 5 + weapons 4 + engine 0 - sinks 12 -> 0
+  -- end of turn 24: Red @ 0810 S: HP 204, pilot hits 0, engine 0, gyro 0, heat 2
+  -- end of turn 24: Blue @ 1017 SW: HP 233, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 25 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: CASPAR (modern, attack): utility 2.67 = -fall 0.00 + bravery -3.33 [1.00 x 0.00 x 1.5 - taken 3.33] - aggression 0.00 + close range 6.00 - facing 0 + hold 0.00 [1153 of 1153 spots; enemy still to move]
+  [Movement] Red: 0810 S -> 1313 S, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Blue: score 601.785 = dealt 2.96 x1.00 + (HP 324.0 - received 1.16 x1.00 - PSR 0.00) / enemy future 1.00 x my future 1.85 [enemy held at 1313; 74 spots with LOS]
+  [Movement] Blue: 1017 SW -> 1314 NW, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Red -> Blue: range 1, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 12 = max 4 + sink 12 - current 2 - movement 2 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Blue holds ['PPC'] back for the Physical phase (plans punch (Left Arm), punch (Right Arm), expected 2.00).
+  [Ranged] Blue -> Red: range 1, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 1 + heat 0); firing nothing (weapon heat 0 of budget 11 = max 4 + sink 12 - current 0 - movement 5 - other 0; expected dmg 0.00)
+  [Physical] Red -> Blue: punch (Left Arm) needs 11 (piloting 5 + base 7 + attack -1), rolled 4 -> miss (6 dmg, right side)
+  [Physical] Red -> Blue: punch (Right Arm) needs 11 (piloting 5 + base 7 + attack -1), rolled 8 -> miss (6 dmg, right side)
+  [Physical] Blue -> Red: punch (Left Arm) needs 10 (piloting 5 + base 6 + attack -1), rolled 9 -> miss (6 dmg, front side)
+  [Physical] Blue -> Red: punch (Right Arm) needs 10 (piloting 5 + base 6 + attack -1), rolled 12 -> HIT (6 dmg, front side)
+    punch (Right Arm) hits Red's Left Torso for 6.
+6 damage (PHYSICAL) incoming to Left Torso (armor).
+  [STANDARD/PHYSICAL] 6 armor pts destroyed at armor (17 -> 11 remaining).
+  [Heat] Red: 2 + movement 2 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 0 + movement 5 + weapons 0 + engine 0 - sinks 12 -> 0
+  -- end of turn 25: Red @ 1313 S: HP 198, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 25: Blue @ 1314 NW: HP 233, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 26 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: CASPAR (modern, attack): utility 6.25 = -fall 0.00 + bravery -4.75 [1.00 x 0.00 x 1.5 - taken 4.75] - aggression 0.00 + close range 11.00 - facing 0 + hold 0.00 [891 of 891 spots; enemy still to move]
+  [Movement] Red: 1313 S -> 1315 N, Jump (5 MP, 2 hexes, 3 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Blue: score 650.723 = dealt 10.34 x1.00 + (HP 324.0 - received 4.15 x1.03 - PSR 0.00) / enemy future 1.00 x my future 2.00 [enemy held at 1315; 236 spots with LOS]
+  [Movement] Blue: 1314 NW -> 1314 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Red -> Blue: range 1, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 2 + heat 0); firing ['PPC'] (weapon heat 10 of budget 13 = max 4 + sink 12 - current 0 - movement 3 - other 0; Princess plan utility 0.54, about 0.28 expected dmg)
+    PPC: needs 12 (range mod +3), rolled 8 -> miss
+  [Ranged] Blue holds ['PPC'] back for the Physical phase (plans punch (Left Arm), punch (Right Arm), expected 7.00).
+  [Ranged] Blue -> Red: range 1, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 1 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 16 = max 4 + sink 12 - current 0 - movement 0 - other 0; expected dmg 0.00)
+  [Physical] Red -> Blue: kick (Left Leg) needs 9 (piloting 5 + base 5 + attack -1), rolled 5 -> miss (11 dmg, left side)
+  [Physical] Blue twists its torso 1 hexside left to reach Red.
+  [Physical] Blue -> Red: punch (Left Arm) needs 7 (piloting 5 + base 3 + attack -1), rolled 11 -> HIT (6 dmg, front side)
+  [Physical] Blue -> Red: punch (Right Arm) needs 7 (piloting 5 + base 3 + attack -1), rolled 12 -> HIT (6 dmg, front side)
+    punch (Left Arm) hits Red's Right Torso for 6.
+6 damage (PHYSICAL) incoming to Right Torso (armor).
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 6 damage applied to structure [STANDARD] (13 -> 7/13 remaining).
+  Check for possible critical. Roll a 7.
+    No critical hit.
+    punch (Right Arm) hits Red's Head for 6.
+6 damage (PHYSICAL) incoming to Head (armor).
+  [STANDARD/PHYSICAL] 6 armor pts destroyed at armor (9 -> 3 remaining).
+PSR trigger: missed a kick -> +0.
+Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
+  Succeeded - remains standing.
+Physical Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 7.
+  Pilot stays conscious.
+  [Heat] Red: 0 + movement 3 + weapons 10 + engine 0 - sinks 12 -> 1
+  [Heat] Blue: 0 + movement 0 + weapons 0 + engine 0 - sinks 12 -> 0
+  -- end of turn 26: Red @ 1315 N: HP 186, pilot hits 1, engine 0, gyro 0, heat 1
+  -- end of turn 26: Blue @ 1314 NW: HP 233, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 27 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 855.257 = dealt 4.95 x1.00 + (HP 324.0 - received 2.20 x1.00 - PSR 0.00) / enemy future 1.00 x my future 2.64 [two-ply, 208 of 895 spots (grid search) x 764 replies (short list); modeled reply Red -> 1217 NW Walk]
+  [Movement] Blue: 1314 NW -> 0813 NE, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Red: CASPAR (modern, defend): utility 11.69 = -fall 0.00 + bravery 3.69 [1.00 x 0.53 x 1.5 - taken -2.89] - aggression 0.00 + close range 8.00 - facing 0 + hold 0.00 [758 of 758 spots; enemy moved]
+  [Movement] Red: 1315 N -> 1211 SW, Jump (5 MP, 4 hexes, 4 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Blue -> Red: range 4, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 11 = max 4 + sink 12 - current 0 - movement 5 - other 0; expected dmg 2.78)
+    PPC: needs 9 (range mod +0), rolled 4 -> miss
+  [Ranged] Red -> Blue: range 4, base TN 12 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 2 + heat 0); firing ['PPC'] (weapon heat 10 of budget 11 = max 4 + sink 12 - current 1 - movement 4 - other 0; Princess plan utility 0.53, about 0.28 expected dmg)
+    PPC: needs 12 (range mod +0), rolled 11 -> miss
+  [Heat] Red: 1 + movement 4 + weapons 10 + engine 0 - sinks 12 -> 3
+  [Heat] Blue: 0 + movement 5 + weapons 10 + engine 0 - sinks 12 -> 3
+  -- end of turn 27: Red @ 1211 SW: HP 186, pilot hits 1, engine 0, gyro 0, heat 3
+  -- end of turn 27: Blue @ 0813 NE: HP 233, pilot hits 0, engine 0, gyro 0, heat 3
+
+=== TURN 28 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: CASPAR (modern, defend): utility 4.92 = -fall 0.00 + bravery -6.08 [1.00 x 0.00 x 1.5 - taken 6.08] - aggression 0.00 + close range 11.00 - facing 0 + hold 0.00 [1072 of 1072 spots; enemy still to move]
+  [Movement] Red: 1211 SW -> 0714 NE, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Blue: score 828.868 = dealt 1.89 x0.93 + (HP 324.0 - received 0.18 x1.00 - PSR 0.00) / enemy future 1.00 x my future 2.55 [enemy held at 0714; 309 spots with LOS]
+  [Movement] Blue: 0813 NE -> 0512 NE, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 3, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 0); firing ['LRM 10'] (weapon heat 4 of budget 8 = max 4 + sink 12 - current 3 - movement 5 - other 0; Princess plan utility 0.31, about 0.18 expected dmg)
+    LRM 10: needs 12 (range mod +4), rolled 10 -> miss [IS Ammo LRM-10: 4 shots left]
+  [Ranged] Blue -> Red: range 3, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 1 + heat 0); firing ['PPC'] (weapon heat 10 of budget 12 = max 4 + sink 12 - current 3 - movement 1 - other 0; expected dmg 1.67)
+    PPC: needs 10 (range mod +1), rolled 5 -> miss
+  [Heat] Red: 3 + movement 5 + weapons 4 + engine 0 - sinks 12 -> 0
+  [Heat] Blue: 3 + movement 1 + weapons 10 + engine 0 - sinks 12 -> 2
+  -- end of turn 28: Red @ 0714 NE: HP 186, pilot hits 1, engine 0, gyro 0, heat 0
+  -- end of turn 28: Blue @ 0512 NE: HP 233, pilot hits 0, engine 0, gyro 0, heat 2
+
+=== TURN 29 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: CASPAR (modern, attack): utility 6.00 = -fall 0.00 + bravery 0.00 [1.00 x 3.33 x 1.5 - taken 5.00] - aggression 0.00 + close range 6.00 - facing 0 + hold 0.00 [1036 of 1036 spots; enemy still to move]
+  [Movement] Red: 0714 NE -> 0617 N, Walk (5 MP, 4 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
+  [Movement select] Blue: score 888.245 = dealt 116.95 x0.93 + (HP 324.0 - received 8.54 x1.00 - PSR 0.00) / enemy future 1.00 x my future 2.47 [enemy held at 0617; 172 spots with LOS]
+  [Movement] Blue: 0512 NE -> 0517 SE, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
+  [Ranged] Red -> Blue: range 1, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 0); firing ['PPC'] (weapon heat 10 of budget 15 = max 4 + sink 12 - current 0 - movement 1 - other 0; Princess plan utility 2.93, about 1.67 expected dmg)
+    PPC: needs 10 (range mod +3), rolled 4 -> miss
+  [Ranged] Blue holds ['PPC'] back for the Physical phase (plans push, expected 108.50).
+  [Ranged] Blue -> Red: range 1, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 12 = max 4 + sink 12 - current 2 - movement 2 - other 0; expected dmg 0.00)
+  [Physical] Red -> Blue: kick (Left Leg) needs 7 (piloting 5 + base 3 + attack -1), rolled 9 -> HIT (11 dmg, front side)
+  [Physical] Blue -> Red: push needs 7 (piloting 5 + base 3 + attack -1), rolled 10 -> HIT (186 dmg, left side)
+    kick (Left Leg) hits Blue's Right Leg for 11.
+11 damage (PHYSICAL) incoming to Right Leg (armor).
   [STANDARD/PHYSICAL] 11 armor pts destroyed at armor (18 -> 7 remaining).
     Red is pushed off the battlefield - destroyed (p.83).
 PSR trigger: kicked -> +0.
-Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
+Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 6.
   Succeeded - remains standing.
-  [Heat] Blue: 3 + movement 1 + weapons 0 + engine 0 - sinks 12 -> 0
-  -- end of turn 8: Red @ 1617 NW: HP 230, pilot hits 0, engine 0, gyro 0, heat 0 [DESTROYED (Pushed off the battlefield)]
-  -- end of turn 8: Blue @ 1617 SE: HP 232, pilot hits 0, engine 0, gyro 0, heat 0
+  [Heat] Blue: 2 + movement 2 + weapons 0 + engine 0 - sinks 12 -> 0
+  -- end of turn 29: Red @ 0617 N: HP 186, pilot hits 1, engine 0, gyro 0, heat 0 [DESTROYED (Pushed off the battlefield)]
+  -- end of turn 29: Blue @ 0617 SE: HP 222, pilot hits 0, engine 0, gyro 0, heat 0
 
->>> Battle over on turn 8: Red destroyed. <<<
+>>> Battle over on turn 29: Red destroyed. <<<

@@ -19,7 +19,7 @@
 use crate::fasthash::HashMap;
 
 use crate::battle::{Battle, UnitId};
-use crate::caspar::{mm_direction, mm_translated};
+use crate::mm_line::{mm_direction, mm_translated};
 use crate::hex_geometry;
 use crate::mech_state::*;
 use crate::princess_memory::{cols_rows_to_label, label_to_cols_rows};

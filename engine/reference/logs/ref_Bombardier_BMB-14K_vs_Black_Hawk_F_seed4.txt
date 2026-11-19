@@ -1,7 +1,7 @@
 # scenario ref_Bombardier_BMB-14K_vs_Black_Hawk_F_seed4
-# seed 1: winner Red, 7 turns
-#   Red: 251.0 of 312.0 armor + structure left, team destroyed False, units 1, 17 hits of 30 attacks, 144.0 damage dealt
-#   Blue: 68.0 of 243.0 armor + structure left, team destroyed True, units 1, 7 hits of 20 attacks, 54.0 damage dealt
+# seed 1: winner Red, 4 turns
+#   Red: 312.0 of 312.0 armor + structure left, team destroyed False, units 1, 9 hits of 13 attacks, 92.0 damage dealt
+#   Blue: 124.0 of 243.0 armor + structure left, team destroyed True, units 1, 0 hits of 8 attacks, 0.0 damage dealt
 # log
   Deployment: Blue home edge W (0101-0117).
   Deployment: Red home edge E (1601-1617).
@@ -11,7 +11,7 @@
   Initiative: Red lost the roll, moves first.
   [Movement select] Red: no enemy on the board yet - heads for its home edge near 0109
   [Movement] Red: off the board -> 0906 SW, Run (8 MP, 8 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 237.695 = dealt 15.15 x1.01 + (HP 326.0 - received 5.85 x1.01 - PSR 0.00) / enemy future 10.90 x my future 7.58 [enemy held at 0906; 173 spots with LOS]
+  [Movement select] Blue: score 237.744 = dealt 15.15 x1.01 + (HP 326.0 - received 5.85 x1.00 - PSR 0.00) / enemy future 10.90 x my future 7.58 [enemy held at 0906; 173 spots with LOS]
   [Movement] Blue: off the board -> 0506 SE, Walk (5 MP, 5 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Ranged] Red -> Blue: range 4, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 0 + heat 0); firing ['ISMML7', 'ISMML7', 'ISMML7', 'ISMML7'] (weapon heat 16 of budget 22 = max 4 + sink 20 - current 0 - movement 2 - other 0; expected dmg 5.85)
     [Red fire control] ISMML7: MML SRM rounds
@@ -25,29 +25,29 @@
     CLERMediumLaser: needs 8 (range mod +0), rolled 6 -> miss
     CLHAG20: needs 8 (range mod +0), rolled 7 -> miss [HAG/20 Ammo: 5 shots left]
     ISMML7 hit: cluster roll 7 (MML SRM rounds) on the 7-column table -> 4 connect (8 dmg).
-      Group 1/4: Hit location roll 12 (left table): Head.
+      Group 1/4: Hit location roll 12 (front table): Head.
       Head hit - pilot takes 1 hit (1/6), regardless of armor.
 2 damage (MISSILE) incoming to Head (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (9 -> 7 remaining).
-      Group 2/4: Hit location roll 9 (left table): Right Torso.
-2 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (16 -> 14 remaining).
-      Group 3/4: Hit location roll 8 (left table): Center Torso.
-2 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (23 -> 21 remaining).
-      Group 4/4: Hit location roll 6 (left table): Left Leg.
+      Group 2/4: Hit location roll 9 (front table): Left Leg.
 2 damage (MISSILE) incoming to Left Leg (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (20 -> 18 remaining).
-    ISMML7 hit: cluster roll 4 (MML SRM rounds) on the 7-column table -> 3 connect (6 dmg).
-      Group 1/3: Hit location roll 11 (left table): Right Leg.
-2 damage (MISSILE) incoming to Right Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (20 -> 18 remaining).
-      Group 2/3: Hit location roll 9 (left table): Right Torso.
+      Group 3/4: Hit location roll 8 (front table): Left Torso.
+2 damage (MISSILE) incoming to Left Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (16 -> 14 remaining).
+      Group 4/4: Hit location roll 6 (front table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (14 -> 12 remaining).
-      Group 3/3: Hit location roll 5 (left table): Left Arm.
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (16 -> 14 remaining).
+    ISMML7 hit: cluster roll 4 (MML SRM rounds) on the 7-column table -> 3 connect (6 dmg).
+      Group 1/3: Hit location roll 11 (front table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (16 -> 14 remaining).
+      Group 2/3: Hit location roll 9 (front table): Left Leg.
+2 damage (MISSILE) incoming to Left Leg (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (18 -> 16 remaining).
+      Group 3/3: Hit location roll 5 (front table): Right Leg.
+2 damage (MISSILE) incoming to Right Leg (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (20 -> 18 remaining).
 Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 8.
   Pilot stays conscious.
   [Heat] Red: 0 + movement 2 + weapons 16 + engine 0 - sinks 20 -> 0
@@ -57,40 +57,110 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 8.
 
 === TURN 2 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 839.332 = dealt 9.75 x1.00 + (HP 416.0 - received 15.15 x1.01 - PSR 0.00) / enemy future 5.68 x my future 11.76 [two-ply, 127 of 576 spots (grid search) x 1094 replies (short list); modeled reply Blue -> 0705 SW Walk]
+  [Movement select] Red: score 838.443 = dealt 9.75 x1.00 + (HP 416.0 - received 15.15 x1.01 - PSR 0.00) / enemy future 5.68 x my future 11.75 [two-ply, 127 of 576 spots (grid search) x 1094 replies (short list); modeled reply Blue -> 0705 SW Walk]
   [Movement] Red: 0906 SW -> 0408 SE, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 161.284 = dealt 15.15 x1.01 + (HP 312.0 - received 9.75 x1.00 - PSR 0.00) / enemy future 11.76 x my future 5.68 [enemy held at 0408; 369 spots with LOS]
-  [Movement] Blue: 0506 SE -> 0807 SW, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
+  [Movement select] Blue: score 161.412 = dealt 15.15 x1.01 + (HP 312.0 - received 9.75 x1.01 - PSR 0.00) / enemy future 11.75 x my future 5.68 [enemy held at 0408; 293 spots with LOS]
+  [Movement] Blue: 0506 SE -> 0806 SE, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Ranged] Red -> Blue: range 4, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['ISMML7', 'ISMML7', 'ISMML7', 'ISMML7'] (weapon heat 16 of budget 22 = max 4 + sink 20 - current 0 - movement 2 - other 0; expected dmg 9.75)
     [Red fire control] ISMML7: MML SRM rounds
     ISMML7: needs 9 (range mod +2), rolled 10 -> HIT [ISMML7 SRM Ammo: 9 shots left]
     ISMML7: needs 9 (range mod +2), rolled 4 -> miss [ISMML7 SRM Ammo: 8 shots left]
     ISMML7: needs 9 (range mod +2), rolled 10 -> HIT [ISMML7 SRM Ammo: 7 shots left]
     ISMML7: needs 9 (range mod +2), rolled 5 -> miss [ISMML7 SRM Ammo: 6 shots left]
+  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
   [Ranged] Blue -> Red: range 4, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 1 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLHAG20'] (weapon heat 19 of budget 31 = max 4 + sink 28 - current 0 - movement 1 - other 0; expected dmg 15.15)
     CLERMediumLaser: needs 8 (range mod +0), rolled 3 -> miss
     CLERMediumLaser: needs 8 (range mod +0), rolled 7 -> miss
     CLERMediumLaser: needs 8 (range mod +0), rolled 5 -> miss
     CLHAG20: needs 8 (range mod +0), rolled 6 -> miss [HAG/20 Ammo: 4 shots left]
     ISMML7 hit: cluster roll 6 (MML SRM rounds) on the 7-column table -> 4 connect (8 dmg).
-      Group 1/4: Hit location roll 8 (front table): Left Torso.
-2 damage (MISSILE) incoming to Left Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (16 -> 14 remaining).
-      Group 2/4: Hit location roll 10 (front table): Left Arm.
+      Group 1/4: Hit location roll 8 (right table): Center Torso.
+2 damage (MISSILE) incoming to Center Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (23 -> 21 remaining).
+      Group 2/4: Hit location roll 10 (right table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
   [STANDARD/MISSILE] 2 armor pts destroyed at armor (14 -> 12 remaining).
-      Group 3/4: Hit location roll 7 (front table): Center Torso.
-2 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (21 -> 19 remaining).
-      Group 4/4: Hit location roll 2 (front table): Center Torso.
-      Roll of 2 - Through-Armor Critical (floating) triggered.
-      Floating TAC re-roll: 6 -> Right Torso
+      Group 3/4: Hit location roll 7 (right table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (12 -> 10 remaining).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (14 -> 12 remaining).
+      Group 4/4: Hit location roll 2 (right table): Right Torso.
+      Roll of 2 - Through-Armor Critical (floating) triggered.
+      Floating TAC re-roll: 6 -> Right Leg
+2 damage (MISSILE) incoming to Right Leg (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (18 -> 16 remaining).
       Additional critical hit due to TAC.
   Check for possible critical. Roll a 12.
-    Roll of 12 on torso: rolling 3 critical hits instead of destruction.
-    3 critical hit(s).
+    Roll of 12: Right Leg blown off / destroyed!
+    Hip specifically destroyed at Right Leg from Right Leg destruction.
+    Jump jet destroyed (Jump Jet) from Right Leg destruction - jump MP reduced (now 4).
+    Jump jet destroyed (Jump Jet) from Right Leg destruction - jump MP reduced (now 3).
+  All critical slots in Right Leg marked DESTROYED.
+    ISMML7 hit: cluster roll 8 (MML SRM rounds) on the 7-column table -> 4 connect (8 dmg).
+      Group 1/4: Hit location roll 4 (right table): Right Arm.
+2 damage (MISSILE) incoming to Right Arm (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (16 -> 14 remaining).
+      Group 2/4: Hit location roll 7 (right table): Right Torso.
+2 damage (MISSILE) incoming to Right Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (12 -> 10 remaining).
+      Group 3/4: Hit location roll 11 (right table): Left Leg.
+2 damage (MISSILE) incoming to Left Leg (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (16 -> 14 remaining).
+      Group 4/4: Hit location roll 7 (right table): Right Torso.
+2 damage (MISSILE) incoming to Right Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (10 -> 8 remaining).
+PSR trigger: 28 armor+structure lost this phase (>=20) -> +1.
+PSR trigger: Right Leg destroyed this phase -> automatic fall.
+Automatic fall this phase.
+FALL (automatic fall): Black Hawk F takes 5 falling damage (1D6 5: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 7 -> Center Torso
+5 damage (PHYSICAL) incoming to Center Torso (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (21 -> 16 remaining).
+  Seatbelt check: needs 5. Rolled 9. Pilot unharmed.
+  [Heat] Red: 0 + movement 2 + weapons 16 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 1 + weapons 19 + engine 0 - sinks 28 -> 0
+  -- end of turn 2: Red @ 0408 SE: HP 312, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 2: Blue @ 0806 SE: HP 196, pilot hits 1, engine 0, gyro 0, heat 0 [PRONE]
+
+=== TURN 3 ===
+  Initiative: Blue lost the roll, moves first.
+Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 3.
+  Failed to stand.
+FALL (failed to stand): Black Hawk F takes 5 falling damage (1D6 4: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 6 -> Right Torso
+5 damage (PHYSICAL) incoming to Right Torso (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (8 -> 3 remaining).
+  Seatbelt check: needs 5. Rolled 8. Pilot unharmed.
+Insufficient MP (<2) remaining for another stand attempt. Remains prone.
+  [Movement] Blue: still prone at 0806.
+  [Movement select] Red: score 10124.046 = dealt 55.36 x1.08 + (HP 416.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.05 x my future 25.40 [enemy held at 0806; 129 spots with LOS]
+  [Movement] Red: 0408 SE -> 0707 SE, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
+  [Ranged] Blue -> Red: range 1, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0 + prone +2); firing nothing (weapon heat 0 of budget 30 = max 4 + sink 28 - current 0 - movement 2 - other 0; expected dmg 0.00)
+  [Ranged] Red -> Blue: range 1, base TN 3 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0 + prone target -2); firing ['ISMML7', 'ISMML7', 'ISMML7', 'ISMML7', 'ISMGA'] (weapon heat 16 of budget 23 = max 4 + sink 20 - current 0 - movement 1 - other 0; expected dmg 38.78)
+    [Red fire control] ISMGA: array of 3; ISMML7: MML SRM rounds
+    ISMML7: needs 3 (range mod +0), rolled 7 -> HIT [ISMML7 SRM Ammo: 5 shots left]
+    ISMML7: needs 3 (range mod +0), rolled 8 -> HIT [ISMML7 SRM Ammo: 4 shots left]
+    ISMML7: needs 3 (range mod +0), rolled 3 -> HIT [ISMML7 SRM Ammo: 3 shots left]
+    ISMML7: needs 3 (range mod +0), rolled 3 -> HIT [ISMML7 SRM Ammo: 2 shots left]
+    ISMGA x3: needs 3 (range mod +0), rolled 7 -> HIT [ISMG Ammo (100): 97 shots left]
+    ISMML7 hit: cluster roll 8 (MML SRM rounds) on the 7-column table -> 4 connect (8 dmg).
+      Group 1/4: Hit location roll 8 (right table): Center Torso.
+2 damage (MISSILE) incoming to Center Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (16 -> 14 remaining).
+      Group 2/4: Hit location roll 11 (right table): Left Leg.
+2 damage (MISSILE) incoming to Left Leg (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (14 -> 12 remaining).
+      Group 3/4: Hit location roll 8 (right table): Center Torso.
+2 damage (MISSILE) incoming to Center Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (14 -> 12 remaining).
+      Group 4/4: Hit location roll 7 (right table): Right Torso.
+2 damage (MISSILE) incoming to Right Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (3 -> 1 remaining).
+    ISMML7 hit: cluster roll 10 (MML SRM rounds) on the 7-column table -> 6 connect (12 dmg).
+      Group 1/6: Hit location roll 7 (right table): Right Torso.
+2 damage (MISSILE) incoming to Right Torso (armor).
+  [STANDARD/MISSILE] 1 armor pts destroyed at armor (1 -> 0 remaining). 1 damage applied to structure [STANDARD] (12 -> 11/12 remaining).
+  Check for possible critical. Roll a 10.
+    2 critical hit(s).
   Critical hit pool at Right Torso:
     1: Engine (slot 1)
     2: Engine (slot 2)
@@ -98,381 +168,80 @@ Attack Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 8.
     4: CLDoubleHeatSink (slot 4)
     5: CLDoubleHeatSink (slot 5)
     6: CLDoubleHeatSink (slot 6)
-    1/3 Criticals: CLDoubleHeatSink slot hit.
-      Current crit slots in Right Torso: ['Engine', 'Engine', 'CLDoubleHeatSink', 'CLDoubleHeatSink', 'CLDoubleHeatSink', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+    1/2 Criticals: CLDoubleHeatSink slot hit.
+      Current crit slots in Right Torso: ['Engine', 'Engine', 'CLDoubleHeatSink', 'DESTROYED', 'CLDoubleHeatSink', 'CLDoubleHeatSink', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Heat sink destroyed (CLDoubleHeatSink) - heat dissipation reduced (now 26).
   Critical hit pool at Right Torso:
     1: Engine (slot 1)
     2: Engine (slot 2)
     3: CLDoubleHeatSink (slot 3)
-    4: CLDoubleHeatSink (slot 4)
-    5: CLDoubleHeatSink (slot 5)
-    2/3 Criticals: Engine hit.
-      Current crit slots in Right Torso: ['Engine', 'DESTROYED', 'CLDoubleHeatSink', 'CLDoubleHeatSink', 'CLDoubleHeatSink', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+    4: CLDoubleHeatSink (slot 5)
+    5: CLDoubleHeatSink (slot 6)
+    2/2 Criticals: Engine hit.
+      Current crit slots in Right Torso: ['Engine', 'DESTROYED', 'CLDoubleHeatSink', 'DESTROYED', 'CLDoubleHeatSink', 'CLDoubleHeatSink', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Engine hit (1/3).
+      Group 2/6: Hit location roll 6 (right table): Right Leg.
+2 damage (MISSILE) incoming to Right Leg (armor).
+  Right Leg already destroyed - damage transfers to Right Torso.
+  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (11 -> 9/12 remaining).
+  Check for possible critical. Roll a 8.
+    1 critical hit(s).
   Critical hit pool at Right Torso:
     1: Engine (slot 1)
     2: CLDoubleHeatSink (slot 3)
-    3: CLDoubleHeatSink (slot 4)
-    4: CLDoubleHeatSink (slot 5)
-    3/3 Criticals: Engine hit.
-      Current crit slots in Right Torso: ['DESTROYED', 'DESTROYED', 'CLDoubleHeatSink', 'CLDoubleHeatSink', 'CLDoubleHeatSink', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+    3: CLDoubleHeatSink (slot 5)
+    4: CLDoubleHeatSink (slot 6)
+    1/1 Criticals: Engine hit.
+      Current crit slots in Right Torso: ['DESTROYED', 'DESTROYED', 'CLDoubleHeatSink', 'DESTROYED', 'CLDoubleHeatSink', 'CLDoubleHeatSink', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
       Engine hit (2/3).
-    ISMML7 hit: cluster roll 7 (MML SRM rounds) on the 7-column table -> 4 connect (8 dmg).
-      Group 1/4: Hit location roll 8 (front table): Left Torso.
-2 damage (MISSILE) incoming to Left Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (14 -> 12 remaining).
-      Group 2/4: Hit location roll 12 (front table): Head.
-      Head hit - pilot takes 1 hit (2/6), regardless of armor.
-2 damage (MISSILE) incoming to Head (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (7 -> 5 remaining).
-      Group 3/4: Hit location roll 6 (front table): Right Torso.
+      Group 3/6: Hit location roll 7 (right table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (10 -> 8 remaining).
-      Group 4/4: Hit location roll 7 (front table): Center Torso.
-2 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (19 -> 17 remaining).
-Attack Phase consciousness check (pilot, 2 pilot hits): needs 5. Rolled 9.
-  Pilot stays conscious.
-  [Heat] Red: 0 + movement 2 + weapons 16 + engine 0 - sinks 20 -> 0
-  [Heat] Blue: 0 + movement 1 + weapons 19 + engine 10 - sinks 26 -> 4
-  [End] Blue is now CRIPPLED (BattleMech Manual definition).
-  -- end of turn 2: Red @ 0408 SE: HP 312, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 2: Blue @ 0807 SW: HP 213, pilot hits 2, engine 2, gyro 0, heat 4
-
-=== TURN 3 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 86.309 = dealt 3.50 x1.00 + (HP 296.0 - received 5.85 x1.08 - PSR 0.00) / enemy future 12.84 x my future 3.67 [two-ply, 253 of 1153 spots (grid search) x 582 replies (short list); modeled reply Red -> 0313 N Run]
-  [Movement] Blue: 0807 SW -> 0508 N, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
-  [Movement select] Red: score 1449.206 = dealt 5.85 x1.08 + (HP 416.0 - received 3.50 x1.01 - PSR 0.00) / enemy future 3.67 x my future 12.84 [enemy held at 0508; 148 spots with LOS]
-  [Movement] Red: 0408 SE -> 0313 NW, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's left side arc after that).
-  [Ranged] Blue -> Red: range 6, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 1 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 15 = max 4 + sink 26 - current 4 - movement 1 - other 10; expected dmg 3.50)
-    CLERMediumLaser: needs 10 (range mod +2), rolled 3 -> miss
-    CLERMediumLaser: needs 10 (range mod +2), rolled 6 -> miss
-    CLERMediumLaser: needs 10 (range mod +2), rolled 10 -> HIT
-  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
-  [Ranged] Red -> Blue: range 6, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 1 + heat 0); firing ['ISMML7', 'ISMML7', 'ISMML7', 'ISMML7'] (weapon heat 16 of budget 22 = max 4 + sink 20 - current 0 - movement 2 - other 0; expected dmg 5.85)
-    [Red fire control] ISMML7: MML SRM rounds
-    ISMML7: needs 10 (range mod +2), rolled 8 -> miss [ISMML7 SRM Ammo: 5 shots left]
-    ISMML7: needs 10 (range mod +2), rolled 7 -> miss [ISMML7 SRM Ammo: 4 shots left]
-    ISMML7: needs 10 (range mod +2), rolled 8 -> miss [ISMML7 SRM Ammo: 3 shots left]
-    ISMML7: needs 10 (range mod +2), rolled 3 -> miss [ISMML7 SRM Ammo: 2 shots left]
-    CLERMediumLaser hit for 7:
-      Hit location roll 3 (right table): Right Leg.
-7 damage (ENERGY) incoming to Right Leg (armor).
-  [STANDARD/ENERGY] 7 armor pts destroyed at armor (30 -> 23 remaining).
-  [Heat] Red: 0 + movement 2 + weapons 16 + engine 0 - sinks 20 -> 0
-  [Heat] Blue: 4 + movement 1 + weapons 15 + engine 10 - sinks 26 -> 4
-  -- end of turn 3: Red @ 0313 NW: HP 305, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 3: Blue @ 0508 N: HP 213, pilot hits 2, engine 2, gyro 0, heat 4
-
-=== TURN 4 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 996.404 = dealt 9.75 x1.00 + (HP 409.0 - received 17.13 x1.02 - PSR 0.00) / enemy future 4.25 x my future 10.70 [two-ply, 83 of 461 spots (grid search) x 1058 replies (short list); modeled reply Blue -> 0512 NW Walk]
-  [Movement] Red: 0313 NW -> 0208 NE, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Blue: score 131.074 = dealt 17.13 x1.02 + (HP 296.0 - received 9.75 x1.00 - PSR 0.00) / enemy future 10.70 x my future 4.25 [enemy held at 0208; 227 spots with LOS]
-  [Movement] Blue: 0508 N -> 0610 NW, Walk (4 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
-  [Ranged] Red -> Blue: range 4, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['ISMML7', 'ISMML7', 'ISMML7', 'ISMML7'] (weapon heat 16 of budget 22 = max 4 + sink 20 - current 0 - movement 2 - other 0; expected dmg 9.75)
-    [Red fire control] ISMML7: MML SRM rounds
-    ISMML7: needs 9 (range mod +2), rolled 8 -> miss [ISMML7 SRM Ammo: 1 shots left]
-    ISMML7: needs 9 (range mod +2), rolled 11 -> HIT [ISMML7 SRM Ammo: 0 shots left]
-    ISMML7: needs 9 (range mod +2), rolled 8 -> miss [ISMML7 SRM Ammo: 13 shots left]
-    ISMML7: needs 9 (range mod +2), rolled 7 -> miss [ISMML7 SRM Ammo: 12 shots left]
-  [Ranged] Blue -> Red: range 4, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLHAG20'] (weapon heat 14 of budget 15 = max 4 + sink 26 - current 4 - movement 1 - other 10; expected dmg 17.13)
-    CLERMediumLaser: needs 7 (range mod +0), rolled 10 -> HIT
-    CLERMediumLaser: needs 7 (range mod +0), rolled 7 -> HIT
-    CLHAG20: needs 7 (range mod +0), rolled 10 -> HIT [HAG/20 Ammo: 3 shots left]
-    ISMML7 hit: cluster roll 6 (MML SRM rounds) on the 7-column table -> 4 connect (8 dmg).
-      Group 1/4: Hit location roll 6 (front table): Right Torso.
-2 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (8 -> 6 remaining).
-      Group 2/4: Hit location roll 8 (front table): Left Torso.
-2 damage (MISSILE) incoming to Left Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (12 -> 10 remaining).
-      Group 3/4: Hit location roll 3 (front table): Right Arm.
-2 damage (MISSILE) incoming to Right Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (16 -> 14 remaining).
-      Group 4/4: Hit location roll 7 (front table): Center Torso.
-2 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (17 -> 15 remaining).
-    CLERMediumLaser hit for 7:
-      Hit location roll 9 (right table): Left Torso.
-7 damage (ENERGY) incoming to Left Torso (armor).
-  [STANDARD/ENERGY] 7 armor pts destroyed at armor (22 -> 15 remaining).
-    CLERMediumLaser hit for 7:
-      Hit location roll 7 (right table): Right Torso.
-7 damage (ENERGY) incoming to Right Torso (armor).
-  [STANDARD/ENERGY] 7 armor pts destroyed at armor (22 -> 15 remaining).
-    CLHAG20 hit: cluster roll 5 +2 on the 20-column table -> 12 connect (12 dmg).
-      Group 1/3: Hit location roll 11 (right table): Left Leg.
-5 damage (BALLISTIC) incoming to Left Leg (armor).
-  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (30 -> 25 remaining).
-      Group 2/3: Hit location roll 6 (right table): Right Leg.
-5 damage (BALLISTIC) incoming to Right Leg (armor).
-  [STANDARD/BALLISTIC] 5 armor pts destroyed at armor (23 -> 18 remaining).
-      Group 3/3: Hit location roll 6 (right table): Right Leg.
-2 damage (BALLISTIC) incoming to Right Leg (armor).
-  [STANDARD/BALLISTIC] 2 armor pts destroyed at armor (18 -> 16 remaining).
-PSR trigger: 26 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 5.
-  Failed - falls.
-FALL (failed Attack Phase PSR): Bombardier BMB-14K takes 7 falling damage (1D6 3: front table, 5-pt clusters).
-  Fall cluster (5 dmg): rolled 8 -> Left Torso
-5 damage (PHYSICAL) incoming to Left Torso (armor).
-  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (15 -> 10 remaining).
-  Fall cluster (2 dmg): rolled 4 -> Right Arm
-2 damage (PHYSICAL) incoming to Right Arm (armor).
-  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (20 -> 18 remaining).
-  Seatbelt check: needs 5. Rolled 5. Pilot unharmed.
-  [Heat] Red: 0 + movement 2 + weapons 16 + engine 0 - sinks 20 -> 0
-  [Heat] Blue: 4 + movement 1 + weapons 14 + engine 10 - sinks 26 -> 3
-  -- end of turn 4: Red @ 0208 NE: HP 272, pilot hits 0, engine 0, gyro 0, heat 0 [PRONE]
-  -- end of turn 4: Blue @ 0610 NW: HP 205, pilot hits 2, engine 2, gyro 0, heat 3
-
-=== TURN 5 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 377.420 = dealt 24.47 x1.03 + (HP 288.0 - received 0.00 x1.02 - PSR 0.00) / enemy future 6.85 x my future 8.38 [two-ply, 257 of 1130 spots (grid search) x 1 replies (short list); modeled reply Red -> 0208 NE Run]
-  [Movement] Blue: 0610 NW -> 0311 NW, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
-Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
-  Success - Bombardier BMB-14K is standing (remaining running MP 6).
-  [Movement select] Red: score 479.987 = dealt 31.56 x1.01 + (HP 376.0 - received 12.67 x1.01 - PSR 0.00) / enemy future 8.38 x my future 10.34 [enemy held at 0311; 56 spots with LOS]
-  [Movement] Red: 0208 NE -> 0312 SE, Run (6 MP, 4 hexes, 2 heat; budget walk 5 / run 8 / jump 0; stood up with 6 MP left)
-  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
-  [Ranged] Blue holds ['CLHAG20'] back for the Physical phase (plans punch (Right Arm), expected 0.33).
-  [Ranged] Blue -> Red: range 1, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 1 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 16 = max 4 + sink 26 - current 3 - movement 1 - other 10; expected dmg 12.25)
-    CLERMediumLaser: needs 7 (range mod +0), rolled 10 -> HIT
-    CLERMediumLaser: needs 7 (range mod +0), rolled 6 -> miss
-    CLERMediumLaser: needs 7 (range mod +0), rolled 9 -> HIT
-  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
-  [Ranged] Red holds ['ISMGA'] back for the Physical phase (plans punch (Left Arm), punch (Right Arm), expected 8.17).
-  [Ranged] Red -> Blue: range 1, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['ISMML7', 'ISMML7', 'ISMML7', 'ISMML7'] (weapon heat 16 of budget 22 = max 4 + sink 20 - current 0 - movement 2 - other 0; expected dmg 20.48)
-    [Red fire control] ISMML7: MML SRM rounds
-    ISMML7: needs 7 (range mod +0), rolled 7 -> HIT [ISMML7 SRM Ammo: 11 shots left]
-    ISMML7: needs 7 (range mod +0), rolled 7 -> HIT [ISMML7 SRM Ammo: 10 shots left]
-    ISMML7: needs 7 (range mod +0), rolled 4 -> miss [ISMML7 SRM Ammo: 9 shots left]
-    ISMML7: needs 7 (range mod +0), rolled 9 -> HIT [ISMML7 SRM Ammo: 8 shots left]
-    CLERMediumLaser hit for 7:
-      Hit location roll 7 (left table): Left Torso.
-7 damage (ENERGY) incoming to Left Torso (armor).
-  [STANDARD/ENERGY] 7 armor pts destroyed at armor (10 -> 3 remaining).
-    CLERMediumLaser hit for 7:
-      Hit location roll 4 (left table): Left Arm.
-7 damage (ENERGY) incoming to Left Arm (armor).
-  [STANDARD/ENERGY] 7 armor pts destroyed at armor (20 -> 13 remaining).
-    ISMML7 hit: cluster roll 6 (MML SRM rounds) on the 7-column table -> 4 connect (8 dmg).
-      Group 1/4: Hit location roll 9 (left table): Right Torso.
-2 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (6 -> 4 remaining).
-      Group 2/4: Hit location roll 3 (left table): Left Leg.
-2 damage (MISSILE) incoming to Left Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (18 -> 16 remaining).
-      Group 3/4: Hit location roll 6 (left table): Left Leg.
-2 damage (MISSILE) incoming to Left Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (16 -> 14 remaining).
-      Group 4/4: Hit location roll 6 (left table): Left Leg.
-2 damage (MISSILE) incoming to Left Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (14 -> 12 remaining).
-    ISMML7 hit: cluster roll 7 (MML SRM rounds) on the 7-column table -> 4 connect (8 dmg).
-      Group 1/4: Hit location roll 2 (left table): Left Torso.
-      Roll of 2 - Through-Armor Critical (floating) triggered.
-      Floating TAC re-roll: 3 -> Left Leg
-2 damage (MISSILE) incoming to Left Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (12 -> 10 remaining).
-      Additional critical hit due to TAC.
-  Check for possible critical. Roll a 10.
-    2 critical hit(s).
-  Critical hit pool at Left Leg:
-    1: Hip (slot 1)
-    2: Upper Leg Actuator (slot 2)
-    3: Lower Leg Actuator (slot 3)
-    4: Foot Actuator (slot 4)
-    5: Jump Jet (slot 5)
-    6: Jump Jet (slot 6)
-    1/2 Criticals: Upper Leg Actuator hit.
-      Current crit slots in Left Leg: ['Hip', 'DESTROYED', 'Lower Leg Actuator', 'Foot Actuator', 'Jump Jet', 'Jump Jet', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Leg actuator hit at Left Leg (1 destroyed there) - walk MP now 4.
-  Critical hit pool at Left Leg:
-    1: Hip (slot 1)
-    2: Lower Leg Actuator (slot 3)
-    3: Foot Actuator (slot 4)
-    4: Jump Jet (slot 5)
-    5: Jump Jet (slot 6)
-    2/2 Criticals: Lower Leg Actuator hit.
-      Current crit slots in Left Leg: ['Hip', 'DESTROYED', 'DESTROYED', 'Foot Actuator', 'Jump Jet', 'Jump Jet', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Leg actuator hit at Left Leg (2 destroyed there) - walk MP now 3.
-      Group 2/4: Hit location roll 7 (left table): Left Torso.
-2 damage (MISSILE) incoming to Left Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (10 -> 8 remaining).
-      Group 3/4: Hit location roll 5 (left table): Left Arm.
-2 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (12 -> 10 remaining).
-      Group 4/4: Hit location roll 8 (left table): Center Torso.
-2 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (15 -> 13 remaining).
-    ISMML7 hit: cluster roll 9 (MML SRM rounds) on the 7-column table -> 6 connect (12 dmg).
-      Group 1/6: Hit location roll 3 (left table): Left Leg.
-2 damage (MISSILE) incoming to Left Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (10 -> 8 remaining).
-      Group 2/6: Hit location roll 7 (left table): Left Torso.
-2 damage (MISSILE) incoming to Left Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (8 -> 6 remaining).
-      Group 3/6: Hit location roll 10 (left table): Right Arm.
-2 damage (MISSILE) incoming to Right Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (14 -> 12 remaining).
-      Group 4/6: Hit location roll 5 (left table): Left Arm.
-2 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (10 -> 8 remaining).
-      Group 5/6: Hit location roll 5 (left table): Left Arm.
-2 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (8 -> 6 remaining).
-      Group 6/6: Hit location roll 11 (left table): Right Leg.
-2 damage (MISSILE) incoming to Right Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (18 -> 16 remaining).
-PSR trigger: 28 armor+structure lost this phase (>=20) -> +1.
-PSR trigger: 2 leg actuator(s) destroyed at Left Leg this phase -> +2, one roll.
-Attack Phase PSR 1/2: needs 8 (Piloting 5 + +3). Rolled 4.
-  Failed - falls. (1 more not rolled.)
-FALL (failed Attack Phase PSR): Black Hawk F takes 5 falling damage (1D6 6: front table, 5-pt clusters).
-  Fall cluster (5 dmg): rolled 5 -> Right Leg
-5 damage (PHYSICAL) incoming to Right Leg (armor).
-  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (16 -> 11 remaining).
-  Seatbelt check: needs 5. Rolled 12. Pilot unharmed.
-  [Heat] Red: 0 + movement 2 + weapons 16 + engine 0 - sinks 20 -> 0
-  [Heat] Blue: 3 + movement 1 + weapons 15 + engine 10 - sinks 26 -> 3
-  -- end of turn 5: Red @ 0312 SE: HP 258, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 5: Blue @ 0311 NW: HP 172, pilot hits 2, engine 2, gyro 0, heat 3 [PRONE]
-
-=== TURN 6 ===
-  Initiative: Blue lost the roll, moves first.
-Stand attempt 1: needs 6 (Piloting 5 + +1, incl. -1 for standing). Rolled 6.
-  Success - Black Hawk F is standing (remaining running MP 3).
-  [Movement select] Blue: score 156.943 = dealt 9.65 x1.00 + (HP 255.0 - received 40.37 x1.04 - PSR 0.00) / enemy future 13.19 x my future 9.13 [two-ply, 38 of 57 spots (grid search) x 567 replies (short list); modeled reply Red -> 0311 NW Run]
-  [Movement] Blue: 0311 NW -> 0210 SW, Run (2 MP, 1 hexes, 2 heat; budget walk 3 / run 5 / jump 5; stood up with 3 MP left)
-  [Movement select] Red: score 551.322 = dealt 40.37 x1.04 + (HP 362.0 - received 9.65 x1.00 - PSR 0.00) / enemy future 9.13 x my future 13.19 [enemy held at 0210; 162 spots with LOS]
-  [Movement] Red: 0312 SE -> 0311 NW, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
-  [Ranged] Blue holds ['CLHAG20'] back for the Physical phase (plans punch (Right Arm), expected 0.17).
-  [Ranged] Blue -> Red: range 1, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 15 = max 4 + sink 26 - current 3 - movement 2 - other 10; expected dmg 8.75)
-    CLERMediumLaser: needs 8 (range mod +0), rolled 5 -> miss
-    CLERMediumLaser: needs 8 (range mod +0), rolled 7 -> miss
-    CLERMediumLaser: needs 8 (range mod +0), rolled 12 -> HIT
-  [Ranged] Red -> Blue: range 1, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['ISMML7', 'ISMML7', 'ISMML7', 'ISMML7', 'ISMGA'] (weapon heat 16 of budget 22 = max 4 + sink 20 - current 0 - movement 2 - other 0; expected dmg 28.81)
-    [Red fire control] ISMGA: array of 3; ISMML7: MML SRM rounds
-    ISMML7: needs 6 (range mod +0), rolled 8 -> HIT [ISMML7 SRM Ammo: 7 shots left]
-    ISMML7: needs 6 (range mod +0), rolled 7 -> HIT [ISMML7 SRM Ammo: 6 shots left]
-    ISMML7: needs 6 (range mod +0), rolled 9 -> HIT [ISMML7 SRM Ammo: 5 shots left]
-    ISMML7: needs 6 (range mod +0), rolled 10 -> HIT [ISMML7 SRM Ammo: 4 shots left]
-    ISMGA x3: needs 6 (range mod +0), rolled 7 -> HIT [ISMG Ammo (100): 97 shots left]
-    CLERMediumLaser hit for 7:
-      Hit location roll 8 (front table): Left Torso.
-7 damage (ENERGY) incoming to Left Torso (armor).
-  [STANDARD/ENERGY] 3 armor pts destroyed at armor (3 -> 0 remaining). 4 damage applied to structure [STANDARD] (15 -> 11/15 remaining).
+  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (9 -> 7/12 remaining).
   Check for possible critical. Roll a 7.
     No critical hit.
-    ISMML7 hit: cluster roll 11 (MML SRM rounds) on the 7-column table -> 7 connect (14 dmg).
-      Group 1/7: Hit location roll 8 (left table): Center Torso.
-2 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (13 -> 11 remaining).
-      Group 2/7: Hit location roll 4 (left table): Left Arm.
-2 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (6 -> 4 remaining).
-      Group 3/7: Hit location roll 11 (left table): Right Leg.
-2 damage (MISSILE) incoming to Right Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (11 -> 9 remaining).
-      Group 4/7: Hit location roll 4 (left table): Left Arm.
-2 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (4 -> 2 remaining).
-      Group 5/7: Hit location roll 6 (left table): Left Leg.
-2 damage (MISSILE) incoming to Left Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (8 -> 6 remaining).
-      Group 6/7: Hit location roll 10 (left table): Right Arm.
-2 damage (MISSILE) incoming to Right Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (12 -> 10 remaining).
-      Group 7/7: Hit location roll 10 (left table): Right Arm.
-2 damage (MISSILE) incoming to Right Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (10 -> 8 remaining).
-    ISMML7 hit: cluster roll 4 (MML SRM rounds) on the 7-column table -> 3 connect (6 dmg).
-      Group 1/3: Hit location roll 8 (left table): Center Torso.
-2 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (11 -> 9 remaining).
-      Group 2/3: Hit location roll 9 (left table): Right Torso.
+      Group 4/6: Hit location roll 7 (right table): Right Torso.
 2 damage (MISSILE) incoming to Right Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (4 -> 2 remaining).
-      Group 3/3: Hit location roll 4 (left table): Left Arm.
-2 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (2 -> 0 remaining).
-    ISMML7 hit: cluster roll 9 (MML SRM rounds) on the 7-column table -> 6 connect (12 dmg).
-      Group 1/6: Hit location roll 10 (left table): Right Arm.
-2 damage (MISSILE) incoming to Right Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (8 -> 6 remaining).
-      Group 2/6: Hit location roll 4 (left table): Left Arm.
-2 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (8 -> 6/8 remaining).
-  Check for possible critical. Roll a 7.
-    No critical hit.
-      Group 3/6: Hit location roll 11 (left table): Right Leg.
-2 damage (MISSILE) incoming to Right Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (9 -> 7 remaining).
-      Group 4/6: Hit location roll 11 (left table): Right Leg.
-2 damage (MISSILE) incoming to Right Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (7 -> 5 remaining).
-      Group 5/6: Hit location roll 7 (left table): Left Torso.
-2 damage (MISSILE) incoming to Left Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (6 -> 4 remaining).
-      Group 6/6: Hit location roll 11 (left table): Right Leg.
-2 damage (MISSILE) incoming to Right Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (5 -> 3 remaining).
-    ISMML7 hit: cluster roll 11 (MML SRM rounds) on the 7-column table -> 7 connect (14 dmg).
-      Group 1/7: Hit location roll 6 (left table): Left Leg.
-2 damage (MISSILE) incoming to Left Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (6 -> 4 remaining).
-      Group 2/7: Hit location roll 4 (left table): Left Arm.
-2 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (6 -> 4/8 remaining).
+  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (7 -> 5/12 remaining).
   Check for possible critical. Roll a 4.
     No critical hit.
-      Group 3/7: Hit location roll 10 (left table): Right Arm.
-2 damage (MISSILE) incoming to Right Arm (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (6 -> 4 remaining).
-      Group 4/7: Hit location roll 5 (left table): Left Arm.
+      Group 5/6: Hit location roll 10 (right table): Left Arm.
 2 damage (MISSILE) incoming to Left Arm (armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (4 -> 2/8 remaining).
-  Check for possible critical. Roll a 6.
-    No critical hit.
-      Group 5/7: Hit location roll 7 (left table): Left Torso.
-2 damage (MISSILE) incoming to Left Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (4 -> 2 remaining).
-      Group 6/7: Hit location roll 7 (left table): Left Torso.
-2 damage (MISSILE) incoming to Left Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (2 -> 0 remaining).
-      Group 7/7: Hit location roll 8 (left table): Center Torso.
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (12 -> 10 remaining).
+      Group 6/6: Hit location roll 8 (right table): Center Torso.
 2 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (9 -> 7 remaining).
-    ISMGA hit: cluster roll 8 +2 (array of 3) on the 3-column table -> 3 connect (6 dmg).
-      Array: Hit location roll 6 (left table): Left Leg.
-2 damage (BALLISTIC) incoming to Left Leg (armor).
-  [STANDARD/BALLISTIC] 2 armor pts destroyed at armor (4 -> 2 remaining).
-2 damage (BALLISTIC) incoming to Left Leg (armor).
-  [STANDARD/BALLISTIC] 2 armor pts destroyed at armor (2 -> 0 remaining).
-2 damage (BALLISTIC) incoming to Left Leg (armor).
-  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (12 -> 10/12 remaining).
-  Check for possible critical. Roll a 7.
-    No critical hit.
-PSR trigger: 52 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 8 (Piloting 5 + +3). Rolled 6.
-  Failed - falls.
-FALL (failed Attack Phase PSR): Black Hawk F takes 5 falling damage (1D6 6: front table, 5-pt clusters).
-  Fall cluster (5 dmg): rolled 6 -> Right Torso
-5 damage (PHYSICAL) incoming to Right Torso (armor).
-  [STANDARD/PHYSICAL] 2 armor pts destroyed at armor (2 -> 0 remaining). 3 damage applied to structure [STANDARD] (12 -> 9/12 remaining).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (12 -> 10 remaining).
+    ISMML7 hit: cluster roll 5 (MML SRM rounds) on the 7-column table -> 4 connect (8 dmg).
+      Group 1/4: Hit location roll 7 (right table): Right Torso.
+2 damage (MISSILE) incoming to Right Torso (armor).
+  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (5 -> 3/12 remaining).
   Check for possible critical. Roll a 5.
     No critical hit.
-  Seatbelt check: needs 5. Rolled 11. Pilot unharmed.
-  [Physical] Red -> Blue: kick (Left Leg) needs 4 (piloting 5 + base 0 + attack -1), rolled 10 -> HIT (13 dmg, left side)
-    kick (Left Leg) hits Blue's Right Torso for 13.
-13 damage (PHYSICAL) incoming to Right Torso (armor).
-  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 9 damage applied to structure [STANDARD] (9 -> 0/12 remaining).
+      Group 2/4: Hit location roll 8 (right table): Center Torso.
+2 damage (MISSILE) incoming to Center Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (10 -> 8 remaining).
+      Group 3/4: Hit location roll 4 (right table): Right Arm.
+2 damage (MISSILE) incoming to Right Arm (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (14 -> 12 remaining).
+      Group 4/4: Hit location roll 5 (right table): Right Arm.
+2 damage (MISSILE) incoming to Right Arm (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (12 -> 10 remaining).
+    ISMML7 hit: cluster roll 8 (MML SRM rounds) on the 7-column table -> 4 connect (8 dmg).
+      Group 1/4: Hit location roll 6 (right table): Right Leg.
+2 damage (MISSILE) incoming to Right Leg (armor).
+  Right Leg already destroyed - damage transfers to Right Torso.
+  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (3 -> 1/12 remaining).
+  Check for possible critical. Roll a 5.
+    No critical hit.
+      Group 2/4: Hit location roll 10 (right table): Left Arm.
+2 damage (MISSILE) incoming to Left Arm (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (10 -> 8 remaining).
+      Group 3/4: Hit location roll 9 (right table): Left Torso.
+2 damage (MISSILE) incoming to Left Torso (armor).
+  [STANDARD/MISSILE] 2 armor pts destroyed at armor (14 -> 12 remaining).
+      Group 4/4: Hit location roll 6 (right table): Right Leg.
+2 damage (MISSILE) incoming to Right Leg (armor).
+  Right Leg already destroyed - damage transfers to Right Torso.
+  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 1 damage applied to structure [STANDARD] (1 -> 0/12 remaining).
   Right Torso destroyed with no live explosive components - no critical roll.
   Right Torso DESTROYED!
     Heat sink destroyed (CLDoubleHeatSink) from Right Torso destruction - heat dissipation reduced (now 24).
@@ -481,162 +250,64 @@ FALL (failed Attack Phase PSR): Black Hawk F takes 5 falling damage (1D6 6: fron
   All critical slots in Right Torso marked DESTROYED.
   Right Arm also destroyed (side torso rule).
   All critical slots in Right Arm marked DESTROYED.
-  4 damage remains, transfers to Center Torso.
-  [STANDARD/PHYSICAL] 4 armor pts destroyed at armor (7 -> 3 remaining).
-  [Heat] Red: 0 + movement 2 + weapons 16 + engine 0 - sinks 20 -> 0
-  [Heat] Blue: 3 + movement 2 + weapons 15 + engine 10 - sinks 20 -> 10
-  [Heat] Blue: heat 10 -> next turn -2 Walking MP, +1 to ranged attacks.
-  -- end of turn 6: Red @ 0311 NW: HP 251, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 6: Blue @ 0210 SW: HP 94, pilot hits 2, engine 2, gyro 0, heat 10 [PRONE]
-
-=== TURN 7 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 1278.305 = dealt 60.86 x1.23 + (HP 351.0 - received 5.28 x1.00 - PSR 0.00) / enemy future 7.22 x my future 25.14 [two-ply, 120 of 400 spots (grid search) x 1 replies (short list); modeled reply Blue -> 0210 SW Run]
-  [Movement] Red: 0311 NW -> 0311 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
-Stand attempt 1: needs 6 (Piloting 5 + +1, incl. -1 for standing). Rolled 11.
-  Success - Black Hawk F is standing (remaining running MP 0).
-  [Movement select] Blue: score 34.904 = dealt 5.28 x1.00 + (HP 137.0 - received 51.62 x0.79 - PSR 0.00) / enemy future 25.14 x my future 7.73 [enemy held at 0311; 6 spots with LOS]
-  [Movement] Blue: 0210 SW -> 0210 N, Run (0 MP, 0 hexes, 2 heat; budget walk 1 / run 2 / jump 5; stood up with 0 MP left)
-  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISMML7', 'ISMML7', 'ISMML7', 'ISMML7', 'ISMGA'] (weapon heat 16 of budget 24 = max 4 + sink 20 - current 0 - movement 0 - other 0; expected dmg 36.56)
-    [Red fire control] ISMGA: array of 3; ISMML7: MML SRM rounds
-    ISMML7: needs 4 (range mod +0), rolled 5 -> HIT [ISMML7 SRM Ammo: 3 shots left]
-    ISMML7: needs 4 (range mod +0), rolled 3 -> miss [ISMML7 SRM Ammo: 2 shots left]
-    ISMML7: needs 4 (range mod +0), rolled 7 -> HIT [ISMML7 SRM Ammo: 1 shots left]
-    ISMML7: needs 4 (range mod +0), rolled 9 -> HIT [ISMML7 SRM Ammo: 0 shots left]
-    ISMGA x3: needs 4 (range mod +0), rolled 6 -> HIT [ISMG Ammo (100): 94 shots left]
-  [Ranged] Blue holds ['CLERMediumLaser'] back for the Physical phase (plans punch (Left Arm), expected 3.61).
-  [Ranged] Blue -> Red: range 1, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 1); firing nothing (weapon heat 0 of budget 2 = max 4 + sink 20 - current 10 - movement 2 - other 10; expected dmg 0.00)
-    ISMML7 hit: cluster roll 5 (MML SRM rounds) on the 7-column table -> 4 connect (8 dmg).
-      Group 1/4: Hit location roll 9 (right table): Left Torso.
-2 damage (MISSILE) incoming to Left Torso (armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (12 -> 10/12 remaining).
-  Check for possible critical. Roll a 10.
-    2 critical hit(s).
-  Critical hit pool at Left Torso:
-    1: Engine (slot 1)
-    2: Engine (slot 2)
-    3: CLDoubleHeatSink (slot 3)
-    4: CLDoubleHeatSink (slot 4)
-    5: CLDoubleHeatSink (slot 5)
-    6: CLDoubleHeatSink (slot 6)
-    1/2 Criticals: CLDoubleHeatSink slot hit.
-      Current crit slots in Left Torso: ['Engine', 'Engine', 'CLDoubleHeatSink', 'DESTROYED', 'CLDoubleHeatSink', 'CLDoubleHeatSink', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Heat sink destroyed (CLDoubleHeatSink) - heat dissipation reduced (now 18).
-  Critical hit pool at Left Torso:
-    1: Engine (slot 1)
-    2: Engine (slot 2)
-    3: CLDoubleHeatSink (slot 3)
-    4: CLDoubleHeatSink (slot 5)
-    5: CLDoubleHeatSink (slot 6)
-    2/2 Criticals: CLDoubleHeatSink slot hit.
-      Current crit slots in Left Torso: ['Engine', 'Engine', 'CLDoubleHeatSink', 'DESTROYED', 'CLDoubleHeatSink', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Heat sink destroyed (CLDoubleHeatSink) - heat dissipation reduced (now 16).
-      Group 2/4: Hit location roll 5 (right table): Right Arm.
-2 damage (MISSILE) incoming to Right Arm (armor).
-  Right Arm already destroyed - damage transfers to Right Torso.
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (3 -> 1 remaining).
-      Group 3/4: Hit location roll 6 (right table): Right Leg.
-2 damage (MISSILE) incoming to Right Leg (armor).
-  [STANDARD/MISSILE] 2 armor pts destroyed at armor (3 -> 1 remaining).
-      Group 4/4: Hit location roll 7 (right table): Right Torso.
-2 damage (MISSILE) incoming to Right Torso (armor).
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/MISSILE] 1 armor pts destroyed at armor (1 -> 0 remaining). 1 damage applied to structure [STANDARD] (16 -> 15/16 remaining).
-  Check for possible critical. Roll a 7.
-    No critical hit.
-    ISMML7 hit: cluster roll 5 (MML SRM rounds) on the 7-column table -> 4 connect (8 dmg).
-      Group 1/4: Hit location roll 7 (right table): Right Torso.
-2 damage (MISSILE) incoming to Right Torso (armor).
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (15 -> 13/16 remaining).
-  Check for possible critical. Roll a 11.
-    2 critical hit(s).
-  Critical hit pool at Center Torso:
-    1: Engine (slot 1)
-    2: Engine (slot 2)
-    3: Engine (slot 3)
-    4: Gyro (slot 4)
-    5: Gyro (slot 5)
-    6: Gyro (slot 6)
-    7: Gyro (slot 7)
-    8: Engine (slot 8)
-    9: Engine (slot 9)
-    10: Engine (slot 10)
-    11: Jump Jet (slot 11)
-    1/2 Criticals: Gyro hit.
-      Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'Jump Jet', '-Empty-']
-      Gyro hit (1/2).
-  Critical hit pool at Center Torso:
-    1: Engine (slot 1)
-    2: Engine (slot 2)
-    3: Engine (slot 3)
-    4: Gyro (slot 5)
-    5: Gyro (slot 6)
-    6: Gyro (slot 7)
-    7: Engine (slot 8)
-    8: Engine (slot 9)
-    9: Engine (slot 10)
-    10: Jump Jet (slot 11)
-    2/2 Criticals: Engine hit.
-      Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'DESTROYED', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'DESTROYED', 'Engine', 'Jump Jet', '-Empty-']
-      Engine hit (3/3).
-      Group 2/4: Hit location roll 9 (right table): Left Torso.
-2 damage (MISSILE) incoming to Left Torso (armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (10 -> 8/12 remaining).
-  Check for possible critical. Roll a 9.
-    1 critical hit(s).
-  Critical hit pool at Left Torso:
-    1: Engine (slot 1)
-    2: Engine (slot 2)
-    3: CLDoubleHeatSink (slot 3)
-    4: CLDoubleHeatSink (slot 5)
-    1/1 Criticals: CLDoubleHeatSink slot hit.
-      Current crit slots in Left Torso: ['Engine', 'Engine', 'CLDoubleHeatSink', 'DESTROYED', 'DESTROYED', 'DESTROYED', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Heat sink destroyed (CLDoubleHeatSink) - heat dissipation reduced (now 14).
-      Group 3/4: Hit location roll 8 (right table): Center Torso.
-2 damage (MISSILE) incoming to Center Torso (armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (13 -> 11/16 remaining).
-  Check for possible critical. Roll a 5.
-    No critical hit.
-      Group 4/4: Hit location roll 7 (right table): Right Torso.
-2 damage (MISSILE) incoming to Right Torso (armor).
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (11 -> 9/16 remaining).
-  Check for possible critical. Roll a 5.
-    No critical hit.
-    ISMML7 hit: cluster roll 5 (MML SRM rounds) on the 7-column table -> 4 connect (8 dmg).
-      Group 1/4: Hit location roll 3 (right table): Right Leg.
-2 damage (MISSILE) incoming to Right Leg (armor).
-  [STANDARD/MISSILE] 1 armor pts destroyed at armor (1 -> 0 remaining). 1 damage applied to structure [STANDARD] (12 -> 11/12 remaining).
-  Check for possible critical. Roll a 6.
-    No critical hit.
-      Group 2/4: Hit location roll 3 (right table): Right Leg.
-2 damage (MISSILE) incoming to Right Leg (armor).
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (11 -> 9/12 remaining).
-  Check for possible critical. Roll a 3.
-    No critical hit.
-      Group 3/4: Hit location roll 5 (right table): Right Arm.
-2 damage (MISSILE) incoming to Right Arm (armor).
-  Right Arm already destroyed - damage transfers to Right Torso.
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (9 -> 7/16 remaining).
-  Check for possible critical. Roll a 7.
-    No critical hit.
-      Group 4/4: Hit location roll 7 (right table): Right Torso.
-2 damage (MISSILE) incoming to Right Torso (armor).
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/MISSILE] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (7 -> 5/16 remaining).
-  Check for possible critical. Roll a 4.
-    No critical hit.
+  1 damage remains, transfers to Center Torso.
+  [STANDARD/MISSILE] 1 armor pts destroyed at armor (8 -> 7 remaining).
     ISMGA hit: cluster roll 10 +2 (array of 3) on the 3-column table -> 3 connect (6 dmg).
       Array: Hit location roll 3 (right table): Right Leg.
 2 damage (BALLISTIC) incoming to Right Leg (armor).
-  [STANDARD/BALLISTIC] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (9 -> 7/12 remaining).
-  Check for possible critical. Roll a 4.
+  Right Leg already destroyed - damage transfers to Right Torso.
+  Right Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/BALLISTIC] 2 armor pts destroyed at armor (7 -> 5 remaining).
+2 damage (BALLISTIC) incoming to Right Leg (armor).
+  Right Leg already destroyed - damage transfers to Right Torso.
+  Right Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/BALLISTIC] 2 armor pts destroyed at armor (5 -> 3 remaining).
+2 damage (BALLISTIC) incoming to Right Leg (armor).
+  Right Leg already destroyed - damage transfers to Right Torso.
+  Right Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/BALLISTIC] 2 armor pts destroyed at armor (3 -> 1 remaining).
+  [Physical] Red -> Blue: kick (Left Leg) needs 3 (piloting 5 + base -1 + attack -1), rolled 7 -> HIT (13 dmg, right side)
+    kick (Left Leg) hits Blue's Center Torso for 13.
+13 damage (PHYSICAL) incoming to Center Torso (armor).
+  [STANDARD/PHYSICAL] 1 armor pts destroyed at armor (1 -> 0 remaining). 12 damage applied to structure [STANDARD] (16 -> 4/16 remaining).
+  Check for possible critical. Roll a 7.
     No critical hit.
-  [Heat] Red: 0 + movement 0 + weapons 16 + engine 0 - sinks 20 -> 0
-  -- end of turn 7: Red @ 0311 NW: HP 251, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 7: Blue @ 0210 N: HP 68, pilot hits 2, engine 3, gyro 1, heat 10 [DESTROYED (Engine Destroyed)]
+  [Heat] Red: 0 + movement 1 + weapons 16 + engine 0 - sinks 20 -> 0
+  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 10 - sinks 20 -> 0
+  [End] Blue is now CRIPPLED (BattleMech Manual definition).
+  -- end of turn 3: Red @ 0707 SE: HP 312, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 3: Blue @ 0806 SE: HP 128, pilot hits 1, engine 2, gyro 0, heat 0 [PRONE]
 
->>> Battle over on turn 7: Blue destroyed. <<<
+=== TURN 4 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 16857.559 = dealt 59.66 x1.17 + (HP 416.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.00 x my future 40.36 [two-ply, 136 of 550 spots (grid search) x 1 replies (short list); modeled reply Blue -> 0806 SE Run]
+  [Movement] Red: 0707 SE -> 0707 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
+Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 6.
+  Failed to stand.
+FALL (failed to stand): Black Hawk F takes 5 falling damage (1D6 4: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 3 -> Right Arm
+5 damage (PHYSICAL) incoming to Right Arm (armor).
+  Right Arm already destroyed - damage transfers to Right Torso.
+  Right Torso already destroyed - damage transfers to Center Torso.
+  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 4 damage applied to structure [STANDARD] (4 -> 0/16 remaining).
+  Center Torso destroyed with no live explosive components - no critical roll.
+  Center Torso DESTROYED!
+    Engine hit (3/3) from Center Torso destruction.
+    Engine hit (4/3) from Center Torso destruction.
+    Engine hit (5/3) from Center Torso destruction.
+    Gyro hit (1/2) from Center Torso destruction.
+    Gyro hit (2/2) from Center Torso destruction.
+    Gyro hit (3/2) from Center Torso destruction.
+    Gyro hit (4/2) from Center Torso destruction.
+    Engine hit (6/3) from Center Torso destruction.
+    Engine hit (7/3) from Center Torso destruction.
+    Engine hit (8/3) from Center Torso destruction.
+    Jump jet destroyed (Jump Jet) from Center Torso destruction - jump MP reduced (now 2).
+  All critical slots in Center Torso marked DESTROYED.
+  1 damage remains, transfers to nowhere (attack finished).
+  [Movement] Blue: still prone at 0806.
+  [Heat] Red: 0 + movement 0 + weapons 0 + engine 0 - sinks 20 -> 0
+  -- end of turn 4: Red @ 0707 SE: HP 312, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 4: Blue @ 0806 SE: HP 124, pilot hits 1, engine 8, gyro 4, heat 0 [PRONE, DESTROYED (Center Torso Destroyed)]
+
+>>> Battle over on turn 4: Blue destroyed. <<<

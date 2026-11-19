@@ -1,7 +1,7 @@
 # scenario cov_turrets
-# seed 1: winner Red, 27 turns
-#   Red: 275.5 of 300.0 armor + structure left, team destroyed False, units 1, 9 hits of 25 attacks, 129.0 damage dealt
-#   Blue: 59.0 of 227.0 armor + structure left, team destroyed True, units 1, 7 hits of 57 attacks, 24.5 damage dealt
+# seed 1: winner Red, 9 turns
+#   Red: 293.0 of 300.0 armor + structure left, team destroyed False, units 1, 3 hits of 9 attacks, 42.0 damage dealt
+#   Blue: 185.0 of 227.0 armor + structure left, team destroyed True, units 1, 2 hits of 24 attacks, 7.0 damage dealt
 # log
 
 === TURN 1 ===
@@ -61,7 +61,7 @@
   Initiative: Red lost the roll, moves first.
   [Movement select] Red: score 1652.095 = dealt 0.00 x1.00 + (HP 399.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.57 x my future 6.49 [two-ply, 134 of 662 spots (grid search) x 427 replies (short list); modeled reply Blue -> 0407 NE Run]
   [Movement] Red: 1003 SW -> 1405 SW, Jump (5 MP, 4 hexes, 8 heat; budget walk 4 / run 5 / jump 5)
-  [Movement select] Blue: score 74.105 = dealt 1.75 x1.01 + (HP 302.0 - received 2.51 x1.00 - PSR 0.00) / enemy future 6.49 x my future 1.57 [enemy held at 1405; 106 spots with LOS]
+  [Movement select] Blue: score 74.105 = dealt 1.75 x1.01 + (HP 302.0 - received 2.51 x1.00 - PSR 0.00) / enemy future 6.49 x my future 1.57 [enemy held at 1405; 105 spots with LOS]
   [Movement] Blue: 0205 NE -> 0504 SE, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 0)
   [Ranged] Red -> Blue: range 9, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 1 + heat 0); firing ['CLERPPC'] (weapon heat 15 of budget 39 = max 30 + sink 22 - current 5 - movement 8 - other 0; expected dmg 2.50)
     CLERPPC: needs 10 (range mod +2, modifiers -1), rolled 10 -> HIT
@@ -85,37 +85,37 @@
 
 === TURN 5 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 1884.538 = dealt 1.37 x1.00 + (HP 395.5 - received 1.75 x1.01 - PSR 0.00) / enemy future 2.09 x my future 10.01 [two-ply, 103 of 599 spots (grid search) x 507 replies (short list); modeled reply Blue -> 1203 S Run]
-  [Movement] Red: 1405 SW -> 1510 NE, Jump (5 MP, 5 hexes, 10 heat; budget walk 4 / run 5 / jump 5)
-  [Movement select] Blue: score 61.506 = dealt 1.75 x1.01 + (HP 287.0 - received 1.33 x0.96 - PSR 0.00) / enemy future 10.01 x my future 2.09 [enemy held at 1510; 84 spots with LOS]
+  [Movement select] Red: score 1884.453 = dealt 1.37 x1.00 + (HP 395.5 - received 1.75 x1.02 - PSR 0.00) / enemy future 2.09 x my future 10.01 [two-ply, 103 of 599 spots (grid search) x 507 replies (short list); modeled reply Blue -> 1203 S Run]
+  [Movement] Red: 1405 SW -> 1510 NW, Jump (5 MP, 5 hexes, 10 heat; budget walk 4 / run 5 / jump 5)
+  [Movement select] Blue: score 61.524 = dealt 1.75 x1.02 + (HP 287.0 - received 1.33 x0.96 - PSR 0.00) / enemy future 10.01 x my future 2.09 [enemy held at 1510; 56 spots with LOS]
   [Movement] Blue: 0504 SE -> 1203 NE, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
   [Ranged] Red -> Blue: range 8, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 0 + heat 0); firing ['CLERPPC'] (weapon heat 15 of budget 36 = max 30 + sink 22 - current 6 - movement 10 - other 0; expected dmg 1.25)
     CLERPPC: needs 11 (range mod +2, modifiers -1), rolled 5 -> miss
   [Ranged] Blue turns its turret 1 right (Red is in its torso's right side arc after that).
   [Ranged] Blue -> Red: range 8, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 39 = max 30 + sink 15 - current 4 - movement 2 - other 0; expected dmg 1.75)
-    CLERMediumLaser: needs 11 (range mod +2), rolled 5 -> miss
-    CLERMediumLaser: needs 11 (range mod +2), rolled 9 -> miss
     CLERMediumLaser: needs 11 (range mod +2), rolled 6 -> miss
+    CLERMediumLaser: needs 11 (range mod +2), rolled 6 -> miss
+    CLERMediumLaser: needs 11 (range mod +2), rolled 8 -> miss
   [Heat] Red: 6 + movement 10 + weapons 15 + engine 0 - sinks 22 -> 9
   [Heat] Red: heat 9 -> next turn -1 Walking MP, +1 to ranged attacks.
   [Heat] Blue: 4 + movement 2 + weapons 15 + engine 0 - sinks 15 -> 6
   [Heat] Blue: heat 6 -> next turn -1 Walking MP, +0 to ranged attacks.
-  -- end of turn 5: Red @ 1510 NE: HP 296.5, pilot hits 0, engine 0, gyro 0, heat 9
+  -- end of turn 5: Red @ 1510 NW: HP 296.5, pilot hits 0, engine 0, gyro 0, heat 9
   -- end of turn 5: Blue @ 1203 NE: HP 212, pilot hits 0, engine 0, gyro 0, heat 6
 
 === TURN 6 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 54.353 = dealt 0.58 x1.00 + (HP 287.0 - received 2.65 x0.96 - PSR 0.00) / enemy future 8.86 x my future 1.67 [two-ply, 59 of 293 spots (grid search) x 522 replies (short list); modeled reply Red -> 1505 SW Jump]
+  [Movement select] Blue: score 54.353 = dealt 0.58 x1.00 + (HP 287.0 - received 2.65 x0.96 - PSR 0.00) / enemy future 8.86 x my future 1.67 [two-ply, 59 of 293 spots (grid search) x 546 replies (short list); modeled reply Red -> 1505 SW Jump]
   [Movement] Blue: 1203 NE -> 0905 NE, Walk (3 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
-  [Movement select] Red: score 2084.322 = dealt 1.33 x0.96 + (HP 395.5 - received 1.75 x1.00 - PSR 0.00) / enemy future 1.67 x my future 8.86 [enemy held at 0905; 40 spots with LOS]
-  [Movement] Red: 1510 NE -> 1113 N, Jump (5 MP, 5 hexes, 10 heat; budget walk 4 / run 5 / jump 5)
+  [Movement select] Red: score 2089.645 = dealt 0.44 x0.96 + (HP 395.5 - received 0.58 x1.00 - PSR 0.00) / enemy future 1.67 x my future 8.86 [enemy held at 0905; 38 spots with LOS]
+  [Movement] Red: 1510 NW -> 1113 N, Jump (5 MP, 5 hexes, 10 heat; budget walk 4 / run 5 / jump 5)
   [Ranged] Blue turns its turret 1 right (Red is in its torso's right side arc after that).
-  [Ranged] Blue -> Red: range 9, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 1 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 38 = max 30 + sink 15 - current 6 - movement 1 - other 0; expected dmg 1.75)
-    CLERMediumLaser: needs 11 (range mod +2), rolled 6 -> miss
-    CLERMediumLaser: needs 11 (range mod +2), rolled 12 -> HIT
-    CLERMediumLaser: needs 11 (range mod +2), rolled 8 -> miss
-  [Ranged] Red -> Blue: range 9, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 1 + heat 1); firing ['CLERPPC'] (weapon heat 15 of budget 33 = max 30 + sink 22 - current 9 - movement 10 - other 0; expected dmg 1.25)
-    CLERPPC: needs 11 (range mod +2, modifiers -1), rolled 4 -> miss
+  [Ranged] Blue -> Red: range 9, base TN 10 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 2 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 38 = max 30 + sink 15 - current 6 - movement 1 - other 0; expected dmg 0.58)
+    CLERMediumLaser: needs 12 (range mod +2), rolled 4 -> miss
+    CLERMediumLaser: needs 12 (range mod +2), rolled 9 -> miss
+    CLERMediumLaser: needs 12 (range mod +2), rolled 12 -> HIT
+  [Ranged] Red -> Blue: range 9, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 2 + heat 1); firing ['CLERPPC'] (weapon heat 15 of budget 33 = max 30 + sink 22 - current 9 - movement 10 - other 0; expected dmg 0.42)
+    CLERPPC: needs 12 (range mod +2, modifiers -1), rolled 3 -> miss
     CLERMediumLaser hit for 7:
       Hit location roll 7 (front table): Center Torso.
 7 damage (ENERGY) incoming to Center Torso (armor).
@@ -128,568 +128,69 @@
   -- end of turn 6: Blue @ 0905 NE: HP 212, pilot hits 0, engine 0, gyro 0, heat 7
 
 === TURN 7 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 76.835 = dealt 0.58 x1.00 + (HP 287.0 - received 1.33 x0.96 - PSR 0.00) / enemy future 7.38 x my future 1.97 [two-ply, 109 of 299 spots (grid search) x 623 replies (short list); modeled reply Red -> 1214 N Jump]
-  [Movement] Blue: 0905 NE -> 0905 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
-  [Movement select] Red: score 1469.244 = dealt 2.65 x0.96 + (HP 392.0 - received 0.58 x1.00 - PSR 0.00) / enemy future 1.97 x my future 7.38 [enemy held at 0905; 112 spots with LOS]
-  [Movement] Red: 1113 N -> 0615 N, Jump (5 MP, 5 hexes, 10 heat; budget walk 3 / run 4 / jump 5)
-  [Ranged] Blue turns its turret 2 right (Red is in its torso's rear arc after that).
-  [Ranged] Blue -> Red: range 12, base TN 8 (gunnery 4 + AMM 0 [Stand Still] + TMM 3 + LOS 1 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 38 = max 30 + sink 15 - current 7 - movement 0 - other 0; expected dmg 0.58)
-    CLERMediumLaser: needs 12 (range mod +4), rolled 8 -> miss
-    CLERMediumLaser: needs 12 (range mod +4), rolled 8 -> miss
-    CLERMediumLaser: needs 12 (range mod +4), rolled 8 -> miss
-  [Ranged] Red -> Blue: range 12, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 1 + heat 1); firing ['CLERPPC'] (weapon heat 15 of budget 30 = max 30 + sink 22 - current 12 - movement 10 - other 0; expected dmg 2.50)
-    CLERPPC: needs 10 (range mod +2, modifiers -1), rolled 11 -> HIT
-    CLERPPC hit for 15:
-      Hit location roll 2 (right table): Right Torso.
-      Roll of 2 - Through-Armor Critical (floating) triggered.
-      Floating TAC re-roll: 6 -> Rear Right Leg
-15 damage (ENERGY) incoming to Rear Right Leg (armor).
-  [STANDARD/ENERGY] 15 armor pts destroyed at armor (20 -> 5 remaining).
-      Additional critical hit due to TAC.
-  Check for possible critical. Roll a 6.
-    No critical hit.
-  [Heat] Red: 12 + movement 10 + weapons 15 + engine 0 - sinks 22 -> 15
-  [Heat] Red: shutdown avoid roll at heat 15: needs 4, rolled 8 - avoided.
-  [Heat] Red: heat 15 -> next turn -3 Walking MP, +2 to ranged attacks.
-  [Heat] Blue: 7 + movement 0 + weapons 15 + engine 0 - sinks 15 -> 7
-  [Heat] Blue: heat 7 -> next turn -1 Walking MP, +0 to ranged attacks.
-  -- end of turn 7: Red @ 0615 N: HP 293, pilot hits 0, engine 0, gyro 0, heat 15
-  -- end of turn 7: Blue @ 0905 NE: HP 197, pilot hits 0, engine 0, gyro 0, heat 7
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 1471.181 = dealt 1.77 x1.30 + (HP 392.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.97 x my future 7.38 [two-ply, 128 of 623 spots (grid search) x 299 replies (short list); modeled reply Blue -> 0907 N Walk]
+  [Movement] Red: 1113 N -> 1315 N, Jump (5 MP, 3 hexes, 6 heat; budget walk 3 / run 4 / jump 5)
+  [Movement select] Blue: no spot deals damage - closing fallback
+  [Movement] Blue: 0905 NE -> 0907 N, Walk (3 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
+  [Ranged] Red -> Blue: range 10, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 2 + heat 1); firing ['CLERPPC'] (weapon heat 15 of budget 34 = max 30 + sink 22 - current 12 - movement 6 - other 0; expected dmg 1.25)
+    CLERPPC: needs 11 (range mod +2, modifiers -1), rolled 8 -> miss
+  [Ranged] Blue -> Red: range 10, base TN 11 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 4 + heat 0); firing nothing (weapon heat 0 of budget 37 = max 30 + sink 15 - current 7 - movement 1 - other 0; expected dmg 0.00)
+  [Heat] Red: 12 + movement 6 + weapons 15 + engine 0 - sinks 22 -> 11
+  [Heat] Red: heat 11 -> next turn -2 Walking MP, +1 to ranged attacks.
+  [Heat] Blue: 7 + movement 1 + weapons 0 + engine 0 - sinks 15 -> 0
+  -- end of turn 7: Red @ 1315 N: HP 293, pilot hits 0, engine 0, gyro 0, heat 11
+  -- end of turn 7: Blue @ 0907 N: HP 212, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 8 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 58.876 = dealt 1.75 x1.00 + (HP 272.0 - received 6.20 x1.28 - PSR 0.00) / enemy future 7.80 x my future 1.69 [two-ply, 61 of 299 spots (grid search) x 438 replies (short list); modeled reply Red -> 0813 N Jump]
-  [Movement] Blue: 0905 NE -> 0908 N, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
-  [Movement select] Red: score 1805.628 = dealt 1.47 x1.00 + (HP 392.0 - received 1.75 x1.00 - PSR 0.00) / enemy future 1.69 x my future 7.80 [enemy held at 0908; 96 spots with LOS]
-  [Movement] Red: 0615 N -> 0316 NE, Jump (5 MP, 3 hexes, 6 heat; budget walk 2 / run 2 / jump 5)
-  [Ranged] Blue turns its turret 2 left (Red is in its torso's rear arc after that).
-  [Ranged] Blue -> Red: range 11, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 37 = max 30 + sink 15 - current 7 - movement 1 - other 0; expected dmg 1.75)
-    CLERMediumLaser: needs 11 (range mod +4), rolled 3 -> miss
-    CLERMediumLaser: needs 11 (range mod +4), rolled 6 -> miss
-    CLERMediumLaser: needs 11 (range mod +4), rolled 5 -> miss
-  [Ranged] Red -> Blue: range 11, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 2); firing ['CLERPPC'] (weapon heat 15 of budget 31 = max 30 + sink 22 - current 15 - movement 6 - other 0; expected dmg 1.25)
-    CLERPPC: needs 11 (range mod +2, modifiers -1), rolled 9 -> miss
-  [Heat] Red: 15 + movement 6 + weapons 15 + engine 0 - sinks 22 -> 14
-  [Heat] Red: shutdown avoid roll at heat 14: needs 4, rolled 10 - avoided.
-  [Heat] Red: heat 14 -> next turn -2 Walking MP, +2 to ranged attacks.
-  [Heat] Blue: 7 + movement 1 + weapons 15 + engine 0 - sinks 15 -> 8
-  [Heat] Blue: heat 8 -> next turn -1 Walking MP, +1 to ranged attacks.
-  -- end of turn 8: Red @ 0316 NE: HP 293, pilot hits 0, engine 0, gyro 0, heat 14
-  -- end of turn 8: Blue @ 0908 N: HP 197, pilot hits 0, engine 0, gyro 0, heat 8
+  [Movement select] Blue: score 94.786 = dealt 1.75 x1.00 + (HP 287.0 - received 4.42 x0.96 - PSR 0.00) / enemy future 5.13 x my future 1.69 [two-ply, 137 of 580 spots (grid search) x 433 replies (short list); modeled reply Red -> 1315 NW Stand Still]
+  [Movement] Blue: 0907 N -> 0710 NE, Walk (5 MP, 4 hexes, 1 heat; budget walk 5 / run 8 / jump 0) - includes a backward move
+  [Movement select] Red: score 1190.269 = dealt 4.42 x0.96 + (HP 392.0 - received 1.75 x1.01 - PSR 0.00) / enemy future 1.69 x my future 5.13 [enemy held at 0710; 110 spots with LOS]
+  [Movement] Red: 1315 N -> 1315 N, Stand Still (0 MP, 0 hexes, 2 heat; budget walk 3 / run 4 / jump 5)
+  [Ranged] Blue turns its turret 1 right (Red is in its torso's right side arc after that).
+  [Ranged] Blue -> Red: range 8, base TN 9 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 4 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 44 = max 30 + sink 15 - current 0 - movement 1 - other 0; expected dmg 1.75)
+    CLERMediumLaser: needs 11 (range mod +2), rolled 6 -> miss
+    CLERMediumLaser: needs 11 (range mod +2), rolled 6 -> miss
+    CLERMediumLaser: needs 11 (range mod +2), rolled 8 -> miss
+  [Ranged] Red -> Blue: range 8, base TN 8 (gunnery 4 + AMM 0 [Stand Still] + TMM 1 + LOS 2 + heat 1); firing ['CLERPPC'] (weapon heat 15 of budget 39 = max 30 + sink 22 - current 11 - movement 2 - other 0; expected dmg 4.17)
+    CLERPPC: needs 9 (range mod +2, modifiers -1), rolled 11 -> HIT
+    CLERPPC hit for 15:
+      Hit location roll 5 (right table): Front Right Leg.
+15 damage (ENERGY) incoming to Front Right Leg (armor).
+  [STANDARD/ENERGY] 15 armor pts destroyed at armor (20 -> 5 remaining).
+  [Heat] Red: 11 + movement 2 + weapons 15 + engine 0 - sinks 22 -> 6
+  [Heat] Red: heat 6 -> next turn -1 Walking MP, +0 to ranged attacks.
+  [Heat] Blue: 0 + movement 1 + weapons 15 + engine 0 - sinks 15 -> 1
+  -- end of turn 8: Red @ 1315 N: HP 293, pilot hits 0, engine 0, gyro 0, heat 6
+  -- end of turn 8: Blue @ 0710 NE: HP 197, pilot hits 0, engine 0, gyro 0, heat 1
 
 === TURN 9 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 58.729 = dealt 0.00 x1.00 + (HP 272.0 - received 0.49 x1.00 - PSR 0.00) / enemy future 6.83 x my future 1.48 [two-ply, 75 of 275 spots (grid search) x 388 replies (short list); modeled reply Red -> 0717 N Jump]
-  [Movement] Blue: 0908 N -> 0606 NW, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
-  [Movement select] Red: score 1812.493 = dealt 2.93 x1.00 + (HP 392.0 - received 0.58 x1.00 - PSR 0.00) / enemy future 1.48 x my future 6.83 [enemy held at 0606; 80 spots with LOS]
-  [Movement] Red: 0316 NE -> 0311 N, Jump (5 MP, 5 hexes, 10 heat; budget walk 3 / run 4 / jump 5)
-  [Ranged] Blue turns its turret 1 left (Red is in its torso's left side arc after that).
-  [Ranged] Blue -> Red: range 6, base TN 10 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 1 + heat 1); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 36 = max 30 + sink 15 - current 8 - movement 1 - other 0; expected dmg 0.58)
-    CLERMediumLaser: needs 12 (range mod +2), rolled 10 -> miss
-    CLERMediumLaser: needs 12 (range mod +2), rolled 10 -> miss
-    CLERMediumLaser: needs 12 (range mod +2), rolled 8 -> miss
-  [Ranged] Red -> Blue: range 6, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 1 + heat 2); firing ['CLERPPC'] (weapon heat 15 of budget 28 = max 30 + sink 22 - current 14 - movement 10 - other 0; expected dmg 2.50)
-    CLERPPC: needs 10 (range mod +0, modifiers -1), rolled 9 -> miss
-  [Heat] Red: 14 + movement 10 + weapons 15 + engine 0 - sinks 22 -> 17
-  [Heat] Red: shutdown avoid roll at heat 17: needs 4, rolled 6 - avoided.
-  [Heat] Red: heat 17 -> next turn -3 Walking MP, +3 to ranged attacks.
-  [Heat] Blue: 8 + movement 1 + weapons 15 + engine 0 - sinks 15 -> 9
-  [Heat] Blue: heat 9 -> next turn -1 Walking MP, +1 to ranged attacks.
-  -- end of turn 9: Red @ 0311 N: HP 293, pilot hits 0, engine 0, gyro 0, heat 17
-  -- end of turn 9: Blue @ 0606 NW: HP 197, pilot hits 0, engine 0, gyro 0, heat 9
-
-=== TURN 10 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 63.064 = dealt 0.00 x1.00 + (HP 272.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 5.66 x my future 1.31 [two-ply, 50 of 277 spots (grid search) x 435 replies (short list); modeled reply Red -> 0708 NW Jump]
-  [Movement] Blue: 0606 NW -> 0106 SW, Run (6 MP, 5 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
-  [Movement select] Red: score 1690.725 = dealt 0.00 x1.00 + (HP 392.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.31 x my future 5.66 [enemy held at 0106; 78 spots with LOS]
-  [Movement] Red: 0311 N -> 0709 NE, Jump (5 MP, 4 hexes, 8 heat; budget walk 2 / run 2 / jump 5)
-  [Ranged] Blue -> Red: range 6, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 2 + heat 1); firing nothing (weapon heat 0 of budget 34 = max 30 + sink 15 - current 9 - movement 2 - other 0; expected dmg 0.00)
-  [Ranged] Red -> Blue: range 6, base TN 14 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 2 + heat 3); firing nothing (weapon heat 0 of budget 27 = max 30 + sink 22 - current 17 - movement 8 - other 0; expected dmg 0.00)
-  [Heat] Red: 17 + movement 8 + weapons 0 + engine 0 - sinks 22 -> 3
-  [Heat] Blue: 9 + movement 2 + weapons 0 + engine 0 - sinks 15 -> 0
-  -- end of turn 10: Red @ 0709 NE: HP 293, pilot hits 0, engine 0, gyro 0, heat 3
-  -- end of turn 10: Blue @ 0106 SW: HP 197, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 11 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 58.258 = dealt 0.58 x1.00 + (HP 272.0 - received 2.93 x1.00 - PSR 0.00) / enemy future 5.51 x my future 1.18 [two-ply, 86 of 296 spots (grid search) x 1030 replies (short list); modeled reply Red -> 0704 SW Jump]
-  [Movement] Blue: 0106 SW -> 0308 NE, Run (8 MP, 3 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Red: score 1829.307 = dealt 0.50 x1.02 + (HP 392.0 - received 0.00 x1.41 - PSR 0.00) / enemy future 1.18 x my future 5.51 [enemy held at 0308; 214 spots with LOS]
-  [Movement] Red: 0709 NE -> 0813 SE, Jump (5 MP, 5 hexes, 10 heat; budget walk 5 / run 7 / jump 5)
-  [Ranged] Blue -> Red: range 8, base TN 12 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 3 + heat 0); firing nothing (weapon heat 0 of budget 43 = max 30 + sink 15 - current 0 - movement 2 - other 0; expected dmg 0.00)
-  [Ranged] Red -> Blue: range 8, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 3 + heat 0); firing ['CLERPPC'] (weapon heat 15 of budget 39 = max 30 + sink 22 - current 3 - movement 10 - other 0; expected dmg 0.42)
-    CLERPPC: needs 12 (range mod +2, modifiers -1), rolled 7 -> miss
-  [Heat] Red: 3 + movement 10 + weapons 15 + engine 0 - sinks 22 -> 6
-  [Heat] Red: heat 6 -> next turn -1 Walking MP, +0 to ranged attacks.
-  [Heat] Blue: 0 + movement 2 + weapons 0 + engine 0 - sinks 15 -> 0
-  -- end of turn 11: Red @ 0813 SE: HP 293, pilot hits 0, engine 0, gyro 0, heat 6
-  -- end of turn 11: Blue @ 0308 NE: HP 197, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 12 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 1831.849 = dealt 2.98 x1.02 + (HP 392.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.07 x my future 5.01 [two-ply, 117 of 699 spots (grid search) x 462 replies (short list); modeled reply Blue -> 0310 N Walk]
-  [Movement] Red: 0813 SE -> 1315 NE, Jump (5 MP, 5 hexes, 10 heat; budget walk 4 / run 5 / jump 5)
-  [Movement select] Blue: no spot deals damage - closing fallback
-  [Movement] Blue: 0308 NE -> 0310 N, Walk (3 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 0) - includes a backward move
-  [Ranged] Red -> Blue: range 10, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 2 + heat 0); firing ['CLERPPC'] (weapon heat 15 of budget 36 = max 30 + sink 22 - current 6 - movement 10 - other 0; expected dmg 2.50)
-    CLERPPC: needs 10 (range mod +2, modifiers -1), rolled 5 -> miss
-  [Ranged] Blue -> Red: range 10, base TN 12 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 4 + heat 0); firing nothing (weapon heat 0 of budget 44 = max 30 + sink 15 - current 0 - movement 1 - other 0; expected dmg 0.00)
-  [Heat] Red: 6 + movement 10 + weapons 15 + engine 0 - sinks 22 -> 9
-  [Heat] Red: heat 9 -> next turn -1 Walking MP, +1 to ranged attacks.
-  [Heat] Blue: 0 + movement 1 + weapons 0 + engine 0 - sinks 15 -> 0
-  -- end of turn 12: Red @ 1315 NE: HP 293, pilot hits 0, engine 0, gyro 0, heat 9
-  -- end of turn 12: Blue @ 0310 N: HP 197, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 13 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 64.574 = dealt 0.58 x1.00 + (HP 272.0 - received 1.47 x1.00 - PSR 0.00) / enemy future 4.23 x my future 1.00 [two-ply, 72 of 462 spots (grid search) x 506 replies (short list); modeled reply Red -> 1112 SW Jump]
-  [Movement] Blue: 0310 N -> 0414 S, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Movement select] Red: score 1657.717 = dealt 2.93 x1.00 + (HP 392.0 - received 0.58 x1.00 - PSR 0.00) / enemy future 1.00 x my future 4.23 [enemy held at 0414; 51 spots with LOS]
-  [Movement] Red: 1315 NE -> 0813 SW, Jump (5 MP, 5 hexes, 10 heat; budget walk 4 / run 5 / jump 5)
-  [Ranged] Blue turns its turret 1 left (Red is in its torso's left side arc after that).
-  [Ranged] Blue -> Red: range 4, base TN 12 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 3 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 43 = max 30 + sink 15 - current 0 - movement 2 - other 0; expected dmg 0.58)
-    CLERMediumLaser: needs 12 (range mod +0), rolled 6 -> miss
-    CLERMediumLaser: needs 12 (range mod +0), rolled 7 -> miss
-    CLERMediumLaser: needs 12 (range mod +0), rolled 10 -> miss
-  [Ranged] Red -> Blue: range 4, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 1 + heat 1); firing ['CLERPPC'] (weapon heat 15 of budget 33 = max 30 + sink 22 - current 9 - movement 10 - other 0; expected dmg 2.50)
-    CLERPPC: needs 10 (range mod +0, modifiers -1), rolled 6 -> miss
-  [Heat] Red: 9 + movement 10 + weapons 15 + engine 0 - sinks 22 -> 12
-  [Heat] Red: heat 12 -> next turn -2 Walking MP, +1 to ranged attacks.
-  [Heat] Blue: 0 + movement 2 + weapons 15 + engine 0 - sinks 15 -> 2
-  -- end of turn 13: Red @ 0813 SW: HP 293, pilot hits 0, engine 0, gyro 0, heat 12
-  -- end of turn 13: Blue @ 0414 S: HP 197, pilot hits 0, engine 0, gyro 0, heat 2
-
-=== TURN 14 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 71.246 = dealt 3.50 x1.00 + (HP 272.0 - received 7.44 x1.02 - PSR 0.00) / enemy future 3.90 x my future 1.00 [two-ply, 202 of 506 spots (grid search) x 597 replies (short list); modeled reply Red -> 0410 S Jump]
-  [Movement] Blue: 0414 S -> 0316 SW, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 0) - includes a backward move
-  [Movement select] Red: score 1532.131 = dealt 1.86 x1.28 + (HP 392.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.00 x my future 3.90 [enemy held at 0316; 106 spots with LOS]
-  [Movement] Red: 0813 SW -> 1315 N, Jump (5 MP, 5 hexes, 10 heat; budget walk 3 / run 4 / jump 5)
-  [Ranged] Blue -> Red: range 10, base TN 11 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 3 + heat 0); firing nothing (weapon heat 0 of budget 42 = max 30 + sink 15 - current 2 - movement 1 - other 0; expected dmg 0.00)
-  [Ranged] Red -> Blue: range 10, base TN 10 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 1 + heat 1); firing ['CLERPPC'] (weapon heat 15 of budget 30 = max 30 + sink 22 - current 12 - movement 10 - other 0; expected dmg 1.25)
-    CLERPPC: needs 11 (range mod +2, modifiers -1), rolled 7 -> miss
-  [Heat] Red: 12 + movement 10 + weapons 15 + engine 0 - sinks 22 -> 15
-  [Heat] Red: shutdown avoid roll at heat 15: needs 4, rolled 8 - avoided.
-  [Heat] Red: heat 15 -> next turn -3 Walking MP, +2 to ranged attacks.
-  [Heat] Blue: 2 + movement 1 + weapons 0 + engine 0 - sinks 15 -> 0
-  -- end of turn 14: Red @ 1315 N: HP 293, pilot hits 0, engine 0, gyro 0, heat 15
-  -- end of turn 14: Blue @ 0316 SW: HP 197, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 15 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 82.215 = dealt 1.75 x1.00 + (HP 272.0 - received 1.47 x1.00 - PSR 0.00) / enemy future 3.36 x my future 1.00 [two-ply, 80 of 357 spots (grid search) x 397 replies (short list); modeled reply Red -> 1212 SW Jump]
-  [Movement] Blue: 0316 SW -> 0613 S, Walk (5 MP, 4 hexes, 1 heat; budget walk 5 / run 8 / jump 0) - includes a backward move
-  [Movement select] Red: score 1314.981 = dealt 2.93 x1.00 + (HP 392.0 - received 1.75 x1.00 - PSR 0.00) / enemy future 1.00 x my future 3.36 [enemy held at 0613; 48 spots with LOS]
-  [Movement] Red: 1315 N -> 0813 SW, Jump (5 MP, 5 hexes, 10 heat; budget walk 2 / run 2 / jump 5)
-  [Ranged] Blue turns its turret 1 left (Red is in its torso's left side arc after that).
-  [Ranged] Blue -> Red: range 2, base TN 11 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 3 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 44 = max 30 + sink 15 - current 0 - movement 1 - other 0; expected dmg 1.75)
-    CLERMediumLaser: needs 11 (range mod +0), rolled 6 -> miss
-    CLERMediumLaser: needs 11 (range mod +0), rolled 9 -> miss
-    CLERMediumLaser: needs 11 (range mod +0), rolled 3 -> miss
-  [Ranged] Red -> Blue: range 2, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 1 + heat 2); firing ['CLERPPC'] (weapon heat 15 of budget 27 = max 30 + sink 22 - current 15 - movement 10 - other 0; expected dmg 2.50)
-    CLERPPC: needs 10 (range mod +0, modifiers -1), rolled 6 -> miss
-  [Heat] Red: 15 + movement 10 + weapons 15 + engine 0 - sinks 22 -> 18
-  [Heat] Red: shutdown avoid roll at heat 18: needs 6, rolled 6 - avoided.
-  [Heat] Red: heat 18 -> next turn -3 Walking MP, +3 to ranged attacks.
-  [Heat] Blue: 0 + movement 1 + weapons 15 + engine 0 - sinks 15 -> 1
-  -- end of turn 15: Red @ 0813 SW: HP 293, pilot hits 0, engine 0, gyro 0, heat 18
-  -- end of turn 15: Blue @ 0613 S: HP 197, pilot hits 0, engine 0, gyro 0, heat 1
-
-=== TURN 16 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 94.900 = dealt 3.50 x1.00 + (HP 272.0 - received 2.98 x1.02 - PSR 0.00) / enemy future 2.94 x my future 1.00 [two-ply, 138 of 576 spots (grid search) x 542 replies (short list); modeled reply Red -> 1017 NW Jump]
-  [Movement] Blue: 0613 S -> 0314 NE, Walk (5 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 0) - includes a backward move
-  [Movement select] Red: score 1146.119 = dealt 2.93 x1.00 + (HP 392.0 - received 3.50 x1.00 - PSR 0.00) / enemy future 1.00 x my future 2.94 [enemy held at 0314; 126 spots with LOS]
-  [Movement] Red: 0813 SW -> 0609 SW, Jump (5 MP, 5 hexes, 10 heat; budget walk 2 / run 2 / jump 5)
-  [Ranged] Blue -> Red: range 6, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 43 = max 30 + sink 15 - current 1 - movement 1 - other 0; expected dmg 3.50)
-    CLERMediumLaser: needs 10 (range mod +2), rolled 7 -> miss
-    CLERMediumLaser: needs 10 (range mod +2), rolled 7 -> miss
-    CLERMediumLaser: needs 10 (range mod +2), rolled 8 -> miss
-  [Ranged] Red -> Blue: range 6, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 3); firing ['CLERPPC'] (weapon heat 15 of budget 24 = max 30 + sink 22 - current 18 - movement 10 - other 0; expected dmg 2.50)
-    CLERPPC: needs 10 (range mod +0, modifiers -1), rolled 2 -> miss
-  [Heat] Red: 18 + movement 10 + weapons 15 + engine 0 - sinks 22 -> 21
-  [Heat] Red: shutdown avoid roll at heat 21: needs 6, rolled 10 - avoided.
-  [Heat] Red: heat 21 -> next turn -4 Walking MP, +3 to ranged attacks.
-  [Heat] Blue: 1 + movement 1 + weapons 15 + engine 0 - sinks 15 -> 2
-  -- end of turn 16: Red @ 0609 SW: HP 293, pilot hits 0, engine 0, gyro 0, heat 21
-  -- end of turn 16: Blue @ 0314 NE: HP 197, pilot hits 0, engine 0, gyro 0, heat 2
-
-=== TURN 17 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 1077.044 = dealt 0.49 x1.00 + (HP 392.0 - received 1.75 x1.00 - PSR 0.00) / enemy future 1.00 x my future 2.76 [two-ply, 105 of 551 spots (grid search) x 553 replies (short list); modeled reply Blue -> 0709 N Run]
-  [Movement] Red: 0609 SW -> 0505 S, Jump (5 MP, 5 hexes, 10 heat; budget walk 1 / run 1 / jump 5)
-  [Movement select] Blue: score 100.173 = dealt 1.75 x1.00 + (HP 272.0 - received 0.49 x1.00 - PSR 0.00) / enemy future 2.76 x my future 1.00 [enemy held at 0505; 61 spots with LOS]
-  [Movement] Blue: 0314 NE -> 0508 N, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Red -> Blue: range 3, base TN 13 (gunnery 4 + AMM 3 [Jump] + TMM 3 + LOS 0 + heat 3); firing ['CLERPPC'] (weapon heat 15 of budget 21 = max 30 + sink 22 - current 21 - movement 10 - other 0; expected dmg 0.42)
-    CLERPPC: needs 12 (range mod +0, modifiers -1), rolled 5 -> miss
-  [Ranged] Blue -> Red: range 3, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 2 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 41 = max 30 + sink 15 - current 2 - movement 2 - other 0; expected dmg 1.75)
-    CLERMediumLaser: needs 11 (range mod +0), rolled 8 -> miss
-    CLERMediumLaser: needs 11 (range mod +0), rolled 9 -> miss
-    CLERMediumLaser: needs 11 (range mod +0), rolled 3 -> miss
-  [Heat] Red: 21 + movement 10 + weapons 15 + engine 0 - sinks 22 -> 24
-  [Heat] Red: shutdown avoid roll at heat 24: needs 8, rolled 9 - avoided.
-  [Heat] Red: heat 24 -> next turn -4 Walking MP, +4 to ranged attacks.
-  [Heat] Blue: 2 + movement 2 + weapons 15 + engine 0 - sinks 15 -> 4
-  -- end of turn 17: Red @ 0505 S: HP 293, pilot hits 0, engine 0, gyro 0, heat 24
-  -- end of turn 17: Blue @ 0508 N: HP 197, pilot hits 0, engine 0, gyro 0, heat 4
-
-=== TURN 18 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 948.435 = dealt 2.93 x1.00 + (HP 392.0 - received 8.75 x1.00 - PSR 0.00) / enemy future 1.00 x my future 2.47 [two-ply, 93 of 490 spots (grid search) x 548 replies (short list); modeled reply Blue -> 0508 NE Stand Still]
-  [Movement] Red: 0505 S -> 1006 SW, Jump (5 MP, 5 hexes, 10 heat; budget walk 1 / run 1 / jump 5)
-  [Movement select] Blue: score 117.766 = dealt 8.75 x1.00 + (HP 272.0 - received 2.98 x1.02 - PSR 0.00) / enemy future 2.47 x my future 1.00 [enemy held at 1006; 171 spots with LOS]
-  [Movement] Blue: 0508 N -> 0508 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
-  [Ranged] Red -> Blue: range 5, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 4); firing ['CLERPPC'] (weapon heat 15 of budget 18 = max 30 + sink 22 - current 24 - movement 10 - other 0; expected dmg 2.50)
-    CLERPPC: needs 10 (range mod +0, modifiers -1), rolled 9 -> miss
+  [Movement select] Blue: score 53.790 = dealt 1.75 x1.00 + (HP 272.0 - received 2.98 x1.00 - PSR 0.00) / enemy future 7.64 x my future 1.48 [two-ply, 168 of 632 spots (grid search) x 493 replies (short list); modeled reply Red -> 1315 NW Jump]
+  [Movement] Blue: 0710 NE -> 0710 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 0)
+  [Movement select] Red: score 2020.302 = dealt 2.98 x1.00 + (HP 392.0 - received 1.75 x1.00 - PSR 0.00) / enemy future 1.48 x my future 7.64 [enemy held at 0710; 127 spots with LOS]
+  [Movement] Red: 1315 N -> 1315 NW, Jump (1 MP, 0 hexes, 6 heat; budget walk 4 / run 5 / jump 5)
   [Ranged] Blue turns its turret 1 right (Red is in its torso's right side arc after that).
-  [Ranged] Blue -> Red: range 5, base TN 8 (gunnery 4 + AMM 0 [Stand Still] + TMM 3 + LOS 1 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 41 = max 30 + sink 15 - current 4 - movement 0 - other 0; expected dmg 8.75)
-    CLERMediumLaser: needs 8 (range mod +0), rolled 12 -> HIT
-    CLERMediumLaser: needs 8 (range mod +0), rolled 5 -> miss
-    CLERMediumLaser: needs 8 (range mod +0), rolled 8 -> HIT
-    CLERMediumLaser hit for 7:
-      Hit location roll 7 (front table): Center Torso.
-7 damage (ENERGY) incoming to Center Torso (armor).
-  [HARDENED/ENERGY] 3.5 armor pts destroyed at armor (27.5 -> 24 remaining).
-    CLERMediumLaser hit for 7:
-      Hit location roll 5 (front table): Rear Right Leg.
-7 damage (ENERGY) incoming to Rear Right Leg (armor).
-  [HARDENED/ENERGY] 3.5 armor pts destroyed at armor (26 -> 22.5 remaining).
-  [Heat] Red: 24 + movement 10 + weapons 15 + engine 0 - sinks 22 -> 27
-  [Heat] Red: SHUT DOWN (heat 27, shutdown avoid roll needs 10, rolled 7).
-  [Heat] Red: heat 27 -> next turn -5 Walking MP, +4 to ranged attacks.
-  [Heat] Blue: 4 + movement 0 + weapons 15 + engine 0 - sinks 15 -> 4
-  -- end of turn 18: Red @ 1006 SW: HP 286, pilot hits 0, engine 0, gyro 0, heat 27 [SHUT DOWN]
-  -- end of turn 18: Blue @ 0508 N: HP 197, pilot hits 0, engine 0, gyro 0, heat 4
-
-=== TURN 19 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 181.936 = dealt 9.93 x1.39 + (HP 272.0 - received 1.86 x1.28 - PSR 0.00) / enemy future 1.67 x my future 1.04 [two-ply, 88 of 547 spots (grid search) x 1 replies (short list); modeled reply Red -> 1006 SW Stand Still]
-  [Movement] Blue: 0508 N -> 1204 NE, Run (8 MP, 7 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
-  [Movement] Red: shut down - skips movement (immobile).
-  [Ranged] Blue turns its turret 2 right (Red is in its torso's rear arc after that).
-  [Ranged] Blue -> Red: range 3, base TN 4 (gunnery 4 + AMM 2 [Run] + TMM -4 + LOS 2 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (aimed at Center Torso) (weapon heat 15 of budget 39 = max 30 + sink 15 - current 4 - movement 2 - other 0; expected dmg 19.25)
-    CLERMediumLaser: needs 4 (range mod +0) aimed at Center Torso, rolled 7 -> HIT
-    CLERMediumLaser: needs 4 (range mod +0) aimed at Center Torso, rolled 9 -> HIT
-    CLERMediumLaser: needs 4 (range mod +0) aimed at Center Torso, rolled 10 -> HIT
-  [Ranged] Red: shut down - no attacks.
-    CLERMediumLaser hit for 7: aimed at Center Torso, 1D6 1 - rolls for location.
-      Hit location roll 8 (rear table): Left Torso.
-7 damage (ENERGY) incoming to Left Torso (rear_armor).
-  [HARDENED/ENERGY] 3.5 armor pts destroyed at rear_armor (5 -> 1.5 remaining).
-    CLERMediumLaser hit for 7: aimed at Center Torso, 1D6 6 - on target.
-7 damage (ENERGY) incoming to Center Torso (rear_armor).
-  [HARDENED/ENERGY] 3.5 armor pts destroyed at rear_armor (5 -> 1.5 remaining).
-    CLERMediumLaser hit for 7: aimed at Center Torso, 1D6 2 - rolls for location.
-      Hit location roll 11 (rear table): Front Left Leg.
-7 damage (ENERGY) incoming to Front Left Leg (rear_armor).
-  [HARDENED/ENERGY] 3.5 armor pts destroyed at armor (26 -> 22.5 remaining).
-  [Heat] Red: 27 + movement 0 + weapons 0 + engine 0 - sinks 22 -> 5
-  [Heat] Red: heat 5 is below 14 - power plant restarts automatically.
-  [Heat] Red: heat 5 -> next turn -1 Walking MP, +0 to ranged attacks.
-  [Heat] Blue: 4 + movement 2 + weapons 15 + engine 0 - sinks 15 -> 6
-  [Heat] Blue: heat 6 -> next turn -1 Walking MP, +0 to ranged attacks.
-  -- end of turn 19: Red @ 1006 SW: HP 275.5, pilot hits 0, engine 0, gyro 0, heat 5
-  -- end of turn 19: Blue @ 1204 NE: HP 197, pilot hits 0, engine 0, gyro 0, heat 6
-
-=== TURN 20 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 125.639 = dealt 0.58 x1.00 + (HP 272.0 - received 4.96 x1.02 - PSR 0.00) / enemy future 3.30 x my future 1.55 [two-ply, 58 of 284 spots (grid search) x 703 replies (short list); modeled reply Red -> 1111 N Jump]
-  [Movement] Blue: 1204 NE -> 0905 SE, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
-  [Movement select] Red: score 808.449 = dealt 13.01 x1.28 + (HP 374.5 - received 3.50 x1.00 - PSR 0.00) / enemy future 1.55 x my future 3.30 [enemy held at 0905; 183 spots with LOS]
-  [Movement] Red: 1006 SW -> 0505 NE, Jump (5 MP, 5 hexes, 10 heat; budget walk 4 / run 5 / jump 5)
-  [Ranged] Blue turns its turret 2 right (Red is in its torso's rear arc after that).
-  [Ranged] Blue -> Red: range 4, base TN 10 (gunnery 4 + AMM 1 [Walk] + TMM 3 + LOS 2 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 38 = max 30 + sink 15 - current 6 - movement 1 - other 0; expected dmg 3.50)
-    CLERMediumLaser: needs 10 (range mod +0), rolled 7 -> miss
-    CLERMediumLaser: needs 10 (range mod +0), rolled 7 -> miss
-    CLERMediumLaser: needs 10 (range mod +0), rolled 6 -> miss
-  [Ranged] Red -> Blue: range 4, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 0 + heat 0); firing ['CLERPPC'] (weapon heat 15 of budget 37 = max 30 + sink 22 - current 5 - movement 10 - other 0; expected dmg 8.75)
-    CLERPPC: needs 7 (range mod +0, modifiers -1), rolled 8 -> HIT
-    CLERPPC hit for 15:
-      Hit location roll 10 (rear table): Front Left Leg.
-15 damage (ENERGY) incoming to Front Left Leg (rear_armor).
-  [STANDARD/ENERGY] 5 armor pts destroyed at armor (5 -> 0 remaining). 10 damage applied to structure [STANDARD] (10 -> 0/10 remaining).
-  Front Left Leg destroyed with no live explosive components - no critical roll.
-  Front Left Leg DESTROYED!
-    Hip specifically destroyed at Front Left Leg from Front Left Leg destruction.
-    Heat sink destroyed (Heat Sink) from Front Left Leg destruction - heat dissipation reduced (now 14).
-  All critical slots in Front Left Leg marked DESTROYED.
-  0 damage remains, transfers to Left Torso.
-PSR trigger: Front Left Leg destroyed this phase -> automatic fall.
-Automatic fall this phase.
-FALL (automatic fall): Araña ARA-S-1 MilitiaMech takes 4 falling damage (1D6 4: front table, 5-pt clusters).
-  Fall cluster (4 dmg): rolled 4 -> Front Right Leg
-4 damage (PHYSICAL) incoming to Front Right Leg (armor).
-  [STANDARD/PHYSICAL] 4 armor pts destroyed at armor (20 -> 16 remaining).
-  Seatbelt check: needs 5. Rolled 8. Pilot unharmed.
-  [Heat] Red: 5 + movement 10 + weapons 15 + engine 0 - sinks 22 -> 8
-  [Heat] Red: heat 8 -> next turn -1 Walking MP, +1 to ranged attacks.
-  [Heat] Blue: 6 + movement 1 + weapons 15 + engine 0 - sinks 14 -> 8
-  [Heat] Blue: heat 8 -> next turn -1 Walking MP, +1 to ranged attacks.
-  -- end of turn 20: Red @ 0505 NE: HP 275.5, pilot hits 0, engine 0, gyro 0, heat 8
-  -- end of turn 20: Blue @ 0905 SE: HP 178, pilot hits 0, engine 0, gyro 0, heat 8 [PRONE]
-
-=== TURN 21 ===
-  Initiative: Blue lost the roll, moves first.
-Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 9.
-  Success - Araña ARA-S-1 MilitiaMech is standing (remaining running MP 3).
-  [Movement select] Blue: score 70.213 = dealt 0.58 x1.00 + (HP 243.0 - received 9.45 x1.00 - PSR 0.00) / enemy future 4.11 x my future 1.23 [two-ply, 43 of 66 spots (grid search) x 666 replies (short list); modeled reply Red -> 0301 SE Jump]
-  [Movement] Blue: 0905 SE -> 1004 NW, Run (3 MP, 1 hexes, 2 heat; budget walk 3 / run 5 / jump 0; stood up with 3 MP left)
-  [Movement select] Red: score 1262.980 = dealt 9.12 x0.96 + (HP 374.5 - received 0.58 x1.00 - PSR 0.00) / enemy future 1.23 x my future 4.11 [enemy held at 1004; 153 spots with LOS]
-  [Movement] Red: 0505 NE -> 0407 NE, Jump (5 MP, 3 hexes, 6 heat; budget walk 4 / run 5 / jump 5)
-  [Ranged] Blue -> Red: range 6, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 1 + heat 1); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 34 = max 30 + sink 14 - current 8 - movement 2 - other 0; expected dmg 0.58)
-    CLERMediumLaser: needs 12 (range mod +2), rolled 10 -> miss
-    CLERMediumLaser: needs 12 (range mod +2), rolled 4 -> miss
-    CLERMediumLaser: needs 12 (range mod +2), rolled 7 -> miss
-  [Ranged] Red -> Blue: range 6, base TN 8 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 1); firing ['CLERPPC'] (weapon heat 15 of budget 38 = max 30 + sink 22 - current 8 - movement 6 - other 0; expected dmg 8.75)
-    CLERPPC: needs 7 (range mod +0, modifiers -1), rolled 11 -> HIT
-    CLERPPC hit for 15:
-      Hit location roll 11 (left table): Rear Right Leg.
-15 damage (ENERGY) incoming to Rear Right Leg (armor).
-  [STANDARD/ENERGY] 5 armor pts destroyed at armor (5 -> 0 remaining). 10 damage applied to structure [STANDARD] (10 -> 0/10 remaining).
-  Rear Right Leg destroyed with no live explosive components - no critical roll.
-  Rear Right Leg DESTROYED!
-    Hip specifically destroyed at Rear Right Leg from Rear Right Leg destruction.
-    Heat sink destroyed (Heat Sink) from Rear Right Leg destruction - heat dissipation reduced (now 13).
-  All critical slots in Rear Right Leg marked DESTROYED.
-  0 damage remains, transfers to Right Torso.
-PSR trigger: Rear Right Leg destroyed this phase -> automatic fall.
-Automatic fall this phase.
-FALL (automatic fall): Araña ARA-S-1 MilitiaMech takes 4 falling damage (1D6 2: front table, 5-pt clusters).
-  Fall cluster (4 dmg): rolled 11 -> Front Left Leg
-4 damage (PHYSICAL) incoming to Front Left Leg (armor).
-  Front Left Leg already destroyed - damage transfers to Left Torso.
-  [STANDARD/PHYSICAL] 4 armor pts destroyed at armor (15 -> 11 remaining).
-  Seatbelt check: needs 5. Rolled 10. Pilot unharmed.
-  [Heat] Red: 8 + movement 6 + weapons 15 + engine 0 - sinks 22 -> 7
-  [Heat] Red: heat 7 -> next turn -1 Walking MP, +0 to ranged attacks.
-  [Heat] Blue: 8 + movement 2 + weapons 15 + engine 0 - sinks 13 -> 12
-  [Heat] Blue: heat 12 -> next turn -2 Walking MP, +1 to ranged attacks.
-  -- end of turn 21: Red @ 0407 NE: HP 275.5, pilot hits 0, engine 0, gyro 0, heat 7
-  -- end of turn 21: Blue @ 1004 NW: HP 159, pilot hits 0, engine 0, gyro 0, heat 12 [PRONE]
-
-=== TURN 22 ===
-  Initiative: Blue lost the roll, moves first.
-Stand attempt 1: needs 6 (Piloting 5 + +1, incl. -1 for standing). Rolled 5.
-  Failed to stand.
-FALL (failed to stand): Araña ARA-S-1 MilitiaMech takes 4 falling damage (1D6 2: front table, 5-pt clusters).
-  Fall cluster (4 dmg): rolled 10 -> Front Left Leg
-4 damage (PHYSICAL) incoming to Front Left Leg (armor).
-  Front Left Leg already destroyed - damage transfers to Left Torso.
-  [STANDARD/PHYSICAL] 4 armor pts destroyed at armor (11 -> 7 remaining).
-  Seatbelt check: needs 5. Rolled 5. Pilot unharmed.
-Insufficient MP (<2) remaining for another stand attempt. Remains prone.
-  [Movement] Blue: still prone at 1004.
-  [Movement select] Red: score 2007.666 = dealt 27.19 x1.05 + (HP 374.5 - received 0.58 x1.00 - PSR 0.00) / enemy future 1.17 x my future 6.18 [enemy held at 1004; 100 spots with LOS]
-  [Movement] Red: 0407 NE -> 0905 NE, Jump (5 MP, 5 hexes, 10 heat; budget walk 4 / run 5 / jump 5)
-  [Ranged] Blue -> Red: range 1, base TN 12 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 1 + prone +2); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 29 = max 30 + sink 13 - current 12 - movement 2 - other 0; expected dmg 0.58)
-    CLERMediumLaser: needs 12 (range mod +0), rolled 6 -> miss
-    CLERMediumLaser: needs 12 (range mod +0), rolled 7 -> miss
-    CLERMediumLaser: needs 12 (range mod +0), rolled 7 -> miss
-  [Ranged] Red -> Blue: range 1, base TN 5 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0 + prone target -2); firing ['CLERPPC'] (weapon heat 15 of budget 35 = max 30 + sink 22 - current 7 - movement 10 - other 0; expected dmg 13.75)
-    CLERPPC: needs 4 (range mod +0, modifiers -1), rolled 8 -> HIT
-    CLERPPC hit for 15:
-      Hit location roll 8 (left table): Center Torso.
-15 damage (ENERGY) incoming to Center Torso (armor).
-  [STANDARD/ENERGY] 15 armor pts destroyed at armor (18 -> 3 remaining).
-  [Physical] Red -> Blue: kick (Front Left Leg) needs 5 (piloting 5 + base 1 + attack -1), rolled 6 -> HIT (11 dmg, left side)
-    kick (Front Left Leg) hits Blue's Left Torso for 11.
-11 damage (PHYSICAL) incoming to Left Torso (armor).
-  [STANDARD/PHYSICAL] 7 armor pts destroyed at armor (7 -> 0 remaining). 4 damage applied to structure [STANDARD] (10 -> 6/10 remaining).
-  Check for possible critical. Roll a 6.
-    No critical hit.
-  [Heat] Red: 7 + movement 10 + weapons 15 + engine 0 - sinks 22 -> 10
-  [Heat] Red: heat 10 -> next turn -2 Walking MP, +1 to ranged attacks.
-  [Heat] Blue: 12 + movement 2 + weapons 15 + engine 0 - sinks 13 -> 16
-  [Heat] Blue: shutdown avoid roll at heat 16: needs 4, rolled 11 - avoided.
-  [Heat] Blue: heat 16 -> next turn -3 Walking MP, +2 to ranged attacks.
-  -- end of turn 22: Red @ 0905 NE: HP 275.5, pilot hits 0, engine 0, gyro 0, heat 10
-  -- end of turn 22: Blue @ 1004 NW: HP 129, pilot hits 0, engine 0, gyro 0, heat 16 [PRONE]
-
-=== TURN 23 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 2582.604 = dealt 11.13 x1.15 + (HP 374.5 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.11 x my future 7.64 [two-ply, 108 of 586 spots (grid search) x 1 replies (short list); modeled reply Blue -> 1004 NW Stand Still]
-  [Movement] Red: 0905 NE -> 0407 N, Jump (5 MP, 5 hexes, 10 heat; budget walk 3 / run 4 / jump 5)
-No running MP available - cannot attempt to stand (minimum movement rule). Remains prone.
-  [Movement] Blue: still prone at 1004.
-  [Ranged] Red -> Blue: range 6, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 1 + prone target 1); firing ['CLERPPC'] (weapon heat 15 of budget 32 = max 30 + sink 22 - current 10 - movement 10 - other 0; expected dmg 6.25)
-    CLERPPC: needs 8 (range mod +0, modifiers -1), rolled 10 -> HIT
-  [Ranged] Blue -> Red: range 6, base TN 12 (gunnery 4 + AMM 0 [Stand Still] + TMM 3 + LOS 1 + heat 2 + prone +2); firing nothing (weapon heat 0 of budget 27 = max 30 + sink 13 - current 16 - movement 0 - other 0; expected dmg 0.00)
-    CLERPPC hit for 15:
-      Hit location roll 9 (left table): Right Torso.
-15 damage (ENERGY) incoming to Right Torso (armor).
-  [STANDARD/ENERGY] 15 armor pts destroyed at armor (15 -> 0 remaining).
-  [Heat] Red: 10 + movement 10 + weapons 15 + engine 0 - sinks 22 -> 13
-  [Heat] Red: heat 13 -> next turn -2 Walking MP, +2 to ranged attacks.
-  [Heat] Blue: 16 + movement 0 + weapons 0 + engine 0 - sinks 13 -> 3
-  -- end of turn 23: Red @ 0407 N: HP 275.5, pilot hits 0, engine 0, gyro 0, heat 13
-  -- end of turn 23: Blue @ 1004 NW: HP 114, pilot hits 0, engine 0, gyro 0, heat 3 [PRONE]
-
-=== TURN 24 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 2507.913 = dealt 17.29 x1.07 + (HP 374.5 - received 1.75 x1.01 - PSR 0.00) / enemy future 1.07 x my future 7.11 [two-ply, 143 of 535 spots (grid search) x 1 replies (short list); modeled reply Blue -> 1004 NW Run]
-  [Movement] Red: 0407 N -> 0407 N, Stand Still (0 MP, 0 hexes, 2 heat; budget walk 3 / run 4 / jump 5)
-Stand attempt 1: needs 6 (Piloting 5 + +1, incl. -1 for standing). Rolled 11.
-  Success - Araña ARA-S-1 MilitiaMech is standing (remaining running MP 3).
-Movement Phase PSR (running mode, a quad's leg damage): needs 7 (Piloting 5 + +2). Rolled 5.
-  Failed - falls.
-FALL (fell again after standing): Araña ARA-S-1 MilitiaMech takes 4 falling damage (1D6 1: rear table, 5-pt clusters).
-  Fall cluster (4 dmg): rolled 3 -> Front Right Leg
-4 damage (PHYSICAL) incoming to Front Right Leg (rear_armor).
-  [STANDARD/PHYSICAL] 4 armor pts destroyed at armor (16 -> 12 remaining).
-  Seatbelt check: needs 5. Rolled 7. Pilot unharmed.
-  Will not attempt to stand again this round.
-  [Movement] Blue: still prone at 1004.
-  [Ranged] Red -> Blue: range 6, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 2 + prone target 1); firing ['CLERPPC'] (weapon heat 15 of budget 37 = max 30 + sink 22 - current 13 - movement 2 - other 0; expected dmg 10.83)
-    CLERPPC: needs 6 (range mod +0, modifiers -1), rolled 9 -> HIT
-  [Ranged] Blue -> Red: range 6, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0 + prone +2); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 38 = max 30 + sink 13 - current 3 - movement 2 - other 0; expected dmg 1.75)
+  [Ranged] Blue -> Red: range 8, base TN 9 (gunnery 4 + AMM 0 [Stand Still] + TMM 1 + LOS 4 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser'] (weapon heat 15 of budget 44 = max 30 + sink 15 - current 1 - movement 0 - other 0; expected dmg 1.75)
     CLERMediumLaser: needs 11 (range mod +2), rolled 6 -> miss
     CLERMediumLaser: needs 11 (range mod +2), rolled 5 -> miss
     CLERMediumLaser: needs 11 (range mod +2), rolled 9 -> miss
+  [Ranged] Red -> Blue: range 8, base TN 9 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 2 + heat 0); firing ['CLERPPC'] (weapon heat 15 of budget 40 = max 30 + sink 22 - current 6 - movement 6 - other 0; expected dmg 2.50)
+    CLERPPC: needs 10 (range mod +2, modifiers -1), rolled 10 -> HIT
     CLERPPC hit for 15:
-      Hit location roll 10 (left table): Front Right Leg.
-15 damage (ENERGY) incoming to Front Right Leg (armor).
-  [STANDARD/ENERGY] 12 armor pts destroyed at armor (12 -> 0 remaining). 3 damage applied to structure [STANDARD] (10 -> 7/10 remaining).
-  Check for possible critical. Roll a 9.
-    1 critical hit(s).
-  Critical hit pool at Front Right Leg:
-    1: Hip (slot 1)
-    2: Upper Leg Actuator (slot 2)
-    3: Lower Leg Actuator (slot 3)
-    4: Foot Actuator (slot 4)
-    5: Heat Sink (slot 5)
-    1/1 Criticals: Hip hit.
-      Current crit slots in Front Right Leg: ['DESTROYED', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', 'Heat Sink', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Leg actuator hit at Front Right Leg (1 destroyed there) - walk MP now 2.
-      Hip specifically destroyed at Front Right Leg - running-mode Movement Phase PSR trigger now active.
-  [Heat] Red: 13 + movement 2 + weapons 15 + engine 0 - sinks 22 -> 8
-  [Heat] Red: heat 8 -> next turn -1 Walking MP, +1 to ranged attacks.
-  [Heat] Blue: 3 + movement 2 + weapons 15 + engine 0 - sinks 13 -> 7
-  [Heat] Blue: heat 7 -> next turn -1 Walking MP, +0 to ranged attacks.
-  [End] Blue is now CRIPPLED (BattleMech Manual definition).
-  -- end of turn 24: Red @ 0407 N: HP 275.5, pilot hits 0, engine 0, gyro 0, heat 8
-  -- end of turn 24: Blue @ 1004 NW: HP 95, pilot hits 0, engine 0, gyro 0, heat 7 [PRONE]
-
-=== TURN 25 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 3226.805 = dealt 15.41 x1.01 + (HP 374.5 - received 0.00 x1.00 - PSR 0.00) / enemy future 1.02 x my future 8.75 [two-ply, 187 of 617 spots (grid search) x 1 replies (short list); modeled reply Blue -> 1004 NW Run]
-  [Movement] Red: 0407 N -> 0308 NE, Walk (4 MP, 1 hexes, 4 heat; budget walk 4 / run 5 / jump 5) - includes a backward move
-Stand attempt 1: needs 6 (Piloting 5 + +1, incl. -1 for standing). Rolled 5.
-  Failed to stand.
-FALL (failed to stand): Araña ARA-S-1 MilitiaMech takes 4 falling damage (1D6 5: front table, 5-pt clusters).
-  Fall cluster (4 dmg): rolled 5 -> Rear Right Leg
-4 damage (PHYSICAL) incoming to Rear Right Leg (armor).
-  Rear Right Leg already destroyed - damage transfers to Right Torso.
-  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 4 damage applied to structure [STANDARD] (10 -> 6/10 remaining).
-  Check for possible critical. Roll a 7.
-    No critical hit.
-  Seatbelt check: needs 5. Rolled 11. Pilot unharmed.
-Insufficient MP (<2) remaining for another stand attempt. Remains prone.
-  [Movement] Blue: still prone at 1004.
-  [Ranged] Red -> Blue: range 7, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 1 + heat 1 + prone target 1); firing ['CLERPPC'] (weapon heat 15 of budget 40 = max 30 + sink 22 - current 8 - movement 4 - other 0; expected dmg 8.75)
-    CLERPPC: needs 7 (range mod +0, modifiers -1), rolled 7 -> HIT
-  [Ranged] Blue -> Red: range 7, base TN 11 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 3 + heat 0 + prone +2); firing nothing (weapon heat 0 of budget 34 = max 30 + sink 13 - current 7 - movement 2 - other 0; expected dmg 0.00)
-    CLERPPC hit for 15:
-      Hit location roll 9 (left table): Right Torso.
-15 damage (ENERGY) incoming to Right Torso (armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 6 damage applied to structure [STANDARD] (6 -> 0/10 remaining).
-  Right Torso destroyed with no live explosive components - no critical roll.
-  Right Torso DESTROYED!
-  All critical slots in Right Torso marked DESTROYED.
-  Front Right Leg also destroyed (side torso rule).
-    Heat sink destroyed (Heat Sink) from Front Right Leg destruction - heat dissipation reduced (now 12).
-  All critical slots in Front Right Leg marked DESTROYED.
-  9 damage remains, transfers to Center Torso.
-  [STANDARD/ENERGY] 3 armor pts destroyed at armor (3 -> 0 remaining). 6 damage applied to structure [STANDARD] (12 -> 6/12 remaining).
-  Check for possible critical. Roll a 9.
-    1 critical hit(s).
-  Critical hit pool at Center Torso:
-    1: Engine (slot 1)
-    2: Engine (slot 2)
-    3: Engine (slot 3)
-    4: Gyro (slot 4)
-    5: Gyro (slot 5)
-    6: Gyro (slot 6)
-    7: Gyro (slot 7)
-    8: Engine (slot 8)
-    9: Engine (slot 9)
-    10: Engine (slot 10)
-    11: Heat Sink (slot 11)
-    12: Heat Sink (slot 12)
-    1/1 Criticals: Engine hit.
-      Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'DESTROYED', 'Heat Sink', 'Heat Sink']
-      Engine hit (1/3).
-  [Heat] Red: 8 + movement 4 + weapons 15 + engine 0 - sinks 22 -> 5
+      Hit location roll 12 (right table): Head.
+      Head hit - pilot takes 1 hit (1/6), regardless of armor.
+15 damage (ENERGY) incoming to Head (armor).
+  [STANDARD/ENERGY] 9 armor pts destroyed at armor (9 -> 0 remaining). 3 damage applied to structure [STANDARD] (3 -> 0/3 remaining).
+  Head destroyed with no live explosive components - no critical roll.
+  Head DESTROYED!
+    Cockpit destroyed from Head destruction.
+  All critical slots in Head marked DESTROYED.
+  3 damage remains, transfers to nowhere (attack finished).
+  [Heat] Red: 6 + movement 6 + weapons 15 + engine 0 - sinks 22 -> 5
   [Heat] Red: heat 5 -> next turn -1 Walking MP, +0 to ranged attacks.
-  [Heat] Blue: 7 + movement 2 + weapons 0 + engine 5 - sinks 12 -> 2
-  -- end of turn 25: Red @ 0308 NE: HP 275.5, pilot hits 0, engine 0, gyro 0, heat 5
-  -- end of turn 25: Blue @ 1004 NW: HP 69, pilot hits 0, engine 1, gyro 0, heat 2 [PRONE]
+  -- end of turn 9: Red @ 1315 NW: HP 293, pilot hits 0, engine 0, gyro 0, heat 5
+  -- end of turn 9: Blue @ 0710 NE: HP 185, pilot hits 1, engine 0, gyro 0, heat 1 [DESTROYED (Head Destroyed)]
 
-=== TURN 26 ===
-  Initiative: Blue lost the roll, moves first.
-Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 7.
-  Failed to stand.
-FALL (failed to stand): Araña ARA-S-1 MilitiaMech takes 4 falling damage (1D6 4: front table, 5-pt clusters).
-  Fall cluster (4 dmg): rolled 4 -> Front Right Leg
-4 damage (PHYSICAL) incoming to Front Right Leg (armor).
-  Front Right Leg already destroyed - damage transfers to Right Torso.
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/PHYSICAL] 0 armor pts destroyed at armor (0 -> 0 remaining). 4 damage applied to structure [STANDARD] (6 -> 2/12 remaining).
-  Check for possible critical. Roll a 4.
-    No critical hit.
-  Seatbelt check: needs 5. Rolled 5. Pilot unharmed.
-Insufficient MP (<2) remaining for another stand attempt. Remains prone.
-  [Movement] Blue: still prone at 1004.
-  [Movement select] Red: score 3843.774 = dealt 15.16 x0.78 + (HP 374.5 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.00 x my future 10.23 [enemy held at 1004; 138 spots with LOS]
-  [Movement] Red: 0308 NE -> 0407 N, Walk (3 MP, 1 hexes, 4 heat; budget walk 4 / run 5 / jump 5)
-  [Ranged] Blue: no weapon can bear on Red (forward arc) - can't fire.
-  [Ranged] Red -> Blue: range 6, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0 + prone target 1); firing ['CLERPPC'] (weapon heat 15 of budget 43 = max 30 + sink 22 - current 5 - movement 4 - other 0; expected dmg 12.50)
-    CLERPPC: needs 5 (range mod +0, modifiers -1), rolled 3 -> miss
-  [Heat] Red: 5 + movement 4 + weapons 15 + engine 0 - sinks 22 -> 2
-  [Heat] Blue: 2 + movement 2 + weapons 0 + engine 5 - sinks 12 -> 0
-  -- end of turn 26: Red @ 0407 N: HP 275.5, pilot hits 0, engine 0, gyro 0, heat 2
-  -- end of turn 26: Blue @ 1004 NW: HP 65, pilot hits 0, engine 1, gyro 0, heat 0 [PRONE]
-
-=== TURN 27 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 3825.235 = dealt 25.43 x1.00 + (HP 374.5 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.00 x my future 10.15 [two-ply, 161 of 868 spots (grid search) x 1 replies (short list); modeled reply Blue -> 1004 NW Run]
-  [Movement] Red: 0407 N -> 0904 NE, Run (7 MP, 6 hexes, 6 heat; budget walk 5 / run 7 / jump 5)
-Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 7.
-  Failed to stand.
-FALL (failed to stand): Araña ARA-S-1 MilitiaMech takes 4 falling damage (1D6 1: rear table, 5-pt clusters).
-  Fall cluster (4 dmg): rolled 7 -> Center Torso
-4 damage (PHYSICAL) incoming to Center Torso (rear_armor).
-  [STANDARD/PHYSICAL] 4 armor pts destroyed at rear_armor (5 -> 1 remaining).
-  Seatbelt check: needs 5. Rolled 8. Pilot unharmed.
-Insufficient MP (<2) remaining for another stand attempt. Remains prone.
-  [Movement] Blue: still prone at 1004.
-  [Ranged] Red -> Blue: range 1, base TN 4 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0 + prone target -2); firing ['CLERPPC'] (weapon heat 15 of budget 44 = max 30 + sink 22 - current 2 - movement 6 - other 0; expected dmg 14.58)
-    CLERPPC: needs 3 (range mod +0, modifiers -1), rolled 7 -> HIT
-  [Ranged] Blue: no weapon can bear on Red (forward arc) - can't fire.
-    CLERPPC hit for 15:
-      Hit location roll 4 (front table): Front Right Leg.
-15 damage (ENERGY) incoming to Front Right Leg (armor).
-  Front Right Leg already destroyed - damage transfers to Right Torso.
-  Right Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 2 damage applied to structure [STANDARD] (2 -> 0/12 remaining).
-  Center Torso destroyed with no live explosive components - no critical roll.
-  Center Torso DESTROYED!
-    Engine hit (2/3) from Center Torso destruction.
-    Engine hit (3/3) from Center Torso destruction.
-    Engine hit (4/3) from Center Torso destruction.
-    Gyro hit (1/2) from Center Torso destruction.
-    Gyro hit (2/2) from Center Torso destruction.
-    Gyro hit (3/2) from Center Torso destruction.
-    Gyro hit (4/2) from Center Torso destruction.
-    Engine hit (5/3) from Center Torso destruction.
-    Engine hit (6/3) from Center Torso destruction.
-    Heat sink destroyed (Heat Sink) from Center Torso destruction - heat dissipation reduced (now 11).
-    Heat sink destroyed (Heat Sink) from Center Torso destruction - heat dissipation reduced (now 10).
-  All critical slots in Center Torso marked DESTROYED.
-  13 damage remains, transfers to nowhere (attack finished).
-  [Heat] Red: 2 + movement 6 + weapons 15 + engine 0 - sinks 22 -> 1
-  -- end of turn 27: Red @ 0904 NE: HP 275.5, pilot hits 0, engine 0, gyro 0, heat 1
-  -- end of turn 27: Blue @ 1004 NW: HP 59, pilot hits 0, engine 6, gyro 4, heat 0 [PRONE, DESTROYED (Center Torso Destroyed)]
-
->>> Battle over on turn 27: Blue destroyed. <<<
+>>> Battle over on turn 9: Blue destroyed. <<<

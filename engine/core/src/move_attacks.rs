@@ -6,7 +6,7 @@ use crate::fasthash::IndexMap;
 
 use crate::battle::{Battle, UnitId};
 use crate::hex_geometry;
-use crate::los::{hex_distance, hex_line};
+use crate::los::{hex_distance, hex_line_sampled as hex_line};
 use crate::mech_state::*;
 use crate::move_eval::{Candidate, MoveEvaluator};
 use crate::move_options::{self, PathNotes};

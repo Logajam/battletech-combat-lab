@@ -6,9 +6,9 @@
 
 === TURN 1 ===
   Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 286.920 = dealt 8.56 x1.00 + (HP 382.0 - received 14.41 x1.01 - PSR 0.00) / enemy future 17.52 x my future 13.27 [two-ply, 144 of 816 spots (grid search) x 150 replies (short list); modeled reply Red -> 0306 S Walk]
+  [Movement select] Blue: score 286.920 = dealt 8.56 x1.00 + (HP 382.0 - received 14.41 x1.01 - PSR 0.00) / enemy future 17.52 x my future 13.27 [two-ply, 144 of 816 spots (grid search) x 150 replies (short list); modeled reply Red -> 0205 S Run]
   [Movement] Blue: 0509 N -> 0112 NE, Walk (6 MP, 5 hexes, 4 heat; budget walk 6 / run 9 / jump 0) - includes a backward move
-  [Movement select] Red: score 786.592 = dealt 16.29 x1.01 + (HP 592.0 - received 8.56 x1.00 - PSR 0.00) / enemy future 13.27 x my future 17.52 [enemy held at 0112; 21 spots with LOS]
+  [Movement select] Red: score 786.592 = dealt 16.29 x1.01 + (HP 592.0 - received 8.56 x1.00 - PSR 0.00) / enemy future 13.27 x my future 17.52 [enemy held at 0112; 15 spots with LOS]
   [Movement] Red: 0505 S -> 0206 S, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
   [Ranged] Blue -> Red: range 6, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['ISMediumVSPLaser', 'ISMediumVSPLaser', 'ISERLargeLaser'] (weapon heat 26 of budget 52 = max 30 + sink 26 - current 0 - movement 4 - other 0; expected dmg 8.56)
   [Ranged] Blue fires in order: ['ISERLargeLaser', 'ISMediumVSPLaser', 'ISMediumVSPLaser'].

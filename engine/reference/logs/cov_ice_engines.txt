@@ -79,7 +79,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 4.
   [Movement] Blue: 0308 NE -> 0310 SW, Run (3 MP, 2 hexes, 2 heat; budget walk 4 / run 6 / jump 0; stood up with 4 MP left)
 Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 10.
   Success - ForestryMech ED-X3 is standing (remaining running MP 6).
-  [Movement select] Red: score 411.622 = dealt 8.15 x0.99 + (HP 112.0 - received 0.60 x0.98 - PSR 0.00) / enemy future 1.75 x my future 6.35 [enemy held at 0310; 66 spots with LOS]
+  [Movement select] Red: score 411.622 = dealt 8.15 x0.99 + (HP 112.0 - received 0.60 x0.98 - PSR 0.00) / enemy future 1.75 x my future 6.35 [enemy held at 0310; 61 spots with LOS]
   [Movement] Red: 0407 SW -> 0410 NE, Run (6 MP, 3 hexes, 2 heat; budget walk 5 / run 8 / jump 0; stood up with 6 MP left)
   [Ranged] Blue: no weapon can bear on Red (left side arc) - can't fire.
   [Ranged] Red: no weapon can bear on Blue (left side arc) - can't fire.

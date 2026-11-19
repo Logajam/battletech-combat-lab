@@ -6,6 +6,21 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-19 (Claude, session 30), LINE OF SIGHT: THE TRUE LINE (TIER 1 BUG). REVIEW PENDING (higher-level model).** Daniel:
+  "Oh thats funny. And needs to be fixed. Tier 1 bug." Found through the bridge ("weapons MegaMek ruled out of reach"): our
+  line of sight sampled one point per hex step (`los::hex_line`, cube interpolation, from the Python), skipping hexes the
+  centre-to-centre line clips and taking a line that CROSSES an edge at a sample point for one running ALONG it (Core p.56's
+  border rule) - 0209 -> 0610 on Scattered Woods crosses heavy 0409 and light 0410 (3, blocked) but counted only one (2).
+  Picture: https://claude.ai/artifact/NX5xeEwE4bWLFejikw4jwX. Now `los::hex_line` = `mm_line::los_steps`: MegaMek's trace
+  (Coords.intervening) - every hex the line passes through; on an exact 30-degree line (whole degrees % 60 == 30, as
+  MegaMek) the split list in threes, each pair the target's choice. Checked: all 14,641 lines of an 11 x 11 board and all
+  1,698 split lines equal MegaMek 0.51.01.7's; unit test of both cases. `trace_los_path`'s "next to the attacker / target"
+  test is now real adjacency (a clipped hex need not be next to either); `LOSResult.distance` is the hex distance. The
+  water-line test (`water.rs`) uses the true line; jump paths and a death from above's last hex keep the sampled line
+  (`hex_line_sampled`: they need hex-to-adjacent-hex steps). Speed: a shape cache keyed on (odd column, offset); the true line
+  is about twice as fast per call as the old, with ~12% more hexes per line. RESULTS CHANGE: 84 of 91 reference battles,
+  re-saved (`hydra_noattention_blue__hy_4v4_heavy_hills` now reaches the turn cap; `caspar_red__hy_8v8_valley` no longer).
+  The Rust's LOS no longer matches the frozen Python. `--full` 5 of 5. MegaMek after: 8 games, 129 shots, none out of reach.
 - **2026-11-19 (Claude, session 30), BRIDGE: STANDING UP, MEGAMEK'S GAME OPTIONS. REVIEW PENDING (higher-level model).** Daniel:
   "Standing up should be a I/O issue. Command is stand up, turn to the facing you want as a separate step ... That turn should
   count as free. Bridge might need a step to see what game options megamek is using, and then conform to them." `bridge::
