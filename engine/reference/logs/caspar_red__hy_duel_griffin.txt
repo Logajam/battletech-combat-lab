@@ -102,14 +102,14 @@
 === TURN 6 ===
   Initiative: Red lost the roll, moves first.
   [Movement select] Red: CASPAR (modern, defend): utility 6.25 = -fall 0.00 + bravery -4.75 [1.00 x 0.00 x 1.5 - taken 4.75] - aggression 0.00 + close range 11.00 - facing 0 + hold 0.00 [781 of 781 spots; enemy still to move]
-  [Movement] Red: 1314 S -> 1314 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 5 / run 8 / jump 5)
+  [Movement] Red: 1314 S -> 1314 S, Walk (5 MP, 1 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
   [Movement select] Blue: score 826.991 = dealt 1.05 x1.21 + (HP 334.0 - received 0.00 x1.01 - PSR 0.00) / enemy future 1.15 x my future 2.83 [enemy held at 1314; 241 spots with LOS]
   [Movement] Blue: 1315 NW -> 1411 NE, Run (8 MP, 5 hexes, 2 heat; budget walk 5 / run 8 / jump 5)
   [Ranged] Red: no weapon can bear on Blue (rear arc) - can't fire.
   [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's right side arc after that).
   [Ranged] Blue -> Red: range 3, base TN 10 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 4 + heat 0); firing ['PPC'] (weapon heat 10 of budget 14 = max 4 + sink 12 - current 0 - movement 2 - other 0; expected dmg 0.83)
     PPC: needs 11 (range mod +1), rolled 8 -> miss
-  [Heat] Red: 0 + movement 0 + weapons 0 + engine 0 - sinks 12 -> 0
+  [Heat] Red: 0 + movement 1 + weapons 0 + engine 0 - sinks 12 -> 0
   [Heat] Blue: 0 + movement 2 + weapons 10 + engine 0 - sinks 12 -> 0
   -- end of turn 6: Red @ 1314 S: HP 230, pilot hits 0, engine 0, gyro 0, heat 0
   -- end of turn 6: Blue @ 1411 NE: HP 243, pilot hits 0, engine 0, gyro 0, heat 0

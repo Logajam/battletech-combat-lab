@@ -1,6 +1,6 @@
 MMSVersion: 2
 name: Bridge Hunchback duel v CASPAR
-description: MegaMek bridge - Red (our engine, --bridge Red) v Blue (MegaMek CASPAR), one Hunchback each, Scattered Woods.
+description: MegaMek bridge - Red (our engine, --bridge Red) v Blue (MegaMek CASPAR), one Hunchback each, Scattered Woods. Blue starts at 0915 because a unit the scenario places in water (0815, depth 1) gets almost no moves from MegaMek's bots (session 30).
 
 map:
   boards:
@@ -33,7 +33,7 @@ factions:
       ai: CASPAR
     units:
       - fullname: Hunchback HBK-4G
-        at: [ 8, 15 ]
+        at: [ 9, 15 ]
         facing: 0
         crew:
           name: Blue Pilot

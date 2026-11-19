@@ -697,7 +697,11 @@ fn rank(b: &mut Battle, mover: UnitId, group: &Group, prepared: &[Opt], estimate
             }
         }
         let utility = -fall_mod + bravery_mod - aggression_mod + close - support - crowd - face + hold;
-        if best.map_or(true, |x| utility > x.0) {
+        // RankedPath.compareTo (MegaMek; already so at fd2edfb, the clone's version): the higher rank wins; on a tie the
+        // path that moves more hexes, then the one with more expected damage (firing + physical), then the first found.
+        // (Session 30: the clone kept the first found on any tie - seen against MegaMek's CASPAR through the bridge,
+        // where two paths worth only the close-range incentive tied and MegaMek's moved further.)
+        if best.map_or(true, |x| utility > x.0 || (utility == x.0 && (o.fc > x.1.fc || (o.fc == x.1.fc && done > x.5)))) {
             best = Some((utility, *o, fall_mod, bravery_mod, p, done, taken, aggression_mod, close, face, hold, support, crowd));
         }
     }

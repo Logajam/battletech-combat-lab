@@ -301,13 +301,36 @@ what our bots would decide in our own engine.
 view fixes: v MegaMek's Princess 2 wins, 2 draws of 4; v CASPAR 1 win, 2 draws, 1 unfinished of 4. After them
 (`trial_records/megamek_bridge.jsonl`): v Princess 2 wins, 4 draws, 0 losses of 6; v CASPAR 1 loss, 3 draws,
 2 unfinished (MegaMek stalled at rounds 49 and 14) of 6. Findings:
-- STANDOFFS: MegaMek's Princess and CASPAR often hold their start hex; Hydra waits at the edge of its range (from 0805
+- STANDOFFS (CAUSE FOUND session 30, Section 3e: the scenarios started Blue in water, where MegaMek's bots get almost no
+  moves; fixed): MegaMek's Princess and CASPAR often hold their start hex; Hydra waits at the edge of its range (from 0805
   nothing reaches; 0806 has no line of sight through the woods - MegaMek agrees on both: the log carries its to-hit
   beside ours). Our clone of Princess advances, so these duels are decided in our engine and drawn in MegaMek.
 - Hydra peeks by stepping 0806 -> 0805 BACKWARD up a level, a piloting roll every time (Core p.115), and falls now and
   then: a Hydra choice to look at (it knows the risk), not a bridge fault.
 - MegaMek stalls on its own now and then (also seen in its own runner, B0): the runner script plays a game again if it
   stalls before round 2, and the launcher's timeout ends the rest.
+
+## 3e. Hydra v CASPAR in both engines (session 30, 2026-11-19; Daniel: "We're looking to see if they act the same way")
+
+The Hunchback duel (`hbk_duel_caspar.mms`, Scattered Woods): our Hydra as Red through the bridge v MegaMek's own CASPAR
+(0.51.01.7), and the same start in our engine, Hydra v our CASPAR.
+- **A unit the scenario places in water gets almost no moves from MegaMek's bots.** Blue started in 0815 (depth-1
+  water): in 3 games of 99 rounds MegaMek's CASPAR never moved. Its log says "2 paths to consider" every turn - with
+  MegaMek's own runner too (AIMatchRunner, no bridge), and for Princess as well when seated there; 43-142 paths once
+  Blue starts in dry 0915. Both bridge scenarios now start Blue in 0915. This was the "standoffs" of Section 3d.
+- **Whole games** (5 in MegaMek, 20 in ours, Blue from 0915): CASPAR's first move is the same (0911, running, in 4 of 5
+  MegaMek games and all 20 of ours) and the gap closes alike over turns 1-8; MegaMek: Hydra 2, CASPAR 2, 1 draw; ours:
+  Hydra 12 - 8 (13-turn mean). In MegaMek 64 of Hydra's ~220 moves fell back to MegaMek's Princess ("MegaMek would not
+  take the route": our path's steps refused, mostly Run moves) - a bridge item to look at.
+- **Decision by decision** (`tools/megamek_decision_replay.py`): from each MegaMek state just before CASPAR moved, our
+  CASPAR (`btsim decide`) asked for its move. 8 games, 78 decisions: 55 the same hex and facing (71%) at first; the gap
+  was partly TIES, which MegaMek's RankedPath breaks by more hexes moved, then more expected damage (our clone kept the
+  first found) - fixed in the shared Princess / CASPAR ranker: 59 of 78 (76%). Nearly all the rest are decisions where
+  CASPAR moves SECOND: MegaMek's estimate of a foe that has already moved differs from ours. One traced case (MegaMek's
+  per-path trace, BasicPathRanker at TRACE): from 1108 with Hydra just run to 0802 facing SW, MegaMek rated 1006 at 45
+  damage dealt and none taken, then took 25 there (needing 11) and did not fire; ours rated it 2 dealt, 5 taken (every
+  shot needing 12, through the woods). Open: why MegaMek's moved-foe estimate (evaluateMovedEnemy) is that far from its
+  own to-hit (PROJECT_MAP Section 4).
 
 ## 4. The request (Java -> Rust), one JSON object a line
 

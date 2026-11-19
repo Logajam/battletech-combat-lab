@@ -6,6 +6,18 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-19 (Claude, session 30), HYDRA V CASPAR IN BOTH ENGINES; PRINCESS / CASPAR TIE-BREAK. REVIEW PENDING (higher-level model).**
+  Daniel: "Run a caspar vs Hydra game in both Megamek using the bridge and on our engine. We're looking to see if they act
+  the same way." Findings in INTEGRATION__MEGAMEK_BRIDGE.md Section 3e: (1) the bridge duels started Blue in water, where
+  MegaMek's bots get 2 paths a turn and never move (the old "standoffs"); `megamek_bridge/scenarios/hbk_duel_*.mms` now start
+  Blue in 0915. (2) New `tools/megamek_decision_replay.py`: our clone asked for MegaMek's bot's move from the same state, 78
+  decisions over 8 games. (3) FIXED in `princess_modern::rank` (Princess and CASPAR): MegaMek's RankedPath tie-break - equal
+  rank goes to the path moving more hexes, then the one with more expected damage (it was already so at fd2edfb, the clone's
+  version; the clone kept the first found): 71% -> 76% the same move. Results change: 9 reference battles updated (every
+  Princess / CASPAR one with a tie), `caspar_red__hy_8v8_valley` now reaches the turn cap (was Blue in 27). Same seeds, 20
+  battles: team_4v4_princess_v_gladiator Princess 10-10 -> 10-10, CASPAR 11-9 -> 12-8; hy_4v4_heavy_hills CASPAR 8-10-2 ->
+  6-13-1. OPEN: MegaMek's estimate of a foe that has already moved (most remaining differences; Section 4); 64 of Hydra's
+  ~220 moves in the MegaMek games refused by MegaMek ("would not take the route").
 - **2026-11-19 (Claude, session 30), PRINCESS AND CASPAR DEPLOY AS MEGAMEK'S BOTS DO. REVIEW PENDING (higher-level model).**
   Daniel: "If both are supposed to use it in megamek, it should be ported for both. Its the only way to get authentic results from
   our captured bots." New `engine/core/src/princess_deploy.rs`, used by `orchestrator::deploy_zones` for every Princess / CASPAR unit
