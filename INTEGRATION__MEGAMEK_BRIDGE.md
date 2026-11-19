@@ -345,9 +345,15 @@ side had not carried into bridge games:
 - **No enemy left.** MegaMek runs a few rounds after a side is gone; our movement search crashed when asked ("our engine
   found no move"). FIXED: the bridge answers Stand Still.
 After the fixes: 5 games v CASPAR, no fallback at all (Hydra 4 - 1); 5 v MegaMek's Princess, 2 refusals left:
-- **Standing up (a rules difference, Daniel's call).** The Core Rulebook lets a 'Mech that stands pick any facing at no
-  cost (movement.md, Standing Up); MegaMek keeps the prone facing and charges 1 MP a hexside after GET_UP. Our step list
-  sends no turn for the free facing, so MegaMek walks the route the wrong way.
+- **Standing up** (Daniel: "an I/O issue"). The Core Rulebook lets a 'Mech that stands pick any facing at no cost; our
+  step list sent no turn for it, so MegaMek walked the route the wrong way. FIXED: `path_steps` sends GET_UP, then the
+  turns to the chosen facing (`ranged_combat::path_to_with_start` says which), then the route. MegaMek charges nothing
+  for a turn right after GET_UP (TurnStep: hasJustStood) - checked in MegaMek: the route ends where we chose.
+- **MegaMek's game options** (Daniel: "see what game options megamek is using, and then conform to them"). The start line
+  carries every option (value and default, `GameView.start`); `bridge::conform_to_megamek` sets the switches our engine has
+  (`floating_crits` -> FLOATING_CRITICALS: MegaMek's default is off, ours on), turns POOL_CLUSTER_DAMAGE off, and notes
+  what it cannot follow (a rule set other than Core Rules, any other option changed from MegaMek's default, a board with
+  buildings); the notes go into each game's record ("rules"). After: 6 games, no route refused.
 - One 4-hex Run from 1203 (heat 0, standing) that MegaMek's stand-alone path check accepts: unexplained (seen once; that
   game's MegaMek log was overwritten).
 
