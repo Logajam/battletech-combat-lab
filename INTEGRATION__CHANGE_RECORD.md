@@ -16,7 +16,7 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   (`tools/megamek_bridge_games.py`): `destroy_slot_quietly` now counts leg actuators (a lost hip cost no MP in bridge games; only that path - a destroyed or breached location keeps its old effects, so our battles are unchanged);
   the bridge answers a prone 'Mech that cannot stand with turns on the ground (`orchestrator::turn_while_down_choice`, split
   out of `turn_while_down`, results unchanged); the view sets the declared twist and its turn lock (`arc_action`,
-  `arc_action_locked`). Java: a prone 'Mech with 1 MP may try to stand (Core p.51). Our own battles unchanged.
+  `arc_action_locked`). Java: a prone 'Mech with 1 MP may try to stand (Core p.51). Charges seen in played games (to-hit 7); a charge from the stand-up hex now carries its free turn; a 'Mech that began its move prone plans without movement attacks in bridge games (MegaMek forbids them; the book does not). Our own battles unchanged.
 - **2026-11-19 (Claude, session 30), LINE OF SIGHT: THE TRUE LINE (TIER 1 BUG). REVIEW PENDING (higher-level model).** Daniel:
   "Oh thats funny. And needs to be fixed. Tier 1 bug." Found through the bridge ("weapons MegaMek ruled out of reach"): our
   line of sight sampled one point per hex step (`los::hex_line`, cube interpolation, from the Python), skipping hexes the

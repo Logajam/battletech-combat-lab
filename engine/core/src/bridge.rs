@@ -570,7 +570,29 @@ fn path_steps(b: &Battle, mover: UnitId, pick: &Pick, standup_mp: Option<i64>) -
         let (Some(from), Some(into)) = (b.board.hexes.get(&pick.hex), b.board.hexes.get(&target)) else { return Value::Null };
         let Some(cost) = crate::terrain_rules::step_cost(Some(from), into, level_limit, false) else { return Value::Null };
         let route = Pick { fc: pick.fc - 1, mp_spent: pick.mp_spent - cost, charge: false, ..pick.clone() };
-        let mut out = if route.fc == 0 && route.mp_spent == 0 { json!({"steps": if standup_mp.is_some() { vec!["get_up"] } else { vec![] }}) } else { path_steps(b, mover, &route, standup_mp) };
+        let mut out = if route.fc == 0 && route.mp_spent == 0 {
+            // charging from where it stands: if it stands up first it turns to face the target for free (Core p.51; free in
+            // MegaMek right after GET_UP), so those turns go after GET_UP (session 30: they were left out - MegaMek's charge
+            // went straight ahead and was refused)
+            let mut steps: Vec<&str> = Vec::new();
+            if standup_mp.is_some() {
+                steps.push("get_up");
+                let mut facing = crate::hex_geometry::compass_to_facing(&b.units[mover].facing).unwrap_or(0);
+                let want = crate::hex_geometry::compass_to_facing(&pick.facing).unwrap_or(facing);
+                while facing != want {
+                    if (want - facing).rem_euclid(6) <= 3 {
+                        steps.push("turn_right");
+                        facing = (facing + 1).rem_euclid(6);
+                    } else {
+                        steps.push("turn_left");
+                        facing = (facing + 5).rem_euclid(6);
+                    }
+                }
+            }
+            json!({"steps": steps})
+        } else {
+            path_steps(b, mover, &route, standup_mp)
+        };
         if out.is_null() {
             return Value::Null;
         }
@@ -791,6 +813,14 @@ fn call(b: &mut Battle, bots: &mut dyn BotSet, method: &str, a: &Value) -> Value
             }
             let set = mover_sees_others(b, mover);
             let edge: Option<Vec<String>> = a["entry_edge"].as_array().map(|e| e.iter().map(|x| x.as_str().unwrap().to_string()).collect());
+            // MegaMek lets no 'Mech that began its move prone charge or make a death from above, even once it stands (MoveStep:
+            // "initially prone meks can't charge"); the Core Rulebook has no such limit (p.78). In MegaMek's game its rule
+            // stands, so Hydra plans this one move without movement attacks (session 30: such a charge was refused).
+            let prone_start = a["standup_mp"].as_i64().is_some();
+            let saved_attacks = b.cfg.has("HYDRA_MOVEMENT_ATTACKS").then(|| b.cfg.b("HYDRA_MOVEMENT_ATTACKS"));
+            if prone_start {
+                b.cfg.set("HYDRA_MOVEMENT_ATTACKS", json!(false));
+            }
             let (pick, note, gate) = bots.choose_movement(
                 b,
                 a["mover"].as_u64().unwrap() as UnitId,
@@ -800,6 +830,9 @@ fn call(b: &mut Battle, bots: &mut dyn BotSet, method: &str, a: &Value) -> Value
                 edge.as_deref(),
             );
             mover_done(b, mover, set);
+            if prone_start {
+                b.cfg.set("HYDRA_MOVEMENT_ATTACKS", json!(saved_attacks.unwrap_or(true)));
+            }
             json!({"pick": pick.as_ref().map(pick_json), "note": note, "gate": gate_json(&gate)})
         }
         other => panic!("bridge: no call {}", other),

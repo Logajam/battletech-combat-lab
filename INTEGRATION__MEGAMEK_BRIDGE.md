@@ -376,8 +376,11 @@ logs). Each refusal was our side planning with a rule state MegaMek's view did n
 engine attacks with sent first when it is new (MegaMek's Core Rules allow a physical-phase twist). Charges: our route to
 the hex next to the target, then MegaMek's CHARGE step with the target set (as MegaMek's movement screen builds one);
 death from above: MegaMek's path finder jumping to the target with the DFA step last. Checked in MegaMek with a stand-alone
-path check: a charge from 0602 to 0801 legal, to-hit 7 (piloting 5, ran +2); a Jenner's DFA legal, to-hit 8. Not yet seen
-in a played game (Hydra rarely charges in the Hunchback duel). Still FALLBACK: clubs / physical weapons, arm flips.
+path check: a charge from 0602 to 0801 legal, to-hit 7 (piloting 5, ran +2); a Jenner's DFA legal, to-hit 8. In played
+games: charges made (to-hit 7). Two more found that way: a charge from where it stood up needs the free turn after
+GET_UP (now sent); and MegaMek lets no 'Mech that began its move prone charge or DFA ("initially prone meks can't
+charge") - not in the Core Rulebook (p.78), but MegaMek's game, MegaMek's rule: Hydra plans such a move without movement
+attacks. Still FALLBACK: clubs / physical weapons, arm flips.
 
 **"Weapons MegaMek ruled out of reach" (research, session 30; Daniel: "do research on range mismatch").** Not range: the
 traced cases are LINE OF SIGHT. Shot 0209 -> 0610 (Scattered Woods): MegaMek "LOS blocked by intervening woods". Both
