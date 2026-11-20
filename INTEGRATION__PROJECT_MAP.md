@@ -133,7 +133,8 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   the formula with hardened counted x2 predicts +1.18.
   FERRO-LAMELLOR DONE 2026-11-20: +0.69 log-odds, about x1.6 armor (hardened about x2.2); BV predicts +0.18. Daniel: reactive
   and reflective depend on the opponent's weapons (and some damage types reactive is for are not active yet): not tested.
-  Next: heat sinks, jump, TC (stealth armor reads as standard in mtf_parser: no combat effect to test).
+  Next: heat sinks, jump, TC. CORRECTION: stealth armor DOES work (equipment_systems::active_stealth: +1 medium / +2 long,
+  10 heat, needs live ECM; absorbs as standard), ALWAYS ON while the ECM works (the 2026-10-19 "default on"; no bot toggle).
 
 **A. Gladiator - the bot**
 - **A1. The move score does not see a win, a clock or the walk back** (review 2026-11-10; [000000 (a)], [0]
