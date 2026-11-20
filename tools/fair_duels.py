@@ -162,11 +162,11 @@ def progress_file(label):
     return os.path.join(RECORDS, "progress", f"fair_duels_{label}.jsonl")
 
 
-def done_cells(label):
+def done_cells(label, finished_only=False):
     """Cells already recorded under this label (any date, or still in progress), so a re-run plays only the missing ones."""
     done = {}
     files = [os.path.join(RECORDS, f) for f in os.listdir(RECORDS) if f.endswith(f"_fair_duels_{label}.jsonl")]
-    if os.path.exists(progress_file(label)):
+    if not finished_only and os.path.exists(progress_file(label)):
         files.append(progress_file(label))
     for path in files:
         if True:
@@ -280,7 +280,9 @@ def stage_rate(argv):
                 pairs.add(tuple(sorted((order[i], order[(i + 1) % len(order)]))))
     else:
         # each unit against the k nearest it in rating, not met before
-        done = done_cells(label)
+        # from FINISHED rounds only (the records file, not a round still in progress), so a stopped round 2 picks the
+        # same pairs when run again (found 2026-11-20: a container restart stopped round 2 a quarter of the way)
+        done = done_cells(label, finished_only=True)
         met = {tuple(sorted((c[0], c[1]))) for c in done}
         rating = bradley_terry(list(done.values()), ids)
         by = sorted(ids, key=lambda u: rating[u])
