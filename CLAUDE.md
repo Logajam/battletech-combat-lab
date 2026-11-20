@@ -18,9 +18,13 @@ GitHub logistics.
    the old "Pick up here" list, word for word (code comments that cite "Pick
    up here N" mean that list). `INTEGRATION__TASK_SPECS.md` holds task
    write-ups and which model each suits.
-   **Working on the Rust translation?** `INTEGRATION__RUST_PORT.md` is the
-   plan and its rules (the Python is the answer key and is frozen; exact
-   match or not done); `INTEGRATION__STATE.md` says what a battle's state is.
+   **The engine is Rust (`engine/`).** The Python engine was removed on
+   2026-11-20 (Daniel: "dead code the python"; it is in git history). Its
+   answers live on as the frozen answer key, `engine/answer_key.tar.xz`
+   (`tools/unpack_answer_key.py` -> `engine/fixtures/`), which the Rust
+   tests compare against: exact match or not done.
+   `INTEGRATION__RUST_PORT.md` is the translation's story and rules;
+   `INTEGRATION__STATE.md` says what a battle's state is.
 3. `INTEGRATION__RULES_REVIEW.md` is the Core Rulebook vs code review: fixed
    items, the gap list to build, and open questions for Daniel.
 4. `INTEGRATION__CALL_GRAPH.md` shows the import structure, and `README.md` the
@@ -64,9 +68,8 @@ GitHub logistics.
     changed since origin/main (Daniel, 2026-11-17: "prune down the suite"):
     docs only -> nothing; art -> the three token tests; Lab pages
     (`engine/lab/web`, `engine/wasm/web`) -> the website checks
-    (`check_web_ui.py`, `check_web_lab.py`) + `check_lab_server.py`; the
-    Python -> its tests and 15 reference battles; anything else (the engine)
-    -> the Rust checks + the website + the Lab server. The Rust reference
+    (`check_web_ui.py`, `check_web_lab.py`) + `check_lab_server.py`; anything
+    else (the engine) -> the Rust checks + the website + the Lab server. The Rust reference
     battles (91, `tests/check_rust_reference.py`; `--update` for a Rust
     change meant to alter results) and the MegaMek bridge's parity check
     (`tests/check_bridge_parity.py --quick`) run one after the other
@@ -74,13 +77,11 @@ GitHub logistics.
     in full: thorough, but 2.5x slower). `--list` shows the choice and why. **Before a merge: `--full`**
     (every Rust and website check) **only if code changed**; a merge of docs, records or
     task write-ups alone runs nothing (Daniel, 2026-11-20: "only run the suite if the code
-    changed"). The retired Python runs only
-    when a Python file changed or with `--python`: run that once a week (the
-    first session of the week). All must pass. A new bot call (`BotSet`
+    changed"). All must pass. A new bot call (`BotSet`
     method) must be added to `bridge.rs` too, or the parity check misses it.
-    Reference battles stop at the turn cap: 50 in the Python, 100 in the Rust
-    (the standard game since 2026-11-12, `scenario::STANDARD_MAX_TURNS`); one
-    that hits the cap prints a NOTE (Daniel: "a possible flaw").
+    Reference battles stop at the turn cap, 100 (the standard game since
+    2026-11-12, `scenario::STANDARD_MAX_TURNS`); one that hits the cap prints a
+    NOTE (Daniel: "a possible flaw").
   - Every trial battle is kept in `trial_records/` (`tools/trial_records.py`),
     written as each battle ends (`btsim --stream`): a crash is recorded with
     its seed and the set goes on, and re-running a stopped command plays only
@@ -99,32 +100,24 @@ GitHub logistics.
     `progress/` is git-ignored, so it lives through a restart but not a
     replaced container: commit the records file at every stage's end.
   - A reference log that differs: if the change was meant to alter results, run
-    `python tests/check_reference_logs.py --update` and record that in the
-    Change Record.
-  - Add `--bench` (the 10-turn benchmark) for anything on the hot path. A
-    speed-only change must keep the results identical. It prints where the time
-    went (`INTEGRATION__timing`), as every batch does.
-- **Bot changes:** compare settings on the same seeds with
-  `python tests/ab_batches.py`, and show Daniel the numbers. 20 battles a
-  setting by default (Daniel); longer only if something looks very off, or
-  to build a baseline during down time.
-- **Two bots:** each unit is driven by "gladiator" (this project's) or
-  "princess" (a MegaMek clone, modern or v0.50.07) - `INTEGRATION__bots`,
-  `config.BOT` / `MECH_*_CONFIG["bot"]`, PROJECT_MAP Section 6 "Princess
-  clone". Bot-vs-bot studies: `ab_batches.py --set bots`,
-  `tests/pick_quality.py` (`--pickers`, `--perfect-cache`),
-  `tests/bot_agreement.py`; `tests/legate_probe.py` (+ `_report`) measures Legate's estimate,
-  predicted v actual damage, regret, cohesion and calibration in a battery. Legate (`config.LEGATE`, on by default;
-  `INTEGRATION__legate`) gives Gladiator the whole enemy force: a
-  start-of-phase IF/THEN estimate, a threat-ordered foe, the other enemies'
-  damage in the move score (PROJECT_MAP Section 6 "Legate"). A battery split
-  over cores: `python tests/baseline_battery.py pg 20 [--legate] --first 1
-  --last 5`, four of them side by side. Princess in a team battle: target by
-  firing-plan utility with friends' damage counted, movement against every enemy, mutual
-  support off the BV-weighted heat map (`config.PRINCESS_GROUP`,
-  `INTEGRATION__princess_group` / `_memory`; Battle Value is
-  `INTEGRATION__battle_value`). Daniel wants "general feel, not full stats":
-  only the interesting series, few battles, unless he asks for a full run.
+    `python tests/check_rust_reference.py --update` and record that in the
+    Change Record. A speed-only change must keep the results identical.
+- **Bot changes:** compare settings on the same seeds with btsim
+  (`--set KEY=VALUE`, `tools/round_robin.py`, `tools/hydra_trial.py`), and
+  show Daniel the numbers. 20 battles a setting by default (Daniel); longer
+  only if something looks very off, or to build a baseline during down time.
+- **The bots:** each unit is driven by "gladiator" (this project's),
+  "princess" (a MegaMek clone; the v0.50.07 clone is being removed, backlog
+  N4), "hydra" or "caspar" (below) - `config.rs`, a unit's "bot", PROJECT_MAP
+  Section 6. Legate (on by default) gives Gladiator the whole enemy force
+  (PROJECT_MAP Section 6 "Legate"). Princess in a team battle: target by
+  firing-plan utility with friends' damage counted, movement against every
+  enemy, mutual support off the BV-weighted heat map; Battle Value is
+  `battle_value.rs`. The old Python study tools (`ab_batches.py`,
+  `baseline_battery.py`, `pick_quality.py`, `bot_agreement.py`,
+  `legate_probe.py`) went with the Python engine. Daniel wants "general
+  feel, not full stats": only the interesting series, few battles, unless he
+  asks for a full run.
 - **Four bots now:** "caspar" (Rust only, session 29, Daniel 2026-11-18) is MegaMek's CASPAR: the Princess clone with the Mutual Support
   movement ranker and zone deployment swapped in (`engine/core/src/caspar.rs`, `princess_modern::choose_as`; `btsim --caspar TEAM`; in
   the Lab / website team bot list). Anywhere that asks "is this Princess?" uses `Mech::is_princess_family`. Reviewed against MegaMek's
@@ -152,20 +145,21 @@ GitHub logistics.
 - **Movement searches:** Short Grid is the default; Daniel's IF/THEN
   (`MOVEMENT_SEARCH = "if_then"`) is an option meant for multi-unit threat
   estimates, not a single 'Mech's default (PROJECT_MAP Section 5).
-- **Show Daniel battles as replays.** `btsim ... --history N` (Rust; or
-  `REPLAY_BATTLES` in `INTEGRATION__config.py` for the Python), then publish
+- **Show Daniel battles as replays.** `btsim ... --history N`, then publish
   the page from `replays/` with the Artifact tool; give him the link (he
   doesn't run the code himself).
 - **Optional rules** (where the rulebook offers a choice, or Daniel's rule
-  differs from it) are switches in `INTEGRATION__config.py`'s OPTIONAL RULES
-  section, with the rules-as-written version available.
+  differs from it) are switches in `engine/defaults/config.json` (their words
+  in `engine/defaults/config_notes.json`; `tools/make_options_registry.py`
+  puts them on the Lab's Options tab), with the rules-as-written version
+  available.
 - **Label work for review** (Daniel, 2026-10-28, standing order): at the end
   of every session, list what you built in PROJECT_MAP Section 0's REVIEW
   QUEUE and mark its Change Record entries "REVIEW PENDING (higher-level
   model)", so a stronger model can review it when there are spare cycles.
 - **Keep going.** Don't pause at natural checkpoints. Stop only for a rules or
   scope call that is Daniel's.
-- **Placeholders** are loud, counted stubs in `INTEGRATION__stubs.py`, never
+- **Placeholders** are loud, counted stubs in `engine/core/src/stubs.rs`, never
   silent defaults. New bot decisions get a Section 6 row. A decision Daniel
   calls "research" (rate of fire, MASC, ammo kind...) is built as options
   plus a stub that picks.
@@ -181,4 +175,6 @@ GitHub logistics.
 - **Public copy** (Daniel, 2026-11-13): work happens HERE (private). `github.com/Logajam/battletech-combat-lab` is the
   public face, updated only with `python tools/publish_public.py --push` (it strips `rules/` and personal emails from all
   history and checks before pushing); never push to it by hand. Publish when Daniel asks (PROJECT_MAP E6).
-- **File names:** keep the `INTEGRATION__` / `mechsim/` / `pathfinder/` split.
+- **File names:** the project's docs and the Combat Lab art modules keep the
+  `INTEGRATION__` prefix; `mechsim/` now holds only the equipment tables the
+  Rust engine reads (`equipment.json`, `equipment_bv.json`).

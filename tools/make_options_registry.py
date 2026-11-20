@@ -3,8 +3,8 @@ tools/make_options_registry.py - the Combat Lab's Options tab list (CL15), gener
 
     python tools/make_options_registry.py            # writes engine/lab/web/options.json
 
-Reads every setting of engine/defaults/config.json, takes its words from the comment block above it in
-INTEGRATION__config.py (our own wording; the Python file is the frozen answer key and keeps the comments), puts it in a
+Reads every setting of engine/defaults/config.json, takes its words from engine/defaults/config_notes.json (our own wording;
+until 2026-11-20 they were the comments of the retired Python's INTEGRATION__config.py, copied out once), puts it in a
 folder (Game setup > rules / deployment / placeholders / technical, or Bot features > one folder per bot), and marks it
 ACTIVE when the Rust engine reads that setting by name. A setting the Rust engine never reads is listed but greyed out
 with a "not active yet" tag (Daniel, 2026-11-14). Settings the Lab sets itself (seed, turn cap, board, teams...) are
@@ -18,7 +18,7 @@ import re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULTS = os.path.join(ROOT, "engine", "defaults", "config.json")
-PYCONFIG = os.path.join(ROOT, "INTEGRATION__config.py")
+NOTES = os.path.join(ROOT, "engine", "defaults", "config_notes.json")
 OUT = os.path.join(ROOT, "engine", "lab", "web", "options.json")
 
 # set by the Lab's own pages, per team, or internal: never listed
@@ -93,27 +93,8 @@ def folder(key):
 
 
 def comments():
-    """setting name -> the comment block above it (or its end-of-line comment)."""
-    lines = open(PYCONFIG, encoding="utf-8").read().split("\n")
-    out, block = {}, []
-    for line in lines:
-        s = line.strip()
-        if s.startswith("#"):
-            text = s.lstrip("#").strip()
-            if set(text) <= set("= ") or text.isupper() or re.match(r"^=+\s", text):
-                block = []          # a section banner, not a description
-            else:
-                block.append(text)
-            continue
-        m = re.match(r"^([A-Z][A-Z0-9_]*)\s*=", line)
-        if m:
-            inline = line.split("  #", 1)[1].strip() if "  #" in line else ""
-            out[m.group(1)] = " ".join(block) or inline
-        if s == "" and block and not m:
-            pass                      # a blank line inside a block keeps it
-        elif not s.startswith("#"):
-            block = [] if m else block
-    return out
+    """setting name -> its description (engine/defaults/config_notes.json; add a line there with each new setting)."""
+    return json.load(open(NOTES, encoding="utf-8"))
 
 
 # where the comment above a setting is shared with its neighbour, the words are given here instead

@@ -125,7 +125,7 @@ def make_unit(cfg):
             errors.append(f"{z}: {len(slots[z])} critical slots used, it has {cap}")
         slots[z] = slots[z] + ["-Empty-"] * max(0, cap - len(slots[z]))
     pts = I.structure_tons({"tons": tons})                      # just to validate the tonnage against the structure table
-    import mech_state
+    import INTEGRATION__structure_table as mech_state   # the structure table (the Python engine was removed 2026-11-20)
     sp = mech_state.structure_for_tonnage(tons, "biped")
     af = float(cfg.get("armor", 0.8))
     armor_by = {z: int(round(af * (9 if z == "Head" else 2 * sp[z]))) for z in ZONES}
@@ -153,7 +153,7 @@ def unit_to_cfg(path):
     eng = u.get("engine", "")
     low = eng.lower()
     caps = {}
-    import mech_state
+    import INTEGRATION__structure_table as mech_state   # the structure table (the Python engine was removed 2026-11-20)
     sp = mech_state.structure_for_tonnage(u["tons"], "biped")
     tot_cap = sum(9 if z == "Head" else 2 * sp[z] for z in ZONES)
     arms = {}

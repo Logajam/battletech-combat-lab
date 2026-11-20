@@ -3,7 +3,9 @@
     python tools/hydra_scenarios.py [--house gladiator|princess]
 
 A mirror match-up has the same 'Mechs on both sides, so the pilot is the only difference. Each folder is a scenario for
-btsim / tools/hydra_trial.py. Uses tools/port_scenario.py (which reads the old Python loader to build the roster).
+btsim / tools/hydra_trial.py. Built by the Rust engine (`btsim --setup SETTINGS.json --write-scenario DIR`, the same
+setup the Combat Lab uses, checked equal to the Python's by cl1_setup); until 2026-11-20 by the retired Python's
+tools/port_scenario.py.
 """
 import json, os, subprocess, sys
 
@@ -30,14 +32,14 @@ def main(argv):
     house = argv[argv.index("--house") + 1] if "--house" in argv else "gladiator"
     for name, (mechs, board, seed) in SETS.items():
         forces = [{"team": t, "mtf": m, "count": 1, "bot": house} for t in ("Red", "Blue") for m in mechs]
-        statements = [f"config.FORCES = {forces!r}", f"config.DEFAULT_BOARD_PATH = {board!r}", f"config.SEED = {seed}"]
+        settings = {"FORCES": forces, "DEFAULT_BOARD_PATH": board, "SEED": seed}
         out = os.path.join(ROOT, "engine", "fixtures", f"hy_{name}" + ("" if house == "gladiator" else f"_{house}"))
         os.makedirs(out, exist_ok=True)
-        spec = os.path.join(out, "overrides_list.json")
+        spec = os.path.join(out, "settings.json")
         with open(spec, "w") as f:
-            json.dump(statements, f)
-        subprocess.run([sys.executable, os.path.join(ROOT, "tools", "port_scenario.py"), out, "--overrides", spec, "--max-turns", "50"], check=True)
-
+            json.dump(settings, f)
+        btsim = os.path.join(ROOT, "engine", "target", "release", "btsim")
+        subprocess.run([btsim, "--setup", spec, "--write-scenario", out, "--battles", "0"], check=True, stdout=subprocess.DEVNULL)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

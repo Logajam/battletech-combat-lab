@@ -9,7 +9,7 @@ import zipfile
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 FILES = ["INTEGRATION__tokens.py", "INTEGRATION__token_mesh.py", "INTEGRATION__shell.py", "INTEGRATION__shell_items.py",
-         "INTEGRATION__shell_facet.py", "mechsim/equipment.py", "mechsim/mech_state.py", "mechsim/equipment.json",
+         "INTEGRATION__shell_facet.py", "INTEGRATION__structure_table.py", "mechsim/equipment.json",
          "tools/token_workbench.py", "tools/token_workbench.html", "tools/token_audit.py", "tools/token_sheet.py",
          "data/token_densities.json", "data/token_reference_tags.json", "data/token_overrides.json", "data/token_dictionary.json",
          "data/meks.zip"]

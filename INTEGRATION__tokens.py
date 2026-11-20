@@ -311,7 +311,7 @@ def armor_thinness(unit, tons):
     for sub in ("mechsim", "pathfinder"):
         if os.path.join(here, sub) not in sys.path:
             sys.path.append(os.path.join(here, sub))
-    from mech_state import structure_for_tonnage
+    from INTEGRATION__structure_table import structure_for_tonnage
     try:
         structure = structure_for_tonnage(tons, "quad" if "Quad" in unit.get("config", "") else "biped")
     except ValueError:
