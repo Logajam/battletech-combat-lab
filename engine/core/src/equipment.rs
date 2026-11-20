@@ -83,6 +83,8 @@ pub struct Equipment {
     pub kind: Option<String>,
     pub missiles_per_shot: Option<i64>,
     pub munition: Option<String>,
+    /// the bin's ammunition was chosen in the unit's setup (FORCES "ammo"; N5): the Narc force rule leaves it alone
+    pub munition_chosen: Option<bool>,
     /// present-but-None is possible (the attribute exists, holding None)
     pub shot_damage: Option<Option<i64>>,
     pub shots_left: Option<i64>,
@@ -184,6 +186,7 @@ impl Equipment {
             kind: None,
             missiles_per_shot: None,
             munition: None,
+            munition_chosen: None,
             shot_damage: None,
             shots_left: None,
             artemis: None,
@@ -257,6 +260,7 @@ impl Equipment {
         opt!("kind", self.kind);
         opt!("missiles_per_shot", self.missiles_per_shot);
         opt!("munition", self.munition);
+        opt!("munition_chosen", self.munition_chosen);
         opt!("shot_damage", self.shot_damage);
         opt!("shots_left", self.shots_left);
         if self.missiles_per_shot.is_some() {
@@ -343,6 +347,7 @@ impl Equipment {
         e.kind = gs("kind");
         e.missiles_per_shot = gi("missiles_per_shot");
         e.munition = gs("munition");
+        e.munition_chosen = gb("munition_chosen");
         e.shot_damage = v.get("shot_damage").map(|x| x.as_i64());
         e.shots_left = gi("shots_left");
         e.artemis = v.get("artemis").and_then(|a| a.as_array()).filter(|a| a[0].get("_addr").is_some()).map(|a| (resolve(a[0]["_addr"].as_str().unwrap()), a[1].as_i64().unwrap()));

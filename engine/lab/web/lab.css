@@ -376,3 +376,13 @@ details.folder[hidden] { display: none; }
 
 .ustat table.wide { grid-column: 1 / -1; }
 .ustat > * { min-width: 0; }
+
+/* Configure team / Configure unit windows (N5) */
+.dialog.teamcfg, .dialog.unitcfg { width: min(560px, calc(100vw - 32px)); margin-left: 0; height: auto; }
+.dialog.teamcfg .dialog-body, .dialog.unitcfg .dialog-body { max-height: min(70vh, 640px); overflow: auto; padding: 8px; }
+.dialog.teamcfg .team-head, .dialog.unitcfg .team-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 6px; }
+.opt.sliders .slider { display: grid; grid-template-columns: 12em 1fr 2em; align-items: center; gap: 6px; margin: 2px 0; }
+.opt.sliders .slider output { text-align: right; font-variant-numeric: tabular-nums; }
+.dialog.unitcfg table.ammo { width: 100%; border-collapse: collapse; }
+.dialog.unitcfg table.ammo td, .dialog.unitcfg table.ammo th { padding: 2px 6px; text-align: left; }
+@media (max-width: 600px) { .opt.sliders .slider { grid-template-columns: 1fr 1fr 2em; } }

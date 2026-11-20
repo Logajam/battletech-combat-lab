@@ -417,7 +417,9 @@ pub fn plan_turn(b: &mut Battle) {
     b.legate.plans.clear();
     b.legate.own.clear();
     b.legate.vision.clear();
-    if !b.cfg.b("LEGATE") {
+    // LEGATE may differ by team (team_settings.rs): a team's own setting decides whether it gets an estimate
+    let any_on = b.cfg.b("LEGATE") || b.team_cfgs.iter().any(|(_, c)| c.as_ref().is_some_and(|c| c.b("LEGATE")));
+    if !any_on {
         return;
     }
     check_switches(b);
@@ -432,7 +434,10 @@ pub fn plan_turn(b: &mut Battle) {
         if theirs.len() < 2 || !mine.iter().any(|u| b.units[*u].bot == "gladiator") {
             continue;
         }
-        let (plan, own) = estimate(b, &mine, &theirs);
+        let (plan, own) = match crate::team_settings::with_team(b, Some(team.as_str()), |b| b.cfg.b("LEGATE").then(|| estimate(b, &mine, &theirs))) {
+            Some(x) => x,
+            None => continue,
+        };
         b.legate.plans.insert(team.clone(), plan);
         b.legate.own.insert(team, own);
     }

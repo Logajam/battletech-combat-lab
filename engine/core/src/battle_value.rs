@@ -1029,5 +1029,8 @@ impl<'a> Calc<'a> {
 
 /// The 'Mech's Battle Value as built, with the pilot's skill factor.
 pub fn battle_value(b: &Battle, u: UnitId) -> i64 {
-    Calc::new(b, u).run_all()
+    let bv = Calc::new(b, u).run_all();
+    // a C3 network raises each member's Battle Value (Core p.220; c3.rs)
+    let c3 = crate::c3::bv_increase(b, u);
+    if c3 > 0.0 { jround(bv as f64 * (1.0 + c3)) } else { bv }
 }

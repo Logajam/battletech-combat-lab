@@ -44,10 +44,13 @@ pub fn manage_owned_units(b: &mut Battle) {
         if !b.units[u].is_princess_family() || b.units[u].destroyed {
             continue;
         }
-        toggle_stealth_armor(b, u);
-        toggle_concealment_systems(b, u);
-        manage_radical_heat_sink(b, u);
-        set_ams_modes(b, u);
+        // each unit with its team's settings (team_settings.rs)
+        crate::team_settings::with_unit(b, u, |b| {
+            toggle_stealth_armor(b, u);
+            toggle_concealment_systems(b, u);
+            manage_radical_heat_sink(b, u);
+            set_ams_modes(b, u);
+        });
     }
 }
 

@@ -6,6 +6,59 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-20 (Claude), LEG HITS LOST TO PARTIAL COVER IN THE BOTS' ESTIMATES (backlog N8, rules review G9). REVIEW PENDING (higher-level model).**
+  Daniel: "Add fixing the discount leg hits." The engine already stopped them (a leg hit on a target behind partial cover
+  strikes the cover, Core p.66; F4); Gladiator's and Hydra's movement scoring still counted them. Now `move_eval` multiplies
+  the expected damage dealt (received) by 1 - the leg share of the hit table the shot uses (`hit_location::leg_share`: 2d6
+  over the table; a quad's arm results are front legs) when that line ends in partial cover (`PairInfo.cover`, from the LOS
+  trace). Princess / CASPAR reuse the evaluator but keep MegaMek's estimate (MegaMek does not discount it): the first
+  version changed a Princess v CASPAR battle, caught and fixed. Setting `MOVEMENT_COVER_LEGS` (on; off = the old scoring).
+  The weapon choice was left: the discount scales every weapon of one attack alike. RESULTS: 27 reference battles
+  re-recorded (`--update`), all with Gladiator or Hydra units on boards with hills, water or woods. A/B (20 battles, same
+  seeds, off -> on): hy_4v4_heavy_hills 7-12-1 -> 9-11-0; hy_duel_awesome_hills 9-10-1 -> 9-10-1; cov_hills_desert Blue
+  20 -> 20 (14.8 -> 12.0 turns); team_3way_mixed 13-3-4 -> 13-4-2 + 1 draw (24.1 -> 28.6 turns, 1 capped); Princess v
+  CASPAR unchanged. WATCH: team_3way_mixed and hydra_red__hy_12v12_valley now reach the 100-turn cap in the reference set
+  (Gladiator may hold back more against hull-down targets).
+
+- **2026-11-20 (Claude), C3 NETWORKS (backlog N6). REVIEW PENDING (higher-level model).**
+  Daniel: "C3 Networks. I think we can wire this in. I think setting up the network will have to be part of that
+  configuration window. Note that connecting to a network increases a units BV." New `engine/core/src/c3.rs`, Core pp.198-199,
+  220: a networked 'Mech's range modifier is read at the distance of the closest linked member that can see the target
+  (levels ignored; minimum / maximum range and everything else at its own distance; not for indirect fire, p.70); hostile
+  ECM within 6 hexes (p.200) of the attacker, that member or its Master adds +1 per bracket C3 gained (Angel only for
+  Boosted; an undegraded member at the same distance is used first); a unit with an active stealth system other than the
+  Chameleon LPS is cut off; a lost Master breaks its links. SETUP: a FORCES entry's "c3": {"parent": "<side name>"} (C3
+  Master / Slave) or {"net": "<name>"} (C3i, up to 6); `check_networks` at the battle start drops, with a log line, a link
+  the rules do not allow (no C3, a parent without a Master, more than three under one Master, Masters and Slaves mixed under
+  one, a third level). BATTLE VALUE: each member x (1 + 10% for two, +5% each more, at most 40%; +5% Boosted), in
+  `battle_value` (so Princess's weights and the Lab follow). The attack log says "[C3] ... range read at N hexes". LAB: the
+  Configure team window's C3 section lists the team's C3 units (from `unit_eval`'s new "c3"), each Master / Slave "links to"
+  a Master, each C3i joins network A / B / C; the team's BV and each unit's show the increase; `runs.rs` passes the links.
+  Checked: a C3 lance (Cyclops CP-11-C Master, Hatamoto-Chi HTM-28T, Centurion CN9-D5, Clint CLNT-5U Slaves; Gladiator) v
+  Archer / Awesome / Griffin / Hunchback, 20 battles: 20-0 networked, 18-2 not; bad links dropped with their reasons; in the
+  browser the network raises the team's BV 6605 -> 7927 (+20%, four units). No reference battle changed. NOT BUILT: the C3
+  Master's TAG function (p.199), C3 Emergency Master and remote sensors (TO:AUE); the bots' movement estimates do not count C3.
+
+- **2026-11-20 (Claude), CONFIGURE TEAM AND CONFIGURE UNIT: PER-TEAM BOT SETTINGS, AMMUNITION PER BIN (backlog N5). REVIEW PENDING (higher-level model).**
+  Daniel: "That edit unit stats button is going to have to go a layer deeper under a configure unit button." "Configure
+  team as another option. Put the Princess/CASPAR control sliders in there plus any other options or switches a bot may
+  have. That will let us remove those options from the options tab." ENGINE: (1) `TEAM_SETTINGS` = {team: {setting:
+  value}} (`team_settings.rs`): the battle keeps a settings copy per team and swaps it in while that team's unit decides
+  (every `GladiatorBots` choice for one unit, the End Phase heat-equipment review per unit, Legate's estimate per team), so
+  the 85 places bots read a setting are unchanged. Checked: the same override given to both teams plays exactly as the
+  global setting (Princess sliders; LEGATE, MOVEMENT_TWO_PLY, TRIAGE), one team's override plays differently; the 91
+  reference battles unchanged. (2) A FORCES entry's "ammo" = {"<location>:<slot>": munition}: `ammo::bin_choices` (standard;
+  Narc-capable for a standard LRM / SRM launcher, Core p.193; inferno for an SRM, p.192; homing for an Arrow IV, p.193) and
+  `choose_bin_munition` at attach (a choice not allowed is a log line); a chosen bin is marked `munition_chosen` and the Narc
+  force rule (N1) leaves it alone. LAB: `runs.rs` passes each team's "settings" (checked like the Options tab, now
+  `check_option`) as TEAM_SETTINGS and each unit's "ammo"; `unit_eval` also answers the unit's bins and their choices
+  (`describe::unit_bins`, server and website). PAGE (`lab.js`): a "Configure team" button per team (name, colour, bot and
+  that bot's settings: Gladiator + Legate, Princess / CASPAR, Hydra; Princess's behaviour as 0-10 sliders) and a gear button
+  per unit (gunnery, piloting, "Edit unit stats...", the ammunition of each bin); the Options tab's Bot features pane now
+  points there, and a bot setting changed on the old tab moves to every team whose bot reads it. Checked in a browser
+  (Playwright: the windows, the sliders, the setup sent; no page errors) and through the server (a run with team settings and
+  an ammo choice plays; an unknown setting is refused in words). Checks: `run_checks.py --full`.
+
 - **2026-11-20 (Claude), PRINCESS v0.50.07 REMOVED (backlog N4).** Daniel: "I don't think we're ever going to use 50.07
   princess again. May as well remove it as an option." The Rust never translated it (the movement assert said so); what
   was left: the `PRINCESS_VERSION` setting (defaults, its description, the Options tab entry and its one-word menu in

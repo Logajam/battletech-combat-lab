@@ -933,6 +933,7 @@ pub fn start_battle(b: &mut Battle, max_turns: i64, marks: Marks) -> Play {
     b.limbs_on_ground.clear();
     b.smoky.clear();
     crate::ammo::narc_homing_for_force(b);
+    crate::c3::check_networks(b);
     if b.cfg.has("DEPLOY_ZONES") {
         deploy_zones(b);
     } else if b.cfg.s("DEPLOYMENT") == "home_edge" {

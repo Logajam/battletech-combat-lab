@@ -94,6 +94,53 @@ pub fn equipment_list(db: &btsim_core::equipment::EquipmentDb) -> Vec<Value> {
     out
 }
 
+/// The unit's ammunition bins and what each may be loaded with (backlog N5, the Configure unit window): [{"loc", "slot"
+/// (its first slot, from 0), "name", "munition" (as the file loads it), "choices"}], only the bins with a choice. The keys
+/// are what a FORCES entry's "ammo" names ("<loc>:<slot>"; setup.rs). Empty when the file does not parse.
+pub fn unit_bins(db: &btsim_core::equipment::EquipmentDb, cfg: &btsim_core::config::Config, text: &str) -> Value {
+    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let m = btsim_core::mtf_parser::parse_mtf(db, text, &mut String::new()).ok()?;
+        let board = btsim_core::board_parser::Board::from_json(&json!({"width": 1, "height": 1, "hexes": {}}));
+        let mut b = btsim_core::battle::Battle::new(cfg.clone(), board, vec![m], Box::new(btsim_core::battle::TapeDice::new(vec![])));
+        btsim_core::ammo::attach_ammo(&mut b, 0);
+        let mut out = Vec::new();
+        let mut seen = std::collections::HashSet::new();
+        for (loc, slots) in &b.units[0].crits {
+            for (i, s) in slots.iter().enumerate() {
+                let btsim_core::equipment::Slot::Item(id) = s else { continue };
+                if !seen.insert(*id) {
+                    continue;
+                }
+                let choices = btsim_core::ammo::bin_choices(&b, 0, *id);
+                if choices.len() > 1 {
+                    let e = &b.units[0].items[*id];
+                    out.push(json!({"loc": loc, "slot": i, "name": e.name, "munition": e.munition, "choices": choices}));
+                }
+            }
+        }
+        Some(out)
+    }));
+    json!(r.ok().flatten().unwrap_or_default())
+}
+
+/// The C3 a unit carries, for the Configure team window (N6): "master", "slave", "master+slave", "c3i", boosted marked
+/// "(boosted)", or null.
+pub fn unit_c3(db: &btsim_core::equipment::EquipmentDb, cfg: &btsim_core::config::Config, text: &str) -> Value {
+    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let m = btsim_core::mtf_parser::parse_mtf(db, text, &mut String::new()).ok()?;
+        let names: Vec<String> = m.items.iter().map(|e| e.canonical.as_deref().unwrap_or(&e.name).to_uppercase().replace([' ', '-', '_'], "")).collect();
+        let board = btsim_core::board_parser::Board::from_json(&json!({"width": 1, "height": 1, "hexes": {}}));
+        let _ = (cfg, board);
+        let c3i = names.iter().any(|n| n.contains("C3I") || n.contains("IMPROVEDC3"));
+        let master = names.iter().any(|n| n.contains("C3MASTER") || n.contains("C3COMPUTER[MASTER]"));
+        let slave = names.iter().any(|n| n.contains("C3SLAVE") || n.contains("C3BOOSTEDSYSTEMSLAVE") || n.contains("C3COMPUTER[SLAVE]"));
+        let boosted = names.iter().any(|n| n.contains("C3") && n.contains("BOOSTED"));
+        let kind = if c3i { "c3i" } else if master && slave { "master+slave" } else if master { "master" } else if slave { "slave" } else { return None };
+        Some(json!({"kind": kind, "boosted": boosted}))
+    }));
+    r.ok().flatten().unwrap_or(Value::Null)
+}
+
 /// Each location's internal structure for the unit file `text`, as the engine reads it ({"Left Arm": 17, ...}); the editor
 /// limits armor to twice this (a head to 9). Empty when the file does not parse.
 pub fn unit_structure(db: &btsim_core::equipment::EquipmentDb, text: &str) -> Value {

@@ -60,6 +60,8 @@ fn scenario_one(setup: &Value, catalog: &Catalog, paths: &SetupPaths, zones: Opt
     }
     let mut forces = Vec::new();
     let mut hydra_teams = Vec::new();
+    // each team's own bot settings (the Configure team window, N5): TEAM_SETTINGS (team_settings.rs)
+    let mut team_settings = serde_json::Map::new();
     let mut names: Vec<&str> = Vec::new();
     for t in teams {
         let name = t["name"].as_str().filter(|n| !n.trim().is_empty()).ok_or("every team needs a name")?;
@@ -73,6 +75,13 @@ fn scenario_one(setup: &Value, catalog: &Catalog, paths: &SetupPaths, zones: Opt
         }
         if bot == "hydra" {
             hydra_teams.push(name.to_string());
+        }
+        if let Some(own) = t["settings"].as_object().filter(|o| !o.is_empty()) {
+            let defaults: Value = serde_json::from_str(&paths.defaults_text()?).map_err(|e| e.to_string())?;
+            for (key, value) in own {
+                check_option(&defaults, key, value).map_err(|e| format!("team {}: {}", name, e))?;
+            }
+            team_settings.insert(name.to_string(), Value::Object(own.clone()));
         }
         let units = t["units"].as_array().filter(|u| !u.is_empty()).ok_or_else(|| format!("team {} has no units", name))?;
         for u in units {
@@ -89,12 +98,30 @@ fn scenario_one(setup: &Value, catalog: &Catalog, paths: &SetupPaths, zones: Opt
                 id
             };
             let skill = |k: &str, d: i64| u[k].as_i64().unwrap_or(d).clamp(0, 8);
-            forces.push(json!({"team": name, "mtf": id, "bot": bot, "gunnery": skill("gunnery", 4), "piloting": skill("piloting", 5)}));
+            let mut entry = json!({"team": name, "mtf": id, "bot": bot, "gunnery": skill("gunnery", 4), "piloting": skill("piloting", 5)});
+            // the ammunition chosen per bin in the Configure unit window ({"<location>:<slot>": "<munition>"}; setup.rs)
+            if let Some(ammo) = u["ammo"].as_object().filter(|a| !a.is_empty()) {
+                if ammo.values().any(|v| !v.is_string()) {
+                    return Err(format!("team {}: an ammunition choice must be a word", name));
+                }
+                entry["ammo"] = Value::Object(ammo.clone());
+            }
+            // the C3 link set in the Configure team window ({"parent": "<side name>"} or {"net": "<C3i network>"}; c3.rs)
+            if let Some(c3) = u["c3"].as_object().filter(|c| !c.is_empty()) {
+                if c3.iter().any(|(k, v)| !["parent", "net"].contains(&k.as_str()) || !v.is_string()) {
+                    return Err(format!("team {}: a C3 link names a parent or a network", name));
+                }
+                entry["c3"] = Value::Object(c3.clone());
+            }
+            forces.push(entry);
         }
     }
     // the board: one board's id, or {"grid": [[id, ...], ...]} - boards stitched together, row by row (the engine's
     // STITCH_MAPS: boards in a row share a height, boards in a column a width)
     let mut settings = json!({"FORCES": forces, "DEPLOYMENT": "home_edge"});
+    if !team_settings.is_empty() {
+        settings[btsim_core::team_settings::KEY] = Value::Object(team_settings);
+    }
     match &setup["board"] {
         Value::String(board) => {
             catalog.ensure(board)?;
@@ -139,8 +166,21 @@ fn apply_options(settings: &mut Value, options: &Value, paths: &SetupPaths) -> R
     let text = paths.defaults_text()?;
     let defaults: Value = serde_json::from_str(&text).map_err(|e| e.to_string())?;
     for (key, value) in options {
+        if settings.get(key).is_some() {
+            return Err(format!("option {}: the Lab sets this one itself", key));
+        }
+        check_option(&defaults, key, value)?;
+        settings[key.as_str()] = value.clone();
+    }
+    Ok(())
+}
+
+/// One setting from the page (the Options tab, or a team's own in the Configure team window): it must exist, not be one the
+/// Lab sets itself, and have the default's kind (a wrong kind would crash a battle's worker: `Config::b` and friends panic).
+fn check_option(defaults: &Value, key: &str, value: &Value) -> Result<(), String> {
+    {
         let Some(default) = defaults.get(key) else { return Err(format!("option {}: no such setting", key)) };
-        if settings.get(key).is_some() || key.starts_with('_') || ["SEED", "MAX_TURNS", "WORKERS", "NUM_SIMULATIONS", "BOT"].contains(&key.as_str()) {
+        if key.starts_with('_') || ["SEED", "MAX_TURNS", "WORKERS", "NUM_SIMULATIONS", "BOT", "FORCES", "TEAM_SETTINGS"].contains(&key) {
             return Err(format!("option {}: the Lab sets this one itself", key));
         }
         let same_kind = match default {
@@ -154,7 +194,6 @@ fn apply_options(settings: &mut Value, options: &Value, paths: &SetupPaths) -> R
         if !same_kind {
             return Err(format!("option {}: wrong kind of value (expected {})", key, match default { Value::Bool(_) => "on/off", Value::Number(_) => "a number", Value::String(_) => "text", Value::Array(_) => "a list", _ => "a table" }));
         }
-        settings[key.as_str()] = value.clone();
     }
     Ok(())
 }

@@ -415,7 +415,7 @@ pub fn narc_homing_for_force(b: &mut Battle) -> usize {
         let mut loaded: Vec<String> = Vec::new();
         for e in b.units[u].items.iter_mut() {
             let launcher = e.feeds.as_deref().is_some_and(|f| standard.is_match(f).unwrap());
-            if e.category.as_deref() == Some("ammo") && e.munition.as_deref() == Some("standard") && launcher {
+            if e.category.as_deref() == Some("ammo") && e.munition.as_deref() == Some("standard") && launcher && !e.munition_chosen.unwrap_or(false) {
                 e.munition = Some("narc".to_string());
                 loaded.push(e.name.clone());
             }
@@ -426,4 +426,56 @@ pub fn narc_homing_for_force(b: &mut Battle) -> usize {
         }
     }
     changed
+}
+
+/// The ammunition a bin may be loaded with in a unit's setup (backlog N5, "Ammo choice can be changed later"): always the
+/// standard round; for a standard LRM / SRM launcher (the Narc force rule's list) Narc-capable missiles (Core p.193); for an
+/// SRM launcher inferno rounds (p.192); for an Arrow IV homing rounds (p.193, with TAG). More kinds come with N10 (special
+/// munitions). The bin's own kind (an Artemis-capable bin, a Narc pod, MML / ATM rounds...) stays as the unit file says.
+pub fn bin_choices(b: &Battle, u: UnitId, id: ItemId) -> Vec<&'static str> {
+    let e = &b.units[u].items[id];
+    if e.category.as_deref() != Some("ammo") {
+        return Vec::new();
+    }
+    let Some(feeds) = e.feeds.as_deref() else { return Vec::new() };
+    let base = e.munition.as_deref().unwrap_or("standard");
+    if !matches!(base, "standard" | "narc" | "inferno" | "homing") || e.kind.as_deref().is_some_and(|k| !k.is_empty()) {
+        return Vec::new();
+    }
+    if narc_pod_damage(feeds).is_some() {
+        return Vec::new();
+    }
+    if re!(r"^(CL)?LRM ?\d+$").is_match(feeds).unwrap() {
+        return vec!["standard", "narc"];
+    }
+    if re!(r"^(CL)?SRM ?\d+$").is_match(feeds).unwrap() {
+        return vec!["standard", "narc", "inferno"];
+    }
+    if re!(r"(?i)ARROWIV").is_match(feeds).unwrap() {
+        return vec!["standard", "homing"];
+    }
+    Vec::new()
+}
+
+/// A unit's setup chose this bin's ammunition (FORCES "ammo"): the bin at `location`, `slot` (any slot of it) is loaded
+/// with `munition` if `bin_choices` allows it; anything else is a log line, not a silent default.
+pub fn choose_bin_munition(b: &mut Battle, u: UnitId, location: &str, slot: usize, munition: &str) {
+    let name = b.units[u].side_name.clone().unwrap_or_default();
+    let id = match b.units[u].crits.get(location).and_then(|v| v.get(slot)) {
+        Some(Slot::Item(id)) => *id,
+        _ => {
+            b.log(format!("  {}: ammunition choice for {} slot {} ignored - no bin there.", name, location, slot + 1));
+            return;
+        }
+    };
+    if !bin_choices(b, u, id).contains(&munition) {
+        let bin = b.units[u].items[id].name.clone();
+        b.log(format!("  {}: ammunition choice '{}' for {} ignored - not a choice for that bin.", name, munition, bin));
+        return;
+    }
+    let e = &mut b.units[u].items[id];
+    e.munition = Some(munition.to_string());
+    e.munition_chosen = Some(true);
+    let bin = e.name.clone();
+    b.log(format!("  {}: {} loaded with {} rounds (chosen in the unit's setup).", name, bin, munition));
 }

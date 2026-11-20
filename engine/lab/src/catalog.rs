@@ -239,4 +239,4 @@ fn index_boards(data: &Path) -> Vec<Value> {
     out
 }
 
-pub use crate::describe::{describe_unit, equipment_list, unit_structure};
+pub use crate::describe::{describe_unit, equipment_list, unit_bins, unit_c3, unit_structure};
