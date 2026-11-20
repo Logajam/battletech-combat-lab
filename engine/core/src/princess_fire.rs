@@ -276,9 +276,13 @@ impl FireControl {
         let existing = if self.guess || target.is_none() { 0.0 } else { assigned_damage(b, b.units[mech].team.as_deref().unwrap_or(""), target.unwrap()) };
         let is_modern = modern(b);
         let mut infos: Vec<(ItemId, f64, i64, f64, f64)> = Vec::new();
+        // AMMO CONSERVATION (N3; MegaMek Princess.calcAmmoConservation, applied in getFullFiringPlan - the plan she
+        // declares, not the guesses she prices moves with): a weapon fires only above its to-hit threshold
+        let conserve = !self.guess && b.units[mech].is_princess_family();
         for &(w, expected, heat, tn) in candidates {
             let p = if tn <= 12 { crate::combat::hit_probability(tn) } else { 0.0 };
-            if p <= 0.0 || expected <= 0.0 {
+            let threshold = if conserve { ammo_conservation(b, mech, w) } else { 0.0 };
+            if p <= threshold || expected <= 0.0 {
                 continue;
             }
             let (crits, kill) = match target {
@@ -478,4 +482,34 @@ pub fn choose_physical(b: &mut Battle, attacker: UnitId, target: UnitId) -> Opti
     }
     let (_, picks) = best?;
     Some((base, picks, crate::arcs::current_action(&b.units[attacker])))
+}
+
+/// MegaMek Princess.calcAmmoConservation (main 3f9f2fd; backlog N3, Daniel 2026-11-20: "Need AMS on/off and ammo
+/// conservation for princess"): the chance to hit a weapon must BEAT to be fired. A weapon without ammunition: 0.01 (any
+/// roll of 12 or less). A one-shot weapon: (35 - 2 x hyper aggression) / 100 (fires on a 10 / 9 / 8 at aggression
+/// 10 / 5 / 0). Otherwise, with n = the shots left in its bins shared out over the launchers drawing on them (rounded
+/// up): max(0.01, 0.6 / (8a + 4) + 4 / (4 n^2 (a + 2) + 4 / (a + 1))), a = the hyper aggression slider (0-10). MegaMek's
+/// own notes: with 7 / 3 / 1 rounds left it fires on 10, 9, 7 at aggression 0; 12, 11, 10 at 5; 12, 12, 10 at 10.
+pub fn ammo_conservation(b: &Battle, mech: UnitId, w: ItemId) -> f64 {
+    let m = &b.units[mech];
+    let aggro = b.cfg.get("PRINCESS_BEHAVIOR")["hyper_aggression"].as_i64().unwrap_or(5).clamp(0, 10) as f64;
+    let it = &m.items[w];
+    if it.one_shot.unwrap_or(false) {
+        return (35.0 - 2.0 * aggro) / 100.0;
+    }
+    if !it.needs_ammo.unwrap_or(false) {
+        return 0.01;
+    }
+    let bins = crate::ammo::bins_for(m, w);
+    if bins.iter().any(|i| m.items[*i].shots_left.is_none()) {
+        return 0.01; // unknown shots: treated as plenty
+    }
+    let pooled: i64 = bins.iter().map(|i| m.items[*i].shots_left.unwrap_or(0)).sum();
+    let sharing = crate::damage_resolution::get_weapons(m)
+        .into_iter()
+        .filter(|o| m.items[*o].needs_ammo.unwrap_or(false) && !m.items[*o].one_shot.unwrap_or(false) && m.items[*o].ammo_key.is_some() && m.items[*o].ammo_key == it.ammo_key)
+        .count()
+        .max(1) as i64;
+    let n = ((pooled + sharing - 1) / sharing) as f64;
+    (0.6 / (8.0 * aggro + 4.0) + 4.0 / (4.0 * n * n * (aggro + 2.0) + 4.0 / (aggro + 1.0))).max(0.01)
 }
