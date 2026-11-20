@@ -1012,6 +1012,8 @@ pub struct DeclCtx {
     pub prone_mod: i64,
     pub pre_tn: i64,
     pub aim: Option<String>,
+    /// T16 step 3: a Princess-family shooter's aim: armor + structure of the aimed location (see `bot_aimed_shots`)
+    pub aim_destruction: Option<i64>,
     pub adjust: Adjuster,
     pub side: String,
     pub sel_pre_tn: i64,
@@ -1139,12 +1141,19 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
     }
     let pre_tn = b.units[attacker].gunnery + amm + tmm + los.modifier + heat_mod + stealth_mod + other_mod + probe_mod;
 
+    let side = attack_side(b, a_hex, t_hex, hex_geometry::compass_to_facing(&b.units[target].facing).unwrap(), heights.0, heights.1).to_string();
     let mut aim: Option<String> = None;
-    if is_immobile(&b.units[target]) && b.cfg.get("AIMED_SHOT_LOCATION").as_str().is_some() {
+    let mut aim_destruction: Option<i64> = None;
+    if b.units[attacker].is_princess_family() {
+        // T16 step 3: Princess / CASPAR choose the location themselves (MegaMek Princess.calculateAimedShotLocation)
+        if let Some((loc, destruction)) = crate::bot_aimed_shots::aimed_location(b, target, side == "rear", cover > 0) {
+            aim = Some(loc);
+            aim_destruction = Some(destruction);
+        }
+    } else if is_immobile(&b.units[target]) && b.cfg.get("AIMED_SHOT_LOCATION").as_str().is_some() {
         aim = aimed_shot_location(b, target, cover > 0);
     }
     let adjust = with_range_adjuster(tn_adjuster(b, attacker, target, aim.as_deref(), cover), &b.units[attacker], a_water);
-    let side = attack_side(b, a_hex, t_hex, hex_geometry::compass_to_facing(&b.units[target].facing).unwrap(), heights.0, heights.1).to_string();
     let sel_pre_tn = weapon_selection::PRE_TN_MIN.max(weapon_selection::PRE_TN_MAX.min(pre_tn));
     let usable: Vec<ItemId> = get_weapons(&b.units[attacker]).into_iter().filter(|w| !unavailable.contains(w)).collect();
     let k = if crate::ams::can_engage(&b.units[target]) {
@@ -1188,6 +1197,7 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
         prone_mod,
         pre_tn,
         aim,
+        aim_destruction,
         adjust,
         side,
         sel_pre_tn,
@@ -1406,6 +1416,14 @@ pub fn finish_declaration(
         }
         if ctx.indirect {
             tn += adv::MORTAR_INDIRECT_MODIFIER - adv::MORTAR_DIRECT_MODIFIER;
+        }
+        // T16 step 3 (MegaMek setAttackAsAimedOrCalled): a weapon whose number is too high fires unaimed. Against an
+        // immobile target the aim costs nothing (not the head), so the number is the same either way.
+        if let (Some(_), Some(destruction)) = (&w_aim, ctx.aim_destruction) {
+            let damage = b.units[attacker].items[w].damage_per_shot.unwrap_or(0);
+            if !crate::bot_aimed_shots::gate(tn, damage, destruction) {
+                w_aim = None;
+            }
         }
         let roll = b.roll_2d6();
         let mut hit = roll >= tn;

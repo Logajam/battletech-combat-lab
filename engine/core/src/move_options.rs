@@ -133,7 +133,7 @@ pub type Yielded = (StateKey, i64, f64);
 
 pub fn movement_options_snap(b: &Battle, u: UnitId, standup_mp: Option<i64>, entry_edge: Option<&[String]>, backward: bool, notes: &mut PathNotes) -> Vec<Yielded> {
     let states = movement_options_all(b, u, standup_mp, entry_edge, backward, notes);
-    if !b.units[u].unjamming.is_empty() {
+    if crate::fire_modes::walk_only_for_unjam(&b.units[u]) {
         return states.into_iter().filter(|st| st.0 .4 == "Stand Still" || st.0 .4 == "Walk").collect();
     }
     states

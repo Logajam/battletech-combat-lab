@@ -2,6 +2,7 @@
 //! One module per Python module, the same name (the INTEGRATION__ prefix dropped).
 pub mod fasthash;
 pub mod bot_heat_equipment;
+pub mod bot_aimed_shots;
 pub mod pyfmt;
 pub mod hex_geometry;
 pub mod board_parser;

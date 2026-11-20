@@ -846,6 +846,10 @@ pub fn declare_unjams(b: &mut Battle, u: UnitId) {
     if b.units[u].shutdown {
         return;
     }
+    // T16 step 2: Princess / CASPAR decide after the move is chosen (`princess_modern::rank` -> `princess_declare_unjam`)
+    if b.units[u].is_princess_family() {
+        return;
+    }
     let mut picked = Vec::new();
     let name = b.units[u].side_name.clone().unwrap_or_default();
     for w in get_weapons(&b.units[u]) {
@@ -862,6 +866,30 @@ pub fn declare_unjams(b: &mut Battle, u: UnitId) {
         let names: Vec<String> = picked.iter().map(|w| b.units[u].items[*w].name.clone()).collect();
         b.log(format!("  [Movement] {} tries to unjam {} (stand still or walk only, p.183).", name, crate::damage_resolution::py_str_list(&names)));
     }
+}
+
+/// T16 step 2: movement is limited to Stand Still / Walk while the unit has declared an unjam, and, for a Princess-family
+/// unit, whenever it has a jammed weapon it could try to clear (MegaMek PathRanker: with `canUnjamRAC` every path that
+/// runs or jumps is INADVISABLE, whether or not the unjam is then attempted). Never while prone (as `stub_unjam`).
+pub fn walk_only_for_unjam(m: &crate::mech_state::Mech) -> bool {
+    !m.unjamming.is_empty() || (m.is_princess_family() && !m.shutdown && !m.prone && !jammed_ids(m).is_empty())
+}
+
+/// MegaMek Princess.unjamRAC (embellishPath): a chosen path that stays within walking MP gets an unjam step appended when
+/// the path's expected damage is under 5 (`expectedDamage >= 5` means fire instead). `path_mode` is the chosen move's mode;
+/// the unjam is then tried at the end of the Ranged Attack Phase like any other (`resolve_unjams`).
+pub fn princess_declare_unjam(b: &mut Battle, u: UnitId, path_mode: &str, expected_damage: f64) {
+    if !b.units[u].is_princess_family() || b.units[u].shutdown || b.units[u].prone {
+        return;
+    }
+    let jammed: Vec<ItemId> = get_weapons(&b.units[u]).into_iter().filter(|w| jammed_ids(&b.units[u]).contains(w)).collect();
+    if jammed.is_empty() || !matches!(path_mode, "Stand Still" | "Walk") || expected_damage >= 5.0 {
+        return;
+    }
+    b.units[u].unjamming = jammed.clone();
+    let name = b.units[u].side_name.clone().unwrap_or_default();
+    let names: Vec<String> = jammed.iter().map(|w| b.units[u].items[*w].name.clone()).collect();
+    b.log(format!("  [Movement] {} tries to unjam {} (MegaMek Princess.unjamRAC: expected damage {:.1} < 5; stand still or walk only, p.183).", name, crate::damage_resolution::py_str_list(&names), expected_damage));
 }
 
 /// End of the Ranged Attack Phase: Gunnery + 3 for each attempt (p.183).
