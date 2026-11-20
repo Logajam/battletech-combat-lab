@@ -33,6 +33,17 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   Thumper, MG array capacity (3 light MGs an array), Ram Plate, some heat-sink header oddities (Kraken-XR). TO CHECK for combat: the
   equipment table's `explosive` flag and slot counts differ from MegaMek in a few dozen items (list in this entry's method). Look at: the
   ordering of the weapon heat sort with vibroblades, and whether widening "one item per run of lines" ever merges two real weapons.
+  SECOND PASS (same day, Daniel: "the code based rules for those missing items should be in megamek's github"): each remaining cause
+  was read from MegaMek's source (BVCalculator, MekBVCalculator, MiscType.getBV, Mek / BipedMek, MekFileParser.linkMGAs) and built: Ram
+  Plate (+1 charge damage per torso with Spikes), Backhoe and Wrecking Ball (new table rows, BV 8), EW Equipment (BV 39, ECM + BAP) and the
+  bridge layers (new BV rows, slot counts 4 / 2 / 4 / 12), Mining Drill 4, Heavy-Duty Pile Driver 8, Ram Plate 3, Talons 4 (split across the
+  legs) and HarJel III 2 slots in the table, machine-gun arrays link the guns in the slots after them (up to 4: `linkMGAs`), a "Triple-
+  Strength" myomer line counts as TSM (not "Industrial"), jump MP counts the jump jets in the slots (+ the partial wing's 1 / 2) not the
+  header, hardened armor cuts MP only on a leg, the RISC heat sink override kit (header line) x1.01, an "Industrial Cockpit (AFC)" still
+  takes the x0.9 (as MegaMek does). Result: 12 of 4,204 units differ (0.3%): Great Turtle (armored parts), Mad Cat U (torpedo ammo),
+  Sarath, Hunchback Shakir (prototype pulse laser heat), UrbanKnight, Uni ATAE-70 (second Thumper), Kraken-XR (laser sink header), Atlas
+  Jurn, Orion ON1-H (primitive), Hornet (ER small laser name), Tessen, Super Griffin (prototype improved jump jets). All 63 checks pass; the
+  91 reference battles did not change this time.
 - **2026-11-20 (Claude, session 31), COMBAT LAB TWEAKS: DROP-DOWN OPTIONS, ETA, CLOSE BUTTON, WINDOW GRIPS, UNIT STATISTICS (FRONT / REAR ARMOR, MOVEMENT, DISTANCES, CRITICAL SLOT SURVIVAL), MEGAMEK OPTIONS LIST. REVIEW PENDING (higher-level model).**
   Daniel's round of minor tweaks. (1) OPTIONS: every typed-in setting that takes one of a few words is now a drop-down
   (`CHOICES` in `tools/make_options_registry.py` -> `choices` in `options.json` -> `optionRow` in lab.js; 26 settings: foe choice, home

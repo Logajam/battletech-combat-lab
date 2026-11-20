@@ -1,73 +1,14 @@
 # Units whose BV still differs from MegaMek 0.51.01.7 (2026-11-20): path, ours, MegaMek. The check fails on any unit NOT listed here
 # (a new gap) and prints the ones that now match (remove them from this file).
-3039u/Raven RVN-1X.mtf	589	639
-3039u/Raven RVN-3X.mtf	640	691
 3055U/Great Turtle GTR-2.mtf	2322	2355
-3075/DemolitionMech WI-DM.mtf	373	380
-3075/DemolitionMech WI-DM2.mtf	342	350
-3075/Kiso K-3N-KR4 ConstructionMech.mtf	981	954
-3075/Kiso K-3N-KR5 ConstructionMech.mtf	953	959
-3085u/Cutting Edge/Diomede D-M3D-3 ConstructionMech.mtf	1255	1228
-3085u/Cutting Edge/Thunder Fox TFT-L8.mtf	1442	1513
 3085u/ONN/Mad Cat (Timber Wolf) U.mtf	2558	2627
-3085u/ONN/Turkina U.mtf	2533	2520
-3145/Clans/Eyrie.mtf	1409	1401
-3145/Clans/Kodiak II 2.mtf	3139	3147
-3145/Marik/Sarath SRTH-1OB.mtf	1520	1475
-3145/Marik/Violator VT-U1.mtf	952	928
-3145/Marik/Violator VT-U3.mtf	998	973
-3145/Merc/Jade Hawk JHK-03.mtf	2236	2160
-3145/NTNU RS/Mad Cat Mk II 6.mtf	2646	2663
-3145/NTNU RS/NTNU/Caesar CES-5D.mtf	3144	3123
-3145/NTNU RS/NTNU/Vixen (Incubus) 6.mtf	1605	1599
-3145/NTNU RS/Omen 2.mtf	2373	2380
-3145/Republic/Jackalope JLP-KA Wolpertinger.mtf	1375	1334
-3145/Republic/Revenant UBM-2R7.mtf	460	472
-HBMPS/Rock Hound AM-PRM-RH7 'Rock Possum' ProspectorMech.mtf	499	479
-HBMPS/Rock Hound AM-PRM-RH7 ProspectorMech.mtf	543	523
-HBMPS/Rock Hound AM-PRM-RH7A 'Rock Otter' ProspectorMech.mtf	475	455
-HBMPS/Space Hound AM-PRM-SH1 ProspectorMech.mtf	487	465
-Operation Klondike/Carbine CON-1 ConstructionMech.mtf	190	198
-Operation Klondike/Daedalus GTX2 (Militarized).mtf	828	836
-Operation Klondike/Daedalus GTX2B Navvy.mtf	655	663
-Rec Guides ilClan/Vol 15/Black Lanner F.mtf	2197	2154
-Rec Guides ilClan/Vol 16/Turkina X.mtf	3069	3056
-Rec Guides ilClan/Vol 17/Crossbow J.mtf	1850	1839
-Rec Guides ilClan/Vol 22/Jade Phoenix C.mtf	2868	2854
-Rec Guides ilClan/Vol 6/Linebacker I.mtf	1929	1853
+3145/Marik/Sarath SRTH-1OB.mtf	1490	1475
 Starterbook Sword and Dragon/Hunchback HBK-4G Shakir.mtf	957	952
-TRO Irregulars/Burrower DTM-1 MiningMech.mtf	510	492
-TRO Irregulars/DemolitionMech WI-DMM MOD.mtf	436	444
-TRO Irregulars/Dig Lord RCL-4M MiningMech MOD.mtf	724	706
-TRO Irregulars/Dig Lord RCL-4M-B MiningMech MOD.mtf	717	699
-TRO Irregulars/Ground Pounder DVM-2 MiningMech.mtf	513	465
-TRO Irregulars/Ground Pounder DVM-2M MiningMech MOD.mtf	583	548
-TRO Irregulars/Gulon C SolahmaMech.mtf	554	533
-TRO Irregulars/Gulon GLN-1A MiningMech.mtf	370	352
-TRO Irregulars/Gulon GLN-1B SecurityMech.mtf	430	410
-TRO Irregulars/MuckRaker GMMM-2 MiningMech.mtf	703	709
-TRO Vehicle Annex/Carbine CON-7 ConstructionMech.mtf	190	198
-TRO Vehicle Annex/Carbine CON-8 ConstructionMech.mtf	177	185
-TRO Vehicle Annex/Carbine CON-9 ConstructionMech.mtf	238	246
-TRO Vehicle Annex/Crosscut ED-X4B DemolitionMech.mtf	217	224
-TRO Vehicle Annex/Dig King RCL-1 MiningMech.mtf	427	409
-TRO Vehicle Annex/Dig Lord RCL-4 MiningMech.mtf	615	599
-Turning Points/OTP Hanseatic Crusade/Rhino.mtf	2243	2124
 Urbanfest/UrbanKnight UM-DKX.mtf	990	974
-WoR Supplemental/Pariah (Septicemia) US.mtf	2319	2308
-XTRs/Caveat Emptor/Aquagladius AQS-5 MAM.mtf	1878	1946
 XTRs/Caveat Emptor/Uni ATAE-70 ArtilleryMech.mtf	822	865
 XTRs/Clans/Kraken-XR.mtf	2814	2894
-XTRs/Corporations/Arbiter ARB-001.mtf	507	489
 XTRs/Periphery/Atlas AS-700 Jurn.mtf	2059	2058
 XTRs/Primitives V/Orion ON1-H.mtf	1313	1307
-XTRs/RISC/BattleAxe BKX-RISC.mtf	2391	2415
-XTRs/RISC/Emperor EMP-6X.mtf	3083	3114
-XTRs/RISC/Mad Cat Mk IV PR RISC.mtf	2847	2876
-XTRs/RISC/Malice MAL-Y-SH-RISC.mtf	3562	3597
 XTRs/Republic II/Hornet HNT-181.mtf	368	398
-XTRs/Royal Fantasy/Agrotera AGT-UA _Ariel_.mtf	1905	1913
 XTRs/Royal Fantasy/Tessen TSN-X4R _Rapunzel_.mtf	1495	1494
-XTRs/Royal Fantasy/Vulpes VLP-1DX _Beast_.mtf	1235	1229
-XTRs/Succession Wars/Cataphract CTF-0X.mtf	1212	1258
-XTRs/Succession Wars/Super Griffin GRF-2N-X.mtf	1318	1269
+XTRs/Succession Wars/Super Griffin GRF-2N-X.mtf	1210	1269

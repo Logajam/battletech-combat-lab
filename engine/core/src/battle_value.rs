@@ -101,6 +101,10 @@ struct Item {
     equip_name: String,
     /// a slot of it is tagged "(armored)" in the unit file (Armored Components, Core p.207)
     armored: bool,
+    /// the equipment id in the unit (slots hold these)
+    id: usize,
+    /// a machine gun array's linked guns (indices into the items): MegaMek MekFileParser.linkMGAs
+    bay: Vec<usize>,
 }
 
 impl Item {
@@ -182,6 +186,8 @@ fn equipment_items(b: &Battle, u: UnitId) -> Vec<Item> {
                 name: g("name").and_then(|v| v.as_str()).map(|s| s.to_string()).unwrap_or_else(|| eq.name.clone()),
                 equip_name: eq.name.clone(),
                 armored,
+                id: *id,
+                bay: Vec::new(),
             });
         }
     }
@@ -242,6 +248,35 @@ impl<'a> Calc<'a> {
         let clan_mech = tech.starts_with("CLAN") || tech.contains("MIXED (CLAN");
         let structure = up(&m.structure_desc);
         let clan_structure = clan_mech && !structure.starts_with("IS ");
+        // MegaMek linkMGAs: each array, in turn, takes the first unused gun of its own size in its location and then the guns in the
+        // slots right after it, up to four, stopping at the first slot that is not such a gun
+        {
+            let mut used: HashSet<usize> = HashSet::default();
+            for ai in 0..items.len() {
+                if !(items[ai].kind.as_deref() == Some("weapon") && items[ai].has("F_MGA")) {
+                    continue;
+                }
+                let (loc, kind) = (items[ai].location.clone(), items[ai].ammo_type.clone());
+                let mut bay: Vec<usize> = Vec::new();
+                for slot in m.crits.get(&loc).map(|v| v.as_slice()).unwrap_or(&[]) {
+                    let hit = match slot {
+                        Slot::Item(id) => items.iter().position(|i| i.id == *id).filter(|&ix| {
+                            !used.contains(&ix) && !items[ix].has("F_MGA") && items[ix].kind.as_deref() == Some("weapon") && items[ix].ammo_type == kind
+                        }),
+                        _ => None,
+                    };
+                    match hit {
+                        Some(ix) => {
+                            bay.push(ix);
+                            used.insert(ix);
+                            if bay.len() >= 4 { break; }
+                        }
+                        None => if !bay.is_empty() { break; }
+                    }
+                }
+                items[ai].bay = bay;
+            }
+        }
         // _link_equipment: Artemis, Apollo and PPC capacitors work with a weapon in their own location
         for li in 0..items.len() {
             if items[li].kind.as_deref() != Some("misc") {
@@ -278,7 +313,10 @@ impl<'a> Calc<'a> {
         let large_shields = items.iter().filter(|i| i.has("S_SHIELD_LARGE")).count() as i64;
         let medium_shields = items.iter().filter(|i| i.has("S_SHIELD_MEDIUM")).count() as i64;
         let mut walk = m.base_walk_mp - large_shields - medium_shields;
-        if items.iter().any(|i| i.has("F_TSM")) {
+        // a "Triple-Strength" myomer line without a TSM in the slots still counts (MegaMek adds the equipment itself)
+        let myomer_up = m.myomer.to_uppercase().replace(['-', ' '], "");
+        let tsm_myomer = myomer_up.contains("TRIPLESTRENGTH") && !myomer_up.contains("INDUSTRIAL");
+        if tsm_myomer || items.iter().any(|i| i.has("F_TSM")) {
             walk += 1;
         }
         // MegaMek's BV_CALCULATION counts an armed MASC or supercharger in the run MP (MPBoosters.calculateRunMP): either one doubles
@@ -286,12 +324,21 @@ impl<'a> Calc<'a> {
         let masc = items.iter().any(|i| i.has("F_MASC") && !i.has("S_SUPERCHARGER") && !i.has("S_JET_BOOSTER"));
         let charger = items.iter().any(|i| i.has("F_MASC") && i.has("S_SUPERCHARGER"));
         let mut run = if masc && charger { (walk as f64 * 2.5).ceil() as i64 } else if masc || charger { walk * 2 } else { (walk as f64 * 1.5).ceil() as i64 };
-        if m.armor_type.values().any(|t| *t == ArmorType::Hardened) {
+        // MegaMek hasMPReducingHardenedArmor: hardened armor on a LEG (all the legs of a quad or tripod), not anywhere on the 'Mech
+        if m.armor_type.iter().any(|(loc, t)| *t == ArmorType::Hardened && loc.contains("Leg")) {
             run = (run - 1).max(0);
         }
         let mut jump = m.base_jump_mp;
-        if jump != 0 && m.partial_wing_active {
-            jump += if m.mass.unwrap_or(0) >= 60 { 1 } else { 2 };
+        // MegaMek counts the jump jets actually in the slots (an improved one fills two lines but is one item), then adds the partial
+        // wing's bonus: the header's "Jump MP" is sometimes a jet short and sometimes already holds the wing's share
+        {
+            let plain = items.iter().filter(|i| i.has("F_JUMP_JET") && !i.has("S_IMPROVED")).count() as i64;
+            let improved = items.iter().filter(|i| i.has("F_JUMP_JET") && i.has("S_IMPROVED")).count() as i64;
+            let jets = plain + improved;
+            if jets > 0 { jump = jets; }
+            if (jets > 0 || jump != 0) && m.partial_wing_active {
+                jump += if m.mass.unwrap_or(0) >= 60 { 1 } else { 2 };
+            }
         }
         jump = (jump - medium_shields).max(0);
         jump = jump.max((m.base_mechanical_jump_booster_mp - medium_shields).max(0));
@@ -303,6 +350,11 @@ impl<'a> Calc<'a> {
 
     fn flag_at(&self, flag: &str, loc: &str) -> bool {
         self.items.iter().any(|i| i.has(flag) && i.slots_by_location.contains_key(loc))
+    }
+    /// Triple-strength myomer: a TSM in the slots, or the header's myomer line (MegaMek puts the equipment there itself)
+    fn has_tsm(&self) -> bool {
+        let myomer = self.m.myomer.to_uppercase().replace(['-', ' '], "");
+        (myomer.contains("TRIPLESTRENGTH") && !myomer.contains("INDUSTRIAL")) || self.has("F_TSM")
     }
     fn has(&self, flag: &str) -> bool {
         self.items.iter().any(|i| i.has(flag))
@@ -560,13 +612,7 @@ impl<'a> Calc<'a> {
         let item = &self.items[wi];
         let mut bv = if Self::is_vibroblade(item) { self.misc_bv(item) } else { item.bv };
         if item.has("F_MGA") {
-            let mut s = 0.0;
-            for i in &self.items {
-                if i.kind.as_deref() == Some("weapon") && i.location == item.location && !i.has("F_MGA") && i.ammo_type == item.ammo_type {
-                    s += i.bv;
-                }
-            }
-            bv = s * 0.67;
+            bv = item.bay.iter().map(|&i| self.items[i].bv).sum::<f64>() * 0.67;
         }
         if self.arm_aes(&item.location) && ARMS.contains(&item.location.as_str()) {
             bv *= 1.25;
@@ -792,7 +838,7 @@ impl<'a> Calc<'a> {
         if item.has_bv {
             return item.bv;
         }
-        let tsm = if self.has("F_TSM") { 2.0 } else { 1.0 };
+        let tsm = if self.has_tsm() { 2.0 } else { 1.0 };
         let f = &item.flags;
         let h = |x: &str| f.contains(x);
         if h("F_CLUB") && h("S_HATCHET") {
@@ -817,7 +863,11 @@ impl<'a> Calc<'a> {
             return jround((weight / 5.0).floor() * 0.5) as f64 * tsm;
         }
         if h("F_RAM_PLATE") {
-            let damage = ((weight * self.run as f64 * 0.1) as i64) / 2;
+            let mut damage = ((weight * self.run as f64 * 0.1) as i64) / 2;
+            // Spikes in a torso add a point of charge damage each (MegaMek MiscType.getBV)
+            for torso in ["Center Torso", "Left Torso", "Right Torso"] {
+                if self.flag_at("F_SPIKES", torso) { damage += 1; }
+            }
             return crate::pyfmt::py_round_n(damage as f64 * 1.1, 3);
         }
         0.0
@@ -845,6 +895,7 @@ impl<'a> Calc<'a> {
             } else if item.has("F_WATCHDOG") {
                 bv = 7.0;
             }
+            if trace_level() == 2 { eprintln!("BVE\t{} {}\t{}\t{}\t{:.3}", self.m.chassis, self.m.model, item.name, item.location, bv); }
             add += bv;
         }
         self.offensive += add;
@@ -862,7 +913,7 @@ impl<'a> Calc<'a> {
             aes += if self.quad { 0.4 } else { 0.2 };
         }
         let weight = mass * aes;
-        if self.items.iter().any(|i| i.has("F_TSM") && !i.has("F_INDUSTRIAL_TSM")) {
+        if self.has_tsm() {
             self.offensive += weight * 1.5;
         } else if self.has("F_INDUSTRIAL_TSM") {
             self.offensive += weight * 1.15;
@@ -879,7 +930,8 @@ impl<'a> Calc<'a> {
 
     fn type_modifier(&mut self) {
         let c = up(&self.m.cockpit_type);
-        if c.contains("INDUSTRIAL") && !c.contains("AFC") {
+        // MegaMek: only a cockpit that reads as Industrial counts (its "(AFC)" variant reads as Industrial too, so it is NOT spared)
+        if c.contains("INDUSTRIAL") {
             self.offensive *= 0.9;
         }
     }
@@ -908,6 +960,10 @@ impl<'a> Calc<'a> {
             base *= 1.3;
         } else if self.has("F_DRONE_OPERATING_SYSTEM") {
             base *= 0.95;
+        }
+        // MegaMek: the RISC heat sink override kit (a header line) adds 1% after the cockpit modifier
+        if self.m.risc_heat_sink_kit {
+            base *= 1.01;
         }
         let adjusted = jround(base);
         let factor = skill_factor(self.m.gunnery, self.m.piloting);

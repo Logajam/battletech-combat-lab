@@ -167,7 +167,7 @@ pub fn is_armored(raw_name: &str) -> bool {
 // CHAINSAW .. HYPERLASER added 2026-11-20 (BV check against MegaMek): the equipment table gave these 1 slot but they fill 2-7, so every line
 // of one became its own item and the BV counted it that many times (the table's slot counts of the weapons that split across locations,
 // like the Long Tom, were corrected instead, so that join_split_items can put their parts together)
-const VARIABLE_SIZE_FRAGMENTS: [&str; 20] = ["HATCHET", "SWORD", "MACE", "LANCE", "CLAW", "RETRACTABLEBLADE", "VIBROBLADE", "SHIELD", "TALONS",
+const VARIABLE_SIZE_FRAGMENTS: [&str; 19] = ["HATCHET", "SWORD", "MACE", "LANCE", "CLAW", "RETRACTABLEBLADE", "VIBROBLADE", "SHIELD",
     "CHAINSAW", "DUALSAW", "ROCKCUTTER", "COMBINE", "BUZZSAW", "BEAGLEACTIVEPROBE", "BLOODHOUNDACTIVEPROBE",
     "NULLSIGNATURE", "VOIDSIGNATURE", "CHAMELEON", "HYPERLASER"];
 
@@ -590,6 +590,7 @@ pub fn parse_mtf(db: &EquipmentDb, text: &str, out: &mut String) -> Result<Mech,
     let mut tech_base_line = String::new();
     let mut myomer_line = "Standard".to_string();
     let (mut walk_mp, mut jump_mp): (Option<i64>, Option<i64>) = (None, None);
+    let mut risc_kit = false;
     let (mut heat_sink_count, mut heat_sink_type): (Option<i64>, Option<String>) = (None, None);
     let mut front_armor: crate::fasthash::IndexMap<String, i64> = crate::fasthash::IndexMap::default();
     let mut rear_armor: crate::fasthash::IndexMap<String, i64> = crate::fasthash::IndexMap::default();
@@ -647,6 +648,8 @@ pub fn parse_mtf(db: &EquipmentDb, text: &str, out: &mut String) -> Result<Mech,
                 if let Ok(v) = py_int(value) {
                     jump_mp = Some(v);
                 }
+            } else if key == "heat sink kit" {
+                risc_kit = value.to_uppercase().contains("RISC");
             } else if key == "heat sinks" {
                 let parts = split_ws_once(value);
                 if !parts.is_empty() {
@@ -749,6 +752,7 @@ pub fn parse_mtf(db: &EquipmentDb, text: &str, out: &mut String) -> Result<Mech,
             0
         }
     };
+    mech.risc_heat_sink_kit = risc_kit;
     mech.base_heat_sinks = heat_sink_count;
     mech.heat_sink_type = match heat_sink_type {
         Some(t) if !t.is_empty() => t,
