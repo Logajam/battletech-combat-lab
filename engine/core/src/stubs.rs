@@ -104,6 +104,32 @@ pub fn stub_spot(b: &mut Battle, u: UnitId) -> Option<(UnitId, bool)> {
     Some((target, true))
 }
 
+/// The secondary targets a unit fires at after its primary (split fire, Core p.64), in order. Knob: STUB_SPLIT_FIRE
+/// (default "never": MegaMek's Princess / CASPAR fire an ordinary 'Mech at one target, and Gladiator / Hydra don't know how
+/// to split fire yet - Daniel 2026-11-20; "spare_weapons": every other enemy it can see, nearest first, each offered the
+/// weapons not yet used - a crude placeholder).
+pub fn stub_split_fire(b: &mut Battle, attacker: UnitId, primary: UnitId) -> Vec<UnitId> {
+    let policy = if b.cfg.has("STUB_SPLIT_FIRE") { b.cfg.s("STUB_SPLIT_FIRE").to_string() } else { "never".to_string() };
+    match policy.as_str() {
+        "never" => Vec::new(),
+        "spare_weapons" => {
+            let mut c: Vec<(i64, UnitId)> = crate::forces::enemies_of(b, attacker)
+                .into_iter()
+                .filter(|&e| e != primary && b.units[e].hex.is_some())
+                .filter_map(|e| crate::forces::distance(b, attacker, e).map(|d| (d, e)))
+                .collect();
+            c.sort();
+            let out: Vec<UnitId> = c.into_iter().map(|(_, e)| e).collect();
+            if !out.is_empty() {
+                let n = b.units[attacker].side_name.clone().unwrap_or_default();
+                b.warn_stub("split_fire", &format!("{}: offers its spare weapons to {} more target(s)", n, out.len()));
+            }
+            out
+        }
+        o => panic!("Unknown STUB_SPLIT_FIRE {:?}", o),
+    }
+}
+
 /// Offer a distant artillery shot (Arrow IV / Thumper / Sniper at 18+ hexes, landing next turn; p.182)? Knob:
 /// STUB_DISTANT_ARTILLERY (default "never": the bots' own artillery targeting is built elsewhere - Princess / CASPAR from
 /// MegaMek's ArtilleryTargetingControl, Gladiator / Hydra have none yet, Daniel 2026-11-20; "at_target": offer it at the

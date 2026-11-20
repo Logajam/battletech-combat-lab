@@ -173,6 +173,21 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   Rerun `python tools/benchmark_report.py --bv-file LISTS.json` (LISTS.json: the Lab's `list_units` output) for the tables.
   Checks: no engine or test file changed; `run_checks.py` not run (docs and new tools only).
 
+- **2026-11-20 (Claude, session 30), RULES: SPLIT FIRE (Core p.64, Multiple Targets; `engine/core/src/split_fire.rs`).
+  REVIEW PENDING (higher-level model).** Daniel: "split fire yes. Completeness and the wiring in place for when our bots
+  expand their minds" (PROJECT_MAP Section 5). Rust only. BUILT: after its primary declaration a unit may declare on more
+  targets, each a SECONDARY target: +1 to every attack on it, only the weapons not yet fired, the twist / flip already
+  declared (held locked while the secondaries are declared, then put back), the weapon heat already committed counted in
+  its heat budget. Refused (logged): a target with active stealth armor (pp.64, 202); a forward-arc target when the
+  primary is not in the forward arc (the primary must be a forward-arc target if any is). Every `DeclaredAttack` now
+  carries its target, so anti-missile fire and damage go to the right 'Mech (`run_ranged_phase`). Who splits fire:
+  `stubs::stub_split_fire` (`STUB_SPLIT_FIRE`, default "never" - also MegaMek's behaviour for an ordinary 'Mech; Section
+  6). `Battle::split_fire` (sent through the bridge) is cleared at the start AND end of each Ranged Attack Phase: the
+  next turn's firing order is worked out before its phase, and a stale primary made its dry runs secondary attacks
+  (found by the reference battles, fixed before commit). Not built: a dedicated gunnery officer's three primaries (no
+  crew rules). RESULTS: none changed (91 of 91). Tested by hand with "spare_weapons" (+ STUB_SPOT "when_useful" and
+  STUB_DISTANT_ARTILLERY "at_target"): secondary attacks, refusals and kept twists as above, battles run to the end.
+
 - **2026-11-20 (Claude, session 30), RULES: DISTANT ARTILLERY AND AREA EFFECT ON EVERY UNIT (Core pp.182-183;
   `engine/core/src/artillery.rs`). REVIEW PENDING (higher-level model).** Daniel: "Artillery has to be on board with what
   the units can use" (no Battlefield Support, no Assets; PROJECT_MAP Section 5). Rust only. BUILT: (1) DISTANT fire: an

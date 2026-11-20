@@ -124,6 +124,7 @@
  "STUB_TAG_AIM": "mech",
  "STUB_SPOT": "never",
  "STUB_DISTANT_ARTILLERY": "never",
+ "STUB_SPLIT_FIRE": "never",
  "STUB_CAPACITOR_START": "empty",
  "STUB_CAPACITOR_CHARGE": "never",
  "STUB_GLADIATOR_TARGET": "princess_plan",

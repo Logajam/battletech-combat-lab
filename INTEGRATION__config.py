@@ -486,6 +486,10 @@ STUB_SPOT = "never"
 # offer the shot? "never" (the default: the bots' own artillery targeting is built elsewhere) / "at_target" (at the
 # target's hex now, valued as if it stays there - a crude placeholder).
 STUB_DISTANT_ARTILLERY = "never"
+# Split fire (several targets in a turn; Core p.64; Rust engine only): "never" (the default: Princess / CASPAR fire an
+# ordinary 'Mech at one target as MegaMek does; Gladiator / Hydra don't split fire yet) / "spare_weapons" (every other
+# enemy in sight, nearest first, with the weapons not yet used - a crude placeholder).
+STUB_SPLIT_FIRE = "never"
 # PPC capacitors (p.188): start the battle charged? "empty" / "charged".
 STUB_CAPACITOR_START = "empty"
 # Charge a PPC capacitor instead of firing its PPC? "never" / "when_idle" (whenever the PPC isn't fired).

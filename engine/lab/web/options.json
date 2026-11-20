@@ -304,6 +304,17 @@
 ]
 },
 {
+"key": "STUB_SPLIT_FIRE",
+"label": "Stub split fire",
+"top": "Game setup",
+"folder": "Placeholders (stubs)",
+"kind": "text",
+"default": "never",
+"short": "Split fire (several targets in a turn; Core p.64; Rust engine only): \"never\" (the default: Princess / CASPAR fire an ordinary 'Mech at one target as MegaMek does; Gladiator / Hydra don't split fire...",
+"text": "Split fire (several targets in a turn; Core p.64; Rust engine only): \"never\" (the default: Princess / CASPAR fire an ordinary 'Mech at one target as MegaMek does; Gladiator / Hydra don't split fire yet) / \"spare_weapons\" (every other enemy in sight, nearest first, with the weapons not yet used - a crude placeholder).",
+"active": true
+},
+{
 "key": "STUB_SPOT",
 "label": "Stub spot",
 "top": "Game setup",

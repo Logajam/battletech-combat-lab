@@ -164,6 +164,8 @@ pub struct Battle {
     pub indirect_pairs: Vec<(UnitId, UnitId)>,
     /// artillery.rs: distant Arrow IV / Thumper / Sniper shots in flight (they land next turn, p.182)
     pub pending_artillery: Vec<crate::artillery::PendingStrike>,
+    /// split_fire.rs: each attacker's primary target, weapons and heat declared so far this Ranged Attack Phase
+    pub split_fire: Vec<crate::split_fire::SplitState>,
     /// INTEGRATION__los_cache: lines of sight the bots asked about, (from, to, heights) -> answer (None = the line runs
     /// off the board). Speed only: emptied whenever the board changes (`board_changed`).
     /// finished movement tables (`movement_table`); speed only, emptied when the board changes
@@ -237,6 +239,7 @@ impl Battle {
             spots: Vec::new(),
             indirect_pairs: Vec::new(),
             pending_artillery: Vec::new(),
+            split_fire: Vec::new(),
             los_memo: Default::default(),
             table_memo: Default::default(),
         }
