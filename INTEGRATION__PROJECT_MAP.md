@@ -100,10 +100,8 @@ In brackets: the item's old "Pick up here" label, under which `INTEGRATION__HIST
 write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numbers).
 
 **N. Daniel's list of 2026-11-20 (in this order unless he says otherwise; decisions in Section 5, same date)**
-- N1. NARC HOMING AMMO RULE (setup option, Daniel's rule): a team that carries a Narc or iNarc launcher with homing-pod
-  ammo has every standard LRM and SRM bin in its force replaced by Narc-capable ammo (Core pp.188, 193: Narc-capable
-  missiles get the pod's bonus). An OPTIONAL RULES switch in `INTEGRATION__config.py` / `engine/defaults/config.json`, the
-  rules-as-written version (bins as the unit file says) kept. Per-bin ammo choice comes later (N3's window).
+- N1. NARC HOMING AMMO RULE: BUILT 2026-11-20 (Change Record), setting `NARC_HOMING_FOR_FORCE` (on in the Lab / btsim). Per-bin
+  ammo choice comes later (N5's window).
 - N2. PRINCESS'S OWN SPOTTING AND ARTILLERY: port MegaMek's `FireControl` spot choice (`getSpotAction`, spot instead of a
   shot under `MIN_USEFUL_FIRING_DAMAGE` 1.0) and `ArtilleryTargetingControl` for Princess / CASPAR. Today every bot goes
   through `stubs::stub_spot` / `stub_distant_artillery`, both "never". Each a `BotSet` method + `bridge.rs` entry; the stubs
@@ -112,8 +110,11 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   `calcAmmoConservation`. The engine needs an AMS on / off state first (an AMS is always on today, Core p.206).
 - N4. REMOVE PRINCESS v0.50.07 (Daniel: "never going to use it again"): the Rust `princess.rs` classic clone, its Lab /
   website / btsim options, its reference battles; the frozen Python keeps its copy.
-- N5. CONFIGURE UNIT WINDOW (Combat Lab): a "Configure unit" button opens a window per unit; "Edit unit stats" moves one
-  layer down inside it; it also holds the ammo choice per bin (after N1) and the C3 network setup (N6).
+- N5. CONFIGURE UNIT AND CONFIGURE TEAM WINDOWS (Combat Lab; Daniel 2026-11-20): a "Configure unit" button opens a window per
+  unit; "Edit unit stats" moves one layer down inside it; it also holds the ammo choice per bin (after N1). A "Configure
+  team" button opens a window per team holding that team's bot and every control the bot has (the Princess / CASPAR
+  sliders, Gladiator / Hydra switches...), which then leave the Options tab; probably the C3 network setup (N6) too.
+  Daniel is tempted by MekBay's way of building a C3 network: look at it before designing ours.
 - N6. C3 NETWORKS (Core p.198: C3 master / slave, C3i): the engine rule (range from the nearest networked friend with
   line of sight to the target), the network set up in N5's window, and the BV increase for a networked unit (MegaMek's
   C3 BV rule; check against MegaMek as `check_bv_megamek.py` does). Bots: Princess / CASPAR as MegaMek; a stub for
@@ -121,9 +122,15 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
 - N7. UNDERWATER MOVEMENT AND FIRING (Core pp.127-128, "Underwater Combat", Underwater Attacks Table p.127; 'Mech UMUs
   TO:AUE, deferred until now): what is left after F36 - which weapons fire underwater and at what ranges, attacks across
   the surface, then UMU movement. Read the library first and list the gap.
-- Small engine gaps Daniel asked about (rules review): G9 (the bots count leg hits that a target's partial cover would
-  stop, p.66: a scoring fix, not a rule) and G12 (our own charge planner never charges after a backward step, p.78; not
-  the bridge).
+- N8. LEG HITS LOST TO PARTIAL COVER IN THE BOTS' DAMAGE ESTIMATE (rules review G9, p.66; Daniel: "Add fixing the discount
+  leg hits"): the engine already stops them (F4); the expected damage the bots score with (movement, weapon choice) still
+  counts them. Scoring change: A/B and re-record.
+- N9. CHARGING AFTER A BACKWARD STEP (G12, p.78; Daniel: "accurate rules make for accurate games"): the charge planner
+  uses forward-only paths; let it plan a charge whose path has backward steps, counting hexes as the rule says.
+- N10. SPECIAL AMMUNITION (Daniel, 2026-11-20: "the other speciality ammo, like AP or homing artillery"; rules review G16,
+  Core pp.190-194): autocannon armor-piercing / caseless / flak / precision rounds, iNarc ECM / haywire / Nemesis pods,
+  Arrow IV homing / cluster / inferno / smoke / thunder (homing Arrow IV with TAG is partly built: F56). Today such bins
+  fire as standard or are skipped (`ammo::parse_bin`). Chosen per bin in N5's window.
 - LATER / ONLY WITH AN OPTION: Evading movement (TO:AR p.16: +1 to be hit, +2 heat, no attacks; a TacOps rule);
   searchlights (with a night option); Tactical Genius (a special pilot ability, not in the indexed books).
 

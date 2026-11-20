@@ -388,3 +388,42 @@ pub fn inferno_heat(bin: &crate::equipment::Equipment) -> i64 {
         Some(n) => 30.min(2 * n * bin.missiles_per_shot.unwrap_or(1)),
     }
 }
+
+/// NARC HOMING AMMO FOR THE FORCE (Daniel's rule, 2026-11-20; setting NARC_HOMING_FOR_FORCE, Rust engine only): "if a team has Narc or
+/// iNarc with homing beacon ammo on its side, all standard LRM and SRM ammo in their force is replaced with Narc homing ammo. Ammo
+/// choice can be changed later." Narc-capable missiles get the beacon's bonus (Core pp.188, 193; `electronics::guidance`). Only bins of
+/// standard ammunition for a standard LRM or SRM launcher (Inner Sphere or Clan; not Streak, Extended, Enhanced, Improved, MML, ATM,
+/// Artemis or inferno) change; their shots and explosion stay the same. A setting absent from a scenario (the Python's units and
+/// every reference battle) is off: the rules-as-written bins, as the unit file says. Runs once, when the battle starts. Returns the
+/// number of bins changed.
+pub fn narc_homing_for_force(b: &mut Battle) -> usize {
+    if !(b.cfg.has("NARC_HOMING_FOR_FORCE") && b.cfg.b("NARC_HOMING_FOR_FORCE")) {
+        return 0;
+    }
+    let side = |m: &Mech| m.team.clone().or_else(|| m.side_name.clone()).unwrap_or_default();
+    let is_homing_bin = |e: &crate::equipment::Equipment| {
+        e.category.as_deref() == Some("ammo") && e.munition.as_deref() == Some("homing") && e.feeds.as_deref().is_some_and(|f| narc_pod_damage(f).is_some())
+    };
+    let teams: HashSet<String> = b.units.iter().filter(|m| m.items.iter().any(|e| is_homing_bin(e))).map(|m| side(m)).collect();
+    let standard = re!(r"^(CL)?(LRM|SRM) ?\d+$");
+    let mut changed = 0;
+    for u in 0..b.units.len() {
+        if !teams.contains(&side(&b.units[u])) {
+            continue;
+        }
+        let name = b.units[u].side_name.clone().unwrap_or_default();
+        let mut loaded: Vec<String> = Vec::new();
+        for e in b.units[u].items.iter_mut() {
+            let launcher = e.feeds.as_deref().is_some_and(|f| standard.is_match(f).unwrap());
+            if e.category.as_deref() == Some("ammo") && e.munition.as_deref() == Some("standard") && launcher {
+                e.munition = Some("narc".to_string());
+                loaded.push(e.name.clone());
+            }
+        }
+        changed += loaded.len();
+        for bin in loaded {
+            b.log.log(format!("  {}: {} loaded with Narc homing missiles (the force carries homing beacons)", name, bin));
+        }
+    }
+    changed
+}
