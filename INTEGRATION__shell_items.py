@@ -275,7 +275,7 @@ def structure_tons(unit):
         p = os.path.join(HERE, sub)
         if p not in sys.path:
             sys.path.append(p)
-    from mech_state import structure_for_tonnage
+    from INTEGRATION__structure_table import structure_for_tonnage
     pts = structure_for_tonnage(unit["tons"], "biped")
     names = ("Head", "Center Torso", "Left Torso", "Right Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg")
     tot = sum(pts[n] for n in names)
@@ -289,7 +289,7 @@ def armor_ratio(unit, zone):
         p = os.path.join(HERE, sub)
         if p not in sys.path:
             sys.path.append(p)
-    from mech_state import structure_for_tonnage
+    from INTEGRATION__structure_table import structure_for_tonnage
     pts = structure_for_tonnage(unit["tons"], "biped")
     cap = 9 if zone == "Head" else 2 * pts.get(zone, 10)
     return min(1.0, (unit.get("armor_by") or {}).get(zone, 0) / (0.8 * cap)) if cap else 0.5
@@ -340,7 +340,7 @@ def budgets(unit, items):
             pth = os.path.join(HERE, sub)
             if pth not in sys.path:
                 sys.path.append(pth)
-        from mech_state import structure_for_tonnage
+        from INTEGRATION__structure_table import structure_for_tonnage
         pts = structure_for_tonnage(unit["tons"], "biped")
         w = {z: pts[z] * (rule.get("head_factor", 1.5) if z == "Head" else rule.get("leg_factor", 1.0) if z.endswith("Leg") else 1.0) for z in parts}
         base = {z: out[z] - parts[z]["items"] for z in parts}

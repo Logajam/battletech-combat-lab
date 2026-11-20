@@ -36,38 +36,34 @@ and the GitHub logistics (Section 7).
 
 ### Session setup and the checks
 
-- **Rust engine (`engine/`, sessions 22-24):** `cd engine && cargo build --release -p btsim`; batches with
-  `engine/target/release/btsim SCENARIO_DIR --battles N` (scenarios from `tools/port_scenario.py`; the Hydra mirror set
-  from `tools/hydra_scenarios.py`, into the git-ignored `engine/fixtures/`). Checks: `RUST_PORT.md` "Session 24".
-- `pip install -r requirements.txt`. The rules library is the private repo `logajam/battletech-rules-index`, cloned
+- **The engine is Rust (`engine/`):** `cd engine && cargo build --release -p btsim`; batches with
+  `engine/target/release/btsim SCENARIO_DIR --battles N`, or `btsim --setup SETTINGS.json [--write-scenario DIR]` to build
+  one from settings (the Hydra mirror set: `tools/hydra_scenarios.py`). The Python engine was REMOVED 2026-11-20 (Daniel:
+  "dead code the python"; backlog N11; it is in git history, Change Record "PYTHON ENGINE REMOVED"). Its answers are the
+  frozen answer key `engine/answer_key.tar.xz`, unpacked into the git-ignored `engine/fixtures/` by
+  `tools/unpack_answer_key.py` (run_checks does it). Settings: `engine/defaults/config.json`, their words in
+  `engine/defaults/config_notes.json`.
+- `pip install -r requirements.txt` (the tools and the art code). The rules library is the private repo `logajam/battletech-rules-index`, cloned
   OUTSIDE this repo (Core Rulebook in `base/core-rules/*.md`, a `[p.N]` marker comes before page N's text;
   `summary/core-rules/*.yaml` is the fast read); never copy its text here (CLAUDE.md). Unzip `data/meks.zip` / `data/maps.zip` outside the repo when needed.
-- The Rust module is optional (same results without it): `pip install maturin && cd fastcore && maturin build
-  --release && pip install --force-reinstall target/wheels/*.whl`.
 - MegaMek's source, when a rule or the Princess clone needs it: `git clone --depth 1 --filter=blob:none --sparse
   https://github.com/MegaMek/megamek.git` works through the proxy (Section 6, "Princess clone").
-- Run: `python INTEGRATION__main.py`; every setting is in `INTEGRATION__config.py`.
 - **After any change:** `python tests/run_checks.py` picks the checks from what changed since origin/main (levels:
-  docs / art / Lab pages / Python / engine; `--list` says why); `--full` before every merge; `--python` adds the
-  retired Python's tests and 15 reference battles (weekly). The engine level: the Rust reference set
+  docs / art / Lab pages / engine; `--list` says why); `--full` before every merge of code. The engine level: the Rust reference set
   (`check_rust_reference.py`: 91 battles (86 + 4 CASPAR + 1 placed-zone Princess v CASPAR) from `engine/reference/scenarios.zip`, logs in `engine/reference/logs/`;
   `--update` for a Rust change meant to alter results; `--parity` also runs every battle in full under the bridge's
-  parity check, a thorough but slower run), the bridge's `check_bridge_parity.py --quick`, the engine's cargo tests, `check_lab_server.py --battles 4`, and the website (`check_web_ui.py`, then
-  `check_web_lab.py --battles 4`). Heavy checks run one at a time. The Rust turn cap is 100
-  (`scenario::STANDARD_MAX_TURNS`, Daniel 2026-11-12; the Python keeps 50); 2 battles reach it: the Asymptote mirror (the
+  parity check, a thorough but slower run), the bridge's `check_bridge_parity.py --quick`, the engine's cargo tests (against
+  the answer key), `check_bv_megamek.py`, `check_lab_server.py --battles 4`, and the website (`check_web_ui.py`, then
+  `check_web_lab.py --battles 4`). Heavy checks run one at a time. The turn cap is 100
+  (`scenario::STANDARD_MAX_TURNS`, Daniel 2026-11-12); 2 battles reach it: the Asymptote mirror (the
   stall, backlog A1) and a first-version Hydra battle.
-  `--bench` for anything on the Python hot path: a speed-only change must keep the benchmark's HP totals (501 / 495) and
-  every reference log. A change MEANT to alter results: `--update` on the reference check, and say so in the Change
-  Record. Art-only work runs only the three token tests (Section 7).
-- Bot changes: `python tests/ab_batches.py` (duels) or the battery: `python tests/baseline_battery.py pg 20
-  --legate --turns 100 --seed N --stats --first A --last B` (resumable; one core's share - start four side by
-  side; `--no-triage` = the old baseline), table by `python tests/battery_summary.py`. Launching a background
-  command is not the battery finishing: read each output file, then report.
+  A speed-only change must keep every reference log. A change MEANT to alter results: `--update` on the reference check,
+  and say so in the Change Record. Art-only work runs only the three token tests (Section 7).
 - Rust bot trials: `tools/hydra_trial.py` (Hydra v the house bot, both seats; `--no-baseline`) and `tools/round_robin.py`
   (every bot v every bot). Every battle is recorded in `trial_records/` as it ends (`btsim --stream`; a crash is recorded
   with its seed and the set goes on; the same command again plays only what is missing); `tools/replay_undecided.py`
   plays only a trial's capped battles on. Daniel: 40 battles a seating for a decision, 400 a match-up to rule out a fluke.
-- Show Daniel battles as replays: `config.REPLAY_BATTLES`, publish the page from `replays/` with the Artifact
+- Show Daniel battles as replays: `btsim ... --history N`, publish the page from `replays/` with the Artifact
   tool, give him the link.
 
 ### What is built (details: README, CALL_GRAPH, RULES_REVIEW, BOTS)
@@ -82,7 +78,7 @@ and the GitHub logistics (Section 7).
 | Output | Batch summary, timing table, replays, battle statistics page (stages 1-3 of 5), saved states (end of a turn) | `_results`, `_timing`, `_replay`, `_stats*`, `_saved_state` |
 | Rust engine | The whole engine and both default bots, exact against the Python on 63 fixtures and ~830 random battles; `btsim` batches about 10x the Python's speed a core. Not translated: the switches that are off by default | `engine/`, `INTEGRATION__RUST_PORT.md`, `engine/REVIEW_BRIEF.md` |
 | Hydra | Third bot, Rust only: one planner a team, damage priced by a forecast of the battle's end. COMPLETE (Daniel, 2026-11-12: "this concludes building Hydra"). All five planner switches on: ahead of Gladiator and Princess in team battles, level in the duels (400-battle check) | `engine/core/src/hydra.rs`, `INTEGRATION__HYDRA.md` |
-| Speed (old) | Rust copies of the weapon table, movement search, LOS, hex distance for the Python; to be retired | `fastcore/`, `config.USE_FASTCORE` |
+| Speed (old) | REMOVED 2026-11-20 with the Python engine (`fastcore/` sped up the Python) | git history |
 | Combat Lab art | Skeleton-and-shell faceted models, block library, workbench | `_tokens`, `_shell*`, `tools/token_*`, `INTEGRATION__COMBAT_LAB*.md` |
 
 **Defaults that matter for the bots:** Legate on; fire split "proportional", this turn too; triage on (since
@@ -109,7 +105,7 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
 - N3. PRINCESS AMS ON / OFF AND AMMO CONSERVATION (found by the T16 audit): MegaMek `Princess.setAMSModes` and
   `calcAmmoConservation`. The engine needs an AMS on / off state first (an AMS is always on today, Core p.206).
 - N4. REMOVE PRINCESS v0.50.07 (Daniel: "never going to use it again"): the Rust `princess.rs` classic clone, its Lab /
-  website / btsim options, its reference battles; the frozen Python keeps its copy.
+  website / btsim options, its reference battles (the Python's copy went with the Python engine, N11).
 - N5. CONFIGURE UNIT AND CONFIGURE TEAM WINDOWS (Combat Lab; Daniel 2026-11-20): a "Configure unit" button opens a window per
   unit; "Edit unit stats" moves one layer down inside it; it also holds the ammo choice per bin (after N1). A "Configure
   team" button opens a window per team holding that team's bot and every control the bot has (the Princess / CASPAR
@@ -131,6 +127,10 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   Core pp.190-194): autocannon armor-piercing / caseless / flak / precision rounds, iNarc ECM / haywire / Nemesis pods,
   Arrow IV homing / cluster / inferno / smoke / thunder (homing Arrow IV with TAG is partly built: F56). Today such bins
   fire as standard or are skipped (`ammo::parse_bin`). Chosen per bin in N5's window.
+- N11. RETIRE THE PYTHON ENGINE (Daniel, 2026-11-20: "dead code the python"; "delete is such a strong word... Github
+  remembers"): DONE 2026-11-20 (Change Record "PYTHON ENGINE REMOVED"): the answer key frozen into
+  `engine/answer_key.tar.xz`, the settings' words moved to `engine/defaults/config_notes.json`, the engine code, its tests
+  and its tools deleted (git history keeps them), the art code given its own structure table.
 - LATER / ONLY WITH AN OPTION: Evading movement (TO:AR p.16: +1 to be hit, +2 heat, no attacks; a TacOps rule);
   searchlights (with a night option); Tactical Genius (a special pilot ability, not in the indexed books).
 
@@ -238,12 +238,9 @@ the Lab or the website's team bot list, or `btsim ... --caspar TEAM`. Our bots c
   improving MegaMek), to be brought over when this is picked up.
 
 **D. Engine, speed, state**
-- D1. THE RUST TRANSLATION - DONE and reviewed (sessions 22-24; Change Record "RUST ENGINE REVIEWED"). Daniel, 2026-11-11:
-  "Python will be effectively retired from here on out"; new bot work is Rust only (Hydra). Left, finishing work for a
-  smaller model: a `config.ENGINE` switch in `INTEGRATION__main.py`; retiring `fastcore/`; then the Python fixes in
-  Section 4 ("Known issues found by the Rust review" - Daniel: after the port is otherwise complete); the switches
-  that are off by default stay untranslated until needed; speed leads in `engine/REVIEW_BRIEF.md`. Check any Rust
-  change with `BOTS=rust cargo test --release --test stage6_battles` and `python tools/port_fuzz.py exact ...`.
+- D1. THE RUST TRANSLATION - DONE and reviewed (sessions 22-24; Change Record "RUST ENGINE REVIEWED"). The Python engine was
+  removed 2026-11-20 (N11); its answers are the frozen answer key. The Python-only known issues (Section 4, "Known issues
+  found by the Rust review") are moot unless the Rust has them too; speed leads in `engine/REVIEW_BRIEF.md`.
 - D2. One battle-state object and stable unit numbers in place of memory-address keys (about 300 `id()` uses; two
   real bugs came from them). Design DONE: `INTEGRATION__STATE.md`. The Rust translation builds it directly; the
   Python is changed (T6) only if the translation is dropped.
@@ -633,6 +630,16 @@ https://claude.ai/artifact/NJUknRiK1fcZzUv4A1fndX
 destroyed; the consciousness check then had no table entry and crashed. Placeholder (stub `crew_six_hits`, `piloting_rolls.rs`): that crew member is
 out for the battle, no roll. RESOLVED session 25 from the book: six hits = dead (Core p.117, the Consciousness table's 6 column reads
 "Dead"), so no roll; the console's secondary warrior takes over (p.203). Stub removed.
+
+**The Rust has moved away from the Python's frozen answers (found 2026-11-20 while retiring the Python, N11).** These Rust
+tests compare against the answer key and FAIL, identically on `main` before N11 (none is in `run_checks.py`): `stage6_battles`
+(41 of 63 battles no longer replay: the deployment draws a different dice call at call 4 in every reference and team battle,
+target / foe choices differ, a few hit-location tables differ), `cl2_history` (its Python replay records were left out of the
+key for that reason), `stage2_los` (hex_line and LOS step lists differ on large boards), `stage3_units` (a parse warning the
+Python printed is not printed), `bv_check` (the BV now matches MegaMek, not the Python: superseded by `check_bv_megamek.py`).
+Many are the Rust's deliberate changes since 2026-11-11 (deployment placed / in turns, spotting, split fire, T16, BV, rules
+fixed Rust-only), but nobody has checked each one: some could be bugs. The Rust reference battles (`check_rust_reference.py`)
+are the regression guard now. To look at one: `cargo test --release -p btsim_core --test stage6_battles` (it names each).
 
 **Known issues found by the Rust review (session 24, 2026-11-11; the Python is frozen during the port, so none is changed).**
 **DANIEL, 2026-11-11: fix these in the Python AFTER the port is otherwise complete ("We'll leave correcting the python code for future you"); the

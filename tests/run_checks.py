@@ -3,9 +3,7 @@ tests/run_checks.py - the project's checks in one command, chosen by WHAT CHANGE
 
     python tests/run_checks.py            # the checks this change needs (from the files changed since origin/main)
     python tests/run_checks.py --full     # every Rust and website check: ALWAYS before a merge (CLAUDE.md)
-    python tests/run_checks.py --python   # ... plus the retired Python's tests and reference battles (once a week)
     python tests/run_checks.py --list     # print what would run and why, run nothing
-    python tests/run_checks.py --bench    # ... then the 10-turn benchmark (Python), alone at the end
 
 Added 2026-10-20 (Claude) after Daniel: "probably need to establish a briefer way to get a clean baseline." Pruned
 2026-11-17 (Daniel: "probably time to prune down the suite of tests we use"):
@@ -15,11 +13,11 @@ Added 2026-10-20 (Claude) after Daniel: "probably need to establish a briefer wa
     Combat Lab art (token / shell / reference art files)  -> the three token tests (Daniel, 2026-11-04) + the low-poly
                                                             reference models and block library (test_lowpoly_ref.py)
     Lab pages only (engine/lab/web, engine/wasm/web, ...)  -> the website checks + the Lab server check
-    the Python (INTEGRATION__*.py, mechsim/, ...)        -> the Python tests and Python reference battles
     anything else (the engine, tools, checks...)          -> the Rust checks + the website + the Lab server
   --full runs every Rust and website check whatever changed; it is the one to run before a merge.
-  THE PYTHON is retired (Daniel, 2026-11-11) and frozen: its test files and 15 reference battles guard code nobody changes
-  now, so they run only when a Python file changed, or with --python (weekly: the first session of the week).
+  THE PYTHON ENGINE was retired (Daniel, 2026-11-11) and removed (2026-11-20, "dead code the python"): its tests, its 15
+  reference battles, --python and --bench (its benchmark) went with it. Its answers live on as the frozen answer key
+  (engine/answer_key.tar.xz), unpacked into engine/fixtures/ by tools/unpack_answer_key.py before the Rust checks run.
   ONE RUN, TWO CHECKS - TRIED, NOT KEPT: playing the Rust reference battles under the bridge's parity check
   (check_rust_reference.py --parity) took 434 s, against 71 s for the plain reference run plus 108 s for
   check_bridge_parity.py --quick (which skips the 8 v 8 / 12 v 12 battles and stops at turn 15). The parity check is the
@@ -78,17 +76,6 @@ def run_command(cmd, cwd):
     return proc.returncode == 0, time.time() - start, proc.stdout + proc.stderr
 
 
-def run_reference(name, overrides):
-    """(matched, seconds, report) for one Python reference battle."""
-    import check_reference_logs
-    start = time.time()
-    try:
-        matched, lines = check_reference_logs.compare(name, check_reference_logs.run_scenario(overrides))
-    except RuntimeError as crash:
-        matched, lines = False, [str(crash)]
-    return matched, time.time() - start, "\n".join(lines)
-
-
 # ---------------------------------------------------------------- what changed
 def changed_files():
     """Paths changed since origin/main: committed on this branch, staged, unstaged, or new. None when git can't say."""
@@ -108,26 +95,21 @@ def changed_files():
 
 
 def kind_of(path):
-    """docs / art / pages / python / engine for one changed path."""
+    """docs / art / pages / engine for one changed path."""
     name = os.path.basename(path)
     if path.startswith(("trial_records/", "licenses/")) or path.endswith(".md") or name in ("LICENSE", "THIRD_PARTY_LICENSES.txt"):
         return "docs"
     if path.startswith(("reference_art/", "tools/token_", "tools/lowpoly_")) or name in ART_TESTS \
-            or name.startswith(("INTEGRATION__token", "INTEGRATION__shell")) or name == "test_lowpoly_ref.py":
+            or name.startswith(("INTEGRATION__token", "INTEGRATION__shell", "INTEGRATION__structure_table")) or name == "test_lowpoly_ref.py":
         return "art"
     if path.startswith(("engine/lab/web/", "engine/wasm/web/")) or path in (
             "tools/build_web_lab.py", "tools/make_lab_demo.py", "tests/check_web_ui.py", "tests/check_web_lab.py"):
         return "pages"
-    if (name.startswith("INTEGRATION__") and name.endswith((".py", ".html"))) \
-            or path.startswith(("mechsim/", "pathfinder/", "fastcore/", "reference_logs/")) \
-            or (path.startswith("tests/") and name.startswith("test_")) \
-            or path in ("tests/check_reference_logs.py", "tests/benchmark_turns.py"):
-        return "python"
     return "engine"
 
 
 def plan(argv):
-    """(what to run: a set of 'art' / 'pages' / 'python' / 'engine', the reasons in words)."""
+    """(what to run: a set of 'art' / 'pages' / 'engine', the reasons in words)."""
     want, why = set(), []
     if "--full" in argv:
         want |= {"engine", "pages"}
@@ -146,9 +128,6 @@ def plan(argv):
             for k, fs in sorted(kinds.items()):
                 why.append(f"{k}: {len(fs)} file(s), e.g. {', '.join(fs[:3])}")
             want |= set(kinds) - {"docs"}
-    if "--python" in argv:
-        want.add("python")
-        why.append("--python: the retired Python's tests and reference battles")
     if "engine" in want:
         want.add("pages")          # an engine change reaches the Lab and the website too
     return want, why
@@ -159,11 +138,7 @@ def main(argv):
     want, why = plan(argv)
     print("Checks chosen by what changed:\n  " + "\n  ".join(why))
     light, heavy = [], []      # (label, function, args)
-    if "python" in want:
-        import check_reference_logs
-        light += [(f"reference  {name}", run_reference, (name, overrides)) for name, overrides in check_reference_logs.SCENARIOS.items()]
-        light += [(f"test       {os.path.basename(p)}", run_test_file, (p,)) for p in sorted(glob.glob(os.path.join(REPO_ROOT, "tests", "test_*.py")))]
-    elif "art" in want:
+    if "art" in want:
         light += [(f"test       {t}", run_test_file, (os.path.join(REPO_ROOT, "tests", t),)) for t in ART_TESTS if os.path.exists(os.path.join(REPO_ROOT, "tests", t))]
     has_cargo = shutil.which("cargo") is not None
     if want & {"engine", "pages"} and not has_cargo:
@@ -192,6 +167,9 @@ def main(argv):
     if "--list" in argv:
         print("\nWould run:\n  " + "\n  ".join(label for label, _, _ in heavy + light))
         return 0
+    if want & {"engine", "pages"} and has_cargo:
+        # the frozen answer key (the retired Python's recordings) must be unpacked before any Rust check reads it
+        subprocess.run([sys.executable, os.path.join(REPO_ROOT, "tools", "unpack_answer_key.py")], cwd=REPO_ROOT, check=True)
     # the heavy checks (each already using every core) one at a time; the light ones side by side alongside them
     failed = 0
     with ThreadPoolExecutor(max_workers=1) as one, ThreadPoolExecutor(max_workers=max(1, (os.cpu_count() or 2) - 1)) as pool:
@@ -209,9 +187,6 @@ def main(argv):
     print()
     print(f"{len(jobs) - failed} of {len(jobs)} checks passed in {time.time() - start:.0f} s."
           + ("" if not failed else f"  {failed} FAILED."))
-    if "--bench" in argv:
-        print()
-        subprocess.run([sys.executable, os.path.join(REPO_ROOT, "tests", "benchmark_turns.py")], cwd=REPO_ROOT)
     return 1 if failed else 0
 
 

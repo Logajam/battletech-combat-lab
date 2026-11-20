@@ -6,6 +6,31 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-20 (Claude), PYTHON ENGINE REMOVED; ITS ANSWERS FROZEN (backlog N11). REVIEW PENDING (higher-level model).**
+  Daniel: "I'm beginning to think we should dead code the python"; "delete is such a strong word... Github remembers". The last
+  commit WITH the Python engine is `c9ec5fa` (branch `claude/sweet-edison-2vye0s`; `git checkout c9ec5fa -- mechsim pathfinder
+  INTEGRATION__orchestrator.py ...` brings any of it back). DONE: (1) the answer key recorded one last time from the Python
+  (`tools/port_fixtures.py`: 63 of 63 battles recorded and replayed identically in the Python; `port_stage1/2/3.py`) and frozen
+  as `engine/answer_key.tar.xz` (6.3 MB; 738 MB unpacked: the 63 fixture battles without their replay records, `_units`,
+  `_boards`, `_mtf`, stage1-3), unpacked into the git-ignored `engine/fixtures/` by the new `tools/unpack_answer_key.py`
+  (`run_checks.py` runs it before the Rust checks). Checked: unpacked = the live recordings byte for byte; every Rust test that
+  passed on `main` passes from the archive. (2) The settings' words: `engine/defaults/config_notes.json` (from the comments of
+  `INTEGRATION__config.py`), read by `tools/make_options_registry.py`; the Options tab is unchanged. (3) DELETED (165 files):
+  the Python engine (`INTEGRATION__*.py` but the art modules, `mechsim/*.py`, `pathfinder/`, `fastcore/`), its tests and
+  15 reference logs (`reference_logs/`, `check_reference_logs.py`), the Python study tools (`ab_batches`, `baseline_battery`,
+  `battery_stats` / `_summary`, `benchmark_turns`, `bot_agreement`, `legate_probe` (+ report), `peril_picture`,
+  `pick_quality`, `probe_hooks`, `survey_maps`, `turn_inspector`), the port tools that ran the Python (`port_record`,
+  `port_scenario(s)`, `port_fixtures`, `port_stage1-3`, `port_stat_check`, `port_tap`, `port_coverage`, `port_fuzz`,
+  `test_port_record`), and the Rust tap tests (`tap_*.rs` + `tests/common`: function-level checks whose recordings only the
+  Python could make; the 63 battles cover the same code). KEPT: `mechsim/equipment.json` / `equipment_bv.json` (the Rust reads
+  them), `INTEGRATION__replay_viewer.html` (built into btsim), `tools/port_diff.py` (compares traces). (4) The art code
+  (`INTEGRATION__tokens.py`, `_shell_items.py`, `tools/token_workbench.py`, the workbench bundle) reads the structure table from
+  the new `INTEGRATION__structure_table.py` (copied from `mechsim/mech_state.py`); the four art tests pass. (5)
+  `tools/hydra_scenarios.py` builds its scenarios with `btsim --setup --write-scenario`. (6) `run_checks.py`: no Python level,
+  no `--python`, no `--bench`. (7) CLAUDE.md, README, PROJECT_MAP Section 0 rewritten for a Rust-only engine. FOUND: several
+  Rust tests outside `run_checks` already fail against the Python's answers on `main` (the Rust has moved on since
+  2026-11-11): PROJECT_MAP Section 4, "The Rust has moved away from the Python's frozen answers". Checks: `run_checks.py --full`.
+
 - **2026-11-20 (Claude), NARC HOMING AMMO FOR THE FORCE (Daniel's rule; backlog N1). REVIEW PENDING (higher-level model).**
   Daniel: "if a team has Narc or iNarc with homing beacon ammo on its side, all standard LRM and SRM ammo in their force is
   replaced with Narc homing ammo. Ammo choice can be changed later." `ammo::narc_homing_for_force`, called first thing in
