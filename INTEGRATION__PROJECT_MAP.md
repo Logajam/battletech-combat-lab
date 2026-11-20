@@ -99,6 +99,34 @@ A 20-battle set swings several wins either way - compare against the 100-battle 
 In brackets: the item's old "Pick up here" label, under which `INTEGRATION__HISTORY.md` has the full text. Task
 write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numbers).
 
+**N. Daniel's list of 2026-11-20 (in this order unless he says otherwise; decisions in Section 5, same date)**
+- N1. NARC HOMING AMMO RULE (setup option, Daniel's rule): a team that carries a Narc or iNarc launcher with homing-pod
+  ammo has every standard LRM and SRM bin in its force replaced by Narc-capable ammo (Core pp.188, 193: Narc-capable
+  missiles get the pod's bonus). An OPTIONAL RULES switch in `INTEGRATION__config.py` / `engine/defaults/config.json`, the
+  rules-as-written version (bins as the unit file says) kept. Per-bin ammo choice comes later (N3's window).
+- N2. PRINCESS'S OWN SPOTTING AND ARTILLERY: port MegaMek's `FireControl` spot choice (`getSpotAction`, spot instead of a
+  shot under `MIN_USEFUL_FIRING_DAMAGE` 1.0) and `ArtilleryTargetingControl` for Princess / CASPAR. Today every bot goes
+  through `stubs::stub_spot` / `stub_distant_artillery`, both "never". Each a `BotSet` method + `bridge.rs` entry; the stubs
+  stay for Gladiator / Hydra.
+- N3. PRINCESS AMS ON / OFF AND AMMO CONSERVATION (found by the T16 audit): MegaMek `Princess.setAMSModes` and
+  `calcAmmoConservation`. The engine needs an AMS on / off state first (an AMS is always on today, Core p.206).
+- N4. REMOVE PRINCESS v0.50.07 (Daniel: "never going to use it again"): the Rust `princess.rs` classic clone, its Lab /
+  website / btsim options, its reference battles; the frozen Python keeps its copy.
+- N5. CONFIGURE UNIT WINDOW (Combat Lab): a "Configure unit" button opens a window per unit; "Edit unit stats" moves one
+  layer down inside it; it also holds the ammo choice per bin (after N1) and the C3 network setup (N6).
+- N6. C3 NETWORKS (Core p.198: C3 master / slave, C3i): the engine rule (range from the nearest networked friend with
+  line of sight to the target), the network set up in N5's window, and the BV increase for a networked unit (MegaMek's
+  C3 BV rule; check against MegaMek as `check_bv_megamek.py` does). Bots: Princess / CASPAR as MegaMek; a stub for
+  Gladiator / Hydra.
+- N7. UNDERWATER MOVEMENT AND FIRING (Core pp.127-128, "Underwater Combat", Underwater Attacks Table p.127; 'Mech UMUs
+  TO:AUE, deferred until now): what is left after F36 - which weapons fire underwater and at what ranges, attacks across
+  the surface, then UMU movement. Read the library first and list the gap.
+- Small engine gaps Daniel asked about (rules review): G9 (the bots count leg hits that a target's partial cover would
+  stop, p.66: a scoring fix, not a rule) and G12 (our own charge planner never charges after a backward step, p.78; not
+  the bridge).
+- LATER / ONLY WITH AN OPTION: Evading movement (TO:AR p.16: +1 to be hit, +2 heat, no attacks; a TacOps rule);
+  searchlights (with a night option); Tactical Genius (a special pilot ability, not in the indexed books).
+
 **R. Research: fair duels** (Daniel, 2026-11-19/20; `tools/fair_duels.py`, Change Record 2026-11-20 "FAIR DUELS")
 - FAIR for every bot (each bot's score within 0.5 +- 0.09 over 120 battles; 480 a pair, every map x edge x bot three times):
   Archer ARC-2R v Catapult CPLT-C1; Awesome AWS-8Q v Bombardier BMB-14K; Awesome AWS-8Q v Cataphract CTF-3LL; Commando COM-2D
@@ -178,7 +206,7 @@ better than even (ours: a fixed 1-on / 1-off cycle for every bot); Nova CEWS (no
 Aimed / called shot choice (Princess has its own picker). Tactical Genius initiative re-roll (no engine rule). A full
 line-by-line audit of `BotClient` + `Princess` + `BotHeatEquipmentManager` is still to do; Gladiator / Hydra stealth by a
 Legate-style End Phase forecast ON HOLD (Daniel, 2026-11-20: "we'll hold off on Gladiator and Hydra"). The MegaMek-bot work
-is TASK_SPECS T16 (Daniel: for Sonnet). Open call (Daniel): Short-Short as the default search.
+is TASK_SPECS T16 (Daniel: for Sonnet). Short-Short as the default search: CLOSED, no (Daniel, 2026-11-20; Section 5).
 MegaMek's CASPAR (read 2026-11-12, MegaMek main `c743b3f`; re-read 2026-11-18 at `7fa46c5`): `class Caspar extends Princess`. CLONED
 2026-11-18 as the FOURTH BOT, "caspar" (Rust only; Daniel: "incorporate it as a 4th bot"): `engine/core/src/caspar.rs` plus
 `princess_modern::choose_as`. It is the Princess clone with MegaMek's Mutual Support doctrine swapped in (formation penalty, cover
@@ -884,6 +912,16 @@ forward arc, kicks included, never into a side arc.
 ---
 
 ## 5. DECISIONS LOG (Daniel's calls — implementation may not override)
+
+- **Daniel's list (2026-11-20):** Short-Short stays off ("Short-Short was worse than Short [Grid] and thus it has not been
+  used since"; first mover 91.0% of range v Short Grid 96.1%, Change Record): the open call is closed. Princess v0.50.07 to
+  be removed ("I don't think we're ever going to use 50.07 princess again"). Princess needs AMS on / off and ammo
+  conservation. NARC RULE: "if a team has Narc or iNarc with homing beacon ammo on its side, all standard LRM and SRM ammo
+  in their force is replaced with Narc homing ammo. Ammo choice can be changed later." Unit windows: "That edit unit stats
+  button is going to have to go a layer deeper under a configure unit button." C3: "setting up the network will have to be
+  part of that configuration window. Note that connecting to a network increases a units BV." Underwater movement and
+  firing: build it. Evade is TacOps (TO:AR p.16); searchlights wait for a night option; Tactical Genius "someday maybe".
+  The list is backlog N (Section 0).
 
 - **Split fire, indirect fire, on-board artillery (Daniel, 2026-11-20):** "Lets start with functionality that princess
   probably needs. Split fire, indirect fire, and artillery." Then: "split fire yes. Completeness and the wiring in place
