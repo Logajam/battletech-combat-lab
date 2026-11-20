@@ -6,6 +6,21 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-20 (Claude, session 32), T16 STEPS 2 AND 3: PRINCESS'S RAC UNJAM RULE AND AIMED-SHOT CHOICE (WIRING; VALIDATION WAITS). REVIEW PENDING (higher-level model).**
+  Daniel (2026-11-20): all of T16 is wiring on this branch; validate after the engine work is done.
+  STEP 2, RAC unjam (MegaMek `Princess.embellishPath` / `unjamRAC`, `PathRanker`, `Entity.canUnjamRAC`): a Princess-family unit with a jammed
+  weapon (not prone, not shut down) may only Stand Still or Walk (`fire_modes::walk_only_for_unjam`, read by `move_options`), whether or not it
+  then unjams; once the move is chosen (`princess_modern::rank`), `princess_declare_unjam` declares the unjam if the move is a Stand Still / Walk
+  and its expected damage (firing + physical, the clone's stand-in for `getMaximumDamageEstimate`) is under 5. `declare_unjams` no longer runs
+  `stub_unjam` for them; Gladiator and Hydra keep it. The attempt itself (Gunnery + 3 at the end of the Ranged phase) is unchanged.
+  STEP 3, aimed shots (`Princess.calculateAimedShotLocation`, `setAttackAsAimedOrCalled`; `engine/core/src/bot_aimed_shots.rs`): Princess-family
+  shooters pick the location themselves against an immobile target (arm with a big gun, right torso, left torso, center torso, legs; least armor wins;
+  rear armor on a rear shot) instead of the one fixed `AIMED_SHOT_LOCATION`; no aim at a target in partial cover; a weapon fires unaimed if its
+  number is over 12 (13 if it could destroy the location). Not in the engine, so not ported: aimed shots at a MOBILE target with a targeting
+  computer, and called shots (for Daniel in the audit table). "Big gun" = a non-missile weapon doing 10+ damage, standing in for MegaMek's
+  `getDamage(5) >= 10`; when both arms carry one the right arm is ranked first (MegaMek's order comes from a set).
+  NOT YET WIRED: the bridge's answers carry no unjam or aim fields, so the live-MegaMek side will need `UNJAM_RAC` and aimed-location actions.
+
 - **2026-11-20 (Claude, session 32), T16 STEP 1: PRINCESS / CASPAR NOW RUN MEGAMEK'S HEAT-EQUIPMENT MANAGER. REVIEW PENDING (higher-level model).**
   Ported `BotHeatEquipmentManager` (run by `BotClient` in the End Phase) to `engine/core/src/bot_heat_equipment.rs`. Stealth armor: off when
   heat > 13 + randomInt(7), or when the BV-weighted enemy is close (average range <= 5 + randomInt(5)); a heat-activated TSM unit keeps it on
