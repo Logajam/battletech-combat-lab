@@ -123,6 +123,9 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   armor is. Once one moves to a different spot the seed no longer matters"); tripods are harder (the editor has no switch).
   Plan: ~20 base 'Mechs across classes and styles, original and edited copy each v the same 10 opponents, 16 battles a pair
   (about 6,400 battles), restart-safe via `fair_duels.run_cells`; report the rating change per 'Mech and whether x2 is right.
+  Daniel: hardened also costs -1 Running MP (and +1 PSR, Core p.202), so it is not a clean armor test. Proposed: a third
+  version C = original + only the hardened penalties (a test-only engine switch, off by default; the .mtf cannot do -1 run):
+  B - A = the rules-as-written package, C - A = the penalty, B - C = the armor (absorption + the TAC -2). ~9,600 battles.
 
 **A. Gladiator - the bot**
 - **A1. The move score does not see a win, a clock or the walk back** (review 2026-11-10; [000000 (a)], [0]
