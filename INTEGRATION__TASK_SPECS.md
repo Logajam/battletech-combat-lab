@@ -39,6 +39,7 @@ then copies the better bot. T2 and T4 can ride along. (3) T11, the Rust port. (4
 | T9 Rules zip refresh; Interstellar Operations | C5 | Sonnet | Daniel's go |
 | T10 Automatic checks on GitHub | D5 | Sonnet | - |
 | T15 Low-poly reference models: the other 31 'Mechs | E3b | Opus | - (the AI sheets are in `reference_art/ai_sheets/`) |
+| T16 The MegaMek bots' missing brains (stealth / concealment / radical HS / unjam / aimed shots / audit) | B | Sonnet | - |
 | T11 The Rust translation | D1 | Sonnet (Opus for stages 0, 6, 8 if possible) | T8 decided; T1 built or parked |
 | T14 MegaMek bridge (our bots in a live MegaMek game) | E4 | Sonnet; Opus for B1 | Daniel's OK to build and run MegaMek (B0) |
 | Review queue (m), (o), (p) | - | the top model when on hand; (n) lapses when the port's stage 9 retires `fastcore/` | - |
@@ -201,6 +202,46 @@ coverage (`STACK`), herding, cohesion, team value, exchange (`LEGATE_*`). They a
 which to keep as live options. For each one he releases: remove its branch from `legate.Extras.adjust`, its
 settings, its battery flags and tests; keep the module file under `archive/` with a note of the Change Record
 entry that holds its numbers. Checks identical before and after (they are off, so nothing may move).
+
+## T16. The MegaMek bots' missing brains: the bot layer above `princess/` (Sonnet; Daniel, 2026-11-20)
+
+Daniel: "I'm thinking of handing out the job of building out the megamekbot's brains to Sonnet." Gladiator and Hydra are
+ON HOLD for this (Daniel: "we'll hold off on Gladiator and Hydra"): no stealth forecast for them; they keep today's behaviour.
+
+**Why.** The Princess clone (`engine/core/src/princess*.rs`) and CASPAR (`caspar.rs`) were built from MegaMek's
+`megamek/src/megamek/client/bot/princess/` folder only. The code ABOVE it, `BotClient.java` and
+`BotHeatEquipmentManager.java` (it runs for Princess and CASPAR alike), was never ported, and the engine-wide "default on" for
+heat equipment (2026-10-19; PROJECT_MAP "Heat equipment defaults") hid the gap. PROJECT_MAP backlog B ("FOUND 2026-11-20")
+lists what is missing.
+
+**Source.** MegaMek main, a sparse clone (PROJECT_MAP Section 0, "MegaMek's source"); in session 30 it was at
+`/home/user/megamek-src` (commit `0cc7d65`, 2026-11-18; tags up to v0.51.01.10). Cite the class and method in each comment
+("MegaMek BotHeatEquipmentManager.desiredStealthMode"). MegaMek is never edited.
+
+**Steps, in order (one Change Record entry each; checks after each):**
+1. `BotHeatEquipmentManager` for Princess and CASPAR (Rust only; the Python answer key is frozen): stealth armor
+   (`desiredStealthMode`), Null / Void Signature and Chameleon (`toggleConcealmentSystems`, `decideHeatLoadAction`), the
+   radical heat sink. Today `equipment_systems::active_stealth` treats every system as on whenever it can work; add a per-unit
+   ON / OFF state (a new unit field: add it to `bridge.rs` `UNIT_FIELDS` too) that `active_stealth` reads, set at the End
+   Phase by a new `BotSet` method. Gladiator and Hydra keep "always on" (their `BotSet` answer). The radical heat sink's
+   fixed cycle (`config.ESCALATING_CYCLE_ON_ODD_TURNS`) stays for Gladiator / Hydra. Nova CEWS: no engine rule, skip.
+2. RAC unjam by Princess's own rule (`Princess.unjamRAC`) for Princess / CASPAR; `stubs::stub_unjam` stays for the others.
+3. Princess's aimed-shot choice (`Princess.calculateAimedShotLocation`) where the engine allows aimed shots.
+4. A line-by-line audit of `BotClient.java` and `Princess.java` (every phase handler, `embellishPath`, the client feedback
+   requests: AMS / APDS assignment, TAG target, point-blank shots) against our clone: a table in PROJECT_MAP Section 6
+   ("Princess clone"), each row ported / not ported (and why: no engine rule, multi-unit only, aerospace...). Rules the
+   engine lacks (evade, searchlight, Tactical Genius, split fire) are listed for Daniel, not built.
+
+**Rules for the work.** A new bot call is a `BotSet` method AND a `bridge.rs` entry, or the parity check misses it (CLAUDE.md).
+Each decision gets a PROJECT_MAP Section 6 row. MegaMek's random parts (`Compute.randomInt` thresholds in the stealth rule)
+draw from the bot's own dice, never the battle's, so Gladiator / Hydra battles keep their dice; how the bridge parity check
+compares a random answer is an OPEN POINT: if it cannot, stop and ask (Opus or Daniel), don't weaken the check.
+
+**Done when.** `python tests/run_checks.py --full` passes; the reference battles that change are Princess / CASPAR ones only,
+re-recorded with `check_rust_reference.py --update` and named in the Change Record; `check_bridge_parity.py` covers the new
+call(s); an A/B (`tools/round_robin.py --bots princess,caspar` against the old behaviour, 20 battles a setting) shows Daniel
+the numbers; REVIEW QUEUE lines. Then the controlled stealth test (`tools/feature_test.py`, a new feature "stealth": ECM
+suite + stealth armor added; versions never on / always on / MegaMek's rule) can run.
 
 ## T9. Rules library (Sonnet helpers, per `battletech-rules-index/CLAUDE.md`; on Daniel's go)
 

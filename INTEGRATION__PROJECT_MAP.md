@@ -172,7 +172,8 @@ better than even (ours: a fixed 1-on / 1-off cycle for every bot); Nova CEWS (no
 (`embellishPath`): RAC unjam by its own rule (ours: STUB_UNJAM for every bot), evade and searchlight (no engine rules).
 Aimed / called shot choice (Princess has its own picker). Tactical Genius initiative re-roll (no engine rule). A full
 line-by-line audit of `BotClient` + `Princess` + `BotHeatEquipmentManager` is still to do; Gladiator / Hydra stealth by a
-Legate-style End Phase forecast (Daniel, 2026-11-20) after the MegaMek rule is in. Open call (Daniel): Short-Short as the default search.
+Legate-style End Phase forecast ON HOLD (Daniel, 2026-11-20: "we'll hold off on Gladiator and Hydra"). The MegaMek-bot work
+is TASK_SPECS T16 (Daniel: for Sonnet). Open call (Daniel): Short-Short as the default search.
 MegaMek's CASPAR (read 2026-11-12, MegaMek main `c743b3f`; re-read 2026-11-18 at `7fa46c5`): `class Caspar extends Princess`. CLONED
 2026-11-18 as the FOURTH BOT, "caspar" (Rust only; Daniel: "incorporate it as a 4th bot"): `engine/core/src/caspar.rs` plus
 `princess_modern::choose_as`. It is the Princess clone with MegaMek's Mutual Support doctrine swapped in (formation penalty, cover
