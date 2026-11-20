@@ -130,7 +130,10 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   armor doubled per location (.mtf only; Daniel: "also not quite the same": no TAC -2, no run/PSR penalty, single points
   differ): B - D = the rule's other parts. Included unless Daniel drops it (~3,200 more battles).
   DONE 2026-11-20 (Change Record "CONTROLLED TEST OF HARDENED ARMOR"): hardened +1.18 log-odds, doubled +1.07, BV says +0.70;
-  the formula with hardened counted x2 predicts +1.18. Next features: the other special armors, then heat sinks, jump, TC.
+  the formula with hardened counted x2 predicts +1.18.
+  FERRO-LAMELLOR DONE 2026-11-20: +0.69 log-odds, about x1.6 armor (hardened about x2.2); BV predicts +0.18. Daniel: reactive
+  and reflective depend on the opponent's weapons (and some damage types reactive is for are not active yet): not tested.
+  Next: heat sinks, jump, TC (stealth armor reads as standard in mtf_parser: no combat effect to test).
 
 **A. Gladiator - the bot**
 - **A1. The move score does not see a win, a clock or the walk back** (review 2026-11-10; [000000 (a)], [0]

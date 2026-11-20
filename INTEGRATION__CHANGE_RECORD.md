@@ -173,6 +173,16 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   Rerun `python tools/benchmark_report.py --bv-file LISTS.json` (LISTS.json: the Lab's `list_units` output) for the tables.
   Checks: no engine or test file changed; `run_checks.py` not run (docs and new tools only).
 
+- **2026-11-20 (Claude, session 30), RESEARCH: CONTROLLED TEST OF FERRO-LAMELLOR ARMOR (`tools/feature_test.py ferrolam`).
+  REVIEW PENDING (higher-level model).** Daniel: "Ferro-lam is the fairest to test. Reactive and reflective are dependant on
+  what their opponents are using, and we don't have some of the damage types reactive is used for active yet." The hardened
+  set's 20 'Mechs with the armor type switched to Ferro-Lamellor(Clan), same points, v the same 10 opponents (3,200 battles,
+  0 errors; `trial_records/2026-11-20_fair_duels_feature_ferrolam.jsonl`; the originals reused from the hardened set: same
+  cells and seeds). Rule (Core p.202): each hit loses 1 point per 5 or fraction. RESULT: every 'Mech gained (+0.05 to +0.19 in
+  score); mean +0.69 log-odds (an even fight about 67-33); all four bots alike (0.50 -> 0.60-0.65). Measured against the
+  doubled-armor result (+1.07), ferro-lamellor is worth about x1.6 armor and hardened about x2.2 (net of its penalties). BV
+  (armor factor 1.2; BV up 7.7%) predicts +0.18: about a quarter of its duel worth (hardened: about 60%).
+
 - **2026-11-20 (Claude, session 30), RESEARCH: CONTROLLED TEST OF HARDENED ARMOR (`tools/feature_test.py`). REVIEW PENDING
   (higher-level model).** Daniel's method ("Combatlab allows for the mech's stats to be edited. Could use that for controlled
   tests") and calls: free upgrades, hardened first, rules as written (Core p.202), fully chaotic dice. 20 standard-armor
