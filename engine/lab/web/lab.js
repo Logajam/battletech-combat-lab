@@ -984,7 +984,8 @@ async function openUnitConfig(ti, ui) {
   const r = await api("unit_eval", { text });
   const bins = (r && r.bins) || [];
   u.ammo = u.ammo || {};
-  const label = { standard: "Standard", narc: "Narc homing", inferno: "Inferno", homing: "Homing (with TAG)" };
+  const label = { standard: "Standard", narc: "Narc homing", inferno: "Inferno", homing: "Homing (with TAG)",
+    ap: "Armor-piercing (x0.8 shots)", precision: "Precision (x0.6 shots)", caseless: "Caseless (x2 shots)" };
   body.innerHTML = `<div class="team-head">
       <label>Gunnery <input type="number" min="0" max="8" data-f="gunnery" value="${u.gunnery}"></label>
       <label>Piloting <input type="number" min="0" max="8" data-f="piloting" value="${u.piloting}"></label>
@@ -993,7 +994,7 @@ async function openUnitConfig(ti, ui) {
     ${bins.length ? `<table class="ammo"><thead><tr><th>Location</th><th>Bin</th><th>Load with</th></tr></thead><tbody>${bins.map((b) => {
       const key = `${b.loc}:${b.slot}`, cur = u.ammo[key] || b.munition || "standard";
       return `<tr><td>${esc(b.loc)} ${b.slot + 1}</td><td>${esc(pretty(b.name))}</td><td><select data-bin="${esc(key)}" data-file="${esc(b.munition || "standard")}">${b.choices.map((c) => `<option value="${c}"${c === cur ? " selected" : ""}>${esc(label[c] || c)}</option>`).join("")}</select></td></tr>`;
-    }).join("")}</tbody></table>` : `<p class="note">No bin of this unit has a choice of ammunition yet (special munitions come later).</p>`}
+    }).join("")}</tbody></table>` : `<p class="note">No bin of this unit has a choice of ammunition yet.</p>`}
     <p class="note">The Narc homing rule (Options, Rules) loads a Narc team's standard LRM / SRM bins with Narc missiles; a bin chosen here keeps its choice.</p>`;
   const num = (f) => body.querySelector(`[data-f="${f}"]`);
   num("gunnery").addEventListener("change", (e) => { u.gunnery = Math.max(0, Math.min(8, +e.target.value)); save(); drawTeams(); });

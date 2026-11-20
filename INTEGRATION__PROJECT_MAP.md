@@ -115,23 +115,20 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   fire), setup (FORCES "c3", the Configure team window's C3 section), Battle Value (p.220). Not built: the C3 Master's TAG
   function, the Emergency Master, remote sensors; the bots' movement estimates do not count C3 (the attack itself does).
   Daniel mentioned MekBay's way of setting up a network: not looked at yet (no network access to it from here was tried).
-- N7. UNDERWATER MOVEMENT AND FIRING (Core pp.127-128, "Underwater Combat", Underwater Attacks Table p.127; 'Mech UMUs
-  TO:AUE, deferred until now): what is left after F36 - which weapons fire underwater and at what ranges, attacks across
-  the surface, then UMU movement. Read the library first and list the gap.
+- N7. UNDERWATER MOVEMENT AND FIRING: WAITS ON DANIEL (2026-11-20). Core's underwater combat is built (F36 / G6); the gap is
+  TO:AUE's 'Mech UMUs (submarine-like movement under water). Plan, rules found and four design questions: TASK_SPECS T17.
+  Needs Daniel's water-movement notes from his other conversation (C7b) first.
 - N8. LEG HITS LOST TO PARTIAL COVER IN THE BOTS' DAMAGE ESTIMATE: BUILT 2026-11-20 (Change Record; setting
   `MOVEMENT_COVER_LEGS`, on). Gladiator / Hydra movement scoring only; Princess / CASPAR keep MegaMek's estimate. WATCH: two
   reference battles now reach the turn cap (team_3way_mixed, hydra_red__hy_12v12_valley) - Gladiator may hold back more against
   hull-down targets; worth a look with the stall work (A1).
-- N9. CHARGING AFTER A BACKWARD STEP (G12, p.78; Daniel: "accurate rules make for accurate games"): the charge planner
-  uses forward-only paths; let it plan a charge whose path has backward steps, counting hexes as the rule says.
-- N10. SPECIAL AMMUNITION (Daniel, 2026-11-20: "the other speciality ammo, like AP or homing artillery"; rules review G16,
-  Core pp.190-194): autocannon armor-piercing / caseless / flak / precision rounds, iNarc ECM / haywire / Nemesis pods,
-  Arrow IV homing / cluster / inferno / smoke / thunder (homing Arrow IV with TAG is partly built: F56). Today such bins
-  fire as standard or are skipped (`ammo::parse_bin`). Chosen per bin in N5's window.
-- N11. RETIRE THE PYTHON ENGINE (Daniel, 2026-11-20: "dead code the python"; "delete is such a strong word... Github
-  remembers"): DONE 2026-11-20 (Change Record "PYTHON ENGINE REMOVED"): the answer key frozen into
-  `engine/answer_key.tar.xz`, the settings' words moved to `engine/defaults/config_notes.json`, the engine code, its tests
-  and its tools deleted (git history keeps them), the art code given its own structure table.
+- N9. CHARGING AFTER A BACKWARD STEP: BUILT 2026-11-20 (Change Record): the charge planner also sees the stops a walk with
+  backward steps reaches (counted conservatively as a one-hex charge).
+- N10. SPECIAL AMMUNITION: PART BUILT 2026-11-20 (Change Record): autocannon armor-piercing, precision and caseless rounds,
+  chosen per bin (Configure unit). LEFT (each needs engine pieces first): flak (only matters against airborne units); Arrow IV
+  smoke (the engine has smoke: next), inferno IV (fire is not in the engine), thunder IV and thunder LRMs (no minefields); the
+  missile munitions (acid, fragmentation, semi-guided, swarm, tandem-charge...); iNarc ECM / haywire / Nemesis pods; the
+  Arrow IV homing TAG surcharge in BV (Core errata v0.1).
 - LATER / ONLY WITH AN OPTION: Evading movement (TO:AR p.16: +1 to be hit, +2 heat, no attacks; a TacOps rule);
   searchlights (with a night option); Tactical Genius (a special pilot ability, not in the indexed books).
 
@@ -345,6 +342,8 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s31-n10) AUTOCANNON MUNITIONS** (2026-11-20): `ammo::bin_choices` / `munition_multiplier`, `electronics::control_for` (precision), `fire_modes::has_special_ac_round` / bin_kinds (caseless only), the caseless break and the AP check in attack_resolution (`armor_and_structure`). Look at: the caseless critical (here: a crit check of 8+ wrecks the whole gun, the book applies crits slot by slot), a RAC with a broken caseless feed could later be unjammed.
+- **(s31-n9) CHARGE AFTER A BACKWARD STEP** (2026-11-20): `move_attacks::MoverIndex::new` (backward-only stops, priced as a one-hex charge).
 - **(s31-n8) LEG HITS IN PARTIAL COVER** (2026-11-20): `hit_location::leg_share`, `move_eval` (PairInfo.cover, the dealt / received discount, not for Princess-family movers), `MOVEMENT_COVER_LEGS`. Look at: the two new capped reference battles.
 - **(s31-n6) C3 NETWORKS** (2026-11-20): `c3.rs` (kind_of, check_networks, configured / active network, best, ECM degradation, bv_increase), the Adjuster's `c3` (attack_resolution), `battle_value` x (1 + increase), `describe::unit_c3`, the team window's C3 section (`drawC3`, `c3Members` / `c3Increase` on the page). Look at: the ECM rule's "a Master in ECM degrades its Slaves", company networks when a lance Master falls, a Master+Slave unit's choice.
 - **(s31-n5) PER-TEAM SETTINGS, AMMO PER BIN, CONFIGURE WINDOWS** (2026-11-20): `team_settings.rs` (the settings swap while a unit decides; Legate per team), `setup.rs` "ammo" + `ammo::bin_choices` / `choose_bin_munition` (`Equipment::munition_chosen`), `describe::unit_bins`, `runs.rs` (`check_option`, TEAM_SETTINGS), `lab.js` (`openTeamConfig`, `openUnitConfig`, `behaviourSliders`, the option-row store). Look at: decisions made for several units at once (fire order, Hydra's move order) read the battle's settings; an enemy is modelled with the deciding team's settings.

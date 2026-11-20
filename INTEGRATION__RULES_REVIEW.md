@@ -137,14 +137,14 @@ launchers, MRM cluster -1, pp.185-187); Gauss rifle component explosion
 | G8 | ~~Minimum Movement~~ | p.49 | Built 2026-10-21 - see F38. |
 | G9 | ~~Expected damage ignores leg hits lost to partial cover~~ | p.66 | Built 2026-11-20 (backlog N8): Gladiator / Hydra movement scoring keeps only the non-leg share (`hit_location::leg_share`; setting `MOVEMENT_COVER_LEGS`). The weapon choice scales every weapon alike, so it was left; Princess / CASPAR keep MegaMek's estimate. |
 | G10 | ~~Ultra / Rotary rate of fire and jams, LB-X cluster ammo~~ | pp.183-186 | Built 2026-10-20 - F11, F14, F15. |
-| G16 | Special munitions left (deferred, Daniel 2026-10-20): AC armor-piercing / caseless / flak / precision rounds, iNarc ECM / haywire / Nemesis pods, Arrow IV homing / inferno / smoke / thunder | pp.190-194 | AC special rounds fire as standard; no unit in `data/meks.zip` carries those rounds or pods. (Apollo saturation built 2026-10-20.) |
+| G16 | (part built 2026-11-20, N10: AC armor-piercing / precision / caseless rounds, chosen per bin; the rest as below) Special munitions left (deferred, Daniel 2026-10-20): AC armor-piercing / caseless / flak / precision rounds, iNarc ECM / haywire / Nemesis pods, Arrow IV homing / inferno / smoke / thunder | pp.190-194 | AC special rounds fire as standard; no unit in `data/meks.zip` carries those rounds or pods. (Apollo saturation built 2026-10-20.) |
 | G17 | ~~Variable-damage weapons~~ | pp.184-185 | Built 2026-10-20 - F18. |
 | G18 | Bombast laser charging, PPC capacitors, HAG flak mode, distant Arrow IV fire | pp.182, 184-185, 188 | Choices not offered yet (capacitor: rules built - F53 - the charge decided by a stub). |
 | G11 | ~~Backward level change~~ | pp.46-47, 115 | Built 2026-10-21 - see F32 (on boards with any level change: one level, a PSR, not with a destroyed hip, not on a roof; a failure falls in the lower hex). |
 | G13 | ~~Anti-Missile System (AMS / laser AMS)~~ | p.206 | Built 2026-10-20 - see F9. 223 of the units that parse carry one. |
 | G14 | ~~Armored components~~ | p.207 | Built 2026-10-21 - see F37. |
 | G15 | ~~ECM~~ | p.200 | Built 2026-10-20 - see F13. |
-| G12 | Charging after a backward step | p.78 | The charge planner uses forward-only paths (the hex count restarts after a backward step and the planner adds the final forward step). Small. |
+| G12 | ~~Charging after a backward step~~ | p.78 | Built 2026-11-20 (backlog N9): the charge planner adds the stops only a walk with backward steps reaches; as the movement table does not say which way such a path last moved and the modifier counts the hexes since the last reversal (p.65), it prices them as a one-hex charge (never more than the rules give); the resolution counts the real path. |
 | G23 | ~~Heavy-duty gyro~~ | p.204 | Built 2026-10-21 - see F44. |
 | G24 | ~~Shields, spikes, talons on a DFA, lance in a charge, vibroblade activation~~ | pp.194-196 | Built 2026-10-21 - see F46, F47. |
 | G25 | ~~Advanced Point Defense System (APDS)~~ | p.206 | Built 2026-10-21 - see F51. |

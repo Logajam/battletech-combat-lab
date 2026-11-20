@@ -64,7 +64,7 @@ pub fn no_effect_ids(b: &mut Battle, u: UnitId) -> Vec<ItemId> {
     get_weapons(&b.units[u]).into_iter().filter(|w| no_effect_on_mechs(b, u, *w)).collect()
 }
 
-fn destroy_all_slots(b: &mut Battle, u: UnitId, weapon: ItemId) {
+pub fn destroy_all_slots(b: &mut Battle, u: UnitId, weapon: ItemId) {
     let locs: Vec<String> = b.units[u].crits.keys().cloned().collect();
     for loc in locs {
         let n = b.units[u].crits[&loc].len();

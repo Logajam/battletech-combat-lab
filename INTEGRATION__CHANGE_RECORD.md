@@ -6,6 +6,31 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-20 (Claude), AUTOCANNON MUNITIONS: ARMOR-PIERCING, PRECISION, CASELESS (backlog N10, part). REVIEW PENDING (higher-level model).**
+  Daniel: "you missed the other speciality ammo, like AP or homing artillery". Core pp.190-192. No unit file in the pack
+  carries these rounds, so they come in through the per-bin choice (N5): `ammo::bin_choices` offers armor-piercing,
+  precision and caseless for a standard or light autocannon, caseless for a rotary AC; the bin's shots follow the Ammunition
+  Multiplier (x0.8 / x0.6 / x2, rounded down; `munition_multiplier`) and its explosion is recounted. An autocannon with such a
+  bin is planned like the other special weapons (`fire_modes::has_special_ac_round`), its shot planned per munition. PRECISION:
+  up to -2 of the target's movement modifier (`electronics::control_for`). ARMOR-PIERCING: a hit that damaged only armor makes
+  a critical check at -3 (AC/2), -2 (AC/5), -1 (AC/10, AC/20); none against hardened armor (its "standard damage to standard
+  armor" part is not built). CASELESS: a weapon with caseless bins fires only caseless (p.192); an attack roll of 2 misses,
+  breaks the feed (the gun useless for the battle) and makes a critical check whose hits go to the gun - here an 8+ wrecks the
+  whole gun (the book applies the hits slot by slot from the uppermost). Checked on a Hunchback HBK-4G (AC/20, both bins), 40
+  battles each v a Griffin: shots 5 / 3 / 4 / 10 a bin; precision -2 on 276 shots, 11 armor-piercing checks, 11 broken caseless
+  feeds; wins 12 / 11 / 10 / 12 of 40. No reference battle changed. LEFT (PROJECT_MAP N10): flak, the Arrow IV kinds, the missile
+  munitions, the iNarc pods.
+
+- **2026-11-20 (Claude), CHARGING AFTER A BACKWARD STEP (backlog N9, rules review G12). REVIEW PENDING (higher-level model).**
+  Daniel: "Fix charging. It will probably never come up, but accurate rules make for accurate games." Core p.78: a charge
+  needs only the MP to enter the target's hex from an adjacent hex facing it - no straight line, no run; walking may go
+  backward (p.46). The planner (`move_attacks::MoverIndex`) built its stops from forward-only paths; now it also adds the
+  walking stops only a path with backward steps reaches. The movement table keeps the hexes since the last reversal (p.65)
+  but not which way the path last moved, so such a stop is priced as a one-hex charge (fc 0 + the target's hex) - never more
+  damage than the rules give; the engine's resolution counts the path actually walked. No reference battle changed (91 of
+  91): the case needs terrain that blocks the way forward. Not separately tested beyond that (a board that forces it was not
+  built).
+
 - **2026-11-20 (Claude), LEG HITS LOST TO PARTIAL COVER IN THE BOTS' ESTIMATES (backlog N8, rules review G9). REVIEW PENDING (higher-level model).**
   Daniel: "Add fixing the discount leg hits." The engine already stopped them (a leg hit on a target behind partial cover
   strikes the cover, Core p.66; F4); Gladiator's and Hydra's movement scoring still counted them. Now `move_eval` multiplies
