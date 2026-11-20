@@ -30,6 +30,8 @@ pub fn designation_units(b: &mut Battle, order: &[UnitId], target_of: &mut dyn F
     for &m in order {
         b.units[m].tag_designated = None;
     }
+    // a new turn's spots start here: TAG hits below are the first (spotting.rs; p.70)
+    b.spots.clear();
     for &attacker in order {
         if let Some(target) = target_of(b, attacker) {
             designate(b, attacker, target);
@@ -66,6 +68,10 @@ fn designate(b: &mut Battle, attacker: UnitId, target: UnitId) {
     let roll = b.roll_2d6();
     if roll >= tn && b.units[target].tag_designated.as_deref() != Some("mech") {
         b.units[target].tag_designated = Some(aim.to_string());
+    }
+    if roll >= tn {
+        // p.70: a 'Mech that hits a target with TAG also spots it for indirect fire (no spotter-attacking modifier)
+        crate::spotting::tag_spot(b, attacker, target);
     }
     let what = if aim == "hex" { format!("{}'s hex", t_name) } else { t_name };
     let wn = b.units[attacker].items[weapon].name.clone();

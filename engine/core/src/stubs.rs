@@ -1,6 +1,6 @@
 // Translated from INTEGRATION__stubs.py (session 22): the placeholder decisions, loud and counted. Stage 4 part: those
 // that do not need the weapon-profile / fire-mode types (munition choice, rate of fire come with stage 5).
-use crate::battle::Battle;
+use crate::battle::{Battle, UnitId};
 
 /// Start the battle with this PPC's capacitor charged? Knob: STUB_CAPACITOR_START.
 pub fn stub_capacitor_start(b: &mut Battle, mech_name: &str, ppc_name: &str) -> bool {
@@ -76,6 +76,31 @@ pub fn stub_fire_tag(b: &mut Battle, mech_name: &str, useful: bool) -> bool {
     let fire = policy == "always" || (policy == "when_useful" && useful);
     b.warn_stub("fire_tag", &format!("{}: {} TAG ({})", mech_name, if fire { "fires" } else { "holds" }, if useful { "useful" } else { "nothing uses it" }));
     fire
+}
+
+/// Does this unit spot for indirect fire this turn, and does it also fire? Knob: STUB_SPOT ("never", "when_useful":
+/// spot the enemy it sees that the most friends can't see but could hit indirectly (nearest first), and keep firing).
+/// A STUB for EVERY bot today; Princess / CASPAR get MegaMek's own rule (FireControl.getSpotAction; PROJECT_MAP backlog
+/// B), Gladiator / Hydra keep this until they learn to weigh it (Daniel, 2026-11-20: stub markers for what they can't
+/// do yet). Returns (target, also fires).
+pub fn stub_spot(b: &mut Battle, u: UnitId) -> Option<(UnitId, bool)> {
+    // a settings file from before spotting (session 30) has no key: the default
+    let policy = if b.cfg.has("STUB_SPOT") { b.cfg.s("STUB_SPOT").to_string() } else { "when_useful".to_string() };
+    if policy == "never" {
+        return None;
+    }
+    if policy != "when_useful" {
+        panic!("Unknown STUB_SPOT {:?}", policy);
+    }
+    let mut c = crate::spotting::spot_candidates(b, u);
+    if c.is_empty() {
+        return None;
+    }
+    c.sort_by(|x, y| y.1.cmp(&x.1).then(x.2.cmp(&y.2)));
+    let target = c[0].0;
+    let (name, tname) = (b.units[u].side_name.clone().unwrap_or_default(), b.units[target].side_name.clone().unwrap_or_default());
+    b.warn_stub("spot", &format!("{}: spots {} for {} friend(s) without line of sight, and fires", name, tname, c[0].1));
+    Some((target, true))
 }
 
 /// TAG the enemy 'Mech or the ground it stands on? Knob: STUB_TAG_AIM. Returns "mech" or "hex".

@@ -478,6 +478,10 @@ STUB_FIRE_TAG = "when_useful"
 # TAG aim: "mech" (the enemy - homing rounds hit it in full) / "hex" (the ground it stands on - an easier
 # shot, homing rounds then do 5 AE to it) / "easier" (the lower target number).
 STUB_TAG_AIM = "mech"
+# Spotting for indirect fire (Core p.70; Rust engine only, session 30): does a unit spot this turn? "when_useful"
+# (the enemy it sees that the most friends can't see but could hit indirectly; it keeps firing, +1 to its own
+# attacks) / "never". A placeholder for every bot until each learns its own rule.
+STUB_SPOT = "when_useful"
 # PPC capacitors (p.188): start the battle charged? "empty" / "charged".
 STUB_CAPACITOR_START = "empty"
 # Charge a PPC capacitor instead of firing its PPC? "never" / "when_idle" (whenever the PPC isn't fired).

@@ -995,6 +995,8 @@ pub struct DeclCtx {
     pub a_hex: (i64, i64),
     pub t_hex: (i64, i64),
     pub indirect: bool,
+    /// the friendly spotter of an indirect attack (None: direct fire, or a mortar firing with no spotter)
+    pub spotter: Option<UnitId>,
     pub los_modifier: i64,
     pub cover: i64,
     pub a_facing: i64,
@@ -1057,6 +1059,13 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
         b.log(format!("  [Ranged] {}: {} {} - no ranged attacks this turn (pp.78-79).", a_name, what, t_name));
         return Prep::Done;
     }
+    if let Some(s) = crate::spotting::spot_of(b, attacker) {
+        if !s.fires {
+            let s_name = b.units[s.target].side_name.clone().unwrap_or_default();
+            b.log(format!("  [Ranged] {}: spots {} for indirect fire - holds its own fire.", a_name, s_name));
+            return Prep::Done;
+        }
+    }
     let a_hex = hex_geometry::parse_hex_label(b.units[attacker].hex.as_deref().unwrap()).unwrap();
     let t_hex = hex_geometry::parse_hex_label(b.units[target].hex.as_deref().unwrap()).unwrap();
     if a_hex == t_hex {
@@ -1071,20 +1080,45 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
     let mut los = trace.result.clone();
     let mut cover = trace.steps.last().unwrap().partial_cover;
     let mut indirect = false;
+    // INDIRECT FIRE (Core p.70; spotting.rs): with no line of sight, the weapons that can fire indirectly may, through a
+    // friendly spotter of this target; with no spotter only 'Mech mortars may (TO:AUE p.136, +2 more).
+    let mut spotter: Option<crate::spotting::SpotterUse> = None;
+    let mut indirect_ok: Vec<ItemId> = Vec::new();
     if !los.los {
-        if adv::indirect_weapons(b, attacker).is_empty() {
-            b.log(format!("  [Ranged] {}: no LOS to {} - holds fire.", a_name, t_name));
-            return Prep::Done;
+        let capable = crate::spotting::indirect_capable(b, attacker);
+        if !capable.is_empty() {
+            spotter = crate::spotting::best_spotter(b, attacker, target);
         }
-        indirect = true;
-        los = LOSResult { los: true, modifier: crate::los::target_hex_modifier(t_hex, &b.board).unwrap(), distance: hex_distance(a_hex, t_hex) };
-        cover = 0;
-        b.log(format!(
-            "  [Ranged] {}: no LOS to {} - only its mortars may fire, indirectly (+{}: indirect +1, no spotter +2; target hex terrain only).",
-            a_name,
-            t_name,
-            adv::MORTAR_INDIRECT_MODIFIER
-        ));
+        if let Some(sp) = &spotter {
+            indirect = true;
+            indirect_ok = capable;
+            los = LOSResult { los: true, modifier: sp.los_modifier, distance: hex_distance(a_hex, t_hex) };
+            cover = 0;
+            b.log(format!("  [Ranged] {}: no LOS to {} - fires indirectly ({}; p.70).", a_name, t_name, sp.note));
+            if !dry && !b.units[attacker].is_princess_family() {
+                // Daniel, 2026-11-20: stub markers for what Gladiator / Hydra can't do yet. They take an indirect shot
+                // when one is there, but their movement never plans for one (or for spotting): a counted reminder.
+                b.warn_stub("indirect_unplanned", &format!("{} fires indirectly at {}: Gladiator / Hydra movement does not plan for indirect fire or spotting yet", a_name, t_name));
+            }
+        } else {
+            if adv::indirect_weapons(b, attacker).is_empty() {
+                b.log(format!("  [Ranged] {}: no LOS to {} - holds fire.", a_name, t_name));
+                return Prep::Done;
+            }
+            indirect = true;
+            indirect_ok = adv::indirect_weapons(b, attacker);
+            los = LOSResult { los: true, modifier: crate::los::target_hex_modifier(t_hex, &b.board).unwrap(), distance: hex_distance(a_hex, t_hex) };
+            cover = 0;
+            b.log(format!(
+                "  [Ranged] {}: no LOS to {} - only its mortars may fire, indirectly (+{}: indirect +1, no spotter +2; target hex terrain only).",
+                a_name,
+                t_name,
+                adv::MORTAR_INDIRECT_MODIFIER
+            ));
+        }
+        if !b.indirect_pairs.contains(&(attacker, target)) {
+            b.indirect_pairs.push((attacker, target));
+        }
     }
     let a_facing = hex_geometry::compass_to_facing(&b.units[attacker].facing).unwrap();
     let pair_arcs = arcs::arcs_between(a_hex, t_hex);
@@ -1100,7 +1134,7 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
     let tmm = target_tmm(&b.units[target]);
     let heat_mod = b.units[attacker].heat_fire_modifier;
     let stealth_mod = equip::void_signature_modifier(&b.units[target], None, None) + equip::own_attack_modifier(&b.units[attacker]);
-    let Some((cond_mod, mut unavailable, cond_note)) = firing_conditions(b, attacker) else {
+    let Some((cond_mod, mut unavailable, mut cond_note)) = firing_conditions(b, attacker) else {
         b.log(format!("  [Ranged] {}: can't make ranged attacks (sensors destroyed, or prone with no arm to prop on).", a_name));
         return Prep::Done;
     };
@@ -1110,7 +1144,7 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
     unavailable.extend(shielded_weapon_ids(&b.units[attacker]));
     unavailable.extend(adv::no_effect_ids(b, attacker));
     if indirect {
-        let ind: HashSet<ItemId> = adv::indirect_weapons(b, attacker).into_iter().collect();
+        let ind: HashSet<ItemId> = indirect_ok.iter().copied().collect();
         for w in get_weapons(&b.units[attacker]) {
             if !ind.contains(&w) {
                 unavailable.insert(w);
@@ -1132,7 +1166,16 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
     unavailable.extend(water_blocked);
     let kick_ids = water::kick_table_weapon_ids(&b.units[attacker], &all_w, &w_locs, a_water, t_water);
     let prone_mod = prone_target_modifier(&b.units[target], distance);
-    let other_mod = cond_mod + prone_mod;
+    // p.70: a spotter that also attacks takes +1 on its own attacks; an indirect attack adds the spotter's modifiers
+    let spot_own = crate::spotting::own_attack_modifier(b, attacker);
+    let spot_extra = spotter.as_ref().map_or(0, |s| s.extra);
+    if spot_own != 0 {
+        cond_note = if cond_note.is_empty() { format!("spotting {}", spot_own) } else { format!("{} + spotting {}", cond_note, spot_own) };
+    }
+    if spot_extra != 0 {
+        cond_note = if cond_note.is_empty() { format!("indirect {}", spot_extra) } else { format!("{} + indirect {}", cond_note, spot_extra) };
+    }
+    let other_mod = cond_mod + prone_mod + spot_own + spot_extra;
     let probe_mod = if indirect { 0 } else { -smoke::probe_relief(b, attacker, target, &trace, distance) };
     if probe_mod != 0 {
         b.log(format!("  [Ranged] {}'s active probe sees through the smoke on the line ({}).", a_name, probe_mod));
@@ -1140,7 +1183,8 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
     let pre_tn = b.units[attacker].gunnery + amm + tmm + los.modifier + heat_mod + stealth_mod + other_mod + probe_mod;
 
     let mut aim: Option<String> = None;
-    if is_immobile(&b.units[target]) && b.cfg.get("AIMED_SHOT_LOCATION").as_str().is_some() {
+    // p.70: an indirect fire attack cannot also be an aimed shot
+    if !indirect && is_immobile(&b.units[target]) && b.cfg.get("AIMED_SHOT_LOCATION").as_str().is_some() {
         aim = aimed_shot_location(b, target, cover > 0);
     }
     let adjust = with_range_adjuster(tn_adjuster(b, attacker, target, aim.as_deref(), cover), &b.units[attacker], a_water);
@@ -1171,6 +1215,7 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
         a_hex,
         t_hex,
         indirect,
+        spotter: spotter.map(|s| s.spotter),
         los_modifier: los.modifier,
         cover,
         a_facing,
@@ -1404,8 +1449,11 @@ pub fn finish_declaration(
             extra = 0;
             tn = wp::HOMING_TN;
         }
-        if ctx.indirect {
+        if ctx.indirect && ctx.spotter.is_none() {
             tn += adv::MORTAR_INDIRECT_MODIFIER - adv::MORTAR_DIRECT_MODIFIER;
+        } else if ctx.spotter.is_some() && adv::is_mortar(b, attacker, w) {
+            // a spotted mortar fires as standard indirect fire (TO:AUE p.136): its +1 is in pre_tn, its direct +3 goes
+            tn -= adv::MORTAR_DIRECT_MODIFIER;
         }
         let roll = b.roll_2d6();
         let mut hit = roll >= tn;
@@ -1509,6 +1557,9 @@ pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBo
     for &m in order {
         b.units[m].ams_used = Some(serde_json::json!({}));
     }
+    // spotting for indirect fire is settled before any attack is rolled (spotting.rs)
+    b.indirect_pairs.clear();
+    crate::spotting::declare_spotting(b, order);
     for &m in order {
         snapshot_round_capability(&mut b.units[m]);
         crate::piloting_rolls::snapshot_pre_attack_phase(&mut b.units[m]);
