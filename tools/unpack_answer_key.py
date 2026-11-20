@@ -6,7 +6,8 @@ tools/unpack_answer_key.py - unpack the frozen answer key into engine/fixtures/ 
 
 The Python engine was the Rust engine's answer key (INTEGRATION__RUST_PORT.md: "exact match or not done"). When it was
 removed (Daniel, 2026-11-20: "dead code the python"), its recordings were made one last time and frozen in
-engine/answer_key.tar.xz: the 63 fixture battles (config, board, units, dice, decisions, trace, log, replay record), the
+engine/answer_key.tar.xz: the 63 fixture battles (config, board, units, dice, decisions, trace, log; not the Python's replay
+records, which the Rust history no longer matches: PROJECT_MAP Section 4), the
 units they need (_units), and the stage 1-3 comparison files. The Rust tests read engine/fixtures/ as before;
 tests/run_checks.py calls this first. The Python code that made them is in git history (the commit before its removal:
 see the 2026-11-20 Change Record entry "PYTHON ENGINE REMOVED").

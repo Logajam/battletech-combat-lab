@@ -631,6 +631,16 @@ destroyed; the consciousness check then had no table entry and crashed. Placehol
 out for the battle, no roll. RESOLVED session 25 from the book: six hits = dead (Core p.117, the Consciousness table's 6 column reads
 "Dead"), so no roll; the console's secondary warrior takes over (p.203). Stub removed.
 
+**The Rust has moved away from the Python's frozen answers (found 2026-11-20 while retiring the Python, N11).** These Rust
+tests compare against the answer key and FAIL, identically on `main` before N11 (none is in `run_checks.py`): `stage6_battles`
+(41 of 63 battles no longer replay: the deployment draws a different dice call at call 4 in every reference and team battle,
+target / foe choices differ, a few hit-location tables differ), `cl2_history` (its Python replay records were left out of the
+key for that reason), `stage2_los` (hex_line and LOS step lists differ on large boards), `stage3_units` (a parse warning the
+Python printed is not printed), `bv_check` (the BV now matches MegaMek, not the Python: superseded by `check_bv_megamek.py`).
+Many are the Rust's deliberate changes since 2026-11-11 (deployment placed / in turns, spotting, split fire, T16, BV, rules
+fixed Rust-only), but nobody has checked each one: some could be bugs. The Rust reference battles (`check_rust_reference.py`)
+are the regression guard now. To look at one: `cargo test --release -p btsim_core --test stage6_battles` (it names each).
+
 **Known issues found by the Rust review (session 24, 2026-11-11; the Python is frozen during the port, so none is changed).**
 **DANIEL, 2026-11-11: fix these in the Python AFTER the port is otherwise complete ("We'll leave correcting the python code for future you"); the
 lookahead dice are not a worry as long as both engines are wired the same way (they are: the Rust copies the quirk and draws from the battle's dice
