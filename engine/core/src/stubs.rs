@@ -78,14 +78,15 @@ pub fn stub_fire_tag(b: &mut Battle, mech_name: &str, useful: bool) -> bool {
     fire
 }
 
-/// Does this unit spot for indirect fire this turn, and does it also fire? Knob: STUB_SPOT ("never", "when_useful":
+/// Does this unit spot for indirect fire this turn, and does it also fire? Knob: STUB_SPOT (default "never": Daniel,
+/// 2026-11-20, "who told those units to spot? The logic for it is supposed to be being built elsewhere"; "when_useful":
 /// spot the enemy it sees that the most friends can't see but could hit indirectly (nearest first), and keep firing).
 /// A STUB for EVERY bot today; Princess / CASPAR get MegaMek's own rule (FireControl.getSpotAction; PROJECT_MAP backlog
 /// B), Gladiator / Hydra keep this until they learn to weigh it (Daniel, 2026-11-20: stub markers for what they can't
 /// do yet). Returns (target, also fires).
 pub fn stub_spot(b: &mut Battle, u: UnitId) -> Option<(UnitId, bool)> {
     // a settings file from before spotting (session 30) has no key: the default
-    let policy = if b.cfg.has("STUB_SPOT") { b.cfg.s("STUB_SPOT").to_string() } else { "when_useful".to_string() };
+    let policy = if b.cfg.has("STUB_SPOT") { b.cfg.s("STUB_SPOT").to_string() } else { "never".to_string() };
     if policy == "never" {
         return None;
     }

@@ -184,14 +184,17 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   attacking penalty (`tag.rs`). With no spotter only mortars fire indirectly, as before (TO:AUE p.136); a spotted mortar
   now uses the standard rules. Spots are settled at the start of the Ranged Attack Phase (attacks here are rolled as
   each unit declares); the firer takes the spotter with the lowest modifier. Who spots: `stubs::stub_spot`
-  (`STUB_SPOT`, a stub for every bot for now; Section 6). Gladiator / Hydra reminder stub `indirect_unplanned`. Battle
-  state: `Battle::spots`, `Battle::indirect_pairs` (sent through the bridge). ALSO FIXED: an indirect mortar shot was
-  being aimed at an immobile target (p.70 forbids it): `cov_mortar_indirect` changed by that line only.
+  (`STUB_SPOT`, default "never": Daniel, "who told those units to spot? The logic for it is supposed to be being built
+  elsewhere"; so only a TAG hit spots until the bots' own spotting logic is built; Section 6). Gladiator / Hydra reminder stub `indirect_unplanned`. Battle
+  state: `Battle::spots`, `Battle::indirect_pairs` (sent through the bridge). LOG ONLY: an indirect attack no longer plans an aimed
+  shot (p.70); the mortar in `cov_mortar_indirect` was never actually aimed (a cluster weapon can't be, p.70,
+  `fire_modes::aimable`; Daniel: "Mortar shouldn't be able to use an aimed shot because its a cluster weapon anyways"),
+  only its declaration line named the planned aim; that line changed, nothing else.
   NOT BUILT (known gaps): Narc-equipped missiles firing indirectly at a Narc-pod target with no spotter (p.70 / p.62);
   semi-guided missiles with TAG; partial cover from water or a building kept for indirect fire; an MML firing its SRM
   rounds indirectly is not stopped.
-  RESULTS CHANGED: 32 of the 91 Rust reference battles, every one a battle with more than one unit on a side (spots);
-  re-recorded with `check_rust_reference.py --update`.
+  RESULTS: none changed (STUB_SPOT defaults to "never"; with "when_useful" 32 team battles changed, all from spots);
+  `cov_mortar_indirect`'s declaration line re-recorded (`check_rust_reference.py --update`).
 
 - **2026-11-20 (Claude, session 30), RESEARCH: CONTROLLED TEST OF FERRO-LAMELLOR ARMOR (`tools/feature_test.py ferrolam`).
   REVIEW PENDING (higher-level model).** Daniel: "Ferro-lam is the fairest to test. Reactive and reflective are dependant on

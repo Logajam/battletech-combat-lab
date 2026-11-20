@@ -291,10 +291,8 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 12.
   [Movement select] Blue: score 170.335 = dealt 0.00 x0.99 + (HP 129.0 - received 0.00 x1.11 - PSR 0.00) / enemies' future on me 2.19 x my best future 2.90 [enemy held at 2303; 47 spots with LOS]
   [Movement] Blue: 2913 N -> 1910 SE, Run (17 MP, 10 hexes, 2 heat; budget walk 11 / run 17 / jump 0)
   [Ranged] Firing order: Red 1 declares next (big guns first: expected 0.0).
-  [Spot] Red 2 spots Blue for indirect fire (p.70); it also fires (+1 to its own attacks and to the indirect fire it spots for).
-  [Ranged] Red 1: no LOS to Blue - fires indirectly (indirect +1, spotter Red 2 AMM +3 [Jump], spotter also attacks +1, terrain from the spotter +0; p.70).
-  [Ranged] Red 1 -> Blue: range 7, base TN 16 (gunnery 4 + AMM 3 [Jump] + TMM 4 + LOS 0 + heat 0 + indirect 5); firing nothing (weapon heat 0 of budget 38 = max 30 + sink 11 - current 0 - movement 3 - other 0; expected dmg 0.00)
-  [Ranged] Red 2 -> Blue: range 9, base TN 12 (gunnery 4 + AMM 3 [Jump] + TMM 4 + LOS 0 + heat 0 + spotting 1); firing nothing (weapon heat 0 of budget 37 = max 30 + sink 12 - current 0 - movement 5 - other 0; expected dmg 0.00)
+  [Ranged] Red 1: no LOS to Blue - holds fire.
+  [Ranged] Red 2 -> Blue: range 9, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 4 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 37 = max 30 + sink 12 - current 0 - movement 5 - other 0; expected dmg 0.00)
   [Ranged] Blue -> Red 2: range 9, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; expected dmg 0.00)
   [Heat] Red 1: 0 + movement 3 + weapons 0 + engine 0 - sinks 11 -> 0
   [Heat] Red 2: 0 + movement 5 + weapons 0 + engine 0 - sinks 12 -> 0
