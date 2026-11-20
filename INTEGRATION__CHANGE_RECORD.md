@@ -6,6 +6,22 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-20 (Claude), PRINCESS AMS ON / OFF AND AMMO CONSERVATION (backlog N3). REVIEW PENDING (higher-level model).**
+  Daniel: "Need AMS on/off and ammo conservation for princess." From MegaMek main 3f9f2fd. AMS: `Princess.setAMSModes`, run in
+  the End Phase with T16's heat-equipment manager (`bot_heat_equipment::set_ams_modes`); an AMS switched off is "ams:<item>"
+  in `systems_off` (already saved with a state and carried by the bridge) and `ams::systems` leaves it out. A laser AMS goes
+  off at 14+ heat (MegaMek MAX_OVERHEAT_AMS) and back on below; an ammo AMS may go off when it has no ammunition left
+  (MegaMek tests the loaded bin against the WEAPON's original shots, which MegaMek only sets on ammunition: 0) on 2d6 >=
+  12 - bravery adjusted by the unit's damage level (`damage_level`, MegaMek Mek.isDmgHeavy / Moderate / Light, with the
+  switch's heavy-damage fall-through: +12), drawn from the battle's dice. One mode is carried from AMS to AMS as in MegaMek.
+  Not ported: the missile-boat last-target term (no unit roles), manual AMS (no infantry). Checked by lowering the heat
+  limit to 6 for one run (a Clan laser AMS went off at 10 heat and on at 0; then put back): at 14 Princess never got that
+  hot in the test battles. AMMO CONSERVATION: `princess_fire::ammo_conservation` (MegaMek `calcAmmoConservation`) - a
+  weapon goes into the plan she declares only if its hit chance beats the threshold (not in the guesses she prices moves
+  with, as in MegaMek). 1 reference battle re-recorded: zone_4v4_princess_v_caspar_hills (CASPAR now holds one-shot rocket
+  launchers needing 10). A/B against main with N2 (20 battles): zone Princess v CASPAR 13-7 -> 12-8; 4v4 Princess v
+  Gladiator 13-7 -> 14-6; 3-way 13-3-4 -> 13-3-4. Bridge parity 83 of 83.
+
 - **2026-11-20 (Claude), PRINCESS'S OWN SPOTTING AND DISTANT ARTILLERY (backlog N2). REVIEW PENDING (higher-level model).**
   Daniel: "Isn't princess supposed to have her own code for spotting and artillery?"; "Princess needs its artillery code".
   From MegaMek main 3f9f2fd (`FireControl.getSpotAction`, Princess's fire turn, `ArtilleryTargetingControl`). SPOTTING: a new

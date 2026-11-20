@@ -27,10 +27,11 @@ pub fn engageable(b: &mut Battle, u: UnitId, w: ItemId) -> bool {
     it.damage_type.as_deref() == Some("Missile") && it.damage_per_shot.unwrap_or(0) > 0
 }
 
-/// The mech's live AMS (destroyed ones drop out of get_weapons).
+/// The mech's live AMS (destroyed ones drop out of get_weapons), less any its MegaMek bot switched off
+/// (bot_heat_equipment::set_ams_modes; N3).
 pub fn systems(b: &mut Battle, u: UnitId) -> Vec<ItemId> {
     let ws = get_weapons(&b.units[u]);
-    ws.into_iter().filter(|w| weapon_rules::is_ams(b, u, *w)).collect()
+    ws.into_iter().filter(|w| weapon_rules::is_ams(b, u, *w) && !crate::bot_heat_equipment::ams_off(&b.units[u], *w)).collect()
 }
 
 /// p.206 (conscious crew) and p.104 (not shut down).

@@ -47,6 +47,7 @@ pub fn manage_owned_units(b: &mut Battle) {
         toggle_stealth_armor(b, u);
         toggle_concealment_systems(b, u);
         manage_radical_heat_sink(b, u);
+        set_ams_modes(b, u);
     }
 }
 
@@ -148,4 +149,122 @@ fn manage_radical_heat_sink(b: &mut Battle, u: UnitId) {
     b.units[u].radical_on = should_be_active;
     let (name, heat) = (b.units[u].side_name.clone().unwrap_or_default(), b.units[u].current_heat);
     b.log(format!("    {}: radical heat sink {} at {} heat, next failure roll needs {} (MegaMek BotHeatEquipmentManager).", name, if should_be_active { "on" } else { "off" }, heat, next_tn));
+}
+
+// ---------------------------------------------------------------------------------------------------- AMS on / off
+// Backlog N3 (Daniel, 2026-11-20: "Need AMS on/off and ammo conservation for princess"). MegaMek `Princess.setAMSModes`
+// (MegaMek main 3f9f2fd), run in `endOfTurnProcessing` as this manager is. The Core Rulebook lets the defender choose to
+// engage each attack (p.206); MegaMek, and this, settle it as an on / off state per AMS for the next turn. An AMS that is
+// off is listed in `systems_off` as "ams:<item>" and `ams::systems` leaves it out. What MegaMek does, in its order (one
+// mode carried from AMS to AMS, as MegaMek's loop does):
+//   * a laser AMS is switched off while the 'Mech is at MAX_OVERHEAT_AMS (14) heat or more, else on;
+//   * an AMS with ammunition, when its loaded bin is down to the self-preservation share of the AMS's "original shots"
+//     (MegaMek reads them from the weapon, where they are 0: in effect, when it has no ammunition left), may go off: TN = 12 - bravery index, -4 undamaged / -2 light / +1 moderate / +4 +8 heavy
+//     (MegaMek's switch falls through) / +8 crippled; when the TN is under 10, 2d6 >= TN switches it off (the battle's
+//     dice, as T16's other MegaMek draws). NOT PORTED: the +4 against a missile-boat last target (the engine has no unit
+//     roles) and manual AMS against infantry (no infantry).
+
+/// MegaMek Princess.MAX_OVERHEAT_AMS
+pub const MAX_OVERHEAT_AMS: i64 = 14;
+
+/// MegaMek Entity.getDamageLevel for a 'Mech (Mek.isDmgHeavy / isDmgModerate / isDmgLight): 0 none, 1 light,
+/// 2 moderate, 3 heavy, 4 crippled.
+pub fn damage_level(m: &crate::mech_state::Mech) -> i64 {
+    if crate::mech_state::is_crippled(m) {
+        return 4;
+    }
+    let armor_of = |l: &str| m.locations.get(l).map_or(0, |v| v.armor.as_int().max(0));
+    let head_ratio = {
+        let o = *m.max_armor.get("Head").unwrap_or(&0);
+        if o > 0 { armor_of("Head") as f64 / o as f64 } else { 1.0 }
+    };
+    let total: i64 = m.locations.values().map(|v| v.armor.as_int().max(0) + v.rear_armor.map_or(0, |r| r.as_int().max(0))).sum();
+    let o_total: i64 = m.max_armor.values().sum::<i64>() + m.max_rear_armor.values().sum::<i64>();
+    let armor_pct = if o_total > 0 { total as f64 / o_total as f64 } else { 1.0 };
+    let structure_hit = |l: &str| m.locations.get(l).is_some_and(|v| v.structure.as_int() < *m.max_structure.get(l).unwrap_or(&0));
+    let limbs = ["Right Leg", "Left Leg", "Left Arm", "Right Arm"].iter().filter(|l| structure_hit(l)).count();
+    let torsos = ["Center Torso", "Left Torso", "Right Torso"].iter().filter(|l| structure_hit(l) && armor_of(l) < 1).count();
+    let total_weapons = m.items.iter().filter(|e| e.category.as_deref() == Some("weapon")).count();
+    let live = crate::damage_resolution::get_weapons(m);
+    let jammed = live.iter().filter(|w| m.items[**w].jammed.unwrap_or(false)).count();
+    let inoperable = total_weapons.saturating_sub(live.len()) + jammed;
+    let share = if total_weapons > 0 { inoperable as f64 / total_weapons as f64 } else { 0.0 };
+    if head_ratio <= 0.33 || armor_pct <= 0.25 || limbs == 2 || torsos == 1 || m.engine_hits == 1 || m.gyro_hits == 1 || m.pilot_hits == 3 || share >= 0.75 {
+        return 3;
+    }
+    if head_ratio <= 0.67 || armor_pct <= 0.5 || limbs == 1 || m.pilot_hits == 2 || share >= 0.5 {
+        return 2;
+    }
+    if head_ratio < 1.0 || armor_pct <= 0.75 || m.pilot_hits == 1 || share >= 0.5 {
+        return 1;
+    }
+    0
+}
+
+/// The key of an AMS in `systems_off`.
+pub fn ams_key(w: crate::equipment::ItemId) -> String {
+    format!("ams:{}", w)
+}
+
+/// Is this AMS switched off (by a MegaMek bot's End Phase choice)?
+pub fn ams_off(m: &crate::mech_state::Mech, w: crate::equipment::ItemId) -> bool {
+    m.heat_managed && m.systems_off.iter().any(|k| *k == ams_key(w))
+}
+
+fn set_ams_modes(b: &mut Battle, u: UnitId) {
+    if b.units[u].hex.is_none() {
+        return;
+    }
+    let all: Vec<crate::equipment::ItemId> = crate::damage_resolution::get_weapons(&b.units[u]).into_iter().filter(|w| crate::weapon_rules::is_ams(b, u, *w)).collect();
+    if all.is_empty() {
+        return;
+    }
+    let overheating = b.units[u].current_heat >= MAX_OVERHEAT_AMS;
+    let self_preservation = crate::princess_fire::setting(b, "self_preservation");
+    let bravery = b.cfg.get("PRINCESS_BEHAVIOR")["bravery"].as_i64().unwrap_or(5).clamp(0, 10);
+    let mut on = true; // MegaMek: one mode, set to "on" before the loop and carried through it
+    for w in all {
+        let laser = !b.units[u].items[w].needs_ammo.unwrap_or(false);
+        if laser {
+            if overheating {
+                on = false;
+            }
+        } else {
+            // MegaMek: linked ammo's usable shots <= floor(curAMS.getOriginalShots() x self preservation / 100). The
+            // ORIGINAL SHOTS ARE READ FROM THE AMS WEAPON, and MegaMek sets them only on ammunition, so they are 0 and
+            // the test is "the loaded bin is empty" (ported as MegaMek plays it; with no usable bin left it is true)
+            let left = crate::ammo::bins_for(&b.units[u], w).first().map_or(0, |i| b.units[u].items[*i].shots_left.unwrap_or(0));
+            let weapon_original_shots = 0;
+            let conserve = left <= (weapon_original_shots as f64 * self_preservation / 100.0).floor() as i64;
+            if conserve {
+                let mut tn = 12 - bravery;
+                tn += match damage_level(&b.units[u]) {
+                    0 => -4,
+                    1 => -2,
+                    2 => 1,
+                    3 => 4 + 8,
+                    _ => 8,
+                };
+                if tn < 10 {
+                    let roll = b.roll_2d6();
+                    if roll >= tn {
+                        on = false;
+                    }
+                    let name = b.units[u].side_name.clone().unwrap_or_default();
+                    b.log(format!("    {}: {} down to {} shot(s) - conserve ammo? needs {}, rolled {} (MegaMek Princess.setAMSModes).", name, b.units[u].items[w].name, left, tn, roll));
+                }
+            }
+        }
+        let was_on = !b.units[u].systems_off.iter().any(|k| *k == ams_key(w));
+        if on != was_on {
+            let key = ams_key(w);
+            if on {
+                b.units[u].systems_off.retain(|k| *k != key);
+            } else {
+                b.units[u].systems_off.push(key);
+            }
+            let (name, wname, heat) = (b.units[u].side_name.clone().unwrap_or_default(), b.units[u].items[w].name.clone(), b.units[u].current_heat);
+            b.log(format!("    {}: {} switched {} at {} heat (MegaMek Princess.setAMSModes).", name, wname, if on { "on" } else { "off" }, heat));
+        }
+    }
 }
