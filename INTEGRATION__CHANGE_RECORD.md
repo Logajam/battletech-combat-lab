@@ -213,6 +213,15 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   Rerun `python tools/benchmark_report.py --bv-file LISTS.json` (LISTS.json: the Lab's `list_units` output) for the tables.
   Checks: no engine or test file changed; `run_checks.py` not run (docs and new tools only).
 
+- **2026-11-20 (Claude, session 30), MERGE: SONNET'S T16 (MEGAMEK BOTS' BRAINS, STEPS 1-4) WITH THE FIRE-SUPPORT WORK.**
+  Daniel: "Make it so." Branch `claude/task-t16-specs-ecse6a` merged into the session branch. Conflicts: the aimed-shot
+  choice (kept both: no aimed shot when firing indirectly, p.70; otherwise Princess / CASPAR pick the location by
+  MegaMek's `calculateAimedShotLocation`, T16 step 3) and the REVIEW QUEUE (both lines kept). `team_4v4_princess_v_princess`
+  re-recorded: T16 step 4 (stealthy units move later, MegaMek's `calculateMoveIndex`) changed its move order after the
+  step-1 recording; Sonnet's branch alone plays it exactly as the merged code does. Checks: 91 of 91 Rust reference
+  battles; `cl1_setup` and `stage6_attach` fail (42 fixtures, critical-slot listings) identically on `main` at 5385bb0
+  without either change - they came with the Battle Value work of 2026-11-20 (a task to fix them is queued).
+
 - **2026-11-20 (Claude, session 30), RULES: SPLIT FIRE (Core p.64, Multiple Targets; `engine/core/src/split_fire.rs`).
   REVIEW PENDING (higher-level model).** Daniel: "split fire yes. Completeness and the wiring in place for when our bots
   expand their minds" (PROJECT_MAP Section 5). Rust only. BUILT: after its primary declaration a unit may declare on more

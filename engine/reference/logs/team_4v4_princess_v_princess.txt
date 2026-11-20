@@ -940,11 +940,11 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 11.
   [Movement] Red 4: 1107 SE -> 1107 SE, Walk (5 MP, 1 hexes, 1 heat; budget walk 5 / run 7 / jump 0) - includes a backward move
   [Movement select] Blue 3: Princess (modern, defend): utility 61.49 = -fall 0.00 + bravery 50.67 [1.00 x 33.78 x 1.5 - taken 0.00] - aggression 0.00 + close range 13.82 - mutual support 3.00 - facing 0 + hold 0.00 [147 of 147 spots; enemy moved]
   [Movement] Blue 3: 0408 SE -> 0707 NE, Run (4 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
-    Blue 4: Supercharger (turn 1 in a row) needs 3, rolled 7 - works.
-  [Movement select] Blue 4: Princess (modern, defend): utility 104.77 = -fall 0.00 + bravery 64.50 [1.00 x 43.00 x 1.5 - taken 0.00] - aggression 0.00 + close range 7.27 - mutual support 2.00 - facing 0 + hold 35.00 [2021 of 2038 spots; enemy moved]
-  [Movement] Blue 4: 0907 NE -> 0907 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 8 / run 16 / jump 0)
   [Movement select] Blue 2: Princess (modern, defend): utility 54.85 = -fall 0.00 + bravery 50.67 [1.00 x 44.84 x 1.5 - taken 16.60] - aggression 0.00 + close range 8.18 - mutual support 4.00 - facing 0 + hold 0.00 [1035 of 1035 spots; enemy moved]
   [Movement] Blue 2: 1207 NE -> 1009 N, Walk (4 MP, 3 hexes, 1 heat; budget walk 5 / run 8 / jump 5) - includes a backward move
+    Blue 4: Supercharger (turn 1 in a row) needs 3, rolled 7 - works.
+  [Movement select] Blue 4: Princess (modern, defend): utility 104.77 = -fall 0.00 + bravery 64.50 [1.00 x 43.00 x 1.5 - taken 0.00] - aggression 0.00 + close range 7.27 - mutual support 2.00 - facing 0 + hold 35.00 [2020 of 2037 spots; enemy moved]
+  [Movement] Blue 4: 0907 NE -> 0907 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 8 / run 16 / jump 0)
   [Ranged] Red 4 twists its torso 1 hexside right (Blue 2 is in its torso's forward arc after that).
   [Ranged] Red 4 -> Blue 2: range 3, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['CLStreakSRM6', 'CLLargePulseLaser'] (weapon heat 14 of budget 12 = max 4 + sink 20 - current 6 - movement 1 - other 5; Princess plan utility 32.71, about 15.89 expected dmg)
   [Ranged] Red 4 fires in order: ['CLLargePulseLaser', 'CLStreakSRM6'].
@@ -1184,10 +1184,10 @@ Movement Phase PSR (running mode, gyro hit): needs 6 (Piloting 5 + +1). Rolled 6
   [Movement] Red 4: 1308 NW -> 1109 N, Run (5 MP, 2 hexes, 2 heat; budget walk 6 / run 8 / jump 0; stood up with 6 MP left)
   [Movement select] Blue 3: Princess (modern, attack): utility 31.09 = -fall 0.00 + bravery 28.50 [1.00 x 28.36 x 1.5 - taken 14.05] - aggression 7.50 + close range 13.09 - mutual support 3.00 - facing 0 + hold 0.00 [123 of 123 spots; enemy moved]
   [Movement] Blue 3: 1005 SE -> 1006 S, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
+  [Movement select] Blue 2: Princess (modern, attack): utility 83.92 = -fall 0.00 + bravery 63.97 [1.00 x 53.60 x 1.5 - taken 16.43] - aggression 5.00 + close range 9.09 - mutual support 4.00 - facing 0 + hold 19.87 [995 of 995 spots; enemy moved]
+  [Movement] Blue 2: 1107 NE -> 1107 S, Walk (2 MP, 0 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Blue 4: Princess (modern, attack): utility 212.99 = -fall 0.00 + bravery 212.49 [1.00 x 141.66 x 1.5 - taken 0.00] - aggression 2.50 + close range 8.00 - mutual support 5.00 - facing 0 + hold 0.00 [1245 of 1245 spots; enemy moved]
   [Movement] Blue 4: 0408 NE -> 1110 N, Run (11 MP, 8 hexes, 2 heat; budget walk 7 / run 11 / jump 0)
-  [Movement select] Blue 2: Princess (modern, attack): utility 83.92 = -fall 0.00 + bravery 63.97 [1.00 x 53.60 x 1.5 - taken 16.43] - aggression 5.00 + close range 9.09 - mutual support 4.00 - facing 0 + hold 19.87 [988 of 988 spots; enemy moved]
-  [Movement] Blue 2: 1107 NE -> 1107 S, Walk (2 MP, 0 hexes, 1 heat; budget walk 5 / run 8 / jump 5)
   [Ranged] Red 4 -> Blue 2: range 2, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0); firing ['CLLargePulseLaser'] (weapon heat 10 of budget 17 = max 4 + sink 20 - current 0 - movement 2 - other 5; Princess plan utility 16.43, about 4.17 expected dmg)
     CLLargePulseLaser: needs 6 (range mod +0, modifiers -2), rolled 4 -> miss
   [Ranged] Blue 2 -> Red 4: range 2, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 1 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLHAG20'] (weapon heat 19 of budget 31 = max 4 + sink 28 - current 0 - movement 1 - other 0; Princess plan utility 53.60, about 24.13 expected dmg)
