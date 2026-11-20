@@ -108,3 +108,16 @@ pub fn once_pure(b: &Battle, u: UnitId, loc_roll: i64, facing: &str) -> String {
     loc
 }
 
+
+/// The share of hits from `facing` that land on a leg (2d6 over the hit location table; a quad's arms are its front legs;
+/// a tripod's leg results stay legs). Behind partial cover such a hit strikes the cover and does no damage (Core p.66):
+/// the bots' expected damage keeps only the rest (backlog N8, rules review G9). The floating critical's re-roll is not
+/// counted (a 2 is 1 in 36).
+pub fn leg_share(m: &crate::mech_state::Mech, facing: &str) -> f64 {
+    let quad = m.mech_type == "quad" || m.mech_type == "quadvee";
+    table_for(facing)
+        .iter()
+        .filter(|(_, loc)| loc.contains("Leg") || (quad && loc.contains("Arm")))
+        .map(|(roll, _)| (6 - (roll - 7).abs()) as f64 / 36.0)
+        .sum()
+}

@@ -180,7 +180,7 @@ FALL (automatic fall): Hunchback HBK-4G takes 5 falling damage (1D6 5: front tab
   Initiative: Red lost the roll, moves first.
 Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 7.
   Success - Hunchback HBK-4G is standing (remaining running MP 4).
-  [Movement select] Red: Hydra: rate 2.154 = (team 18.8 + gain 34.67 on Blue) / (team 8.9 + cost 15.91 + risk 0.00) (1 of 1 enemies weighed, 46 spots)
+  [Movement select] Red: Hydra: rate 2.565 = (team 18.8 + gain 34.67 on Blue) / (team 8.9 + cost 11.93 + risk 0.00) (1 of 1 enemies weighed, 46 spots)
 [Movement] Red: water PSR at 0908: needs 5 (Piloting 5 + +0). Rolled 10.
   Succeeded - remains standing.
   [Movement] Red: 0909 N -> 0908 NW, Run (4 MP, 1 hexes, 2 heat; budget walk 4 / run 6 / jump 0; stood up with 4 MP left)

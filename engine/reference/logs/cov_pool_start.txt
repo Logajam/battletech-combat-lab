@@ -53,7 +53,7 @@
   Initiative: Blue lost the roll, moves first.
   [Movement select] Blue: Princess (modern, defend): utility -1.07 = -fall 0.00 + bravery -3.62 [1.00 x 0.70 x 1.5 - taken 4.67] - aggression 0.00 + close range 2.55 - facing 0 + hold 0.00 [1498 of 1573 spots; 2 enemies, nearest still to move]
   [Movement] Blue: 0807 S -> 1211 NW, Run (17 MP, 9 hexes, 2 heat; budget walk 11 / run 17 / jump 0)
-  [Movement select] Red 2: score 287.095 = dealt 4.44 x1.01 + (HP 178.0 - received 0.25 x1.00 - PSR 0.00) / enemy future 2.39 x my future 3.79 [enemy held at 1211; 77 spots with LOS]
+  [Movement select] Red 2: score 287.183 = dealt 4.44 x1.01 + (HP 178.0 - received 0.19 x1.00 - PSR 0.00) / enemy future 2.39 x my future 3.79 [enemy held at 1211; 77 spots with LOS]
   [Movement] Red 2: 0806 NE -> 1308 S, Run (9 MP, 7 hexes, 2 heat; budget walk 6 / run 9 / jump 5)
   [Movement select] Red 1: Princess (modern, attack): utility -5.52 = -fall 0.00 + bravery -3.97 [1.00 x 0.00 x 1.5 - taken 3.97] - aggression 5.00 + close range 5.45 - mutual support 2.00 - facing 0 + hold 0.00 [791 of 795 spots; enemy moved]
   [Movement] Red 1: 0709 N -> 1209 S, Jump (5 MP, 5 hexes, 5 heat; budget walk 5 / run 8 / jump 5)

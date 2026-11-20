@@ -1023,6 +1023,17 @@ null,
 ]
 },
 {
+"key": "MOVEMENT_COVER_LEGS",
+"label": "Movement cover legs",
+"top": "Bot features",
+"folder": "Gladiator",
+"kind": "bool",
+"default": true,
+"short": "Gladiator / Hydra movement scoring (backlog N8, rules review G9; Core p.66): a leg hit on a target behind partial cover strikes the cover and does no damage, so the expected damage keeps only the h...",
+"text": "Gladiator / Hydra movement scoring (backlog N8, rules review G9; Core p.66): a leg hit on a target behind partial cover strikes the cover and does no damage, so the expected damage keeps only the hits that land elsewhere. true (default) / false (the old scoring, which counted those hits).",
+"active": true
+},
+{
 "key": "MOVEMENT_EXPOSURE_MAX",
 "label": "Movement exposure max",
 "top": "Bot features",

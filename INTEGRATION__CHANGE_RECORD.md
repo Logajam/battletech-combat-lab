@@ -6,6 +6,20 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-20 (Claude), LEG HITS LOST TO PARTIAL COVER IN THE BOTS' ESTIMATES (backlog N8, rules review G9). REVIEW PENDING (higher-level model).**
+  Daniel: "Add fixing the discount leg hits." The engine already stopped them (a leg hit on a target behind partial cover
+  strikes the cover, Core p.66; F4); Gladiator's and Hydra's movement scoring still counted them. Now `move_eval` multiplies
+  the expected damage dealt (received) by 1 - the leg share of the hit table the shot uses (`hit_location::leg_share`: 2d6
+  over the table; a quad's arm results are front legs) when that line ends in partial cover (`PairInfo.cover`, from the LOS
+  trace). Princess / CASPAR reuse the evaluator but keep MegaMek's estimate (MegaMek does not discount it): the first
+  version changed a Princess v CASPAR battle, caught and fixed. Setting `MOVEMENT_COVER_LEGS` (on; off = the old scoring).
+  The weapon choice was left: the discount scales every weapon of one attack alike. RESULTS: 27 reference battles
+  re-recorded (`--update`), all with Gladiator or Hydra units on boards with hills, water or woods. A/B (20 battles, same
+  seeds, off -> on): hy_4v4_heavy_hills 7-12-1 -> 9-11-0; hy_duel_awesome_hills 9-10-1 -> 9-10-1; cov_hills_desert Blue
+  20 -> 20 (14.8 -> 12.0 turns); team_3way_mixed 13-3-4 -> 13-4-2 + 1 draw (24.1 -> 28.6 turns, 1 capped); Princess v
+  CASPAR unchanged. WATCH: team_3way_mixed and hydra_red__hy_12v12_valley now reach the 100-turn cap in the reference set
+  (Gladiator may hold back more against hull-down targets).
+
 - **2026-11-20 (Claude), C3 NETWORKS (backlog N6). REVIEW PENDING (higher-level model).**
   Daniel: "C3 Networks. I think we can wire this in. I think setting up the network will have to be part of that
   configuration window. Note that connecting to a network increases a units BV." New `engine/core/src/c3.rs`, Core pp.198-199,

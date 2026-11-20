@@ -135,7 +135,7 @@ launchers, MRM cluster -1, pp.185-187); Gauss rifle component explosion
 | G22 | Full building rules (and bridges) | pp.53, 130-136 | Deferred to a later session (Daniel, 2026-10-21); `PASSIVE_BUILDINGS` meanwhile. |
 | G7 | ~~Prone mechs are 1 level high for LOS~~ | p.57 | Built 2026-10-21 - see F41. |
 | G8 | ~~Minimum Movement~~ | p.49 | Built 2026-10-21 - see F38. |
-| G9 | Expected damage ignores leg hits lost to partial cover | p.66 | Movement scoring and weapon choice still count them. LATENT. |
+| G9 | ~~Expected damage ignores leg hits lost to partial cover~~ | p.66 | Built 2026-11-20 (backlog N8): Gladiator / Hydra movement scoring keeps only the non-leg share (`hit_location::leg_share`; setting `MOVEMENT_COVER_LEGS`). The weapon choice scales every weapon alike, so it was left; Princess / CASPAR keep MegaMek's estimate. |
 | G10 | ~~Ultra / Rotary rate of fire and jams, LB-X cluster ammo~~ | pp.183-186 | Built 2026-10-20 - F11, F14, F15. |
 | G16 | Special munitions left (deferred, Daniel 2026-10-20): AC armor-piercing / caseless / flak / precision rounds, iNarc ECM / haywire / Nemesis pods, Arrow IV homing / inferno / smoke / thunder | pp.190-194 | AC special rounds fire as standard; no unit in `data/meks.zip` carries those rounds or pods. (Apollo saturation built 2026-10-20.) |
 | G17 | ~~Variable-damage weapons~~ | pp.184-185 | Built 2026-10-20 - F18. |

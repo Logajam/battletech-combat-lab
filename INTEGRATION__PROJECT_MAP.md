@@ -118,9 +118,10 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
 - N7. UNDERWATER MOVEMENT AND FIRING (Core pp.127-128, "Underwater Combat", Underwater Attacks Table p.127; 'Mech UMUs
   TO:AUE, deferred until now): what is left after F36 - which weapons fire underwater and at what ranges, attacks across
   the surface, then UMU movement. Read the library first and list the gap.
-- N8. LEG HITS LOST TO PARTIAL COVER IN THE BOTS' DAMAGE ESTIMATE (rules review G9, p.66; Daniel: "Add fixing the discount
-  leg hits"): the engine already stops them (F4); the expected damage the bots score with (movement, weapon choice) still
-  counts them. Scoring change: A/B and re-record.
+- N8. LEG HITS LOST TO PARTIAL COVER IN THE BOTS' DAMAGE ESTIMATE: BUILT 2026-11-20 (Change Record; setting
+  `MOVEMENT_COVER_LEGS`, on). Gladiator / Hydra movement scoring only; Princess / CASPAR keep MegaMek's estimate. WATCH: two
+  reference battles now reach the turn cap (team_3way_mixed, hydra_red__hy_12v12_valley) - Gladiator may hold back more against
+  hull-down targets; worth a look with the stall work (A1).
 - N9. CHARGING AFTER A BACKWARD STEP (G12, p.78; Daniel: "accurate rules make for accurate games"): the charge planner
   uses forward-only paths; let it plan a charge whose path has backward steps, counting hexes as the rule says.
 - N10. SPECIAL AMMUNITION (Daniel, 2026-11-20: "the other speciality ammo, like AP or homing artillery"; rules review G16,
@@ -344,6 +345,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s31-n8) LEG HITS IN PARTIAL COVER** (2026-11-20): `hit_location::leg_share`, `move_eval` (PairInfo.cover, the dealt / received discount, not for Princess-family movers), `MOVEMENT_COVER_LEGS`. Look at: the two new capped reference battles.
 - **(s31-n6) C3 NETWORKS** (2026-11-20): `c3.rs` (kind_of, check_networks, configured / active network, best, ECM degradation, bv_increase), the Adjuster's `c3` (attack_resolution), `battle_value` x (1 + increase), `describe::unit_c3`, the team window's C3 section (`drawC3`, `c3Members` / `c3Increase` on the page). Look at: the ECM rule's "a Master in ECM degrades its Slaves", company networks when a lance Master falls, a Master+Slave unit's choice.
 - **(s31-n5) PER-TEAM SETTINGS, AMMO PER BIN, CONFIGURE WINDOWS** (2026-11-20): `team_settings.rs` (the settings swap while a unit decides; Legate per team), `setup.rs` "ammo" + `ammo::bin_choices` / `choose_bin_munition` (`Equipment::munition_chosen`), `describe::unit_bins`, `runs.rs` (`check_option`, TEAM_SETTINGS), `lab.js` (`openTeamConfig`, `openUnitConfig`, `behaviourSliders`, the option-row store). Look at: decisions made for several units at once (fire order, Hydra's move order) read the battle's settings; an enemy is modelled with the deciding team's settings.
 - **(s31-n3) PRINCESS AMS MODES AND AMMO CONSERVATION** (2026-11-20): `bot_heat_equipment::set_ams_modes` / `damage_level` / `ams_off`, `princess_fire::ammo_conservation`. Look at: the faithful port of MegaMek quirks (the shared mode across AMS, the heavy-damage fall-through, the 0 original shots), `damage_level` against MegaMek's Mek.isDmg*.

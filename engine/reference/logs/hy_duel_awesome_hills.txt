@@ -1,7 +1,7 @@
 # scenario hy_duel_awesome_hills
-# seed 1: winner Blue, 17 turns
-#   Red: 132.0 of 362.0 armor + structure left, team destroyed True, units 1, 24 hits of 30 attacks, 216.0 damage dealt
-#   Blue: 138.0 of 362.0 armor + structure left, team destroyed False, units 1, 25 hits of 37 attacks, 222.0 damage dealt
+# seed 1: winner Red, 11 turns
+#   Red: 284.0 of 362.0 armor + structure left, team destroyed False, units 1, 13 hits of 24 attacks, 123.0 damage dealt
+#   Blue: 223.0 of 362.0 armor + structure left, team destroyed True, units 1, 10 hits of 24 attacks, 70.0 damage dealt
 # log
   Deployment: Blue home edge W (0101-0117).
   Deployment: Blue placed at 0105.
@@ -68,9 +68,9 @@
 
 === TURN 4 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 478.217 = dealt 21.73 x1.00 + (HP 474.0 - received 17.55 x1.00 - PSR 0.00) / enemy future 9.08 x my future 9.08 [two-ply, 61 of 70 spots (grid search) x 104 replies (short list); modeled reply Blue -> 1105 S Run]
+  [Movement select] Red: score 482.594 = dealt 21.73 x1.00 + (HP 474.0 - received 13.16 x1.00 - PSR 0.00) / enemy future 9.08 x my future 9.08 [two-ply, 61 of 70 spots (grid search) x 104 replies (short list); modeled reply Blue -> 1105 S Run]
   [Movement] Red: 1410 NW -> 1310 SW, Walk (2 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
-  [Movement select] Blue: score 464.343 = dealt 8.36 x1.00 + (HP 474.0 - received 17.55 x1.03 - PSR 0.00) / enemy future 9.08 x my future 9.08 [enemy held at 1310; 8 spots with LOS]
+  [Movement select] Blue: score 462.258 = dealt 6.27 x1.00 + (HP 474.0 - received 17.55 x1.03 - PSR 0.00) / enemy future 9.08 x my future 9.08 [enemy held at 1310; 8 spots with LOS]
   [Movement] Blue: 0804 SE -> 1003 SE, Run (5 MP, 2 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
   [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
   [Ranged] Red -> Blue: range 8, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['PPC', 'PPC', 'PPC'] (weapon heat 30 of budget 31 = max 4 + sink 28 - current 0 - movement 1 - other 0; expected dmg 17.50)
@@ -99,631 +99,283 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 6.
 
 === TURN 5 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 742.559 = dealt 0.00 x1.00 + (HP 474.0 - received 0.00 x1.00 - PSR 1.33) / enemy future 6.78 x my future 10.65 [two-ply, 47 of 60 spots (grid search) x 82 replies (short list); modeled reply: none with LOS]
-[Movement] Red: backward level change PSR at 1409: needs 5 (Piloting 5 + +0). Rolled 7.
-  Succeeded - remains standing.
-  [Movement] Red: 1310 SW -> 1409 SW, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0) - includes a backward move
-  [Movement select] Blue: no spot deals damage - closing fallback
-  [Movement] Blue: 1003 SE -> 1004 S, Walk (2 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Red: no LOS to Blue - holds fire.
-  [Ranged] Blue: no LOS to Red - holds fire.
-  [Heat] Red: 3 + movement 1 + weapons 0 + engine 0 - sinks 28 -> 0
-  [Heat] Blue: 4 + movement 1 + weapons 0 + engine 0 - sinks 28 -> 0
-  -- end of turn 5: Red @ 1409 SW: HP 352, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 5: Blue @ 1004 S: HP 332, pilot hits 0, engine 0, gyro 0, heat 0
+  [Movement select] Red: score 742.598 = dealt 11.70 x1.00 + (HP 474.0 - received 8.77 x1.00 - PSR 0.00) / enemy future 6.78 x my future 10.65 [two-ply, 54 of 60 spots (grid search) x 82 replies (short list); modeled reply Blue -> 1003 S Stand Still]
+  [Movement] Red: 1310 SW -> 1210 SW, Walk (2 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
+  [Movement select] Blue: score 289.784 = dealt 8.77 x1.00 + (HP 454.0 - received 11.70 x1.07 - PSR 0.00) / enemy future 10.65 x my future 6.78 [enemy held at 1210; 57 spots with LOS]
+  [Movement] Blue: 1003 SE -> 1003 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 8, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['PPC', 'PPC'] (weapon heat 20 of budget 28 = max 4 + sink 28 - current 3 - movement 1 - other 0; expected dmg 11.67)
+    PPC: needs 7 (range mod +2), rolled 6 -> miss
+    PPC: needs 7 (range mod +2), rolled 4 -> miss
+  [Ranged] Blue -> Red: range 8, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['PPC', 'PPC'] (weapon heat 20 of budget 28 = max 4 + sink 28 - current 4 - movement 0 - other 0; expected dmg 11.67)
+    PPC: needs 7 (range mod +2), rolled 9 -> HIT
+    PPC: needs 7 (range mod +2), rolled 12 -> HIT
+    PPC hit for 10:
+      Hit location roll 3 (right table): Right Leg.
+      Leg hit strikes the partial cover - no damage (p.66).
+    PPC hit for 10:
+      Hit location roll 7 (right table): Right Torso.
+10 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (24 -> 14 remaining).
+  [Heat] Red: 3 + movement 1 + weapons 20 + engine 0 - sinks 28 -> 0
+  [Heat] Blue: 4 + movement 0 + weapons 20 + engine 0 - sinks 28 -> 0
+  -- end of turn 5: Red @ 1210 SW: HP 342, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 5: Blue @ 1003 SE: HP 332, pilot hits 0, engine 0, gyro 0, heat 0
 
 === TURN 6 ===
   Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 734.992 = dealt 0.00 x1.00 + (HP 474.0 - received 0.00 x1.00 - PSR 0.00) / enemy future 6.05 x my future 9.39 [two-ply, 51 of 70 spots (grid search) x 98 replies (short list); modeled reply: none with LOS]
-  [Movement] Red: 1409 SW -> 1509 NE, Run (4 MP, 1 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
-  [Movement select] Blue: no spot deals damage - closing fallback
-  [Movement] Blue: 1004 S -> 1004 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Red: no LOS to Blue - holds fire.
-  [Ranged] Blue: no LOS to Red - holds fire.
-  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 28 -> 0
-  [Heat] Blue: 0 + movement 0 + weapons 0 + engine 0 - sinks 28 -> 0
-  -- end of turn 6: Red @ 1509 NE: HP 352, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 6: Blue @ 1004 S: HP 332, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 7 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 304.393 = dealt 25.07 x1.00 + (HP 454.0 - received 21.73 x0.96 - PSR 0.00) / enemy future 8.05 x my future 5.19 [two-ply, 65 of 98 spots (grid search) x 73 replies (short list); modeled reply Red -> 1606 NW Run]
-  [Movement] Blue: 1004 S -> 1004 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Movement select] Red: score 716.996 = dealt 21.73 x0.96 + (HP 474.0 - received 25.07 x1.00 - PSR 0.00) / enemy future 5.19 x my future 8.05 [enemy held at 1004; 10 spots with LOS]
-  [Movement] Red: 1509 NE -> 1606 NW, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
-  [Ranged] Blue -> Red: range 6, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 1 + LOS 0 + heat 0); firing ['PPC', 'PPC', 'PPC'] (weapon heat 30 of budget 32 = max 4 + sink 28 - current 0 - movement 0 - other 0; expected dmg 25.00)
-    PPC: needs 5 (range mod +0), rolled 7 -> HIT
-    PPC: needs 5 (range mod +0), rolled 8 -> HIT
-    PPC: needs 5 (range mod +0), rolled 12 -> HIT
-  [Ranged] Red -> Blue: range 6, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['PPC', 'PPC', 'PPC'] (weapon heat 30 of budget 30 = max 4 + sink 28 - current 0 - movement 2 - other 0; expected dmg 21.67)
-    PPC: needs 6 (range mod +0), rolled 6 -> HIT
-    PPC: needs 6 (range mod +0), rolled 7 -> HIT
-    PPC: needs 6 (range mod +0), rolled 9 -> HIT
+  [Movement select] Red: score 569.657 = dealt 21.73 x1.00 + (HP 464.0 - received 13.16 x1.01 - PSR 0.00) / enemy future 7.72 x my future 9.39 [two-ply, 58 of 77 spots (grid search) x 82 replies (short list); modeled reply Blue -> 1003 S Stand Still]
+  [Movement] Red: 1210 SW -> 1210 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+  [Movement select] Blue: score 367.647 = dealt 13.16 x1.01 + (HP 454.0 - received 21.73 x1.07 - PSR 0.00) / enemy future 9.39 x my future 7.72 [enemy held at 1210; 57 spots with LOS]
+  [Movement] Blue: 1003 SE -> 1003 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+  [Ranged] Red twists its torso 1 hexside right (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 8, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['PPC', 'PPC', 'PPC'] (weapon heat 30 of budget 32 = max 4 + sink 28 - current 0 - movement 0 - other 0; expected dmg 21.67)
+    PPC: needs 6 (range mod +2), rolled 6 -> HIT
+    PPC: needs 6 (range mod +2), rolled 7 -> HIT
+    PPC: needs 6 (range mod +2), rolled 9 -> HIT
+  [Ranged] Blue -> Red: range 8, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['PPC', 'PPC', 'PPC'] (weapon heat 30 of budget 32 = max 4 + sink 28 - current 0 - movement 0 - other 0; expected dmg 17.50)
+    PPC: needs 7 (range mod +2), rolled 8 -> HIT
+    PPC: needs 7 (range mod +2), rolled 7 -> HIT
+    PPC: needs 7 (range mod +2), rolled 3 -> miss
     PPC hit for 10:
-      Hit location roll 8 (front table): Left Torso.
-10 damage (ENERGY) incoming to Left Torso (armor).
+      Hit location roll 6 (right table): Right Leg.
+10 damage (ENERGY) incoming to Right Leg (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (13 -> 3 remaining).
+    PPC hit for 10:
+      Hit location roll 10 (right table): Left Arm.
+10 damage (ENERGY) incoming to Left Arm (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (24 -> 14 remaining).
     PPC hit for 10:
-      Hit location roll 7 (front table): Center Torso.
+      Hit location roll 8 (right table): Center Torso.
 10 damage (ENERGY) incoming to Center Torso (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (30 -> 20 remaining).
     PPC hit for 10:
-      Hit location roll 3 (front table): Right Arm.
-10 damage (ENERGY) incoming to Right Arm (armor).
+      Hit location roll 7 (right table): Right Torso.
+10 damage (ENERGY) incoming to Right Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (14 -> 4 remaining).
+    PPC hit for 10:
+      Hit location roll 8 (right table): Center Torso.
+10 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (30 -> 20 remaining).
+PSR trigger: 20 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 3.
+  Failed - falls.
+FALL (failed Attack Phase PSR): Awesome AWS-8Q takes 8 falling damage (1D6 1: rear table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 6 -> Right Torso
+5 damage (PHYSICAL) incoming to Right Torso (rear_armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at rear_armor (10 -> 5 remaining).
+  Fall cluster (3 dmg): rolled 5 -> Right Leg
+3 damage (PHYSICAL) incoming to Right Leg (rear_armor).
+  [STANDARD/PHYSICAL] 3 armor pts destroyed at armor (33 -> 30 remaining).
+  Seatbelt check: needs 5. Rolled 9. Pilot unharmed.
+PSR trigger: 30 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
+  Succeeded - remains standing.
+  [Heat] Red: 0 + movement 0 + weapons 30 + engine 0 - sinks 28 -> 2
+  [Heat] Blue: 0 + movement 0 + weapons 30 + engine 0 - sinks 28 -> 2
+  -- end of turn 6: Red @ 1210 SW: HP 314, pilot hits 0, engine 0, gyro 0, heat 2 [PRONE]
+  -- end of turn 6: Blue @ 1003 SE: HP 302, pilot hits 0, engine 0, gyro 0, heat 2
+
+=== TURN 7 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 462.804 = dealt 14.69 x1.04 + (HP 424.0 - received 1.90 x1.08 - PSR 0.00) / enemy future 9.86 x my future 10.46 [two-ply, 57 of 82 spots (grid search) x 1 replies (short list); modeled reply Red -> 1210 SW Run]
+  [Movement] Blue: 1003 SE -> 1003 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 10.
+  Success - Awesome AWS-8Q is standing (remaining running MP 3).
+  [Movement select] Red: score 528.824 = dealt 9.49 x1.08 + (HP 436.0 - received 14.04 x0.99 - PSR 0.00) / enemy future 10.46 x my future 12.85 [enemy held at 1003; 28 spots with LOS]
+  [Movement] Red: 1210 SW -> 1310 NE, Run (2 MP, 1 hexes, 2 heat; budget walk 3 / run 5 / jump 0; stood up with 3 MP left)
+  [Ranged] Blue -> Red: range 8, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['PPC', 'PPC', 'PPC'] (weapon heat 30 of budget 30 = max 4 + sink 28 - current 2 - movement 0 - other 0; expected dmg 17.50)
+    PPC: needs 7 (range mod +2), rolled 7 -> HIT
+    PPC: needs 7 (range mod +2), rolled 10 -> HIT
+    PPC: needs 7 (range mod +2), rolled 6 -> miss
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 8, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['PPC', 'PPC'] (weapon heat 20 of budget 28 = max 4 + sink 28 - current 2 - movement 2 - other 0; expected dmg 8.33)
+    PPC: needs 8 (range mod +2), rolled 6 -> miss
+    PPC: needs 8 (range mod +2), rolled 8 -> HIT
+    PPC hit for 10:
+      Hit location roll 3 (left table): Left Leg.
+      Leg hit strikes the partial cover - no damage (p.66).
+    PPC hit for 10:
+      Hit location roll 7 (left table): Left Torso.
+10 damage (ENERGY) incoming to Left Torso (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (24 -> 14 remaining).
+    PPC hit for 10:
+      Hit location roll 9 (right table): Left Torso.
+10 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (24 -> 14 remaining).
+  [Heat] Red: 2 + movement 2 + weapons 20 + engine 0 - sinks 28 -> 0
+  [Heat] Blue: 2 + movement 0 + weapons 30 + engine 0 - sinks 28 -> 4
+  -- end of turn 7: Red @ 1310 NE: HP 304, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 7: Blue @ 1003 SE: HP 292, pilot hits 0, engine 0, gyro 0, heat 4
+
+=== TURN 8 ===
+  Initiative: Blue lost the roll, moves first.
+  [Movement select] Blue: score 334.397 = dealt 15.69 x1.00 + (HP 414.0 - received 23.41 x1.00 - PSR 0.00) / enemy future 12.74 x my future 10.39 [two-ply, 25 of 82 spots (grid search) x 65 replies (short list); modeled reply Red -> 1311 N Walk]
+  [Movement] Blue: 1003 SE -> 1006 S, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
+  [Movement select] Red: score 532.336 = dealt 23.41 x1.00 + (HP 426.0 - received 9.36 x1.00 - PSR 1.33) / enemy future 10.39 x my future 12.74 [enemy held at 1006; 25 spots with LOS]
+[Movement] Red: backward level change PSR at 1210: needs 5 (Piloting 5 + +0). Rolled 11.
+  Succeeded - remains standing.
+  [Movement] Red: 1310 NE -> 1210 NE, Walk (2 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0) - includes a backward move
+  [Ranged] Blue -> Red: range 5, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 0); firing ['PPC', 'PPC'] (weapon heat 20 of budget 26 = max 4 + sink 28 - current 4 - movement 2 - other 0; expected dmg 11.67)
+    PPC: needs 7 (range mod +0), rolled 6 -> miss
+    PPC: needs 7 (range mod +0), rolled 6 -> miss
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 5, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['PPC', 'PPC', 'PPC'] (weapon heat 30 of budget 31 = max 4 + sink 28 - current 0 - movement 1 - other 0; expected dmg 21.67)
+    PPC: needs 6 (range mod +0), rolled 5 -> miss
+    PPC: needs 6 (range mod +0), rolled 8 -> HIT
+    PPC: needs 6 (range mod +0), rolled 5 -> miss
+    PPC hit for 10:
+      Hit location roll 5 (front table): Right Leg.
+10 damage (ENERGY) incoming to Right Leg (armor).
+  [STANDARD/ENERGY] 3 armor pts destroyed at armor (3 -> 0 remaining). 7 damage applied to structure [STANDARD] (17 -> 10/17 remaining).
+  Check for possible critical. Roll a 8.
+    1 critical hit(s).
+  Critical hit pool at Right Leg:
+    1: Hip (slot 1)
+    2: Upper Leg Actuator (slot 2)
+    3: Lower Leg Actuator (slot 3)
+    4: Foot Actuator (slot 4)
+    5: Heat Sink (slot 5)
+    6: Heat Sink (slot 6)
+    1/1 Criticals: Upper Leg Actuator hit.
+      Current crit slots in Right Leg: ['Hip', 'DESTROYED', 'Lower Leg Actuator', 'Foot Actuator', 'Heat Sink', 'Heat Sink', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+      Leg actuator hit at Right Leg (1 destroyed there) - walk MP now 2.
+PSR trigger: 1 leg actuator(s) destroyed at Right Leg this phase -> +1, one roll.
+Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 6.
+  Succeeded - remains standing.
+  [Heat] Red: 0 + movement 1 + weapons 30 + engine 0 - sinks 28 -> 3
+  [Heat] Blue: 4 + movement 2 + weapons 20 + engine 0 - sinks 28 -> 0
+  -- end of turn 8: Red @ 1210 NE: HP 304, pilot hits 0, engine 0, gyro 0, heat 3
+  -- end of turn 8: Blue @ 1006 S: HP 282, pilot hits 0, engine 0, gyro 0, heat 0
+
+=== TURN 9 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 657.034 = dealt 20.42 x1.00 + (HP 426.0 - received 20.05 x1.00 - PSR 0.00) / enemy future 9.61 x my future 15.08 [two-ply, 57 of 74 spots (grid search) x 20 replies (short list); modeled reply Blue -> 1006 S Stand Still]
+  [Movement] Red: 1210 NE -> 1210 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+  [Movement select] Blue: score 260.221 = dealt 20.05 x1.00 + (HP 397.0 - received 20.42 x1.00 - PSR 0.00) / enemy future 15.08 x my future 9.61 [enemy held at 1210; 19 spots with LOS]
+  [Movement] Blue: 1006 S -> 1006 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 2 / run 3 / jump 0)
+  [Ranged] Red twists its torso 1 hexside left (Blue is in its torso's forward arc after that).
+  [Ranged] Red -> Blue: range 5, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['PPC', 'PPC'] (weapon heat 20 of budget 29 = max 4 + sink 28 - current 3 - movement 0 - other 0; expected dmg 18.33)
+    PPC: needs 4 (range mod +0), rolled 9 -> HIT
+    PPC: needs 4 (range mod +0), rolled 6 -> HIT
+  [Ranged] Blue -> Red: range 5, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['PPC', 'PPC', 'PPC'] (weapon heat 30 of budget 32 = max 4 + sink 28 - current 0 - movement 0 - other 0; expected dmg 25.00)
+    PPC: needs 5 (range mod +0), rolled 10 -> HIT
+    PPC: needs 5 (range mod +0), rolled 3 -> miss
+    PPC: needs 5 (range mod +0), rolled 7 -> HIT
+    PPC hit for 10:
+      Hit location roll 8 (front table): Left Torso.
+10 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (14 -> 4 remaining).
+    PPC hit for 10:
+      Hit location roll 7 (front table): Center Torso.
+10 damage (ENERGY) incoming to Center Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (20 -> 10 remaining).
+    PPC hit for 10:
+      Hit location roll 6 (left table): Left Leg.
+      Leg hit strikes the partial cover - no damage (p.66).
+    PPC hit for 10:
+      Hit location roll 7 (left table): Left Torso.
+10 damage (ENERGY) incoming to Left Torso (armor).
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (14 -> 4 remaining).
+PSR trigger: 20 armor+structure lost this phase (>=20) -> +1.
+Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 6.
+  Failed - falls.
+FALL (failed Attack Phase PSR): Awesome AWS-8Q takes 8 falling damage (1D6 4: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 3 -> Right Arm
+5 damage (PHYSICAL) incoming to Right Arm (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (14 -> 9 remaining).
+  Fall cluster (3 dmg): rolled 6 -> Right Torso
+3 damage (PHYSICAL) incoming to Right Torso (armor).
+  [STANDARD/PHYSICAL] 3 armor pts destroyed at armor (24 -> 21 remaining).
+  Seatbelt check: needs 5. Rolled 6. Pilot unharmed.
+  [Heat] Red: 3 + movement 0 + weapons 20 + engine 0 - sinks 28 -> 0
+  [Heat] Blue: 0 + movement 0 + weapons 30 + engine 0 - sinks 28 -> 2
+  -- end of turn 9: Red @ 1210 NE: HP 294, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 9: Blue @ 1006 S: HP 254, pilot hits 0, engine 0, gyro 0, heat 2 [PRONE]
+
+=== TURN 10 ===
+  Initiative: Blue lost the roll, moves first.
+Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 3.
+  Failed to stand.
+FALL (failed to stand): Awesome AWS-8Q takes 8 falling damage (1D6 5: front table, 5-pt clusters).
+  Fall cluster (5 dmg): rolled 7 -> Center Torso
+5 damage (PHYSICAL) incoming to Center Torso (armor).
+  [STANDARD/PHYSICAL] 5 armor pts destroyed at armor (10 -> 5 remaining).
+  Fall cluster (3 dmg): rolled 8 -> Left Torso
+3 damage (PHYSICAL) incoming to Left Torso (armor).
+  [STANDARD/PHYSICAL] 3 armor pts destroyed at armor (4 -> 1 remaining).
+  Seatbelt check: needs 5. Rolled 2. FAILED - pilot takes 1 hit (1/6).
+Insufficient MP (<2) remaining for another stand attempt. Remains prone.
+  [Movement] Blue: still prone at 1006.
+Movement Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 10.
+  Pilot stays conscious.
+  [Movement select] Red: no spot deals damage - closing fallback
+  [Movement] Red: 1210 NE -> 1208 N, Run (5 MP, 2 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
+  [Ranged] Blue: no LOS to Red - holds fire.
+  [Ranged] Red: no LOS to Blue - holds fire.
+  [Heat] Red: 0 + movement 2 + weapons 0 + engine 0 - sinks 28 -> 0
+  [Heat] Blue: 2 + movement 2 + weapons 0 + engine 0 - sinks 28 -> 0
+  -- end of turn 10: Red @ 1208 N: HP 294, pilot hits 0, engine 0, gyro 0, heat 0
+  -- end of turn 10: Blue @ 1006 S: HP 246, pilot hits 1, engine 0, gyro 0, heat 0 [PRONE]
+
+=== TURN 11 ===
+  Initiative: Red lost the roll, moves first.
+  [Movement select] Red: score 889.926 = dealt 25.73 x1.00 + (HP 416.0 - received 5.93 x1.01 - PSR 0.00) / enemy future 7.51 x my future 15.83 [two-ply, 74 of 104 spots (grid search) x 1 replies (short list); modeled reply Blue -> 1006 S Run]
+  [Movement] Red: 1208 N -> 1108 NW, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
+Stand attempt 1: needs 5 (Piloting 5 + +0, incl. -1 for standing). Rolled 5.
+  Success - Awesome AWS-8Q is standing (remaining running MP 1).
+  [Movement select] Blue: score 206.673 = dealt 14.83 x1.01 + (HP 361.0 - received 25.02 x0.91 - PSR 0.00) / enemy future 15.83 x my future 8.97 [enemy held at 1108; 8 spots with LOS]
+  [Movement] Blue: 1006 S -> 1006 SW, Run (0 MP, 0 hexes, 2 heat; budget walk 2 / run 3 / jump 0; stood up with 1 MP left)
+  [Ranged] Red -> Blue: range 2, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['Small Laser', 'PPC', 'PPC', 'PPC'] (weapon heat 31 of budget 31 = max 4 + sink 28 - current 0 - movement 1 - other 0; expected dmg 19.25)
+  [Ranged] Red fires in order: ['PPC', 'PPC', 'PPC', 'Small Laser'].
+    PPC: needs 7 (range mod +2), rolled 8 -> HIT
+    PPC: needs 7 (range mod +2), rolled 9 -> HIT
+    PPC: needs 7 (range mod +2), rolled 3 -> miss
+    Small Laser: needs 7 (range mod +2), rolled 9 -> HIT
+  [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's forward arc after that).
+  [Ranged] Blue -> Red: range 2, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['PPC', 'PPC', 'PPC'] (weapon heat 30 of budget 30 = max 4 + sink 28 - current 0 - movement 2 - other 0; expected dmg 12.50)
+    PPC: needs 8 (range mod +2), rolled 6 -> miss
+    PPC: needs 8 (range mod +2), rolled 9 -> HIT
+    PPC: needs 8 (range mod +2), rolled 5 -> miss
+    PPC hit for 10:
+      Hit location roll 12 (left table): Head.
+      Head hit - pilot takes 1 hit (2/6), regardless of armor.
+10 damage (ENERGY) incoming to Head (armor).
+  [STANDARD/ENERGY] 9 armor pts destroyed at armor (9 -> 0 remaining). 1 damage applied to structure [STANDARD] (3 -> 2/3 remaining).
+  Check for possible critical. Roll a 10.
+    2 critical hit(s).
+  Critical hit pool at Head:
+    1: Life Support (slot 1)
+    2: Sensors (slot 2)
+    3: Cockpit (slot 3)
+    4: Small Laser (slot 4)
+    5: Sensors (slot 5)
+    6: Life Support (slot 6)
+    1/2 Criticals: Life Support hit.
+      Current crit slots in Head: ['DESTROYED', 'Sensors', 'Cockpit', 'Small Laser', 'Sensors', 'Life Support', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+  Critical hit pool at Head:
+    1: Sensors (slot 2)
+    2: Cockpit (slot 3)
+    3: Small Laser (slot 4)
+    4: Sensors (slot 5)
+    5: Life Support (slot 6)
+    2/2 Criticals: Cockpit hit.
+      Current crit slots in Head: ['DESTROYED', 'Sensors', 'DESTROYED', 'Small Laser', 'Sensors', 'Life Support', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
+      Cockpit hit - instant kill condition set.
     PPC hit for 10:
       Hit location roll 6 (left table): Left Leg.
 10 damage (ENERGY) incoming to Left Leg (armor).
   [STANDARD/ENERGY] 10 armor pts destroyed at armor (33 -> 23 remaining).
-    PPC hit for 10:
-      Hit location roll 10 (left table): Right Arm.
-10 damage (ENERGY) incoming to Right Arm (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (14 -> 4 remaining).
-    PPC hit for 10:
-      Hit location roll 8 (left table): Center Torso.
-10 damage (ENERGY) incoming to Center Torso (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (30 -> 20 remaining).
-PSR trigger: 30 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
-  Succeeded - remains standing.
-PSR trigger: 30 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 8.
-  Succeeded - remains standing.
-  [Heat] Red: 0 + movement 2 + weapons 30 + engine 0 - sinks 28 -> 4
-  [Heat] Blue: 0 + movement 0 + weapons 30 + engine 0 - sinks 28 -> 2
-  -- end of turn 7: Red @ 1606 NW: HP 322, pilot hits 0, engine 0, gyro 0, heat 4
-  -- end of turn 7: Blue @ 1004 S: HP 302, pilot hits 0, engine 0, gyro 0, heat 2
-
-=== TURN 8 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 574.294 = dealt 18.10 x1.00 + (HP 444.0 - received 25.07 x1.00 - PSR 0.00) / enemy future 7.95 x my future 10.55 [two-ply, 51 of 78 spots (grid search) x 98 replies (short list); modeled reply Blue -> 1004 SE Stand Still]
-  [Movement] Red: 1606 NW -> 1507 SW, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
-  [Movement select] Blue: score 332.098 = dealt 25.07 x1.00 + (HP 424.0 - received 17.55 x0.93 - PSR 0.00) / enemy future 10.55 x my future 7.95 [enemy held at 1507; 65 spots with LOS]
-  [Movement] Blue: 1004 S -> 1004 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Red -> Blue: range 5, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['PPC', 'PPC'] (weapon heat 20 of budget 27 = max 4 + sink 28 - current 4 - movement 1 - other 0; expected dmg 16.67)
-    PPC: needs 5 (range mod +0), rolled 8 -> HIT
-    PPC: needs 5 (range mod +0), rolled 11 -> HIT
-  [Ranged] Blue -> Red: range 5, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['PPC', 'PPC', 'PPC'] (weapon heat 30 of budget 30 = max 4 + sink 28 - current 2 - movement 0 - other 0; expected dmg 25.00)
-    PPC: needs 5 (range mod +0), rolled 8 -> HIT
-    PPC: needs 5 (range mod +0), rolled 7 -> HIT
-    PPC: needs 5 (range mod +0), rolled 10 -> HIT
-    PPC hit for 10:
-      Hit location roll 7 (left table): Left Torso.
-10 damage (ENERGY) incoming to Left Torso (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (24 -> 14 remaining).
-    PPC hit for 10:
-      Hit location roll 10 (left table): Right Arm.
-10 damage (ENERGY) incoming to Right Arm (armor).
-  [STANDARD/ENERGY] 4 armor pts destroyed at armor (4 -> 0 remaining). 6 damage applied to structure [STANDARD] (13 -> 7/13 remaining).
-  Check for possible critical. Roll a 6.
-    No critical hit.
-    PPC hit for 10:
-      Hit location roll 6 (right table): Right Leg.
-      Leg hit strikes the partial cover - no damage (p.66).
-    PPC hit for 10:
-      Hit location roll 8 (right table): Center Torso.
-10 damage (ENERGY) incoming to Center Torso (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (20 -> 10 remaining).
-    PPC hit for 10:
-      Hit location roll 3 (right table): Right Leg.
-      Leg hit strikes the partial cover - no damage (p.66).
-PSR trigger: 20 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
-  Succeeded - remains standing.
-  [Heat] Red: 4 + movement 1 + weapons 20 + engine 0 - sinks 28 -> 0
-  [Heat] Blue: 2 + movement 0 + weapons 30 + engine 0 - sinks 28 -> 4
-  -- end of turn 8: Red @ 1507 SW: HP 312, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 8: Blue @ 1004 S: HP 282, pilot hits 0, engine 0, gyro 0, heat 4
-
-=== TURN 9 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 254.813 = dealt 16.71 x1.00 + (HP 398.0 - received 29.18 x0.86 - PSR 0.00) / enemy future 12.76 x my future 8.15 [two-ply, 65 of 98 spots (grid search) x 73 replies (short list); modeled reply Red -> 1507 NW Stand Still]
-  [Movement] Blue: 1004 S -> 1004 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Movement select] Red: score 678.938 = dealt 29.18 x0.86 + (HP 434.0 - received 16.71 x0.99 - PSR 0.00) / enemy future 8.15 x my future 12.76 [enemy held at 1004; 53 spots with LOS]
-  [Movement] Red: 1507 SW -> 1507 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Blue -> Red: range 5, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['PPC', 'PPC'] (weapon heat 20 of budget 28 = max 4 + sink 28 - current 4 - movement 0 - other 0; expected dmg 16.67)
-    PPC: needs 5 (range mod +0), rolled 5 -> HIT
-    PPC: needs 5 (range mod +0), rolled 11 -> HIT
-  [Ranged] Red -> Blue: range 5, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['PPC', 'PPC', 'PPC'] (weapon heat 30 of budget 32 = max 4 + sink 28 - current 0 - movement 0 - other 0; expected dmg 27.50)
-    PPC: needs 4 (range mod +0), rolled 6 -> HIT
-    PPC: needs 4 (range mod +0), rolled 6 -> HIT
-    PPC: needs 4 (range mod +0), rolled 5 -> HIT
-    PPC hit for 10:
-      Hit location roll 8 (right table): Center Torso.
-10 damage (ENERGY) incoming to Center Torso (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (10 -> 0 remaining).
-    PPC hit for 10:
-      Hit location roll 5 (right table): Right Arm.
-10 damage (ENERGY) incoming to Right Arm (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (14 -> 4 remaining).
-    PPC hit for 10:
-      Hit location roll 5 (left table): Left Arm.
-10 damage (ENERGY) incoming to Left Arm (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (24 -> 14 remaining).
-    PPC hit for 10:
-      Hit location roll 8 (left table): Center Torso.
-10 damage (ENERGY) incoming to Center Torso (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (20 -> 10 remaining).
-    PPC hit for 10:
-      Hit location roll 5 (left table): Left Arm.
-10 damage (ENERGY) incoming to Left Arm (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (14 -> 4 remaining).
-PSR trigger: 30 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 6.
-  Succeeded - remains standing.
-PSR trigger: 20 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
-  Succeeded - remains standing.
-  [Heat] Red: 0 + movement 0 + weapons 30 + engine 0 - sinks 28 -> 2
-  [Heat] Blue: 4 + movement 0 + weapons 20 + engine 0 - sinks 28 -> 0
-  -- end of turn 9: Red @ 1507 SW: HP 292, pilot hits 0, engine 0, gyro 0, heat 2
-  -- end of turn 9: Blue @ 1004 S: HP 252, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 10 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 277.440 = dealt 32.01 x1.00 + (HP 368.0 - received 32.39 x0.90 - PSR 0.00) / enemy future 14.30 x my future 10.36 [two-ply, 65 of 98 spots (grid search) x 73 replies (short list); modeled reply Red -> 1507 NW Stand Still]
-  [Movement] Blue: 1004 S -> 1004 S, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Movement select] Red: score 556.920 = dealt 32.39 x0.90 + (HP 414.0 - received 31.46 x1.01 - PSR 0.00) / enemy future 10.36 x my future 14.30 [enemy held at 1004; 53 spots with LOS]
-  [Movement] Red: 1507 SW -> 1507 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Blue -> Red: range 5, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['PPC', 'PPC', 'PPC'] (weapon heat 30 of budget 32 = max 4 + sink 28 - current 0 - movement 0 - other 0; expected dmg 25.00)
-    PPC: needs 5 (range mod +0), rolled 9 -> HIT
-    PPC: needs 5 (range mod +0), rolled 7 -> HIT
-    PPC: needs 5 (range mod +0), rolled 7 -> HIT
-  [Ranged] Red -> Blue: range 5, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['PPC', 'PPC', 'PPC'] (weapon heat 30 of budget 30 = max 4 + sink 28 - current 2 - movement 0 - other 0; expected dmg 27.50)
-    PPC: needs 4 (range mod +0), rolled 4 -> HIT
-    PPC: needs 4 (range mod +0), rolled 9 -> HIT
-    PPC: needs 4 (range mod +0), rolled 7 -> HIT
-    PPC hit for 10:
-      Hit location roll 4 (right table): Right Arm.
-10 damage (ENERGY) incoming to Right Arm (armor).
-  [STANDARD/ENERGY] 4 armor pts destroyed at armor (4 -> 0 remaining). 6 damage applied to structure [STANDARD] (13 -> 7/13 remaining).
-  Check for possible critical. Roll a 6.
-    No critical hit.
-    PPC hit for 10:
-      Hit location roll 9 (right table): Left Torso.
-10 damage (ENERGY) incoming to Left Torso (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (14 -> 4 remaining).
-    PPC hit for 10:
-      Hit location roll 3 (right table): Right Leg.
-      Leg hit strikes the partial cover - no damage (p.66).
-    PPC hit for 10:
-      Hit location roll 6 (left table): Left Leg.
-10 damage (ENERGY) incoming to Left Leg (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (23 -> 13 remaining).
-    PPC hit for 10:
-      Hit location roll 6 (left table): Left Leg.
-10 damage (ENERGY) incoming to Left Leg (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (13 -> 3 remaining).
-    PPC hit for 10:
-      Hit location roll 7 (left table): Left Torso.
-10 damage (ENERGY) incoming to Left Torso (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (14 -> 4 remaining).
-PSR trigger: 30 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 2.
-  Failed - falls.
-FALL (failed Attack Phase PSR): Awesome AWS-8Q takes 8 falling damage (1D6 1: rear table, 5-pt clusters).
-  Fall cluster (5 dmg): rolled 7 -> Center Torso
-5 damage (PHYSICAL) incoming to Center Torso (rear_armor).
-  [STANDARD/PHYSICAL] 5 armor pts destroyed at rear_armor (19 -> 14 remaining).
-  Fall cluster (3 dmg): rolled 7 -> Center Torso
-3 damage (PHYSICAL) incoming to Center Torso (rear_armor).
-  [STANDARD/PHYSICAL] 3 armor pts destroyed at rear_armor (14 -> 11 remaining).
-  Seatbelt check: needs 5. Rolled 8. Pilot unharmed.
-PSR trigger: 20 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 2.
-  Failed - falls.
-FALL (failed Attack Phase PSR): Awesome AWS-8Q takes 8 falling damage (1D6 4: front table, 5-pt clusters).
-  Fall cluster (5 dmg): rolled 8 -> Left Torso
-5 damage (PHYSICAL) incoming to Left Torso (armor).
-  [STANDARD/PHYSICAL] 4 armor pts destroyed at armor (4 -> 0 remaining). 1 damage applied to structure [STANDARD] (17 -> 16/17 remaining).
-  Check for possible critical. Roll a 9.
-    1 critical hit(s).
-  Critical hit pool at Left Torso:
-    1: Heat Sink (slot 1)
-    2: Heat Sink (slot 2)
-    3: Heat Sink (slot 3)
-    4: Heat Sink (slot 4)
-    5: Heat Sink (slot 5)
-    6: PPC (slot 6)
-    7: PPC (slot 7)
-    8: PPC (slot 8)
-    1/1 Criticals: Heat Sink slot hit.
-      Current crit slots in Left Torso: ['Heat Sink', 'DESTROYED', 'Heat Sink', 'Heat Sink', 'Heat Sink', 'PPC', 'PPC', 'PPC', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 27).
-  Fall cluster (3 dmg): rolled 5 -> Right Leg
-3 damage (PHYSICAL) incoming to Right Leg (armor).
-  [STANDARD/PHYSICAL] 3 armor pts destroyed at armor (33 -> 30 remaining).
-  Seatbelt check: needs 5. Rolled 8. Pilot unharmed.
-  [Heat] Red: 2 + movement 0 + weapons 30 + engine 0 - sinks 27 -> 5
-  [Heat] Red: heat 5 -> next turn -1 Walking MP, +0 to ranged attacks.
-  [Heat] Blue: 0 + movement 0 + weapons 30 + engine 0 - sinks 28 -> 2
-  -- end of turn 10: Red @ 1507 SW: HP 264, pilot hits 0, engine 0, gyro 0, heat 5 [PRONE]
-  -- end of turn 10: Blue @ 1004 S: HP 214, pilot hits 0, engine 0, gyro 0, heat 2 [PRONE]
-
-=== TURN 11 ===
-  Initiative: Blue lost the roll, moves first.
-Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
-  Success - Awesome AWS-8Q is standing (remaining running MP 3).
-  [Movement select] Blue: score 317.392 = dealt 20.06 x1.08 + (HP 330.0 - received 5.60 x1.00 - PSR 0.00) / enemy future 15.02 x my future 13.69 [two-ply, 33 of 43 spots (grid search) x 1 replies (short list); modeled reply Red -> 1507 SW Run]
-  [Movement] Blue: 1004 S -> 1104 SE, Run (3 MP, 1 hexes, 2 heat; budget walk 3 / run 5 / jump 0; stood up with 3 MP left)
-Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 6.
-  Success - Awesome AWS-8Q is standing (remaining running MP 1).
-  [Movement select] Red: score 455.713 = dealt 19.42 x1.00 + (HP 379.0 - received 20.14 x0.90 - PSR 0.00) / enemy future 13.69 x my future 16.55 [enemy held at 1104; 7 spots with LOS]
-  [Movement] Red: 1507 SW -> 1506 N, Run (1 MP, 1 hexes, 2 heat; budget walk 2 / run 3 / jump 0; stood up with 1 MP left)
-  [Ranged] Blue -> Red: range 4, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['PPC', 'PPC'] (weapon heat 20 of budget 28 = max 4 + sink 28 - current 2 - movement 2 - other 0; expected dmg 14.44)
-    PPC: needs 6 (range mod +0), rolled 9 -> HIT
-    PPC: needs 6 (range mod +0), rolled 5 -> miss
-  [Ranged] Red -> Blue: range 4, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['PPC', 'PPC'] (weapon heat 20 of budget 24 = max 4 + sink 27 - current 5 - movement 2 - other 0; expected dmg 14.44)
-    PPC: needs 6 (range mod +0), rolled 12 -> HIT
-    PPC: needs 6 (range mod +0), rolled 10 -> HIT
-    PPC hit for 10:
-      Hit location roll 4 (left table): Left Arm.
-10 damage (ENERGY) incoming to Left Arm (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (24 -> 14 remaining).
-    PPC hit for 10:
-      Hit location roll 6 (front table): Right Torso.
-10 damage (ENERGY) incoming to Right Torso (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (24 -> 14 remaining).
-    PPC hit for 10:
-      Hit location roll 8 (front table): Left Torso.
-10 damage (ENERGY) incoming to Left Torso (armor).
-  [STANDARD/ENERGY] 4 armor pts destroyed at armor (4 -> 0 remaining). 6 damage applied to structure [STANDARD] (17 -> 11/17 remaining).
-  Check for possible critical. Roll a 5.
-    No critical hit.
-PSR trigger: 20 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
-  Succeeded - remains standing.
-  [Heat] Red: 5 + movement 2 + weapons 20 + engine 0 - sinks 27 -> 0
-  [Heat] Blue: 2 + movement 2 + weapons 20 + engine 0 - sinks 28 -> 0
-  -- end of turn 11: Red @ 1506 N: HP 254, pilot hits 0, engine 0, gyro 0, heat 0
-  -- end of turn 11: Blue @ 1104 SE: HP 194, pilot hits 0, engine 0, gyro 0, heat 0
-
-=== TURN 12 ===
-  Initiative: Blue lost the roll, moves first.
-  [Movement select] Blue: score 226.369 = dealt 39.42 x1.00 + (HP 304.0 - received 38.50 x1.00 - PSR 0.00) / enemy future 18.06 x my future 12.72 [two-ply, 52 of 66 spots (grid search) x 84 replies (short list); modeled reply Red -> 1506 NW Stand Still]
-  [Movement] Blue: 1104 SE -> 1104 SE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Movement select] Red: score 512.664 = dealt 38.50 x1.00 + (HP 369.0 - received 38.35 x0.92 - PSR 0.00) / enemy future 12.72 x my future 18.06 [enemy held at 1104; 59 spots with LOS]
-  [Movement] Red: 1506 N -> 1506 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Blue -> Red: range 4, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['PPC', 'PPC', 'PPC'] (weapon heat 30 of budget 32 = max 4 + sink 28 - current 0 - movement 0 - other 0; expected dmg 27.50)
-    PPC: needs 4 (range mod +0), rolled 11 -> HIT
-    PPC: needs 4 (range mod +0), rolled 7 -> HIT
-    PPC: needs 4 (range mod +0), rolled 7 -> HIT
-  [Ranged] Red -> Blue: range 4, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['PPC', 'PPC', 'PPC'] (weapon heat 30 of budget 31 = max 4 + sink 27 - current 0 - movement 0 - other 0; expected dmg 27.50)
-    PPC: needs 4 (range mod +0), rolled 8 -> HIT
-    PPC: needs 4 (range mod +0), rolled 8 -> HIT
-    PPC: needs 4 (range mod +0), rolled 11 -> HIT
-    PPC hit for 10:
-      Hit location roll 9 (left table): Right Torso.
-10 damage (ENERGY) incoming to Right Torso (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (24 -> 14 remaining).
-    PPC hit for 10:
-      Hit location roll 7 (left table): Left Torso.
-10 damage (ENERGY) incoming to Left Torso (armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 10 damage applied to structure [STANDARD] (16 -> 6/17 remaining).
-  Check for possible critical. Roll a 7.
-    No critical hit.
-    PPC hit for 10:
-      Hit location roll 7 (left table): Left Torso.
-10 damage (ENERGY) incoming to Left Torso (armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 6 damage applied to structure [STANDARD] (6 -> 0/17 remaining).
-  Left Torso destroyed with no live explosive components - no critical roll.
-  Left Torso DESTROYED!
-    Heat sink destroyed (Heat Sink) from Left Torso destruction - heat dissipation reduced (now 26).
-    Heat sink destroyed (Heat Sink) from Left Torso destruction - heat dissipation reduced (now 25).
-    Heat sink destroyed (Heat Sink) from Left Torso destruction - heat dissipation reduced (now 24).
-    Heat sink destroyed (Heat Sink) from Left Torso destruction - heat dissipation reduced (now 23).
-  All critical slots in Left Torso marked DESTROYED.
-  Left Arm also destroyed (side torso rule).
-  All critical slots in Left Arm marked DESTROYED.
-  4 damage remains, transfers to Center Torso.
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 4 damage applied to structure [STANDARD] (25 -> 21/25 remaining).
-  Check for possible critical. Roll a 6.
-    No critical hit.
-    PPC hit for 10:
-      Hit location roll 8 (front table): Left Torso.
-10 damage (ENERGY) incoming to Left Torso (armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 10 damage applied to structure [STANDARD] (11 -> 1/17 remaining).
-  Check for possible critical. Roll a 10.
-    2 critical hit(s).
-  Critical hit pool at Left Torso:
-    1: Heat Sink (slot 1)
-    2: Heat Sink (slot 2)
-    3: Heat Sink (slot 3)
-    4: Heat Sink (slot 4)
-    5: Heat Sink (slot 5)
-    6: PPC (slot 6)
-    7: PPC (slot 7)
-    8: PPC (slot 8)
-    1/2 Criticals: Heat Sink slot hit.
-      Current crit slots in Left Torso: ['Heat Sink', 'Heat Sink', 'Heat Sink', 'Heat Sink', 'DESTROYED', 'PPC', 'PPC', 'PPC', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 27).
-  Critical hit pool at Left Torso:
-    1: Heat Sink (slot 1)
-    2: Heat Sink (slot 2)
-    3: Heat Sink (slot 3)
-    4: Heat Sink (slot 4)
-    5: PPC (slot 6)
-    6: PPC (slot 7)
-    7: PPC (slot 8)
-    2/2 Criticals: Heat Sink slot hit.
-      Current crit slots in Left Torso: ['DESTROYED', 'Heat Sink', 'Heat Sink', 'Heat Sink', 'DESTROYED', 'PPC', 'PPC', 'PPC', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-      Heat sink destroyed (Heat Sink) - heat dissipation reduced (now 26).
-    PPC hit for 10:
-      Hit location roll 5 (front table): Right Leg.
-10 damage (ENERGY) incoming to Right Leg (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (13 -> 3 remaining).
-    PPC hit for 10:
-      Hit location roll 10 (front table): Left Arm.
-10 damage (ENERGY) incoming to Left Arm (armor).
-  [STANDARD/ENERGY] 4 armor pts destroyed at armor (4 -> 0 remaining). 6 damage applied to structure [STANDARD] (13 -> 7/13 remaining).
-  Check for possible critical. Roll a 8.
-    1 critical hit(s).
-  Critical hit pool at Left Arm:
-    1: Shoulder (slot 1)
-    2: Upper Arm Actuator (slot 2)
-    3: Lower Arm Actuator (slot 3)
-    4: Hand Actuator (slot 4)
-    1/1 Criticals: Shoulder hit.
-      Current crit slots in Left Arm: ['DESTROYED', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-', '-Empty-']
-PSR trigger: 30 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 9.
-  Succeeded - remains standing.
-PSR trigger: 43 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 10.
-  Succeeded - remains standing.
-  [Heat] Red: 0 + movement 0 + weapons 30 + engine 0 - sinks 23 -> 7
-  [Heat] Red: heat 7 -> next turn -1 Walking MP, +0 to ranged attacks.
-  [Heat] Blue: 0 + movement 0 + weapons 30 + engine 0 - sinks 26 -> 4
-  [End] Red is now CRIPPLED (BattleMech Manual definition).
-  -- end of turn 12: Red @ 1506 N: HP 211, pilot hits 0, engine 0, gyro 0, heat 7
-  -- end of turn 12: Blue @ 1104 SE: HP 164, pilot hits 0, engine 0, gyro 0, heat 4
-
-=== TURN 13 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 264.367 = dealt 25.06 x1.00 + (HP 269.0 - received 29.13 x0.90 - PSR 0.00) / enemy future 19.16 x my future 18.89 [two-ply, 19 of 20 spots (grid search) x 66 replies (short list); modeled reply Blue -> 1104 SE Stand Still]
-  [Movement] Red: 1506 N -> 1506 N, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 2 / run 3 / jump 0)
-  [Movement select] Blue: score 263.859 = dealt 26.48 x0.90 + (HP 258.0 - received 23.06 x0.87 - PSR 1.33) / enemy future 18.89 x my future 19.16 [enemy held at 1506; 52 spots with LOS]
-[Movement] Blue: backward level change PSR at 1003: needs 5 (Piloting 5 + +0). Rolled 11.
-  Succeeded - remains standing.
-  [Movement] Blue: 1104 SE -> 1003 NE, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0) - includes a backward move
-  [Ranged] Red -> Blue: range 5, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 1 + heat 0); firing ['PPC', 'PPC'] (weapon heat 20 of budget 20 = max 4 + sink 23 - current 7 - movement 0 - other 0; expected dmg 16.67)
-    PPC: needs 5 (range mod +0), rolled 11 -> HIT
-    PPC: needs 5 (range mod +0), rolled 7 -> HIT
-  [Ranged] Blue -> Red: range 5, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['PPC', 'PPC'] (weapon heat 20 of budget 25 = max 4 + sink 26 - current 4 - movement 1 - other 0; expected dmg 16.67)
-    PPC: needs 5 (range mod +0), rolled 11 -> HIT
-    PPC: needs 5 (range mod +0), rolled 11 -> HIT
-    PPC hit for 10:
-      Hit location roll 6 (right table): Right Leg.
-      Leg hit strikes the partial cover - no damage (p.66).
-    PPC hit for 10:
-      Hit location roll 4 (right table): Right Arm.
-10 damage (ENERGY) incoming to Right Arm (armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 7 damage applied to structure [STANDARD] (7 -> 0/13 remaining).
-  Right Arm destroyed with no live explosive components - no critical roll.
-  Right Arm DESTROYED!
-    Heat sink destroyed (Heat Sink) from Right Arm destruction - heat dissipation reduced (now 25).
-    Heat sink destroyed (Heat Sink) from Right Arm destruction - heat dissipation reduced (now 24).
-    Heat sink destroyed (Heat Sink) from Right Arm destruction - heat dissipation reduced (now 23).
-    Heat sink destroyed (Heat Sink) from Right Arm destruction - heat dissipation reduced (now 22).
-    Heat sink destroyed (Heat Sink) from Right Arm destruction - heat dissipation reduced (now 21).
-  All critical slots in Right Arm marked DESTROYED.
-  3 damage remains, transfers to Right Torso.
-  [STANDARD/ENERGY] 3 armor pts destroyed at armor (14 -> 11 remaining).
-    PPC hit for 10:
-      Hit location roll 4 (left table): Left Arm.
-10 damage (ENERGY) incoming to Left Arm (armor).
-  Left Arm already destroyed - damage transfers to Left Torso.
-  Left Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 10 damage applied to structure [STANDARD] (21 -> 11/25 remaining).
-  Check for possible critical. Roll a 10.
-    2 critical hit(s).
-  Critical hit pool at Center Torso:
-    1: Engine (slot 1)
-    2: Engine (slot 2)
-    3: Engine (slot 3)
-    4: Gyro (slot 4)
-    5: Gyro (slot 5)
-    6: Gyro (slot 6)
-    7: Gyro (slot 7)
-    8: Engine (slot 8)
-    9: Engine (slot 9)
-    10: Engine (slot 10)
-    11: Heat Sink (slot 11)
-    12: Heat Sink (slot 12)
-    1/2 Criticals: Engine hit.
-      Current crit slots in Center Torso: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'DESTROYED', 'Engine', 'Engine', 'Heat Sink', 'Heat Sink']
-      Engine hit (1/3).
-  Critical hit pool at Center Torso:
-    1: Engine (slot 1)
-    2: Engine (slot 2)
-    3: Engine (slot 3)
-    4: Gyro (slot 4)
-    5: Gyro (slot 5)
-    6: Gyro (slot 6)
-    7: Gyro (slot 7)
-    8: Engine (slot 9)
-    9: Engine (slot 10)
-    10: Heat Sink (slot 11)
-    11: Heat Sink (slot 12)
-    2/2 Criticals: Engine hit.
-      Current crit slots in Center Torso: ['Engine', 'DESTROYED', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'DESTROYED', 'Engine', 'Engine', 'Heat Sink', 'Heat Sink']
-      Engine hit (2/3).
-    PPC hit for 10:
-      Hit location roll 6 (left table): Left Leg.
-10 damage (ENERGY) incoming to Left Leg (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (23 -> 13 remaining).
-PSR trigger: 20 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 7.
-  Succeeded - remains standing.
-  [Heat] Red: 7 + movement 0 + weapons 20 + engine 10 - sinks 23 -> 14
-  [Heat] Red: shutdown avoid roll at heat 14: needs 4, rolled 7 - avoided.
-  [Heat] Red: heat 14 -> next turn -2 Walking MP, +2 to ranged attacks.
-  [Heat] Blue: 4 + movement 1 + weapons 20 + engine 0 - sinks 21 -> 4
-  -- end of turn 13: Red @ 1506 N: HP 191, pilot hits 0, engine 2, gyro 0, heat 14
-  -- end of turn 13: Blue @ 1003 NE: HP 154, pilot hits 0, engine 0, gyro 0, heat 4
-
-=== TURN 14 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: no spot deals damage even before the reply (two-ply, 9 spots) - closing fallback
-  [Movement] Red: 1506 N -> 1405 NW, Run (2 MP, 1 hexes, 2 heat; budget walk 1 / run 2 / jump 0)
-  [Movement select] Blue: score 295.254 = dealt 28.82 x1.00 + (HP 241.0 - received 0.00 x0.83 - PSR 0.00) / enemy future 18.37 x my future 20.31 [enemy held at 1405; 57 spots with LOS]
-  [Movement] Blue: 1003 NE -> 1003 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Red -> Blue: range 4, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 2); firing nothing (weapon heat 0 of budget 1 = max 4 + sink 23 - current 14 - movement 2 - other 10; expected dmg 0.00)
-  [Ranged] Blue -> Red: range 4, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['PPC', 'PPC'] (weapon heat 20 of budget 21 = max 4 + sink 21 - current 4 - movement 0 - other 0; expected dmg 18.33)
-    PPC: needs 4 (range mod +0), rolled 6 -> HIT
-    PPC: needs 4 (range mod +0), rolled 11 -> HIT
-    PPC hit for 10:
-      Hit location roll 3 (front table): Right Arm.
-10 damage (ENERGY) incoming to Right Arm (armor).
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 7 damage applied to structure [STANDARD] (7 -> 0/13 remaining).
-  Right Arm destroyed with no live explosive components - no critical roll.
-  Right Arm DESTROYED!
-    Heat sink destroyed (Heat Sink) from Right Arm destruction - heat dissipation reduced (now 22).
-    Heat sink destroyed (Heat Sink) from Right Arm destruction - heat dissipation reduced (now 21).
-    Heat sink destroyed (Heat Sink) from Right Arm destruction - heat dissipation reduced (now 20).
-    Heat sink destroyed (Heat Sink) from Right Arm destruction - heat dissipation reduced (now 19).
-    Heat sink destroyed (Heat Sink) from Right Arm destruction - heat dissipation reduced (now 18).
-  All critical slots in Right Arm marked DESTROYED.
-  3 damage remains, transfers to Right Torso.
-  [STANDARD/ENERGY] 3 armor pts destroyed at armor (14 -> 11 remaining).
-    PPC hit for 10:
-      Hit location roll 9 (front table): Left Leg.
-10 damage (ENERGY) incoming to Left Leg (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (13 -> 3 remaining).
-PSR trigger: 20 armor+structure lost this phase (>=20) -> +1.
-Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
-  Succeeded - remains standing.
-  [Heat] Red: 14 + movement 2 + weapons 0 + engine 10 - sinks 18 -> 8
-  [Heat] Red: heat 8 -> next turn -1 Walking MP, +1 to ranged attacks.
-  [Heat] Blue: 4 + movement 0 + weapons 20 + engine 0 - sinks 21 -> 3
-  -- end of turn 14: Red @ 1405 NW: HP 171, pilot hits 0, engine 2, gyro 0, heat 8
-  -- end of turn 14: Blue @ 1003 NE: HP 154, pilot hits 0, engine 0, gyro 0, heat 3
-
-=== TURN 15 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 161.423 = dealt 0.10 x1.00 + (HP 212.0 - received 24.58 x0.85 - PSR 0.00) / enemy future 20.38 x my future 17.19 [two-ply, 19 of 20 spots (grid search) x 80 replies (short list); modeled reply Blue -> 1003 SE Stand Still]
-  [Movement] Red: 1405 NW -> 1305 SW, Run (3 MP, 1 hexes, 2 heat; budget walk 2 / run 3 / jump 0)
-  [Movement select] Blue: score 306.330 = dealt 24.58 x0.85 + (HP 241.0 - received 0.09 x0.83 - PSR 0.00) / enemy future 17.19 x my future 20.38 [enemy held at 1305; 50 spots with LOS]
-  [Movement] Blue: 1003 NE -> 1003 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Red -> Blue: range 3, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 1 + heat 1); firing ['Small Laser'] (weapon heat 1 of budget 2 = max 4 + sink 18 - current 8 - movement 2 - other 10; expected dmg 0.08)
-    Small Laser: needs 12 (range mod +4), rolled 7 -> miss
-  [Ranged] Blue -> Red: range 3, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['Small Laser', 'PPC', 'PPC'] (weapon heat 21 of budget 22 = max 4 + sink 21 - current 3 - movement 0 - other 0; expected dmg 17.92)
-  [Ranged] Blue fires in order: ['PPC', 'PPC', 'Small Laser'].
-    PPC: needs 5 (range mod +1), rolled 5 -> HIT
-    PPC: needs 5 (range mod +1), rolled 3 -> miss
-    Small Laser: needs 8 (range mod +4), rolled 7 -> miss
-    PPC hit for 10:
-      Hit location roll 9 (right table): Left Torso.
-10 damage (ENERGY) incoming to Left Torso (armor).
-  Left Torso already destroyed - damage transfers to Center Torso.
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 10 damage applied to structure [STANDARD] (11 -> 1/25 remaining).
-  Check for possible critical. Roll a 6.
-    No critical hit.
-  [Heat] Red: 8 + movement 2 + weapons 1 + engine 10 - sinks 18 -> 3
-  [Heat] Blue: 3 + movement 0 + weapons 21 + engine 0 - sinks 21 -> 3
-  -- end of turn 15: Red @ 1305 SW: HP 161, pilot hits 0, engine 2, gyro 0, heat 3
-  -- end of turn 15: Blue @ 1003 NE: HP 154, pilot hits 0, engine 0, gyro 0, heat 3
-
-=== TURN 16 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 152.171 = dealt 1.48 x1.00 + (HP 192.0 - received 14.49 x0.72 - PSR 0.00) / enemy future 19.48 x my future 16.17 [two-ply, 35 of 104 spots (grid search) x 80 replies (short list); modeled reply Blue -> 1003 S Stand Still]
-  [Movement] Red: 1305 SW -> 1005 NW, Run (5 MP, 3 hexes, 2 heat; budget walk 3 / run 5 / jump 0)
-  [Movement select] Blue: score 299.384 = dealt 14.49 x0.72 + (HP 241.0 - received 1.40 x0.83 - PSR 0.00) / enemy future 16.17 x my future 19.48 [enemy held at 1005; 59 spots with LOS]
-  [Movement] Blue: 1003 NE -> 1003 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Red -> Blue: range 2, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['Small Laser'] (weapon heat 1 of budget 7 = max 4 + sink 18 - current 3 - movement 2 - other 10; expected dmg 1.25)
-    Small Laser: needs 8 (range mod +2), rolled 10 -> HIT
-  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
-  [Ranged] Blue -> Red: range 2, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 1 + LOS 0 + heat 0); firing ['Small Laser', 'PPC', 'PPC'] (weapon heat 21 of budget 22 = max 4 + sink 21 - current 3 - movement 0 - other 0; expected dmg 13.42)
-  [Ranged] Blue fires in order: ['PPC', 'PPC', 'Small Laser'].
-    PPC: needs 7 (range mod +2), rolled 9 -> HIT
-    PPC: needs 7 (range mod +2), rolled 5 -> miss
-    Small Laser: needs 7 (range mod +2), rolled 6 -> miss
     Small Laser hit for 3:
-      Hit location roll 7 (right table): Right Torso.
-3 damage (ENERGY) incoming to Right Torso (armor).
-  [STANDARD/ENERGY] 3 armor pts destroyed at armor (11 -> 8 remaining).
-    PPC hit for 10:
-      Hit location roll 7 (right table): Right Torso.
-10 damage (ENERGY) incoming to Right Torso (armor).
-  [STANDARD/ENERGY] 10 armor pts destroyed at armor (11 -> 1 remaining).
-  [Heat] Red: 3 + movement 2 + weapons 1 + engine 10 - sinks 18 -> 0
-  [Heat] Blue: 3 + movement 0 + weapons 21 + engine 0 - sinks 21 -> 3
-  -- end of turn 16: Red @ 1005 NW: HP 151, pilot hits 0, engine 2, gyro 0, heat 0
-  -- end of turn 16: Blue @ 1003 NE: HP 151, pilot hits 0, engine 0, gyro 0, heat 3
-
-=== TURN 17 ===
-  Initiative: Red lost the roll, moves first.
-  [Movement select] Red: score 146.089 = dealt 12.14 x1.00 + (HP 182.0 - received 23.55 x0.73 - PSR 0.00) / enemy future 19.18 x my future 15.59 [two-ply, 67 of 89 spots (grid search) x 80 replies (short list); modeled reply Blue -> 1003 S Stand Still]
-  [Movement] Red: 1005 NW -> 1005 NW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Movement select] Blue: score 297.691 = dealt 23.55 x0.73 + (HP 238.0 - received 12.00 x0.83 - PSR 0.00) / enemy future 15.59 x my future 19.18 [enemy held at 1005; 59 spots with LOS]
-  [Movement] Blue: 1003 NE -> 1003 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
-  [Ranged] Red -> Blue: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['Small Laser', 'PPC'] (weapon heat 11 of budget 12 = max 4 + sink 18 - current 0 - movement 0 - other 10; expected dmg 9.39)
-  [Ranged] Red fires in order: ['PPC', 'Small Laser'].
-    PPC: needs 6 (range mod +2), rolled 11 -> HIT
-    Small Laser: needs 6 (range mod +2), rolled 7 -> HIT
-  [Ranged] Blue twists its torso 1 hexside right (Red is in its torso's forward arc after that).
-  [Ranged] Blue -> Red: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['Small Laser', 'PPC', 'PPC'] (weapon heat 21 of budget 22 = max 4 + sink 21 - current 3 - movement 0 - other 0; expected dmg 16.61)
-  [Ranged] Blue fires in order: ['PPC', 'PPC', 'Small Laser'].
-    PPC: needs 6 (range mod +2), rolled 9 -> HIT
-    PPC: needs 6 (range mod +2), rolled 9 -> HIT
-    Small Laser: needs 6 (range mod +2), rolled 10 -> HIT
-    PPC hit for 10:
-      Hit location roll 5 (right table): Right Arm.
-10 damage (ENERGY) incoming to Right Arm (armor).
-  Right Arm already destroyed - damage transfers to Right Torso.
-  [STANDARD/ENERGY] 8 armor pts destroyed at armor (8 -> 0 remaining). 2 damage applied to structure [STANDARD] (17 -> 15/17 remaining).
-  Check for possible critical. Roll a 6.
-    No critical hit.
-    Small Laser hit for 3:
-      Hit location roll 8 (right table): Center Torso.
+      Hit location roll 8 (left table): Center Torso.
 3 damage (ENERGY) incoming to Center Torso (armor).
-  [STANDARD/ENERGY] 3 armor pts destroyed at armor (10 -> 7 remaining).
-    PPC hit for 10:
-      Hit location roll 4 (right table): Right Arm.
-10 damage (ENERGY) incoming to Right Arm (armor).
-  Right Arm already destroyed - damage transfers to Right Torso.
-  [STANDARD/ENERGY] 1 armor pts destroyed at armor (1 -> 0 remaining). 9 damage applied to structure [STANDARD] (17 -> 8/17 remaining).
-  Check for possible critical. Roll a 4.
-    No critical hit.
+  [STANDARD/ENERGY] 3 armor pts destroyed at armor (5 -> 2 remaining).
     PPC hit for 10:
       Hit location roll 5 (right table): Right Arm.
 10 damage (ENERGY) incoming to Right Arm (armor).
-  Right Arm already destroyed - damage transfers to Right Torso.
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 8 damage applied to structure [STANDARD] (8 -> 0/17 remaining).
-  Right Torso destroyed with no live explosive components - no critical roll.
-  Right Torso DESTROYED!
-    Heat sink destroyed (Heat Sink) from Right Torso destruction - heat dissipation reduced (now 17).
-    Heat sink destroyed (Heat Sink) from Right Torso destruction - heat dissipation reduced (now 16).
-    Heat sink destroyed (Heat Sink) from Right Torso destruction - heat dissipation reduced (now 15).
-  All critical slots in Right Torso marked DESTROYED.
-  Right Arm also destroyed (side torso rule).
-  All critical slots in Right Arm marked DESTROYED.
-  2 damage remains, transfers to Center Torso.
-  [STANDARD/ENERGY] 0 armor pts destroyed at armor (0 -> 0 remaining). 1 damage applied to structure [STANDARD] (1 -> 0/25 remaining).
-  Center Torso destroyed with no live explosive components - no critical roll.
-  Center Torso DESTROYED!
-    Engine hit (3/3) from Center Torso destruction.
-    Engine hit (4/3) from Center Torso destruction.
-    Gyro hit (1/2) from Center Torso destruction.
-    Gyro hit (2/2) from Center Torso destruction.
-    Gyro hit (3/2) from Center Torso destruction.
-    Gyro hit (4/2) from Center Torso destruction.
-    Engine hit (5/3) from Center Torso destruction.
-    Engine hit (6/3) from Center Torso destruction.
-    Heat sink destroyed (Heat Sink) from Center Torso destruction - heat dissipation reduced (now 14).
-    Heat sink destroyed (Heat Sink) from Center Torso destruction - heat dissipation reduced (now 13).
-  All critical slots in Center Torso marked DESTROYED.
-  1 damage remains, transfers to nowhere (attack finished).
-    Small Laser hit for 3:
-      Hit location roll 4 (right table): Right Arm.
-3 damage (ENERGY) incoming to Right Arm (armor).
-  Right Arm already destroyed - damage transfers to Right Torso.
-  Right Torso already destroyed - damage transfers to Center Torso.
-  Center Torso already destroyed - damage transfers to nowhere (attack finished).
-  [Heat] Blue: 3 + movement 0 + weapons 21 + engine 0 - sinks 21 -> 3
-  [End] Blue is now CRIPPLED (BattleMech Manual definition).
-  -- end of turn 17: Red @ 1005 NW: HP 132, pilot hits 0, engine 6, gyro 4, heat 0 [DESTROYED (Center Torso Destroyed)]
-  -- end of turn 17: Blue @ 1003 NE: HP 138, pilot hits 0, engine 0, gyro 0, heat 3
+  [STANDARD/ENERGY] 10 armor pts destroyed at armor (24 -> 14 remaining).
+  [Heat] Red: 0 + movement 1 + weapons 31 + engine 0 - sinks 28 -> 4
+  -- end of turn 11: Red @ 1108 NW: HP 284, pilot hits 0, engine 0, gyro 0, heat 4
+  -- end of turn 11: Blue @ 1006 SW: HP 223, pilot hits 2, engine 0, gyro 0, heat 0 [DESTROYED (Cockpit Destroyed)]
 
->>> Battle over on turn 17: Red destroyed. <<<
+>>> Battle over on turn 11: Blue destroyed. <<<

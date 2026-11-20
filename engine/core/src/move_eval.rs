@@ -152,6 +152,8 @@ pub struct PairInfo {
     pub entry_dir: i64,
     pub distance: i64,
     pub arcs: [i64; 6],
+    /// the target end has partial cover (Core p.66): its leg hits strike the cover (N8)
+    pub cover: bool,
 }
 
 pub fn pair_info(b: &Battle, a: (i64, i64), t: (i64, i64), ah: Height, th: Height) -> Option<PairInfo> {
@@ -166,7 +168,8 @@ pub fn pair_info(b: &Battle, a: (i64, i64), t: (i64, i64), ah: Height, th: Heigh
         Ok(trace) => {
             let steps = &trace.steps;
             let entry_dir = if steps.len() >= 2 { crate::combat::direction_facing(t, steps[steps.len() - 2].hex).unwrap() } else { 0 };
-            Some(PairInfo { los: trace.result, entry_dir, distance: hex_distance(a, t), arcs: arcs::arcs_between(a, t) })
+            let cover = steps.last().is_some_and(|s| s.partial_cover > 0);
+            Some(PairInfo { los: trace.result, entry_dir, distance: hex_distance(a, t), arcs: arcs::arcs_between(a, t), cover })
         }
         Err(_) => None,
     };
@@ -474,6 +477,16 @@ impl MoveEvaluator {
                         best
                     }
                 };
+            }
+            // PARTIAL COVER (Core p.66; N8, rules review G9): a leg hit on a target behind partial cover strikes the cover,
+            // so only the hits that land elsewhere count (the cover's +1 to hit is already in the line's modifier)
+            // Princess / CASPAR reuse this evaluator for their estimates, and MegaMek's Princess does not discount cover: theirs stay
+            let cover_legs = (!b.cfg.has("MOVEMENT_COVER_LEGS") || b.cfg.b("MOVEMENT_COVER_LEGS")) && !b.units[mover].is_princess_family();
+            if cover_legs && h.atk_to_def.cover && dealt > 0.0 {
+                dealt *= 1.0 - crate::hit_location::leg_share(&b.units[defender], side_on_def);
+            }
+            if cover_legs && h.def_to_atk.cover && received > 0.0 {
+                received *= 1.0 - crate::hit_location::leg_share(&b.units[mover], side_on_mover);
             }
             if distance == 1 {
                 let (a_level, d_level) = (b.board.hexes[&o.label].level, b.board.hexes[def_hex_label].level);
