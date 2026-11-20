@@ -133,7 +133,8 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   the formula with hardened counted x2 predicts +1.18.
   FERRO-LAMELLOR DONE 2026-11-20: +0.69 log-odds, about x1.6 armor (hardened about x2.2); BV predicts +0.18. Daniel: reactive
   and reflective depend on the opponent's weapons (and some damage types reactive is for are not active yet): not tested.
-  Next: heat sinks, jump, TC (stealth armor reads as standard in mtf_parser: no combat effect to test).
+  Next: heat sinks, jump, TC. CORRECTION: stealth armor DOES work (equipment_systems::active_stealth: +1 medium / +2 long,
+  10 heat, needs live ECM; absorbs as standard), ALWAYS ON while the ECM works (the 2026-10-19 "default on"; no bot toggle).
 
 **A. Gladiator - the bot**
 - **A1. The move score does not see a win, a clock or the walk back** (review 2026-11-10; [000000 (a)], [0]
@@ -160,7 +161,19 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   suite so the bot is not tuned to one roster and field (T3).
 
 **B. Princess clone** [00] - still to clone when the project has the rules: forced withdrawal, artillery / TAG
-standoff, sprinting, multi-target fire, unit orders. Open call (Daniel): Short-Short as the default search.
+standoff, sprinting, multi-target fire, unit orders.
+FOUND 2026-11-20 (Daniel: "Why wasn't this already included for Princess? What other features are we missing still?"): the
+clone was built from MegaMek's `client/bot/princess/` folder; the bot code ABOVE it (`BotClient`, `BotHeatEquipmentManager`,
+run for Princess and CASPAR alike) was never ported, and the engine-wide "default on" for heat equipment (2026-10-19) hid it.
+Missing from there: STEALTH ARMOR on / off (end of turn: off above a heat of 13 + d7-ish, TSM 'Mechs on while closing / off
+adjacent, on when most enemy BV is unseen, else off when the mean distance to the seen enemies <= 5 + 0..4); Null / Void
+Signature and Chameleon shed when hot (shutdown range) and restored when cool; radical heat sink used only when needed and
+better than even (ours: a fixed 1-on / 1-off cycle for every bot); Nova CEWS (no engine rule). Princess's path extras
+(`embellishPath`): RAC unjam by its own rule (ours: STUB_UNJAM for every bot), evade and searchlight (no engine rules).
+Aimed / called shot choice (Princess has its own picker). Tactical Genius initiative re-roll (no engine rule). A full
+line-by-line audit of `BotClient` + `Princess` + `BotHeatEquipmentManager` is still to do; Gladiator / Hydra stealth by a
+Legate-style End Phase forecast ON HOLD (Daniel, 2026-11-20: "we'll hold off on Gladiator and Hydra"). The MegaMek-bot work
+is TASK_SPECS T16 (Daniel: for Sonnet). Open call (Daniel): Short-Short as the default search.
 MegaMek's CASPAR (read 2026-11-12, MegaMek main `c743b3f`; re-read 2026-11-18 at `7fa46c5`): `class Caspar extends Princess`. CLONED
 2026-11-18 as the FOURTH BOT, "caspar" (Rust only; Daniel: "incorporate it as a 4th bot"): `engine/core/src/caspar.rs` plus
 `princess_modern::choose_as`. It is the Princess clone with MegaMek's Mutual Support doctrine swapped in (formation penalty, cover
