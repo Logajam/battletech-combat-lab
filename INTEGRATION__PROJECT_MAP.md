@@ -161,7 +161,18 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   suite so the bot is not tuned to one roster and field (T3).
 
 **B. Princess clone** [00] - still to clone when the project has the rules: forced withdrawal, artillery / TAG
-standoff, sprinting, multi-target fire, unit orders. Open call (Daniel): Short-Short as the default search.
+standoff, sprinting, multi-target fire, unit orders.
+FOUND 2026-11-20 (Daniel: "Why wasn't this already included for Princess? What other features are we missing still?"): the
+clone was built from MegaMek's `client/bot/princess/` folder; the bot code ABOVE it (`BotClient`, `BotHeatEquipmentManager`,
+run for Princess and CASPAR alike) was never ported, and the engine-wide "default on" for heat equipment (2026-10-19) hid it.
+Missing from there: STEALTH ARMOR on / off (end of turn: off above a heat of 13 + d7-ish, TSM 'Mechs on while closing / off
+adjacent, on when most enemy BV is unseen, else off when the mean distance to the seen enemies <= 5 + 0..4); Null / Void
+Signature and Chameleon shed when hot (shutdown range) and restored when cool; radical heat sink used only when needed and
+better than even (ours: a fixed 1-on / 1-off cycle for every bot); Nova CEWS (no engine rule). Princess's path extras
+(`embellishPath`): RAC unjam by its own rule (ours: STUB_UNJAM for every bot), evade and searchlight (no engine rules).
+Aimed / called shot choice (Princess has its own picker). Tactical Genius initiative re-roll (no engine rule). A full
+line-by-line audit of `BotClient` + `Princess` + `BotHeatEquipmentManager` is still to do; Gladiator / Hydra stealth by a
+Legate-style End Phase forecast (Daniel, 2026-11-20) after the MegaMek rule is in. Open call (Daniel): Short-Short as the default search.
 MegaMek's CASPAR (read 2026-11-12, MegaMek main `c743b3f`; re-read 2026-11-18 at `7fa46c5`): `class Caspar extends Princess`. CLONED
 2026-11-18 as the FOURTH BOT, "caspar" (Rust only; Daniel: "incorporate it as a 4th bot"): `engine/core/src/caspar.rs` plus
 `princess_modern::choose_as`. It is the Princess clone with MegaMek's Mutual Support doctrine swapped in (formation penalty, cover
