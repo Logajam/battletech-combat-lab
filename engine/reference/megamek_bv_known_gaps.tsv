@@ -1,10 +1,4 @@
 # Units whose BV still differs from MegaMek 0.51.01.7 (2026-11-20): path, ours, MegaMek. The check fails on any unit NOT listed here
 # (a new gap) and prints the ones that now match (remove them from this file).
-3145/Marik/Sarath SRTH-1OB.mtf	1490	1475
-Starterbook Sword and Dragon/Hunchback HBK-4G Shakir.mtf	957	952
-Urbanfest/UrbanKnight UM-DKX.mtf	990	974
+# Uni ATAE-70 ArtilleryMech: an illegal design (Daniel: it really has ONE Thumper; MegaMek reads two from the file).
 XTRs/Caveat Emptor/Uni ATAE-70 ArtilleryMech.mtf	822	865
-XTRs/Periphery/Atlas AS-700 Jurn.mtf	2059	2058
-XTRs/Primitives V/Orion ON1-H.mtf	1313	1307
-XTRs/Royal Fantasy/Tessen TSN-X4R _Rapunzel_.mtf	1495	1494
-XTRs/Succession Wars/Super Griffin GRF-2N-X.mtf	1201	1269

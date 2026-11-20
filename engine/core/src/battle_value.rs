@@ -126,10 +126,10 @@ const EXPLOSIVE_PER_MEGAMEK: [(&str, bool); 12] = [("climprovedheavylargelaser",
     ("isprototypeimprovedjumpjet", true), ("lamfueltank", true), ("isriscemergencycoolantsystem", true)];
 
 /// Prototype and primitive weapons: the equipment table maps them onto the ordinary weapon, but MegaMek prices them apart. (canonical
-/// key, BV, heat) for a raw name that says "prototype" (all but the "primitive" rows), taken from MegaMek's equipment types by
+/// key, BV, heat; the four Inner Sphere prototype lasers carry the 1d6 heat adjustment, +3 / +3 / +3 / +2) for a raw name that says "prototype" (all but the "primitive" rows), taken from MegaMek's equipment types by
 /// comparing every one with equipment_bv.json (2026-11-20). `f64::NAN` leaves the table's own value.
-const PROTOTYPE_BV: [(&str, f64, f64); 17] = [("islargepulselaser", 108.0, f64::NAN), ("iserlargelaser", 136.0, f64::NAN), ("ismediumpulselaser", 43.0, f64::NAN),
-    ("issmallpulselaser", 11.0, f64::NAN), ("clermediumlaser", 62.0, f64::NAN), ("clersmalllaser", 17.0, f64::NAN), ("clultraac2", 56.0, f64::NAN),
+const PROTOTYPE_BV: [(&str, f64, f64); 17] = [("islargepulselaser", 108.0, 13.0), ("iserlargelaser", 136.0, 15.0), ("ismediumpulselaser", 43.0, 7.0),
+    ("issmallpulselaser", 11.0, 4.0), ("clermediumlaser", 62.0, f64::NAN), ("clersmalllaser", 17.0, f64::NAN), ("clultraac2", 56.0, f64::NAN),
     ("clultraac10", f64::NAN, 4.0), ("clultraac20", 281.0, 8.0), ("cllbxac2", 42.0, f64::NAN), ("cllbxac5", 83.0, f64::NAN), ("clstreaksrm4", 59.0, f64::NAN),
     ("clstreaksrm6", 89.0, f64::NAN), ("rl10", 15.0, f64::NAN), ("rl15", 18.0, f64::NAN), ("rl20", 19.0, f64::NAN), ("isnarcbeacon", 15.0, f64::NAN)];
 /// The same for "primitive prototype" weapons (heat only: their BV matches).
@@ -159,7 +159,11 @@ fn equipment_items(b: &Battle, u: UnitId) -> Vec<Item> {
             let raw_up = eq.name.to_uppercase();
             let canon_key = canonical.replace(' ', "");
             let (mut over_bv, mut over_heat) = (f64::NAN, f64::NAN);
-            if raw_up.contains("PRIMITIVE") || raw_up == "PPCP" {
+            if raw_up.contains("PRIMITIVE") && canon_key == "isammoac/10" {
+                over_bv = 12.0; // MegaMek's primitive AC/10 ammo is worth 12, the ordinary 15
+            } else if raw_up.contains("PRIMITIVE") && canon_key == "islongtomammo" {
+                over_bv = 35.0;
+            } else if raw_up.contains("PRIMITIVE") || raw_up == "PPCP" {
                 if let Some((_, h)) = PRIMITIVE_HEAT.iter().find(|(n, _)| *n == canon_key) { over_heat = *h; }
             } else if raw_up.contains("PROTOTYPE") || raw_up.contains("(CP)") {
                 if let Some((_, v, h)) = PROTOTYPE_BV.iter().find(|(n, _, _)| *n == canon_key) { over_bv = *v; over_heat = *h; }
@@ -317,7 +321,9 @@ impl<'a> Calc<'a> {
         // jump (and UMU) MP, a medium one a jump MP each
         let large_shields = items.iter().filter(|i| i.has("S_SHIELD_LARGE")).count() as i64;
         let medium_shields = items.iter().filter(|i| i.has("S_SHIELD_MEDIUM")).count() as i64;
-        let mut walk = m.base_walk_mp - large_shields - medium_shields;
+        // a Chain Drape (cape / apron / poncho) takes a walking MP (BipedMek.getWalkMP); the table has no row for it, so it reads as a name
+        let chain_drape = m.crits.values().any(|slots| slots.iter().any(|sl| matches!(sl, Slot::Name(n) if n.to_uppercase().starts_with("CHAINDRAPE")))) as i64;
+        let mut walk = m.base_walk_mp - large_shields - medium_shields - chain_drape;
         // a "Triple-Strength" myomer line without a TSM in the slots still counts (MegaMek adds the equipment itself)
         let myomer_up = m.myomer.to_uppercase().replace(['-', ' '], "");
         let tsm_myomer = myomer_up.contains("TRIPLESTRENGTH") && !myomer_up.contains("INDUSTRIAL");
@@ -526,7 +532,11 @@ impl<'a> Calc<'a> {
         for item in &self.items {
             // a PPC with a capacitor linked, and the capacitor itself, are explosive for BV (MegaMek's isExplosive): the table says no
             let capacitor_pair = item.has("F_PPC_CAPACITOR") || (item.kind.as_deref() == Some("weapon") && item.has("F_PPC") && item.link.is_some_and(|l| self.items[l].has("F_PPC_CAPACITOR")));
-            if !item.explosive && !capacitor_pair {
+            // an HVAC (hypervelocity) cannon counts as explosive in MegaMek's BV (-1 whatever its slots), though the table says no
+            let hvac = item.kind.as_deref() == Some("weapon") && item.has("F_HVAC");
+            // the RISC laser pulse module is explosive in the same way (-1)
+            let lpm = item.has("F_RISC_LASER_PULSE_MODULE");
+            if !item.explosive && !capacitor_pair && !hvac && !lpm {
                 continue;
             }
             if item.kind.as_deref() == Some("weapon") {
@@ -553,6 +563,7 @@ impl<'a> Calc<'a> {
                 subtract = 1.0;
             }
             let slots = if item.has("F_HVAC") { 1 } else { item.slots() };
+            if trace_level() == 2 { eprintln!("BVX\t{} {}\t{}\t{}\t{}", self.m.chassis, self.m.model, item.name, item.location, subtract * slots as f64); }
             sub += subtract * slots as f64;
             // (the Python subtracts as it goes; the running total is only read at the end)
         }
@@ -704,12 +715,13 @@ impl<'a> Calc<'a> {
         // fills 2 (laser, Clan double) or 3 (Inner Sphere double, prototype) lines
         let mut sinks_in_slots = 0;
         if !t.contains("LASER") && !t.contains("DOUBLE") {
+            let (mut lines2, mut lines3) = (0, 0);
             for i in &self.items {
                 if i.has("F_DOUBLE_HEAT_SINK") || i.has("F_IS_DOUBLE_HEAT_SINK_PROTOTYPE") {
-                    let per = if i.has("F_LASER_HEAT_SINK") || i.canonical.to_lowercase().starts_with("cl") || i.equip_name.to_uppercase().starts_with("CL") { 2 } else { 3 };
-                    sinks_in_slots += i.slots() / per;
+                    if i.has("F_LASER_HEAT_SINK") || i.canonical.to_lowercase().starts_with("cl") || i.equip_name.to_uppercase().starts_with("CL") { lines2 += i.slots(); } else { lines3 += i.slots(); }
                 }
             }
+            sinks_in_slots = lines2 / 2 + lines3 / 3;
         }
         let laser_in_slots = sinks_in_slots;
         m.base_heat_sinks * rate + laser_in_slots * (2 - rate) + if m.partial_wing_active { 3 } else { 0 }
@@ -905,6 +917,7 @@ impl<'a> Calc<'a> {
     fn offensive_equipment(&mut self) {
         const SKIP: [&str; 22] = ["F_AP_POD", "F_VIRAL_JAMMER_DECOY", "F_VIRAL_JAMMER_HOMING", "F_LIGHT_BRIDGE_LAYER", "F_MEDIUM_BRIDGE_LAYER", "F_HEAVY_BRIDGE_LAYER", "F_CHAFF_POD", "F_BULLDOZER", "F_BAP", "F_TARGETING_COMPUTER", "F_SPIKES", "F_MINESWEEPER", "F_HARJEL_II", "F_HARJEL_III", "F_MASS", "F_MINE", "F_SHIELD", "", "", "", "", ""];
         let mut add = 0.0;
+        let mut talons_counted = false;
         for item in &self.items {
             if item.kind.as_deref() != Some("misc") {
                 continue;
@@ -915,6 +928,9 @@ impl<'a> Calc<'a> {
             if item.any(&SKIP[..17]) || Self::is_vibroblade(item) {
                 continue;
             }
+            // MegaMek counts one set of talons however many feet carry them (a quad's four legs are still one)
+            if item.has("F_TALON") && talons_counted { continue; }
+            if item.has("F_TALON") { talons_counted = true; }
             let mut bv = self.misc_bv(item);
             if bv == 0.0 {
                 continue;

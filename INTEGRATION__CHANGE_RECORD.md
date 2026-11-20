@@ -44,6 +44,14 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   Sarath, Hunchback Shakir (prototype pulse laser heat), UrbanKnight, Uni ATAE-70 (second Thumper), Kraken-XR (laser sink header), Atlas
   Jurn, Orion ON1-H (primitive), Hornet (ER small laser name), Tessen, Super Griffin (prototype improved jump jets). All 63 checks pass; the
   91 reference battles did not change this time.
+  THIRD PASS (same day; Daniel went through the last ones: "all of these can be solved by looking at the code megamek uses"): armored PPC
+  with capacitor priced with it for one slot more (Great Turtle); the torpedo ammo name alias (Mad Cat U); laser / prototype double heat
+  sinks in the slots are real sinks of their own kind, the header's count is what is left over (Kraken-XR 4 laser = 20, Super Griffin 5
+  prototype doubles); a generic weapon name is read in the unit's tech base (Hornet's "ER Small Laser" is the IS one); prototype improved
+  jump jets: one slot each, explosive, jump heat 2 x MP min 6 (MegaMek JUMP_PROTOTYPE_IMPROVED); the four IS prototype lasers' +3 / +3 / +3 /
+  +2 heat adjustment; primitive AC/10 and Long Tom ammo BV; a Chain Drape takes a walking MP; one set of talons however many feet;
+  HVAC cannons and the RISC laser pulse module explosive (-1). RESULT: 1 unit of 4,204 differs from MegaMek: Uni ATAE-70 (an illegal
+  design: it has ONE Thumper, MegaMek reads two from the file; kept on the known-gaps list). All 63 checks pass.
 - **2026-11-20 (Claude, session 31), COMBAT LAB TWEAKS: DROP-DOWN OPTIONS, ETA, CLOSE BUTTON, WINDOW GRIPS, UNIT STATISTICS (FRONT / REAR ARMOR, MOVEMENT, DISTANCES, CRITICAL SLOT SURVIVAL), MEGAMEK OPTIONS LIST. REVIEW PENDING (higher-level model).**
   Daniel's round of minor tweaks. (1) OPTIONS: every typed-in setting that takes one of a few words is now a drop-down
   (`CHOICES` in `tools/make_options_registry.py` -> `choices` in `options.json` -> `optionRow` in lab.js; 26 settings: foe choice, home
