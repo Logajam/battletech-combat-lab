@@ -214,7 +214,7 @@ pub fn damage_per(b: &mut Battle, u: UnitId, w: ItemId, plan: &ShotPlan) -> Opti
     }
     if let Some(table) = wp::variable_damage(b, u, w) {
         let key = if plan.bracket.is_empty() { "short" } else { plan.bracket.as_str() };
-        return Some(table.iter().find(|(k, _)| *k == key).map_or(0, |(_, v)| *v));
+        return Some(table.iter().find(|(k, _)| *k == key).map_or(0, |(_, v)| *v) + crate::capacitor::charge_bonus(b, u, w));
     }
     if wp::is_rifle(b, u, w) {
         return Some(0.max(b.units[u].items[w].damage_per_shot.unwrap_or(0) + wp::RIFLE_VS_MECH));

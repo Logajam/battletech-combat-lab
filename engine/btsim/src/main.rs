@@ -98,10 +98,19 @@ fn profile(args: &[String]) {
         for w in btsim_core::damage_resolution::get_weapons(&b.units[u]) {
             let it = b.units[u].items[w].clone();
             let dps = it.damage_per_shot.unwrap_or(0);
-            let per_hit = btsim_core::caspar::profile_damage_per_hit(&mut b, u, w, dps);
-            let curve: Vec<f64> = (1..=30)
-                .map(|r| btsim_core::weapon_selection::weapon_range_mod(&b, u, w, r).map_or(0.0, |m| btsim_core::combat::hit_probability(gunnery + m) * per_hit))
-                .collect();
+            // A variable-damage weapon (Snub-Nose PPC, VSP laser, Heavy Gauss) has no single damage figure: price each range at its
+            // bracket's damage (plus a charged capacitor's +5, Core p.188), as the engine does when it fires.
+            let table = btsim_core::weapon_profiles::variable_damage(&mut b, u, w);
+            let bonus = btsim_core::capacitor::charge_bonus(&b, u, w);
+            let mut curve: Vec<f64> = Vec::new();
+            for r in 1..=30 {
+                let dps_r = match (table, btsim_core::weapon_selection::range_bracket(&b, u, w, r)) {
+                    (Some(t), Some(br)) => t.iter().find(|(k, _)| *k == br).map_or(0, |(_, v)| *v) + bonus,
+                    _ => dps,
+                };
+                let per_hit = btsim_core::caspar::profile_damage_per_hit(&mut b, u, w, dps_r);
+                curve.push(btsim_core::weapon_selection::weapon_range_mod(&b, u, w, r).map_or(0.0, |m| btsim_core::combat::hit_probability(gunnery + m) * per_hit));
+            }
             let shots = btsim_core::ams::shots_left(&b.units[u], w);
             weapons.push(json!({"name": it.name, "heat": it.heat.unwrap_or(0), "rear": it.rear_mounted, "turret": it.turret_mounted,
                 "damage_type": it.damage_type, "shots": if shots.is_finite() { json!(shots) } else { Value::Null }, "curve": curve}));
