@@ -99,6 +99,17 @@ A 20-battle set swings several wins either way - compare against the 100-battle 
 In brackets: the item's old "Pick up here" label, under which `INTEGRATION__HISTORY.md` has the full text. Task
 write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numbers).
 
+**R. Research: fair duels** (Daniel, 2026-11-19/20; `tools/fair_duels.py`, Change Record 2026-11-20 "FAIR DUELS")
+- FAIR for every bot (each bot's score within 0.5 +- 0.09 over 120 battles; 480 a pair, every map x edge x bot three times):
+  Archer ARC-2R v Catapult CPLT-C1; Awesome AWS-8Q v Bombardier BMB-14K; Awesome AWS-8Q v Cataphract CTF-3LL; Commando COM-2D
+  v Locust LCT-1V (the pilot's); Clint CLNT-2-3T (Denton) v Trebuchet TBT-5N; Wolfhound WLF-1B v Hoplite HOP-4B; Chameleon
+  CLN-7V v Koschei KSC-3L; Locust LCT-3V v Sentinel STN-3K; Locust LCT-1V v Sentinel STN-1S; Banshee BNC-3MC v Wolverine
+  WVR-6M; Javelin JVN-10F v Shadow Hawk SHD-2K; Javelin JVN-10F v Von Rohrs VON 4RH-5; Jenner JR7-D v Scorpion SCP-1N; Koschei
+  KSC-3L v Jenner JR7-F (Smith). Even overall but split by bot (e.g. Atlas AS7-S2 v Hammerhead: Hydra 0.40, Princess 0.60).
+- NEXT (not started): the BV question proper - fit a duel-strength model (ratings v BV and v the unit's numbers) and show where
+  BV is off and by how much; more pools (TRO 3039, Clan); 2 v 2 to see whether duel fairness carries to teams. A duel is not
+  the battle BV was built for (forces), so read any BV correction with that in mind.
+
 **A. Gladiator - the bot**
 - **A1. The move score does not see a win, a clock or the walk back** (review 2026-11-10; [000000 (a)], [0]
   anti-stall). One cause behind the end-game stand-off, the mirror stall and the cap draws: the score has no
@@ -257,6 +268,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s30-9) FAIR DUELS + QUAD PRONE FIRE** (session 30): `tools/fair_duels.py` (cell design, edge / seat balance, Bradley-Terry, candidate choice, resume), `attack_resolution::prone_fire` (Core p.238). Look at: whether the FAIR test (every bot within 2 standard errors) is the right bar with 60 pairs tested (some pass or fail by chance).
 - **(s30-8) HYDRA ATTENTION MEMO** (session 30): `hydra::AttentionMemo` (`pose_sig`, the adjacent-pair exception, `memo_check`). Look at: anything else the Oracle estimate reads from units other than the two (a new rule could break the memo; run with BTSIM_HYDRA_MEMO_CHECK=1 after estimate changes).
 - **(s30-7) TURRET CHECK SPEED-UP** (session 30): `arcs::norm_ends_with` and its callers (`has_quad_turret`, `mech_turrets`, `mech_turret_locked`, `turret_locked`), test `arcs::norm_tests`. Look at: that it matches `norm(..).ends_with` for every name (non-ASCII falls back).
 - **(s30-10) DEPLOYMENT PLACED + IN TURNS** (session 30): `orchestrator::place_in_turns` / `place_unit` / `walk_on_edge`, `deploy_teams`, `deploy_zones`, `deployment::facing_toward` rounding, `DEPLOYMENT_PLACED`. Look at: MegaMek's real turn counts for uneven teams (the code uses units / smallest team); the 3-unit-wide edge boxes `edge_boxes` give Princess's deployment (it reads which side it is on); whether placed starts change the bot ranking (re-run the battery).

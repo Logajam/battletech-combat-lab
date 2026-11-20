@@ -245,6 +245,13 @@ pub fn prone_fire(b: &mut Battle, u: UnitId) -> Option<(i64, HashSet<ItemId>)> {
             return Some((0, HashSet::default()));
         }
         let usable: Vec<&String> = legs.iter().filter(|l| !b.units[u].locations[l.as_str()].destroyed).collect();
+        // Core p.238 (quad 'Mechs, Firing While Prone): props on one leg only with no more than two legs destroyed;
+        // with three or four gone it cannot prop, so it cannot fire while prone. (2026-11-20, found by tools/fair_duels.py:
+        // a Scorpion with all four legs gone indexed an empty list and crashed; with three gone it propped against the rule.
+        // The frozen Python answer key keeps the old behaviour.)
+        if legs.len() - usable.len() > 2 {
+            return None;
+        }
         // min(): the first of equals, in the legs' set order (hash order in Python: the legs are listed in leg order)
         let mut prop = usable[0];
         let mut best = i64::MAX;
