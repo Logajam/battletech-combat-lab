@@ -84,6 +84,18 @@ GitHub logistics.
     its seed and the set goes on, and re-running a stopped command plays only
     the missing battles. `tools/replay_undecided.py` replays only a trial's
     capped battles.
+  - **Long sets survive a container restart (SOP, Daniel 2026-11-20).** Any set
+    longer than a few minutes: run it through a tool that writes each battle
+    the moment it ends (`btsim --stream` into `trial_records/progress/`, or a
+    tool's own progress file there, e.g. `tools/fair_duels.py`) and resumes by
+    re-running the SAME command. The plan of a set (which pairs, seeds,
+    opponents) must come only from FINISHED records, never from a half-played
+    run, or a resumed run picks different battles. Start it in the background
+    with its log in the scratchpad. When a restart notice arrives: re-run the
+    identical command at once, read its fresh "already recorded" count (not
+    the old log) before saying anything, and tell Daniel what survived.
+    `progress/` is git-ignored, so it lives through a restart but not a
+    replaced container: commit the records file at every stage's end.
   - A reference log that differs: if the change was meant to alter results, run
     `python tests/check_reference_logs.py --update` and record that in the
     Change Record.

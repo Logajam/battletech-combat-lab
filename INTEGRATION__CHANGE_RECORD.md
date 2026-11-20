@@ -106,6 +106,29 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   Rerun `python tools/benchmark_report.py --bv-file LISTS.json` (LISTS.json: the Lab's `list_units` output) for the tables.
   Checks: no engine or test file changed; `run_checks.py` not run (docs and new tools only).
 
+- **2026-11-20 (Claude, session 30), RULES FIX: A PRONE FOUR-LEGGED 'MECH WITH THREE OR FOUR LEGS GONE CANNOT FIRE. REVIEW PENDING
+  (higher-level model).** Core p.238 (quad 'Mechs, Firing While Prone): a prone quad props on one leg to fire only with no more
+  than two legs destroyed. `attack_resolution::prone_fire` let it prop on the last leg with three gone, and with all four gone
+  indexed an empty list and crashed (found by the fair-duels confirmation: Jenner JR7-D v Scorpion SCP-1N, 3 battles of 480,
+  three different bots). Now: more than two legs destroyed -> None (cannot fire while prone). Rust only; the frozen Python
+  answer key keeps the old behaviour (it would crash the same way). The crashing battle replays to the end (Red, 35 turns).
+
+- **2026-11-20 (Claude, session 30), RESEARCH: FAIR DUELS (`tools/fair_duels.py`). REVIEW PENDING (higher-level model).** Daniel:
+  "I'm looking for fights where the results are fair. 1 on 1 matches of 2 different units. Using the same bot for both sides.
+  Sweep through maps, bots, Balance starting positions so that they get equal time from all starting edges. The goal is to find
+  very different units that are somehow equivalent ... could be used to make an improved battle value system." Pool (his pick):
+  the 314 Introductory-rules 'Mechs of the Lab catalog. All four bots in every stage (Daniel reversed a Hydra-only idea: "we
+  were looking for fairness across bots too"). One cell = pair x map (the 10 boards in data/, BigBlank included) x bot x edge,
+  A on the edge and B opposite (DEPLOY_ZONES, placed), A Red on N / E and Blue on S / W. Stages and records (trial_records/):
+  pilot (the 23 project 'Mechs, every pair, 160 battles each: 40,480); rating round 1 (each intro 'Mech v 10 random, 16 battles
+  a pair: 24,880) and round 2 (v the 10 nearest in rating: 25,120), Bradley-Terry ratings overall and per bot; confirmation
+  (60 near-equal pairs chosen for the most difference in tonnage, speed and armor, plus the pilot's 5: full sets x 3 with fresh
+  dice, 480 battles a pair, 120 a bot: 31,200). FAIR = every bot within 0.5 +- 0.09 (two standard errors at 120). Results:
+  14 pairs pass (10 of the 60, 4 of the pilot's 5); the list is in PROJECT_MAP Section 0 ("Fair duels"). Ratings v log(BV):
+  correlation 0.93 (intro), 0.92 (pilot); the bots' ratings agree 0.92 - 0.97. 3 crashed battles (the quad rule above).
+  Two restarts of the container stopped runs; both resumed with nothing lost, and round 2 now picks its pairs from finished
+  rounds only (the SOP in CLAUDE.md, Daniel: "That needs to be SOP").
+
 - **2026-11-19 (Claude, session 30), SPEED: HYDRA'S ATTENTION SHARE REMEMBERED WITHIN A DECISION (12 v 12 ANOTHER ~45% FASTER).
   Battle results unchanged. REVIEW PENDING (higher-level model).** Daniel: "Go for it." (the next step left by the entry
   below). `hydra::AttentionMemo`: one decision's store of `attention_damage` (enemy e on friend f), reused when both stand
