@@ -173,6 +173,22 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   Rerun `python tools/benchmark_report.py --bv-file LISTS.json` (LISTS.json: the Lab's `list_units` output) for the tables.
   Checks: no engine or test file changed; `run_checks.py` not run (docs and new tools only).
 
+- **2026-11-20 (Claude, session 30), RULES: DISTANT ARTILLERY AND AREA EFFECT ON EVERY UNIT (Core pp.182-183;
+  `engine/core/src/artillery.rs`). REVIEW PENDING (higher-level model).** Daniel: "Artillery has to be on board with what
+  the units can use" (no Battlefield Support, no Assets; PROJECT_MAP Section 5). Rust only. BUILT: (1) DISTANT fire: an
+  Arrow IV / Thumper / Sniper launcher may fire at a target 18 or more hexes away (no upper limit on a board: the TO:AR
+  maximums are 8+ mapsheets); the shot is announced at the target's hex with its ammo and heat spent that turn and that
+  turn's Target Number kept (Gunnery + 4, attacker movement and indirect modifiers; no range, target movement or
+  immobile modifier), and lands in the NEXT turn's Ranged Attack Phase (`PendingStrike`, `Battle::pending_artillery`,
+  sent through the bridge); a miss scatters its full Margin of Failure (a close shot half), held inside the launcher's
+  firing arc as it was when it fired. Whether to fire one is `stubs::stub_distant_artillery` (`STUB_DISTANT_ARTILLERY`,
+  default "never": the bots' artillery targeting is built elsewhere; Section 6). (2) AREA EFFECT ON EVERY UNIT: an
+  Arrow IV / artillery shell now deals its full damage to every unit in the hex it lands in and its splash to every unit
+  in the six hexes next to it, friend or foe (`artillery::area_strike`); before, only the targeted 'Mech could be hurt
+  (a leftover of the 1 v 1 days). RESULTS CHANGED: `zone_4v4_princess_v_caspar_hills` only (a missed Arrow IV scattered
+  into a hex with a 'Mech in it, which now takes the 20); re-recorded. Tested by hand with "at_target": distant shots
+  announced, landing next turn, hits and scatters as above.
+
 - **2026-11-20 (Claude, session 30), RULES: INDIRECT FIRE AND SPOTTING (Core p.70, p.62; `engine/core/src/spotting.rs`).
   REVIEW PENDING (higher-level model).** Daniel: "Lets start with functionality that princess probably needs. Split fire,
   indirect fire, and artillery"; "Be sure to have stub markers for features Gladiator and Hydra don't know how to do or use

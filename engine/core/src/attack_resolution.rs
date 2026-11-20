@@ -642,6 +642,10 @@ fn resolve_one_attack(b: &mut Battle, attacker: UnitId, target: UnitId, attack: 
         let dmg = fire_modes::damage_per(b, attacker, w, &plan).unwrap_or(0);
         b.log(format!("    {} hits {}'s hex: {} area-effect damage (pp.182-183).", wname, tname, dmg));
         resolve_area(b, target, dmg, &attack.side, attack.cover);
+        // the rest of the hex and the hexes next to it, friend or foe (pp.182-183; artillery.rs)
+        let (from, at) = (hex_geometry::parse_hex_label(b.units[attacker].hex.as_deref().unwrap()).unwrap(), hex_geometry::parse_hex_label(b.units[target].hex.as_deref().unwrap()).unwrap());
+        let splash = wp::splash(b, attacker, w);
+        crate::artillery::area_strike(b, from, at, dmg, splash, Some(target));
         return;
     }
     if adv::is_nail_gun(b, attacker, w) {
@@ -848,7 +852,7 @@ pub fn resolve_area(b: &mut Battle, target: UnitId, damage: i64, side: &str, cov
     apply_groups(b, target, damage, wp::AREA_GROUPING, DamageType::Missile, side, cover, "AE ");
 }
 
-fn in_firing_arc(b: &Battle, attacker: UnitId, weapon: ItemId, xy: (i64, i64)) -> bool {
+pub(crate) fn in_firing_arc(b: &Battle, attacker: UnitId, weapon: ItemId, xy: (i64, i64)) -> bool {
     let a = &b.units[attacker];
     let key = arcs::key_for(
         &arcs::arcs_between(hex_geometry::parse_hex_label(a.hex.as_deref().unwrap()).unwrap(), xy),
@@ -889,6 +893,9 @@ fn resolve_area_miss(b: &mut Battle, attacker: UnitId, target: UnitId, attack: &
             dmg
         ));
         resolve_area(b, target, dmg, &attack.side, attack.cover);
+        let from = hex_geometry::parse_hex_label(b.units[attacker].hex.as_deref().unwrap()).unwrap();
+        let splash = wp::splash(b, attacker, w);
+        crate::artillery::area_strike(b, from, (tx, ty), dmg, splash, Some(target));
         return;
     }
     if wp::splash(b, attacker, w) == 0 {
@@ -908,12 +915,13 @@ fn resolve_area_miss(b: &mut Battle, attacker: UnitId, target: UnitId, attack: &
         label.clone().unwrap_or_else(|| "off the board".to_string()),
         if on_board { "" } else { " - off the board, no effect" }
     ));
-    if on_board && steps == 1 {
-        let tf = hex_geometry::compass_to_facing(&b.units[target].facing).unwrap();
-        let side = attack_side(b, impact, (tx, ty), tf, standing(), standing());
-        let dmg = wp::splash(b, attacker, w);
-        b.log(format!("      {} is next to the impact: {} area-effect damage.", tname, dmg));
-        resolve_area(b, target, dmg, side, Cover::No);
+    if on_board {
+        // every unit in the hex it lands in takes the full damage, every unit next to it the splash (pp.182-183)
+        let plan = attack.fire.clone().unwrap_or_else(ShotPlan::plain);
+        let dmg = fire_modes::damage_per(b, attacker, w, &plan).unwrap_or(0);
+        let from = hex_geometry::parse_hex_label(b.units[attacker].hex.as_deref().unwrap()).unwrap();
+        let splash = wp::splash(b, attacker, w);
+        crate::artillery::area_strike(b, from, impact, dmg, splash, None);
     }
 }
 
@@ -1416,7 +1424,7 @@ pub fn finish_declaration(
         if wp::is_mga(b, attacker, w) {
             ammo_note = fire_modes::take_array_rounds(b, attacker, w, plan.shots);
         } else if !weapon_rules::is_streak(b, attacker, w) {
-            let kind: Option<String> = if !special || ["8", "12", "16"].contains(&plan.kind.as_str()) || ["saturation", "artillery", "homing"].contains(&plan.kind.as_str()) { None } else { Some(plan.kind.clone()) };
+            let kind: Option<String> = if !special || ["8", "12", "16"].contains(&plan.kind.as_str()) || ["saturation", "artillery", "distant", "homing"].contains(&plan.kind.as_str()) { None } else { Some(plan.kind.clone()) };
             let mut last = String::new();
             for _ in 0..plan.shots {
                 last = ammo::take(b, attacker, w, Some(plan.munition()), kind.as_deref()).0;
@@ -1448,6 +1456,14 @@ pub fn finish_declaration(
             range_mod = 0;
             extra = 0;
             tn = wp::HOMING_TN;
+        }
+        if plan.kind == "distant" {
+            // p.182: a distant artillery shot is announced now (ammo and heat spent this turn) and rolled next turn
+            let _ = (range_mod, extra);
+            let dmg = fire_modes::damage_per(b, attacker, w, &plan).unwrap_or(0);
+            let splash = wp::splash(b, attacker, w);
+            crate::artillery::announce(b, attacker, w, target, tn, dmg, splash);
+            continue;
         }
         if ctx.indirect && ctx.spotter.is_none() {
             tn += adv::MORTAR_INDIRECT_MODIFIER - adv::MORTAR_DIRECT_MODIFIER;
@@ -1560,6 +1576,9 @@ pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBo
     // spotting for indirect fire is settled before any attack is rolled (spotting.rs)
     b.indirect_pairs.clear();
     crate::spotting::declare_spotting(b, order);
+    // distant artillery announced last turn lands now (p.182; artillery.rs)
+    let turn_now = order.first().map_or(0, |u| b.units[*u].turn_number);
+    crate::artillery::resolve_pending(b, turn_now);
     for &m in order {
         snapshot_round_capability(&mut b.units[m]);
         crate::piloting_rolls::snapshot_pre_attack_phase(&mut b.units[m]);

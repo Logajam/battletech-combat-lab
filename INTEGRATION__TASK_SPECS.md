@@ -227,7 +227,13 @@ lists what is missing.
    fixed cycle (`config.ESCALATING_CYCLE_ON_ODD_TURNS`) stays for Gladiator / Hydra. Nova CEWS: no engine rule, skip.
 2. RAC unjam by Princess's own rule (`Princess.unjamRAC`) for Princess / CASPAR; `stubs::stub_unjam` stays for the others.
 3. Princess's aimed-shot choice (`Princess.calculateAimedShotLocation`) where the engine allows aimed shots.
-4. A line-by-line audit of `BotClient.java` and `Princess.java` (every phase handler, `embellishPath`, the client feedback
+4. Princess / CASPAR's fire-support choices, through the engine hooks already built (session 30): SPOTTING (MegaMek
+   `FireControl.getSpotAction`, spot instead of a shot under `MIN_USEFUL_FIRING_DAMAGE` 1.0) through `stubs::stub_spot` /
+   `Battle::spots` (`engine/core/src/spotting.rs`); indirect-fire targets come free (their target choice dry-runs every
+   enemy, and the engine now accepts a spotted target without line of sight); DISTANT ARTILLERY (MegaMek
+   `ArtilleryTargetingControl`) through `stubs::stub_distant_artillery` (`engine/core/src/artillery.rs`). Each is a
+   `BotSet` decision once it is theirs: add it to `bridge.rs`.
+5. A line-by-line audit of `BotClient.java` and `Princess.java` (every phase handler, `embellishPath`, the client feedback
    requests: AMS / APDS assignment, TAG target, point-blank shots) against our clone: a table in PROJECT_MAP Section 6
    ("Princess clone"), each row ported / not ported (and why: no engine rule, multi-unit only, aerospace...). Rules the
    engine lacks (evade, searchlight, Tactical Genius, split fire) are listed for Daniel, not built.

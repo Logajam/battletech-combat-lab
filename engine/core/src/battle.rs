@@ -162,6 +162,8 @@ pub struct Battle {
     pub spots: Vec<crate::spotting::Spot>,
     /// spotting.rs: (attacker, target) pairs attacked INDIRECTLY this Ranged Attack Phase (no Artemis bonus, p.70)
     pub indirect_pairs: Vec<(UnitId, UnitId)>,
+    /// artillery.rs: distant Arrow IV / Thumper / Sniper shots in flight (they land next turn, p.182)
+    pub pending_artillery: Vec<crate::artillery::PendingStrike>,
     /// INTEGRATION__los_cache: lines of sight the bots asked about, (from, to, heights) -> answer (None = the line runs
     /// off the board). Speed only: emptied whenever the board changes (`board_changed`).
     /// finished movement tables (`movement_table`); speed only, emptied when the board changes
@@ -234,6 +236,7 @@ impl Battle {
             pushed_this_phase: Vec::new(),
             spots: Vec::new(),
             indirect_pairs: Vec::new(),
+            pending_artillery: Vec::new(),
             los_memo: Default::default(),
             table_memo: Default::default(),
         }

@@ -482,6 +482,10 @@ STUB_TAG_AIM = "mech"
 # default: the bots' own spotting logic is built elsewhere; a TAG hit still spots) / "when_useful" (the enemy it
 # sees that the most friends can't see but could hit indirectly; it keeps firing, +1 to its own attacks).
 STUB_SPOT = "never"
+# Distant artillery (Arrow IV / Thumper / Sniper at 18+ hexes, landing next turn; Core p.182; Rust engine only):
+# offer the shot? "never" (the default: the bots' own artillery targeting is built elsewhere) / "at_target" (at the
+# target's hex now, valued as if it stays there - a crude placeholder).
+STUB_DISTANT_ARTILLERY = "never"
 # PPC capacitors (p.188): start the battle charged? "empty" / "charged".
 STUB_CAPACITOR_START = "empty"
 # Charge a PPC capacitor instead of firing its PPC? "never" / "when_idle" (whenever the PPC isn't fired).

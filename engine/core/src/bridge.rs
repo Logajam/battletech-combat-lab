@@ -81,6 +81,7 @@ pub fn state_json_mode(b: &Battle, last_board: &mut Option<String>, compact_base
         "pushed_this_phase": b.pushed_this_phase,
         "spots": b.spots.iter().map(|s| json!([s.spotter, s.target, s.fires, s.tag])).collect::<Vec<_>>(),
         "indirect_pairs": b.indirect_pairs.iter().map(|(a, t)| json!([a, t])).collect::<Vec<_>>(),
+        "pending_artillery": b.pending_artillery.iter().map(|s| json!([s.attacker, s.weapon, s.fired_turn, [s.impact.0, s.impact.1], [s.from.0, s.from.1], s.tn, s.damage, s.splash, s.arc_steps])).collect::<Vec<_>>(),
         "hazards_in_phase": b.hazards_in_phase,
         "piloting": b.piloting,
     });
@@ -158,6 +159,15 @@ pub fn load_state(b: &mut Battle, v: &Value, base: &[Value]) {
         tag: s[3].as_bool().unwrap(),
     }).collect()).unwrap_or_default();
     b.indirect_pairs = v.get("indirect_pairs").and_then(|p| p.as_array()).map(|p| p.iter().map(|x| (x[0].as_u64().unwrap() as UnitId, x[1].as_u64().unwrap() as UnitId)).collect()).unwrap_or_default();
+    b.pending_artillery = v.get("pending_artillery").and_then(|p| p.as_array()).map(|p| p.iter().map(|s| {
+        let i = |k: usize| s[k].as_i64().unwrap();
+        let xy = |k: usize| (s[k][0].as_i64().unwrap(), s[k][1].as_i64().unwrap());
+        let mut arc = [0i64; 6];
+        for (d, a) in arc.iter_mut().enumerate() {
+            *a = s[8][d].as_i64().unwrap();
+        }
+        crate::artillery::PendingStrike { attacker: i(0) as UnitId, weapon: i(1) as usize, fired_turn: i(2), impact: xy(3), from: xy(4), tn: i(5), damage: i(6), splash: i(7), arc_steps: arc }
+    }).collect()).unwrap_or_default();
     b.hazards_in_phase = v["hazards_in_phase"].as_bool().unwrap();
     b.piloting = v["piloting"].as_i64().unwrap();
     if let Some(d) = v.get("dice") {

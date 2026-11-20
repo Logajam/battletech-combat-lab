@@ -113,14 +113,14 @@ impl ShotPlan {
         &self.guidance.munition
     }
     pub fn hex_attack(&self) -> bool {
-        self.kind == "saturation" || self.kind == "artillery"
+        self.kind == "saturation" || self.kind == "artillery" || self.kind == "distant"
     }
     pub fn tn(&self) -> i64 {
         let mut tn = self.guidance.tn + if self.kind == "cluster" { LBX_CLUSTER_TN } else { 0 };
         if BOMBAST_KINDS_LIST.contains(&self.kind.as_str()) {
             tn += wp::bombast(&self.kind).1;
         }
-        if self.kind == "artillery" {
+        if self.kind == "artillery" || self.kind == "distant" {
             tn += wp::ARROW_TN;
         }
         tn
@@ -141,6 +141,7 @@ impl ShotPlan {
                 "srm" => "MML SRM rounds".to_string(),
                 "saturation" => "Apollo saturation".to_string(),
                 "artillery" => "artillery at the hex".to_string(),
+                "distant" => "distant artillery at the hex, lands next turn".to_string(),
                 "array" => format!("array of {}", self.shots),
                 "homing" => "homing at the TAG-designated target".to_string(),
                 other => format!("{} damage", other),
@@ -235,6 +236,11 @@ pub fn weapon_range(b: &mut Battle, u: UnitId, w: ItemId, plan: &ShotPlan) -> Op
     }
     if plan.kind == "homing" {
         return Some(RangeSpec { min: Some(0), short: wp::HOMING_REACH, medium: wp::HOMING_REACH, long: wp::HOMING_REACH, floor: Some(1) });
+    }
+    if plan.kind == "distant" {
+        // p.182: 18 hexes or more, no upper limit on the board (artillery.rs)
+        let reach = crate::artillery::DISTANT_REACH;
+        return Some(RangeSpec { min: Some(0), short: reach, medium: reach, long: reach, floor: Some(crate::artillery::DISTANT_MIN) });
     }
     if wp::is_arrow(b, u, w) {
         let (lo, hi) = wp::ARROW_RANGE;
@@ -533,6 +539,11 @@ pub fn kind_options(b: &mut Battle, attacker: UnitId, w: ItemId, target: UnitId)
         let mut plans = Vec::new();
         if have.contains(&("standard".to_string(), String::new())) {
             plans.push(ShotPlan::with_kind("artillery"));
+            // distant fire (18+ hexes, lands next turn; p.182): whether to use it is a bot decision (a stub for now)
+            let far = crate::forces::distance(b, attacker, target).is_some_and(|d| d >= crate::artillery::DISTANT_MIN);
+            if far && crate::stubs::stub_distant_artillery(b, attacker, target) {
+                plans.push(ShotPlan::with_kind("distant"));
+            }
         }
         if have.contains(&("homing".to_string(), String::new())) && b.units[target].tag_designated.is_some() {
             plans.push(ShotPlan { guidance: FireControl { munition: "homing".into(), note: "homing".into(), ..FireControl::plain() }, ..ShotPlan::with_kind("homing") });
@@ -721,7 +732,7 @@ impl<'a> Planner<'a> {
             return Some((p * wp::homing_damage(b, a, w) as f64 + (1.0 - p) * wp::HOMING_AE as f64, wp::HOMING_TN));
         }
         let p = crate::combat::hit_probability(tn);
-        if plan.kind == "artillery" || wp::is_art_cannon(b, a, w) {
+        if plan.kind == "artillery" || plan.kind == "distant" || wp::is_art_cannon(b, a, w) {
             let near = crate::combat::hit_probability(tn - 2) - p;
             return Some((p * damage_per(b, a, w, &plan).unwrap_or(0) as f64 + near * wp::splash(b, a, w) as f64, tn));
         }

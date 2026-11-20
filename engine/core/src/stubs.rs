@@ -104,6 +104,23 @@ pub fn stub_spot(b: &mut Battle, u: UnitId) -> Option<(UnitId, bool)> {
     Some((target, true))
 }
 
+/// Offer a distant artillery shot (Arrow IV / Thumper / Sniper at 18+ hexes, landing next turn; p.182)? Knob:
+/// STUB_DISTANT_ARTILLERY (default "never": the bots' own artillery targeting is built elsewhere - Princess / CASPAR from
+/// MegaMek's ArtilleryTargetingControl, Gladiator / Hydra have none yet, Daniel 2026-11-20; "at_target": offer it at the
+/// target's hex now, valued as if the target were still there next turn - a crude placeholder).
+pub fn stub_distant_artillery(b: &mut Battle, attacker: UnitId, target: UnitId) -> bool {
+    let policy = if b.cfg.has("STUB_DISTANT_ARTILLERY") { b.cfg.s("STUB_DISTANT_ARTILLERY").to_string() } else { "never".to_string() };
+    match policy.as_str() {
+        "never" => false,
+        "at_target" => {
+            let (n, t) = (b.units[attacker].side_name.clone().unwrap_or_default(), b.units[target].side_name.clone().unwrap_or_default());
+            b.warn_stub("distant_artillery", &format!("{}: offers a distant artillery shot at {}'s hex (valued as if it stays)", n, t));
+            true
+        }
+        o => panic!("Unknown STUB_DISTANT_ARTILLERY {:?}", o),
+    }
+}
+
 /// TAG the enemy 'Mech or the ground it stands on? Knob: STUB_TAG_AIM. Returns "mech" or "hex".
 pub fn stub_tag_aim(b: &mut Battle, mech_name: &str, tn_mech: Option<i64>, tn_hex: Option<i64>) -> &'static str {
     let policy = b.cfg.s("STUB_TAG_AIM").to_string();
