@@ -319,12 +319,12 @@ def stage_confirm(argv):
     label = option(argv, "--label", "intro")
     units = {u["id"]: u for u in intro_pool()}
     done = done_cells(label)
-    rows = list(done.values())
-    rating = bradley_terry(rows, list(units))
-    per_bot = {bot: bradley_terry([r for r in rows if r["bot"] == bot], list(units)) for bot in BOTS}
     if "--pairs" in argv:
-        pairs = [tuple(l.split("\t")[:2]) for l in open(option(argv, "--pairs", "")) if l.strip()]
+        pairs = [tuple(l.rstrip("\n").split("\t")[:2]) for l in open(option(argv, "--pairs", "")) if l.strip()]
     else:
+        rows = list(done.values())
+        rating = bradley_terry(rows, list(units))
+        per_bot = {bot: bradley_terry([r for r in rows if r["bot"] == bot], list(units)) for bot in BOTS}
         top = int(option(argv, "--top", "60"))
         cands = []
         ids = sorted(units, key=lambda u: rating[u])
