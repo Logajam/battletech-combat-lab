@@ -6,6 +6,21 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-20 (Claude, session 32), T16 STEP 1: PRINCESS / CASPAR NOW RUN MEGAMEK'S HEAT-EQUIPMENT MANAGER. REVIEW PENDING (higher-level model).**
+  Ported `BotHeatEquipmentManager` (run by `BotClient` in the End Phase) to `engine/core/src/bot_heat_equipment.rs`. Stealth armor: off when
+  heat > 13 + randomInt(7), or when the BV-weighted enemy is close (average range <= 5 + randomInt(5)); a heat-activated TSM unit keeps it on
+  while closing and drops it adjacent to an enemy. Chameleon / Null / Void Signature: off at 14+ heat, on again at 5 or less. Radical heat sink:
+  on while heat >= 14 and the next failure target is <= 7, else off (replaces the `STUB_ESCALATING_USE` cycle for these units). Nova CEWS: not
+  ported (no engine rule). New unit fields `heat_managed`, `systems_off`, `radical_on` (dumped only when `heat_managed`; added to the bridge's
+  `UNIT_FIELDS`); `active_stealth` and `radical_planned` read them; new `BotSet::manage_heat_equipment` (also a `Recorder` / bridge line),
+  called before `end_of_turn`. Princess-family units become managed at the first Movement Phase; Gladiator and Hydra units never do.
+  CALL FOR DANIEL / REVIEW: the two random draws use the BATTLE's dice (spec said the bot's own), only for a Princess-family unit carrying
+  stealth armor, so battles without one keep their dice; a separate stream would need a new state field. Stealth armor still needs a working
+  ECM suite to count (engine rule); every positioned enemy counts as "visible". Checks: 90 of 91 Rust reference battles unchanged; only
+  `team_4v4_princess_v_princess` changed (Blue 4 carries stealth armor) and was re-recorded with `check_rust_reference.py --update`; bridge
+  parity `--quick` passes. Two checks could not run in this container, both unrelated to the change: `cl1_setup` (needs `engine/fixtures`,
+  absent here) and the website build (no `wasm32-unknown-unknown` target). Steps 2-4 of T16 are still to do; no A/B yet.
+
 - **2026-11-20 (Claude, session 31), BATTLE VALUE MADE TO MATCH MEGAMEK: 27% OF UNITS WRONG BEFORE, 1.7% AFTER. REVIEW PENDING (higher-level model).**
   Daniel: Mad Cat Mk IV A 2404, Archer C 2 2023, Shadow Cat T 1590 "do not match the results megamek gives". Method: unpacked MegaMek
   0.51.01.7 (an unchanged release, megamek_bridge/README.md), loaded every unit of data/meks.zip with its `MekFileParser` and took the BV and
