@@ -6,6 +6,27 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-20 (Claude, session 31), COMBAT LAB TWEAKS: DROP-DOWN OPTIONS, ETA, CLOSE BUTTON, WINDOW GRIPS, UNIT STATISTICS (FRONT / REAR ARMOR, MOVEMENT, DISTANCES, CRITICAL SLOT SURVIVAL), MEGAMEK OPTIONS LIST. REVIEW PENDING (higher-level model).**
+  Daniel's round of minor tweaks. (1) OPTIONS: every typed-in setting that takes one of a few words is now a drop-down
+  (`CHOICES` in `tools/make_options_registry.py` -> `choices` in `options.json` -> `optionRow` in lab.js; 26 settings: foe choice, home
+  edge, the stubs, aimed-shot location, the movement search words...). Each menu lists only what the Rust ENGINE accepts (read from its
+  match arms), so it never offers a crash: FOE_CHOICE, PERIL, MOVE_ORDER and PRINCESS_VERSION have one working value so far. (2) The blue
+  progress bar's text has an ETA countdown (time so far / battles done x battles left). (3) Advanced search: the X was there but small;
+  it is bigger (all dialogs), and a Close button sits under the filters. (4) WINDOW RESIZE: a docked team window now shows a grab strip
+  on the edge that faces the Unit Browser (`.win.team::after`; `EDGE` 8 -> 10); checked headless (pull from the edge: 350 -> 428 px).
+  Daniel's wishlist 5 (resize in place) is therefore done, as far as a headless test can tell. (5) UNIT STATISTICS, engine side
+  (statistics only; no rule or dice changes): `Tally.track` (battle.rs) per unit - hexes moved (straight-line, start to end of its
+  move), distance to the nearest opponent and to its allies (taken when the Movement Phase is over), distance to its target (taken at
+  declaration, `run_ranged_phase`); `SideStats.locations` is now [front, front max, structure, structure max, rear, rear max]; every
+  critical slot's name and whether it still worked at the end (`crit_names` / `crit_alive`; a slot the game turned to DESTROYED is lost,
+  so a location blown off loses all its slots). `runs.rs` sends them per battle and averages them (movement as a ratio of sums over
+  the turns each counted in); lab.js shows front and rear armor in separate columns, a movement table, and an eye button ("Critical
+  slot survival") that opens a critical diagram, every slot shaded green to red with its percentage. Old run files have no rear / track /
+  crit data: they read as 0 / n/a. (6) `INTEGRATION__MEGAMEK_OPTIONS.md`: all 252 MegaMek game options (from its source) sorted Not needed
+  (130) / Want (53) / Can implement (64) / Already built (5), and a pruning proposal for our own list (26 technical settings to hide, 27
+  inactive ones, 19 tuning numbers into an advanced folder); NOTHING pruned yet: Daniel's go-ahead is asked. Total Warfare: only 7 of its
+  17 base chunks are in the library, no summary or index layer (see Section 0). Look at: the straight-line "hexes moved" (a path that
+  bends counts short); the distance-to-target sample only covers turns the unit declared on someone.
 - **2026-11-19 (Claude, session 30), DEPLOYMENT: UNITS ARE PLACED, NOT WALKED ON, AND PLACE IN TURNS, THE MEGAMEK WAY. REVIEW PENDING (higher-level model).**
   Daniel (while the benchmark was running): "that formation logic is supposed to be standard kit... If you need to rebuild the
   reference battles to turn it on permanently do that too", then "using megamek's start of game. Players take turns putting their
