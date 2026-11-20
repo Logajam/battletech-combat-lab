@@ -115,9 +115,9 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   fire), setup (FORCES "c3", the Configure team window's C3 section), Battle Value (p.220). Not built: the C3 Master's TAG
   function, the Emergency Master, remote sensors; the bots' movement estimates do not count C3 (the attack itself does).
   Daniel mentioned MekBay's way of setting up a network: not looked at yet (no network access to it from here was tried).
-- N7. UNDERWATER MOVEMENT AND FIRING (Core pp.127-128, "Underwater Combat", Underwater Attacks Table p.127; 'Mech UMUs
-  TO:AUE, deferred until now): what is left after F36 - which weapons fire underwater and at what ranges, attacks across
-  the surface, then UMU movement. Read the library first and list the gap.
+- N7. UNDERWATER MOVEMENT AND FIRING: WAITS ON DANIEL (2026-11-20). Core's underwater combat is built (F36 / G6); the gap is
+  TO:AUE's 'Mech UMUs (submarine-like movement under water). Plan, rules found and four design questions: TASK_SPECS T17.
+  Needs Daniel's water-movement notes from his other conversation (C7b) first.
 - N8. LEG HITS LOST TO PARTIAL COVER IN THE BOTS' DAMAGE ESTIMATE: BUILT 2026-11-20 (Change Record; setting
   `MOVEMENT_COVER_LEGS`, on). Gladiator / Hydra movement scoring only; Princess / CASPAR keep MegaMek's estimate. WATCH: two
   reference battles now reach the turn cap (team_3way_mixed, hydra_red__hy_12v12_valley) - Gladiator may hold back more against

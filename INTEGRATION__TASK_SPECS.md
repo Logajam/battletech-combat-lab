@@ -40,6 +40,7 @@ then copies the better bot. T2 and T4 can ride along. (3) T11, the Rust port. (4
 | T10 Automatic checks on GitHub | D5 | Sonnet | - |
 | T15 Low-poly reference models: the other 31 'Mechs | E3b | Opus | - (the AI sheets are in `reference_art/ai_sheets/`) |
 | T16 The MegaMek bots' missing brains (stealth / concealment / radical HS / unjam / aimed shots / audit) | B | Sonnet | - |
+| T17 'Mech UMU movement under water (backlog N7) - WAITS ON DANIEL'S WATER-MOVEMENT NOTES | C | Opus | - |
 | T11 The Rust translation | D1 | Sonnet (Opus for stages 0, 6, 8 if possible) | T8 decided; T1 built or parked |
 | T14 MegaMek bridge (our bots in a live MegaMek game) | E4 | Sonnet; Opus for B1 | Daniel's OK to build and run MegaMek (B0) |
 | Review queue (m), (o), (p) | - | the top model when on hand; (n) lapses when the port's stage 9 retires `fastcore/` | - |
@@ -202,6 +203,38 @@ coverage (`STACK`), herding, cohesion, team value, exchange (`LEGATE_*`). They a
 which to keep as live options. For each one he releases: remove its branch from `legate.Extras.adjust`, its
 settings, its battery flags and tests; keep the module file under `archive/` with a note of the Change Record
 entry that holds its numbers. Checks identical before and after (they are off, so nothing may move).
+
+## T17. 'Mech UMU movement under water (backlog N7; Daniel, 2026-11-20: "Underwater movement and firing, we should be able to get that up and running too")
+
+**STATUS (2026-11-20): planned, not built - waits on Daniel.** PROJECT_MAP C7(b): Daniel worked out how water movement
+should go in another conversation (about improving MegaMek), "to be brought over when this is picked up". Ask for it first.
+
+**What is already built (Core pp.127-128, F36 / G6):** water states (ground / partial / submerged / wading), the water line,
+energy weapons only from submerged locations (+ torpedoes), the Underwater Attacks Table (leg weapons, Kick Location Table),
+underwater ranges one bracket up, hull breaches and their effects, heat sinks under water, falls, PSRs, physical attacks in
+water (`water.rs`, `physical_allowed`).
+
+**What is missing: UMUs** (TO:AUE "'Mech UMU System", the library's tactical-operations-aue/advanced-weapons-equipment-part1):
+under water a 'Mech with UMUs maneuvers like a submarine, 1 Cruising MP per working UMU, no flank; not into or out of
+water; no falling PSRs while using UMU MP (a displacement out of usable water: automatic fall); it may settle to the
+bottom and walk instead. Attacks while using UMUs take +3 attacker movement (as jumping); UMUs make 1 heat a turn in all. A
+'Mech stays 2 levels tall and upright; its depth is read at its feet; within 1 depth of the surface it is only partially
+submerged and cannot use UMU. Submarine movement (Total Warfare, ground-movement chunk, "Submarines" and "Underwater MP"):
+1 MP to enter a water hex whatever its depth, 1 MP per depth up or down, any number of depth changes in one hex at cruising
+speed, not below the hex's depth nor above the surface, must be above the bottom to move or turn; backward moves may change
+depth. Crush depth: TO:AR p.40 ("Extreme Depths"). Hull breaches: TW p.121 / Core p.128 as now.
+
+**Design questions for Daniel (with the notes from his other conversation):**
+1. A unit's depth inside the water column is new state (`Mech::umu_depth`): the movement search would gain a third
+   dimension (hex, facing, depth). Search every depth, or a few (just under the surface, mid-water, the bottom)?
+2. Line of sight between units at different depths of one deep hex: the engine's LOS reads levels; a UMU unit's level is
+   the water surface minus its depth. Confirm that model (and what blocks an underwater line: the bottom's rises?).
+3. The bots: should Gladiator / Hydra price UMU moves at all, or only Princess / CASPAR as MegaMek does (MegaMek's
+   Princess has an UnderwaterFire class and moves UMU units)?
+4. Boards: few of the map pack's boards have water deep enough (depth 3+) for UMU movement to matter; worth a test board?
+
+**Steps once decided:** state + JSON + bridge field; movement options with depth; LOS heights; the +3 / heat; PSR exemption;
+crush depth; bots; reference battles on a deep-water board; a Lab unit with UMUs in a replay for Daniel.
 
 ## T16. The MegaMek bots' missing brains: the bot layer above `princess/` (Sonnet; Daniel, 2026-11-20)
 
