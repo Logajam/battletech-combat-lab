@@ -356,10 +356,42 @@ def stage_score(argv):
         print(f"  {'coin':11s} {0.693:9.3f} {base:13.3f}")
 
 
+# ------------------------------------------------------------------------------------------------------------- round 2
+# Daniel, 2026-11-20 ("Lets go with your suggestion"): better ingredients from the engine itself (`btsim profile`), a random
+# battery over a bigger pool, match-up terms, and a test on random held-out pairs.
+BATTERY_PAIRS = 3000
+
+
+def big_pool():
+    """Every Inner Sphere biped or quad 'Mech at Introductory or Standard rules in the website's catalog (which keeps only
+    units whose equipment the engine models): 1,754 'Mechs."""
+    return sorted((u for u in fd.catalog_units() if u.get("rules") in (1, 2) and u.get("tech") == "Inner Sphere"
+                   and u.get("config") in ("Biped", "Quad")), key=lambda u: u["id"])
+
+
+def battery_pairs():
+    """BATTERY_PAIRS random pairs from the big pool (seed 2026; the same list every run, so a stopped battery resumes)."""
+    ids = [u["id"] for u in big_pool()]
+    rng = random.Random(2026)
+    pairs = set()
+    while len(pairs) < BATTERY_PAIRS:
+        a, b = rng.sample(ids, 2)
+        pairs.add(tuple(sorted((a, b))))
+    return sorted(pairs)
+
+
+def stage_battery(argv):
+    pool = big_pool()
+    fd.unpack(pool)
+    fd.COMMIT = fd.subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+    cells = [c for a, b in battery_pairs() for c in fd.cells_rate(a, b, random.Random(fd.cell_seed([a, b])), fd.BOTS)]
+    fd.run_cells(cells, "value_battery", int(fd.option(argv, "--workers", "4")))
+
+
 def main(argv):
     if not argv:
         sys.exit(__doc__)
-    {"fit": stage_fit, "predict": stage_predict, "play": stage_play, "score": stage_score}[argv[0]](argv[1:])
+    {"fit": stage_fit, "predict": stage_predict, "play": stage_play, "score": stage_score, "battery": stage_battery}[argv[0]](argv[1:])
 
 
 if __name__ == "__main__":

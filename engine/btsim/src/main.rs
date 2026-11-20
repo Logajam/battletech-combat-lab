@@ -78,10 +78,57 @@ fn lines_of(record: &Value) -> Vec<String> {
     record["steps"].as_array().into_iter().flatten().flat_map(|s| s["log"].as_array().into_iter().flatten().filter_map(|l| l.as_str().map(String::from))).collect()
 }
 
+/// `btsim profile --setup SETTINGS.json` (session 30, tools/duel_value.py): each unit's numbers, from the engine's own
+/// functions, as one JSON object per unit: every weapon's expected damage at ranges 1..=30 at the unit's gunnery (hit chance
+/// x expected damage per hit, the cluster table and Ultra / Rotary included: CASPAR's DamageProfile), its heat, rear mount,
+/// shots of ammo; armor / rear armor / structure by location; heat dissipation; walk / run / jump MP; Battle Value; tonnage
+/// and equipment names. Reads only: no battle is played.
+fn profile(args: &[String]) {
+    let file = arg(args, "--setup").expect("btsim profile --setup SETTINGS.json");
+    let settings: Value = serde_json::from_str(&std::fs::read_to_string(&file).expect("settings")).expect("settings JSON");
+    let scenario = Scenario::from_settings(&settings, &btsim_core::scenario::SetupPaths::find()).unwrap_or_else(|e| {
+        eprintln!("btsim: {}", e);
+        std::process::exit(2)
+    });
+    let mut b = scenario.battle(Box::new(PcgDice::new(1)));
+    let mut out = Vec::new();
+    for u in 0..b.units.len() {
+        let gunnery = b.units[u].gunnery;
+        let mut weapons = Vec::new();
+        for w in btsim_core::damage_resolution::get_weapons(&b.units[u]) {
+            let it = b.units[u].items[w].clone();
+            let dps = it.damage_per_shot.unwrap_or(0);
+            let per_hit = btsim_core::caspar::profile_damage_per_hit(&mut b, u, w, dps);
+            let curve: Vec<f64> = (1..=30)
+                .map(|r| btsim_core::weapon_selection::weapon_range_mod(&b, u, w, r).map_or(0.0, |m| btsim_core::combat::hit_probability(gunnery + m) * per_hit))
+                .collect();
+            let shots = btsim_core::ams::shots_left(&b.units[u], w);
+            weapons.push(json!({"name": it.name, "heat": it.heat.unwrap_or(0), "rear": it.rear_mounted, "turret": it.turret_mounted,
+                "damage_type": it.damage_type, "shots": if shots.is_finite() { json!(shots) } else { Value::Null }, "curve": curve}));
+        }
+        let m = &b.units[u];
+        let num = |n: &btsim_core::pyfmt::Num| match n {
+            btsim_core::pyfmt::Num::I(i) => *i as f64,
+            btsim_core::pyfmt::Num::F(x) => *x,
+        };
+        let locs: serde_json::Map<String, Value> = m.locations.iter().map(|(k, l)| (k.clone(), json!([num(&l.armor), l.rear_armor.as_ref().map(num).unwrap_or(0.0), num(&l.structure)]))).collect();
+        let equipment: Vec<String> = m.items.iter().map(|i| i.name.clone()).collect();
+        out.push(json!({"unit": m.side_name, "gunnery": gunnery, "piloting": m.piloting, "tons": m.mass, "mech_type": m.mech_type,
+            "walk": btsim_core::mech_state::compute_walk_mp(m), "run": btsim_core::mech_state::compute_running_mp(m),
+            "jump": btsim_core::mech_state::compute_jump_mp(m), "dissipation": btsim_core::mech_state::compute_heat_dissipation(m),
+            "bv": btsim_core::battle_value::battle_value(&b, u), "locations": locs, "weapons": weapons, "equipment": equipment}));
+    }
+    println!("{}", serde_json::to_string(&out).unwrap());
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     if args.first().map(|a| a.as_str()) == Some("decide") {
         decide();
+        return;
+    }
+    if args.first().map(|a| a.as_str()) == Some("profile") {
+        profile(&args);
         return;
     }
     // --setup FILE (Combat Lab CL1, session 25): the scenario is built in Rust from a settings file (the settings that
