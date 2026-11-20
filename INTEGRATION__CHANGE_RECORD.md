@@ -19,6 +19,8 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   number is over 12 (13 if it could destroy the location). Not in the engine, so not ported: aimed shots at a MOBILE target with a targeting
   computer, and called shots (for Daniel in the audit table). "Big gun" = a non-missile weapon doing 10+ damage, standing in for MegaMek's
   `getDamage(5) >= 10`; when both arms carry one the right arm is ranked first (MegaMek's order comes from a set).
+  Reference battles re-recorded (`--update`): `cov_pool_start` (Blue now aims at the Right Torso, not the fixed Center Torso) and `cov_brawl_princess`; the
+  other 89 unchanged. `check_rust_reference.py --parity` (every battle through the bridge session) was run: only those two differed.
   NOT YET WIRED: the bridge's answers carry no unjam or aim fields, so the live-MegaMek side will need `UNJAM_RAC` and aimed-location actions.
 
 - **2026-11-20 (Claude, session 32), T16 STEP 1: PRINCESS / CASPAR NOW RUN MEGAMEK'S HEAT-EQUIPMENT MANAGER. REVIEW PENDING (higher-level model).**
