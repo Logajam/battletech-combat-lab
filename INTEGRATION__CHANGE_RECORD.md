@@ -106,6 +106,20 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   Rerun `python tools/benchmark_report.py --bv-file LISTS.json` (LISTS.json: the Lab's `list_units` output) for the tables.
   Checks: no engine or test file changed; `run_checks.py` not run (docs and new tools only).
 
+- **2026-11-20 (Claude, session 30), RESEARCH: A DUEL VALUE SYSTEM, TESTED ON PAIRS THAT HAD NEVER FOUGHT (`tools/duel_value.py`).
+  REVIEW PENDING (higher-level model).** Daniel: "Care to take a stab and developing a value system for mechs and then use it to
+  make predictions about pairs of mechs that haven't fought yet to gauge how accurate the system is?" Per 'Mech: armor +
+  structure (the engine's count), walk / jump, heat-limited expected damage a turn at short / medium / long range (gunnery 4,
+  equipment.json, missiles x 0.6), turns of ammo. Fitted (logistic, per battle) on the 78,800 intro fair-duel battles.
+  Durability alone explains 83% of the duel ratings; BV 87%; the numbers 89%; numbers + BV 93%. Predictions for 80 never-fought
+  pairs (40 with both 'Mechs rated, 40 with a TR:3050 'Mech the fit never saw) were committed (370203b) before the 12,800 test
+  battles (160 a pair). Mean |predicted - actual score|: BV 0.164, numbers-only value 0.150 (not significantly better),
+  BV corrected by the numbers 0.121 (95% interval of the gain over BV: 0.023 - 0.063; closer on 58 of 80 pairs), hp x damage
+  ("Lanchester") 0.246, the battle ratings themselves 0.045 (rated pairs only). New 'Mechs were predicted about as well as rated
+  ones. Every formula was too cautious (calibration slope 1.5 - 2.1), partly a flaw of the test: pairs were picked where the
+  value model predicted 15 - 85%, which favours pairs it under-rated (next test: pick at random). Records:
+  trial_records/2026-11-20_fair_duels_value_test.jsonl; predictions: tools/duel_value_predictions.json.
+
 - **2026-11-20 (Claude, session 30), RULES FIX: A PRONE FOUR-LEGGED 'MECH WITH THREE OR FOUR LEGS GONE CANNOT FIRE. REVIEW PENDING
   (higher-level model).** Core p.238 (quad 'Mechs, Firing While Prone): a prone quad props on one leg to fire only with no more
   than two legs destroyed. `attack_resolution::prone_fire` let it prop on the last leg with three gone, and with all four gone
