@@ -42,6 +42,9 @@ pub trait BotSet {
     fn unit_moved(&mut self, _b: &mut Battle, _mover: UnitId, _start_hex: Option<&str>) {}
     fn end_of_turn(&mut self, _b: &mut Battle) {}
     fn end_movement(&mut self, _b: &mut Battle) {}
+    /// T16: the End Phase's heat-equipment review of the Princess-family units (MegaMek BotHeatEquipmentManager); runs before
+    /// `end_of_turn`, as BotClient does. Default: nothing (Gladiator / Hydra units are never managed).
+    fn manage_heat_equipment(&mut self, _b: &mut Battle) {}
     fn assign_damage(&mut self, _b: &mut Battle, _attacker: UnitId, _target: UnitId, _dmg: f64) {}
 }
 
@@ -1123,6 +1126,7 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
     let heat_reports: Vec<(UnitId, SideReport)> = scrappers.iter().copied().zip(phys_reports).collect();
     phase_heat(b, &heat_reports);
     after_phase(b);
+    bots.manage_heat_equipment(b);
     bots.end_of_turn(b);
     phase_end(b, turn, &mut play.unit_stats);
     smoke::end_phase(b, turn);

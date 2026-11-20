@@ -112,6 +112,12 @@ impl BotSet for GladiatorBots {
     fn start_movement(&mut self, b: &mut Battle) {
         b.hydra.start_movement_phase();
         crate::legate::plan_turn(b);
+        // T16: Princess-family units start to be managed before the first Heat Phase
+        crate::bot_heat_equipment::begin_battle(b);
+    }
+
+    fn manage_heat_equipment(&mut self, b: &mut Battle) {
+        crate::bot_heat_equipment::manage_owned_units(b);
     }
 
     fn end_movement(&mut self, b: &mut Battle) {

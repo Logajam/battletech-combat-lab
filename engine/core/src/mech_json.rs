@@ -303,6 +303,11 @@ impl Mech {
         if let Some(v) = self.outside_heat {
             put!("outside_heat", json!(v));
         }
+        if self.heat_managed {
+            put!("heat_managed", json!(true));
+            put!("systems_off", json!(self.systems_off));
+            put!("radical_on", json!(self.radical_on));
+        }
         if let Some(v) = &self.shield_raised {
             put!("shield_raised", v.clone());
         }
@@ -620,6 +625,9 @@ impl Mech {
         m.other_unit_hexes = v.get("other_unit_hexes").cloned();
         m.outside_heat = v.get("outside_heat").and_then(|x| x.as_i64());
         m.shield_raised = v.get("shield_raised").cloned();
+        m.heat_managed = v.get("heat_managed").and_then(|x| x.as_bool()).unwrap_or(false);
+        m.systems_off = v.get("systems_off").map(strs).unwrap_or_default();
+        m.radical_on = v.get("radical_on").and_then(|x| x.as_bool()).unwrap_or(false);
         m.started_in_liquid = v.get("started_in_liquid").and_then(|x| x.as_bool());
         m.torso_twist = v.get("torso_twist").and_then(|x| x.as_i64());
         m.weapons_fired_this_turn = v.get("weapons_fired_this_turn").map(|x| strs(x).iter().map(|a| ids[a.as_str()]).collect());
