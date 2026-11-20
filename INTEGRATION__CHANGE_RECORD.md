@@ -6,6 +6,46 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-20 (Claude, session 32), T16 STEP 4: THE BOTCLIENT / PRINCESS AUDIT. REVIEW PENDING (higher-level model).**
+  Every method of MegaMek's `BotClient.java` and `Princess.java` (commit `0cc7d65`) listed and matched to the clone: the table is in PROJECT_MAP
+  Section 6, "Princess clone: audit". One change came out of it: Princess's move order cuts a stealthed unit's index to a third ("move stealthy
+  units later", `calculateMoveIndex`), now in `forces::move_index` for Princess-family units with stealth armor or a Void Signature on (Gladiator and
+  Hydra order unchanged). Buildable gaps found, not built: AMS on / off modes (`setAMSModes`), ammo conservation (`calcAmmoConservation`); forced
+  withdrawal waits on the crippled rules. Rules the engine lacks, listed for Daniel: evade, searchlight, Tactical Genius, split fire, targeting-computer
+  aim at a mobile target, called shots. Validation (reference re-record, parity) waits as Daniel said.
+
+- **2026-11-20 (Claude, session 32), T16 STEPS 2 AND 3: PRINCESS'S RAC UNJAM RULE AND AIMED-SHOT CHOICE (WIRING; VALIDATION WAITS). REVIEW PENDING (higher-level model).**
+  Daniel (2026-11-20): all of T16 is wiring on this branch; validate after the engine work is done.
+  STEP 2, RAC unjam (MegaMek `Princess.embellishPath` / `unjamRAC`, `PathRanker`, `Entity.canUnjamRAC`): a Princess-family unit with a jammed
+  weapon (not prone, not shut down) may only Stand Still or Walk (`fire_modes::walk_only_for_unjam`, read by `move_options`), whether or not it
+  then unjams; once the move is chosen (`princess_modern::rank`), `princess_declare_unjam` declares the unjam if the move is a Stand Still / Walk
+  and its expected damage (firing + physical, the clone's stand-in for `getMaximumDamageEstimate`) is under 5. `declare_unjams` no longer runs
+  `stub_unjam` for them; Gladiator and Hydra keep it. The attempt itself (Gunnery + 3 at the end of the Ranged phase) is unchanged.
+  STEP 3, aimed shots (`Princess.calculateAimedShotLocation`, `setAttackAsAimedOrCalled`; `engine/core/src/bot_aimed_shots.rs`): Princess-family
+  shooters pick the location themselves against an immobile target (arm with a big gun, right torso, left torso, center torso, legs; least armor wins;
+  rear armor on a rear shot) instead of the one fixed `AIMED_SHOT_LOCATION`; no aim at a target in partial cover; a weapon fires unaimed if its
+  number is over 12 (13 if it could destroy the location). Not in the engine, so not ported: aimed shots at a MOBILE target with a targeting
+  computer, and called shots (for Daniel in the audit table). "Big gun" = a non-missile weapon doing 10+ damage, standing in for MegaMek's
+  `getDamage(5) >= 10`; when both arms carry one the right arm is ranked first (MegaMek's order comes from a set).
+  Reference battles re-recorded (`--update`): `cov_pool_start` (Blue now aims at the Right Torso, not the fixed Center Torso) and `cov_brawl_princess`; the
+  other 89 unchanged. `check_rust_reference.py --parity` (every battle through the bridge session) was run: only those two differed.
+  NOT YET WIRED: the bridge's answers carry no unjam or aim fields, so the live-MegaMek side will need `UNJAM_RAC` and aimed-location actions.
+
+- **2026-11-20 (Claude, session 32), T16 STEP 1: PRINCESS / CASPAR NOW RUN MEGAMEK'S HEAT-EQUIPMENT MANAGER. REVIEW PENDING (higher-level model).**
+  Ported `BotHeatEquipmentManager` (run by `BotClient` in the End Phase) to `engine/core/src/bot_heat_equipment.rs`. Stealth armor: off when
+  heat > 13 + randomInt(7), or when the BV-weighted enemy is close (average range <= 5 + randomInt(5)); a heat-activated TSM unit keeps it on
+  while closing and drops it adjacent to an enemy. Chameleon / Null / Void Signature: off at 14+ heat, on again at 5 or less. Radical heat sink:
+  on while heat >= 14 and the next failure target is <= 7, else off (replaces the `STUB_ESCALATING_USE` cycle for these units). Nova CEWS: not
+  ported (no engine rule). New unit fields `heat_managed`, `systems_off`, `radical_on` (dumped only when `heat_managed`; added to the bridge's
+  `UNIT_FIELDS`); `active_stealth` and `radical_planned` read them; new `BotSet::manage_heat_equipment` (also a `Recorder` / bridge line),
+  called before `end_of_turn`. Princess-family units become managed at the first Movement Phase; Gladiator and Hydra units never do.
+  CALL FOR DANIEL / REVIEW: the two random draws use the BATTLE's dice (spec said the bot's own), only for a Princess-family unit carrying
+  stealth armor, so battles without one keep their dice; a separate stream would need a new state field. Stealth armor still needs a working
+  ECM suite to count (engine rule); every positioned enemy counts as "visible". Checks: 90 of 91 Rust reference battles unchanged; only
+  `team_4v4_princess_v_princess` changed (Blue 4 carries stealth armor) and was re-recorded with `check_rust_reference.py --update`; bridge
+  parity `--quick` passes. Two checks could not run in this container, both unrelated to the change: `cl1_setup` (needs `engine/fixtures`,
+  absent here) and the website build (no `wasm32-unknown-unknown` target). Steps 2-4 of T16 are still to do; no A/B yet.
+
 - **2026-11-20 (Claude, session 31), BATTLE VALUE MADE TO MATCH MEGAMEK: 27% OF UNITS WRONG BEFORE, 1.7% AFTER. REVIEW PENDING (higher-level model).**
   Daniel: Mad Cat Mk IV A 2404, Archer C 2 2023, Shadow Cat T 1590 "do not match the results megamek gives". Method: unpacked MegaMek
   0.51.01.7 (an unchanged release, megamek_bridge/README.md), loaded every unit of data/meks.zip with its `MekFileParser` and took the BV and

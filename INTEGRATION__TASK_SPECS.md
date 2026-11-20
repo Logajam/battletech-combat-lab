@@ -208,6 +208,15 @@ entry that holds its numbers. Checks identical before and after (they are off, s
 Daniel: "I'm thinking of handing out the job of building out the megamekbot's brains to Sonnet." Gladiator and Hydra are
 ON HOLD for this (Daniel: "we'll hold off on Gladiator and Hydra"): no stealth forecast for them; they keep today's behaviour.
 
+**STATUS (2026-11-20, session 32): steps 1-4 BUILT on branch `claude/task-t16-specs-ecse6a`, not merged, not validated.** Daniel: "this is pure get
+the wiring in place"; validate once the engine work in the other session is done. What is left: (a) merge `main` into the branch, rebuild;
+(b) `python tests/run_checks.py --full`, then `check_rust_reference.py --update` (expect Princess / CASPAR battles only; already re-recorded:
+`team_4v4_princess_v_princess`, `cov_pool_start`, `cov_brawl_princess`; the step-4 move-index change is not yet run) and name them in the Change
+Record; (c) the A/B (`tools/round_robin.py --bots princess,caspar`, 20 battles, old v new) for Daniel; (d) the stealth controlled test
+(`tools/feature_test.py`, new feature "stealth"); (e) bridge wire: the Java side needs the unjam step and aimed-location actions, and the
+`manage_heat_equipment` call. Container checks that could not run in session 32: `cl1_setup` (needs `engine/fixtures`) and the website build
+(no `wasm32-unknown-unknown` target). Follow-ups from the audit (PROJECT_MAP Section 6): AMS modes, ammo conservation, forced withdrawal.
+
 **Why.** The Princess clone (`engine/core/src/princess*.rs`) and CASPAR (`caspar.rs`) were built from MegaMek's
 `megamek/src/megamek/client/bot/princess/` folder only. The code ABOVE it, `BotClient.java` and
 `BotHeatEquipmentManager.java` (it runs for Princess and CASPAR alike), was never ported, and the engine-wide "default on" for

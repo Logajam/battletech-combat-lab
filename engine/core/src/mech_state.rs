@@ -325,6 +325,13 @@ pub struct Mech {
     pub torso_cockpit: bool,
     pub escalating_turns: IndexMap<String, i64>,
     pub systems_used_this_turn: Vec<String>,
+    /// T16: the bot manages this unit's heat equipment (MegaMek BotHeatEquipmentManager; Princess / CASPAR only). While false
+    /// every concealment system works whenever it can and the radical heat sink follows STUB_ESCALATING_USE, as before.
+    pub heat_managed: bool,
+    /// T16: concealment systems the bot has switched OFF ("stealth_armor", "chameleon", "null_signature", "void_signature").
+    pub systems_off: Vec<String>,
+    /// T16: the bot has the radical heat sink switched ON (read only while `heat_managed`).
+    pub radical_on: bool,
     pub turn_number: i64,
     pub pfd_active: bool,
     pub pfd_turns_used: i64,
@@ -642,6 +649,9 @@ impl Mech {
             torso_cockpit: false,
             escalating_turns: IndexMap::default(),
             systems_used_this_turn: Vec::new(),
+            heat_managed: false,
+            systems_off: Vec::new(),
+            radical_on: false,
             turn_number: 0,
             pfd_active: false,
             pfd_turns_used: 0,

@@ -727,6 +727,7 @@ fn rank(b: &mut Battle, mover: UnitId, group: &Group, prepared: &[Opt], estimate
         prepared.len(),
         foes_note(group, moved)
     );
+    crate::fire_modes::princess_declare_unjam(b, mover, &o.mode, done);
     (Some(o.pick()), note)
 }
 

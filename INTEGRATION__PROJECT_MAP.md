@@ -313,6 +313,7 @@ Lab functionality; 3D art.
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
 - **(s30-14) INDIRECT FIRE, DISTANT ARTILLERY, SPLIT FIRE** (session 30): `spotting.rs`, `artillery.rs`, `split_fire.rs`, their hooks in `attack_resolution` (prepare / finish / run_ranged_phase), `electronics::control_for` (no Artemis indirectly), the stubs STUB_SPOT / STUB_DISTANT_ARTILLERY / STUB_SPLIT_FIRE (all "never"). Look at: the spotter pick (lowest modifier), the AMS list split and merge per target, the area strike's hit side for units in the impact hex, the twist lock during secondaries.
+- **(s32-1) T16 MEGAMEK BOTS' BRAINS, STEPS 1-4** (session 32, branch `claude/task-t16-specs-ecse6a`, merged 2026-11-20 with session 30's fire-support work): `bot_heat_equipment.rs` (stealth / concealment / radical heat sink; new unit fields `heat_managed`, `systems_off`, `radical_on`; `BotSet::manage_heat_equipment`), `fire_modes::princess_declare_unjam` / `walk_only_for_unjam`, `bot_aimed_shots.rs`, the stealth x1/3 in `forces::move_index`, the audit table (Section 6). Look at: the two dice draws use the battle's dice (Daniel OK'd: reproducibility); "big gun" stands in for `getDamage(5) >= 10`; expected damage for the unjam test is firing + physical; every positioned enemy counts as visible for the stealth range test; bridge answers carry no unjam / aim fields yet. Validation (re-record the Princess / CASPAR reference battles, parity, the A/B, `feature_test.py` stealth) waits for the engine work in the other session (Daniel, 2026-11-20); the step-4 move-index change has not been run at all. Change Record: four 2026-11-20 session-32 entries.
 - **(s30-13) HARDENED ARMOR CONTROLLED TEST** (session 30): `tools/feature_test.py` (the draw, the .mtf edits into data/_modified/feature_test/, the report). Look at: the armor-line edit ("Armor:" key only) and the doubled version past each location's legal maximum (intended: free upgrades).
 - **(s30-12) ASYMPTOTE CHALLENGE** (session 30): `duel_value.py` `fit_all` / `challenge_cells` / `stage_challenge` (predict, addendum, play, score). Look at: `challenge_cells` gives the 4 battles over 96 all to Gladiator; the armor-x2 addendum touches only the challenger.
 - **(s30-11) DUEL VALUE ROUND 2 + SNUB-NOSE CAPACITOR** (session 30): `btsim profile` (main.rs; variable-damage pricing), `capacitor::charge_bonus` / `set_charged` (Core p.188, TO:AUE p.148), `duel_value.py` `big_pool` / `battery` / `features2` / `fit2`. Look at: the sustained-damage greedy pick, the held-out-'Mech split (hashing), whether the match-up list is worth keeping.
@@ -1341,6 +1342,51 @@ CHOICES. The module docstrings have the formulas; in short:
   edge, as Gladiator does); damage already assigned by friends (a duel).
 - **Known difference from MegaMek**: ties keep the first spot in the
   project's order (MegaMek's TreeSet keeps the first path it ranked).
+
+### Princess clone: audit against MegaMek's `BotClient.java` and `Princess.java` (T16 step 4, 2026-11-20)
+
+Source: MegaMek main at `0cc7d65` (2026-11-18), `megamek/src/megamek/client/bot/BotClient.java` (1,944 lines) and `princess/Princess.java`
+(6,109 lines). Method: every method of both files listed, each read where it decides something, then matched to the Rust clone. Status:
+**P** = ported (where), **T16** = ported in T16 (2026-11-20), **N** = not ported, with the reason. Rows marked "**DANIEL**" are rules the engine
+lacks: listed for a scope call, not built. Row order follows the files.
+
+| MegaMek (class.method) | What it does | Status |
+|---|---|---|
+| BotClient.getStartingCoordsArray, getFirstValidCoords, calculateEdgeAccessFitness, potentialBuildingDamage, getDeployDamage, isBlockedByKnownUnit | Deployment hex fitness | **P** `princess_deploy.rs` (session 30); stacking and train fit checks N (no trains, one board) |
+| Princess.calculateDeployment, getEntityToDeploy, rankDeploymentCoords, rankKernelAroundCoords, getDeploymentFacing, getEnemyDeploymentCenter, prioritizeDeploymentCoords | Zone / hazard / room-to-move deployment | **P** `princess_deploy.rs`; CASPAR's zone placement `caspar.rs` |
+| Princess.calculateMoveTurn, getMovePathsAndSetNecessaryTargets, getPathRanker (BasicPathRanker) | Choose the movement path | **P** `princess_modern::choose_as` (v0.50.07 ranker `princess.rs`); the "move to contact" re-rank and `forceMoveToContact` N |
+| Princess.calculateMoveIndex | Move order: distance / speed, prone x1.1, fleeing x2, commander x0.5, stealth x1/3, type multipliers | **P** `forces::move_index` (distance / speed, prone); **T16** stealth x1/3 (stealth armor or Void Signature on, Princess family only); fleeing, commander N (no withdrawal, no commander flag); tank / infantry / civilian N (only 'Mechs) |
+| Princess.getEntityToMove, getEntityToFire, initFiringEntities | Which unit acts next | **P** (engine activation order, `forces::Activation`) |
+| Princess.embellishPath -> unjamRAC | Unjam a jammed RAC when the path walks and expected damage < 5 | **T16** `fire_modes::princess_declare_unjam` + `walk_only_for_unjam` |
+| embellishPath -> evadeIfNotFiring, turnOnSearchLight, unloadTransportedInfantry, launchFighters, abandonShip / shouldAbandon, FLEE step | Aero evade, searchlight, transport, abandon, flee | **N** no engine rule: evade and searchlight (**DANIEL** if wanted), transports, fighters, abandon ship; flee = forced withdrawal below |
+| Princess.calculateFiringTurn: getBestFiringPlan, loadAmmo, sortPlan, damageMap, firing-mode changes | The firing plan | **P** `princess_fire.rs`, `bot_targets.rs` |
+| Princess.calculateFiringTurn: aimed shot (checkForEnhancedTargeting, getAimedShotLocation, calculateAimedShotLocation, setAttackAsAimedOrCalled, calcEnhancedTargetingMaxTN, isBigGun) | Aim at an immobile 'Mech's weakest location | **T16** `bot_aimed_shots.rs` (immobile targets; no aim at partial cover) |
+| same: aimed shot at a MOBILE target with a targeting computer | TC aim, +3 | **N** no engine rule (**DANIEL**) |
+| same: called shots (getCalledShotDirection, calculateCalledShotDirection, `ADVANCED_COMBAT_TAC_OPS_CALLED_SHOTS`) | Called shots | **N** no engine rule (**DANIEL**) |
+| calculateFiringTurn: skip firing (hidden, forced withdrawal, nothing worth firing) | Hold fire | skip when nothing worth firing **P**; hidden and withdrawal **N** |
+| calculateFiringTurn: split fire / multi-target plans, searchlight before firing | | **N** the engine fires at one target per unit (**DANIEL**: split fire) |
+| Princess.calcAmmoConservation | Per-weapon target-number ceiling from ammo left, behavior and battle length | **N**: the clone fires without ammo scarcity (listed since 2026-10-27). Buildable from the engine's ammo counts (candidate follow-up) |
+| Princess.setAMSModes (called from endOfTurnProcessing), flagManualAMSUse | AMS on / off / manual: laser AMS off at 14+ heat, ammo AMS off by a dice test when low on ammo | **N**: the engine's AMS (`ams.rs`) is always on; no AMS mode. Candidate follow-up (a per-unit switch like `systems_off`) |
+| BotClient CFR_AMS_ASSIGN / CFR_APDS_ASSIGN | Which incoming attack an AMS takes (highest expected damage) | **N** as a bot call: the engine's AMS engagement is automatic (`ams.rs`) |
+| BotClient CFR_HIDDEN_PBS: calculatePointBlankShot | A hidden unit's point-blank shot | **N** no hidden units |
+| BotClient CFR_TAG_TARGET: pickTagTarget | Which TAG-designated hex an artillery piece takes | **N**: the engine's TAG (`tag.rs`) has one designation and no artillery bot choice (artillery / TAG standoff stays on backlog B) |
+| BotClient.endOfTurnProcessing -> BotHeatEquipmentManager | Heat equipment on / off | **T16** `bot_heat_equipment.rs` (stealth armor, Chameleon, Null, Void, radical heat sink; Nova CEWS N: no engine rule) |
+| Princess.endOfTurnProcessing: checkForDishonoredEnemies, checkForBrokenEnemies, refreshCrippledUnits, ForcedWithdrawalTracker, sendDishonoredData, updateReturnFirePermission, checkMorale, wantsToFallBack, mustFleeBoard, canRecoverMobility, isImmobilized, recurringHeat, isStandingInFire, canJumpClear | Forced withdrawal, honor, flee the board | **N** no crippled / withdrawal rules (Pick up here 5; backlog B). The largest remaining gap |
+| endOfTurnProcessing: updateEnemyHeatMaps, updateFriendlyHeatMap, getMemory().forget | Enemy / friendly heat maps, memory | **P** `princess_memory.rs` (`end_of_turn`) |
+| Princess.getShootAndScootPath, isEnemyWithinStandoff, getHoldPositionPath, getDisplacePath, getMoveTowardHexPath | Artillery shoot-and-scoot, hold, displace | **N** artillery / hold orders (backlog B); displace-related memory in `princess_memory.rs` only |
+| Princess.getUnitOrdersFollower, OrdersRadio, followsUnitOrders, chooseDeploymentAnchor | Player unit orders, formations | **N** none in a simulation; formations are CASPAR's doctrine (`caspar.rs`) |
+| Princess.decideToRerollInitiative, shouldRerollInitiative, countWins, expectedScoreOnReroll (BotClient version too) | Tactical Genius initiative reroll | **N** no Tactical Genius in the engine (**DANIEL**) |
+| BotClient.deployMinefields, performMinefieldDeployment | Lay minefields | **N** no minefields |
+| Princess.performVictorySetupTurn / ground objects, control points | Scenario objectives | **N** none |
+| Princess aero: AeroGroundPathFinder, aerospace focus / ground order, isAtmosphericAerospace, launchFighters | Aerospace | **N** no aerospace |
+| Princess swarm / coverage: SwarmContext, EnemyTracker, CoverageValidator, SwarmCenterManager, updateSwarmContext | Swarm movement | **N** multi-unit infantry / convoy logic |
+| BotClient.getStrandedEntities, connectOwnTrains, deployTrain, calculatePrePhaseTurn (ghost targets), calculateTargetingOffBoardTurn | Transports, trains, ghost targets, off-board | **N** no engine rule |
+| Princess.getBehaviorSettings, setBehaviorSettings, fallBack / fleeBoard / holdPosition accessors | The behaviour sliders | **P** `config.PRINCESS_BEHAVIOR` (fall shame, bravery, hyper-aggression, self-preservation; herd and favor TMM are 0 in a duel) |
+| BotClient / Princess chat, messages, game log, GUI, packet handling, revealEntities, die, correctName | Client plumbing | n/a |
+
+Open from this audit: (1) AMS modes and ammo conservation are small and buildable (nothing in the engine blocks them); (2) forced
+withdrawal needs the crippled rules (backlog B); (3) **DANIEL**: evade, searchlight, Tactical Genius reroll, split fire, TC aim at a mobile
+target, called shots, each a rule the engine lacks.
 
 ### Memo: the bot must weigh how an action changes its FUTURE capabilities (Daniel, 2026-10-20)
 
