@@ -126,6 +126,9 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   Daniel: hardened also costs -1 Running MP (and +1 PSR, Core p.202), so it is not a clean armor test. Proposed: a third
   version C = original + only the hardened penalties (a test-only engine switch, off by default; the .mtf cannot do -1 run):
   B - A = the rules-as-written package, C - A = the penalty, B - C = the armor (absorption + the TAC -2). ~9,600 battles.
+  DECIDED (Daniel): "May as well go with rules as written": A v B only, no engine switch. Optional cheap extra D = standard
+  armor doubled per location (.mtf only; Daniel: "also not quite the same": no TAC -2, no run/PSR penalty, single points
+  differ): B - D = the rule's other parts. Included unless Daniel drops it (~3,200 more battles).
 
 **A. Gladiator - the bot**
 - **A1. The move score does not see a win, a clock or the walk back** (review 2026-11-10; [000000 (a)], [0]
