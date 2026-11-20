@@ -599,7 +599,7 @@ def challenge_cells(a, b, n):
 
 
 def stage_challenge(argv):
-    """challenge predict UNIT [--top 10] [--battles 100] | challenge play UNIT [--workers 4] | challenge score UNIT"""
+    """challenge predict UNIT [--top 10] [--battles 100] | challenge addendum UNIT | challenge play UNIT [--workers 4] | challenge score UNIT"""
     what, unit = argv[0], argv[1]
     tag = re.sub(r"[^A-Za-z0-9]+", "_", os.path.splitext(os.path.basename(unit))[0]).strip("_").lower()
     path, label = CHALLENGE.format(tag), f"challenge_{tag}"
@@ -633,6 +633,32 @@ def stage_challenge(argv):
         print(f"{len(top)} pairs written to {path}; commit it before `challenge play`")
         for e in out["pairs"]:
             print(f"  {os.path.basename(e['b'])[:-4]:32s} " + "  ".join(f"{k} {e[k]:.2f}" for k in models))
+    elif what == "addendum":
+        # Daniel, 2026-11-20, while the battles were starting: "hardened armor definitly counts for at least 2 per point of
+        # armor" (Core p.202: a hardened pip is destroyed only by two points of damage). The same fitted models, with the
+        # challenger's armor counted twice in its hit points (ln_hp, ln_ct); written beside the first predictions, dated,
+        # before any result was read.
+        pred = json.load(open(path))
+        feats, prof, models, _, _ = fit_all()
+        every = {u["id"]: u for u in fd.catalog_units()}
+        u = pred["unit"]
+        p = (engine_profiles([every[u]]))[u]
+        if "hardened" not in (every[u].get("armor_type") or "").lower():
+            sys.exit(f"{u} has no hardened armor")
+        p2 = dict(p, locations={k: [2 * a, 2 * r, st] for k, (a, r, st) in p["locations"].items()})
+        fa = features2(p2)
+        for e in pred["pairs"]:
+            b = e["b"]
+            for name, (names, cross, w) in models.items():
+                z = sum(x * y for x, y in zip(pair_vector(fa, feats[b], names, cross), w))
+                e["hardened x2: " + name] = round(1 / (1 + math.exp(-z)), 4)
+        pred["addendum"] = {"made": fd.subprocess.run(["date", "-u", "+%Y-%m-%dT%H:%M:%SZ"], capture_output=True, text=True).stdout.strip(),
+                            "why": "Daniel: hardened armor counts at least 2 per point (Core p.202); challenger's armor doubled",
+                            "fv": round(sum(w * fa[k] for k, w in zip(models["value2"][0], models["value2"][2])), 4)}
+        json.dump(pred, open(path, "w"), indent=1)
+        for e in pred["pairs"]:
+            print(f"  {os.path.basename(e['b'])[:-4]:32s} " + "  ".join(f"{k[13:]} {e[k]:.2f}" for k in e if k.startswith("hardened")))
+        print("challenger's FV with armor x2:", pred["addendum"]["fv"], " (was", pred["fv"][u], ")")
     elif what == "play":
         pred = json.load(open(path))
         every = {u["id"]: u for u in fd.catalog_units()}
@@ -644,8 +670,9 @@ def stage_challenge(argv):
         pred = json.load(open(path))
         rows = battles([label])
         names = ["bv", "value2", "value2 + match-ups", "bv_plus2", "bv_plus2 + match-ups"]
+        names += ["hardened x2: " + n for n in names[1:] if "hardened x2: " + n in pred["pairs"][0]]
         print(f"{os.path.basename(pred['unit'])[:-4]}'s score (win 1, draw 1/2) against each, and each model's prediction")
-        print(f"  {'opponent':32s} {'played':>6s} {'actual':>6s} {'draws':>5s} " + " ".join(f"{n[:12]:>12s}" for n in names))
+        print(f"  {'opponent':32s} {'played':>6s} {'actual':>6s} {'draws':>5s} " + " ".join(f"{n.replace('hardened x2: ', 'hx2 ').replace(' + match-ups', '+mu')[:12]:>12s}" for n in names))
         err = {n: [] for n in names}
         for e in pred["pairs"]:
             rs = [r for r in rows if r["a"] == e["a"] and r["b"] == e["b"]]

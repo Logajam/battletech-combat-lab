@@ -25,7 +25,12 @@
    "value2": 0.2179,
    "value2 + match-ups": 0.3576,
    "bv_plus2": 0.5334,
-   "bv_plus2 + match-ups": 0.7378
+   "bv_plus2 + match-ups": 0.7378,
+   "hardened x2: bv": 0.6752,
+   "hardened x2: value2": 0.5356,
+   "hardened x2: value2 + match-ups": 0.7637,
+   "hardened x2: bv_plus2": 0.7169,
+   "hardened x2: bv_plus2 + match-ups": 0.8668
   },
   {
    "a": "Asymptote II iJ Mpulse.mtf",
@@ -34,7 +39,12 @@
    "value2": 0.2537,
    "value2 + match-ups": 0.3599,
    "bv_plus2": 0.5588,
-   "bv_plus2 + match-ups": 0.6988
+   "bv_plus2 + match-ups": 0.6988,
+   "hardened x2: bv": 0.593,
+   "hardened x2: value2": 0.5846,
+   "hardened x2: value2 + match-ups": 0.7745,
+   "hardened x2: bv_plus2": 0.7373,
+   "hardened x2: bv_plus2 + match-ups": 0.8452
   },
   {
    "a": "Asymptote II iJ Mpulse.mtf",
@@ -43,7 +53,12 @@
    "value2": 0.2841,
    "value2 + match-ups": 0.4037,
    "bv_plus2": 0.6102,
-   "bv_plus2 + match-ups": 0.7421
+   "bv_plus2 + match-ups": 0.7421,
+   "hardened x2: bv": 0.6607,
+   "hardened x2: value2": 0.6216,
+   "hardened x2: value2 + match-ups": 0.8111,
+   "hardened x2: bv_plus2": 0.7762,
+   "hardened x2: bv_plus2 + match-ups": 0.8727
   },
   {
    "a": "Asymptote II iJ Mpulse.mtf",
@@ -52,7 +67,12 @@
    "value2": 0.2937,
    "value2 + match-ups": 0.3809,
    "bv_plus2": 0.5385,
-   "bv_plus2 + match-ups": 0.6542
+   "bv_plus2 + match-ups": 0.6542,
+   "hardened x2: bv": 0.6243,
+   "hardened x2: value2": 0.6325,
+   "hardened x2: value2 + match-ups": 0.7794,
+   "hardened x2: bv_plus2": 0.7211,
+   "hardened x2: bv_plus2 + match-ups": 0.8133
   },
   {
    "a": "Asymptote II iJ Mpulse.mtf",
@@ -61,7 +81,12 @@
    "value2": 0.3033,
    "value2 + match-ups": 0.4195,
    "bv_plus2": 0.5314,
-   "bv_plus2 + match-ups": 0.6828
+   "bv_plus2 + match-ups": 0.6828,
+   "hardened x2: bv": 0.6694,
+   "hardened x2: value2": 0.6431,
+   "hardened x2: value2 + match-ups": 0.8015,
+   "hardened x2: bv_plus2": 0.7153,
+   "hardened x2: bv_plus2 + match-ups": 0.8309
   },
   {
    "a": "Asymptote II iJ Mpulse.mtf",
@@ -70,7 +95,12 @@
    "value2": 0.3151,
    "value2 + match-ups": 0.4129,
    "bv_plus2": 0.5586,
-   "bv_plus2 + match-ups": 0.6872
+   "bv_plus2 + match-ups": 0.6872,
+   "hardened x2: bv": 0.6473,
+   "hardened x2: value2": 0.6557,
+   "hardened x2: value2 + match-ups": 0.7992,
+   "hardened x2: bv_plus2": 0.7372,
+   "hardened x2: bv_plus2 + match-ups": 0.8343
   },
   {
    "a": "Asymptote II iJ Mpulse.mtf",
@@ -79,7 +109,12 @@
    "value2": 0.3194,
    "value2 + match-ups": 0.4089,
    "bv_plus2": 0.502,
-   "bv_plus2 + match-ups": 0.6143
+   "bv_plus2 + match-ups": 0.6143,
+   "hardened x2: bv": 0.5878,
+   "hardened x2: value2": 0.6602,
+   "hardened x2: value2 + match-ups": 0.7939,
+   "hardened x2: bv_plus2": 0.6907,
+   "hardened x2: bv_plus2 + match-ups": 0.784
   },
   {
    "a": "Asymptote II iJ Mpulse.mtf",
@@ -88,7 +123,12 @@
    "value2": 0.3275,
    "value2 + match-ups": 0.4101,
    "bv_plus2": 0.5593,
-   "bv_plus2 + match-ups": 0.676
+   "bv_plus2 + match-ups": 0.676,
+   "hardened x2: bv": 0.6121,
+   "hardened x2: value2": 0.6684,
+   "hardened x2: value2 + match-ups": 0.7859,
+   "hardened x2: bv_plus2": 0.7377,
+   "hardened x2: bv_plus2 + match-ups": 0.8236
   },
   {
    "a": "Asymptote II iJ Mpulse.mtf",
@@ -97,7 +137,12 @@
    "value2": 0.3316,
    "value2 + match-ups": 0.4203,
    "bv_plus2": 0.4989,
-   "bv_plus2 + match-ups": 0.6037
+   "bv_plus2 + match-ups": 0.6037,
+   "hardened x2: bv": 0.5379,
+   "hardened x2: value2": 0.6725,
+   "hardened x2: value2 + match-ups": 0.7971,
+   "hardened x2: bv_plus2": 0.6881,
+   "hardened x2: bv_plus2 + match-ups": 0.7747
   },
   {
    "a": "Asymptote II iJ Mpulse.mtf",
@@ -106,7 +151,17 @@
    "value2": 0.3379,
    "value2 + match-ups": 0.4383,
    "bv_plus2": 0.5627,
-   "bv_plus2 + match-ups": 0.6776
+   "bv_plus2 + match-ups": 0.6776,
+   "hardened x2: bv": 0.6112,
+   "hardened x2: value2": 0.6787,
+   "hardened x2: value2 + match-ups": 0.814,
+   "hardened x2: bv_plus2": 0.7403,
+   "hardened x2: bv_plus2 + match-ups": 0.8276
   }
- ]
+ ],
+ "addendum": {
+  "made": "2026-11-20T07:13:57Z",
+  "why": "Daniel: hardened armor counts at least 2 per point (Core p.202); challenger's armor doubled",
+  "fv": 23.1404
+ }
 }
