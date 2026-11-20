@@ -162,6 +162,11 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
 
 **B. Princess clone** [00] - still to clone when the project has the rules: forced withdrawal, artillery / TAG
 standoff, sprinting, multi-target fire, unit orders.
+BUILDING (Daniel, 2026-11-20; Section 5 "Split fire, indirect fire, on-board artillery"): (1) indirect fire + spotting,
+engine then Princess / CASPAR's choices (MegaMek FireControl: indirect mode, `getSpotAction`, MIN_USEFUL_FIRING_DAMAGE 1.0);
+(2) on-board artillery: distant Arrow IV (18+ hexes, lands next turn), Princess's ArtilleryTargetingControl; (3) split
+fire in the engine (Princess / CASPAR single-target as MegaMek does for an ordinary 'Mech: its MultiTargetFireControl is
+only for Multi-Tasker / dedicated gunner / Multi-Trac). Stubs for what Gladiator / Hydra don't use.
 FOUND 2026-11-20 (Daniel: "Why wasn't this already included for Princess? What other features are we missing still?"): the
 clone was built from MegaMek's `client/bot/princess/` folder; the bot code ABOVE it (`BotClient`, `BotHeatEquipmentManager`,
 run for Princess and CASPAR alike) was never ported, and the engine-wide "default on" for heat equipment (2026-10-19) hid it.
@@ -876,6 +881,16 @@ forward arc, kicks included, never into a side arc.
 ---
 
 ## 5. DECISIONS LOG (Daniel's calls — implementation may not override)
+
+- **Split fire, indirect fire, on-board artillery (Daniel, 2026-11-20):** "Lets start with functionality that princess
+  probably needs. Split fire, indirect fire, and artillery." Then: "split fire yes. Completeness and the wiring in place
+  for when our bots expand their minds." "We are not incorporating Support or asset rules unless we get really bored and
+  want to be completionists. Artillery has to be on board with what the units can use." "Be sure to have stub markers for
+  features Gladiator and Hydra don't know how to do or use yet so we remember to come back and fix them." So: the engine
+  gets split fire (Core p.64), indirect fire with spotting (p.70, p.62) and artillery the units carry (Arrow IV close and
+  distant, artillery cannons, Thumper / Sniper; pp.182-183); no Battlefield Support (pp.149-156) or Assets. Princess /
+  CASPAR follow MegaMek (single target for an ordinary 'Mech; indirect fire, spotting, artillery targeting). Every one of
+  these Gladiator / Hydra can't yet use is a loud stub (INTEGRATION__stubs / stubs.rs, counted) and a Section 6 row.
 
 - **Hydra is complete (Daniel, 2026-11-12):** "I think this concludes building Hydra." Fable's list is all built.
   "cheap runs against inferior opponents means you learn nothing. Leave them all on": Hydra plays with all five planner
