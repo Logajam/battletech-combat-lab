@@ -1,0 +1,112 @@
+{
+ "made": "2026-11-20T07:13:21Z",
+ "commit": "02d590d",
+ "unit": "Asymptote II iJ Mpulse.mtf",
+ "battles": 100,
+ "trained_on_battles": 139600,
+ "fv": {
+  "Asymptote II iJ Mpulse.mtf": 21.7199,
+  "meks/RS Unique/Thanatos THS-4S (Felix).mtf": 22.9977,
+  "meks/Turning Points/JTP Tharkad/Fafnir FNR-4A Peter.mtf": 22.7986,
+  "meks/3085u/Phoenix/Marauder II MAD-4H.mtf": 22.6442,
+  "meks/3145/NTNU RS/Titan TI-1Aj.mtf": 22.5975,
+  "meks/3058Uu/Nightstar NSR-9SS.mtf": 22.5517,
+  "meks/3067 Unabridged/IS Meks/Fafnir FNR-6U.mtf": 22.4964,
+  "meks/3075/Titan II TI-2PA.mtf": 22.4764,
+  "meks/3085u/Phoenix/Marauder II MAD-6D.mtf": 22.4393,
+  "meks/3058Uu/Pillager PLG-3Z.mtf": 22.4209,
+  "Emperor EMP-6D.mtf": 22.3926
+ },
+ "pairs": [
+  {
+   "a": "Asymptote II iJ Mpulse.mtf",
+   "b": "meks/RS Unique/Thanatos THS-4S (Felix).mtf",
+   "bv": 0.6752,
+   "value2": 0.2179,
+   "value2 + match-ups": 0.3576,
+   "bv_plus2": 0.5334,
+   "bv_plus2 + match-ups": 0.7378
+  },
+  {
+   "a": "Asymptote II iJ Mpulse.mtf",
+   "b": "meks/Turning Points/JTP Tharkad/Fafnir FNR-4A Peter.mtf",
+   "bv": 0.593,
+   "value2": 0.2537,
+   "value2 + match-ups": 0.3599,
+   "bv_plus2": 0.5588,
+   "bv_plus2 + match-ups": 0.6988
+  },
+  {
+   "a": "Asymptote II iJ Mpulse.mtf",
+   "b": "meks/3085u/Phoenix/Marauder II MAD-4H.mtf",
+   "bv": 0.6607,
+   "value2": 0.2841,
+   "value2 + match-ups": 0.4037,
+   "bv_plus2": 0.6102,
+   "bv_plus2 + match-ups": 0.7421
+  },
+  {
+   "a": "Asymptote II iJ Mpulse.mtf",
+   "b": "meks/3145/NTNU RS/Titan TI-1Aj.mtf",
+   "bv": 0.6243,
+   "value2": 0.2937,
+   "value2 + match-ups": 0.3809,
+   "bv_plus2": 0.5385,
+   "bv_plus2 + match-ups": 0.6542
+  },
+  {
+   "a": "Asymptote II iJ Mpulse.mtf",
+   "b": "meks/3058Uu/Nightstar NSR-9SS.mtf",
+   "bv": 0.6694,
+   "value2": 0.3033,
+   "value2 + match-ups": 0.4195,
+   "bv_plus2": 0.5314,
+   "bv_plus2 + match-ups": 0.6828
+  },
+  {
+   "a": "Asymptote II iJ Mpulse.mtf",
+   "b": "meks/3067 Unabridged/IS Meks/Fafnir FNR-6U.mtf",
+   "bv": 0.6473,
+   "value2": 0.3151,
+   "value2 + match-ups": 0.4129,
+   "bv_plus2": 0.5586,
+   "bv_plus2 + match-ups": 0.6872
+  },
+  {
+   "a": "Asymptote II iJ Mpulse.mtf",
+   "b": "meks/3075/Titan II TI-2PA.mtf",
+   "bv": 0.5878,
+   "value2": 0.3194,
+   "value2 + match-ups": 0.4089,
+   "bv_plus2": 0.502,
+   "bv_plus2 + match-ups": 0.6143
+  },
+  {
+   "a": "Asymptote II iJ Mpulse.mtf",
+   "b": "meks/3085u/Phoenix/Marauder II MAD-6D.mtf",
+   "bv": 0.6121,
+   "value2": 0.3275,
+   "value2 + match-ups": 0.4101,
+   "bv_plus2": 0.5593,
+   "bv_plus2 + match-ups": 0.676
+  },
+  {
+   "a": "Asymptote II iJ Mpulse.mtf",
+   "b": "meks/3058Uu/Pillager PLG-3Z.mtf",
+   "bv": 0.5379,
+   "value2": 0.3316,
+   "value2 + match-ups": 0.4203,
+   "bv_plus2": 0.4989,
+   "bv_plus2 + match-ups": 0.6037
+  },
+  {
+   "a": "Asymptote II iJ Mpulse.mtf",
+   "b": "Emperor EMP-6D.mtf",
+   "bv": 0.6112,
+   "value2": 0.3379,
+   "value2 + match-ups": 0.4383,
+   "bv_plus2": 0.5627,
+   "bv_plus2 + match-ups": 0.6776
+  }
+ ]
+}

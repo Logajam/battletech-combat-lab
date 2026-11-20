@@ -6,6 +6,8 @@ fitted to the fair-duels battles, then tested on pairs that have never fought.
                                                       to tools/duel_value_predictions.json - commit it BEFORE the battles
     python tools/duel_value.py play [--workers 4]     plays the test pairs (full sets: 10 maps x 4 bots x 4 edges, 160 each;
                                                       tools/fair_duels.py cells, label "value_test")
+    python tools/duel_value.py challenge predict|play|score UNIT [--top 10] [--battles 100]
+                                                      one 'Mech against the formula's top 10, predictions committed first
     python tools/duel_value.py score                  each model's predictions against what happened
 
 Daniel: "Care to take a stab and developing a value system for mechs and then use it to make predictions about pairs of
@@ -561,10 +563,110 @@ def stage_fit2(argv):
     print("weights and scores:", out)
 
 
+# ------------------------------------------------------------------------------------------------------------- challenge
+# Daniel, 2026-11-20: "I personally expect the asymptote to break your model. Go ahead and fire up a batch of asymptote vs
+# the top 10. 100 battles each." One 'Mech against the formula's top 10 (engine-numbers ranking of the big pool), every
+# model's prediction written BEFORE the battles (committed), then played and scored.
+CHALLENGE = os.path.join(ROOT, "tools", "duel_value_challenge_{}.json")
+
+
+def fit_all():
+    """Every fit2 model refit on ALL recorded battles: (feats, prof, {model: (names, cross, weights)}, pool ids)."""
+    pool = big_pool()
+    every = {u["id"]: u for u in fd.catalog_units()}
+    rows = battles(["value_battery", "intro", "intro_confirm", "value_test"])
+    ids = sorted({r["a"] for r in rows} | {r["b"] for r in rows} | {u["id"] for u in pool})
+    prof = engine_profiles([every[i] for i in ids if i in every])
+    feats = {i: features2(p) for i, p in prof.items() if p}
+    pairs = [p for p in pair_table(rows) if p[0] in feats and p[1] in feats]
+    specs = {"bv": (["ln_bv"], []), "value2": (F2, []), "value2 + match-ups": (F2, CROSS),
+             "bv_plus2": (F2 + ["ln_bv"], []), "bv_plus2 + match-ups": (F2 + ["ln_bv"], CROSS)}
+    models = {}
+    for name, (names, cross) in specs.items():
+        X = [pair_vector(feats[a], feats[b], names, cross) for a, b, _, _ in pairs]
+        models[name] = (names, cross, [float(x) for x in fit_np(X, [p[2] for p in pairs], [p[3] for p in pairs])])
+    return feats, prof, models, [u["id"] for u in pool if u["id"] in feats], sum(p[3] for p in pairs)
+
+
+def challenge_cells(a, b, n):
+    """n battles of a balanced set: the 16 bot x edge cells in turn, each with a different map each time round (n <= 160)."""
+    out = []
+    for k in range(len(fd.MAPS)):
+        for i, bot in enumerate(fd.BOTS):
+            for j, edge in enumerate(fd.EDGES):
+                out.append((a, b, fd.MAPS[(k + 4 * i + j) % len(fd.MAPS)], bot, edge))
+    return out[:n]
+
+
+def stage_challenge(argv):
+    """challenge predict UNIT [--top 10] [--battles 100] | challenge play UNIT [--workers 4] | challenge score UNIT"""
+    what, unit = argv[0], argv[1]
+    tag = re.sub(r"[^A-Za-z0-9]+", "_", os.path.splitext(os.path.basename(unit))[0]).strip("_").lower()
+    path, label = CHALLENGE.format(tag), f"challenge_{tag}"
+    if what == "predict":
+        if os.path.exists(path) and "--force" not in argv:
+            sys.exit(f"{path} exists: predictions are made once, before the battles")
+        feats, prof, models, poolids, n_fit = fit_all()
+        every = {u["id"]: u for u in fd.catalog_units()}
+        prof.update(engine_profiles([every[unit]]))
+        feats[unit] = features2(prof[unit])
+        fv = lambda i: sum(w * feats[i][k] for k, w in zip(models["value2"][0], models["value2"][2]))
+        top, seen = [], set()
+        for i in sorted(poolids, key=lambda i: -fv(i)):
+            name = os.path.basename(i)
+            if i != unit and name not in seen:  # one copy of a 'Mech the library holds twice
+                seen.add(name)
+                top.append(i)
+            if len(top) == int(fd.option(argv, "--top", "10")):
+                break
+        out = {"made": fd.subprocess.run(["date", "-u", "+%Y-%m-%dT%H:%M:%SZ"], capture_output=True, text=True).stdout.strip(),
+               "commit": fd.subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip(),
+               "unit": unit, "battles": int(fd.option(argv, "--battles", "100")), "trained_on_battles": n_fit,
+               "fv": {i: round(fv(i), 4) for i in [unit] + top}, "pairs": []}
+        for b in top:
+            e = {"a": unit, "b": b}
+            for name, (names, cross, w) in models.items():
+                z = sum(x * y for x, y in zip(pair_vector(feats[unit], feats[b], names, cross), w))
+                e[name] = round(1 / (1 + math.exp(-z)), 4)
+            out["pairs"].append(e)
+        json.dump(out, open(path, "w"), indent=1)
+        print(f"{len(top)} pairs written to {path}; commit it before `challenge play`")
+        for e in out["pairs"]:
+            print(f"  {os.path.basename(e['b'])[:-4]:32s} " + "  ".join(f"{k} {e[k]:.2f}" for k in models))
+    elif what == "play":
+        pred = json.load(open(path))
+        every = {u["id"]: u for u in fd.catalog_units()}
+        fd.unpack([every[x] for e in pred["pairs"] for x in (e["a"], e["b"])])
+        fd.COMMIT = fd.subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+        cells = [c for e in pred["pairs"] for c in challenge_cells(e["a"], e["b"], pred["battles"])]
+        fd.run_cells(cells, label, int(fd.option(argv, "--workers", "4")))
+    elif what == "score":
+        pred = json.load(open(path))
+        rows = battles([label])
+        names = ["bv", "value2", "value2 + match-ups", "bv_plus2", "bv_plus2 + match-ups"]
+        print(f"{os.path.basename(pred['unit'])[:-4]}'s score (win 1, draw 1/2) against each, and each model's prediction")
+        print(f"  {'opponent':32s} {'played':>6s} {'actual':>6s} {'draws':>5s} " + " ".join(f"{n[:12]:>12s}" for n in names))
+        err = {n: [] for n in names}
+        for e in pred["pairs"]:
+            rs = [r for r in rows if r["a"] == e["a"] and r["b"] == e["b"]]
+            if not rs:
+                continue
+            act = sum(fd.a_score(r) for r in rs) / len(rs)
+            draws = sum(r["winner"] == "Draw" for r in rs)
+            for n in names:
+                err[n].append(abs(e[n] - act))
+            print(f"  {os.path.basename(e['b'])[:-4]:32s} {len(rs):6d} {act:6.2f} {draws:5d} " + " ".join(f"{e[n]:12.2f}" for n in names))
+        print(f"  {'mean |error|':54s} " + " ".join(f"{sum(v) / max(len(v), 1):12.3f}" for v in err.values()))
+        by_bot = {}
+        for r in rows:
+            by_bot.setdefault(r["bot"], []).append(fd.a_score(r))
+        print("  by bot (all opponents): " + ", ".join(f"{k} {sum(v) / len(v):.2f} ({len(v)})" for k, v in sorted(by_bot.items())))
+
+
 def main(argv):
     if not argv:
         sys.exit(__doc__)
-    {"fit": stage_fit, "predict": stage_predict, "play": stage_play, "score": stage_score, "battery": stage_battery, "fit2": stage_fit2}[argv[0]](argv[1:])
+    {"fit": stage_fit, "predict": stage_predict, "play": stage_play, "score": stage_score, "battery": stage_battery, "fit2": stage_fit2, "challenge": stage_challenge}[argv[0]](argv[1:])
 
 
 if __name__ == "__main__":
