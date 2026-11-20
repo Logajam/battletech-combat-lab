@@ -235,7 +235,7 @@ fn dispatch(name: &str, req: &Value) -> Result<Value, String> {
             let defaults: Value = STATE.with(|s| serde_json::from_str(&s.borrow().paths.memory.as_ref().unwrap().defaults)).map_err(|e| e.to_string())?;
             let cfg = btsim_core::config::Config::from_json(&defaults);
             let db = btsim_core::equipment::EquipmentDb::shared();
-            Ok(json!({"unit": describe::describe_unit(db, &cfg, "(edited)", "custom", text), "structure": describe::unit_structure(db, text)}))
+            Ok(json!({"unit": describe::describe_unit(db, &cfg, "(edited)", "custom", text), "structure": describe::unit_structure(db, text), "bins": describe::unit_bins(db, &cfg, text)}))
         }
         "equipment_list" => Ok(json!({"equipment": describe::equipment_list(btsim_core::equipment::EquipmentDb::shared())})),
         "history" => history(req),

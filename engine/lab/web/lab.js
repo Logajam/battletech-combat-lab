@@ -75,7 +75,10 @@ function boardOfSetup() {
 
 function setup() {
   return {
-    teams: lab.teams.map((t, ti) => ({ name: t.name, colour: t.colour, bot: t.bot, units: t.units.map((u) => (u.mtf ? { unit: u.base || u.id, mtf_text: u.mtf, gunnery: u.gunnery, piloting: u.piloting } : { unit: u.id, gunnery: u.gunnery, piloting: u.piloting })),
+    teams: lab.teams.map((t, ti) => ({ name: t.name, colour: t.colour, bot: t.bot,
+      ...(t.settings && Object.keys(t.settings).length ? { settings: t.settings } : {}),
+      units: t.units.map((u) => ({ ...(u.mtf ? { unit: u.base || u.id, mtf_text: u.mtf } : { unit: u.id }), gunnery: u.gunnery, piloting: u.piloting,
+        ...(u.ammo && Object.keys(u.ammo).length ? { ammo: u.ammo } : {}) })),
       ...(lab.deploy.mode !== "rulebook" ? { zone: zoneOf(t, ti) } : {}) })),
     ...(lab.deploy.mode !== "rulebook" ? { zone_mode: lab.deploy.mode, zone_opposite: lab.deploy.mode === "random" && lab.deploy.opposite && lab.teams.length === 2 } : {}),
     board: boardOfSetup(),
@@ -93,6 +96,9 @@ function save() {
   $("estimate").textContent = "Press Estimate";
 }
 
+// a unit entry keeps the ammunition chosen for its bins (N5)
+const withAmmo = (entry, ammo) => (entry && ammo && Object.keys(ammo).length ? { ...entry, ammo } : entry);
+
 function unitEntry(id, g = 4, p = 5) {
   const u = lab.byId.get(id);
   return u && { id, name: u.name, tons: u.tons, bv: u.bv, gunnery: g, piloting: p };
@@ -103,7 +109,7 @@ function restore() {
   try { saved = JSON.parse(localStorage.getItem(STORE) || "null"); } catch (e) { saved = null; }
   if (DEMO) saved = null;     // the demo always opens on the setup its results came from
   if (saved && saved.teams && saved.teams.length >= 2) {
-    lab.teams = saved.teams.map((t) => ({ ...t, units: t.units.map((u) => (u.mtf ? modifiedEntry(u.mtf, u.base || u.id, u.gunnery, u.piloting, { bv: u.bv }) : unitEntry(u.id, u.gunnery, u.piloting))).filter(Boolean) }));
+    lab.teams = saved.teams.map((t) => ({ ...t, units: t.units.map((u) => withAmmo(u.mtf ? modifiedEntry(u.mtf, u.base || u.id, u.gunnery, u.piloting, { bv: u.bv }) : unitEntry(u.id, u.gunnery, u.piloting), u.ammo)).filter(Boolean) }));
     lab.map = { ...lab.map, ...saved.map };
     lab.options = saved.options || {};
     lab.deploy = { ...lab.deploy, ...(saved.deploy || {}) };
@@ -231,6 +237,7 @@ function teamPanel(t, ti) {
       <label for="tcol-${ti}">Colour <input type="color" id="tcol-${ti}" value="${t.colour}"></label>
       <label for="tname-${ti}">Name <input type="text" id="tname-${ti}" value="${esc(t.name)}" maxlength="24"></label>
       <label for="tbot-${ti}">Bot <select id="tbot-${ti}">${bots}</select></label>
+      <button class="btn small" id="tcfg-${ti}" title="This team's bot settings (name, colour, bot and every setting the bot has)">Configure team${t.settings && Object.keys(t.settings).length ? " *" : ""}</button>
     </div>
     <div class="team-zone" id="zmini-${ti}"></div>
     <div class="list sunken" id="list-${ti}"><table>
@@ -240,7 +247,7 @@ function teamPanel(t, ti) {
         <td class="name">${esc(u.name)}</td><td class="num">${u.tons ?? ""}</td><td class="num" id="bv-${ti}-${ui}">${unitBv(u) ?? ""}</td>
         <td><input type="number" min="0" max="8" value="${u.gunnery}" id="g-${ti}-${ui}" aria-label="Gunnery"></td>
         <td><input type="number" min="0" max="8" value="${u.piloting}" id="p-${ti}-${ui}" aria-label="Piloting"></td>
-        <td class="acts"><button class="btn small" data-edit="${ui}" title="Edit this unit's stats and equipment">&#9998;</button><button class="btn small" data-remove="${ui}" title="Remove">&times;</button></td></tr>`).join("")
+        <td class="acts"><button class="btn small" data-config="${ui}" title="Configure this unit: pilot, ammunition, and its stats and equipment">&#9881;${u.ammo && Object.keys(u.ammo).length ? "*" : ""}</button><button class="btn small" data-remove="${ui}" title="Remove">&times;</button></td></tr>`).join("")
         : `<tr class="empty"><td colspan="7">No units yet. Pick the team in the Unit Browser\'s "Add to" box, or drag units here.</td></tr>`}</tbody>
     </table></div>
     </div>`;
@@ -251,8 +258,16 @@ function teamPanel(t, ti) {
     redraw();
   });
   el.querySelector(`#tcol-${ti}`).addEventListener("input", (e) => { t.colour = e.target.value; el.querySelector(".wtitle").style.borderLeftColor = t.colour; save(); });
-  el.querySelector(`#tbot-${ti}`).addEventListener("change", (e) => { t.bot = e.target.value; save(); });
-  el.querySelectorAll("[data-edit]").forEach((b) => b.addEventListener("click", () => openSheet(t.units[+b.dataset.edit].id, ti, +b.dataset.edit)));
+  el.querySelector(`#tbot-${ti}`).addEventListener("change", (e) => {
+    t.bot = e.target.value;
+    if (t.settings) {      // settings of the old bot that the new one does not read are dropped
+      const keep = new Set((lab.registry || []).filter((o) => isBotOption(o) && (BOT_FOLDERS[t.bot] || []).includes(o.folder)).map((o) => o.key));
+      for (const k of Object.keys(t.settings)) if (!keep.has(k)) delete t.settings[k];
+    }
+    redraw();
+  });
+  el.querySelectorAll("[data-config]").forEach((b) => b.addEventListener("click", () => openUnitConfig(ti, +b.dataset.config)));
+  el.querySelector(`#tcfg-${ti}`).addEventListener("click", () => openTeamConfig(ti));
   el.querySelectorAll("[data-remove]").forEach((b) => b.addEventListener("click", () => { t.units.splice(+b.dataset.remove, 1); redraw(); }));
   t.units.forEach((u, ui) => {
     // a skill change re-draws the team, so the unit's BV and the team's total follow it
@@ -730,17 +745,29 @@ async function loadOptions() {
   } catch (e) { lab.registry = []; }          // the canned demo has no options.json: the tab then shows only the run settings
   // a saved choice for a setting that no longer exists is dropped
   for (const k of Object.keys(lab.options)) if (!lab.registry.some((o) => o.key === k && o.active)) delete lab.options[k];
+  // a bot setting changed on the old Options tab moves to every team whose bot reads it (N5)
+  for (const k of Object.keys(lab.options)) {
+    const o = lab.registry.find((x) => x.key === k);
+    if (!o || !isBotOption(o)) continue;
+    lab.teams.forEach((t) => { if ((BOT_FOLDERS[t.bot] || []).includes(o.folder)) { t.settings = t.settings || {}; if (!(k in t.settings)) t.settings[k] = lab.options[k]; } });
+    delete lab.options[k];
+  }
+  save(); drawTeams();
   drawOptions();
 }
 
-const optValue = (o) => (o.key in lab.options ? lab.options[o.key] : o.default);
+// Where an option row reads and writes its value: the Options tab's own changes (lab.options), or a team's own bot settings
+// (the Configure team window, N5: t.settings, sent as that team's TEAM_SETTINGS).
+const OPTIONS_STORE = { values: () => lab.options, changed: () => { save(); optionCounts(); } };
+const optValue = (o, store = OPTIONS_STORE) => (o.key in store.values() ? store.values()[o.key] : o.default);
 
-function optionRow(o) {
+function optionRow(o, store = OPTIONS_STORE) {
+  const vals = store.values();
   const row = document.createElement("div");
-  const id = `opt-${o.key}`;
+  const id = `opt-${store === OPTIONS_STORE ? "" : "t-"}${o.key}`;
   row.className = "opt" + (o.active ? "" : " inactive");
   row.dataset.search = `${o.key} ${o.label} ${o.text} ${o.folder}`.toLowerCase();
-  const val = optValue(o);
+  const val = optValue(o, store);
   let control;
   if (o.kind === "bool") control = `<input type="checkbox" id="${id}" ${val ? "checked" : ""} ${o.active ? "" : "disabled"}>`;
   else if (o.kind === "int" || o.kind === "number") control = `<input type="number" id="${id}" step="${o.kind === "int" ? 1 : "any"}" value="${val}" ${o.active ? "" : "disabled"}>`;
@@ -750,16 +777,16 @@ function optionRow(o) {
     control = `<select id="${id}" ${o.active ? "" : "disabled"}>${known ? "" : `<option value="${esc(cur)}" selected>${esc(String(val))} (not in the list)</option>`}${o.choices.map((c) => `<option value="${esc(JSON.stringify(c[0]))}"${JSON.stringify(c[0]) === cur ? " selected" : ""}>${esc(c[1])}</option>`).join("")}</select>`;
   } else control = `<input type="text" id="${id}" value="${esc(o.kind === "json" ? JSON.stringify(val) : val ?? "")}" ${o.active ? "" : "disabled"} ${o.default === null ? "placeholder=\"set in the engine\"" : ""}>`;
   row.innerHTML = `<div class="opt-main"><label for="${id}" title="${esc(o.key)}">${esc(o.label)}</label>${control}
-      ${o.active ? "" : `<span class="tag off">not active yet</span>`}<span class="tag chg" ${o.key in lab.options ? "" : "hidden"}>changed</span>
-      <button class="btn small" data-reset ${o.key in lab.options ? "" : "hidden"} title="Back to ${esc(JSON.stringify(o.default))}">Reset</button></div>
+      ${o.active ? "" : `<span class="tag off">not active yet</span>`}<span class="tag chg" ${o.key in vals ? "" : "hidden"}>changed</span>
+      <button class="btn small" data-reset ${o.key in vals ? "" : "hidden"} title="Back to ${esc(JSON.stringify(o.default))}">Reset</button></div>
     ${o.short ? `<p class="note desc" title="${esc(o.text)}">${esc(o.short)}</p>` : ""}`;
   if (!o.active) return row;
   const input = row.querySelector("input, select");
   const changed = () => {
-    const on = o.key in lab.options;
+    const on = o.key in vals;
     row.classList.toggle("changed", on);
     row.querySelector(".tag.chg").hidden = !on; row.querySelector("[data-reset]").hidden = !on;
-    save(); optionCounts();
+    store.changed();
   };
   input.addEventListener("change", () => {
     let v;
@@ -769,20 +796,147 @@ function optionRow(o) {
     else if (o.choices) v = JSON.parse(input.value);
     else v = input.value;
     input.classList.remove("bad");
-    if (JSON.stringify(v) === JSON.stringify(o.default)) delete lab.options[o.key]; else lab.options[o.key] = v;
+    if (JSON.stringify(v) === JSON.stringify(o.default)) delete vals[o.key]; else vals[o.key] = v;
     changed();
   });
   row.querySelector("[data-reset]").addEventListener("click", () => {
-    delete lab.options[o.key];
+    delete vals[o.key];
     if (o.kind === "bool") input.checked = !!o.default; else input.value = o.choices ? JSON.stringify(o.default ?? null) : o.kind === "json" ? JSON.stringify(o.default) : o.default;
     input.classList.remove("bad"); changed();
   });
-  if (o.key in lab.options) row.classList.add("changed");
+  if (o.key in vals) row.classList.add("changed");
   return row;
 }
 
+// ---------------------------------------------------------------- Configure team / Configure unit (N5, Daniel 2026-11-20)
+// "That edit unit stats button is going to have to go a layer deeper under a configure unit button." "Configure team as another
+// option. Put the Princess/CASPAR control sliders in there plus any other options or switches a bot may have. That will let us
+// remove those options from the options tab." Each team keeps its own bot settings (t.settings); a unit its ammunition per bin
+// (u.ammo = {"<location>:<slot>": munition}). The engine reads them as TEAM_SETTINGS and a FORCES entry's "ammo".
+const BOT_FOLDERS = { gladiator: ["Gladiator", "Legate"], princess: ["Princess"], caspar: ["Princess"], hydra: ["Hydra"] };
+const isBotOption = (o) => o.top === "Bot features";
+// Princess's behaviour sliders (MegaMek's 0-10 scales), shown as sliders rather than a line of JSON
+const SLIDER_LABELS = { fall_shame: "Piloting caution (fall shame)", bravery: "Bravery", hyper_aggression: "Aggression", self_preservation: "Self-preservation",
+  mutual_support: "Herding (mutual support)", anti_crowding: "Anti-crowding", facing_enemies: "Facing enemies" };
+function behaviourSliders(o, store) {
+  const row = document.createElement("div");
+  row.className = "opt sliders";
+  const vals = store.values();
+  const cur = () => ({ ...o.default, ...(vals[o.key] || {}) });
+  row.innerHTML = `<div class="opt-main"><span class="label">${esc(o.label)}</span><button class="btn small" data-reset title="Back to MegaMek's defaults">Reset</button></div>
+    ${Object.keys(o.default).map((k) => `<label class="slider"><span>${esc(SLIDER_LABELS[k] || k)}</span><input type="range" min="0" max="10" step="1" data-k="${k}" value="${cur()[k]}"><output>${cur()[k]}</output></label>`).join("")}
+    ${o.short ? `<p class="note desc" title="${esc(o.text)}">${esc(o.short)}</p>` : ""}`;
+  row.querySelectorAll("input[type=range]").forEach((r) => r.addEventListener("input", () => {
+    const v = { ...cur(), [r.dataset.k]: +r.value };
+    r.nextElementSibling.textContent = r.value;
+    if (JSON.stringify(v) === JSON.stringify(o.default)) delete vals[o.key]; else vals[o.key] = v;
+    store.changed();
+  }));
+  row.querySelector("[data-reset]").addEventListener("click", () => {
+    delete vals[o.key];
+    row.querySelectorAll("input[type=range]").forEach((r) => { r.value = o.default[r.dataset.k]; r.nextElementSibling.textContent = r.value; });
+    store.changed();
+  });
+  return row;
+}
+
+// a small window of the same kind as the unit sheet (title bar, close box, dragged by its title)
+function openDialog(title, cls) {
+  const d = document.createElement("div");
+  d.className = `dialog ${cls}`; d.setAttribute("role", "dialog");
+  d.innerHTML = `<div class="titlebar"><span class="box" aria-hidden="true"></span><span class="name">${esc(title)}</span><button class="closebox" aria-label="Close">&times;</button></div><div class="dialog-body"></div>`;
+  const n = document.querySelectorAll(`.dialog.${cls}`).length;
+  d.style.left = `${60 + (n % 8) * 28}px`; d.style.top = `${80 + (n % 8) * 28}px`;
+  $("app").appendChild(d);
+  wireDialogMove(d, d.querySelector(".titlebar"));
+  d.querySelector(".closebox").addEventListener("click", () => d.remove());
+  wireRaise(d); raiseWindow(d);
+  return d;
+}
+
+function openTeamConfig(ti) {
+  const t = lab.teams[ti];
+  document.querySelectorAll(`.dialog.teamcfg[data-team="${ti}"]`).forEach((x) => x.remove());
+  const d = openDialog(`Configure team ${ti + 1}`, "teamcfg");
+  d.dataset.team = ti;
+  const body = d.querySelector(".dialog-body");
+  const draw = () => {
+    t.settings = t.settings || {};
+    const bots = lab.info.bots.map((b) => `<option value="${b}"${b === t.bot ? " selected" : ""}>${b[0].toUpperCase() + b.slice(1)}</option>`).join("");
+    body.innerHTML = `<div class="team-head">
+        <label>Name <input type="text" data-f="name" value="${esc(t.name)}" maxlength="24"></label>
+        <label>Colour <input type="color" data-f="colour" value="${t.colour}"></label>
+        <label>Bot <select data-f="bot">${bots}</select></label></div>
+      <p class="note">This team's own bot settings: they leave every other team as it is. A setting not changed here plays at its default.</p>
+      <div class="teamcfg-opts"></div>`;
+    const box = body.querySelector(".teamcfg-opts");
+    const store = { values: () => t.settings, changed: () => { save(); drawTeams(); } };
+    const folders = BOT_FOLDERS[t.bot] || [];
+    for (const f of folders) {
+      const items = (lab.registry || []).filter((o) => isBotOption(o) && o.folder === f && o.active);
+      if (!items.length) continue;
+      const det = document.createElement("details");
+      det.className = "folder"; det.open = true;
+      det.innerHTML = `<summary>${esc(f)}</summary>`;
+      items.forEach((o) => det.appendChild(o.key === "PRINCESS_BEHAVIOR" && o.default && typeof o.default === "object" ? behaviourSliders(o, store) : optionRow(o, store)));
+      box.appendChild(det);
+    }
+    if (!folders.length) box.innerHTML = `<p class="note">This bot has no settings yet.</p>`;
+    body.querySelector('[data-f="name"]').addEventListener("change", (e) => {
+      const name = e.target.value.trim();
+      if (name && !lab.teams.some((o, oi) => oi !== ti && o.name === name)) t.name = name;
+      save(); drawTeams();
+    });
+    body.querySelector('[data-f="colour"]').addEventListener("input", (e) => { t.colour = e.target.value; save(); drawTeams(); });
+    body.querySelector('[data-f="bot"]').addEventListener("change", (e) => {
+      t.bot = e.target.value;
+      // settings of the old bot that the new one does not read are dropped
+      const keep = new Set((lab.registry || []).filter((o) => isBotOption(o) && (BOT_FOLDERS[t.bot] || []).includes(o.folder)).map((o) => o.key));
+      for (const k of Object.keys(t.settings)) if (!keep.has(k)) delete t.settings[k];
+      save(); drawTeams(); draw();
+    });
+  };
+  draw();
+}
+
+async function openUnitConfig(ti, ui) {
+  const t = lab.teams[ti], u = t.units[ui];
+  document.querySelectorAll(`.dialog.unitcfg[data-key="${ti}-${ui}"]`).forEach((x) => x.remove());
+  const d = openDialog(`Configure ${u.name}`, "unitcfg");
+  d.dataset.key = `${ti}-${ui}`;
+  const body = d.querySelector(".dialog-body");
+  body.innerHTML = `<p class="note">Reading the unit...</p>`;
+  let text = u.mtf;
+  if (!text) { const r = await api("unit_text", { id: u.id }); if (r.error) { body.innerHTML = `<p class="note">${esc(r.error)}</p>`; return; } text = r.text; }
+  const r = await api("unit_eval", { text });
+  const bins = (r && r.bins) || [];
+  u.ammo = u.ammo || {};
+  const label = { standard: "Standard", narc: "Narc homing", inferno: "Inferno", homing: "Homing (with TAG)" };
+  body.innerHTML = `<div class="team-head">
+      <label>Gunnery <input type="number" min="0" max="8" data-f="gunnery" value="${u.gunnery}"></label>
+      <label>Piloting <input type="number" min="0" max="8" data-f="piloting" value="${u.piloting}"></label>
+      <button class="btn" data-f="edit" title="Edit this unit's stats and equipment">Edit unit stats...</button></div>
+    <h4>Ammunition</h4>
+    ${bins.length ? `<table class="ammo"><thead><tr><th>Location</th><th>Bin</th><th>Load with</th></tr></thead><tbody>${bins.map((b) => {
+      const key = `${b.loc}:${b.slot}`, cur = u.ammo[key] || b.munition || "standard";
+      return `<tr><td>${esc(b.loc)} ${b.slot + 1}</td><td>${esc(pretty(b.name))}</td><td><select data-bin="${esc(key)}" data-file="${esc(b.munition || "standard")}">${b.choices.map((c) => `<option value="${c}"${c === cur ? " selected" : ""}>${esc(label[c] || c)}</option>`).join("")}</select></td></tr>`;
+    }).join("")}</tbody></table>` : `<p class="note">No bin of this unit has a choice of ammunition yet (special munitions come later).</p>`}
+    <p class="note">The Narc homing rule (Options, Rules) loads a Narc team's standard LRM / SRM bins with Narc missiles; a bin chosen here keeps its choice.</p>`;
+  const num = (f) => body.querySelector(`[data-f="${f}"]`);
+  num("gunnery").addEventListener("change", (e) => { u.gunnery = Math.max(0, Math.min(8, +e.target.value)); save(); drawTeams(); });
+  num("piloting").addEventListener("change", (e) => { u.piloting = Math.max(0, Math.min(8, +e.target.value)); save(); drawTeams(); });
+  num("edit").addEventListener("click", () => openSheet(u.id, ti, ui));
+  body.querySelectorAll("[data-bin]").forEach((sel) => sel.addEventListener("change", () => {
+    // a bin set back to what the file loads is no choice at all
+    if (sel.value === sel.dataset.file) delete u.ammo[sel.dataset.bin]; else u.ammo[sel.dataset.bin] = sel.value;
+    save(); drawTeams();
+  }));
+}
+
 function drawOptions() {
-  for (const [top, id] of [["Game setup", "opt-folders-game"], ["Bot features", "opt-folders-bots"]]) {
+  // the bots' settings moved to each team's Configure team window (N5): the Bot features pane only says so
+  $("opt-folders-bots").innerHTML = `<p class="note">Bot settings are now set per team: on the Units page, press a team's <b>Configure team</b> button.</p>`;
+  for (const [top, id] of [["Game setup", "opt-folders-game"]]) {
     const box = $(id); box.innerHTML = "";
     const folders = [...new Set(lab.registry.filter((o) => o.top === top).map((o) => o.folder))];
     for (const f of folders) {
@@ -1302,7 +1456,8 @@ function drawCrashes(list) {
 
 // a saved run's setup back into the Units, Map and Options pages
 function applySetup(s) {
-  lab.teams = s.teams.map((t, i) => ({ name: t.name, colour: t.colour || defaultColour(i), bot: t.bot, zone: t.zone, units: t.units.map((u) => (u.mtf_text ? modifiedEntry(u.mtf_text, u.unit, u.gunnery ?? 4, u.piloting ?? 5) : unitEntry(u.unit, u.gunnery ?? 4, u.piloting ?? 5))).filter(Boolean) }));
+  lab.teams = s.teams.map((t, i) => ({ name: t.name, colour: t.colour || defaultColour(i), bot: t.bot, zone: t.zone, ...(t.settings ? { settings: t.settings } : {}),
+    units: t.units.map((u) => withAmmo(u.mtf_text ? modifiedEntry(u.mtf_text, u.unit, u.gunnery ?? 4, u.piloting ?? 5) : unitEntry(u.unit, u.gunnery ?? 4, u.piloting ?? 5), u.ammo)).filter(Boolean) }));
   const m = lab.map;
   if (typeof s.board === "string") { m.mode = "one"; m.one = s.board; }
   else if (s.board && s.board.playlist) { m.mode = "playlist"; m.playlist = [...s.board.playlist]; m.order = s.board.order || "sequence"; }

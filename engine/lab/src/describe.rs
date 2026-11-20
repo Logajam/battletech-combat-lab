@@ -94,6 +94,35 @@ pub fn equipment_list(db: &btsim_core::equipment::EquipmentDb) -> Vec<Value> {
     out
 }
 
+/// The unit's ammunition bins and what each may be loaded with (backlog N5, the Configure unit window): [{"loc", "slot"
+/// (its first slot, from 0), "name", "munition" (as the file loads it), "choices"}], only the bins with a choice. The keys
+/// are what a FORCES entry's "ammo" names ("<loc>:<slot>"; setup.rs). Empty when the file does not parse.
+pub fn unit_bins(db: &btsim_core::equipment::EquipmentDb, cfg: &btsim_core::config::Config, text: &str) -> Value {
+    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let m = btsim_core::mtf_parser::parse_mtf(db, text, &mut String::new()).ok()?;
+        let board = btsim_core::board_parser::Board::from_json(&json!({"width": 1, "height": 1, "hexes": {}}));
+        let mut b = btsim_core::battle::Battle::new(cfg.clone(), board, vec![m], Box::new(btsim_core::battle::TapeDice::new(vec![])));
+        btsim_core::ammo::attach_ammo(&mut b, 0);
+        let mut out = Vec::new();
+        let mut seen = std::collections::HashSet::new();
+        for (loc, slots) in &b.units[0].crits {
+            for (i, s) in slots.iter().enumerate() {
+                let btsim_core::equipment::Slot::Item(id) = s else { continue };
+                if !seen.insert(*id) {
+                    continue;
+                }
+                let choices = btsim_core::ammo::bin_choices(&b, 0, *id);
+                if choices.len() > 1 {
+                    let e = &b.units[0].items[*id];
+                    out.push(json!({"loc": loc, "slot": i, "name": e.name, "munition": e.munition, "choices": choices}));
+                }
+            }
+        }
+        Some(out)
+    }));
+    json!(r.ok().flatten().unwrap_or_default())
+}
+
 /// Each location's internal structure for the unit file `text`, as the engine reads it ({"Left Arm": 17, ...}); the editor
 /// limits armor to twice this (a head to 9). Empty when the file does not parse.
 pub fn unit_structure(db: &btsim_core::equipment::EquipmentDb, text: &str) -> Value {

@@ -22,6 +22,9 @@ pub struct UnitSetup {
     pub assumes_enemy_search: Option<String>,
     /// "gladiator" / "princess" (config.BOT when the entry names none)
     pub bot: String,
+    /// ammunition chosen per bin (FORCES "ammo": {"<location>:<slot>": "<munition>"}, slot counted from 0; N5): (location,
+    /// slot, munition)
+    pub ammo: Vec<(String, usize, String)>,
 }
 
 pub fn attach_mech_config(b: &mut Battle, u: UnitId, cfg: &UnitSetup, side_name: &str) {
@@ -47,6 +50,9 @@ pub fn attach_mech_config(b: &mut Battle, u: UnitId, cfg: &UnitSetup, side_name:
     }
     heat::attach_heat_traits(b, u);
     ammo::attach_ammo(b, u);
+    for (loc, slot, munition) in &cfg.ammo {
+        ammo::choose_bin_munition(b, u, loc, *slot, munition);
+    }
     electronics::attach(b, u);
     fire_modes::attach(b, u);
     capacitor::attach(b, u);
@@ -85,6 +91,14 @@ pub fn roster(cfg: &Config) -> Vec<(String, String, UnitSetup)> {
         search: s(c, "search"),
         assumes_enemy_search: s(c, "assumes_enemy_search"),
         bot: s(c, "bot").unwrap_or_else(|| default_bot.clone()).to_lowercase(),
+        ammo: c.get("ammo").and_then(|a| a.as_object()).map_or(Vec::new(), |a| {
+            a.iter()
+                .filter_map(|(k, v)| {
+                    let (loc, slot) = k.rsplit_once(':')?;
+                    Some((loc.to_string(), slot.parse().ok()?, v.as_str()?.to_string()))
+                })
+                .collect()
+        }),
     };
     if cfg.get("FORCES").is_null() {
         return vec![
