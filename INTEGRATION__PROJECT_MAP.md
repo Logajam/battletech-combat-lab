@@ -129,6 +129,8 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   DECIDED (Daniel): "May as well go with rules as written": A v B only, no engine switch. Optional cheap extra D = standard
   armor doubled per location (.mtf only; Daniel: "also not quite the same": no TAC -2, no run/PSR penalty, single points
   differ): B - D = the rule's other parts. Included unless Daniel drops it (~3,200 more battles).
+  DONE 2026-11-20 (Change Record "CONTROLLED TEST OF HARDENED ARMOR"): hardened +1.18 log-odds, doubled +1.07, BV says +0.70;
+  the formula with hardened counted x2 predicts +1.18. Next features: the other special armors, then heat sinks, jump, TC.
 
 **A. Gladiator - the bot**
 - **A1. The move score does not see a win, a clock or the walk back** (review 2026-11-10; [000000 (a)], [0]
@@ -288,6 +290,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s30-13) HARDENED ARMOR CONTROLLED TEST** (session 30): `tools/feature_test.py` (the draw, the .mtf edits into data/_modified/feature_test/, the report). Look at: the armor-line edit ("Armor:" key only) and the doubled version past each location's legal maximum (intended: free upgrades).
 - **(s30-12) ASYMPTOTE CHALLENGE** (session 30): `duel_value.py` `fit_all` / `challenge_cells` / `stage_challenge` (predict, addendum, play, score). Look at: `challenge_cells` gives the 4 battles over 96 all to Gladiator; the armor-x2 addendum touches only the challenger.
 - **(s30-11) DUEL VALUE ROUND 2 + SNUB-NOSE CAPACITOR** (session 30): `btsim profile` (main.rs; variable-damage pricing), `capacitor::charge_bonus` / `set_charged` (Core p.188, TO:AUE p.148), `duel_value.py` `big_pool` / `battery` / `features2` / `fit2`. Look at: the sustained-damage greedy pick, the held-out-'Mech split (hashing), whether the match-up list is worth keeping.
 - **(s30-10) DUEL VALUE SYSTEM** (session 30): `tools/duel_value.py` (profile: damage by range, heat scaling, ammo turns; the logistic fit; the test-pair draw). Look at: the selection effect in `predict` (pairs chosen on the value model's own guess) and the missile cluster factor.
