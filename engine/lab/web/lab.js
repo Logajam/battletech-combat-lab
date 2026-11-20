@@ -985,7 +985,7 @@ async function openUnitConfig(ti, ui) {
   const bins = (r && r.bins) || [];
   u.ammo = u.ammo || {};
   const label = { standard: "Standard", narc: "Narc homing", inferno: "Inferno", homing: "Homing (with TAG)",
-    ap: "Armor-piercing (x0.8 shots)", precision: "Precision (x0.6 shots)", caseless: "Caseless (x2 shots)" };
+    semiguided: "Semi-guided (with TAG)", ap: "Armor-piercing (x0.8 shots)", precision: "Precision (x0.6 shots)", caseless: "Caseless (x2 shots)" };
   body.innerHTML = `<div class="team-head">
       <label>Gunnery <input type="number" min="0" max="8" data-f="gunnery" value="${u.gunnery}"></label>
       <label>Piloting <input type="number" min="0" max="8" data-f="piloting" value="${u.piloting}"></label>

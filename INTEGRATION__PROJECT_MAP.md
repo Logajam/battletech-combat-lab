@@ -124,11 +124,12 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   hull-down targets; worth a look with the stall work (A1).
 - N9. CHARGING AFTER A BACKWARD STEP: BUILT 2026-11-20 (Change Record): the charge planner also sees the stops a walk with
   backward steps reaches (counted conservatively as a one-hex charge).
-- N10. SPECIAL AMMUNITION: PART BUILT 2026-11-20 (Change Record): autocannon armor-piercing, precision and caseless rounds,
-  chosen per bin (Configure unit). LEFT (each needs engine pieces first): flak (only matters against airborne units); Arrow IV
-  smoke (the engine has smoke: next), inferno IV (fire is not in the engine), thunder IV and thunder LRMs (no minefields); the
-  missile munitions (acid, fragmentation, semi-guided, swarm, tandem-charge...); iNarc ECM / haywire / Nemesis pods; the
-  Arrow IV homing TAG surcharge in BV (Core errata v0.1).
+- N10. SPECIAL AMMUNITION: PART BUILT 2026-11-20 (Change Record): autocannon armor-piercing, precision and caseless rounds;
+  semi-guided LRMs (direct fire); all chosen per bin (Configure unit). LEFT (each needs engine pieces first): flak (only
+  matters against airborne units); Arrow IV smoke (the engine's smoke has no heavy-to-light thinning, and no bot chooses to lay
+  smoke), inferno IV (fire is not in the engine), thunder IV and thunder LRMs (no minefields); acid SRMs (damage per missile
+  by armor type); semi-guided indirect fire and its partial-cover leg rule; iNarc ECM / haywire / Nemesis pods; the Arrow IV
+  homing TAG surcharge in BV (Core errata v0.1).
 - LATER / ONLY WITH AN OPTION: Evading movement (TO:AR p.16: +1 to be hit, +2 heat, no attacks; a TacOps rule);
   searchlights (with a night option); Tactical Genius (a special pilot ability, not in the indexed books).
 

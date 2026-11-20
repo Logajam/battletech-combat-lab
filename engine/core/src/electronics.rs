@@ -219,6 +219,19 @@ pub fn control_for(b: &mut Battle, attacker: UnitId, weapon: ItemId, target: Uni
         tn = NARC_TN;
         cluster = if cluster_weapon { NARC_CLUSTER } else { 0 };
         note = "Narc homing".into();
+    } else if munition == "semiguided" {
+        // SEMI-GUIDED LRMs (Core p.193; N10): -1 on the Cluster Hits Table, unless the target is designated by TAG; then, fired
+        // directly, they ignore partial cover, take 2 off the target hex's terrain modifier and +2 on the Cluster Hits Table.
+        // (Indirect: the target hex's terrain and the spotter's modifiers would go - NOT BUILT: indirect SG fires as plain.)
+        if b.units[target].tag_designated.is_some() && !indirect {
+            let (cover, hex_mod) = semi_guided_relief(b, attacker, target);
+            tn = -(cover + hex_mod);
+            cluster = if cluster_weapon { 2 } else { 0 };
+            note = format!("semi-guided on TAG: -{} to hit, +2 cluster", cover + hex_mod);
+        } else {
+            cluster = if cluster_weapon { -1 } else { 0 };
+            note = "semi-guided, no TAG: -1 cluster".into();
+        }
     } else if munition == "artemis4" || munition == "artemis5" {
         let kind: i64 = munition[munition.len() - 1..].parse().unwrap();
         if !indirect && artemis_kind(&b.units[attacker], weapon) == Some(kind) && !artemis_blocked(&b.units[attacker], &b.units[target]) {
@@ -292,4 +305,15 @@ pub fn log_controls(b: &mut Battle, name: &str, plans: &[(ItemId, crate::fire_mo
     if !notes.is_empty() {
         b.log(format!("    [{} fire control] {}", name, notes.join("; ")));
     }
+}
+
+/// What semi-guided missiles on a TAG-designated target take off (Core p.193): the partial cover modifier of the line, and up
+/// to 2 of the target hex's own terrain modifier (N10).
+fn semi_guided_relief(b: &Battle, attacker: UnitId, target: UnitId) -> (i64, i64) {
+    let xy = |u: UnitId| b.units[u].hex.as_deref().and_then(|h| crate::hex_geometry::parse_hex_label(h).ok());
+    let (Some(a), Some(t)) = (xy(attacker), xy(target)) else { return (0, 0) };
+    let h = (crate::attack_resolution::los_height(&b.units[attacker]), crate::attack_resolution::los_height(&b.units[target]));
+    let cover = crate::los::trace_los_path(a, t, &b.board, h.0, h.1).ok().and_then(|tr| tr.steps.last().map(|s| s.partial_cover)).unwrap_or(0);
+    let hex_mod = crate::los::target_hex_modifier(t, &b.board).unwrap_or(0).clamp(0, 2);
+    (cover, hex_mod)
 }
