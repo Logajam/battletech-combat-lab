@@ -150,7 +150,9 @@ fn signature(data: &Path) -> Value {
         let t = m.modified().ok().and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok()).map_or(0, |d| d.as_secs());
         parts.push(format!("{}:{}:{}", UNIT_PACK, m.len(), t));
     }
-    parts.push(format!("engine {} list 7 bv-megamek", env!("CARGO_PKG_VERSION")));
+    // bump the list number whenever the engine's reading of a unit or its BV changes: the cache does not see code changes
+    // (list 8, 2026-11-20: the BV reads its own view of the unit file)
+    parts.push(format!("engine {} list 8 bv-megamek", env!("CARGO_PKG_VERSION")));
     json!(parts)
 }
 

@@ -44,7 +44,11 @@ def main():
     with socket.socket() as s:
         s.bind(("127.0.0.1", 0))
         port = s.getsockname()[1]
-    # a private copy of the cache folder is not needed: the list's cache key includes the engine's BV version
+    # the Lab keeps its unit list (with each unit's BV) in lab_cache/units.json, and that cache's key does not see code changes:
+    # remove it so the list is built by the engine just compiled (2026-11-20: a stale list hid a BV change; ~2 minutes to rebuild)
+    cached = os.path.join(REPO_ROOT, "lab_cache", "units.json")
+    if os.path.exists(cached):
+        os.remove(cached)
     proc = subprocess.Popen([LAB, "--no-browser", "--port", str(port)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
                             env=dict(os.environ, BTSIM_ROOT=REPO_ROOT))
     failures = []

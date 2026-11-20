@@ -229,6 +229,15 @@ pub struct SlotInfo {
     pub instance_id: Option<ItemId>,
 }
 
+/// The unit's slots as the Battle Value reads its file (`mtf_parser::parse_mtf_for_bv`): only `battle_value` looks at it. Kept apart
+/// so the units the engine builds stay exactly the frozen Python's (fix of 2026-11-20).
+#[derive(Clone, Debug)]
+pub struct BvView {
+    pub crits: IndexMap<String, Vec<Slot>>,
+    pub items: Vec<Equipment>,
+    pub armored_slots: IndexSet<(String, usize)>,
+}
+
 #[derive(Clone, Debug)]
 pub struct Mech {
     pub mech_type: String,
@@ -291,6 +300,9 @@ pub struct Mech {
     pub armor_desc: Option<String>,
     /// the header's "heat sink kit:RISC Heat Sink Override Kit" (BV x 1.01, MegaMek); not saved with a state
     pub risc_heat_sink_kit: bool,
+    /// the slots as the Battle Value reads the file (set by parse_mtf; None for a unit read from a saved state or a units.json,
+    /// whose BV then reads its ordinary slots, as before the BV work); not saved with a state
+    pub bv_view: Option<std::sync::Arc<BvView>>,
     pub is_industrial: Option<bool>,
     pub structure_desc: Option<String>,
     pub tech_base: Option<String>,
@@ -611,6 +623,7 @@ impl Mech {
             gyro_type: None,
             armor_desc: None,
             risc_heat_sink_kit: false,
+            bv_view: None,
             is_industrial: None,
             structure_desc: None,
             tech_base: None,

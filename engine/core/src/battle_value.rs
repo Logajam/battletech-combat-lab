@@ -135,20 +135,30 @@ const PROTOTYPE_BV: [(&str, f64, f64); 17] = [("islargepulselaser", 108.0, 13.0)
 /// The same for "primitive prototype" weapons (heat only: their BV matches).
 const PRIMITIVE_HEAT: [(&str, f64); 4] = [("mediumlaser", 5.0), ("largelaser", 12.0), ("smalllaser", 2.0), ("ppc", 15.0)];
 
+/// The slots, items and armored slots the BV reads: the unit file's BV reading when the unit was parsed here (`Mech::bv_view`),
+/// otherwise the unit's own.
+fn bv_slots(m: &Mech) -> (&IndexMap<String, Vec<Slot>>, &Vec<crate::equipment::Equipment>, &crate::fasthash::IndexSet<(String, usize)>) {
+    match &m.bv_view {
+        Some(v) => (&v.crits, &v.items, &v.armored_slots),
+        None => (&m.crits, &m.items, &m.armored_slots),
+    }
+}
+
 fn equipment_items(b: &Battle, u: UnitId) -> Vec<Item> {
     let m = &b.units[u];
+    let (crits, unit_items, armored_slots) = bv_slots(m);
     let mut seen: HashMap<usize, usize> = HashMap::default();
     let mut items: Vec<Item> = Vec::new();
-    for (location, slots) in &m.crits {
+    for (location, slots) in crits {
         for (slot_idx, slot) in slots.iter().enumerate() {
             let Slot::Item(id) = slot else { continue };
-            let armored = m.armored_slots.contains(&(location.clone(), slot_idx));
+            let armored = armored_slots.contains(&(location.clone(), slot_idx));
             if let Some(&ix) = seen.get(id) {
                 *items[ix].slots_by_location.entry(location.clone()).or_insert(0) += 1;
                 items[ix].armored |= armored;
                 continue;
             }
-            let eq = &m.items[*id];
+            let eq = &unit_items[*id];
             // a generic weapon name is read in the unit's own tech base, as the parser did
             let tech_up = m.tech_base.clone().unwrap_or_default().to_uppercase();
             let prefix = if tech_up.starts_with("CLAN") || tech_up.contains("MIXED (CLAN") { "CL" } else { "IS" };
@@ -267,7 +277,7 @@ impl<'a> Calc<'a> {
                 }
                 let (loc, kind) = (items[ai].location.clone(), items[ai].ammo_type.clone());
                 let mut bay: Vec<usize> = Vec::new();
-                for slot in m.crits.get(&loc).map(|v| v.as_slice()).unwrap_or(&[]) {
+                for slot in bv_slots(m).0.get(&loc).map(|v| v.as_slice()).unwrap_or(&[]) {
                     let hit = match slot {
                         Slot::Item(id) => items.iter().position(|i| i.id == *id).filter(|&ix| {
                             !used.contains(&ix) && !items[ix].has("F_MGA") && items[ix].kind.as_deref() == Some("weapon") && items[ix].ammo_type == kind
@@ -322,7 +332,7 @@ impl<'a> Calc<'a> {
         let large_shields = items.iter().filter(|i| i.has("S_SHIELD_LARGE")).count() as i64;
         let medium_shields = items.iter().filter(|i| i.has("S_SHIELD_MEDIUM")).count() as i64;
         // a Chain Drape (cape / apron / poncho) takes a walking MP (BipedMek.getWalkMP); the table has no row for it, so it reads as a name
-        let chain_drape = m.crits.values().any(|slots| slots.iter().any(|sl| matches!(sl, Slot::Name(n) if n.to_uppercase().starts_with("CHAINDRAPE")))) as i64;
+        let chain_drape = bv_slots(m).0.values().any(|slots| slots.iter().any(|sl| matches!(sl, Slot::Name(n) if n.to_uppercase().starts_with("CHAINDRAPE")))) as i64;
         let mut walk = m.base_walk_mp - large_shields - medium_shields - chain_drape;
         // a "Triple-Strength" myomer line without a TSM in the slots still counts (MegaMek adds the equipment itself)
         let myomer_up = m.myomer.to_uppercase().replace(['-', ' '], "");
@@ -434,9 +444,10 @@ impl<'a> Calc<'a> {
         }
         let gyro = up(&m.gyro_type);
         let gyro_mult = if (gyro.contains("HEAVY") && !gyro.contains("SUPERHEAVY")) { 1.0 } else if gyro == "NONE" && !up(&m.cockpit_type).contains("INTERFACE") { 0.0 } else { 0.5 };
-        for (loc, slots) in &m.crits {
+        let (crits, _, armored_slots) = bv_slots(m);
+        for (loc, slots) in crits {
             for (idx, slot) in slots.iter().enumerate() {
-                if !m.armored_slots.contains(&(loc.clone(), idx)) {
+                if !armored_slots.contains(&(loc.clone(), idx)) {
                     continue;
                 }
                 if let Slot::Name(n) = slot {

@@ -312,6 +312,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s31-bv) BV READING KEPT APART** (2026-11-20): `mtf_parser::BvReading` / `parse_mtf_for_bv`, `Mech::bv_view`, `battle_value::bv_slots`. Look at: whether Princess should get the BV reading in battles whose units come from a units.json (they have no `bv_view`, so 224 units weigh by the older BV there).
 - **(s30-13) HARDENED ARMOR CONTROLLED TEST** (session 30): `tools/feature_test.py` (the draw, the .mtf edits into data/_modified/feature_test/, the report). Look at: the armor-line edit ("Armor:" key only) and the doubled version past each location's legal maximum (intended: free upgrades).
 - **(s30-12) ASYMPTOTE CHALLENGE** (session 30): `duel_value.py` `fit_all` / `challenge_cells` / `stage_challenge` (predict, addendum, play, score). Look at: `challenge_cells` gives the 4 battles over 96 all to Gladiator; the armor-x2 addendum touches only the challenger.
 - **(s30-11) DUEL VALUE ROUND 2 + SNUB-NOSE CAPACITOR** (session 30): `btsim profile` (main.rs; variable-damage pricing), `capacitor::charge_bonus` / `set_charged` (Core p.188, TO:AUE p.148), `duel_value.py` `big_pool` / `battery` / `features2` / `fit2`. Look at: the sustained-damage greedy pick, the held-out-'Mech split (hashing), whether the match-up list is worth keeping.

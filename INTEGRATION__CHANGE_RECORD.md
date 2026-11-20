@@ -6,6 +6,24 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-20 (Claude), BV PARSING KEPT APART FROM THE UNITS: cl1_setup AND stage6_attach PASS AGAIN. REVIEW PENDING (higher-level model).**
+  The BV work of the same day (commits f671dff, c0dc0ca, b8e5775) changed `mtf_parser.rs` for every unit, so the units the Rust built
+  stopped matching the frozen Python's (42 of 63 fixtures in `cl1_setup` and `stage6_attach`): (1) a name not in the table was looked up
+  again with the unit's tech-base prefix, so filler slots ("Endo Steel", "Ferro-Fibrous", "Reflective"...) became Equipment items; (2) the
+  variable-size list gained chainsaw, dual saw, rock cutter, combine, buzzsaw, Beagle / Bloodhound probes, Null / Void Signature,
+  Chameleon and RISC Hyper Laser (one item per run of lines, where the Python makes one per line) and LOST "TALONS"; (3) prototype
+  weapons took MegaMek's extra slots (prototype improved jump jets one fewer). FIX: those three readings now happen only under
+  `BvReading` (`mtf_parser.rs`). `parse_mtf` reads the file as the Python does (the engine's unit, unchanged from before the BV work)
+  and reads it a second time the BV's way (`parse_mtf_for_bv`) into `Mech::bv_view` (slots, items, armored slots; not saved with a
+  state, like the RISC kit flag); `battle_value.rs` reads `bv_view` when there is one (`bv_slots`). Measured: with the BV reading the
+  Python's units instead, 224 units differ from MegaMek; with `bv_view`, 1 (as before). Nothing the fixtures record was rebuilt to hide
+  a difference. LIMIT: a unit loaded from a units.json or a saved state (the reference battles, a Lab battle from settings) has no
+  `bv_view`, so Princess's BV weighting reads its ordinary slots, which is what those battles did before this fix too (their units
+  came from the Python's units.json); the reference logs are unchanged. ALSO: the Lab's cached unit list did not see code changes, so
+  `check_bv_megamek.py` could pass on stale BVs (it did here before the fix: a fresh list showed 224 units off). The check now removes
+  `lab_cache/units.json` first, and the cache signature is "list 8". NOT CHANGED: `mechsim/equipment.json`'s corrected slot counts are
+  read by the Python too, so the fixtures (rebuilt from the Python) agree with them. Checks: `cl1_setup`, `stage6_attach`,
+  `check_bv_megamek.py` (4,204 compared, 1 differs), `run_checks.py --full`.
 - **2026-11-20 (Claude, session 31), BATTLE VALUE MADE TO MATCH MEGAMEK: 27% OF UNITS WRONG BEFORE, 1.7% AFTER. REVIEW PENDING (higher-level model).**
   Daniel: Mad Cat Mk IV A 2404, Archer C 2 2023, Shadow Cat T 1590 "do not match the results megamek gives". Method: unpacked MegaMek
   0.51.01.7 (an unchanged release, megamek_bridge/README.md), loaded every unit of data/meks.zip with its `MekFileParser` and took the BV and

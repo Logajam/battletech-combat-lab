@@ -164,16 +164,20 @@ pub fn is_armored(raw_name: &str) -> bool {
     raw_name.to_uppercase().contains("(ARMORED)")
 }
 
-// CHAINSAW .. HYPERLASER added 2026-11-20 (BV check against MegaMek): the equipment table gave these 1 slot but they fill 2-7, so every line
-// of one became its own item and the BV counted it that many times (the table's slot counts of the weapons that split across locations,
-// like the Long Tom, were corrected instead, so that join_split_items can put their parts together)
-const VARIABLE_SIZE_FRAGMENTS: [&str; 19] = ["HATCHET", "SWORD", "MACE", "LANCE", "CLAW", "RETRACTABLEBLADE", "VIBROBLADE", "SHIELD",
+/// The fragments the Python's parser groups from the .mtf lines (physical weapons, shields and talons): the units the engine builds.
+const VARIABLE_SIZE_FRAGMENTS: [&str; 9] = ["HATCHET", "SWORD", "MACE", "LANCE", "CLAW", "RETRACTABLEBLADE", "VIBROBLADE", "SHIELD", "TALONS"];
+// The Battle Value's reading (2026-11-20, BV check against MegaMek): CHAINSAW .. HYPERLASER fill 2-7 slots but the equipment table gives
+// them 1, so every line of one became its own item and the BV counted it that many times; MegaMek reads talons line by line. (The table's
+// slot counts of the weapons that split across locations, like the Long Tom, were corrected instead, so that join_split_items can put
+// their parts together.) Only `BvReading` uses this list: the frozen Python's units keep the list above.
+const BV_VARIABLE_SIZE_FRAGMENTS: [&str; 19] = ["HATCHET", "SWORD", "MACE", "LANCE", "CLAW", "RETRACTABLEBLADE", "VIBROBLADE", "SHIELD",
     "CHAINSAW", "DUALSAW", "ROCKCUTTER", "COMBINE", "BUZZSAW", "BEAGLEACTIVEPROBE", "BLOODHOUNDACTIVEPROBE",
     "NULLSIGNATURE", "VOIDSIGNATURE", "CHAMELEON", "HYPERLASER"];
 
 fn variable_size(canonical_name: &str) -> bool {
     let n = canonical_name.replace(' ', "").replace('-', "").to_uppercase();
-    VARIABLE_SIZE_FRAGMENTS.iter().any(|f| n.contains(f)) && !n.contains("BLUESHIELD")
+    let fragments: &[&str] = if bv_reading() { &BV_VARIABLE_SIZE_FRAGMENTS } else { &VARIABLE_SIZE_FRAGMENTS };
+    fragments.iter().any(|f| n.contains(f)) && !n.contains("BLUESHIELD")
 }
 
 /// Join each set of same-named short parts of a split item whose slots add up to the item's size into ONE instance.
@@ -270,8 +274,35 @@ fn combinations(items: &[ItemId], k: usize) -> Vec<Vec<ItemId>> {
 thread_local! {
     /// "IS" or "CL": the unit's tech base while its slots are read, for generic weapon names ("ER Small Laser") that the table lists
     /// only with a prefix. MegaMek reads such a name in the unit's own tech base (Daniel, 2026-11-20: "the weapons should match the tech
-    /// base unless noted"). Set by parse_mtf.
+    /// base unless noted"). Set by parse_mtf; used only under `BvReading`.
     static TECH_PREFIX: std::cell::Cell<&'static str> = const { std::cell::Cell::new("") };
+    /// on while `parse_mtf_for_bv` reads a unit (see `BvReading`)
+    static BV_READING: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+fn bv_reading() -> bool {
+    BV_READING.with(|c| c.get())
+}
+
+/// Turns on the Battle Value's reading of a unit file while it lives (2026-11-20 fix of the BV work of that day). The BV check against
+/// MegaMek needs three readings the frozen Python does not make: a generic name looked up again with the unit's tech-base prefix, the
+/// prototype weapons' extra slots, and the longer variable-size list. Made for every unit, they changed the units the engine builds
+/// (an "Endo Steel" slot became an item, a chainsaw one 5-slot item instead of five), so the Rust no longer matched the Python's units
+/// (cl1_setup, stage6_attach). Now the engine's units are read as the Python reads them, and the BV reads the file a second time this
+/// way (`parse_mtf_for_bv`; `Mech::bv_view`).
+struct BvReading;
+
+impl BvReading {
+    fn on() -> BvReading {
+        BV_READING.with(|c| c.set(true));
+        BvReading
+    }
+}
+
+impl Drop for BvReading {
+    fn drop(&mut self) {
+        BV_READING.with(|c| c.set(false));
+    }
 }
 
 /// Builds one location's crit list from its raw .mtf lines; new Equipment goes into `items`.
@@ -335,7 +366,7 @@ pub fn build_crit_list(
             continue;
         }
 
-        let tp = TECH_PREFIX.with(|c| c.get());
+        let tp = if bv_reading() { TECH_PREFIX.with(|c| c.get()) } else { "" };
         let found = db.lookup_equipment(&base_name).or_else(|| if tp.is_empty() { None } else { db.lookup_equipment(&format!("{}{}", tp, base_name)) });
         if let Some(entry) = found {
             let mut slots_needed = entry.slots();
@@ -344,7 +375,7 @@ pub fn build_crit_list(
             }
             // a PROTOTYPE weapon fills more slots than the ordinary weapon its table row stands for (a prototype Gauss rifle 8, not 7):
             // the extra slots (MegaMek's sizes), so a leftover line is not taken for a second weapon
-            if base_name.to_uppercase().contains("PROTOTYPE") {
+            if bv_reading() && base_name.to_uppercase().contains("PROTOTYPE") {
                 let key = entry.canonical_name().replace(' ', "").to_lowercase();
                 let extra = match key.as_str() {
                     "isgaussrifle" | "isultraac5" | "islbxac10" | "clstreaksrm4" | "isarrowiv" => 1,
@@ -482,7 +513,22 @@ fn universal_lines(text: &str) -> Vec<String> {
 }
 
 /// Parse a .mtf file's text into a Mech. Err = the ValueError text; `out` receives the prints and log lines.
+/// The Mech is the frozen Python's unit; it also carries the Battle Value's reading of the same file (`Mech::bv_view`).
 pub fn parse_mtf(db: &EquipmentDb, text: &str, out: &mut String) -> Result<Mech, String> {
+    let mut mech = parse_mtf_as_python(db, text, out)?;
+    if let Ok(bv) = parse_mtf_for_bv(db, text) {
+        mech.bv_view = Some(std::sync::Arc::new(crate::mech_state::BvView { crits: bv.crits, items: bv.items, armored_slots: bv.armored_slots }));
+    }
+    Ok(mech)
+}
+
+/// The file read the Battle Value's way (`BvReading`): its prints are dropped (the ordinary reading already made them).
+pub fn parse_mtf_for_bv(db: &EquipmentDb, text: &str) -> Result<Mech, String> {
+    let _on = BvReading::on();
+    parse_mtf_as_python(db, text, &mut String::new())
+}
+
+fn parse_mtf_as_python(db: &EquipmentDb, text: &str, out: &mut String) -> Result<Mech, String> {
     let raw_lines = universal_lines(text);
 
     let mut config_str = "Biped".to_string();
