@@ -24,6 +24,46 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   `lab_cache/units.json` first, and the cache signature is "list 8". NOT CHANGED: `mechsim/equipment.json`'s corrected slot counts are
   read by the Python too, so the fixtures (rebuilt from the Python) agree with them. Checks: `cl1_setup`, `stage6_attach`,
   `check_bv_megamek.py` (4,204 compared, 1 differs), `run_checks.py --full`.
+- **2026-11-20 (Claude, session 32), T16 STEP 4: THE BOTCLIENT / PRINCESS AUDIT. REVIEW PENDING (higher-level model).**
+  Every method of MegaMek's `BotClient.java` and `Princess.java` (commit `0cc7d65`) listed and matched to the clone: the table is in PROJECT_MAP
+  Section 6, "Princess clone: audit". One change came out of it: Princess's move order cuts a stealthed unit's index to a third ("move stealthy
+  units later", `calculateMoveIndex`), now in `forces::move_index` for Princess-family units with stealth armor or a Void Signature on (Gladiator and
+  Hydra order unchanged). Buildable gaps found, not built: AMS on / off modes (`setAMSModes`), ammo conservation (`calcAmmoConservation`); forced
+  withdrawal waits on the crippled rules. Rules the engine lacks, listed for Daniel: evade, searchlight, Tactical Genius, split fire, targeting-computer
+  aim at a mobile target, called shots. Validation (reference re-record, parity) waits as Daniel said.
+
+- **2026-11-20 (Claude, session 32), T16 STEPS 2 AND 3: PRINCESS'S RAC UNJAM RULE AND AIMED-SHOT CHOICE (WIRING; VALIDATION WAITS). REVIEW PENDING (higher-level model).**
+  Daniel (2026-11-20): all of T16 is wiring on this branch; validate after the engine work is done.
+  STEP 2, RAC unjam (MegaMek `Princess.embellishPath` / `unjamRAC`, `PathRanker`, `Entity.canUnjamRAC`): a Princess-family unit with a jammed
+  weapon (not prone, not shut down) may only Stand Still or Walk (`fire_modes::walk_only_for_unjam`, read by `move_options`), whether or not it
+  then unjams; once the move is chosen (`princess_modern::rank`), `princess_declare_unjam` declares the unjam if the move is a Stand Still / Walk
+  and its expected damage (firing + physical, the clone's stand-in for `getMaximumDamageEstimate`) is under 5. `declare_unjams` no longer runs
+  `stub_unjam` for them; Gladiator and Hydra keep it. The attempt itself (Gunnery + 3 at the end of the Ranged phase) is unchanged.
+  STEP 3, aimed shots (`Princess.calculateAimedShotLocation`, `setAttackAsAimedOrCalled`; `engine/core/src/bot_aimed_shots.rs`): Princess-family
+  shooters pick the location themselves against an immobile target (arm with a big gun, right torso, left torso, center torso, legs; least armor wins;
+  rear armor on a rear shot) instead of the one fixed `AIMED_SHOT_LOCATION`; no aim at a target in partial cover; a weapon fires unaimed if its
+  number is over 12 (13 if it could destroy the location). Not in the engine, so not ported: aimed shots at a MOBILE target with a targeting
+  computer, and called shots (for Daniel in the audit table). "Big gun" = a non-missile weapon doing 10+ damage, standing in for MegaMek's
+  `getDamage(5) >= 10`; when both arms carry one the right arm is ranked first (MegaMek's order comes from a set).
+  Reference battles re-recorded (`--update`): `cov_pool_start` (Blue now aims at the Right Torso, not the fixed Center Torso) and `cov_brawl_princess`; the
+  other 89 unchanged. `check_rust_reference.py --parity` (every battle through the bridge session) was run: only those two differed.
+  NOT YET WIRED: the bridge's answers carry no unjam or aim fields, so the live-MegaMek side will need `UNJAM_RAC` and aimed-location actions.
+
+- **2026-11-20 (Claude, session 32), T16 STEP 1: PRINCESS / CASPAR NOW RUN MEGAMEK'S HEAT-EQUIPMENT MANAGER. REVIEW PENDING (higher-level model).**
+  Ported `BotHeatEquipmentManager` (run by `BotClient` in the End Phase) to `engine/core/src/bot_heat_equipment.rs`. Stealth armor: off when
+  heat > 13 + randomInt(7), or when the BV-weighted enemy is close (average range <= 5 + randomInt(5)); a heat-activated TSM unit keeps it on
+  while closing and drops it adjacent to an enemy. Chameleon / Null / Void Signature: off at 14+ heat, on again at 5 or less. Radical heat sink:
+  on while heat >= 14 and the next failure target is <= 7, else off (replaces the `STUB_ESCALATING_USE` cycle for these units). Nova CEWS: not
+  ported (no engine rule). New unit fields `heat_managed`, `systems_off`, `radical_on` (dumped only when `heat_managed`; added to the bridge's
+  `UNIT_FIELDS`); `active_stealth` and `radical_planned` read them; new `BotSet::manage_heat_equipment` (also a `Recorder` / bridge line),
+  called before `end_of_turn`. Princess-family units become managed at the first Movement Phase; Gladiator and Hydra units never do.
+  CALL FOR DANIEL / REVIEW: the two random draws use the BATTLE's dice (spec said the bot's own), only for a Princess-family unit carrying
+  stealth armor, so battles without one keep their dice; a separate stream would need a new state field. Stealth armor still needs a working
+  ECM suite to count (engine rule); every positioned enemy counts as "visible". Checks: 90 of 91 Rust reference battles unchanged; only
+  `team_4v4_princess_v_princess` changed (Blue 4 carries stealth armor) and was re-recorded with `check_rust_reference.py --update`; bridge
+  parity `--quick` passes. Two checks could not run in this container, both unrelated to the change: `cl1_setup` (needs `engine/fixtures`,
+  absent here) and the website build (no `wasm32-unknown-unknown` target). Steps 2-4 of T16 are still to do; no A/B yet.
+
 - **2026-11-20 (Claude, session 31), BATTLE VALUE MADE TO MATCH MEGAMEK: 27% OF UNITS WRONG BEFORE, 1.7% AFTER. REVIEW PENDING (higher-level model).**
   Daniel: Mad Cat Mk IV A 2404, Archer C 2 2023, Shadow Cat T 1590 "do not match the results megamek gives". Method: unpacked MegaMek
   0.51.01.7 (an unchanged release, megamek_bridge/README.md), loaded every unit of data/meks.zip with its `MekFileParser` and took the BV and
@@ -190,6 +230,46 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   Military Base (256-143); E beat W on Grassland 1 (226-168) and W beat E on Large Lakes 1 (242-151). Rolling Hills 1 shows none.
   Rerun `python tools/benchmark_report.py --bv-file LISTS.json` (LISTS.json: the Lab's `list_units` output) for the tables.
   Checks: no engine or test file changed; `run_checks.py` not run (docs and new tools only).
+
+- **2026-11-20 (Claude, session 30), MERGE: SONNET'S T16 (MEGAMEK BOTS' BRAINS, STEPS 1-4) WITH THE FIRE-SUPPORT WORK.**
+  Daniel: "Make it so." Branch `claude/task-t16-specs-ecse6a` merged into the session branch. Conflicts: the aimed-shot
+  choice (kept both: no aimed shot when firing indirectly, p.70; otherwise Princess / CASPAR pick the location by
+  MegaMek's `calculateAimedShotLocation`, T16 step 3) and the REVIEW QUEUE (both lines kept). `team_4v4_princess_v_princess`
+  re-recorded: T16 step 4 (stealthy units move later, MegaMek's `calculateMoveIndex`) changed its move order after the
+  step-1 recording; Sonnet's branch alone plays it exactly as the merged code does. Checks: 91 of 91 Rust reference
+  battles; `cl1_setup` and `stage6_attach` fail (42 fixtures, critical-slot listings) identically on `main` at 5385bb0
+  without either change - they came with the Battle Value work of 2026-11-20 (a task to fix them is queued).
+
+- **2026-11-20 (Claude, session 30), RULES: SPLIT FIRE (Core p.64, Multiple Targets; `engine/core/src/split_fire.rs`).
+  REVIEW PENDING (higher-level model).** Daniel: "split fire yes. Completeness and the wiring in place for when our bots
+  expand their minds" (PROJECT_MAP Section 5). Rust only. BUILT: after its primary declaration a unit may declare on more
+  targets, each a SECONDARY target: +1 to every attack on it, only the weapons not yet fired, the twist / flip already
+  declared (held locked while the secondaries are declared, then put back), the weapon heat already committed counted in
+  its heat budget. Refused (logged): a target with active stealth armor (pp.64, 202); a forward-arc target when the
+  primary is not in the forward arc (the primary must be a forward-arc target if any is). Every `DeclaredAttack` now
+  carries its target, so anti-missile fire and damage go to the right 'Mech (`run_ranged_phase`). Who splits fire:
+  `stubs::stub_split_fire` (`STUB_SPLIT_FIRE`, default "never" - also MegaMek's behaviour for an ordinary 'Mech; Section
+  6). `Battle::split_fire` (sent through the bridge) is cleared at the start AND end of each Ranged Attack Phase: the
+  next turn's firing order is worked out before its phase, and a stale primary made its dry runs secondary attacks
+  (found by the reference battles, fixed before commit). Not built: a dedicated gunnery officer's three primaries (no
+  crew rules). RESULTS: none changed (91 of 91). Tested by hand with "spare_weapons" (+ STUB_SPOT "when_useful" and
+  STUB_DISTANT_ARTILLERY "at_target"): secondary attacks, refusals and kept twists as above, battles run to the end.
+
+- **2026-11-20 (Claude, session 30), RULES: DISTANT ARTILLERY AND AREA EFFECT ON EVERY UNIT (Core pp.182-183;
+  `engine/core/src/artillery.rs`). REVIEW PENDING (higher-level model).** Daniel: "Artillery has to be on board with what
+  the units can use" (no Battlefield Support, no Assets; PROJECT_MAP Section 5). Rust only. BUILT: (1) DISTANT fire: an
+  Arrow IV / Thumper / Sniper launcher may fire at a target 18 or more hexes away (no upper limit on a board: the TO:AR
+  maximums are 8+ mapsheets); the shot is announced at the target's hex with its ammo and heat spent that turn and that
+  turn's Target Number kept (Gunnery + 4, attacker movement and indirect modifiers; no range, target movement or
+  immobile modifier), and lands in the NEXT turn's Ranged Attack Phase (`PendingStrike`, `Battle::pending_artillery`,
+  sent through the bridge); a miss scatters its full Margin of Failure (a close shot half), held inside the launcher's
+  firing arc as it was when it fired. Whether to fire one is `stubs::stub_distant_artillery` (`STUB_DISTANT_ARTILLERY`,
+  default "never": the bots' artillery targeting is built elsewhere; Section 6). (2) AREA EFFECT ON EVERY UNIT: an
+  Arrow IV / artillery shell now deals its full damage to every unit in the hex it lands in and its splash to every unit
+  in the six hexes next to it, friend or foe (`artillery::area_strike`); before, only the targeted 'Mech could be hurt
+  (a leftover of the 1 v 1 days). RESULTS CHANGED: `zone_4v4_princess_v_caspar_hills` only (a missed Arrow IV scattered
+  into a hex with a 'Mech in it, which now takes the 20); re-recorded. Tested by hand with "at_target": distant shots
+  announced, landing next turn, hits and scatters as above.
 
 - **2026-11-20 (Claude, session 30), RULES: INDIRECT FIRE AND SPOTTING (Core p.70, p.62; `engine/core/src/spotting.rs`).
   REVIEW PENDING (higher-level model).** Daniel: "Lets start with functionality that princess probably needs. Split fire,

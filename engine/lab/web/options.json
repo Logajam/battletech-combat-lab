@@ -161,6 +161,17 @@
 ]
 },
 {
+"key": "STUB_DISTANT_ARTILLERY",
+"label": "Stub distant artillery",
+"top": "Game setup",
+"folder": "Placeholders (stubs)",
+"kind": "text",
+"default": "never",
+"short": "Distant artillery (Arrow IV / Thumper / Sniper at 18+ hexes, landing next turn; Core p.182; Rust engine only): offer the shot?",
+"text": "Distant artillery (Arrow IV / Thumper / Sniper at 18+ hexes, landing next turn; Core p.182; Rust engine only): offer the shot? \"never\" (the default: the bots' own artillery targeting is built elsewhere) / \"at_target\" (at the target's hex now, valued as if it stays there - a crude placeholder).",
+"active": true
+},
+{
 "key": "STUB_ESCALATING_USE",
 "label": "Stub escalating use",
 "top": "Game setup",
@@ -291,6 +302,17 @@
 "Most expected damage"
 ]
 ]
+},
+{
+"key": "STUB_SPLIT_FIRE",
+"label": "Stub split fire",
+"top": "Game setup",
+"folder": "Placeholders (stubs)",
+"kind": "text",
+"default": "never",
+"short": "Split fire (several targets in a turn; Core p.64; Rust engine only): \"never\" (the default: Princess / CASPAR fire an ordinary 'Mech at one target as MegaMek does; Gladiator / Hydra don't split fire...",
+"text": "Split fire (several targets in a turn; Core p.64; Rust engine only): \"never\" (the default: Princess / CASPAR fire an ordinary 'Mech at one target as MegaMek does; Gladiator / Hydra don't split fire yet) / \"spare_weapons\" (every other enemy in sight, nearest first, with the weapons not yet used - a crude placeholder).",
+"active": true
 },
 {
 "key": "STUB_SPOT",

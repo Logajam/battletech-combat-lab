@@ -428,14 +428,14 @@
   [Movement select] Blue: Princess (modern, attack): utility 35.23 = -fall 0.00 + bravery 33.73 [1.00 x 22.49 x 1.5 - taken 0.00] - aggression 2.50 + close range 4.00 - facing 0 + hold 0.00 [1387 of 1588 spots; enemy moved]
   [Movement] Blue: 1206 N -> 1004 NE, Run (15 MP, 7 hexes, 2 heat; budget walk 11 / run 17 / jump 0)
   [Ranged] Red 2: shut down - no attacks.
-  [Ranged] Blue -> Red 2: range 1, base TN 4 (gunnery 4 + AMM 2 [Run] + TMM -4 + LOS 2 + heat 0); firing ['ISStreakSRM2', 'Medium Laser'] (aimed at Center Torso) (weapon heat 5 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; Princess plan utility 22.49, about 8.25 expected dmg)
+  [Ranged] Blue -> Red 2: range 1, base TN 4 (gunnery 4 + AMM 2 [Run] + TMM -4 + LOS 2 + heat 0); firing ['ISStreakSRM2', 'Medium Laser'] (aimed at Right Torso) (weapon heat 5 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; Princess plan utility 22.49, about 8.25 expected dmg)
   [Ranged] Blue fires in order: ['Medium Laser', 'ISStreakSRM2'].
-    Medium Laser: needs 4 (range mod +0) aimed at Center Torso, rolled 5 -> HIT
+    Medium Laser: needs 4 (range mod +0) aimed at Right Torso, rolled 5 -> HIT
     ISStreakSRM2: needs 4 (range mod +0), rolled 5 -> HIT
       [IS Streak SRM 2 Ammo: 47 shots left]
-    Medium Laser hit for 5: aimed at Center Torso, 1D6 6 - on target.
-5 damage (ENERGY) incoming to Center Torso (rear_armor).
-  [STANDARD/ENERGY] 3 armor pts destroyed at rear_armor (3 -> 0 remaining). 2 damage applied to structure [STANDARD] (10 -> 8/10 remaining).
+    Medium Laser hit for 5: aimed at Right Torso, 1D6 6 - on target.
+5 damage (ENERGY) incoming to Right Torso (rear_armor).
+  [STANDARD/ENERGY] 3 armor pts destroyed at rear_armor (3 -> 0 remaining). 2 damage applied to structure [STANDARD] (7 -> 5/7 remaining).
   Check for possible critical. Roll a 6.
     No critical hit.
     ISStreakSRM2 hit: Streak - all 2 missiles hit (4 dmg).
@@ -457,7 +457,7 @@
   [Movement select] Blue: Princess (modern, defend): utility -0.40 = -fall 0.00 + bravery -2.95 [1.00 x 0.70 x 1.5 - taken 4.00] - aggression 0.00 + close range 2.55 - facing 0 + hold 0.00 [561 of 561 spots; enemy still to move]
   [Movement] Blue: 1004 NE -> 0601 SE, Run (16 MP, 7 hexes, 2 heat; budget walk 11 / run 17 / jump 0)
     Red 2: MASC (turn 1 in a row) needs 3, rolled 4 - works.
-  [Movement select] Red 2: score 394.286 = dealt 12.57 x1.01 + (HP 167.0 - received 3.66 x1.00 - PSR 0.00) / enemy future 1.20 x my future 2.82 [enemy held at 0601; 92 spots with LOS]
+  [Movement select] Red 2: score 394.396 = dealt 12.57 x1.01 + (HP 167.0 - received 3.65 x1.00 - PSR 0.00) / enemy future 1.20 x my future 2.82 [enemy held at 0601; 92 spots with LOS]
   [Movement] Red 2: 1104 NE -> 0602 N, Jump (5 MP, 5 hexes, 5 heat; budget walk 6 / run 12 / jump 5)
   [Ranged] Blue -> Red 2: range 1, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 3 + LOS 0 + heat 0); firing ['ISStreakSRM2', 'Medium Laser'] (weapon heat 5 of budget 38 = max 30 + sink 10 - current 0 - movement 2 - other 0; Princess plan utility 4.21, about 2.50 expected dmg)
   [Ranged] Blue fires in order: ['Medium Laser', 'ISStreakSRM2'].

@@ -112,7 +112,13 @@ pub fn move_index(b: &mut Battle, unit: UnitId) -> f64 {
     let fastest = compute_running_mp(&b.units[unit]).max(compute_jump_mp(&b.units[unit]));
     let m = *near.iter().min().unwrap();
     let total = if fastest == 0 { (m * 2) as f64 } else { m as f64 / fastest as f64 };
-    total * if b.units[unit].prone { 1.1 } else { 1.0 }
+    let mut total = total * if b.units[unit].prone { 1.1 } else { 1.0 };
+    // T16 step 4 (MegaMek Princess.calculateMoveIndex, PRIORITY_STEALTH): "move stealthy units later" - stealth armor or a Void
+    // Signature System switched on cuts the index to a third. Princess / CASPAR only (Gladiator and Hydra keep their order).
+    if b.units[unit].is_princess_family() && crate::equipment_systems::active_stealth(&b.units[unit]).iter().any(|k| matches!(*k, "stealth_armor" | "void_signature")) {
+        total /= 3.0;
+    }
+    total
 }
 
 pub fn can_select_move(m: &Mech) -> bool {
