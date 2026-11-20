@@ -1751,22 +1751,5 @@ null,
 "short": "The group sliders (2026-10-28, INTEGRATION__princess_group; BehaviorSettings defaults): the friends' centre, per hex of distance (BasicPathRanker.calculateMutualSupportMod) The group behaviors on o...",
 "text": "The group sliders (2026-10-28, INTEGRATION__princess_group; BehaviorSettings defaults): the friends' centre, per hex of distance (BasicPathRanker.calculateMutualSupportMod) The group behaviors on or off (2026-10-28, Daniel: Princess's mutual support, crowding, ...). Off gives the duel-only Princess the earlier recorded runs were made with (still weighing every enemy and the force's posture, but with no pull toward its friends or its own earlier ground).",
 "active": true
-},
-{
-"key": "PRINCESS_VERSION",
-"label": "Princess version",
-"top": "Bot features",
-"folder": "Princess",
-"kind": "text",
-"default": "modern",
-"short": "Which Princess plays: 'modern' (MegaMek main as of 2026-10-26) or '0.50.07' (the classic ranker first cloned).",
-"text": "Which Princess plays: 'modern' (MegaMek main as of 2026-10-26) or '0.50.07' (the classic ranker first cloned).",
-"active": true,
-"choices": [
-[
-"modern",
-"Modern (MegaMek main)"
-]
-]
 }
 ]

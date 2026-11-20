@@ -43,7 +43,6 @@
   "max_heat": 4
  },
  "BOT": "gladiator",
- "PRINCESS_VERSION": "modern",
  "PRINCESS_BEHAVIOR": {
   "fall_shame": 5,
   "bravery": 5,

@@ -107,8 +107,8 @@ GitHub logistics.
   show Daniel the numbers. 20 battles a setting by default (Daniel); longer
   only if something looks very off, or to build a baseline during down time.
 - **The bots:** each unit is driven by "gladiator" (this project's),
-  "princess" (a MegaMek clone; the v0.50.07 clone is being removed, backlog
-  N4), "hydra" or "caspar" (below) - `config.rs`, a unit's "bot", PROJECT_MAP
+  "princess" (a MegaMek clone of the modern Princess; the v0.50.07 clone was
+  removed 2026-11-20), "hydra" or "caspar" (below) - `config.rs`, a unit's "bot", PROJECT_MAP
   Section 6. Legate (on by default) gives Gladiator the whole enemy force
   (PROJECT_MAP Section 6 "Legate"). Princess in a team battle: target by
   firing-plan utility with friends' damage counted, movement against every

@@ -84,7 +84,6 @@ impl BotSet for GladiatorBots {
         let (pick, note) = if b.units[mover].bot == "hydra" {
             crate::hydra::choose_movement(b, mover, other, moves_first, standup_mp, entry_edge)
         } else if b.units[mover].is_princess_family() {
-            assert!(b.cfg.s("PRINCESS_VERSION") == "modern", "the v0.50.07 Princess is not translated yet");
             // CASPAR = Princess's whole movement ranker with the Mutual Support doctrine swapped in (caspar.rs)
             crate::princess_modern::choose_as(b, mover, other, moves_first, standup_mp, entry_edge, &mut ties, b.units[mover].bot == "caspar")
         } else {

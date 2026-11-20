@@ -6,6 +6,14 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-20 (Claude), PRINCESS v0.50.07 REMOVED (backlog N4).** Daniel: "I don't think we're ever going to use 50.07
+  princess again. May as well remove it as an option." The Rust never translated it (the movement assert said so); what
+  was left: the `PRINCESS_VERSION` setting (defaults, its description, the Options tab entry and its one-word menu in
+  `make_options_registry.py`) and the "not modern" branches of `princess_fire` (`modern()`, the old heat limits, the
+  crit / kill terms without the on-hit damage). Removed; `princess.rs` stays (it holds the pieces the modern ranker
+  shares). Scenarios that still carry the setting (the reference battles, the answer key) are unaffected: it is no longer
+  read. No battle changed (91 of 91).
+
 - **2026-11-20 (Claude), PRINCESS AMS ON / OFF AND AMMO CONSERVATION (backlog N3). REVIEW PENDING (higher-level model).**
   Daniel: "Need AMS on/off and ammo conservation for princess." From MegaMek main 3f9f2fd. AMS: `Princess.setAMSModes`, run in
   the End Phase with T16's heat-equipment manager (`bot_heat_equipment::set_ams_modes`); an AMS switched off is "ams:<item>"
