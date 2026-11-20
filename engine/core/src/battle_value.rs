@@ -407,8 +407,16 @@ impl<'a> Calc<'a> {
         let m = self.m;
         let mut bv = 0.0;
         for i in &self.items {
-            if !i.armored {
+            if !i.armored || i.has("F_PPC_CAPACITOR") {
                 continue;
+            }
+            // a PPC with a capacitor is priced with it, for one slot more (MegaMek Mek.getArmoredComponentBV)
+            if i.kind.as_deref() == Some("weapon") && i.has("F_PPC") {
+                if let Some(l) = i.link.filter(|l| self.items[*l].has("F_PPC_CAPACITOR")) {
+                    let cap = if self.items[l].bv != 0.0 { self.items[l].bv } else { Self::capacitor_bv(i) };
+                    bv += (i.bv + cap) * 0.05 * (i.slots() + 1) as f64;
+                    continue;
+                }
             }
             bv += if i.bv > 0.0 { i.bv * 0.05 * i.slots() as f64 } else { 5.0 * i.slots() as f64 };
         }

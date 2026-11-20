@@ -1,6 +1,5 @@
 # Units whose BV still differs from MegaMek 0.51.01.7 (2026-11-20): path, ours, MegaMek. The check fails on any unit NOT listed here
 # (a new gap) and prints the ones that now match (remove them from this file).
-3055U/Great Turtle GTR-2.mtf	2322	2355
 3085u/ONN/Mad Cat (Timber Wolf) U.mtf	2558	2627
 3145/Marik/Sarath SRTH-1OB.mtf	1490	1475
 Starterbook Sword and Dragon/Hunchback HBK-4G Shakir.mtf	957	952
