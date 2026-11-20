@@ -51,6 +51,7 @@ pub mod legate;
 pub mod princess;
 pub mod princess_artillery;
 pub mod team_settings;
+pub mod c3;
 pub mod princess_fire;
 pub mod princess_geometry;
 pub mod princess_memory;

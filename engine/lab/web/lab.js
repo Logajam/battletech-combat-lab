@@ -38,6 +38,26 @@ const pct = (x) => `${(100 * x).toFixed(0)}%`;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 // a unit's Battle Value for its pilot: the list gives it for gunnery 4 / piloting 5; the engine's skill table
 // (battle_value.rs SKILL_TABLE, sent by the server) scales it, rounded as the engine rounds
+// C3 (N6, Core p.220): the members of a team's network, by unit index - the tree of "links to" (parent_ui), or a C3i net
+function c3Members(t, ui) {
+  const u = t.units[ui];
+  if (!u) return [ui];
+  if (u.c3 && u.c3.net) return t.units.map((x, i) => (x.c3 && x.c3.net === u.c3.net ? i : -1)).filter((i) => i >= 0);
+  let top = ui;
+  for (let k = 0; k < 3 && t.units[top].c3 && t.units[top].c3.parent_ui != null && t.units[t.units[top].c3.parent_ui]; k++) top = t.units[top].c3.parent_ui;
+  const out = [top];
+  for (let i = 0; i < out.length; i++) t.units.forEach((x, j) => { if (x.c3 && x.c3.parent_ui === out[i] && !out.includes(j)) out.push(j); });
+  return out.length < 2 ? [ui] : out;
+}
+// +10% for two, +5% for each more, at most +40%; +5% for a Boosted member (p.220); the engine works it out the same way
+function c3Increase(t, ui) {
+  const n = c3Members(t, ui).length;
+  if (n < 2) return 0;
+  return Math.min(0.4, 0.1 + 0.05 * (n - 2)) + (t.units[ui].c3info && t.units[ui].c3info.boosted ? 0.05 : 0);
+}
+// the side name the engine gives a unit (setup.rs roster): the team's name, numbered when it has several
+const sideName = (t, ui) => (t.units.length > 1 ? `${t.name} ${ui + 1}` : t.name);
+
 function unitBv(u) {
   const base = u.mtf ? u.bv : (lab.byId.get(u.id) || {}).bv;        // a modified unit carries its own BV
   if (base == null) return null;
@@ -78,7 +98,8 @@ function setup() {
     teams: lab.teams.map((t, ti) => ({ name: t.name, colour: t.colour, bot: t.bot,
       ...(t.settings && Object.keys(t.settings).length ? { settings: t.settings } : {}),
       units: t.units.map((u) => ({ ...(u.mtf ? { unit: u.base || u.id, mtf_text: u.mtf } : { unit: u.id }), gunnery: u.gunnery, piloting: u.piloting,
-        ...(u.ammo && Object.keys(u.ammo).length ? { ammo: u.ammo } : {}) })),
+        ...(u.ammo && Object.keys(u.ammo).length ? { ammo: u.ammo } : {}),
+        ...(u.c3 && u.c3.net ? { c3: { net: u.c3.net } } : u.c3 && u.c3.parent_ui != null ? { c3: { parent: sideName(t, u.c3.parent_ui) } } : {}) })),
       ...(lab.deploy.mode !== "rulebook" ? { zone: zoneOf(t, ti) } : {}) })),
     ...(lab.deploy.mode !== "rulebook" ? { zone_mode: lab.deploy.mode, zone_opposite: lab.deploy.mode === "random" && lab.deploy.opposite && lab.teams.length === 2 } : {}),
     board: boardOfSetup(),
@@ -96,8 +117,16 @@ function save() {
   $("estimate").textContent = "Press Estimate";
 }
 
+// a saved run's C3 link ({"parent": "<side name>"} or {"net"}) back to the page's form (the parent by its place in the team)
+function c3FromSetup(t, c3) {
+  if (!c3) return undefined;
+  if (c3.net) return { net: c3.net };
+  const n = t.units.length;
+  const i = t.units.findIndex((_, j) => (n > 1 ? `${t.name} ${j + 1}` : t.name) === c3.parent);
+  return i >= 0 ? { parent_ui: i } : undefined;
+}
 // a unit entry keeps the ammunition chosen for its bins (N5)
-const withAmmo = (entry, ammo) => (entry && ammo && Object.keys(ammo).length ? { ...entry, ammo } : entry);
+const withAmmo = (entry, ammo, c3) => (entry ? { ...entry, ...(ammo && Object.keys(ammo).length ? { ammo } : {}), ...(c3 ? { c3 } : {}) } : entry);
 
 function unitEntry(id, g = 4, p = 5) {
   const u = lab.byId.get(id);
@@ -109,7 +138,7 @@ function restore() {
   try { saved = JSON.parse(localStorage.getItem(STORE) || "null"); } catch (e) { saved = null; }
   if (DEMO) saved = null;     // the demo always opens on the setup its results came from
   if (saved && saved.teams && saved.teams.length >= 2) {
-    lab.teams = saved.teams.map((t) => ({ ...t, units: t.units.map((u) => withAmmo(u.mtf ? modifiedEntry(u.mtf, u.base || u.id, u.gunnery, u.piloting, { bv: u.bv }) : unitEntry(u.id, u.gunnery, u.piloting), u.ammo)).filter(Boolean) }));
+    lab.teams = saved.teams.map((t) => ({ ...t, units: t.units.map((u) => withAmmo(u.mtf ? modifiedEntry(u.mtf, u.base || u.id, u.gunnery, u.piloting, { bv: u.bv }) : unitEntry(u.id, u.gunnery, u.piloting), u.ammo, u.c3)).filter(Boolean) }));
     lab.map = { ...lab.map, ...saved.map };
     lab.options = saved.options || {};
     lab.deploy = { ...lab.deploy, ...(saved.deploy || {}) };
@@ -229,7 +258,7 @@ function teamPanel(t, ti) {
   el.className = "win team";
   const bots = lab.info.bots.map((b) => `<option value="${b}"${b === t.bot ? " selected" : ""}>${b[0].toUpperCase() + b.slice(1)}</option>`).join("");
   const tons = t.units.reduce((s, u) => s + (u.tons || 0), 0);
-  const bv = t.units.reduce((s, u) => s + (unitBv(u) || 0), 0);
+  const bv = t.units.reduce((s, u, ui) => s + Math.floor((unitBv(u) || 0) * (1 + c3Increase(t, ui)) + 0.5), 0);
   el.innerHTML = `
     <div class="wtitle" id="wt-${ti}" style="border-left-color:${t.colour}" title="Drag to float this panel; double-click to dock it again"><span class="name">Team ${ti + 1}</span><span class="note" style="color:inherit;font-weight:normal">${t.units.length} unit${t.units.length === 1 ? "" : "s"} &middot; ${tons} t &middot; BV ${bv}</span></div>
     <div class="wbody">
@@ -244,7 +273,7 @@ function teamPanel(t, ti) {
       <thead><tr><th data-ck="ico"></th><th data-ck="name">Unit</th><th data-ck="tons" class="num">Tons</th><th data-ck="bv" class="num">BV</th><th data-ck="g" title="Gunnery skill">G</th><th data-ck="p" title="Piloting skill">P</th><th data-ck="x"></th></tr></thead>
       <tbody>${t.units.length ? t.units.map((u, ui) => `<tr>
         <td class="ico">${classIcon(u.tons)}</td>
-        <td class="name">${esc(u.name)}</td><td class="num">${u.tons ?? ""}</td><td class="num" id="bv-${ti}-${ui}">${unitBv(u) ?? ""}</td>
+        <td class="name">${esc(u.name)}</td><td class="num">${u.tons ?? ""}</td><td class="num" id="bv-${ti}-${ui}" ${c3Increase(t, ui) ? `title="C3 network +${Math.round(100 * c3Increase(t, ui))}% (p.220)"` : ""}>${unitBv(u) == null ? "" : Math.floor(unitBv(u) * (1 + c3Increase(t, ui)) + 0.5)}${c3Increase(t, ui) ? "&#8314;" : ""}</td>
         <td><input type="number" min="0" max="8" value="${u.gunnery}" id="g-${ti}-${ui}" aria-label="Gunnery"></td>
         <td><input type="number" min="0" max="8" value="${u.piloting}" id="p-${ti}-${ui}" aria-label="Piloting"></td>
         <td class="acts"><button class="btn small" data-config="${ui}" title="Configure this unit: pilot, ammunition, and its stats and equipment">&#9881;${u.ammo && Object.keys(u.ammo).length ? "*" : ""}</button><button class="btn small" data-remove="${ui}" title="Remove">&times;</button></td></tr>`).join("")
@@ -268,7 +297,13 @@ function teamPanel(t, ti) {
   });
   el.querySelectorAll("[data-config]").forEach((b) => b.addEventListener("click", () => openUnitConfig(ti, +b.dataset.config)));
   el.querySelector(`#tcfg-${ti}`).addEventListener("click", () => openTeamConfig(ti));
-  el.querySelectorAll("[data-remove]").forEach((b) => b.addEventListener("click", () => { t.units.splice(+b.dataset.remove, 1); redraw(); }));
+  el.querySelectorAll("[data-remove]").forEach((b) => b.addEventListener("click", () => {
+    const gone = +b.dataset.remove;
+    t.units.splice(gone, 1);
+    // C3 links point at units by their place in the team: a link to the removed unit goes, later places move up one
+    t.units.forEach((x) => { if (x.c3 && x.c3.parent_ui != null) { if (x.c3.parent_ui === gone) delete x.c3; else if (x.c3.parent_ui > gone) x.c3.parent_ui--; } });
+    redraw();
+  }));
   t.units.forEach((u, ui) => {
     // a skill change re-draws the team, so the unit's BV and the team's total follow it
     el.querySelector(`#g-${ti}-${ui}`).addEventListener("change", (e) => { u.gunnery = Math.max(0, Math.min(8, +e.target.value)); redraw(); });
@@ -868,6 +903,7 @@ function openTeamConfig(ti) {
         <label>Colour <input type="color" data-f="colour" value="${t.colour}"></label>
         <label>Bot <select data-f="bot">${bots}</select></label></div>
       <p class="note">This team's own bot settings: they leave every other team as it is. A setting not changed here plays at its default.</p>
+      <details class="folder" open><summary>C3 network</summary><div class="teamcfg-c3"><p class="note">Looking for C3 equipment...</p></div></details>
       <div class="teamcfg-opts"></div>`;
     const box = body.querySelector(".teamcfg-opts");
     const store = { values: () => t.settings, changed: () => { save(); drawTeams(); } };
@@ -882,6 +918,7 @@ function openTeamConfig(ti) {
       box.appendChild(det);
     }
     if (!folders.length) box.innerHTML = `<p class="note">This bot has no settings yet.</p>`;
+    drawC3(t, body.querySelector(".teamcfg-c3"), draw);
     body.querySelector('[data-f="name"]').addEventListener("change", (e) => {
       const name = e.target.value.trim();
       if (name && !lab.teams.some((o, oi) => oi !== ti && o.name === name)) t.name = name;
@@ -897,6 +934,42 @@ function openTeamConfig(ti) {
     });
   };
   draw();
+}
+
+// The C3 network of a team (Core p.198): each C3 Master or Slave "links to" the Master that controls it; a C3i unit joins a
+// named C3i network. The engine checks the links when the battle starts and drops (in its log) any the rules do not allow.
+async function drawC3(t, box, redraw) {
+  for (const u of t.units) {
+    if (u.c3info !== undefined) continue;
+    let text = u.mtf;
+    if (!text) { const r = await api("unit_text", { id: u.id }); text = r.text; }
+    const r = text ? await api("unit_eval", { text }) : {};
+    u.c3info = (r && r.c3) || null;
+  }
+  const withC3 = t.units.map((u, i) => [u, i]).filter(([u]) => u.c3info);
+  if (!withC3.length) { box.innerHTML = `<p class="note">No unit of this team carries a C3 computer.</p>`; return; }
+  const masters = withC3.filter(([u]) => /master/.test(u.c3info.kind));
+  box.innerHTML = `<table class="ammo"><thead><tr><th>Unit</th><th>C3</th><th>Links to</th></tr></thead><tbody>${withC3.map(([u, i]) => {
+    const kind = u.c3info.kind;
+    let control;
+    if (kind === "c3i") {
+      control = `<select data-c3net="${i}"><option value="">(no network)</option>${["A", "B", "C"].map((n) => `<option value="${n}"${u.c3 && u.c3.net === n ? " selected" : ""}>C3i network ${n}</option>`).join("")}</select>`;
+    } else {
+      control = `<select data-c3parent="${i}"><option value="">(top of its network / none)</option>${masters.filter(([, j]) => j !== i).map(([m, j]) => `<option value="${j}"${u.c3 && u.c3.parent_ui === j ? " selected" : ""}>${esc(sideName(t, j))}: ${esc(m.name)}</option>`).join("")}</select>`;
+    }
+    return `<tr><td>${esc(sideName(t, i))}: ${esc(u.name)}</td><td>${esc(kind)}${u.c3info.boosted ? " (boosted)" : ""}</td><td>${control}</td></tr>`;
+  }).join("")}</tbody></table>
+  <p class="note">A Master controls up to three Slaves, or up to three lance Masters (a company of 12). Networked units add to their Battle Value: +10% for two, +5% for each more, at most +40% (Core p.220).</p>`;
+  box.querySelectorAll("[data-c3parent]").forEach((sel) => sel.addEventListener("change", () => {
+    const u = t.units[+sel.dataset.c3parent];
+    if (sel.value === "") delete u.c3; else u.c3 = { parent_ui: +sel.value };
+    save(); drawTeams();
+  }));
+  box.querySelectorAll("[data-c3net]").forEach((sel) => sel.addEventListener("change", () => {
+    const u = t.units[+sel.dataset.c3net];
+    if (sel.value === "") delete u.c3; else u.c3 = { net: sel.value };
+    save(); drawTeams();
+  }));
 }
 
 async function openUnitConfig(ti, ui) {
@@ -1457,7 +1530,7 @@ function drawCrashes(list) {
 // a saved run's setup back into the Units, Map and Options pages
 function applySetup(s) {
   lab.teams = s.teams.map((t, i) => ({ name: t.name, colour: t.colour || defaultColour(i), bot: t.bot, zone: t.zone, ...(t.settings ? { settings: t.settings } : {}),
-    units: t.units.map((u) => withAmmo(u.mtf_text ? modifiedEntry(u.mtf_text, u.unit, u.gunnery ?? 4, u.piloting ?? 5) : unitEntry(u.unit, u.gunnery ?? 4, u.piloting ?? 5), u.ammo)).filter(Boolean) }));
+    units: t.units.map((u) => withAmmo(u.mtf_text ? modifiedEntry(u.mtf_text, u.unit, u.gunnery ?? 4, u.piloting ?? 5) : unitEntry(u.unit, u.gunnery ?? 4, u.piloting ?? 5), u.ammo, c3FromSetup(t, u.c3))).filter(Boolean) }));
   const m = lab.map;
   if (typeof s.board === "string") { m.mode = "one"; m.one = s.board; }
   else if (s.board && s.board.playlist) { m.mode = "playlist"; m.playlist = [...s.board.playlist]; m.order = s.board.order || "sequence"; }

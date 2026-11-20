@@ -325,6 +325,8 @@ pub struct Adjuster {
     pub tc: bool,
     pub locs: WeaponLocs,
     pub underwater: Option<HashSet<ItemId>>,
+    /// C3 (p.198; c3.rs): the closest network member's distance to the target and whether hostile ECM degrades the link
+    pub c3: Option<(i64, bool)>,
 }
 
 pub fn tn_adjuster(b: &Battle, attacker: UnitId, target: UnitId, aim: Option<&str>, cover_modifier: i64) -> Adjuster {
@@ -336,6 +338,7 @@ pub fn tn_adjuster(b: &Battle, attacker: UnitId, target: UnitId, aim: Option<&st
         tc: has_targeting_computer(&b.units[attacker]),
         locs: weapon_locations(&b.units[attacker]),
         underwater: None,
+        c3: None,
     }
 }
 
@@ -364,6 +367,24 @@ impl TnAdjust for Adjuster {
         };
         if self.tc && eligible && !(aiming && (self.aim.as_deref() == Some("Head") || weapon_rules::is_pulse(b, a, w))) {
             tn -= 1;
+        }
+        // C3 (p.198): the range modifier is read at the closest network member's distance, the weapon still in range at its
+        // own; hostile ECM adds +1 for each bracket C3 gained (p.199)
+        if let (Some((c3_distance, ecm)), Some(br)) = (self.c3, bracket) {
+            let rank = |s: &str| match s {
+                "short" => Some(crate::combat::RANGE_MOD_SHORT),
+                "medium" => Some(crate::combat::RANGE_MOD_MEDIUM),
+                "long" => Some(crate::combat::RANGE_MOD_LONG),
+                _ => None,
+            };
+            if let (Some(own), Some(net)) = (rank(br), weapon_selection::range_bracket(b, a, w, c3_distance).and_then(rank)) {
+                if net < own {
+                    tn -= own - net;
+                    if ecm {
+                        tn += (own - net) / (crate::combat::RANGE_MOD_MEDIUM - crate::combat::RANGE_MOD_SHORT);
+                    }
+                }
+            }
         }
         if let Some(under) = &self.underwater {
             if under.contains(&w) {
@@ -1228,7 +1249,14 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
     } else if is_immobile(&b.units[target]) && b.cfg.get("AIMED_SHOT_LOCATION").as_str().is_some() {
         aim = aimed_shot_location(b, target, cover > 0);
     }
-    let adjust = with_range_adjuster(tn_adjuster(b, attacker, target, aim.as_deref(), cover), &b.units[attacker], a_water);
+    let mut adjust = with_range_adjuster(tn_adjuster(b, attacker, target, aim.as_deref(), cover), &b.units[attacker], a_water);
+    // C3 (p.198; c3.rs): not for indirect fire (p.70)
+    if !indirect {
+        adjust.c3 = crate::c3::best(b, attacker, target);
+        if let (Some((d, ecm)), false) = (adjust.c3, dry) {
+            b.log(format!("  [C3] {}: range to {} read at {} hexes through its network{} (p.198).", a_name, t_name, d, if ecm { "; hostile ECM degrades the link (p.199)" } else { "" }));
+        }
+    }
     let sel_pre_tn = weapon_selection::PRE_TN_MIN.max(weapon_selection::PRE_TN_MAX.min(pre_tn));
     let usable: Vec<ItemId> = get_weapons(&b.units[attacker]).into_iter().filter(|w| !unavailable.contains(w)).collect();
     let k = if crate::ams::can_engage(&b.units[target]) {

@@ -241,7 +241,7 @@ fn api(lab: &Lab, name: &str, req: &Value) -> Result<Value, String> {
             let text = req["text"].as_str().ok_or("no unit text")?;
             let cfg = btsim_core::config::Config::from_json(&lab.defaults);
             let db = btsim_core::equipment::EquipmentDb::shared();
-            Ok(json!({"unit": catalog::describe_unit(db, &cfg, "(edited)", "custom", text), "structure": catalog::unit_structure(db, text), "bins": catalog::unit_bins(db, &cfg, text)}))
+            Ok(json!({"unit": catalog::describe_unit(db, &cfg, "(edited)", "custom", text), "structure": catalog::unit_structure(db, text), "bins": catalog::unit_bins(db, &cfg, text), "c3": catalog::unit_c3(db, &cfg, text)}))
         }
         "equipment_list" => Ok(json!({"equipment": catalog::equipment_list(btsim_core::equipment::EquipmentDb::shared())})),
         "list_boards" => Ok(json!({"boards": lab.catalog.boards})),

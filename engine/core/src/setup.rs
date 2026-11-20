@@ -25,6 +25,9 @@ pub struct UnitSetup {
     /// ammunition chosen per bin (FORCES "ammo": {"<location>:<slot>": "<munition>"}, slot counted from 0; N5): (location,
     /// slot, munition)
     pub ammo: Vec<(String, usize, String)>,
+    /// C3 (FORCES "c3": {"parent": "<side name of its Master>"} or {"net": "<C3i network>"}; N6, c3.rs)
+    pub c3_parent: Option<String>,
+    pub c3_net: Option<String>,
 }
 
 pub fn attach_mech_config(b: &mut Battle, u: UnitId, cfg: &UnitSetup, side_name: &str) {
@@ -44,6 +47,8 @@ pub fn attach_mech_config(b: &mut Battle, u: UnitId, cfg: &UnitSetup, side_name:
         m.move_search = cfg.search.clone();
         m.assumes_enemy_search = cfg.assumes_enemy_search.clone();
         m.bot = cfg.bot.clone();
+        m.c3_parent = cfg.c3_parent.clone();
+        m.c3_net = cfg.c3_net.clone();
         m.current_heat = 0;
         m.shutdown = false;
         m.deactivated_heat_sinks = 0;
@@ -99,6 +104,8 @@ pub fn roster(cfg: &Config) -> Vec<(String, String, UnitSetup)> {
                 })
                 .collect()
         }),
+        c3_parent: c.get("c3").and_then(|x| x.get("parent")).and_then(|x| x.as_str()).map(|x| x.to_string()),
+        c3_net: c.get("c3").and_then(|x| x.get("net")).and_then(|x| x.as_str()).map(|x| x.to_string()),
     };
     if cfg.get("FORCES").is_null() {
         return vec![

@@ -106,6 +106,13 @@ fn scenario_one(setup: &Value, catalog: &Catalog, paths: &SetupPaths, zones: Opt
                 }
                 entry["ammo"] = Value::Object(ammo.clone());
             }
+            // the C3 link set in the Configure team window ({"parent": "<side name>"} or {"net": "<C3i network>"}; c3.rs)
+            if let Some(c3) = u["c3"].as_object().filter(|c| !c.is_empty()) {
+                if c3.iter().any(|(k, v)| !["parent", "net"].contains(&k.as_str()) || !v.is_string()) {
+                    return Err(format!("team {}: a C3 link names a parent or a network", name));
+                }
+                entry["c3"] = Value::Object(c3.clone());
+            }
             forces.push(entry);
         }
     }

@@ -340,6 +340,11 @@ pub struct Mech {
     /// T16: the bot manages this unit's heat equipment (MegaMek BotHeatEquipmentManager; Princess / CASPAR only). While false
     /// every concealment system works whenever it can and the radical heat sink follows STUB_ESCALATING_USE, as before.
     pub heat_managed: bool,
+    /// C3 (N6, c3.rs): the side name of the C3 Master this unit's C3 links to (a Slave to its Master, a lance Master to the
+    /// company Master), from the setup; None for a unit at the top of its network or in none
+    pub c3_parent: Option<String>,
+    /// C3i (N6): the name of the C3i network this unit joins, from the setup
+    pub c3_net: Option<String>,
     /// T16: concealment systems the bot has switched OFF ("stealth_armor", "chameleon", "null_signature", "void_signature").
     pub systems_off: Vec<String>,
     /// T16: the bot has the radical heat sink switched ON (read only while `heat_managed`).
@@ -663,6 +668,8 @@ impl Mech {
             escalating_turns: IndexMap::default(),
             systems_used_this_turn: Vec::new(),
             heat_managed: false,
+            c3_parent: None,
+            c3_net: None,
             systems_off: Vec::new(),
             radical_on: false,
             turn_number: 0,

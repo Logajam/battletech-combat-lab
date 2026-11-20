@@ -123,6 +123,24 @@ pub fn unit_bins(db: &btsim_core::equipment::EquipmentDb, cfg: &btsim_core::conf
     json!(r.ok().flatten().unwrap_or_default())
 }
 
+/// The C3 a unit carries, for the Configure team window (N6): "master", "slave", "master+slave", "c3i", boosted marked
+/// "(boosted)", or null.
+pub fn unit_c3(db: &btsim_core::equipment::EquipmentDb, cfg: &btsim_core::config::Config, text: &str) -> Value {
+    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let m = btsim_core::mtf_parser::parse_mtf(db, text, &mut String::new()).ok()?;
+        let names: Vec<String> = m.items.iter().map(|e| e.canonical.as_deref().unwrap_or(&e.name).to_uppercase().replace([' ', '-', '_'], "")).collect();
+        let board = btsim_core::board_parser::Board::from_json(&json!({"width": 1, "height": 1, "hexes": {}}));
+        let _ = (cfg, board);
+        let c3i = names.iter().any(|n| n.contains("C3I") || n.contains("IMPROVEDC3"));
+        let master = names.iter().any(|n| n.contains("C3MASTER") || n.contains("C3COMPUTER[MASTER]"));
+        let slave = names.iter().any(|n| n.contains("C3SLAVE") || n.contains("C3BOOSTEDSYSTEMSLAVE") || n.contains("C3COMPUTER[SLAVE]"));
+        let boosted = names.iter().any(|n| n.contains("C3") && n.contains("BOOSTED"));
+        let kind = if c3i { "c3i" } else if master && slave { "master+slave" } else if master { "master" } else if slave { "slave" } else { return None };
+        Some(json!({"kind": kind, "boosted": boosted}))
+    }));
+    r.ok().flatten().unwrap_or(Value::Null)
+}
+
 /// Each location's internal structure for the unit file `text`, as the engine reads it ({"Left Arm": 17, ...}); the editor
 /// limits armor to twice this (a head to 9). Empty when the file does not parse.
 pub fn unit_structure(db: &btsim_core::equipment::EquipmentDb, text: &str) -> Value {

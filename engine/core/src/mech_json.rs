@@ -303,6 +303,12 @@ impl Mech {
         if let Some(v) = self.outside_heat {
             put!("outside_heat", json!(v));
         }
+        if let Some(p) = &self.c3_parent {
+            put!("c3_parent", json!(p));
+        }
+        if let Some(n) = &self.c3_net {
+            put!("c3_net", json!(n));
+        }
         if self.heat_managed {
             put!("heat_managed", json!(true));
             put!("systems_off", json!(self.systems_off));
@@ -626,6 +632,8 @@ impl Mech {
         m.outside_heat = v.get("outside_heat").and_then(|x| x.as_i64());
         m.shield_raised = v.get("shield_raised").cloned();
         m.heat_managed = v.get("heat_managed").and_then(|x| x.as_bool()).unwrap_or(false);
+        m.c3_parent = v.get("c3_parent").and_then(|x| x.as_str()).map(|s| s.to_string());
+        m.c3_net = v.get("c3_net").and_then(|x| x.as_str()).map(|s| s.to_string());
         m.systems_off = v.get("systems_off").map(strs).unwrap_or_default();
         m.radical_on = v.get("radical_on").and_then(|x| x.as_bool()).unwrap_or(false);
         m.started_in_liquid = v.get("started_in_liquid").and_then(|x| x.as_bool());

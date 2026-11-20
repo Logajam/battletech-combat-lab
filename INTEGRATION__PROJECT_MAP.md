@@ -105,15 +105,16 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   missile-boat role term (no unit roles) and manual AMS against infantry.
 - N4. REMOVE PRINCESS v0.50.07: DONE 2026-11-20 (Change Record): the setting `PRINCESS_VERSION` and its "not modern"
   branches are gone; Princess is always the modern clone.
-- N5. CONFIGURE UNIT AND CONFIGURE TEAM WINDOWS (Combat Lab; Daniel 2026-11-20): a "Configure unit" button opens a window per
-  unit; "Edit unit stats" moves one layer down inside it; it also holds the ammo choice per bin (after N1). A "Configure
-  team" button opens a window per team holding that team's bot and every control the bot has (the Princess / CASPAR
-  sliders, Gladiator / Hydra switches...), which then leave the Options tab; probably the C3 network setup (N6) too.
-  Daniel is tempted by MekBay's way of building a C3 network: look at it before designing ours.
-- N6. C3 NETWORKS (Core p.198: C3 master / slave, C3i): the engine rule (range from the nearest networked friend with
-  line of sight to the target), the network set up in N5's window, and the BV increase for a networked unit (MegaMek's
-  C3 BV rule; check against MegaMek as `check_bv_megamek.py` does). Bots: Princess / CASPAR as MegaMek; a stub for
-  Gladiator / Hydra.
+- N5. CONFIGURE UNIT AND CONFIGURE TEAM WINDOWS: BUILT 2026-11-20 (Change Record). Engine: per-team bot settings
+  (`TEAM_SETTINGS`, `team_settings.rs`), ammunition per bin (a FORCES entry's "ammo"; `ammo::bin_choices` /
+  `choose_bin_munition`). Lab: "Configure team" (name, colour, bot, that bot's settings; Princess's behaviour as sliders) and a
+  gear button per unit (pilot, "Edit unit stats...", ammunition per bin); the Options tab's Bot features moved there. Left: the
+  C3 network setup (N6); more ammunition kinds (N10).
+- N6. C3 NETWORKS: BUILT 2026-11-20 (Change Record; `c3.rs`). Rule (Core p.198-199: range from the closest networked
+  'Mech that sees the target, ECM +1 / +2, a lost Master disables its network, stealth cuts a unit off, C3i; not indirect
+  fire), setup (FORCES "c3", the Configure team window's C3 section), Battle Value (p.220). Not built: the C3 Master's TAG
+  function, the Emergency Master, remote sensors; the bots' movement estimates do not count C3 (the attack itself does).
+  Daniel mentioned MekBay's way of setting up a network: not looked at yet (no network access to it from here was tried).
 - N7. UNDERWATER MOVEMENT AND FIRING (Core pp.127-128, "Underwater Combat", Underwater Attacks Table p.127; 'Mech UMUs
   TO:AUE, deferred until now): what is left after F36 - which weapons fire underwater and at what ranges, attacks across
   the surface, then UMU movement. Read the library first and list the gap.
@@ -343,6 +344,8 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s31-n6) C3 NETWORKS** (2026-11-20): `c3.rs` (kind_of, check_networks, configured / active network, best, ECM degradation, bv_increase), the Adjuster's `c3` (attack_resolution), `battle_value` x (1 + increase), `describe::unit_c3`, the team window's C3 section (`drawC3`, `c3Members` / `c3Increase` on the page). Look at: the ECM rule's "a Master in ECM degrades its Slaves", company networks when a lance Master falls, a Master+Slave unit's choice.
+- **(s31-n5) PER-TEAM SETTINGS, AMMO PER BIN, CONFIGURE WINDOWS** (2026-11-20): `team_settings.rs` (the settings swap while a unit decides; Legate per team), `setup.rs` "ammo" + `ammo::bin_choices` / `choose_bin_munition` (`Equipment::munition_chosen`), `describe::unit_bins`, `runs.rs` (`check_option`, TEAM_SETTINGS), `lab.js` (`openTeamConfig`, `openUnitConfig`, `behaviourSliders`, the option-row store). Look at: decisions made for several units at once (fire order, Hydra's move order) read the battle's settings; an enemy is modelled with the deciding team's settings.
 - **(s31-n3) PRINCESS AMS MODES AND AMMO CONSERVATION** (2026-11-20): `bot_heat_equipment::set_ams_modes` / `damage_level` / `ams_off`, `princess_fire::ammo_conservation`. Look at: the faithful port of MegaMek quirks (the shared mode across AMS, the heavy-damage fall-through, the 0 original shots), `damage_level` against MegaMek's Mek.isDmg*.
 - **(s31-n2) PRINCESS SPOTTING AND ARTILLERY** (2026-11-20): `spotting::princess_spot` + `BotSet::choose_spot` (bridge `choose_spot`), the command-console exception (`spotting::console_spots_free`, p.203), `princess_artillery.rs`. Look at: the dry pricing of her plan in `GladiatorBots::choose_spot` (quiet log, no dice?), the aim memory keyed by positions, the hex-based candidates around the chosen target only.
 - **(s31-bv) BV READING KEPT APART** (2026-11-20): `mtf_parser::BvReading` / `parse_mtf_for_bv`, `Mech::bv_view`, `battle_value::bv_slots`. Look at: whether Princess should get the BV reading in battles whose units come from a units.json (they have no `bv_view`, so 224 units weigh by the older BV there).
