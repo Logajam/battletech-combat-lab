@@ -471,7 +471,16 @@ pub fn bin_kinds(mech: &crate::mech_state::Mech, weapon: ItemId) -> Vec<(String,
         .collect();
     out.sort();
     out.dedup();
+    // Core p.192: a weapon using caseless ammunition cannot use any other
+    if out.iter().any(|(m, _)| m == "caseless") {
+        out.retain(|(m, _)| m == "caseless");
+    }
     out
+}
+
+/// Does this autocannon carry a special round (armor-piercing, precision, caseless; N10)? Then its shot is planned.
+pub fn has_special_ac_round(mech: &crate::mech_state::Mech, weapon: ItemId) -> bool {
+    mech.items[weapon].needs_ammo.unwrap_or(false) && bin_kinds(mech, weapon).iter().any(|(m, _)| matches!(m.as_str(), "ap" | "precision" | "caseless"))
 }
 
 pub fn rounds_left(mech: &crate::mech_state::Mech, weapon: ItemId, munition: &str, kind: &str) -> f64 {
@@ -639,6 +648,7 @@ fn special_by_name(b: &mut Battle, u: UnitId, w: ItemId) -> bool {
         || cn.contains("TSEMP")
         || cn.contains("NAIL")
         || cn.contains("RIVET")
+        || has_special_ac_round(&b.units[u], w)
 }
 
 pub fn has_profile(b: &mut Battle, u: UnitId, w: ItemId) -> bool {

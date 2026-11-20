@@ -1576,6 +1576,17 @@ pub fn finish_declaration(
         if adv::is_tsemp(b, attacker, w) && !adv::tsemp_fired(b, attacker, w, roll, turn, &first_loc) {
             hit = false;
         }
+        // CASELESS AMMO (Core pp.191-192; N10): on an attack roll of 2 the feed breaks - the shot misses, the gun is useless
+        // for the rest of the battle, and a critical hit check is made, its hits going to the gun
+        if plan.munition() == "caseless" && roll == 2 {
+            hit = false;
+            b.units[attacker].items[w].jammed = Some(true);
+            let crit = b.roll_2d6();
+            b.log(format!("      {} caseless feed breaks (roll 2, p.192): the gun is useless for the rest of the battle; critical check {} -> {}.", wname, crit, if crit >= 8 { "the gun is wrecked" } else { "no critical" }));
+            if crit >= 8 {
+                adv::destroy_all_slots(b, attacker, w);
+            }
+        }
         let jam_at = if fire_modes::is_rotary(b, attacker, w) { fire_modes::jam_threshold(&plan) } else { 0 };
         if roll <= jam_at {
             b.units[attacker].items[w].jammed = Some(true);
@@ -1745,7 +1756,27 @@ pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBo
                     adv::tsemp_hit(b, attacker, target, turn);
                     continue;
                 }
+                // ARMOR-PIERCING AMMO (Core p.191; N10): a hit that damages only armor makes a critical check, -3 / -2 / -1 by
+                // the autocannon's size
+                let ap = attack.fire.as_ref().is_some_and(|f| f.munition() == "ap");
+                let before: Vec<(String, f64, f64)> = if ap { armor_and_structure(&b.units[target]) } else { Vec::new() };
                 resolve_one_attack(b, attacker, target, attack, &mut pool);
+                if ap && !b.is_destroyed(target) {
+                    let after = armor_and_structure(&b.units[target]);
+                    let structure_hit = before.iter().zip(after.iter()).any(|(x, y)| y.2 < x.2);
+                    let armor_hit = before.iter().zip(after.iter()).find(|(x, y)| y.1 < x.1).map(|(x, _)| x.0.clone());
+                    if let (false, Some(loc)) = (structure_hit, armor_hit) {
+                        let dmg = b.units[attacker].items[w].damage_per_shot.unwrap_or(0);
+                        let modifier = if dmg <= 2 { -3 } else if dmg <= 5 { -2 } else { -1 };
+                        let hardened = matches!(b.units[target].armor_type.get(&loc), Some(crate::mech_state::ArmorType::Hardened));
+                        if hardened {
+                            b.log("      Armor-piercing round against hardened armor: no armor-piercing check (p.191).");
+                        } else {
+                            b.log(format!("      Armor-piercing round damaged only armor in {}: armor-piercing check ({:+}, p.191).", loc, modifier));
+                            crate::damage_resolution::check_critical(b, target, &loc, false, modifier);
+                        }
+                    }
+                }
                 if adv::is_taser(b, attacker, w) {
                     let turn = b.units[attacker].turn_number;
                     adv::taser_hit(b, attacker, target, turn);
@@ -1799,4 +1830,13 @@ pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBo
     b.split_fire.clear();
     b.indirect_pairs.clear();
     reports
+}
+
+/// (location, armor front + rear, structure) of every location: what an armor-piercing hit changed (N10).
+fn armor_and_structure(m: &Mech) -> Vec<(String, f64, f64)> {
+    let f = |n: Num| match n {
+        Num::I(i) => i as f64,
+        Num::F(x) => x,
+    };
+    m.locations.iter().map(|(l, v)| (l.clone(), f(v.armor) + v.rear_armor.map_or(0.0, f), f(v.structure))).collect()
 }

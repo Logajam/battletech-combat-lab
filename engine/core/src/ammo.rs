@@ -439,7 +439,7 @@ pub fn bin_choices(b: &Battle, u: UnitId, id: ItemId) -> Vec<&'static str> {
     }
     let Some(feeds) = e.feeds.as_deref() else { return Vec::new() };
     let base = e.munition.as_deref().unwrap_or("standard");
-    if !matches!(base, "standard" | "narc" | "inferno" | "homing") || e.kind.as_deref().is_some_and(|k| !k.is_empty()) {
+    if !matches!(base, "standard" | "narc" | "inferno" | "homing" | "ap" | "precision" | "caseless") || e.kind.as_deref().is_some_and(|k| !k.is_empty()) {
         return Vec::new();
     }
     if narc_pod_damage(feeds).is_some() {
@@ -454,7 +454,25 @@ pub fn bin_choices(b: &Battle, u: UnitId, id: ItemId) -> Vec<&'static str> {
     if re!(r"(?i)ARROWIV").is_match(feeds).unwrap() {
         return vec!["standard", "homing"];
     }
+    // AUTOCANNON MUNITIONS (Core pp.191-192; backlog N10): armor-piercing and precision for a standard or light AC, caseless for
+    // those and the rotary AC (flak and cluster only matter against airborne units / are the LB-X's own)
+    if re!(r"^(Autocannon|Light Auto Cannon)/\d+$").is_match(feeds).unwrap() {
+        return vec!["standard", "ap", "precision", "caseless"];
+    }
+    if re!(r"RotaryAC\d+$").is_match(feeds).unwrap() {
+        return vec!["standard", "caseless"];
+    }
     Vec::new()
+}
+
+/// Core p.190 "Ammunition Multiplier": the shots a ton of this munition holds, as a share of standard rounds.
+pub fn munition_multiplier(munition: &str) -> f64 {
+    match munition {
+        "ap" => 0.8,
+        "precision" => 0.6,
+        "caseless" => 2.0,
+        _ => 1.0,
+    }
 }
 
 /// A unit's setup chose this bin's ammunition (FORCES "ammo"): the bin at `location`, `slot` (any slot of it) is loaded
@@ -474,8 +492,15 @@ pub fn choose_bin_munition(b: &mut Battle, u: UnitId, location: &str, slot: usiz
         return;
     }
     let e = &mut b.units[u].items[id];
+    // a bin switched to a munition with another Ammunition Multiplier holds that many shots (rounded down; p.190)
+    let before = munition_multiplier(e.munition.as_deref().unwrap_or("standard"));
+    if let Some(s) = e.shots_left {
+        e.shots_left = Some((s as f64 / before * munition_multiplier(munition)).floor() as i64);
+    }
     e.munition = Some(munition.to_string());
     e.munition_chosen = Some(true);
+    update_explosion(&mut b.units[u].items[id]);
+    let e = &mut b.units[u].items[id];
     let bin = e.name.clone();
     b.log(format!("  {}: {} loaded with {} rounds (chosen in the unit's setup).", name, bin, munition));
 }

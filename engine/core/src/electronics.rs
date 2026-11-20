@@ -194,7 +194,16 @@ pub fn munitions(mech: &Mech, weapon: ItemId) -> Vec<String> {
 /// FireControl of `weapon` firing `munition` at `target` now.
 pub fn control_for(b: &mut Battle, attacker: UnitId, weapon: ItemId, target: UnitId, munition: &str) -> FireControl {
     if b.units[attacker].items[weapon].damage_type.as_deref() != Some("Missile") {
-        return FireControl::plain();
+        // AUTOCANNON MUNITIONS (Core pp.191-192; N10): precision rounds take up to 2 off the target's movement modifier
+        return match munition {
+            "precision" => {
+                let relief = crate::attack_resolution::target_tmm(&b.units[target]).clamp(0, 2);
+                FireControl { munition: munition.into(), tn: -relief, note: format!("precision rounds -{}", relief), ..FireControl::plain() }
+            }
+            "ap" => FireControl { munition: munition.into(), note: "armor-piercing rounds".into(), ..FireControl::plain() },
+            "caseless" => FireControl { munition: munition.into(), note: "caseless rounds".into(), ..FireControl::plain() },
+            _ => FireControl::plain(),
+        };
     }
     let lock = !(is_streak(b, attacker, weapon) && angel_field(&b.units[target]));
     let cluster_weapon = is_cluster(b, attacker, weapon);
