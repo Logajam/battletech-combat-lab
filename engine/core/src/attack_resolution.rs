@@ -1597,6 +1597,10 @@ pub trait RangedBot {
         false
     }
     fn assign_damage(&mut self, _b: &mut Battle, _attacker: UnitId, _target: UnitId, _dmg: f64) {}
+    /// Does this unit spot for indirect fire this turn: (target, it also fires)? (spotting.rs; default STUB_SPOT)
+    fn choose_spot(&mut self, b: &mut Battle, u: UnitId) -> Option<(UnitId, bool)> {
+        crate::stubs::stub_spot(b, u)
+    }
 }
 
 /// Step 2 for one attacker. Rolls to-hit for every selected weapon and fills `report`.
@@ -1625,7 +1629,7 @@ pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBo
     // spotting for indirect fire is settled before any attack is rolled (spotting.rs)
     b.indirect_pairs.clear();
     b.split_fire.clear();
-    crate::spotting::declare_spotting(b, order);
+    crate::spotting::declare_spotting(b, order, bot);
     // distant artillery announced last turn lands now (p.182; artillery.rs)
     let turn_now = order.first().map_or(0, |u| b.units[*u].turn_number);
     crate::artillery::resolve_pending(b, turn_now);

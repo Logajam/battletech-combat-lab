@@ -11,6 +11,8 @@
 //     is ignored too; a known gap, Change Record). Narc: Narc-equipped missiles may fire indirectly at a Narc-pod
 //     target with no spotter (NOT BUILT yet: listed in the Change Record). TAG: a 'Mech that TAGs a target spots it
 //     and ignores the spotter-attacking modifier; it may not spot a different target that turn.
+//   p.203 COCKPIT COMMAND CONSOLE: the secondary MechWarrior can spot without incurring any of the Spotter Attacking
+//     modifiers (`console_spots_free`; added 2026-11-20 with Princess's spotting, N2).
 //   p.62 SPOTTING: the spotter is declared with the indirect attack; it may not have declared a charge or a death from
 //     above; it spots one target a turn; any number of 'Mechs may fire indirectly at that target.
 //   pp.182-183: Arrow IV (and Thumper / Sniper, Daniel's wiring, RULES_REVIEW F55) adds the indirect modifiers "if
@@ -98,10 +100,20 @@ pub fn spot_of(b: &Battle, u: UnitId) -> Option<&Spot> {
     b.spots.iter().find(|s| s.spotter == u)
 }
 
+/// A working Cockpit Command Console's second warrior spots, so the Spotter Attacking modifiers do not apply (p.203).
+pub fn console_spots_free(b: &Battle, u: UnitId) -> bool {
+    crate::mech_state::console_active(&b.units[u])
+}
+
+/// Does this spot carry the Spotter Attacking modifiers (p.70: the spotter also attacks; not for TAG, not with a console)?
+fn attacking_penalty(b: &Battle, s: &Spot) -> bool {
+    s.fires && !s.tag && !console_spots_free(b, s.spotter)
+}
+
 /// The +1 a spotter's OWN attacks take this phase (p.70), with the note for the log.
 pub fn own_attack_modifier(b: &Battle, u: UnitId) -> i64 {
     match spot_of(b, u) {
-        Some(s) if s.fires && !s.tag => SPOTTER_ATTACKING_MODIFIER,
+        Some(s) if attacking_penalty(b, s) => SPOTTER_ATTACKING_MODIFIER,
         _ => 0,
     }
 }
@@ -117,7 +129,7 @@ pub fn best_spotter(b: &mut Battle, attacker: UnitId, target: UnitId) -> Option<
         }
         let Some((true, los_modifier)) = sight(b, s.spotter, target) else { continue };
         let amm = crate::combat::mode_to_amm(&b.units[s.spotter].move_mode);
-        let attacking = if s.fires && !s.tag { SPOTTER_ATTACKING_MODIFIER } else { 0 };
+        let attacking = if attacking_penalty(b, &s) { SPOTTER_ATTACKING_MODIFIER } else { 0 };
         let extra = INDIRECT_MODIFIER + amm + attacking;
         if best.as_ref().map_or(true, |x| los_modifier + extra < x.los_modifier + x.extra) {
             let name = b.units[s.spotter].side_name.clone().unwrap_or_default();
@@ -138,21 +150,28 @@ pub fn best_spotter(b: &mut Battle, attacker: UnitId, target: UnitId) -> Option<
 }
 
 /// The Ranged Attack Phase's first step: who spots what this turn. TAG hits (made before the phase) are spots already;
-/// every other unit, in `order`, may declare one (STUB_SPOT for now). `tag_spots` = (TAG designator, its target).
-pub fn declare_spotting(b: &mut Battle, order: &[UnitId]) {
+/// every other unit, in `order`, may declare one: its bot's `choose_spot` (Princess / CASPAR: `princess_spot`, MegaMek's
+/// rule; Gladiator / Hydra: STUB_SPOT).
+pub fn declare_spotting(b: &mut Battle, order: &[UnitId], bot: &mut dyn crate::attack_resolution::RangedBot) {
     let tagged: Vec<Spot> = b.spots.iter().filter(|s| s.tag).cloned().collect();
     b.spots = tagged;
     for &u in order {
         if spot_of(b, u).is_some() || !can_spot(b, u) {
             continue;
         }
-        if let Some((target, fires)) = crate::stubs::stub_spot(b, u) {
+        if let Some((target, fires)) = bot.choose_spot(b, u) {
             let (a_name, t_name) = (b.units[u].side_name.clone().unwrap_or_default(), b.units[target].side_name.clone().unwrap_or_default());
             b.log(format!(
                 "  [Spot] {} spots {} for indirect fire (p.70){}.",
                 a_name,
                 t_name,
-                if fires { format!("; it also fires (+{} to its own attacks and to the indirect fire it spots for)", SPOTTER_ATTACKING_MODIFIER) } else { " and holds its own fire".to_string() }
+                if !fires {
+                    " and holds its own fire".to_string()
+                } else if console_spots_free(b, u) {
+                    "; it also fires (its command console's warrior spots: no Spotter Attacking modifier, p.203)".to_string()
+                } else {
+                    format!("; it also fires (+{} to its own attacks and to the indirect fire it spots for)", SPOTTER_ATTACKING_MODIFIER)
+                }
             ));
             b.spots.push(Spot { spotter: u, target, fires, tag: false });
         }
@@ -202,4 +221,51 @@ pub fn spot_candidates(b: &mut Battle, u: UnitId) -> Vec<(UnitId, usize, i64)> {
         }
     }
     out
+}
+
+/// PRINCESS / CASPAR SPOTTING (backlog N2, Daniel 2026-11-20: "Princess needs its artillery code"; MegaMek
+/// `FireControl.getSpotAction` and `Princess` fire-phase handling, MegaMek main 3f9f2fd). `plan_damage`: the expected damage
+/// of the unit's own firing plan this phase (None: no target / no plan). MegaMek's rule:
+///   * a unit firing for useful damage (>= `MIN_USEFUL_FIRING_DAMAGE`, 1.0) does not spot unless it has a working command
+///     console (whose second warrior spots without the attacking penalty, p.203); with one it spots AND fires;
+///   * otherwise it spots the CLOSEST enemy it can see (a tie: one of them at random, MegaMek `Compute.randomInt`, drawn
+///     from the battle's dice as T16's random draws are) and holds its trivial fire (MegaMek `spotInsteadOfTrivialFire`;
+///     its exception for a shot that switches TSM on is not ported: the engine's TSM runs on heat, not on a shot);
+///   * a unit with no firing plan spots only if it is not unjamming instead (MegaMek: the unjam plan comes first).
+/// MegaMek spots whether or not any friend can fire indirectly at the target; so does this. Its other disqualifiers:
+/// already spotting (the caller skips such a unit), `canSpot` (`can_spot`; sprinting / evading are not in the engine), a
+/// Haywire iNarc pod (not built: G16).
+pub const MIN_USEFUL_FIRING_DAMAGE: f64 = 1.0;
+
+pub fn princess_spot(b: &mut Battle, u: UnitId, plan_damage: Option<f64>) -> Option<(UnitId, bool)> {
+    let useful = plan_damage.is_some_and(|d| d >= MIN_USEFUL_FIRING_DAMAGE);
+    if useful && !console_spots_free(b, u) {
+        return None;
+    }
+    if plan_damage.is_none() && !b.units[u].unjamming.is_empty() {
+        return None;
+    }
+    let me = hex_of(b, u)?;
+    let mut closest: Vec<UnitId> = Vec::new();
+    let mut shortest = i64::MAX;
+    for e in crate::forces::enemies_of(b, u) {
+        if b.units[e].hex.is_none() || b.is_destroyed(e) {
+            continue;
+        }
+        let Some((true, _)) = sight(b, u, e) else { continue };
+        let Some(t) = hex_of(b, e) else { continue };
+        let d = hex_distance(me, t);
+        if d < shortest {
+            shortest = d;
+            closest.clear();
+            closest.push(e);
+        } else if d == shortest {
+            closest.push(e);
+        }
+    }
+    if closest.is_empty() {
+        return None;
+    }
+    let target = if closest.len() > 1 { closest[b.pick_number(closest.len() as i64) as usize - 1] } else { closest[0] };
+    Some((target, useful))
 }

@@ -45,6 +45,10 @@ pub trait BotSet {
     /// T16: the End Phase's heat-equipment review of the Princess-family units (MegaMek BotHeatEquipmentManager); runs before
     /// `end_of_turn`, as BotClient does. Default: nothing (Gladiator / Hydra units are never managed).
     fn manage_heat_equipment(&mut self, _b: &mut Battle) {}
+    /// Spotting for indirect fire at the start of the Ranged Attack Phase: (target, it also fires) or None (spotting.rs).
+    fn choose_spot(&mut self, b: &mut Battle, u: UnitId) -> Option<(UnitId, bool)> {
+        crate::stubs::stub_spot(b, u)
+    }
     fn assign_damage(&mut self, _b: &mut Battle, _attacker: UnitId, _target: UnitId, _dmg: f64) {}
 }
 
@@ -74,6 +78,9 @@ impl RangedBot for RangedAdapter<'_> {
     }
     fn assign_damage(&mut self, b: &mut Battle, attacker: UnitId, target: UnitId, dmg: f64) {
         self.bots.assign_damage(b, attacker, target, dmg);
+    }
+    fn choose_spot(&mut self, b: &mut Battle, u: UnitId) -> Option<(UnitId, bool)> {
+        self.bots.choose_spot(b, u)
     }
 }
 

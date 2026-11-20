@@ -541,7 +541,14 @@ pub fn kind_options(b: &mut Battle, attacker: UnitId, w: ItemId, target: UnitId)
             plans.push(ShotPlan::with_kind("artillery"));
             // distant fire (18+ hexes, lands next turn; p.182): whether to use it is a bot decision (a stub for now)
             let far = crate::forces::distance(b, attacker, target).is_some_and(|d| d >= crate::artillery::DISTANT_MIN);
-            if far && crate::stubs::stub_distant_artillery(b, attacker, target) {
+            // Princess / CASPAR aim by MegaMek's ArtilleryTargetingControl (princess_artillery.rs); Gladiator / Hydra: the stub
+            let offer = if b.units[attacker].is_princess_family() {
+                let dmg = damage_per(b, attacker, w, &ShotPlan::with_kind("distant")).unwrap_or(0);
+                far && crate::princess_artillery::distant_aim(b, attacker, w, target, dmg).is_some()
+            } else {
+                far && crate::stubs::stub_distant_artillery(b, attacker, target)
+            };
+            if offer {
                 plans.push(ShotPlan::with_kind("distant"));
             }
         }

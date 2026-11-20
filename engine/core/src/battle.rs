@@ -166,6 +166,8 @@ pub struct Battle {
     pub pending_artillery: Vec<crate::artillery::PendingStrike>,
     /// split_fire.rs: each attacker's primary target, weapons and heat declared so far this Ranged Attack Phase
     pub split_fire: Vec<crate::split_fire::SplitState>,
+    /// Princess's distant-artillery aims this turn (princess_artillery.rs; a bot's working memory, not saved with a state)
+    pub distant_aims: Vec<crate::princess_artillery::Aim>,
     /// INTEGRATION__los_cache: lines of sight the bots asked about, (from, to, heights) -> answer (None = the line runs
     /// off the board). Speed only: emptied whenever the board changes (`board_changed`).
     /// finished movement tables (`movement_table`); speed only, emptied when the board changes
@@ -240,6 +242,7 @@ impl Battle {
             indirect_pairs: Vec::new(),
             pending_artillery: Vec::new(),
             split_fire: Vec::new(),
+            distant_aims: Vec::new(),
             los_memo: Default::default(),
             table_memo: Default::default(),
         }
