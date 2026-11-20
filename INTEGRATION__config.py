@@ -703,6 +703,13 @@ CLUB_PICKUP = True
 # =============================================================================
 # ==========================  OPTIONAL RULES  =================================
 # =============================================================================
+# Narc homing ammo for the force (Daniel, 2026-11-20; Rust engine only, the Python ignores it): "if a team has Narc or
+# iNarc with homing beacon ammo on its side, all standard LRM and SRM ammo in their force is replaced with Narc homing
+# ammo." True: when the battle starts, every standard LRM / SRM bin of such a team fires Narc-capable missiles (Core
+# pp.188, 193). False: rules as written, each bin as the unit file says. A scenario without the setting plays False.
+# False HERE on purpose: every setting of this file goes into the Python's fixtures, and the frozen Python never applies
+# the rule; the Rust engine's own default (engine/defaults/config.json, the Combat Lab and btsim) is True.
+NARC_HOMING_FOR_FORCE = False
 # Cluster damage pooling (Daniel, 2026-10-20: "all cluster damage of a specific
 # size is added up and then applied. So 2 LRM 20's that both rolled for 12
 # damage would do 5,5,5,5,4"). True: in a Ranged phase, every Cluster hit's

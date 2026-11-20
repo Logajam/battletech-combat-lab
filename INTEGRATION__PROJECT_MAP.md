@@ -100,10 +100,8 @@ In brackets: the item's old "Pick up here" label, under which `INTEGRATION__HIST
 write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numbers).
 
 **N. Daniel's list of 2026-11-20 (in this order unless he says otherwise; decisions in Section 5, same date)**
-- N1. NARC HOMING AMMO RULE (setup option, Daniel's rule): a team that carries a Narc or iNarc launcher with homing-pod
-  ammo has every standard LRM and SRM bin in its force replaced by Narc-capable ammo (Core pp.188, 193: Narc-capable
-  missiles get the pod's bonus). An OPTIONAL RULES switch in `INTEGRATION__config.py` / `engine/defaults/config.json`, the
-  rules-as-written version (bins as the unit file says) kept. Per-bin ammo choice comes later (N3's window).
+- N1. NARC HOMING AMMO RULE: BUILT 2026-11-20 (Change Record), setting `NARC_HOMING_FOR_FORCE` (on in the Lab / btsim). Per-bin
+  ammo choice comes later (N5's window).
 - N2. PRINCESS'S OWN SPOTTING AND ARTILLERY: port MegaMek's `FireControl` spot choice (`getSpotAction`, spot instead of a
   shot under `MIN_USEFUL_FIRING_DAMAGE` 1.0) and `ArtilleryTargetingControl` for Princess / CASPAR. Today every bot goes
   through `stubs::stub_spot` / `stub_distant_artillery`, both "never". Each a `BotSet` method + `bridge.rs` entry; the stubs
@@ -129,6 +127,10 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   counts them. Scoring change: A/B and re-record.
 - N9. CHARGING AFTER A BACKWARD STEP (G12, p.78; Daniel: "accurate rules make for accurate games"): the charge planner
   uses forward-only paths; let it plan a charge whose path has backward steps, counting hexes as the rule says.
+- N10. SPECIAL AMMUNITION (Daniel, 2026-11-20: "the other speciality ammo, like AP or homing artillery"; rules review G16,
+  Core pp.190-194): autocannon armor-piercing / caseless / flak / precision rounds, iNarc ECM / haywire / Nemesis pods,
+  Arrow IV homing / cluster / inferno / smoke / thunder (homing Arrow IV with TAG is partly built: F56). Today such bins
+  fire as standard or are skipped (`ammo::parse_bin`). Chosen per bin in N5's window.
 - LATER / ONLY WITH AN OPTION: Evading movement (TO:AR p.16: +1 to be hit, +2 heat, no attacks; a TacOps rule);
   searchlights (with a night option); Tactical Genius (a special pilot ability, not in the indexed books).
 

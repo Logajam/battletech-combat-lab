@@ -6,6 +6,19 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-20 (Claude), NARC HOMING AMMO FOR THE FORCE (Daniel's rule; backlog N1). REVIEW PENDING (higher-level model).**
+  Daniel: "if a team has Narc or iNarc with homing beacon ammo on its side, all standard LRM and SRM ammo in their force is
+  replaced with Narc homing ammo. Ammo choice can be changed later." `ammo::narc_homing_for_force`, called first thing in
+  `orchestrator::start_battle`: a team (or a side without a team) with a Narc / iNarc homing-pod bin has every bin of standard
+  ammunition for a standard LRM or SRM launcher (IS or Clan; not Streak, Extended, Enhanced, Improved, MML, ATM, Artemis,
+  inferno) switched to Narc-capable missiles (Core pp.188, 193), one log line a bin. Setting `NARC_HOMING_FOR_FORCE`: true in
+  `engine/defaults/config.json` (the Lab, btsim --setup), a Rules switch on the Lab's Options tab (`options.json` regenerated);
+  false in `INTEGRATION__config.py` because its settings go into the Python's fixtures and the frozen Python never applies the
+  rule; a scenario without the setting (every reference battle) plays rules as written, so no reference log changed. Checked:
+  `cov_apollo_narc_ecm` with Blue's Narc-capable SRM bin set back to standard: with the rule the SRM 4 fires with the +2 Narc
+  cluster bonus (195 lines in 10 battles), without it none. LIMIT: in a live MegaMek game (the bridge) MegaMek's bins stay as
+  the unit file says.
+
 - **2026-11-20 (Claude), BV PARSING KEPT APART FROM THE UNITS: cl1_setup AND stage6_attach PASS AGAIN. REVIEW PENDING (higher-level model).**
   The BV work of the same day (commits f671dff, c0dc0ca, b8e5775) changed `mtf_parser.rs` for every unit, so the units the Rust built
   stopped matching the frozen Python's (42 of 63 fixtures in `cl1_setup` and `stage6_attach`): (1) a name not in the table was looked up
