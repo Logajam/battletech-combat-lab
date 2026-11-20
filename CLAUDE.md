@@ -71,8 +71,10 @@ GitHub logistics.
     change meant to alter results) and the MegaMek bridge's parity check
     (`tests/check_bridge_parity.py --quick`) run one after the other
     (`check_rust_reference.py --parity` does both in one run, every battle
-    in full: thorough, but 2.5x slower). `--list` shows the choice and why. **Before a merge: always
-    `--full`** (every Rust and website check). The retired Python runs only
+    in full: thorough, but 2.5x slower). `--list` shows the choice and why. **Before a merge: `--full`**
+    (every Rust and website check) **only if code changed**; a merge of docs, records or
+    task write-ups alone runs nothing (Daniel, 2026-11-20: "only run the suite if the code
+    changed"). The retired Python runs only
     when a Python file changed or with `--python`: run that once a week (the
     first session of the week). All must pass. A new bot call (`BotSet`
     method) must be added to `bridge.rs` too, or the parity check misses it.
