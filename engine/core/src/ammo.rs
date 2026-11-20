@@ -439,14 +439,15 @@ pub fn bin_choices(b: &Battle, u: UnitId, id: ItemId) -> Vec<&'static str> {
     }
     let Some(feeds) = e.feeds.as_deref() else { return Vec::new() };
     let base = e.munition.as_deref().unwrap_or("standard");
-    if !matches!(base, "standard" | "narc" | "inferno" | "homing" | "ap" | "precision" | "caseless") || e.kind.as_deref().is_some_and(|k| !k.is_empty()) {
+    if !matches!(base, "standard" | "narc" | "inferno" | "homing" | "ap" | "precision" | "caseless" | "semiguided") || e.kind.as_deref().is_some_and(|k| !k.is_empty()) {
         return Vec::new();
     }
     if narc_pod_damage(feeds).is_some() {
         return Vec::new();
     }
     if re!(r"^(CL)?LRM ?\d+$").is_match(feeds).unwrap() {
-        return vec!["standard", "narc"];
+        // semi-guided LRMs are Inner Sphere (Core p.193)
+        return if feeds.starts_with("CL") { vec!["standard", "narc"] } else { vec!["standard", "narc", "semiguided"] };
     }
     if re!(r"^(CL)?SRM ?\d+$").is_match(feeds).unwrap() {
         return vec!["standard", "narc", "inferno"];

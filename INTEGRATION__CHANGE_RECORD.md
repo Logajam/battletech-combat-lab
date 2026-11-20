@@ -6,6 +6,15 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-20 (Claude), SEMI-GUIDED LRMs (backlog N10, part). REVIEW PENDING (higher-level model).**
+  Core p.193. An Inner Sphere LRM bin may be loaded with semi-guided missiles (`ammo::bin_choices`; Configure unit). Fired at a
+  target with no TAG designation: -1 on the Cluster Hits Table. At a TAG-designated target, directly: no -1, +2 on the Cluster
+  Hits Table, and the to-hit loses the line's partial cover modifier and up to 2 of the target hex's own terrain modifier
+  (`electronics::control_for`, `semi_guided_relief`). NOT BUILT: semi-guided indirect fire's relief (it fires as plain), the
+  "ignore partial cover" for leg hits (the engine settles cover per attack, not per weapon), whose TAG it is (any TAG
+  designation counts). Checked: a Catapult CPLT-C1 with both bins semi-guided, 5 battles: 70 "semi-guided, no TAG: -1 cluster"
+  lines (no TAG on the field); the TAG branch was not battle-tested. No reference battle changed.
+
 - **2026-11-20 (Claude), AUTOCANNON MUNITIONS: ARMOR-PIERCING, PRECISION, CASELESS (backlog N10, part). REVIEW PENDING (higher-level model).**
   Daniel: "you missed the other speciality ammo, like AP or homing artillery". Core pp.190-192. No unit file in the pack
   carries these rounds, so they come in through the per-bin choice (N5): `ammo::bin_choices` offers armor-piercing,
