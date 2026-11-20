@@ -229,7 +229,14 @@
         <label class="row" for="adv-preset">Saved <select id="adv-preset"><option value="">(none)</option></select></label>
         <button class="btn small" id="adv-save">Save as&hellip;</button><button class="btn small" id="adv-del">Delete</button></div>
       <div class="adv-scroll" id="adv-body"></div>
+      <div class="adv-foot"><button class="btn" id="adv-close2">Close</button></div>
     </div>
+  </div>
+
+  <!-- CRITICAL SLOT SURVIVAL (Daniel, 2026-11-20): one unit's critical diagram, each slot shaded by how often it was still working at the end -->
+  <div class="dialog critmap" id="critmap" role="dialog" aria-labelledby="critmap-title-text" hidden>
+    <div class="titlebar" id="critmap-title"><span class="box" aria-hidden="true"></span><span class="name" id="critmap-title-text">Critical slots</span><button class="closebox" id="critmap-close" aria-label="Close">&times;</button></div>
+    <div class="dialog-body"><div class="adv-scroll" id="critmap-body"></div><div class="adv-foot"><button class="btn" id="critmap-close2">Close</button></div></div>
   </div>
 
   <!-- ABOUT: credits and licences (CREDITS.md has them in full) -->

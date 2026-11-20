@@ -102,6 +102,11 @@ pub struct Tally {
     pub weapons: Vec<IndexMap<String, [f64; 5]>>,
     pub kills: Vec<i64>,
     pub alive: Vec<i64>,
+    /// Movement and spacing, per unit (Daniel, 2026-11-20; statistics only, never read by the rules):
+    /// [hexes moved, turns moved, distance to nearest enemy, turns sampled, distance to its target, turns it had a target,
+    ///  mean distance to its allies, turns it had a living ally on the board]. Moved = the straight-line hexes between where the
+    /// unit's Movement Phase began and ended; the other distances are taken when the Movement Phase is over.
+    pub track: Vec<[f64; 8]>,
 }
 
 impl Tally {
@@ -110,6 +115,7 @@ impl Tally {
             self.weapons.resize_with(n, Default::default);
             self.kills.resize(n, 0);
             self.alive.resize(n, 0);
+            self.track.resize(n, [0.0; 8]);
         }
     }
 }

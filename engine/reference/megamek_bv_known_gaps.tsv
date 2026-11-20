@@ -1,0 +1,4 @@
+# Units whose BV still differs from MegaMek 0.51.01.7 (2026-11-20): path, ours, MegaMek. The check fails on any unit NOT listed here
+# (a new gap) and prints the ones that now match (remove them from this file).
+# Uni ATAE-70 ArtilleryMech: an illegal design (Daniel: it really has ONE Thumper; MegaMek reads two from the file).
+XTRs/Caveat Emptor/Uni ATAE-70 ArtilleryMech.mtf	822	865

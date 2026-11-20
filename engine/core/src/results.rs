@@ -22,8 +22,14 @@ pub struct SideStats {
     pub final_armor: f64,
     pub max_structure: f64,
     pub final_structure: f64,
-    /// location -> [armor now, armor at the start, structure now, structure at the start]
-    pub locations: IndexMap<String, [f64; 4]>,
+    /// location -> [front armor now, front armor at the start, structure now, structure at the start, rear armor now, rear armor at the
+    /// start] (front and rear kept apart, Daniel 2026-11-20; a location with no rear armor has 0 there)
+    pub locations: IndexMap<String, [f64; 6]>,
+    /// movement and spacing over the battle (Battle.tally.track, same order)
+    pub track: [f64; 8],
+    /// location -> every critical slot's name, and (at the end) whether it was still working: crit_names[loc][i], crit_alive[loc][i]
+    pub crit_names: IndexMap<String, Vec<String>>,
+    pub crit_alive: IndexMap<String, Vec<bool>>,
     pub kills: i64,
     /// the turns this unit was standing when a turn began
     pub turns_alive: i64,

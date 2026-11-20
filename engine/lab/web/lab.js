@@ -357,7 +357,7 @@ function wireColumnGrips() {
 // A docked team window is also resized sideways by its own inner edge, the side facing the Unit Browser (Daniel,
 // 2026-11-19: "resizing the windows not adjust the columns"). The windows of a column stack in it, so they share its
 // width: the edge drags the column, as the grip does (kept in the layout; double-click the edge or Reset layout clears it).
-const EDGE = 8;
+const EDGE = 10;
 function sideOf(el) { return el.closest("#teams-left") ? "deskL" : el.closest("#teams-right") ? "deskR" : null; }
 function onInnerEdge(el, e) {
   const side = sideOf(el), r = el.getBoundingClientRect(), x = e.clientX;
@@ -698,6 +698,9 @@ function wireBrowserWindow() {
   wireDialogMove($("adv"), $("adv-title"));
   $("ub-adv-btn").addEventListener("click", () => { $("adv").hidden = !$("adv").hidden; });
   $("adv-close").addEventListener("click", () => { $("adv").hidden = true; });
+  $("adv-close2").addEventListener("click", () => { $("adv").hidden = true; });
+  wireDialogMove($("critmap"), $("critmap-title"));
+  for (const id of ["critmap-close", "critmap-close2"]) $(id).addEventListener("click", () => { $("critmap").hidden = true; });
   $("ub-name").addEventListener("input", drawBrowser);
   $("ub-class").addEventListener("change", drawBrowser);
   $("adv-clear").addEventListener("click", () => { adv = ADV_EMPTY(); store(ADV_KEY, adv); buildAdvanced(); drawBrowser(); });
@@ -741,13 +744,17 @@ function optionRow(o) {
   let control;
   if (o.kind === "bool") control = `<input type="checkbox" id="${id}" ${val ? "checked" : ""} ${o.active ? "" : "disabled"}>`;
   else if (o.kind === "int" || o.kind === "number") control = `<input type="number" id="${id}" step="${o.kind === "int" ? 1 : "any"}" value="${val}" ${o.active ? "" : "disabled"}>`;
-  else control = `<input type="text" id="${id}" value="${esc(o.kind === "json" ? JSON.stringify(val) : val ?? "")}" ${o.active ? "" : "disabled"} ${o.default === null ? "placeholder=\"set in the engine\"" : ""}>`;
+  else if (o.choices) {          // a few known words: a menu, never a typed guess (Daniel, 2026-11-20)
+    const cur = JSON.stringify(val ?? null);
+    const known = o.choices.some((c) => JSON.stringify(c[0]) === cur);
+    control = `<select id="${id}" ${o.active ? "" : "disabled"}>${known ? "" : `<option value="${esc(cur)}" selected>${esc(String(val))} (not in the list)</option>`}${o.choices.map((c) => `<option value="${esc(JSON.stringify(c[0]))}"${JSON.stringify(c[0]) === cur ? " selected" : ""}>${esc(c[1])}</option>`).join("")}</select>`;
+  } else control = `<input type="text" id="${id}" value="${esc(o.kind === "json" ? JSON.stringify(val) : val ?? "")}" ${o.active ? "" : "disabled"} ${o.default === null ? "placeholder=\"set in the engine\"" : ""}>`;
   row.innerHTML = `<div class="opt-main"><label for="${id}" title="${esc(o.key)}">${esc(o.label)}</label>${control}
       ${o.active ? "" : `<span class="tag off">not active yet</span>`}<span class="tag chg" ${o.key in lab.options ? "" : "hidden"}>changed</span>
       <button class="btn small" data-reset ${o.key in lab.options ? "" : "hidden"} title="Back to ${esc(JSON.stringify(o.default))}">Reset</button></div>
     ${o.short ? `<p class="note desc" title="${esc(o.text)}">${esc(o.short)}</p>` : ""}`;
   if (!o.active) return row;
-  const input = row.querySelector("input");
+  const input = row.querySelector("input, select");
   const changed = () => {
     const on = o.key in lab.options;
     row.classList.toggle("changed", on);
@@ -759,6 +766,7 @@ function optionRow(o) {
     if (o.kind === "bool") v = input.checked;
     else if (o.kind === "int" || o.kind === "number") { v = o.kind === "int" ? Math.round(+input.value) : +input.value; if (input.value === "" || Number.isNaN(v)) { input.classList.add("bad"); return; } }
     else if (o.kind === "json") { try { v = JSON.parse(input.value); } catch (e) { input.classList.add("bad"); setStatus(`${o.label}: that is not valid JSON`); return; } }
+    else if (o.choices) v = JSON.parse(input.value);
     else v = input.value;
     input.classList.remove("bad");
     if (JSON.stringify(v) === JSON.stringify(o.default)) delete lab.options[o.key]; else lab.options[o.key] = v;
@@ -766,7 +774,7 @@ function optionRow(o) {
   });
   row.querySelector("[data-reset]").addEventListener("click", () => {
     delete lab.options[o.key];
-    if (o.kind === "bool") input.checked = !!o.default; else input.value = o.kind === "json" ? JSON.stringify(o.default) : o.default;
+    if (o.kind === "bool") input.checked = !!o.default; else input.value = o.choices ? JSON.stringify(o.default ?? null) : o.kind === "json" ? JSON.stringify(o.default) : o.default;
     input.classList.remove("bad"); changed();
   });
   if (o.key in lab.options) row.classList.add("changed");
@@ -1189,7 +1197,9 @@ async function runBatch() {
   lab.poll = setInterval(async () => {
     const p = await api("progress", { run: lab.run });
     $("bar").style.width = pct(p.done / p.battles);
-    $("progress-text").textContent = `${p.done} / ${p.battles} battles, ${fmtSecs(p.seconds)}, seed ${lab.runSetup.seed}${p.cancelled ? " (cancelled)" : ""}`;
+    // ETA countdown (Daniel, 2026-11-20): the time so far per finished battle, times the battles still to play
+    const eta = !p.finished && !p.cancelled && p.done > 0 && p.seconds > 0 ? ` &middot; ETA ${fmtSecs(p.seconds / p.done * (p.battles - p.done))}` : "";
+    $("progress-text").innerHTML = `${p.done} / ${p.battles} battles, ${fmtSecs(p.seconds)}${eta}, seed ${esc(String(lab.runSetup.seed))}${p.cancelled ? " (cancelled)" : ""}`;
     $("cancel-btn").disabled = p.finished;
     $("cancel-btn-2").hidden = p.finished;
     setStatus(p.finished ? "Batch finished" : "Running...", `${p.done} / ${p.battles}`);
@@ -1320,16 +1330,39 @@ async function loadUnitStats() {
         <summary>${esc(u.name)} <span class="note">survived ${pct(u.survived / n)} &middot; armor left ${p(u.armor_left, u.armor_max)} &middot; structure left ${p(u.structure_left, u.structure_max)} &middot; ${u.kills.toFixed(2)} kills</span></summary>
         <div class="ustat">
           <table class="leaves"><thead><tr><th>How it ended (share of battles)</th><th class="num">%</th></tr></thead><tbody>${rows.map(([c, k], i) => `<tr class="cause-row" data-unit="${esc(label)}" data-cause="${i === 0 ? "" : esc(c)}" title="Show the battles where it ${i === 0 ? "survived" : "ended this way"}"><td><a href="#">${esc(c)}</a></td><td class="num">${pct(k / n)}</td></tr>`).join("")}</tbody></table>
-          <table class="leaves"><thead><tr><th>Location</th><th class="num">Armor left (avg)</th><th class="num">%</th><th class="num">Structure left (avg)</th><th class="num">%</th></tr></thead><tbody>
-            ${Object.entries(u.locations).map(([loc, v]) => `<tr><td>${esc(loc)}</td><td class="num">${f1(v.armor)} / ${f1(v.armor_max)}</td><td class="num">${p(v.armor, v.armor_max)}</td><td class="num">${f1(v.structure)} / ${f1(v.structure_max)}</td><td class="num">${p(v.structure, v.structure_max)}</td></tr>`).join("")}
-            <tr><td><b>Whole unit</b></td><td class="num">${f1(u.armor_left)} / ${f1(u.armor_max)}</td><td class="num">${p(u.armor_left, u.armor_max)}</td><td class="num">${f1(u.structure_left)} / ${f1(u.structure_max)}</td><td class="num">${p(u.structure_left, u.structure_max)}</td></tr></tbody></table>
+          <table class="leaves wide"><thead><tr><th>Location</th><th class="num">Front armor left (avg)</th><th class="num">%</th><th class="num">Rear armor left (avg)</th><th class="num">%</th><th class="num">Structure left (avg)</th><th class="num">%</th></tr></thead><tbody>
+            ${Object.entries(u.locations).map(([loc, v]) => `<tr><td>${esc(loc)}</td><td class="num">${f1(v.armor)} / ${f1(v.armor_max)}</td><td class="num">${p(v.armor, v.armor_max)}</td>${v.rear_max > 0 ? `<td class="num">${f1(v.rear)} / ${f1(v.rear_max)}</td><td class="num">${p(v.rear, v.rear_max)}</td>` : `<td class="num">-</td><td class="num"></td>`}<td class="num">${f1(v.structure)} / ${f1(v.structure_max)}</td><td class="num">${p(v.structure, v.structure_max)}</td></tr>`).join("")}
+            <tr><td><b>Whole unit</b></td>${(() => { const L = Object.values(u.locations), sum = (k) => L.reduce((t, v) => t + (v[k] || 0), 0); return `<td class="num">${f1(sum("armor"))} / ${f1(sum("armor_max"))}</td><td class="num">${p(sum("armor"), sum("armor_max"))}</td><td class="num">${f1(sum("rear"))} / ${f1(sum("rear_max"))}</td><td class="num">${p(sum("rear"), sum("rear_max"))}</td>`; })()}<td class="num">${f1(u.structure_left)} / ${f1(u.structure_max)}</td><td class="num">${p(u.structure_left, u.structure_max)}</td></tr></tbody></table>
+          <table class="leaves"><thead><tr><th>Movement and spacing (per turn standing)</th><th class="num">Average</th></tr></thead><tbody>
+            ${[["Hexes moved", "hexes_moved", "Straight-line hexes from where its move began to where it ended"], ["Distance to nearest opponent", "nearest_enemy", "Hexes, once every unit has moved"], ["Distance to its target", "target", "Hexes, to the unit it fired on (turns it fired on someone)"], ["Distance to its allies", "allies", "Hexes: the mean over its living allies (turns it had any)"]].map(([lab_, k, tip]) => `<tr title="${esc(tip)}"><td>${lab_}</td><td class="num">${u.track && u.track[k] != null ? u.track[k].toFixed(2) : "n/a"}</td></tr>`).join("")}</tbody></table>
+          <p><button class="btn small" data-crit="${esc(label)}" title="Show every critical slot, shaded by how often it was still working">&#128065; Critical slot survival&hellip;</button></p>
           <table class="leaves"><thead><tr><th>Weapon</th><th class="num">Shots a battle</th><th class="num">Accuracy</th><th class="num">Damage a turn</th><th class="num" title="Share of its turns standing in which the weapon fired">Used</th></tr></thead><tbody>
             ${Object.entries(u.weapons).map(([w, v]) => `<tr><td>${esc(weaponLabel(w))}</td><td class="num">${f1(v.fired_per_battle)}</td><td class="num">${pct(v.accuracy)}</td><td class="num">${v.damage_per_turn.toFixed(2)}</td><td class="num">${pct(v.utilization)}</td></tr>`).join("") || `<tr><td colspan="5" class="note">No weapons.</td></tr>`}</tbody></table>
           <p class="note">Standing ${u.turns_alive.toFixed(1)} turns a battle on average. Damage a turn = damage dealt by that weapon over every turn the unit stood.</p>
         </div></details>`;
     }).join("")}</details>`).join("");
   $("unit-stats").innerHTML = html;
+  lab.unitStats = res.unit_stats;
+  $("unit-stats").querySelectorAll("[data-crit]").forEach((btn) => btn.addEventListener("click", () => showCritMap(btn.dataset.crit)));
   $("unit-stats").querySelectorAll(".cause-row").forEach((tr) => tr.addEventListener("click", (e) => { e.preventDefault(); filterByCause(tr.dataset.unit, tr.dataset.cause); }));
+}
+
+// The critical slot diagram of one unit (Daniel, 2026-11-20: "an eye button and a critical diagram pop up for each unit"): the unit
+// sheet's grid, but every slot shows the share of the battles in which it was still working at the end. A location lost takes its
+// slots with it, so a torso that is often destroyed shows red all down its column.
+function showCritMap(label) {
+  let u = null;
+  for (const units of Object.values(lab.unitStats || {})) if (units[label]) u = units[label];
+  if (!u) return;
+  const shade = (s) => `hsl(${Math.round(120 * s)}, 55%, ${s > 0.5 ? 82 : 78}%)`;
+  const grid = Object.entries(u.crits || {}).map(([loc, c]) => {
+    const slots = c.names.map((nm, i) => { const s = c.survival[i] ?? 0; if (/^-?empty-?$/i.test(nm.trim())) return `<div class="crit-slot empty">(empty)</div>`; return `<div class="crit-slot surv" style="background:${shade(s)}" title="${esc(nm)}: working at the end in ${pct(s)} of the battles"><span>${esc(pretty(nm))}</span><b>${Math.round(s * 100)}%</b></div>`; }).join("");
+    const pos = SHEET_POS[loc] || [3, 3];
+    return `<div class="crit-loc" style="grid-row:${pos[0]};grid-column:${pos[1]}"><h4><span>${esc(loc)}</span></h4>${slots}</div>`;
+  }).join("");
+  $("critmap-title-text").textContent = `Critical slot survival: ${u.name} (${u.battles} battles)`;
+  $("critmap-body").innerHTML = `<p class="note">Each slot: the share of battles it was still working when the battle ended (empty slots are not listed as parts; a lost location loses all its slots).</p><div class="crit-grid">${grid}</div>`;
+  $("critmap").hidden = false;
 }
 
 // A click on a "How it ended" row (Daniel, 2026-11-17): the battle list and statistics show only the battles where that unit

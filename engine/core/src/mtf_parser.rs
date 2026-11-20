@@ -164,7 +164,12 @@ pub fn is_armored(raw_name: &str) -> bool {
     raw_name.to_uppercase().contains("(ARMORED)")
 }
 
-const VARIABLE_SIZE_FRAGMENTS: [&str; 9] = ["HATCHET", "SWORD", "MACE", "LANCE", "CLAW", "RETRACTABLEBLADE", "VIBROBLADE", "SHIELD", "TALONS"];
+// CHAINSAW .. HYPERLASER added 2026-11-20 (BV check against MegaMek): the equipment table gave these 1 slot but they fill 2-7, so every line
+// of one became its own item and the BV counted it that many times (the table's slot counts of the weapons that split across locations,
+// like the Long Tom, were corrected instead, so that join_split_items can put their parts together)
+const VARIABLE_SIZE_FRAGMENTS: [&str; 19] = ["HATCHET", "SWORD", "MACE", "LANCE", "CLAW", "RETRACTABLEBLADE", "VIBROBLADE", "SHIELD",
+    "CHAINSAW", "DUALSAW", "ROCKCUTTER", "COMBINE", "BUZZSAW", "BEAGLEACTIVEPROBE", "BLOODHOUNDACTIVEPROBE",
+    "NULLSIGNATURE", "VOIDSIGNATURE", "CHAMELEON", "HYPERLASER"];
 
 fn variable_size(canonical_name: &str) -> bool {
     let n = canonical_name.replace(' ', "").replace('-', "").to_uppercase();
@@ -262,6 +267,13 @@ fn combinations(items: &[ItemId], k: usize) -> Vec<Vec<ItemId>> {
     }
 }
 
+thread_local! {
+    /// "IS" or "CL": the unit's tech base while its slots are read, for generic weapon names ("ER Small Laser") that the table lists
+    /// only with a prefix. MegaMek reads such a name in the unit's own tech base (Daniel, 2026-11-20: "the weapons should match the tech
+    /// base unless noted"). Set by parse_mtf.
+    static TECH_PREFIX: std::cell::Cell<&'static str> = const { std::cell::Cell::new("") };
+}
+
 /// Builds one location's crit list from its raw .mtf lines; new Equipment goes into `items`.
 pub fn build_crit_list(
     db: &EquipmentDb,
@@ -323,10 +335,26 @@ pub fn build_crit_list(
             continue;
         }
 
-        if let Some(entry) = db.lookup_equipment(&base_name) {
+        let tp = TECH_PREFIX.with(|c| c.get());
+        let found = db.lookup_equipment(&base_name).or_else(|| if tp.is_empty() { None } else { db.lookup_equipment(&format!("{}{}", tp, base_name)) });
+        if let Some(entry) = found {
             let mut slots_needed = entry.slots();
             if superheavy {
                 slots_needed = -((-slots_needed).div_euclid(2)); // -(-slots // 2): half, rounded up
+            }
+            // a PROTOTYPE weapon fills more slots than the ordinary weapon its table row stands for (a prototype Gauss rifle 8, not 7):
+            // the extra slots (MegaMek's sizes), so a leftover line is not taken for a second weapon
+            if base_name.to_uppercase().contains("PROTOTYPE") {
+                let key = entry.canonical_name().replace(' ', "").to_lowercase();
+                let extra = match key.as_str() {
+                    "isgaussrifle" | "isultraac5" | "islbxac10" | "clstreaksrm4" | "isarrowiv" => 1,
+                    "clultraac2" | "cllbxac2" | "cllbxac5" => 2,
+                    "cllbxac20" | "clultraac20" => 3,
+                    "clultraac10" => 4,
+                    "improvedjumpjet" => -1, // the prototype improved jump jet fills 1 slot, the ordinary improved one 2
+                    _ => 0,
+                };
+                slots_needed += extra;
             }
             if variable_size(entry.canonical_name()) {
                 slots_needed = 1;
@@ -572,6 +600,7 @@ pub fn parse_mtf(db: &EquipmentDb, text: &str, out: &mut String) -> Result<Mech,
     let mut tech_base_line = String::new();
     let mut myomer_line = "Standard".to_string();
     let (mut walk_mp, mut jump_mp): (Option<i64>, Option<i64>) = (None, None);
+    let mut risc_kit = false;
     let (mut heat_sink_count, mut heat_sink_type): (Option<i64>, Option<String>) = (None, None);
     let mut front_armor: crate::fasthash::IndexMap<String, i64> = crate::fasthash::IndexMap::default();
     let mut rear_armor: crate::fasthash::IndexMap<String, i64> = crate::fasthash::IndexMap::default();
@@ -629,6 +658,8 @@ pub fn parse_mtf(db: &EquipmentDb, text: &str, out: &mut String) -> Result<Mech,
                 if let Ok(v) = py_int(value) {
                     jump_mp = Some(v);
                 }
+            } else if key == "heat sink kit" {
+                risc_kit = value.to_uppercase().contains("RISC");
             } else if key == "heat sinks" {
                 let parts = split_ws_once(value);
                 if !parts.is_empty() {
@@ -711,7 +742,7 @@ pub fn parse_mtf(db: &EquipmentDb, text: &str, out: &mut String) -> Result<Mech,
     mech.structure_type = structure_type;
     mech.is_industrial = Some(structure_text.clone().unwrap_or_default().to_uppercase().contains("INDUSTRIAL"));
     mech.structure_desc = Some(structure_text.clone().unwrap_or_default());
-    mech.tech_base = Some(tech_base_line);
+    mech.tech_base = Some(tech_base_line.clone());
 
     let walk_mp = match walk_mp {
         Some(w) => w,
@@ -731,6 +762,7 @@ pub fn parse_mtf(db: &EquipmentDb, text: &str, out: &mut String) -> Result<Mech,
             0
         }
     };
+    mech.risc_heat_sink_kit = risc_kit;
     mech.base_heat_sinks = heat_sink_count;
     mech.heat_sink_type = match heat_sink_type {
         Some(t) if !t.is_empty() => t,
@@ -757,6 +789,7 @@ pub fn parse_mtf(db: &EquipmentDb, text: &str, out: &mut String) -> Result<Mech,
     let mut special_rules_seen: BTreeSet<(String, Option<String>)> = BTreeSet::new();
     for loc in &loc_names {
         if let Some(lines) = location_lines.get(loc) {
+            TECH_PREFIX.with(|c| c.set(if tech_base_line.to_uppercase().starts_with("CLAN") || tech_base_line.to_uppercase().contains("MIXED (CLAN") { "CL" } else { "IS" }));
             let slots = build_crit_list(db, lines, &mut special_rules_seen, mass >= SUPERHEAVY_MIN_TONS, &mut mech.items, out);
             for (idx, (raw, slot)) in lines.iter().zip(slots.iter()).enumerate() {
                 let is_ammo = matches!(slot, Slot::Item(id) if mech.items[*id].category.as_deref() == Some("ammo"));

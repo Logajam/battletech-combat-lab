@@ -1520,6 +1520,12 @@ pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBo
     for &attacker in order {
         let Some(target) = bot.target_of(b, attacker) else { continue };
         pairs.push((attacker, target));
+        // statistics only: how far the attacker is from the unit it declared on
+        if let Some(d) = crate::forces::distance(b, attacker, target) {
+            b.tally.fit(b.units.len());
+            b.tally.track[attacker][4] += d as f64;
+            b.tally.track[attacker][5] += 1.0;
+        }
         let mut rep = std::mem::take(&mut reports[idx(attacker)]);
         declare_attacks(b, attacker, target, &mut rep, bot);
         let fired = !rep.attacks_list.is_empty();

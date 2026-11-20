@@ -310,7 +310,10 @@ fn battle_line(sim: u64, seed: u64, r: &BattleResult, seconds: f64, variant: &Va
     // each unit: destroyed or not, and how (what the results filter asks about)
     let units: serde_json::Map<String, Value> = r.units.iter().map(|(k, s)| (k.clone(), json!({"name": s.name, "destroyed": s.destroyed, "cause": s.cause_of_death,
         "armor": [s.final_armor, s.max_armor], "structure": [s.final_structure, s.max_structure], "kills": s.kills, "alive": s.turns_alive,
-        "locs": s.locations, "weapons": s.weapons}))).collect();
+        "locs": s.locations, "weapons": s.weapons, "track": s.track,
+        // every critical slot: its name, and 1 / 0 for working / lost at the end (one text per location, the slot order of the unit file)
+        "crits": s.crit_names.iter().map(|(l, n)| (l.clone(), json!({"names": n.join("|"),
+            "alive": s.crit_alive.get(l).map(|a| a.iter().map(|x| if *x { '1' } else { '0' }).collect::<String>()).unwrap_or_default()}))).collect::<serde_json::Map<String, Value>>()}))).collect();
     json!({"sim": sim, "seed": seed.to_string(), "winner": r.winner, "turns": r.turns_taken, "seconds": seconds, "capped": r.turn_cap.is_some_and(|c| r.turns_taken >= c && r.winner == "Draw"), "teams": teams, "units": units, "board": variant["board"], "zones": variant["zones"]})
 }
 
@@ -555,7 +558,23 @@ impl Run {
             let loc_names: Vec<String> = rows.first().and_then(|r| r["locs"].as_object()).map(|o| o.keys().cloned().collect()).unwrap_or_default();
             for loc in &loc_names {
                 let m = |i: usize| rows.iter().map(|r| r["locs"][loc][i].as_f64().unwrap_or(0.0)).sum::<f64>() / n;
-                locs.insert(loc.clone(), json!({"armor": m(0), "armor_max": m(1), "structure": m(2), "structure_max": m(3)}));
+                // armor = FRONT armor; rear apart (Daniel, 2026-11-20); rows from older run files have no rear (0)
+                locs.insert(loc.clone(), json!({"armor": m(0), "armor_max": m(1), "structure": m(2), "structure_max": m(3), "rear": m(4), "rear_max": m(5)}));
+            }
+            // movement and spacing: the mean per turn it counted over (a ratio of sums, so a unit that died early is not diluted)
+            let tr = |i: usize| rows.iter().map(|r| r["track"][i].as_f64().unwrap_or(0.0)).sum::<f64>();
+            let per = |sum: f64, k: f64| if k > 0.0 { json!(sum / k) } else { Value::Null };
+            let track = json!({"hexes_moved": per(tr(0), tr(1)), "nearest_enemy": per(tr(2), tr(3)), "target": per(tr(4), tr(5)), "allies": per(tr(6), tr(7))});
+            // critical slots: the share of battles each slot was still working at the end
+            let mut crits = serde_json::Map::new();
+            if let Some(first) = rows.first().and_then(|r| r["crits"].as_object()) {
+                for (loc, v) in first {
+                    let names = v["names"].as_str().unwrap_or("");
+                    let alive: Vec<f64> = (0..names.split('|').count()).map(|i| {
+                        rows.iter().map(|r| if r["crits"][loc]["alive"].as_str().and_then(|a| a.as_bytes().get(i)) == Some(&b'1') { 1.0 } else { 0.0 }).sum::<f64>() / n
+                    }).collect();
+                    crits.insert(loc.clone(), json!({"names": names.split('|').collect::<Vec<_>>(), "survival": alive}));
+                }
             }
             let alive: f64 = rows.iter().map(|r| get(r, &["alive"])).sum();
             let mut weapons = serde_json::Map::new();
@@ -572,7 +591,7 @@ impl Run {
             let entry = out.entry(team).or_insert_with(|| json!({}));
             entry[&label] = json!({"name": rows.first().map_or(Value::Null, |r| r["name"].clone()), "battles": rows.len(), "survived": rows.len() - destroyed,
                 "causes": causes, "armor_left": a, "armor_max": am, "structure_left": s, "structure_max": sm, "kills": rows.iter().map(|r| get(r, &["kills"])).sum::<f64>() / n,
-                "turns_alive": alive / n, "locations": locs, "weapons": weapons});
+                "turns_alive": alive / n, "locations": locs, "weapons": weapons, "track": track, "crits": crits});
         }
         Value::Object(out)
     }

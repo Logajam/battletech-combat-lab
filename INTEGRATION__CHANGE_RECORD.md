@@ -6,6 +6,73 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-20 (Claude, session 31), BATTLE VALUE MADE TO MATCH MEGAMEK: 27% OF UNITS WRONG BEFORE, 1.7% AFTER. REVIEW PENDING (higher-level model).**
+  Daniel: Mad Cat Mk IV A 2404, Archer C 2 2023, Shadow Cat T 1590 "do not match the results megamek gives". Method: unpacked MegaMek
+  0.51.01.7 (an unchanged release, megamek_bridge/README.md), loaded every unit of data/meks.zip with its `MekFileParser` and took the BV and
+  the calculation report from its `BVCalculator` (4,227 units); compared with the Lab's list. 1,134 units differed. The table is kept in
+  `engine/reference/megamek_bv.tsv`; `tests/check_bv_megamek.py` (in run_checks) compares our BV with it and fails on a unit not in
+  `megamek_bv_known_gaps.tsv` (71 left). The three units now give 2413, 2167, 1852 (MegaMek's). CAUSES FIXED (Rust `battle_value.rs`,
+  `mtf_parser.rs`; the frozen Python is NOT changed and still has them): Armored Components (+5% per slot, gyro, system slots); Clan
+  inherent CASE also for IS structure (the old test needed Clan structure); MASC / Supercharger count in the run MP (x2, both x2.5); shields
+  take walk MP (and jump); Endo-Composite wrongly halved the structure; Commercial armor BAR 0.5; Blue Shield (armor, structure, per-location
+  deductions); modular armor +10 a slot; Superheavy gyro read as Heavy-Duty; PPC capacitors: table names ("PPC", "Light PPC", "ISSNPPC") never
+  matched so the capacitor BV was 0, and a capacitor and its PPC are explosive (-1, -2); MG arrays summed only standard MGs; the Null / Void
+  Signature, Chameleon, Improved Jump Jet and Targeting Computer tests missed because canonical names carry spaces; Improved Heavy
+  lasers, Rail Gun, RISC Hyper Laser, Fluid Gun ammo, fuel tanks explosive in MegaMek but not in our table (BV only: 12 names in
+  `EXPLOSIVE_PER_MEGAMEK`); Magshot ammo not explosive; prototype and primitive weapons priced apart from the ordinary one
+  (`PROTOTYPE_BV`, 17 rows); partial wing MP not counted in jump heat; radical heat sinks (+40% of sinks); Drone Operating System
+  weapons x0.8; vibroblades priced with the weapons (heat 7 / 5 / 3). PARSING (changes play too): the equipment table gave multi-slot items
+  1 slot, so each line became its own item and the BV counted them many times: Beagle / Bloodhound probes, chainsaw, dual saw, rock cutter,
+  combine, buzzsaw, Null / Void Signature, Chameleon, RISC Hyper Laser are read as one item per run of lines; `mechsim/equipment.json`
+  slots corrected for Long Tom (30, split across locations), Rail Gun, KinHER PPC, RISC Hyper Laser, Centurion, C3 remote sensor launcher,
+  Clan Advanced SRMs, Improved AC/10; prototype weapons take MegaMek's extra slots; alias "PPCp" added. NOTE the shared JSON also
+  changes the Python's reading of those items. `combatlab`'s cached unit list is rebuilt when the BV version in its signature changes
+  (it showed stale BVs after a fix). `BV_TRACE=1|2` prints the calculation to stderr. Princess weights units by BV, so one reference log
+  (`team_4v4_princess_v_princess`) changed and was updated (`check_rust_reference.py --update`); the other 90 are identical. STILL DIFFERENT
+  (71, `megamek_bv_known_gaps.tsv`): RISC equipment, construction / industrial / mining 'Mechs, prototype rocket launchers, a second
+  Thumper, MG array capacity (3 light MGs an array), Ram Plate, some heat-sink header oddities (Kraken-XR). TO CHECK for combat: the
+  equipment table's `explosive` flag and slot counts differ from MegaMek in a few dozen items (list in this entry's method). Look at: the
+  ordering of the weapon heat sort with vibroblades, and whether widening "one item per run of lines" ever merges two real weapons.
+  SECOND PASS (same day, Daniel: "the code based rules for those missing items should be in megamek's github"): each remaining cause
+  was read from MegaMek's source (BVCalculator, MekBVCalculator, MiscType.getBV, Mek / BipedMek, MekFileParser.linkMGAs) and built: Ram
+  Plate (+1 charge damage per torso with Spikes), Backhoe and Wrecking Ball (new table rows, BV 8), EW Equipment (BV 39, ECM + BAP) and the
+  bridge layers (new BV rows, slot counts 4 / 2 / 4 / 12), Mining Drill 4, Heavy-Duty Pile Driver 8, Ram Plate 3, Talons 4 (split across the
+  legs) and HarJel III 2 slots in the table, machine-gun arrays link the guns in the slots after them (up to 4: `linkMGAs`), a "Triple-
+  Strength" myomer line counts as TSM (not "Industrial"), jump MP counts the jump jets in the slots (+ the partial wing's 1 / 2) not the
+  header, hardened armor cuts MP only on a leg, the RISC heat sink override kit (header line) x1.01, an "Industrial Cockpit (AFC)" still
+  takes the x0.9 (as MegaMek does). Result: 12 of 4,204 units differ (0.3%): Great Turtle (armored parts), Mad Cat U (torpedo ammo),
+  Sarath, Hunchback Shakir (prototype pulse laser heat), UrbanKnight, Uni ATAE-70 (second Thumper), Kraken-XR (laser sink header), Atlas
+  Jurn, Orion ON1-H (primitive), Hornet (ER small laser name), Tessen, Super Griffin (prototype improved jump jets). All 63 checks pass; the
+  91 reference battles did not change this time.
+  THIRD PASS (same day; Daniel went through the last ones: "all of these can be solved by looking at the code megamek uses"): armored PPC
+  with capacitor priced with it for one slot more (Great Turtle); the torpedo ammo name alias (Mad Cat U); laser / prototype double heat
+  sinks in the slots are real sinks of their own kind, the header's count is what is left over (Kraken-XR 4 laser = 20, Super Griffin 5
+  prototype doubles); a generic weapon name is read in the unit's tech base (Hornet's "ER Small Laser" is the IS one); prototype improved
+  jump jets: one slot each, explosive, jump heat 2 x MP min 6 (MegaMek JUMP_PROTOTYPE_IMPROVED); the four IS prototype lasers' +3 / +3 / +3 /
+  +2 heat adjustment; primitive AC/10 and Long Tom ammo BV; a Chain Drape takes a walking MP; one set of talons however many feet;
+  HVAC cannons and the RISC laser pulse module explosive (-1). RESULT: 1 unit of 4,204 differs from MegaMek: Uni ATAE-70 (an illegal
+  design: it has ONE Thumper, MegaMek reads two from the file; kept on the known-gaps list). All 63 checks pass.
+- **2026-11-20 (Claude, session 31), COMBAT LAB TWEAKS: DROP-DOWN OPTIONS, ETA, CLOSE BUTTON, WINDOW GRIPS, UNIT STATISTICS (FRONT / REAR ARMOR, MOVEMENT, DISTANCES, CRITICAL SLOT SURVIVAL), MEGAMEK OPTIONS LIST. REVIEW PENDING (higher-level model).**
+  Daniel's round of minor tweaks. (1) OPTIONS: every typed-in setting that takes one of a few words is now a drop-down
+  (`CHOICES` in `tools/make_options_registry.py` -> `choices` in `options.json` -> `optionRow` in lab.js; 26 settings: foe choice, home
+  edge, the stubs, aimed-shot location, the movement search words...). Each menu lists only what the Rust ENGINE accepts (read from its
+  match arms), so it never offers a crash: FOE_CHOICE, PERIL, MOVE_ORDER and PRINCESS_VERSION have one working value so far. (2) The blue
+  progress bar's text has an ETA countdown (time so far / battles done x battles left). (3) Advanced search: the X was there but small;
+  it is bigger (all dialogs), and a Close button sits under the filters. (4) WINDOW RESIZE: a docked team window now shows a grab strip
+  on the edge that faces the Unit Browser (`.win.team::after`; `EDGE` 8 -> 10); checked headless (pull from the edge: 350 -> 428 px).
+  Daniel's wishlist 5 (resize in place) is therefore done, as far as a headless test can tell. (5) UNIT STATISTICS, engine side
+  (statistics only; no rule or dice changes): `Tally.track` (battle.rs) per unit - hexes moved (straight-line, start to end of its
+  move), distance to the nearest opponent and to its allies (taken when the Movement Phase is over), distance to its target (taken at
+  declaration, `run_ranged_phase`); `SideStats.locations` is now [front, front max, structure, structure max, rear, rear max]; every
+  critical slot's name and whether it still worked at the end (`crit_names` / `crit_alive`; a slot the game turned to DESTROYED is lost,
+  so a location blown off loses all its slots). `runs.rs` sends them per battle and averages them (movement as a ratio of sums over
+  the turns each counted in); lab.js shows front and rear armor in separate columns, a movement table, and an eye button ("Critical
+  slot survival") that opens a critical diagram, every slot shaded green to red with its percentage. Old run files have no rear / track /
+  crit data: they read as 0 / n/a. (6) `INTEGRATION__MEGAMEK_OPTIONS.md`: all 252 MegaMek game options (from its source) sorted Not needed
+  (130) / Want (53) / Can implement (64) / Already built (5), and a pruning proposal for our own list (26 technical settings to hide, 27
+  inactive ones, 19 tuning numbers into an advanced folder); NOTHING pruned yet: Daniel's go-ahead is asked. Total Warfare: only 7 of its
+  17 base chunks are in the library, no summary or index layer (see Section 0). Look at: the straight-line "hexes moved" (a path that
+  bends counts short); the distance-to-target sample only covers turns the unit declared on someone.
 - **2026-11-19 (Claude, session 30), DEPLOYMENT: UNITS ARE PLACED, NOT WALKED ON, AND PLACE IN TURNS, THE MEGAMEK WAY. REVIEW PENDING (higher-level model).**
   Daniel (while the benchmark was running): "that formation logic is supposed to be standard kit... If you need to rebuild the
   reference battles to turn it on permanently do that too", then "using megamek's start of game. Players take turns putting their

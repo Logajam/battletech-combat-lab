@@ -289,6 +289,8 @@ pub struct Mech {
     pub cockpit_type: Option<String>,
     pub gyro_type: Option<String>,
     pub armor_desc: Option<String>,
+    /// the header's "heat sink kit:RISC Heat Sink Override Kit" (BV x 1.01, MegaMek); not saved with a state
+    pub risc_heat_sink_kit: bool,
     pub is_industrial: Option<bool>,
     pub structure_desc: Option<String>,
     pub tech_base: Option<String>,
@@ -608,6 +610,7 @@ impl Mech {
             cockpit_type: None,
             gyro_type: None,
             armor_desc: None,
+            risc_heat_sink_kit: false,
             is_industrial: None,
             structure_desc: None,
             tech_base: None,
