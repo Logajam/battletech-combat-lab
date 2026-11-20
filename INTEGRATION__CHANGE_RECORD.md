@@ -6,6 +6,33 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-20 (Claude, session 31), BATTLE VALUE MADE TO MATCH MEGAMEK: 27% OF UNITS WRONG BEFORE, 1.7% AFTER. REVIEW PENDING (higher-level model).**
+  Daniel: Mad Cat Mk IV A 2404, Archer C 2 2023, Shadow Cat T 1590 "do not match the results megamek gives". Method: unpacked MegaMek
+  0.51.01.7 (an unchanged release, megamek_bridge/README.md), loaded every unit of data/meks.zip with its `MekFileParser` and took the BV and
+  the calculation report from its `BVCalculator` (4,227 units); compared with the Lab's list. 1,134 units differed. The table is kept in
+  `engine/reference/megamek_bv.tsv`; `tests/check_bv_megamek.py` (in run_checks) compares our BV with it and fails on a unit not in
+  `megamek_bv_known_gaps.tsv` (71 left). The three units now give 2413, 2167, 1852 (MegaMek's). CAUSES FIXED (Rust `battle_value.rs`,
+  `mtf_parser.rs`; the frozen Python is NOT changed and still has them): Armored Components (+5% per slot, gyro, system slots); Clan
+  inherent CASE also for IS structure (the old test needed Clan structure); MASC / Supercharger count in the run MP (x2, both x2.5); shields
+  take walk MP (and jump); Endo-Composite wrongly halved the structure; Commercial armor BAR 0.5; Blue Shield (armor, structure, per-location
+  deductions); modular armor +10 a slot; Superheavy gyro read as Heavy-Duty; PPC capacitors: table names ("PPC", "Light PPC", "ISSNPPC") never
+  matched so the capacitor BV was 0, and a capacitor and its PPC are explosive (-1, -2); MG arrays summed only standard MGs; the Null / Void
+  Signature, Chameleon, Improved Jump Jet and Targeting Computer tests missed because canonical names carry spaces; Improved Heavy
+  lasers, Rail Gun, RISC Hyper Laser, Fluid Gun ammo, fuel tanks explosive in MegaMek but not in our table (BV only: 12 names in
+  `EXPLOSIVE_PER_MEGAMEK`); Magshot ammo not explosive; prototype and primitive weapons priced apart from the ordinary one
+  (`PROTOTYPE_BV`, 17 rows); partial wing MP not counted in jump heat; radical heat sinks (+40% of sinks); Drone Operating System
+  weapons x0.8; vibroblades priced with the weapons (heat 7 / 5 / 3). PARSING (changes play too): the equipment table gave multi-slot items
+  1 slot, so each line became its own item and the BV counted them many times: Beagle / Bloodhound probes, chainsaw, dual saw, rock cutter,
+  combine, buzzsaw, Null / Void Signature, Chameleon, RISC Hyper Laser are read as one item per run of lines; `mechsim/equipment.json`
+  slots corrected for Long Tom (30, split across locations), Rail Gun, KinHER PPC, RISC Hyper Laser, Centurion, C3 remote sensor launcher,
+  Clan Advanced SRMs, Improved AC/10; prototype weapons take MegaMek's extra slots; alias "PPCp" added. NOTE the shared JSON also
+  changes the Python's reading of those items. `combatlab`'s cached unit list is rebuilt when the BV version in its signature changes
+  (it showed stale BVs after a fix). `BV_TRACE=1|2` prints the calculation to stderr. Princess weights units by BV, so one reference log
+  (`team_4v4_princess_v_princess`) changed and was updated (`check_rust_reference.py --update`); the other 90 are identical. STILL DIFFERENT
+  (71, `megamek_bv_known_gaps.tsv`): RISC equipment, construction / industrial / mining 'Mechs, prototype rocket launchers, a second
+  Thumper, MG array capacity (3 light MGs an array), Ram Plate, some heat-sink header oddities (Kraken-XR). TO CHECK for combat: the
+  equipment table's `explosive` flag and slot counts differ from MegaMek in a few dozen items (list in this entry's method). Look at: the
+  ordering of the weapon heat sort with vibroblades, and whether widening "one item per run of lines" ever merges two real weapons.
 - **2026-11-20 (Claude, session 31), COMBAT LAB TWEAKS: DROP-DOWN OPTIONS, ETA, CLOSE BUTTON, WINDOW GRIPS, UNIT STATISTICS (FRONT / REAR ARMOR, MOVEMENT, DISTANCES, CRITICAL SLOT SURVIVAL), MEGAMEK OPTIONS LIST. REVIEW PENDING (higher-level model).**
   Daniel's round of minor tweaks. (1) OPTIONS: every typed-in setting that takes one of a few words is now a drop-down
   (`CHOICES` in `tools/make_options_registry.py` -> `choices` in `options.json` -> `optionRow` in lab.js; 26 settings: foe choice, home

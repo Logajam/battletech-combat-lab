@@ -164,7 +164,12 @@ pub fn is_armored(raw_name: &str) -> bool {
     raw_name.to_uppercase().contains("(ARMORED)")
 }
 
-const VARIABLE_SIZE_FRAGMENTS: [&str; 9] = ["HATCHET", "SWORD", "MACE", "LANCE", "CLAW", "RETRACTABLEBLADE", "VIBROBLADE", "SHIELD", "TALONS"];
+// CHAINSAW .. HYPERLASER added 2026-11-20 (BV check against MegaMek): the equipment table gave these 1 slot but they fill 2-7, so every line
+// of one became its own item and the BV counted it that many times (the table's slot counts of the weapons that split across locations,
+// like the Long Tom, were corrected instead, so that join_split_items can put their parts together)
+const VARIABLE_SIZE_FRAGMENTS: [&str; 20] = ["HATCHET", "SWORD", "MACE", "LANCE", "CLAW", "RETRACTABLEBLADE", "VIBROBLADE", "SHIELD", "TALONS",
+    "CHAINSAW", "DUALSAW", "ROCKCUTTER", "COMBINE", "BUZZSAW", "BEAGLEACTIVEPROBE", "BLOODHOUNDACTIVEPROBE",
+    "NULLSIGNATURE", "VOIDSIGNATURE", "CHAMELEON", "HYPERLASER"];
 
 fn variable_size(canonical_name: &str) -> bool {
     let n = canonical_name.replace(' ', "").replace('-', "").to_uppercase();
@@ -327,6 +332,19 @@ pub fn build_crit_list(
             let mut slots_needed = entry.slots();
             if superheavy {
                 slots_needed = -((-slots_needed).div_euclid(2)); // -(-slots // 2): half, rounded up
+            }
+            // a PROTOTYPE weapon fills more slots than the ordinary weapon its table row stands for (a prototype Gauss rifle 8, not 7):
+            // the extra slots (MegaMek's sizes), so a leftover line is not taken for a second weapon
+            if base_name.to_uppercase().contains("PROTOTYPE") {
+                let key = entry.canonical_name().replace(' ', "").to_lowercase();
+                let extra = match key.as_str() {
+                    "isgaussrifle" | "isultraac5" | "islbxac10" | "clstreaksrm4" | "isarrowiv" => 1,
+                    "clultraac2" | "cllbxac2" | "cllbxac5" => 2,
+                    "cllbxac20" | "clultraac20" => 3,
+                    "clultraac10" => 4,
+                    _ => 0,
+                };
+                slots_needed += extra;
             }
             if variable_size(entry.canonical_name()) {
                 slots_needed = 1;

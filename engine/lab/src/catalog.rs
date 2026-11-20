@@ -150,7 +150,7 @@ fn signature(data: &Path) -> Value {
         let t = m.modified().ok().and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok()).map_or(0, |d| d.as_secs());
         parts.push(format!("{}:{}:{}", UNIT_PACK, m.len(), t));
     }
-    parts.push(format!("engine {} list 6", env!("CARGO_PKG_VERSION")));
+    parts.push(format!("engine {} list 7 bv-megamek", env!("CARGO_PKG_VERSION")));
     json!(parts)
 }
 

@@ -180,6 +180,8 @@ def main(argv):
                                      "--test", "bv_skills", "--test", "charge_targets", "--test", "zone_entry"], os.path.join(REPO_ROOT, "engine"))))
     if want & {"engine", "pages"} and has_cargo:
         # Combat Lab CL3: the Lab server, driven by a script, gives btsim's battles for the same setup and seed
+        heavy.append(("rust       check_bv_megamek.py",
+                      run_test_file, (os.path.join(REPO_ROOT, "tests", "check_bv_megamek.py"), [])))
         heavy.append(("rust       check_lab_server.py --battles 4",
                       run_test_file, (os.path.join(REPO_ROOT, "tests", "check_lab_server.py"), ["--battles", "4"])))
         # Combat Lab in the browser: the website clicked through, and the browser v the desktop
