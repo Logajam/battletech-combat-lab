@@ -73,7 +73,7 @@ and the GitHub logistics (Section 7).
 | Rules engine | Core Rulebook 'Mech combat: movement and terrain (water, hazards, passive buildings), LOS, ranged, all seven physical attacks, heat, damage / crits / PSRs, every Core weapon and most equipment; TO:AUE / TO:AR terrain and gear; IntOps weapons; ultralights and superheavies. 4,204 of 4,227 MegaMek units load (not the 23 LAMs); 174 of 192 16x17 maps play | `INTEGRATION__*`, `mechsim/`, `pathfinder/`; `INTEGRATION__RULES_REVIEW.md` (fixed F1-F71, open G rows) |
 | Multi-unit battles | Teams, Initiative for any number of sides, stacking, domino effect, stitched boards | `INTEGRATION__forces`, `_domino`, `orchestrator.run_skirmish` |
 | Gladiator | "Lifetime" move score, Short Grid search, two-ply first mover; in team battles Legate (enemy estimate, fire split), triage tiers, tiered movement order option, fire director option | `_movement_selection`, `_legate`, `_triage`, `_tiers`, `_kill_curve`, `_peril`, `_vision` |
-| Princess | Modern (default) and v0.50.07 clones; group behaviours; Battle Value | `_princess*`, `_battle_value` |
+| Princess | The modern MegaMek clone (the v0.50.07 one removed 2026-11-20); group behaviours; Battle Value; T16 heat equipment, unjam, aimed shots; spotting, distant artillery, AMS modes, ammo conservation | `engine/core/src/princess*.rs`, `bot_*.rs`, `battle_value.rs` |
 | Choices still stubs | Rate of fire, ammo kind, MASC / supercharger, unjam, capacitors, shields, TAG... (loud, counted) | `INTEGRATION__stubs.py`, Section 6 |
 | Output | Batch summary, timing table, replays, battle statistics page (stages 1-3 of 5), saved states (end of a turn) | `_results`, `_timing`, `_replay`, `_stats*`, `_saved_state` |
 | Rust engine | The whole engine and both default bots, exact against the Python on 63 fixtures and ~830 random battles; `btsim` batches about 10x the Python's speed a core. Not translated: the switches that are off by default | `engine/`, `INTEGRATION__RUST_PORT.md`, `engine/REVIEW_BRIEF.md` |
@@ -103,8 +103,8 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   planned over every enemy, not only the chosen target) would need an engine phase; bridge answers do not carry the aim hex.
 - N3. PRINCESS AMS ON / OFF AND AMMO CONSERVATION: BUILT 2026-11-20 (Change Record; Section 6 rows). Not ported: the
   missile-boat role term (no unit roles) and manual AMS against infantry.
-- N4. REMOVE PRINCESS v0.50.07 (Daniel: "never going to use it again"): the Rust `princess.rs` classic clone, its Lab /
-  website / btsim options, its reference battles (the Python's copy went with the Python engine, N11).
+- N4. REMOVE PRINCESS v0.50.07: DONE 2026-11-20 (Change Record): the setting `PRINCESS_VERSION` and its "not modern"
+  branches are gone; Princess is always the modern clone.
 - N5. CONFIGURE UNIT AND CONFIGURE TEAM WINDOWS (Combat Lab; Daniel 2026-11-20): a "Configure unit" button opens a window per
   unit; "Edit unit stats" moves one layer down inside it; it also holds the ammo choice per bin (after N1). A "Configure
   team" button opens a window per team holding that team's bot and every control the bot has (the Princess / CASPAR

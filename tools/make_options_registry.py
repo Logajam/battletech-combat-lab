@@ -67,7 +67,6 @@ CHOICES = {
     "PERIL": [["off", "Off"]],
     "STUB_GLADIATOR_TARGET": [["princess_plan", "Princess's firing plan"], ["nearest", "Nearest"]],
     "LEGATE_FIRE_SPLIT": [["proportional", "Proportional"], ["none", "None"]],
-    "PRINCESS_VERSION": [["modern", "Modern (MegaMek main)"]],
 }
 
 
@@ -99,7 +98,6 @@ def comments():
 
 # where the comment above a setting is shared with its neighbour, the words are given here instead
 OVERRIDES = {
-    "PRINCESS_VERSION": "Which Princess plays: 'modern' (MegaMek main as of 2026-10-26) or '0.50.07' (the classic ranker first cloned).",
     "PRINCESS_BEHAVIOR": "Princess's behavior sliders (MegaMek BehaviorSettings, each 0-10); 5 is MegaMek's default behavior.",
 }
 

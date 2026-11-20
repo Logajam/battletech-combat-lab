@@ -189,13 +189,9 @@ const TSM_DESIRED_HEAT: i64 = 9;
 const TSM_HEAT_CEILING: i64 = 13;
 const TSM_ACTIVATION_UTILITY: f64 = 20.0;
 
-pub fn modern(b: &Battle) -> bool {
-    b.cfg.s("PRINCESS_VERSION") == "modern"
-}
-
 pub fn heat_tolerance(b: &Battle, u: UnitId, dissipation: i64, unavoidable: i64) -> i64 {
     let mut tolerance = dissipation - unavoidable + HEAT_TOLERANCE_BONUS;
-    if modern(b) && b.units[u].has_tsm {
+    if b.units[u].has_tsm {
         tolerance = tolerance.max(dissipation - unavoidable + TSM_HEAT_CEILING);
     }
     tolerance
@@ -247,10 +243,6 @@ impl FireControl {
     /// (utility tolerance, alpha-strike heat limit, unavoidable heat).
     fn limits(&self, b: &Battle, mech: UnitId, dissipation: i64, other_heat: i64, movement_heat: i64) -> (i64, i64, i64) {
         let cur = b.units[mech].current_heat;
-        if !modern(b) {
-            let tolerance = dissipation - cur - other_heat + HEAT_TOLERANCE_BONUS;
-            return (tolerance, tolerance, cur + other_heat);
-        }
         if !self.guess {
             let unavoidable = cur + movement_heat + other_heat;
             let tolerance = heat_tolerance(b, mech, dissipation, unavoidable);
@@ -274,7 +266,6 @@ impl FireControl {
             None => (1.0, 1.0),
         };
         let existing = if self.guess || target.is_none() { 0.0 } else { assigned_damage(b, b.units[mech].team.as_deref().unwrap_or(""), target.unwrap()) };
-        let is_modern = modern(b);
         let mut infos: Vec<(ItemId, f64, i64, f64, f64)> = Vec::new();
         // AMMO CONSERVATION (N3; MegaMek Princess.calcAmmoConservation, applied in getFullFiringPlan - the plan she
         // declares, not the guesses she prices moves with): a weapon fires only above its to-hit threshold
@@ -287,7 +278,7 @@ impl FireControl {
             }
             let (crits, kill) = match target {
                 None => (0.0, 0.0),
-                Some(t) => weapon_crits_and_kill(&b.units[t], side, p, expected, if is_modern { Some(expected / p) } else { None }, None),
+                Some(t) => weapon_crits_and_kill(&b.units[t], side, p, expected, Some(expected / p), None),
             };
             infos.push((w, expected, heat, crits, kill));
         }
@@ -334,7 +325,7 @@ impl FireControl {
             }
             plans.push(best);
         }
-        let tsm = is_modern && !self.guess;
+        let tsm = !self.guess;
         let bonus = |plan: &Plan, m: &Mech| -> f64 { if tsm { tsm_heat_bonus(m, dissipation, unavoidable, plan.4) } else { 0.0 } };
         let mut chosen = empty.clone();
         let mut chosen_u = bonus(&empty, &b.units[mech]);
