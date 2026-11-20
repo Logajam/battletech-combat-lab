@@ -116,6 +116,13 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
 - NEXT (not started): the BV question proper - fit a duel-strength model (ratings v BV and v the unit's numbers) and show where
   BV is off and by how much; more pools (TRO 3039, Clan); 2 v 2 to see whether duel fairness carries to teams. A duel is not
   the battle BV was built for (forces), so read any BV correction with that in mind.
+- CONTROLLED TESTS (NEXT, not started; Daniel 2026-11-20): measure one feature by editing it onto known 'Mechs, everything
+  else unchanged, the way the Lab's unit editor does (it writes a changed .mtf; a script can do the same). Daniel's calls:
+  FREE UPGRADES ("I build the designer that way on purpose to allow illegal designs for such testing"); HARDENED ARMOR FIRST
+  (same points, armor type switched); FULLY CHAOTIC DICE, not paired seeds ("the bots make decisions based on how heavy their
+  armor is. Once one moves to a different spot the seed no longer matters"); tripods are harder (the editor has no switch).
+  Plan: ~20 base 'Mechs across classes and styles, original and edited copy each v the same 10 opponents, 16 battles a pair
+  (about 6,400 battles), restart-safe via `fair_duels.run_cells`; report the rating change per 'Mech and whether x2 is right.
 
 **A. Gladiator - the bot**
 - **A1. The move score does not see a win, a clock or the walk back** (review 2026-11-10; [000000 (a)], [0]
