@@ -106,6 +106,18 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   Rerun `python tools/benchmark_report.py --bv-file LISTS.json` (LISTS.json: the Lab's `list_units` output) for the tables.
   Checks: no engine or test file changed; `run_checks.py` not run (docs and new tools only).
 
+- **2026-11-20 (Claude, session 30), RESEARCH: CONTROLLED TEST OF HARDENED ARMOR (`tools/feature_test.py`). REVIEW PENDING
+  (higher-level model).** Daniel's method ("Combatlab allows for the mech's stats to be edited. Could use that for controlled
+  tests") and calls: free upgrades, hardened first, rules as written (Core p.202), fully chaotic dice. 20 standard-armor
+  'Mechs (5 a weight class) as published / armor type switched to hardened (same points; the engine gives -1 run) / standard
+  armor doubled, each v the same 10 opponents, 16 battles a pair: 9,600 battles, 0 errors
+  (`trial_records/2026-11-20_fair_duels_feature_hardened.jsonl`). RESULT: hardened raised every one of the 20 (score +0.06 to
+  +0.35; mean +1.18 in log-odds, i.e. an even fight becomes about 76-24); doubled standard armor +1.07. Hardened is worth a
+  little MORE than double armor: the -2 on critical checks outweighs -1 run and +1 Piloting. Same for all four bots (score
+  0.50 -> 0.70-0.75). Predictions for the same edits: the fitted formula with hardened counted x2 +1.18 (exact); the formula
+  as fitted (no hardened knowledge) -0.22 (it sees only the lost MP); BV (fitted) +0.70, so BV prices hardened armor at about
+  60% of its duel worth; the formula prices doubled armor at +1.40 (a little high). Light 'Mechs gain least (+0.06 to +0.21).
+
 - **2026-11-20 (Claude, session 30), RESEARCH: THE ASYMPTOTE CHALLENGE (`duel_value.py challenge`). REVIEW PENDING (higher-level model).**
   Daniel: "I personally expect the asymptote to break your model. Go ahead and fire up a batch of asymptote vs the top 10. 100
   battles each." Asymptote II (iJ Mpulse; tripod, rules level 4, hardened armor) v the engine-numbers formula's top 10, every
