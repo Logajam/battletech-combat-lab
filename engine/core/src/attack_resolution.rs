@@ -52,6 +52,8 @@ impl Cover {
 #[derive(Clone, Debug)]
 pub struct DeclaredAttack {
     pub weapon: ItemId,
+    /// the 'Mech this attack is on (split fire: a unit may attack several in a phase, p.64)
+    pub target: UnitId,
     pub tn: i64,
     pub roll: i64,
     pub hit: bool,
@@ -642,6 +644,10 @@ fn resolve_one_attack(b: &mut Battle, attacker: UnitId, target: UnitId, attack: 
         let dmg = fire_modes::damage_per(b, attacker, w, &plan).unwrap_or(0);
         b.log(format!("    {} hits {}'s hex: {} area-effect damage (pp.182-183).", wname, tname, dmg));
         resolve_area(b, target, dmg, &attack.side, attack.cover);
+        // the rest of the hex and the hexes next to it, friend or foe (pp.182-183; artillery.rs)
+        let (from, at) = (hex_geometry::parse_hex_label(b.units[attacker].hex.as_deref().unwrap()).unwrap(), hex_geometry::parse_hex_label(b.units[target].hex.as_deref().unwrap()).unwrap());
+        let splash = wp::splash(b, attacker, w);
+        crate::artillery::area_strike(b, from, at, dmg, splash, Some(target));
         return;
     }
     if adv::is_nail_gun(b, attacker, w) {
@@ -848,7 +854,7 @@ pub fn resolve_area(b: &mut Battle, target: UnitId, damage: i64, side: &str, cov
     apply_groups(b, target, damage, wp::AREA_GROUPING, DamageType::Missile, side, cover, "AE ");
 }
 
-fn in_firing_arc(b: &Battle, attacker: UnitId, weapon: ItemId, xy: (i64, i64)) -> bool {
+pub(crate) fn in_firing_arc(b: &Battle, attacker: UnitId, weapon: ItemId, xy: (i64, i64)) -> bool {
     let a = &b.units[attacker];
     let key = arcs::key_for(
         &arcs::arcs_between(hex_geometry::parse_hex_label(a.hex.as_deref().unwrap()).unwrap(), xy),
@@ -889,6 +895,9 @@ fn resolve_area_miss(b: &mut Battle, attacker: UnitId, target: UnitId, attack: &
             dmg
         ));
         resolve_area(b, target, dmg, &attack.side, attack.cover);
+        let from = hex_geometry::parse_hex_label(b.units[attacker].hex.as_deref().unwrap()).unwrap();
+        let splash = wp::splash(b, attacker, w);
+        crate::artillery::area_strike(b, from, (tx, ty), dmg, splash, Some(target));
         return;
     }
     if wp::splash(b, attacker, w) == 0 {
@@ -908,12 +917,13 @@ fn resolve_area_miss(b: &mut Battle, attacker: UnitId, target: UnitId, attack: &
         label.clone().unwrap_or_else(|| "off the board".to_string()),
         if on_board { "" } else { " - off the board, no effect" }
     ));
-    if on_board && steps == 1 {
-        let tf = hex_geometry::compass_to_facing(&b.units[target].facing).unwrap();
-        let side = attack_side(b, impact, (tx, ty), tf, standing(), standing());
-        let dmg = wp::splash(b, attacker, w);
-        b.log(format!("      {} is next to the impact: {} area-effect damage.", tname, dmg));
-        resolve_area(b, target, dmg, side, Cover::No);
+    if on_board {
+        // every unit in the hex it lands in takes the full damage, every unit next to it the splash (pp.182-183)
+        let plan = attack.fire.clone().unwrap_or_else(ShotPlan::plain);
+        let dmg = fire_modes::damage_per(b, attacker, w, &plan).unwrap_or(0);
+        let from = hex_geometry::parse_hex_label(b.units[attacker].hex.as_deref().unwrap()).unwrap();
+        let splash = wp::splash(b, attacker, w);
+        crate::artillery::area_strike(b, from, impact, dmg, splash, None);
     }
 }
 
@@ -997,6 +1007,8 @@ pub struct DeclCtx {
     pub indirect: bool,
     /// the friendly spotter of an indirect attack (None: direct fire, or a mortar firing with no spotter)
     pub spotter: Option<UnitId>,
+    /// a secondary target of split fire (p.64): +1, the weapons left, the twist already declared
+    pub secondary: bool,
     pub los_modifier: i64,
     pub cover: i64,
     pub a_facing: i64,
@@ -1014,6 +1026,8 @@ pub struct DeclCtx {
     pub prone_mod: i64,
     pub pre_tn: i64,
     pub aim: Option<String>,
+    /// T16 step 3: a Princess-family shooter's aim: armor + structure of the aimed location (see `bot_aimed_shots`)
+    pub aim_destruction: Option<i64>,
     pub adjust: Adjuster,
     pub side: String,
     pub sel_pre_tn: i64,
@@ -1063,6 +1077,14 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
         if !s.fires {
             let s_name = b.units[s.target].side_name.clone().unwrap_or_default();
             b.log(format!("  [Ranged] {}: spots {} for indirect fire - holds its own fire.", a_name, s_name));
+            return Prep::Done;
+        }
+    }
+    // SPLIT FIRE (p.64; split_fire.rs): a target after the primary is a secondary one
+    let secondary = crate::split_fire::is_secondary(b, attacker, target);
+    if secondary {
+        if let Some(why) = crate::split_fire::refusal(b, attacker, target) {
+            b.log(format!("  [Ranged] {}: no secondary attack on {} - {}.", a_name, t_name, why));
             return Prep::Done;
         }
     }
@@ -1122,7 +1144,9 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
     }
     let a_facing = hex_geometry::compass_to_facing(&b.units[attacker].facing).unwrap();
     let pair_arcs = arcs::arcs_between(a_hex, t_hex);
-    let arc_choices = arcs::arc_keys(&pair_arcs, a_facing, &arcs::arc_options(&b.units[attacker], "ranged"), &arcs::leg_offsets(&b.units[attacker]));
+    // a secondary target keeps the twist / flip the primary declaration chose (one per turn, p.64 / p.62)
+    let options = if secondary { vec![arcs::current_action(&b.units[attacker])] } else { arcs::arc_options(&b.units[attacker], "ranged") };
+    let arc_choices = arcs::arc_keys(&pair_arcs, a_facing, &options, &arcs::leg_offsets(&b.units[attacker]));
     let total_weapons = get_weapons(&b.units[attacker]).len();
     if arc_choices.iter().all(|(key, _)| arc_unavailable(&b.units[attacker], key).len() == total_weapons) {
         b.log(format!("  [Ranged] {}: no weapon can bear on {} ({} arc) - can't fire.", a_name, t_name, arcs::arc_name(pair_arcs[a_facing as usize])));
@@ -1143,6 +1167,10 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
     unavailable.extend(wp::array_gun_ids(b, attacker));
     unavailable.extend(shielded_weapon_ids(&b.units[attacker]));
     unavailable.extend(adv::no_effect_ids(b, attacker));
+    if secondary {
+        // weapons already fired at another target this phase
+        unavailable.extend(crate::split_fire::state_of(b, attacker).map(|s| s.used.clone()).unwrap_or_default());
+    }
     if indirect {
         let ind: HashSet<ItemId> = indirect_ok.iter().copied().collect();
         for w in get_weapons(&b.units[attacker]) {
@@ -1175,20 +1203,32 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
     if spot_extra != 0 {
         cond_note = if cond_note.is_empty() { format!("indirect {}", spot_extra) } else { format!("{} + indirect {}", cond_note, spot_extra) };
     }
-    let other_mod = cond_mod + prone_mod + spot_own + spot_extra;
+    let sec_mod = if secondary { crate::split_fire::SECONDARY_MODIFIER } else { 0 };
+    if sec_mod != 0 {
+        cond_note = if cond_note.is_empty() { format!("secondary target {}", sec_mod) } else { format!("{} + secondary target {}", cond_note, sec_mod) };
+    }
+    let other_mod = cond_mod + prone_mod + spot_own + spot_extra + sec_mod;
     let probe_mod = if indirect { 0 } else { -smoke::probe_relief(b, attacker, target, &trace, distance) };
     if probe_mod != 0 {
         b.log(format!("  [Ranged] {}'s active probe sees through the smoke on the line ({}).", a_name, probe_mod));
     }
     let pre_tn = b.units[attacker].gunnery + amm + tmm + los.modifier + heat_mod + stealth_mod + other_mod + probe_mod;
 
+    let side = attack_side(b, a_hex, t_hex, hex_geometry::compass_to_facing(&b.units[target].facing).unwrap(), heights.0, heights.1).to_string();
     let mut aim: Option<String> = None;
-    // p.70: an indirect fire attack cannot also be an aimed shot
-    if !indirect && is_immobile(&b.units[target]) && b.cfg.get("AIMED_SHOT_LOCATION").as_str().is_some() {
+    let mut aim_destruction: Option<i64> = None;
+    if indirect {
+        // p.70: an indirect fire attack cannot also be an aimed shot
+    } else if b.units[attacker].is_princess_family() {
+        // T16 step 3: Princess / CASPAR choose the location themselves (MegaMek Princess.calculateAimedShotLocation)
+        if let Some((loc, destruction)) = crate::bot_aimed_shots::aimed_location(b, target, side == "rear", cover > 0) {
+            aim = Some(loc);
+            aim_destruction = Some(destruction);
+        }
+    } else if is_immobile(&b.units[target]) && b.cfg.get("AIMED_SHOT_LOCATION").as_str().is_some() {
         aim = aimed_shot_location(b, target, cover > 0);
     }
     let adjust = with_range_adjuster(tn_adjuster(b, attacker, target, aim.as_deref(), cover), &b.units[attacker], a_water);
-    let side = attack_side(b, a_hex, t_hex, hex_geometry::compass_to_facing(&b.units[target].facing).unwrap(), heights.0, heights.1).to_string();
     let sel_pre_tn = weapon_selection::PRE_TN_MIN.max(weapon_selection::PRE_TN_MAX.min(pre_tn));
     let usable: Vec<ItemId> = get_weapons(&b.units[attacker]).into_iter().filter(|w| !unavailable.contains(w)).collect();
     let k = if crate::ams::can_engage(&b.units[target]) {
@@ -1208,7 +1248,8 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
     let hex_offset = -(tmm + prone_mod + equip::void_signature_modifier(&b.units[target], None, None));
     let share = fire_modes::ams_share(b, attacker, k, &usable);
     let dissipation = compute_heat_dissipation(&b.units[attacker]) + water::dissipation_bonus(b, attacker, None);
-    let other = crate::heat::other_heat(b, attacker);
+    // a secondary declaration counts the weapon heat already committed this phase
+    let other = crate::heat::other_heat(b, attacker) + if secondary { crate::split_fire::state_of(b, attacker).map_or(0, |s| s.heat) } else { 0 };
     Prep::Ready(Box::new(DeclCtx {
         attacker,
         target,
@@ -1216,6 +1257,7 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
         t_hex,
         indirect,
         spotter: spotter.map(|s| s.spotter),
+        secondary,
         los_modifier: los.modifier,
         cover,
         a_facing,
@@ -1233,6 +1275,7 @@ pub fn prepare_declaration(b: &mut Battle, attacker: UnitId, target: UnitId, dry
         prone_mod,
         pre_tn,
         aim,
+        aim_destruction,
         adjust,
         side,
         sel_pre_tn,
@@ -1313,7 +1356,11 @@ pub fn finish_declaration(
     arcs::declare(&mut b.units[attacker], chosen.clone());
     let desc = arcs::describe(&chosen);
     if !desc.is_empty() && !weapons.is_empty() {
-        b.log(format!("  [Ranged] {} {} ({} is in its torso's {} arc after that).", a_name, desc, t_name, arcs::arc_name(choice.key_torso_arc)));
+        if ctx.secondary {
+            b.log(format!("  [Ranged] {} keeps its declared twist / flip ({} is in its torso's {} arc).", a_name, t_name, arcs::arc_name(choice.key_torso_arc)));
+        } else {
+            b.log(format!("  [Ranged] {} {} ({} is in its torso's {} arc after that).", a_name, desc, t_name, arcs::arc_name(choice.key_torso_arc)));
+        }
     }
     let mut held_names: Vec<String> = Vec::new();
     for w in get_weapons(&b.units[attacker]) {
@@ -1384,6 +1431,7 @@ pub fn finish_declaration(
     electronics::log_controls(b, &a_name, &plans, weapons, attacker);
 
     report.weapon_heat += choice.weapon_heat + surcharge;
+    crate::split_fire::record(b, attacker, target, weapons, choice.weapon_heat + surcharge);
     let t_dir = combat::direction_facing(ctx.a_hex, ctx.t_hex).unwrap();
     // FIRING ORDER (Daniel, 2026-11-14: "fire the weapons that deal the most damage to one location first, then in descending
     // order of cluster size - the AC/20 before the SRM-6 even if the unit lists the SRM-6 first"). The salvo is one
@@ -1416,7 +1464,7 @@ pub fn finish_declaration(
         if wp::is_mga(b, attacker, w) {
             ammo_note = fire_modes::take_array_rounds(b, attacker, w, plan.shots);
         } else if !weapon_rules::is_streak(b, attacker, w) {
-            let kind: Option<String> = if !special || ["8", "12", "16"].contains(&plan.kind.as_str()) || ["saturation", "artillery", "homing"].contains(&plan.kind.as_str()) { None } else { Some(plan.kind.clone()) };
+            let kind: Option<String> = if !special || ["8", "12", "16"].contains(&plan.kind.as_str()) || ["saturation", "artillery", "distant", "homing"].contains(&plan.kind.as_str()) { None } else { Some(plan.kind.clone()) };
             let mut last = String::new();
             for _ in 0..plan.shots {
                 last = ammo::take(b, attacker, w, Some(plan.munition()), kind.as_deref()).0;
@@ -1449,11 +1497,27 @@ pub fn finish_declaration(
             extra = 0;
             tn = wp::HOMING_TN;
         }
+        if plan.kind == "distant" {
+            // p.182: a distant artillery shot is announced now (ammo and heat spent this turn) and rolled next turn
+            let _ = (range_mod, extra);
+            let dmg = fire_modes::damage_per(b, attacker, w, &plan).unwrap_or(0);
+            let splash = wp::splash(b, attacker, w);
+            crate::artillery::announce(b, attacker, w, target, tn, dmg, splash);
+            continue;
+        }
         if ctx.indirect && ctx.spotter.is_none() {
             tn += adv::MORTAR_INDIRECT_MODIFIER - adv::MORTAR_DIRECT_MODIFIER;
         } else if ctx.spotter.is_some() && adv::is_mortar(b, attacker, w) {
             // a spotted mortar fires as standard indirect fire (TO:AUE p.136): its +1 is in pre_tn, its direct +3 goes
             tn -= adv::MORTAR_DIRECT_MODIFIER;
+        }
+        // T16 step 3 (MegaMek setAttackAsAimedOrCalled): a weapon whose number is too high fires unaimed. Against an
+        // immobile target the aim costs nothing (not the head), so the number is the same either way.
+        if let (Some(_), Some(destruction)) = (&w_aim, ctx.aim_destruction) {
+            let damage = b.units[attacker].items[w].damage_per_shot.unwrap_or(0);
+            if !crate::bot_aimed_shots::gate(tn, damage, destruction) {
+                w_aim = None;
+            }
         }
         let roll = b.roll_2d6();
         let mut hit = roll >= tn;
@@ -1503,6 +1567,7 @@ pub fn finish_declaration(
         report.attacks += 1;
         report.attacks_list.push(DeclaredAttack {
             weapon: w,
+            target,
             tn,
             roll,
             hit,
@@ -1559,7 +1624,11 @@ pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBo
     }
     // spotting for indirect fire is settled before any attack is rolled (spotting.rs)
     b.indirect_pairs.clear();
+    b.split_fire.clear();
     crate::spotting::declare_spotting(b, order);
+    // distant artillery announced last turn lands now (p.182; artillery.rs)
+    let turn_now = order.first().map_or(0, |u| b.units[*u].turn_number);
+    crate::artillery::resolve_pending(b, turn_now);
     for &m in order {
         snapshot_round_capability(&mut b.units[m]);
         crate::piloting_rolls::snapshot_pre_attack_phase(&mut b.units[m]);
@@ -1579,6 +1648,22 @@ pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBo
         }
         let mut rep = std::mem::take(&mut reports[idx(attacker)]);
         declare_attacks(b, attacker, target, &mut rep, bot);
+        // split fire (p.64): further targets with the weapons left, each a secondary target (+1)
+        if crate::split_fire::state_of(b, attacker).is_some() {
+            let secs = crate::stubs::stub_split_fire(b, attacker, target);
+            // the primary declaration's twist / flip stands for the secondary targets (one per turn): held locked while
+            // they are declared, then put back (an unlocked "no twist" may still twist in the Physical phase)
+            let was_locked = b.units[attacker].arc_action_locked;
+            b.units[attacker].arc_action_locked = Some(true);
+            for sec in secs {
+                if sec == target || pairs.contains(&(attacker, sec)) {
+                    continue;
+                }
+                pairs.push((attacker, sec));
+                declare_attacks(b, attacker, sec, &mut rep, bot);
+            }
+            b.units[attacker].arc_action_locked = was_locked;
+        }
         let fired = !rep.attacks_list.is_empty();
         let firing: Vec<ItemId> = rep.attacks_list.iter().map(|a| a.weapon).collect();
         reports[idx(attacker)] = rep;
@@ -1588,16 +1673,31 @@ pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBo
     }
     // AMS (p.206): engaged right after the attack rolls, before any damage lands.
     for &(attacker, target) in &pairs {
-        let mut attacks = std::mem::take(&mut reports[idx(attacker)].attacks_list);
+        // only this target's share of the attacker's attacks (split fire)
+        let all = std::mem::take(&mut reports[idx(attacker)].attacks_list);
+        let (mut mine, rest): (Vec<DeclaredAttack>, Vec<DeclaredAttack>) = all.into_iter().partition(|a| a.target == target);
         let mut trep = std::mem::take(&mut reports[idx(target)]);
-        crate::ams::engage(b, target, attacker, &mut attacks, &mut trep);
+        crate::ams::engage(b, target, attacker, &mut mine, &mut trep);
         reports[idx(target)] = trep;
-        reports[idx(attacker)].attacks_list = attacks;
+        // put the list back in its declared order
+        let mut merged: Vec<DeclaredAttack> = Vec::with_capacity(mine.len() + rest.len());
+        let (mut m, mut r) = (mine.into_iter().peekable(), rest.into_iter().peekable());
+        for t in pairs.iter().filter(|(a, _)| *a == attacker).map(|(_, t)| *t) {
+            if t == target {
+                merged.extend(m.by_ref());
+            } else {
+                while r.peek().is_some_and(|x| x.target == t) {
+                    merged.push(r.next().unwrap());
+                }
+            }
+        }
+        merged.extend(r);
+        reports[idx(attacker)].attacks_list = merged;
     }
     for &(attacker, target) in &pairs {
         let hp_before = total_hp(&b.units[target]);
         let mut pool: Option<Pool> = if b.cfg.b("POOL_CLUSTER_DAMAGE") { Some(Pool::default()) } else { None };
-        let attacks = reports[idx(attacker)].attacks_list.clone();
+        let attacks: Vec<DeclaredAttack> = reports[idx(attacker)].attacks_list.iter().filter(|a| a.target == target).cloned().collect();
         for attack in &attacks {
             let w = attack.weapon;
             let wname = b.units[attacker].items[w].name.clone();
@@ -1662,5 +1762,9 @@ pub fn run_ranged_phase(b: &mut Battle, order: &[UnitId], bot: &mut dyn RangedBo
         b.with_piloting(m, |b| crate::piloting_rolls::resolve_attack_phase_psr(b, m, &[]));
         crate::piloting_rolls::resolve_consciousness_checks(b, m, "Attack Phase");
     }
+    // this phase's declarations end with it: next turn's firing order is worked out before its phase begins, and must not
+    // see them (split fire's primaries would make its dry runs secondary attacks)
+    b.split_fire.clear();
+    b.indirect_pairs.clear();
     reports
 }

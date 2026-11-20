@@ -291,11 +291,13 @@ pub fn active_stealth(mech: &Mech) -> Vec<&'static str> {
     if mech.shutdown || blue_shield_on(mech) {
         return vec![];
     }
-    let mut active: Vec<&'static str> = ["chameleon", "null_signature"].into_iter().filter(|k| system_live(mech, k)).collect();
-    if mech.has_stealth_armor && ecm_live(mech) && !modular_active(mech) {
+    // T16: a switch the bot turned off (BotHeatEquipmentManager) is off, whatever else is true
+    let on = |k: &str| !mech.systems_off.iter().any(|o| o == k);
+    let mut active: Vec<&'static str> = ["chameleon", "null_signature"].into_iter().filter(|k| system_live(mech, k) && on(k)).collect();
+    if mech.has_stealth_armor && ecm_live(mech) && !modular_active(mech) && on("stealth_armor") {
         active.push("stealth_armor");
     }
-    if system_live(mech, "void_signature") && ecm_live(mech) {
+    if system_live(mech, "void_signature") && ecm_live(mech) && on("void_signature") {
         active.push("void_signature");
     }
     active
@@ -354,6 +356,10 @@ pub fn use_escalating(b: &mut Battle, u: UnitId, label: &str, turn_number: Optio
 }
 
 pub fn radical_planned(b: &mut Battle, u: UnitId, turn_number: Option<i64>, warn: bool) -> bool {
+    if b.units[u].heat_managed {
+        // T16: the bot's own switch (BotHeatEquipmentManager.manageRadicalHeatSink) replaces the cycle stub
+        return system_live(&b.units[u], "radical") && !b.units[u].shutdown && b.units[u].radical_on;
+    }
     system_live(&b.units[u], "radical") && !b.units[u].shutdown && use_escalating(b, u, "radical heat sink system", turn_number, warn)
 }
 

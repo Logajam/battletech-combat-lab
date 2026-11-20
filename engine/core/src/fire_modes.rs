@@ -113,14 +113,14 @@ impl ShotPlan {
         &self.guidance.munition
     }
     pub fn hex_attack(&self) -> bool {
-        self.kind == "saturation" || self.kind == "artillery"
+        self.kind == "saturation" || self.kind == "artillery" || self.kind == "distant"
     }
     pub fn tn(&self) -> i64 {
         let mut tn = self.guidance.tn + if self.kind == "cluster" { LBX_CLUSTER_TN } else { 0 };
         if BOMBAST_KINDS_LIST.contains(&self.kind.as_str()) {
             tn += wp::bombast(&self.kind).1;
         }
-        if self.kind == "artillery" {
+        if self.kind == "artillery" || self.kind == "distant" {
             tn += wp::ARROW_TN;
         }
         tn
@@ -141,6 +141,7 @@ impl ShotPlan {
                 "srm" => "MML SRM rounds".to_string(),
                 "saturation" => "Apollo saturation".to_string(),
                 "artillery" => "artillery at the hex".to_string(),
+                "distant" => "distant artillery at the hex, lands next turn".to_string(),
                 "array" => format!("array of {}", self.shots),
                 "homing" => "homing at the TAG-designated target".to_string(),
                 other => format!("{} damage", other),
@@ -235,6 +236,11 @@ pub fn weapon_range(b: &mut Battle, u: UnitId, w: ItemId, plan: &ShotPlan) -> Op
     }
     if plan.kind == "homing" {
         return Some(RangeSpec { min: Some(0), short: wp::HOMING_REACH, medium: wp::HOMING_REACH, long: wp::HOMING_REACH, floor: Some(1) });
+    }
+    if plan.kind == "distant" {
+        // p.182: 18 hexes or more, no upper limit on the board (artillery.rs)
+        let reach = crate::artillery::DISTANT_REACH;
+        return Some(RangeSpec { min: Some(0), short: reach, medium: reach, long: reach, floor: Some(crate::artillery::DISTANT_MIN) });
     }
     if wp::is_arrow(b, u, w) {
         let (lo, hi) = wp::ARROW_RANGE;
@@ -533,6 +539,11 @@ pub fn kind_options(b: &mut Battle, attacker: UnitId, w: ItemId, target: UnitId)
         let mut plans = Vec::new();
         if have.contains(&("standard".to_string(), String::new())) {
             plans.push(ShotPlan::with_kind("artillery"));
+            // distant fire (18+ hexes, lands next turn; p.182): whether to use it is a bot decision (a stub for now)
+            let far = crate::forces::distance(b, attacker, target).is_some_and(|d| d >= crate::artillery::DISTANT_MIN);
+            if far && crate::stubs::stub_distant_artillery(b, attacker, target) {
+                plans.push(ShotPlan::with_kind("distant"));
+            }
         }
         if have.contains(&("homing".to_string(), String::new())) && b.units[target].tag_designated.is_some() {
             plans.push(ShotPlan { guidance: FireControl { munition: "homing".into(), note: "homing".into(), ..FireControl::plain() }, ..ShotPlan::with_kind("homing") });
@@ -721,7 +732,7 @@ impl<'a> Planner<'a> {
             return Some((p * wp::homing_damage(b, a, w) as f64 + (1.0 - p) * wp::HOMING_AE as f64, wp::HOMING_TN));
         }
         let p = crate::combat::hit_probability(tn);
-        if plan.kind == "artillery" || wp::is_art_cannon(b, a, w) {
+        if plan.kind == "artillery" || plan.kind == "distant" || wp::is_art_cannon(b, a, w) {
             let near = crate::combat::hit_probability(tn - 2) - p;
             return Some((p * damage_per(b, a, w, &plan).unwrap_or(0) as f64 + near * wp::splash(b, a, w) as f64, tn));
         }
@@ -846,6 +857,10 @@ pub fn declare_unjams(b: &mut Battle, u: UnitId) {
     if b.units[u].shutdown {
         return;
     }
+    // T16 step 2: Princess / CASPAR decide after the move is chosen (`princess_modern::rank` -> `princess_declare_unjam`)
+    if b.units[u].is_princess_family() {
+        return;
+    }
     let mut picked = Vec::new();
     let name = b.units[u].side_name.clone().unwrap_or_default();
     for w in get_weapons(&b.units[u]) {
@@ -862,6 +877,30 @@ pub fn declare_unjams(b: &mut Battle, u: UnitId) {
         let names: Vec<String> = picked.iter().map(|w| b.units[u].items[*w].name.clone()).collect();
         b.log(format!("  [Movement] {} tries to unjam {} (stand still or walk only, p.183).", name, crate::damage_resolution::py_str_list(&names)));
     }
+}
+
+/// T16 step 2: movement is limited to Stand Still / Walk while the unit has declared an unjam, and, for a Princess-family
+/// unit, whenever it has a jammed weapon it could try to clear (MegaMek PathRanker: with `canUnjamRAC` every path that
+/// runs or jumps is INADVISABLE, whether or not the unjam is then attempted). Never while prone (as `stub_unjam`).
+pub fn walk_only_for_unjam(m: &crate::mech_state::Mech) -> bool {
+    !m.unjamming.is_empty() || (m.is_princess_family() && !m.shutdown && !m.prone && !jammed_ids(m).is_empty())
+}
+
+/// MegaMek Princess.unjamRAC (embellishPath): a chosen path that stays within walking MP gets an unjam step appended when
+/// the path's expected damage is under 5 (`expectedDamage >= 5` means fire instead). `path_mode` is the chosen move's mode;
+/// the unjam is then tried at the end of the Ranged Attack Phase like any other (`resolve_unjams`).
+pub fn princess_declare_unjam(b: &mut Battle, u: UnitId, path_mode: &str, expected_damage: f64) {
+    if !b.units[u].is_princess_family() || b.units[u].shutdown || b.units[u].prone {
+        return;
+    }
+    let jammed: Vec<ItemId> = get_weapons(&b.units[u]).into_iter().filter(|w| jammed_ids(&b.units[u]).contains(w)).collect();
+    if jammed.is_empty() || !matches!(path_mode, "Stand Still" | "Walk") || expected_damage >= 5.0 {
+        return;
+    }
+    b.units[u].unjamming = jammed.clone();
+    let name = b.units[u].side_name.clone().unwrap_or_default();
+    let names: Vec<String> = jammed.iter().map(|w| b.units[u].items[*w].name.clone()).collect();
+    b.log(format!("  [Movement] {} tries to unjam {} (MegaMek Princess.unjamRAC: expected damage {:.1} < 5; stand still or walk only, p.183).", name, crate::damage_resolution::py_str_list(&names), expected_damage));
 }
 
 /// End of the Ranged Attack Phase: Gunnery + 3 for each attempt (p.183).

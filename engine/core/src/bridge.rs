@@ -81,6 +81,8 @@ pub fn state_json_mode(b: &Battle, last_board: &mut Option<String>, compact_base
         "pushed_this_phase": b.pushed_this_phase,
         "spots": b.spots.iter().map(|s| json!([s.spotter, s.target, s.fires, s.tag])).collect::<Vec<_>>(),
         "indirect_pairs": b.indirect_pairs.iter().map(|(a, t)| json!([a, t])).collect::<Vec<_>>(),
+        "split_fire": b.split_fire.iter().map(|s| json!([s.attacker, s.primary, s.used, s.heat])).collect::<Vec<_>>(),
+        "pending_artillery": b.pending_artillery.iter().map(|s| json!([s.attacker, s.weapon, s.fired_turn, [s.impact.0, s.impact.1], [s.from.0, s.from.1], s.tn, s.damage, s.splash, s.arc_steps])).collect::<Vec<_>>(),
         "hazards_in_phase": b.hazards_in_phase,
         "piloting": b.piloting,
     });
@@ -158,6 +160,21 @@ pub fn load_state(b: &mut Battle, v: &Value, base: &[Value]) {
         tag: s[3].as_bool().unwrap(),
     }).collect()).unwrap_or_default();
     b.indirect_pairs = v.get("indirect_pairs").and_then(|p| p.as_array()).map(|p| p.iter().map(|x| (x[0].as_u64().unwrap() as UnitId, x[1].as_u64().unwrap() as UnitId)).collect()).unwrap_or_default();
+    b.split_fire = v.get("split_fire").and_then(|p| p.as_array()).map(|p| p.iter().map(|s| crate::split_fire::SplitState {
+        attacker: s[0].as_u64().unwrap() as UnitId,
+        primary: s[1].as_u64().unwrap() as UnitId,
+        used: s[2].as_array().unwrap().iter().map(|w| w.as_u64().unwrap() as usize).collect(),
+        heat: s[3].as_i64().unwrap(),
+    }).collect()).unwrap_or_default();
+    b.pending_artillery = v.get("pending_artillery").and_then(|p| p.as_array()).map(|p| p.iter().map(|s| {
+        let i = |k: usize| s[k].as_i64().unwrap();
+        let xy = |k: usize| (s[k][0].as_i64().unwrap(), s[k][1].as_i64().unwrap());
+        let mut arc = [0i64; 6];
+        for (d, a) in arc.iter_mut().enumerate() {
+            *a = s[8][d].as_i64().unwrap();
+        }
+        crate::artillery::PendingStrike { attacker: i(0) as UnitId, weapon: i(1) as usize, fired_turn: i(2), impact: xy(3), from: xy(4), tn: i(5), damage: i(6), splash: i(7), arc_steps: arc }
+    }).collect()).unwrap_or_default();
     b.hazards_in_phase = v["hazards_in_phase"].as_bool().unwrap();
     b.piloting = v["piloting"].as_i64().unwrap();
     if let Some(d) = v.get("dice") {
@@ -184,7 +201,7 @@ pub fn load_state(b: &mut Battle, v: &Value, base: &[Value]) {
 // Combat Lab save of a unit's state needs).
 
 /// The fields of a unit dump that change during a battle (everything else comes from the .mtf and the scenario).
-pub const UNIT_FIELDS: &[&str] = &["_ams_used", "arc_action", "arc_action_locked", "armor_at_turn_start", "armored_slots", "arms_flipped", "autocannon_crits", "blocked_hex", "breached_locations", "breached_slot_set", "capacitor_heat", "capacitors", "cause_of_death", "charging", "club", "cockpit_hit", "crew", "current_heat", "deactivated_heat_sinks", "deferred_end_of_move", "destroyed", "destroyed_heat_sinks", "destroyed_hip_locations", "destroyed_jump_jet_ids", "destroyed_leg_actuators", "destroyed_slot_info", "dfa", "engine_hits", "equipment_systems", "escalating_turns", "explosions", "facing", "gyro_hits", "heat_fire_modifier", "heat_mp_penalty", "hex", "home_edge", "home_edge_row", "hp_log", "jump_only", "locations", "magma_entered", "mech_turret_dir", "modular_armor", "move_fc", "move_mode", "moved_this_turn", "movement_heat", "mp_spent", "narc_pods", "other_unit_hexes", "outside_heat", "pfd_turns_used", "pilot_hits", "pre_attack_phase_snapshot", "preexisting_damage_snapshot", "prone", "round_capable", "run_mp_multiplier", "secondary_hits", "severed_limbs", "severed_seen", "shield_raised", "shutdown", "started_in_liquid", "stuck", "systems_used_this_turn", "tag_designated", "taser_interference_until", "taser_shutdown_until", "torso_twist", "tsemp_hits", "tsemp_interference_until", "tsm_active", "turn_number", "turret_last_offset", "unjamming", "weapons_fired_this_turn"];
+pub const UNIT_FIELDS: &[&str] = &["_ams_used", "arc_action", "arc_action_locked", "armor_at_turn_start", "armored_slots", "arms_flipped", "autocannon_crits", "blocked_hex", "breached_locations", "breached_slot_set", "capacitor_heat", "capacitors", "cause_of_death", "charging", "club", "cockpit_hit", "crew", "current_heat", "deactivated_heat_sinks", "deferred_end_of_move", "destroyed", "destroyed_heat_sinks", "destroyed_hip_locations", "destroyed_jump_jet_ids", "destroyed_leg_actuators", "destroyed_slot_info", "dfa", "engine_hits", "equipment_systems", "escalating_turns", "explosions", "facing", "gyro_hits", "heat_fire_modifier", "heat_managed", "heat_mp_penalty", "hex", "home_edge", "home_edge_row", "hp_log", "jump_only", "locations", "magma_entered", "mech_turret_dir", "modular_armor", "move_fc", "move_mode", "moved_this_turn", "movement_heat", "mp_spent", "narc_pods", "other_unit_hexes", "outside_heat", "pfd_turns_used", "pilot_hits", "pre_attack_phase_snapshot", "preexisting_damage_snapshot", "prone", "radical_on", "round_capable", "run_mp_multiplier", "secondary_hits", "severed_limbs", "severed_seen", "shield_raised", "shutdown", "started_in_liquid", "stuck", "systems_off", "systems_used_this_turn", "tag_designated", "taser_interference_until", "taser_shutdown_until", "torso_twist", "tsemp_hits", "tsemp_interference_until", "tsm_active", "turn_number", "turret_last_offset", "unjamming", "weapons_fired_this_turn"];
 
 /// The fields of an equipment object that change during a battle (shots, jams, explosions, capacitor charge...).
 pub const ITEM_FIELDS: &[&str] = &["capacitor", "charged", "charging", "damage_per_shot", "exploded", "explosion_damage", "fired_once", "firing", "heat", "is_explosive", "jammed", "linked_ppc", "modular_points", "partner", "partner_of_slot", "pod_used", "shield_dc", "shots_left", "tsemp_recharge_until"];
@@ -755,6 +772,10 @@ fn call(b: &mut Battle, bots: &mut dyn BotSet, method: &str, a: &Value) -> Value
             bots.end_movement(b);
             Value::Null
         }
+        "manage_heat_equipment" => {
+            bots.manage_heat_equipment(b);
+            Value::Null
+        }
         "end_of_turn" => {
             bots.end_of_turn(b);
             Value::Null
@@ -1133,6 +1154,9 @@ impl BotSet for Recorder<'_> {
     }
     fn unit_moved(&mut self, b: &mut Battle, mover: UnitId, start_hex: Option<&str>) {
         self.run(b, "unit_moved", json!({"mover": mover, "start_hex": start_hex}));
+    }
+    fn manage_heat_equipment(&mut self, b: &mut Battle) {
+        self.run(b, "manage_heat_equipment", json!({}));
     }
     fn end_of_turn(&mut self, b: &mut Battle) {
         self.run(b, "end_of_turn", json!({}));
