@@ -79,6 +79,8 @@ pub fn state_json_mode(b: &Battle, last_board: &mut Option<String>, compact_base
         "limbs_on_ground": b.limbs_on_ground.iter().map(|(k, n)| json!([k, n])).collect::<Vec<_>>(),
         "move_queue": b.move_queue,
         "pushed_this_phase": b.pushed_this_phase,
+        "spots": b.spots.iter().map(|s| json!([s.spotter, s.target, s.fires, s.tag])).collect::<Vec<_>>(),
+        "indirect_pairs": b.indirect_pairs.iter().map(|(a, t)| json!([a, t])).collect::<Vec<_>>(),
         "hazards_in_phase": b.hazards_in_phase,
         "piloting": b.piloting,
     });
@@ -149,6 +151,13 @@ pub fn load_state(b: &mut Battle, v: &Value, base: &[Value]) {
     b.limbs_on_ground = v["limbs_on_ground"].as_array().unwrap().iter().map(|p| (p[0].as_str().unwrap().to_string(), p[1].as_i64().unwrap())).collect();
     b.move_queue = v["move_queue"].as_array().unwrap().iter().map(|u| u.as_u64().unwrap() as UnitId).collect();
     b.pushed_this_phase = v.get("pushed_this_phase").and_then(|p| p.as_array()).map(|p| p.iter().map(|u| u.as_u64().unwrap() as UnitId).collect()).unwrap_or_default();
+    b.spots = v.get("spots").and_then(|p| p.as_array()).map(|p| p.iter().map(|s| crate::spotting::Spot {
+        spotter: s[0].as_u64().unwrap() as UnitId,
+        target: s[1].as_u64().unwrap() as UnitId,
+        fires: s[2].as_bool().unwrap(),
+        tag: s[3].as_bool().unwrap(),
+    }).collect()).unwrap_or_default();
+    b.indirect_pairs = v.get("indirect_pairs").and_then(|p| p.as_array()).map(|p| p.iter().map(|x| (x[0].as_u64().unwrap() as UnitId, x[1].as_u64().unwrap() as UnitId)).collect()).unwrap_or_default();
     b.hazards_in_phase = v["hazards_in_phase"].as_bool().unwrap();
     b.piloting = v["piloting"].as_i64().unwrap();
     if let Some(d) = v.get("dice") {

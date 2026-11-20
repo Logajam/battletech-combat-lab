@@ -62,6 +62,7 @@ pub mod dfa;
 pub mod deployment;
 pub mod playout;
 pub mod tag;
+pub mod spotting;
 pub mod ranged_combat;
 pub mod results;
 pub mod orchestrator;

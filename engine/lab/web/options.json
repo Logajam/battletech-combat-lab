@@ -293,6 +293,17 @@
 ]
 },
 {
+"key": "STUB_SPOT",
+"label": "Stub spot",
+"top": "Game setup",
+"folder": "Placeholders (stubs)",
+"kind": "text",
+"default": "never",
+"short": "Spotting for indirect fire (Core p.70; Rust engine only, session 30): does a unit spot this turn?",
+"text": "Spotting for indirect fire (Core p.70; Rust engine only, session 30): does a unit spot this turn? \"never\" (the default: the bots' own spotting logic is built elsewhere; a TAG hit still spots) / \"when_useful\" (the enemy it sees that the most friends can't see but could hit indirectly; it keeps firing, +1 to its own attacks).",
+"active": true
+},
+{
 "key": "STUB_TAG_AIM",
 "label": "Stub tag aim",
 "top": "Game setup",

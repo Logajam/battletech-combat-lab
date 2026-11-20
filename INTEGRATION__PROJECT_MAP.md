@@ -162,6 +162,11 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
 
 **B. Princess clone** [00] - still to clone when the project has the rules: forced withdrawal, artillery / TAG
 standoff, sprinting, multi-target fire, unit orders.
+BUILDING (Daniel, 2026-11-20; Section 5 "Split fire, indirect fire, on-board artillery"): (1) indirect fire + spotting,
+engine then Princess / CASPAR's choices (MegaMek FireControl: indirect mode, `getSpotAction`, MIN_USEFUL_FIRING_DAMAGE 1.0);
+(2) on-board artillery: distant Arrow IV (18+ hexes, lands next turn), Princess's ArtilleryTargetingControl; (3) split
+fire in the engine (Princess / CASPAR single-target as MegaMek does for an ordinary 'Mech: its MultiTargetFireControl is
+only for Multi-Tasker / dedicated gunner / Multi-Trac). Stubs for what Gladiator / Hydra don't use.
 FOUND 2026-11-20 (Daniel: "Why wasn't this already included for Princess? What other features are we missing still?"): the
 clone was built from MegaMek's `client/bot/princess/` folder; the bot code ABOVE it (`BotClient`, `BotHeatEquipmentManager`,
 run for Princess and CASPAR alike) was never ported, and the engine-wide "default on" for heat equipment (2026-10-19) hid it.
@@ -877,6 +882,16 @@ forward arc, kicks included, never into a side arc.
 
 ## 5. DECISIONS LOG (Daniel's calls — implementation may not override)
 
+- **Split fire, indirect fire, on-board artillery (Daniel, 2026-11-20):** "Lets start with functionality that princess
+  probably needs. Split fire, indirect fire, and artillery." Then: "split fire yes. Completeness and the wiring in place
+  for when our bots expand their minds." "We are not incorporating Support or asset rules unless we get really bored and
+  want to be completionists. Artillery has to be on board with what the units can use." "Be sure to have stub markers for
+  features Gladiator and Hydra don't know how to do or use yet so we remember to come back and fix them." So: the engine
+  gets split fire (Core p.64), indirect fire with spotting (p.70, p.62) and artillery the units carry (Arrow IV close and
+  distant, artillery cannons, Thumper / Sniper; pp.182-183); no Battlefield Support (pp.149-156) or Assets. Princess /
+  CASPAR follow MegaMek (single target for an ordinary 'Mech; indirect fire, spotting, artillery targeting). Every one of
+  these Gladiator / Hydra can't yet use is a loud stub (INTEGRATION__stubs / stubs.rs, counted) and a Section 6 row.
+
 - **Hydra is complete (Daniel, 2026-11-12):** "I think this concludes building Hydra." Fable's list is all built.
   "cheap runs against inferior opponents means you learn nothing. Leave them all on": Hydra plays with all five planner
   switches on (S5a play-out, S4 charges / DFA, S3 move order, Waiting, Oracle attention share); each stays a switch with an
@@ -1230,6 +1245,8 @@ forward arc, kicks included, never into a side arc.
 | PPC capacitor at the start | `stubs.stub_capacitor_start` | STUB (`STUB_CAPACITOR_START`, default "empty"): start the battle charged (p.188); Memo: the PPC-charging bot session |
 | Charge a PPC capacitor | `stubs.stub_capacitor_charge` | STUB (`STUB_CAPACITOR_CHARGE`, default "never"; "when_idle" = whenever the PPC isn't fired): charge instead of firing (p.188); Memo: weigh 5 heat now and each turn held against +5 damage, and let weapon choice see the holding heat |
 | Fire TAG | `stubs.stub_fire_tag` | STUB (`STUB_FIRE_TAG`, default "when_useful": the 'Mech has homing artillery rounds): designate the enemy before the Ranged Attack Phase (p.200); Memo: the twist / flip TAG may use first, semi-guided rounds |
+| Spot for indirect fire | `stubs.stub_spot` (Rust, `spotting.rs`) | STUB (`STUB_SPOT`, default "never" - Daniel, 2026-11-20: "who told those units to spot? The logic for it is supposed to be being built elsewhere" - so no unit spots until its bot decides; a TAG hit still spots, p.70; "when_useful": spot the enemy it sees that the most friends can't see but could hit indirectly, nearest first; it keeps firing, +1 to its own attacks) - EVERY bot for now (session 30, Core p.70 / p.62). Princess / CASPAR: MegaMek's `FireControl.getSpotAction` (spot instead of a shot under 1 point; task in progress). Gladiator / Hydra: no rule of their own yet (Daniel, 2026-11-20) |
+| Gladiator / Hydra plan for indirect fire | `warn_stub("indirect_unplanned")` in `attack_resolution::prepare_declaration` | REMINDER STUB (counted, changes nothing): they fire indirectly when the shot is there (any enemy without line of sight with a friendly spotter), but neither their movement nor their target choice plans for indirect fire or for spotting (Daniel, 2026-11-20: "stub markers for features Gladiator and Hydra don't know how to do or use yet") |
 | TAG aim | `stubs.stub_tag_aim` | STUB (`STUB_TAG_AIM`, default "mech"; "hex" / "easier"): designate the enemy or the ground it stands on (Daniel 2026-10-21: ground is easier, homing then does 5 AE to the 'Mech - "a bot logic question") |
 | Club pick-up | `INTEGRATION__clubs.maybe_pick_up` | ON (`config.CLUB_PICKUP`, Daniel 2026-10-21): picks one up on a turn it fires nothing; smarter use waits for the Memo below |
 | DFA miss: where the target steps | `INTEGRATION__dfa.resolve` | The open hex with the smallest drop |

@@ -444,7 +444,7 @@ Attack Phase PSR: needs 7 (Piloting 5 + +2). Rolled 8.
   [Movement] Red: shut down - skips movement (immobile).
   [Ranged] Blue: no LOS to Red - only its mortars may fire, indirectly (+3: indirect +1, no spotter +2; target hex terrain only).
   [Ranged] Blue twists its torso 1 hexside left (Red is in its torso's left side arc after that).
-  [Ranged] Blue -> Red: range 11, base TN 1 (gunnery 4 + AMM 1 [Walk] + TMM -4 + LOS 0 + heat 0); firing ['Clan Mech Mortar-8'] (aimed at Center Torso) (weapon heat 10 of budget 49 = max 30 + sink 20 - current 0 - movement 1 - other 0; expected dmg 7.34)
+  [Ranged] Blue -> Red: range 11, base TN 1 (gunnery 4 + AMM 1 [Walk] + TMM -4 + LOS 0 + heat 0); firing ['Clan Mech Mortar-8'] (weapon heat 10 of budget 49 = max 30 + sink 20 - current 0 - movement 1 - other 0; expected dmg 7.34)
     Clan Mech Mortar-8: needs 6 (range mod +2, modifiers +3), rolled 7 -> HIT [Clan Ammo SC Mortar-8: 0 shots left]
   [Ranged] Red: shut down - no attacks.
     Clan Mech Mortar-8 hit: cluster roll 6 on the 8-column table -> 5 connect (10 dmg).

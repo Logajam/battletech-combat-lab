@@ -173,6 +173,29 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   Rerun `python tools/benchmark_report.py --bv-file LISTS.json` (LISTS.json: the Lab's `list_units` output) for the tables.
   Checks: no engine or test file changed; `run_checks.py` not run (docs and new tools only).
 
+- **2026-11-20 (Claude, session 30), RULES: INDIRECT FIRE AND SPOTTING (Core p.70, p.62; `engine/core/src/spotting.rs`).
+  REVIEW PENDING (higher-level model).** Daniel: "Lets start with functionality that princess probably needs. Split fire,
+  indirect fire, and artillery"; "Be sure to have stub markers for features Gladiator and Hydra don't know how to do or use
+  yet" (PROJECT_MAP Section 5). Rust only. BUILT: with no line of sight, an attacker's LRM (every kind but the Streak LRM),
+  MML, Thunderbolt, 'Mech mortar, Arrow IV / Thumper / Sniper and artillery-cannon weapons fire indirectly through a
+  friendly spotter of that target: +1 indirect, the spotter's movement modifier, +1 if the spotter also attacks, terrain
+  along the SPOTTER's line; no aimed shot, no Artemis bonus (`electronics::control_for`, ATM's too), partial cover
+  ignored. The spotter takes +1 on its own attacks when it spots and fires. A TAG hit spots its target with no
+  attacking penalty (`tag.rs`). With no spotter only mortars fire indirectly, as before (TO:AUE p.136); a spotted mortar
+  now uses the standard rules. Spots are settled at the start of the Ranged Attack Phase (attacks here are rolled as
+  each unit declares); the firer takes the spotter with the lowest modifier. Who spots: `stubs::stub_spot`
+  (`STUB_SPOT`, default "never": Daniel, "who told those units to spot? The logic for it is supposed to be being built
+  elsewhere"; so only a TAG hit spots until the bots' own spotting logic is built; Section 6). Gladiator / Hydra reminder stub `indirect_unplanned`. Battle
+  state: `Battle::spots`, `Battle::indirect_pairs` (sent through the bridge). LOG ONLY: an indirect attack no longer plans an aimed
+  shot (p.70); the mortar in `cov_mortar_indirect` was never actually aimed (a cluster weapon can't be, p.70,
+  `fire_modes::aimable`; Daniel: "Mortar shouldn't be able to use an aimed shot because its a cluster weapon anyways"),
+  only its declaration line named the planned aim; that line changed, nothing else.
+  NOT BUILT (known gaps): Narc-equipped missiles firing indirectly at a Narc-pod target with no spotter (p.70 / p.62);
+  semi-guided missiles with TAG; partial cover from water or a building kept for indirect fire; an MML firing its SRM
+  rounds indirectly is not stopped.
+  RESULTS: none changed (STUB_SPOT defaults to "never"; with "when_useful" 32 team battles changed, all from spots);
+  `cov_mortar_indirect`'s declaration line re-recorded (`check_rust_reference.py --update`).
+
 - **2026-11-20 (Claude, session 30), RESEARCH: CONTROLLED TEST OF FERRO-LAMELLOR ARMOR (`tools/feature_test.py ferrolam`).
   REVIEW PENDING (higher-level model).** Daniel: "Ferro-lam is the fairest to test. Reactive and reflective are dependant on
   what their opponents are using, and we don't have some of the damage types reactive is used for active yet." The hardened

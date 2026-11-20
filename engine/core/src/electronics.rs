@@ -199,8 +199,10 @@ pub fn control_for(b: &mut Battle, attacker: UnitId, weapon: ItemId, target: Uni
     let lock = !(is_streak(b, attacker, weapon) && angel_field(&b.units[target]));
     let cluster_weapon = is_cluster(b, attacker, weapon);
     let (mut tn, mut cluster, mut note) = (0, 0, String::new());
+    // Core p.70: no Artemis FCS bonus of any kind applies to an indirect fire attack
+    let indirect = b.indirect_pairs.contains(&(attacker, target));
     if is_atm(b, attacker, weapon) {
-        if !artemis_blocked(&b.units[attacker], &b.units[target]) {
+        if !indirect && !artemis_blocked(&b.units[attacker], &b.units[target]) {
             cluster = ATM_CLUSTER;
             note = "ATM Artemis".into();
         }
@@ -210,7 +212,7 @@ pub fn control_for(b: &mut Battle, attacker: UnitId, weapon: ItemId, target: Uni
         note = "Narc homing".into();
     } else if munition == "artemis4" || munition == "artemis5" {
         let kind: i64 = munition[munition.len() - 1..].parse().unwrap();
-        if artemis_kind(&b.units[attacker], weapon) == Some(kind) && !artemis_blocked(&b.units[attacker], &b.units[target]) {
+        if !indirect && artemis_kind(&b.units[attacker], weapon) == Some(kind) && !artemis_blocked(&b.units[attacker], &b.units[target]) {
             let (t, c) = artemis_bonus(kind);
             tn = t;
             cluster = c;

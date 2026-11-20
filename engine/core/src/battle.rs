@@ -158,6 +158,10 @@ pub struct Battle {
     /// Physical Attack Phase: the 'Mechs a push has been declared against this phase (p.83: a 'Mech is the target of
     /// only one charge, DFA or push a turn). Emptied at the start of each Physical Attack Phase.
     pub pushed_this_phase: Vec<UnitId>,
+    /// spotting.rs: this turn's spots for indirect fire (TAG hits and declared spotters); remade each Ranged Attack Phase
+    pub spots: Vec<crate::spotting::Spot>,
+    /// spotting.rs: (attacker, target) pairs attacked INDIRECTLY this Ranged Attack Phase (no Artemis bonus, p.70)
+    pub indirect_pairs: Vec<(UnitId, UnitId)>,
     /// INTEGRATION__los_cache: lines of sight the bots asked about, (from, to, heights) -> answer (None = the line runs
     /// off the board). Speed only: emptied whenever the board changes (`board_changed`).
     /// finished movement tables (`movement_table`); speed only, emptied when the board changes
@@ -228,6 +232,8 @@ impl Battle {
             hydra: Default::default(),
             move_queue: Vec::new(),
             pushed_this_phase: Vec::new(),
+            spots: Vec::new(),
+            indirect_pairs: Vec::new(),
             los_memo: Default::default(),
             table_memo: Default::default(),
         }
