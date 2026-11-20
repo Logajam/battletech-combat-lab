@@ -106,6 +106,10 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   CLN-7V v Koschei KSC-3L; Locust LCT-3V v Sentinel STN-3K; Locust LCT-1V v Sentinel STN-1S; Banshee BNC-3MC v Wolverine
   WVR-6M; Javelin JVN-10F v Shadow Hawk SHD-2K; Javelin JVN-10F v Von Rohrs VON 4RH-5; Jenner JR7-D v Scorpion SCP-1N; Koschei
   KSC-3L v Jenner JR7-F (Smith). Even overall but split by bot (e.g. Atlas AS7-S2 v Hammerhead: Hydra 0.40, Princess 0.60).
+- VALUE SYSTEM (`tools/duel_value.py`, 2026-11-20): BV corrected by each 'Mech's numbers predicts never-fought duels better
+  than BV (mean error 0.12 v 0.16, 80 pairs); a 'Mech's own battle rating is far better still (0.045). Durability is most of
+  duel strength; short-range damage next; speed little. Next test: random pairs (this one was picked on the model's own
+  guesses), and the fitted value as a per-'Mech table Daniel can read.
 - NEXT (not started): the BV question proper - fit a duel-strength model (ratings v BV and v the unit's numbers) and show where
   BV is off and by how much; more pools (TRO 3039, Clan); 2 v 2 to see whether duel fairness carries to teams. A duel is not
   the battle BV was built for (forces), so read any BV correction with that in mind.
@@ -268,6 +272,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s30-10) DUEL VALUE SYSTEM** (session 30): `tools/duel_value.py` (profile: damage by range, heat scaling, ammo turns; the logistic fit; the test-pair draw). Look at: the selection effect in `predict` (pairs chosen on the value model's own guess) and the missile cluster factor.
 - **(s30-9) FAIR DUELS + QUAD PRONE FIRE** (session 30): `tools/fair_duels.py` (cell design, edge / seat balance, Bradley-Terry, candidate choice, resume), `attack_resolution::prone_fire` (Core p.238). Look at: whether the FAIR test (every bot within 2 standard errors) is the right bar with 60 pairs tested (some pass or fail by chance).
 - **(s30-8) HYDRA ATTENTION MEMO** (session 30): `hydra::AttentionMemo` (`pose_sig`, the adjacent-pair exception, `memo_check`). Look at: anything else the Oracle estimate reads from units other than the two (a new rule could break the memo; run with BTSIM_HYDRA_MEMO_CHECK=1 after estimate changes).
 - **(s30-7) TURRET CHECK SPEED-UP** (session 30): `arcs::norm_ends_with` and its callers (`has_quad_turret`, `mech_turrets`, `mech_turret_locked`, `turret_locked`), test `arcs::norm_tests`. Look at: that it matches `norm(..).ends_with` for every name (non-ASCII falls back).
