@@ -947,10 +947,18 @@ pub fn start_battle(b: &mut Battle, max_turns: i64, marks: Marks) -> Play {
         let mut st = SideStats::new(format!("{} ({} {})", m.side_name.clone().unwrap_or_default(), m.chassis, m.model), hp);
         let num = |n: crate::pyfmt::Num| match n { crate::pyfmt::Num::I(i) => i as f64, crate::pyfmt::Num::F(f) => f };
         for (loc, v) in m.locations.iter() {
-            let (a, s) = (num(v.armor + v.rear_armor.unwrap_or(crate::pyfmt::Num::I(0))), num(v.structure));
-            st.max_armor += a;
+            let (f, r, s) = (num(v.armor), num(v.rear_armor.unwrap_or(crate::pyfmt::Num::I(0))), num(v.structure));
+            st.max_armor += f + r;
             st.max_structure += s;
-            st.locations.insert(loc.to_string(), [a, a, s, s]);
+            st.locations.insert(loc.to_string(), [f, f, s, s, r, r]);
+        }
+        // every critical slot by name, all working at the start (the end of the battle marks the lost ones)
+        for loc in m.locations.keys() {
+            if m.crits.contains_key(loc.as_str()) {
+                let names = crate::mech_state::display_crits(m, loc);
+                st.crit_alive.insert(loc.to_string(), vec![true; names.len()]);
+                st.crit_names.insert(loc.to_string(), names);
+            }
         }
         // every weapon appears in the tallies from the start, so one that never fired shows as zero
         let mut zero: IndexMap<String, [f64; 4]> = IndexMap::default();
@@ -1043,12 +1051,35 @@ fn play_turn(b: &mut Battle, bots: &mut dyn BotSet, play: &mut Play, turn: i64, 
         phase_movement(b, bots, mover, foe, turn, moves_first);
         b.units[mover].moved_this_turn = true;
         bots.unit_moved(b, mover, start_hex.as_deref());
+        // statistics only: how far the unit went this turn (straight-line hexes from where it started)
+        if let (Some(a), Some(z)) = (start_hex.as_deref().and_then(|h| hex_geometry::parse_hex_label(h).ok()), forces::hex_xy(b, mover)) {
+            b.tally.fit(b.units.len());
+            b.tally.track[mover][0] += crate::los::hex_distance(a, z) as f64;
+            b.tally.track[mover][1] += 1.0;
+        }
         let label = format!("{} moves", name(b, mover));
         marks(b, turn, &label);
     }
 
     b.move_queue.clear();
     bots.end_movement(b);
+    // statistics only: spacing once everyone has moved (nearest enemy; mean distance to living allies)
+    {
+        b.tally.fit(b.units.len());
+        let on_board: Vec<UnitId> = (0..b.units.len()).filter(|&u| !b.is_destroyed(u) && b.units[u].hex.is_some()).collect();
+        for &u in &on_board {
+            let team = b.units[u].team.clone();
+            let (mut near, mut ally_sum, mut allies) = (i64::MAX, 0i64, 0i64);
+            for &o in &on_board {
+                if o == u { continue; }
+                let Some(d) = forces::distance(b, u, o) else { continue };
+                if b.units[o].team != team { near = near.min(d); } else { ally_sum += d; allies += 1; }
+            }
+            let t = &mut b.tally.track[u];
+            if near != i64::MAX { t[2] += near as f64; t[3] += 1.0; }
+            if allies > 0 { t[6] += ally_sum as f64 / allies as f64; t[7] += 1.0; }
+        }
+    }
     if (0..b.units.len()).any(|u| b.units[u].hex.is_none()) && forces::teams_standing(b).len() < 2 {
         play.result.turns_taken = turn;
         conclude(b, play);
@@ -1126,20 +1157,29 @@ fn finish(b: &mut Battle, play: &mut Play) {
         };
         let (mut armor, mut structure) = (0.0, 0.0);
         let num = |n: crate::pyfmt::Num| match n { crate::pyfmt::Num::I(i) => i as f64, crate::pyfmt::Num::F(f) => f };
-        let mut locs: IndexMap<String, [f64; 4]> = IndexMap::default();
+        let mut locs: IndexMap<String, [f64; 6]> = IndexMap::default();
         for (loc, v) in b.units[u].locations.iter() {
-            let a = num(v.armor + v.rear_armor.unwrap_or(crate::pyfmt::Num::I(0)));
+            let (f, r) = (num(v.armor), num(v.rear_armor.unwrap_or(crate::pyfmt::Num::I(0))));
             let st = num(v.structure);
-            armor += a;
+            armor += f + r;
             structure += st;
-            locs.insert(loc.to_string(), [a, 0.0, st, 0.0]);
+            locs.insert(loc.to_string(), [f, 0.0, st, 0.0, r, 0.0]);
         }
         b.tally.fit(b.units.len());
         let s = play.unit_stats.get_mut(&nm).unwrap();
         for (loc, now) in locs.iter() {
-            let at_start = s.locations.get(loc).copied().unwrap_or([0.0; 4]);
-            s.locations.insert(loc.clone(), [now[0], at_start[1], now[2], at_start[3]]);
+            let at_start = s.locations.get(loc).copied().unwrap_or([0.0; 6]);
+            s.locations.insert(loc.clone(), [now[0], at_start[1], now[2], at_start[3], now[4], at_start[5]]);
         }
+        // which critical slots still work: a slot the game turned into "DESTROYED" is lost (a whole location's when it goes)
+        for (loc, slots) in b.units[u].crits.iter() {
+            if let Some(alive) = s.crit_alive.get_mut(loc.as_str()) {
+                for (i, slot) in slots.iter().enumerate() {
+                    if i < alive.len() && slot.is_name("DESTROYED") { alive[i] = false; }
+                }
+            }
+        }
+        s.track = b.tally.track[u];
         s.final_armor = armor;
         s.final_structure = structure;
         s.kills = b.tally.kills[u];

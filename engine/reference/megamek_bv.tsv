@@ -1,0 +1,4229 @@
+# Battle Value (BV 2.0, pilot 4/5, as built) that MegaMek 0.51.01.7 gives each unit of data/meks.zip: path in the pack, BV.
+# Made 2026-11-20 with MegaMek's own BVCalculator (tests/check_bv_megamek.py compares our BV with it). MegaMek data: CC BY-NC-SA 4.0.
+3039u/Archer ARC-2K.mtf	1356
+3039u/Archer ARC-2R.mtf	1477
+3039u/Archer ARC-2S.mtf	1393
+3039u/Archer ARC-2W.mtf	1338
+3039u/Assassin ASN-101.mtf	757
+3039u/Assassin ASN-21.mtf	749
+3039u/Atlas AS7-D-DC.mtf	1858
+3039u/Atlas AS7-D.mtf	1897
+3039u/Atlas AS7-RS.mtf	1849
+3039u/Awesome AWS-8Q.mtf	1605
+3039u/Awesome AWS-8R.mtf	1470
+3039u/Awesome AWS-8T.mtf	1593
+3039u/Awesome AWS-8V.mtf	1510
+3039u/Banshee BNC-3E.mtf	1422
+3039u/Banshee BNC-3M.mtf	1595
+3039u/Banshee BNC-3MC.mtf	1487
+3039u/Banshee BNC-3Q.mtf	1394
+3039u/Banshee BNC-3S Reinesblatt.mtf	1678
+3039u/Banshee BNC-3S.mtf	1751
+3039u/BattleMaster BLR-1D.mtf	1522
+3039u/BattleMaster BLR-1G-DC.mtf	1494
+3039u/BattleMaster BLR-1G.mtf	1519
+3039u/BattleMaster BLR-1S.mtf	1507
+3039u/Black Knight BL-7-KNT-L.mtf	1409
+3039u/Black Knight BL-7-KNT.mtf	1443
+3039u/Blackjack BJ-1.mtf	949
+3039u/Blackjack BJ-1DB.mtf	1015
+3039u/Blackjack BJ-1DC.mtf	917
+3039u/Blackjack BJ-1X.mtf	964
+3039u/Bombardier BMB-10D.mtf	1340
+3039u/Cataphract CTF-1X.mtf	1316
+3039u/Cataphract CTF-2X.mtf	1344
+3039u/Catapult CPLT-A1.mtf	1285
+3039u/Catapult CPLT-C1 Jenny.mtf	1242
+3039u/Catapult CPLT-C1.mtf	1399
+3039u/Catapult CPLT-C1b.mtf	1570
+3039u/Catapult CPLT-C4.mtf	1358
+3039u/Catapult CPLT-K2.mtf	1319
+3039u/Centurion CN9-A.mtf	945
+3039u/Centurion CN9-AH.mtf	945
+3039u/Centurion CN9-AL.mtf	1057
+3039u/Centurion CN9-YLW Yen Lo Wang.mtf	957
+3039u/Champion CHP-1N2.mtf	1233
+3039u/Champion CHP-2N.mtf	1116
+3039u/Charger CGR-1A1.mtf	981
+3039u/Charger CGR-1A5.mtf	1468
+3039u/Charger CGR-1A9.mtf	1397
+3039u/Charger CGR-1L.mtf	980
+3039u/Charger CGR-SB.mtf	1604
+3039u/Cicada CDA-2A.mtf	659
+3039u/Cicada CDA-2B.mtf	626
+3039u/Cicada CDA-3C.mtf	771
+3039u/Clint CLNT-1-2R.mtf	707
+3039u/Clint CLNT-2-3T Denton.mtf	873
+3039u/Clint CLNT-2-3T.mtf	770
+3039u/Clint CLNT-2-4T.mtf	619
+3039u/Commando COM-1D.mtf	558
+3039u/Commando COM-2D.mtf	541
+3039u/Commando COM-3A.mtf	540
+3039u/Crab CRB-20.mtf	1143
+3039u/Crockett CRK-5003-0.mtf	1704
+3039u/Crusader CRD-3D.mtf	1338
+3039u/Crusader CRD-3K.mtf	1290
+3039u/Crusader CRD-3L.mtf	1297
+3039u/Crusader CRD-3R.mtf	1317
+3039u/Cyclops CP-10-HQ.mtf	1113
+3039u/Cyclops CP-10-Q.mtf	1584
+3039u/Cyclops CP-10-Z.mtf	1317
+3039u/Daboku DCMS-MX90-D.mtf	1290
+3039u/Dervish DV-6M.mtf	1146
+3039u/Dragon DRG-1C.mtf	1215
+3039u/Dragon DRG-1N.mtf	1125
+3039u/Enforcer ENF-4R.mtf	1032
+3039u/Falcon FLC-4N.mtf	610
+3039u/Firestarter FS9-A.mtf	773
+3039u/Firestarter FS9-H.mtf	694
+3039u/Firestarter FS9-K.mtf	763
+3039u/Firestarter FS9-M Mirage.mtf	798
+3039u/Flashman FLS-7K.mtf	1480
+3039u/Flea FLE-15.mtf	430
+3039u/Flea FLE-4.mtf	432
+3039u/Goliath GOL-1H.mtf	1449
+3039u/Grand Dragon DRG-1G.mtf	1300
+3039u/Grasshopper GHR-5H.mtf	1427
+3039u/Griffin GRF-1E Sparky.mtf	1449
+3039u/Griffin GRF-1N.mtf	1272
+3039u/Griffin GRF-1S.mtf	1253
+3039u/Guillotine GLT-4L.mtf	1400
+3039u/Guillotine GLT-4P.mtf	1376
+3039u/Hatamoto-Chi HTM-26T.mtf	1536
+3039u/Hatchetman HCT-3F.mtf	854
+3039u/Hermes HER-1A.mtf	601
+3039u/Hermes HER-1B.mtf	687
+3039u/Hermes II HER-2M Mercury.mtf	910
+3039u/Hermes II HER-2S.mtf	784
+3039u/Hermes II HER-4K Hermes III.mtf	976
+3039u/Highlander HGN-733.mtf	1801
+3039u/Highlander HGN-733C.mtf	1857
+3039u/Highlander HGN-733P.mtf	1865
+3039u/Hornet HNT-151.mtf	488
+3039u/Hornet HNT-152.mtf	475
+3039u/Hunchback HBK-4G.mtf	1041
+3039u/Hunchback HBK-4H.mtf	1067
+3039u/Hunchback HBK-4J.mtf	1143
+3039u/Hunchback HBK-4N.mtf	1087
+3039u/Hunchback HBK-4P.mtf	1138
+3039u/Hunchback HBK-4SP.mtf	1043
+3039u/Hussar HSR-300-D.mtf	543
+3039u/Hussar HSR-350-D.mtf	731
+3039u/JagerMech JM6-A.mtf	1122
+3039u/JagerMech JM6-S.mtf	901
+3039u/Javelin JVN-10F Fire Javelin.mtf	835
+3039u/Javelin JVN-10N.mtf	594
+3039u/Jenner JR7-A.mtf	712
+3039u/Jenner JR7-D.mtf	875
+3039u/Jenner JR7-F.mtf	1011
+3039u/King Crab KGC-0000.mtf	1810
+3039u/King Crab KGC-010.mtf	2181
+3039u/Kintaro KTO-18.mtf	1187
+3039u/Lancelot LNC25-01X.mtf	1659
+3039u/Lancelot LNC25-02.mtf	1236
+3039u/Locust LCT-1E.mtf	553
+3039u/Locust LCT-1L.mtf	474
+3039u/Locust LCT-1M.mtf	424
+3039u/Locust LCT-1S.mtf	440
+3039u/Locust LCT-1V.mtf	432
+3039u/Locust LCT-3V.mtf	490
+3039u/Longbow LGB-0W.mtf	1337
+3039u/Marauder II MAD-4A.mtf	2073
+3039u/Marauder MAD-3D.mtf	1470
+3039u/Marauder MAD-3L.mtf	1369
+3039u/Marauder MAD-3M.mtf	1335
+3039u/Marauder MAD-3R.mtf	1363
+3039u/Mercury MCY-98.mtf	553
+3039u/Mongoose MON-67.mtf	741
+3039u/Mongoose MON-68.mtf	676
+3039u/Orion ON1-K.mtf	1429
+3039u/Orion ON1-V-DC.mtf	1310
+3039u/Orion ON1-V.mtf	1298
+3039u/Orion ON1-VA.mtf	1328
+3039u/Ostroc OSR-2C.mtf	1228
+3039u/Ostroc OSR-2L.mtf	1233
+3039u/Ostroc OSR-2M.mtf	1239
+3039u/Ostroc OSR-3C.mtf	1288
+3039u/Ostscout OTT-7J.mtf	596
+3039u/Ostsol OTL-4D.mtf	1277
+3039u/Ostsol OTL-4F.mtf	1264
+3039u/Panther PNT-8Z.mtf	741
+3039u/Panther PNT-9R.mtf	769
+3039u/Phoenix Hawk PXH-1.mtf	1041
+3039u/Phoenix Hawk PXH-1D.mtf	1083
+3039u/Phoenix Hawk PXH-1K.mtf	1073
+3039u/Quickdraw QKD-4G.mtf	1192
+3039u/Quickdraw QKD-4H.mtf	1242
+3039u/Quickdraw QKD-5A.mtf	1196
+3039u/Raven RVN-1X.mtf	639
+3039u/Raven RVN-2X.mtf	887
+3039u/Raven RVN-3X.mtf	691
+3039u/Raven RVN-4X.mtf	820
+3039u/Rifleman RFL-3C.mtf	1066
+3039u/Rifleman RFL-3N.mtf	1039
+3039u/Rifleman RFL-4D.mtf	1173
+3039u/Scorpion SCP-1N (Wednall).mtf	1043
+3039u/Scorpion SCP-1N.mtf	1019
+3039u/Sentinel STN-1S.mtf	632
+3039u/Sentinel STN-3K.mtf	652
+3039u/Sentinel STN-3KA.mtf	847
+3039u/Sentinel STN-3KB.mtf	823
+3039u/Shadow Hawk SHD-2D.mtf	899
+3039u/Shadow Hawk SHD-2H.mtf	1064
+3039u/Shadow Hawk SHD-2K.mtf	1147
+3039u/Spider SDR-5D.mtf	524
+3039u/Spider SDR-5K.mtf	503
+3039u/Spider SDR-5V.mtf	622
+3039u/Stalker STK-3F.mtf	1559
+3039u/Stalker STK-3H.mtf	1624
+3039u/Stalker STK-4N.mtf	1558
+3039u/Stalker STK-4P.mtf	1461
+3039u/Stinger STG-3G.mtf	497
+3039u/Stinger STG-3R.mtf	359
+3039u/Thorn THE-F.mtf	510
+3039u/Thorn THE-S.mtf	510
+3039u/Thorn THE-T.mtf	500
+3039u/Thug THG-10E.mtf	1501
+3039u/Thunderbolt TDR-5S.mtf	1335
+3039u/Thunderbolt TDR-5SE.mtf	1414
+3039u/Thunderbolt TDR-5SS.mtf	1337
+3039u/Trebuchet TBT-5J.mtf	1191
+3039u/Trebuchet TBT-5N.mtf	1191
+3039u/Trebuchet TBT-5S.mtf	984
+3039u/Trebuchet TBT-7K.mtf	996
+3039u/UrbanMech UM-R60.mtf	504
+3039u/UrbanMech UM-R60L.mtf	470
+3039u/Valkyrie VLK-QA.mtf	723
+3039u/Valkyrie VLK-QF.mtf	653
+3039u/Victor VTR-9A.mtf	1236
+3039u/Victor VTR-9A1.mtf	1302
+3039u/Victor VTR-9B.mtf	1378
+3039u/Victor VTR-9S.mtf	1360
+3039u/Vindicator VND-1AA Avenging Angel.mtf	966
+3039u/Vindicator VND-1R Vong.mtf	1024
+3039u/Vindicator VND-1R.mtf	1024
+3039u/Vindicator VND-1SIC.mtf	1020
+3039u/Vindicator VND-1X.mtf	1008
+3039u/Vulcan VL-2T.mtf	642
+3039u/Vulcan VL-5T.mtf	942
+3039u/Warhammer WHM-6D.mtf	1471
+3039u/Warhammer WHM-6K.mtf	1305
+3039u/Warhammer WHM-6L.mtf	1311
+3039u/Warhammer WHM-6R.mtf	1299
+3039u/Wasp WSP-1A.mtf	384
+3039u/Wasp WSP-1D.mtf	403
+3039u/Wasp WSP-1K.mtf	376
+3039u/Wasp WSP-1L.mtf	335
+3039u/Wasp WSP-1W.mtf	373
+3039u/Whitworth WTH-0.mtf	863
+3039u/Whitworth WTH-1.mtf	982
+3039u/Whitworth WTH-1S.mtf	917
+3039u/Wolfhound WLF-1.mtf	949
+3039u/Wolfhound WLF-1A.mtf	967
+3039u/Wolfhound WLF-1B.mtf	967
+3039u/Wolverine WVR-6K.mtf	1248
+3039u/Wolverine WVR-6M.mtf	1291
+3039u/Wolverine WVR-6R.mtf	1101
+3039u/Wyvern WVE-6N.mtf	1005
+3039u/Zeus ZEU-5S.mtf	1474
+3039u/Zeus ZEU-5T.mtf	1729
+3039u/Zeus ZEU-6S.mtf	1348
+3039u/Zeus ZEU-6T.mtf	1436
+3050U/Annihilator ANH-1A.mtf	1434
+3050U/Annihilator ANH-2A.mtf	1595
+3050U/Annihilator ANH-3A.mtf	1712
+3050U/Annihilator ANH-4A.mtf	1726
+3050U/Annihilator C.mtf	2520
+3050U/Assassin ASN-23.mtf	740
+3050U/Assassin ASN-30.mtf	925
+3050U/Assassin ASN-99.mtf	1116
+3050U/Assassin Servitor.mtf	1019
+3050U/Atlas AS7-C.mtf	2163
+3050U/Atlas AS7-CM.mtf	2036
+3050U/Atlas AS7-K.mtf	2175
+3050U/Atlas AS7-S.mtf	1929
+3050U/Atlas AS7-S2.mtf	2378
+3050U/Awesome AWS-10KM.mtf	1961
+3050U/Awesome AWS-9M.mtf	1812
+3050U/Awesome AWS-9Ma.mtf	1836
+3050U/Awesome AWS-9Q (Klatt).mtf	1805
+3050U/Awesome AWS-9Q.mtf	1875
+3050U/Axman AXM-1N.mtf	1374
+3050U/Axman AXM-2N.mtf	1458
+3050U/Axman AXM-4D.mtf	1222
+3050U/Banshee BNC-5S (Sawyer).mtf	2094
+3050U/Banshee BNC-5S (Vandergriff).mtf	1853
+3050U/Banshee BNC-5S.mtf	2065
+3050U/Banshee BNC-6S.mtf	1889
+3050U/Banshee BNC-7S.mtf	2126
+3050U/Banshee BNC-8S.mtf	2408
+3050U/Black Hawk (Nova) A.mtf	2422
+3050U/Black Hawk (Nova) B.mtf	1543
+3050U/Black Hawk (Nova) C.mtf	1515
+3050U/Black Hawk (Nova) D.mtf	1450
+3050U/Black Hawk (Nova) E.mtf	2078
+3050U/Black Hawk (Nova) F.mtf	1976
+3050U/Black Hawk (Nova) H.mtf	1832
+3050U/Black Hawk (Nova) Prime.mtf	2663
+3050U/Black Hawk (Nova) S.mtf	2056
+3050U/Black Knight BL-12-KNT.mtf	1840
+3050U/Black Knight BL-6-KNT.mtf	1551
+3050U/Black Knight BL-6-RR.mtf	1954
+3050U/Black Knight BL6b-KNT.mtf	1627
+3050U/Blackjack BJ-2.mtf	1148
+3050U/Blackjack BJ-3.mtf	1271
+3050U/Blackjack BJ-4.mtf	1063
+3050U/Bombardier BMB-05A.mtf	1440
+3050U/Bombardier BMB-12D.mtf	1480
+3050U/Bombardier BMB-14C.mtf	1549
+3050U/Bombardier BMB-14K.mtf	1249
+3050U/Caesar CES-3R Archangel.mtf	2098
+3050U/Caesar CES-3R Gertrude.mtf	1833
+3050U/Caesar CES-3R.mtf	1578
+3050U/Caesar CES-3S.mtf	1909
+3050U/Caesar CES-4R.mtf	2024
+3050U/Caesar CES-4S.mtf	1739
+3050U/Cataphract CTF-3D.mtf	1325
+3050U/Cataphract CTF-3L.mtf	1545
+3050U/Cataphract CTF-3LL.mtf	1664
+3050U/Cataphract CTF-4L.mtf	2002
+3050U/Cataphract CTF-4X.mtf	1216
+3050U/Cataphract CTF-5D.mtf	1742
+3050U/Catapult CPLT-C2.mtf	1346
+3050U/Catapult CPLT-C3.mtf	1368
+3050U/Catapult CPLT-C4C.mtf	1449
+3050U/Catapult CPLT-C5.mtf	1748
+3050U/Catapult CPLT-C6.mtf	1874
+3050U/Catapult CPLT-H2.mtf	1473
+3050U/Catapult CPLT-K2K.mtf	1716
+3050U/Catapult CPLT-K3.mtf	1437
+3050U/Catapult CPLT-K4.mtf	1880
+3050U/Catapult CPLT-K5.mtf	1457
+3050U/Centurion CN10-B.mtf	1243
+3050U/Centurion CN9-D.mtf	1130
+3050U/Centurion CN9-D3.mtf	1324
+3050U/Centurion CN9-D3D.mtf	1373
+3050U/Centurion CN9-D4D.mtf	1369
+3050U/Centurion CN9-D5.mtf	1738
+3050U/Centurion CN9-D9.mtf	1638
+3050U/Centurion CN9-Da.mtf	1035
+3050U/Centurion CN9-YLW2.mtf	1435
+3050U/Champion C.mtf	2191
+3050U/Champion CHP-1N.mtf	1233
+3050U/Champion CHP-3N.mtf	1400
+3050U/Champion CHP-3P.mtf	1503
+3050U/Charger CGR-2A2.mtf	1109
+3050U/Charger CGR-3K.mtf	1656
+3050U/Charger CGR-C.mtf	1592
+3050U/Charger CGR-KMZ.mtf	1781
+3050U/Charger CGR-SA5.mtf	2105
+3050U/Cicada CDA-3F.mtf	1329
+3050U/Cicada CDA-3G.mtf	1270
+3050U/Cicada CDA-3M.mtf	812
+3050U/Cicada CDA-3MA.mtf	1158
+3050U/Cicada CDA-3P.mtf	1502
+3050U/Clint CLNT-2-3U.mtf	1081
+3050U/Clint CLNT-2-3UL.mtf	1245
+3050U/Clint CLNT-3-3T.mtf	901
+3050U/Clint CLNT-5U.mtf	1275
+3050U/Clint CLNT-6S.mtf	1334
+3050U/Commando COM-1B.mtf	616
+3050U/Commando COM-1C.mtf	458
+3050U/Commando COM-4H.mtf	691
+3050U/Commando COM-5S.mtf	557
+3050U/Commando COM-7B.mtf	602
+3050U/Commando COM-7S.mtf	658
+3050U/Crab CRB-27.mtf	1198
+3050U/Crab CRB-30.mtf	1509
+3050U/Crab CRB-45.mtf	1342
+3050U/Crab CRB-C.mtf	1135
+3050U/Crockett CRK-5003-1.mtf	1923
+3050U/Crockett CRK-5003-3.mtf	1989
+3050U/Crockett CRK-5004-1.mtf	1955
+3050U/Crockett CRK-5005-1.mtf	1908
+3050U/Cyclops CP-11-A-DC.mtf	1507
+3050U/Cyclops CP-11-A.mtf	1547
+3050U/Cyclops CP-11-C.mtf	1553
+3050U/Cyclops CP-11-G.mtf	1981
+3050U/Cyclops CP-11-H.mtf	1525
+3050U/Cyclops CP-12-K.mtf	1699
+3050U/Daishi (Dire Wolf) A.mtf	2855
+3050U/Daishi (Dire Wolf) B.mtf	2609
+3050U/Daishi (Dire Wolf) C.mtf	3610
+3050U/Daishi (Dire Wolf) D.mtf	3403
+3050U/Daishi (Dire Wolf) H.mtf	2992
+3050U/Daishi (Dire Wolf) Hohiro.mtf	3048
+3050U/Daishi (Dire Wolf) Prime.mtf	2712
+3050U/Daishi (Dire Wolf) Prometheus.mtf	2900
+3050U/Daishi (Dire Wolf) S.mtf	2985
+3050U/Daishi (Dire Wolf) W.mtf	2951
+3050U/Daishi (Dire Wolf) Widowmaker.mtf	3041
+3050U/Dasher (Fire Moth) A.mtf	639
+3050U/Dasher (Fire Moth) B.mtf	1064
+3050U/Dasher (Fire Moth) C.mtf	741
+3050U/Dasher (Fire Moth) D.mtf	2307
+3050U/Dasher (Fire Moth) E.mtf	822
+3050U/Dasher (Fire Moth) F.mtf	1461
+3050U/Dasher (Fire Moth) H.mtf	779
+3050U/Dasher (Fire Moth) K.mtf	887
+3050U/Dasher (Fire Moth) Prime.mtf	1251
+3050U/Dervish DV-7D.mtf	1412
+3050U/Dervish DV-8D.mtf	1765
+3050U/Dervish DV-9D.mtf	1518
+3050U/Dragon DRG-5N.mtf	1223
+3050U/Dragon DRG-7N.mtf	1495
+3050U/Dragonfly (Viper) A.mtf	1989
+3050U/Dragonfly (Viper) B.mtf	1830
+3050U/Dragonfly (Viper) C.mtf	1344
+3050U/Dragonfly (Viper) D.mtf	1779
+3050U/Dragonfly (Viper) E.mtf	1561
+3050U/Dragonfly (Viper) F.mtf	1689
+3050U/Dragonfly (Viper) G.mtf	1574
+3050U/Dragonfly (Viper) H.mtf	1732
+3050U/Dragonfly (Viper) I.mtf	1580
+3050U/Dragonfly (Viper) Prime.mtf	1450
+3050U/Enforcer ENF-5D.mtf	1308
+3050U/Enforcer III ENF-6G.mtf	1858
+3050U/Enforcer III ENF-6H.mtf	1603
+3050U/Enforcer III ENF-6T.mtf	1720
+3050U/Exterminator EXT-4A.mtf	1372
+3050U/Exterminator EXT-4C.mtf	1420
+3050U/Exterminator EXT-4D.mtf	1385
+3050U/Exterminator EXT-5E.mtf	1532
+3050U/Exterminator EXT-5F.mtf	1485
+3050U/Falcon FLC-4P.mtf	649
+3050U/Falcon FLC-5P.mtf	945
+3050U/Falcon FLC-6C.mtf	1290
+3050U/Fenris (Ice Ferret) A.mtf	1323
+3050U/Fenris (Ice Ferret) B.mtf	1461
+3050U/Fenris (Ice Ferret) C.mtf	1211
+3050U/Fenris (Ice Ferret) D.mtf	1653
+3050U/Fenris (Ice Ferret) E.mtf	1483
+3050U/Fenris (Ice Ferret) H.mtf	1619
+3050U/Fenris (Ice Ferret) L.mtf	1380
+3050U/Fenris (Ice Ferret) Prime.mtf	1678
+3050U/Firefly C.mtf	1290
+3050U/Firefly FFL-4A.mtf	831
+3050U/Firefly FFL-4B.mtf	870
+3050U/Firefly FFL-4C.mtf	806
+3050U/Firefly FFL-4D.mtf	897
+3050U/Firefly FFL-4DA.mtf	921
+3050U/Firestarter FS9-B.mtf	668
+3050U/Firestarter FS9-C.mtf	940
+3050U/Firestarter FS9-P.mtf	775
+3050U/Firestarter FS9-S.mtf	754
+3050U/Firestarter FS9-S1.mtf	820
+3050U/Firestarter FS9-S2.mtf	842
+3050U/Firestarter FS9-S3.mtf	908
+3050U/Flashman FLS-8K.mtf	1779
+3050U/Flashman FLS-9B.mtf	1600
+3050U/Flashman FLS-9C.mtf	1779
+3050U/Flashman FLS-9M.mtf	1895
+3050U/Flashman FLS-C.mtf	1774
+3050U/Flea FLE-17.mtf	510
+3050U/Flea FLE-19.mtf	381
+3050U/Flea FLE-20.mtf	791
+3050U/Flea Fire Ant.mtf	332
+3050U/Gladiator (Executioner) A.mtf	3112
+3050U/Gladiator (Executioner) B.mtf	2940
+3050U/Gladiator (Executioner) C.mtf	2740
+3050U/Gladiator (Executioner) D.mtf	2698
+3050U/Gladiator (Executioner) E.mtf	2988
+3050U/Gladiator (Executioner) H.mtf	3059
+3050U/Gladiator (Executioner) K.mtf	3125
+3050U/Gladiator (Executioner) P.mtf	3052
+3050U/Gladiator (Executioner) Prime.mtf	2749
+3050U/Grand Dragon DRG-5K-DC.mtf	1322
+3050U/Grand Dragon DRG-5K.mtf	1358
+3050U/Grand Dragon DRG-7K.mtf	1702
+3050U/Grand Dragon DRG-9KC.mtf	1147
+3050U/Grand Dragon DRG-C.mtf	1322
+3050U/Grasshopper GHR-5J.mtf	1354
+3050U/Grasshopper GHR-5N.mtf	1511
+3050U/Grasshopper GHR-6K.mtf	1597
+3050U/Grasshopper GHR-7K Gravedigger.mtf	2084
+3050U/Grasshopper GHR-7K.mtf	1806
+3050U/Grasshopper GHR-C.mtf	1366
+3050U/Guillotine GLT-3N.mtf	1418
+3050U/Guillotine GLT-5M.mtf	1472
+3050U/Guillotine GLT-6WB.mtf	1672
+3050U/Guillotine GLT-6WB2.mtf	1635
+3050U/Guillotine GLT-6WB3.mtf	1741
+3050U/Guillotine GLT-8D.mtf	1891
+3050U/Hatamoto-Chi HTM-27T.mtf	1607
+3050U/Hatamoto-Chi HTM-28T (Shin).mtf	2213
+3050U/Hatamoto-Chi HTM-28T.mtf	2039
+3050U/Hatamoto-Hi HTM-27U.mtf	1627
+3050U/Hatamoto-Hi HTM-C.mtf	1627
+3050U/Hatamoto-Hi HTM-CM.mtf	1573
+3050U/Hatamoto-Kaze HTM-27V.mtf	1595
+3050U/Hatamoto-Ku HTM-27W.mtf	1563
+3050U/Hatamoto-Mizo HTM-27Y.mtf	1675
+3050U/Hatchetman HCT-5D.mtf	1012
+3050U/Hatchetman HCT-5DD.mtf	1112
+3050U/Hatchetman HCT-5K.mtf	1070
+3050U/Hatchetman HCT-5S.mtf	1039
+3050U/Hatchetman HCT-6D.mtf	1611
+3050U/Hatchetman HCT-6S.mtf	1174
+3050U/Hermes HER-1S.mtf	716
+3050U/Hermes HER-3S.mtf	649
+3050U/Hermes HER-3S1.mtf	726
+3050U/Hermes HER-3S2.mtf	600
+3050U/Hermes HER-4K.mtf	1470
+3050U/Hermes HER-4M.mtf	1362
+3050U/Hermes HER-4S.mtf	1012
+3050U/Hermes HER-4WB.mtf	1042
+3050U/Hermes II HER-5C.mtf	1119
+3050U/Hermes II HER-5ME.mtf	847
+3050U/Hermes II HER-5S.mtf	857
+3050U/Hermes II HER-5SA.mtf	924
+3050U/Hermes II HER-6D.mtf	1106
+3050U/Highlander HGN-694.mtf	2358
+3050U/Highlander HGN-732.mtf	2227
+3050U/Highlander HGN-734.mtf	2214
+3050U/Highlander HGN-736.mtf	2255
+3050U/Highlander HGN-738.mtf	2413
+3050U/Hoplite C.mtf	1736
+3050U/Hoplite HOP-4A.mtf	986
+3050U/Hoplite HOP-4B.mtf	1162
+3050U/Hoplite HOP-4C.mtf	986
+3050U/Hoplite HOP-4D.mtf	1022
+3050U/Hornet HNT-161.mtf	511
+3050U/Hornet HNT-171.mtf	535
+3050U/Hunchback HBK-5H.mtf	1097
+3050U/Hunchback HBK-5M.mtf	1056
+3050U/Hunchback HBK-5N.mtf	1041
+3050U/Hunchback HBK-5P.mtf	1340
+3050U/Hunchback HBK-5S.mtf	1350
+3050U/Hunchback HBK-5SG.mtf	1577
+3050U/Hunchback HBK-5SS.mtf	1342
+3050U/Hunchback HBK-6N.mtf	1130
+3050U/Hunchback HBK-6S.mtf	1380
+3050U/Hussar HSR-200-D.mtf	636
+3050U/Hussar HSR-400-D.mtf	611
+3050U/Hussar HSR-500-D.mtf	977
+3050U/Hussar HSR-900-D.mtf	551
+3050U/Hussar HSR-950-D.mtf	1131
+3050U/Imp C.mtf	3070
+3050U/Imp IMP-2E.mtf	1969
+3050U/Imp IMP-3E.mtf	1906
+3050U/Imp IMP-4E.mtf	2263
+3050U/JagerMech JM6-DD.mtf	965
+3050U/JagerMech JM6-DDa.mtf	911
+3050U/JagerMech JM6-DGr.mtf	1661
+3050U/JagerMech JM6-H.mtf	1348
+3050U/JagerMech JM7-D.mtf	1500
+3050U/JagerMech JM7-F.mtf	1774
+3050U/JagerMech JM7-G.mtf	1278
+3050U/Jagermech JM6-DG.mtf	1625
+3050U/Javelin JVN-10P.mtf	590
+3050U/Javelin JVN-11A Fire Javelin.mtf	1073
+3050U/Javelin JVN-11B.mtf	678
+3050U/Javelin JVN-11D.mtf	1104
+3050U/Javelin JVN-11F.mtf	827
+3050U/Jenner JR7-C.mtf	832
+3050U/Jenner JR7-C2.mtf	769
+3050U/Jenner JR7-C3.mtf	1069
+3050U/Jenner JR7-K Grace.mtf	702
+3050U/Jenner JR7-K.mtf	889
+3050U/Katana (Crockett) CRK-5003-2.mtf	1629
+3050U/Katana (Crockett) CRK-5003-C.mtf	1618
+3050U/Katana (Crockett) CRK-5003-CJ.mtf	1844
+3050U/Katana (Crockett) CRK-5003-CM.mtf	1554
+3050U/King Crab KGC-000.mtf	1906
+3050U/King Crab KGC-001.mtf	2221
+3050U/King Crab KGC-005.mtf	2264
+3050U/King Crab KGC-007.mtf	2523
+3050U/King Crab KGC-008.mtf	2369
+3050U/King Crab KGC-008B.mtf	2374
+3050U/Kintaro KTO-19.mtf	1160
+3050U/Kintaro KTO-20.mtf	1357
+3050U/Kintaro KTO-21.mtf	1295
+3050U/Kintaro KTO-C.mtf	1294
+3050U/Kintaro KTO-K.mtf	1571
+3050U/Koshi (Mist Lynx) A.mtf	608
+3050U/Koshi (Mist Lynx) B.mtf	1209
+3050U/Koshi (Mist Lynx) C.mtf	1320
+3050U/Koshi (Mist Lynx) D.mtf	842
+3050U/Koshi (Mist Lynx) E.mtf	997
+3050U/Koshi (Mist Lynx) F.mtf	1173
+3050U/Koshi (Mist Lynx) G.mtf	834
+3050U/Koshi (Mist Lynx) H.mtf	982
+3050U/Koshi (Mist Lynx) P.mtf	1064
+3050U/Koshi (Mist Lynx) Prime.mtf	871
+3050U/Lancelot LNC25-01.mtf	1422
+3050U/Lancelot LNC25-03.mtf	1360
+3050U/Lancelot LNC25-04.mtf	1640
+3050U/Lancelot LNC25-05.mtf	1365
+3050U/Lancelot LNC25-06.mtf	1661
+3050U/Lancelot LNC25-08.mtf	1162
+3050U/Loki (Hellbringer) A.mtf	1948
+3050U/Loki (Hellbringer) B.mtf	1592
+3050U/Loki (Hellbringer) C.mtf	2076
+3050U/Loki (Hellbringer) D.mtf	2145
+3050U/Loki (Hellbringer) E.mtf	2304
+3050U/Loki (Hellbringer) F.mtf	1839
+3050U/Loki (Hellbringer) H.mtf	1952
+3050U/Loki (Hellbringer) Prime.mtf	2654
+3050U/Mad Cat (Timber Wolf) A.mtf	2854
+3050U/Mad Cat (Timber Wolf) B.mtf	2224
+3050U/Mad Cat (Timber Wolf) C.mtf	2500
+3050U/Mad Cat (Timber Wolf) D.mtf	2682
+3050U/Mad Cat (Timber Wolf) E.mtf	2444
+3050U/Mad Cat (Timber Wolf) F.mtf	2764
+3050U/Mad Cat (Timber Wolf) H.mtf	2627
+3050U/Mad Cat (Timber Wolf) Prime.mtf	2737
+3050U/Mad Cat (Timber Wolf) Pryde.mtf	2900
+3050U/Mad Cat (Timber Wolf) S.mtf	2462
+3050U/Man O' War (Gargoyle) A.mtf	2689
+3050U/Man O' War (Gargoyle) B.mtf	1843
+3050U/Man O' War (Gargoyle) C.mtf	2417
+3050U/Man O' War (Gargoyle) D.mtf	2499
+3050U/Man O' War (Gargoyle) E.mtf	2257
+3050U/Man O' War (Gargoyle) G.mtf	2156
+3050U/Man O' War (Gargoyle) H.mtf	2183
+3050U/Man O' War (Gargoyle) M.mtf	2182
+3050U/Man O' War (Gargoyle) Prime.mtf	1537
+3050U/Masakari (Warhawk) A.mtf	2399
+3050U/Masakari (Warhawk) B.mtf	2320
+3050U/Masakari (Warhawk) C.mtf	2998
+3050U/Masakari (Warhawk) D.mtf	2474
+3050U/Masakari (Warhawk) E.mtf	2895
+3050U/Masakari (Warhawk) H.mtf	2601
+3050U/Masakari (Warhawk) Prime.mtf	3194
+3050U/Mauler MAL-1K.mtf	1622
+3050U/Mauler MAL-1R.mtf	1460
+3050U/Mauler MAL-2R.mtf	1586
+3050U/Mauler MAL-3R.mtf	1877
+3050U/Mauler MAL-C.mtf	1473
+3050U/Mercury MCY-102.mtf	510
+3050U/Mercury MCY-104.mtf	683
+3050U/Mercury MCY-97.mtf	466
+3050U/Mercury MCY-99.mtf	586
+3050U/Mongoose MON-66.mtf	758
+3050U/Mongoose MON-69.mtf	737
+3050U/Mongoose MON-70.mtf	750
+3050U/Mongoose MON-76.mtf	894
+3050U/Orion ON1-M-DC.mtf	1444
+3050U/Orion ON1-M.mtf	1414
+3050U/Orion ON1-MA.mtf	1501
+3050U/Orion ON1-MB.mtf	1472
+3050U/Orion ON1-MC.mtf	1501
+3050U/Orion ON1-MD.mtf	1597
+3050U/Orion ON2-M.mtf	1828
+3050U/Panther PNT-10K.mtf	838
+3050U/Panther PNT-10KA.mtf	797
+3050U/Panther PNT-12A.mtf	982
+3050U/Panther PNT-14S.mtf	825
+3050U/Panther PNT-16K.mtf	988
+3050U/Panther PNT-C.mtf	833
+3050U/Panther PNT-CA.mtf	787
+3050U/Puma (Adder) A.mtf	1437
+3050U/Puma (Adder) B.mtf	1422
+3050U/Puma (Adder) C.mtf	1372
+3050U/Puma (Adder) D.mtf	1255
+3050U/Puma (Adder) E.mtf	1272
+3050U/Puma (Adder) H.mtf	1453
+3050U/Puma (Adder) J.mtf	1222
+3050U/Puma (Adder) Prime.mtf	2083
+3050U/Quickdraw QKD-5K.mtf	1265
+3050U/Quickdraw QKD-5K2.mtf	1312
+3050U/Quickdraw QKD-5M.mtf	1237
+3050U/Quickdraw QKD-8K.mtf	1583
+3050U/Quickdraw QKD-C.mtf	1225
+3050U/Raven RVN-3L.mtf	708
+3050U/Raven RVN-3M.mtf	659
+3050U/Raven RVN-4L.mtf	873
+3050U/Raven RVN-4LC.mtf	871
+3050U/Raven RVN-SR.mtf	601
+3050U/Raven RVN-SS.mtf	904
+3050U/Ryoken (Stormcrow) (Kotare).mtf	2382
+3050U/Ryoken (Stormcrow) A.mtf	2319
+3050U/Ryoken (Stormcrow) B.mtf	2281
+3050U/Ryoken (Stormcrow) C.mtf	1881
+3050U/Ryoken (Stormcrow) D.mtf	1863
+3050U/Ryoken (Stormcrow) E.mtf	2110
+3050U/Ryoken (Stormcrow) F.mtf	2227
+3050U/Ryoken (Stormcrow) G.mtf	2152
+3050U/Ryoken (Stormcrow) H.mtf	2061
+3050U/Ryoken (Stormcrow) Prime.mtf	2073
+3050U/Sentinel STN-3L.mtf	717
+3050U/Sentinel STN-3M.mtf	758
+3050U/Sentinel STN-4D.mtf	1179
+3050U/Sentinel STN-5WB.mtf	999
+3050U/Sentinel STN-C.mtf	689
+3050U/Shogun C.mtf	3032
+3050U/Shogun SHG-2E.mtf	1823
+3050U/Shogun SHG-2F (Trisha).mtf	1733
+3050U/Shogun SHG-2F.mtf	1804
+3050U/Spider SDR-7K.mtf	752
+3050U/Spider SDR-7K2.mtf	884
+3050U/Spider SDR-7KC.mtf	732
+3050U/Spider SDR-7M.mtf	621
+3050U/Spider SDR-8M.mtf	621
+3050U/Spider SDR-C.mtf	616
+3050U/Stalker STK-3F (Jamison).mtf	2707
+3050U/Stalker STK-5M.mtf	1655
+3050U/Stalker STK-5S.mtf	1423
+3050U/Stalker STK-6M.mtf	2029
+3050U/Stalker STK-7D.mtf	1872
+3050U/Stalker STK-8S.mtf	2020
+3050U/Thor (Summoner) A.mtf	2145
+3050U/Thor (Summoner) B.mtf	2159
+3050U/Thor (Summoner) C.mtf	2379
+3050U/Thor (Summoner) D.mtf	2643
+3050U/Thor (Summoner) E.mtf	2612
+3050U/Thor (Summoner) F.mtf	2186
+3050U/Thor (Summoner) G.mtf	2452
+3050U/Thor (Summoner) H.mtf	2536
+3050U/Thor (Summoner) HH.mtf	2490
+3050U/Thor (Summoner) M.mtf	2251
+3050U/Thor (Summoner) Prime.mtf	2298
+3050U/Thorn THE-N.mtf	546
+3050U/Thorn THE-N1.mtf	656
+3050U/Thorn THE-N2.mtf	410
+3050U/Thug THG-11E (Reich).mtf	2612
+3050U/Thug THG-11E.mtf	1640
+3050U/Thug THG-12E.mtf	1751
+3050U/Thug THG-12K.mtf	1824
+3050U/Thug THG-13K.mtf	2086
+3050U/Trebuchet TBT-3C.mtf	1342
+3050U/Trebuchet TBT-7M.mtf	1348
+3050U/Trebuchet TBT-8B.mtf	1314
+3050U/Trebuchet TBT-9K.mtf	1329
+3050U/Uller (Kit Fox) A.mtf	1310
+3050U/Uller (Kit Fox) B.mtf	1087
+3050U/Uller (Kit Fox) C.mtf	1147
+3050U/Uller (Kit Fox) D.mtf	1142
+3050U/Uller (Kit Fox) E.mtf	1415
+3050U/Uller (Kit Fox) F.mtf	1219
+3050U/Uller (Kit Fox) H.mtf	1214
+3050U/Uller (Kit Fox) Prime.mtf	1085
+3050U/Uller (Kit Fox) S.mtf	1342
+3050U/Uller (Kit Fox) W.mtf	1431
+3050U/UrbanMech UM-R63.mtf	540
+3050U/UrbanMech UM-R68.mtf	561
+3050U/UrbanMech UM-R70.mtf	724
+3050U/Urbanmech UM-R69.mtf	589
+3050U/Victor VTR-10D.mtf	1894
+3050U/Victor VTR-10L.mtf	2279
+3050U/Victor VTR-10S.mtf	2034
+3050U/Victor VTR-11D.mtf	2021
+3050U/Victor VTR-9D.mtf	1717
+3050U/Victor VTR-9K.mtf	1717
+3050U/Victor VTR-C.mtf	1717
+3050U/Vindicator VND-3L.mtf	1105
+3050U/Vindicator VND-4L.mtf	1411
+3050U/Vindicator VND-5L.mtf	1484
+3050U/Vindicator VND-6L.mtf	1739
+3050U/Vulcan VT-5M.mtf	811
+3050U/Vulcan VT-5S.mtf	883
+3050U/Vulcan VT-6C.mtf	959
+3050U/Vulcan VT-6M.mtf	959
+3050U/Vulture (Mad Dog) A.mtf	1923
+3050U/Vulture (Mad Dog) B.mtf	2284
+3050U/Vulture (Mad Dog) C.mtf	1892
+3050U/Vulture (Mad Dog) D.mtf	2447
+3050U/Vulture (Mad Dog) E.mtf	2031
+3050U/Vulture (Mad Dog) F.mtf	2300
+3050U/Vulture (Mad Dog) H.mtf	2097
+3050U/Vulture (Mad Dog) Prime.mtf	2351
+3050U/Whitworth WTH-1H.mtf	993
+3050U/Whitworth WTH-2.mtf	936
+3050U/Whitworth WTH-2A.mtf	1055
+3050U/Whitworth WTH-3.mtf	861
+3050U/Whitworth WTH-K.mtf	958
+3050U/Wolf Trap (Tora) WFT-1.mtf	1070
+3050U/Wolf Trap (Tora) WFT-2.mtf	1227
+3050U/Wolf Trap (Tora) WFT-B.mtf	1021
+3050U/Wolf Trap (Tora) WFT-C.mtf	1001
+3050U/Wolfhound IIC.mtf	1579
+3050U/Wolfhound WLF-1 (Allard).mtf	1941
+3050U/Wolfhound WLF-2.mtf	1061
+3050U/Wolfhound WLF-3S.mtf	1176
+3050U/Wolfhound WLF-4W.mtf	1090
+3050U/Wyvern WVE-10N.mtf	1199
+3050U/Wyvern WVE-5N.mtf	1089
+3050U/Wyvern WVE-9N.mtf	1067
+3050U/Zeus X ZEU-9WD.mtf	1716
+3050U/Zeus ZEU-10WB.mtf	2075
+3050U/Zeus ZEU-9S-DC.mtf	1612
+3050U/Zeus ZEU-9S.mtf	1639
+3050U/Zeus ZEU-9S2.mtf	1769
+3050U/Zeus ZEU-9T.mtf	1832
+3055U/Albatross ALB-3U.mtf	1668
+3055U/Albatross ALB-4U.mtf	1907
+3055U/Anvil ANV-3M.mtf	1441
+3055U/Anvil ANV-3R.mtf	1496
+3055U/Anvil ANV-5M.mtf	1687
+3055U/Anvil ANV-5Q.mtf	1336
+3055U/Anvil ANV-6M.mtf	1366
+3055U/Anvil ANV-8M.mtf	1690
+3055U/Apollo APL-1M.mtf	1207
+3055U/Apollo APL-1R.mtf	1148
+3055U/Apollo APL-2S.mtf	1283
+3055U/Apollo APL-3T.mtf	1240
+3055U/Aquagladius AQS-3.mtf	834
+3055U/Aquagladius AQS-4.mtf	1486
+3055U/Baboon (Howler) 2.mtf	757
+3055U/Baboon (Howler) 3.mtf	1277
+3055U/Baboon (Howler).mtf	645
+3055U/Bandersnatch BNDR-01A.mtf	1478
+3055U/Bandersnatch BNDR-01B.mtf	1630
+3055U/Battle Hawk BH-K305.mtf	771
+3055U/Battle Hawk BH-K306.mtf	926
+3055U/Behemoth (Stone Rhino) 2.mtf	3107
+3055U/Behemoth (Stone Rhino) 3.mtf	3072
+3055U/Behemoth (Stone Rhino) 4.mtf	2601
+3055U/Behemoth (Stone Rhino) 5.mtf	2157
+3055U/Behemoth (Stone Rhino) 6.mtf	2981
+3055U/Behemoth (Stone Rhino).mtf	3001
+3055U/Berserker BRZ-A3.mtf	2117
+3055U/Berserker BRZ-B3.mtf	2020
+3055U/Berserker BRZ-C3.mtf	2395
+3055U/Bombard BMB-010.mtf	850
+3055U/Bombard BMB-013.mtf	1019
+3055U/Bombard BMB-1X.mtf	1652
+3055U/Cerberus MR-5M.mtf	2057
+3055U/Cerberus MR-6B.mtf	2128
+3055U/Cerberus MR-V2.mtf	2001
+3055U/Cerberus MR-V3.mtf	2094
+3055U/Colossus CL-P3.mtf	1986
+3055U/Colossus CLS-4S.mtf	2392
+3055U/Colossus CLS-5S.mtf	2647
+3055U/Copperhead CPR-HD-002.mtf	763
+3055U/Copperhead CPR-HD-003.mtf	1117
+3055U/Copperhead CPR-HD-004.mtf	1151
+3055U/Cudgel CDG-1B.mtf	1347
+3055U/Cudgel CDG-2A.mtf	1750
+3055U/Cudgel CDG-2B.mtf	1762
+3055U/Daedalus DAD-3C.mtf	1070
+3055U/Daedalus DAD-3D.mtf	1729
+3055U/Daedalus DAD-4A.mtf	1466
+3055U/Daedalus DAD-4B.mtf	1431
+3055U/Daikyu DAI-01.mtf	1603
+3055U/Daikyu DAI-02.mtf	1831
+3055U/Daikyu DAI-03.mtf	1692
+3055U/Daimyo DMO-1K.mtf	1148
+3055U/Daimyo DMO-2K.mtf	1057
+3055U/Daimyo DMO-4K.mtf	1150
+3055U/Daimyo DMO-5K.mtf	1087
+3055U/Dart DRT-3S.mtf	436
+3055U/Dart DRT-4S.mtf	656
+3055U/Dart DRT-6S.mtf	641
+3055U/Epimetheus Prime.mtf	2517
+3055U/Falconer FLC-8R.mtf	2231
+3055U/Fireball ALM-7D.mtf	385
+3055U/Fireball ALM-8D.mtf	574
+3055U/Fireball ALM-9D.mtf	527
+3055U/Flashfire FLS-P2.mtf	718
+3055U/Flashfire FLS-P4.mtf	712
+3055U/Flashfire FLS-P5.mtf	654
+3055U/Galahad (Glass Spider) 3.mtf	2508
+3055U/Gallowglas GAL-1GLS.mtf	1695
+3055U/Gallowglas GAL-2GLS.mtf	1857
+3055U/Gallowglas GAL-3GLS.mtf	2291
+3055U/Gallowglas GAL-4GLS.mtf	1944
+3055U/Gallowglas WD.mtf	2094
+3055U/Goshawk (Vapor Eagle) 3.mtf	2466
+3055U/Goshawk (Vapor Eagle) 4.mtf	2069
+3055U/Grand Crusader GRN-D-01.mtf	1758
+3055U/Grand Crusader GRN-D-02.mtf	1702
+3055U/Grand Crusader II GRN-D-03.mtf	2276
+3055U/Grand Crusader II GRN-D-04.mtf	2292
+3055U/Grand Titan T-IT-N10M.mtf	1817
+3055U/Grand Titan T-IT-N11M.mtf	2053
+3055U/Great Turtle GTR-1.mtf	3152
+3055U/Great Turtle GTR-2.mtf	2355
+3055U/Grim Reaper GRM-R-PR29.mtf	1469
+3055U/Grim Reaper GRM-R-PR30.mtf	1673
+3055U/Grim Reaper GRM-R-PR31.mtf	1655
+3055U/Gunslinger GUN-1ERD.mtf	2286
+3055U/Gunslinger GUN-2ERD.mtf	2423
+3055U/Hachiwara HCA-3T.mtf	1651
+3055U/Hachiwara HCA-4T.mtf	1731
+3055U/Hachiwara HCA-4U.mtf	1791
+3055U/Hachiwara HCA-6P.mtf	2385
+3055U/Hammer HMR-3C.mtf	976
+3055U/Hammer HMR-3M.mtf	787
+3055U/Hammer HMR-3P.mtf	827
+3055U/Hammer HMR-3S.mtf	638
+3055U/Hellhound (Conjurer) 2.mtf	2097
+3055U/Hellhound (Conjurer) 3.mtf	1764
+3055U/Hellhound (Conjurer) 4.mtf	2164
+3055U/Hellhound (Conjurer) 5.mtf	1722
+3055U/Hercules HRC-LS-9000.mtf	1561
+3055U/Hercules HRC-LS-9001.mtf	1566
+3055U/Hitman HM-1.mtf	925
+3055U/Hitman HM-2.mtf	861
+3055U/Hollander BZK-F3.mtf	953
+3055U/Hollander BZK-G1.mtf	873
+3055U/Hollander II BZK-F5.mtf	1214
+3055U/Hollander II BZK-F7.mtf	1192
+3055U/Huron Warrior HUR-WO-R4L.mtf	1530
+3055U/Huron Warrior HUR-WO-R4M.mtf	1556
+3055U/Huron Warrior HUR-WO-R4N.mtf	1489
+3055U/Huron Warrior HUR-WO-R4O.mtf	1585
+3055U/Jackal JA-KL-1532.mtf	918
+3055U/Jackal JA-KL-55.mtf	1034
+3055U/Jenner IIC 4.mtf	1052
+3055U/Juggernaut JG-R9T1.mtf	1719
+3055U/Juggernaut JG-R9T2.mtf	1916
+3055U/Juggernaut JG-R9T3.mtf	1959
+3055U/Komodo KIM-2.mtf	1533
+3055U/Komodo KIM-2A.mtf	1415
+3055U/Komodo KIM-2C.mtf	1533
+3055U/Komodo KIM-3C.mtf	1371
+3055U/Koto KT-P2.mtf	631
+3055U/Koto KTO-2A.mtf	977
+3055U/Koto KTO-3A.mtf	806
+3055U/Koto KTO-4A.mtf	1073
+3055U/Kraken (Bane) 4.mtf	2709
+3055U/Linebacker A.mtf	2264
+3055U/Linebacker B.mtf	2048
+3055U/Linebacker C.mtf	2075
+3055U/Linebacker D.mtf	2039
+3055U/Linebacker E.mtf	1846
+3055U/Linebacker H.mtf	2097
+3055U/Linebacker Prime.mtf	2390
+3055U/Longshot LNG-1B.mtf	899
+3055U/Longshot LNG-2.mtf	1215
+3055U/Longshot LNG-3.mtf	955
+3055U/Longshot LNG-3C.mtf	971
+3055U/Longshot LNG-4.mtf	1086
+3055U/Mantis MTS-L.mtf	1194
+3055U/Mantis MTS-S.mtf	1128
+3055U/Mantis MTS-T.mtf	1312
+3055U/Mantis MTS-T2.mtf	1380
+3055U/Mantis MTS-T3.mtf	1380
+3055U/Mantis SA-MN.mtf	704
+3055U/Morpheus MR-P1.mtf	1340
+3055U/Morpheus MRP-3S.mtf	1437
+3055U/Morpheus MRP-3T.mtf	1925
+3055U/Morpheus MRP-3W.mtf	1299
+3055U/Naga A.mtf	1988
+3055U/Naga B.mtf	2021
+3055U/Naga C.mtf	1805
+3055U/Naga D.mtf	1860
+3055U/Naga Prime.mtf	1840
+3055U/Naginata NG-C3A.mtf	1954
+3055U/Naginata NG-C3B.mtf	1943
+3055U/Naginata NG-C3C.mtf	2131
+3055U/Nexus II NXS2-A.mtf	702
+3055U/Nexus II NXS2-B.mtf	717
+3055U/Nexus NXS1-A.mtf	643
+3055U/Nexus NXS1-B.mtf	715
+3055U/Nightsky NGS-4S.mtf	1159
+3055U/Nightsky NGS-4T.mtf	1287
+3055U/Nightsky NGS-5S.mtf	1045
+3055U/Nightsky NGS-5T.mtf	1356
+3055U/Nightsky NGS-6S.mtf	1474
+3055U/Onslaught SA-OS.mtf	1562
+3055U/Onslaught SA-OS2.mtf	1693
+3055U/Onslaught SA-OS3.mtf	1659
+3055U/Paladin PAL-1.mtf	1361
+3055U/Paladin PAL-2.mtf	1617
+3055U/Paladin PAL-3.mtf	1370
+3055U/Penetrator PTR-4D.mtf	1687
+3055U/Penetrator PTR-4F.mtf	1564
+3055U/Penetrator PTR-6M.mtf	1639
+3055U/Penetrator PTR-6S.mtf	1689
+3055U/Penetrator PTR-6T.mtf	1994
+3055U/Peregrine (Horned Owl) 4.mtf	1198
+3055U/Peregrine (Horned Owl) 5.mtf	1523
+3055U/Phantom A.mtf	1410
+3055U/Phantom B.mtf	1096
+3055U/Phantom C.mtf	1590
+3055U/Phantom D.mtf	1581
+3055U/Phantom E.mtf	975
+3055U/Phantom H.mtf	1178
+3055U/Phantom Prime.mtf	1159
+3055U/Porcupine PRC-1N.mtf	870
+3055U/Porcupine PRC-2N.mtf	901
+3055U/Pouncer A.mtf	2081
+3055U/Pouncer B.mtf	1836
+3055U/Pouncer C.mtf	1653
+3055U/Pouncer D.mtf	2246
+3055U/Pouncer E.mtf	1632
+3055U/Pouncer H.mtf	1784
+3055U/Pouncer Prime.mtf	2557
+3055U/Prometheus.mtf	2401
+3055U/Prowler PWR-1X.mtf	2019
+3055U/Prowler PWR-1X1.mtf	1922
+3055U/Raijin II RJN-200-A.mtf	1763
+3055U/Raijin II RJN-200-B.mtf	1439
+3055U/Raijin II RJN-200-C.mtf	1754
+3055U/Raijin RJN 101-A.mtf	1350
+3055U/Rakshasa MDG-1A.mtf	1795
+3055U/Rakshasa MDG-1B.mtf	1748
+3055U/Rakshasa MDG-2A.mtf	1766
+3055U/Ronin SA-RN.mtf	1084
+3055U/Ronin SA-RN7.mtf	1182
+3055U/Salamander PPR-5S.mtf	1769
+3055U/Salamander PPR-5T.mtf	1589
+3055U/Salamander PPR-6S.mtf	1714
+3055U/Salamander PPR-6T.mtf	1681
+3055U/Salamander PPR-7S.mtf	2023
+3055U/Sasquatch SQS-TH-001.mtf	1940
+3055U/Sasquatch SQS-TH-002.mtf	1993
+3055U/Sasquatch SQS-TH-003.mtf	1667
+3055U/Scarabus SCB-9A.mtf	846
+3055U/Scarabus SCB-9T.mtf	949
+3055U/Silver Fox SVR-5X.mtf	1432
+3055U/Silver Fox SVR-5Y.mtf	1316
+3055U/Snake SNK-1V.mtf	980
+3055U/Snake SNK-2B.mtf	1081
+3055U/Spatha SP1-X.mtf	2222
+3055U/Stealth STH-1D.mtf	1231
+3055U/Stealth STH-2D.mtf	1508
+3055U/Stealth STH-2D1.mtf	1339
+3055U/Stealth STH-2D2.mtf	1339
+3055U/Stealth STH-3S.mtf	1577
+3055U/Tarantula ZPH-1.mtf	666
+3055U/Tarantula ZPH-2A.mtf	744
+3055U/Tarantula ZPH-3A.mtf	702
+3055U/Tarantula ZPH-4A.mtf	967
+3055U/Tempest TMP-3G.mtf	1810
+3055U/Tempest TMP-3M.mtf	1786
+3055U/Tempest TMP-3M2_Storm_Tempest.mtf	1642
+3055U/Tempest TMP-3MA.mtf	1425
+3055U/Thunder THR-1L.mtf	1471
+3055U/Thunder THR-2L.mtf	1951
+3055U/Thunder THR-3L.mtf	1904
+3055U/Tsunami TS-P1.mtf	933
+3055U/Tsunami TS-P1D.mtf	1298
+3055U/Venom SDR-9K.mtf	798
+3055U/Venom SDR-9KA.mtf	865
+3055U/Venom SDR-9KB.mtf	769
+3055U/Venom SDR-9KC.mtf	939
+3055U/Viper (Black Python) 3.mtf	2421
+3055U/Viper (Black Python) 4.mtf	2594
+3055U/Vixen (Incubus) 4.mtf	1581
+3055U/Vixen (Incubus) 5.mtf	1364
+3055U/Vixen (Incubus).mtf	1596
+3055U/Volkh VKH-1.mtf	1635
+3055U/Volkh VKH-7.mtf	1578
+3055U/War Dog WR-DG-02FC.mtf	1814
+3055U/War Dog WR-DG-03FC.mtf	1962
+3055U/Watchman WTC-4DM.mtf	1225
+3055U/Watchman WTC-4M.mtf	1067
+3055U/Werewolf WER-LF-004.mtf	802
+3055U/Werewolf WER-LF-005.mtf	1082
+3055U/Wildfire P1-WF.mtf	1292
+3055U/Wraith TR1.mtf	1287
+3055U/Wraith TR2.mtf	1485
+3055U/Wraith TR3.mtf	1310
+3058Uu/Avatar AV1-O.mtf	1395
+3058Uu/Avatar AV1-OA.mtf	1481
+3058Uu/Avatar AV1-OB.mtf	1496
+3058Uu/Avatar AV1-OC.mtf	1406
+3058Uu/Avatar AV1-OD.mtf	1475
+3058Uu/Avatar AV1-OE.mtf	1563
+3058Uu/Avatar AV1-OF.mtf	1667
+3058Uu/Avatar AV1-OG.mtf	1775
+3058Uu/Avatar AV1-OH.mtf	1604
+3058Uu/Avatar AV1-OI.mtf	1606
+3058Uu/Avatar AV1-OR.mtf	1833
+3058Uu/Battle Cobra A.mtf	1466
+3058Uu/Battle Cobra B.mtf	1892
+3058Uu/Battle Cobra BTL-C-2O.mtf	944
+3058Uu/Battle Cobra BTL-C-2OA.mtf	1113
+3058Uu/Battle Cobra BTL-C-2OB.mtf	895
+3058Uu/Battle Cobra BTL-C-2OC.mtf	726
+3058Uu/Battle Cobra BTL-C-2OD.mtf	1221
+3058Uu/Battle Cobra BTL-C-2OE.mtf	840
+3058Uu/Battle Cobra BTL-C-2OF.mtf	1300
+3058Uu/Battle Cobra C.mtf	1484
+3058Uu/Battle Cobra H.mtf	1592
+3058Uu/Battle Cobra Prime.mtf	1487
+3058Uu/Black Hawk-KU BHKU-O.mtf	1731
+3058Uu/Black Hawk-KU BHKU-OA.mtf	1770
+3058Uu/Black Hawk-KU BHKU-OB.mtf	1303
+3058Uu/Black Hawk-KU BHKU-OC.mtf	1597
+3058Uu/Black Hawk-KU BHKU-OD.mtf	1539
+3058Uu/Black Hawk-KU BHKU-OE.mtf	1982
+3058Uu/Black Hawk-KU BHKU-OF.mtf	1759
+3058Uu/Black Hawk-KU BHKU-OR.mtf	2193
+3058Uu/Black Hawk-KU BHKU-OX.mtf	1941
+3058Uu/Black Lanner A.mtf	2308
+3058Uu/Black Lanner B.mtf	1961
+3058Uu/Black Lanner C.mtf	2523
+3058Uu/Black Lanner D.mtf	1809
+3058Uu/Black Lanner E.mtf	2331
+3058Uu/Black Lanner H.mtf	1928
+3058Uu/Black Lanner Prime.mtf	2268
+3058Uu/Blackjack BJ2-O.mtf	1201
+3058Uu/Blackjack BJ2-OA.mtf	1318
+3058Uu/Blackjack BJ2-OB.mtf	1323
+3058Uu/Blackjack BJ2-OC.mtf	1189
+3058Uu/Blackjack BJ2-OD.mtf	1375
+3058Uu/Blackjack BJ2-OE.mtf	1260
+3058Uu/Blackjack BJ2-OF.mtf	1405
+3058Uu/Blackjack BJ2-OR.mtf	2010
+3058Uu/Blackjack BJ2-OX.mtf	1320
+3058Uu/Bushwacker BSW-L1.mtf	1513
+3058Uu/Bushwacker BSW-S2.mtf	1293
+3058Uu/Bushwacker BSW-X1.mtf	1223
+3058Uu/Bushwacker BSW-X2.mtf	1193
+3058Uu/Cauldron-Born (Ebon Jaguar) A.mtf	2429
+3058Uu/Cauldron-Born (Ebon Jaguar) B.mtf	2535
+3058Uu/Cauldron-Born (Ebon Jaguar) C.mtf	1831
+3058Uu/Cauldron-Born (Ebon Jaguar) D.mtf	2228
+3058Uu/Cauldron-Born (Ebon Jaguar) H.mtf	2359
+3058Uu/Cauldron-Born (Ebon Jaguar) Prime.mtf	1952
+3058Uu/Cestus CTS-6X.mtf	1424
+3058Uu/Cestus CTS-6Y.mtf	1701
+3058Uu/Cestus CTS-6Z.mtf	1560
+3058Uu/Cestus CTS-7A.mtf	1519
+3058Uu/Chameleon CLN-7V.mtf	1042
+3058Uu/Chameleon CLN-7W.mtf	1243
+3058Uu/Chameleon CLN-7Z.mtf	1527
+3058Uu/Crossbow A.mtf	1797
+3058Uu/Crossbow B.mtf	1687
+3058Uu/Crossbow C.mtf	1557
+3058Uu/Crossbow D.mtf	1154
+3058Uu/Crossbow H.mtf	1707
+3058Uu/Crossbow Prime.mtf	1829
+3058Uu/Devastator DVS-1D.mtf	1858
+3058Uu/Devastator DVS-2.mtf	2481
+3058Uu/Devastator DVS-3.mtf	2452
+3058Uu/Dragon Fire DGR-3F.mtf	1855
+3058Uu/Dragon Fire DGR-4F.mtf	1900
+3058Uu/Dragon Fire DGR-6FC.mtf	1858
+3058Uu/Emperor EMP-5A.mtf	1830
+3058Uu/Emperor EMP-6A.mtf	1969
+3058Uu/Emperor EMP-6D.mtf	2382
+3058Uu/Emperor EMP-6L.mtf	2681
+3058Uu/Emperor EMP-6M.mtf	2090
+3058Uu/Emperor EMP-6S.mtf	2065
+3058Uu/Emperor EMP-7L.mtf	2179
+3058Uu/Enfield END-6J.mtf	1417
+3058Uu/Enfield END-6Q.mtf	1248
+3058Uu/Enfield END-6S.mtf	1413
+3058Uu/Excalibur EXC-B1.mtf	1549
+3058Uu/Excalibur EXC-B2.mtf	1533
+3058Uu/Excalibur EXC-C1.mtf	1637
+3058Uu/Excalibur EXC-CS.mtf	2174
+3058Uu/Excalibur EXC-D1.mtf	1949
+3058Uu/Falcon Hawk FNHK-9K.mtf	1030
+3058Uu/Falcon Hawk FNHK-9K1A.mtf	1040
+3058Uu/Falcon Hawk FNHK-9K1B.mtf	1116
+3058Uu/Fire Falcon A.mtf	822
+3058Uu/Fire Falcon B.mtf	1570
+3058Uu/Fire Falcon C.mtf	1004
+3058Uu/Fire Falcon D.mtf	826
+3058Uu/Fire Falcon E.mtf	1094
+3058Uu/Fire Falcon H.mtf	1162
+3058Uu/Fire Falcon Prime.mtf	1451
+3058Uu/Firestarter FS9-O.mtf	1144
+3058Uu/Firestarter FS9-OA.mtf	976
+3058Uu/Firestarter FS9-OB.mtf	1070
+3058Uu/Firestarter FS9-OC.mtf	1006
+3058Uu/Firestarter FS9-OD.mtf	1322
+3058Uu/Firestarter FS9-OE.mtf	998
+3058Uu/Firestarter FS9-OF.mtf	1446
+3058Uu/Firestarter FS9-OG.mtf	1063
+3058Uu/Firestarter FS9-OH.mtf	1119
+3058Uu/Firestarter FS9-OR.mtf	1713
+3058Uu/Firestarter FS9-OX.mtf	1190
+3058Uu/Grendel (Mongrel) A.mtf	2031
+3058Uu/Grendel (Mongrel) B.mtf	1903
+3058Uu/Grendel (Mongrel) C.mtf	1465
+3058Uu/Grendel (Mongrel) D.mtf	2212
+3058Uu/Grendel (Mongrel) E.mtf	1806
+3058Uu/Grendel (Mongrel) F.mtf	1997
+3058Uu/Grendel (Mongrel) H.mtf	1965
+3058Uu/Grendel (Mongrel) Prime.mtf	2290
+3058Uu/Grizzly 2.mtf	2195
+3058Uu/Grizzly.mtf	2219
+3058Uu/Hankyu (Arctic Cheetah) A.mtf	1117
+3058Uu/Hankyu (Arctic Cheetah) B.mtf	1076
+3058Uu/Hankyu (Arctic Cheetah) C.mtf	1840
+3058Uu/Hankyu (Arctic Cheetah) D.mtf	1080
+3058Uu/Hankyu (Arctic Cheetah) H.mtf	1264
+3058Uu/Hankyu (Arctic Cheetah) Prime.mtf	1334
+3058Uu/Hunchback IIC 2.mtf	1869
+3058Uu/Hunchback IIC 3.mtf	1951
+3058Uu/Hunchback IIC.mtf	1679
+3058Uu/Kingfisher A.mtf	2261
+3058Uu/Kingfisher B.mtf	2472
+3058Uu/Kingfisher C.mtf	2644
+3058Uu/Kingfisher D.mtf	2364
+3058Uu/Kingfisher E.mtf	2443
+3058Uu/Kingfisher H.mtf	2525
+3058Uu/Kingfisher Prime.mtf	2401
+3058Uu/Kodiak 2.mtf	2856
+3058Uu/Kodiak 3.mtf	2615
+3058Uu/Kodiak 4.mtf	2728
+3058Uu/Kodiak 5.mtf	3067
+3058Uu/Kodiak.mtf	2927
+3058Uu/Lineholder KW1-LH2.mtf	1280
+3058Uu/Lineholder KW1-LH3.mtf	1214
+3058Uu/Lineholder KW1-LH8.mtf	1330
+3058Uu/Lineholder KW2-LHW.mtf	1484
+3058Uu/Longbow LGB-7Q.mtf	1618
+3058Uu/Longbow LGB-7V.mtf	1816
+3058Uu/Lynx LNX-8Q.mtf	1292
+3058Uu/Lynx LNX-9C.mtf	1630
+3058Uu/Lynx LNX-9Q.mtf	1725
+3058Uu/Lynx LNX-9R.mtf	1755
+3058Uu/Maelstrom MTR-5K.mtf	1694
+3058Uu/Maelstrom MTR-6E.mtf	1806
+3058Uu/Maelstrom MTR-6K.mtf	1678
+3058Uu/Merlin MLN-1A.mtf	1217
+3058Uu/Merlin MLN-1B.mtf	1228
+3058Uu/Merlin MLN-1C.mtf	1267
+3058Uu/Night Gyr A.mtf	2680
+3058Uu/Night Gyr B.mtf	2140
+3058Uu/Night Gyr C.mtf	2468
+3058Uu/Night Gyr D.mtf	2889
+3058Uu/Night Gyr E.mtf	2717
+3058Uu/Night Gyr H.mtf	2428
+3058Uu/Night Gyr Prime.mtf	2830
+3058Uu/Night Hawk NTK-2Q.mtf	997
+3058Uu/Night Hawk NTK-2S.mtf	1017
+3058Uu/Nightstar NSR-9FC.mtf	1929
+3058Uu/Nightstar NSR-9J.mtf	2399
+3058Uu/Nightstar NSR-9SS.mtf	2145
+3058Uu/Nobori-nin (Huntsman) A.mtf	2034
+3058Uu/Nobori-nin (Huntsman) B.mtf	2156
+3058Uu/Nobori-nin (Huntsman) C.mtf	2199
+3058Uu/Nobori-nin (Huntsman) D.mtf	2007
+3058Uu/Nobori-nin (Huntsman) H.mtf	2495
+3058Uu/Nobori-nin (Huntsman) N.mtf	2556
+3058Uu/Nobori-nin (Huntsman) Prime.mtf	2108
+3058Uu/O-Bakemono OBK-M10.mtf	1659
+3058Uu/O-Bakemono OBK-M11.mtf	1793
+3058Uu/O-Bakemono OBK-M12.mtf	1732
+3058Uu/Owens OW-1.mtf	839
+3058Uu/Owens OW-1A.mtf	680
+3058Uu/Owens OW-1B.mtf	752
+3058Uu/Owens OW-1C.mtf	964
+3058Uu/Owens OW-1D.mtf	655
+3058Uu/Owens OW-1E.mtf	833
+3058Uu/Owens OW-1F.mtf	933
+3058Uu/Owens OW-1R.mtf	1215
+3058Uu/Pillager PLG-1N.mtf	1812
+3058Uu/Pillager PLG-3Z.mtf	2697
+3058Uu/Pillager PLG-4Z.mtf	2868
+3058Uu/Pillager PLG-5L.mtf	2656
+3058Uu/Pillager PLG-5Z.mtf	2939
+3058Uu/Piranha 2.mtf	853
+3058Uu/Piranha 3.mtf	1142
+3058Uu/Piranha.mtf	998
+3058Uu/Raptor RTX1-O.mtf	721
+3058Uu/Raptor RTX1-OA.mtf	783
+3058Uu/Raptor RTX1-OB.mtf	613
+3058Uu/Raptor RTX1-OC.mtf	870
+3058Uu/Raptor RTX1-OD.mtf	490
+3058Uu/Raptor RTX1-OE.mtf	597
+3058Uu/Raptor RTX1-OF.mtf	1029
+3058Uu/Raptor RTX1-OG.mtf	857
+3058Uu/Raptor RTX1-OR.mtf	1393
+3058Uu/Shadow Cat A.mtf	2220
+3058Uu/Shadow Cat B.mtf	2420
+3058Uu/Shadow Cat C.mtf	2199
+3058Uu/Shadow Cat H.mtf	2155
+3058Uu/Shadow Cat Prime.mtf	2156
+3058Uu/Shootist ST-8A.mtf	1507
+3058Uu/Shootist ST-8C.mtf	1528
+3058Uu/Shootist ST-9C.mtf	1727
+3058Uu/Spartan SPT-N1.mtf	1498
+3058Uu/Spartan SPT-N2.mtf	1605
+3058Uu/Spartan SPT-N3.mtf	1631
+3058Uu/Spartan SPT-NF.mtf	1605
+3058Uu/Spector SPR-4F.mtf	1224
+3058Uu/Spector SPR-5F.mtf	1183
+3058Uu/Spector SPR-5S.mtf	1155
+3058Uu/Spector SPR-ST.mtf	1438
+3058Uu/Starslayer STY-2C.mtf	1365
+3058Uu/Starslayer STY-3C.mtf	1508
+3058Uu/Starslayer STY-3D.mtf	1593
+3058Uu/Strider SR1-O.mtf	867
+3058Uu/Strider SR1-OA.mtf	723
+3058Uu/Strider SR1-OB.mtf	910
+3058Uu/Strider SR1-OC.mtf	944
+3058Uu/Strider SR1-OD.mtf	873
+3058Uu/Strider SR1-OE.mtf	976
+3058Uu/Strider SR1-OF.mtf	1032
+3058Uu/Strider SR1-OG.mtf	883
+3058Uu/Strider SR1-OR.mtf	1339
+3058Uu/Strider SR1-OX.mtf	889
+3058Uu/Striker STC-2C.mtf	1488
+3058Uu/Striker STC-2D.mtf	1644
+3058Uu/Striker STC-2S.mtf	1466
+3058Uu/Sunder SD1-O Samual.mtf	1593
+3058Uu/Sunder SD1-O.mtf	1747
+3058Uu/Sunder SD1-OA.mtf	2003
+3058Uu/Sunder SD1-OB.mtf	1597
+3058Uu/Sunder SD1-OC.mtf	1735
+3058Uu/Sunder SD1-OD.mtf	1947
+3058Uu/Sunder SD1-OE.mtf	1876
+3058Uu/Sunder SD1-OR.mtf	2462
+3058Uu/Sunder SD1-OX.mtf	1763
+3058Uu/Supernova 2.mtf	2741
+3058Uu/Supernova 3.mtf	3448
+3058Uu/Supernova 4.mtf	3158
+3058Uu/Supernova.mtf	2801
+3058Uu/Talon TLN-5V.mtf	1075
+3058Uu/Talon TLN-5W.mtf	1175
+3058Uu/Talon TLN-5Z.mtf	1168
+3058Uu/Thresher 2.mtf	2337
+3058Uu/Thresher.mtf	2314
+3058Uu/Thunder Hawk TDK-7KMA.mtf	2449
+3058Uu/Thunder Hawk TDK-7S.mtf	2440
+3058Uu/Thunder Hawk TDK-7X.mtf	2577
+3058Uu/Thunder Hawk TDK-7Y.mtf	2489
+3058Uu/Turkina A.mtf	2906
+3058Uu/Turkina B.mtf	3420
+3058Uu/Turkina C.mtf	2798
+3058Uu/Turkina D.mtf	3132
+3058Uu/Turkina H.mtf	2712
+3058Uu/Turkina Prime.mtf	2944
+3060u/Arctic Fox AF1.mtf	983
+3060u/Arctic Fox AF1A.mtf	858
+3060u/Arctic Fox AF1B.mtf	735
+3060u/Arctic Fox AF1C.mtf	948
+3060u/Arctic Fox AF1D.mtf	744
+3060u/Arctic Fox AF1E.mtf	1094
+3060u/Arctic Fox AF1F.mtf	891
+3060u/Arctic Wolf 2.mtf	1511
+3060u/Arctic Wolf A.mtf	1587
+3060u/Arctic Wolf J.mtf	1786
+3060u/Arctic Wolf Prime.mtf	1641
+3060u/Arctic Wolf.mtf	1330
+3060u/Barghest BGS-1T.mtf	1787
+3060u/Barghest BGS-2T.mtf	1794
+3060u/Barghest BGS-3T.mtf	1900
+3060u/Barghest BGS-7S.mtf	1526
+3060u/Beowulf BEO-12.mtf	1319
+3060u/Beowulf BEO-14.mtf	1287
+3060u/Bishamon BSN-3K.mtf	1374
+3060u/Bishamon BSN-4K.mtf	1105
+3060u/Bishamon BSN-5KC.mtf	1443
+3060u/Black Watch BKW-7R.mtf	1998
+3060u/Black Watch BKW-9R.mtf	2144
+3060u/Blitzkrieg BTZ-3F.mtf	1273
+3060u/Blitzkrieg BTZ-4F.mtf	1740
+3060u/Buccaneer BCN-3R.mtf	1434
+3060u/Buccaneer BCN-5W.mtf	1393
+3060u/Buccaneer BCN-6W.mtf	1121
+3060u/Canis 2.mtf	2822
+3060u/Canis.mtf	2498
+3060u/Clint IIC 2.mtf	1890
+3060u/Clint IIC.mtf	1395
+3060u/Cobra CBR-02.mtf	1128
+3060u/Cobra CBR-03.mtf	1324
+3060u/Commando IIC.mtf	978
+3060u/Corvis 2.mtf	1455
+3060u/Corvis.mtf	1336
+3060u/Cossack C-1FC.mtf	483
+3060u/Cossack C-SK1.mtf	465
+3060u/Cougar A.mtf	1697
+3060u/Cougar B.mtf	1774
+3060u/Cougar C.mtf	1785
+3060u/Cougar D.mtf	1309
+3060u/Cougar Prime.mtf	1485
+3060u/Duan Gung D9-G10.mtf	886
+3060u/Duan Gung D9-G9.mtf	737
+3060u/Eagle EGL-1M.mtf	757
+3060u/Eagle EGL-2M.mtf	800
+3060u/Eagle EGL-3M.mtf	645
+3060u/Enforcer III ENF-6M.mtf	1460
+3060u/Enforcer III ENF-6NAIS.mtf	1475
+3060u/Fire Scorpion 2.mtf	1749
+3060u/Fire Scorpion 3.mtf	1904
+3060u/Fire Scorpion.mtf	1546
+3060u/Garm GRM-01A.mtf	701
+3060u/Garm GRM-01A2.mtf	1078
+3060u/Garm GRM-01B.mtf	934
+3060u/Garm GRM-01C.mtf	1140
+3060u/Great Wyrm 2.mtf	1667
+3060u/Great Wyrm.mtf	1331
+3060u/Guillotine IIC 2.mtf	2721
+3060u/Guillotine IIC.mtf	2377
+3060u/Ha Otoko 2.mtf	2348
+3060u/Ha Otoko HKO-1C.mtf	1288
+3060u/Ha Otoko.mtf	1873
+3060u/Hauptmann HA1-O.mtf	2157
+3060u/Hauptmann HA1-OA.mtf	2311
+3060u/Hauptmann HA1-OB.mtf	2208
+3060u/Hauptmann HA1-OC.mtf	2322
+3060u/Hauptmann HA1-OD.mtf	2359
+3060u/Hauptmann HA1-OE.mtf	2298
+3060u/Helios HEL-3D.mtf	1618
+3060u/Helios HEL-4A.mtf	1519
+3060u/Helios HEL-6X.mtf	1761
+3060u/Helios HEL-C.mtf	1533
+3060u/Highlander IIC 2.mtf	2928
+3060u/Highlander IIC.mtf	2979
+3060u/Icestorm 2.mtf	868
+3060u/Icestorm.mtf	728
+3060u/Initiate INI-02.mtf	1036
+3060u/Initiate INI-04.mtf	901
+3060u/JagerMech III JM6-D3.mtf	1537
+3060u/JagerMech III JM6-D4.mtf	1831
+3060u/Jinggau JN-G7L.mtf	2137
+3060u/Jinggau JN-G8A.mtf	2072
+3060u/Jinggau JN-G9CC.mtf	1656
+3060u/Kabuto KBO-7A.mtf	524
+3060u/Kabuto KBO-7B.mtf	635
+3060u/Mandrill.mtf	1209
+3060u/Marshal MHL-2L.mtf	1313
+3060u/Marshal MHL-6MC.mtf	1467
+3060u/Marshal MHL-X1.mtf	1163
+3060u/Matador 2.mtf	1728
+3060u/Matador.mtf	2006
+3060u/Men Shen MS1-O.mtf	1550
+3060u/Men Shen MS1-OA.mtf	1529
+3060u/Men Shen MS1-OB.mtf	1484
+3060u/Men Shen MS1-OC.mtf	1435
+3060u/Men Shen MS1-OD.mtf	1581
+3060u/Men Shen MS1-OE.mtf	1625
+3060u/Men Shen MS1-OF.mtf	1648
+3060u/Nova Cat A.mtf	2629
+3060u/Nova Cat B.mtf	2492
+3060u/Nova Cat C.mtf	1944
+3060u/Nova Cat D.mtf	2084
+3060u/Nova Cat E.mtf	2191
+3060u/Nova Cat F.mtf	2706
+3060u/Nova Cat G.mtf	2522
+3060u/Nova Cat Prime.mtf	2530
+3060u/Orion IIC.mtf	2392
+3060u/Pack Hunter 2.mtf	1598
+3060u/Pack Hunter 3.mtf	1747
+3060u/Pack Hunter 4.mtf	1257
+3060u/Pack Hunter.mtf	1369
+3060u/Predator 2.mtf	2159
+3060u/Predator.mtf	1754
+3060u/Sentry SNT-04.mtf	1069
+3060u/Sentry SNT-W5.mtf	1143
+3060u/Shugenja SJA-7D.mtf	1656
+3060u/Shugenja SJA-8H.mtf	1692
+3060u/Sirocco SRC-3C.mtf	2154
+3060u/Sirocco SRC-5C.mtf	2107
+3060u/Sirocco SRC-6C.mtf	2202
+3060u/Snow Fox 2.mtf	604
+3060u/Snow Fox 3.mtf	903
+3060u/Snow Fox.mtf	807
+3060u/Stalking Spider 2.mtf	2056
+3060u/Stalking Spider 3.mtf	1643
+3060u/Stalking Spider.mtf	2232
+3060u/Star Adder (Blood Asp) A.mtf	3452
+3060u/Star Adder (Blood Asp) B.mtf	2885
+3060u/Star Adder (Blood Asp) C.mtf	2270
+3060u/Star Adder (Blood Asp) D.mtf	2396
+3060u/Star Adder (Blood Asp) Prime.mtf	2654
+3060u/Stooping Hawk A.mtf	2319
+3060u/Stooping Hawk B.mtf	2111
+3060u/Stooping Hawk C.mtf	2435
+3060u/Stooping Hawk D.mtf	1838
+3060u/Stooping Hawk E.mtf	1674
+3060u/Stooping Hawk F.mtf	1988
+3060u/Stooping Hawk G.mtf	1657
+3060u/Stooping Hawk Prime.mtf	2147
+3060u/Tai-sho TSH-7S.mtf	1774
+3060u/Tai-sho TSH-8S.mtf	2001
+3060u/Thunder Stallion 2.mtf	2575
+3060u/Thunder Stallion 3.mtf	2631
+3060u/Thunder Stallion.mtf	2306
+3060u/Ti Ts'ang TSG-9C.mtf	1989
+3060u/Ti Ts'ang TSG-9H.mtf	1880
+3060u/Ti Ts'ang TSG-9J.mtf	1909
+3060u/Toyama TYM-1A.mtf	1714
+3060u/Toyama TYM-1B.mtf	1788
+3060u/Toyama TYM-1C.mtf	1727
+3060u/UrbanMech IIC 2.mtf	855
+3060u/UrbanMech IIC.mtf	798
+3060u/Ursus 2.mtf	2054
+3060u/Ursus.mtf	1778
+3060u/Viking VKG-2F.mtf	2079
+3060u/Viking VKG-2G.mtf	2152
+3060u/Viking VKG-3A.mtf	1876
+3060u/Viking VKG-3W.mtf	1778
+3060u/Wyvern IIC 2.mtf	1537
+3060u/Wyvern IIC.mtf	1624
+3060u/Yeoman YMN-10-OR.mtf	1319
+3060u/Yeoman YMN-6Y.mtf	1344
+3060u/Yu Huang Y-H10G.mtf	2433
+3060u/Yu Huang Y-H11G.mtf	2131
+3060u/Yu Huang Y-H9G.mtf	2074
+3060u/Yu Huang Y-H9GB.mtf	2039
+3060u/Yu Huang Y-H9GC.mtf	2017
+3067 Unabridged/Clan Meks/Arcas 3.mtf	2305
+3067 Unabridged/Clan Meks/Bowman 2.mtf	2567
+3067 Unabridged/Clan Meks/Bowman 3.mtf	2770
+3067 Unabridged/Clan Meks/Bowman 4.mtf	1854
+3067 Unabridged/Clan Meks/Bowman.mtf	2308
+3067 Unabridged/Clan Meks/Burrock 2.mtf	2864
+3067 Unabridged/Clan Meks/Crimson Langur D.mtf	1867
+3067 Unabridged/Clan Meks/Crimson Langur E.mtf	2051
+3067 Unabridged/Clan Meks/Hellfire 3.mtf	2138
+3067 Unabridged/Clan Meks/Lobo 2.mtf	1869
+3067 Unabridged/Clan Meks/Lobo 3.mtf	1824
+3067 Unabridged/Clan Meks/Mad Cat Mk II 2.mtf	2822
+3067 Unabridged/Clan Meks/Mad Cat Mk II 3.mtf	3168
+3067 Unabridged/Clan Meks/Pinion 3.mtf	1611
+3067 Unabridged/Clan Meks/Rabid Coyote 2.mtf	2083
+3067 Unabridged/Clan Meks/Savage Coyote J.mtf	2554
+3067 Unabridged/Clan Meks/Savage Coyote W.mtf	2792
+3067 Unabridged/Clan Meks/Scylla 2.mtf	2839
+3067 Unabridged/Clan Meks/Scylla 3.mtf	2820
+3067 Unabridged/Clan Meks/Solitaire 2.mtf	1471
+3067 Unabridged/Clan Meks/Spirit 2.mtf	1773
+3067 Unabridged/IS Meks/Akuma AKU-2X.mtf	2122
+3067 Unabridged/IS Meks/Akuma AKU-2XK.mtf	2170
+3067 Unabridged/IS Meks/Anubis ABS-4C.mtf	833
+3067 Unabridged/IS Meks/Argus AGS-5D.mtf	2065
+3067 Unabridged/IS Meks/Argus AGS-6F.mtf	1524
+3067 Unabridged/IS Meks/Bloodhound B3-HND.mtf	1006
+3067 Unabridged/IS Meks/Blue Flame BLF-40.mtf	1195
+3067 Unabridged/IS Meks/Brigand LDT-X3.mtf	695
+3067 Unabridged/IS Meks/Brigand LDT-X4.mtf	1038
+3067 Unabridged/IS Meks/Chimera CMA-2k.mtf	1528
+3067 Unabridged/IS Meks/Cronus CNS-TD9.mtf	978
+3067 Unabridged/IS Meks/Fafnir FNR-5WB.mtf	2449
+3067 Unabridged/IS Meks/Fafnir FNR-6U.mtf	2234
+3067 Unabridged/IS Meks/Gurkha GUR-6G.mtf	1134
+3067 Unabridged/IS Meks/Gurkha GUR-8G.mtf	1241
+3067 Unabridged/IS Meks/Hellspawn HSN-10G.mtf	1188
+3067 Unabridged/IS Meks/Hellspawn HSN-10SR.mtf	1411
+3067 Unabridged/IS Meks/Lao Hu LHU-3L.mtf	1995
+3067 Unabridged/IS Meks/Lao Hu LHU-4E.mtf	2123
+3067 Unabridged/IS Meks/Legacy LGC-03.mtf	2121
+3067 Unabridged/IS Meks/Legacy LGC-04-WVR.mtf	1745
+3067 Unabridged/IS Meks/Legacy LGC-05.mtf	1628
+3067 Unabridged/IS Meks/Lightray LGH-7W.mtf	1352
+3067 Unabridged/IS Meks/Ninja-To NJT-4.mtf	1762
+3067 Unabridged/IS Meks/No-Dachi NDA-3S.mtf	1706
+3067 Unabridged/IS Meks/Osiris OSR-5D.mtf	1226
+3067 Unabridged/IS Meks/Perseus P1E.mtf	1641
+3067 Unabridged/IS Meks/Perseus P1P.mtf	1777
+3067 Unabridged/IS Meks/Perseus P1W.mtf	1864
+3067 Unabridged/IS Meks/Razorback RZK-10S.mtf	821
+3067 Unabridged/IS Meks/Razorback RZK-10T.mtf	1172
+3067 Unabridged/IS Meks/Red Shift RDS-3A.mtf	869
+3067 Unabridged/IS Meks/Sagittaire SGT-10X.mtf	1794
+3067 Unabridged/IS Meks/Sagittaire SGT-9D.mtf	2064
+3067 Unabridged/IS Meks/Sha Yu SYU-6B.mtf	1422
+3067 Unabridged/IS Meks/Stiletto STO-4C.mtf	941
+3067 Unabridged/IS Meks/Templar TLR1-OD.mtf	1840
+3067 Unabridged/IS Meks/Templar TLR1-OE.mtf	1865
+3067 Unabridged/IS Meks/Templar TLR1-OF.mtf	2029
+3067 Unabridged/IS Meks/Templar TLR1-OG.mtf	1632
+3067 Unabridged/IS Meks/Templar TLR1-OH.mtf	1958
+3067 Unabridged/IS Meks/Templar TLR1-OI.mtf	2202
+3067 Unabridged/IS Meks/Tessen TSN-C3M.mtf	1547
+3067 Unabridged/IS Meks/Thanatos THS-4T.mtf	1760
+3067 Unabridged/IS Meks/Thanatos THS-6S.mtf	1936
+3067 Unabridged/IS Meks/Uziel UZL-8S.mtf	1393
+3067 Unabridged/IS Meks/Vanquisher VQR-5V.mtf	2334
+3067 Unabridged/IS Meks/Vanquisher VQR-7U.mtf	2144
+3067 Unabridged/IS Meks/Vanquisher VQR-7V.mtf	2420
+3067 Unabridged/IS Meks/Verfolger VR6-C.mtf	1584
+3067 Unabridged/IS Meks/Verfolger VR6-T.mtf	1811
+3067 Unabridged/IS Meks/White Flame WHF-3C.mtf	1826
+3067 Unabridged/IS Meks/White Flame WHF-4C.mtf	1680
+3067/Akuma AKU-1X.mtf	1959
+3067/Akuma AKU-1XJ.mtf	2203
+3067/Anubis ABS-3L.mtf	951
+3067/Anubis ABS-3R.mtf	970
+3067/Anubis ABS-3T.mtf	1150
+3067/Arcas 2.mtf	2835
+3067/Arcas.mtf	2484
+3067/Argus AGS-2D.mtf	1566
+3067/Argus AGS-4D.mtf	1638
+3067/Axman AXM-3S.mtf	1649
+3067/Blood Kite 2.mtf	3122
+3067/Blood Kite.mtf	2776
+3067/Bloodhound B1-HND.mtf	1248
+3067/Bloodhound B2-HND.mtf	1363
+3067/Blue Flame BLF-21.mtf	1256
+3067/Brigand LDT-1.mtf	771
+3067/Brigand LDT-X1.mtf	937
+3067/Brigand LDT-X2.mtf	764
+3067/Burrock.mtf	2230
+3067/Chimera CMA-1S.mtf	1173
+3067/Chimera CMA-C.mtf	1182
+3067/Crimson Langur A.mtf	2003
+3067/Crimson Langur B.mtf	2210
+3067/Crimson Langur C.mtf	1437
+3067/Crimson Langur Prime.mtf	1952
+3067/Cronus CNS-3M.mtf	1339
+3067/Cronus CNS-5M.mtf	1579
+3067/Fafnir FNR-5.mtf	2636
+3067/Fafnir FNR-5B.mtf	2625
+3067/Gurkha GUR-2G.mtf	1101
+3067/Gurkha GUR-4G.mtf	908
+3067/Hellfire 2.mtf	2370
+3067/Hellfire.mtf	2114
+3067/Hellion A.mtf	1543
+3067/Hellion B.mtf	1569
+3067/Hellion C.mtf	2095
+3067/Hellion Prime.mtf	1873
+3067/Hellspawn HSN-7D.mtf	1220
+3067/Hellspawn HSN-8E.mtf	1341
+3067/Hellspawn HSN-9F.mtf	1118
+3067/Lao Hu LHU-2B.mtf	1771
+3067/Lao Hu LHU-3B.mtf	1497
+3067/Lao Hu LHU-3C.mtf	1878
+3067/Legacy LGC-01.mtf	1967
+3067/Legacy LGC-02.mtf	2033
+3067/Lightray LGH-4W.mtf	1450
+3067/Lightray LGH-4Y.mtf	1379
+3067/Lightray LGH-5W.mtf	1674
+3067/Lobo.mtf	1715
+3067/Mad Cat Mk II.mtf	3135
+3067/Ninja-To NJT-2.mtf	1527
+3067/Ninja-To NJT-3.mtf	1605
+3067/No-Dachi NDA-1K.mtf	1708
+3067/No-Dachi NDA-2K.mtf	1739
+3067/No-Dachi NDA-2KO.mtf	1728
+3067/Osiris OSR-3D.mtf	1138
+3067/Osiris OSR-4D.mtf	1230
+3067/Perseus P1 A.mtf	1661
+3067/Perseus P1 B.mtf	1776
+3067/Perseus P1 C.mtf	1644
+3067/Perseus P1 D.mtf	1714
+3067/Perseus P1 Prime.mtf	1713
+3067/Pinion 2.mtf	1657
+3067/Pinion.mtf	1646
+3067/Rabid Coyote.mtf	2081
+3067/Razorback RZK-9S.mtf	855
+3067/Razorback RZK-9T.mtf	1149
+3067/Red Shift RDS-2A.mtf	626
+3067/Red Shift RDS-2B.mtf	555
+3067/Sagittaire SGT-8R.mtf	2088
+3067/Savage Coyote A.mtf	2852
+3067/Savage Coyote B.mtf	2284
+3067/Savage Coyote C.mtf	3189
+3067/Savage Coyote Prime.mtf	2613
+3067/Scylla.mtf	2897
+3067/Sha Yu SYU-2B.mtf	1379
+3067/Sha Yu SYU-4B.mtf	1267
+3067/Solitaire.mtf	1284
+3067/Spirit.mtf	1673
+3067/Stiletto STO-4A.mtf	859
+3067/Stiletto STO-4B.mtf	1164
+3067/Templar TLR1-O (Grayson).mtf	1868
+3067/Templar TLR1-O (Tancred).mtf	2273
+3067/Templar TLR1-O.mtf	2045
+3067/Templar TLR1-OA.mtf	2070
+3067/Templar TLR1-OB.mtf	1806
+3067/Templar TLR1-OC.mtf	2063
+3067/Tessen TSN-1C.mtf	1162
+3067/Tessen TSN-C3.mtf	1234
+3067/Thanatos THS-4S.mtf	1844
+3067/Uziel UZL-2S.mtf	1352
+3067/Uziel UZL-3S.mtf	1189
+3067/Vanquisher VQR-2A.mtf	2234
+3067/Vanquisher VQR-2B.mtf	2073
+3067/Verfolger VR5-R.mtf	1639
+3067/White Flame WHF-3B.mtf	1637
+3075/Archangel C-ANG-O Invictus.mtf	2237
+3075/Archangel C-ANG-OA Dominus.mtf	2134
+3075/Archangel C-ANG-OB Infernus.mtf	2069
+3075/Archangel C-ANG-OC Comminus.mtf	2010
+3075/Archangel C-ANG-OD Luminos.mtf	2105
+3075/Archangel C-ANG-OE Eminus.mtf	2097
+3075/Atlas II AS7-D-H.mtf	2169
+3075/Atlas II AS7-D-H2.mtf	2340
+3075/Balius A.mtf	2201
+3075/Balius B.mtf	2029
+3075/Balius C.mtf	2103
+3075/Balius D.mtf	2417
+3075/Balius Prime.mtf	2157
+3075/BattleAxe BKX-7K.mtf	1329
+3075/BattleAxe BKX-7NC.mtf	1252
+3075/BattleAxe BKX-8D.mtf	1592
+3075/BattleMaster BLR-1Gb.mtf	1825
+3075/BattleMaster BLR-1Gbc.mtf	1825
+3075/BattleMaster BLR-1Gc.mtf	1577
+3075/Bear Cub 2.mtf	988
+3075/Bear Cub 3.mtf	1086
+3075/Bear Cub.mtf	1052
+3075/Crab CRB-27b.mtf	1308
+3075/Crimson Hawk 2.mtf	1271
+3075/Crimson Hawk 3.mtf	1029
+3075/Crimson Hawk.mtf	1285
+3075/Crossbow CRS-6B.mtf	1210
+3075/Crossbow CRS-6C.mtf	1204
+3075/Crossbow CRS-9A.mtf	1583
+3075/Crusader CRD-2R.mtf	1533
+3075/Cygnus 2.mtf	3361
+3075/Cygnus 3.mtf	2569
+3075/Cygnus.mtf	2583
+3075/Defiance DFN-3C.mtf	1817
+3075/Defiance DFN-3S.mtf	1940
+3075/Defiance DFN-3T.mtf	1981
+3075/DemolitionMech WI-DM.mtf	380
+3075/DemolitionMech WI-DM2.mtf	350
+3075/Deva C-DVA-O Invictus.mtf	1584
+3075/Deva C-DVA-OA Dominus.mtf	1727
+3075/Deva C-DVA-OB Infernus.mtf	1713
+3075/Deva C-DVA-OC Comminus.mtf	1743
+3075/Deva C-DVA-OD Luminos.mtf	1711
+3075/Deva C-DVA-OE Eminus.mtf	1686
+3075/Excalibur EXC-B2b.mtf	1715
+3075/Eyleuka EYL-35A.mtf	1484
+3075/Eyleuka EYL-45A.mtf	1387
+3075/Eyleuka EYL-45B.mtf	1615
+3075/Eyleuka EYL-4A.mtf	1571
+3075/Firebee FRB-2E.mtf	808
+3075/Firebee FRB-3E.mtf	1067
+3075/Galahad GLH-1D.mtf	1307
+3075/Galahad GLH-2D.mtf	1648
+3075/Galahad GLH-3D.mtf	1268
+3075/Gladiator GLD-1R (Keller).mtf	1553
+3075/Gladiator GLD-2R.mtf	1184
+3075/Gladiator GLD-3R.mtf	1282
+3075/Gladiator GLD-4R.mtf	1291
+3075/Gladiator GLD-5R.mtf	1425
+3075/Grigori C-GRG-O Invictus.mtf	1245
+3075/Grigori C-GRG-O Tamiel.mtf	1426
+3075/Grigori C-GRG-OA Dominus.mtf	1536
+3075/Grigori C-GRG-OB Infernus.mtf	1408
+3075/Grigori C-GRG-OC Comminus.mtf	1438
+3075/Grigori C-GRG-OD Luminos.mtf	1568
+3075/Grigori C-GRG-OE Eminus.mtf	1544
+3075/Hammerhands HMH-3D.mtf	1381
+3075/Hammerhands HMH-4D.mtf	1356
+3075/Hammerhands HMH-5D.mtf	1496
+3075/Hammerhands HMH-6D.mtf	2139
+3075/Helepolis HEP-2H.mtf	1369
+3075/Helepolis HEP-2X.mtf	1340
+3075/Helepolis HEP-3H.mtf	1380
+3075/Helepolis HEP-4H.mtf	1366
+3075/Highlander HGN-732b.mtf	2335
+3075/Hussar HSR-200-Db.mtf	934
+3075/Hyena HYN-4A SalvageMech .mtf	483
+3075/Hyena HYN-4B SalvageMech.mtf	405
+3075/Hyena HYN-KTO.mtf	933
+3075/Icarus II ICR-1S.mtf	869
+3075/Icarus II ICR-2S.mtf	986
+3075/Jabberwocky ConstructionMech JAW-66D.mtf	353
+3075/Jabberwocky DemolitionMech JAW-66C.mtf	351
+3075/Jabberwocky EngineerMech JAW-65A.mtf	250
+3075/Jabberwocky EngineerMech JAW-66B.mtf	350
+3075/Jackrabbit JKR-8T.mtf	414
+3075/Jackrabbit JKR-9R.mtf	614
+3075/Jackrabbit JKR-9W.mtf	549
+3075/Jupiter 2.mtf	3278
+3075/Jupiter 3.mtf	3074
+3075/Jupiter.mtf	2784
+3075/King Crab KGC-000b.mtf	2039
+3075/Kintaro KTO-19b.mtf	1265
+3075/Kiso K-3N-KR4 ConstructionMech.mtf	954
+3075/Kiso K-3N-KR5 ConstructionMech.mtf	959
+3075/Koschei KSC-3I.mtf	1255
+3075/Koschei KSC-3L.mtf	1384
+3075/Koschei KSC-4I.mtf	1516
+3075/Koschei KSC-4L.mtf	1503
+3075/Koschei KSC-5I.mtf	1961
+3075/Koschei KSC-5MC.mtf	1764
+3075/Koschei KSC-5X.mtf	1554
+3075/Kyudo KY2-D-02.mtf	1286
+3075/Kyudo KY2-D-03.mtf	1167
+3075/Legionnaire LGN-1X.mtf	1322
+3075/Legionnaire LGN-2D.mtf	1386
+3075/Legionnaire LGN-2XA.mtf	1172
+3075/Legionnaire LGN-2XU.mtf	1128
+3075/Lumberjack LM1A.mtf	311
+3075/Lumberjack LM4C.mtf	316
+3075/Lumberjack LM4P.mtf	651
+3075/Mackie MSK-6S.mtf	1438
+3075/Mackie MSK-7A.mtf	1900
+3075/Mackie MSK-8B.mtf	2019
+3075/Mackie MSK-9H.mtf	2022
+3075/Malak C-MK-O Invictus.mtf	792
+3075/Malak C-MK-OA Dominus.mtf	823
+3075/Malak C-MK-OB Infernus.mtf	1047
+3075/Malak C-MK-OC Comminus.mtf	945
+3075/Malak C-MK-OD Luminos.mtf	1055
+3075/Malak C-MK-OE Eminus.mtf	957
+3075/Marauder MAD-1R.mtf	1420
+3075/Marauder MAD-2R.mtf	1630
+3075/Mongoose II MON-266.mtf	1085
+3075/Mongoose II MON-267.mtf	1237
+3075/Mongoose II MON-268.mtf	1215
+3075/Mongoose MON-66b.mtf	934
+3075/Ocelot 2.mtf	1734
+3075/Ocelot 3.mtf	1594
+3075/Ocelot.mtf	1439
+3075/Ostroc OSR-2Cb.mtf	1478
+3075/Ostscout OTT-7Jb.mtf	610
+3075/Pariah A.mtf	1935
+3075/Pariah B.mtf	2310
+3075/Pariah C.mtf	2227
+3075/Pariah D.mtf	2718
+3075/Pariah Prime.mtf	2511
+3075/Patriot PKM-2C.mtf	1613
+3075/Patriot PKM-2D.mtf	1699
+3075/Patriot PKM-2E.mtf	1443
+3075/Patron LoaderMech.mtf	106
+3075/Patron PTN-1 LoaderMech.mtf	73
+3075/Phoenix Hawk PXH-1b.mtf	1512
+3075/Phoenix Hawk PXH-1c.mtf	1443
+3075/Phoenix PX-3R.mtf	1106
+3075/Phoenix PX-4R.mtf	996
+3075/Preta C-PRT-O Invictus.mtf	1067
+3075/Preta C-PRT-OA Dominus.mtf	1302
+3075/Preta C-PRT-OB Infernus.mtf	1338
+3075/Preta C-PRT-OC Comminus.mtf	1187
+3075/Preta C-PRT-OD Luminos.mtf	1158
+3075/Preta C-PRT-OE Eminus.mtf	1211
+3075/Quasit QUA-51M MilitiaMech.mtf	707
+3075/Quasit QUA-51P MilitiaMech.mtf	865
+3075/Quasit QUA-51T MilitiaMech.mtf	696
+3075/Rifleman II RFL-3N-2.mtf	1543
+3075/Ryoken II 2.mtf	2141
+3075/Ryoken II 3.mtf	2336
+3075/Ryoken II.mtf	1801
+3075/Seraph C-SRP-O Invictus.mtf	1810
+3075/Seraph C-SRP-OA Dominus.mtf	2360
+3075/Seraph C-SRP-OB Infernus.mtf	2181
+3075/Seraph C-SRP-OC Comminus.mtf	2136
+3075/Seraph C-SRP-OD Luminos.mtf	2291
+3075/Seraph C-SRP-OE Eminus.mtf	2148
+3075/Sun Cobra.mtf	1677
+3075/Thug THG-11Eb.mtf	1759
+3075/Titan II TI-2P.mtf	2143
+3075/Titan II TI-2PA.mtf	2468
+3075/Titan TI-1A.mtf	1959
+3075/Toro TR-A-6.mtf	864
+3075/Valiant V4-LNT-J3.mtf	926
+3075/Valiant V4-LNT-K7.mtf	894
+3075/Valiant VLN-3T.mtf	852
+3075/Von Rohrs (Hebi) VON 4RH-5.mtf	1170
+3075/Von Rohrs (Hebi) VON 4RH-6.mtf	1146
+3075/Warhammer WHM-6Rb.mtf	1431
+3075/Warlord BLR-2D.mtf	2041
+3075/Warlord BLR-2G.mtf	2033
+3075/Wight WGT-1LAWSC.mtf	1142
+3075/Wight WGT-1LAWSC3.mtf	1057
+3075/Wight WGT-2LAW.mtf	939
+3075/Wight WGT-2LAWC3.mtf	821
+3075/Wight WGT-2SC.mtf	1093
+3075/Wight WGT-3SC.mtf	1125
+3075/Wolverine II WVR-7H.mtf	1301
+3075/Wyvern WVE-5Nb.mtf	1006
+3075/Xanthos XNT-3O.mtf	1948
+3075/Xanthos XNT-4O.mtf	2548
+3075/Xanthos XNT-5O.mtf	2146
+3075/Ymir BWP-2B.mtf	1289
+3075/Ymir BWP-2E.mtf	1393
+3075/Ymir BWP-3A.mtf	1491
+3085u/Cutting Edge/Arbalest 2.mtf	1098
+3085u/Cutting Edge/Arbalest 3.mtf	921
+3085u/Cutting Edge/Arbalest.mtf	1029
+3085u/Cutting Edge/Arctic Wolf II A.mtf	1645
+3085u/Cutting Edge/Arctic Wolf II B.mtf	1678
+3085u/Cutting Edge/Arctic Wolf II C.mtf	1913
+3085u/Cutting Edge/Arctic Wolf II Prime.mtf	2111
+3085u/Cutting Edge/Atlas AS7-Dr.mtf	2101
+3085u/Cutting Edge/Atlas AS7-K2.mtf	2160
+3085u/Cutting Edge/Atlas AS7-K3.mtf	2346
+3085u/Cutting Edge/Atlas AS8-D.mtf	2432
+3085u/Cutting Edge/Blade BLD-XL.mtf	1314
+3085u/Cutting Edge/Blade BLD-XS.mtf	944
+3085u/Cutting Edge/Blade BLD-XX.mtf	1064
+3085u/Cutting Edge/Blood Reaper 2.mtf	2521
+3085u/Cutting Edge/Blood Reaper.mtf	2665
+3085u/Cutting Edge/Brahma BRM-5A.mtf	1572
+3085u/Cutting Edge/Brahma BRM-5B.mtf	1730
+3085u/Cutting Edge/Bruin 2.mtf	2200
+3085u/Cutting Edge/Bruin.mtf	2630
+3085u/Cutting Edge/Cuirass CDR-1X.mtf	1301
+3085u/Cutting Edge/Dark Crow 2.mtf	1575
+3085u/Cutting Edge/Dark Crow 3.mtf	1681
+3085u/Cutting Edge/Dark Crow 4.mtf	1538
+3085u/Cutting Edge/Dark Crow.mtf	1594
+3085u/Cutting Edge/Dasher II 2.mtf	2239
+3085u/Cutting Edge/Dasher II.mtf	522
+3085u/Cutting Edge/Deimos 2.mtf	2394
+3085u/Cutting Edge/Deimos A.mtf	2785
+3085u/Cutting Edge/Deimos B.mtf	2965
+3085u/Cutting Edge/Deimos C.mtf	2737
+3085u/Cutting Edge/Deimos Prime.mtf	2188
+3085u/Cutting Edge/Deimos S.mtf	2664
+3085u/Cutting Edge/Diomede D-M3D-3 ConstructionMech.mtf	1228
+3085u/Cutting Edge/Diomede D-M3D-4 DemolitionMech.mtf	1235
+3085u/Cutting Edge/Ebony MEB-10.mtf	1020
+3085u/Cutting Edge/Ebony MEB-11.mtf	1135
+3085u/Cutting Edge/Ebony MEB-9.mtf	1012
+3085u/Cutting Edge/Eidolon C-EID-001.mtf	1505
+3085u/Cutting Edge/Eisenfaust EFT-4J.mtf	977
+3085u/Cutting Edge/Eisenfaust EFT-7X.mtf	1203
+3085u/Cutting Edge/Eisenfaust EFT-8X.mtf	1039
+3085u/Cutting Edge/Fennec FEC-1CM.mtf	1395
+3085u/Cutting Edge/Fennec FEC-3C.mtf	1551
+3085u/Cutting Edge/Flamberge 2.mtf	2468
+3085u/Cutting Edge/Flamberge 3.mtf	2346
+3085u/Cutting Edge/Flamberge A.mtf	2575
+3085u/Cutting Edge/Flamberge B.mtf	2750
+3085u/Cutting Edge/Flamberge C.mtf	2206
+3085u/Cutting Edge/Flamberge Prime.mtf	2266
+3085u/Cutting Edge/Fwltur FWL-3R SalvageMech.mtf	255
+3085u/Cutting Edge/Fwltur FWL-3V SalvageMech.mtf	252
+3085u/Cutting Edge/Gallant GLT-7-0.mtf	1436
+3085u/Cutting Edge/Gallant GLT-8-0.mtf	1666
+3085u/Cutting Edge/Ghost GST-10.mtf	1353
+3085u/Cutting Edge/Ghost GST-11.mtf	1244
+3085u/Cutting Edge/Goshawk II 2.mtf	1767
+3085u/Cutting Edge/Goshawk II 3.mtf	2115
+3085u/Cutting Edge/Goshawk II.mtf	1849
+3085u/Cutting Edge/Hatchetman HCT-6M.mtf	1274
+3085u/Cutting Edge/Hatchetman HCT-7S.mtf	1243
+3085u/Cutting Edge/Hellstar 2.mtf	3545
+3085u/Cutting Edge/Hellstar 3.mtf	3025
+3085u/Cutting Edge/Hellstar.mtf	3084
+3085u/Cutting Edge/Karhu A.mtf	2560
+3085u/Cutting Edge/Karhu B.mtf	2787
+3085u/Cutting Edge/Karhu C.mtf	2092
+3085u/Cutting Edge/Karhu D.mtf	3118
+3085u/Cutting Edge/Karhu Prime.mtf	2488
+3085u/Cutting Edge/Kuma 2.mtf	2309
+3085u/Cutting Edge/Kuma 3.mtf	625
+3085u/Cutting Edge/Kuma.mtf	1952
+3085u/Cutting Edge/Mangonel MNL-3L.mtf	1552
+3085u/Cutting Edge/Mangonel MNL-3W.mtf	2657
+3085u/Cutting Edge/Mjolnir MLR-B2.mtf	670
+3085u/Cutting Edge/Mjolnir MLR-BX.mtf	612
+3085u/Cutting Edge/Morrigan 2.mtf	1874
+3085u/Cutting Edge/Morrigan 3.mtf	1390
+3085u/Cutting Edge/Morrigan.mtf	1523
+3085u/Cutting Edge/Night Wolf.mtf	2878
+3085u/Cutting Edge/Nyx NX-80.mtf	924
+3085u/Cutting Edge/Nyx NX-80C.mtf	874
+3085u/Cutting Edge/Nyx NX-90.mtf	613
+3085u/Cutting Edge/Omen.mtf	2750
+3085u/Cutting Edge/Onager.mtf	2732
+3085u/Cutting Edge/Orochi OR-2I.mtf	2077
+3085u/Cutting Edge/Osprey OSP-15.mtf	1564
+3085u/Cutting Edge/Osprey OSP-25.mtf	1630
+3085u/Cutting Edge/Osprey OSP-26.mtf	1541
+3085u/Cutting Edge/Ostwar OWR-2M.mtf	1205
+3085u/Cutting Edge/Ostwar OWR-2Mb.mtf	1638
+3085u/Cutting Edge/Ostwar OWR-3M.mtf	1557
+3085u/Cutting Edge/Pack Hunter II 2.mtf	1457
+3085u/Cutting Edge/Pack Hunter II 3.mtf	1438
+3085u/Cutting Edge/Pack Hunter II.mtf	1797
+3085u/Cutting Edge/Panther PNT-10K2.mtf	913
+3085u/Cutting Edge/Panther PNT-12K.mtf	930
+3085u/Cutting Edge/Panther PNT-12K2.mtf	930
+3085u/Cutting Edge/Panther PNT-13K.mtf	996
+3085u/Cutting Edge/Parash 2.mtf	1523
+3085u/Cutting Edge/Parash.mtf	1300
+3085u/Cutting Edge/Peacekeeper PKP-1A.mtf	2824
+3085u/Cutting Edge/Peacekeeper PKP-1B.mtf	2981
+3085u/Cutting Edge/Penthesilea PEN-2H.mtf	1899
+3085u/Cutting Edge/Penthesilea PEN-2MAF.mtf	1834
+3085u/Cutting Edge/Prefect PRF-1R.mtf	1847
+3085u/Cutting Edge/Prefect PRF-2R.mtf	1710
+3085u/Cutting Edge/Raptor II RPT-2X.mtf	896
+3085u/Cutting Edge/Raptor II RPT-2X1.mtf	1274
+3085u/Cutting Edge/Raptor II RPT-3X.mtf	1304
+3085u/Cutting Edge/Raptor II RPT-5X.mtf	1124
+3085u/Cutting Edge/Rook NH-1A.mtf	1197
+3085u/Cutting Edge/Rook NH-1B.mtf	1227
+3085u/Cutting Edge/Rook NH-2.mtf	1525
+3085u/Cutting Edge/Rook NH-3X.mtf	1746
+3085u/Cutting Edge/Shadow Cat II 2.mtf	2106
+3085u/Cutting Edge/Shadow Cat II.mtf	2064
+3085u/Cutting Edge/Shen Yi SHY-3B.mtf	1507
+3085u/Cutting Edge/Shockwave SKW-2F.mtf	1453
+3085u/Cutting Edge/Shockwave SKW-4G.mtf	1449
+3085u/Cutting Edge/Sokuryou SKU-181 SurveyMech.mtf	328
+3085u/Cutting Edge/Sokuryou SKU-197 SurveyMech.mtf	395
+3085u/Cutting Edge/Sokuryou SKU-198 SurveyMech.mtf	581
+3085u/Cutting Edge/Sphinx 2.mtf	2753
+3085u/Cutting Edge/Sphinx.mtf	2883
+3085u/Cutting Edge/Spider SDR-8K.mtf	1007
+3085u/Cutting Edge/Spider SDR-8R.mtf	694
+3085u/Cutting Edge/Spider SDR-8X.mtf	765
+3085u/Cutting Edge/Targe TRG-1N.mtf	813
+3085u/Cutting Edge/Targe TRG-2N.mtf	1078
+3085u/Cutting Edge/Thunder Fox TFT-A9.mtf	1325
+3085u/Cutting Edge/Thunder Fox TFT-C3.mtf	1104
+3085u/Cutting Edge/Thunder Fox TFT-L8.mtf	1513
+3085u/Cutting Edge/Trebaruna TR-XB.mtf	2223
+3085u/Cutting Edge/Trebaruna TR-XJ.mtf	2270
+3085u/Cutting Edge/Trebaruna TR-XL.mtf	2244
+3085u/Cutting Edge/Tundra Wolf 2.mtf	3626
+3085u/Cutting Edge/Tundra Wolf 3.mtf	3292
+3085u/Cutting Edge/Tundra Wolf 4.mtf	2873
+3085u/Cutting Edge/Tundra Wolf.mtf	3131
+3085u/Cutting Edge/Ursus II.mtf	2069
+3085u/Cutting Edge/Warhammer WHD-10CT.mtf	1758
+3085u/Cutting Edge/Wolfhound WLF-3M.mtf	786
+3085u/Cutting Edge/Wolfhound WLF-5.mtf	1290
+3085u/Cutting Edge/Yao Lien YOL-4C.mtf	1586
+3085u/ONN/Akuma AKU-2XC.mtf	2134
+3085u/ONN/Albatross ALB-3Ur.mtf	1902
+3085u/ONN/Arctic Fox AF1U.mtf	821
+3085u/ONN/Argus AGS-8DX.mtf	1598
+3085u/ONN/Avatar AV1-OU.mtf	1359
+3085u/ONN/Axman AXM-3Sr.mtf	1734
+3085u/ONN/Balius U.mtf	2014
+3085u/ONN/Bandersnatch BNDR-01Ar.mtf	1522
+3085u/ONN/Banshee BNC-3Mr.mtf	1801
+3085u/ONN/Beowulf C.mtf	2078
+3085u/ONN/Black Hawk (Nova) U.mtf	1413
+3085u/ONN/Black Hawk-KU BHKU-OU.mtf	1687
+3085u/ONN/Blackjack BJ2-OU.mtf	1223
+3085u/ONN/Bushwacker BSW-S2r.mtf	1339
+3085u/ONN/Catapult CPLT-C5A.mtf	1772
+3085u/ONN/Cauldron-Born (Ebon Jaguar) U.mtf	2593
+3085u/ONN/Centurion CN9-Ar.mtf	1226
+3085u/ONN/Charger CGR-3Kr.mtf	2121
+3085u/ONN/Commando COM-2Dr.mtf	563
+3085u/ONN/Crossbow U.mtf	1856
+3085u/ONN/Cyclops CP-11-B.mtf	2145
+3085u/ONN/Cyclops CP-11-C2.mtf	1534
+3085u/ONN/Cyclops CP-11-C3.mtf	1752
+3085u/ONN/Daikyu DAI-01r.mtf	1513
+3085u/ONN/Daishi (Dire Wolf) U.mtf	3360
+3085u/ONN/Dart DRT-6T.mtf	703
+3085u/ONN/Dervish DV-6Mr.mtf	1347
+3085u/ONN/Deva C-DVA-OU Exanimus.mtf	1685
+3085u/ONN/Dragon DRG-5Nr.mtf	1252
+3085u/ONN/Dragonfly (Viper) U.mtf	1417
+3085u/ONN/Enfield END-6Sr.mtf	1361
+3085u/ONN/Enforcer III ENF-6Ma.mtf	1275
+3085u/ONN/Enforcer III ENF-7C3BS.mtf	1687
+3085u/ONN/Fafnir FNR-5X.mtf	2610
+3085u/ONN/Falconer FLC-9R.mtf	1979
+3085u/ONN/Fenris (Ice Ferret) U.mtf	1549
+3085u/ONN/Fireball ALM-10D.mtf	957
+3085u/ONN/Firestarter FS9-OU.mtf	1120
+3085u/ONN/Gallowglas GAL-2GLSA.mtf	1771
+3085u/ONN/Grand Dragon DRG-7KC.mtf	1673
+3085u/ONN/Grigori C-GRG-OU Exanimus.mtf	1604
+3085u/ONN/Gunslinger GUN-2ERDr.mtf	2371
+3085u/ONN/Ha Otoko 3.mtf	2206
+3085u/ONN/Hammerhands HMH-6E.mtf	2204
+3085u/ONN/Hatamoto-Chi HTM-28Tr.mtf	2034
+3085u/ONN/Hermes II HER-5Sr.mtf	1242
+3085u/ONN/Highlander IIC 3.mtf	3001
+3085u/ONN/Hitman HM-1r.mtf	938
+3085u/ONN/Hunchback IIC 4.mtf	2097
+3085u/ONN/JagerMech JM7-C3BS.mtf	1354
+3085u/ONN/Jenner JR7-C4.mtf	703
+3085u/ONN/King Crab KGC-005r.mtf	2335
+3085u/ONN/Longbow LGB-8V.mtf	1808
+3085u/ONN/Mad Cat (Timber Wolf) U.mtf	2627
+3085u/ONN/Men Shen MS1-OU.mtf	1725
+3085u/ONN/Mongoose MON-86.mtf	887
+3085u/ONN/Naginata NG-C3Ar.mtf	1879
+3085u/ONN/Nightsky NGS-6T.mtf	1462
+3085u/ONN/No-Dachi NDA-2KC.mtf	1705
+3085u/ONN/Piranha 4.mtf	1063
+3085u/ONN/Preta C-PRT-OU Exanimus.mtf	1055
+3085u/ONN/Quickdraw QKD-5Mr.mtf	1471
+3085u/ONN/Rakshasa MDG-1Ar.mtf	1675
+3085u/ONN/Raptor RTX1-OU.mtf	914
+3085u/ONN/Raven RVN-4Lr.mtf	943
+3085u/ONN/Snake SNK-2Br.mtf	1577
+3085u/ONN/Spider SDR-7Kr.mtf	775
+3085u/ONN/Stalker STK-7C3BS.mtf	1712
+3085u/ONN/Starslayer STY-3Dr.mtf	1781
+3085u/ONN/Talon TLN-6W.mtf	1341
+3085u/ONN/Templar TLR1-OU.mtf	1747
+3085u/ONN/Tessen TSN-1Cr.mtf	1241
+3085u/ONN/Thor (Summoner) U.mtf	3092
+3085u/ONN/Turkina U.mtf	2520
+3085u/ONN/Uller (Kit Fox) U.mtf	1486
+3085u/ONN/UrbanMech UM-AIV.mtf	603
+3085u/ONN/UrbanMech UM-R80.mtf	699
+3085u/ONN/Victor VTR-9Ka.mtf	1594
+3085u/ONN/Victor VTR-Cr.mtf	1465
+3085u/ONN/Vindicator VND-3Lr.mtf	1045
+3085u/ONN/Vulcan VT-5Sr.mtf	1210
+3085u/ONN/Vulture (Mad Dog) U.mtf	2488
+3085u/ONN/Warlord BLR-2Dr.mtf	2284
+3085u/Phoenix/Archer ARC-6S.mtf	1694
+3085u/Phoenix/Archer ARC-6W.mtf	1405
+3085u/Phoenix/Archer ARC-7L.mtf	1881
+3085u/Phoenix/Archer ARC-7S.mtf	1658
+3085u/Phoenix/Archer ARC-8M.mtf	1759
+3085u/Phoenix/Archer ARC-9K.mtf	1391
+3085u/Phoenix/Archer ARC-9M.mtf	1811
+3085u/Phoenix/Archer ARC-9W.mtf	1774
+3085u/Phoenix/BattleMaster BLR-10S.mtf	1930
+3085u/Phoenix/BattleMaster BLR-10S2.mtf	1930
+3085u/Phoenix/BattleMaster BLR-2C.mtf	1563
+3085u/Phoenix/BattleMaster BLR-3M.mtf	1679
+3085u/Phoenix/BattleMaster BLR-3S.mtf	1441
+3085u/Phoenix/BattleMaster BLR-4L.mtf	1890
+3085u/Phoenix/BattleMaster BLR-4S.mtf	2018
+3085u/Phoenix/BattleMaster BLR-5M.mtf	1766
+3085u/Phoenix/BattleMaster BLR-6X.mtf	1966
+3085u/Phoenix/BattleMaster BLR-CM.mtf	1883
+3085u/Phoenix/BattleMaster BLR-K3.mtf	1851
+3085u/Phoenix/BattleMaster BLR-K4.mtf	2232
+3085u/Phoenix/BattleMaster BLR-M3.mtf	1674
+3085u/Phoenix/BattleMaster C.mtf	3025
+3085u/Phoenix/Crusader CRD-4L.mtf	1309
+3085u/Phoenix/Crusader CRD-5K.mtf	1463
+3085u/Phoenix/Crusader CRD-6M.mtf	1373
+3085u/Phoenix/Crusader CRD-7L.mtf	1749
+3085u/Phoenix/Crusader CRD-7W.mtf	1221
+3085u/Phoenix/Crusader CRD-8L.mtf	1701
+3085u/Phoenix/Crusader CRD-8S.mtf	1698
+3085u/Phoenix/Goliath GOL-2H.mtf	1583
+3085u/Phoenix/Goliath GOL-3L.mtf	1708
+3085u/Phoenix/Goliath GOL-3S.mtf	1792
+3085u/Phoenix/Goliath GOL-4S.mtf	1912
+3085u/Phoenix/Goliath GOL-5D.mtf	1975
+3085u/Phoenix/Goliath GOL-5W.mtf	2006
+3085u/Phoenix/Goliath GOL-6H.mtf	1681
+3085u/Phoenix/Goliath GOL-6M.mtf	1742
+3085u/Phoenix/Griffin GRF-1DS.mtf	1285
+3085u/Phoenix/Griffin GRF-3M.mtf	1521
+3085u/Phoenix/Griffin GRF-4N.mtf	1591
+3085u/Phoenix/Griffin GRF-4R.mtf	1412
+3085u/Phoenix/Griffin GRF-5K.mtf	1390
+3085u/Phoenix/Griffin GRF-5L.mtf	1742
+3085u/Phoenix/Griffin GRF-5M.mtf	1224
+3085u/Phoenix/Griffin GRF-6CS.mtf	1695
+3085u/Phoenix/Griffin GRF-6S.mtf	1781
+3085u/Phoenix/Griffin IIC 3.mtf	1532
+3085u/Phoenix/Griffin IIC 4.mtf	1475
+3085u/Phoenix/Griffin IIC 5.mtf	1344
+3085u/Phoenix/Griffin IIC 6.mtf	1468
+3085u/Phoenix/Griffin IIC 7.mtf	1952
+3085u/Phoenix/Griffin IIC 8.mtf	1736
+3085u/Phoenix/Locust IIC 4.mtf	795
+3085u/Phoenix/Locust IIC 5.mtf	878
+3085u/Phoenix/Locust IIC 6.mtf	776
+3085u/Phoenix/Locust IIC 7.mtf	980
+3085u/Phoenix/Locust IIC 8.mtf	1119
+3085u/Phoenix/Locust IIC 9.mtf	1133
+3085u/Phoenix/Locust LCT-1V2.mtf	568
+3085u/Phoenix/Locust LCT-5M.mtf	719
+3085u/Phoenix/Locust LCT-5T.mtf	520
+3085u/Phoenix/Locust LCT-5V.mtf	665
+3085u/Phoenix/Locust LCT-5W.mtf	695
+3085u/Phoenix/Locust LCT-5W2.mtf	787
+3085u/Phoenix/Locust LCT-6M.mtf	956
+3085u/Phoenix/Longbow LGB-12C.mtf	1686
+3085u/Phoenix/Longbow LGB-12R.mtf	1979
+3085u/Phoenix/Longbow LGB-13C.mtf	1397
+3085u/Phoenix/Longbow LGB-13NAIS.mtf	1806
+3085u/Phoenix/Longbow LGB-14C.mtf	1421
+3085u/Phoenix/Marauder II Bounty Hunter.mtf	3767
+3085u/Phoenix/Marauder II C.mtf	2916
+3085u/Phoenix/Marauder II MAD-4H.mtf	2180
+3085u/Phoenix/Marauder II MAD-4K.mtf	2626
+3085u/Phoenix/Marauder II MAD-4S.mtf	2623
+3085u/Phoenix/Marauder II MAD-5W.mtf	2383
+3085u/Phoenix/Marauder II MAD-6D.mtf	2378
+3085u/Phoenix/Marauder II MAD-6M.mtf	2218
+3085u/Phoenix/Marauder IIC 2.mtf	2358
+3085u/Phoenix/Marauder IIC 3.mtf	2445
+3085u/Phoenix/Marauder IIC 4.mtf	3447
+3085u/Phoenix/Marauder IIC 5.mtf	2386
+3085u/Phoenix/Marauder IIC 6.mtf	2646
+3085u/Phoenix/Marauder IIC 7.mtf	2843
+3085u/Phoenix/Marauder MAD-5L.mtf	2244
+3085u/Phoenix/Marauder MAD-5M.mtf	1471
+3085u/Phoenix/Marauder MAD-5R.mtf	1877
+3085u/Phoenix/Marauder MAD-5T.mtf	1750
+3085u/Phoenix/Marauder MAD-6L.mtf	2322
+3085u/Phoenix/Marauder MAD-7D.mtf	1986
+3085u/Phoenix/Marauder MAD-9M.mtf	1704
+3085u/Phoenix/Marauder MAD-9M2.mtf	1875
+3085u/Phoenix/Marauder MAD-9S.mtf	1786
+3085u/Phoenix/Marauder MAD-9W.mtf	1788
+3085u/Phoenix/Marauder MAD-9W2.mtf	1868
+3085u/Phoenix/Ostroc OSR-4C.mtf	1325
+3085u/Phoenix/Ostroc OSR-4K.mtf	1490
+3085u/Phoenix/Ostroc OSR-4L.mtf	1778
+3085u/Phoenix/Ostroc OSR-5C.mtf	1788
+3085u/Phoenix/Ostroc OSR-5W.mtf	1655
+3085u/Phoenix/Ostscout OTT-10CS.mtf	862
+3085u/Phoenix/Ostscout OTT-11J.mtf	908
+3085u/Phoenix/Ostscout OTT-7K.mtf	484
+3085u/Phoenix/Ostscout OTT-9CS.mtf	930
+3085u/Phoenix/Ostscout OTT-9S.mtf	855
+3085u/Phoenix/Ostsol OTL-5D.mtf	1333
+3085u/Phoenix/Ostsol OTL-6D.mtf	1880
+3085u/Phoenix/Ostsol OTL-7M.mtf	1581
+3085u/Phoenix/Ostsol OTL-8D.mtf	1462
+3085u/Phoenix/Ostsol OTL-8M.mtf	1733
+3085u/Phoenix/Ostsol OTL-9M.mtf	1871
+3085u/Phoenix/Ostsol OTL-9R.mtf	1654
+3085u/Phoenix/Phoenix Hawk IIC 3.mtf	2448
+3085u/Phoenix/Phoenix Hawk IIC 4.mtf	2483
+3085u/Phoenix/Phoenix Hawk IIC 5.mtf	2350
+3085u/Phoenix/Phoenix Hawk IIC 6.mtf	2490
+3085u/Phoenix/Phoenix Hawk IIC 7.mtf	2219
+3085u/Phoenix/Phoenix Hawk IIC 8.mtf	2881
+3085u/Phoenix/Phoenix Hawk PXH-2.mtf	1145
+3085u/Phoenix/Phoenix Hawk PXH-3M Masters.mtf	1154
+3085u/Phoenix/Phoenix Hawk PXH-3PL.mtf	1244
+3085u/Phoenix/Phoenix Hawk PXH-4L.mtf	1282
+3085u/Phoenix/Phoenix Hawk PXH-4W.mtf	1395
+3085u/Phoenix/Phoenix Hawk PXH-5L.mtf	1530
+3085u/Phoenix/Phoenix Hawk PXH-6D.mtf	1665
+3085u/Phoenix/Phoenix Hawk PXH-7CS.mtf	1281
+3085u/Phoenix/Phoenix Hawk PXH-7K.mtf	1241
+3085u/Phoenix/Phoenix Hawk PXH-7S.mtf	1496
+3085u/Phoenix/Phoenix Hawk PXH-8CS.mtf	1442
+3085u/Phoenix/Rifleman C 2.mtf	2150
+3085u/Phoenix/Rifleman IIC 2.mtf	1345
+3085u/Phoenix/Rifleman IIC 3.mtf	1733
+3085u/Phoenix/Rifleman IIC 4.mtf	2140
+3085u/Phoenix/Rifleman IIC 5.mtf	2343
+3085u/Phoenix/Rifleman IIC 6.mtf	2220
+3085u/Phoenix/Rifleman IIC 7.mtf	2205
+3085u/Phoenix/Rifleman IIC 8.mtf	2541
+3085u/Phoenix/Rifleman IIC.mtf	2307
+3085u/Phoenix/Rifleman RFL-3Cr.mtf	1129
+3085u/Phoenix/Rifleman RFL-6D.mtf	1274
+3085u/Phoenix/Rifleman RFL-6X.mtf	1464
+3085u/Phoenix/Rifleman RFL-7M.mtf	1521
+3085u/Phoenix/Rifleman RFL-7X.mtf	1645
+3085u/Phoenix/Rifleman RFL-8D.mtf	1777
+3085u/Phoenix/Rifleman RFL-8X.mtf	1798
+3085u/Phoenix/Rifleman RFL-9T.mtf	1503
+3085u/Phoenix/Scorpion SCP-10M.mtf	1458
+3085u/Phoenix/Scorpion SCP-12C.mtf	1259
+3085u/Phoenix/Scorpion SCP-12K.mtf	1260
+3085u/Phoenix/Scorpion SCP-12S.mtf	1109
+3085u/Phoenix/Shadow Hawk IIC 3.mtf	1471
+3085u/Phoenix/Shadow Hawk IIC 4.mtf	1698
+3085u/Phoenix/Shadow Hawk IIC 5.mtf	1614
+3085u/Phoenix/Shadow Hawk IIC 6.mtf	1907
+3085u/Phoenix/Shadow Hawk IIC 7.mtf	1999
+3085u/Phoenix/Shadow Hawk IIC 8.mtf	1940
+3085u/Phoenix/Shadow Hawk SHD-11CS.mtf	1700
+3085u/Phoenix/Shadow Hawk SHD-12C.mtf	1574
+3085u/Phoenix/Shadow Hawk SHD-3K.mtf	1591
+3085u/Phoenix/Shadow Hawk SHD-5D.mtf	1684
+3085u/Phoenix/Shadow Hawk SHD-7CS.mtf	1496
+3085u/Phoenix/Shadow Hawk SHD-7M.mtf	1447
+3085u/Phoenix/Shadow Hawk SHD-8L.mtf	1536
+3085u/Phoenix/Shadow Hawk SHD-9D.mtf	1313
+3085u/Phoenix/Stinger STG-3P.mtf	489
+3085u/Phoenix/Stinger STG-5R.mtf	492
+3085u/Phoenix/Stinger STG-5T.mtf	341
+3085u/Phoenix/Stinger STG-6L.mtf	680
+3085u/Phoenix/Stinger STG-6S.mtf	478
+3085u/Phoenix/Stinger STG-7S.mtf	382
+3085u/Phoenix/Thunderbolt TDR-10M.mtf	1727
+3085u/Phoenix/Thunderbolt TDR-10SE.mtf	2008
+3085u/Phoenix/Thunderbolt TDR-11SE.mtf	1754
+3085u/Phoenix/Thunderbolt TDR-17S.mtf	1803
+3085u/Phoenix/Thunderbolt TDR-60-RLA.mtf	1975
+3085u/Phoenix/Thunderbolt TDR-7SE.mtf	1809
+3085u/Phoenix/Thunderbolt TDR-9M.mtf	1648
+3085u/Phoenix/Thunderbolt TDR-9NAIS.mtf	1864
+3085u/Phoenix/Thunderbolt TDR-9Nr.mtf	1635
+3085u/Phoenix/Thunderbolt TDR-9T.mtf	1589
+3085u/Phoenix/Valkyrie VLK-QD1.mtf	878
+3085u/Phoenix/Valkyrie VLK-QD2.mtf	638
+3085u/Phoenix/Valkyrie VLK-QD3.mtf	882
+3085u/Phoenix/Valkyrie VLK-QD4.mtf	657
+3085u/Phoenix/Valkyrie VLK-QS5.mtf	774
+3085u/Phoenix/Valkyrie VLK-QT2.mtf	863
+3085u/Phoenix/Valkyrie VLK-QW5.mtf	689
+3085u/Phoenix/Warhammer IIC 3.mtf	2382
+3085u/Phoenix/Warhammer IIC 4.mtf	2386
+3085u/Phoenix/Warhammer IIC 5.mtf	2185
+3085u/Phoenix/Warhammer IIC 6.mtf	2661
+3085u/Phoenix/Warhammer IIC 7.mtf	2915
+3085u/Phoenix/Warhammer IIC 8.mtf	2380
+3085u/Phoenix/Warhammer IIC 9.mtf	2819
+3085u/Phoenix/Warhammer WHM-10T.mtf	1891
+3085u/Phoenix/Warhammer WHM-11T.mtf	1698
+3085u/Phoenix/Warhammer WHM-4L.mtf	1743
+3085u/Phoenix/Warhammer WHM-5L.mtf	1896
+3085u/Phoenix/Warhammer WHM-8D.mtf	1744
+3085u/Phoenix/Warhammer WHM-8K.mtf	1748
+3085u/Phoenix/Warhammer WHM-8M.mtf	1631
+3085u/Phoenix/Warhammer WHM-9D.mtf	2152
+3085u/Phoenix/Warhammer WHM-9S.mtf	1653
+3085u/Phoenix/Wasp WSP-3A.mtf	401
+3085u/Phoenix/Wasp WSP-3L.mtf	534
+3085u/Phoenix/Wasp WSP-3S.mtf	595
+3085u/Phoenix/Wasp WSP-7MAF.mtf	488
+3085u/Phoenix/Wasp WSP-8T.mtf	439
+3085u/Phoenix/Wolverine WVR-8C.mtf	1447
+3085u/Phoenix/Wolverine WVR-8D.mtf	1547
+3085u/Phoenix/Wolverine WVR-8K.mtf	1576
+3085u/Phoenix/Wolverine WVR-9D.mtf	1369
+3085u/Phoenix/Wolverine WVR-9K.mtf	1420
+3085u/Phoenix/Wolverine WVR-9M.mtf	1617
+3085u/Phoenix/Wolverine WVR-9W.mtf	1404
+3085u/Phoenix/Wolverine WVR-9W2.mtf	1480
+3145/Clans/Eyrie.mtf	1401
+3145/Clans/Gravedigger GDR-1C.mtf	1342
+3145/Clans/Gravedigger GDR-1D.mtf	1707
+3145/Clans/Gyrfalcon 2.mtf	2105
+3145/Clans/Gyrfalcon 3.mtf	2228
+3145/Clans/Gyrfalcon 4.mtf	3716
+3145/Clans/Gyrfalcon.mtf	2367
+3145/Clans/Kodiak II 2.mtf	3147
+3145/Clans/Kodiak II.mtf	3066
+3145/Clans/Loki Mk II (Hel) (Prime).mtf	2189
+3145/Clans/Loki Mk II (Hel) A.mtf	2249
+3145/Clans/Loki Mk II (Hel) B.mtf	1798
+3145/Clans/Shrike 2.mtf	2846
+3145/Clans/Shrike 3.mtf	3698
+3145/Clans/Shrike.mtf	2969
+3145/Clans/Thor Mk II (Grand Summoner) (Prime).mtf	2554
+3145/Clans/Thor Mk II (Grand Summoner) A.mtf	2473
+3145/Clans/Thor Mk II (Grand Summoner) B.mtf	2354
+3145/Clans/Thor Mk II (Grand Summoner) C.mtf	2351
+3145/Clans/Thor Mk II (Grand Summoner) D.mtf	2878
+3145/Clans/Tomahawk (Prime).mtf	3101
+3145/Clans/Tomahawk A.mtf	2762
+3145/Clans/Tomahawk B.mtf	3323
+3145/Clans/Tomahawk C.mtf	2985
+3145/Clans/Tomahawk II (Prime).mtf	3334
+3145/Clans/Tomahawk II A.mtf	2697
+3145/Clans/Tomahawk II B.mtf	3513
+3145/Clans/Tomahawk II C.mtf	2938
+3145/Clans/Vulture (Mad Dog) Mk III B.mtf	2572
+3145/Clans/Vulture (Mad Dog) Mk III C.mtf	2299
+3145/Clans/Vulture (Mad Dog) Mk III D.mtf	2421
+3145/Clans/Vulture (Mad Dog) Mk III Prime.mtf	2729
+3145/Clans/Vulture Mk III (Mad Dog Mk III) A.mtf	1880
+3145/Clans/Warwolf (Prime).mtf	2706
+3145/Clans/Warwolf A.mtf	3100
+3145/Clans/Warwolf B.mtf	2518
+3145/Clans/Warwolf C.mtf	2776
+3145/Clans/Warwolf H.mtf	3184
+3145/Clans/Wulfen (Prime).mtf	983
+3145/Clans/Wulfen A.mtf	1615
+3145/Clans/Wulfen B.mtf	1806
+3145/Clans/Wulfen C.mtf	1334
+3145/Clans/Wulfen D.mtf	859
+3145/Clans/Wulfen E.mtf	1839
+3145/Clans/Wulfen H.mtf	1556
+3145/Davion/Antlion LK-3D.mtf	859
+3145/Davion/Atlas III AS7-D2.mtf	2890
+3145/Davion/Atlas III AS7-D3.mtf	2564
+3145/Davion/Black Knight BLK-NT-2Y.mtf	1847
+3145/Davion/Black Knight BLK-NT-3A.mtf	1707
+3145/Davion/Black Knight BLK-NT-3B.mtf	1911
+3145/Davion/Black Knight BLK-NT-4D.mtf	2280
+3145/Davion/Black Knight BLK-NT-5H.mtf	2423
+3145/Davion/Centurion CN11-O.mtf	1236
+3145/Davion/Centurion CN11-OA.mtf	1398
+3145/Davion/Centurion CN11-OB.mtf	1430
+3145/Davion/Centurion CN11-OC.mtf	1628
+3145/Davion/Centurion CN11-OD.mtf	1177
+3145/Davion/Centurion CN11-OE.mtf	1515
+3145/Davion/Gunsmith CH11-NG.mtf	1465
+3145/Davion/Hollander III BZK-D1.mtf	1116
+3145/Davion/Hollander III BZK-D2.mtf	1270
+3145/Davion/Hollander III BZK-D3.mtf	1575
+3145/Davion/Prey Seeker PY-SR10.mtf	595
+3145/Davion/Scarecrow UCU-F4 Hobbled Scarecrow.mtf	1433
+3145/Davion/Scarecrow UCU-F4.mtf	1475
+3145/Davion/Templar III TLR2-O.mtf	2028
+3145/Davion/Templar III TLR2-OA.mtf	1677
+3145/Davion/Templar III TLR2-OB.mtf	1919
+3145/Davion/Templar III TLR2-OC.mtf	1993
+3145/Davion/Templar III TLR2-OD.mtf	2108
+3145/Davion/Vulpes VLP-1D.mtf	2225
+3145/Kurita/Avalanche AVL-1O.mtf	1540
+3145/Kurita/Avalanche AVL-1OA.mtf	1484
+3145/Kurita/Avalanche AVL-1OB.mtf	1529
+3145/Kurita/Avalanche AVL-1OC.mtf	1341
+3145/Kurita/Avalanche AVL-1ON.mtf	1873
+3145/Kurita/Avalanche AVL-1OR.mtf	2043
+3145/Kurita/Dragon II DRG-11K.mtf	1598
+3145/Kurita/Dragon II DRG-11R.mtf	2302
+3145/Kurita/Exhumer EXR-2X.mtf	1468
+3145/Kurita/Exhumer EXR-3P.mtf	1469
+3145/Kurita/Hatamoto-Godai HTM-30Z.mtf	1899
+3145/Kurita/Hatamoto-Suna HTM-30S.mtf	2086
+3145/Kurita/Hitotsume Kozo HKZ-1F.mtf	1998
+3145/Kurita/Hitotsume Kozo HKZ-1P.mtf	1611
+3145/Kurita/Phoenix Hawk L PXH-11K.mtf	1563
+3145/Kurita/Phoenix Hawk L PXH-11K2.mtf	1233
+3145/Kurita/Rokurokubi RK-4K.mtf	1286
+3145/Kurita/Rokurokubi RK-4T.mtf	998
+3145/Kurita/Rokurokubi RK-4X.mtf	1858
+3145/Kurita/Shiro SH-1V.mtf	2016
+3145/Kurita/Shiro SH-2P.mtf	2570
+3145/Kurita/Tenshi TN-10-O.mtf	2542
+3145/Kurita/Tenshi TN-10-OA.mtf	1829
+3145/Kurita/Tenshi TN-10-OB.mtf	3002
+3145/Kurita/Tenshi TN-10-OR.mtf	2237
+3145/Kurita/Wendigo (Prime).mtf	2122
+3145/Kurita/Wendigo A.mtf	2072
+3145/Kurita/Wendigo B.mtf	2369
+3145/Kurita/Wendigo C.mtf	2623
+3145/Kurita/Wendigo-VP (Prime).mtf	2360
+3145/Kurita/Wendigo-VP A.mtf	2414
+3145/Liao/Anubis ABS-5Y.mtf	1042
+3145/Liao/Anubis ABS-5Z.mtf	1066
+3145/Liao/Calliope CAL-1MAF.mtf	1125
+3145/Liao/Catapult II CPLT-L7.mtf	2574
+3145/Liao/Catapult II CPLT-L7L.mtf	1656
+3145/Liao/Gun GN-2O.mtf	775
+3145/Liao/Gun GN-2OA.mtf	685
+3145/Liao/Gun GN-2OC.mtf	639
+3145/Liao/Lu Wei Bing LN-4B.mtf	2045
+3145/Liao/Mortis MS-1A.mtf	1834
+3145/Liao/Mortis MS-1P.mtf	2198
+3145/Liao/Raven II RVN-5X.mtf	1858
+3145/Liao/Tian-Zong TNZ-N1.mtf	2167
+3145/Liao/Tian-Zong TNZ-N2.mtf	1726
+3145/Liao/Tian-Zong TNZ-N3.mtf	2072
+3145/Liao/Vandal LI-O.mtf	1881
+3145/Liao/Vandal LI-OA.mtf	1865
+3145/Liao/Vandal LI-OB.mtf	1666
+3145/Liao/Yinghuochong YHC-3E.mtf	1401
+3145/Liao/Yinghuochong YHC-3Y.mtf	1548
+3145/Marik/Anzu ZU-G60.mtf	1503
+3145/Marik/Anzu ZU-J70.mtf	1680
+3145/Marik/Carronade CRN-7M.mtf	1799
+3145/Marik/Gambit GBT-1G.mtf	777
+3145/Marik/Gambit GBT-1L.mtf	796
+3145/Marik/Havoc HVC-P6.mtf	1255
+3145/Marik/Juliano JLN-5A.mtf	2105
+3145/Marik/Neanderthal NTL-AG.mtf	2024
+3145/Marik/Neanderthal NTL-UG.mtf	1817
+3145/Marik/Quasimodo QSM-3D.mtf	1575
+3145/Marik/Sarath SRTH-1O.mtf	1630
+3145/Marik/Sarath SRTH-1OA.mtf	1738
+3145/Marik/Sarath SRTH-1OB.mtf	1475
+3145/Marik/Stalker II STK-9A.mtf	2261
+3145/Marik/Violator VT-U1.mtf	928
+3145/Marik/Violator VT-U3.mtf	973
+3145/Merc/Black Hawk (Standard) 2.mtf	2161
+3145/Merc/Black Hawk (Standard) 3.mtf	2317
+3145/Merc/Black Hawk (Standard).mtf	2183
+3145/Merc/Cadaver CVR-A1.mtf	962
+3145/Merc/Cadaver CVR-T1.mtf	1288
+3145/Merc/HawkWolf HWK-4F.mtf	1428
+3145/Merc/Hound HD-2F.mtf	1389
+3145/Merc/Jade Hawk 2.mtf	2455
+3145/Merc/Jade Hawk 3.mtf	2498
+3145/Merc/Jade Hawk JHK-03.mtf	2160
+3145/Merc/Jade Hawk JHK-04.mtf	2102
+3145/Merc/Jade Hawk.mtf	2523
+3145/Merc/Koshi (Standard) 2.mtf	948
+3145/Merc/Koshi (Standard) 3.mtf	777
+3145/Merc/Koshi (Standard).mtf	760
+3145/Merc/Mad Cat Mk IV (Prime).mtf	2681
+3145/Merc/Mad Cat Mk IV A.mtf	2413
+3145/Merc/Mad Cat Mk IV B.mtf	2606
+3145/Merc/Mad Cat Mk IV C.mtf	2796
+3145/Merc/Mad Cat Mk IV PR 2.mtf	2666
+3145/Merc/Mad Cat Mk IV PR.mtf	2702
+3145/Merc/Stalking Spider II.mtf	1362
+3145/Merc/Tiburon.mtf	1841
+3145/Merc/Vulture Mk IV A.mtf	2177
+3145/Merc/Vulture Mk IV B.mtf	2649
+3145/Merc/Vulture Mk IV C.mtf	2584
+3145/Merc/Vulture Mk IV D.mtf	2346
+3145/Merc/Vulture Mk IV Prime.mtf	2110
+3145/NTNU RS/Archer ARC-9KC.mtf	1361
+3145/NTNU RS/Atlas AS7-K4.mtf	2153
+3145/NTNU RS/Avatar AV1-OJ.mtf	2223
+3145/NTNU RS/Balius E.mtf	2156
+3145/NTNU RS/Banshee BNC-9S2.mtf	2426
+3145/NTNU RS/Berserker BRZ-D4.mtf	2659
+3145/NTNU RS/Black Hawk (Nova) X.mtf	2761
+3145/NTNU RS/Black Hawk-KU BHKU-OG.mtf	1719
+3145/NTNU RS/Blackjack BJ-2r.mtf	1136
+3145/NTNU RS/Blackjack BJ2-OG.mtf	1448
+3145/NTNU RS/Blade BLD-7R.mtf	1227
+3145/NTNU RS/Commando COM-8S.mtf	775
+3145/NTNU RS/Cougar X 2.mtf	1293
+3145/NTNU RS/Cougar X 3.mtf	1391
+3145/NTNU RS/Cougar X.mtf	1474
+3145/NTNU RS/Crimson Hawk 4.mtf	1372
+3145/NTNU RS/Cuirass CDR-2BC.mtf	990
+3145/NTNU RS/Cuirass CDR-2X.mtf	1227
+3145/NTNU RS/Cygnus 4.mtf	2570
+3145/NTNU RS/Dasher II 3.mtf	1496
+3145/NTNU RS/Dasher II 4.mtf	1749
+3145/NTNU RS/Deimos D.mtf	2682
+3145/NTNU RS/Deimos E.mtf	3620
+3145/NTNU RS/Diomede D-M3D-M.mtf	1609
+3145/NTNU RS/Ebony MEB-12.mtf	1837
+3145/NTNU RS/Ebony MEB-13.mtf	750
+3145/NTNU RS/Emperor EMP-8L.mtf	2385
+3145/NTNU RS/Fennec FEC-5CM.mtf	1498
+3145/NTNU RS/Flamberge D.mtf	2357
+3145/NTNU RS/Gallant GLT-10-0.mtf	1555
+3145/NTNU RS/Ghost GST-50.mtf	1114
+3145/NTNU RS/Ghost GST-90.mtf	1012
+3145/NTNU RS/Grand Dragon DRG-10K.mtf	1603
+3145/NTNU RS/Grand Titan T-IT-N13M.mtf	2533
+3145/NTNU RS/Griffin GRF-6S2.mtf	1870
+3145/NTNU RS/Hauptmann HA1-OF.mtf	2484
+3145/NTNU RS/Hauptmann HA1-OM.mtf	2214
+3145/NTNU RS/Hauptmann HA1-OT.mtf	3031
+3145/NTNU RS/Hellion G.mtf	1614
+3145/NTNU RS/Javelin JVN-11P.mtf	680
+3145/NTNU RS/Jupiter 4.mtf	2955
+3145/NTNU RS/Karhu G.mtf	2895
+3145/NTNU RS/Koschei KSC-6L.mtf	1465
+3145/NTNU RS/Kuma 4.mtf	1865
+3145/NTNU RS/Legionnaire LGN-2K.mtf	1597
+3145/NTNU RS/Locust LCT-5M2.mtf	693
+3145/NTNU RS/Locust LCT-5M3.mtf	929
+3145/NTNU RS/Loki (Hellbringer) G.mtf	1943
+3145/NTNU RS/Longbow LGB-14C2.mtf	1291
+3145/NTNU RS/Mad Cat III 3.mtf	2515
+3145/NTNU RS/Mad Cat III 4.mtf	2061
+3145/NTNU RS/Mad Cat III 5.mtf	2095
+3145/NTNU RS/Mad Cat Mk II 4.mtf	2962
+3145/NTNU RS/Mad Cat Mk II 5.mtf	2491
+3145/NTNU RS/Mad Cat Mk II 6.mtf	2663
+3145/NTNU RS/Maelstrom MTR-7K.mtf	2462
+3145/NTNU RS/Man O' War (Gargoyle) X.mtf	2800
+3145/NTNU RS/Mangonel MNL-4S.mtf	2659
+3145/NTNU RS/Marauder II MAD-4L.mtf	2839
+3145/NTNU RS/Marauder MAD-9D.mtf	1967
+3145/NTNU RS/Marshal MHL-3MC.mtf	1714
+3145/NTNU RS/Men Shen MS1-OG.mtf	2267
+3145/NTNU RS/Morrigan 4.mtf	2063
+3145/NTNU RS/Morrigan 5.mtf	1904
+3145/NTNU RS/NTNU/Awesome AWS-11V.mtf	1855
+3145/NTNU RS/NTNU/BattleMaster BLR-6M.mtf	1958
+3145/NTNU RS/NTNU/BattleMaster C 2.mtf	2538
+3145/NTNU RS/NTNU/Bombard BMB-016.mtf	1247
+3145/NTNU RS/NTNU/Brahma BRM-6T.mtf	1642
+3145/NTNU RS/NTNU/Caesar CES-5D.mtf	3123
+3145/NTNU RS/NTNU/Cerberus MR-7K.mtf	2182
+3145/NTNU RS/NTNU/Devastator DVS-10.mtf	2204
+3145/NTNU RS/NTNU/Enforcer III ENF-6R.mtf	1694
+3145/NTNU RS/NTNU/Goshawk II 4.mtf	1936
+3145/NTNU RS/NTNU/Hatamoto-Kaze HTM-27V2.mtf	1725
+3145/NTNU RS/NTNU/Hatchetman HCT-7D.mtf	1296
+3145/NTNU RS/NTNU/Helios HEL-7L.mtf	1459
+3145/NTNU RS/NTNU/Hercules HRC-LS-9003.mtf	1794
+3145/NTNU RS/NTNU/Hercules HRC-LS-9004.mtf	1824
+3145/NTNU RS/NTNU/Hollander BZK-G2.mtf	895
+3145/NTNU RS/NTNU/Hunchback HBK-6P.mtf	1374
+3145/NTNU RS/NTNU/Huron Warrior HUR-WO-R5L.mtf	1780
+3145/NTNU RS/NTNU/Icarus II ICR-2R.mtf	2775
+3145/NTNU RS/NTNU/Lineholder KW2-LH10.mtf	1606
+3145/NTNU RS/NTNU/Omega SHP-5R.mtf	2753
+3145/NTNU RS/NTNU/Orion C.mtf	2343
+3145/NTNU RS/NTNU/Orochi OR-3K.mtf	2029
+3145/NTNU RS/NTNU/Pendragon PDG-3R.mtf	1991
+3145/NTNU RS/NTNU/Penetrator PTR-7D.mtf	2102
+3145/NTNU RS/NTNU/Shogun C 2.mtf	2914
+3145/NTNU RS/NTNU/Shogun SHG-3E.mtf	1988
+3145/NTNU RS/NTNU/Striker STC-2L.mtf	1779
+3145/NTNU RS/NTNU/Tempest C.mtf	2179
+3145/NTNU RS/NTNU/Tempest TMP-4M.mtf	1937
+3145/NTNU RS/NTNU/Venom SDR-9KE.mtf	803
+3145/NTNU RS/NTNU/Vixen (Incubus) 6.mtf	1599
+3145/NTNU RS/NTNU/Watchman WTC-4DM2.mtf	1063
+3145/NTNU RS/NTNU/Yu Huang Y-H12GC.mtf	2298
+3145/NTNU RS/Nobori-nin (Huntsman) F.mtf	2367
+3145/NTNU RS/Nova Cat H.mtf	2452
+3145/NTNU RS/Nova Cat I.mtf	2918
+3145/NTNU RS/Nyx NX-100.mtf	917
+3145/NTNU RS/Nyx NX-110.mtf	805
+3145/NTNU RS/Ocelot 4.mtf	1468
+3145/NTNU RS/Omen 2.mtf	2380
+3145/NTNU RS/Onager 2.mtf	2847
+3145/NTNU RS/Owens OW-1G.mtf	1761
+3145/NTNU RS/Pack Hunter II 4.mtf	1447
+3145/NTNU RS/Panther PNT-12KC.mtf	1036
+3145/NTNU RS/Peacekeeper PKP-2K.mtf	2863
+3145/NTNU RS/Prefect PRF-3R.mtf	2412
+3145/NTNU RS/Quickdraw QKD-9M.mtf	1690
+3145/NTNU RS/Raptor II RPT-2X2.mtf	1868
+3145/NTNU RS/Sagittaire SGT-14D.mtf	1960
+3145/NTNU RS/Salamander PPR-7T.mtf	1647
+3145/NTNU RS/Shadow Cat F.mtf	2997
+3145/NTNU RS/Shadow Cat II 3.mtf	2387
+3145/NTNU RS/Shadow Cat II 4.mtf	1986
+3145/NTNU RS/Shadow Hawk IIC 9.mtf	1803
+3145/NTNU RS/Shen Yi SHY-5B.mtf	1603
+3145/NTNU RS/Shockwave SKW-6H.mtf	1364
+3145/NTNU RS/Shockwave SKW-8X.mtf	1065
+3145/NTNU RS/Sphinx 3.mtf	3396
+3145/NTNU RS/Sphinx 4.mtf	1952
+3145/NTNU RS/Spider SDR-10K.mtf	824
+3145/NTNU RS/Spider SDR-8Xr.mtf	754
+3145/NTNU RS/Strider SR1-OH.mtf	1192
+3145/NTNU RS/Strider SR1-OM.mtf	607
+3145/NTNU RS/Sun Cobra 2.mtf	2394
+3145/NTNU RS/Sunder SD1-OF.mtf	1854
+3145/NTNU RS/Sunder SD1-OG.mtf	2594
+3145/NTNU RS/Tarantula ZPH-5A.mtf	806
+3145/NTNU RS/Targe TRG-3M.mtf	1233
+3145/NTNU RS/Templar TLR1-OR.mtf	2423
+3145/NTNU RS/Thunder Fox TFT-F11.mtf	2426
+3145/NTNU RS/Thunderbolt TDR-10S.mtf	1766
+3145/NTNU RS/Ti Ts'ang TSG-10L.mtf	1730
+3145/NTNU RS/Titan TI-1Aj.mtf	2328
+3145/NTNU RS/Titan TI-1Ar.mtf	2165
+3145/NTNU RS/Trebaruna TR-XH.mtf	2453
+3145/NTNU RS/Trebuchet TBT-9R.mtf	2165
+3145/NTNU RS/Tundra Wolf 5.mtf	2645
+3145/NTNU RS/Uller (Kit Fox) I.mtf	1936
+3145/NTNU RS/Valkyrie VLK-QD8.mtf	787
+3145/NTNU RS/Warhammer IIC 10.mtf	2290
+3145/NTNU RS/Warhammer IIC 11.mtf	2021
+3145/NTNU RS/Warhammer IIC 12.mtf	2680
+3145/NTNU RS/Warhammer WHM-8D2.mtf	1654
+3145/NTNU RS/Wasp WSP-3K.mtf	477
+3145/NTNU RS/Wasp WSP-3P.mtf	537
+3145/NTNU RS/Xanthos XNT-6O.mtf	2320
+3145/NTNU RS/Xanthos XNT-7O.mtf	2620
+3145/Republic/Ares ARS-V1 Aphrodite.mtf	2903
+3145/Republic/Ares ARS-V1 Hades.mtf	2839
+3145/Republic/Ares ARS-V1 Hephaestus.mtf	2960
+3145/Republic/Ares ARS-V1 Hera.mtf	2944
+3145/Republic/Ares ARS-V1 Zeus.mtf	3247
+3145/Republic/Celerity CLR-03-O.mtf	187
+3145/Republic/Celerity CLR-03-OA.mtf	275
+3145/Republic/Celerity CLR-03-OB.mtf	339
+3145/Republic/Celerity CLR-03-OC.mtf	202
+3145/Republic/Celerity CLR-03-OD.mtf	304
+3145/Republic/Celerity CLR-03-OE.mtf	919
+3145/Republic/Celerity CLR-04-R.mtf	384
+3145/Republic/Celerity CLR-05-X.mtf	225
+3145/Republic/Doloire DLR-O.mtf	2561
+3145/Republic/Doloire DLR-OA.mtf	2218
+3145/Republic/Doloire DLR-OB.mtf	2836
+3145/Republic/Doloire DLR-OC.mtf	2242
+3145/Republic/Doloire DLR-OD.mtf	3071
+3145/Republic/Jackalope JLP-BD.mtf	1395
+3145/Republic/Jackalope JLP-C.mtf	1253
+3145/Republic/Jackalope JLP-KA Wolpertinger.mtf	1334
+3145/Republic/Jackalope JLP-KA.mtf	1488
+3145/Republic/Kheper KHP-7R.mtf	1568
+3145/Republic/Lament LMT-2R.mtf	1999
+3145/Republic/Lament LMT-3C.mtf	1874
+3145/Republic/Lament LMT-3R.mtf	1888
+3145/Republic/Lament LMT-4RC.mtf	2474
+3145/Republic/Malice MAL-XP.mtf	2016
+3145/Republic/Malice MAL-XT.mtf	1852
+3145/Republic/Malice MAL-XV.mtf	1996
+3145/Republic/Malice MAL-YZ.mtf	2982
+3145/Republic/Night Stalker NSR-K1.mtf	1149
+3145/Republic/Night Stalker NSR-K3.mtf	1028
+3145/Republic/Night Stalker NSR-K4.mtf	1159
+3145/Republic/Night Stalker NSR-K7.mtf	857
+3145/Republic/Night Stalker NSR-KC.mtf	1037
+3145/Republic/Poseidon PSD-V2.mtf	3357
+3145/Republic/Revenant UBM-2R.mtf	779
+3145/Republic/Revenant UBM-2R2.mtf	630
+3145/Republic/Revenant UBM-2R3.mtf	770
+3145/Republic/Revenant UBM-2R4.mtf	615
+3145/Republic/Revenant UBM-2R7.mtf	472
+3145/Republic/Uraeus UAE-7R.mtf	1843
+3145/Steiner/Firestarter FS9-M2.mtf	751
+3145/Steiner/Firestarter FS9-M3.mtf	866
+3145/Steiner/Firestarter FS9-M4.mtf	798
+3145/Steiner/Gauntlet GTL-1O.mtf	1846
+3145/Steiner/Gauntlet GTL-1OA.mtf	1420
+3145/Steiner/Gauntlet GTL-1OB.mtf	2076
+3145/Steiner/Gauntlet GTL-1OC.mtf	2048
+3145/Steiner/Gotterdammerung GTD-20S.mtf	1727
+3145/Steiner/Jaguar 2.mtf	1780
+3145/Steiner/Jaguar.mtf	1791
+3145/Steiner/King Crab KGC-009.mtf	2260
+3145/Steiner/Mongrel MGL-T1.mtf	1860
+3145/Steiner/Mongrel MGL-T2.mtf	1949
+3145/Steiner/Scourge SCG-WD1.mtf	2061
+3145/Steiner/Scourge SCG-WF1.mtf	2172
+3145/Steiner/Storm Raider STM-R1.mtf	593
+3145/Steiner/Storm Raider STM-R2.mtf	671
+3145/Steiner/Storm Raider STM-R3.mtf	791
+3145/Steiner/Storm Raider STM-R4.mtf	732
+3145/Steiner/Ursa URA-2A.mtf	1887
+3145/Steiner/Ursa URA-2C.mtf	2570
+3145/Steiner/Viking IIC.mtf	2780
+3145/Steiner/Zeus X ZEU-X.mtf	2119
+3145/Steiner/Zeus X ZEU-X2.mtf	1915
+3145/Steiner/Zeus X ZEU-X3.mtf	2178
+3145/Steiner/Zeus X ZEU-X4.mtf	2193
+3150/Gotterdammerung GTD-20C.mtf	2285
+3150/Gotterdammerung GTD-30S.mtf	1574
+3150/Juliano JLN-5B.mtf	1937
+3150/Juliano JLN-5C.mtf	2473
+3150/King Crab KGC-009C.mtf	2652
+3150/Kodiak II 3.mtf	2238
+3150/Prey Seeker PY-SR20.mtf	1060
+3150/Prey Seeker PY-SR30.mtf	349
+3150/Raider JL-3A.mtf	988
+3150/Raider JL-3B.mtf	1120
+3150/Raider Mk II JL-3C.mtf	1007
+3150/Shrike Black Rose.mtf	3487
+Arano Restoration/Atlas II AS7-D-HT.mtf	2205
+Battlecorps/Banshee BNC-9S.mtf	2496
+Battlecorps/Orion ON1-K (Kerensky).mtf	1821
+Battlecorps/Ti Tsang TSG-9 China Doll.mtf	1739
+Dark Age/Agrotera AGT-1A.mtf	1578
+Dark Age/Atlas AS7-K2 (Jedra).mtf	1971
+Dark Age/Inquisitor II ITW-205.mtf	714
+Dark Age/Legionnaire LGN-2D Raul.mtf	1520
+Dark Age/Mad Cat III (Eve).mtf	2393
+Dark Age/Mad Cat III 2 (MWDA).mtf	2095
+Dark Age/Mad Cat III Dark Age RS.mtf	2061
+Dark Age/Pack Hunter II (Isis).mtf	1276
+Dark Age/Ryoken II Tassa.mtf	3103
+Dark Age/Yu Huang Carson.mtf	2464
+Dominions Divided (April)/Ares ARS-V1E Apollo.mtf	2986
+Dossiers/Bounty Hunter/Javelin JVN-11D Farrell.mtf	1155
+Dossiers/Bounty Hunter/Mad Cat (Timber Wolf) (Bounty Hunter 2).mtf	2799
+Dossiers/Bounty Hunter/Phoenix Hawk PXH-4L Sante.mtf	1442
+Dossiers/Bounty Hunter/Shadow Hawk SHD-5D (Sandy).mtf	1517
+Dossiers/Jason Zaklan/Ti Ts'ang  Jason.mtf	1641
+Dossiers/Lamenkov's Liability/Karhu Syngman.mtf	1924
+Dossiers/Lamenkov's Liability/Osprey OSP-26 Lawrence.mtf	1461
+Dossiers/Lamenkov's Liability/Prefect PRF-1R Veronica.mtf	1835
+Dossiers/Lamenkov's Liability/Thunderbolt TDR-10M Ilyena.mtf	1616
+Dossiers/Salazar Tsakalotos/Thunderbolt TDR-10M Salazar.mtf	1763
+Dossiers/Youling Zhanshi/Duan Gung (Vaughn).mtf	851
+Dossiers/Youling Zhanshi/Men Shen (Li).mtf	1550
+Dossiers/Youling Zhanshi/Sha Yu (Bulldog).mtf	1379
+Dossiers/Youling Zhanshi/Snake (Arthur).mtf	1477
+ER 2750/BattleMaster BLR-1GHE HellSlinger.mtf	1712
+ER 2750/BattleMaster BLR-1Gd.mtf	1586
+ER 2750/Crab CRB-27sl.mtf	1309
+ER 2750/Dervish DV-6Md.mtf	1251
+ER 2750/Hammerhands HMH-3D Kessem.mtf	1413
+ER 2750/Lancelot LNC25-01sl.mtf	1546
+ER 2750/Mackie MSK-9HKR Kill Roys Little Buddy.mtf	2162
+ER 2750/Phoenix Hawk PXH-1Kk.mtf	1139
+ER 2750/Stalker STK-3Fk.mtf	1742
+ER 2750/Thunderbolt TDR-5Sd.mtf	1392
+ER 2750/Victor VTR-9B (Shoji).mtf	1531
+ER 2750/Warhammer WHM-6Rk.mtf	1621
+ER 2750/Wyvern WVE-5Nsl.mtf	1207
+Era Digests/Age of War/Hector HOR-1B.mtf	949
+Era Digests/Age of War/Hector HOR-1C.mtf	993
+Era Digests/Dark Age/Cave Lion.mtf	3044
+Era Digests/Dark Age/Raider JL-1.mtf	817
+Era Digests/Dark Age/Raider Mk II JL-2.mtf	883
+Force Manuals/Davion/Atlas AS7-D (Ian).mtf	2463
+Force Manuals/Davion/Awesome AWS-8V _Pretty Baby_.mtf	1893
+Force Manuals/Davion/Blackjack BJ-1 _Arrow_.mtf	1180
+Force Manuals/Davion/Javelin JVN-10F (Shinto).mtf	835
+Force Manuals/Davion/Longbow LGB-0W (Vijay).mtf	1435
+Force Manuals/Davion/Marauder MAD-3D (Sanchez).mtf	1832
+Force Manuals/Davion/Rifleman RFL-4D (Cyrus).mtf	1428
+Force Manuals/Davion/Shadow Hawk SHD-2H (Berkowitz).mtf	1400
+Force Manuals/Davion/Thug THG-11E (Flanagan).mtf	1809
+Force Manuals/Davion/Valkyrie VLK-QD (Karano).mtf	826
+Force Manuals/Kurita/Atlas AS7-S (Hanssen).mtf	2295
+Force Manuals/Kurita/Catapult CPLT-K2 (Kasigi).mtf	1597
+Force Manuals/Kurita/Griffin GRF-1DS (Almstedt).mtf	1204
+Force Manuals/Kurita/Guillotine GLT-3N (Estridsen).mtf	1846
+Force Manuals/Kurita/Hatamoto-Chi HTM-27T (Lowenbrau).mtf	1865
+Force Manuals/Kurita/Jenner JR7-D (Webster).mtf	1086
+Force Manuals/Kurita/Kintaro KTO-18 (Akbani).mtf	1420
+Force Manuals/Kurita/Ostsol OTL-4D (Ragnar).mtf	1308
+Force Manuals/Kurita/Ostsol OTL-5M (Maki).mtf	1473
+Force Manuals/Kurita/Panther PNT-10ALAG.mtf	916
+Force Manuals/Kurita/Panther PNT-9ALAG.mtf	804
+Force Manuals/Kurita/Panther PNT-CM.mtf	726
+Force Manuals/Mercs/Archer ARC-4M (Ismail).mtf	1500
+Force Manuals/Mercs/Banshee BNC-3E (El Gaupo).mtf	1956
+Force Manuals/Mercs/Crockett CRK-5003-0 (Saddleford).mtf	1855
+Force Manuals/Mercs/Crusader CRD-3R (Bear).mtf	1206
+Force Manuals/Mercs/Dervish DV-6M (Turner).mtf	1417
+Force Manuals/Mercs/Orion ON1-K (Muller).mtf	1224
+Force Manuals/Mercs/Scorpion SCP-1N (Wendall 2).mtf	1220
+Force Packs/Davion/Gunsmith CH11-NG-A.mtf	1465
+Force Packs/Third Star League/Havoc HVC-P7.mtf	1385
+Force Packs/Third Star League/Kintaro KTO-22.mtf	1523
+Force Packs/UrbanLAM/UrbanMech LAM S-UM-1XLA.mtf	1899
+Force Packs/UrbanLAM/UrbanMech LAM UM-A07.mtf	802
+Force Packs/UrbanMech/UrbanMech UM-R27.mtf	610
+Force Packs/Wolfs Dragoons/Archer C 2.mtf	2167
+Force Packs/Wolfs Dragoons/Blackjack C.mtf	1639
+Golden Century/Cestus CTS-6Y-EC.mtf	1783
+Golden Century/Coyotl A.mtf	1753
+Golden Century/Coyotl B.mtf	1447
+Golden Century/Coyotl C.mtf	1851
+Golden Century/Coyotl D.mtf	1980
+Golden Century/Coyotl Prime.mtf	1974
+Golden Century/Devastator DVS-2-EC.mtf	2859
+Golden Century/Drift Shag.mtf	1512
+Golden Century/Emperor EMP-6A-EC.mtf	2214
+Golden Century/Enfield END-6J-EC.mtf	1470
+Golden Century/Excalibur EXC-B2b-EC.mtf	2008
+Golden Century/Exterminator EC EXT-4Db.mtf	1611
+Golden Century/Fox CS-1.mtf	1574
+Golden Century/Fox.mtf	2091
+Golden Century/Lancelot C 2.mtf	2571
+Golden Century/Lancelot C.mtf	1960
+Golden Century/Lupus A.mtf	1927
+Golden Century/Lupus B.mtf	1985
+Golden Century/Lupus C.mtf	2535
+Golden Century/Lupus D.mtf	2030
+Golden Century/Lupus Prime.mtf	2428
+Golden Century/Lynx C.mtf	2712
+Golden Century/Masauwu.mtf	2299
+Golden Century/Minsk 2.mtf	2365
+Golden Century/Minsk MNK-101.mtf	2024
+Golden Century/Minsk.mtf	2028
+Golden Century/Mongoose C 2.mtf	1620
+Golden Century/Mongoose C.mtf	1386
+Golden Century/Naja KTO-19b-EC.mtf	1557
+Golden Century/Naja.mtf	1880
+Golden Century/Night Hawk NTK-2Q-EC.mtf	1041
+Golden Century/Omni-Corvis A.mtf	1977
+Golden Century/Omni-Corvis B.mtf	1640
+Golden Century/Omni-Corvis Prime.mtf	1678
+Golden Century/Phoenix Hawk PXH-1-EC.mtf	1206
+Golden Century/Pulverizer PUL-3R.mtf	2068
+Golden Century/Pulverizer.mtf	2506
+Golden Century/Redback.mtf	2076
+Golden Century/Spartan C.mtf	2514
+Golden Century/Starslayer STY-2C-EC.mtf	1424
+Golden Century/Storm Giant 2.mtf	2891
+Golden Century/Storm Giant.mtf	2676
+Golden Century/Sun Bear A.mtf	2418
+Golden Century/Sun Bear B.mtf	2144
+Golden Century/Sun Bear Prime.mtf	2022
+Golden Century/Talon TLN-5W-EC.mtf	1364
+Golden Century/Vision Quest 2.mtf	2556
+Golden Century/Vision Quest VQ-1NC.mtf	2180
+Golden Century/Vision Quest.mtf	2458
+Golden Century/Wakazashi.mtf	2909
+Golden Century/Woodsman A.mtf	2741
+Golden Century/Woodsman B.mtf	2414
+Golden Century/Woodsman C.mtf	2230
+Golden Century/Woodsman D.mtf	1902
+Golden Century/Woodsman Prime.mtf	2623
+Gothic/Atlas AS7-H.mtf	1869
+Gothic/Firestarter FS9-HB.mtf	754
+Gothic/King Crab KGC-0KP.mtf	1893
+Gothic/Marauder MAD-3H.mtf	1396
+Gothic/Phoenix Hawk PXH-1T.mtf	1062
+Gothic/Rifleman RFL-3B.mtf	1187
+Gothic/Scorpion SCP-1B.mtf	1074
+Gothic/UrbanMech UM-R60B.mtf	598
+HBMPS/Rock Hound AM-PRM-RH7 'Rock Possum' ProspectorMech.mtf	479
+HBMPS/Rock Hound AM-PRM-RH7 ProspectorMech.mtf	523
+HBMPS/Rock Hound AM-PRM-RH7A 'Rock Otter' ProspectorMech.mtf	455
+HBMPS/Space Hound AM-PRM-SH1 ProspectorMech.mtf	465
+Historicals/Hist LOT II/Dragoon AEM-01.mtf	1669
+Historicals/Hist LOT II/Dragoon AEM-02.mtf	1691
+Historicals/Hist LOT II/Dragoon AEM-03.mtf	1562
+Historicals/Hist LOT II/Dragoon AEM-04.mtf	1710
+Historicals/Hist Reunification War/Alfar AL-A1.mtf	1447
+Historicals/Hist Reunification War/Alfar AL-D1 Dokkalfar.mtf	1458
+Historicals/Hist Reunification War/Talos TLS-1B.mtf	924
+Historicals/Hist Second SW/Thunderbolt TDR-5L.mtf	1546
+Historicals/Hist Second SW/Thunderbolt TDR-5LS.mtf	1374
+Historicals/Hist WOTRA/Bakeneko BKN-1K.mtf	2022
+ISP/Mad Cat (Timber Wolf) (Bounty Hunter).mtf	2829
+ISP2/Rampage RMP-2G.mtf	1444
+ISP2/Rampage RMP-4G.mtf	2130
+ISP2/Rampage RMP-5G.mtf	1933
+ISP3/Arana MilitiaMech ARA-S-1.mtf	1092
+ISP3/Reptar EPT-C-1 MilitiaMech.mtf	514
+Iron Wind Metals/Thor II (Grand Summoner) E.mtf	2638
+Iron Wind Metals/Thunderbolt IIC 2.mtf	2174
+Jihad Final Reckoning/'Gestalt' D2X-G.mtf	2329
+Jihad Final Reckoning/OMEGA SHP-4X.mtf	3001
+Jihad Final Reckoning/Revenant UBM-1A.mtf	826
+Jihad Secrets/Archangel C-ANG-OS Caelestis.mtf	2026
+Jihad Secrets/Deva C-DVA-OS Caelestis.mtf	1785
+Jihad Secrets/Grigori C-GRG-OS Caelestis.mtf	1378
+Jihad Secrets/Malak C-MK-OS Caelestis.mtf	1121
+Jihad Secrets/Mercury II MCY-100.mtf	1376
+Jihad Secrets/Preta C-PRT-OS Caelestis.mtf	1566
+Jihad Secrets/Pulverizer PUL-2V.mtf	2065
+Jihad Secrets/Seraph C-SRP-O Caelestis.mtf	2788
+Jihad Secrets/Stag II ST-24G.mtf	1625
+Jihad Secrets/Stag ST-14G.mtf	1351
+LAMS/Phoenix Hawk LAM Mk I PHX-HK1.mtf	1942
+LAMS/Phoenix Hawk LAM Mk I PHX-HK1R.mtf	1858
+LAMS/Phoenix Hawk LAM PHX-HK1RB.mtf	1800
+LAMS/Phoenix Hawk LAM PHX-HK2.mtf	1555
+LAMS/Phoenix Hawk LAM PHX-HK2M.mtf	1465
+LAMS/Pwwka S-PW-1LAM.mtf	1668
+LAMS/Screamer LAM SCR-1X-LAM.mtf	1475
+LAMS/Shadow Hawk LAM SHD-X1.mtf	828
+LAMS/Shadow Hawk LAM SHD-X2.mtf	994
+LAMS/Stinger LAM Mk I STG-A1.mtf	846
+LAMS/Stinger LAM STG-A10.mtf	881
+LAMS/Stinger LAM STG-A5.mtf	1073
+LAMS/Waneta S-WN-1LAM.mtf	2198
+LAMS/Waneta S-WN-2LAM.mtf	2760
+LAMS/Wasp LAM Mk I WSP-100.mtf	489
+LAMS/Wasp LAM Mk I WSP-100A.mtf	909
+LAMS/Wasp LAM Mk I WSP-100b.mtf	876
+LAMS/Wasp LAM WSP-105.mtf	814
+LAMS/Wasp LAM WSP-105M.mtf	907
+LAMS/Wasp LAM WSP-110.mtf	639
+LAMS/Yurei S-YR-1LAM.mtf	2106
+Operation Klondike/Annihilator ANH-1G.mtf	2274
+Operation Klondike/Annihilator ANH-1X.mtf	1926
+Operation Klondike/Annihilator Bryan Gausszilla.mtf	2455
+Operation Klondike/Annihilator C2.mtf	2722
+Operation Klondike/Carbine CON-1 ConstructionMech (Rocket).mtf	281
+Operation Klondike/Carbine CON-1 ConstructionMech.mtf	198
+Operation Klondike/Champion CHP-1Nb.mtf	1632
+Operation Klondike/Champion CHP-1Nb2.mtf	1559
+Operation Klondike/Crockett CRK-5003-1b.mtf	2307
+Operation Klondike/Crosscut ED-X2 (Flamer).mtf	168
+Operation Klondike/Crosscut ED-X2 (Rocket).mtf	406
+Operation Klondike/Crosscut ED-X2 ForestryMech.mtf	223
+Operation Klondike/Daedalus GTX2 (Militarized).mtf	836
+Operation Klondike/Daedalus GTX2A Stevedore.mtf	649
+Operation Klondike/Daedalus GTX2B Navvy.mtf	663
+Operation Klondike/Exterminator EXT-4Db.mtf	1694
+Operation Klondike/Falcon FLC-4Nb Saho.mtf	774
+Operation Klondike/Falcon FLC-4Nb-PP.mtf	881
+Operation Klondike/Falcon FLC-4Nb-PP2.mtf	947
+Operation Klondike/Falcon FLC-4Nb.mtf	947
+Operation Klondike/Firefly FFL-3A.mtf	797
+Operation Klondike/Firefly FFL-3PP.mtf	888
+Operation Klondike/Firefly FFL-3PP2.mtf	873
+Operation Klondike/Firefly FFL-3PP3.mtf	808
+Operation Klondike/Firefly FFL-3SLE.mtf	876
+Operation Klondike/Griffin GRF-2N.mtf	1606
+Operation Klondike/Griffin GRF-2N2.mtf	1513
+Operation Klondike/Harvester Ant KIC-3 Agromech (MG).mtf	127
+Operation Klondike/Harvester Ant KIC-3M-B AgroMech (LRM).mtf	214
+Operation Klondike/Hermes HER-1Sb.mtf	1112
+Operation Klondike/Highlander HGN-732 Colleen.mtf	2169
+Operation Klondike/Hoplite HOP-4Bb.mtf	1413
+Operation Klondike/Hoplite HOP-4Cb.mtf	1377
+Operation Klondike/Imp IMP-1A.mtf	2215
+Operation Klondike/Imp IMP-1B.mtf	2349
+Operation Klondike/Imp IMP-1C.mtf	2480
+Operation Klondike/Marco MR-8C.mtf	304
+Operation Klondike/Marco MR-8D.mtf	436
+Operation Klondike/Marco MR-8E.mtf	476
+Operation Klondike/Powerman SC XI LoaderMech.mtf	198
+Operation Klondike/Sentinel STN-3Lb.mtf	1260
+Operation Klondike/Shogun SHG-2H.mtf	2087
+Operation Klondike/Sling SL-1G.mtf	578
+Operation Klondike/Sling SL-1H.mtf	731
+Operation Klondike/Stalker STK-3Fb.mtf	2029
+Operation Klondike/Thorn THE-Nb.mtf	740
+Operation Klondike/Thunderbolt TDR-5Sb.mtf	1613
+Operation Klondike/Thunderbolt TDR-5Sb2.mtf	1561
+ProtoTypes/Apollo APL-4M.mtf	1302
+ProtoTypes/Axman AXM-6T.mtf	1830
+ProtoTypes/Barghest BGS-4T.mtf	1734
+ProtoTypes/Beowulf IIC.mtf	2048
+ProtoTypes/Deep Lord RCL-Z1M MilitiaMech.mtf	686
+ProtoTypes/Dola DOL-1A1.mtf	950
+ProtoTypes/Dola DOL-1A2 Yoh Ti Ts'angs.mtf	791
+ProtoTypes/Grasshopper GHR-7P.mtf	1806
+ProtoTypes/Hatamoto-Kaeru HTM-35K.mtf	1906
+ProtoTypes/Hunchback HBK-7R.mtf	1248
+ProtoTypes/Incubus II.mtf	1261
+ProtoTypes/Legionnaire LGN-2F.mtf	1808
+ProtoTypes/Mad Cat III 2.mtf	1697
+ProtoTypes/Mad Cat III X.mtf	2232
+ProtoTypes/Mad Cat III.mtf	2400
+ProtoTypes/Mad Cat Mk II Enhanced.mtf	2732
+ProtoTypes/Orion ON3-M.mtf	1826
+ProtoTypes/Pandarus LFA-1A.mtf	1589
+ProtoTypes/Patron PTN-2M MilitiaMech.mtf	147
+ProtoTypes/Pendragon PDG-1R.mtf	2151
+ProtoTypes/Quickdraw QKD-8P.mtf	1598
+ProtoTypes/Sarissa MN2-A SecurityMech.mtf	734
+ProtoTypes/Spindrift Aquatic SecurityMech SDT-1A.mtf	450
+ProtoTypes/Stiletto STO-6S.mtf	1171
+ProtoTypes/Stinger IIC 2.mtf	1097
+ProtoTypes/Stinger IIC.mtf	730
+ProtoTypes/Thunder THR-C4.mtf	2028
+ProtoTypes/Thunderbolt IIC.mtf	2475
+ProtoTypes/Ti Ts'ang DDC TSG9-DDC.mtf	2013
+ProtoTypes/Trebuchet TBT-K7R.mtf	1415
+ProtoTypes/Ursus 3.mtf	1284
+ProtoTypes/Wolf Trap (Tora) WFT-2B.mtf	1439
+ProtoTypes/Wolfhound WLF-2H.mtf	1511
+QuadVees/Arion.mtf	849
+QuadVees/Boreas A.mtf	1221
+QuadVees/Boreas B.mtf	1331
+QuadVees/Boreas C.mtf	1502
+QuadVees/Boreas D.mtf	1394
+QuadVees/Boreas Prime.mtf	1583
+QuadVees/Cyllaros.mtf	1450
+QuadVees/Harpagos.mtf	1721
+QuadVees/Notos A.mtf	1469
+QuadVees/Notos B.mtf	1788
+QuadVees/Notos C.mtf	1572
+QuadVees/Notos D.mtf	1777
+QuadVees/Notos Prime.mtf	2139
+RS Jihad/Deimos H.mtf	3344
+RS Jihad/Shadow Hawk SHD-11CS2.mtf	1779
+RS Succession Wars/Atlas AS7-A.mtf	1787
+RS Succession Wars/Javelin JVN-10A.mtf	653
+RS Succession Wars/Thunderbolt TDR-5D.mtf	1231
+RS Succession Wars/Wolverine WVR-6D.mtf	1115
+RS Succession Wars/Zeus ZEU-6A.mtf	1405
+RS Unique/Assassin Alice.mtf	1507
+RS Unique/Bandersnatch Horus.mtf	1584
+RS Unique/Daikyu Tabitha.mtf	1804
+RS Unique/Emperor Nerran.mtf	2247
+RS Unique/Excalibur Cernunnos.mtf	1778
+RS Unique/Grand Dragon DRG-1G Douglas.mtf	1076
+RS Unique/Great Wyrm Aemelia.mtf	1772
+RS Unique/Gunslinger Jared.mtf	1813
+RS Unique/Hercules Julius.mtf	1644
+RS Unique/Jenner Samuli.mtf	1001
+RS Unique/Merlin Porter.mtf	1233
+RS Unique/Snake Alexi.mtf	1316
+RS Unique/Stealth Anna.mtf	1540
+RS Unique/Thanatos THS-4S (Felix).mtf	2122
+RS Unique/Wolf Trap Daitama.mtf	1290
+Rec Guides ilClan/Vol 1/Commando COM-9S.mtf	719
+Rec Guides ilClan/Vol 1/Dominator 2.mtf	2906
+Rec Guides ilClan/Vol 1/Dominator.mtf	3018
+Rec Guides ilClan/Vol 1/Goliath C.mtf	2227
+Rec Guides ilClan/Vol 1/Grasshopper GHR-8K.mtf	1754
+Rec Guides ilClan/Vol 1/Griffin C.mtf	2131
+Rec Guides ilClan/Vol 1/Griffin GRF-1RG.mtf	1141
+Rec Guides ilClan/Vol 1/Griffin GRF-3N.mtf	1560
+Rec Guides ilClan/Vol 1/Griffin GRF-3RG.mtf	1213
+Rec Guides ilClan/Vol 1/Griffin GRF-6R.mtf	1515
+Rec Guides ilClan/Vol 1/Loki (Hellbringer) J.mtf	2415
+Rec Guides ilClan/Vol 1/Loki (Hellbringer) T.mtf	2444
+Rec Guides ilClan/Vol 1/Pack Hunter 5.mtf	1644
+Rec Guides ilClan/Vol 10/Archer (Wolf).mtf	2365
+Rec Guides ilClan/Vol 10/Archer ARC-2Rb.mtf	1705
+Rec Guides ilClan/Vol 10/Archer ARC-4M.mtf	1705
+Rec Guides ilClan/Vol 10/Archer ARC-4M2.mtf	1742
+Rec Guides ilClan/Vol 10/Archer ARC-5R.mtf	1672
+Rec Guides ilClan/Vol 10/Archer ARC-5S.mtf	1353
+Rec Guides ilClan/Vol 10/Archer ARC-5W.mtf	1337
+Rec Guides ilClan/Vol 10/Archer ARC-7C.mtf	2408
+Rec Guides ilClan/Vol 10/Archer ARC-9R.mtf	1668
+Rec Guides ilClan/Vol 10/Archer C.mtf	1811
+Rec Guides ilClan/Vol 10/Centurion CN10-D.mtf	1260
+Rec Guides ilClan/Vol 10/Crucible 2.mtf	3598
+Rec Guides ilClan/Vol 10/Crucible 3.mtf	3230
+Rec Guides ilClan/Vol 10/Crucible.mtf	3108
+Rec Guides ilClan/Vol 10/Hermit Crab HMC-13.mtf	731
+Rec Guides ilClan/Vol 10/Hermit Crab HMC-14.mtf	844
+Rec Guides ilClan/Vol 10/Hermit Crab HMC-15.mtf	742
+Rec Guides ilClan/Vol 10/Highlander HGN-740.mtf	2237
+Rec Guides ilClan/Vol 10/Mongoose MON-96.mtf	1011
+Rec Guides ilClan/Vol 10/Vulture (Mad Dog) DD.mtf	1970
+Rec Guides ilClan/Vol 10/Vulture (Mad Dog) G.mtf	2503
+Rec Guides ilClan/Vol 10/Vulture (Mad Dog) I.mtf	2042
+Rec Guides ilClan/Vol 10/Vulture (Mad Dog) T.mtf	2555
+Rec Guides ilClan/Vol 10/Vulture (Mad Dog) V.mtf	2182
+Rec Guides ilClan/Vol 11/Butcherbird (Ion Sparrow) A.mtf	501
+Rec Guides ilClan/Vol 11/Butcherbird (Ion Sparrow) B.mtf	626
+Rec Guides ilClan/Vol 11/Butcherbird (Ion Sparrow) C.mtf	889
+Rec Guides ilClan/Vol 11/Butcherbird (Ion Sparrow) D.mtf	1121
+Rec Guides ilClan/Vol 11/Butcherbird (Ion Sparrow) Prime.mtf	885
+Rec Guides ilClan/Vol 11/Man O' War (Gargoyle) F.mtf	1894
+Rec Guides ilClan/Vol 11/Man O' War (Gargoyle) I.mtf	2516
+Rec Guides ilClan/Vol 11/Man O' War (Gargoyle) J.mtf	2134
+Rec Guides ilClan/Vol 11/Man O' War (Gargoyle) K.mtf	2182
+Rec Guides ilClan/Vol 11/Man O' War (Gargoyle) P.mtf	2320
+Rec Guides ilClan/Vol 11/Man O' War (Gargoyle) T.mtf	1635
+Rec Guides ilClan/Vol 11/Peregrine (Horned Owl) 2.mtf	1191
+Rec Guides ilClan/Vol 11/Peregrine (Horned Owl) 3.mtf	1545
+Rec Guides ilClan/Vol 11/Peregrine (Horned Owl) 6.mtf	1475
+Rec Guides ilClan/Vol 11/Peregrine (Horned Owl) 7.mtf	1725
+Rec Guides ilClan/Vol 11/Peregrine (Horned Owl).mtf	1434
+Rec Guides ilClan/Vol 11/Phoenix Hawk C 2.mtf	2187
+Rec Guides ilClan/Vol 11/Phoenix Hawk C.mtf	1396
+Rec Guides ilClan/Vol 11/Phoenix Hawk PXH-2K.mtf	1271
+Rec Guides ilClan/Vol 11/Phoenix Hawk PXH-3D.mtf	1315
+Rec Guides ilClan/Vol 11/Phoenix Hawk PXH-3K.mtf	1359
+Rec Guides ilClan/Vol 11/Phoenix Hawk PXH-3M.mtf	1307
+Rec Guides ilClan/Vol 11/Phoenix Hawk PXH-3S.mtf	1237
+Rec Guides ilClan/Vol 11/Phoenix Hawk PXH-4M.mtf	1327
+Rec Guides ilClan/Vol 11/Phoenix Hawk PXH-9.mtf	1244
+Rec Guides ilClan/Vol 11/Uller (Kit Fox) G.mtf	1368
+Rec Guides ilClan/Vol 11/Uller (Kit Fox) J.mtf	1178
+Rec Guides ilClan/Vol 11/Uller (Kit Fox) K.mtf	1109
+Rec Guides ilClan/Vol 11/Uller (Kit Fox) R.mtf	1232
+Rec Guides ilClan/Vol 11/Uller (Kit Fox) T.mtf	1397
+Rec Guides ilClan/Vol 11/Uller (Kit Fox) V.mtf	974
+Rec Guides ilClan/Vol 12/Axman AXM-5N.mtf	2575
+Rec Guides ilClan/Vol 12/Black Knight BL-18-KNT.mtf	2585
+Rec Guides ilClan/Vol 12/Carrion Crow A.mtf	1622
+Rec Guides ilClan/Vol 12/Carrion Crow B.mtf	2083
+Rec Guides ilClan/Vol 12/Carrion Crow C.mtf	1826
+Rec Guides ilClan/Vol 12/Carrion Crow D.mtf	1930
+Rec Guides ilClan/Vol 12/Carrion Crow Prime.mtf	2397
+Rec Guides ilClan/Vol 12/Hatchetman HCT-8S.mtf	1479
+Rec Guides ilClan/Vol 12/Nobori-nin (Huntsman) E.mtf	2104
+Rec Guides ilClan/Vol 12/Nobori-nin (Huntsman) G.mtf	2377
+Rec Guides ilClan/Vol 12/Nobori-nin (Huntsman) I.mtf	2277
+Rec Guides ilClan/Vol 12/Nobori-nin (Huntsman) T.mtf	2105
+Rec Guides ilClan/Vol 12/Shadow Hawk C.mtf	1309
+Rec Guides ilClan/Vol 12/Shadow Hawk SHD-2D2.mtf	1049
+Rec Guides ilClan/Vol 12/Shadow Hawk SHD-2Hb.mtf	1354
+Rec Guides ilClan/Vol 12/Shadow Hawk SHD-4H.mtf	1569
+Rec Guides ilClan/Vol 12/Shadow Hawk SHD-5M.mtf	1430
+Rec Guides ilClan/Vol 12/Shadow Hawk SHD-5R.mtf	1296
+Rec Guides ilClan/Vol 12/Shadow Hawk SHD-5S.mtf	1590
+Rec Guides ilClan/Vol 12/Shadow Hawk SHD-6D.mtf	1371
+Rec Guides ilClan/Vol 12/Shadow Hawk SHD-7H.mtf	1394
+Rec Guides ilClan/Vol 12/Viper (Black Python) .mtf	2813
+Rec Guides ilClan/Vol 12/Viper (Black Python) 2.mtf	2520
+Rec Guides ilClan/Vol 12/Viper (Black Python) 5.mtf	2925
+Rec Guides ilClan/Vol 12/White Raven 2.mtf	2703
+Rec Guides ilClan/Vol 12/White Raven.mtf	2941
+Rec Guides ilClan/Vol 13/Daishi (Dire Wolf) E.mtf	2814
+Rec Guides ilClan/Vol 13/Daishi (Dire Wolf) T.mtf	3317
+Rec Guides ilClan/Vol 13/Daishi (Dire Wolf) X.mtf	2645
+Rec Guides ilClan/Vol 13/Firestorm.mtf	2330
+Rec Guides ilClan/Vol 13/Galahad (Glass Spider) 2.mtf	2038
+Rec Guides ilClan/Vol 13/Galahad (Glass Spider) 4.mtf	2309
+Rec Guides ilClan/Vol 13/Galahad (Glass Spider).mtf	1825
+Rec Guides ilClan/Vol 13/Hunchback IIC 5.mtf	1534
+Rec Guides ilClan/Vol 13/Piranha 5.mtf	1132
+Rec Guides ilClan/Vol 13/Stinger C 2.mtf	754
+Rec Guides ilClan/Vol 13/Stinger C.mtf	592
+Rec Guides ilClan/Vol 13/Stinger STG-3Gb.mtf	674
+Rec Guides ilClan/Vol 13/Stinger STG-4G.mtf	541
+Rec Guides ilClan/Vol 13/Stinger STG-5G.mtf	614
+Rec Guides ilClan/Vol 13/Stinger STG-5M.mtf	432
+Rec Guides ilClan/Vol 13/Stinger STG-6G.mtf	503
+Rec Guides ilClan/Vol 13/Stinger STG-6M.mtf	503
+Rec Guides ilClan/Vol 13/Stinger STG-6R.mtf	454
+Rec Guides ilClan/Vol 13/Supernova 5.mtf	3075
+Rec Guides ilClan/Vol 14/Black Hawk (Nova) G.mtf	1822
+Rec Guides ilClan/Vol 14/Black Hawk (Nova) I.mtf	2224
+Rec Guides ilClan/Vol 14/Black Hawk (Nova) J.mtf	2295
+Rec Guides ilClan/Vol 14/Black Hawk (Nova) K.mtf	1932
+Rec Guides ilClan/Vol 14/Black Hawk (Nova) L.mtf	2177
+Rec Guides ilClan/Vol 14/Black Hawk (Nova) R.mtf	1597
+Rec Guides ilClan/Vol 14/Black Hawk (Nova) T.mtf	1579
+Rec Guides ilClan/Vol 14/Exterminator EXT-7X.mtf	1674
+Rec Guides ilClan/Vol 14/Griffin IIC 2.mtf	1516
+Rec Guides ilClan/Vol 14/Griffin IIC 9.mtf	1106
+Rec Guides ilClan/Vol 14/Griffin IIC.mtf	1608
+Rec Guides ilClan/Vol 14/Lightning LHN-C5.mtf	2024
+Rec Guides ilClan/Vol 14/Ostsol C.mtf	2277
+Rec Guides ilClan/Vol 14/Ostsol OTL-5M.mtf	1245
+Rec Guides ilClan/Vol 14/Ostsol OTL-8E.mtf	1552
+Rec Guides ilClan/Vol 14/Ostsol OTL-8E3.mtf	1671
+Rec Guides ilClan/Vol 14/Ostsol OTL-8F.mtf	1698
+Rec Guides ilClan/Vol 14/Sentinel STN-6S.mtf	1089
+Rec Guides ilClan/Vol 14/Thug THG-13U.mtf	2545
+Rec Guides ilClan/Vol 15/Black Lanner F.mtf	2154
+Rec Guides ilClan/Vol 15/Black Lanner G.mtf	1929
+Rec Guides ilClan/Vol 15/Black Lanner I.mtf	1803
+Rec Guides ilClan/Vol 15/Black Lanner J.mtf	2022
+Rec Guides ilClan/Vol 15/Black Lanner T.mtf	2040
+Rec Guides ilClan/Vol 15/Black Lanner X.mtf	1672
+Rec Guides ilClan/Vol 15/Fire Falcon F.mtf	1135
+Rec Guides ilClan/Vol 15/Fire Falcon G.mtf	1269
+Rec Guides ilClan/Vol 15/Fire Falcon I.mtf	1678
+Rec Guides ilClan/Vol 15/Fire Falcon L.mtf	1665
+Rec Guides ilClan/Vol 15/Fire Falcon R.mtf	846
+Rec Guides ilClan/Vol 15/Fire Falcon T.mtf	1661
+Rec Guides ilClan/Vol 15/Phoenix Hawk IIC 10.mtf	2762
+Rec Guides ilClan/Vol 15/Phoenix Hawk IIC 2.mtf	2892
+Rec Guides ilClan/Vol 15/Phoenix Hawk IIC 9.mtf	2469
+Rec Guides ilClan/Vol 15/Phoenix Hawk IIC.mtf	2057
+Rec Guides ilClan/Vol 15/Rawhide RWD-R1.mtf	1939
+Rec Guides ilClan/Vol 15/Thunderbolt C 2.mtf	2170
+Rec Guides ilClan/Vol 15/Thunderbolt C.mtf	1671
+Rec Guides ilClan/Vol 15/Thunderbolt TDR-11S.mtf	1570
+Rec Guides ilClan/Vol 15/Thunderbolt TDR-12R.mtf	1975
+Rec Guides ilClan/Vol 15/Thunderbolt TDR-7M.mtf	1495
+Rec Guides ilClan/Vol 15/Thunderbolt TDR-7S.mtf	1582
+Rec Guides ilClan/Vol 15/Thunderbolt TDR-8M.mtf	1644
+Rec Guides ilClan/Vol 15/Thunderbolt TDR-9S.mtf	1494
+Rec Guides ilClan/Vol 15/Thunderbolt TDR-9SE.mtf	1439
+Rec Guides ilClan/Vol 15/Thunderbolt TDR-9W.mtf	1985
+Rec Guides ilClan/Vol 16/Cauldron-Born (Ebon Jaguar) E.mtf	2391
+Rec Guides ilClan/Vol 16/Cauldron-Born (Ebon Jaguar) F.mtf	2681
+Rec Guides ilClan/Vol 16/Cauldron-Born (Ebon Jaguar) G.mtf	2849
+Rec Guides ilClan/Vol 16/Cauldron-Born (Ebon Jaguar) T.mtf	2219
+Rec Guides ilClan/Vol 16/Cauldron-Born (Ebon Jaguar) X.mtf	2435
+Rec Guides ilClan/Vol 16/Locust C.mtf	672
+Rec Guides ilClan/Vol 16/Locust IIC 10.mtf	1248
+Rec Guides ilClan/Vol 16/Locust IIC 2.mtf	937
+Rec Guides ilClan/Vol 16/Locust IIC 3.mtf	980
+Rec Guides ilClan/Vol 16/Locust IIC.mtf	1100
+Rec Guides ilClan/Vol 16/Locust LCT-1Vb.mtf	642
+Rec Guides ilClan/Vol 16/Locust LCT-3D.mtf	436
+Rec Guides ilClan/Vol 16/Locust LCT-3M.mtf	522
+Rec Guides ilClan/Vol 16/Locust LCT-3S.mtf	483
+Rec Guides ilClan/Vol 16/Locust LCT-5S.mtf	509
+Rec Guides ilClan/Vol 16/Locust LCT-7S.mtf	706
+Rec Guides ilClan/Vol 16/Locust LCT-7V.mtf	585
+Rec Guides ilClan/Vol 16/Locust LCT-7V2.mtf	634
+Rec Guides ilClan/Vol 16/Stormwolf A.mtf	2655
+Rec Guides ilClan/Vol 16/Stormwolf B.mtf	3286
+Rec Guides ilClan/Vol 16/Stormwolf C.mtf	3261
+Rec Guides ilClan/Vol 16/Stormwolf D.mtf	3122
+Rec Guides ilClan/Vol 16/Stormwolf Prime.mtf	2788
+Rec Guides ilClan/Vol 16/Turkina E.mtf	3147
+Rec Guides ilClan/Vol 16/Turkina M.mtf	2495
+Rec Guides ilClan/Vol 16/Turkina T.mtf	3080
+Rec Guides ilClan/Vol 16/Turkina X.mtf	3056
+Rec Guides ilClan/Vol 17/Amarok 2.mtf	3351
+Rec Guides ilClan/Vol 17/Amarok 3.mtf	2675
+Rec Guides ilClan/Vol 17/Amarok.mtf	3185
+Rec Guides ilClan/Vol 17/Banshee BNC-12S.mtf	2562
+Rec Guides ilClan/Vol 17/Crossbow E.mtf	1558
+Rec Guides ilClan/Vol 17/Crossbow F.mtf	1854
+Rec Guides ilClan/Vol 17/Crossbow G.mtf	1725
+Rec Guides ilClan/Vol 17/Crossbow J.mtf	1839
+Rec Guides ilClan/Vol 17/Crossbow T.mtf	1729
+Rec Guides ilClan/Vol 17/Crossbow W.mtf	2051
+Rec Guides ilClan/Vol 17/Crusader CRD-3R (Crael).mtf	1204
+Rec Guides ilClan/Vol 17/Crusader CRD-4BR.mtf	1407
+Rec Guides ilClan/Vol 17/Crusader CRD-4D.mtf	1309
+Rec Guides ilClan/Vol 17/Crusader CRD-4K.mtf	1268
+Rec Guides ilClan/Vol 17/Crusader CRD-5M.mtf	1408
+Rec Guides ilClan/Vol 17/Crusader CRD-5S.mtf	1446
+Rec Guides ilClan/Vol 17/Crusader CRD-6D.mtf	1498
+Rec Guides ilClan/Vol 17/Crusader CRD-6T.mtf	1890
+Rec Guides ilClan/Vol 17/Crusader CRD-7D.mtf	1681
+Rec Guides ilClan/Vol 17/Crusader CRD-7M.mtf	1502
+Rec Guides ilClan/Vol 17/Crusader CRD-7M2.mtf	1434
+Rec Guides ilClan/Vol 17/Crusader CRD-8R.mtf	1600
+Rec Guides ilClan/Vol 17/Crusader CRD-9BR.mtf	1653
+Rec Guides ilClan/Vol 17/Crusader CRD-9R.mtf	1612
+Rec Guides ilClan/Vol 17/Kraken (Bane) 2.mtf	2502
+Rec Guides ilClan/Vol 17/Kraken (Bane) 3.mtf	2941
+Rec Guides ilClan/Vol 17/Kraken (Bane) 5.mtf	2554
+Rec Guides ilClan/Vol 17/Kraken (Bane) 6.mtf	2339
+Rec Guides ilClan/Vol 17/Kraken (Bane) 7.mtf	3740
+Rec Guides ilClan/Vol 17/Kraken (Bane).mtf	1950
+Rec Guides ilClan/Vol 17/Panther PNT-14R.mtf	1291
+Rec Guides ilClan/Vol 17/Wolfhound WLF-6S.mtf	1266
+Rec Guides ilClan/Vol 18/Enforcer ENF-5R.mtf	1192
+Rec Guides ilClan/Vol 18/Eris ERS-2H.mtf	1674
+Rec Guides ilClan/Vol 18/Eris ERS-2N.mtf	1400
+Rec Guides ilClan/Vol 18/Eris ERS-3R.mtf	1868
+Rec Guides ilClan/Vol 18/Jenner IIC 2.mtf	1406
+Rec Guides ilClan/Vol 18/Jenner IIC 3.mtf	788
+Rec Guides ilClan/Vol 18/Jenner IIC 5.mtf	1440
+Rec Guides ilClan/Vol 18/Jenner IIC.mtf	1047
+Rec Guides ilClan/Vol 18/Jenner JR7-N.mtf	1233
+Rec Guides ilClan/Vol 18/Kingfisher F.mtf	2568
+Rec Guides ilClan/Vol 18/Kingfisher G.mtf	2319
+Rec Guides ilClan/Vol 18/Kingfisher I.mtf	2348
+Rec Guides ilClan/Vol 18/Kingfisher T.mtf	2637
+Rec Guides ilClan/Vol 18/Kingfisher X.mtf	2761
+Rec Guides ilClan/Vol 18/Victor VTR-12D.mtf	1935
+Rec Guides ilClan/Vol 18/Wolverine WVR-10D.mtf	1925
+Rec Guides ilClan/Vol 18/Wolverine WVR-10R.mtf	1791
+Rec Guides ilClan/Vol 18/Wolverine WVR-10V2.mtf	1747
+Rec Guides ilClan/Vol 18/Wolverine WVR-11M.mtf	1778
+Rec Guides ilClan/Vol 18/Wolverine WVR-7D.mtf	1314
+Rec Guides ilClan/Vol 18/Wolverine WVR-7K.mtf	1331
+Rec Guides ilClan/Vol 18/Wolverine WVR-7M.mtf	1673
+Rec Guides ilClan/Vol 18/Wolverine WVR-7M2.mtf	1752
+Rec Guides ilClan/Vol 18/Wolverine WVR-9R.mtf	1481
+Rec Guides ilClan/Vol 19/Cougar E.mtf	1442
+Rec Guides ilClan/Vol 19/Cougar F.mtf	1401
+Rec Guides ilClan/Vol 19/Cougar G.mtf	1453
+Rec Guides ilClan/Vol 19/Cougar H.mtf	1323
+Rec Guides ilClan/Vol 19/Cougar I.mtf	1738
+Rec Guides ilClan/Vol 19/Cougar T.mtf	1748
+Rec Guides ilClan/Vol 19/Iron Cheetah A.mtf	2708
+Rec Guides ilClan/Vol 19/Iron Cheetah B.mtf	3303
+Rec Guides ilClan/Vol 19/Iron Cheetah C.mtf	2915
+Rec Guides ilClan/Vol 19/Iron Cheetah D.mtf	2871
+Rec Guides ilClan/Vol 19/Iron Cheetah L.mtf	3416
+Rec Guides ilClan/Vol 19/Iron Cheetah Prime.mtf	3155
+Rec Guides ilClan/Vol 19/Mercury MCY-105.mtf	795
+Rec Guides ilClan/Vol 19/Orion C 2.mtf	2026
+Rec Guides ilClan/Vol 19/Rime Otter A.mtf	2358
+Rec Guides ilClan/Vol 19/Rime Otter B.mtf	1961
+Rec Guides ilClan/Vol 19/Rime Otter C.mtf	2718
+Rec Guides ilClan/Vol 19/Rime Otter D.mtf	1998
+Rec Guides ilClan/Vol 19/Rime Otter Prime.mtf	2169
+Rec Guides ilClan/Vol 19/Scorpion C.mtf	2331
+Rec Guides ilClan/Vol 19/Scorpion SCP-1BR.mtf	1473
+Rec Guides ilClan/Vol 19/Scorpion SCP-1O.mtf	1098
+Rec Guides ilClan/Vol 19/Scorpion SCP-1TB.mtf	1185
+Rec Guides ilClan/Vol 19/Scorpion SCP-2N.mtf	1562
+Rec Guides ilClan/Vol 19/Spider SDR-9M.mtf	687
+Rec Guides ilClan/Vol 2/Behemoth (Stone Rhino) 7.mtf	2916
+Rec Guides ilClan/Vol 2/Behemoth (Stone Rhino) 8.mtf	2804
+Rec Guides ilClan/Vol 2/Behemoth BHN-6H.mtf	1703
+Rec Guides ilClan/Vol 2/Bushwacker BSW-X4.mtf	1751
+Rec Guides ilClan/Vol 2/Grendel (Mongrel) G.mtf	2209
+Rec Guides ilClan/Vol 2/Grendel (Mongrel) I.mtf	1675
+Rec Guides ilClan/Vol 2/Grendel (Mongrel) J.mtf	1811
+Rec Guides ilClan/Vol 2/Grendel (Mongrel) M.mtf	1744
+Rec Guides ilClan/Vol 2/Grendel (Mongrel) T.mtf	1936
+Rec Guides ilClan/Vol 2/Ostscout OTT-12R.mtf	1209
+Rec Guides ilClan/Vol 2/Ostscout OTT-8J.mtf	894
+Rec Guides ilClan/Vol 2/Sojourner A.mtf	1911
+Rec Guides ilClan/Vol 2/Sojourner B.mtf	2397
+Rec Guides ilClan/Vol 2/Sojourner C.mtf	2235
+Rec Guides ilClan/Vol 2/Sojourner D.mtf	2452
+Rec Guides ilClan/Vol 2/Sojourner Prime.mtf	2491
+Rec Guides ilClan/Vol 2/UrbanMech UM-R96.mtf	852
+Rec Guides ilClan/Vol 2/Zeus ZEU-11S.mtf	2280
+Rec Guides ilClan/Vol 20/Hellion D.mtf	1761
+Rec Guides ilClan/Vol 20/Hellion E.mtf	1292
+Rec Guides ilClan/Vol 20/Hellion F.mtf	1594
+Rec Guides ilClan/Vol 20/Hellion P.mtf	1685
+Rec Guides ilClan/Vol 20/Hellion T.mtf	1637
+Rec Guides ilClan/Vol 20/Longbow LGB-0H.mtf	1813
+Rec Guides ilClan/Vol 20/Longbow LGB-0W2.mtf	1410
+Rec Guides ilClan/Vol 20/Longbow LGB-10C.mtf	1898
+Rec Guides ilClan/Vol 20/Longbow LGB-10K.mtf	1791
+Rec Guides ilClan/Vol 20/Longbow LGB-14Q.mtf	1828
+Rec Guides ilClan/Vol 20/Longbow LGB-14V.mtf	1763
+Rec Guides ilClan/Vol 20/Longbow LGB-8C.mtf	1653
+Rec Guides ilClan/Vol 20/Masakari (Warhawk) F.mtf	2775
+Rec Guides ilClan/Vol 20/Masakari (Warhawk) G.mtf	2909
+Rec Guides ilClan/Vol 20/Masakari (Warhawk) I.mtf	3026
+Rec Guides ilClan/Vol 20/Masakari (Warhawk) L.mtf	3695
+Rec Guides ilClan/Vol 20/Masakari (Warhawk) T.mtf	2938
+Rec Guides ilClan/Vol 20/Mastodon A.mtf	2856
+Rec Guides ilClan/Vol 20/Mastodon B.mtf	2793
+Rec Guides ilClan/Vol 20/Mastodon C.mtf	3092
+Rec Guides ilClan/Vol 20/Mastodon D.mtf	2961
+Rec Guides ilClan/Vol 20/Mastodon Prime.mtf	3109
+Rec Guides ilClan/Vol 20/Shadow Hawk IIC 10.mtf	1760
+Rec Guides ilClan/Vol 20/Shadow Hawk IIC 11.mtf	1692
+Rec Guides ilClan/Vol 20/Shadow Hawk IIC 2.mtf	1763
+Rec Guides ilClan/Vol 20/Shadow Hawk IIC.mtf	1732
+Rec Guides ilClan/Vol 21/Cyclops C.mtf	2252
+Rec Guides ilClan/Vol 21/Hankyu (Arctic Cheetah) E.mtf	1084
+Rec Guides ilClan/Vol 21/Hankyu (Arctic Cheetah) F.mtf	1394
+Rec Guides ilClan/Vol 21/Hankyu (Arctic Cheetah) I.mtf	1299
+Rec Guides ilClan/Vol 21/Hankyu (Arctic Cheetah) J.mtf	1179
+Rec Guides ilClan/Vol 21/Hankyu (Arctic Cheetah) T.mtf	1429
+Rec Guides ilClan/Vol 21/Hunchback C.mtf	1893
+Rec Guides ilClan/Vol 21/Kodiak 6.mtf	2922
+Rec Guides ilClan/Vol 21/Kontio.mtf	1912
+Rec Guides ilClan/Vol 21/Ostroc OSR-2D.mtf	1396
+Rec Guides ilClan/Vol 21/Ostroc OSR-3M.mtf	1594
+Rec Guides ilClan/Vol 21/Ostroc OSR-6R.mtf	2095
+Rec Guides ilClan/Vol 21/Ostroc OSR-9C.mtf	1230
+Rec Guides ilClan/Vol 21/Regent A.mtf	3419
+Rec Guides ilClan/Vol 21/Regent B.mtf	2744
+Rec Guides ilClan/Vol 21/Regent C.mtf	2561
+Rec Guides ilClan/Vol 21/Regent D.mtf	2116
+Rec Guides ilClan/Vol 21/Regent Prime.mtf	2437
+Rec Guides ilClan/Vol 22/Battle Cobra F.mtf	1507
+Rec Guides ilClan/Vol 22/Battle Cobra G.mtf	1593
+Rec Guides ilClan/Vol 22/Battle Cobra I.mtf	1385
+Rec Guides ilClan/Vol 22/Battle Cobra J.mtf	1272
+Rec Guides ilClan/Vol 22/Battle Cobra T.mtf	1666
+Rec Guides ilClan/Vol 22/Battle Cobra X.mtf	1492
+Rec Guides ilClan/Vol 22/Doom Courser A.mtf	2139
+Rec Guides ilClan/Vol 22/Doom Courser B.mtf	2091
+Rec Guides ilClan/Vol 22/Doom Courser C.mtf	2147
+Rec Guides ilClan/Vol 22/Doom Courser D.mtf	2453
+Rec Guides ilClan/Vol 22/Doom Courser Prime.mtf	2283
+Rec Guides ilClan/Vol 22/Goliath GOL-3M.mtf	1537
+Rec Guides ilClan/Vol 22/Goliath GOL-3M2.mtf	1631
+Rec Guides ilClan/Vol 22/Goliath GOL-7C.mtf	1790
+Rec Guides ilClan/Vol 22/Goliath GOL-7K.mtf	1901
+Rec Guides ilClan/Vol 22/Goliath GOL-7R.mtf	1888
+Rec Guides ilClan/Vol 22/Jade Phoenix A.mtf	2739
+Rec Guides ilClan/Vol 22/Jade Phoenix B.mtf	2998
+Rec Guides ilClan/Vol 22/Jade Phoenix C.mtf	2854
+Rec Guides ilClan/Vol 22/Jade Phoenix D.mtf	2986
+Rec Guides ilClan/Vol 22/Jade Phoenix E.mtf	2734
+Rec Guides ilClan/Vol 22/Jade Phoenix Prime.mtf	3277
+Rec Guides ilClan/Vol 22/Night Gyr F.mtf	2958
+Rec Guides ilClan/Vol 22/Night Gyr G.mtf	3069
+Rec Guides ilClan/Vol 22/Night Gyr T.mtf	2767
+Rec Guides ilClan/Vol 22/Night Gyr X.mtf	2781
+Rec Guides ilClan/Vol 23/Fujin RJN-301-F.mtf	1770
+Rec Guides ilClan/Vol 23/Grand Crusader GRN-D-01-X.mtf	1869
+Rec Guides ilClan/Vol 23/Grand Crusader GRN-D-02-B.mtf	1937
+Rec Guides ilClan/Vol 23/Guillotine GLT-7M.mtf	1877
+Rec Guides ilClan/Vol 23/Katana (Crockett) CRK-5006-1.mtf	2363
+Rec Guides ilClan/Vol 23/Lancelot LNC25-09.mtf	2099
+Rec Guides ilClan/Vol 23/Nexus NXS1-C.mtf	804
+Rec Guides ilClan/Vol 23/Nova Cat M.mtf	2024
+Rec Guides ilClan/Vol 23/Nova Cat T.mtf	2855
+Rec Guides ilClan/Vol 23/Raijin RJN 101-B.mtf	1383
+Rec Guides ilClan/Vol 23/Raijin RJN 101-C.mtf	1389
+Rec Guides ilClan/Vol 23/Raijin RJN 101-X.mtf	1302
+Rec Guides ilClan/Vol 23/Raijin RJN 301-B.mtf	1365
+Rec Guides ilClan/Vol 23/Rifleman IIC 10.mtf	1587
+Rec Guides ilClan/Vol 23/Rifleman IIC 9.mtf	2794
+Rec Guides ilClan/Vol 23/Star Crusader A.mtf	2904
+Rec Guides ilClan/Vol 23/Star Crusader B.mtf	2565
+Rec Guides ilClan/Vol 23/Star Crusader Prime.mtf	3325
+Rec Guides ilClan/Vol 23/Star Python.mtf	1234
+Rec Guides ilClan/Vol 24/(Ryoken III) Skinwalker A.mtf	3500
+Rec Guides ilClan/Vol 24/(Ryoken III) Skinwalker B.mtf	2851
+Rec Guides ilClan/Vol 24/(Ryoken III) Skinwalker C.mtf	3175
+Rec Guides ilClan/Vol 24/(Ryoken III) Skinwalker D.mtf	2545
+Rec Guides ilClan/Vol 24/(Ryoken III) Skinwalker E.mtf	3107
+Rec Guides ilClan/Vol 24/(Ryoken III) Skinwalker F.mtf	3704
+Rec Guides ilClan/Vol 24/(Ryoken III) Skinwalker Prime.mtf	2809
+Rec Guides ilClan/Vol 24/Alpha Wolf A.mtf	3435
+Rec Guides ilClan/Vol 24/Alpha Wolf B.mtf	2672
+Rec Guides ilClan/Vol 24/Alpha Wolf C.mtf	2535
+Rec Guides ilClan/Vol 24/Alpha Wolf Prime.mtf	2966
+Rec Guides ilClan/Vol 24/Annihilator ANH-5W.mtf	2595
+Rec Guides ilClan/Vol 24/Atlas AS7-K-DC.mtf	2158
+Rec Guides ilClan/Vol 24/Atlas AS7-S3-DC.mtf	2278
+Rec Guides ilClan/Vol 24/Atlas AS7-S3.mtf	2378
+Rec Guides ilClan/Vol 24/Atlas AS7-S4.mtf	2568
+Rec Guides ilClan/Vol 24/Atlas AS8-K.mtf	2668
+Rec Guides ilClan/Vol 24/Atlas AS8-KE.mtf	2658
+Rec Guides ilClan/Vol 24/Atlas AS8-S.mtf	2789
+Rec Guides ilClan/Vol 24/Atlas C 2.mtf	2736
+Rec Guides ilClan/Vol 24/Atlas C 3.mtf	2606
+Rec Guides ilClan/Vol 24/Atlas C.mtf	2340
+Rec Guides ilClan/Vol 24/Atlas II AS7-DK-H.mtf	2599
+Rec Guides ilClan/Vol 24/Flashman FLS-10E.mtf	3349
+Rec Guides ilClan/Vol 24/Grand Dragon DRG-12K.mtf	2265
+Rec Guides ilClan/Vol 24/Stalker STK-9F.mtf	2469
+Rec Guides ilClan/Vol 25/Chameleon CLN-8V.mtf	1426
+Rec Guides ilClan/Vol 25/Chameleon CLN-9V.mtf	1276
+Rec Guides ilClan/Vol 25/Chameleon TRC-4B.mtf	999
+Rec Guides ilClan/Vol 25/Chameleon TRC-4C.mtf	999
+Rec Guides ilClan/Vol 25/Pouncer F.mtf	1308
+Rec Guides ilClan/Vol 25/Pouncer G.mtf	1808
+Rec Guides ilClan/Vol 25/Pouncer I.mtf	1781
+Rec Guides ilClan/Vol 25/Pouncer T.mtf	1573
+Rec Guides ilClan/Vol 25/Pouncer W.mtf	1751
+Rec Guides ilClan/Vol 25/Pouncer X.mtf	1455
+Rec Guides ilClan/Vol 25/Vindicator VND-7L.mtf	1566
+Rec Guides ilClan/Vol 25/Wraith TR5.mtf	1581
+Rec Guides ilClan/Vol 26/Caesar CES-5R.mtf	2192
+Rec Guides ilClan/Vol 26/Flea FLE-21.mtf	823
+Rec Guides ilClan/Vol 26/Hermes II HER-7A.mtf	1121
+Rec Guides ilClan/Vol 26/Merlin C.mtf	1870
+Rec Guides ilClan/Vol 26/Merlin MLN-1D.mtf	1370
+Rec Guides ilClan/Vol 26/Merlin MLN-1E.mtf	1369
+Rec Guides ilClan/Vol 26/Merlin MLN-1P.mtf	1182
+Rec Guides ilClan/Vol 26/Naga II A.mtf	2160
+Rec Guides ilClan/Vol 26/Naga II B.mtf	2347
+Rec Guides ilClan/Vol 26/Naga II C.mtf	2177
+Rec Guides ilClan/Vol 26/Naga II H.mtf	2284
+Rec Guides ilClan/Vol 26/Naga II Prime.mtf	1840
+Rec Guides ilClan/Vol 26/Naga II W.mtf	2655
+Rec Guides ilClan/Vol 26/Quickdraw QKD-9G.mtf	2224
+Rec Guides ilClan/Vol 26/Starslayer STY-4C.mtf	2218
+Rec Guides ilClan/Vol 27/Gunslinger GUN-3ERD.mtf	2844
+Rec Guides ilClan/Vol 27/Nightsky NGS-7S.mtf	1591
+Rec Guides ilClan/Vol 27/Penetrator PTR-8D.mtf	2130
+Rec Guides ilClan/Vol 27/Phantom F.mtf	1375
+Rec Guides ilClan/Vol 27/Phantom G.mtf	975
+Rec Guides ilClan/Vol 27/Phantom I.mtf	1713
+Rec Guides ilClan/Vol 27/Phantom J.mtf	1902
+Rec Guides ilClan/Vol 27/Phantom K.mtf	1387
+Rec Guides ilClan/Vol 27/Phantom L.mtf	1178
+Rec Guides ilClan/Vol 27/Phantom R.mtf	1365
+Rec Guides ilClan/Vol 27/Phantom T.mtf	1138
+Rec Guides ilClan/Vol 28/Cicada CDA-4A.mtf	1097
+Rec Guides ilClan/Vol 28/Devastator DVS-11.mtf	3170
+Rec Guides ilClan/Vol 28/Firestarter FS9-N 'Mirage II'.mtf	1660
+Rec Guides ilClan/Vol 28/Spector SPR-6F.mtf	1476
+Rec Guides ilClan/Vol 29/Assassin ASN-109.mtf	1158
+Rec Guides ilClan/Vol 29/Charger C.mtf	2826
+Rec Guides ilClan/Vol 29/Dervish DV-11DK.mtf	1919
+Rec Guides ilClan/Vol 29/Firefly FFL-5A.mtf	996
+Rec Guides ilClan/Vol 29/Sagittaire SGT-14R.mtf	2626
+Rec Guides ilClan/Vol 3/BattleMaster BLR-3M-DC.mtf	1627
+Rec Guides ilClan/Vol 3/BattleMaster BLR-6C.mtf	1557
+Rec Guides ilClan/Vol 3/BattleMaster BLR-6G.mtf	1960
+Rec Guides ilClan/Vol 3/BattleMaster BLR-6R.mtf	2181
+Rec Guides ilClan/Vol 3/BattleMaster C 3.mtf	2532
+Rec Guides ilClan/Vol 3/Hierofalcon A.mtf	1953
+Rec Guides ilClan/Vol 3/Hierofalcon B.mtf	1737
+Rec Guides ilClan/Vol 3/Hierofalcon C.mtf	1983
+Rec Guides ilClan/Vol 3/Hierofalcon D.mtf	2183
+Rec Guides ilClan/Vol 3/Hierofalcon Prime.mtf	1878
+Rec Guides ilClan/Vol 3/Puma (Adder) I.mtf	1575
+Rec Guides ilClan/Vol 3/Puma (Adder) K.mtf	1281
+Rec Guides ilClan/Vol 3/Puma (Adder) L.mtf	1738
+Rec Guides ilClan/Vol 3/Puma (Adder) S.mtf	1427
+Rec Guides ilClan/Vol 3/Puma (Adder) T.mtf	2182
+Rec Guides ilClan/Vol 3/Shadow Cat III A.mtf	2005
+Rec Guides ilClan/Vol 3/Shadow Cat III B.mtf	2183
+Rec Guides ilClan/Vol 3/Shadow Cat III C.mtf	2153
+Rec Guides ilClan/Vol 3/Shadow Cat III Prime.mtf	2021
+Rec Guides ilClan/Vol 3/Thor (Summoner) AA.mtf	2216
+Rec Guides ilClan/Vol 3/Thor (Summoner) J.mtf	2666
+Rec Guides ilClan/Vol 3/Thor (Summoner) Q.mtf	2479
+Rec Guides ilClan/Vol 3/Thor (Summoner) T.mtf	2355
+Rec Guides ilClan/Vol 30/Grizzly 3.mtf	2331
+Rec Guides ilClan/Vol 30/Hellcat (Hellhound II).mtf	1801
+Rec Guides ilClan/Vol 30/Hellhound (Conjurer) 6.mtf	2223
+Rec Guides ilClan/Vol 30/Hellhound II-P (Hellcat-P).mtf	1777
+Rec Guides ilClan/Vol 30/Highlander IIC 4.mtf	2958
+Rec Guides ilClan/Vol 30/Hoplite HOP-5C.mtf	1520
+Rec Guides ilClan/Vol 30/Vulcan VT-7T.mtf	1499
+Rec Guides ilClan/Vol 30/Whitworth WTH-2H.mtf	1148
+Rec Guides ilClan/Vol 31/Clint CLNT-3 4T.mtf	1157
+Rec Guides ilClan/Vol 31/Javelin JVN-12N.mtf	795
+Rec Guides ilClan/Vol 31/Pillager_PLG-6Z.mtf	2714
+Rec Guides ilClan/Vol 31/Shogun_C_3.mtf	2935
+Rec Guides ilClan/Vol 32/JagerMech_JM7-DD.mtf	1690
+Rec Guides ilClan/Vol 32/Star Adder (Blood Asp)_E.mtf	3179
+Rec Guides ilClan/Vol 32/Star Adder (Blood Asp)_F.mtf	2908
+Rec Guides ilClan/Vol 32/Star Adder (Blood Asp)_G.mtf	3192
+Rec Guides ilClan/Vol 32/Star Adder (Blood Asp)_I.mtf	2242
+Rec Guides ilClan/Vol 32/Star Adder (Blood Asp)_T.mtf	3069
+Rec Guides ilClan/Vol 32/Viper_VP-1.mtf	1609
+Rec Guides ilClan/Vol 32/Viper_VP-5.mtf	1539
+Rec Guides ilClan/Vol 32/Viper_VP-7.mtf	1864
+Rec Guides ilClan/Vol 32/Viper_VP-8.mtf	2679
+Rec Guides ilClan/Vol 32/Viper_VP-9.mtf	2244
+Rec Guides ilClan/Vol 33/Blood Reaper 3.mtf	2837
+Rec Guides ilClan/Vol 33/Gyrfalcon 5.mtf	2151
+Rec Guides ilClan/Vol 33/Hatamoto-Chi HTM-30T.mtf	2196
+Rec Guides ilClan/Vol 33/Loki Mk II (Hel) C.mtf	2214
+Rec Guides ilClan/Vol 33/Loki Mk II (Hel) D.mtf	2370
+Rec Guides ilClan/Vol 33/Loki Mk II (Hel) E.mtf	2443
+Rec Guides ilClan/Vol 33/Loki Mk II (Hel) F.mtf	2512
+Rec Guides ilClan/Vol 33/Loki Mk II (Hel) T.mtf	2077
+Rec Guides ilClan/Vol 33/Mauler MAL-4R.mtf	2050
+Rec Guides ilClan/Vol 33/Naga T.mtf	1885
+Rec Guides ilClan/Vol 33/Spartan SPT-N4.mtf	2108
+Rec Guides ilClan/Vol 33/Thunder Hawk TDK-7Z.mtf	2419
+Rec Guides ilClan/Vol 4/Awesome AWS-11H.mtf	2036
+Rec Guides ilClan/Vol 4/Blackjack BJ-5.mtf	1165
+Rec Guides ilClan/Vol 4/Fenris (Ice Ferret) F.mtf	1771
+Rec Guides ilClan/Vol 4/Fenris (Ice Ferret) G.mtf	1196
+Rec Guides ilClan/Vol 4/Fenris (Ice Ferret) I.mtf	1096
+Rec Guides ilClan/Vol 4/Fenris (Ice Ferret) J.mtf	1739
+Rec Guides ilClan/Vol 4/Fenris (Ice Ferret) K.mtf	1769
+Rec Guides ilClan/Vol 4/Fenris (Ice Ferret) T.mtf	1825
+Rec Guides ilClan/Vol 4/Thresher Mk II.mtf	3364
+Rec Guides ilClan/Vol 4/Trebuchet TBT-9N.mtf	1550
+Rec Guides ilClan/Vol 4/Warhammer IIC 13.mtf	2715
+Rec Guides ilClan/Vol 4/Warhammer IIC 2.mtf	2482
+Rec Guides ilClan/Vol 4/Warhammer IIC.mtf	2570
+Rec Guides ilClan/Vol 4/Wasp C.mtf	755
+Rec Guides ilClan/Vol 4/Wasp WSP-1S.mtf	423
+Rec Guides ilClan/Vol 4/Wasp WSP-3M.mtf	394
+Rec Guides ilClan/Vol 4/Wasp WSP-3W.mtf	342
+Rec Guides ilClan/Vol 4/Wasp WSP-4W.mtf	551
+Rec Guides ilClan/Vol 4/Wasp WSP-5A.mtf	517
+Rec Guides ilClan/Vol 5/Catapult CPLT-K6.mtf	1619
+Rec Guides ilClan/Vol 5/Crab CRB-54.mtf	1964
+Rec Guides ilClan/Vol 5/Hammerhead.mtf	1686
+Rec Guides ilClan/Vol 5/Hellhound (Conjurer) 7.mtf	1845
+Rec Guides ilClan/Vol 5/Hellhound (Conjurer) 8.mtf	2197
+Rec Guides ilClan/Vol 5/Hellhound (Conjurer).mtf	1813
+Rec Guides ilClan/Vol 5/King Crab KGC-011.mtf	2406
+Rec Guides ilClan/Vol 5/Mad Cat (Timber Wolf) M.mtf	2741
+Rec Guides ilClan/Vol 5/Mad Cat (Timber Wolf) N.mtf	2862
+Rec Guides ilClan/Vol 5/Mad Cat (Timber Wolf) T.mtf	2714
+Rec Guides ilClan/Vol 5/Mad Cat (Timber Wolf) W.mtf	2791
+Rec Guides ilClan/Vol 5/Marauder II MAD-10D.mtf	2741
+Rec Guides ilClan/Vol 5/Marauder II MAD-5A.mtf	2058
+Rec Guides ilClan/Vol 5/Marauder II MAD-5B.mtf	2589
+Rec Guides ilClan/Vol 5/Marauder II MAD-5C.mtf	2024
+Rec Guides ilClan/Vol 5/Marauder II MAD-6A.mtf	2367
+Rec Guides ilClan/Vol 5/Marauder II MAD-6C.mtf	2346
+Rec Guides ilClan/Vol 5/Marauder II MAD-8K.mtf	2849
+Rec Guides ilClan/Vol 6/Cataphract CTF-5L.mtf	2090
+Rec Guides ilClan/Vol 6/Cataphract CTF-5LL.mtf	2322
+Rec Guides ilClan/Vol 6/Cricket RWN-01.mtf	1169
+Rec Guides ilClan/Vol 6/Cricket RWN-02.mtf	1169
+Rec Guides ilClan/Vol 6/Linebacker F.mtf	1928
+Rec Guides ilClan/Vol 6/Linebacker G.mtf	2433
+Rec Guides ilClan/Vol 6/Linebacker I.mtf	1853
+Rec Guides ilClan/Vol 6/Linebacker T.mtf	1851
+Rec Guides ilClan/Vol 6/Marauder Bounty Hunter 3015.mtf	1919
+Rec Guides ilClan/Vol 6/Marauder Bounty Hunter 3044.mtf	2103
+Rec Guides ilClan/Vol 6/Marauder Bounty Hunter 3138.mtf	2708
+Rec Guides ilClan/Vol 6/Marauder C.mtf	1711
+Rec Guides ilClan/Vol 6/Marauder IIC 10.mtf	2877
+Rec Guides ilClan/Vol 6/Marauder IIC 8.mtf	2554
+Rec Guides ilClan/Vol 6/Marauder IIC 9.mtf	2595
+Rec Guides ilClan/Vol 6/Marauder IIC.mtf	2680
+Rec Guides ilClan/Vol 6/Marauder MAD-11D.mtf	2263
+Rec Guides ilClan/Vol 6/Marauder MAD-2T.mtf	1646
+Rec Guides ilClan/Vol 6/Marauder MAD-5D-DC.mtf	1787
+Rec Guides ilClan/Vol 6/Marauder MAD-5D.mtf	1787
+Rec Guides ilClan/Vol 6/Marauder MAD-5S.mtf	1799
+Rec Guides ilClan/Vol 6/Marauder MAD-7C.mtf	1810
+Rec Guides ilClan/Vol 6/Marauder MAD-7M.mtf	1908
+Rec Guides ilClan/Vol 6/Marauder MAD-7R.mtf	1832
+Rec Guides ilClan/Vol 6/Marauder MAD-7S.mtf	1903
+Rec Guides ilClan/Vol 6/Marauder Red Hunter.mtf	2509
+Rec Guides ilClan/Vol 6/Nightstar NSR-10D.mtf	2539
+Rec Guides ilClan/Vol 6/Raven RVN-5L.mtf	1035
+Rec Guides ilClan/Vol 7/Koshi (Mist Lynx) I.mtf	689
+Rec Guides ilClan/Vol 7/Koshi (Mist Lynx) J.mtf	1704
+Rec Guides ilClan/Vol 7/Koshi (Mist Lynx) K.mtf	976
+Rec Guides ilClan/Vol 7/Koshi (Mist Lynx) L.mtf	901
+Rec Guides ilClan/Vol 7/Koshi (Mist Lynx) M.mtf	961
+Rec Guides ilClan/Vol 7/Koshi (Mist Lynx) N.mtf	976
+Rec Guides ilClan/Vol 7/Koshi (Mist Lynx) T.mtf	971
+Rec Guides ilClan/Vol 7/Ryoken (Stormcrow) I.mtf	2319
+Rec Guides ilClan/Vol 7/Ryoken (Stormcrow) J.mtf	2300
+Rec Guides ilClan/Vol 7/Ryoken (Stormcrow) K.mtf	2001
+Rec Guides ilClan/Vol 7/Ryoken (Stormcrow) P.mtf	2213
+Rec Guides ilClan/Vol 7/Ryoken (Stormcrow) T.mtf	2280
+Rec Guides ilClan/Vol 7/Vixen (Incubus) 2.mtf	1913
+Rec Guides ilClan/Vol 7/Vixen (Incubus) 3.mtf	1324
+Rec Guides ilClan/Vol 7/Vixen (Incubus) 7.mtf	1175
+Rec Guides ilClan/Vol 7/Vixen (Incubus) 8.mtf	1557
+Rec Guides ilClan/Vol 7/Vixen (Incubus) 9.mtf	1849
+Rec Guides ilClan/Vol 7/War Crow A.mtf	3030
+Rec Guides ilClan/Vol 7/War Crow B.mtf	2787
+Rec Guides ilClan/Vol 7/War Crow C.mtf	2572
+Rec Guides ilClan/Vol 7/War Crow Prime.mtf	2835
+Rec Guides ilClan/Vol 7/Warhammer C 2.mtf	2157
+Rec Guides ilClan/Vol 7/Warhammer C 3.mtf	2772
+Rec Guides ilClan/Vol 7/Warhammer C.mtf	1728
+Rec Guides ilClan/Vol 7/Warhammer WHM-10K.mtf	2033
+Rec Guides ilClan/Vol 7/Warhammer WHM-7A.mtf	1679
+Rec Guides ilClan/Vol 7/Warhammer WHM-7K.mtf	1651
+Rec Guides ilClan/Vol 7/Warhammer WHM-7M-DC.mtf	1402
+Rec Guides ilClan/Vol 7/Warhammer WHM-7M.mtf	1487
+Rec Guides ilClan/Vol 7/Warhammer WHM-7S.mtf	1477
+Rec Guides ilClan/Vol 7/Warhammer WHM-8R.mtf	1697
+Rec Guides ilClan/Vol 7/Warhammer WHM-9K.mtf	1744
+Rec Guides ilClan/Vol 8/Baboon (Howler) 4.mtf	506
+Rec Guides ilClan/Vol 8/Baboon (Howler) 5.mtf	1363
+Rec Guides ilClan/Vol 8/Baboon (Howler) 6.mtf	550
+Rec Guides ilClan/Vol 8/Dasher (Fire Moth) G.mtf	2041
+Rec Guides ilClan/Vol 8/Dasher (Fire Moth) I.mtf	1260
+Rec Guides ilClan/Vol 8/Dasher (Fire Moth) J.mtf	1140
+Rec Guides ilClan/Vol 8/Dasher (Fire Moth) M.mtf	1200
+Rec Guides ilClan/Vol 8/Dasher (Fire Moth) P.mtf	841
+Rec Guides ilClan/Vol 8/Dasher (Fire Moth) R.mtf	1161
+Rec Guides ilClan/Vol 8/Dasher (Fire Moth) T.mtf	1305
+Rec Guides ilClan/Vol 8/Devil.mtf	1691
+Rec Guides ilClan/Vol 8/Dragonfly (Viper) J.mtf	1259
+Rec Guides ilClan/Vol 8/Dragonfly (Viper) K.mtf	1545
+Rec Guides ilClan/Vol 8/Dragonfly (Viper) L.mtf	1417
+Rec Guides ilClan/Vol 8/Dragonfly (Viper) M.mtf	2054
+Rec Guides ilClan/Vol 8/Dragonfly (Viper) R.mtf	1335
+Rec Guides ilClan/Vol 8/Dragonfly (Viper) T.mtf	1704
+Rec Guides ilClan/Vol 8/Rifleman C 3.mtf	1871
+Rec Guides ilClan/Vol 8/Rifleman C.mtf	1335
+Rec Guides ilClan/Vol 8/Rifleman RFL-5D.mtf	1395
+Rec Guides ilClan/Vol 8/Rifleman RFL-5M.mtf	1227
+Rec Guides ilClan/Vol 8/Rifleman RFL-7G.mtf	1302
+Rec Guides ilClan/Vol 8/Rifleman RFL-7N.mtf	1398
+Rec Guides ilClan/Vol 8/Rifleman RFL-7N2.mtf	1452
+Rec Guides ilClan/Vol 9/Gladiator (Executioner) F.mtf	3606
+Rec Guides ilClan/Vol 9/Gladiator (Executioner) G.mtf	3825
+Rec Guides ilClan/Vol 9/Gladiator (Executioner) I.mtf	3339
+Rec Guides ilClan/Vol 9/Gladiator (Executioner) J.mtf	2891
+Rec Guides ilClan/Vol 9/Gladiator (Executioner) L.mtf	3132
+Rec Guides ilClan/Vol 9/Gladiator (Executioner) T.mtf	2558
+Rec Guides ilClan/Vol 9/Goshawk (Vapor Eagle) 2.mtf	1989
+Rec Guides ilClan/Vol 9/Goshawk (Vapor Eagle) 5.mtf	2572
+Rec Guides ilClan/Vol 9/Goshawk (Vapor Eagle) 6.mtf	1959
+Rec Guides ilClan/Vol 9/Goshawk (Vapor Eagle) 7.mtf	2876
+Rec Guides ilClan/Vol 9/Goshawk (Vapor Eagle).mtf	2368
+Rec Guides ilClan/Vol 9/Inferno INF-NO.mtf	1597
+Rec Guides ilClan/Vol 9/Inferno INF-NOA.mtf	1846
+Rec Guides ilClan/Vol 9/Inferno INF-NOB.mtf	1658
+Rec Guides ilClan/Vol 9/Inferno INF-NOC.mtf	1698
+Rec Guides ilClan/Vol 9/Inferno INF-NOR.mtf	2360
+Rec Guides ilClan/Vol 9/Shadow Cat D.mtf	2298
+Rec Guides ilClan/Vol 9/Shadow Cat E.mtf	2084
+Rec Guides ilClan/Vol 9/Shadow Cat I.mtf	2408
+Rec Guides ilClan/Vol 9/Shadow Cat J.mtf	1802
+Rec Guides ilClan/Vol 9/Shadow Cat M.mtf	2438
+Rec Guides ilClan/Vol 9/Shadow Cat T.mtf	1852
+Rec Guides ilClan/Vol 9/Valkyrie C.mtf	936
+Rec Guides ilClan/Vol 9/Valkyrie VLK-QD.mtf	807
+Rec Guides ilClan/Vol 9/Valkyrie VLK-QD6.mtf	827
+Rec Guides ilClan/Vol 9/Valkyrie VLK-QDD.mtf	834
+Shattered Fortress/Templar III TLR2-J Arthur.mtf	2722
+Shrapnel/Gothic/Phoenix Hawk 'Hammer Hawk' PXH-1S.mtf	1080
+Shrapnel/Gothic/Phoenix Hawk PXH-1GU 'Special'.mtf	949
+Shrapnel/Gothic/Phoenix Hawk PXH-1VC.mtf	1077
+Shrapnel/Vol 10/Hel HL-1.mtf	1674
+Shrapnel/Vol 10/Hel HL-2.mtf	1549
+Shrapnel/Vol 10/Tiburon 2.mtf	1691
+Shrapnel/Vol 10/Toro TR-B-12.mtf	1029
+Shrapnel/Vol 10/Toro TR-B-9.mtf	915
+Shrapnel/Vol 11/Battle Cobra BTL-C-2OG.mtf	1217
+Shrapnel/Vol 11/Battle Cobra BTL-C-2OH.mtf	1305
+Shrapnel/Vol 11/Battle Cobra BTL-C-2OI.mtf	1019
+Shrapnel/Vol 11/Battle Cobra BTL-C-2OJ.mtf	1272
+Shrapnel/Vol 12/Jinggau JN-G7Lr.mtf	2703
+Shrapnel/Vol 12/Jinggau JN-G8Ar.mtf	2730
+Shrapnel/Vol 12/Jinggau JN-G8B.mtf	2747
+Shrapnel/Vol 12/Jinggau JN-G9CCr.mtf	2058
+Shrapnel/Vol 13/Albatross ALB-4Ur.mtf	1893
+Shrapnel/Vol 13/Albatross ALB-5U.mtf	1885
+Shrapnel/Vol 13/Albatross ALB-5W.mtf	2370
+Shrapnel/Vol 13/Albatross ALB-6U.mtf	2162
+Shrapnel/Vol 13/Albatross C 'Sooty Albatross'.mtf	2790
+Shrapnel/Vol 14/Shadow Hawk SHD-3H.mtf	1043
+Shrapnel/Vol 14/Shadow Hawk SHD-3H2.mtf	1112
+Shrapnel/Vol 15/Gladiator GLD-7R.mtf	1890
+Shrapnel/Vol 15/Gladiator GLD-7R_SF.mtf	1748
+Shrapnel/Vol 15/Gladiator GLD-9SF.mtf	2119
+Shrapnel/Vol 15/Mauler MAL-1KX.mtf	1678
+Shrapnel/Vol 15/Mauler MAL-1PT5.mtf	1400
+Shrapnel/Vol 15/Mauler MAL-1PT6.mtf	1270
+Shrapnel/Vol 15/Mauler MAL-1X-AFFC.mtf	1214
+Shrapnel/Vol 15/Mauler MAL-1Y.mtf	1448
+Shrapnel/Vol 15/Mauler MAL-2D.mtf	1737
+Shrapnel/Vol 15/Mauler MAL-3K.mtf	1622
+Shrapnel/Vol 16/Commando COM-7A.mtf	625
+Shrapnel/Vol 16/Commando COM-7J.mtf	599
+Shrapnel/Vol 16/Commando COM-7T 'Blazing Inferno II'.mtf	1018
+Shrapnel/Vol 16/Commando COM-7W.mtf	608
+Shrapnel/Vol 16/Commando COM-7X.mtf	623
+Shrapnel/Vol 16/Commando COM-7Y.mtf	684
+Shrapnel/Vol 16/Commando COM-7Y2 'Blazing Inferno'.mtf	728
+Shrapnel/Vol 16/Commando COM-7Z.mtf	661
+Shrapnel/Vol 16/Commando COM-7Z2.mtf	543
+Shrapnel/Vol 16/Jackalope JLP-BD-L 'Harvey'.mtf	1028
+Shrapnel/Vol 16/Jackalope JLP-IC.mtf	1337
+Shrapnel/Vol 16/Jackalope JLP-KA.mtf	1488
+Shrapnel/Vol 16/Jackalope JLP-KB.mtf	1259
+Shrapnel/Vol 16/Jackalope JLP-NH.mtf	1216
+Shrapnel/Vol 17/Wing Wraith TR4-X.mtf	1311
+Shrapnel/Vol 17/Wing Wraith TR4.mtf	1548
+Shrapnel/Vol 17/Wing Wraith TR6.mtf	1581
+Shrapnel/Vol 17/Wing Wraith TR7.mtf	2113
+Shrapnel/Vol 18/Thunder Hawk TDK-7XEM.mtf	2539
+Shrapnel/Vol 18/Thunder Hawk TDK-7ZEM.mtf	2379
+Shrapnel/Vol 2/Centurion CN10-J.mtf	1257
+Shrapnel/Vol 2/Centurion CN10-W.mtf	1112
+Shrapnel/Vol 20/Orion (Kerensky).mtf	1821
+Shrapnel/Vol 20/Orion ON1-Kb.mtf	1617
+Shrapnel/Vol 21/Blackjack BJ-2A.mtf	1153
+Shrapnel/Vol 21/Blackjack BJ-2t.mtf	1145
+Shrapnel/Vol 21/Blackjack C.mtf	1639
+Shrapnel/Vol 22/Thanatos TNS-6S2.mtf	1975
+Shrapnel/Vol 22/Thanatos TNS-6T.mtf	1830
+Shrapnel/Vol 22/Thanatos TNS-7D.mtf	2571
+Shrapnel/Vol 22/Thanatos TNS-7D2.mtf	2608
+Shrapnel/Vol 22/Tian-Zong TNZ-N4.mtf	2038
+Shrapnel/Vol 22/Tian-Zong TNZ-N5.mtf	2545
+Shrapnel/Vol 22/Tian-Zong TNZ-N6.mtf	1888
+Shrapnel/Vol 23/Hermes II HER-2R.mtf	1100
+Shrapnel/Vol 23/Hermes III HER-4K.mtf	976
+Shrapnel/Vol 23/Hermes III HER-6K.mtf	1265
+Shrapnel/Vol 23/Hermes III HER-7K.mtf	1937
+Shrapnel/Vol 3/Thunder Stallion 4.mtf	2607
+Shrapnel/Vol 4/SuburbanMech UM-R100.mtf	915
+Shrapnel/Vol 4/SuburbanMech UM-R90.mtf	773
+Shrapnel/Vol 5/Crusader CRD-10S.mtf	2264
+Shrapnel/Vol 5/Crusader CRD-9S.mtf	1642
+Shrapnel/Vol 6/Victor C.mtf	1925
+Shrapnel/Vol 7/Hatchetman HCT-5DT.mtf	1788
+Shrapnel/Vol 8/Gladiator-B (Executioner-B) A.mtf	2194
+Shrapnel/Vol 8/Gladiator-B (Executioner-B) B.mtf	3157
+Shrapnel/Vol 8/Gladiator-B (Executioner-B) C.mtf	2979
+Shrapnel/Vol 8/Gladiator-B (Executioner-B) Prime.mtf	2721
+Shrapnel/Vol 9/Longshot LNG-2 Reskov.mtf	1787
+Shrapnel/Vol 9/Rattlesnake II RSN-1.mtf	1962
+Shrapnel/Vol 9/Rattlesnake II RSN-2.mtf	1480
+Shrapnel/Vol 9/Rattlesnake JR7-31.mtf	1398
+Shrapnel/Vol 9/Rattlesnake JR7-31P.mtf	1323
+Shrapnel/Vol 9/Rattlesnake JR7-31R Gideon.mtf	1959
+Shrapnel/vol 19/Dragon Fire DGR-4 6N.mtf	1931
+Shrapnel/vol 19/Dragon Fire DGR-5F.mtf	1987
+Shrapnel/vol 19/Dragon Fire DGR-7K.mtf	2495
+Shrapnel/vol 19/Dragon Fire DGR-9D.mtf	2393
+Shrapnel/vol 19/Grotesque (Mongrel) Prime.mtf	2728
+Shrapnel/vol 19/Sidewinder Prime.mtf	3073
+Shrapnel/vol 19/Starhawk Prime.mtf	1731
+Spotlight On/Hellion Keshik/Awesome C.mtf	2737
+Spotlight On/Holts Hilltoppers/Nightstar NSR-9J (Holt).mtf	3433
+Spotlight On/Jade Warriors/Titan TI-1Ak _Highshooter_.mtf	2042
+Spotlight On/Unending Faith/Avatar AV1-OBLO.mtf	1550
+Spotlight On/Unending Faith/Doloire DLR-OBLO.mtf	2441
+Spotlight On/Unending Faith/Mad Cat (Timber Wolf) BLO.mtf	2611
+Spotlight On/Unending Faith/Templar TLR1-OBLO.mtf	2062
+Spotlight On/Unending Faith/Uller (Kit Fox) BLO.mtf	988
+Spotlight On/Unending Faith/Vulture Mk III (Mad Dog Mk III) BLO.mtf	2397
+Starterbook Sword and Dragon/Black Knight BL-6-KNT Ian.mtf	1861
+Starterbook Sword and Dragon/Cataphract CTF-2X George.mtf	1311
+Starterbook Sword and Dragon/Enforcer ENF-4R Daniel.mtf	1357
+Starterbook Sword and Dragon/Grand Dragon DRG-5K Emory.mtf	1394
+Starterbook Sword and Dragon/Hatamoto-Chi HTM-27T Daniel.mtf	1520
+Starterbook Sword and Dragon/Hatchetman HCT-3F Austin.mtf	962
+Starterbook Sword and Dragon/Hunchback HBK-4G Shakir.mtf	952
+Starterpack Sword and Dragon/Black Knight BL-10-KNT Ross.mtf	2103
+Starterpack Sword and Dragon/Cataphract CTF-3X Sara.mtf	1734
+Starterpack Sword and Dragon/Enforcer ENF-5D Daniel.mtf	1738
+Starterpack Sword and Dragon/Grand Dragon DRG-7K Mark.mtf	1817
+Starterpack Sword and Dragon/Hatamoto-Chi HTM-27T Daniel II.mtf	1661
+Starterpack Sword and Dragon/Hatchetman HCT-5S Austin.mtf	1174
+Starterpack Sword and Dragon/Hunchback HBK-4G Hohiro.mtf	1126
+Starterpack Sword and Dragon/Jenner JR7-K Grace II.mtf	787
+TRO Irregulars/Burrower DTM-1 MiningMech.mtf	492
+TRO Irregulars/Burrower DTM-1M MiningMech MOD.mtf	556
+TRO Irregulars/Buster BC XXI-M HaulerMech MOD.mtf	489
+TRO Irregulars/Carbine CON-9M Karenna.mtf	280
+TRO Irregulars/Carbine CON-9M-J ConstructionMech MOD.mtf	271
+TRO Irregulars/Carbine CON-9M-JB ConstructionMech MOD.mtf	302
+TRO Irregulars/Centurion CN9-H2 MilitiaMech.mtf	799
+TRO Irregulars/Centurion CN9-H2H MilitiaMech.mtf	919
+TRO Irregulars/Centurion CN9-H3 MilitiaMech.mtf	972
+TRO Irregulars/Crosscut ED-X4M-A LoggerMech MOD.mtf	279
+TRO Irregulars/Crosscut ED-X4M-E LoggerMech MOD.mtf	480
+TRO Irregulars/Crosscut ED-X4M-L LoggerMech MOD.mtf	230
+TRO Irregulars/Deep Lord RCL-Z1M-B MilitiaMech.mtf	773
+TRO Irregulars/Demeter WLD-1 AgroMech.mtf	321
+TRO Irregulars/Demeter WLD-1-M AgroMech MOD.mtf	332
+TRO Irregulars/DemolitionMech WI-DMM MOD.mtf	444
+TRO Irregulars/Dig Lord RCL-4M MiningMech MOD.mtf	706
+TRO Irregulars/Dig Lord RCL-4M-B MiningMech MOD.mtf	699
+TRO Irregulars/Exo HMX-1 Haulermech.mtf	96
+TRO Irregulars/Exo HMX-2 Haulermech.mtf	98
+TRO Irregulars/Exo HMX-3 Haulermech.mtf	107
+TRO Irregulars/Exo HMX-3M Haulermech.mtf	108
+TRO Irregulars/Firebee WI-WAM MilitiaMech.mtf	456
+TRO Irregulars/Ground Pounder DVM-2 MiningMech.mtf	465
+TRO Irregulars/Ground Pounder DVM-2M MiningMech MOD.mtf	548
+TRO Irregulars/Guard GS-107X SecurityMech.mtf	367
+TRO Irregulars/Guard GS-54 SecurityMech.mtf	156
+TRO Irregulars/Gulon C SolahmaMech.mtf	533
+TRO Irregulars/Gulon GLN-1A MiningMech.mtf	352
+TRO Irregulars/Gulon GLN-1B SecurityMech.mtf	410
+TRO Irregulars/Harvester HVR-199 AgroMech.mtf	490
+TRO Irregulars/Harvester HVR-199M AgroMech MOD.mtf	406
+TRO Irregulars/Harvester HVR-199M-A AgroMech MOD.mtf	605
+TRO Irregulars/Harvester HVR-199M-B AgroMech MOD.mtf	460
+TRO Irregulars/Harvester HVR-199M-M AgroMech MOD.mtf	438
+TRO Irregulars/Heavy Forester HFL-1 LoggerMech.mtf	433
+TRO Irregulars/Heavy Forester HFL-1M LoggerMech MOD.mtf	465
+TRO Irregulars/Heavy Lifter HCL-1M CargoMech MOD.mtf	915
+TRO Irregulars/Heavy Lifter HCL-1MM MilitiaMech.mtf	991
+TRO Irregulars/Inquisitor ITW-80 SecurityMech.mtf	613
+TRO Irregulars/Inquisitor ITW-85 SecurityMech.mtf	664
+TRO Irregulars/MuckRaker GMMM-2 MiningMech.mtf	709
+TRO Irregulars/MuckRaker GMMM-2M MiningMech MOD.mtf	1001
+TRO Irregulars/MuckRaker GMMM-2M-B MiningMech MOD.mtf	815
+TRO Irregulars/Opossum OPO-2 SalvageMech.mtf	240
+TRO Irregulars/Opossum OPO-3 SalvageMech MOD.mtf	239
+TRO Irregulars/Pacifier CCU-36 SecurityMech.mtf	299
+TRO Irregulars/Pacifier CCU-40 SecurityMech.mtf	356
+TRO Irregulars/Pompier GM-4P PoliceMech.mtf	148
+TRO Irregulars/St. Florian FLN-366 FireMech.mtf	833
+TRO Irregulars/St. Florian FLN-366-M FireMech MOD.mtf	1274
+TRO Irregulars/StrongArm SC CV ConstructionMech.mtf	315
+TRO Irregulars/StrongArm SC CV-M ConstructionMech MOD.mtf	315
+TRO Irregulars/StrongArm SC CVI ConstructionMech.mtf	315
+TRO SW/Flea FLE-16.mtf	506
+TRO Vehicle Annex/Buster BC XV HaulerMech.mtf	222
+TRO Vehicle Annex/Buster BC XV-M HaulerMech MOD.mtf	443
+TRO Vehicle Annex/Buster BC XV-M-B HaulerMech MOD.mtf	475
+TRO Vehicle Annex/Buster BC XV-M-C HaulerMech MOD.mtf	726
+TRO Vehicle Annex/Buster BC XV-M-W HaulerMech MOD.mtf	713
+TRO Vehicle Annex/Buster BC XXI HaulerMech.mtf	228
+TRO Vehicle Annex/Carbine CON-7 ConstructionMech.mtf	198
+TRO Vehicle Annex/Carbine CON-7M ConstructionMech MOD.mtf	306
+TRO Vehicle Annex/Carbine CON-8 ConstructionMech.mtf	185
+TRO Vehicle Annex/Carbine CON-8H HaulerMech.mtf	177
+TRO Vehicle Annex/Carbine CON-9 ConstructionMech.mtf	246
+TRO Vehicle Annex/Carbine CON-9M ConstructionMech MOD.mtf	289
+TRO Vehicle Annex/Carbine CON-9M-B ConstructionMech MOD.mtf	293
+TRO Vehicle Annex/CattleMaster CTL-3R 'Herder' IndustrialMech.mtf	228
+TRO Vehicle Annex/CattleMaster CTL-3R2 'Hunter' IndustrialMech.mtf	245
+TRO Vehicle Annex/CattleMaster CTL-3R3 SecurityMech.mtf	358
+TRO Vehicle Annex/Chaffee BT1 Servicemech.mtf	212
+TRO Vehicle Annex/Copper CPK-19 SecurityMech.mtf	310
+TRO Vehicle Annex/Copper CPK-65 SecurityMech.mtf	325
+TRO Vehicle Annex/Crosscut ED-X1 LoggerMech.mtf	251
+TRO Vehicle Annex/Crosscut ED-X2M LoggerMech MOD.mtf	244
+TRO Vehicle Annex/Crosscut ED-X4 LoggerMech.mtf	223
+TRO Vehicle Annex/Crosscut ED-X4B DemolitionMech.mtf	224
+TRO Vehicle Annex/Crosscut ED-X4D DemolitionMech.mtf	225
+TRO Vehicle Annex/Crosscut ED-X4M LoggerMech MOD.mtf	430
+TRO Vehicle Annex/Crosscut ED-X4X LoggerMech.mtf	230
+TRO Vehicle Annex/Crosscut ED-X5M LoggerMech MOD.mtf	317
+TRO Vehicle Annex/Crosscut ED-X5M-B DemolitionMech MOD.mtf	460
+TRO Vehicle Annex/Dig King RCL-1 MiningMech MOD.mtf	460
+TRO Vehicle Annex/Dig King RCL-1 MiningMech.mtf	409
+TRO Vehicle Annex/Dig Lord RCL-4 MiningMech.mtf	599
+TRO Vehicle Annex/ForestryMech ED-X3.mtf	202
+TRO Vehicle Annex/Grommet D90 MilitiaMech.mtf	839
+TRO Vehicle Annex/Harvester Ant KIC-3 Agromech.mtf	161
+TRO Vehicle Annex/Harvester Ant KIC-3M AgroMech MOD.mtf	127
+TRO Vehicle Annex/Harvester Ant KIC-3M-B AgroMech MOD.mtf	214
+TRO Vehicle Annex/Harvester HVR-99 Agromech .mtf	339
+TRO Vehicle Annex/Heavy Lifter HCL-1 CargoMech.mtf	667
+TRO Vehicle Annex/Jabberwocky MilitiaMech JAW-67.mtf	907
+TRO Vehicle Annex/Lumberjack LM5M.mtf	1360
+TRO Vehicle Annex/Marco MR-6.mtf	295
+TRO Vehicle Annex/Marco MR-7.mtf	295
+TRO Vehicle Annex/Peacekeeper PK-6 SecurityMech.mtf	422
+TRO Vehicle Annex/Peacemaker PM6 PoliceMech.mtf	426
+TRO Vehicle Annex/Pompier GM-3A Firemech.mtf	106
+TRO Vehicle Annex/Pompier GM-3CD FireMech.mtf	118
+TRO Vehicle Annex/Pompier GM-3HT FireMech.mtf	106
+TRO Vehicle Annex/Powerman SC XI-M LoaderMech MOD.mtf	294
+TRO Vehicle Annex/Powerman SC XI-M-B LoaderMech MOD.mtf	277
+TRO Vehicle Annex/Powerman SC XV HaulerMech.mtf	198
+TRO Vehicle Annex/Powerman SC XVI HaulerMech.mtf	198
+TRO Vehicle Annex/ScavengerMech SC-V SalvageMech.mtf	582
+TRO Vehicle Annex/ScavengerMech SC-V-M MilitiaMech.mtf	672
+TRO Vehicle Annex/Shugosha LAW-QM1 Q-Mech.mtf	160
+TRO Vehicle Annex/Shugosha LAW-QM2 Q-Mech.mtf	156
+TRO Vehicle Annex/Shugosha LAW-QM3 Q-Mech.mtf	188
+TRO Vehicle Annex/Shugosha PTN-LAW LoaderMech.mtf	100
+TRO Vehicle Annex/Uni ATAE-70 CargoMech.mtf	533
+TRO Vehicle Annex/Uni ATAE-70 MilitiaMech.mtf	736
+TRO Vehicle Annex/Uni ATAE-70T CargoMech.mtf	542
+TRO Vehicle Annex/Vampyr SC-V-1 SalvageMech.mtf	540
+ToS/ToS Kaumberg/Commando COM-1AK.mtf	533
+ToS/ToS Kaumberg/Copper CPK-65KM SecurityMech.mtf	339
+ToS/ToS Kaumberg/Crosscut ED-X4K LoggerMech.mtf	367
+ToS/ToS Kaumberg/Phoenix PX-1KC.mtf	766
+ToS/ToS Kaumberg/Phoenix PX-1KL.mtf	930
+ToS/ToS Kaumberg/Phoenix PX-1KR.mtf	760
+ToS/ToS Kaumberg/Phoenix PX-1KT.mtf	857
+ToS/ToS Valencia/Reconquista.mtf	927
+Total Chaos/Atlas II AS7-D-H (Devlin).mtf	2491
+Total Chaos/Awesome AWS-10KM (Cameron).mtf	2466
+Tukayyid/Archer ARC-5CS.mtf	1609
+Tukayyid/Black Knight BL-9-KNT.mtf	1678
+Tukayyid/Gladiator (Executioner) TC.mtf	3363
+Tukayyid/Loki (Hellbringer) M.mtf	2200
+Tukayyid/Mad Cat (Timber Wolf) TC.mtf	2903
+Tukayyid/Marauder MAD-5CS.mtf	1648
+Tukayyid/Phoenix Hawk PXH-1bC.mtf	1174
+Tukayyid/Puma (Adder) TC.mtf	1247
+Tukayyid/Rifleman RFL-5CS.mtf	1303
+Tukayyid/Ryoken (Stormcrow) Attwater.mtf	1482
+Tukayyid/Ryoken (Stormcrow) TC.mtf	2373
+Tukayyid/Shadow Cat TC.mtf	1378
+Tukayyid/Shadow Hawk SHD-2Ht.mtf	1453
+Tukayyid/Vulture (Mad Dog) S.mtf	2676
+Tukayyid/Warhammer WHM-7CS.mtf	1751
+Turning Points/HTP Death to Mercenaries/Annihilator ANH-1E.mtf	1625
+Turning Points/HTP Death to Mercenaries/Victor Li.mtf	1625
+Turning Points/HTP Galtor/Atlas AS7-WGS Samsonov.mtf	1884
+Turning Points/HTP Galtor/Dragon DRG-2Y Yoriyoshi.mtf	1257
+Turning Points/HTP Galtor/Marauder MAD-SD Douglass.mtf	1459
+Turning Points/HTP Galtor/Thunderbolt TDR-5S-T Tallman.mtf	1447
+Turning Points/HTP Glengary/Zeus (Leonidas).mtf	1878
+Turning Points/HTP Luzerne/Cauldron-Born (Ebon Jaguar) (Samantha).mtf	2372
+Turning Points/HTP Luzerne/Grasshopper (Reynolds).mtf	2344
+Turning Points/HTP Misery/Atlas AS7-D (Danielle).mtf	1976
+Turning Points/HTP Misery/Ostroc OSR-2C Michi.mtf	1321
+Turning Points/HTP Misery/Stalker STK-3F Jagawen.mtf	1570
+Turning Points/HTP New Dallas/Rampage RMP-4G (Benboudaoud).mtf	1751
+Turning Points/HTP New Dallas/Victor VTR-9B (Kataga).mtf	1991
+Turning Points/HTP Tortuga/Awesome AWS-8Q (Buck).mtf	1787
+Turning Points/HTP Tortuga/Brigand LDT-5.mtf	762
+Turning Points/HTP Tortuga/Brigand LDT-XPR1.mtf	723
+Turning Points/HTP Tortuga/Brigand LDT-XPR2.mtf	956
+Turning Points/HTP Tortuga/Brigand LDT-XPR3.mtf	752
+Turning Points/HTP Tortuga/Brigand LDT-XPR4.mtf	739
+Turning Points/HTP Tortuga/Brigand LDT-XPR5.mtf	743
+Turning Points/JTP Atreus/Albatross ALB-5W Dantalion.mtf	2296
+Turning Points/JTP Atreus/Emperor EMP-6ME Mercury Elite.mtf	2004
+Turning Points/JTP Dieron/Dasher (Fire Moth) Aletha.mtf	1388
+Turning Points/JTP Dieron/Kodiak Cale.mtf	2535
+Turning Points/JTP Hespersus/Galahad GLH-3D Laodices.mtf	1549
+Turning Points/JTP Luthien/Black Hawk-KU BHKU-O Albert.mtf	2377
+Turning Points/JTP Luthien/Thresher Edward.mtf	2104
+Turning Points/JTP New Avalon/Griffin GRF-1E2 Sparky 2.0.mtf	1862
+Turning Points/JTP New Avalon/Grim Reaper GRM-R-PR62A.mtf	1542
+Turning Points/JTP Sian/Cataphract CTF-5MOC Naomi.mtf	2028
+Turning Points/JTP Sian/Jinggau JN-G8BX Rush.mtf	1337
+Turning Points/JTP Sian/Seraph C-SRP-O Ravana.mtf	1957
+Turning Points/JTP Tharkad/Dragon Fire DGR-6FC2 (Gregory).mtf	2230
+Turning Points/JTP Tharkad/Fafnir FNR-4A Peter.mtf	2458
+Turning Points/OTP Capellan Crusades/Centurion CN9-YLW3 'Yen Lo Wang'.mtf	1815
+Turning Points/OTP Capellan Crusades/Orion IIC 'Burton'.mtf	2746
+Turning Points/OTP Capellan Crusades/Tian-Zong TNZ-N3 'Jasminda'.mtf	1826
+Turning Points/OTP Falcon Incursion/BattleMaster BLR-3M (Rogers).mtf	1819
+Turning Points/OTP Falcon Incursion/Nightstar NSR-9J Brubaker.mtf	2838
+Turning Points/OTP Fronc Reaches/Marauder MAD-7D (Von Staskov).mtf	2150
+Turning Points/OTP Fronc Reaches/Marshal MHL-6FR.mtf	1429
+Turning Points/OTP Fronc Reaches/Phoenix Hawk PXH-3D (Jiemin).mtf	1322
+Turning Points/OTP Hanseatic Crusade/Cazador.mtf	921
+Turning Points/OTP Hanseatic Crusade/Rhino.mtf	2124
+Turning Points/OTP Hanseatic Crusade/Snow Fox (Omni) A.mtf	831
+Turning Points/OTP Hanseatic Crusade/Snow Fox (Omni) B.mtf	1249
+Turning Points/OTP Hanseatic Crusade/Snow Fox (Omni) Prime.mtf	1464
+Turning Points/OTP Hanseatic Crusade/Surtur SUR-T1.mtf	1203
+Turning Points/OTP Hanseatic Crusade/Tolva.mtf	1449
+Turning Points/OTP Red Corsair/BattleMaster BLR-1G Red Corsair.mtf	2745
+Turning Points/OTP Red Corsair/Man O' War (Gargoyle) (Conal).mtf	2580
+Turning Points/OTP WidowMaker Absorption/Atlas II AS7-D-H (Kerensky).mtf	2777
+Turning Points/OTP WidowMaker Absorption/Highlander HGN-732 (Jorgensson).mtf	2682
+Turning Points/TP Arcturus/Vanquisher VQR-7V (Pravuil).mtf	2073
+Turning Points/TP Epsilon Eridani/Dragoon AEM-05C.mtf	1893
+Turning Points/TP Epsilon Eridani/Lament LMT-2R (Manes).mtf	2297
+Turning Points/TP Foster/Night Chanter A.mtf	1604
+Turning Points/TP Foster/Night Chanter Prime.mtf	1645
+Turning Points/TP Foster/Spirit Walker A.mtf	1990
+Turning Points/TP Foster/Spirit Walker Prime.mtf	2115
+Turning Points/TP Irian/Inquisitor II ITW-200.mtf	1186
+Turning Points/TP Irian/Marauder II MAD-6S.mtf	2546
+Turning Points/TP Vega 3039/Jenner JR7-F (Smith).mtf	1070
+Turning Points/TP Vega 3039/Vulcan VL-2T (Timms).mtf	603
+Turning Points/TP Vega 3039/Warhammer WHM-6K (Olesko).mtf	1338
+Urbanfest/UrbanKnight UM-DKX.mtf	974
+Urbanfest/Urbanmaster UM-S60.mtf	1915
+Videogame (Apocryphal)/Bull Shark BSK-M3.mtf	1737
+Videogame (Apocryphal)/Bull Shark BSK-MAZ.mtf	2136
+Videogame (Apocryphal)/Corsair COR-5R.mtf	1704
+Videogame (Apocryphal)/Corsair COR-5T.mtf	1454
+Videogame (Apocryphal)/Corsair COR-6R.mtf	1636
+Videogame (Apocryphal)/Corsair COR-7A.mtf	1805
+Videogame (Apocryphal)/Corsair COR-7R.mtf	1781
+Videogame (Apocryphal)/Corsair COR-BR Broadside.mtf	2124
+Videogame (Apocryphal)/Corsair COR-RA Ravager.mtf	2122
+Videogame (Apocryphal)/Roughneck RGH-1A.mtf	1154
+Videogame (Apocryphal)/Roughneck RGH-1B.mtf	1179
+Videogame (Apocryphal)/Roughneck RGH-1C.mtf	1285
+Videogame (Apocryphal)/Roughneck RGH-2A.mtf	1054
+Videogame (Apocryphal)/Roughneck RGH-3A.mtf	1509
+Videogame (Apocryphal)/Roughneck RGH-BLT Bolt.mtf	1377
+Videogame (Apocryphal)/Roughneck RGH-PH Powerhouse.mtf	1250
+Videogame (Apocryphal)/Roughneck RGH-R Reaver.mtf	1426
+Videogame (Apocryphal)/Sun Spider A.mtf	1931
+Videogame (Apocryphal)/Sun Spider Ambush.mtf	2199
+Videogame (Apocryphal)/Sun Spider B.mtf	2497
+Videogame (Apocryphal)/Sun Spider C.mtf	2541
+Videogame (Apocryphal)/Sun Spider D.mtf	2096
+Videogame (Apocryphal)/Sun Spider Manul.mtf	2789
+Videogame (Apocryphal)/Sun Spider Prime.mtf	2257
+Videogame (Apocryphal)/Sun Spider Vanguard.mtf	2044
+WWEs/Talon TLN-5VNO.mtf	977
+WoR Supplemental/Cephalus A.mtf	809
+WoR Supplemental/Cephalus B.mtf	785
+WoR Supplemental/Cephalus C.mtf	1209
+WoR Supplemental/Cephalus D.mtf	1450
+WoR Supplemental/Cephalus E.mtf	1284
+WoR Supplemental/Cephalus Prime.mtf	1038
+WoR Supplemental/Cephalus U.mtf	878
+WoR Supplemental/Dragonfly (Viper) Z.mtf	1692
+WoR Supplemental/Koshi (Mist Lynx) Z.mtf	970
+WoR Supplemental/Mad Cat (Timber Wolf) Z.mtf	3003
+WoR Supplemental/Osteon (Jaguar).mtf	2528
+WoR Supplemental/Osteon A.mtf	2291
+WoR Supplemental/Osteon B.mtf	2625
+WoR Supplemental/Osteon C.mtf	3139
+WoR Supplemental/Osteon D.mtf	2587
+WoR Supplemental/Osteon E.mtf	2762
+WoR Supplemental/Osteon F.mtf	2716
+WoR Supplemental/Osteon G.mtf	2388
+WoR Supplemental/Osteon Prime.mtf	3073
+WoR Supplemental/Osteon U.mtf	2647
+WoR Supplemental/Pariah (Septicemia) A-Z.mtf	2388
+WoR Supplemental/Pariah (Septicemia) B-Z.mtf	2349
+WoR Supplemental/Pariah (Septicemia) C-Z.mtf	2264
+WoR Supplemental/Pariah (Septicemia) D-Z.mtf	2704
+WoR Supplemental/Pariah (Septicemia) E.mtf	2950
+WoR Supplemental/Pariah (Septicemia) F.mtf	1586
+WoR Supplemental/Pariah (Septicemia) US.mtf	2308
+WoR Supplemental/Pariah (Septicemia) UW.mtf	1913
+WoR Supplemental/Pariah (Septicemia) Z.mtf	2072
+WoR Supplemental/Ryoken (Stormcrow) Z.mtf	2855
+WoR Supplemental/Savage Coyote Z.mtf	3080
+WoR Supplemental/Thor (Summoner) Z.mtf	2783
+WoR Supplemental/Turkina Z.mtf	3935
+Wolf and Blake/Archangel C-ANG-O Berith.mtf	2060
+Wolf and Blake/BattleMaster BLR-4S Calvin II.mtf	2274
+Wolf and Blake/BattleMaster BLR-4S Calvin.mtf	2029
+Wolf and Blake/Deva C-DVA-O Achilleus.mtf	1595
+Wolf and Blake/Gallowglas GAL-4GLSA.mtf	2017
+Wolf and Blake/Griffin GRF-6S Francine II.mtf	2249
+Wolf and Blake/Griffin GRF-6S Francine.mtf	1778
+Wolf and Blake/Grigori C-GRG-O Rufus.mtf	1422
+Wolf and Blake/Lightray LGH-6W.mtf	1554
+Wolf and Blake/Malak C-MK-O Mi.mtf	758
+Wolf and Blake/Preta C-PRT-O Kendali.mtf	999
+Wolf and Blake/Seraph C-SRP-O Havalah.mtf	1927
+Wolf and Blake/Uziel UZL-2S Jacob II.mtf	1271
+Wolf and Blake/Uziel UZL-2S Jacob.mtf	1513
+Wolf and Blake/Wolfhound WLF-4WA.mtf	1050
+Wolf and Blake/Zeus X ZEU-9WD Stacy.mtf	1921
+XTRs/Boondocks/Merlin MLN-SX.mtf	1121
+XTRs/Boondocks/Spindrift Aquatic SecurityMech SDT-1.mtf	441
+XTRs/Boondocks/Whitworth WTH-5S.mtf	1230
+XTRs/Boondoggles/Liberator LIB-4T.mtf	880
+XTRs/Boondoggles/Ostscout IIC.mtf	520
+XTRs/Caveat Emptor/Aquagladius AQS-5 MAM.mtf	1946
+XTRs/Caveat Emptor/Carbine CON-9M-D ConstructionMech MOD.mtf	257
+XTRs/Caveat Emptor/Crosscut IIC SolahmaMech.mtf	571
+XTRs/Caveat Emptor/Daedalus DAD-DX.mtf	1606
+XTRs/Caveat Emptor/Gauss-Buster.mtf	675
+XTRs/Caveat Emptor/Omni-Marauder A.mtf	2127
+XTRs/Caveat Emptor/Omni-Marauder Prime.mtf	2836
+XTRs/Caveat Emptor/Phoenix Hawk PXH-99.mtf	1444
+XTRs/Caveat Emptor/Porcupine PRC-3N.mtf	511
+XTRs/Caveat Emptor/Scourge SCG-WX1.mtf	2480
+XTRs/Caveat Emptor/Uni ATAE-70 ArtilleryMech.mtf	865
+XTRs/Caveat Emptor/Valkyrie VLK-QD5.mtf	690
+XTRs/Caveat Emptor/Volkh VKH-68.mtf	1679
+XTRs/Caveat Emptor/Wasp WSP-3X.mtf	521
+XTRs/Clans/Cougar-XR.mtf	1783
+XTRs/Clans/Ha Otoko-HR.mtf	1553
+XTRs/Clans/Kraken-XR.mtf	2894
+XTRs/Clans/Ursus PR.mtf	1194
+XTRs/ComStar/Beowulf BEO-X-7a.mtf	1473
+XTRs/ComStar/Celerity CLR-02-X-D.mtf	157
+XTRs/ComStar/Exterminator EXT-6CS.mtf	1592
+XTRs/ComStar/Grim Reaper GRM-R (Einar).mtf	2121
+XTRs/ComStar/Highlander HGN-641-X-2.mtf	2185
+XTRs/ComStar/Tessen TSN-X-4.mtf	1341
+XTRs/Corporations/Arbiter ARB-001.mtf	489
+XTRs/Corporations/Charger CGR-1X1.mtf	2010
+XTRs/Corporations/Firestarter FS9-X81.mtf	1065
+XTRs/Corporations/Hunchback HBK-7X-4.mtf	1208
+XTRs/Corporations/Quickdraw QKD-8X.mtf	1612
+XTRs/Davion/Devastator DVS-X10 MUSE EARTH.mtf	3250
+XTRs/Davion/Enforcer III ENF-7X MUSE COMPACT.mtf	1670
+XTRs/Davion/Legionnaire LGN-2X1 MUSE FIRE.mtf	2032
+XTRs/Davion/Pendragon PDG-1X MUSE RED.mtf	2230
+XTRs/Davion/Rifleman RFL-X3 MUSE WIND.mtf	2012
+XTRs/Gladiators/Crosscut ED-XX Ichabod.mtf	442
+XTRs/Gladiators/Juggernaut JG-R9TX1 Leapin' Lil.mtf	1951
+XTRs/Gladiators/Spatha SP2-X Warlord.mtf	1973
+XTRs/Gladiators/Valiant VAL-NT-JX Hot Knife.mtf	989
+XTRs/Gladiators/Warhammer WHM-X7 The Lich.mtf	1785
+XTRs/Gladiators/Wraith TR2-X Alexander.mtf	1816
+XTRs/Gunslingers/Exterminator EXT-4DX Caine.mtf	1794
+XTRs/Gunslingers/Mongoose MON-66GX Gunslinger.mtf	887
+XTRs/Gunslingers/Rifleman III RF2-A.mtf	1819
+XTRs/Gunslingers/Thug THG-11ECX (Jose).mtf	1720
+XTRs/Gunslingers/Wyvern WVE-5UX City.mtf	1273
+XTRs/Kurita/Banzai BNZ-X.mtf	2647
+XTRs/Kurita/Hatamoto-Kaeru HTM-35X.mtf	1906
+XTRs/Kurita/Jenner JR10-X.mtf	1269
+XTRs/Kurita/No-Dachi NDA-3X.mtf	2609
+XTRs/Kurita/Wolf Trap (Tora) WFT-2X 'Bear Trap'.mtf	1211
+XTRs/Liao/Dola DOL-1A.mtf	911
+XTRs/Liao/Pillager PLG-4x Anvil.mtf	1927
+XTRs/Liao/Raven X RVN-3X.mtf	1021
+XTRs/Liao/Vindicator VND-3LD (Dao).mtf	1639
+XTRs/Marik/Awesome AWS-11M.mtf	1801
+XTRs/Marik/Hermes II HER-7S.mtf	1525
+XTRs/Marik/Jackal JA-KL-1579.mtf	1269
+XTRs/Marik/Orion ON3-MX.mtf	1849
+XTRs/Marik/Pandarus LFA-1X.mtf	1486
+XTRs/Marik/Sarissa MN1-D.mtf	850
+XTRs/Mercenaries/Annihilator ANH-2AX.mtf	2553
+XTRs/Mercenaries/Grasshopper GHR-7X.mtf	1587
+XTRs/Mercenaries/Hoplite HOP-4X.mtf	1880
+XTRs/Mercenaries/Wolfhound WLF-2X.mtf	1812
+XTRs/Most Wanted/Black Knight BL-X-KNT 'Red Reaper'.mtf	1858
+XTRs/Most Wanted/Fireball ALM-XF.mtf	612
+XTRs/Most Wanted/Huron Warrior HUR-WO-RX4.mtf	1728
+XTRs/Most Wanted/Mauler MAL-4X 'Todesbote'.mtf	1904
+XTRs/Most Wanted/Pompier GM-FL FireMech.mtf	88
+XTRs/Periphery/Anubis ABS-3MC.mtf	1074
+XTRs/Periphery/Atlas AS-700 Jurn.mtf	2058
+XTRs/Periphery/Dig Lord RCL-Z1 Armed MiningMech.mtf	681
+XTRs/Periphery/Trebuchet TBT-XK7.mtf	1549
+XTRs/Phantoms/Chameleon Q-'Mech CLN-7VQ.mtf	2105
+XTRs/Phantoms/Grand Titan Vengeance T-IT-N14R.mtf	2237
+XTRs/Phantoms/Warlord BLR-2XC.mtf	1844
+XTRs/Phantoms/Wight Dezgra WGT-4NC.mtf	1578
+XTRs/Pirates/Commando COM-7S2 Freyr.mtf	1105
+XTRs/Pirates/Daimyo DMO-1K2 Al-Shahab.mtf	1332
+XTRs/Pirates/Dervish DV-8D2 Lightbringer.mtf	1717
+XTRs/Pirates/Hellspawn HSN-7D2 Halperin.mtf	1431
+XTRs/Pirates/Victor VTR-9K2 St. James.mtf	2006
+XTRs/Primitives I/Commando COM-1A.mtf	475
+XTRs/Primitives I/Helepolis HEP-1H.mtf	1063
+XTRs/Primitives I/Kyudo KY2-D-01.mtf	748
+XTRs/Primitives I/Mackie MSK-5S.mtf	1401
+XTRs/Primitives I/Shadow Hawk SHD-1R.mtf	851
+XTRs/Primitives II/Banshee BNC-1E.mtf	1461
+XTRs/Primitives II/BattleAxe BKX-1X.mtf	1079
+XTRs/Primitives II/Crossbow CRS-X.mtf	969
+XTRs/Primitives II/Gladiator GLD-1R.mtf	1027
+XTRs/Primitives II/Icarus ICR-1X.mtf	700
+XTRs/Primitives II/Wasp WSP-1.mtf	314
+XTRs/Primitives III/Bellerophon BEL-1X.mtf	957
+XTRs/Primitives III/Dervish DV-1S.mtf	864
+XTRs/Primitives III/Eisenfaust EFT-2.mtf	715
+XTRs/Primitives III/Firebee FRB-1E(WAM-B).mtf	514
+XTRs/Primitives III/Longbow LGB-0C.mtf	1295
+XTRs/Primitives III/Thunderbolt TDR-1C.mtf	1237
+XTRs/Primitives IV/Emperor EMP-1A.mtf	1453
+XTRs/Primitives IV/Griffin GRF-1A.mtf	1024
+XTRs/Primitives IV/Rifleman RFL-1N.mtf	931
+XTRs/Primitives IV/Rifleman RFL-2N.mtf	1093
+XTRs/Primitives IV/Swordsman SWD-1.mtf	692
+XTRs/Primitives IV/Swordsman SWD-2.mtf	803
+XTRs/Primitives IV/Toro TR-A-1.mtf	671
+XTRs/Primitives IV/Xanthos XNT-2O.mtf	1300
+XTRs/Primitives V/Archer ARC-1A.mtf	1269
+XTRs/Primitives V/Orion ON1-C.mtf	973
+XTRs/Primitives V/Orion ON1-H.mtf	1307
+XTRs/Primitives V/Phoenix PX-1R.mtf	917
+XTRs/Primitives V/Trooper TP-1R.mtf	236
+XTRs/Primitives V/Wolverine WVR-1R.mtf	885
+XTRs/Primitives V/Wolverine WVR-3R.mtf	867
+XTRs/Primitives V/Ymir BWP-X1.mtf	1194
+XTRs/RISC/'Battle Tripod' R_H3L-2X.mtf	1972
+XTRs/RISC/'Harvester Tripod' R_H3L-3X.mtf	1995
+XTRs/RISC/'Scout Tripod' R_H3L-1X.mtf	1534
+XTRs/RISC/BattleAxe BKX-RISC.mtf	2415
+XTRs/RISC/Emperor EMP-6X.mtf	3114
+XTRs/RISC/Excalibur EXC-B2-RISC.mtf	2222
+XTRs/RISC/Helios HEL-6RISC.mtf	2340
+XTRs/RISC/Icarus II ICR-2X.mtf	2139
+XTRs/RISC/Legionnaire LGN-2K-RISC.mtf	2502
+XTRs/RISC/Mad Cat Mk IV PR RISC.mtf	2876
+XTRs/RISC/Malice MAL-Y-SH-RISC.mtf	3597
+XTRs/RISC/Templar TLR1-ORISC.mtf	2948
+XTRs/RISC/Wendigo-XP (Prime).mtf	1767
+XTRs/Republic I/Beowulf IIC PR.mtf	1992
+XTRs/Republic I/Emerald Harrier (Roadrunner) RD-1R.mtf	888
+XTRs/Republic I/Enforcer III ENF-7D.mtf	1495
+XTRs/Republic I/Hatchetman HCT-7R.mtf	1521
+XTRs/Republic I/Valiant VLT-3E.mtf	1019
+XTRs/Republic II/Awesome AWS-11R.mtf	1878
+XTRs/Republic II/Blade BLD-XR.mtf	1101
+XTRs/Republic II/Hatamoto-Ku HTM-27W2.mtf	1699
+XTRs/Republic II/Hornet HNT-181.mtf	398
+XTRs/Republic II/Hornet HNT-182.mtf	505
+XTRs/Republic II/Hunchback HBK-7S.mtf	1628
+XTRs/Republic II/Orca OC-1X.mtf	3357
+XTRs/Republic II/Penthesilea PEN-3H.mtf	1666
+XTRs/Republic II/Prefect PRF-1C.mtf	1857
+XTRs/Republic II/UrbanMech UM-R93.mtf	894
+XTRs/Republic III/Goshawk II RISC.mtf	1886
+XTRs/Republic III/Lament LMT-2D.mtf	2044
+XTRs/Republic III/Lich UABM-2R.mtf	1719
+XTRs/Republic III/Osprey OSP-36.mtf	1450
+XTRs/Republic III/Parash 3.mtf	1785
+XTRs/Republic III/Ryoken III-XP A.mtf	3915
+XTRs/Republic III/Ryoken III-XP B.mtf	3663
+XTRs/Republic III/Ryoken III-XP C.mtf	4519
+XTRs/Republic III/Ryoken III-XP D.mtf	2533
+XTRs/Republic III/Ryoken III-XP Prime.mtf	3063
+XTRs/Republic III/Triskelion TRK-4V.mtf	2702
+XTRs/RetroTech/Centurion CN9-H.mtf	848
+XTRs/RetroTech/HawkWolf HWK-3F.mtf	1349
+XTRs/RetroTech/Pathfinder PFF-2.mtf	452
+XTRs/RetroTech/Pathfinder PFF-2T.mtf	359
+XTRs/RetroTech/Patron PTN-2 MilitiaMech.mtf	143
+XTRs/RetroTech/Rook-X NH-1B.mtf	1187
+XTRs/Royal Fantasy/Agrotera AGT-UA _Ariel_.mtf	1913
+XTRs/Royal Fantasy/Buccaneer BCN-6PX _Pan_.mtf	1384
+XTRs/Royal Fantasy/Calliope CAL-1MAFSW _Snow White_.mtf	1668
+XTRs/Royal Fantasy/Celerity CLR-03OMM _Rajah_.mtf	272
+XTRs/Royal Fantasy/Clint IIC 2L _Leia_.mtf	1497
+XTRs/Royal Fantasy/Ghost GST-10A _Aurora_.mtf	1371
+XTRs/Royal Fantasy/Gunsmith CH11-NGC _Cinderella_.mtf	1519
+XTRs/Royal Fantasy/Hitotsume Kozo HKZ-1FM _Mulan_.mtf	1772
+XTRs/Royal Fantasy/Hunchback HBK-LGN-Pin _Anastasia_.mtf	1289
+XTRs/Royal Fantasy/Hunchback HBK-LGN-Pin _Drizella_.mtf	1492
+XTRs/Royal Fantasy/Phoenix Hawk PXH-7KJ _Jasmine_.mtf	1513
+XTRs/Royal Fantasy/Tessen TSN-X4R _Rapunzel_.mtf	1494
+XTRs/Royal Fantasy/Trebuchet TBT-7MM _Merida_.mtf	2024
+XTRs/Royal Fantasy/Vulcan VT-5ML _Aladdin_.mtf	947
+XTRs/Royal Fantasy/Vulpes VLP-1DX _Beast_.mtf	1229
+XTRs/Royal Fantasy/Watchman WTC-4MB 'Belle'.mtf	1234
+XTRs/Royal Fantasy/Wraith TR2-P _Pocahontas_.mtf	2051
+XTRs/Steiner/Axman AXM-6X.mtf	2132
+XTRs/Steiner/Banshee BNC-11X.mtf	2030
+XTRs/Steiner/Barghest BGS-4X.mtf	1667
+XTRs/Steiner/Slagmaiden SLG-X.mtf	1602
+XTRs/Steiner/Stealth STH-5X.mtf	2155
+XTRs/Steiner/Stiletto STO-6X.mtf	1192
+XTRs/Succession Wars/Cataphract CTF-0X.mtf	1258
+XTRs/Succession Wars/Flea FLE-14.mtf	270
+XTRs/Succession Wars/Kiso K-3N-KRHQ CommandMech.mtf	940
+XTRs/Succession Wars/Marauder MAD-4X.mtf	1453
+XTRs/Succession Wars/Super Griffin GRF-2N-X.mtf	1269
+XTRs/Succession Wars/Super Wasp WSP-2A-X.mtf	635
+XTRs/Succession Wars/Zeus ZEU-6Y.mtf	1323

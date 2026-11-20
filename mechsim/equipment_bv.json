@@ -2,7 +2,7 @@
 "_meta": {
 "built_by": "tools/build_equipment_bv.py",
 "commit": "7205e4d",
-"count": 640,
+"count": 646,
 "note": "keyed by mechsim/equipment.json canonical name; an item with no record has BV 0",
 "source": "MegaMek source (BV fields of weapon classes, AmmoType, MiscType)"
 },
@@ -282,6 +282,28 @@
 "rack_size": 5.0,
 "shots": null,
 "tonnage": 8.0
+},
+"backhoe": {
+"ammo_type": null,
+"bv": 8.0,
+"bv_formula": null,
+"damage": null,
+"flags": [
+"F_CLUB",
+"F_MEK_EQUIPMENT",
+"F_PHYSICAL_WEAPON"
+],
+"heat": null,
+"heat_adjust": 0.0,
+"internal": "Backhoe",
+"kind": "misc",
+"name": "Backhoe",
+"names": [
+"Backhoe"
+],
+"rack_size": null,
+"shots": null,
+"tonnage": null
 },
 "beagleactiveprobe": {
 "ammo_type": null,
@@ -7256,6 +7278,27 @@
 "shots": null,
 "tonnage": 10.0
 },
+"heavybridgelayer": {
+"ammo_type": null,
+"bv": 20.0,
+"bv_formula": null,
+"damage": null,
+"flags": [
+"F_HEAVY_BRIDGE_LAYER",
+"F_MEK_EQUIPMENT"
+],
+"heat": null,
+"heat_adjust": 0.0,
+"internal": "Bridge Layer (Heavy)",
+"kind": "misc",
+"name": "Bridge Layer (Heavy)",
+"names": [
+"Bridge Layer (Heavy)"
+],
+"rack_size": null,
+"shots": null,
+"tonnage": null
+},
 "heavyflamer": {
 "ammo_type": "HEAVY_FLAMER",
 "bv": 15.0,
@@ -9919,6 +9962,29 @@
 "ISDroneOperatingSystem",
 "CLDroneOperatingSystem",
 "ISDroneControlConsole"
+],
+"rack_size": null,
+"shots": null,
+"tonnage": null
+},
+"iselectronicwarfareequipment": {
+"ammo_type": null,
+"bv": 39.0,
+"bv_formula": null,
+"damage": null,
+"flags": [
+"F_BAP",
+"F_ECM",
+"F_EW_EQUIPMENT",
+"F_MEK_EQUIPMENT"
+],
+"heat": null,
+"heat_adjust": 0.0,
+"internal": "Electronic Warfare (EW) Equipment",
+"kind": "misc",
+"name": "Electronic Warfare (EW) Equipment",
+"names": [
+"Electronic Warfare (EW) Equipment"
 ],
 "rack_size": null,
 "shots": null,
@@ -14013,6 +14079,28 @@
 "shots": null,
 "tonnage": null
 },
+"iswreckingball": {
+"ammo_type": null,
+"bv": 8.0,
+"bv_formula": null,
+"damage": null,
+"flags": [
+"F_CLUB",
+"F_MEK_EQUIPMENT",
+"F_PHYSICAL_WEAPON"
+],
+"heat": null,
+"heat_adjust": 0.0,
+"internal": "Wrecking Ball",
+"kind": "misc",
+"name": "Wrecking Ball",
+"names": [
+"Wrecking Ball"
+],
+"rack_size": null,
+"shots": null,
+"tonnage": null
+},
 "jumpjet": {
 "ammo_type": null,
 "bv": 0.0,
@@ -14305,6 +14393,27 @@
 "rack_size": null,
 "shots": null,
 "tonnage": 1.5
+},
+"lightbridgelayer": {
+"ammo_type": null,
+"bv": 5.0,
+"bv_formula": null,
+"damage": null,
+"flags": [
+"F_LIGHT_BRIDGE_LAYER",
+"F_MEK_EQUIPMENT"
+],
+"heat": null,
+"heat_adjust": 0.0,
+"internal": "Bridge Layer (Light)",
+"kind": "misc",
+"name": "Bridge Layer (Light)",
+"names": [
+"Bridge Layer (Light)"
+],
+"rack_size": null,
+"shots": null,
+"tonnage": null
 },
 "lightmachinegun": {
 "ammo_type": "MG_LIGHT",
@@ -14751,6 +14860,27 @@
 "rack_size": null,
 "shots": null,
 "tonnage": 0.5
+},
+"mediumbridgelayer": {
+"ammo_type": null,
+"bv": 10.0,
+"bv_formula": null,
+"damage": null,
+"flags": [
+"F_MEDIUM_BRIDGE_LAYER",
+"F_MEK_EQUIPMENT"
+],
+"heat": null,
+"heat_adjust": 0.0,
+"internal": "Bridge Layer (Medium)",
+"kind": "misc",
+"name": "Bridge Layer (Medium)",
+"names": [
+"Bridge Layer (Medium)"
+],
+"rack_size": null,
+"shots": null,
+"tonnage": null
 },
 "mediumlaser": {
 "ammo_type": "NA",

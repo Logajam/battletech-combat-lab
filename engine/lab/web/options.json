@@ -41,7 +41,29 @@
 "default": "random",
 "short": "Which edge the deployment-roll loser picks: \"random\", or \"N\"/\"E\"/\"S\"/\"W\".",
 "text": "Which edge the deployment-roll loser picks: \"random\", or \"N\"/\"E\"/\"S\"/\"W\".",
-"active": true
+"active": true,
+"choices": [
+[
+"random",
+"Random"
+],
+[
+"N",
+"North"
+],
+[
+"E",
+"East"
+],
+[
+"S",
+"South"
+],
+[
+"W",
+"West"
+]
+]
 },
 {
 "key": "STUB_BLUE_SHIELD",
@@ -52,7 +74,17 @@
 "default": "on",
 "short": "Blue Shield particle field damper switched on (p.207): \"on\" / \"off\".",
 "text": "Blue Shield particle field damper switched on (p.207): \"on\" / \"off\".",
-"active": true
+"active": true,
+"choices": [
+[
+"on",
+"On"
+],
+[
+"off",
+"Off"
+]
+]
 },
 {
 "key": "STUB_CAPACITOR_CHARGE",
@@ -63,7 +95,17 @@
 "default": "never",
 "short": "Charge a PPC capacitor instead of firing its PPC?",
 "text": "Charge a PPC capacitor instead of firing its PPC? \"never\" / \"when_idle\" (whenever the PPC isn't fired).",
-"active": true
+"active": true,
+"choices": [
+[
+"never",
+"Never"
+],
+[
+"when_idle",
+"When the PPC isn't fired"
+]
+]
 },
 {
 "key": "STUB_CAPACITOR_START",
@@ -74,7 +116,17 @@
 "default": "empty",
 "short": "PPC capacitors (p.188): start the battle charged?",
 "text": "PPC capacitors (p.188): start the battle charged? \"empty\" / \"charged\".",
-"active": true
+"active": true,
+"choices": [
+[
+"empty",
+"Empty"
+],
+[
+"charged",
+"Charged"
+]
+]
 },
 {
 "key": "STUB_CHARGE_SPIKES",
@@ -96,7 +148,17 @@
 "default": "when_needed",
 "short": "Command console End Phase seat swap (p.203): \"when_needed\" (pilot out or more hurt) / \"never\".",
 "text": "Command console End Phase seat swap (p.203): \"when_needed\" (pilot out or more hurt) / \"never\".",
-"active": true
+"active": true,
+"choices": [
+[
+"when_needed",
+"When needed"
+],
+[
+"never",
+"Never"
+]
+]
 },
 {
 "key": "STUB_ESCALATING_USE",
@@ -107,7 +169,21 @@
 "default": "cycle",
 "short": "When MASC / a supercharger / a radical heat sink system is used: \"cycle\" - Daniel's 1-turn-on / 1-turn-off default (ESCALATING_CYCLE_ON_ODD_TURNS) \"always\" / \"never\"",
 "text": "When MASC / a supercharger / a radical heat sink system is used: \"cycle\"  - Daniel's 1-turn-on / 1-turn-off default (ESCALATING_CYCLE_ON_ODD_TURNS) \"always\" / \"never\"",
-"active": true
+"active": true,
+"choices": [
+[
+"cycle",
+"1 turn on, 1 turn off"
+],
+[
+"always",
+"Always"
+],
+[
+"never",
+"Never"
+]
+]
 },
 {
 "key": "STUB_FIRE_TAG",
@@ -118,7 +194,21 @@
 "default": "when_useful",
 "short": "TAG (p.200): designate the enemy before the Ranged Attack Phase?",
 "text": "TAG (p.200): designate the enemy before the Ranged Attack Phase? \"when_useful\" (the 'Mech has homing artillery rounds to use it) / \"always\" / \"never\".",
-"active": true
+"active": true,
+"choices": [
+[
+"when_useful",
+"When useful"
+],
+[
+"always",
+"Always"
+],
+[
+"never",
+"Never"
+]
+]
 },
 {
 "key": "STUB_MISSION_KILL",
@@ -140,7 +230,21 @@
 "default": "greedy",
 "short": "--- Bot decisions still being researched (Daniel, 2026-10-20: \"How a bot determines what rate to fire at, If it should use MASC, or what kind of ammo to use (Apollo goes in this catagory) is still...",
 "text": "--- Bot decisions still being researched (Daniel, 2026-10-20: \"How a bot determines what rate to fire at, If it should use MASC, or what kind of ammo to use (Apollo goes in this catagory) is still a matter of research\"). The options are real rules (INTEGRATION__fire_modes, INTEGRATION__electronics, INTEGRATION__equipment_systems); these stubs pick one. --- Which ammunition kind / guidance / Apollo mode a weapon fires (LB-X slug or cluster, ATM standard / ER / HE, MML LRM / SRM, Artemis / Narc-equipped or standard missiles, Narc homing or explosive pods): \"greedy\"   - most expected damage this shot (a homing pod: its worth); ties keep standard ammunition \"standard\" - standard ammunition / slugs whenever there is some \"random\"   - a seeded random pick",
-"active": true
+"active": true,
+"choices": [
+[
+"greedy",
+"Most expected damage"
+],
+[
+"standard",
+"Standard ammunition"
+],
+[
+"random",
+"Random"
+]
+]
 },
 {
 "key": "STUB_RAISE_SHIELD",
@@ -151,7 +255,17 @@
 "default": "never",
 "short": "Raise a shield at the start of an attack phase (p.195): \"never\" / \"always\".",
 "text": "Raise a shield at the start of an attack phase (p.195): \"never\" / \"always\".",
-"active": true
+"active": true,
+"choices": [
+[
+"never",
+"Never"
+],
+[
+"always",
+"Always"
+]
+]
 },
 {
 "key": "STUB_RATE_OF_FIRE",
@@ -162,7 +276,21 @@
 "default": "max",
 "short": "How many shots an Ultra (1-2) / Rotary (1-6) autocannon fires: \"max\" - as many as it can (ammo permitting); \"single\" - one; \"greedy\" - most expected damage this shot (a Rotary's jam risk isn't priced)",
 "text": "How many shots an Ultra (1-2) / Rotary (1-6) autocannon fires: \"max\" - as many as it can (ammo permitting); \"single\" - one; \"greedy\" - most expected damage this shot (a Rotary's jam risk isn't priced)",
-"active": true
+"active": true,
+"choices": [
+[
+"max",
+"Maximum shots"
+],
+[
+"single",
+"One shot"
+],
+[
+"greedy",
+"Most expected damage"
+]
+]
 },
 {
 "key": "STUB_TAG_AIM",
@@ -173,7 +301,21 @@
 "default": "mech",
 "short": "TAG aim: \"mech\" (the enemy - homing rounds hit it in full) / \"hex\" (the ground it stands on - an easier shot, homing rounds then do 5 AE to it) / \"easier\" (the lower target number).",
 "text": "TAG aim: \"mech\" (the enemy - homing rounds hit it in full) / \"hex\" (the ground it stands on - an easier shot, homing rounds then do 5 AE to it) / \"easier\" (the lower target number).",
-"active": true
+"active": true,
+"choices": [
+[
+"mech",
+"The 'Mech"
+],
+[
+"hex",
+"The hex"
+],
+[
+"easier",
+"The easier target number"
+]
+]
 },
 {
 "key": "STUB_UNJAM",
@@ -195,7 +337,33 @@
 "default": "BALLISTIC",
 "short": "(STUB_MOVEMENT_POLICY / STUB_NO_LOS_FALLBACK removed 2026-10-19: movement selection is real - INTEGRATION__movement_selection; knobs are in the MOVEMENT SETTINGS block below.) (STUB_WALK_PSR_AS rem...",
 "text": "(STUB_MOVEMENT_POLICY / STUB_NO_LOS_FALLBACK removed 2026-10-19: movement selection is real - INTEGRATION__movement_selection; knobs are in the MOVEMENT SETTINGS block below.) (STUB_WALK_PSR_AS removed 2026-10-19: walking never forces a PSR - Core p.111.) (STUB_POST_STANDUP removed 2026-10-19: a mech that stands moves on with its remaining MP, any facing - Core p.51, orchestrator._phase_movement.) (STUB_HIT_TABLE_SIDE removed 2026-10-19: attack direction now comes from geometry - INTEGRATION__attack_resolution.attack_side, Core p.73.) (STUB_CLUSTER_GROUPING removed 2026-10-19: cluster damage groupings come from the Core rules - INTEGRATION__weapon_rules, SRM 2 / LRM, MRM 5 / ATM 6.) Damage type used when equipment.json has damage_type null (only matters for special armor types in armor_rules): \"BALLISTIC\" / \"ENERGY\" / \"MISSILE\"",
-"active": true
+"active": true,
+"choices": [
+[
+"BALLISTIC",
+"Ballistic"
+],
+[
+"ENERGY",
+"Energy"
+],
+[
+"MISSILE",
+"Missile"
+],
+[
+"AREA_EFFECT",
+"Area effect"
+],
+[
+"PHYSICAL",
+"Physical"
+],
+[
+"REENGINEERED",
+"Reengineered"
+]
+]
 },
 {
 "key": "STUB_VIBROBLADE",
@@ -206,7 +374,17 @@
 "default": "on",
 "short": "Activate a vibroblade for its attack (p.196): \"on\" (fixed damage, heat) / \"off\".",
 "text": "Activate a vibroblade for its attack (p.196): \"on\" (fixed damage, heat) / \"off\".",
-"active": true
+"active": true,
+"choices": [
+[
+"on",
+"On"
+],
+[
+"off",
+"Off"
+]
+]
 },
 {
 "key": "AIMED_SHOT_LOCATION",
@@ -217,7 +395,45 @@
 "default": "Center Torso",
 "short": "Aimed shots at immobile targets (shut down / crew unconscious, Core p.70): the location every eligible weapon aims at, or None for no aimed shots.",
 "text": "Aimed shots at immobile targets (shut down / crew unconscious, Core p.70): the location every eligible weapon aims at, or None for no aimed shots. \"Head\" uses +3 instead of the -4 immobile modifier.",
-"active": true
+"active": true,
+"choices": [
+[
+null,
+"None (no aimed shots)"
+],
+[
+"Head",
+"Head"
+],
+[
+"Center Torso",
+"Center Torso"
+],
+[
+"Left Torso",
+"Left Torso"
+],
+[
+"Right Torso",
+"Right Torso"
+],
+[
+"Left Arm",
+"Left Arm"
+],
+[
+"Right Arm",
+"Right Arm"
+],
+[
+"Left Leg",
+"Left Leg"
+],
+[
+"Right Leg",
+"Right Leg"
+]
+]
 },
 {
 "key": "AMS_HEAT_LIMIT",
@@ -646,7 +862,13 @@
 "default": "nearest",
 "short": "Whom each bot plans its movement against (its \"foe\"; the other enemies are not modeled by the movement scoring - independent bots) and fires at.",
 "text": "Whom each bot plans its movement against (its \"foe\"; the other enemies are not modeled by the movement scoring - independent bots) and fires at. \"nearest\": the nearest enemy (a fire target must also be in sight). Section 6, 'Target choice'.",
-"active": true
+"active": true,
+"choices": [
+[
+"nearest",
+"Nearest enemy"
+]
+]
 },
 {
 "key": "GLADIATOR_FIRE_ORDER",
@@ -657,7 +879,17 @@
 "default": "big_guns_first",
 "short": "",
 "text": "",
-"active": true
+"active": true,
+"choices": [
+[
+"big_guns_first",
+"Big guns first"
+],
+[
+"roster",
+"Roster order"
+]
+]
 },
 {
 "key": "IMP_EFFECT_WORTH",
@@ -734,7 +966,17 @@
 "default": "short_list",
 "short": "\"short_list\" is the default since 2026-10-24 (Daniel: \"we push 'Simple Short list' for the first movers evaluation\"); \"grid\" was the default before that.",
 "text": "\"short_list\" is the default since 2026-10-24 (Daniel: \"we push 'Simple Short list' for the first movers evaluation\"); \"grid\" was the default before that.",
-"active": true
+"active": true,
+"choices": [
+[
+"short_list",
+"Short list"
+],
+[
+"grid",
+"Grid"
+]
+]
 },
 {
 "key": "MOVEMENT_EXPOSURE_MAX",
@@ -778,7 +1020,17 @@
 "default": "clockwise",
 "short": "\"grid\": which of the two mirror-image 1-in-7 nets (2026-10-21, Daniel's spin A/B).",
 "text": "\"grid\": which of the two mirror-image 1-in-7 nets (2026-10-21, Daniel's spin A/B). The range-3 net hexes are \"2 hexes out, then 1 turning clockwise\" or \"... counter-clockwise\".",
-"active": true
+"active": true,
+"choices": [
+[
+"clockwise",
+"Clockwise"
+],
+[
+"counterclockwise",
+"Counter-clockwise"
+]
+]
 },
 {
 "key": "MOVEMENT_IF_THEN_NEIGHBOUR_CLIMB",
@@ -811,7 +1063,25 @@
 "default": "Walk",
 "short": "the attacker's assumed movement for future damage (AMM, heat)",
 "text": "the attacker's assumed movement for future damage (AMM, heat)",
-"active": true
+"active": true,
+"choices": [
+[
+"Stand Still",
+"Stand still"
+],
+[
+"Walk",
+"Walk"
+],
+[
+"Run",
+"Run"
+],
+[
+"Jump",
+"Jump"
+]
+]
 },
 {
 "key": "MOVEMENT_LIFETIME_FUTURE_FLOOR",
@@ -855,7 +1125,17 @@
 "default": "lifetime",
 "short": "Which movement objective scores a spot (Daniel, 2026-10-20 - an option to test): \"ratio\" - dealt / (received + PSR cost + MOVEMENT_RATIO_EPSILON) (Daniel, 2026-10-19) \"lifetime\" - dealt + (my HP le...",
 "text": "Which movement objective scores a spot (Daniel, 2026-10-20 - an option to test): \"ratio\"    - dealt / (received + PSR cost + MOVEMENT_RATIO_EPSILON) (Daniel, 2026-10-19) \"lifetime\" - dealt + (my HP left after this turn / the enemy's future damage per turn) x my future damage per turn: the damage this mech can expect to deal before it is destroyed. Fights when this turn's trade beats the trades it can expect later; a spot that gets it destroyed (or pushed off the board) keeps only its dealt. Future damage: INTEGRATION__future_damage. HP is armor + rear armor + MOVEMENT_STRUCTURE_WEIGHT x structure (the same units as dealt / received).",
-"active": true
+"active": true,
+"choices": [
+[
+"lifetime",
+"Lifetime"
+],
+[
+"ratio",
+"Ratio"
+]
+]
 },
 {
 "key": "MOVEMENT_PSR_COST",
@@ -888,7 +1168,17 @@
 "default": "grid",
 "short": "Movement search (2026-10-21, Daniel's \"guess and follow\"; the default since 2026-10-21 - Daniel: \"I think it should become the default\"): \"grid\" - a 1-in-7 net of the reachable hexes (the hex grid'...",
 "text": "Movement search (2026-10-21, Daniel's \"guess and follow\"; the default since 2026-10-21 - Daniel: \"I think it should become the default\"): \"grid\"       - a 1-in-7 net of the reachable hexes (the hex grid's own spacing: every hex is a net hex or touches exactly one; the mover's own hex is always in it), then from the best MOVEMENT_SEARCH_STARTS net hexes follow uphill: look at the unchecked neighbours of the best hex so far, move to the best of them while it improves. A hex \"looked at\" scores all its facings and modes. No dice involved. A second mover (knowing where its enemy stands) also always looks at the 6 hexes around the enemy (melee). \"exhaustive\" - every reachable spot (\"perfect\"; the original). \"if_then\"    - (Daniel's IF/THEN, 2026-10-28; MOVEMENT_SEARCH only): the first mover asks \"If I hold still then\" where would the second mover reply, takes its best spot against that reply, asks where the reply to that would be, and so on, back and forth; it stops when an attempt scores no better (two-ply score) than the one before and keeps that one before, or picks a spot twice. A second mover scores every spot, as \"exhaustive\". \"short_list\" - (Daniel's \"simple short list\", 2026-10-24): the first mover looks for the reply only on a rule-of- thumb list of hexes - next to the first mover, the replier's own hex, and the hexes at the MOVEMENT_SHORT_LIST_DROPS ranges where the replier's damage drops most, or one past where the first mover's does. Each hex is scored once per movement mode at its best TMM, facing the first mover (its facing isn't searched). An immobile or prone replier keeps the full model. As MOVEMENT_SEARCH (\"Short-Short\", 2026-10-27: \"both sides are only picking from their own short lists\"): the mover's own hex and the hexes at those ranges from the enemy, best few states per hex (movement_selection.own_short_list), each with the look-ahead when moving first. MOVEMENT_SEARCH: how a mech picks its OWN spot (first mover: which spots get the two-ply look-ahead; second mover: its real pick). MOVEMENT_ASSUMED_ENEMY_SEARCH: how a first mover ASSUMES the second mover picks its reply in the look-ahead. Per side (Daniel, 2026-10-21: \"See how much of an advantage perfect knowledge is vs close enough\"): MECH_RED_CONFIG / MECH_BLUE_CONFIG may set \"search\" and \"assumes_enemy_search\" to override these two for that mech.",
-"active": true
+"active": true,
+"choices": [
+[
+"grid",
+"Short Grid"
+],
+[
+"short_list",
+"Short list"
+]
+]
 },
 {
 "key": "MOVEMENT_SEARCH_STARTS",
@@ -965,7 +1255,13 @@
 "default": "index",
 "short": "Gladiator's firing order within its side's selections (2026-10-29, Daniel: \"Big guns first followed by smaller guns.",
 "text": "Gladiator's firing order within its side's selections (2026-10-29, Daniel: \"Big guns first followed by smaller guns. Its the same rule used on a mech, just applied to the entire formation.\"): \"big_guns_first\" (most expected damage at any enemy now declares first) or \"roster\" (list order). Which of a side's units takes its Movement Phase selection next (Daniel, 2026-11-07: \"how much does order matter at all\"). \"index\" (default): Princess's move index, the higher first (forces.move_index). \"random\": a deterministic shuffle (seeded from the units' names and hexes, so it never touches the battle's dice). \"reverse\": the LOWEST index first. A test switch, for baseline_battery.py --move-order. \"tiered\" (Daniel's design, 2026-11-07, INTEGRATION__tiers): for Gladiator units - stand-still units first (farthest first), then units whose movement footprint is outside the enemy's, then units that may be flanked, then units that cannot escape (slower first inside a tier); tiers 2 and 3 plan their two-ply against the highest-threat enemy that could flank them; applies when entering the battlefield too.",
-"active": true
+"active": true,
+"choices": [
+[
+"index",
+"List order"
+]
+]
 },
 {
 "key": "PERIL",
@@ -976,7 +1272,13 @@
 "default": "off",
 "short": "PERIL (2026-11-07, Daniel's peril heat map; INTEGRATION__peril): how Legate prices the damage a spot takes from the enemies OTHER than the mover's foe.",
 "text": "PERIL (2026-11-07, Daniel's peril heat map; INTEGRATION__peril): how Legate prices the damage a spot takes from the enemies OTHER than the mover's foe. \"off\" (default): each at the one spot Legate estimates it ends in (or its real spot once it has moved). \"peak\" / \"mean\": from the whole of where it COULD end (its movement footprint, line of sight and cover applied) - the most any one spot would deal there, or the average over its spots. PERIL_BLEND = the share the field takes, the point estimate the rest (1.0 = the field only). Placeholder weights; only with Legate on.",
-"active": true
+"active": true,
+"choices": [
+[
+"off",
+"Off"
+]
+]
 },
 {
 "key": "PERIL_BLEND",
@@ -1031,7 +1333,17 @@
 "default": "princess_plan",
 "short": "Whom a GLADIATOR unit shoots when two or more enemies are on the board (2026-10-29, Daniel: \"a good test to stub in until we teach gladiator how to focus fire and account for target saturation\"): \"...",
 "text": "Whom a GLADIATOR unit shoots when two or more enemies are on the board (2026-10-29, Daniel: \"a good test to stub in until we teach gladiator how to focus fire and account for target saturation\"): \"princess_plan\" - Princess's target choice: each enemy scored by Princess's firing-plan utility, with the damage the unit's teammates already declared this phase counted (an enemy they are expected to kill scores low - focus fire without overkill). Gladiator still picks its own weapons at the target, and its declared damage is counted for the teammates who fire after it. \"nearest\"       - the old pick (forces.choose_target: in sight, a weapon bears, nearest). \"kill_curve\"    - NOT a stub: Gladiator's own fire director (2026-10-29, Daniel: \"splitting fire to wreck 2 units is better then hard killing 1 and grazing the other\"). Each enemy is scored by how much this unit's expected damage raises the enemy's chance of a mission kill (INTEGRATION__kill_curve), on top of what teammates already declared at it, times the enemy's worth (KILL_CURVE_WEIGHT). Its declaration is counted too. Duels are unchanged either way (one enemy).",
-"active": true
+"active": true,
+"choices": [
+[
+"princess_plan",
+"Princess's firing plan"
+],
+[
+"nearest",
+"Nearest"
+]
+]
 },
 {
 "key": "TARGET_HEAT_WORTH",
@@ -1255,7 +1567,17 @@
 "default": "proportional",
 "short": "How much of an enemy's future fire a Gladiator expects to draw in its life-left estimate (INTEGRATION__legate.fire_share, 2026-10-29): \"proportional\" (its slice of what that enemy could deal across...",
 "text": "How much of an enemy's future fire a Gladiator expects to draw in its life-left estimate (INTEGRATION__legate.fire_share, 2026-10-29): \"proportional\" (its slice of what that enemy could deal across the team) or \"none\" (all of it - the first version, which made lights dive in alone).",
-"active": true
+"active": true,
+"choices": [
+[
+"proportional",
+"Proportional"
+],
+[
+"none",
+"None"
+]
+]
 },
 {
 "key": "LEGATE_HERDING",
@@ -1395,6 +1717,12 @@
 "default": "modern",
 "short": "Which Princess plays: 'modern' (MegaMek main as of 2026-10-26) or '0.50.07' (the classic ranker first cloned).",
 "text": "Which Princess plays: 'modern' (MegaMek main as of 2026-10-26) or '0.50.07' (the classic ranker first cloned).",
-"active": true
+"active": true,
+"choices": [
+[
+"modern",
+"Modern (MegaMek main)"
+]
+]
 }
 ]

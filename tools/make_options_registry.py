@@ -34,6 +34,43 @@ GLADIATOR = ("MOVEMENT_", "KILL_CURVE", "PERIL", "STACK", "TRIAGE", "MOVE_ORDER"
              "FOE_CHOICE", "TARGET_HEAT_WORTH", "TASER_EFFECT_WORTH", "TSEMP_EFFECT_WORTH", "IMP_EFFECT_WORTH")
 
 
+# Typed-in settings that take one of a few words (Daniel, 2026-11-20: "any options that want you to type in something ... should
+# be drop down menus"). Each list is what the Rust engine ACCEPTS today (read from its match arms / asserts, 2026-11-20): a word the
+# Python config knows but the engine rejects ("if_then", "tiered", "kill_curve") is left out, so the menu never offers a crash.
+# A setting listed here with one word has only one working value so far. [value, label] pairs; None value = JSON null.
+CHOICES = {
+    "HOME_EDGE_CHOICE": [["random", "Random"], ["N", "North"], ["E", "East"], ["S", "South"], ["W", "West"]],
+    "STUB_BLUE_SHIELD": [["on", "On"], ["off", "Off"]],
+    "STUB_CAPACITOR_CHARGE": [["never", "Never"], ["when_idle", "When the PPC isn't fired"]],
+    "STUB_CAPACITOR_START": [["empty", "Empty"], ["charged", "Charged"]],
+    "STUB_CONSOLE_SWAP": [["when_needed", "When needed"], ["never", "Never"]],
+    "STUB_ESCALATING_USE": [["cycle", "1 turn on, 1 turn off"], ["always", "Always"], ["never", "Never"]],
+    "STUB_FIRE_TAG": [["when_useful", "When useful"], ["always", "Always"], ["never", "Never"]],
+    "STUB_MUNITION_POLICY": [["greedy", "Most expected damage"], ["standard", "Standard ammunition"], ["random", "Random"]],
+    "STUB_RAISE_SHIELD": [["never", "Never"], ["always", "Always"]],
+    "STUB_RATE_OF_FIRE": [["max", "Maximum shots"], ["single", "One shot"], ["greedy", "Most expected damage"]],
+    "STUB_TAG_AIM": [["mech", "The 'Mech"], ["hex", "The hex"], ["easier", "The easier target number"]],
+    "STUB_UNKNOWN_DAMAGE_TYPE": [["BALLISTIC", "Ballistic"], ["ENERGY", "Energy"], ["MISSILE", "Missile"], ["AREA_EFFECT", "Area effect"],
+                                 ["PHYSICAL", "Physical"], ["REENGINEERED", "Reengineered"]],
+    "STUB_VIBROBLADE": [["on", "On"], ["off", "Off"]],
+    "AIMED_SHOT_LOCATION": [[None, "None (no aimed shots)"], ["Head", "Head"], ["Center Torso", "Center Torso"], ["Left Torso", "Left Torso"],
+                            ["Right Torso", "Right Torso"], ["Left Arm", "Left Arm"], ["Right Arm", "Right Arm"], ["Left Leg", "Left Leg"],
+                            ["Right Leg", "Right Leg"]],
+    "FOE_CHOICE": [["nearest", "Nearest enemy"]],
+    "GLADIATOR_FIRE_ORDER": [["big_guns_first", "Big guns first"], ["roster", "Roster order"]],
+    "MOVEMENT_ASSUMED_ENEMY_SEARCH": [["short_list", "Short list"], ["grid", "Grid"]],
+    "MOVEMENT_GRID_SPIN": [["clockwise", "Clockwise"], ["counterclockwise", "Counter-clockwise"]],
+    "MOVEMENT_LIFETIME_ATTACKER_MODE": [["Stand Still", "Stand still"], ["Walk", "Walk"], ["Run", "Run"], ["Jump", "Jump"]],
+    "MOVEMENT_OBJECTIVE": [["lifetime", "Lifetime"], ["ratio", "Ratio"]],
+    "MOVEMENT_SEARCH": [["grid", "Short Grid"], ["short_list", "Short list"]],
+    "MOVE_ORDER": [["index", "List order"]],
+    "PERIL": [["off", "Off"]],
+    "STUB_GLADIATOR_TARGET": [["princess_plan", "Princess's firing plan"], ["nearest", "Nearest"]],
+    "LEGATE_FIRE_SPLIT": [["proportional", "Proportional"], ["none", "None"]],
+    "PRINCESS_VERSION": [["modern", "Modern (MegaMek main)"]],
+}
+
+
 def folder(key):
     """(top tab, folder) of a setting."""
     if key.startswith("PRINCESS_"):
@@ -113,6 +150,8 @@ def main():
         text = OVERRIDES.get(key) or words.get(key, "")
         registry.append({"key": key, "label": humanise(key), "top": top, "folder": sub, "kind": kind, "default": value,
                          "short": short(text) if text else "", "text": text, "active": f'"{key}"' in src})
+        if key in CHOICES:
+            registry[-1]["choices"] = CHOICES[key]
     # Hydra's switches are Rust constants (INTEGRATION__HYDRA.md; PROJECT_MAP Section 0 REVIEW QUEUE ab-ad), not settings the
     # Lab can send yet: listed so the folder is there, greyed out
     for key, text in (("HYDRA_MOVE_ORDER", "Which unit Hydra moves next: 'stake' orders by what each unit has riding on its move (off by default)."),
