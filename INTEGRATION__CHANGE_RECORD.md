@@ -6,6 +6,14 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-20 (Claude, session 32), T16 STEP 4: THE BOTCLIENT / PRINCESS AUDIT. REVIEW PENDING (higher-level model).**
+  Every method of MegaMek's `BotClient.java` and `Princess.java` (commit `0cc7d65`) listed and matched to the clone: the table is in PROJECT_MAP
+  Section 6, "Princess clone: audit". One change came out of it: Princess's move order cuts a stealthed unit's index to a third ("move stealthy
+  units later", `calculateMoveIndex`), now in `forces::move_index` for Princess-family units with stealth armor or a Void Signature on (Gladiator and
+  Hydra order unchanged). Buildable gaps found, not built: AMS on / off modes (`setAMSModes`), ammo conservation (`calcAmmoConservation`); forced
+  withdrawal waits on the crippled rules. Rules the engine lacks, listed for Daniel: evade, searchlight, Tactical Genius, split fire, targeting-computer
+  aim at a mobile target, called shots. Validation (reference re-record, parity) waits as Daniel said.
+
 - **2026-11-20 (Claude, session 32), T16 STEPS 2 AND 3: PRINCESS'S RAC UNJAM RULE AND AIMED-SHOT CHOICE (WIRING; VALIDATION WAITS). REVIEW PENDING (higher-level model).**
   Daniel (2026-11-20): all of T16 is wiring on this branch; validate after the engine work is done.
   STEP 2, RAC unjam (MegaMek `Princess.embellishPath` / `unjamRAC`, `PathRanker`, `Entity.canUnjamRAC`): a Princess-family unit with a jammed

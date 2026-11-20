@@ -1322,6 +1322,51 @@ CHOICES. The module docstrings have the formulas; in short:
 - **Known difference from MegaMek**: ties keep the first spot in the
   project's order (MegaMek's TreeSet keeps the first path it ranked).
 
+### Princess clone: audit against MegaMek's `BotClient.java` and `Princess.java` (T16 step 4, 2026-11-20)
+
+Source: MegaMek main at `0cc7d65` (2026-11-18), `megamek/src/megamek/client/bot/BotClient.java` (1,944 lines) and `princess/Princess.java`
+(6,109 lines). Method: every method of both files listed, each read where it decides something, then matched to the Rust clone. Status:
+**P** = ported (where), **T16** = ported in T16 (2026-11-20), **N** = not ported, with the reason. Rows marked "**DANIEL**" are rules the engine
+lacks: listed for a scope call, not built. Row order follows the files.
+
+| MegaMek (class.method) | What it does | Status |
+|---|---|---|
+| BotClient.getStartingCoordsArray, getFirstValidCoords, calculateEdgeAccessFitness, potentialBuildingDamage, getDeployDamage, isBlockedByKnownUnit | Deployment hex fitness | **P** `princess_deploy.rs` (session 30); stacking and train fit checks N (no trains, one board) |
+| Princess.calculateDeployment, getEntityToDeploy, rankDeploymentCoords, rankKernelAroundCoords, getDeploymentFacing, getEnemyDeploymentCenter, prioritizeDeploymentCoords | Zone / hazard / room-to-move deployment | **P** `princess_deploy.rs`; CASPAR's zone placement `caspar.rs` |
+| Princess.calculateMoveTurn, getMovePathsAndSetNecessaryTargets, getPathRanker (BasicPathRanker) | Choose the movement path | **P** `princess_modern::choose_as` (v0.50.07 ranker `princess.rs`); the "move to contact" re-rank and `forceMoveToContact` N |
+| Princess.calculateMoveIndex | Move order: distance / speed, prone x1.1, fleeing x2, commander x0.5, stealth x1/3, type multipliers | **P** `forces::move_index` (distance / speed, prone); **T16** stealth x1/3 (stealth armor or Void Signature on, Princess family only); fleeing, commander N (no withdrawal, no commander flag); tank / infantry / civilian N (only 'Mechs) |
+| Princess.getEntityToMove, getEntityToFire, initFiringEntities | Which unit acts next | **P** (engine activation order, `forces::Activation`) |
+| Princess.embellishPath -> unjamRAC | Unjam a jammed RAC when the path walks and expected damage < 5 | **T16** `fire_modes::princess_declare_unjam` + `walk_only_for_unjam` |
+| embellishPath -> evadeIfNotFiring, turnOnSearchLight, unloadTransportedInfantry, launchFighters, abandonShip / shouldAbandon, FLEE step | Aero evade, searchlight, transport, abandon, flee | **N** no engine rule: evade and searchlight (**DANIEL** if wanted), transports, fighters, abandon ship; flee = forced withdrawal below |
+| Princess.calculateFiringTurn: getBestFiringPlan, loadAmmo, sortPlan, damageMap, firing-mode changes | The firing plan | **P** `princess_fire.rs`, `bot_targets.rs` |
+| Princess.calculateFiringTurn: aimed shot (checkForEnhancedTargeting, getAimedShotLocation, calculateAimedShotLocation, setAttackAsAimedOrCalled, calcEnhancedTargetingMaxTN, isBigGun) | Aim at an immobile 'Mech's weakest location | **T16** `bot_aimed_shots.rs` (immobile targets; no aim at partial cover) |
+| same: aimed shot at a MOBILE target with a targeting computer | TC aim, +3 | **N** no engine rule (**DANIEL**) |
+| same: called shots (getCalledShotDirection, calculateCalledShotDirection, `ADVANCED_COMBAT_TAC_OPS_CALLED_SHOTS`) | Called shots | **N** no engine rule (**DANIEL**) |
+| calculateFiringTurn: skip firing (hidden, forced withdrawal, nothing worth firing) | Hold fire | skip when nothing worth firing **P**; hidden and withdrawal **N** |
+| calculateFiringTurn: split fire / multi-target plans, searchlight before firing | | **N** the engine fires at one target per unit (**DANIEL**: split fire) |
+| Princess.calcAmmoConservation | Per-weapon target-number ceiling from ammo left, behavior and battle length | **N**: the clone fires without ammo scarcity (listed since 2026-10-27). Buildable from the engine's ammo counts (candidate follow-up) |
+| Princess.setAMSModes (called from endOfTurnProcessing), flagManualAMSUse | AMS on / off / manual: laser AMS off at 14+ heat, ammo AMS off by a dice test when low on ammo | **N**: the engine's AMS (`ams.rs`) is always on; no AMS mode. Candidate follow-up (a per-unit switch like `systems_off`) |
+| BotClient CFR_AMS_ASSIGN / CFR_APDS_ASSIGN | Which incoming attack an AMS takes (highest expected damage) | **N** as a bot call: the engine's AMS engagement is automatic (`ams.rs`) |
+| BotClient CFR_HIDDEN_PBS: calculatePointBlankShot | A hidden unit's point-blank shot | **N** no hidden units |
+| BotClient CFR_TAG_TARGET: pickTagTarget | Which TAG-designated hex an artillery piece takes | **N**: the engine's TAG (`tag.rs`) has one designation and no artillery bot choice (artillery / TAG standoff stays on backlog B) |
+| BotClient.endOfTurnProcessing -> BotHeatEquipmentManager | Heat equipment on / off | **T16** `bot_heat_equipment.rs` (stealth armor, Chameleon, Null, Void, radical heat sink; Nova CEWS N: no engine rule) |
+| Princess.endOfTurnProcessing: checkForDishonoredEnemies, checkForBrokenEnemies, refreshCrippledUnits, ForcedWithdrawalTracker, sendDishonoredData, updateReturnFirePermission, checkMorale, wantsToFallBack, mustFleeBoard, canRecoverMobility, isImmobilized, recurringHeat, isStandingInFire, canJumpClear | Forced withdrawal, honor, flee the board | **N** no crippled / withdrawal rules (Pick up here 5; backlog B). The largest remaining gap |
+| endOfTurnProcessing: updateEnemyHeatMaps, updateFriendlyHeatMap, getMemory().forget | Enemy / friendly heat maps, memory | **P** `princess_memory.rs` (`end_of_turn`) |
+| Princess.getShootAndScootPath, isEnemyWithinStandoff, getHoldPositionPath, getDisplacePath, getMoveTowardHexPath | Artillery shoot-and-scoot, hold, displace | **N** artillery / hold orders (backlog B); displace-related memory in `princess_memory.rs` only |
+| Princess.getUnitOrdersFollower, OrdersRadio, followsUnitOrders, chooseDeploymentAnchor | Player unit orders, formations | **N** none in a simulation; formations are CASPAR's doctrine (`caspar.rs`) |
+| Princess.decideToRerollInitiative, shouldRerollInitiative, countWins, expectedScoreOnReroll (BotClient version too) | Tactical Genius initiative reroll | **N** no Tactical Genius in the engine (**DANIEL**) |
+| BotClient.deployMinefields, performMinefieldDeployment | Lay minefields | **N** no minefields |
+| Princess.performVictorySetupTurn / ground objects, control points | Scenario objectives | **N** none |
+| Princess aero: AeroGroundPathFinder, aerospace focus / ground order, isAtmosphericAerospace, launchFighters | Aerospace | **N** no aerospace |
+| Princess swarm / coverage: SwarmContext, EnemyTracker, CoverageValidator, SwarmCenterManager, updateSwarmContext | Swarm movement | **N** multi-unit infantry / convoy logic |
+| BotClient.getStrandedEntities, connectOwnTrains, deployTrain, calculatePrePhaseTurn (ghost targets), calculateTargetingOffBoardTurn | Transports, trains, ghost targets, off-board | **N** no engine rule |
+| Princess.getBehaviorSettings, setBehaviorSettings, fallBack / fleeBoard / holdPosition accessors | The behaviour sliders | **P** `config.PRINCESS_BEHAVIOR` (fall shame, bravery, hyper-aggression, self-preservation; herd and favor TMM are 0 in a duel) |
+| BotClient / Princess chat, messages, game log, GUI, packet handling, revealEntities, die, correctName | Client plumbing | n/a |
+
+Open from this audit: (1) AMS modes and ammo conservation are small and buildable (nothing in the engine blocks them); (2) forced
+withdrawal needs the crippled rules (backlog B); (3) **DANIEL**: evade, searchlight, Tactical Genius reroll, split fire, TC aim at a mobile
+target, called shots, each a rule the engine lacks.
+
 ### Memo: the bot must weigh how an action changes its FUTURE capabilities (Daniel, 2026-10-20)
 
 Every decision so far is greedy for the current turn. Several need the bot to
