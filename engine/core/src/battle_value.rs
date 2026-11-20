@@ -149,7 +149,10 @@ fn equipment_items(b: &Battle, u: UnitId) -> Vec<Item> {
                 continue;
             }
             let eq = &m.items[*id];
-            let entry = b.db.lookup_equipment(&eq.name);
+            // a generic weapon name is read in the unit's own tech base, as the parser did
+            let tech_up = m.tech_base.clone().unwrap_or_default().to_uppercase();
+            let prefix = if tech_up.starts_with("CLAN") || tech_up.contains("MIXED (CLAN") { "CL" } else { "IS" };
+            let entry = b.db.lookup_equipment(&eq.name).or_else(|| b.db.lookup_equipment(&format!("{}{}", prefix, eq.name)));
             let record = entry.and_then(|e| items_db().get(&e.canonical_name().replace(' ', "").to_lowercase()));
             let canonical = entry.map(|e| e.canonical_name().to_lowercase()).unwrap_or_default();
             let flags: HashSet<String> = record.and_then(|r| r["flags"].as_array()).map(|a| a.iter().filter_map(|x| x.as_str().map(|s| s.to_string())).collect()).unwrap_or_default();
@@ -182,7 +185,7 @@ fn equipment_items(b: &Battle, u: UnitId) -> Vec<Item> {
                 link: None,
                 rear: eq.rear_mounted,
                 turret: eq.turret_mounted,
-                explosive: EXPLOSIVE_PER_MEGAMEK.iter().find(|(n, _)| *n == explosive_key).map_or(eq.is_explosive, |(_, v)| *v),
+                explosive: (raw_up.contains("PROTOTYPE") && explosive_key == "improvedjumpjet") || EXPLOSIVE_PER_MEGAMEK.iter().find(|(n, _)| *n == explosive_key).map_or(eq.is_explosive, |(_, v)| *v),
                 name: g("name").and_then(|v| v.as_str()).map(|s| s.to_string()).unwrap_or_else(|| eq.name.clone()),
                 equip_name: eq.name.clone(),
                 armored,
@@ -209,6 +212,8 @@ struct Calc<'a> {
     jump: i64,
     umu: i64,
     improved_jets: bool,
+    /// prototype improved jump jets: jump heat 2 x MP, min 6 (MegaMek JUMP_PROTOTYPE_IMPROVED), not the improved jets' halving
+    proto_improved: bool,
     has_tc: bool,
 }
 
@@ -344,8 +349,9 @@ impl<'a> Calc<'a> {
         jump = jump.max((m.base_mechanical_jump_booster_mp - medium_shields).max(0));
         if large_shields > 0 { jump = 0; }
         let umu = if large_shields > 0 { 0 } else { items.iter().filter(|i| i.has("F_UMU")).count() as i64 };
-        let improved_jets = items.iter().any(|i| i.canonical.replace(' ', "").contains("improvedjumpjet"));
-        Calc { m, items, engine_sides, fusion, quad: m.mech_type == "quad" || m.mech_type == "quadvee", clan_mech, clan_structure, defensive: 0.0, offensive: 0.0, walk, run, jump, umu, improved_jets, has_tc: false }
+        let proto_improved = items.iter().any(|i| i.canonical.replace(' ', "").contains("improvedjumpjet") && i.equip_name.to_uppercase().contains("PROTOTYPE"));
+        let improved_jets = !proto_improved && items.iter().any(|i| i.canonical.replace(' ', "").contains("improvedjumpjet"));
+        Calc { m, items, engine_sides, fusion, quad: m.mech_type == "quad" || m.mech_type == "quadvee", clan_mech, clan_structure, defensive: 0.0, offensive: 0.0, walk, run, jump, umu, improved_jets, proto_improved, has_tc: false }
     }
 
     fn flag_at(&self, flag: &str, loc: &str) -> bool {
@@ -692,7 +698,21 @@ impl<'a> Calc<'a> {
         let m = self.m;
         let t = m.heat_sink_type.replace(' ', "").to_uppercase();
         let rate = if t.contains("DOUBLE") || t.contains("LASER") { 2 } else { 1 };
-        m.base_heat_sinks * rate + if m.partial_wing_active { 3 } else { 0 }
+        // MtfFile: laser heat sinks in the slots (two slots each) are real sinks of their own kind; the header's count is what is left
+        // over after them, at the header's kind (Kraken-XR: header "16 Single" but 4 laser sinks in the slots = 4 x 2 + 12 x 1 = 20)
+        // Super Griffin: header "15 Single" with five prototype double sinks in the slots = 10 x 1 + 5 x 2 = 20). Each sink in the slots
+        // fills 2 (laser, Clan double) or 3 (Inner Sphere double, prototype) lines
+        let mut sinks_in_slots = 0;
+        if !t.contains("LASER") && !t.contains("DOUBLE") {
+            for i in &self.items {
+                if i.has("F_DOUBLE_HEAT_SINK") || i.has("F_IS_DOUBLE_HEAT_SINK_PROTOTYPE") {
+                    let per = if i.has("F_LASER_HEAT_SINK") || i.canonical.to_lowercase().starts_with("cl") || i.equip_name.to_uppercase().starts_with("CL") { 2 } else { 3 };
+                    sinks_in_slots += i.slots() / per;
+                }
+            }
+        }
+        let laser_in_slots = sinks_in_slots;
+        m.base_heat_sinks * rate + laser_in_slots * (2 - rate) + if m.partial_wing_active { 3 } else { 0 }
     }
 
     fn heat_efficiency(&self) -> f64 {
@@ -727,7 +747,7 @@ impl<'a> Calc<'a> {
             if self.improved_jets {
                 jump_mp = jump_mp / 2 + jump_mp % 2;
             }
-            let jump_heat = if xxl { 6.max(jump_mp * 2) } else { 3.max(jump_mp) };
+            let jump_heat = if self.proto_improved { 6.max(if xxl { 6.max(jump_mp * 4) } else { 3.max(jump_mp * 2) }) } else if xxl { 6.max(jump_mp * 2) } else { 3.max(jump_mp) };
             if jump_heat > run_heat {
                 move_heat = jump_heat;
             }
@@ -815,6 +835,7 @@ impl<'a> Calc<'a> {
                 continue;
             }
             let key = format!("{}:{}", at.unwrap_or("None"), i.rack_size);
+            if trace_level() == 2 { eprintln!("BVA\t{} {}\t{}\t{}\t{}", self.m.chassis, self.m.model, i.equip_name, key, i.bv); }
             *ammo_bv.entry(key).or_insert(0.0) += i.bv;
         }
         for i in &self.items {

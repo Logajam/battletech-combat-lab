@@ -22272,7 +22272,7 @@
       ],
       "category": "misc",
       "tech_base": "Clan",
-      "slots": 1,
+      "slots": 2,
       "crit_eligible": true,
       "explosive": false,
       "explosion_damage": null,
@@ -26320,6 +26320,7 @@
     }
   },
   "alias_map": {
+    "clanammolrtorpedo-15artemis-capable": "clanammolrm-15",
     "backhoe": "backhoe",
     "iswreckingball": "iswreckingball",
     "wreckingball": "iswreckingball",

@@ -267,6 +267,13 @@ fn combinations(items: &[ItemId], k: usize) -> Vec<Vec<ItemId>> {
     }
 }
 
+thread_local! {
+    /// "IS" or "CL": the unit's tech base while its slots are read, for generic weapon names ("ER Small Laser") that the table lists
+    /// only with a prefix. MegaMek reads such a name in the unit's own tech base (Daniel, 2026-11-20: "the weapons should match the tech
+    /// base unless noted"). Set by parse_mtf.
+    static TECH_PREFIX: std::cell::Cell<&'static str> = const { std::cell::Cell::new("") };
+}
+
 /// Builds one location's crit list from its raw .mtf lines; new Equipment goes into `items`.
 pub fn build_crit_list(
     db: &EquipmentDb,
@@ -328,7 +335,9 @@ pub fn build_crit_list(
             continue;
         }
 
-        if let Some(entry) = db.lookup_equipment(&base_name) {
+        let tp = TECH_PREFIX.with(|c| c.get());
+        let found = db.lookup_equipment(&base_name).or_else(|| if tp.is_empty() { None } else { db.lookup_equipment(&format!("{}{}", tp, base_name)) });
+        if let Some(entry) = found {
             let mut slots_needed = entry.slots();
             if superheavy {
                 slots_needed = -((-slots_needed).div_euclid(2)); // -(-slots // 2): half, rounded up
@@ -342,6 +351,7 @@ pub fn build_crit_list(
                     "clultraac2" | "cllbxac2" | "cllbxac5" => 2,
                     "cllbxac20" | "clultraac20" => 3,
                     "clultraac10" => 4,
+                    "improvedjumpjet" => -1, // the prototype improved jump jet fills 1 slot, the ordinary improved one 2
                     _ => 0,
                 };
                 slots_needed += extra;
@@ -732,7 +742,7 @@ pub fn parse_mtf(db: &EquipmentDb, text: &str, out: &mut String) -> Result<Mech,
     mech.structure_type = structure_type;
     mech.is_industrial = Some(structure_text.clone().unwrap_or_default().to_uppercase().contains("INDUSTRIAL"));
     mech.structure_desc = Some(structure_text.clone().unwrap_or_default());
-    mech.tech_base = Some(tech_base_line);
+    mech.tech_base = Some(tech_base_line.clone());
 
     let walk_mp = match walk_mp {
         Some(w) => w,
@@ -779,6 +789,7 @@ pub fn parse_mtf(db: &EquipmentDb, text: &str, out: &mut String) -> Result<Mech,
     let mut special_rules_seen: BTreeSet<(String, Option<String>)> = BTreeSet::new();
     for loc in &loc_names {
         if let Some(lines) = location_lines.get(loc) {
+            TECH_PREFIX.with(|c| c.set(if tech_base_line.to_uppercase().starts_with("CLAN") || tech_base_line.to_uppercase().contains("MIXED (CLAN") { "CL" } else { "IS" }));
             let slots = build_crit_list(db, lines, &mut special_rules_seen, mass >= SUPERHEAVY_MIN_TONS, &mut mech.items, out);
             for (idx, (raw, slot)) in lines.iter().zip(slots.iter()).enumerate() {
                 let is_ammo = matches!(slot, Slot::Item(id) if mech.items[*id].category.as_deref() == Some("ammo"));
