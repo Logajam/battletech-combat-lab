@@ -122,8 +122,8 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   `MOVEMENT_COVER_LEGS`, on). Gladiator / Hydra movement scoring only; Princess / CASPAR keep MegaMek's estimate. WATCH: two
   reference battles now reach the turn cap (team_3way_mixed, hydra_red__hy_12v12_valley) - Gladiator may hold back more against
   hull-down targets; worth a look with the stall work (A1).
-- N9. CHARGING AFTER A BACKWARD STEP (G12, p.78; Daniel: "accurate rules make for accurate games"): the charge planner
-  uses forward-only paths; let it plan a charge whose path has backward steps, counting hexes as the rule says.
+- N9. CHARGING AFTER A BACKWARD STEP: BUILT 2026-11-20 (Change Record): the charge planner also sees the stops a walk with
+  backward steps reaches (counted conservatively as a one-hex charge).
 - N10. SPECIAL AMMUNITION (Daniel, 2026-11-20: "the other speciality ammo, like AP or homing artillery"; rules review G16,
   Core pp.190-194): autocannon armor-piercing / caseless / flak / precision rounds, iNarc ECM / haywire / Nemesis pods,
   Arrow IV homing / cluster / inferno / smoke / thunder (homing Arrow IV with TAG is partly built: F56). Today such bins

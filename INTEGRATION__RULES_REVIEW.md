@@ -144,7 +144,7 @@ launchers, MRM cluster -1, pp.185-187); Gauss rifle component explosion
 | G13 | ~~Anti-Missile System (AMS / laser AMS)~~ | p.206 | Built 2026-10-20 - see F9. 223 of the units that parse carry one. |
 | G14 | ~~Armored components~~ | p.207 | Built 2026-10-21 - see F37. |
 | G15 | ~~ECM~~ | p.200 | Built 2026-10-20 - see F13. |
-| G12 | Charging after a backward step | p.78 | The charge planner uses forward-only paths (the hex count restarts after a backward step and the planner adds the final forward step). Small. |
+| G12 | ~~Charging after a backward step~~ | p.78 | Built 2026-11-20 (backlog N9): the charge planner adds the stops only a walk with backward steps reaches; as the movement table does not say which way such a path last moved and the modifier counts the hexes since the last reversal (p.65), it prices them as a one-hex charge (never more than the rules give); the resolution counts the real path. |
 | G23 | ~~Heavy-duty gyro~~ | p.204 | Built 2026-10-21 - see F44. |
 | G24 | ~~Shields, spikes, talons on a DFA, lance in a charge, vibroblade activation~~ | pp.194-196 | Built 2026-10-21 - see F46, F47. |
 | G25 | ~~Advanced Point Defense System (APDS)~~ | p.206 | Built 2026-10-21 - see F51. |

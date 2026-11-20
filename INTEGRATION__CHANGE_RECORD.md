@@ -6,6 +6,16 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-20 (Claude), CHARGING AFTER A BACKWARD STEP (backlog N9, rules review G12). REVIEW PENDING (higher-level model).**
+  Daniel: "Fix charging. It will probably never come up, but accurate rules make for accurate games." Core p.78: a charge
+  needs only the MP to enter the target's hex from an adjacent hex facing it - no straight line, no run; walking may go
+  backward (p.46). The planner (`move_attacks::MoverIndex`) built its stops from forward-only paths; now it also adds the
+  walking stops only a path with backward steps reaches. The movement table keeps the hexes since the last reversal (p.65)
+  but not which way the path last moved, so such a stop is priced as a one-hex charge (fc 0 + the target's hex) - never more
+  damage than the rules give; the engine's resolution counts the path actually walked. No reference battle changed (91 of
+  91): the case needs terrain that blocks the way forward. Not separately tested beyond that (a board that forces it was not
+  built).
+
 - **2026-11-20 (Claude), LEG HITS LOST TO PARTIAL COVER IN THE BOTS' ESTIMATES (backlog N8, rules review G9). REVIEW PENDING (higher-level model).**
   Daniel: "Add fixing the discount leg hits." The engine already stopped them (a leg hit on a target behind partial cover
   strikes the cover, Core p.66; F4); Gladiator's and Hydra's movement scoring still counted them. Now `move_eval` multiplies

@@ -91,6 +91,22 @@ impl MoverIndex {
                 ground.entry((x, y, facing)).or_default().push((fc, mp));
             }
         }
+        // CHARGING AFTER A BACKWARD STEP (Core p.78: a charge needs no straight line and no run - only the MP to enter the
+        // target's hex, facing it; walking may go backward, p.46; backlog N9, rules review G12): the stops only a walk with
+        // backward steps reaches are added. The table does not say which way such a path last moved, and the movement
+        // modifier counts only the hexes since the last reversal (p.65), so the planner counts their charge as one hex (fc 0,
+        // + 1 for the target's hex): never more damage than the rules give. The engine's resolution counts the real path.
+        if standup_mp.is_none() {
+            for (x, y, facing, _fc, mode, mp) in move_options::movement_options(b, mover, standup_mp, None, true, notes) {
+                if mode == "Jump" || mode == "Run" {
+                    continue;
+                }
+                let e = ground.entry((x, y, facing)).or_default();
+                if !e.iter().any(|(_, m)| *m <= mp) {
+                    e.push((0, mp));
+                }
+            }
+        }
         let jump_mp = if standup_mp.is_none() && !m.prone { water::jump_mp(b, mover) } else { 0 };
         let start_label = m.hex.clone();
         let start_xy = start_label.as_deref().map(|h| hex_geometry::parse_hex_label(h).unwrap());
