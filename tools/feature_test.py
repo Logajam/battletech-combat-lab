@@ -1,8 +1,13 @@
 """CONTROLLED FEATURE TESTS (session 30; Daniel, 2026-11-20): what one feature is worth in a 1 v 1, measured by editing it
 onto known 'Mechs with everything else unchanged, the way the Combat Lab's unit editor does (it writes a changed .mtf).
 
-    python tools/feature_test.py hardened play [--workers 4]    plays the set (restart-safe: re-run the SAME command)
-    python tools/feature_test.py hardened report                each 'Mech's score as original / hardened / doubled
+    python tools/feature_test.py FEATURE play [--workers 4]     plays the set (restart-safe: re-run the SAME command)
+    python tools/feature_test.py FEATURE report                 each 'Mech's score, original v the edited version(s)
+    FEATURE: hardened (versions hardened, doubled) | ferrolam (version ferrolam; Daniel: "Ferro-lam is the fairest to
+    test. Reactive and reflective are dependant on what their opponents are using")
+The originals are played once, under the hardened set (label feature_hardened); every later feature plays only its edited
+versions and reads the originals from there (same base 'Mechs, opponents, cells and seeds: replaying them would repeat
+the same battles).
 
 Daniel's calls (2026-11-20): FREE UPGRADES ("I build the designer that way on purpose to allow illegal designs for such
 testing"); hardened armor first; "May as well go with rules as written" (hardened armor exactly as the rules have it: Core
@@ -31,6 +36,9 @@ import duel_value as dv  # noqa: E402
 ROOT = os.path.dirname(HERE)
 CLASSES = [(20, 35), (40, 55), (60, 75), (80, 100)]
 VERSIONS = ["orig", "hardened", "doubled"]
+# feature -> the versions it plays (the originals belong to the hardened set) and the armor-type line of each
+FEATURES = {"hardened": ["orig", "hardened", "doubled"], "ferrolam": ["ferrolam"]}
+ARMOR_LINE = {"hardened": "Hardened(Inner Sphere)", "ferrolam": "Ferro-Lamellor(Clan)"}
 
 
 def standard_armor(u):
@@ -64,8 +72,8 @@ def write_version(uid, version):
     for line in text.splitlines():
         key, sep, val = line.partition(":")
         k = key.strip().lower()
-        if sep and k == "armor" and version == "hardened":
-            line = f"{key}:Hardened(Inner Sphere)"
+        if sep and k == "armor" and version in ARMOR_LINE:
+            line = f"{key}:{ARMOR_LINE[version]}"
         elif sep and k.endswith(" armor") and version == "doubled" and val.strip().isdigit():
             line = f"{key}:{2 * int(val.strip())}"
         out.append(line)
@@ -75,59 +83,61 @@ def write_version(uid, version):
         f.write("\n".join(out) + "\n")
 
 
-def cells(base, opp):
+def cells(base, opp, versions=VERSIONS):
     out = []
     for a in base:
         for b in opp:
             pair = fd.cells_rate(a["id"], b["id"], random.Random(fd.cell_seed(["feature", a["id"], b["id"]])), fd.BOTS)
-            for v in VERSIONS:
+            for v in versions:
                 out += [(edited_id(a["id"], v),) + c[1:] for c in pair]
     return out
 
 
-def play(argv):
+def play(feature, argv):
     base, opp = draw_units()
     fd.unpack(base + opp)
     for u in base:
-        for v in VERSIONS:
+        for v in FEATURES[feature]:
             write_version(u["id"], v)
     fd.COMMIT = fd.subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
-    fd.run_cells(cells(base, opp), "feature_hardened", int(fd.option(argv, "--workers", "4")))
+    fd.run_cells(cells(base, opp, FEATURES[feature]), f"feature_{feature}", int(fd.option(argv, "--workers", "4")))
 
 
-def report(argv):
+def report(feature, argv):
     base, opp = draw_units()
     rows = list(fd.done_cells("feature_hardened").values())
+    if feature != "hardened":
+        rows = [r for r in rows if not r["a"].startswith("_modified/")] + list(fd.done_cells(f"feature_{feature}").values())
+    shown = ["orig"] + [v for v in FEATURES[feature] if v != "orig"]
     score = {}
     for r in rows:
         score.setdefault(r["a"], []).append(fd.a_score(r))
     logit = lambda p: math.log(min(max(p, 0.01), 0.99) / (1 - min(max(p, 0.01), 0.99)))
     print(f"{len(rows)} battles. Each base 'Mech's score (win 1, draw 1/2) against the 10 opponents, 160 battles a version")
-    print(f"  {'Mech':34s} {'tons':>4s} {'orig':>6s} {'hard.':>6s} {'doubl.':>6s} {'hard-orig':>9s} {'doub-orig':>9s}")
-    d_h, d_d = [], []
+    print(f"  {'Mech':34s} {'tons':>4s} " + " ".join(f"{v[:8]:>8s}" for v in shown) + " " + " ".join(f"{(v[:6] + '-orig'):>11s}" for v in shown[1:]))
+    deltas = {v: [] for v in shown[1:]}
     for u in base:
-        s = {v: score.get(edited_id(u["id"], v), []) for v in VERSIONS}
+        s = {v: score.get(edited_id(u["id"], v), []) for v in shown}
         if not all(s.values()):
             continue
         m = {v: sum(x) / len(x) for v, x in s.items()}
-        d_h.append(logit(m["hardened"]) - logit(m["orig"]))
-        d_d.append(logit(m["doubled"]) - logit(m["orig"]))
-        print(f"  {u['name'][:34]:34s} {u['tons']:4d} {m['orig']:6.2f} {m['hardened']:6.2f} {m['doubled']:6.2f}"
-              f" {m['hardened'] - m['orig']:+9.2f} {m['doubled'] - m['orig']:+9.2f}")
-    if d_h:
-        print(f"  mean change in log-odds: hardened {sum(d_h) / len(d_h):+.2f}, doubled {sum(d_d) / len(d_d):+.2f}")
+        for v in shown[1:]:
+            deltas[v].append(logit(m[v]) - logit(m["orig"]))
+        print(f"  {u['name'][:34]:34s} {u['tons']:4d} " + " ".join(f"{m[v]:8.2f}" for v in shown) + " "
+              + " ".join(f"{m[v] - m['orig']:+11.2f}" for v in shown[1:]))
+    print("  mean change in log-odds: " + ", ".join(f"{v} {sum(d) / max(len(d), 1):+.2f}" for v, d in deltas.items()))
     by = {}
     for r in rows:
         v = r["a"].split("/")[2] if r["a"].startswith("_modified/feature_test/") else "orig"
         by.setdefault((r["bot"], v), []).append(fd.a_score(r))
     for bot in fd.BOTS:
-        print(f"  {bot:10s} " + "  ".join(f"{v} {sum(by.get((bot, v), [0])) / max(len(by.get((bot, v), [])), 1):.2f}" for v in VERSIONS))
+        print(f"  {bot:10s} " + "  ".join(f"{v} {sum(by.get((bot, v), [0])) / max(len(by.get((bot, v), [])), 1):.2f}" for v in shown))
 
 
 def main(argv):
-    if len(argv) < 2 or argv[0] != "hardened":
+    if len(argv) < 2 or argv[0] not in FEATURES:
         sys.exit(__doc__)
-    {"play": play, "report": report}[argv[1]](argv[2:])
+    {"play": play, "report": report}[argv[1]](argv[0], argv[2:])
 
 
 if __name__ == "__main__":
