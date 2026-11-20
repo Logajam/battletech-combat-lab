@@ -106,6 +106,30 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   Rerun `python tools/benchmark_report.py --bv-file LISTS.json` (LISTS.json: the Lab's `list_units` output) for the tables.
   Checks: no engine or test file changed; `run_checks.py` not run (docs and new tools only).
 
+- **2026-11-20 (Claude, session 30), RESEARCH: THE DUEL VALUE SYSTEM, ROUND 2 (ENGINE NUMBERS, RANDOM BATTERY, MATCH-UP TERMS),
+  AND A SNUB-NOSE PPC CAPACITOR CRASH FIXED. REVIEW PENDING (higher-level model).** Daniel: "Lets go with your suggestion".
+  NEW: `btsim profile --setup SETTINGS.json` prints each unit's engine numbers as JSON (armor/rear/structure per location, MP,
+  dissipation, BV, and per weapon a 1-30 hex expected-damage curve: hit chance at the unit's gunnery x CASPAR's damage per hit,
+  `caspar::profile_damage_per_hit`, now `pub`; a variable-damage weapon is priced at its bracket's damage). `tools/duel_value.py`:
+  `battery` (3,000 random pairs from 1,754 Inner Sphere biped/quad 'Mechs of rules levels 1-2, 16 battles each over all four
+  bots, maps and edges: 48,000 battles, `trial_records/2026-11-20_fair_duels_value_battery.jsonl`), `fit2` (ingredients from the
+  engine profile: total and centre-torso hit points, sustained damage per range band with only the weapons the heat sinks can
+  keep firing, alpha strike, ammo shortfall, MP, jump, tonnage, equipment flags, BV; eight match-up terms; logistic fit;
+  `tools/duel_value_fit2.json`).
+  RESULTS (mean error in A's score per pair; 16 battles a pair put the noise floor at about 0.07): on 595 random held-out pairs
+  BV 0.152, the value system 0.125, plus match-ups 0.123, BV corrected by the numbers 0.119, plus match-ups 0.114; on 829 pairs
+  with a 'Mech the fit never saw: 0.137 / 0.112 / 0.109 / 0.105 / 0.100. BV alone is too cautious (calibration slope 1.4);
+  every fitted model is calibrated (1.00-1.08). Heaviest weights: hit points, short-range sustained damage, ammo shortfall
+  (minus), alpha strike, targeting computer. Match-up terms help a little (long guns against a slow target, two fast 'Mechs
+  cancel).
+  ENGINE FIX (Rust only; the Python answer key is frozen): `capacitor::set_charged` unwrapped the PPC's single damage figure, so
+  a 'Mech with a PPC capacitor on a Snub-Nose PPC (Huron Warrior HUR-WO-R5L, Hatchetman HCT-5DT) panicked at setup (160
+  battles of the battery; kept in the records with their seeds and replayed). Core p.188: a charged capacitor adds 5 to the
+  PPC's damage; TO:AUE p.148 allows it on a Snub-Nose PPC. The Snub-Nose's +5 is now added to its damage at the fired range
+  (`capacitor::charge_bonus`, read in `fire_modes`). No reference battle has such a 'Mech.
+  FOUND, NOT CHANGED: CASPAR's range curve (`caspar.rs`, the damage profile) skips every weapon with no single damage figure
+  (Snub-Nose PPC, VSP lasers, Heavy Gauss); to check against MegaMek's DamageProfile (backlog).
+
 - **2026-11-20 (Claude, session 30), RESEARCH: A DUEL VALUE SYSTEM, TESTED ON PAIRS THAT HAD NEVER FOUGHT (`tools/duel_value.py`).
   REVIEW PENDING (higher-level model).** Daniel: "Care to take a stab and developing a value system for mechs and then use it to
   make predictions about pairs of mechs that haven't fought yet to gauge how accurate the system is?" Per 'Mech: armor +

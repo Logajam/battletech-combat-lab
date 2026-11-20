@@ -14,9 +14,27 @@ pub fn is_capacitor(b: &Battle, u: UnitId, id: ItemId) -> bool {
 pub fn set_charged(b: &mut Battle, u: UnitId, cap: ItemId, on: bool) {
     b.units[u].items[cap].charged = Some(on);
     let ppc = b.units[u].items[cap].linked_ppc.expect("linked ppc");
-    let (bh, bd) = (b.units[u].items[ppc].base_heat.unwrap(), b.units[u].items[ppc].base_damage.unwrap());
-    b.units[u].items[ppc].heat = Some(bh + if on { CHARGE_HEAT } else { 0 });
-    b.units[u].items[ppc].damage_per_shot = Some(bd + if on { CHARGE_DAMAGE } else { 0 });
+    let (bh, bd) = (b.units[u].items[ppc].base_heat, b.units[u].items[ppc].base_damage);
+    if let Some(bh) = bh {
+        b.units[u].items[ppc].heat = Some(bh + if on { CHARGE_HEAT } else { 0 });
+    }
+    // A Snub-Nose PPC has no single damage figure (10/8/5 by range bracket): its +5 is added where its
+    // range damage is read (`charge_bonus`, called from fire_modes), so there is nothing to change here.
+    if let Some(bd) = bd {
+        b.units[u].items[ppc].damage_per_shot = Some(bd + if on { CHARGE_DAMAGE } else { 0 });
+    }
+}
+
+/// The capacitor's +5 damage for a variable-damage PPC (Snub-Nose) whose linked capacitor is charged
+/// (Core p.188: the charge adds 5 to the weapon's normal Damage Value, here the value at the fired range;
+/// TO:AUE p.148 lists Snub-Nose PPCs among the PPCs that take a capacitor). PPCs with one damage figure get
+/// theirs through `damage_per_shot` in `set_charged` instead.
+pub fn charge_bonus(b: &Battle, u: UnitId, w: ItemId) -> i64 {
+    let it = &b.units[u].items[w];
+    match it.capacitor {
+        Some(c) if it.base_damage.is_none() && b.units[u].items[c].linked_ppc == Some(w) && b.units[u].items[c].charged == Some(true) => CHARGE_DAMAGE,
+        _ => 0,
+    }
 }
 
 pub fn live(b: &Battle, u: UnitId, cap: ItemId) -> bool {

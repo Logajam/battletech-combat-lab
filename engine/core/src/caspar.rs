@@ -102,7 +102,7 @@ pub fn envelope(b: &mut Battle, u: UnitId) -> Envelope {
 /// an Ultra autocannon two shots and a Rotary six through the same table, anything else its damage. (Review of session 29:
 /// the first port used the engine's own per-hit expectation, which gives a Streak its whole rack, adds Artemis and treats an
 /// Ultra / Rotary as one shot.) A rack size the table cannot price falls back to the flat damage.
-fn profile_damage_per_hit(b: &mut Battle, u: UnitId, w: usize, dps: i64) -> f64 {
+pub fn profile_damage_per_hit(b: &mut Battle, u: UnitId, w: usize, dps: i64) -> f64 {
     let shots = if crate::fire_modes::is_ultra(b, u, w) {
         2
     } else if crate::fire_modes::is_rotary(b, u, w) {
