@@ -67,12 +67,14 @@ pub fn arc_steps(b: &Battle, attacker: UnitId, weapon: ItemId, impact: (i64, i64
 }
 
 /// A distant shot is announced (p.182): ammunition and heat are already spent by the caller; this records it.
+/// The impact hex is the target's, unless Princess aimed the shot at another hex (princess_artillery.rs).
 pub fn announce(b: &mut Battle, attacker: UnitId, weapon: ItemId, target: UnitId, tn: i64, damage: i64, splash: i64) {
-    let (Some(from), Some(impact)) = (hex_xy(b, attacker), hex_xy(b, target)) else { return };
-    let arc = arc_steps(b, attacker, weapon, impact);
     let turn = b.units[attacker].turn_number;
+    let aimed = crate::princess_artillery::aimed_hex(b, attacker, weapon, target);
+    let (Some(from), Some(impact)) = (hex_xy(b, attacker), aimed.or_else(|| hex_xy(b, target))) else { return };
+    let arc = arc_steps(b, attacker, weapon, impact);
     let wname = b.units[attacker].items[weapon].name.clone();
-    let label = b.units[target].hex.clone().unwrap_or_default();
+    let label = hex_geometry::hex_label(impact.0, impact.1).unwrap_or_default();
     b.log(format!(
         "    {} fires DISTANT at hex {} ({} hexes; lands next turn, needs {} then; p.182).",
         wname,

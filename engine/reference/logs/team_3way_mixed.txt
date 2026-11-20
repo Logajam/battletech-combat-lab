@@ -70,6 +70,7 @@
   [Movement] Green 7: 0105 NE -> 0501 SE, Run (9 MP, 6 hexes, 2 heat; budget walk 6 / run 9 / jump 0)
   [Ranged] Firing order: Blue 2 declares next (big guns first: expected 9.4).
   [Ranged] Firing order: Blue 3 declares next (big guns first: expected 2.5).
+  [Spot] Green 8 spots Red 3 for indirect fire (p.70) and holds its own fire.
   [Ranged] Blue 2 -> Green 2: range 9, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 0); firing ['CLERMediumLaser', 'CLERMediumLaser', 'CLERMediumLaser', 'CLHAG20'] (weapon heat 19 of budget 31 = max 4 + sink 28 - current 0 - movement 1 - other 0; expected dmg 9.36)
     CLERMediumLaser: needs 9 (range mod +2), rolled 6 -> miss
     CLERMediumLaser: needs 9 (range mod +2), rolled 7 -> miss
@@ -108,7 +109,7 @@
     Medium Laser: needs 6 (range mod +0), rolled 4 -> miss
     SRM 6: needs 6 (range mod +0), rolled 11 -> HIT [IS Ammo SRM-6: 14 shots left]
     SRM 4: needs 6 (range mod +0), rolled 7 -> HIT [IS Ammo SRM-4: 24 shots left]
-  [Ranged] Green 8 -> Red 3: range 16, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 12 = max 4 + sink 10 - current 0 - movement 2 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Green 8: spots Red 3 for indirect fire - holds its own fire.
   [Ranged] Green 9: no LOS to Red 2 - holds fire.
     PPC hit for 10:
       Hit location roll 7 (right table): Right Torso.
@@ -1465,13 +1466,15 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
   [Movement select] Green 6: Princess (modern, attack): utility -1.64 = -fall 0.00 + bravery 0.00 [1.00 x 0.00 x 1.5 - taken 0.00] - aggression 5.00 + close range 6.36 - mutual support 3.00 - facing 0 + hold 0.00 [457 of 457 spots; 4 enemies, nearest moved]
   [Movement] Green 6: 1304 NW -> 1405 SE, Walk (5 MP, 2 hexes, 1 heat; budget walk 5 / run 8 / jump 4)
   [Ranged] Firing order: Blue 1 declares next (big guns first: expected 17.7).
+  [Spot] Red 1 spots Blue 3 for indirect fire (p.70) and holds its own fire.
+  [Spot] Green 8 spots Blue 1 for indirect fire (p.70) and holds its own fire.
   [Ranged] Blue 1 -> Green 4: range 2, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 3 + LOS 0 + heat 0); firing ['ISNarcBeacon', 'ISSRM6', 'ISMediumLaser', 'ISMediumLaser'] (weapon heat 10 of budget 10 = max 4 + sink 10 - current 4 - movement 0 - other 0; expected dmg 13.24)
   [Ranged] Blue 1 fires in order: ['ISNarcBeacon', 'ISMediumLaser', 'ISMediumLaser', 'ISSRM6'].
     ISNarcBeacon: needs 7 (range mod +0), rolled 5 -> miss [ISNarc Pods: 1 shots left]
     ISMediumLaser: needs 7 (range mod +0), rolled 6 -> miss
     ISMediumLaser: needs 7 (range mod +0), rolled 6 -> miss
     ISSRM6: needs 7 (range mod +0), rolled 8 -> HIT [ISSRM6 Ammo Narc-capable: 6 shots left]
-  [Ranged] Red 1 -> Blue 3: range 18, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 1); firing nothing (weapon heat 0 of budget 2 = max 4 + sink 20 - current 10 - movement 2 - other 10; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Red 1: spots Blue 3 for indirect fire - holds its own fire.
   [Ranged] Green 1 -> Blue 1: range 5, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['Autocannon/20', 'Medium Laser'] (weapon heat 10 of budget 9 = max 4 + sink 13 - current 7 - movement 1 - other 0; Princess plan utility 32.45, about 14.58 expected dmg)
     Autocannon/20: needs 7 (range mod +2), rolled 7 -> HIT [IS Ammo AC/20: 0 shots left]
     Medium Laser: needs 7 (range mod +2), rolled 8 -> HIT
@@ -1495,7 +1498,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
   [Ranged] Red 3: no LOS to Blue 1 - holds fire.
   [Ranged] Green 6: no LOS to Blue 1 - holds fire.
   [Ranged] Green 7: no LOS to Blue 3 - holds fire.
-  [Ranged] Green 8 -> Blue 1: range 12, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 10 = max 4 + sink 10 - current 2 - movement 2 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Green 8: spots Blue 1 for indirect fire - holds its own fire.
   [Ranged] Green 9: no LOS to Blue 1 - holds fire.
     ISSRM6 hit: cluster roll 9 on the 6-column table -> 5 connect (10 dmg).
       Group 1/5: Hit location roll 7 (front table): Center Torso.
@@ -1672,6 +1675,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
   [Movement select] Green 6: Princess (modern, attack): utility 14.41 = -fall 0.00 + bravery 19.91 [1.00 x 20.12 x 1.5 - taken 10.27] - aggression 2.50 + close range 7.00 - mutual support 10.00 - facing 0 + hold 0.00 [748 of 748 spots; 4 enemies, nearest moved]
   [Movement] Green 6: 1405 SE -> 1706 SW, Run (11 MP, 5 hexes, 2 heat; budget walk 7 / run 11 / jump 4)
   [Ranged] Firing order: Blue 3 declares next (big guns first: expected 9.2).
+  [Spot] Green 7 spots Blue 1 for indirect fire (p.70) and holds its own fire.
   [Ranged] Red 1 -> Blue 3: range 19, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISLRM20'] (weapon heat 6 of budget 12 = max 4 + sink 20 - current 2 - movement 0 - other 10; Princess plan utility 11.39, about 5.29 expected dmg)
     ISLRM20: needs 8 (range mod +4), rolled 4 -> miss [ISLRM20 Ammo: 2 shots left]
   [Ranged] Blue 3 -> Green 8: range 2, base TN 7 (gunnery 4 + AMM 1 [Walk] + TMM 2 + LOS 0 + heat 0); firing ['Small Laser', 'PPC', 'PPC', 'PPC'] (weapon heat 31 of budget 31 = max 4 + sink 28 - current 0 - movement 1 - other 0; expected dmg 9.17)
@@ -1699,7 +1703,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
     Medium Laser: needs 7 (range mod +0), rolled 8 -> HIT
     Medium Laser: needs 7 (range mod +0), rolled 12 -> HIT
     SRM 4: needs 7 (range mod +0), rolled 6 -> miss [IS Ammo SRM-4: 20 shots left]
-  [Ranged] Green 7 -> Blue 1: range 11, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 12 = max 4 + sink 10 - current 0 - movement 2 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Green 7: spots Blue 1 for indirect fire - holds its own fire.
   [Ranged] Green 8 -> Blue 3: range 2, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['SRM 6', 'Medium Laser', 'SRM 4'] (weapon heat 10 of budget 13 = max 4 + sink 10 - current 0 - movement 1 - other 0; Princess plan utility 29.45, about 15.23 expected dmg)
   [Ranged] Green 8 fires in order: ['Medium Laser', 'SRM 6', 'SRM 4'].
     Medium Laser: needs 5 (range mod +0), rolled 5 -> HIT
@@ -1842,8 +1846,9 @@ Attack Phase PSR: needs 5 (Piloting 5 + +0). Rolled 7.
   [Movement select] Blue 1: score 39.457 = dealt 13.13 x1.01 + (HP 262.0 - received 12.65 x1.00 - PSR 0.00) / enemies' future on me 90.35 x my best future 9.49 [enemy held at 0711; 38 spots with LOS]
   [Movement] Blue 1: 1606 SW -> 0810 SW, Run (8 MP, 8 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
   [Ranged] Firing order: Blue 1 declares next (big guns first: expected 15.1).
+  [Spot] Green 1 spots Red 3 for indirect fire (p.70) and holds its own fire.
   [Ranged] Red 1: no LOS to Green 6 - holds fire.
-  [Ranged] Green 1 -> Red 3: range 10, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Green 1: spots Red 3 for indirect fire - holds its own fire.
   [Ranged] Green 2: no LOS to Blue 1 - holds fire.
   [Ranged] Green 3: no LOS to Blue 1 - holds fire.
   [Ranged] Green 4: no LOS to Blue 1 - holds fire.
@@ -2160,12 +2165,15 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 9.
   [Movement] Blue 1 declares a CHARGE against Green 2 (stops adjacent; 4 hexes counting the target's hex).
   [Movement] Blue 1: 0810 SW -> 0511 NE, Run (7 MP, 4 hexes, 2 heat; budget walk 5 / run 8 / jump 0)
   [Ranged] Firing order: Blue 3 declares next (big guns first: expected 3.3).
-  [Ranged] Green 1 -> Red 3: range 12, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Spot] Green 1 spots Red 3 for indirect fire (p.70) and holds its own fire.
+  [Spot] Green 3 spots Red 3 for indirect fire (p.70) and holds its own fire.
+  [Spot] Green 4 spots Red 3 for indirect fire (p.70) and holds its own fire.
+  [Ranged] Green 1: spots Red 3 for indirect fire - holds its own fire.
   [Ranged] Green 2 twists its torso 1 hexside left (Blue 1 is in its torso's left side arc after that).
   [Ranged] Green 2 -> Blue 1: range 1, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['Medium Laser'] (weapon heat 3 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; Princess plan utility 7.60, about 3.61 expected dmg)
     Medium Laser: needs 6 (range mod +0), rolled 11 -> HIT
-  [Ranged] Green 3 -> Red 3: range 17, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
-  [Ranged] Green 4 -> Red 3: range 16, base TN 7 (gunnery 4 + AMM 3 [Jump] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 1 = max 4 + sink 10 - current 3 - movement 5 - other 5; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Green 3: spots Red 3 for indirect fire - holds its own fire.
+  [Ranged] Green 4: spots Red 3 for indirect fire - holds its own fire.
   [Ranged] Green 5: no LOS to Blue 1 - holds fire.
   [Ranged] Red 1 -> Green 6: range 2, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['ISERLargeLaser'] (weapon heat 12 of budget 13 = max 4 + sink 20 - current 0 - movement 1 - other 10; Princess plan utility 18.80, about 6.67 expected dmg)
     ISERLargeLaser: needs 5 (range mod +0), rolled 5 -> HIT
@@ -2434,12 +2442,13 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 10.
   [Movement] Red 1: 2502 SW -> 2401 SW, Walk (3 MP, 1 hexes, 1 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 3: Princess (modern, defend): utility 41.90 = -fall 0.00 + bravery 20.68 [1.00 x 13.79 x 1.5 - taken 0.00] - aggression 0.00 + close range 6.18 - mutual support 1.00 - facing 0 + hold 16.03 [279 of 279 spots; 9 enemies, nearest moved]
   [Movement] Red 3: 2302 S -> 2302 SW, Walk (1 MP, 0 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
+  [Spot] Green 1 spots Red 3 for indirect fire (p.70) and holds its own fire.
   [Ranged] Blue 3 -> Green 7: range 2, base TN 7 (gunnery 4 + AMM 2 [Run] + TMM 1 + LOS 0 + heat 0); firing ['Small Laser', 'PPC', 'PPC'] (weapon heat 21 of budget 25 = max 4 + sink 28 - current 0 - movement 2 - other 5; expected dmg 6.39)
   [Ranged] Blue 3 fires in order: ['PPC', 'PPC', 'Small Laser'].
     PPC: needs 9 (range mod +2), rolled 7 -> miss
     PPC: needs 9 (range mod +2), rolled 7 -> miss
     Small Laser: needs 9 (range mod +2), rolled 6 -> miss
-  [Ranged] Green 1 -> Red 3: range 10, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Green 1: spots Red 3 for indirect fire - holds its own fire.
   [Ranged] Green 2: no LOS to Blue 3 - holds fire.
   [Ranged] Green 3: no LOS to Blue 3 - holds fire.
   [Ranged] Green 4: no LOS to Red 3 - holds fire.
@@ -2570,10 +2579,12 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 11.
   [Movement] Red 1: 2401 SW -> 2401 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
   [Movement select] Red 3: Princess (modern, attack): utility 7.93 = -fall 0.00 + bravery 22.07 [1.00 x 14.71 x 1.5 - taken 0.00] - aggression 17.50 + close range 6.36 - mutual support 3.00 - facing 0 + hold 0.00 [285 of 285 spots; 9 enemies, nearest moved]
   [Movement] Red 3: 2302 SW -> 2103 SW, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 4)
-  [Ranged] Green 1 -> Blue 3: range 13, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Spot] Green 1 spots Blue 3 for indirect fire (p.70) and holds its own fire.
+  [Spot] Green 4 spots Blue 3 for indirect fire (p.70) and holds its own fire.
+  [Ranged] Green 1: spots Blue 3 for indirect fire - holds its own fire.
   [Ranged] Green 2: no LOS to Blue 3 - holds fire.
   [Ranged] Green 3: no LOS to Blue 3 - holds fire.
-  [Ranged] Green 4 -> Blue 3: range 12, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 5 = max 4 + sink 10 - current 3 - movement 1 - other 5; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Green 4: spots Blue 3 for indirect fire - holds its own fire.
   [Ranged] Green 5 -> Blue 3: range 3, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing ['SRM 4', 'Medium Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 12 of budget 12 = max 4 + sink 10 - current 0 - movement 2 - other 0; Princess plan utility 32.85, about 14.65 expected dmg)
   [Ranged] Green 5 fires in order: ['Medium Laser', 'Medium Laser', 'Medium Laser', 'SRM 4'].
     Medium Laser: needs 6 (range mod +0), rolled 8 -> HIT
@@ -3542,14 +3553,17 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
   [Movement] Green 9: 1514 SE -> 1514 SE, Walk (2 MP, 1 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Green 1: Princess (modern, attack): utility 3.08 = -fall 0.00 + bravery 19.99 [1.00 x 42.92 x 1.5 - taken 44.38] - aggression 15.00 + close range 7.09 - mutual support 9.00 - facing 0 + hold 0.00 [155 of 159 spots; 2 enemies, nearest moved]
   [Movement] Green 1: 1406 NE -> 1606 NE, Walk (4 MP, 2 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
+  [Spot] Green 2 spots Red 3 for indirect fire (p.70) and holds its own fire.
+  [Spot] Green 3 spots Red 3 for indirect fire (p.70) and holds its own fire.
+  [Spot] Green 9 spots Red 3 for indirect fire (p.70) and holds its own fire.
   [Ranged] Red 1 -> Green 9: range 18, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISLRM20'] (weapon heat 6 of budget 14 = max 4 + sink 20 - current 0 - movement 0 - other 10; Princess plan utility 20.51, about 5.29 expected dmg)
     ISLRM20: needs 8 (range mod +4), rolled 10 -> HIT [ISLRM20 Ammo: 3 shots left]
   [Ranged] Green 1 -> Red 3: range 6, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['Autocannon/20', 'Medium Laser', 'Medium Laser'] (weapon heat 13 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; Princess plan utility 42.92, about 17.50 expected dmg)
     Autocannon/20: needs 7 (range mod +2), rolled 8 -> HIT [IS Ammo AC/20: 4 shots left]
     Medium Laser: needs 7 (range mod +2), rolled 9 -> HIT
     Medium Laser: needs 7 (range mod +2), rolled 3 -> miss
-  [Ranged] Green 2 -> Red 3: range 15, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 13 = max 4 + sink 13 - current 2 - movement 2 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
-  [Ranged] Green 3 -> Red 3: range 14, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 12 = max 4 + sink 13 - current 3 - movement 2 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Green 2: spots Red 3 for indirect fire - holds its own fire.
+  [Ranged] Green 3: spots Red 3 for indirect fire - holds its own fire.
   [Ranged] Red 3 -> Green 1: range 6, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISLBXAC10', 'ISMediumLaser', 'ISUltraAC5', 'ISMediumLaser'] (weapon heat 10 of budget 20 = max 4 + sink 16 - current 0 - movement 0 - other 0; Princess plan utility 44.38, about 22.88 expected dmg)
     [Red 3 fire control] ISUltraAC5: rapid fire x2
     ISLBXAC10: needs 4 (range mod +0), rolled 5 -> HIT [ISLBXAC10 Ammo: 2 shots left]
@@ -3558,7 +3572,7 @@ Insufficient MP (<2) remaining for another stand attempt. Remains prone.
     ISMediumLaser: needs 6 (range mod +2), rolled 10 -> HIT
   [Ranged] Green 5: no LOS to Red 3 - holds fire.
   [Ranged] Green 8: no LOS to Red 3 - holds fire.
-  [Ranged] Green 9 -> Red 3: range 14, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 8 = max 4 + sink 10 - current 5 - movement 1 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Green 9: spots Red 3 for indirect fire - holds its own fire.
     ISLRM20 hit: cluster roll 7 on the 20-column table -> 12 connect (12 dmg).
       Group 1/3: Hit location roll 4 (left table): Left Arm.
 5 damage (MISSILE) incoming to Left Arm (armor).
@@ -3736,6 +3750,8 @@ Movement Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 8.
   [Movement] Green 5: 1413 N -> 1210 NE, Jump (5 MP, 4 hexes, 4 heat; budget walk 5 / run 8 / jump 5)
   [Movement select] Green 1: Princess (modern, attack): utility 86.95 = -fall 0.00 + bravery 91.45 [1.00 x 83.47 x 1.5 - taken 33.75] - aggression 2.50 + close range 10.00 - mutual support 12.00 - facing 0 + hold 0.00 [243 of 243 spots; 2 enemies, nearest moved]
   [Movement] Green 1: 1606 NE -> 1905 N, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0)
+  [Spot] Green 3 spots Red 3 for indirect fire (p.70) and holds its own fire.
+  [Spot] Green 9 spots Red 3 for indirect fire (p.70) and holds its own fire.
   [Ranged] Red 1 -> Green 9: range 18, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0 + prone target 1); firing ['ISLRM20'] (weapon heat 6 of budget 14 = max 4 + sink 20 - current 0 - movement 0 - other 10; Princess plan utility 13.67, about 3.53 expected dmg)
     ISLRM20: needs 9 (range mod +4), rolled 6 -> miss [ISLRM20 Ammo: 2 shots left]
   [Ranged] Green 1 -> Red 3: range 1, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['Small Laser', 'Autocannon/20', 'Medium Laser', 'Medium Laser'] (weapon heat 14 of budget 15 = max 4 + sink 13 - current 1 - movement 1 - other 0; Princess plan utility 83.47, about 27.50 expected dmg)
@@ -3745,14 +3761,14 @@ Movement Phase consciousness check (pilot, 1 pilot hits): needs 3. Rolled 8.
     Medium Laser: needs 5 (range mod +0), rolled 7 -> HIT
     Small Laser: needs 5 (range mod +0), rolled 6 -> HIT
   [Ranged] Green 2: no LOS to Red 3 - holds fire.
-  [Ranged] Green 3 -> Red 3: range 12, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Green 3: spots Red 3 for indirect fire - holds its own fire.
   [Ranged] Red 3 -> Green 1: range 1, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 1 + LOS 0 + heat 0); firing ['ISLBXAC10', 'ISMediumLaser', 'ISMediumLaser'] (weapon heat 8 of budget 13 = max 4 + sink 15 - current 0 - movement 1 - other 5; Princess plan utility 33.75, about 14.44 expected dmg)
     ISLBXAC10: needs 6 (range mod +0), rolled 5 -> miss [ISLBXAC10 Ammo: 1 shots left]
     ISMediumLaser: needs 6 (range mod +0), rolled 10 -> HIT
     ISMediumLaser: needs 6 (range mod +0), rolled 12 -> HIT
   [Ranged] Green 5: no LOS to Red 3 - holds fire.
   [Ranged] Green 8: no LOS to Red 3 - holds fire.
-  [Ranged] Green 9 -> Red 3: range 12, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0 + prone +2); firing nothing (weapon heat 0 of budget 12 = max 4 + sink 10 - current 0 - movement 2 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Green 9: spots Red 3 for indirect fire - holds its own fire.
     Autocannon/20 hit for 20:
       Hit location roll 8 (left table): Center Torso.
 20 damage (BALLISTIC) incoming to Center Torso (armor).
@@ -3856,13 +3872,14 @@ Stand attempt 1: needs 8 (Piloting 5 + +3, incl. -1 for standing). Rolled 9.
   [Movement] Green 5: 1210 NE -> 2005 NE, Run (11 MP, 9 hexes, 2 heat; budget walk 7 / run 11 / jump 5)
   [Movement select] Green 1: Princess (modern, attack): utility -21.91 = -fall 0.00 + bravery 0.00 [1.00 x 0.00 x 1.5 - taken 0.00] - aggression 15.00 + close range 7.09 - mutual support 14.00 - facing 0 + hold 0.00 [118 of 132 spots; enemy moved]
   [Movement] Green 1: 1905 N -> 1903 NE, Run (6 MP, 3 hexes, 2 heat; budget walk 4 / run 6 / jump 0)
+  [Spot] Green 9 spots Red 1 for indirect fire (p.70) and holds its own fire.
   [Ranged] Red 1 -> Green 9: range 18, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISLRM20'] (weapon heat 6 of budget 14 = max 4 + sink 20 - current 0 - movement 0 - other 10; Princess plan utility 20.51, about 5.29 expected dmg)
     ISLRM20: needs 8 (range mod +4), rolled 11 -> HIT [ISLRM20 Ammo: 1 shots left]
   [Ranged] Green 1: no LOS to Red 1 - holds fire.
   [Ranged] Green 2: no LOS to Red 1 - holds fire.
   [Ranged] Green 3: no LOS to Red 1 - holds fire.
   [Ranged] Green 5: no LOS to Red 1 - holds fire.
-  [Ranged] Green 9 -> Red 1: range 18, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 12 = max 4 + sink 10 - current 0 - movement 2 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Green 9: spots Red 1 for indirect fire - holds its own fire.
     ISLRM20 hit: cluster roll 9 on the 20-column table -> 16 connect (16 dmg).
       Group 1/4: Hit location roll 9 (left table): Right Torso.
 5 damage (MISSILE) incoming to Right Torso (armor).
@@ -3989,11 +4006,13 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
   [Movement] Green 5: 2201 NE -> 1804 NE, Walk (7 MP, 5 hexes, 1 heat; budget walk 7 / run 11 / jump 5) - includes a backward move
   [Movement select] Red 1: Princess (modern, defend): utility 66.71 = -fall 0.00 + bravery 30.76 [1.00 x 20.51 x 1.5 - taken 0.00] - aggression 0.00 + close range 14.55 - facing 0 + hold 21.41 [70 of 70 spots; 5 enemies, nearest moved]
   [Movement] Red 1: 2501 SW -> 2501 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+  [Spot] Green 2 spots Red 1 for indirect fire (p.70) and holds its own fire.
+  [Spot] Green 9 spots Red 1 for indirect fire (p.70) and holds its own fire.
   [Ranged] Green 1: no LOS to Red 1 - holds fire.
-  [Ranged] Green 2 -> Red 1: range 18, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Green 2: spots Red 1 for indirect fire - holds its own fire.
   [Ranged] Green 3: no LOS to Red 1 - holds fire.
   [Ranged] Green 5: no LOS to Red 1 - holds fire.
-  [Ranged] Green 9 -> Red 1: range 18, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 13 = max 4 + sink 10 - current 0 - movement 1 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Green 9: spots Red 1 for indirect fire - holds its own fire.
   [Ranged] Red 1 -> Green 9: range 18, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISLRM20'] (weapon heat 6 of budget 12 = max 4 + sink 20 - current 2 - movement 0 - other 10; Princess plan utility 20.51, about 5.29 expected dmg)
     ISLRM20: needs 8 (range mod +4), rolled 7 -> miss [ISLRM20 Ammo: 0 shots left]
   [Heat] Red 1: 2 + movement 0 + weapons 6 + engine 10 - sinks 20 -> 0
@@ -4032,11 +4051,13 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
   [Movement] Green 5: 1804 NE -> 1804 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 7 / run 11 / jump 5)
   [Movement select] Red 1: Princess (modern, defend): utility 56.04 = -fall 0.00 + bravery 23.80 [1.00 x 15.87 x 1.5 - taken 0.00] - aggression 0.00 + close range 14.55 - facing 0 + hold 17.69 [70 of 70 spots; 5 enemies, nearest moved]
   [Movement] Red 1: 2501 SW -> 2501 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+  [Spot] Green 2 spots Red 1 for indirect fire (p.70) and holds its own fire.
+  [Spot] Green 9 spots Red 1 for indirect fire (p.70) and holds its own fire.
   [Ranged] Green 1: no LOS to Red 1 - holds fire.
-  [Ranged] Green 2 -> Red 1: range 16, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 15 = max 4 + sink 13 - current 0 - movement 2 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Green 2: spots Red 1 for indirect fire - holds its own fire.
   [Ranged] Green 3: no LOS to Red 1 - holds fire.
   [Ranged] Green 5: no LOS to Red 1 - holds fire.
-  [Ranged] Green 9 -> Red 1: range 18, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 14 = max 4 + sink 10 - current 0 - movement 0 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Green 9: spots Red 1 for indirect fire - holds its own fire.
   [Ranged] Red 1 -> Green 9: range 18, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISERLargeLaser'] (weapon heat 12 of budget 14 = max 4 + sink 20 - current 0 - movement 0 - other 10; Princess plan utility 15.87, about 3.33 expected dmg)
     ISERLargeLaser: needs 8 (range mod +4), rolled 7 -> miss
   [Heat] Red 1: 0 + movement 0 + weapons 12 + engine 10 - sinks 20 -> 2
@@ -4075,11 +4096,13 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
   [Movement] Green 5: 1804 NE -> 1804 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 7 / run 11 / jump 5)
   [Movement select] Red 1: Princess (modern, defend): utility 56.04 = -fall 0.00 + bravery 23.80 [1.00 x 15.87 x 1.5 - taken 0.00] - aggression 0.00 + close range 14.55 - facing 0 + hold 17.69 [70 of 70 spots; 5 enemies, nearest moved]
   [Movement] Red 1: 2501 SW -> 2501 SW, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 3 / run 5 / jump 0)
+  [Spot] Green 2 spots Red 1 for indirect fire (p.70) and holds its own fire.
+  [Spot] Green 9 spots Red 1 for indirect fire (p.70) and holds its own fire.
   [Ranged] Green 1: no LOS to Red 1 - holds fire.
-  [Ranged] Green 2 -> Red 1: range 16, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Green 2: spots Red 1 for indirect fire - holds its own fire.
   [Ranged] Green 3: no LOS to Red 1 - holds fire.
   [Ranged] Green 5: no LOS to Red 1 - holds fire.
-  [Ranged] Green 9 -> Red 1: range 18, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 14 = max 4 + sink 10 - current 0 - movement 0 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Green 9: spots Red 1 for indirect fire - holds its own fire.
   [Ranged] Red 1 -> Green 9: range 18, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['ISERLargeLaser'] (weapon heat 12 of budget 12 = max 4 + sink 20 - current 2 - movement 0 - other 10; Princess plan utility 15.87, about 3.33 expected dmg)
     ISERLargeLaser: needs 8 (range mod +4), rolled 8 -> HIT
     ISERLargeLaser hit for 8:
@@ -4158,6 +4181,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
   [Movement] Green 1: 2102 NE -> 2301 NE, Walk (4 MP, 3 hexes, 1 heat; budget walk 4 / run 6 / jump 0) - includes a backward move
   [Movement select] Green 5: Princess (modern, defend): utility 35.97 = -fall 0.00 + bravery 44.24 [1.00 x 35.83 x 1.5 - taken 9.51] - aggression 0.00 + close range 5.73 - mutual support 14.00 - facing 0 + hold 0.00 [687 of 1157 spots; enemy moved]
   [Movement] Green 5: 1804 NE -> 2201 NE, Walk (7 MP, 5 hexes, 1 heat; budget walk 7 / run 11 / jump 5)
+  [Spot] Green 2 spots Red 1 for indirect fire (p.70) and holds its own fire.
   [Ranged] Red 1 -> Green 5: range 3, base TN 6 (gunnery 4 + AMM 0 [Stand Still] + TMM 2 + LOS 0 + heat 0); firing ['ISERLargeLaser'] (weapon heat 12 of budget 10 = max 4 + sink 20 - current 4 - movement 0 - other 10; Princess plan utility 9.51, about 5.78 expected dmg)
     ISERLargeLaser: needs 6 (range mod +0), rolled 5 -> miss
   [Ranged] Green 1 -> Red 1: range 2, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['Small Laser', 'Autocannon/20', 'Medium Laser'] (weapon heat 11 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; Princess plan utility 47.41, about 22.58 expected dmg)
@@ -4165,7 +4189,7 @@ Attack Phase PSR: needs 6 (Piloting 5 + +1). Rolled 11.
     Autocannon/20: needs 5 (range mod +0), rolled 10 -> HIT [IS Ammo AC/20: 1 shots left]
     Medium Laser: needs 5 (range mod +0), rolled 8 -> HIT
     Small Laser: needs 7 (range mod +2), rolled 6 -> miss
-  [Ranged] Green 2 -> Red 1: range 16, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Green 2: spots Red 1 for indirect fire - holds its own fire.
   [Ranged] Green 3: no LOS to Red 1 - holds fire.
   [Ranged] Green 5 -> Red 1: range 3, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing ['Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 12 of budget 13 = max 4 + sink 10 - current 0 - movement 1 - other 0; Princess plan utility 31.36, about 16.67 expected dmg)
     Medium Laser: needs 5 (range mod +0), rolled 10 -> HIT
@@ -4246,13 +4270,15 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
   [Movement] Green 1: 2301 NE -> 2301 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 4 / run 6 / jump 0)
   [Movement select] Green 5: Princess (modern, defend): utility 78.68 = -fall 0.00 + bravery 53.45 [1.00 x 35.63 x 1.5 - taken 0.00] - aggression 0.00 + close range 5.73 - mutual support 14.00 - facing 0 + hold 33.51 [545 of 545 spots; enemy moved]
   [Movement] Green 5: 2201 NE -> 2201 NE, Stand Still (0 MP, 0 hexes, 0 heat; budget walk 7 / run 11 / jump 5)
-  [Ranged] Red 1 -> Green 1: range 2, base TN 6 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 6 = max 4 + sink 20 - current 6 - movement 2 - other 10; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Spot] Red 1 spots Green 1 for indirect fire (p.70) and holds its own fire.
+  [Spot] Green 2 spots Red 1 for indirect fire (p.70) and holds its own fire.
+  [Ranged] Red 1: spots Green 1 for indirect fire - holds its own fire.
   [Ranged] Green 1 -> Red 1: range 2, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['Small Laser', 'Autocannon/20', 'Medium Laser'] (weapon heat 11 of budget 17 = max 4 + sink 13 - current 0 - movement 0 - other 0; Princess plan utility 55.73, about 25.08 expected dmg)
   [Ranged] Green 1 fires in order: ['Autocannon/20', 'Medium Laser', 'Small Laser'].
     Autocannon/20: needs 4 (range mod +0), rolled 5 -> HIT [IS Ammo AC/20: 0 shots left]
     Medium Laser: needs 4 (range mod +0), rolled 6 -> HIT
     Small Laser: needs 6 (range mod +2), rolled 7 -> HIT
-  [Ranged] Green 2 -> Red 1: range 16, base TN 5 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 0 + heat 0); firing nothing (weapon heat 0 of budget 16 = max 4 + sink 13 - current 0 - movement 1 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Green 2: spots Red 1 for indirect fire - holds its own fire.
   [Ranged] Green 3: no LOS to Red 1 - holds fire.
   [Ranged] Green 5 -> Red 1: range 3, base TN 4 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 0); firing ['Medium Laser', 'Medium Laser', 'Medium Laser', 'Medium Laser'] (weapon heat 12 of budget 11 = max 4 + sink 10 - current 3 - movement 0 - other 0; Princess plan utility 35.63, about 18.33 expected dmg)
     Medium Laser: needs 4 (range mod +0), rolled 5 -> HIT

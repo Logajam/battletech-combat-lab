@@ -730,6 +730,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
   [Ranged] Firing order: Red 3 declares next (big guns first: expected 5.6).
   [Ranged] Firing order: Red 1 declares next (big guns first: expected 3.3).
   [Ranged] Firing order: Red 2 declares next (big guns first: expected 2.1).
+  [Spot] Blue 1 spots Red 1 for indirect fire (p.70) and holds its own fire.
   [Ranged] Red 3 twists its torso 1 hexside right (Blue 3 is in its torso's forward arc after that).
   [Ranged] Red 3 -> Blue 3: range 8, base TN 7 (gunnery 4 + AMM 0 [Stand Still] + TMM 2 + LOS 1 + heat 0); firing ['ISLBXAC10', 'ISMediumLaser', 'ISUltraAC5', 'ISMediumLaser'] (weapon heat 10 of budget 20 = max 4 + sink 16 - current 0 - movement 0 - other 0; expected dmg 5.58)
     [Red 3 fire control] ISUltraAC5: rapid fire x2
@@ -737,7 +738,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 5.
     ISMediumLaser: needs 11 (range mod +4), rolled 5 -> miss
     ISUltraAC5 x2: needs 9 (range mod +2), rolled 6 -> miss [ISUltraAC5 Ammo: 14 shots left]
     ISMediumLaser: needs 11 (range mod +4), rolled 5 -> miss
-  [Ranged] Blue 1 -> Red 1: range 13, base TN 9 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 3 + heat 0); firing nothing (weapon heat 0 of budget 26 = max 4 + sink 28 - current 4 - movement 2 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Blue 1: spots Red 1 for indirect fire - holds its own fire.
   [Ranged] Red 1 -> Blue 2: range 12, base TN 8 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 3 + heat 0); firing ['PPC', 'PPC'] (weapon heat 20 of budget 29 = max 4 + sink 28 - current 2 - movement 1 - other 0; expected dmg 3.33)
     PPC: needs 10 (range mod +2), rolled 5 -> miss
     PPC: needs 10 (range mod +2), rolled 8 -> miss
@@ -1384,6 +1385,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 6.
   [Movement] Red 3: 1209 N -> 1112 NW, Jump (4 MP, 3 hexes, 3 heat; budget walk 4 / run 6 / jump 4)
   [Ranged] Firing order: Red 1 declares next (big guns first: expected 11.7).
   [Ranged] Firing order: Red 3 declares next (big guns first: expected 8.8).
+  [Spot] Blue 4 spots Red 1 for indirect fire (p.70) and holds its own fire.
   [Ranged] Blue 1: no LOS to Red 3 - holds fire.
   [Ranged] Blue 2 -> Red 1: range 10, base TN 5 (gunnery 4 + AMM 0 [Stand Still] + TMM 0 + LOS 0 + heat 1); firing ['LRM 20'] (weapon heat 6 of budget 6 = max 4 + sink 10 - current 8 - movement 0 - other 0; Princess plan utility 15.94, about 7.41 expected dmg)
     LRM 20: needs 7 (range mod +2), rolled 2 -> miss [IS Ammo LRM-20: 0 shots left]
@@ -1401,7 +1403,7 @@ Stand attempt 1: needs 4 (Piloting 5 + -1, incl. -1 for standing). Rolled 6.
     ISMediumLaser: needs 10 (range mod +2), rolled 9 -> miss
     ISUltraAC5 x2: needs 8 (range mod +0), rolled 3 -> miss [ISUltraAC5 Ammo: 6 shots left]
     ISMediumLaser: needs 10 (range mod +2), rolled 4 -> miss
-  [Ranged] Blue 4 -> Red 1: range 10, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 0 + LOS 2 + heat 0); firing nothing (weapon heat 0 of budget 17 = max 4 + sink 15 - current 0 - movement 2 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Blue 4: spots Red 1 for indirect fire - holds its own fire.
   [Ranged] Red 4 -> Blue 4: range 12, base TN 6 (gunnery 4 + AMM 1 [Walk] + TMM 0 + LOS 1 + heat 0); firing ['LRM 15', 'LRM 15'] (weapon heat 10 of budget 18 = max 4 + sink 15 - current 0 - movement 1 - other 0; expected dmg 7.92)
     LRM 15: needs 8 (range mod +2), rolled 9 -> HIT [IS Ammo LRM-15: 1 shots left]
     LRM 15: needs 8 (range mod +2), rolled 3 -> miss [IS Ammo LRM-15: 0 shots left]
@@ -3156,6 +3158,7 @@ FALL (failed to stand): Archer ARC-2R takes 7 falling damage (1D6 3: front table
   [Movement select] Red 4: score 538.322 = dealt 15.43 x0.99 + (HP 307.0 - received 4.95 x0.94 - PSR 0.00) / enemies' future on me 4.27 x my best future 7.38 [enemy held at 1212; 87 spots with LOS]
   [Movement] Red 4: 0810 S -> 1113 SE, Jump (4 MP, 4 hexes, 4 heat; budget walk 4 / run 6 / jump 4)
   [Ranged] Firing order: Red 4 declares next (big guns first: expected 8.3).
+  [Spot] Blue 4 spots Red 3 for indirect fire (p.70) and holds its own fire.
   [Ranged] Blue 3 -> Red 4: range 1, base TN 8 (gunnery 4 + AMM 2 [Run] + TMM 2 + LOS 0 + heat 0); firing ['ISLBXAC10', 'ISMediumLaser', 'ISMediumLaser'] (weapon heat 8 of budget 18 = max 4 + sink 16 - current 0 - movement 2 - other 0; Princess plan utility 16.60, about 7.84 expected dmg)
     [Blue 3 fire control] ISLBXAC10: LB-X cluster rounds
   [Ranged] Blue 3 fires in order: ['ISMediumLaser', 'ISMediumLaser', 'ISLBXAC10'].
@@ -3167,7 +3170,7 @@ FALL (failed to stand): Archer ARC-2R takes 7 falling damage (1D6 3: front table
     Medium Laser: needs 8 (range mod +0), rolled 6 -> miss
     Medium Laser: needs 8 (range mod +0), rolled 7 -> miss
     Medium Laser: needs 8 (range mod +0), rolled 7 -> miss
-  [Ranged] Blue 4 -> Red 3: range 4, base TN 11 (gunnery 4 + AMM 3 [Jump] + TMM 1 + LOS 3 + heat 0); firing nothing (weapon heat 0 of budget 15 = max 4 + sink 15 - current 0 - movement 4 - other 0; Princess plan utility 0.00, about 0.00 expected dmg)
+  [Ranged] Blue 4: spots Red 3 for indirect fire - holds its own fire.
   [Ranged] Red 3 -> Blue 4: range 4, base TN 12 (gunnery 4 + AMM 3 [Jump] + TMM 2 + LOS 3 + heat 0); firing ['ISLBXAC10'] (weapon heat 2 of budget 17 = max 4 + sink 16 - current 0 - movement 3 - other 0; expected dmg 0.53)
     [Red 3 fire control] ISLBXAC10: LB-X cluster rounds
     ISLBXAC10: needs 11 (range mod +0, modifiers -1), rolled 9 -> miss [ISLBXAC10 CL Ammo: 3 shots left]

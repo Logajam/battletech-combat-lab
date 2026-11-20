@@ -776,6 +776,10 @@ fn call(b: &mut Battle, bots: &mut dyn BotSet, method: &str, a: &Value) -> Value
             bots.manage_heat_equipment(b);
             Value::Null
         }
+        "choose_spot" => match bots.choose_spot(b, a["unit"].as_u64().unwrap() as UnitId) {
+            Some((target, fires)) => json!([target, fires]),
+            None => Value::Null,
+        },
         "end_of_turn" => {
             bots.end_of_turn(b);
             Value::Null
@@ -1157,6 +1161,10 @@ impl BotSet for Recorder<'_> {
     }
     fn manage_heat_equipment(&mut self, b: &mut Battle) {
         self.run(b, "manage_heat_equipment", json!({}));
+    }
+    fn choose_spot(&mut self, b: &mut Battle, u: UnitId) -> Option<(UnitId, bool)> {
+        let a = self.run(b, "choose_spot", json!({"unit": u}));
+        a.as_array().map(|x| (x[0].as_u64().unwrap() as UnitId, x[1].as_bool().unwrap()))
     }
     fn end_of_turn(&mut self, b: &mut Battle) {
         self.run(b, "end_of_turn", json!({}));

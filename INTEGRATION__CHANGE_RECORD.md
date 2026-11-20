@@ -6,6 +6,29 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-20 (Claude), PRINCESS'S OWN SPOTTING AND DISTANT ARTILLERY (backlog N2). REVIEW PENDING (higher-level model).**
+  Daniel: "Isn't princess supposed to have her own code for spotting and artillery?"; "Princess needs its artillery code".
+  From MegaMek main 3f9f2fd (`FireControl.getSpotAction`, Princess's fire turn, `ArtilleryTargetingControl`). SPOTTING: a new
+  bot decision `choose_spot` (`RangedBot` / `BotSet`, default STUB_SPOT; a `bridge.rs` method, so the parity check sees it);
+  Princess / CASPAR: `spotting::princess_spot` - she prices her own firing plan first (target + weapon choice, dry and quiet,
+  as the bridge does); firing for >= 1.0 expected damage she spots only with a working command console (and then also
+  fires); otherwise she spots the closest enemy she sees (a tie: `pick_number` from the battle's dice) and holds her trivial
+  fire; with no plan, not while unjamming. RULE ADDED with it (Core p.203): a working Cockpit Command Console's second warrior
+  spots with no Spotter Attacking modifier (`console_spots_free`; the spotter's own +1 and the +1 to the fire it spots for).
+  DISTANT ARTILLERY: new `princess_artillery.rs` - when the engine offers Princess / CASPAR a distant shot (18+ hexes) she
+  aims by MegaMek's rules (candidates: the target's hex led toward our BV-weighted centre for the 1-turn flight, and every hex
+  within 2; value: blast damage x 1/(run MP+1) x (+1 enemy, -2 friend), a teammate's aimed hex x0.2; hold unless above 0
+  and 2+ enemies within 2 hexes of the target) and the shot lands on the chosen hex (`artillery::announce`; `Battle::
+  distant_aims`, keyed by both units' positions because she prices fire from every hex she weighs moving to - the first
+  version reused an aim from a hypothetical position and fired at 16 hexes; fixed). Differences from MegaMek (module comment):
+  no separate Targeting Phase over every enemy, ties keep the first. Gladiator / Hydra keep both stubs. RESULTS: 9 reference
+  battles re-recorded (`--update`), all with Princess or CASPAR units: cov_brawl_princess, cov_pool_start,
+  team_12v12_princess_v_gladiator, team_3way_mixed, team_4v4_princess_v_gladiator, zone_4v4_princess_v_caspar_hills,
+  caspar_red__hy_duel_griffin, caspar_blue__hy_4v4_heavy_hills, caspar_red__hy_8v8_valley. A/B against `main` (same 20 seeds):
+  4v4 Princess (Red) v Gladiator 14-6 -> 13-7; 12v12 Blue 20-0 -> 20-0; a Princess Arrow IV lance (Patriot, Legionnaire,
+  Hermes II) v a Gladiator lance on the 32x17 valley 11-7-2 -> 9-9-2: no measurable change at 20 battles. Bridge parity
+  83 of 83.
+
 - **2026-11-20 (Claude), PYTHON ENGINE REMOVED; ITS ANSWERS FROZEN (backlog N11). REVIEW PENDING (higher-level model).**
   Daniel: "I'm beginning to think we should dead code the python"; "delete is such a strong word... Github remembers". The last
   commit WITH the Python engine is `c9ec5fa` (branch `claude/sweet-edison-2vye0s`; `git checkout c9ec5fa -- mechsim pathfinder
