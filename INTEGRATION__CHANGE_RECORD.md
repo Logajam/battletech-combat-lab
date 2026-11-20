@@ -106,6 +106,18 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   Rerun `python tools/benchmark_report.py --bv-file LISTS.json` (LISTS.json: the Lab's `list_units` output) for the tables.
   Checks: no engine or test file changed; `run_checks.py` not run (docs and new tools only).
 
+- **2026-11-20 (Claude, session 30), RESEARCH: THE ASYMPTOTE CHALLENGE (`duel_value.py challenge`). REVIEW PENDING (higher-level model).**
+  Daniel: "I personally expect the asymptote to break your model. Go ahead and fire up a batch of asymptote vs the top 10. 100
+  battles each." Asymptote II (iJ Mpulse; tripod, rules level 4, hardened armor) v the engine-numbers formula's top 10, every
+  model's prediction committed before the battles; then Daniel: "hardened armor definitly counts for at least 2 per point of
+  armor" (Core p.202), added as a dated addendum (armor x2) after the battles started, before any result was read. 1,000
+  battles (`trial_records/2026-11-20_fair_duels_challenge_asymptote_ii_ij_mpulse.jsonl`; 96 balanced over bot x edge + 4 more,
+  all four Gladiator by an oversight of `challenge_cells`, so Gladiator played 280 and each other bot 240). Asymptote scored
+  0.79-0.95 against each (Gladiator 0.84, Princess 0.88, Hydra 0.89, CASPAR 0.92). Mean error: BV 0.257; engine numbers 0.580;
+  + match-ups 0.477; BV + numbers 0.333; + match-ups 0.201; with the armor doubled 0.243 / 0.088 / 0.152 / 0.051. The fit, which
+  saw no hardened armor, no tripods and no rules level 4, failed outside its data; armor counted as Core p.202 says fixes most
+  of it. Next: count special armor (hardened, reactive, reflective, ferro-lamellor...) by the rule in the profile.
+
 - **2026-11-20 (Claude, session 30), RESEARCH: THE DUEL VALUE SYSTEM, ROUND 2 (ENGINE NUMBERS, RANDOM BATTERY, MATCH-UP TERMS),
   AND A SNUB-NOSE PPC CAPACITOR CRASH FIXED. REVIEW PENDING (higher-level model).** Daniel: "Lets go with your suggestion".
   NEW: `btsim profile --setup SETTINGS.json` prints each unit's engine numbers as JSON (armor/rear/structure per location, MP,

@@ -275,6 +275,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s30-12) ASYMPTOTE CHALLENGE** (session 30): `duel_value.py` `fit_all` / `challenge_cells` / `stage_challenge` (predict, addendum, play, score). Look at: `challenge_cells` gives the 4 battles over 96 all to Gladiator; the armor-x2 addendum touches only the challenger.
 - **(s30-11) DUEL VALUE ROUND 2 + SNUB-NOSE CAPACITOR** (session 30): `btsim profile` (main.rs; variable-damage pricing), `capacitor::charge_bonus` / `set_charged` (Core p.188, TO:AUE p.148), `duel_value.py` `big_pool` / `battery` / `features2` / `fit2`. Look at: the sustained-damage greedy pick, the held-out-'Mech split (hashing), whether the match-up list is worth keeping.
 - **(s30-10) DUEL VALUE SYSTEM** (session 30): `tools/duel_value.py` (profile: damage by range, heat scaling, ammo turns; the logistic fit; the test-pair draw). Look at: the selection effect in `predict` (pairs chosen on the value model's own guess) and the missile cluster factor.
 - **(s30-9) FAIR DUELS + QUAD PRONE FIRE** (session 30): `tools/fair_duels.py` (cell design, edge / seat balance, Bradley-Terry, candidate choice, resume), `attack_resolution::prone_fire` (Core p.238). Look at: whether the FAIR test (every bot within 2 standard errors) is the right bar with 60 pairs tested (some pass or fail by chance).
