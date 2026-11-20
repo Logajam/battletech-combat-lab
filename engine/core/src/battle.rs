@@ -168,6 +168,8 @@ pub struct Battle {
     pub split_fire: Vec<crate::split_fire::SplitState>,
     /// Princess's distant-artillery aims this turn (princess_artillery.rs; a bot's working memory, not saved with a state)
     pub distant_aims: Vec<crate::princess_artillery::Aim>,
+    /// each team's own settings (TEAM_SETTINGS; team_settings.rs): (team, settings; None while they stand in `cfg`)
+    pub team_cfgs: Vec<(String, Option<Config>)>,
     /// INTEGRATION__los_cache: lines of sight the bots asked about, (from, to, heights) -> answer (None = the line runs
     /// off the board). Speed only: emptied whenever the board changes (`board_changed`).
     /// finished movement tables (`movement_table`); speed only, emptied when the board changes
@@ -216,6 +218,7 @@ impl Battle {
 
     pub fn new(cfg: Config, board: Board, units: Vec<Mech>, dice: Box<dyn Dice>) -> Battle {
         let piloting = if cfg.has("PILOTING") { cfg.i("PILOTING") } else { 5 };
+        let team_cfgs = crate::team_settings::build(&cfg);
         Battle {
             cfg,
             tally: Tally::default(),
@@ -243,6 +246,7 @@ impl Battle {
             pending_artillery: Vec::new(),
             split_fire: Vec::new(),
             distant_aims: Vec::new(),
+            team_cfgs,
             los_memo: Default::default(),
             table_memo: Default::default(),
         }

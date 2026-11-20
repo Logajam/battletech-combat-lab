@@ -29,25 +29,31 @@ fn require_duel(b: &mut Battle, u: UnitId, what: &str) {
 impl BotSet for GladiatorBots {
     #[allow(unused)]
     fn choose_foe(&mut self, b: &mut Battle, mover: UnitId) -> Option<UnitId> {
-        if b.units[mover].bot == "gladiator" {
-            if let Some(f) = crate::legate::foe_for(b, mover) {
-                return Some(f);
+        // this unit's team settings while it decides (team_settings.rs)
+        crate::team_settings::with_unit(b, mover, |b| {
+            if b.units[mover].bot == "gladiator" {
+                if let Some(f) = crate::legate::foe_for(b, mover) {
+                    return Some(f);
+                }
             }
-        }
-        // forces.choose_foe(...) or forces.any_enemy(...): the foe a unit still plans against when its last enemy fell earlier in
-        // the same phase (destroyed or not)
-        crate::forces::choose_foe(b, mover).or_else(|| (0..b.units.len()).find(|u| b.units[*u].team != b.units[mover].team))
+            // forces.choose_foe(...) or forces.any_enemy(...): the foe a unit still plans against when its last enemy fell earlier in
+            // the same phase (destroyed or not)
+            crate::forces::choose_foe(b, mover).or_else(|| (0..b.units.len()).find(|u| b.units[*u].team != b.units[mover].team))
+        })
     }
 
     #[allow(unused)]
     fn choose_target(&mut self, b: &mut Battle, attacker: UnitId) -> Option<UnitId> {
-        if b.units[attacker].is_princess_family() {
-            return crate::bot_targets::princess_choose_target(b, attacker);
-        }
-        if b.units[attacker].bot == "hydra" {
-            return crate::hydra::choose_target(b, attacker);
-        }
-        crate::bot_targets::gladiator_choose_target(b, attacker)
+        // this unit's team settings while it decides (team_settings.rs)
+        crate::team_settings::with_unit(b, attacker, |b| {
+            if b.units[attacker].is_princess_family() {
+                return crate::bot_targets::princess_choose_target(b, attacker);
+            }
+            if b.units[attacker].bot == "hydra" {
+                return crate::hydra::choose_target(b, attacker);
+            }
+            crate::bot_targets::gladiator_choose_target(b, attacker)
+        })
     }
 
     fn fire_pick_active(&mut self, b: &mut Battle) -> bool {
@@ -64,39 +70,48 @@ impl BotSet for GladiatorBots {
 
     #[allow(unused)]
     fn choose_declaration(&mut self, b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId) -> DeclChoice {
-        if b.units[attacker].is_princess_family() {
-            return crate::gladiator::choose_declaration_princess(b, ctx, planner, attacker, target);
-        }
-        crate::gladiator::choose_declaration(b, ctx, planner, attacker, target)
+        // this unit's team settings while it decides (team_settings.rs)
+        crate::team_settings::with_unit(b, attacker, |b| {
+            if b.units[attacker].is_princess_family() {
+                return crate::gladiator::choose_declaration_princess(b, ctx, planner, attacker, target);
+            }
+            crate::gladiator::choose_declaration(b, ctx, planner, attacker, target)
+        })
     }
 
     #[allow(unused)]
     fn choose_physical(&mut self, b: &mut Battle, attacker: UnitId, target: UnitId) -> Option<(i64, Vec<PhysOption>, ArcAction)> {
-        if b.units[attacker].is_princess_family() {
-            return crate::princess_fire::choose_physical(b, attacker, target);
-        }
-        crate::physical::choose_attack(b, attacker, target)
+        // this unit's team settings while it decides (team_settings.rs)
+        crate::team_settings::with_unit(b, attacker, |b| {
+            if b.units[attacker].is_princess_family() {
+                return crate::princess_fire::choose_physical(b, attacker, target);
+            }
+            crate::physical::choose_attack(b, attacker, target)
+        })
     }
 
     #[allow(unused)]
     fn choose_movement(&mut self, b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, standup_mp: Option<i64>, entry_edge: Option<&[String]>) -> (Option<Pick>, String, PathGate) {
-        let mut ties = Ties { recorded: None, missed: false };
-        let (pick, note) = if b.units[mover].bot == "hydra" {
-            crate::hydra::choose_movement(b, mover, other, moves_first, standup_mp, entry_edge)
-        } else if b.units[mover].is_princess_family() {
-            // CASPAR = Princess's whole movement ranker with the Mutual Support doctrine swapped in (caspar.rs)
-            crate::princess_modern::choose_as(b, mover, other, moves_first, standup_mp, entry_edge, &mut ties, b.units[mover].bot == "caspar")
-        } else {
-            move_select::choose(b, mover, other, moves_first, standup_mp, entry_edge, &mut ties)
-        };
-        let gate = match &pick {
-            Some(p) => {
-                let (psrs, hazard) = crate::ranged_combat::path_notes(b, mover, p, standup_mp, entry_edge);
-                PathGate { psrs, hazard }
-            }
-            None => PathGate::default(),
-        };
-        (pick, note, gate)
+        // this unit's team settings while it decides (team_settings.rs)
+        crate::team_settings::with_unit(b, mover, |b| {
+            let mut ties = Ties { recorded: None, missed: false };
+            let (pick, note) = if b.units[mover].bot == "hydra" {
+                crate::hydra::choose_movement(b, mover, other, moves_first, standup_mp, entry_edge)
+            } else if b.units[mover].is_princess_family() {
+                // CASPAR = Princess's whole movement ranker with the Mutual Support doctrine swapped in (caspar.rs)
+                crate::princess_modern::choose_as(b, mover, other, moves_first, standup_mp, entry_edge, &mut ties, b.units[mover].bot == "caspar")
+            } else {
+                move_select::choose(b, mover, other, moves_first, standup_mp, entry_edge, &mut ties)
+            };
+            let gate = match &pick {
+                Some(p) => {
+                    let (psrs, hazard) = crate::ranged_combat::path_notes(b, mover, p, standup_mp, entry_edge);
+                    PathGate { psrs, hazard }
+                }
+                None => PathGate::default(),
+            };
+            (pick, note, gate)
+        })
     }
 
     fn unit_moved(&mut self, b: &mut Battle, mover: UnitId, start_hex: Option<&str>) {
@@ -120,28 +135,31 @@ impl BotSet for GladiatorBots {
     }
 
     fn choose_spot(&mut self, b: &mut Battle, u: UnitId) -> Option<(UnitId, bool)> {
-        if !b.units[u].is_princess_family() {
-            return crate::stubs::stub_spot(b, u); // Gladiator / Hydra: the stub (Daniel: stub markers for what they can't do yet)
-        }
-        // Princess / CASPAR price their own firing plan first (MegaMek FireControl.getSpotAction takes the plan): her
-        // target and her weapon choice, worked out dry (no stub warning, no log line) as the bridge does
-        let plan = match self.choose_target(b, u) {
-            None => None,
-            Some(target) => {
-                b.log.quiet += 1;
-                let damage = match crate::attack_resolution::prepare_declaration(b, u, target, true) {
-                    crate::attack_resolution::Prep::Ready(ctx) => {
-                        let mut planner = crate::fire_modes::Planner::new(u, target, &ctx.adjust, ctx.ams_share, ctx.pod_values.clone(), Some(ctx.hex_offset));
-                        let choice = self.choose_declaration(b, &ctx, &mut planner, u, target);
-                        if choice.weapons.is_empty() { None } else { Some(choice.exp_dmg) }
-                    }
-                    _ => None,
-                };
-                b.log.quiet -= 1;
-                damage
+        // this unit's team settings while it decides (team_settings.rs)
+        crate::team_settings::with_unit(b, u, |b| {
+            if !b.units[u].is_princess_family() {
+                return crate::stubs::stub_spot(b, u); // Gladiator / Hydra: the stub (Daniel: stub markers for what they can't do yet)
             }
-        };
-        crate::spotting::princess_spot(b, u, plan)
+            // Princess / CASPAR price their own firing plan first (MegaMek FireControl.getSpotAction takes the plan): her
+            // target and her weapon choice, worked out dry (no stub warning, no log line) as the bridge does
+            let plan = match self.choose_target(b, u) {
+                None => None,
+                Some(target) => {
+                    b.log.quiet += 1;
+                    let damage = match crate::attack_resolution::prepare_declaration(b, u, target, true) {
+                        crate::attack_resolution::Prep::Ready(ctx) => {
+                            let mut planner = crate::fire_modes::Planner::new(u, target, &ctx.adjust, ctx.ams_share, ctx.pod_values.clone(), Some(ctx.hex_offset));
+                            let choice = self.choose_declaration(b, &ctx, &mut planner, u, target);
+                            if choice.weapons.is_empty() { None } else { Some(choice.exp_dmg) }
+                        }
+                        _ => None,
+                    };
+                    b.log.quiet -= 1;
+                    damage
+                }
+            };
+            crate::spotting::princess_spot(b, u, plan)
+        })
     }
 
     fn end_movement(&mut self, b: &mut Battle) {
