@@ -388,10 +388,183 @@ def stage_battery(argv):
     fd.run_cells(cells, "value_battery", int(fd.option(argv, "--workers", "4")))
 
 
+CACHE2 = os.path.join(ROOT, "trial_records", "progress", "duel_value_engine_profiles.json")
+
+
+def engine_profiles(units, batch=40):
+    """`btsim profile` for every unit (cached, git-ignored): the engine's own numbers per 'Mech."""
+    cache = json.load(open(CACHE2)) if os.path.exists(CACHE2) else {}
+    todo = [u["id"] for u in units if u["id"] not in cache]
+    fd.unpack([u for u in units if u["id"] in set(todo)])
+    for i in range(0, len(todo), batch):
+        chunk = todo[i:i + batch]
+        settings = {"FORCES": [{"team": f"T{j}", "mtf": uid, "count": 1, "bot": "princess"} for j, uid in enumerate(chunk)],
+                    "DEFAULT_BOARD_PATH": "BigBlank.board"}
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
+            json.dump(settings, f)
+            path = f.name
+        try:
+            r = subprocess.run([fd.BTSIM, "profile", "--setup", path], capture_output=True, text=True, cwd=ROOT)
+        finally:
+            os.unlink(path)
+        if r.returncode != 0:  # one bad unit spoils a batch: fall back to one at a time
+            if len(chunk) > 1:
+                cache.update({k: v for k, v in engine_profiles([{"id": c} for c in chunk], batch=1).items()})
+                continue
+            cache[chunk[0]] = None
+            continue
+        for uid, prof in zip(chunk, json.loads(r.stdout)):
+            cache[uid] = prof
+        os.makedirs(os.path.dirname(CACHE2), exist_ok=True)
+        json.dump(cache, open(CACHE2, "w"))
+    json.dump(cache, open(CACHE2, "w"))
+    return {u["id"]: cache.get(u["id"]) for u in units}
+
+
+EQUIP_FLAGS = {"ams": ["antimissile", "anti-missile", " ams"], "ecm": ["ecm"], "masc": ["masc"], "tsm": ["tsm", "triple strength"],
+               "case": ["case"], "tc": ["targeting computer", "targetingcomputer"], "artemis": ["artemis"]}
+
+
+def features2(p):
+    """The engine-based numbers of one 'Mech (`btsim profile`):
+      ln_hp    ln(armor + rear armor + structure, all locations)
+      ln_ct    ln(the centre torso's armor + rear + structure): the location that kills
+      ln_sus_short / _medium / _long   ln(1 + SUSTAINED damage a turn, averaged over ranges 1-3 / 4-9 / 10-18): the
+               forward weapons the heat sinks can carry, best damage per heat first (heat-free weapons always fire)
+      ln_alpha ln(1 + the best damage a turn at any range, every forward weapon firing, heat ignored)
+      ammo_short  the share of the best sustained damage that needs ammo, times how far its ammo falls short of 20 turns
+      run, jump   MP;  ln_tons  (physical attacks scale with weight)
+      ams, ecm, masc, tsm, case, tc, artemis   0 / 1"""
+    loc = p["locations"]
+    hp = sum(a + r + s for a, r, s in loc.values())
+    ct = sum(loc.get("Center Torso", [0, 0, 0]))
+    fwd = [w for w in p["weapons"] if not w["rear"]]
+    budget = max(p["dissipation"], 0)
+
+    def sustained(r):
+        ws = sorted(fwd, key=lambda w: -(w["curve"][r - 1] / w["heat"]) if w["heat"] > 0 else -1e9)
+        heat, dmg, ammo_dmg = 0, 0.0, 0.0
+        for w in ws:
+            d = w["curve"][r - 1]
+            if d <= 0:
+                continue
+            if w["heat"] > 0 and heat + w["heat"] > budget:
+                continue
+            heat += w["heat"]
+            dmg += d
+            if w["shots"] is not None:
+                ammo_dmg += d
+        return dmg, ammo_dmg
+    sus = [sustained(r) for r in range(1, 19)]
+    band = lambda a, b: sum(sus[r - 1][0] for r in range(a, b + 1)) / (b - a + 1)
+    best_r = max(range(1, 19), key=lambda r: sus[r - 1][0])
+    best, best_ammo = sus[best_r - 1]
+    ammo_ws = [w for w in fwd if w["shots"] is not None and w["curve"][best_r - 1] > 0]
+    turns = min([w["shots"] for w in ammo_ws], default=20.0)
+    ammo_short = (best_ammo / best if best > 0 else 0.0) * max(0.0, 1 - min(turns, 20) / 20)
+    alpha = max(sum(w["curve"][r - 1] for w in fwd) for r in range(1, 19))
+    names = " ".join(e.lower() for e in p["equipment"])
+    f = {"ln_hp": math.log(max(hp, 1)), "ln_ct": math.log(max(ct, 1)), "ln_sus_short": math.log1p(band(1, 3)),
+         "ln_sus_medium": math.log1p(band(4, 9)), "ln_sus_long": math.log1p(band(10, 18)), "ln_alpha": math.log1p(alpha),
+         "ammo_short": ammo_short, "run": p["run"], "jump": p["jump"], "ln_tons": math.log(max(p["tons"] or 20, 10))}
+    for k, keys in EQUIP_FLAGS.items():
+        f[k] = 1.0 if any(x in " " + names for x in keys) else 0.0
+    f["ln_bv"] = math.log(max(p["bv"], 1))
+    return f
+
+
+F2 = ["ln_hp", "ln_ct", "ln_sus_short", "ln_sus_medium", "ln_sus_long", "ln_alpha", "ammo_short", "run", "jump", "ln_tons",
+      "ams", "ecm", "masc", "tsm", "case", "tc", "artemis"]
+# MATCH-UP TERMS: f(A) g(B) - f(B) g(A) for these (f, g): a value of A that depends on B (long guns against a slow target,
+# short guns with the speed to close against a long-range 'Mech, armor against the other's punch...). Zero for a mirror.
+CROSS = [("ln_sus_long", "inv_run"), ("ln_sus_short", "run"), ("ln_sus_short", "ln_sus_long"), ("jump", "ln_sus_long"),
+         ("ln_hp", "ln_alpha"), ("run", "inv_run"), ("ln_sus_medium", "run"), ("ln_ct", "ln_alpha")]
+
+
+def pair_vector(fa, fb, names, cross):
+    """The model's inputs for (A, B): A's features minus B's, then the match-up terms."""
+    x = [fa[n] - fb[n] for n in names]
+    g = lambda f, k: 1.0 / max(f["run"], 1) if k == "inv_run" else f[k]
+    for f1, f2 in cross:
+        x.append(g(fa, f1) * g(fb, f2) - g(fb, f1) * g(fa, f2))
+    return x
+
+
+def fit_np(X, s, n, l2=1e-2, iters=60):
+    """Logistic regression on pair rows (inputs X, A's score s over n battles), Newton steps; standardized inputs."""
+    import numpy as np
+    X = np.asarray(X, float)
+    s = np.asarray(s, float)
+    n = np.asarray(n, float)
+    sd = X.std(axis=0)
+    sd[sd == 0] = 1
+    Z = X / sd
+    w = np.zeros(Z.shape[1])
+    for _ in range(iters):
+        p = 1 / (1 + np.exp(-Z @ w))
+        g = Z.T @ (n * (p - s)) + l2 * n.sum() * w / len(n)
+        H = (Z * (n * p * (1 - p))[:, None]).T @ Z + l2 * n.sum() / len(n) * np.eye(len(w))
+        w -= np.linalg.solve(H, g)
+    return w / sd
+
+
+def stage_fit2(argv):
+    """Fit and test on HELD-OUT data: (1) random battery pairs held out (20%, seeded), (2) every pair with a held-out 'Mech
+    (15% of the big pool, seeded; none of their battles is used to fit). Training also uses the earlier intro runs."""
+    import numpy as np
+    pool = big_pool()
+    every = {u["id"]: u for u in fd.catalog_units()}
+    rows = battles(["value_battery", "intro", "intro_confirm", "value_test"])
+    ids = sorted({r["a"] for r in rows} | {r["b"] for r in rows})
+    prof = engine_profiles([every[i] for i in ids if i in every])
+    feats = {i: features2(p) for i, p in prof.items() if p}
+    pairs = [p for p in pair_table(rows) if p[0] in feats and p[1] in feats]
+    battery = set(battery_pairs())
+    rng = random.Random(99)
+    test_pairs = {p for p in battery if rng.random() < 0.2}
+    held = {u["id"] for u in pool if random.Random(fd.cell_seed(["held", u["id"]])).random() < 0.15}
+    splits = {
+        "random held-out pairs": ([p for p in pairs if (p[0], p[1]) not in test_pairs], [p for p in pairs if (p[0], p[1]) in test_pairs]),
+        "pairs with a never-seen 'Mech": ([p for p in pairs if p[0] not in held and p[1] not in held],
+                                          [p for p in pairs if (p[0] in held or p[1] in held) and (p[0], p[1]) in battery]),
+    }
+    specs = {
+        "bv": (["ln_bv"], []),
+        "value2": (F2, []),
+        "value2 + match-ups": (F2, CROSS),
+        "bv_plus2": (F2 + ["ln_bv"], []),
+        "bv_plus2 + match-ups": (F2 + ["ln_bv"], CROSS),
+    }
+    report = {}
+    for split, (train, test) in splits.items():
+        print(f"\n== {split}: fit on {len(train)} pairs ({sum(p[3] for p in train)} battles), test {len(test)} pairs ({sum(p[3] for p in test)} battles)")
+        print(f"  {'model':22s} {'log loss':>9s} {'mean |err|':>10s} {'calib.':>7s}   (log loss: a coin 0.693; per battle)")
+        s_te = np.array([p[2] for p in test])
+        n_te = np.array([p[3] for p in test])
+        noise = float(np.mean(np.sqrt(np.clip(s_te * (1 - s_te), 0.02, None) / n_te))) * 0.8
+        for name, (names, cross) in specs.items():
+            X = [pair_vector(feats[a], feats[b], names, cross) for a, b, _, _ in train]
+            w = fit_np(X, [p[2] for p in train], [p[3] for p in train])
+            Xt = np.array([pair_vector(feats[a], feats[b], names, cross) for a, b, _, _ in test])
+            z = Xt @ w
+            pr = np.clip(1 / (1 + np.exp(-z)), 1e-6, 1 - 1e-6)
+            ll = float(-(n_te * (s_te * np.log(pr) + (1 - s_te) * np.log(1 - pr))).sum() / n_te.sum())
+            err = float(np.mean(np.abs(pr - s_te)))
+            # calibration: the slope of a refit of the outcomes on the model's own logit (1 = right, > 1 = too cautious)
+            c = fit_np(z[:, None], s_te, n_te, l2=0)[0]
+            print(f"  {name:22s} {ll:9.3f} {err:10.3f} {c:7.2f}")
+            report.setdefault(split, {})[name] = {"log_loss": ll, "mean_err": err, "calibration": c,
+                                                   "weights": dict(zip(names + [f"{f}*{g}" for f, g in cross], map(float, w)))}
+        print(f"  (noise floor of mean |err| with {np.mean(n_te):.0f} battles a pair: about {noise:.3f})")
+    out = os.path.join(ROOT, "tools", "duel_value_fit2.json")
+    json.dump(report, open(out, "w"), indent=1)
+    print("weights and scores:", out)
+
+
 def main(argv):
     if not argv:
         sys.exit(__doc__)
-    {"fit": stage_fit, "predict": stage_predict, "play": stage_play, "score": stage_score, "battery": stage_battery}[argv[0]](argv[1:])
+    {"fit": stage_fit, "predict": stage_predict, "play": stage_play, "score": stage_score, "battery": stage_battery, "fit2": stage_fit2}[argv[0]](argv[1:])
 
 
 if __name__ == "__main__":
