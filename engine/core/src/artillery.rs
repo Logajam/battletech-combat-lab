@@ -16,8 +16,8 @@
 //   upper limit on the board.
 //
 // WHO FIRES A DISTANT SHOT: a bot decision. STUB_DISTANT_ARTILLERY (default "never": the bots' own artillery targeting is
-// built elsewhere - Princess / CASPAR from MegaMek's ArtilleryTargetingControl; Gladiator / Hydra have none yet, Daniel
-// 2026-11-20 "stub markers for features Gladiator and Hydra don't know how to do or use yet").
+// built elsewhere - Princess / CASPAR from MegaMek's ArtilleryTargetingControl, which Hydra borrows (2026-11-21); Gladiator
+// has none yet, Daniel 2026-11-20 "stub markers for features Gladiator and Hydra don't know how to do or use yet").
 use crate::battle::{Battle, UnitId};
 use crate::equipment::ItemId;
 use crate::hex_geometry;

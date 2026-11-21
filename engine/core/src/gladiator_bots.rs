@@ -137,8 +137,11 @@ impl BotSet for GladiatorBots {
     fn choose_spot(&mut self, b: &mut Battle, u: UnitId) -> Option<(UnitId, bool)> {
         // this unit's team settings while it decides (team_settings.rs)
         crate::team_settings::with_unit(b, u, |b| {
+            if b.units[u].bot == "hydra" {
+                return crate::hydra::choose_spot(b, u); // Hydra prices a spot (hydra.rs, 2026-11-21)
+            }
             if !b.units[u].is_princess_family() {
-                return crate::stubs::stub_spot(b, u); // Gladiator / Hydra: the stub (Daniel: stub markers for what they can't do yet)
+                return crate::stubs::stub_spot(b, u); // Gladiator: the stub (Daniel: stub markers for what it can't do yet)
             }
             // Princess / CASPAR price their own firing plan first (MegaMek FireControl.getSpotAction takes the plan): her
             // target and her weapon choice, worked out dry (no stub warning, no log line) as the bridge does

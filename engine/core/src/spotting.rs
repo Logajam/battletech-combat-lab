@@ -25,8 +25,9 @@
 // earlier in the turn is a spot of the TAG's target with no attacking penalty. The firer, when it has no line of sight,
 // takes the friendly spotter of that target that gives it the lowest modifier (`best_spotter`; the rules let the firer
 // choose, and the lowest is simply the best legal pick). Who spots is a bot decision: STUB_SPOT for every bot until
-// the MegaMek bots get their own rule (TASK_SPECS / PROJECT_MAP backlog B); Gladiator and Hydra keep the stub (Daniel:
-// "Be sure to have stub markers for features Gladiator and Hydra don't know how to do or use yet").
+// the MegaMek bots get their own rule (TASK_SPECS / PROJECT_MAP backlog B); Hydra plans its team's spots by price
+// (`hydra::choose_spot`, 2026-11-21); Gladiator keeps the stub (Daniel: "Be sure to have stub markers for features
+// Gladiator and Hydra don't know how to do or use yet").
 use crate::battle::{Battle, UnitId};
 use crate::equipment::ItemId;
 use crate::hex_geometry::parse_hex_label;
@@ -151,7 +152,7 @@ pub fn best_spotter(b: &mut Battle, attacker: UnitId, target: UnitId) -> Option<
 
 /// The Ranged Attack Phase's first step: who spots what this turn. TAG hits (made before the phase) are spots already;
 /// every other unit, in `order`, may declare one: its bot's `choose_spot` (Princess / CASPAR: `princess_spot`, MegaMek's
-/// rule; Gladiator / Hydra: STUB_SPOT).
+/// rule; Hydra: `hydra::choose_spot`, its team plan; Gladiator: STUB_SPOT).
 pub fn declare_spotting(b: &mut Battle, order: &[UnitId], bot: &mut dyn crate::attack_resolution::RangedBot) {
     let tagged: Vec<Spot> = b.spots.iter().filter(|s| s.tag).cloned().collect();
     b.spots = tagged;

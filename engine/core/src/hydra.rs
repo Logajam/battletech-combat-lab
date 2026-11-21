@@ -29,6 +29,8 @@ pub struct HydraState {
     best_guns: HashMap<UnitId, f64>,
     /// this Weapon Attack Phase's plan, per team: attacker -> target (emptied when the phase starts)
     fire: HashMap<String, HashMap<UnitId, Option<UnitId>>>,
+    /// this Weapon Attack Phase's spotting plan, per team: spotter -> (target, also fires) (emptied when the phase starts)
+    spots: HashMap<String, HashMap<UnitId, (UnitId, bool)>>,
     /// S3 MOVE ORDER: this Movement Phase's (guns, price) per unit, per team (emptied when the phase starts)
     order: HashMap<String, HashMap<UnitId, (f64, f64)>>,
     /// WAITING: per unit, (the turn it last declined battle, how many turns in a row it has)
@@ -39,6 +41,7 @@ impl HydraState {
     /// The Weapon Attack Phase begins: last turn's fire plans are void.
     pub fn start_fire_phase(&mut self) {
         self.fire.clear();
+        self.spots.clear();
     }
 
     /// The Movement Phase begins: last turn's move-order prices are void.
@@ -356,7 +359,7 @@ fn attention_damage(b: &mut Battle, e: UnitId, f: UnitId, e_xy: (i64, i64), f_xy
         let facing = if e_xy == f_xy { 0 } else { crate::combat::direction_facing(e_xy, f_xy).unwrap_or(0).rem_euclid(6) };
         (e_xy.0, e_xy.1, facing, walked, if walked > 0 { "Walk" } else { "Stand Still" }, walked)
     };
-    let mut ev = MoveEvaluator::new(b, e, f);
+    let mut ev = MoveEvaluator::new(b, e, f).with_c3(b);
     let prepared = ev.prepare(b, &[key]);
     if prepared.is_empty() {
         return 0.0;
@@ -430,7 +433,7 @@ fn exchange(b: &mut Battle, mover: UnitId, enemy: UnitId, prepared: &[Opt], inde
     let mut out = vec![(0.0, 0.0); prepared.len()];
     let label = b.units[enemy].hex.clone().unwrap();
     let e_xy = hex_geometry::parse_hex_label(&label).unwrap();
-    let mut ev = MoveEvaluator::new(b, mover, enemy);
+    let mut ev = MoveEvaluator::new(b, mover, enemy).with_c3(b);
     let fixed = b.units[enemy].moved_this_turn || is_immobile(&b.units[enemy]);
     let mut put = |cands: Vec<crate::move_eval::Candidate>| {
         for c in cands {
@@ -691,7 +694,7 @@ fn choose_movement_inner(b: &mut Battle, mover: UnitId, other: UnitId, moves_fir
         let mut them = Side::new(b, rival, true);
         let rival_exp = soft(them.exposure);
         let replies = move_select::opponent_options(b, rival, &mut them);
-        let mut ev2 = MoveEvaluator::new(b, rival, mover);
+        let mut ev2 = MoveEvaluator::new(b, rival, mover).with_c3(b);
         let prepared2 = ev2.prepare(b, &replies);
         best = None;
         for &i in &short {
@@ -826,7 +829,7 @@ fn movement_attack(b: &mut Battle, mover: UnitId, me: &mut Side, standup_mp: Opt
         let pose = crate::move_attacks::pose_of(b, t);
         let t_exp = soft(Side::new(b, t, true).exposure);
         let target_args = (b.units[t].hex.clone().unwrap(), b.units[t].facing.clone(), b.units[t].move_fc, b.units[t].move_mode.clone(), b.units[t].mp_spent);
-        let mut ev = MoveEvaluator::new(b, mover, t);
+        let mut ev = MoveEvaluator::new(b, mover, t).with_c3(b);
         // no gate: every attack state is priced in full (the gate is Gladiator's "beats its best ordinary shot")
         let options = crate::move_attacks::scored_options(b, mover, t, &pose, &index, &mut ev, my_exp, &t_exp, &|_: &Battle, _: &str, _: i64, _: &str, _: &str, _: i64| 0.0, crate::move_attacks::BestMode::Lazy(&[], t_exp), &target_args, &|_: f64, _: f64, _: f64, _: f64, _: f64| 0.0, &["charge", "dfa"]);
         for (_, cand, state, what) in options {
@@ -970,7 +973,7 @@ fn playout(b: &mut Battle, memo: &mut AttentionMemo, mover: UnitId, friends: &[U
         let mut side = Side::new(b, u, true);
         let exp = soft(side.exposure);
         let options = move_select::opponent_options(b, u, &mut side);
-        let ev = MoveEvaluator::new(b, u, counterpart);
+        let ev = MoveEvaluator::new(b, u, counterpart).with_c3(b);
         let spots = ev.prepare(b, &options);
         responders.push(Responder { unit: u, enemy, counterpart, ev, spots, exp });
     }
@@ -1150,6 +1153,106 @@ pub fn choose_target(b: &mut Battle, attacker: UnitId) -> Option<UnitId> {
         Some(t) => *t,
         None => crate::forces::choose_target(b, attacker, true, false),
     }
+}
+
+/// SPOTTING (Core p.70; spotting.rs; 2026-11-21, Daniel: "Update Hydra to incorporate the new rules"). Hydra plans the
+/// team's spots together, as it plans the team's fire (`plan_fire`), and prices them the same way: by the damage the team
+/// deals, each point at its target's price.
+///   * every Hydra unit's best priced shot is known (`best_shot`: the engine's own dry declaration, against each enemy);
+///   * a spot of enemy E by unit U is worth: U's best shot with the spotter's +1 on it (or nothing, if U holds its fire),
+///     less U's best shot now; plus, for each Hydra friend with no line of sight to E, how much better E, now hit
+///     indirectly (the +1 on that fire too when U also fires), is than that friend's best shot now;
+///   * the best spot is added, the shots it changes are updated, and the next is sought, until no spot gains more
+///     than 1% of the spotter's own shot (so a tie never costs a shot). A friend whose best shot a spot has already
+///     raised gains nothing from a second spot of the same target unless that one gives it a lower modifier.
+/// The spots are put in `b.spots` for the asking and taken out again; the engine declares them in initiative order
+/// (`spotting::declare_spotting` asks each unit; `choose_spot` answers from the plan). Only Hydra friends are counted:
+/// theirs is the fire plan this feeds (a friend of another bot picks its own target).
+fn plan_spots(b: &mut Battle, team: &str) -> HashMap<UnitId, (UnitId, bool)> {
+    let mut plan: HashMap<UnitId, (UnitId, bool)> = HashMap::default();
+    let units: Vec<UnitId> = crate::forces::standing(b).into_iter().filter(|&u| b.units[u].team.as_deref() == Some(team) && b.units[u].bot == "hydra" && b.units[u].hex.is_some()).collect();
+    // who could spot whom (an enemy it sees that a friend without line of sight could hit indirectly)
+    let mut options: Vec<(UnitId, UnitId)> = Vec::new();
+    for &u in &units {
+        if crate::spotting::spot_of(b, u).is_some() || !crate::spotting::can_spot(b, u) {
+            continue; // a TAG spot already, or it may not spot
+        }
+        for c in crate::spotting::spot_candidates(b, u) {
+            options.push((u, c.0));
+        }
+    }
+    if options.is_empty() {
+        return plan;
+    }
+    let (mine, theirs) = ledger(b, units[0]);
+    let price = prices_with(&mine, &theirs, &Shape::of(b));
+    let worth = |e: UnitId| price.get(&e).copied().unwrap_or(1.0);
+    // each unit's best priced shot among its targets now (what the team fire plan could get from it)
+    let best_shot = |b: &mut Battle, who: UnitId| -> f64 {
+        let mut best = 0.0f64;
+        for e in crate::bot_targets::candidates(b, who) {
+            if let Some((_, dmg, _)) = crate::bot_targets::dry_declare_as(b, who, e, false) {
+                best = best.max(worth(e) * dmg);
+            }
+        }
+        best
+    };
+    let mut shot: HashMap<UnitId, f64> = HashMap::default();
+    for &u in &units {
+        let v = best_shot(b, u);
+        shot.insert(u, v);
+    }
+    let added_before = b.spots.len();
+    loop {
+        // (gain, spotter, target, fires, the friends' new best shots)
+        let mut best: Option<(f64, UnitId, UnitId, bool, Vec<(UnitId, f64)>)> = None;
+        for &(u, e) in &options {
+            if plan.contains_key(&u) {
+                continue;
+            }
+            for fires in [true, false] {
+                b.spots.push(crate::spotting::Spot { spotter: u, target: e, fires, tag: false });
+                let own = if fires { best_shot(b, u) } else { 0.0 };
+                let mut gain = own - shot[&u];
+                let mut raised = Vec::new();
+                for &f in &units {
+                    if f == u || plan.get(&f).is_some_and(|s| !s.1) || !matches!(crate::spotting::sight(b, f, e), Some((false, _))) {
+                        continue; // itself, a friend holding fire to spot, or one that sees E (it fires directly)
+                    }
+                    if let Some((_, dmg, _)) = crate::bot_targets::dry_declare_as(b, f, e, false) {
+                        let v = worth(e) * dmg;
+                        if v > shot[&f] {
+                            gain += v - shot[&f];
+                            raised.push((f, v));
+                        }
+                    }
+                }
+                b.spots.pop();
+                if gain > 0.01 * shot[&u].max(1e-9) && best.as_ref().map_or(true, |x| gain > x.0) {
+                    best = Some((gain, u, e, fires, raised));
+                }
+            }
+        }
+        let Some((_, u, e, fires, raised)) = best else { break };
+        plan.insert(u, (e, fires));
+        b.spots.push(crate::spotting::Spot { spotter: u, target: e, fires, tag: false });
+        shot.insert(u, if fires { best_shot(b, u) } else { 0.0 });
+        for (f, v) in raised {
+            shot.insert(f, v);
+        }
+    }
+    b.spots.truncate(added_before);
+    plan
+}
+
+/// The spot a Hydra unit declares this phase, if any: its line of the team's spotting plan (made at the first ask).
+pub fn choose_spot(b: &mut Battle, u: UnitId) -> Option<(UnitId, bool)> {
+    let team = b.units[u].team.clone().unwrap_or_default();
+    if !b.hydra.spots.contains_key(&team) {
+        let plan = plan_spots(b, &team);
+        b.hydra.spots.insert(team.clone(), plan);
+    }
+    b.hydra.spots[&team].get(&u).copied()
 }
 
 #[cfg(test)]

@@ -567,6 +567,33 @@ TMM); that chance times the unit's whole remaining armor + structure, priced, is
 battles a seating, same seeds: Hydra Warhammer v Gladiator Javelin 73 -> 82 wins, off-the-map losses 9 -> 0; v Hydra
 Javelin 68 -> 70, 10 -> 0; the other seatings within noise. Team battles: see the Change Record entry of 2026-11-17.
 
+### The new rules (2026-11-21): C3, spotting, distant artillery
+Daniel: "Update Hydra to incorporate the new rules." What the rules added on 2026-11-20 (backlog N1-N10) meant for Hydra:
+- **Already seen, nothing to do:** the FIRE PLAN prices shots with the engine's own dry declaration, so C3's shorter range,
+  the special rounds (armor-piercing, precision, caseless, semi-guided) and the Narc homing ammo are in it. The partial
+  cover leg discount (N8) is in the shared evaluator for Gladiator and Hydra. Per-team settings (N5) carry Hydra's switches.
+- **C3 in the MOVER (built):** the evaluator read the range from the unit's own hex only, so a C3 unit's spots were priced
+  as if it had no network. `MoveEvaluator::with_c3` (Hydra's evaluators only) takes each side's network partners
+  (`c3::Partners`, where they stand now) and, per hex, the closest partner that would see the target: the mover's shots
+  use it against the defender, and the defender's shots use its partners' distance to each hex the mover might take.
+  The Adjuster applies the rule as for a real attack (only a better bracket counts; +1 a bracket in hostile ECM).
+- **SPOTTING (built, Hydra's own):** one plan a team a phase, like the fire plan (`plan_spots`). A spot is worth the
+  spotter's best priced shot with the +1 (nothing if it holds fire) less its shot now, plus, for each Hydra friend with
+  no line of sight, how much better its indirect shot on the spotted enemy is than its best shot now. The best spot is
+  taken, the shots updated, and the next sought while one gains over 1% of the spotter's shot. A first version decided
+  unit by unit and had one unit hold its fire to spot a target a second then spotted better; the team plan fixes that.
+- **DISTANT ARTILLERY (borrowed):** Hydra uses Princess's aim (MegaMek's ArtilleryTargetingControl, `princess_artillery`):
+  it reads no Princess setting, and Hydra borrows tools as it borrows Gladiator's. Before, Hydra never fired a distant shot.
+- **Left as they are:** AMS stays on (the rulebook's default; MegaMek's on / off switch is a Princess habit, and only a
+  laser AMS's heat costs anything); no ammunition conservation (the fire plan prices each shot now; Princess's rule is
+  MegaMek's taste). The MOVER still does not plan for indirect fire or for spotting positions (the `indirect_unplanned`
+  stub counts each indirect shot).
+- **Results** (20 battles a setting, same seeds, Red = Hydra v Gladiator; old = main before this): C3 lance (Cyclops C3
+  Master, Hatamoto-Chi, Centurion CN9-D5, Clint 5U v Atlas AS7-K, Awesome, Archer, Cataphract; Hilltops) old 13-7, new
+  12-8; LRM lance (Archer, Catapult, Bombardier, Jenner v Awesome, Cataphract, Griffin, Dervish; Scattered Woods) old
+  6-14, new 5-15; Arrow IV lance (Patriot, Legionnaire, Hermes II v Hunchback, Griffin, Jenner; Caustic Valley) seeds 1-20
+  old 17-1 (2 draws), new 14-3 (3); seeds 21-60 old 24-11 (5), new 31-7 (2). All within noise; speed unchanged.
+
 ## 8. Status
 
 **COMPLETE (Daniel, 2026-11-12: "I think this concludes building Hydra").** Defaults: all five switches on (Section 7,

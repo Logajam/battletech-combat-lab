@@ -82,8 +82,8 @@ pub fn stub_fire_tag(b: &mut Battle, mech_name: &str, useful: bool) -> bool {
 /// 2026-11-20, "who told those units to spot? The logic for it is supposed to be being built elsewhere"; "when_useful":
 /// spot the enemy it sees that the most friends can't see but could hit indirectly (nearest first), and keep firing).
 /// A STUB for EVERY bot today; Princess / CASPAR get MegaMek's own rule (FireControl.getSpotAction; PROJECT_MAP backlog
-/// B), Gladiator / Hydra keep this until they learn to weigh it (Daniel, 2026-11-20: stub markers for what they can't
-/// do yet). Returns (target, also fires).
+/// B), Hydra plans its own (`hydra::choose_spot`, 2026-11-21), Gladiator keeps this until it learns to weigh it (Daniel,
+/// 2026-11-20: stub markers for what they can't do yet). Returns (target, also fires).
 pub fn stub_spot(b: &mut Battle, u: UnitId) -> Option<(UnitId, bool)> {
     // a settings file from before spotting (session 30) has no key: the default
     let policy = if b.cfg.has("STUB_SPOT") { b.cfg.s("STUB_SPOT").to_string() } else { "never".to_string() };
@@ -132,7 +132,7 @@ pub fn stub_split_fire(b: &mut Battle, attacker: UnitId, primary: UnitId) -> Vec
 
 /// Offer a distant artillery shot (Arrow IV / Thumper / Sniper at 18+ hexes, landing next turn; p.182)? Knob:
 /// STUB_DISTANT_ARTILLERY (default "never": the bots' own artillery targeting is built elsewhere - Princess / CASPAR from
-/// MegaMek's ArtilleryTargetingControl, Gladiator / Hydra have none yet, Daniel 2026-11-20; "at_target": offer it at the
+/// MegaMek's ArtilleryTargetingControl, which Hydra borrows (2026-11-21); Gladiator has none yet, Daniel 2026-11-20; "at_target": offer it at the
 /// target's hex now, valued as if the target were still there next turn - a crude placeholder).
 pub fn stub_distant_artillery(b: &mut Battle, attacker: UnitId, target: UnitId) -> bool {
     let policy = if b.cfg.has("STUB_DISTANT_ARTILLERY") { b.cfg.s("STUB_DISTANT_ARTILLERY").to_string() } else { "never".to_string() };
