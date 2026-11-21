@@ -647,6 +647,11 @@ started from what a good commander does with each rule, and measured whether Hyd
 "All five together"); turn cap 100. What a later look could still take up: new Forecast inputs (guns by range, ammo
 left), S4 scored through the play-out, the move order's opposite end; none is planned.
 
+**STILL TO IMPROVE (2026-11-21, after the new rules' second pass; the same list is PROJECT_MAP Section 0 "H"):** H1 a value
+for a round of ammunition (first); H2 hiding for a spot that never comes; H3 C3 standoff (long guns back, a partner forward);
+H4 stalemates at the turn cap when outnumbered; H5 the 8v8 valley slip; H6 small things (coarse Forecast step, unmoved
+enemy at a walk, a second spotter worth nothing).
+
 | Block | State |
 |---|---|
 | Plan (this file) | written 2026-11-11 |

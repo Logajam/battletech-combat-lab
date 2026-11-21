@@ -133,6 +133,28 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
 - LATER / ONLY WITH AN OPTION: Evading movement (TO:AR p.16: +1 to be hit, +2 heat, no attacks; a TacOps rule);
   searchlights (with a night option); Tactical Genius (a special pilot ability, not in the indexed books).
 
+**H. Hydra - still to improve** (Claude's own list, Daniel 2026-11-21: "make a note for yourself on the improvements
+hydra still needs"; the second pass's story and numbers: `INTEGRATION__HYDRA.md` "The new rules, second pass")
+- H1. A VALUE FOR A ROUND OF AMMUNITION (first). A round is worth its expected use later; Hydra prices damage now and spends
+  ammo for free. Evidence: its own distant artillery aim (fire whenever priced damage > 0) fired 5x as often and lost the
+  trade (damage ratio 1.28 / 1.57 v 1.87 / 1.82 with MegaMek's aim), and LRM units plink indirectly at TN 8-10. Feeds: the
+  fire choice (Gladiator's knapsack under Hydra), a Hydra-priced artillery aim (then retire the borrowed MegaMek one), the
+  ledger's guns (ammo left). Measure: rounds spent per point of damage, and wins.
+- H2. HIDING FOR A SPOT THAT NEVER COMES. The mover counts a hidden hex's indirect fire when a friend sees the enemy NOW;
+  that friend may move away or not spot. Arrow IV lance: 796 hidden turns holding fire in 40 battles. Ideas: weigh the
+  spotter by whether it has moved; let the spot plan and the mover agree (move order: spotter first, S3); count a spot
+  only from a friend whose own best spot this is.
+- H3. C3 STANDOFF. The network's value is long guns standing back while a partner holds line of sight; Hydra brawls, so
+  the measured gain is 3-6%. Partners are taken where they stand (unmoved ones too). Ideas: move the forward node first;
+  test on bigger maps (32x17) where long range exists. Enemy networks use the 4% prior: measure them from their attacks.
+- H4. STALEMATES AT THE CAP. A lone cornered Archer v two Gladiator 'Mechs trading lasers at 9 hexes to turn 100 (both
+  bots holding back); hydra_nowait_red 8v8 valley reaches the cap since 2026-11-21. Look at the endgame when Hydra is
+  outnumbered: hold, close, or withdraw.
+- H5. 8v8 VALLEY SLIPPED in the second pass (21-11 -> 19-17, 40 seeds): check with more seeds before reading anything in.
+- H6. Small things seen on the way: the Forecast's coarse step makes even sides' margins 0 (both fall in one step, prices
+  floor out); the indirect estimate takes an unmoved enemy at a walk; the spotter value counts only when no friend sees
+  the enemy (a better-placed second spotter is worth nothing to it).
+
 **R. Research: fair duels** (Daniel, 2026-11-19/20; `tools/fair_duels.py`, Change Record 2026-11-20 "FAIR DUELS")
 - FAIR for every bot (each bot's score within 0.5 +- 0.09 over 120 battles; 480 a pair, every map x edge x bot three times):
   Archer ARC-2R v Catapult CPLT-C1; Awesome AWS-8Q v Bombardier BMB-14K; Awesome AWS-8Q v Cataphract CTF-3LL; Commando COM-2D
@@ -314,7 +336,7 @@ the Lab or the website's team bot list, or `btsim ... --caspar TEAM`. Our bots c
   (no `rules/` in any version; no personal email), checked, pushed. Deterministic: each publish adds commits on top.
   Why a separate repo: this one's history held the rulebook text (since 2026-10-19), and GitHub keeps every pull
   request's commits, which only GitHub Support can delete. Publish when Daniel wants the public copy updated (e.g. with
-  each Combat Lab download). FIRST PUBLISH 2026-11-13 (647 commits; checked on GitHub: no `rules/` in any version). LAST PUBLISH 2026-11-21, twice (code and website: Configure team / unit windows, C3, special ammunition; then Hydra and the new rules; the session must attach the public repo with `add_repo` before `--push`). NEXT: the Combat Lab downloads
+  each Combat Lab download). FIRST PUBLISH 2026-11-13 (647 commits; checked on GitHub: no `rules/` in any version). LAST PUBLISH 2026-11-21, three times (code and website: Configure team / unit windows, C3, special ammunition; then Hydra and the new rules; then Hydra's second pass and the usable-weapon range fix; the session must attach the public repo with `add_repo` before `--push`). NEXT: the Combat Lab downloads
   go on the public repo (a download link on its front page), but not yet: Daniel, 2026-11-13, "Lets refine before making
   it too public".
 - E7. COMBAT LAB: SAVED RUNS AND CRASHED BATTLES (Daniel, 2026-11-13, after a crash in a 100-battle run). (a) "We need the
