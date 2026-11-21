@@ -19,6 +19,10 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   toward spotting positions. Trials (20 a setting, same seeds; HYDRA.md): every difference within noise, no crashes, speed
   unchanged. Docs: HYDRA.md, PROJECT_MAP Section 6 rows (spot / distant artillery) and REVIEW QUEUE, comments in
   `spotting.rs`, `stubs.rs`, `artillery.rs`.
+  REFERENCE BATTLES: 8 Hydra ones re-recorded (`check_rust_reference.py --update`; the new Hydra spots in them, the old
+  never did): hydra_red 12v12 valley Draw at the 100-turn cap -> Red in 49 turns (one capped battle fewer); hydra_first_blue
+  8v8 Blue -> Red; hydra_noattention_blue 4v4 heavy Red -> Blue; hydra_nomoveorder_blue 8v8 Blue -> Red; the other four keep
+  their winner (turns change). Every other check passed (`run_checks.py --full`; then 91 of 91 references match).
 
 - **2026-11-21 (Claude), PUBLIC COPY AND PUBLIC WEBSITE UPDATED (N5, N6, N8-N10). No code changes.** Daniel: "Next goal is
   to update the public facing website." From main 9ff2e7f (after pull request 310): `tools/publish_public.py --push` (961
