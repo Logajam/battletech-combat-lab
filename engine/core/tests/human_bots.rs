@@ -28,5 +28,6 @@ fn a_pass_through_person_plays_the_plain_battle() {
     assert!(human.log.iter().all(|d| match d {
         Decision::Movement { unit, .. } | Decision::Target { unit, .. } | Decision::Declaration { unit, .. } | Decision::Physical { unit, .. } => human.human.contains(unit),
         Decision::MoveOrder { chosen } => chosen < &4,
+        Decision::Choice { unit, .. } => human.human.contains(unit),
     }));
 }

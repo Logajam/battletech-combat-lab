@@ -11,6 +11,9 @@ pub fn stub_capacitor_start(b: &mut Battle, mech_name: &str, ppc_name: &str) -> 
 
 /// Charge this PPC's capacitor instead of firing it this turn? Knob: STUB_CAPACITOR_CHARGE.
 pub fn stub_capacitor_charge(b: &mut Battle, mech_name: &str, ppc_name: &str) -> bool {
+    if let Some(c) = b.player.unit(mech_name) {
+        return c.charge.contains(ppc_name); // the person's choice (Charge mode on the weapon)
+    }
     let on = b.cfg.s("STUB_CAPACITOR_CHARGE") == "when_idle";
     b.warn_stub("capacitor_charge", &format!("{}: {} the {} capacitor", mech_name, if on { "charge" } else { "leave empty" }, ppc_name));
     on
@@ -18,6 +21,12 @@ pub fn stub_capacitor_charge(b: &mut Battle, mech_name: &str, ppc_name: &str) ->
 
 /// Use MASC / supercharger / radical heat sinks this turn? Knob: STUB_ESCALATING_USE.
 pub fn stub_escalating_use(b: &mut Battle, mech_name: &str, label: &str, cycle_on: bool, warn: bool) -> bool {
+    if let Some(on) = b.player.unit(mech_name).and_then(|c| c.escalating.get(label)) {
+        return *on; // the person's switch
+    }
+    if b.player.is_player(mech_name) {
+        return false; // a person's unit uses MASC / radical sinks only when the person says so
+    }
     let policy = b.cfg.s("STUB_ESCALATING_USE").to_string();
     let used = if policy == "cycle" { cycle_on } else { policy == "always" };
     if warn {
@@ -65,6 +74,9 @@ pub fn stub_console_swap(b: &mut Battle, mech_name: &str, pilot_hits: i64, secon
 
 /// Switch the Blue Shield on? Asked at the start and each End Phase. Knob: STUB_BLUE_SHIELD.
 pub fn stub_blue_shield(b: &mut Battle, mech_name: &str, when: &str) -> bool {
+    if let Some(on) = b.player.unit(mech_name).and_then(|c| c.blue_shield) {
+        return on;
+    }
     let on = b.cfg.s("STUB_BLUE_SHIELD") == "on";
     b.warn_stub("blue_shield", &format!("{} ({}): Blue Shield {}", mech_name, when, if on { "on" } else { "off" }));
     on
@@ -135,6 +147,9 @@ pub fn stub_split_fire(b: &mut Battle, attacker: UnitId, primary: UnitId) -> Vec
 /// MegaMek's ArtilleryTargetingControl, which Hydra borrows (2026-11-21); Gladiator has none yet, Daniel 2026-11-20; "at_target": offer it at the
 /// target's hex now, valued as if the target were still there next turn - a crude placeholder).
 pub fn stub_distant_artillery(b: &mut Battle, attacker: UnitId, target: UnitId) -> bool {
+    if b.player.is_player(&b.units[attacker].side_name.clone().unwrap_or_default()) {
+        return true; // a person's unit is offered the distant shot; the person picks the hex or declines
+    }
     let policy = if b.cfg.has("STUB_DISTANT_ARTILLERY") { b.cfg.s("STUB_DISTANT_ARTILLERY").to_string() } else { "never".to_string() };
     match policy.as_str() {
         "never" => false,
@@ -243,6 +258,9 @@ pub fn stub_rate_of_fire(b: &mut Battle, mech_name: &str, unit: usize, weapon: u
 
 /// Try to unjam a jammed Rotary AC this turn. Knob: STUB_UNJAM (never while prone).
 pub fn stub_unjam(b: &mut Battle, mech_name: &str, weapon_name: &str, prone: bool) -> bool {
+    if b.player.is_player(mech_name) {
+        return !prone && b.player.unit(mech_name).is_some_and(|c| c.unjam.contains(weapon_name));
+    }
     let attempt = b.cfg.get("STUB_UNJAM").as_bool().unwrap_or_else(|| b.cfg.get("STUB_UNJAM").as_i64().unwrap_or(0) != 0) && !prone;
     b.warn_stub("unjam", &format!("{}'s {} is jammed -> {}", mech_name, weapon_name, if attempt { "tries to unjam" } else { "stays jammed" }));
     attempt

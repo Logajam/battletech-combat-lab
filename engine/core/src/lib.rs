@@ -46,6 +46,7 @@ pub mod clubs;
 pub mod forces;
 pub mod gladiator_bots;
 pub mod human_bots;
+pub mod player_choices;
 pub mod play_session;
 pub mod battle_value;
 pub mod bot_targets;

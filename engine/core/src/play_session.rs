@@ -8,12 +8,21 @@
 //! Every other unit is played by the normal bots. The decision list the controller keeps (`HumanBots::log`) is what a
 //! replay or a branch point is made from.
 //!
-//! Requests ("kind"): `move_order` {candidates}, `movement` {options}, `target` {enemies}, `declaration` {weapons,
-//! arcs}, `physical` {kinds}. Answers: `{"unit": id}`, `{"hex","facing","mode"}` or `{"stay": true}`, `{"target": id|null}`,
-//! `{"weapons": [ids]}`, `{"kind": "punch"|...|null}`. A request answered with something illegal is asked again, with an
-//! "error" saying why.
+//! Requests ("kind") and their answers:
+//!   `move_order` {candidates}            -> {"unit": id}
+//!   `stand_up` {tn}                      -> {"stand": bool}
+//!   `boost` {systems}                    -> {"use": bool}  (MASC / supercharger this turn)
+//!   `movement` {options, attacks}        -> {"hex","facing","mode"} | {"stay": true} | {"attack": {"kind","target","hex","facing"}}
+//!   `spot` {candidates}                  -> {"target": id|null, "fires": bool}
+//!   `tag` {candidates}                   -> {"target": id|null, "aim": "mech"|"hex"}
+//!   `target` {enemies}                   -> {"target": id|null}
+//!   `declaration` {weapons, breakdown}   -> {"weapons": [ids], "modes","shots","bins","charge","aim"}
+//!   `physical` {kinds}                   -> {"kind": "punch"|...|null}
+//!   `end_phase` {equipment, heat}        -> {"switches": {...}} (or {})
+//! While a question waits the page may also send a QUERY (`Game::query`): "path" (a move's route), "set" (a weapon's mode /
+//! ammunition, answered with the weapon table afresh), "switches" / "equipment" (equipment switches, any time). A request
+//! answered with something illegal is asked again, with an "error" saying why.
 #![cfg(not(target_arch = "wasm32"))]
-use crate::fasthash::HashSet;
 use std::sync::{Arc, Condvar, Mutex};
 use std::time::Duration;
 
@@ -22,14 +31,21 @@ use serde_json::{json, Value};
 use crate::attack_resolution::{arc_unavailable, DeclChoice, DeclCtx};
 use crate::battle::{Battle, UnitId};
 use crate::dice::PcgDice;
+use crate::equipment::ItemId;
+use crate::equipment_systems as equip;
+use crate::fasthash::HashSet;
 use crate::fire_modes::Planner;
 use crate::gladiator_bots::GladiatorBots;
 use crate::human_bots::{Controller, HumanBots, PhysicalChoice};
+use crate::mech_state as ms;
 use crate::mech_state::ArcAction;
 use crate::move_options::{self, PathNotes};
-use crate::orchestrator::{play_on, start_battle, PathGate};
+use crate::orchestrator::{play_on, start_battle, BotSet, PathGate};
 use crate::ranged_combat::Pick;
 use crate::scenario::Scenario;
+
+const BOOST_LABEL: &str = "MASC / supercharger";
+const RADICAL_LABEL: &str = "radical heat sink system";
 
 #[derive(Default)]
 struct Slot {
@@ -37,6 +53,9 @@ struct Slot {
     pending: Option<Value>,
     seq: u64,
     answer: Option<Value>,
+    /// a query from the page while a question waits, and the reply
+    query: Option<Value>,
+    query_reply: Option<Value>,
     /// the battle's end: result, final units, log
     done: Option<Value>,
     /// the engine's own stop (a panic), as text
@@ -98,23 +117,45 @@ impl Game {
         self.cv.notify_all();
         Ok(())
     }
+
+    /// Ask the waiting question's own data something (a route, a weapon's mode) or set switches; the battle answers while it
+    /// waits. {"error"} when no question is waiting.
+    pub fn query(&self, q: Value, wait: Duration) -> Value {
+        let mut s = self.slot.lock().unwrap();
+        if s.pending.is_none() || s.query.is_some() {
+            return json!({"error": "no question is waiting"});
+        }
+        s.query = Some(q);
+        s.query_reply = None;
+        self.cv.notify_all();
+        let (mut s, _) = self.cv.wait_timeout_while(s, wait, |s| s.query_reply.is_none()).unwrap();
+        s.query_reply.take().unwrap_or_else(|| json!({"error": "the engine did not answer"}))
+    }
 }
 
 fn play(game: &Arc<Game>, sc: &Scenario, seed: u64, human_teams: &[String]) {
     let mut b = sc.battle(Box::new(PcgDice::new(seed)));
     let human: Vec<UnitId> = (0..b.units.len()).filter(|&u| b.units[u].team.as_deref().is_some_and(|t| human_teams.iter().any(|h| h == t))).collect();
+    for &u in &human {
+        let n = b.units[u].side_name.clone().unwrap_or_default();
+        b.player.unit_mut(&n); // a unit a person controls has an entry: the stubs look there first
+    }
     let mut marks = |_: &mut Battle, _: i64, _: &str| {};
     let mut play = start_battle(&mut b, sc.max_turns, &mut marks);
     let screen = Screen { game: game.clone(), sent_log: 0, first: true };
     let mut bots = HumanBots::new(screen, human);
     play_on(&mut b, &mut bots, &mut play, &mut marks);
     let r = &play.result;
-    let end = json!({"winner": r.winner, "turns": r.turns_taken, "destroyed": r.destroyed, "units": units_json(&b), "log": new_log(&b, &mut bots.ctl.sent_log), "decisions": bots.log.len()});
+    let end = json!({"winner": r.winner, "turns": r.turns_taken, "destroyed": r.destroyed, "units": units_json(&b, false), "log": new_log(&b, &mut bots.ctl.sent_log), "decisions": bots.log.len()});
     game.slot.lock().unwrap().done = Some(end);
     game.cv.notify_all();
 }
 
-fn units_json(b: &Battle) -> Value {
+fn name(b: &Battle, u: UnitId) -> String {
+    b.units[u].side_name.clone().unwrap_or_default()
+}
+
+fn units_json(b: &Battle, with_names: bool) -> Value {
     Value::Array(
         (0..b.units.len())
             .map(|u| {
@@ -125,11 +166,21 @@ fn units_json(b: &Battle) -> Value {
                 s["mech"] = json!(format!("{} {}", m.chassis, m.model).trim());
                 s["team"] = json!(m.team);
                 s["tons"] = json!(m.mass);
-                s["walk"] = json!(crate::mech_state::compute_walk_mp(m));
-                s["run"] = json!(crate::mech_state::compute_running_mp(m));
-                s["jump"] = json!(crate::mech_state::compute_jump_mp(m));
+                s["walk"] = json!(ms::compute_walk_mp(m));
+                s["run"] = json!(ms::compute_running_mp(m));
+                s["jump"] = json!(ms::compute_jump_mp(m));
                 s["max_heat"] = json!(m.max_heat);
                 s["move_mode"] = json!(m.move_mode);
+                s["gunnery"] = json!(m.gunnery);
+                s["piloting"] = json!(m.piloting);
+                // critical slots: which are destroyed now (and, once, their names)
+                let alive: serde_json::Map<String, Value> = m.crits.iter().map(|(loc, slots)| (loc.clone(), json!(slots.iter().map(|sl| !sl.is_name("DESTROYED")).collect::<Vec<_>>()))).collect();
+                s["crit_alive"] = Value::Object(alive);
+                if with_names {
+                    let names: serde_json::Map<String, Value> = m.crits.keys().map(|loc| (loc.clone(), json!(ms::display_crits(m, loc)))).collect();
+                    s["crit_names"] = Value::Object(names);
+                }
+                s["equipment"] = equipment_json(b, u);
                 s
             })
             .collect(),
@@ -142,7 +193,99 @@ fn new_log(b: &Battle, sent: &mut usize) -> Vec<String> {
     lines
 }
 
-/// The controller that talks to the page.
+// ---------------------------------------------------------------------------------------------------------------------
+// Equipment switches (the critical hit table's switches, as MegaMek has them): what a unit has, what is set, what changes
+// ---------------------------------------------------------------------------------------------------------------------
+fn escalating_tn(m: &ms::Mech, key: &str) -> i64 {
+    equip::escalating_avoid_tn(m.escalating_turns.get(key).copied().unwrap_or(0) + 1)
+}
+
+fn equipment_json(b: &Battle, u: UnitId) -> Value {
+    let m = &b.units[u];
+    let n = name(b, u);
+    let ch = b.player.unit(&n);
+    let on = |label: &str| ch.and_then(|c| c.escalating.get(label)).copied().unwrap_or(false);
+    let mut ams = Vec::new();
+    let mut jammed = Vec::new();
+    let mut ppcs = Vec::new();
+    for w in crate::damage_resolution::get_weapons(m) {
+        let it = &m.items[w];
+        if it.memo.is_ams == Some(true) || it.name.to_uppercase().contains("AMS") || it.name.to_uppercase().contains("ANTI-MISSILE") {
+            ams.push(json!({"id": w, "name": it.name, "off": m.systems_off.contains(&crate::bot_heat_equipment::ams_key(w))}));
+        }
+        if it.jammed == Some(true) {
+            jammed.push(json!({"id": w, "name": it.name, "unjam": ch.is_some_and(|c| c.unjam.contains(&it.name))}));
+        }
+        if it.capacitor.is_some() {
+            ppcs.push(json!({"id": w, "name": it.name, "charge": ch.is_some_and(|c| c.charge.contains(&it.name))}));
+        }
+    }
+    json!({
+        "masc": equip::system_live(m, "masc"), "supercharger": equip::system_live(m, "supercharger"),
+        "boost": {"has": equip::system_live(m, "masc") || equip::system_live(m, "supercharger"), "on": on(BOOST_LABEL), "tn": escalating_tn(m, if equip::system_live(m, "masc") { "masc" } else { "supercharger" })},
+        "radical": {"has": equip::has_system(m, "radical"), "live": equip::system_live(m, "radical"), "on": on(RADICAL_LABEL), "tn": escalating_tn(m, "radical")},
+        "coolant": {"pods": equip::unused_coolant_pods(m).len(), "mode": match ch.and_then(|c| c.coolant) { None => "auto", Some(false) => "hold", Some(true) => "now" }},
+        "sinks": {"working": ms::working_heat_sinks(m), "off": ch.and_then(|c| c.sinks_off).unwrap_or(m.deactivated_heat_sinks), "chosen": ch.is_some_and(|c| c.sinks_off.is_some())},
+        "ams": ams, "jammed": jammed, "capacitors": ppcs,
+        "blue_shield": {"has": equip::has_system(m, "blue_shield"), "on": ch.and_then(|c| c.blue_shield).unwrap_or(false)},
+        // ejection is not built (a known shortfall); the switch is kept so the screen has a place for it
+        "auto_eject": {"built": false},
+    })
+}
+
+/// Apply equipment switches from the page to unit `u` (they stay until changed).
+fn apply_switches(b: &mut Battle, u: UnitId, sw: &Value) {
+    let n = name(b, u);
+    if let Some(v) = sw.get("coolant").and_then(|v| v.as_str()) {
+        b.player.unit_mut(&n).coolant = match v { "hold" => Some(false), "now" => Some(true), _ => None };
+    }
+    if let Some(v) = sw.get("radical").and_then(|v| v.as_bool()) {
+        b.player.unit_mut(&n).escalating.insert(RADICAL_LABEL.to_string(), v);
+    }
+    if let Some(v) = sw.get("boost").and_then(|v| v.as_bool()) {
+        b.player.unit_mut(&n).escalating.insert(BOOST_LABEL.to_string(), v);
+    }
+    if sw.get("sinks_off").is_some() {
+        b.player.unit_mut(&n).sinks_off = sw["sinks_off"].as_i64();
+    }
+    if let Some(v) = sw.get("blue_shield").and_then(|v| v.as_bool()) {
+        b.player.unit_mut(&n).blue_shield = Some(v);
+    }
+    if let Some(list) = sw.get("ams_off").and_then(|v| v.as_array()) {
+        b.units[u].systems_off.retain(|k| !k.starts_with("ams:"));
+        for id in list.iter().filter_map(|v| v.as_u64()) {
+            b.units[u].systems_off.push(crate::bot_heat_equipment::ams_key(id as usize));
+        }
+    }
+    if let Some(list) = sw.get("unjam").and_then(|v| v.as_array()) {
+        let names: HashSet<String> = list.iter().filter_map(|v| v.as_str().map(String::from)).collect();
+        b.player.unit_mut(&n).unjam = names;
+    }
+    if let Some(list) = sw.get("charge").and_then(|v| v.as_array()) {
+        let names: HashSet<String> = list.iter().filter_map(|v| v.as_str().map(String::from)).collect();
+        b.player.unit_mut(&n).charge = names;
+    }
+}
+
+/// Queries every question answers: equipment switches.
+fn common_tools(b: &mut Battle, q: &Value) -> Option<Value> {
+    let u = q["unit"].as_u64()? as usize;
+    if u >= b.units.len() || !b.player.is_player(&name(b, u)) {
+        return Some(json!({"error": "not your unit"}));
+    }
+    match q["q"].as_str()? {
+        "switches" => {
+            apply_switches(b, u, &q["switches"]);
+            Some(json!({"equipment": equipment_json(b, u)}))
+        }
+        "equipment" => Some(json!({"equipment": equipment_json(b, u)})),
+        _ => None,
+    }
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// The controller that talks to the page
+// ---------------------------------------------------------------------------------------------------------------------
 struct Screen {
     game: Arc<Game>,
     sent_log: usize,
@@ -150,10 +293,10 @@ struct Screen {
 }
 
 impl Screen {
-    /// Send `request` (units and log added) and wait for the answer; `check` turns an answer into the engine's choice or an
-    /// error text, in which case the person is asked again.
-    fn ask<T>(&mut self, b: &Battle, mut request: Value, mut check: impl FnMut(&Value) -> Result<T, String>) -> T {
-        request["units"] = units_json(b);
+    /// Send `request` (units and log added) and wait for the answer, serving the page's queries meanwhile. `check` turns an
+    /// answer into the engine's choice or an error text, in which case the person is asked again.
+    fn ask<T>(&mut self, b: &mut Battle, mut request: Value, mut tools: impl FnMut(&mut Battle, &Value) -> Option<Value>, mut check: impl FnMut(&mut Battle, &Value) -> Result<T, String>) -> T {
+        request["units"] = units_json(b, self.first);
         request["log"] = json!(new_log(b, &mut self.sent_log));
         if self.first {
             request["board"] = crate::history::board(b);
@@ -165,39 +308,189 @@ impl Screen {
                 s.seq += 1;
                 s.pending = Some(request.clone());
                 s.answer = None;
+                s.query = None;
                 self.game.cv.notify_all();
-                s = self.game.cv.wait_while(s, |s| s.answer.is_none()).unwrap();
-                let a = s.answer.take().unwrap();
+            }
+            let answer = loop {
+                let mut s = self.game.slot.lock().unwrap();
+                s = self.game.cv.wait_while(s, |s| s.answer.is_none() && s.query.is_none()).unwrap();
+                if let Some(a) = s.answer.take() {
+                    break a;
+                }
+                let q = s.query.take().unwrap();
                 drop(s);
-                match check(&a) {
-                    Ok(t) => return t,
-                    Err(e) => {
-                        request["error"] = json!(e);
-                        request["log"] = json!([]);
-                        request.as_object_mut().unwrap().remove("board");
-                    }
+                let reply = tools(b, &q).or_else(|| common_tools(b, &q)).unwrap_or_else(|| json!({"error": "unknown query"}));
+                let mut s = self.game.slot.lock().unwrap();
+                s.query_reply = Some(reply);
+                self.game.cv.notify_all();
+            };
+            match check(b, &answer) {
+                Ok(t) => return t,
+                Err(e) => {
+                    request["error"] = json!(e);
+                    request["log"] = json!([]);
+                    request["units"] = units_json(b, false);
+                    request.as_object_mut().unwrap().remove("board");
                 }
             }
         }
     }
 }
 
-fn name(b: &Battle, u: UnitId) -> String {
-    b.units[u].side_name.clone().unwrap_or_default()
+fn hex_of(label: &str) -> Option<(i64, i64)> {
+    crate::hex_geometry::parse_hex_label(label).ok()
+}
+
+/// The weapon table for a declaration, priced now (after any mode / ammunition choice): rows, and the candidates the engine
+/// would let fire (weapon, expected damage, heat).
+fn weapon_rows(b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId) -> (Vec<Value>, Vec<crate::weapon_selection::Candidate>, Vec<HashSet<usize>>) {
+    planner.forget();
+    let weapons = crate::damage_resolution::get_weapons(&b.units[attacker]);
+    let cands = crate::weapon_selection::fire_candidates(b, attacker, ctx.distance, ctx.sel_pre_tn, Some(&ctx.adjust), &ctx.unavailable, None, &weapons, Some(&mut *planner));
+    // each arc action's unavailable weapons; the first is "no change" (the engine's tie order)
+    let per_action: Vec<HashSet<usize>> = ctx
+        .arc_choices
+        .iter()
+        .map(|(key, _)| {
+            let mut u = ctx.unavailable.clone();
+            u.extend(arc_unavailable(&b.units[attacker], key));
+            u
+        })
+        .collect();
+    let pname = name(b, attacker);
+    let mut rows: Vec<Value> = Vec::new();
+    for &w in &weapons {
+        let (iname, iheat, jammed, cap) = {
+            let it = &b.units[attacker].items[w];
+            (it.name.clone(), it.heat, it.jammed == Some(true), it.capacitor.is_some())
+        };
+        let cand = cands.iter().find(|c| c.w == w);
+        let bracket = crate::weapon_selection::range_bracket(b, attacker, w, ctx.distance);
+        let tn = cand.map(|_| {
+            let adj = crate::fire_modes::TnAdjust::adjust(&ctx.adjust, b, w, bracket, None);
+            (ctx.sel_pre_tn + adj).clamp(crate::weapon_selection::PRE_TN_MIN, crate::weapon_selection::PRE_TN_MAX)
+        });
+        // modes: the shot options (ammunition kind / guidance) and the rates of fire
+        let mut modes: Vec<Value> = Vec::new();
+        let mut rates: Vec<Value> = Vec::new();
+        let mut mode_now = Value::Null;
+        let mut shots_now = Value::Null;
+        if let Some((_, _, plan)) = planner.plan_for(b, w, ctx.distance, ctx.sel_pre_tn) {
+            mode_now = json!(plan.label());
+            let kinds = planner.kinds(b, w);
+            if kinds.len() > 1 {
+                for k in &kinds {
+                    let v = planner.value(b, w, k, ctx.distance, ctx.sel_pre_tn);
+                    modes.push(json!({"label": k.label(), "ev": v.map(|x| x.0), "tn": v.map(|x| x.1), "selected": k.label() == plan.label()}));
+                }
+            }
+            let ro = crate::fire_modes::rate_options(b, attacker, w, &plan);
+            if ro.len() > 1 {
+                shots_now = json!(plan.shots);
+                for n in ro {
+                    let mut p = plan.clone();
+                    p.shots = n;
+                    rates.push(json!({"shots": n, "ev": planner.value(b, w, &p, ctx.distance, ctx.sel_pre_tn).map(|x| x.0), "selected": n == plan.shots}));
+                }
+            }
+        }
+        // ammunition bins this weapon can draw from, and which it will
+        let bins_all = crate::ammo::bins_for(&b.units[attacker], w);
+        let mut bins: Vec<Value> = Vec::new();
+        if !bins_all.is_empty() {
+            let counted: Vec<ItemId> = bins_all.iter().copied().filter(|i| b.units[attacker].items[*i].shots_left.is_some()).collect();
+            let forced = b.player.unit(&pname).and_then(|c| c.bin.get(&w)).copied().filter(|i| bins_all.contains(i));
+            let drawn = forced.or_else(|| if counted.is_empty() { None } else { Some(crate::ammo::auto_bin(&b.units[attacker], &counted)) });
+            for i in &bins_all {
+                let e = &b.units[attacker].items[*i];
+                bins.push(json!({"id": i, "name": e.name, "loc": crate::ammo::bin_location(&b.units[attacker], *i), "munition": e.munition, "shots": e.shots_left, "selected": Some(*i) == drawn, "chosen": Some(*i) == forced}));
+            }
+        }
+        let charge = cap && b.player.unit(&pname).is_some_and(|c| c.charge.contains(&iname));
+        rows.push(json!({"id": w, "name": iname, "loc": ctx.w_locs.get(&w), "heat": cand.map(|c| c.heat).or(iheat), "ev": cand.map(|c| c.value),
+                         "tn": tn, "adj": tn.map(|t| t - ctx.sel_pre_tn), "range": bracket, "in_range": cand.is_some(), "jammed": jammed,
+                         "needs_twist": cand.is_some() && per_action.first().is_some_and(|u| u.contains(&w)),
+                         "modes": modes, "mode": mode_now, "rates": rates, "shots": shots_now, "bins": bins,
+                         "chargeable": cap, "charge": charge,
+                         "ranges": b.units[attacker].items[w].weapon_range.as_ref().map(|r| json!({"min": r.min, "short": r.short, "medium": r.medium, "long": r.long}))}));
+    }
+    (rows, cands, per_action)
+}
+
+/// Apply the weapon settings in a declaration query / answer (modes, shots, bins, charge, artillery aim hexes).
+fn apply_weapon_settings(b: &mut Battle, attacker: UnitId, target: UnitId, a: &Value) {
+    let n = name(b, attacker);
+    let by_weapon = |k: &str| -> Vec<(usize, Value)> { a.get(k).and_then(|v| v.as_object()).map(|o| o.iter().filter_map(|(w, v)| w.parse::<usize>().ok().map(|w| (w, v.clone()))).collect()).unwrap_or_default() };
+    for (w, v) in by_weapon("modes") {
+        if let Some(l) = v.as_str() {
+            b.player.unit_mut(&n).munition.insert(w, l.to_string());
+        }
+    }
+    for (w, v) in by_weapon("shots") {
+        if let Some(s) = v.as_i64() {
+            b.player.unit_mut(&n).shots.insert(w, s);
+        }
+    }
+    for (w, v) in by_weapon("bins") {
+        match v.as_u64() {
+            Some(i) => {
+                b.player.unit_mut(&n).bin.insert(w, i as usize);
+            }
+            None => {
+                b.player.unit_mut(&n).bin.remove(&w);
+            }
+        }
+    }
+    if let Some(list) = a.get("charge").and_then(|v| v.as_array()) {
+        b.player.unit_mut(&n).charge = list.iter().filter_map(|v| v.as_str().map(String::from)).collect();
+    }
+    for (w, v) in by_weapon("aim") {
+        let from = crate::forces::hex_xy(b, attacker);
+        let at = crate::forces::hex_xy(b, target);
+        let turn = b.units[attacker].turn_number;
+        b.distant_aims.retain(|x| !(x.shooter == attacker && x.weapon == w && x.target == target && x.turn == turn));
+        if let Some(hex) = v.as_str().and_then(hex_of) {
+            b.distant_aims.push(crate::princess_artillery::Aim { shooter: attacker, weapon: w, target, turn, from, at, aim: Some(hex) });
+        }
+    }
 }
 
 impl Controller for Screen {
     fn move_order(&mut self, b: &mut Battle, candidates: &[UnitId], _inner: &mut GladiatorBots) -> UnitId {
         let cands: Vec<UnitId> = candidates.to_vec();
         let req = json!({"kind": "move_order", "candidates": cands});
-        // a person moves a unit of its own; any other candidate is not offered (bots move theirs by the engine's order)
-        self.ask(b, req, |a| {
+        self.ask(b, req, |_, _| None, |_, a| {
             let u = a["unit"].as_u64().ok_or("which unit?")? as usize;
             if cands.contains(&u) { Ok(u) } else { Err("that unit is not waiting to move".to_string()) }
         })
     }
 
+    fn stand_up(&mut self, b: &mut Battle, mover: UnitId) -> bool {
+        let tn = b.with_piloting(mover, |b| {
+            let m = &b.units[mover];
+            b.piloting + crate::piloting_rolls::preexisting_modifier(m) + crate::piloting_rolls::special_case_modifier(m) + crate::piloting_rolls::STAND_UP_MODIFIER
+        });
+        let m = &b.units[mover];
+        let req = json!({"kind": "stand_up", "unit": mover, "name": name(b, mover), "tn": tn, "run": ms::compute_running_mp(m), "pilot_hits": m.pilot_hits, "hex": m.hex});
+        self.ask(b, req, |_, _| None, |_, a| a["stand"].as_bool().ok_or_else(|| "stand up, or stay prone?".to_string()))
+    }
+
+    fn before_move(&mut self, b: &mut Battle, mover: UnitId) -> Option<String> {
+        let m = &b.units[mover];
+        if m.prone || !(equip::system_live(m, "masc") || equip::system_live(m, "supercharger")) {
+            return None;
+        }
+        let req = json!({"kind": "boost", "unit": mover, "name": name(b, mover), "equipment": equipment_json(b, mover)});
+        let on: bool = self.ask(b, req, |_, _| None, |b, a| {
+            let on = a["use"].as_bool().ok_or("use it this turn?")?;
+            apply_switches(b, mover, &json!({"boost": on}));
+            Ok(on)
+        });
+        Some(format!("MASC / supercharger {}", if on { "on" } else { "off" }))
+    }
+
     fn movement(&mut self, b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, standup_mp: Option<i64>, entry_edge: Option<&[String]>, inner: &mut GladiatorBots) -> (Option<Pick>, String, PathGate) {
+        let _ = (moves_first, &inner);
         let mut notes = PathNotes::default();
         let mut states = move_options::movement_options(b, mover, standup_mp, entry_edge, true, &mut notes);
         // a unit may pass through a friend's hex but not end there (the bots exclude these hexes the same way)
@@ -224,35 +517,135 @@ impl Controller for Screen {
                        "psrs": notes.psrs.get(&k).copied().unwrap_or(0), "hazard": notes.hazard.get(&k).copied().unwrap_or(0.0)})
             })
             .collect();
-        let m = &b.units[mover];
-        let req = json!({"kind": "movement", "unit": mover, "name": name(b, mover), "hex": m.hex, "facing": m.facing, "standup_mp": standup_mp,
-                         "entry": entry_edge.is_some(), "walk": crate::mech_state::compute_walk_mp(m), "run": crate::mech_state::compute_running_mp(m),
-                         "jump": crate::mech_state::compute_jump_mp(m), "options": list});
-        let chosen: Option<usize> = self.ask(b, req, |a| {
-            if a["stay"].as_bool() == Some(true) {
-                if entry_edge.is_some() {
-                    return Err("the unit has not entered the map yet: choose a hex on its edge".to_string());
+        // charges and death from above (Core pp.78-80): the stops next to an enemy that has moved (or cannot), with the numbers
+        let mut attacks: Vec<(Value, Pick)> = Vec::new();
+        if entry_edge.is_none() && standup_mp.is_none() && !b.units[mover].prone && (b.cfg.b("CHARGES") || b.cfg.b("DFA")) {
+            let mut n2 = PathNotes::default();
+            let index = crate::move_attacks::MoverIndex::new(b, mover, standup_mp, &mut n2);
+            for t in crate::forces::enemies_of(b, mover) {
+                let moved = b.units[t].moved_this_turn;
+                if b.units[t].hex.is_none() || !crate::move_attacks::can_be_attacked(b, t, moved) {
+                    continue;
                 }
-                return Ok(None);
-            }
-            let k = (a["hex"].as_str().unwrap_or("").to_string(), a["facing"].as_str().unwrap_or("").to_string(), a["mode"].as_str().unwrap_or("").to_string());
-            best.get(&k).map(|(i, _)| Some(*i)).ok_or_else(|| format!("{} {} ({}) is not a legal end of move", k.0, k.1, k.2))
-        });
-        let _ = (other, moves_first, &inner);
-        match chosen {
-            Some(i) => {
-                let pick = opts[i].pick();
-                let (psrs, hazard) = crate::ranged_combat::path_notes(b, mover, &pick, standup_mp, entry_edge);
-                (Some(pick), "chosen by the player".into(), PathGate { psrs, hazard })
-            }
-            None => {
-                // stay put: the option the engine lists as Stand Still, if it lists one
-                match opts.iter().find(|o| o.mode == "Stand Still") {
-                    Some(o) => (Some(o.pick()), "player stays put".into(), PathGate::default()),
-                    None => (None, "player stays put".into(), PathGate::default()),
+                let pose = crate::move_attacks::pose_of(b, t);
+                let mut picks: Vec<Pick> = Vec::new();
+                if b.cfg.b("CHARGES") && !pose.prone {
+                    picks.extend(index.charge_states(b, &pose));
+                }
+                if b.cfg.b("DFA") {
+                    picks.extend(index.dfa_states(b, &pose));
+                }
+                for p in picks {
+                    let (_, _, hit, tn, dmg, _side, _) = crate::move_attacks::values(b, mover, t, &pose, &p);
+                    let self_dmg = if p.charge { crate::charge::attacker_damage(&b.units[t]) } else { crate::dfa::attacker_damage(&b.units[mover]) };
+                    let kind = if p.charge { "charge" } else { "dfa" };
+                    attacks.push((json!({"kind": kind, "target": t, "target_name": name(b, t), "hex": p.hex, "facing": p.facing, "mode": p.mode, "mp": p.mp_spent, "hexes": p.fc, "tn": tn, "hit": hit, "damage": dmg, "self_damage": self_dmg}), p));
                 }
             }
         }
+        let m = &b.units[mover];
+        let req = json!({"kind": "movement", "unit": mover, "name": name(b, mover), "hex": m.hex, "facing": m.facing, "standup_mp": standup_mp,
+                         "entry": entry_edge.is_some(), "walk": ms::compute_walk_mp(m), "run": ms::compute_running_mp(m),
+                         "jump": ms::compute_jump_mp(m), "options": list, "attacks": attacks.iter().map(|a| a.0.clone()).collect::<Vec<_>>()});
+        enum Chosen {
+            Stay,
+            End(usize),
+            Attack(Pick),
+        }
+        let chosen = {
+            let best_ref = &best;
+            let opts_ref = &opts;
+            let attacks_ref = &attacks;
+            self.ask(
+                b,
+                req,
+                |b, q| {
+                    if q["q"].as_str() != Some("path") {
+                        return None;
+                    }
+                    // the route the engine will walk to a chosen end (or to a charge / DFA stop)
+                    let pick = if let Some(a) = q.get("attack").filter(|a| a.is_object()) {
+                        // a charge's cost includes the step into the target's hex, which the route tables do not hold: the route to
+                        // the stop is the cheapest ordinary way to end there (a jump for death from above)
+                        let jump = a["kind"] == "dfa";
+                        opts_ref.iter().filter(|o| o.label == a["hex"].as_str().unwrap_or("") && o.facing_compass == a["facing"].as_str().unwrap_or("") && (o.mode == "Jump") == jump).min_by_key(|o| o.mp_spent).map(|o| o.pick())
+                    } else {
+                        let k = (q["hex"].as_str().unwrap_or("").to_string(), q["facing"].as_str().unwrap_or("").to_string(), q["mode"].as_str().unwrap_or("").to_string());
+                        best_ref.get(&k).map(|(i, _)| opts_ref[*i].pick())
+                    }?;
+                    let steps = crate::ranged_combat::path_to(b, mover, &pick, standup_mp, entry_edge)?;
+                    let list: Vec<Value> = steps
+                        .iter()
+                        .map(|(kind, (x, y, f), mp)| json!({"k": kind, "hex": crate::hex_geometry::hex_label(*x, *y).unwrap_or_default(), "facing": crate::hex_geometry::facing_to_compass(*f).unwrap_or(""), "mp": mp}))
+                        .collect();
+                    Some(json!({"path": list}))
+                },
+                |_, a| {
+                    if let Some(at) = a.get("attack").filter(|x| x.is_object()) {
+                        return attacks_ref
+                            .iter()
+                            .find(|(j, _)| j["target"] == at["target"] && j["kind"] == at["kind"] && j["hex"] == at["hex"] && j["facing"] == at["facing"])
+                            .map(|(_, p)| Chosen::Attack(p.clone()))
+                            .ok_or_else(|| "that charge or death from above is not possible".to_string());
+                    }
+                    if a["stay"].as_bool() == Some(true) {
+                        if entry_edge.is_some() {
+                            return Err("the unit has not entered the map yet: choose a hex on its edge".to_string());
+                        }
+                        return Ok(Chosen::Stay);
+                    }
+                    let k = (a["hex"].as_str().unwrap_or("").to_string(), a["facing"].as_str().unwrap_or("").to_string(), a["mode"].as_str().unwrap_or("").to_string());
+                    best_ref.get(&k).map(|(i, _)| Chosen::End(*i)).ok_or_else(|| format!("{} {} ({}) is not a legal end of move", k.0, k.1, k.2))
+                },
+            )
+        };
+        let pick = match chosen {
+            Chosen::End(i) => Some((opts[i].pick(), "chosen by the player")),
+            Chosen::Attack(p) => Some((p, "charge / death from above, chosen by the player")),
+            Chosen::Stay => match opts.iter().find(|o| o.mode == "Stand Still") {
+                // stay put: the option the engine lists as Stand Still, if it lists one
+                Some(o) => Some((o.pick(), "player stays put")),
+                None => None,
+            },
+        };
+        match pick {
+            Some((pick, note)) => {
+                let (psrs, hazard) = crate::ranged_combat::path_notes(b, mover, &pick, standup_mp, entry_edge);
+                (Some(pick), note.into(), PathGate { psrs, hazard })
+            }
+            None => (None, "player stays put".into(), PathGate::default()),
+        }
+    }
+
+    fn spot(&mut self, b: &mut Battle, u: UnitId, inner: &mut GladiatorBots) -> Option<(UnitId, bool)> {
+        let cands = crate::spotting::spot_candidates(b, u);
+        if cands.is_empty() {
+            return inner.choose_spot(b, u);
+        }
+        let list: Vec<Value> = cands.iter().map(|(t, friends, dist)| json!({"id": t, "name": name(b, *t), "friends": friends, "distance": dist})).collect();
+        let req = json!({"kind": "spot", "unit": u, "name": name(b, u), "candidates": list});
+        let ids: Vec<UnitId> = cands.iter().map(|c| c.0).collect();
+        self.ask(b, req, |_, _| None, |_, a| match a["target"].as_u64() {
+            None => Ok(None),
+            Some(t) if ids.contains(&(t as usize)) => Ok(Some((t as usize, a["fires"].as_bool().unwrap_or(true)))),
+            Some(_) => Err("that enemy cannot be spotted".to_string()),
+        })
+    }
+
+    fn tag(&mut self, b: &mut Battle, attacker: UnitId, cands: &[crate::tag::TagCandidate]) -> Option<(UnitId, &'static str)> {
+        let list: Vec<Value> = cands.iter().map(|c| json!({"id": c.target, "name": name(b, c.target), "tn_mech": c.tn_mech, "tn_hex": c.tn_hex, "distance": crate::forces::distance(b, attacker, c.target)})).collect();
+        let req = json!({"kind": "tag", "unit": attacker, "name": name(b, attacker), "candidates": list});
+        let cs: Vec<(UnitId, bool, bool)> = cands.iter().map(|c| (c.target, c.tn_mech.is_some(), c.tn_hex.is_some())).collect();
+        self.ask(b, req, |_, _| None, |_, a| match a["target"].as_u64() {
+            None => Ok(None),
+            Some(t) => {
+                let aim = if a["aim"].as_str() == Some("hex") { "hex" } else { "mech" };
+                match cs.iter().find(|c| c.0 == t as usize) {
+                    Some(c) if (aim == "hex" && c.2) || (aim == "mech" && c.1) => Ok(Some((t as usize, aim))),
+                    _ => Err("TAG cannot designate that".to_string()),
+                }
+            }
+        })
     }
 
     fn target(&mut self, b: &mut Battle, attacker: UnitId, _inner: &mut GladiatorBots) -> Option<UnitId> {
@@ -262,7 +655,7 @@ impl Controller for Screen {
         }
         let list: Vec<Value> = enemies.iter().map(|&e| json!({"id": e, "name": name(b, e), "distance": crate::forces::distance(b, attacker, e)})).collect();
         let req = json!({"kind": "target", "unit": attacker, "name": name(b, attacker), "enemies": list});
-        self.ask(b, req, |a| match a["target"].as_u64() {
+        self.ask(b, req, |_, _| None, |_, a| match a["target"].as_u64() {
             None => Ok(None),
             Some(t) if enemies.contains(&(t as usize)) => Ok(Some(t as usize)),
             Some(_) => Err("that is not an enemy you can target".to_string()),
@@ -270,44 +663,46 @@ impl Controller for Screen {
     }
 
     fn declaration(&mut self, b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId, _inner: &mut GladiatorBots) -> DeclChoice {
-        let weapons = crate::damage_resolution::get_weapons(&b.units[attacker]);
-        // the weapons that can fire at this range (and their expected damage and heat), as the weapon picker sees them
-        let cands = crate::weapon_selection::fire_candidates(b, attacker, ctx.distance, ctx.sel_pre_tn, Some(&ctx.adjust), &ctx.unavailable, None, &weapons, Some(planner));
-        // each arc action's unavailable weapons; the first is "no change" (the engine's tie order)
-        let per_action: Vec<HashSet<usize>> = ctx
-            .arc_choices
-            .iter()
-            .map(|(key, _)| {
-                let mut u = ctx.unavailable.clone();
-                u.extend(arc_unavailable(&b.units[attacker], key));
-                u
-            })
-            .collect();
-        let mut rows: Vec<Value> = Vec::new();
-        for &w in &weapons {
-            let (iname, iheat) = { let it = &b.units[attacker].items[w]; (it.name.clone(), it.heat) };
-            let cand = cands.iter().find(|c| c.w == w);
-            let bracket = crate::weapon_selection::range_bracket(b, attacker, w, ctx.distance);
-            let tn = cand.map(|_| {
-                let adj = crate::fire_modes::TnAdjust::adjust(&ctx.adjust, b, w, bracket, None);
-                (ctx.sel_pre_tn + adj).clamp(crate::weapon_selection::PRE_TN_MIN, crate::weapon_selection::PRE_TN_MAX)
-            });
-            rows.push(json!({"id": w, "name": iname, "loc": ctx.w_locs.get(&w), "heat": cand.map(|c| c.heat).or(iheat), "ev": cand.map(|c| c.value),
-                             "tn": tn, "range": bracket, "in_range": cand.is_some(), "needs_twist": cand.is_some() && per_action.first().is_some_and(|u| u.contains(&w))}));
-        }
+        let (rows, ..) = weapon_rows(b, ctx, planner, attacker);
         let u = &b.units[attacker];
+        // the to-hit number in its parts (the weapon rows add the range band and the weapon's own modifiers on top)
+        let listed = u.gunnery + ctx.amm + ctx.tmm + ctx.los_modifier + ctx.cover + ctx.heat_mod + ctx.prone_mod + ctx.stealth_mod;
+        let breakdown = json!({"gunnery": u.gunnery, "attacker_movement": ctx.amm, "target_movement": ctx.tmm, "line_of_sight": ctx.los_modifier, "cover": ctx.cover,
+                               "heat": ctx.heat_mod, "target_prone": ctx.prone_mod, "stealth": ctx.stealth_mod, "other": ctx.sel_pre_tn - listed, "base": ctx.sel_pre_tn,
+                               "secondary": ctx.secondary, "indirect": ctx.indirect, "note": ctx.cond_note});
         let req = json!({"kind": "declaration", "unit": attacker, "name": name(b, attacker), "target": target, "target_name": name(b, target), "distance": ctx.distance,
-                         "base_tn": ctx.sel_pre_tn, "weapons": rows, "heat": u.current_heat, "move_heat": u.movement_heat, "dissipation": ctx.dissipation,
-                         "max_heat": u.max_heat, "indirect": ctx.indirect, "secondary": ctx.secondary});
-        let ids: Vec<usize> = self.ask(b, req, |a| {
-            let ids: Vec<usize> = a["weapons"].as_array().ok_or("which weapons?")?.iter().filter_map(|v| v.as_u64().map(|x| x as usize)).collect();
-            for id in &ids {
-                if !cands.iter().any(|c| c.w == *id) {
-                    return Err(format!("weapon {} cannot fire at this target", id));
-                }
-            }
-            Ok(ids)
-        });
+                         "base_tn": ctx.sel_pre_tn, "breakdown": breakdown, "weapons": rows, "heat": u.current_heat, "move_heat": u.movement_heat,
+                         "dissipation": ctx.dissipation, "max_heat": u.max_heat, "indirect": ctx.indirect, "secondary": ctx.secondary,
+                         "target_hex": b.units[target].hex, "actions": ctx.arc_choices.len()});
+        let result: (Vec<usize>, Vec<crate::weapon_selection::Candidate>, Vec<HashSet<usize>>) = {
+            let planner_cell = std::cell::RefCell::new(planner);
+            self.ask(
+                b,
+                req,
+                |b, q| {
+                    if q["q"].as_str() != Some("set") {
+                        return None;
+                    }
+                    apply_weapon_settings(b, attacker, target, q);
+                    let mut p = planner_cell.borrow_mut();
+                    let (rows, ..) = weapon_rows(b, ctx, &mut p, attacker);
+                    Some(json!({"weapons": rows}))
+                },
+                |b, a| {
+                    apply_weapon_settings(b, attacker, target, a);
+                    let mut p = planner_cell.borrow_mut();
+                    let (_, cands, per_action) = weapon_rows(b, ctx, &mut p, attacker);
+                    let ids: Vec<usize> = a["weapons"].as_array().ok_or("which weapons?")?.iter().filter_map(|v| v.as_u64().map(|x| x as usize)).collect();
+                    for id in &ids {
+                        if !cands.iter().any(|c| c.w == *id) {
+                            return Err(format!("weapon {} cannot fire at this target", id));
+                        }
+                    }
+                    Ok((ids, cands, per_action))
+                },
+            )
+        };
+        let (ids, cands, per_action) = result;
         // the twist / flip happens by itself (Daniel): the first arc action that lets every chosen weapon fire; if none does,
         // the one that lets most fire, and the rest are dropped
         let mut best = (0usize, usize::MAX);
@@ -340,7 +735,7 @@ impl Controller for Screen {
             })
             .collect();
         let req = json!({"kind": "physical", "unit": attacker, "name": name(b, attacker), "target": target, "target_name": name(b, target), "base_tn": base, "kinds": kinds});
-        let pick: Option<String> = self.ask(b, req, |a| match a["kind"].as_str() {
+        let pick: Option<String> = self.ask(b, req, |_, _| None, |_, a| match a["kind"].as_str() {
             None => Ok(None),
             Some(k) if groups.contains_key(k) => Ok(Some(k.to_string())),
             Some(k) => Err(format!("no '{}' attack is possible", k)),
@@ -350,5 +745,30 @@ impl Controller for Screen {
         // punches may use both arms; any other kind swings once (the best of its options by damage)
         let chosen = if k == "punch" { opts } else { vec![opts.iter().max_by(|x, y| x.damage.f().partial_cmp(&y.damage.f()).unwrap()).unwrap().clone()] };
         Some((base, chosen, ArcAction { ..crate::arcs::current_action(&b.units[attacker]) }))
+    }
+
+    fn end_phase(&mut self, b: &mut Battle, u: UnitId, weapon_heat: i64) -> Option<String> {
+        if b.is_destroyed(u) || b.units[u].shutdown {
+            return None;
+        }
+        let m = &b.units[u];
+        let projected = (m.current_heat + m.movement_heat + weapon_heat - ms::active_heat_sinks(m)).max(0);
+        let eq = equipment_json(b, u);
+        let pods = eq["coolant"]["pods"].as_i64().unwrap_or(0);
+        let radical = eq["radical"]["live"].as_bool().unwrap_or(false);
+        let jam = eq["jammed"].as_array().is_some_and(|j| !j.is_empty());
+        // asked only when there is something to decide: expected heat with coolant pods or radical sinks to answer it, a jam
+        if !((projected > 0 && (pods > 0 || radical)) || jam) {
+            return None;
+        }
+        let req = json!({"kind": "end_phase", "unit": u, "name": name(b, u), "equipment": eq,
+                         "heat": {"now": m.current_heat, "movement": m.movement_heat, "weapons": weapon_heat, "sinks": ms::active_heat_sinks(m), "projected": projected}});
+        self.ask(b, req, |_, _| None, |b, a| {
+            if let Some(sw) = a.get("switches") {
+                apply_switches(b, u, sw);
+            }
+            Ok(())
+        });
+        Some(format!("projected heat {}", projected))
     }
 }

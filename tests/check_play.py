@@ -46,6 +46,11 @@ def play(lab, seed, kinds, wrong_once):
         if k == "move_order":
             ans = {"unit": r["candidates"][0]}
         elif k == "movement":
+            if "path" not in kinds and r["options"]:
+                kinds.add("path")
+                o = r["options"][-1]
+                q = lab.api("play_query", {"game": gid, "query": {"q": "path", "hex": o["hex"], "facing": o["facing"], "mode": o["mode"]}})
+                assert q.get("path") is not None, "a path query returns the route: " + json.dumps(q)[:100]
             best = max(r["options"], key=lambda o: (o["mode"] == "Walk", o["mp"]), default=None)
             ans = {"stay": True} if best is None else {"hex": best["hex"], "facing": best["facing"], "mode": best["mode"]}
         elif k == "target":
@@ -57,12 +62,88 @@ def play(lab, seed, kinds, wrong_once):
                 seq = again["seq"]
             ans = {"target": r["enemies"][0]["id"]}
         elif k == "declaration":
+            if "decl" not in kinds:
+                # the weapon table carries the to-hit parts, and a mode change / switch query is answered while the question waits
+                kinds.add("decl")
+                assert r["breakdown"]["base"] == r["base_tn"], "the to-hit breakdown has a base"
+                w0 = next((w for w in r["weapons"] if w["in_range"]), None)
+                q = lab.api("play_query", {"game": gid, "query": {"q": "set", "unit": r["unit"], "modes": {}}})
+                assert "weapons" in q and len(q["weapons"]) == len(r["weapons"]), "a 'set' query returns the weapon table"
+                sw = lab.api("play_query", {"game": gid, "query": {"q": "switches", "unit": r["unit"], "switches": {"coolant": "hold", "sinks_off": None}}})
+                assert sw["equipment"]["coolant"]["mode"] == "hold", "an equipment switch is applied while a question waits"
+                lab.api("play_query", {"game": gid, "query": {"q": "switches", "unit": r["unit"], "switches": {"coolant": "auto"}}})
             ans = {"weapons": [w["id"] for w in r["weapons"] if w["in_range"] and not w["needs_twist"]]}
+        elif k == "stand_up":
+            ans = {"stand": True}
+        elif k == "boost":
+            ans = {"use": False}
+        elif k in ("spot", "tag"):
+            ans = {"target": None}
+        elif k == "end_phase":
+            ans = {}
         else:
             ans = {"kind": r["kinds"][0]["kind"]}
         answers.append((k, json.dumps(ans, sort_keys=True)))
         lab.api("play_answer", {"game": gid, "seq": seq, "answer": ans})
     raise SystemExit("the battle did not end")
+
+
+KIT = {"teams": [
+    {"name": "Red", "colour": "#4b8fd8", "bot": "human", "units": [{"unit": n, "gunnery": 4, "piloting": 5} for n in ("meks/3050U/Caesar CES-4R.mtf", "meks/3055U/Stealth STH-2D2.mtf", "meks/Golden Century/Minsk 2.mtf", "meks/3058Uu/Spartan SPT-N1.mtf")]},
+    {"name": "Blue", "colour": "#d86a4b", "bot": "gladiator", "units": [{"unit": n, "gunnery": 4, "piloting": 5} for n in ("Atlas AS7-K.mtf", "Awesome AWS-8Q.mtf")]}],
+    "board": "16x17_Grassland_1.board", "battles": 1, "seed": 7, "max_turns": 100}
+
+
+def kit_game(lab, kinds):
+    """A game with MASC, TAG, coolant pods and AMS on the person's side: the rarer questions, every mode and switch answered."""
+    gid = lab.api("play_start", {"setup": KIT, "seed": 7})["game"]
+    for _ in range(20000):
+        p = lab.api("play_poll", {"game": gid, "wait_ms": 30000})
+        if p["state"] == "waiting":
+            continue
+        if p["state"] == "failed":
+            raise SystemExit("the engine stopped: " + p["error"])
+        if p["state"] == "done":
+            return p["end"]
+        r, seq = p["request"], p["seq"]
+        k = r["kind"]
+        kinds.add(k)
+        if k == "move_order":
+            ans = {"unit": r["candidates"][0]}
+        elif k == "stand_up":
+            ans = {"stand": True}
+        elif k == "boost":
+            ans = {"use": True}
+        elif k == "movement":
+            if r["attacks"] and "attack" not in kinds:
+                kinds.add("attack")
+                a = r["attacks"][0]
+                q = lab.api("play_query", {"game": gid, "query": {"q": "path", "attack": a}})
+                assert q.get("path"), "a charge's route is returned: " + json.dumps(q)[:80]
+                ans = {"attack": a}
+            else:
+                best = max(r["options"], key=lambda o: (o["mode"] == "Run", o["mp"]), default=None)
+                ans = {"stay": True} if best is None else {"hex": best["hex"], "facing": best["facing"], "mode": best["mode"]}
+        elif k == "spot":
+            ans = {"target": r["candidates"][0]["id"], "fires": True}
+        elif k == "tag":
+            c = r["candidates"][0]
+            ans = {"target": c["id"], "aim": "mech" if c["tn_mech"] is not None else "hex"}
+        elif k == "target":
+            ans = {"target": r["enemies"][0]["id"]}
+        elif k == "declaration":
+            modes = {str(w["id"]): w["modes"][-1]["label"] for w in r["weapons"] if w["modes"]}
+            shots = {str(w["id"]): w["rates"][-1]["shots"] for w in r["weapons"] if w["rates"]}
+            rows = lab.api("play_query", {"game": gid, "query": {"q": "set", "unit": r["unit"], "modes": modes, "shots": shots}})["weapons"] if (modes or shots) else r["weapons"]
+            ans = {"weapons": [w["id"] for w in rows if w["in_range"] and not w["needs_twist"] and not w["jammed"]], "modes": modes, "shots": shots}
+        elif k == "end_phase":
+            ans = {"switches": {"coolant": "now", "radical": r["equipment"]["radical"]["live"]}}
+        elif k == "physical":
+            ans = {"kind": r["kinds"][0]["kind"]}
+        else:
+            ans = {}
+        lab.api("play_answer", {"game": gid, "seq": seq, "answer": ans})
+    raise SystemExit("the kitchen game did not end")
 
 
 def main():
@@ -90,6 +171,10 @@ def main():
         check(end["winner"] in ("Red", "Blue", "Draw") and end["turns"] > 0, f"the battle ends: {end['winner']} after {end['turns']} turns, {end['decisions']} decisions", failures)
         end2, ans2 = play(lab, 11, set(), [True, None])
         check(ans1 == ans2 and end["winner"] == end2["winner"] and end["turns"] == end2["turns"], "the same seed and answers give the same battle", failures)
+        kk = set()
+        end3 = kit_game(lab, kk)
+        check({"boost", "declaration", "end_phase", "spot"} <= kk, f"a game with MASC, TAG, coolant pods and AMS on the person's side: questions {sorted(kk)}", failures)
+        check(end3["winner"] in ("Red", "Blue", "Draw"), f"... and it ends: {end3['winner']} after {end3['turns']} turns", failures)
     finally:
         proc.kill()
     if failures:

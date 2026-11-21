@@ -333,6 +333,32 @@ pub fn unavailable_weapons(mech: &Mech) -> HashSet<ItemId> {
     out
 }
 
+/// Where a bin sits: the location whose critical slots hold it.
+pub fn bin_location(mech: &Mech, bin: ItemId) -> Option<String> {
+    mech.crits.iter().find(|(_, slots)| slots.iter().any(|s| matches!(s, Slot::Item(id) if *id == bin))).map(|(loc, _)| loc.clone())
+}
+
+/// The automatic bin order for a person's unit (Daniel, 2026-11-21): Center Torso, side torsos, arms, legs, head; inside a
+/// location the bin with the fewest shots left, the first of equals.
+pub fn auto_bin(mech: &Mech, bins: &[ItemId]) -> ItemId {
+    let rank = |i: ItemId| match bin_location(mech, i).as_deref() {
+        Some("Center Torso") => 0,
+        Some("Left Torso") | Some("Right Torso") => 1,
+        Some(l) if l.ends_with("Arm") => 2,
+        Some(l) if l.ends_with("Leg") => 3,
+        Some("Head") => 4,
+        _ => 5,
+    };
+    let key = |i: ItemId| (rank(i), mech.items[i].shots_left.unwrap_or(i64::MAX));
+    let mut best = bins[0];
+    for &i in &bins[1..] {
+        if key(i) < key(best) {
+            best = i;
+        }
+    }
+    best
+}
+
 /// spend() that also returns the munition actually fired: (note, munition).
 pub fn take(b: &mut Battle, u: UnitId, weapon: ItemId, munition: Option<&str>, kind: Option<&str>) -> (String, String) {
     if b.units[u].items[weapon].one_shot.unwrap_or(false) {
@@ -364,10 +390,17 @@ pub fn take(b: &mut Battle, u: UnitId, weapon: ItemId, munition: Option<&str>, k
     if counted.is_empty() {
         return (String::new(), mun_of(b, bins[0]));
     }
+    let pname = b.units[u].side_name.clone().unwrap_or_default();
     let mut best = counted[0];
-    for &i in &counted[1..] {
-        if b.units[u].items[i].shots_left < b.units[u].items[best].shots_left {
-            best = i; // min(): the first of equals
+    if b.player.is_player(&pname) {
+        // a unit a person controls: the bin the person picked, else the automatic order (Daniel, 2026-11-21)
+        let forced = b.player.unit(&pname).and_then(|c| c.bin.get(&weapon)).copied().filter(|i| counted.contains(i));
+        best = forced.unwrap_or_else(|| auto_bin(&b.units[u], &counted));
+    } else {
+        for &i in &counted[1..] {
+            if b.units[u].items[i].shots_left < b.units[u].items[best].shots_left {
+                best = i; // min(): the first of equals
+            }
         }
     }
     let it = &mut b.units[u].items[best];

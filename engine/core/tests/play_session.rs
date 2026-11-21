@@ -81,6 +81,10 @@ fn a_scripted_player_plays_a_battle_to_its_end() {
                 json!({"weapons": ids})
             }
             "physical" => json!({"kind": r["kinds"][0]["kind"]}),
+            "stand_up" => json!({"stand": true}),
+            "boost" => json!({"use": false}),
+            "spot" | "tag" => json!({"target": null}),
+            "end_phase" => json!({}),
             k => panic!("unknown kind {}", k),
         };
         game.answer(seq, ans).unwrap();

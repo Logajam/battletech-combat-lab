@@ -37,6 +37,8 @@ pub enum Decision {
     Declaration { unit: UnitId, target: UnitId, choice: DeclChoice },
     /// the physical attack after the ranged phase
     Physical { unit: UnitId, target: UnitId, choice: PhysicalChoice },
+    /// any other answer (stand up, MASC, End Phase switches, TAG, spot): what it was about and the answer as text
+    Choice { unit: UnitId, kind: &'static str, answer: String },
 }
 
 /// What answers for a person's units. Each method is called only for a unit the person controls and may take any time.
@@ -48,6 +50,26 @@ pub trait Controller {
     fn target(&mut self, b: &mut Battle, attacker: UnitId, inner: &mut GladiatorBots) -> Option<UnitId>;
     fn declaration(&mut self, b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId, inner: &mut GladiatorBots) -> DeclChoice;
     fn physical(&mut self, b: &mut Battle, attacker: UnitId, target: UnitId, inner: &mut GladiatorBots) -> PhysicalChoice;
+    /// A unit is about to move: MASC / supercharger and similar switches. Returns what was set, as text (None: nothing asked).
+    fn before_move(&mut self, _b: &mut Battle, _mover: UnitId) -> Option<String> {
+        None
+    }
+    /// May a prone unit that can stand try to?
+    fn stand_up(&mut self, _b: &mut Battle, _mover: UnitId) -> bool {
+        true
+    }
+    /// The Heat Phase is about to start for this unit.
+    fn end_phase(&mut self, _b: &mut Battle, _u: UnitId, _weapon_heat: i64) -> Option<String> {
+        None
+    }
+    /// TAG designation: None = does not designate.
+    fn tag(&mut self, _b: &mut Battle, _attacker: UnitId, _cands: &[crate::tag::TagCandidate]) -> Option<(UnitId, &'static str)> {
+        None
+    }
+    /// Spot for indirect fire.
+    fn spot(&mut self, b: &mut Battle, u: UnitId, inner: &mut GladiatorBots) -> Option<(UnitId, bool)> {
+        inner.choose_spot(b, u)
+    }
 }
 
 pub struct HumanBots<C: Controller> {
@@ -97,6 +119,14 @@ impl<C: Controller> BotSet for HumanBots<C> {
         assert!(candidates.contains(&chosen), "a controller must choose among the units still to move");
         self.log.push(Decision::MoveOrder { chosen });
         Some(chosen)
+    }
+
+    /// The forecast of the move queue never asks a person: the engine's own order stands in.
+    fn move_pick_forecast(&mut self, b: &mut Battle, candidates: &[UnitId]) -> Option<UnitId> {
+        if candidates.iter().any(|u| self.human.contains(u)) {
+            return None;
+        }
+        self.inner.move_pick(b, candidates)
     }
 
     fn choose_declaration(&mut self, b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: UnitId, target: UnitId) -> DeclChoice {
@@ -155,7 +185,46 @@ impl<C: Controller> BotSet for HumanBots<C> {
     }
 
     fn choose_spot(&mut self, b: &mut Battle, u: UnitId) -> Option<(UnitId, bool)> {
-        self.inner.choose_spot(b, u)
+        if !self.human.contains(&u) {
+            return self.inner.choose_spot(b, u);
+        }
+        let r = self.ctl.spot(b, u, &mut self.inner);
+        self.log.push(Decision::Choice { unit: u, kind: "spot", answer: format!("{:?}", r) });
+        r
+    }
+
+    fn before_move(&mut self, b: &mut Battle, mover: UnitId) {
+        if self.human.contains(&mover) {
+            if let Some(a) = self.ctl.before_move(b, mover) {
+                self.log.push(Decision::Choice { unit: mover, kind: "before_move", answer: a });
+            }
+        }
+    }
+
+    fn wants_stand_up(&mut self, b: &mut Battle, mover: UnitId) -> bool {
+        if !self.human.contains(&mover) {
+            return true;
+        }
+        let r = self.ctl.stand_up(b, mover);
+        self.log.push(Decision::Choice { unit: mover, kind: "stand_up", answer: r.to_string() });
+        r
+    }
+
+    fn end_phase(&mut self, b: &mut Battle, u: UnitId, weapon_heat: i64) {
+        if self.human.contains(&u) {
+            if let Some(a) = self.ctl.end_phase(b, u, weapon_heat) {
+                self.log.push(Decision::Choice { unit: u, kind: "end_phase", answer: a });
+            }
+        }
+    }
+
+    fn choose_tag(&mut self, b: &mut Battle, attacker: UnitId, cands: &[crate::tag::TagCandidate]) -> Option<Option<(UnitId, &'static str)>> {
+        if !self.human.contains(&attacker) {
+            return None;
+        }
+        let r = self.ctl.tag(b, attacker, cands);
+        self.log.push(Decision::Choice { unit: attacker, kind: "tag", answer: format!("{:?}", r) });
+        Some(r)
     }
 
     fn assign_damage(&mut self, b: &mut Battle, attacker: UnitId, target: UnitId, dmg: f64) {

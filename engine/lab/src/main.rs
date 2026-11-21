@@ -268,6 +268,7 @@ fn api(lab: &Lab, name: &str, req: &Value) -> Result<Value, String> {
             let g = game_of(lab, req)?;
             Ok(g.poll(std::time::Duration::from_millis(req["wait_ms"].as_u64().unwrap_or(25000).min(60000))))
         }
+        "play_query" => Ok(game_of(lab, req)?.query(req["query"].clone(), std::time::Duration::from_secs(60))),
         "play_answer" => {
             game_of(lab, req)?.answer(req["seq"].as_u64().ok_or("which question?")?, req["answer"].clone())?;
             Ok(json!({"ok": true}))

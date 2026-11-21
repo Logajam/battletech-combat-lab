@@ -211,7 +211,7 @@ pub fn ams_key(w: crate::equipment::ItemId) -> String {
 
 /// Is this AMS switched off (by a MegaMek bot's End Phase choice)?
 pub fn ams_off(m: &crate::mech_state::Mech, w: crate::equipment::ItemId) -> bool {
-    m.heat_managed && m.systems_off.iter().any(|k| *k == ams_key(w))
+    m.systems_off.iter().any(|k| *k == ams_key(w))
 }
 
 fn set_ams_modes(b: &mut Battle, u: UnitId) {

@@ -168,6 +168,8 @@ pub struct Battle {
     pub split_fire: Vec<crate::split_fire::SplitState>,
     /// Princess's distant-artillery aims this turn (princess_artillery.rs; a bot's working memory, not saved with a state)
     pub distant_aims: Vec<crate::princess_artillery::Aim>,
+    /// what a person has chosen for the units they control (player_choices.rs); empty in a simulated battle
+    pub player: crate::player_choices::PlayerChoices,
     /// each team's own settings (TEAM_SETTINGS; team_settings.rs): (team, settings; None while they stand in `cfg`)
     pub team_cfgs: Vec<(String, Option<Config>)>,
     /// INTEGRATION__los_cache: lines of sight the bots asked about, (from, to, heights) -> answer (None = the line runs
@@ -246,6 +248,7 @@ impl Battle {
             pending_artillery: Vec::new(),
             split_fire: Vec::new(),
             distant_aims: Vec::new(),
+            player: Default::default(),
             team_cfgs,
             los_memo: Default::default(),
             table_memo: Default::default(),
