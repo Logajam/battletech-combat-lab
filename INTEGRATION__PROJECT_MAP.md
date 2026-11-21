@@ -728,6 +728,7 @@ untranslated "until they're actually needed". What is left of the port is finish
   deployment decision regardless). NOT yet traced; Daniel: "leave Gladiator as a bug to fix later".
   When picked up: reproduce with `btsim` on the same seed, then read the deployment path in the
   Gladiator decision loop before changing anything.
+- **Ejection and voluntary shutdown are not modelled** (Daniel, 2026-11-21: "leave out for the moment ... make sure they're a known short fall"). UI plan: Shut down on the engine's critical-stats page, Eject on the cockpit (`INTEGRATION__PLAYER_DECISIONS.md` Section 12). Other unit types (vehicles, infantry) also later.
 
 **Known issues to fix later (found session 13, Claude):**
 - ~~FLAKY CHECK~~ FIXED 2026-10-29 (Claude): it was `test_superheavy.py`

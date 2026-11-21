@@ -30,14 +30,11 @@ Auto = the engine rolls or resolves it with no choice offered; None = the engine
 
 Plus a dozen stubs that are decisions the book gives to the player but the engine answers by default (Sections 2 to 5).
 
-**Structural problem to settle before any UI work.** These calls are synchronous: the orchestrator calls a bot and gets the
-answer back immediately. A human answers in seconds, and in the browser build (WASM, one thread) nothing can block. The
-engine already has a way round this: `ReplayBots` plays a battle back from recorded decisions, and the engine is
-deterministic from the seed. So a human turn can be "re-run from the start with every decision recorded so far; stop at
-the first decision with no answer and ask for it". That fits "the game records decisions" and the branching idea
-(truncate the list, change one answer). It costs replay time that grows with game length (fine for a 20-turn game; to be
-measured), and it is the easiest of the options. The alternative, turning the orchestrator into a resumable state machine,
-is a large rewrite. This is my reading of the code, not a tested design. **Decision for Daniel / next session, before step 2.**
+**Resume mechanism (Daniel, 2026-11-21, corrects my first draft).** The engine has no clock; it only knows which decision
+comes next, so it can simply wait for the answer. Replay is the same decision list, recorded on the human's side, which is
+what allows backtracking to a point and changing one answer. My earlier worry (synchronous calls) applies only to the
+browser build, where the engine runs on the page's one thread and must not block it: run the engine in a Web Worker and
+have it wait on a message from the page (not yet tried here). The native Combat Lab server can block a thread directly.
 
 ## 2. Setup (before turn 1)
 
@@ -161,10 +158,66 @@ of these is a **Daniel scope call** before it gets a control.
 
 ## 11. Open questions for Daniel
 
-1. Players choose the order units move in (the book), instead of the engine's move index? Same for the order of declarations?
-2. Human versus bot in the same battle: does the bot see the human's declaration before it declares (sequential), or do both
-   declare blind and then resolve (the engine's current simultaneous rule, which also matches the book)?
-3. The rules-switch list: which of the 153 settings are player-facing? I can draft the sort for you to correct.
-4. Which Section 9 items, if any, are wanted for the first playable version (ejection and voluntary shutdown are the
-   likeliest)?
-5. Line of sight between two hexes: leave as "worse for the shooter" or build the defender's pick?
+Answered 2026-11-21 (Section 12). Still open: (a) the book's rule on declaration order, to verify in the library;
+(b) MegaMek's simultaneous-firing behaviour and the exact LOS split code, to verify from source.
+
+## 12. Daniel's answers, 2026-11-21 (these override the tables above where they differ)
+
+**Play model.** A force set to Human in the Combat Lab force builder (which already exists) runs the battle slowly,
+waiting at each human decision, instead of Monte Carlo speed. During a replay a checkbox on a unit ("take control") makes
+that unit's turn the viewer's own from then on; the Firing phase needs sub-steps that stay hidden until the box is ticked.
+Mid-game option changes are decisions too and are recorded in the decision list so a replay reproduces them.
+
+**Order.** Initiative is a report only. In Movement the bots move and the human may move any unit not yet moved, when
+it is their side's turn (Q1: yes). Declaration order is an option at setup: simultaneous declaration (default) or players
+taking turns declaring. Q2: Daniel is fairly sure the book has players take turns declaring fire; **to verify in the
+library before building** (the engine today declares both sides blind and resolves together).
+
+**Automated in the UI, no prompt:** torso twist and arm flip (target something that needs one and it happens: one arm's
+target twists, the other arm's target flips); hex-edge LOS for a bot; ammo bin order unless the player opens the picker.
+
+**Buttons and modes (no new screens):**
+- Rate of fire, unjam, capacitor Charge (lightning icon), munition kind: all through the weapon row's existing mode / ammo
+  buttons. The ammo button exists even for weapons with one kind.
+- Stand up: a button beside a prone 'Mech on the map. Moving to another hex makes the stand-up attempt automatic; the
+  warning screen still shows.
+- Charge / DFA: put a waypoint on an enemy; the path goes black; a map button appears if the attack is possible; pressing
+  it recolours the path and opens a confirm popup describing the attack. Yes = same as the Move button; No = back up one
+  waypoint. Physical attacks otherwise: a list like the weapons list (target, attack type, TN, damage).
+- Going prone and other odd movement options: a button in the movement plan section, normally hidden.
+- Spot: select a target and a Spot button appears beside it. Spotting after weapons are assigned warns that TNs change.
+- TAG: an attack with its own short phase before the Ranged Attack Phase, skipped when no friendly side needs spotting.
+- Artillery: targets hexes (already planned).
+- Shut down: an option on the engine in the unit's critical stats page. Eject: an option on the cockpit.
+- Most remaining choices are toggles that stay set, or a warning the player accepts.
+
+**Setup.** Options tab: every option is player-facing ("its their game to set up"); organising it comes later.
+Declaration style (simultaneous / take turns) is a setup option.
+
+**Line of sight between two hexes (Q5).** Defender's choice: a human defender picks when declarations take turns; a bot
+defender picks defensively unless it wants to shoot back. MegaMek, from a partial source read (**NOT VERIFIED**: most of
+`LosEffects.java` came back as a model summary, the firing-phase server code was not reachable): `losDivided()` is called
+when the angle falls on a hex edge, its comment says the situation resolves in favour of the defender, and it picks the
+side with the larger to-hit modifier automatically; no player choice. MegaMek's options `simultaneous_firing`,
+`simultaneous_targeting`, `simultaneous_physical` all default to off; what they change was not confirmed.
+
+**Known shortfalls (Daniel: leave out for now, record that they are missing):** ejection and voluntary shutdown. Their
+solution is recorded above; the UI controls come later. Other unit types: later.
+
+## 13. Heat Phase and End Phase decisions (Daniel asked)
+
+Heat is mostly rolls. The real choices, from the code (`heat.rs`, `orchestrator.rs` `phase_end`):
+
+| Choice | When | Suggested control |
+|---|---|---|
+| Heat sinks on / off, how many stay on, so heat can fall to a minimum next turn | End Phase | Toggle on the heat bar; sticks until changed |
+| Use a coolant pod this turn | Heat Phase | Button with a count on the heat bar |
+| AMS on / off per system | End Phase | Toggle on the equipment page; sticks |
+| Blue Shield on / off | Start and End Phase | Toggle on the equipment page; sticks |
+| Command console: swap pilot and console warrior | End Phase | Toggle / button when a console exists |
+| Which ammo bin explodes when several tie | During the Heat Phase | A prompt only on a tie (book: the controller chooses) |
+| Voluntary shutdown | End Phase | Not built (known shortfall) |
+
+Everything else in those phases (shutdown and ammo-explosion avoid rolls, restart, life-support damage, wake-ups, crippled
+and destroyed checks) is a roll with a report, no choice. Radical heat sinks / MASC / supercharger are decided in
+Movement, not here.
