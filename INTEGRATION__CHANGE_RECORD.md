@@ -6,6 +6,19 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-21 (Claude, evening), BATTLEROM SLICE, SECOND PASS: the rest of the player's decisions. REVIEW PENDING (higher-level
+  model).** Daniel: "Skip 5 and 7. Work on getting everything else working." Engine: `player_choices.rs` (what a person chose:
+  munition, shots, ammo bin, unjam, capacitor charge, MASC / radical, coolant, sinks, Blue Shield; read first by the stubs, `ammo::take`,
+  `heat::extra_cooling` / `choose_heat_sink_deactivation`, `fire_modes::Planner::decide`, only for units with an entry, so bot battles
+  are unchanged); `ammo::auto_bin` (Center Torso, side torsos, arms, legs, head); new `BotSet` hooks `before_move`, `wants_stand_up`,
+  `end_phase`, `choose_tag`, `move_pick_forecast` (defaults change nothing) with call sites in the turn loop; `tag::designation_units`
+  takes a hook; `ams_off` also honours a person's off switch. `play_session.rs`: questions stand_up, boost, spot, tag, end_phase; the
+  movement question carries charge / DFA stops with numbers; queries path, set, switches, equipment (`play_query`); weapon table with
+  modes, rates, bins, charge, arcs, ranges, to-hit parts. Page: sheets for all of it, detail sheet, press-and-hold cards, range bands and
+  arcs, looks and colour-blind mode. Found and fixed: the move order was asked during the engine's queue forecast. Checks: all 91
+  reference battles match; `check_play.py` now also plays a full-kit game (MASC, TAG, coolant pods, AMS, a charge); a 6 v 3 game and a
+  2 v 2 were played by tapping in a 390 x 800 browser with no page errors (`tests/play_page_kitchen_e2e.js`). Not done: see Section 17
+  of `INTEGRATION__PLAYER_DECISIONS.md`.
 - **2026-11-21 (Claude), BATTLEROM FIRST PLAYABLE SLICE: A PERSON PLAYS A TEAM IN THE COMBAT LAB. REVIEW PENDING (higher-level
   model).** Daniel: "Time to start making it real ... a working model even if it has issues." Step 1 was an audit of every
   decision a player must make (`INTEGRATION__PLAYER_DECISIONS.md`, with Daniel's answers). Built: `human_bots.rs` (a `BotSet` that

@@ -360,9 +360,9 @@ fn weapon_rows(b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: U
     let pname = name(b, attacker);
     let mut rows: Vec<Value> = Vec::new();
     for &w in &weapons {
-        let (iname, iheat, jammed, cap) = {
+        let (iname, iheat, jammed, cap, rear) = {
             let it = &b.units[attacker].items[w];
-            (it.name.clone(), it.heat, it.jammed == Some(true), it.capacitor.is_some())
+            (it.name.clone(), it.heat, it.jammed == Some(true), it.capacitor.is_some(), it.rear_mounted)
         };
         let cand = cands.iter().find(|c| c.w == w);
         let bracket = crate::weapon_selection::range_bracket(b, attacker, w, ctx.distance);
@@ -406,12 +406,37 @@ fn weapon_rows(b: &mut Battle, ctx: &DeclCtx, planner: &mut Planner, attacker: U
                 bins.push(json!({"id": i, "name": e.name, "loc": crate::ammo::bin_location(&b.units[attacker], *i), "munition": e.munition, "shots": e.shots_left, "selected": Some(*i) == drawn, "chosen": Some(*i) == forced}));
             }
         }
+        // the hexes this weapon can bear on: as the unit stands (no twist) and with any torso twist / arm flip it may declare
+        let (arc_now, arc_twist) = {
+            let m = &b.units[attacker];
+            let legs = crate::arcs::leg_offsets(m);
+            let now = crate::arcs::current_action(m);
+            let (mut a1, mut a2): (Vec<String>, Vec<String>) = (Vec::new(), Vec::new());
+            for label in b.board.hexes.keys() {
+                let Some(h) = hex_of(label) else { continue };
+                if h == ctx.a_hex {
+                    continue;
+                }
+                let pair = crate::arcs::arcs_between(ctx.a_hex, h);
+                let bears = |action: &ArcAction| {
+                    let key = crate::arcs::key_for(&pair, ctx.a_facing, action, &legs);
+                    !crate::arcs::unavailable(m, &[w], &ctx.w_locs, &key).contains(&w)
+                };
+                if bears(&now) {
+                    a1.push(label.clone());
+                    a2.push(label.clone());
+                } else if ctx.arc_choices.iter().any(|(_, act)| bears(act)) {
+                    a2.push(label.clone());
+                }
+            }
+            (a1, a2)
+        };
         let charge = cap && b.player.unit(&pname).is_some_and(|c| c.charge.contains(&iname));
         rows.push(json!({"id": w, "name": iname, "loc": ctx.w_locs.get(&w), "heat": cand.map(|c| c.heat).or(iheat), "ev": cand.map(|c| c.value),
                          "tn": tn, "adj": tn.map(|t| t - ctx.sel_pre_tn), "range": bracket, "in_range": cand.is_some(), "jammed": jammed,
                          "needs_twist": cand.is_some() && per_action.first().is_some_and(|u| u.contains(&w)),
                          "modes": modes, "mode": mode_now, "rates": rates, "shots": shots_now, "bins": bins,
-                         "chargeable": cap, "charge": charge,
+                         "chargeable": cap, "charge": charge, "rear": rear, "arc": arc_now, "arc_twist": arc_twist,
                          "ranges": b.units[attacker].items[w].weapon_range.as_ref().map(|r| json!({"min": r.min, "short": r.short, "medium": r.medium, "long": r.long}))}));
     }
     (rows, cands, per_action)

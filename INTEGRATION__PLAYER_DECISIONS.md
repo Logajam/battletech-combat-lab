@@ -291,3 +291,30 @@ tapping the real controls at 390 x 780; not in `run_checks.py`).
 7. The browser (WASM) build: nothing of this is in it; a Human team there needs the replay-from-the-decision-list route (Section 1).
 8. A game is held in memory by the Lab: closing the Lab ends it. Saving and resuming a game is not built (the decision list exists in memory only).
 9. The to-hit shown is the weapon's TN from the engine's weapon picker; cover, secondary-target and similar modifiers are inside it, but the page does not itemise them.
+
+## 17. Second pass (2026-11-21, evening): what was added to the first slice, and what is still missing
+
+Daniel: "Skip 5 and 7. Work on getting everything else working." (5 = take-control checkbox, declaration order, option changes
+mid-game; 7 = the browser build. Saving and resuming a game is "if we have spare compute".) Built and tested, in the order of
+Section 16's gap list:
+
+| Gap | Now |
+|---|---|
+| 1. Charge / DFA, stand-up, path | **Charge / death from above:** the movement question lists the stops next to an enemy that has moved (or cannot), with to-hit, damage and the damage you take; tap an enemy, the stops go black, pick one, the route turns to colour, a confirm popup says what the attack is, Yes = the move, No = back up. A real charge was played in a test game. **Stand up:** asked before the roll with its target number (stand up, or stay prone); the engine always stood a unit up before. **Route preview:** a query returns the route the engine will walk (with the MP at each step) and the page draws it. |
+| 2. Weapon modes and ammo | The weapon table has, per weapon: **Mode** (ammunition kind / guidance, incl. distant artillery), **rate of fire** (Ultra / Rotary), **Ammo** (which bin it draws from, shots left), **Charge** (PPC capacitor, lightning icon). Choices stay until changed (`core/src/player_choices.rs`; read by the stubs only for a person's units, so every simulated battle is unchanged: the 91 reference battles still match). A person's unit draws ammunition in the order Center Torso, side torsos, arms, legs, head (fewest shots first inside a location) unless a bin is picked. |
+| 3. Equipment switches, End Phase | **Unit sheet > Equipment** (any time a question waits): heat sinks left off, coolant pods (automatic / hold / use), radical heat sinks, MASC / supercharger, each AMS, Blue Shield, jammed weapons (try to clear next turn), capacitors. **Before the Heat Phase** a question appears when expected end-of-turn heat is above 0 and the unit has coolant pods or radical sinks, or when a weapon is jammed. **MASC / supercharger** is asked at the start of each move (the roll is made before the move). Auto eject: only a note and a head-ammo warning; ejection is not built. |
+| 4. Spot, TAG, artillery, capacitor | **Spot** (`spot` question at the start of the Ranged phase, listing enemies a friend without line of sight could then hit). **TAG** (its own question before the Ranged phase: target, 'Mech or hex, with to-hit numbers). **Artillery:** the distant shot shows as a Mode on the weapon; the aim hex is set by tapping the map (tested through the Lab calls, not tapped in a browser). **Capacitor:** the Charge button (not played in a test game). |
+| 6. Look and features | Detail sheet (Summary, Armor, Criticals, Equipment); press-and-hold a hex or a weapon for a card; range bands and the **firing arc** of the weapon in focus on the map (shaded = outside its arc, dashed = in its arc only after a torso twist / arm flip; rear-mounted weapons show the rear arc); placards under each token (name, armour + structure bar, heat bar); nested menu with Look (SL-HIS Dark / Light, Windows 95, Modern), colour-blind mode (second palette, line patterns, letters on the range bands), view switches; the choices are remembered on the device. |
+| (new) To-hit parts | The declaration lists the parts of the base number (gunnery, your movement, target's movement, line of sight, cover, heat, prone target, stealth, other), and each weapon's own modifier on hover. |
+
+Also fixed on the way: the move-order question was being asked during the engine's forecast of the move queue (about 4 times a
+move); a person is no longer asked in a forecast (`BotSet::move_pick_forecast`).
+
+**Still missing (honest list):**
+- **Waypoint steering.** The engine chooses the route to the end hex itself (cheapest, avoiding hazards); the page shows that route but you cannot steer it with waypoints. Needs an engine change (a path through given hexes).
+- **Going prone** (and other odd movement options): the engine has no voluntary prone move.
+- **Ejection and voluntary shutdown** (known shortfalls); auto eject has only a warning.
+- **Spot and TAG are questions at the start of their phases**, not a Spot button next to the chosen target (the engine decides them before targeting). Hex-only artillery targeting is not possible: an enemy must be the target, and the aim hex can be changed.
+- **Placards can overlap** each other and units (no placement pass like the mockup's); no MegaMek sprites (licence and art not checked); the Win95 list screens and the timeline screen; the combat report is the raw log, not a formatted popup.
+- **Not tried on a real phone**; only a 390 x 800 headless browser. Colour-blind palettes not checked with a simulator.
+- Not built by choice: 5 (take-control checkbox, declaration order, option changes), 7 (browser build), saving and resuming a game (spare compute).

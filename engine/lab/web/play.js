@@ -376,14 +376,17 @@ HANDLERS.target = (r) => {
   S.sel = r.unit;
   sheet(`<h3>${esc(r.name)}: choose a target</h3>${errLine(r)}<div class="msg">Tap a red hex, or pick from the list. Press and hold a hex for its details.</div><div class="row">${r.enemies.map((t) => `<button data-act="target" data-id="${t.id}">${esc(t.name)} ${esc((unit(t.id) || {}).mech || "")} &middot; range ${t.distance ?? "?"}</button>`).join("")}<button data-act="target" data-id="">Hold fire</button></div>`);
 };
-// range bands for the weapon in focus (the arcs are not drawn yet)
+// range bands and firing arc for the weapon in focus: shaded = outside its arc, dashed = in its arc only after a torso twist / arm flip
 function drawRings(layer) {
   if (!O.rings || !S.decl) return;
   const me = unit(S.decl.req.unit), w = S.decl.rows.find((x) => x.id === S.decl.focus);
   if (!me || !me.hex || !w || !w.ranges) return;
   const rg = w.ranges, col = BAND(), L = { short: "S", medium: "M", long: "L" };
+  const inNow = new Set(w.arc || []), inTwist = new Set(w.arc_twist || []);
   for (const label of Object.keys(S.board.hexes)) {
     const d = dist(me.hex, label); if (d === 0 || d > rg.long) continue;
+    if (!inTwist.has(label)) { const [x, y] = centre(label); el("polygon", { points: pts(x, y, 0.98), fill: "#000", "fill-opacity": ".45", "pointer-events": "none" }, layer); continue; } // outside the weapon's arc
+    if (!inNow.has(label)) { const [x, y] = centre(label); el("polygon", { points: pts(x, y, 0.9), fill: "none", stroke: "#fff", "stroke-width": 1.2, "stroke-dasharray": "3 3", "pointer-events": "none" }, layer); } // in arc only after a torso twist / arm flip
     const band = d <= rg.short ? "short" : d <= rg.medium ? "medium" : "long";
     const [x, y] = centre(label);
     const tooClose = rg.min && d < rg.min;
@@ -401,7 +404,7 @@ HANDLERS.declaration = (r) => {
   S.decl = { req: r, rows: r.weapons, sel: new Set(), aim: {}, charge: new Set(r.weapons.filter((w) => w.charge).map((w) => w.name)), focus: (r.weapons.find((w) => w.in_range) || r.weapons[0] || {}).id, aimFor: null, bin: null };
   declSheet();
 };
-const isDistant = (w) => (w.modes || []).some((m) => m.selected && /distant|artillery/i.test(m.label)) || /distant/i.test(w.mode || "");
+const isDistant = (w) => (w.modes || []).some((m) => m.selected && /distant/i.test(m.label)) || /distant/i.test(w.mode || "");
 function breakdownText(r) {
   const b = r.breakdown, parts = [["gunnery", b.gunnery], ["you moved", b.attacker_movement], ["target moved", b.target_movement], ["line of sight", b.line_of_sight], ["cover", b.cover], ["heat", b.heat], ["target prone", b.target_prone], ["stealth", b.stealth], ["other", b.other]].filter((p) => p[1]);
   return `base ${b.base}${b.secondary ? " (includes +1 for a secondary target)" : ""}: ` + parts.map((p) => `${p[0]} ${p[1] > 0 && p[0] !== "gunnery" ? "+" : ""}${p[1]}`).join(", ") + `. Each weapon adds its range band and its own modifiers.${b.note ? " " + esc(b.note) : ""}`;
@@ -413,7 +416,7 @@ function declSheet() {
   const trs = rows.map((w) => {
     const ok = w.in_range && !w.jammed, on = D.sel.has(w.id);
     const modeBtn = w.charge || D.charge.has(w.name) ? "" : "";
-    return `<tr class="${w.jammed ? "jam" : ok ? (on ? "pick" : "") : "out"}" data-w="${w.id}"><td><input type="checkbox" data-act="fire" data-id="${w.id}" ${on ? "checked" : ""} ${ok ? "" : "disabled"} aria-label="fire ${esc(w.name)}"></td><td class="w" data-act="focus" data-id="${w.id}">${esc(w.name)}${w.loc ? ' <span class="msg">' + esc([].concat(w.loc).join("/")) + "</span>" : ""}${w.needs_twist ? ' <span class="msg">(torso twist)</span>' : ""}${w.jammed ? ' <span class="err">JAMMED</span>' : ""}</td><td title="${w.adj != null ? "range and weapon modifiers: " + (w.adj >= 0 ? "+" : "") + w.adj : ""}">${ok ? "TN " + w.tn : w.jammed ? "" : "out"}</td><td>${ok ? (+w.ev).toFixed(1) : ""}</td><td>${w.heat ?? ""}</td><td>${(w.modes || []).length > 1 ? `<button class="sm" data-act="mode-w" data-id="${w.id}" title="ammunition / firing mode">${esc(shortMode(w.mode))}</button>` : ""}${(w.rates || []).length > 1 ? `<button class="sm" data-act="rate-w" data-id="${w.id}" title="rate of fire">x${w.shots}</button>` : ""}${w.chargeable ? `<button class="sm ${D.charge.has(w.name) ? "on" : ""}" data-act="charge-w" data-id="${w.id}" title="charge the capacitor instead of firing">&#9889; Charge</button>` : ""}${(w.bins || []).length ? `<button class="sm" data-act="bins-w" data-id="${w.id}" title="ammunition bin: which bin this weapon draws from">Ammo ${(w.bins.find((b) => b.selected) || {}).shots ?? "?"}</button>` : ""}</td></tr>${D.bin === w.id ? binRows(w) : ""}`;
+    return `<tr class="${w.jammed ? "jam" : ok ? (on ? "pick" : "") : "out"}" data-w="${w.id}"><td><input type="checkbox" data-act="fire" data-id="${w.id}" ${on ? "checked" : ""} ${ok ? "" : "disabled"} aria-label="fire ${esc(w.name)}"></td><td class="w" data-act="focus" data-id="${w.id}">${esc(w.name)}${w.loc ? ' <span class="msg">' + esc([].concat(w.loc).join("/")) + "</span>" : ""}${w.rear ? ' <span class="msg">(rear)</span>' : ""}${w.needs_twist ? ' <span class="msg">(torso twist)</span>' : ""}${w.jammed ? ' <span class="err">JAMMED</span>' : ""}</td><td title="${w.adj != null ? "range and weapon modifiers: " + (w.adj >= 0 ? "+" : "") + w.adj : ""}">${ok ? "TN " + w.tn : w.jammed ? "" : "out"}</td><td>${ok ? (+w.ev).toFixed(1) : ""}</td><td>${w.heat ?? ""}</td><td>${(w.modes || []).length > 1 ? `<button class="sm" data-act="mode-w" data-id="${w.id}" title="ammunition / firing mode">${esc(shortMode(w.mode))}</button>` : ""}${(w.rates || []).length > 1 ? `<button class="sm" data-act="rate-w" data-id="${w.id}" title="rate of fire">x${w.shots}</button>` : ""}${w.chargeable ? `<button class="sm ${D.charge.has(w.name) ? "on" : ""}" data-act="charge-w" data-id="${w.id}" title="charge the capacitor instead of firing">&#9889; Charge</button>` : ""}${(w.bins || []).length ? `<button class="sm" data-act="bins-w" data-id="${w.id}" title="ammunition bin: which bin this weapon draws from">Ammo ${(w.bins.find((b) => b.selected) || {}).shots ?? "?"}</button>` : ""}</td></tr>${D.bin === w.id ? binRows(w) : ""}`;
   }).join("");
   const aimW = rows.find((w) => isDistant(w) && D.sel.has(w.id));
   sheet(`<h3>${esc(r.name)} fires on ${esc(r.target_name)} &middot; range ${r.distance}${r.indirect ? " &middot; indirect" : ""}</h3>${errLine(r)}
