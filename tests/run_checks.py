@@ -150,15 +150,18 @@ def main(argv):
         heavy.append(("rust       check_bridge_parity.py --quick",
                       run_test_file, (os.path.join(REPO_ROOT, "tests", "check_bridge_parity.py"), ["--quick"])))
         # CL1 settings, stage-6 attach, CL2 histories, BV skills, charge targets, walk-on zones
-        heavy.append(("rust       cargo test cl1_setup + stage6_attach + cl2_history + bv_skills + charge_targets + zone_entry + core unit tests",
+        heavy.append(("rust       cargo test cl1_setup + stage6_attach + cl2_history + bv_skills + charge_targets + zone_entry + human_bots + play_session + core unit tests",
                       run_command, (["cargo", "test", "--release", "-q", "-p", "btsim_core", "--lib", "--test", "cl1_setup", "--test", "stage6_attach", "--test", "cl2_history",
-                                     "--test", "bv_skills", "--test", "charge_targets", "--test", "zone_entry"], os.path.join(REPO_ROOT, "engine"))))
+                                     "--test", "bv_skills", "--test", "charge_targets", "--test", "zone_entry", "--test", "human_bots", "--test", "play_session"], os.path.join(REPO_ROOT, "engine"))))
     if want & {"engine", "pages"} and has_cargo:
         # Combat Lab CL3: the Lab server, driven by a script, gives btsim's battles for the same setup and seed
         heavy.append(("rust       check_bv_megamek.py",
                       run_test_file, (os.path.join(REPO_ROOT, "tests", "check_bv_megamek.py"), [])))
         heavy.append(("rust       check_lab_server.py --battles 4",
                       run_test_file, (os.path.join(REPO_ROOT, "tests", "check_lab_server.py"), ["--battles", "4"])))
+        # BattleROM play: the Lab's play calls, a script playing one team (INTEGRATION__PLAYER_DECISIONS.md Section 15)
+        heavy.append(("rust       check_play.py",
+                      run_test_file, (os.path.join(REPO_ROOT, "tests", "check_play.py"), [])))
         # Combat Lab in the browser: the website clicked through, and the browser v the desktop
         heavy.append(("web        check_web_ui.py + check_web_lab.py --battles 4", run_web_checks, ()))
     if not light and not heavy:

@@ -101,6 +101,12 @@ write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numb
   ideas-for-later list are in `INTEGRATION__BATTLEROM_UI.md` (read it before touching the Lab's play pages). Needs: the engine
   queries listed there (section 6), the setup list screens in the Win95 look, a decision on the BattleROM name and a new
   repo, and Daniel's answers to its section 8. All numbers in the mockup are samples.
+- O2. BATTLEROM FIRST PLAYABLE SLICE (2026-11-21, built; REVIEW PENDING): a person plays a team against bots in the desktop
+  Combat Lab (set a team's bot to Human, press Play; `engine/lab/web/play.html`). Engine: `core/src/human_bots.rs`,
+  `core/src/play_session.rs`; Lab calls `play_start` / `play_poll` / `play_answer`. Status table and the ordered list of what is
+  NOT built (waypoints, charge / DFA, stand-up button, weapon modes and ammo order, equipment switches, spot / TAG / artillery,
+  take-control in replay, declaration order, the mockup's look, the browser build, saving a game): `INTEGRATION__PLAYER_DECISIONS.md`
+  Section 16. The audit of every player decision and Daniel's answers: the same file, Sections 1-15.
 
 **N. Daniel's list of 2026-11-20 (in this order unless he says otherwise; decisions in Section 5, same date)**
 - N1. NARC HOMING AMMO RULE: BUILT 2026-11-20 (Change Record), setting `NARC_HOMING_FOR_FORCE` (on in the Lab / btsim). Per-bin
@@ -378,6 +384,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s33-play) BATTLEROM FIRST PLAYABLE SLICE** (2026-11-21): `engine/core/src/human_bots.rs`, `play_session.rs` (+ tests `human_bots`, `play_session`), Lab calls in `engine/lab/src/main.rs`, pages `engine/lab/web/play.html` / `play.js`, `tests/check_play.py`. Look at: that a Human unit's decisions never reach the normal bots' state (the pass-through test covers only a controller that forwards everything); the friend-occupied-hex filter in the movement query (a crash was found and fixed there); the automatic twist choice (first arc action that lets every picked weapon fire; assumes the engine lists "no change" first); the physical attack answer (current arc action, no twist choice).
 - **(s33-ui) BATTLEROM PLAY SCREEN MOCKUP AND DESIGN RECORD** (2026-11-21): `reference_art/battlerom_ui/battlerom_play_mockup.html`, `INTEGRATION__BATTLEROM_UI.md` (design only, no engine change). Look at: the MegaMek facts that are marked NOT VERIFIED (walk = `Color.CYAN`, which constant each movement mode uses, the Esc binding), the grouping rule for weapons (name, arc, ammo bin, mode, TN must all match), the stacking limits and hazard text (placeholders), the contrast figures, and that nothing in the mockup is taken as a rule.
 - **(s31-hydra2) HYDRA SECOND PASS + WEAPON RANGE FIX** (2026-11-21): `hydra::indirect_exchange`, `Entry.net` / `c3_gain` / `forecast_net` / `net_loss`, `c3::without` / `link`, `move_select::IndirectProfile` / `weapon_ranges` (usable weapons only, every bot) / `max_range_megamek`, `spotting::reaches_indirectly`. Look at: the indirect profile's movement modifiers (enemy at a walk when unmoved), the Slave-bonus expectation in `net_loss`, the spotter value counted only when no friend sees the enemy, Princess's range against MegaMek's `isReady`.
 - **(s31-hydra) HYDRA AND THE NEW RULES** (2026-11-21): `hydra::plan_spots` / `choose_spot` (team spotting plan), `MoveEvaluator::with_c3` + `c3::Partners` (C3 range in Hydra's movement estimates, per hex both ways), Hydra on `princess_artillery::distant_aim` (`fire_modes`). Look at: the greedy spot plan's value (friends' gain vs the spotter's own +1), the C3 partners taken where they stand (unmoved ones too), the memo keys that now carry the C3 figure.

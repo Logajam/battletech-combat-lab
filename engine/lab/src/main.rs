@@ -40,7 +40,9 @@ use serde_json::{json, Value};
 static ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 /// The pages, built into the program.
-const PAGES: [(&str, &str, &str); 5] = [
+const PAGES: [(&str, &str, &str); 7] = [
+    ("play.html", "text/html; charset=utf-8", include_str!("../web/play.html")),
+    ("play.js", "text/javascript; charset=utf-8", include_str!("../web/play.js")),
     ("index.html", "text/html; charset=utf-8", include_str!("../web/index.html")),
     ("lab.css", "text/css; charset=utf-8", include_str!("../web/lab.css")),
     ("lab.js", "text/javascript; charset=utf-8", include_str!("../web/lab.js")),
@@ -53,6 +55,8 @@ struct Lab {
     catalog: catalog::Catalog,
     runs: Mutex<HashMap<u64, Arc<runs::Run>>>,
     next_run: Mutex<u64>,
+    /// games with a person in them (BattleROM play), by number
+    games: Mutex<HashMap<u64, Arc<btsim_core::play_session::Game>>>,
     /// the last setup sent to `history` without a run: `GET /replay?seed=S` replays it
     last_setup: Mutex<Option<Value>>,
     /// units added from files this session (`add_unit`), after the catalog's
@@ -107,7 +111,7 @@ fn main() {
     if catalog.units.is_empty() || catalog.boards.is_empty() {
         println!("NO UNITS OR BOARDS FOUND in {}.\nThe download comes in two parts: unzip the data part into the same folder as this program (its data folder\nmust sit beside CombatLab.exe), then start CombatLab again.", data.display());
     }
-    let lab = Arc::new(Lab { paths, catalog, runs: Mutex::new(HashMap::new()), next_run: Mutex::new(1), last_setup: Mutex::new(None), added: Mutex::new(Vec::new()), defaults: defaults.clone(), web: arg(&args, "--web").map(PathBuf::from) });
+    let lab = Arc::new(Lab { paths, catalog, runs: Mutex::new(HashMap::new()), next_run: Mutex::new(1), games: Mutex::new(HashMap::new()), last_setup: Mutex::new(None), added: Mutex::new(Vec::new()), defaults: defaults.clone(), web: arg(&args, "--web").map(PathBuf::from) });
 
     // a free port: the one asked for, else the first free one from 8765
     let wanted: Option<u16> = arg(&args, "--port").map(|p| p.parse().expect("--port"));
@@ -217,7 +221,8 @@ fn run_of(lab: &Lab, req: &Value) -> Result<Arc<runs::Run>, String> {
 fn api(lab: &Lab, name: &str, req: &Value) -> Result<Value, String> {
     match name {
         "info" => Ok(json!({
-            "bots": runs::BOTS,
+            // "human" is a team the person plays (Play button); a batch of simulations cannot include one
+            "bots": runs::BOTS.iter().copied().chain(["human"]).collect::<Vec<_>>(),
             "cores": std::thread::available_parallelism().map_or(1, |n| n.get()),
             "default_board": "16x17_Grassland_1.board",
             "project": lab.paths.root.display().to_string(),
@@ -253,11 +258,22 @@ fn api(lab: &Lab, name: &str, req: &Value) -> Result<Value, String> {
             Ok(json!({"id": id, "text": text}))
         }
         "estimate" => {
+            no_human(&req["setup"])?;
             let plan = runs::scenario_of(&req["setup"], &lab.catalog, &lab.paths)?;
             let s = plan.scenario_for(1, 1).0;
             Ok(runs::estimate(&s, req["setup"]["battles"].as_u64().unwrap_or(20), req["setup"]["threads"].as_u64().unwrap_or(0) as usize, req["setup"]["full_power"].as_bool().unwrap_or(false)))
         }
+        "play_start" => play_start(lab, req),
+        "play_poll" => {
+            let g = game_of(lab, req)?;
+            Ok(g.poll(std::time::Duration::from_millis(req["wait_ms"].as_u64().unwrap_or(25000).min(60000))))
+        }
+        "play_answer" => {
+            game_of(lab, req)?.answer(req["seq"].as_u64().ok_or("which question?")?, req["answer"].clone())?;
+            Ok(json!({"ok": true}))
+        }
         "run" => {
+            no_human(&req["setup"])?;
             let s = runs::scenario_of(&req["setup"], &lab.catalog, &lab.paths)?;
             let id = {
                 let mut n = lab.next_run.lock().unwrap();
@@ -330,6 +346,48 @@ fn api(lab: &Lab, name: &str, req: &Value) -> Result<Value, String> {
 /// A unit file the user dropped on a team (Part B: "A dropped file is copied into the project's Mech folder if it is not
 /// already there"): {file, text} -> {unit, copied}. A file of that name already in the folder is used as it is; a
 /// file the engine cannot read is not kept.
+/// A team set to Human is played (Play), not simulated.
+fn no_human(setup: &Value) -> Result<(), String> {
+    match setup["teams"].as_array().and_then(|t| t.iter().find(|t| t["bot"].as_str() == Some("human"))) {
+        Some(t) => Err(format!("Team {} is set to Human: a person plays it, so it cannot be run as a simulation. Use Play, or set the team to a bot.", t["name"].as_str().unwrap_or("?"))),
+        None => Ok(()),
+    }
+}
+
+fn game_of(lab: &Lab, req: &Value) -> Result<Arc<btsim_core::play_session::Game>, String> {
+    let id = req["game"].as_u64().ok_or("which game?")?;
+    lab.games.lock().unwrap().get(&id).cloned().ok_or_else(|| "no such game (the Lab was restarted?)".to_string())
+}
+
+/// Start a battle with a person in it (BattleROM): the teams whose bot is "human" are played by the page; the rest by their bots.
+fn play_start(lab: &Lab, req: &Value) -> Result<Value, String> {
+    let mut setup = req["setup"].clone();
+    let mut human: Vec<String> = Vec::new();
+    if let Some(teams) = setup["teams"].as_array_mut() {
+        for t in teams {
+            if t["bot"].as_str() == Some("human") {
+                human.push(t["name"].as_str().unwrap_or("").to_string());
+                t["bot"] = json!("gladiator"); // the engine builds the team with a bot; the person answers in its place
+            }
+        }
+    }
+    if human.is_empty() {
+        return Err("No team is set to Human. Set one team's bot to Human, then press Play.".into());
+    }
+    let seed = req["seed"].as_u64().or_else(|| setup["seed"].as_u64()).filter(|s| *s != 0).unwrap_or_else(|| {
+        std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(1, |d| d.as_nanos() as u64 & 0xFFFF_FFFF)
+    });
+    let plan = runs::scenario_of(&setup, &lab.catalog, &lab.paths)?;
+    let scenario = plan.scenario_for(1, seed).0;
+    let id = {
+        let mut games = lab.games.lock().unwrap();
+        let id = games.len() as u64 + 1;
+        games.insert(id, btsim_core::play_session::Game::start(scenario, seed, human));
+        id
+    };
+    Ok(json!({"game": id, "seed": seed, "colours": colours(&setup)}))
+}
+
 fn add_unit(lab: &Lab, req: &Value) -> Result<Value, String> {
     let file = req["file"].as_str().ok_or("no file name")?;
     let name = std::path::Path::new(file).file_name().map(|n| n.to_string_lossy().to_string()).ok_or("no file name")?;

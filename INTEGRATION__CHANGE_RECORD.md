@@ -6,6 +6,19 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-21 (Claude), BATTLEROM FIRST PLAYABLE SLICE: A PERSON PLAYS A TEAM IN THE COMBAT LAB. REVIEW PENDING (higher-level
+  model).** Daniel: "Time to start making it real ... a working model even if it has issues." Step 1 was an audit of every
+  decision a player must make (`INTEGRATION__PLAYER_DECISIONS.md`, with Daniel's answers). Built: `human_bots.rs` (a `BotSet` that
+  hands a person's units' decisions to a controller, waits as long as needed, and keeps a decision list; the engine has no clock),
+  `play_session.rs` (a game on its own thread; JSON questions for move order, move, target, weapons, physical attacks; answers
+  checked and re-asked with an error when illegal; native only), `Scenario` unchanged except for the new `run_with` entry point,
+  `history::unit_state` / `board` made public, Lab calls `play_start` / `play_poll` / `play_answer` (a Human team is refused by
+  `run` and `estimate`), a Play button, and a new page `play.html` / `play.js` (SL-HIS Dark, phone first). The existing bots and
+  every reference battle are untouched: `check_rust_reference` passes (91 battles), so does everything else `run_checks.py`
+  picked (10 of 10, run before the play check was added; the website check skipped itself, no wasm32 target in this container).
+  New checks: `core/tests/human_bots.rs`, `core/tests/play_session.rs`, `tests/check_play.py` (registered in `run_checks.py`);
+  `tests/play_page_e2e.js` (a whole battle by tapping, not registered). Found and fixed on the way: the movement list offered a hex
+  a friend stands on (two units ended in one hex and the engine stopped). Known gaps, in order: Section 16 of the audit file.
 - **2026-11-21 (Claude), BATTLEROM PLAY SCREEN: DESIGN MOCKUP AND DESIGN RECORD (no engine or Lab change). REVIEW PENDING (higher-level
   model).** Daniel asked how the website's Combat Lab could improve; the talk grew into a phone-first play screen for
   player-controlled forces ("BattleROM: Record, Observe, Meddle"). Built as an interactive mockup (16 versions, each checked in

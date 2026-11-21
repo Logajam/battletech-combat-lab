@@ -260,3 +260,34 @@ order, no mid-game option changes, no take-control during replay, no spotting / 
 later: replay-from-the-decision-list (deterministic engine; re-run to the first unanswered decision, ask, repeat; costs
 replay time per decision), or a worker that blocks on the page (needs cross-origin isolation headers, which a static host may
 not give). The decision list from E1 is what both need, so the native slice does not block the browser.
+
+## 16. Status of the first playable slice (2026-11-21, end of the day)
+
+Built and tested: **one person plays one or more teams against bots in the desktop Combat Lab, through a phone-sized page.**
+Set a team's bot to Human on the Lab's team panel, press Play (next to Run Simulation); a new page (`play.html`) opens and the
+battle waits for each of the person's decisions. Tested by `core/tests/human_bots.rs` (pass-through = same log as a plain run),
+`core/tests/play_session.rs` (a scripted player plays a battle; an illegal answer is asked again), `tests/check_play.py` (the
+Lab's calls; same seed and same answers = same battle, which replay needs), and `tests/play_page_e2e.js` (a whole battle played by
+tapping the real controls at 390 x 780; not in `run_checks.py`).
+
+| Part | State |
+|---|---|
+| E1 `HumanBots` + decision list | Done (`core/src/human_bots.rs`) |
+| E2 movement query | Done: every end state (hex, facing, mode) with MP, hexes moved, TMM, heat, piloting rolls and hazard damage; hexes a friend occupies are not offered. The engine finds the path itself (a waypoint path is not sent) |
+| E3 fire query | Done: per weapon, TN, expected damage, heat, range band, in range or not, whether it needs a torso twist |
+| E4 declaration from the player's weapons | Done; torso twist / arm flip chosen automatically (first arc action that lets every picked weapon fire) |
+| E5 physical attack list | Done in a simple form: the attack kinds the engine offers now (no twist choice for physical attacks) |
+| E6 state for the screen | Done: units (hex, facing, damage by location, heat, prone, shut down), the board, new log lines with each question |
+| S1 Lab calls | Done: `play_start`, `play_poll` (waits), `play_answer`; a Human team cannot go into a batch run or estimate (refused in words) |
+| F1-F4 page | Done as a NEW lean page in the SL-HIS Dark look, not the mockup ported: pan / zoom, reach tint with only the outer border, facing arrows, weapon table with Alpha strike, heat projection, physical list, report, unit chips with damage and heat |
+
+**Not built yet (known gaps, in the order I would take them):**
+1. Waypoint building, the black path for a charge / DFA, the Charge / DFA button, a stand-up button; `Pick` has charge / DFA flags, nothing sets them.
+2. Weapon modes and ammo: the engine's own defaults decide (rate of fire, munition kind, bin order). The automatic bin order of Section 14 is not in.
+3. The equipment switches in the critical-hit tables, the End Phase heat button, auto eject (ejection itself is a known shortfall).
+4. Spot, TAG, artillery hexes (the engine's stubs stay in charge), the Charge mode on a PPC capacitor.
+5. Take-control checkbox during replay; declaration order and simultaneous / turn-taking options; recording option changes mid-game.
+6. The mockup's look and features (MegaMek sprites on hex bases, placards, long-press cards, detail sheet tabs, colour-blind mode, other looks).
+7. The browser (WASM) build: nothing of this is in it; a Human team there needs the replay-from-the-decision-list route (Section 1).
+8. A game is held in memory by the Lab: closing the Lab ends it. Saving and resuming a game is not built (the decision list exists in memory only).
+9. The to-hit shown is the weapon's TN from the engine's weapon picker; cover, secondary-target and similar modifiers are inside it, but the page does not itemise them.

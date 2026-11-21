@@ -122,6 +122,7 @@ fn units_json(b: &Battle) -> Value {
                 let mut s = crate::history::unit_state(b, u);
                 s["id"] = json!(u);
                 s["name"] = json!(m.side_name);
+                s["mech"] = json!(format!("{} {}", m.chassis, m.model).trim());
                 s["team"] = json!(m.team);
                 s["tons"] = json!(m.mass);
                 s["walk"] = json!(crate::mech_state::compute_walk_mp(m));
@@ -198,7 +199,10 @@ impl Controller for Screen {
 
     fn movement(&mut self, b: &mut Battle, mover: UnitId, other: UnitId, moves_first: bool, standup_mp: Option<i64>, entry_edge: Option<&[String]>, inner: &mut GladiatorBots) -> (Option<Pick>, String, PathGate) {
         let mut notes = PathNotes::default();
-        let states = move_options::movement_options(b, mover, standup_mp, entry_edge, true, &mut notes);
+        let mut states = move_options::movement_options(b, mover, standup_mp, entry_edge, true, &mut notes);
+        // a unit may pass through a friend's hex but not end there (the bots exclude these hexes the same way)
+        let occupied = move_options::occupied_hexes(b, mover, other);
+        states.retain(|st| !occupied.contains(&(st.0, st.1)));
         let opts = move_options::prepare_options(b, mover, &states);
         // the cheapest way to each (hex, facing, mode); the screen draws reach from these
         let mut best: std::collections::BTreeMap<(String, String, String), (usize, i64)> = Default::default();
@@ -226,6 +230,9 @@ impl Controller for Screen {
                          "jump": crate::mech_state::compute_jump_mp(m), "options": list});
         let chosen: Option<usize> = self.ask(b, req, |a| {
             if a["stay"].as_bool() == Some(true) {
+                if entry_edge.is_some() {
+                    return Err("the unit has not entered the map yet: choose a hex on its edge".to_string());
+                }
                 return Ok(None);
             }
             let k = (a["hex"].as_str().unwrap_or("").to_string(), a["facing"].as_str().unwrap_or("").to_string(), a["mode"].as_str().unwrap_or("").to_string());
