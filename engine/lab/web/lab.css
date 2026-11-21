@@ -98,6 +98,7 @@ h2 { font-size: 14px; margin: 0 0 8px; }
   .centre-col { order: -1; height: min(80vh, 640px); min-height: 420px; flex: none; }
   .win.browser { height: 100%; min-height: 0; }
   .ub-list { resize: none; }
+  .browser-grip { display: none; }
   .win.float { position: static !important; width: auto !important; height: auto !important; resize: none; }
 }
 
@@ -167,7 +168,16 @@ h2 { font-size: 14px; margin: 0 0 8px; }
 .dialog-body .filters { margin: 0; }
 .pair { display: flex; gap: 4px; }
 .pair input[type=number] { width: 64px; }
-.ub-list { flex: 1; min-height: 80px; max-height: none; resize: vertical; }
+.ub-list { flex: 1; min-height: 80px; max-height: none; }
+/* the docked Unit Browser's size grip (bottom-right) and draggable side edges: lab.js wireBrowserSize */
+.win.browser { position: relative; }
+.browser-grip { position: absolute; right: 0; bottom: 0; width: 16px; height: 16px; cursor: nwse-resize; touch-action: none; z-index: 2;
+  background: linear-gradient(135deg, transparent 0 40%, var(--dark) 40% 48%, transparent 48% 60%, var(--dark) 60% 68%, transparent 68% 80%, var(--dark) 80% 88%, transparent 88%); }
+.browser-grip:hover, .browser-grip.dragging { background-color: rgba(0,0,128,.15); }
+.win.browser.float .browser-grip { display: none; }
+.win.browser:not(.float) { border-left-width: 4px; border-right-width: 4px; }
+.win.browser.edge-hot, .win.browser.dragging { cursor: ew-resize; }
+.win.browser.dragging { user-select: none; }
 #ub-list tbody tr { cursor: grab; }
 #ub-list tbody tr.on { background: var(--select); color: var(--title-text); }
 #ub-list tbody tr.bad { color: var(--shadow); cursor: default; }

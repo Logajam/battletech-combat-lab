@@ -460,19 +460,60 @@ function lockBrowserList(h) {
   if (h && !narrow()) { l.style.flex = "none"; l.style.height = `${h}px`; } else { l.style.flex = ""; l.style.height = ""; }
 }
 function wireBrowserList() {
-  const l = document.querySelector(".ub-list");
   lockBrowserList(lab.layout.ubH);
-  l.addEventListener("pointerdown", (e) => {
-    if (narrow()) return;
-    const r = l.getBoundingClientRect();
-    if (e.clientX < r.right - 20 || e.clientY < r.bottom - 20) return;
-    const before = r.height;
-    l.style.flex = "none"; l.style.height = `${before}px`;
-    window.addEventListener("pointerup", () => {
-      const now = l.getBoundingClientRect().height;
-      if (Math.abs(now - before) < 2) { lockBrowserList(lab.layout.ubH); return; }
-      lab.layout.ubH = now; saveLayout();
-    }, { once: true });
+  wireBrowserSize();
+}
+
+// THE DOCKED UNIT BROWSER'S SIZE (Daniel, 2026-11-21: "Reset window sizes. The unit selection box doesn't even have a size
+// adjustment patch in the lower corner"; before, a docked browser could only be sized by the thin column grips, or after
+// dragging it out to float). Now, docked:
+//   * its bottom-right corner carries a visible grip: sideways it moves the browser's right side (the right team column
+//     gives or takes the width), down or up it sets the list's height;
+//   * its left and right edges drag sideways like the column grips (and the team windows' inner edges).
+// All kept in the layout (deskL / deskR / ubH); Reset layout clears them. A floating browser keeps its own corner.
+function onBrowserEdge(el, e) {
+  const r = el.getBoundingClientRect();
+  if (e.clientY > r.bottom - 20) return null;            // the corner is the grip's
+  if (e.clientX <= r.left + EDGE) return "deskL";
+  if (e.clientX >= r.right - EDGE) return "deskR";
+  return null;
+}
+function wireBrowserSize() {
+  const el = $("browser");
+  const grip = document.createElement("div");
+  grip.className = "browser-grip"; grip.title = "Drag to resize the Unit Browser; Reset layout puts it back";
+  el.appendChild(grip);
+  grip.addEventListener("pointerdown", (e) => {
+    if (e.button || el.classList.contains("float") || narrow()) return;
+    e.preventDefault(); e.stopPropagation(); grip.setPointerCapture(e.pointerId); grip.classList.add("dragging");
+    const desk = $("page-units").querySelector(".units-desk"), list = document.querySelector(".ub-list");
+    const move = (m) => {
+      const d = desk.getBoundingClientRect(), left = $("teams-left").getBoundingClientRect().width;
+      const max = d.width - left - 16 - 360;
+      lab.layout.deskR = Math.round(clampNum(d.right - m.clientX, 180, Math.max(180, max)));
+      deskColumns();
+      lab.layout.ubH = Math.round(Math.max(80, m.clientY - list.getBoundingClientRect().top - 40));
+      lockBrowserList(lab.layout.ubH);
+    };
+    const up = () => { grip.removeEventListener("pointermove", move); grip.classList.remove("dragging"); saveLayout(); fitZoneLines(); };
+    grip.addEventListener("pointermove", move);
+    grip.addEventListener("pointerup", up, { once: true });
+  });
+  el.addEventListener("pointermove", (e) => {
+    if (el.classList.contains("float") || narrow() || el.classList.contains("dragging")) return;
+    el.classList.toggle("edge-hot", !!onBrowserEdge(el, e) && !e.target.closest(".wtitle"));
+  });
+  el.addEventListener("pointerleave", () => el.classList.remove("edge-hot"));
+  el.addEventListener("pointerdown", (e) => {
+    if (e.button || el.classList.contains("float") || narrow() || e.target.closest(".wtitle,.browser-grip")) return;
+    const side = onBrowserEdge(el, e);
+    if (!side) return;
+    e.stopPropagation(); dragColumn(side, e, el);
+  });
+  el.addEventListener("dblclick", (e) => {
+    const side = el.classList.contains("float") ? null : onBrowserEdge(el, e);
+    if (!side) return;
+    delete lab.layout[side]; saveLayout(); deskColumns(); fitZoneLines();
   });
 }
 
