@@ -95,6 +95,13 @@ A 20-battle set swings several wins either way - compare against the 100-battle 
 In brackets: the item's old "Pick up here" label, under which `INTEGRATION__HISTORY.md` has the full text. Task
 write-ups a smaller model can act on are in `INTEGRATION__TASK_SPECS.md` (T numbers).
 
+**O. BattleROM play screen (Daniel's design, 2026-11-21; NOT scheduled: design stage)**
+- O1. THE FRONT END FOR PLAYER-CONTROLLED FORCES: designed as an interactive phone-first mockup, saved at
+  `reference_art/battlerom_ui/battlerom_play_mockup.html`; the words for each part of the screen, Daniel's decisions and the
+  ideas-for-later list are in `INTEGRATION__BATTLEROM_UI.md` (read it before touching the Lab's play pages). Needs: the engine
+  queries listed there (section 6), the setup list screens in the Win95 look, a decision on the BattleROM name and a new
+  repo, and Daniel's answers to its section 8. All numbers in the mockup are samples.
+
 **N. Daniel's list of 2026-11-20 (in this order unless he says otherwise; decisions in Section 5, same date)**
 - N1. NARC HOMING AMMO RULE: BUILT 2026-11-20 (Change Record), setting `NARC_HOMING_FOR_FORCE` (on in the Lab / btsim). Per-bin
   ammo choice comes later (N5's window).
@@ -365,6 +372,7 @@ Lab functionality; 3D art.
 
 Work waiting for a higher-level model's review. Items (a)-(l) were cleared 2026-11-06. When a review is done,
 remove the line and note it in the Change Record.
+- **(s33-ui) BATTLEROM PLAY SCREEN MOCKUP AND DESIGN RECORD** (2026-11-21): `reference_art/battlerom_ui/battlerom_play_mockup.html`, `INTEGRATION__BATTLEROM_UI.md` (design only, no engine change). Look at: the MegaMek facts that are marked NOT VERIFIED (walk = `Color.CYAN`, which constant each movement mode uses, the Esc binding), the grouping rule for weapons (name, arc, ammo bin, mode, TN must all match), the stacking limits and hazard text (placeholders), the contrast figures, and that nothing in the mockup is taken as a rule.
 - **(s31-hydra2) HYDRA SECOND PASS + WEAPON RANGE FIX** (2026-11-21): `hydra::indirect_exchange`, `Entry.net` / `c3_gain` / `forecast_net` / `net_loss`, `c3::without` / `link`, `move_select::IndirectProfile` / `weapon_ranges` (usable weapons only, every bot) / `max_range_megamek`, `spotting::reaches_indirectly`. Look at: the indirect profile's movement modifiers (enemy at a walk when unmoved), the Slave-bonus expectation in `net_loss`, the spotter value counted only when no friend sees the enemy, Princess's range against MegaMek's `isReady`.
 - **(s31-hydra) HYDRA AND THE NEW RULES** (2026-11-21): `hydra::plan_spots` / `choose_spot` (team spotting plan), `MoveEvaluator::with_c3` + `c3::Partners` (C3 range in Hydra's movement estimates, per hex both ways), Hydra on `princess_artillery::distant_aim` (`fire_modes`). Look at: the greedy spot plan's value (friends' gain vs the spotter's own +1), the C3 partners taken where they stand (unmoved ones too), the memo keys that now carry the C3 figure.
 - **(s31-n10) AUTOCANNON MUNITIONS** (2026-11-20): `ammo::bin_choices` / `munition_multiplier`, `electronics::control_for` (precision), `fire_modes::has_special_ac_round` / bin_kinds (caseless only), the caseless break and the AP check in attack_resolution (`armor_and_structure`). Look at: the caseless critical (here: a crit check of 8+ wrecks the whole gun, the book applies crits slot by slot), a RAC with a broken caseless feed could later be unjammed.

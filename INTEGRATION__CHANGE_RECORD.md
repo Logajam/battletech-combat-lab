@@ -6,6 +6,17 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-21 (Claude), BATTLEROM PLAY SCREEN: DESIGN MOCKUP AND DESIGN RECORD (no engine or Lab change). REVIEW PENDING (higher-level
+  model).** Daniel asked how the website's Combat Lab could improve; the talk grew into a phone-first play screen for
+  player-controlled forces ("BattleROM: Record, Observe, Meddle"). Built as an interactive mockup (16 versions, each checked in
+  headless Chromium at phone, wide and landscape sizes; not tried on a real phone) and published as a private claude.ai Artifact;
+  the source is now saved at `reference_art/battlerom_ui/battlerom_play_mockup.html` (private path) with a README, and the design
+  is written down in `INTEGRATION__BATTLEROM_UI.md` (vocabulary, decisions, MegaMek facts read from its source and which parts are
+  NOT verified, what the engine would have to supply, ideas for later, open questions). Looks: SL-HIS 7.2 Dark is the default
+  (Daniel), with Light, Win95, Modern, Terminal and Amber. Backlog item O1 in PROJECT_MAP Section 0. Daniel also asked to leave the
+  Gladiator walk-on deployment bug for later: it is in Section 4 (committed earlier today). Checks: art level only (files under
+  `reference_art/` and `.md`).
+
 - **2026-11-21 (Claude), PUBLISHED: THE UNIT BROWSER SIZE GRIP.** Public repo (`publish_public.py --push`), GitHub Pages
   (`publish_web_lab.py --push --skip-build`) and the Combat Lab artifact (version 11) now carry the docked Unit Browser's
   corner grip and draggable sides. Daniel asked whether a square grip would suit better, with phones in mind (a question,
