@@ -6,6 +6,12 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-21 (Claude), PUBLISHED: THE UNIT BROWSER SIZE GRIP.** Public repo (`publish_public.py --push`), GitHub Pages
+  (`publish_web_lab.py --push --skip-build`) and the Combat Lab artifact (version 11) now carry the docked Unit Browser's
+  corner grip and draggable sides. Daniel asked whether a square grip would suit better, with phones in mind (a question,
+  not a request): a trial square version (18 px, 32 px on touch screens) worked on the desktop, but on a phone the grip
+  did not change the list height, so phone sizing needs its own work before any switch. Not published; nothing changed.
+
 - **2026-11-21 (Claude), COMBAT LAB: THE DOCKED UNIT BROWSER GETS A SIZE GRIP AND DRAGGABLE SIDES. REVIEW PENDING (higher-level
   model).** Daniel: "The website seems to of lost its ability to adjust windows horizontally without moving them first ... My
   main example. Reset window sizes. The [Unit Browser] doesn't even have a size adjustment patch in the lower corner." Found:
