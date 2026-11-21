@@ -707,6 +707,14 @@ untranslated "until they're actually needed". What is left of the port is finish
   refusal (to 1207) not reproduced - the per-game bridge logs now keep MegaMek's reason if it recurs.
 - `caspar_red__hy_8v8_valley` reaches the 100-turn cap since the tie-break fix (a possible flaw, Daniel).
 
+**Known issues to fix later (Daniel, 2026-11-21):**
+- **Gladiator vs Gladiator ran a deployment step with the Core Rulebook's "walk on" setting active.**
+  Daniel saw a deployment step in a Gladiator-vs-Gladiator battle where the units should have walked
+  on from the map edge, so the decision loop may not honour the walk-on setting (or it calls the
+  deployment decision regardless). NOT yet traced; Daniel: "leave Gladiator as a bug to fix later".
+  When picked up: reproduce with `btsim` on the same seed, then read the deployment path in the
+  Gladiator decision loop before changing anything.
+
 **Known issues to fix later (found session 13, Claude):**
 - ~~FLAKY CHECK~~ FIXED 2026-10-29 (Claude): it was `test_superheavy.py`
   `superheavy_slots` - the ammo blast rolled its critical-hit checks with live
