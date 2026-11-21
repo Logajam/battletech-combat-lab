@@ -548,6 +548,10 @@ mid-phase? (Current build: no — both declare first, then both resolve.)
 
 ## 4. OPEN ITEMS
 
+**Combat Lab window sizing (Daniel, 2026-11-21):** the docked Unit Browser's new corner grip and draggable sides (PR 316)
+"behave oddly" for Daniel (Firefox), but he said they are not worth fixing on their own, since the layout is up for change
+anyway (a square resize handle and a phone-friendly layout are under discussion). Fold into that redesign; not yet decided.
+
 **Movement-selection follow-ups (Daniel, 2026-10-19):**
 - Terrain that forces a piloting roll on entry, and mine fields: add expected
   damage to the spot's cost (denominator), as the movement PSR already does.
