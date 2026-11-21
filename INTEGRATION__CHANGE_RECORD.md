@@ -6,6 +6,12 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-21 (Claude), PUBLIC COPY AND PUBLIC WEBSITE UPDATED AGAIN (Hydra and the new rules). No code changes.** Daniel:
+  "update the public website again." From main d0b851d (after pull request 312): `tools/publish_public.py --push` (public main
+  dc893a4..ee7004b) and `tools/publish_web_lab.py --push` (gh-pages, 14 files, 11.0 MB; the website checks had passed on this
+  code in `run_checks.py --full`). Checked live: the served combatlab.wasm matches the build byte for byte. The Combat Lab
+  website artifact (claude.ai/artifact/TxziRWUqF5gU96Bof16r3p) updated from the same build (version 9).
+
 - **2026-11-21 (Claude), HYDRA AND THE NEW RULES: C3 IN ITS MOVEMENT, ITS OWN SPOTTING, DISTANT ARTILLERY. REVIEW PENDING
   (higher-level model).** Daniel: "Update Hydra to incorporate the new rules." (1) C3: `c3::Partners` (a unit's network
   partners, where they stand) and `MoveEvaluator::with_c3`: per hex, the closest partner that would see the target gives the
