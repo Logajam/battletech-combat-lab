@@ -227,6 +227,16 @@ impl Scenario {
         (play.result, record)
     }
 
+    /// One battle on `seed` with the caller's bots (BattleROM: a `human_bots::HumanBots`). With `GladiatorBots` it is `run`.
+    pub fn run_with(&self, seed: u64, bots: &mut dyn crate::orchestrator::BotSet, want_log: bool) -> (BattleResult, Vec<String>) {
+        let mut b = self.battle(Box::new(PcgDice::new(seed)));
+        let mut marks = |_: &mut Battle, _: i64, _: &str| {};
+        let mut play = start_battle(&mut b, self.max_turns, &mut marks);
+        play_on(&mut b, bots, &mut play, &mut marks);
+        let log = if want_log { b.log.lines.clone() } else { vec![] };
+        (play.result, log)
+    }
+
     /// One battle on `seed`: the result and its log (when `want_log`).
     pub fn run(&self, seed: u64, want_log: bool) -> (BattleResult, Vec<String>) {
         let mut b = self.battle(Box::new(PcgDice::new(seed)));
