@@ -6,6 +6,18 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-21 (Claude), COMBAT LAB: THE DOCKED UNIT BROWSER GETS A SIZE GRIP AND DRAGGABLE SIDES. REVIEW PENDING (higher-level
+  model).** Daniel: "The website seems to of lost its ability to adjust windows horizontally without moving them first ... My
+  main example. Reset window sizes. The [Unit Browser] doesn't even have a size adjustment patch in the lower corner." Found:
+  a docked Unit Browser could be sized only by the thin column grips (or by dragging it out to float, which gives the normal
+  corner); its list carried the browser's own small resize handle inside the list. Now (`lab.js` `wireBrowserSize`,
+  `onBrowserEdge`; `lab.css` `.browser-grip`): a visible striped grip in its bottom-right corner (sideways: the right team
+  column gives or takes the width; down / up: the list's height), and its left and right edges drag sideways like the
+  team windows' inner edges (double-click one to clear it). Kept in the layout (deskL / deskR / ubH); Reset layout clears
+  them; hidden on narrow screens. The list's own resize handle is gone (the grip replaces it). Checked in Chromium (the
+  grip, both edges, kept after a reload, cleared by Reset layout); the team windows' inner edges were checked at 950-1920 px
+  and work. NOT CHECKED: Firefox (Daniel's browser; no Firefox here) - Daniel to try the team windows' inner edges there.
+
 - **2026-11-21 (Claude), PUBLIC COPY AND WEBSITE UPDATED (Hydra second pass, the range fix); HYDRA'S TO-DO LIST WRITTEN. No code
   changes.** Daniel: "update the public website, and make a note for yourself on the improvements hydra still needs." From
   main fc4a17d (after pull request 314; its code passed `run_checks.py --full`): `tools/publish_public.py --push` and
