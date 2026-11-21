@@ -6,6 +6,13 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
 
 *(Starts fresh 2026-08-28 — prior history archived/removed, not carried forward.)*
 
+- **2026-11-21 (Claude), PUBLIC COPY AND WEBSITE UPDATED (Hydra second pass, the range fix); HYDRA'S TO-DO LIST WRITTEN. No code
+  changes.** Daniel: "update the public website, and make a note for yourself on the improvements hydra still needs." From
+  main fc4a17d (after pull request 314; its code passed `run_checks.py --full`): `tools/publish_public.py --push` and
+  `tools/publish_web_lab.py --push`; the served combatlab.wasm matches the build. The Combat Lab artifact
+  (claude.ai/artifact/TxziRWUqF5gU96Bof16r3p) updated (version 10). The note: PROJECT_MAP Section 0 backlog "H. Hydra -
+  still to improve" (H1-H6; H1, a value for a round of ammunition, first), repeated in `INTEGRATION__HYDRA.md` Section 8.
+
 - **2026-11-21 (Claude), HYDRA AND THE NEW RULES, SECOND PASS: C3 IN THE LEDGER, INDIRECT FIRE IN THE MOVER; WEAPONS THAT
   CANNOT FIRE NO LONGER SET ANY BOT'S RANGE; ARROW IV CAN BE SPOTTED FOR. REVIEW PENDING (higher-level model).** Daniel: "you
   didn't really think about how you would solve the 'how would i program the desired outcome'... Hydra is yours", then
