@@ -22,6 +22,11 @@ An entry marked "REVIEW PENDING (higher-level model)" is waiting in PROJECT_MAP 
   range brackets, so before no unit ever spotted for an Arrow IV carrier - Hydra's plan, and the STUB_SPOT "when_useful"
   policy). TRIED AND NOT KEPT: a Hydra-priced distant artillery aim (did worse: no value for a round of ammunition; Hydra
   keeps MegaMek's aim, comment in `fire_modes`). NEXT (HYDRA.md): a value for a round of ammunition.
+  REFERENCE BATTLES: 26 of 91 re-recorded (`check_rust_reference.py --update`; every other check passed in `run_checks.py
+  --full`). Each non-Hydra one first differs mid-battle (turns 6-44) beside a spent or jammed weapon (SRMs on their last shot,
+  a Rotary AC unjamming, LRMs nearly empty, a destroyed arm): the range fix. caspar_blue heavy hills first differs at a
+  Gladiator unit after weapon crits. Turn caps: still 2, but team_3way_mixed now ends (Blue, turn 64) and
+  hydra_nowait_red 8v8 valley (Hydra's waiting switched off) now reaches the cap.
 
 - **2026-11-21 (Claude), PUBLIC COPY AND PUBLIC WEBSITE UPDATED AGAIN (Hydra and the new rules). No code changes.** Daniel:
   "update the public website again." From main d0b851d (after pull request 312): `tools/publish_public.py --push` (public main
