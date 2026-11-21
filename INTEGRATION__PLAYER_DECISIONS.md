@@ -221,3 +221,42 @@ Heat is mostly rolls. The real choices, from the code (`heat.rs`, `orchestrator.
 Everything else in those phases (shutdown and ammo-explosion avoid rolls, restart, life-support damage, wake-ups, crippled
 and destroyed checks) is a roll with a report, no choice. Radical heat sinks / MASC / supercharger are decided in
 Movement, not here.
+
+## 14. More decisions from Daniel, 2026-11-21 (later the same day)
+
+- **Equipment switches live in the critical hit tables**, as in MegaMek: coolant pods, AMS, Blue Shield, radical heat sinks,
+  heat sinks and the other after-physical-phase equipment. A switch set before the Heat or End Phase counts from next turn.
+  Radical heat sinks and coolant pods also get a **button that appears when the unit's expected end-of-turn heat is above 0**.
+- **Ammo and coolant pod use are automatic** unless the player picks bins by hand. Automatic order: Center Torso, side
+  torsos, arms, legs, head. (The engine today draws from the bin with the fewest shots left, `ammo.spend`; the human's
+  units need this order, a small engine change.)
+- **Auto eject** switches itself on when an ammo explosion could destroy the Center Torso, and is on when the only ammo is in
+  the head; a warning shows when there is head ammo and auto eject is off. Ejection is not built (Section 12), so only the
+  switch and the warning can exist until it is.
+- **Simultaneous / declaration-order options wait until one player works.** They matter in two-player games. When built:
+  an explicit declaration order, and the bots must react to it (a bot that knows a unit yet to fire is about to be
+  destroyed has no reason to hold back its own firepower for heat).
+- **Priority: a working model, issues and all, cleaned up later.** Use the engine's own choices (simultaneous declaration,
+  the stub defaults) to get running.
+
+## 15. First playable slice (proposed; "one player in the game")
+
+Scope: one human controls one or more units against bots, in the desktop Combat Lab (a native server can block a thread
+while it waits for the human; the browser build cannot, see below). Engine stubs for everything not listed. No declaration
+order, no mid-game option changes, no take-control during replay, no spotting / TAG / artillery yet.
+
+| Part | Work |
+|---|---|
+| E1 | `HumanBots`: a `BotSet` that hands a human unit's decisions to a controller (a channel) and waits; every other unit goes to its normal bot. Every human answer is written to a decision list (the basis for replay, branching, take-control). |
+| E2 | Movement queries: what a unit can reach per mode with turn MP, hazards and stacking along a waypoint path; build the `Pick` from a confirmed path. |
+| E3 | Fire queries: per target and weapon, the TN with its parts, legality (arc, range, ammo), ammo bins, modes. |
+| E4 | Build a `DeclChoice` from the player's assignments (the torso twist / arm flip chosen automatically, Section 12). |
+| E5 | The physical attack list (type, TN, damage) and `choose_physical` from the player's pick. |
+| E6 | A battle-state snapshot and event stream for the screen (reuse `history.rs`). |
+| S1 | Lab server endpoints: start a game, get the state, wait for / submit a decision. |
+| F1-F4 | Wire the mockup to real data: map and placards, move, fire, physical; the End Phase switches page. |
+
+**Browser build.** `wasm/src/lib.rs` is one request, one answer, and a WASM call cannot wait. Two ways to get a human into it
+later: replay-from-the-decision-list (deterministic engine; re-run to the first unanswered decision, ask, repeat; costs
+replay time per decision), or a worker that blocks on the page (needs cross-origin isolation headers, which a static host may
+not give). The decision list from E1 is what both need, so the native slice does not block the browser.
